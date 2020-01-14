@@ -222,11 +222,17 @@ bank_upload_transaction_insert: bank_upload_transaction_insert.c	\
 		-o bank_upload_transaction_insert
 
 ledger_propagate: ledger_propagate.c					\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		bank_upload.o						\
+		feeder_upload.o						\
+		reoccurring.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		ledger_propagate.c					\
+		bank_upload.o						\
+		feeder_upload.o						\
+		reoccurring.o						\
 		-o ledger_propagate
 
 load_receipt_scan: load_receipt_scan.c					\

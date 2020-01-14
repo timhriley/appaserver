@@ -34,6 +34,8 @@ else
 	cd $(mysqldump_extract.sh	$database		\
 					$mysqldump_config	\
 					`now.sh ymd $days_ago`)
+
+	export DATABASE=$db
 fi
 
 # -----------------

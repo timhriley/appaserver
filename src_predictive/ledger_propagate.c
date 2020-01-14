@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "piece.h"
+#include "column.h"
+#include "bank_upload.h"
 #include "list.h"
 #include "environ.h"
 #include "appaserver_library.h"
@@ -25,12 +27,17 @@
 void ledger_propagate_each_account(	char *application_name,
 					char *propagate_transaction_date_time );
 
+/* Global variables */
+/* ---------------- */
+enum bank_upload_exception bank_upload_exception = {0};
+
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *transaction_date_time;
 	char *preupdate_transaction_date_time;
 	char *propagate_transaction_date_time;
+	char propagate_transaction_date[ 16 ];
 	char *account_name = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
@@ -74,6 +81,14 @@ int main( int argc, char **argv )
 		propagate_transaction_date_time =
 			transaction_date_time;
 	}
+
+	column(	propagate_transaction_date,
+		0,
+		propagate_transaction_date_time );
+
+	bank_upload_transaction_balance_propagate(
+		propagate_transaction_date
+			/* bank_date */ );
 
 	/* ---------------------------------------------------- */
 	/* If TRANSACTION.transaction_date_time was changed.	*/
