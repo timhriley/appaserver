@@ -25,10 +25,6 @@ enum bank_upload_exception {	bank_upload_exception_none,
 #define BANK_UPLOAD_FILENAME_SIZE	80
 #define BANK_UPLOAD_TABLE_NAME		"bank_upload"
 
-/* Need to run bank_upload_transaction_insert within a month. */
-/* ---------------------------------------------------------- */
-#define CASH_LEDGER_DAYS_AGO		-28.0
-
 /* Look ahead count for keys_match_sum.e */
 /* ------------------------------------- */
 #define TRANSACTIONS_CHECK_COUNT	20
@@ -305,7 +301,6 @@ double bank_upload_archive_fetch_latest_running_balance(
 LIST *bank_upload_get_reconciled_transaction_list(
 				char *application_name,
 				char *fund_name,
-				char *bank_date,
 				char *bank_description,
 				double bank_amount );
 
@@ -319,7 +314,6 @@ void bank_upload_reconciliation_transaction_insert(
 LIST *bank_upload_get_feeder_transaction_list(
 					char *application_name,
 					char *fund_name,
-					char *bank_date,
 					char *bank_description,
 					double abs_bank_amount,
 					double exact_value,
@@ -328,7 +322,6 @@ LIST *bank_upload_get_feeder_transaction_list(
 LIST *bank_upload_get_general_transaction_list(
 					char *application_name,
 					char *fund_name,
-					char *bank_date,
 					double abs_bank_amount,
 					double exact_value,
 					boolean select_debit );
@@ -427,6 +420,18 @@ void bank_upload_check_number_existing_journal_ledger(
 LIST *bank_upload_fetch_key_list(
 				char *application_name,
 				char *minimum_bank_date );
+
+/* Returns static memory */
+/* --------------------- */
+char *bank_upload_minimum_bank_date(
+				char *minimum_bank_date,
+				LIST *bank_upload_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *bank_upload_minimum_transaction_date(
+		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger,
+		LIST *feeder_match_sum_existing_journal_ledger_list );
 
 #endif
 

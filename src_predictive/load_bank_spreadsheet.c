@@ -299,10 +299,12 @@ int load_bank_spreadsheet(
 
 	if ( !bank_upload_structure ) return 0;
 
+/*
 	*minimum_bank_date =
 		bank_upload_structure->
 			file.
 			minimum_bank_date;
+*/
 
 	/* ------------------------------------------------------------ */
 	/* Sets bank_upload->feeder_check_number_existing_journal_ledger*/
@@ -447,6 +449,18 @@ int load_bank_spreadsheet(
 
 		printf( "\n" );
 	}
+
+	*minimum_bank_date =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		bank_upload_minimum_bank_date(
+			bank_upload_structure->
+				file.
+				minimum_bank_date,
+			bank_upload_structure->
+				file.
+				bank_upload_list );
 
 	if ( bank_upload_exception == duplicated_spreadsheet_file )
 		return 0;

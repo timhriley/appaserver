@@ -11,6 +11,7 @@
 #include "date.h"
 #include "date_convert.h"
 #include "piece.h"
+#include "column.h"
 #include "session.h"
 #include "appaserver_library.h"
 #include "html_table.h"
@@ -1191,13 +1192,13 @@ LIST *bank_upload_existing_cash_journal_ledger_list(
 
 } /* bank_upload_existing_cash_journal_ledger_list() */
 
-/* ------------------------------------------------------------ */
-/* Sets bank_upload->feeder_check_number_existing_journal_ledger*/
-/* or								*/
-/* Sets bank_upload->feeder_match_existing_journal_ledger_list	*/
-/* or								*/
-/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
-/* ------------------------------------------------------------ */
+/* ---------------------------------------------------------------------*/
+/* Sets bank_upload->feeder_check_number_existing_journal_ledger	*/
+/* or									*/
+/* Sets bank_upload->feeder_match_sum_xisting_journal_ledger_list	*/
+/* or									*/
+/* Sets bank_upload->feeder_phrase_match_build_transaction		*/
+/* --------------------------------------------------------------------	*/
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
 				LIST *reoccurring_transaction_list,
@@ -1976,7 +1977,6 @@ void bank_upload_reconciliation_transaction_insert(
 LIST *bank_upload_get_general_transaction_list(
 				char *application_name,
 				char *fund_name,
-				char *bank_date,
 				double abs_bank_amount,
 				double exact_value,
 				boolean select_debit )
@@ -1989,7 +1989,6 @@ LIST *bank_upload_get_general_transaction_list(
 	FILE *input_pipe;
 	FILE *output_pipe;
 	char input_buffer[ 1024 ];
-	DATE *d;
 	char *cash_account;
 	char exact_where[ 128 ];
 	char full_name[ 128 ];
@@ -2026,9 +2025,6 @@ LIST *bank_upload_get_general_transaction_list(
 		strcpy( exact_where, "1 = 1" );
 	}
 
-	d = date_yyyy_mm_dd_new( bank_date );
-	date_increment_days( d, CASH_LEDGER_DAYS_AGO );
-
 	sprintf( select,
 "journal_ledger.full_name, journal_ledger.street_address, transaction_date_time, %s",
 		 amount_column );
@@ -2036,10 +2032,9 @@ LIST *bank_upload_get_general_transaction_list(
 	folder = "journal_ledger";
 
 	sprintf( where,
-"account = '%s' and ifnull( %s, 0 ) <> 0 and transaction_date_time >= '%s' and %s and %s",
+"account = '%s' and ifnull( %s, 0 ) <> 0 and %s and %s",
 		 cash_account,
 		 amount_column,
-		 date_display( d ),
 		 bank_upload_transaction_journal_ledger_subquery(),
 		 exact_where );
 
@@ -2148,7 +2143,6 @@ LIST *bank_upload_get_general_transaction_list(
 LIST *bank_upload_get_feeder_transaction_list(
 				char *application_name,
 				char *fund_name,
-				char *bank_date,
 				char *bank_description,
 				double abs_bank_amount,
 				double exact_value,
@@ -2163,7 +2157,6 @@ LIST *bank_upload_get_feeder_transaction_list(
 	FILE *input_pipe;
 	FILE *output_pipe;
 	char input_buffer[ 1024 ];
-	DATE *d;
 	char *cash_account;
 	char exact_where[ 128 ];
 	char full_name[ 128 ];
@@ -2201,9 +2194,6 @@ LIST *bank_upload_get_feeder_transaction_list(
 		strcpy( exact_where, "1 = 1" );
 	}
 
-	d = date_yyyy_mm_dd_new( bank_date );
-	date_increment_days( d, CASH_LEDGER_DAYS_AGO );
-
 	sprintf( select,
 "journal_ledger.full_name, journal_ledger.street_address, transaction_date_time, %s, bank_upload_feeder_phrase",
 		 amount_column );
@@ -2216,10 +2206,9 @@ join_where,
 "reoccurring_transaction.street_address = journal_ledger.street_address	" );
 
 	sprintf( where,
-"account = '%s' and ifnull( %s, 0 ) <> 0 and transaction_date_time >= '%s' and %s and %s and %s",
+"account = '%s' and ifnull( %s, 0 ) <> 0 and %s and %s and %s",
 		 cash_account,
 		 amount_column,
-		 date_display( d ),
 		 bank_upload_transaction_journal_ledger_subquery(),
 		 exact_where,
 		 join_where );
@@ -2384,7 +2373,6 @@ LIST *bank_upload_transaction_list_string_parse(
 LIST *bank_upload_get_reconciled_transaction_list(
 					char *application_name,
 					char *fund_name,
-					char *bank_date,
 					char *bank_description,
 					double bank_amount )
 {
@@ -2399,7 +2387,6 @@ LIST *bank_upload_get_reconciled_transaction_list(
 		bank_upload_get_feeder_transaction_list(
 				application_name,
 				fund_name,
-				bank_date,
 				bank_description,
 				abs_bank_amount,
 				abs_bank_amount
@@ -2415,7 +2402,6 @@ LIST *bank_upload_get_reconciled_transaction_list(
 		bank_upload_get_general_transaction_list(
 				application_name,
 				fund_name,
-				bank_date,
 				abs_bank_amount,
 				abs_bank_amount
 					/* exact_value */,
@@ -2430,7 +2416,6 @@ LIST *bank_upload_get_reconciled_transaction_list(
 		bank_upload_get_general_transaction_list(
 				application_name,
 				fund_name,
-				bank_date,
 				abs_bank_amount,
 				0.0 /* exact_value */,
 				select_debit );
@@ -3029,4 +3014,94 @@ void bank_upload_direct_bank_upload_transaction_insert(
 	pclose( output_pipe );
 
 } /* bank_upload_direct_bank_upload_transaction_insert() */
+
+/* Returns static memory */
+/* --------------------- */
+char *bank_upload_minimum_bank_date(
+				char *minimum_bank_date,
+				LIST *bank_upload_list )
+{
+	static char return_date[ 16 ];
+	BANK_UPLOAD *bank_upload;
+	char *transaction_date;
+
+	if ( !minimum_bank_date || !*minimum_bank_date )
+		return (char *)0;
+
+	timlib_strcpy( return_date, minimum_bank_date, 16 );
+
+	if ( !list_rewind( bank_upload_list ) )
+		return return_date;
+
+	strcpy( return_date, minimum_bank_date );
+
+	do {
+		bank_upload = list_get( bank_upload_list );
+
+		transaction_date =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			bank_upload_minimum_transaction_date(
+			   bank_upload->
+			      feeder_check_number_existing_journal_ledger,
+			   bank_upload->
+			      feeder_match_sum_existing_journal_ledger_list );
+
+		if ( timlib_strcmp( transaction_date, return_date ) < 0 )
+		{
+			strcpy( return_date, transaction_date );
+		}
+
+	} while ( list_next( bank_upload_list ) );
+
+	return return_date;
+
+} /* bank_upload_minimum_bank_date() */
+
+/* Returns static memory */
+/* --------------------- */
+char *bank_upload_minimum_transaction_date(
+		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger,
+		LIST *feeder_match_sum_existing_journal_ledger_list )
+{
+	static char return_date[ 16 ];
+	char transaction_date[ 16 ];
+	JOURNAL_LEDGER *j;
+	LIST *l;
+
+	j = feeder_check_number_existing_journal_ledger;
+	l = feeder_match_sum_existing_journal_ledger_list;
+
+	if ( j )
+	{
+		strcpy(	return_date,
+			column( transaction_date,
+				0,
+				j->transaction_date_time ) );
+	}
+	else
+	{
+		*return_date = '\0';
+	}
+
+	if ( !list_rewind( l ) ) return return_date;
+
+	do {
+		j = list_get( l );
+
+		column( transaction_date,
+			0,
+			j->transaction_date_time );
+
+		if ( timlib_strcmp( transaction_date, return_date ) < 0 )
+		{
+			strcpy( return_date, transaction_date );
+		}
+
+	} while ( list_next( l ) );
+
+	return return_date;
+
+} /* bank_upload_minimum_transaction_date() */
 
