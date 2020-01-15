@@ -93,7 +93,7 @@ void close_pipes(
 				FILE *water_project_station_insert_pipe,
 				FILE *collection_insert_pipe,
 				FILE *table_output_pipe,
-				int really_yn );
+				int execute_yn );
 
 void delete_waterquality(
 				char *application_name,
@@ -102,7 +102,8 @@ void delete_waterquality(
 int load_sfwmd_file(
 				char *application_name,
 				char *input_filename,
-				char really_yn );
+				boolean withhtml,
+				char execute_yn );
 
 char *get_flow_no_flow(		char *application_name,
 				char *code );

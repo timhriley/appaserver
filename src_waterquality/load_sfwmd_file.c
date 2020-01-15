@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "boolean.h"
 #include "appaserver_parameter_file.h"
 #include "document.h"
 #include "timlib.h"
@@ -35,74 +36,56 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	char really_yn;
+	char execute_yn;
 	char delete_yn;
+	boolean withhtml;
 	char *input_filename;
-	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	int load_count;
 	char buffer[ 128 ];
 
-	if ( argc != 6 )
-	{
-		fprintf( stderr, 
-"Usage: %s application process_name filename delete_yn really_yn\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-	process_name = argv[ 2 ];
-	input_filename = argv[ 3 ];
-	delete_yn = *argv[ 4 ];
-	really_yn = *argv[ 5 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
+	if ( argc != 6 )
+	{
+		fprintf( stderr, 
+"Usage: %s html|nohtml process_name filename delete_yn execute_yn\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
+
+	withhtml = ( strcmp( argv[ 1 ], "nohtml" ) != 0 );
+	process_name = argv[ 2 ];
+	input_filename = argv[ 3 ];
+	delete_yn = *argv[ 4 ];
+	execute_yn = *argv[ 5 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
+	if ( withhtml )
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
 
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		printf( "<h1>%s</h1>\n",
+			format_initial_capital( buffer, process_name ) );
+		printf( "<h2>" );
+		fflush( stdout );
+		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
+		printf( "</h2>\n" );
+		fflush( stdout );
+	}
 
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
-	printf( "<h2>%s\n", format_initial_capital( buffer, process_name ) );
-	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
-	printf( "</h2>\n" );
-	fflush( stdout );
-
-	if ( really_yn == 'y' && delete_yn == 'y' )
+	if ( execute_yn == 'y' && delete_yn == 'y' )
 	{
 		delete_waterquality(	application_name,
 					input_filename );
@@ -111,22 +94,31 @@ int main( int argc, char **argv )
 	load_count = load_sfwmd_file(
 			application_name,
 			input_filename,
-			really_yn );
+			withhtml,
+			execute_yn );
 
-	if ( really_yn == 'y' )
-		printf( "<p>Process complete with %d concentrations.\n",
-			load_count );
-	else
-		printf( "<p>Process did not load %d concentrations.\n",
-			load_count );
+	if ( withhtml )
+	{
+		if ( execute_yn == 'y' )
+			printf( "<p>Process complete with %d concentrations.\n",
+				load_count );
+		else
+			printf( "<p>Process did not load %d concentrations.\n",
+				load_count );
 
-	document_close();
+		document_close();
+	}
 
-	process_increment_execution_count(
+	if ( execute_yn == 'y' )
+	{
+		process_increment_execution_count(
 				application_name,
 				process_name,
 				appaserver_parameter_file_get_dbms() );
-	exit( 0 );
+	}
+
+	return 0;
+
 } /* main() */
 
 char *subtract_colon_from_hrmi( char *hrmi )
@@ -163,7 +155,8 @@ char *subtract_colon_from_hrmi( char *hrmi )
 int load_sfwmd_file(
 			char *application_name,
 			char *input_filename,
-			char really_yn )
+			boolean withhtml,
+			char execute_yn )
 {
 	char sys_string[ 1024 ];
 	FILE *input_file;
@@ -218,14 +211,39 @@ int load_sfwmd_file(
 	char exception_code_multiple[ 128 ];
 	int line_number = 1;
 	DICTIONARY *heading_piece_dictionary = {0};
+	char *html_output_process;
+	char count_process[ 128 ];
 #ifdef BLD_HALF_MDL
 	double concentration_double;
 #endif
 
+	if ( withhtml )
+	{
+		html_output_process = "html_paragraph_wrapper.e";
+
+		sprintf( count_process,
+			 "count.e %d 'WQ Load count'",
+			 STDERR_COUNT );
+	}
+	else
+	{
+		html_output_process = "cat";
+
+		strcpy( count_process, "cat" );
+	}
+
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
 	{
-		printf( "<h2>ERROR: cannot open %s for read</h2>\n",
-			input_filename );
+		if ( withhtml )
+		{
+			printf( "<h2>ERROR: cannot open %s for read</h2>\n",
+				input_filename );
+		}
+		else
+		{
+			printf( "ERROR: cannot open %s for read\n",
+				input_filename );
+		}
 		return 0;
 	}
 
@@ -236,17 +254,27 @@ int load_sfwmd_file(
 						&missing_heading,
 						input_string ) ) )
 		{
-			printf(
-		"<h3>ERROR: cannot get the heading of %s.</h3>\n",
-				missing_heading );
-			document_close();
+			if ( withhtml )
+			{
+				printf(
+			"<h3>ERROR: cannot get the heading of: %s\n",
+					missing_heading );
+				document_close();
+			}
+			else
+			{
+				printf(
+			"ERROR: cannot get the heading of: %s\n",
+					missing_heading );
+			}
 
-			exit( 0 );
+			return 0;
 		}
 	}
 
 	sprintf(error_filename,
 		"/tmp/load_sfwmd_file_error_%d.txt", getpid() );
+
 	if ( ! ( error_file = fopen( error_filename, "w" ) ) )
 	{
 		fprintf( stderr, "File open error: %s\n", error_filename );
@@ -282,17 +310,18 @@ int load_sfwmd_file(
 		get_table_name(	application_name,
 				"water_project_station" );
 
-	if ( really_yn == 'y' )
+	if ( execute_yn == 'y' )
 	{
 		sprintf( sys_string,
 			 "insert_statement.e %s %s '|'			|"
-			 "count.e %d 'WQ Load count'			|"
+			 "%s						|"
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
+			 "%s						 ",
 		 	results_table_name,
 		 	INSERT_RESULTS,
-			STDERR_COUNT );
+			count_process,
+			html_output_process );
 
 		results_insert_pipe = popen( sys_string, "w" );
 
@@ -300,9 +329,10 @@ int load_sfwmd_file(
 			 "insert_statement.e %s %s '|'			|"
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
+			 "%s						 ",
 		 	results_exception_table_name,
-		 	INSERT_RESULTS_EXCEPTION );
+		 	INSERT_RESULTS_EXCEPTION,
+			html_output_process );
 
 		results_exception_insert_pipe = popen( sys_string, "w" );
 
@@ -311,9 +341,10 @@ int load_sfwmd_file(
 			 "insert_statement.e %s %s '|'			|"
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
+			 "%s						 ",
 		 	station_parameter_table_name,
-		 	INSERT_STATION_PARAMETER );
+		 	INSERT_STATION_PARAMETER,
+			html_output_process );
 
 		station_parameter_insert_pipe = popen( sys_string, "w" );
 
@@ -322,9 +353,10 @@ int load_sfwmd_file(
 			 "insert_statement.e %s %s '|'			|"
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
+			 "%s						 ",
 		 	parameter_unit_table_name,
-		 	INSERT_PARAMETER_UNIT );
+		 	INSERT_PARAMETER_UNIT,
+			html_output_process );
 
 		parameter_unit_insert_pipe = popen( sys_string, "w" );
 
@@ -333,9 +365,10 @@ int load_sfwmd_file(
 			 "insert_statement.e %s %s '|'			|"
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
+			 "%s						 ",
 		 	station_table_name,
-		 	INSERT_STATION );
+		 	INSERT_STATION,
+			html_output_process );
 
 		station_insert_pipe = popen( sys_string, "w" );
 
@@ -344,9 +377,10 @@ int load_sfwmd_file(
 			 "insert_statement.e %s %s '|'			|"
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
+			 "%s						 ",
 		 	water_project_station_table_name,
-		 	INSERT_WATER_PROJECT_STATION );
+		 	INSERT_WATER_PROJECT_STATION,
+			html_output_process );
 
 		water_project_station_insert_pipe = popen( sys_string, "w" );
 
@@ -355,18 +389,26 @@ int load_sfwmd_file(
 			 "insert_statement.e %s %s '|'			|"
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
+			 "%s						 ",
 		 	collection_table_name,
-		 	INSERT_COLLECTION );
+		 	INSERT_COLLECTION,
+			html_output_process );
 
 		collection_insert_pipe = popen( sys_string, "w" );
 	}
 	else
 	{
-		sprintf( sys_string,
+		if ( withhtml )
+		{
+			sprintf( sys_string,
 		"queue_top_bottom_lines.e 50				|"
 		 "html_table.e 'Insert into Water Quality Results' %s '|'",
-			 INSERT_RESULTS );
+			 	INSERT_RESULTS );
+		}
+		else
+		{
+			strcpy( sys_string, "cat" );
+		}
 
 		table_output_pipe = popen( sys_string, "w" );
 	}
@@ -714,9 +756,10 @@ int load_sfwmd_file(
 				line_number,
 				units,
 				input_string );
+			continue;
 		}
 
-		if ( really_yn == 'y' )
+		if ( execute_yn == 'y' )
 		{
 			fprintf( results_insert_pipe,
 				 "%s|%s|%s|%s|%s|%s|%s|%s\n",
@@ -825,18 +868,28 @@ int load_sfwmd_file(
 		water_project_station_insert_pipe,
 		collection_insert_pipe,
 		table_output_pipe,
-		really_yn );
+		execute_yn );
 
 	if ( timlib_file_populated( error_filename ) )
 	{
-		sprintf( sys_string,
+		if ( withhtml )
+		{
+			sprintf( sys_string,
 "cat %s | queue_top_bottom_lines.e 300 | html_table.e 'Water Quality Errors' '' '|'",
-			 error_filename );
-		system( sys_string );
+			 	error_filename );
+		}
+		else
+		{
+			sprintf( sys_string,
+"cat %s",
+			 	error_filename );
+		}
+
+		if ( system( sys_string ) ){};
 	}
 
 	sprintf( sys_string, "rm %s", error_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	return load_count;
 
@@ -1199,9 +1252,9 @@ void close_pipes(
 		FILE *water_project_station_insert_pipe,
 		FILE *collection_insert_pipe,
 		FILE *table_output_pipe,
-		int really_yn )
+		int execute_yn )
 {
-	if ( really_yn == 'y' )
+	if ( execute_yn == 'y' )
 	{
 		pclose( results_insert_pipe );
 		pclose( results_exception_insert_pipe );
