@@ -30,7 +30,7 @@
 /* Constants */
 /* --------- */
 
-/* Sample
+/* SL2 Sample
 --------------------------------------------------------------------------------
 STG,2000/08/05,09:00/24.74
  ^   ^           ^    ^
@@ -41,6 +41,25 @@ STG,2000/08/05,09:00/24.74
  |   |         HH:MM
  |  Y/M/D
 shef
+--------------------------------------------------------------------------------
+*/
+
+/* SL3 Sample
+--------------------------------------------------------------------------------
+12/12/2016,14:00:00,BV,13.65,ignore,G=good
+^          ^        ^    ^      ^   ^
+|          |        |    |      |   |
+MM/DD/YYYY |        |    |      |   |
+           |        |    |      |   |
+           HH:MM:SS |    |      |   |
+                    |    |      |   |
+                    Shef |      |   |
+                         |      |   |
+			 Value  |   |
+                                |   |
+			      Units |
+                                    |
+                                    Status
 --------------------------------------------------------------------------------
 */
 
@@ -186,13 +205,31 @@ void satlink_upload(	char *filename,
 	char sys_string[ 1024 ];
 	char *begin_measurement_date = {0};
 	char *end_measurement_date = {0};
+	int date_piece;
+
+	if ( strcmp( argv_0, "sl2_upload" ) == 0 )
+	{
+		sprintf( shef_process,
+			 "sl2_shef_to_comma_delimited %s",
+			 station_name );
+
+		date_piece = 1;
+	}
+	else
+	{
+		sprintf( shef_process,
+			 "sl3_shef_to_comma_delimited %s",
+			 station_name );
+
+		date_piece = 0;
+	}
 
 	hydrology_parse_begin_end_dates(
 		&begin_measurement_date,
 		&end_measurement_date,
 		filename,
 		(char *)0 /* date_heading_label */,
-		1 /* date_piece */ );
+		date_piece );
 
 	if ( !begin_measurement_date || !*begin_measurement_date )
 	{
@@ -213,19 +250,6 @@ void satlink_upload(	char *filename,
 			end_measurement_date,
 		 	(change_existing_data) ? 'y' : 'n',
 		 	(execute) ? 'y' : 'n' );
-	}
-
-	if ( strcmp( argv_0, "sl2_upload" ) == 0 )
-	{
-		sprintf( shef_process,
-			 "sl2_shef_to_comma_delimited %s",
-			 station_name );
-	}
-	else
-	{
-		sprintf( shef_process,
-			 "sl3_shef_to_comma_delimited %s",
-			 station_name );
 	}
 
 	sprintf( sys_string,
