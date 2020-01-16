@@ -68,7 +68,6 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *as_of_date;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DOCUMENT *document;
 	char title[ 128 ];
 	boolean execute;
 
@@ -79,37 +78,26 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 5 )
+	if ( argc != 4 )
 	{
 		fprintf( stderr,
-		"Usage: %s ignored process as_of_date execute_yn\n",
+		"Usage: %s process as_of_date execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	process_name = argv[ 2 ];
-	as_of_date = argv[ 3 ];
-	execute = ( *argv[ 4 ] == 'y' );
+	process_name = argv[ 1 ];
+	as_of_date = argv[ 2 ];
+	execute = ( *argv[ 3 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
+
 	format_initial_capital( title, process_name ),
-
-	document = document_new( title, application_name );
-	document->output_content_type = 1;
-
-	document_output_head_stream(
-			stdout,
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */,
-			1 /* with close_head */ );
 
 	printf( "<h1>%s</h1>\n", title );
 	fflush( stdout );

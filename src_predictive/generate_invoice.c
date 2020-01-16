@@ -149,27 +149,6 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-#ifdef NOT_DEFINED
-	document = document_new( process_name /* title */, application_name );
-	document->output_content_type = 1;
-
-	document_output_head_stream(
-			stdout,
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */,
-			1 /* with close_head */ );
-
-	document_output_body(	document->application_name,
-				document->onload_control_string );
-#endif
-
 	document_quick_output_body(
 		application_name,
 		appaserver_parameter_file->

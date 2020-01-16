@@ -243,7 +243,6 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 	char *process_name;
-	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char title[ 256 ];
 	char sub_title[ 256 ];
@@ -262,23 +261,27 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 11 )
+	if ( argc != 10 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored session login_name role process fund as_of_date aggregation output_medium subclassification_option\n",
+"Usage: %s session login_name role process fund as_of_date aggregation output_medium subclassification_option\n",
 			 argv[ 0 ] );
+
+		fprintf( stderr,
+"Note: subclassification_option={omit}\n" );
+
 		exit ( 1 );
 	}
 
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
-	process_name = argv[ 5 ];
-	fund_name = argv[ 6 ];
-	as_of_date = argv[ 7 ];
-	aggregation = argv[ 8 ];
-	output_medium = argv[ 9 ];
-	subclassification_option = argv[ 10 ];
+	session = argv[ 1 ];
+	login_name = argv[ 2 ];
+	role_name = argv[ 3 ];
+	process_name = argv[ 4 ];
+	fund_name = argv[ 5 ];
+	as_of_date = argv[ 6 ];
+	aggregation = argv[ 7 ];
+	output_medium = argv[ 8 ];
+	subclassification_option = argv[ 9 ];
 
 	omit_subclassification =
 		( strcmp( subclassification_option, "omit" ) == 0 );
@@ -297,26 +300,10 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
-		document = document_new(
-				(char *)0 /* title */,
-				application_name );
-
-		document->output_content_type = 1;
-
-		document_output_heading(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-				document->application_name,
-				document->onload_control_string );
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
 	}
 
 	logo_filename =

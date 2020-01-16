@@ -132,7 +132,6 @@ int main( int argc, char **argv )
 	char *as_of_date;
 	char *subclassification_option;
 	boolean net_income_only = 0;
-	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *output_medium;
 	char title[ 256 ];
@@ -150,21 +149,25 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc < 7 )
+	if ( argc < 6 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored process fund as_of_date subclassification_option output_medium [net_income_only_yn]\n",
+"Usage: %s process fund as_of_date subclassification_option output_medium [net_income_only_yn]\n",
 			 argv[ 0 ] );
+
+		fprintf( stderr,
+"Note: subclassification_option={omit,aggregate,display}\n" );
+
 		exit ( 1 );
 	}
 
 	is_statement_of_activities =
 		( strcmp( argv[ 0 ], "statement_of_activities" ) == 0 );
 
-	process_name = argv[ 2 ];
-	fund_name = argv[ 3 ];
-	as_of_date = argv[ 4 ];
-	subclassification_option = argv[ 5 ];
+	process_name = argv[ 1 ];
+	fund_name = argv[ 2 ];
+	as_of_date = argv[ 3 ];
+	subclassification_option = argv[ 4 ];
 
 	if ( strcmp( subclassification_option, "aggregate" ) != 0
 	&&   strcmp( subclassification_option, "display" ) != 0
@@ -178,9 +181,9 @@ int main( int argc, char **argv )
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
 
-	if ( argc == 8 )
+	if ( argc == 7 )
 	{
-		net_income_only = (*argv[ 7 ] == 'y');
+		net_income_only = (*argv[ 6 ] == 'y');
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
@@ -202,30 +205,17 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	document = document_new( (char *)0 /* title */, application_name );
-	document->output_content_type = 1;
-	
-	document_output_heading(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-	
-	document_output_body(	document->application_name,
-				document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	logo_filename =
 		application_constants_quick_fetch(
 			application_name,
 			"logo_filename" /* key */ );
 
-	if ( !(boolean)ledger_get_report_title_sub_title(
+	if ( !ledger_get_report_title_sub_title(
 		title,
 		sub_title,
 		process_name,
