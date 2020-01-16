@@ -176,7 +176,7 @@ int main( int argc, char **argv )
 		subclassification_option = "display";
 	}
 
-	output_medium = argv[ 6 ];
+	output_medium = argv[ 5 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
