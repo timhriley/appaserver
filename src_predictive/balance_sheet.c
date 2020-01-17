@@ -34,21 +34,18 @@
 /* ---------- */
 LIST *build_subclassification_aggregate_PDF_row_list(
 					LIST *element_list,
-					char *application_name,
 					char *fund_name,
 					char *as_of_date,
 					boolean is_financial_position );
 
 LIST *build_subclassification_omit_PDF_row_list(
 					LIST *element_list,
-					char *application_name,
 					char *fund_name,
 					char *as_of_date,
 					boolean is_financial_position );
 
 LIST *build_subclassification_display_PDF_row_list(
 					LIST *element_list,
-					char *application_name,
 					char *fund_name,
 					char *as_of_date,
 					boolean is_financial_position );
@@ -119,8 +116,7 @@ void balance_sheet_subclassification_omit_html_table(
 					char *as_of_date,
 					boolean is_financial_position );
 
-double get_net_income(			char *application_name,
-					char *fund_name,
+double get_net_income(			char *fund_name,
 					char *as_of_date );
 
 void output_liabilities_plus_equity(
@@ -183,7 +179,7 @@ int main( int argc, char **argv )
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( !*as_of_date
 	||   strcmp(	as_of_date,
@@ -414,7 +410,6 @@ void balance_sheet_subclassification_aggregate_PDF(
 	latex_table->row_list =
 		build_subclassification_aggregate_PDF_row_list(
 			element_list,
-			application_name,
 			fund_name,
 			as_of_date,
 			is_financial_position );
@@ -573,7 +568,6 @@ void balance_sheet_subclassification_display_PDF(
 	latex_table->row_list =
 		build_subclassification_display_PDF_row_list(
 			element_list,
-			application_name,
 			fund_name,
 			as_of_date,
 			is_financial_position );
@@ -748,8 +742,7 @@ void balance_sheet_subclassification_aggregate_html_table(
 
 	/* Add net income to equity */
 	/* ------------------------- */
-	net_income = get_net_income(	application_name,
-					fund_name,
+	net_income = get_net_income(	fund_name,
 					as_of_date );
 
 	if ( is_financial_position )
@@ -921,8 +914,7 @@ void balance_sheet_subclassification_display_html_table(
 
 	/* Add net income to equity */
 	/* ------------------------- */
-	net_income = get_net_income(	application_name,
-					fund_name,
+	net_income = get_net_income(	fund_name,
 					as_of_date );
 
 	if ( is_financial_position )
@@ -1012,19 +1004,16 @@ void output_liabilities_plus_equity(
 
 } /* output_liabilities_plus_equity() */
 
-double get_net_income(	char *application_name,
-			char *fund_name,
+double get_net_income(	char *fund_name,
 			char *as_of_date )
 {
 	char sys_string[ 1024 ];
 	char *results_string;
 
 	sprintf(sys_string,
-"income_statement \"%s\" process \"%s\" \"%s\" %s output_medium y",
-		application_name,
+"income_statement process \"%s\" \"%s\" omit output_medium y",
 		(fund_name) ? fund_name : "",
-		as_of_date,
-		"ignored" );
+		as_of_date );
 
 	results_string = pipe2string( sys_string );
 
@@ -1130,7 +1119,6 @@ LIST *build_subclassification_display_PDF_heading_list( void )
 
 LIST *build_subclassification_aggregate_PDF_row_list(
 					LIST *element_list,
-					char *application_name,
 					char *fund_name,
 					char *as_of_date,
 					boolean is_financial_position )
@@ -1213,8 +1201,7 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 
 	/* Build net income subclassification. */
 	/* ----------------------------------- */
-	net_income = get_net_income(	application_name,
-					fund_name,
+	net_income = get_net_income(	fund_name,
 					as_of_date );
 
 	if ( is_financial_position )
@@ -1275,7 +1262,6 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 
 LIST *build_subclassification_display_PDF_row_list(
 				LIST *element_list,
-				char *application_name,
 				char *fund_name,
 				char *as_of_date,
 				boolean is_financial_position )
@@ -1356,8 +1342,7 @@ LIST *build_subclassification_display_PDF_row_list(
 
 	/* Build net income subclassification. */
 	/* ----------------------------------- */
-	net_income = get_net_income(	application_name,
-					fund_name,
+	net_income = get_net_income(	fund_name,
 					as_of_date );
 
 	if ( is_financial_position )
@@ -1532,8 +1517,7 @@ void balance_sheet_subclassification_omit_html_table(
 
 	/* Add net income to equity */
 	/* ------------------------- */
-	net_income = get_net_income(	application_name,
-					fund_name,
+	net_income = get_net_income(	fund_name,
 					as_of_date );
 
 	if ( is_financial_position )
@@ -1685,7 +1669,6 @@ void balance_sheet_subclassification_omit_PDF(
 	latex_table->row_list =
 		build_subclassification_omit_PDF_row_list(
 			element_list,
-			application_name,
 			fund_name,
 			as_of_date,
 			is_financial_position );
@@ -1746,7 +1729,6 @@ void balance_sheet_subclassification_omit_PDF(
 
 LIST *build_subclassification_omit_PDF_row_list(
 				LIST *element_list,
-				char *application_name,
 				char *fund_name,
 				char *as_of_date,
 				boolean is_financial_position )
@@ -1826,8 +1808,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 
 	/* Build net income account. */
 	/* ------------------------- */
-	net_income = get_net_income(	application_name,
-					fund_name,
+	net_income = get_net_income(	fund_name,
 					as_of_date );
 
 	if ( is_financial_position )
