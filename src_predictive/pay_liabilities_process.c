@@ -434,7 +434,7 @@ char *print_checks_create(
 			pdf_filename,
 			document_root_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	ftp_filename =
 		appaserver_link_get_link_prompt(

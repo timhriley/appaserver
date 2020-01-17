@@ -425,7 +425,8 @@ boolean close_nominal_accounts_fund_execute(
 			transaction->full_name,
 			transaction->street_address,
 			transaction_date_time_string,
-			retained_earnings /* transaction_amount */,
+			timlib_abs_double( retained_earnings )
+				/* transaction_amount */,
 			transaction->memo,
 			0 /* check_number */,
 			0 /* not lock_transaction */ );
