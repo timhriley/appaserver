@@ -489,7 +489,8 @@ void print_checks_post(
 				pay_liabilities_transaction_memo(
 					application_name,
 					fund_name,
-					memo ) ) ) )
+					memo,
+					starting_check_number ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot load pay liabilities.\n",
@@ -675,7 +676,8 @@ void print_checks_transaction_display(
 				pay_liabilities_transaction_memo(
 					application_name,
 					fund_name,
-					memo ) ) ) )
+					memo,
+					starting_check_number ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot load pay liabilities.\n",

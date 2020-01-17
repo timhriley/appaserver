@@ -152,6 +152,7 @@ LIST *pay_liabilities_fetch_liability_account_list(
 char *pay_liabilities_transaction_memo(
 				char *application_name,
 				char *fund_name,
-				char *memo );
+				char *memo,
+				int check_number );
 
 #endif

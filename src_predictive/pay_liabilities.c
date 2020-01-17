@@ -1236,7 +1236,8 @@ LIST *pay_liabilities_fetch_liability_account_list(
 /* -------------------------------- */
 char *pay_liabilities_transaction_memo(	char *application_name,
 					char *fund_name,
-					char *memo )
+					char *memo,
+					int check_number )
 {
 	static char *uncleared_checks_account = {0};
 
@@ -1256,7 +1257,10 @@ char *pay_liabilities_transaction_memo(	char *application_name,
 				__FUNCTION__ );
 	}
 
-	return uncleared_checks_account;
+	if ( check_number )
+		return uncleared_checks_account;
+	else
+		return memo;
 
 } /* pay_liabilities_transaction_memo() */
 
