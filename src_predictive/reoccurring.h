@@ -93,5 +93,12 @@ REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_feeder_phrase(
 char *reoccurring_transaction_get_select(
 					void );
 
+/* -------------------------- */
+/* Returns 256K static memory */
+/* -------------------------- */
+char *reoccurring_memo(
+					char *transaction_description,
+					char *credit_account );
+
 #endif
 

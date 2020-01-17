@@ -377,3 +377,21 @@ REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_feeder_phrase(
 
 } /* reoccurring_seek_bank_upload_feeder_phrase() */
 
+/* -------------------------- */
+/* Returns 256K static memory */
+/* -------------------------- */
+char *reoccurring_memo(
+				char *transaction_description,
+				char *credit_account )
+{
+	static char memo[ 256 ];
+
+	sprintf( memo,
+		 "%s/%s",
+		 transaction_description,
+		 credit_account );
+
+	return memo;
+
+} /* reoccurring_memo() */
+

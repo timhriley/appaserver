@@ -600,6 +600,7 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 	JOURNAL_LEDGER *journal_ledger;
 	int days_between;
 	double accrued_amount;
+	char *memo;
 
 	if ( ! ( days_between =
 			get_days_between_last_transaction(
@@ -621,15 +622,20 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 		return (TRANSACTION *)0;
 	}
 
+	memo =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		reoccurring_memo(
+			transaction_description,
+			credit_account );
+
 	transaction =
 		ledger_transaction_new(
 			full_name,
 			street_address,
 			transaction_date_time,
-			/* ------------------------------ */
-			/* Don't update TRANSACTION.memo! */
-			/* ------------------------------ */
-			transaction_description /* memo */ );
+			strdup( memo ) );
 
 	transaction->transaction_amount = accrued_amount;
 
@@ -757,6 +763,7 @@ TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 	double accrued_amount;
 	char *begin_date_string;
 	char end_date_string[ 16 ];
+	char *memo;
 
 	begin_date_string =
 			get_last_transaction_date(
@@ -780,15 +787,20 @@ TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 		return (TRANSACTION *)0;
 	}
 
+	memo =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		reoccurring_memo(
+			transaction_description,
+			credit_account );
+
 	transaction =
 		ledger_transaction_new(
 			full_name,
 			street_address,
 			transaction_date_time,
-			/* ------------------------------ */
-			/* Don't update TRANSACTION.memo! */
-			/* ------------------------------ */
-			transaction_description /* memo */ );
+			strdup( memo ) );
 
 	transaction->transaction_amount = accrued_amount;
 
