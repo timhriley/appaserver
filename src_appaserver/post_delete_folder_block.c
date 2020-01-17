@@ -348,7 +348,7 @@ void delete_folder_block_state_one(
 		return;
 	}
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	query_attribute_statistics_list_populate_list(
 					query_attribute_statistics_list->list );
@@ -450,17 +450,17 @@ void delete_folder_block_state_two(
 	sprintf( sys_string,
 		 "echo \"select %s from %s %s;\"			|"
 		 "sql.e '^'						|"
-		 "delete_folder_row %s %s %s %s %s stdin sql.e n 2>>%s	 ",
+		 "delete_folder_row %s %s %s %s stdin sql.e n 2>>%s	 ",
 		 list_display_delimited( primary_attribute_name_list, ',' ),
 		 table_name,
 		 where_clause_construct,
-		 application_name,
 		 session,
 		 login_name,
 		 folder->folder_name,
 		 role_name,
 		 appaserver_error_get_filename( application_name ) );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
+
 } /* delete_folder_block_state_two() */
 
