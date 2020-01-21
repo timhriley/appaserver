@@ -27,6 +27,7 @@
 #include "appaserver_parameter_file.h"
 #include "operation.h"
 #include "date.h"
+#include "column.h"
 #include "environ.h"
 #include "date_convert.h"
 #include "appaserver_error.h"
@@ -2356,27 +2357,11 @@ boolean appaserver_library_application_exists(
 		 appaserver_error_directory,
 		 application );
 
-	results = pipe2string( sys_string );
+	if ( ( results = pipe2string( sys_string ) ) )
+		return 1;
+	else
+		return 0;
 
-	return (boolean)results;
-/*
-	sprintf( sys_string,
-	 	"stat.e %s/%s 2>&1 | grep '^\\.filename'",
-	 	document_root_directory,
-	 	application );
-
-	results = pipe2string( sys_string );
-
-	return (boolean)results;
-	if ( (boolean)results ) return 1;
-
-	sprintf( sys_string,
-		 "cat /etc/passwd | grep '^%s:'",
-		 application );
-
-	results = pipe2string( sys_string );
-	return (boolean)results;
-*/
 } /* appaserver_library_application_exists() */
 
 char *appaserver_library_get_default_role_name(
@@ -2521,7 +2506,7 @@ void appaserver_library_purge_temporary_files( char *application_name )
 		 "appaserver_purge_temporary_files.sh %s &",
 		 application_name );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 }
 
 void appaserver_library_automatically_set_login_name(
