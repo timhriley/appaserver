@@ -306,13 +306,13 @@ int load_bank_spreadsheet(
 			minimum_bank_date;
 */
 
-	/* ------------------------------------------------------------ */
-	/* Sets bank_upload->feeder_check_number_existing_journal_ledger*/
-	/* or								*/
-	/* Sets bank_upload->feeder_phrase_match_build_transaction	*/
-	/* or								*/
-	/* Sets bank_upload->feeder_match_existing_journal_ledger_list	*/
-	/* ------------------------------------------------------------ */
+/* -------------------------------------------------------------------- */
+/* Sets bank_upload->feeder_check_number_existing_journal_ledger	*/
+/* or									*/
+/* Sets bank_upload->feeder_phrase_match_build_transaction		*/
+/* or									*/
+/* Sets bank_upload->feeder_match_sum_existing_journal_ledger_list	*/
+/* -------------------------------------------------------------------- */
 	bank_upload_set_transaction(
 		bank_upload_structure->file.bank_upload_list,
 		bank_upload_structure->

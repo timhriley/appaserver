@@ -418,13 +418,6 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 		if ( journal_ledger->match_sum_taken )
 			continue;
 
-		if ( timlib_strncmp( 
-			journal_ledger->transaction_date_time,
-			bank_date ) > 0 )
-		{
-			continue;
-		}
-
 		if ( journal_ledger->check_number )
 			continue;
 
