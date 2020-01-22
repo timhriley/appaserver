@@ -1,8 +1,8 @@
-/* ---------------------------------------------------------	*/
-/* src_hydrology/measurement_adjust_time_to_sequence.c		*/
-/* ---------------------------------------------------------	*/
-/* Freely available software: see Appaserver.org		*/
-/* ---------------------------------------------------------	*/
+/* ------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/measurement_adjust_time_to_sequence.c	*/
+/* --------------------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org			*/
+/* --------------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -84,10 +84,8 @@ void execute( char *delimiter )
 						*delimiter ) ) )
 		{
 			fprintf( stderr,
-				 "Warning in %s/%s()/%d: cannot parse [%s].\n",
+				 "Warning in %s: cannot parse [%s].\n",
 				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
 				 input_buffer );
 			continue;
 		}
@@ -96,6 +94,10 @@ void execute( char *delimiter )
 				measurement_date_time,
 				measurement->measurement_date ) )
 		{
+			fprintf( stderr,
+				 "Warning in %s: bad date in [%s].\n",
+				 __FILE__,
+				 input_buffer );
 			continue;
 		}
 
@@ -103,6 +105,10 @@ void execute( char *delimiter )
 				measurement_date_time,
 				measurement->measurement_time ) )
 		{
+			fprintf( stderr,
+				 "Warning in %s: bad time in [%s].\n",
+				 __FILE__,
+				 input_buffer );
 			continue;
 		}
 

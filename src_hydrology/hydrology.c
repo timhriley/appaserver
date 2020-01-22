@@ -584,16 +584,6 @@ boolean first_time = 1;
 				date_piece,
 				'"' );
 
-if ( first_time )
-{
-fprintf( stderr, "%s/%s()/%d: got first measurement_date_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-measurement_date_string );
-fflush( stderr );
-first_time = 0;
-}
 		if ( date_heading_label && !got_heading )
 		{
 			if ( hydrology_got_heading_label(

@@ -143,6 +143,7 @@ void load_cr10_single(	char *appaserver_data_directory,
 			boolean execute )
 {
 	char sys_string[ 2048 ];
+	char measurement_insert[ 1024 ];
 	char bad_parse[ 128 ];
 	char bad_insert[ 128 ];
 	pid_t pid;
@@ -172,17 +173,29 @@ void load_cr10_single(	char *appaserver_data_directory,
 	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
 	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
 
-	sprintf( sys_string,
-"cr10_parse \"%s\" \"%s\" n 2>%s					|"
-"measurement_insert begin=%s end=%s replace=%c execute=%c del=',' 2>%s	|"
-"cat									 ",
-		 filename,
-		 station,
-		 bad_parse,
+	sprintf( measurement_insert,
+		 "measurement_insert			"
+		 "	begin=%s			"
+		 "	end=%s				"
+		 "	replace=%c			"
+		 "bypass_reject=%c			"
+		 "execute=%c				"
+		 "delimiter=','				",
 		 begin_date_string,
 		 end_date_string,
 		 (change_existing_data) ? 'y' : 'n',
-		 (execute) ? 'y' : 'n',
+		 'y' /* Until Gordon's file can load. */,
+		 (execute) ? 'y' : 'n' );
+
+
+	sprintf( sys_string,
+"cr10_parse \"%s\" \"%s\" n 2>%s	|"
+"%s 2>%s				|"
+"cat					 ",
+		 filename,
+		 station,
+		 bad_parse,
+		 measurement_insert,
 		 bad_insert );
 
 	if ( system( sys_string ) ) {};

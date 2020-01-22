@@ -25,6 +25,7 @@ void setup_arg(		NAME_ARG *arg, int argc, char **argv );
 void fetch_parameters(	char **begin_date,
 			char **end_date,
 			char **bypass_reject_yn,
+			char **bypass_adjust_time_yn,
 			char **delimiter,
 			char **replace_yn,
 			char **execute_yn,
@@ -38,9 +39,11 @@ int main( int argc, char **argv )
 	char delimited_record[ 1024 ];
 	char *delimiter;
 	char *bypass_reject_yn;
+	char *bypass_adjust_time_yn;
 	char *replace_yn;
 	char *execute_yn;
 	boolean bypass_reject;
+	boolean bypass_adjust_time;
 	boolean replace;
 	boolean execute;
 	MEASUREMENT_STRUCTURE *m;
@@ -71,12 +74,14 @@ int main( int argc, char **argv )
 		&begin_measurement_date,
 		&end_measurement_date,
 		&bypass_reject_yn,
+		&bypass_adjust_time_yn,
 		&delimiter,
 		&replace_yn,
 		&execute_yn,
 		arg );
 
 	bypass_reject = ( *bypass_reject_yn == 'y' );
+	bypass_adjust_time = ( *bypass_adjust_time_yn == 'y' );
 	replace = ( *replace_yn == 'y' );
 	execute = ( *execute_yn == 'y' );
 
@@ -100,9 +105,16 @@ int main( int argc, char **argv )
 			replace );
 	}
 
-	sprintf( sys_string,
-		 "measurement_adjust_time_to_sequence delimiter='%c'",
-		 *delimiter );
+	if ( bypass_adjust_time )
+	{
+		strcpy( sys_string, "cat" );
+	}
+	else
+	{
+		sprintf(sys_string,
+		 	"measurement_adjust_time_to_sequence delimiter='%c'",
+		 	*delimiter );
+	}
 
 	input_pipe = popen( sys_string, "r" );
 	station_datatype_list = list_new();
@@ -194,6 +206,7 @@ int main( int argc, char **argv )
 void fetch_parameters(	char **begin_date,
 			char **end_date,
 			char **bypass_reject_yn,
+			char **bypass_adjust_time_yn,
 			char **delimiter,
 			char **replace_yn,
 			char **execute_yn,
@@ -202,6 +215,7 @@ void fetch_parameters(	char **begin_date,
 	*begin_date = fetch_arg( arg, "begin_date" );
 	*end_date = fetch_arg( arg, "end_date" );
 	*bypass_reject_yn = fetch_arg( arg, "bypass_reject" );
+	*bypass_adjust_time_yn = fetch_arg( arg, "bypass_adjust_time" );
 	*replace_yn = fetch_arg( arg, "replace" );
 	*delimiter = fetch_arg( arg, "delimiter" );
 	*execute_yn = fetch_arg( arg, "execute" );
@@ -221,6 +235,11 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         set_default_value( arg, ticket, "n" );
 
         ticket = add_valid_option( arg, "bypass_reject" );
+        add_valid_value( arg, ticket, "y" );
+        add_valid_value( arg, ticket, "n" );
+        set_default_value( arg, ticket, "n" );
+
+        ticket = add_valid_option( arg, "bypass_adjust_time" );
         add_valid_value( arg, ticket, "y" );
         add_valid_value( arg, ticket, "n" );
         set_default_value( arg, ticket, "n" );

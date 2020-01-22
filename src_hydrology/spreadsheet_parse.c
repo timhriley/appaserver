@@ -136,7 +136,7 @@ void spreadsheet_parse_display(
 			int date_piece )
 {
 	FILE *input_file;
-	char input_buffer[ 2048 ];
+	char input_buffer[ 65536 ];
 	int line_number = 0;
 	double measurement_value;
 	DATATYPE *datatype;
@@ -166,7 +166,7 @@ void spreadsheet_parse_display(
 	*measurement_time_string = '\0';
 	timlib_reset_get_line_check_utf_16();
 
-	while( timlib_get_line( input_buffer, input_file, 1024 ) )
+	while( timlib_get_line( input_buffer, input_file, 65536 ) )
 	{
 		line_number++;
 
@@ -253,10 +253,12 @@ void spreadsheet_parse_display(
 			date_display_yyyy_mm_dd( measurement_date_time ),
 			date_display_hhmm( measurement_date_time ) );
 
+/*
 		measurement_date_time_julian =
 			measurement_adjust_time_to_sequence(
 				measurement_date_time_julian,
 				VALID_FREQUENCY_TIME_SEQUENCE );
+*/
 
 		list_rewind( datatype_list );
 
@@ -306,7 +308,7 @@ void spreadsheet_parse_display(
 					julian_display_yyyy_mm_dd(
 						measurement_date_time_julian->
 							current ),
-					julian_display_hhmm(
+					 julian_display_hhmm(
 						measurement_date_time_julian->
 							current ),
 					measurement_value );

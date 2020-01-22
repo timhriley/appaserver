@@ -33,8 +33,11 @@
 
 /* Prototypes */
 /* ---------- */
+boolean reject_non_zero_seconds(char *input_buffer );
+
 void output_bad_records(
 			 	char *bad_parse_file,
+				char *bad_time_file,
 			 	char *bad_insert_file );
 
 void LT_upload(		
@@ -133,13 +136,19 @@ void LT_upload(		char *filename,
 			char *appaserver_data_directory )
 {
 	char sys_string[ 1024 ];
+	char input_buffer[ 65536 ];
+	char measurement_insert[ 512 ];
 	char *begin_measurement_date = {0};
 	char *end_measurement_date = {0};
 	char bad_parse[ 128 ];
+	char bad_time[ 128 ];
 	char bad_insert[ 128 ];
 	char *date_heading_label;
 	pid_t pid;
 	char *dir;
+	FILE *input_file;
+	FILE *output_pipe;
+	FILE *bad_time_file;
 
 	date_heading_label = "datetime";
 	pid = getpid();
@@ -160,41 +169,134 @@ void LT_upload(		char *filename,
 	}
 
 	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
+	sprintf( bad_time, "%s/time_%d.dat", dir, pid );
 	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
 
+	/* Open input file */
+	/* --------------- */
+	if ( ! ( input_file = fopen( filename, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 filename );
+
+		printf( "<h3>An internal error occurred. Check log.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	/* Open bad time file */
+	/* ------------------ */
+	if ( ! ( bad_time_file = fopen( bad_time, "w" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for write.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 bad_time );
+
+		printf( "<h3>An internal error occurred. Check log.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	sprintf( measurement_insert,
+"measurement_insert begin=%s end=%s replace=%c bypass_adjust=%c execute=%c",
+		 begin_measurement_date,
+		 end_measurement_date,
+		 (change_existing_data) ? 'y' : 'n',
+		 'y',
+		 (execute) ? 'y' : 'n' );
+
+	/* Open output pipe */
+	/* --------------- */
 	sprintf( sys_string,
 "spreadsheet_parse file=\"%s\" station=\"%s\" time=no 2>%s		|"
-"measurement_insert begin=%s end=%s replace=%c execute=%c 2>%s		|"
+"%s 2>%s								|"
 "cat									 ",
 		 filename,
 		 station,
 		 bad_parse,
-		 begin_measurement_date,
-		 end_measurement_date,
-		 (change_existing_data) ? 'y' : 'n',
-		 (execute) ? 'y' : 'n',
+		 measurement_insert,
 		 bad_insert );
 
-	if ( system( sys_string ) ) {};
+	output_pipe = popen( sys_string, "w" );
+
+	while( timlib_get_line( input_buffer, input_file, 65536 ) )
+	{
+		if ( reject_non_zero_seconds( input_buffer ) )
+		{
+			fprintf( bad_time_file,
+				 "Bad time in: %s\n",
+				 input_buffer );
+			continue;
+		}
+
+		fprintf( output_pipe, "%s\n", input_buffer );
+	}
+
+	fclose( input_file );
+	fclose( bad_time_file );
+	pclose( output_pipe );
 
 	output_bad_records(
 		bad_parse,
+		bad_time,
 		bad_insert );
 
 } /* LT_upload() */
 
 void output_bad_records(
 		 	char *bad_parse_file,
+			char *bad_time_file,
 		 	char *bad_insert_file )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"cat %s %s | html_table.e '^^Bad Records' '' ''",
+	"cat %s %s %s | html_table.e '^^Bad Records' '' ''",
 	 	bad_parse_file,
+		bad_time_file,
 	 	bad_insert_file );
 
 	if ( system( sys_string ) ){};
 
 } /* output_bad_records() */
+
+boolean reject_non_zero_seconds( char *input_buffer )
+{
+	char measurement_date_time_string[ 128 ];
+	char time_piece[ 128 ];
+	char seconds_piece[ 16 ];
+
+	piece_quoted(	measurement_date_time_string,
+			',',
+			input_buffer,
+			0,
+			'"' );
+
+	/* Ignore heading line. */
+	/* -------------------- */
+	if ( !isdigit( *measurement_date_time_string ) )
+		return 0;
+
+	if ( !piece( time_piece, 'T', measurement_date_time_string, 1 ) )
+		return 1;
+
+	if ( !piece( seconds_piece, ':', time_piece, 2 ) )
+		return 1;
+
+	/* Reject if seconds are not zero. */
+	/* ------------------------------- */
+	if ( atoi( seconds_piece ) ) return 1;
+
+	/* Don't reject */
+	/* ------------ */
+	return 0;
+
+} /* reject_non_zero_seconds() */
 
