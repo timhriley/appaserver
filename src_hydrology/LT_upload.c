@@ -215,7 +215,7 @@ void LT_upload(		char *filename,
 	/* Open output pipe */
 	/* --------------- */
 	sprintf( sys_string,
-"spreadsheet_parse file=\"%s\" station=\"%s\" time=no 2>%s		|"
+"spreadsheet_parse file=\"%s\" station=\"%s\" time=no stdin=yes 2>%s	|"
 "%s 2>%s								|"
 "cat									 ",
 		 filename,

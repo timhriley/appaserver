@@ -50,6 +50,7 @@ void fetch_parameters(	char **filename,
 			char **two_lines_yn,
 			char **time_column_yn,
 			char **date_piece,
+			char **stdin_yn,
 			NAME_ARG *arg );
 
 LIST *spreadsheet_parse_datatype_list(
@@ -65,7 +66,8 @@ void spreadsheet_parse_display(
 					char *date_heading_label,
 					LIST *datatype_list,
 					boolean time_column,
-					int date_piece );
+					int date_piece,
+					boolean stdin_input );
 
 int main( int argc, char **argv )
 {
@@ -75,8 +77,10 @@ int main( int argc, char **argv )
 	LIST *datatype_list = {0};
 	char *two_lines_yn;
 	char *time_column_yn;
+	char *stdin_yn;
 	boolean two_lines;
 	boolean time_column;
+	boolean stdin_input;
 	char *date_piece;
 	NAME_ARG *arg;
 	char *application_name;
@@ -101,10 +105,12 @@ int main( int argc, char **argv )
 			&two_lines_yn,
 			&time_column_yn,
 			&date_piece,
+			&stdin_yn,
 			arg );
 
 	two_lines = ( *two_lines_yn == 'y' );
 	time_column = ( *time_column_yn == 'y' );
+	stdin_input = ( *stdin_yn == 'y' );
 
 	if ( ( datatype_list =
 			spreadsheet_parse_datatype_list(
@@ -120,7 +126,8 @@ int main( int argc, char **argv )
 			date_heading_label,
 			datatype_list,
 			time_column,
-			atoi( date_piece ) );
+			atoi( date_piece ),
+			stdin_input );
 	}
 
 	return 0;
@@ -133,7 +140,8 @@ void spreadsheet_parse_display(
 			char *date_heading_label,
 			LIST *datatype_list,
 			boolean time_column,
-			int date_piece )
+			int date_piece,
+			boolean stdin_input )
 {
 	FILE *input_file;
 	char input_buffer[ 65536 ];
@@ -152,15 +160,22 @@ void spreadsheet_parse_display(
 
 	if ( !list_length( datatype_list ) ) return;
 
-	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
+	if ( stdin_input )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 input_filespecification );
-		exit( 1 );
+		input_file = stdin;
+	}
+	else
+	{
+		if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
+		{
+			fprintf( stderr,
+		 	"ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	input_filespecification );
+			exit( 1 );
+	}
 	}
 
 	*measurement_time_string = '\0';
@@ -316,8 +331,8 @@ void spreadsheet_parse_display(
 		} while( list_next( datatype_list ) );
 	}
 
-	fclose( input_file );
 	timlib_reset_get_line_check_utf_16();
+	if ( !stdin_input ) fclose( input_file );
 
 } /* spreadsheet_parse_display() */
 
@@ -382,6 +397,7 @@ void fetch_parameters(	char **filename,
 			char **two_lines_yn,
 			char **time_column_yn,
 			char **date_piece,
+			char **stdin_yn,
 			NAME_ARG *arg )
 {
 	*filename = fetch_arg( arg, "filename" );
@@ -390,6 +406,7 @@ void fetch_parameters(	char **filename,
 	*two_lines_yn = fetch_arg( arg, "two_lines" );
 	*time_column_yn = fetch_arg( arg, "time_column" );
 	*date_piece = fetch_arg( arg, "date_piece" );
+	*stdin_yn = fetch_arg( arg, "stdin" );
 
 } /* fetch_parameters() */
 
@@ -415,6 +432,11 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
 
         ticket = add_valid_option( arg, "date_piece" );
         set_default_value( arg, ticket, "0" );
+
+        ticket = add_valid_option( arg, "stdin" );
+	add_valid_value( arg, ticket, "yes" );
+	add_valid_value( arg, ticket, "no" );
+        set_default_value( arg, ticket, "no" );
 
         ins_all( arg, argc, argv );
 
