@@ -463,5 +463,8 @@ void form_output_generic_button(char *onclick_control_string,
 char *form_set_post_change_javascript_row_zero(
 				char *post_change_javascript );
 
+void form_output_back_forward_buttons(
+				void );
+
 #endif
 

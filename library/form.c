@@ -1,4 +1,4 @@
-/* library/form.c							*/
+/* $APPASERVER_HOME/library/form.c					*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver form ADT.					*/
 /*									*/
@@ -1820,6 +1820,17 @@ char **form_get_background_color_array(
 
 } /* form_get_background_color_array() */
 
+void form_output_back_forward_buttons( void )
+{
+	printf(
+"<input type=\"button\" value=\"Back\" onClick=\"history.back()\">\n" );
+
+	printf(
+"<input type=\"button\" value=\"Forward\" onClick=\"history.forward()\">\n" );
+
+} /* form_output_back_forward_buttons() */
+
+
 void form_output_reset_button(	char *post_change_javascript,
 				int form_number )
 {
@@ -1942,6 +1953,8 @@ void form_output_submit_reset_buttons(
 
 	form_output_reset_button(	post_change_javascript,
 					form_number );
+
+	form_output_back_forward_buttons();
 
 	if ( html_help_file_anchor && *html_help_file_anchor )
 	{
