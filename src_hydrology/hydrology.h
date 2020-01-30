@@ -93,13 +93,10 @@ MEASUREMENT *hydrology_extract_measurement(
 /* --------------------------------------- */
 void hydrology_parse_file(
 				LIST *station_datatype_list,
-				LIST *frequency_station_datatype_list,
-				char *application_name,
 				FILE *error_file,
+				char *application_name,
 				char *input_filename,
-				int date_time_piece,
-				char *begin_measurement_date,
-				char *end_measurement_date );
+				int date_time_piece );
 
 int hydrology_measurement_table_display(
 				char *station_name,

@@ -10,6 +10,13 @@
 
 typedef struct
 {
+	char *begin_measurement_date;
+	char *begin_measurement_time;
+	int expected_count_per_day;
+} DATA_COLLECTION_FREQUENCY;
+
+typedef struct
+{
 	char *station_name;
 	DATATYPE *datatype;
 	char *shef_upload_code;
@@ -20,6 +27,7 @@ typedef struct
 	char scale_graph_zero_yn;
 	LIST *measurement_list;
 	int measurement_count;
+	LIST *data_collection_frequency_list;
 } STATION_DATATYPE;
 
 /* Operations */
@@ -43,6 +51,11 @@ STATION_DATATYPE *station_datatype_fetch_new(
 				char *application_name,
 				char *station_name,
 				char *datatype_name );
+
+DATA_COLLECTION_FREQUENCY *station_datatype_frequency_new(
+				char *begin_measurement_date,
+				char *begin_measurement_time,
+				int expected_count_per_day );
 
 STATION_DATATYPE *station_datatype_new(
 				void );
@@ -106,5 +119,24 @@ STATION_DATATYPE *station_datatype_seek(
 
 void station_datatype_html_display(
 			LIST *station_datatype_list );
+
+LIST *station_datatype_frequency_list(
+			char *application_name,
+			char *station_name,
+			char *datatype_name );
+
+DATA_COLLECTION_FREQUENCY *station_datatype_frequency(
+			LIST *data_collection_frequency_list,
+			char *measurement_date,
+			char *measurement_time );
+
+boolean station_datatype_frequency_reject(
+			LIST *data_collection_frequency_list,
+			char *measurement_date,
+			char *measurement_time );
+
+boolean station_datatype_expected_count_reject(
+			char *measurement_time,
+			int expected_count_per_day );
 
 #endif

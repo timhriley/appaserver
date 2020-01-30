@@ -47,9 +47,6 @@ int main( int argc, char **argv )
 	boolean replace;
 	boolean execute;
 	MEASUREMENT_STRUCTURE *m;
-	MEASUREMENT_FREQUENCY *measurement_frequency = {0};
-	MEASUREMENT_FREQUENCY_STATION_DATATYPE *
-		measurement_frequency_station_datatype;
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
 	int row_number = 0;
@@ -86,11 +83,6 @@ int main( int argc, char **argv )
 	execute = ( *execute_yn == 'y' );
 
 	m = measurement_structure_new( application_name );
-
-	if ( !bypass_reject )
-	{
-		measurement_frequency = measurement_frequency_new();
-	}
 
 	if ( !execute )
 	{
@@ -135,24 +127,38 @@ int main( int argc, char **argv )
 			continue;
 		}
 
-		if ( measurement_frequency )
-		{
-			measurement_frequency_station_datatype =
-			measurement_frequency_get_or_set_station_datatype(
-					measurement_frequency->
-						frequency_station_datatype_list,
-					application_name,
+		if ( ! ( station_datatype =
+				station_datatype_get_or_set(
+					station_datatype_list,
 					m->measurement->station_name,
-					m->measurement->datatype,
-					begin_measurement_date,
-					end_measurement_date );
+					m->measurement->datatype ) ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: station_datatype_get_or_set() failed.\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__ );
+			exit( 1 );
+		}
 
-			if ( dictionary_length(
-				measurement_frequency_station_datatype->
-					date_time_frequency_dictionary )
-			&&   measurement_data_collection_frequency_reject(
-				measurement_frequency_station_datatype->
-					date_time_frequency_dictionary,
+		if ( !bypass_reject )
+		{
+			if ( !station_datatype->data_collection_frequency_list )
+			{
+				station_datatype->
+					data_collection_frequency_list =
+					   station_datatype_frequency_list(
+						application_name,
+						station_datatype->
+							station_name,
+						station_datatype->
+							datatype->
+							datatype_name );
+			}
+
+			if ( station_datatype_frequency_reject(
+				station_datatype->
+					data_collection_frequency_list,
 				m->measurement->measurement_date,
 				m->measurement->measurement_time ) )
 			{
@@ -171,20 +177,6 @@ int main( int argc, char **argv )
 		else
 		{
 			measurement_html_display( m, m->html_table_pipe );
-		}
-
-		if ( ! ( station_datatype =
-				station_datatype_get_or_set(
-					station_datatype_list,
-					m->measurement->station_name,
-					m->measurement->datatype ) ) )
-		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: station_datatype_get_or_set() failed.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
 		}
 
 		station_datatype->measurement_count++;

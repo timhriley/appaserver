@@ -231,13 +231,10 @@ MEASUREMENT *hydrology_extract_measurement(
 /* --------------------------------------- */
 void hydrology_parse_file(
 			LIST *station_datatype_list,
-			LIST *frequency_station_datatype_list,
-			char *application_name,
 			FILE *error_file,
+			char *application_name,
 			char *input_filename,
-			int date_time_piece,
-			char *begin_measurement_date,
-			char *end_measurement_date )
+			int date_time_piece )
 {
 	FILE *input_file;
 	char input_string[ 4096 ];
@@ -248,8 +245,6 @@ void hydrology_parse_file(
 	char measurement_date[ 32 ];
 	char measurement_time[ 32 ];
 	char *error_message = {0};
-	MEASUREMENT_FREQUENCY_STATION_DATATYPE *
-		measurement_frequency_station_datatype;
 
 	if ( !list_length( station_datatype_list ) ) return;
 
@@ -301,30 +296,29 @@ void hydrology_parse_file(
 				continue;
 			}
 
-			measurement_frequency_station_datatype =
-			measurement_frequency_get_or_set_station_datatype(
-					frequency_station_datatype_list,
-					application_name,
-					station_datatype->station_name,
-					station_datatype->
-						datatype->
-						datatype_name,
-					begin_measurement_date,
-					end_measurement_date );
+			if ( !station_datatype->data_collection_frequency_list )
+			{
+				station_datatype->
+					data_collection_frequency_list =
+					   station_datatype_frequency_list(
+						application_name,
+						station_datatype->
+							station_name,
+						station_datatype->
+							datatype->
+							datatype_name );
+			}
 
-			if ( dictionary_length(
-				measurement_frequency_station_datatype->
-					date_time_frequency_dictionary )
-			&&   measurement_data_collection_frequency_reject(
-				measurement_frequency_station_datatype->
-					date_time_frequency_dictionary,
+			if ( station_datatype_frequency_reject(
+				station_datatype->
+					data_collection_frequency_list,
 				measurement_date,
 				measurement_time ) )
 			{
-				fprintf( error_file,
+				fprintf(error_file,
 			"Violates DATA_COLLECTION_FREQUENCY in row %d: %s\n",
-				 	line_number,
-				 	input_string );
+					line_number,
+			 	 	input_string );
 				continue;
 			}
 
@@ -555,7 +549,6 @@ void hydrology_parse_begin_end_dates(
 	static char local_begin_measurement_date[ 32 ];
 	static char local_end_measurement_date[ 32 ];
 	DATE *measurement_date = date_calloc();
-boolean first_time = 1;
 
 	*begin_measurement_date = local_begin_measurement_date;
 	*end_measurement_date = local_end_measurement_date;
