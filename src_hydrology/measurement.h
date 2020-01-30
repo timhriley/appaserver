@@ -46,19 +46,6 @@ typedef struct
 	char *argv_0;
 } MEASUREMENT_STRUCTURE;
 
-typedef struct
-{
-	char *station_name;
-	char *datatype;
-	DICTIONARY *date_time_frequency_dictionary;
-} MEASUREMENT_FREQUENCY_STATION_DATATYPE;
-
-typedef struct
-{
-	LIST *frequency_station_datatype_list;
-
-} MEASUREMENT_FREQUENCY;
-
 /* Constants */
 /* --------- */
 #define STATION_PIECE		0
@@ -71,17 +58,6 @@ typedef struct
 /* ---------- */
 MEASUREMENT_UPDATE *measurement_update_new(
 					void );
-
-MEASUREMENT_FREQUENCY *measurement_frequency_new(
-					void );
-
-MEASUREMENT_FREQUENCY_STATION_DATATYPE *
-				measurement_frequency_station_datatype_new(
-					char *application_name,
-					char *station_name,
-					char *datatype,
-					char *begin_measurement_date,
-					char *end_measurement_date );
 
 MEASUREMENT_STRUCTURE *measurement_structure_new(
 					char *application_name );
@@ -160,27 +136,6 @@ char *measurement_display_delimiter(	MEASUREMENT *m,
 
 void measurement_delete(		FILE *delete_pipe,
 					MEASUREMENT *m );
-
-DICTIONARY *measurement_get_date_time_frequency_dictionary(
-					char *application_name,
-					char *station_name,
-					char *datatype,
-					char *begin_measurement_date_string,
-					char *end_measurement_date_string );
-
-boolean measurement_data_collection_frequency_reject(
-				DICTIONARY *date_time_frequency_dictionary,
-				char *measurement_date_string,
-				char *measurement_time_string );
-
-MEASUREMENT_FREQUENCY_STATION_DATATYPE *
-		measurement_frequency_get_or_set_station_datatype(
-					LIST *frequency_station_datatype_list,
-					char *application_name,
-					char *station_name,
-					char *datatype,
-					char *begin_measurement_date,
-					char *end_measurement_date );
 
 void measurement_update(		char *application_name,
 					char *station_name,

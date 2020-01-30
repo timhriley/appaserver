@@ -661,3 +661,279 @@ void station_datatype_html_display(
 
 } /* station_datatype_html_display() */
 
+DATA_COLLECTION_FREQUENCY *station_datatype_frequency_new(
+				char *begin_measurement_date,
+				char *begin_measurement_time,
+				int expected_count_per_day )
+{
+	DATA_COLLECTION_FREQUENCY *a;
+
+	if ( ! ( a =
+		(DATA_COLLECTION_FREQUENCY *)
+			calloc( 1, sizeof( DATA_COLLECTION_FREQUENCY ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s/%d: cannot allocate memory.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	a->begin_measurement_date = begin_measurement_date;
+	a->begin_measurement_time = begin_measurement_time;
+	a->expected_count_per_day = expected_count_per_day;
+
+	return a;
+
+} /* station_datatype_frequency_new() */
+
+LIST *station_datatype_frequency_list(	char *application_name,
+					char *station_name,
+					char *datatype_name )
+{
+	LIST *l;
+	FILE *input_pipe;
+	char *select;
+	char where[ 256 ];
+	char sys_string[ 1024 ];
+	DATA_COLLECTION_FREQUENCY *d;
+	char input_buffer[ 1024 ];
+	char begin_measurement_date[ 16 ];
+	char begin_measurement_time[ 16 ];
+	char expected_count_per_day[ 16 ];
+
+	select = "begin_measurement_date,begin_measurement_time,expected_count";
+
+	sprintf( where,
+		 "station = '%s' and datatype = '%s'",
+		 station_name,
+		 datatype_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		"
+		 "			order=select		",
+		 application_name,
+		 select,
+		 "data_collection_frequency",
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+	l = list_new();
+
+	while ( get_line( input_buffer, input_pipe ) )
+	{
+		piece(	begin_measurement_date,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+
+		piece(	begin_measurement_time,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		piece(	expected_count_per_day,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		d = station_datatype_frequency_new(
+			strdup( begin_measurement_date ),
+			strdup( begin_measurement_time ),
+			atoi( expected_count_per_day ) );
+
+		list_append_pointer( l, d );
+	}
+
+	pclose( input_pipe );
+	return l;
+
+} /* station_datatype_frequency_list() */
+
+DATA_COLLECTION_FREQUENCY *station_datatype_frequency(
+			LIST *data_collection_frequency_list,
+			char *measurement_date,
+			char *measurement_time )
+{
+	DATA_COLLECTION_FREQUENCY *d;
+	LIST *l = data_collection_frequency_list;
+
+	if ( !list_rewind( l ) ) return (DATA_COLLECTION_FREQUENCY *)0;
+
+	do {
+		d = list_get( l );
+
+		/* ------------------------------------------------------ */
+		/* Likely the first row will have 0000-00-00^0000^144^... */
+		/* ------------------------------------------------------ */
+		if ( timlib_strcmp(
+			measurement_date,
+			d->begin_measurement_date ) > 0 )
+		{
+			continue;
+		}
+
+		if ( timlib_strcmp(
+			d->begin_measurement_date,
+			measurement_date ) == 0
+		&&   timlib_strcmp(
+			measurement_time,
+			d->begin_measurement_time ) >= 0 )
+		{
+			continue;
+		}
+
+		if ( !list_at_first( l ) )
+		{
+			list_prior( l );
+			d = list_get( l );
+		}
+
+		return d;
+
+	} while ( list_next( l ) );
+
+	return d;
+
+} /* station_datatype_frequency() */
+
+boolean station_datatype_frequency_reject(
+				LIST *data_collection_frequency_list,
+				char *measurement_date,
+				char *measurement_time )
+{
+	DATA_COLLECTION_FREQUENCY *d;
+
+	if ( !list_length( data_collection_frequency_list ) )
+	{
+		/* Don't reject */
+		/* ------------ */
+		return 0;
+	}
+
+	if ( ! ( d = station_datatype_frequency(
+			data_collection_frequency_list,
+			measurement_date,
+			measurement_time ) ) )
+	{
+		/* Don't reject */
+		/* ------------ */
+		return 0;
+	}
+
+	return station_datatype_expected_count_reject(
+			measurement_time,
+			d->expected_count_per_day );
+
+} /* station_datatype_frequency_reject() */
+
+boolean station_datatype_expected_count_reject(
+				char *measurement_time,
+				int expected_count_per_day )
+{
+	int minutes;
+
+	minutes = atoi( measurement_time + 2 );
+
+	if ( !expected_count_per_day )
+	{
+		/* Don't reject */
+		/* ------------ */
+		return 0;
+	}
+
+	if ( expected_count_per_day == 1
+	||   expected_count_per_day == 8
+	||   expected_count_per_day == 12
+	||   expected_count_per_day == 24 )
+	{
+		if ( minutes ) return 1;
+	}
+
+	if ( expected_count_per_day == 48 )
+	{
+		if ( minutes == 0 || minutes == 30 )
+			return 0;
+		else
+			return 1;
+	}
+
+	if ( expected_count_per_day == 96 )
+	{
+		if ( minutes == 0 || minutes == 15 || minutes == 30 )
+			return 0;
+		else
+			return 1;
+	}
+
+	if ( expected_count_per_day == 144 )
+	{
+		if ( minutes == 0
+		||   minutes == 10
+		||   minutes == 20
+		||   minutes == 30
+		||   minutes == 40
+		||   minutes == 50 )
+		{
+			return 0;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+
+	if ( expected_count_per_day == 240 )
+	{
+		if ( minutes == 0
+		||   minutes == 6
+		||   minutes == 12
+		||   minutes == 18
+		||   minutes == 24
+		||   minutes == 30
+		||   minutes == 36
+		||   minutes == 42
+		||   minutes == 48
+		||   minutes == 54 )
+		{
+			return 0;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+
+	if ( expected_count_per_day == 288 )
+	{
+		if ( minutes == 0
+		||   minutes == 5
+		||   minutes == 10
+		||   minutes == 15
+		||   minutes == 20
+		||   minutes == 25
+		||   minutes == 30
+		||   minutes == 35
+		||   minutes == 40
+		||   minutes == 45
+		||   minutes == 50
+		||   minutes == 55 )
+		{
+			return 0;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+
+	/* Don't reject */
+	/* ------------ */
+	return 0;
+
+} /* station_datatype_expected_count_reject() */
+

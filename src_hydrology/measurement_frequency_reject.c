@@ -1,7 +1,7 @@
-/* $APPASERVER_HOME/src_hydrology/measurement_frequency_reject.c*/
-/* -------------------------------------------------------------*/
-/* Freely available software: see Appaserver.org		*/
-/* -------------------------------------------------------------*/
+/* $APPASERVER_HOME/src_hydrology/measurement_frequency_reject.c	*/
+/* -------------------------------------------------------------------- */
+/* Freely available software: see Appaserver.org			*/
+/* ------------------------------------------------------------------- -*/
 
 /* Includes */
 /* -------- */
@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "measurement.h"
+#include "station_datatype.h"
 #include "appaserver_library.h"
 #include "timlib.h"
 #include "environ.h"
@@ -22,14 +23,11 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *begin_measurement_date;
-	char *end_measurement_date;
 	char delimited_record[ 1024 ];
 	char delimiter;
 	MEASUREMENT_STRUCTURE *m;
-	MEASUREMENT_FREQUENCY *measurement_frequency = {0};
-	MEASUREMENT_FREQUENCY_STATION_DATATYPE *
-		measurement_frequency_station_datatype;
+	LIST *station_datatype_list;
+	STATION_DATATYPE *station_datatype;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -40,34 +38,21 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 4 )
+	if ( argc != 2 )
 	{
 		fprintf(stderr,
-			"Usage: %s begin_date end_date delimiter\n", 
+			"Usage: %s delimiter\n", 
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	begin_measurement_date = argv[ 1 ];
-	end_measurement_date = argv[ 2 ];
-	delimiter = *argv[ 3 ];
+	delimiter = *argv[ 1 ];
 
 	m = measurement_structure_new( application_name );
-
-	if ( ! ( measurement_frequency = measurement_frequency_new() ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: measurement_frequency_new() failed.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	station_datatype_list = list_new();
 
 	while( timlib_get_line( delimited_record, stdin, 1024 ) )
 	{
-printf( "%s\n", delimited_record ); continue;
-
 		if ( !measurement_set_delimited_record(
 			m, 
 			delimited_record,
@@ -79,22 +64,26 @@ printf( "%s\n", delimited_record ); continue;
 			continue;
 		}
 
-		measurement_frequency_station_datatype =
-			measurement_frequency_get_or_set_station_datatype(
-					measurement_frequency->
-						frequency_station_datatype_list,
-					application_name,
-					m->measurement->station_name,
-					m->measurement->datatype,
-					begin_measurement_date,
-					end_measurement_date );
+		station_datatype =
+			station_datatype_get_or_set(
+				station_datatype_list,
+				m->measurement->station_name,
+				m->measurement->datatype );
 
-		if ( dictionary_length(
-			measurement_frequency_station_datatype->
-				date_time_frequency_dictionary )
-		&&   measurement_data_collection_frequency_reject(
-			measurement_frequency_station_datatype->
-				date_time_frequency_dictionary,
+		if ( !station_datatype->data_collection_frequency_list )
+		{
+			station_datatype->data_collection_frequency_list =
+				station_datatype_frequency_list(
+					application_name,
+					station_datatype->
+						station_name,
+					station_datatype->
+						datatype->
+						datatype_name );
+		}
+
+		if ( station_datatype_frequency_reject(
+			station_datatype->data_collection_frequency_list,
 			m->measurement->measurement_date,
 			m->measurement->measurement_time ) )
 		{
@@ -104,6 +93,7 @@ printf( "%s\n", delimited_record ); continue;
 			continue;
 		}
 
+#ifdef NOT_DEFINED
 		printf( "%s\n",
 			/* --------------------- */
 			/* Returns static memory */
@@ -111,6 +101,9 @@ printf( "%s\n", delimited_record ); continue;
 			measurement_display_delimiter(
 				m->measurement,
 				delimiter ) );
+#endif
+
+		printf( "%s\n", delimited_record );
 	}
 
 	return 0;
