@@ -31,7 +31,6 @@
 /* ---------- */
 void output_bad_records(
 		 		char *bad_parse_file,
-		 		char *bad_time_file,
 		 		char *bad_frequency_file,
 		 		char *bad_insert_file );
 
@@ -135,7 +134,6 @@ void load_turkey_point_file(	char *appaserver_data_directory,
 	char *begin_measurement_date = {0};
 	char *end_measurement_date = {0};
 	char bad_parse[ 128 ];
-	char bad_time[ 128 ];
 	char bad_frequency[ 128 ];
 	char bad_insert[ 128 ];
 	char *date_heading_label;
@@ -154,22 +152,17 @@ void load_turkey_point_file(	char *appaserver_data_directory,
 		1 /* date_piece */ );
 
 	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
-	sprintf( bad_time, "%s/time_%d.dat", dir, pid );
 	sprintf( bad_frequency, "%s/frequency_%d.dat", dir, pid );
 	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
 
 	sprintf( sys_string,
 "spreadsheet_parse file=\"%s\" station=\"%s\" time=no date_piece=1 2>%s	|"
-"measurement_adjust_time_to_sequence 2>%s				|"
-"measurement_frequency_reject %s %s '^' 2>%s				|"
+"measurement_frequency_reject '^' 2>%s					|"
 "measurement_insert bypass=y begin=%s end=%s replace=%c execute=%c 2>%s	|"
 "cat									 ",
 		 input_filename,
 		 station_name,
 		 bad_parse,
-		 bad_time,
-		 begin_measurement_date,
-		 end_measurement_date,
 		 bad_frequency,
 		 begin_measurement_date,
 		 end_measurement_date,
@@ -181,7 +174,6 @@ void load_turkey_point_file(	char *appaserver_data_directory,
 
 	output_bad_records(
 		 bad_parse,
-		 bad_time,
 		 bad_frequency,
 		 bad_insert );
 
@@ -189,16 +181,14 @@ void load_turkey_point_file(	char *appaserver_data_directory,
 
 void output_bad_records(
 		 	char *bad_parse_file,
-		 	char *bad_time_file,
 		 	char *bad_frequency_file,
 		 	char *bad_insert_file )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"cat %s %s %s %s | html_table.e '^^Bad Records' '' ''",
+	"cat %s %s %s | html_table.e '^^Bad Records' '' ''",
 	 	bad_parse_file,
-	 	bad_time_file,
 	 	bad_frequency_file,
 	 	bad_insert_file );
 

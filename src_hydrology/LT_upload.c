@@ -205,11 +205,10 @@ void LT_upload(		char *filename,
 	}
 
 	sprintf( measurement_insert,
-"measurement_insert begin=%s end=%s replace=%c bypass_adjust=%c execute=%c",
+"measurement_insert begin=%s end=%s replace=%c execute=%c",
 		 begin_measurement_date,
 		 end_measurement_date,
 		 (change_existing_data) ? 'y' : 'n',
-		 'y',
 		 (execute) ? 'y' : 'n' );
 
 	/* Open output pipe */

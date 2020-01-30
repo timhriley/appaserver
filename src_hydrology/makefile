@@ -86,7 +86,6 @@ EXECUTABLES=	hydrology_verification_process				\
 		prepend_century_maybe					\
 		load_turkey_point					\
 		LT_upload						\
-		load_cr10						\
 		load_cr10_single					\
 		load_sfwmd_single_file					\
 		load_sfwmd_breakpoint_data				\
@@ -344,16 +343,6 @@ LT_upload: LT_upload.c							\
 		${SOURCE_LIBS}	 					\
 		LT_upload.c						\
 		-o LT_upload
-
-load_cr10: load_cr10.c							\
-	${EXTERNAL_LIBS} ${SOURCE_LIBS}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		${STANDARD_LIBRARY} 					\
-		${SOURCE_LIBS}	 					\
-		load_cr10.c						\
-		-o load_cr10
 
 load_cr10_single: load_cr10_single.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}

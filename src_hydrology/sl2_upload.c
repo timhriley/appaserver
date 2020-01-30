@@ -245,7 +245,7 @@ void satlink_upload(	char *filename,
 	else
 	{
 		sprintf(insert_process,
-"measurement_insert begin=%s end=%s bypass=y delimiter=',' replace=%c execute=%c",
+"measurement_insert begin=%s end=%s delimiter=',' replace=%c execute=%c",
 			begin_measurement_date,
 			end_measurement_date,
 		 	(change_existing_data) ? 'y' : 'n',
