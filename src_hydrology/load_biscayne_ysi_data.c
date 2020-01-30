@@ -271,12 +271,11 @@ void load_biscayne_ysi_data(
 
 	sprintf( sys_string,
 "biscayne_spreadsheet_parse \"%s\" \"%s\" 2>%s				|"
-"measurement_adjust_time_to_sequence 					|"
 "measurement_date_within_range	begin_date=%s				 "
 "				begin_time=%s				 "
 "				end_date=%s				 "
 "				end_time=%s 2>%s			|"
-"measurement_frequency_reject %s %s '^' 2>%s				|"
+"measurement_frequency_reject '^' 2>%s					|"
 "measurement_insert bypass=y begin=%s end=%s replace=%c execute=%c 2>%s	|"
 "cat									 ",
 		 filename,
@@ -287,8 +286,6 @@ void load_biscayne_ysi_data(
 		 end_date_string,
 		 end_time_string,
 		 bad_range,
-		 begin_date_string,
-		 end_date_string,
 		 bad_frequency,
 		 begin_date_string,
 		 end_date_string,

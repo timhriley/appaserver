@@ -149,14 +149,11 @@ void load_sfwmd_single_file(
 
 	sprintf( sys_string,
 "sfwmd_spreadsheet_parse \"%s\" 2>%s					|"
-"measurement_adjust_time_to_sequence					|"
-"measurement_frequency_reject %s %s '^' 2>%s				|"
-"measurement_insert begin=%s end=%s bypass=n replace=%c execute=%c 2>%s	|"
+"measurement_frequency_reject '^' 2>%s					|"
+"measurement_insert begin=%s end=%s bypass=y replace=%c execute=%c 2>%s	|"
 "cat									 ",
 		 filename,
 		 bad_parse,
-		 begin_measurement_date,
-		 end_measurement_date,
 		 bad_frequency,
 		 begin_measurement_date,
 		 end_measurement_date,
