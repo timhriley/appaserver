@@ -52,6 +52,11 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+void set_default_dates(			char **begin_date_string,
+					char **begin_time_string,
+					char **end_date_string,
+					char **end_time_string );
+
 void output_bad_records(
 		 			char *bad_parse_file,
 		 			char *bad_range_file,
@@ -118,6 +123,11 @@ int main( int argc, char **argv )
 	end_time_string = argv[ 7 ];
 	change_existing_data = ( *argv[ 8 ] == 'y' );
 	execute = ( *argv[ 9 ] == 'y' );
+
+	set_default_dates(	&begin_date_string,
+				&begin_time_string,
+				&end_date_string,
+				&end_time_string );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -393,4 +403,39 @@ void output_bad_records(
 	if ( system( sys_string ) ){};
 
 } /* output_bad_records() */
+
+void set_default_dates(		char **begin_date_string,
+				char **begin_time_string,
+				char **end_date_string,
+				char **end_time_string )
+{
+	char *sys_string;
+
+	if ( !**begin_date_string
+	||   strcmp( *begin_date_string, "begin_date" ) == 0 )
+	{
+		sys_string = "now.sh ymd -30";
+		*begin_date_string = pipe2string( sys_string );
+	}
+
+	if ( !**begin_time_string
+	||   strcmp( *begin_time_string, "begin_time" ) == 0 )
+	{
+		*begin_time_string = "0000";
+	}
+
+	if ( !**end_date_string
+	||   strcmp( *end_date_string, "end_date" ) == 0 )
+	{
+		sys_string = "now.sh ymd";
+		*end_date_string = pipe2string( sys_string );
+	}
+
+	if ( !**end_time_string
+	||   strcmp( *end_time_string, "end_time" ) == 0 )
+	{
+		*end_time_string = "2359";
+	}
+
+} /* set_default_dates() */
 

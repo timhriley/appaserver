@@ -22,9 +22,7 @@
 /* ---------- */
 void setup_arg(		NAME_ARG *arg, int argc, char **argv );
 
-void fetch_parameters(	char **begin_date,
-			char **end_date,
-			char **bypass_reject_yn,
+void fetch_parameters(	char **bypass_reject_yn,
 			char **delimiter,
 			char **replace_yn,
 			char **execute_yn,
@@ -33,8 +31,6 @@ void fetch_parameters(	char **begin_date,
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *begin_measurement_date;
-	char *end_measurement_date;
 	char delimited_record[ 1024 ];
 	char *delimiter;
 	char *bypass_reject_yn;
@@ -63,8 +59,6 @@ int main( int argc, char **argv )
 	setup_arg( arg, argc, argv );
 
 	fetch_parameters(
-		&begin_measurement_date,
-		&end_measurement_date,
 		&bypass_reject_yn,
 		&delimiter,
 		&replace_yn,
@@ -174,16 +168,12 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void fetch_parameters(	char **begin_date,
-			char **end_date,
-			char **bypass_reject_yn,
+void fetch_parameters(	char **bypass_reject_yn,
 			char **delimiter,
 			char **replace_yn,
 			char **execute_yn,
 			NAME_ARG *arg )
 {
-	*begin_date = fetch_arg( arg, "begin_date" );
-	*end_date = fetch_arg( arg, "end_date" );
 	*bypass_reject_yn = fetch_arg( arg, "bypass_reject" );
 	*replace_yn = fetch_arg( arg, "replace" );
 	*delimiter = fetch_arg( arg, "delimiter" );
@@ -194,9 +184,6 @@ void fetch_parameters(	char **begin_date,
 void setup_arg( NAME_ARG *arg, int argc, char **argv )
 {
         int ticket;
-
-        ticket = add_valid_option( arg, "begin_date" );
-        ticket = add_valid_option( arg, "end_date" );
 
         ticket = add_valid_option( arg, "replace" );
         add_valid_value( arg, ticket, "y" );

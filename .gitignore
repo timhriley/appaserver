@@ -96,7 +96,6 @@ adjust_measurement_time
 delete_measurements_day
 measurement_insert
 prepend_century_maybe
-load_cr10
 load_cr10_single
 load_sfwmd_single_file
 load_sfwmd_breakpoint_data

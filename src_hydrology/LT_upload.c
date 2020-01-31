@@ -138,8 +138,6 @@ void LT_upload(		char *filename,
 	char sys_string[ 1024 ];
 	char input_buffer[ 65536 ];
 	char measurement_insert[ 512 ];
-	char *begin_measurement_date = {0};
-	char *end_measurement_date = {0};
 	char bad_parse[ 128 ];
 	char bad_time[ 128 ];
 	char bad_insert[ 128 ];
@@ -153,20 +151,6 @@ void LT_upload(		char *filename,
 	date_heading_label = "datetime";
 	pid = getpid();
 	dir = appaserver_data_directory;
-
-	hydrology_parse_begin_end_dates(
-		&begin_measurement_date,
-		&end_measurement_date,
-		filename,
-		date_heading_label,
-		0 /* date_piece */ );
-
-	if ( !begin_measurement_date || !*begin_measurement_date )
-	{
-		printf( "<h3>Could not extract the begin/end dates.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
 
 	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
 	sprintf( bad_time, "%s/time_%d.dat", dir, pid );
@@ -205,9 +189,7 @@ void LT_upload(		char *filename,
 	}
 
 	sprintf( measurement_insert,
-"measurement_insert begin=%s end=%s replace=%c execute=%c",
-		 begin_measurement_date,
-		 end_measurement_date,
+		 "measurement_insert replace=%c execute=%c",
 		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n' );
 

@@ -163,8 +163,6 @@ void load_cr300_filespecification(
 			char *appaserver_data_directory )
 {
 	char sys_string[ 1024 ];
-	char *begin_measurement_date = {0};
-	char *end_measurement_date = {0};
 	char bad_parse[ 128 ];
 	char bad_insert[ 128 ];
 	char *date_heading_label;
@@ -175,21 +173,6 @@ void load_cr300_filespecification(
 	pid = getpid();
 	dir = appaserver_data_directory;
 
-	hydrology_parse_begin_end_dates(
-		&begin_measurement_date,
-		&end_measurement_date,
-		filename,
-		date_heading_label,
-		0 /* date_piece */ );
-
-	if ( !begin_measurement_date || !end_measurement_date )
-	{
-		printf(
-			"<h3>ERROR: Cannot extract begin/end dates.</h3>\n" );
-		document_close();
-		return;
-	}
-
 	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
 	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
 
@@ -198,14 +181,12 @@ void load_cr300_filespecification(
 "			station=\"%s\"					"
 "			date_heading_label=%s				"
 "			time=no 2>%s					|"
-"measurement_insert begin=%s end=%s replace=%c execute=%c 2>%s		|"
+"measurement_insert replace=%c execute=%c 2>%s				|"
 "cat									 ",
 		 filename,
 		 station,
 		 date_heading_label,
 		 bad_parse,
-		 begin_measurement_date,
-		 end_measurement_date,
 		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n',
 		 bad_insert );

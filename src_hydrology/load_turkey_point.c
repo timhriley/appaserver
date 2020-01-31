@@ -131,25 +131,14 @@ void load_turkey_point_file(	char *appaserver_data_directory,
 				boolean execute )
 {
 	char sys_string[ 1024 ];
-	char *begin_measurement_date = {0};
-	char *end_measurement_date = {0};
 	char bad_parse[ 128 ];
 	char bad_frequency[ 128 ];
 	char bad_insert[ 128 ];
-	char *date_heading_label;
 	pid_t pid;
 	char *dir;
 
-	date_heading_label = "date";
 	pid = getpid();
 	dir = appaserver_data_directory;
-
-	hydrology_parse_begin_end_dates(
-		&begin_measurement_date,
-		&end_measurement_date,
-		input_filename,
-		date_heading_label,
-		1 /* date_piece */ );
 
 	sprintf( bad_parse, "%s/parse_%d.dat", dir, pid );
 	sprintf( bad_frequency, "%s/frequency_%d.dat", dir, pid );
@@ -158,14 +147,12 @@ void load_turkey_point_file(	char *appaserver_data_directory,
 	sprintf( sys_string,
 "spreadsheet_parse file=\"%s\" station=\"%s\" time=no date_piece=1 2>%s	|"
 "measurement_frequency_reject '^' 2>%s					|"
-"measurement_insert bypass=y begin=%s end=%s replace=%c execute=%c 2>%s	|"
+"measurement_insert bypass=y replace=%c execute=%c 2>%s			|"
 "cat									 ",
 		 input_filename,
 		 station_name,
 		 bad_parse,
 		 bad_frequency,
-		 begin_measurement_date,
-		 end_measurement_date,
 		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n',
 		 bad_insert );

@@ -155,28 +155,9 @@ void shef_upload(	char *station_bad_file,
 {
 	char insert_process[ 512 ];
 	char sys_string[ 4096 ];
-	char *begin_measurement_date = {0};
-	char *end_measurement_date = {0};
-
-	hydrology_parse_begin_end_dates(
-		&begin_measurement_date,
-		&end_measurement_date,
-		shef_filename,
-		"timestamp" /* date_heading_label */,
-		0 /* date_piece */ );
-
-	if ( !begin_measurement_date || !end_measurement_date )
-	{
-		printf(
-			"<h3>ERROR: Cannot extract begin/end dates.</h3>\n" );
-		document_close();
-		return;
-	}
 
 	sprintf( insert_process,
-"measurement_insert begin=%s end=%s replace=%c execute=%c",
-		 begin_measurement_date,
-		 end_measurement_date,
+		 "measurement_insert replace=%c execute=%c",
 		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n' );
 

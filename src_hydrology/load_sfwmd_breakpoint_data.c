@@ -116,8 +116,6 @@ void load_sfwmd_breakpoint_data(
 			boolean execute )
 {
 	char sys_string[ 1024 ];
-	char *begin_measurement_date = {0};
-	char *end_measurement_date = {0};
 	char bad_parse[ 128 ];
 	char bad_insert[ 128 ];
 	char *date_heading_label;
@@ -128,31 +126,15 @@ void load_sfwmd_breakpoint_data(
 	pid = getpid();
 	dir = appaserver_data_directory;
 
-	hydrology_parse_begin_end_dates(
-		&begin_measurement_date,
-		&end_measurement_date,
-		filename,
-		date_heading_label,
-		0 /* date_piece */ );
-
-	if ( !begin_measurement_date || !*begin_measurement_date )
-	{
-		printf( "<h3>Could not extract the begin/end dates.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
-
 	sprintf( bad_parse, "%s/sfwmd_parse_%d.dat", dir, pid );
 	sprintf( bad_insert, "%s/sfwmd_insert_%d.dat", dir, pid );
 
 	sprintf( sys_string,
 "sfwmd_breakpoint_parse \"%s\" 2>%s					|"
-"measurement_insert begin=%s end=%s replace=%c execute=%c 2>%s		|"
+"measurement_insert replace=%c execute=%c 2>%s				|"
 "cat									 ",
 		 filename,
 		 bad_parse,
-		 begin_measurement_date,
-		 end_measurement_date,
 		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n',
 		 bad_insert );

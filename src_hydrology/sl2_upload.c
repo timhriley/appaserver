@@ -203,39 +203,18 @@ void satlink_upload(	char *filename,
 	char insert_process[ 512 ];
 	char shef_process[ 128 ];
 	char sys_string[ 1024 ];
-	char *begin_measurement_date = {0};
-	char *end_measurement_date = {0};
-	int date_piece;
 
 	if ( strcmp( argv_0, "sl2_upload" ) == 0 )
 	{
 		sprintf( shef_process,
 			 "sl2_shef_to_comma_delimited %s",
 			 station_name );
-
-		date_piece = 1;
 	}
 	else
 	{
 		sprintf( shef_process,
 			 "sl3_shef_to_comma_delimited %s",
 			 station_name );
-
-		date_piece = 0;
-	}
-
-	hydrology_parse_begin_end_dates(
-		&begin_measurement_date,
-		&end_measurement_date,
-		filename,
-		(char *)0 /* date_heading_label */,
-		date_piece );
-
-	if ( !begin_measurement_date || !*begin_measurement_date )
-	{
-		printf( "<h3>Could not extract the begin/end dates.</h3>\n" );
-		document_close();
-		exit( 0 );
 	}
 
 	if ( nohtml )
@@ -245,9 +224,7 @@ void satlink_upload(	char *filename,
 	else
 	{
 		sprintf(insert_process,
-"measurement_insert begin=%s end=%s delimiter=',' replace=%c execute=%c",
-			begin_measurement_date,
-			end_measurement_date,
+		"measurement_insert delimiter=',' replace=%c execute=%c",
 		 	(change_existing_data) ? 'y' : 'n',
 		 	(execute) ? 'y' : 'n' );
 	}
