@@ -93,16 +93,6 @@ int main( int argc, char **argv )
 			continue;
 		}
 
-#ifdef NOT_DEFINED
-		printf( "%s\n",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			measurement_display_delimiter(
-				m->measurement,
-				delimiter ) );
-#endif
-
 		printf( "%s\n", delimited_record );
 	}
 

@@ -836,6 +836,7 @@ boolean station_datatype_expected_count_reject(
 				int expected_count_per_day )
 {
 	int minutes;
+	int remainder;
 
 	minutes = atoi( measurement_time + 2 );
 
@@ -856,78 +857,71 @@ boolean station_datatype_expected_count_reject(
 
 	if ( expected_count_per_day == 48 )
 	{
-		if ( minutes == 0 || minutes == 30 )
-			return 0;
-		else
+		remainder = minutes % 30;
+
+		if ( minutes > 30 || remainder )
+		{
 			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
 	if ( expected_count_per_day == 96 )
 	{
-		if ( minutes == 0 || minutes == 15 || minutes == 30 )
-			return 0;
-		else
+		remainder = minutes % 15;
+
+		if ( minutes > 45 || remainder )
+		{
 			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
 	if ( expected_count_per_day == 144 )
 	{
-		if ( minutes == 0
-		||   minutes == 10
-		||   minutes == 20
-		||   minutes == 30
-		||   minutes == 40
-		||   minutes == 50 )
+		remainder = minutes % 10;
+
+		if ( minutes > 50 || remainder )
 		{
-			return 0;
+			return 1;
 		}
 		else
 		{
-			return 1;
+			return 0;
 		}
 	}
 
 	if ( expected_count_per_day == 240 )
 	{
-		if ( minutes == 0
-		||   minutes == 6
-		||   minutes == 12
-		||   minutes == 18
-		||   minutes == 24
-		||   minutes == 30
-		||   minutes == 36
-		||   minutes == 42
-		||   minutes == 48
-		||   minutes == 54 )
+		remainder = minutes % 6;
+
+		if ( minutes > 54 || remainder )
 		{
-			return 0;
+			return 1;
 		}
 		else
 		{
-			return 1;
+			return 0;
 		}
 	}
 
 	if ( expected_count_per_day == 288 )
 	{
-		if ( minutes == 0
-		||   minutes == 5
-		||   minutes == 10
-		||   minutes == 15
-		||   minutes == 20
-		||   minutes == 25
-		||   minutes == 30
-		||   minutes == 35
-		||   minutes == 40
-		||   minutes == 45
-		||   minutes == 50
-		||   minutes == 55 )
+		remainder = minutes % 5;
+
+		if ( minutes > 55 || remainder )
 		{
-			return 0;
+			return 1;
 		}
 		else
 		{
-			return 1;
+			return 0;
 		}
 	}
 
