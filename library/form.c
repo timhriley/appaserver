@@ -1826,7 +1826,7 @@ void form_output_back_forward_buttons( void )
 "<input type=\"button\" value=\"Back\" onClick=\"history.back()\">\n" );
 
 	printf(
-"<input type=\"button\" value=\"Forward\" onClick=\"history.forward()\">\n" );
+"<input type=\"button\" value=\"Forward\" onClick=\"timlib_history_forward()\">\n" );
 
 } /* form_output_back_forward_buttons() */
 

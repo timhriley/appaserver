@@ -550,5 +550,15 @@ function timlib_element_value_set(	element_name,
 
 	return true;
 
-} // timllib_element_value_set()
+} // timlib_element_value_set()
 
+function timlib_history_forward()
+{
+	if ( !history.forward() )
+	{
+		alert( 'Already at top frame.' );
+	}
+
+	return true;
+
+} // timlib_history_forward()
