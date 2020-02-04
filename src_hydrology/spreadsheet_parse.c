@@ -268,13 +268,6 @@ void spreadsheet_parse_display(
 			date_display_yyyy_mm_dd( measurement_date_time ),
 			date_display_hhmm( measurement_date_time ) );
 
-/*
-		measurement_date_time_julian =
-			measurement_adjust_time_to_sequence(
-				measurement_date_time_julian,
-				VALID_FREQUENCY_TIME_SEQUENCE );
-*/
-
 		list_rewind( datatype_list );
 
 		do {
