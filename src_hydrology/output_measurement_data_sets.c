@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_hydrology/output_measurement_data_sets.c		*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/output_measurement_data_sets.c	*/
+/* -------------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,6 +73,10 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+OUTPUT_MEASUREMENT *measurement_output_strdup_new(
+				char *date_colon_time,
+				double measurement_value );
+
 char *expected_count_list_get_display(
 				LIST *expected_count_list );
 
@@ -207,7 +211,6 @@ int main( int argc, char **argv )
 	char *validation_level_string;
 	char *station;
 	char *begin_date, *end_date;
-	DOCUMENT *document;
 	TRANSMIT_MEASUREMENT_SETS *transmit_measurement_sets;
 	int date_piece = DATE_PIECE;
 	int time_piece = -1;
@@ -216,21 +219,28 @@ int main( int argc, char **argv )
 	char *order_clause = "select";
 	int process_id = getpid();
 	enum validation_level validation_level;
-	char *relative_source_directory;
-	char *database_string = {0};
 	enum aggregate_level aggregate_level;
 	char *output_medium;
 	boolean aggregate_level_changed_to_daily = 0;
 
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application ignored station begin_date end_date aggregate_level validation_level output_medium\n",
+"Usage: %s ignored ignored station begin_date end_date aggregate_level validation_level output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
+	/* application_name = argv[ 1 ]; */
 	/* session = argv[ 2 ]; */
 	station = argv[ 3 ];
 	begin_date = argv[ 4 ];
@@ -238,24 +248,6 @@ int main( int argc, char **argv )
 	aggregate_level_string = argv[ 6 ];
 	validation_level_string = argv[ 7 ];
 	output_medium = argv[ 8 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
 
 	aggregate_level =
 		aggregate_level_get_aggregate_level(
@@ -274,14 +266,18 @@ int main( int argc, char **argv )
 		}
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	document_quick_output_body(	application_name,
+					appaserver_parameter_file->
+					appaserver_mount_point );
 
 	hydrology_library_get_clean_begin_end_date(
-					&begin_date,
-					&end_date,
-					application_name,
-					station,
-					(char *)0 /* datatype */ );
+		&begin_date,
+		&end_date,
+		application_name,
+		station,
+		(char *)0 /* datatype */ );
 
 	if ( !appaserver_library_validate_begin_end_date(
 					&begin_date,
@@ -292,10 +288,6 @@ int main( int argc, char **argv )
 					(PROCESS_GENERIC_OUTPUT *)0,
 					(DICTIONARY *)0 /* post_dictionary */) )
 	{
-		document_quick_output_body(	application_name,
-						appaserver_parameter_file->
-						appaserver_mount_point );
-
 		printf( "<p>ERROR: no data available for these dates.\n" );
 		document_close();
 		exit( 0 );
@@ -320,10 +312,6 @@ int main( int argc, char **argv )
 			order_clause = REVERSE_ORDER_CLAUSE;
 	}
 
-	relative_source_directory =
-		application_get_relative_source_directory(
-			application_name );
-
 	transmit_measurement_sets = transmit_measurement_sets_new();
 
 	transmit_measurement_sets_populate_expected_count_list_datatype(
@@ -335,23 +323,6 @@ int main( int argc, char **argv )
 
 	if ( !list_length( transmit_measurement_sets->expected_count_list ) )
 	{
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			relative_source_directory,
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
 		printf( "<h1>ERROR</h1>\n" );
 		printf(
 "<p>There is no data collection frequency assigned to the datatypes for this station.\n");
@@ -384,22 +355,6 @@ expected_count_list_get_display(
 	/* ------------- */
 	/* Do the output */
 	/* ------------- */
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			relative_source_directory,
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
 
 	if ( strcmp( output_medium, "transmit" ) == 0
 	||   strcmp( output_medium, "text_file" ) == 0 )
@@ -437,11 +392,14 @@ expected_count_list_get_display(
 	}
 
 	document_close();
+
 	process_increment_execution_count(
 				application_name,
 				PROCESS_NAME,
 				appaserver_parameter_file_get_dbms() );
-	exit( 0 );
+
+	return 0;
+
 } /* main() */
 
 void output_measurement_data_sets_transmit(
@@ -488,7 +446,7 @@ void output_measurement_data_sets_transmit(
 	}
 
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	fflush( stdout );
 	printf( "</h1>\n" );
 
@@ -921,9 +879,6 @@ void datatype_set_measurement_record(
 
 	if ( !*measurement_string )
 	{
-/*
-		measurement_value = NULL_REPLACEMENT;
-*/
 		return;
 	}
 	else
@@ -955,7 +910,8 @@ void datatype_set_measurement_record(
 					time );
 
 	sprintf( date_colon_time, "%s:%s", date, time );
-	measurement = measurement_strdup_new(
+
+	measurement = measurement_output_strdup_new(
 				strdup( date_colon_time ),
 				measurement_value );
 
@@ -1541,7 +1497,7 @@ char *get_justify_column_list_string(	char *heading_string,
 char *expected_count_list_get_display( LIST *expected_count_list )
 {
 	EXPECTED_COUNT *expected_count;
-	static char return_string[ 65536 ];
+	char return_string[ 65536 ];
 	char *ptr = return_string;
 
 	if ( !list_rewind( expected_count_list ) ) return "";
@@ -1558,18 +1514,12 @@ char *expected_count_list_get_display( LIST *expected_count_list )
 				local_datatype_list_display(
 					expected_count->datatype_list ) );
 
-/*
-		ptr += sprintf( ptr,
-				"Date slot list: %s\n",
-				date_colon_time_slot_list_display(
-					expected_count->
-						date_colon_time_slot_list ) );
-*/
-
 		ptr += sprintf( ptr, "\n" );
+
 	} while( list_next( expected_count_list ) );
 
-	return return_string;
+	return strdup( return_string );
+
 } /* expected_count_list_get_display() */
 
 char *local_datatype_list_display( LIST *datatype_list )
@@ -1610,4 +1560,29 @@ char *date_colon_time_slot_list_display(
 date_colon_time_slot_list = (LIST *)0;
 	return "";
 } /* date_colon_time_slot_list_display() */
+
+OUTPUT_MEASUREMENT *measurement_output_strdup_new(
+				char *date_colon_time,
+				double measurement_value )
+{
+	OUTPUT_MEASUREMENT *m;
+
+	if ( ! ( m = (OUTPUT_MEASUREMENT *)
+			calloc( 1,
+				sizeof( OUTPUT_MEASUREMENT ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	m->date_colon_time = date_colon_time;
+	m->measurement_value = measurement_value;
+
+	return m;
+
+} /* measurement_output_strdup_new() */
 

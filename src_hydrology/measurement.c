@@ -57,7 +57,7 @@ boolean measurement_set_delimited_record(
 			/* ----------------------------------------------- */
 			m->measurement =
 				measurement_strdup_new(
-					delimited_record,
+					delimited_record /* station_name */,
 					"" /* datatype */,
 					"" /* date */,
 					"" /* time */,
