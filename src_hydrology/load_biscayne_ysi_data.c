@@ -286,7 +286,7 @@ void load_biscayne_ysi_data(
 "				end_date=%s				 "
 "				end_time=%s 2>%s			|"
 "measurement_frequency_reject '^' 2>%s					|"
-"measurement_insert bypass=y begin=%s end=%s replace=%c execute=%c 2>%s	|"
+"measurement_insert bypass=y replace=%c execute=%c 2>%s			|"
 "cat									 ",
 		 filename,
 		 station,
@@ -297,8 +297,6 @@ void load_biscayne_ysi_data(
 		 end_time_string,
 		 bad_range,
 		 bad_frequency,
-		 begin_date_string,
-		 end_date_string,
 		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n',
 		 bad_insert );
