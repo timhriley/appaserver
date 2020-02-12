@@ -12,6 +12,7 @@
 #include "timlib.h"
 #include "piece.h"
 #include "list.h"
+#include "document.h"
 #include "appaserver_library.h"
 #include "appaserver_parameter_file.h"
 #include "appaserver.h"
@@ -58,13 +59,13 @@ int main( void )
 	sprintf(sys_string,
 		"cat %s/appahost/menu.dat",
 		document_root );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	fflush( stdout );
 
 	sprintf(sys_string,
 		"cat %s/appahost/sudoku.dat",
 		document_root );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	fflush( stdout );
 
 	output_solved_sudoku( post_dictionary );
@@ -73,7 +74,7 @@ int main( void )
 	sprintf(sys_string,
 		"cat %s/appahost/footer.dat",
 		document_root );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	fflush( stdout );
 
 	return 0;
@@ -126,13 +127,20 @@ void output_solved_sudoku( DICTIONARY *post_dictionary )
 			piece_buffer );
 	}
 	fclose( input_file );
+
+	printf(
+"<tr><td colspan=9>The source code is available <a href=%s>here.</a>\n",
+"https://github.com/timhriley/appaserver/tree/master/src_sudoku" );
+
 	printf( "</table>\n" );
+
 	printf(
 "<table align=center border=0 cellpadding=0 cellspacing=0><tr><td align=center><input type=\"button\" value=\"Back\" onclick=\"history.back()\">\n" );
+
 	printf( "</table></div>\n" );
-/*
-	printf( "</table></div></body></html>\n" );
-*/
+
+	printf( "</body></html>\n" );
+
 } /* output_solved_sudoku() */
 
 void output_html_heading( void )
