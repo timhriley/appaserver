@@ -48,7 +48,7 @@ typedef struct
 {
 	char *date_colon_time;
 	double measurement_value;
-} OUTPUT_MEASUREMENT;
+} MEASUREMENT_OUTPUT;
 
 typedef struct
 {
@@ -73,7 +73,7 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
-OUTPUT_MEASUREMENT *measurement_output_strdup_new(
+MEASUREMENT_OUTPUT *measurement_output_new(
 				char *date_colon_time,
 				double measurement_value );
 
@@ -150,10 +150,6 @@ EXPECTED_COUNT *get_or_set_expected_count(
 				char *begin_date,
 				char *end_date,
 				enum aggregate_level aggregate_level );
-
-OUTPUT_MEASUREMENT *output_measurement_new(
-				char *date_colon_time,
-				double measurement_value );
 
 TRANSMIT_MEASUREMENT_SETS *transmit_measurement_sets_new(
 				void );
@@ -869,7 +865,7 @@ void datatype_set_measurement_record(
 	char date_colon_time[ 32 ];
 	double measurement_value;
 	HASH_TABLE *measurement_hash_table;
-	OUTPUT_MEASUREMENT *measurement;
+	MEASUREMENT_OUTPUT *measurement;
 	static JULIAN *measurement_julian = {0};
 
 	piece( 	measurement_string, 
@@ -911,7 +907,7 @@ void datatype_set_measurement_record(
 
 	sprintf( date_colon_time, "%s:%s", date, time );
 
-	measurement = measurement_output_strdup_new(
+	measurement = measurement_output_new(
 				strdup( date_colon_time ),
 				measurement_value );
 
@@ -943,7 +939,7 @@ void output_measurement_data_sets_to_file(
 	FILE *f;
 	DATATYPE *datatype;
 	char *date_colon_time_slot;
-	OUTPUT_MEASUREMENT *measurement;
+	MEASUREMENT_OUTPUT *measurement;
 	double time_percent_of_day;
 	char date_colon_time_slot_display[ 128 ];
 	char time_string[ 128 ];
@@ -1096,29 +1092,6 @@ TRANSMIT_MEASUREMENT_SETS *transmit_measurement_sets_new( void )
 
 	transmit_measurement_sets->expected_count_list = list_new_list();
 	return transmit_measurement_sets;
-}
-
-OUTPUT_MEASUREMENT *output_measurement_new(
-				char *date_colon_time,
-				double measurement_value )
-{
-	OUTPUT_MEASUREMENT *measurement;
-
-	measurement = calloc( 1, sizeof( OUTPUT_MEASUREMENT ) );
-
-	if ( !measurement )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	measurement->date_colon_time = date_colon_time;
-	measurement->measurement_value = measurement_value;
-	return measurement;
 }
 
 void transmit_measurement_sets_populate_expected_count_list_datatype(
@@ -1561,15 +1534,15 @@ date_colon_time_slot_list = (LIST *)0;
 	return "";
 } /* date_colon_time_slot_list_display() */
 
-OUTPUT_MEASUREMENT *measurement_output_strdup_new(
+MEASUREMENT_OUTPUT *measurement_output_new(
 				char *date_colon_time,
 				double measurement_value )
 {
-	OUTPUT_MEASUREMENT *m;
+	MEASUREMENT_OUTPUT *m;
 
-	if ( ! ( m = (OUTPUT_MEASUREMENT *)
+	if ( ! ( m = (MEASUREMENT_OUTPUT *)
 			calloc( 1,
-				sizeof( OUTPUT_MEASUREMENT ) ) ) )
+				sizeof( MEASUREMENT_OUTPUT ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -1584,5 +1557,5 @@ OUTPUT_MEASUREMENT *measurement_output_strdup_new(
 
 	return m;
 
-} /* measurement_output_strdup_new() */
+} /* measurement_output_new() */
 
