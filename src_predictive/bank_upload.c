@@ -1974,172 +1974,6 @@ void bank_upload_reconciliation_transaction_insert(
 
 } /* bank_upload_reconciliation_transaction_insert() */
 
-LIST *bank_upload_get_general_transaction_list(
-				char *application_name,
-				char *fund_name,
-				double abs_bank_amount,
-				double exact_value,
-				boolean select_debit )
-{
-	char sys_string[ 2048 ];
-	char select[ 512 ];
-	char *folder;
-	char where[ 1024 ];
-	char *order;
-	FILE *input_pipe;
-	FILE *output_pipe;
-	char input_buffer[ 1024 ];
-	char *cash_account;
-	char exact_where[ 128 ];
-	char full_name[ 128 ];
-	char street_address[ 128 ];
-	char transaction_date_time[ 128 ];
-	char transaction_amount[ 128 ];
-	char temp_output_file[ 128 ];
-	LIST *transaction_list;
-	char *amount_column;
-	char *pipe_delimited_transaction_list_string;
-
-	cash_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			LEDGER_CASH_KEY,
-			0 /* not warning_only */,
-			__FUNCTION__ );
-
-	if ( select_debit )
-		amount_column = "debit_amount";
-	else
-		amount_column = "credit_amount";
-
-	if ( exact_value )
-	{
-		sprintf(exact_where,
-		 	"ifnull( %s, 0 ) = %.2lf",
-			amount_column,
-		 	exact_value );
-	}
-	else
-	{
-		strcpy( exact_where, "1 = 1" );
-	}
-
-	sprintf( select,
-"journal_ledger.full_name, journal_ledger.street_address, transaction_date_time, %s",
-		 amount_column );
-
-	folder = "journal_ledger";
-
-	sprintf( where,
-"account = '%s' and ifnull( %s, 0 ) <> 0 and %s and %s",
-		 cash_account,
-		 amount_column,
-		 bank_upload_transaction_journal_ledger_subquery(),
-		 exact_where );
-
-	order = "transaction_date_time";
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		 "
-		 "			select=\"%s\"		 "
-		 "			folder=%s		 "
-		 "			where=\"%s\"		 "
-		 "			order=%s		|"
-		 "head -%d					 ",
-		 application_name,
-		 select,
-		 folder,
-		 where,
-		 order,
-		 TRANSACTIONS_CHECK_COUNT );
-
-	input_pipe = popen( sys_string, "r" );
-
-	sprintf( temp_output_file,
-		 "/tmp/bank_upload_transaction_insert_%d",
-		 getpid() );
-
-	sprintf( sys_string,
-		 "keys_match_sum.e %.2lf > %s",
-		 abs_bank_amount,
-		 temp_output_file );
-
-	output_pipe = popen( sys_string, "w" );
-
-	while ( get_line( input_buffer, input_pipe ) )
-	{
-		if ( character_count(
-			FOLDER_DATA_DELIMITER,
-			input_buffer ) != 3 )
-		{
-			fprintf( stderr,
-			"Error in %s/%s()/%d: not 3 delimiters in (%s)\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 input_buffer );
-
-			pclose( input_pipe );
-			pclose( output_pipe );
-
-			exit( 1 );
-		}	
-
-		piece( full_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-		piece( street_address, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-
-		piece(	transaction_date_time,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			2 );
-
-		piece(	transaction_amount,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			3 );
-
-		fprintf( output_pipe,
-			 "%s^%s^%s|%s\n",
-			 full_name,
-			 street_address,
-			 transaction_date_time,
-			 transaction_amount );
-		
-	} /* while( get_line() ) */
-
-	pclose( input_pipe );
-	pclose( output_pipe );
-
-	if ( !timlib_file_populated( temp_output_file ) )
-	{
-		sprintf( sys_string, "rm %s", temp_output_file );
-		if ( system( sys_string ) ) {};
-
-		return (LIST *)0;
-	}
-
-	sprintf( sys_string,
-		 "cat %s",
-		 temp_output_file );
-
-	/* ------------------------------------------------------------ */
-	/* Format: full_name^street_address^transaction_date_time[|...] */
-	/* ------------------------------------------------------------ */
-	pipe_delimited_transaction_list_string = pipe2string( sys_string );
-
-	sprintf( sys_string, "rm %s", temp_output_file );
-	if ( system( sys_string ) ) {};
-
-	transaction_list =
-		bank_upload_transaction_list_string_parse(
-			pipe_delimited_transaction_list_string,
-			'|' );
-
-	return transaction_list;
-
-} /* bank_upload_get_general_transaction_list() */
-
 LIST *bank_upload_get_feeder_transaction_list(
 				char *application_name,
 				char *fund_name,
@@ -2369,65 +2203,6 @@ LIST *bank_upload_transaction_list_string_parse(
 	return transaction_list;
 
 } /* bank_upload_transaction_list_string_parse() */
-
-LIST *bank_upload_get_reconciled_transaction_list(
-					char *application_name,
-					char *fund_name,
-					char *bank_description,
-					double bank_amount )
-{
-	boolean select_debit;
-	LIST *transaction_list;
-	double abs_bank_amount;
-
-	select_debit = (bank_amount > 0.0);
-	abs_bank_amount = timlib_abs_double( bank_amount );
-
-	transaction_list =
-		bank_upload_get_feeder_transaction_list(
-				application_name,
-				fund_name,
-				bank_description,
-				abs_bank_amount,
-				abs_bank_amount
-					/* exact_value */,
-				select_debit );
-
-	if ( list_length( transaction_list ) )
-	{
-		return transaction_list;
-	}
-
-	transaction_list =
-		bank_upload_get_general_transaction_list(
-				application_name,
-				fund_name,
-				abs_bank_amount,
-				abs_bank_amount
-					/* exact_value */,
-				select_debit );
-
-	if ( list_length( transaction_list ) )
-	{
-		return transaction_list;
-	}
-
-	transaction_list =
-		bank_upload_get_general_transaction_list(
-				application_name,
-				fund_name,
-				abs_bank_amount,
-				0.0 /* exact_value */,
-				select_debit );
-
-	if ( list_length( transaction_list ) )
-	{
-		return transaction_list;
-	}
-
-	return (LIST *)0;
-
-} /* bank_upload_get_reconciled_transaction_list() */
 
 char *bank_upload_transaction_bank_upload_subquery( void )
 {
@@ -2887,16 +2662,19 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 			continue;
 		}
 
-		bank_upload->
-			feeder_match_sum_existing_journal_ledger_list =
-			/* ------------------------------------ */
-			/* Sets journal_ledger->match_sum_taken */
-			/* ------------------------------------ */
-			feeder_match_sum_existing_journal_ledger_list(
+		if ( !bank_upload->
+			feeder_match_sum_existing_journal_ledger_list )
+		{
+		   bank_upload->
+			   feeder_match_sum_existing_journal_ledger_list =
+			   /* ------------------------------------ */
+			   /* Sets journal_ledger->match_sum_taken */
+			   /* ------------------------------------ */
+			   feeder_match_sum_existing_journal_ledger_list(
 				existing_cash_journal_ledger_list,
 				float_abs( bank_upload->bank_amount ),
-				bank_upload->bank_date,
 				1 /* check_debit */ );
+		}
 
 		if ( list_length(
 			bank_upload->
@@ -2913,7 +2691,6 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 			feeder_match_sum_existing_journal_ledger_list(
 				existing_cash_journal_ledger_list,
 				float_abs( bank_upload->bank_amount ),
-				bank_upload->bank_date,
 				0 /* not check_debit */ );
 
 	} while ( list_next( bank_upload_list ) );

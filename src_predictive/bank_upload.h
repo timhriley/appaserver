@@ -298,12 +298,6 @@ BANK_UPLOAD *bank_upload_prior_fetch(
 double bank_upload_archive_fetch_latest_running_balance(
 					char *application_name );
 
-LIST *bank_upload_get_reconciled_transaction_list(
-				char *application_name,
-				char *fund_name,
-				char *bank_description,
-				double bank_amount );
-
 /* Insert into BANK_UPLOAD_TRANSACTION */
 /* ----------------------------------- */
 void bank_upload_reconciliation_transaction_insert(
@@ -315,13 +309,6 @@ LIST *bank_upload_get_feeder_transaction_list(
 					char *application_name,
 					char *fund_name,
 					char *bank_description,
-					double abs_bank_amount,
-					double exact_value,
-					boolean select_debit );
-
-LIST *bank_upload_get_general_transaction_list(
-					char *application_name,
-					char *fund_name,
 					double abs_bank_amount,
 					double exact_value,
 					boolean select_debit );

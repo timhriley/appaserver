@@ -7,6 +7,7 @@
 #include "timlib.h"
 #include "piece.h"
 #include "list.h"
+#include "appaserver_error.h"
 #include "keys_match_sum.h"
 
 /* Constants */
@@ -28,6 +29,8 @@ int main( int argc, char **argv )
 	int value_piece_offset = 1;
 	double match_sum;
 	LIST *input_list;
+
+	appaserver_error_stderr( argc, argv );
 
 	if ( argc < 2 )
 	{

@@ -1200,6 +1200,7 @@ keys_match_sum.e: keys_match_sum.c ${APPASERVER_LIBRARY}		\
 		${LIBRARY}/keys_match_sum.o
 	$(CC) 	${CFLAGS} -I${LIBRARY} keys_match_sum.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
+		${APPASERVER_LIBRARY}					\
 		${STANDARD_LIBRARY}					\
 		${LIBRARY}/array.o					\
 		${LIBRARY}/keys_match_sum.o				\

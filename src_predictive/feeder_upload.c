@@ -380,7 +380,6 @@ TRANSACTION *feeder_phrase_match_build_transaction(
 LIST *feeder_match_sum_existing_journal_ledger_list(
 				LIST *existing_cash_journal_ledger_list,
 				double abs_bank_amount,
-				char *bank_date,
 				boolean check_debit )
 {
 	FILE *output_pipe;
@@ -395,6 +394,7 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 	char transaction_date_time [ 32 ];
 	char sys_string[ 512 ];
 	int count = 0;
+	double send_amount;
 
 	if ( !list_rewind( existing_cash_journal_ledger_list ) )
 		return (LIST *)0;
@@ -421,15 +421,30 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 		if ( journal_ledger->check_number )
 			continue;
 
+		send_amount =
+			(check_debit)
+				? journal_ledger->debit_amount
+				: journal_ledger->credit_amount;
+
+		if ( !send_amount ) continue;
+
+/*
+fflush( stderr );
+fprintf(stderr,
+"Sending: %s^%s^%s|%.2lf\n",
+journal_ledger->full_name,
+journal_ledger->street_address,
+journal_ledger->transaction_date_time,
+send_amount );
+*/
+
 		fprintf(output_pipe,
 		 	"%s^%s^%s|%.2lf\n",
 			journal_ledger->full_name,
 			journal_ledger->street_address,
 			journal_ledger->transaction_date_time,
-			(check_debit)
-				? journal_ledger->debit_amount
-				: journal_ledger->credit_amount );
-		
+			send_amount );
+
 		if ( ++count == FEEDER_KEYS_MATCH_SUM_MAX )
 			break;
 

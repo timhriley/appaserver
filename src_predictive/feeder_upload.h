@@ -91,7 +91,6 @@ TRANSACTION *feeder_phrase_match_build_transaction(
 LIST *feeder_match_sum_existing_journal_ledger_list(
 				LIST *existing_cash_journal_ledger_list,
 				double abs_bank_amount,
-				char *bank_date,
 				boolean check_debit );
 
 TRANSACTION *feeder_check_number_existing_transaction(
