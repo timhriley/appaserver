@@ -62,7 +62,7 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr, 
 	"Usage: %s process filename change_existing_data_yn execute_yn\n",
@@ -72,8 +72,8 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 1 ];
 	filename = argv[ 2 ];
-	change_existing_data = ( *argv[ 4 ] == 'y' );
-	execute = ( *argv[ 3 ] == 'y' );
+	change_existing_data = ( *argv[ 3 ] == 'y' );
+	execute = ( *argv[ 4 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -84,7 +84,7 @@ int main( int argc, char **argv )
 
 	load_sfwmd_single_file(
 		appaserver_parameter_file->
-			appaserver_mount_point,
+			appaserver_data_directory,
 		filename,
 		change_existing_data,
 		execute );
@@ -119,11 +119,9 @@ void load_sfwmd_single_file(
 	char bad_parse[ 128 ];
 	char bad_frequency[ 128 ];
 	char bad_insert[ 128 ];
-	char *date_heading_label;
 	pid_t pid;
 	char *dir;
 
-	date_heading_label = "dbkey";
 	pid = getpid();
 	dir = appaserver_data_directory;
 

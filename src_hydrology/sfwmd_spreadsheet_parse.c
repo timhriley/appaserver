@@ -32,7 +32,11 @@
 
 /* Prototypes */
 /* ---------- */
-SFWMD_STATION_DATATYPE *get_sfwmd_station_datatype(
+SFWMD_STATION_DATATYPE *sfwmd_station_datatype_fetch(
+				/* ------------------- */
+				/* Expect stack memory */
+				/* ------------------- */
+				char *db_key,
 				HASH_TABLE *sfwmd_station_datatype_hash_table,
 				char *input_buffer );
 
@@ -139,6 +143,7 @@ void sfwmd_spreadsheet_parse(	char *application_name,
 	char input_buffer[ 1024 ];
 	SFWMD_STATION_DATATYPE *sfwmd_station_datatype;
 	int line_number = 0;
+	char db_key[ 1024 ];
 
 	sfwmd_station_datatype_hash_table =
 		load_sfwmd_station_datatype_hash_table(
@@ -159,13 +164,21 @@ void sfwmd_spreadsheet_parse(	char *application_name,
 	{
 		line_number++;
 
+		*db_key = '\0';
+
 		if ( ! ( sfwmd_station_datatype =
-				get_sfwmd_station_datatype(
+				sfwmd_station_datatype_fetch(
+					/* ------------------- */
+					/* Expect stack memory */
+					/* ------------------- */
+					db_key,
 					sfwmd_station_datatype_hash_table,
 					input_buffer ) ) )
 		{
 			fprintf(stderr,
-				"Error: cannot get station datatype for [%s]\n",
+"Error in line %d: cannot get station datatype for dbkey=[%s] in [%s]\n",
+				line_number,
+				db_key,
 				input_buffer );
 			continue;
 		}
@@ -173,7 +186,8 @@ void sfwmd_spreadsheet_parse(	char *application_name,
 		if ( !*sfwmd_station_datatype->station )
 		{
 			fprintf(stderr,
-				"Error: cannot get station for [%s]\n",
+		"Error in line %d: cannot get station for [%s]\n",
+				line_number,
 				input_buffer );
 			continue;
 		}
@@ -181,7 +195,8 @@ void sfwmd_spreadsheet_parse(	char *application_name,
 		if ( !*sfwmd_station_datatype->datatype )
 		{
 			fprintf(stderr,
-				"Error: cannot get datatype for [%s]\n",
+		"Error in line %d: cannot get datatype for [%s]\n",
+				line_number,
 				input_buffer );
 			continue;
 		}
@@ -210,7 +225,11 @@ void sfwmd_spreadsheet_parse(	char *application_name,
 
 } /* sfwmd_spreadsheet_parse() */
 
-SFWMD_STATION_DATATYPE *get_sfwmd_station_datatype(
+SFWMD_STATION_DATATYPE *sfwmd_station_datatype_fetch(
+				/* ------------------- */
+				/* Expect stack memory */
+				/* ------------------- */
+				char *db_key,
 				HASH_TABLE *sfwmd_station_datatype_hash_table,
 				char *input_buffer )
 {
@@ -227,7 +246,8 @@ SFWMD_STATION_DATATYPE *get_sfwmd_station_datatype(
 
 	/* piece db_key */
 	/* ------------ */
-	if ( !piece( piece_buffer, ',', process_buffer, 1 ) )
+	*db_key = '\0';
+	if ( !piece( db_key, ',', process_buffer, 1 ) )
 	{
 		return (SFWMD_STATION_DATATYPE *)0;
 	}
@@ -235,7 +255,7 @@ SFWMD_STATION_DATATYPE *get_sfwmd_station_datatype(
 	if ( ! ( sfwmd_station_datatype =
 		hash_table_fetch(
 			sfwmd_station_datatype_hash_table,
-			piece_buffer ) ) )
+			db_key ) ) )
 	{
 		return (SFWMD_STATION_DATATYPE *)0;
 	}
@@ -328,5 +348,5 @@ SFWMD_STATION_DATATYPE *get_sfwmd_station_datatype(
 
 	return sfwmd_station_datatype;
 
-} /* get_sfwmd_station_datatype() */
+} /* sfwmd_station_datatype_fetch() */
 
