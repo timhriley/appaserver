@@ -31,6 +31,46 @@
 
 /* Prototypes */
 /* ---------- */
+void generate_invoice_email_display(
+				char *application_name,
+				char *process_name,
+				char *document_root_directory,
+				char *camp_begin_date,
+				char *camp_title,
+				char *full_name,
+				char *street_address,
+				int process_id );
+
+void generate_invoice_email_send(
+				char *application_name,
+				char *process_name,
+				char *document_root_directory,
+				char *camp_begin_date,
+				char *camp_title,
+				char *full_name,
+				char *street_address );
+
+/* Returns output_filename */
+/* ----------------------- */
+char *generate_invoice_PDF(	char **ftp_output_filename,
+				char *application_name,
+				char *process_name,
+				char *document_root_directory,
+				char *camp_begin_date,
+				char *camp_title,
+				char *full_name,
+				char *street_address,
+				int process_id );
+
+void generate_invoice(		char *application_name,
+				char *process_name,
+				char *document_root_directory,
+				char *camp_begin_date,
+				char *camp_title,
+				char *full_name,
+				char *street_address,
+				char *output_option );
+
 double generate_invoice_populate_line_item_list(
 				LIST *invoice_line_item_list,
 				double enrollment_cost,
@@ -50,8 +90,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 void output_invoice_window(
 				char *application_name,
 				char *ftp_output_filename,
-				int process_id,
-				char *process_name );
+				int process_id );
 
 int main( int argc, char **argv )
 {
@@ -62,15 +101,8 @@ int main( int argc, char **argv )
 	char *camp_title;
 	char *full_name;
 	char *street_address;
+	char *output_option;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	int process_id = getpid();
-	FILE *output_stream;
-	char *output_filename;
-	char *output_directory;
-	char *ftp_output_filename;
-	APPLICATION_CONSTANTS *application_constants;
-	char sys_string[ 1024 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -79,10 +111,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s process camp_begin_date camp_title full_name street_address\n",
+"Usage: %s process camp_begin_date camp_title full_name street_address output_option\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -92,53 +124,9 @@ int main( int argc, char **argv )
 	camp_title = argv[ 3 ];
 	full_name = argv[ 4 ];
 	street_address = argv[ 5 ];
+	output_option = argv[ 6 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	application_constants = application_constants_new();
-	application_constants->dictionary =
-		application_constants_get_dictionary(
-			application_name );
-
-	appaserver_link_file =
-		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-	 		appaserver_parameter_file->
-				document_root,
-			process_name /* filename_stem */,
-			application_name,
-			process_id,
-			(char *)0 /* session */,
-			(char *)0 /* extension */ );
-
-	appaserver_link_file->extension = "tex";
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	if ( ! ( output_stream = fopen( output_filename, "w" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: file open error = (%s).\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			output_filename );
-		exit( 1 );
-	}
 
 	document_quick_output_body(
 		application_name,
@@ -153,69 +141,15 @@ int main( int argc, char **argv )
 	fflush( stdout );
 	printf( "</h2>\n" );
 
-	if ( !build_latex_invoice(
-			output_stream,
-			application_name,
-			camp_begin_date,
-			camp_title,
-			full_name,
-			street_address,
-			application_constants->dictionary ) )
-	{
-		printf( "<h3>Please choose a Camp Enrollment.</h3>\n" );
-		fclose( output_stream );
-		document_close();
-		exit( 0 );
-	}
-
-	fclose( output_stream );
-
-	output_directory =
-		appaserver_link_get_source_directory(
-			appaserver_parameter_file->
-				document_root,
-			application_name );
-
-	sprintf( sys_string,
-		 "cd %s && pdflatex %s 1>&2",
-		 output_directory,
-		 output_filename );
-/*
-	sprintf( sys_string,
-		 "cd %s && pdflatex %s >/dev/null 2>&1",
-		 output_directory,
-		 output_filename );
-*/
-
-/* fprintf( stderr, "%s\n", sys_string ); */
-
-	if ( system( sys_string ) ) {};
-
-	appaserver_link_file->extension = "pdf";
-
-	ftp_output_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	output_invoice_window(
-			application_name,
-			ftp_output_filename,
-			process_id,
-			process_name );
+	generate_invoice(	application_name,
+				process_name,
+				appaserver_parameter_file->
+					document_root,
+				camp_begin_date,
+				camp_title,
+				full_name,
+				street_address,
+				output_option );
 
 	document_close();
 
@@ -226,11 +160,9 @@ int main( int argc, char **argv )
 void output_invoice_window(
 			char *application_name,
 			char *ftp_output_filename,
-			int process_id,
-			char *process_name )
+			int process_id )
 {
 	char window_label[ 128 ];
-	char buffer[ 128 ];
 
 	sprintf( window_label, "latex_invoice_window_%d", process_id );
 
@@ -241,11 +173,13 @@ void output_invoice_window(
 			ftp_output_filename,
 			window_label );
 
+/*
 	printf( "<h1>%s<br>",
 		format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
 	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
 	printf( "</h1>\n" );
+*/
 	printf( "<a href='%s' target=%s>Press to view document.</a>\n",
 		ftp_output_filename,
 		window_label );
@@ -494,4 +428,239 @@ double generate_invoice_populate_line_item_list(
 	return extension_total;
 
 } /* generate_invoice_populate_line_item_list() */
+
+void generate_invoice(		char *application_name,
+				char *process_name,
+				char *document_root_directory,
+				char *camp_begin_date,
+				char *camp_title,
+				char *full_name,
+				char *street_address,
+				char *output_option )
+{
+	int process_id = getpid();
+	char *ftp_output_filename;
+	char *output_filename;
+
+	if ( strcmp( output_option, "PDF" ) == 0 )
+	{
+		output_filename =
+			generate_invoice_PDF(
+				&ftp_output_filename,
+				application_name,
+				process_name,
+				document_root_directory,
+				camp_begin_date,
+				camp_title,
+				full_name,
+				street_address,
+				process_id );
+
+		output_invoice_window(
+			application_name,
+			ftp_output_filename,
+			process_id );
+
+	}
+	else
+	if ( strcmp( output_option, "email_display" ) == 0 )
+	{
+		generate_invoice_email_display(
+				application_name,
+				process_name,
+				document_root_directory,
+				camp_begin_date,
+				camp_title,
+				full_name,
+				street_address,
+				process_id );
+	}
+	else
+	if ( strcmp( output_option, "email_send" ) == 0 )
+	{
+		generate_invoice_email_send(
+				application_name,
+				process_name,
+				document_root_directory,
+				camp_begin_date,
+				camp_title,
+				full_name,
+				street_address );
+	}
+
+} /* generate_invoice() */
+
+/* Returns output_filename */
+/* ----------------------- */
+char *generate_invoice_PDF(	char **ftp_output_filename,
+				char *application_name,
+				char *process_name,
+				char *document_root_directory,
+				char *camp_begin_date,
+				char *camp_title,
+				char *full_name,
+				char *street_address,
+				int process_id )
+{
+	FILE *output_stream;
+	char *output_filename;
+	char *output_directory;
+	APPLICATION_CONSTANTS *application_constants;
+	char sys_string[ 1024 ];
+	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	application_constants = application_constants_new();
+	application_constants->dictionary =
+		application_constants_get_dictionary(
+			application_name );
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			process_name /* filename_stem */,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			(char *)0 /* extension */ );
+
+	appaserver_link_file->extension = "tex";
+
+	output_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	if ( ! ( output_stream = fopen( output_filename, "w" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: file open error = (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			output_filename );
+		exit( 1 );
+	}
+
+	if ( !build_latex_invoice(
+			output_stream,
+			application_name,
+			camp_begin_date,
+			camp_title,
+			full_name,
+			street_address,
+			application_constants->dictionary ) )
+	{
+		printf( "<h3>Please choose a Camp Enrollment.</h3>\n" );
+		fclose( output_stream );
+		document_close();
+		exit( 0 );
+	}
+
+	fclose( output_stream );
+
+	output_directory =
+		appaserver_link_get_source_directory(
+			document_root_directory,
+			application_name );
+
+	sprintf( sys_string,
+		 "cd %s && pdflatex %s 1>&2",
+		 output_directory,
+		 output_filename );
+/*
+	sprintf( sys_string,
+		 "cd %s && pdflatex %s >/dev/null 2>&1",
+		 output_directory,
+		 output_filename );
+*/
+
+/* fprintf( stderr, "%s\n", sys_string ); */
+
+	if ( system( sys_string ) ) {};
+
+	appaserver_link_file->extension = "pdf";
+
+	*ftp_output_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	return output_filename;
+
+} /* generate_invoice_PDF() */
+
+void generate_invoice_email_display(
+				char *application_name,
+				char *process_name,
+				char *document_root_directory,
+				char *camp_begin_date,
+				char *camp_title,
+				char *full_name,
+				char *street_address,
+				int process_id )
+{
+	char *output_filename;
+	char *ftp_output_filename;
+	char pdf_output_filename[ 1024 ];
+	int str_len;
+
+	output_filename =
+		generate_invoice_PDF(
+			&ftp_output_filename,
+			application_name,
+			process_name,
+			document_root_directory,
+			camp_begin_date,
+			camp_title,
+			full_name,
+			street_address,
+			process_id );
+
+	strcpy( pdf_output_filename, output_filename );
+
+
+	str_len = strlen( pdf_output_filename );
+
+	sprintf( pdf_output_filename + str_len - 3,
+		 "pdf" );
+
+	printf( "<p>Generated %s\n", pdf_output_filename );
+
+} /* generate_invoice_email_display() */
+
+void generate_invoice_email_send(
+				char *application_name,
+				char *process_name,
+				char *document_root_directory,
+				char *camp_begin_date,
+				char *camp_title,
+				char *full_name,
+				char *street_address )
+{
+} /* generate_invoice_email_send() */
 
