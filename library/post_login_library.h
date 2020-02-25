@@ -47,4 +47,7 @@ char *post_login_get_encoded_password(
 					char *password,
 					boolean old_password );
 
+char *post_login_password_match_return_display(
+					enum password_match_return );
+
 #endif

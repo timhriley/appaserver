@@ -390,7 +390,7 @@ int email_password(	char *login_name,
 		 "echo %s | mailx -s \"Appaserver password\" %s",
 		 password,
 		 login_name );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	return 1;
 
 } /* email_password() */

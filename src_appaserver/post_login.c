@@ -21,6 +21,7 @@
 #include "appaserver.h"
 #include "environ.h"
 #include "basename.h"
+#include "boolean.h"
 #include "dictionary.h"
 #include "post2dictionary.h"
 #include "appaserver_parameter_file.h"
@@ -39,7 +40,7 @@ int main( int argc, char **argv )
 	char *database_password = "";
 	char *session;
 	DICTIONARY *post_dictionary;
-	int login_denied = 0;
+	boolean login_denied = 0;
 	enum password_match_return password_match_return;
 
 	if ( ! ( post_dictionary =
@@ -150,6 +151,14 @@ int main( int argc, char **argv )
 				login_name,
 				password,
 				database_password );
+
+/*
+fprintf( stderr, "%s/%s()/%d: got password_match_return = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+post_login_password_match_return_display( password_match_return ) );
+*/
 
 	if ( password_match_return == password_match
 	||   password_match_return == public_login

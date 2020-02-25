@@ -57,12 +57,12 @@ boolean post_login_email_login(
 	sprintf( sys_string,
 		 "/usr/sbin/sendmail -t < %s",
 		 mailfile );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	sprintf( sys_string,
 		 "rm -f %s",
 		 mailfile );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	return 1;
 
@@ -182,7 +182,7 @@ void post_login_output_frameset(	char *application_name,
 			login_name,
 			appaserver_error_get_filename(
 				application_name ) );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	}
 	else
 	if ( password_match_return == email_login )
@@ -219,7 +219,7 @@ void post_login_output_frameset(	char *application_name,
 			appaserver_error_get_filename(
 				application_name ) );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		if ( post_login_email_login(
 			login_name,
@@ -305,4 +305,22 @@ char *post_login_get_encoded_password(
 	return encoded_password;
 
 } /* post_login_get_encoded_password() */
+
+char *post_login_password_match_return_display(
+			enum password_match_return password_match_return )
+{
+	if ( password_match_return == password_match )
+		return "password_match";
+	else
+	if ( password_match_return == password_fail )
+		return "password_fail";
+	else
+	if ( password_match_return == public_login )
+		return "public_login";
+	if ( password_match_return == email_login )
+		return "email_login";
+	else
+		return "unknown";
+
+} /* post_login_password_match_return_display() */
 
