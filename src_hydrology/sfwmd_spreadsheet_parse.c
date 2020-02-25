@@ -253,9 +253,9 @@ SFWMD_STATION_DATATYPE *sfwmd_station_datatype_fetch(
 	}
 
 	if ( ! ( sfwmd_station_datatype =
-		hash_table_fetch(
-			sfwmd_station_datatype_hash_table,
-			db_key ) ) )
+			hash_table_fetch(
+				sfwmd_station_datatype_hash_table,
+				db_key ) ) )
 	{
 		return (SFWMD_STATION_DATATYPE *)0;
 	}
