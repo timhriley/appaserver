@@ -9,7 +9,7 @@ if [ $# -lt 1 ]
 then
 	echo "Usage: . mysqldump_extract_yesterday.sh database [days_ago] [backup_directory]" 1>&2
 	echo "Note: days_ago defaults to 0, which should represent yesterday." 1>&2
-	echo "Note: backup_directory defaults to /var/backups" 1>&2
+	echo "Note: backup_directory defaults to current directory." 1>&2
 else
 	database=$1
 
@@ -24,7 +24,7 @@ else
 	then
 		backup_directory=$3
 	else
-		backup_directory=/var/backups
+		backup_directory="."
 	fi
 
 	db=$database

@@ -7,7 +7,8 @@
 # -----------------------------------------------------------------------
 if [ "$#" -ne 3 ]
 then
-	echo "Usage: $0 database parameter_file yyyy_mm_dd" 1>&2
+echo "Usage: $0 database parameter_file yyyy_mm_dd" 1>&2
+echo "Note: have cloudacus_var_backups_appaserver.tar in current directory." 1>&2
 	exit 1
 fi
 
