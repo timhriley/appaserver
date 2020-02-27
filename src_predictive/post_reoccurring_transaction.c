@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------	*/
-/* src_predictive/post_reoccurring_transaction.c			*/
+/* $APPASERVER_HOME/src_predictive/post_reoccurring_transaction.c	*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -32,6 +32,11 @@
 
 /* Prototypes */
 /* ---------- */
+void post_reoccurring_transaction_subquery(
+			char *sub_query,
+			char *debit_account,
+			char *credit_account );
+
 void post_reoccurring_transaction_batch(
 			FILE *output_pipe,
 			char *application_name,
@@ -54,14 +59,16 @@ char *get_last_transaction_date(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			char *transaction_description );
+			char *debit_account,
+			char *credit_account );
 
 int get_days_between_last_transaction(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			char *transaction_description );
+			char *debit_account,
+			char *credit_account );
 
 TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 			char *application_name,
@@ -221,6 +228,20 @@ int main( int argc, char **argv )
 
 	output_pipe = popen( sys_string, "w" );
 
+	/* --------------------- */
+	/* If doing for in batch */
+	/* --------------------- */
+	if ( strcmp(	process_name,
+			"post_reoccurring_transaction_accrual" ) == 0 )
+	{
+		post_reoccurring_transaction_batch(
+				output_pipe,
+				application_name,
+				transaction_date_time,
+				execute );
+	}
+	else
+	/* ---------------------------- */
 	/* If doing for a single entity */
 	/* ---------------------------- */
 	if ( strcmp( full_name, "full_name" ) != 0 )
@@ -234,19 +255,6 @@ int main( int argc, char **argv )
 				transaction_date_time,
 				transaction_amount,
 				memo,
-				execute );
-	}
-	else
-	/* --------------------- */
-	/* If doing for in batch */
-	/* --------------------- */
-	if ( strcmp(	process_name,
-			"post_reoccurring_transaction_accrual" ) == 0 )
-	{
-		post_reoccurring_transaction_batch(
-				output_pipe,
-				application_name,
-				transaction_date_time,
 				execute );
 	}
 
@@ -608,7 +616,8 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 				full_name,
 				street_address,
 				transaction_date_time,
-				transaction_description ) ) )
+				debit_account,
+				credit_account ) ) )
 	{
 		return (TRANSACTION *)0;
 	}
@@ -674,13 +683,14 @@ int get_days_between_last_transaction(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			char *transaction_description )
+			char *debit_account,
+			char *credit_account )
 {
-	char sys_string[ 1024 ];
+	char sys_string[ 2048 ];
 	int current_year;
-	char where[ 256 ];
+	char where[ 1024 ];
+	char sub_query[ 1024 ];
 	char name_buffer[ 256 ];
-	char description_buffer[ 256 ];
 	char *select;
 	char *folder;
 	char *max_transaction_date;
@@ -698,19 +708,20 @@ int get_days_between_last_transaction(
 	select = "max( transaction_date_time )";
 	folder = "transaction";
 
+	post_reoccurring_transaction_subquery(
+		sub_query,
+		debit_account,
+		credit_account );
+
 	sprintf( where,
 		 "full_name = '%s' and				"
 		 "street_address = '%s' and			"
-		 "memo = '%s' and				"
-		 "transaction_date_time >= '%d-01-01 00:00:00'	",
+		 "%s						",
 		 escape_character(	name_buffer,
 					full_name,
 					'\'' ),
 		 street_address,
-		 escape_character(	description_buffer,
-					transaction_description,
-					'\'' ),
-		 current_year );
+		 sub_query );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			 "
@@ -727,14 +738,7 @@ int get_days_between_last_transaction(
 
 	if ( !timlib_strlen( max_transaction_date ) )
 	{
-		sprintf( name_buffer,
-			 "%d-12-31",
-			 current_year - 1 );
-
-		days_between =
-			date_days_between(
-				name_buffer /* from_date */,
-				end_date_string /* to_date */ );
+		days_between = 1;
 	}
 	else
 	{
@@ -771,7 +775,8 @@ TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 				full_name,
 				street_address,
 				transaction_date_time,
-				transaction_description );
+				debit_account,
+				credit_account );
 
 	column( end_date_string, 0, transaction_date_time );
 
@@ -837,13 +842,14 @@ char *get_last_transaction_date(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			char *transaction_description )
+			char *debit_account,
+			char *credit_account )
 {
-	char sys_string[ 1024 ];
+	char sys_string[ 2048 ];
 	int current_year;
-	char where[ 256 ];
+	char where[ 1024 ];
+	char sub_query[ 1024 ];
 	char name_buffer[ 256 ];
-	char description_buffer[ 256 ];
 	char *select;
 	char *folder;
 	char *last_transaction_date_time;
@@ -858,19 +864,20 @@ char *get_last_transaction_date(
 	select = "max( transaction_date_time )";
 	folder = "transaction";
 
+	post_reoccurring_transaction_subquery(
+		sub_query,
+		debit_account,
+		credit_account );
+
 	sprintf( where,
 		 "full_name = '%s' and				"
 		 "street_address = '%s' and			"
-		 "memo = '%s' and				"
-		 "transaction_date_time >= '%d-01-01 00:00:00'	",
+		 "%s						",
 		 escape_character(	name_buffer,
 					full_name,
 					'\'' ),
 		 street_address,
-		 escape_character(	description_buffer,
-					transaction_description,
-					'\'' ),
-		 current_year );
+		 sub_query );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			 "
@@ -894,3 +901,29 @@ char *get_last_transaction_date(
 
 } /* get_last_transaction_date() */
 
+void post_reoccurring_transaction_subquery(
+			char *sub_query,
+			char *debit_account,
+			char *credit_account )
+{
+	sprintf( sub_query,
+		 "exists ( select 1 from journal_ledger			"
+		 "	   where transaction.full_name =		"
+		 "		journal_ledger.full_name 		"
+		 "	     and transaction.street_address =		"
+		 "		journal_ledger.street_address 		"
+		 "	     and transaction.transaction_date_time =	"
+		 "		journal_ledger.transaction_date_time	"
+		 "	     and account = '%s' ) and			"
+		 "exists ( select 1 from journal_ledger			"
+		 "	   where transaction.full_name =		"
+		 "		journal_ledger.full_name 		"
+		 "	     and transaction.street_address =		"
+		 "		journal_ledger.street_address 		"
+		 "	     and transaction.transaction_date_time =	"
+		 "		journal_ledger.transaction_date_time	"
+		 "	     and account = '%s' ) 			",
+		 debit_account,
+		 credit_account );
+
+} /* post_reoccurring_transaction_subquery() */
