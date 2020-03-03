@@ -131,6 +131,17 @@ int main( int argc, char **argv )
 							datatype_name );
 			}
 
+/*
+fprintf( stderr, "%s/%s()/%d: with delimited_record = %s, got data_collection_frequency_list = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+delimited_record,
+station_datatype_frequency_display(
+	station_datatype->data_collection_frequency_list ) );
+fflush( stderr );
+*/
+
 			if ( station_datatype_frequency_reject(
 				station_datatype->
 					data_collection_frequency_list,

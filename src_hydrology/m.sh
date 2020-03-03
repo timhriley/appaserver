@@ -1,6 +1,8 @@
 :
 
-make sl2_upload
+touch measurement_insert.c
+make station_datatype.o
+make measurement_insert
 
 #cd - && make parse_alias_data
 

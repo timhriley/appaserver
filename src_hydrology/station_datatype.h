@@ -139,4 +139,7 @@ boolean station_datatype_expected_count_reject(
 			char *measurement_time,
 			int expected_count_per_day );
 
+char *station_datatype_frequency_display(
+			LIST *data_collection_frequency_list );
+
 #endif
