@@ -16,10 +16,8 @@ parameter=$2
 select="station,parameter,units"
 where="station = '$station' and parameter = '$parameter'"
 
-. set_database waterquality
-
 echo "select $select from station_parameter where $where;"	|
-sql.e								|
+sql.e waterquality						|
 sort
 
 exit 0

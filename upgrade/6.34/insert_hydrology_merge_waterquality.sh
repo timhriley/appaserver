@@ -13,6 +13,12 @@ then
 	echo "$ . set_database" 1>&2
 	exit 1
 fi
+
+if [ "$application" != "hydrology" -a "$application" != "audubon" ]
+then
+	exit 0
+fi
+
 process="process"
 operation="operation"
 process_parameter="process_parameter"
@@ -28,23 +34,23 @@ role_process_set_member="role_process_set_member"
 role_operation="role_operation"
 (
 cat << all_done
-delete from $process where process = 'output_merge_waterquality';
-insert into $process (process,command_line,notepad,html_help_file_anchor,process_set_display,appaserver_yn,process_group,preprompt_help_text,post_change_javascript) values ('output_merge_waterquality','output_merge_waterquality \$process waterquality_station waterquality_parameter waterquality_units hydrology_station hydrology_datatype begin_date end_date output_medium',null,null,null,null,'output',null,null);
-insert into $role_process (role,process) values ('supervisor','output_merge_waterquality');
-delete from $process_parameter where process = 'output_merge_waterquality';
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merge_waterquality','null','null','begin_date','null','3',null,'n',null,null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merge_waterquality','null','null','end_date','null','4',null,'n',null,null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merge_waterquality','null','null','null','merge_waterquality_output_medium','9',null,null,null,null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merge_waterquality','null','null','null','waterquality_parameter','1',null,'y','populate_waterquality_parameter',null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merge_waterquality','null','null','null','waterquality_station','2',null,'y','populate_waterquality_station',null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merge_waterquality','null','null','null','waterquality_station_parameter','1',null,null,'populate_waterquality_station_parameter',null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merge_waterquality','station','null','null','null','3',null,'y',null,null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merge_waterquality','station_datatype','null','null','null','2',null,'n',null,null);
-delete from $javascript_processes where process = 'output_merge_waterquality';
-delete from $process_generic_output where process = 'output_merge_waterquality';
+delete from $process where process = 'output_merged_waterquality';
+insert into $process (process,command_line,notepad,html_help_file_anchor,process_set_display,appaserver_yn,process_group,preprompt_help_text,post_change_javascript) values ('output_merged_waterquality','output_merged_waterquality \$process waterquality_station waterquality_parameter waterquality_units hydrology_station hydrology_datatype begin_date end_date output_medium',null,null,null,null,'waterquality',null,null);
+insert into $role_process (role,process) values ('supervisor','output_merged_waterquality');
+delete from $process_parameter where process = 'output_merged_waterquality';
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merged_waterquality','null','null','begin_date','null','3',null,'n',null,null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merged_waterquality','null','null','end_date','null','4',null,'n',null,null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merged_waterquality','null','null','null','merge_waterquality_output_medium','9',null,null,null,null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merged_waterquality','null','null','null','waterquality_parameter','1',null,'y','populate_waterquality_parameter',null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merged_waterquality','null','null','null','waterquality_station','2',null,'y','populate_waterquality_station',null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merged_waterquality','null','null','null','waterquality_station_parameter','1','y',null,'populate_waterquality_station_parameter',null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merged_waterquality','station','null','null','null','3',null,'y',null,null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('output_merged_waterquality','station_datatype','null','null','null','2','y','n',null,null);
+delete from $javascript_processes where process = 'output_merged_waterquality';
+delete from $process_generic_output where process = 'output_merged_waterquality';
 insert into $prompt (prompt,hint_message,upload_filename_yn,date_yn,input_width) values ('begin_date','Format:  YYYY-MM-DD',null,'y','10');
 insert into $prompt (prompt,hint_message,upload_filename_yn,date_yn,input_width) values ('end_date','Format:  YYYY-MM-DD',null,'y','10');
-insert into $process_groups (process_group) values ('output');
+insert into $process_groups (process_group) values ('waterquality');
 insert into $drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('merge_waterquality_output_medium',null,'output_medium');
 insert into $drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('merge_waterquality_output_medium','gracechart','3');
 insert into $drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('merge_waterquality_output_medium','spreadsheet','2');

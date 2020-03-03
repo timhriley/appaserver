@@ -123,7 +123,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		datatype_overlay_output					\
 		daily_moving_statistic_output				\
 		merged_datasets_output					\
-		output_merge_waterquality				\
+		output_merged_waterquality				\
 		water_budget_flow					\
 		output_measurement_differences				\
 		output_hydroperiod					\
@@ -733,7 +733,7 @@ merged_datasets_output: merged_datasets_output.c			\
 		${LIBRARY}/grace.o					\
 		-o merged_datasets_output
 
-output_merge_waterquality: output_merge_waterquality.c			\
+output_merged_waterquality: output_merged_waterquality.c		\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
 		${LIBRARY}/google_chart.o				\
 		${LIBRARY}/grace.o
@@ -742,10 +742,10 @@ output_merge_waterquality: output_merge_waterquality.c			\
 		${EXTERNAL_LIBS}					\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
-		output_merge_waterquality.c				\
+		output_merged_waterquality.c				\
 		${LIBRARY}/google_chart.o				\
 		${LIBRARY}/grace.o					\
-		-o output_merge_waterquality
+		-o output_merged_waterquality
 
 water_budget_flow: water_budget_flow.c					\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
