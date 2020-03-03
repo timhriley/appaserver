@@ -58,6 +58,10 @@ PROCESS_SET *process_new_process_set(
 				char *application_name,
 				char *session, 
 				char *process_set_name );
+
+PROCESS *process_new(		char *application_name,
+				char *process_name );
+
 PROCESS *process_new_process(	char *application_name,
 				char *session, 
 				char *process_name,

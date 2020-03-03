@@ -255,10 +255,16 @@ PARAMETER_DROP_DOWN_PROMPT *parameter_drop_down_prompt_new(
 				char *hint_message,
 				char *optional_display,
 				char *drop_down_multi_select_yn,
-				boolean with_populate_drop_downs );
+				boolean with_populate_drop_downs,
+				char *populate_drop_down_process,
+				DICTIONARY *parameter_dictionary );
+
 LIST *process_parameter_get_drop_down_prompt_data_list(
 				char *application_name,
-				char *drop_down_prompt );
+				char *drop_down_prompt,
+				char *populate_drop_down_process,
+				DICTIONARY *parameter_dictionary );
+
 void process_parameter_set_drop_down_prompt(
 				PROCESS_PARAMETER *process_parameter,
 				PARAMETER_DROP_DOWN_PROMPT *p );
@@ -370,6 +376,14 @@ LIST *process_parameter_get_preprompt_attribute_name_list(
 boolean process_parameter_get_no_initial_capital(
 				char *application_name,
 				char *folder_name );
+
+
+/* Returns heap memory. */
+/* -------------------- */
+char *process_parameter_command_line(
+				char *application_name,
+				char *populate_drop_down_process_string,
+				DICTIONARY *parameter_dictionary );
 
 #endif
 

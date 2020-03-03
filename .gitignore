@@ -22,6 +22,7 @@ backup/
 # -------------
 # src_hydrology
 # -------------
+output_merge_waterquality
 cr10_parse
 sfwmd_breakpoint_parse
 sfwmd_spreadsheet_parse

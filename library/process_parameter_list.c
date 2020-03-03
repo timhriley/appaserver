@@ -133,7 +133,9 @@ PROCESS_PARAMETER_LIST *process_parameter_list_new(
 				strdup(
 				drop_down_prompt_optional_display ),
 				drop_down_multi_select_yn,
-				with_populate_drop_downs );
+				with_populate_drop_downs,
+				populate_drop_down_process,
+				parameter_dictionary );
 
 			process_parameter_set_drop_down_prompt(
 				process_parameter,
@@ -754,7 +756,9 @@ PARAMETER_DROP_DOWN_PROMPT *parameter_drop_down_prompt_new(
 					char *hint_message,
 					char *optional_display,
 					char *drop_down_multi_select_yn,
-					boolean with_populate_drop_downs )
+					boolean with_populate_drop_downs,
+					char *populate_drop_down_process_string,
+					DICTIONARY *parameter_dictionary )
 {
 	PARAMETER_DROP_DOWN_PROMPT *p = (PARAMETER_DROP_DOWN_PROMPT *)
 			calloc( 1, sizeof( PARAMETER_DROP_DOWN_PROMPT ) );
@@ -764,7 +768,9 @@ PARAMETER_DROP_DOWN_PROMPT *parameter_drop_down_prompt_new(
 		p->drop_down_prompt_data_list =
 			process_parameter_get_drop_down_prompt_data_list(
 				application_name,
-				drop_down_prompt );
+				drop_down_prompt,
+				populate_drop_down_process_string,
+				parameter_dictionary );
 	}
 
 	p->drop_down_prompt = drop_down_prompt;
@@ -777,19 +783,48 @@ PARAMETER_DROP_DOWN_PROMPT *parameter_drop_down_prompt_new(
 
 LIST *process_parameter_get_drop_down_prompt_data_list(
 					char *application_name,
-					char *drop_down_prompt )
+					char *drop_down_prompt,
+					char *populate_drop_down_process,
+					DICTIONARY *parameter_dictionary )
 {
 	char sys_string[ 1024 ];
 
-	sprintf( sys_string,
-		 "get_folder_data					"
-		 "		application=%s 				"
-		 "		folder=drop_down_prompt_data		"
-		 "		select=drop_down_prompt_data		"
-		 "		where=\"drop_down_prompt = '%s'\"	"
-		 "		order=display_order			",
-		application_name, drop_down_prompt );
+	if ( populate_drop_down_process && *populate_drop_down_process )
+	{
+		char *command_line;
+
+		command_line =
+			process_parameter_command_line(
+				application_name,
+				populate_drop_down_process,
+				parameter_dictionary );
+
+		if ( command_line )
+			return pipe2list( command_line );
+		else
+			return (LIST *)0;
+	}
+	else
+	{
+		char where[ 512 ];
+
+		sprintf( where,
+			 "drop_down_prompt = '%s'",
+			 drop_down_prompt );
+
+		sprintf( sys_string,
+		 	"get_folder_data				"
+		 	"		application=%s 			"
+		 	"		folder=drop_down_prompt_data	"
+		 	"		select=drop_down_prompt_data	"
+		 	"		where=\"%s\"			"
+		 	"		order=display_order		",
+			application_name,
+			where );
+	}
+
 	return pipe2list( sys_string );
+
 } /* process_parameter_get_drop_down_prompt_data_list() */
 
 void process_parameter_set_drop_down_prompt(
@@ -2361,3 +2396,56 @@ boolean process_parameter_get_no_initial_capital(
 
 	return folder->no_initial_capital;
 } /* process_parameter_get_no_initial_capital() */
+
+/* Returns heap memory. */
+/* -------------------- */
+char *process_parameter_command_line(
+				char *application_name,
+				char *populate_drop_down_process_string,
+				DICTIONARY *parameter_dictionary )
+{
+	PROCESS *process;
+	char *return_string;
+
+	process = process_new(
+			application_name,
+			populate_drop_down_process_string
+				/* process_name */ );
+
+	if ( !process )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: process_new() failed\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+	}
+
+	process_convert_parameters(
+			&process->executable,
+			application_name,
+			(char *)0 /* session */,
+			(char *)0 /* state */,
+			(char *)0 /* login_name */,
+			(char *)0 /* folder_name */,
+			(char *)0 /* role_name */,
+			(char *)0 /* target_frame */,
+			parameter_dictionary,
+			(DICTIONARY *)0 /* where_clause_dictionary */,
+			(LIST *)0 /* attribute_list */,
+			(LIST *)0 /* prompt_list */,
+			(LIST *)0 /* primary_attribute_name_list */,
+			(LIST *)0 /* primary_data_list */,
+			0 /* row */,
+			(char *)0 /* parameter_process_name */,
+			(PROCESS_SET *)0 /* process_set */,
+			(char *)0 /* one2m_folder_name_for_processes */,
+			(char *)0 /* operation_row_count_string */,
+			(char *)0 /* prompt */ );
+
+	return_string = strdup( process->executable );
+	process_free( process );
+	return return_string;
+
+} /* process_parameter_command_line() */
+

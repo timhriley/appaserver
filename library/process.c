@@ -62,6 +62,43 @@ PROCESS_SET *process_new_process_set(
 	return p;
 } /* process_new_process_set() */
 
+PROCESS *process_new(		char *application_name,
+				char *process_name )
+{
+	PROCESS *p = (PROCESS *)calloc( 1, sizeof( PROCESS ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate %d bytes",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 (int)sizeof( PROCESS ) );
+		exit( 1 );
+	}
+
+	if ( !process_load(	&p->executable,
+				&p->notepad,
+				&p->html_help_file_anchor,
+				&p->post_change_javascript,
+				&p->process_set_display,
+				&p->preprompt_help_text,
+				&p->is_appaserver_process,
+				application_name,
+				process_name,
+				1 /* with_check_executable_ok */ ) )
+	{
+		return (PROCESS *)0;
+	}
+
+	p->application_name = application_name;
+	p->process_name = process_name;
+
+	return p;
+
+} /* process_new() */
+
 PROCESS *process_new_process(	char *application_name,
 				char *session,
 				char *process_name,
