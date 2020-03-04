@@ -875,7 +875,6 @@ boolean station_datatype_expected_count_reject(
 
 		if ( minutes > 45 || remainder )
 		{
-/*
 fprintf( stderr, "%s/%s()/%d: input: measurement_time = %s, expected_count = %d; output: rejecting %d minutes with remainder = %d\n",
 __FILE__,
 __FUNCTION__,
@@ -885,21 +884,20 @@ expected_count_per_day,
 minutes,
 remainder );
 fflush( stderr );
-*/
 
 			return 1;
 		}
 		else
 		{
-/*
-fprintf( stderr, "%s/%s()/%d: accepting %d minutes with remainder = %d\n",
+fprintf( stderr, "%s/%s()/%d: input: measurement_time = %s, expected_count = %d; output: accepting %d minutes with remainder = %d\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
+measurement_time,
+expected_count_per_day,
 minutes,
 remainder );
 fflush( stderr );
-*/
 
 			return 0;
 		}
