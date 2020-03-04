@@ -36,6 +36,7 @@
 #include "appaserver_link_file.h"
 #include "google_chart.h"
 #include "validation_level.h"
+#include "dictionary_appaserver.h"
 
 /* Constants */
 /* --------- */
@@ -77,6 +78,12 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+void output_merged_waterquality(
+			DICTIONARY *parameter_dictionary );
+
+DICTIONARY *output_merged_parameter_dictionary(
+				char *argv_string );
+
 int get_days_between(	char *begin_date_string,
 			char *end_date_string );
 
@@ -187,6 +194,7 @@ int main( int argc, char **argv )
 	char *end_date;
 	char *output_medium;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	DICTIONARY *parameter_dictionary;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -197,23 +205,20 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 10 )
+	if ( argc != 4 )
 	{
 		fprintf(stderr,
-"Usage: %s process waterquality_station waterquality_parameter waterquality_units hydrology_station hydrology_datatype begin_date end_date output_medium\n",
+			"Usage: %s process output_medium dictionary\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	waterquality_station = argv[ 2 ];
-	waterquality_parameter = argv[ 3 ];
-	waterquality_units = argv[ 4 ];
-	hydrology_station = argv[ 5 ];
-	hydrology_datatype = argv[ 6 ];
-	begin_date = argv[ 7 ];
-	end_date = argv[ 8 ];
-	output_medium = argv[ 9 ];
+	output_medium = argv[ 2 ];
+
+	parameter_dictionary =
+		output_merged_parameter_dictionary(
+			argv[ 3 ] );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -236,7 +241,7 @@ int main( int argc, char **argv )
 		fflush( stdout );
 	}
 
-printf( "<h3>This process is being developed.</h3>\n" );
+	output_merged_waterquality( parameter_dictionary );
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
@@ -251,6 +256,13 @@ printf( "<h3>This process is being developed.</h3>\n" );
 	return 0;
 
 } /* main() */
+
+void output_merged_waterquality( DICTIONARY *parameter_dictionary )
+{
+	printf( "<h3>Input: %s</h3>\n",
+		dictionary_display( parameter_dictionary ) );
+
+} /* output_merged_waterquality() */
 
 void merged_datasets_output_transmit(
 					FILE *output_pipe,
@@ -1577,4 +1589,29 @@ int get_days_between(	char *begin_date_string,
 	julian_free( end_date );
 	return days_between;
 } /* get_days_between() */
+
+DICTIONARY *output_merged_parameter_dictionary(
+				char *argv_string )
+{
+	DICTIONARY *parameter_dictionary;
+
+	parameter_dictionary = 
+		dictionary_index_string2dictionary(
+			argv_string );
+
+	dictionary_appaserver_parse_multi_attribute_keys(
+		parameter_dictionary,
+		(char *)0 /* prefix */ );
+
+	dictionary_add_elements_by_removing_prefix(
+		parameter_dictionary,
+		QUERY_STARTING_LABEL );
+
+	dictionary_add_elements_by_removing_prefix(
+		parameter_dictionary,
+		QUERY_FROM_STARTING_LABEL );
+
+	return parameter_dictionary;
+
+} /* output_merged_parameter_dictionary() */
 

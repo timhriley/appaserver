@@ -243,7 +243,6 @@ int main( int argc, char **argv )
 	DICTIONARY *parameter_dictionary;
 	char *aggregate_level_string;
 	enum aggregate_level aggregate_level;
-	char *database_string = {0};
 	char *process_name;
 	char *display_count_yn = {0};
 	char *flow_units;
@@ -253,10 +252,19 @@ int main( int argc, char **argv )
 	char *first_inflow_datatype_name = {0};
 	char dictionary_buffer[ 65536 ];
 
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 4 )
 	{
 		fprintf(stderr,
-"Usage: %s application role parameter_dictionary|-\n",
+"Usage: %s ignored role parameter_dictionary|-\n",
 			argv[ 0 ] );
 		fprintf(stderr,
 			"Use dictionary placeholder of '-' for stdin.\n" );
@@ -273,25 +281,7 @@ int main( int argc, char **argv )
 		parameter_dictionary_string = dictionary_buffer;
 	}
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	parameter_dictionary = 
 		dictionary_index_string2dictionary(
@@ -335,7 +325,8 @@ int main( int argc, char **argv )
 					0 );
 
 	aggregate_level = 
-		aggregate_level_get_aggregate_level( aggregate_level_string );
+		aggregate_level_get_aggregate_level(
+			aggregate_level_string );
 
 	dictionary_get_index_data( 	&output_medium, 
 					parameter_dictionary, 
