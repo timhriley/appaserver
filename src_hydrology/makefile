@@ -1442,7 +1442,9 @@ validate_midnight: validate_midnight.c ${SOURCE_LIBS}
 		validate_midnight.c					\
 		-o validate_midnight
 
-measurement_insert: measurement_insert.c
+measurement_insert: measurement_insert.c				\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-I${SOURCE_EVERGLADES}					\
@@ -1453,6 +1455,8 @@ measurement_insert: measurement_insert.c
 		-o measurement_insert
 
 measurement_frequency_reject: measurement_frequency_reject.c
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-I${SOURCE_EVERGLADES}					\
