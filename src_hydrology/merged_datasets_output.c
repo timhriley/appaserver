@@ -99,9 +99,6 @@ LIST *get_station_datatype_list(	char *application_name,
 					enum aggregate_level,
 					enum validation_level );
 
-MERGED_MEASUREMENT *new_merged_measurement(
-					char *date_space_time );
-
 MERGED_STATION_DATATYPE *new_station_datatype(
 					char *application_name,
 					char *station_name,
@@ -1375,7 +1372,7 @@ MERGED_STATION_DATATYPE *get_station_datatype(
 			input_buffer,
 			2 );
 
-		measurement = new_merged_measurement( strdup( key_buffer ) );
+		measurement = merged_measurement_new( strdup( key_buffer ) );
 
 		if ( *measurement_buffer
 		&&   timlib_strncmp( measurement_buffer, "null" ) != 0 )
@@ -1402,7 +1399,7 @@ MERGED_STATION_DATATYPE *get_station_datatype(
 
 		hash_table_set_pointer(
 			station_datatype->measurement_hash_table,
-			measurement->date_space_time,
+			measurement->measurement_date_string,
 			measurement );
 	}
 
@@ -1411,15 +1408,6 @@ MERGED_STATION_DATATYPE *get_station_datatype(
 	return station_datatype;
 
 } /* get_station_datatype() */
-
-MERGED_MEASUREMENT *new_merged_measurement( char *date_space_time )
-{
-	MERGED_MEASUREMENT *m =
-		(MERGED_MEASUREMENT *)
-			calloc( 1, sizeof( MERGED_MEASUREMENT ) );
-	m->date_space_time = date_space_time;
-	return m;
-} /* new_merged_measurement() */
 
 LIST *get_datatype4station_list(char *application_name,
 				char *login_name,
