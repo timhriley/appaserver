@@ -48,19 +48,28 @@ HASH_TABLE *hash_table_init(		enum hash_table_size );
 HASH_TABLE *hash_table_new(		enum hash_table_size );
 int hash_table_len(			HASH_TABLE *h );
 int hash_table_length(			HASH_TABLE *h );
+
 int hash_table_insert( HASH_TABLE *h, char *key, void *other_data );
+
 int hash_table_set_pointer( HASH_TABLE *h, char *key, void *other_data );
+
 int hash_table_add_pointer( HASH_TABLE *h, char *key, void *other_data );
+
 int hash_table_insert_back( HASH_TABLE *h, char *key, void *other_data );
 void display_hash_table( HASH_TABLE *h, char *output_file );
 void *hash_table_get( HASH_TABLE *h, char *key );
 void *hash_table_get_pointer( HASH_TABLE *h, char *key );
+
 void *hash_table_seek( HASH_TABLE *h, char *key );
+
 void *hash_table_fetch( HASH_TABLE *h, char *key );
+
 void *hash_table_fetch_pointer( HASH_TABLE *h, char *key );
+
 void *hash_table_retrieve_other_data(	HASH_TABLE *h, 
 					char *key, 
 					int *duplicate_indicator );
+
 int hash_table_free(			HASH_TABLE *h);
 int hash_table_all_null_data( HASH_TABLE *h );
 LIST *get_hashtbl_key_list( HASH_TABLE *h );

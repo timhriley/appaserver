@@ -50,7 +50,8 @@ void output_merged_waterquality_table(
 				char *begin_date,
 				char *end_date,
 				LIST *waterquality_station_datatype_list,
-				LIST *hydrology_station_datatype_list );
+				LIST *hydrology_station_datatype_list,
+				LIST *date_space_time_key_list );
 
 void output_merged_waterquality(
 				char *application_name,
@@ -186,6 +187,8 @@ void output_merged_waterquality(
 				MERGED_INPUT *merged_input )
 {
 	MERGED *merged;
+	HASH_TABLE *key_hash_table;
+	LIST *date_space_time_key_list;
 
 	merged = merged_new( merged_input );
 
@@ -196,10 +199,19 @@ void output_merged_waterquality(
 		merged->hydrology_station_datatype_list );
 
 	merged_results_hash_table(
-		application_name,
 		begin_date,
 		end_date,
 		merged->waterquality_station_datatype_list );
+
+	/* Get the time sequence from waterquality */
+	/* --------------------------------------- */
+	key_hash_table =
+		merged_key_hash_table(
+			merged->waterquality_station_datatype_list );
+
+	date_space_time_key_list =
+		 hash_table_get_ordered_key_list(
+			key_hash_table );
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
@@ -207,7 +219,8 @@ void output_merged_waterquality(
 			begin_date,
 			end_date,
 			merged->waterquality_station_datatype_list,
-			merged->hydrology_station_datatype_list );
+			merged->hydrology_station_datatype_list,
+			date_space_time_key_list );
 	}
 
 } /* output_merged_waterquality() */
@@ -216,9 +229,9 @@ void output_merged_waterquality_table(
 			char *begin_date,
 			char *end_date,
 			LIST *waterquality_station_datatype_list,
-			LIST *hydrology_station_datatype_list )
+			LIST *hydrology_station_datatype_list,
+			LIST *date_space_time_key_list )
 {
-	LIST *date_space_time_key_list;
 	char *date_space_time;
 	MERGED_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
@@ -226,7 +239,6 @@ void output_merged_waterquality_table(
 	HTML_TABLE *html_table = {0};
 	char buffer[ 512 ];
 	char initial_capital_buffer[ 512 ];
-	HASH_TABLE *merged_hash_table;
 	int count = 0;
 	char title[ 512 ];
 
@@ -234,10 +246,6 @@ void output_merged_waterquality_table(
 		"Merged from %s to %s",
 		begin_date,
 		end_date );
-
-	merged_hash_table =
-		hash_table_new_hash_table(
-			hash_table_large );
 
 	html_table = html_table_new( title, "", "" );
 	heading_list = list_new();
@@ -290,7 +298,7 @@ void output_merged_waterquality_table(
 				heading_list,
 				strdup( buffer ) );
 
-		} while( list_next( waterquality_station_datatype_list ) );
+		} while( list_next( hydrology_station_datatype_list ) );
 
 	} /* If */
 
@@ -309,32 +317,11 @@ void output_merged_waterquality_table(
 				html_table->number_right_justified_columns,
 				html_table->justify_list );
 
-	merged_date_space_time_key_hash_table(
-		/* ------ */
-		/* In/out */
-		/* ------ */
-		merged_hash_table,
-		waterquality_station_datatype_list );
-
-	merged_date_space_time_key_hash_table(
-		/* ------ */
-		/* In/out */
-		/* ------ */
-		merged_hash_table,
-		hydrology_station_datatype_list );
-
-	date_space_time_key_list =
-		 hash_table_get_ordered_key_list(
-			merged_hash_table );
-
-	if ( !list_length( date_space_time_key_list ) )
+	if ( !list_rewind( date_space_time_key_list ) )
 	{
 		printf( "</table>\n" );
-		printf( "<h3>ERROR: insufficient data to output</h3>\n" );
 		return;
 	}
-
-	list_rewind( date_space_time_key_list );
 
 	do {
 		date_space_time =
@@ -450,3 +437,4 @@ void output_merged_waterquality_table(
 	html_table_close();
 
 } /* output_merged_waterquality_table() */
+

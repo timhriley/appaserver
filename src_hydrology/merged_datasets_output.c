@@ -1400,7 +1400,7 @@ MERGED_STATION_DATATYPE *get_station_datatype(
 			measurement->is_null = 1;
 		}
 
-		hash_table_add_pointer(
+		hash_table_set_pointer(
 			station_datatype->measurement_hash_table,
 			measurement->date_space_time,
 			measurement );
