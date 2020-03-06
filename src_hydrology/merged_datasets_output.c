@@ -36,6 +36,7 @@
 #include "appaserver_link_file.h"
 #include "google_chart.h"
 #include "validation_level.h"
+#include "merged.h"
 
 /* Constants */
 /* --------- */
@@ -58,22 +59,6 @@
 
 /* Structures */
 /* ---------- */
-typedef struct
-{
-	char *date_space_time;
-	double measurement_value;
-	boolean is_null;
-	int count;
-} MERGED_MEASUREMENT;
-
-typedef struct
-{
-	char *station;
-	char *datatype;
-	boolean bar_graph;
-	HASH_TABLE *measurement_hash_table;
-	char *units;
-} MERGED_DATASETS_STATION_DATATYPE;
 
 /* Prototypes */
 /* ---------- */
@@ -100,7 +85,7 @@ LIST *get_datatype4station_list(	char *application_name,
 					char *relative_source_directory,
 					char *merged_output );
 
-MERGED_DATASETS_STATION_DATATYPE *get_station_datatype(
+MERGED_STATION_DATATYPE *get_station_datatype(
 					char *application_name,
 					char *sys_string,
 					char *station_name,
@@ -117,7 +102,7 @@ LIST *get_station_datatype_list(	char *application_name,
 MERGED_MEASUREMENT *new_merged_measurement(
 					char *date_space_time );
 
-MERGED_DATASETS_STATION_DATATYPE *new_station_datatype(
+MERGED_STATION_DATATYPE *new_station_datatype(
 					char *application_name,
 					char *station_name,
 					char *datatype_name );
@@ -376,7 +361,7 @@ int main( int argc, char **argv )
 	||   aggregate_level == half_hour
 	||   aggregate_level == hourly ) )
 	{
-		if ( get_days_between(	begin_date,
+		if ( date_days_between(	begin_date,
 					end_date ) > MIN_DAYS_FOR_SYNCH_CHECK )
 		{
 			if ( !expected_count_synchronized(
@@ -804,7 +789,7 @@ void merged_datasets_output_transmit(
 {
 	LIST *date_space_time_key_list;
 	char *date_space_time;
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
+	MERGED_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
 	char buffer[ 512 ];
 	HASH_TABLE *merged_date_space_time_key_hash_table;
@@ -928,7 +913,7 @@ void merged_datasets_output_table(
 {
 	LIST *date_space_time_key_list;
 	char *date_space_time;
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
+	MERGED_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
 	LIST *heading_list;
 	HTML_TABLE *html_table = {0};
@@ -1137,7 +1122,7 @@ LIST *get_station_datatype_list(	char *application_name,
 	LIST *station_datatype_list;
 	char sys_string[ 1024 ];
 	char *station_name, *datatype_name;
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
+	MERGED_STATION_DATATYPE *station_datatype;
 
 	if ( !list_rewind( datatype_name_list ) )
 		return (LIST *)0;
@@ -1299,18 +1284,18 @@ void build_sys_string(
 
 } /* build_sys_string() */
 
-MERGED_DATASETS_STATION_DATATYPE *new_station_datatype(
+MERGED_STATION_DATATYPE *new_station_datatype(
 				char *application_name,
 				char *station_name,
 				char *datatype_name )
 {
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
+	MERGED_STATION_DATATYPE *station_datatype;
 	char sys_string[ 1024 ];
 	char *results_string;
 
 	station_datatype =
-		(MERGED_DATASETS_STATION_DATATYPE *)
-			calloc( 1, sizeof( MERGED_DATASETS_STATION_DATATYPE ) );
+		(MERGED_STATION_DATATYPE *)
+			calloc( 1, sizeof( MERGED_STATION_DATATYPE ) );
 
 	station_datatype->station = station_name;
 	station_datatype->datatype = datatype_name;
@@ -1342,13 +1327,13 @@ MERGED_DATASETS_STATION_DATATYPE *new_station_datatype(
 
 } /* new_station_datatype() */
 
-MERGED_DATASETS_STATION_DATATYPE *get_station_datatype(
+MERGED_STATION_DATATYPE *get_station_datatype(
 				char *application_name,
 				char *sys_string,
 				char *station_name,
 				char *datatype_name )
 {
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
+	MERGED_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
 	char input_buffer[ 1024 ];
 	FILE *input_pipe;
@@ -1475,7 +1460,7 @@ HASH_TABLE *get_merged_date_space_time_key_hash_table(
 				LIST *station_datatype_list )
 {
 	HASH_TABLE *merged_date_space_time_key_hash_table;
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
+	MERGED_STATION_DATATYPE *station_datatype;
 	LIST *date_space_time_key_list;
 	char *date_space_time_key;
 
@@ -1549,7 +1534,7 @@ boolean merged_datasets_output_gracechart(
 	char *station_name;
 	char *datatype_name;
 	char sys_string[ 1024 ];
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
+	MERGED_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
 
 	strcpy( title, 
@@ -1849,7 +1834,7 @@ boolean merged_datasets_output_google_chart(
 {
 	LIST *date_space_time_key_list;
 	char *date_space_time;
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
+	MERGED_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
 	HASH_TABLE *merged_date_space_time_key_hash_table;
 	char validation_buffer[ 512 ];
@@ -2036,7 +2021,7 @@ boolean merged_datasets_output_google_chart(
 
 boolean get_has_bar_graph( LIST *station_datatype_list )
 {
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
+	MERGED_STATION_DATATYPE *station_datatype;
 
 	if ( !list_rewind( station_datatype_list ) ) return 0;
 
@@ -2052,7 +2037,7 @@ boolean get_has_bar_graph( LIST *station_datatype_list )
 boolean any_missing_measurements(	LIST *station_datatype_list,
 					char *date_time_string )
 {
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
+	MERGED_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
 
 	if ( !list_rewind( station_datatype_list ) ) return 1;
@@ -2103,6 +2088,7 @@ void get_changed_to_daily_message(
 	}
 } /* get_changed_to_daily_message() */
 
+#ifdef NOT_DEFINED
 int get_days_between(	char *begin_date_string,
 			char *end_date_string )
 {
@@ -2118,4 +2104,5 @@ int get_days_between(	char *begin_date_string,
 	julian_free( end_date );
 	return days_between;
 } /* get_days_between() */
+#endif
 

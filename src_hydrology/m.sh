@@ -1,8 +1,6 @@
 :
 
-touch measurement_insert.c
-make station_datatype.o
-make measurement_insert
+make output_merged_waterquality
 
 #cd - && make parse_alias_data
 

@@ -194,6 +194,7 @@ SOURCE_LIBS= 	${SOURCE_EVERGLADES}/measurement_update_parameter.o	\
 		${SOURCE_EVERGLADES}/measurement_validation.o		\
 		${SOURCE_EVERGLADES}/station_datatype.o			\
 		${SOURCE_EVERGLADES}/units.o				\
+		${SOURCE_EVERGLADES}/merged.o				\
 		${SOURCE_EVERGLADES}/hydrology.o			\
 		${SOURCE_EVERGLADES}/measurement.o			\
 		${SOURCE_EVERGLADES}/measurement_backup.o		\
@@ -1454,7 +1455,7 @@ measurement_insert: measurement_insert.c				\
 		measurement_insert.c					\
 		-o measurement_insert
 
-measurement_frequency_reject: measurement_frequency_reject.c
+measurement_frequency_reject: measurement_frequency_reject.c		\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -1717,4 +1718,9 @@ calculate_oxygen_solubility:  calculate_oxygen_solubility.c		\
 		${STANDARD_LIBRARY} 					\
 		calculate_oxygen_solubility.c				\
 		-o calculate_oxygen_solubility -lm
+
+merged.o: merged.c merged.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c merged.c
 
