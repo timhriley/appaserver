@@ -1958,6 +1958,7 @@ int grace_set_structures(	int *page_width_pixels,
 	}
 
 	return 1;
+
 } /* grace_set_structures() */
 
 void grace_overlay_graph_remove_same_datatype(
@@ -2045,11 +2046,6 @@ int grace_remove_empty_graphs(	LIST *graph_list,
 			{
 				list_delete_current( graph_list );
 				list_delete_current( anchor_graph_list );
-				/*
-				list_rewind( graph_list );
-				list_rewind( anchor_graph_list );
-				continue;
-				*/
 			}
 		}
 		else
@@ -2058,10 +2054,6 @@ int grace_remove_empty_graphs(	LIST *graph_list,
 						graph->datatype_list ) )
 			{
 				list_delete_current( graph_list );
-				/*
-				list_rewind( graph_list );
-				continue;
-				*/
 			}
 		}
 

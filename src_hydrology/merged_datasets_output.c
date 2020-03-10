@@ -1669,7 +1669,7 @@ boolean merged_datasets_output_gracechart(
 
 			if ( !measurement || measurement->is_null ) continue;
 
-			sprintf( station_datatype_input_buffer,
+			sprintf(station_datatype_input_buffer,
 		 		"%s|%s|%s|%.3lf",
 		 		station_name,
 		 		datatype_name,

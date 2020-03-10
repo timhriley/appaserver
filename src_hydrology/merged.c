@@ -572,3 +572,46 @@ LIST *merged_heading_list(	LIST *waterquality_station_datatype_list,
 
 } /* merged_heading_list() */
 
+/* Returns heap memory */
+/* ------------------- */
+char *merged_subtitle(	char *begin_date,
+			char *end_date )
+{
+	char sub_title[ 128 ];
+
+	sprintf(sub_title,
+		"Merged from %s to %s",
+		begin_date,
+		end_date );
+
+	return strdup( sub_title );
+
+}  /* merged_subtitle() */
+
+/* Returns static memory */
+/* --------------------- */
+char *merged_measurement_buffer( MERGED_MEASUREMENT *measurement )
+{
+	static char measurement_buffer[ 128 ];
+
+	if ( measurement && !measurement->is_null )
+	{
+		sprintf(measurement_buffer,
+			"%.3lf",
+			measurement->
+				measurement_value );
+	}
+	else
+	if ( measurement )
+	{
+		strcpy( measurement_buffer, "null" );
+	}
+	else
+	{
+		strcpy( measurement_buffer, "missing" );
+	}
+
+	return measurement_buffer;
+
+} /* merged_measurement_buffer() */
+
