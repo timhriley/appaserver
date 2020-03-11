@@ -32,11 +32,6 @@
 
 /* Prototypes */
 /* ---------- */
-void post_reoccurring_transaction_subquery(
-			char *sub_query,
-			char *debit_account,
-			char *credit_account );
-
 void post_reoccurring_transaction_batch(
 			FILE *output_pipe,
 			char *application_name,
@@ -767,7 +762,7 @@ char *get_last_transaction_date(
 	select = "max( transaction_date_time )";
 	folder = "transaction";
 
-	post_reoccurring_transaction_subquery(
+	reoccurring_transaction_subquery(
 		sub_query,
 		debit_account,
 		credit_account );
@@ -804,29 +799,3 @@ char *get_last_transaction_date(
 
 } /* get_last_transaction_date() */
 
-void post_reoccurring_transaction_subquery(
-			char *sub_query,
-			char *debit_account,
-			char *credit_account )
-{
-	sprintf( sub_query,
-		 "exists ( select 1 from journal_ledger			"
-		 "	   where transaction.full_name =		"
-		 "		journal_ledger.full_name 		"
-		 "	     and transaction.street_address =		"
-		 "		journal_ledger.street_address 		"
-		 "	     and transaction.transaction_date_time =	"
-		 "		journal_ledger.transaction_date_time	"
-		 "	     and account = '%s' ) and			"
-		 "exists ( select 1 from journal_ledger			"
-		 "	   where transaction.full_name =		"
-		 "		journal_ledger.full_name 		"
-		 "	     and transaction.street_address =		"
-		 "		journal_ledger.street_address 		"
-		 "	     and transaction.transaction_date_time =	"
-		 "		journal_ledger.transaction_date_time	"
-		 "	     and account = '%s' ) 			",
-		 debit_account,
-		 credit_account );
-
-} /* post_reoccurring_transaction_subquery() */

@@ -108,5 +108,10 @@ int reoccurring_days_between_last_transaction(
 					char *debit_account,
 					char *credit_account );
 
+void reoccurring_transaction_subquery(
+					char *sub_query,
+					char *debit_account,
+					char *credit_account );
+
 #endif
 
