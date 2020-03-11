@@ -118,4 +118,13 @@ char *merged_hydrology_sys_string(
 LIST *merged_heading_list(	LIST *waterquality_station_datatype_list,
 				LIST *hydrology_station_datatype_list );
 
+/* Returns heap memory */
+/* ------------------- */
+char *merged_subtitle(		char *begin_date,
+				char *end_date );
+
+/* Returns static memory */
+/* --------------------- */
+char *merged_measurement_buffer( MERGED_MEASUREMENT *measurement );
+
 #endif
