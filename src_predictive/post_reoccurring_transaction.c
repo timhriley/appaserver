@@ -62,14 +62,6 @@ char *get_last_transaction_date(
 			char *debit_account,
 			char *credit_account );
 
-int get_days_between_last_transaction(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *debit_account,
-			char *credit_account );
-
 TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 			char *application_name,
 			char *full_name,
@@ -138,7 +130,6 @@ int main( int argc, char **argv )
 	boolean execute;
 	boolean with_html;
 	char title[ 128 ];
-	DOCUMENT *document = {0};
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *heading = {0};
 	char *justify = {0};
@@ -176,26 +167,15 @@ int main( int argc, char **argv )
 
 	if ( with_html )
 	{
-		format_initial_capital( title, process_name );
-		document = document_new( title, application_name );
-		document->output_content_type = 1;
-	
-		document_output_heading(
-				document->application_name,
-				document->title,
-				document->output_content_type,
-				appaserver_parameter_file->
-					appaserver_mount_point,
-				document->javascript_module_list,
-				document->stylesheet_filename,
-				application_get_relative_source_directory(
-					application_name ),
-				0 /* not with_dynarch_menu */ );
-	
-		document_output_body(	document->application_name,
-					document->onload_control_string );
-	
-		printf( "<h1>%s</h1>\n", title );
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+
+		printf( "<h1>%s</h1>\n", 
+			format_initial_capital(
+				title,
+				process_name ) );
 		fflush( stdout );
 	}
 
@@ -231,8 +211,7 @@ int main( int argc, char **argv )
 	/* --------------------- */
 	/* If doing for in batch */
 	/* --------------------- */
-	if ( strcmp(	process_name,
-			"post_reoccurring_transaction_accrual" ) == 0 )
+	if ( !atoi( session ) )
 	{
 		post_reoccurring_transaction_batch(
 				output_pipe,
@@ -393,7 +372,7 @@ void post_reoccurring_transaction_display(
 	TRANSACTION *transaction;
 
 	if ( ! ( reoccurring_transaction =
-			reoccurring_transaction_new(
+			reoccurring_transaction_fetch(
 					application_name,
 					full_name,
 					street_address,
@@ -475,7 +454,7 @@ char *post_reoccurring_transaction(
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 
 	if ( ! ( reoccurring_transaction =
-			reoccurring_transaction_new(
+			reoccurring_transaction_fetch(
 					application_name,
 					full_name,
 					street_address,
@@ -611,7 +590,7 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 	char *memo;
 
 	if ( ! ( days_between =
-			get_days_between_last_transaction(
+			reoccurring_days_between_last_transaction(
 				application_name,
 				full_name,
 				street_address,
@@ -675,82 +654,6 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 	return transaction;
 
 } /* post_reoccurring_get_accrued_daily_transaction() */
-
-/* get_last_transaction_date */
-
-int get_days_between_last_transaction(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *debit_account,
-			char *credit_account )
-{
-	char sys_string[ 2048 ];
-	int current_year;
-	char where[ 1024 ];
-	char sub_query[ 1024 ];
-	char name_buffer[ 256 ];
-	char *select;
-	char *folder;
-	char *max_transaction_date;
-	char end_date_string[ 16 ];
-	int days_between;
-
-	if ( !transaction_date_time
-	||   ! ( current_year = atoi( transaction_date_time ) ) )
-	{
-		return 0;
-	}
-
-	column( end_date_string, 0, transaction_date_time );
-
-	select = "max( transaction_date_time )";
-	folder = "transaction";
-
-	post_reoccurring_transaction_subquery(
-		sub_query,
-		debit_account,
-		credit_account );
-
-	sprintf( where,
-		 "full_name = '%s' and				"
-		 "street_address = '%s' and			"
-		 "%s						",
-		 escape_character(	name_buffer,
-					full_name,
-					'\'' ),
-		 street_address,
-		 sub_query );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			 "
-		 "			select=\"%s\"			 "
-		 "			folder=%s			 "
-		 "			where=\"%s\"			|"
-		 "column.e 0						 ",
-		 application_name,
-		 select,
-		 folder,
-		 where );
-
-	max_transaction_date = pipe2string( sys_string );
-
-	if ( !timlib_strlen( max_transaction_date ) )
-	{
-		days_between = 1;
-	}
-	else
-	{
-		days_between =
-			date_days_between(
-				max_transaction_date /* from_date */,
-				end_date_string /* to_date */ );
-	}
-
-	return days_between;
-
-} /* get_days_between_last_transaction() */
 
 TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 			char *application_name,
