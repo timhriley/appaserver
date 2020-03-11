@@ -55,7 +55,7 @@ void output_merged_waterquality_textfile(
 				FILE *output_pipe,
 				LIST *waterquality_station_datatype_list,
 				LIST *hydrology_station_datatype_list,
-				LIST *date_space_time_key_list,
+				LIST *date_day_key_list,
 				char delimiter );
 
 void output_merged_waterquality_spreadsheet(
@@ -66,14 +66,14 @@ void output_merged_waterquality_spreadsheet(
 				char *end_date,
 				LIST *waterquality_station_datatype_list,
 				LIST *hydrology_station_datatype_list,
-				LIST *date_space_time_key_list );
+				LIST *date_day_key_list );
 
 void output_merged_waterquality_table(
 				char *begin_date,
 				char *end_date,
 				LIST *waterquality_station_datatype_list,
 				LIST *hydrology_station_datatype_list,
-				LIST *date_space_time_key_list );
+				LIST *date_day_key_list );
 
 void output_merged_waterquality_gracechart(
 				char *application_name,
@@ -84,7 +84,7 @@ void output_merged_waterquality_gracechart(
 				char *end_date,
 				LIST *waterquality_station_datatype_list,
 				LIST *hydrology_station_datatype_list,
-				LIST *date_space_time_key_list );
+				LIST *date_day_key_list );
 
 void output_merged_waterquality(
 				char *application_name,
@@ -134,6 +134,11 @@ int main( int argc, char **argv )
 	begin_date = argv[ 2 ];
 	end_date = argv[ 3 ];
 	output_medium = argv[ 4 ];
+
+	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
+	{
+		output_medium = "table";
+	}
 
 	parameter_dictionary =
 		output_merged_parameter_dictionary(
@@ -234,7 +239,7 @@ void output_merged_waterquality(
 {
 	MERGED *merged;
 	HASH_TABLE *key_hash_table;
-	LIST *date_space_time_key_list;
+	LIST *date_day_key_list;
 
 	merged = merged_new( merged_input );
 
@@ -255,7 +260,7 @@ void output_merged_waterquality(
 		merged_key_hash_table(
 			merged->waterquality_station_datatype_list );
 
-	date_space_time_key_list =
+	date_day_key_list =
 		 hash_table_get_ordered_key_list(
 			key_hash_table );
 
@@ -266,7 +271,7 @@ void output_merged_waterquality(
 			end_date,
 			merged->waterquality_station_datatype_list,
 			merged->hydrology_station_datatype_list,
-			date_space_time_key_list );
+			date_day_key_list );
 	}
 	else
 	if ( strcmp( output_medium, "gracechart" ) == 0 )
@@ -280,7 +285,7 @@ void output_merged_waterquality(
 			end_date,
 			merged->waterquality_station_datatype_list,
 			merged->hydrology_station_datatype_list,
-			date_space_time_key_list );
+			date_day_key_list );
 	}
 	else
 	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
@@ -293,7 +298,7 @@ void output_merged_waterquality(
 			end_date,
 			merged->waterquality_station_datatype_list,
 			merged->hydrology_station_datatype_list,
-			date_space_time_key_list );
+			date_day_key_list );
 	}
 	else
 	if ( strcmp( output_medium, "stdout" ) == 0 )
@@ -316,7 +321,7 @@ void output_merged_waterquality(
 			output_pipe,
 			merged->waterquality_station_datatype_list,
 			merged->hydrology_station_datatype_list,
-			date_space_time_key_list,
+			date_day_key_list,
 			',' /* delimiter */ );
 
 		pclose( output_pipe );
@@ -329,7 +334,7 @@ void output_merged_waterquality_table(
 			char *end_date,
 			LIST *waterquality_station_datatype_list,
 			LIST *hydrology_station_datatype_list,
-			LIST *date_space_time_key_list )
+			LIST *date_day_key_list )
 {
 	LIST *heading_list;
 	char *sub_title;
@@ -350,7 +355,7 @@ void output_merged_waterquality_table(
 
 	output_pipe = popen( sys_string, "w" );
 
-	if ( !list_rewind( date_space_time_key_list ) )
+	if ( !list_rewind( date_day_key_list ) )
 	{
 		pclose( output_pipe );
 		return;
@@ -360,7 +365,7 @@ void output_merged_waterquality_table(
 		output_pipe,
 		waterquality_station_datatype_list,
 		hydrology_station_datatype_list,
-		date_space_time_key_list,
+		date_day_key_list,
 		',' /* delimiter */ );
 
 	pclose( output_pipe );
@@ -375,7 +380,7 @@ void output_merged_waterquality_spreadsheet(
 				char *end_date,
 				LIST *waterquality_station_datatype_list,
 				LIST *hydrology_station_datatype_list,
-				LIST *date_space_time_key_list )
+				LIST *date_day_key_list )
 {
 	char sys_string[ 1024 ];
 	char *output_filename;
@@ -464,7 +469,7 @@ void output_merged_waterquality_spreadsheet(
 				output_pipe,
 				waterquality_station_datatype_list,
 				hydrology_station_datatype_list,
-				date_space_time_key_list,
+				date_day_key_list,
 				',' /* delimiter */ );
 
 	pclose( output_pipe );
@@ -481,21 +486,21 @@ void output_merged_waterquality_textfile(
 			FILE *output_pipe,
 			LIST *waterquality_station_datatype_list,
 			LIST *hydrology_station_datatype_list,
-			LIST *date_space_time_key_list,
+			LIST *date_day_key_list,
 			char delimiter )
 {
-	char *date_space_time;
+	char *date_day;
 	MERGED_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
 
-	if ( !list_rewind( date_space_time_key_list ) ) return;
+	if ( !list_rewind( date_day_key_list ) ) return;
 
 	do {
-		date_space_time =
+		date_day =
 			list_get_pointer(
-				date_space_time_key_list );
+				date_day_key_list );
 
-		fprintf( output_pipe, "%s", date_space_time );
+		fprintf( output_pipe, "%s", date_day );
 
 		/* Output waterquality */
 		/* ------------------- */
@@ -510,7 +515,7 @@ void output_merged_waterquality_textfile(
 					hash_table_get_pointer(
 						station_datatype->
 							measurement_hash_table,
-						date_space_time );
+						date_day );
 
 				fprintf( output_pipe,
 					 "%c%s",
@@ -539,7 +544,7 @@ void output_merged_waterquality_textfile(
 					hash_table_get_pointer(
 						station_datatype->
 							measurement_hash_table,
-						date_space_time );
+						date_day );
 
 				fprintf( output_pipe,
 					 "%c%s",
@@ -557,7 +562,7 @@ void output_merged_waterquality_textfile(
 
 		fprintf( output_pipe, "\n" );
 
-	} while( list_next( date_space_time_key_list ) );	
+	} while( list_next( date_day_key_list ) );	
 
 } /* output_merged_waterquality_textfile() */
 
@@ -570,7 +575,7 @@ void output_merged_waterquality_gracechart(
 			char *end_date,
 			LIST *waterquality_station_datatype_list,
 			LIST *hydrology_station_datatype_list,
-			LIST *date_space_time_key_list )
+			LIST *date_day_key_list )
 {
 	char station_datatype_input_buffer[ 512 ];
 	char title[ 128 ];
@@ -588,7 +593,7 @@ void output_merged_waterquality_gracechart(
 	GRACE_GRAPH *grace_graph;
 	GRACE_DATATYPE *grace_datatype;
 	char legend[ 128 ];
-	char *date_space_time;
+	char *date_day;
 	char buffer[ 512 ];
 	MERGED_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
@@ -623,7 +628,7 @@ void output_merged_waterquality_gracechart(
 		return;
 	}
 
-	if ( !list_length( date_space_time_key_list ) ) return;
+	if ( !list_length( date_day_key_list ) ) return;
 
 	/* Output waterquality */
 	/* ------------------- */
@@ -676,18 +681,18 @@ void output_merged_waterquality_gracechart(
 			list_append_pointer(	grace_graph->datatype_list,
 						grace_datatype );
 
-			list_rewind( date_space_time_key_list );
+			list_rewind( date_day_key_list );
 
 			do {
-				date_space_time =
+				date_day =
 					list_get_pointer(
-						date_space_time_key_list );
+						date_day_key_list );
 
 				measurement =
 					hash_table_get_pointer(
 						station_datatype->
 							measurement_hash_table,
-						date_space_time );
+						date_day );
 
 				if ( !measurement || measurement->is_null )
 					continue;
@@ -696,7 +701,7 @@ void output_merged_waterquality_gracechart(
 		 			"%s|%s|%s|%.3lf",
 		 			station_datatype->station,
 		 			station_datatype->datatype,
-		 			date_space_time,
+		 			date_day,
 					measurement->measurement_value );
 
 				grace_set_string_to_point_list(
@@ -712,7 +717,7 @@ void output_merged_waterquality_gracechart(
 					grace->dataset_no_cycle_color,
 					(char *)0 /* optional_label */ );
 
-			} while( list_next( date_space_time_key_list ) );	
+			} while( list_next( date_day_key_list ) );	
 
 		} while( list_next( waterquality_station_datatype_list ) );
 	} /* If */
@@ -768,18 +773,18 @@ void output_merged_waterquality_gracechart(
 			list_append_pointer(	grace_graph->datatype_list,
 						grace_datatype );
 
-			list_rewind( date_space_time_key_list );
+			list_rewind( date_day_key_list );
 
 			do {
-				date_space_time =
+				date_day =
 					list_get_pointer(
-						date_space_time_key_list );
+						date_day_key_list );
 
 				measurement =
 					hash_table_get_pointer(
 						station_datatype->
 							measurement_hash_table,
-						date_space_time );
+						date_day );
 
 				if ( !measurement || measurement->is_null )
 					continue;
@@ -788,7 +793,7 @@ void output_merged_waterquality_gracechart(
 		 			"%s|%s|%s|%.3lf",
 		 			station_datatype->station,
 		 			station_datatype->datatype,
-		 			date_space_time,
+		 			date_day,
 					measurement->measurement_value );
 
 				grace_set_string_to_point_list(
@@ -804,7 +809,7 @@ void output_merged_waterquality_gracechart(
 					grace->dataset_no_cycle_color,
 					(char *)0 /* optional_label */ );
 
-			} while( list_next( date_space_time_key_list ) );	
+			} while( list_next( date_day_key_list ) );	
 
 		} while( list_next( hydrology_station_datatype_list ) );
 	} /* If */
