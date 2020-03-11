@@ -3156,3 +3156,4 @@ LIST *appaserver_library_get_application_name_list(
 	return pipe2list( sys_string );;
 
 } /* appaserver_library_get_application_name_list() */
+

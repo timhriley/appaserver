@@ -5244,8 +5244,11 @@ void grace_output_screen_title( void )
 {
 	printf( "<h1>Grace Project Viewer<br>");
 	fflush( stdout );
-	if ( system( "date '+%x %H:%M'" ) ) {};
+
+	if ( system( timlib_system_date_string() ) ) {};
+
 	printf( "</h1>\n" );
+
 } /* grace_output_screen_title() */
 
 void grace_output_horizontal_line_at_point(

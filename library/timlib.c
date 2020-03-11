@@ -4042,3 +4042,8 @@ char *timlib_dollar_round_string( double amount )
 
 } /* timlib_dollar_round_string() */
 
+char *timlib_system_date_string( void )
+{
+	return "TZ=`appaserver_tz.sh` date '+%x %H:%M'";
+}
+
