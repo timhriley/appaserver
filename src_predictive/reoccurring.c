@@ -71,7 +71,7 @@ REOCCURRING_TRANSACTION *reoccurring_transaction_calloc( void )
 	return p;
 }
 
-REOCCURRING_TRANSACTION *reoccurring_transaction_new(
+REOCCURRING_TRANSACTION *reoccurring_transaction_fetch(
 					char *application_name,
 					char *full_name,
 					char *street_address,
@@ -110,7 +110,7 @@ REOCCURRING_TRANSACTION *reoccurring_transaction_new(
 
 	return reoccurring_transaction;
 
-} /* reoccurring_transaction_new() */
+} /* reoccurring_transaction_fetch() */
 
 boolean reoccurring_transaction_load(
 				char **debit_account,
@@ -131,7 +131,7 @@ boolean reoccurring_transaction_load(
 	char description_buffer[ 128 ];
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 
-	select = reoccurring_transaction_get_select();
+	select = reoccurring_transaction_select();
 
 	sprintf( where,
 		 "full_name = '%s' and			"
@@ -256,7 +256,7 @@ void reoccurring_transaction_parse(
 
 } /* reoccurring_transaction_parse() */
 
-char *reoccurring_transaction_get_select( void )
+char *reoccurring_transaction_select( void )
 {
 	char *select;
 
@@ -285,7 +285,7 @@ LIST *reoccurring_fetch_reoccurring_transaction_list(
 
 	reoccurring_transaction_list = list_new();
 
-	select = reoccurring_transaction_get_select();
+	select = reoccurring_transaction_select();
 
 	where = "bank_upload_feeder_phrase is not null";
 
@@ -394,4 +394,78 @@ char *reoccurring_memo(
 	return memo;
 
 } /* reoccurring_memo() */
+
+int reoccurring_days_between_last_transaction(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *debit_account,
+			char *credit_account )
+{
+	char sys_string[ 2048 ];
+	int current_year;
+	char where[ 1024 ];
+	char sub_query[ 1024 ];
+	char name_buffer[ 256 ];
+	char *select;
+	char *folder;
+	char *max_transaction_date;
+	char end_date_string[ 16 ];
+	int days_between;
+
+	if ( !transaction_date_time
+	||   ! ( current_year = atoi( transaction_date_time ) ) )
+	{
+		return 0;
+	}
+
+	column( end_date_string, 0, transaction_date_time );
+
+	select = "max( transaction_date_time )";
+	folder = "transaction";
+
+	post_reoccurring_transaction_subquery(
+		sub_query,
+		debit_account,
+		credit_account );
+
+	sprintf( where,
+		 "full_name = '%s' and				"
+		 "street_address = '%s' and			"
+		 "%s						",
+		 escape_character(	name_buffer,
+					full_name,
+					'\'' ),
+		 street_address,
+		 sub_query );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			 "
+		 "			select=\"%s\"			 "
+		 "			folder=%s			 "
+		 "			where=\"%s\"			|"
+		 "column.e 0						 ",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	max_transaction_date = pipe2string( sys_string );
+
+	if ( !timlib_strlen( max_transaction_date ) )
+	{
+		days_between = 1;
+	}
+	else
+	{
+		days_between =
+			date_days_between(
+				max_transaction_date /* from_date */,
+				end_date_string /* to_date */ );
+	}
+
+	return days_between;
+
+} /* reoccurring_days_between_last_transaction() */
 
