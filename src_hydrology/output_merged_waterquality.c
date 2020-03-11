@@ -39,7 +39,12 @@
 
 /* Constants */
 /* --------- */
-#define ROWS_BETWEEN_HEADING	20
+#define GRACE_DATATYPE_ENTITY_PIECE		0
+#define GRACE_DATATYPE_PIECE			1
+#define GRACE_DATE_PIECE			2
+#define GRACE_TIME_PIECE			-1
+#define GRACE_VALUE_PIECE			3
+#define GRACE_TICKLABEL_ANGLE			90
 
 /* Structures */
 /* ---------- */
@@ -70,10 +75,22 @@ void output_merged_waterquality_table(
 				LIST *hydrology_station_datatype_list,
 				LIST *date_space_time_key_list );
 
+void output_merged_waterquality_gracechart(
+				char *application_name,
+				char *process_name,
+				char *document_root_directory,
+				char *argv_0,
+				char *begin_date,
+				char *end_date,
+				LIST *waterquality_station_datatype_list,
+				LIST *hydrology_station_datatype_list,
+				LIST *date_space_time_key_list );
+
 void output_merged_waterquality(
 				char *application_name,
 				char *process_name,
 				char *document_root_directory,
+				char *argv_0,
 				char *begin_date,
 				char *end_date,
 				char *output_medium,
@@ -160,6 +177,7 @@ int main( int argc, char **argv )
 		process_name,
 		appaserver_parameter_file->
 			document_root,
+		argv[ 0 ],
 		begin_date,
 		end_date,
 		output_medium,
@@ -208,6 +226,7 @@ void output_merged_waterquality(
 				char *application_name,
 				char *process_name,
 				char *document_root_directory,
+				char *argv_0,
 				char *begin_date,
 				char *end_date,
 				char *output_medium,
@@ -243,6 +262,20 @@ void output_merged_waterquality(
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
 		output_merged_waterquality_table(
+			begin_date,
+			end_date,
+			merged->waterquality_station_datatype_list,
+			merged->hydrology_station_datatype_list,
+			date_space_time_key_list );
+	}
+	else
+	if ( strcmp( output_medium, "gracechart" ) == 0 )
+	{
+		output_merged_waterquality_gracechart(
+			application_name,
+			process_name,
+			document_root_directory,
+			argv_0,
 			begin_date,
 			end_date,
 			merged->waterquality_station_datatype_list,
@@ -299,14 +332,11 @@ void output_merged_waterquality_table(
 			LIST *date_space_time_key_list )
 {
 	LIST *heading_list;
-	char sub_title[ 512 ];
+	char *sub_title;
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
 
-	sprintf(sub_title,
-		"Merged from %s to %s",
-		begin_date,
-		end_date );
+	sub_title = merged_subtitle( begin_date, end_date );
 
 	heading_list =
 		merged_heading_list(
@@ -336,117 +366,6 @@ void output_merged_waterquality_table(
 	pclose( output_pipe );
 
 } /* output_merged_waterquality_table() */
-
-void output_merged_waterquality_textfile(
-			FILE *output_pipe,
-			LIST *waterquality_station_datatype_list,
-			LIST *hydrology_station_datatype_list,
-			LIST *date_space_time_key_list,
-			char delimiter )
-{
-	char *date_space_time;
-	MERGED_STATION_DATATYPE *station_datatype;
-	MERGED_MEASUREMENT *measurement;
-	char buffer[ 512 ];
-
-	if ( !list_rewind( date_space_time_key_list ) ) return;
-
-	do {
-		date_space_time =
-			list_get_pointer(
-				date_space_time_key_list );
-
-		fprintf( output_pipe, "%s", date_space_time );
-
-		/* Output waterquality */
-		/* ------------------- */
-		if ( list_rewind( waterquality_station_datatype_list ) )
-		{
-			do {
-				station_datatype =
-					list_get_pointer(
-					 waterquality_station_datatype_list );
-
-				measurement =
-					hash_table_get_pointer(
-						station_datatype->
-							measurement_hash_table,
-						date_space_time );
-
-				if ( measurement && !measurement->is_null )
-				{
-					sprintf(buffer,
-						"%.3lf",
-						measurement->
-							measurement_value );
-				}
-				else
-				if ( measurement )
-				{
-					strcpy( buffer, "null" );
-				}
-				else
-				{
-					strcpy( buffer, "missing" );
-				}
-
-				fprintf( output_pipe,
-					 "%c%s",
-					 delimiter,
-					 buffer );
-
-			} while( list_next(
-					waterquality_station_datatype_list ) );
-
-		} /* If */
-
-		/* Output hydrology */
-		/* ---------------- */
-		if ( list_rewind( hydrology_station_datatype_list ) )
-		{
-			do {
-				station_datatype =
-					list_get_pointer(
-					 hydrology_station_datatype_list );
-
-				measurement =
-					hash_table_get_pointer(
-						station_datatype->
-							measurement_hash_table,
-						date_space_time );
-
-				if ( measurement && !measurement->is_null )
-				{
-					sprintf(buffer,
-						"%.3lf",
-						measurement->
-							measurement_value );
-				}
-				else
-				if ( measurement )
-				{
-					strcpy( buffer, "null" );
-				}
-				else
-				{
-					strcpy( buffer, "missing" );
-				}
-
-				fprintf( output_pipe,
-					 "%c%s",
-					 delimiter,
-					 buffer );
-
-			} while( list_next(
-					hydrology_station_datatype_list ) );
-
-		} /* If */
-
-		fprintf( output_pipe, "\n" );
-
-	} while( list_next( date_space_time_key_list ) );	
-
-} /* output_merged_waterquality_textfile() */
 
 void output_merged_waterquality_spreadsheet(
 				char *application_name,
@@ -557,3 +476,442 @@ void output_merged_waterquality_spreadsheet(
 			(char *)0 /* application_type */ );
 
 } /* output_merged_waterquality_spreadsheet() */
+
+void output_merged_waterquality_textfile(
+			FILE *output_pipe,
+			LIST *waterquality_station_datatype_list,
+			LIST *hydrology_station_datatype_list,
+			LIST *date_space_time_key_list,
+			char delimiter )
+{
+	char *date_space_time;
+	MERGED_STATION_DATATYPE *station_datatype;
+	MERGED_MEASUREMENT *measurement;
+
+	if ( !list_rewind( date_space_time_key_list ) ) return;
+
+	do {
+		date_space_time =
+			list_get_pointer(
+				date_space_time_key_list );
+
+		fprintf( output_pipe, "%s", date_space_time );
+
+		/* Output waterquality */
+		/* ------------------- */
+		if ( list_rewind( waterquality_station_datatype_list ) )
+		{
+			do {
+				station_datatype =
+					list_get_pointer(
+					 waterquality_station_datatype_list );
+
+				measurement =
+					hash_table_get_pointer(
+						station_datatype->
+							measurement_hash_table,
+						date_space_time );
+
+				fprintf( output_pipe,
+					 "%c%s",
+					 delimiter,
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					merged_measurement_buffer(
+						measurement ) );
+
+			} while( list_next(
+					waterquality_station_datatype_list ) );
+
+		} /* If */
+
+		/* Output hydrology */
+		/* ---------------- */
+		if ( list_rewind( hydrology_station_datatype_list ) )
+		{
+			do {
+				station_datatype =
+					list_get_pointer(
+					 hydrology_station_datatype_list );
+
+				measurement =
+					hash_table_get_pointer(
+						station_datatype->
+							measurement_hash_table,
+						date_space_time );
+
+				fprintf( output_pipe,
+					 "%c%s",
+					 delimiter,
+					 /* --------------------- */
+					 /* Returns static memory */
+					 /* --------------------- */
+					 merged_measurement_buffer(
+						measurement ) );
+
+			} while( list_next(
+					hydrology_station_datatype_list ) );
+
+		} /* If */
+
+		fprintf( output_pipe, "\n" );
+
+	} while( list_next( date_space_time_key_list ) );	
+
+} /* output_merged_waterquality_textfile() */
+
+void output_merged_waterquality_gracechart(
+			char *application_name,
+			char *process_name,
+			char *document_root_directory,
+			char *argv_0,
+			char *begin_date,
+			char *end_date,
+			LIST *waterquality_station_datatype_list,
+			LIST *hydrology_station_datatype_list,
+			LIST *date_space_time_key_list )
+{
+	char station_datatype_input_buffer[ 512 ];
+	char title[ 128 ];
+	char *sub_title;
+	GRACE *grace;
+	char graph_identifier[ 16 ];
+	char *agr_filename;
+	char *ftp_agr_filename;
+	char *postscript_filename;
+	char *output_filename;
+	char *ftp_output_filename;
+	int page_width_pixels;
+	int page_length_pixels;
+	char *distill_landscape_flag;
+	GRACE_GRAPH *grace_graph;
+	GRACE_DATATYPE *grace_datatype;
+	char legend[ 128 ];
+	char *date_space_time;
+	char buffer[ 512 ];
+	MERGED_STATION_DATATYPE *station_datatype;
+	MERGED_MEASUREMENT *measurement;
+
+	sub_title = merged_subtitle( begin_date, end_date );
+
+	grace = grace_new_unit_graph_grace(
+				application_name,
+				(char *)0 /* role_name */,
+				(char *)0 /* infrastructure_process */,
+				(char *)0 /* data_process */,
+				argv_0,
+				GRACE_DATATYPE_ENTITY_PIECE,
+				GRACE_DATATYPE_PIECE,
+				GRACE_DATE_PIECE,
+				GRACE_TIME_PIECE,
+				GRACE_VALUE_PIECE,
+				format_initial_capital(
+					title,
+					process_name  ),
+				sub_title,
+				0 /* not datatype_type_xyhilo */,
+				no_cycle_colors_if_multiple_datatypes );
+
+	grace->dataset_no_cycle_color = 1;
+
+	if ( !grace_set_begin_end_date(
+		grace,
+		begin_date,
+		end_date ) )
+	{
+		return;
+	}
+
+	if ( !list_length( date_space_time_key_list ) ) return;
+
+	/* Output waterquality */
+	/* ------------------- */
+	if ( list_rewind( waterquality_station_datatype_list ) )
+	{
+		do {
+			station_datatype =
+				list_get_pointer(
+				 waterquality_station_datatype_list );
+
+			grace_graph = grace_new_grace_graph();
+
+			grace_graph->xaxis_ticklabel_angle =
+				GRACE_TICKLABEL_ANGLE;
+
+			list_append_pointer(
+				grace->graph_list,
+				grace_graph );
+
+			grace_datatype =
+				grace_new_grace_datatype(
+					station_datatype->station,
+					station_datatype->datatype);
+
+			sprintf(legend,
+				"%s/%s (%s)",
+				station_datatype->station,
+				station_datatype->datatype,
+				station_datatype->units );
+
+			strcpy(	legend,
+				format_initial_capital(
+					buffer,
+					legend ) );
+
+			grace_datatype->legend = strdup( legend );
+
+			if ( station_datatype->bar_graph )
+			{
+				grace_datatype->datatype_type_bar_xy_xyhilo =
+					"bar";
+				grace_datatype->line_linestyle = 0;
+			}
+			else
+			{
+				grace_datatype->datatype_type_bar_xy_xyhilo =
+					"xy";
+			}
+
+			list_append_pointer(	grace_graph->datatype_list,
+						grace_datatype );
+
+			list_rewind( date_space_time_key_list );
+
+			do {
+				date_space_time =
+					list_get_pointer(
+						date_space_time_key_list );
+
+				measurement =
+					hash_table_get_pointer(
+						station_datatype->
+							measurement_hash_table,
+						date_space_time );
+
+				if ( !measurement || measurement->is_null )
+					continue;
+
+				sprintf(station_datatype_input_buffer,
+		 			"%s|%s|%s|%.3lf",
+		 			station_datatype->station,
+		 			station_datatype->datatype,
+		 			date_space_time,
+					measurement->measurement_value );
+
+				grace_set_string_to_point_list(
+					grace->graph_list, 
+					GRACE_DATATYPE_ENTITY_PIECE,
+					GRACE_DATATYPE_PIECE,
+					GRACE_DATE_PIECE,
+					GRACE_TIME_PIECE,
+					GRACE_VALUE_PIECE,
+					station_datatype_input_buffer,
+					unit_graph,
+					grace->datatype_type_xyhilo,
+					grace->dataset_no_cycle_color,
+					(char *)0 /* optional_label */ );
+
+			} while( list_next( date_space_time_key_list ) );	
+
+		} while( list_next( waterquality_station_datatype_list ) );
+	} /* If */
+
+	/* Output hydrology */
+	/* ---------------- */
+	if ( list_rewind( hydrology_station_datatype_list ) )
+	{
+		do {
+			station_datatype =
+				list_get_pointer(
+				 hydrology_station_datatype_list );
+
+			grace_graph = grace_new_grace_graph();
+
+			grace_graph->xaxis_ticklabel_angle =
+				GRACE_TICKLABEL_ANGLE;
+
+			list_append_pointer(
+				grace->graph_list,
+				grace_graph );
+
+			grace_datatype =
+				grace_new_grace_datatype(
+					station_datatype->station,
+					station_datatype->datatype);
+
+			sprintf(legend,
+				"%s/%s (%s)",
+				station_datatype->station,
+				station_datatype->datatype,
+				station_datatype->units );
+
+			strcpy(	legend,
+				format_initial_capital(
+					buffer,
+					legend ) );
+
+			grace_datatype->legend = strdup( legend );
+
+			if ( station_datatype->bar_graph )
+			{
+				grace_datatype->datatype_type_bar_xy_xyhilo =
+					"bar";
+				grace_datatype->line_linestyle = 0;
+			}
+			else
+			{
+				grace_datatype->datatype_type_bar_xy_xyhilo =
+					"xy";
+			}
+
+			list_append_pointer(	grace_graph->datatype_list,
+						grace_datatype );
+
+			list_rewind( date_space_time_key_list );
+
+			do {
+				date_space_time =
+					list_get_pointer(
+						date_space_time_key_list );
+
+				measurement =
+					hash_table_get_pointer(
+						station_datatype->
+							measurement_hash_table,
+						date_space_time );
+
+				if ( !measurement || measurement->is_null )
+					continue;
+
+				sprintf(station_datatype_input_buffer,
+		 			"%s|%s|%s|%.3lf",
+		 			station_datatype->station,
+		 			station_datatype->datatype,
+		 			date_space_time,
+					measurement->measurement_value );
+
+				grace_set_string_to_point_list(
+					grace->graph_list, 
+					GRACE_DATATYPE_ENTITY_PIECE,
+					GRACE_DATATYPE_PIECE,
+					GRACE_DATE_PIECE,
+					GRACE_TIME_PIECE,
+					GRACE_VALUE_PIECE,
+					station_datatype_input_buffer,
+					unit_graph,
+					grace->datatype_type_xyhilo,
+					grace->dataset_no_cycle_color,
+					(char *)0 /* optional_label */ );
+
+			} while( list_next( date_space_time_key_list ) );	
+
+		} while( list_next( hydrology_station_datatype_list ) );
+	} /* If */
+
+	grace->grace_output =
+		application_get_grace_output(
+			application_name );
+
+	sprintf( graph_identifier, "%d", getpid() );
+
+	grace_get_filenames(
+			&agr_filename,
+			&ftp_agr_filename,
+			&postscript_filename,
+			&output_filename,
+			&ftp_output_filename,
+			application_name,
+			document_root_directory,
+			graph_identifier,
+			grace->grace_output );
+
+	if ( !grace_set_structures(
+				&page_width_pixels,
+				&page_length_pixels,
+				&distill_landscape_flag,
+				&grace->landscape_mode,
+				grace,
+				grace->graph_list,
+				grace->anchor_graph_list,
+				grace->begin_date_julian,
+				grace->end_date_julian,
+				grace->number_of_days,
+				grace->grace_graph_type,
+				0 /* not force_landscape_mode */ ) )
+	{
+		return;
+	}
+
+	grace_move_legend_bottom_left(
+			(GRACE_GRAPH *)
+				list_get_first_pointer(
+					grace->graph_list ),
+			grace->landscape_mode );
+
+	grace_increase_legend_char_size(
+			(GRACE_GRAPH *)
+				list_get_first_pointer(
+					grace->graph_list ),
+			0.15 );
+
+	/* Make the graph wider -- 95% of the page */
+	/* --------------------------------------- */
+	grace_set_view_maximum_x(
+			(GRACE_GRAPH *)
+				list_get_first_pointer(
+					grace->graph_list ),
+			0.95 );
+
+	/* Move the legend down a little */
+	/* ----------------------------- */
+	grace_lower_legend(	grace->graph_list,
+				0.04 );
+
+	if ( !grace_output_charts(
+				output_filename, 
+				postscript_filename,
+				agr_filename,
+				grace->title,
+				grace->sub_title,
+				grace->xaxis_ticklabel_format,
+				grace->grace_graph_type,
+				grace->x_label_size,
+				page_width_pixels,
+				page_length_pixels,
+				application_get_grace_home_directory(
+					application_name ),
+				application_get_grace_execution_directory(
+					application_name ),
+				application_get_grace_free_option_yn(
+					application_name ),
+				grace->grace_output,
+				application_get_distill_directory(
+					application_name ),
+				distill_landscape_flag,
+				application_get_ghost_script_directory(
+					application_name ),
+				(LIST *)0 /* quantum_datatype_name_list */,
+				grace->symbols,
+				grace->world_min_x,
+				grace->world_max_x,
+				grace->xaxis_ticklabel_precision,
+				grace->graph_list,
+				grace->anchor_graph_list ) )
+	{
+		return;
+	}
+	else
+	{
+		grace_output_graph_window(
+				application_name,
+				ftp_output_filename,
+				ftp_agr_filename,
+				(char *)0 /* appaserver_mount_point */,
+				0 /* not with_document_output */,
+				(char *)0 /* where_clause */ );
+
+	}
+
+} /* output_merged_waterquality_gracechart() */
+
