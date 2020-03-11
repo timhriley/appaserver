@@ -10,6 +10,8 @@
 #include "timlib.h"
 #include "date_convert.h"
 #include "piece.h"
+#include "date.h"
+#include "column.h"
 #include "appaserver_library.h"
 #include "html_table.h"
 #include "reoccurring.h"
@@ -425,7 +427,7 @@ int reoccurring_days_between_last_transaction(
 	select = "max( transaction_date_time )";
 	folder = "transaction";
 
-	post_reoccurring_transaction_subquery(
+	reoccurring_transaction_subquery(
 		sub_query,
 		debit_account,
 		credit_account );
@@ -468,4 +470,31 @@ int reoccurring_days_between_last_transaction(
 	return days_between;
 
 } /* reoccurring_days_between_last_transaction() */
+
+void reoccurring_transaction_subquery(
+			char *sub_query,
+			char *debit_account,
+			char *credit_account )
+{
+	sprintf( sub_query,
+		 "exists ( select 1 from journal_ledger			"
+		 "	   where transaction.full_name =		"
+		 "		journal_ledger.full_name 		"
+		 "	     and transaction.street_address =		"
+		 "		journal_ledger.street_address 		"
+		 "	     and transaction.transaction_date_time =	"
+		 "		journal_ledger.transaction_date_time	"
+		 "	     and account = '%s' ) and			"
+		 "exists ( select 1 from journal_ledger			"
+		 "	   where transaction.full_name =		"
+		 "		journal_ledger.full_name 		"
+		 "	     and transaction.street_address =		"
+		 "		journal_ledger.street_address 		"
+		 "	     and transaction.transaction_date_time =	"
+		 "		journal_ledger.transaction_date_time	"
+		 "	     and account = '%s' ) 			",
+		 debit_account,
+		 credit_account );
+
+} /* reoccurring_transaction_subquery() */
 

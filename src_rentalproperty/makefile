@@ -75,6 +75,7 @@ SOURCE_LIBRARY_OBJECT= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/ledger.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/accrual.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/purchase.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/reoccurring.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/customer.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/inventory.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/inventory_purchase_return.o	\
@@ -98,7 +99,6 @@ post_rental_property_reoccurring_transaction:				\
 		${EXTERNAL_LIBRARY_OBJECT} ${SOURCE_LIBRARY_OBJECT}	\
 		${PREDICTIVEBOOKS_LIBRARY}/bank_upload.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/feeder_upload.o		\
-		${PREDICTIVEBOOKS_LIBRARY}/reoccurring.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/tax.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-I${PREDICTIVEBOOKS_LIBRARY}				\
@@ -107,7 +107,6 @@ post_rental_property_reoccurring_transaction:				\
 		post_rental_property_reoccurring_transaction.c		\
 		${PREDICTIVEBOOKS_LIBRARY}/bank_upload.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/feeder_upload.o		\
-		${PREDICTIVEBOOKS_LIBRARY}/reoccurring.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/tax.o			\
 		-o post_rental_property_reoccurring_transaction
 
