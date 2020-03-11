@@ -382,8 +382,8 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 		 		__FUNCTION__,
 		 		__LINE__,
 				application_name );
-			exit( 1 );
 		}
+		exit( 1 );
 	}
 
 	s = appaserver_parameter_file_fetch( f, strdup( filename ) );

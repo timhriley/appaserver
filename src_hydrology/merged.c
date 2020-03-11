@@ -468,8 +468,8 @@ HASH_TABLE *merged_key_hash_table(
 				LIST *station_datatype_list )
 {
 	MERGED_STATION_DATATYPE *station_datatype;
-	LIST *date_space_time_key_list;
-	char *date_space_time_key;
+	LIST *date_day_key_list;
+	char *date_day_key;
 	HASH_TABLE *key_hash_table;
 
 	if ( !list_rewind( station_datatype_list ) ) return (HASH_TABLE *)0;
@@ -483,23 +483,23 @@ HASH_TABLE *merged_key_hash_table(
 			list_get_pointer(
 				station_datatype_list );
 
-		date_space_time_key_list =
+		date_day_key_list =
 			hash_table_get_key_list(
 				station_datatype->measurement_hash_table );
 
-		if ( list_rewind( date_space_time_key_list ) )
+		if ( list_rewind( date_day_key_list ) )
 		{
 			do {
-				date_space_time_key =
+				date_day_key =
 					list_get_pointer(
-						date_space_time_key_list );
+						date_day_key_list );
 
 				hash_table_set_pointer(
 					key_hash_table,
-					date_space_time_key,
+					date_day_key,
 					(char *)0 );
 
-			} while( list_next( date_space_time_key_list ) );
+			} while( list_next( date_day_key_list ) );
 		}
 	} while( list_next( station_datatype_list ) );
 
