@@ -145,7 +145,8 @@ int main( int argc, char **argv )
 			argv[ 5 ]
 				/* parameter_dictionary_string */ );
 
-
+	/* Does exit(1) on errors. */
+	/* ----------------------- */
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
@@ -162,8 +163,16 @@ int main( int argc, char **argv )
 				buffer,
 				process_name ) );
 		fflush( stdout );
-		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
-		printf( "</h2>\n" );
+
+		if ( strcmp( output_medium, "gracechart" ) == 0 )
+		{
+		}
+		else
+		{
+			if ( system( timlib_system_date_string() ) ) {};
+
+			printf( "</h2>\n" );
+		}
 		fflush( stdout );
 	}
 

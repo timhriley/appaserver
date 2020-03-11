@@ -623,4 +623,6 @@ char *timlib_trim_trailing_character(
 
 char *timlib_rtrim(		char *buffer );
 
+char *timlib_system_date_string( void );
+
 #endif
