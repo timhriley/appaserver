@@ -551,6 +551,11 @@ int query_or_sequence_set_data_list(
 				LIST *data_list_list,
 				LIST *data_list );
 
+char *query_or_sequence_where_clause(
+				LIST *attribute_name_list,
+				LIST *data_list_list,
+				boolean with_and_prefix );
+
 char *query_or_sequence_get_where_clause(
 				LIST *attribute_name_list,
 				LIST *data_list_list,

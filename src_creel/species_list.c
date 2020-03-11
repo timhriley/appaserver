@@ -410,7 +410,7 @@ void get_catches_species_in_clause(
 			data_list );
 
 	strcpy( catches_species_in_clause,
-		query_or_sequence_get_where_clause(
+		query_or_sequence_where_clause(
 				query_or_sequence->attribute_name_list,
 				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ ) );

@@ -119,7 +119,8 @@ int main( int argc, char **argv )
 		format_initial_capital( buffer, folder ) );
 
 	fflush( stdout );
-	system( "echo '<h1>' && date.e 0 && echo '</h1>'" );
+	/* system( "echo '<h1>' && date.e 0 && echo '</h1>'" ); */
+	if ( system( timlib_system_date_string() ) ){};
 	fflush( stdout );
 
 	if ( inserted > -1 )

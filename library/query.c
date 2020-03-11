@@ -5674,7 +5674,18 @@ int query_or_sequence_set_data_list(	LIST *data_list_list,
 
 } /* query_or_sequence_set_data_list() */
 
-char *query_or_sequence_get_where_clause(	LIST *attribute_name_list,
+char *query_or_sequence_where_clause(	LIST *attribute_name_list,
+					LIST *data_list_list,
+					boolean with_and_prefix )
+{
+	return query_or_sequence_get_where_clause(
+					attribute_name_list,
+					data_list_list,
+					with_and_prefix );
+}
+
+char *query_or_sequence_get_where_clause(
+					LIST *attribute_name_list,
 					LIST *data_list_list,
 					boolean with_and_prefix )
 {

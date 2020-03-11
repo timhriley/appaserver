@@ -22,7 +22,7 @@ int main( int argc, char **argv )
 	int i, j;
 	char *full_data_list_pointer;
 
-	output_starting_argv_stderr( argc, argv );
+	/* output_starting_argv_stderr( argc, argv ); */
 
 	if ( argc != 3 )
 	{
@@ -75,11 +75,12 @@ int main( int argc, char **argv )
 	}
 
 	printf( "(%s)\n",
-		query_or_sequence_get_where_clause(
+		query_or_sequence_where_clause(
 				query_or_sequence->attribute_name_list,
 				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ ) );
 
 	return 0;
+
 } /* main() */
 

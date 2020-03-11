@@ -8,7 +8,7 @@ echo "$0" "$*" 1>&2
 
 if [ "$#" -ne 6 ]
 then
-	echo "Usage: $0 process begin_date end_date station_list datatype omit_html_yn" 1>&2
+	echo "Usage: $0 process begin_date end_date station_list datatype_list omit_html_yn" 1>&2
 	exit 1
 fi
 
@@ -16,7 +16,7 @@ process=$1
 begin_date=$2
 end_date=$3
 station_list=$4
-datatype=$5
+datatype_list=$5
 omit_html_yn=$6
 
 process_title=`echo $process | format_initial_capital.e`
@@ -36,13 +36,14 @@ select="station.station,datatype,min(measurement_date),lat_nad83,long_nad83,avg(
 group_by="station.station,datatype,lat_nad83,long_nad83"
 heading="Station,Datatype,Date,Latitude,Longitude,Value"
 
+station_datatype_where=`station_datatype_where.sh "$station_list" "$datatype_list" | sed 's/station =/station.station =/'`
+
 (
 echo "$heading"
 echo "	select $select
 	from station, measurement
 	where station.station = measurement.station
-	  and station.station `in_clause.e $station_list`
-	  and datatype = '$datatype'
+	  and $station_datatype_where
 	  and measurement_date between '${begin_date}' and '${end_date}'
 	GROUP BY $group_by;"						|
 $tee_process								|
