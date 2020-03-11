@@ -46,7 +46,7 @@ REOCCURRING_STRUCTURE *reoccurring_structure_new(
 REOCCURRING_TRANSACTION *reoccurring_reoccurring_transaction_calloc(
 					void );
 
-REOCCURRING_TRANSACTION *reoccurring_transaction_new(
+REOCCURRING_TRANSACTION *reoccurring_transaction_fetch(
 					char *application_name,
 					char *full_name,
 					char *street_address,
@@ -90,7 +90,7 @@ REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_feeder_phrase(
 					LIST *reoccurring_transaction_list,
 					char *bank_description );
 
-char *reoccurring_transaction_get_select(
+char *reoccurring_transaction_select(
 					void );
 
 /* -------------------------- */
@@ -98,6 +98,14 @@ char *reoccurring_transaction_get_select(
 /* -------------------------- */
 char *reoccurring_memo(
 					char *transaction_description,
+					char *credit_account );
+
+int reoccurring_days_between_last_transaction(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *debit_account,
 					char *credit_account );
 
 #endif
