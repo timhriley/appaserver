@@ -13,6 +13,12 @@ then
 	echo "$ . set_database" 1>&2
 	exit 1
 fi
+
+if [ "$application" != "hydrology" -a "$application" != "audubon" ]
+then
+	exit 0
+fi
+
 process="process"
 operation="operation"
 process_parameter="process_parameter"
