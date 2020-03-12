@@ -77,7 +77,7 @@ sort
 )									|
 cat > $output_file
 
-return_file=`mapping.py $output_file`
+return_file=`/usr/lib/cgi-bin/mapping.py $output_file`
 
 prompt_file=$(echo "$return_file" | sed "s|`get_document_root.e`||")
 
@@ -87,7 +87,13 @@ then
 
 	echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/$DATABASE/style.css></head>"
 	echo "<body><h1>$process_title</h1>"
-	echo "<a href=$prompt_file target=_new>Press to view file.</a>"
+
+	if [ "$return_file" = "" ]
+	then
+		echo "<h3>No map generated.</h3>"
+	else
+		echo "<a href=$prompt_file target=_new>Press to view file.</a>"
+	fi
 	echo "</body></html>"
 else
 	echo "Created: $return_file"
