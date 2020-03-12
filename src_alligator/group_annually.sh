@@ -1,4 +1,9 @@
 :
+# src_alligator/group_annually.sh
+# ---------------------------------------------
+# Freely available software. See appaserver.org
+# ---------------------------------------------
+
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 application basin" 1>&2

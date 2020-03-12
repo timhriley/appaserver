@@ -10,11 +10,18 @@ then
 	exit 1
 fi
 
-station=$1
-parameter=$2
+station_list=$1
+parameter_list=$2
 
 select="station,parameter,units"
-where="station = '$station' and parameter = '$parameter'"
+
+station_single_quotes=`single_quotes_around.e "$station_list"`
+station_in_clause="and station in ($station_single_quotes)"
+
+parameter_single_quotes=`single_quotes_around.e "$parameter_list"`
+parameter_in_clause="and parameter in ($parameter_single_quotes)"
+
+where="1 = 1 $station_in_clause $parameter_in_clause"
 
 echo "select $select from station_parameter where $where;"	|
 sql.e waterquality						|
