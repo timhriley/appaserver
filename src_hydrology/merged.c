@@ -83,7 +83,7 @@ MERGED_INPUT *merged_input_new( DICTIONARY *parameter_dictionary )
 	record_list =
 		dictionary_get_index_list(
 			parameter_dictionary,
-			"waterquality_station_parameter_units" );
+			"waterquality_station_parameter" );
 
 	m->waterquality_station_name_list =
 		piece_list( record_list, '^', 0 );
@@ -334,10 +334,10 @@ char *merged_waterquality_sys_string(
 } /* merged_waterquality_sys_string() */
 
 void merged_measurement_hash_table(
+				LIST *hydrology_station_datatype_list,
 				char *application_name,
 				char *begin_date,
-				char *end_date,
-				LIST *hydrology_station_datatype_list )
+				char *end_date )
 {
 	MERGED_STATION_DATATYPE *m;
 	char *sys_string;
@@ -364,9 +364,9 @@ void merged_measurement_hash_table(
 } /* merged_measurement_hash_table() */
 
 void merged_results_hash_table(
+				LIST *waterquality_station_datatype_list,
 				char *begin_date,
-				char *end_date,
-				LIST *waterquality_station_datatype_list )
+				char *end_date )
 {
 	MERGED_STATION_DATATYPE *m;
 	char *sys_string;

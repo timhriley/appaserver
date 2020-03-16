@@ -83,15 +83,15 @@ LIST *merged_hydrology_station_datatype_list(
 				LIST *hydrology_datatype_name_list );
 
 void merged_measurement_hash_table(
+				LIST *hydrology_station_datatype_list,
 				char *application_name,
 				char *begin_date,
-				char *end_date,
-				LIST *hydrology_station_datatype_list );
+				char *end_date );
 
 void merged_results_hash_table(
+				LIST *waterquality_station_datatype_list,
 				char *begin_date,
-				char *end_date,
-				LIST *waterquality_station_datatype_list );
+				char *end_date );
 
 HASH_TABLE *merged_hash_table(	char *sys_string );
 

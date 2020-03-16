@@ -86,7 +86,7 @@ void output_merged_waterquality_gracechart(
 				LIST *hydrology_station_datatype_list,
 				LIST *date_day_key_list );
 
-void output_merged_waterquality(
+boolean output_merged_waterquality(
 				char *application_name,
 				char *process_name,
 				char *document_root_directory,
@@ -186,7 +186,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	output_merged_waterquality(
+	if ( !output_merged_waterquality(
 		application_name,
 		process_name,
 		appaserver_parameter_file->
@@ -195,7 +195,14 @@ int main( int argc, char **argv )
 		begin_date,
 		end_date,
 		output_medium,
-		merged_input );
+		merged_input ) )
+	{
+		if ( strcmp( output_medium, "stdout" ) != 0 )
+		{
+			printf(
+	"<h3>Warning: no water quality concentrations selected.</h3>\n" );
+		}
+	}
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
@@ -236,7 +243,7 @@ DICTIONARY *output_merged_parameter_dictionary(
 
 } /* output_merged_parameter_dictionary() */
 
-void output_merged_waterquality(
+boolean output_merged_waterquality(
 				char *application_name,
 				char *process_name,
 				char *document_root_directory,
@@ -248,30 +255,50 @@ void output_merged_waterquality(
 {
 	MERGED *merged;
 	HASH_TABLE *key_hash_table;
-	LIST *date_day_key_list;
+	LIST *date_day_key_list = {0};
 
 	merged = merged_new( merged_input );
 
-	merged_measurement_hash_table(
-		application_name,
-		begin_date,
-		end_date,
-		merged->hydrology_station_datatype_list );
+	if ( !list_length( merged->waterquality_station_datatype_list ) )
+	{
+		return 0;
+	}
 
 	merged_results_hash_table(
+		merged->waterquality_station_datatype_list,
 		begin_date,
-		end_date,
-		merged->waterquality_station_datatype_list );
+		end_date );
 
 	/* Get the time sequence from waterquality */
 	/* --------------------------------------- */
+	if ( !list_length( merged->waterquality_station_datatype_list ) )
+	{
+		return 0;
+	}
+
 	key_hash_table =
 		merged_key_hash_table(
 			merged->waterquality_station_datatype_list );
 
+	if ( !key_hash_table )
+	{
+		return 0;
+	}
+
 	date_day_key_list =
-		 hash_table_get_ordered_key_list(
+	 	hash_table_get_ordered_key_list(
 			key_hash_table );
+
+	if ( !list_length( date_day_key_list ) )
+	{
+		return 0;
+	}
+
+	merged_measurement_hash_table(
+		merged->hydrology_station_datatype_list,
+		application_name,
+		begin_date,
+		end_date );
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
@@ -335,6 +362,8 @@ void output_merged_waterquality(
 
 		pclose( output_pipe );
 	}
+
+	return 1;
 
 } /* output_merged_waterquality() */
 
@@ -929,3 +958,4 @@ void output_merged_waterquality_gracechart(
 
 } /* output_merged_waterquality_gracechart() */
 
+/* ----------------------------------------------------------- 	*/
