@@ -205,7 +205,9 @@ void latex_invoice_output_invoice_header(
 "\\begin{center}{\\large For %s} \\end{center}\n",
 		 latex_invoice_customer->invoice_key );
 
-	if ( logo_filename && *logo_filename )
+	if ( logo_filename
+	&&   *logo_filename
+	&&   timlib_file_exists( logo_filename ) )
 	{
 		fprintf( output_stream,
 "\\begin{center}\n"

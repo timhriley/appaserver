@@ -56,6 +56,7 @@ APPASERVER_LIBRARY=						\
 		element.o					\
 		sed.o						\
 		form.o						\
+		email.o						\
 		query.o 					\
 		stack.o 					\
 		grace.o 					\
@@ -1157,4 +1158,10 @@ keys_match_sum.o: keys_match_sum.c keys_match_sum.h			\
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c keys_match_sum.c
+
+email.o: email.c							\
+	email.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c email.c
 

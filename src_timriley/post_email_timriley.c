@@ -47,7 +47,7 @@ int main( void )
 	&&   message && *message )
 	{
 		sprintf( sys_string,
-		 	"mailx -s \"Appahost message about %s from %s/%s\" %s",
+		 	"mailx -s \"Appahost [%s] from %s/%s\" %s",
 		 	reason,
 		 	email_address,
 			remote_IP_address,

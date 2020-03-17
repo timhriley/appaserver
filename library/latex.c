@@ -183,7 +183,9 @@ void latex_output_longtable_document_heading(
 	fprintf( output_stream,
 		 "\\begin{document}\n" );
 
-	if ( logo_filename && *logo_filename )
+	if ( logo_filename
+	&&   *logo_filename
+	&&   timlib_file_exists( logo_filename ) )
 	{
 		fprintf( output_stream,
 "\\begin{center}\n"
@@ -521,7 +523,9 @@ void latex_output_letterhead_document_heading(
 					char *city_state_zip,
 					char *date_string )
 {
-	if ( !logo_filename || !*logo_filename )
+	if ( !logo_filename
+	||   !*logo_filename
+	||   !timlib_file_exists( logo_filename ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: emtpy logo_filename.\n",
@@ -564,7 +568,9 @@ void latex_output_return_envelope_document_heading(
 					char *city_state_zip,
 					char *date_string )
 {
-	if ( !logo_filename || !*logo_filename )
+	if ( !logo_filename
+	||   !*logo_filename
+	||   !timlib_file_exists( logo_filename ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: emtpy logo_filename.\n",

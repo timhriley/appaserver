@@ -20,14 +20,17 @@
 #include "environ.h"
 #include "latex_invoice.h"
 #include "application_constants.h"
-#include "date_convert.h"
 #include "ledger.h"
 #include "entity.h"
 #include "camp.h"
+#include "email.h"
 #include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
+#define FROM_ADDRESS	"donner@cloudacus.com"
+#define SUBJECT		"Invoice"
+#define MESSAGE		"Here is your invoice."
 
 /* Prototypes */
 /* ---------- */
@@ -39,7 +42,7 @@ void generate_invoice_email_display(
 				char *camp_title,
 				char *full_name,
 				char *street_address,
-				int process_id );
+				pid_t process_id );
 
 void generate_invoice_email_send(
 				char *application_name,
@@ -48,7 +51,8 @@ void generate_invoice_email_send(
 				char *camp_begin_date,
 				char *camp_title,
 				char *full_name,
-				char *street_address );
+				char *street_address,
+				pid_t process_id );
 
 /* Returns output_filename */
 /* ----------------------- */
@@ -126,6 +130,13 @@ int main( int argc, char **argv )
 	street_address = argv[ 5 ];
 	output_option = argv[ 6 ];
 
+	if ( !*output_option
+	||   strcmp( output_option, "output_option" ) == 0
+	||   strcmp( output_option, "invoice_output_option" ) == 0 )
+	{
+		output_option = "PDF";
+	}
+
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document_quick_output_body(
@@ -135,11 +146,9 @@ int main( int argc, char **argv )
 
 	printf( "<h1>%s</h1>\n",
 		format_initial_capital( title, process_name ) );
-	printf( "<h2>\n" );
 	fflush( stdout );
-	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
+	if ( system( timlib_system_date_string() ) ){};
 	fflush( stdout );
-	printf( "</h2>\n" );
 
 	generate_invoice(	application_name,
 				process_name,
@@ -444,23 +453,30 @@ void generate_invoice(		char *application_name,
 
 	if ( strcmp( output_option, "PDF" ) == 0 )
 	{
-		output_filename =
-			generate_invoice_PDF(
-				&ftp_output_filename,
-				application_name,
-				process_name,
-				document_root_directory,
-				camp_begin_date,
-				camp_title,
-				full_name,
-				street_address,
-				process_id );
+		if ( ! ( output_filename =
+				generate_invoice_PDF(
+					&ftp_output_filename,
+					application_name,
+					process_name,
+					document_root_directory,
+					camp_begin_date,
+					camp_title,
+					full_name,
+					street_address,
+					process_id ) ) )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: generate_invoice_PDF() failed.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
 
 		output_invoice_window(
 			application_name,
 			ftp_output_filename,
 			process_id );
-
 	}
 	else
 	if ( strcmp( output_option, "email_display" ) == 0 )
@@ -485,7 +501,8 @@ void generate_invoice(		char *application_name,
 				camp_begin_date,
 				camp_title,
 				full_name,
-				street_address );
+				street_address,
+				process_id );
 	}
 
 } /* generate_invoice() */
@@ -610,7 +627,17 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-	return output_filename;
+	return appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 } /* generate_invoice_PDF() */
 
@@ -626,8 +653,9 @@ void generate_invoice_email_display(
 {
 	char *output_filename;
 	char *ftp_output_filename;
-	char pdf_output_filename[ 1024 ];
-	int str_len;
+	ENTITY *entity;
+	char *sendmail_command;
+	char *sendmail_string;
 
 	output_filename =
 		generate_invoice_PDF(
@@ -641,15 +669,36 @@ void generate_invoice_email_display(
 			street_address,
 			process_id );
 
-	strcpy( pdf_output_filename, output_filename );
+	if ( ! ( entity = entity_fetch(
+				application_name,
+				full_name,
+				street_address ) ) )
+	{
+		printf( "<h3>Error: cannot fetch %s/%s</h3>\n",
+			full_name,
+			street_address );
+		return;
+	}
 
+	/* Returns heap memory. */
+	/* -------------------- */
+	sendmail_command =
+		email_sendmail_command(
+			output_filename /* attachment_filename */ );
 
-	str_len = strlen( pdf_output_filename );
+	/* Returns heap memory. */
+	/* -------------------- */
+	sendmail_string =
+		email_sendmail_string(
+			FROM_ADDRESS,
+			entity->email_address /* to_address */,
+			SUBJECT,
+			"Here is your invoice." /* message */,
+			(char *)0 /* reply_to */,
+			entity->full_name );
 
-	sprintf( pdf_output_filename + str_len - 3,
-		 "pdf" );
-
-	printf( "<p>Generated %s\n", pdf_output_filename );
+	printf( "<p>%s\n", sendmail_command );
+	printf( "<p>%s\n", sendmail_string );
 
 } /* generate_invoice_email_display() */
 
@@ -660,7 +709,45 @@ void generate_invoice_email_send(
 				char *camp_begin_date,
 				char *camp_title,
 				char *full_name,
-				char *street_address )
+				char *street_address,
+				pid_t process_id )
 {
+	char *output_filename;
+	char *ftp_output_filename;
+	ENTITY *entity;
+
+	output_filename =
+		generate_invoice_PDF(
+			&ftp_output_filename,
+			application_name,
+			process_name,
+			document_root_directory,
+			camp_begin_date,
+			camp_title,
+			full_name,
+			street_address,
+			process_id );
+
+	if ( ! ( entity = entity_fetch(
+				application_name,
+				full_name,
+				street_address ) ) )
+	{
+		printf( "<h3>Error: cannot fetch %s/%s</h3>\n",
+			full_name,
+			street_address );
+		return;
+	}
+
+	email_sendmail(	FROM_ADDRESS,
+			entity->email_address /* to_address */,
+			SUBJECT,
+			MESSAGE,
+			(char *)0 /* reply_to */,
+			entity->full_name,
+			output_filename /* attachment_filename */ );
+
+	printf( "<h3>Message send.</h3>\n" );
+
 } /* generate_invoice_email_send() */
 

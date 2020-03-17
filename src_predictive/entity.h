@@ -192,4 +192,8 @@ boolean entity_location_fetch(	char **city,
 				char *full_name,
 				char *street_address );
 
+ENTITY *entity_fetch(		char *application_name,
+				char *full_name,
+				char *street_address );
+
 #endif

@@ -95,12 +95,14 @@ clean:
 
 generate_invoice: generate_invoice.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		${LIBRARY}/latex_invoice.o
+		${LIBRARY}/latex_invoice.o				\
+		${LIBRARY}/email.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-I${PREDICTIVEBOOKS_LIBRARY}				\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${LIBRARY}/latex_invoice.o				\
+		${LIBRARY}/email.o					\
 		generate_invoice.c					\
 		-o generate_invoice
 
@@ -124,9 +126,9 @@ enrollment_payment_update_transaction:					\
 		enrollment_payment_update_transaction.c			\
 		-o enrollment_payment_update_transaction
 
-camp.o: camp.c								\
-		camp.h
+camp.o: camp.c camp.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-I${LIBRARY}						\
 		-I${PREDICTIVEBOOKS_LIBRARY}				\
 		-c camp.c
 
