@@ -31,8 +31,9 @@ void email_sendmail(	char *from_address,
 
 /* Returns heap memory. */
 /* -------------------- */
-char *email_sendmail_command(
-			char *attachment_filename );
+char *email_sendmail_command(	char *to_address,
+				char *subject,
+				char *attachment_filename );
 
 /* Returns heap memory. */
 /* -------------------- */

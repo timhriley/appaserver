@@ -684,7 +684,10 @@ void generate_invoice_email_display(
 	/* -------------------- */
 	sendmail_command =
 		email_sendmail_command(
-			output_filename /* attachment_filename */ );
+			entity->email_address /* to_address */,
+			SUBJECT,
+			output_filename
+				/* attachment_filename */ );
 
 	/* Returns heap memory. */
 	/* -------------------- */

@@ -29,7 +29,9 @@ EMAIL *email_new( void )
 
 /* Returns heap memory. */
 /* -------------------- */
-char *email_sendmail_command(	char *attachment_filename )
+char *email_sendmail_command(	char *to_address,
+				char *subject,
+				char *attachment_filename )
 {
 	char sendmail_command[ 2048 ];
 
@@ -38,12 +40,17 @@ char *email_sendmail_command(	char *attachment_filename )
 	&&   timlib_file_exists( attachment_filename ) )
 	{
 		sprintf( sendmail_command,
-			 "/usr/sbin/sendmail -t -a %s",
-			 attachment_filename );
+			 "mutt -s \"%s\" -a %s -- %s",
+			 subject,
+			 attachment_filename,
+			 to_address );
 	}
 	else
 	{
-		strcpy( sendmail_command, "/usr/sbin/sendmail -t" );
+		sprintf( sendmail_command,
+			 "mutt -s \"%s\" %s",
+			 subject,
+			 to_address );
 	}
 
 	return strdup( sendmail_command );
@@ -58,13 +65,17 @@ void email_sendmail(	char *from_address,
 			char *full_name,
 			char *attachment_filename )
 {
-	FILE *output_pipe;
+	char sys_string[ 1024 ];
 	char *sendmail_command;
 	char *sendmail_string;
 
 	/* Returns heap memory. */
 	/* -------------------- */
-	sendmail_command = email_sendmail_command( attachment_filename );
+	sendmail_command =
+		email_sendmail_command(
+			to_address,
+			subject,
+			attachment_filename );
 
 	/* Returns heap memory. */
 	/* -------------------- */
@@ -77,9 +88,12 @@ void email_sendmail(	char *from_address,
 			reply_to,
 			full_name );
 
-	output_pipe = popen( sendmail_command, "w" );
-	fprintf( output_pipe, "%s\n.\n", sendmail_string );
-	pclose( output_pipe );
+	sprintf(	sys_string,
+			"echo \"%s\" | %s",
+			sendmail_string,
+			sendmail_command );
+
+	if ( system( sys_string ) ){};
 
 } /* email_sendmail() */
 
