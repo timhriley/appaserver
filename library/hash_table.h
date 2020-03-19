@@ -1,8 +1,7 @@
-/* library/hashtbl.h					   */
+/* $APPASERVER_HOME/library/hashtbl.h			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
-
 
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H

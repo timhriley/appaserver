@@ -326,8 +326,6 @@ void entity_propagate_purchase_order_ledger_accounts(
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
-	char *specific_inventory_account = {0};
-	char *cost_of_goods_sold_account = {0};
 
 	inventory_account_name_list =
 		ledger_get_inventory_account_name_list(
@@ -764,4 +762,27 @@ boolean entity_location_fetch(	char **city,
 
 } /* entity_location_fetch() */
 
+ENTITY *entity_fetch(		char *application_name,
+				char *full_name,
+				char *street_address )
+{
+	ENTITY *entity;
+
+	entity = entity_new( full_name, street_address );
+
+	if ( !entity_load(	&entity->city,
+				&entity->state_code,
+				&entity->zip_code,
+				&entity->phone_number,
+				&entity->email_address,
+				application_name,
+				entity->full_name,
+				entity->street_address ) )
+	{
+		return (ENTITY *)0;
+	}
+
+	return entity;
+
+} /* entity_fetch() */
 
