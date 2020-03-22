@@ -265,12 +265,15 @@ passed_security_check:
 	{
 		fflush( stdout );
 		if ( system( sys_string ) ) {};
-		printf( "<h3>Process complete</h3>\n" );
+
+		if ( html_ok ) printf( "<h3>Process complete</h3>\n" );
 	}
 		
 
 	if ( html_ok ) document_close();
-	exit( 0 );
+
+	return 0;
+
 } /* main() */
 
 char *get_sys_string(	char *folder_name,
@@ -423,7 +426,7 @@ char *get_sys_string(	char *folder_name,
 		buffer_ptr += sprintf(
 		 		buffer_ptr,
 		 		" data directory = '%s',",
-				data_directory);
+				data_directory );
 	}
 
 	if ( index_directory && *index_directory )
@@ -431,7 +434,7 @@ char *get_sys_string(	char *folder_name,
 		buffer_ptr += sprintf(
 		 		buffer_ptr,
 		 		" index directory = '%s',",
-				index_directory);
+				index_directory );
 	}
 
 	buffer_ptr += sprintf(
