@@ -88,6 +88,7 @@ results=`echo "select count(1) from $from where $where;" | sql.e`
 
 if [ "$results" -ge 1 ]
 then
+	echo "<h2> `now.sh 19` </h2>"
 	echo "<h3>Duplication Error</h3>"
 	echo "</body>"
 	echo "</html>"
@@ -162,7 +163,7 @@ post_change_journal_ledger.sh	insert				\
 				preupdate_transaction_date_time	\
 				preupdate_account
 
-echo "<h2> `now.sh hhmmss` </h2>"
+echo "<h2> `now.sh 19` </h2>"
 
 echo "<h3>Process complete</h3>"
 
