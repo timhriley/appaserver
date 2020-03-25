@@ -94,11 +94,6 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				current_application );
-
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( !session_access(	current_application,
@@ -222,7 +217,7 @@ int main( int argc, char **argv )
 			 tee_command_process );
 
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		if ( create_clone_filename )
 		{
@@ -246,7 +241,8 @@ int main( int argc, char **argv )
 					appaserver_data_directory,
 				create_clone_filename->folder_name_list,
 				system_folders_yn );
-		system( sys_string );
+
+		if ( system( sys_string ) ){};
 
 		sys_string =
 		create_clone_filename_get_create_application_remove_sys_string(
@@ -255,7 +251,8 @@ int main( int argc, char **argv )
 				create_clone_filename->
 					appaserver_data_directory,
 				create_clone_filename->folder_name_list );
-		system( sys_string );
+
+		if ( system( sys_string ) ){};
 
 		application_filename =
 			create_clone_filename_get_create_application_filename(
@@ -268,13 +265,18 @@ int main( int argc, char **argv )
 		sprintf( sys_string,
 			 "chmod +x,g+w %s 2>/dev/null",
 			 application_filename );
-		system( sys_string );
+
+		if ( system( sys_string ) ){};
+
 		printf( "<p>Created %s\n", application_filename );
 	}
 
+	if ( really_yn == 'y' )
+		printf( "<h3>Process complete.</h3>\n" );
+
 	document_close();
 
-	exit( 0 );
+	return 0;
 
 } /* main() */
 
