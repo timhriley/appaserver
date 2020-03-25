@@ -554,10 +554,12 @@ function timlib_element_value_set(	element_name,
 
 function timlib_history_forward()
 {
-	if ( !history.forward() )
-	{
-		alert( 'Already at top frame.' );
-	}
+	history.forward();
+
+	// if ( !history.forward() )
+	// {
+		// alert( 'Already at top frame.' );
+	// }
 
 	return true;
 
