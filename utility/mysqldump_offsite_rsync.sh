@@ -38,7 +38,7 @@ offsite_rsync()
 	source_directory=$1
 	destination_directory=$2
 
-	logfile="/tmp/offsite_rsync_$database.log"
+	logfile="/tmp/offsite_rsync_${database}_$$.log"
 
 	nohup							\
 	/usr/bin/time						\
