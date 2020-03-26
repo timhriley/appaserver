@@ -8,7 +8,6 @@
 
 #include <string.h>
 #include "timlib.h"
-#include "appaserver_library.h"
 #include "piece.h"
 #include "camp.h"
 

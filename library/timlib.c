@@ -2273,6 +2273,11 @@ double timlib_round_money( double d )
 
 } /* timlib_round_money() */
 
+double timlib_round_double( double d )
+{
+	return round_double( d );
+}
+
 double round_double( double d )
 {
 	if ( d >= 0.0 )
