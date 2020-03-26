@@ -194,7 +194,8 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 				local_foreign_attribute_name_list,
 				omit_update_attribute_name_list );
 
-		if (	list_length( subtract_list ) !=
+		if ( ( list_length( local_foreign_attribute_name_list ) > 1 )
+		&&  	list_length( subtract_list ) !=
 			list_length( local_foreign_attribute_name_list ) )
 		{
 			continue;

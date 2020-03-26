@@ -201,7 +201,10 @@ char *piece_quoted(	char *destination,
 
                        	if ( *source++ == delimiter )
 			{
-                               	if ( ++mark == offset ) break;
+				if ( !inside_quote )
+				{
+                               		if ( ++mark == offset ) break;
+				}
 			}
 		}
 	}
@@ -228,7 +231,6 @@ char *piece_quoted(	char *destination,
 		&&   !inside_quote )
 		{
 			inside_quote = 1;
-			/* *buf_ptr++ = *source++; */
 			source++;
 			continue;
 		}
@@ -236,7 +238,6 @@ char *piece_quoted(	char *destination,
 		if ( *source == quote_character && inside_quote )
 		{
 			inside_quote = 0;
-			/* *buf_ptr++ = *source++; */
 			source++;
 			continue;
 		}
@@ -245,6 +246,7 @@ char *piece_quoted(	char *destination,
 		{
 			break;
 		}
+
 		*buf_ptr++ = *source++;
 	}
  

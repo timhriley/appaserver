@@ -2978,7 +2978,8 @@ void element_http_filename_output(	FILE *output_file,
 
 	filename = basename_get_filename( http_filename->data );
 
-	if ( *http_filename->data != '/' )
+	if ( timlib_strncmp( http_filename->data, "http" ) != 0
+	&&   *http_filename->data != '/' )
 	{
 		sprintf(	filename_link,
 				"/appaserver/%s/%s",
@@ -2988,6 +2989,7 @@ void element_http_filename_output(	FILE *output_file,
 	else
 	{
 		strcpy( filename_link, http_filename->data );
+		filename = http_filename->data;
 	}
 
 	fprintf(output_file,
