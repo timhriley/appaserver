@@ -100,18 +100,20 @@ char *fetch_arg( NAME_ARG *arg, char *option )
         struct command_line_args *this_arg;
         struct valid_option *v_option, *find_option();
 
-        if (go_head(arg->command_list_arg))
+        if ( go_head( arg->command_list_arg ) )
+	{
                 do {
-                        this_arg = (struct command_line_args *)
-                                retrieve_item_ptr(arg->command_list_arg);
+                        this_arg =
+				(struct command_line_args *)
+                              		retrieve_item_ptr(
+						arg->command_list_arg );
 
-                        if (strncmp(    this_arg->option,
-                                        option,
-                                        strlen(this_arg->option)) == 0)
+                        if ( timlib_strncmp(
+					option,
+					this_arg->option ) == 0 )
 			{
                                 if ( !*this_arg->value )
 				{
-        				exit_usage(arg);
 					return (char *)0;
 				}
 				else
@@ -120,7 +122,8 @@ char *fetch_arg( NAME_ARG *arg, char *option )
 				}
 			}
 
-                } while (next_item(arg->command_list_arg));
+                } while ( next_item( arg->command_list_arg ) );
+	}
 
         /* Check if default value exists */
         /* ----------------------------- */
@@ -132,6 +135,7 @@ char *fetch_arg( NAME_ARG *arg, char *option )
         exit_usage(arg);
 
 	return (char *)0;
+
 } /* fetch_arg */
 
 NAME_ARG *name_arg_new( char *argv_0 )
@@ -319,21 +323,28 @@ void exit_usage( NAME_ARG *arg )
 	else
         	fprintf( stderr, "Usage:\n" );
 
-        while ((v_option = find_ticket(arg,ticket++))){
+        while ( (v_option = find_ticket( arg, ticket++ ) ) )
+	{
 
                 fprintf( stderr, "     %s=",v_option->option);
 
                 /* Find valid_values */
                 /* ----------------- */
-                if (go_head(v_option->valid_value))
+                if ( go_head( v_option->valid_value ) )
+		{
                         do {
-                                v_value = (char *)
-                                retrieve_item_ptr(v_option->valid_value);
+                                v_value =
+					(char *)
+                                	retrieve_item_ptr(
+						v_option->valid_value );
 
                                 fprintf( stderr, "(%s) ",v_value);
-                        } while (next_item (v_option->valid_value));
+                        } while ( next_item( v_option->valid_value ) );
+		}
                 else
+		{
                         fprintf( stderr, "(?) ");
+		}
 
                 if (v_option->default_value)
                         if (*v_option->default_value)

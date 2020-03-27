@@ -72,10 +72,6 @@ int main( int argc, char **argv )
 				&maxrows,
 				arg );
 
-	/* Security check commented out. This is excluded in process.c */
-	/* ----------------------------------------------------------- */
-	/* (void)environ_get_application_name( argv[ 0 ] ); */
-
 	if ( !folder_name || !*folder_name )
 	{
 		fprintf( stderr,

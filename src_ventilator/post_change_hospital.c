@@ -39,9 +39,9 @@ int main( int argc, char **argv )
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 4 )
 	{
@@ -99,6 +99,13 @@ void post_change_hospital_update(
 			&hospital->ICU_bed_occupied_percent_isnull,
 			hospital->ICU_bed_capacity,
 			hospital->current_bed_usage_list );
+
+	hospital->beds_without_ventilators =
+		hospital_beds_without_ventilators(
+			&hospital->beds_without_ventilators_isnull,
+			hospital->regular_bed_capacity,
+			hospital->ICU_bed_capacity,
+			hospital->current_ventilator_count_list );
 
 	hospital_update(application_name,
 			hospital->hospital_name,

@@ -9,6 +9,8 @@
 #include <string.h>
 #include "timlib.h"
 #include "piece.h"
+#include "entity.h"
+#include "appaserver_library.h"
 #include "camp.h"
 
 CAMP *camp_new(		char *camp_begin_date,

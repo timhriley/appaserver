@@ -129,5 +129,11 @@ void hospital_update(		char *application_name,
 char *hospital_where(		char *hospital_name,
 				char *street_address );
 
+int hospital_beds_without_ventilators(
+				boolean *isnull,
+				int regular_bed_capacity,
+				int ICU_bed_capacity,
+				LIST *current_ventilator_count_list );
+
 #endif
 

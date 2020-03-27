@@ -46,7 +46,9 @@ int hospital_regular_bed_occupied_percent(
 		return 0;
 	}
 
-	if ( !list_get_last_pointer( current_bed_usage_list ) )
+	if ( ! ( current_bed_usage =
+			list_get_last_pointer(
+				current_bed_usage_list ) ) )
 	{
 		*isnull = 1;
 		return 0;
@@ -76,7 +78,9 @@ int hospital_ICU_bed_occupied_percent(
 		return 0;
 	}
 
-	if ( !list_get_last_pointer( current_bed_usage_list ) )
+	if ( ! ( current_bed_usage =
+			list_get_last_pointer(
+				current_bed_usage_list ) ) )
 	{
 		*isnull = 1;
 		return 0;
@@ -93,7 +97,7 @@ int hospital_ICU_bed_occupied_percent(
 char *hospital_select( void )
 {
 return
-"hospital_name,street_address,city,state_code,zip_code,zip4,telephone,regular_bed_capacity,ICU_bed_capacity,active_yn,regular_bed_occupied_percent,ICU_bed_occupied_percent,beds_without_ventilators,hospital_type,owner_type,helipad_yn,latitude,longitude,population_thousands,hospital_website";
+"hospital_name,street_address,city,state_code,zip_code,zip4,telephone,regular_bed_capacity,ICU_bed_capacity,active_yn,regular_bed_occupied_percent,ICU_bed_occupied_percent,beds_without_ventilators,hospital_type,owner_type,helipad_yn,latitude,longitude,hospital_website";
 }
 
 HOSPITAL *hospital_parse( char *input_line )
@@ -158,9 +162,6 @@ HOSPITAL *hospital_parse( char *input_line )
 	hospital->longitude = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 18 );
-	hospital->population_thousands = atoi( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 19 );
 	hospital->hospital_website = strdup( piece_buffer );
 
 	return hospital;
@@ -177,7 +178,7 @@ char *hospital_where(		char *hospital_name,
 
 	sprintf( where,
 		 "hospital_name = '%s' and	"
-		 "street_address = '%s		",
+		 "street_address = '%s'		",
 		 escape_character(	buffer,
 					hospital_name,
 					'\'' ),
@@ -191,11 +192,12 @@ HOSPITAL *hospital_fetch(	char *application_name,
 				char *hospital_name,
 				char *street_address )
 {
-	char sys_string[ 1024 ];
+	char sys_string[ 2048 ];
 	char input_line[ 1024 ];
 	FILE *input_pipe;
 	HOSPITAL *hospital = {0};
 
+#ifdef NOT_DEFINE
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
 		 "			select=\"%s\"		"
@@ -212,6 +214,23 @@ HOSPITAL *hospital_fetch(	char *application_name,
 		 hospital_where(
 			hospital_name,
 			street_address ) );
+#endif
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\"	|"
+		 "sql.e %s				 ",
+		 /* ----------------------- */
+		 /* Returns program memory. */
+		 /* ----------------------- */
+		 hospital_select(),
+		 "hospital",
+		 /* -------------------- */
+		 /* Returns heap memory. */
+		 /* -------------------- */
+		 hospital_where(
+			hospital_name,
+			street_address ),
+		 application_name );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -224,9 +243,16 @@ HOSPITAL *hospital_fetch(	char *application_name,
 				application_name,
 				hospital->hospital_name,
 				hospital->street_address );
+
+		hospital->current_ventilator_count_list =
+			hospital_current_ventilator_count_list(
+				application_name,
+				hospital->hospital_name,
+				hospital->street_address );
 	}
 
 	pclose( input_pipe );
+
 	return hospital;
 
 } /* hospital_fetch() */
@@ -255,7 +281,7 @@ void hospital_update(		char *application_name,
 	/* Regular Bed Occupied Percent */
 	/* ---------------------------- */
 	if ( regular_bed_occupied_percent_isnull )
-		strcpy( output_buffer, "null" );
+		*output_buffer = '\0';
 	else
 		sprintf( output_buffer, "%d", regular_bed_occupied_percent );
 
@@ -268,7 +294,7 @@ void hospital_update(		char *application_name,
 	/* ICU Bed Occupied Percent */
 	/* ------------------------ */
 	if ( ICU_bed_occupied_percent_isnull )
-		strcpy( output_buffer, "null" );
+		*output_buffer = '\0';
 	else
 		sprintf( output_buffer, "%d", ICU_bed_occupied_percent );
 
@@ -281,7 +307,7 @@ void hospital_update(		char *application_name,
 	/* Beds Without Ventilators */
 	/* ------------------------ */
 	if ( beds_without_ventilators_isnull )
-		strcpy( output_buffer, "null" );
+		*output_buffer = '\0';
 	else
 		sprintf( output_buffer, "%d", beds_without_ventilators );
 
@@ -323,13 +349,14 @@ LIST *hospital_current_bed_usage_list(
 		 /* Returns program memory. */
 		 /* ----------------------- */
 		 hospital_current_bed_usage_select(),
+		 "current_bed_usage",
 		 /* -------------------- */
 		 /* Returns heap memory. */
 		 /* -------------------- */
 		 hospital_where(
 			hospital_name,
-			street_address ),
-		 "current_bed_usage" );
+			street_address ) );
+
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -417,13 +444,13 @@ LIST *hospital_current_ventilator_count_list(
 		 /* Returns program memory. */
 		 /* ----------------------- */
 		 hospital_current_ventilator_count_select(),
+		 "current_ventilator_count",
 		 /* -------------------- */
 		 /* Returns heap memory. */
 		 /* -------------------- */
 		 hospital_where(
 			hospital_name,
-			street_address ),
-		 "current_ventilator_count" );
+			street_address ) );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -481,4 +508,35 @@ CURRENT_VENTILATOR_COUNT *hospital_current_ventilator_count_parse(
 	return current_ventilator_count;
 
 } /* hospital_current_ventilator_count_parse() */
+
+int hospital_beds_without_ventilators(
+				boolean *isnull,
+				int regular_bed_capacity,
+				int ICU_bed_capacity,
+				LIST *current_ventilator_count_list )
+{
+	int total_beds;
+	CURRENT_VENTILATOR_COUNT *current_ventilator_count;
+
+	*isnull = 0;
+
+	total_beds = regular_bed_capacity + ICU_bed_capacity;
+
+	if ( !total_beds )
+	{
+		*isnull = 1;
+		return 0;
+	}
+
+	if ( ! ( current_ventilator_count =
+			list_get_last_pointer(
+				current_ventilator_count_list ) ) )
+	{
+		*isnull = 1;
+		return 0;
+	}
+
+	return total_beds - current_ventilator_count->current_ventilator_count;
+
+} /* hospital_beds_without_ventilators() */
 

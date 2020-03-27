@@ -703,6 +703,13 @@ void process_get_executable(	char **executable,
 		 application_name,
 		 where );
 
+
+fprintf( stderr, "%s/%s()/%d: sys_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string  );
+
 	*executable = pipe2string( sys_string );
 
 } /* process_get_executable() */
@@ -1031,7 +1038,7 @@ database_management_system = (char *)0;
 		table_name,
 		process_name );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 } /* process_increment_execution_count() */
 
