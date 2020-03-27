@@ -15,6 +15,7 @@
 #include "document.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "hospital.h"
 
 /* Constants */
 /* --------- */
@@ -32,7 +33,6 @@ int main( int argc, char **argv )
 	char *hospital_name;
 	char *street_address;
 	char *state;
-	HOSPITAL *hospital;
 
 	/* Exits if fails */
 	/* -------------- */
@@ -68,7 +68,9 @@ int main( int argc, char **argv )
 } /* main() */
 
 void post_change_hospital_update(
-				char *application_name )
+				char *application_name,
+				char *hospital_name,
+				char *street_address )
 {
 	HOSPITAL *hospital;
 
@@ -76,7 +78,7 @@ void post_change_hospital_update(
 			hospital_fetch(
 					application_name,
 					hospital_name,
-					street_address ) )
+					street_address ) ) )
 	{
 		fprintf( stderr,
 			"ERROR in %s/%s()/%d: cannot hospital_fetch()\n",
@@ -86,81 +88,27 @@ void post_change_hospital_update(
 		exit( 1 );
 	}
 
-	hospital->hospital_bed_capacity_percent =
-		hospital_bed_capacity_percent(
-			&hospital->bed_capacity_percent_isnull,
-			hospital->hospital_bed_capacity,
+	hospital->regular_bed_occupied_percent =
+		hospital_regular_bed_occupied_percent(
+			&hospital->regular_bed_occupied_percent_isnull,
+			hospital->regular_bed_capacity,
 			hospital->current_bed_usage_list );
 
-	hospital->ICU_bed_capacity_percent =
-		hospital_ICU_bed_capacity_percent(
-			&hospital->ICU_bed_capacity_percent_isnull,
-			hospital->ICU_bed_capacity
+	hospital->ICU_bed_occupied_percent =
+		hospital_ICU_bed_occupied_percent(
+			&hospital->ICU_bed_occupied_percent_isnull,
+			hospital->ICU_bed_capacity,
 			hospital->current_bed_usage_list );
+
+	hospital_update(application_name,
+			hospital->hospital_name,
+			hospital->street_address,
+			hospital->regular_bed_occupied_percent_isnull,
+			hospital->regular_bed_occupied_percent,
+			hospital->ICU_bed_occupied_percent_isnull,
+			hospital->ICU_bed_occupied_percent,
+			hospital->beds_without_ventilators_isnull,
+			hospital->beds_without_ventilators );
 
 } /* post_change_hospital_update() */
-
-int hospital_bed_capacity_percent(
-				boolean *isnull,
-				int hospital_bed_capacity,
-				LIST *current_bed_usage_list )
-{
-	CURRENT_BED_USAGE *current_bed_usage;
-	double capacity_percent;
-
-	*isnull = 0;
-
-	if ( !hospital_bed_capacity )
-	{
-		*isnull = 1;
-		return 0.0;
-	}
-
-	if ( ! ( current_bed_usage =
-			list_get_last_pointer(
-				current_bed_usage_list ) ) )
-	{
-		*isnull = 1;
-		return 0.0;
-	}
-
-	capacity_percent =
-		(double)current_bed_usage->hospital_bed_usage /
-		(double)hospital_bed_capacity;
-
-	return (int)timlib_round_double( capacity_percent );
-
-} /* hospital_bed_capacity_percent() */
-
-int hospital_ICU_bed_capacity_percent(
-				boolean *isnull,
-				int hospital_ICU_bed_capacity,
-				LIST *current_bed_usage_list )
-{
-	CURRENT_BED_USAGE *current_bed_usage;
-	double capacity_percent;
-
-	*isnull = 0;
-
-	if ( !hospital_ICU_bed_capacity )
-	{
-		*isnull = 1;
-		return 0.0;
-	}
-
-	if ( ! ( current_bed_usage =
-			list_get_last_pointer(
-				current_bed_usage_list ) ) )
-	{
-		*isnull = 1;
-		return 0.0;
-	}
-
-	capacity_percent =
-		(double)current_bed_usage->ICU_bed_usage /
-		(double)hospital_ICU_bed_capacity;
-
-	return (int)timlib_round_double( capacity_percent );
-
-} /* hospital_ICU_bed_capacity_percent() */
 

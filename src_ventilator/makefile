@@ -21,8 +21,7 @@ STANDARD_LIBRARY_OBJECT=						\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/hashtbl.o
 
-EXECUTABLES=	schedule_e_report					\
-		post_rental_property_reoccurring_transaction
+EXECUTABLES=	post_change_hospital
 
 EXTERNAL_LIBRARY_OBJECT=						\
 		${STANDARD_LIBRARY_OBJECT}				\
@@ -79,11 +78,18 @@ touch:
 clean:
 	rm ${EXECUTABLES} *.o
 
-post_rental_property_reoccurring_transaction:				\
-		post_rental_property_reoccurring_transaction.c		\
+post_change_hospital:							\
+		post_change_hospital.c					\
 		${EXTERNAL_LIBRARY_OBJECT} 				\
+		hospital.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY_OBJECT}				\
-		post_rental_property_reoccurring_transaction.c		\
-		-o post_rental_property_reoccurring_transaction
+		-I{$LIBRARY}						\
+		post_change_hospital.c					\
+		hospital.o						\
+		-o post_change_hospital
+
+hospital.o: hospital.c
+	${CC} -c -I${LIBRARY}						\
+		hospital.c
 

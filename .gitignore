@@ -19,6 +19,10 @@ backup/
 # -----------
 *.[oe]
 *.pyc
+# --------------
+# src_ventilator
+# --------------
+post_change_hospital
 # -------------
 # src_hydrology
 # -------------
