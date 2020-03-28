@@ -30,9 +30,9 @@ HOSPITAL *hospital_new(	void )
 
 } /* hospital_new() */
 
-int hospital_regular_bed_occupied_percent(
+int hospital_ventilator_bed_occupied_percent(
 				boolean *isnull,
-				int regular_bed_capacity,
+				int ventilator_bed_capacity,
 				LIST *current_bed_usage_list )
 {
 	CURRENT_BED_USAGE *current_bed_usage;
@@ -40,7 +40,7 @@ int hospital_regular_bed_occupied_percent(
 
 	*isnull = 0;
 
-	if ( !regular_bed_capacity )
+	if ( !ventilator_bed_capacity )
 	{
 		*isnull = 1;
 		return 0;
@@ -55,8 +55,8 @@ int hospital_regular_bed_occupied_percent(
 	}
 
 	full_percent =
-		( (double)current_bed_usage->regular_bed_occupied_count /
-		  (double)regular_bed_capacity ) * 100.0;
+		( (double)current_bed_usage->ventilator_bed_occupied_count /
+		  (double)ventilator_bed_capacity ) * 100.0;
 
 	return (int)timlib_round_double( full_percent );
 
@@ -97,7 +97,7 @@ int hospital_ICU_bed_occupied_percent(
 char *hospital_select( void )
 {
 return
-"hospital_name,street_address,city,state_code,zip_code,zip4,telephone,regular_bed_capacity,ICU_bed_capacity,active_yn,regular_bed_occupied_percent,ICU_bed_occupied_percent,beds_without_ventilators,hospital_type,owner_type,helipad_yn,latitude,longitude,hospital_website";
+"hospital_name,street_address,city,state_code,zip_code,zip4,telephone,ventilator_bed_capacity,ICU_bed_capacity,active_yn,hospital_type,owner_type,helipad_yn,latitude,longitude,hospital_website";
 }
 
 HOSPITAL *hospital_parse( char *input_line )
@@ -129,7 +129,7 @@ HOSPITAL *hospital_parse( char *input_line )
 	hospital->telephone = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 7 );
-	hospital->regular_bed_capacity = atoi( piece_buffer );
+	hospital->ventilator_bed_capacity = atoi( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 8 );
 	hospital->ICU_bed_capacity = atoi( piece_buffer );
@@ -138,35 +138,41 @@ HOSPITAL *hospital_parse( char *input_line )
 	hospital->active = ( *piece_buffer == 'y' );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 10 );
-	hospital->regular_bed_occupied_percent = atoi( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 11 );
-	hospital->ICU_bed_occupied_percent = atoi( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 12 );
-	hospital->beds_without_ventilators = atoi( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 13 );
 	hospital->hospital_type = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 14 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 11 );
 	hospital->owner_type = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 15 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 12 );
 	hospital->helipad = ( *piece_buffer == 'y' );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 16 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 13 );
 	hospital->latitude = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 17 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 14 );
 	hospital->longitude = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 18 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 15 );
 	hospital->hospital_website = strdup( piece_buffer );
 
 	return hospital;
 
 } /* hospital_parse() */
+
+/* Returns static memory. */
+/* ---------------------- */
+char *hospital_escape_name( char *hospital_name )
+{
+	static char escaped_name[ 256 ];
+
+	escape_character(
+		escaped_name,
+		hospital_name,
+		'\'' );
+
+	return escaped_name;
+
+} /* hospital_escape_name() */
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -179,9 +185,10 @@ char *hospital_where(		char *hospital_name,
 	sprintf( where,
 		 "hospital_name = '%s' and	"
 		 "street_address = '%s'		",
-		 escape_character(	buffer,
-					hospital_name,
-					'\'' ),
+		 /* ---------------------- */
+		 /* Returns static memory. */
+		 /* ---------------------- */
+		 hospital_escape_name( hospital_name ),
 		 street_address );
 
 	return strdup( where );
@@ -257,15 +264,31 @@ HOSPITAL *hospital_fetch(	char *application_name,
 
 } /* hospital_fetch() */
 
-void hospital_update(		char *application_name,
-				char *hospital_name,
-				char *street_address,
-				boolean regular_bed_occupied_percent_isnull,
-				int regular_bed_occupied_percent,
-				boolean ICU_bed_occupied_percent_isnull,
-				int ICU_bed_occupied_percent,
-				boolean beds_without_ventilators_isnull,
-				int beds_without_ventilators )
+void hospital_update(
+	char *application_name,
+	char *hospital_name,
+	char *street_address,
+
+	boolean current_ventilator_ICU_bed_occupied_count_isnull,
+	int current_ventilator_ICU_bed_occupied_count,
+
+	boolean current_ventilator_count_isnull,
+	int current_ventilator_count,
+
+	boolean necessary_beds_without_ventilators_isnull,
+	int necessary_beds_without_ventilators,
+
+	boolean ventilator_bed_occupied_percent_isnull,
+	int ventilator_bed_occupied_percent,
+
+	boolean ICU_bed_occupied_percent_isnull,
+	int ICU_bed_occupied_percent,
+
+	boolean current_ventilator_bed_occupied_count_isnull,
+	int current_ventilator_bed_occupied_count,
+
+	boolean current_ICU_bed_occupied_count_isnull,
+	int current_ICU_bed_occupied_count )
 {
 	char sys_string[ 1024 ];
 	FILE *update_pipe;
@@ -278,15 +301,62 @@ void hospital_update(		char *application_name,
 
 	update_pipe = popen( sys_string, "w" );
 
-	/* Regular Bed Occupied Percent */
-	/* ---------------------------- */
-	if ( regular_bed_occupied_percent_isnull )
+	/* Current Ventilator ICU Bed Occupied Count */
+	/* ----------------------------------------- */
+	if ( current_ventilator_ICU_bed_occupied_count_isnull )
 		*output_buffer = '\0';
 	else
-		sprintf( output_buffer, "%d", regular_bed_occupied_percent );
+		sprintf(output_buffer,
+			"%d",
+			current_ventilator_ICU_bed_occupied_count );
 
 	fprintf( update_pipe,
-		 "%s^%s^regular_bed_occupied_percent^%s\n",
+		 "%s^%s^current_ventilator_ICU_bed_occupied_count^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Current Ventilator Count */
+	/* ------------------------ */
+	if ( current_ventilator_count_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			current_ventilator_count );
+
+	fprintf( update_pipe,
+		 "%s^%s^current_ventilator_count^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Necessary Beds Without Ventilators */
+	/* ---------------------------------- */
+	if ( necessary_beds_without_ventilators_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			necessary_beds_without_ventilators );
+
+	fprintf( update_pipe,
+		 "%s^%s^necessary_beds_without_ventilators^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Ventilator Bed Occupied Percent */
+	/* ------------------------------- */
+	if ( ventilator_bed_occupied_percent_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			ventilator_bed_occupied_percent );
+
+	fprintf( update_pipe,
+		 "%s^%s^ventilator_bed_occupied_percent^%s\n",
 		 hospital_name,
 		 street_address,
 		 output_buffer );
@@ -296,7 +366,9 @@ void hospital_update(		char *application_name,
 	if ( ICU_bed_occupied_percent_isnull )
 		*output_buffer = '\0';
 	else
-		sprintf( output_buffer, "%d", ICU_bed_occupied_percent );
+		sprintf(output_buffer,
+			"%d",
+			ICU_bed_occupied_percent );
 
 	fprintf( update_pipe,
 		 "%s^%s^ICU_bed_occupied_percent^%s\n",
@@ -304,15 +376,32 @@ void hospital_update(		char *application_name,
 		 street_address,
 		 output_buffer );
 
-	/* Beds Without Ventilators */
-	/* ------------------------ */
-	if ( beds_without_ventilators_isnull )
+	/* Current Ventilator Bed Occupied Count */
+	/* ------------------------------------- */
+	if ( current_ventilator_bed_occupied_count_isnull )
 		*output_buffer = '\0';
 	else
-		sprintf( output_buffer, "%d", beds_without_ventilators );
+		sprintf(output_buffer,
+			"%d",
+			current_ventilator_bed_occupied_count );
 
 	fprintf( update_pipe,
-		 "%s^%s^beds_without_ventilators^%s\n",
+		 "%s^%s^current_ventilator_bed_occupied_count^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Current ICU Bed Occupied Count */
+	/* ------------------------------ */
+	if ( current_ICU_bed_occupied_count_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			current_ICU_bed_occupied_count );
+
+	fprintf( update_pipe,
+		 "%s^%s^current_ICU_bed_occupied_count^%s\n",
 		 hospital_name,
 		 street_address,
 		 output_buffer );
@@ -324,7 +413,7 @@ void hospital_update(		char *application_name,
 char *hospital_current_bed_usage_select( void )
 {
 	return
-"date_time_zulu,regular_bed_occupied_count,ICU_bed_occupied_count";
+"date_time_zulu,ventilator_bed_occupied_count,ICU_bed_occupied_count";
 }
 
 LIST *hospital_current_bed_usage_list(
@@ -407,7 +496,7 @@ CURRENT_BED_USAGE *hospital_current_bed_usage_parse(
 	current_bed_usage->date_time_zulu = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
-	current_bed_usage->regular_bed_occupied_count = atoi( piece_buffer );
+	current_bed_usage->ventilator_bed_occupied_count = atoi( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 2 );
 	current_bed_usage->ICU_bed_occupied_count = atoi( piece_buffer );
@@ -509,9 +598,9 @@ CURRENT_VENTILATOR_COUNT *hospital_current_ventilator_count_parse(
 
 } /* hospital_current_ventilator_count_parse() */
 
-int hospital_beds_without_ventilators(
+int hospital_necessary_beds_without_ventilators(
 				boolean *isnull,
-				int regular_bed_capacity,
+				int ventilator_bed_capacity,
 				int ICU_bed_capacity,
 				LIST *current_ventilator_count_list )
 {
@@ -520,7 +609,7 @@ int hospital_beds_without_ventilators(
 
 	*isnull = 0;
 
-	total_beds = regular_bed_capacity + ICU_bed_capacity;
+	total_beds = ventilator_bed_capacity + ICU_bed_capacity;
 
 	if ( !total_beds )
 	{
@@ -538,5 +627,5 @@ int hospital_beds_without_ventilators(
 
 	return total_beds - current_ventilator_count->current_ventilator_count;
 
-} /* hospital_beds_without_ventilators() */
+} /* hospital_necessary_beds_without_ventilators() */
 

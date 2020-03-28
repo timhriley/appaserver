@@ -27,7 +27,7 @@ typedef struct
 typedef struct
 {
 	char *date_time_zulu;
-	int regular_bed_occupied_count;
+	int ventilator_bed_occupied_count;
 	int ICU_bed_occupied_count;
 } CURRENT_BED_USAGE;
 
@@ -40,15 +40,31 @@ typedef struct
 	char *zip_code;
 	char *zip4;
 	char *telephone;
-	int regular_bed_capacity;
+	int ventilator_bed_capacity;
 	int ICU_bed_capacity;
 	boolean active;
-	boolean regular_bed_occupied_percent_isnull;
-	int regular_bed_occupied_percent;
+
+	boolean current_ventilator_ICU_bed_occupied_count_isnull;
+	int current_ventilator_ICU_bed_occupied_count;
+
+	boolean current_ventilator_count_isnull;
+	int current_ventilator_count;
+
+	boolean necessary_beds_without_ventilators_isnull;
+	int necessary_beds_without_ventilators;
+
+	boolean ventilator_bed_occupied_percent_isnull;
+	int ventilator_bed_occupied_percent;
+
 	boolean ICU_bed_occupied_percent_isnull;
 	int ICU_bed_occupied_percent;
-	boolean beds_without_ventilators_isnull;
-	int beds_without_ventilators;
+
+	boolean current_ventilator_bed_occupied_count_isnull;
+	int current_ventilator_bed_occupied_count;
+
+	boolean current_ICU_bed_occupied_count_isnull;
+	int current_ICU_bed_occupied_count;
+
 	char *hospital_type;
 	char *owner_type;
 	boolean helipad;
@@ -94,9 +110,9 @@ HOSPITAL *hospital_parse(	char *input_line );
 
 HOSPITAL *hospital_new(		void );
 
-int hospital_regular_bed_occupied_percent(
+int hospital_ventilator_bed_occupied_percent(
 				boolean *isnull,
-				int regular_bed_capacity,
+				int ventilator_bed_capacity,
 				LIST *current_bed_usage_list );
 
 int hospital_ICU_bed_occupied_percent(
@@ -114,26 +130,46 @@ HOSPITAL *hospital_fetch(	char *application_name,
 				char *hospital_name,
 				char *street_address );
 
-void hospital_update(		char *application_name,
-				char *hospital_name,
-				char *street_address,
-				boolean regular_bed_occupied_percent_isnull,
-				int regular_bed_occupied_percent,
-				boolean ICU_bed_occupied_percent_isnull,
-				int ICU_bed_occupied_percent,
-				boolean beds_without_ventilators_isnull,
-				int beds_without_ventilators );
+void hospital_update(
+	char *application_name,
+	char *hospital_name,
+	char *street_address,
+
+	boolean current_ventilator_ICU_bed_occupied_count_isnull,
+	int current_ventilator_ICU_bed_occupied_count,
+
+	boolean current_ventilator_count_isnull,
+	int current_ventilator_count,
+
+	boolean necessary_beds_without_ventilators_isnull,
+	int necessary_beds_without_ventilators,
+
+	boolean ventilator_bed_occupied_percent_isnull,
+	int ventilator_bed_occupied_percent,
+
+	boolean ICU_bed_occupied_percent_isnull,
+	int ICU_bed_occupied_percent,
+
+	boolean current_ventilator_bed_occupied_count_isnull,
+	int current_ventilator_bed_occupied_count,
+
+	boolean current_ICU_bed_occupied_count_isnull,
+	int current_ICU_bed_occupied_count );
 
 /* Returns heap memory. */
 /* -------------------- */
 char *hospital_where(		char *hospital_name,
 				char *street_address );
 
-int hospital_beds_without_ventilators(
+int hospital_necessary_beds_without_ventilators(
 				boolean *isnull,
-				int regular_bed_capacity,
+				int ventilator_bed_capacity,
 				int ICU_bed_capacity,
 				LIST *current_ventilator_count_list );
+
+/* Returns program memory. */
+/* ----------------------- */
+char *hospital_escape_name(	char *hospital_name );
 
 #endif
 

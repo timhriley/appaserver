@@ -88,10 +88,10 @@ void post_change_hospital_update(
 		exit( 1 );
 	}
 
-	hospital->regular_bed_occupied_percent =
-		hospital_regular_bed_occupied_percent(
-			&hospital->regular_bed_occupied_percent_isnull,
-			hospital->regular_bed_capacity,
+	hospital->ventilator_bed_occupied_percent =
+		hospital_ventilator_bed_occupied_percent(
+			&hospital->ventilator_bed_occupied_percent_isnull,
+			hospital->ventilator_bed_capacity,
 			hospital->current_bed_usage_list );
 
 	hospital->ICU_bed_occupied_percent =
@@ -100,22 +100,38 @@ void post_change_hospital_update(
 			hospital->ICU_bed_capacity,
 			hospital->current_bed_usage_list );
 
-	hospital->beds_without_ventilators =
-		hospital_beds_without_ventilators(
-			&hospital->beds_without_ventilators_isnull,
-			hospital->regular_bed_capacity,
+	hospital->necessary_beds_without_ventilators =
+		hospital_necessary_beds_without_ventilators(
+			&hospital->necessary_beds_without_ventilators_isnull,
+			hospital->ventilator_bed_capacity,
 			hospital->ICU_bed_capacity,
 			hospital->current_ventilator_count_list );
 
-	hospital_update(application_name,
-			hospital->hospital_name,
-			hospital->street_address,
-			hospital->regular_bed_occupied_percent_isnull,
-			hospital->regular_bed_occupied_percent,
-			hospital->ICU_bed_occupied_percent_isnull,
-			hospital->ICU_bed_occupied_percent,
-			hospital->beds_without_ventilators_isnull,
-			hospital->beds_without_ventilators );
+	hospital_update(
+		application_name,
+		hospital_name,
+		street_address,
+
+		hospital->current_ventilator_ICU_bed_occupied_count_isnull,
+		hospital->current_ventilator_ICU_bed_occupied_count,
+
+		hospital->current_ventilator_count_isnull,
+		hospital->current_ventilator_count,
+
+		hospital->necessary_beds_without_ventilators_isnull,
+		hospital->necessary_beds_without_ventilators,
+
+		hospital->ventilator_bed_occupied_percent_isnull,
+		hospital->ventilator_bed_occupied_percent,
+
+		hospital->ICU_bed_occupied_percent_isnull,
+		hospital->ICU_bed_occupied_percent,
+
+		hospital->current_ventilator_bed_occupied_count_isnull,
+		hospital->current_ventilator_bed_occupied_count,
+
+		hospital->current_ICU_bed_occupied_count_isnull,
+		hospital->current_ICU_bed_occupied_count );
 
 } /* post_change_hospital_update() */
 
