@@ -109,7 +109,8 @@ enum password_match_return post_login_password_match(
 				char *password,
 				char *database_password )
 {
-	if ( timlib_strncmp( login_name, "public" ) == 0 )
+	if ( timlib_strncmp( login_name, "public_" ) == 0
+	||   timlib_exists_string( login_name, "_public" ) )
 	{
 		/* Any password is okay, including the empty string. */
 		/* ------------------------------------------------- */
