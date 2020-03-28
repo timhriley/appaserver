@@ -3,18 +3,13 @@
 # $APPASERVER_HOME/utility/ufw_auth_deny.sh
 # -----------------------------------------
 
-if [ "$#" -ne 1 ]
-then
-	echo "Usage: $0 execute_yn" 1>&2
-	exit 1
-fi
-
-execute_yn=$1
-
 grep 'Failed password for invalid user' /var/log/auth.log	|
-while read input
+column.e 12							|
+grep -v port							|
+sort -u								|
+while read ip
 do
-	echo $input
+	echo $ip
 done
 
 exit 0
