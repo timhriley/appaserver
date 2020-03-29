@@ -97,7 +97,7 @@ int hospital_ICU_bed_occupied_percent(
 char *hospital_select( void )
 {
 return
-"hospital_name,street_address,city,state_code,zip_code,zip4,telephone,ventilator_bed_capacity,ICU_bed_capacity,active_yn,hospital_type,owner_type,helipad_yn,latitude,longitude,hospital_website";
+"hospital_name,street_address";
 }
 
 HOSPITAL *hospital_parse( char *input_line )
@@ -112,48 +112,6 @@ HOSPITAL *hospital_parse( char *input_line )
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
 	hospital->street_address = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 2 );
-	hospital->city = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 3 );
-	hospital->state_code = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 4 );
-	hospital->zip_code = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 5 );
-	hospital->zip4 = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 6 );
-	hospital->telephone = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 7 );
-	hospital->ventilator_bed_capacity = atoi( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 8 );
-	hospital->ICU_bed_capacity = atoi( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 9 );
-	hospital->active = ( *piece_buffer == 'y' );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 10 );
-	hospital->hospital_type = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 11 );
-	hospital->owner_type = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 12 );
-	hospital->helipad = ( *piece_buffer == 'y' );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 13 );
-	hospital->latitude = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 14 );
-	hospital->longitude = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 15 );
-	hospital->hospital_website = strdup( piece_buffer );
 
 	return hospital;
 
@@ -204,7 +162,6 @@ HOSPITAL *hospital_fetch(	char *application_name,
 	FILE *input_pipe;
 	HOSPITAL *hospital = {0};
 
-#ifdef NOT_DEFINE
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
 		 "			select=\"%s\"		"
@@ -221,8 +178,8 @@ HOSPITAL *hospital_fetch(	char *application_name,
 		 hospital_where(
 			hospital_name,
 			street_address ) );
-#endif
 
+#ifdef NOT_DEFINE
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s;\"	|"
 		 "sql.e %s				 ",
@@ -238,6 +195,7 @@ HOSPITAL *hospital_fetch(	char *application_name,
 			hospital_name,
 			street_address ),
 		 application_name );
+#endif
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -253,6 +211,18 @@ HOSPITAL *hospital_fetch(	char *application_name,
 
 		hospital->current_ventilator_count_list =
 			hospital_current_ventilator_count_list(
+				application_name,
+				hospital->hospital_name,
+				hospital->street_address );
+
+		hospital->current_patient_count_list =
+			hospital_current_ventilator_count_list(
+				application_name,
+				hospital->hospital_name,
+				hospital->street_address );
+
+		hospital->current_bed_capacity_list =
+			hospital_current_bed_capacity_list(
 				application_name,
 				hospital->hospital_name,
 				hospital->street_address );
@@ -413,7 +383,7 @@ void hospital_update(
 char *hospital_current_bed_usage_select( void )
 {
 	return
-"date_time_zulu,ventilator_bed_occupied_count,ICU_bed_occupied_count";
+"date_time_greenwich,regular_bed_occupied_count,ICU_bed_occupied_count";
 }
 
 LIST *hospital_current_bed_usage_list(
@@ -432,7 +402,7 @@ LIST *hospital_current_bed_usage_list(
 		 "			select=\"%s\"		"
 		 "			folder=%s		"
 		 "			where=\"%s\"		"
-		 "			order=date_time_zulu	",
+		 "			order=date_time_greenwich	",
 		 application_name,
 		 /* ----------------------- */
 		 /* Returns program memory. */
@@ -493,7 +463,7 @@ CURRENT_BED_USAGE *hospital_current_bed_usage_parse(
 	current_bed_usage = hospital_current_bed_usage_new();
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 0 );
-	current_bed_usage->date_time_zulu = strdup( piece_buffer );
+	current_bed_usage->date_time_greenwich = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
 	current_bed_usage->ventilator_bed_occupied_count = atoi( piece_buffer );
@@ -508,7 +478,7 @@ CURRENT_BED_USAGE *hospital_current_bed_usage_parse(
 char *hospital_current_ventilator_count_select( void )
 {
 	return
-"date_time_zulu,current_ventilator_count";
+"date_time_greenwich,current_ventilator_count";
 }
 
 LIST *hospital_current_ventilator_count_list(
@@ -527,7 +497,7 @@ LIST *hospital_current_ventilator_count_list(
 		 "			select=\"%s\"		"
 		 "			folder=%s		"
 		 "			where=\"%s\"		"
-		 "			order=date_time_zulu	",
+		 "			order=date_time_greenwich	",
 		 application_name,
 		 /* ----------------------- */
 		 /* Returns program memory. */
@@ -588,7 +558,7 @@ CURRENT_VENTILATOR_COUNT *hospital_current_ventilator_count_parse(
 		hospital_current_ventilator_count_new();
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 0 );
-	current_ventilator_count->date_time_zulu = strdup( piece_buffer );
+	current_ventilator_count->date_time_greenwich = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
 	current_ventilator_count->current_ventilator_count =
