@@ -134,16 +134,13 @@ int main( int argc, char **argv )
 
 	add_relative_source_directory_to_path( application_name );
 
-	if ( timlib_strncmp( login_name, "public" ) != 0 )
-	{
-		sprintf(sys_string,
-		 	"password4appaserver_user.sh \"%s\" \"%s\" 2>>%s",
-		 	login_name,
-			application_name,
-			appaserver_error_get_filename( application_name ) );
+	sprintf(sys_string,
+	 	"password4appaserver_user.sh \"%s\" \"%s\" 2>>%s",
+	 	login_name,
+		application_name,
+		appaserver_error_get_filename( application_name ) );
 
-		database_password = get_line_system( sys_string );
-	}
+	database_password = get_line_system( sys_string );
 
 	password_match_return =
 		post_login_password_match(
@@ -153,11 +150,15 @@ int main( int argc, char **argv )
 				database_password );
 
 /*
-fprintf( stderr, "%s/%s()/%d: got password_match_return = %s\n",
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got password_match_return = %s\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 post_login_password_match_return_display( password_match_return ) );
+m2( application_name, msg );
+}
 */
 
 	if ( password_match_return == password_match
