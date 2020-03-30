@@ -623,6 +623,9 @@ int date_days_between(	char *from_date_string,
 	time_t difference;
 
 	if ( ! ( from_date =
+			/* ------------------- */
+			/* Trims trailing time */
+			/* ------------------- */
 			date_yyyy_mm_dd_new(
 				from_date_string ) ) )
 	{
@@ -630,6 +633,9 @@ int date_days_between(	char *from_date_string,
 	}
 
 	if ( ! ( to_date =
+			/* ------------------- */
+			/* Trims trailing time */
+			/* ------------------- */
 			date_yyyy_mm_dd_new(
 				to_date_string ) ) )
 	{
@@ -976,7 +982,6 @@ DATE *date_yyyy_mm_dd_new( char *date_string )
 	DATE *date;
 	char delimiter;
 	char local_date_string[ 32 ];
-
 
 	/* Ignore the appended time */
 	/* ------------------------ */

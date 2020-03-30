@@ -67,6 +67,9 @@ void date_decrement_day(	DATE *d );
 
 void date_increment(		DATE *d );
 
+/* ------------------- */
+/* Trims trailing time */
+/* ------------------- */
 DATE *date_yyyy_mm_dd_new(	char *date_string );
 
 DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string );
@@ -92,6 +95,8 @@ int get_month( DATE *d );
 
 int get_year( DATE *d );
 
+/* Ignores trailing time. */
+/* ---------------------- */
 int date_days_between(		char *from_date,
 				char *to_date );
 
