@@ -264,26 +264,44 @@ void hospital_update(
 	char *hospital_name,
 	char *street_address,
 
-	boolean current_ventilator_ICU_bed_occupied_count_isnull,
-	int current_ventilator_ICU_bed_occupied_count,
+	int non_coronavirus_current_patient_count,
+	boolean non_coronavirus_current_patient_count_isnull,
 
-	boolean current_ventilator_count_isnull,
-	int current_ventilator_count,
+	int coronavirus_current_patient_count,
+	boolean coronavirus_current_patient_count_isnull,
 
-	boolean necessary_beds_without_ventilators_isnull,
-	int necessary_beds_without_ventilators,
+	int ventilator_count,
+	boolean ventilator_count_isnull,
 
-	boolean ventilator_bed_occupied_percent_isnull,
-	int ventilator_bed_occupied_percent,
+	int coronavirus_patients_without_ventilators,
+	boolean coronavirus_patients_without_ventilators_isnull,
 
-	boolean ICU_bed_occupied_percent_isnull,
+	int coronavirus_admitted_to_date,
+	boolean coronavirus_admitted_to_date_isnull,
+
+	int coronavirus_released_to_date,
+	boolean coronavirus_released_to_date_isnull,
+
+	int coronavirus_mortality_to_date,
+	boolean coronavirus_mortality_to_date_isnull,
+
+	int regular_bed_capacity,
+	boolean regular_bed_capacity_isnull,
+
+	int regular_bed_occupied_count,
+	boolean regular_bed_occupied_count_isnull,
+
+	int regular_bed_occupied_percent,
+	boolean regular_bed_occupied_percent_isnull,
+
+	int ICU_bed_capacity,
+	boolean ICU_bed_capacity_isnull,
+
+	int ICU_bed_occupied_count,
+	boolean ICU_bed_occupied_count_isnull,
+
 	int ICU_bed_occupied_percent,
-
-	boolean current_ventilator_bed_occupied_count_isnull,
-	int current_ventilator_bed_occupied_count,
-
-	boolean current_ICU_bed_occupied_count_isnull,
-	int current_ICU_bed_occupied_count );
+	boolean ICU_bed_occupied_percent_isnull );
 
 /* Returns heap memory. */
 /* -------------------- */

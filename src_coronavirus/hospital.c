@@ -222,19 +222,6 @@ HOSPITAL *hospital_fetch(	char *application_name,
 				hospital->hospital_name,
 				hospital->street_address );
 
-		if  ( !hospital_current_patient_count_set_last(
-				hospital->current_patient_count_list ) )
-		{
-			hospital->coronavirus_current_patient_count_isnull = 1;
-			hospital->coronavirus_patients_without_ventilators = 1;
-			hospital->coronavirus_admitted_todate = 1;
-			hospital->coronavirus_released_todate = 1;
-			hospital->coronavirus_mortality_todate = 1;
-			hospital->coronavirus_admitted_daily_change = 1;
-			hospital->coronavirus_released_daily_change = 1;
-			hospital->coronavirus_mortality_daily_change = 1;
-		}
-
 		hospital->current_bed_capacity_list =
 			hospital_current_bed_capacity_list(
 				application_name,
@@ -276,7 +263,7 @@ boolean hospital_current_patient_count_set_last(
 		hospital_coronavirus_released_daily_change(
 			last, prior );
 
-	c->coronavirus_mortality_daily_change =
+	last->coronavirus_mortality_daily_change =
 		hospital_coronavirus_mortality_daily_change(
 			last, prior );
 
@@ -295,29 +282,44 @@ void hospital_update(
 	char *hospital_name,
 	char *street_address,
 
-	boolean non_coronavirus_current_patient_count_isnull,
 	int non_coronavirus_current_patient_count,
+	boolean non_coronavirus_current_patient_count_isnull,
 
-	boolean coronavirus_current_patient_count_isnull,
 	int coronavirus_current_patient_count,
+	boolean coronavirus_current_patient_count_isnull,
 
-	boolean ventilator_count_isnull,
 	int ventilator_count,
+	boolean ventilator_count_isnull,
 
-	boolean coronavirus_patients_without_ventilators_isnull,
 	int coronavirus_patients_without_ventilators,
+	boolean coronavirus_patients_without_ventilators_isnull,
 
-	boolean coronavirus_released_todate_isnull,
-	int coronavirus_released_todate,
+	int coronavirus_admitted_to_date,
+	boolean coronavirus_admitted_to_date_isnull,
 
-	boolean ICU_bed_occupied_percent_isnull,
-	int ICU_bed_occupied_percent,
+	int coronavirus_released_to_date,
+	boolean coronavirus_released_to_date_isnull,
 
-	boolean regular_bed_occupied_count_isnull,
+	int coronavirus_mortality_to_date,
+	boolean coronavirus_mortality_to_date_isnull,
+
+	int regular_bed_capacity,
+	boolean regular_bed_capacity_isnull,
+
 	int regular_bed_occupied_count,
+	boolean regular_bed_occupied_count_isnull,
 
+	int regular_bed_occupied_percent,
+	boolean regular_bed_occupied_percent_isnull,
+
+	int ICU_bed_capacity,
+	boolean ICU_bed_capacity_isnull,
+
+	int ICU_bed_occupied_count,
 	boolean ICU_bed_occupied_count_isnull,
-	int ICU_bed_occupied_count )
+
+	int ICU_bed_occupied_percent,
+	boolean ICU_bed_occupied_percent_isnull )
 {
 	char sys_string[ 1024 ];
 	FILE *update_pipe;

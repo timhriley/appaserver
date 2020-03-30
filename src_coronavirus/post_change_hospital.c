@@ -88,10 +88,30 @@ void post_change_hospital_update(
 		exit( 1 );
 	}
 
-	hospital->ventilator_bed_occupied_percent =
-		hospital_ventilator_bed_occupied_percent(
-			&hospital->ventilator_bed_occupied_percent_isnull,
-			hospital->ventilator_bed_capacity,
+	/* Sets:
+		---------------------------------------
+		last->coronavirus_admitted_daily_change
+		last->coronavirus_released_daily_change
+		last->coronavirus_mortality_daily_change
+		last->coronavirus_current_patient_count
+		---------------------------------------
+	*/
+	if  ( !hospital_current_patient_count_set_last(
+			hospital->current_patient_count_list ) )
+	{
+		hospital->coronavirus_current_patient_count_isnull = 1;
+		hospital->coronavirus_admitted_todate = 1;
+		hospital->coronavirus_released_todate = 1;
+		hospital->coronavirus_mortality_todate = 1;
+		hospital->coronavirus_admitted_daily_change = 1;
+		hospital->coronavirus_released_daily_change = 1;
+		hospital->coronavirus_mortality_daily_change = 1;
+	}
+
+	hospital->regular_bed_occupied_percent =
+		hospital_regular_bed_occupied_percent(
+			&hospital->regular_bed_occupied_percent_isnull,
+			hospital->regular_bed_capacity,
 			hospital->current_bed_usage_list );
 
 	hospital->ICU_bed_occupied_percent =
@@ -100,12 +120,20 @@ void post_change_hospital_update(
 			hospital->ICU_bed_capacity,
 			hospital->current_bed_usage_list );
 
-	hospital->necessary_beds_without_ventilators =
-		hospital_necessary_beds_without_ventilators(
-			&hospital->necessary_beds_without_ventilators_isnull,
-			hospital->ventilator_bed_capacity,
-			hospital->ICU_bed_capacity,
-			hospital->current_ventilator_count_list );
+	if ( list_length( hospital->current_patient_count )
+	&&   list_length( hospital->current_ventilator_count ) )
+	{
+		hospital->coronavirus_patients_without_ventilators =
+			hospital_coronavirus_patients_without_ventilators(
+				list_get_last_pointer(
+					hospital->current_patient_count ),
+				list_get_last_pointer(
+					hospital->current_ventilator_count ) );
+	}
+	else
+	{
+		hospital->coronavirus_patients_without_ventilators_isnull = 1;
+	}
 
 	hospital_update(
 		application_name,
