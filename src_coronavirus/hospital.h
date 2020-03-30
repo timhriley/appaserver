@@ -1,5 +1,5 @@
 /* --------------------------------------------- */
-/* $APPASERVER_HOME/src_ventilator/hospital.h	 */
+/* $APPASERVER_HOME/src_coronavirus/hospital.h	 */
 /* --------------------------------------------- */
 /* Freely available software: see Appaserver.org */
 /* --------------------------------------------- */
@@ -21,14 +21,14 @@
 typedef struct
 {
 	char *date_time_greenwich;
-	int current_ventilator_count;
+	int ventilator_count;
 } CURRENT_VENTILATOR_COUNT;
 
 typedef struct
 {
 	char *date_time_greenwich;
 	int non_coronavirus_current_patient_count;
-	int coronavirus_patient_count_todate;
+	int coronavirus_admitted_todate;
 	int coronavirus_released_todate;
 	int coronavirus_martality_todate;
 	int coronavirus_current_patient_count;
@@ -57,10 +57,6 @@ typedef struct
 	char *street_address;
 	char *city;
 	char *state_code;
-	char *zip_code;
-	char *zip4;
-	char *telephone;
-	boolean active;
 
 	boolean non_coronavirus_current_patient_count_isnull;
 	int non_coronavirus_current_patient_count;
@@ -73,6 +69,9 @@ typedef struct
 
 	boolean coronavirus_patients_without_ventilators_isnull;
 	int coronavirus_patients_without_ventilators;
+
+	boolean coronavirus_admitted_todate_isnull;
+	int coronavirus_admitted_todate;
 
 	boolean coronavirus_released_todate_isnull;
 	int coronavirus_released_todate;
@@ -107,6 +106,10 @@ typedef struct
 	boolean ICU_bed_occupied_percent_isnull;
 	int ICU_bed_occupied_percent;
 
+	char *zip_code;
+	char *zip4;
+	char *telephone;
+	boolean active;
 	char *hospital_type;
 	char *owner_type;
 	boolean helipad;
@@ -131,6 +134,32 @@ CURRENT_PATIENT_COUNT *hospital_current_patient_count_new(
 CURRENT_PATIENT_COUNT *hospital_current_patient_count_parse(
 				char *input_line );
 
+char *hospital_current_patient_count_select(
+				void );
+
+LIST *hospital_current_patient_count_list(
+				char *application_name,
+				char *hospital_name,
+				char *street_address );
+
+boolean hospital_current_patient_count_set_last(
+				LIST *current_patient_count_list );
+
+int hospital_coronavirus_current_patient_count(
+				LIST *current_patient_count_list );
+
+int hospital_coronavirus_patient_daily_change(
+				boolean *isnull,
+				LIST *current_patient_count_list );
+
+int hospital_coronavirus_released_daily_change(
+				boolean *isnull,
+				LIST *current_patient_count_list );
+
+int hospital_coronavirus_mortality_daily_change(
+				boolean *isnull,
+				LIST *current_patient_count_list );
+
 /* CURRENT_VENTILATOR_COUNT */
 /* ------------------------ */
 CURRENT_VENTILATOR_COUNT *hospital_current_ventilator_count_new(
@@ -146,6 +175,10 @@ LIST *hospital_current_ventilator_count_list(
 				char *application_name,
 				char *hospital_name,
 				char *street_address );
+
+int hospital_current_ventilator_count(
+				boolean *ventilator_count_isnull,
+				LIST *current_ventilator_count_list );
 
 /* CURRENT_BED_USAGE */
 /* ----------------- */
@@ -163,6 +196,14 @@ LIST *hospital_current_bed_usage_list(
 				char *hospital_name,
 				char *street_address );
 
+int hospital_regular_bed_occupied_count(
+				boolean *regular_bed_occupied_count_isnull,
+				LIST *current_bed_usage_list );
+
+int hospital_ICU_bed_occupied_count(
+				boolean *ICU_bed_occupied_count_isnull,
+				LIST *current_bed_usage_list );
+
 /* CURRENT_BED_CAPACITY */
 /* -------------------- */
 CURRENT_BED_CAPACITY *hospital_current_bed_capacity_new(
@@ -170,6 +211,22 @@ CURRENT_BED_CAPACITY *hospital_current_bed_capacity_new(
 
 CURRENT_BED_CAPACITY *hospital_current_bed_capacity_parse(
 				char *input_line );
+
+char *hospital_current_bed_capacity_select(
+				void );
+
+LIST *hospital_current_bed_capacity_list(
+				char *application_name,
+				char *hospital_name,
+				char *street_address );
+
+int hospital_regular_bed_capacity(
+				boolean *regular_bed_capacity_isnull,
+				LIST *current_bed_capacity_list );
+
+int hospital_ICU_bed_capacity(
+				boolean *ICU_bed_capacity_isnull,
+				LIST *current_bed_capacity_list );
 
 /* HOSPITAL */
 /* -------- */
@@ -227,14 +284,21 @@ char *hospital_where(		char *hospital_name,
 				char *street_address );
 
 int hospital_coronavirus_patients_without_ventilators(
-				boolean *isnull,
-				int regluar_bed_capacity,
-				int ICU_bed_capacity,
-				LIST *current_ventilator_count_list );
+				int coronavirus_current_patient_count,
+				int ventilator_count );
 
 /* Returns program memory. */
 /* ----------------------- */
 char *hospital_escape_name(	char *hospital_name );
+
+int hospital_admitted_delta(
+				LIST *current_patient_count_list );
+
+int hospital_released_delta(
+				LIST *current_patient_count_list );
+
+int hospital_mortality_delta(
+				LIST *current_patient_count_list );
 
 #endif
 

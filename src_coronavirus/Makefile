@@ -1,5 +1,5 @@
-# $APPASERVER_HOME/src_ventilator/makefile
-# ----------------------------------------
+# $APPASERVER_HOME/src_coronavirus/makefile
+# -----------------------------------------
 
 CC=gcc
 #CFLAGS=-g
