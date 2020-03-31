@@ -129,11 +129,29 @@ typedef struct
 
 /* CURRENT_PATIENT_COUNT */
 /* --------------------- */
+void hospital_current_patient_count_update(
+	char *application_name,
+	char *hospital_name,
+	char *street_address,
+	char *date_time_greenwich,
+
+	int coronavirus_current_patient_count,
+	boolean coronavirus_current_patient_count_isnull,
+
+	int coronavirus_admitted_daily_change,
+	boolean coronavirus_admitted_daily_change_isnull,
+
+	int coronavirus_released_daily_change,
+	boolean coronavirus_released_daily_change_isnull,
+
+	int coronavirus_mortality_daily_change,
+	boolean coronavirus_mortality_daily_change_isnull );
+
 int hospital_coronavirus_current_patient_count(
-			CURRENT_PATIENT_COUNT *last_patient_count );
+				CURRENT_PATIENT_COUNT *last_patient_count );
 
 int hospital_non_coronavirus_current_patient_count(
-			CURRENT_PATIENT_COUNT *last_patient_count );
+				CURRENT_PATIENT_COUNT *last_patient_count );
 
 int hospital_coronavirus_admitted_todate(
 				CURRENT_PATIENT_COUNT *last_patient_count );
@@ -158,23 +176,27 @@ LIST *hospital_current_patient_count_list(
 				char *hospital_name,
 				char *street_address );
 
-boolean hospital_current_patient_count_set_last(
-				LIST *current_patient_count_list );
+void hospital_current_patient_count_set_last(
+			boolean *coronavirus_admitted_daily_change_isnull,
+			boolean *coronavirus_released_daily_change_isnull,
+			boolean *coronavirus_mortality_daily_change_isnull,
+			boolean *coronavirus_current_patient_count_isnull,
+			LIST *current_patient_count_list );
 
 int hospital_coronavirus_last_current_patient_count(
 				int coronovirus_admitted_todate,
 				int coronovirus_released_todate,
 				int coronovirus_mortality_todate );
 
-int hospital_coronavirus_admitted_daily_change(
+int hospital_coronavirus_last_admitted_daily_change(
 				CURRENT_PATIENT_COUNT *last_patient_count,
 				CURRENT_PATIENT_COUNT *prior_patient_count );
 
-int hospital_coronavirus_released_daily_change(
+int hospital_coronavirus_last_released_daily_change(
 				CURRENT_PATIENT_COUNT *last_patient_count,
 				CURRENT_PATIENT_COUNT *prior_patient_count );
 
-int hospital_coronavirus_mortality_daily_change(
+int hospital_coronavirus_last_mortality_daily_change(
 				CURRENT_PATIENT_COUNT *last_patient_count,
 				CURRENT_PATIENT_COUNT *prior_patient_count );
 
@@ -199,6 +221,12 @@ int hospital_current_ventilator_count(
 
 /* CURRENT_BED_USAGE */
 /* ----------------- */
+int hospital_ICU_bed_occupied_count(
+				CURRENT_BED_USAGE *last );
+
+int hospital_regular_bed_occupied_count(
+				CURRENT_BED_USAGE *last );
+
 CURRENT_BED_USAGE *hospital_current_bed_usage_new(
 				void );
 
@@ -241,6 +269,15 @@ int hospital_regular_bed_capacity(
 int hospital_ICU_bed_capacity(
 				CURRENT_BED_CAPACITY *last );
 
+int hospital_coronavirus_admitted_daily_change(
+				CURRENT_PATIENT_COUNT *last );
+
+int hospital_coronavirus_released_daily_change(
+				CURRENT_PATIENT_COUNT *last );
+
+int hospital_coronavirus_mortality_daily_change(
+				CURRENT_PATIENT_COUNT *last );
+
 /* HOSPITAL */
 /* -------- */
 HOSPITAL *hospital_new(		void );
@@ -256,14 +293,12 @@ HOSPITAL *hospital_fetch(	char *application_name,
 HOSPITAL *hospital_parse(	char *input_line );
 
 int hospital_regular_bed_occupied_percent(
-				boolean *isnull,
-				int regular_bed_capacity,
-				LIST *current_bed_usage_list );
+				CURRENT_BED_USAGE *last_usage,
+				CURRENT_BED_CAPACITY *last_capacity );
 
 int hospital_ICU_bed_occupied_percent(
-				boolean *isnull,
-				int ICU_bed_capacity,
-				LIST *current_bed_usage_list );
+				CURRENT_BED_USAGE *last_usage,
+				CURRENT_BED_CAPACITY *last_capacity );
 
 void hospital_update(
 	char *application_name,
@@ -282,14 +317,14 @@ void hospital_update(
 	int coronavirus_patients_without_ventilators,
 	boolean coronavirus_patients_without_ventilators_isnull,
 
-	int coronavirus_admitted_to_date,
-	boolean coronavirus_admitted_to_date_isnull,
+	int coronavirus_admitted_todate,
+	boolean coronavirus_admitted_todate_isnull,
 
-	int coronavirus_released_to_date,
-	boolean coronavirus_released_to_date_isnull,
+	int coronavirus_released_todate,
+	boolean coronavirus_released_todate_isnull,
 
-	int coronavirus_mortality_to_date,
-	boolean coronavirus_mortality_to_date_isnull,
+	int coronavirus_mortality_todate,
+	boolean coronavirus_mortality_todate_isnull,
 
 	int regular_bed_capacity,
 	boolean regular_bed_capacity_isnull,
@@ -307,7 +342,16 @@ void hospital_update(
 	boolean ICU_bed_occupied_count_isnull,
 
 	int ICU_bed_occupied_percent,
-	boolean ICU_bed_occupied_percent_isnull );
+	boolean ICU_bed_occupied_percent_isnull,
+
+	int coronavirus_admitted_daily_change,
+	boolean coronavirus_admitted_daily_change_isnull,
+
+	int coronavirus_released_daily_change,
+	boolean coronavirus_released_daily_change_isnull,
+
+	int coronavirus_mortality_daily_change,
+	boolean coronavirus_mortality_daily_change_isnull );
 
 /* Returns heap memory. */
 /* -------------------- */

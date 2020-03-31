@@ -132,6 +132,155 @@ CURRENT_VENTILATOR_COUNT *hospital_current_ventilator_count_parse(
 
 /* CURRENT_PATIENT_COUNT */
 /* ===================== */
+int hospital_coronavirus_admitted_daily_change(
+				CURRENT_PATIENT_COUNT *last )
+{
+	if ( !last )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return last->coronavirus_admitted_daily_change;
+
+} /* hospital_coronavirus_admitted_daily_change() */
+
+int hospital_coronavirus_released_daily_change(
+				CURRENT_PATIENT_COUNT *last )
+{
+	if ( !last )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return last->coronavirus_released_daily_change;
+
+} /* hospital_coronavirus_released_daily_change() */
+
+int hospital_coronavirus_mortality_daily_change(
+				CURRENT_PATIENT_COUNT *last )
+{
+	if ( !last )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return last->coronavirus_mortality_daily_change;
+
+} /* hospital_coronavirus_mortality_daily_change() */
+
+void hospital_current_patient_count_update(
+	char *application_name,
+	char *hospital_name,
+	char *street_address,
+	char *date_time_greenwich,
+
+	int coronavirus_current_patient_count,
+	boolean coronavirus_current_patient_count_isnull,
+
+	int coronavirus_admitted_daily_change,
+	boolean coronavirus_admitted_daily_change_isnull,
+
+	int coronavirus_released_daily_change,
+	boolean coronavirus_released_daily_change_isnull,
+
+	int coronavirus_mortality_daily_change,
+	boolean coronavirus_mortality_daily_change_isnull )
+{
+	char sys_string[ 1024 ];
+	FILE *update_pipe;
+	char output_buffer[ 128 ];
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y	|"
+		 "sql.e						 ",
+		 "current_patient_count",
+		 "hospital_name,street_address,date_time_greenwich" );
+
+	update_pipe = popen( sys_string, "w" );
+
+	/* Coronavirus Current Patient Count */
+	/* --------------------------------- */
+	if ( coronavirus_current_patient_count_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_current_patient_count );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^coronavirus_current_patient_count^%s\n",
+		 hospital_name,
+		 street_address,
+		 date_time_greenwich,
+		 output_buffer );
+
+	/* Coronavirus Admitted Daily Change */
+	/* --------------------------------- */
+	if ( coronavirus_admitted_daily_change_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_admitted_daily_change );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^coronavirus_admitted_daily_change^%s\n",
+		 hospital_name,
+		 street_address,
+		 date_time_greenwich,
+		 output_buffer );
+
+	/* Coronavirus Released Daily Change */
+	/* --------------------------------- */
+	if ( coronavirus_released_daily_change_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_released_daily_change );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^coronavirus_released_daily_change^%s\n",
+		 hospital_name,
+		 street_address,
+		 date_time_greenwich,
+		 output_buffer );
+
+	/* Coronavirus Mortality Daily Change */
+	/* ---------------------------------- */
+	if ( coronavirus_mortality_daily_change_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_mortality_daily_change );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^coronavirus_mortality_daily_change^%s\n",
+		 hospital_name,
+		 street_address,
+		 date_time_greenwich,
+		 output_buffer );
+
+	pclose( update_pipe );
+
+} /* hospital_current_patient_count_update() */
+
 int hospital_coronavirus_current_patient_count(
 			CURRENT_PATIENT_COUNT *last_patient_count )
 {
@@ -362,7 +511,7 @@ int hospital_coronavirus_last_current_patient_count(
 
 } /* hospital_coronavirus_last_current_patient_count() */
 
-int hospital_coronavirus_admitted_daily_change(
+int hospital_coronavirus_last_admitted_daily_change(
 				CURRENT_PATIENT_COUNT *last,
 				CURRENT_PATIENT_COUNT *prior )
 {
@@ -404,9 +553,9 @@ int hospital_coronavirus_admitted_daily_change(
 
 	return daily_change;
 
-} /* hospital_coronavirus_admitted_daily_change() */
+} /* hospital_coronavirus_last_admitted_daily_change() */
 
-int hospital_coronavirus_released_daily_change(
+int hospital_coronavirus_last_released_daily_change(
 				CURRENT_PATIENT_COUNT *last,
 				CURRENT_PATIENT_COUNT *prior )
 {
@@ -448,9 +597,9 @@ int hospital_coronavirus_released_daily_change(
 
 	return daily_change;
 
-} /* hospital_coronavirus_released_daily_change() */
+} /* hospital_coronavirus_last_released_daily_change() */
 
-int hospital_coronavirus_mortality_daily_change(
+int hospital_coronavirus_last_mortality_daily_change(
 				CURRENT_PATIENT_COUNT *last,
 				CURRENT_PATIENT_COUNT *prior )
 {
@@ -492,22 +641,43 @@ int hospital_coronavirus_mortality_daily_change(
 
 	return daily_change;
 
-} /* hospital_coronavirus_mortality_daily_change() */
+} /* hospital_coronavirus_last_mortality_daily_change() */
 
-boolean hospital_current_patient_count_set_last(
-				LIST *current_patient_count_list )
+/*
+------------------------------------------------
+Sets:
+	last->coronavirus_current_patient_count
+Maybe sets:
+	last->coronavirus_admitted_daily_change
+	last->coronavirus_released_daily_change
+	last->coronavirus_mortality_daily_change
+------------------------------------------------
+*/
+
+void hospital_current_patient_count_set_last(
+			boolean *coronavirus_admitted_daily_change_isnull,
+			boolean *coronavirus_released_daily_change_isnull,
+			boolean *coronavirus_mortality_daily_change_isnull,
+			boolean *coronavirus_current_patient_count_isnull,
+			LIST *current_patient_count_list )
 {
 	CURRENT_PATIENT_COUNT *last;
 	CURRENT_PATIENT_COUNT *prior;
 	boolean isnull = 0;
 
-	if ( !list_length( current_patient_count_list ) ) return 0;
+	*coronavirus_admitted_daily_change_isnull = 1;
+	*coronavirus_released_daily_change_isnull = 1;
+	*coronavirus_mortality_daily_change_isnull = 1;
+	*coronavirus_current_patient_count_isnull = 1;
+
+	if ( !list_length( current_patient_count_list ) ) return;
 
 	list_go_last( current_patient_count_list );
 	last = list_get_pointer( current_patient_count_list );
 
-	if ( list_prior( current_patient_count_list ) )
+	if ( list_length( current_patient_count_list ) > 1 )
 	{
+		list_prior( current_patient_count_list );
 		prior = list_get_pointer( current_patient_count_list );
 	}
 	else
@@ -515,25 +685,32 @@ boolean hospital_current_patient_count_set_last(
 		prior = (CURRENT_PATIENT_COUNT *)0;
 	}
 
-	last->coronavirus_admitted_daily_change =
-		hospital_coronavirus_admitted_daily_change(
-			last, prior );
-
-	last->coronavirus_released_daily_change =
-		hospital_coronavirus_released_daily_change(
-			last, prior );
-
-	last->coronavirus_mortality_daily_change =
-		hospital_coronavirus_mortality_daily_change(
-			last, prior );
-
 	last->coronavirus_current_patient_count =
 		hospital_coronavirus_last_current_patient_count(
 			last->coronavirus_admitted_todate,
 			last->coronavirus_released_todate,
 			last->coronavirus_mortality_todate );
 
-	return 1;
+	*coronavirus_current_patient_count_isnull = 0;
+
+	if ( prior )
+	{
+		last->coronavirus_admitted_daily_change =
+			hospital_coronavirus_last_admitted_daily_change(
+				last, prior );
+
+		last->coronavirus_released_daily_change =
+			hospital_coronavirus_last_released_daily_change(
+				last, prior );
+
+		last->coronavirus_mortality_daily_change =
+			hospital_coronavirus_last_mortality_daily_change(
+				last, prior );
+
+		*coronavirus_admitted_daily_change_isnull = 0;
+		*coronavirus_released_daily_change_isnull = 0;
+		*coronavirus_mortality_daily_change_isnull = 0;
+	}
 
 } /* hospital_current_patient_count_set_last() */
 
@@ -732,6 +909,40 @@ CURRENT_BED_USAGE *hospital_current_bed_usage_parse(
 
 } /* hospital_current_bed_usage_parse() */
 
+int hospital_regular_bed_occupied_count(
+				CURRENT_BED_USAGE *last )
+{
+	if ( !last )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return last->regular_bed_occupied_count;
+
+} /* hospital_regular_bed_occupied_count() */
+
+int hospital_ICU_bed_occupied_count(
+				CURRENT_BED_USAGE *last )
+{
+	if ( !last )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return last->ICU_bed_occupied_count;
+
+} /* hospital_ICU_bed_occupied_count() */
+
 /* CURRENT_PATIENT_COUNT and CURRENT_VENTILATOR_COUNT */
 /* ================================================== */
 int hospital_coronavirus_patients_without_ventilators(
@@ -886,39 +1097,69 @@ int hospital_ICU_bed_capacity( CURRENT_BED_CAPACITY *last )
 
 } /* hospital_ICU_bed_capacity() */
 
-/* CURRENT_BED_CAPACITY and CURRENT_BED_USAGE */
+/* CURRENT_BED_USAGE and CURRENT_BED_CAPACITY */
 /* ------------------------------------------ */
 int hospital_regular_bed_occupied_percent(
-				boolean *isnull,
-				int regular_bed_capacity,
-				LIST *current_bed_usage_list )
+				CURRENT_BED_USAGE *last_usage,
+				CURRENT_BED_CAPACITY *last_capacity )
 {
-	CURRENT_BED_USAGE *current_bed_usage;
-	double full_percent;
+	double occupied_percent;
 
-	*isnull = 0;
-
-	if ( !regular_bed_capacity )
+	if ( !last_usage || !last_capacity )
 	{
-		*isnull = 1;
-		return 0;
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: null last_usage or last_capacity.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
-	if ( ! ( current_bed_usage =
-			list_get_last_pointer(
-				current_bed_usage_list ) ) )
+	if ( !last_capacity->regular_bed_capacity )
 	{
-		*isnull = 1;
-		return 0;
+		occupied_percent = 0;
+	}
+	else
+	{
+		occupied_percent =
+			( (double)last_usage->regular_bed_occupied_count /
+		  	(double)last_capacity->regular_bed_capacity ) * 100.0;
 	}
 
-	full_percent =
-		( (double)current_bed_usage->regular_bed_occupied_count /
-		  (double)regular_bed_capacity ) * 100.0;
-
-	return (int)timlib_round_double( full_percent );
+	return (int)timlib_round_double( occupied_percent );
 
 }  /* hospital_regular_bed_occupied_percent() */
+
+int hospital_ICU_bed_occupied_percent(
+				CURRENT_BED_USAGE *last_usage,
+				CURRENT_BED_CAPACITY *last_capacity )
+{
+	double occupied_percent;
+
+	if ( !last_usage || !last_capacity )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: null last_usage or last_capacity.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !last_capacity->ICU_bed_capacity )
+	{
+		occupied_percent = 0;
+	}
+	else
+	{
+		occupied_percent =
+			( (double)last_usage->ICU_bed_occupied_count /
+		  	(double)last_capacity->ICU_bed_capacity ) * 100.0;
+	}
+
+	return (int)timlib_round_double( occupied_percent );
+
+}  /* hospital_ICU_bed_occupied_percent() */
 
 /* HOSPITAL */
 /* ======== */
@@ -939,38 +1180,6 @@ HOSPITAL *hospital_new(	void )
 	return h;
 
 } /* hospital_new() */
-
-int hospital_ICU_bed_occupied_percent(
-				boolean *isnull,
-				int ICU_bed_capacity,
-				LIST *current_bed_usage_list )
-{
-	CURRENT_BED_USAGE *current_bed_usage;
-	double full_percent;
-
-	*isnull = 0;
-
-	if ( !ICU_bed_capacity )
-	{
-		*isnull = 1;
-		return 0;
-	}
-
-	if ( ! ( current_bed_usage =
-			list_get_last_pointer(
-				current_bed_usage_list ) ) )
-	{
-		*isnull = 1;
-		return 0;
-	}
-
-	full_percent =
-		( (double)current_bed_usage->ICU_bed_occupied_count /
-		  (double)ICU_bed_capacity ) * 100.0;
-
-	return (int)timlib_round_double( full_percent );
-
-} /* hospital_ICU_bed_occupied_percent() */
 
 char *hospital_select( void )
 {
@@ -1129,14 +1338,14 @@ void hospital_update(
 	int coronavirus_patients_without_ventilators,
 	boolean coronavirus_patients_without_ventilators_isnull,
 
-	int coronavirus_admitted_to_date,
-	boolean coronavirus_admitted_to_date_isnull,
+	int coronavirus_admitted_todate,
+	boolean coronavirus_admitted_todate_isnull,
 
-	int coronavirus_released_to_date,
-	boolean coronavirus_released_to_date_isnull,
+	int coronavirus_released_todate,
+	boolean coronavirus_released_todate_isnull,
 
-	int coronavirus_mortality_to_date,
-	boolean coronavirus_mortality_to_date_isnull,
+	int coronavirus_mortality_todate,
+	boolean coronavirus_mortality_todate_isnull,
 
 	int regular_bed_capacity,
 	boolean regular_bed_capacity_isnull,
@@ -1154,18 +1363,58 @@ void hospital_update(
 	boolean ICU_bed_occupied_count_isnull,
 
 	int ICU_bed_occupied_percent,
-	boolean ICU_bed_occupied_percent_isnull )
+	boolean ICU_bed_occupied_percent_isnull,
+
+	int coronavirus_admitted_daily_change,
+	boolean coronavirus_admitted_daily_change_isnull,
+
+	int coronavirus_released_daily_change,
+	boolean coronavirus_released_daily_change_isnull,
+
+	int coronavirus_mortality_daily_change,
+	boolean coronavirus_mortality_daily_change_isnull )
 {
 	char sys_string[ 1024 ];
 	FILE *update_pipe;
 	char output_buffer[ 128 ];
 
 	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 "update_statement.e table=%s key=%s carrot=y	|"
+		 "sql.e						 ",
 		 "hospital",
 		 "hospital_name,street_address" );
 
 	update_pipe = popen( sys_string, "w" );
+
+	/* Non Coronavirus Current Patient Count */
+	/* ------------------------------------- */
+	if ( non_coronavirus_current_patient_count_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			non_coronavirus_current_patient_count );
+
+	fprintf( update_pipe,
+		 "%s^%s^non_coronavirus_current_patient_count^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Coronavirus Current Patient Count */
+	/* --------------------------------- */
+	if ( coronavirus_current_patient_count_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_current_patient_count );
+
+	fprintf( update_pipe,
+		 "%s^%s^coronavirus_current_patient_count^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
 
 	/* Ventilator Count */
 	/* ---------------- */
@@ -1193,6 +1442,51 @@ void hospital_update(
 
 	fprintf( update_pipe,
 		 "%s^%s^coronavirus_patients_without_ventilators^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Coronavirus Admitted Todate */
+	/* --------------------------- */
+	if ( coronavirus_admitted_todate_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_admitted_todate );
+
+	fprintf( update_pipe,
+		 "%s^%s^coronavirus_admitted_todate^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Coronavirus Released Todate */
+	/* --------------------------- */
+	if ( coronavirus_released_todate_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_released_todate );
+
+	fprintf( update_pipe,
+		 "%s^%s^coronavirus_released_todate^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Coronavirus Mortality Todate */
+	/* ---------------------------- */
+	if ( coronavirus_mortality_todate_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_mortality_todate );
+
+	fprintf( update_pipe,
+		 "%s^%s^coronavirus_mortality_todate^%s\n",
 		 hospital_name,
 		 street_address,
 		 output_buffer );
@@ -1253,6 +1547,81 @@ void hospital_update(
 
 	fprintf( update_pipe,
 		 "%s^%s^ICU_bed_occupied_count^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Regular Bed Capacity */
+	/* -------------------- */
+	if ( regular_bed_capacity_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			regular_bed_capacity );
+
+	fprintf( update_pipe,
+		 "%s^%s^regular_bed_capacity^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* ICU Bed Capacity */
+	/* ---------------- */
+	if ( ICU_bed_capacity_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			ICU_bed_capacity );
+
+	fprintf( update_pipe,
+		 "%s^%s^ICU_bed_capacity^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Coronavirus Admitted Daily Change */
+	/* --------------------------------- */
+	if ( coronavirus_admitted_daily_change_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_admitted_daily_change );
+
+	fprintf( update_pipe,
+		 "%s^%s^coronavirus_admitted_daily_change^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Coronavirus Released Daily Change */
+	/* --------------------------------- */
+	if ( coronavirus_released_daily_change_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_released_daily_change );
+
+	fprintf( update_pipe,
+		 "%s^%s^coronavirus_released_daily_change^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Coronavirus Mortality Daily Change */
+	/* ---------------------------------- */
+	if ( coronavirus_mortality_daily_change_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_mortality_daily_change );
+
+	fprintf( update_pipe,
+		 "%s^%s^coronavirus_mortality_daily_change^%s\n",
 		 hospital_name,
 		 street_address,
 		 output_buffer );

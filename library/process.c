@@ -704,11 +704,13 @@ void process_get_executable(	char **executable,
 		 where );
 
 
+/*
 fprintf( stderr, "%s/%s()/%d: sys_string = [%s]\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 sys_string  );
+*/
 
 	*executable = pipe2string( sys_string );
 

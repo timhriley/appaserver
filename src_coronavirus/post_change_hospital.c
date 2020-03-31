@@ -92,22 +92,12 @@ void post_change_hospital_update(
 
 	/* CURRENT_PATIENT_COUNT */
 	/* ===================== */
-	/* Sets:
-		----------------------------------------
-		last->coronavirus_admitted_daily_change
-		last->coronavirus_released_daily_change
-		last->coronavirus_mortality_daily_change
-		last->coronavirus_current_patient_count
-		----------------------------------------
-	*/
-	if  ( !hospital_current_patient_count_set_last(
-			hospital->current_patient_count_list ) )
-	{
-		hospital->coronavirus_admitted_daily_change = 1;
-		hospital->coronavirus_released_daily_change = 1;
-		hospital->coronavirus_mortality_daily_change = 1;
-		hospital->coronavirus_current_patient_count_isnull = 1;
-	}
+	hospital_current_patient_count_set_last(
+		&hospital->coronavirus_admitted_daily_change_isnull,
+		&hospital->coronavirus_released_daily_change_isnull,
+		&hospital->coronavirus_mortality_daily_change_isnull,
+		&hospital->coronavirus_current_patient_count_isnull,
+		hospital->current_patient_count_list );
 
 	if ( list_length( hospital->current_patient_count_list ) )
 	{
@@ -129,6 +119,24 @@ void post_change_hospital_update(
 					hospital->
 					current_patient_count_list ) );
 
+		hospital->coronavirus_admitted_daily_change =
+			hospital_coronavirus_admitted_daily_change(
+				list_get_last_pointer(
+					hospital->
+					current_patient_count_list ) );
+
+		hospital->coronavirus_released_daily_change =
+			hospital_coronavirus_released_daily_change(
+				list_get_last_pointer(
+					hospital->
+					current_patient_count_list ) );
+
+		hospital->coronavirus_mortality_daily_change =
+			hospital_coronavirus_mortality_daily_change(
+				list_get_last_pointer(
+					hospital->
+					current_patient_count_list ) );
+
 		hospital->non_coronavirus_current_patient_count =
 			hospital_non_coronavirus_current_patient_count(
 				list_get_last_pointer(
@@ -143,9 +151,9 @@ void post_change_hospital_update(
 	}
 	else
 	{
-		hospital->coronavirus_admitted_todate = 1;
-		hospital->coronavirus_released_todate = 1;
-		hospital->coronavirus_mortality_todate = 1;
+		hospital->coronavirus_admitted_todate_isnull = 1;
+		hospital->coronavirus_released_todate_isnull = 1;
+		hospital->coronavirus_mortality_todate_isnull = 1;
 		hospital->non_coronavirus_current_patient_count_isnull = 1;
 		hospital->coronavirus_current_patient_count_isnull = 1;
 	}
@@ -170,19 +178,50 @@ void post_change_hospital_update(
 		hospital->coronavirus_patients_without_ventilators_isnull = 1;
 	}
 
+	/* CURRENT_BED_USAGE */
+	/* ----------------- */
+	if ( list_length( hospital->current_bed_usage_list ) )
+	{
+		hospital->regular_bed_occupied_count =
+			hospital_regular_bed_occupied_count(
+				list_get_last_pointer(
+					hospital->current_bed_usage_list ) );
+
+		hospital->ICU_bed_occupied_count =
+			hospital_ICU_bed_occupied_count(
+				list_get_last_pointer(
+					hospital->current_bed_usage_list ) );
+	}
+	else
+	{
+		hospital->regular_bed_occupied_count_isnull = 1;
+		hospital->ICU_bed_occupied_count_isnull = 1;
+	}
+
 	/* CURRENT_BED_USAGE and CURRENT_BED_CAPACITY */
 	/* ------------------------------------------ */
-	hospital->regular_bed_occupied_percent =
-		hospital_regular_bed_occupied_percent(
-			&hospital->regular_bed_occupied_percent_isnull,
-			hospital->regular_bed_capacity,
-			hospital->current_bed_usage_list );
+	if ( list_length( hospital->current_bed_usage_list )
+	&&   list_length( hospital->current_bed_capacity_list ) )
+	{
+		hospital->regular_bed_occupied_percent =
+			hospital_regular_bed_occupied_percent(
+				list_get_last_pointer(
+					hospital->current_bed_usage_list ),
+				list_get_last_pointer(
+					hospital->current_bed_capacity_list ) );
 
-	hospital->ICU_bed_occupied_percent =
-		hospital_ICU_bed_occupied_percent(
-			&hospital->ICU_bed_occupied_percent_isnull,
-			hospital->ICU_bed_capacity,
-			hospital->current_bed_usage_list );
+		hospital->ICU_bed_occupied_percent =
+			hospital_ICU_bed_occupied_percent(
+				list_get_last_pointer(
+					hospital->current_bed_usage_list ),
+				list_get_last_pointer(
+					hospital->current_bed_capacity_list ) );
+	}
+	else
+	{
+		hospital->regular_bed_occupied_percent_isnull = 1;
+		hospital->ICU_bed_occupied_percent_isnull = 1;
+	}
 
 	/* CURRENT_VENTILATOR_COUNT */
 	/* ======================== */
@@ -214,6 +253,11 @@ void post_change_hospital_update(
 				list_get_last_pointer(
 					hospital->
 					current_bed_capacity_list ) );
+
+		/* That column may be blank */
+		/*  ----------------------- */
+		if ( !hospital->ICU_bed_capacity )
+			hospital->ICU_bed_capacity_isnull = 1;
 	}
 	else
 	{
@@ -265,7 +309,16 @@ void post_change_hospital_update(
 		hospital->ICU_bed_occupied_count_isnull,
 
 		hospital->ICU_bed_occupied_percent,
-		hospital->ICU_bed_occupied_percent_isnull );
+		hospital->ICU_bed_occupied_percent_isnull,
+
+		hospital->coronavirus_admitted_daily_change,
+		hospital->coronavirus_admitted_daily_change_isnull,
+
+		hospital->coronavirus_released_daily_change,
+		hospital->coronavirus_released_daily_change_isnull,
+
+		hospital->coronavirus_mortality_daily_change,
+		hospital->coronavirus_mortality_daily_change_isnull );
 
 } /* post_change_hospital_update() */
 

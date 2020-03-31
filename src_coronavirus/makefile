@@ -89,7 +89,7 @@ post_change_hospital:							\
 		hospital.o						\
 		-o post_change_hospital
 
-hospital.o: hospital.c
+hospital.o: hospital.c hospital.h
 	${CC} -c -I${LIBRARY}						\
 		hospital.c
 
