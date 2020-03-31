@@ -13,8 +13,29 @@
 #include "appaserver_library.h"
 #include "hospital.h"
 
+/* Constants */
+/* --------- */
+#define DATE_TIME_GREENWICH	"date_time_greenwich"
+
 /* CURRENT_VENTILATOR_COUNT */
 /* ------------------------ */
+int hospital_current_ventilator_count(
+			CURRENT_VENTILATOR_COUNT *last_ventilator_count )
+{
+	if ( !last_ventilator_count )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last_patient_count.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return last_ventilator_count->ventilator_count;
+
+} /* hospital_current_ventilator_count() */
+
 char *hospital_current_ventilator_count_select( void )
 {
 	return
@@ -33,11 +54,11 @@ LIST *hospital_current_ventilator_count_list(
 	CURRENT_VENTILATOR_COUNT *current_ventilator_count;
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=\"%s\"		"
-		 "			folder=%s		"
-		 "			where=\"%s\"		"
-		 "			order=date_time_greenwich	",
+		 "get_folder_data	application=%s	"
+		 "			select=\"%s\"	"
+		 "			folder=%s	"
+		 "			where=\"%s\"	"
+		 "			order=%s	",
 		 application_name,
 		 /* ----------------------- */
 		 /* Returns program memory. */
@@ -49,7 +70,8 @@ LIST *hospital_current_ventilator_count_list(
 		 /* -------------------- */
 		 hospital_where(
 			hospital_name,
-			street_address ) );
+			street_address ),
+		 DATE_TIME_GREENWICH );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -109,44 +131,87 @@ CURRENT_VENTILATOR_COUNT *hospital_current_ventilator_count_parse(
 } /* hospital_current_ventilator_count_parse() */
 
 /* CURRENT_PATIENT_COUNT */
-/* --------------------- */
-int hospital_coronavirus_admitted_todate(
-				LIST *current_patient_count_list )
+/* ===================== */
+int hospital_coronavirus_current_patient_count(
+			CURRENT_PATIENT_COUNT *last_patient_count )
 {
-	CURRENT_PATIENT_COUNT *last_patient_count;
+	if ( !last_patient_count )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last_patient_count.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
-	if ( !list_length( current_patient_count_list ) ) return 0;
+	return last_patient_count->coronavirus_current_patient_count;
 
-	list_go_last( current_patient_count_list );
-	last_patient_count = list_get_pointer( current_patient_count_list );
+} /* hospital_coronavirus_current_patient_count() */
+
+int hospital_non_coronavirus_current_patient_count(
+			CURRENT_PATIENT_COUNT *last_patient_count )
+{
+	if ( !last_patient_count )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last_patient_count.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return last_patient_count->non_coronavirus_current_patient_count;
+
+} /* hospital_non_coronavirus_current_patient_count() */
+
+int hospital_coronavirus_admitted_todate(
+			CURRENT_PATIENT_COUNT *last_patient_count )
+{
+	if ( !last_patient_count )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last_patient_count.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	return last_patient_count->coronavirus_admitted_todate;
 
 } /* hospital_coronavirus_admitted_todate() */
 
 int hospital_coronavirus_released_todate(
-				LIST *current_patient_count_list )
+			CURRENT_PATIENT_COUNT *last_patient_count )
 {
-	CURRENT_PATIENT_COUNT *last_patient_count;
-
-	if ( !list_length( current_patient_count_list ) ) return 0;
-
-	list_go_last( current_patient_count_list );
-	last_patient_count = list_get_pointer( current_patient_count_list );
+	if ( !last_patient_count )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last_patient_count.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	return last_patient_count->coronavirus_released_todate;
 
 } /* hospital_coronavirus_released_todate() */
 
 int hospital_coronavirus_mortality_todate(
-				LIST *current_patient_count_list )
+			CURRENT_PATIENT_COUNT *last_patient_count )
 {
-	CURRENT_PATIENT_COUNT *last_patient_count;
-
-	if ( !list_length( current_patient_count_list ) ) return 0;
-
-	list_go_last( current_patient_count_list );
-	last_patient_count = list_get_pointer( current_patient_count_list );
+	if ( !last_patient_count )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last_patient_count.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	return last_patient_count->coronavirus_mortality_todate;
 
@@ -552,7 +617,7 @@ LIST *hospital_current_patient_count_list(
 		 hospital_where(
 			hospital_name,
 			street_address ),
-		 "greenwich_mean" );
+		 DATE_TIME_GREENWICH );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -569,11 +634,70 @@ LIST *hospital_current_patient_count_list(
 
 } /* hospital_current_patient_count_list() */
 
-HOSPITAL *hospital_new(	void )
+/* CURRENT_BED_USAGE */
+/* ================= */
+char *hospital_current_bed_usage_select( void )
 {
-	HOSPITAL *h;
+	return
+"date_time_greenwich,regular_bed_occupied_count,ICU_bed_occupied_count";
+}
 
-	if ( ! ( h = (HOSPITAL *)calloc( 1, sizeof( HOSPITAL ) ) ) )
+LIST *hospital_current_bed_usage_list(
+				char *application_name,
+				char *hospital_name,
+				char *street_address )
+{
+	char sys_string[ 1024 ];
+	char input_line[ 1024 ];
+	FILE *input_pipe;
+	LIST *current_bed_usage_list = list_new();
+	CURRENT_BED_USAGE *current_bed_usage;
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		"
+		 "			order=%s		",
+		 application_name,
+		 /* ----------------------- */
+		 /* Returns program memory. */
+		 /* ----------------------- */
+		 hospital_current_bed_usage_select(),
+		 "current_bed_usage",
+		 /* -------------------- */
+		 /* Returns heap memory. */
+		 /* -------------------- */
+		 hospital_where(
+			hospital_name,
+			street_address ),
+		 DATE_TIME_GREENWICH );
+
+
+	input_pipe = popen( sys_string, "r" );
+
+	while ( get_line( input_line, input_pipe ) )
+	{
+		current_bed_usage =
+			hospital_current_bed_usage_parse(
+				input_line );
+
+		list_append_pointer(
+			current_bed_usage_list,
+			current_bed_usage );
+	}
+
+	pclose( input_pipe );
+	return current_bed_usage_list;
+
+} /* hospital_current_bed_usage_list() */
+
+CURRENT_BED_USAGE *hospital_current_bed_usage_new( void )
+{
+	CURRENT_BED_USAGE *h;
+
+	if ( ! ( h = (CURRENT_BED_USAGE *)
+			calloc( 1, sizeof( CURRENT_BED_USAGE ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -585,8 +709,185 @@ HOSPITAL *hospital_new(	void )
 
 	return h;
 
-} /* hospital_new() */
+} /* hospital_current_bed_usage_new() */
 
+CURRENT_BED_USAGE *hospital_current_bed_usage_parse(
+				char *input_line )
+{
+	CURRENT_BED_USAGE *current_bed_usage;
+	char piece_buffer[ 512 ];
+
+	current_bed_usage = hospital_current_bed_usage_new();
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 0 );
+	current_bed_usage->date_time_greenwich = strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
+	current_bed_usage->regular_bed_occupied_count = atoi( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 2 );
+	current_bed_usage->ICU_bed_occupied_count = atoi( piece_buffer );
+
+	return current_bed_usage;
+
+} /* hospital_current_bed_usage_parse() */
+
+/* CURRENT_PATIENT_COUNT and CURRENT_VENTILATOR_COUNT */
+/* ================================================== */
+int hospital_coronavirus_patients_without_ventilators(
+			CURRENT_PATIENT_COUNT *current_patient_count,
+			CURRENT_VENTILATOR_COUNT *current_ventilator_count )
+{
+	if ( !current_patient_count
+	||   !current_ventilator_count )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: both current_patient_count and current_ventilator_count are null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return 	current_patient_count->coronavirus_current_patient_count -
+		current_ventilator_count->ventilator_count;
+
+} /* hospital_coronavirus_patients_without_ventilators() */
+
+/* CURRENT_BED_CAPACITY */
+/* ==================== */
+CURRENT_BED_CAPACITY *hospital_current_bed_capacity_new( void )
+{
+	CURRENT_BED_CAPACITY *c;
+
+	if ( ! ( c = (CURRENT_BED_CAPACITY *)
+			calloc( 1, sizeof( CURRENT_BED_CAPACITY ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return c;
+
+} /* hospital_current_bed_capacity_new() */
+
+CURRENT_BED_CAPACITY *hospital_current_bed_capacity_parse(
+				char *input_line )
+{
+	CURRENT_BED_CAPACITY *current_bed_capacity;
+	char piece_buffer[ 512 ];
+
+	current_bed_capacity =
+		hospital_current_bed_capacity_new();
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 0 );
+	current_bed_capacity->date_time_greenwich = strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
+	current_bed_capacity->regular_bed_capacity =
+		atoi( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 2 );
+	current_bed_capacity->ICU_bed_capacity =
+		atoi( piece_buffer );
+
+	return current_bed_capacity;
+
+} /* hospital_current_bed_capacity_parse() */
+
+char *hospital_current_bed_capacity_select( void )
+{
+	return
+"date_time_greenwich,regular_bed_capacity,ICU_bed_capacity";
+}
+
+LIST *hospital_current_bed_capacity_list(
+				char *application_name,
+				char *hospital_name,
+				char *street_address )
+{
+	char sys_string[ 1024 ];
+	char input_line[ 1024 ];
+	FILE *input_pipe;
+	LIST *current_bed_capacity_list = list_new();
+	CURRENT_BED_CAPACITY *current_bed_capacity;
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		"
+		 "			order=%s		",
+		 application_name,
+		 /* ----------------------- */
+		 /* Returns program memory. */
+		 /* ----------------------- */
+		 hospital_current_bed_capacity_select(),
+		 "current_bed_capacity",
+		 /* -------------------- */
+		 /* Returns heap memory. */
+		 /* -------------------- */
+		 hospital_where(
+			hospital_name,
+			street_address ),
+		 DATE_TIME_GREENWICH );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while ( get_line( input_line, input_pipe ) )
+	{
+		current_bed_capacity =
+			hospital_current_bed_capacity_parse(
+				input_line );
+
+		list_append_pointer(
+			current_bed_capacity_list,
+			current_bed_capacity );
+	}
+
+	pclose( input_pipe );
+	return current_bed_capacity_list;
+
+} /* hospital_current_bed_capacity_list() */
+
+int hospital_regular_bed_capacity( CURRENT_BED_CAPACITY *last )
+{
+	if ( !last )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return last->regular_bed_capacity;
+
+} /* hospital_regular_bed_capacity() */
+
+int hospital_ICU_bed_capacity( CURRENT_BED_CAPACITY *last )
+{
+	if ( !last )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null last.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return last->ICU_bed_capacity;
+
+} /* hospital_ICU_bed_capacity() */
+
+/* CURRENT_BED_CAPACITY and CURRENT_BED_USAGE */
+/* ------------------------------------------ */
 int hospital_regular_bed_occupied_percent(
 				boolean *isnull,
 				int regular_bed_capacity,
@@ -618,6 +919,26 @@ int hospital_regular_bed_occupied_percent(
 	return (int)timlib_round_double( full_percent );
 
 }  /* hospital_regular_bed_occupied_percent() */
+
+/* HOSPITAL */
+/* ======== */
+HOSPITAL *hospital_new(	void )
+{
+	HOSPITAL *h;
+
+	if ( ! ( h = (HOSPITAL *)calloc( 1, sizeof( HOSPITAL ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return h;
+
+} /* hospital_new() */
 
 int hospital_ICU_bed_occupied_percent(
 				boolean *isnull,
@@ -939,120 +1260,4 @@ void hospital_update(
 	pclose( update_pipe );
 
 } /* hospital_update() */
-
-char *hospital_current_bed_usage_select( void )
-{
-	return
-"date_time_greenwich,regular_bed_occupied_count,ICU_bed_occupied_count";
-}
-
-LIST *hospital_current_bed_usage_list(
-				char *application_name,
-				char *hospital_name,
-				char *street_address )
-{
-	char sys_string[ 1024 ];
-	char input_line[ 1024 ];
-	FILE *input_pipe;
-	LIST *current_bed_usage_list = list_new();
-	CURRENT_BED_USAGE *current_bed_usage;
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=\"%s\"		"
-		 "			folder=%s		"
-		 "			where=\"%s\"		"
-		 "			order=%s		",
-		 application_name,
-		 /* ----------------------- */
-		 /* Returns program memory. */
-		 /* ----------------------- */
-		 hospital_current_bed_usage_select(),
-		 "current_bed_usage",
-		 /* -------------------- */
-		 /* Returns heap memory. */
-		 /* -------------------- */
-		 hospital_where(
-			hospital_name,
-			street_address ),
-		 "greenwich_mean" );
-
-
-	input_pipe = popen( sys_string, "r" );
-
-	while ( get_line( input_line, input_pipe ) )
-	{
-		current_bed_usage =
-			hospital_current_bed_usage_parse(
-				input_line );
-
-		list_append_pointer(
-			current_bed_usage_list,
-			current_bed_usage );
-	}
-
-	pclose( input_pipe );
-	return current_bed_usage_list;
-
-} /* hospital_current_bed_usage_list() */
-
-CURRENT_BED_USAGE *hospital_current_bed_usage_new( void )
-{
-	CURRENT_BED_USAGE *h;
-
-	if ( ! ( h = (CURRENT_BED_USAGE *)
-			calloc( 1, sizeof( CURRENT_BED_USAGE ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	return h;
-
-} /* hospital_current_bed_usage_new() */
-
-CURRENT_BED_USAGE *hospital_current_bed_usage_parse(
-				char *input_line )
-{
-	CURRENT_BED_USAGE *current_bed_usage;
-	char piece_buffer[ 512 ];
-
-	current_bed_usage = hospital_current_bed_usage_new();
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 0 );
-	current_bed_usage->date_time_greenwich = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
-	current_bed_usage->regular_bed_occupied_count = atoi( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 2 );
-	current_bed_usage->ICU_bed_occupied_count = atoi( piece_buffer );
-
-	return current_bed_usage;
-
-} /* hospital_current_bed_usage_parse() */
-
-int hospital_coronavirus_patients_without_ventilators(
-			CURRENT_PATIENT_COUNT *current_patient_count,
-			CURRENT_VENTILATOR_COUNT *current_ventilator_count )
-{
-	if ( !current_patient_count
-	||   !current_ventilator_count )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: both current_patient_count and current_ventilator_count are null.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	return 	current_patient_count->coronavirus_current_patient_count -
-		current_ventilator_count->ventilator_count;
-
-} /* hospital_coronavirus_patients_without_ventilators() */
 

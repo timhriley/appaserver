@@ -129,6 +129,21 @@ typedef struct
 
 /* CURRENT_PATIENT_COUNT */
 /* --------------------- */
+int hospital_coronavirus_current_patient_count(
+			CURRENT_PATIENT_COUNT *last_patient_count );
+
+int hospital_non_coronavirus_current_patient_count(
+			CURRENT_PATIENT_COUNT *last_patient_count );
+
+int hospital_coronavirus_admitted_todate(
+				CURRENT_PATIENT_COUNT *last_patient_count );
+
+int hospital_coronavirus_released_todate(
+				CURRENT_PATIENT_COUNT *last_patient_count );
+
+int hospital_coronavirus_mortality_todate(
+				CURRENT_PATIENT_COUNT *last_patient_count );
+
 CURRENT_PATIENT_COUNT *hospital_current_patient_count_new(
 				void );
 

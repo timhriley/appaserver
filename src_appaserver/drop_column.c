@@ -45,24 +45,19 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 
-	/* ---------------------------------------------	*/
-	/* Get application from command line because		*/
-	/* this is executed from table_rectification.		*/
-	/* ---------------------------------------------	*/
-	if ( argc > 1 )
-	{
-		application_name = argv[ 1 ];
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-		appaserver_error_starting_argv_append_file(
-			argc,
-			argv,
-			application_name );
-	}
+	appaserver_output_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 8 )
 	{
 		fprintf(stderr,
-"Usage: %s application session login_name role folder attribute really_yn\n",
+"Usage: %s ignored session login_name role folder attribute really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -154,7 +149,7 @@ int main( int argc, char **argv )
 	if ( toupper( *really_yn ) == 'Y' )
 	{
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		printf( "<BR><h3>Process complete.</h3>\n" );
 	}
 	else
