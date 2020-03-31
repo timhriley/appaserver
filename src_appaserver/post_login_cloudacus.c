@@ -60,7 +60,6 @@ int main( int argc, char **argv )
 	char *application_title = "";
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	enum password_match_return password_match_return;
-	char *database_string = {0};
 
 	if ( argc == 2 ) application_name = argv[ 1 ];
 
@@ -89,27 +88,9 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-		environ_set_environment(
-			"DATABASE",
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-		environ_set_environment(
-			"DATABASE",
-			application_name );
-	}
-
-	database_string = application_name;
+	environ_set_environment(
+		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+		application_name );
 
 	appaserver_parameter_file =
 		appaserver_parameter_file_application(
@@ -150,56 +131,12 @@ int main( int argc, char **argv )
 			"login_yn",
 			0 );
 
-/*
-	dictionary_get_index_data(
-			&email_password_yn,
-			post_dictionary,
-			"email_password_yn",
-			0 );
-*/
-
 	dictionary_get_index_data(
 			&application_title,
 			post_dictionary,
 			"application_title",
 			0 );
 
-/*
-	if ( *email_password_yn == 'y' )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-
-		if ( !*application_name 
-		||   !application_exists(
-					application_name,
-					appaserver_parameter_file->
-						appaserver_mount_point ) )
-		{
-			post_login_redraw_index_screen(
-				APPLICATION_NAME,
-				CLOUDACUS_LOCATION,
-				"invalid_application_key_yn=y" );
-			sleep( 2 );
-			exit( 0 );
-		}
-
-		reset_password(		application_name,
-					login_name,
-					RESETTED_PASSWORD );
-
-		email_password(		login_name,
-					RESETTED_PASSWORD );
-
-		post_login_redraw_index_screen(
-				APPLICATION_NAME,
-				CLOUDACUS_LOCATION,
-				"email_password_yn=y" );
-		exit( 0 );
-	}
-	else
-*/
 	if ( signup_yn && *signup_yn && *signup_yn == 'y' )
 	{
 		char sys_string[ 1024 ];
@@ -235,10 +172,6 @@ int main( int argc, char **argv )
 				TEMPLATE_APPLICATION ) );
 
 		results = system( sys_string );
-
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 
 		if ( results == 0 )
 		{
