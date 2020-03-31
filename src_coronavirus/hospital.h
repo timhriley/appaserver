@@ -30,9 +30,9 @@ typedef struct
 	int non_coronavirus_current_patient_count;
 	int coronavirus_admitted_todate;
 	int coronavirus_released_todate;
-	int coronavirus_martality_todate;
+	int coronavirus_mortality_todate;
 	int coronavirus_current_patient_count;
-	int coronavirus_patient_daily_change;
+	int coronavirus_admitted_daily_change;
 	int coronavirus_released_daily_change;
 	int coronavirus_mortality_daily_change;
 } CURRENT_PATIENT_COUNT;
@@ -146,12 +146,12 @@ LIST *hospital_current_patient_count_list(
 boolean hospital_current_patient_count_set_last(
 				LIST *current_patient_count_list );
 
-int hospital_coronavirus_current_patient_count(
+int hospital_coronavirus_last_current_patient_count(
 				int coronovirus_admitted_todate,
 				int coronovirus_released_todate,
 				int coronovirus_mortality_todate );
 
-int hospital_coronavirus_patient_daily_change(
+int hospital_coronavirus_admitted_daily_change(
 				CURRENT_PATIENT_COUNT *last_patient_count,
 				CURRENT_PATIENT_COUNT *prior_patient_count );
 
@@ -179,9 +179,6 @@ LIST *hospital_current_ventilator_count_list(
 				char *hospital_name,
 				char *street_address );
 
-boolean hospital_current_ventilator_count_set_last(
-				LIST *current_ventilator_count_list );
-
 int hospital_current_ventilator_count(
 			CURRENT_VENTILATOR_COUNT *last_ventilator_count );
 
@@ -200,9 +197,6 @@ LIST *hospital_current_bed_usage_list(
 				char *application_name,
 				char *hospital_name,
 				char *street_address );
-
-boolean hospital_current_bed_usage_set_last(
-				LIST *current_bed_usage_list );
 
 int hospital_regular_bed_occupied_count(
 				CURRENT_BED_USAGE *last_bed_usage );
@@ -226,14 +220,11 @@ LIST *hospital_current_bed_capacity_list(
 				char *hospital_name,
 				char *street_address );
 
-boolean hospital_current_bed_capacity_set_last(
-				LIST *current_bed_capacity_list );
-
 int hospital_regular_bed_capacity(
-				CURRENT_BED_CAPACITY *current_bed_capacity );
+				CURRENT_BED_CAPACITY *last );
 
 int hospital_ICU_bed_capacity(
-				CURRENT_BED_CAPACITY *current_bed_capacity );
+				CURRENT_BED_CAPACITY *last );
 
 /* HOSPITAL */
 /* -------- */
@@ -309,8 +300,8 @@ char *hospital_where(		char *hospital_name,
 				char *street_address );
 
 int hospital_coronavirus_patients_without_ventilators(
-				int coronavirus_current_patient_count,
-				int ventilator_count );
+			CURRENT_PATIENT_COUNT *current_patient_count,
+			CURRENT_VENTILATOR_COUNT *current_ventilator_count );
 
 /* Returns program memory. */
 /* ----------------------- */
@@ -324,10 +315,6 @@ int hospital_released_delta(
 
 int hospital_mortality_delta(
 				LIST *current_patient_count_list );
-
-int hospital_coronavirus_admitted_daily_change(
-				CURRENT_PATIENT_COUNT *last,
-				CURRENT_PATIENT_COUNT *prior );
 
 #endif
 

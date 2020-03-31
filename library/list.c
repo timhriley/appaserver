@@ -1054,9 +1054,14 @@ int list_go_head( LIST *list )
 	return go_head( list );
 }
 
-int list_go_tail( LIST *list )
+boolean list_go_last( LIST *list )
 {
-	return go_tail( list );
+	return (boolean)go_tail( list );
+}
+
+boolean list_go_tail( LIST *list )
+{
+	return (boolean)go_tail( list );
 }
 
 int go_tail( LIST *list )

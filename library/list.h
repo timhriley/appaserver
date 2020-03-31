@@ -193,7 +193,10 @@ void list_mark_current(		LIST *list );
 void list_restore_current(	LIST *list );
 void list_save(			LIST *list );
 void list_restore(		LIST *list );
-int list_go_tail( 		LIST *list );
+
+boolean list_go_tail( 		LIST *list );
+
+boolean list_go_last( 		LIST *list );
 
 void list_interpolate_string_record( 
 				LIST *list,
