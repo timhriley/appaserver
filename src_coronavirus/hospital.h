@@ -20,13 +20,13 @@
 /* ---------- */
 typedef struct
 {
-	char *date_time_greenwich;
+	char *date_current;
 	int ventilator_count;
 } CURRENT_VENTILATOR_COUNT;
 
 typedef struct
 {
-	char *date_time_greenwich;
+	char *date_current;
 	int non_coronavirus_current_patient_count;
 	int coronavirus_admitted_todate;
 	int coronavirus_released_todate;
@@ -39,14 +39,14 @@ typedef struct
 
 typedef struct
 {
-	char *date_time_greenwich;
+	char *date_current;
 	int regular_bed_occupied_count;
 	int ICU_bed_occupied_count;
 } CURRENT_BED_USAGE;
 
 typedef struct
 {
-	char *date_time_greenwich;
+	char *date_current;
 	int regular_bed_capacity;
 	int ICU_bed_capacity;
 } CURRENT_BED_CAPACITY;
@@ -133,7 +133,7 @@ void hospital_current_patient_count_update(
 	char *application_name,
 	char *hospital_name,
 	char *street_address,
-	char *date_time_greenwich,
+	char *date_current,
 
 	int coronavirus_current_patient_count,
 	boolean coronavirus_current_patient_count_isnull,

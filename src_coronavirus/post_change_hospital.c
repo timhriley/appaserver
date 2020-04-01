@@ -119,24 +119,6 @@ void post_change_hospital_update(
 					hospital->
 					current_patient_count_list ) );
 
-		hospital->coronavirus_admitted_daily_change =
-			hospital_coronavirus_admitted_daily_change(
-				list_get_last_pointer(
-					hospital->
-					current_patient_count_list ) );
-
-		hospital->coronavirus_released_daily_change =
-			hospital_coronavirus_released_daily_change(
-				list_get_last_pointer(
-					hospital->
-					current_patient_count_list ) );
-
-		hospital->coronavirus_mortality_daily_change =
-			hospital_coronavirus_mortality_daily_change(
-				list_get_last_pointer(
-					hospital->
-					current_patient_count_list ) );
-
 		hospital->non_coronavirus_current_patient_count =
 			hospital_non_coronavirus_current_patient_count(
 				list_get_last_pointer(
@@ -148,12 +130,30 @@ void post_change_hospital_update(
 				list_get_last_pointer(
 					hospital->
 					current_patient_count_list ) );
+
+		if ( list_length( hospital->current_patient_count_list ) > 1 )
+		{
+			hospital->coronavirus_admitted_daily_change =
+				hospital_coronavirus_admitted_daily_change(
+					list_get_last_pointer(
+						hospital->
+						current_patient_count_list ) );
+
+			hospital->coronavirus_released_daily_change =
+				hospital_coronavirus_released_daily_change(
+					list_get_last_pointer(
+						hospital->
+						current_patient_count_list ) );
+
+			hospital->coronavirus_mortality_daily_change =
+				hospital_coronavirus_mortality_daily_change(
+					list_get_last_pointer(
+						hospital->
+						current_patient_count_list ) );
+		}
 	}
 	else
 	{
-		hospital->coronavirus_admitted_todate_isnull = 1;
-		hospital->coronavirus_released_todate_isnull = 1;
-		hospital->coronavirus_mortality_todate_isnull = 1;
 		hospital->non_coronavirus_current_patient_count_isnull = 1;
 		hospital->coronavirus_current_patient_count_isnull = 1;
 	}

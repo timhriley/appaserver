@@ -15,7 +15,7 @@
 
 /* Constants */
 /* --------- */
-#define DATE_TIME_GREENWICH	"date_time_greenwich"
+#define DATE_CURRENT		"date_current"
 
 /* CURRENT_VENTILATOR_COUNT */
 /* ------------------------ */
@@ -39,7 +39,7 @@ int hospital_current_ventilator_count(
 char *hospital_current_ventilator_count_select( void )
 {
 	return
-"date_time_greenwich,ventilator_count";
+"date_current,ventilator_count";
 }
 
 LIST *hospital_current_ventilator_count_list(
@@ -71,7 +71,7 @@ LIST *hospital_current_ventilator_count_list(
 		 hospital_where(
 			hospital_name,
 			street_address ),
-		 DATE_TIME_GREENWICH );
+		 DATE_CURRENT );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -120,7 +120,7 @@ CURRENT_VENTILATOR_COUNT *hospital_current_ventilator_count_parse(
 		hospital_current_ventilator_count_new();
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 0 );
-	current_ventilator_count->date_time_greenwich = strdup( piece_buffer );
+	current_ventilator_count->date_current = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
 	current_ventilator_count->ventilator_count =
@@ -187,7 +187,7 @@ void hospital_current_patient_count_update(
 	char *application_name,
 	char *hospital_name,
 	char *street_address,
-	char *date_time_greenwich,
+	char *date_current,
 
 	int coronavirus_current_patient_count,
 	boolean coronavirus_current_patient_count_isnull,
@@ -209,7 +209,7 @@ void hospital_current_patient_count_update(
 		 "update_statement.e table=%s key=%s carrot=y	|"
 		 "sql.e						 ",
 		 "current_patient_count",
-		 "hospital_name,street_address,date_time_greenwich" );
+		 "hospital_name,street_address,date_current" );
 
 	update_pipe = popen( sys_string, "w" );
 
@@ -226,7 +226,7 @@ void hospital_current_patient_count_update(
 		 "%s^%s^%s^coronavirus_current_patient_count^%s\n",
 		 hospital_name,
 		 street_address,
-		 date_time_greenwich,
+		 date_current,
 		 output_buffer );
 
 	/* Coronavirus Admitted Daily Change */
@@ -242,7 +242,7 @@ void hospital_current_patient_count_update(
 		 "%s^%s^%s^coronavirus_admitted_daily_change^%s\n",
 		 hospital_name,
 		 street_address,
-		 date_time_greenwich,
+		 date_current,
 		 output_buffer );
 
 	/* Coronavirus Released Daily Change */
@@ -258,7 +258,7 @@ void hospital_current_patient_count_update(
 		 "%s^%s^%s^coronavirus_released_daily_change^%s\n",
 		 hospital_name,
 		 street_address,
-		 date_time_greenwich,
+		 date_current,
 		 output_buffer );
 
 	/* Coronavirus Mortality Daily Change */
@@ -274,7 +274,7 @@ void hospital_current_patient_count_update(
 		 "%s^%s^%s^coronavirus_mortality_daily_change^%s\n",
 		 hospital_name,
 		 street_address,
-		 date_time_greenwich,
+		 date_current,
 		 output_buffer );
 
 	pclose( update_pipe );
@@ -534,8 +534,8 @@ int hospital_coronavirus_last_admitted_daily_change(
 		/* Ignores trailing time. */
 		/* ---------------------- */
 		date_days_between(
-			prior->date_time_greenwich /* from_date */,
-			last->date_time_greenwich /* to_date */ );
+			prior->date_current /* from_date */,
+			last->date_current /* to_date */ );
 
 	value_change =
 		last->coronavirus_admitted_todate -
@@ -578,8 +578,8 @@ int hospital_coronavirus_last_released_daily_change(
 		/* Ignores trailing time. */
 		/* ---------------------- */
 		date_days_between(
-			prior->date_time_greenwich /* from_date */,
-			last->date_time_greenwich /* to_date */ );
+			prior->date_current /* from_date */,
+			last->date_current /* to_date */ );
 
 	value_change =
 		last->coronavirus_released_todate -
@@ -622,8 +622,8 @@ int hospital_coronavirus_last_mortality_daily_change(
 		/* Ignores trailing time. */
 		/* ---------------------- */
 		date_days_between(
-			prior->date_time_greenwich /* from_date */,
-			last->date_time_greenwich /* to_date */ );
+			prior->date_current /* from_date */,
+			last->date_current /* to_date */ );
 
 	value_change =
 		last->coronavirus_mortality_todate -
@@ -675,6 +675,14 @@ void hospital_current_patient_count_set_last(
 	list_go_last( current_patient_count_list );
 	last = list_get_pointer( current_patient_count_list );
 
+	last->coronavirus_current_patient_count =
+		hospital_coronavirus_last_current_patient_count(
+			last->coronavirus_admitted_todate,
+			last->coronavirus_released_todate,
+			last->coronavirus_mortality_todate );
+
+	*coronavirus_current_patient_count_isnull = 0;
+
 	if ( list_length( current_patient_count_list ) > 1 )
 	{
 		list_prior( current_patient_count_list );
@@ -684,14 +692,6 @@ void hospital_current_patient_count_set_last(
 	{
 		prior = (CURRENT_PATIENT_COUNT *)0;
 	}
-
-	last->coronavirus_current_patient_count =
-		hospital_coronavirus_last_current_patient_count(
-			last->coronavirus_admitted_todate,
-			last->coronavirus_released_todate,
-			last->coronavirus_mortality_todate );
-
-	*coronavirus_current_patient_count_isnull = 0;
 
 	if ( prior )
 	{
@@ -735,7 +735,7 @@ CURRENT_PATIENT_COUNT *hospital_current_patient_count_new( void )
 char *hospital_current_patient_count_select( void )
 {
 	return
-"date_time_greenwich,non_coronavirus_current_patient_count,coronavirus_admitted_todate,coronavirus_released_todate,coronavirus_mortality_todate";
+"date_current,non_coronavirus_current_patient_count,coronavirus_admitted_todate,coronavirus_released_todate,coronavirus_mortality_todate";
 }
 
 CURRENT_PATIENT_COUNT *hospital_current_patient_count_parse(
@@ -747,7 +747,7 @@ CURRENT_PATIENT_COUNT *hospital_current_patient_count_parse(
 	c = hospital_current_patient_count_new();
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 0 );
-	c->date_time_greenwich = strdup( piece_buffer );
+	c->date_current = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
 	c->non_coronavirus_current_patient_count = atoi( piece_buffer );
@@ -794,7 +794,7 @@ LIST *hospital_current_patient_count_list(
 		 hospital_where(
 			hospital_name,
 			street_address ),
-		 DATE_TIME_GREENWICH );
+		 DATE_CURRENT );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -816,7 +816,7 @@ LIST *hospital_current_patient_count_list(
 char *hospital_current_bed_usage_select( void )
 {
 	return
-"date_time_greenwich,regular_bed_occupied_count,ICU_bed_occupied_count";
+"date_current,regular_bed_occupied_count,ICU_bed_occupied_count";
 }
 
 LIST *hospital_current_bed_usage_list(
@@ -848,7 +848,7 @@ LIST *hospital_current_bed_usage_list(
 		 hospital_where(
 			hospital_name,
 			street_address ),
-		 DATE_TIME_GREENWICH );
+		 DATE_CURRENT );
 
 
 	input_pipe = popen( sys_string, "r" );
@@ -897,7 +897,7 @@ CURRENT_BED_USAGE *hospital_current_bed_usage_parse(
 	current_bed_usage = hospital_current_bed_usage_new();
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 0 );
-	current_bed_usage->date_time_greenwich = strdup( piece_buffer );
+	current_bed_usage->date_current = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
 	current_bed_usage->regular_bed_occupied_count = atoi( piece_buffer );
@@ -996,7 +996,7 @@ CURRENT_BED_CAPACITY *hospital_current_bed_capacity_parse(
 		hospital_current_bed_capacity_new();
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 0 );
-	current_bed_capacity->date_time_greenwich = strdup( piece_buffer );
+	current_bed_capacity->date_current = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
 	current_bed_capacity->regular_bed_capacity =
@@ -1013,7 +1013,7 @@ CURRENT_BED_CAPACITY *hospital_current_bed_capacity_parse(
 char *hospital_current_bed_capacity_select( void )
 {
 	return
-"date_time_greenwich,regular_bed_capacity,ICU_bed_capacity";
+"date_current,regular_bed_capacity,ICU_bed_capacity";
 }
 
 LIST *hospital_current_bed_capacity_list(
@@ -1045,7 +1045,7 @@ LIST *hospital_current_bed_capacity_list(
 		 hospital_where(
 			hospital_name,
 			street_address ),
-		 DATE_TIME_GREENWICH );
+		 DATE_CURRENT );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -1265,24 +1265,6 @@ HOSPITAL *hospital_fetch(	char *application_name,
 		 hospital_where(
 			hospital_name,
 			street_address ) );
-
-#ifdef NOT_DEFINE
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\"	|"
-		 "sql.e %s				 ",
-		 /* ----------------------- */
-		 /* Returns program memory. */
-		 /* ----------------------- */
-		 hospital_select(),
-		 "hospital",
-		 /* -------------------- */
-		 /* Returns heap memory. */
-		 /* -------------------- */
-		 hospital_where(
-			hospital_name,
-			street_address ),
-		 application_name );
-#endif
 
 	input_pipe = popen( sys_string, "r" );
 
