@@ -129,6 +129,10 @@ typedef struct
 
 /* CURRENT_PATIENT_COUNT */
 /* --------------------- */
+CURRENT_PATIENT_COUNT *hospital_current_patient_count_seek(
+				LIST *current_patient_count_list,
+				char *date_current );
+
 void hospital_current_patient_count_update(
 	char *application_name,
 	char *hospital_name,

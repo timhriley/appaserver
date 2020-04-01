@@ -21,7 +21,8 @@ STANDARD_LIBRARY_OBJECT=						\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/hashtbl.o
 
-EXECUTABLES=	post_change_hospital
+EXECUTABLES=	post_change_hospital					\
+		post_change_patient_count
 
 EXTERNAL_LIBRARY_OBJECT=						\
 		${STANDARD_LIBRARY_OBJECT}				\
@@ -88,6 +89,17 @@ post_change_hospital:							\
 		post_change_hospital.c					\
 		hospital.o						\
 		-o post_change_hospital
+
+post_change_patient_count:						\
+		post_change_patient_count.c				\
+		${EXTERNAL_LIBRARY_OBJECT} 				\
+		hospital.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY_OBJECT}				\
+		-I{$LIBRARY}						\
+		post_change_patient_count.c				\
+		hospital.o						\
+		-o post_change_patient_count
 
 hospital.o: hospital.c hospital.h
 	${CC} -c -I${LIBRARY}						\

@@ -131,20 +131,26 @@ void post_change_hospital_update(
 					hospital->
 					current_patient_count_list ) );
 
-		if ( list_length( hospital->current_patient_count_list ) > 1 )
+		if ( !hospital->coronavirus_admitted_daily_change_isnull )
 		{
 			hospital->coronavirus_admitted_daily_change =
 				hospital_coronavirus_admitted_daily_change(
 					list_get_last_pointer(
 						hospital->
 						current_patient_count_list ) );
+		}
 
+		if ( !hospital->coronavirus_released_daily_change_isnull )
+		{
 			hospital->coronavirus_released_daily_change =
 				hospital_coronavirus_released_daily_change(
 					list_get_last_pointer(
 						hospital->
 						current_patient_count_list ) );
+		}
 
+		if ( !hospital->coronavirus_mortality_daily_change_isnull )
+		{
 			hospital->coronavirus_mortality_daily_change =
 				hospital_coronavirus_mortality_daily_change(
 					list_get_last_pointer(

@@ -132,6 +132,34 @@ CURRENT_VENTILATOR_COUNT *hospital_current_ventilator_count_parse(
 
 /* CURRENT_PATIENT_COUNT */
 /* ===================== */
+CURRENT_PATIENT_COUNT *hospital_current_patient_count_seek(
+				LIST *current_patient_count_list,
+				char *date_current )
+{
+	CURRENT_PATIENT_COUNT *current_patient_count;
+
+	if ( !list_rewind( current_patient_count_list ) )
+	{
+		return (CURRENT_PATIENT_COUNT *)0;
+	}
+
+	do {
+		current_patient_count =
+			list_get_pointer(
+				current_patient_count_list );
+
+		if ( strcmp(	current_patient_count->date_current,
+				date_current ) == 0 )
+		{
+			return current_patient_count;
+		}
+
+	} while ( list_next( current_patient_count_list ) );
+
+	return (CURRENT_PATIENT_COUNT *)0;
+
+} /* hospital_current_patient_count_seek() */
+
 int hospital_coronavirus_admitted_daily_change(
 				CURRENT_PATIENT_COUNT *last )
 {

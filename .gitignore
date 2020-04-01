@@ -19,10 +19,11 @@ backup/
 # -----------
 *.[oe]
 *.pyc
-# --------------
-# src_ventilator
-# --------------
+# ---------------
+# src_coronavirus
+# ---------------
 post_change_hospital
+post_change_patient_count
 # -------------
 # src_hydrology
 # -------------
