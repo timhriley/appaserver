@@ -31,10 +31,14 @@ while read parameter_file
 do
 	if [ -r "$parameter_file" ]
 	then
-		echo "mysqldump_database.sh $parameter_file"
-		mysqldump_database.sh $parameter_file 2>&1
+		output_tag=`basename.e $parameter_file y n`
+		error_file="${backup_directory}/${output_tag}.err"
+
+		echo "mysqldump_database.sh $parameter_file 2>$error_file"
+		mysqldump_database.sh $parameter_file 2>$error_file
 	fi
 done
 ) | mysqldump_database_summarize.sh
+
 
 exit 0
