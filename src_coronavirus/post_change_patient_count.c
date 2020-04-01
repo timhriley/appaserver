@@ -62,11 +62,21 @@ int main( int argc, char **argv )
 	||   strcmp( state, "insert" ) == 0
 	||   strcmp( state, "delete" ) == 0 )
 	{
+		char sys_string[ 1024 ];
+
 		post_change_patient_count_update(
 			application_name,
 			hospital_name,
 			street_address,
 			date_current );
+
+		sprintf( sys_string,
+			 "post_change_hospital \"%s\" \"%s\" %s",
+			 hospital_name,
+			 street_address,
+			 state );
+
+		if ( system( sys_string ) ){};
 	}
 
 	return 0;
@@ -88,12 +98,7 @@ void post_change_patient_count_update(
 					hospital_name,
 					street_address ) ) )
 	{
-		fprintf( stderr,
-			"ERROR in %s/%s()/%d: cannot hospital_fetch()\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
+		return;
 	}
 
 	/* CURRENT_PATIENT_COUNT */
@@ -125,16 +130,16 @@ void post_change_patient_count_update(
 		hospital->street_address,
 		current_patient_count->date_current,
 
-		hospital->coronavirus_current_patient_count,
+		current_patient_count->coronavirus_current_patient_count,
 		hospital->coronavirus_current_patient_count_isnull,
 
-		hospital->coronavirus_admitted_daily_change,
+		current_patient_count->coronavirus_admitted_daily_change,
 		hospital->coronavirus_admitted_daily_change_isnull,
 
-		hospital->coronavirus_released_daily_change,
+		current_patient_count->coronavirus_released_daily_change,
 		hospital->coronavirus_released_daily_change_isnull,
 
-		hospital->coronavirus_mortality_daily_change,
+		current_patient_count->coronavirus_mortality_daily_change,
 		hospital->coronavirus_mortality_daily_change_isnull );
 
 } /* post_change_patient_count_update() */
