@@ -228,7 +228,7 @@ int main( int argc, char **argv )
 				query->query_output->from_clause,
 				query->query_output->where_clause,
 				query->query_output->order_clause,
-				query->max_rows,
+				0 /* query->max_rows */,
 				folder->attribute_list
 					/* append_isa_attribute_list */,
 				query->login_name );
