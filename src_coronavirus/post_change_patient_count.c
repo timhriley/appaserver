@@ -64,11 +64,14 @@ int main( int argc, char **argv )
 	{
 		char sys_string[ 1024 ];
 
-		post_change_patient_count_update(
-			application_name,
-			hospital_name,
-			street_address,
-			date_current );
+		if ( strcmp( state, "delete" ) != 0 )
+		{
+			post_change_patient_count_update(
+				application_name,
+				hospital_name,
+				street_address,
+				date_current );
+		}
 
 		sprintf( sys_string,
 			 "post_change_hospital \"%s\" \"%s\" %s",
