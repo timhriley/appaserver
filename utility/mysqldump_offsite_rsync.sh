@@ -38,13 +38,9 @@ offsite_rsync()
 	source_directory=$1
 	destination_directory=$2
 
-	logfile="/tmp/offsite_rsync_${database}_$$.log"
-
-	nohup							\
 	/usr/bin/time						\
 	rsync -aq --delete	${source_directory}/		\
-				${destination_directory} 	\
-	>> $logfile 2>&1 &
+				${destination_directory} 1>&2
 }
 
 parse_parameter_file $parameter_file directory_root
@@ -66,7 +62,7 @@ offsite_rsync_destination=$results
 
 if [ "$offsite_rsync_destination" != "" ]
 then
-	offsite_rsync $output_directory $offsite_rsync_destination &
+	offsite_rsync $output_directory $offsite_rsync_destination
 fi
 
 exit 0

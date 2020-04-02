@@ -40,19 +40,15 @@ offsite_scp()
 	destination_directory=$2
 	date_no_dashes=$3
 
-	logfile="/tmp/offsite_scp_${database}_$$.log"
-
 	pwd=`pwd`
 	cd $source_directory
 
 	for file in `	ls -1 2>&1 | grep -vi 'no such file'	|\
 			grep $date_no_dashes`
 	do
-		nohup							\
 		/usr/bin/time						\
 		scp 	${file}						\
-			${destination_directory}			\
-		>> $logfile 2>&1 &
+			${destination_directory} 1>&2
 	done
 
 	cd $pwd
