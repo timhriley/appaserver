@@ -160,6 +160,9 @@ void post_change_hospital_update(
 	}
 	else
 	{
+		hospital->coronavirus_admitted_todate_isnull = 1;
+		hospital->coronavirus_released_todate_isnull = 1;
+		hospital->coronavirus_mortality_todate_isnull = 1;
 		hospital->non_coronavirus_current_patient_count_isnull = 1;
 		hospital->coronavirus_current_patient_count_isnull = 1;
 	}
@@ -184,7 +187,7 @@ void post_change_hospital_update(
 			hospital->coronavirus_patients_without_ventilators,
 				list_get_last_pointer(
 					hospital->
-						current_ventilator_count_list
+						current_patient_count_list
 							) );
 	}
 	else

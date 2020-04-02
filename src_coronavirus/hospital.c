@@ -394,135 +394,6 @@ int hospital_coronavirus_mortality_todate(
 
 } /* hospital_coronavirus_mortality_todate() */
 
-int hospital_admitted_delta( LIST *current_patient_count_list )
-{
-	CURRENT_PATIENT_COUNT *last_patient_count;
-	CURRENT_PATIENT_COUNT *prior_patient_count;
-	int length;
-	int return_value;
-	LIST *l;
-
-	l = current_patient_count_list;
-	length = list_length( l );
-
-	if ( !length ) return 0;
-
-	if ( length == 1 )
-	{
-		last_patient_count = list_get_first_pointer( l );
-
-		return_value =
-			last_patient_count->
-				coronavirus_admitted_todate;
-	}
-	else
-	/* ---------- */
-	/* length > 1 */
-	/* ---------- */
-	{
-		list_go_last( l );
-		last_patient_count = list_get_pointer( l );
-
-		list_previous( l );
-		prior_patient_count = list_get_pointer( l );
-
-		return_value =
-			last_patient_count->
-				coronavirus_admitted_todate -
-			prior_patient_count->
-				coronavirus_admitted_todate;
-	}
-
-	return return_value;
-
-} /* hospital_admitted_delta() */
-
-int hospital_released_delta( LIST *current_patient_count_list )
-{
-	CURRENT_PATIENT_COUNT *last_patient_count;
-	CURRENT_PATIENT_COUNT *prior_patient_count;
-	int length;
-	int return_value;
-	LIST *l;
-
-	l = current_patient_count_list;
-	length = list_length( l );
-
-	if ( !length ) return 0;
-
-	if ( length == 1 )
-	{
-		last_patient_count = list_get_first_pointer( l );
-
-		return_value =
-			last_patient_count->
-				coronavirus_released_todate;
-	}
-	else
-	/* ---------- */
-	/* length > 1 */
-	/* ---------- */
-	{
-		list_go_last( l );
-		last_patient_count = list_get_pointer( l );
-
-		list_previous( l );
-		prior_patient_count = list_get_pointer( l );
-
-		return_value =
-			last_patient_count->
-				coronavirus_released_todate -
-			prior_patient_count->
-				coronavirus_released_todate;
-	}
-
-	return return_value;
-
-} /* hospital_released_delta() */
-
-int hospital_mortality_delta( LIST *current_patient_count_list )
-{
-	CURRENT_PATIENT_COUNT *last_patient_count;
-	CURRENT_PATIENT_COUNT *prior_patient_count;
-	int length;
-	int return_value;
-	LIST *l;
-
-	l = current_patient_count_list;
-	length = list_length( l );
-
-	if ( !length ) return 0;
-
-	if ( length == 1 )
-	{
-		last_patient_count = list_get_first_pointer( l );
-
-		return_value =
-			last_patient_count->
-				coronavirus_mortality_todate;
-	}
-	else
-	/* ---------- */
-	/* length > 1 */
-	/* ---------- */
-	{
-		list_go_last( l );
-		last_patient_count = list_get_pointer( l );
-
-		list_previous( l );
-		prior_patient_count = list_get_pointer( l );
-
-		return_value =
-			last_patient_count->
-				coronavirus_mortality_todate -
-			prior_patient_count->
-				coronavirus_mortality_todate;
-	}
-
-	return return_value;
-
-} /* hospital_mortality_delta() */
-
 int hospital_coronavirus_last_current_patient_count(
 				int coronovirus_admitted_todate,
 				int coronovirus_released_todate,
@@ -994,10 +865,10 @@ int hospital_coronavirus_patients_without_ventilators(
 } /* hospital_coronavirus_patients_without_ventilators() */
 
 int hospital_coronavirus_patients_without_ventilators_percent(
-			int corovirus_patients_without_ventilators,
+			int coronavirus_patients_without_ventilators,
 			CURRENT_PATIENT_COUNT *current_patient_count )
 {
-	int corovirus_patients_without_ventilators_percent;
+	int coronavirus_patients_without_ventilators_percent;
 
 	if ( !current_patient_count )
 	{
@@ -1011,19 +882,19 @@ int hospital_coronavirus_patients_without_ventilators_percent(
 
 	if ( !current_patient_count->coronavirus_current_patient_count )
 	{
-		corovirus_patients_without_ventilators_percent = 0;
+		coronavirus_patients_without_ventilators_percent = 0;
 	}
 	else
 	{
-		corovirus_patients_without_ventilators_percent =
+		coronavirus_patients_without_ventilators_percent =
 			(int)
-			( ( (double)corovirus_patients_without_ventilators /
+			( ( (double)coronavirus_patients_without_ventilators /
 			    (double)current_patient_count->
 					coronavirus_current_patient_count ) *
 			  100.0 );
 	}
 
-	return corovirus_patients_without_ventilators_percent;
+	return coronavirus_patients_without_ventilators_percent;
 
 } /* hospital_coronavirus_patients_without_ventilators_percent() */
 
