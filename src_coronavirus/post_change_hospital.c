@@ -178,10 +178,21 @@ void post_change_hospital_update(
 					hospital->
 						current_ventilator_count_list
 							) );
+
+		hospital->coronavirus_patients_without_ventilators_percent =
+		hospital_coronavirus_patients_without_ventilators_percent(
+			hospital->coronavirus_patients_without_ventilators,
+				list_get_last_pointer(
+					hospital->
+						current_ventilator_count_list
+							) );
 	}
 	else
 	{
 		hospital->coronavirus_patients_without_ventilators_isnull = 1;
+
+		hospital->
+		coronavirus_patients_without_ventilators_percent_isnull = 1;
 	}
 
 	/* CURRENT_BED_USAGE */
@@ -289,6 +300,10 @@ void post_change_hospital_update(
 
 		hospital->coronavirus_patients_without_ventilators,
 		hospital->coronavirus_patients_without_ventilators_isnull,
+
+		hospital->coronavirus_patients_without_ventilators_percent,
+		hospital->
+			coronavirus_patients_without_ventilators_percent_isnull,
 
 		hospital->coronavirus_admitted_todate,
 		hospital->coronavirus_admitted_todate_isnull,

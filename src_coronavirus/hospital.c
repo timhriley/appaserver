@@ -993,6 +993,40 @@ int hospital_coronavirus_patients_without_ventilators(
 
 } /* hospital_coronavirus_patients_without_ventilators() */
 
+int hospital_coronavirus_patients_without_ventilators_percent(
+			int corovirus_patients_without_ventilators,
+			CURRENT_PATIENT_COUNT *current_patient_count )
+{
+	int corovirus_patients_without_ventilators_percent;
+
+	if ( !current_patient_count )
+	{
+		fprintf( stderr,
+			"ERROR in %s/%s()/%d: current_patient_count is null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !current_patient_count->coronavirus_current_patient_count )
+	{
+		corovirus_patients_without_ventilators_percent = 0;
+	}
+	else
+	{
+		corovirus_patients_without_ventilators_percent =
+			(int)
+			( ( (double)corovirus_patients_without_ventilators /
+			    (double)current_patient_count->
+					coronavirus_current_patient_count ) *
+			  100.0 );
+	}
+
+	return corovirus_patients_without_ventilators_percent;
+
+} /* hospital_coronavirus_patients_without_ventilators_percent() */
+
 /* CURRENT_BED_CAPACITY */
 /* ==================== */
 CURRENT_BED_CAPACITY *hospital_current_bed_capacity_new( void )
@@ -1348,6 +1382,9 @@ void hospital_update(
 	int coronavirus_patients_without_ventilators,
 	boolean coronavirus_patients_without_ventilators_isnull,
 
+	int coronavirus_patients_without_ventilators_percent,
+	boolean coronavirus_patients_without_ventilators_percent_isnull,
+
 	int coronavirus_admitted_todate,
 	boolean coronavirus_admitted_todate_isnull,
 
@@ -1452,6 +1489,21 @@ void hospital_update(
 
 	fprintf( update_pipe,
 		 "%s^%s^coronavirus_patients_without_ventilators^%s\n",
+		 hospital_name,
+		 street_address,
+		 output_buffer );
+
+	/* Coronavirus Patients Without Ventilators Percent */
+	/* ------------------------------------------------ */
+	if ( coronavirus_patients_without_ventilators_percent_isnull )
+		*output_buffer = '\0';
+	else
+		sprintf(output_buffer,
+			"%d",
+			coronavirus_patients_without_ventilators_percent );
+
+	fprintf( update_pipe,
+		 "%s^%s^coronavirus_patients_without_ventilators_percent^%s\n",
 		 hospital_name,
 		 street_address,
 		 output_buffer );

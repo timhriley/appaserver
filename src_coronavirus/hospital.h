@@ -70,6 +70,9 @@ typedef struct
 	int coronavirus_patients_without_ventilators;
 	boolean coronavirus_patients_without_ventilators_isnull;
 
+	int coronavirus_patients_without_ventilators_percent;
+	boolean coronavirus_patients_without_ventilators_percent_isnull;
+
 	int coronavirus_admitted_todate;
 	boolean coronavirus_admitted_todate_isnull;
 
@@ -321,6 +324,9 @@ void hospital_update(
 	int coronavirus_patients_without_ventilators,
 	boolean coronavirus_patients_without_ventilators_isnull,
 
+	int coronavirus_patients_without_ventilators_percent,
+	boolean coronavirus_patients_without_ventilators__percent_isnull,
+
 	int coronavirus_admitted_todate,
 	boolean coronavirus_admitted_todate_isnull,
 
@@ -362,9 +368,15 @@ void hospital_update(
 char *hospital_where(		char *hospital_name,
 				char *street_address );
 
+/* CURRENT_PATIENT_COUNT and CURRENT_VENTILATOR_COUNT */
+/* ================================================== */
 int hospital_coronavirus_patients_without_ventilators(
 			CURRENT_PATIENT_COUNT *current_patient_count,
 			CURRENT_VENTILATOR_COUNT *current_ventilator_count );
+
+int hospital_coronavirus_patients_without_ventilators_percent(
+			int coronavirus_patients_without_ventilators,
+			CURRENT_PATIENT_COUNT *current_patient_count );
 
 /* Returns program memory. */
 /* ----------------------- */
