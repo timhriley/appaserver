@@ -154,6 +154,8 @@ char *date_get_now_yyyy_mm_dd(	int utc_offset );
 
 char *date_get_now_hhmm(	int utc_offset );
 
+char *date_get_now_hhmmss(	int utc_offset );
+
 char *date_get_now_date_yyyy_mm_dd(
 				int utc_offset );
 

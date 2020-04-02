@@ -50,44 +50,6 @@ char *appaserver_get_error_filename( char *application_name )
 	return appaserver_error_get_filename( application_name );
 }
 
-#ifdef NOT_DEFINED
-char *appaserver_error_get_filename( char *application_name )
-{
-	static char filename[ 128 ] = {0};
-
-	if ( !application_name )
-	{
-		application_name =
-			environ_get_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
-		strcpy( filename, APPASERVER_ERROR_FILE );
-	}
-	else
-	{
-		char local_application_name[ 128 ];
-		char *database_string = {0};
-
-		timlib_strcpy( local_application_name, application_name, 128 );
-
-		timlib_parse_database_string(	&database_string,
-						local_application_name );
-
-		sprintf(
-		filename,
-		"%s/appaserver_%s.err",
-		appaserver_parameter_file_get_appaserver_error_directory(),
-		local_application_name );
-
-		if ( !timlib_file_exists( filename ) )
-		{
-			strcpy( filename, APPASERVER_ERROR_FILE );
-		}
-	}
-
-	return filename;
-} /* appaserver_error_get_filename() */
-#endif
-
 char *appaserver_error_get_filename( char *application_name )
 {
 	static char filename[ 128 ] = {0};
@@ -195,7 +157,7 @@ void appaserver_error_starting_argv_append_file(
 			"%s %s %s: %s",
 			remote_ip_address,
 		 	date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
-		 	date_get_now_hhmm( date_get_utc_offset() ),
+		 	date_get_now_hhmmss( date_get_utc_offset() ),
 		 	argv[ 0 ] );
 	}
 	else
@@ -203,7 +165,7 @@ void appaserver_error_starting_argv_append_file(
 		fprintf(f,
 			"%s %s: %s",
 		 	date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
-		 	date_get_now_hhmm( date_get_utc_offset() ),
+		 	date_get_now_hhmmss( date_get_utc_offset() ),
 		 	argv[ 0 ] );
 	}
 

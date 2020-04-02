@@ -1357,8 +1357,25 @@ char *date_get_now_time_hhmm( int utc_offset )
 
 } /* date_get_now_time_hhmm() */
 
+char *date_get_now_hhmmss( int utc_offset )
+{
+	char *return_string;
+
+	/* Returns heap memory. */
+	/* -------------------- */
+	return_string = date_get_now_hhmm_colon_ss( utc_offset );
+
+	return search_replace_string(
+			return_string /* source_destination */,
+			":" /* search_str */,
+			"" /* replace_str */ );
+
+} /* date_get_now_hhmmss() */
+
 char *date_get_now_hhmm_colon_ss( int utc_offset )
 {
+	/* Returns heap memory. */
+	/* -------------------- */
 	return date_get_now_time_hhmm_colon_ss( utc_offset );
 }
 
@@ -1443,6 +1460,8 @@ char *date_get_now_hh_colon_mm_colon_ss( int utc_offset )
 
 } /* date_get_now_hh_colon_mm_colon_ss() */
 
+/* Returns heap memory. */
+/* -------------------- */
 char *date_get_now_time_hhmm_colon_ss( int utc_offset )
 {
 	char buffer[ 128 ];
