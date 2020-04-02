@@ -40,7 +40,7 @@ offsite_rsync()
 
 	/usr/bin/time						\
 	rsync -aq --delete	${source_directory}/		\
-				${destination_directory}
+				${destination_directory} 1>&2
 }
 
 parse_parameter_file $parameter_file directory_root
