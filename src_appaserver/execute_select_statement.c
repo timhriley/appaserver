@@ -160,7 +160,7 @@ int main( int argc, char **argv )
 			"select_statement_title" ) == 0 ) )
 	{
 		printf(
-	"<h3>Please choose a select statement or transmit a file.</h3>\n" );
+	"<h3>Please choose a select statement.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}

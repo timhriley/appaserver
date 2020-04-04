@@ -53,6 +53,8 @@ debit_where="$journal_ledger_where and $subquery_where and $development_where an
 
 credit_where="$journal_ledger_where and $subquery_where and $development_where and $credit_amount_where"
 
+echo "select $debit_select from $table where $debit_where;" 1>&2
+
 (
 echo "select $debit_select from $table where $debit_where;"		|
 sql.e									|

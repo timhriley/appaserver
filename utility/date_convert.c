@@ -37,9 +37,11 @@ int main( int argc, char **argv )
 	position_integer_list = get_position_integer_list( argv[ 2 ] );
 	date_convert_format = date_convert_get_date_convert_format( argv[ 3 ] );
 
+/*
 	fprintf( stderr, "%s", *argv );
 	while( --argc ) fprintf( stderr, " %s", *++argv );
 	fprintf( stderr, "\n" );
+*/
 
 	while( get_line( input_buffer, stdin ) )
 	{
