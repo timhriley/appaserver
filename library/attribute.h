@@ -143,6 +143,10 @@ LIST *attribute_using_name_list_extract_attribute_list(
 					LIST *attribute_list,
 					LIST *attribute_name_list );
 
+LIST *attribute_get_list(		char *application_name,
+					char *folder_name,
+					char *role_name );
+
 LIST *attribute_get_attribute_list(	char *application_name,
 					char *folder_name,
 					char *attribute_name,
@@ -207,6 +211,8 @@ LIST *attribute_get_date_attribute_name_list(
 
 LIST *attribute_get_lookup_allowed_attribute_name_list(
 					LIST *attribute_list );
+
+LIST *attribute_get_name_list(		LIST *attribute_list );
 
 LIST *attribute_get_attribute_name_list(LIST *attribute_list );
 

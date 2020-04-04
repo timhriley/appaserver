@@ -23,6 +23,7 @@
 #include "token.h"
 #include "application.h"
 #include "appaserver_link_file.h"
+#include "attribute.h"
 
 /* Structures */
 /* ---------- */
@@ -827,17 +828,22 @@ char *get_select_statement_title(
 
 LIST *get_asteric_column_name_list(	char *application_name,
 					char *role_name,
-					char *table_name )
+					char *folder_name )
 {
-	LIST *describe_list;
+	LIST *attribute_list;
+	LIST *attribute_name_list;
 	LIST *non_selectable_attribute_name_list;
 	char sys_string[ 256 ];
 
-	sprintf(	sys_string,
-			"echo \"describe %s;\" | sql.e | piece.e '^' 0",
-			table_name );
+	attribute_list =
+		attribute_get_list(
+			application_name,
+			folder_name,
+			role_name );
 
-	describe_list = pipe2list( sys_string );
+	attribute_name_list =
+		attribute_get_name_list(
+			attribute_list );
 
 	non_selectable_attribute_name_list =
 		get_non_selectable_attribute_name_list(
@@ -845,7 +851,7 @@ LIST *get_asteric_column_name_list(	char *application_name,
 			role_name );
 
 	return list_subtract_list(
-			describe_list,
+			attribute_name_list,
 			non_selectable_attribute_name_list );
 
 } /* get_asteric_column_name_list() */

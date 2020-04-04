@@ -437,6 +437,19 @@ LIST *attribute_using_name_list_extract_attribute_list(
 
 } /* attribute_using_name_list_extract_attribute_list() */
 
+LIST *attribute_get_list(		char *application_name,
+					char *folder_name,
+					char *role_name )
+{
+	return attribute_get_attribute_list(
+			application_name,
+			folder_name,
+			(char *)0 /* attribute_name */,
+			(LIST *)0 /* mto1_isa_related_folder_list */,
+			role_name );
+
+} /* attribute_get_list() */
+
 LIST *attribute_get_attribute_list(	char *application_name,
 					char *folder_name,
 					char *attribute_name,
@@ -1010,6 +1023,11 @@ LIST *attribute_get_lookup_allowed_attribute_name_list( LIST *attribute_list )
 	return attribute_name_list;
 
 } /* attribute_get_lookup_allowed_attribute_name_list() */
+
+LIST *attribute_get_name_list( LIST *attribute_list )
+{
+	return attribute_get_attribute_name_list( attribute_list );
+}
 
 LIST *attribute_get_attribute_name_list( LIST *attribute_list )
 {
@@ -1617,17 +1635,20 @@ boolean attribute_list_exists_name(
 					LIST *attribute_list,
 					char *attribute_name )
 {
-	return (boolean)attribute_seek_attribute(
-					attribute_list,
-					attribute_name );
+	return (boolean)
+		( attribute_seek_attribute(
+			attribute_list,
+			attribute_name ) == 0 );
+
 } /* attribute_list_exists_name() */
 
 boolean attribute_list_exists(		LIST *attribute_list,
 					char *attribute_name )
 {
-	return (boolean)attribute_seek_attribute(
-					attribute_list,
-					attribute_name );
+	return (boolean)
+		( attribute_seek_attribute(
+			attribute_list,
+			attribute_name ) == 0 );
 }
 
 char *attribute_append_post_change_javascript(
