@@ -1098,7 +1098,7 @@ int hospital_regular_bed_occupied_percent(
 		  	(double)last_capacity->regular_bed_capacity ) * 100.0;
 	}
 
-	return (int)timlib_round_double( occupied_percent );
+	return timlib_round_int( occupied_percent );
 
 }  /* hospital_regular_bed_occupied_percent() */
 
@@ -1129,7 +1129,7 @@ int hospital_ICU_bed_occupied_percent(
 		  	(double)last_capacity->ICU_bed_capacity ) * 100.0;
 	}
 
-	return (int)timlib_round_double( occupied_percent );
+	return timlib_round_int( occupied_percent );
 
 }  /* hospital_ICU_bed_occupied_percent() */
 
