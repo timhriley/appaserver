@@ -931,13 +931,34 @@ CURRENT_BED_CAPACITY *hospital_current_bed_capacity_parse(
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 0 );
 	current_bed_capacity->date_current = strdup( piece_buffer );
 
+	/* Regular Bed Capacity */
+	/* -------------------- */
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 1 );
-	current_bed_capacity->regular_bed_capacity =
-		atoi( piece_buffer );
+
+	if ( !*piece_buffer )
+	{
+		current_bed_capacity->regular_bed_capacity_isnull = 1;
+	}
+	else
+	{
+		current_bed_capacity->regular_bed_capacity =
+			atoi( piece_buffer );
+	}
+
+	/* ICU Bed Capacity */
+	/* ---------------- */
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_line, 2 );
-	current_bed_capacity->ICU_bed_capacity =
-		atoi( piece_buffer );
+
+	if ( !*piece_buffer )
+	{
+		current_bed_capacity->ICU_bed_capacity_isnull = 1;
+	}
+	else
+	{
+		current_bed_capacity->ICU_bed_capacity =
+			atoi( piece_buffer );
+	}
 
 	return current_bed_capacity;
 
@@ -998,35 +1019,53 @@ LIST *hospital_current_bed_capacity_list(
 
 } /* hospital_current_bed_capacity_list() */
 
-int hospital_regular_bed_capacity( CURRENT_BED_CAPACITY *last )
+int hospital_regular_bed_capacity(
+				boolean *regular_bed_capacity_isnull,
+				LIST *current_bed_capacity_list )
 {
-	if ( !last )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: null last.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	CURRENT_BED_CAPACITY *last;
 
-	return last->regular_bed_capacity;
+	*regular_bed_capacity_isnull = 1;
+
+	if ( !list_go_tail( current_bed_capacity_list ) )
+		return 0;
+
+	do {
+		last = list_get_pointer( current_bed_capacity_list );
+
+		if ( !last->regular_bed_capacity_isnull )
+		{
+			*regular_bed_capacity_isnull = 0;
+			return last->regular_bed_capacity;
+		}
+	} while ( list_previous( current_bed_capacity_list ) );
+
+	return 0;
 
 } /* hospital_regular_bed_capacity() */
 
-int hospital_ICU_bed_capacity( CURRENT_BED_CAPACITY *last )
+int hospital_ICU_bed_capacity(
+				boolean *ICU_bed_capacity_isnull,
+				LIST *current_bed_capacity_list )
 {
-	if ( !last )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: null last.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	CURRENT_BED_CAPACITY *last;
 
-	return last->ICU_bed_capacity;
+	*ICU_bed_capacity_isnull = 1;
+
+	if ( !list_go_tail( current_bed_capacity_list ) )
+		return 0;
+
+	do {
+		last = list_get_pointer( current_bed_capacity_list );
+
+		if ( !last->ICU_bed_capacity_isnull )
+		{
+			*ICU_bed_capacity_isnull = 0;
+			return last->ICU_bed_capacity;
+		}
+	} while ( list_previous( current_bed_capacity_list ) );
+
+	return 0;
 
 } /* hospital_ICU_bed_capacity() */
 
@@ -1205,6 +1244,16 @@ HOSPITAL *hospital_fetch(	char *application_name,
 	{
 		hospital = hospital_parse( input_line );
 
+		/* -------------------------------------------- */
+		/* Sets hospital->regular_bed_capacity_isnull	*/
+		/*  and hospital->ICU_bed_capacity_isnull	*/
+		/* -------------------------------------------- */
+		hospital->current_bed_capacity_list =
+			hospital_current_bed_capacity_list(
+				application_name,
+				hospital->hospital_name,
+				hospital->street_address );
+
 		hospital->current_bed_usage_list =
 			hospital_current_bed_usage_list(
 				application_name,
@@ -1219,12 +1268,6 @@ HOSPITAL *hospital_fetch(	char *application_name,
 
 		hospital->current_patient_count_list =
 			hospital_current_patient_count_list(
-				application_name,
-				hospital->hospital_name,
-				hospital->street_address );
-
-		hospital->current_bed_capacity_list =
-			hospital_current_bed_capacity_list(
 				application_name,
 				hospital->hospital_name,
 				hospital->street_address );

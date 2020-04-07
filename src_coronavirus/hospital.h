@@ -48,7 +48,9 @@ typedef struct
 {
 	char *date_current;
 	int regular_bed_capacity;
+	boolean regular_bed_capacity_isnull;
 	int ICU_bed_capacity;
+	boolean ICU_bed_capacity_isnull;
 } CURRENT_BED_CAPACITY;
 
 typedef struct
@@ -271,10 +273,12 @@ LIST *hospital_current_bed_capacity_list(
 				char *street_address );
 
 int hospital_regular_bed_capacity(
-				CURRENT_BED_CAPACITY *last );
+				boolean *regular_bed_capacity_isnull,
+				LIST *current_bed_capacity_list );
 
 int hospital_ICU_bed_capacity(
-				CURRENT_BED_CAPACITY *last );
+				boolean *ICU_bed_capacity_isnull,
+				LIST *current_bed_capacity_list );
 
 int hospital_coronavirus_admitted_daily_change(
 				CURRENT_PATIENT_COUNT *last );

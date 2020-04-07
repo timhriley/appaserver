@@ -264,25 +264,13 @@ void post_change_hospital_update(
 	{
 		hospital->regular_bed_capacity =
 			hospital_regular_bed_capacity(
-				list_get_last_pointer(
-					hospital->
-					current_bed_capacity_list ) );
+				&hospital->regular_bed_capacity_isnull,
+				hospital->current_bed_capacity_list );
 
 		hospital->ICU_bed_capacity =
 			hospital_ICU_bed_capacity(
-				list_get_last_pointer(
-					hospital->
-					current_bed_capacity_list ) );
-
-		/* That column may be blank */
-		/*  ----------------------- */
-		if ( !hospital->ICU_bed_capacity )
-			hospital->ICU_bed_capacity_isnull = 1;
-	}
-	else
-	{
-		hospital->regular_bed_capacity_isnull = 1;
-		hospital->ICU_bed_capacity_isnull = 1;
+				&hospital->ICU_bed_capacity_isnull,
+				hospital->current_bed_capacity_list );
 	}
 
 	/* UPDATE */

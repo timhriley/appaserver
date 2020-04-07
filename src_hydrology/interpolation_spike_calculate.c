@@ -1,8 +1,8 @@
-/* src_hydrology/interpolation_spike_calculate.c		*/
-/* ------------------------------------------------------------ */
-/*								*/
-/* Freely available software: see Appaserver.org		*/
-/* ------------------------------------------------------------ */
+/* $APPASERVER_HOME/src_hydrology/interpolation_spike_calculate.c	*/
+/* -------------------------------------------------------------- 	*/
+/*									*/
+/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------- 	*/
 
 #include <stdio.h>
 #include <stdlib.h>
