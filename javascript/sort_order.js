@@ -206,6 +206,19 @@ function sort_order_renumber( sort_attribute_name )
 	var element_name;
 	var element;
 	var i;
+	var value_string;
+	var value_number;
+	var without_commas;
+
+	i = 1;
+	element_name = sort_attribute_name + '_' + i;
+	element = timlib_get_form_element( element_name, 0 );
+
+	without_commas =
+		timlib_remove_character(
+			element.value, ',' );
+
+	value_number = parseInt( without_commas );
 
 	for(	i = 1;
 		1 == 1;
@@ -216,7 +229,10 @@ function sort_order_renumber( sort_attribute_name )
 
 		if ( element == "" ) break;
 
-		element.value = i;
+		value_string = value_number.toString();
+		element.value = value_string;
+
+		value_number++;
 	}
 
 } // sort_order_renumber()

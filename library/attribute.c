@@ -1645,10 +1645,16 @@ boolean attribute_list_exists_name(
 boolean attribute_list_exists(		LIST *attribute_list,
 					char *attribute_name )
 {
-	return (boolean)
-		( attribute_seek_attribute(
+	ATTRIBUTE *attribute;
+
+	attribute = attribute_seek_attribute(
 			attribute_list,
-			attribute_name ) == 0 );
+			attribute_name );
+
+	if ( attribute )
+		return 1;
+	else
+		return 0;
 }
 
 char *attribute_append_post_change_javascript(

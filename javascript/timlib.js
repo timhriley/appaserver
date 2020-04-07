@@ -498,6 +498,30 @@ function timlib_get_index( attribute_name, element_name )
 
 } // timlib_get_index()
 
+function timlib_remove_character( input_string, remove_character )
+{
+	var len;
+	var i;
+	var ch;
+	var return_string;
+
+	len = input_string.length;
+	return_string = "";
+
+	for ( i = 0; i < len; i++ )
+	{
+		ch = input_string.charAt( i );
+
+		if ( ch != remove_character )
+		{
+			return_string = return_string + ch;
+		}
+	}
+
+	return return_string;
+
+} // timlib_remove_character()
+
 function timlib_remove_index( element_name )
 {
 	var len;

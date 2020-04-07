@@ -20,7 +20,23 @@ fi
 
 echo "$0 $*" 1>&2
 
-select="concat( bank_date, '^',bank_description, ' [', bank_amount, ']' )"
+if [ "$#" -eq 1 ]
+then
+	if [ "$1" = "comma_delimiter" ]
+	then
+		select="bank_date,bank_description,bank_amount"
+		delimiter=","
+	else
+		echo "Usage: $0 [comma_delimiter]" 1>&2
+		exit 1
+	fi
+fi
+
+if [ "$select" = "" ]
+then
+	select="concat(bank_date, '^',bank_description, ' [', bank_amount, ']')"
+	delimiter="^"
+fi
 
 order="sequence_number"
 
@@ -35,7 +51,7 @@ where="not exists (
 			bank_upload_transaction.bank_description )"
 
 echo "select $select from $table where $where order by $order;"		|
-sql.e									|
+sql.e "$delimiter"							|
 # --------------------------
 # Why is there a blank line?
 # --------------------------
