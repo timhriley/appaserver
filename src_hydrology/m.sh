@@ -1,6 +1,6 @@
 :
 
-make output_merged_waterquality
+make interpolation_spike_calculate
 
 #cd - && make parse_alias_data
 

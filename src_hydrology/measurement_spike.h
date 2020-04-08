@@ -75,7 +75,7 @@ void measurement_spike_update_output(
 			FILE *output_pipe,
 			LIST *measurement_list );
 
-LIST *measurement_spike_block_get_measurement_list(
+LIST *measurement_spike_block_measurement_list(
 			/* ------------------------- */
 			/* Starts with the first bad */
 			/* ------------------------- */
