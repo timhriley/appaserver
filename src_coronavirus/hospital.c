@@ -868,7 +868,7 @@ int hospital_coronavirus_patients_without_ventilators_percent(
 			int coronavirus_patients_without_ventilators,
 			CURRENT_PATIENT_COUNT *current_patient_count )
 {
-	int coronavirus_patients_without_ventilators_percent;
+	double return_value;
 
 	if ( !current_patient_count )
 	{
@@ -882,19 +882,18 @@ int hospital_coronavirus_patients_without_ventilators_percent(
 
 	if ( !current_patient_count->coronavirus_current_patient_count )
 	{
-		coronavirus_patients_without_ventilators_percent = 0;
+		return_value = 0.0;
 	}
 	else
 	{
-		coronavirus_patients_without_ventilators_percent =
-			(int)
+		return_value =
 			( ( (double)coronavirus_patients_without_ventilators /
 			    (double)current_patient_count->
 					coronavirus_current_patient_count ) *
 			  100.0 );
 	}
 
-	return coronavirus_patients_without_ventilators_percent;
+	return timlib_round_int( return_value );
 
 } /* hospital_coronavirus_patients_without_ventilators_percent() */
 
