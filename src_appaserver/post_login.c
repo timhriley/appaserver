@@ -120,8 +120,7 @@ int main( int argc, char **argv )
 
 	login_name =
 		timlib_sql_injection_escape(
-			low_string(
-				login_name ) );
+			login_name );
 
 	appaserver_error_login_name_append_file(
 				argc,
