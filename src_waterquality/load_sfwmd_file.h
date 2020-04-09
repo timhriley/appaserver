@@ -95,9 +95,7 @@ void close_pipes(
 				FILE *table_output_pipe,
 				int execute_yn );
 
-void delete_waterquality(
-				char *application_name,
-				char *input_filename );
+void delete_waterquality(	char *input_filename );
 
 int load_sfwmd_file(
 				char *application_name,

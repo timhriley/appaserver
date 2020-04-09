@@ -87,11 +87,11 @@ int main( int argc, char **argv )
 
 	if ( execute_yn == 'y' && delete_yn == 'y' )
 	{
-		delete_waterquality(	application_name,
-					input_filename );
+		delete_waterquality( input_filename );
 	}
 
-	load_count = load_sfwmd_file(
+	load_count =
+		load_sfwmd_file(
 			application_name,
 			input_filename,
 			withhtml,
@@ -163,13 +163,6 @@ int load_sfwmd_file(
 	FILE *error_file;
 	char input_string[ 4096 ];
 	char *missing_heading;
-	char *collection_table_name;
-	char *station_parameter_table_name;
-	char *parameter_unit_table_name;
-	char *station_table_name;
-	char *water_project_station_table_name;
-	char *results_table_name;
-	char *results_exception_table_name;
 	char error_filename[ 128 ];
 	char project_code[ 128 ];
 	char *project_name;
@@ -228,7 +221,6 @@ int load_sfwmd_file(
 	else
 	{
 		html_output_process = "cat";
-
 		strcpy( count_process, "cat" );
 	}
 
@@ -250,9 +242,9 @@ int load_sfwmd_file(
 	if ( timlib_get_line( input_string, input_file, 4096 ) )
 	{
 		if ( ! ( heading_piece_dictionary =
-			get_heading_piece_dictionary(
-						&missing_heading,
-						input_string ) ) )
+				get_heading_piece_dictionary(
+					&missing_heading,
+					input_string ) ) )
 		{
 			if ( withhtml )
 			{
@@ -282,34 +274,6 @@ int load_sfwmd_file(
 		exit( 1 );
 	}
 
-	results_table_name =
-		get_table_name(	application_name,
-				"results" );
-
-	results_exception_table_name =
-		get_table_name(	application_name,
-				"results_exception" );
-
-	collection_table_name =
-		get_table_name(	application_name,
-				"collection" );
-
-	station_parameter_table_name =
-		get_table_name(	application_name,
-				"station_parameter" );
-
-	parameter_unit_table_name =
-		get_table_name(	application_name,
-				"parameter_unit" );
-
-	station_table_name =
-		get_table_name(	application_name,
-				"station" );
-
-	water_project_station_table_name =
-		get_table_name(	application_name,
-				"water_project_station" );
-
 	if ( execute_yn == 'y' )
 	{
 		sprintf( sys_string,
@@ -318,7 +282,7 @@ int load_sfwmd_file(
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "%s						 ",
-		 	results_table_name,
+		 	"results",
 		 	INSERT_RESULTS,
 			count_process,
 			html_output_process );
@@ -330,7 +294,7 @@ int load_sfwmd_file(
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "%s						 ",
-		 	results_exception_table_name,
+		 	"results_exception",
 		 	INSERT_RESULTS_EXCEPTION,
 			html_output_process );
 
@@ -342,7 +306,7 @@ int load_sfwmd_file(
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "%s						 ",
-		 	station_parameter_table_name,
+		 	"station_parameter",
 		 	INSERT_STATION_PARAMETER,
 			html_output_process );
 
@@ -354,7 +318,7 @@ int load_sfwmd_file(
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "%s						 ",
-		 	parameter_unit_table_name,
+		 	"parameter_unit",
 		 	INSERT_PARAMETER_UNIT,
 			html_output_process );
 
@@ -366,7 +330,7 @@ int load_sfwmd_file(
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "%s						 ",
-		 	station_table_name,
+		 	"station",
 		 	INSERT_STATION,
 			html_output_process );
 
@@ -378,7 +342,7 @@ int load_sfwmd_file(
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "%s						 ",
-		 	water_project_station_table_name,
+		 	"water_project_station",
 		 	INSERT_WATER_PROJECT_STATION,
 			html_output_process );
 
@@ -390,7 +354,7 @@ int load_sfwmd_file(
 			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "%s						 ",
-		 	collection_table_name,
+		 	"collection",
 		 	INSERT_COLLECTION,
 			html_output_process );
 
@@ -694,6 +658,7 @@ int load_sfwmd_file(
 				line_number,
 				parameter_string,
 				input_string );
+			continue;
 		}
 
 		get_heading_piece_string(
@@ -897,8 +862,7 @@ int load_sfwmd_file(
 
 #define DELETE_FIELD_LIST	"station,collection_date,collection_time"
 
-void delete_waterquality(	char *application_name,
-				char *input_filename )
+void delete_waterquality( char *input_filename )
 {
 	FILE *input_file;
 	FILE *collection_delete_pipe;
@@ -907,7 +871,6 @@ void delete_waterquality(	char *application_name,
 	char sys_string[ 1024 ];
 	char input_string[ 4096 ];
 	char *missing_heading;
-	char *table_name;
 	char station[ 128 ];
 	char collection_date_time[ 128 ];
 	char collection_date[ 128 ];
@@ -918,29 +881,21 @@ void delete_waterquality(	char *application_name,
 
 	/* Collection */
 	/* ---------- */
-	table_name =
-		get_table_name(
-			application_name, "collection" );
-
 	sprintf( sys_string,
 "sort -u | delete_statement.e t=%s f=%s d='|' | sql.e 2>&1",
-		 table_name,
+		 "collection",
 		 DELETE_FIELD_LIST );
 
 	collection_delete_pipe = popen( sys_string, "w" );
 
 	/* Results */
 	/* ------- */
-	table_name =
-		get_table_name(
-			application_name, "results" );
-
 	sprintf( sys_string,
 		 "sort -u						|"
 		 "delete_statement.e t=%s f=%s d='|'			|"
 		 "count.e %d 'WQ delete collection count'		|"
 		 "sql.e 2>&1						 ",
-		 table_name,
+		 "results",
 		 DELETE_FIELD_LIST,
 		 STDERR_COUNT );
 
@@ -948,13 +903,9 @@ void delete_waterquality(	char *application_name,
 
 	/* Results_Exception */
 	/* ----------------- */
-	table_name =
-		get_table_name(
-			application_name, "results_exception" );
-
 	sprintf( sys_string,
 "sort -u | delete_statement.e t=%s f=%s d='|' | sql.e 2>&1",
-		 table_name,
+		 "results_exception",
 		 DELETE_FIELD_LIST );
 
 	results_exception_delete_pipe = popen( sys_string, "w" );
@@ -1462,7 +1413,7 @@ void insert_results_exception(
 {
 	if ( results_exception_insert_pipe )
 	{
-		fprintf( results_exception_insert_pipe,
+		fprintf(results_exception_insert_pipe,
 		 	"%s|%s|%s|%s|%s|%s\n",
 		 	station,
 		 	collection_date_international,
