@@ -104,7 +104,7 @@ int main( int argc, char **argv )
 			application_name );
 	}
 
-	database_string = application_name;
+	database_string = low_string( application_name );
 
 	add_utility_to_path();
 	add_src_appaserver_to_path();
@@ -118,7 +118,10 @@ int main( int argc, char **argv )
 		login_denied = 1;
 	}
 
-	login_name = timlib_sql_injection_escape( login_name );
+	login_name =
+		timlib_sql_injection_escape(
+			low_string(
+				login_name ) );
 
 	appaserver_error_login_name_append_file(
 				argc,

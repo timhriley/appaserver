@@ -88,6 +88,8 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	low_string( application_name );
+
 	environ_set_environment(
 		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 		application_name );
@@ -106,6 +108,11 @@ int main( int argc, char **argv )
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
+
+	login_name =
+		timlib_sql_injection_escape(
+			low_string(
+				login_name ) );
 
 	appaserver_error_login_name_append_file(
 				argc,
