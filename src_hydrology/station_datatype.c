@@ -605,6 +605,7 @@ LIST *station_datatype_fetch_measurement_list(
 
 STATION_DATATYPE *station_datatype_get_or_set(
 			LIST *station_datatype_list,
+			char *application_name,
 			char *station_name,
 			char *datatype_name )
 {
@@ -619,9 +620,12 @@ STATION_DATATYPE *station_datatype_get_or_set(
 		return station_datatype;
 	}
 
-	station_datatype = station_datatype_new();
-	station_datatype->station_name = strdup( station_name );
-	station_datatype->datatype = datatype_new( strdup( datatype_name ) );
+	station_datatype =
+		station_datatype_fetch_new(
+			application_name,
+			strdup( station_name ),
+			strdup( datatype_name ) );
+
 	list_append_pointer( station_datatype_list, station_datatype );
 
 	return station_datatype;

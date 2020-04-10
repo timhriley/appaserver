@@ -65,12 +65,14 @@ MM/DD/YYYY |        |    |      |   |
 
 /* Prototypes */
 /* ---------- */
-void output_bad_records(char *bad_insert_file );
+void output_bad_records(char *shef_bad_file,
+			char *insert_bad_file );
 
 char *get_station(	char *full_filename );
 
 void satlink_upload(	char *filename,
 			char *shef_bad_file,
+			char *insert_bad_file,
 			boolean change_existing_data,
 			boolean execute,
 			char *station_name,
@@ -87,9 +89,11 @@ int main( int argc, char **argv )
 	boolean execute;
 	char *argv_0;
 	char shef_bad_file[ 128 ];
+	char insert_bad_file[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 1024 ];
 	boolean nohtml;
+	int pid = getpid();
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -159,13 +163,20 @@ int main( int argc, char **argv )
 	}
 
 	sprintf( shef_bad_file,
-		 "%s/satlink_bad_%d.dat",
+		 "%s/satlink_shef_%d.dat",
 		 appaserver_parameter_file->
 		 	appaserver_data_directory,
-		 getpid() );
+		 pid );
+
+	sprintf( insert_bad_file,
+		 "%s/satlink_insert_%d.dat",
+		 appaserver_parameter_file->
+		 	appaserver_data_directory,
+		 pid );
 
 	satlink_upload(	filename, 
 			shef_bad_file,
+			insert_bad_file,
 			change_existing_data,
 			execute,
 			station_name,
@@ -194,6 +205,7 @@ int main( int argc, char **argv )
 
 void satlink_upload(	char *filename,
 			char *shef_bad_file,
+			char *insert_bad_file,
 			boolean change_existing_data,
 			boolean execute,
 			char *station_name,
@@ -231,16 +243,18 @@ void satlink_upload(	char *filename,
 
 	sprintf( sys_string,
 	"cat %s			      	     	|"
-	"%s					|"
+	"%s 2>%s				|"
 	"%s 2>%s		  	      	 ",
 			 filename,
 			 shef_process,
+			 shef_bad_file,
 			 insert_process,
-			 shef_bad_file );
+			 insert_bad_file );
 
 	if ( system( sys_string ) ) {};
 
-	output_bad_records( shef_bad_file );
+	output_bad_records(	shef_bad_file,
+				insert_bad_file );
 
 } /* satlink_upload() */
 
@@ -306,13 +320,15 @@ char *get_station( char *full_filename )
 
 } /* get_station() */
 
-void output_bad_records( char *bad_insert_file )
+void output_bad_records( char *shef_bad_file,
+			 char *insert_bad_file )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"cat %s | html_table.e '^^Bad Records' '' ''",
-	 	bad_insert_file );
+	"cat %s %s | html_table.e '^^Bad Records' '' ''",
+	 	shef_bad_file,
+		insert_bad_file );
 
 	if ( system( sys_string ) ){};
 

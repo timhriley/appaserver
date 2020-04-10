@@ -125,7 +125,6 @@ char *shef_datatype_code_get_shef_download_code(
 
 } /* shef_datatype_code_get_shef_download_code() */
 
-
 char *shef_upload_datatype_get_key(	char *datatype_name,
 					char *measurement_date,
 					char *measurement_time )
@@ -582,48 +581,6 @@ LIST *shef_datatype_code_fetch_upload_datatype_list(
 			datatype_name );
 
 } /* shef_datatype_code_fetch_upload_datatype_list() */
-
-char *shef_get_upload_default_datatype_name(
-				char *station,
-				char *shef_code,
-				LIST *shef_upload_datatype_list,
-				LIST *station_datatype_list )
-{
-	SHEF_UPLOAD_DATATYPE *datatype;
-	STATION_DATATYPE *station_datatype;
-
-	if ( ( datatype =
-			shef_get_upload_datatype(
-				station,
-				shef_code /* shef_upload_code */,
-				shef_upload_datatype_list ) ) )
-	{
-		return datatype->datatype_name;
-	}
-	else
-	if ( ( datatype =
-			shef_get_upload_datatype(
-				SHEF_DEFAULT_UPLOAD_STATION,
-				shef_code /* shef_upload_code */,
-				shef_upload_datatype_list ) ) )
-	{
-		return datatype->datatype_name;
-	}
-	else
-	if ( ( station_datatype =
-			station_datatype_seek(
-				station_datatype_list,
-				station,
-				shef_code /* datatype_name */ ) ) )
-	{
-		return station_datatype->datatype->datatype_name;
-	}
-	else
-	{
-		return "";
-	}
-
-} /* shef_get_upload_default_datatype_name() */
 
 char *shef_datatype_code_translate_datatype_name(
 				LIST *shef_upload_datatype_list,

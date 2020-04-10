@@ -110,6 +110,7 @@ LIST *station_datatype_fetch_measurement_list(
 
 STATION_DATATYPE *station_datatype_get_or_set(
 			LIST *station_datatype_list,
+			char *application_name,
 			char *station_name,
 			char *datatype_name );
 

@@ -428,7 +428,7 @@ int main( int argc, char **argv )
 			"" /* title */,
 			"y" /* content_type_yn */,
 			appaserver_error_get_filename( application_name ) );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	}
 
 /*
@@ -436,7 +436,7 @@ appaserver_output_error_message(
 	application_name, process->executable, login_name );
 */
 
-	system( process->executable );
+	if ( system( process->executable ) ){};
 
 	exit( 0 );
 

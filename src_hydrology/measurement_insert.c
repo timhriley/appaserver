@@ -105,6 +105,7 @@ int main( int argc, char **argv )
 		if ( ! ( station_datatype =
 				station_datatype_get_or_set(
 					station_datatype_list,
+					application_name,
 					m->measurement->station_name,
 					m->measurement->datatype ) ) )
 		{

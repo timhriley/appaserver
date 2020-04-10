@@ -97,6 +97,13 @@ char *hydrology_translate_datatype_name(
 			return datatype_name;
 		}
 
+		if ( list_exists_string(
+			station_datatype->alias_name_list,
+			datatype_seek_phrase ) )
+		{
+			return station_datatype->datatype->datatype_name;
+		}
+
 	} while ( list_next( station_datatype_list ) );
 
 	return (char *)0;
