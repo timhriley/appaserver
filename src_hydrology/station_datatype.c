@@ -959,6 +959,8 @@ char *station_datatype_frequency_display(
 
 } /* station_datatype_frequency_display() */
 
+#define STATION_DATATYPE_ALIAS	"station_datatype_alias"
+
 LIST *station_datatype_alias_name_list(
 				char *application_name,
 				char *station_name,
@@ -966,13 +968,16 @@ LIST *station_datatype_alias_name_list(
 {
 	char sys_string[ 1024 ];
 
+	if ( !folder_table_exists( STATION_DATATYPE_ALIAS ) )
+		return (LIST *)0;
+
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=datatype_alias		"
 		 "			folder=%s			"
 		 "			where=\"%s\"			",
 		 application_name,
-		 "station_datatype_alias",
+		 STATION_DATATYPE_ALIAS,
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
