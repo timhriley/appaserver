@@ -458,10 +458,14 @@ int main( int argc, char **argv )
 				date_time_delimiter,
 				zulu_time );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		sprintf( sys_string, "cat %s", output_filename );
-		system( sys_string );
+		if ( system( sys_string ) ){};
+
+		sprintf( sys_string, "rm %s", output_filename );
+		if ( system( sys_string ) ){};
+
 	}
 	else
 	if ( output_medium == text_file
@@ -495,7 +499,7 @@ int main( int argc, char **argv )
 				date_time_delimiter,
 				zulu_time );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		document = document_new( "", application_name );
 		document_set_output_content_type( document );
@@ -522,7 +526,7 @@ int main( int argc, char **argv )
 			printf( "<h1>Measurement Transmission<br></h1>\n" );
 			printf( "<h2>\n" );
 			fflush( stdout );
-			system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+			if ( system( timlib_system_date_string() ) ){};
 			fflush( stdout );
 			printf( "</h2>\n" );
 		
@@ -545,11 +549,11 @@ int main( int argc, char **argv )
 				 output_filename,
 				 where_clause,
 				 email_address );
-			system( sys_string );
+			if ( system( sys_string ) ){};
 			printf( "<h1>Measurement Transmission<br></h1>\n" );
 			printf( "<h2>\n" );
 			fflush( stdout );
-			system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+			if ( system( timlib_system_date_string() ) ){};
 			fflush( stdout );
 			printf( "</h2>\n" );
 		
