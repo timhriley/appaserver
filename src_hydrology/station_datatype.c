@@ -512,16 +512,13 @@ STATION_DATATYPE *station_datatype_parse(
 			station_datatype->station_name,
 			station_datatype->datatype->datatype_name );
 
-	if ( shef_upload_datatype_list )
-	{
-		station_datatype->shef_upload_code =
-			shef_datatype_code_seek_upload_code(
-		   	     /* -------------------------------------------- */
-		   	     /* Only shef_upload_datatpe_list for a station. */
-		   	     /* -------------------------------------------- */
-		   	     shef_upload_datatype_list,
-		   	     station_datatype->datatype->datatype_name );
-	}
+	station_datatype->shef_upload_code =
+		shef_datatype_code_seek_upload_code(
+	   	     /* -------------------------------------------- */
+	   	     /* Only shef_upload_datatpe_list for a station. */
+	   	     /* -------------------------------------------- */
+	   	     shef_upload_datatype_list,
+	   	     station_datatype->datatype->datatype_name );
 
 	piece( piece_buffer, '|', input_buffer, 2 );
 	station_datatype->datatype->units = units_new();
