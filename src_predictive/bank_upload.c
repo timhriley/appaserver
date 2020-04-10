@@ -1208,13 +1208,13 @@ void bank_upload_set_transaction(
 		bank_upload_list,
 		existing_cash_journal_ledger_list );
 
-	bank_upload_match_sum_existing_journal_ledger_list(
-		bank_upload_list,
-		existing_cash_journal_ledger_list );
-
 	bank_upload_feeder_phrase_match_build_transaction(
 		bank_upload_list,
 		reoccurring_transaction_list );
+
+	bank_upload_match_sum_existing_journal_ledger_list(
+		bank_upload_list,
+		existing_cash_journal_ledger_list );
 
 } /* bank_upload_set_transaction() */
 

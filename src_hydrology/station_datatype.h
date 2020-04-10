@@ -28,11 +28,12 @@ typedef struct
 	LIST *measurement_list;
 	int measurement_count;
 	LIST *data_collection_frequency_list;
+	LIST *alias_name_list;
 } STATION_DATATYPE;
 
 /* Operations */
 /* ---------- */
-STATION_DATATYPE *station_datatype_list_seek(
+STATION_DATATYPE *station_datatype_seek(
 				LIST *station_datatype_list,
 				char *station,
 				char *datatype );
@@ -141,5 +142,16 @@ boolean station_datatype_expected_count_reject(
 
 char *station_datatype_frequency_display(
 			LIST *data_collection_frequency_list );
+
+/* Returns program memory */
+/* ---------------------- */
+char *station_datatype_where(
+			char *station,
+			char *datatype );
+
+LIST *station_datatype_alias_name_list(
+			char *application_name,
+			char *station_name,
+			char *datatype_name );
 
 #endif

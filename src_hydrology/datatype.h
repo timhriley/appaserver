@@ -71,7 +71,7 @@ char *datatype_get_units_string(
 DATATYPE *datatype_unit_record2datatype(
 			char *record );
 
-DATATYPE *datatype_record2datatype(
+DATATYPE *datatype_parse(
 			char *application_name,
 			char *record );
 

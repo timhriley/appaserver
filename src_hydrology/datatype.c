@@ -280,7 +280,7 @@ LIST *datatype_with_station_name_get_datatype_list(
 
 	while( timlib_get_line( buffer, input_pipe, 1024 ) )
 	{
-		datatype = datatype_record2datatype(
+		datatype = datatype_parse(
 				application_name,
 				buffer );
 
@@ -487,7 +487,7 @@ boolean datatype_bar_chart(
 
 } /* datatype_bar_chart() */
 
-DATATYPE *datatype_record2datatype(	char *application_name,
+DATATYPE *datatype_parse(		char *application_name,
 					char *record )
 {
 	DATATYPE *datatype;
@@ -566,7 +566,7 @@ DATATYPE *datatype_record2datatype(	char *application_name,
 
 	return datatype;
 
-} /* datatype_record2datatype() */
+} /* datatype_parse() */
 
 LIST *datatype_fetch_list( char *application_name )
 {
@@ -595,7 +595,7 @@ LIST *datatype_list_get( char *application_name )
 
 	while( get_line( buffer, input_pipe ) )
 	{
-		datatype = datatype_record2datatype( application_name, buffer );
+		datatype = datatype_parse( application_name, buffer );
 		list_append_pointer( datatype_list, datatype );
 	}
 
@@ -895,7 +895,7 @@ DATATYPE *datatype_seek_phrase(
 	}
 
 	if ( ! ( station_datatype =
-			station_datatype_list_seek(
+			station_datatype_seek(
 				station_datatype_list,
 				station_name,
 				datatype_name ) ) )

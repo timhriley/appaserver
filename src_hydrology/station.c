@@ -779,3 +779,13 @@ STATION *station_get_or_set_station(
 
 } /* station_get_or_set_station() */
 
+LIST *station_fetch_station_datatype_list(
+			char *application_name,
+			char *station_name )
+{
+	return station_datatype_fetch_list(
+			application_name,
+			station_name,
+			(LIST *)0 /* shef_upload_datatype_list */ );
+}
+

@@ -132,4 +132,8 @@ STATION *station_get_or_set_station(
 			char *application_name,
 			char *station_name );
 
+LIST *station_fetch_station_datatype_list(
+			char *application_name,
+			char *station_name );
+
 #endif

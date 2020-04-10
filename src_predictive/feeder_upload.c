@@ -269,38 +269,6 @@ char *feeder_upload_trim_bank_date_from_description(
 
 } /* feeder_upload_trim_bank_date_from_description() */
 
-TRANSACTION *feeder_phrase_match_new_transaction(
-				char *full_name,
-				char *street_address,
-				char *bank_date,
-				double bank_amount )
-{
-	TRANSACTION *transaction;
-
-	transaction =
-		ledger_transaction_new(
-			full_name,
-			street_address,
-			ledger_get_transaction_date_time(
-				bank_date /* transaction_date */ ),
-			(char *)0 /* memo */ );
-
-	transaction->transaction_amount =
-		float_abs( bank_amount );
-
-	return transaction;
-
-} /* feeder_phrase_match_new_transaction() */
-
-TRANSACTION *feeder_check_number_existing_transaction(
-				LIST *transaction_list,
-				int check_number )
-{
-	return ledger_check_number_seek_transaction(
-			transaction_list,
-			check_number );
-}
-
 JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger(
 				LIST *existing_cash_journal_ledger_list,
 				int check_number )

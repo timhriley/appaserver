@@ -611,7 +611,7 @@ char *shef_get_upload_default_datatype_name(
 	}
 	else
 	if ( ( station_datatype =
-			station_datatype_list_seek(
+			station_datatype_seek(
 				station_datatype_list,
 				station,
 				shef_code ) ) )

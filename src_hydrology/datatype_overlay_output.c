@@ -1278,9 +1278,10 @@ GRACE_DATATYPE_OVERLAY_INPUT_GROUP *get_grace_datatype_overlay_input_group(
 	/* --------------- */
 	station_datatype =
 		station_datatype_get_station_datatype(
-						application_name,
-						anchor_station,
-						anchor_datatype );
+				application_name,
+				anchor_station,
+				anchor_datatype );
+
 	if ( ! station_datatype )
 	{
 		fprintf( stderr,

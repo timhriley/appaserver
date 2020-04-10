@@ -39,9 +39,9 @@ LIST *station_datatype_get_station_datatype_list(
 
 		if ( ! ( station_datatype =
 				station_datatype_get_station_datatype(
-						application_name,
-						station,
-						datatype ) ) )
+					application_name,
+					station,
+					datatype ) ) )
 		{
 			return (LIST *)0;
 		}
@@ -149,11 +149,17 @@ STATION_DATATYPE *station_datatype_fetch_new(
 
 	station_datatype->datatype = datatype_new( datatype_name );
 
+	station_datatype->alias_name_list =
+		station_datatype_alias_name_list(
+			application_name,
+			station_datatype->station_name,
+			station_datatype->datatype->datatype_name );
+
 	return station_datatype;
 
 } /* station_datatype_fetch_new() */
 
-STATION_DATATYPE *station_datatype_list_seek(
+STATION_DATATYPE *station_datatype_seek(
 				LIST *station_datatype_list,
 				char *station_name,
 				char *datatype_name )
@@ -199,7 +205,7 @@ STATION_DATATYPE *station_datatype_list_seek(
 
 	return (STATION_DATATYPE *)0;
 
-} /* station_datatype_list_seek() */
+} /* station_datatype_seek() */
 
 void station_datatype_free( STATION_DATATYPE *station_datatype )
 {
@@ -234,16 +240,35 @@ STATION_DATATYPE *station_datatype_new( void )
 
 } /* station_datatype_new() */
 
+/* Returns program memory */
+/* ---------------------- */
+char *station_datatype_where(	char *station,
+				char *datatype )
+{
+	static char where[ 256 ];
+
+	sprintf(	where,
+			"station = '%s' and datatype = '%s'",
+			station,
+			datatype );
+
+	return where;
+
+} /* station_datatype_where() */
+
 char *station_datatype_get_manipulate_agency(
 				char *application_name,
 				char *station,
 				char *datatype )
 {
 	char sys_string[ 1024 ];
-	char where[ 256 ];
+	char *where;
 
-	sprintf(	where,
-			"station = '%s' and datatype = '%s'",
+	where =
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		station_datatype_where(
 			station,
 			datatype );
 
@@ -481,13 +506,22 @@ STATION_DATATYPE *station_datatype_parse(
 			application_name,
 			station_datatype->datatype->datatype_name );
 
-	station_datatype->shef_upload_code =
-		shef_datatype_code_seek_upload_code(
-		   /* -------------------------------------------- */
-		   /* Only shef_upload_datatpe_list for a station. */
-		   /* -------------------------------------------- */
-		   shef_upload_datatype_list,
-		   station_datatype->datatype->datatype_name );
+	station_datatype->alias_name_list =
+		station_datatype_alias_name_list(
+			application_name,
+			station_datatype->station_name,
+			station_datatype->datatype->datatype_name );
+
+	if ( shef_upload_datatype_list )
+	{
+		station_datatype->shef_upload_code =
+			shef_datatype_code_seek_upload_code(
+		   	     /* -------------------------------------------- */
+		   	     /* Only shef_upload_datatpe_list for a station. */
+		   	     /* -------------------------------------------- */
+		   	     shef_upload_datatype_list,
+		   	     station_datatype->datatype->datatype_name );
+	}
 
 	piece( piece_buffer, '|', input_buffer, 2 );
 	station_datatype->datatype->units = units_new();
@@ -558,37 +592,6 @@ LIST *station_datatype_fetch_measurement_list(
 	return measurement_list;
 
 } /* station_datatype_fetch_measurement_list() */
-
-STATION_DATATYPE *station_datatype_seek(
-			LIST *station_datatype_list,
-			char *station_name,
-			char *datatype_name )
-{
-	STATION_DATATYPE *station_datatype;
-
-	if ( !list_rewind( station_datatype_list ) )
-		return (STATION_DATATYPE *)0;
-
-	do {
-		station_datatype =
-			list_get_pointer(
-				station_datatype_list );
-
-		if ( timlib_strcmp(	station_name,
-					station_datatype->station_name ) == 0
-		&&   timlib_strcmp(	datatype_name,
-					station_datatype->
-						datatype->
-						datatype_name ) == 0 )
-		{
-			return station_datatype;
-		}
-
-	} while( list_next( station_datatype_list ) );
-
-	return (STATION_DATATYPE *)0;
-
-} /* station_datatype_seek() */
 
 STATION_DATATYPE *station_datatype_get_or_set(
 			LIST *station_datatype_list,
@@ -958,4 +961,29 @@ char *station_datatype_frequency_display(
 	return strdup( return_buffer );
 
 } /* station_datatype_frequency_display() */
+
+LIST *station_datatype_alias_name_list(
+				char *application_name,
+				char *station_name,
+				char *datatype_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=datatype_alias		"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 "station_datatype_alias",
+		 /* ---------------------- */
+		 /* Returns program memory */
+		 /* ---------------------- */
+		 station_datatype_where(
+			station_name,
+			datatype_name ) );
+
+	return pipe2list( sys_string );
+
+} /* station_datatype_alias_name_list() */
 
