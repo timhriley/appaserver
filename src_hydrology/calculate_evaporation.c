@@ -64,22 +64,20 @@ int main( int argc, char **argv )
 	char really_yn;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *session;
-	char *login_name;
-	char *role_name;
 	char *database_string = {0};
 
 	if ( argc != 9 )
 	{
 		fprintf(stderr,
-"Usage: %s application session login_name role station begin_date end_date really_yn\n",
+"Usage: %s application session ignored ignored station begin_date end_date really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	application_name = argv[ 1 ];
 	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
+	/* login_name = argv[ 3 ]; */
+	/* role_name = argv[ 4 ]; */
 	station = argv[ 5 ];
 	begin_date = argv[ 6 ];
 	end_date = argv[ 7 ];

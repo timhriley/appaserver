@@ -614,7 +614,7 @@ char *shef_get_upload_default_datatype_name(
 			station_datatype_seek(
 				station_datatype_list,
 				station,
-				shef_code ) ) )
+				shef_code /* datatype_name */ ) ) )
 	{
 		return station_datatype->datatype->datatype_name;
 	}

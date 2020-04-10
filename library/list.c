@@ -203,6 +203,8 @@ boolean list_exists_string_beginning( LIST *list, char *string )
 
 	if ( !list_rewind( list ) ) return 0;
 
+	if ( !string ) return 0;
+
 	do {
 		item = list_get_pointer( list );
 
@@ -221,26 +223,41 @@ boolean list_item_exists( LIST *list, char *item, int (*match_fn)() )
 
 boolean list_exists( LIST *list, char *item, int (*match_fn)() )
 {
+	if ( !list ) return 0;
+	if ( !item ) return 0;
+
 	return item_exists( list, item, match_fn );
 }
 
 boolean list_search_string( LIST *list, char *string )
 {
+	if ( !list ) return 0;
+	if ( !string ) return 0;
+
 	return list_exists_string( list, string );
 }
 
 boolean list_string_exists( LIST *list, char *string )
 {
+	if ( !list ) return 0;
+	if ( !string ) return 0;
+
 	return item_exists( list, string, list_strcmp );
 }
 
 boolean list_exists_string( LIST *list, char *string )
 {
+	if ( !list ) return 0;
+	if ( !string ) return 0;
+
 	return item_exists( list, string, list_strcmp );
 }
 
 boolean list_exists_any_index_string( LIST *list, char *string )
 {
+	if ( !list ) return 0;
+	if ( !string ) return 0;
+
 	return item_exists( list, string, list_string_index_compare );
 }
 

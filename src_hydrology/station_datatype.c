@@ -176,14 +176,22 @@ STATION_DATATYPE *station_datatype_seek(
 		{
 			if ( timlib_strcmp(	station_datatype->
 							station_name,
-						station_name ) == 0
-			&&   station_datatype->datatype
-			&&   timlib_strcmp(	station_datatype->
-							datatype->
-							datatype_name,
-						datatype_name ) == 0 )
+						station_name ) == 0 )
 			{
-				return station_datatype;
+				if ( !station_datatype->datatype ) continue;
+
+				if ( timlib_strcmp(
+					station_datatype->
+						datatype->
+						datatype_name,
+					datatype_name ) == 0
+				||   list_exists_string(
+					station_datatype->alias_name_list,
+					datatype_name
+						/* datatype_alias_name */ ) )
+				{
+					return station_datatype;
+				}
 			}
 		}
 		else
@@ -191,11 +199,16 @@ STATION_DATATYPE *station_datatype_seek(
 		/* No station_name */
 		/* --------------- */
 		{
-			if ( station_datatype->datatype
-			&&   timlib_strcmp(	station_datatype->
-							datatype->
-							datatype_name,
-						datatype_name ) == 0 )
+			if ( !station_datatype->datatype ) continue;
+
+			if ( timlib_strcmp(
+				station_datatype->
+					datatype->
+					datatype_name,
+				datatype_name ) == 0
+			||   list_exists_string(
+				station_datatype->alias_name_list,
+				datatype_name /* datatype_alias_name */ ) )
 			{
 				return station_datatype;
 			}
@@ -607,12 +620,10 @@ STATION_DATATYPE *station_datatype_get_or_set(
 	}
 
 	station_datatype = station_datatype_new();
-
 	station_datatype->station_name = strdup( station_name );
-
 	station_datatype->datatype = datatype_new( strdup( datatype_name ) );
-
 	list_append_pointer( station_datatype_list, station_datatype );
+
 	return station_datatype;
 
 } /* station_datatype_get_or_set() */
@@ -967,9 +978,6 @@ LIST *station_datatype_alias_name_list(
 				char *datatype_name )
 {
 	char sys_string[ 1024 ];
-
-	if ( !folder_table_exists( STATION_DATATYPE_ALIAS ) )
-		return (LIST *)0;
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"

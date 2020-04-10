@@ -113,11 +113,6 @@ STATION_DATATYPE *station_datatype_get_or_set(
 			char *station_name,
 			char *datatype_name );
 
-STATION_DATATYPE *station_datatype_seek(
-			LIST *station_datatype_list,
-			char *station_name,
-			char *datatype_name );
-
 void station_datatype_html_display(
 			LIST *station_datatype_list );
 
