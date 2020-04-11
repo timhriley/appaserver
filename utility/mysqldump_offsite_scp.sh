@@ -40,15 +40,20 @@ offsite_scp()
 	destination_directory=$2
 	date_no_dashes=$3
 
+
 	pwd=`pwd`
 	cd $source_directory
 
-	for file in `	ls -1 2>&1 | grep -vi 'no such file'	|\
+	for file in `	ls -1 2>&1			|\
+			grep -vi 'no such file'		|\
 			grep $date_no_dashes`
 	do
+		destination_file=`echo $file | sed "s/_${date_no_dashes}//"`
+		full_path=${destination_directory}/${destination_file}
+
 		/usr/bin/time						\
 		scp 	${file}						\
-			${destination_directory} 1>&2
+			${full_path} 1>&2
 	done
 
 	cd $pwd
