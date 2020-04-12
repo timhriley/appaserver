@@ -12,10 +12,14 @@
 LIST *column2list(	char *s );
 
 char *column(		char *destination, 
-			int field_offset, 
+			int field_offset,
 			char *source );
 
 int count_columns(	char *s );
+
+char *column_last(	char *destination,
+			char *source );
+
 int column_count(	char *s );
 
 int column_get_str(	char *buffer,

@@ -21,6 +21,21 @@ int column_count( char *string )
 	return count_columns( string );
 }
 
+char *column_last(	char *destination,
+			char *source )
+{
+	int count;
+
+	count = column_count( source );
+
+	if ( !count ) return (char *)0;
+
+	return column(	destination, 
+			count - 1 /* field_offset */,
+			source );
+
+} /* column_last() */
+
 int count_columns( char *string )
 {
 	char put_here[ 1024 ];
@@ -43,7 +58,7 @@ int count_columns( char *string )
 
 
 char *column(	char *destination, 
-		int field_offset, 
+		int field_offset,
 		char *string )
 {
 	int this_column = 0;
