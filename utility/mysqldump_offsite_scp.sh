@@ -52,8 +52,7 @@ offsite_scp()
 		full_path=${destination_directory}/${destination_file}
 
 		/usr/bin/time						\
-		scp 	${file}						\
-			${full_path} 1>&2
+		rsync -a ${file} ${full_path} 1>&2
 	done
 
 	cd $pwd
