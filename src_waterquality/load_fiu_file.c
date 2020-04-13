@@ -130,7 +130,6 @@ int main( int argc, char **argv )
 				input_filename,
 				water_quality->
 					input.
-					water_project->
 					parameter_unit_list,
 				water_quality->
 					input.
@@ -466,7 +465,7 @@ int load_concentration_file(
 	}
 
 	sprintf( sys_string, "rm %s", error_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	return load_count;
 

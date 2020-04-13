@@ -344,35 +344,39 @@ WATER_QUALITY *water_quality_new(	char *application_name,
 	}
 
 	w->input.parameter_name_list =
-		water_fetch_parameter_name_list(
+		water_parameter_name_list(
 			application_name );
 
 	w->input.unit_name_list =
-		water_fetch_unit_name_list(
+		water_unit_name_list(
 			application_name );
 
 	w->input.parameter_alias_list =
-		water_fetch_parameter_alias_list(
+		water_parameter_alias_list(
 			application_name );
 
 	w->input.unit_alias_list =
-		water_fetch_unit_alias_list(
+		water_unit_alias_list(
 			application_name );
 
 	w->input.exception_list =
-		water_fetch_exception_list(
+		water_exception_list(
+			application_name );
+
+	w->input.parameter_unit_list =
+		water_parameter_unit_list(
 			application_name );
 
 	w->input.water_project =
-		water_project_new(	application_name,
-					project_name );
+		water_project_new(
+			application_name,
+			project_name );
 
 	return w;
 
 } /* water_quality_new() */
 
-WATER_PROJECT *water_project_new(	char *application_name,
-					char *project_name )
+WATER_PROJECT *water_project_calloc( void )
 {
 	WATER_PROJECT *w;
 
@@ -386,17 +390,27 @@ WATER_PROJECT *water_project_new(	char *application_name,
 		exit( 1 );
 	}
 
-	w->parameter_unit_list =
-		water_fetch_parameter_unit_list(
-			application_name,
-			project_name );
+	return w;
 
-	w->station_list =
-		water_fetch_station_list(
-			application_name,
-			project_name );
+} /* water_project_calloc() */
+
+WATER_PROJECT *water_project_new(	char *application_name,
+					char *project_name )
+{
+	WATER_PROJECT *w;
+
+	w = water_project_calloc();
+
+	if ( project_name )
+	{
+		w->station_list =
+			water_station_list(
+				application_name,
+				project_name );
+	}
 
 	return w;
+
 } /* water_project_new() */
 
 STATION_PARAMETER *water_new_station_parameter( void )
@@ -477,7 +491,7 @@ PARAMETER_ALIAS *water_new_parameter_alias( void )
 	return w;
 } /* water_new_parameter_alias() */
 
-STATION *water_new_station( void )
+STATION *water_station_calloc( void )
 {
 	STATION *w;
 
@@ -491,7 +505,7 @@ STATION *water_new_station( void )
 		exit( 1 );
 	}
 	return w;
-} /* water_new_station() */
+} /* water_station_calloc() */
 
 COLLECTION *water_collection_new( void )
 {
@@ -515,12 +529,16 @@ PARAMETER_UNIT *water_parameter_unit_new(	char *parameter_name,
 	return water_new_parameter_unit( parameter_name, units );
 }
 
-LIST *water_fetch_station_list(		char *application_name,
+char *water_station_select( void )
+{
+	return "station.station,longitude,latitude";
+}
+
+LIST *water_station_list(		char *application_name,
 					char *project_name )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
-	char piece_buffer[ 128 ];
 	FILE *input_pipe;
 	char *select;
 	char *folder;
@@ -529,7 +547,7 @@ LIST *water_fetch_station_list(		char *application_name,
 	STATION *station;
 	LIST *station_list;
 
-	select = "station.station,longitude,latitude";
+	select = water_station_select();
 	folder = "water_project_station,station";
 	join_where = "water_project_station.station = station.station";
 
@@ -553,28 +571,15 @@ LIST *water_fetch_station_list(		char *application_name,
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		station = water_new_station();
-
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			0 );
-		station->station_name = strdup( piece_buffer );
-
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			1 );
-		station->longitude = strdup( piece_buffer );
-
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			2 );
-		station->latitude = strdup( piece_buffer );
+		station = water_station_parse( input_buffer );
 
 		station->station_parameter_list =
-			water_fetch_station_parameter_list(
+			water_station_parameter_list(
+				application_name,
+				station->station_name );
+
+		station->alias_name_list =
+			water_station_alias_name_list(
 				application_name,
 				station->station_name );
 
@@ -584,9 +589,9 @@ LIST *water_fetch_station_list(		char *application_name,
 	pclose( input_pipe );
 	return station_list;
 
-} /* water_fetch_station_list() */
+} /* water_station_list() */
 
-LIST *water_fetch_station_parameter_list(
+LIST *water_station_parameter_list(
 				char *application_name,
 				char *station_name )
 {
@@ -646,9 +651,9 @@ LIST *water_fetch_station_parameter_list(
 	pclose( input_pipe );
 	return station_parameter_list;
 
-} /* water_fetch_station_parameter_list() */
+} /* water_station_parameter_list() */
 
-LIST *water_fetch_exception_list( char *application_name )
+LIST *water_exception_list( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
@@ -703,9 +708,9 @@ LIST *water_fetch_exception_list( char *application_name )
 	pclose( input_pipe );
 	return exception_list;
 
-} /* water_fetch_exception_list() */
+} /* water_exception_list() */
 
-LIST *water_fetch_parameter_name_list(	char *application_name )
+LIST *water_parameter_name_list( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char *select;
@@ -724,9 +729,9 @@ LIST *water_fetch_parameter_name_list(	char *application_name )
 
 	return pipe2list( sys_string );
 
-} /* water_fetch_parameter_name_list() */
+} /* water_parameter_name_list() */
 
-LIST *water_fetch_unit_name_list(	char *application_name )
+LIST *water_unit_name_list( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char *select;
@@ -745,10 +750,9 @@ LIST *water_fetch_unit_name_list(	char *application_name )
 
 	return pipe2list( sys_string );
 
-} /* water_fetch_unit_name_list() */
+} /* water_unit_name_list() */
 
-LIST *water_fetch_parameter_unit_list(	char *application_name,
-					char *project_name )
+LIST *water_parameter_unit_list( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
@@ -757,24 +761,19 @@ LIST *water_fetch_parameter_unit_list(	char *application_name,
 	FILE *input_pipe;
 	char *select;
 	char *folder;
-	char where[ 128 ];
 	PARAMETER_UNIT *parameter_unit;
 	LIST *parameter_unit_list;
 
 	select = "parameter,units";
-	folder = "water_project_unit";
-
-	sprintf( where, "project_name = '%s'", project_name );
+	folder = "parameter_unit";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
 		 "			select=%s	"
-		 "			folder=%s	"
-		 "			where=\"%s\"	",
+		 "			folder=%s	",
 		 application_name,
 		 select,
-		 folder,
-		 where );
+		 folder );
 
 	input_pipe = popen( sys_string, "r" );
 	parameter_unit_list = list_new();
@@ -802,9 +801,9 @@ LIST *water_fetch_parameter_unit_list(	char *application_name,
 	pclose( input_pipe );
 	return parameter_unit_list;
 
-} /* water_fetch_parameter_unit_list() */
+} /* water_parameter_unit_list() */
 
-LIST *water_fetch_unit_alias_list( char *application_name )
+LIST *water_unit_alias_list( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
@@ -851,9 +850,9 @@ LIST *water_fetch_unit_alias_list( char *application_name )
 	pclose( input_pipe );
 	return unit_alias_list;
 
-} /* water_fetch_unit_alias_list() */
+} /* water_unit_alias_list() */
 
-LIST *water_fetch_parameter_alias_list(	char *application_name )
+LIST *water_parameter_alias_list( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
@@ -900,7 +899,7 @@ LIST *water_fetch_parameter_alias_list(	char *application_name )
 	pclose( input_pipe );
 	return parameter_alias_list;
 
-} /* water_fetch_parameter_alias_list() */
+} /* water_parameter_alias_list() */
 
 WATER_LOAD_COLUMN *water_new_load_column( void )
 {
@@ -1632,4 +1631,165 @@ char *water_load_column_list_display( LIST *load_column_list )
 	return strdup( buffer );
 
 } /* water_load_column_list_display() */
+
+LIST *water_station_alias_name_list(
+				char *application_name,
+				char *station_name )
+{
+	char sys_string[ 1024 ];
+	char where[ 512 ];
+
+	sprintf(where,
+		"station = '%s'",
+		station_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	"
+		 "			where=\"%s\"	",
+		 application_name,
+		 "station_alias",
+		 "station_alias",
+		 where );
+
+	return pipe2list( sys_string );
+
+} /* water_station_alias_name_list() */
+
+STATION *water_station_parse( char *input_buffer )
+{
+	STATION *station;
+	char piece_buffer[ 128 ];
+
+	station = water_station_calloc();
+
+	piece(	piece_buffer,
+		FOLDER_DATA_DELIMITER,
+		input_buffer,
+		0 );
+	station->station_name = strdup( piece_buffer );
+
+	piece(	piece_buffer,
+		FOLDER_DATA_DELIMITER,
+		input_buffer,
+		1 );
+	station->longitude = strdup( piece_buffer );
+
+	piece(	piece_buffer,
+		FOLDER_DATA_DELIMITER,
+		input_buffer,
+		2 );
+	station->latitude = strdup( piece_buffer );
+
+	return station;
+
+} /* water_station_parse() */
+
+STATION *water_station_get_or_set(
+				LIST *station_list,
+				char *application_name,
+				char *station_name )
+{
+	STATION *station;
+
+	if ( !station_list )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty station_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( ( station =
+			water_station_seek(
+				station_list,
+				station_name ) ) )
+	{
+		return station;
+	}
+
+	station = water_station_fetch( application_name, station_name );
+	list_append_pointer( station_list, station );
+
+	return station;
+
+} /* water_station_get_or_set() */
+
+STATION *water_station_seek(	LIST *station_list,
+				char *station_name )
+{
+	STATION *station;
+
+	if ( !list_rewind( station_list ) ) return (STATION *)0;
+
+	do {
+		station = list_get_pointer( station_list );
+
+		if ( strcmp( station->station_name, station_name ) == 0 ) 
+		{
+			return station;
+		}
+
+	} while ( list_next( station_list ) );
+
+	return (STATION *)0;
+
+} /* water_station_seek() */
+
+STATION *water_station_fetch(	char *application_name,
+				char *station_name )
+{
+	char sys_string[ 1024 ];
+	char input_buffer[ 1024 ];
+	FILE *input_pipe;
+	char *select;
+	char *folder;
+	char where[ 512 ];
+	STATION *station;
+
+	select = water_station_select();
+	folder = "station";
+
+	sprintf(where,
+		"station = '%s'",
+		station_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	"
+		 "			where=\"%s\"	",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	if ( !get_line( input_buffer, input_pipe ) )
+	{
+		pclose( input_pipe );
+		return (STATION *)0;
+	}
+
+	pclose( input_pipe );
+	station = water_station_parse( input_buffer );
+
+	station->station_parameter_list =
+		water_station_parameter_list(
+			application_name,
+			station->station_name );
+
+	station->alias_name_list =
+		water_station_alias_name_list(
+			application_name,
+			station->station_name );
+
+	return station;
+
+} /* water_station_fetch() */
+
 

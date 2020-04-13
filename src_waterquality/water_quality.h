@@ -74,12 +74,12 @@ typedef struct
 	char *latitude;
 	LIST *station_parameter_list;
 	LIST *collection_list;
+	LIST *alias_name_list;
 } STATION;
 
 typedef struct
 {
 	LIST *station_list;
-	LIST *parameter_unit_list;
 } WATER_PROJECT;
 
 typedef struct
@@ -109,6 +109,7 @@ typedef struct
 	LIST *parameter_name_list;
 	LIST *unit_name_list;
 	LIST *exception_list;
+	LIST *parameter_unit_list;
 } WATER_QUALITY_INPUT;
 
 typedef struct
@@ -120,16 +121,16 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
-LIST *water_fetch_parameter_name_list(
+LIST *water_parameter_name_list(
 				char *application_name );
 
-LIST *water_fetch_unit_name_list(
+LIST *water_unit_name_list(
 				char *application_name );
 
-LIST *water_fetch_parameter_alias_list(
+LIST *water_parameter_alias_list(
 				char *application_name );
 
-LIST *water_fetch_unit_alias_list(
+LIST *water_unit_alias_list(
 				char *application_name );
 
 char *water_quality_get_project_name(
@@ -170,7 +171,11 @@ WATER_LOAD_COLUMN *water_new_load_column(
 PARAMETER_ALIAS *water_new_parameter_alias(
 				void );
 
-STATION *water_new_station(
+STATION *water_station_fetch(
+				char *application_name,
+				char *station_name );
+
+STATION *water_station_calloc(
 				void );
 
 COLLECTION *water_collection_new(
@@ -180,15 +185,14 @@ PARAMETER_UNIT *water_new_parameter_unit(
 				char *parameter_name,
 				char *units );
 
-LIST *water_fetch_parameter_unit_list(
-				char *application_name,
-				char *project_name );
+LIST *water_parameter_unit_list(
+				char *application_name );
 
-LIST *water_fetch_station_parameter_list(
+LIST *water_station_parameter_list(
 				char *application_name,
 				char *station_name );
 
-LIST *water_fetch_station_list(	char *application_name,
+LIST *water_station_list(	char *application_name,
 				char *project_name );
 
 LIST *water_fetch_turkey_point_column_list(
@@ -270,7 +274,7 @@ LIST *water_fetch_turkey_point_heading_column_list(
 char *water_parameter_unit_alias_list_display(
 				LIST *parameter_unit_alias_list );
 
-LIST *water_fetch_exception_list(
+LIST *water_exception_list(
 				char *application_name );
 
 LIST *water_get_results_exception_list(	char *exception_string,
@@ -280,5 +284,24 @@ char *water_exception_display(	LIST *exception_list );
 
 char *water_load_column_list_display(
 				LIST *load_column_list );
+
+LIST *water_station_alias_name_list(
+				char *application_name,
+				char *station_name );
+
+char *water_station_select(	void );
+
+STATION *water_station_parse(	char *input_buffer );
+
+STATION *water_station_get_or_set(
+				LIST *station_list,
+				char *application_name,
+				char *station_name );
+
+STATION *water_station_seek(	LIST *station_list,
+				char *station_name );
+
+WATER_PROJECT *water_project_calloc(
+				void );
 
 #endif
