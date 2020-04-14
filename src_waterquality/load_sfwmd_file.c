@@ -174,38 +174,6 @@ int load_sfwmd_file(
 	char *missing_heading;
 	char error_filename[ 128 ];
 	COLLECTION *collection;
-
-/*
-	char *project_name;
-	char project_code[ 128 ];
-	char sample_id[ 128 ];
-	char station[ 128 ];
-	char collection_date_time[ 128 ];
-	char collection_date[ 128 ];
-	char collection_date_international[ 128 ];
-	char collection_time[ 128 ];
-	char *collection_time_without_colon;
-	char collection_depth_meters_string[ 128 ];
-	double collection_depth_meters;
-	char collection_depth_unit[ 128 ];
-	char lab_lims_id[ 128 ];
-	char lab_test_code[ 128 ];
-	char parameter_string[ 128 ];
-	char *aliased_parameter;
-	char *aliased_units;
-	char minimum_detection_limit[ 128 ];
-	char concentration[ 128 ];
-	char sample_comments[ 4096 ];
-	char results_comments[ 4096 ];
-	char matrix_code[ 128 ];
-	char units[ 128 ];
-	char *matrix;
-	char flow_no_flow_code[ 128 ];
-	char *flow_no_flow;
-	char up_down_stream_code[ 128 ];
-	char *up_down_stream;
-	char exception_code_multiple[ 128 ];
-*/
 	FILE *table_output_pipe = {0};
 	FILE *results_insert_pipe = {0};
 	FILE *results_exception_insert_pipe = {0};
@@ -269,8 +237,14 @@ int load_sfwmd_file(
 					missing_heading );
 			}
 
+			fclose( input_file );
 			return 0;
 		}
+	}
+	else
+	{
+		fclose( input_file );
+		return 0;
 	}
 
 	sprintf(error_filename,
@@ -635,6 +609,8 @@ void delete_waterquality( char *input_filename )
 
 } /* delete_waterquality() */
 
+/* Returns static memory or equipment_blank_matrix or null */
+/* ------------------------------------------------------- */
 char *get_matrix(	char *application_name,
 			char *matrix_code,
 			char *equipment_blank_matrix )
@@ -642,13 +618,11 @@ char *get_matrix(	char *application_name,
 	static char matrix[ 256 ];
 	static LIST *matrix_list = {0};
 	char *record;
-	int str_len;
+	char matrix_search[ 128 ];
 
 	if ( equipment_blank_matrix ) return equipment_blank_matrix;
 
-	if ( !*matrix_code ) return (char *)0;
-
-	str_len = strlen( matrix_code );
+	if ( !matrix_code || !*matrix_code ) return (char *)0;
 
 	if ( !matrix_list )
 	{
@@ -679,19 +653,29 @@ char *get_matrix(	char *application_name,
 	do {
 		record = list_get_pointer( matrix_list );
 
-		if ( strncmp(	matrix_code,
+		sprintf(matrix_search,
+			"%s%c",
+			matrix_code,
+			FOLDER_DATA_DELIMITER );
+
+		if ( timlib_strncmp(
 				record,
-				str_len ) == 0 )
+				matrix_search ) == 0 )
 		{
+			*matrix = '\0';
+
 			piece(	matrix,
 				FOLDER_DATA_DELIMITER,
 				record,
 				1 );
+
 			return matrix;
 		}
+
 	} while( list_next( matrix_list ) );
 
 	return (char *)0;
+
 } /* get_matrix() */
 
 char *get_flow_no_flow(	char *application_name,
@@ -1496,7 +1480,6 @@ COLLECTION *load_sfwmd_file_collection_parse(
 {
 	COLLECTION *collection;
 	STATION *station;
-	char *matrix;
 	char project_code[ 128 ];
 	char *project_name;
 	char sample_id[ 128 ];
@@ -1518,6 +1501,7 @@ COLLECTION *load_sfwmd_file_collection_parse(
 	char concentration[ 128 ];
 	char sample_comments[ 4096 ];
 	char results_comments[ 4096 ];
+	char *matrix;
 	char matrix_code[ 128 ];
 	char units[ 128 ];
 	char flow_no_flow_code[ 128 ];
@@ -1529,10 +1513,6 @@ COLLECTION *load_sfwmd_file_collection_parse(
 
 	if ( !station_list ) station_list = list_new();
 	collection = water_collection_new();
-
-	matrix = (char *)0;
-
-	matrix = get_equipment_blank_matrix( input_string );
 
 	if ( !get_heading_piece_string(
 				project_code,
@@ -1585,7 +1565,6 @@ COLLECTION *load_sfwmd_file_collection_parse(
 			input_string );
 		return (COLLECTION *)0;
 	}
-
 
 	if ( ! ( station =
 			/* ------------------------------------ */
@@ -1661,17 +1640,31 @@ COLLECTION *load_sfwmd_file_collection_parse(
 		return (COLLECTION *)0;
 	}
 
-	get_heading_piece_string(
+	if ( !get_heading_piece_string(
 				collection_depth_meters_string,
 				heading_piece_dictionary,
 				COLLECTION_DEPTH_METERS_HEADING,
-				input_string );
+				input_string ) )
+	{
+		fprintf(error_file,
+	"Warning in line %d: Cannot get collection_depth_meters in (%s)\n",
+			line_number,
+			input_string );
+		return (COLLECTION *)0;
+	}
 
-	get_heading_piece_string(
+	if ( !get_heading_piece_string(
 				collection_depth_unit,
 				heading_piece_dictionary,
 				COLLECTION_DEPTH_UNIT_HEADING,
-				input_string );
+				input_string ) )
+	{
+		fprintf(error_file,
+	"Warning in line %d: Cannot get collection_depth_unit in (%s)\n",
+			line_number,
+			input_string );
+		return (COLLECTION *)0;
+	}
 
 	if ( strcasecmp( collection_depth_unit, "cm" ) == 0 )
 	{
@@ -1703,11 +1696,18 @@ COLLECTION *load_sfwmd_file_collection_parse(
 		return (COLLECTION *)0;
 	}
 
-	get_heading_piece_string(
+	if ( !get_heading_piece_string(
 				up_down_stream_code,
 				heading_piece_dictionary,
 				UP_DOWN_STREAM_CODE_HEADING,
-				input_string );
+				input_string ) )
+	{
+		fprintf(error_file,
+		"Warning in line %d: Cannot get up_down_stream_code in (%s)\n",
+			line_number,
+			input_string );
+		return (COLLECTION *)0;
+	}
 
 	if ( ! ( up_down_stream =
 			get_up_down_stream(
@@ -1717,11 +1717,18 @@ COLLECTION *load_sfwmd_file_collection_parse(
 		up_down_stream = "";
 	}
 
-	get_heading_piece_string(
+	if ( !get_heading_piece_string(
 				flow_no_flow_code,
 				heading_piece_dictionary,
 				FLOW_NO_FLOW_CODE_HEADING,
-				input_string );
+				input_string ) )
+	{
+		fprintf(error_file,
+		"Warning in line %d: Cannot get flow_no_flow_code in (%s)\n",
+			line_number,
+			input_string );
+		return (COLLECTION *)0;
+	}
 
 	if ( ! ( flow_no_flow =
 			get_flow_no_flow(
@@ -1731,17 +1738,31 @@ COLLECTION *load_sfwmd_file_collection_parse(
 		flow_no_flow = "";
 	}
 
-	get_heading_piece_string(
+	if ( !get_heading_piece_string(
 				minimum_detection_limit,
 				heading_piece_dictionary,
 				MINIMUM_DETECTION_LIMIT_HEADING,
-				input_string );
+				input_string ) )
+	{
+		fprintf(error_file,
+	"Warning in line %d: Cannot get minimum_detection_limit in (%s)\n",
+			line_number,
+			input_string );
+		return (COLLECTION *)0;
+	}
 
-	get_heading_piece_string(
+	if ( !get_heading_piece_string(
 				exception_code_multiple,
 				heading_piece_dictionary,
 				EXCEPTION_CODE_HEADING,
-				input_string );
+				input_string ) )
+	{
+		fprintf(error_file,
+		"Warning in line %d: Cannot get exception_code in (%s)\n",
+			line_number,
+			input_string );
+		return (COLLECTION *)0;
+	}
 
 	if ( !get_heading_piece_string(
 				concentration,
@@ -1787,17 +1808,31 @@ COLLECTION *load_sfwmd_file_collection_parse(
 #endif
 	}
 
-	get_heading_piece_string(
+	if ( !get_heading_piece_string(
 				lab_lims_id,
 				heading_piece_dictionary,
 				LAB_LIMS_ID_HEADING,
-				input_string );
+				input_string ) )
+	{
+		fprintf(error_file,
+		"Warning in line %d: Cannot get lab_lims_id in (%s)\n",
+			line_number,
+			input_string );
+		return (COLLECTION *)0;
+	}
 
-	get_heading_piece_string(
+	if ( !get_heading_piece_string(
 				lab_test_code,
 				heading_piece_dictionary,
 				LAB_TEST_CODE_HEADING,
-				input_string );
+				input_string ) )
+	{
+		fprintf(error_file,
+		"Warning in line %d: Cannot get lab_test_code in (%s)\n",
+			line_number,
+			input_string );
+		return (COLLECTION *)0;
+	}
 
 	if ( !get_heading_piece_string(
 				parameter_string,
@@ -1805,6 +1840,11 @@ COLLECTION *load_sfwmd_file_collection_parse(
 				PARAMETER_HEADING,
 				input_string ) )
 	{
+		fprintf(error_file,
+		"Warning in line %d: ignoring NO BOTTLE SAMPLE in (%s)\n",
+			line_number,
+			input_string );
+
 		/* Ignore NO BOTTLE SAMPLE */
 		/* ----------------------- */
 		return (COLLECTION *)0;
@@ -1825,39 +1865,65 @@ COLLECTION *load_sfwmd_file_collection_parse(
 		return (COLLECTION *)0;
 	}
 
-	get_heading_piece_string(
+	if ( !get_heading_piece_string(
 				sample_comments,
 				heading_piece_dictionary,
 				SAMPLE_COMMENTS_HEADING,
-				input_string );
+				input_string ) )
+	{
+		fprintf(error_file,
+		"Warning in line %d: Cannot get sample_comments in (%s)\n",
+			line_number,
+			input_string );
+		return (COLLECTION *)0;
+	}
 
 	search_replace_special_characters( sample_comments );
 
-	get_heading_piece_string(
+	if ( !get_heading_piece_string(
 				results_comments,
 				heading_piece_dictionary,
 				RESULTS_COMMENTS_HEADING,
-				input_string );
+				input_string ) )
+	{
+		fprintf(error_file,
+		"Warning in line %d: Cannot get results_comments in (%s)\n",
+			line_number,
+			input_string );
+		return (COLLECTION *)0;
+	}
 
 	search_replace_special_characters( results_comments );
 
-	get_heading_piece_string(
+	if ( !get_heading_piece_string(
 				matrix_code,
 				heading_piece_dictionary,
 				MATRIX_CODE_HEADING,
-				input_string );
+				input_string ) )
+	{
+		fprintf(error_file,
+		"Warning in line %d: Cannot get matrix_code in (%s)\n",
+			line_number,
+			input_string );
+		return (COLLECTION *)0;
+	}
+
+	matrix = get_equipment_blank_matrix( input_string );
 
 	if ( ! ( matrix = get_matrix(
 				application_name,
 				matrix_code,
-				matrix 
-				/* equipment_blank_matrix */ ) ) )
+				matrix /* equipment_blank_matrix */ ) ) )
 	{
 		fprintf(error_file,
 "Warning in line %d: Cannot get matrix using code (%s). Loading anyway.\n",
 			line_number,
 			matrix_code );
 
+		matrix = "";
+	}
+	else
+	{
 		matrix = "";
 	}
 
@@ -1885,14 +1951,13 @@ COLLECTION *load_sfwmd_file_collection_parse(
 			line_number,
 			units,
 			input_string );
+		return (COLLECTION *)0;
 	}
 
 	collection = water_collection_new();
 
 	collection->collection_date = strdup( collection_date );
 	collection->collection_time = strdup( collection_time );
-	collection->collection_depth_meters =
-		strdup( collection_depth_meters_string );
 	collection->collection_depth_meters_double =
 		collection_depth_meters_double;
 	collection->sample_id = strdup( sample_id );

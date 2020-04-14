@@ -61,7 +61,6 @@ typedef struct
 	char *collection_date_international;
 	char *collection_time;
 	char *collection_time_without_colon;
-	char *collection_depth_meters;
 	double collection_depth_meters_double;
 	char *sample_id;
 	char *station;

@@ -1698,7 +1698,7 @@ STATION *water_station_get_or_set(
 	if ( !station_list )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty station_list.\n",
+			 "ERROR in %s/%s()/%d: null station_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -1706,6 +1706,7 @@ STATION *water_station_get_or_set(
 	}
 
 	if ( ( station =
+			/* ------------------------------------ */
 			/* Also checks station->alias_name_list */
 			/* ------------------------------------ */
 			water_station_seek(
@@ -1715,9 +1716,15 @@ STATION *water_station_get_or_set(
 		return station;
 	}
 
-	station = water_station_fetch( application_name, station_name );
-	list_append_pointer( station_list, station );
+	if ( ! ( station =
+			water_station_fetch(
+				application_name,
+				station_name ) ) )
+	{
+		return (STATION *)0;
+	}
 
+	list_append_pointer( station_list, station );
 	return station;
 
 } /* water_station_get_or_set() */
@@ -1756,14 +1763,24 @@ STATION *water_station_fetch(	char *application_name,
 	char *select;
 	char *folder;
 	char where[ 512 ];
+	char sub_query[ 256 ];
 	STATION *station;
 
 	select = water_station_select();
 	folder = "station";
 
+	sprintf( sub_query,
+		 "exists (	select 1			"
+		 "		from station_alias		"
+		 "		where station.station =		"
+		 "			station_alias.station	"
+		 "		  and station_alias = '%s' )	",
+		 station_name );
+ 
 	sprintf(where,
-		"station = '%s'",
-		station_name );
+		"station = '%s' or %s",
+		station_name,
+		sub_query );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
@@ -1800,14 +1817,12 @@ STATION *water_station_fetch(	char *application_name,
 
 } /* water_station_fetch() */
 
-
 void water_collection_free( COLLECTION *collection )
 {
 	if ( !collection ) return;
 
 	free( collection->collection_date );
 	free( collection->collection_time );
-	free( collection->collection_depth_meters );
 	free( collection->sample_id );
 	free( collection->station );
 	free( collection->collection_depth_unit );
