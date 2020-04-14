@@ -75,7 +75,7 @@ boolean units_piece(		char *units,
 DICTIONARY *get_parameter_dictionary(
 				char *application_name );
 
-DICTIONARY *get_units_dictionary(
+DICTIONARY *get_unit_alias_dictionary(
 				char *application_name );
 
 char *get_aliased_parameter(	char *application_name,
@@ -87,10 +87,6 @@ char *get_aliased_units(	char *application_name,
 void close_pipes(
 				FILE *results_insert_pipe,
 				FILE *results_exception_insert_pipe,
-				FILE *station_parameter_insert_pipe,
-				FILE *parameter_unit_insert_pipe,
-				FILE *station_insert_pipe,
-				FILE *water_project_station_insert_pipe,
 				FILE *collection_insert_pipe,
 				FILE *table_output_pipe,
 				int execute_yn );

@@ -58,7 +58,9 @@ typedef struct
 typedef struct
 {
 	char *collection_date;
+	char *collection_date_international;
 	char *collection_time;
+	char *collection_time_without_colon;
 	char *collection_depth_meters;
 	double collection_depth_meters_double;
 	char *sample_id;
@@ -314,17 +316,19 @@ char *water_station_select(	void );
 
 STATION *water_station_parse(	char *input_buffer );
 
+/* Also checks station->alias_name_list */
+/* ------------------------------------ */
 STATION *water_station_get_or_set(
 				LIST *station_list,
 				char *application_name,
-				char *station_name,
-				LIST *alias_name_list );
+				char *station_name );
 
 STATION *water_station_seek(	LIST *station_list,
-				char *station_name,
-				LIST *alias_name_list );
+				char *station_name );
 
 WATER_PROJECT *water_project_calloc(
 				void );
+
+void water_collection_free(	COLLECTION *collection );
 
 #endif

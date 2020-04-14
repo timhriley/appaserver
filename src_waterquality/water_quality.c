@@ -1686,11 +1686,12 @@ STATION *water_station_parse( char *input_buffer )
 
 } /* water_station_parse() */
 
+/* Also checks station->alias_name_list */
+/* ------------------------------------ */
 STATION *water_station_get_or_set(
 				LIST *station_list,
 				char *application_name,
-				char *station_name,
-				LIST *alias_name_list )
+				char *station_name )
 {
 	STATION *station;
 
@@ -1705,10 +1706,11 @@ STATION *water_station_get_or_set(
 	}
 
 	if ( ( station =
+			/* Also checks station->alias_name_list */
+			/* ------------------------------------ */
 			water_station_seek(
 				station_list,
-				station_name,
-				alias_name_list ) ) )
+				station_name ) ) )
 	{
 		return station;
 	}
@@ -1720,9 +1722,10 @@ STATION *water_station_get_or_set(
 
 } /* water_station_get_or_set() */
 
+/* Also checks station->alias_name_list */
+/* ------------------------------------ */
 STATION *water_station_seek(	LIST *station_list,
-				char *station_name,
-				LIST *alias_name_list )
+				char *station_name )
 {
 	STATION *station;
 
@@ -1732,7 +1735,7 @@ STATION *water_station_seek(	LIST *station_list,
 		station = list_get_pointer( station_list );
 
 		if ( strcmp( station->station_name, station_name ) == 0
-		||   list_exists_string( alias_name_list,
+		||   list_exists_string( station->alias_name_list,
 					 station_name ) ) 
 		{
 			return station;
@@ -1798,3 +1801,34 @@ STATION *water_station_fetch(	char *application_name,
 } /* water_station_fetch() */
 
 
+void water_collection_free( COLLECTION *collection )
+{
+	if ( !collection ) return;
+
+	free( collection->collection_date );
+	free( collection->collection_time );
+	free( collection->collection_depth_meters );
+	free( collection->sample_id );
+	free( collection->station );
+	free( collection->collection_depth_unit );
+	free( collection->lab_lims_id );
+	free( collection->lab_test_code );
+	free( collection->parameter_string );
+	free( collection->aliased_parameter );
+	free( collection->aliased_units );
+	free( collection->minimum_detection_limit );
+	free( collection->concentration );
+	free( collection->sample_comments );
+	free( collection->results_comments );
+	free( collection->matrix_code );
+	free( collection->units );
+	free( collection->matrix );
+	free( collection->flow_no_flow_code );
+	free( collection->flow_no_flow );
+	free( collection->up_down_stream_code );
+	free( collection->up_down_stream );
+	free( collection->exception_code_multiple );
+
+	free( collection );
+
+} /* water_collection_free() */
