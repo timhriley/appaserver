@@ -11,7 +11,7 @@ date=$2
 create_sql="create.sql"
 insert_sql="insert.sql"
 
-bigrestore_gunzip.sh $table $date
+bigrestore_create_split.sh $table $date $create_sql
 
 if [ $? -ne 0 ]
 then
@@ -19,7 +19,7 @@ then
 	exit 1
 fi
 
-bigrestore_create_insert.sh $table $date $create_sql $insert_sql
+bigrestore_insert_split.sh $table $date $insert_sql
 
 if [ $? -ne 0 ]
 then

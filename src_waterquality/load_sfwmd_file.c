@@ -32,6 +32,15 @@
 /* --------- */
 /* #define BDL_HALF_MDL		1 */
 
+/* Prototypes */
+/* ---------- */
+COLLECTION *load_sfwmd_file_collection_parse(
+				FILE *error_file,
+				char *application_name,
+				char *input_string,
+				DICTIONARY *heading_piece_dictionary,
+				int line_number );
+
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -336,7 +345,7 @@ int load_sfwmd_file(
 		if ( !*input_string ) continue;
 
 		collection =
-			water_collection_parse(
+			load_sfwmd_file_collection_parse(
 				error_file,
 				application_name,
 				input_string,
@@ -1844,7 +1853,7 @@ char *get_equipment_blank_matrix(	char *input_string )
 
 } /* get_equipment_blank_matrix() */
 
-COLLECTION *water_collection_parse(
+COLLECTION *load_sfwmd_file_collection_parse(
 				FILE *error_file,
 				char *application_name,
 				char *input_string,
@@ -2198,5 +2207,5 @@ COLLECTION *water_collection_parse(
 		}
 	return collection;
 
-} /* water_collection_parse() */
+} /* load_sfwmd_file_collection_parse() */
 

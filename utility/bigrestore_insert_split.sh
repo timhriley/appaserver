@@ -1,14 +1,16 @@
 :
-if [ "$#" -ne 1 ]
+if [ "$#" -ne 3 ]
 then
-	echo "Usage: $0 insert_sql" 1>&2
+	echo "Usage: $0 table yyyymmdd insert_sql" 1>&2
 	exit 1
 fi
 
-rows_per_file=2000000
+table=$1
+date=$2
+insert_sql=$3
 
-insert_sql=$1
+input_file="${table}_${date}.sql.gz"
 
-split -a5 --additional-suffix=.sql -l${rows_per_file} $insert_sql
+zcat $input_file | grep -i 'insert into' > $insert_sql
 
 exit $?

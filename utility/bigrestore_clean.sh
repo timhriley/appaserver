@@ -1,18 +1,13 @@
 :
-if [ "$#" -ne 4 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage: $0 table yyyymmdd create_sql insert_sql" 1>&2
+	echo "Usage: $0 create_sql insert_sql" 1>&2
 	exit 1
 fi
 
-table=$1
-date=$2
-create_sql=$3
-insert_sql=$4
+create_sql=$1
+insert_sql=$2
 
-input_file="${table}_${date}.sql"
-
-rm $input_file
 rm $create_sql
 rm $insert_sql
 rm xa*.sql
