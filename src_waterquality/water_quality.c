@@ -1689,7 +1689,8 @@ STATION *water_station_parse( char *input_buffer )
 STATION *water_station_get_or_set(
 				LIST *station_list,
 				char *application_name,
-				char *station_name )
+				char *station_name,
+				LIST *alias_name_list )
 {
 	STATION *station;
 
@@ -1706,7 +1707,8 @@ STATION *water_station_get_or_set(
 	if ( ( station =
 			water_station_seek(
 				station_list,
-				station_name ) ) )
+				station_name,
+				alias_name_list ) ) )
 	{
 		return station;
 	}
@@ -1719,7 +1721,8 @@ STATION *water_station_get_or_set(
 } /* water_station_get_or_set() */
 
 STATION *water_station_seek(	LIST *station_list,
-				char *station_name )
+				char *station_name,
+				LIST *alias_name_list )
 {
 	STATION *station;
 
@@ -1728,7 +1731,9 @@ STATION *water_station_seek(	LIST *station_list,
 	do {
 		station = list_get_pointer( station_list );
 
-		if ( strcmp( station->station_name, station_name ) == 0 ) 
+		if ( strcmp( station->station_name, station_name ) == 0
+		||   list_exists_string( alias_name_list,
+					 station_name ) ) 
 		{
 			return station;
 		}

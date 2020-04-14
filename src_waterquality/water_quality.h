@@ -60,6 +60,27 @@ typedef struct
 	char *collection_date;
 	char *collection_time;
 	char *collection_depth_meters;
+	double collection_depth_meters_double;
+	char *sample_id;
+	char *station;
+	char *collection_depth_unit;
+	char *lab_lims_id;
+	char *lab_test_code;
+	char *parameter_string;
+	char *aliased_parameter;
+	char *aliased_units;
+	char *minimum_detection_limit;
+	char *concentration;
+	char *sample_comments;
+	char *results_comments;
+	char *matrix_code;
+	char *units;
+	char *matrix;
+	char *flow_no_flow_code;
+	char *flow_no_flow;
+	char *up_down_stream_code;
+	char *up_down_stream;
+	char *exception_code_multiple;
 } COLLECTION;
 
 typedef struct
@@ -296,10 +317,12 @@ STATION *water_station_parse(	char *input_buffer );
 STATION *water_station_get_or_set(
 				LIST *station_list,
 				char *application_name,
-				char *station_name );
+				char *station_name,
+				LIST *alias_name_list );
 
 STATION *water_station_seek(	LIST *station_list,
-				char *station_name );
+				char *station_name,
+				LIST *alias_name_list );
 
 WATER_PROJECT *water_project_calloc(
 				void );

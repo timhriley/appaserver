@@ -164,8 +164,11 @@ int load_sfwmd_file(
 	char input_string[ 4096 ];
 	char *missing_heading;
 	char error_filename[ 128 ];
-	char project_code[ 128 ];
 	char *project_name;
+	COLLECTION *collection;
+
+/*
+	char project_code[ 128 ];
 	char sample_id[ 128 ];
 	char station[ 128 ];
 	char collection_date_time[ 128 ];
@@ -185,15 +188,6 @@ int load_sfwmd_file(
 	char concentration[ 128 ];
 	char sample_comments[ 4096 ];
 	char results_comments[ 4096 ];
-	FILE *table_output_pipe = {0};
-	FILE *results_insert_pipe = {0};
-	FILE *results_exception_insert_pipe = {0};
-	FILE *collection_insert_pipe = {0};
-	FILE *station_parameter_insert_pipe = {0};
-	FILE *parameter_unit_insert_pipe = {0};
-	FILE *water_project_station_insert_pipe = {0};
-	FILE *station_insert_pipe = {0};
-	int load_count = 0;
 	char matrix_code[ 128 ];
 	char units[ 128 ];
 	char *matrix;
@@ -202,6 +196,12 @@ int load_sfwmd_file(
 	char up_down_stream_code[ 128 ];
 	char *up_down_stream;
 	char exception_code_multiple[ 128 ];
+*/
+	FILE *table_output_pipe = {0};
+	FILE *results_insert_pipe = {0};
+	FILE *results_exception_insert_pipe = {0};
+	FILE *collection_insert_pipe = {0};
+	int load_count = 0;
 	int line_number = 1;
 	DICTIONARY *heading_piece_dictionary = {0};
 	char *html_output_process;
@@ -276,12 +276,12 @@ int load_sfwmd_file(
 
 	if ( execute_yn == 'y' )
 	{
-		sprintf( sys_string,
-			 "insert_statement.e %s %s '|'			|"
-			 "%s						|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "%s						 ",
+		sprintf(sys_string,
+			"insert_statement.e %s %s '|'			|"
+			"%s						|"
+			"sql.e 2>&1					|"
+			"grep -vi duplicate				|"
+			"%s						 ",
 		 	"results",
 		 	INSERT_RESULTS,
 			count_process,
@@ -289,64 +289,16 @@ int load_sfwmd_file(
 
 		results_insert_pipe = popen( sys_string, "w" );
 
-		sprintf( sys_string,
-			 "insert_statement.e %s %s '|'			|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "%s						 ",
+		sprintf(sys_string,
+			"insert_statement.e %s %s '|'			|"
+			"sql.e 2>&1					|"
+			"grep -vi duplicate				|"
+			"%s						 ",
 		 	"results_exception",
 		 	INSERT_RESULTS_EXCEPTION,
 			html_output_process );
 
 		results_exception_insert_pipe = popen( sys_string, "w" );
-
-		sprintf( sys_string,
-			 "sort -u					|"
-			 "insert_statement.e %s %s '|'			|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "%s						 ",
-		 	"station_parameter",
-		 	INSERT_STATION_PARAMETER,
-			html_output_process );
-
-		station_parameter_insert_pipe = popen( sys_string, "w" );
-
-		sprintf( sys_string,
-			 "sort -u					|"
-			 "insert_statement.e %s %s '|'			|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "%s						 ",
-		 	"parameter_unit",
-		 	INSERT_PARAMETER_UNIT,
-			html_output_process );
-
-		parameter_unit_insert_pipe = popen( sys_string, "w" );
-
-		sprintf( sys_string,
-			 "sort -u					|"
-			 "insert_statement.e %s %s '|'			|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "%s						 ",
-		 	"station",
-		 	INSERT_STATION,
-			html_output_process );
-
-		station_insert_pipe = popen( sys_string, "w" );
-
-		sprintf( sys_string,
-			 "sort -u					|"
-			 "insert_statement.e %s %s '|'			|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "%s						 ",
-		 	"water_project_station",
-		 	INSERT_WATER_PROJECT_STATION,
-			html_output_process );
-
-		water_project_station_insert_pipe = popen( sys_string, "w" );
 
 		sprintf( sys_string,
 			 "sort -u					|"
@@ -383,6 +335,15 @@ int load_sfwmd_file(
 		trim( input_string );
 		if ( !*input_string ) continue;
 
+		collection =
+			water_collection_parse(
+				error_file,
+				application_name,
+				input_string,
+				heading_piece_dictionary,
+				line_number );
+
+#ifdef NOT_DEFINED
 		matrix = (char *)0;
 
 		matrix = get_equipment_blank_matrix( input_string );
@@ -723,6 +684,7 @@ int load_sfwmd_file(
 				input_string );
 			continue;
 		}
+#endif
 
 		if ( execute_yn == 'y' )
 		{
@@ -1881,4 +1843,360 @@ char *get_equipment_blank_matrix(	char *input_string )
 	}
 
 } /* get_equipment_blank_matrix() */
+
+COLLECTION *water_collection_parse(
+				FILE *error_file,
+				char *application_name,
+				char *input_string,
+				DICTIONARY *heading_piece_dictionary,
+				int line_number )
+{
+	COLLECTION *collection;
+	char piece_buffer[ 4096 ];
+
+	collection = water_collection_new();
+
+		matrix = (char *)0;
+
+		matrix = get_equipment_blank_matrix( input_string );
+
+		if ( !get_heading_piece_string(
+					project_code,
+					heading_piece_dictionary,
+					PROJECT_CODE_HEADING,
+					input_string ) )
+		{
+			fprintf(error_file,
+		"Warning in line %d: Cannot get project code in (%s)\n",
+				line_number,
+				input_string );
+			continue;
+		}
+
+		if ( ! ( project_name = water_quality_get_project_name(
+				application_name,
+				project_code ) ) )
+		{
+			fprintf(error_file,
+"Warning in line %d: Invalid project code of (%s) in (%s). You need to insert a new water project and set the code.\n",
+				line_number,
+				project_code,
+				input_string );
+
+			continue;
+		}
+
+		if ( !get_heading_piece_string(
+					sample_id,
+					heading_piece_dictionary,
+					SAMPLE_ID_HEADING,
+					input_string ) )
+		{
+			fprintf(error_file,
+"Warning in line %d: Cannot piece sample ID in (%s)\n",
+				line_number,
+				input_string );
+			continue;
+		}
+
+		if ( !get_heading_piece_string(
+					station,
+					heading_piece_dictionary,
+					STATION_HEADING,
+					input_string ) )
+		{
+			fprintf(error_file,
+			"Warning in line %d: Cannot piece station in (%s)\n",
+				line_number,
+				input_string );
+			continue;
+		}
+
+		if ( !get_heading_piece_string(
+					collection_date_time,
+					heading_piece_dictionary,
+					COLLECTION_DATE_TIME1_HEADING,
+					input_string ) )
+		{
+			if ( !get_heading_piece_string(
+						collection_date_time,
+						heading_piece_dictionary,
+						COLLECTION_DATE_TIME2_HEADING,
+						input_string ) )
+			{
+				fprintf(error_file,
+	"Warning in line %d: Cannot piece collection date/time in (%s)\n",
+					line_number,
+					input_string );
+				continue;
+			}
+		}
+
+		column( collection_date, 0, collection_date_time );
+
+		*collection_date_international = '\0';
+
+		if ( !date_convert_source_unknown(
+				collection_date_international,
+				international,
+				collection_date ) )
+		{
+			fprintf(error_file,
+	"Warning in line %d: Unrecognized date format in (%s)\n",
+				line_number,
+				input_string );
+			continue;
+		}
+
+		if ( !column( collection_time, 1, collection_date_time ) )
+		{
+			fprintf(error_file,
+		"Warning in line %d: Cannot get collection time in (%s)\n",
+				line_number,
+				input_string );
+			continue;
+		}
+
+		collection_time_without_colon =
+			subtract_colon_from_hrmi(
+				collection_time );
+
+		if ( !collection_time_without_colon )
+		{
+			fprintf(error_file,
+		"Warning in line %d: Invalid collection time in (%s)\n",
+				line_number,
+				input_string );
+			continue;
+		}
+
+		get_heading_piece_string(
+					collection_depth_meters_string,
+					heading_piece_dictionary,
+					COLLECTION_DEPTH_METERS_HEADING,
+					input_string );
+
+		get_heading_piece_string(
+					collection_depth_unit,
+					heading_piece_dictionary,
+					COLLECTION_DEPTH_UNIT_HEADING,
+					input_string );
+
+		if ( strcasecmp( collection_depth_unit, "cm" ) == 0 )
+		{
+			collection_depth_meters =
+				atof( collection_depth_meters_string ) *
+					0.01;
+		}
+		else
+		if ( strcasecmp( collection_depth_unit, "ft" ) == 0 )
+		{
+			collection_depth_meters =
+				atof( collection_depth_meters_string ) *
+					0.3048;
+		}
+		else
+		if ( ( strcasecmp( collection_depth_unit, "m" ) == 0 )
+		||   ( !*collection_depth_unit ) )
+		{
+			collection_depth_meters =
+				atof( collection_depth_meters_string );
+		}
+		else
+		{
+			fprintf(error_file,
+"Warning in line %d: Unrecognized collection depth unit of (%s) in (%s)\n",
+				line_number,
+				collection_depth_unit,
+				input_string );
+			continue;
+		}
+
+		get_heading_piece_string(
+					up_down_stream_code,
+					heading_piece_dictionary,
+					UP_DOWN_STREAM_CODE_HEADING,
+					input_string );
+
+		if ( ! ( up_down_stream =
+				get_up_down_stream(
+					application_name,
+					up_down_stream_code ) ) )
+		{
+			up_down_stream = "";
+		}
+
+		get_heading_piece_string(
+					flow_no_flow_code,
+					heading_piece_dictionary,
+					FLOW_NO_FLOW_CODE_HEADING,
+					input_string );
+
+		if ( ! ( flow_no_flow =
+				get_flow_no_flow(
+					application_name,
+					flow_no_flow_code ) ) )
+		{
+			flow_no_flow = "";
+		}
+
+		get_heading_piece_string(
+					minimum_detection_limit,
+					heading_piece_dictionary,
+					MINIMUM_DETECTION_LIMIT_HEADING,
+					input_string );
+
+		get_heading_piece_string(
+					exception_code_multiple,
+					heading_piece_dictionary,
+					EXCEPTION_CODE_HEADING,
+					input_string );
+
+		if ( !get_heading_piece_string(
+					concentration,
+					heading_piece_dictionary,
+					CONCENTRATION_HEADING,
+					input_string ) )
+		{
+			if ( !*exception_code_multiple )
+			{
+				fprintf(error_file,
+"Warning in line %d: Empty concentration and exception in (%s)\n",
+					line_number,
+					input_string );
+			}
+		}
+
+		if ( !*minimum_detection_limit
+		&&   *concentration == '-' )
+		{
+			strcpy( minimum_detection_limit,
+				concentration + 1 );
+		}
+
+		/* A null value is no concentration and no MDL. */
+	        /* -------------------------------------------- */	
+		if ( !*concentration )
+		{
+			*minimum_detection_limit = '\0';
+		}
+
+		/* BDL is identified by a negative concentration. */
+		/* ---------------------------------------------- */
+		if ( *concentration == '-' )
+		{
+#ifdef BDL_HALF_MDL
+			concentration_double =
+				atof( minimum_detection_limit ) / 2.0;
+
+			sprintf( concentration, "%.5lf", concentration_double );
+
+#else
+			*concentration = '\0';
+#endif
+		}
+
+		get_heading_piece_string(
+					lab_lims_id,
+					heading_piece_dictionary,
+					LAB_LIMS_ID_HEADING,
+					input_string );
+
+		get_heading_piece_string(
+					lab_test_code,
+					heading_piece_dictionary,
+					LAB_TEST_CODE_HEADING,
+					input_string );
+
+		if ( !get_heading_piece_string(
+					parameter_string,
+					heading_piece_dictionary,
+					PARAMETER_HEADING,
+					input_string ) )
+		{
+			/* Ignore NO BOTTLE SAMPLE */
+			/* ----------------------- */
+			continue;
+		}
+
+		aliased_parameter =
+			get_aliased_parameter(
+				application_name,
+				parameter_string );
+
+		if ( !aliased_parameter )
+		{
+			fprintf(error_file,
+"Warning in line %d: Need to insert into PARAMETER_ALIAS of (%s) in (%s)\n",
+				line_number,
+				parameter_string,
+				input_string );
+			continue;
+		}
+
+		get_heading_piece_string(
+					sample_comments,
+					heading_piece_dictionary,
+					SAMPLE_COMMENTS_HEADING,
+					input_string );
+
+		search_replace_special_characters( sample_comments );
+
+		get_heading_piece_string(
+					results_comments,
+					heading_piece_dictionary,
+					RESULTS_COMMENTS_HEADING,
+					input_string );
+
+		search_replace_special_characters( results_comments );
+
+		get_heading_piece_string(
+					matrix_code,
+					heading_piece_dictionary,
+					MATRIX_CODE_HEADING,
+					input_string );
+
+		if ( ! ( matrix = get_matrix(
+					application_name,
+					matrix_code,
+					matrix 
+					/* equipment_blank_matrix */ ) ) )
+		{
+			fprintf(error_file,
+"Warning in line %d: Cannot get matrix using code (%s). Loading anyway.\n",
+				line_number,
+				matrix_code );
+
+			matrix = "";
+		}
+
+		if ( !units_piece(	units,
+					input_string,
+					heading_piece_dictionary ) )
+		{
+
+			fprintf(error_file,
+		"Warning in line %d: Cannot get units in (%s)\n",
+				line_number,
+				input_string );
+			continue;
+		}
+
+		aliased_units =
+			get_aliased_units(
+				application_name,
+				units );
+
+		if ( !aliased_units )
+		{
+			fprintf(error_file,
+"Warning in line %d: Need to insert into UNIT_ALIAS of (%s) in (%s)\n",
+				line_number,
+				units,
+				input_string );
+			continue;
+		}
+	return collection;
+
+} /* water_collection_parse() */
 
