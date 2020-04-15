@@ -18,7 +18,11 @@ do
 	fi
 
 	echo "$file"
-	cat $file | sql.e 2>&1 | grep -vi duplicate
+
+	cat $file			|
+	sed "s/'0000-00-00'/null/g"	|
+	sql.e 2>&1			|
+	grep -vi duplicate
 done
 
 exit 0
