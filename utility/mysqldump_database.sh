@@ -12,7 +12,7 @@ fi
 
 parameter_file=$1
 
-date_yyyy_mm_dd=`date.e 0 | piece.e ':' 0`
+date_yyyy_mm_dd=`now.sh ymd`
 appaserver_config=/etc/appaserver.config
 mysqluser=root
 mysql_password_file=/tmp/mysql_password_file_$$.dat
