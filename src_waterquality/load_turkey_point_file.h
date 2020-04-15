@@ -26,7 +26,7 @@
 /* ---------- */
 boolean extract_static_attributes(
 				char **error_message,
-				char *station,
+				char *station_name,
 				char *collection_date,
 				char *collection_time,
 				char *depth_meters,
@@ -39,9 +39,6 @@ boolean extract_static_attributes(
 void close_pipes(
 		FILE *results_insert_pipe,
 		FILE *results_exception_insert_pipe,
-		FILE *station_parameter_insert_pipe,
-		FILE *station_insert_pipe,
-		FILE *water_project_station_insert_pipe,
 		FILE *collection_insert_pipe,
 		FILE *table_output_pipe );
 
@@ -58,7 +55,6 @@ int load_concentration_file(	char *application_name,
 				char *input_filename,
 				WATER_QUALITY *water_quality,
 				boolean execute,
-				char *project_name,
 				char *heading_error_message );
 
 char *subtract_colon_from_hrmi(	 char *hrmi );

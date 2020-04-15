@@ -152,7 +152,6 @@ fprintf( stderr,
 			input_filename,
 			water_quality,
 			execute,
-			project_name,
 			heading_error_message );
 
 	if ( execute )
@@ -182,7 +181,6 @@ int load_concentration_file(
 			char *input_filename,
 			WATER_QUALITY *water_quality,
 			boolean execute,
-			char *project_name,
 			char *heading_error_message )
 {
 	char sys_string[ 1024 ];
@@ -192,9 +190,6 @@ int load_concentration_file(
 	char *collection_table_name;
 	char *results_table_name;
 	char *results_exception_table_name;
-	char *station_parameter_table_name;
-	char *station_table_name;
-	char *water_project_station_table_name;
 	char station[ 128 ];
 	char collection_date_international[ 128 ];
 	char depth_meters[ 128 ];
@@ -206,9 +201,6 @@ int load_concentration_file(
 	FILE *results_insert_pipe = {0};
 	FILE *results_exception_insert_pipe = {0};
 	FILE *collection_insert_pipe = {0};
-	FILE *station_parameter_insert_pipe = {0};
-	FILE *station_insert_pipe = {0};
-	FILE *water_project_station_insert_pipe = {0};
 	int load_count = 0;
 	int line_number = 0;
 	RESULTS *results;
@@ -259,18 +251,6 @@ int load_concentration_file(
 		get_table_name(	application_name,
 				"collection" );
 
-	station_parameter_table_name =
-		get_table_name(	application_name,
-				"station_parameter" );
-
-	station_table_name =
-		get_table_name(	application_name,
-				"station" );
-
-	water_project_station_table_name =
-		get_table_name(	application_name,
-				"water_project_station" );
-
 	if ( execute )
 	{
 		sprintf(
@@ -308,39 +288,6 @@ int load_concentration_file(
 		 INSERT_COLLECTION );
 
 		collection_insert_pipe = popen( sys_string, "w" );
-
-		sprintf( sys_string,
-			 "sort -u					|"
-			 "insert_statement %s %s '|'			|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
-		 	station_parameter_table_name,
-		 	INSERT_STATION_PARAMETER );
-
-		station_parameter_insert_pipe = popen( sys_string, "w" );
-
-		sprintf( sys_string,
-			 "sort -u					|"
-			 "insert_statement %s %s '|'			|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
-		 	station_table_name,
-		 	INSERT_STATION );
-
-		station_insert_pipe = popen( sys_string, "w" );
-
-		sprintf( sys_string,
-			 "sort -u					|"
-			 "insert_statement %s %s '|'			|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
-		 	water_project_station_table_name,
-		 	INSERT_WATER_PROJECT_STATION );
-
-		water_project_station_insert_pipe = popen( sys_string, "w" );
 	}
 	else
 	{
@@ -360,9 +307,6 @@ int load_concentration_file(
 		close_pipes(
 			results_insert_pipe,
 			results_exception_insert_pipe,
-			station_parameter_insert_pipe,
-			station_insert_pipe,
-			water_project_station_insert_pipe,
 			collection_insert_pipe,
 			table_output_pipe );
 		return 0;
@@ -476,24 +420,6 @@ int load_concentration_file(
 			 	results->concentration );
 
 			fprintf(
-				station_parameter_insert_pipe,
-			 	"%s|%s|%s\n",
-			 	station,
-			 	results->parameter_unit->parameter_name,
-			 	results->parameter_unit->units );
-
-			fprintf(
-				station_insert_pipe,
-			 	"%s\n",
-			 	station );
-
-			fprintf(
-				water_project_station_insert_pipe,
-			 	"%s|%s\n",
-			 	project_name,
-			 	station );
-
-			fprintf(
 				collection_insert_pipe,
 			 	"%s|%s|%s|%s|%s\n",
 			 	station,
@@ -531,9 +457,6 @@ int load_concentration_file(
 	close_pipes(
 		results_insert_pipe,
 		results_exception_insert_pipe,
-		station_parameter_insert_pipe,
-		station_insert_pipe,
-		water_project_station_insert_pipe,
 		collection_insert_pipe,
 		table_output_pipe );
 
@@ -567,6 +490,7 @@ void delete_waterquality(	char *application_name,
 	FILE *input_file;
 	FILE *collection_delete_pipe;
 	FILE *results_delete_pipe;
+	FILE *results_exception_delete_pipe;
 	char sys_string[ 1024 ];
 	char input_string[ 4096 ];
 	char *table_name;
@@ -600,9 +524,8 @@ void delete_waterquality(	char *application_name,
 			application_name, "results" );
 
 	sprintf( sys_string,
-		 "sort -u						|"
 		 "delete_statement.e t=%s f=%s d='|'			|"
-		 "count.e %d 'WQ delete collection count'		|"
+		 "count.e %d 'WQ delete results count'			|"
 		 "sql.e 2>&1						|"
 		 "html_paragraph_wrapper.e				 ",
 		 table_name,
@@ -611,10 +534,28 @@ void delete_waterquality(	char *application_name,
 
 	results_delete_pipe = popen( sys_string, "w" );
 
+	/* Results Exception */
+	/* ----------------- */
+	table_name =
+		get_table_name(
+			application_name, "results_exception" );
+
+	sprintf( sys_string,
+		 "delete_statement.e t=%s f=%s d='|'			|"
+		 "count.e %d 'WQ delete results exception count'	|"
+		 "sql.e 2>&1						|"
+		 "html_paragraph_wrapper.e				 ",
+		 table_name,
+		 DELETE_FIELD_LIST,
+		 STDERR_COUNT );
+
+	results_exception_delete_pipe = popen( sys_string, "w" );
+
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
 	{
 		pclose( collection_delete_pipe );
 		pclose( results_delete_pipe );
+		pclose( results_exception_delete_pipe );
 		fprintf( stderr, "File open error: %s\n", input_filename );
 		exit( 1 );
 	}
@@ -625,6 +566,7 @@ void delete_waterquality(	char *application_name,
 	{
 		pclose( collection_delete_pipe );
 		pclose( results_delete_pipe );
+		pclose( results_exception_delete_pipe );
 		return;
 	}
 
@@ -659,20 +601,24 @@ void delete_waterquality(	char *application_name,
 			 station,
 			 collection_date_international,
 			 collection_time_without_colon );
+
+		fprintf( results_exception_delete_pipe,
+			 "%s|%s|%s\n",
+			 station,
+			 collection_date_international,
+			 collection_time_without_colon );
 	}
 
 	fclose( input_file );
 	pclose( collection_delete_pipe );
 	pclose( results_delete_pipe );
+	pclose( results_exception_delete_pipe );
 
 } /* delete_waterquality() */
 
 void close_pipes(
 		FILE *results_insert_pipe,
 		FILE *results_exception_insert_pipe,
-		FILE *station_parameter_insert_pipe,
-		FILE *station_insert_pipe,
-		FILE *water_project_station_insert_pipe,
 		FILE *collection_insert_pipe,
 		FILE *table_output_pipe )
 {
@@ -684,9 +630,6 @@ void close_pipes(
 	{
 		pclose( results_insert_pipe );
 		pclose( results_exception_insert_pipe );
-		pclose( station_parameter_insert_pipe );
-		pclose( station_insert_pipe );
-		pclose( water_project_station_insert_pipe );
 		pclose( collection_insert_pipe );
 	}
 
@@ -754,7 +697,7 @@ RESULTS *extract_results(
 
 boolean extract_static_attributes(
 			char **error_message,
-			char *station,
+			char *station_name,
 			char *collection_date_international,
 			char *collection_time_without_colon,
 			char *depth_meters,
@@ -769,6 +712,10 @@ boolean extract_static_attributes(
 	int column_piece;
 	int collection_time_piece;
 	static int station_attribute_width = 0;
+	static LIST *station_list = {0};
+	STATION *station;
+
+	if ( !station_list ) station_list = list_new();
 
 	if ( !station_attribute_width )
 	{
@@ -803,19 +750,34 @@ boolean extract_static_attributes(
 		return 0;
 	}
 
-	if ( ! piece_quote_comma(
-		station,
+	if ( !piece_quote_comma(
+		station_name,
 		input_string,
 		column_piece )
-	||   !*station )
+	||   !*station_name )
 	{
 		if ( error_message )
 			*error_message =
-				"cannot identify station";
+				"cannot piece station";
 		return 0;
 	}
 
-	if ( strlen( station ) > station_attribute_width )
+	if ( ! ( station =
+		/* ------------------------------------ */
+		/* Also checks station->alias_name_list */
+		/* ------------------------------------ */
+		water_station_get_or_set(
+			station_list,
+			application_name,
+			station_name ) ) )
+	{
+		if ( error_message )
+			*error_message =
+				"cannot identify station. STATION_ALIAS?";
+		return 0;
+	}
+
+	if ( strlen( station->station_name ) > station_attribute_width )
 	{
 		if ( error_message )
 		{
@@ -823,13 +785,15 @@ boolean extract_static_attributes(
 
 			sprintf( buffer,
 		"station name is too long. Width is %d, max size is %d",
-				 (int)strlen( station ),
+				 (int)strlen( station->station_name ),
 			 	 station_attribute_width );
 
 			*error_message = buffer;
 		}
 		return 0;
 	}
+
+	strcpy( station_name, station->station_name );
 
 	/* ------------------------------------------------------------	*/
 	/* Get collection_time_without_colon.				*/

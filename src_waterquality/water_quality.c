@@ -1725,6 +1725,7 @@ STATION *water_station_get_or_set(
 	}
 
 	list_append_pointer( station_list, station );
+
 	return station;
 
 } /* water_station_get_or_set() */
