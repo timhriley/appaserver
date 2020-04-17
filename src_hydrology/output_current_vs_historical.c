@@ -1424,12 +1424,6 @@ void output_current(	FILE *output_file,
 	GOOGLE_OUTPUT_CHART *google_chart;
 	char yaxis_label[ 128 ];
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-fflush( stderr );
-
 	if ( ! ( google_chart =
 			get_google_current_chart(
 				application_name,
