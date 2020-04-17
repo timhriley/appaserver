@@ -90,7 +90,7 @@ void test_bar( void )
 */
 
 	printf( "<html><body>\n" );
-	google_chart_output_include( stdout );
+	google_chart_output_non_annotated( stdout );
 	google_chart_output_draw_visualization_function(
 				stdout,
 				google_chart->google_chart_type,
@@ -181,7 +181,7 @@ void test_timeline( void )
 */
 
 	printf( "<html><body>\n" );
-	google_chart_output_include( stdout );
+	google_chart_non_annotated_include( stdout );
 	google_chart_output_draw_visualization_function(
 				stdout,
 				google_chart->google_chart_type,

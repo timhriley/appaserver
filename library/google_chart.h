@@ -227,9 +227,30 @@ void google_timeline_display(		LIST *timeline_list,
 void google_barchart_display(		LIST *barchar_list,
 					LIST *datatype_name_list );
 
-void google_chart_output_include(	FILE *output_file );
+void google_chart_annotated_include(	FILE *output_file );
 
-void google_chart_output_visualization_function(
+void google_chart_non_annotated_include(
+					FILE *output_file );
+
+void google_chart_output_visualization_annotated(
+				FILE *output_file,
+				enum google_chart_type google_chart_type,
+				LIST *barchart_list,
+				LIST *timeline_list,
+				LIST *datatype_name_list,
+				char *title,
+				char *yaxis_label,
+		 		int width,
+		 		int height,
+		 		char *background_color,
+				boolean legend_position_bottom,
+				boolean chart_type_bar,
+				char *google_package_name,
+				boolean dont_display_range_selector,
+				enum aggregate_level,
+				int chart_number );
+
+void google_chart_output_visualization_non_annotated(
 				FILE *output_file,
 				enum google_chart_type google_chart_type,
 				LIST *barchart_list,

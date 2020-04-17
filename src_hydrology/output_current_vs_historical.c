@@ -187,7 +187,6 @@ void output_current_vs_historical(
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *database_string = {0};
 	char *login_name;
 	char *session;
 	char *process_name;
@@ -209,14 +208,6 @@ int main( int argc, char **argv )
 	char *current_end_date;
 
 	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
 
 	appaserver_error_starting_argv_append_file(
 				argc,
@@ -1070,10 +1061,6 @@ boolean output_historical_long_term(
 				"Monthly Average %s (%s)",
 				datatype_name,
 				units );
-
-/*
-		google_chart->google_chart_type = google_cat_whiskers;
-*/
 	}
 
 	datatype_name_display_list =
@@ -1082,9 +1069,9 @@ boolean output_historical_long_term(
 
 	format_initial_capital( yaxis_label, yaxis_label );
 
-	google_chart_output_include( output_file );
+	google_chart_non_annotated_include( output_file );
 
-	google_chart_output_visualization_function(
+	google_chart_output_visualization_non_annotated(
 				output_file,
 				google_chart->google_chart_type,
 				google_chart->timeline_list,
@@ -1452,9 +1439,9 @@ void output_current(	FILE *output_file,
 			datatype_name );
 	format_initial_capital( yaxis_label, yaxis_label );
 
-	google_chart_output_include( output_file );
+	google_chart_annotated_include( output_file );
 
-	google_chart_output_visualization_function(
+	google_chart_output_visualization_annotated(
 				output_file,
 				google_chart->google_chart_type,
 				google_chart->timeline_list,
@@ -1674,9 +1661,9 @@ void output_historical_current(
 
 	format_initial_capital( yaxis_label, yaxis_label );
 
-	google_chart_output_include( output_file );
+	google_chart_annotated_include( output_file );
 
-	google_chart_output_visualization_function(
+	google_chart_output_visualization_annotated(
 				output_file,
 				google_chart->google_chart_type,
 				google_chart->timeline_list,

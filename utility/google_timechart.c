@@ -124,9 +124,9 @@ int main( int argc, char **argv )
 
 	fprintf( output_file, "<head>\n" );
 
-	google_chart_output_include( output_file );
+	google_chart_non_annotated_include( output_file );
 
-	google_chart_output_visualization_function(
+	google_chart_output_visualization_non_annotated(
 				output_file,
 				google_output_chart->google_chart_type,
 				google_output_chart->timeline_list,

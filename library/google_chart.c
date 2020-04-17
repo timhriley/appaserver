@@ -619,10 +619,16 @@ void google_timeline_display(	LIST *timeline_list,
 
 } /* google_timeline_display() */
 
-void google_chart_output_include( FILE *output_file )
+void google_chart_non_annotated_include( FILE *output_file )
 {
 	fprintf( output_file,
 "<script type=\"text/javascript\" src=\"https://www.google.com/jsapi\"></script>\n" );
+}
+
+void google_chart_annotated_include( FILE *output_file )
+{
+	fprintf( output_file,
+"<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>\n" );
 }
 
 char *google_chart_convert_date(	char *destination,
@@ -692,7 +698,142 @@ char *google_chart_convert_date(	char *destination,
 
 } /* google_chart_convert_date() */
 
-void google_chart_output_visualization_function(
+void google_chart_output_visualization_annotated(
+				FILE *output_file,
+				enum google_chart_type google_chart_type,
+				LIST *timeline_list,
+				LIST *barchart_list,
+				LIST *datatype_name_list,
+				char *title,
+				char *yaxis_label,
+		 		int width,
+		 		int height,
+		 		char *background_color,
+				boolean legend_position_bottom,
+				boolean chart_type_bar,
+				char *google_package_name,
+				boolean dont_display_range_selector,
+				enum aggregate_level aggregate_level,
+				int chart_number )
+{
+	int length_datatype_name_list;
+	char *chart_type_string;
+	char *legend_position_bottom_string;
+	char *google_chart_instantiation;
+	char *first_column_datatype;
+	char *visualization_function_name;
+
+	visualization_function_name =
+		google_chart_get_visualization_function_name(
+			chart_number );
+
+	if ( ! ( length_datatype_name_list =
+			list_length( datatype_name_list ) ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty datatype_name_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !google_package_name )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: google_package_name is null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( timlib_strcmp(	google_package_name,
+				GOOGLE_ANNOTATED_TIMELINE ) == 0 )
+	{
+		if ( aggregate_level == aggregate_level_none
+		||   aggregate_level == real_time
+		||   aggregate_level == half_hour
+		||   aggregate_level == hourly )
+		{
+			first_column_datatype = "datetime";
+		}
+		else
+		{
+			first_column_datatype = "date";
+		}
+	}
+	else
+	{
+		first_column_datatype = "string";
+	}
+
+	fprintf( output_file,
+"<script type=\"text/javascript\">\n"
+"google.charts.load('visualization', {packages: ['%s']});\n",
+		 google_package_name );
+
+	fprintf( output_file,
+"function %s()\n"
+"{\n"
+"	var data = new google.visualization.DataTable();\n"
+"\n",
+		visualization_function_name );
+
+	google_chart_output_datatype_column_heading(
+		output_file,
+		google_chart_type,
+		first_column_datatype,
+		datatype_name_list );
+
+	if ( list_length( timeline_list ) )
+	{
+		google_chart_output_timeline_list(
+			output_file,
+			timeline_list,
+			length_datatype_name_list );
+	}
+
+	if ( list_length( barchart_list ) )
+	{
+		google_chart_output_barchart_list(
+			output_file,
+			barchart_list,
+			length_datatype_name_list );
+	}
+
+	if ( chart_type_bar )
+		chart_type_string = "seriesType: \"bars\"";
+	else
+		chart_type_string = "type: \"line\"";
+
+	if ( legend_position_bottom )
+		legend_position_bottom_string = "bottom";
+	else
+		legend_position_bottom_string = "";
+
+	if ( strcmp( google_package_name, GOOGLE_ANNOTATED_TIMELINE ) == 0 )
+		google_chart_instantiation = "AnnotatedTimeLine";
+	else
+	if ( strcmp( google_package_name, GOOGLE_CORECHART ) == 0 )
+		google_chart_instantiation = "LineChart";
+	else
+		google_chart_instantiation = "corechart";
+
+	fprintf( output_file,
+"	var chart = new google.visualization.%s(\n"
+"		document.getElementById('chart_div%d'));\n"
+"	chart.draw(data, {displayAnnotations: true});\n"
+"}\n",
+		google_chart_instantiation,
+		chart_number );
+
+	fprintf( output_file,
+"</script>\n" );
+
+} /* google_chart_output_visualization_annotated() */
+
+void google_chart_output_visualization_non_annotated(
 				FILE *output_file,
 				enum google_chart_type google_chart_type,
 				LIST *timeline_list,
@@ -825,26 +966,6 @@ void google_chart_output_visualization_function(
 		google_chart_instantiation = "LineChart";
 	else
 		google_chart_instantiation = "corechart";
-/*
-	if ( google_chart_type == google_column_chart )
-		google_chart_instantiation = "ColumnChart";
-	else
-	if ( google_chart_type == google_time_line )
-		google_chart_instantiation = "AnnotatedTimeLine";
-	else
-	if ( google_chart_type == google_cat_whiskers )
-		google_chart_instantiation = "CandlestickChart";
-	else
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: unknown google_chart_type = %d.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 google_chart_type );
-		exit( 1 );
-	}
-*/
 
 	fprintf( output_file,
 "	var chart = new google.visualization.%s(\n"
@@ -857,14 +978,7 @@ void google_chart_output_visualization_function(
 	fprintf( output_file,
 "</script>\n" );
 
-/*
-	fprintf( output_file,
-"google.setOnLoadCallback(%s);\n"
-"</script>\n",
-		 draw_visualization_function_name );
-*/
-
-} /* google_chart_output_visualization_function() */
+} /* google_chart_output_visualization_non_annotated() */
 
 void google_chart_output_chart_instantiation(
 				FILE *output_file,
@@ -1142,7 +1256,7 @@ void google_chart_output_prompt(
 
 	printf( "<h1>Google Chart Viewer " );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( timlib_system_date_string() ) ){};
 	printf( "</h1>\n" );
 
 	if ( where_clause && *where_clause )
@@ -1804,7 +1918,7 @@ void google_chart_output_all_charts(
 
 	fprintf( output_file, "<head>\n" );
 
-	google_chart_output_include( output_file );
+	google_chart_non_annotated_include( output_file );
 
 	if ( stylesheet && *stylesheet )
 	{
@@ -1832,7 +1946,7 @@ void google_chart_output_all_charts(
 		do {
 			google_chart = list_get_pointer( output_chart_list );
 
-			google_chart_output_visualization_function(
+			google_chart_output_visualization_non_annotated(
 				output_file,
 				google_chart->google_chart_type,
 				google_chart->timeline_list,
@@ -1910,7 +2024,7 @@ void google_chart_output_graph_window(
 
 	printf( "<h1>Google Chart Viewer " );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	if ( system( timlib_system_date_string() ) ){};
 	printf( "</h1>\n" );
 
 	if ( where_clause && *where_clause )

@@ -598,7 +598,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n", REPORT_TITLE );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+		if ( system( timlib_system_date_string() ) ){};
 		fflush( stdout );
 		printf( "</h1>\n" );
 	
@@ -719,7 +719,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n", REPORT_TITLE );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( timlib_system_date_string() ) ){};
 		fflush( stdout );
 		printf( "</h1>\n" );
 	
@@ -2211,7 +2211,6 @@ boolean measurement_differences_output_googlechart(
 	char *chart_filename;
 	char *prompt_filename;
 	FILE *chart_file;
-	GOOGLE_OUTPUT_CHART *google_output_chart;
 
 	date_colon_time_key_list =
 		 hash_table_get_ordered_key_list(

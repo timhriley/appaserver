@@ -1516,7 +1516,7 @@ boolean merged_datasets_output_googlechart(
 
 	fprintf( output_file, "<head>\n" );
 
-	google_chart_output_include( output_file );
+	google_chart_non_annotated_include( output_file );
 
 	merged_datasets_googlechart_set_output_chart(
 		/* ---- */
@@ -1538,7 +1538,9 @@ boolean merged_datasets_output_googlechart(
 		exit( 0 );
 	}
 
-	google_chart_output_visualization_function(
+	google_chart_non_annotated_include( output_file );
+
+	google_chart_output_visualization_non_annotated(
 				output_file,
 				google_chart->google_chart_type,
 				google_chart->timeline_list,
