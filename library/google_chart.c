@@ -619,13 +619,7 @@ void google_timeline_display(	LIST *timeline_list,
 
 } /* google_timeline_display() */
 
-void google_chart_non_annotated_include( FILE *output_file )
-{
-	fprintf( output_file,
-"<script type=\"text/javascript\" src=\"https://www.google.com/jsapi\"></script>\n" );
-}
-
-void google_chart_annotated_include( FILE *output_file )
+void google_chart_include( FILE *output_file )
 {
 	fprintf( output_file,
 "<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>\n" );
@@ -704,22 +698,11 @@ void google_chart_output_visualization_annotated(
 				LIST *timeline_list,
 				LIST *barchart_list,
 				LIST *datatype_name_list,
-				char *title,
-				char *yaxis_label,
-		 		int width,
-		 		int height,
-		 		char *background_color,
-				boolean legend_position_bottom,
-				boolean chart_type_bar,
 				char *google_package_name,
-				boolean dont_display_range_selector,
 				enum aggregate_level aggregate_level,
 				int chart_number )
 {
 	int length_datatype_name_list;
-	char *chart_type_string;
-	char *legend_position_bottom_string;
-	char *google_chart_instantiation;
 	char *first_column_datatype;
 	char *visualization_function_name;
 
@@ -802,30 +785,12 @@ void google_chart_output_visualization_annotated(
 			length_datatype_name_list );
 	}
 
-	if ( chart_type_bar )
-		chart_type_string = "seriesType: \"bars\"";
-	else
-		chart_type_string = "type: \"line\"";
-
-	if ( legend_position_bottom )
-		legend_position_bottom_string = "bottom";
-	else
-		legend_position_bottom_string = "";
-
-	if ( strcmp( google_package_name, GOOGLE_ANNOTATED_TIMELINE ) == 0 )
-		google_chart_instantiation = "AnnotatedTimeLine";
-	else
-	if ( strcmp( google_package_name, GOOGLE_CORECHART ) == 0 )
-		google_chart_instantiation = "LineChart";
-	else
-		google_chart_instantiation = "corechart";
-
 	fprintf( output_file,
 "	var chart = new google.visualization.%s(\n"
 "		document.getElementById('chart_div%d'));\n"
 "	chart.draw(data, {displayAnnotations: true});\n"
 "}\n",
-		google_chart_instantiation,
+		"AnnotatedTimeLine",
 		chart_number );
 
 	fprintf( output_file,
@@ -905,8 +870,7 @@ void google_chart_output_visualization_non_annotated(
 
 	fprintf( output_file,
 "<script type=\"text/javascript\">\n"
-"google.load('visualization', '1', {packages: ['%s']});\n",
-		 google_package_name );
+"google.charts.load('visualization', {packages: ['barchart']});\n" );
 
 	fprintf( output_file,
 "function %s()\n"
@@ -1918,7 +1882,7 @@ void google_chart_output_all_charts(
 
 	fprintf( output_file, "<head>\n" );
 
-	google_chart_non_annotated_include( output_file );
+	google_chart_include( output_file );
 
 	if ( stylesheet && *stylesheet )
 	{

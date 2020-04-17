@@ -1012,12 +1012,14 @@ void output_historical(		FILE *output_file,
 				units,
 				application_name ) )
 	{
+/*
 		output_historical_current(
 				output_file,
 				station_name_list,
 				datatype_name,
 				bar_chart,
 				application_name );
+*/
 	}
 
 } /* output_historical() */
@@ -1069,7 +1071,7 @@ boolean output_historical_long_term(
 
 	format_initial_capital( yaxis_label, yaxis_label );
 
-	google_chart_non_annotated_include( output_file );
+	google_chart_include( output_file );
 
 	google_chart_output_visualization_non_annotated(
 				output_file,
@@ -1422,6 +1424,12 @@ void output_current(	FILE *output_file,
 	GOOGLE_OUTPUT_CHART *google_chart;
 	char yaxis_label[ 128 ];
 
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+fflush( stderr );
+
 	if ( ! ( google_chart =
 			get_google_current_chart(
 				application_name,
@@ -1439,7 +1447,7 @@ void output_current(	FILE *output_file,
 			datatype_name );
 	format_initial_capital( yaxis_label, yaxis_label );
 
-	google_chart_annotated_include( output_file );
+	google_chart_include( output_file );
 
 	google_chart_output_visualization_annotated(
 				output_file,
@@ -1447,15 +1455,7 @@ void output_current(	FILE *output_file,
 				google_chart->timeline_list,
 				google_chart->barchart_list,
 				google_chart->datatype_name_list,
-				"" /* title */,
-				strdup( yaxis_label ),
-				google_chart->width,
-				google_chart->height,
-				google_chart->background_color,
-				google_chart->legend_position_bottom,
-				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
-				0 /* not dont_display_range_selector */,
 				daily /* aggregate_level */,
 				google_chart->chart_number );
 
@@ -1661,7 +1661,7 @@ void output_historical_current(
 
 	format_initial_capital( yaxis_label, yaxis_label );
 
-	google_chart_annotated_include( output_file );
+	google_chart_include( output_file );
 
 	google_chart_output_visualization_annotated(
 				output_file,
@@ -1669,15 +1669,7 @@ void output_historical_current(
 				google_chart->timeline_list,
 				google_chart->barchart_list,
 				google_chart->datatype_name_list,
-				"" /* title */,
-				strdup( yaxis_label ),
-				google_chart->width,
-				google_chart->height,
-				google_chart->background_color,
-				google_chart->legend_position_bottom,
-				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
-				1 /* dont_display_range_selector */,
 				daily /* aggregate_level */,
 				google_chart->chart_number );
 

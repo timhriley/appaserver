@@ -670,7 +670,7 @@ if ( bar_chart ){};
 
 	fprintf( output_file, "<head>\n" );
 
-	google_chart_non_annotated_include( output_file );
+	google_chart_include( output_file );
 
 	google_chart_output_visualization_non_annotated(
 				output_file,

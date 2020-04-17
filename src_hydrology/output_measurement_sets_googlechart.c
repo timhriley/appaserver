@@ -457,7 +457,7 @@ LIST *get_unit_chart_list( LIST *datatype_list )
 			sprintf(yaxis_label,
 				"%s (%s)",
 				datatype->datatype_name,
-				datatype->units );
+				datatype->units->units_name );
 	
 			unit_chart->yaxis_label = strdup( yaxis_label );
 	

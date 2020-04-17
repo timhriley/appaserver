@@ -181,7 +181,7 @@ void test_timeline( void )
 */
 
 	printf( "<html><body>\n" );
-	google_chart_non_annotated_include( stdout );
+	google_chart_include( stdout );
 	google_chart_output_draw_visualization_function(
 				stdout,
 				google_chart->google_chart_type,
