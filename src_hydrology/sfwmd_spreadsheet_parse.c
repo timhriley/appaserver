@@ -32,34 +32,6 @@
 
 /* Prototypes */
 /* ---------- */
-SFWMD_STATION_DATATYPE *sfwmd_station_datatype_fetch(
-				/* ------------------- */
-				/* Expect stack memory */
-				/* ------------------- */
-				char *db_key,
-				HASH_TABLE *sfwmd_station_datatype_hash_table,
-				char *input_buffer );
-
-char *to_yyyy_mm_dd( char *d, char *s );
-
-int ora_month2integer( char *mon );
-
-char *month_array[] = { 	"JAN",
-				"FEB",
-				"MAR",
-				"APR",
-				"MAY",
-				"JUN",
-				"JUL",
-				"AUG",
-				"SEP",
-				"OCT",
-				"NOV",
-				"DEC",
-				(char *)0 };
-
-void sfwmd_spreadsheet_parse(	char *application_name,
-				char *filename );
 
 int main( int argc, char **argv )
 {
@@ -93,48 +65,6 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-char *to_yyyy_mm_dd( char *d, char *s )
-{
-	int mm_int;
-	char yyyy[ 128 ], mon[ 128 ], dd[ 128 ];
-
-	if ( ! piece( dd, '-', s, 0 ) ) return (char *)0;
-	if ( ! piece( mon, '-', s, 1 ) ) return (char *)0;
-	if ( ! piece( yyyy, '-', s, 2 ) ) return (char *)0;
-
-	mm_int = ora_month2integer( mon );
-	if ( mm_int < 0 ) return (char *)0;
-
-	sprintf( d, 
-		 "%s-%02d-%02d",
-		 yyyy,
-		 mm_int + 1,
-		 atoi( dd ) );
-
-	return d;
-
-} /* to_yyyy_mm_dd() */
-
-int ora_month2integer( char *mon )
-{
-	char **array_ptr = month_array;
-	register int i = 0;
-
-	while( *array_ptr )
-	{
-		if ( strcmp( mon, *array_ptr ) == 0 )
-		{
-			return i;
-		}
-		else
-		{
-			i++;
-			array_ptr++;
-		}
-	}
-	return -1;
-} /* ora_month2integer() */
-
 void sfwmd_spreadsheet_parse(	char *application_name,
 				char *filename )
 {
@@ -146,7 +76,7 @@ void sfwmd_spreadsheet_parse(	char *application_name,
 	char db_key[ 1024 ];
 
 	sfwmd_station_datatype_hash_table =
-		load_sfwmd_station_datatype_hash_table(
+		sfwmd_station_datatype_hash_table_load(
 			application_name );
 
 	if ( ! ( input_file = fopen( filename, "r" ) ) )
@@ -167,7 +97,7 @@ void sfwmd_spreadsheet_parse(	char *application_name,
 		*db_key = '\0';
 
 		if ( ! ( sfwmd_station_datatype =
-				sfwmd_station_datatype_fetch(
+				sfwmd_parse(
 					/* ------------------- */
 					/* Expect stack memory */
 					/* ------------------- */
@@ -203,150 +133,35 @@ void sfwmd_spreadsheet_parse(	char *application_name,
 
 		if ( sfwmd_station_datatype->is_null )
 		{
-			printf(	"%s^%s^%s^null^\n",
-				sfwmd_station_datatype->station,
-				sfwmd_station_datatype->datatype,
-				sfwmd_station_datatype->
-					measurement_date_string );
-		}
-		else
-		{
-			printf(	"%s^%s^%s^null^%.3lf\n",
+			printf(	"%s^%s^%s^null^^%s^%s\n",
 				sfwmd_station_datatype->station,
 				sfwmd_station_datatype->datatype,
 				sfwmd_station_datatype->
 					measurement_date_string,
 				sfwmd_station_datatype->
-					measurement_value );
+					last_validation_date,
+				(sfwmd_station_datatype->provisional)
+					? "provisional"
+					: "" );
+		}
+		else
+		{
+			printf(	"%s^%s^%s^null^%.3lf^%s^%s\n",
+				sfwmd_station_datatype->station,
+				sfwmd_station_datatype->datatype,
+				sfwmd_station_datatype->
+					measurement_date_string,
+				sfwmd_station_datatype->
+					measurement_value,
+				sfwmd_station_datatype->
+					last_validation_date,
+				(sfwmd_station_datatype->provisional)
+					? "provisional"
+					: "" );
 		}
 	}
 
 	fclose( input_file );
 
 } /* sfwmd_spreadsheet_parse() */
-
-SFWMD_STATION_DATATYPE *sfwmd_station_datatype_fetch(
-				/* ------------------- */
-				/* Expect stack memory */
-				/* ------------------- */
-				char *db_key,
-				HASH_TABLE *sfwmd_station_datatype_hash_table,
-				char *input_buffer )
-{
-	char process_buffer[ 1024 ];
-	char piece_buffer[ 1024 ];
-	SFWMD_STATION_DATATYPE *sfwmd_station_datatype;
-	static char measurement_date_string[ 16 ];
-	char last_validation_date_string[ 16 ];
-	char *measurement_date_pointer;
-	char *last_validation_date_pointer;
-
-	strcpy( process_buffer, input_buffer );
-	search_replace_string( process_buffer, "\"", "" );
-
-	/* piece db_key */
-	/* ------------ */
-	*db_key = '\0';
-	if ( !piece( db_key, ',', process_buffer, 1 ) )
-	{
-		return (SFWMD_STATION_DATATYPE *)0;
-	}
-
-	if ( ! ( sfwmd_station_datatype =
-			hash_table_fetch(
-				sfwmd_station_datatype_hash_table,
-				db_key ) ) )
-	{
-		return (SFWMD_STATION_DATATYPE *)0;
-	}
-
-	/* piece measurement_date */
-	/* ---------------------- */
-	if ( !piece( piece_buffer, ',', process_buffer, 2 ) )
-	{
-		return (SFWMD_STATION_DATATYPE *)0;
-	}
-
-	if ( ! ( measurement_date_pointer =
-			to_yyyy_mm_dd(
-				measurement_date_string,
-				piece_buffer ) ) )
-	{
-		return (SFWMD_STATION_DATATYPE *)0;
-	}
-
-	strcpy(	sfwmd_station_datatype->measurement_date_string,
-		measurement_date_pointer );
-
-	/* piece measurement_value */
-	/* ----------------------- */
-	if ( !piece( piece_buffer, ',', process_buffer, 3 ) )
-	{
-		return (SFWMD_STATION_DATATYPE *)0;
-	}
-
-	if ( !*piece_buffer )
-	{
-		sfwmd_station_datatype->is_null = 1;
-	}
-	else
-	{
-		sfwmd_station_datatype->is_null = 0;
-		sfwmd_station_datatype->measurement_value =
-			atof( piece_buffer );
-	}
-
-	if ( sfwmd_station_datatype->conversion_factor )
-	{
-		sfwmd_station_datatype->measurement_value *=
-			sfwmd_station_datatype->conversion_factor;
-	}
-
-	/* piece measurement_update_method */
-	/* ------------------------------- */
-	if ( !piece( piece_buffer, ',', process_buffer, 4 ) )
-	{
-		*sfwmd_station_datatype->measurement_update_method = '\0';
-	}
-	else
-	{
-		if ( strcasecmp(
-			sfwmd_station_datatype->measurement_update_method,
-			"m" ) == 0 )
-		{
-			sfwmd_station_datatype->is_null = 1;
-			*sfwmd_station_datatype->
-				measurement_update_method = '\0';
-		}
-		else
-		{
-			strcpy(	sfwmd_station_datatype->
-					measurement_update_method,
-				piece_buffer );
-		}
-	}
-
-	/* piece last_validation_date */
-	/* -------------------------- */
-	if ( piece( piece_buffer, ',', process_buffer, 5 ) )
-	{
-		if ( ! ( last_validation_date_pointer =
-				to_yyyy_mm_dd(
-					last_validation_date_string,
-					piece_buffer ) ) )
-		{
-			last_validation_date_pointer = "";
-		}
-	}
-	else
-	{
-		last_validation_date_pointer = "";
-	}
-
-	strcpy(	sfwmd_station_datatype->last_validation_date_string,
-		last_validation_date_pointer );
-
-	return sfwmd_station_datatype;
-
-} /* sfwmd_station_datatype_fetch() */
 

@@ -106,7 +106,8 @@ function post_change_multi_select_move_right(
 					new Option(
 						new_text,
 						new_value_with_index,
-						0, 0 );
+						0,
+						1 /* is selected */ );
 
 				// Set the selected flag to prevent the
 				// list from scrolling to the top.
@@ -170,7 +171,8 @@ function post_change_multi_select_move_left(
 					new Option(
 						new_text,
 						value_array[ 0 ],
-						0, 0 );
+						0,
+						0 /* not selected */ );
 	
 				to_element.options[ i ] =
 					new Option( "", "", 0, 0 );

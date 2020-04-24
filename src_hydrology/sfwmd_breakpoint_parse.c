@@ -124,7 +124,7 @@ void sfwmd_breakpoint_parse(	char *application_name,
 	SFWMD_STATION_DATATYPE *sfwmd_station_datatype;
 
 	sfwmd_station_datatype_hash_table =
-		load_sfwmd_station_datatype_hash_table(
+		sfwmd_station_datatype_hash_table_load(
 			application_name );
 
 	if ( ! ( input_file = fopen( filename, "r" ) ) )

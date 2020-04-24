@@ -36,7 +36,8 @@
 void output_bad_records(
 		 	char *bad_parse_file,
 			char *bad_frequency_file,
-		 	char *bad_insert_file );
+		 	char *bad_insert_file,
+			char *bad_update_file );
 
 void load_sfwmd_single_file(
 			char *appaserver_data_directory,
@@ -119,6 +120,7 @@ void load_sfwmd_single_file(
 	char bad_parse[ 128 ];
 	char bad_frequency[ 128 ];
 	char bad_insert[ 128 ];
+	char bad_update[ 128 ];
 	pid_t pid;
 	char *dir;
 
@@ -128,6 +130,7 @@ void load_sfwmd_single_file(
 	sprintf( bad_parse, "%s/sfwmd_parse_%d.dat", dir, pid );
 	sprintf( bad_frequency, "%s/sfwmd_frequency_%d.dat", dir, pid );
 	sprintf( bad_insert, "%s/sfwmd_insert_%d.dat", dir, pid );
+	sprintf( bad_update, "%s/sfwmd_update_%d.dat", dir, pid );
 
 	sprintf( sys_string,
 "sfwmd_spreadsheet_parse \"%s\" 2>%s					|"
@@ -143,25 +146,39 @@ void load_sfwmd_single_file(
 
 	if ( system( sys_string ) ) {};
 
+	sprintf( sys_string,
+"sfwmd_spreadsheet_parse \"%s\" 2>/dev/null				|"
+"measurement_frequency_reject '^' 2>/dev/null				|"
+"sfwmd_spreadsheet_update execute=%c 2>%s				|"
+"cat									 ",
+		 filename,
+		 (execute) ? 'y' : 'n',
+		 bad_update );
+
+	if ( system( sys_string ) ) {};
+
 	output_bad_records(
 		bad_parse,
 		bad_frequency,
-		bad_insert );
+		bad_insert,
+		bad_update );
 
 } /* load_sfwmd_single_file() */
 
 void output_bad_records(
 		 	char *bad_parse_file,
 			char *bad_frequency_file,
-		 	char *bad_insert_file )
+		 	char *bad_insert_file,
+			char *bad_update_file )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"cat %s %s %s | html_table.e '^^Bad Records' '' ''",
+	"cat %s %s %s %s | html_table.e '^^Bad Records' '' ''",
 	 	bad_parse_file,
 		bad_frequency_file,
-	 	bad_insert_file );
+	 	bad_insert_file,
+		bad_update_file );
 
 	if ( system( sys_string ) ){};
 

@@ -118,11 +118,9 @@ void load_sfwmd_breakpoint_data(
 	char sys_string[ 1024 ];
 	char bad_parse[ 128 ];
 	char bad_insert[ 128 ];
-	char *date_heading_label;
 	pid_t pid;
 	char *dir;
 
-	date_heading_label = "dbkey";
 	pid = getpid();
 	dir = appaserver_data_directory;
 
