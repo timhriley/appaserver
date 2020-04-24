@@ -49,7 +49,7 @@ boolean measurement_set_delimited_record(
 	char value_string[ 128 ];
 	int time_int;
 
-	if ( character_count( delimiter, delimited_record ) != VALUE_PIECE )
+	if ( character_count( delimiter, delimited_record ) < VALUE_PIECE )
 	{
 		if ( timlib_strncmp( delimited_record, "skipped" ) == 0 )
 		{

@@ -1,4 +1,8 @@
-#/bin/bash
+#!/bin/bash
+# ----------------------------------------------------------------------
+# $APPASERVER_HOME/src_hydrology/waterquality_station_parameter_where.sh
+# ----------------------------------------------------------------------
+
 if [ "$#" -ne 1 ]
 then
 	echo "Usage: $0 station_parameter_units_list" 1>&2
