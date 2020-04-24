@@ -1032,7 +1032,7 @@ boolean hydrology_library_can_convert_to_units(
 	return atoi( pipe2string( sys_string ) );
 } /* hydrology_library_can_convert_to_units() */
 
-int hydrology_library_some_measurements_validated(
+boolean hydrology_library_some_measurements_validated(
 			char *application_name,
 			char *where_clause,
 			char *station,
@@ -1042,27 +1042,26 @@ int hydrology_library_some_measurements_validated(
 {
 	char sys_string[ 2048 ];
 	char local_where_clause[ 2048 ];
+	char *provisional_where;
 	char *results;
 
+	provisional_where =
+		/* ----------------------- */
+		/* Returns program memory. */
+		/* ----------------------- */
+		hydrology_library_provisional_where(
+				provisional );
 
-	if ( where_clause && *where_clause )
-	{
-		sprintf(local_where_clause,
-		 	"%s and last_validation_date is not null",
-		 	where_clause );
-	}
-	else
-	{
-		sprintf(local_where_clause,
-			"station = '%s' and				"
-			"datatype = '%s' and				"
-			"measurement_date between '%s' and '%s' and	"
-			"last_validation_date is not null		",
-			station,
-			datatype,
-			begin_measurement_date,
-			end_measurement_date );
-	}
+	sprintf(local_where_clause,
+		"station = '%s' and				"
+		"datatype = '%s' and				"
+		"measurement_date between '%s' and '%s' 	"
+		"%s						",
+		station,
+		datatype,
+		begin_measurement_date,
+		end_measurement_date,
+		provisional_where );
 
 	sprintf( sys_string,
 		 "get_folder_data		application=%s		"
@@ -1073,7 +1072,9 @@ int hydrology_library_some_measurements_validated(
 		 local_where_clause );
 
 	results = pipe2string( sys_string );
-	return atoi( results );
+
+	return (boolean)atoi( results );
+
 } /* hydrology_library_some_measurements_validated() */
 
 boolean hydrology_library_get_drift_ratio_variables(
@@ -1463,4 +1464,25 @@ boolean hydrology_library_get_begin_end_year(
 	return 1;
 
 } /* hydrology_library_get_begin_end_year() */
+
+/* Returns program memory. */
+/* ----------------------- */
+char *hydrology_library_provisional_where(
+				enum validation_level validation_level )
+{
+	if ( validation_level == provisional )
+	{
+		return " and last_validation_date is null";
+	}
+	else
+	if ( validation_level == validated )
+	{
+		return " and last_validation_date is not null";
+	}
+	else
+	{
+		return " and 1 = 1";
+	}
+
+} /* hydrology_library_provisional_where() */
 

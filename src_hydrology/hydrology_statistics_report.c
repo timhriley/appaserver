@@ -165,19 +165,14 @@ int main( int argc, char **argv )
 		 begin_date,
 		 end_date );
 
-	if ( validation_level == provisional )
-	{
-		validated_where_clause = "and last_validation_date is null";
-		strcat( where_clause, validated_where_clause );
-	}
-	else
-	if ( validation_level == validated )
-	{
-		validated_where_clause = "and last_validation_date is not null";
-		strcat( where_clause, validated_where_clause );
-	}
-	else
-		validated_where_clause = "";
+	validated_where_clause =
+		/* ----------------------- */
+		/* Returns program memory. */
+		/* ----------------------- */
+		hydrology_library_provisional_where(
+			validation_level );
+
+	strcat( where_clause, validated_where_clause );
 
 	bypass_data_collection_frequency =
 		datatype_get_bypass_data_collection_frequency(
@@ -502,6 +497,11 @@ int main( int argc, char **argv )
 
 	/* Change the where_clause for output */
 	/* ---------------------------------- */
+	if ( timlib_strcmp( validated_where_clause, " and 1 = 1" ) == 0 )
+	{
+		validated_where_clause = "";
+	}
+
 	sprintf( where_clause,
 "station = %s and datatype = %s and measurement_date between %s and %s %s<hr>\n",
 		station,

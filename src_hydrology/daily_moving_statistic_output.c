@@ -827,13 +827,13 @@ void build_sys_string(	char *sys_string,
 		strcpy( exceedance_process, "cat" );
 	}
 
-	if ( strcmp( validation_level, "provisional" ) == 0 )
-		validation_where_clause = "last_validation_date is null";
-	else
-	if ( strcmp( validation_level, "validated" ) == 0 )
-		validation_where_clause = "last_validation_date is not null";
-	else
-		validation_where_clause = "1 = 1";
+	validation_where_clause =
+		/* ----------------------- */
+		/* Returns program memory. */
+		/* ----------------------- */
+		hydrology_library_provisional_where(
+			validation_level_string_resolve(
+				validation_level ) );
 
 	sprintf( where_clause,
  	"station = '%s' and 				      "

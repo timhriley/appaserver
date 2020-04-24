@@ -285,17 +285,12 @@ int main( int argc, char **argv )
 			begin_date );
 	}
 
-	if ( validation_level == provisional )
-	{
-		strcat( where_clause,
-			" and last_validation_date is null" );
-	}
-	else
-	if ( validation_level == validated )
-	{
-		strcat( where_clause,
-			" and last_validation_date is not null" );
-	}
+	strcat( where_clause,
+		/* ----------------------- */
+		/* Returns program memory. */
+		/* ----------------------- */
+		hydrology_library_provisional_where(
+			validation_level ) );
 
 	if ( aggregate_level == real_time || aggregate_level == daily )
 	{

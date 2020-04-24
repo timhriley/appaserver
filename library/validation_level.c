@@ -6,6 +6,14 @@
 #include <string.h>
 #include "validation_level.h"
 
+enum validation_level validation_level_string_resolve(
+				char *validation_level_string )
+{
+	return 
+		validation_level_get_validation_level(
+			validation_level_string );
+}
+
 enum validation_level validation_level_get_validation_level(
 				char *validation_level_string )
 {

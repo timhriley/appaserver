@@ -1218,19 +1218,12 @@ void build_sys_string(
 		pre_intermediate_process_sort = "sort -r";
 	}
 
-	if ( validation_level == provisional )
-	{
-		validation_where = "last_validation_date is null";
-	}
-	else
-	if ( validation_level == validated )
-	{
-		validation_where = "last_validation_date is not null";
-	}
-	else
-	{
-		validation_where = "1 = 1";
-	}
+	validation_where =
+		/* ----------------------- */
+		/* Returns program memory. */
+		/* ----------------------- */
+		hydrology_library_provisional_where(
+			validation_level );
 
 	sprintf( where_clause,
  	"station = '%s' and 				      		"

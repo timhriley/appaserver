@@ -216,15 +216,12 @@ int main( int argc, char **argv )
 		 	end_date );
 	}
 
-	if ( validation_level == provisional )
-	{
-		strcat( where_clause, "and last_validation_date is null" );
-	}
-	else
-	if ( validation_level == validated )
-	{
-		strcat( where_clause, "and last_validation_date is not null" );
-	}
+	strcat( where_clause,
+		/* ----------------------- */
+		/* Returns program memory. */
+		/* ----------------------- */
+		hydrology_library_provisional_where(
+			validation_level ) );
 
 	expected_count_per_day = get_latest_measurements_per_day(
 					application_name,

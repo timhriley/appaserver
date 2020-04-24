@@ -176,7 +176,7 @@ boolean hydrology_library_can_convert_to_units(
 					char *datatype,
 					char *units_converted );
 
-int hydrology_library_some_measurements_validated(
+boolean hydrology_library_some_measurements_validated(
 					char *application_name,
 					char *where_clause,
 					char *station,
@@ -236,5 +236,10 @@ boolean hydrology_library_get_begin_end_year(
 				char **begin_year,
 				char **end_year,
 				char *year_expression );
+
+/* Returns program memory. */
+/* ----------------------- */
+char *hydrology_library_provisional_where(
+				enum validation_level validation_level );
 
 #endif
