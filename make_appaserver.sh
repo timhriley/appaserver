@@ -36,16 +36,14 @@ then
 	fi
 fi
 
-for directory in `ls -1 -d $APPASERVER_HOME/src_*`
+for application in `application_list.sh`
 do
-	if [ "$directory" = "src_predictive" ]
-	then
-		continue
-	fi
+	directory="$APPASERVER_HOME/src_${application}"
 
 	if [ -f $directory/makefile ]
 	then
 		cd $directory && pwd && make
+
 		if [ "$?" -ne 0 ]
 		then
 			echo "$0 exiting early"

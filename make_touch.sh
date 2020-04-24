@@ -7,10 +7,14 @@ fi
 
 cd $APPASERVER_HOME/library; make touch
 cd $APPASERVER_HOME/utility; make touch
+cd $APPASERVER_HOME/src_predictive; make touch
 
-cd $APPASERVER_HOME
-for directory in `ls -1 -d $APPASERVER_HOME/src_*`
+for application in `application_list.sh`
 do
+	directory="$APPASERVER_HOME/src_${application}"
+
+echo "$directory" 1>&2
+
 	if [ -f $directory/makefile ]
 	then
 		cd $directory; make touch
