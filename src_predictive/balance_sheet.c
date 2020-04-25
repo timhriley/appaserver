@@ -186,8 +186,11 @@ int main( int argc, char **argv )
 			"as_of_date" ) == 0 )
 	{
 		as_of_date =
-			date_get_now_yyyy_mm_dd(
-				date_get_utc_offset() );
+			/* -------------------- */
+			/* Returns heap memory. */
+			/* -------------------- */
+			ledger_max_transaction_date(
+				application_name );
 	}
 
 	document_quick_output_body(

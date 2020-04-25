@@ -4646,6 +4646,23 @@ LIST *ledger_get_propagate_journal_ledger_list(
 
 } /* ledger_get_propagate_journal_ledger_list() */
 
+/* Returns heap memory. */
+/* -------------------- */
+char *ledger_max_transaction_date(
+				char *application_name )
+{
+	char *r;
+
+	r = ledger_fetch_max_transaction_date_time( application_name );
+
+	*( r + 10 ) = '\0';
+
+	return r;
+
+} /* ledger_max_transaction_date() */
+
+/* Returns heap memory. */
+/* -------------------- */
 char *ledger_fetch_max_transaction_date_time(
 				char *application_name )
 {

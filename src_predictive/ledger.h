@@ -997,6 +997,13 @@ void ledger_get_payroll_account_names(
 				char *application_name,
 				char *fund_name );
 
+/* Returns heap memory. */
+/* -------------------- */
+char *ledger_max_transaction_date(
+				char *application_name );
+
+/* Returns heap memory. */
+/* -------------------- */
 char *ledger_fetch_max_transaction_date_time(
 				char *application_name );
 

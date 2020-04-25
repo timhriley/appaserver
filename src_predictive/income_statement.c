@@ -192,7 +192,12 @@ int main( int argc, char **argv )
 	||   strcmp(	as_of_date,
 			"as_of_date" ) == 0 )
 	{
-		as_of_date = date_get_now_yyyy_mm_dd( date_get_utc_offset() );
+		as_of_date =
+			/* -------------------- */
+			/* Returns heap memory. */
+			/* -------------------- */
+			ledger_max_transaction_date(
+				application_name );
 	}
 
 	if ( net_income_only )
