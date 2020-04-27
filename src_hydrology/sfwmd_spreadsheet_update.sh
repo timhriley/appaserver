@@ -3,10 +3,6 @@
 # $APPASERVER_HOME/src_hydrology/sfwmd_spreadsheet_update.sh
 # ----------------------------------------------------------
 
-# Turned off 
-# ----------
-exit 0
-
 if [ "$#" -ne 1 ]
 then
 	echo "Usage: $0 execute_yn" 1>&2
@@ -36,14 +32,14 @@ do
 	measurement_date=`echo $input_line | piece.e '^' 2`
 	measurement_time=`echo $input_line | piece.e '^' 3`
 	last_validation_date=`echo $input_line | piece.e '^' 5`
-	provisional=`echo $input_line | piece.e '^' 6`
+	#provisional=`echo $input_line | piece.e '^' 6`
 
-	if [ "$provisional" = "provisional" ]
-	then
-		echo "Last validation not set: $input_line" 1>&2
-	else
+	#if [ "$provisional" = "provisional" ]
+	#then
+		#echo "Last validation not set: $input_line" 1>&2
+	#else
 		echo "$station^$datatype^$measurement_date^$measurement_time^last_validation_date^$last_validation_date"
-	fi
+	#fi
 done
 ) |	update_statement.e table=measurement key=$key carrot=y	|
 	$sql							|
