@@ -562,7 +562,7 @@ int main( int argc, char **argv )
 					aggregate_statistic ) ) );
 		printf( "<h2>\n" );
 		fflush( stdout );
-		system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+		if ( system( timlib_system_date_string() ) ){};
 		fflush( stdout );
 		printf( "</h2>\n" );
 	
@@ -699,7 +699,7 @@ int main( int argc, char **argv )
 					aggregate_statistic ) ) );
 		printf( "<h2>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( timlib_system_date_string() ) ){};
 		fflush( stdout );
 		printf( "</h2>\n" );
 	
@@ -784,7 +784,6 @@ void build_sys_string(	char *sys_string,
 			char *units_converted,
 			char *validation_level )
 {
-	char *validation_where_clause;
 	char where_clause[ 512 ];
 	char aggregation_process[ 1024 ];
 	char exceedance_process[ 256 ];
@@ -827,25 +826,22 @@ void build_sys_string(	char *sys_string,
 		strcpy( exceedance_process, "cat" );
 	}
 
-	validation_where_clause =
-		/* ----------------------- */
-		/* Returns program memory. */
-		/* ----------------------- */
-		hydrology_library_provisional_where(
-			validation_level_string_resolve(
-				validation_level ) );
-
 	sprintf( where_clause,
  	"station = '%s' and 				      "
  	"datatype = '%s' and				      "
 	"measurement_date between '%s' and '%s' and	      "
-	"measurement_value is not null and		      "
+	"measurement_value is not null 			      "
 	"%s						      ",
 		station_name,
 		datatype_name,
 		julian_display_yyyy_mm_dd( new_begin_date->current ),
 		end_date_string,
-		validation_where_clause );
+		/* ----------------------- */
+		/* Returns program memory. */
+		/* ----------------------- */
+		hydrology_library_provisional_where(
+			validation_level_string_resolve(
+				validation_level ) ) );
 
 	sprintf(
 			aggregation_process, 

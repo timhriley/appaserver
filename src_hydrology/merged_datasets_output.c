@@ -1226,10 +1226,10 @@ void build_sys_string(
 			validation_level );
 
 	sprintf( where_clause,
- 	"station = '%s' and 				      		"
- 	"datatype = '%s' and 				      		"
- 	"measurement_date >= '%s' and measurement_date <= '%s' and	"
-	"%s								",
+ 	"station = '%s' and 				      	"
+ 	"datatype = '%s' and 				      	"
+ 	"measurement_date >= '%s' and measurement_date <= '%s' 	"
+	"%s							",
 		station_name,
 		datatype_name,
 		begin_date,
