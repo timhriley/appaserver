@@ -209,7 +209,7 @@ void google_map_convert_to_latitude_longitude(
 	}
 	fclose( input_file );
 	sprintf( sys_string, "rm -f %s", tmp_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 } /* google_map_convert_to_latitude_longitude() */
 
 void google_map_output_point_list(	FILE *output_file,
@@ -358,6 +358,9 @@ void google_map_output_heading( FILE *output_file,
 				int google_map_height )
 {
 	char map_canvas[ 1024 ];
+	char *font_style;
+
+	font_style = "font-size: 2em;";
 
 	if ( absolute_position_top + absolute_position_left )
 	{
@@ -457,7 +460,7 @@ void google_map_output_heading( FILE *output_file,
 "	var content;\n"
 "	var marker;\n"
 "\n"
-"	content = '<u onclick=onclick_selectable_function(\"' + click_message + '\")>' + click_message + '</u>';\n"
+"	content = '<u style=\"%s\" onclick=onclick_selectable_function(\"' + click_message + '\")>' + click_message + '</u>';\n"
 "\n"
 "	marker = new google.maps.Marker({\n"
 "		position: point,\n"
@@ -472,7 +475,8 @@ void google_map_output_heading( FILE *output_file,
 "		infowindow.setContent( content );\n"
 "		infowindow.open( map, marker );\n"
 "		});\n"
-"}\n" );
+"}\n",
+	font_style );
 
 	fprintf(output_file,
 "var rectangle;\n"
