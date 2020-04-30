@@ -91,6 +91,8 @@ void date_increment_minutes(	DATE *d,
 void date_add_minutes(		DATE *d,
 				int minutes );
 
+int date_month_integer(		DATE *d );
+
 int get_month( DATE *d );
 
 int get_year( DATE *d );

@@ -1,4 +1,4 @@
-/* library/list.c					   */
+/* $APPASERVER_HOME/library/list.c			   */
 /* ======================================================= */
 /* Function code for linked list package                   */
 /* It supports the LIST ADT.              		   */
@@ -176,6 +176,11 @@ char *list_get_first_element( LIST *list )
 void *list_get_first_pointer( LIST *list )
 {
 	return list_get_first( list );
+}
+
+void *list_data( LIST *list )
+{
+	return list_get_pointer( list );
 }
 
 void *list_get_last_pointer( LIST *list )
@@ -1589,6 +1594,12 @@ LIST *list_quote_comma_string2list( char *list_string )
 	return list;
 } /* list_quote_comma_string2list() */
 
+LIST *list_string_list(		char *list_string,
+				char delimiter )
+{
+	return string2list( list_string, delimiter );
+}
+
 /* Free all memory with list_free_string_list() */
 /* -------------------------------------------- */
 LIST *string2list( char *list_string, char delimiter )
@@ -2254,4 +2265,20 @@ int list_double_list_match(	LIST *double_list,
 	return -1;
 
 } /* list_double_list_match() */
+
+LIST *list_cycle_right( LIST *list )
+{
+	void *data;
+	int length = list_length( list );
+
+	if ( length < 2 ) return list;
+
+	list_go_tail( list );
+	data = list_data( list );
+	list_delete_current( list );
+	list_add_head( list, data );
+
+	return list;
+
+} /* list_cycle_right() */
 

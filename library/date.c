@@ -508,6 +508,11 @@ int get_month( DATE *d )
 	return date_get_month( d );
 }
 
+int date_month_integer( DATE *d )
+{
+	return date_get_month( d );
+}
+
 int date_get_month( DATE *d )
 {
 	return d->tm->tm_mon + 1;

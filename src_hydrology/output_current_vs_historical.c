@@ -37,6 +37,14 @@
 
 /* Prototypes */
 /* ---------- */
+void current_vs_historical_cycle_right(
+				LIST *barchart_list,
+				LIST *datatype_name_list,
+				char *current_end_date_string );
+
+int current_vs_historical_shift_right(
+				char *current_end_date_string );
+
 LIST *get_historical_long_term_datatype_name_display_list(
 				LIST *datatype_name_list );
 
@@ -96,7 +104,7 @@ boolean populate_point_array_historical(
 				char *aggregation_function,
 				char *datatype_name );
 
-GOOGLE_OUTPUT_CHART *get_google_historical_long_term_chart(
+GOOGLE_OUTPUT_CHART *current_vs_historical_long_google_output_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
@@ -138,7 +146,8 @@ void output_historical(
 				FILE *output_file,
 				char *application_name,
 				LIST *station_name_list,
-				char *datatype_name );
+				char *datatype_name,
+				char *current_end_date );
 
 boolean output_historical_long_term(
 				FILE *output_file,
@@ -146,7 +155,8 @@ boolean output_historical_long_term(
 				char *datatype_name,
 				boolean bar_chart,
 				char *units,
-				char *application_name );
+				char *application_name,
+				char *current_end_date );
 
 boolean output_datatype(	char **datatype_name,
 				FILE *output_file,
@@ -182,7 +192,8 @@ void output_current_vs_historical(
 				enum state,
 				LIST *station_name_list,
 				char *datatype_name,
-				char *station_type );
+				char *station_type,
+				char *current_end_date );
 
 int main( int argc, char **argv )
 {
@@ -200,12 +211,12 @@ int main( int argc, char **argv )
 	char *datatype_name;
 	char *station_type = {0};
 	DOCUMENT *document;
-	char *por_historical_begin_date;
-	char *por_historical_end_date;
-	char *por_current_begin_date;
-	char *por_current_end_date;
-	char *current_begin_date;
-	char *current_end_date;
+	char *por_historical_begin_date = {0};
+	char *por_historical_end_date = {0};
+	char *por_current_begin_date = {0};
+	char *por_current_end_date = {0};
+	char *current_begin_date = {0};
+	char *current_end_date = {0};
 
 	application_name = argv[ 1 ];
 
@@ -237,6 +248,15 @@ int main( int argc, char **argv )
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	current_vs_historical_get_dates(
+		&por_historical_begin_date,
+		&por_historical_end_date,
+		&por_current_begin_date,
+		&por_current_end_date,
+		&current_begin_date,
+		&current_end_date,
+		application_name );
 
 	if ( state == initial )
 	{
@@ -340,7 +360,8 @@ int main( int argc, char **argv )
 				state,
 				station_name_list,
 				datatype_name,
-				station_type );
+				station_type,
+				current_end_date );
 
 	if ( state == initial )
 	{
@@ -349,15 +370,6 @@ int main( int argc, char **argv )
 "</html>\n" );
 
 		fclose( output_file );
-
-		current_vs_historical_get_dates(
-			&por_historical_begin_date,
-			&por_historical_end_date,
-			&por_current_begin_date,
-			&por_current_end_date,
-			&current_begin_date,
-			&current_end_date,
-			application_name );
 
 		document_output_html_stream( stdout );
 
@@ -413,7 +425,8 @@ void output_current_vs_historical(
 				enum state state,
 				LIST *station_name_list,
 				char *datatype_name,
-				char *station_type )
+				char *station_type,
+				char *current_end_date )
 {
 	if ( state == initial || state == map )
 	{
@@ -488,7 +501,8 @@ void output_current_vs_historical(
 				output_file,
 				application_name,
 				station_name_list,
-				datatype_name );
+				datatype_name,
+				current_end_date );
 
 		output_menu(	output_file,
 				application_name,
@@ -994,7 +1008,8 @@ void move_datatype_to_top(	LIST *datatype_list,
 void output_historical(		FILE *output_file,
 				char *application_name,
 				LIST *station_name_list,
-				char *datatype_name )
+				char *datatype_name,
+				char *current_end_date )
 {
 	boolean bar_chart = 0;
 	char *units;
@@ -1010,7 +1025,8 @@ void output_historical(		FILE *output_file,
 				datatype_name,
 				bar_chart,
 				units,
-				application_name ) )
+				application_name,
+				current_end_date ) )
 	{
 /*
 		output_historical_current(
@@ -1030,14 +1046,15 @@ boolean output_historical_long_term(
 				char *datatype_name,
 				boolean bar_chart,
 				char *units,
-				char *application_name )
+				char *application_name,
+				char *current_end_date )
 {
-	GOOGLE_OUTPUT_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_output_chart;
 	char yaxis_label[ 128 ];
 	LIST *datatype_name_display_list;
 
-	if ( ! ( google_chart =
-			get_google_historical_long_term_chart(
+	if ( ! ( google_output_chart =
+			current_vs_historical_long_google_output_chart(
 				station_name_list,
 				datatype_name,
 				bar_chart,
@@ -1065,9 +1082,14 @@ boolean output_historical_long_term(
 				units );
 	}
 
+	current_vs_historical_cycle_right(
+		google_output_chart->barchart_list,
+		google_output_chart->datatype_name_list,
+		current_end_date );
+
 	datatype_name_display_list =
 		get_historical_long_term_datatype_name_display_list(
-			google_chart->datatype_name_list );
+			google_output_chart->datatype_name_list );
 
 	format_initial_capital( yaxis_label, yaxis_label );
 
@@ -1075,35 +1097,35 @@ boolean output_historical_long_term(
 
 	google_chart_output_visualization_non_annotated(
 				output_file,
-				google_chart->google_chart_type,
-				google_chart->timeline_list,
-				google_chart->barchart_list,
+				google_output_chart->google_chart_type,
+				(LIST *)0 /* timeline_list */,
+				google_output_chart->barchart_list,
 				datatype_name_display_list,
 				"" /* title */,
 				strdup( yaxis_label ),
-				google_chart->width,
-				google_chart->height,
-				google_chart->background_color,
-				google_chart->legend_position_bottom,
+				google_output_chart->width,
+				google_output_chart->height,
+				google_output_chart->background_color,
+				google_output_chart->legend_position_bottom,
 				1 /* chart_type_bar */,
-				google_chart->google_package_name,
+				google_output_chart->google_package_name,
 				0 /* not dont_display_range_selector */,
 				daily /* aggregate_level */,
-				google_chart->chart_number );
+				google_output_chart->chart_number );
 
 	google_chart_output_chart_instantiation(
 		output_file,
-		google_chart->chart_number );
+		google_output_chart->chart_number );
 
 	google_chart_anchor_chart(
 				output_file,
 				"" /* chart_title */,
-				google_chart->google_package_name,
-				google_chart->left,
-				google_chart->top,
-				google_chart->width,
-				google_chart->height,
-				google_chart->chart_number );
+				google_output_chart->google_package_name,
+				google_output_chart->left,
+				google_output_chart->top,
+				google_output_chart->width,
+				google_output_chart->height,
+				google_output_chart->chart_number );
 
 	return 1;
 
@@ -1150,25 +1172,25 @@ GOOGLE_OUTPUT_CHART *get_google_current_chart(
 
 } /* get_google_current_chart() */
 
-GOOGLE_OUTPUT_CHART *get_google_historical_long_term_chart(
+GOOGLE_OUTPUT_CHART *current_vs_historical_long_google_output_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
 				char *application_name )
 
 {
-	GOOGLE_OUTPUT_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_output_chart;
 	char *aggregation_function;
 
-	google_chart =
+	google_output_chart =
 		google_output_chart_new(
 			LOCAL_CHART_POSITION_LEFT,
 			LOCAL_CHART_POSITION_TOP,
 			LOCAL_CHART_WIDTH,
 			HISTORICAL_CHART_HEIGHT );
 
-	google_chart->google_chart_type = google_column_chart;
-	google_chart->google_package_name = GOOGLE_CORECHART;
+	google_output_chart->google_chart_type = google_column_chart;
+	google_output_chart->google_package_name = GOOGLE_CORECHART;
 
 	if ( bar_chart )
 		aggregation_function = AGGREGATION_SUM;
@@ -1176,25 +1198,25 @@ GOOGLE_OUTPUT_CHART *get_google_historical_long_term_chart(
 		aggregation_function = AGGREGATION_AVG;
 
 	list_append_pointer(
-		google_chart->datatype_name_list,
+		google_output_chart->datatype_name_list,
 		STRATUM_DATATYPE_CURRENT );
 
 	list_append_pointer(
-		google_chart->datatype_name_list,
+		google_output_chart->datatype_name_list,
 		STRATUM_DATATYPE_HISTORICAL );
 
 /*
 #define MONTH_LIST_STRING "jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec"
 */
 	google_barchart_append_datatype_name_string(
-		google_chart->barchart_list,
+		google_output_chart->barchart_list,
 		MONTH_LIST_STRING /* datatype_name_list_string */,
-		list_length( google_chart->datatype_name_list ),
+		list_length( google_output_chart->datatype_name_list ),
 		',' /* delimiter */ );
 
 	if ( !populate_point_array_historical(
-			google_chart->barchart_list,
-			google_chart->datatype_name_list
+			google_output_chart->barchart_list,
+			google_output_chart->datatype_name_list
 				/* month_name_list */ ,
 			station_name_list,
 			application_name,
@@ -1204,9 +1226,9 @@ GOOGLE_OUTPUT_CHART *get_google_historical_long_term_chart(
 		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
-	return google_chart;
+	return google_output_chart;
 
-} /* get_google_historical_long_term_chart() */
+} /* current_vs_historical_long_google_output_chart() */
 
 boolean populate_point_array_historical(
 				LIST *barchart_list,
@@ -1786,4 +1808,43 @@ LIST *get_historical_long_term_datatype_name_display_list(
 	return datatype_name_display_list;
 
 } /* get_historical_long_term_datatype_name_display_list() */
+
+void current_vs_historical_cycle_right(
+			LIST *barchart_list,
+			LIST *datatype_name_list,
+			char *current_end_date_string )
+{
+	int shift_right;
+
+	shift_right =
+		current_vs_historical_shift_right(
+			current_end_date_string );
+
+	if ( shift_right < 0 ) return;
+
+	while ( shift_right-- )
+	{
+		barchart_list = list_cycle_right( barchart_list );
+		datatype_name_list = list_cycle_right( datatype_name_list );
+	}
+
+} /* current_vs_historical_shift_right() */
+
+int current_vs_historical_shift_right( char *current_end_date_string )
+{
+	DATE *current_end_date;
+	int month_integer;
+
+	if ( ! ( current_end_date =
+			date_yyyy_mm_dd_new(
+				current_end_date_string ) ) )
+	{
+		return -1;
+	}
+
+	month_integer = date_month_integer( current_end_date );
+
+	return 12 - month_integer;
+
+} /* current_vs_historical_shift_right() */
 

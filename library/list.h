@@ -123,7 +123,12 @@ int at_head( LIST *list );
 int at_end( LIST *list );
 LIST *sys_string2list( char *sys_string );
 LIST *pipe2list( char *sys_string );
+
+LIST *list_string_list(			char *list_string,
+					char delimiter );
+
 LIST *string2list( char *list_string, char delimiter );
+
 LIST *list_delimiter_string_to_list( char *list_string, char delimiter );
 char *list_get_offset( LIST *list, int offset );
 LIST *list_subtract( LIST *big_list, LIST *subtract_this );
@@ -388,5 +393,9 @@ LIST *list_append_current_list(	LIST *destination_list,
 
 void list_html_table_display(	LIST *list,
 				char *heading_string );
+
+LIST *list_cycle_right(		LIST *list );
+
+void *list_data(		LIST *list );
 
 #endif

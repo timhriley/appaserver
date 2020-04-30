@@ -95,6 +95,7 @@ char *piece_delete( char *, char, int );
 void piece_bar_or_error( char *d, char *s, int piece_buffer );
 int exists_escaped_delimiter( char *source, char delimiter );
 char *piece_trim( char *s_here, char *s, int piece_offset );
+
 char *piece_swap( 	char *source_destination, 
 			char delimiter, 
 			int piece1_offset,
@@ -107,6 +108,7 @@ char *piece_shift_right(char *source_destination,
 			char delimiter );
 
 char *piece_last( char *destination, char delimiter, char *source );
+
 char *piece_insert( 	char *source_destination, 
 			char delimiter, 
 			char *insert_this,
