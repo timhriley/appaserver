@@ -160,7 +160,8 @@ boolean operation_perform(
 			if ( non_owner_forbid_deletion
 			&&   strcmp( process_name, "delete" ) == 0
 			&&   dictionary_login_name
-			&&   strcmp(	dictionary_login_name,
+			&&   timlib_strcmp(
+					dictionary_login_name,
 					login_name ) != 0 )
 			{
 				char msg[ 1024 ];
