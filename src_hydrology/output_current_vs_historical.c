@@ -39,7 +39,6 @@
 /* ---------- */
 void current_vs_historical_cycle_right(
 				LIST *barchart_list,
-				LIST *datatype_name_list,
 				char *current_end_date_string );
 
 int current_vs_historical_shift_right(
@@ -1084,7 +1083,6 @@ boolean output_historical_long_term(
 
 	current_vs_historical_cycle_right(
 		google_output_chart->barchart_list,
-		google_output_chart->datatype_name_list,
 		current_end_date );
 
 	datatype_name_display_list =
@@ -1811,7 +1809,6 @@ LIST *get_historical_long_term_datatype_name_display_list(
 
 void current_vs_historical_cycle_right(
 			LIST *barchart_list,
-			LIST *datatype_name_list,
 			char *current_end_date_string )
 {
 	int shift_right;
@@ -1825,7 +1822,6 @@ void current_vs_historical_cycle_right(
 	while ( shift_right-- )
 	{
 		barchart_list = list_cycle_right( barchart_list );
-		datatype_name_list = list_cycle_right( datatype_name_list );
 	}
 
 } /* current_vs_historical_shift_right() */
