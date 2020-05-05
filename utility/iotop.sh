@@ -10,7 +10,7 @@ do
 	# Clear pagecache, dentries and inodes.
 	# -------------------------------------
 	sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
-	sudo iotop -o -b -n1
+	sudo iotop -o -b -n1 | trim.e 80
 	sleep 5
 	echo
 done
