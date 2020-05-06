@@ -98,6 +98,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	statistics.e toupper.e tolower.e extension.e			\
 	statistics_weighted.e						\
 	moving_average.e						\
+	average.e							\
 	complete_arrangement.e						\
 	colapse_repeating.e						\
 	trim_character.e display_character.e piece_ora_date.e		\
@@ -817,6 +818,14 @@ moving_average.e: moving_average.c					\
 		${LIBRARY}/aggregate_statistic.o 			\
 		${LIBRARY}/moving_average.o 				\
 		-o moving_average.e
+
+average.e: average.c							\
+		${STANDARD_LIBRARY}
+	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		average.c						\
+		${STANDARD_LIBRARY}					\
+		-o average.e
 
 complete_arrangement.e: complete_arrangement.c				\
 		${STANDARD_LIBRARY}
