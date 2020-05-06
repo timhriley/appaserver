@@ -4,20 +4,22 @@
 # Freely available software: see Appaserver.org
 # ---------------------------------------------
 
-withclear_yn=n
+#seconds=5
+#iterations=500
+#withclear_yn=n
 
-if [ "$#" -eq 1 ]
+if [ "$#" -ne 3 ]
 then
-	if [ "$1" != "y" -a "$1" != "n" ]
-	then
-		echo "Usage: `echo $0 | basename.e` [withclear_yn]" 1>&2
-		echo "Note:  withclear_yn defalts to n" 1>&2
-		exit 1
-	fi
-	withclear_yn=$1
+	echo "Usage: `echo $0 | basename.e` seconds iterations withclear_yn" 1>&2
+	exit 1
 fi
 
-while [ true ]
+seconds=$1
+iterations=$2
+withclear_yn=$3
+
+binary_count.e $iterations					|
+while read ignore
 do
 	if [ "$withclear_yn" = "y" ]
 	then
@@ -29,11 +31,13 @@ do
 		sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
 		sudo sh -c 'swapoff -a && swapon -a'
 		sudo iotop -o -b -n1 | trim.e 80
-		sleep 5
+		sleep $seconds
 		echo
 	else
 		sudo iotop -o -b -n1 | trim.e 80
-		sleep 5
+		sleep $seconds
 		echo
 	fi
 done
+
+exit 0
