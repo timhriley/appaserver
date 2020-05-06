@@ -1,11 +1,13 @@
-/* utility/delete_statement.c */
-/* -----------------------------------------------------------------
+/* $APPASERVER_HOME/utility/delete_statement.c		*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
+/* -------------------------------------------------------
 	Input:	Table name 			argv[ 1 ]
 		Piped delimited rows		stream
 	Output:	Delete statements
 
-	Tim Riley
--------------------------------------------------------------------- */
+------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,8 +16,11 @@
 #include "name_arg.h"
 #include "timlib.h"
 
+/* Constants */
+/* --------- */
 #define MAX_BUFFER		4096
 #define DEFAULT_DELIMITER	"|"
+#define IGNORE_CLAUSE		"ignore"
 
 /* Prototypes */
 /* ---------- */
@@ -91,7 +96,7 @@ void output_delete_stmts( 	char *table_name,
 		fix_any_quotes( buffer );
 		escape_dollar_signs( buffer );
 
-		printf( "delete from %s", table_name );
+		printf( "delete %s from %s", IGNORE_CLAUSE, table_name );
 
 		printf( " where 1 = 1" );
 		output_row( buffer, field_names, delimiter );
