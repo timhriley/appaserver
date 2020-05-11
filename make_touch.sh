@@ -7,6 +7,7 @@ fi
 
 cd $APPASERVER_HOME/library; make touch
 cd $APPASERVER_HOME/utility; make touch
+cd $APPASERVER_HOME/appaserver; make touch
 cd $APPASERVER_HOME/src_predictive; make touch
 
 for application in `application_list.sh`

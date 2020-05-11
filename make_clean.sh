@@ -13,6 +13,7 @@ fi
 
 cd $APPASERVER_HOME/library; make clean
 cd $APPASERVER_HOME/utility; make clean
+cd $APPASERVER_HOME/src_appaserver; make clean
 cd $APPASERVER_HOME/src_predictive; make clean
 
 for application in `application_list.sh`
