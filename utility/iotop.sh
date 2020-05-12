@@ -4,9 +4,7 @@
 # Freely available software: see Appaserver.org
 # ---------------------------------------------
 
-#seconds=5
-#iterations=500
-#withclear_yn=n
+flags="-o -b -n1 -k"
 
 if [ "$#" -ne 3 ]
 then
@@ -30,11 +28,11 @@ do
 		sudo sync
 		sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
 		sudo sh -c 'swapoff -a && swapon -a'
-		sudo iotop -o -b -n1 | trim.e 80
+		sudo iotop $flags | trim.e 80
 		sleep $seconds
 		echo
 	else
-		sudo iotop -o -b -n1 | trim.e 80
+		sudo iotop $flags | trim.e 80
 		sleep $seconds
 		echo
 	fi

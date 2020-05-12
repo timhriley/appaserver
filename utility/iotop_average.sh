@@ -4,17 +4,27 @@
 # Freely available software: see Appaserver.org
 # ---------------------------------------------
 
-if [ "$#" -ne 1 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage: `echo $0 | basename.e` seconds" 1>&2
+	echo "Usage: `echo $0 | basename.e` iterations read|write" 1>&2
 	exit 1
 fi
 
-seconds=$1
+iterations=$1
+operation=$2
 
-iotop.sh 1 $seconds n		|
+seconds=5
+
+if [ "$operation" = "read" ]
+then
+	grab=4
+else
+	grab=11
+fi
+
+iotop.sh $seconds $iterations n	|
 grep 'Total DISK READ'		|
-column.e 4			|
+column.e $grab			|
 grep -v '0.00'			|
 average.e '|'			|
 cat
