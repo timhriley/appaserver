@@ -26,6 +26,13 @@ then
 	exit 1
 fi
 
+cd $APPASERVER_HOME/src_appaserver && pwd && make
+if [ "$?" -ne 0 ]
+then
+	echo "$0 exiting early"
+	exit 1
+fi
+
 if [ -d $APPASERVER_HOME/src_predictive ]
 then
 	cd $APPASERVER_HOME/src_predictive 2>/dev/null && pwd && make

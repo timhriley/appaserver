@@ -25,10 +25,13 @@ do
 		# -------------------------------------
 		# Clear pagecache, dentries and inodes.
 		# -------------------------------------
-		sudo sync
 		sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
+		# -----------------
+		# Clear swap space.
+		# -----------------
 		sudo sh -c 'swapoff -a && swapon -a'
 		sudo iotop $flags | trim.e 80
+
 		sleep $seconds
 		echo
 	else
