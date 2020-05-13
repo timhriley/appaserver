@@ -303,7 +303,7 @@ enum password_function
 	{
 		return password_function;
 	}
-	if ( str_len == 54 )
+	if ( str_len == 56 )
 	{
 		return sha2_function;
 	}

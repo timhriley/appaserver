@@ -154,7 +154,7 @@ PERIOD_WO_DATE_PERIOD **period_wo_date_get_weekly_period_array(
 	char end_year_string[ 8 ];
 	int begin_year_int;
 	int end_year_int;
-	char representative_week_date_string[ 16 ];
+	char representative_week_date_string[ 256 ];
 	PERIOD_WO_DATE_PERIOD *period_wo_date_period;
 	int array_offset = 0;
 

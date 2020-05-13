@@ -4,7 +4,7 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_appaserver
-	touch insert_mysql.c
-	make insert_mysql
+	touch post_login.c
+	make post_login
 fi
 
