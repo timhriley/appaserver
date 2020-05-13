@@ -193,7 +193,8 @@ int insert_mysql_appaserver_user(
 					application_name,
 					appaserver_user->login_name,
 					appaserver_user->person_full_name,
-					appaserver_user->database_password ) )
+					appaserver_user->database_password,
+					appaserver_user->user_date_format ) )
 		{
 			rows_to_insert--;
 		}

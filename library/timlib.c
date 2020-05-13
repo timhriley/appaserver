@@ -4061,3 +4061,15 @@ char *timlib_system_date_string( void )
 	"echo '<h2>' && TZ=`appaserver_tz.sh` date '+%x %H:%M' && echo '</h2>'";
 }
 
+void timlib_remove_file( char *filename )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "rm %s",
+		 filename );
+
+	if ( system( sys_string ) ){};
+
+} /* timlib_remove_file() */
+

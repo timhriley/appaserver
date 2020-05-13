@@ -374,6 +374,7 @@ char *appaserver_user_encrypt_password(
 	char sys_string[ 1024 ];
 	char where[ 128 ];
 	char *select;
+	char *results;
 
 	sprintf( where, "application = '%s'", application_name );
 
@@ -399,7 +400,18 @@ char *appaserver_user_encrypt_password(
 		 select,
 		 where );
 
-	return pipe2string( sys_string );
+	if ( ! ( results = pipe2string( sys_string ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot [%s]\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 sys_string );
+		exit( 1 );
+	}
+
+	return results;
 
 } /* appaserver_user_encrypt_password() */
 
@@ -409,18 +421,14 @@ boolean appaserver_user_password_match(
 					char *database_password,
 					char *mysql_version )
 {
-	enum password_security appaserver_user_password_security;
 	char *encrypt_password;
-
-	appaserver_user_password_security =
-		appaserver_user_version_password_security(
-			mysql_version );
 
 	encrypt_password =
 		appaserver_user_encrypt_password(
 			application_name,
 			typed_in_password,
-			appaserver_user_password_security );
+			appaserver_user_version_password_security(
+				mysql_version ) );
 
 	return ( timlib_strcmp( encrypt_password, database_password ) == 0 );
 
@@ -490,10 +498,12 @@ enum password_security
 boolean appaserver_user_insert(		char *application_name,
 					char *login_name,
 					char *person_full_name,
-					char *database_password )
+					char *database_password,
+					char *user_date_format )
 {
 	FILE *output_pipe;
 	char error_filename[ 128 ];
+	boolean file_populated;
 
 	sprintf( error_filename,
 		 "/tmp/appaserver_user_insert_%d.err",
@@ -508,11 +518,16 @@ boolean appaserver_user_insert(		char *application_name,
 		output_pipe,
 		login_name,
 		person_full_name,
-		database_password );
+		database_password,
+		user_date_format );
 
 	pclose( output_pipe );
 
-	return !timlib_file_populated( error_filename );
+	file_populated = timlib_file_populated( error_filename );
+
+	timlib_remove_file( error_filename );
+
+	return !file_populated;
 
 } /* appaserver_user_insert() */
 
@@ -547,17 +562,19 @@ FILE *appaserver_user_insert_open(	char *application_name,
 void appaserver_user_insert_stream(	FILE *output_pipe,
 					char *login_name,
 					char *person_full_name,
-					char *database_password )
+					char *database_password,
+					char *user_date_format )
 {
 	char entity_buffer[ 128 ];
 
 	fprintf(	output_pipe,
-			"%s^%s^%s\n",
+			"%s^%s^%s^%s\n",
 			login_name,
 	 		escape_character(	entity_buffer,
 						person_full_name,
 						'\'' ),
-			database_password );
+			(database_password) ? database_password : "",
+			user_date_format );
 
 } /* appaserver_user_insert_stream() */
 
@@ -575,7 +592,7 @@ APPASERVER_USER *appaserver_user_typed_in_parse(
 	if ( !piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
+			 "ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -588,7 +605,7 @@ APPASERVER_USER *appaserver_user_typed_in_parse(
 	if ( !piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
+			 "ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -597,6 +614,19 @@ APPASERVER_USER *appaserver_user_typed_in_parse(
 	}
 
 	appaserver_user->typed_in_password = strdup( piece_buffer );
+
+	if ( !piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 input_buffer );
+		return (APPASERVER_USER *)0;
+	}
+
+	appaserver_user->user_date_format = strdup( piece_buffer );
 
 	return appaserver_user;
 

@@ -24,6 +24,7 @@ typedef struct
 	char *person_full_name;
 	char *typed_in_password;
 	char *database_password;
+	char *user_date_format;
 	LIST *role_list;
 	boolean frameset_menu_horizontal;
 	LIST *session_list;
@@ -104,7 +105,8 @@ enum password_security
 boolean appaserver_user_insert(		char *application_name,
 					char *login_name,
 					char *person_full_name,
-					char *database_password );
+					char *database_password,
+					char *user_date_format );
 
 FILE *appaserver_user_insert_open(	char *application_name,
 					char *error_filename );
@@ -112,7 +114,8 @@ FILE *appaserver_user_insert_open(	char *application_name,
 void appaserver_user_insert_stream(	FILE *output_pipe,
 					char *login_name,
 					char *person_full_name,
-					char *database_password );
+					char *database_password,
+					char *user_date_format );
 
 APPASERVER_USER *appaserver_user_typed_in_parse(
 					char *input_buffer );
