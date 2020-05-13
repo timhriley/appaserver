@@ -178,7 +178,7 @@ char *appaserver_user_get_person_full_name(
 
 } /* appaserver_user_get_person_full_name() */
 
-char *appaserver_user_get_password(
+char *appaserver_user_password_fetch(
 				char *application_name,
 				char *login_name )
 {
@@ -194,7 +194,7 @@ char *appaserver_user_get_password(
 	else
 		return global_appaserver_user->database_password;
 
-} /* appaserver_user_get_password() */
+} /* appaserver_user_password_fetch() */
 
 boolean appaserver_user_frameset_menu_horizontal(
 						char *application_name,

@@ -65,7 +65,8 @@ APPASERVER_USER *appaserver_user_fetch(
 char *appaserver_user_get_person_full_name(
 					char *application_name,
 					char *login_name );
-char *appaserver_user_get_password(	char *application_name,
+
+char *appaserver_user_password_fetch(	char *application_name,
 					char *login_name );
 
 boolean appaserver_user_frameset_menu_horizontal(
