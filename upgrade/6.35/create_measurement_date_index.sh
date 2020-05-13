@@ -1,4 +1,7 @@
 #!/bin/bash
+
+exit  0
+
 # Expect 5 hours, 50 minutes.
 # ---------------------------
 if [ "$APPASERVER_DATABASE" != "" ]
