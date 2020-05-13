@@ -413,7 +413,7 @@ int main( int argc, char **argv )
 	fflush( stderr );
 
 	if ( !list_length( process_parameter_list->process_parameter_list )
-	&&   appaserver_get_frameset_menu_horizontal(
+	&&   appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{

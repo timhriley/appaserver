@@ -232,7 +232,7 @@ int main( int argc, char **argv )
 	document_set_javascript_module( document, "null2slash" );
 	document_set_javascript_module( document, "push_button_submit" );
 
-	if ( !appaserver_get_frameset_menu_horizontal(
+	if ( !appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{

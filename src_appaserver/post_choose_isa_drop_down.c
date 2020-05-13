@@ -328,7 +328,7 @@ int main( int argc, char **argv )
 				appaserver_parameter_file_get_data_directory()
 					/* tmp_file_directory */ );
 
-			if ( appaserver_get_frameset_menu_horizontal(
+			if ( appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 			{

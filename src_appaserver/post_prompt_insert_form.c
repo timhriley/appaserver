@@ -275,7 +275,8 @@ int main( int argc, char **argv )
 			appaserver_error_get_filename(
 					application_name ) );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
+
 		exit( 0 );
 
 	} /* if vertical_new_button_folder_name */
@@ -314,7 +315,8 @@ int main( int argc, char **argv )
 			appaserver_error_get_filename(
 					application_name ) );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
+
 		exit( 0 );
 	}
 
@@ -561,7 +563,8 @@ int main( int argc, char **argv )
 				appaserver_error_get_filename(
 					application_name ) );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
+
 		exit( 0 );
 	}
 
@@ -582,7 +585,8 @@ int main( int argc, char **argv )
 			appaserver_error_get_filename(
 					application_name ) );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
+
 	exit( 0 );
 
 } /* main() */
@@ -880,7 +884,7 @@ void insert_one2m_pair_sequence(
 			(message) ? message : "",
 			appaserver_error_get_filename(
 				application_name ) );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		exit( 0 );
 	}
 
@@ -927,8 +931,10 @@ void insert_one2m_pair_sequence(
 		appaserver_error_get_filename(
 				application_name ) );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
+
 	exit( 0 );
+
 } /* insert_one2m_pair_sequence() */
 
 void set_null_operator_data_to_null(

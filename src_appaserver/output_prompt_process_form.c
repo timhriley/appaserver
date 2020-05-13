@@ -346,7 +346,7 @@ int main( int argc, char **argv )
 						application_name,
 						process_name );
 
-	if ( appaserver_get_frameset_menu_horizontal(
+	if ( appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{
@@ -414,7 +414,7 @@ int main( int argc, char **argv )
 		appaserver_library_output_calendar_javascript();
 	}
 
-	if ( !appaserver_get_frameset_menu_horizontal(
+	if ( !appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{

@@ -510,7 +510,7 @@ int main( int argc, char **argv )
 		application_name,
 		folder_name );
 
-	if ( appaserver_get_frameset_menu_horizontal(
+	if ( appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{

@@ -144,7 +144,7 @@ int main( int argc, char **argv )
 
 	role = role_new_role( application_name, role_name );
 	
-	if ( appaserver_get_frameset_menu_horizontal(
+	if ( appaserver_frameset_menu_horizontal(
 						application_name,
 						login_name ) )
 	{
@@ -194,7 +194,7 @@ int main( int argc, char **argv )
 			role_folder_insert_list,
 			application_name );
 
-	if ( appaserver_get_frameset_menu_horizontal(
+	if ( appaserver_frameset_menu_horizontal(
 						application_name,
 						login_name ) )
 	{

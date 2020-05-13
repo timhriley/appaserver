@@ -206,7 +206,7 @@ boolean operation_perform(
 
 			if ( first_time && output_yn == 'y' )
 			{
-				if ( appaserver_get_frameset_menu_horizontal(
+				if ( appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name )
 				&&   strcmp( target_frame, PROMPT_FRAME ) == 0 )

@@ -380,7 +380,7 @@ void execute_output_process(	char *application_name,
 {
 	char sys_string[ 1024 ];
 
-	if ( appaserver_get_frameset_menu_horizontal(
+	if ( appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{

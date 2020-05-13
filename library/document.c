@@ -718,7 +718,7 @@ DOCUMENT *document_output_menu_new(
 	document_set_javascript_module( document, "post_change_multi_select" );
 
 	with_dynarch_menu =
-		appaserver_get_frameset_menu_horizontal(
+		appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name );
 

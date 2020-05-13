@@ -13,18 +13,42 @@
 
 #define APPASERVER_USER_RECORD_DELIMITER	'^'
 
+enum password_security	{	no_encryption,
+				old_password_encryption,
+				password_encryption,
+				sha2_encryption };
+
 typedef struct
 {
 	char *login_name;
 	char *person_full_name;
-	char *password;
+	char *typed_in_password;
+	char *database_password;
 	LIST *role_list;
-	char frameset_menu_horizontal_yn;
+	boolean frameset_menu_horizontal;
 	LIST *session_list;
 } APPASERVER_USER;
 
 /* Prototypes */
 /* ---------- */
+enum password_security
+	appaserver_user_password_security(
+					char *database_password );
+
+/* Returns heap memory. */
+/* -------------------- */
+char *appaserver_user_encryption_function(
+					enum password_security,
+					char *typed_in_password );
+
+/* Returns heap memory. */
+/* -------------------- */
+char *appaserver_user_encrypt_password(
+				char *application_name,
+				char *typed_in_password,
+				enum password_security
+					appaserver_user_password_security );
+
 LIST *appaserver_user_get_session_list(	char *application_name,
 					char *login_name );
 
@@ -36,7 +60,7 @@ boolean appaserver_user_exists_role(	char *application_name,
 					char *login_name,
 					char *role_name );
 
-APPASERVER_USER *appaserver_user_new_appaserver_user(
+APPASERVER_USER *appaserver_user_fetch(
 					char *application_name,
 					char *login_name );
 
@@ -46,11 +70,51 @@ char *appaserver_user_get_person_full_name(
 char *appaserver_user_get_password(	char *application_name,
 					char *login_name );
 
-char appaserver_user_get_frameset_menu_horizontal_yn(
+boolean appaserver_user_frameset_menu_horizontal(
 					char *application_name,
 					char *login_name );
 
-LIST *appaserver_user_get_role_list(
+LIST *appaserver_user_role_list(
 					char *application_name,
 					char *login_name );
+
+APPASERVER_USER *appaserver_user_calloc(void );
+
+boolean appaserver_user_password_match(
+					char *application_name,
+					char *typed_in_password,
+					char *database_password,
+					char *mysql_version );
+
+/* Returns heap memory. */
+/* -------------------- */
+char *appaserver_user_mysql_version(	void );
+
+/* Returns heap memory. */
+/* -------------------- */
+char *appaserver_user_version_encrypt_password(
+					char *application_name,
+					char *typed_in_password,
+					char *mysql_version );
+
+enum password_security
+	appaserver_user_version_password_security(
+					char *mysql_version );
+
+boolean appaserver_user_insert(		char *application_name,
+					char *login_name,
+					char *person_full_name,
+					char *database_password );
+
+FILE *appaserver_user_insert_open(	char *application_name,
+					char *error_filename );
+
+void appaserver_user_insert_stream(	FILE *output_pipe,
+					char *login_name,
+					char *person_full_name,
+					char *database_password );
+
+APPASERVER_USER *appaserver_user_typed_in_parse(
+					char *input_buffer );
+
 #endif

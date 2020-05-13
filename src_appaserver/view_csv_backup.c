@@ -73,7 +73,7 @@ int main( int argc, char **argv )
 
 	document = document_new( "", application_name );
 
-	if ( !appaserver_get_frameset_menu_horizontal(
+	if ( !appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{

@@ -414,7 +414,7 @@ int main( int argc, char **argv )
 	document = document_new( insert_update_key, application_name );
 
 	if ( strcmp( target_frame, PROMPT_FRAME ) == 0
-	&&   appaserver_get_frameset_menu_horizontal(
+	&&   appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{

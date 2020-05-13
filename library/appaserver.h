@@ -104,7 +104,7 @@ LIST *appaserver_get_exclude_attribute_name_list(
 					LIST *attribute_list,
 					char *permission );
 
-int appaserver_get_frameset_menu_horizontal(
+int appaserver_frameset_menu_horizontal(
 					char *application_name,
 					char *login_name );
 

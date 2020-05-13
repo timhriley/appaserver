@@ -6,17 +6,40 @@
 /* -------------------------------------------------------------------- */
 
 #include <stdio.h>
+#include <ctype.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include "appaserver_user.h"
 #include "appaserver_library.h"
+#include "boolean.h"
 #include "piece.h"
 #include "folder.h"
 #include "timlib.h"
 
 static APPASERVER_USER *global_appaserver_user = {0};
 
-APPASERVER_USER *appaserver_user_new_appaserver_user(
+APPASERVER_USER *appaserver_user_calloc( void )
+{
+	APPASERVER_USER *a;
+
+	if ( ! ( a = (APPASERVER_USER *)
+			calloc(	1,
+				sizeof( APPASERVER_USER ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return a;
+
+} /* appaserver_user_calloc() */
+
+APPASERVER_USER *appaserver_user_fetch(
 				char *application_name,
 				char *login_name )
 {
@@ -93,9 +116,7 @@ APPASERVER_USER *appaserver_user_new_appaserver_user(
 		exit( 1 );
 	}
 
-	appaserver_user =
-		(APPASERVER_USER *)
-			calloc( 1, sizeof( APPASERVER_USER ) );
+	appaserver_user = appaserver_user_calloc();
 
 	piece(	piece_buffer,
 		APPASERVER_USER_RECORD_DELIMITER,
@@ -107,17 +128,18 @@ APPASERVER_USER *appaserver_user_new_appaserver_user(
 		APPASERVER_USER_RECORD_DELIMITER,
 		input_string,
 		1 );
-	appaserver_user->password = strdup( piece_buffer );
+	appaserver_user->database_password = strdup( piece_buffer );
 
 	piece(	piece_buffer,
 		APPASERVER_USER_RECORD_DELIMITER,
 		input_string,
 		2 );
-	appaserver_user->frameset_menu_horizontal_yn = *piece_buffer;
+	appaserver_user->frameset_menu_horizontal =
+		( *piece_buffer == 'y' );
 
 	return appaserver_user;
 
-} /* appaserver_user_new_appaserver_user() */
+} /* appaserver_user_fetch() */
 
 LIST *appaserver_user_get_session_list(	char *application_name,
 					char *login_name )
@@ -145,7 +167,7 @@ char *appaserver_user_get_person_full_name(
 	if ( !global_appaserver_user )
 	{
 		global_appaserver_user =
-			appaserver_user_new_appaserver_user(
+			appaserver_user_fetch(
 				application_name, login_name );
 	}
 
@@ -156,38 +178,43 @@ char *appaserver_user_get_person_full_name(
 
 } /* appaserver_user_get_person_full_name() */
 
-char *appaserver_user_get_password( char *application_name, char *login_name )
+char *appaserver_user_get_password(
+				char *application_name,
+				char *login_name )
 {
 	if ( !global_appaserver_user )
 	{
 		global_appaserver_user =
-			appaserver_user_new_appaserver_user(
+			appaserver_user_fetch(
 				application_name, login_name );
 	}
 
 	if ( !global_appaserver_user )
 		return "";
 	else
-		return global_appaserver_user->password;
+		return global_appaserver_user->database_password;
 
 } /* appaserver_user_get_password() */
 
-char appaserver_user_get_frameset_menu_horizontal_yn(
+boolean appaserver_user_frameset_menu_horizontal(
 						char *application_name,
 						char *login_name )
 {
 	if ( !global_appaserver_user )
 	{
 		global_appaserver_user =
-			appaserver_user_new_appaserver_user(
+			appaserver_user_fetch(
 				application_name, login_name );
 	}
 
 	if ( !global_appaserver_user )
-		return '\0';
-	else
-		return global_appaserver_user->frameset_menu_horizontal_yn;
-}
+	{
+		return 0;
+	}
+
+	return global_appaserver_user->frameset_menu_horizontal;
+
+} /* appaserver_user_frameset_menu_horizontal() */
 
 boolean appaserver_user_exists_session(	char *application_name,
 					char *login_name,
@@ -196,7 +223,7 @@ boolean appaserver_user_exists_session(	char *application_name,
 	if ( !global_appaserver_user )
 	{
 		global_appaserver_user =
-			appaserver_user_new_appaserver_user(
+			appaserver_user_fetch(
 				application_name, login_name );
 	}
 
@@ -221,14 +248,14 @@ boolean appaserver_user_exists_role(	char *application_name,
 	if ( !global_appaserver_user )
 	{
 		global_appaserver_user =
-			appaserver_user_new_appaserver_user(
+			appaserver_user_fetch(
 				application_name, login_name );
 	}
 
 	if ( !global_appaserver_user->role_list )
 	{
 		global_appaserver_user->role_list =
-			appaserver_user_get_role_list(
+			appaserver_user_role_list(
 				application_name,
 				login_name );
 	}
@@ -239,7 +266,7 @@ boolean appaserver_user_exists_role(	char *application_name,
 
 } /* appaserver_user_exists_role() */
 
-LIST *appaserver_user_get_role_list(
+LIST *appaserver_user_role_list(
 				char *application_name,
 				char *login_name )
 {
@@ -254,6 +281,324 @@ LIST *appaserver_user_get_role_list(
 		 "			where=\"%s\"			",
 		 application_name,
 		 where );
+
 	return pipe2list( sys_string );
-} /* appaserver_user_get_role_list() */
+
+} /* appaserver_user_role_list() */
+
+enum password_security
+	appaserver_user_password_security(
+					char *database_password )
+{
+	int str_len;
+
+	str_len = strlen( database_password );
+
+	if ( str_len == 16 )
+	{
+		return old_password_encryption;
+	}
+	else
+	if ( str_len == 41 && *database_password == '*' )
+	{
+		return old_password_encryption;
+	}
+	if ( str_len == 54 )
+	{
+		return sha2_encryption;
+	}
+	else
+	{
+		return no_encryption;
+	}
+
+} /* appaserver_user_password_security() */
+
+/* Returns heap memory. */
+/* -------------------- */
+char *appaserver_user_encryption_function(
+				enum password_security
+					appaserver_user_password_security,
+				char *typed_in_password )
+{
+	char encryption_function[ 128 ];
+
+	if ( appaserver_user_password_security == no_encryption )
+	{
+		timlib_strcpy(
+			encryption_function,
+			typed_in_password,
+			0 /* unknown buffer_size */ );
+	}
+	else
+	if ( appaserver_user_password_security == old_password_encryption )
+	{
+		sprintf( encryption_function,
+			 "old_password( '%s' )",
+			 typed_in_password );
+	}
+	else
+	if ( appaserver_user_password_security == password_encryption )
+	{
+		sprintf( encryption_function,
+			 "password( '%s' )",
+			 typed_in_password );
+	}
+	else
+	if ( appaserver_user_password_security == sha2_encryption )
+	{
+		sprintf( encryption_function,
+			 "sha2( '%s', 224 )",
+			 typed_in_password );
+	}
+	else
+	{
+		timlib_strcpy(
+			encryption_function,
+			typed_in_password,
+			0 /* unknown buffer_size */ );
+	}
+
+	return strdup( encryption_function );
+
+} /* appaserver_user_encryption_function() */
+
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_user_encrypt_password(
+				char *application_name,
+				char *typed_in_password,
+				enum password_security
+					appaserver_user_password_security )
+{
+	char sys_string[ 1024 ];
+	char where[ 128 ];
+	char *select;
+
+	sprintf( where, "application = '%s'", application_name );
+
+	if ( ! ( select = 
+			appaserver_user_encryption_function(
+				appaserver_user_password_security,
+				typed_in_password ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot appaserver_user_encryption_function()\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=application	"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 where );
+
+	return pipe2string( sys_string );
+
+} /* appaserver_user_encrypt_password() */
+
+boolean appaserver_user_password_match(
+					char *application_name,
+					char *typed_in_password,
+					char *database_password,
+					char *mysql_version )
+{
+	enum password_security appaserver_user_password_security;
+	char *encrypt_password;
+
+	appaserver_user_password_security =
+		appaserver_user_version_password_security(
+			mysql_version );
+
+	encrypt_password =
+		appaserver_user_encrypt_password(
+			application_name,
+			typed_in_password,
+			appaserver_user_password_security );
+
+	return ( timlib_strcmp( encrypt_password, database_password ) == 0 );
+
+} /* appaserver_user_password_match() */
+
+/* Returns heap memory. */
+/* -------------------- */
+char *appaserver_user_mysql_version( void )
+{
+	static char *version = {0};
+
+	if ( !version )
+	{
+		version = pipe2string( "mysql_version.sh" );
+	}
+
+	return version;
+
+} /* appaserver_user_mysql_version() */
+
+/* Returns heap memory. */
+/* -------------------- */
+char *appaserver_user_version_encrypt_password(
+					char *application_name,
+					char *typed_in_password,
+					char *mysql_version )
+{
+	enum password_security
+		appaserver_user_password_security;
+
+	appaserver_user_password_security =
+		appaserver_user_version_password_security(
+			mysql_version );
+
+	return
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_user_encrypt_password(
+				application_name,
+				typed_in_password,
+				appaserver_user_password_security );
+
+} /* appaserver_user_version_encrypt_password() */
+
+enum password_security
+	appaserver_user_version_password_security(
+					char *mysql_version )
+{
+	int version;
+
+	if ( !mysql_version || !isdigit( *mysql_version ) )
+		return no_encryption;
+
+	version = atoi( mysql_version );
+
+	if ( version < 5 )
+		return old_password_encryption;
+	else
+	if ( version == 5 )
+		return password_encryption;
+	else
+		return sha2_encryption;
+
+} /* appaserver_user_version_password_security() */
+
+boolean appaserver_user_insert(		char *application_name,
+					char *login_name,
+					char *person_full_name,
+					char *database_password )
+{
+	FILE *output_pipe;
+	char error_filename[ 128 ];
+
+	sprintf( error_filename,
+		 "/tmp/appaserver_user_insert_%d.err",
+		 getpid() );
+
+	output_pipe =
+		appaserver_user_insert_open(
+			application_name,
+			error_filename );
+
+	appaserver_user_insert_stream(
+		output_pipe,
+		login_name,
+		person_full_name,
+		database_password );
+
+	pclose( output_pipe );
+
+	return !timlib_file_populated( error_filename );
+
+} /* appaserver_user_insert() */
+
+FILE *appaserver_user_insert_open(	char *application_name,
+					char *error_filename )
+{
+	char sys_string[ 1024 ];
+	char *field;
+	char *table_name;
+	FILE *output_pipe;
+
+	field = "login_name,person_full_name,password";
+
+	table_name =
+		get_table_name(
+			application_name,
+			"appaserver_user" );
+
+	sprintf( sys_string,
+		 "insert_statement.e table=%s field=%s del='^'	|"
+		 "sql.e 2>%s					 ",
+		 table_name,
+		 field,
+		 error_filename );
+
+	output_pipe = popen( sys_string, "w" );
+
+	return output_pipe;
+
+} /* appaserver_user_insert_open() */
+
+void appaserver_user_insert_stream(	FILE *output_pipe,
+					char *login_name,
+					char *person_full_name,
+					char *database_password )
+{
+	char entity_buffer[ 128 ];
+
+	fprintf(	output_pipe,
+			"%s^%s^%s\n",
+			login_name,
+	 		escape_character(	entity_buffer,
+						person_full_name,
+						'\'' ),
+			database_password );
+
+} /* appaserver_user_insert_stream() */
+
+APPASERVER_USER *appaserver_user_typed_in_parse(
+				char *input_buffer )
+{
+	APPASERVER_USER *appaserver_user;
+	char piece_buffer[ 512 ];
+
+	appaserver_user = appaserver_user_calloc();
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+	appaserver_user->login_name = strdup( piece_buffer );
+
+	if ( !piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 input_buffer );
+		return (APPASERVER_USER *)0;
+	}
+
+	appaserver_user->person_full_name = strdup( piece_buffer );
+
+	if ( !piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 input_buffer );
+		return (APPASERVER_USER *)0;
+	}
+
+	appaserver_user->typed_in_password = strdup( piece_buffer );
+
+	return appaserver_user;
+
+} /* appaserver_user_typed_in_parse() */
 

@@ -81,7 +81,7 @@ int main( int argc, char **argv )
 
 	document = document_new( "", application_name );
 
-	if ( !appaserver_get_frameset_menu_horizontal(
+	if ( !appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{
@@ -130,12 +130,17 @@ int main( int argc, char **argv )
 	} while( list_next( file_list ) );
 
 	printf( "</ul>\n" );
+
 	form_output_back_to_top_button();
+
 	document_close();
+
 	process_increment_execution_count(
 				application_name,
 				PROCESS_NAME,
 				appaserver_parameter_file_get_dbms() );
+
 	exit( 0 );
+
 } /* main() */
 

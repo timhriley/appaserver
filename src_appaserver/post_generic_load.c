@@ -154,7 +154,7 @@ int main( int argc, char **argv )
 	document->output_content_type = 1;
 
 	with_dynarch_menu =
-		appaserver_get_frameset_menu_horizontal(
+		appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name );
 

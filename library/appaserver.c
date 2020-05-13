@@ -336,31 +336,32 @@ LIST *appaserver_get_exclude_attribute_name_list(
 
 } /* appaserver_get_exclude_attribute_name_list() */
 
-int appaserver_get_frameset_menu_horizontal(	char *application_name,
+boolean appaserver_frameset_menu_horizontal(
+						char *application_name,
 						char *login_name )
 {
 	char application_frameset_menu_horizontal_yn;
-	char appaserver_user_frameset_menu_horizontal_yn;
-	int frameset_menu_horizontal = 1;
+	boolean frameset_menu_horizontal;
+	boolean return_value = 1;
 
 	application_frameset_menu_horizontal_yn =
 		application_get_frameset_menu_horizontal_yn(
 					application_name );
 
-	appaserver_user_frameset_menu_horizontal_yn =
-		appaserver_user_get_frameset_menu_horizontal_yn(
+	frameset_menu_horizontal =
+		appaserver_user_frameset_menu_horizontal(
 					application_name,
 					login_name );
 
 	if ( application_frameset_menu_horizontal_yn != 'y'
-	||   appaserver_user_frameset_menu_horizontal_yn != 'y' )
+	||   !frameset_menu_horizontal )
 	{
-		frameset_menu_horizontal = 0;
+		return_value = 0;
 	}
 
-	return frameset_menu_horizontal;
+	return return_value;
 
-} /* appaserver_get_frameset_menu_horizontal() */
+} /* appaserver_frameset_menu_horizontal() */
 
 LIST *appaserver_get_isa_folder_list( char *application_name )
 {

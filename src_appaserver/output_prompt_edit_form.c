@@ -677,7 +677,7 @@ m2( application_name, msg );
 	document->output_content_type = 1;
 
 	with_dynarch_menu =
-		appaserver_get_frameset_menu_horizontal(
+		appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name );
 
@@ -726,7 +726,7 @@ m2( application_name, msg );
 
 	document_output_close_head( stdout );
 
-	if ( appaserver_get_frameset_menu_horizontal(
+	if ( appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{

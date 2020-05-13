@@ -65,7 +65,7 @@ int main( int argc, char **argv )
 		omit_html_head = (*argv[ 7 ] == 'y');
 	}
 
-	if ( !appaserver_get_frameset_menu_horizontal(
+	if ( !appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{
@@ -122,7 +122,7 @@ int main( int argc, char **argv )
 		role_name = list_get_first_string( role_list );
 	}
 
-	if ( !appaserver_get_frameset_menu_horizontal(
+	if ( !appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{
@@ -185,7 +185,7 @@ int main( int argc, char **argv )
 		fflush( stdout );
 	}
 
-	if ( !appaserver_get_frameset_menu_horizontal(
+	if ( !appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{

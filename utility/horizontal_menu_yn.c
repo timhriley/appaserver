@@ -34,7 +34,7 @@ int main( int argc, char **argv )
 			database_string );
 	}
 
-	if ( appaserver_get_frameset_menu_horizontal(
+	if ( appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{

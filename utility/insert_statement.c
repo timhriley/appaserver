@@ -143,10 +143,7 @@ void output_compress_insert_statements(
 	{
 		if ( !*buffer ) continue;
 
-		if ( !timlib_exists_string( buffer, "password(" ) )
-		{
-			fix_any_quotes( buffer );
-		}
+		fix_any_quotes( buffer );
 
 		if ( first_time )
 			first_time = 0;
@@ -180,10 +177,7 @@ void output_insert_statements(	char *table_name,
 	{
 		if ( !*buffer ) continue;
 
-		if ( !timlib_exists_string( buffer, "password(" ) )
-		{
-			fix_any_quotes( buffer );
-		}
+		fix_any_quotes( buffer );
 
 		if ( replace_yn == 'y' )
 		{
@@ -229,11 +223,6 @@ void output_row( char *row, char delimiter, int max_piece )
 		||   strcmp( field, "/" ) == 0 )
 		{
 			printf( "%s", NULL_STRING );
-		}
-		else
-		if ( timlib_strncmp( field, "password(" ) == 0 )
-		{
-			printf( "%s", field );
 		}
 		else
 		{

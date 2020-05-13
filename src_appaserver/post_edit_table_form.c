@@ -1289,7 +1289,7 @@ void execute_output_process(
 	if ( strcmp( insert_update_key, "detail" ) == 0 )
 	{
 		if ( strcmp( target_frame, PROMPT_FRAME ) == 0
-		&&   appaserver_get_frameset_menu_horizontal(
+		&&   appaserver_frameset_menu_horizontal(
 						application_name,
 						login_name ) )
 		{
@@ -1354,7 +1354,7 @@ void execute_output_process(
 		char content_type_yn;
 
 		if ( strcmp( target_frame, PROMPT_FRAME ) == 0
-		&&   appaserver_get_frameset_menu_horizontal(
+		&&   appaserver_frameset_menu_horizontal(
 						application_name,
 						login_name ) )
 		{
