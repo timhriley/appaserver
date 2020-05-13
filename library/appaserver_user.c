@@ -178,7 +178,7 @@ char *appaserver_user_person_full_name(
 
 } /* appaserver_user_person_full_name() */
 
-char *appaserver_user_password(
+char *appaserver_user_password_fetch(
 				char *application_name,
 				char *login_name )
 {
@@ -194,7 +194,7 @@ char *appaserver_user_password(
 	else
 		return global_appaserver_user->database_password;
 
-} /* appaserver_user_password() */
+} /* appaserver_user_password_fetch() */
 
 boolean appaserver_user_frameset_menu_horizontal(
 						char *application_name,
@@ -324,38 +324,41 @@ char *appaserver_user_encryption_select(
 
 	if ( password_function == no_encryption )
 	{
-		timlib_strcpy(
-			encryption_function,
-			typed_in_password,
-			0 /* unknown buffer_size */ );
+		/* Returns heap memory */
+		/* ------------------- */
+		return timlib_escape_sql_injection(
+				typed_in_password );
 	}
 	else
 	if ( password_function == old_password_function )
 	{
 		sprintf( encryption_function,
 			 "old_password( '%s' )",
-			 typed_in_password );
+			 timlib_escape_sql_injection(
+				typed_in_password ) );
 	}
 	else
 	if ( password_function == password_function )
 	{
 		sprintf( encryption_function,
 			 "password( '%s' )",
-			 typed_in_password );
+			 timlib_escape_sql_injection(
+				typed_in_password ) );
 	}
 	else
 	if ( password_function == sha2_function )
 	{
 		sprintf( encryption_function,
 			 "sha2( '%s', 224 )",
-			 typed_in_password );
+			 timlib_escape_sql_injection(
+				typed_in_password ) );
 	}
 	else
 	{
-		timlib_strcpy(
-			encryption_function,
-			typed_in_password,
-			0 /* unknown buffer_size */ );
+		/* Returns heap memory */
+		/* ------------------- */
+		return timlib_escape_sql_injection(
+				typed_in_password );
 	}
 
 	return strdup( encryption_function );
@@ -528,7 +531,7 @@ boolean appaserver_user_insert(		char *application_name,
 
 	file_populated = timlib_file_populated( error_filename );
 
-	/* timlib_remove_file( error_filename ); */
+	timlib_remove_file( error_filename );
 
 	if ( file_populated )
 		return 0;

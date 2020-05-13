@@ -37,16 +37,6 @@ void post_login_output_frameset(	char *application_name,
 					char *session,
 					enum password_match_return );
 
-boolean post_login_encoded_password_ok(
-					char *application_name,
-					char *database_password,
-					char *password );
-
-char *post_login_get_encoded_password(
-					char *application_name,
-					char *password,
-					boolean old_password );
-
 char *post_login_password_match_return_display(
 					enum password_match_return );
 

@@ -69,7 +69,7 @@ char *appaserver_user_person_full_name(
 					char *application_name,
 					char *login_name );
 
-char *appaserver_user_password(		char *application_name,
+char *appaserver_user_password_fetch(	char *application_name,
 					char *login_name );
 
 boolean appaserver_user_frameset_menu_horizontal(
@@ -119,5 +119,9 @@ void appaserver_user_insert_stream(	FILE *output_pipe,
 
 APPASERVER_USER *appaserver_user_parse(
 					char *input_buffer );
+
+enum password_security
+	appaserver_user_database_password_security(
+					char *database_password );
 
 #endif
