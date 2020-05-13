@@ -141,7 +141,7 @@ APPASERVER_USER *appaserver_user_fetch(
 
 } /* appaserver_user_fetch() */
 
-LIST *appaserver_user_get_session_list(	char *application_name,
+LIST *appaserver_user_session_list(	char *application_name,
 					char *login_name )
 {
 	char sys_string[ 1024 ];
@@ -159,9 +159,9 @@ LIST *appaserver_user_get_session_list(	char *application_name,
 
 	return pipe2list( sys_string );
 
-} /* appaserver_user_get_session_list() */
+} /* appaserver_user_session_list() */
 
-char *appaserver_user_get_person_full_name(
+char *appaserver_user_person_full_name(
 			char *application_name, char *login_name )
 {
 	if ( !global_appaserver_user )
@@ -176,9 +176,9 @@ char *appaserver_user_get_person_full_name(
 	else
 		return global_appaserver_user->person_full_name;
 
-} /* appaserver_user_get_person_full_name() */
+} /* appaserver_user_person_full_name() */
 
-char *appaserver_user_get_password(
+char *appaserver_user_password(
 				char *application_name,
 				char *login_name )
 {
@@ -194,7 +194,7 @@ char *appaserver_user_get_password(
 	else
 		return global_appaserver_user->database_password;
 
-} /* appaserver_user_get_password() */
+} /* appaserver_user_password() */
 
 boolean appaserver_user_frameset_menu_horizontal(
 						char *application_name,
@@ -230,7 +230,7 @@ boolean appaserver_user_exists_session(	char *application_name,
 	if ( !global_appaserver_user->session_list )
 	{
 		global_appaserver_user->session_list =
-			appaserver_user_get_session_list(
+			appaserver_user_session_list(
 				application_name,
 				login_name );
 	}
@@ -286,8 +286,8 @@ LIST *appaserver_user_role_list(
 
 } /* appaserver_user_role_list() */
 
-enum password_security
-	appaserver_user_password_security(
+enum password_function
+	appaserver_user_password_function(
 					char *database_password )
 {
 	int str_len;
@@ -296,34 +296,33 @@ enum password_security
 
 	if ( str_len == 16 )
 	{
-		return old_password_encryption;
+		return old_password_function;
 	}
 	else
 	if ( str_len == 41 && *database_password == '*' )
 	{
-		return old_password_encryption;
+		return password_function;
 	}
 	if ( str_len == 54 )
 	{
-		return sha2_encryption;
+		return sha2_function;
 	}
 	else
 	{
 		return no_encryption;
 	}
 
-} /* appaserver_user_password_security() */
+} /* appaserver_user_password_function() */
 
 /* Returns heap memory. */
 /* -------------------- */
-char *appaserver_user_encryption_function(
-				enum password_security
-					appaserver_user_password_security,
+char *appaserver_user_encryption_select(
+				enum password_function password_function,
 				char *typed_in_password )
 {
 	char encryption_function[ 128 ];
 
-	if ( appaserver_user_password_security == no_encryption )
+	if ( password_function == no_encryption )
 	{
 		timlib_strcpy(
 			encryption_function,
@@ -331,21 +330,21 @@ char *appaserver_user_encryption_function(
 			0 /* unknown buffer_size */ );
 	}
 	else
-	if ( appaserver_user_password_security == old_password_encryption )
+	if ( password_function == old_password_function )
 	{
 		sprintf( encryption_function,
 			 "old_password( '%s' )",
 			 typed_in_password );
 	}
 	else
-	if ( appaserver_user_password_security == password_encryption )
+	if ( password_function == password_function )
 	{
 		sprintf( encryption_function,
 			 "password( '%s' )",
 			 typed_in_password );
 	}
 	else
-	if ( appaserver_user_password_security == sha2_encryption )
+	if ( password_function == sha2_function )
 	{
 		sprintf( encryption_function,
 			 "sha2( '%s', 224 )",
@@ -361,15 +360,15 @@ char *appaserver_user_encryption_function(
 
 	return strdup( encryption_function );
 
-} /* appaserver_user_encryption_function() */
+} /* appaserver_user_encryption_select() */
 
 /* Returns heap memory */
 /* ------------------- */
-char *appaserver_user_encrypt_password(
+char *appaserver_user_function_encrypted_password(
 				char *application_name,
 				char *typed_in_password,
-				enum password_security
-					appaserver_user_password_security )
+				enum password_function
+					password_function )
 {
 	char sys_string[ 1024 ];
 	char where[ 128 ];
@@ -379,12 +378,12 @@ char *appaserver_user_encrypt_password(
 	sprintf( where, "application = '%s'", application_name );
 
 	if ( ! ( select = 
-			appaserver_user_encryption_function(
-				appaserver_user_password_security,
+			appaserver_user_encryption_select(
+				password_function,
 				typed_in_password ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot appaserver_user_encryption_function()\n",
+"ERROR in %s/%s()/%d: cannot appaserver_user_encryption_select()\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -413,24 +412,27 @@ char *appaserver_user_encrypt_password(
 
 	return results;
 
-} /* appaserver_user_encrypt_password() */
+} /* appaserver_user_function_encrypted_password() */
 
 boolean appaserver_user_password_match(
 					char *application_name,
 					char *typed_in_password,
-					char *database_password,
-					char *mysql_version )
+					char *database_password )
 {
-	char *encrypt_password;
+	char *encrypted_password;
+	enum password_function password_function;
 
-	encrypt_password =
-		appaserver_user_encrypt_password(
+	password_function =
+		appaserver_user_password_function(
+			database_password );
+
+	encrypted_password =
+		appaserver_user_function_encrypted_password(
 			application_name,
 			typed_in_password,
-			appaserver_user_version_password_security(
-				mysql_version ) );
+			password_function );
 
-	return ( timlib_strcmp( encrypt_password, database_password ) == 0 );
+	return ( timlib_strcmp( encrypted_password, database_password ) == 0 );
 
 } /* appaserver_user_password_match() */
 
@@ -451,31 +453,30 @@ char *appaserver_user_mysql_version( void )
 
 /* Returns heap memory. */
 /* -------------------- */
-char *appaserver_user_version_encrypt_password(
+char *appaserver_user_version_encrypted_password(
 					char *application_name,
 					char *typed_in_password,
 					char *mysql_version )
 {
-	enum password_security
-		appaserver_user_password_security;
+	enum password_function password_function;
 
-	appaserver_user_password_security =
-		appaserver_user_version_password_security(
+	password_function =
+		appaserver_user_version_password_function(
 			mysql_version );
 
 	return
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		appaserver_user_encrypt_password(
+		appaserver_user_function_encrypted_password(
 				application_name,
 				typed_in_password,
-				appaserver_user_password_security );
+				password_function );
 
-} /* appaserver_user_version_encrypt_password() */
+} /* appaserver_user_version_encrypted_password() */
 
-enum password_security
-	appaserver_user_version_password_security(
+enum password_function
+	appaserver_user_version_password_function(
 					char *mysql_version )
 {
 	int version;
@@ -486,14 +487,14 @@ enum password_security
 	version = atoi( mysql_version );
 
 	if ( version < 5 )
-		return old_password_encryption;
+		return old_password_function;
 	else
 	if ( version == 5 )
-		return password_encryption;
+		return password_function;
 	else
-		return sha2_encryption;
+		return sha2_function;
 
-} /* appaserver_user_version_password_security() */
+} /* appaserver_user_version_password_function() */
 
 /* Returns 1 if no error. */
 /* ---------------------- */
@@ -583,7 +584,7 @@ void appaserver_user_insert_stream(	FILE *output_pipe,
 
 } /* appaserver_user_insert_stream() */
 
-APPASERVER_USER *appaserver_user_typed_in_parse(
+APPASERVER_USER *appaserver_user_parse(
 				char *input_buffer )
 {
 	APPASERVER_USER *appaserver_user;
@@ -635,5 +636,5 @@ APPASERVER_USER *appaserver_user_typed_in_parse(
 
 	return appaserver_user;
 
-} /* appaserver_user_typed_in_parse() */
+} /* appaserver_user_parse() */
 

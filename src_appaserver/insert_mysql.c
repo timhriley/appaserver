@@ -173,7 +173,7 @@ int insert_mysql_appaserver_user(
 	while ( get_line( input_buffer, f ) )
 	{
 		if ( ! ( appaserver_user =
-				appaserver_user_typed_in_parse(
+				appaserver_user_parse(
 					input_buffer ) ) )
 		{
 			fclose( f );
@@ -184,7 +184,7 @@ int insert_mysql_appaserver_user(
 			/* -------------------- */
 			/* Returns heap memory. */
 			/* -------------------- */
-			appaserver_user_version_encrypt_password(
+			appaserver_user_version_encrypted_password(
 					application_name,
 					appaserver_user->typed_in_password,
 					appaserver_user_mysql_version() );

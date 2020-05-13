@@ -1385,7 +1385,7 @@ void update_database_build_update_clause(
 			char *results;
 
 			results =
-				appaserver_user_version_encrypt_password(
+				appaserver_user_version_encrypted_password(
 					application_name,
 					data /* typed_in_password */,
 					appaserver_user_mysql_version() );
