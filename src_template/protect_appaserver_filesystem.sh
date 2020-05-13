@@ -96,9 +96,6 @@ protect_document_root_template ()
 
 	if [ "$execute" = "execute" ]
 	then
-		chown www-data $template_directory
-		chown www-data $template_directory/index.php
-		chown www-data $template_directory/style.css
 		chgrp $group $template_directory
 		chgrp $group $template_directory/index.php
 		chgrp $group $template_directory/style.css
@@ -107,22 +104,16 @@ protect_document_root_template ()
 		chmod g+w ${template_directory}/index.php
 		chmod g+w ${template_directory}/style.css
 
-		chown www-data ${template_directory}/data
 		chgrp $group ${template_directory}/data
 		chmod g+rwxs $template_directory/data
 		chmod o-w ${template_directory}/data
 
-		chown www-data ${template_directory}/images
-		chown www-data ${template_directory}/images/logo_appaserver.jpg
 		chgrp $group ${template_directory}/images
 		chgrp $group ${template_directory}/images/logo_appaserver.jpg
 		chmod g+rwxs $template_directory/images
 		chmod o-w ${template_directory}/images
 		chmod g+w ${template_directory}/images/logo_appaserver.jpg
 	else
-		echo "chown www-data $template_directory"
-		echo "chown www-data $template_directory/index.php"
-		echo "chown www-data $template_directory/style.css"
 		echo "chgrp $group $template_directory"
 		echo "chgrp $group $template_directory/index.php"
 		echo "chgrp $group $template_directory/style.css"
@@ -131,13 +122,10 @@ protect_document_root_template ()
 		echo "chmod g+w ${template_directory}/index.php"
 		echo "chmod g+w ${template_directory}/style.css"
 
-		echo "chown www-data ${template_directory}/data"
 		echo "chgrp $group ${template_directory}/data"
 		echo "chmod g+rwxs $template_directory/data"
 		echo "chmod o-w ${template_directory}/data"
 
-		echo "chown www-data ${template_directory}/images"
-		echo "chown www-data ${template_directory}/images/logo_appaserver.jpg"
 		echo "chgrp $group ${template_directory}/images"
 		echo "chgrp $group ${template_directory}/images/logo_appaserver.jpg"
 		echo "chmod g+rwxs $template_directory/images"
@@ -154,12 +142,10 @@ protect_document_root_appaserver ()
 	if [ "$execute" = "execute" ]
 	then
 		chgrp $group $DOCUMENT_ROOT/appaserver
-		chown www-data $DOCUMENT_ROOT/appaserver
 		chmod g+rwxs $DOCUMENT_ROOT/appaserver
 		chmod o-rwx $DOCUMENT_ROOT/appaserver
 	else
 		echo "chgrp $group $DOCUMENT_ROOT/appaserver"
-		echo "chown www-data $DOCUMENT_ROOT/appaserver"
 		echo "chmod g+rwxs $DOCUMENT_ROOT/appaserver"
 		echo "chmod o-rwx $DOCUMENT_ROOT/appaserver"
 	fi

@@ -55,7 +55,7 @@ do
 	# Filesystem
 	# ----------
 	clear
-	df -h
+	df -h | grep -v loop | grep -v udev | grep -v tmpfs
 	sleep $delay_seconds
 
 	# System messages
