@@ -32,9 +32,6 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
-enum password_security
-	appaserver_user_password_security(
-					char *database_password );
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -84,8 +81,7 @@ APPASERVER_USER *appaserver_user_calloc(void );
 boolean appaserver_user_password_match(
 					char *application_name,
 					char *typed_in_password,
-					char *database_password,
-					char *mysql_version );
+					char *database_password );
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -119,5 +115,9 @@ void appaserver_user_insert_stream(	FILE *output_pipe,
 
 APPASERVER_USER *appaserver_user_typed_in_parse(
 					char *input_buffer );
+
+enum password_security
+	appaserver_user_database_password_security(
+					char *database_password );
 
 #endif

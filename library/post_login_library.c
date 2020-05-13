@@ -13,6 +13,7 @@
 #include "appaserver_library.h"
 #include "appaserver_parameter_file.h"
 #include "appaserver_error.h"
+#include "appaserver_user.h"
 #include "post_login_library.h"
 
 boolean post_login_email_login(
@@ -141,10 +142,10 @@ enum password_match_return post_login_password_match(
 		return password_match;
 	}
 	else
-	if ( post_login_encoded_password_ok(
-				application_name,
-				database_password,
-				password ) )
+	if ( appaserver_user_password_match(
+			application_name,
+			password /* typed_in_password */,
+			database_password ) )
 	{
 		return password_match;
 	}
@@ -241,71 +242,6 @@ void post_login_output_frameset(	char *application_name,
 	}
 
 } /* post_login_output_frameset() */
-
-boolean post_login_encoded_password_ok(
-					char *application_name,
-					char *database_password,
-					char *password )
-{
-	char *encoded_password;
-
-	if ( !password || !*password ) return 0;
-	if ( !database_password || !*database_password ) return 0;
-
-	encoded_password =
-		post_login_get_encoded_password(
-				application_name,
-				password,
-				0 /* not old_password */ );
-
-	if ( timlib_strcmp( database_password, encoded_password ) == 0 )
-		return 1;
-
-	encoded_password =
-		post_login_get_encoded_password(
-				application_name,
-				password,
-				1 /* old_password */ );
-
-	return ( timlib_strcmp( database_password, encoded_password ) == 0 );
-
-} /* post_login_encoded_password_ok() */
-
-char *post_login_get_encoded_password(
-					char *application_name,
-					char *password,
-					boolean old_password )
-{
-	char *table_name;
-	char sys_string[ 1024 ];
-	char function_name[ 16 ];
-	char *encoded_password;
-
-	if ( old_password )
-		strcpy( function_name, "old_password" );
-	else
-		strcpy( function_name, "password" );
-
-	if ( !*application_name ) return "";
-	if ( !*password ) return "";
-
-	table_name = get_table_name( application_name, "application" );
-
-	sprintf( sys_string,
-		 "echo \"select %s('%s')			 "
-		 "	 from %s				 "
-		 "	 where application = '%s';\"		|"
-		 "sql.e						 ",
-		 function_name,
-		 timlib_sql_injection_escape( password ),
-		 table_name,
-		 application_name );
-
-	encoded_password = pipe2string( sys_string );
-
-	return encoded_password;
-
-} /* post_login_get_encoded_password() */
 
 char *post_login_password_match_return_display(
 			enum password_match_return password_match_return )

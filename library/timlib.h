@@ -516,6 +516,13 @@ char *timlib_escape_character_array(
 				char *source,
 				char *character_array );
 
+/* Returns heap memory */
+/* ------------------- */
+char *timlib_escape_sql_injection(
+				char *source );
+
+/* Returns heap memory */
+/* ------------------- */
 char *timlib_sql_injection_escape(
 				char *source );
 

@@ -3541,6 +3541,15 @@ char *timlib_strncpy( char *s1, char *s2, int count )
 	return results;
 } /* timlib_strncpy() */
 
+/* Returns heap memory */
+/* ------------------- */
+char *timlib_escape_sql_injection( char *source )
+{
+	return timlib_sql_injection_escape( source );
+}
+
+/* Returns heap memory */
+/* ------------------- */
 char *timlib_sql_injection_escape( char *source )
 {
 	char destination[ 65536 ];

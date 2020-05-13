@@ -287,7 +287,7 @@ LIST *appaserver_user_role_list(
 } /* appaserver_user_role_list() */
 
 enum password_security
-	appaserver_user_password_security(
+	appaserver_user_database_password_security(
 					char *database_password )
 {
 	int str_len;
@@ -312,7 +312,7 @@ enum password_security
 		return no_encryption;
 	}
 
-} /* appaserver_user_password_security() */
+} /* appaserver_user_database_password_security() */
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -325,38 +325,41 @@ char *appaserver_user_encryption_function(
 
 	if ( appaserver_user_password_security == no_encryption )
 	{
-		timlib_strcpy(
-			encryption_function,
-			typed_in_password,
-			0 /* unknown buffer_size */ );
+		/* Returns heap memory */
+		/* ------------------- */
+		return timlib_escape_sql_injection(
+				typed_in_password );
 	}
 	else
 	if ( appaserver_user_password_security == old_password_encryption )
 	{
 		sprintf( encryption_function,
 			 "old_password( '%s' )",
-			 typed_in_password );
+			 timlib_escape_sql_injection(
+				typed_in_password ) );
 	}
 	else
 	if ( appaserver_user_password_security == password_encryption )
 	{
 		sprintf( encryption_function,
 			 "password( '%s' )",
-			 typed_in_password );
+			 timlib_escape_sql_injection(
+				typed_in_password ) );
 	}
 	else
 	if ( appaserver_user_password_security == sha2_encryption )
 	{
 		sprintf( encryption_function,
 			 "sha2( '%s', 224 )",
-			 typed_in_password );
+			 timlib_escape_sql_injection(
+				typed_in_password ) );
 	}
 	else
 	{
-		timlib_strcpy(
-			encryption_function,
-			typed_in_password,
-			0 /* unknown buffer_size */ );
+		/* Returns heap memory */
+		/* ------------------- */
+		return timlib_escape_sql_injection(
+				typed_in_password );
 	}
 
 	return strdup( encryption_function );
@@ -418,8 +421,7 @@ char *appaserver_user_encrypt_password(
 boolean appaserver_user_password_match(
 					char *application_name,
 					char *typed_in_password,
-					char *database_password,
-					char *mysql_version )
+					char *database_password )
 {
 	char *encrypt_password;
 
@@ -427,8 +429,8 @@ boolean appaserver_user_password_match(
 		appaserver_user_encrypt_password(
 			application_name,
 			typed_in_password,
-			appaserver_user_version_password_security(
-				mysql_version ) );
+			appaserver_user_database_password_security(
+				database_password ) );
 
 	return ( timlib_strcmp( encrypt_password, database_password ) == 0 );
 
