@@ -495,6 +495,8 @@ enum password_security
 
 } /* appaserver_user_version_password_security() */
 
+/* Returns 1 if no error. */
+/* ---------------------- */
 boolean appaserver_user_insert(		char *application_name,
 					char *login_name,
 					char *person_full_name,
@@ -525,9 +527,12 @@ boolean appaserver_user_insert(		char *application_name,
 
 	file_populated = timlib_file_populated( error_filename );
 
-	timlib_remove_file( error_filename );
+	/* timlib_remove_file( error_filename ); */
 
-	return !file_populated;
+	if ( file_populated )
+		return 0;
+	else
+		return 1;
 
 } /* appaserver_user_insert() */
 
@@ -539,7 +544,7 @@ FILE *appaserver_user_insert_open(	char *application_name,
 	char *table_name;
 	FILE *output_pipe;
 
-	field = "login_name,person_full_name,password";
+	field = "login_name,person_full_name,password,user_date_format";
 
 	table_name =
 		get_table_name(

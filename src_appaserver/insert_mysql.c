@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_appaserver/insert_mysql.c					*/
+/* $APPASERVER_HOME/src_appaserver/insert_mysql.c			*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -198,7 +198,6 @@ int insert_mysql_appaserver_user(
 		{
 			rows_to_insert--;
 		}
-
 	}
 
 	fclose( f );

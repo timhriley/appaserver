@@ -23,6 +23,7 @@
 #include "related_folder.h"
 #include "folder.h"
 #include "appaserver_library.h"
+#include "appaserver_user.h"
 #include "document.h"
 #include "appaserver_parameter_file.h"
 
@@ -1191,6 +1192,7 @@ char *update_database_execute_for_folder(
 
 	update_database_build_update_clause(
 		update_clause,
+		application_name,
 		changed_attribute_list,
 		primary_attribute_name_list );
 
@@ -1216,29 +1218,10 @@ char *update_database_execute_for_folder(
 		 where_clause,
 		 sql_executable );
 
-	/* Display update statement, if not a password change. */
-	/* --------------------------------------------------- */
-	if ( strcmp( folder_name, "appaserver_user" ) == 0
-	&&   timlib_exists_string( update_clause, "password(" ) )
-	{
-		char message[ 1024 ];
-
-		sprintf( message,
-			 "Password update set password = [unknown] %s",
-			 where_clause );
-
-		appaserver_output_error_message(
-			application_name,
-			message,
-			login_name );
-	}
-	else
-	{
-		appaserver_output_error_message(
-			application_name,
-			sys_string,
-			login_name );
-	}
+	appaserver_output_error_message(
+		application_name,
+		sys_string,
+		login_name );
 
 	/* Here is the update execution. */
 	/* ----------------------------- */
@@ -1367,6 +1350,7 @@ void update_database_build_where_clause(
 
 void update_database_build_update_clause(
 				char *destination,
+				char *application_name,
 				LIST *changed_attribute_list,
 				LIST *primary_attribute_name_list )
 {
@@ -1390,6 +1374,28 @@ void update_database_build_update_clause(
 		search_replace_special_characters( data );
 		escape_special_characters( data );
 
+		/* Encode password changes. However, exclude password resets. */
+		/* ---------------------------------------------------------- */
+		if ( strcmp(	changed_attribute->attribute_name,
+				"password" ) == 0
+		&&   *data
+		&&   strcmp( data, UPDATE_DATABASE_NULL_TOKEN ) != 0
+		&&   strcmp( data, NULL_STRING ) != 0 )
+		{
+			char *results;
+
+			results =
+				appaserver_user_version_encrypt_password(
+					application_name,
+					data /* typed_in_password */,
+					appaserver_user_mysql_version() );
+
+			if ( results )
+			{
+				strcpy( data, results );
+			}
+		}
+
 		if ( !*data
 		||   strcmp( data, NULL_OPERATOR ) == 0 )
 		{
@@ -1406,20 +1412,6 @@ void update_database_build_update_clause(
 		else
 		{
 			single_quotes_around( buffer, data );
-			strcpy( data, buffer );
-		}
-
-		/* Encode password changes. However, exclude password resets. */
-		/* ---------------------------------------------------------- */
-		if ( strcmp(	changed_attribute->attribute_name,
-				"password" ) == 0
-		&&   *data
-		&&   strcmp( data, UPDATE_DATABASE_NULL_TOKEN ) != 0
-		&&   strcmp( data, NULL_STRING ) != 0 )
-		{
-			char buffer[ 1024 ];
-
-			sprintf( buffer, "password(%s)", data );
 			strcpy( data, buffer );
 		}
 

@@ -635,6 +635,7 @@ int insert_database_execute_insert_mysql(
 	sprintf(	sys_string,
 			"cat %s | html_paragraph_wrapper",
 			message_filename );
+
 	*message = pipe_multiple_lines2string( sys_string, LF );
 
 	if ( !*message ) *message = "";
@@ -758,17 +759,6 @@ void build_insert_data_string( 	DICTIONARY *row_dictionary,
 					timlib_trim_money_characters(
 					data ) );
 			}
-		}
-
-		if ( attribute
-		&&   *data
-		&& ( timlib_strcmp(	attribute->datatype,
-					"password" ) == 0 ) )
-		{
-			char tmp[ 128 ];
-
-			sprintf( tmp, "password('%s')", data );
-			strcpy( data, tmp );
 		}
 
 		/* Build the output string */

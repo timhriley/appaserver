@@ -3,7 +3,8 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_hydrology
-	make google_map_station_process
+	cd ../src_appaserver
+	touch post_edit_table_form.c
+	make post_edit_table_form
 fi
 

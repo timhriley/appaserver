@@ -216,6 +216,7 @@ char *update_database_execute_for_folder(
 
 void update_database_build_update_clause(
 			char *destination,
+			char *application_name,
 			LIST *changed_attribute_list,
 			LIST *primary_attribute_name_list );
 
