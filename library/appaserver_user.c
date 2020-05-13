@@ -317,12 +317,13 @@ enum password_function
 /* Returns heap memory. */
 /* -------------------- */
 char *appaserver_user_encryption_select(
-				enum password_function password_function,
-				char *typed_in_password )
+			enum password_function
+				appaserver_user_password_function,
+			char *typed_in_password )
 {
 	char encryption_function[ 128 ];
 
-	if ( password_function == no_encryption )
+	if ( appaserver_user_password_function == no_encryption )
 	{
 		/* Returns heap memory */
 		/* ------------------- */
@@ -330,7 +331,7 @@ char *appaserver_user_encryption_select(
 				typed_in_password );
 	}
 	else
-	if ( password_function == old_password_function )
+	if ( appaserver_user_password_function == old_password_function )
 	{
 		sprintf( encryption_function,
 			 "old_password( '%s' )",
@@ -338,7 +339,7 @@ char *appaserver_user_encryption_select(
 				typed_in_password ) );
 	}
 	else
-	if ( password_function == password_function )
+	if ( appaserver_user_password_function == password_function )
 	{
 		sprintf( encryption_function,
 			 "password( '%s' )",
@@ -346,7 +347,7 @@ char *appaserver_user_encryption_select(
 				typed_in_password ) );
 	}
 	else
-	if ( password_function == sha2_function )
+	if ( appaserver_user_password_function == sha2_function )
 	{
 		sprintf( encryption_function,
 			 "sha2( '%s', 224 )",
