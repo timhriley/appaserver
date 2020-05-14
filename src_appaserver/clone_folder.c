@@ -418,9 +418,11 @@ char *get_sys_string(	char *destination_table_name,
 
 	/* Don't clone password */
 	/* -------------------- */
+	/*
 	list_delete_string(
 		attribute_name_list,
 		"password" );
+	*/
 
 	/* Don't clone grace_no_cycle_colors_yn */
 	/* ------------------------------------ */
