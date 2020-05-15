@@ -575,6 +575,7 @@ char *get_quick_yes_no( char *application_name, char *folder_name )
 	}
 	
 	return (count > MIN_COUNT_FOR_QUICK) ? "yes" : "no";
+
 } /* get_quick_yes_no() */
 
 boolean go_output2shell_script(	CREATE_CLONE_FILENAME *create_clone_filename,
@@ -582,8 +583,8 @@ boolean go_output2shell_script(	CREATE_CLONE_FILENAME *create_clone_filename,
 				char *folder_name,
 				char dont_output_if_statement_yn )
 {
-	char shell_script_filename[ 1024 ];
-	char insert_statement_filename[ 1024 ];
+	char shell_script_filename[ 512 ];
+	char insert_statement_filename[ 512 ];
 	FILE *output_file;
 	char sys_string[ 1024 ];
 
