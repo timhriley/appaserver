@@ -60,7 +60,7 @@ justification="left,left,right"
 echo "$heading" > $output_file
 
 statement="
-select bank_upload_event.bank_upload_date_time, bank_upload_filename, min( bank_date ), max( bank_date ), count(1), sum( bank_amount ) from bank_upload, bank_upload_event where bank_upload.bank_upload_date_time = bank_upload_event.bank_upload_date_time group by bank_upload_event.bank_upload_date_time;"
+select bank_upload_event.bank_upload_date_time, bank_upload_filename, min( bank_date ), max( bank_date ), count(1), sum( bank_amount ) from bank_upload, bank_upload_event where bank_upload.bank_upload_date_time = bank_upload_event.bank_upload_date_time group by bank_upload_event.bank_upload_date_time order by bank_upload_event.bank_upload_date_time desc;"
 
 echo "$statement"			|
 sql.e ','				|
