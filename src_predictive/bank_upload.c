@@ -1347,10 +1347,11 @@ void bank_upload_table_display(
 
 	if ( !list_rewind( bank_upload_list ) ) return;
 
-	heading = "account,bank_date,bank_description,amount";
+	heading =
+	"Account<br>Entity/Transaction,bank_date,bank_description,amount";
 
 	sprintf( sys_string,
-		 "html_table.e '' %s '^' left,left,left,right",
+		 "html_table.e '' '%s' '^' left,left,left,right",
 		 heading );
 
 	output_pipe = popen( sys_string, "w" );
