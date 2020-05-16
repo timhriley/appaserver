@@ -1,4 +1,4 @@
-/* appaserver_user.c 							*/
+/* $APPASERVER_HOME/library/appaserver_user.c				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver user ADT.					*/
 /*									*/
@@ -395,10 +395,10 @@ char *appaserver_user_function_encrypted_password(
 	}
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=\"%s\"		"
-		 "			folder=application	"
-		 "			where=\"%s\"		",
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=application		"
+		 "			where=\"%s\" 2>/dev/null	",
 		 application_name,
 		 select,
 		 where );
@@ -406,11 +406,11 @@ char *appaserver_user_function_encrypted_password(
 	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot [%s]\n",
+	"ERROR in %s/%s()/%d: password function index not supported = %d\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 sys_string );
+			 password_function );
 		exit( 1 );
 	}
 
