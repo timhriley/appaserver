@@ -21,15 +21,7 @@ while read ignore
 do
 	if [ "$withclear_yn" = "y" ]
 	then
-		sudo sync
-		# -------------------------------------
-		# Clear pagecache, dentries and inodes.
-		# -------------------------------------
-		sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
-		# -----------------
-		# Clear swap space.
-		# -----------------
-		sudo sh -c 'swapoff -a && swapon -a'
+		flushcache.sh
 		sudo iotop $flags | trim.e 80
 
 		sleep $seconds
