@@ -14,7 +14,7 @@ operation=$1
 
 while [ true ]
 do
-	iotop_average.sh 10 $operation		|
+	iotop_average.sh $operation		|
 	tail -1					|
 	piece.e '|' 1				|
 	commas_in_long.e			|
