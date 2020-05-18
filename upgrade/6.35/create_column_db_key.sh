@@ -1,4 +1,7 @@
 #!/bin/bash
+
+exit 0
+
 if [ "$APPASERVER_DATABASE" != "" ]
 then
 	application=$APPASERVER_DATABASE
