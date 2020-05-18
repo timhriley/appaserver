@@ -47,6 +47,47 @@ cat << all_done
 <h1>`echo $process | format_initial_capital.e`</h1>
 all_done
 
+if [	"$full_name" = "" -o		\
+	"$full_name" = "full_name" ]
+then
+	echo "<h2> `now.sh 19` </h2>"
+	echo "<h3>Please choose an entity.</h3>"
+	echo "</body>"
+	echo "</html>"
+	exit 0
+fi
+
+if [	"$debit_account" = "" -o		\
+	"$debit_account" = "account" -o	\
+	"$debit_account" = "null" ]
+then
+	echo "<h2> `now.sh 19` </h2>"
+	echo "<h3>Please choose an account.</h3>"
+	echo "</body>"
+	echo "</html>"
+	exit 0
+fi
+
+if [	"$transaction_date" = "" -o			\
+	"$transaction_date" = "transaction_date" -o ]
+then
+	echo "<h2> `now.sh 19` </h2>"
+	echo "<h3>Please enter in a transaction date.</h3>"
+	echo "</body>"
+	echo "</html>"
+	exit 0
+fi
+
+if [	"$transaction_amount" = "" -o			\
+	"$transaction_amount" = "transaction_amount" ]
+then
+	echo "<h2> `now.sh 19` </h2>"
+	echo "<h3>Please enter in a transaction amount.</h3>"
+	echo "</body>"
+	echo "</html>"
+	exit 0
+fi
+
 # Build where_clause
 # ------------------
 if [ "$fund" = "" -o "$fund" = "fund" ]
@@ -119,6 +160,7 @@ results=`echo "$full_name^$street_address^$transaction_date_time^$transaction_am
 
 if [ "$results" != "" ]
 then
+	echo "<h2> `now.sh 19` </h2>"
 	echo "<h3>$results</h3>"
 	echo "</body>"
 	echo "</html>"
@@ -164,9 +206,7 @@ post_change_journal_ledger.sh	insert				\
 				preupdate_account
 
 echo "<h2> `now.sh 19` </h2>"
-
 echo "<h3>Process complete</h3>"
-
 
 echo "</body>"
 echo "</html>"
