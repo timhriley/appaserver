@@ -131,9 +131,11 @@ void sfwmd_spreadsheet_parse(	char *application_name,
 			continue;
 		}
 
+		/* Reconcile this with sfwmd_spreadsheet_update.sh */
+		/*  ---------------------------------------------- */
 		if ( sfwmd_station_datatype->is_null )
 		{
-			printf(	"%s^%s^%s^null^^%s^%s\n",
+			printf(	"%s^%s^%s^null^^%s^%s^%s\n",
 				sfwmd_station_datatype->station,
 				sfwmd_station_datatype->datatype,
 				sfwmd_station_datatype->
@@ -142,11 +144,12 @@ void sfwmd_spreadsheet_parse(	char *application_name,
 					last_validation_date,
 				(sfwmd_station_datatype->provisional)
 					? "provisional"
-					: "" );
+					: "",
+				sfwmd_station_datatype->db_key );
 		}
 		else
 		{
-			printf(	"%s^%s^%s^null^%.3lf^%s^%s\n",
+			printf(	"%s^%s^%s^null^%.3lf^%s^%s^%s\n",
 				sfwmd_station_datatype->station,
 				sfwmd_station_datatype->datatype,
 				sfwmd_station_datatype->
@@ -157,7 +160,8 @@ void sfwmd_spreadsheet_parse(	char *application_name,
 					last_validation_date,
 				(sfwmd_station_datatype->provisional)
 					? "provisional"
-					: "" );
+					: "",
+				sfwmd_station_datatype->db_key );
 		}
 	}
 

@@ -55,8 +55,9 @@ HASH_TABLE *sfwmd_station_datatype_hash_table_load(
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 		sfwmd_station_datatype = sfwmd_station_datatype_calloc();
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 		sfwmd_station_datatype->db_key = strdup( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
@@ -105,10 +106,11 @@ SFWMD_STATION_DATATYPE *sfwmd_parse(
 	strcpy( process_buffer, input_buffer );
 	search_replace_string( process_buffer, "\"", "" );
 
+	*db_key = '\0';
+
 	/* piece db_key */
 	/* ------------ */
-	*db_key = '\0';
-	if ( !piece( db_key, ',', process_buffer, 1 ) )
+	if ( !piece( db_key, ',', process_buffer, 0 ) )
 	{
 		return (SFWMD_STATION_DATATYPE *)0;
 	}
