@@ -170,6 +170,19 @@ create_error_file_template ()
 	fi
 }
 
+create_backups_appaserver ()
+{
+	backups_directory=$1
+	execute=$2
+
+	if [ "$execute" = "execute" ]
+	then
+		mkdir ${backups_directory}/appaserver
+	else
+		echo "mkdir ${backups_directory}/appaserver"
+	fi
+}
+
 create_appaserver_data ()
 {
 	appaserver_data=$1
@@ -220,6 +233,7 @@ integrity_check $cgi_home $execute
 create_appaserver_error_directory $appaserver_error $execute
 create_old_appaserver_error_file $execute
 create_appaserver_data $appaserver_data $execute
+create_backups_appaserver "/var/backups" $execute
 create_error_file_template $appaserver_error $execute
 create_document_root_appaserver $execute
 create_document_root_template $execute

@@ -242,6 +242,24 @@ protect_appaserver_config ()
 	fi
 }
 
+protect_backups_appaserver ()
+{
+	group=$1
+	backups_directory=$2
+	execute=$3
+
+	if [ "$execute" = "execute" ]
+	then
+		chgrp $group ${backups_directory}/appaserver
+		chmod g+rwxs ${backups_directory}/appaserver
+		chmod o-rwx ${backups_directory}/appaserver
+	else
+		echo "chgrp $group ${backups_directory}/appaserver"
+		echo "chmod g+rwxs ${backups_directory}/appaserver"
+		echo "chmod o-rwx ${backups_directory}/appaserver"
+	fi
+}
+
 protect_appaserver_data ()
 {
 	group=$1
@@ -302,6 +320,7 @@ protect_appaserver_home $group $execute
 protect_appaserver_error_directory $group $appaserver_error $execute
 protect_old_appaserver_error_file $group $execute
 protect_appaserver_data $group $appaserver_data $execute
+protect_backups_appaserver $group "/var/backups" $execute
 protect_appaserver_config $group $execute
 protect_error_file_template $group $appaserver_error $execute
 protect_document_root_appaserver $group $execute

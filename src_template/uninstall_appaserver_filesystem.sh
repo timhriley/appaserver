@@ -86,6 +86,19 @@ remove_old_appaserver_error_file ()
 	fi
 }
 
+remove_backups_appaserver ()
+{
+	backups_directory=$1
+	execute=$2
+
+	if [ "$execute" = "execute" ]
+	then
+		rm -fr ${backups_directory}/appaserver
+	else
+		echo "rm -fr ${backups_directory}/appaserver"
+	fi
+}
+
 remove_appaserver_data ()
 {
 	appaserver_data=$1
@@ -141,6 +154,7 @@ integrity_check $execute
 remove_appaserver_error_directory $appaserver_error $execute
 remove_old_appaserver_error_file $execute
 remove_appaserver_data $appaserver_data $execute
+remove_backups_appaserver "/var/backups" $execute
 remove_document_root_appaserver $execute
 reset_cgi_home $execute
 
