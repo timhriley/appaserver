@@ -27,18 +27,20 @@ group=www-data. The important characteristic is the
 people who compile and the Apache process need write access,
 and everyone else doesn't even have read access.
 
-------------------------------
-B) Make sure LAMP is installed
-------------------------------
+----------------------
+B) Install basic LAMP.
+----------------------
 
-Here's a good tutorial:
-https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-20-04-quickstart
+1) $ sudo apt -y install apache2
+2) $ sudo apt -y install mysql-server
+3) $ sudo mysql_secure_installation
 
 ----------------------------
 C) Ensure proper permissions
 ----------------------------
 
 Either add a new group=appaserver:
+
 1) $ sudo addgroup appaserver
 2) $ sudo usermod -a -G appaserver `whoami`
 3) $ sudo usermod -a -G appaserver www-data
@@ -47,6 +49,7 @@ Either add a new group=appaserver:
 6) $ appaservergroup=appaserver
 
 Or add yourself to group=www-data:
+
 1) $ sudo usermod -a -G www-data `whoami`
 2) $ newgrp www-data
 3) $ appaservergroup=www-data
@@ -67,6 +70,7 @@ D) Shell installation steps
 10) vi> set appaserver_mount_point
 11) vi> set appaserver_group=$appaservergroup <-- see step C)
 12) vi> set other configurable variables
+13) $ appaserver_apt_install.sh
 13) $ sudo ./install_appaserver_profile.sh noexecute|execute
 14) $ . /etc/profile
 15) $ sudo ./install_appaserver_filesystem.sh noexecute|execute
@@ -76,6 +80,7 @@ D) Shell installation steps
 19) $ . set_database template
 20) $ install_template_database.sh noexecute|execute
 21) $ upgrade-appaserver-database template
+22) $ appaserver_virgin_install.sh noexecute <--displays configuration steps
 
 ---------
 E) Log in
