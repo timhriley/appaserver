@@ -65,8 +65,7 @@ echo ""
 echo "$ sudo vi /etc/apache2/mods-available/dir.conf"
 echo "vi>DirectoryIndex index.php index.html ..."
 echo ""
-echo "$ sudo vi /etc/apache2/envvars"
-echo "vi>umask 0002"
+echo 'sudo sh -c "echo umask 0002 >> /etc/apache2/envvars"'
 echo "Make sure /etc/init.d/apache2 runs /etc/apache2/envvars"
 echo ""
 echo "$ sudo vi /etc/apache2/mods-available/ssl.conf"
@@ -104,7 +103,7 @@ echo "vi>error_reporting = E_STRICT"
 echo ""
 echo "Umask reminder"
 echo "--------------"
-echo 'sudo sh -c "echo session optional pam_umask.so umask=002 >> /etc/pam.d/sshd"'
-echo 'sudo sh -c "echo session optional pam_umask.so umask=002 >> /etc/pam.d/login"'
+echo 'sudo sh -c "echo session optional pam_umask.so umask=0002 >> /etc/pam.d/sshd"'
+echo 'sudo sh -c "echo session optional pam_umask.so umask=0002 >> /etc/pam.d/login"'
 
 exit 0
