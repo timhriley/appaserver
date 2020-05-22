@@ -143,9 +143,10 @@ create_appaserver_error_directory ()
 
 create_old_appaserver_error_file ()
 {
-	execute=$1
+	appaserver_error=$1
+	execute=$2
 
-	old_appaserver_error_file="/var/log/appaserver.err"
+	old_appaserver_error_file="${appaserver_error}/appaserver.err"
 
 	if [ "$execute" = "execute" ]
 	then
@@ -231,7 +232,7 @@ appaserver_data=`	cat $appaserver_config_file	|\
 
 integrity_check $cgi_home $execute
 create_appaserver_error_directory $appaserver_error $execute
-create_old_appaserver_error_file $execute
+create_old_appaserver_error_file $appaserver_error $execute
 create_appaserver_data $appaserver_data $execute
 create_backups_appaserver "/var/backups" $execute
 create_error_file_template $appaserver_error $execute
