@@ -146,6 +146,16 @@ create_old_appaserver_error_file ()
 	appaserver_error=$1
 	execute=$2
 
+	if [ ! -d $appaserver_error ]
+	then
+		if [ "$execute" = "execute" ]
+		then
+			mkdir $appaserver_error
+		else
+			echo "mkdir $appaserver_error"
+		fi
+	fi
+
 	old_appaserver_error_file="${appaserver_error}/appaserver.err"
 
 	if [ "$execute" = "execute" ]
