@@ -80,7 +80,7 @@ D) Shell installation steps
 19) $ . set_database template
 20) $ install_template_database.sh noexecute|execute
 21) $ upgrade-appaserver-database template
-22) $ appaserver_virgin_install.sh noexecute <--displays configuration steps
+22) $ appaserver_virgin_install.sh nobody noexecute <--displays additional steps
 
 ---------
 E) Log in
