@@ -128,6 +128,10 @@ link_document_root ()
 	fi
 }
 
+# -----------------------------------------------
+# Note: this tries to create /foo/log/appaserver.
+# Carefull, /foo/log may not exist.
+# -----------------------------------------------
 create_appaserver_error_directory ()
 {
 	appaserver_error=$1
@@ -145,16 +149,6 @@ create_old_appaserver_error_file ()
 {
 	appaserver_error=$1
 	execute=$2
-
-	if [ ! -d $appaserver_error ]
-	then
-		if [ "$execute" = "execute" ]
-		then
-			mkdir $appaserver_error
-		else
-			echo "mkdir $appaserver_error"
-		fi
-	fi
 
 	old_appaserver_error_file="${appaserver_error}/appaserver.err"
 
