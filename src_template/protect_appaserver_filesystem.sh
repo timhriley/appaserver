@@ -189,9 +189,10 @@ protect_appaserver_home ()
 protect_old_appaserver_error_file ()
 {
 	group=$1
-	execute=$2
+	appaserver_error=$2
+	execute=$3
 
-	old_appaserver_error_file="/var/log/appaserver.err"
+	old_appaserver_error_file="${appaserver_error}/appaserver.err"
 
 	if [ "$execute" = "execute" ]
 	then
@@ -318,7 +319,7 @@ integrity_check $group $execute
 protect_cgi_home $group $execute
 protect_appaserver_home $group $execute
 protect_appaserver_error_directory $group $appaserver_error $execute
-protect_old_appaserver_error_file $group $execute
+protect_old_appaserver_error_file $group $appaserver_error $execute
 protect_appaserver_data $group $appaserver_data $execute
 protect_backups_appaserver $group "/var/backups" $execute
 protect_appaserver_config $group $execute
