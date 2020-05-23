@@ -6,9 +6,9 @@
  *  THIS NOTICE MUST REMAIN INTACT!
  *
  *           LICENSEE: UNREGISTERED
- *        License key: trial
- *      Purchase date: Fri Feb  6 12:43:45 2009 GMT
- *       License type: library
+ *        License key: 
+ *      Purchase date:
+ *       License type:
  *
  *  For details on this license please visit
  *  the product homepage at the URL above.
