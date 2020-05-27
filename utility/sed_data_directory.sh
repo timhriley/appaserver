@@ -15,14 +15,17 @@ data_directory=$1
 if [ "$#" -eq 2 ]
 then
 	index_directory=$2
-else
-	index_directory=$1
 fi
 
 DD=$data_directory
 ID=$index_directory
 
-sed "s|ENGINE=MyISAM|data directory='$DD',index directory='$ID' &|"
+if [ "$ID" != "" ]
+then
+	sed "s|ENGINE=MyISAM|data directory='$DD' index directory='$ID' &|"
+else
+	sed "s|ENGINE=MyISAM|data directory='$DD' &|"
+fi
 
 exit $?
 
