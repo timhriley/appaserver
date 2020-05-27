@@ -20,7 +20,7 @@ table="reoccurring_transaction"
 
 select="full_name,street_address,transaction_description"
 
-where="transaction_amount is not null"
+where="1 = 1"
 
 order="$select"
 
