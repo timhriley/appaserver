@@ -248,6 +248,8 @@ double *linear_interpolate( 	double *buffer,
 				int from_x,
 				int to_x );
 
+double timlib_atof(		char *s );
+
 void timlib_atof_array(		double *f_array,
 				char *pipe_delimited_string );
 

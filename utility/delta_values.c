@@ -23,6 +23,7 @@ int main( int argc, char **argv )
 {
 	char input_buffer[ 1024 ];
 	char value_string[ 128 ];
+	char replace_string[ 128 ];
 	int value_piece_offset;
 	boolean doing_previous;
 	boolean first_time = 1;
@@ -32,13 +33,13 @@ int main( int argc, char **argv )
 
 	output_starting_argv_stderr( argc, argv );
 
-	if ( argc < 4 )
+	if ( argc < 3 )
 	{
 		fprintf(stderr,
 		"Usage: %s value_piece_offset first|previous [delimiter]\n",
 			argv[ 0 ] );
 		fprintf(stderr,
-		"Note: the default delimiter is %c.\n", DEFAULT_DELIMITER );
+		"Note: the default delimiter is %c\n", DEFAULT_DELIMITER );
 		exit( 1 );
 	}
 
@@ -60,9 +61,13 @@ int main( int argc, char **argv )
 	}
 
 	if ( argc == 4 && ( *argv[ 3 ] != 'd' ) )
+	{
 		delimiter = *argv[ 3 ];
+	}
 	else
+	{
 		delimiter = DEFAULT_DELIMITER;
+	}
 
 	while( get_line( input_buffer, stdin ) )
 	{
@@ -89,27 +94,38 @@ int main( int argc, char **argv )
 			continue;
 		}
 
-		value = atof( value_string );
+		value = timlib_atof( value_string );
 
 		if ( first_time )
 		{
-			previous_value = atof( value_string );
-			strcpy( value_string, "null" );
+			previous_value = timlib_atof( value_string );
+			strcpy( replace_string, "null" );
 			first_time = 0;
 		}
 		else
 		{
-			sprintf(	value_string,
+			sprintf(	replace_string,
 					"%.3lf",
 					value - previous_value );
 		}
 
-		piece_replace(	input_buffer,
+		if ( value_piece_offset )
+		{
+			piece_replace(
+				input_buffer,
 				delimiter,
-				value_string,
+				replace_string,
 				value_piece_offset );
 
-		printf( "%s\n", input_buffer );
+			printf( "%s\n", input_buffer );
+		}
+		else
+		{
+			printf( "%s%c%.3lf\n",
+				input_buffer,
+				delimiter,
+				value - previous_value );
+		}
 
 		if ( doing_previous ) previous_value = value;
 	}
