@@ -146,7 +146,9 @@ int get_index( char *attribute_name )
 		else
 			break;
 	}
+
 	return atoi( end_ptr );
+
 } /* get_index() */
 
 
@@ -2078,6 +2080,17 @@ double *linear_interpolate( 	double *buffer,
 
 } /* linear_interpolate() */
 
+double timlib_atof( char *s )
+{
+	char buffer[ 1024 ];
+
+	if ( !s ) return 0.0;
+
+	trim_character( buffer, ',', s );
+
+	return atof( buffer );
+}
+
 void timlib_atof_array( double *f_array, char *pipe_delimited_string )
 {
 	int pipe_count, i;
@@ -3893,7 +3906,9 @@ int timlib_get_line_escape_CR(	char *in_line,
 
 int timlib_atoi( char *s )
 {
-	char buffer[ 32 ];
+	char buffer[ 1024 ];
+
+	if ( !s ) return 0;
 
 	trim_character( buffer, ',', s );
 
