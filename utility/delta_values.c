@@ -38,7 +38,7 @@ int main( int argc, char **argv )
 		"Usage: %s value_piece_offset first|previous [delimiter]\n",
 			argv[ 0 ] );
 		fprintf(stderr,
-		"Note: the default delimiter is %c.\n", DEFAULT_DELIMITER );
+		"Note: the default delimiter is %c\n", DEFAULT_DELIMITER );
 		exit( 1 );
 	}
 
