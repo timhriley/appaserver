@@ -141,7 +141,7 @@ create_table()
 	sed "s/NOT NULL DEFAULT '0000-00-00',/NOT NULL,/"		      |
 	sed "s/NOT NULL DEFAULT 'null',/NOT NULL,/"			      |
 	sed_data_directory.sh "$DD" "$ID"				      |
-	tee /tmp/mysql_block_load_create_$$.sql				      |
+	tee /tmp/mysqldump_block_load_create_$$.sql			      |
 	sql.e								      |
 	cat
 }
@@ -152,8 +152,9 @@ load_table()
 
 	zcat $backup_file			|
 	grep -i 'insert into'			|
-	sed "s/'0000-00-00'/null/g"		|
-	sed "s/'0000-00-00 00:00:00'/null/g"	|
+	sed 's/),/),\n/g'			|
+	grep -v "'0000-00-00'"			|
+	grep -v "'0000-00-00 00:00:00'"		|
 	sql_quick.e				|
 	cat
 }
