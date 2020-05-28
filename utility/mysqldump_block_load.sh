@@ -59,7 +59,7 @@ remove_destination_files()
 	then
 		if [ `whoami` != "mysql" ]
 		then
-			echo "ERROR in $0/remove_ssd(): you must be mysql" 1>&2
+			echo "ERROR in $0: you must be mysql" 1>&2
 			exit 1
 		fi
 
@@ -74,7 +74,14 @@ link_destination_directory()
 	application_datadir=$2
 	table_name=$3
 
-	if [ ! -f $destination_directory/${table_name}.MYD ]
+	if [ "$destination_directory" = "" ]
+	then
+		return
+	fi
+
+	file=${table_name}.MYD
+
+	if [ ! -f $destination_directory/$file ]
 	then
 		if [ `whoami` != "mysql" ]
 		then
@@ -82,11 +89,11 @@ link_destination_directory()
 			exit 1
 		fi
 
-		file=${table_name}.MYD
 		mv $application_datadir/$file $destination_directory
 		ln -s $destination_directory/$file $application_datadir/$file
 
 		file=${table_name}.MYI
+
 		mv $application_datadir/$file $destination_directory
 		ln -s $destination_directory/$file $application_datadir/$file
 	fi
@@ -95,7 +102,7 @@ link_destination_directory()
 create_table()
 {
 	backup_file=$1
-	head_count=$2
+	head_create=$2
 	destination_directory=$3
 	table_name=$4
 
@@ -103,14 +110,14 @@ create_table()
 
 	zcat $backup_file						      |
 	grep -vi 'drop table'						      |
-	head -$head_count						      |
+	head -${head_create}						      |
 	sed "s/NOT NULL DEFAULT CURRENT_TIMESTAMP/DEFAULT CURRENT_TIMESTAMP/" |
 	sed "s/NOT NULL DEFAULT '',/NOT NULL,/"				      |
 	sed "s/NOT NULL DEFAULT '0000-00-00',/NOT NULL,/"		      |
 	sed "s/NOT NULL DEFAULT 'null',/NOT NULL,/"			      |
 	sed_data_directory.sh "$DD" "$DD"				      |
 	tee /tmp/mysql_block_load_create_$$.sql				      |
-	#sql.e								      |
+	sql.e								      |
 	cat
 }
 
@@ -122,7 +129,7 @@ load_table()
 	grep -i 'insert into'			|
 	sed "s/'0000-00-00'/null/g"		|
 	sed "s/'0000-00-00 00:00:00'/null/g"	|
-	#sql_quick.e				|
+	sql_quick.e				|
 	cat
 }
 
@@ -131,7 +138,7 @@ drop_table()
 	table_name=$1
 
 	echo "drop table $table_name;"		|
-	#sql.e					|
+	sql.e					|
 	cat
 }
 
@@ -141,15 +148,15 @@ then
 
 	drop_table $table_name
 
-	remove_destination_files $destination_directory $table_name
+	remove_destination_files "$destination_directory" $table_name
 
-	create_table	$backup_file				\
-			$head_count				\
-			$destination_directory			\
+	create_table	$backup_file					\
+			$head_create					\
+			"$destination_directory"			\
 			$table_name
 
-	link_destination_directory	$destination_directory	\
-					$application_datadir	\
+	link_destination_directory	"$destination_directory"	\
+					$application_datadir		\
 					$table_name
 
 	load_table $backup_file
