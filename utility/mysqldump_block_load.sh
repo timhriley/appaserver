@@ -190,6 +190,9 @@ then
 				$table_name
 
 	load_table $backup_file
+
+	purge_binary_logs.sh
+
 else
 	less $0
 fi
