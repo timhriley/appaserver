@@ -15,7 +15,7 @@ parameter_file=$2
 date_yyyy_mm_dd=$3
 date_no_dashes=`echo $date_yyyy_mm_dd | sed 's/-//g'`
 
-parse_parameter_file()
+parse_parameter_file ()
 {
 	file=$1
 	key=$2
@@ -23,7 +23,7 @@ parse_parameter_file()
 	results=`cat $file | grep "^${key}=" | piece.e "=" 1`
 }
 
-error_exit_if_blank()
+error_exit_if_blank ()
 {
 	results=$1
 	pattern=$2

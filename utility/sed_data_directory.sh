@@ -20,7 +20,10 @@ fi
 DD=$data_directory
 ID=$index_directory
 
-if [ "$ID" != "" ]
+if [ "$data_directory" = "" -a "$index_directory" = "" ]
+then
+	cat
+elif [ "$ID" != "" ]
 then
 	sed "s|ENGINE=MyISAM|data directory='$DD' index directory='$ID' &|"
 else
