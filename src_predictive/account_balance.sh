@@ -1,8 +1,8 @@
 :
-# src_predictive/account_balance.sh
-# ---------------------------------------------
+# $APPASERVER_HOME/src_predictive/account_balance.sh
+# --------------------------------------------------
 # Freely available software. See appaserver.org
-# ---------------------------------------------
+# --------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then
