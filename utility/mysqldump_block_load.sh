@@ -20,9 +20,9 @@ then
 	exit 1
 fi
 
-if  [ "$#" -ne 5 ]
+if  [ "$#" -lt 5 ]
 then
-	echo "Usage: $0 backup_file head_create data_directory index_directory execute_yn" 1>&2
+	echo "Usage: $0 backup_file head_create data_directory index_directory execute_yn [preprocess]" 1>&2
 	exit 1
 fi
 
@@ -31,6 +31,13 @@ head_create=$2
 data_directory=$3
 index_directory=$4
 execute_yn=$5
+
+if [ "$#" -eq 6 ]
+then
+	preprocess="$6"
+else
+	preprocess="cat"
+fi
 
 if [ "$data_directory" = "data_directory" ]
 then
@@ -149,12 +156,14 @@ create_table()
 load_table()
 {
 	backup_file=$1
+	preprocess="$2"
 
 	zcat $backup_file			|
 	grep -i 'insert into'			|
 	sed 's/),/),\n/g'			|
 	grep -v "'0000-00-00'"			|
 	grep -v "'0000-00-00 00:00:00'"		|
+	$preprocess				|
 	sql_quick.e				|
 	cat
 }
@@ -189,7 +198,7 @@ then
 				$application_datadir		\
 				$table_name
 
-	load_table $backup_file
+	load_table $backup_file "$preprocess"
 
 	purge_binary_logs.sh
 
