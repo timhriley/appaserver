@@ -1,9 +1,10 @@
 :
-# ------------------------------------------------
+# ---------------------------------------------------------------------
 # $APPASERVER_HOME/utility/mysqldump_block_load.sh
-# ------------------------------------------------
+# ---------------------------------------------------------------------
+# This process parses and loads mysqldump's block option output format.
 # Freely available software. See appaserver.org
-# ------------------------------------------------
+# ---------------------------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then
@@ -22,7 +23,7 @@ fi
 
 if  [ "$#" -lt 5 ]
 then
-	echo "Usage: $0 backup_file head_create data_directory index_directory execute_yn [preprocess]" 1>&2
+	echo "Usage: $0 backup_file head_create data_directory index_directory execute_yn [create_preprocess] [insert_preprocess]" 1>&2
 	exit 1
 fi
 
@@ -32,11 +33,18 @@ data_directory=$3
 index_directory=$4
 execute_yn=$5
 
-if [ "$#" -eq 6 ]
+if [ "$#" -ge 6 ]
 then
-	preprocess="$6"
+	create_preprocess="$6"
 else
-	preprocess="cat"
+	create_preprocess="cat"
+fi
+
+if [ "$#" -ge 7 ]
+then
+	insert_preprocess="$7"
+else
+	insert_preprocess="cat"
 fi
 
 if [ "$data_directory" = "data_directory" ]
@@ -136,6 +144,7 @@ create_table()
 	data_directory=$3
 	index_directory=$4
 	table_name=$5
+	create_preprocess="$6"
 
 	DD=$data_directory
 	ID=$index_directory
@@ -148,6 +157,7 @@ create_table()
 	sed "s/NOT NULL DEFAULT '0000-00-00',/NOT NULL,/"		      |
 	sed "s/NOT NULL DEFAULT 'null',/NOT NULL,/"			      |
 	sed_data_directory.sh "$DD" "$ID"				      |
+	$create_preprocess						      |
 	tee /tmp/mysqldump_block_load_create_$$.sql			      |
 	sql.e								      |
 	cat
@@ -156,14 +166,14 @@ create_table()
 load_table()
 {
 	backup_file=$1
-	preprocess="$2"
+	insert_preprocess="$2"
 
 	zcat $backup_file			|
 	grep -i 'insert into'			|
 	sed 's/),/),\n/g'			|
 	grep -v "'0000-00-00'"			|
 	grep -v "'0000-00-00 00:00:00'"		|
-	$preprocess				|
+	$insert_preprocess			|
 	sql_quick.e				|
 	cat
 }
@@ -191,14 +201,15 @@ then
 			$head_create				\
 			"$data_directory"			\
 			"$index_directory"			\
-			$table_name
+			$table_name				\
+			"$create_preprocess"
 
 	link_destination_files	"$data_directory"		\
 				"$index_directory"		\
 				$application_datadir		\
 				$table_name
 
-	load_table $backup_file "$preprocess"
+	load_table $backup_file "$insert_preprocess"
 
 	purge_binary_logs.sh
 
