@@ -6,6 +6,8 @@
 # Freely available software. See appaserver.org
 # ---------------------------------------------------------------------
 
+display_count=10000000
+
 if [ "$APPASERVER_DATABASE" != "" ]
 then
 	application=$APPASERVER_DATABASE
@@ -106,11 +108,13 @@ link_destination_files()
 	then
 		file=${table_name}.MYD
 
+ls -l $data_directory/$file 1>&2
+
 		if [ ! -f $data_directory/$file ]
 		then
 			if [ `whoami` != "mysql" ]
 			then
-				echo "ERROR in $0: you must be mysql" 1>&2
+				echo "ERROR in $0 1): you must be mysql" 1>&2
 				exit 1
 			fi
 
@@ -127,7 +131,7 @@ link_destination_files()
 		then
 			if [ `whoami` != "mysql" ]
 			then
-				echo "ERROR in $0: you must be mysql" 1>&2
+				echo "ERROR in $0 2): you must be mysql" 1>&2
 				exit 1
 			fi
 
@@ -167,6 +171,7 @@ load_table()
 {
 	backup_file=$1
 	insert_preprocess="$2"
+	display_count=$3
 
 	zcat $backup_file			|
 	grep -i 'insert into'			|
@@ -174,7 +179,7 @@ load_table()
 	grep -v "'0000-00-00'"			|
 	grep -v "'0000-00-00 00:00:00'"		|
 	$insert_preprocess			|
-	count.e 1000000				|
+	count.e $display_count			|
 	sql_quick.e				|
 	cat
 }
@@ -210,7 +215,9 @@ then
 				$application_datadir		\
 				$table_name
 
-	load_table $backup_file "$insert_preprocess"
+	load_table	$backup_file				\
+			"$insert_preprocess"			\
+			$display_count
 
 	purge_binary_logs.sh
 
