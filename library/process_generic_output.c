@@ -13,9 +13,7 @@
 #include "query.h"
 #include "dictionary.h"
 #include "attribute.h"
-#include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "process_generic_output.h"
 #include "appaserver_parameter_file.h"
 #include "aggregate_statistic.h"
 #include "aggregate_level.h"
@@ -23,6 +21,9 @@
 #include "folder.h"
 #include "list_usage.h"
 #include "appaserver.h"
+#include "query.h"
+#include "appaserver_library.h"
+#include "process_generic_output.h"
 
 PROCESS_GENERIC_OUTPUT *process_generic_output_new(
 		 			char *application_name,
@@ -891,6 +892,10 @@ char *process_generic_output_get_begin_end_date_where(
 {
 	static char where_clause[ 256 ];
 
+/* stub */
+/* ---- */
+process_generic_output = (PROCESS_GENERIC_OUTPUT *)0;
+
 	if ( !*begin_date )
 	{
 		if ( !dictionary )
@@ -925,23 +930,6 @@ char *process_generic_output_get_begin_end_date_where(
 			dictionary_fetch_index_zero(
 				dictionary,
 				"end_date" );
-	}
-
-	if ( !appaserver_library_validate_begin_end_date(
-				begin_date,
-				end_date,
-				application_name,
-				(char *)0 /* database_management_system */,
-				process_generic_output,
-				dictionary ) )
-	{
-		document_quick_output_body(
-				application_name,
-				(char *)0 /* appaserver_mount_point */ );
-
-		printf( "<p>ERROR: no data available for these dates.\n" );
-		document_close();
-		exit( 0 );
 	}
 
 	if ( *begin_date && **begin_date
@@ -2902,6 +2890,7 @@ char *process_generic_output_get_datatype_heading_string(
 
 } /* process_generic_output_get_datatype_heading_string() */
 
+#ifdef NOT_DEFINED
 boolean process_generic_output_validate_begin_end_date(
 					char **begin_date,
 					char **end_date,
@@ -3091,6 +3080,332 @@ boolean process_generic_output_validate_begin_end_date(
 
 	*begin_date = new_begin_date;
 	*end_date = new_end_date;
+
+	if ( strcmp( new_begin_date, new_end_date ) > 0 )
+		return 0;
+	else
+		return 1;
+
+} /* process_generic_output_validate_begin_end_date() */
+#endif
+
+QUERY_OUTPUT *process_generic_query_output(
+				char *application_name,
+				char *value_folder_name,
+				LIST *mto1_related_folder_list,
+				DICTIONARY *query_removed_post_dictionary )
+{
+	QUERY_OUTPUT *query_output;
+
+	query_output = query_output_calloc();
+
+	query_output->
+		query_drop_down_list =
+			query_process_drop_down_get_drop_down_list(
+				mto1_related_folder_list,
+				query_removed_post_dictionary );
+
+{
+char msg[ 65536 ];
+sprintf( msg, "\n%s/%s()/%d: for folder = %s, query_drop_down_list = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+value_folder_name,
+query_drop_down_list_display(	value_folder_name,
+				query_output->query_drop_down_list ) );
+m2( application_name, msg );
+}
+
+	query_output->where_clause =
+		query_get_where_clause(
+			&query_output->drop_down_where_clause,
+			&query_output->attribute_where_clause,
+			query_output->query_drop_down_list,
+			query_output->query_attribute_list,
+			application_name,
+			value_folder_name,
+			1 /* combine_date_time */ );
+
+	return query_output;
+
+} /* process_generic_query_output() */
+
+/* ------------------------------- */
+/* Returns static (program) memory */
+/* ------------------------------- */
+char *process_generic_output_begin_end_date_where_clause(
+			char *date_attribute_name,
+			char *begin_date_string,
+			char *end_date_string )
+{
+	static char where_clause[ 256 ];
+
+	if ( begin_date_string && *begin_date_string
+	&&   end_date_string && *end_date_string )
+	{
+		sprintf(	where_clause,
+				" and %s >= '%s' and %s <= '%s'",
+				date_attribute_name,
+				begin_date_string,
+				date_attribute_name,
+				end_date_string );
+	}
+	else
+	if ( begin_date_string && *begin_date_string )
+	{
+		sprintf(	where_clause,
+				" and %s = '%s'",
+				date_attribute_name,
+				begin_date_string );
+	}
+	else
+	if ( end_date_string && *end_date_string )
+	{
+		sprintf(	where_clause,
+				" and %s <= '%s'",
+				date_attribute_name,
+				end_date_string );
+	}
+	else
+	{
+		strcpy( where_clause, "and 1 = 1" );
+	}
+
+	return where_clause;
+
+} /* process_generic_output_begin_end_date_where_clause() */
+
+/* Returns heap memory. */
+/* -------------------- */
+char *process_generic_output_drop_down_where(
+			char *application_name,
+			char *value_folder_name,
+			DICTIONARY *query_removed_post_dictionary )
+{
+	QUERY *query;
+
+	query = query_calloc();
+
+	if ( ! ( query->folder =
+			folder_with_load_new(
+				application_name,
+				BOGUS_SESSION,
+				value_folder_name,
+				(ROLE *)0 /* role */ ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot load folder.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	query->dictionary = query_removed_post_dictionary;
+	query->max_rows = 0;
+
+	query->query_output =
+		process_generic_query_output(
+				application_name,
+				query->folder->folder_name,
+				query->folder->mto1_related_folder_list,
+				query_removed_post_dictionary );
+
+	if ( !query->query_output )
+		return (char *)0;
+	else
+		return query->query_output->where_clause;
+
+} /* process_generic_output_drop_down_where() */
+
+/* Returns heap memory. */
+/* -------------------- */
+char *process_generic_output_where(
+			char *application_name,
+			char *value_folder_name,
+			char *date_attribute_name,
+			char *begin_date_string,
+			char *end_date_string,
+			DICTIONARY *query_removed_post_dictionary )
+{
+	char where_clause[ 65536 ];
+	char *drop_down_where;
+	char *begin_end_date_where;
+
+	if ( ! ( drop_down_where =
+			/* -------------------- */
+			/* Returns heap memory. */
+			/* -------------------- */
+			process_generic_output_drop_down_where(
+				application_name,
+				value_folder_name,
+				query_removed_post_dictionary ) ) )
+	{
+		return (char *)0;
+	}
+
+	begin_end_date_where =
+		/* ------------------------------- */
+		/* Returns static (program) memory */
+		/* ------------------------------- */
+		process_generic_output_begin_end_date_where_clause(
+			date_attribute_name,
+			begin_date_string,
+			end_date_string );
+
+	sprintf( where_clause,
+		 "%s %s",
+		 drop_down_where,
+		 begin_end_date_where );
+
+	free( drop_down_where );
+
+	return strdup( where_clause );
+
+} /* process_generic_output_where() */
+
+boolean process_generic_output_validate_begin_end_date(
+				char **begin_date_string /* in/out */,
+				char **end_date_string /* in/out */,
+				char *application_name,
+				char *value_folder_name,
+				char *date_attribute_name,
+				DICTIONARY *query_removed_post_dictionary )
+{
+	char buffer[ 128 ];
+	int i;
+	char new_begin_date[ 128 ];
+	char new_end_date[ 128 ];
+
+	if ( !begin_date_string && !end_date_string ) return 0;
+
+	if ( character_exists( *begin_date_string, '/' ) ) return 1;
+	if ( character_exists( *end_date_string, '/' ) ) return 1;
+
+	if ( !*begin_date_string
+	&&   dictionary_length( query_removed_post_dictionary ) )
+	{
+		dictionary_get_index_data(
+			begin_date_string,
+			query_removed_post_dictionary,
+			"begin_date",
+			0 );
+	}
+
+	if ( !*end_date_string
+	&&   dictionary_length( query_removed_post_dictionary ) )
+	{
+		dictionary_get_index_data(
+			end_date_string,
+			query_removed_post_dictionary,
+			"end_date",
+			0 );
+	}
+
+	if ( ( !*begin_date_string || !**begin_date_string )
+	&&   ( !*end_date_string || !**end_date_string ) )
+	{
+		char *where_clause;
+
+		where_clause =
+			process_generic_output_where(
+				application_name,
+				value_folder_name,
+				date_attribute_name,
+				*begin_date_string,
+				*end_date_string,
+				query_removed_post_dictionary );
+
+fprintf( stderr, "%s/%s()/%d: where_clause = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+where_clause );
+		if ( !where_clause || !*where_clause ) return 0;
+
+		process_generic_output_get_period_of_record_date(
+				begin_date_string,
+				application_name,
+				value_folder_name,
+				"min",
+				date_attribute_name,
+				where_clause );
+
+		if ( !**begin_date_string ) return 0;
+
+		process_generic_output_get_period_of_record_date(
+				end_date_string,
+				application_name,
+				value_folder_name,
+				"max",
+				date_attribute_name,
+				where_clause );
+
+			return 1;
+	}
+	
+	strcpy( new_begin_date, *begin_date_string );
+	strcpy( new_end_date, *end_date_string );
+
+	piece( buffer, '-', new_begin_date, 0 );
+	if ( strlen( buffer ) != 4 ) return 0;
+
+	/* Don't allow for 0000-00-00 */
+	/* -------------------------- */
+	if ( !atoi( buffer ) ) return 0;
+
+	if ( !piece( buffer, '-', new_begin_date, 1 ) )
+	{
+		strcat( new_begin_date, "-01-01" );
+	}
+	else
+	{
+		i = atoi( buffer );
+		if ( i < 1 || i > 12 ) return 0;
+	}
+
+	if ( !piece( buffer, '-', new_begin_date, 2 ) )
+	{
+		strcat( new_begin_date, "-01" );
+	}
+	else
+	{
+		i = atoi( buffer );
+		if ( i < 1 || i > 31 ) return 0;
+	}
+
+	if ( !*new_end_date || strcmp( new_end_date, "end_date" ) == 0 )
+	{
+		strcpy( new_end_date, new_begin_date );
+	}
+
+	piece( buffer, '-', new_end_date, 0 );
+	if ( strlen( buffer ) != 4 ) return 0;
+	if ( !atoi( buffer ) ) return 0;
+
+	if ( !piece( buffer, '-', new_end_date, 1 ) )
+	{
+		strcat( new_end_date, "-12-31" );
+	}
+	else
+	{
+		i = atoi( buffer );
+		if ( i < 1 || i > 12 ) return 0;
+	}
+
+	if ( !piece( buffer, '-', new_end_date, 2 ) )
+	{
+		strcat( new_end_date, "-31" );
+	}
+	else
+	{
+		i = atoi( buffer );
+		if ( i < 1 || i > 31 ) return 0;
+	}
+
+	*begin_date_string = new_begin_date;
+	*end_date_string = new_end_date;
 
 	if ( strcmp( new_begin_date, new_end_date ) > 0 )
 		return 0;

@@ -11,7 +11,6 @@
 #include "list.h"
 #include "dictionary.h"
 #include "attribute.h"
-#include "appaserver_library.h"
 
 /* Constants */
 /* --------- */

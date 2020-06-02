@@ -15,10 +15,11 @@
 #include "piece.h"
 #include "list.h"
 #include "dictionary.h"
+#include "query.h"
+#include "process_generic_output.h"
 #include "folder.h"
 #include "application.h"
 #include "attribute.h"
-#include "query.h"
 #include "appaserver_library.h"
 #include "related_folder.h"
 #include "element.h"
@@ -1063,20 +1064,12 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 boolean appaserver_library_validate_begin_end_date(
 					char **begin_date,
 					char **end_date,
-					char *application_name,
-					char *database_management_system,
-					PROCESS_GENERIC_OUTPUT *
-						process_generic_output,
 					DICTIONARY *post_dictionary )
 {
 	char buffer[ 128 ];
 	int i;
 	static char new_begin_date[ 16 ];
 	static char new_end_date[ 16 ];
-
-/* Stub */
-/* ---- */
-database_management_system = "";
 
 	if ( !begin_date && !end_date ) return 0;
 
@@ -1098,79 +1091,6 @@ database_management_system = "";
 						"end_date",
 						0 );
 	}
-
-	if ( process_generic_output )
-	{
-		if ( ( !*begin_date || !**begin_date )
-		&&   ( !*end_date || !**end_date ) )
-		{
-			char *where_clause;
-
-			where_clause =
-			process_generic_output_get_drop_down_where_clause(
-				application_name,
-				process_generic_output->
-					value_folder->
-					value_folder_name,
-				post_dictionary );
-
-			if ( !where_clause || !*where_clause ) return 0;
-
-			process_generic_output_get_period_of_record_date(
-					begin_date,
-					application_name,
-					process_generic_output->
-						value_folder->
-							value_folder_name,
-					"min",
-					process_generic_output->
-						value_folder->
-							date_attribute_name,
-					where_clause );
-
-			if ( !**begin_date ) return 0;
-
-			process_generic_output_get_period_of_record_date(
-					end_date,
-					application_name,
-					process_generic_output->
-						value_folder->value_folder_name,
-					"max",
-					process_generic_output->
-						value_folder->
-							date_attribute_name,
-					where_clause );
-
-			return 1;
-		}
-	
-		if ( ( !*begin_date || !**begin_date ) )
-		{
-			char *where_clause;
-
-			where_clause =
-			process_generic_output_get_drop_down_where_clause(
-				application_name,
-				process_generic_output->
-					value_folder->
-					value_folder_name,
-				post_dictionary );
-
-			process_generic_output_get_period_of_record_date(
-					begin_date,
-					application_name,
-					process_generic_output->
-						value_folder->value_folder_name,
-					"min",
-					process_generic_output->
-						value_folder->
-							date_attribute_name,
-					where_clause );
-
-			if ( !**begin_date ) return 0;
-		}
-
-	} /* if process_generic_output */
 
 	if ( !*begin_date || strcmp( *begin_date, "begin_date" ) == 0 )
 	{

@@ -15,6 +15,7 @@
 #include "list.h"
 #include "aggregate_level.h"
 #include "aggregate_statistic.h"
+#include "process_generic_output.h"
 
 /* Prototypes */
 /* ---------- */

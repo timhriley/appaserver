@@ -25,6 +25,7 @@
 #include "appaserver_parameter_file.h"
 #include "appaserver.h"
 #include "column.h"
+#include "process_generic_output.h"
 
 /* Constants */
 /* --------- */
@@ -167,13 +168,16 @@ int main( int argc, char **argv )
 					appaserver_parameter_file->
 						appaserver_mount_point );
 
-	if ( !appaserver_library_validate_begin_end_date(
+	if ( !process_generic_output_validate_begin_end_date(
 					&begin_date_string,
 					&end_date_string,
 					application_name,
-					appaserver_parameter_file->
-						database_management_system,
-					process_generic_output,
+					process_generic_output->
+						value_folder->
+						value_folder_name,
+					process_generic_output->
+						value_folder->
+						date_attribute_name,
 					post_dictionary ) )
 	{
 		printf( "<p>ERROR: no data available for these dates.\n" );
@@ -311,7 +315,7 @@ int main( int argc, char **argv )
 
 	fclose( input_stream );
 	sprintf( histogram_sys_string, "rm -f %s", grace_histogram_filename );
-	system( histogram_sys_string );
+	if ( system( histogram_sys_string ) ){};
 
 	grace_output_graph_window(
 				application_name,

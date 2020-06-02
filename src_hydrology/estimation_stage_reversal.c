@@ -124,10 +124,6 @@ int main( int argc, char **argv )
 	if ( !appaserver_library_validate_begin_end_date(
 					&begin_date_string,
 					&end_date_string,
-					application_name,
-					appaserver_parameter_file->
-						database_management_system,
-					(PROCESS_GENERIC_OUTPUT *)0,
 					(DICTIONARY *)0 /* post_dictionary */) )
 	{
 		document_quick_output_body(	application_name,

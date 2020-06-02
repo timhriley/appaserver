@@ -27,6 +27,7 @@
 #include "aggregate_statistic.h"
 #include "julian.h"
 #include "appaserver_link_file.h"
+#include "process_generic_output.h"
 
 /* Constants */
 /* --------- */

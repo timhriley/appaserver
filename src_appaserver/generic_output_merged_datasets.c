@@ -207,14 +207,18 @@ int main( int argc, char **argv )
 				post_dictionary,
 				"aggregate_level" ) );
 
-	if ( !appaserver_library_validate_begin_end_date(
+	if ( !process_generic_output_validate_begin_end_date(
 					&begin_date_string,
 					&end_date_string,
 					application_name,
-					appaserver_parameter_file->
-						database_management_system,
-					process_generic_output,
-					post_dictionary ) )
+					process_generic_output->
+						value_folder->
+						value_folder_name,
+					process_generic_output->
+						value_folder->
+						date_attribute_name,
+					post_dictionary
+					/* query_removed_post_dictionary */ ) )
 	{
 		document_quick_output_body(
 				application_name,
@@ -504,7 +508,7 @@ int main( int argc, char **argv )
 		printf( "<h1>Merged Datasets Transmission<br></h1>\n" );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 		fflush( stdout );
 		printf( "</h1>\n" );
 
@@ -636,7 +640,7 @@ int main( int argc, char **argv )
 		printf( "<h1>Merged Datasets Transmission<br></h1>\n" );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 		fflush( stdout );
 		printf( "</h1>\n" );
 

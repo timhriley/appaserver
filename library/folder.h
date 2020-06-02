@@ -9,8 +9,8 @@
 #define FOLDER_H
 
 #include "list.h"
-#include "process.h"
 #include "role.h"
+#include "process.h"
 #include "appaserver_library.h"
 #include "attribute.h"
 #include "dictionary.h"

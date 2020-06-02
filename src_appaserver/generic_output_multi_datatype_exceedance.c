@@ -173,15 +173,19 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( !appaserver_library_validate_begin_end_date(
-			&begin_date,
-			&end_date,
+	if ( !process_generic_output_validate_begin_end_date(
+			&begin_date /* in/out */,
+			&end_date /* in/out */,
 			application_name,
-			appaserver_parameter_file->
-				database_management_system,
-			process_generic_output,
+			process_generic_output->
+				value_folder->
+				value_folder_name,
+			process_generic_output->
+				value_folder->
+				date_attribute_name,
 			dictionary_appaserver->
-				non_prefixed_dictionary ) )
+				non_prefixed_dictionary
+				/* query_removed_post_dictionary */ ) )
 	{
 		document_quick_output_body(
 			application_name,

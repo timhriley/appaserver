@@ -389,9 +389,6 @@ char *get_where_clause(	DICTIONARY *dictionary,
 	if ( !appaserver_library_validate_begin_end_date(
 				&begin_date,
 				&end_date,
-				application_name,
-				database_management_system,
-				(PROCESS_GENERIC_OUTPUT *)0,
 				(DICTIONARY *)0 /* post_dictionary */ ) )
 	{
 		document_quick_output_body(	application_name,

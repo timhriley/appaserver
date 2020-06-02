@@ -585,9 +585,9 @@ QUERY *query_process_drop_down_new(
 				DICTIONARY *dictionary );
 
 QUERY_OUTPUT *query_process_drop_down_output_new(
-				QUERY *query,
 				FOLDER *folder,
-				char *folder_name );
+				char *folder_name,
+				DICTIONARY *query_dictionary );
 
 LIST *query_process_drop_down_get_drop_down_list(
 				LIST *mto1_related_folder_list,

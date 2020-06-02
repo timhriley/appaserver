@@ -220,9 +220,9 @@ QUERY *query_process_drop_down_new(
 
 	query->query_output =
 		query_process_drop_down_output_new(
-			query,
 			query->folder,
-			query->folder->folder_name );
+			query->folder->folder_name,
+			query->dictionary );
 
 	return query;
 
@@ -740,59 +740,6 @@ QUERY_OUTPUT *query_process_parameter_output_new(
 	return query_output;
 
 } /* query_process_parameter_output_new() */
-
-QUERY_OUTPUT *query_process_drop_down_output_new(
-				QUERY *query,
-				FOLDER *folder,
-				char *folder_name )
-{
-	QUERY_OUTPUT *query_output;
-
-	query_output = query_output_calloc();
-
-	if ( !folder )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty folder.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	query_output->
-		query_drop_down_list =
-			query_process_drop_down_get_drop_down_list(
-				folder->mto1_related_folder_list,
-				query->dictionary );
-
-/*
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d: for folder = %s, query_drop_down_list = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-folder->folder_name,
-query_drop_down_list_display(	folder->folder_name,
-				query_output->query_drop_down_list ) );
-m2( folder->application_name, msg );
-}
-*/
-
-	query_output->where_clause =
-		query_get_where_clause(
-			&query_output->drop_down_where_clause,
-			&query_output->attribute_where_clause,
-			query_output->query_drop_down_list,
-			query_output->query_attribute_list,
-			folder->application_name,
-			folder_name,
-			1 /* combine_date_time */ );
-
-	return query_output;
-
-} /* query_process_drop_down_output_new() */
 
 QUERY_OUTPUT *query_output_new(	QUERY *query,
 				boolean include_root_folder,
@@ -6257,4 +6204,68 @@ void query_set_row_level_non_owner_forbid_dictionary(
 			attribute );
 	}
 } /* query_set_row_level_non_owner_forbid_dictionary() */
+
+QUERY_OUTPUT *query_process_drop_down_output_new(
+				FOLDER *folder,
+				char *folder_name,
+				DICTIONARY *query_dictionary )
+{
+	QUERY_OUTPUT *query_output;
+
+	query_output = query_output_calloc();
+
+	if ( !folder )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty folder.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	query_output->
+		query_drop_down_list =
+			query_process_drop_down_get_drop_down_list(
+				folder->mto1_related_folder_list,
+				query_dictionary );
+
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "\n%s/%s()/%d: for folder = %s, query_drop_down_list = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+folder->folder_name,
+query_drop_down_list_display(	folder->folder_name,
+				query_output->query_drop_down_list ) );
+m2( folder->application_name, msg );
+}
+*/
+
+	query_output->where_clause =
+		query_get_where_clause(
+			&query_output->drop_down_where_clause,
+			&query_output->attribute_where_clause,
+			query_output->query_drop_down_list,
+			query_output->query_attribute_list,
+			folder->application_name,
+			folder_name,
+			1 /* combine_date_time */ );
+
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: where_clause = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+query_output->where_clause );
+m2( folder->application_name, msg );
+}
+*/
+	return query_output;
+
+} /* query_process_drop_down_output_new() */
 

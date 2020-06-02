@@ -174,6 +174,7 @@ load_table()
 	grep -v "'0000-00-00'"			|
 	grep -v "'0000-00-00 00:00:00'"		|
 	$insert_preprocess			|
+	count.e 1000000				|
 	sql_quick.e				|
 	cat
 }

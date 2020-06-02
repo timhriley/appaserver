@@ -295,14 +295,18 @@ int main( int argc, char **argv )
 		output_medium = DEFAULT_OUTPUT_MEDIUM;
 	}
 
-	if ( !appaserver_library_validate_begin_end_date(
-					&begin_date_string,
-					&end_date_string,
-					application_name,
-					appaserver_parameter_file->
-						database_management_system,
-					process_generic_output,
-					parameter_dictionary ) )
+	if ( !process_generic_output_validate_begin_end_date(
+			&begin_date_string /* in/out */,
+			&end_date_string /* in/out */,
+			application_name,
+			process_generic_output->
+				value_folder->
+				value_folder_name,
+			process_generic_output->
+				value_folder->
+				date_attribute_name,
+			parameter_dictionary
+				/* query_removed_post_dictionary */ ) )
 	{
 		document_quick_output_body(	application_name,
 						appaserver_parameter_file->

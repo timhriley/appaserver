@@ -402,16 +402,44 @@ enum aggregate_statistic
 			LIST *primary_attribute_data_list,
 			boolean exists_aggregation_sum );
 
-boolean process_generic_output_validate_begin_end_date(
-			char **begin_date,
-			char **end_date,
-			char *application_name,
-			PROCESS_GENERIC_OUTPUT *process_generic_output,
-			DICTIONARY *post_dictionary );
-
 char *process_generic_output_get_drop_down_where_clause(
 			char *application_name,
 			char *value_folder_name,
 			DICTIONARY *dictionary );
+
+boolean process_generic_output_validate_begin_end_date(
+			char **begin_date_string /* in/out */,
+			char **end_date_string /* in/out */,
+			char *application_name,
+			char *value_folder_name,
+			char *date_attribute_name,
+			DICTIONARY *query_removed_post_dictionary );
+
+/* ------------------------------- */
+/* Returns static (program) memory */
+/* ------------------------------- */
+char *process_generic_output_begin_end_date_where_clause(
+			char *date_attribute_name,
+			char *begin_date_string,
+			char *end_date_string );
+
+char *process_generic_output_drop_down_where(
+			char *application_name,
+			char *value_folder_name,
+			DICTIONARY *query_removed_post_dictionary );
+
+char *process_generic_output_where(
+			char *application_name,
+			char *value_folder_name,
+			char *date_attribute_name,
+			char *begin_date_string,
+			char *end_date_string,
+			DICTIONARY *query_removed_post_dictionary );
+
+QUERY_OUTPUT *process_generic_query_output(
+			char *application_name,
+			char *value_folder_name,
+			LIST *mto1_related_folder_list,
+			DICTIONARY *query_removed_post_dictionary );
 
 #endif

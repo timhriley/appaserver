@@ -592,14 +592,9 @@ void extract_measurements(	char *application_name,
 					station_list_string,
 					datatype_list_string );
 
-
 		if ( !appaserver_library_validate_begin_end_date(
 					&begin_date,
 					&end_date,
-					application_name,
-					appaserver_parameter_file->
-						database_management_system,
-					(PROCESS_GENERIC_OUTPUT *)0,
 					(DICTIONARY *)0 /* post_dictionary */) )
 		{
 			printf(
@@ -770,10 +765,6 @@ void extract_measurements_combined(
 	if ( !appaserver_library_validate_begin_end_date(
 				&begin_date,
 				&end_date,
-				application_name,
-				appaserver_parameter_file->
-					database_management_system,
-				(PROCESS_GENERIC_OUTPUT *)0,
 				(DICTIONARY *)0 /* post_dictionary */) )
 	{
 		return;

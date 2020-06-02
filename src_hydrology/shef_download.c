@@ -42,12 +42,11 @@ void run_process(	char *application_name,
 
 int main( int argc, char **argv )
 {
-	char *person, *application_name, *session, *station, *datatype;
+	char *application_name, *station, *datatype;
 	char *begin_date, *end_date;
 	char where_clause[ 1024 ];
 	char *email_address;
-	char *output_filename;
-	char *ftp_filename;
+	char *output_filename; char *ftp_filename;
 	DOCUMENT *document;
 	int expected_count_per_day;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -59,14 +58,14 @@ int main( int argc, char **argv )
 				
 	if ( argc < 9 )
 	{
-		fprintf( stderr, 
-"Usage: %s person session application station datatype begin_date end_date validation_level [email_address]\n",
+		fprintf( stderr,
+"Usage: %s ignored ignored application station datatype begin_date end_date validation_level [email_address]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	person = argv[ 1 ];
-	session = argv[ 2 ];
+	/* person = argv[ 1 ]; */
+	/* session = argv[ 2 ]; */
 	application_name = argv[ 3 ];
 	station = argv[ 4 ];
 	datatype = argv[ 5 ];
@@ -104,10 +103,6 @@ int main( int argc, char **argv )
 	if ( !appaserver_library_validate_begin_end_date(
 					&begin_date,
 					&end_date,
-					application_name,
-					appaserver_parameter_file->
-						database_management_system,
-					(PROCESS_GENERIC_OUTPUT *)0,
 					(DICTIONARY *)0 /* post_dictionary */) )
 	{
 		document_quick_output_body(	application_name,
@@ -239,7 +234,7 @@ int main( int argc, char **argv )
 	printf( "<h1>Shef Formatted Transmission<br></h1>\n" );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( timlib_system_date_string() ) ){};
 	fflush( stdout );
 	printf( "</h2>\n" );
 
@@ -319,5 +314,6 @@ void run_process(	char *application_name,
 		 email_command,
 		 background_command );
 
-	system( buffer );
+	if ( system( buffer ) ){};
+
 } /* run_process() */

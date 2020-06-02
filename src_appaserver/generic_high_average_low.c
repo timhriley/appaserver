@@ -186,14 +186,18 @@ int main( int argc, char **argv )
 					appaserver_parameter_file->
 						appaserver_mount_point );
 
-	if ( !appaserver_library_validate_begin_end_date(
-					&begin_date_string,
-					&end_date_string,
-					application_name,
-					appaserver_parameter_file->
-						database_management_system,
-					process_generic_output,
-					post_dictionary ) )
+	if ( !process_generic_output_validate_begin_end_date(
+			&begin_date_string /* in/out */,
+			&end_date_string /* in/out */,
+			application_name,
+			process_generic_output->
+				value_folder->
+				value_folder_name,
+			process_generic_output->
+				value_folder->
+				date_attribute_name,
+			post_dictionary
+				/* query_removed_post_dictionary */ ) )
 	{
 		char buffer[ 1024 ];
 

@@ -20,7 +20,6 @@
 #include "boolean.h"
 #include "attribute.h"
 #include "role.h"
-#include "process_generic_output.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -268,10 +267,6 @@ LIST *appaserver_library_get_update_attribute_element_list(
 boolean appaserver_library_validate_begin_end_date(
 					char **begin_date,
 					char **end_date,
-					char *application_name,
-					char *database_management_system,
-					PROCESS_GENERIC_OUTPUT *
-						process_generic_output,
 					DICTIONARY *post_dictionary );
 
 LIST *appaserver_library_get_primary_data_list(
@@ -354,12 +349,6 @@ void appaserver_library_dictionary_convert_date(
 
 void appaserver_library_output_calendar_javascript(
 					void );
-
-boolean appaserver_library_get_process_generic_output_dates(
-			char *new_begin_date,
-			char *new_end_date,
-			char *application_name,
-			PROCESS_GENERIC_OUTPUT *process_generic_output );
 
 int appaserver_library_get_reference_number(
 				char *application_name,
