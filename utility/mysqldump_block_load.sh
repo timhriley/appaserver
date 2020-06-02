@@ -108,8 +108,6 @@ link_destination_files()
 	then
 		file=${table_name}.MYD
 
-ls -l $data_directory/$file 1>&2
-
 		if [ ! -f $data_directory/$file ]
 		then
 			if [ `whoami` != "mysql" ]
