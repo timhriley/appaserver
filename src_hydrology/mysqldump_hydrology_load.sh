@@ -64,7 +64,7 @@ then
 				"$create_preprocess"		\
 		1>$output 2>&1
 
-	update_bad_last_validation_date.sh
+	# update_bad_last_validation_date.sh
 
 	# If can't create the index at the beginning.
 	# -------------------------------------------
