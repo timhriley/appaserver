@@ -1,12 +1,18 @@
 :
 
-if [ "$#" -ne 1 ]
+if [ "$#" -lt 1 ]
 then
-	echo "Usage: $0 execute_yn" 1>&2
+	echo "Usage: $0 execute_yn [data/index_directory]" 1>&2
 	exit 1
 fi
 
 execute_yn=$1
+
+if [ "$#" -eq 2 ]
+then
+	data_directory="$2"
+	index_directory="$2"
+fi
 
 hydrology_file=hydrology.tar.gz
 measurement_file=measurement.sql.gz
@@ -58,8 +64,8 @@ then
 	/usr/bin/time						\
 	mysqldump_block_load.sh	$measurement_file		\
 				40				\
-				"/ssd1/mysql"			\
-				"/ssd1/mysql"			\
+				"$data_directory"		\
+				"$index_directory"		\
 				$execute_yn			\
 				"$create_preprocess"		\
 		1>$output 2>&1
