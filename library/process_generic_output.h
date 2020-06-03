@@ -266,7 +266,6 @@ char *process_generic_output_get_dictionary_where_clause(
 			char *value_folder_name );
 
 LIST *process_generic_get_compare_datatype_list(
-			char **first_where_clause,
 			char *application_name,
 			LIST *foreign_attribute_name_list,
 			char *datatype_folder_name,
@@ -322,7 +321,6 @@ char *process_generic_output_get_foreign_folder_where_clause(
 			char *date_attribute_name );
 
 HASH_TABLE *process_generic_get_values_hash_table(
-			char **where_clause,
 			char *application_name,
 			char *values_select_string,
 			enum aggregate_level aggregate_level,

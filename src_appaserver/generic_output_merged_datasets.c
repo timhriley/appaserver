@@ -68,7 +68,6 @@ boolean merged_datasets_output_gracechart(
 			PROCESS_GENERIC_DATATYPE_FOLDER *datatype_folder,
 			enum aggregate_level,
 			char *value_folder_name,
-			char *where_clause,
 			char *application_name,
 			char *role_name,
 			char *begin_date_string,
@@ -87,7 +86,6 @@ boolean merged_datasets_output_googlechart(
 			char *document_root_directory,
 			char *process_name,
 			char *value_folder_name,
-			char *where_clause,
 			boolean accumulate );
 
 boolean any_missing_measurements(	LIST *datatype_entity_datatype_list,
@@ -101,7 +99,6 @@ boolean merged_datasets_output_table(
 					LIST *compare_datatype_list,
 					enum aggregate_level,
 					char *value_folder_name,
-					char *where_clause,
 					char *application_name,
 					boolean accumulate );
 
@@ -134,7 +131,6 @@ int main( int argc, char **argv )
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	enum aggregate_level aggregate_level;
 	char *prompt_prefix;
-	char *where_clause;
 	boolean accumulate_flag;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
@@ -264,7 +260,6 @@ int main( int argc, char **argv )
 			value_folder->
 			compare_datatype_list =
 				process_generic_get_compare_datatype_list(
-					&where_clause,
 					application_name,
 					process_generic_output->
 						value_folder->
@@ -318,11 +313,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( !where_clause )
-	{
-		where_clause = "";
-	}
-
 	if ( strcmp( merged_output, "googlechart" ) == 0
 	||   strcmp( merged_output, "easychart" ) == 0 )
 	{
@@ -343,7 +333,6 @@ int main( int argc, char **argv )
 			process_generic_output->
 				value_folder->
 					value_folder_name,
-			where_clause,
 			process_generic_output->accumulate ) )
 		{
 			printf(
@@ -366,7 +355,6 @@ int main( int argc, char **argv )
 					process_generic_output->
 						value_folder->
 							value_folder_name,
-					where_clause,
 					application_name,
 					role_name,
 					begin_date_string,
@@ -393,7 +381,6 @@ int main( int argc, char **argv )
 					process_generic_output->
 						value_folder->
 							value_folder_name,
-					where_clause,
 					application_name,
 					process_generic_output->accumulate ) )
 		{
@@ -511,15 +498,6 @@ int main( int argc, char **argv )
 		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 		fflush( stdout );
 		printf( "</h1>\n" );
-
-		printf( "<br>Search criteria: %s\n",
-			query_get_display_where_clause(
-				where_clause,
-				application_name,
-				process_generic_output->
-					value_folder->value_folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
 
 		appaserver_library_output_ftp_prompt(
 				ftp_filename,
@@ -643,15 +621,6 @@ int main( int argc, char **argv )
 		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 		fflush( stdout );
 		printf( "</h1>\n" );
-
-		printf( "<br>Search criteria: %s\n",
-			query_get_display_where_clause(
-				where_clause,
-				application_name,
-				process_generic_output->
-					value_folder->value_folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
 
 		appaserver_library_output_ftp_prompt(
 				ftp_filename,
@@ -881,7 +850,6 @@ boolean merged_datasets_output_gracechart(
 			PROCESS_GENERIC_DATATYPE_FOLDER *datatype_folder,
 			enum aggregate_level aggregate_level,
 			char *value_folder_name,
-			char *where_clause,
 			char *application_name,
 			char *role_name,
 			char *begin_date_string,
@@ -1191,12 +1159,7 @@ boolean merged_datasets_output_gracechart(
 				grace->ftp_agr_filename,
 				(char *)0 /* appaserver_mount_point */,
 				0 /* with_document_output */,
-			 	query_get_display_where_clause(
-					where_clause,
-					application_name,
-					value_folder_name,
-					application_get_is_primary_application(
-						application_name ) ) );
+				(char *)0 /* where_clause */ );
 	}
 	return 1;
 } /* merged_datasets_output_gracechart() */
@@ -1236,7 +1199,6 @@ boolean merged_datasets_output_table(
 					LIST *compare_datatype_list,
 					enum aggregate_level aggregate_level,
 					char *value_folder_name,
-					char *where_clause,
 					char *application_name,
 					boolean accumulate )
 {
@@ -1308,14 +1270,6 @@ boolean merged_datasets_output_table(
 	html_table_output_table_heading(
 					html_table->title,
 					html_table->sub_title );
-
-	printf( "<br>Search criteria: %s",
-		 query_get_display_where_clause(
-			where_clause,
-			application_name,
-			value_folder_name,
-			application_get_is_primary_application(
-				application_name ) ) );
 
 	html_table_output_data_heading(
 				html_table->heading_list,
@@ -1468,7 +1422,6 @@ boolean merged_datasets_output_googlechart(
 			char *document_root_directory,
 			char *process_name,
 			char *value_folder_name,
-			char *where_clause,
 			boolean accumulate )
 {
 	GOOGLE_OUTPUT_CHART *google_chart;
@@ -1585,7 +1538,7 @@ boolean merged_datasets_output_googlechart(
 		application_name,
 		prompt_filename,
 		process_name,
-		where_clause );
+		(char *)0 /* where_clause */ );
 
 	return 1;
 

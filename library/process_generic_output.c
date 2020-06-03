@@ -357,7 +357,6 @@ void process_generic_datatype_folder_load(
 } /* process_generic_datatype_folder_load() */
 
 LIST *process_generic_get_compare_datatype_list(
-			char **first_where_clause,
 			char *application_name,
 			LIST *foreign_attribute_name_list,
 			char *datatype_folder_name,
@@ -383,7 +382,6 @@ LIST *process_generic_get_compare_datatype_list(
 	LIST *datatype_primary_attribute_data_list;
 	char *where_clause;
 	int index;
-	boolean first_time = 1;
 	char values_select_string[ 256 ];
 
 	if ( with_select_data )
@@ -454,7 +452,6 @@ LIST *process_generic_get_compare_datatype_list(
 		{
 			process_generic_datatype->values_hash_table =
 				process_generic_get_values_hash_table(
-					&where_clause,
 					application_name,
 					values_select_string,
 					aggregate_level,
@@ -466,22 +463,17 @@ LIST *process_generic_get_compare_datatype_list(
 					value_folder_name,
 					date_attribute_name,
 					accumulate );
-
-			if ( first_time )
-			{
-				first_time = 0;
-				*first_where_clause = strdup( where_clause );
-			}
 		}
 
 		list_append_pointer(	compare_datatype_list,
 					process_generic_datatype );
 	}
+
 	return compare_datatype_list;
+
 } /* process_generic_get_compare_datatype_list() */
 
 HASH_TABLE *process_generic_get_values_hash_table(
-			char **where_clause,
 			char *application_name,
 			char *values_select_string,
 			enum aggregate_level aggregate_level,
@@ -502,8 +494,9 @@ HASH_TABLE *process_generic_get_values_hash_table(
 	double accumulate_so_far = 0.0;
 	PROCESS_GENERIC_VALUE *value;
 	HASH_TABLE *values_hash_table = hash_table_new( hash_table_medium );
+	char *where_clause;
 
-	*where_clause =
+	where_clause =
 		process_generic_output_get_foreign_folder_where_clause(
 			&begin_date_string,
 			&end_date_string,
@@ -547,7 +540,7 @@ HASH_TABLE *process_generic_get_values_hash_table(
 		application_name,
 		value_folder_name,
 		values_select_string,
-		*where_clause,
+		where_clause,
 		real_time_process );
 
 	input_pipe = popen( sys_string, "r" );
@@ -580,7 +573,9 @@ HASH_TABLE *process_generic_get_values_hash_table(
 	}
 
 	pclose( input_pipe );
+
 	return values_hash_table;
+
 } /* process_generic_get_values_hash_table() */
 
 
@@ -3101,21 +3096,10 @@ QUERY_OUTPUT *process_generic_query_output(
 
 	query_output->
 		query_drop_down_list =
-			query_process_drop_down_get_drop_down_list(
+			query_process_generic_drop_down_list(
+				value_folder_name,
 				mto1_related_folder_list,
 				query_removed_post_dictionary );
-
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d: for folder = %s, query_drop_down_list = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-value_folder_name,
-query_drop_down_list_display(	value_folder_name,
-				query_output->query_drop_down_list ) );
-m2( application_name, msg );
-}
 
 	query_output->where_clause =
 		query_get_where_clause(
@@ -3259,8 +3243,6 @@ char *process_generic_output_where(
 		 drop_down_where,
 		 begin_end_date_where );
 
-	free( drop_down_where );
-
 	return strdup( where_clause );
 
 } /* process_generic_output_where() */
@@ -3317,11 +3299,6 @@ boolean process_generic_output_validate_begin_end_date(
 				*end_date_string,
 				query_removed_post_dictionary );
 
-fprintf( stderr, "%s/%s()/%d: where_clause = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-where_clause );
 		if ( !where_clause || !*where_clause ) return 0;
 
 		process_generic_output_get_period_of_record_date(

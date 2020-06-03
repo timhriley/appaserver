@@ -269,7 +269,6 @@ int main( int argc, char **argv )
 
 	process_generic_output->value_folder->compare_datatype_list =
 		process_generic_get_compare_datatype_list(
-			(char **)0 /* where_clause */,
 			application_name,
 			process_generic_output->
 				value_folder->

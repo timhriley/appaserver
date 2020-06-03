@@ -593,7 +593,7 @@ LIST *query_process_drop_down_get_drop_down_list(
 				LIST *mto1_related_folder_list,
 				DICTIONARY *dictionary );
 
-QUERY_DROP_DOWN *query_process_drop_down_get_drop_down(
+QUERY_DROP_DOWN *query_process_drop_down(
 				LIST *foreign_attribute_name_list,
 				LIST *attribute_list,
 				DICTIONARY *dictionary );
@@ -630,5 +630,16 @@ char *query_get_folder_drop_down_where_clause(
 				LIST *query_drop_down_list,
 				char *application_name,
 				char *folder_name );
+
+LIST *query_process_generic_drop_down_list(
+				char *value_folder_name,
+				LIST *mto1_related_folder_list,
+				DICTIONARY *dictionary );
+
+QUERY_DROP_DOWN *query_process_multi_drop_down(
+				char *value_folder_name,
+				LIST *foreign_attribute_name_list,
+				LIST *attribute_list,
+				DICTIONARY *dictionary );
 
 #endif
