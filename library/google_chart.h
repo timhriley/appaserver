@@ -237,7 +237,9 @@ void google_chart_output_visualization_annotated(
 				LIST *datatype_name_list,
 				char *google_package_name,
 				enum aggregate_level,
-				int chart_number );
+				int chart_number,
+				char *chart_title,
+				char *yaxis_label );
 
 void google_chart_output_visualization_non_annotated(
 				FILE *output_file,

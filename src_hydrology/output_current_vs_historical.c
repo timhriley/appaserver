@@ -1459,6 +1459,7 @@ void output_current(	FILE *output_file,
 	sprintf(	yaxis_label,
 			"Daily Average %s",
 			datatype_name );
+
 	format_initial_capital( yaxis_label, yaxis_label );
 
 	google_chart_include( output_file );
@@ -1471,7 +1472,9 @@ void output_current(	FILE *output_file,
 				google_chart->datatype_name_list,
 				google_chart->google_package_name,
 				daily /* aggregate_level */,
-				google_chart->chart_number );
+				google_chart->chart_number,
+				(char *)0 /* chart_title */,
+				yaxis_label );
 
 	google_chart_output_chart_instantiation(
 		output_file,
@@ -1685,7 +1688,9 @@ void output_historical_current(
 				google_chart->datatype_name_list,
 				google_chart->google_package_name,
 				daily /* aggregate_level */,
-				google_chart->chart_number );
+				google_chart->chart_number,
+				(char *)0 /* chart_title */,
+				yaxis_label );
 
 	google_chart_output_chart_instantiation(
 		output_file,

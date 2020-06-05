@@ -700,7 +700,9 @@ void google_chart_output_visualization_annotated(
 				LIST *datatype_name_list,
 				char *google_package_name,
 				enum aggregate_level aggregate_level,
-				int chart_number )
+				int chart_number,
+				char *chart_title,
+				char *yaxis_label )
 {
 	int length_datatype_name_list;
 	char *first_column_datatype;
@@ -786,9 +788,18 @@ void google_chart_output_visualization_annotated(
 	}
 
 	fprintf( output_file,
+		 "\tvar options = {\n"
+		 "\t\ttype: \"line\",\n"
+		 "\t\ttitle: \"%s\",\n"
+		 "\t\tvAxis: {title: \"%s\"},\n"
+		 "\t\tdisplayAnnotations: true}\n\n",
+		 (chart_title) ? chart_title : "",
+		 (yaxis_label) ? yaxis_label : "" );
+
+	fprintf( output_file,
 "	var chart = new google.visualization.%s(\n"
-"		document.getElementById('chart_div%d'));\n"
-"	chart.draw(data, {displayAnnotations: true});\n"
+"		document.getElementById('chart_div%d'));\n\n"
+"	chart.draw(data, options);\n\n"
 "}\n",
 		"AnnotatedTimeLine",
 		chart_number );

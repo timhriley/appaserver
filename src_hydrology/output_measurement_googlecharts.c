@@ -664,6 +664,7 @@ if ( bar_chart ){};
 
 	google_chart_include( output_file );
 
+#ifdef NOT_DEFINED
 	google_chart_output_visualization_non_annotated(
 				output_file,
 				google_chart->google_chart_type,
@@ -695,6 +696,36 @@ if ( bar_chart ){};
 	google_chart_output_chart_instantiation(
 		output_file,
 		google_chart->chart_number );
+#endif
+	google_chart_output_visualization_annotated(
+				output_file,
+				google_chart->google_chart_type,
+				google_chart->timeline_list,
+				google_chart->barchart_list,
+				google_chart->datatype_name_list,
+				google_chart->google_package_name,
+				daily /* aggregate_level */,
+				google_chart->chart_number,
+				chart_title,
+				yaxis_label );
+
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_chart->chart_number );
+
+	fprintf( output_file, "</head>\n" );
+	fprintf( output_file, "<body>\n" );
+
+	google_chart_anchor_chart(
+				output_file,
+				"" /* chart_title */,
+				google_chart->google_package_name,
+				google_chart->left,
+				google_chart->top,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
+
 
 	fprintf( output_file, "</body>\n" );
 	fprintf( output_file, "</html>\n" );
