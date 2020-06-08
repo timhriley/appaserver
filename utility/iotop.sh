@@ -6,31 +6,22 @@
 
 flags="-o -b -n1 -k"
 
-if [ "$#" -ne 3 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage: `echo $0 | basename.e` seconds iterations withclear_yn" 1>&2
+	echo "Usage: `echo $0 | basename.e` seconds iterations" 1>&2
 	exit 1
 fi
 
 seconds=$1
 iterations=$2
-withclear_yn=$3
 
 binary_count.e $iterations					|
 while read ignore
 do
-	if [ "$withclear_yn" = "y" ]
-	then
-		flushcache.sh
-		sudo iotop $flags | trim.e 80
+	sudo iotop $flags | trim.e 80
 
-		sleep $seconds
-		echo
-	else
-		sudo iotop $flags | trim.e 80
-		sleep $seconds
-		echo
-	fi
+	sleep $seconds
+	echo
 done
 
 exit 0

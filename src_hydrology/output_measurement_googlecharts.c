@@ -664,39 +664,6 @@ if ( bar_chart ){};
 
 	google_chart_include( output_file );
 
-#ifdef NOT_DEFINED
-	google_chart_output_visualization_non_annotated(
-				output_file,
-				google_chart->google_chart_type,
-				google_chart->timeline_list,
-				google_chart->barchart_list,
-				google_chart->datatype_name_list,
-				chart_title,
-				yaxis_label,
-				google_chart->width,
-				google_chart->height,
-				google_chart->background_color,
-				google_chart->legend_position_bottom,
-				0 /* not chart_type_bar */,
-				google_chart->google_package_name,
-				0 /* not dont_display_range_selector */,
-				aggregate_level,
-				google_chart->chart_number );
-
-	fprintf( output_file, "</head>\n" );
-	fprintf( output_file, "<body>\n" );
-
-	google_chart_float_chart(
-				output_file,
-				chart_title,
-				google_chart->width,
-				google_chart->height,
-				google_chart->chart_number );
-
-	google_chart_output_chart_instantiation(
-		output_file,
-		google_chart->chart_number );
-#endif
 	google_chart_output_visualization_annotated(
 				output_file,
 				google_chart->google_chart_type,
