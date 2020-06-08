@@ -6,7 +6,7 @@
 
 flags="-o -b -n1 -k"
 
-if [ "$#" -ne 2 ]
+if [ "$#" -lt 2 ]
 then
 	echo "Usage: `echo $0 | basename.e` seconds iterations" 1>&2
 	exit 1
