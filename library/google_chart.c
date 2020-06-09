@@ -123,20 +123,6 @@ GOOGLE_BARCHART *google_barchart_new(
 		google_point_array_double_calloc(
 			length_datatype_name_list );
 
-/*
-	if ( ! ( google_barchart->point_array =
-			calloc(	length_datatype_name_list,
-				sizeof( double * ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-*/
-
 	return google_barchart;
 
 } /* google_barchart_new() */
@@ -560,7 +546,7 @@ void google_barchart_display(	LIST *barchart_list,
 			if ( barchart->point_array[ offset ] )
 			{
 				fprintf(stderr,
-					", *point_array[%d] = %.3lf",
+					", *point_array[%d] = %.4lf",
 					offset,
 					*barchart->point_array[ offset ] );
 			}
@@ -602,7 +588,7 @@ void google_timeline_display(	LIST *timeline_list,
 			if ( timeline->point_array[ offset ] )
 			{
 				fprintf(stderr,
-					", *point_array[%d] = %.3lf",
+					", *point_array[%d] = %.4lf",
 					offset,
 					*timeline->point_array[ offset ] );
 			}
@@ -1022,7 +1008,7 @@ void google_chart_output_barchart_list(
 			if ( barchart->point_array[ offset ] )
 			{
 				fprintf(output_file,
-				 	",%.3lf",
+				 	",%.4lf",
 				 	*barchart->point_array[ offset ] );
 			}
 			else
@@ -1083,7 +1069,7 @@ void google_chart_output_timeline_list(
 			if ( timeline->point_array[ offset ] )
 			{
 				fprintf(output_file,
-				 	",%.3lf",
+				 	",%.4lf",
 				 	*timeline->point_array[ offset ] );
 			}
 			else

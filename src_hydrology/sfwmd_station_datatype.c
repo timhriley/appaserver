@@ -110,7 +110,7 @@ SFWMD_STATION_DATATYPE *sfwmd_parse(
 
 	/* piece db_key */
 	/* ------------ */
-	if ( !piece( db_key, ',', process_buffer, 0 ) )
+	if ( !piece( db_key, ',', process_buffer, DBKEY_PIECE ) )
 	{
 		return (SFWMD_STATION_DATATYPE *)0;
 	}

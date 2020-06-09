@@ -7,6 +7,8 @@
 #include "list.h"
 #include "hash_table.h"
 
+#define DBKEY_PIECE		1
+
 typedef struct
 {
 	char *station;
