@@ -289,6 +289,7 @@ void spreadsheet_parse_display(
 				continue;
 			}
 
+/*
 			if ( !*measurement_value_string
 			||   ( !isdigit( *measurement_value_string )
 			&&     *measurement_value_string != '-' ) )
@@ -301,16 +302,20 @@ void spreadsheet_parse_display(
 				fflush( stderr );
 				continue;
 			}
+*/
 
-			measurement_value = atof( measurement_value_string );
-
-			if ( datatype->set_negative_values_to_zero
-			&&   measurement_value < 0.0 )
+			if ( *measurement_value_string )
 			{
-				measurement_value = 0.0;
-			}
+				measurement_value =
+					atof( measurement_value_string );
 
-			printf(		"%s^%s^%s^%s^%.3lf\n",
+				if ( datatype->set_negative_values_to_zero
+				&&   measurement_value < 0.0 )
+				{
+					measurement_value = 0.0;
+				}
+
+				printf(	"%s^%s^%s^%s^%.4lf\n",
 					station,
 					datatype->datatype_name,
 					julian_display_yyyy_mm_dd(
@@ -320,6 +325,19 @@ void spreadsheet_parse_display(
 						measurement_date_time_julian->
 							current ),
 					measurement_value );
+			}
+			else
+			{
+				printf(	"%s^%s^%s^%s^\n",
+					station,
+					datatype->datatype_name,
+					julian_display_yyyy_mm_dd(
+						measurement_date_time_julian->
+							current ),
+					 julian_display_hhmm(
+						measurement_date_time_julian->
+							current ) );
+			}
 
 		} while( list_next( datatype_list ) );
 	}
