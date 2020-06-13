@@ -2352,7 +2352,7 @@ int date_get_last_month_day(	int month,
 
 } /* date_get_last_month_day() */
 
-int date_get_utc_offset( void )
+int date_utc_offset( void )
 {
 	char *utc_offset;
 	static int utc_offset_integer = -99;
@@ -2368,7 +2368,12 @@ int date_get_utc_offset( void )
 
 	return utc_offset_integer;
 
-} /* date_get_utc_offset() */
+} /* date_utc_offset() */
+
+int date_get_utc_offset( void )
+{
+	return date_utc_offset();
+}
 
 char *date_get_environment( char *variable_name )
 {

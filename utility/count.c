@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "timlib.h"
+#include "date.h"
 
 #define BUFFER_SIZE 4096
 
@@ -47,26 +48,35 @@ int main( int argc, char **argv )
 		if ( ++i == count )
 		{
 			if ( argc == 3 )
-				fprintf( stderr, "%s: %6d\n",
+				fprintf( stderr, "%s (%s): %6d\n",
 					 argv[ 2 ],
+					 date_get_now_hhmmss(
+						date_utc_offset() ),
 					 total );
 			else
-				fprintf( stderr, "Count: %6d\n",
+				fprintf( stderr, "Count (%s): %6d\n",
+					 date_get_now_hhmmss(
+						date_utc_offset() ),
 					 total );
 			fflush( stderr );
 			i = 0;
 		}
-
 	}
 
 	if ( count != 1 )
 	{
 		if ( argc == 3 )
-			fprintf( stderr, "%s: %6d\n",
+			fprintf( stderr,
+				 "%s (%s): %6d\n",
 				 argv[ 2 ],
+				 date_get_now_hhmmss(
+					date_utc_offset() ),
 				 total );
 		else
-			fprintf( stderr, "Count: %6d\n",
+			fprintf( stderr,
+				 "Count (%s): %6d\n",
+				 date_get_now_hhmmss(
+					date_utc_offset() ),
 				 total );
 	}
 
