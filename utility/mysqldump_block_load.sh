@@ -174,8 +174,8 @@ load_table()
 	zcat $backup_file			|
 	grep -i 'insert into'			|
 	sed 's/),/),\n/g'			|
-	grep -v "'0000-00-00'"			|
-	grep -v "'0000-00-00 00:00:00'"		|
+	#grep -v "'0000-00-00'"			|
+	#grep -v "'0000-00-00 00:00:00'"	|
 	$insert_preprocess			|
 	count.e $display_count			|
 	sql_quick.e				|
