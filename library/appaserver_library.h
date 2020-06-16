@@ -38,6 +38,8 @@ enum preupdate_change_state {		from_null_to_something,
 /* ---------------------------------------------------- */
 #define DIFFERENT_DESTINATION_APPLICATION_OK	0
 
+#define FOLDER_DATA_DELIMITER			'^'
+#define SQL_DELIMITER				'^'
 #define PREDICTIVE_LOGO_FILENAME_KEY		"logo_filename"
 #define TEMPLATE_APPLICATION			"template"
 #define APPASERVER_UMASK			7
@@ -83,7 +85,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define ROWS_FOR_SUBMIT_AT_BOTTOM		6
 #define PROCESS_PROMPT_DEFAULT_WIDTH		25
 #define BOTTOM_FRAME_NAME			"bottomframe"
-#define FOLDER_DATA_DELIMITER			'^'
 #define IGNORE_PUSH_BUTTON_PREFIX		"ignore_"
 #define NO_DISPLAY_PUSH_BUTTON_PREFIX		"no_display_"
 #define NO_DISPLAY_PUSH_BUTTON_HEADING		"no_display"

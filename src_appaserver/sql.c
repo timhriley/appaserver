@@ -30,7 +30,7 @@ int main( int argc, char **argv )
 {
 	APPASERVER_PARAMETER_FILE *h;
 	char sys_string[ 8192 ];
-	char delimiter = FOLDER_DATA_DELIMITER;
+	char delimiter = SQL_DELIMITER;
 	char *base_name;
 	char *quick_flag;
 	char *override_database = {0};
@@ -118,11 +118,9 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-/*
-strcpy( null_string_filter, "sed 's/NULL//g'" );
-*/
-
-sprintf( null_string_filter, "mysql_remove_null.e '%c'", delimiter );
+	sprintf( null_string_filter,
+		 "mysql_remove_null.e '%c'",
+		 delimiter );
 
 	if ( h->mysql_password_syntax )
 	{
