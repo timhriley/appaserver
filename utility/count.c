@@ -66,6 +66,7 @@ int main( int argc, char **argv )
 
 			fflush( stderr );
 			i = 0;
+			date_copy( start_date, now_date );
 		}
 	}
 
