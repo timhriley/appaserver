@@ -77,12 +77,20 @@ boolean measurement_set_delimited_record(
 
 	time_int = atoi( time );
 
+/*
 	if ( ( ( ( strcmp( time, "0000" ) != 0 )
 	&&  (      strcmp( time, "null" ) != 0 )
 	&&  (      time_int <= 0 || time_int > 2359 ) ) )
 	||  (  timlib_exists_special_character( time )
 	||     timlib_exists_special_character( station )
 	||     timlib_exists_special_character( datatype ) ) )
+	{
+		return 0;
+	}
+*/
+	if ( ( strcmp( time, "0000" ) != 0 )
+	&&   ( strcmp( time, "null" ) != 0 )
+	&&   ( time_int <= 0 || time_int > 2359 ) )
 	{
 		return 0;
 	}
