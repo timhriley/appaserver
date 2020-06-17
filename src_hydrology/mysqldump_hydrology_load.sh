@@ -62,7 +62,7 @@ then
 				40				\
 				"$data_directory"		\
 				"$index_directory"		\
-				$execute_yn
+				$execute_yn			\
 		1>$output 2>&1
 
 	# Stop the timer.
