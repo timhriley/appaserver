@@ -46,9 +46,9 @@ then
 	# ------------------
 	output=measurement_backup.out
 
-	nohup								 \
-	/usr/bin/time							 \
-	mysqldump_measurement_backup_cat_sql.sh	$measurement_backup_file \
+	nohup								\
+	/usr/bin/time							\
+	mysqldump_measurement_backup_load.sh $measurement_backup_file 	\
 		1>$output 2>&1 &
 
 	# Don't send to background
