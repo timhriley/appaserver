@@ -46,20 +46,17 @@ then
 	# ------------------
 	output=measurement_backup.out
 
-	nohup							\
-	/usr/bin/time						\
-	mysqldump_block_load.sh	$measurement_backup_file	\
-				40				\
-				""				\
-				""				\
-				$execute_yn 			\
+	nohup								 \
+	/usr/bin/time							 \
+	mysqldump_measurement_backup_cat_sql.sh	$measurement_backup_file \
 		1>$output 2>&1 &
 
 	# Don't send to background
 	# ------------------------
 	output=measurement.out
 
-	create_preprocess="mysqldump_hydrology_replace_index.sh"
+	# create_preprocess="mysqldump_hydrology_replace_index.sh"
+	create_preprocess=""
 
 	/usr/bin/time						\
 	mysqldump_block_load.sh	$measurement_file		\
@@ -69,12 +66,6 @@ then
 				$execute_yn			\
 				"$create_preprocess"		\
 		1>$output 2>&1
-
-	# update_bad_last_validation_date.sh
-
-	# If can't create the index at the beginning.
-	# -------------------------------------------
-	# $APPASERVER_HOME/upgrade/6.35/create_measurement_date_index.sh
 
 	# Stop the timer.
 	# ---------------
