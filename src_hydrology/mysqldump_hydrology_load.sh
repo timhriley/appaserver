@@ -56,15 +56,13 @@ then
 	output=measurement.out
 
 	# create_preprocess="mysqldump_hydrology_replace_index.sh"
-	create_preprocess=""
 
 	/usr/bin/time						\
 	mysqldump_block_load.sh	$measurement_file		\
 				40				\
 				"$data_directory"		\
 				"$index_directory"		\
-				$execute_yn			\
-				"$create_preprocess"		\
+				$execute_yn
 		1>$output 2>&1
 
 	# Stop the timer.
