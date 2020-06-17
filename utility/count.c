@@ -15,49 +15,55 @@ int main( int argc, char **argv )
 {
 	char buffer[ BUFFER_SIZE ];
 	int count, i, total;
+	DATE *start_date;
+	DATE *now_date;
+	boolean output_usage = 0;
 
 	if ( argc == 1 )
 	{
-		fprintf( stderr, "Usage: %s output_after [output_msg]\n",
+		output_usage = 1;
+	}
+	else
+	{
+		count = atoi( argv[ 1 ] );
+
+		if ( !count ) output_usage = 1;
+	}
+	
+	if ( output_usage )
+	{
+		fprintf( stderr, "Usage: %s output_after\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	count = atoi( argv[ 1 ] );
-	if ( !count )
-	{
-		fprintf( stderr, "Usage: %s output_after [output_msg]\n",
-			 argv[ 0 ] );
-		exit( 1 );
-	}
-	
 
 	i = 0;
 	total = 0;
+
+	start_date = date_now( date_utc_offset() );
+	now_date = date_calloc();
+
 	while ( get_line( buffer, stdin ) )
 	{
-		if ( count == 1 )
-		{
-			printf( "%.3d) %s\n", ++i, buffer );
-			continue;
-		}
-
 		printf( "%s\n", buffer );
 
 		total++;
+
 		if ( ++i == count )
 		{
-			if ( argc == 3 )
-				fprintf( stderr, "%s (%s): %6d\n",
-					 argv[ 2 ],
-					 date_get_now_hhmmss(
-						date_utc_offset() ),
-					 total );
-			else
-				fprintf( stderr, "Count (%s): %6d\n",
-					 date_get_now_hhmmss(
-						date_utc_offset() ),
-					 total );
+			now_date =
+				date_set_now(
+					now_date,
+					date_utc_offset() );
+
+			fprintf( stderr,
+				 "Count (%2d): %10d\n",
+				 date_subtract_minutes(
+					now_date,
+					start_date ),
+				 total );
+
 			fflush( stderr );
 			i = 0;
 		}
@@ -65,19 +71,17 @@ int main( int argc, char **argv )
 
 	if ( count != 1 )
 	{
-		if ( argc == 3 )
-			fprintf( stderr,
-				 "%s (%s): %6d\n",
-				 argv[ 2 ],
-				 date_get_now_hhmmss(
-					date_utc_offset() ),
-				 total );
-		else
-			fprintf( stderr,
-				 "Count (%s): %6d\n",
-				 date_get_now_hhmmss(
-					date_utc_offset() ),
-				 total );
+		now_date =
+			date_set_now(
+				now_date,
+				date_utc_offset() );
+
+		fprintf( stderr,
+			 "Count (%2d): %10d\n",
+			 date_subtract_minutes(
+				now_date,
+				start_date ),
+			 total );
 	}
 
 	return 0;

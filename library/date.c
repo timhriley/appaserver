@@ -1266,7 +1266,15 @@ boolean date_is_daylight_time( void )
 
 } /* date_is_daylight_time() */
 
-DATE *date_today_new( int utc_offset )
+DATE *date_set_now(		DATE *date,
+				int utc_offset )
+{
+	if ( date ) date_free( date );
+
+	return date_now( utc_offset );
+}
+
+DATE *date_now( int utc_offset )
 {
 	time_t now;
 	struct tm *tm;
@@ -1292,7 +1300,12 @@ DATE *date_today_new( int utc_offset )
 
 	return return_date;
 
-} /* date_today_new() */
+} /* date_now() */
+
+DATE *date_today_new( int utc_offset )
+{
+	return date_now( utc_offset );
+}
 
 DATE *date_get_today_new( int utc_offset )
 {
@@ -1903,7 +1916,6 @@ boolean date_copy( DATE *d1, DATE *d2 )
 	if ( !d2 ) return 0;
 
 	d1->current = d2->current;
-	d1->format_yyyy_mm_dd = d2->format_yyyy_mm_dd;
 	memcpy( d1->tm, d2->tm, sizeof( struct tm ) );
 	return 1;
 }

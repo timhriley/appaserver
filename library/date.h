@@ -38,7 +38,6 @@
 typedef struct
 {
 	time_t current;
-	int format_yyyy_mm_dd;
 	struct tm *tm;
 	boolean is_daylight_time;
 } DATE;
@@ -539,5 +538,10 @@ char *date_get_month_number_string(
 /* --------------------- */
 char *date_get_day_number_string(
 				DATE *date );
+
+DATE *date_now(			int utc_offset );
+
+DATE *date_set_now(		DATE *date,
+				int utc_offset );
 
 #endif
