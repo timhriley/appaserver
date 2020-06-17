@@ -2649,8 +2649,13 @@ boolean timlib_exists_special_character( char *data )
 {
 	while( *data )
 	{
-		if ( *data != '_' && !isalnum( *data ) )
+		if (	*data != '_'
+		&&	*data != '-'
+		&&	*data != '.'
+		&&	!isalnum( *data ) )
+		{
 			return 1;
+		}
 		data++;
 	}
 	return 0;

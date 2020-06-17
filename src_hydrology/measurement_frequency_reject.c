@@ -59,7 +59,7 @@ int main( int argc, char **argv )
 			delimiter ) )
 		{
 			fprintf( stderr,
-				 "Invalid data: %s\n",
+			"measurement_set_delimited_record() rejected: [%s]\n",
 				 delimited_record );
 			continue;
 		}
