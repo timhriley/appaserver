@@ -58,7 +58,7 @@ int main( int argc, char **argv )
 					date_utc_offset() );
 
 			fprintf( stderr,
-				 "Count (%2d): %10d\n",
+				 "Count (%02d): %10d\n",
 				 date_subtract_minutes(
 					now_date,
 					start_date ),
@@ -77,7 +77,7 @@ int main( int argc, char **argv )
 				date_utc_offset() );
 
 		fprintf( stderr,
-			 "Count (%2d): %10d\n",
+			 "Count (%02d): %10d\n",
 			 date_subtract_minutes(
 				now_date,
 				start_date ),
