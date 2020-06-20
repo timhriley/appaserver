@@ -36,14 +36,10 @@ fi
 
 if [ "$execute_yn" = "y" ]
 then
-	# Send to background
-	# ------------------
 	output=hydrology.out
 
 	nohup /usr/bin/time mysqldump_hydrology_cat_sql.sh 1>$output 2>&1 &
 
-	# Send to background
-	# ------------------
 	output=measurement_backup.out
 
 	nohup								\
@@ -51,18 +47,17 @@ then
 	mysqldump_measurement_backup_load.sh $measurement_backup_file 	\
 		1>$output 2>&1 &
 
-	# Don't send to background
-	# ------------------------
 	output=measurement.out
 
 	# create_preprocess="mysqldump_hydrology_replace_index.sh"
 
-	/usr/bin/time						\
-	mysqldump_block_load.sh	$measurement_file		\
-				40				\
-				"$data_directory"		\
-				"$index_directory"		\
-				$execute_yn			\
+	# Don't send to background
+	# ------------------------
+	nohup								\
+	/usr/bin/time							\
+	mysqldump_measurement_load.sh	$measurement_file 		\
+					"$data_directory"		\
+					"$index_directory"		\
 		1>$output 2>&1
 
 	# Stop the timer.
