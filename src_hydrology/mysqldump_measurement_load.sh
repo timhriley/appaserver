@@ -15,7 +15,7 @@ fi
 
 if [ "$#" -ge 3 ]
 then
-	data_directory=$3
+	index_directory=$3
 fi
 
 # create_preprocess="mysqldump_hydrology_replace_index.sh"

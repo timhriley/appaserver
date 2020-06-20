@@ -2,16 +2,20 @@
 
 if [ "$#" -lt 1 ]
 then
-	echo "Usage: $0 execute_yn [data/index_directory]" 1>&2
+	echo "Usage: $0 execute_yn [data_directory] [index_directory]" 1>&2
 	exit 1
 fi
 
 execute_yn=$1
 
-if [ "$#" -eq 2 ]
+if [ "$#" -ge 2 ]
 then
 	data_directory="$2"
-	index_directory="$2"
+fi
+
+if [ "$#" -ge 3 ]
+then
+	index_directory="$3"
 fi
 
 hydrology_file=hydrology.tar.gz
