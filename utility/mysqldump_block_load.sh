@@ -178,7 +178,7 @@ load_table()
 	grep -v "'0000-00-00 00:00:00'"		|
 	$insert_preprocess			|
 	count.e $display_count			|
-	sql_quick.e				|
+	/usr/bin/nice sql_quick.e		|
 	cat
 }
 

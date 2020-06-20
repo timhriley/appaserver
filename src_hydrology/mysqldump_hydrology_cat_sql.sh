@@ -1,5 +1,5 @@
 :
 
-cat untar/*.sql | sql_quick.e
+cat untar/*.sql | /usr/bin/nice sql_quick.e
 
 exit $?
