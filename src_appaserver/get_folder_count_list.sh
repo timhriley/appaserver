@@ -26,7 +26,7 @@ role_folder=`get_table_name $application role_folder`
 for folder_name in `folders4role.sh $application $role "$permission_list"`
 do
 	table_name=`get_table_name $application $folder_name`
-	count=`echo "select count(*) from $table_name;" | sql.sh 1`
+	count=`echo "select count(*) from $table_name;" | sql_timeout.sh 1`
 	echo "$folder_name^$count"
 done
 
