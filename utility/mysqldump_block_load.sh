@@ -172,10 +172,7 @@ load_table()
 	display_count=$3
 
 	zcat $backup_file			|
-	grep -i 'insert into'			|
-	sed 's/),/),\n/g'			|
-	grep -v "'0000-00-00'"			|
-	grep -v "'0000-00-00 00:00:00'"		|
+	mysqldump_block_insert_separate.sh	|
 	$insert_preprocess			|
 	count.e $display_count			|
 	/usr/bin/nice sql_quick.e		|
