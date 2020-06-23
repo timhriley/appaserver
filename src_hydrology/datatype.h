@@ -38,6 +38,7 @@ typedef struct
 	int column_piece;
 	LIST *datatype_alias_list;
 	int measurement_count;
+	double units_converted_multiply_by;
 } DATATYPE;
 
 /* Prototypes */
@@ -158,6 +159,9 @@ char *datatype_alias_display(
 				char *station_name,
 				char *datatype_alias );
 
+/* -------------------------------- */
+/* Sets units_converted_multiply_by */
+/* -------------------------------- */
 DATATYPE *datatype_seek_phrase(
 				LIST *station_datatype_list,
 				char *station_name,

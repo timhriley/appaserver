@@ -55,12 +55,12 @@ void fetch_parameters(	char **filename,
 
 void spreadsheet_parse_display(		LIST *datatype_list );
 
-LIST *input_buffer_get_datatype_list(	char *application_name,
+LIST *input_buffer_datatype_list(	char *application_name,
 					char *station_name,
 					char *heading_buffer,
 					char *second_line );
 
-LIST *spreadsheet_parse_get_datatype_list(
+LIST *spreadsheet_parse_datatype_list(
 					char *application_name,
 					char *station_name,
 					char *input_filespecification,
@@ -101,7 +101,7 @@ int main( int argc, char **argv )
 	two_lines = ( *two_lines_yn == 'y' );
 
 	if ( ( datatype_list =
-			spreadsheet_parse_get_datatype_list(
+			spreadsheet_parse_datatype_list(
 				application_name,
 				station,
 				input_filespecification,
@@ -133,7 +133,7 @@ void spreadsheet_parse_display( LIST *datatype_list )
 
 } /* spreadsheet_parse_display() */
 
-LIST *spreadsheet_parse_get_datatype_list(
+LIST *spreadsheet_parse_datatype_list(
 				char *application_name,
 				char *station_name,
 				char *input_filespecification,
@@ -178,7 +178,7 @@ LIST *spreadsheet_parse_get_datatype_list(
 			timlib_reset_get_line_check_utf_16();
 
 			datatype_list =
-				input_buffer_get_datatype_list(
+				input_buffer_datatype_list(
 					application_name,
 					station_name,
 					heading_buffer,
@@ -193,7 +193,7 @@ LIST *spreadsheet_parse_get_datatype_list(
 
 	return (LIST *)0;
 
-} /* spreadsheet_parse_get_datatype_list() */
+} /* spreadsheet_parse_datatype_list() */
 
 void fetch_parameters(	char **filename,
 			char **station,
@@ -238,10 +238,11 @@ boolean spreadsheet_parse_got_heading_label(
 
 } /* spreadsheet_parse_got_heading_label() */
 
-/* --------------------------- */
-/* Sets datatype->column_piece */
-/* --------------------------- */
-LIST *input_buffer_get_datatype_list(	char *application_name,
+/* ------------------------------------------ */
+/* Sets datatype->column_piece		      */
+/*  and datatype->units_converted_multiply_by */
+/* ------------------------------------------ */
+LIST *input_buffer_datatype_list(	char *application_name,
 					char *station_name,
 					char *heading_buffer,
 					char *second_line )
@@ -298,6 +299,9 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 		trim( datatype_units_seek_phrase );
 
 		if ( ! ( datatype =
+				/* -------------------------------- */
+				/* Sets units_converted_multiply_by */
+				/* -------------------------------- */
 				datatype_seek_phrase(
 					station->station_datatype_list,
 					station->station_name,
@@ -312,5 +316,5 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 
 	return datatype_column_piece_datatype_list( datatype_list ); 
 
-} /* input_buffer_get_datatype_list() */
+} /* input_buffer_datatype_list() */
 
