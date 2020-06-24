@@ -7,6 +7,7 @@ fi
 
 if [ "$run_seconds" -ge 1 ]
 then
+	shift
 	timeout $run_seconds sql $*
 else
 	sql

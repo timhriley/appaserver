@@ -19,11 +19,13 @@ then
 fi
 
 # create_preprocess="mysqldump_hydrology_replace_index.sh"
+separate_yn=y
 
 mysqldump_block_load.sh	$measurement_file		\
 			40				\
 			"$data_directory"		\
 			"$index_directory"		\
+			$separate_yn			\
 			y
 
 exit $?

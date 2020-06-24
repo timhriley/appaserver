@@ -23,9 +23,9 @@ then
 	exit 1
 fi
 
-if  [ "$#" -lt 5 ]
+if  [ "$#" -lt 6 ]
 then
-	echo "Usage: $0 backup_file head_create data_directory index_directory execute_yn [create_preprocess] [insert_preprocess]" 1>&2
+	echo "Usage: $0 backup_file head_create data_directory index_directory separate_yn execute_yn [create_preprocess] [insert_preprocess]" 1>&2
 	exit 1
 fi
 
@@ -33,18 +33,19 @@ backup_file=$1
 head_create=$2
 data_directory=$3
 index_directory=$4
-execute_yn=$5
+separate_yn=$5
+execute_yn=$6
 
-if [ "$#" -ge 6 ]
+if [ "$#" -ge 7 ]
 then
-	create_preprocess="$6"
+	create_preprocess="$7"
 else
 	create_preprocess="cat"
 fi
 
-if [ "$#" -ge 7 ]
+if [ "$#" -ge 8 ]
 then
-	insert_preprocess="$7"
+	insert_preprocess="$8"
 else
 	insert_preprocess="cat"
 fi
@@ -165,7 +166,7 @@ create_table()
 	cat
 }
 
-load_table()
+load_table_separate()
 {
 	backup_file=$1
 	insert_preprocess="$2"
@@ -175,6 +176,15 @@ load_table()
 	mysqldump_block_insert_separate.sh	|
 	$insert_preprocess			|
 	count.e $display_count			|
+	/usr/bin/nice sql_quick.e		|
+	cat
+}
+
+load_table_block()
+{
+	backup_file=$1
+
+	zcat $backup_file			|
 	/usr/bin/nice sql_quick.e		|
 	cat
 }
@@ -210,9 +220,14 @@ then
 				$application_datadir		\
 				$table_name
 
-	load_table	$backup_file				\
-			"$insert_preprocess"			\
-			$display_count
+	if [ "$separate_yn" = 'y' ]
+	then
+		load_table_separate	$backup_file		\
+					"$insert_preprocess"	\
+					$display_count
+	else
+		load_table_block $backup_file
+	fi
 
 	purge_binary_logs.sh
 

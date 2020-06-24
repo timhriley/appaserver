@@ -7,11 +7,13 @@ then
 fi
 
 measurement_backup_file=$1
+separate_yn=n
 
 mysqldump_block_load.sh	$measurement_backup_file	\
 			40				\
 			""				\
 			""				\
+			$separate_yn			\
 			y
 
 exit $?
