@@ -440,13 +440,15 @@ alias_datatype: alias_datatype.c					\
 		-o alias_datatype
 
 spreadsheet_parse_header: spreadsheet_parse_header.c			\
-	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}					\
+		spreadsheet.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
 		spreadsheet_parse_header.c				\
 		${SOURCE_LIBS}						\
+		spreadsheet.o						\
 		-o spreadsheet_parse_header
 
 measurement_adjust_time_to_sequence:					\
@@ -1723,4 +1725,9 @@ merged.o: merged.c merged.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c merged.c
+
+spreadsheet.o: spreadsheet.c spreadsheet.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c spreadsheet.c
 

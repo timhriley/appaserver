@@ -67,24 +67,6 @@ DATATYPE *datatype_new( char *datatype_name )
 
 } /* datatype_new() */
 
-DATATYPE *datatype_new_datatype(
-			char *datatype_name,
-			char *units_name )
-{
-	DATATYPE *datatype;
-
-	datatype = datatype_new( datatype_name );
-
-	if ( units_name )
-	{
-		datatype->units = units_new();
-		datatype->units->units_name = units_name;
-	}
-
-	return datatype;
-
-} /* datatype_new_datatype() */
-
 DATATYPE *datatype_unit_record2datatype( char *record )
 {
 	DATATYPE *datatype;
@@ -116,10 +98,9 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 	piece( set_negative_values_to_zero_yn, '|', record, 6 );
 	piece( calibrated_yn, '|', record, 7 );
 
-	datatype =
-		datatype_new_datatype(
-			strdup( datatype_name ),
-			strdup( units ) );
+	datatype = datatype_new( strdup( datatype_name ) );
+
+	datatype->units_string = strdup( units );
 
 	datatype->bar_chart =
 		( tolower( *bar_graph_yn ) == 'y' );
@@ -241,9 +222,8 @@ LIST *datatype_with_station_name_list_get_datatype_bar_graph_list(
 					buffer ) )
 			{
 				datatype =
-					datatype_new_datatype(
-						strdup( buffer ),
-						(char *)0 /* units */ );
+					datatype_new(
+						strdup( buffer ) );
 
 				piece( buffer, '^', input_buffer, 1 );
 				datatype->bar_chart = ( *buffer == 'y' );
@@ -292,6 +272,14 @@ LIST *datatype_with_station_name_get_datatype_list(
 	return datatype_list;
 
 } /* datatype_with_station_name_get_datatype_list() */
+
+LIST *datatype_list(	char *application_name,
+			char *station_name )
+{
+	return datatype_with_station_name_get_datatype_list(
+			application_name,
+			station_name );
+}
 
 LIST *datatype_with_station_name_list_get_datatype_list(
 			char *application_name,
@@ -492,7 +480,7 @@ DATATYPE *datatype_parse(		char *application_name,
 {
 	DATATYPE *datatype;
 	char datatype_name[ 128 ];
-	char units[ 64 ];
+	char units_string[ 64 ];
 	char bar_graph_yn[ 16 ];
 	char scale_graph_to_zero_yn[ 16 ];
 	char aggregation_sum_yn[ 16 ];
@@ -511,7 +499,7 @@ DATATYPE *datatype_parse(		char *application_name,
 	}
 
 	piece( datatype_name, '|', record, 0 );
-	piece( units, '|', record, 1 );
+	piece( units_string, '|', record, 1 );
 	piece( bar_graph_yn, '|', record, 2 );
 	piece( scale_graph_to_zero_yn, '|', record, 3 );
 	piece( aggregation_sum_yn, '|', record, 4 );
@@ -525,10 +513,14 @@ DATATYPE *datatype_parse(		char *application_name,
 	piece( set_negative_values_to_zero_yn, '|', record, 7 );
 	piece( calibrated_yn, '|', record, 8 );
 
-	datatype =
-		datatype_new_datatype(
-			strdup( datatype_name ),
-			strdup( units ) );
+	datatype = datatype_new( strdup( datatype_name ) );
+
+	datatype->units_string = strdup( units_string );
+
+	datatype->units =
+		units_fetch( 
+			application_name,
+			datatype->units_string );
 
 	if ( !datatype->units )
 	{
@@ -540,10 +532,12 @@ DATATYPE *datatype_parse(		char *application_name,
 		exit( 1 );
 	}
 
+/*
 	datatype->units->units_alias_list =
 		units_fetch_units_alias_list(
 			application_name,
 			datatype->units->units_name );
+*/
 
 	datatype->bar_chart =
 		( tolower( *bar_graph_yn ) == 'y' );
@@ -706,7 +700,7 @@ LIST *datatype_get_datatypes_for_unit(
 
 } /* datatype_get_datatypes_for_unit() */
 
-LIST *datatype_fetch_datatype_alias_list(
+LIST *datatype_alias_list(
 					char *application_name )
 {
 	char sys_string[ 1024 ];
@@ -716,7 +710,7 @@ LIST *datatype_fetch_datatype_alias_list(
 	char *record;
 	char piece_buffer[ 128 ];
 	DATATYPE_ALIAS *datatype_alias;
-	LIST *datatype_alias_list;
+	LIST *alias_list;
 
 	select = "datatype_alias,datatype";
 	folder_name = "datatype_alias";
@@ -733,7 +727,7 @@ LIST *datatype_fetch_datatype_alias_list(
 
 	if ( !list_rewind( record_list ) ) return (LIST *)0;
 
-	datatype_alias_list = list_new();
+	alias_list = list_new();
 
 	do {
 		record = list_get( record_list );
@@ -752,13 +746,12 @@ LIST *datatype_fetch_datatype_alias_list(
 					record,
 					1 ) );
 
-		list_append_pointer( datatype_alias_list, datatype_alias );
+		list_append_pointer( alias_list, datatype_alias );
 
 	} while ( list_next( record_list ) );
 
-	return datatype_alias_list;
-
-} /* datatype_fetch_datatype_alias_list() */
+	return alias_list;
+}
 
 DATATYPE_ALIAS *datatype_alias_seek(
 				LIST *datatype_alias_list,
@@ -783,40 +776,6 @@ DATATYPE_ALIAS *datatype_alias_seek(
 	return (DATATYPE_ALIAS *)0;
 
 } /* datatype_alias_seek() */
-
-LIST *datatype_fetch_alias_list(
-				char *application_name,
-				char *datatype_name )
-{
-	LIST *return_list;
-	DATATYPE_ALIAS *datatype_alias;
-	static LIST *datatype_alias_list = {0};
-
-	if ( !datatype_alias_list )
-	{
-		datatype_alias_list =
-			datatype_fetch_datatype_alias_list(
-				application_name );
-	}
-
-	if ( !list_rewind( datatype_alias_list ) ) return (LIST *)0;
-
-	return_list = list_new();
-
-	do {
-		datatype_alias = list_get( datatype_alias_list );
-
-		if ( timlib_strcmp(	datatype_alias->datatype_name,
-					datatype_name ) == 0 )
-		{
-			list_append_pointer( return_list, datatype_alias );
-		}
-
-	} while ( list_next( datatype_alias_list ) );
-
-	return return_list;
-
-} /* datatype_fetch_alias_list() */
 
 char *datatype_alias_display(
 			LIST *station_list,
@@ -957,4 +916,92 @@ LIST *datatype_column_piece_datatype_list(
 	return return_list;
 
 } /* datatype_column_piece_datatype_list() */
+
+LIST *datatype_fetch_alias_list(
+				char *application_name,
+				char *datatype_name )
+{
+	LIST *return_list;
+	DATATYPE_ALIAS *datatype_alias;
+	static LIST *datatype_alias_list = {0};
+
+	if ( !datatype_alias_list )
+	{
+		datatype_alias_list =
+			datatype_fetch_datatype_alias_list(
+				application_name );
+	}
+
+	if ( !list_rewind( datatype_alias_list ) ) return (LIST *)0;
+
+	return_list = list_new();
+
+	do {
+		datatype_alias = list_get( datatype_alias_list );
+
+		if ( timlib_strcmp(	datatype_alias->datatype_name,
+					datatype_name ) == 0 )
+		{
+			list_append_pointer( return_list, datatype_alias );
+		}
+
+	} while ( list_next( datatype_alias_list ) );
+
+	return return_list;
+
+} /* datatype_fetch_alias_list() */
+
+LIST *datatype_fetch_datatype_alias_list(
+					char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *folder_name;
+	char *select;
+	LIST *record_list;
+	char *record;
+	char piece_buffer[ 128 ];
+	DATATYPE_ALIAS *datatype_alias;
+	LIST *datatype_alias_list;
+
+	select = "datatype_alias,datatype";
+	folder_name = "datatype_alias";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	",
+		 application_name,
+		 select,
+		 folder_name );
+
+	record_list = pipe2list( sys_string );
+
+	if ( !list_rewind( record_list ) ) return (LIST *)0;
+
+	datatype_alias_list = list_new();
+
+	do {
+		record = list_get( record_list );
+
+		datatype_alias = datatype_alias_new();
+
+		datatype_alias->datatype_alias =
+			strdup( piece(	piece_buffer,
+					FOLDER_DATA_DELIMITER,
+					record,
+					0 ) );
+
+		datatype_alias->datatype_name =
+			strdup( piece(	piece_buffer,
+					FOLDER_DATA_DELIMITER,
+					record,
+					1 ) );
+
+		list_append_pointer( datatype_alias_list, datatype_alias );
+
+	} while ( list_next( record_list ) );
+
+	return datatype_alias_list;
+
+} /* datatype_fetch_datatype_alias_list() */
 

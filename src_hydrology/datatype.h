@@ -27,6 +27,7 @@ typedef struct
 typedef struct
 {
 	char *datatype_name;
+	char *units_string;
 	UNITS *units;
 	boolean bar_chart;
 	boolean scale_graph_to_zero;
@@ -44,10 +45,6 @@ typedef struct
 /* Prototypes */
 /* ---------- */
 DATATYPE *datatype_new( char *datatype_name );
-
-DATATYPE *datatype_new_datatype(
-			char *datatype_name,
-			char *units_name );
 
 LIST *datatype_get_datatype_list(
 			char *application_name,
@@ -83,6 +80,10 @@ boolean datatype_list_exists(
 LIST *datatype_with_station_name_list_get_datatype_list(
 			char *application_name,
 			LIST *station_name_list );
+
+LIST *datatype_list(
+			char *application_name,
+			char *station_name );
 
 LIST *datatype_with_station_name_get_datatype_list(
 			char *application_name,
@@ -137,7 +138,7 @@ LIST *datatype_get_datatypes_for_unit(
 
 DATATYPE *datatype_calloc(	void );
 
-LIST *datatype_fetch_datatype_alias_list(
+LIST *datatype_alias_list(
 				char *application_name );
 
 DATATYPE_ALIAS *datatype_alias_new(
@@ -182,5 +183,8 @@ char *datatype_name_seek_phrase(
 
 LIST *datatype_column_piece_datatype_list(
 				LIST *datatype_list );
+
+LIST *datatype_fetch_datatype_alias_list(
+				char *application_name );
 
 #endif

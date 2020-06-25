@@ -203,17 +203,43 @@ LIST *units_fetch_local_units_alias_list( char *application_name )
 
 } /* units_fetch_local_units_alias_list() */
 
+char *units_select( void )
+{
+	return "units";
+}
+
 UNITS *units_fetch(		char *application_name,
 				char *units_name )
 {
-	static LIST *units_list = {0};
+	char sys_string[ 1024 ];
+	char where[ 128 ];
+	UNITS *units;
 
-	if ( !units_list )
-	{
-		units_list = units_fetch_units_list( application_name );
-	}
+	sprintf( where, "units = '%s'", units_name );
 
-	return units_seek( units_list, units_name );
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	"
+		 "			where=\"%s\"	",
+		 application_name,
+		 units_select(),
+		 "units",
+		 where );
+
+	units_name = pipe2string( sys_string );
+
+	if ( !units_name || !*units_name ) return (UNITS *)0;
+
+	units = units_new();
+	units->units_name = units_name;
+
+	units->units_alias_list =
+		units_fetch_units_alias_list(
+			application_name,
+			units->units_name );
+
+	return units;
 
 } /* units_fetch() */
 
@@ -236,26 +262,26 @@ UNITS *units_seek(	LIST *units_list,
 
 } /* units_seek() */
 
+LIST *units_list( char *application_name )
+{
+	return units_fetch_units_list( application_name );
+}
+
 LIST *units_fetch_units_list( char *application_name )
 {
 	char sys_string[ 1024 ];
-	char *folder;
-	char *select;
 	LIST *units_name_list;
 	LIST *units_list;
 	UNITS *units;
 	char *units_name;
-
-	select = "units";
-	folder = "units";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
 		 "			select=%s	"
 		 "			folder=%s	",
 		 application_name,
-		 select,
-		 folder );
+		 units_select(),
+		 "units" );
 
 	units_name_list = pipe2list( sys_string );
 

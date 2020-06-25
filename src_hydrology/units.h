@@ -65,6 +65,8 @@ LIST *units_fetch_local_units_alias_list(
 LIST *units_fetch_units_list(
 				char *application_name );
 
+LIST *units_list(		char *application_name );
+
 UNITS *units_seek_alias_new(	char *application_name,
 				char *units_name );
 
@@ -86,5 +88,9 @@ char *units_translate_units_name(
 
 char *units_search_replace_special_codes(
 				char *source );
+
+LIST *units_list(		char *application_name );
+
+char *units_select(		void );
 
 #endif

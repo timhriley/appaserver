@@ -29,10 +29,16 @@ GOOGLE_MAP_STATION *google_map_station_new(
 	&&	*login_name
 	&&	strcmp( login_name, "waterquality" ) != 0 )
 	{
+/*
 		google_map_station->station_list =
 			station_get_login_name_station_list(
 				application_name,
 				login_name );
+*/
+		google_map_station->station_list =
+			station_get_agency_station_list(
+				application_name,
+				"NPS_ENP" /* agency */ );
 	}
 	else
 	if (	login_name

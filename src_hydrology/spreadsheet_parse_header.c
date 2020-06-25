@@ -125,9 +125,10 @@ void spreadsheet_parse_display( LIST *datatype_list )
 	do {
 		datatype = list_get_pointer( datatype_list );
 
-		printf( "%s^%d\n",
+		printf( "%s^%d^.5lf\n",
 			datatype->datatype_name,
-			datatype->column_piece );
+			datatype->column_piece,
+			datatype->units_converted_multiply_by );
 
 	} while ( list_next( datatype_list ) );
 

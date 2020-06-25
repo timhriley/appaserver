@@ -360,6 +360,7 @@ LIST *spreadsheet_parse_datatype_list(
 	LIST *datatype_list;
 	char datatype_name[ 128 ];
 	char column_piece[ 128 ];
+	char multiply_by[ 128 ];
 	DATATYPE *datatype;
 
 	datatype_list = datatype_fetch_list( application_name );
@@ -373,12 +374,13 @@ LIST *spreadsheet_parse_datatype_list(
 
 	input_pipe = popen( sys_string, "r" );
 
-	/* Expect: datatype^column_piece */
-	/* ----------------------------- */
+	/* Expect: datatype^column_piece^multiply_by */
+	/* ----------------------------------------- */
 	while ( timlib_get_line( input_buffer, input_pipe, 1024 ) )
 	{
 		piece( datatype_name, '^', input_buffer, 0 );
 		piece( column_piece, '^', input_buffer, 1 );
+		piece( multiply_by, '^', input_buffer, 2 );
 
 		if ( ! ( datatype = datatype_list_seek(
 				datatype_list,
@@ -394,6 +396,7 @@ LIST *spreadsheet_parse_datatype_list(
 		}
 
 		datatype->column_piece = atoi( column_piece );
+		datatype->units_converted_multiply_by = atof( multiply_by );
 	}
 
 	pclose( input_pipe );
