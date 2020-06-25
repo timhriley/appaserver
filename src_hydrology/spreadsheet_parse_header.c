@@ -42,7 +42,7 @@
 
 /* Prototypes */
 /* ---------- */
-boolean spreadsheet_parse_got_heading_label(
+boolean spreadsheet_parse_heading_label_success(
 			char *date_heading_label,
 			char *heading_buffer );
 
@@ -187,7 +187,7 @@ LIST *spreadsheet_parse_datatype_list(
 
 	while( timlib_get_line( heading_buffer, input_file, 1024 ) )
 	{
-		if ( spreadsheet_parse_got_heading_label(
+		if ( spreadsheet_parse_heading_label_success(
 			date_heading_label,
 			heading_buffer ) )
 		{
@@ -253,7 +253,7 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
 
 } /* setup_arg() */
 
-boolean spreadsheet_parse_got_heading_label(
+boolean spreadsheet_parse_heading_label_success(
 				char *date_heading_label,
 				char *heading_buffer )
 {
@@ -262,7 +262,7 @@ boolean spreadsheet_parse_got_heading_label(
 	else
 		return 0;
 
-} /* spreadsheet_parse_got_heading_label() */
+}
 
 /* ------------------------------------------ */
 /* Sets datatype->column_piece		      */
