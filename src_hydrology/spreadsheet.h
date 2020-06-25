@@ -19,8 +19,8 @@
 /* ---------- */
 typedef struct
 {
-	char *datatype_label;
-	char *units_label;
+	char *spreadsheet_datatype_label;
+	char *spreadsheet_units_label;
 	int column_piece;
 	UNITS *spreadsheet_translate_units;
 	double spreadsheet_multiply_by;
@@ -36,6 +36,7 @@ typedef struct
 
 /* Operations */
 /* ---------- */
+char *spreadsheet_datatype_label(
 LIST *spreadsheet_datatype_list(
 				char *application_name );
 
@@ -52,15 +53,21 @@ double spreadsheet_multiply_by(	LIST *spreadsheet_units_list,
 				char *units_label );
 
 LIST *spreadsheet_header_cell_list(
+				char *station_name,
 				char *filename,
 				char *date_heading_label,
 				boolean two_lines,
 				LIST *spreadsheet_datatype_list,
 				LIST *spreadsheet_units_list );
 
-/* Format: datatype^column_piece^multiply_by */
-/* ----------------------------------------- */
-LIST *spreadsheet_text_output_list(
+LIST *spreadsheet_output_datatype_list(
 				LIST *spreadsheet_header_cell_list );
+
+SPREADHSEET *spreadsheet_fetch(
+				char *application_name,
+				char *station_name,
+				char *filename,
+				char *date_heading_label,
+				boolean two_lines );
 
 #endif

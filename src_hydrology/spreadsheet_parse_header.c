@@ -32,6 +32,7 @@
 #include "units.h"
 #include "hydrology.h"
 #include "name_arg.h"
+#include "spreadsheet.h"
 
 /* Structures */
 /* ---------- */
@@ -141,6 +142,29 @@ LIST *spreadsheet_parse_datatype_list(
 				char *date_heading_label,
 				boolean two_lines )
 {
+	SPREADSHEET *spreadsheet;
+
+	if ( ! ( spreadsheet =
+			spreadsheet_fetch(
+				application_name,
+				station_name,
+				input_filespecification,
+				date_heading_label,
+				two_lines ) ) )
+	{
+		return (LIST *)0;
+	}
+
+} /* spreadsheet_parse_datatype_list() */
+
+#ifdef NOT_DEFINED
+LIST *spreadsheet_parse_datatype_list(
+				char *application_name,
+				char *station_name,
+				char *input_filespecification,
+				char *date_heading_label,
+				boolean two_lines )
+{
 	FILE *input_file;
 	char heading_buffer[ 1024 ];
 	char second_line[ 1024 ];
@@ -195,6 +219,7 @@ LIST *spreadsheet_parse_datatype_list(
 	return (LIST *)0;
 
 } /* spreadsheet_parse_datatype_list() */
+#endif
 
 void fetch_parameters(	char **filename,
 			char **station,
