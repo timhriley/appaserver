@@ -187,4 +187,8 @@ LIST *datatype_column_piece_datatype_list(
 LIST *datatype_fetch_datatype_alias_list(
 				char *application_name );
 
+char *datatype_alias_datatype_name(
+				LIST *datatype_alias_list,
+				char *datatype_label );
+
 #endif

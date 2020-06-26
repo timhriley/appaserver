@@ -11,7 +11,9 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "piece.h"
+#include "station.h"
 #include "datatype.h"
+#include "station_datatype.h"
 #include "units.h"
 #include "spreadsheet.h"
 
@@ -68,11 +70,11 @@ SPREADSHEET *spreadsheet_new(	char *application_name,
 
 DATATYPE *spreadsheet_translate_datatype(
 				char *spreadsheet_datatype_label,
+				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list )
 {
+	char *datatype_name;
 	DATATYPE *datatype;
-	DATATYPE_ALIAS *datatype_alias;
-	LIST *datatype_alias_list;
 
 	if ( !list_rewind( spreadsheet_datatype_list ) )
 		return (DATATYPE *)0;
@@ -87,23 +89,27 @@ DATATYPE *spreadsheet_translate_datatype(
 			return datatype;
 		}
 
-		datatype_alias_list = datatype->datatype_alias_list;
+		datatype_name =
+			datatype_alias_datatype_name(
+				spreadsheet_station_datatype_alias_list,
+				spreadsheet_datatype_label );
 
-		if ( !list_rewind( datatype_alias_list ) ) continue;
+		if ( timlib_strcmp(	datatype_name,
+					datatype->datatype_name ) == 0 )
+		{
+			return datatype;
+		}
 
-		do {
-			datatype_alias =
-				list_get_pointer(
-					datatype_alias_list );
+		datatype_name =
+			datatype_alias_datatype_name(
+				datatype->datatype_alias_list,
+				spreadsheet_datatype_label );
 
-			if ( timlib_strcmp( 
-				datatype_alias->datatype_alias,
-				spreadsheet_datatype_label ) == 0 )
-			{
-				return datatype;
-			}
-
-		} while ( list_next( datatype_alias_list ) );
+		if ( timlib_strcmp(	datatype_name,
+					datatype->datatype_name ) == 0 )
+		{
+			return datatype;
+		}
 
 	} while ( list_next( spreadsheet_datatype_list ) );
 
@@ -113,6 +119,7 @@ DATATYPE *spreadsheet_translate_datatype(
 LIST *spreadsheet_header_cell_list(
 				char *spreadsheet_header_row,
 				char *second_line,
+				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list )
 {
 	LIST *header_cell_list;
@@ -127,6 +134,7 @@ LIST *spreadsheet_header_cell_list(
 				spreadsheet_header_row,
 				second_line,
 				column_piece,
+				spreadsheet_station_datatype_alias_list,
 				spreadsheet_datatype_list ) );
 		column_piece++ )
 	{
@@ -225,6 +233,7 @@ SPREADSHEET *spreadsheet_fetch(
 		spreadsheet_header_cell_list(
 			spreadsheet->spreadsheet_header_row,
 			second_line,
+			spreadsheet->spreadsheet_station_datatype_alias_list,
 			spreadsheet->spreadsheet_datatype_list );
 
 	return spreadsheet;
@@ -286,6 +295,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 				char *spreadsheet_header_row,
 				char *second_line,
 				int column_piece,
+				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list )
 {
 	SPREADSHEET_HEADER_CELL *spreadsheet_header_cell;
@@ -331,6 +341,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 		spreadsheet_translate_datatype(
 			spreadsheet_header_cell->
 				spreadsheet_datatype_label,
+			spreadsheet_station_datatype_alias_list,
 			spreadsheet_datatype_list );
 
 	if ( !spreadsheet_header_cell->spreadsheet_translate_datatype )
@@ -500,5 +511,14 @@ double spreadsheet_units_converted_multiply_by(
 			spreadsheet_translate_units_name
 				/* units_converted */,
 			units_converted_list );
+}
+
+LIST *spreadsheet_station_datatype_alias_list(
+				char *application_name,
+				char *station_name )
+{
+	return station_datatype_alias_list(
+			application_name,
+			station_name );
 }
 

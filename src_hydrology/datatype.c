@@ -1005,3 +1005,28 @@ LIST *datatype_fetch_datatype_alias_list(
 
 } /* datatype_fetch_datatype_alias_list() */
 
+char *datatype_alias_datatype_name(
+				LIST *datatype_alias_list,
+				char *datatype_label )
+{
+	DATATYPE_ALIAS *datatype_alias;
+
+	if ( !list_rewind( datatype_alias_list ) )
+		return (char *)0;
+
+	do {
+		datatype_alias =
+			list_get_pointer(
+				datatype_alias_list );
+
+		if ( timlib_strcmp( 
+			datatype_alias->datatype_alias,
+			datatype_label ) == 0 )
+		{
+			return datatype_alias->datatype_name;
+		}
+
+	} while ( list_next( datatype_alias_list ) );
+
+	return (char *)0;
+}

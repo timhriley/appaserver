@@ -21,11 +21,29 @@
 typedef struct
 {
 	int column_piece;
+	/* --------------------------- */
+	/* Looks like: Waterflow (GPM) */
+	/* --------------------------- */
 	char *spreadsheet_header_label;
+	/* --------------------- */
+	/* Looks like: Waterflow */
+	/* --------------------- */
 	char *spreadsheet_datatype_label;
+	/* --------------- */
+	/* Looks like: GPM */
+	/* --------------- */
 	char *spreadsheet_units_label;
+	/* ---------------------------------------- */
+	/* Looks like: DATATYPE->datatype_name=flow */
+	/* ---------------------------------------- */
 	DATATYPE *spreadsheet_translate_datatype;
+	/* --------------- */
+	/* Looks like: CFS */
+	/* --------------- */
 	char *spreadsheet_translate_units_name;
+	/* -------------------- */
+	/* Looks like: 0.002228 */
+	/* -------------------- */
 	double spreadsheet_units_converted_multiply_by;
 } SPREADSHEET_HEADER_CELL;
 
@@ -33,14 +51,16 @@ typedef struct
 {
 	char *application_name;
 	char *station_name;
-	/* ---------------- */
-	/* Looks like: Date */
-	/* ---------------- */
+	/* ----------------------------- */
+	/* Looks like: Date Sample Taken */
+	/* ----------------------------- */
 	char *date_header_label;
 	char *filename;
 	boolean two_lines;
+	char *second_line;
 	char *spreadsheet_header_row;
 	LIST *spreadsheet_datatype_list;
+	LIST *spreadsheet_station_datatype_alias_list;
 	LIST *spreadsheet_header_cell_list;
 	LIST *spreadsheet_output_datatype_list;
 } SPREADSHEET;
@@ -68,6 +88,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_new(
 /* ---------------------------------------- */
 DATATYPE *spreadsheet_translate_datatype(
 				char *spreadsheet_datatype_label,
+				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list );
 
 /* Looks like: UNITS->units_name = CFS */
@@ -79,6 +100,7 @@ UNITS *spreadsheet_translate_units(
 LIST *spreadsheet_header_cell_list(
 				char *spreadsheet_header_row,
 				char *second_line,
+				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list );
 
 LIST *spreadsheet_output_datatype_list(
@@ -111,9 +133,6 @@ char *spreadsheet_header_row(
 				boolean two_lines );
 
 boolean spreadsheet_header_label_success(
-				/* ---------------- */
-				/* Looks like: Date */
-				/* ---------------- */
 				char *date_header_label,
 				char *header_buffer );
 
@@ -158,5 +177,9 @@ char *spreadsheet_translate_units_name(
 double spreadsheet_units_converted_multiply_by(
 				char *spreadsheet_translate_units_name,
 				LIST *units_converted_list );
+
+LIST *spreadsheet_station_datatype_alias_list(
+				char *application_name,
+				char *station_name );
 
 #endif
