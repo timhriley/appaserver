@@ -440,3 +440,11 @@ char *units_search_replace_special_codes( char *source )
 
 } /* units_search_replace_special_codes() */
 
+double units_converted_multiply_by(
+				char *units_name,
+				char *spreadsheet_units_label,
+				LIST *units_converted_list )
+{
+	return 0.0;
+}
+

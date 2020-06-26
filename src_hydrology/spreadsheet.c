@@ -11,16 +11,16 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "piece.h"
+#include "datatype.h"
+#include "units.h"
 #include "spreadsheet.h"
 
-LIST *spreadsheet_datatype_list( char *application_name )
+LIST *spreadsheet_datatype_list(	char *application_name,
+					char *station_name )
 {
-	return datatype_fetch_list( application_name );
-}
-
-LIST *spreadsheet_units_list( char *application_name )
-{
-	return units_list( application_name );
+	return datatype_list(
+			application_name,
+			station_name );
 }
 
 SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_new( void )
@@ -40,7 +40,11 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_new( void )
 	return s;
 }
 
-SPREADSHEET *spreadsheet_new( void )
+SPREADSHEET *spreadsheet_new(	char *application_name,
+				char *station_name,
+				char *date_header_label,
+				char *filename,
+				boolean two_lines )
 {
 	SPREADSHEET *s;
 
@@ -51,67 +55,79 @@ SPREADSHEET *spreadsheet_new( void )
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
-		exit( 1 );
+		return (SPREADSHEET *)0;
 	}
+
+	s->application_name = application_name;
+	s->station_name = station_name;
+	s->date_header_label = date_header_label;
+	s->filename = filename;
+	s->two_lines = two_lines;
 	return s;
 }
 
 DATATYPE *spreadsheet_translate_datatype(
-				char *datatype_label,
+				char *spreadsheet_datatype_label,
 				LIST *spreadsheet_datatype_list )
 {
+	DATATYPE *datatype;
+	DATATYPE_ALIAS *datatype_alias;
+	LIST *datatype_alias_list;
+
+	if ( !list_rewind( spreadsheet_datatype_list ) )
+		return (DATATYPE *)0;
+
+	do {
+		datatype = list_get_pointer( spreadsheet_datatype_list );
+
+		if ( timlib_strcmp(
+			spreadsheet_datatype_label,
+			datatype->datatype_name ) == 0 )
+		{
+			return datatype;
+		}
+
+		datatype_alias_list = datatype->datatype_alias_list;
+
+		if ( !list_rewind( datatype_alias_list ) ) continue;
+
+		do {
+			datatype_alias =
+				list_get_pointer(
+					datatype_alias_list );
+
+			if ( timlib_strcmp( 
+				datatype_alias->datatype_alias,
+				spreadsheet_datatype_label ) == 0 )
+			{
+				return datatype;
+			}
+
+		} while ( list_next( datatype_alias_list ) );
+
+	} while ( list_next( spreadsheet_datatype_list ) );
+
 	return (DATATYPE *)0;
 }
 
-UNITS *spreadsheet_translate_units(
-				char *units_label,
-				LIST *spreadsheet_units_list )
-{
-	return (UNITS *)0;
-}
-
-double spreadsheet_multiply_by(	LIST *spreadsheet_units_list,
-				UNITS *units,
-				char *units_label )
-{
-	return 0.0;
-}
-
 LIST *spreadsheet_header_cell_list(
-				char *station_name,
-				char *filename,
-				char *date_header_label,
-				boolean two_lines,
-				LIST *spreadsheet_datatype_list,
-				LIST *spreadsheet_units_list )
+				char *spreadsheet_header_buffer,
+				char *second_line,
+				LIST *spreadsheet_datatype_list )
 {
 	LIST *header_cell_list;
 	SPREADSHEET_HEADER_CELL *spreadsheet_header_cell;
-	char *header_buffer;
-	char *second_line;
 	int column_piece;
-
-	/* Returns heap memory and populates heap memory. */
-	/* ---------------------------------------------- */
-	header_buffer =
-		spreadsheet_header_buffer(
-				&second_line,
-				filename,
-				date_header_label,
-				two_lines );
-
-	if ( !header_buffer ) return (LIST *)0;
 
 	header_cell_list = list_new();
 
 	for (	column_piece = 0;
 		( spreadsheet_header_cell =
 			spreadsheet_header_cell_parse(
-				header_buffer,
+				spreadsheet_header_buffer,
 				second_line,
 				column_piece,
-				spreadsheet_datatype_list,
-				spreadsheet_units_list ) );
+				spreadsheet_datatype_list ) );
 		column_piece++ )
 	{
 		list_append_pointer(
@@ -139,12 +155,23 @@ SPREADSHEET *spreadsheet_fetch(
 				boolean two_lines )
 {
 	SPREADSHEET *spreadsheet;
+	char *second_line = {0};
 
-	spreadsheet = spreadsheet_new();
+	if ( ! ( spreadsheet =
+			spreadsheet_new(
+				application_name,
+				station_name,
+				date_header_label,
+				filename,
+				two_lines ) ) )
+	{
+		return (SPREADSHEET *)0;
+	}
 
 	spreadsheet->spreadsheet_datatype_list =
 		spreadsheet_datatype_list(
-			application_name );
+			spreadsheet->application_name,
+			spreadsheet->station_name );
 
 	if ( !list_length( spreadsheet->spreadsheet_datatype_list ) )
 	{
@@ -157,18 +184,29 @@ SPREADSHEET *spreadsheet_fetch(
 		return (SPREADSHEET *)0;
 	}
 
-	spreadsheet->spreadsheet_units_list =
-		spreadsheet_units_list(
-			application_name );
+	/* Returns heap memory and populates heap memory. */
+	/* ---------------------------------------------- */
+	if ( ! ( spreadsheet->spreadsheet_header_buffer =
+			spreadsheet_header_buffer(
+				&second_line,
+				spreadsheet->filename,
+				spreadsheet->date_header_label,
+				spreadsheet->two_lines ) ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: spreadsheet_header_buffer() failed.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+
+		return (SPREADSHEET *)0;
+	}
 
 	spreadsheet->spreadsheet_header_cell_list =
 		spreadsheet_header_cell_list(
-			station_name,
-			filename,
-			date_header_label,
-			two_lines,
-			spreadsheet->spreadsheet_datatype_list,
-			spreadsheet->spreadsheet_units_list );
+			spreadsheet->spreadsheet_header_buffer,
+			second_line,
+			spreadsheet->spreadsheet_datatype_list );
 
 	return spreadsheet;
 }
@@ -226,11 +264,10 @@ char *spreadsheet_header_buffer(
 }
 
 SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
-				char *header_buffer,
+				char *spreadsheet_header_buffer,
 				char *second_line,
 				int column_piece,
-				LIST *spreadsheet_datatype_list,
-				LIST *spreadsheet_units_list )
+				LIST *spreadsheet_datatype_list )
 {
 	SPREADSHEET_HEADER_CELL *spreadsheet_header_cell;
 	char *header_label;
@@ -243,7 +280,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 			/* Header label looks like: Salinity (PSU)	*/
 			/* -------------------------------------------- */
 			spreadsheet_header_label(
-				header_buffer,
+				spreadsheet_header_buffer,
 				second_line,
 				column_piece ) ) )
 	{
@@ -254,7 +291,8 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 			/* -------------------- */
 			/* Returns heap memory. */
 			/* -------------------- */
-			spreadsheet_datatype_label( header_label ) ) )
+			spreadsheet_datatype_label(
+				header_label ) ) )
 	{
 		return (SPREADSHEET_HEADER_CELL *)0;
 	}
@@ -276,20 +314,34 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 				spreadsheet_datatype_label,
 			spreadsheet_datatype_list );
 
-	spreadsheet_header_cell->spreadsheet_translate_units =
-		spreadsheet_translate_units(
-			spreadsheet_header_cell->
-				spreadsheet_units_label,
-			spreadsheet_units_list );
+	if ( !spreadsheet_header_cell->spreadsheet_translate_datatype )
+	{
+		return (SPREADSHEET_HEADER_CELL *)0;
+	}
 
-	spreadsheet_header_cell->spreadsheet_convert_multiply_by =
-		spreadsheet_convert_multiply_by(
-			spreadsheet_header_cell->
-				spreadsheet_translate_units->
-				units_converted_list,
+	spreadsheet_header_cell->spreadsheet_translate_units_name =
+		spreadsheet_translate_units_name(
 			spreadsheet_header_cell->
 				spreadsheet_units_label,
-			spreadsheet_units_list );
+			spreadsheet_header_cell->
+				spreadsheet_translate_datatype->
+				units->
+				units_name,
+			spreadsheet_header_cell->
+				spreadsheet_translate_datatype->
+				units->
+				units_alias_list );
+
+	spreadsheet_header_cell->spreadsheet_units_converted_multiply_by =
+		spreadsheet_units_converted_multiply_by(
+			spreadsheet_header_cell->
+				spreadsheet_translate_units_name,
+			spreadsheet_header_cell->
+				spreadsheet_units_label,
+			spreadsheet_header_cell->
+			spreadsheet_translate_datatype->
+				units->
+				units_converted_list );
 
 	return spreadsheet_header_cell;
 }
@@ -299,7 +351,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 /* Header label looks like: Salinity (PSU)	*/
 /* -------------------------------------------- */
 char *spreadsheet_header_label(
-				char *header_buffer,
+				char *spreadsheet_header_buffer,
 				char *second_line,
 				int column_piece )
 {
@@ -312,7 +364,7 @@ char *spreadsheet_header_label(
 
 	piece_quoted(	datatype_heading_first_line,
 			',',
-			header_buffer,
+			spreadsheet_header_buffer,
 			column_piece,
 			'"' );
 
@@ -337,7 +389,7 @@ char *spreadsheet_header_label(
 
 	if ( !*header_label )
 	{
-		strcpy( header_label, datatype_heading_first_line );
+		strcpy( header_label, spreadsheet_header_buffer );
 	}
 
 	trim( header_label );
@@ -393,5 +445,44 @@ char *spreadsheet_units_label(
 		return strdup( units_label );
 	}
 	return (char *)0;
+}
+
+char *spreadsheet_translate_units_name(
+				char *spreadsheet_units_label,
+				char *units_name,
+				LIST *units_alias_list )
+{
+	UNITS_ALIAS *units_alias;
+
+	if ( timlib_strcmp( 
+		spreadsheet_units_label,
+		units_name ) == 0 )
+	{
+		return units_name;
+	}
+
+	/* Just check for existance */
+	/* ------------------------ */
+	if ( ( units_alias =
+			units_alias_seek(
+				units_alias_list,
+				spreadsheet_units_label
+					/* units_alias */ ) ) )
+	{
+		return units_name;
+	}
+
+	return (char *)0;
+}
+
+double spreadsheet_units_converted_multiply_by(
+				char *spreadsheet_translate_units_name,
+				char *spreadsheet_units_label,
+				LIST *units_converted_list )
+{
+	return units_converted_multiply_by(
+			spreadsheet_translate_units_name,
+			spreadsheet_units_label,
+			units_converted_list );
 }
 

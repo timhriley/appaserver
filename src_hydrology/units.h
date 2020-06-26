@@ -24,7 +24,7 @@ typedef struct
 
 typedef struct
 {
-	char *units_converted;
+	char *units_alias;
 	double multiply_by;
 } UNITS_CONVERTED;
 
@@ -92,5 +92,10 @@ char *units_search_replace_special_codes(
 LIST *units_list(		char *application_name );
 
 char *units_select(		void );
+
+double units_converted_multiply_by(
+				char *units_name,
+				char *spreadsheet_units_label,
+				LIST *units_converted_list );
 
 #endif
