@@ -1,5 +1,5 @@
-/* src_hydrology/shef_datatype_code.h */
-/* ---------------------------------- */
+/* $APPASERVER_HOME/src_hydrology/shef_datatype_code.h */
+/* --------------------------------------------------- */
 
 #ifndef SHEF_DATATYPE_CODE_H
 #define SHEF_DATATYPE_CODE_H
@@ -29,8 +29,8 @@ typedef struct
 
 typedef struct
 {
-	char *station;
-	char *datatype;
+	char *station_name;
+	char *datatype_name;
 	char *shef_download_code;
 } SHEF_DOWNLOAD_DATATYPE;
 
@@ -131,6 +131,13 @@ char *shef_datatype_code_seek_upload_code(
 			/* Only shef_upload_datatpe_list for a station. */
 			/* -------------------------------------------- */
 			LIST *shef_upload_datatype_list,
+			char *datatype_name );
+
+char *shef_datatype_code_seek_download_code(
+			/* ---------------------------------------------- */
+			/* Only shef_download_datatpe_list for a station. */
+			/* ---------------------------------------------- */
+			LIST *shef_download_datatype_list,
 			char *datatype_name );
 
 char *shef_datatype_code_translate_datatype_name(

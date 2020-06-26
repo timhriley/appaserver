@@ -700,8 +700,7 @@ LIST *datatype_get_datatypes_for_unit(
 
 } /* datatype_get_datatypes_for_unit() */
 
-LIST *datatype_alias_list(
-					char *application_name )
+LIST *datatype_alias_list( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char *folder_name;

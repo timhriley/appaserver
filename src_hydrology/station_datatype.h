@@ -20,6 +20,7 @@ typedef struct
 	char *station_name;
 	DATATYPE *datatype;
 	char *shef_upload_code;
+	char *shef_download_code;
 	char *manipulate_agency;
 	char *units;
 	char aggregation_sum_yn;
@@ -71,7 +72,7 @@ void station_datatype_free(
 
 char *station_datatype_translate_datatype_name(
 				DATATYPE *datatype,
-				char *shef_upload_code,
+				char *shef_download_code,
 				/* -----------------------	*/
 				/* Samples: Salinity (PSU)	*/
 				/*	    Salinity		*/

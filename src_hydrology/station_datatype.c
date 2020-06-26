@@ -299,7 +299,7 @@ char *station_datatype_get_manipulate_agency(
 
 char *station_datatype_translate_datatype_name(
 				DATATYPE *datatype,
-				char *shef_upload_code,
+				char *shef_download_code,
 				/* -----------------------	*/
 				/* Samples: Salinity (PSU)	*/
 				/*	    Salinity		*/
@@ -334,7 +334,7 @@ char *station_datatype_translate_datatype_name(
 
 	/* Shef takes precedence over alias. */
 	/* --------------------------------- */
-	if ( timlib_strcmp(	shef_upload_code,
+	if ( timlib_strcmp(	shef_download_code,
 				datatype_phrase ) == 0 )
 	{
 		return datatype->datatype_name;
@@ -527,6 +527,14 @@ STATION_DATATYPE *station_datatype_parse(
 
 	station_datatype->shef_upload_code =
 		shef_datatype_code_seek_upload_code(
+	   	     /* -------------------------------------------- */
+	   	     /* Only shef_upload_datatpe_list for a station. */
+	   	     /* -------------------------------------------- */
+	   	     shef_upload_datatype_list,
+	   	     station_datatype->datatype->datatype_name );
+
+	station_datatype->shef_download_code =
+		shef_datatype_code_seek_download_code(
 	   	     /* -------------------------------------------- */
 	   	     /* Only shef_upload_datatpe_list for a station. */
 	   	     /* -------------------------------------------- */

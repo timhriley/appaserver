@@ -1,5 +1,5 @@
-/* src_hydrology/shef_datatype_code.c */
-/* ---------------------------------- */
+/* $APPASERVER_HOME/src_hydrology/shef_datatype_code.c */
+/* --------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -111,10 +111,10 @@ char *shef_datatype_code_get_shef_download_code(
 
 			if ( timlib_strcmp(
 				datatype_string_upper_case, 
-				datatype->datatype ) == 0 
+				datatype->datatype_name ) == 0 
 			&&   timlib_strcmp(
 				station,
-				datatype->station ) == 0 )
+				datatype->station_name ) == 0 )
 			{
 				return datatype->shef_download_code;
 			}
@@ -300,8 +300,8 @@ LIST *shef_datatype_fetch_download_datatype_list(
 
 		datatype = (SHEF_DOWNLOAD_DATATYPE *)
 				calloc( 1, sizeof( SHEF_DOWNLOAD_DATATYPE ) );
-		datatype->station = strdup( station );
-		datatype->datatype = strdup( datatype_string );
+		datatype->station_name = strdup( station );
+		datatype->datatype_name = strdup( datatype_string );
 		datatype->shef_download_code = strdup( shef_download_code );
 
 		list_append_pointer( datatype_list, datatype );
@@ -453,6 +453,29 @@ LIST *shef_upload_datatype_fetch_list(
 	return return_list;
 
 } /* shef_upload_datatype_fetch_list() */
+
+char *shef_datatype_code_seek_download_code(
+			/* ---------------------------------------------- */
+			/* Only shef_download_datatpe_list for a station. */
+			/* ---------------------------------------------- */
+			LIST *shef_download_datatype_list,
+			char *datatype_name )
+{
+	SHEF_DOWNLOAD_DATATYPE *s;
+
+	if ( !list_rewind( shef_download_datatype_list ) )
+		return ( char *)0;
+
+	do {
+		s = list_get( shef_download_datatype_list );
+
+		if ( timlib_strcmp( s->datatype_name, datatype_name ) == 0 )
+			return s->shef_download_code;
+
+	} while ( list_next( shef_download_datatype_list ) );
+
+	return (char *)0;
+}
 
 char *shef_datatype_code_seek_upload_code(
 			/* -------------------------------------------- */

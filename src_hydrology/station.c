@@ -789,3 +789,60 @@ LIST *station_fetch_station_datatype_list(
 			(LIST *)0 /* shef_upload_datatype_list */ );
 }
 
+LIST *station_datatype_alias_list(
+			char *application_name,
+			char *station_name )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	LIST *record_list;
+	char *record;
+	char piece_buffer[ 128 ];
+	DATATYPE_ALIAS *datatype_alias;
+	LIST *alias_list;
+	char where[ 128 ];
+
+	select = "datatype_alias,datatype";
+
+	sprintf( where, "station = '%s'", station_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	"
+		 "			where=\"%s\"	",
+		 application_name,
+		 select,
+		 "station_datatype_alias",
+		 where );
+
+	record_list = pipe2list( sys_string );
+
+	if ( !list_rewind( record_list ) ) return (LIST *)0;
+
+	alias_list = list_new();
+
+	do {
+		record = list_get( record_list );
+
+		datatype_alias = datatype_alias_new();
+
+		datatype_alias->datatype_alias =
+			strdup( piece(	piece_buffer,
+					FOLDER_DATA_DELIMITER,
+					record,
+					0 ) );
+
+		datatype_alias->datatype_name =
+			strdup( piece(	piece_buffer,
+					FOLDER_DATA_DELIMITER,
+					record,
+					1 ) );
+
+		list_append_pointer( alias_list, datatype_alias );
+
+	} while ( list_next( record_list ) );
+
+	return alias_list;
+}
+

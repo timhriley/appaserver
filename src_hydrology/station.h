@@ -9,6 +9,7 @@
 #include "list.h"
 #include "dictionary.h"
 #include "measurement.h"
+#include "datatype.h"
 
 /* Constants */
 /* --------- */
@@ -34,6 +35,7 @@ typedef struct
 	LIST *datatype_name_list;
 	LIST *station_datatype_list;
 	LIST *shef_upload_datatype_list;
+	LIST *station_datatype_alias_list;
 } STATION;
 
 /* Operations */
@@ -133,6 +135,10 @@ STATION *station_get_or_set_station(
 			char *station_name );
 
 LIST *station_fetch_station_datatype_list(
+			char *application_name,
+			char *station_name );
+
+LIST *station_datatype_alias_list(
 			char *application_name,
 			char *station_name );
 

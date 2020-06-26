@@ -163,6 +163,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 				char *spreadsheet_header_row,
 				char *second_line,
 				int column_piece,
+				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list );
 
 /* ---------------------------- */
