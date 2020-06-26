@@ -4,7 +4,6 @@
 /*							*/
 /* Freely available software: see Appaserver.org	*/
 /* ----------------------------------------------------	*/
-/* ---------------------------------------------------	*/
 /* Input from stdin: piped delimited measurement rows	*/
 /*			1) station			*/
 /*			2) datatype			*/

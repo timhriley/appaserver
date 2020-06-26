@@ -70,6 +70,7 @@ SPREADSHEET *spreadsheet_new(	char *application_name,
 
 DATATYPE *spreadsheet_translate_datatype(
 				char *spreadsheet_datatype_label,
+				LIST *spreadsheet_shef_download_datatype_list,
 				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list )
 {
@@ -119,6 +120,7 @@ DATATYPE *spreadsheet_translate_datatype(
 LIST *spreadsheet_header_cell_list(
 				char *spreadsheet_header_row,
 				char *second_line,
+				LIST *spreadsheet_shef_download_datatype_list,
 				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list )
 {
@@ -134,6 +136,7 @@ LIST *spreadsheet_header_cell_list(
 				spreadsheet_header_row,
 				second_line,
 				column_piece,
+				spreadsheet_shef_download_datatype_list,
 				spreadsheet_station_datatype_alias_list,
 				spreadsheet_datatype_list ) );
 		column_piece++ )
@@ -233,6 +236,7 @@ SPREADSHEET *spreadsheet_fetch(
 		spreadsheet_header_cell_list(
 			spreadsheet->spreadsheet_header_row,
 			second_line,
+			spreadsheet->spreadsheet_shef_download_datatype_list,
 			spreadsheet->spreadsheet_station_datatype_alias_list,
 			spreadsheet->spreadsheet_datatype_list );
 
@@ -295,6 +299,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 				char *spreadsheet_header_row,
 				char *second_line,
 				int column_piece,
+				LIST *spreadsheet_shef_download_datatype_list,
 				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list )
 {
@@ -317,18 +322,20 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 	}
 
 	if ( ! ( datatype_label =
-			/* -------------------- */
-			/* Returns heap memory. */
-			/* -------------------- */
+			/* ------------------------------------ */
+			/* Returns heap memory.			*/
+			/* Datatype label looks like: Salinity	*/
+			/* ------------------------------------ */
 			spreadsheet_datatype_label(
 				header_label ) ) )
 	{
 		return (SPREADSHEET_HEADER_CELL *)0;
 	}
 
-	/* -------------------- */
-	/* Returns heap memory. */
-	/* -------------------- */
+	/* ---------------------------	*/
+	/* Returns heap memory.		*/
+	/* Units label looks like: PSU	*/
+	/* ---------------------------	*/
 	units_label = spreadsheet_units_label( header_label );
 
 	spreadsheet_header_cell = spreadsheet_header_cell_new();
@@ -341,6 +348,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 		spreadsheet_translate_datatype(
 			spreadsheet_header_cell->
 				spreadsheet_datatype_label,
+			spreadsheet_shef_download_datatype_list,
 			spreadsheet_station_datatype_alias_list,
 			spreadsheet_datatype_list );
 

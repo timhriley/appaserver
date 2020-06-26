@@ -754,6 +754,14 @@ STATION *station_fetch_new(	char *application_name,
 			station_name,
 			station->shef_upload_datatype_list );
 
+	/* -------------------------------------------- */
+	/* Only shef_upload_datatpe_list for a station. */
+	/* -------------------------------------------- */
+	station->shef_upload_datatype_list =
+		station_shef_upload_datatype_list(
+			application_name,
+			station_name );
+
 	return station;
 
 } /* station_fetch_new() */
@@ -844,5 +852,42 @@ LIST *station_datatype_alias_list(
 	} while ( list_next( record_list ) );
 
 	return alias_list;
+}
+
+LIST *station_shef_upload_datatype_list(
+				char *application_name,
+				char *station_name )
+{
+	LIST *return_list;
+	SHEF_DATATYPE_CODE *shef_datatype_code;
+	SHEF_UPLOAD_DATATYPE *shef_upload_datatype;
+
+	shef_datatype_code =
+		shef_datatype_code_new(
+			application_name );
+
+	if ( !list_rewind( shef_datatype_code->shef_upload_datatype_list ) )
+		return (LIST *)0;
+
+	return_list = list_new();
+
+	do {
+		shef_upload_datatype =
+			list_get_pointer(
+				shef_datatype_code->
+					shef_upload_datatype_list );
+
+		if ( timlib_strcmp(	shef_upload_datatype->station_name,
+					station_name ) == 0 )
+		{
+			list_append_pointer(
+				return_list,
+				shef_upload_datatype );
+		}
+				
+	} while ( list_next(
+			shef_datatype_code->shef_upload_datatype_list ) );
+
+	return return_list;
 }
 

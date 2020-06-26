@@ -36,6 +36,7 @@ typedef struct
 	LIST *station_datatype_list;
 	LIST *shef_upload_datatype_list;
 	LIST *station_datatype_alias_list;
+	LIST *station_shef_download_datatype_list;
 } STATION;
 
 /* Operations */
@@ -139,6 +140,10 @@ LIST *station_fetch_station_datatype_list(
 			char *station_name );
 
 LIST *station_datatype_alias_list(
+			char *application_name,
+			char *station_name );
+
+LIST *station_shef_upload_datatype_list(
 			char *application_name,
 			char *station_name );
 
