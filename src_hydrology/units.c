@@ -9,6 +9,32 @@
 #include "piece.h"
 #include "appaserver_library.h"
 
+UNITS_CONVERTED *units_converted_seek(
+				char *units_converted_string,
+				LIST *units_converted_list )
+{
+	UNITS_CONVERTED *units_converted;
+
+	if ( !list_rewind( units_converted_list ) )
+		return (UNITS_CONVERTED *)0;
+
+	do {
+		units_converted =
+			list_get_pointer( 
+				units_converted_list );
+
+
+		if ( timlib_strcmp(
+			units_converted->units_converted,
+			units_converted_string ) == 0 )
+		{
+			return units_converted;
+		}
+	} while ( list_next( units_converted_list ) );
+
+	return (UNITS_CONVERTED *)0;
+}
+
 UNITS_CONVERTED *units_converted_new(
 				void )
 {
@@ -441,10 +467,21 @@ char *units_search_replace_special_codes( char *source )
 } /* units_search_replace_special_codes() */
 
 double units_converted_multiply_by(
-				char *units_name,
-				char *spreadsheet_units_label,
+				char *units_converted_string,
 				LIST *units_converted_list )
 {
-	return 0.0;
+	UNITS_CONVERTED *units_converted;
+
+	if ( ! ( units_converted =
+			units_converted_seek(
+				units_converted_string,
+				units_converted_list ) ) )
+	{
+		return 0.0;
+	}
+	else
+	{
+		return units_converted->multiply_by;
+	}
 }
 

@@ -39,7 +39,7 @@ typedef struct
 	char *date_header_label;
 	char *filename;
 	boolean two_lines;
-	char *spreadsheet_header_buffer;
+	char *spreadsheet_header_row;
 	LIST *spreadsheet_datatype_list;
 	LIST *spreadsheet_header_cell_list;
 	LIST *spreadsheet_output_datatype_list;
@@ -77,13 +77,18 @@ UNITS *spreadsheet_translate_units(
 				LIST *units_alias_list );
 
 LIST *spreadsheet_header_cell_list(
-				char *spreadsheet_header_buffer,
+				char *spreadsheet_header_row,
 				char *second_line,
 				LIST *spreadsheet_datatype_list );
 
 LIST *spreadsheet_output_datatype_list(
 				LIST *spreadsheet_header_cell_list );
 
+/* Sets:
+	spreadsheet->spreadsheet_datatype_list
+	spreadsheet->spreadsheet_header_row
+	spreadsheet->spreadsheet_header_cell_list
+------------------------------------------------- */
 SPREADSHEET *spreadsheet_fetch(
 				char *application_name,
 				char *station_name,
@@ -99,7 +104,7 @@ SPREADSHEET *spreadsheet_fetch(
 /* Looks like:								*/
 /* Sensor,Date Sample Taken,IsDataValid,Pressure (psi),Pressure (psi)	*/
 /* -------------------------------------------------------------------- */
-char *spreadsheet_header_buffer(
+char *spreadsheet_header_row(
 				char **second_line,
 				char *filename,
 				char *date_header_label,
@@ -117,7 +122,7 @@ boolean spreadsheet_header_label_success(
 /* Looks like: Salinity (PSU)	*/
 /* ---------------------------- */
 char *spreadsheet_header_label(
-				char *spreadsheet_header_buffer,
+				char *spreadsheet_header_row,
 				char *second_line,
 				int column_piece );
 
@@ -136,7 +141,7 @@ char *spreadsheet_units_label(
 				char *spreadsheet_header_label );
 
 SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
-				char *spreadsheet_header_buffer,
+				char *spreadsheet_header_row,
 				char *second_line,
 				int column_piece,
 				LIST *spreadsheet_datatype_list );
@@ -152,7 +157,6 @@ char *spreadsheet_translate_units_name(
 
 double spreadsheet_units_converted_multiply_by(
 				char *spreadsheet_translate_units_name,
-				char *spreadsheet_units_label,
 				LIST *units_converted_list );
 
 #endif

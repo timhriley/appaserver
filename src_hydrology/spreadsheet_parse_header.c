@@ -126,7 +126,7 @@ void spreadsheet_parse_display( LIST *datatype_list )
 	do {
 		datatype = list_get_pointer( datatype_list );
 
-		printf( "%s^%d^.5lf\n",
+		printf( "%s^%d^%.5lf\n",
 			datatype->datatype_name,
 			datatype->column_piece,
 			datatype->units_converted_multiply_by );
@@ -145,6 +145,11 @@ LIST *spreadsheet_parse_datatype_list(
 	SPREADSHEET *spreadsheet;
 
 	if ( ! ( spreadsheet =
+			/* Sets:
+				spreadsheet->spreadsheet_datatype_list
+				spreadsheet->spreadsheet_header_row
+				spreadsheet->spreadsheet_header_cell_list
+			------------------------------------------------- */
 			spreadsheet_fetch(
 				application_name,
 				station_name,
@@ -154,6 +159,12 @@ LIST *spreadsheet_parse_datatype_list(
 	{
 		return (LIST *)0;
 	}
+
+	spreadsheet->spreadsheet_output_datatype_list =
+		spreadsheet_output_datatype_list(
+			spreadsheet->spreadsheet_header_cell_list );
+
+	return spreadsheet->spreadsheet_output_datatype_list;
 
 } /* spreadsheet_parse_datatype_list() */
 

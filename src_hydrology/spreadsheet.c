@@ -111,7 +111,7 @@ DATATYPE *spreadsheet_translate_datatype(
 }
 
 LIST *spreadsheet_header_cell_list(
-				char *spreadsheet_header_buffer,
+				char *spreadsheet_header_row,
 				char *second_line,
 				LIST *spreadsheet_datatype_list )
 {
@@ -124,7 +124,7 @@ LIST *spreadsheet_header_cell_list(
 	for (	column_piece = 0;
 		( spreadsheet_header_cell =
 			spreadsheet_header_cell_parse(
-				spreadsheet_header_buffer,
+				spreadsheet_header_row,
 				second_line,
 				column_piece,
 				spreadsheet_datatype_list ) );
@@ -142,8 +142,27 @@ LIST *spreadsheet_output_datatype_list(
 				LIST *spreadsheet_header_cell_list )
 {
 	LIST *output_datatype_list;
+	SPREADSHEET_HEADER_CELL *spreadsheet_header_cell;
+
+	if ( !list_rewind( spreadsheet_header_cell_list ) )
+		return (LIST *)0;
 
 	output_datatype_list = list_new();
+
+	do {
+		spreadsheet_header_cell =
+			list_get_pointer(
+				spreadsheet_header_cell_list );
+
+		if ( spreadsheet_header_cell->spreadsheet_translate_datatype )
+		{
+			list_append_pointer(
+				output_datatype_list,
+				spreadsheet_header_cell->
+					spreadsheet_translate_datatype );
+		}
+	} while ( list_next( spreadsheet_header_cell_list ) );
+
 	return output_datatype_list;
 }
 
@@ -176,7 +195,7 @@ SPREADSHEET *spreadsheet_fetch(
 	if ( !list_length( spreadsheet->spreadsheet_datatype_list ) )
 	{
 		fprintf( stderr,
-"WARNING in %s/%s()/%d: spreadsheet_datatype_list() returned nothing.\n",
+"WARNING in %s/%s()/%d: spreadsheet_datatype_list() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -186,15 +205,15 @@ SPREADSHEET *spreadsheet_fetch(
 
 	/* Returns heap memory and populates heap memory. */
 	/* ---------------------------------------------- */
-	if ( ! ( spreadsheet->spreadsheet_header_buffer =
-			spreadsheet_header_buffer(
+	if ( ! ( spreadsheet->spreadsheet_header_row =
+			spreadsheet_header_row(
 				&second_line,
 				spreadsheet->filename,
 				spreadsheet->date_header_label,
 				spreadsheet->two_lines ) ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: spreadsheet_header_buffer() failed.\n",
+		"ERROR in %s/%s()/%d: spreadsheet_header_row() failed.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -204,7 +223,7 @@ SPREADSHEET *spreadsheet_fetch(
 
 	spreadsheet->spreadsheet_header_cell_list =
 		spreadsheet_header_cell_list(
-			spreadsheet->spreadsheet_header_buffer,
+			spreadsheet->spreadsheet_header_row,
 			second_line,
 			spreadsheet->spreadsheet_datatype_list );
 
@@ -213,7 +232,7 @@ SPREADSHEET *spreadsheet_fetch(
 
 /* Returns heap memory and populates heap memory. */
 /* ---------------------------------------------- */
-char *spreadsheet_header_buffer(
+char *spreadsheet_header_row(
 				char **second_line,
 				char *filename,
 				char *date_header_label,
@@ -264,7 +283,7 @@ char *spreadsheet_header_buffer(
 }
 
 SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
-				char *spreadsheet_header_buffer,
+				char *spreadsheet_header_row,
 				char *second_line,
 				int column_piece,
 				LIST *spreadsheet_datatype_list )
@@ -280,7 +299,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 			/* Header label looks like: Salinity (PSU)	*/
 			/* -------------------------------------------- */
 			spreadsheet_header_label(
-				spreadsheet_header_buffer,
+				spreadsheet_header_row,
 				second_line,
 				column_piece ) ) )
 	{
@@ -337,8 +356,6 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 			spreadsheet_header_cell->
 				spreadsheet_translate_units_name,
 			spreadsheet_header_cell->
-				spreadsheet_units_label,
-			spreadsheet_header_cell->
 			spreadsheet_translate_datatype->
 				units->
 				units_converted_list );
@@ -351,7 +368,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 /* Header label looks like: Salinity (PSU)	*/
 /* -------------------------------------------- */
 char *spreadsheet_header_label(
-				char *spreadsheet_header_buffer,
+				char *spreadsheet_header_row,
 				char *second_line,
 				int column_piece )
 {
@@ -364,7 +381,7 @@ char *spreadsheet_header_label(
 
 	piece_quoted(	datatype_heading_first_line,
 			',',
-			spreadsheet_header_buffer,
+			spreadsheet_header_row,
 			column_piece,
 			'"' );
 
@@ -389,7 +406,7 @@ char *spreadsheet_header_label(
 
 	if ( !*header_label )
 	{
-		strcpy( header_label, spreadsheet_header_buffer );
+		strcpy( header_label, spreadsheet_header_row );
 	}
 
 	trim( header_label );
@@ -477,12 +494,11 @@ char *spreadsheet_translate_units_name(
 
 double spreadsheet_units_converted_multiply_by(
 				char *spreadsheet_translate_units_name,
-				char *spreadsheet_units_label,
 				LIST *units_converted_list )
 {
 	return units_converted_multiply_by(
-			spreadsheet_translate_units_name,
-			spreadsheet_units_label,
+			spreadsheet_translate_units_name
+				/* units_converted */,
 			units_converted_list );
 }
 

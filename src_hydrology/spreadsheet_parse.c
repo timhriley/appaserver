@@ -306,8 +306,17 @@ void spreadsheet_parse_display(
 
 			if ( *measurement_value_string )
 			{
-				measurement_value =
-					atof( measurement_value_string );
+				if ( datatype->units_converted_multiply_by )
+				{
+					measurement_value =
+					  atof( measurement_value_string ) *
+					  datatype->units_converted_multiply_by;
+				}
+				else
+				{
+					measurement_value =
+					   atof( measurement_value_string );
+				}
 
 				if ( datatype->set_negative_values_to_zero
 				&&   measurement_value < 0.0 )
