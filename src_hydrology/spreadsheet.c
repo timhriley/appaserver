@@ -15,6 +15,7 @@
 #include "datatype.h"
 #include "station_datatype.h"
 #include "units.h"
+#include "shef_datatype_code.h"
 #include "spreadsheet.h"
 
 LIST *spreadsheet_datatype_list(	char *application_name,
@@ -70,7 +71,7 @@ SPREADSHEET *spreadsheet_new(	char *application_name,
 
 DATATYPE *spreadsheet_translate_datatype(
 				char *spreadsheet_datatype_label,
-				LIST *spreadsheet_shef_download_datatype_list,
+				LIST *spreadsheet_shef_upload_datatype_list,
 				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list )
 {
@@ -86,6 +87,18 @@ DATATYPE *spreadsheet_translate_datatype(
 		if ( timlib_strcmp(
 			spreadsheet_datatype_label,
 			datatype->datatype_name ) == 0 )
+		{
+			return datatype;
+		}
+
+		datatype_name =
+			shef_upload_datatype_seek_datatype_name(
+				spreadsheet_shef_upload_datatype_list,
+				spreadsheet_datatype_label
+					/* shef_upload_code */ );
+
+		if ( timlib_strcmp(	datatype_name,
+					datatype->datatype_name ) == 0 )
 		{
 			return datatype;
 		}
@@ -120,7 +133,7 @@ DATATYPE *spreadsheet_translate_datatype(
 LIST *spreadsheet_header_cell_list(
 				char *spreadsheet_header_row,
 				char *second_line,
-				LIST *spreadsheet_shef_download_datatype_list,
+				LIST *spreadsheet_shef_upload_datatype_list,
 				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list )
 {
@@ -136,7 +149,7 @@ LIST *spreadsheet_header_cell_list(
 				spreadsheet_header_row,
 				second_line,
 				column_piece,
-				spreadsheet_shef_download_datatype_list,
+				spreadsheet_shef_upload_datatype_list,
 				spreadsheet_station_datatype_alias_list,
 				spreadsheet_datatype_list ) );
 		column_piece++ )
@@ -236,7 +249,7 @@ SPREADSHEET *spreadsheet_fetch(
 		spreadsheet_header_cell_list(
 			spreadsheet->spreadsheet_header_row,
 			second_line,
-			spreadsheet->spreadsheet_shef_download_datatype_list,
+			spreadsheet->spreadsheet_shef_upload_datatype_list,
 			spreadsheet->spreadsheet_station_datatype_alias_list,
 			spreadsheet->spreadsheet_datatype_list );
 
@@ -299,7 +312,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 				char *spreadsheet_header_row,
 				char *second_line,
 				int column_piece,
-				LIST *spreadsheet_shef_download_datatype_list,
+				LIST *spreadsheet_shef_upload_datatype_list,
 				LIST *spreadsheet_station_datatype_alias_list,
 				LIST *spreadsheet_datatype_list )
 {
@@ -308,11 +321,11 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 	char *datatype_label;
 	char *units_label;
 
+	/* -------------------------------------------- */
+	/* Returns heap memory.				*/
+	/* Header label looks like: Salinity (PSU)	*/
+	/* -------------------------------------------- */
 	if ( ! ( header_label =
-			/* -------------------------------------------- */
-			/* Returns heap memory.				*/
-			/* Header label looks like: Salinity (PSU)	*/
-			/* -------------------------------------------- */
 			spreadsheet_header_label(
 				spreadsheet_header_row,
 				second_line,
@@ -321,11 +334,11 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 		return (SPREADSHEET_HEADER_CELL *)0;
 	}
 
+	/* ------------------------------------ */
+	/* Returns heap memory.			*/
+	/* Datatype label looks like: Salinity	*/
+	/* ------------------------------------ */
 	if ( ! ( datatype_label =
-			/* ------------------------------------ */
-			/* Returns heap memory.			*/
-			/* Datatype label looks like: Salinity	*/
-			/* ------------------------------------ */
 			spreadsheet_datatype_label(
 				header_label ) ) )
 	{
@@ -348,7 +361,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 		spreadsheet_translate_datatype(
 			spreadsheet_header_cell->
 				spreadsheet_datatype_label,
-			spreadsheet_shef_download_datatype_list,
+			spreadsheet_shef_upload_datatype_list,
 			spreadsheet_station_datatype_alias_list,
 			spreadsheet_datatype_list );
 

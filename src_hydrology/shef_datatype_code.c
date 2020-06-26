@@ -605,6 +605,15 @@ LIST *shef_datatype_code_fetch_upload_datatype_list(
 
 } /* shef_datatype_code_fetch_upload_datatype_list() */
 
+char *shef_upload_datatype_seek_datatype_name(
+				LIST *shef_upload_datatype_list,
+				char *shef_upload_code )
+{
+	return shef_datatype_code_translate_datatype_name(
+				shef_upload_datatype_list,
+				shef_upload_code );
+}
+
 char *shef_datatype_code_translate_datatype_name(
 				LIST *shef_upload_datatype_list,
 				char *shef_upload_code )

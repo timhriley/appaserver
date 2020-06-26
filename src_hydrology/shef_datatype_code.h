@@ -144,4 +144,8 @@ char *shef_datatype_code_translate_datatype_name(
 				LIST *shef_upload_datatype_list,
 				char *shef_upload_code );
 
+char *shef_upload_datatype_seek_datatype_name(
+				LIST *shef_upload_datatype_list,
+				char *shef_upload_code );
+
 #endif
