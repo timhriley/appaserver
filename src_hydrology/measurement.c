@@ -77,17 +77,6 @@ boolean measurement_set_delimited_record(
 
 	time_int = atoi( time );
 
-/*
-	if ( ( ( ( strcmp( time, "0000" ) != 0 )
-	&&  (      strcmp( time, "null" ) != 0 )
-	&&  (      time_int <= 0 || time_int > 2359 ) ) )
-	||  (  timlib_exists_special_character( time )
-	||     timlib_exists_special_character( station )
-	||     timlib_exists_special_character( datatype ) ) )
-	{
-		return 0;
-	}
-*/
 	if ( ( strcmp( time, "0000" ) != 0 )
 	&&   ( strcmp( time, "null" ) != 0 )
 	&&   ( time_int <= 0 || time_int > 2359 ) )
@@ -171,45 +160,9 @@ void measurement_free( MEASUREMENT *m )
 void measurement_html_display( 		MEASUREMENT_STRUCTURE *m,
 					FILE *html_table_pipe )
 {
-	if ( !m || !m->measurement )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: no record set.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !html_table_pipe )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: html_table_pipe not set.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !m->measurement->null_value )
-	{
-		fprintf(html_table_pipe,
-			"%s,%s,%s,%s,%.3lf\n",
-			m->measurement->station_name,
-			m->measurement->datatype,
-			m->measurement->measurement_date,
-			m->measurement->measurement_time,
-			m->measurement->measurement_value );
-	}
-	else
-	{
-		fprintf(html_table_pipe,
-			"%s,%s,%s,%s,null\n",
-			m->measurement->station_name,
-			m->measurement->datatype,
-			m->measurement->measurement_date,
-			m->measurement->measurement_time );
-	}
+	measurement_non_execute_display(
+				m,
+				html_table_pipe );
 
 } /* measurement_html_display() */
 
@@ -228,7 +181,7 @@ void measurement_text_output(		MEASUREMENT *measurement,
 
 	if ( !measurement->null_value )
 	{
-		printf( "%s%c%s%c%s%c%s%c%lf\n",
+		printf( "%s%c%s%c%s%c%s%c%.4lf\n",
 			measurement->station_name,
 			delimiter,
 			measurement->datatype,
@@ -306,7 +259,7 @@ void measurement_non_execute_display(
 		if ( !m->measurement->null_value )
 		{
 			fprintf(html_table_pipe,
-				"%s,%s,%s,%s,%.3lf\n",
+				"%s,%s,%s,%s,%.4lf\n",
 				m->measurement->station_name,
 				m->measurement->datatype,
 				m->measurement->measurement_date,
@@ -327,7 +280,7 @@ void measurement_non_execute_display(
 	{
 		if ( !m->measurement->null_value )
 		{
-			printf( "Not inserting: %s,%s,%s,%s,%.3lf\n",
+			printf( "Not inserting: %s,%s,%s,%s,%.4lf\n",
 				m->measurement->station_name,
 				m->measurement->datatype,
 				m->measurement->measurement_date,
@@ -357,7 +310,7 @@ void measurement_output_insert_pipe(	FILE *insert_pipe,
 	if ( !null_value )
 	{
 		fprintf( insert_pipe,
-		 	"%s|%s|%s|%s|%lf\n",
+		 	"%s|%s|%s|%s|%.4lf\n",
 		 	station,
 		 	datatype,
 		 	date,
