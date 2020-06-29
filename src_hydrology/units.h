@@ -24,6 +24,7 @@ typedef struct
 
 typedef struct
 {
+	char *units_name;
 	char *units_converted;
 	double multiply_by;
 } UNITS_CONVERTED;
@@ -93,12 +94,23 @@ LIST *units_list(		char *application_name );
 
 char *units_select(		void );
 
-double units_converted_multiply_by(
+double units_converted_to_multiply_by(
+				char *units_converted,
+				LIST *units_converted_list );
+
+double units_converted_from_multiply_by(
 				char *units_converted,
 				LIST *units_converted_list );
 
 UNITS_CONVERTED *units_converted_seek(
 				char *units_converted_string,
 				LIST *units_converted_list );
+
+LIST *units_fetch_units_converted_list(
+				char *application_name,
+			 	char *units_name );
+
+LIST *units_fetch_local_units_converted_list(
+				char *application_name );
 
 #endif

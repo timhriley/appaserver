@@ -252,7 +252,7 @@ LIST *datatype_with_station_name_get_datatype_list(
 	datatype_list = list_new_list();
 
 	sprintf(	buffer,
-			"station_datatype_record_list.sh %s %s",
+			"station_datatype_record_list.sh %s %s 2>/dev/null",
 			application_name,
 			station_name );
 
@@ -503,12 +503,6 @@ DATATYPE *datatype_parse(		char *application_name,
 	piece( bar_graph_yn, '|', record, 2 );
 	piece( scale_graph_to_zero_yn, '|', record, 3 );
 	piece( aggregation_sum_yn, '|', record, 4 );
-/*
-	char ysi_load_heading[ 32 ];
-	char exo_load_heading[ 32 ];
-	piece( ysi_load_heading, '|', record, 5 );
-	piece( exo_load_heading, '|', record, 6 );
-*/
 
 	piece( set_negative_values_to_zero_yn, '|', record, 7 );
 	piece( calibrated_yn, '|', record, 8 );
@@ -517,27 +511,24 @@ DATATYPE *datatype_parse(		char *application_name,
 
 	datatype->units_string = strdup( units_string );
 
-	datatype->units =
-		units_fetch( 
-			application_name,
-			datatype->units_string );
-
-	if ( !datatype->units )
+	if ( *datatype->units_string )
 	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: empty units.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+		datatype->units =
+			units_fetch( 
+				application_name,
+				datatype->units_string );
 
-/*
-	datatype->units->units_alias_list =
-		units_fetch_units_alias_list(
-			application_name,
-			datatype->units->units_name );
-*/
+		if ( !datatype->units )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: units_fetch() failed for [%s].\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	datatype->units_string );
+			exit( 1 );
+		}
+	}
 
 	datatype->bar_chart =
 		( tolower( *bar_graph_yn ) == 'y' );
@@ -547,10 +538,6 @@ DATATYPE *datatype_parse(		char *application_name,
 
 	datatype->aggregation_sum =
 		( tolower( *aggregation_sum_yn ) == 'y' );
-
-	/* datatype->ysi_load_heading = strdup( ysi_load_heading ); */
-
-	/* datatype->exo_load_heading = strdup( exo_load_heading ); */
 
 	datatype->set_negative_values_to_zero =
 		( tolower( *set_negative_values_to_zero_yn ) == 'y' );

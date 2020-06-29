@@ -23,13 +23,16 @@ UNITS_CONVERTED *units_converted_seek(
 			list_get_pointer( 
 				units_converted_list );
 
-
 		if ( timlib_strcmp(
+			units_converted->units_name,
+			units_converted_string ) == 0
+		|| ( timlib_strcmp(
 			units_converted->units_converted,
-			units_converted_string ) == 0 )
+			units_converted_string ) == 0 ) )
 		{
 			return units_converted;
 		}
+
 	} while ( list_next( units_converted_list ) );
 
 	return (UNITS_CONVERTED *)0;
@@ -51,8 +54,7 @@ UNITS_CONVERTED *units_converted_new(
 	}
 
 	return d;
-
-} /* units_converted_new() */
+}
 
 UNITS_ALIAS *units_alias_seek(	LIST *units_alias_list,
 				char *units_alias_name )
@@ -147,6 +149,46 @@ UNITS *units_seek_alias_new(	char *application_name,
 
 } /* units_seek_alias_new() */
 
+LIST *units_fetch_units_converted_list(	char *application_name,
+				 	char *units_name )
+{
+	static LIST *local_units_converted_list = {0};
+	LIST *units_converted_list;
+	UNITS_CONVERTED *units_converted;
+
+	if ( !units_name ) return (LIST *)0;
+
+	if ( !local_units_converted_list )
+	{
+		local_units_converted_list =
+			units_fetch_local_units_converted_list(
+				application_name );
+	}
+
+	if ( !list_rewind( local_units_converted_list ) ) return (LIST *)0;
+
+	units_converted_list = list_new();
+
+	do {
+		units_converted =
+			list_get_pointer(
+				local_units_converted_list );
+
+		if ( timlib_strcmp(	units_converted->units_name,
+					units_name ) == 0
+		||   timlib_strcmp(	units_converted->units_converted,
+					units_name ) == 0 )
+		{
+			list_append_pointer(
+				units_converted_list,
+				units_converted );
+		}
+
+	} while ( list_next( local_units_converted_list ) );
+
+	return units_converted_list;
+}
+
 LIST *units_fetch_units_alias_list(	char *application_name,
 				 	char *units_name )
 {
@@ -179,8 +221,56 @@ LIST *units_fetch_units_alias_list(	char *application_name,
 	} while ( list_next( local_units_alias_list ) );
 
 	return units_alias_list;
+}
 
-} /* units_fetch_units_alias_list() */
+LIST *units_fetch_local_units_converted_list( char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *folder;
+	char *select;
+	LIST *record_list;
+	char *record;
+	char piece_buffer[ 128 ];
+	LIST *units_converted_list;
+	UNITS_CONVERTED *units_converted;
+
+	select = "units,units_converted,multiply_by";
+	folder = "units_converted";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	",
+		 application_name,
+		 select,
+		 folder );
+
+	record_list = pipe2list( sys_string );
+
+	if ( !list_rewind( record_list ) ) return (LIST *)0;
+
+	units_converted_list = list_new();
+
+	do {
+		record = list_get_pointer( record_list );
+
+		units_converted = units_converted_new();
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, record, 0 );
+		units_converted->units_name = strdup( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, record, 1 );
+		units_converted->units_converted = strdup( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, record, 2 );
+		units_converted->multiply_by = atof( piece_buffer );
+
+		list_append_pointer( units_converted_list, units_converted );
+
+	} while ( list_next( record_list ) );
+
+	return units_converted_list;
+}
 
 LIST *units_fetch_local_units_alias_list( char *application_name )
 {
@@ -226,8 +316,7 @@ LIST *units_fetch_local_units_alias_list( char *application_name )
 	} while ( list_next( record_list ) );
 
 	return units_alias_list;
-
-} /* units_fetch_local_units_alias_list() */
+}
 
 char *units_select( void )
 {
@@ -262,6 +351,11 @@ UNITS *units_fetch(		char *application_name,
 
 	units->units_alias_list =
 		units_fetch_units_alias_list(
+			application_name,
+			units->units_name );
+
+	units->units_converted_list =
+		units_fetch_units_converted_list(
 			application_name,
 			units->units_name );
 
@@ -466,22 +560,43 @@ char *units_search_replace_special_codes( char *source )
 
 } /* units_search_replace_special_codes() */
 
-double units_converted_multiply_by(
+double units_converted_to_multiply_by(
 				char *units_converted_string,
 				LIST *units_converted_list )
 {
 	UNITS_CONVERTED *units_converted;
 
-	if ( ! ( units_converted =
+	if ( ( units_converted =
 			units_converted_seek(
 				units_converted_string,
 				units_converted_list ) ) )
 	{
-		return 0.0;
+		if ( timlib_strcmp(	units_converted->units_converted,
+					units_converted_string ) == 0 )
+		{
+			return units_converted->multiply_by;
+		}
 	}
-	else
+	return 0.0;
+}
+
+double units_converted_from_multiply_by(
+				char *units_converted_string,
+				LIST *units_converted_list )
+{
+	UNITS_CONVERTED *units_converted;
+
+	if ( ( units_converted =
+			units_converted_seek(
+				units_converted_string,
+				units_converted_list ) ) )
 	{
-		return units_converted->multiply_by;
+		if ( timlib_strcmp(	units_converted->units_name,
+					units_converted_string ) == 0 )
+		{
+			return units_converted->multiply_by;
+		}
 	}
+	return 0.0;
 }
 

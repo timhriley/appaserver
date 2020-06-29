@@ -83,7 +83,8 @@ SPREADSHEET *spreadsheet_new(	char *application_name,
 				boolean two_lines );
 
 SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_new(
-				void );
+				int column_piece,
+				char *spreadsheet_header_label );
 
 /* Looks like: DATATYPE->datatype_name=flow */
 /* ---------------------------------------- */
@@ -144,6 +145,7 @@ boolean spreadsheet_header_label_success(
 /* Looks like: Salinity (PSU)	*/
 /* ---------------------------- */
 char *spreadsheet_header_label(
+				boolean *all_done,
 				char *spreadsheet_header_row,
 				char *second_line,
 				int column_piece );
@@ -163,6 +165,7 @@ char *spreadsheet_units_label(
 				char *spreadsheet_header_label );
 
 SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
+				boolean *all_done,
 				char *spreadsheet_header_row,
 				char *second_line,
 				int column_piece,
@@ -177,14 +180,19 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 char *spreadsheet_translate_units_name(
 				char *spreadsheet_units_label,
 				char *units_name,
-				LIST *units_alias_list );
+				LIST *units_alias_list,
+				LIST *units_converted_list );
 
 double spreadsheet_units_converted_multiply_by(
-				char *spreadsheet_translate_units_name,
+				char *spreadsheet_units_label,
 				LIST *units_converted_list );
 
 LIST *spreadsheet_station_datatype_alias_list(
 				char *application_name,
 				char *station_name );
+
+DATATYPE *spreadsheet_seek_datatype(
+				LIST *spreadsheet_header_cell_list,
+				char *datatype_name );
 
 #endif
