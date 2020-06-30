@@ -41,10 +41,6 @@ typedef struct
 	/* Looks like: CFS */
 	/* --------------- */
 	char *spreadsheet_translate_units_name;
-	/* -------------------- */
-	/* Looks like: 0.002228 */
-	/* -------------------- */
-	double spreadsheet_units_converted_multiply_by;
 } SPREADSHEET_HEADER_CELL;
 
 typedef struct
@@ -183,6 +179,9 @@ char *spreadsheet_translate_units_name(
 				LIST *units_alias_list,
 				LIST *units_converted_list );
 
+/* -------------------- */
+/* Looks like: 0.002228 */
+/* -------------------- */
 double spreadsheet_units_converted_multiply_by(
 				char *spreadsheet_units_label,
 				LIST *units_converted_list );

@@ -42,10 +42,6 @@
 
 /* Prototypes */
 /* ---------- */
-boolean spreadsheet_parse_heading_label_success(
-			char *date_heading_label,
-			char *heading_buffer );
-
 void setup_arg(		NAME_ARG *arg, int argc, char **argv );
 
 void fetch_parameters(	char **filename,
@@ -199,15 +195,4 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         ins_all( arg, argc, argv );
 
 } /* setup_arg() */
-
-boolean spreadsheet_parse_heading_label_success(
-				char *date_heading_label,
-				char *heading_buffer )
-{
-	if ( instr( date_heading_label, heading_buffer, 1 ) > -1 )
-		return 1;
-	else
-		return 0;
-
-}
 

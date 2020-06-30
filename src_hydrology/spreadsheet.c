@@ -191,11 +191,13 @@ LIST *spreadsheet_header_cell_list(
 				spreadsheet_header_cell->
 					column_piece;
 
+/*
 				spreadsheet_header_cell->
 					spreadsheet_translate_datatype->
 					units_converted_multiply_by =
 				spreadsheet_header_cell->
 					spreadsheet_units_converted_multiply_by;
+*/
 
 				/* Append to the list. */
 				/* ------------------- */
@@ -450,14 +452,16 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 				units->
 				units_converted_list );
 
-	spreadsheet_header_cell->spreadsheet_units_converted_multiply_by =
-		spreadsheet_units_converted_multiply_by(
-			spreadsheet_header_cell->
-				spreadsheet_units_label,
-			spreadsheet_header_cell->
-			spreadsheet_translate_datatype->
-				units->
-				units_converted_list );
+	spreadsheet_header_cell->
+		spreadsheet_translate_datatype->
+		units_converted_multiply_by =
+			spreadsheet_units_converted_multiply_by(
+				spreadsheet_header_cell->
+					spreadsheet_units_label,
+				spreadsheet_header_cell->
+					spreadsheet_translate_datatype->
+					units->
+					units_converted_list );
 
 	return spreadsheet_header_cell;
 }
