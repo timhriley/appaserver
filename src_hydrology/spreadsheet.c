@@ -97,6 +97,8 @@ DATATYPE *spreadsheet_translate_datatype(
 	do {
 		datatype = list_get_pointer( spreadsheet_datatype_list );
 
+		/* Priority 1: match datatype name in label */
+		/* ---------------------------------------- */
 		if ( timlib_strcmp(
 			spreadsheet_datatype_label,
 			datatype->datatype_name ) == 0 )
@@ -104,6 +106,8 @@ DATATYPE *spreadsheet_translate_datatype(
 			return datatype;
 		}
 
+		/* Priority 2: match SHEF_UPLOAD_DATATYPE */
+		/* -------------------------------------- */
 		datatype_name =
 			shef_upload_datatype_seek_datatype_name(
 				spreadsheet_shef_upload_datatype_list,
@@ -116,6 +120,8 @@ DATATYPE *spreadsheet_translate_datatype(
 			return datatype;
 		}
 
+		/* Priority 3: match STATION_DATATYPE_ALIAS */
+		/* ---------------------------------------- */
 		datatype_name =
 			datatype_alias_datatype_name(
 				spreadsheet_station_datatype_alias_list,
@@ -127,6 +133,8 @@ DATATYPE *spreadsheet_translate_datatype(
 			return datatype;
 		}
 
+		/* Priority 4: match DATATYPE_ALIAS */
+		/* -------------------------------- */
 		datatype_name =
 			datatype_alias_datatype_name(
 				datatype->datatype_alias_list,
@@ -239,6 +247,13 @@ LIST *spreadsheet_output_datatype_list(
 	return output_datatype_list;
 }
 
+/* Sets:
+	spreadsheet->spreadsheet_datatype_list
+	spreadsheet->spreadsheet_header_row
+	spreadsheet->spreadsheet_header_cell_list
+	spreadsheet->spreadsheet_shef_upload_datatype_list
+	spreadsheet->spreadsheet_station_datatype_alias_list
+------------------------------------------------------------ */
 SPREADSHEET *spreadsheet_fetch(
 				char *application_name,
 				char *station_name,
@@ -294,13 +309,15 @@ SPREADSHEET *spreadsheet_fetch(
 		return (SPREADSHEET *)0;
 	}
 
-	spreadsheet->spreadsheet_header_cell_list =
-		spreadsheet_header_cell_list(
-			spreadsheet->spreadsheet_header_row,
-			second_line,
-			spreadsheet->spreadsheet_shef_upload_datatype_list,
-			spreadsheet->spreadsheet_station_datatype_alias_list,
-			spreadsheet->spreadsheet_datatype_list );
+	spreadsheet->spreadsheet_shef_upload_datatype_list =
+		spreadsheet_shef_upload_datatype_list(
+			spreadsheet->application_name,
+			spreadsheet->station_name );
+
+	spreadsheet->spreadsheet_station_datatype_alias_list =
+		spreadsheet_station_datatype_alias_list(
+			spreadsheet->application_name,
+			spreadsheet->station_name );
 
 	return spreadsheet;
 }
@@ -420,14 +437,10 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 
 	if ( !spreadsheet_header_cell->spreadsheet_translate_datatype )
 	{
-/*
 		fprintf( stderr,
-"WARNING in %s/%s()/%d: spreadsheet_translate_datatype(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
+		"WARNING: spreadsheet_translate_datatype(%s) returned empty.\n",
 			 datatype_label );
-*/
+
 		return (SPREADSHEET_HEADER_CELL *)0;
 	}
 
@@ -657,5 +670,14 @@ DATATYPE *spreadsheet_seek_datatype(
 	} while ( list_next( spreadsheet_header_cell_list ) );
 
 	return (DATATYPE *)0;
+}
+
+LIST *spreadsheet_shef_upload_datatype_list(
+				char *application_name,
+				char *station_name )
+{
+	return shef_station_fetch_upload_datatype_list(
+				application_name,
+				station_name );
 }
 

@@ -67,6 +67,7 @@ char *datatype_get_units_string(
 			char *datatype_name );
 
 DATATYPE *datatype_unit_record2datatype(
+			char *application_name,
 			char *record );
 
 DATATYPE *datatype_parse(
@@ -190,5 +191,10 @@ LIST *datatype_fetch_datatype_alias_list(
 char *datatype_alias_datatype_name(
 				LIST *datatype_alias_list,
 				char *datatype_label );
+
+/* Returns heap memory */
+/* ------------------- */
+char *datatype_alias_list_display(
+				LIST *datatype_alias_list );
 
 #endif

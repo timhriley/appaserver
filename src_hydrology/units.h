@@ -113,4 +113,8 @@ LIST *units_fetch_units_converted_list(
 LIST *units_fetch_local_units_converted_list(
 				char *application_name );
 
+/* Returns heap memory */
+/* ------------------- */
+char *units_alias_list_display(	LIST *units_alias_list );
+
 #endif

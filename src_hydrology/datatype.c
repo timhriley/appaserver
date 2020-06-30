@@ -67,7 +67,9 @@ DATATYPE *datatype_new( char *datatype_name )
 
 } /* datatype_new() */
 
-DATATYPE *datatype_unit_record2datatype( char *record )
+DATATYPE *datatype_unit_record2datatype(
+				char *application_name,
+				char *record )
 {
 	DATATYPE *datatype;
 	char datatype_name[ 128 ];
@@ -101,6 +103,25 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 	datatype = datatype_new( strdup( datatype_name ) );
 
 	datatype->units_string = strdup( units );
+
+	if ( *datatype->units_string )
+	{
+		datatype->units =
+			units_fetch( 
+				application_name,
+				datatype->units_string );
+
+		if ( !datatype->units )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: units_fetch() failed for [%s].\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	datatype->units_string );
+			exit( 1 );
+		}
+	}
 
 	datatype->bar_chart =
 		( tolower( *bar_graph_yn ) == 'y' );
@@ -244,6 +265,13 @@ LIST *datatype_with_station_name_get_datatype_list(
 			char *application_name,
 			char *station_name )
 {
+	return datatype_list( application_name, station_name );
+
+}
+
+LIST *datatype_list(	char *application_name,
+			char *station_name )
+{
 	DATATYPE *datatype;
 	char buffer[ 1024 ];
 	FILE *input_pipe;
@@ -270,15 +298,6 @@ LIST *datatype_with_station_name_get_datatype_list(
 	pclose( input_pipe );
 
 	return datatype_list;
-
-} /* datatype_with_station_name_get_datatype_list() */
-
-LIST *datatype_list(	char *application_name,
-			char *station_name )
-{
-	return datatype_with_station_name_get_datatype_list(
-			application_name,
-			station_name );
 }
 
 LIST *datatype_with_station_name_list_get_datatype_list(
@@ -310,7 +329,10 @@ LIST *datatype_with_station_name_list_get_datatype_list(
 
 		while( get_line( buffer, input_pipe ) )
 		{
-			datatype = datatype_unit_record2datatype( buffer );
+			datatype =
+				datatype_unit_record2datatype(
+					application_name,
+					buffer );
 
 			if ( !datatype_list_exists(
 					datatype_list,
@@ -363,7 +385,11 @@ LIST *datatype_get_datatype_list(
 
 	while( get_line( buffer, input_pipe ) )
 	{
-		datatype = datatype_unit_record2datatype( buffer );
+		datatype =
+			datatype_unit_record2datatype(
+				application_name,
+				buffer );
+
 		list_append_pointer( datatype_list, datatype );
 	}
 
@@ -529,6 +555,11 @@ DATATYPE *datatype_parse(		char *application_name,
 			exit( 1 );
 		}
 	}
+
+	datatype->datatype_alias_list =
+		datatype_fetch_alias_list(
+			application_name,
+			datatype->datatype_name );
 
 	datatype->bar_chart =
 		( tolower( *bar_graph_yn ) == 'y' );
@@ -1016,3 +1047,33 @@ char *datatype_alias_datatype_name(
 
 	return (char *)0;
 }
+
+/* Returns heap memory */
+/* ------------------- */
+char *datatype_alias_list_display( LIST *datatype_alias_list )
+{
+	DATATYPE_ALIAS *datatype_alias;
+	char display[ 65536 ];
+	char *ptr = display;
+
+	*ptr = '\0';
+
+	if ( list_rewind( datatype_alias_list ) )
+	{
+		do {
+			datatype_alias =
+				list_get_pointer(
+					datatype_alias_list );
+
+			ptr += sprintf( ptr,
+				"Datatype alias: %s --> Datatype name: %s\n",
+				datatype_alias->datatype_alias,
+				datatype_alias->datatype_name );
+
+		} while ( list_next( datatype_alias_list ) );
+	}
+
+	*ptr = '\0';
+	return strdup( display );
+}
+

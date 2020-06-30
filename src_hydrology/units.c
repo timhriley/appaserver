@@ -600,3 +600,28 @@ double units_converted_from_multiply_by(
 	return 0.0;
 }
 
+/* Returns heap memory */
+/* ------------------- */
+char *units_alias_list_display( LIST *units_alias_list )
+{
+	UNITS_ALIAS *units_alias;
+	char display[ 65536 ];
+	char *ptr = display;
+
+	if ( list_rewind( units_alias_list ) )
+	{
+		do {
+			units_alias = list_get_pointer( units_alias_list );
+
+			ptr += sprintf( ptr,
+				"Units alias: %s --> Units name: %s\n",
+					units_alias->units_alias_name,
+					units_alias->units_name );
+
+		} while ( list_next( units_alias_list ) );
+	}
+
+	*ptr = '\0';
+	return strdup( display );
+}
+

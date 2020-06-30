@@ -110,7 +110,9 @@ LIST *spreadsheet_output_datatype_list(
 	spreadsheet->spreadsheet_datatype_list
 	spreadsheet->spreadsheet_header_row
 	spreadsheet->spreadsheet_header_cell_list
-------------------------------------------------- */
+	spreadsheet->spreadsheet_shef_upload_datatype_list
+	spreadsheet->spreadsheet_station_datatype_alias_list
+------------------------------------------------------------ */
 SPREADSHEET *spreadsheet_fetch(
 				char *application_name,
 				char *station_name,
@@ -193,5 +195,9 @@ LIST *spreadsheet_station_datatype_alias_list(
 DATATYPE *spreadsheet_seek_datatype(
 				LIST *spreadsheet_header_cell_list,
 				char *datatype_name );
+
+LIST *spreadsheet_shef_upload_datatype_list(
+				char *application_name,
+				char *station_name );
 
 #endif

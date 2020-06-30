@@ -140,12 +140,14 @@ LIST *spreadsheet_parse_datatype_list(
 {
 	SPREADSHEET *spreadsheet;
 
+	/* Sets:
+		spreadsheet->spreadsheet_datatype_list
+		spreadsheet->spreadsheet_header_row
+		spreadsheet->spreadsheet_header_cell_list
+		spreadsheet->spreadsheet_shef_upload_datatype_list
+		spreadsheet->spreadsheet_station_datatype_alias_list
+	------------------------------------------------------------ */
 	if ( ! ( spreadsheet =
-			/* Sets:
-				spreadsheet->spreadsheet_datatype_list
-				spreadsheet->spreadsheet_header_row
-				spreadsheet->spreadsheet_header_cell_list
-			------------------------------------------------- */
 			spreadsheet_fetch(
 				application_name,
 				station_name,
@@ -155,6 +157,14 @@ LIST *spreadsheet_parse_datatype_list(
 	{
 		return (LIST *)0;
 	}
+
+	spreadsheet->spreadsheet_header_cell_list =
+		spreadsheet_header_cell_list(
+			spreadsheet->spreadsheet_header_row,
+			spreadsheet->second_line,
+			spreadsheet->spreadsheet_shef_upload_datatype_list,
+			spreadsheet->spreadsheet_station_datatype_alias_list,
+			spreadsheet->spreadsheet_datatype_list );
 
 	spreadsheet->spreadsheet_output_datatype_list =
 		spreadsheet_output_datatype_list(
