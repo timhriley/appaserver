@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "timlib.h"
 #include "julian.h"
 #include "piece.h"
@@ -59,13 +60,20 @@ int main( int argc, char **argv )
 			continue;
 		}
 
+fprintf( stderr, "got date_buffer = [%s]\n", date_buffer );
+fprintf( stderr, "got time_buffer = [%s]\n", time_buffer );
+
 		j = julian_yyyy_mm_dd_hhmm_new( date_buffer, time_buffer );
 		j->current = julian_increment_hours( j->current, hours_offset );
+
+fprintf( stderr, "before buffer = [%s]\n", buffer );
 
 		piece_replace(	buffer,
 				delimiter,
 				julian_display_yyyy_mm_dd( j->current ),
 				date_piece_offset );
+
+fprintf( stderr, "after buffer = [%s]\n", buffer );
 
 		if ( append_time_character )
 		{

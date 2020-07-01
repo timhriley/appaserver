@@ -140,6 +140,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	date_ticker.e							\
 	findbig.e padspace.e insert_string.e date_add_days.e		\
 	julian_add_hours.e						\
+	julian_time.e							\
 	findtoday.e							\
 	sql_select.e unix2dos dos2unix build_date_where cal2linear.e	\
 	round2five_minutes						\
@@ -1541,6 +1542,12 @@ date_add_days.e: date_add_days.c
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o date_add_days.e
+
+julian_time.e: julian_time.c
+	$(CC) ${CFLAGS}	-I${LIBRARY} julian_time.c			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		-o julian_time.e
 
 julian_add_hours.e: julian_add_hours.c
 	$(CC) ${CFLAGS}	-I${LIBRARY} julian_add_hours.c			\

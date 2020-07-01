@@ -1,10 +1,7 @@
-/* library/julian.h 							*/
-/* -------------------------------------------------------------------- */
-/* This is an encapsulation of Kevin Kotun's julian conversion modules. */
-/*									*/
-/* -------------------------------------------------------------------- */
-/* Freely available software: see Appaserver.org	 		*/
-/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/library/julian.h			*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #ifndef JULIAN_H
 #define JULIAN_H

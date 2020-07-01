@@ -1,9 +1,7 @@
-/* library/julian.c 							*/
-/* -------------------------------------------------------------------- */
-/* This is an encapsulation of Kevin Kotun's julian conversion modules. */
-/*									*/
-/* -- Tim Riley								*/
-/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/library/julian.c			*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <string.h>

@@ -26,7 +26,7 @@ int main( int argc, char **argv )
 
 	while( get_line( input_buffer, stdin ) )
 	{
-		if ( ! piece( piece_buffer, '|', input_buffer, piece_offset ) )
+		if ( !piece( piece_buffer, '|', input_buffer, piece_offset ) )
 		{
 			printf( "%s\n", input_buffer );
 			continue;
