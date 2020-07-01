@@ -33,14 +33,14 @@ int main( int argc, char **argv )
 
 	if ( !days_offset && !with_seconds )
 	{
-		d = date_get_today_new( date_get_utc_offset() );
+		d = date_today_new( date_utc_offset() );
 
 		printf( "%s\n",
 			date_display_yyyy_mm_dd_colon_hm( d ) );
 	}
 	else
 	{
-		d = date_get_today_new( date_get_utc_offset() );
+		d = date_today_new( date_utc_offset() );
 
 		if ( days_offset )
 		{

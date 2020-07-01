@@ -97,7 +97,7 @@ DATE *date_time_new(	int year,
 			hour,
 			minute,
 			0 /* seconds */,
-			date_utc_offset() );
+			0 /* utc_offset */ );
 }
 
 DATE *date_new_date_time(
@@ -129,8 +129,15 @@ DATE *date_new_date_time(
 	d->tm->tm_min = minutes;
 	d->tm->tm_sec = seconds;
 
-	d->current = date_tm_to_current( d->tm, utc_offset );
-	date_set_tm_structures( d, d->current, utc_offset );
+	d->current =
+		date_tm_to_current(
+			d->tm,
+			utc_offset );
+
+	date_set_tm_structures(
+			d,
+			d->current,
+			utc_offset );
 
 	return d;
 
@@ -140,15 +147,19 @@ DATE *date_new(	int year,
 		int month,
 		int day )
 {
-	return date_new_date_time(
+	DATE *d;
+
+	d = date_new_date_time(
 			year,
 			month,
 			day,
 			0 /* hour */,
 			0 /* minutes */,
 			0 /* seconds */,
-			date_utc_offset() );
-} /* date_new() */
+			0 /* utm_offset */ );
+
+	return d;
+}
 
 time_t date_tm_to_current(	struct tm *tm,
 				int utc_offset )
@@ -891,7 +902,7 @@ DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string )
 			atoi( hour_string ),
 			atoi( minute_string ),
 			atoi( second_string ),
-			date_utc_offset() );
+			0 /* utm_offset */ );
 
 	return date;
 
@@ -934,7 +945,7 @@ DATE *date_yyyy_mm_dd_colon_hm_new( char *date_time_string )
 			atoi( hour_string ),
 			atoi( minute_string ),
 			0 /* seconds */,
-			date_utc_offset() );
+			0 /* utm_offset */ );
 
 	return date;
 
@@ -977,7 +988,7 @@ DATE *date_yyyy_mm_dd_hm_new(	char *date_time_string )
 			atoi( hour_string ),
 			atoi( minute_string ),
 			0 /* seconds */,
-			date_utc_offset() );
+			0 /* utm_offset */ );
 
 	return date;
 

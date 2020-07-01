@@ -1,6 +1,6 @@
 :
 
-make post_reoccurring_transaction
+make trial_balance
 
 #if [ "$?" -eq 0 ]
 #then

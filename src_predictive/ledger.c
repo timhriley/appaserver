@@ -6079,33 +6079,8 @@ char *ledger_get_closing_transaction_date_time(
 			as_of_date,
 			LEDGER_CLOSING_TRANSACTION_TIME );
 
-#ifdef NOT_DEFINED
-	char sys_string[ 1024 ];
-	char where[ 128 ];
-	char *results;
-	sprintf( where,
-		 "transaction_date_time = '%s'",
-		 transaction_date_time );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=count		"
-		 "			folder=transaction	"
-		 "			where=\"%s\"		",
-		 application_name,
-		 where );
-
-	results = pipe2string( sys_string );
-
-	if ( results && ( atoi( results ) == 1 ) )
-		return strdup( transaction_date_time ) ;
-	else
-		return (char *)0;
-#endif
-
 	return strdup( transaction_date_time );
-
-} /* ledger_get_closing_transaction_date_time() */
+}
 
 DATE *ledger_prior_closing_transaction_date(
 				char *application_name,
@@ -6196,11 +6171,23 @@ char *ledger_beginning_transaction_date(
 	
 		if ( prior_closing_transaction_date )
 		{
+fprintf( stderr, "%s/%s()/%d: before increment prior_closing_transaction_date = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+date_display( prior_closing_transaction_date ) );
+
 			date_increment_days(
 				prior_closing_transaction_date,
 				1.0,
 				date_utc_offset() );
 	
+fprintf( stderr, "%s/%s()/%d: after increment prior_closing_transaction_date = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+date_display( prior_closing_transaction_date ) );
+
 			return date_get_yyyy_mm_dd_string(
 					prior_closing_transaction_date );
 		}
