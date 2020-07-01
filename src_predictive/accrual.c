@@ -732,7 +732,10 @@ double accrual_monthly_accrue(	char *begin_date_string,
 			exit( 1 );
 		}
 
-		date_increment_days( begin_date, 1 );
+		date_increment_days(
+			begin_date,
+			1.0,
+			date_utc_offset() );
 	}
 
 	months_between =

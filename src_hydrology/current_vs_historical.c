@@ -110,7 +110,10 @@ void current_vs_historical_get_dates(
 		current_begin_date,
 		1 );
 
-	date_increment_days( current_begin_date, 1 );
+	date_increment_days(
+		current_begin_date,
+		1.0,
+		date_utc_offset() );
 
 	por_current_begin_date = date_calloc();
 	date_copy( por_current_begin_date, first_of_month );

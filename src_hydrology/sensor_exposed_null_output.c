@@ -353,7 +353,8 @@ void sensor_exposed_null_output(	char *application_name,
 
 		date_increment_days(
 			expanded_date,
-			DATE_EXPAND_PLUS_MINUS );
+			DATE_EXPAND_PLUS_MINUS,
+			date_utc_offset() );
 
 		expanded_to_date_string =
 			date_get_yyyy_mm_dd_string(

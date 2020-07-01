@@ -6198,7 +6198,8 @@ char *ledger_beginning_transaction_date(
 		{
 			date_increment_days(
 				prior_closing_transaction_date,
-				1 );
+				1.0,
+				date_utc_offset() );
 	
 			return date_get_yyyy_mm_dd_string(
 					prior_closing_transaction_date );

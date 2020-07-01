@@ -437,7 +437,11 @@ void date_decrement_days(	DATE *d,
 				double days )
 {
 	double minus_days = -days;
-	date_increment_days( d, minus_days );
+
+	date_increment_days(
+		d,
+		minus_days,
+		date_utc_offset() );
 }
 
 void date_increment_months(	DATE *d,
@@ -486,18 +490,18 @@ void date_decrement_years(	DATE *d,
 
 } /* date_decrement_years() */
 
-void date_increment_day(	DATE *d )
+void date_increment_day( DATE *d )
 {
 	d->current += SECONDS_IN_DAY;
 	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
 }
 
-void date_increment_week(	DATE *d )
+void date_increment_week( DATE *d )
 {
 	increment_week( d );
 }
 
-void increment_week(		DATE *d )
+void increment_week( DATE *d )
 {
 	d->current += SECONDS_IN_WEEK;
 	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
@@ -1016,10 +1020,11 @@ DATE *date_yyyy_mm_dd_new( char *date_string )
 } /* date_yyyy_mm_dd_new() */
 
 void date_increment_days(	DATE *d,
-				double days )
+				double days,
+				int utc_offset )
 {
 	d->current += (long)((double)SECONDS_IN_DAY * days);
-	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
+	date_set_tm_structures( d, d->current, utc_offset );
 }
 /* Returns static memory */
 /* --------------------- */
@@ -1220,7 +1225,7 @@ char *date_get_day_of_week_yyyy_mm_dd(	int wday_of_week,
 	DATE *date = date_today_new( utc_offset );
 
 	while( date->tm->tm_wday != wday_of_week )
-		date_increment_days( date, -1.0 );
+		date_increment_days( date, -1.0, utc_offset );
 
 	date_string = date_get_yyyy_mm_dd_string( date );
 
@@ -1240,7 +1245,7 @@ char *date_get_yesterday_yyyy_mm_dd_string(
 	DATE *date;
 
 	date = date_today_new( utc_offset );
-	date_increment_days( date, -1.0 );
+	date_increment_days( date, -1.0, utc_offset );
 	return date_get_yyyy_mm_dd_string( date );
 
 } /* date_get_yesterday_yyyy_mm_dd_string() */

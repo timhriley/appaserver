@@ -9,7 +9,8 @@
 
 int main( int argc, char **argv )
 {
-	int days_offset, source_date_piece_offset;
+	double days_offset;
+	int source_date_piece_offset;
 	int destination_date_piece_offset;
 	char buffer[ 1024 ];
 	char date_buffer[ 128 ];
@@ -24,7 +25,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	days_offset = atoi( argv[ 1 ] );
+	days_offset = atof( argv[ 1 ] );
 	source_date_piece_offset = atoi( argv[ 2 ] );
 	destination_date_piece_offset = atoi( argv[ 3 ] );
 	delimiter = *argv[ 4 ];
@@ -44,7 +45,7 @@ int main( int argc, char **argv )
 
 		d = date_yyyy_mm_dd_new( date_buffer );
 
-		date_increment_days( d, days_offset );
+		date_increment_days( d, days_offset, date_utc_offset() );
 
 		piece_replace(	buffer,
 				delimiter,

@@ -10,13 +10,15 @@
 int main( int argc, char **argv )
 {
 	DATE *d;
-	int days_to_minus = -1;
+	double days_to_minus = -1.0;
 
 	if ( argc == 2 )
-		days_to_minus = atoi( argv[ 1 ] );
+	{
+		days_to_minus = atof( argv[ 1 ] );
+	}
 
 	d = date_get_today_new( date_get_utc_offset() );
-	date_increment_days( d, days_to_minus );
+	date_increment_days( d, days_to_minus, date_utc_offset() );
 	printf( "%s\n", date_display_yyyy_mm_dd( d ) );
 	return 0;
 }

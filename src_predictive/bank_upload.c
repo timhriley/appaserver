@@ -187,7 +187,10 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 		date_yyyy_mm_dd_new(
 			p->file.minimum_bank_date );
 
-	date_increment_days( uncleared_checks_back_date, -15.0 );
+	date_increment_days(
+		uncleared_checks_back_date,
+		-15.0,
+		date_utc_offset() );
 
 	p->reoccurring_structure = reoccurring_structure_new();
 
