@@ -113,7 +113,7 @@ UPDATE_DATABASE *update_database_new(
 
 	if ( list_length( update_database->
 				folder->
-				mto1_isa_related_folder_list ) )
+				folder_mto1_isa_related_folder_list ) )
 	{
 	     related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
 			update_database->
@@ -124,7 +124,7 @@ UPDATE_DATABASE *update_database_new(
 					primary_attribute_name_list ),
 			update_database->
 				folder->
-				mto1_isa_related_folder_list,
+				folder_mto1_isa_related_folder_list,
 			application_name );
 	}
 
@@ -330,7 +330,7 @@ LIST *update_database_update_row_list(
 	if ( !row_dictionary ) return update_row_list;
 
 	mto1_isa_related_folder_list =
-		folder->mto1_isa_related_folder_list;
+		folder->folder_mto1_isa_related_folder_list;
 
 	highest_index = dictionary_get_key_highest_index( row_dictionary );
 
