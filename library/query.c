@@ -474,16 +474,17 @@ m2( folder->application_name, msg );
 
 	query_output->order_clause = query_output->select_clause;
 
-	if ( list_length( folder->mto1_isa_related_folder_list ) )
+	if ( list_length( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *foreign_attribute_name_list;
 
-		list_rewind( folder->mto1_isa_related_folder_list );
+		list_rewind( folder->folder_mto1_isa_related_folder_list );
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder->mto1_isa_related_folder_list );
+					folder->
+					folder_mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -509,7 +510,9 @@ m2( folder->application_name, msg );
 						folder->
 						folder_name );
 
-		} while( list_next( folder->mto1_isa_related_folder_list ) );
+		} while( list_next(
+				folder->
+				folder_mto1_isa_related_folder_list ) );
 	}
 
 	return query_output;
@@ -571,16 +574,17 @@ m2( folder->application_name, msg );
 
 	query_output->order_clause = query_output->select_clause;
 
-	if ( list_length( folder->mto1_isa_related_folder_list ) )
+	if ( list_length( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *foreign_attribute_name_list;
 
-		list_rewind( folder->mto1_isa_related_folder_list );
+		list_rewind( folder->folder_mto1_isa_related_folder_list );
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder->mto1_isa_related_folder_list );
+					folder->
+					folder_mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -606,7 +610,9 @@ m2( folder->application_name, msg );
 						folder->
 						folder_name );
 
-		} while( list_next( folder->mto1_isa_related_folder_list ) );
+		} while( list_next(
+				folder->
+				folder_mto1_isa_related_folder_list ) );
 	}
 
 	return query_output;
@@ -666,17 +672,18 @@ QUERY_OUTPUT *query_primary_data_output_new(
 			0 /* not combine_date_time */ );
 
 	if ( folder->row_level_non_owner_forbid
-	&&   list_length( folder->mto1_isa_related_folder_list ) )
+	&&   list_length( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *foreign_attribute_name_list;
 
-		list_rewind( folder->mto1_isa_related_folder_list );
+		list_rewind( folder->folder_mto1_isa_related_folder_list );
 
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder->mto1_isa_related_folder_list );
+					folder->
+					folder_mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -702,7 +709,9 @@ QUERY_OUTPUT *query_primary_data_output_new(
 						folder->
 						folder_name );
 
-		} while( list_next( folder->mto1_isa_related_folder_list ) );
+		} while( list_next(
+				folder->
+				folder_mto1_isa_related_folder_list ) );
 	}
 
 	return query_output;
@@ -901,7 +910,7 @@ generate_select_clause:
 	}
 
 	if ( folder
-	&&   list_rewind( folder->mto1_isa_related_folder_list ) )
+	&&   list_rewind( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *foreign_attribute_name_list;
@@ -909,7 +918,8 @@ generate_select_clause:
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder->mto1_isa_related_folder_list );
+					folder->
+					folder_mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -935,7 +945,9 @@ generate_select_clause:
 						folder->
 						folder_name );
 
-		} while( list_next( folder->mto1_isa_related_folder_list ) );
+		} while( list_next(
+				folder->
+				folder_mto1_isa_related_folder_list ) );
 	}
 
 	if ( list_rewind( query->mto1_join_folder_list ) )
@@ -6053,16 +6065,17 @@ m2( folder->application_name, msg );
 		query_output->order_clause = query_output->select_clause;
 	}
 
-	if ( list_length( folder->mto1_isa_related_folder_list ) )
+	if ( list_length( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *foreign_attribute_name_list;
 
-		list_rewind( folder->mto1_isa_related_folder_list );
+		list_rewind( folder->folder_mto1_isa_related_folder_list );
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder->mto1_isa_related_folder_list );
+					folder->
+					folder_mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -6089,7 +6102,9 @@ m2( folder->application_name, msg );
 						folder->
 						folder_name );
 
-		} while( list_next( folder->mto1_isa_related_folder_list ) );
+		} while( list_next(
+				folder->
+				folder_mto1_isa_related_folder_list ) );
 	}
 
 	if ( list_rewind( query->mto1_join_folder_list ) )
@@ -6182,9 +6197,11 @@ void query_output_set_row_level_non_owner_forbid_join(
 			}
 
 
+			/* This is the old way of setting. */
+			/* ------------------------------- */ 
 			related_folder->
 				folder->
-				mto1_isa_related_folder_list =
+				folder_mto1_isa_related_folder_list =
 				   related_folder_get_isa_related_folder_list(
 					folder->application_name,
 					BOGUS_SESSION,
@@ -6196,21 +6213,21 @@ void query_output_set_row_level_non_owner_forbid_join(
 			if ( !list_length(
 				related_folder->
 					folder->
-					mto1_isa_related_folder_list ) )
+					folder_mto1_isa_related_folder_list ) )
 			{
 				continue;
 			}
 
 			list_rewind( related_folder->
 					folder->
-					mto1_isa_related_folder_list );
+					folder_mto1_isa_related_folder_list );
 
 			do {
 				isa_related_folder =
 					list_get_pointer(
-						related_folder->
-						folder->
-						mto1_isa_related_folder_list );
+					  related_folder->
+					  folder->
+					  folder_mto1_isa_related_folder_list );
 
 				foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -6239,7 +6256,7 @@ void query_output_set_row_level_non_owner_forbid_join(
 			} while( list_next(
 					related_folder->
 					folder->
-					mto1_isa_related_folder_list ) );
+					folder_mto1_isa_related_folder_list ) );
 
 		} while( list_next(
 					folder->

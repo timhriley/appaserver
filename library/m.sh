@@ -3,7 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_hydrology
-	make output_measurement_googlecharts
+	cd ../src_appaserver
+	make post_edit_table_form
 fi
 

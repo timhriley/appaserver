@@ -380,7 +380,6 @@ LIST *process_generic_get_compare_datatype_list(
 	PROCESS_GENERIC_DATATYPE *process_generic_datatype;
 	LIST *compare_datatype_list = list_new_list();
 	LIST *datatype_primary_attribute_data_list;
-	char *where_clause;
 	int index;
 	char values_select_string[ 256 ];
 

@@ -103,8 +103,6 @@ boolean operation_perform(
 			char output_yn,
 			boolean non_owner_forbid_deletion,
 			char *target_frame,
-			char *database_string,
-			LIST *attribute_name_list,
 			char *operation_row_count_string,
 			char *state )
 {
@@ -113,13 +111,38 @@ boolean operation_perform(
 	char *data;
 	char *dictionary_login_name;
 	char *local_executable;
-	static boolean performed_any_output = 0;
-	static boolean first_time = 1;
 	DICTIONARY *row_dictionary_row;
 	DICTIONARY *local_send_dictionary;
 	char key[ 128 ];
 	int operation_row_iteration = 0;
 	char operation_row_iteration_string[ 16 ];
+	FOLDER *folder;
+
+	/* Reentrant */
+	/* --------- */
+	static boolean performed_any_output = 0;
+	static boolean first_time = 1;
+
+	folder = folder_calloc();
+
+	folder->folder_mto1_isa_related_folder_list =
+		folder_mto1_isa_related_folder_list(
+			list_new() /* recursive */,
+			application_name,
+			folder_name,
+			role_name,
+			0 /* recursive_level */ );
+
+	folder->folder_append_isa_attribute_list =
+		folder_append_isa_attribute_list(
+			application_name,
+			folder_name,
+			folder->folder_mto1_isa_related_folder_list,
+			role_name );
+
+	folder->folder_append_isa_attribute_name_list =
+		folder_append_isa_attribute_name_list(
+			folder->folder_append_isa_attribute_list );
 
 	highest_index = get_dictionary_key_highest_index( row_dictionary );
 
@@ -167,7 +190,7 @@ boolean operation_perform(
 				char msg[ 1024 ];
 
 				sprintf( msg,
-"\n\nERROR in %s/%s()/%d: %s tried to delete a record from %s which was forbidden!\n\n",
+"\n\nWARNING in %s/%s()/%d: %s tried to delete a record from %s which was forbidden.\n\n",
 					__FILE__,
 					__FUNCTION__,
 					__LINE__,
@@ -222,7 +245,7 @@ boolean operation_perform(
 					"" /* title */,
 					"y" /* content_type_yn */ );
 
-					system( sys_string );
+					if ( system( sys_string ) ){};
 					fflush( stdout );
 
 					dictionary_add_string(
@@ -239,7 +262,8 @@ boolean operation_perform(
 			row_dictionary_row =
 				dictionary_appaserver_get_row_dictionary_row(
 					row_dictionary,
-					attribute_name_list,
+					folder->
+					folder_append_isa_attribute_name_list,
 					row );
 
 			dictionary_append_dictionary(
@@ -255,7 +279,7 @@ boolean operation_perform(
 				OPERATION_ROW_ITERATION_LABEL,
 				strdup( operation_row_iteration_string ) );
 
-			process_convert_parameters(
+			process_operation_convert(
 				&local_executable,
 				application_name,
 				session,
@@ -268,21 +292,16 @@ boolean operation_perform(
 					/* parameter_dictionary */,
 				local_send_dictionary
 					/* where_clause_dictionary */,
-				(LIST *)0 /* attribute_list */,
-				(LIST *)0 /* prompt_list */,
+				folder->folder_append_isa_attribute_list,
 				primary_attribute_name_list,
 				primary_data_list,
 				row,
 				process_name,
-				(PROCESS_SET *)0,
-				(char *)0
-				/* one2m_folder_name_for_processes */,
-				operation_row_count_string,
-				(char *)0 /* prompt */ );
+				operation_row_count_string );
 
 			fflush( stdout );
 
-			system( local_executable );
+			if ( system( local_executable ) ){};
 			fflush( stdout );
 			free( local_executable );
 
@@ -292,7 +311,9 @@ boolean operation_perform(
 
 		} /* if checked a process */
 	} /* for each row */
+
 	return performed_any_output;
+
 } /* operation_perform() */
 
 char *operation_get_operation_row_count_string(
@@ -372,7 +393,7 @@ OPERATION_SEMAPHORE *operation_semaphore_new(
 				"echo 0 > %s",
 				operation_semaphore->semaphore_filename );
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		fflush( stdout );
 		operation_semaphore->group_first_time = 1;
 	}
@@ -387,7 +408,7 @@ OPERATION_SEMAPHORE *operation_semaphore_new(
 		 increment_string,
 		 operation_semaphore->semaphore_filename );
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	fflush( stdout );
 
 	operation_semaphore->group_last_time =

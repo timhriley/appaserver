@@ -142,11 +142,13 @@ int main( int argc, char **argv )
 
 	sprintf( sys_string, "cat %s", semaphore_filename );
 	results_string = pipe2string( sys_string );
+
 	sprintf( increment_string, "%d", atoi( results_string ) + 1 );
 	sprintf( sys_string,
 		 "echo %s > %s",
 		 increment_string,
 		 semaphore_filename );
+
 	fflush( stdout );
 	system( sys_string );
 	fflush( stdout );
@@ -186,15 +188,6 @@ int main( int argc, char **argv )
 		if ( group_last_time ) document_close();
 		exit( 0 );
 	}
-
-/*
-	sprintf(	url_filename,
-			GOOGLE_MAP_URL_TEMPLATE,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			application_name,
-			session );
-*/
 
 	appaserver_link_file =
 		appaserver_link_file_new(

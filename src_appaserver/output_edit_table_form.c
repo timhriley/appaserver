@@ -159,7 +159,7 @@ int main( int argc, char **argv )
 			(LIST *)0 /* root_primary_attribute_name_list */,
 			0 /* recursive_level */ );
 
-	folder->mto1_isa_related_folder_list =
+	folder->folder_mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new(),
 			application_name,
@@ -173,7 +173,7 @@ int main( int argc, char **argv )
 			(LIST *)0 /* root_primary_attribute_name_list */,
 			0 /* recursive_level */ );
 
-	if ( list_length( folder->mto1_isa_related_folder_list ) )
+	if ( list_length( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		make_primary_keys_non_edit = 1;
 	}
@@ -183,7 +183,7 @@ int main( int argc, char **argv )
 			folder->application_name,
 			folder->folder_name,
 			(char *)0 /* attribute_name */,
-			folder->mto1_isa_related_folder_list,
+			folder->folder_mto1_isa_related_folder_list,
 			role_name );
 
 	folder_load(	&folder->insert_rows_number,

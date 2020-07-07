@@ -14,6 +14,7 @@
 #include "column.h"
 #include "timlib.h"
 #include "appaserver_library.h"
+#include "folder.h"
 #include "google_map.h"
 
 GOOGLE_MAP *google_map_new( void )
@@ -620,33 +621,40 @@ char *google_map_get_balloon(	char *application_name,
 {
 	static char label[ 4096 ];
 	char buffer[ 4096 ];
-	LIST *attribute_list;
-	LIST *attribute_name_list;
 	int first_time = 1;
 	char *ptr = label;
+	LIST *attribute_name_list;
 	char *attribute_name;
 	char *data;
 	LIST *no_display_attribute_name_list = {0};
+	FOLDER *folder;
+
+	folder = folder_calloc();
 
 	if ( !balloon_attribute_name_list_string )
 	{
-		attribute_list =
-			attribute_get_attribute_list(
+		folder->folder_mto1_isa_related_folder_list =
+			folder_mto1_isa_related_folder_list(
+				list_new() /* existing_related_folder_list */,
 				application_name,
 				folder_name,
-				(char *)0 /* attribute_name */,
-				(LIST *)0 /* mto1_isa_related_folder_list */,
+				role_name,
+				0 /* recursive_level */ );
+
+		folder->folder_append_isa_attribute_list =
+			folder_append_isa_attribute_list(
+				application_name,
+				folder_name,
+				folder->folder_mto1_isa_related_folder_list,
 				role_name );
-	
-		if ( !list_length( attribute_list ) ) return (char *)0;
-	
-		attribute_name_list =
-			attribute_get_attribute_name_list(
-				attribute_list );
+
+		folder->folder_append_isa_attribute_name_list =
+			folder_append_isa_attribute_name_list(
+				folder->folder_append_isa_attribute_list );
 	}
 	else
 	{
-		attribute_name_list =
+		folder->folder_append_isa_attribute_name_list =
 			list_string2list(
 				balloon_attribute_name_list_string,
 				',' );
@@ -656,10 +664,13 @@ char *google_map_get_balloon(	char *application_name,
 		google_map_get_no_display_attribute_name_list(
 			dictionary );
 
-	attribute_name_list =
+	folder->folder_append_isa_attribute_name_list =
 		list_subtract_list(
-			attribute_name_list,
+			folder->folder_append_isa_attribute_name_list,
 			no_display_attribute_name_list );
+
+	attribute_name_list =
+		folder->folder_append_isa_attribute_name_list;
 
 	if ( !list_rewind( attribute_name_list ) ) return "";
 
