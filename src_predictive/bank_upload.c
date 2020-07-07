@@ -2668,39 +2668,6 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 			continue;
 		}
 
-#ifdef NOT_DEFINED
-		if ( !bank_upload->
-			feeder_match_sum_existing_journal_ledger_list )
-		{
-		   bank_upload->
-			   feeder_match_sum_existing_journal_ledger_list =
-			   /* ------------------------------------ */
-			   /* Sets journal_ledger->match_sum_taken */
-			   /* ------------------------------------ */
-			   feeder_match_sum_existing_journal_ledger_list(
-				existing_cash_journal_ledger_list,
-				float_abs( bank_upload->bank_amount ),
-				1 /* check_debit */ );
-		}
-
-		if ( list_length(
-			bank_upload->
-			       feeder_match_sum_existing_journal_ledger_list ) )
-		{
-			continue;
-		}
-
-		bank_upload->
-			feeder_match_sum_existing_journal_ledger_list =
-			/* ------------------------------------ */
-			/* Sets journal_ledger->match_sum_taken */
-			/* ------------------------------------ */
-			feeder_match_sum_existing_journal_ledger_list(
-				existing_cash_journal_ledger_list,
-				float_abs( bank_upload->bank_amount ),
-				0 /* not check_debit */ );
-#endif
-
 		if ( !bank_upload->
 			feeder_match_sum_existing_journal_ledger_list )
 		{
@@ -2709,12 +2676,12 @@ void bank_upload_match_sum_existing_journal_ledger_list(
 				bank_amount =
 					float_abs(
 						bank_upload->bank_amount );
-				check_debit = 1;
+				check_debit = 0;
 			}
 			else
 			{
 				bank_amount = bank_upload->bank_amount;
-				check_debit = 0;
+				check_debit = 1;
 			}
 
 		   	bank_upload->
