@@ -200,4 +200,7 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_fetch(
 			LIST *role_update_list,
 			char *folder_name );
 
+ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_element_list_structure_calloc(
+			void );
+
 #endif

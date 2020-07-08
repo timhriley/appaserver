@@ -238,30 +238,31 @@ void date_set_day(		DATE *date,
 void date_set_time_integers(	DATE *date,
 				int hour,
 				int minute,
-				int seconds )
+				int seconds,
+				int utc_offset )
 {
 	date->tm->tm_hour = hour;
 	date->tm->tm_min = minute;
 	date->tm->tm_sec = seconds;
 
-	date->current = date_tm_to_current( date->tm, date_utc_offset() );
-	date_set_tm_structures( date, date->current, date_utc_offset() );
+	date->current = date_tm_to_current( date->tm, utc_offset );
+	date_set_tm_structures( date, date->current, utc_offset );
 
 } /* date_set_time_integers() */
 
 void date_set_date_integers(	DATE *date,
 				int year,
 				int month,
-				int day )
+				int day,
+				int utc_offset )
 {
 	date->tm->tm_year = year - 1900;
 	date->tm->tm_mon = month - 1;
 	date->tm->tm_mday = day;
 
-	date->current = date_tm_to_current( date->tm, date_utc_offset() );
-	date_set_tm_structures( date, date->current, date_utc_offset() );
-
-} /* date_set_date_integers() */
+	date->current = date_tm_to_current( date->tm, utc_offset );
+	date_set_tm_structures( date, date->current, utc_offset );
+}
 
 boolean date_set_yyyy_mm_dd_hhmm_delimited(
 				DATE *date,
@@ -386,12 +387,14 @@ boolean date_set_yyyy_mm_dd(	DATE *date,
 	date_set_date_integers(	date,
 				atoi( year_string ),
 				atoi( month_string ),
-				atoi( day_string ) );
+				atoi( day_string ),
+				0 /* utc_offset */ );
 
 	date_set_time_integers(	date,
 				0 /* hour */,
 				0 /* minute */,
-				0 /* seconds */ );
+				0 /* seconds */,
+				0 /* utc_offset */ );
 
 	return 1;
 
@@ -405,7 +408,8 @@ void date_set_time(	DATE *date,
 		date,
 		hour,
 		minutes,
-		0 /* seconds */ );
+		0 /* seconds */,
+		0 /* utc_offset */ );
 }
 
 void date_free( DATE *d )
@@ -471,7 +475,8 @@ void date_increment_months(	DATE *d,
 		d,
 		year,
 		month,
-		day );
+		day,
+		0 /* utc_offset */ );
 
 } /* date_increment_months() */
 
@@ -497,7 +502,8 @@ void date_decrement_years(	DATE *d,
 		d,
 		year,
 		month,
-		day );
+		day,
+		0 /* utc_offset */ );
 
 } /* date_decrement_years() */
 
@@ -2549,12 +2555,14 @@ boolean date_set_yyyy_mm_dd_hh_mm_ss_colon(
 	date_set_date_integers(	date,
 				atoi( year_string ),
 				atoi( month_string ),
-				atoi( day_string ) );
+				atoi( day_string ),
+				0 /* utc_offset */ );
 
 	date_set_time_integers(	date,
 				atoi( hour_string ),
 				atoi( minute_string ),
-				atoi( second_string ) );
+				atoi( second_string ),
+				0 /* utc_offset */ );
 
 	return 1;
 

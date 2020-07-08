@@ -53,7 +53,6 @@ typedef struct
 	LIST *attribute_list;
 	LIST *attribute_float_list;
 	LIST *non_primary_attribute_list;
-	LIST *append_isa_attribute_list;
 	char *folder_form;
 	int insert_rows_number;
 	PROCESS *populate_drop_down_process;

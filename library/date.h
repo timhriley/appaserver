@@ -299,12 +299,14 @@ void date_set_date_integers(
 				DATE *date,
 				int year,
 				int month,
-				int day );
+				int day,
+				int utc_offset );
 
 void date_set_time_integers(	DATE *date,
 				int hour,
 				int minute,
-				int seconds );
+				int seconds,
+				int utc_offset );
 
 char *date_display_yyyy_mm_dd_hhmm( 
 				DATE *date );

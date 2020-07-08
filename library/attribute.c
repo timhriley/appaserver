@@ -208,8 +208,10 @@ char *attribute_list_display( LIST *attribute_list )
 					attribute_display( attribute ) );
 
 	} while( list_next( attribute_list ) );
+
 	return strdup( buffer );
-} /* attribute_list_display() */
+
+}
 
 char *attribute_get_database_datatype(	char *datatype,
 					int width,

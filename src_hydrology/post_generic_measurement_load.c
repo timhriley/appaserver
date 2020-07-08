@@ -170,7 +170,9 @@ int main( int argc, char **argv )
 				"insert" ) )
 	{
 		session_access_failed_message_and_exit(
-					application_name, session, login_name );
+			application_name,
+			session,
+			login_name );
 	}
 
 	if ( !appaserver_user_exists_role(
@@ -179,10 +181,12 @@ int main( int argc, char **argv )
 					role_name ) )
 	{
 		session_access_failed_message_and_exit(
-				application_name, session, login_name );
+			application_name,
+			session,
+			login_name );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new(
 				application_get_title_string(
@@ -474,7 +478,8 @@ void post_generic_measurement_load(
 
 } /* post_generic_measurement_load() */
 
-enum event_parameter_return_value get_measurement_update_event_parameters(
+enum event_parameter_return_value
+	get_measurement_update_event_parameters(
 		char **station,
 		char **datatype,
 		char **begin_measurement_date_string,

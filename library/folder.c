@@ -239,7 +239,7 @@ FOLDER *folder_with_load_new(	char *application_name,
 		folder_get_primary_attribute_name_list(
 			folder->attribute_list );
 
-	folder->append_isa_attribute_list =
+	folder->folder_append_isa_attribute_list =
 		attribute_append_isa_attribute_list(
 			folder->application_name,
 			folder->folder_name,

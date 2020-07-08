@@ -2948,27 +2948,6 @@ LIST *related_folder_get_preselection_dictionary_list(
 				(LIST *)0,
 				(LIST *)0 );
 
-#ifdef NOT_DEFINED
-		query = query_new(
-				application_name,
-				login_name,
-				related_folder->folder_name,
-				(LIST *)0 /* append_isa_attribute_list */,
-				query_dictionary,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				(ROLE *)0 /* role */,
-				(LIST *)0 /* where_attribute_name_list */,
-				(LIST *)0 /* where_attribute_data_list */,
-				0 /* max_rows zero for unlimited */,
-				0 /* not include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
-
 		related_folder_dictionary_list =
 			query_get_row_dictionary_list(
 				query->folder->application_name,
@@ -2977,7 +2956,7 @@ LIST *related_folder_get_preselection_dictionary_list(
 				query->query_output->where_clause,
 				query->query_output->order_clause,
 				query->max_rows,
-				query->folder->append_isa_attribute_list,
+				query->folder->folder_append_isa_attribute_list,
 				query->login_name );
 	}
 
@@ -3037,7 +3016,7 @@ LIST *related_folder_subtract_preselection_existing_dictionary_list(
 				query->query_output->where_clause,
 				query->query_output->order_clause,
 				query->max_rows,
-				query->folder->append_isa_attribute_list,
+				query->folder->folder_append_isa_attribute_list,
 				query->login_name );
 
 	if ( !primary_folder_dictionary_list
