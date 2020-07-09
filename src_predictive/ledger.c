@@ -6171,23 +6171,11 @@ char *ledger_beginning_transaction_date(
 	
 		if ( prior_closing_transaction_date )
 		{
-fprintf( stderr, "%s/%s()/%d: before increment prior_closing_transaction_date = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-date_display( prior_closing_transaction_date ) );
-
 			date_increment_days(
 				prior_closing_transaction_date,
 				1.0,
-				date_utc_offset() );
+				0 /* utc_offset */ );
 	
-fprintf( stderr, "%s/%s()/%d: after increment prior_closing_transaction_date = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-date_display( prior_closing_transaction_date ) );
-
 			return date_get_yyyy_mm_dd_string(
 					prior_closing_transaction_date );
 		}

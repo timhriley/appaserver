@@ -158,7 +158,7 @@ ROW_SECURITY *row_security_new(
 		list_append_pointer(
 			row_security->
 				select_folder->
-				append_isa_attribute_list,
+				folder_append_isa_attribute_list,
 			attribute );
 
 	} /* if row_level_non_owner_view_only */
@@ -187,7 +187,7 @@ non_owner_view_only_dont_append:
 		if ( !attribute_list_exists(
 				row_security->
 					select_folder->
-					append_isa_attribute_list,
+					folder_append_isa_attribute_list,
 				row_security->attribute_not_null_string ) )
 		{
 			ATTRIBUTE *attribute;
@@ -222,8 +222,8 @@ non_owner_view_only_dont_append:
 	
 			list_append_pointer(
 					row_security->
-						select_folder->
-						append_isa_attribute_list,
+					   select_folder->
+					   folder_append_isa_attribute_list,
 					attribute );
 		}
 	}
@@ -231,6 +231,28 @@ non_owner_view_only_dont_append:
 	return row_security;
 
 } /* row_security_new() */
+
+ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
+	row_security_element_list_structure_calloc( void )
+{
+	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *element_list_structure;
+
+	if ( ! ( element_list_structure =
+		(ROW_SECURITY_ELEMENT_LIST_STRUCTURE *)
+			calloc(
+			   1,
+			   sizeof( ROW_SECURITY_ELEMENT_LIST_STRUCTURE ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocation memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return element_list_structure;
+}
 
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 		row_security_element_list_structure_new(
@@ -260,19 +282,17 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	char query_select_folder_name[ 128 ];
 	boolean prompt_data_separate_folder;
 
-	if ( ! ( element_list_structure =
-		(ROW_SECURITY_ELEMENT_LIST_STRUCTURE *)
-			calloc(
-			   1,
-			   sizeof( ROW_SECURITY_ELEMENT_LIST_STRUCTURE ) ) ) )
+	if ( !select_folder )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocation memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: select_folder is null.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
+
+	element_list_structure = row_security_element_list_structure_calloc();
 
 	if ( row_security_state == security_supervisor
 	||   row_security_state == security_user )
@@ -309,7 +329,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	element_list_structure->row_dictionary_list =
 		row_security_get_row_dictionary_list(
 			select_folder->attribute_list,
-			select_folder->append_isa_attribute_list,
+			select_folder->folder_append_isa_attribute_list,
 			application_name,
 			query_dictionary,
 			sort_dictionary,
@@ -556,7 +576,8 @@ LIST *row_security_get_element_list(
 	include_attribute_name_list =
 		list_subtract(
 			folder_get_attribute_name_list(
-				select_folder->append_isa_attribute_list ),
+				select_folder->
+					folder_append_isa_attribute_list ),
 			ignore_attribute_name_list );
 
 	element_list =
@@ -568,7 +589,7 @@ LIST *row_security_get_element_list(
 			select_folder->folder_name,
 			login_role->role_name,
 			select_folder->attribute_list,
-			select_folder->append_isa_attribute_list,
+			select_folder->folder_append_isa_attribute_list,
 			include_attribute_name_list,
 			mto1_append_isa_related_folder_list,
 			preprompt_dictionary,

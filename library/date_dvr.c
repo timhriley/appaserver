@@ -422,7 +422,8 @@ void test_2015_10_26()
 			s,
 			0 /* date_piece */,
 			1 /* time_piece */,
-			'^' );
+			'^',
+			date_utc_offset() );
 
 	printf( "expecting (2015-10-26), got (%s)\n",
 		date_display( date ) );

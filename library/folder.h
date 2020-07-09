@@ -53,7 +53,6 @@ typedef struct
 	LIST *attribute_list;
 	LIST *attribute_float_list;
 	LIST *non_primary_attribute_list;
-	LIST *append_isa_attribute_list;
 	char *folder_form;
 	int insert_rows_number;
 	PROCESS *populate_drop_down_process;
@@ -75,7 +74,6 @@ typedef struct
 	LIST *one2m_recursive_related_folder_list;
 	LIST *pair_one2m_related_folder_list;
 	LIST *mto1_related_folder_list;
-	LIST *mto1_isa_related_folder_list;
 	LIST *mto1_append_isa_related_folder_list;
 	LIST *mto1_recursive_related_folder_list;
 	LIST *mto1_lookup_before_drop_down_related_folder_list;
@@ -88,10 +86,15 @@ typedef struct
 	LIST *attribute_name_list;
 	LIST *join_1tom_related_folder_list;
 	char *create_view_statement;
+	LIST *folder_mto1_isa_related_folder_list;
+	LIST *folder_append_isa_attribute_list;
+	LIST *folder_append_isa_attribute_name_list;
 } FOLDER;
 
 /* Operations */
 /* ---------- */
+FOLDER *folder_calloc(			void );
+
 FOLDER *folder_with_load_new(		char *application_name,
 					char *session,
 					char *folder_name,
@@ -107,6 +110,8 @@ void folder_load_row_level_restrictions(
 					char *application_name,
 					char *folder_name,
 					LIST *mto1_related_folder_list );
+
+FOLDER *folder_calloc( 			void );
 
 FOLDER *folder_new( 			char *application_name,
 					char *session,
@@ -191,7 +196,11 @@ int folder_get_insert_rows_number(	char *session,
 					char *entity,
 					FOLDER *folder );
 
-LIST *folder_attribute_name_list(	FOLDER *folder );
+LIST *folder_append_isa_attribute_name_list(
+				LIST *folder_append_isa_attribute_list );
+
+LIST *folder_attribute_name_list(
+				LIST *attribute_list );
 
 LIST *folder_get_attribute_list(	char *application_name,
 					char *folder_name );
@@ -304,7 +313,7 @@ LIST *folder_append_isa_mto1_related_folder_list(
 				char *session,
 				char *role_name,
 				boolean override_row_restrictions,
-				LIST *mto1_isa_related_folder_list );
+				LIST *folder_mto1_isa_related_folder_list );
 
 void folder_append_one2m_related_folder_list(
 				LIST *mto1_related_folder_list,
@@ -348,5 +357,23 @@ boolean folder_table_exists(	char *table_name );
 
 LIST *folder_fetch_table_name_list(
 				void );
+
+LIST *folder_append_isa_attribute_list(
+				char *application_name,
+				char *folder_name,
+				LIST *folder_mto1_isa_related_folder_list,
+				char *role_name );
+
+LIST *folder_mto1_isa_related_folder_list(
+			LIST *existing_related_folder_list,
+			char *application_name,
+			char *folder_name,
+			char *role_name,
+			int recursive_level );
+
+LIST *folder_attribute_list(
+			char *application_name,
+			char *folder_name,
+			char *role_name );
 
 #endif

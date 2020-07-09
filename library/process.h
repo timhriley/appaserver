@@ -203,5 +203,23 @@ void process_search_replace_executable_where(
 boolean process_interpreted_executable_ok(
 				char *which_string );
 
+void process_operation_convert(
+			char **executable,
+			char *application_name,
+			char *session,
+			char *state,
+			char *person,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			LIST *folder_append_isa_attribute_list,
+			LIST *primary_attribute_name_list,
+			LIST *primary_data_list,
+			int row,
+			char *process_name,
+			char *operation_row_count_string );
+
 #endif
 

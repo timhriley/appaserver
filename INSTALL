@@ -70,7 +70,7 @@ D) Shell installation steps
 10) vi> set appaserver_mount_point
 11) vi> set appaserver_group=$appaservergroup <-- see step C)
 12) vi> set other configurable variables
-13) $ ./appaserver_apt_install.sh
+13) $ ./appaserver_apt_install.sh noexecute|execute
 13) $ sudo ./install_appaserver_profile.sh noexecute|execute
 14) $ . /etc/profile
 15) $ sudo ./install_appaserver_filesystem.sh noexecute|execute
@@ -80,7 +80,7 @@ D) Shell installation steps
 19) $ . set_database template
 20) $ install_template_database.sh noexecute|execute
 21) $ upgrade-appaserver-database template
-22) $ appaserver_virgin_install.sh $appaserver_login noexecute
+22) $ appaserver_virgin_install.sh `whoami` noexecute
 		 <== displays additional steps
 
 ---------

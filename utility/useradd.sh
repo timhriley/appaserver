@@ -6,7 +6,7 @@
 
 if [ "$#" -lt 2 ]
 then
-	echo "Usage: $0 username sudo_yn [additional_group]" 1>&2
+	echo "Usage: `echo $0 | basename.e` username sudo_yn [additional_group]" 1>&2
 	echo "Note: a default group named username will be assigned" 1>&2
 	exit 1
 fi

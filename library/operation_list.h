@@ -46,9 +46,7 @@ int operation_list_perform_operations(
 				char *role_name,
 				LIST *primary_attribute_name_list,
 				boolean non_owner_forbid_deletion,
-				char *target_frame,
-				char *database_string,
-				LIST *attribute_name_list );
+				char *target_frame );
 
 LIST *operation_list_get_operation_list(
 					char *application_name,

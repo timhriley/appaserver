@@ -212,6 +212,8 @@ LIST *attribute_get_date_attribute_name_list(
 LIST *attribute_get_lookup_allowed_attribute_name_list(
 					LIST *attribute_list );
 
+LIST *attribute_name_list(		LIST *attribute_list );
+
 LIST *attribute_get_name_list(		LIST *attribute_list );
 
 LIST *attribute_get_attribute_name_list(LIST *attribute_list );
@@ -318,5 +320,11 @@ boolean attribute_record_parse(
 					char *record,
 					char *folder_name,
 					char *attribute_name );
+
+LIST *attribute_append_isa_attribute_list(
+					char *application_name,
+					char *folder_name,
+					LIST *mto1_isa_related_folder_list,
+					char *role_name );
 
 #endif

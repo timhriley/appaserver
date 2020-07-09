@@ -62,7 +62,8 @@ void increment_week(		DATE *d );
 
 void date_increment_day(	DATE *d );
 
-void date_decrement_day(	DATE *d );
+void date_decrement_day(	DATE *d,
+				int utc_offset );
 
 void date_increment(		DATE *d );
 
@@ -74,10 +75,6 @@ DATE *date_yyyy_mm_dd_new(	char *date_string );
 DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string );
 
 DATE *date_yyyy_mm_dd_hm_new(	char *date_time_string );
-
-void date_increment_days(	DATE *d,
-				double days,
-				int utc_offset );
 
 void date_increment_hours(	DATE *d,
 				double hours );
@@ -206,7 +203,8 @@ boolean date_set_yyyy_mm_dd_hhmm_delimited(
 				char *yyyy_mm_dd_hhmm,
 				int date_piece,
 				int time_piece,
-				char delimiter );
+				char delimiter,
+				int utc_offset );
 
 int date_get_week_of_year(	DATE *date );
 
@@ -221,7 +219,12 @@ void date_set_time(		DATE *date,
 				int minutes );
 
 void date_set_day(		DATE *date,
-				int day );
+				int day,
+				int utc_offset );
+
+void date_set_year(		DATE *date,
+				int year,
+				int utc_offset );
 
 char *date_display_hhmm(	DATE *date );
 
@@ -275,8 +278,13 @@ char *date_get_current_yyyy_mm_dd(
 
 char *date_get_current_hhmm(	int utc_offset );
 
+void date_increment_days(	DATE *d,
+				double days,
+				int utc_offset );
+
 void date_decrement_days(	DATE *d,
-				double days );
+				double days,
+				int utc_offset );
 
 char *date_hhmm(		DATE *d );
 
@@ -299,12 +307,14 @@ void date_set_date_integers(
 				DATE *date,
 				int year,
 				int month,
-				int day );
+				int day,
+				int utc_offset );
 
 void date_set_time_integers(	DATE *date,
 				int hour,
 				int minute,
-				int seconds );
+				int seconds,
+				int utc_offset );
 
 char *date_display_yyyy_mm_dd_hhmm( 
 				DATE *date );
@@ -437,13 +447,16 @@ DATE *date_current_new(		time_t current,
 				int utc_offset );
 
 void date_decrement_years(	DATE *d,
-				int years );
+				int years,
+				int utc_offset );
 
 void date_increment_months(	DATE *d,
-				int months );
+				int months,
+				int utc_offset );
 
 void date_increment_years(	DATE *d,
-				int years );
+				int years,
+				int utc_offset );
 
 DATE *date_forward_to_first_month(
 				DATE *d,
@@ -479,12 +492,14 @@ void date_set_date_time_integers(
 				int day,
 				int hours,
 				int minutes,
-				int seconds );
+				int seconds,
+				int utc_offset );
 
 boolean date_set_yyyy_mm_dd_hhmm(
 				DATE *date,
 				char *yyyy_mm_dd,
-				char *hhmm );
+				char *hhmm,
+				int utc_offset );
 
 int date_get_last_month_day(	int month,
 				int year );

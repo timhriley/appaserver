@@ -32,7 +32,7 @@ int main( void )
 		date_increment_days(
 			date,
 			1.0,
-			date_utc_offset() );
+			0 /* utc_offset */ );
 
 		printf( 
 "update measurement set measurement_date = '%s', measurement_time = '0000' where station = '%s' and datatype = '%s' and measurement_date = '%s' and measurement_time = '%s';\n",

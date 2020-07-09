@@ -546,4 +546,11 @@ RELATED_FOLDER *related_folder_get_ajax_fill_drop_down_related_folder(
 char *related_folder_get_ajax_onclick_function(
 			LIST *attribute_name_list );
 
+LIST *related_folder_mto1_isa_related_folder_list(
+			LIST *existing_related_folder_list,
+			char *application_name,
+			char *folder_name,
+			char *role_name,
+			int recursive_level );
+
 #endif

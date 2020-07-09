@@ -47,7 +47,7 @@ int main( int argc, char **argv )
 			date_increment_days(
 				d,
 				days_offset,
-				date_utc_offset() );
+				0 /* utc_offset */ );
 
 			if ( with_seconds )
 			{

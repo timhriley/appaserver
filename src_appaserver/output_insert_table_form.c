@@ -186,7 +186,7 @@ int main( int argc, char **argv )
 			role_name,
 			(LIST *)0 /* mto1_related_folder_list */ );
 
-	folder->mto1_isa_related_folder_list =
+	folder->folder_mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new(),
 			application_name,
@@ -205,7 +205,7 @@ int main( int argc, char **argv )
 			folder->application_name,
 			folder->folder_name,
 			(char *)0 /* attribute_name */,
-			folder->mto1_isa_related_folder_list,
+			folder->folder_mto1_isa_related_folder_list,
 			role_name );
 
 	if ( get_line( dictionary_string, stdin ) )
@@ -294,12 +294,12 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	if ( list_length( folder->mto1_isa_related_folder_list ) )
+	if ( list_length( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		appaserver_library_populate_last_foreign_attribute_key(
 			dictionary_appaserver->
 				query_dictionary,
-			folder->mto1_isa_related_folder_list,
+			folder->folder_mto1_isa_related_folder_list,
 			attribute_get_primary_attribute_name_list(
 				folder->attribute_list ) );
 	}
@@ -458,14 +458,15 @@ int main( int argc, char **argv )
 		appaserver_library_get_omit_insert_attribute_name_list(
 			folder->attribute_list ) );
 
-	if ( list_rewind( folder->mto1_isa_related_folder_list ) )
+	if ( list_rewind( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder->mto1_isa_related_folder_list );
+					folder->
+					folder_mto1_isa_related_folder_list );
 
 			folder->mto1_related_folder_list =
 				related_folder_get_mto1_related_folder_list(
@@ -489,7 +490,9 @@ int main( int argc, char **argv )
 					folder->
 					attribute_list ) );
 
-		} while( list_next( folder->mto1_isa_related_folder_list ) );
+		} while( list_next(
+				folder->
+				folder_mto1_isa_related_folder_list ) );
 	}
 
 	folder->mto1_related_folder_list =

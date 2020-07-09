@@ -50,8 +50,6 @@ boolean operation_perform(		DICTIONARY *send_dictionary,
 					char output_yn,
 					boolean non_owner_forbid_deletion,
 					char *target_frame,
-					char *database_string,
-					LIST *attribute_name_list,
 					char *operation_row_count_string,
 					char *state );
 
