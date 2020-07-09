@@ -325,10 +325,14 @@ char *appaserver_user_encryption_select(
 
 	if ( appaserver_user_password_function == no_encryption )
 	{
+		char *tmp;
+
 		/* Returns heap memory */
 		/* ------------------- */
-		return timlib_escape_sql_injection(
-				typed_in_password );
+		tmp = timlib_escape_sql_injection( typed_in_password );
+
+		sprintf( encryption_function, "'%s'", tmp );
+		free( tmp );
 	}
 	else
 	if ( appaserver_user_password_function == old_password_function )
@@ -356,10 +360,14 @@ char *appaserver_user_encryption_select(
 	}
 	else
 	{
+		char *tmp;
+
 		/* Returns heap memory */
 		/* ------------------- */
-		return timlib_escape_sql_injection(
-				typed_in_password );
+		tmp = timlib_escape_sql_injection( typed_in_password );
+
+		sprintf( encryption_function, "'%s'", tmp );
+		free( tmp );
 	}
 
 	return strdup( encryption_function );
@@ -378,6 +386,9 @@ char *appaserver_user_function_encrypted_password(
 	char where[ 128 ];
 	char *select;
 	char *results;
+	char *table_name;
+
+	table_name = get_table_name( application_name, "application" );
 
 	sprintf( where, "application = '%s'", application_name );
 
@@ -395,12 +406,9 @@ char *appaserver_user_function_encrypted_password(
 	}
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=\"%s\"			"
-		 "			folder=application		"
-		 "			where=\"%s\" 2>/dev/null	",
-		 application_name,
+		 "echo \"select %s from %s where %s;\" | sql.e",
 		 select,
+		 table_name,
 		 where );
 
 	if ( ! ( results = pipe2string( sys_string ) ) )
