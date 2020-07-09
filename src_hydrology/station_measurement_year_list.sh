@@ -29,7 +29,6 @@ where="$join and $filter and 						\
 		  and				   '$year-12-31')"
 
 echo "select $select from $from where $where order by $select;"		|
-tee /dev/tty |
 sql.e
 
 exit 0
