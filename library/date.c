@@ -211,7 +211,8 @@ void date_set_date_time_integers(
 				int day,
 				int hours,
 				int minutes,
-				int seconds )
+				int seconds,
+				int utc_offset )
 {
 	date->tm->tm_year = year - 1900;
 	date->tm->tm_mon = month - 1;
@@ -220,20 +221,30 @@ void date_set_date_time_integers(
 	date->tm->tm_min = minutes;
 	date->tm->tm_sec = seconds;
 
-	date->current = date_tm_to_current( date->tm, date_utc_offset() );
-	date_set_tm_structures( date, date->current, date_utc_offset() );
+	date->current = date_tm_to_current( date->tm, utc_offset );
+	date_set_tm_structures( date, date->current, utc_offset );
 
 } /* date_set_date_time_integers() */
 
+void date_set_year(		DATE *date,
+				int year,
+				int utc_offset )
+{
+	date->tm->tm_year = year - 1900;
+
+	date->current = date_tm_to_current( date->tm, utc_offset );
+	date_set_tm_structures( date, date->current, utc_offset );
+}
+
 void date_set_day(		DATE *date,
-				int day )
+				int day,
+				int utc_offset )
 {
 	date->tm->tm_mday = day;
 
-	date->current = date_tm_to_current( date->tm, date_utc_offset() );
-	date_set_tm_structures( date, date->current, date_utc_offset() );
-
-} /* date_set_day() */
+	date->current = date_tm_to_current( date->tm, utc_offset );
+	date_set_tm_structures( date, date->current, utc_offset );
+}
 
 void date_set_time_integers(	DATE *date,
 				int hour,
@@ -269,7 +280,8 @@ boolean date_set_yyyy_mm_dd_hhmm_delimited(
 				char *yyyy_mm_dd_hhmm,
 				int date_piece,
 				int time_piece,
-				char delimiter )
+				char delimiter,
+				int utc_offset )
 {
 	char yyyy_mm_dd[ 128 ];
 	char hhmm[ 128 ];
@@ -313,13 +325,14 @@ boolean date_set_yyyy_mm_dd_hhmm_delimited(
 	return date_set_yyyy_mm_dd_hhmm(
 		date,
 		yyyy_mm_dd,
-		hhmm );
-
-} /* date_set_yyyy_mm_dd_hhmm_delimited() */
+		hhmm,
+		utc_offset );
+}
 
 boolean date_set_yyyy_mm_dd_hhmm(	DATE *date,
 					char *yyyy_mm_dd,
-					char *hhmm )
+					char *hhmm,
+					int utc_offset )
 {
 	char year_string[ 128 ];
 	char month_string[ 128 ];
@@ -358,11 +371,11 @@ boolean date_set_yyyy_mm_dd_hhmm(	DATE *date,
 				atoi( day_string ),
 				hours,
 				minutes,
-				0 /* seconds */ );
+				0 /* seconds */,
+				utc_offset );
 
 	return 1;
-
-} /* date_set_yyyy_mm_dd_hhmm() */
+}
 
 boolean date_set_yyyy_mm_dd(	DATE *date,
 				char *yyyy_mm_dd )
@@ -443,24 +456,26 @@ void date_increment_minute( DATE *d )
 	date_increment_minutes( d, 1 );
 }
 
-void date_decrement_day( DATE *d )
+void date_decrement_day( DATE *d, int utc_offset )
 {
-	return date_decrement_days( d, 1.0 );
+	return date_decrement_days( d, 1.0, utc_offset );
 }
 
 void date_decrement_days(	DATE *d,
-				double days )
+				double days,
+				int utc_offset )
 {
 	double minus_days = -days;
 
 	date_increment_days(
 		d,
 		minus_days,
-		date_utc_offset() );
+		utc_offset );
 }
 
 void date_increment_months(	DATE *d,
-				int months )
+				int months,
+				int utc_offset )
 {
 	int year;
 	int month;
@@ -476,18 +491,19 @@ void date_increment_months(	DATE *d,
 		year,
 		month,
 		day,
-		0 /* utc_offset */ );
-
-} /* date_increment_months() */
+		utc_offset );
+}
 
 void date_increment_years(	DATE *d,
-				int years )
+				int years,
+				int utc_offset )
 {
-	date_decrement_years(d, -years );
+	date_decrement_years(d, -years, utc_offset );
 }
 
 void date_decrement_years(	DATE *d,
-				int years )
+				int years,
+				int utc_offset )
 {
 	int year;
 	int month;
@@ -503,9 +519,8 @@ void date_decrement_years(	DATE *d,
 		year,
 		month,
 		day,
-		0 /* utc_offset */ );
-
-} /* date_decrement_years() */
+		utc_offset );
+}
 
 void date_increment_day( DATE *d )
 {
@@ -1043,9 +1058,9 @@ void date_increment_days(	DATE *d,
 	d->current += (long)((double)SECONDS_IN_DAY * days);
 	date_set_tm_structures( d, d->current, utc_offset );
 }
+
 /* Returns static memory */
 /* --------------------- */
-
 char *date_yyyy_mm_dd( DATE *date )
 {
 	static char destination[ 16 ];
@@ -1661,7 +1676,7 @@ DATE *date_forward_to_first_month(	DATE *d,
 	DATE *return_date;
 
 	return_date = date_back_to_first_month( d, utc_offset );
-	date_increment_months( return_date, 1 );
+	date_increment_months( return_date, 1, utc_offset );
 
 	return return_date;
 

@@ -1,9 +1,8 @@
 {
 char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d: got where_clause = (%s)\n",
+sprintf( msg, "\n%s/%s()/%d\n",
 __FILE__,
 __FUNCTION__,
-__LINE__,
-where_clause );
+__LINE__ );
 m2( "hydrology", msg );
 }

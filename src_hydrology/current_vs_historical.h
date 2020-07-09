@@ -51,13 +51,17 @@ enum state current_vs_historical_get_state(
 char *current_vs_historical_get_state_string(
 				enum state );
 
-void current_vs_historical_get_dates(
+void current_vs_historical_dates(
 			char **por_historical_begin_date_string,
 			char **por_historical_end_date_string,
-			char **por_current_begin_date_string,
-			char **por_current_end_date_string,
 			char **current_begin_date_string,
 			char **current_end_date_string,
-			char *application_name );
+			char *application_name,
+			int current_year,
+			int historical_range_years );
+
+void current_vs_historical_output_body(
+			FILE *output_file,
+			char *additional_javascript );
 
 #endif

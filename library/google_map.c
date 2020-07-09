@@ -397,7 +397,9 @@ void google_map_output_heading( FILE *output_file,
 "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
 "<head>\n"
 "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"/>\n"
-"<meta name=\"viewport\" content=\"initial-scale=1.0, user-scalable=no\" />\n"
+"<meta name=\"viewport\" content=\"initial-scale=1.0, user-scalable=no\" />\n" );
+
+	fprintf(output_file,
 "<style type=\"text/css\">\n"
 "%s\n"
 "</style>\n"

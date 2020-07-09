@@ -84,7 +84,7 @@ void replace_twenty_four_hundred( 	char *source_destination,
 	date_increment_days(
 		date,
 		1.0,
-		date_utc_offset() );
+		0 /* utc_offset */ );
 
 	replace_piece(	source_destination,
 			delimiter,
