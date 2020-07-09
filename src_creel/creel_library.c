@@ -2726,7 +2726,8 @@ void creel_library_get_begin_end_dates(
 	{
 		date_decrement_days(
 				begin_date,
-				atof( days_offset ) );
+				atof( days_offset ),
+				0 /* utc_offset */ );
 	}
 	else
 	if ( strcmp( mail_merge_letter, "about_to_expire" ) == 0 )
