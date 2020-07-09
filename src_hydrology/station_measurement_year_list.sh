@@ -26,7 +26,7 @@ where="$join and $filter and 						\
 		where $m.station = $sd.station				\
 		  and $m.datatype = $sd.datatype			\
 		  and $m.measurement_date between '$year-01-01'		\
-		  and				   '$year-12-31')"
+					      and '$year-01-02')"
 
 echo "select $select from $from where $where order by $select;"		|
 sql.e
