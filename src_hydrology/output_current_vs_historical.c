@@ -713,19 +713,6 @@ void output_menu(		FILE *output_file,
 			(char *)0 /* station_type */ ) );
 	}
 
-	/* Output the menu choices. */
-	/* ------------------------ */
-	fprintf( output_file,
-"<script type=text/javascript>//<![CDATA[\n"
-"document.writeln(\"<style type='text/css'>#menu { display: none; }</style>\");\n"
-"//]]></script>\n"
-"<div class=dynarch_menu_class>\n"
-"<ul id=menu>\n"
-"%s\n"
-"</ul>\n"
-"</div>\n",
-		 menu_string );
-
 	if ( list_rewind( station_type_list ) )
 	{
 		char buffer[ 128 ];
@@ -776,6 +763,20 @@ void output_menu(		FILE *output_file,
 		ptr += sprintf( ptr, "</ul>\n" );
 
 	} /* if ( list_rewind( station_type_list ) ) */
+
+	/* Output the menu choices. */
+	/* ------------------------ */
+	fprintf( output_file,
+"<script type=text/javascript>//<![CDATA[\n"
+"document.writeln(\"<style type='text/css'>#menu { display: none; }</style>\");\n"
+"//]]></script>\n"
+"<div class=dynarch_menu_class>\n"
+"<ul id=menu>\n"
+"%s\n"
+"</ul>\n"
+"</div>\n",
+		 menu_string );
+
 }
 
 void output_map(		FILE *output_file,
