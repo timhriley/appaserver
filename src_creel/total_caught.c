@@ -871,7 +871,8 @@ void total_caught_get_begin_end_date_string(
 
 	date_decrement_days(
 		last_week,
-		WEEKENDS_TO_GO_BACK * 7 );
+		WEEKENDS_TO_GO_BACK * 7,
+		0 /* utc_offset */ );
 
 	date_get_yyyy_mm_dd( begin_date_string, last_week );
 
@@ -1410,7 +1411,8 @@ char *total_caught_get_trailer_count_weekend_string(
 
 			date_decrement_days(
 				yesterday,
-				1.0 );
+				1.0,
+				0 /* utc_offset */ );
 
 			date_get_yyyy_mm_dd(
 				trailer_count_weekend_string,
@@ -3935,11 +3937,17 @@ boolean total_caught_exists_census(
 			census_date_string,
 			interview_location );
 
-	return (boolean)dictionary_fetch(
+	if ( dictionary_fetch(
 			weekend_creel_census_dictionary,
-			key );
-
-} /* total_caught_exists_census() */
+			key ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
 
 FISHING_TRIP_LIST *total_caught_fishing_trip_list_new( void )
 {
@@ -4363,7 +4371,8 @@ DATE *total_caught_get_preceeding_full_census_saturday(
 		}
 		date_decrement_days(
 			preceeding_saturday,
-			7.0 );
+			7.0,
+			0 /* utc_offset */ );
 	}
 
 	return (DATE *)0;
