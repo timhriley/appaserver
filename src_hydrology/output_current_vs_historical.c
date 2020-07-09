@@ -1485,7 +1485,7 @@ void populate_point_array_historical_sys_string(
 "		from measurement			 "
 "		where %s				 "
 "		group by %s;\"				|"
-"sql_quick.e '|'					|"
+"sql.e '|'						|"
 "piece_inverse.e 0 '-'					|"
 "grep -v '|$'						|"
 "sed 's/|/^/1'						|"
@@ -1719,7 +1719,7 @@ void populate_point_array_current_sys_string(
 "		from measurement				 "
 "		where %s					 "
 "		group by %s;\"					|"
-"sql_quick.e '%c'						|"
+"sql.e '%c'							|"
 "grep -v '\\^$'							|"
 "cat								 ",
 		 select_clause,
