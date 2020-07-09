@@ -2734,7 +2734,7 @@ void creel_library_get_begin_end_dates(
 		date_increment_days(
 				end_date,
 				atof( days_offset ),
-				date_utc_offset() );
+				0 /* utc_offset */ );
 	}
 	else
 	{

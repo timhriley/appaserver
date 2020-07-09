@@ -291,6 +291,7 @@ char *search_replace_list_prepend( 	char *source_destination,
 	char data_to_replace[ 1024 ];
 
 	if ( list_reset( list ) )
+	{
 		do {
 			key = list_get( list );
 			data = dictionary_get( dictionary, key );
@@ -307,6 +308,7 @@ char *search_replace_list_prepend( 	char *source_destination,
 					data_to_replace );
 			}
 		} while( list_next( list ) );
+	}
 	return source_destination;
 } /* search_replace_list_prepend() */
 
@@ -325,6 +327,7 @@ char *search_replace_list_index_prepend_single_quoted(
 	char data_to_replace[ 1024 ];
 
 	if ( list_reset( list ) )
+	{
 		do {
 			key = list_get( list );
 			sprintf( key_to_search, 
@@ -354,6 +357,7 @@ char *search_replace_list_index_prepend_single_quoted(
 					data_to_replace );
 			}
 		} while( list_next( list ) );
+	}
 	return source_destination;
 } /* search_replace_list_index_prepend_single_quoted() */
 
@@ -372,8 +376,10 @@ char *search_replace_list_index_prepend_double_quoted(
 	char data_to_replace[ 1024 ];
 
 	if ( list_reset( list ) )
+	{
 		do {
 			key = list_get( list );
+
 			sprintf( key_to_search, 
 				 "%s%s", 
 				 search_key_prepend, 
@@ -401,7 +407,10 @@ char *search_replace_list_index_prepend_double_quoted(
 					data_to_replace );
 			}
 		} while( list_next( list ) );
+	} /* if */
+
 	return source_destination;
+
 } /* search_replace_list_index_prepend_double_quoted() */
 
 void list_interpolate_string_record( LIST *list, char delimiter )

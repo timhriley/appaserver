@@ -322,7 +322,7 @@ void test_recovery_loop1()
 			date_display( annual ),
 			recovery );
 
-		date_increment_months( annual, 12 );
+		date_increment_months( annual, 12, 0 /* utc_offset */ );
 		total += recovery;
 	}
 
@@ -368,7 +368,7 @@ void test_recovery_loop2()
 
 		printf( " %.2lf\n", recovery );
 
-		date_increment_months( annual, 12 );
+		date_increment_months( annual, 12, 0 /* utc_offset */ );
 		total += recovery;
 	}
 
@@ -416,7 +416,7 @@ void test_recovery_loop3(	double cash_basis,
 
 		printf( " %.2lf\n", recovery );
 
-		date_increment_months( annual, 12 );
+		date_increment_months( annual, 12, 0 /* utc_offset */ );
 		total += recovery;
 	}
 
@@ -467,7 +467,7 @@ void test_recovery_loop4(	double cash_basis,
 			printf( " %.2lf\n", recovery );
 		}
 
-		date_increment_years( annual, 1 );
+		date_increment_years( annual, 1, 0 /* utc_offset */ );
 		total += recovery;
 	}
 

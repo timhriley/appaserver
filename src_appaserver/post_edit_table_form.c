@@ -263,7 +263,7 @@ int main( int argc, char **argv )
 				session,
 				folder_name );
 
-	folder->mto1_isa_related_folder_list =
+	folder->folder_mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new(),
 			application_name,
@@ -277,29 +277,32 @@ int main( int argc, char **argv )
 			(LIST *)0 /* root_primary_attribute_name_list */,
 			0 /* recursive_level */ );
 
-	if ( strcmp( state, "update" ) == 0 )
-	{
-		folder->attribute_list =
-			attribute_get_attribute_list(
-				application_name,
-				folder->folder_name,
-				(char *)0 /* attribute_name */,
-				folder->mto1_isa_related_folder_list,
-				role_name );
-	}
-	else
-	/* ------------------------- */
-	/* Else must be state=insert */
-	/* ------------------------- */
-	{
-		folder->attribute_list =
-			attribute_get_attribute_list(
-				application_name,
-				folder->folder_name,
-				(char *)0 /* attribute_name */,
-				folder->mto1_related_folder_list,
-				role_name );
-	}
+	folder->attribute_list =
+		attribute_get_attribute_list(
+			application_name,
+			folder->folder_name,
+			(char *)0 /* attribute_name */,
+			folder->mto1_related_folder_list,
+			role_name );
+
+	folder->folder_mto1_isa_related_folder_list =
+		folder_mto1_isa_related_folder_list(
+			list_new() /* existing_related_folder_list */,
+			application_name,
+			folder->folder_name,
+			role_name,
+			0 /* recursive_level */ );
+
+	folder->folder_append_isa_attribute_list =
+		folder_append_isa_attribute_list(
+			application_name,
+			folder->folder_name,
+			folder->folder_mto1_isa_related_folder_list,
+			role_name );
+
+	folder->folder_append_isa_attribute_name_list =
+		folder_append_isa_attribute_name_list(
+			folder->folder_append_isa_attribute_list );
 
 	operation_list_structure =
 		operation_list_structure_new(
@@ -319,7 +322,7 @@ int main( int argc, char **argv )
 			dictionary_appaserver_new(
 				original_post_dictionary,
 				application_name,
-				folder->attribute_list,
+				folder->folder_append_isa_attribute_list,
 				operation_list_get_operation_name_list(
 					operation_list_structure->
 						operation_list ) ) ) )
@@ -336,11 +339,11 @@ int main( int argc, char **argv )
 	/* ------------------------------------------------ */
 	dictionary_set_indexed_date_time_to_current(
 		dictionary_appaserver->row_dictionary,
-		folder->attribute_list );
+		folder->folder_append_isa_attribute_list );
 
 	dictionary_remove_symbols_in_numbers(
 		dictionary_appaserver->row_dictionary,
-		folder->attribute_list );
+		folder->folder_append_isa_attribute_list );
 
 	/* Get from the non_prefixed_dictionary. */
 	/* ------------------------------------- */
@@ -788,7 +791,7 @@ void post_state_update(
 			session,
 			folder_name );
 
-	folder->mto1_isa_related_folder_list =
+	folder->folder_mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new(),
 			application_name,
@@ -806,7 +809,7 @@ void post_state_update(
 			application_name,
 			folder_name,
 			(char *)0 /* attribute_name */,
-			folder->mto1_isa_related_folder_list,
+			folder->folder_mto1_isa_related_folder_list,
 			role_name );
 
 	folder->primary_attribute_name_list =
@@ -816,14 +819,6 @@ void post_state_update(
 	folder->attribute_name_list =
 		folder_get_attribute_name_list(
 			folder->attribute_list );
-
-	operation_list_structure =
-		operation_list_structure_new(
-			application_name,
-			session,
-			folder_name,
-			role_name,
-			dont_omit_delete );
 
 	folder_load(		&folder->insert_rows_number,
 				&folder->lookup_email_output,
@@ -847,6 +842,14 @@ void post_state_update(
 				role_override_row_restrictions,
 				role_name,
 				(LIST *)0 /* mto1_related_folder_list */ );
+
+	operation_list_structure =
+		operation_list_structure_new(
+			application_name,
+			session,
+			folder_name,
+			role_name,
+			dont_omit_delete );
 
 	columns_updated =
 		post_state_update_for_folder(
@@ -877,9 +880,7 @@ void post_state_update(
 			folder->primary_attribute_name_list,
 			(folder->row_level_non_owner_forbid ||
 			 folder->row_level_non_owner_view_only),
-			target_frame,
-			(char *)0 /* database_string */,
-			folder->attribute_name_list );
+			target_frame );
 
 	if ( operation_list_structure->performed_any_output )
 	{
@@ -1094,7 +1095,7 @@ void post_state_lookup(
 					login_name );
 	}
 
-	folder->mto1_isa_related_folder_list =
+	folder->folder_mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new(),
 			application_name,
@@ -1112,7 +1113,7 @@ void post_state_lookup(
 			application_name,
 			folder_name,
 			(char *)0 /* attribute_name */,
-			folder->mto1_isa_related_folder_list,
+			folder->folder_mto1_isa_related_folder_list,
 			role_name );
 
 	folder->primary_attribute_name_list =
@@ -1125,7 +1126,7 @@ void post_state_lookup(
 
 	folder->primary_attribute_name_list =
 		folder_get_primary_attribute_name_list(
-					folder->attribute_list );
+			folder->attribute_list );
 
 	operation_list_structure->performed_any_output =
 		operation_list_perform_operations(
@@ -1140,9 +1141,7 @@ void post_state_lookup(
 			folder->primary_attribute_name_list,
 			(folder->row_level_non_owner_forbid ||
 			 folder->row_level_non_owner_view_only),
-			target_frame,
-			(char *)0 /* database_string */,
-			folder->attribute_name_list );
+			target_frame );
 
 	if ( operation_list_structure->performed_any_output ) return;
 
@@ -1247,7 +1246,8 @@ void execute_output_process(
 				application_name,
 				base_folder->folder_name,
 				(char *)0 /* attribute_name */,
-				base_folder->mto1_isa_related_folder_list,
+				base_folder->
+					folder_mto1_isa_related_folder_list,
 				role_name );
 
 		base_folder->primary_attribute_name_list =

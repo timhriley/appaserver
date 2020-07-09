@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_hydrology/post_current_vs_historical.c		*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/post_current_vs_historical.c	*/
+/* -----------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,6 +41,8 @@ int main( int argc, char **argv )
 	DICTIONARY *post_dictionary;
 	LIST *station_name_list;
 	char *datatype_name = "";
+	int current_year;
+	int historical_range_years;
 	char *station_type = "";
 	char sys_string[ 4096 ];
 
@@ -54,10 +56,10 @@ int main( int argc, char **argv )
 					application_name );
 	}
 
-	if ( argc < 8 )
+	if ( argc < 10 )
 	{
 		fprintf( stderr, 
-"Usage: %s application login_name session process state station_name_list datatype [station_type]\n",
+"Usage: %s application login_name session process state station_name_list datatype current_year historical_range_years [station_type]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -68,12 +70,14 @@ int main( int argc, char **argv )
 	state_string = argv[ 5 ];
 	station_name_list = list_string2list( argv[ 6 ], ',' );
 	datatype_name = argv[ 7 ];
+	current_year = atoi( argv[ 8 ] );
+	historical_range_years = atoi( argv[ 9 ] );
 
-	if ( argc == 9
-	&&   *argv[ 8 ]
-	&&   strcmp( argv[ 8 ], "station_type" ) != 0 )
+	if ( argc == 11
+	&&   *argv[ 10 ]
+	&&   strcmp( argv[ 10 ], "station_type" ) != 0 )
 	{
-		station_type = argv[ 8 ];
+		station_type = argv[ 10 ];
 	}
 
 	environ_set_environment(
@@ -102,7 +106,7 @@ int main( int argc, char **argv )
 			application_name, session, login_name );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	post_dictionary =
 		post2dictionary(stdin,
@@ -129,14 +133,15 @@ int main( int argc, char **argv )
 	}
 
 	sprintf( sys_string, 
-"output_current_vs_historical %s %s %s %s %s \"%s\" \"%s\" \"%s\" 2>>%s",
-		 application_name,
+"output_current_vs_historical %s %s %s %s \"%s\" \"%s\" %d %d \"%s\" 2>>%s",
 	 	 login_name,
 		 session,
 		 process_name,
 		 state_string,
 		 list_display_delimited( station_name_list, ',' ),
 		 datatype_name,
+		 current_year,
+		 historical_range_years,
 		 station_type,
 		 appaserver_error_get_filename(
 			application_name ) );

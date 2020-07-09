@@ -1407,7 +1407,8 @@ LIST *related_folder_get_mto1_related_folder_list(
 			session,
 			folder_name,
 			mto1,
-			related_folder_list );
+			related_folder_list
+				/* existing_related_folder_list */ );
 
 	if (!list_rewind( local_related_folder_list ) )
 	{
@@ -2064,6 +2065,67 @@ LIST *related_folder_get_global_related_folder_list(
 	return related_folder_list;
 } /* related_folder_get_global_related_folder_list() */
 
+LIST *related_folder_mto1_related_folder_list(
+			char *application_name,
+			char *folder_name,
+			LIST *existing_related_folder_list )
+{
+	LIST *related_folder_list;
+	RELATED_FOLDER *related_folder;
+	RELATED_FOLDER *new_related_folder;
+	FOLDER *folder;
+
+	if ( !global_related_folder_list )
+	{
+		global_related_folder_list =
+			related_folder_get_global_related_folder_list(
+				application_name,
+				BOGUS_SESSION,
+				RELATED_FOLDER_DELIMITER );
+	}
+
+	related_folder_list = list_new_list();
+
+	if ( !list_rewind( global_related_folder_list ) )
+		return (LIST *)0;
+
+	do {
+		related_folder = list_get_pointer( global_related_folder_list );
+
+		folder = related_folder->folder;
+
+		if ( related_folder_exists_related_folder_list(
+					folder->folder_name,
+					related_folder->related_attribute_name,
+					existing_related_folder_list,
+					mto1 /* relation_type */ ) )
+		{
+			continue;
+		}
+
+		if ( folder_name
+		&&   strcmp(	related_folder->
+					one2m_related_folder->
+						folder_name,
+				folder_name ) != 0 )
+		{
+			continue;
+		}
+
+		new_related_folder = related_folder_calloc();
+		memcpy(	new_related_folder,
+			related_folder,
+			sizeof( RELATED_FOLDER ) );
+
+		list_append_pointer(	related_folder_list,
+					new_related_folder );
+
+	} while( list_next( global_related_folder_list ) );
+
+	return related_folder_list;
+
+} /* related_folder_mto1_related_folder_list() */
+
 LIST *related_folder_get_related_folder_list(
 			char *application_name,
 			char *session,
@@ -2414,7 +2476,7 @@ boolean related_folder_exists_1tom_relations(
 			session,
 			folder_name,
 			one2m,
-			(LIST *)0 /* related_folder_list */ );
+			(LIST *)0 /* existing_related_folder_list */ );
 
 	if ( !list_rewind( one2m_related_folder_list ) ) return 0;
 
@@ -2886,27 +2948,6 @@ LIST *related_folder_get_preselection_dictionary_list(
 				(LIST *)0,
 				(LIST *)0 );
 
-#ifdef NOT_DEFINED
-		query = query_new(
-				application_name,
-				login_name,
-				related_folder->folder_name,
-				(LIST *)0 /* append_isa_attribute_list */,
-				query_dictionary,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				(ROLE *)0 /* role */,
-				(LIST *)0 /* where_attribute_name_list */,
-				(LIST *)0 /* where_attribute_data_list */,
-				0 /* max_rows zero for unlimited */,
-				0 /* not include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
-
 		related_folder_dictionary_list =
 			query_get_row_dictionary_list(
 				query->folder->application_name,
@@ -2915,7 +2956,7 @@ LIST *related_folder_get_preselection_dictionary_list(
 				query->query_output->where_clause,
 				query->query_output->order_clause,
 				query->max_rows,
-				query->folder->append_isa_attribute_list,
+				query->folder->folder_append_isa_attribute_list,
 				query->login_name );
 	}
 
@@ -2975,7 +3016,7 @@ LIST *related_folder_subtract_preselection_existing_dictionary_list(
 				query->query_output->where_clause,
 				query->query_output->order_clause,
 				query->max_rows,
-				query->folder->append_isa_attribute_list,
+				query->folder->folder_append_isa_attribute_list,
 				query->login_name );
 
 	if ( !primary_folder_dictionary_list
@@ -3380,7 +3421,7 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 			BOGUS_SESSION,
 			folder_name,
 			mto1,
-			(LIST *)0 /* related_folder_list */ );
+			(LIST *)0 /* existing_related_folder_list */ );
 
 	if (!list_rewind( local_related_folder_list ) )
 	{
@@ -4204,3 +4245,117 @@ char *related_folder_get_ajax_onclick_function(
 	return strdup( onclick_function );
 
 } /* related_folder_get_ajax_onclick_function() */
+
+LIST *related_folder_mto1_isa_related_folder_list(
+			LIST *existing_related_folder_list,
+			char *application_name,
+			char *folder_name,
+			char *role_name,
+			int recursive_level )
+{
+	RELATED_FOLDER *related_folder;
+	LIST *local_related_folder_list;
+
+	if ( !existing_related_folder_list )
+	{
+		existing_related_folder_list = list_new();
+	}
+
+	local_related_folder_list =
+		related_folder_mto1_related_folder_list(
+			application_name,
+			folder_name,
+			existing_related_folder_list );
+
+	if (!list_rewind( local_related_folder_list ) )
+	{
+		return existing_related_folder_list;
+	}
+
+	do {
+		related_folder =
+			list_get_pointer(
+				local_related_folder_list );
+
+		if ( !related_folder->relation_type_isa )
+		{
+			continue;
+		}
+
+		if ( timlib_strcmp(
+			related_folder->
+				one2m_related_folder->
+				folder_name,
+			folder_name ) != 0 )
+		{
+			continue;
+		}
+
+		related_folder->recursive_level = recursive_level;
+
+		related_folder->folder->attribute_list =
+			folder_attribute_list(
+				related_folder->
+					folder->
+					application_name,
+				related_folder->
+					folder->
+					folder_name,
+				role_name );
+
+		related_folder->folder->primary_attribute_name_list =
+			attribute_get_primary_attribute_name_list(
+				related_folder->
+					folder->
+					attribute_list );
+
+		folder_load(
+			&related_folder->folder->insert_rows_number,
+			&related_folder->folder->lookup_email_output,
+			&related_folder->folder->row_level_non_owner_forbid,
+			&related_folder->folder->row_level_non_owner_view_only,
+			&related_folder->folder->populate_drop_down_process,
+			&related_folder->folder->post_change_process,
+			&related_folder->folder->folder_form,
+			&related_folder->folder->notepad,
+			&related_folder->folder->html_help_file_anchor,
+			&related_folder->folder->
+				post_change_javascript,
+			&related_folder->folder->lookup_before_drop_down,
+			&related_folder->folder->data_directory,
+			&related_folder->folder->index_directory,
+			&related_folder->folder->no_initial_capital,
+			&related_folder->folder->subschema_name,
+			&related_folder->folder->create_view_statement,
+			application_name,
+			BOGUS_SESSION,
+			related_folder->folder->folder_name,
+			0 /* not override_row_restrictions */,
+			role_name,
+			(LIST *)0 /* mto1_related_folder_list */ );
+
+		related_folder->foreign_attribute_name_list =
+			related_folder_get_foreign_attribute_name_list(
+				related_folder->
+					folder->
+						primary_attribute_name_list,
+				related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
+
+		list_append_pointer(	existing_related_folder_list,
+					related_folder );
+
+		existing_related_folder_list =
+			related_folder_mto1_isa_related_folder_list(
+				   existing_related_folder_list,
+				   application_name,
+				   related_folder->folder->folder_name,
+				   role_name,
+				   recursive_level + 1 );
+
+	} while( list_next( local_related_folder_list ) );
+
+	return existing_related_folder_list;
+}
+

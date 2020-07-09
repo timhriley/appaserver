@@ -212,7 +212,7 @@ void date_ticker_month(	int how_many,
 	{
 		printf( "%s\n", date_display_yyyy_mm_dd_colon_hms( d ) );
 
-		date_increment_months( d, 1 );
+		date_increment_months( d, 1, 0 /* utc_offset */ );
 	}
 
 } /* date_ticker_month() */
@@ -232,7 +232,7 @@ void date_ticker_year(	int how_many,
 	{
 		printf( "%s\n", date_display_yyyy_mm_dd_colon_hms( d ) );
 
-		date_increment_years( d, 1 );
+		date_increment_years( d, 1, 0 /* utc_offset */ );
 	}
 
 } /* date_ticker_year() */

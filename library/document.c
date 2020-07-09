@@ -140,7 +140,7 @@ void document_output_dynarch_heading( FILE *output_stream )
 			HORIZONTAL_MENU_RELATIVE_DIRECTORY,
 			HORIZONTAL_MENU_RELATIVE_DIRECTORY,
 			HORIZONTAL_MENU_RELATIVE_DIRECTORY );
-} /* document_output_dynarch_heading() */
+}
 
 void document_output_html_stream( FILE *output_stream )
 {
@@ -414,6 +414,25 @@ void document_output_quick_body(	char *application_name,
 {
 	document_quick_output_body(	application_name,
 					appaserver_mount_point );
+}
+
+void document_quick_output_head(	char *application_name,
+					char *appaserver_mount_point )
+{
+	DOCUMENT *document;
+
+	document = document_new( "", application_name );
+	document_set_output_content_type( document );
+
+	document_output_head(
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		(char *)0 /* relative_source_directory */,
+		0 /* not with_dynarch_menu */ );
 }
 
 void document_quick_output_body(	char *application_name,

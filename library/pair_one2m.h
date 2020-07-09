@@ -70,4 +70,6 @@ char *pair_one2m_get_next_folder_name(
 				LIST *pair_inserted_folder_name_list,
 				LIST *pair_one2m_related_folder_list );
 
+boolean pair_one2m_omit(	DICTIONARY *pair_1tom_dictionary );
+
 #endif

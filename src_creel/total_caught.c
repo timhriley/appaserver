@@ -1371,7 +1371,7 @@ char *total_caught_get_trailer_count_weekend_string(
 			date_increment_days(
 				tomorrow,
 				1.0,
-				date_utc_offset() );
+				0 /* utc_offset */ );
 
 			date_get_yyyy_mm_dd(
 				trailer_count_weekend_string,
@@ -3897,7 +3897,7 @@ enum performed_census_weekend total_caught_get_performed_census_weekend(
 	date_increment_days(
 		prior_sunday,
 		1.0,
-		date_utc_offset() );
+		0 /* utc_offset */ );
 
 	exists_saturday =
 		total_caught_exists_census(
@@ -4179,7 +4179,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 		date_increment_days(
 			*interview_date_sunday,
 			1.0,
-			date_utc_offset() );
+			0 /* utc_offset */ );
 	}
 	else
 	if (	performed_census_weekend ==
@@ -4193,7 +4193,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 		date_increment_days(
 			*interview_date_saturday,
 			-1.0,
-			date_utc_offset() );
+			0 /* utc_offset */ );
 	}
 	else
 	if ( performed_census_weekend == day_sunday_census_weekend_missed )
@@ -4234,7 +4234,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 		date_increment_days(
 			*interview_date_sunday,
 			1.0,
-			date_utc_offset() );
+			0 /* utc_offset */ );
 	}
 	else
 	if ( performed_census_weekend == day_weekday_census_saturday_only )
@@ -4255,7 +4255,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 		date_increment_days(
 			*interview_date_sunday,
 			1.0,
-			date_utc_offset() );
+			0 /* utc_offset */ );
 	}
 	else
 	if (	performed_census_weekend ==
@@ -4274,7 +4274,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 		date_increment_days(
 			*interview_date_sunday,
 			1.0,
-			date_utc_offset() );
+			0 /* utc_offset */ );
 	}
 	else
 	if (	performed_census_weekend ==
@@ -4296,7 +4296,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 		date_increment_days(
 			*interview_date_sunday,
 			1.0,
-			date_utc_offset() );
+			0 /* utc_offset */ );
 	}
 	else
 	{
@@ -4347,7 +4347,7 @@ DATE *total_caught_get_preceeding_full_census_saturday(
 			date_increment_days(
 				preceeding_sunday,
 				1.0,
-				date_utc_offset() );
+				0 /* utc_offset */ );
 
 			performed_census_weekend =
 			total_caught_get_performed_census_weekend(

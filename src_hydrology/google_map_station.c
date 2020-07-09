@@ -136,8 +136,8 @@ void google_map_station_output_body(	FILE *output_file,
 					char *additional_javascript )
 {
 	google_map_output_body(	output_file,
-					with_table,
-					additional_javascript );
+				with_table,
+				additional_javascript );
 
 } /* google_map_station_output_body() */
 

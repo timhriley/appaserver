@@ -306,13 +306,6 @@ void generic_measurement_load(
 					(char *)0,
 					/* appaserver_user_foreign_login_name */
 					0 /* not include_root_folder */ );
-
-fprintf( stderr, "%s/%s()/%d: setting option_data_list = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-list_display_delimited( element->drop_down->option_data_list, '@' ) );
-
 			}
 		}
 

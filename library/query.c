@@ -295,7 +295,7 @@ QUERY *query_folder_new(	char *application_name,
 QUERY *query_new(		char *application_name,
 				char *login_name,
 				char *folder_name,
-				LIST *append_isa_attribute_list,
+				LIST *folder_append_isa_attribute_list,
 				DICTIONARY *dictionary,
 				DICTIONARY *sort_dictionary,
 				ROLE *role,
@@ -382,10 +382,10 @@ QUERY *query_new(		char *application_name,
 				(char *)0 /* folder_name */ );
 	}
 
-	if ( list_length( append_isa_attribute_list ) )
+	if ( list_length( folder_append_isa_attribute_list ) )
 	{
-		query->folder->append_isa_attribute_list =
-			append_isa_attribute_list;
+		query->folder->folder_append_isa_attribute_list =
+			folder_append_isa_attribute_list;
 	}
 
 	query->login_name = login_name;
@@ -427,8 +427,7 @@ QUERY_OUTPUT *query_process_output_new(
 
 	query_output->query_attribute_list =
 		query_get_attribute_list(
-			folder->
-				append_isa_attribute_list,
+			folder->folder_append_isa_attribute_list,
 			preprompt_dictionary,
 			exclude_attribute_name_list,
 			folder->folder_name
@@ -468,22 +467,23 @@ m2( folder->application_name, msg );
 	query_output->select_clause =
 		query_get_select_clause(
 			folder->application_name,
-			folder->append_isa_attribute_list );
+			folder->folder_append_isa_attribute_list );
 
 	query_output->from_clause = folder->folder_name;
 
 	query_output->order_clause = query_output->select_clause;
 
-	if ( list_length( folder->mto1_isa_related_folder_list ) )
+	if ( list_length( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *foreign_attribute_name_list;
 
-		list_rewind( folder->mto1_isa_related_folder_list );
+		list_rewind( folder->folder_mto1_isa_related_folder_list );
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder->mto1_isa_related_folder_list );
+					folder->
+					folder_mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -509,7 +509,9 @@ m2( folder->application_name, msg );
 						folder->
 						folder_name );
 
-		} while( list_next( folder->mto1_isa_related_folder_list ) );
+		} while( list_next(
+				folder->
+				folder_mto1_isa_related_folder_list ) );
 	}
 
 	return query_output;
@@ -565,22 +567,23 @@ m2( folder->application_name, msg );
 	query_output->select_clause =
 		query_get_select_clause(
 			folder->application_name,
-			folder->append_isa_attribute_list );
+			folder->folder_append_isa_attribute_list );
 
 	query_output->from_clause = folder->folder_name;
 
 	query_output->order_clause = query_output->select_clause;
 
-	if ( list_length( folder->mto1_isa_related_folder_list ) )
+	if ( list_length( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *foreign_attribute_name_list;
 
-		list_rewind( folder->mto1_isa_related_folder_list );
+		list_rewind( folder->folder_mto1_isa_related_folder_list );
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder->mto1_isa_related_folder_list );
+					folder->
+					folder_mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -606,7 +609,9 @@ m2( folder->application_name, msg );
 						folder->
 						folder_name );
 
-		} while( list_next( folder->mto1_isa_related_folder_list ) );
+		} while( list_next(
+				folder->
+				folder_mto1_isa_related_folder_list ) );
 	}
 
 	return query_output;
@@ -649,7 +654,7 @@ QUERY_OUTPUT *query_primary_data_output_new(
 
 	query_output->query_attribute_list =
 		query_get_attribute_list(
-			folder->append_isa_attribute_list,
+			folder->folder_append_isa_attribute_list,
 			query->dictionary,
 			exclude_attribute_name_list,
 			folder->folder_name
@@ -666,17 +671,18 @@ QUERY_OUTPUT *query_primary_data_output_new(
 			0 /* not combine_date_time */ );
 
 	if ( folder->row_level_non_owner_forbid
-	&&   list_length( folder->mto1_isa_related_folder_list ) )
+	&&   list_length( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *foreign_attribute_name_list;
 
-		list_rewind( folder->mto1_isa_related_folder_list );
+		list_rewind( folder->folder_mto1_isa_related_folder_list );
 
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder->mto1_isa_related_folder_list );
+					folder->
+					folder_mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -702,7 +708,9 @@ QUERY_OUTPUT *query_primary_data_output_new(
 						folder->
 						folder_name );
 
-		} while( list_next( folder->mto1_isa_related_folder_list ) );
+		} while( list_next(
+				folder->
+				folder_mto1_isa_related_folder_list ) );
 	}
 
 	return query_output;
@@ -824,7 +832,7 @@ m2( folder->application_name, msg );
 	{
 		query_output->query_attribute_list =
 			query_get_attribute_list(
-				folder->append_isa_attribute_list,
+				folder->folder_append_isa_attribute_list,
 				query->dictionary,
 				exclude_attribute_name_list,
 				folder->folder_name
@@ -874,7 +882,7 @@ generate_select_clause:
 		query_output->select_clause =
 			query_get_select_clause(
 				folder->application_name,
-				folder->append_isa_attribute_list );
+				folder->folder_append_isa_attribute_list );
 
 		query_output->from_clause = folder->folder_name;
 	}
@@ -901,7 +909,7 @@ generate_select_clause:
 	}
 
 	if ( folder
-	&&   list_rewind( folder->mto1_isa_related_folder_list ) )
+	&&   list_rewind( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *foreign_attribute_name_list;
@@ -909,7 +917,8 @@ generate_select_clause:
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder->mto1_isa_related_folder_list );
+					folder->
+					folder_mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -935,7 +944,9 @@ generate_select_clause:
 						folder->
 						folder_name );
 
-		} while( list_next( folder->mto1_isa_related_folder_list ) );
+		} while( list_next(
+				folder->
+				folder_mto1_isa_related_folder_list ) );
 	}
 
 	if ( list_rewind( query->mto1_join_folder_list ) )
@@ -1078,7 +1089,7 @@ LIST *query_get_row_dictionary_list(
 				char *where_clause,
 				char *order_clause,
 				int max_rows,
-				LIST *append_isa_attribute_list,
+				LIST *folder_append_isa_attribute_list,
 				char *login_name )
 {
 	LIST *row_dictionary_list = {0};
@@ -1098,9 +1109,9 @@ LIST *query_get_row_dictionary_list(
 		list_usage_pipe2dictionary_list(
 			sys_string, 
 	 		attribute_get_lookup_allowed_attribute_name_list(
-				append_isa_attribute_list ),
+				folder_append_isa_attribute_list ),
 	 		attribute_get_date_attribute_name_list(
-				append_isa_attribute_list ),
+				folder_append_isa_attribute_list ),
 			FOLDER_DATA_DELIMITER,
 			application_name,
 			login_name );
@@ -1246,7 +1257,7 @@ LIST *query_get_record_list(	char *application_name,
 } /* query_get_record_list() */
 
 char *query_get_select_clause(	char *application_name,
-				LIST *append_isa_attribute_list )
+				LIST *folder_append_isa_attribute_list )
 {
 	ATTRIBUTE *attribute;
 	char select_clause[ 65536 ];
@@ -1254,16 +1265,17 @@ char *query_get_select_clause(	char *application_name,
 	register boolean first_time = 1;
 	LIST *lookup_allowed_attribute_name_list;
 
-	if ( !list_length( append_isa_attribute_list ) ) return (char *)0; 
+	if ( !list_length( folder_append_isa_attribute_list ) )
+		return (char *)0; 
 
 	lookup_allowed_attribute_name_list =
 	 	attribute_get_lookup_allowed_attribute_name_list(
-			append_isa_attribute_list );
+			folder_append_isa_attribute_list );
 
-	list_rewind( append_isa_attribute_list );
+	list_rewind( folder_append_isa_attribute_list );
 
 	do {
-		attribute = list_get( append_isa_attribute_list );
+		attribute = list_get( folder_append_isa_attribute_list );
 
 		if ( !attribute->datatype ) continue;
 
@@ -1317,7 +1329,7 @@ char *query_get_select_clause(	char *application_name,
 					attribute->attribute_name );
 		}
 
-	} while( list_next( append_isa_attribute_list ) );
+	} while( list_next( folder_append_isa_attribute_list ) );
 
 	return strdup( select_clause );
 
@@ -2998,7 +3010,7 @@ QUERY_ATTRIBUTE *query_attribute_new(	char *attribute_name,
 } /* query_attribute_new() */
 
 LIST *query_get_attribute_list(
-			LIST *append_isa_attribute_list,
+			LIST *folder_append_isa_attribute_list,
 			DICTIONARY *dictionary,
 			LIST *exclude_attribute_name_list,
 			char *dictionary_prepend_folder_name )
@@ -3011,10 +3023,13 @@ LIST *query_get_attribute_list(
 	char *operator_name;
 	enum relational_operator relational_operator;
 
-	if ( !list_rewind( append_isa_attribute_list ) ) return (LIST *)0;
+	if ( !list_rewind( folder_append_isa_attribute_list ) )
+		return (LIST *)0;
 
 	do {
-		attribute = list_get_pointer( append_isa_attribute_list );
+		attribute =
+			list_get_pointer(
+				folder_append_isa_attribute_list );
 
 		if ( list_exists_string(
 				exclude_attribute_name_list,
@@ -3111,7 +3126,7 @@ LIST *query_get_attribute_list(
 			query_attribute_list,
 			query_attribute );
 
-	} while( list_next( append_isa_attribute_list ) );
+	} while( list_next( folder_append_isa_attribute_list ) );
 
 	return query_attribute_list;
 
@@ -5273,7 +5288,7 @@ LIST *query_get_subquery_list(	DICTIONARY *dictionary,
 			query_get_attribute_list(
 				related_folder->
 					one2m_related_folder->
-					append_isa_attribute_list,
+					folder_append_isa_attribute_list,
 				dictionary,
 				exclude_attribute_name_list,
 				related_folder->
@@ -5925,7 +5940,7 @@ QUERY_OUTPUT *query_folder_output_new(
 		query_output->select_clause =
 			query_get_select_clause(
 				folder->application_name,
-				folder->append_isa_attribute_list );
+				folder->folder_append_isa_attribute_list );
 
 		query_output->from_clause = folder->folder_name;
 
@@ -5984,7 +5999,7 @@ m2( folder->application_name, msg );
 
 	query_output->query_attribute_list =
 		query_get_attribute_list(
-			folder->append_isa_attribute_list,
+			folder->folder_append_isa_attribute_list,
 			query->dictionary,
 			exclude_attribute_name_list,
 			folder->folder_name
@@ -6028,7 +6043,7 @@ m2( folder->application_name, msg );
 	query_output->select_clause =
 		query_get_select_clause(
 			folder->application_name,
-			folder->append_isa_attribute_list );
+			folder->folder_append_isa_attribute_list );
 
 	query_output->from_clause = folder->folder_name;
 
@@ -6053,16 +6068,17 @@ m2( folder->application_name, msg );
 		query_output->order_clause = query_output->select_clause;
 	}
 
-	if ( list_length( folder->mto1_isa_related_folder_list ) )
+	if ( list_length( folder->folder_mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *foreign_attribute_name_list;
 
-		list_rewind( folder->mto1_isa_related_folder_list );
+		list_rewind( folder->folder_mto1_isa_related_folder_list );
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder->mto1_isa_related_folder_list );
+					folder->
+					folder_mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -6089,7 +6105,9 @@ m2( folder->application_name, msg );
 						folder->
 						folder_name );
 
-		} while( list_next( folder->mto1_isa_related_folder_list ) );
+		} while( list_next(
+				folder->
+				folder_mto1_isa_related_folder_list ) );
 	}
 
 	if ( list_rewind( query->mto1_join_folder_list ) )
@@ -6182,9 +6200,11 @@ void query_output_set_row_level_non_owner_forbid_join(
 			}
 
 
+			/* This is the old way of setting. */
+			/* ------------------------------- */ 
 			related_folder->
 				folder->
-				mto1_isa_related_folder_list =
+				folder_mto1_isa_related_folder_list =
 				   related_folder_get_isa_related_folder_list(
 					folder->application_name,
 					BOGUS_SESSION,
@@ -6196,21 +6216,21 @@ void query_output_set_row_level_non_owner_forbid_join(
 			if ( !list_length(
 				related_folder->
 					folder->
-					mto1_isa_related_folder_list ) )
+					folder_mto1_isa_related_folder_list ) )
 			{
 				continue;
 			}
 
 			list_rewind( related_folder->
 					folder->
-					mto1_isa_related_folder_list );
+					folder_mto1_isa_related_folder_list );
 
 			do {
 				isa_related_folder =
 					list_get_pointer(
-						related_folder->
-						folder->
-						mto1_isa_related_folder_list );
+					  related_folder->
+					  folder->
+					  folder_mto1_isa_related_folder_list );
 
 				foreign_attribute_name_list =
 				   folder_get_primary_attribute_name_list(
@@ -6239,7 +6259,7 @@ void query_output_set_row_level_non_owner_forbid_join(
 			} while( list_next(
 					related_folder->
 					folder->
-					mto1_isa_related_folder_list ) );
+					folder_mto1_isa_related_folder_list ) );
 
 		} while( list_next(
 					folder->
@@ -6289,7 +6309,7 @@ void query_set_row_level_non_owner_forbid_dictionary(
 				EQUAL_OPERATOR );
 
 	if ( !attribute_list_exists(
-		folder->append_isa_attribute_list,
+		folder->folder_append_isa_attribute_list,
 		QUERY_LOGIN_NAME_ATTRIBUTE_NAME ) )
 	{
 		ATTRIBUTE *attribute;
@@ -6297,7 +6317,7 @@ void query_set_row_level_non_owner_forbid_dictionary(
 		attribute = attribute_new( QUERY_LOGIN_NAME_ATTRIBUTE_NAME );
 
 		list_append_pointer(
-			folder->append_isa_attribute_list,
+			folder->folder_append_isa_attribute_list,
 			attribute );
 	}
 } /* query_set_row_level_non_owner_forbid_dictionary() */

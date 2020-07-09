@@ -19,6 +19,7 @@
 #include "document.h"
 #include "datatype.h"
 #include "application.h"
+#include "google_map.h"
 #include "google_map_station.h"
 #include "google_chart.h"
 #include "process.h"
@@ -44,8 +45,10 @@ void current_vs_historical_cycle_right(
 int current_vs_historical_shift_right(
 				char *current_end_date_string );
 
-LIST *get_historical_long_term_datatype_name_display_list(
-				LIST *datatype_name_list );
+LIST *current_vs_historical_datatype_name_display_list(
+				LIST *datatype_name_list,
+				int current_year,
+				int historical_year );
 
 boolean populate_point_array_historical_fetch(
 				LIST *barchart_list,
@@ -58,7 +61,9 @@ void output_historical_current(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name );
+				char *application_name,
+				int current_year,
+				int historical_range_years );
 
 void remove_exclude_datatype_name_list(
 				LIST *datatype_list,
@@ -69,7 +74,9 @@ void populate_point_array_current_sys_string(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name );
+				char *application_name,
+				int current_year,
+				int historical_range_years );
 
 boolean populate_point_array_historical_current(
 				LIST *timeline_list,
@@ -77,7 +84,9 @@ boolean populate_point_array_historical_current(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name );
+				char *application_name,
+				int current_year,
+				int historical_range_years );
 
 boolean populate_point_array_current(
 				LIST *timeline_list,
@@ -85,15 +94,20 @@ boolean populate_point_array_current(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name );
+				char *application_name,
+				int current_year,
+				int historical_range_years );
 
-void populate_point_array_historical_long_term_sys_string(
+void populate_point_array_historical_sys_string(
 				char *sys_string,
 				LIST *station_name_list,
 				char *aggregation_function,
 				char *application_name,
 				char *datatype_name,
-				char *stratum_datatype_name );
+				char *stratum_datatype_name,
+				int current_year,
+				int historical_range_years,
+				boolean is_current );
 
 boolean populate_point_array_historical(
 				LIST *barchart_list,
@@ -101,31 +115,39 @@ boolean populate_point_array_historical(
 				LIST *station_name_list,
 				char *application_name,
 				char *aggregation_function,
-				char *datatype_name );
+				char *datatype_name,
+				int current_year,
+				int historical_range_years );
 
 GOOGLE_OUTPUT_CHART *current_vs_historical_long_google_output_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name );
+				char *application_name,
+				int current_year,
+				int historical_range_years );
 
-GOOGLE_OUTPUT_CHART *get_google_historical_current_chart(
+GOOGLE_OUTPUT_CHART *current_vs_historical_google_historical_current_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name );
+				char *application_name,
+				int current_year,
+				int historical_range_years );
 
-GOOGLE_OUTPUT_CHART *get_google_current_chart(
+GOOGLE_OUTPUT_CHART *current_vs_historical_google_current_chart(
 				char *application_name,
 				LIST *station_name_list,
-				char *datatype_name );
+				char *datatype_name,
+				int current_year,
+				int historical_range_years );
 
 void remove_suffix_2(		LIST *datatype_list );
 
 void move_datatype_to_top(	LIST *datatype_list,
 				char *datatype_name );
 
-char *get_post_action_string(
+char *current_vs_historical_post_action_string(
 				char *application_name,
 				char *login_name,
 				char *session,
@@ -133,20 +155,27 @@ char *get_post_action_string(
 				enum state,
 				LIST *station_name_list,
 				char *datatype_name,
+				int current_year,
+				int historical_range_years,
 				char *station_type );
 
 void output_current(
 				FILE *output_file,
 				char *application_name,
 				LIST *station_name_list,
-				char *datatype_name );
+				char *datatype_name,
+				int current_year,
+				int historical_range_years );
 
 void output_historical(
 				FILE *output_file,
 				char *application_name,
 				LIST *station_name_list,
 				char *datatype_name,
-				char *current_end_date );
+				char *current_end_date,
+				int current_year,
+				int historical_range_years,
+				int historical_year );
 
 boolean output_historical_long_term(
 				FILE *output_file,
@@ -155,7 +184,10 @@ boolean output_historical_long_term(
 				boolean bar_chart,
 				char *units,
 				char *application_name,
-				char *current_end_date );
+				char *current_end_date,
+				int current_year,
+				int historical_range_years,
+				int historical_year );
 
 boolean output_datatype(	char **datatype_name,
 				FILE *output_file,
@@ -164,7 +196,9 @@ boolean output_datatype(	char **datatype_name,
 				char *session,
 				char *process_name,
 				enum state,
-				LIST *station_name_list );
+				LIST *station_name_list,
+				int current_year,
+				int historical_range_years );
 
 void output_menu(		FILE *output_file,
 				char *application_name,
@@ -173,14 +207,18 @@ void output_menu(		FILE *output_file,
 				char *process_name,
 				enum state,
 				LIST *station_name_list,
-				char *datatype_name );
+				char *datatype_name,
+				int current_year,
+				int historical_range_years );
 
 void output_map(		FILE *output_file,
 				char *application_name,
 				char *login_name,
 				char *station_type,
 				char *session,
-				char *process_name );
+				char *process_name,
+				int current_year,
+				int historical_range_years );
 
 void output_current_vs_historical(
 				FILE *output_file,
@@ -192,7 +230,10 @@ void output_current_vs_historical(
 				LIST *station_name_list,
 				char *datatype_name,
 				char *station_type,
-				char *current_end_date );
+				char *current_end_date,
+				int current_year,
+				int historical_range_years,
+				int historical_year );
 
 int main( int argc, char **argv )
 {
@@ -208,58 +249,67 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	LIST *station_name_list;
 	char *datatype_name;
+	int current_year;
+	int historical_year;
+	int historical_range_years;
 	char *station_type = {0};
-	DOCUMENT *document;
 	char *por_historical_begin_date = {0};
 	char *por_historical_end_date = {0};
-	char *por_current_begin_date = {0};
-	char *por_current_end_date = {0};
 	char *current_begin_date = {0};
 	char *current_end_date = {0};
 
-	application_name = argv[ 1 ];
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+	appaserver_output_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
-	if ( argc < 8 )
+	if ( argc < 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application login_name session process state station_name_list datatype [station_type]\n",
+"Usage: %s login_name session process state station_name_list datatype current_year historical_range_years [station_type]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	login_name = argv[ 2 ];
-	session = argv[ 3 ];
-	process_name = argv[ 4 ];
-	state = current_vs_historical_get_state( argv[ 5 ] );
-	station_name_list = list_string2list( argv[ 6 ], ',' );
-	datatype_name = argv[ 7 ];
+	login_name = argv[ 1 ];
+	session = argv[ 2 ];
+	process_name = argv[ 3 ];
+	state = current_vs_historical_get_state( argv[ 4 ] );
+	station_name_list = list_string2list( argv[ 5 ], ',' );
+	datatype_name = argv[ 6 ];
+	current_year = atoi( argv[ 7 ] );
+	historical_range_years = atoi( argv[ 8 ] );
 
-	if ( argc == 9
-	&&   *argv[ 8 ]
-	&&   strcmp( argv[ 8 ], "station_type" ) != 0 )
+	if ( argc == 10
+	&&   *argv[ 9 ]
+	&&   strcmp( argv[ 9 ], "station_type" ) != 0 )
 	{
-		station_type = argv[ 8 ];
+		station_type = argv[ 9 ];
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	current_vs_historical_get_dates(
+	current_vs_historical_dates(
 		&por_historical_begin_date,
 		&por_historical_end_date,
-		&por_current_begin_date,
-		&por_current_end_date,
 		&current_begin_date,
 		&current_end_date,
-		application_name );
+		application_name,
+		current_year,
+		historical_range_years );
+
+	current_year = atoi( current_end_date );
+	historical_year = atoi( por_historical_begin_date );
 
 	if ( state == initial )
 	{
 		APPASERVER_LINK_FILE *appaserver_link_file;
+
+		document_output_content_type();
 
 		appaserver_link_file =
 			appaserver_link_file_new(
@@ -321,31 +371,15 @@ int main( int argc, char **argv )
 	if ( !list_length( station_name_list ) )
 	{
 		document_output_content_type();
+
 		state = map;
 		output_file = stdout;
 	}
 	else
 	{
-		document = document_new(
-				(char *)0 /* insert_update_key */,
-				application_name );
-
-		document_output_head(
-			document->application_name,
-			format_initial_capital(
-				buffer,
-				process_name ) /* title */,
-			1 /* output_content_type */,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-			document->application_name,
-			ADDITIONAL_ONLOAD_CONTROL_STRING );
+		document_quick_output_head(
+			application_name,
+			appaserver_parameter_file-> appaserver_mount_point );
 
 		output_file = stdout;
 	}
@@ -360,7 +394,10 @@ int main( int argc, char **argv )
 				station_name_list,
 				datatype_name,
 				station_type,
-				current_end_date );
+				current_end_date,
+				current_year,
+				historical_range_years,
+				historical_year );
 
 	if ( state == initial )
 	{
@@ -379,10 +416,8 @@ int main( int argc, char **argv )
 "<body>\n"
 "<h1>%s</h1>\n"
 "<table>\n"
-"<tr><td>Historical Period-of-record begin date (red bar):<td>%s\n"
-"<tr><td>Historical Period-of-record end date (red bar):<td>%s\n"
-"<tr><td>Current Period-of-record begin date (blue bar):<td>%s\n"
-"<tr><td>Current Period-of-record end date (blue bar):<td>%s\n"
+"<tr><td>Historical Period-of-record begin date:<td>%s\n"
+"<tr><td>Historical Period-of-record end date:<td>%s\n"
 "<tr><td>Current begin date:<td>%s\n"
 "<tr><td>Current end date:<td>%s\n"
 "</table>\n"
@@ -395,8 +430,6 @@ int main( int argc, char **argv )
 				process_name ),
 			por_historical_begin_date,
 			por_historical_end_date,
-			por_current_begin_date,
-			por_current_end_date,
 			current_begin_date,
 			current_end_date,
 			http_filename );
@@ -425,7 +458,10 @@ void output_current_vs_historical(
 				LIST *station_name_list,
 				char *datatype_name,
 				char *station_type,
-				char *current_end_date )
+				char *current_end_date,
+				int current_year,
+				int historical_range_years,
+				int historical_year )
 {
 	if ( state == initial || state == map )
 	{
@@ -434,7 +470,9 @@ void output_current_vs_historical(
 				login_name,
 				station_type,
 				session,
-				process_name );
+				process_name,
+				current_year,
+				historical_range_years );
 
 		output_menu(	output_file,
 				application_name,
@@ -443,12 +481,19 @@ void output_current_vs_historical(
 				process_name,
 				state,
 				station_name_list,
-				datatype_name );
+				datatype_name,
+				current_year,
+				historical_range_years );
+
 	}
 	else
 	if ( state == post_map )
 	{
 		state = current;
+
+		current_vs_historical_output_body(
+				output_file,
+				ADDITIONAL_ONLOAD_CONTROL_STRING );
 
 		if ( !output_datatype(
 				&datatype_name,
@@ -458,7 +503,9 @@ void output_current_vs_historical(
 				session,
 				process_name,
 				state,
-				station_name_list )
+				station_name_list,
+				current_year,
+				historical_range_years )
 		|| ( !datatype_name ) )
 		{
 			fprintf( output_file,
@@ -471,7 +518,9 @@ void output_current_vs_historical(
 				output_file,
 				application_name,
 				station_name_list,
-				datatype_name );
+				datatype_name,
+				current_year,
+				historical_range_years );
 		}
 
 		output_menu(	output_file,
@@ -481,11 +530,17 @@ void output_current_vs_historical(
 				process_name,
 				state,
 				station_name_list,
-				datatype_name );
+				datatype_name,
+				current_year,
+				historical_range_years );
 	}
 	else
 	if ( state == historical )
 	{
+		current_vs_historical_output_body(
+				output_file,
+				ADDITIONAL_ONLOAD_CONTROL_STRING );
+
 		output_datatype(
 				&datatype_name,
 				output_file,
@@ -494,14 +549,19 @@ void output_current_vs_historical(
 				session,
 				process_name,
 				state,
-				station_name_list );
+				station_name_list,
+				current_year,
+				historical_range_years );
 
 		output_historical(
 				output_file,
 				application_name,
 				station_name_list,
 				datatype_name,
-				current_end_date );
+				current_end_date,
+				current_year,
+				historical_range_years,
+				historical_year );
 
 		output_menu(	output_file,
 				application_name,
@@ -510,11 +570,17 @@ void output_current_vs_historical(
 				process_name,
 				state,
 				station_name_list,
-				datatype_name );
+				datatype_name,
+				current_year,
+				historical_range_years );
 	}
 	else
 	if ( state == current )
 	{
+		current_vs_historical_output_body(
+				output_file,
+				ADDITIONAL_ONLOAD_CONTROL_STRING );
+
 		output_datatype(
 				&datatype_name,
 				output_file,
@@ -523,13 +589,17 @@ void output_current_vs_historical(
 				session,
 				process_name,
 				state,
-				station_name_list );
+				station_name_list,
+				current_year,
+				historical_range_years );
 
 		output_current(
 				output_file,
 				application_name,
 				station_name_list,
-				datatype_name );
+				datatype_name,
+				current_year,
+				historical_range_years );
 
 		output_menu(	output_file,
 				application_name,
@@ -538,10 +608,12 @@ void output_current_vs_historical(
 				process_name,
 				state,
 				station_name_list,
-				datatype_name );
-	}
+				datatype_name,
+				current_year,
+				historical_range_years );
 
-} /* output_current_vs_historical() */
+	}
+}
 
 void output_menu(		FILE *output_file,
 				char *application_name,
@@ -550,10 +622,14 @@ void output_menu(		FILE *output_file,
 				char *process_name,
 				enum state state,
 				LIST *station_name_list,
-				char *datatype_name )
+				char *datatype_name,
+				int current_year,
+				int historical_range_years )
 {
 	char menu_string[ 65536 ];
 	LIST *station_type_list = {0};
+
+	document_output_dynarch_heading( output_file );
 
 	if ( state == initial || state == map )
 	{
@@ -561,7 +637,7 @@ void output_menu(		FILE *output_file,
 		sprintf( menu_string,
 "<li><a href=%s><span class=menu>Map</span></a>\n"
 "<li><a><span class=menu>Station Type</span></a>\n",
-		get_post_action_string(
+		current_vs_historical_post_action_string(
 			application_name,
 			login_name,
 			session,
@@ -569,6 +645,8 @@ void output_menu(		FILE *output_file,
 			map,
 			(LIST *)0 /* station_name_list */,
 			(char *)0 /* datatype_name */,
+			current_year,
+			historical_range_years,
 			(char *)0 /* station_type */ ) );
 
 		station_type_list =
@@ -582,7 +660,7 @@ void output_menu(		FILE *output_file,
 		sprintf( menu_string,
 "<li><a href=%s><span class=menu>Map</span></a>\n"
 "<li><a href=%s><span class=menu>Current</span></a>\n",
-		get_post_action_string(
+		current_vs_historical_post_action_string(
 			application_name,
 			login_name,
 			session,
@@ -590,8 +668,10 @@ void output_menu(		FILE *output_file,
 			map,
 			(LIST *)0 /* station_name_list */,
 			(char *)0 /* datatype_name */,
+			current_year,
+			historical_range_years,
 			(char *)0 /* station_type */ ),
-		get_post_action_string(
+		current_vs_historical_post_action_string(
 			application_name,
 			login_name,
 			session,
@@ -599,6 +679,8 @@ void output_menu(		FILE *output_file,
 			current,
 			station_name_list,
 			datatype_name,
+			current_year,
+			historical_range_years,
 			(char *)0 /* station_type */ ) );
 	}
 	else
@@ -607,7 +689,7 @@ void output_menu(		FILE *output_file,
 		sprintf( menu_string,
 "<li><a href=%s><span class=menu>Map</span></a>\n"
 "<li><a href=%s><span class=menu>Historical</span></a>\n",
-		get_post_action_string(
+		current_vs_historical_post_action_string(
 			application_name,
 			login_name,
 			session,
@@ -615,8 +697,10 @@ void output_menu(		FILE *output_file,
 			map,
 			(LIST *)0 /* station_name_list */,
 			(char *)0 /* datatype_name */,
+			current_year,
+			historical_range_years,
 			(char *)0 /* station_type */),
-		get_post_action_string(
+		current_vs_historical_post_action_string(
 			application_name,
 			login_name,
 			session,
@@ -624,6 +708,8 @@ void output_menu(		FILE *output_file,
 			historical,
 			station_name_list,
 			datatype_name,
+			current_year,
+			historical_range_years,
 			(char *)0 /* station_type */ ) );
 	}
 
@@ -640,7 +726,7 @@ void output_menu(		FILE *output_file,
 
 			ptr += sprintf( ptr,
 "<li><a href=%s><span class=menu>%s</span></a>\n",
-				get_post_action_string(
+				current_vs_historical_post_action_string(
 					application_name,
 					login_name,
 					session,
@@ -648,6 +734,8 @@ void output_menu(		FILE *output_file,
 					map,
 					(LIST *)0 /* station_name_list */,
 					(char *)0 /* datatype_name */,
+					current_year,
+					historical_range_years,
 					station_type ),
 				format_initial_capital(
 					buffer,
@@ -657,7 +745,7 @@ void output_menu(		FILE *output_file,
 
 		ptr += sprintf( ptr,
 "<li><a href=%s><span class=menu>%s</span></a>\n",
-				get_post_action_string(
+				current_vs_historical_post_action_string(
 					application_name,
 					login_name,
 					session,
@@ -665,6 +753,8 @@ void output_menu(		FILE *output_file,
 					map,
 					(LIST *)0 /* station_name_list */,
 					(char *)0 /* datatype_name */,
+					current_year,
+					historical_range_years,
 					NULL_OPERATOR ),
 				format_initial_capital(
 					buffer,
@@ -674,6 +764,8 @@ void output_menu(		FILE *output_file,
 
 	} /* if ( list_rewind( station_type_list ) ) */
 
+	/* Output the menu choices. */
+	/* ------------------------ */
 	fprintf( output_file,
 "<script type=text/javascript>//<![CDATA[\n"
 "document.writeln(\"<style type='text/css'>#menu { display: none; }</style>\");\n"
@@ -685,16 +777,16 @@ void output_menu(		FILE *output_file,
 "</div>\n",
 		 menu_string );
 
-	document_output_dynarch_heading( output_file );
-
-} /* output_menu() */
+}
 
 void output_map(		FILE *output_file,
 				char *application_name,
 				char *login_name,
 				char *station_type,
 				char *session,
-				char *process_name )
+				char *process_name,
+				int current_year,
+				int historical_range_years )
 {
 	GOOGLE_MAP_STATION *google_map_station;
 	char *google_map_key_data;
@@ -707,15 +799,17 @@ void output_map(		FILE *output_file,
 		google_map_station_get_map_key(
 			application_name );
 
+	/* Outputs <DOCTYPE> and <head> */
+	/* ---------------------------- */
 	google_map_station_output_heading(
-				output_file,
-				title,
-				google_map_key_data,
-				"station",
-				"populate_station_name_list( station )",
-				application_name,
-				MAP_POSITION_TOP,
-				MAP_POSITION_LEFT );
+		output_file,
+		title,
+		google_map_key_data,
+		"station",
+		"populate_station_name_list( station )",
+		application_name,
+		MAP_POSITION_TOP,
+		MAP_POSITION_LEFT );
 
 	google_map_station =
 		google_map_station_new(
@@ -740,10 +834,9 @@ void output_map(		FILE *output_file,
 		} while( list_next( google_map_station->station_list ) );
 	}
 
-	google_map_station_output_head_close( output_file );
+	google_map_output_heading_close( output_file );
 
-	google_map_station_output_body(
-				output_file,
+	google_map_output_body(	output_file,
 				0 /* not with_table */,
 				ADDITIONAL_ONLOAD_CONTROL_STRING );
 
@@ -819,7 +912,7 @@ void output_map(		FILE *output_file,
 "</form>\n"
 "</div>\n",
 		CURRENT_VS_HISTORICAL_STATION_PREFIX,
-		get_post_action_string(
+		current_vs_historical_post_action_string(
 			application_name,
 			login_name,
 			session,
@@ -827,19 +920,23 @@ void output_map(		FILE *output_file,
 			post_map,
 			(LIST *)0 /* station_name_list */,
 			(char *)0 /* datatype_name */,
+			current_year,
+			historical_range_years,
 			(char *)0 /* station_type */ ),
 		CURRENT_VS_HISTORICAL_STATION_PREFIX );
 
-} /* output_map() */
+}
 
-boolean output_datatype(char **datatype_name,
-			FILE *output_file,
-			char *application_name,
-			char *login_name,
-			char *session,
-			char *process_name,
-			enum state state,
-			LIST *station_name_list )
+boolean output_datatype(	char **datatype_name,
+				FILE *output_file,
+				char *application_name,
+				char *login_name,
+				char *session,
+				char *process_name,
+				enum state state,
+				LIST *station_name_list,
+				int current_year,
+				int historical_range_years )
 {
 	LIST *datatype_list;
 	DATATYPE *datatype;
@@ -865,12 +962,13 @@ boolean output_datatype(char **datatype_name,
 				"rain" );
 
 	fprintf( output_file,
-"<div class=historical_heading>%s</div>\n"
+"<div class=historical_heading>%s (%d)</div>\n"
 "<div class=historical_radio_button>\n"
 "<form enctype=\"multipart/form-data\" method=post\n"
 "	action=%s>\n",
 		list_display( station_name_list ),
-		get_post_action_string(
+		current_year,
+		current_vs_historical_post_action_string(
 			application_name,
 			login_name,
 			session,
@@ -878,6 +976,8 @@ boolean output_datatype(char **datatype_name,
 			state,
 			(LIST *)0 /* station_name_list */,
 			(char *)0 /* datatype_name */,
+			current_year,
+			historical_range_years,
 			(char *)0 /* station_type */ ) );
 
 	if ( !list_rewind( datatype_list ) )
@@ -931,10 +1031,9 @@ boolean output_datatype(char **datatype_name,
 "</div>\n" );
 
 	return 1;
+}
 
-} /* output_datatype() */
-
-char *get_post_action_string(
+char *current_vs_historical_post_action_string(
 				char *application_name,
 				char *login_name,
 				char *session,
@@ -942,12 +1041,14 @@ char *get_post_action_string(
 				enum state state,
 				LIST *station_name_list,
 				char *datatype_name,
+				int current_year,
+				int historical_range_years,
 				char *station_type )
 {
-	char post_action_string[ 1024 ];
+	char post_action_string[ 2048 ] = {0};
 
 	sprintf( post_action_string,
-"\"/cgi-bin/post_current_vs_historical?%s+%s+%s+%s+%s+%s+%s+%s\"",
+"\"/cgi-bin/post_current_vs_historical?%s+%s+%s+%s+%s+%s+%s+%d+%d+%s\"",
 		application_name,
 		login_name,
 		session,
@@ -955,11 +1056,12 @@ char *get_post_action_string(
 		current_vs_historical_get_state_string( state ),
 		list_display_delimited( station_name_list, ',' ),
 		(datatype_name) ? datatype_name : "",
+		current_year,
+		historical_range_years,
 		(station_type) ? station_type : "" );
 
 	return strdup( post_action_string );
-
-} /* get_post_action_string() */
+}
 
 void remove_suffix_2( LIST *datatype_list )
 {
@@ -1008,7 +1110,10 @@ void output_historical(		FILE *output_file,
 				char *application_name,
 				LIST *station_name_list,
 				char *datatype_name,
-				char *current_end_date )
+				char *current_end_date,
+				int current_year,
+				int historical_range_years,
+				int historical_year )
 {
 	boolean bar_chart = 0;
 	char *units;
@@ -1025,7 +1130,10 @@ void output_historical(		FILE *output_file,
 				bar_chart,
 				units,
 				application_name,
-				current_end_date ) )
+				current_end_date,
+				current_year,
+				historical_range_years,
+				historical_year ) )
 	{
 /*
 		output_historical_current(
@@ -1036,8 +1144,7 @@ void output_historical(		FILE *output_file,
 				application_name );
 */
 	}
-
-} /* output_historical() */
+}
 
 boolean output_historical_long_term(
 				FILE *output_file,
@@ -1046,7 +1153,10 @@ boolean output_historical_long_term(
 				boolean bar_chart,
 				char *units,
 				char *application_name,
-				char *current_end_date )
+				char *current_end_date,
+				int current_year,
+				int historical_range_years,
+				int historical_year )
 {
 	GOOGLE_OUTPUT_CHART *google_output_chart;
 	char yaxis_label[ 128 ];
@@ -1057,7 +1167,9 @@ boolean output_historical_long_term(
 				station_name_list,
 				datatype_name,
 				bar_chart,
-				application_name ) ) )
+				application_name,
+				current_year,
+				historical_range_years ) ) )
 	{
 		fprintf( output_file,
 "<div style=\"position: absolute; left: %dpx; top: 50px\"><h3>No long term data selected.</h3></div>\n",
@@ -1086,8 +1198,10 @@ boolean output_historical_long_term(
 		current_end_date );
 
 	datatype_name_display_list =
-		get_historical_long_term_datatype_name_display_list(
-			google_output_chart->datatype_name_list );
+		current_vs_historical_datatype_name_display_list(
+			google_output_chart->datatype_name_list,
+			current_year,
+			historical_year );
 
 	format_initial_capital( yaxis_label, yaxis_label );
 
@@ -1124,15 +1238,15 @@ boolean output_historical_long_term(
 				google_output_chart->width,
 				google_output_chart->height,
 				google_output_chart->chart_number );
-
 	return 1;
+}
 
-} /* output_historical_long_term() */
-
-GOOGLE_OUTPUT_CHART *get_google_current_chart(
+GOOGLE_OUTPUT_CHART *current_vs_historical_google_current_chart(
 				char *application_name,
 				LIST *station_name_list,
-				char *datatype_name )
+				char *datatype_name,
+				int current_year,
+				int historical_range_years )
 {
 	GOOGLE_OUTPUT_CHART *google_chart;
 	boolean bar_chart;
@@ -1161,20 +1275,24 @@ GOOGLE_OUTPUT_CHART *get_google_current_chart(
 				station_name_list,
 				datatype_name,
 				bar_chart,
-				application_name ) )
+				application_name,
+				current_year,
+				historical_range_years ) )
 	{
 		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
 	return google_chart;
 
-} /* get_google_current_chart() */
+}
 
 GOOGLE_OUTPUT_CHART *current_vs_historical_long_google_output_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name )
+				char *application_name,
+				int current_year,
+				int historical_range_years )
 
 {
 	GOOGLE_OUTPUT_CHART *google_output_chart;
@@ -1219,14 +1337,15 @@ GOOGLE_OUTPUT_CHART *current_vs_historical_long_google_output_chart(
 			station_name_list,
 			application_name,
 			aggregation_function,
-			datatype_name ) )
+			datatype_name,
+			current_year,
+			historical_range_years ) )
 	{
 		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
 	return google_output_chart;
-
-} /* current_vs_historical_long_google_output_chart() */
+}
 
 boolean populate_point_array_historical(
 				LIST *barchart_list,
@@ -1234,17 +1353,22 @@ boolean populate_point_array_historical(
 				LIST *station_name_list,
 				char *application_name,
 				char *aggregation_function,
-				char *datatype_name )
+				char *datatype_name,
+				int current_year,
+				int historical_range_years )
 {
 	char sys_string[ 2048 ];
 
-	populate_point_array_historical_long_term_sys_string(
+	populate_point_array_historical_sys_string(
 		sys_string,
 		station_name_list,
 		aggregation_function,
 		application_name,
 		datatype_name,
-		STRATUM_DATATYPE_CURRENT );
+		STRATUM_DATATYPE_CURRENT,
+		current_year,
+		historical_range_years,
+		1 /* is_current */ );
 
 	populate_point_array_historical_fetch(
 		barchart_list,
@@ -1252,21 +1376,23 @@ boolean populate_point_array_historical(
 		sys_string,
 		STRATUM_DATATYPE_CURRENT );
 
-	populate_point_array_historical_long_term_sys_string(
+	populate_point_array_historical_sys_string(
 		sys_string,
 		station_name_list,
 		aggregation_function,
 		application_name,
 		datatype_name,
-		STRATUM_DATATYPE_HISTORICAL );
+		STRATUM_DATATYPE_CURRENT,
+		current_year,
+		historical_range_years,
+		0 /* not is_current */ );
 
 	return populate_point_array_historical_fetch(
 		barchart_list,
 		month_name_list /* datatype_name_list */,
 		sys_string,
 		STRATUM_DATATYPE_HISTORICAL );
-
-} /* populate_point_array_historical() */
+}
 
 boolean populate_point_array_historical_fetch(
 				LIST *barchart_list,
@@ -1310,13 +1436,16 @@ boolean populate_point_array_historical_fetch(
 
 } /* populate_point_array_historical_fetch() */
 
-void populate_point_array_historical_long_term_sys_string(
+void populate_point_array_historical_sys_string(
 				char *sys_string,
 				LIST *station_name_list,
 				char *aggregation_function,
 				char *application_name,
 				char *datatype_name,
-				char *stratum_datatype_name )
+				char *stratum_datatype_name,
+				int current_year,
+				int historical_range_years,
+				boolean is_current )
 {
 	char select_clause[ 1024 ];
 	char *group_clause;
@@ -1325,19 +1454,17 @@ void populate_point_array_historical_long_term_sys_string(
 	char where_date_clause[ 1024 ];
 	char *por_historical_begin_date;
 	char *por_historical_end_date;
-	char *por_current_begin_date;
-	char *por_current_end_date;
 	char *current_begin_date;
 	char *current_end_date;
 
-	current_vs_historical_get_dates(
+	current_vs_historical_dates(
 			&por_historical_begin_date,
 			&por_historical_end_date,
-			&por_current_begin_date,
-			&por_current_end_date,
 			&current_begin_date,
 			&current_end_date,
-			application_name );
+			application_name,
+			current_year,
+			historical_range_years );
 
 	station_in_clause =
 		timlib_with_list_get_in_clause(
@@ -1354,18 +1481,18 @@ void populate_point_array_historical_long_term_sys_string(
 		stratum_datatype_name,
 		aggregation_function );
 
-	if ( strcmp( stratum_datatype_name, STRATUM_DATATYPE_CURRENT ) == 0 )
+	if ( is_current )
 	{
-		sprintf( where_date_clause,
-		 	"measurement_date >= '%s' and		"
+		sprintf(where_date_clause,
+	 		"measurement_date >= '%s' and		"
 			"measurement_date <= '%s'		",
-			por_current_begin_date,
-			por_current_end_date );
+			current_begin_date,
+			current_end_date );
 	}
 	else
 	{
 		sprintf(where_date_clause,
-		 	"measurement_date >= '%s' and		"
+	 		"measurement_date >= '%s' and		"
 			"measurement_date <= '%s'		",
 			por_historical_begin_date,
 			por_historical_end_date );
@@ -1397,8 +1524,7 @@ void populate_point_array_historical_long_term_sys_string(
 		 where_clause,
 		 group_clause,
 		 FOLDER_DATA_DELIMITER );
-
-} /* populate_point_array_historical_long_term_sys_string() */
+}
 
 void remove_exclude_datatype_name_list(
 			LIST *datatype_list,
@@ -1439,16 +1565,20 @@ void remove_exclude_datatype_name_list(
 void output_current(	FILE *output_file,
 			char *application_name,
 			LIST *station_name_list,
-			char *datatype_name )
+			char *datatype_name,
+			int current_year,
+			int historical_range_years )
 {
 	GOOGLE_OUTPUT_CHART *google_chart;
 	char yaxis_label[ 128 ];
 
 	if ( ! ( google_chart =
-			get_google_current_chart(
+			current_vs_historical_google_current_chart(
 				application_name,
 				station_name_list,
-				datatype_name ) ) )
+				datatype_name,
+				current_year,
+				historical_range_years ) ) )
 	{
 		fprintf( output_file,
 "<div style=\"position: absolute; left: %dpx; top: 50px\"><h3>No current data selected.</h3></div>\n",
@@ -1489,8 +1619,7 @@ void output_current(	FILE *output_file,
 				google_chart->width,
 				google_chart->height,
 				google_chart->chart_number );
-
-} /* output_current() */
+}
 
 boolean populate_point_array_current(
 				LIST *timeline_list,
@@ -1498,7 +1627,9 @@ boolean populate_point_array_current(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name )
+				char *application_name,
+				int current_year,
+				int historical_range_years )
 {
 	char sys_string[ 2048 ];
 	char input_buffer[ 1024 ];
@@ -1513,7 +1644,9 @@ boolean populate_point_array_current(
 		station_name_list,
 		datatype_name,
 		bar_chart,
-		application_name );
+		application_name,
+		current_year,
+		historical_range_years );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -1552,17 +1685,17 @@ boolean populate_point_array_current(
 	}
 
 	pclose( input_pipe );
-
 	return got_one;
-
-} /* populate_point_array_current() */
+}
 
 void populate_point_array_current_sys_string(
 				char *sys_string,
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name )
+				char *application_name,
+				int current_year,
+				int historical_range_years )
 {
 	char *aggregation_function;
 	char *select_clause;
@@ -1571,8 +1704,6 @@ void populate_point_array_current_sys_string(
 	char where_date_clause[ 1024 ];
 	char *por_historical_begin_date;
 	char *por_historical_end_date;
-	char *por_current_begin_date;
-	char *por_current_end_date;
 	char *current_begin_date;
 	char *current_end_date;
 
@@ -1581,14 +1712,14 @@ void populate_point_array_current_sys_string(
 	else
 		aggregation_function = "avg";
 
-	current_vs_historical_get_dates(
+	current_vs_historical_dates(
 			&por_historical_begin_date,
 			&por_historical_end_date,
-			&por_current_begin_date,
-			&por_current_end_date,
 			&current_begin_date,
 			&current_end_date,
-			application_name );
+			application_name,
+			current_year,
+			historical_range_years );
 
 	station_in_clause =
 		timlib_with_list_get_in_clause(
@@ -1597,8 +1728,9 @@ void populate_point_array_current_sys_string(
 	select_clause = "measurement_date,datatype";
 
 	sprintf( where_date_clause,
-	 	"measurement_date >= '%s'",
-		current_begin_date );
+	 	"measurement_date between '%s' and '%s'",
+		current_begin_date,
+		current_end_date );
 
 	sprintf( where_clause,
 		 "station in (%s) and			"
@@ -1607,30 +1739,6 @@ void populate_point_array_current_sys_string(
 		 station_in_clause,
 		 datatype_name,
 		 where_date_clause );
-
-/*
-	sprintf( sys_string,
-"echo \"	select %s,%s( measurement_value )	 	 "
-"		from measurement				 "
-"		where %s					 "
-"		group by %s;\"					|"
-"sql_quick.e '|'						|"
-"grep -v '|$'							|"
-"piece_inverse.e 0 '/' 						|"
-"sort								|"
-"statistics_on_group.e Day					|"
-"egrep 'Average|Day'						|"
-"piece.e ':' 1							|"
-"joinlines.e '%c' 2						|"
-"tr '/' '%c'							|"
-"cat								 ",
-		 select_clause,
-		 aggregation_function,
-		 where_clause,
-		 select_clause,
-		 FOLDER_DATA_DELIMITER,
-		 FOLDER_DATA_DELIMITER );
-*/
 
 	sprintf( sys_string,
 "echo \"	select %s,%s( measurement_value )	 	 "
@@ -1645,25 +1753,28 @@ void populate_point_array_current_sys_string(
 		 where_clause,
 		 select_clause,
 		 FOLDER_DATA_DELIMITER );
-
-} /* populate_point_array_current_sys_string() */
+}
 
 void output_historical_current(
 				FILE *output_file,
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name )
+				char *application_name,
+				int current_year,
+				int historical_range_years )
 {
 	GOOGLE_OUTPUT_CHART *google_chart;
 	char yaxis_label[ 128 ];
 
 	if ( ! ( google_chart =
-			get_google_historical_current_chart(
+			current_vs_historical_google_historical_current_chart(
 				station_name_list,
 				datatype_name,
 				bar_chart,
-				application_name ) ) )
+				application_name,
+				current_year,
+				historical_range_years ) ) )
 	{
 		fprintf( output_file,
 "<div style=\"position: absolute; left: %dpx; top: 450px\"><h3>No current data selected.</h3></div>\n",
@@ -1705,15 +1816,15 @@ void output_historical_current(
 				google_chart->width,
 				google_chart->height,
 				google_chart->chart_number );
+}
 
-} /* output_historical_current() */
-
-GOOGLE_OUTPUT_CHART *get_google_historical_current_chart(
+GOOGLE_OUTPUT_CHART *current_vs_historical_google_historical_current_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name )
-
+				char *application_name,
+				int current_year,
+				int historical_range_years )
 {
 	GOOGLE_OUTPUT_CHART *google_chart;
 
@@ -1733,14 +1844,15 @@ GOOGLE_OUTPUT_CHART *get_google_historical_current_chart(
 				station_name_list,
 				datatype_name,
 				bar_chart,
-				application_name ) )
+				application_name,
+				current_year,
+				historical_range_years ) )
 	{
 		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
 	return google_chart;
-
-} /* get_google_historical_current_chart() */
+}
 
 boolean populate_point_array_historical_current(
 				LIST *timeline_list,
@@ -1748,7 +1860,9 @@ boolean populate_point_array_historical_current(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
-				char *application_name )
+				char *application_name,
+				int current_year,
+				int historical_range_years )
 {
 	char sys_string[ 2048 ];
 	char input_buffer[ 1024 ];
@@ -1760,7 +1874,9 @@ boolean populate_point_array_historical_current(
 		station_name_list,
 		datatype_name,
 		bar_chart,
-		application_name );
+		application_name,
+		current_year,
+		historical_range_years );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -1778,14 +1894,16 @@ boolean populate_point_array_historical_current(
 	pclose( input_pipe );
 
 	return got_one;
+}
 
-} /* populate_point_array_historical_current() */
-
-LIST *get_historical_long_term_datatype_name_display_list(
-				LIST *datatype_name_list )
+LIST *current_vs_historical_datatype_name_display_list(
+				LIST *datatype_name_list,
+				int current_year,
+				int historical_year )
 {
 	char *datatype_name;
 	char datatype_name_display[ 128 ];
+	char buffer[ 128 ];
 	LIST *datatype_name_display_list;
 
 	datatype_name_display_list = list_new();
@@ -1797,9 +1915,31 @@ LIST *get_historical_long_term_datatype_name_display_list(
 				list_get_pointer(
 					datatype_name_list );
 
-			format_initial_capital(
-				datatype_name_display,
-				datatype_name );
+			if ( strcmp( datatype_name, "current" ) == 0 )
+			{
+				sprintf( datatype_name_display,
+					 "%s %d",
+					 format_initial_capital(
+						buffer,
+						datatype_name ),
+					 current_year );
+			}
+			else
+			if ( strcmp( datatype_name, "historical" ) == 0 )
+			{
+				sprintf( datatype_name_display,
+					 "%s %d",
+					 format_initial_capital(
+						buffer,
+						datatype_name ),
+					 historical_year );
+			}
+			else
+			{
+				format_initial_capital(
+					datatype_name_display,
+					datatype_name );
+			}
 
 			list_append_pointer(
 				datatype_name_display_list,
@@ -1807,10 +1947,8 @@ LIST *get_historical_long_term_datatype_name_display_list(
 
 		} while( list_next( datatype_name_list ) );
 	}
-
 	return datatype_name_display_list;
-
-} /* get_historical_long_term_datatype_name_display_list() */
+}
 
 void current_vs_historical_cycle_right(
 			LIST *barchart_list,

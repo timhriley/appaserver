@@ -121,6 +121,9 @@ void document_output_content_type(	void );
 
 void document_output_closing( 		void );
 
+void document_quick_output_head( 	char *application_name,
+					char *appaserver_mount_point );
+
 void document_quick_output_body( 	char *application_name,
 					char *appaserver_mount_point );
 

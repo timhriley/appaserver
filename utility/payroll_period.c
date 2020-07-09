@@ -379,7 +379,7 @@ int payroll_period_output_weekly_period(	char **year_string,
 		date_increment_days(
 			d,
 			-(double)days_shift,
-			date_utc_offset() );
+			0 /* utc_offset */ );
 
 		sprintf( local_year_string, "%d", date_get_year( d ) );
 		*year_string = strdup( local_year_string );
@@ -475,7 +475,7 @@ boolean payroll_period_get_weekly_dates(
 					date_increment_days(
 						d2,
 						(double)days_shift,
-						date_utc_offset() );
+						0 /* utc_offset */ );
 				}
 
 				strcpy( begin_work_date,
@@ -485,7 +485,7 @@ boolean payroll_period_get_weekly_dates(
 			}
 		}
 
-		date_increment_days( d, 1.0, date_utc_offset() );
+		date_increment_days( d, 1.0, 0 /* utc_offset */ );
 
 		week_of_year = date_get_week_of_year( d );
 
@@ -522,7 +522,7 @@ boolean payroll_period_get_weekly_dates(
 	date_increment_days(
 		d,
 		(double)days_shift - 1.0,
-		date_utc_offset() );
+		0 /* utc_offset */ );
 
 	strcpy( end_work_date,
 		date_yyyy_mm_dd( d ) );
@@ -549,7 +549,7 @@ int payroll_period_output_biweekly_period(
 		date_increment_days(
 			d,
 			-(double)days_shift,
-			date_utc_offset() );
+			0 /* utc_offset */ );
 
 		sprintf( local_year_string, "%d", date_get_year( d ) );
 		*year_string = strdup( local_year_string );
@@ -869,7 +869,7 @@ void payroll_period_prior(	char *period,
 		date_increment_days(
 			d,
 			-(double)days_shift,
-			date_utc_offset() );
+			0 /* utc_offset */ );
 	}
 
 	month = date_get_month( d );
@@ -918,7 +918,7 @@ void payroll_period_prior(	char *period,
 
 	d = date_yyyy_mm_dd_new( begin_date_string );
 
-	date_increment_days( d, -1.0, date_utc_offset() );
+	date_increment_days( d, -1.0, 0 /* utc_offset */ );
 
 	begin_date_string = date_yyyy_mm_dd( d );
 
