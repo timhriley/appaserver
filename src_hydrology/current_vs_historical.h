@@ -1,5 +1,8 @@
-/* current_vs_historical.h */
-/* ----------------------- */
+/* -----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/current_vs_historical.h	*/
+/* -----------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------------	*/
 
 #ifndef CURRENT_VS_HISTORICAL_H
 #define CURRENT_VS_HISTORICAL_H
@@ -8,6 +11,7 @@
 
 /* Constants */
 /* --------- */
+#define CURRENT_VS_HISTORICAL_FORM_NAME		"current_vs_historical_form"
 #define HISTORICAL_RANGE_YEARS			5
 #define EXCLUDE_DATATYPE_NAME_LIST_STRING	"voltage,power,cr10,null,salinity_paleo"
 #define MESSAGE_LEFT_POSITION			265

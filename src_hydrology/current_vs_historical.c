@@ -1,5 +1,8 @@
-/* current_vs_historical.c */
-/* ----------------------- */
+/* -----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/current_vs_historical.c	*/
+/* -----------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>

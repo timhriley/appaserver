@@ -218,7 +218,8 @@ void output_map(		FILE *output_file,
 				char *session,
 				char *process_name,
 				int current_year,
-				int historical_range_years );
+				int historical_range_years,
+				char *form_name );
 
 void output_current_vs_historical(
 				FILE *output_file,
@@ -472,7 +473,8 @@ void output_current_vs_historical(
 				session,
 				process_name,
 				current_year,
-				historical_range_years );
+				historical_range_years,
+				CURRENT_VS_HISTORICAL_FORM_NAME );
 
 		output_menu(	output_file,
 				application_name,
@@ -786,7 +788,8 @@ void output_map(		FILE *output_file,
 				char *session,
 				char *process_name,
 				int current_year,
-				int historical_range_years )
+				int historical_range_years,
+				char *form_name )
 {
 	GOOGLE_MAP_STATION *google_map_station;
 	char *google_map_key_data;
@@ -862,56 +865,27 @@ void output_map(		FILE *output_file,
 "			break;\n"
 "		}\n"
 "	}\n"
+"\n"
 "	if ( process_element == false ) return false;\n"
 "\n"
-"	for(	var j = 0;\n"
-"		j < process_element.options.length;\n"
-"		j++ )\n"
-"	{\n"
-"		if ( process_element.options[ j ].text == station_name )\n"
-"		{\n"
-"			process_element.options[ j ] =\n"
-"				new Option(\n"
-"					\"\",\n"
-"					\"\",\n"
-"					0,\n"
-"					1 /* selected */ );\n"
-"			return true;\n"
-"		}\n"
-"	}\n"
-"\n"
-"	for(	var j = 0;\n"
-"		j < process_element.options.length;\n"
-"		j++ )\n"
-"	{\n"
-"		if ( process_element.options[ j ].text == \"\" )\n"
-"		{\n"
-"			break;\n"
-"		}\n"
-"	}\n"
-"\n"
-"	process_element.options[ j ] =\n"
-"		new Option(\n"
-"			station_name,\n"
-"			station_name,\n"
-"			0,\n"
-"			1 /* selected */ );\n"
+"	process_element.value = station_name;\n"
+"	%s.submit()\n"
 "	return true;\n"
 "\n"
 "}\n"
 "\n"
-"</script>\n"
+"</script>\n",
+		CURRENT_VS_HISTORICAL_STATION_PREFIX,
+		form_name );
+
+	fprintf( output_file,
 "<div class=station_list_class>\n"
-"<form enctype=\"multipart/form-data\" method=post\n"
+"<form name=%s enctype=\"multipart/form-data\" method=post\n"
 "	action=%s>\n"
-"<table>\n"
-"<tr><td valign=top><select name=%s_1 size=10 multiple></select>\n"
-"<tr>\n"
-"<td valign=top><input type=submit value=Submit>\n"
-"</table>\n"
+"<input type=hidden name=%s_1 size=50>\n"
 "</form>\n"
 "</div>\n",
-		CURRENT_VS_HISTORICAL_STATION_PREFIX,
+		form_name,
 		current_vs_historical_post_action_string(
 			application_name,
 			login_name,
