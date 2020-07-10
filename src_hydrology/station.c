@@ -53,7 +53,7 @@ double station_get_ground_surface_elevation_ft(
 				global_station_list ) ) )
 	{
 		fprintf( stderr,
-			 "Error in %s/%s()/%d: station_seek(%s) failed.\n",
+			 "ERROR in %s/%s()/%d: station_seek(%s) failed.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -236,9 +236,19 @@ LIST *station_get_global_station_list(
 	STATION *station;
 	char *select_list_string = STATION_SELECT_LIST_STRING;
 
+	if ( !application_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: application_name is null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	sprintf(sys_string,
 		"get_folder_data	application=%s			"
-		"			select=%s			"
+		"			select=\"%s\"			"
 		"			folder=station			",
 		application_name,
 		select_list_string );
@@ -891,3 +901,45 @@ LIST *station_shef_upload_datatype_list(
 	return return_list;
 }
 
+LIST *station_name_list_fetch(
+			char *application_name,
+			LIST *station_name_list )
+{
+	STATION *station;
+	LIST *station_list;
+	char *station_name;
+
+	if ( !list_rewind( station_name_list ) ) return (LIST *)0;
+
+	if ( !global_station_list )
+	{
+		global_station_list =
+			station_get_global_station_list(
+				application_name );
+	}
+
+	station_list = list_new();
+
+	do {
+		station_name = list_get_pointer( station_name_list );
+
+		if ( ! ( station =
+				station_seek(
+					station_name,
+					global_station_list ) ) )
+		{
+			fprintf( stderr,
+			 "ERROR in %s/%s()/%d: station_seek(%s) failed.\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	station_name );
+			exit( 1 );
+		}
+
+		list_append_pointer( station_list, station );
+
+	} while ( list_next( station_name_list ) );
+
+	return station_list;
+}

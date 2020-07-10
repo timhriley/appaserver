@@ -21,7 +21,7 @@ fi
 
 if [ "$#" -ne 2 ]
 then
-	echo "Usage: $0 year staiton" 1>&2
+	echo "Usage: $0 year station" 1>&2
 	exit 1
 fi
 

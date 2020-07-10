@@ -147,4 +147,8 @@ LIST *station_shef_upload_datatype_list(
 			char *application_name,
 			char *station_name );
 
+LIST *station_name_list_fetch(
+			char *application_name,
+			LIST *station_name_list );
+
 #endif

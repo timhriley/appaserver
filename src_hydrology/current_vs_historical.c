@@ -58,12 +58,11 @@ void current_vs_historical_dates(
 			char **por_historical_end_date_string,
 			char **current_begin_date_string,
 			char **current_end_date_string,
+			int *historical_range_years,
 			char *application_name,
-			int current_year,
-			int historical_range_years )
+			int current_year )
 {
 	DATE *today;
-	DATE *first_of_month;
 	DATE *por_historical_begin_date;
 	DATE *por_historical_end_date;
 	DATE *current_begin_date;
@@ -74,14 +73,14 @@ void current_vs_historical_dates(
 		application_constants_get_dictionary(
 			application_name );
 
-	if ( !historical_range_years )
+	if ( !*historical_range_years )
 	{
-		if ( ! ( historical_range_years =
-			atoi( application_constants_safe_fetch(
+		if ( ! ( *historical_range_years =
+			   atoi( application_constants_safe_fetch(
 				application_constants->dictionary,
 				"current_vs_historical_range_years" ) ) ) )
 		{
-			historical_range_years = HISTORICAL_RANGE_YEARS;
+			*historical_range_years = HISTORICAL_RANGE_YEARS;
 		}
 	}
 
@@ -92,11 +91,6 @@ void current_vs_historical_dates(
 		date_set_year( today, current_year, date_utc_offset() );
 	}
 
-	first_of_month =
-		date_forward_to_first_month(
-			today,
-			date_get_utc_offset() );
-
 	/* Set POR Historical Begin Date */
 	/* ----------------------------- */
 	por_historical_begin_date = date_calloc();
@@ -104,7 +98,7 @@ void current_vs_historical_dates(
 
 	date_decrement_years(
 		por_historical_begin_date,
-		historical_range_years + 1,
+		*historical_range_years + 1,
 		0 /* utc_offset */ );
 
 	date_increment_days(

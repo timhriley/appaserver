@@ -208,6 +208,122 @@ boolean datatype_list_exists(	LIST *datatype_list,
 
 } /* datatype_list_exists() */
 
+char *datatype_select( void )
+{
+	return "datatype,units,aggregation_sum_yn,bar_graph_yn,scale_graph_to_zero_yn,set_negative_values_to_zero_yn,calibrated_yn";
+}
+
+DATATYPE *datatype_parse(	char *application_name,
+				char *input_buffer )
+{
+	DATATYPE *datatype;
+	char buffer[ 512 ];
+
+	piece( buffer, '^', input_buffer, 0 );
+
+	datatype = datatype_new( strdup( buffer ) );
+
+	piece( buffer, '^', input_buffer, 1 );
+	datatype->units_string = strdup( buffer );
+
+	if ( *datatype->units_string )
+	{
+		datatype->units =
+			units_fetch( 
+				application_name,
+				datatype->units_string );
+
+		if ( !datatype->units )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: units_fetch() failed for [%s].\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	datatype->units_string );
+			exit( 1 );
+		}
+	}
+
+	datatype->datatype_alias_list =
+		datatype_fetch_alias_list(
+			application_name,
+			datatype->datatype_name );
+
+	piece( buffer, '^', input_buffer, 2 );
+	datatype->aggregation_sum = ( *buffer == 'y' );
+
+	piece( buffer, '^', input_buffer, 3 );
+	datatype->bar_chart = ( *buffer == 'y' );
+
+	piece( buffer, '^', input_buffer, 4 );
+	datatype->scale_graph_to_zero = ( *buffer == 'y' );
+
+	piece( buffer, '^', input_buffer, 5 );
+	datatype->set_negative_values_to_zero = ( *buffer == 'y' );
+
+	piece( buffer, '^', input_buffer, 6 );
+	datatype->calibrated = ( *buffer == 'y' );
+
+	return datatype;
+}
+
+LIST *datatype_list_fetch(	char *application_name,
+				char *where )
+{
+	char sys_string[ 65536 ];
+	FILE *input_pipe;
+	char input_buffer[ 1024 ];
+	LIST *datatype_list;
+	DATATYPE *datatype;
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\"	|"
+		 "sql.e					 ",
+		 datatype_select(),
+		 "datatype",
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	datatype_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		if ( ! ( datatype =
+				datatype_parse(
+					application_name,
+					input_buffer ) ) )
+		{
+			fprintf( stderr,
+				 "WARNING in %s/%s()/%d: cannot parse [%s]\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 input_buffer );
+		}
+		else
+		{
+			list_append_pointer( datatype_list, datatype );
+		}
+	}
+	pclose( input_pipe );
+	return datatype_list;
+}
+
+LIST *datatype_name_list_fetch(	char *application_name,
+				LIST *datatype_name_list )
+{
+	char where[ 65536 ];
+
+	sprintf( where,
+		 "datatype in (%s)",
+		 timlib_in_clause( datatype_name_list ) );
+
+	return datatype_list_fetch( application_name, where );
+
+} /* datatype_with_station_name_list_get_datatype_bar_graph_list() */
+
 LIST *datatype_with_station_name_list_get_datatype_bar_graph_list(
 			char *application_name,
 			LIST *station_name_list )
@@ -288,7 +404,7 @@ LIST *datatype_list(	char *application_name,
 
 	while( timlib_get_line( buffer, input_pipe, 1024 ) )
 	{
-		datatype = datatype_parse(
+		datatype = datatype_record_parse(
 				application_name,
 				buffer );
 
@@ -501,7 +617,7 @@ boolean datatype_bar_chart(
 
 } /* datatype_bar_chart() */
 
-DATATYPE *datatype_parse(		char *application_name,
+DATATYPE *datatype_record_parse(	char *application_name,
 					char *record )
 {
 	DATATYPE *datatype;
@@ -577,8 +693,7 @@ DATATYPE *datatype_parse(		char *application_name,
 		( tolower( *calibrated_yn ) == 'y' );
 
 	return datatype;
-
-} /* datatype_parse() */
+}
 
 LIST *datatype_fetch_list( char *application_name )
 {
@@ -607,7 +722,10 @@ LIST *datatype_list_get( char *application_name )
 
 	while( get_line( buffer, input_pipe ) )
 	{
-		datatype = datatype_parse( application_name, buffer );
+		datatype =
+			datatype_record_parse(
+				application_name,
+				buffer );
 		list_append_pointer( datatype_list, datatype );
 	}
 

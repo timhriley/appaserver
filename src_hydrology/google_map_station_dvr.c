@@ -1,5 +1,6 @@
 /* google_map_station_dvr.c				*/
 /* ---------------------------------------------------	*/
+/* Retired: 2020-07-10.					*/
 /* This is the test driver program for the google map   */
 /* station ADT.						*/
 /*							*/

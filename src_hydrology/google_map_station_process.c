@@ -79,10 +79,25 @@ int main( int argc, char **argv )
 				0 /* absolute_position_top */,
 				0 /* absolute_position_left */ );
 
-	google_map_station =
-		google_map_station_new( application_name,
-					login_name,
-					(char *)0 /* station_type */ );
+	if ( ! ( google_map_station =
+			google_map_station_new(
+				application_name,
+				login_name ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: google_map_station_new() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	google_map_station->station_list =
+		google_map_fetch_station_list(
+			google_map_station->application_name,
+			google_map_station->login_name,
+			(char *)0 /* station_type */,
+			0 /* current_year */ );
 
 	if ( list_rewind( google_map_station->station_list ) )
 	{

@@ -60,9 +60,9 @@ void current_vs_historical_dates(
 			char **por_historical_end_date_string,
 			char **current_begin_date_string,
 			char **current_end_date_string,
+			int *historical_range_years,
 			char *application_name,
-			int current_year,
-			int historical_range_years );
+			int current_year );
 
 void current_vs_historical_output_body(
 			FILE *output_file,

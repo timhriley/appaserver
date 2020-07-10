@@ -299,9 +299,9 @@ int main( int argc, char **argv )
 		&por_historical_end_date,
 		&current_begin_date,
 		&current_end_date,
+		&historical_range_years,
 		application_name,
-		current_year,
-		historical_range_years );
+		current_year );
 
 	current_year = atoi( current_end_date );
 	historical_year = atoi( por_historical_begin_date );
@@ -525,6 +525,12 @@ void output_current_vs_historical(
 				historical_range_years );
 		}
 
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+fflush( stderr );
+
 		output_menu(	output_file,
 				application_name,
 				login_name,
@@ -652,9 +658,8 @@ void output_menu(		FILE *output_file,
 			(char *)0 /* station_type */ ) );
 
 		station_type_list =
-			station_get_station_type_list(
-				application_name,
-				login_name );
+			google_map_station_type_list_fetch(
+				current_year );
 	}
 	else
 	if ( state == historical )
@@ -814,11 +819,25 @@ void output_map(		FILE *output_file,
 		MAP_POSITION_TOP,
 		MAP_POSITION_LEFT );
 
-	google_map_station =
-		google_map_station_new(
-			application_name,
-			login_name,
-			station_type );
+	if ( ! ( google_map_station =
+			google_map_station_new(
+				application_name,
+				login_name ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: google_map_station_new() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	google_map_station->station_list =
+		google_map_fetch_station_list(
+			google_map_station->application_name,
+			(char *)0 /* login_name */,
+			station_type,
+			current_year );
 
 	if ( list_rewind( google_map_station->station_list ) )
 	{
@@ -913,13 +932,23 @@ boolean output_datatype(	char **datatype_name,
 				int historical_range_years )
 {
 	LIST *datatype_list;
+	LIST *datatype_name_list;
 	DATATYPE *datatype;
 	char datatype_name_buffer[ 128 ];
 
+/*
 	datatype_list =
 		datatype_with_station_name_list_get_datatype_bar_graph_list(
 			application_name,
 			station_name_list );
+*/
+
+	datatype_list =
+		google_map_station_datatype_list(
+			application_name,
+			current_year,
+			list_get_first_pointer(
+				station_name_list ) );
 
 	remove_exclude_datatype_name_list(
 			datatype_list,
@@ -1436,9 +1465,9 @@ void populate_point_array_historical_sys_string(
 			&por_historical_end_date,
 			&current_begin_date,
 			&current_end_date,
+			&historical_range_years,
 			application_name,
-			current_year,
-			historical_range_years );
+			current_year );
 
 	station_in_clause =
 		timlib_with_list_get_in_clause(
@@ -1691,9 +1720,9 @@ void populate_point_array_current_sys_string(
 			&por_historical_end_date,
 			&current_begin_date,
 			&current_end_date,
+			&historical_range_years,
 			application_name,
-			current_year,
-			historical_range_years );
+			current_year );
 
 	station_in_clause =
 		timlib_with_list_get_in_clause(

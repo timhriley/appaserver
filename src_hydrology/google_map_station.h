@@ -29,8 +29,7 @@ typedef struct
 /* ---------- */
 GOOGLE_MAP_STATION *google_map_station_new(	
 					char *application_name,
-					char *login_name,
-					char *station_type );
+					char *login_name );
 
 void google_map_station_output_heading( FILE *output_file,
 					char *title,
@@ -61,4 +60,22 @@ void google_map_station_output_body(	FILE *output_file,
 
 char *google_map_station_get_map_key(
 					char *application_name );
+
+LIST *google_map_station_list(		char *application_name,
+					int year,
+					char *station_type );
+
+LIST *google_map_fetch_station_list(	char *application_name,
+					char *login_name,
+					char *station_type,
+					int current_year );
+
+LIST *google_map_station_type_list_fetch(
+					int current_year );
+
+LIST *google_map_station_datatype_list(
+					char *application_name,
+					int current_year,
+					char *station_name );
+
 #endif

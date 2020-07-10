@@ -3346,7 +3346,7 @@ int timlib_delimiter_independent_strcmp(
 		return 1;
 } /* timlib_delimiter_independent_strcmp() */
 
-char *timlib_with_list_get_in_clause( LIST *data_list )
+char *timlib_in_clause(	LIST *data_list )
 {
 	char in_clause[ 131072 ];
 	char *ptr = in_clause;
@@ -3374,8 +3374,12 @@ char *timlib_with_list_get_in_clause( LIST *data_list )
 	} while( list_next( data_list ) );
 
 	return strdup( in_clause );
+}
 
-} /* timlib_with_list_get_in_clause() */
+char *timlib_with_list_get_in_clause( LIST *data_list )
+{
+	return timlib_in_clause( data_list );
+}
 
 char *timlib_get_in_clause( char *data_list_string )
 {
