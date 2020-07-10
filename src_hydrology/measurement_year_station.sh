@@ -19,32 +19,17 @@ then
 	exit 1
 fi
 
-if [ "$#" -lt 1 ]
+if [ "$#" -ne 1 ]
 then
-	echo "Usage: $0 year [html_yn]" 1>&2
+	echo "Usage: $0 year" 1>&2
 	exit 1
 fi
 
 year=$1
 
-if [ "$#" -eq 2 ]
-then
-	html_yn=$2
-fi
-
-if [ "$html_yn" = "y" ]
-then
-	content_type_cgi.sh
-
-	wrapper="html_table.e '' Station ^"
-else
-	wrapper="cat"
-fi
-
 measurement_year_list.sh $year			|
 piece.e '^' 0					|
 sort -uf					|
-$wrapper					|
 cat
 
 exit 0

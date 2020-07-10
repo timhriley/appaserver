@@ -19,34 +19,19 @@ then
 	exit 1
 fi
 
-if [ "$#" -lt 2 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage: $0 year staiton [html_yn]" 1>&2
+	echo "Usage: $0 year staiton" 1>&2
 	exit 1
 fi
 
 year=$1
 station=$2
 
-if [ "$#" -eq 3 ]
-then
-	html_yn=$3
-fi
-
-if [ "$html_yn" = "y" ]
-then
-	content_type_cgi.sh
-
-	wrapper="html_table.e '' Datatype ^"
-else
-	wrapper="cat"
-fi
-
 measurement_year_list.sh $year			|
 grep -i "^$station^"				|
 piece.e '^' 2					|
 sort -uf					|
-$wrapper					|
 cat
 
 exit 0

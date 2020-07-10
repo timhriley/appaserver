@@ -19,23 +19,8 @@ then
 	exit 1
 fi
 
-if [ "$#" -eq 1 ]
-then
-	html_yn=$1
-fi
-
-if [ "$html_yn" = "y" ]
-then
-	content_type_cgi.sh
-
-	wrapper="html_table.e '' year,station_datatype_count :"
-else
-	wrapper="cat"
-fi
-
 year=`date.sh 0 | piece.e '-' 0`
 
-(
 while [ true ]
 do
 	results=`measurement_year_list.sh $year		|\
@@ -50,6 +35,5 @@ do
 		break
 	fi
 done
-) | $wrapper
 
 exit 0

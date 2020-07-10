@@ -19,18 +19,13 @@ then
 	exit 1
 fi
 
-if [ "$#" -lt 1 ]
+if [ "$#" -ne 1 ]
 then
-	echo "Usage: $0 year [html_yn]" 1>&2
+	echo "Usage: $0 year" 1>&2
 	exit 1
 fi
 
 year=$1
-
-if [ "$#" -eq 2 ]
-then
-	html_yn=$2
-fi
 
 s=station
 m=measurement
@@ -59,19 +54,9 @@ filter="$s.station_type is not null"
 first_where="$m.measurement_date = '$year-01-01'"
 where="$join and $filter and $first_where"
 
-if [ "$html_yn" = "y" ]
-then
-	content_type_cgi.sh
-
-	wrapper="html_table.e '' $select ^"
-else
-	wrapper="cat"
-fi
-
 echo "select $select from $from where $where;"		|
 sql.e							|
 sort -u							|
-$wrapper						|
 cat
 
 exit 0
