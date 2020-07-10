@@ -3291,6 +3291,11 @@ unsigned int timlib_factoral( int n )
 
 char timlib_get_delimiter( char *string )
 {
+	return timlib_delimiter( string );
+}
+
+char timlib_delimiter( char *string )
+{
 	if ( timlib_exists_character( string, '|' ) )
 		return '|';
 	else
@@ -3307,8 +3312,7 @@ char timlib_get_delimiter( char *string )
 		return ':';
 	else
 		return 0;
-
-} /* timlib_get_delimiter() */
+}
 
 int timlib_delimiter_independent_strcmp(
 			char *string1,

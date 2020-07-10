@@ -447,6 +447,8 @@ unsigned int timlib_factoral(		int n );
 
 char timlib_get_delimiter(		char *string );
 
+char timlib_delimiter(			char *string );
+
 int timlib_get_index(			char *s );
 
 char *timlib_search_replace_character_limited(

@@ -28,8 +28,6 @@ int main( int argc, char **argv )
 	char heading_delimiter;
 	int count = -1;
 
-	/* This goes to the apache error file. :-( */
-	/* --------------------------------------- */
 	/* output_starting_argv_stderr( argc, argv ); */
 
 	if ( argc < 4 )
@@ -42,7 +40,7 @@ int main( int argc, char **argv )
 
 	title = argv[ 1 ];
 
-	if ( ! ( heading_delimiter = timlib_get_delimiter( argv[ 2 ] ) ) )
+	if ( ! ( heading_delimiter = timlib_delimiter( argv[ 2 ] ) ) )
 	{
 		heading_delimiter = ',';
 	}
@@ -50,6 +48,15 @@ int main( int argc, char **argv )
 	heading_name_list = list_string2list( argv[ 2 ], heading_delimiter );
 
 	delimiter = *argv[ 3 ];
+
+/*
+fprintf( stderr, "%s/%s()/%d: delimiter = [%c]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+delimiter );
+fflush( stderr );
+*/
 
 	if ( character_exists( title, '^' ) )
 	{
