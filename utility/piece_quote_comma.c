@@ -1,4 +1,4 @@
-/* utility/piece_quote_comma.c 				*/
+/* $APPASERVER_HOME/utility/piece_quote_comma.c		*/
 /* ---------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------	*/
@@ -10,7 +10,7 @@
 
 int main( int argc, char **argv )
 {
-	char buffer[ 4096 ];
+	char buffer[ 65536 ];
 	char offset_str[ 128 ];
 	char component[ 4096 ];
 	char *offset_list_string;
@@ -53,7 +53,7 @@ int main( int argc, char **argv )
 						offset ) )
 			{
 				fprintf( stderr,
-		"Warning %s: There are less than %d delimiters in: (%s)\n",
+		"Warning %s: piece_quote_comma(%d) failed with [%s]\n",
 					argv[ 0 ],
 				 	offset,
 				 	buffer );

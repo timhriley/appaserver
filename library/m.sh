@@ -3,7 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make post_login
+	cd ../utility
+	make piece_quote_comma.e
 fi
 

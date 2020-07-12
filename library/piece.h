@@ -13,6 +13,8 @@
 #define MAX_NUM_FIELDS				500
 #define PIECE_QUOTE_COMMA_DELIMITER_CODE	1
 #define PIECE_SPACES_DELIMITER_CODE		2
+#define PIECE_QUOTE				'"'
+#define PIECE_COMMA				','
  
 /* Structures */
 /* ---------- */
