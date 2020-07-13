@@ -645,4 +645,13 @@ char *timlib_system_date_string( void );
 
 void timlib_remove_file(	char *filename );
 
+char *timlib_trim_character(	char *source_destination,
+				char c );
+
+char *timlib_remove_thousands_separator(
+				char *destination,
+				char *source );
+
+boolean timlib_is_number(	char *string );
+
 #endif

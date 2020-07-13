@@ -53,7 +53,7 @@ int main( int argc, char **argv )
 						offset ) )
 			{
 				fprintf( stderr,
-		"Warning %s: piece_quote_comma(%d) failed with [%s]\n",
+			"Warning %s: piece_quote_comma(%d) failed with [%s]\n",
 					argv[ 0 ],
 				 	offset,
 				 	buffer );

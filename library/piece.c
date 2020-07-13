@@ -1235,6 +1235,7 @@ char *piece_quote_comma(	char *destination,
         char *buf_ptr = destination;
 	boolean inside_quote = 0;
 	char next_character;
+	char buffer[ 1024 ];
  
 	*destination = '\0';
 
@@ -1415,7 +1416,11 @@ char *piece_quote_comma(	char *destination,
 
 	if ( piece_do_trim ) trim( destination );
 
-	return destination;
+	strcpy( buffer, destination );
+
+	return timlib_remove_thousands_separator(
+				destination,
+				buffer );
  
 } /* piece_quote_comma() */
 
