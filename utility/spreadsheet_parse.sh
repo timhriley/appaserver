@@ -1,5 +1,5 @@
 :
-# $APPASERVER_HOME/utility/spreadsheet_smooth.sh
+# $APPASERVER_HOME/utility/spreadsheet_parse.sh
 # ----------------------------------------------
 # Freely available software. See appaserver.org
 # ----------------------------------------------
