@@ -254,8 +254,11 @@ void timlib_atof_array(		double *f_array,
 				char *pipe_delimited_string );
 
 int count_characters( int char_to_count, char *source );
+
 double time2day_percentage( int hour, int minute );
+
 void unget_line_queue( char *in_line );
+
 int get_line_queue( char *in_line, FILE *infile );
 
 double abs_float(		double f );
@@ -334,6 +337,7 @@ unsigned long get_file_size(		char *filename );
 char *escape_dollar_signs(		char *data );
 char *escape_single_quotes(		char *data );
 char *escape_single_quote(		char *data );
+
 char *timlib_escape_single_quotes(	char *destination, char *source );
 
 int instr_exclude_double_quoted(	char *substr,
@@ -358,6 +362,7 @@ boolean character_exists(		char *buffer, int c );
 
 void get_clean_begin_end_date(		char **begin_date,
 					char **end_date );
+
 char *up_string_to_delimiter (		char *s, char delimiter );
 
 char *right_trim(			char *buffer );
@@ -374,8 +379,10 @@ char *commas_in_double(			char *destination,
 
 char *reverse_string(			char *destination,
 					char *source );
+
 double ceiling_double(			double d );
 double floor_double(			double d );
+
 void make_single_quotes_double_single_quotes(
 					char *d );
 
@@ -385,8 +392,11 @@ char *timlib_ora_date_to_yyyy_mm_dd(	char *s );
 char *timlib_oracle_date2mysql_date_string(
 					char *s );
 int timlib_ora_month2integer(		char *ora_month );
+
 int timlib_full_month2integer(		char *full_month );
+
 char *timlib_integer2full_month(	int month_integer );
+
 int timlib_exists_character( 		char *s,
 					char ch );
 
@@ -400,6 +410,7 @@ boolean timlib_ends_string(	 	char *string,
 					char *substring );
 
 long timlib_random(			long up_to );
+
 char *timlib_mysql_date2ddmmyyyy(	char *destination,
 					char *source );
 char *timlib_trim_double_quotes(	char *s );
@@ -646,7 +657,7 @@ char *timlib_system_date_string( void );
 void timlib_remove_file(	char *filename );
 
 char *timlib_trim_character(	char *source_destination,
-				char c );
+				char *string_of_chars );
 
 char *timlib_remove_thousands_separator(
 				char *destination,

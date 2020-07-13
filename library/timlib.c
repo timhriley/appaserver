@@ -590,8 +590,7 @@ char *trim_until_character(	char *destination,
 	{
 		if ( *source == c )
 		{
-			if ( --num2trim == 0 )
-			{
+			if ( --num2trim == 0 ) {
 				strcpy( destination, source + 1 );
 				return destination;
 			}
@@ -601,9 +600,19 @@ char *trim_until_character(	char *destination,
 	return anchor;
 } /* trim_until_character() */
 
-char *timlib_trim_character( char *source_destination, char c )
+char *timlib_trim_character(	char *source_destination,
+				char *string_of_chars )
 {
-	return trim_character( source_destination, c, source_destination );
+	char c;
+
+	while ( ( c = *string_of_chars++ ) )
+	{
+		trim_character(
+			source_destination,
+			c,
+			source_destination );
+	}
+	return source_destination;
 }
 
 char *trim_character( char *destination, char c, char *source )
@@ -3090,8 +3099,7 @@ boolean timlib_exists_character( 	char *s,
 {
 	while( *s )
 	{
-		if ( *s == ch )
-			return 1;
+		if ( *s == ch ) return 1;
 		s++;
 	}
 	return 0;
@@ -4119,19 +4127,7 @@ boolean timlib_is_number( char *string )
 {
 	while ( *string )
 	{
-		if ( *string == '+' )
-		{
-			string++;
-			continue;
-		}
-
-		if ( *string == '-' )
-		{
-			string++;
-			continue;
-		}
-
-		if ( *string == ',' )
+		if ( timlib_exists_character( "+-,.", *string )  )
 		{
 			string++;
 			continue;
@@ -4160,7 +4156,7 @@ char *timlib_remove_thousands_separator(
 	}
 	else
 	{
-		return timlib_trim_character( destination, ',' );
+		return timlib_trim_character( destination, "," );
 	}
 }
 
