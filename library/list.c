@@ -38,27 +38,32 @@ void list_free_data( LIST *list )
 /* ------------------------------- */
 int list_free_container( LIST *list )
 {
-
-	struct LINKTYPE *temp;
+	struct LINKTYPE *linktype;
 
 	if ( list_rewind( list ) )
 	{
-		while( list->current ) {
-			temp = list->current;
+		while( list->current )
+		{
+			linktype = list->current;
 			list->current = list->current->next;
-			free( temp );
-	}
+			list_linktype_free( linktype );
+		}
 	}
 
 	free( list );
 	return 1;
 } /* list_free_container() */
 
+void list_linktype_free( struct LINKTYPE *linktype )
+{
+	if ( linktype && linktype->item ) free( linktype->item );
+	if ( linktype ) free( linktype );
+}
+
 int list_free_string_container( LIST *list )
 {
 	return list_free_container( list );
 }
-
 
 int list_set( LIST *list, void *this_item )
 {
@@ -374,8 +379,7 @@ void list_html_table_display(	LIST *list,
 	} while( list_next( list ) );
 
 	pclose( output_pipe );
-	
-} /* list_html_table_display() */
+}
 
 char *list_display( LIST *list )
 {
@@ -402,7 +406,7 @@ char *list_display_quote_comma_delimited(
 {
 	char *dest_ptr = destination;
 	char *ptr;
-	register boolean first_time = 1;
+	boolean first_time = 1;
 
 	if ( go_head( list ) )
 		do {
@@ -427,7 +431,7 @@ char *list_display_double_quote_comma_delimited(
 {
 	char *dest_ptr = destination;
 	char *ptr;
-	register boolean first_time = 1;
+	boolean first_time = 1;
 
 	if ( go_head( list ) )
 		do {
@@ -452,7 +456,7 @@ char *list_display_quoted_delimiter( 	char *destination,
 {
 	char *dest_ptr = destination;
 	char *ptr;
-	register boolean first_time = 1;
+	boolean first_time = 1;
 
 	*dest_ptr++ = '"';
 
@@ -492,9 +496,35 @@ LIST *list_double_quotes_around_string_list( LIST *list )
 
 char *list_display_delimited( LIST *list, char delimiter )
 {
-	return list_display_delimited_prefixed( list, delimiter, "" );
+	char buffer[ 65536 ];
+	char *buf_ptr = buffer;
+	char *ptr;
+	boolean first_time = 1;
 
-} /* list_display_delimited() */
+	if ( !list_rewind( list ) ) return "";
+
+	*buf_ptr = '\0';
+
+	do {
+		ptr = retrieve_item_ptr( list );
+
+		if ( first_time )
+		{
+			first_time = 0;
+
+			buf_ptr += sprintf( buf_ptr, 
+					    "%s", 
+					    ptr );
+		}
+		else
+			buf_ptr += sprintf( buf_ptr, 
+					    "%c%s", 
+					    delimiter,
+					    ptr );
+	} while( next_item( list ) );
+
+	return strdup( buffer );
+}
 
 char *list_buffered_display(	char *destination,
 				LIST *list, 
@@ -502,7 +532,7 @@ char *list_buffered_display(	char *destination,
 {
 	char *buf_ptr = destination;
 	char *ptr;
-	register boolean first_time = 1;
+	boolean first_time = 1;
 
 	if ( !go_head( list ) ) return "";
 
@@ -532,7 +562,7 @@ char *list_display_delimited_plus_space(LIST *list,
 	char buffer[ 65536 ];
 	char *buf_ptr = buffer;
 	char *ptr;
-	register boolean first_time = 1;
+	boolean first_time = 1;
 
 	if ( !go_head( list ) ) return "";
 
@@ -1216,6 +1246,11 @@ void *list_get_current_pointer( LIST *list )
 }
 
 void *list_get_pointer( LIST *list )
+{
+	return retrieve_item_ptr( list );
+}
+
+void *list_pointer( LIST *list )
 {
 	return retrieve_item_ptr( list );
 }
@@ -2285,3 +2320,35 @@ LIST *list_cycle_right( LIST *list )
 
 } /* list_cycle_right() */
 
+char *list_integer_display(	LIST *integer_list,
+				char delimiter  )
+{
+	char buffer[ 65536 ];
+	char *buf_ptr = buffer;
+	char *ptr;
+	boolean first_time = 1;
+
+	if ( !list_rewind( integer_list ) ) return "";
+
+	*buf_ptr = '\0';
+
+	do {
+		ptr = list_get_pointer( integer_list );
+
+		if ( first_time )
+		{
+			first_time = 0;
+
+			buf_ptr += sprintf( buf_ptr, 
+					    "%d", 
+					    *ptr );
+		}
+		else
+			buf_ptr += sprintf( buf_ptr, 
+					    "%c%d", 
+					    delimiter,
+					    *ptr );
+	} while( next_item( integer_list ) );
+
+	return strdup( buffer );
+}
