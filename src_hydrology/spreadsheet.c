@@ -122,28 +122,34 @@ DATATYPE *spreadsheet_translate_datatype(
 
 		/* Priority 3: match STATION_DATATYPE_ALIAS */
 		/* ---------------------------------------- */
-		datatype_name =
-			datatype_alias_datatype_name(
-				spreadsheet_station_datatype_alias_list,
-				spreadsheet_datatype_label );
-
-		if ( timlib_strcmp(	datatype_name,
-					datatype->datatype_name ) == 0 )
+		if ( list_length( spreadsheet_station_datatype_alias_list ) )
 		{
-			return datatype;
+			datatype_name =
+				datatype_alias_datatype_name(
+					spreadsheet_station_datatype_alias_list,
+					spreadsheet_datatype_label );
+
+			if ( timlib_strcmp(	datatype_name,
+						datatype->datatype_name ) == 0 )
+			{
+				return datatype;
+			}
 		}
 
 		/* Priority 4: match DATATYPE_ALIAS */
 		/* -------------------------------- */
-		datatype_name =
-			datatype_alias_datatype_name(
-				datatype->datatype_alias_list,
-				spreadsheet_datatype_label );
-
-		if ( timlib_strcmp(	datatype_name,
-					datatype->datatype_name ) == 0 )
+		if ( list_length( datatype->datatype_alias_list ) )
 		{
-			return datatype;
+			datatype_name =
+				datatype_alias_datatype_name(
+					datatype->datatype_alias_list,
+					spreadsheet_datatype_label );
+
+			if ( timlib_strcmp(	datatype_name,
+						datatype->datatype_name ) == 0 )
+			{
+				return datatype;
+			}
 		}
 
 	} while ( list_next( spreadsheet_datatype_list ) );
@@ -198,14 +204,6 @@ LIST *spreadsheet_header_cell_list(
 					column_piece =
 				spreadsheet_header_cell->
 					column_piece;
-
-/*
-				spreadsheet_header_cell->
-					spreadsheet_translate_datatype->
-					units_converted_multiply_by =
-				spreadsheet_header_cell->
-					spreadsheet_units_converted_multiply_by;
-*/
 
 				/* Append to the list. */
 				/* ------------------- */
@@ -438,7 +436,8 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 	if ( !spreadsheet_header_cell->spreadsheet_translate_datatype )
 	{
 		fprintf( stderr,
-		"WARNING: spreadsheet_translate_datatype(%s) returned empty.\n",
+	"WARNING in %s: spreadsheet_translate_datatype(%s) returned empty.\n",
+			 __FILE__,
 			 datatype_label );
 
 		return (SPREADSHEET_HEADER_CELL *)0;
