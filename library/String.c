@@ -30,8 +30,71 @@ STRING_OCCURRANCE *string_occurrance_new( char *ptr )
 	return a;
 }
 
-LIST *string_negative_sequence_occurrance_list(
+char *string_occurrance_list_display(
+				char *destination,
+				LIST *occurrance_list )
+{
+	STRING_OCCURRANCE *string_occurrance;
+	char *ptr = destination;
+
+	*ptr = '\0';
+
+	if ( list_rewind( occurrance_list ) )
+	{
+		do {
+			string_occurrance = list_get( occurrance_list );
+
+			if ( ptr == destination )
+			{
+				ptr += sprintf( ptr,
+						"\nat: [%s] are %d\n",
+						string_occurrance->ptr,
+						string_occurrance->occurrance );
+			}
+			else
+			{
+				ptr += sprintf( ptr,
+						"at: [%s] are %d\n",
+						string_occurrance->ptr,
+						string_occurrance->occurrance );
+			}
+		} while ( list_next( occurrance_list ) );
+	}
+	return destination;
+}
+
+char *string_enforce_utf16(	char *destination,
 				char *source )
+{
+	LIST *negative_occurrance_list;
+	STRING_OCCURRANCE *occurrance;
+	char *skip_to;
+
+	strcpy( destination, source );
+
+	negative_occurrance_list =
+		string_negative_sequence_occurrance_list(
+			destination );
+
+	if ( !list_go_tail( negative_occurrance_list ) )
+		return destination;
+
+	do {
+		occurrance = list_get( negative_occurrance_list );
+
+		if ( occurrance->occurrance > 2 )
+		{
+			skip_to = occurrance->ptr + occurrance->occurrance;
+
+			strcpy( occurrance->ptr, skip_to );
+		}
+
+	} while ( list_previous( negative_occurrance_list ) );
+
+	return destination;
+}
+
+LIST *string_negative_sequence_occurrance_list( char *source )
 {
 	char *ptr;
 	boolean inside_negative_sequence;
@@ -44,7 +107,16 @@ LIST *string_negative_sequence_occurrance_list(
 
 	inside_negative_sequence = 0;
 
-	while ( (ptr = source++) )
+fprintf( stderr, "%s/%s()/%d: source = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+source );
+fflush( stderr );
+
+	ptr = source;
+
+	while ( *ptr++ )
 	{
 		if ( *ptr < 0 )
 		{
@@ -97,70 +169,17 @@ LIST *string_negative_sequence_occurrance_list(
 			}
 		}
 	}
+
+{
+char buffer[ 65536 ];
+fprintf( stderr, "%s/%s()/%d: occurrance_list = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+string_occurrance_list_display( buffer, occurrance_list ) );
+fflush( stderr );
+}
+
 	return occurrance_list;
-}
-
-char *string_occurrance_list_display(
-				char *destination,
-				LIST *occurrance_list )
-{
-	STRING_OCCURRANCE *string_occurrance;
-	char *ptr = destination;
-
-	*ptr = '\0';
-
-	if ( list_rewind( occurrance_list ) )
-	{
-		do {
-			string_occurrance = list_get( occurrance_list );
-
-			if ( ptr == destination )
-			{
-				ptr += sprintf( ptr,
-						"\nat: [%s] are %d\n",
-						string_occurrance->ptr,
-						string_occurrance->occurrance );
-			}
-			else
-			{
-				ptr += sprintf( ptr,
-						"at: [%s] are %d\n",
-						string_occurrance->ptr,
-						string_occurrance->occurrance );
-			}
-		} while ( list_next( occurrance_list ) );
-	}
-	return destination;
-}
-
-char *string_enforce_utf16(	char *destination,
-				char *source )
-{
-	LIST *negative_occurrance_list;
-	STRING_OCCURRANCE *occurrance;
-	char *skip_to;
-
-	negative_occurrance_list =
-		string_negative_sequence_occurrance_list(
-			source );
-
-	strcpy( destination, source );
-
-	if ( !list_go_tail( negative_occurrance_list ) )
-		return destination;
-
-	do {
-		occurrance = list_get( negative_occurrance_list );
-
-		if ( occurrance->occurrance > 2 )
-		{
-			skip_to = occurrance->ptr + occurrance->occurrance;
-
-			strcpy( occurrance->ptr, skip_to );
-		}
-
-	} while ( list_previous( negative_occurrance_list ) );
-
-	return destination;
 }
 
