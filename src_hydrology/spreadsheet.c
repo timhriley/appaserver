@@ -16,6 +16,7 @@
 #include "station_datatype.h"
 #include "units.h"
 #include "shef_datatype_code.h"
+#include "String.h"
 #include "spreadsheet.h"
 
 LIST *spreadsheet_datatype_list(	char *application_name,
@@ -318,58 +319,6 @@ SPREADSHEET *spreadsheet_fetch(
 			spreadsheet->station_name );
 
 	return spreadsheet;
-}
-
-/* Returns heap memory and populates heap memory. */
-/* ---------------------------------------------- */
-char *spreadsheet_header_row(
-				char **second_line,
-				char *filename,
-				char *date_header_label,
-				boolean two_lines )
-{
-	FILE *input_file;
-	char header_buffer[ 2048 ];
-	char second_line_buffer[ 2048 ];
-
-	if ( ! ( input_file = fopen( filename, "r" ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 filename );
-		exit( 1 );
-	}
-
-	*second_line = '\0';
-	timlib_reset_get_line_check_utf_16();
-
-	while( timlib_get_line( header_buffer, input_file, 1024 ) )
-	{
-		if ( spreadsheet_header_label_success(
-			date_header_label,
-			header_buffer ) )
-		{
-			if ( two_lines ) 
-			{
-				timlib_get_line(
-					second_line_buffer,
-					input_file,
-					1024 );
-
-				*second_line = strdup( second_line_buffer );
-			}
-
-			fclose( input_file );
-			timlib_reset_get_line_check_utf_16();
-			return strdup( header_buffer );
-		}
-	}
-	fclose( input_file );
-	timlib_reset_get_line_check_utf_16();
-	return (char *)0;
 }
 
 SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
@@ -678,5 +627,65 @@ LIST *spreadsheet_shef_upload_datatype_list(
 	return shef_station_fetch_upload_datatype_list(
 				application_name,
 				station_name );
+}
+
+/* Returns heap memory and populates heap memory. */
+/* ---------------------------------------------- */
+char *spreadsheet_header_row(
+				char **second_line,
+				char *filename,
+				char *date_header_label,
+				boolean two_lines )
+{
+	FILE *input_file;
+	char header_buffer[ 65536 ];
+	char second_line_buffer[ 65536 ];
+	char utf16_buffer[ 65536 ];
+
+	if ( ! ( input_file = fopen( filename, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 filename );
+		exit( 1 );
+	}
+
+	*second_line = '\0';
+	timlib_reset_get_line_check_utf_16();
+
+	while( timlib_get_line( header_buffer, input_file, 1024 ) )
+	{
+		if ( spreadsheet_header_label_success(
+			date_header_label,
+			string_enforce_utf16(	utf16_buffer,
+						header_buffer ) ) )
+		{
+			strcpy( header_buffer, utf16_buffer );
+
+			if ( two_lines ) 
+			{
+				timlib_get_line(
+					second_line_buffer,
+					input_file,
+					1024 );
+
+				string_enforce_utf16(
+					utf16_buffer,
+					second_line_buffer );
+
+				*second_line = strdup( utf16_buffer );
+			}
+
+			fclose( input_file );
+			timlib_reset_get_line_check_utf_16();
+			return strdup( header_buffer );
+		}
+	}
+	fclose( input_file );
+	timlib_reset_get_line_check_utf_16();
+	return (char *)0;
 }
 

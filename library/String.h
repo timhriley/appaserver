@@ -22,10 +22,8 @@ typedef struct
 	int occurrance;
 } STRING_OCCURRANCE;
 
-
 /* Prototypes */
 /* ---------- */
-
 char *string_enforce_utf16(	char *destination,
 				char *source );
 

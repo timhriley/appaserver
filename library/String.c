@@ -30,22 +30,6 @@ STRING_OCCURRANCE *string_occurrance_new( char *ptr )
 	return a;
 }
 
-char *string_enforce_utf16(	char *destination,
-				char *source )
-{
-	LIST *negative_occurrance_list;
-
-	negative_occurrance_list =
-		string_negative_sequence_occurrance_list(
-			source );
-
-	string_occurrance_list_display(
-		destination,
-		negative_occurrance_list );
-
-	return destination;
-}
-
 LIST *string_negative_sequence_occurrance_list(
 				char *source )
 {
@@ -148,3 +132,35 @@ char *string_occurrance_list_display(
 	}
 	return destination;
 }
+
+char *string_enforce_utf16(	char *destination,
+				char *source )
+{
+	LIST *negative_occurrance_list;
+	STRING_OCCURRANCE *occurrance;
+	char *skip_to;
+
+	negative_occurrance_list =
+		string_negative_sequence_occurrance_list(
+			source );
+
+	strcpy( destination, source );
+
+	if ( !list_go_tail( negative_occurrance_list ) )
+		return destination;
+
+	do {
+		occurrance = list_get( negative_occurrance_list );
+
+		if ( occurrance->occurrance > 2 )
+		{
+			skip_to = occurrance->ptr + occurrance->occurrance;
+
+			strcpy( occurrance->ptr, skip_to );
+		}
+
+	} while ( list_previous( negative_occurrance_list ) );
+
+	return destination;
+}
+
