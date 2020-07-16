@@ -20,6 +20,7 @@ STANDARD_LIBRARY=						\
 		piece.o 					\
 		column.o 					\
 		date_convert.o 					\
+		String.o 					\
 		hashtbl.o
 
 APPASERVER_LIBRARY=						\
@@ -1164,4 +1165,10 @@ email.o: email.c							\
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c email.c
+
+string.o: string.c							\
+	email.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c string.c
 

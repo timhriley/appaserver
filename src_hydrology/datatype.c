@@ -1139,7 +1139,6 @@ char *datatype_alias_datatype_name(
 				char *datatype_label )
 {
 	DATATYPE_ALIAS *datatype_alias;
-	char *datatype_alias_string;
 
 	if ( !list_rewind( datatype_alias_list ) )
 		return (char *)0;
@@ -1149,14 +1148,8 @@ char *datatype_alias_datatype_name(
 			list_get_pointer(
 				datatype_alias_list );
 
-		/* Returns static memory */
-		/* --------------------- */
-		datatype_alias_string =
-			datatype_translate_degrees(
-				datatype_alias->datatype_alias );
-
 		if ( timlib_strcmp( 
-			datatype_alias_string,
+			datatype_alias->datatype_alias,
 			datatype_label ) == 0 )
 		{
 			return datatype_alias->datatype_name;
@@ -1196,6 +1189,7 @@ char *datatype_alias_list_display( LIST *datatype_alias_list )
 	return strdup( display );
 }
 
+#ifdef NOT_DEFINED
 /* --------------------- */
 /* Returns static memory */
 /* --------------------- */
@@ -1230,4 +1224,4 @@ char *datatype_translate_degrees( char *datatype_alias )
 	}
 	return datatype_alias_string;
 }
-
+#endif

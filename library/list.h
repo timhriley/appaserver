@@ -98,7 +98,11 @@ boolean go_head();
 boolean list_reset( LIST *list );
 boolean list_rewind( LIST *list );
 void *list_get( LIST *list );
-void *list_get_pointer( LIST *list );
+
+void *list_pointer(		LIST *list );
+
+void *list_get_pointer(		LIST *list );
+
 void *list_get_current_pointer( LIST *list );
 int go_tail();
 int next_node();
@@ -397,5 +401,10 @@ void list_html_table_display(	LIST *list,
 LIST *list_cycle_right(		LIST *list );
 
 void *list_data(		LIST *list );
+
+char *list_integer_display(	LIST *integer_list,
+				char delimiter );
+
+void list_linktype_free(	struct LINKTYPE *linktype );
 
 #endif

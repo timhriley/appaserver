@@ -205,9 +205,4 @@ DATATYPE *datatype_parse(	char *application_name,
 LIST *datatype_list_fetch(	char *application_name,
 				char *where );
 
-/* Returns static memory */
-/* --------------------- */
-char *datatype_translate_degrees(
-				char *datatype_alias );
-
 #endif
