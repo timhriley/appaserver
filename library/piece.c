@@ -140,7 +140,7 @@ char *piece_double_quoted(
 			source,
 			offset,
 			'"' );
-} /* piece_double_quoted() */
+}
 
 char *piece_quoted(	char *destination,
 			char delimiter,
@@ -864,31 +864,16 @@ int piece_delimiter_position(
 	return -1;
 } /* piece_delimiter_position() */
 
-char *piece_quote_comma(
-			char *destination,
-			char *source,
-			int offset )
-{
-	return piece_quoted(	destination,
-				',',
-				source,
-				offset,
-				'"' );
-
-} /* piece_quote_comma() */
-
 char *piece_quote_comma_delimited(
 			char *destination,
 			char *source,
 			int offset )
 {
-	return piece_quoted(	destination,
-				',',
-				source,
-				offset,
-				'"' );
-
-} /* piece_quote_comma_delimited() */
+	return piece_quote_comma(
+			destination,
+			source,
+			offset );
+}
 
 char piece_delimiter_search( char *source )
 {
@@ -1241,4 +1226,201 @@ PIECE_DELIMITER_COUNT *piece_delimiter_count_new(
 	return piece_delimiter_count;
 
 } /* piece_delimiter_count_new() */
+
+char *piece_quote_comma(	char *destination,
+				char *source,
+				int offset )
+{
+        int mark = 0;
+        char *buf_ptr = destination;
+	boolean inside_quote = 0;
+	char next_character;
+	char buffer[ 1024 ];
+ 
+	*destination = '\0';
+
+        /* if offset is not zero, find the mark */
+        /* ------------------------------------ */
+        if ( offset )
+	{
+                while( *source )
+		{
+			/* If escaped. */
+			/* ----------- */
+			if ( *source == '\\' )
+			{
+				source++;
+				if ( *source ) source++;
+				continue;
+			}
+
+			/* ------------------------ */
+			/* Case not inside a quote. */
+			/* ------------------------ */
+			if ( !inside_quote )
+			{
+				/* Case got a quote. */
+				/* ----------------- */
+				if ( *source == PIECE_QUOTE )
+				{
+					source++;
+					inside_quote = 1;
+					continue;
+				}
+
+				/* Case got a comma. */
+				/* ----------------- */
+				if ( *source == PIECE_COMMA )
+				{
+					source++;
+                               		if ( ++mark == offset ) break;
+					continue;
+				}
+
+				/* Case got neither. */
+				/* ----------------- */
+				source++;
+				continue;
+			}
+
+			/* -------------------- */
+			/* Case inside a quote. */
+			/* -------------------- */
+			if ( inside_quote )
+			{
+				/* Case got a quote. */
+				/* ----------------- */
+				if ( *source == PIECE_QUOTE )
+				{
+					next_character = *(source + 1);
+
+					if ( next_character == PIECE_COMMA
+					||   next_character == '\0' )
+					{
+						/* Next character is comma. */
+						/* ------------------------ */
+						source++;
+						inside_quote = 0;
+						continue;
+					}
+					source++;
+					continue;
+				}
+
+				/* Case got a comma. */
+				/* ----------------- */
+				if ( *source == PIECE_COMMA )
+				{
+					/* Keep going. */
+					/* ----------- */
+					source++;
+					continue;
+				}
+
+				/* Case got neither. */
+				/* ----------------- */
+				source++;
+			}
+		}
+	}
+ 
+	/* If ran off the end */
+	/* ------------------ */
+        if ( offset > mark ) return (char *)0;
+ 
+	/* =================== */
+	/* Copy to destination */
+	/* =================== */
+	*buf_ptr = '\0';
+	inside_quote = 0;
+
+        while( *source )
+	{
+		/* If escaped. */
+		/* ----------- */
+		if ( *source == '\\' )
+		{
+			source++;
+			*buf_ptr++ = *source++;
+			continue;
+		}
+
+		/* ------------------------ */
+		/* Case not inside a quote. */
+		/* ------------------------ */
+		if ( !inside_quote )
+		{
+			/* Case got a quote. */
+			/* ----------------- */
+			if ( *source == PIECE_QUOTE )
+			{
+				source++;
+				inside_quote = 1;
+				continue;
+			}
+
+			/* Case got a comma. */
+			/* ----------------- */
+			if ( *source == PIECE_COMMA )
+			{
+				/* All done */
+				/* -------- */
+				*buf_ptr = '\0';
+				break;
+			}
+
+			/* Case got neither. */
+			/* ----------------- */
+			*buf_ptr++ = *source++;
+		}
+
+		/* -------------------- */
+		/* Case inside a quote. */
+		/* -------------------- */
+		if ( inside_quote )
+		{
+			/* Case got a quote. */
+			/* ----------------- */
+			if ( *source == PIECE_QUOTE )
+			{
+				next_character = *(source + 1);
+
+				if ( next_character == PIECE_COMMA
+				||   next_character == '\0' )
+				{
+					/* All done */
+					/* -------- */
+					*buf_ptr = '\0';
+					break;
+				}
+				*buf_ptr++ = *source++;
+				continue;
+			}
+
+			/* Case got a comma. */
+			/* ----------------- */
+			if ( *source == PIECE_COMMA )
+			{
+				*buf_ptr++ = *source++;
+				continue;
+			}
+
+			/* Case got neither. */
+			/* ----------------- */
+			*buf_ptr++ = *source++;
+			continue;
+		}
+	}
+ 
+        *buf_ptr = '\0';
+
+	if ( piece_do_trim ) trim( destination );
+
+	strcpy( buffer, destination );
+
+	return timlib_remove_thousands_separator(
+				destination,
+				buffer );
+ 
+} /* piece_quote_comma() */
 

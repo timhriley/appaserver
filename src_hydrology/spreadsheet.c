@@ -16,6 +16,7 @@
 #include "station_datatype.h"
 #include "units.h"
 #include "shef_datatype_code.h"
+#include "String.h"
 #include "spreadsheet.h"
 
 LIST *spreadsheet_datatype_list(	char *application_name,
@@ -122,28 +123,34 @@ DATATYPE *spreadsheet_translate_datatype(
 
 		/* Priority 3: match STATION_DATATYPE_ALIAS */
 		/* ---------------------------------------- */
-		datatype_name =
-			datatype_alias_datatype_name(
-				spreadsheet_station_datatype_alias_list,
-				spreadsheet_datatype_label );
-
-		if ( timlib_strcmp(	datatype_name,
-					datatype->datatype_name ) == 0 )
+		if ( list_length( spreadsheet_station_datatype_alias_list ) )
 		{
-			return datatype;
+			datatype_name =
+				datatype_alias_datatype_name(
+					spreadsheet_station_datatype_alias_list,
+					spreadsheet_datatype_label );
+
+			if ( timlib_strcmp(	datatype_name,
+						datatype->datatype_name ) == 0 )
+			{
+				return datatype;
+			}
 		}
 
 		/* Priority 4: match DATATYPE_ALIAS */
 		/* -------------------------------- */
-		datatype_name =
-			datatype_alias_datatype_name(
-				datatype->datatype_alias_list,
-				spreadsheet_datatype_label );
-
-		if ( timlib_strcmp(	datatype_name,
-					datatype->datatype_name ) == 0 )
+		if ( list_length( datatype->datatype_alias_list ) )
 		{
-			return datatype;
+			datatype_name =
+				datatype_alias_datatype_name(
+					datatype->datatype_alias_list,
+					spreadsheet_datatype_label );
+
+			if ( timlib_strcmp(	datatype_name,
+						datatype->datatype_name ) == 0 )
+			{
+				return datatype;
+			}
 		}
 
 	} while ( list_next( spreadsheet_datatype_list ) );
@@ -198,14 +205,6 @@ LIST *spreadsheet_header_cell_list(
 					column_piece =
 				spreadsheet_header_cell->
 					column_piece;
-
-/*
-				spreadsheet_header_cell->
-					spreadsheet_translate_datatype->
-					units_converted_multiply_by =
-				spreadsheet_header_cell->
-					spreadsheet_units_converted_multiply_by;
-*/
 
 				/* Append to the list. */
 				/* ------------------- */
@@ -322,58 +321,6 @@ SPREADSHEET *spreadsheet_fetch(
 	return spreadsheet;
 }
 
-/* Returns heap memory and populates heap memory. */
-/* ---------------------------------------------- */
-char *spreadsheet_header_row(
-				char **second_line,
-				char *filename,
-				char *date_header_label,
-				boolean two_lines )
-{
-	FILE *input_file;
-	char header_buffer[ 2048 ];
-	char second_line_buffer[ 2048 ];
-
-	if ( ! ( input_file = fopen( filename, "r" ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 filename );
-		exit( 1 );
-	}
-
-	*second_line = '\0';
-	timlib_reset_get_line_check_utf_16();
-
-	while( timlib_get_line( header_buffer, input_file, 1024 ) )
-	{
-		if ( spreadsheet_header_label_success(
-			date_header_label,
-			header_buffer ) )
-		{
-			if ( two_lines ) 
-			{
-				timlib_get_line(
-					second_line_buffer,
-					input_file,
-					1024 );
-
-				*second_line = strdup( second_line_buffer );
-			}
-
-			fclose( input_file );
-			timlib_reset_get_line_check_utf_16();
-			return strdup( header_buffer );
-		}
-	}
-	fclose( input_file );
-	timlib_reset_get_line_check_utf_16();
-	return (char *)0;
-}
-
 SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 				boolean *all_done,
 				char *spreadsheet_header_row,
@@ -438,7 +385,8 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 	if ( !spreadsheet_header_cell->spreadsheet_translate_datatype )
 	{
 		fprintf( stderr,
-		"WARNING: spreadsheet_translate_datatype(%s) returned empty.\n",
+	"WARNING in %s: spreadsheet_translate_datatype(%s) returned empty.\n",
+			 __FILE__,
 			 datatype_label );
 
 		return (SPREADSHEET_HEADER_CELL *)0;
@@ -679,5 +627,65 @@ LIST *spreadsheet_shef_upload_datatype_list(
 	return shef_station_fetch_upload_datatype_list(
 				application_name,
 				station_name );
+}
+
+/* Returns heap memory and populates heap memory. */
+/* ---------------------------------------------- */
+char *spreadsheet_header_row(
+				char **second_line,
+				char *filename,
+				char *date_header_label,
+				boolean two_lines )
+{
+	FILE *input_file;
+	char header_buffer[ 65536 ];
+	char second_line_buffer[ 65536 ];
+	char utf16_buffer[ 65536 ];
+
+	if ( ! ( input_file = fopen( filename, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 filename );
+		exit( 1 );
+	}
+
+	*second_line = '\0';
+	timlib_reset_get_line_check_utf_16();
+
+	while( timlib_get_line( header_buffer, input_file, 1024 ) )
+	{
+		if ( spreadsheet_header_label_success(
+			date_header_label,
+			string_enforce_utf16(	utf16_buffer,
+						header_buffer ) ) )
+		{
+			strcpy( header_buffer, utf16_buffer );
+
+			if ( two_lines ) 
+			{
+				timlib_get_line(
+					second_line_buffer,
+					input_file,
+					1024 );
+
+				string_enforce_utf16(
+					utf16_buffer,
+					second_line_buffer );
+
+				*second_line = strdup( utf16_buffer );
+			}
+
+			fclose( input_file );
+			timlib_reset_get_line_check_utf_16();
+			return strdup( header_buffer );
+		}
+	}
+	fclose( input_file );
+	timlib_reset_get_line_check_utf_16();
+	return (char *)0;
 }
 

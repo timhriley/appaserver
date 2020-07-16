@@ -70,7 +70,7 @@ DATATYPE *datatype_unit_record2datatype(
 			char *application_name,
 			char *record );
 
-DATATYPE *datatype_record_parse(
+DATATYPE *datatype_parse2(
 			char *application_name,
 			char *record );
 
@@ -139,8 +139,7 @@ LIST *datatype_get_datatypes_for_unit(
 
 DATATYPE *datatype_calloc(	void );
 
-LIST *datatype_alias_list(
-				char *application_name );
+LIST *datatype_alias_list(	void );
 
 DATATYPE_ALIAS *datatype_alias_new(
 				void );
@@ -151,7 +150,7 @@ DATATYPE_ALIAS *datatype_alias_seek(
 
 void datatype_free(		DATATYPE *datatype );
 
-LIST *datatype_fetch_alias_list(
+LIST *datatype_name_alias_list(
 				char *application_name,
 				char *datatype_name );
 

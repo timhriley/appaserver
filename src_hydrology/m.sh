@@ -1,6 +1,7 @@
 :
 
-make output_current_vs_historical
+touch spreadsheet_parse_header.c
+make spreadsheet_parse_header
 
 #cd - && make parse_alias_data
 

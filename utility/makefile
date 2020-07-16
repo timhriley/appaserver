@@ -192,7 +192,8 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	real_time2annual_period.e					\
 	mail_if_output.e						\
 	time_hhmm2hhcolonmm.e						\
-	subtract_list.e
+	subtract_list.e							\
+	label_dictionary.e
 
 touch:
 	/usr/bin/touch *.c
@@ -1805,6 +1806,14 @@ subtract_list.e: subtract_list.c					\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o subtract_list.e
+
+label_dictionary.e: label_dictionary.c					\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
+	$(CC)	${CFLAGS} -I${LIBRARY} label_dictionary.c		\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		-o label_dictionary.e
 
 payroll_period.e: payroll_period.c ${APPASERVER_LIBRARY}		\
 		${STANDARD_LIBRARY}					\
