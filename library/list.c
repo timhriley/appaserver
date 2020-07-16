@@ -46,7 +46,7 @@ int list_free_container( LIST *list )
 		{
 			linktype = list->current;
 			list->current = list->current->next;
-			list_linktype_free( linktype );
+			free( linktype );
 		}
 	}
 
