@@ -92,10 +92,6 @@ int main( int argc, char **argv )
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 
-/* 2019-02-19: This forks application_record.sh.
-	add_relative_source_directory_to_path( application_name );
-*/
-
 	if( strcmp( select, "primary" ) == 0 )
 	{
 		folder = folder_new_folder(
@@ -276,7 +272,7 @@ fprintf( stderr, "%s\n", sys_string );
 
 	input_pipe = popen( sys_string, "r" );
 
-	while( get_line( input_buffer, input_pipe ) )
+	while( timlib_get_line( input_buffer, input_pipe, 65536 ) )
 	{
 		row_access_count++;
 

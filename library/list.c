@@ -771,14 +771,17 @@ void list_get_from_pipe( LIST *list, char *pipe_string )
 void list_load_from_pipe( LIST *list, char *pipe_string )
 {
 	char buffer[ 65536 ];
-	FILE *p = popen( pipe_string, "r" );
-	while( get_line( buffer, p ) )
+	FILE *p;
+
+	p = popen( pipe_string, "r" );
+
+	while( timlib_get_line( buffer, p, 65536 ) )
 	{
 		append( list, buffer, strlen( buffer ) + 1 );
 	}
-	pclose( p );
 
-} /* list_load_from_pipe() */
+	pclose( p );
+}
 
 int list_at_first( LIST *list )
 {

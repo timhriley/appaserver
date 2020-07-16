@@ -1,4 +1,4 @@
-/* utility/piece_quote_comma.c 				*/
+/* $APPASERVER_HOME/utility/piece_quote_comma.c		*/
 /* ---------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------	*/
@@ -10,7 +10,7 @@
 
 int main( int argc, char **argv )
 {
-	char buffer[ 4096 ];
+	char buffer[ 65536 ];
 	char offset_str[ 128 ];
 	char component[ 4096 ];
 	char *offset_list_string;
@@ -31,46 +31,70 @@ int main( int argc, char **argv )
 
 	while( get_line( buffer, stdin ) )
 	{
-		for( i = 0; piece(	offset_str,
-					',',
-					offset_list_string,
-					i ); i++ )
+		if ( *offset_list_string )
 		{
-			offset = atoi( offset_str );
-
-			if ( offset < 0 )
+			for( i = 0; piece(	offset_str,
+						',',
+						offset_list_string,
+						i ); i++ )
 			{
-				fprintf( stderr,
-			 "ERROR in :%s: Offset (%d) is less than zero\n",
-			 		argv[ 0 ],
-			 		offset );
-				exit( 1 );
-			}
+				offset = atoi( offset_str );
 	
-			if ( !piece_quote_comma(
-						component,
-						buffer,
-						offset ) )
-			{
-				fprintf( stderr,
-		"Warning %s: There are less than %d delimiters in: (%s)\n",
-					argv[ 0 ],
-				 	offset,
-				 	buffer );
-			}
-			else
-			{
-				if ( i == 0 )
-					printf( "%s", component );
+				if ( offset < 0 )
+				{
+					fprintf( stderr,
+			 "ERROR in :%s: Offset (%d) is less than zero\n",
+				 		argv[ 0 ],
+				 		offset );
+					exit( 1 );
+				}
+		
+				if ( !piece_quote_comma(
+							component,
+							buffer,
+							offset ) )
+				{
+					fprintf( stderr,
+				"Warning %s: piece_quote_comma(%d) failed with [%s]\n",
+						argv[ 0 ],
+					 	offset,
+					 	buffer );
+				}
 				else
-					printf( "%c%s",
-						destination_delimiter,
-						component );
+				{
+					if ( i == 0 )
+						printf( "%s", component );
+					else
+						printf( "%c%s",
+							destination_delimiter,
+							component );
+				}
+			}
+		}
+		else
+		{
+			for( offset = 0 ; ; offset++ )
+			{
+				if ( !piece_quote_comma(
+							component,
+							buffer,
+							offset ) )
+				{
+					break;
+				}
+				else
+				{
+					if ( offset == 0 )
+						printf( "%s", component );
+					else
+						printf( "%c%s",
+							destination_delimiter,
+							component );
+				}
 			}
 		}
 		printf( "\n" );
 	}
-
 	return 0;
-} /* main() */
+}
 

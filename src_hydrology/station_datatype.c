@@ -515,7 +515,7 @@ STATION_DATATYPE *station_datatype_parse(
 	station_datatype->datatype = datatype_new( strdup( piece_buffer ) );
 
 	station_datatype->datatype->datatype_alias_list =
-		datatype_fetch_alias_list(
+		datatype_name_alias_list(
 			application_name,
 			station_datatype->datatype->datatype_name );
 

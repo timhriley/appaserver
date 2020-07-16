@@ -246,7 +246,7 @@ DATATYPE *datatype_parse(	char *application_name,
 	}
 
 	datatype->datatype_alias_list =
-		datatype_fetch_alias_list(
+		datatype_name_alias_list(
 			application_name,
 			datatype->datatype_name );
 
@@ -404,7 +404,7 @@ LIST *datatype_list(	char *application_name,
 
 	while( timlib_get_line( buffer, input_pipe, 1024 ) )
 	{
-		datatype = datatype_record_parse(
+		datatype = datatype_parse2(
 				application_name,
 				buffer );
 
@@ -617,7 +617,7 @@ boolean datatype_bar_chart(
 
 } /* datatype_bar_chart() */
 
-DATATYPE *datatype_record_parse(	char *application_name,
+DATATYPE *datatype_parse2(		char *application_name,
 					char *record )
 {
 	DATATYPE *datatype;
@@ -673,7 +673,7 @@ DATATYPE *datatype_record_parse(	char *application_name,
 	}
 
 	datatype->datatype_alias_list =
-		datatype_fetch_alias_list(
+		datatype_name_alias_list(
 			application_name,
 			datatype->datatype_name );
 
@@ -723,7 +723,7 @@ LIST *datatype_list_get( char *application_name )
 	while( get_line( buffer, input_pipe ) )
 	{
 		datatype =
-			datatype_record_parse(
+			datatype_parse2(
 				application_name,
 				buffer );
 		list_append_pointer( datatype_list, datatype );
@@ -836,13 +836,13 @@ LIST *datatype_get_datatypes_for_unit(
 
 } /* datatype_get_datatypes_for_unit() */
 
-LIST *datatype_alias_list( char *application_name )
+LIST *datatype_alias_list( void )
 {
 	char sys_string[ 1024 ];
 	char *folder_name;
 	char *select;
-	LIST *record_list;
-	char *record;
+	FILE *input_pipe;
+	char input_buffer[ 1024 ];
 	char piece_buffer[ 128 ];
 	DATATYPE_ALIAS *datatype_alias;
 	LIST *alias_list;
@@ -851,40 +851,35 @@ LIST *datatype_alias_list( char *application_name )
 	folder_name = "datatype_alias";
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s	"
-		 "			select=%s	"
-		 "			folder=%s	",
-		 application_name,
+		 "echo \"select %s from %s;\" | sql.e",
 		 select,
 		 folder_name );
 
-	record_list = pipe2list( sys_string );
-
-	if ( !list_rewind( record_list ) ) return (LIST *)0;
+	input_pipe = popen( sys_string, "r" );
 
 	alias_list = list_new();
 
-	do {
-		record = list_get( record_list );
-
+	while ( get_line( input_buffer, input_pipe ) )
+	{
 		datatype_alias = datatype_alias_new();
 
 		datatype_alias->datatype_alias =
 			strdup( piece(	piece_buffer,
 					FOLDER_DATA_DELIMITER,
-					record,
+					input_buffer,
 					0 ) );
 
 		datatype_alias->datatype_name =
 			strdup( piece(	piece_buffer,
 					FOLDER_DATA_DELIMITER,
-					record,
+					input_buffer,
 					1 ) );
 
 		list_append_pointer( alias_list, datatype_alias );
 
-	} while ( list_next( record_list ) );
+	}
 
+	pclose( input_pipe );
 	return alias_list;
 }
 
@@ -1052,7 +1047,7 @@ LIST *datatype_column_piece_datatype_list(
 
 } /* datatype_column_piece_datatype_list() */
 
-LIST *datatype_fetch_alias_list(
+LIST *datatype_name_alias_list(
 				char *application_name,
 				char *datatype_name )
 {
@@ -1083,8 +1078,7 @@ LIST *datatype_fetch_alias_list(
 	} while ( list_next( datatype_alias_list ) );
 
 	return return_list;
-
-} /* datatype_fetch_alias_list() */
+}
 
 LIST *datatype_fetch_datatype_alias_list(
 					char *application_name )
@@ -1145,6 +1139,7 @@ char *datatype_alias_datatype_name(
 				char *datatype_label )
 {
 	DATATYPE_ALIAS *datatype_alias;
+	char *datatype_alias_string;
 
 	if ( !list_rewind( datatype_alias_list ) )
 		return (char *)0;
@@ -1154,8 +1149,14 @@ char *datatype_alias_datatype_name(
 			list_get_pointer(
 				datatype_alias_list );
 
+		/* Returns static memory */
+		/* --------------------- */
+		datatype_alias_string =
+			datatype_translate_degrees(
+				datatype_alias->datatype_alias );
+
 		if ( timlib_strcmp( 
-			datatype_alias->datatype_alias,
+			datatype_alias_string,
 			datatype_label ) == 0 )
 		{
 			return datatype_alias->datatype_name;
@@ -1193,5 +1194,40 @@ char *datatype_alias_list_display( LIST *datatype_alias_list )
 
 	*ptr = '\0';
 	return strdup( display );
+}
+
+/* --------------------- */
+/* Returns static memory */
+/* --------------------- */
+/* -------------------------------------------- */
+/* datatype_alias = Temp �C is causing trouble. */
+/* -------------------------------------------- */
+char *datatype_translate_degrees( char *datatype_alias )
+{
+	static char datatype_alias_string[ 128 ];
+
+	timlib_strcpy(
+		datatype_alias_string,
+		datatype_alias,
+		128 );
+
+	if ( strlen( datatype_alias_string ) >= 8 )
+	{
+		char *t1, *t2, *t3;
+
+		t1 = datatype_alias_string + 5;
+		t2 = datatype_alias_string + 6;
+		t3 = datatype_alias_string + 7;
+
+		if (	( *t1 == -61 || *t1 == -17 )
+		&&	( *t2 == -81 || *t2 == -65 )
+		&&	( *t3 == -62 || *t3 == -67 ) )
+		{
+			*t1 = -80;
+			*t2 = 'C';
+			*t3 = '\0';
+		}
+	}
+	return datatype_alias_string;
 }
 

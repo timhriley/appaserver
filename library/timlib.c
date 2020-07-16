@@ -590,8 +590,7 @@ char *trim_until_character(	char *destination,
 	{
 		if ( *source == c )
 		{
-			if ( --num2trim == 0 )
-			{
+			if ( --num2trim == 0 ) {
 				strcpy( destination, source + 1 );
 				return destination;
 			}
@@ -600,6 +599,21 @@ char *trim_until_character(	char *destination,
 	}
 	return anchor;
 } /* trim_until_character() */
+
+char *timlib_trim_character(	char *source_destination,
+				char *string_of_chars )
+{
+	char c;
+
+	while ( ( c = *string_of_chars++ ) )
+	{
+		trim_character(
+			source_destination,
+			c,
+			source_destination );
+	}
+	return source_destination;
+}
 
 char *trim_character( char *destination, char c, char *source )
 {
@@ -2939,8 +2953,7 @@ boolean timlib_exists_character( 	char *s,
 {
 	while( *s )
 	{
-		if ( *s == ch )
-			return 1;
+		if ( *s == ch ) return 1;
 		s++;
 	}
 	return 0;
@@ -3963,4 +3976,41 @@ void timlib_remove_file( char *filename )
 	if ( system( sys_string ) ){};
 
 } /* timlib_remove_file() */
+
+boolean timlib_is_number( char *string )
+{
+	while ( *string )
+	{
+		if ( timlib_exists_character( "+-,.", *string )  )
+		{
+			string++;
+			continue;
+		}
+
+		if ( isdigit( *string ) )
+		{
+			string++;
+			continue;
+		}
+
+		return 0;
+	}
+	return 1;
+}
+
+char *timlib_remove_thousands_separator(
+				char *destination,
+				char *source )
+{
+	timlib_strcpy( destination, source, 0 );
+
+	if ( !timlib_is_number( destination ) )
+	{
+		return destination;
+	}
+	else
+	{
+		return timlib_trim_character( destination, "," );
+	}
+}
 
