@@ -932,16 +932,8 @@ boolean output_datatype(	char **datatype_name,
 				int historical_range_years )
 {
 	LIST *datatype_list;
-	LIST *datatype_name_list;
 	DATATYPE *datatype;
 	char datatype_name_buffer[ 128 ];
-
-/*
-	datatype_list =
-		datatype_with_station_name_list_get_datatype_bar_graph_list(
-			application_name,
-			station_name_list );
-*/
 
 	datatype_list =
 		google_map_station_datatype_list(
@@ -1164,6 +1156,7 @@ boolean output_historical_long_term(
 	GOOGLE_OUTPUT_CHART *google_output_chart;
 	char yaxis_label[ 128 ];
 	LIST *datatype_name_display_list;
+	char *min_historical_date;
 
 	if ( ! ( google_output_chart =
 			current_vs_historical_long_google_output_chart(
@@ -1180,6 +1173,15 @@ boolean output_historical_long_term(
 		return 0;
 	}
 
+	/* Returns heap memory */
+	/* ------------------- */
+	min_historical_date =
+		current_vs_historical_min_historical_date(
+				station_name_list,
+				application_name,
+				datatype_name,
+				current_year,
+				historical_range_years );
 
 	if ( bar_chart )
 	{
@@ -1199,6 +1201,12 @@ boolean output_historical_long_term(
 	current_vs_historical_cycle_right(
 		google_output_chart->barchart_list,
 		current_end_date );
+
+	if ( min_historical_date
+	&&   atoi( min_historical_date ) > historical_year )
+	{
+		historical_year = atoi( min_historical_date );
+	}
 
 	datatype_name_display_list =
 		current_vs_historical_datatype_name_display_list(
@@ -1324,9 +1332,6 @@ GOOGLE_OUTPUT_CHART *current_vs_historical_long_google_output_chart(
 		google_output_chart->datatype_name_list,
 		STRATUM_DATATYPE_HISTORICAL );
 
-/*
-#define MONTH_LIST_STRING "jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec"
-*/
 	google_barchart_append_datatype_name_string(
 		google_output_chart->barchart_list,
 		MONTH_LIST_STRING /* datatype_name_list_string */,

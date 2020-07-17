@@ -68,4 +68,13 @@ void current_vs_historical_output_body(
 			FILE *output_file,
 			char *additional_javascript );
 
+/* Returns heap memory */
+/* ------------------- */
+char *current_vs_historical_min_historical_date(
+				LIST *station_name_list,
+				char *application_name,
+				char *datatype_name,
+				int current_year,
+				int historical_range_years );
+
 #endif

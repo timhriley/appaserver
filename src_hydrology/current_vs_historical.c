@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "date.h"
+#include "timlib.h"
 #include "application_constants.h"
 #include "current_vs_historical.h"
 
@@ -158,5 +159,62 @@ void current_vs_historical_output_body(	FILE *output_file,
 
 	fprintf(output_file,
 		" leftmargin=0 topmargin=0 marginwidth=0 marginheight=0>\n" );
+}
+
+char *current_vs_historical_min_historical_date(
+				LIST *station_name_list,
+				char *application_name,
+				char *datatype_name,
+				int current_year,
+				int historical_range_years )
+{
+	char *select_clause;
+	char *station_in_clause;
+	char where_clause[ 1024 ];
+	char where_date_clause[ 1024 ];
+	char *por_historical_begin_date;
+	char *por_historical_end_date;
+	char *current_begin_date;
+	char *current_end_date;
+	char sys_string[ 1024 ];
+
+	current_vs_historical_dates(
+			&por_historical_begin_date,
+			&por_historical_end_date,
+			&current_begin_date,
+			&current_end_date,
+			&historical_range_years,
+			application_name,
+			current_year );
+
+	station_in_clause =
+		timlib_with_list_get_in_clause(
+			station_name_list );
+
+	select_clause = "min( measurement_date )";
+
+	sprintf(where_date_clause,
+		"measurement_date >= '%s' and		"
+		"measurement_date <= '%s'		",
+		por_historical_begin_date,
+		por_historical_end_date );
+
+	sprintf( where_clause,
+		 "station in (%s) and			"
+		 "datatype = '%s' and			"
+		 "%s					",
+		 station_in_clause,
+		 datatype_name,
+		 where_date_clause );
+
+	sprintf(sys_string,
+"echo \"	select %s				 "
+"		from measurement			 "
+"		where %s;\"				|"
+"sql.e 							 ",
+		select_clause,
+		where_clause );
+
+	return pipe2string( sys_string );
 }
 
