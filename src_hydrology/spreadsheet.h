@@ -15,6 +15,9 @@
 
 /* Constants */
 /* --------- */
+#define SON_SATAN_0	-17
+#define SON_SATAN_1	-65
+#define SON_SATAN_2	-67
 
 /* Structures */
 /* ---------- */
