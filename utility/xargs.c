@@ -74,7 +74,7 @@ void xargs( int argc, char **argv, char *substitution_buffer )
 	{
 		if ( trace_mode ) fprintf( stderr, "%s\n", sys_str );
 
-		system( sys_str );
+		if ( system( sys_str ) ){};
 	}
 
 } /* xargs() */
