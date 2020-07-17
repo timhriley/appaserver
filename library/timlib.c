@@ -718,7 +718,7 @@ int exists_character( char *buffer, int c )
 		position++;
 	}
 	return 0;
-} /* exists_character() */
+}
 
 int character_position( char *buffer, int c )
 {

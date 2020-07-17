@@ -203,4 +203,17 @@ LIST *spreadsheet_shef_upload_datatype_list(
 				char *application_name,
 				char *station_name );
 
+char *spreadsheet_filter_son_satan(
+				char *buffer );
+
+int spreadsheet_exists_character(
+				char *buffer, int c );
+
+/* Returns input_buffer or (char *)0 if all done. */
+/* ---------------------------------------------- */
+char *spreadsheet_string_input(	
+				char *input_buffer,
+				FILE *infile,
+				int buffer_size );
+
 #endif

@@ -127,7 +127,6 @@ void spreadsheet_parse_display( LIST *datatype_list )
 			datatype->units_converted_multiply_by );
 
 	} while ( list_next( datatype_list ) );
-
 }
 
 void fetch_parameters(	char **filename,

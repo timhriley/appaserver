@@ -654,22 +654,9 @@ char *spreadsheet_header_row(
 
 	/* Returns input_buffer or (char *)0 if all done. */
 	/* ---------------------------------------------- */
-	while( string_input( header_buffer, input_pipe, 1024 ) )
+	while( spreadsheet_string_input( header_buffer, input_pipe, 1024 ) )
 	{
-/*
-fprintf( stderr, "%s/%s()/%d: header_buffer = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-header_buffer );
-fflush( stderr );
-
-{
-char sys_string[ 1024 ];
-sprintf( sys_string, "echo \"%s\" | od -c 1>&2", header_buffer );
-system( sys_string );
-}
-*/
+		spreadsheet_filter_son_satan( header_buffer );
 
 		if ( spreadsheet_header_label_success(
 			date_header_label,
@@ -701,5 +688,151 @@ system( sys_string );
 	pclose( input_pipe );
 	timlib_reset_get_line_check_utf_16();
 	return (char *)0;
+}
+
+char *spreadsheet_filter_son_satan( char *buffer )
+{
+	int satan_0;
+	int satan_1;
+	int satan_2;
+
+	while( 1 )
+	{
+		if ( ( satan_0 =
+			spreadsheet_exists_character(
+				buffer,
+				SON_SATAN_0 ) ) )
+		{
+			satan_1 = exists_character( buffer, SON_SATAN_1 );
+			satan_2 = exists_character( buffer, SON_SATAN_2 );
+	
+			if ( satan_2 == satan_1 + 1
+			&&   satan_1 == satan_0 + 1 )
+			{
+				strcpy(	buffer + (satan_0 - 1),
+					buffer + (satan_2 ) );
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return buffer;
+}
+
+int spreadsheet_exists_character( char *buffer, int c )
+{
+	int position = 1;
+
+	if ( !buffer ) return 0;
+
+	while( *buffer )
+	{
+fprintf( stderr, "%s/%s()/%d: *buffer = [%d]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+*buffer );
+fflush( stderr );
+
+		if ( *buffer++ == c ) return position;
+		position++;
+	}
+	return 0;
+}
+
+#define STRING_LF	10
+#define STRING_CR	13
+
+/* Returns input_buffer or (char *)0 if all done. */
+/* ---------------------------------------------- */
+char *spreadsheet_string_input(	
+				char *input_buffer,
+				FILE *infile,
+				int buffer_size )
+{
+	int in_char;
+	int size = 0;
+	char *anchor = input_buffer;
+
+	*anchor = '\0';
+
+	/* Exit in middle. */
+	/* --------------- */
+	while ( 1 )
+	{
+		in_char = fgetc( infile );
+
+		/* Why are there zeros? */
+		/* -------------------- */
+		if ( !in_char ) continue;
+
+		if ( in_char == STRING_CR ) continue;
+
+		if ( in_char == EOF )
+		{
+			/* --------------------------------------- */
+			/* If last line in file doesn't have a CR, */
+			/* then call this function one more time.  */
+			/* --------------------------------------- */
+			/* If you need to tweek this, then test    */
+			/* process=execute_select_statement on a   */
+			/* file without a trailing CR.		   */
+			/* --------------------------------------- */
+			if ( input_buffer != anchor )
+			{
+				*input_buffer = '\0';
+				return anchor;
+			}
+			else
+			{
+				return (char *)0;
+			}
+		}
+
+		if ( in_char == STRING_LF )
+		{
+			*input_buffer = '\0';
+			return anchor;
+		}
+
+		/* If '\' then get the next character */
+		/* ---------------------------------- */
+		if ( in_char == '\\' )
+		{
+			in_char = fgetc( infile );
+
+			if ( in_char == STRING_CR ) continue;
+
+			/* Can't escape the LF */
+			/* ------------------- */
+			if ( in_char == STRING_LF )
+			{
+				*input_buffer = '\0';
+				return anchor;
+			}
+
+			*input_buffer++ = '\\';
+			size++;
+		}
+
+		if ( buffer_size && ( size++ >= buffer_size ) )
+		{
+			fprintf( stderr,
+		"Warning in %s()/%d: exceeded max line length of %d:\n"
+		"%.75s...\n\n",
+				 __FUNCTION__,
+				 __LINE__,
+				 buffer_size - 1,
+				 anchor );
+			*input_buffer = '\0';
+			return anchor;
+		}
+
+		*input_buffer++ = in_char;
+
+	} /* while( 1 ) */
 }
 
