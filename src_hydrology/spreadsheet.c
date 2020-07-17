@@ -637,27 +637,40 @@ char *spreadsheet_header_row(
 				char *date_header_label,
 				boolean two_lines )
 {
-	FILE *input_file;
+	FILE *input_pipe;
 	char header_buffer[ 65536 ];
 	char second_line_buffer[ 65536 ];
 	char utf16_buffer[ 65536 ];
+	char sys_string[ 1024 ];
 
-	if ( ! ( input_file = fopen( filename, "r" ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 filename );
-		exit( 1 );
-	}
+	sprintf( sys_string,
+		 "head -9 %s | tail -1",
+		 filename );
+
+	input_pipe = popen( sys_string, "r" );
 
 	*second_line = '\0';
 	timlib_reset_get_line_check_utf_16();
 
-	while( timlib_get_line( header_buffer, input_file, 1024 ) )
+	/* Returns input_buffer or (char *)0 if all done. */
+	/* ---------------------------------------------- */
+	while( string_input( header_buffer, input_pipe, 1024 ) )
 	{
+/*
+fprintf( stderr, "%s/%s()/%d: header_buffer = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+header_buffer );
+fflush( stderr );
+
+{
+char sys_string[ 1024 ];
+sprintf( sys_string, "echo \"%s\" | od -c 1>&2", header_buffer );
+system( sys_string );
+}
+*/
+
 		if ( spreadsheet_header_label_success(
 			date_header_label,
 			string_enforce_utf16(	utf16_buffer,
@@ -667,9 +680,9 @@ char *spreadsheet_header_row(
 
 			if ( two_lines ) 
 			{
-				timlib_get_line(
+				string_input(
 					second_line_buffer,
-					input_file,
+					input_pipe,
 					1024 );
 
 				string_enforce_utf16(
@@ -679,12 +692,13 @@ char *spreadsheet_header_row(
 				*second_line = strdup( utf16_buffer );
 			}
 
-			fclose( input_file );
+			pclose( input_pipe );
 			timlib_reset_get_line_check_utf_16();
 			return strdup( header_buffer );
 		}
 	}
-	fclose( input_file );
+
+	pclose( input_pipe );
 	timlib_reset_get_line_check_utf_16();
 	return (char *)0;
 }

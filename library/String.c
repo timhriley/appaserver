@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/string.c			   */
+/* $APPASERVER_HOME/library/String.c			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -11,6 +11,137 @@
 #include "boolean.h"
 #include "list.h"
 #include "String.h"
+
+/* Class variables */
+/* --------------- */
+static boolean string_get_line_check_utf_16 = 1;
+static boolean string_is_utf_16 = 0;
+static boolean string_utf_16_toggle = 1;
+
+/* Temporal cohesion */
+/* ----------------- */
+void string_reset_get_line_check_utf_16( void )
+{
+	string_get_line_check_utf_16 = 1;
+	string_is_utf_16 = 0;
+	string_utf_16_toggle = 1;
+}
+
+/* Returns input_buffer or (char *)0 if all done. */
+/* ---------------------------------------------- */
+char *string_input(		char *input_buffer,
+				FILE *infile,
+				int buffer_size )
+{
+	int in_char;
+	int size = 0;
+	char *anchor = input_buffer;
+
+	*anchor = '\0';
+
+	/* Exit in middle. */
+	/* --------------- */
+	while ( 1 )
+	{
+		in_char = fgetc( infile );
+
+		if ( string_get_line_check_utf_16 )
+		{
+			string_get_line_check_utf_16 = 0;
+
+			if ( in_char == 255 )
+			{
+				in_char = fgetc( infile );
+
+				if ( in_char == 254 )
+				{
+					string_is_utf_16 = 1;
+					continue;
+				}
+			}
+		}
+
+		if ( string_is_utf_16 )
+		{
+			string_utf_16_toggle = 1 - string_utf_16_toggle;
+
+			if ( string_utf_16_toggle )
+			{
+				continue;
+			}
+		}
+
+		/* Why are there zeros? */
+		/* -------------------- */
+		if ( !in_char ) continue;
+
+		if ( in_char == STRING_CR ) continue;
+
+		if ( in_char == EOF )
+		{
+			/* --------------------------------------- */
+			/* If last line in file doesn't have a CR, */
+			/* then call this function one more time.  */
+			/* --------------------------------------- */
+			/* If you need to tweek this, then test    */
+			/* process=execute_select_statement on a   */
+			/* file without a trailing CR.		   */
+			/* --------------------------------------- */
+			if ( input_buffer != anchor )
+			{
+				*input_buffer = '\0';
+				return anchor;
+			}
+			else
+			{
+				string_reset_get_line_check_utf_16();
+				return (char *)0;
+			}
+		}
+
+		if ( in_char == STRING_LF )
+		{
+			*input_buffer = '\0';
+			return anchor;
+		}
+
+		/* If '\' then get the next character */
+		/* ---------------------------------- */
+		if ( in_char == '\\' )
+		{
+			in_char = fgetc( infile );
+
+			if ( in_char == STRING_CR ) continue;
+
+			/* Can't escape the LF */
+			/* ------------------- */
+			if ( in_char == STRING_LF )
+			{
+				*input_buffer = '\0';
+				return anchor;
+			}
+
+			*input_buffer++ = '\\';
+			size++;
+		}
+
+		if ( buffer_size && ( size++ >= buffer_size ) )
+		{
+			fprintf( stderr,
+		"Warning in %s()/%d: exceeded max line length of %d:\n"
+		"%.75s...\n\n",
+				 __FUNCTION__,
+				 __LINE__,
+				 buffer_size - 1,
+				 anchor );
+			*input_buffer = '\0';
+			return anchor;
+		}
+
+		*input_buffer++ = in_char;
+
+	} /* while( 1 ) */
+}
 
 STRING_OCCURRANCE *string_occurrance_new( char *ptr )
 {
@@ -47,16 +178,18 @@ char *string_occurrance_list_display(
 			if ( ptr == destination )
 			{
 				ptr += sprintf( ptr,
-						"\nat: [%s] are %d\n",
+			"\nat: [%s] are %d occurrances starting with %d\n",
 						string_occurrance->ptr,
-						string_occurrance->occurrance );
+						string_occurrance->occurrance,
+						*string_occurrance->ptr );
 			}
 			else
 			{
 				ptr += sprintf( ptr,
-						"at: [%s] are %d\n",
+			"at: [%s] are %d occurrances starting with %d\n",
 						string_occurrance->ptr,
-						string_occurrance->occurrance );
+						string_occurrance->occurrance,
+						*string_occurrance->ptr );
 			}
 		} while ( list_next( occurrance_list ) );
 	}
@@ -75,6 +208,17 @@ char *string_enforce_utf16(	char *destination,
 	negative_occurrance_list =
 		string_negative_sequence_occurrance_list(
 			destination );
+
+if ( list_length( negative_occurrance_list ) )
+{
+char buffer[ 65536 ];
+fprintf( stderr, "%s/%s()/%d: negative_occurrance_list = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+string_occurrance_list_display( buffer, negative_occurrance_list ) );
+fflush( stderr );
+}
 
 	if ( !list_go_tail( negative_occurrance_list ) )
 		return destination;
@@ -106,13 +250,6 @@ LIST *string_negative_sequence_occurrance_list( char *source )
 	occurrance_list = list_new();
 
 	inside_negative_sequence = 0;
-
-fprintf( stderr, "%s/%s()/%d: source = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-source );
-fflush( stderr );
 
 	ptr = source;
 
@@ -169,16 +306,6 @@ fflush( stderr );
 			}
 		}
 	}
-
-{
-char buffer[ 65536 ];
-fprintf( stderr, "%s/%s()/%d: occurrance_list = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-string_occurrance_list_display( buffer, occurrance_list ) );
-fflush( stderr );
-}
 
 	return occurrance_list;
 }

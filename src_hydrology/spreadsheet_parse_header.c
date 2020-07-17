@@ -108,7 +108,6 @@ int main( int argc, char **argv )
 		spreadsheet_parse_display( datatype_list );
 	}
 
-
 	return 0;
 
 } /* main() */
@@ -129,7 +128,39 @@ void spreadsheet_parse_display( LIST *datatype_list )
 
 	} while ( list_next( datatype_list ) );
 
-} /* spreadsheet_parse_display() */
+}
+
+void fetch_parameters(	char **filename,
+			char **station,
+			char **date_heading_label,
+			char **two_lines_yn,
+			NAME_ARG *arg )
+{
+	*filename = fetch_arg( arg, "filename" );
+	*station = fetch_arg( arg, "station" );
+	*date_heading_label = fetch_arg( arg, "date_heading_label" );
+	*two_lines_yn = fetch_arg( arg, "two_lines" );
+
+}
+
+void setup_arg( NAME_ARG *arg, int argc, char **argv )
+{
+        int ticket;
+
+        ticket = add_valid_option( arg, "filename" );
+        ticket = add_valid_option( arg, "station" );
+
+        ticket = add_valid_option( arg, "date_heading_label" );
+        set_default_value( arg, ticket, "date" );
+
+        ticket = add_valid_option( arg, "two_lines" );
+	add_valid_value( arg, ticket, "yes" );
+	add_valid_value( arg, ticket, "no" );
+        set_default_value( arg, ticket, "no" );
+
+        ins_all( arg, argc, argv );
+
+} /* setup_arg() */
 
 LIST *spreadsheet_parse_datatype_list(
 				char *application_name,
@@ -171,38 +202,5 @@ LIST *spreadsheet_parse_datatype_list(
 			spreadsheet->spreadsheet_header_cell_list );
 
 	return spreadsheet->spreadsheet_output_datatype_list;
-
-} /* spreadsheet_parse_datatype_list() */
-
-void fetch_parameters(	char **filename,
-			char **station,
-			char **date_heading_label,
-			char **two_lines_yn,
-			NAME_ARG *arg )
-{
-	*filename = fetch_arg( arg, "filename" );
-	*station = fetch_arg( arg, "station" );
-	*date_heading_label = fetch_arg( arg, "date_heading_label" );
-	*two_lines_yn = fetch_arg( arg, "two_lines" );
-
-} /* fetch_parameters() */
-
-void setup_arg( NAME_ARG *arg, int argc, char **argv )
-{
-        int ticket;
-
-        ticket = add_valid_option( arg, "filename" );
-        ticket = add_valid_option( arg, "station" );
-
-        ticket = add_valid_option( arg, "date_heading_label" );
-        set_default_value( arg, ticket, "date" );
-
-        ticket = add_valid_option( arg, "two_lines" );
-	add_valid_value( arg, ticket, "yes" );
-	add_valid_value( arg, ticket, "no" );
-        set_default_value( arg, ticket, "no" );
-
-        ins_all( arg, argc, argv );
-
-} /* setup_arg() */
+}
 

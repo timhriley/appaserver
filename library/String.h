@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/string.h			   */
+/* $APPASERVER_HOME/library/String.h			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -13,6 +13,8 @@
 
 /* Constants */
 /* --------- */
+#define STRING_LF	10
+#define STRING_CR	13
 
 /* Structures */
 /* ---------- */
@@ -36,5 +38,14 @@ char *string_occurrance_list_display(
 
 LIST *string_negative_sequence_occurrance_list(
 				char *source );
+
+/* Returns input_buffer or (char *)0 if all done. */
+/* ---------------------------------------------- */
+char *string_input(		char *input_buffer,
+				FILE *infile,
+				int buffer_size );
+
+void string_reset_get_line_check_utf_16(
+				void );
 
 #endif

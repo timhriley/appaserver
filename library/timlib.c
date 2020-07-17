@@ -925,8 +925,6 @@ boolean timlib_getline(		char *destination,
 				buffer_size );
 }
 
-/* This works, but there's a CSV file that won't load. */
-/* --------------------------------------------------- */
 int timlib_get_line(	char *in_line,
 			FILE *infile,
 			int buffer_size )
@@ -1039,9 +1037,7 @@ int timlib_get_line(	char *in_line,
 		*in_line++ = in_char;
 
 	} /* while( 1 ) */
-
-} /* timlib_get_line() */
-
+}
 
 int get_line( char *in_line, FILE *infile )
 {
