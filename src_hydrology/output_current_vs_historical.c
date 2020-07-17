@@ -525,12 +525,6 @@ void output_current_vs_historical(
 				historical_range_years );
 		}
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-fflush( stderr );
-
 		output_menu(	output_file,
 				application_name,
 				login_name,
@@ -1009,10 +1003,11 @@ boolean output_datatype(	char **datatype_name,
 
 		fprintf(
 				output_file,
-				"%s<br>\n",
+				"%s (%s)<br>\n",
 				format_initial_capital(
 					datatype_name_buffer,
-					datatype->datatype_name ) );
+					datatype->datatype_name ),
+					datatype->units->units_name );
 
 	} while( list_next( datatype_list ) );
 
