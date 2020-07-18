@@ -554,20 +554,26 @@ char *spreadsheet_header_row(
 				char *date_header_label,
 				boolean two_lines )
 {
-	FILE *input_pipe;
+	FILE *input_file;
 	char header_buffer[ 65536 ];
 	char second_line_buffer[ 65536 ];
-	char sys_string[ 1024 ];
 
-	sprintf( sys_string, "cat %s", filename );
-	input_pipe = popen( sys_string, "r" );
+	if ( ! ( input_file = fopen( filename, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	*second_line = '\0';
 	timlib_reset_get_line_check_utf_16();
 
 	/* Returns input_buffer or (char *)0 if all done. */
 	/* ---------------------------------------------- */
-	while( string_input( header_buffer, input_pipe, 1024 ) )
+	while( string_input( header_buffer, input_file, 1024 ) )
 	{
 		if ( spreadsheet_header_label_success(
 			date_header_label,
@@ -577,20 +583,20 @@ char *spreadsheet_header_row(
 			{
 				string_input(
 					second_line_buffer,
-					input_pipe,
+					input_file,
 					1024 );
 
 				*second_line = strdup( second_line_buffer );
 			}
 
-			pclose( input_pipe );
+			fclose( input_file );
 			timlib_reset_get_line_check_utf_16();
 
 			return strdup( header_buffer );
 		}
 	}
 
-	pclose( input_pipe );
+	fclose( input_file );
 	timlib_reset_get_line_check_utf_16();
 	return (char *)0;
 }
@@ -727,4 +733,5 @@ fflush( stderr );
 
 	return (DATATYPE *)0;
 }
+
 
