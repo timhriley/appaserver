@@ -75,89 +75,6 @@ SPREADSHEET *spreadsheet_new(	char *application_name,
 	return s;
 }
 
-DATATYPE *spreadsheet_translate_datatype(
-				char *spreadsheet_datatype_label,
-				LIST *spreadsheet_shef_upload_datatype_list,
-				LIST *spreadsheet_station_datatype_alias_list,
-				LIST *spreadsheet_datatype_list )
-{
-	char *datatype_name;
-	DATATYPE *datatype;
-
-	if ( !list_rewind( spreadsheet_datatype_list ) )
-	{
-		fprintf( stderr,
-		"WARNING in %s/%s()/%d: empty spreadsheet_datatype_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-
-		return (DATATYPE *)0;
-	}
-
-	do {
-		datatype = list_get_pointer( spreadsheet_datatype_list );
-
-		/* Priority 1: match datatype name in label */
-		/* ---------------------------------------- */
-		if ( timlib_strcmp(
-			spreadsheet_datatype_label,
-			datatype->datatype_name ) == 0 )
-		{
-			return datatype;
-		}
-
-		/* Priority 2: match SHEF_UPLOAD_DATATYPE */
-		/* -------------------------------------- */
-		datatype_name =
-			shef_upload_datatype_seek_datatype_name(
-				spreadsheet_shef_upload_datatype_list,
-				spreadsheet_datatype_label
-					/* shef_upload_code */ );
-
-		if ( timlib_strcmp(	datatype_name,
-					datatype->datatype_name ) == 0 )
-		{
-			return datatype;
-		}
-
-		/* Priority 3: match STATION_DATATYPE_ALIAS */
-		/* ---------------------------------------- */
-		if ( list_length( spreadsheet_station_datatype_alias_list ) )
-		{
-			datatype_name =
-				datatype_alias_datatype_name(
-					spreadsheet_station_datatype_alias_list,
-					spreadsheet_datatype_label );
-
-			if ( timlib_strcmp(	datatype_name,
-						datatype->datatype_name ) == 0 )
-			{
-				return datatype;
-			}
-		}
-
-		/* Priority 4: match DATATYPE_ALIAS */
-		/* -------------------------------- */
-		if ( list_length( datatype->datatype_alias_list ) )
-		{
-			datatype_name =
-				datatype_alias_datatype_name(
-					datatype->datatype_alias_list,
-					spreadsheet_datatype_label );
-
-			if ( timlib_strcmp(	datatype_name,
-						datatype->datatype_name ) == 0 )
-			{
-				return datatype;
-			}
-		}
-
-	} while ( list_next( spreadsheet_datatype_list ) );
-
-	return (DATATYPE *)0;
-}
-
 LIST *spreadsheet_header_cell_list(
 				char *spreadsheet_header_row,
 				char *second_line,
@@ -640,13 +557,9 @@ char *spreadsheet_header_row(
 	FILE *input_pipe;
 	char header_buffer[ 65536 ];
 	char second_line_buffer[ 65536 ];
-	char utf16_buffer[ 65536 ];
 	char sys_string[ 1024 ];
 
-	sprintf( sys_string,
-		 "head -9 %s | tail -1",
-		 filename );
-
+	sprintf( sys_string, "cat %s", filename );
 	input_pipe = popen( sys_string, "r" );
 
 	*second_line = '\0';
@@ -654,17 +567,12 @@ char *spreadsheet_header_row(
 
 	/* Returns input_buffer or (char *)0 if all done. */
 	/* ---------------------------------------------- */
-	while( spreadsheet_string_input( header_buffer, input_pipe, 1024 ) )
+	while( string_input( header_buffer, input_pipe, 1024 ) )
 	{
-		spreadsheet_filter_son_satan( header_buffer );
-
 		if ( spreadsheet_header_label_success(
 			date_header_label,
-			string_enforce_utf16(	utf16_buffer,
-						header_buffer ) ) )
+			header_buffer ) )
 		{
-			strcpy( header_buffer, utf16_buffer );
-
 			if ( two_lines ) 
 			{
 				string_input(
@@ -672,15 +580,12 @@ char *spreadsheet_header_row(
 					input_pipe,
 					1024 );
 
-				string_enforce_utf16(
-					utf16_buffer,
-					second_line_buffer );
-
-				*second_line = strdup( utf16_buffer );
+				*second_line = strdup( second_line_buffer );
 			}
 
 			pclose( input_pipe );
 			timlib_reset_get_line_check_utf_16();
+
 			return strdup( header_buffer );
 		}
 	}
@@ -690,149 +595,136 @@ char *spreadsheet_header_row(
 	return (char *)0;
 }
 
-char *spreadsheet_filter_son_satan( char *buffer )
+DATATYPE *spreadsheet_translate_datatype(
+				char *spreadsheet_datatype_label,
+				LIST *spreadsheet_shef_upload_datatype_list,
+				LIST *spreadsheet_station_datatype_alias_list,
+				LIST *spreadsheet_datatype_list )
 {
-	int satan_0;
-	int satan_1;
-	int satan_2;
+	char *datatype_name;
+	DATATYPE *datatype;
 
-	while( 1 )
-	{
-		if ( ( satan_0 =
-			spreadsheet_exists_character(
-				buffer,
-				SON_SATAN_0 ) ) )
-		{
-			satan_1 = exists_character( buffer, SON_SATAN_1 );
-			satan_2 = exists_character( buffer, SON_SATAN_2 );
-	
-			if ( satan_2 == satan_1 + 1
-			&&   satan_1 == satan_0 + 1 )
-			{
-				strcpy(	buffer + (satan_0 - 1),
-					buffer + (satan_2 ) );
-			}
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	return buffer;
-}
-
-int spreadsheet_exists_character( char *buffer, int c )
-{
-	int position = 1;
-
-	if ( !buffer ) return 0;
-
-	while( *buffer )
-	{
-fprintf( stderr, "%s/%s()/%d: *buffer = [%d]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-*buffer );
+#ifdef DEBUG_MODE
+fprintf(
+	stderr,
+	"%s/%s()/%d: trying to match spreadsheet_datatype_label = [%s].\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	spreadsheet_datatype_label );
 fflush( stderr );
-
-		if ( *buffer++ == c ) return position;
-		position++;
-	}
-	return 0;
-}
-
-#define STRING_LF	10
-#define STRING_CR	13
-
-/* Returns input_buffer or (char *)0 if all done. */
-/* ---------------------------------------------- */
-char *spreadsheet_string_input(	
-				char *input_buffer,
-				FILE *infile,
-				int buffer_size )
-{
-	int in_char;
-	int size = 0;
-	char *anchor = input_buffer;
-
-	*anchor = '\0';
-
-	/* Exit in middle. */
-	/* --------------- */
-	while ( 1 )
+#endif
+	if ( !list_rewind( spreadsheet_datatype_list ) )
 	{
-		in_char = fgetc( infile );
+		fprintf( stderr,
+		"WARNING in %s/%s()/%d: empty spreadsheet_datatype_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
 
-		/* Why are there zeros? */
-		/* -------------------- */
-		if ( !in_char ) continue;
+		return (DATATYPE *)0;
+	}
 
-		if ( in_char == STRING_CR ) continue;
+	do {
+		datatype = list_get_pointer( spreadsheet_datatype_list );
 
-		if ( in_char == EOF )
+		/* Priority 1: match datatype name in label */
+		/* ---------------------------------------- */
+		if ( timlib_strcmp(
+			spreadsheet_datatype_label,
+			datatype->datatype_name ) == 0 )
 		{
-			/* --------------------------------------- */
-			/* If last line in file doesn't have a CR, */
-			/* then call this function one more time.  */
-			/* --------------------------------------- */
-			/* If you need to tweek this, then test    */
-			/* process=execute_select_statement on a   */
-			/* file without a trailing CR.		   */
-			/* --------------------------------------- */
-			if ( input_buffer != anchor )
+#ifdef DEBUG_MODE
+fprintf(
+	stderr,
+	"%s/%s()/%d: spreadsheet_datatype_label = [%s] matched Priority 1.\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	spreadsheet_datatype_label );
+fflush( stderr );
+#endif
+			return datatype;
+		}
+
+		/* Priority 2: match SHEF_UPLOAD_DATATYPE */
+		/* -------------------------------------- */
+		datatype_name =
+			shef_upload_datatype_seek_datatype_name(
+				spreadsheet_shef_upload_datatype_list,
+				spreadsheet_datatype_label
+					/* shef_upload_code */ );
+
+		if ( timlib_strcmp(	datatype_name,
+					datatype->datatype_name ) == 0 )
+		{
+#ifdef DEBUG_MODE
+fprintf(
+	stderr,
+	"%s/%s()/%d: spreadsheet_datatype_label = [%s] matched Priority 2.\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	spreadsheet_datatype_label );
+fflush( stderr );
+#endif
+			return datatype;
+		}
+
+		/* Priority 3: match STATION_DATATYPE_ALIAS */
+		/* ---------------------------------------- */
+		if ( list_length( spreadsheet_station_datatype_alias_list ) )
+		{
+			datatype_name =
+				datatype_alias_datatype_name(
+					spreadsheet_station_datatype_alias_list,
+					spreadsheet_datatype_label );
+
+			if ( timlib_strcmp(	datatype_name,
+						datatype->datatype_name ) == 0 )
 			{
-				*input_buffer = '\0';
-				return anchor;
+#ifdef DEBUG_MODE
+fprintf(
+	stderr,
+	"%s/%s()/%d: spreadsheet_datatype_label = [%s] matched Priority 3.\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	spreadsheet_datatype_label );
+fflush( stderr );
+#endif
+				return datatype;
 			}
-			else
+		}
+
+		/* Priority 4: match DATATYPE_ALIAS */
+		/* -------------------------------- */
+		if ( list_length( datatype->datatype_alias_list ) )
+		{
+			datatype_name =
+				datatype_alias_datatype_name(
+					datatype->datatype_alias_list,
+					spreadsheet_datatype_label );
+
+			if ( timlib_strcmp(	datatype_name,
+						datatype->datatype_name ) == 0 )
 			{
-				return (char *)0;
+#ifdef DEBUG_MODE
+fprintf(
+	stderr,
+	"%s/%s()/%d: spreadsheet_datatype_label = [%s] matched Priority 4.\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	spreadsheet_datatype_label );
+fflush( stderr );
+#endif
+				return datatype;
 			}
 		}
 
-		if ( in_char == STRING_LF )
-		{
-			*input_buffer = '\0';
-			return anchor;
-		}
+	} while ( list_next( spreadsheet_datatype_list ) );
 
-		/* If '\' then get the next character */
-		/* ---------------------------------- */
-		if ( in_char == '\\' )
-		{
-			in_char = fgetc( infile );
-
-			if ( in_char == STRING_CR ) continue;
-
-			/* Can't escape the LF */
-			/* ------------------- */
-			if ( in_char == STRING_LF )
-			{
-				*input_buffer = '\0';
-				return anchor;
-			}
-
-			*input_buffer++ = '\\';
-			size++;
-		}
-
-		if ( buffer_size && ( size++ >= buffer_size ) )
-		{
-			fprintf( stderr,
-		"Warning in %s()/%d: exceeded max line length of %d:\n"
-		"%.75s...\n\n",
-				 __FUNCTION__,
-				 __LINE__,
-				 buffer_size - 1,
-				 anchor );
-			*input_buffer = '\0';
-			return anchor;
-		}
-
-		*input_buffer++ = in_char;
-
-	} /* while( 1 ) */
+	return (DATATYPE *)0;
 }
 

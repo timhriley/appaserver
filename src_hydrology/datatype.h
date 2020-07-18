@@ -205,4 +205,6 @@ DATATYPE *datatype_parse(	char *application_name,
 LIST *datatype_list_fetch(	char *application_name,
 				char *where );
 
+LIST *datatype_alias_list_copy(	LIST *datatype_alias_list );
+
 #endif

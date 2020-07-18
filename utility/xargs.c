@@ -45,7 +45,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	while( get_line( buffer, stdin ) )
+	while( timlib_get_line( buffer, stdin, 1024 ) )
 	{
 		xargs( argc, argv, buffer );
 	}

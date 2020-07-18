@@ -517,7 +517,9 @@ STATION_DATATYPE *station_datatype_parse(
 	station_datatype->datatype->datatype_alias_list =
 		datatype_name_alias_list(
 			application_name,
-			station_datatype->datatype->datatype_name );
+			station_datatype->
+				datatype->
+				datatype_name );
 
 	station_datatype->alias_name_list =
 		station_datatype_alias_name_list(

@@ -321,8 +321,7 @@ LIST *datatype_name_list_fetch(	char *application_name,
 		 timlib_in_clause( datatype_name_list ) );
 
 	return datatype_list_fetch( application_name, where );
-
-} /* datatype_with_station_name_list_get_datatype_bar_graph_list() */
+}
 
 LIST *datatype_with_station_name_list_get_datatype_bar_graph_list(
 			char *application_name,
@@ -374,8 +373,7 @@ LIST *datatype_with_station_name_list_get_datatype_bar_graph_list(
 	} while( list_next( station_name_list ) );
 
 	return datatype_list;
-
-} /* datatype_with_station_name_list_get_datatype_bar_graph_list() */
+}
 
 LIST *datatype_with_station_name_get_datatype_list(
 			char *application_name,
@@ -883,30 +881,6 @@ LIST *datatype_alias_list( void )
 	return alias_list;
 }
 
-DATATYPE_ALIAS *datatype_alias_seek(
-				LIST *datatype_alias_list,
-				char *datatype_alias_name )
-{
-	DATATYPE_ALIAS *a;
-
-	if ( !list_rewind( datatype_alias_list ) )
-		return (DATATYPE_ALIAS *)0;
-
-	do {
-		a = list_get( datatype_alias_list );
-
-		if ( timlib_strcmp(	a->datatype_alias,
-					datatype_alias_name ) == 0 ) 
-		{
-			return a;
-		}
-
-	} while( list_next( datatype_alias_list ) );
-
-	return (DATATYPE_ALIAS *)0;
-
-} /* datatype_alias_seek() */
-
 char *datatype_alias_display(
 			LIST *station_list,
 			char *application_name,
@@ -974,7 +948,7 @@ DATATYPE *datatype_seek_phrase(
 		/* Special codes include [mu] and [deg] */
 		/* ------------------------------------ */
 		decoded_datatype =
-			units_search_replace_special_codes(
+			units_translate_symbols(
 				datatype_units_seek_phrase );
 
 		if ( ! ( datatype_name =
@@ -1140,24 +1114,17 @@ char *datatype_alias_datatype_name(
 {
 	DATATYPE_ALIAS *datatype_alias;
 
-	if ( !list_rewind( datatype_alias_list ) )
+	if ( ( datatype_alias =
+			datatype_alias_seek(
+				datatype_alias_list,
+				datatype_label /* datatype_alias_name */ ) ) )
+	{
+		return datatype_alias->datatype_name;
+	}
+	else
+	{
 		return (char *)0;
-
-	do {
-		datatype_alias =
-			list_get_pointer(
-				datatype_alias_list );
-
-		if ( timlib_strcmp( 
-			datatype_alias->datatype_alias,
-			datatype_label ) == 0 )
-		{
-			return datatype_alias->datatype_name;
-		}
-
-	} while ( list_next( datatype_alias_list ) );
-
-	return (char *)0;
+	}
 }
 
 /* Returns heap memory */
@@ -1189,39 +1156,63 @@ char *datatype_alias_list_display( LIST *datatype_alias_list )
 	return strdup( display );
 }
 
-#ifdef NOT_DEFINED
-/* --------------------- */
-/* Returns static memory */
-/* --------------------- */
-/* -------------------------------------------- */
-/* datatype_alias = Temp �C is causing trouble. */
-/* -------------------------------------------- */
-char *datatype_translate_degrees( char *datatype_alias )
+LIST *datatype_alias_list_copy(	LIST *datatype_alias_list )
 {
-	static char datatype_alias_string[ 128 ];
+	DATATYPE_ALIAS *d1, *d2;
+	LIST *return_list;
 
-	timlib_strcpy(
-		datatype_alias_string,
-		datatype_alias,
-		128 );
+	if ( !list_rewind( datatype_alias_list ) )
+		return (LIST *)0;
 
-	if ( strlen( datatype_alias_string ) >= 8 )
-	{
-		char *t1, *t2, *t3;
+	return_list = list_new();
 
-		t1 = datatype_alias_string + 5;
-		t2 = datatype_alias_string + 6;
-		t3 = datatype_alias_string + 7;
+	do {
+		d1 = list_get( datatype_alias_list );
 
-		if (	( *t1 == -61 || *t1 == -17 )
-		&&	( *t2 == -81 || *t2 == -65 )
-		&&	( *t3 == -62 || *t3 == -67 ) )
-		{
-			*t1 = -80;
-			*t2 = 'C';
-			*t3 = '\0';
-		}
-	}
-	return datatype_alias_string;
+		d2 = datatype_alias_new();
+		d2->datatype_alias = strdup( d1->datatype_alias );
+		d2->datatype_name = strdup( d1->datatype_name );
+
+		list_set( return_list, d2 );
+
+	} while ( list_next( datatype_alias_list ) );
+
+	return return_list;
 }
-#endif
+
+DATATYPE_ALIAS *datatype_alias_seek(
+				LIST *datatype_alias_list,
+				char *datatype_alias_name )
+{
+	DATATYPE_ALIAS *a;
+	char *decoded_datatype;
+
+	if ( !list_rewind( datatype_alias_list ) )
+		return (DATATYPE_ALIAS *)0;
+
+	do {
+		a = list_get( datatype_alias_list );
+
+		if ( timlib_strcmp(	a->datatype_alias,
+					datatype_alias_name ) == 0 ) 
+		{
+			return a;
+		}
+
+		/* Special codes include [mu] and [deg] */
+		/* ------------------------------------ */
+		decoded_datatype =
+			units_translate_symbols(
+				datatype_alias_name );
+
+		if ( timlib_strcmp(	a->datatype_alias,
+					decoded_datatype ) == 0 ) 
+		{
+			return a;
+		}
+
+	} while( list_next( datatype_alias_list ) );
+
+	return (DATATYPE_ALIAS *)0;
+}
+

@@ -117,7 +117,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	remove_cr.e 							\
 	append_escaped_backslash_cr.e joinfiles.e count_alpha.e		\
 	isolate_line.e delete_statement.e remove_duplicate_rows.e	\
-	trim_right_until_character.e make_pleasant.e 			\
+	trim_right_until_character.e					\
 	append_radio_html.e merge_n_groups.e 				\
 	commas_in_long.e each_week.e table.e				\
 	statistics_on_group.e range.e parse_post.e			\
@@ -193,7 +193,8 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	mail_if_output.e						\
 	time_hhmm2hhcolonmm.e						\
 	subtract_list.e							\
-	label_dictionary.e
+	label_dictionary.e						\
+	bracket_line.e
 
 touch:
 	/usr/bin/touch *.c
@@ -757,13 +758,6 @@ tolower.e: tolower.c
 		${STANDARD_LIBRARY}					\
 		-o tolower.e
 
-make_pleasant.e: make_pleasant.c
-	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		make_pleasant.c 					\
-		${STANDARD_LIBRARY}					\
-		-o make_pleasant.e
-
 make_key.e: make_key.c
 	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
@@ -934,14 +928,6 @@ join_multi_line_delimited.e: join_multi_line_delimited.c		\
 	touch join_multi_line_delimited
 	rm join_multi_line_delimited
 	ln join_multi_line_delimited.e join_multi_line_delimited
-
-get_uid_pwd.e: get_uid_pwd.c
-	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		get_uid_pwd.c 						\
-		${STANDARD_LIBRARY}					\
-		-o get_uid_pwd.e
-	chmod u+s get_uid_pwd.e
 
 select2delimiter.e: select2delimiter.c
 	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
@@ -1826,3 +1812,5 @@ payroll_period.e: payroll_period.c ${APPASERVER_LIBRARY}		\
 		${LIBRARY}/name_arg.o					\
 		-o payroll_period.e
 
+bracket_line.e: bracket_line.c
+	$(CC)	${CFLAGS} bracket_line.c -o bracket_line.e

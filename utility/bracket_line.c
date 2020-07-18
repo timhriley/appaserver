@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include <string.h>
 
-main( int argc, char **argv )
+char *translate_decimal(	char *source );
+
+int main( int argc, char **argv )
 {
 	char buffer[ 2048 ];
 	char open = '[';
@@ -16,5 +19,26 @@ main( int argc, char **argv )
 	{
 		buffer[ strlen( buffer ) - 1 ] = '\0';
 		printf( "%c%s%c\n", open, buffer, close );
+		printf( "%c%s%c\n", open, translate_decimal( buffer ), close );
 	}
+
+	return 0;
+}
+
+char *translate_decimal( char *source )
+{
+	char buffer[ 2048 ];
+	char *ptr = buffer;
+
+	*ptr = '\0';
+
+	while ( *source )
+	{
+		ptr += sprintf( ptr,
+				" %02d",
+				(int)*source );
+		source++;
+	}
+
+	return strdup( buffer );
 }

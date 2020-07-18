@@ -87,7 +87,7 @@ char *units_translate_units_name(
 				char *units_name,
 				char *units_seek_phrase );
 
-char *units_search_replace_special_codes(
+char *units_translate_symbols(
 				char *source );
 
 LIST *units_list(		char *application_name );

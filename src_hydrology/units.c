@@ -468,8 +468,7 @@ char *units_translate_units_name(
 	}
 
 	return (char *)0;
-
-} /* units_translate_units_name() */
+}
 
 UNITS_SPECIAL_CODE_STRUCTURE *units_special_code_structure_new(
 					int special_code,
@@ -495,26 +494,32 @@ UNITS_SPECIAL_CODE_STRUCTURE *units_special_code_structure_new(
 
 } /* units_special_code_structure_new() */
 
-char *units_search_replace_special_codes( char *source )
+/* Special codes include [mu] and [deg] */
+/* ------------------------------------ */
+char *units_translate_symbols( char *source )
 {
 	static LIST *special_code_list = {0};
 	char destination[ 1024 ] = {0};
-	char *dest;
+	char *ptr;
 	boolean made_swap;
 	UNITS_SPECIAL_CODE_STRUCTURE *s;
 
-	dest = destination;
-	*dest = '\0';
+	ptr = destination;
+	*ptr = '\0';
 
 	if ( !special_code_list )
 	{
 		special_code_list = list_new();
 
+		/* -75 unsigned (181 decimal/0xB5) */
+		/* ------------------------------- */
 		s = units_special_code_structure_new(
 				-75,
 				"[mu]" );
 		list_append_pointer( special_code_list, s );
 
+		/* -80 unsigned (176 decimal/0xB0) */
+		/* ------------------------------- */
 		s = units_special_code_structure_new(
 				-80,
 				"[deg]" );
@@ -523,6 +528,14 @@ char *units_search_replace_special_codes( char *source )
 
 	while ( *source )
 	{
+		/* -62 unsigned (194 decimal/0xC2) preceeds the 8-bit symbols */
+		/* ---------------------------------------------------------- */
+		if ( *source == -62 )
+		{
+			source++;
+			continue;
+		}
+
 		list_rewind( special_code_list );
 		made_swap = 0;
 
@@ -533,9 +546,9 @@ char *units_search_replace_special_codes( char *source )
 			{
 				char end[ 1024 ];
 
-				strcpy( end, dest + 1 );
+				strcpy( end, ptr + 1 );
 
-				dest += sprintf(dest,
+				ptr += sprintf(ptr,
 					 	"%s%s",
 					 	s->replacement_string,
 					 	end );
@@ -546,19 +559,15 @@ char *units_search_replace_special_codes( char *source )
 
 		} while( list_next( special_code_list ) );
 
-		/* Special codes are preceeded with a byte that's negative. */
-		/* -------------------------------------------------------- */
-		if ( !made_swap && *source > 0 )
+		if ( !made_swap )
 		{
-			*dest++ = *source;
+			*ptr++ = *source;
 		}
-
 		source++;
 	}
 
 	return strdup( destination );
-
-} /* units_search_replace_special_codes() */
+}
 
 double units_converted_to_multiply_by(
 				char *units_converted_string,

@@ -60,14 +60,14 @@ LIST *input_buffer_datatype_list(	char *application_name,
 LIST *spreadsheet_parse_datatype_list(
 					char *application_name,
 					char *station_name,
-					char *input_filespecification,
+					char *filename,
 					char *date_heading_label,
 					boolean two_lines );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *input_filespecification;
+	char *filename;
 	char *date_heading_label;
 	char *station;
 	LIST *datatype_list;
@@ -89,7 +89,7 @@ int main( int argc, char **argv )
 	setup_arg( arg, argc, argv );
 
 	fetch_parameters(
-			&input_filespecification,
+			&filename,
 			&station,
 			&date_heading_label,
 			&two_lines_yn,
@@ -101,7 +101,7 @@ int main( int argc, char **argv )
 			spreadsheet_parse_datatype_list(
 				application_name,
 				station,
-				input_filespecification,
+				filename,
 				date_heading_label,
 				two_lines ) ) )
 	{
@@ -164,7 +164,7 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
 LIST *spreadsheet_parse_datatype_list(
 				char *application_name,
 				char *station_name,
-				char *input_filespecification,
+				char *filename,
 				char *date_heading_label,
 				boolean two_lines )
 {
@@ -181,7 +181,7 @@ LIST *spreadsheet_parse_datatype_list(
 			spreadsheet_fetch(
 				application_name,
 				station_name,
-				input_filespecification,
+				filename,
 				date_heading_label,
 				two_lines ) ) )
 	{
