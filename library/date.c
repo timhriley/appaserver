@@ -45,8 +45,7 @@ DATE *date_calloc( void )
 	date_set_TZ( DATE_GMT );
 
 	return d;
-
-} /* date_calloc() */
+}
 
 DATE *date_new_date( void )
 {
@@ -593,7 +592,7 @@ char *date_get_day_of_week_string( DATE *d )
 		return "Saturday";
 	else
 		return "Unknown";
-} /* date_get_day_of_week_string() */
+}
 
 int get_year( DATE *d )
 {
@@ -1165,13 +1164,7 @@ char *date_static_display( DATE *date )
 	return date_static_display_yyyy_mm_dd( date );
 }
 
-char *date_display_yyyy_mm_dd_hh_mm(
-				DATE *date )
-{
-	return date_display_yyyy_mm_dd_colon_hm( date );
-}
-
-char *date_display_yyyy_mm_dd_colon_hm( DATE *date )
+char *date_yyyy_mm_dd_hhmm_display( DATE *date )
 {
 	char buffer[ 128 ];
 	
@@ -1183,8 +1176,18 @@ char *date_display_yyyy_mm_dd_colon_hm( DATE *date )
 		 buffer + strlen( buffer ), date );
 
 	return strdup( buffer );
+}
 
-} /* date_display_yyyy_mm_dd_colon_hm() */
+char *date_display_yyyy_mm_dd_hh_mm(
+				DATE *date )
+{
+	return date_yyyy_mm_dd_hhmm_display( date );
+}
+
+char *date_display_yyyy_mm_dd_colon_hm( DATE *date )
+{
+	return date_yyyy_mm_dd_hhmm_display( date );
+}
 
 char *date_get_hms( DATE *date )
 {
@@ -2158,7 +2161,13 @@ boolean date_is_greatgrandfather( DATE *d )
 	if ( month == 1 && day == 1 )
 		return 1;
 	else
+	if ( month == 4 && day == 1 )
+		return 1;
+	else
 	if ( month == 7 && day == 1 )
+		return 1;
+	else
+	if ( month == 10 && day == 1 )
 		return 1;
 	else
 		return 0;

@@ -21,6 +21,14 @@ int main( int argc, char **argv )
 
 	d = date_new_yyyy_mm_dd( argv[ 1 ] );
 
+/*
+fprintf( stderr, "%s/%s()/%d: date = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+date_yyyy_mm_dd_hhmm_display( d ) );
+*/
+
 	date_grandfather_father_son( d );
 
 	return 0;

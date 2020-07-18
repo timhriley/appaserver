@@ -128,6 +128,9 @@ char *date_get_hhmmss( 		char *destination,
 
 char *date_display_yyyy_mm_dd(	DATE *date );
 
+char *date_yyyy_mm_dd_hhmm_display(
+				DATE *date );
+
 char *date_display_yyyy_mm_dd_colon_hms(
 				DATE *date );
 

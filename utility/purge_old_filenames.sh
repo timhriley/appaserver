@@ -1,6 +1,7 @@
 :
-# utility/purge_old_filenames.sh
-# ------------------------------
+# $APPSERVER_HOME/utility/purge_old_filenames.sh
+# ----------------------------------------------
+
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 directory days_older_than" 1>&2
@@ -20,6 +21,7 @@ fi
 
 ls -1 					|
 filename_date_older.e $days_older_than	|
-xargs.e 'rm -f {}'
+xargs.e 'rm -f {}'			|
+cat
 
 exit 0

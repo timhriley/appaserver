@@ -2,7 +2,7 @@
 # Son = everyday
 # Father = Sunday
 # Grandfather = First of the month
-# GreatGrandfather = January 1 and July 1
+# GreatGrandfather = January, April, July, and October 1
 # GreatGreatGrandfather = January 1
 
 ancestor="father|grandfather|greatgrandfather|greatgreatgrandfather"

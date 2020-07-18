@@ -47,6 +47,9 @@ link_files()
 			grep $date_no_dashes`
 	do
 		rm -f $destination_directory/$file
+
+echo "ln $file $destination_directory/$file" 1>&2
+
 		ln $file $destination_directory/$file
 	done
 
@@ -85,10 +88,13 @@ then
 	father_directory=${directory_root}/$father_directory
 fi
 
+echo "date_grandfather_father_son.sh $date_yyyy_mm_dd father" 1>&2
+
 results=`date_grandfather_father_son.sh $date_yyyy_mm_dd father`
 
 if [ $results -eq 1 ]
 then
+echo "link_files $output_directory $father_directory $date_no_dashes" 1>&2
 	link_files $output_directory $father_directory $date_no_dashes
 fi
 
@@ -108,10 +114,13 @@ then
 	grandfather_directory=${directory_root}/$grandfather_directory
 fi
 
+echo "date_grandfather_father_son.sh $date_yyyy_mm_dd grandfather" 1>&2
+
 results=`date_grandfather_father_son.sh $date_yyyy_mm_dd grandfather`
 
 if [ $results -eq 1 ]
 then
+echo "link_files $output_directory $grandfather_directory $date_no_dashes" 1>&2
 	link_files $output_directory $grandfather_directory $date_no_dashes
 fi
 
@@ -131,10 +140,14 @@ then
 	greatgrandfather_directory=${directory_root}/$greatgrandfather_directory
 fi
 
+echo "date_grandfather_father_son.sh $date_yyyy_mm_dd greatgrandfather" 1>&2
 results=`date_grandfather_father_son.sh $date_yyyy_mm_dd greatgrandfather`
 
 if [ $results -eq 1 ]
 then
+
+echo "link_files $output_directory $greatgrandfather_directory $date_no_dashes" 1>&2
+
 	link_files $output_directory $greatgrandfather_directory $date_no_dashes
 fi
 
@@ -154,10 +167,16 @@ then
 	greatgreatgrandfather_directory=${directory_root}/$greatgreatgrandfather_directory
 fi
 
+echo "date_grandfather_father_son.sh $date_yyyy_mm_dd greatgreatgrandfather" 1>&2
+
 results=`date_grandfather_father_son.sh $date_yyyy_mm_dd greatgreatgrandfather`
 
 if [ $results -eq 1 ]
 then
+echo "link_files	$output_directory			\
+			$greatgreatgrandfather_directory	\
+			$date_no_dashes" 1>&2
+
 	link_files	$output_directory			\
 			$greatgreatgrandfather_directory	\
 			$date_no_dashes
