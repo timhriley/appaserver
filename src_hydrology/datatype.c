@@ -1046,7 +1046,7 @@ LIST *datatype_name_alias_list(
 		if ( timlib_strcmp(	datatype_alias->datatype_name,
 					datatype_name ) == 0 )
 		{
-			list_append_pointer( return_list, datatype_alias );
+			list_set( return_list, datatype_alias );
 		}
 
 	} while ( list_next( datatype_alias_list ) );
@@ -1145,7 +1145,7 @@ char *datatype_alias_list_display( LIST *datatype_alias_list )
 					datatype_alias_list );
 
 			ptr += sprintf( ptr,
-				"Datatype alias: %s --> Datatype name: %s\n",
+				"%s --> %s\n",
 				datatype_alias->datatype_alias,
 				datatype_alias->datatype_name );
 
