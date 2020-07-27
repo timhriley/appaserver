@@ -1,5 +1,5 @@
 :
-# $APPASERVER_HOME/utility/spreadsheet_parse.sh
+# $APPASERVER_HOME/utility/spreadsheet_pivot.sh
 # ----------------------------------------------
 # Freely available software. See appaserver.org
 # ----------------------------------------------
