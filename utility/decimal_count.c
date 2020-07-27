@@ -10,6 +10,7 @@ int main( int argc, char **argv )
 	unsigned count_up_to;
 	unsigned count;
 	char one_line_yn = 'n';
+	char input_buffer[ 1024 ];
 
 	if ( argc < 2 )
 	{
@@ -22,17 +23,30 @@ int main( int argc, char **argv )
 
 	if ( argc == 3 ) one_line_yn = *argv[ 2];
 
-	for ( count = 1; count <= count_up_to; count++ )
+	if ( !count_up_to )
 	{
-		if ( one_line_yn == 'y' )
-		{
-			if ( count != 1 ) printf( "," );
+		count = 0;
 
-			printf( "%d", count );
-		}
-		else
+		while ( timlib_get_line( input_buffer, stdin, 1024 ) )
 		{
-			printf( "%d\n", count );
+			printf( "%s_%d\n", input_buffer, ++count );
+		}
+
+	}
+	else
+	{
+		for ( count = 1; count <= count_up_to; count++ )
+		{
+			if ( one_line_yn == 'y' )
+			{
+				if ( count != 1 ) printf( "," );
+	
+				printf( "%d", count );
+			}
+			else
+			{
+				printf( "%d\n", count );
+			}
 		}
 	}
 

@@ -203,15 +203,17 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	/* argv[ 1 ] ignored. */
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	role_name = argv[ 4 ];
+	/* argv[ 5 ] ignored. */
 	parameter_dictionary_string = argv[ 6 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	parameter_dictionary = 
-		dictionary_index_string2dictionary(
+		dictionary_string2dictionary(
 			parameter_dictionary_string );
 
 	if ( ! ( dictionary_appaserver =

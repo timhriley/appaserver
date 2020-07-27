@@ -85,11 +85,10 @@ function export_predictivebooks()
 
 	parameter_list=`
 	cat $input_file							|
-	count.e 1 							|
-	sed 's/ //'							|
-	sed 's/)/=/'							|
-	sed 's/^00*//'							|
+	decimal_count.e 0 n						|
+	piece_shift_right.e '_'						|
 	sed 's/^/folder_/'						|
+	sed 's/\([1-9]\)_/\1=/1'					|
 	joinlines.e '&'							|
 	cat`
 
