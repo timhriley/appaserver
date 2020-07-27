@@ -78,6 +78,7 @@ void delete_appaserver_user_rows(	char *destination_application,
 					char really_yn );
 
 void insert_appaserver_user_row(	char *destination_application,
+					char *current_application,
 					char *database_string,
 					char *login_name,
 					char *new_password,
@@ -1106,11 +1107,6 @@ void delete_non_appaserver_rows(	char *destination_application,
 				database_string,
 				really_yn );
 
-	delete_appaserver_user_rows(
-				destination_application,
-				database_string,
-				really_yn );
-
 } /* delete_non_appaserver_rows() */
 
 void delete_folder_non_appaserver_rows(	char *destination_application,
@@ -1338,7 +1334,8 @@ void delete_appaserver_user_rows(
 	/* --------------- */
 	table_name =
 		get_table_name(
-			destination_application, "appaserver_user" );
+			destination_application,
+			"appaserver_user" );
 
 	sprintf( sys_string,
 		 "echo \"delete from %s;\" | %s",
@@ -1353,7 +1350,8 @@ void delete_appaserver_user_rows(
 	/* -------------------- */
 	table_name =
 		get_table_name(
-			destination_application, "role_appaserver_user" );
+			destination_application,
+			"role_appaserver_user" );
 
 	sprintf( sys_string,
 		 "echo \"delete from %s;\" | %s",
@@ -1368,7 +1366,8 @@ void delete_appaserver_user_rows(
 	/* ------------------ */
 	table_name =
 		get_table_name(
-			destination_application, "login_default_role" );
+			destination_application,
+			"login_default_role" );
 
 	sprintf( sys_string,
 		 "echo \"delete from %s;\" | %s",
@@ -1387,6 +1386,7 @@ void delete_appaserver_user_rows(
 
 void insert_appaserver_user_row(
 				char *destination_application,
+				char *current_application,
 				char *database_string,
 				char *login_name,
 				char *new_password,
@@ -1395,6 +1395,8 @@ void insert_appaserver_user_row(
 	char sys_string[ 1024 ];
 	char *sql_executable;
 	char password_expression[ 256 ];
+	char *password_expressed;
+	char *table_name;
 
 	if ( really_yn == 'y'
 	&&   timlib_login_name_email_address( login_name ) )
@@ -1416,6 +1418,21 @@ void insert_appaserver_user_row(
 			 new_password );
 	}
 
+	/* Encrypt the password. */
+	/* --------------------- */
+	table_name =
+		get_table_name(
+			current_application,
+			"application" );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where application = '%s';\" | sql.e",
+		 password_expression,
+		 table_name,
+		 current_application );
+
+	password_expressed = pipe2string( sys_string );
+
 	if ( really_yn == 'y' )
 	{
 		sql_executable = "sql.e";
@@ -1434,7 +1451,7 @@ void insert_appaserver_user_row(
 	sprintf( sys_string,
 "echo \"%s^%s^%s\" | insert_statement.e table=%s field=%s delimiter='^' | %s",
 		 login_name,
-		 password_expression,
+		 password_expressed,
 		 "international",
 		 "appaserver_user",
 		 "login_name,password,user_date_format",
@@ -1627,11 +1644,18 @@ boolean create_empty_application(
 						login_name,
 						role_name,
 						really_yn );
+
+		delete_appaserver_user_rows(
+						destination_application,
+						database_string,
+						really_yn );
+
 	}
 
 	new_password = NEW_PASSWORD;
 
 	insert_appaserver_user_row(	destination_application,
+					current_application,
 					database_string,
 					login_name,
 					new_password,
