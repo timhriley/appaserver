@@ -325,6 +325,7 @@ LIST *get_relation_operator_list( char *datatype )
 		list_append_string( list, EQUAL_OPERATOR );
 		list_append_string( list, CONTAINS_OPERATOR );
 		list_append_string( list, OR_OPERATOR );
+		list_append_string( list, GREATER_THAN_EQUAL_TO_OPERATOR );
 		list_append_string( list, NOT_CONTAINS_OPERATOR );
 		list_append_string( list, NOT_EQUAL_OPERATOR );
 		list_append_string( list, NOT_EQUAL_OR_NULL_OPERATOR );
