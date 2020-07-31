@@ -478,7 +478,10 @@ void change_sort_order_state_one(
 			omit_delete_dont_care,
 			1 /* omit_operation_buttons */,
 			'y' /* update_yn */,
-			0 /* not ajax_fill_drop_down_omit */ );
+			0 /* not ajax_fill_drop_down_omit */,
+			row_security->
+				select_folder->
+				append_isa_attribute_list );
 
 	form->regular_element_list =
 		row_security->

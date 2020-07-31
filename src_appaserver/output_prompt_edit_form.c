@@ -118,7 +118,7 @@ void output_prompt_edit_form(
 			char *folder_name,
 			char *role_name,
 			char *state,
-			LIST *folder_mto1_isa_related_folder_list,
+			LIST *mto1_isa_related_folder_list,
 			APPASERVER *appaserver,
 			LIST *mto1_related_folder_list,
 			ROLE_FOLDER *role_folder,
@@ -210,7 +210,7 @@ int main( int argc, char **argv )
 					session,
 					folder_name );
 
-	appaserver->folder->folder_mto1_isa_related_folder_list =
+	appaserver->folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new_list(),
 			appaserver->application_name,
@@ -226,7 +226,7 @@ int main( int argc, char **argv )
 
 	if ( list_length( appaserver->
 				folder->
-				folder_mto1_isa_related_folder_list ) )
+				mto1_isa_related_folder_list ) )
 	{
 		omit_new_button = 1;
 	}
@@ -238,7 +238,7 @@ int main( int argc, char **argv )
 			(char *)0 /* attribute_name */,
 			appaserver->
 				folder->
-				folder_mto1_isa_related_folder_list,
+				mto1_isa_related_folder_list,
 			role_name );
 
 	appaserver->folder->mto1_related_folder_list =
@@ -369,7 +369,7 @@ int main( int argc, char **argv )
 			login_name ) ||
 		  list_length( appaserver->
 				folder->
-				folder_mto1_isa_related_folder_list ) );
+				mto1_isa_related_folder_list ) );
 
 	output_prompt_edit_form(
 		application_name,
@@ -378,7 +378,7 @@ int main( int argc, char **argv )
 		appaserver->folder->folder_name,
 		role_name,
 		state,
-		appaserver->folder->folder_mto1_isa_related_folder_list,
+		appaserver->folder->mto1_isa_related_folder_list,
 		appaserver,
 		appaserver->folder->mto1_related_folder_list,
 		role_folder,
@@ -410,7 +410,7 @@ void output_prompt_edit_form(
 			char *folder_name,
 			char *role_name,
 			char *state,
-			LIST *folder_mto1_isa_related_folder_list,
+			LIST *mto1_isa_related_folder_list,
 			APPASERVER *appaserver,
 			LIST *mto1_related_folder_list,
 			ROLE_FOLDER *role_folder,
@@ -461,18 +461,18 @@ void output_prompt_edit_form(
 	/* Need to implement isa relationships for the group count button. */
 	/* --------------------------------------------------------------- */
 	group_button = ( list_length( mto1_related_folder_list ) &&
-			 !list_length( folder_mto1_isa_related_folder_list ) );
+			 !list_length( mto1_isa_related_folder_list ) );
 
 	/* See folder_append_isa_mto1_related_folder_list() */
 	/* ------------------------------------------------ */
-	if ( list_rewind( folder_mto1_isa_related_folder_list ) )
+	if ( list_rewind( mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 
 		do {
 			isa_related_folder =
 				list_get_pointer(
-					folder_mto1_isa_related_folder_list );
+					mto1_isa_related_folder_list );
 
 			mto1_related_folder_list =
 				related_folder_get_mto1_related_folder_list(
@@ -487,7 +487,7 @@ void output_prompt_edit_form(
 				   (LIST *)0 /* root_primary_..._name_list */,
 				   0 /* recursive_level */ );
 
-		} while( list_next( folder_mto1_isa_related_folder_list ) );
+		} while( list_next( mto1_isa_related_folder_list ) );
 	}
 
 	exclude_attribute_name_list =

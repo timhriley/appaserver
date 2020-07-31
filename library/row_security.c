@@ -63,7 +63,7 @@ ROW_SECURITY *row_security_new(
 				login_role ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot load folder = %s.\n",
+			 "ERROR in %s/%s()/%d: cannot load folder = %s.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -158,7 +158,7 @@ ROW_SECURITY *row_security_new(
 		list_append_pointer(
 			row_security->
 				select_folder->
-				folder_append_isa_attribute_list,
+				append_isa_attribute_list,
 			attribute );
 
 	} /* if row_level_non_owner_view_only */
@@ -187,7 +187,7 @@ non_owner_view_only_dont_append:
 		if ( !attribute_list_exists(
 				row_security->
 					select_folder->
-					folder_append_isa_attribute_list,
+					append_isa_attribute_list,
 				row_security->attribute_not_null_string ) )
 		{
 			ATTRIBUTE *attribute;
@@ -223,7 +223,7 @@ non_owner_view_only_dont_append:
 			list_append_pointer(
 					row_security->
 					   select_folder->
-					   folder_append_isa_attribute_list,
+					   append_isa_attribute_list,
 					attribute );
 		}
 	}
@@ -275,12 +275,23 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
 			char update_yn,
-			boolean ajax_fill_drop_down_omit )
+			boolean ajax_fill_drop_down_omit,
+			LIST *append_isa_attribute_list )
 {
 	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *element_list_structure;
 	int row_dictionary_list_length;
 	char query_select_folder_name[ 128 ];
 	boolean prompt_data_separate_folder;
+
+	if ( !list_length( append_isa_attribute_list ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty append_isa_attribute_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	if ( !select_folder )
 	{
@@ -315,7 +326,14 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	}
 	else
 	{
+/*
 		strcpy( query_select_folder_name, select_folder->folder_name );
+*/
+		strcpy( query_select_folder_name,
+			list_display_delimited(
+				attribute_distinct_folder_name_list(
+					append_isa_attribute_list ),
+				',' ) );
 	}
 
 	if ( foreign_login_name_folder )
@@ -327,9 +345,8 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	}
 
 	element_list_structure->row_dictionary_list =
-		row_security_get_row_dictionary_list(
-			select_folder->attribute_list,
-			select_folder->folder_append_isa_attribute_list,
+		row_security_row_dictionary_list(
+			append_isa_attribute_list,
 			application_name,
 			query_dictionary,
 			sort_dictionary,
@@ -400,8 +417,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	}
 
 	return element_list_structure;
-
-} /* row_security_element_list_structure_new() */
+}
 
 RELATED_FOLDER *row_security_seek_related_folder(
 			LIST *one2m_recursive_related_folder_list,
@@ -577,7 +593,7 @@ LIST *row_security_get_element_list(
 		list_subtract(
 			folder_get_attribute_name_list(
 				select_folder->
-					folder_append_isa_attribute_list ),
+					append_isa_attribute_list ),
 			ignore_attribute_name_list );
 
 	element_list =
@@ -589,7 +605,7 @@ LIST *row_security_get_element_list(
 			select_folder->folder_name,
 			login_role->role_name,
 			select_folder->attribute_list,
-			select_folder->folder_append_isa_attribute_list,
+			select_folder->append_isa_attribute_list,
 			include_attribute_name_list,
 			mto1_append_isa_related_folder_list,
 			preprompt_dictionary,
@@ -616,8 +632,7 @@ LIST *row_security_get_element_list(
 
 } /* row_security_get_element_list() */
 
-LIST *row_security_get_row_dictionary_list(
-			LIST *attribute_list,
+LIST *row_security_row_dictionary_list(
 			LIST *append_isa_attribute_list,
 			char *application_name,
 			DICTIONARY *query_dictionary,
@@ -659,30 +674,25 @@ LIST *row_security_get_row_dictionary_list(
 			query_get_order_clause(
 				query->sort_dictionary,
 				select_folder_name,
-				attribute_list );
+				append_isa_attribute_list );
 	}
 
-/*
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: got where_clause = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-query->query_output->where_clause );
-m2( query->folder->application_name, msg );
-}
-*/
+	query->query_output->from_clause =
+		list_display_delimited(
+			attribute_distinct_folder_name_list(
+				append_isa_attribute_list ),
+			',' );
+
 	row_dictionary_list =
-		query_get_row_dictionary_list(
-				query->folder->application_name,
-				query->query_output->select_clause,
-				query->query_output->from_clause,
-				query->query_output->where_clause,
-				query->query_output->order_clause,
-				query->max_rows,
-				append_isa_attribute_list,
-				query->login_name  );
+		query_row_dictionary_list(
+			query->folder->application_name,
+			query->query_output->select_clause,
+			query->query_output->from_clause,
+			query->query_output->where_clause,
+			query->query_output->order_clause,
+			query->max_rows,
+			append_isa_attribute_list,
+			query->login_name  );
 
 	if ( list_length( join_1tom_related_folder_list ) )
 	{
@@ -691,12 +701,11 @@ m2( query->folder->application_name, msg );
 			join_1tom_related_folder_list,
 			application_name,
 			attribute_get_primary_attribute_name_list(
-				attribute_list ) );
+				append_isa_attribute_list ) );
 	}
 
 	return row_dictionary_list;
-
-} /* row_security_get_row_dictionary_list() */
+}
 
 void row_security_append_join_1tom_related_folder_list(
 			LIST *row_dictionary_list,

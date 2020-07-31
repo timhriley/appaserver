@@ -209,7 +209,7 @@ void insert_database_remove_tmp_file( char *tmp_file_name )
 	sprintf( buffer, 
 		 "/bin/rm -f %s",
 		 tmp_file_name );
-	system( buffer );
+	if ( system( buffer ) ){};
 }
 
 FILE *insert_database_open_tmp_file(	char **tmp_file_name,
@@ -641,7 +641,7 @@ int insert_database_execute_insert_mysql(
 	if ( !*message ) *message = "";
 
 	sprintf( sys_string, "rm -f %s", message_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	return rows_inserted;
 
 } /* insert_database_execute_insert_mysql() */

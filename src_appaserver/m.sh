@@ -4,6 +4,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd -
-	make generic_output_merged_datasets
+	make output_edit_table_form
 fi
 

@@ -93,7 +93,8 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_element_list_structure_new(
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
 			char update_yn,
-			boolean ajax_fill_drop_down_omit );
+			boolean ajax_fill_drop_down_omit,
+			LIST *append_isa_attribute_list );
 
 LIST *row_security_get_role_update_list(
 			char *application_name );
@@ -130,8 +131,7 @@ void row_security_set_additional_select_attribute(
 			LIST *attribute_list,
 			ATTRIBUTE *attribute_not_null );
 
-LIST *row_security_get_row_dictionary_list(
-			LIST *attribute_list,
+LIST *row_security_row_dictionary_list(
 			LIST *append_isa_attribute_list,
 			char *application_name,
 			DICTIONARY *query_dictionary,

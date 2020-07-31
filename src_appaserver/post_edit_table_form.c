@@ -263,7 +263,7 @@ int main( int argc, char **argv )
 				session,
 				folder_name );
 
-	folder->folder_mto1_isa_related_folder_list =
+	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new(),
 			application_name,
@@ -285,7 +285,7 @@ int main( int argc, char **argv )
 			folder->mto1_related_folder_list,
 			role_name );
 
-	folder->folder_mto1_isa_related_folder_list =
+	folder->mto1_isa_related_folder_list =
 		folder_mto1_isa_related_folder_list(
 			list_new() /* existing_related_folder_list */,
 			application_name,
@@ -293,16 +293,16 @@ int main( int argc, char **argv )
 			role_name,
 			0 /* recursive_level */ );
 
-	folder->folder_append_isa_attribute_list =
+	folder->append_isa_attribute_list =
 		folder_append_isa_attribute_list(
 			application_name,
 			folder->folder_name,
-			folder->folder_mto1_isa_related_folder_list,
+			folder->mto1_isa_related_folder_list,
 			role_name );
 
-	folder->folder_append_isa_attribute_name_list =
+	folder->append_isa_attribute_name_list =
 		folder_append_isa_attribute_name_list(
-			folder->folder_append_isa_attribute_list );
+			folder->append_isa_attribute_list );
 
 	operation_list_structure =
 		operation_list_structure_new(
@@ -322,7 +322,7 @@ int main( int argc, char **argv )
 			dictionary_appaserver_new(
 				original_post_dictionary,
 				application_name,
-				folder->folder_append_isa_attribute_list,
+				folder->append_isa_attribute_list,
 				operation_list_get_operation_name_list(
 					operation_list_structure->
 						operation_list ) ) ) )
@@ -339,11 +339,11 @@ int main( int argc, char **argv )
 	/* ------------------------------------------------ */
 	dictionary_set_indexed_date_time_to_current(
 		dictionary_appaserver->row_dictionary,
-		folder->folder_append_isa_attribute_list );
+		folder->append_isa_attribute_list );
 
 	dictionary_remove_symbols_in_numbers(
 		dictionary_appaserver->row_dictionary,
-		folder->folder_append_isa_attribute_list );
+		folder->append_isa_attribute_list );
 
 	/* Get from the non_prefixed_dictionary. */
 	/* ------------------------------------- */
@@ -791,7 +791,7 @@ void post_state_update(
 			session,
 			folder_name );
 
-	folder->folder_mto1_isa_related_folder_list =
+	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new(),
 			application_name,
@@ -809,7 +809,7 @@ void post_state_update(
 			application_name,
 			folder_name,
 			(char *)0 /* attribute_name */,
-			folder->folder_mto1_isa_related_folder_list,
+			folder->mto1_isa_related_folder_list,
 			role_name );
 
 	folder->primary_attribute_name_list =
@@ -1095,7 +1095,7 @@ void post_state_lookup(
 					login_name );
 	}
 
-	folder->folder_mto1_isa_related_folder_list =
+	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new(),
 			application_name,
@@ -1113,7 +1113,7 @@ void post_state_lookup(
 			application_name,
 			folder_name,
 			(char *)0 /* attribute_name */,
-			folder->folder_mto1_isa_related_folder_list,
+			folder->mto1_isa_related_folder_list,
 			role_name );
 
 	folder->primary_attribute_name_list =
@@ -1247,7 +1247,7 @@ void execute_output_process(
 				base_folder->folder_name,
 				(char *)0 /* attribute_name */,
 				base_folder->
-					folder_mto1_isa_related_folder_list,
+					mto1_isa_related_folder_list,
 				role_name );
 
 		base_folder->primary_attribute_name_list =

@@ -214,7 +214,7 @@ void process_operation_convert(
 			char *target_frame,
 			DICTIONARY *parameter_dictionary,
 			DICTIONARY *where_clause_dictionary,
-			LIST *folder_append_isa_attribute_list,
+			LIST *append_isa_attribute_list,
 			LIST *primary_attribute_name_list,
 			LIST *primary_data_list,
 			int row,

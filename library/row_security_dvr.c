@@ -95,7 +95,10 @@ void row_security_dvr(
 			omit_delete_dont_care,
 			0 /* omit_operation_buttons */,
 			'y' /* update_yn */,
-			0 /* not ajax_fill_drop_down_omit */ );
+			0 /* not ajax_fill_drop_down_omit */,
+			row_security->
+				select_folder->
+				append_isa_attribute_list );
 
 	element_list =
 		row_security->

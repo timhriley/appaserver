@@ -111,30 +111,39 @@ LIST *related_folder_get_foreign_attribute_name_list(
 				char *related_attribute_name,
 				LIST *folder_foreign_attribute_name_list )
 {
+	LIST *return_list = {0};
+
 	if ( list_length( folder_foreign_attribute_name_list ) )
-		return folder_foreign_attribute_name_list;
-
-	if ( !related_attribute_name_list
-	&&   !list_length( related_attribute_name_list ) )
 	{
-		return list_new();
+		return_list = folder_foreign_attribute_name_list;
 	}
-
+	else
+	if ( !list_length( related_attribute_name_list ) )
+	{
+		return_list = list_new();
+	}
+	else
 	if ( related_attribute_name
 	&&   *related_attribute_name
 	&&   strcmp( related_attribute_name, "null" ) != 0 )
 	{
 		related_attribute_name_list = 
-			string_list_duplicate( related_attribute_name_list );
+			string_list_duplicate(
+				related_attribute_name_list );
 
 		list_replace_last_string( 
 			related_attribute_name_list,
 			related_attribute_name );
+
+		return_list = related_attribute_name_list;
+	}
+	else
+	{
+		return_list = related_attribute_name_list;
 	}
 
-	return related_attribute_name_list;
-
-} /* related_folder_get_foreign_attribute_name_list() */
+	return return_list;
+}
 
 RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 		LIST **foreign_attribute_name_list,
@@ -2949,14 +2958,14 @@ LIST *related_folder_get_preselection_dictionary_list(
 				(LIST *)0 );
 
 		related_folder_dictionary_list =
-			query_get_row_dictionary_list(
+			query_row_dictionary_list(
 				query->folder->application_name,
 				query->query_output->select_clause,
 				query->query_output->from_clause,
 				query->query_output->where_clause,
 				query->query_output->order_clause,
 				query->max_rows,
-				query->folder->folder_append_isa_attribute_list,
+				query->folder->append_isa_attribute_list,
 				query->login_name );
 	}
 
@@ -3009,14 +3018,14 @@ LIST *related_folder_subtract_preselection_existing_dictionary_list(
 			query_dictionary );
 
 	primary_folder_dictionary_list =
-		query_get_row_dictionary_list(
+		query_row_dictionary_list(
 				query->folder->application_name,
 				query->query_output->select_clause,
 				query->query_output->from_clause,
 				query->query_output->where_clause,
 				query->query_output->order_clause,
 				query->max_rows,
-				query->folder->folder_append_isa_attribute_list,
+				query->folder->append_isa_attribute_list,
 				query->login_name );
 
 	if ( !primary_folder_dictionary_list

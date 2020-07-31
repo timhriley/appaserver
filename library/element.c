@@ -878,6 +878,7 @@ char *element_get_heading(
 	if ( e->element_type == text_item
 	||   e->element_type == element_date
 	||   e->element_type == element_current_date
+	||   e->element_type == element_current_date_time
 	||   e->element_type == element_date_time )
 	{
 		return element_text_item_get_heading(

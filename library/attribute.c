@@ -2177,3 +2177,27 @@ boolean attribute_record_parse(
 	return 1;
 
 } /* attribute_record_parse() */
+
+LIST *attribute_distinct_folder_name_list( LIST *attribute_list )
+{
+	ATTRIBUTE *attribute;
+	LIST *distinct_folder_name_list = list_new();
+
+	if ( list_rewind( attribute_list ) )
+	{
+		do {
+			attribute = list_get( attribute_list );
+
+			if ( attribute->folder_name )
+			{
+				list_append_unique_string(
+					distinct_folder_name_list,
+					attribute->folder_name );
+			}
+		
+		} while( list_next( attribute_list ) );
+	}
+
+	return distinct_folder_name_list;
+}
+

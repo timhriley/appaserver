@@ -214,7 +214,7 @@ int main( int argc, char **argv )
 				query->query_output->where_clause,
 				query->query_output->order_clause,
 				10000 /* query->max_rows */,
-				query->folder->folder_append_isa_attribute_list,
+				query->folder->append_isa_attribute_list,
 				query->login_name );
 
 	form = form_new( FORM_NAME, FORM_TITLE );

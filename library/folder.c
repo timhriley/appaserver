@@ -175,27 +175,9 @@ FOLDER *folder_with_load_new(	char *application_name,
 		return (FOLDER *)0;
 	}
 
-#ifdef NOT_DEFINED
-	/* ------------------------------- */
-	/* This is the old way of setting. */
-	/* ------------------------------- */
-	folder->mto1_isa_related_folder_list =
-	     related_folder_get_mto1_related_folder_list(
-		list_new(),
-		application_name,
-		BOGUS_SESSION,
-		folder_name,
-		role_name,
-		1 /* isa_flag */,
-		related_folder_recursive_all,
-		0 /* dont override_row_restrictions */,
-		(LIST *)0 /* root_primary_attribute_name_list */,
-		0 /* recursive_level */ );
-#endif
-
 	/* This is the new way of setting. */
 	/* ------------------------------- */
-	folder->folder_mto1_isa_related_folder_list =
+	folder->mto1_isa_related_folder_list =
 		folder_mto1_isa_related_folder_list(
 			list_new() /* existing_related_folder_list */,
 			application_name,
@@ -203,8 +185,15 @@ FOLDER *folder_with_load_new(	char *application_name,
 			role_name,
 			0 /* recursive_level */ );
 
+	folder->append_isa_attribute_list =
+		attribute_append_isa_attribute_list(
+			folder->application_name,
+			folder->folder_name,
+			folder->mto1_isa_related_folder_list,
+			role_name );
+
 	folder_append_one2m_related_folder_list(
-		folder->folder_mto1_isa_related_folder_list,
+		folder->mto1_isa_related_folder_list,
 		application_name );
 
 	folder_append_one2m_related_folder_list(
@@ -218,7 +207,7 @@ FOLDER *folder_with_load_new(	char *application_name,
 			role_name,
 			role_get_override_row_restrictions(
 				override_row_restrictions_yn ),
-			folder->folder_mto1_isa_related_folder_list ) ) )
+			folder->mto1_isa_related_folder_list ) ) )
 	{
 		folder->mto1_append_isa_related_folder_list = list_new();
 	}
@@ -238,13 +227,6 @@ FOLDER *folder_with_load_new(	char *application_name,
 	folder->primary_attribute_name_list =
 		folder_get_primary_attribute_name_list(
 			folder->attribute_list );
-
-	folder->folder_append_isa_attribute_list =
-		attribute_append_isa_attribute_list(
-			folder->application_name,
-			folder->folder_name,
-			folder->folder_mto1_isa_related_folder_list,
-			role_name );
 
 	folder->pair_one2m_related_folder_list =
 		related_folder_get_pair_one2m_related_folder_list(
@@ -1882,23 +1864,23 @@ LIST *folder_append_isa_mto1_related_folder_list(
 			char *session,
 			char *role_name,
 			boolean override_row_restrictions,
-			LIST *folder_mto1_isa_related_folder_list )
+			LIST *mto1_isa_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
 	LIST *return_mto1_isa_related_folder_list;
 
-	if ( !list_length( folder_mto1_isa_related_folder_list ) )
+	if ( !list_length( mto1_isa_related_folder_list ) )
 		return (LIST *)0;
 
 	return_mto1_isa_related_folder_list =
-		list_copy( folder_mto1_isa_related_folder_list );
+		list_copy( mto1_isa_related_folder_list );
 
-	list_rewind( folder_mto1_isa_related_folder_list );
+	list_rewind( mto1_isa_related_folder_list );
 
 	do {
 		related_folder =
 			list_get_pointer(
-				folder_mto1_isa_related_folder_list );
+				mto1_isa_related_folder_list );
 
 		related_folder->folder->mto1_related_folder_list =
 			related_folder_get_mto1_related_folder_list(
@@ -1918,7 +1900,7 @@ LIST *folder_append_isa_mto1_related_folder_list(
 			return_mto1_isa_related_folder_list,
 			related_folder->folder->mto1_related_folder_list );
 
-	} while( list_next( folder_mto1_isa_related_folder_list ) );
+	} while( list_next( mto1_isa_related_folder_list ) );
 
 	return return_mto1_isa_related_folder_list;
 
@@ -2080,13 +2062,13 @@ boolean folder_table_exists( char *table_name )
 LIST *folder_append_isa_attribute_list(
 				char *application_name,
 				char *folder_name,
-				LIST *folder_mto1_isa_related_folder_list,
+				LIST *mto1_isa_related_folder_list,
 				char *role_name )
 {
 	return attribute_append_isa_attribute_list(
 			application_name,
 			folder_name,
-			folder_mto1_isa_related_folder_list,
+			mto1_isa_related_folder_list,
 			role_name );
 }
 
@@ -2119,10 +2101,10 @@ LIST *folder_attribute_list(
 }
 
 LIST *folder_append_isa_attribute_name_list(
-			LIST *folder_append_isa_attribute_list )
+			LIST *append_isa_attribute_list )
 {
 	return folder_attribute_name_list(
-			folder_append_isa_attribute_list );
+			append_isa_attribute_list );
 }
 
 LIST *folder_attribute_name_list(
