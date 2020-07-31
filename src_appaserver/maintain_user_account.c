@@ -358,7 +358,7 @@ int main( int argc, char **argv )
 					append_isa_attribute_list ) );
 
 	row_dictionary_list =
-		query_get_row_dictionary_list(
+		query_row_dictionary_list(
 			query->folder->application_name,
 			query->query_output->select_clause,
 			query->query_output->from_clause,

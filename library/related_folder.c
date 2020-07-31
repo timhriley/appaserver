@@ -106,8 +106,8 @@ RELATED_FOLDER *related_folder_calloc( void )
 
 } /* related_folder_calloc() */
 
-LIST *related_folder_get_foreign_attribute_name_list(
-				LIST *related_attribute_name_list,
+LIST *related_folder_foreign_attribute_name_list(
+				LIST *primary_attribute_name_list,
 				char *related_attribute_name,
 				LIST *folder_foreign_attribute_name_list )
 {
@@ -118,7 +118,7 @@ LIST *related_folder_get_foreign_attribute_name_list(
 		return_list = folder_foreign_attribute_name_list;
 	}
 	else
-	if ( !list_length( related_attribute_name_list ) )
+	if ( !list_length( primary_attribute_name_list ) )
 	{
 		return_list = list_new();
 	}
@@ -127,19 +127,19 @@ LIST *related_folder_get_foreign_attribute_name_list(
 	&&   *related_attribute_name
 	&&   strcmp( related_attribute_name, "null" ) != 0 )
 	{
-		related_attribute_name_list = 
+		primary_attribute_name_list = 
 			string_list_duplicate(
-				related_attribute_name_list );
+				primary_attribute_name_list );
 
 		list_replace_last_string( 
-			related_attribute_name_list,
+			primary_attribute_name_list,
 			related_attribute_name );
 
-		return_list = related_attribute_name_list;
+		return_list = primary_attribute_name_list;
 	}
 	else
 	{
-		return_list = related_attribute_name_list;
+		return_list = primary_attribute_name_list;
 	}
 
 	return return_list;
@@ -189,7 +189,7 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 		else
 		{
 			local_foreign_attribute_name_list =
-				related_folder_get_foreign_attribute_name_list(
+				related_folder_foreign_attribute_name_list(
 			   	folder_get_primary_attribute_name_list(
 						related_folder->folder->
 							attribute_list ),
@@ -714,7 +714,7 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 
 	if ( relation_type == one2m )
 	{
-		folder = related_folder->one2m_related_folder;
+		folder = related_folder->one2m_folder;
 	}
 	else
 	{
@@ -1429,7 +1429,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 
 		if ( folder_name
 		&&   strcmp(	related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name,
 				folder_name ) != 0 )
 		{
@@ -1481,7 +1481,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 			(LIST *)0 /* mto1_related_folder_list */ );
 
 		related_folder->foreign_attribute_name_list =
-			related_folder_get_foreign_attribute_name_list(
+			related_folder_foreign_attribute_name_list(
 				related_folder->
 					folder->
 						primary_attribute_name_list,
@@ -1573,7 +1573,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 
 } /* related_folder_get_mto1_related_folder_list() */
 
-LIST *related_folder_get_1tom_related_folder_list(
+LIST *related_folder_1tom_related_folder_list(
 		char *application_name,
 		char *session,
 		char *folder_name,
@@ -1621,57 +1621,57 @@ LIST *related_folder_get_1tom_related_folder_list(
 
 		folder_load(
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				insert_rows_number,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				lookup_email_output,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				row_level_non_owner_forbid,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				row_level_non_owner_view_only,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				populate_drop_down_process,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				post_change_process,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				folder_form,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				notepad,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				html_help_file_anchor,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				post_change_javascript,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				lookup_before_drop_down,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				data_directory,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				index_directory,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				no_initial_capital,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				subschema_name,
 			&related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				create_view_statement,
 			application_name,
 			BOGUS_SESSION,
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				folder_name,
 			1 /* override_row_restrictions */,
 			role_name,
@@ -1681,19 +1681,19 @@ LIST *related_folder_get_1tom_related_folder_list(
 			related_folder_fetch_folder_foreign_attribute_name_list(
 				application_name,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 						folder_name,
 				folder_name );
 
-		if ( !related_folder->one2m_related_folder->attribute_list )
+		if ( !related_folder->one2m_folder->attribute_list )
 		{
-			related_folder->one2m_related_folder->attribute_list =
+			related_folder->one2m_folder->attribute_list =
 				attribute_get_attribute_list(
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					application_name,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name,
 				(char *)0 /* attribute_name */,
 				(LIST *)0 /* mto1_isa_related_folder_list */,
@@ -1701,29 +1701,29 @@ LIST *related_folder_get_1tom_related_folder_list(
 		}
 
 		if ( !related_folder->
-			one2m_related_folder->
+			one2m_folder->
 			primary_attribute_name_list )
 		{
 			related_folder->
-			one2m_related_folder->
+			one2m_folder->
 			primary_attribute_name_list =
 				folder_get_primary_attribute_name_list(
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						attribute_list );
 		}
 
 
 		if ( !related_folder->
-			one2m_related_folder->
+			one2m_folder->
 			attribute_name_list )
 		{
 			related_folder->
-			one2m_related_folder->
+			one2m_folder->
 			attribute_name_list =
 				folder_get_attribute_name_list(
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						attribute_list );
 		}
 
@@ -1770,7 +1770,7 @@ LIST *related_folder_get_1tom_related_folder_list(
 		if ( list_length( parent_primary_attribute_name_list ) )
 		{
 			related_folder->foreign_attribute_name_list =
-				related_folder_get_foreign_attribute_name_list(
+				related_folder_foreign_attribute_name_list(
 					parent_primary_attribute_name_list,
 					related_folder->
 						related_attribute_name,
@@ -1780,7 +1780,7 @@ LIST *related_folder_get_1tom_related_folder_list(
 		else
 		{
 			related_folder->foreign_attribute_name_list =
-				related_folder_get_foreign_attribute_name_list(
+				related_folder_foreign_attribute_name_list(
 					related_folder->
 						folder->
 						primary_attribute_name_list,
@@ -1793,7 +1793,7 @@ LIST *related_folder_get_1tom_related_folder_list(
 		if ( related_folder_list_usage != detail
 		&&   related_folder_is_one2one_firewall(
 			related_folder->foreign_attribute_name_list,
-			related_folder->one2m_related_folder->attribute_list ) )
+			related_folder->one2m_folder->attribute_list ) )
 		{
 			continue;
 		}
@@ -1814,7 +1814,7 @@ LIST *related_folder_get_1tom_related_folder_list(
 					related_folder->
 						foreign_attribute_name_list,
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						primary_attribute_name_list );
 		}
 
@@ -1852,21 +1852,21 @@ LIST *related_folder_get_1tom_related_folder_list(
 			if ( list_length( primary_data_list ) )
 			{
 				related_folder_list =
-				  related_folder_get_1tom_related_folder_list(
+				  related_folder_1tom_related_folder_list(
 				   application_name,
 				   session,
 				   related_folder->
-					one2m_related_folder->
+					one2m_folder->
 						folder_name,
 				   role_name,
 				   related_folder_list_usage,
 			   	   related_folder_get_primary_data_list(
 					application_name,
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 							folder_name,
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						primary_attribute_name_list,
 					related_folder->
 						foreign_attribute_name_list,
@@ -1882,11 +1882,11 @@ LIST *related_folder_get_1tom_related_folder_list(
 			else
 			{
 				related_folder_list =
-				    related_folder_get_1tom_related_folder_list(
+				    related_folder_1tom_related_folder_list(
 					application_name,
 					session,
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 							folder_name,
 					role_name,
 					related_folder_list_usage,
@@ -1895,7 +1895,7 @@ LIST *related_folder_get_1tom_related_folder_list(
 					omit_isa_relations,
 					recursive_request_type,
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						primary_attribute_name_list,
 					original_primary_attribute_name_list,
 					use_related_attribute_name );
@@ -1905,8 +1905,7 @@ LIST *related_folder_get_1tom_related_folder_list(
 	} while( list_next( local_related_folder_list ) );
 
 	return related_folder_list;
-
-} /* related_folder_get_1tom_related_folder_list() */
+}
 
 static LIST *global_related_folder_list = {0};
 
@@ -1990,7 +1989,7 @@ LIST *related_folder_get_global_related_folder_list(
 				session,
 				strdup( folder_name ) );
 
-		related_folder->one2m_related_folder = folder;
+		related_folder->one2m_folder = folder;
 
 		piece(	buffer,
 			delimiter,
@@ -2114,7 +2113,7 @@ LIST *related_folder_mto1_related_folder_list(
 
 		if ( folder_name
 		&&   strcmp(	related_folder->
-					one2m_related_folder->
+					one2m_folder->
 						folder_name,
 				folder_name ) != 0 )
 		{
@@ -2165,7 +2164,7 @@ LIST *related_folder_get_related_folder_list(
 		related_folder = list_get_pointer( global_related_folder_list );
 
 		if ( relation_type == one2m )
-			folder = related_folder->one2m_related_folder;
+			folder = related_folder->one2m_folder;
 		else
 			folder = related_folder->folder;
 
@@ -2191,7 +2190,7 @@ LIST *related_folder_get_related_folder_list(
 		{
 			if ( folder_name
 			&&   strcmp(	related_folder->
-						one2m_related_folder->
+						one2m_folder->
 							folder_name,
 					folder_name ) != 0 )
 			{
@@ -2228,7 +2227,7 @@ boolean related_folder_exists_one2m_related_folder_list(
 				list_get_pointer(
 					existing_related_folder_list );
 
-			folder = related_folder->one2m_related_folder;
+			folder = related_folder->one2m_folder;
 
 			if ( strcmp(	folder->folder_name,
 					related_folder_name ) == 0
@@ -2262,7 +2261,7 @@ boolean related_folder_exists_related_folder_list(
 					existing_related_folder_list );
 
 			if ( relation_type == one2m )
-				folder = related_folder->one2m_related_folder;
+				folder = related_folder->one2m_folder;
 			else
 				folder = related_folder->folder;
 
@@ -2353,7 +2352,7 @@ LIST *related_folder_get_one2m_related_folder_name_list(
 
 			list_append_pointer(	related_folder_name_list,
 						related_folder->
-							one2m_related_folder->
+							one2m_folder->
 							folder_name );
 
 		} while( list_next( one2m_related_folder_list ) );
@@ -2474,7 +2473,7 @@ boolean related_folder_exists_1tom_relations(
 	LIST *original_foreign_attribute_name_list;
 
 	original_foreign_attribute_name_list =
-		related_folder_get_foreign_attribute_name_list(
+		related_folder_foreign_attribute_name_list(
 			original_primary_attribute_name_list,
 			related_attribute_name,
 			(LIST *)0 /* folder_foreign_attribute_name_list */ );
@@ -2493,18 +2492,18 @@ boolean related_folder_exists_1tom_relations(
 		related_folder = list_get( one2m_related_folder_list );
 
 		if ( !related_folder->
-			one2m_related_folder->
+			one2m_folder->
 			attribute_name_list )
 		{
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				attribute_list =
 				attribute_get_attribute_list(
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						application_name,
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						folder_name,
 					(char *)0 /* attribute_name */,
 					(LIST *)0
@@ -2513,15 +2512,15 @@ boolean related_folder_exists_1tom_relations(
 		}
 
 		if ( !related_folder->
-			one2m_related_folder->
+			one2m_folder->
 			primary_attribute_name_list )
 		{
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				primary_attribute_name_list =
 				attribute_get_primary_attribute_name_list(
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						attribute_list );
 		}
 
@@ -2531,7 +2530,7 @@ boolean related_folder_exists_1tom_relations(
 				"null" ) != 0 )
 		{
 			original_foreign_attribute_name_list =
-				related_folder_get_foreign_attribute_name_list(
+				related_folder_foreign_attribute_name_list(
 					original_primary_attribute_name_list,
 					related_folder->
 						related_attribute_name,
@@ -2540,9 +2539,9 @@ boolean related_folder_exists_1tom_relations(
 		}
 
 		related_folder->foreign_attribute_name_list =
-			related_folder_get_foreign_attribute_name_list(
+			related_folder_foreign_attribute_name_list(
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					primary_attribute_name_list,
 				related_folder->related_attribute_name,
 				related_folder->
@@ -3195,7 +3194,7 @@ LIST *related_folder_get_pair_one2m_related_folder_list(
 	RELATED_FOLDER *related_folder;
 
 	one2m_related_folder_list =
-		related_folder_get_1tom_related_folder_list(
+		related_folder_1tom_related_folder_list(
 			application_name,
 			BOGUS_SESSION,
 			folder_name,
@@ -3359,7 +3358,7 @@ char *related_folder_append_where_clause_related_join(
 	if ( !list_length( related_folder->foreign_attribute_name_list ) )
 	{
 		related_folder->foreign_attribute_name_list =
-			related_folder_get_foreign_attribute_name_list(
+			related_folder_foreign_attribute_name_list(
 				folder->primary_attribute_name_list,
 				related_folder->related_attribute_name,
 				related_folder->
@@ -3372,7 +3371,7 @@ char *related_folder_append_where_clause_related_join(
 			folder->primary_attribute_name_list,
 			related_folder->foreign_attribute_name_list,
 			folder->folder_name,
-			related_folder->one2m_related_folder->folder_name );
+			related_folder->one2m_folder->folder_name );
 
 } /* related_folder_append_where_clause_related_join() */
 
@@ -3490,31 +3489,31 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 						attribute_list );
 		}
 
-		if ( !related_folder->one2m_related_folder->attribute_list )
+		if ( !related_folder->one2m_folder->attribute_list )
 		{
-			related_folder->one2m_related_folder->attribute_list =
+			related_folder->one2m_folder->attribute_list =
 			attribute_get_attribute_list(
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					application_name,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name,
 				(char *)0 /* attribute_name */,
 				(LIST *)0 /* mto1_isa_related_folder_list */,
 				(char *)0 /* role_name */ );
 
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				primary_attribute_name_list =
 				attribute_get_primary_attribute_name_list(
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						attribute_list );
 		}
 
 		related_folder->foreign_attribute_name_list =
-			related_folder_get_foreign_attribute_name_list(
+			related_folder_foreign_attribute_name_list(
 				related_folder->
 					folder->
 					primary_attribute_name_list,
@@ -3601,7 +3600,7 @@ RELATED_FOLDER *related_folder_one2m_seek(
 		related_folder = list_get_pointer( one2m_related_folder_list );
 
 		if ( strcmp(	related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name,
 				folder_name ) == 0 )
 		{
@@ -3721,7 +3720,7 @@ void related_folder_one2m_append_unique(
 	else
 	if ( !related_folder_exists_one2m_related_folder_list(
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				folder_name,
 			related_folder->related_attribute_name,
 			one2m_related_folder_list ) )
@@ -4293,7 +4292,7 @@ LIST *related_folder_mto1_isa_related_folder_list(
 
 		if ( timlib_strcmp(
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				folder_name,
 			folder_name ) != 0 )
 		{
@@ -4344,7 +4343,7 @@ LIST *related_folder_mto1_isa_related_folder_list(
 			(LIST *)0 /* mto1_related_folder_list */ );
 
 		related_folder->foreign_attribute_name_list =
-			related_folder_get_foreign_attribute_name_list(
+			related_folder_foreign_attribute_name_list(
 				related_folder->
 					folder->
 						primary_attribute_name_list,

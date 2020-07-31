@@ -249,7 +249,7 @@ int main( int argc, char **argv )
 	}
 
 	folder->one2m_related_folder_list =
-		related_folder_get_1tom_related_folder_list(
+		related_folder_1tom_related_folder_list(
 			application_name,
 			BOGUS_SESSION,
 			folder->folder_name,
@@ -675,7 +675,7 @@ m2( application_name, msg );
 				folder->
 				folder_name /* one2m_folder */,
 			 ajax_fill_drop_down_related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				folder_name /* mto1_folder */,
 			 list_display(
 				ajax_fill_drop_down_related_folder->
@@ -849,7 +849,7 @@ LIST *subtract_join_1tom_ignore_dictionary_related_folder_list(
 			sprintf( key,
 				 "%s_0",
 				 related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name );
 
 			if ( !dictionary_key_exists(

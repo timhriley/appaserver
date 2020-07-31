@@ -424,7 +424,7 @@ void output_relation(	FILE *output_file,
 "	('%s','%s','%s');\"						 |\n"
 "sql.e\n",
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 					folder_name,
 			related_folder->folder->folder_name,
 			related_folder->related_attribute_name );

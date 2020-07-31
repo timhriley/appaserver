@@ -844,7 +844,7 @@ int main( int argc, char **argv )
 				folder->
 				folder_name /* one2m_folder */,
 			 ajax_fill_drop_down_related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				folder_name /* mto1_folder */,
 			 list_display(
 				ajax_fill_drop_down_related_folder->

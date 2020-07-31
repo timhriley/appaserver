@@ -149,7 +149,7 @@ PAIR_ONE2M *pair_one2m_new(
 			(LIST *)0 /* root_primary_att..._name_list */,
 			0 /* recursive_level */ );
 
-	pair_one2m->pair_insert_folder->folder_mto1_isa_related_folder_list =
+	pair_one2m->pair_insert_folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new_list(),
 			application_name,
@@ -170,7 +170,7 @@ PAIR_ONE2M *pair_one2m_new(
 			(char *)0 /* attribute_name */,
 			pair_one2m->
 				pair_insert_folder->
-				folder_mto1_isa_related_folder_list,
+				mto1_isa_related_folder_list,
 			role->role_name );
 
 	folder_load(
@@ -341,7 +341,7 @@ char *pair_one2m_get_next_folder_name(	LIST *pair_inserted_folder_name_list,
 		&&   list_exists_string(
 			pair_inserted_folder_name_list,
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 					folder_name ) )
 		{
 			ok_start_checking = 1;
@@ -352,12 +352,12 @@ char *pair_one2m_get_next_folder_name(	LIST *pair_inserted_folder_name_list,
 		&&   !list_exists_string(
 			pair_inserted_folder_name_list,
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 					folder_name )
 		&&   ok_start_checking )
 		{
 			return related_folder->
-				one2m_related_folder->
+				one2m_folder->
 					folder_name;
 		}
 

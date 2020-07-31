@@ -239,7 +239,7 @@ int main( int argc, char **argv )
 			(LIST *)0 );
 
 	row_dictionary_list =
-		query_get_row_dictionary_list(
+		query_row_dictionary_list(
 				query->folder->application_name,
 				query->query_output->select_clause,
 				query->query_output->from_clause,

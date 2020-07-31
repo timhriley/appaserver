@@ -5186,7 +5186,7 @@ LIST *query_get_one2m_subquery_related_folder_list(
 			/* ------------------------------ */
 			related_folder = related_folder_calloc();
 
-			related_folder->one2m_related_folder =
+			related_folder->one2m_folder =
 				folder_with_load_new(
 					application_name,
 					BOGUS_SESSION,
@@ -5205,12 +5205,12 @@ LIST *query_get_one2m_subquery_related_folder_list(
 		else
 		{
 			related_folder->
-			one2m_related_folder =
+			one2m_folder =
 				folder_with_load_new(
 					application_name,
 					BOGUS_SESSION,
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						folder_name,
 					(ROLE *)0 /* role */ );
 		}
@@ -5251,13 +5251,13 @@ LIST *query_get_subquery_list(	DICTIONARY *dictionary,
 		query_drop_down_list =
 			query_get_subquery_drop_down_list(
 				exclude_attribute_name_list,
-				related_folder->one2m_related_folder
+				related_folder->one2m_folder
 					/* root_folder */,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					mto1_related_folder_list,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					mto1_append_isa_related_folder_list,
 				dictionary );
 
@@ -5266,7 +5266,7 @@ LIST *query_get_subquery_list(	DICTIONARY *dictionary,
 			query_subquery =
 			query_subquery_new(
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name,
 				list_copy_count(
 					related_folder->
@@ -5286,12 +5286,12 @@ LIST *query_get_subquery_list(	DICTIONARY *dictionary,
 		query_attribute_list =
 			query_get_attribute_list(
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					append_isa_attribute_list,
 				dictionary,
 				exclude_attribute_name_list,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name
 					/* dictionary_prepend_folder_name */ );
 
@@ -5302,7 +5302,7 @@ LIST *query_get_subquery_list(	DICTIONARY *dictionary,
 				query_subquery =
 				query_subquery_new(
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						folder_name,
 					list_copy_count(
 					related_folder->

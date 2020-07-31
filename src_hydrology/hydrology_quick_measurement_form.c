@@ -207,7 +207,7 @@ int main( int argc, char **argv )
 						database_management_system );
 
 	row_dictionary_list =
-		query_get_row_dictionary_list(
+		query_row_dictionary_list(
 				query->folder->application_name,
 				query->query_output->select_clause,
 				query->query_output->from_clause,

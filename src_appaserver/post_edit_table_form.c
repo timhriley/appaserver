@@ -144,7 +144,6 @@ int main( int argc, char **argv )
 	boolean insert_flag;
 	pid_t dictionary_process_id;
 	ROLE *role;
-	char *database_string = {0};
 	char *optional_related_attribute_name;
 	FOLDER *folder;
 	char *vertical_new_button_base_folder_name;
@@ -174,27 +173,17 @@ int main( int argc, char **argv )
 	else
 		optional_related_attribute_name = (char *)0;
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
+	environ_set_environment(
+		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+		application_name );
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
@@ -262,28 +251,6 @@ int main( int argc, char **argv )
 				application_name, 
 				session,
 				folder_name );
-
-	folder->mto1_isa_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new(),
-			application_name,
-			session,
-			folder->folder_name,
-			role_name,
-			1 /* isa_flag */,
-			related_folder_recursive_all,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
-
-	folder->attribute_list =
-		attribute_get_attribute_list(
-			application_name,
-			folder->folder_name,
-			(char *)0 /* attribute_name */,
-			folder->mto1_related_folder_list,
-			role_name );
 
 	folder->mto1_isa_related_folder_list =
 		folder_mto1_isa_related_folder_list(
@@ -497,11 +464,11 @@ void post_state_insert(
 
 	folder->primary_attribute_name_list =
 		folder_get_primary_attribute_name_list(
-			folder->attribute_list );
+			folder->append_isa_attribute_list );
 
 	folder->attribute_name_list =
 		folder_get_attribute_name_list(
-			folder->attribute_list );
+			folder->append_isa_attribute_list );
 
 	folder_load(	&folder->insert_rows_number,
 			&folder->lookup_email_output,
@@ -544,7 +511,7 @@ void post_state_insert(
 
 	if ( folder->row_level_non_owner_forbid
 	||   attribute_exists_omit_insert_login_name(
-					folder->attribute_list ) )
+			folder->append_isa_attribute_list ) )
 	{
 		dictionary_add_login_name_if_necessary(
 				dictionary_appaserver->
@@ -555,7 +522,7 @@ void post_state_insert(
 
 	insert_required_attribute_name_list =
 		attribute_get_insert_required_attribute_name_list(
-			folder->attribute_list );
+			folder->append_isa_attribute_list );
 
 	mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
@@ -579,7 +546,7 @@ void post_state_insert(
 			folder->attribute_name_list,
 			dictionary_appaserver->row_dictionary,
 			ignore_dictionary,
-			folder->attribute_list );
+			folder->append_isa_attribute_list );
 
 	insert_database->dont_remove_tmp_file =
 		INSERT_DATABASE_DONT_REMOVE_TMP_FILE;
@@ -607,7 +574,7 @@ void post_state_insert(
 			mto1_related_folder_list ),
 		insert_database->attribute_list,
 		attribute_exists_reference_number(
-			folder->attribute_list ),
+			folder->append_isa_attribute_list ),
 		appaserver_parameter_file_get_data_directory()
 			/* tmp_file_directory */ );
 
@@ -792,33 +759,27 @@ void post_state_update(
 			folder_name );
 
 	folder->mto1_isa_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new(),
+		folder_mto1_isa_related_folder_list(
+			list_new() /* existing_related_folder_list */,
 			application_name,
-			session,
-			folder_name,
+			folder->folder_name,
 			role_name,
-			1 /* isa_flag */,
-			related_folder_recursive_all,
-			role_override_row_restrictions,
-			(LIST *)0 /* root_primary_attribute_name_list */,
 			0 /* recursive_level */ );
 
-	folder->attribute_list =
-		attribute_get_attribute_list(
+	folder->append_isa_attribute_list =
+		folder_append_isa_attribute_list(
 			application_name,
-			folder_name,
-			(char *)0 /* attribute_name */,
+			folder->folder_name,
 			folder->mto1_isa_related_folder_list,
 			role_name );
 
 	folder->primary_attribute_name_list =
 		folder_get_primary_attribute_name_list(
-			folder->attribute_list );
+			folder->append_isa_attribute_list );
 
 	folder->attribute_name_list =
 		folder_get_attribute_name_list(
-			folder->attribute_list );
+			folder->append_isa_attribute_list );
 
 	folder_load(		&folder->insert_rows_number,
 				&folder->lookup_email_output,

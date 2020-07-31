@@ -3967,7 +3967,7 @@ void element_list_set_omit_heading_sort_button(
 					join_1tom_related_folder_list );
 
 			if ( strcmp(	related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						folder_name,
 					element->name ) == 0 )
 			{

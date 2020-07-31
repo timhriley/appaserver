@@ -235,7 +235,7 @@ FOLDER *folder_with_load_new(	char *application_name,
 				role_name );
 
 	folder->one2m_related_folder_list =
-		related_folder_get_1tom_related_folder_list(
+		related_folder_1tom_related_folder_list(
 			application_name,
 			BOGUS_SESSION,
 			folder->folder_name,
@@ -250,7 +250,7 @@ FOLDER *folder_with_load_new(	char *application_name,
 			(char *)0 /* prior_related_attribute_name */ );
 
 	folder->one2m_recursive_related_folder_list =
-		related_folder_get_1tom_related_folder_list(
+		related_folder_1tom_related_folder_list(
 			application_name,
 			BOGUS_SESSION,
 			folder->folder_name,
@@ -1791,7 +1791,7 @@ void folder_append_one2m_related_folder_list(
 				mto1_related_folder_list );
 
 		related_folder->folder->one2m_recursive_related_folder_list =
-		related_folder_get_1tom_related_folder_list(
+		related_folder_1tom_related_folder_list(
 			application_name,
 			BOGUS_SESSION,
 			related_folder->folder->folder_name,
@@ -1808,7 +1808,7 @@ void folder_append_one2m_related_folder_list(
 			(char *)0 /* prior_related_attribute_name */ );
 
 		related_folder->folder->one2m_related_folder_list =
-		related_folder_get_1tom_related_folder_list(
+		related_folder_1tom_related_folder_list(
 			application_name,
 			BOGUS_SESSION,
 			related_folder->folder->folder_name,

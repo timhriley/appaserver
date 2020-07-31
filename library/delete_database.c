@@ -213,12 +213,12 @@ void delete_database_append_one2m_delete_folder_list(
 			list_get(
 				one2m_related_folder_list );
 
-		related_folder->one2m_related_folder =
+		related_folder->one2m_folder =
 			folder_with_load_new(
 				application_name,
 				BOGUS_SESSION, 
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name,
 				(ROLE *)0 );
 
@@ -231,7 +231,7 @@ void delete_database_append_one2m_delete_folder_list(
 				delete_folder_list,
 				application_name,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name,
 				related_folder->
 					foreign_attribute_name_list
@@ -240,13 +240,13 @@ void delete_database_append_one2m_delete_folder_list(
 					/* where_attribute_data_list */,
 				login_name,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					one2m_related_folder_list,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					primary_attribute_name_list,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					post_change_process );
 
 		} while( list_next( delete_row_list ) );
@@ -715,7 +715,7 @@ void delete_database_execute_delete_row_list_pipe(
 				(char *)0 /* operation_row_count_string */,
 				(char *)0 /* prompt */ );
 
-			system( post_change_process->executable );
+			if ( system( post_change_process->executable ) ){};
 		}
 
 		fprintf( output_pipe,
@@ -766,7 +766,7 @@ void delete_database_execute_delete_row_list_pipe(
 				(char *)0 /* operation_row_count_string */,
 				(char *)0 /* prompt */ );
 
-			system( post_change_process->executable );
+			if ( system( post_change_process->executable ) ){};
 		}
 
 	} while( list_next( delete_row_list ) );
@@ -1076,13 +1076,13 @@ void delete_database_append_one2m_related_folder_list(
 				delete_folder_list,
 				application_name,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					post_change_process,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					primary_attribute_name_list,
 				related_folder->
 					folder_foreign_attribute_name_list,
@@ -1098,13 +1098,13 @@ void delete_database_append_one2m_related_folder_list(
 				delete_folder_list,
 				application_name,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					post_change_process,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					primary_attribute_name_list,
 				related_folder->
 					foreign_attribute_name_list,
@@ -1118,7 +1118,7 @@ void delete_database_append_one2m_related_folder_list(
 			delete_folder_list,
 			application_name,
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				folder_name,
 			related_folder->
 				foreign_attribute_name_list
@@ -1127,13 +1127,13 @@ void delete_database_append_one2m_related_folder_list(
 				/* where_attribute_data_list */,
 			login_name,
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				one2m_related_folder_list,
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				primary_attribute_name_list,
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				post_change_process );
 
 	} while( list_next( one2m_related_folder_list ) );

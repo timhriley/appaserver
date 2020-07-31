@@ -437,7 +437,7 @@ RELATED_FOLDER *row_security_seek_related_folder(
 
 		if ( timlib_strcmp(
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name, 
 				select_folder_name ) == 0 )
 		{
@@ -762,14 +762,14 @@ void row_security_set_dictionary_related_folder(
 
 	select_list = list_subtract(
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				primary_attribute_name_list,
 			primary_attribute_name_list );
 
 	where_clause =
 		dictionary_get_attribute_where_clause(
 			row_dictionary,
-			related_folder_get_foreign_attribute_name_list( 
+			related_folder_foreign_attribute_name_list( 
 				primary_attribute_name_list,
 				related_folder->related_attribute_name,
 				related_folder->
@@ -792,7 +792,7 @@ void row_security_set_dictionary_related_folder(
 		 "joinlines.e '%c'				 ",
 		 application_name,
 		 list_display( select_list ),
-		 related_folder->one2m_related_folder->folder_name,
+		 related_folder->one2m_folder->folder_name,
 		 where_clause,
 		 MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER );
 
@@ -803,7 +803,7 @@ void row_security_set_dictionary_related_folder(
 		dictionary_set_pointer(
 			row_dictionary,
 		 	related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				folder_name,
 		 	related_data_list_string );
 	}
@@ -812,7 +812,7 @@ void row_security_set_dictionary_related_folder(
 		dictionary_set_pointer(
 			row_dictionary,
 		 	related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				folder_name,
 		 	"" );
 	}
@@ -1098,7 +1098,7 @@ skip_checking_drop_down:
 				return_list,
 				related_folder_get_non_edit_multi_element_list(
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						folder_name ) );
 
 		} while( list_next( join_1tom_related_folder_list ) );
@@ -1186,7 +1186,7 @@ enum row_security_state row_security_get_row_security_state(
 				  one2m_recursive_related_folder_list );
 
 			if ( strcmp(	related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						folder_name,
 					select_folder_name ) == 0 )
 			{
@@ -1199,7 +1199,7 @@ enum row_security_state row_security_get_row_security_state(
 					related_folder->
 						foreign_attribute_name_list,
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						attribute_list ) )
 				{
 					continue;

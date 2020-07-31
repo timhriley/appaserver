@@ -817,7 +817,7 @@ void state_two_append_one2m_option_data_list(
 			list_add_string_in_order(
 				option_data_list,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name );
 
 		} while( list_next( one2m_recursive_related_folder_list ) );
@@ -866,8 +866,8 @@ void state_two_append_mto1_one2m_option_data_list(
 				related_one2m_recursive_related_folder_list );
 
 			if ( strcmp(	one2m_related_folder->
-						one2m_related_folder->
-						folder_name,
+						one2m_folder->
+					folder_name,
 					folder_name ) == 0 )
 			{
 				continue;
@@ -876,7 +876,7 @@ void state_two_append_mto1_one2m_option_data_list(
 			if ( !list_length(
 				attribute_get_non_primary_attribute_list(
 				one2m_related_folder->
-					one2m_related_folder->
+					one2m_folder->
 						attribute_list ) ) )
 			{
 				continue;
@@ -885,7 +885,7 @@ void state_two_append_mto1_one2m_option_data_list(
 			if ( list_exists_string(
 				option_data_list,
 				one2m_related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name ) )
 			{
 				continue;
@@ -894,7 +894,7 @@ void state_two_append_mto1_one2m_option_data_list(
 			list_add_string_in_order(
 				option_data_list,
 				one2m_related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name );
 
 		} while( list_next( 
@@ -2276,7 +2276,7 @@ RELATED_FOLDER *state_four_get_root_related_folder(
 			if ( list_exists_string(
 				one2m_subquery_folder_name_list,
 				one2m_related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name ) )
 			{
 				return mto1_related_folder;

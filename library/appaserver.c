@@ -75,10 +75,10 @@ char *appaserver_get_delete_display_string(
 			buffer_pointer,
 			" (%s=%s)",
 			list_display( 
-			    related_folder_get_foreign_attribute_name_list(
+			    related_folder_foreign_attribute_name_list(
 				folder_get_primary_attribute_name_list(
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						attribute_list ),
 				related_folder->related_attribute_name,
 				related_folder->
@@ -115,7 +115,7 @@ LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
 						attribute_list );
 
 			foreign_attribute_name_list =
-			    related_folder_get_foreign_attribute_name_list(
+			    related_folder_foreign_attribute_name_list(
 				primary_attribute_name_list,
 			     	related_folder->related_attribute_name,
 				related_folder->
@@ -149,8 +149,7 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 	if ( list_reset( related_folder_list ) )
 	{
 		do {
-			related_folder = (RELATED_FOLDER *)
-					 list_get( related_folder_list );
+			related_folder = list_get( related_folder_list );
 
 			primary_attribute_name_list =
 				folder_get_primary_attribute_name_list(
@@ -159,7 +158,7 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 						attribute_list );
 
 			foreign_attribute_name_list =
-			    related_folder_get_foreign_attribute_name_list(
+			    related_folder_foreign_attribute_name_list(
 				primary_attribute_name_list,
 			     	related_folder->related_attribute_name,
 				related_folder->

@@ -465,7 +465,7 @@ int main( int argc, char **argv )
 		if ( list_equivalent_string_list(
 			primary_attribute_name_list,
 			related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				primary_attribute_name_list ) )
 		{
 			where_clause_data_list = primary_data_list;
@@ -685,6 +685,9 @@ void output_1tom_folder_detail(	int *form_number,
 	APPASERVER *appaserver;
 	boolean omit_insert_flag = 1;
 	LIST *non_edit_folder_name_list = {0};
+	DOCUMENT *document;
+	boolean local_omit_insert_flag;
+	boolean local_output_even_if_not_populated;
 
 	omit_insert_flag = 1 - OUTPUT_INSERT_BUTTON;
 
@@ -696,6 +699,16 @@ void output_1tom_folder_detail(	int *form_number,
 
 	if ( !appaserver->folder->append_isa_attribute_list )
 	{
+		appaserver->folder->mto1_isa_related_folder_list =
+			folder_mto1_isa_related_folder_list(
+				list_new(),
+				application_name,
+				appaserver->
+					folder->
+					folder_name,
+				role_name,
+				0 /* recursive_level */ );
+
 		appaserver->folder->append_isa_attribute_list =
 			folder_append_isa_attribute_list(
 				application_name,
@@ -703,13 +716,13 @@ void output_1tom_folder_detail(	int *form_number,
 				appaserver->
 					folder->
 					mto1_isa_related_folder_list,
-					role_name );
+				role_name );
 	}
 
 	if ( !appaserver->folder->one2m_related_folder_list )
 	{
 		appaserver->folder->one2m_related_folder_list =
-		   related_folder_get_1tom_related_folder_list(
+		   related_folder_1tom_related_folder_list(
 			appaserver->application_name,
 			appaserver->session,
 			appaserver->folder->folder_name,
@@ -724,94 +737,117 @@ void output_1tom_folder_detail(	int *form_number,
 			(char *)0 /* prior_related_attribute_name */ );
 	}
 
-	if ( list_reset( appaserver->folder->one2m_related_folder_list ) )
-	{
-		DOCUMENT *document;
-		boolean local_omit_insert_flag;
-		boolean local_output_even_if_not_populated;
+	if ( !list_rewind( appaserver->folder->one2m_related_folder_list ) )
+		return;
 
-		do {
-			related_folder =
-				list_get_pointer(
-					appaserver->folder->
-						one2m_related_folder_list );
+	do {
+		related_folder =
+			list_get_pointer(
+				appaserver->folder->
+					one2m_related_folder_list );
 
-			if ( !list_exists_string(
-				role_folder_insert_list,
-				related_folder->
-					one2m_related_folder->
-						folder_name )
-			&&   !list_exists_string(
-				role_folder_update_list,
-				related_folder->
-					one2m_related_folder->
-						folder_name )
-			&&   !list_exists_string(
-				role_folder_lookup_list,
-				related_folder->
-					one2m_related_folder->
-						folder_name ) )
-			{
-				continue;
-			}
+		if ( !list_exists_string(
+			role_folder_insert_list,
+			related_folder->
+				one2m_folder->
+					folder_name )
+		&&   !list_exists_string(
+			role_folder_update_list,
+			related_folder->
+				one2m_folder->
+					folder_name )
+		&&   !list_exists_string(
+			role_folder_lookup_list,
+			related_folder->
+				one2m_folder->
+					folder_name ) )
+		{
+			continue;
+		}
 
-			document = document_new( "", application_name );
+		document = document_new( "", application_name );
 
-			document_set_folder_javascript_files(
-						document,
-						application_name,
-						related_folder->
-							one2m_related_folder->
-								folder_name );
+		document_set_folder_javascript_files(
+			document,
+			application_name,
+			related_folder->
+				one2m_folder->
+					folder_name );
 
-			document_output_each_javascript_source(
-				application_name,
-				document->javascript_module_list,
-				appaserver_mount_point,
-				application_get_relative_source_directory(
-					application_name ) );
+		document_output_each_javascript_source(
+			application_name,
+			document->javascript_module_list,
+			appaserver_mount_point,
+			application_get_relative_source_directory(
+				application_name ) );
 
-			if ( related_folder->relation_type_isa )
-			{
-				local_output_even_if_not_populated = 0;
-				local_omit_insert_flag = 1;
-			}
-			else
-			{
-				local_output_even_if_not_populated =
-					output_even_if_not_populated;
-				local_omit_insert_flag = omit_insert_flag;
-			}
+		if ( related_folder->relation_type_isa )
+		{
+			local_output_even_if_not_populated = 0;
+			local_omit_insert_flag = 1;
+		}
+		else
+		{
+			local_output_even_if_not_populated =
+				output_even_if_not_populated;
+			local_omit_insert_flag = omit_insert_flag;
+		}
 
-			if ( !related_folder->
+		if ( !list_length(
+			related_folder->
+				one2m_folder->
+				append_isa_attribute_list ) )
+		{
+			related_folder->
+				one2m_folder->
+				mto1_isa_related_folder_list =
+				   folder_mto1_isa_related_folder_list(
+					list_new(),
+					application_name,
+					related_folder->
+						one2m_folder->
+						folder_name,
+					role_name,
+					0 /* recursive_level */ );
+
+			related_folder->
+				one2m_folder->
+				append_isa_attribute_list =
+				   folder_append_isa_attribute_list(
+					   application_name,
+					   related_folder->
+						one2m_folder->
+						folder_name,
+					related_folder->
+				   		one2m_folder->
+				   	mto1_isa_related_folder_list,
+					role_name );
+		}
+
+		if ( !list_length(
+			related_folder->
+				one2m_folder->
+				append_isa_attribute_list ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty append_isa_attribute_list.\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !related_folder->folder->mto1_related_folder_list )
+		{
+			related_folder->
 				folder->
-				append_isa_attribute_list )
-			{
-				related_folder->
-					folder->
-					attribute_list =
-					folder_append_isa_attribute_list(
-						application_name,
-						related_folder->
-							folder->
-							folder_name,
-						related_folder->
-						   folder->
-						   mto1_isa_related_folder_list,
-						role_name );
-			}
-
-			if ( !related_folder->folder->mto1_related_folder_list )
-			{
-				related_folder->
-					folder->
-					mto1_related_folder_list =
+				mto1_related_folder_list =
 				related_folder_get_mto1_related_folder_list(
 					(LIST *)0,
 					application_name,
 					session,
 					related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						folder_name,
 					role_name,
 					0 /* isa_flag */,
@@ -820,98 +856,63 @@ void output_1tom_folder_detail(	int *form_number,
 					(LIST *)0
 					/* root_primary_attribute_name_list */,
 					0 /* recursive_level */ );
-			}
+		}
 
-			if ( MAKE_LONG_DROP_DOWNS_NON_EDIT )
-			{
-			    non_edit_folder_name_list = list_new();
+		if ( MAKE_LONG_DROP_DOWNS_NON_EDIT )
+		{
+		    non_edit_folder_name_list = list_new();
 
-			    list_append_string_list(
+		    list_append_string_list(
 			       non_edit_folder_name_list,
 			       related_folder_get_mto1_multi_key_name_list(
 					related_folder->
 						folder->
 						mto1_related_folder_list ) );
-			}
+		}
 
+		related_folder->folder_foreign_attribute_name_list =
+			related_folder_foreign_attribute_name_list(
+			   folder_get_primary_attribute_name_list(
+				related_folder->
+					folder->
+					attribute_list ),
+			   related_folder->related_attribute_name,
+			   related_folder->
+				   folder_foreign_attribute_name_list );
+
+		output_folder_detail(
+			form_number,
+			appaserver->application_name,
+			session,
 			related_folder->
-				one2m_related_folder->
-				mto1_isa_related_folder_list =
-				folder_mto1_isa_related_folder_list(
-					list_new(),
-					application_name,
-					related_folder->
-						one2m_related_folder->
-						folder_name,
-					role_name,
-					0 /* recursive_level */ );
-
+				one2m_folder->
+				folder_name,
+			role_name,
+			target_frame,
 			related_folder->
-				one2m_related_folder->
-				append_isa_attribute_list =
-				folder_append_isa_attribute_list(
-					application_name,
-					related_folder->
-						one2m_related_folder->
-						folder_name,
-					related_folder->
-						one2m_related_folder->
-						mto1_isa_related_folder_list,
-					role_name );
+				one2m_folder->
+				append_isa_attribute_list,
+			related_folder->
+				folder_foreign_attribute_name_list
+				/* where_attribute_name_list */,
+			primary_data_list
+				/* where_data_list */,
+			login_name,
+			appaserver_data_directory,
+			0 /* dont remove_update_permission */,
+			base_folder_name,
+			local_omit_insert_flag,
+			0 /* dont omit_operation_buttons */,
+			related_folder->related_attribute_name,
+			local_output_even_if_not_populated,
+			dictionary_appaserver,
+			override_row_restrictions,
+			dont_omit_delete,
+			non_edit_folder_name_list,
+			0 /* not make_primary_keys_non_edit */ );
 
-			if ( !list_length(
-				related_folder->
-					one2m_related_folder->
-					append_isa_attribute_list ) )
-			{
-				fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty append_isa_attribute_list.\n",
-				 	__FILE__,
-				 	__FUNCTION__,
-				 	__LINE__ );
-				exit( 1 );
-			}
-
-			output_folder_detail(
-				form_number,
-				appaserver->application_name,
-				session,
-				related_folder->
-					one2m_related_folder->
-					folder_name,
-				role_name,
-				target_frame,
-				related_folder->
-					one2m_related_folder->
-					append_isa_attribute_list,
-				related_folder_get_foreign_attribute_name_list(
-				   folder_get_primary_attribute_name_list(
-					related_folder->
-						folder->
-						append_isa_attribute_list ),
-				   related_folder->related_attribute_name,
-				   related_folder->
-					   folder_foreign_attribute_name_list )
-					/* where_clause_attribute_name_list */,
-				primary_data_list
-					/* where_clause_data_list */,
-				login_name,
-				appaserver_data_directory,
-				0 /* dont remove_update_permission */,
-				base_folder_name,
-				local_omit_insert_flag,
-				0 /* dont omit_operation_buttons */,
-				related_folder->related_attribute_name,
-				local_output_even_if_not_populated,
-				dictionary_appaserver,
-				override_row_restrictions,
-				dont_omit_delete,
-				non_edit_folder_name_list,
-				0 /* not make_primary_keys_non_edit */ );
-
-		} while( list_next(
+	} while( list_next(
 			appaserver->folder->one2m_related_folder_list ) );
-	}
 
 } /* output_1tom_folder_detail() */
 
@@ -1077,7 +1078,7 @@ void output_mto1_folder_detail(	int *form_number,
 			primary_data_list =
 			   dictionary_using_list_get_index_data_list( 
 			      primary_dictionary,
-			      related_folder_get_foreign_attribute_name_list(
+			      related_folder_foreign_attribute_name_list(
 			         folder_get_primary_attribute_name_list(
 			            related_folder->
 					folder->

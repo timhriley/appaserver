@@ -57,7 +57,7 @@ enum related_folder_list_usage {	prompt_screen,
 typedef struct
 {
 	FOLDER *folder;
-	FOLDER *one2m_related_folder;
+	FOLDER *one2m_folder;
 	char *related_attribute_name;
 	boolean relation_type_isa;
 	int pair_1tom_order;
@@ -90,8 +90,8 @@ RELATED_FOLDER *related_folder_new(
 					char *folder_name,
 					char *related_attribute_name );
 
-LIST *related_folder_get_foreign_attribute_name_list(
-				LIST *related_attribute_name_list,
+LIST *related_folder_foreign_attribute_name_list(
+				LIST *primary_attribute_name_list,
 				char *related_attribute_name,
 				LIST *folder_foreign_attribute_name_list );
 
@@ -240,7 +240,7 @@ LIST *related_folder_get_edit_insert_element_list(
 LIST *related_folder_get_edit_lookup_element_list(
 					LIST *foreign_attribute_name_list );
 
-LIST *related_folder_get_1tom_related_folder_list(
+LIST *related_folder_1tom_related_folder_list(
 			char *application_name,
 			char *session,
 			char *folder_name,
