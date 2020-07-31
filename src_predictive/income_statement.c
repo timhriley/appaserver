@@ -138,6 +138,7 @@ int main( int argc, char **argv )
 	char sub_title[ 256 ];
 	boolean is_statement_of_activities;
 	char *logo_filename;
+	char *program_name = {0};
 /*
 	double shares_outstanding;
 */
@@ -152,7 +153,7 @@ int main( int argc, char **argv )
 	if ( argc < 6 )
 	{
 		fprintf( stderr,
-"Usage: %s process fund as_of_date subclassification_option output_medium [net_income_only_yn]\n",
+"Usage: %s process fund as_of_date subclassification_option output_medium [net_income_only_yn] [program_name]\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
@@ -181,10 +182,12 @@ int main( int argc, char **argv )
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
 
-	if ( argc == 7 )
+	if ( argc >= 7 )
 	{
 		net_income_only = (*argv[ 6 ] == 'y');
 	}
+
+	if ( argc >= 8 ) program_name = argv[ 7 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
