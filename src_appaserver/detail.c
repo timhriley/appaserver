@@ -482,6 +482,28 @@ int main( int argc, char **argv )
 				primary_data_list );
 		}
 
+		if ( !related_folder->folder->append_isa_attribute_list )
+		{
+			related_folder->folder->mto1_isa_related_folder_list =
+				folder_mto1_isa_related_folder_list(
+					list_new(),
+					application_name,
+					related_folder->
+						folder->
+						folder_name,
+					role_name,
+					0 /* recursive_level */ );
+
+			related_folder->folder->append_isa_attribute_list =
+				folder_append_isa_attribute_list(
+					application_name,
+					related_folder->folder->folder_name,
+					related_folder->
+						folder->
+						mto1_isa_related_folder_list,
+					role_name );
+		}
+
 		if ( !list_length( related_folder->
 					folder->
 					append_isa_attribute_list ) )
