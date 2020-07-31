@@ -2,6 +2,8 @@
 /* $APPASERVER_HOME/src_appaserver/detail.c				*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
+/* Note: this is also called from post_edit_table_form.			*/
+/* ---------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ---------------------------------------------------------------	*/
 
@@ -161,21 +163,54 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s session login_name folder role target_frame primary_data_bar_list dictionary\n",
+"Usage: %s application session login_name folder role target_frame primary_data_bar_list dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	session = argv[ 1 ];
-	login_name = argv[ 2 ];
-	base_folder_name = folder_name = argv[ 3 ];
-	role_name = argv[ 4 ];
-	target_frame = argv[ 5 ];
-	primary_data_list_string = argv[ 6 ];
-	original_post_dictionary = dictionary_string2dictionary( argv[ 7 ] );
+	application_name = argv[ 1 ];
+	session = argv[ 2 ];
+	login_name = argv[ 3 ];
+	base_folder_name = folder_name = argv[ 4 ];
+	role_name = argv[ 5 ];
+	target_frame = argv[ 6 ];
+	primary_data_list_string = argv[ 7 ];
+	original_post_dictionary = dictionary_string2dictionary( argv[ 8 ] );
+
+	if ( session_remote_ip_address_changed(
+		application_name,
+		session ) )
+	{
+		session_message_ip_address_changed_exit(
+				application_name,
+				login_name );
+	}
+
+	if ( !session_access_folder(
+				application_name,
+				session,
+				folder_name,
+				role_name,
+				"lookup" ) )
+	{
+		session_access_failed_message_and_exit(
+			application_name, session, login_name );
+	}
+
+	if ( !appaserver_user_exists_role(
+					application_name,
+					login_name,
+					role_name ) )
+	{
+		session_access_failed_message_and_exit(
+				application_name, session, login_name );
+	}
+
+	session_update_access_date_time( application_name, session );
+	appaserver_library_purge_temporary_files( application_name );
 
 	role = role_new_role(	application_name,
 				role_name );
