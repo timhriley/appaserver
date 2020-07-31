@@ -76,8 +76,7 @@ int session_access_folder(
 	}
 
 	return access_ok;
-
-} /* session_access_folder() */
+}
 
 int session_get_session_folder_access_ok(
 					char *application_name,
