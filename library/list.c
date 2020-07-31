@@ -2352,3 +2352,12 @@ char *list_integer_display(	LIST *integer_list,
 
 	return strdup( buffer );
 }
+
+LIST *list_string_new( char *string )
+{
+	LIST *l = list_new();
+
+	list_set( l, string );
+	return l;
+}
+

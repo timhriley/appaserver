@@ -635,7 +635,7 @@ char *google_map_get_balloon(	char *application_name,
 
 	if ( !balloon_attribute_name_list_string )
 	{
-		folder->folder_mto1_isa_related_folder_list =
+		folder->mto1_isa_related_folder_list =
 			folder_mto1_isa_related_folder_list(
 				list_new() /* existing_related_folder_list */,
 				application_name,
@@ -643,20 +643,20 @@ char *google_map_get_balloon(	char *application_name,
 				role_name,
 				0 /* recursive_level */ );
 
-		folder->folder_append_isa_attribute_list =
+		folder->append_isa_attribute_list =
 			folder_append_isa_attribute_list(
 				application_name,
 				folder_name,
-				folder->folder_mto1_isa_related_folder_list,
+				folder->mto1_isa_related_folder_list,
 				role_name );
 
-		folder->folder_append_isa_attribute_name_list =
+		folder->append_isa_attribute_name_list =
 			folder_append_isa_attribute_name_list(
-				folder->folder_append_isa_attribute_list );
+				folder->append_isa_attribute_list );
 	}
 	else
 	{
-		folder->folder_append_isa_attribute_name_list =
+		folder->append_isa_attribute_name_list =
 			list_string2list(
 				balloon_attribute_name_list_string,
 				',' );
@@ -666,13 +666,13 @@ char *google_map_get_balloon(	char *application_name,
 		google_map_get_no_display_attribute_name_list(
 			dictionary );
 
-	folder->folder_append_isa_attribute_name_list =
+	folder->append_isa_attribute_name_list =
 		list_subtract_list(
-			folder->folder_append_isa_attribute_name_list,
+			folder->append_isa_attribute_name_list,
 			no_display_attribute_name_list );
 
 	attribute_name_list =
-		folder->folder_append_isa_attribute_name_list;
+		folder->append_isa_attribute_name_list;
 
 	if ( !list_rewind( attribute_name_list ) ) return "";
 

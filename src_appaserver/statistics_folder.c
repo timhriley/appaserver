@@ -130,7 +130,7 @@ int main( int argc, char **argv )
 			role_name,
 			(LIST *)0 /* mto1_related_folder_list */ );
 
-	folder->folder_mto1_isa_related_folder_list =
+	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new_list(),
 			application_name,
@@ -149,7 +149,7 @@ int main( int argc, char **argv )
 			folder->application_name,
 			folder->folder_name,
 			(char *)0 /* attribute_name */,
-			folder->folder_mto1_isa_related_folder_list,
+			folder->mto1_isa_related_folder_list,
 			(char *)0 /* role_name */ );
 
 	lookup_before_drop_down =

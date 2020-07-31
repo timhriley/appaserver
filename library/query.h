@@ -184,7 +184,7 @@ QUERY_OUTPUT *query_output_new(	QUERY *query,
 				LIST *subquery_one2m_related_folder_list,
 				PROMPT_RECURSIVE *prompt_recursive );
 
-LIST *query_get_row_dictionary_list(
+LIST *query_row_dictionary_list(
 				char *application_name,
 				char *select_clause,
 				char *from_clause,
@@ -607,7 +607,8 @@ QUERY_OUTPUT *query_folder_output_new(
 				FOLDER *folder,
 				PROMPT_RECURSIVE *prompt_recursive,
 				LIST *where_attribute_name_list,
-				LIST *where_attribute_data_list );
+				LIST *where_attribute_data_list,
+				LIST *mto1_join_folder_list );
 
 void query_output_set_row_level_non_owner_forbid_join(
 				QUERY_OUTPUT *query_output,

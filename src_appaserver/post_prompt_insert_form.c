@@ -408,7 +408,7 @@ int main( int argc, char **argv )
 			insert_required_attribute_name_list );
 
 	one2m_related_folder_list = 
-		related_folder_get_1tom_related_folder_list(
+		related_folder_1tom_related_folder_list(
 			appaserver->application_name,
 			appaserver->session,
 			appaserver->folder->folder_name,

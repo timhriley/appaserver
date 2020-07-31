@@ -817,7 +817,7 @@ void state_two_append_one2m_option_data_list(
 			list_add_string_in_order(
 				option_data_list,
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name );
 
 		} while( list_next( one2m_recursive_related_folder_list ) );
@@ -866,8 +866,8 @@ void state_two_append_mto1_one2m_option_data_list(
 				related_one2m_recursive_related_folder_list );
 
 			if ( strcmp(	one2m_related_folder->
-						one2m_related_folder->
-						folder_name,
+						one2m_folder->
+					folder_name,
 					folder_name ) == 0 )
 			{
 				continue;
@@ -876,7 +876,7 @@ void state_two_append_mto1_one2m_option_data_list(
 			if ( !list_length(
 				attribute_get_non_primary_attribute_list(
 				one2m_related_folder->
-					one2m_related_folder->
+					one2m_folder->
 						attribute_list ) ) )
 			{
 				continue;
@@ -885,7 +885,7 @@ void state_two_append_mto1_one2m_option_data_list(
 			if ( list_exists_string(
 				option_data_list,
 				one2m_related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name ) )
 			{
 				continue;
@@ -894,7 +894,7 @@ void state_two_append_mto1_one2m_option_data_list(
 			list_add_string_in_order(
 				option_data_list,
 				one2m_related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name );
 
 		} while( list_next( 
@@ -1015,7 +1015,7 @@ void post_state_three(	char *application_name,
 
 	exclude_attribute_name_list =
 		appaserver_get_exclude_attribute_name_list(
-			folder->folder_append_isa_attribute_list,
+			folder->append_isa_attribute_list,
 			"lookup" );
 
 	form = form_new( FORM_NAME,
@@ -1040,7 +1040,7 @@ void post_state_three(	char *application_name,
 			session,
 			role_name,
 			folder_name,
-			folder->folder_append_isa_attribute_list,
+			folder->append_isa_attribute_list,
 			folder->mto1_append_isa_related_folder_list,
 			exclude_attribute_name_list,
 			FORM_NAME,
@@ -1074,7 +1074,7 @@ void post_state_three(	char *application_name,
 			onload_control_string,
 			attribute_exists_date_attribute(
 				folder->
-				folder_append_isa_attribute_list ) );
+				append_isa_attribute_list ) );
 
 	printf( "<h1>%s</h1>\n", process_title_initial_capital );
 
@@ -1295,7 +1295,7 @@ LIST *state_three_get_element_list(
 					role_name,
 					folder_name,
 					folder->
-					    folder_append_isa_attribute_list,
+					    append_isa_attribute_list,
 					folder->
 					mto1_append_isa_related_folder_list,
 					form_name,
@@ -1611,7 +1611,7 @@ void post_table_state_four(
 			application_name,
 			login_name,
 			folder_name,
-			folder->folder_append_isa_attribute_list,
+			folder->append_isa_attribute_list,
 			post_dictionary /* query_dictionary */,
 			(DICTIONARY *)0 /* sort_dictionary */,
 			role,
@@ -1641,9 +1641,9 @@ void post_table_state_four(
 		pipe2dictionary_list(	
 			input_sys_string, 
 	 		attribute_get_lookup_allowed_attribute_name_list(
-				folder->folder_append_isa_attribute_list ),
+				folder->append_isa_attribute_list ),
 	 		attribute_get_date_attribute_name_list(
-				folder->folder_append_isa_attribute_list ),
+				folder->append_isa_attribute_list ),
 			FOLDER_DATA_DELIMITER,
 			application_name,
 			login_name );
@@ -1661,8 +1661,8 @@ void post_table_state_four(
 			application_name,
 			folder_name,
 			attribute_get_attribute_name_list(
-				folder->folder_append_isa_attribute_list ),
-			folder->folder_append_isa_attribute_list,
+				folder->append_isa_attribute_list ),
+			folder->append_isa_attribute_list,
 			operation_list_structure->operation_list );
 
 	form_set_post_process( form, "post_edit_table_form" );
@@ -1837,7 +1837,7 @@ void post_statistics_state_four(
 			application_name,
 			login_name,
 			folder_name,
-			folder->folder_append_isa_attribute_list,
+			folder->append_isa_attribute_list,
 			post_dictionary /* query_dictionary */,
 			(DICTIONARY *)0 /* sort_dictionary */,
 			role,
@@ -2104,7 +2104,7 @@ void post_spreadsheet_state_four(
 			application_name,
 			login_name,
 			folder_name,
-			folder->folder_append_isa_attribute_list,
+			folder->append_isa_attribute_list,
 			post_dictionary /* query_dictionary */,
 			(DICTIONARY *)0 /* sort_dictionary */,
 			role,
@@ -2174,16 +2174,16 @@ void post_spreadsheet_state_four(
 		pipe2dictionary_list(	
 			input_sys_string, 
 	 		attribute_get_lookup_allowed_attribute_name_list(
-				folder->folder_append_isa_attribute_list ),
+				folder->append_isa_attribute_list ),
 	 		attribute_get_date_attribute_name_list(
-				folder->folder_append_isa_attribute_list ),
+				folder->append_isa_attribute_list ),
 			FOLDER_DATA_DELIMITER,
 			application_name,
 			login_name );
 
 	append_isa_attribute_name_list =
 		attribute_get_lookup_allowed_attribute_name_list(
-			folder->folder_append_isa_attribute_list );
+			folder->append_isa_attribute_list );
 
 	dictionary_list_output_to_file(
 		output_filename,
@@ -2276,7 +2276,7 @@ RELATED_FOLDER *state_four_get_root_related_folder(
 			if ( list_exists_string(
 				one2m_subquery_folder_name_list,
 				one2m_related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name ) )
 			{
 				return mto1_related_folder;

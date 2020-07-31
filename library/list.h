@@ -407,4 +407,6 @@ char *list_integer_display(	LIST *integer_list,
 
 void list_linktype_free(	struct LINKTYPE *linktype );
 
+LIST *list_string_new(		char *string );
+
 #endif

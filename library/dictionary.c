@@ -1382,6 +1382,12 @@ LIST *dictionary_using_list_get_index_data_list(
 						0 );
 		}
 
+		if ( results == -1 )
+		{
+			if ( ! ( data = dictionary_get( dictionary, key ) ) )
+				results = -1;
+		}
+
 		if ( results != -1 )
 			list_append_pointer( list, trim( data ) );
 		else
@@ -1389,7 +1395,7 @@ LIST *dictionary_using_list_get_index_data_list(
 
 	} while( list_next( key_list ) );
 	return list;
-} /* dictionary_using_list_get_index_data_list() */
+}
 
 DICTIONARY *dictionary_copy_dictionary( DICTIONARY *dictionary )
 {

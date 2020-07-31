@@ -345,7 +345,7 @@ void output_related_folder(
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	foreign_attribute_name_list =
-		related_folder_get_foreign_attribute_name_list(
+		related_folder_foreign_attribute_name_list(
 		   	folder_get_primary_attribute_name_list(
 				related_folder->folder->
 					attribute_list ),

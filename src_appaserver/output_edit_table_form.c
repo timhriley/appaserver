@@ -159,7 +159,7 @@ int main( int argc, char **argv )
 			(LIST *)0 /* root_primary_attribute_name_list */,
 			0 /* recursive_level */ );
 
-	folder->folder_mto1_isa_related_folder_list =
+	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
 			list_new(),
 			application_name,
@@ -173,7 +173,7 @@ int main( int argc, char **argv )
 			(LIST *)0 /* root_primary_attribute_name_list */,
 			0 /* recursive_level */ );
 
-	if ( list_length( folder->folder_mto1_isa_related_folder_list ) )
+	if ( list_length( folder->mto1_isa_related_folder_list ) )
 	{
 		make_primary_keys_non_edit = 1;
 	}
@@ -183,7 +183,7 @@ int main( int argc, char **argv )
 			folder->application_name,
 			folder->folder_name,
 			(char *)0 /* attribute_name */,
-			folder->folder_mto1_isa_related_folder_list,
+			folder->mto1_isa_related_folder_list,
 			role_name );
 
 	folder_load(	&folder->insert_rows_number,
@@ -249,7 +249,7 @@ int main( int argc, char **argv )
 	}
 
 	folder->one2m_related_folder_list =
-		related_folder_get_1tom_related_folder_list(
+		related_folder_1tom_related_folder_list(
 			application_name,
 			BOGUS_SESSION,
 			folder->folder_name,
@@ -606,6 +606,7 @@ int main( int argc, char **argv )
 	row_security->select_folder->join_1tom_related_folder_list =
 		folder->join_1tom_related_folder_list;
 
+
 	row_security->row_security_element_list_structure =
 		row_security_element_list_structure_new(
 			application_name,
@@ -628,13 +629,15 @@ int main( int argc, char **argv )
 			omit_delete_dont_care,
 			0 /* omit_operation_buttons */,
 			role_folder->update_yn,
-			0 /* not ajax_fill_drop_down_omit */ );
+			0 /* not ajax_fill_drop_down_omit */,
+			row_security->
+				select_folder->
+				append_isa_attribute_list );
 
 	form->regular_element_list =
 		row_security->
 			row_security_element_list_structure->
 			regular_element_list;
-
 /*
 {
 char msg[ 65536 ];
@@ -646,6 +649,7 @@ element_list_display( form->regular_element_list ) );
 m2( application_name, msg );
 }
 */
+
 	form->viewonly_element_list =
 		row_security->
 			row_security_element_list_structure->
@@ -671,7 +675,7 @@ m2( application_name, msg );
 				folder->
 				folder_name /* one2m_folder */,
 			 ajax_fill_drop_down_related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				folder_name /* mto1_folder */,
 			 list_display(
 				ajax_fill_drop_down_related_folder->
@@ -845,7 +849,7 @@ LIST *subtract_join_1tom_ignore_dictionary_related_folder_list(
 			sprintf( key,
 				 "%s_0",
 				 related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name );
 
 			if ( !dictionary_key_exists(

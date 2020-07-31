@@ -20,7 +20,7 @@
 /* --------- */
 #define MAX_BUFFER		4096
 #define DEFAULT_DELIMITER	"|"
-#define IGNORE_CLAUSE		"ignore"
+/* #define IGNORE_CLAUSE		"ignore" */
 
 /* Prototypes */
 /* ---------- */
@@ -96,7 +96,11 @@ void output_delete_stmts( 	char *table_name,
 		fix_any_quotes( buffer );
 		escape_dollar_signs( buffer );
 
+#ifdef IGNORE_CLAUSE
 		printf( "delete %s from %s", IGNORE_CLAUSE, table_name );
+#else
+		printf( "delete from %s", table_name );
+#endif
 
 		printf( " where 1 = 1" );
 		output_row( buffer, field_names, delimiter );

@@ -86,9 +86,9 @@ typedef struct
 	LIST *attribute_name_list;
 	LIST *join_1tom_related_folder_list;
 	char *create_view_statement;
-	LIST *folder_mto1_isa_related_folder_list;
-	LIST *folder_append_isa_attribute_list;
-	LIST *folder_append_isa_attribute_name_list;
+	LIST *mto1_isa_related_folder_list;
+	LIST *append_isa_attribute_list;
+	LIST *append_isa_attribute_name_list;
 } FOLDER;
 
 /* Operations */
@@ -197,7 +197,7 @@ int folder_get_insert_rows_number(	char *session,
 					FOLDER *folder );
 
 LIST *folder_append_isa_attribute_name_list(
-				LIST *folder_append_isa_attribute_list );
+				LIST *append_isa_attribute_list );
 
 LIST *folder_attribute_name_list(
 				LIST *attribute_list );

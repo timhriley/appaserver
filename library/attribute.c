@@ -949,8 +949,7 @@ LIST *attribute_get_common_non_primary_attribute_name_list(
 				related_folder_name );
 
 	return return_list;
-
-} /* attribute_get_common_non_primary_attribute_name_list() */
+}
 
 LIST *attribute_get_histogram_attribute_name_list( LIST *attribute_list )
 {
@@ -980,7 +979,7 @@ LIST *attribute_get_histogram_attribute_name_list( LIST *attribute_list )
 		} while( list_next( attribute_list ) );
 	}
 	return histogram_attribute_name_list;
-} /* attribute_get_histogram_attribute_name_list() */
+}
 
 LIST *attribute_get_time_chart_attribute_name_list( LIST *attribute_list )
 {
@@ -1010,7 +1009,7 @@ LIST *attribute_get_time_chart_attribute_name_list( LIST *attribute_list )
 		} while( list_next( attribute_list ) );
 	}
 	return time_chart_attribute_name_list;
-} /* attribute_get_time_chart_attribute_name_list() */
+}
 
 LIST *attribute_get_date_attribute_position_list(
 					LIST *attribute_list )
@@ -1079,37 +1078,44 @@ LIST *attribute_get_lookup_allowed_attribute_name_list( LIST *attribute_list )
 	} while( list_next( attribute_list ) );
 
 	return attribute_name_list;
+}
 
-} /* attribute_get_lookup_allowed_attribute_name_list() */
-
-LIST *attribute_name_list( LIST *attribute_list )
+LIST *attribute_name_list(	LIST *attribute_list,
+				char *folder_name )
 {
 	ATTRIBUTE *attribute;
 	LIST *attribute_name_list;
 
+	if ( !list_rewind( attribute_list ) ) return (LIST *)0;
+
 	attribute_name_list = list_new();
 
-	if ( list_rewind( attribute_list ) )
-	{
-		do {
-			attribute = list_get_pointer( attribute_list );
+	do {
+		attribute = list_get_pointer( attribute_list );
 
-			list_append_pointer(
-					attribute_name_list,
-					attribute->attribute_name );
-		} while( list_next( attribute_list ) );
-	}
+		if ( folder_name
+		&&   strcmp( folder_name, attribute->folder_name ) != 0 )
+		{
+			continue;
+		}
+
+		list_append_pointer(
+			attribute_name_list,
+			attribute->attribute_name );
+
+	} while( list_next( attribute_list ) );
+
 	return attribute_name_list;
 }
 
 LIST *attribute_get_name_list( LIST *attribute_list )
 {
-	return attribute_name_list( attribute_list );
+	return attribute_name_list( attribute_list, (char *)0 );
 }
 
 LIST *attribute_get_attribute_name_list( LIST *attribute_list )
 {
-	return attribute_name_list( attribute_list );
+	return attribute_name_list( attribute_list, (char *)0 );
 }
 
 LIST *attribute_get_date_attribute_name_list( LIST *attribute_list )
@@ -2177,3 +2183,27 @@ boolean attribute_record_parse(
 	return 1;
 
 } /* attribute_record_parse() */
+
+LIST *attribute_distinct_folder_name_list( LIST *attribute_list )
+{
+	ATTRIBUTE *attribute;
+	LIST *distinct_folder_name_list = list_new();
+
+	if ( list_rewind( attribute_list ) )
+	{
+		do {
+			attribute = list_get( attribute_list );
+
+			if ( attribute->folder_name )
+			{
+				list_append_unique_string(
+					distinct_folder_name_list,
+					attribute->folder_name );
+			}
+		
+		} while( list_next( attribute_list ) );
+	}
+
+	return distinct_folder_name_list;
+}
+

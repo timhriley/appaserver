@@ -125,7 +125,7 @@ boolean operation_perform(
 
 	folder = folder_calloc();
 
-	folder->folder_mto1_isa_related_folder_list =
+	folder->mto1_isa_related_folder_list =
 		folder_mto1_isa_related_folder_list(
 			list_new() /* recursive */,
 			application_name,
@@ -133,16 +133,16 @@ boolean operation_perform(
 			role_name,
 			0 /* recursive_level */ );
 
-	folder->folder_append_isa_attribute_list =
+	folder->append_isa_attribute_list =
 		folder_append_isa_attribute_list(
 			application_name,
 			folder_name,
-			folder->folder_mto1_isa_related_folder_list,
+			folder->mto1_isa_related_folder_list,
 			role_name );
 
-	folder->folder_append_isa_attribute_name_list =
+	folder->append_isa_attribute_name_list =
 		folder_append_isa_attribute_name_list(
-			folder->folder_append_isa_attribute_list );
+			folder->append_isa_attribute_list );
 
 	highest_index = get_dictionary_key_highest_index( row_dictionary );
 
@@ -263,7 +263,7 @@ boolean operation_perform(
 				dictionary_appaserver_get_row_dictionary_row(
 					row_dictionary,
 					folder->
-					folder_append_isa_attribute_name_list,
+					append_isa_attribute_name_list,
 					row );
 
 			dictionary_append_dictionary(
@@ -292,7 +292,7 @@ boolean operation_perform(
 					/* parameter_dictionary */,
 				local_send_dictionary
 					/* where_clause_dictionary */,
-				folder->folder_append_isa_attribute_list,
+				folder->append_isa_attribute_list,
 				primary_attribute_name_list,
 				primary_data_list,
 				row,

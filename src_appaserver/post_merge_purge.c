@@ -231,7 +231,7 @@ int main( int argc, char **argv )
 					application_name ) );
 
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		fflush( stdout );
 		printf( "</ul>\n" );
 	}
@@ -645,7 +645,7 @@ void output_test_only_report(
 				folder->one2m_recursive_related_folder_list );
 
 		where_attribute_name_list =
-			related_folder_get_foreign_attribute_name_list( 
+			related_folder_foreign_attribute_name_list( 
 				folder->primary_attribute_name_list,
 				related_folder->
 					related_attribute_name,
@@ -694,11 +694,11 @@ void update_database_related_folder(
 
 	primary_attribute_name_list =
 		folder_get_primary_attribute_name_list(
-			related_folder->one2m_related_folder->attribute_list );
+			related_folder->one2m_folder->attribute_list );
 
 	table_name = get_table_name(
 			application_name,
-			related_folder->one2m_related_folder->folder_name );
+			related_folder->one2m_folder->folder_name );
 
 	if ( DEBUG_MODE )
 		executable = "cat";
@@ -716,7 +716,7 @@ void update_database_related_folder(
 	output_pipe = popen( sys_string, "w" );
 
 	where = query_get_simple_where_clause(
-			related_folder->one2m_related_folder,
+			related_folder->one2m_folder,
 			where_attribute_name_list,
 			purge_data_list,
 			(char *)0 /* login_name */ );
@@ -729,7 +729,7 @@ void update_database_related_folder(
 		 "			order=select			",
 		 application_name,
 		 list_display_delimited( primary_attribute_name_list, ',' ),
-		 related_folder->one2m_related_folder->folder_name,
+		 related_folder->one2m_folder->folder_name,
 		 where );
 
 	input_pipe = popen( sys_string, "r" );
@@ -784,7 +784,7 @@ void output_test_only_related_folder(
 
 	attribute_name_list =
 		folder_get_attribute_name_list(
-			related_folder->one2m_related_folder->attribute_list );
+			related_folder->one2m_folder->attribute_list );
 
 	sprintf( sys_string,
 		 "queue_top_bottom_lines.e %d	|"
@@ -792,14 +792,14 @@ void output_test_only_related_folder(
 		 TABLE_LINES_TO_QUEUE,
 		 format_initial_capital(
 			buffer,
-			related_folder->one2m_related_folder->folder_name ),
+			related_folder->one2m_folder->folder_name ),
 		 list_display_delimited( attribute_name_list, ',' ),
 		 FOLDER_DATA_DELIMITER );
 
 	output_pipe = popen( sys_string, "w" );
 
 	where = query_get_simple_where_clause(
-			related_folder->one2m_related_folder,
+			related_folder->one2m_folder,
 			where_attribute_name_list,
 			purge_data_list,
 			(char *)0 /* login_name */ );
@@ -812,7 +812,7 @@ void output_test_only_related_folder(
 		 "			order=select			",
 		 application_name,
 		 list_display_delimited( attribute_name_list, ',' ),
-		 related_folder->one2m_related_folder->folder_name,
+		 related_folder->one2m_folder->folder_name,
 		 where );
 
 	input_pipe = popen( sys_string, "r" );
@@ -869,7 +869,7 @@ void output_update_database(
 				folder->one2m_recursive_related_folder_list );
 
 		where_attribute_name_list =
-			related_folder_get_foreign_attribute_name_list( 
+			related_folder_foreign_attribute_name_list( 
 				folder->primary_attribute_name_list,
 				related_folder->
 					related_attribute_name,
@@ -929,7 +929,7 @@ void output_delete_database(
 				folder->one2m_recursive_related_folder_list );
 
 		where_attribute_name_list =
-			related_folder_get_foreign_attribute_name_list( 
+			related_folder_foreign_attribute_name_list( 
 				folder->primary_attribute_name_list,
 				related_folder->
 					related_attribute_name,
@@ -940,7 +940,7 @@ void output_delete_database(
 			get_table_name(
 				application_name,
 			 	related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name );
 
 		sprintf( sys_string,
@@ -953,12 +953,12 @@ void output_delete_database(
 			 MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 			 executable );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		folder_menu_refresh_row_count(
 			application_name,
 				related_folder->
-				one2m_related_folder->
+				one2m_folder->
 				folder_name,
 			session,
 			appaserver_data_directory,
@@ -983,7 +983,7 @@ void output_delete_database(
 		 MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 		 executable );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	folder_menu_refresh_row_count(
 		application_name,

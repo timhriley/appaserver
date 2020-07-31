@@ -1257,7 +1257,7 @@ void process_operation_convert(
 			char *target_frame,
 			DICTIONARY *parameter_dictionary,
 			DICTIONARY *where_clause_dictionary,
-			LIST *folder_append_isa_attribute_list,
+			LIST *append_isa_attribute_list,
 			LIST *primary_attribute_name_list,
 			LIST *primary_data_list,
 			int row,
@@ -1297,7 +1297,7 @@ void process_operation_convert(
 
 		attribute_set_dictionary_date_international(
 			local_parameter_dictionary,
-			folder_append_isa_attribute_list );
+			append_isa_attribute_list );
 
 		if ( operation_row_count_string )
 		{
@@ -1400,7 +1400,8 @@ void process_operation_convert(
 		local_executable, 
 		( local_attribute_name_list =
 			attribute_name_list(
-				folder_append_isa_attribute_list ) ),
+				append_isa_attribute_list,
+				(char *)0 ) ),
 		local_parameter_dictionary,
 		0, 	                  /* dictionary_key_offset */
 		QUERY_FROM_STARTING_LABEL,/* dictionary_key_prepend */
@@ -1460,7 +1461,7 @@ void process_operation_convert(
 			local_executable,
 			application_name,
 			folder_name,
-			folder_append_isa_attribute_list,
+			append_isa_attribute_list,
 			where_clause_dictionary );
 	}
 

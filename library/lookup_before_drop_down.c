@@ -183,7 +183,7 @@ LIST *lookup_before_drop_down_get_folder_list(
 		omit_insert_attribute_name_list =
 			attribute_get_omit_insert_attribute_name_list(
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					attribute_list );
 
 		if ( timlib_strcmp( state, "insert" ) == 0
@@ -209,7 +209,7 @@ LIST *lookup_before_drop_down_get_folder_list(
 		omit_update_attribute_name_list =
 			attribute_get_omit_update_attribute_name_list(
 				related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					attribute_list );
 
 		if ( list_length( omit_update_attribute_name_list ) )
@@ -948,7 +948,7 @@ char *lookup_before_drop_down_get_insert_pair_base_folder_name(
 				application_name,
 				(char *)0 /* session */,
 				pair_related_folder->
-					one2m_related_folder->
+					one2m_folder->
 					folder_name,
 				(char *)0 /* role_name */,
 				0 /* isa_flag */,
@@ -970,7 +970,7 @@ char *lookup_before_drop_down_get_insert_pair_base_folder_name(
 			&&   related_folder->folder->lookup_before_drop_down )
 			{
 				return	pair_related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						folder_name;
 			}
 

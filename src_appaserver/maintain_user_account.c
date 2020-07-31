@@ -348,24 +348,24 @@ int main( int argc, char **argv )
 			(LIST *)0 );
 
 	attribute_list_remove_exclude_permission_list(
-		query->folder->folder_append_isa_attribute_list );
+		query->folder->append_isa_attribute_list );
 
 	query->query_output->select_clause =
 		list_display(
 			attribute_get_attribute_name_list(
 				query->
 					folder->
-					folder_append_isa_attribute_list ) );
+					append_isa_attribute_list ) );
 
 	row_dictionary_list =
-		query_get_row_dictionary_list(
+		query_row_dictionary_list(
 			query->folder->application_name,
 			query->query_output->select_clause,
 			query->query_output->from_clause,
 			query->query_output->where_clause,
 			query->query_output->order_clause,
 			query->max_rows,
-			query->folder->folder_append_isa_attribute_list,
+			query->folder->append_isa_attribute_list,
 			query->login_name );
 
 	row_dictionary_list_length =

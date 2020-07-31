@@ -207,14 +207,14 @@ int main( int argc, char **argv )
 						database_management_system );
 
 	row_dictionary_list =
-		query_get_row_dictionary_list(
+		query_row_dictionary_list(
 				query->folder->application_name,
 				query->query_output->select_clause,
 				query->query_output->from_clause,
 				query->query_output->where_clause,
 				query->query_output->order_clause,
 				10000 /* query->max_rows */,
-				query->folder->folder_append_isa_attribute_list,
+				query->folder->append_isa_attribute_list,
 				query->login_name );
 
 	form = form_new( FORM_NAME, FORM_TITLE );

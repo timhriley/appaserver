@@ -878,6 +878,7 @@ char *element_get_heading(
 	if ( e->element_type == text_item
 	||   e->element_type == element_date
 	||   e->element_type == element_current_date
+	||   e->element_type == element_current_date_time
 	||   e->element_type == element_date_time )
 	{
 		return element_text_item_get_heading(
@@ -3966,7 +3967,7 @@ void element_list_set_omit_heading_sort_button(
 					join_1tom_related_folder_list );
 
 			if ( strcmp(	related_folder->
-						one2m_related_folder->
+						one2m_folder->
 						folder_name,
 					element->name ) == 0 )
 			{
