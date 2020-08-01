@@ -731,8 +731,25 @@ LIST *update_database_get_where_attribute_list(
 			exit( 1 );
 		}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: where_attribute_name = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+where_attribute_name );
+m2( "tnt", msg );
+}
 		data = (char *)0;
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( "tnt", msg );
+}
 		/* First, check for the last foreign_attribute_name */
 		/* ------------------------------------------------ */
 		if ( ( alternative_attribute_name =
@@ -743,38 +760,67 @@ LIST *update_database_get_where_attribute_list(
 		&&     strcmp(	alternative_attribute_name,
 				NULL_STRING ) != 0 )
 		{
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: looking for [%s] in row %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+alternative_attribute_name,
+row );
+m2( "tnt", msg );
+}
 			dictionary_get_index_data(
 				&data,
 				file_dictionary,
 				alternative_attribute_name,
 				row );
 
+#ifdef NOT_DEFINED
 			if ( !data || !*data )
 			{
 				char message[ 1024 ];
 
 				sprintf( message,
-"ERROR in %s/%s()/%d: with folder_name = (%s), cannot find data for alternative_attribute_name = (%s) in file_dictionary = (%s).",
+"ERROR in %s/%s()/%d: with folder_name = (%s), cannot find data for alternative_attribute_name = [%s].",
 				 	__FILE__,
 				 	__FUNCTION__,
 				 	__LINE__,
 					folder_name,
-					alternative_attribute_name,
-					dictionary_display(
-					       file_dictionary ) );
+					alternative_attribute_name );
 
 				appaserver_output_error_message(
 					application_name,
 					message,
 					(char *)0 /* login_name */ );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: file_dictionary = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display( file_dictionary ) );
+m2( "tnt", msg );
+}
 				exit( 0 );
 			}
+#endif
 
 		}
 
 		if ( !data || !*data )
 		{
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: looking for [%s] in row %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+where_attribute_name,
+row );
+m2( "tnt", msg );
+}
 			dictionary_get_index_data(
 					&data,
 					file_dictionary,
@@ -796,8 +842,7 @@ LIST *update_database_get_where_attribute_list(
 	} while( list_next( where_attribute_name_list ) );
 
 	return where_attribute_list;
-
-} /* update_database_get_where_attribute_list() */
+}
 
 LIST *update_database_get_folder_foreign_changed_attribute_list(
 			DICTIONARY *row_dictionary,

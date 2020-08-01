@@ -650,13 +650,6 @@ DICTIONARY *dictionary_string2dictionary( char *dictionary_string )
 		piece( pair_string, pair_delimiter, dictionary_string, i );
 		i++ )
         {
-
-fprintf( stderr, "%s/%s()/%d: pair_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-pair_string );
-
                 piece( attribute, delimiter, pair_string, 0 );
 
                 if ( piece( data, delimiter, pair_string, 1 ) )
