@@ -538,13 +538,11 @@ UPDATE_FOLDER *update_database_get_update_folder(
 			update_folder->primary_attribute_name_list;
 
 	update_folder->where_attribute_list =
-		update_database_get_where_attribute_list(
+		update_database_where_attribute_list(
 			file_dictionary,
 			where_attribute_name_list,
 			row,
-			foreign_attribute_dictionary,
-			folder->application_name,
-			folder->folder_name );
+			foreign_attribute_dictionary );
 
 	return update_folder;
 
@@ -680,13 +678,11 @@ LIST *update_database_get_folder_foreign_where_attribute_list(
 
 } /* update_database_get_folder_foreign_where_attribute_list() */
 
-LIST *update_database_get_where_attribute_list(
+LIST *update_database_where_attribute_list(
 			DICTIONARY *file_dictionary,
 			LIST *where_attribute_name_list,
 			int row,
-			DICTIONARY *foreign_attribute_dictionary,
-			char *application_name,
-			char *folder_name )
+			DICTIONARY *foreign_attribute_dictionary )
 {
 	char *where_attribute_name;
 	char *data;

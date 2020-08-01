@@ -183,13 +183,11 @@ boolean update_database_get_index_data_if_changed(
 			char *attribute_name, 
 			int row );
 
-LIST *update_database_get_where_attribute_list(
+LIST *update_database_where_attribute_list(
 			DICTIONARY *file_dictionary,
 			LIST *attribute_list,
 			int row,
-			DICTIONARY *foreign_attribute_dictionary,
-			char *application_name,
-			char *folder_name );
+			DICTIONARY *foreign_attribute_dictionary );
 
 void update_database_execute_for_row(
 			char *error_messages,
