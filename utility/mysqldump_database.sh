@@ -17,7 +17,7 @@ appaserver_config=/etc/appaserver.config
 mysqluser=root
 mysql_password_file=/tmp/mysql_password_file_$$.dat
 
-echo "$0 starting at `date.e 0`"
+echo "`basename.e $0 n` `basename.e $1 n` Beg at `date.e 0`"
 
 # Returns $results
 # ----------------
@@ -140,6 +140,6 @@ mysqldump_archive_grandfather_father_son.sh $parameter_file $date_yyyy_mm_dd
 mysqldump_offsite_rsync.sh $database $parameter_file
 mysqldump_offsite_scp.sh $parameter_file $date_yyyy_mm_dd
 
-echo "$0 ending at   `date.e 0`"
+echo "`basename.e $0 n` `basename.e $* n` End at `date.e 0`"
 
 exit 0
