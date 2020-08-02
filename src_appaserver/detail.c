@@ -1443,7 +1443,6 @@ DICTIONARY *output_folder_detail(
 					"update",
 					login_name,
 					application_name,
-					(char *)0 /* database_string */,
 					session,
 					folder_name,
 					role_name );
@@ -1481,7 +1480,6 @@ DICTIONARY *output_folder_detail(
 	form_output_heading(
 		form->login_name,
 		form->application_name,
-		form->database_string,
 		form->session,
 		folder_name /* form_name */,
 		form->post_process,

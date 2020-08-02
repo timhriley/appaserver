@@ -200,7 +200,6 @@ int main( int argc, char **argv )
 					(char *)0 /* state */,
 					login_name,
 					application_name,
-					(char *)0 /* database_string */,
 					session,
 					process_name,
 					role_name );
@@ -452,7 +451,6 @@ int main( int argc, char **argv )
 	form_output_heading(
 		form->login_name,
 		form->application_name,
-		form->database_string,
 		form->session,
 		form->form_name,
 		form->post_process,
@@ -1036,7 +1034,7 @@ LIST *get_hidden_preprompt_element_list(
 	char *key;
 	char *data;
 	char element_name[ 128 ];
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	LIST *element_list;
 	int str_len;
 

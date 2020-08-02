@@ -57,7 +57,6 @@ void form_set_folder_parameters(FORM *form,
 				char *state,
 				char *login_name,
 				char *application_name,
-				char *database_string,
 				char *session,
 				char *folder_name,
 				char *role_name )
@@ -65,12 +64,11 @@ void form_set_folder_parameters(FORM *form,
 	form->state = state;
 	form->login_name = login_name;
 	form->application_name = application_name;
-	form->database_string = database_string;
 	form->session = session;
 	form->folder_name = folder_name;
 	form->role_name = role_name;
 	form->drop_down_number_columns = 2;
-} /* form_set_folder_parameters() */
+}
 
 void form_set_output_pairs( FORM *form )
 {
@@ -189,7 +187,6 @@ target_frame = "";
 void form_output_heading(
 			char *login_name,
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *form_name,
 			char *post_process,
@@ -440,7 +437,7 @@ void form_output_trailer_post_change_javascript(
 
 	if ( output_insert_button )
 	{
-		ELEMENT *element;
+		APPASERVER_ELEMENT *element;
 
 		element = element_new( linebreak, "" );
 		element_output(	
@@ -518,8 +515,8 @@ void form_output_row( 		int *form_current_reference_number,
 				char *background_color,
 				char *appaserver_user_foreign_login_name )
 {
-	ELEMENT *element;
-	ELEMENT *non_edit_element;
+	APPASERVER_ELEMENT *element;
+	APPASERVER_ELEMENT *non_edit_element;
 	char current_value[ 4096 ];
 	char *dictionary_login_name = {0};
 	boolean set_data_flag;
@@ -636,7 +633,7 @@ void form_output_sort_buttons(	FILE *output_file,
 				LIST *element_list,
 				char *form_name )
 {
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	ELEMENT_TOGGLE_BUTTON *element_toggle_button;
 	char toggle_button_name[ 512 ];
 	LIST *sort_button_type_list = list_new();
@@ -732,7 +729,7 @@ void form_output_sort_buttons(	FILE *output_file,
 void form_output_table_heading(	LIST *element_list,
 				int form_number )
 {
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char buffer[ 1024 ];
 	char *heading;
 	char *toggle_button_set_all_control_string;
@@ -790,7 +787,7 @@ void form_output_table_heading(	LIST *element_list,
 
 } /* form_output_table_heading() */
 
-void form_output_prompt( ELEMENT *element )
+void form_output_prompt( APPASERVER_ELEMENT *element )
 {
 	char buffer[ 512 ];
 	printf( "<td>%s", 
@@ -856,7 +853,7 @@ LIST *form_get_hydrology_validation_element_list(
 	LIST *return_list;
 	ATTRIBUTE *attribute;
 	char *attribute_name;
-	ELEMENT *element = {0};
+	APPASERVER_ELEMENT *element = {0};
 
 	return_list = list_new();
 
@@ -924,7 +921,7 @@ LIST *form_get_hydrology_validation_element_list(
 						element->name );
 				list_append( 	return_list, 
 						element, 
-						sizeof( ELEMENT ) );
+						sizeof( APPASERVER_ELEMENT ) );
 
 				element = element_new( 	hidden,
 							attribute->
@@ -933,7 +930,7 @@ LIST *form_get_hydrology_validation_element_list(
 
 			list_append( 	return_list, 
 					element, 
-					sizeof( ELEMENT ) );
+					sizeof( APPASERVER_ELEMENT ) );
 
 		} while( list_next( attribute_name_list ) );
 	return return_list;
@@ -1210,7 +1207,7 @@ LIST *form_dictionary2hidden_element_list( DICTIONARY *dictionary )
 	LIST *element_list;
 	LIST *key_list;
 	char *key, *data;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 
 	element_list = list_new();
 	key_list = dictionary_get_key_list( dictionary );
@@ -1224,7 +1221,7 @@ LIST *form_dictionary2hidden_element_list( DICTIONARY *dictionary )
 			element_set_data( element, data );
 			list_append( 	element_list,
 					element,
-					sizeof( ELEMENT ) );
+					sizeof( APPASERVER_ELEMENT ) );
 		} while( list_next( key_list ) );
 	}
 	return element_list;
@@ -1515,7 +1512,7 @@ void form_set_new_button_onclick_keystrokes_save_string(
 				LIST *element_list,
 				char *onclick_keystrokes_save_string )
 {
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 
 	if ( !list_rewind( element_list ) ) return;
 
@@ -1534,7 +1531,6 @@ void form_set_new_button_onclick_keystrokes_save_string(
 
 void form_execute_output_prompt_edit_form(
 			char *application_name,
-			char *database_string,
 			char *login_name,
 			char *session,
 			char *folder_name,
@@ -1562,15 +1558,14 @@ void form_execute_output_prompt_edit_form(
 				0 /* not with_non_prefixed_dictionary */ ),
 			error_file );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	/* ------------------------------------------------------------- */
 	/* Place exit( 0 ); after calling this function for readability. */
 	/* ------------------------------------------------------------- */
-} /* form_execute_output_prompt_edit_form() */
+}
 
 void form_execute_output_prompt_insert_form(
 			char *application_name,
-			char *database_string,
 			char *login_name,
 			char *session,
 			char *folder_name,
@@ -1594,60 +1589,11 @@ void form_execute_output_prompt_insert_form(
 				0 /* not with_non_prefixed_dictionary */ ),
 			error_file );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	/* ----------------------------------------------------- */
 	/* Place exit( 0 ); in the calling code for readability. */
 	/* ----------------------------------------------------- */
-} /* form_execute_output_prompt_insert_form() */
-
-void form_execute_output_prompt_process_form(
-			char *application_name,
-			char *database_string,
-			char *login_name,
-			char *session,
-			char *process_name,
-			char *role_name,
-			char *error_file,
-			DICTIONARY *post_dictionary )
-{
-	char sys_string[ 65536 ];
-
-	if ( post_dictionary && dictionary_length( post_dictionary ) )
-	{
-		char escaped_dictionary_string[ 65536 ];
-
-		escape_character(	escaped_dictionary_string,
-					dictionary_display_delimited(
-						post_dictionary, '&' ),
-					'$' );
-
-		sprintf(sys_string,
-		"output_prompt_process_form %s %s %s '%s' '%s' y \"%s\" 2>>%s",
-			login_name,
-			application_name,
-			session,
-			process_name,
-			role_name,
-			escaped_dictionary_string,
-			error_file );
-	}
-	else
-	{
-		sprintf(sys_string,
-		"output_prompt_process_form %s %s %s '%s' '%s' y 2>>%s",
-			login_name,
-			application_name,
-			session,
-			process_name,
-			role_name,
-			error_file );
-	}
-
-	system( sys_string );
-	/* ---------------------------------------------------- */
-	/* Place exit( 0 ) in the calling code for readability. */
-	/* ---------------------------------------------------- */
-} /* form_execute_output_prompt_process_form() */
+}
 
 char **form_get_background_color_array(
 			int *background_color_array_length,

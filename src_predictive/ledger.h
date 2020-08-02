@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/ledger.h				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver ledger ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -917,8 +916,8 @@ boolean ledger_title_passage_rule_attribute_exists(
 boolean ledger_folder_exists(	char *application_name,
 				char *folder_name );
 
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
+/* Returns true transaction_date_time */
+/* ---------------------------------- */
 char *ledger_transaction_refresh(
 				char *application_name,
 				char *full_name,

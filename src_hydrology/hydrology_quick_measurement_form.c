@@ -80,7 +80,6 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	int output_submit_reset_buttons_in_heading = 1;
 	int output_submit_reset_buttons_in_trailer = 0;
-	char *database_string = {0};
 
 	if ( argc != 5 )
 	{
@@ -95,13 +94,9 @@ int main( int argc, char **argv )
 	session = argv[ 3 ];
 	strcpy( post_dictionary_string, argv[ 4 ] );
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
+	environ_set_environment(
+		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+		application_name );
 
 	appaserver_error_starting_argv_append_file(
 				argc,
@@ -224,7 +219,6 @@ int main( int argc, char **argv )
 					state,
 					login_name,
 					application_name,
-					database_string,
 					session,
 					folder->folder_name,
 					role_name );
@@ -273,7 +267,6 @@ int main( int argc, char **argv )
 	form_output_heading(
 		form->login_name,
 		form->application_name,
-		form->database_string,
 		form->session,
 		form->form_name,
 		form->post_process,
@@ -441,7 +434,7 @@ LIST *get_element_list(		LIST *attribute_list,
 	LIST *return_list;
 	ATTRIBUTE *attribute;
 	char *attribute_name;
-	ELEMENT *element = {0};
+	APPASERVER_ELEMENT *element = {0};
 
 	return_list = list_new();
 
@@ -506,12 +499,15 @@ LIST *get_element_list(		LIST *attribute_list,
 				element = element_new(	prompt_data,
 							attribute->
 							attribute_name);
+
 				element_prompt_data_set_heading(
 						element->prompt_data,
 						element->name );
+
 				list_append( 	return_list,
 						element,
-						sizeof( ELEMENT ) );
+						sizeof( APPASERVER_ELEMENT ) );
+
 				element = element_new( 	hidden,
 							attribute->
 							attribute_name);
@@ -519,7 +515,7 @@ LIST *get_element_list(		LIST *attribute_list,
 
 			list_append( 	return_list,
 					element,
-					sizeof( ELEMENT ) );
+					sizeof( APPASERVER_ELEMENT ) );
 
 		} while( list_next( attribute_name_list ) );
 	return return_list;

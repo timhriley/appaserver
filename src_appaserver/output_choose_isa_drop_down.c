@@ -140,7 +140,6 @@ int main( int argc, char **argv )
 					state,
 					login_name,
 					application_name,
-					(char *)0 /* database_string */,
 					session,
 					folder_name,
 					role_name );
@@ -247,7 +246,6 @@ int main( int argc, char **argv )
 	form_output_heading(
 		form->login_name,
 		form->application_name,
-		form->database_string,
 		form->session,
 		form->form_name,
 		form->post_process,
@@ -313,7 +311,7 @@ LIST *get_element_list(		char *login_name,
 				PROCESS *populate_drop_down_process )
 {
 	LIST *return_list;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 256 ];
 	char buffer[ 256 ];
 
@@ -324,7 +322,7 @@ LIST *get_element_list(		char *login_name,
 	element = element_new( linebreak, "" );
 	list_append( 	return_list, 
 			element, 
-			sizeof( ELEMENT ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	/* Create the prompt element */
 	/* ------------------------- */
@@ -343,7 +341,7 @@ LIST *get_element_list(		char *login_name,
 
 	list_append( 	return_list, 
 			element, 
-			sizeof( ELEMENT ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	/* Create the drop down element */
 	/* ---------------------------- */
@@ -373,7 +371,7 @@ LIST *get_element_list(		char *login_name,
 
 	list_append( 	return_list, 
 			element, 
-			sizeof( ELEMENT ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	/* Create a hidden folder_name */
 	/* --------------------------- */
@@ -386,14 +384,14 @@ LIST *get_element_list(		char *login_name,
 
 	list_append( 	return_list, 
 			element, 
-			sizeof( ELEMENT ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	/* Create the lookup push button */
 	/* ----------------------------- */
 	element = element_new( linebreak, "" );
 	list_append( 	return_list, 
 			element, 
-			sizeof( ELEMENT ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	element = element_new( 	toggle_button, 
 				LOOKUP_PUSH_BUTTON_NAME );
@@ -403,7 +401,7 @@ LIST *get_element_list(		char *login_name,
 
 	list_append(	return_list, 
 			element, 
-			sizeof( ELEMENT ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	/* Create a hidden query relational operator equals */
 	/* ------------------------------------------------ */
@@ -423,7 +421,7 @@ LIST *get_element_list(		char *login_name,
 
 	list_append( 	return_list, 
 			element, 
-			sizeof( ELEMENT ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	return return_list;
 } /* get_element_list() */

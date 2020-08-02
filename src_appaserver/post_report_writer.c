@@ -388,7 +388,7 @@ void post_state_one(	char *application_name,
 {
 	DOCUMENT *document;
 	FORM *form;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	LIST *folder_name_list;
 	char action_string[ 1024 ];
 	LIST *remember_keystrokes_non_multi_element_name_list;
@@ -443,7 +443,6 @@ void post_state_one(	char *application_name,
 					(char *)0 /* state */,
 					login_name,
 					application_name,
-					(char *)0 /* database_string */,
 					session,
 					process_name,
 					role_name );
@@ -466,7 +465,6 @@ void post_state_one(	char *application_name,
 	form_output_heading(
 		form->login_name,
 		form->application_name,
-		form->database_string,
 		form->session,
 		form->form_name,
 		form->post_process,
@@ -573,7 +571,7 @@ void post_state_two(	char *application_name,
 	LIST *one2m_recursive_related_folder_list;
 	LIST *mto1_recursive_related_folder_list;
 	LIST *option_data_list;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char *folder_name;
 	DICTIONARY *post_dictionary;
 	char key[ 128 ];
@@ -627,7 +625,6 @@ void post_state_two(	char *application_name,
 					(char *)0 /* state */,
 					login_name,
 					application_name,
-					(char *)0 /* database_string */,
 					session,
 					process_name,
 					role_name );
@@ -716,7 +713,6 @@ void post_state_two(	char *application_name,
 	form_output_heading(
 		form->login_name,
 		form->application_name,
-		form->database_string,
 		form->session,
 		form->form_name,
 		form->post_process,
@@ -1025,7 +1021,6 @@ void post_state_three(	char *application_name,
 					(char *)0 /* state */,
 					login_name,
 					application_name,
-					(char *)0 /* database_string */,
 					session,
 					process_name,
 					role_name );
@@ -1093,7 +1088,6 @@ void post_state_three(	char *application_name,
 	form_output_heading(
 		form->login_name,
 		form->application_name,
-		form->database_string,
 		form->session,
 		form->form_name,
 		form->post_process,
@@ -1195,7 +1189,7 @@ LIST *state_three_get_element_list(
 	LIST *return_list;
 	FOLDER *folder;
 	ROLE *role;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 
 	role = role_new( application_name, role_name );
 
@@ -1673,7 +1667,6 @@ void post_table_state_four(
 					"view" /* state_for_heading */,
 					login_name,
 					application_name,
-					(char *)0 /* database_string */,
 					session,
 					folder->folder_name,
 					role_name );
@@ -1695,7 +1688,6 @@ void post_table_state_four(
 	form_output_heading(
 		form->login_name,
 		form->application_name,
-		form->database_string,
 		form->session,
 		form->form_name,
 		form->post_process,
@@ -1885,7 +1877,7 @@ void post_statistics_state_four(
 		return;
 	}
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	query_attribute_statistics_list_populate_list(
 			query_attribute_statistics_list->list );
@@ -2194,7 +2186,7 @@ void post_spreadsheet_state_four(
 	printf( "<h1>Spreadsheet Transmission<br></h1>\n" );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	fflush( stdout );
 	printf( "</h2>\n" );
 	

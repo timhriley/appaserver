@@ -345,7 +345,7 @@ LIST *related_folder_get_common_non_primary_attribute_name_list(
 				char *folder_name,
 				LIST *mto1_related_folder_list );
 
-ELEMENT *related_folder_get_new_button_element(
+APPASERVER_ELEMENT *related_folder_get_new_button_element(
 				char *folder_name,
 				LIST *role_folder_insert_list,
 				char *form_name );

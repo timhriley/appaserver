@@ -302,7 +302,7 @@ void change_sort_order_state_one(
 	LIST *ignore_attribute_name_list;
 	ROW_SECURITY *row_security;
 	DICTIONARY *sort_dictionary;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char onclick[ 1024 ];
 	char key[ 128 ];
 	char *attribute_name;
@@ -406,7 +406,6 @@ void change_sort_order_state_one(
 	form_output_heading(
 		form->login_name,
 		form->application_name,
-		form->database_string,
 		form->session,
 		form->form_name,
 		form->post_process,

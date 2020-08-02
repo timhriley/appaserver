@@ -258,7 +258,6 @@ int main( int argc, char **argv )
 					state,
 					login_name,
 					application_name,
-					(char *)0 /* database_string */,
 					session_key,
 					folder->folder_name,
 					role_name );
@@ -315,7 +314,6 @@ int main( int argc, char **argv )
 	form_output_heading(
 		form->login_name,
 		form->application_name,
-		form->database_string,
 		form->session,
 		form->form_name,
 		form->post_process,

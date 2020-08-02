@@ -6,8 +6,8 @@
 /* -------------------------------------------------------------------- */
 
 
-#ifndef ELEMENT_H
-#define ELEMENT_H
+#ifndef APPASERVER_ELEMENT_H
+#define APPASERVER_ELEMENT_H
 
 #include <stdio.h>
 #include "list.h"
@@ -240,16 +240,16 @@ typedef struct
 	ELEMENT_NON_EDIT_MULTI_SELECT *non_edit_multi_select;
 	boolean remember_keystrokes_ok;
 	int tab_index;
-} ELEMENT;
+} APPASERVER_ELEMENT;
 
-ELEMENT *element_new(			enum element_type,
+APPASERVER_ELEMENT *element_new(	enum element_type,
 					char *name );
 
-void element_simple_output(		ELEMENT *element,
+void element_simple_output(		APPASERVER_ELEMENT *element,
 					int row );
 
 void element_output( 		DICTIONARY *hidden_name_dictionary,
-				ELEMENT *e,
+				APPASERVER_ELEMENT *e,
 				int row,
 				int with_toggle_buttons,
 				FILE *output_file,
@@ -264,16 +264,16 @@ void element_prompt_output( 		FILE *output_file,
 void element_output_non_element(	char *s,
 					FILE *output_file );
 
-void element_set_data( 			ELEMENT *e, char *s );
+void element_set_data( 			APPASERVER_ELEMENT *e, char *s );
 
 char *element_get_heading(
 				char **toggle_button_set_all_control_string,
-				ELEMENT *e,
+				APPASERVER_ELEMENT *e,
 				int form_number );
 
-int element_get_attribute_width( 	ELEMENT *e );
+int element_get_attribute_width( 	APPASERVER_ELEMENT *e );
 
-void element_set_datatype(		ELEMENT *e,
+void element_set_datatype(		APPASERVER_ELEMENT *e,
 					char *datatype );
 
 ELEMENT_PUSH_BUTTON *element_push_button_new(
@@ -563,7 +563,8 @@ void element_upload_filename_output(		FILE *output_file,
 void element_javascript_filename_output(	FILE *output_file,
 						char *filename );
 
-ELEMENT *element_non_edit_text_new_element(	char *name,
+APPASERVER_ELEMENT *element_non_edit_text_new_element(
+						char *name,
 						char *text,
 						int column_span,
 						int padding_em );
@@ -579,7 +580,7 @@ void element_non_edit_text_output(		FILE *output_file,
 int element_type_count(				LIST *element_list,
 						enum element_type );
 
-ELEMENT *element_get_yes_no_element( 		char *attribute_name,
+APPASERVER_ELEMENT *element_get_yes_no_element(	char *attribute_name,
 						char *prepend_folder_name,
 						char *post_change_javascript,
 						boolean with_is_null,
@@ -611,7 +612,7 @@ char *element_delimit_drop_down_data(		char *destination,
 
 void element_output_as_dictionary(
 				FILE *output_file,
-				ELEMENT *element, 
+				APPASERVER_ELEMENT *element, 
 				int row );
 
 void element_notepad_output_as_dictionary(
@@ -651,7 +652,7 @@ void element_hidden_output(
 				char *data,
 				int row );
 
-ELEMENT *element_get_text_item_variant_element(
+APPASERVER_ELEMENT *element_get_text_item_variant_element(
 				char *attribute_name,
 				char *datatype,
 				int width,
@@ -664,12 +665,13 @@ void element_non_edit_text_output_as_dictionary(
 					char *text,
 					int row );
 
-ELEMENT *element_hidden_new_element(	char *name,
+APPASERVER_ELEMENT *element_hidden_new_element(
+					char *name,
 					char *data );
 
 char *element_list_display(		LIST *element_list );
 
-char *element_display(			ELEMENT *element );
+char *element_display(			APPASERVER_ELEMENT *element );
 
 char *element_get_type_string(		enum element_type element_type );
 

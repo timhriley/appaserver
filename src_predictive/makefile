@@ -18,6 +18,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/timlib.o 					\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\
+		${LIBRARY}/String.o 					\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/hashtbl.o
 
@@ -127,6 +128,9 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/dictionary2file.o
 
 SOURCE_LIBRARY= 							\
+		transaction.o						\
+		journal.o						\
+		account.o						\
 		ledger.o						\
 		purchase.o						\
 		customer.o						\
@@ -820,4 +824,16 @@ transaction_balance.o: transaction_balance.c				\
 		transaction_balance.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c transaction_balance.c
+
+transaction.o: transaction.c transaction.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c transaction.c
+
+journal.o: journal.c journal.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c journal.c
+
+account.o: account.c account.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c account.c
 

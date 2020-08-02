@@ -23,7 +23,7 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_offering_insert_update(
+void post_change_offering(
 				char *course_name,
 				char *season_name,
 				int year );
@@ -63,7 +63,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		post_change_offering_insert_update(
+		post_change_offering(
 			course_name,
 			season_name,
 			year );
@@ -73,7 +73,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_change_offering_insert_update(
+void post_change_offering(
 			char *course_name,
 			char *season_name,
 			int year )
@@ -86,14 +86,6 @@ void post_change_offering_insert_update(
 				season_name,
 				year ) ) )
 	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: offering_fetch(%s/%s/%d) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 course_name,
-			 season_name,
-			 year );
 		return;
 	}
 

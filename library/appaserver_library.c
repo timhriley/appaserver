@@ -896,7 +896,7 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 				boolean omit_update )
 {
 	LIST *return_list;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 
 	if ( !datatype ) return (LIST *)0;
 
@@ -1403,7 +1403,7 @@ LIST *appaserver_library_get_prompt_data_element_list(
 				char *attribute_name,
 				boolean is_primary_attribute )
 {
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char prompt_data_heading[ 128 ];
 	LIST *element_list = list_new_list();
 
@@ -1556,7 +1556,7 @@ char *appaserver_library_get_verify_attribute_widths_submit_control_string(
 					LIST *element_list,
 					char *source_form )
 {
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char buffer[ 128 ];
 	char local_element_heading[ 128 ];
 	static char submit_control_string[ FORM_SUBMIT_CONTROL_STRING_SIZE ];
@@ -2315,7 +2315,7 @@ int appaserver_library_add_operations(
 			LIST *operation_list,
 			char *delete_isa_only_folder_name )
 {
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	OPERATION *operation;
 	char heading[ 128 ];
 	char buffer[ 128 ];
@@ -2333,7 +2333,7 @@ int appaserver_library_add_operations(
 
 			list_append(	element_list, 
 					element, 
-					sizeof( ELEMENT ) );
+					sizeof( APPASERVER_ELEMENT ) );
 
 			continue;
 		}
@@ -2391,7 +2391,7 @@ int appaserver_library_add_operations(
 
 		list_append(	element_list, 
 				element, 
-				sizeof( ELEMENT ) );
+				sizeof( APPASERVER_ELEMENT ) );
 
 	} while( list_next( operation_list ) );
 
@@ -2623,7 +2623,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 				boolean is_primary_attribute )
 {
 	LIST *return_list;
-	ELEMENT *element = {0};
+	APPASERVER_ELEMENT *element = {0};
 
 	return_list = list_new();
 
@@ -2637,7 +2637,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 
 		if ( update_yn == 'y' )
 		{
-			ELEMENT *temp_element;
+			APPASERVER_ELEMENT *temp_element;
 
 			temp_element =
 				element_get_text_item_variant_element(

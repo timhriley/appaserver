@@ -532,7 +532,6 @@ void post_prompt_edit_form_lookup_before_drop_down(
 		/* -------------------------------- */
 		form_execute_output_prompt_edit_form(
 			application_name,
-			(char *)0 /* database_string */,
 			login_name,
 			session,
 			unfulfilled_folder_name,
@@ -565,7 +564,6 @@ void post_prompt_edit_form_lookup_before_drop_down(
 		/* -------------------------------------- */
 		form_execute_output_prompt_edit_form(
 			application_name,
-			(char *)0 /* database_string */,
 			login_name,
 			session,
 			lookup_before_drop_down->base_folder->folder_name,
@@ -610,7 +608,6 @@ void post_prompt_edit_form_lookup_before_drop_down(
 		/* -------------------------------------- */
 		form_execute_output_prompt_insert_form(
 			application_name,
-			(char *)0 /* database_string */,
 			login_name,
 			session,
 			folder_name,

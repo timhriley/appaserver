@@ -453,7 +453,6 @@ void output_prompt_edit_form(
 					state,
 					login_name,
 					application_name,
-					(char *)0 /* database_string */,
 					session,
 					folder_name,
 					role_name );
@@ -875,7 +874,6 @@ m2( application_name, msg );
 
 	form_output_heading(	form->login_name,
 				form->application_name,
-				form->database_string,
 				form->session,
 				form->form_name,
 				form->post_process,
@@ -980,7 +978,7 @@ LIST *get_element_list(
 	boolean attribute_exists_in_preprompt_dictionary;
 	FOLDER *folder;
 	FOLDER *prompt_folder;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 128 ];
 	LIST *omit_update_attribute_name_list;
 
@@ -1026,7 +1024,7 @@ LIST *get_element_list(
 
 	if ( *notepad )
 	{
-		ELEMENT *element;
+		APPASERVER_ELEMENT *element;
 
 		list_append_pointer(
 				return_list,
@@ -1400,7 +1398,7 @@ LIST *get_radio_button_element_list(
 {
 	LIST *return_list = list_new_list();
 	int output_table_row_boolean = 0;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char onclick_function[ 512 ];
 
 	/* Create the button to set all the no display buttons. */

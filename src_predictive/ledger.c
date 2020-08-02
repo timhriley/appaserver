@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/ledger.c				*/
 /* -------------------------------------------------------------------- */
-/* This is the PredictiveBooks ledger ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -499,7 +498,7 @@ JOURNAL_LEDGER *ledger_journal_ledger_calloc( void )
 
 	return ledger;
 
-} /* ledger_journal_ledger_calloc() */
+}
 
 JOURNAL_LEDGER *journal_ledger_new(	char *full_name,
 					char *street_address,

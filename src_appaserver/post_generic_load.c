@@ -288,7 +288,7 @@ void post_state_one(	char *application_name,
 	ATTRIBUTE *attribute;
 	int default_position = 1;
 	int primary_key_default_position;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char post_change_javascript[ 128 ];
 
 	mto1_related_folder_list =
@@ -349,7 +349,7 @@ void post_state_one(	char *application_name,
 	do {
 		attribute = list_get_pointer( attribute_list );
 
-		element = (ELEMENT *)0;
+		element = (APPASERVER_ELEMENT *)0;
 
 		if ( ( related_folder =
 	       		related_folder_attribute_consumes_related_folder(

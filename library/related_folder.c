@@ -296,7 +296,7 @@ LIST *related_folder_get_drop_down_element_list(
 	char buffer[ 256 ];
 	char element_name[ 256 ];
 	LIST *return_list;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char relation_operator_equals[ 256 ];
 	boolean set_option_data_option_label_list;
 
@@ -338,7 +338,7 @@ LIST *related_folder_get_drop_down_element_list(
 	if ( role_folder_insert_list
 	&&   !omit_drop_down_new_push_button )
 	{
-		ELEMENT *new_button_element;
+		APPASERVER_ELEMENT *new_button_element;
 
 		if ( ( new_button_element =
 			related_folder_get_new_button_element(
@@ -871,7 +871,7 @@ LIST *related_folder_get_insert_element_list(
 			char *one2m_folder_name_for_processes )
 {
 	LIST *element_list = list_new();
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char element_heading[ 128 ];
 	char primary_attribute_asteric[ 2 ] = {0};
 
@@ -1104,7 +1104,7 @@ LIST *related_folder_get_update_element_list(
 			boolean omit_lookup_before_drop_down )
 {
 	LIST *element_list = list_new();
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char element_heading[ 128 ];
 	DICTIONARY *local_preprompt_dictionary = {0};
 	DICTIONARY *parameter_dictionary;
@@ -1363,7 +1363,7 @@ LIST *related_folder_get_update_element_list(
 LIST *related_folder_get_edit_lookup_element_list(
 				LIST *foreign_attribute_name_list )
 {
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new();
 
 	element = element_new( 
@@ -2707,13 +2707,13 @@ LIST *related_folder_get_common_non_primary_attribute_name_list(
 
 } /* related_folder_get_common_non_primary_attribute_name_list() */
 
-ELEMENT *related_folder_get_new_button_element(
+APPASERVER_ELEMENT *related_folder_get_new_button_element(
 				char *folder_name,
 				LIST *role_folder_insert_list,
 				char *form_name )
 {
 	char element_name[ 128 ];
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 
 	if ( role_folder_insert_list
 	&&   list_exists_string( role_folder_insert_list, folder_name ) )
@@ -2736,7 +2736,7 @@ ELEMENT *related_folder_get_new_button_element(
 	
 		return element;
 	}
-	return (ELEMENT *)0;
+	return (APPASERVER_ELEMENT *)0;
 } /* related_folder_get_new_button_element() */
 
 LIST *related_folder_get_mto1_common_non_primary_related_folder_list(
@@ -3644,7 +3644,7 @@ LIST *related_folder_get_non_edit_multi_element_list(
 				char *folder_name )
 {
 	LIST *return_list;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 
 	return_list = list_new_list();
 

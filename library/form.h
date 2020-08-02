@@ -60,7 +60,6 @@ typedef struct
 	char *login_name;
 	char *application_name;
 	char *application_title;
-	char *database_string;
 	char *session;
 	char *folder_name;
 	char *role_name;
@@ -142,7 +141,6 @@ void form_output_html_heading(		FORM *form,
 void form_output_heading(
 			char *login_name,
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *form_name,
 			char *post_process,
@@ -242,7 +240,7 @@ int form_output_all_rows(
 			char *attribute_not_null_string,
 			char *appaserver_user_foreign_login_name );
 
-void form_output_prompt( 		ELEMENT *element );
+void form_output_prompt( 		APPASERVER_ELEMENT *element );
 void form_output_table_heading(		LIST *element_list,
 					int form_number );
 void form_set_output_table_heading(	FORM *form );
@@ -315,16 +313,18 @@ void form_set_action(		FORM *form, char *action_string );
 void form_set_reference_number(
 				FORM *form,
 				char *reference_number );
+
 char *form_get_next_reference_number(
 				int *form_current_reference_number );
+
 void form_set_folder_parameters(FORM *form,
 				char *state,
 				char *login_name,
 				char *application_name,
-				char *database_string,
 				char *session,
 				char *folder_name,
 				char *role_name );
+
 void form_output_content_type( 	void );
 void form_set_dont_output_operations(
 				FORM *form );
@@ -405,7 +405,6 @@ void form_output_prelookup_button(
 
 void form_execute_output_prompt_edit_form(
 				char *application_name,
-				char *database_string,
 				char *login_name,
 				char *session,
 				char *folder_name,
@@ -417,7 +416,6 @@ void form_execute_output_prompt_edit_form(
 
 void form_execute_output_prompt_insert_form(
 				char *application_name,
-				char *database_string,
 				char *login_name,
 				char *session,
 				char *folder_name,
@@ -425,16 +423,6 @@ void form_execute_output_prompt_insert_form(
 				char *state,
 				char *error_file,
 				DICTIONARY_APPASERVER *dictionary_appaserver );
-
-void form_execute_output_prompt_process_form(
-				char *application_name,
-				char *database_string,
-				char *login_name,
-				char *session,
-				char *process_name,
-				char *role_name,
-				char *error_file,
-				DICTIONARY *post_dictionary );
 
 void form_output_back_to_top_button(
 				void );

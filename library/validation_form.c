@@ -50,7 +50,7 @@ LIST *validation_form_get_element_list( LIST *primary_column_name_list,
 {
 	LIST *element_list = list_new();
 	char buffer[ 1024 ];
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char *primary_column_name;
 	char *datatype_name;
 
@@ -73,7 +73,7 @@ LIST *validation_form_get_element_list( LIST *primary_column_name_list,
 	element = element_new( linebreak, "" );
 	list_append( 	element_list, 
 			element, 
-			sizeof( ELEMENT ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	/* For each primary column */
 	/* ----------------------- */
@@ -92,7 +92,7 @@ LIST *validation_form_get_element_list( LIST *primary_column_name_list,
 
 		list_append( 	element_list, 
 				element, 
-				sizeof( ELEMENT ) );
+				sizeof( APPASERVER_ELEMENT ) );
 	} while( list_next( primary_column_name_list ) );
 
 	/* For each datatype */
@@ -110,7 +110,7 @@ LIST *validation_form_get_element_list( LIST *primary_column_name_list,
 				   datatype_name ) ) );
 		list_append(	element_list, 
 				element, 
-				sizeof( ELEMENT ) );
+				sizeof( APPASERVER_ELEMENT ) );
 
 	} while( list_next( datatype_name_list ) );
 
@@ -153,7 +153,7 @@ void validation_form_output_heading(	char *title,
 
 void validation_form_output_table_heading( LIST *element_list )
 {
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char buffer[ 1024 ];
 	char *heading;
 
@@ -162,7 +162,7 @@ void validation_form_output_table_heading( LIST *element_list )
 	{
 		printf( "<tr>" );
 		do {
-			element = (ELEMENT *)list_get( element_list );
+			element = list_get( element_list );
 			heading = element_get_heading( (char **)0, element, 0 );
 			if ( heading && *heading )
 			{
@@ -178,7 +178,7 @@ void validation_form_output_table_heading( LIST *element_list )
 
 void validation_form_output_body( VALIDATION_FORM *validation_form )
 {
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	int row_int;
 	char *data;
 	VALIDATION_DATATYPE *datatype;
@@ -215,7 +215,7 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 
 		/* Output the line break */
 		/* --------------------- */
-		element = (ELEMENT *)
+		element = (APPASERVER_ELEMENT *)
 			list_get( validation_form->element_list );
 		element_simple_output( element, row_int );
 		list_next( validation_form->element_list );

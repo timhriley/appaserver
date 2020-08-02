@@ -477,7 +477,6 @@ int main( int argc, char **argv )
 					state,
 					login_name,
 					application_name,
-					(char *)0 /* database_string */,
 					session,
 					folder_name,
 					role_name );
@@ -571,7 +570,6 @@ int main( int argc, char **argv )
 	form_output_heading(
 		form->login_name,
 		form->application_name,
-		form->database_string,
 		form->session,
 		form->form_name,
 		form->post_process,
@@ -694,7 +692,7 @@ int main( int argc, char **argv )
 	/* ------------------------------------------- */
 	if ( pair_one2m->is_participating )
 	{
-		ELEMENT *element;
+		APPASERVER_ELEMENT *element;
 		char *element_name;
 
 		element_name =
@@ -805,7 +803,7 @@ LIST *get_element_list(
 	LIST *done_attribute_name_list;
 	LIST *element_list;
 	char *attribute_name;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	LIST *role_folder_insert_list;
 	LIST *primary_attribute_name_list;
 	boolean is_primary_attribute;
@@ -981,7 +979,7 @@ LIST *get_element_list(
 
 		list_append( 	return_list, 
 				element, 
-				sizeof( ELEMENT ) );
+				sizeof( APPASERVER_ELEMENT ) );
 
 	}
 
@@ -990,7 +988,7 @@ LIST *get_element_list(
 	element = element_new( linebreak, "" );
 	list_append( 	return_list, 
 			element, 
-			sizeof( ELEMENT ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	element = element_new( 	toggle_button, 
 				LOOKUP_PUSH_BUTTON_NAME );
@@ -1000,7 +998,7 @@ LIST *get_element_list(
 
 	list_append(	return_list, 
 			element, 
-			sizeof( ELEMENT ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	return return_list;
 
@@ -1454,7 +1452,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 					char *folder_post_change_javascript )
 {
 	ATTRIBUTE *attribute;
-	ELEMENT *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 256 ];
 	LIST *return_list;
 	char ignore_element_name[ 256 ];
