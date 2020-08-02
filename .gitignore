@@ -6,19 +6,14 @@
 # ------------------
 *~
 *.swp
-appaserver.err
-trash/
-# -------
-# backups
-# -------
-backup/
-*.tar.gz
-*.cpio.gz
 # -----------
 # executables
 # -----------
 *.[oe]
-*.pyc
+# ---------------
+# src_education
+# ---------------
+post_change_offering
 # ---------------
 # src_coronavirus
 # ---------------

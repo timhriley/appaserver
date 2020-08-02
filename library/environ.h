@@ -9,7 +9,11 @@
 #include "boolean.h"
 
 char *resolve_environment_variables( 	char *return_string, char *s );
+
 char *environ_get_environment(		char *variable_name );
+
+char *environment_get(			char *variable_name );
+
 void set_environment( 			char *environment, char *datum );
 void environ_set_environment( 		char *environment, char *datum );
 void set_path( 				char *path_to_add );

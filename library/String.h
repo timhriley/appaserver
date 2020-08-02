@@ -48,4 +48,12 @@ char *string_input(		char *input_buffer,
 void string_reset_get_line_check_utf_16(
 				void );
 
+char *string_escape_quote(	char *destination,
+				char *source );
+
+char *string_escape_character_array(
+				char *destination,
+				char *source,
+				char *character_array );
+
 #endif

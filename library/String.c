@@ -310,3 +310,41 @@ LIST *string_negative_sequence_occurrance_list( char *source )
 	return occurrance_list;
 }
 
+char *string_escape_character_array(
+				char *destination,
+				char *source,
+				char *character_array )
+{
+	char *character_array_anchor = character_array;
+	char *destination_anchor = destination;
+
+	while ( *source )
+	{
+		character_array = character_array_anchor;
+
+		while( *character_array )
+		{
+			if ( *source == *character_array )
+			{
+				*destination++ = '\\';
+				break;
+			}
+			character_array++;
+		}
+		*destination++ = *source++;
+
+	}
+	*destination = '\0';
+
+	return destination_anchor;
+}
+
+char *string_escape_quote(	char *destination,
+				char *source )
+{
+	return string_escape_character_array(
+			destination,
+			source,
+			"'" /* character_array */ );
+}
+
