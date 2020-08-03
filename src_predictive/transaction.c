@@ -327,3 +327,158 @@ boolean transaction_exists( char *transaction_date_time )
 	return return_value;
 }
 
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
+char *transaction_refresh(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction,
+				LIST *journal_ledger_list )
+{
+	transaction_delete(
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	journal_delete(	full_name,
+			street_address,
+			transaction_date_time );
+
+	return transaction_journal_insert(
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			memo,
+			check_number,
+			lock_transaction,
+			journal_list );
+}
+
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
+char *transaction_journal_insert(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction,
+				LIST *journal_list )
+{
+	LIST *account_name_list;
+	char *account_name;
+	JOURNAL *journal;
+	FILE *insert_pipe;
+	double amount;
+	boolean is_debit;
+
+	if ( !list_rewind( journal_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty journal_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	transaction_date_time =
+		transaction_insert(
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			memo,
+			check_number,
+			lock_transaction );
+
+	account_name_list = list_new();
+
+	insert_pipe = journal_insert_pipe();
+
+	do {
+		journal = list_get( journal_list );
+
+		if ( !timlib_dollar_virtually_same(
+			journal->debit_amount,
+			0.0 )
+		{
+			amount = journal->debit_amount;
+			is_debit = 1;
+		}
+		else
+		{
+			amount = journal->credit_amount;
+			is_debit = 0;
+		}
+
+		journal_insert(	insert_pipe,
+				journal->full_name,
+				journal->street_address,
+				transaction_date_time,
+				journal->account_name,
+				amount,
+				is_debit );
+
+		list_append_pointer(
+			account_name_list,
+			journal->account_name );
+
+	} while( list_next( journal_list ) );
+
+	pclose( insert_pipe );
+
+	if ( list_rewind( account_name_list ) )
+	{
+		do {
+			account_name = list_get( account_name_list );
+
+			transaction_propagate(
+				transaction_date_time,
+				account_name );
+
+		} while( list_next( account_name_list ) );
+	}
+
+	return transaction_date_time;
+}
+
+void ledger_delete(			char *application_name,
+					char *folder_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char *field;
+	FILE *output_pipe;
+	char *table_name;
+
+	field= "full_name,street_address,transaction_date_time";
+
+	table_name = get_table_name( application_name, folder_name );
+
+	sprintf( sys_string,
+		 "delete_statement table=%s field=%s delimiter='^'	|"
+		 "sql.e							 ",
+		 table_name,
+		 field );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf(	output_pipe,
+			"%s^%s^%s\n",
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	pclose( output_pipe );
+
+} /* ledger_delete() */
+

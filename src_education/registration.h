@@ -68,7 +68,8 @@ double registration_invoice_amount_due(
 TRANSACTION *registration_revenue_transaction(
 			char *student_full_name,
 			char *street_address,
-			char *registration_date_time,
+			char *registration_date_time
+				/* transaction_date_time */,
 			double registration_tuition,
 			char *ledger_receivable_account,
 			char *program_name,
@@ -82,7 +83,14 @@ void registration_enrollment_list_refresh(
 
 /* Returns the true transaction_date_time */
 /* -------------------------------------- */
-char *registration_refresh(
+char *registration_revenue_transaction_refresh(
+			char *student_full_name,
+			char *student_street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			LIST *journal_list );
+
+void registration_refresh(
 			double registration_tuition,
 			double registration_payment_total,
 			double registration_invoice_amount_due,

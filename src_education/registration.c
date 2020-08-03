@@ -14,6 +14,7 @@
 #include "sql.h"
 #include "environ.h"
 #include "list.h"
+#include "transaction.h"
 #include "enrollment.h"
 #include "payment.h"
 #include "registration.h"
@@ -399,5 +400,31 @@ REGISTRATION *registration_new(
 	registration->season_name = season_name;
 	registration->year = year;
 	return registration;
+}
+
+char *registration_revenue_transaction_refresh(
+			char *student_full_name,
+			char *student_street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			LIST *journal_list )
+{
+	transaction_date_time =
+		transaction_insert(
+				student_full_name,
+				student_street_address,
+				transaction_date_time,
+				transaction_amount,
+				__FUNCTION__ /* memo */,
+				0 /* check_number */,
+				1 /* lock_transaction */ );
+
+	return transaction_refresh(
+			student_full_name,
+			student_street_address,
+			transaction_date_time,
+			transaction_amount,
+			1 /* lock_transaction */,
+			journal_list );
 }
 

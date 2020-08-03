@@ -210,3 +210,105 @@ JOURNAL *journal_transaction_date_time_fetch(
 	return journal_parse( pipe2string( sys_string ) );
 }
 
+void journal_delete(		char *full_name,
+				char *street_address,
+				char *transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char *field;
+	FILE *output_pipe;
+	char *table_name;
+	LIST *account_name_list;
+
+	account_name_list =
+		journal_account_name_list(
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	field= "full_name,street_address,transaction_date_time";
+
+	sprintf( sys_string,
+		 "delete_statement table=%s field=%s delimiter='^'	|"
+		 "sql.e							 ",
+		 "journal_ledger",
+		 field );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf(	output_pipe,
+			"%s^%s^%s\n",
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	pclose( output_pipe );
+}
+
+void journal_ledger_list_propagate(
+			char *transaction_date_time,
+			LIST *journal_ledger_list )
+{
+	JOURNAL *journal;
+
+	if ( !list_rewind( journal_list ) ) return;
+
+	do {
+		journalx = list_get( journal_list );
+
+		journal_account_propagate(
+			transaction_date_time,
+			journal->account_name );
+
+	} while( list_next( journal_list ) );
+}
+
+void journal_account_name_list_propagate(
+			char *transaction_date_time,
+			LIST *account_name_list )
+{
+	char *account_name;
+
+	if ( !list_rewind( account_name_list ) ) return;
+
+	do {
+		account_name = list_get( account_name_list );
+
+		journal_account_propagate(
+			transaction_date_time,
+			account_name );
+
+	} while( list_next( account_name_list ) );
+}
+
+void journal_account_propagate(		char *transaction_date_time,
+					char *account_name )
+{
+	JOURNAL *prior_journal;
+	LIST *propagate_journal_list;
+
+	if ( !account_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty account_name: %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 transaction_date_time );
+		exit( 1 );
+	}
+
+	prior_journal =
+		journal_prior(
+			transaction_date_time,
+			account_name );
+
+	propagate_journal_list =
+		journal_propagate_journal_list(
+			prior_ledger,
+			account_name );
+
+	journal_ledger_list_propagate(
+			propagate_journal_list );
+}
+
