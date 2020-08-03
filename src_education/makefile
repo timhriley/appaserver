@@ -82,6 +82,11 @@ SOURCE_LIBRARY_OBJECT= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/fixed_asset.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/entity.o
 
+PREDICTIVEBOOKS_CORE= 							\
+		${PREDICTIVEBOOKS_LIBRARY}/transaction.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/journal.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/account.o
+
 EXECUTABLES=	post_change_offering
 
 all: 	${SOURCE_LIBRARY_OBJECT} ${EXECUTABLES}
@@ -94,6 +99,7 @@ clean:
 
 post_change_offering: post_change_offering.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY_OBJECT}			\
+	${PREDICTIVEBOOKS_CORE}						\
 		offering.o						\
 		registration.o						\
 		enrollment.o						\
@@ -104,6 +110,7 @@ post_change_offering: post_change_offering.c				\
 		-I${PREDICTIVEBOOKS_LIBRARY}				\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY_OBJECT}				\
+		${PREDICTIVEBOOKS_CORE}					\
 		post_change_offering.c					\
 		offering.o						\
 		registration.o						\

@@ -1,6 +1,5 @@
-/* element.h 								*/
+/* $APPASERVER_HOME/library/element.h					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver element ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */

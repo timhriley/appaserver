@@ -402,28 +402,22 @@ REGISTRATION *registration_new(
 	return registration;
 }
 
-char *registration_revenue_transaction_refresh(
+char *registration_revenue_transaction_insert(
 			char *student_full_name,
 			char *student_street_address,
 			char *transaction_date_time,
+			char *program_name,
 			double transaction_amount,
 			LIST *journal_list )
 {
-	transaction_date_time =
-		transaction_insert(
-				student_full_name,
-				student_street_address,
-				transaction_date_time,
-				transaction_amount,
-				__FUNCTION__ /* memo */,
-				0 /* check_number */,
-				1 /* lock_transaction */ );
-
-	return transaction_refresh(
+	return transaction_program_journal_insert(
 			student_full_name,
 			student_street_address,
 			transaction_date_time,
+			program_name,
 			transaction_amount,
+			__FUNCTION__ /* memo */,
+			0 /* check_number */,
 			1 /* lock_transaction */,
 			journal_list );
 }

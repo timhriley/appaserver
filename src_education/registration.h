@@ -140,5 +140,13 @@ REGISTRATION *registration_new(
 			char *season_name,
 			int year );
 
+char *registration_transaction_refresh(
+			char *student_full_name,
+			char *student_street_address,
+			char *transaction_date_time,
+			char *program_name,
+			double transaction_amount,
+			LIST *journal_list );
+
 #endif
 

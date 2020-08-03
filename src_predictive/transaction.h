@@ -44,6 +44,18 @@ TRANSACTION *transaction_fetch(	char *full_name,
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
+char *transaction_program_insert(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *program_name,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction );
+
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
 char *transaction_insert(	char *full_name,
 				char *street_address,
 				char *transaction_date_time,
@@ -51,6 +63,31 @@ char *transaction_insert(	char *full_name,
 				char *memo,
 				int check_number,
 				boolean lock_transaction );
+
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
+char *transaction_journal_insert(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction,
+				LIST *journal_list );
+
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
+char *transaction_program_journal_insert(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *program_name,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction,
+				LIST *journal_list );
 
 char *transaction_program_select(
 				void );
@@ -84,8 +121,6 @@ TRANSACTION *transaction_property_parse(
 				char *input_buffer );
 
 TRANSACTION *transaction_parse(	char *input_buffer );
-
-FILE *transaction_insert_pipe(	void );
 
 char *transaction_unique_transaction_date_time(
 				char *transaction_date_time );
