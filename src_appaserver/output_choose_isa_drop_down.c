@@ -311,7 +311,7 @@ LIST *get_element_list(		char *login_name,
 				PROCESS *populate_drop_down_process )
 {
 	LIST *return_list;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_name[ 256 ];
 	char buffer[ 256 ];
 
@@ -319,10 +319,10 @@ LIST *get_element_list(		char *login_name,
 
 	/* Create the line break */
 	/* --------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append( 	return_list, 
 			element, 
-			sizeof( APPASERVER_ELEMENT ) );
+			sizeof( ELEMENT_APPASERVER ) );
 
 	/* Create the prompt element */
 	/* ------------------------- */
@@ -333,7 +333,7 @@ LIST *get_element_list(		char *login_name,
 			  primary_attribute_name_list,
 			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
 
-	element = element_new(
+	element = element_appaserver_new(
 			prompt,
 			strdup( format_initial_capital( 
 					buffer, 
@@ -341,11 +341,11 @@ LIST *get_element_list(		char *login_name,
 
 	list_append( 	return_list, 
 			element, 
-			sizeof( APPASERVER_ELEMENT ) );
+			sizeof( ELEMENT_APPASERVER ) );
 
 	/* Create the drop down element */
 	/* ---------------------------- */
-	element = element_new(
+	element = element_appaserver_new(
 			drop_down,
 			strdup( element_name ) );
 
@@ -371,11 +371,11 @@ LIST *get_element_list(		char *login_name,
 
 	list_append( 	return_list, 
 			element, 
-			sizeof( APPASERVER_ELEMENT ) );
+			sizeof( ELEMENT_APPASERVER ) );
 
 	/* Create a hidden folder_name */
 	/* --------------------------- */
-	element = element_new(
+	element = element_appaserver_new(
 			hidden,
 			"folder_name" );
 
@@ -384,16 +384,16 @@ LIST *get_element_list(		char *login_name,
 
 	list_append( 	return_list, 
 			element, 
-			sizeof( APPASERVER_ELEMENT ) );
+			sizeof( ELEMENT_APPASERVER ) );
 
 	/* Create the lookup push button */
 	/* ----------------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append( 	return_list, 
 			element, 
-			sizeof( APPASERVER_ELEMENT ) );
+			sizeof( ELEMENT_APPASERVER ) );
 
-	element = element_new( 	toggle_button, 
+	element = element_appaserver_new( 	toggle_button, 
 				LOOKUP_PUSH_BUTTON_NAME );
 
 	element_toggle_button_set_heading(
@@ -401,7 +401,7 @@ LIST *get_element_list(		char *login_name,
 
 	list_append(	return_list, 
 			element, 
-			sizeof( APPASERVER_ELEMENT ) );
+			sizeof( ELEMENT_APPASERVER ) );
 
 	/* Create a hidden query relational operator equals */
 	/* ------------------------------------------------ */
@@ -412,7 +412,7 @@ LIST *get_element_list(		char *login_name,
 			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 			  QUERY_RELATION_OPERATOR_STARTING_LABEL ) );
 
-	element = element_new(
+	element = element_appaserver_new(
 			hidden,
 			strdup( element_name ) );
 
@@ -421,8 +421,8 @@ LIST *get_element_list(		char *login_name,
 
 	list_append( 	return_list, 
 			element, 
-			sizeof( APPASERVER_ELEMENT ) );
+			sizeof( ELEMENT_APPASERVER ) );
 
 	return return_list;
-} /* get_element_list() */
+}
 

@@ -852,7 +852,7 @@ LIST *row_security_get_update_element_list(
 	LIST *ignore_attribute_name_list;
 	char *attribute_name;
 	RELATED_FOLDER *related_folder;
-	ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
 	LIST *primary_attribute_name_list;
@@ -1111,7 +1111,10 @@ skip_checking_drop_down:
 			attribute_name = list_get_string(
 				no_display_pressed_attribute_name_list );
 
-			element = element_new( hidden, attribute_name );
+			element =
+				element_appaserver_new(
+					hidden,
+					attribute_name );
 
 			list_append_pointer(
 					return_list, 

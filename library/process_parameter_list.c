@@ -286,7 +286,7 @@ LIST *process_parameter_get_drop_down_prompt_element_list(
 			char *post_change_javascript )
 {
 	LIST *element_list;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char *element_name;
 	char buffer[ 1024 ];
 	char *multi_select_element_name = {0};
@@ -305,13 +305,13 @@ LIST *process_parameter_get_drop_down_prompt_element_list(
 
 	/* Make the line break */
 	/* ------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer( 	element_list, 
 				element );
 
 	/* Make the prompt */
 	/* --------------- */
-	element = element_new( prompt, element_name );
+	element = element_appaserver_new( prompt, element_name );
 
 	list_append_pointer( 	element_list, 
 				element );
@@ -331,7 +331,7 @@ LIST *process_parameter_get_drop_down_prompt_element_list(
 		element_name = strdup( element_name_buffer );
 	}
 
-	element = element_new( drop_down, element_name );
+	element = element_appaserver_new( drop_down, element_name );
 
 	element->drop_down->option_data_list =
 		parameter_drop_down_prompt->
@@ -353,7 +353,7 @@ LIST *process_parameter_get_drop_down_prompt_element_list(
 	&&   *parameter_drop_down_prompt->hint_message )
 	{
 		element = 
-			element_new( 
+			element_appaserver_new( 
 				non_edit_text,
 				parameter_drop_down_prompt->hint_message );
 
@@ -368,7 +368,7 @@ LIST *process_parameter_get_drop_down_prompt_element_list(
 		 QUERY_RELATION_OPERATOR_STARTING_LABEL,
 		 parameter_drop_down_prompt->drop_down_prompt );
 
-	element = element_new( hidden, strdup( buffer ) );
+	element = element_appaserver_new( hidden, strdup( buffer ) );
 	element_hidden_set_data(	element->hidden,
 					EQUAL_OPERATOR );
 	list_append_pointer( 	element_list, 
@@ -392,7 +392,7 @@ LIST *process_parameter_get_folder_element_list(
 			char *login_name )
 {
 	LIST *element_list;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_name_buffer[ 512 ];
 	char *element_name;
 	POPULATE_HELPER_PROCESS *
@@ -402,13 +402,13 @@ LIST *process_parameter_get_folder_element_list(
 
 	/* Set the line break */
 	/* ------------------ */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer( 	element_list, 
 				element );
 
 	element_name = folder_name;
 
-	element = element_new( prompt, element_name );
+	element = element_appaserver_new( prompt, element_name );
 
 	list_append_pointer(
 			element_list, 
@@ -432,7 +432,7 @@ LIST *process_parameter_get_folder_element_list(
 					MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
 	}
 
-	element = element_new( drop_down, element_name );
+	element = element_appaserver_new( drop_down, element_name );
 
 	if ( multi_select )
 	{
@@ -465,7 +465,7 @@ LIST *process_parameter_get_folder_element_list(
 				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 			  	QUERY_RELATION_OPERATOR_STARTING_LABEL );
 
-	element = element_new( hidden, element_name );
+	element = element_appaserver_new( hidden, element_name );
 	element_hidden_set_data(	element->hidden,
 					EQUAL_OPERATOR );
 	list_append_pointer( 	element_list, 
@@ -536,7 +536,11 @@ LIST *process_parameter_get_folder_element_list(
 
 		if ( system( executable ) ) {};
 
-		element = element_new( anchor, populate_helper_process->key );
+		element =
+			element_appaserver_new(
+				anchor,
+				populate_helper_process->key );
+
 		element->anchor->prompt = populate_helper_process->key;
 		element->anchor->href =
 			populate_helper_process_get_ftp_file_prompt(
@@ -557,7 +561,7 @@ LIST *process_parameter_get_folder_element_list(
 
 /* This is a folder with a prompt added. */
 /* ------------------------------------- */
-APPASERVER_ELEMENT *process_parameter_get_folder_prompt_element(
+ELEMENT_APPASERVER *process_parameter_get_folder_prompt_element(
 				char *login_name,
 				char *application_name,
 				boolean override_row_restrictions,
@@ -567,7 +571,7 @@ APPASERVER_ELEMENT *process_parameter_get_folder_prompt_element(
 				LIST *primary_data_list,
 				char *role_name )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_name[ 256 ];
 
 	if ( multi_select )
@@ -582,7 +586,7 @@ APPASERVER_ELEMENT *process_parameter_get_folder_prompt_element(
 		strcpy( element_name, prompt_string );
 	}
 
-	element = element_new( drop_down, strdup( element_name ) );
+	element = element_appaserver_new( drop_down, strdup( element_name ) );
 
 	if ( multi_select )
 	{
@@ -619,12 +623,12 @@ APPASERVER_ELEMENT *process_parameter_get_folder_prompt_element(
 	return element;
 } /* process_parameter_get_folder_prompt_element() */
 
-APPASERVER_ELEMENT *process_parameter_get_process_set_output_drop_down_element(
+ELEMENT_APPASERVER *process_parameter_get_process_set_output_drop_down_element(
 					char *process_set_name,
 					char *application_name,
 					char *role_name )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_name[ 256 ];
 	LIST *members4set_list;
 	LIST *option_data_list;
@@ -635,7 +639,7 @@ APPASERVER_ELEMENT *process_parameter_get_process_set_output_drop_down_element(
 
 	strcpy( element_name, process_set_name );
 
-	element = element_new( drop_down, strdup( element_name ) );
+	element = element_appaserver_new( drop_down, strdup( element_name ) );
 
 	members4set_list =
 			process_parameter_get_process_members4set_list(
@@ -676,15 +680,15 @@ APPASERVER_ELEMENT *process_parameter_get_process_set_output_drop_down_element(
 
 } /* process_parameter_get_process_set_output_drop_down_element() */
 
-APPASERVER_ELEMENT *process_parameter_get_attribute_element(
+ELEMENT_APPASERVER *process_parameter_get_attribute_element(
 					PROCESS_PARAMETER *process_parameter )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char *element_name;
 
 	element_name = process_parameter->parameter_attribute->attribute_name;
 
-	element = element_new( text_item, strdup( element_name ) );
+	element = element_appaserver_new( text_item, strdup( element_name ) );
 
 	element_text_item_set_attribute_width( 	element->text_item,
 						process_parameter->
@@ -1111,14 +1115,14 @@ LIST *process_parameter_get_prompt_element_list(
 				char *post_change_javascript )
 {
 	LIST *element_list;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_name[ 256 ];
 
 	element_list = list_new();
 
 	/* Start with a line break */
 	/* ----------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer( 	element_list, 
 				element );
 
@@ -1128,7 +1132,7 @@ LIST *process_parameter_get_prompt_element_list(
 		 "%s",
 		 process_parameter->parameter_prompt->prompt );
 
-	element = element_new( prompt, strdup( element_name ) );
+	element = element_appaserver_new( prompt, strdup( element_name ) );
 
 	list_append_pointer( 	element_list, 
 				element );
@@ -1140,7 +1144,7 @@ LIST *process_parameter_get_prompt_element_list(
 		 QUERY_RELATION_OPERATOR_STARTING_LABEL,
 		 process_parameter->parameter_prompt->prompt );
 
-	element = element_new( hidden, strdup( element_name ) );
+	element = element_appaserver_new( hidden, strdup( element_name ) );
 
 	element_hidden_set_data(
 			element->hidden,
@@ -1157,8 +1161,9 @@ LIST *process_parameter_get_prompt_element_list(
 
 	if ( upload_filename_yn == 'y' )
 	{
-		element = element_new( 	upload_filename,
-					strdup( element_name ) );
+		element = element_appaserver_new(
+				upload_filename,
+				strdup( element_name ) );
 		element->upload_filename->attribute_width =
 		 	process_parameter->parameter_prompt->width;
 	}
@@ -1178,7 +1183,7 @@ LIST *process_parameter_get_prompt_element_list(
 	if ( date_yn == 'y' )
 	{
 		element =
-			element_new(
+			element_appaserver_new(
 				element_date,
 				strdup( element_name ) );
 
@@ -1200,7 +1205,7 @@ LIST *process_parameter_get_prompt_element_list(
 	else
 	{
 		element =
-			element_new(
+			element_appaserver_new(
 				text_item,
 				strdup( element_name ) );
 
@@ -1221,7 +1226,7 @@ LIST *process_parameter_get_prompt_element_list(
 	if ( *hint_message )
 	{
 		element = 
-			element_new( 
+			element_appaserver_new( 
 				non_edit_text,
 				hint_message );
 
@@ -1248,20 +1253,20 @@ LIST *process_parameter_get_folder_prompt_element_list(
 				LIST *primary_data_list,
 				char *role_name )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	LIST *element_list = list_new_list();
 	char *hint_message;
 
 	/* Start with a line break */
 	/* ----------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer( 	element_list, 
 				element );
 
 	/* Create the prompt element */
 	/* ------------------------- */
 	element = 
-		element_new(
+		element_appaserver_new(
 			prompt,
 			prompt_string );
 
@@ -1291,7 +1296,7 @@ LIST *process_parameter_get_folder_prompt_element_list(
 				(PROCESS_PARAMETER *)0 ) ) )
 	{
 		element = 
-			element_new( 
+			element_appaserver_new( 
 				non_edit_text,
 				hint_message );
 
@@ -1310,7 +1315,7 @@ LIST *process_parameter_get_attribute_element_list(
 				char *post_change_javascript )
 {
 	LIST *element_list;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_name[ 128 ];
 	ATTRIBUTE *attribute;
 
@@ -1325,7 +1330,7 @@ LIST *process_parameter_get_attribute_element_list(
 
 	/* Start with a line break */
 	/* ----------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer( 	element_list, 
 				element );
 
@@ -1337,7 +1342,7 @@ LIST *process_parameter_get_attribute_element_list(
 			parameter_attribute->
 			attribute_name );
 
-	element = element_new( prompt, strdup( element_name ) );
+	element = element_appaserver_new( prompt, strdup( element_name ) );
 
 	list_append_pointer( 	element_list, 
 				element );
@@ -1351,7 +1356,7 @@ LIST *process_parameter_get_attribute_element_list(
 			parameter_attribute->
 			attribute_name );
 
-	element = element_new( drop_down, strdup( element_name ) );
+	element = element_appaserver_new( drop_down, strdup( element_name ) );
 
 	element->drop_down->option_data_list =
 			get_relation_operator_list(
@@ -1369,7 +1374,10 @@ LIST *process_parameter_get_attribute_element_list(
 	if ( strcmp( attribute->datatype, "date" ) == 0
 	||   strcmp( attribute->datatype, "current_date") == 0 )
 	{
-		element = element_new( element_date, strdup( element_name ) );
+		element =
+			element_appaserver_new(
+				element_date,
+				strdup( element_name ) );
 
 		post_change_javascript =
 			attribute_append_post_change_javascript(
@@ -1383,7 +1391,10 @@ LIST *process_parameter_get_attribute_element_list(
 	if ( strcmp( attribute->datatype, "time" ) == 0
 	||   strcmp( attribute->datatype, "current_time") == 0 )
 	{
-		element = element_new( element_time, strdup( element_name ) );
+		element =
+			element_appaserver_new(
+				element_time,
+				strdup( element_name ) );
 
 		post_change_javascript =
 			attribute_append_post_change_javascript(
@@ -1395,7 +1406,9 @@ LIST *process_parameter_get_attribute_element_list(
 	}
 	else
 	{
-		element = element_new( text_item, strdup( element_name ) );
+		element = element_appaserver_new(
+				text_item,
+				strdup( element_name ) );
 	}
 
 	element_text_item_set_attribute_width(
@@ -1414,8 +1427,9 @@ LIST *process_parameter_get_attribute_element_list(
 
 	/* Create the between "and" label */
 	/* ------------------------------ */
-	element = element_new( prompt,
-				"and" );
+	element = element_appaserver_new(
+			prompt,
+			"and" );
 
 	list_append_pointer( 	element_list, 
 				element );
@@ -1430,17 +1444,25 @@ LIST *process_parameter_get_attribute_element_list(
 	if ( strcmp( attribute->datatype, "date" ) == 0
 	||   strcmp( attribute->datatype, "current_date") == 0 )
 	{
-		element = element_new( element_date, strdup( element_name ) );
+		element = element_appaserver_new(
+				element_date,
+				strdup( element_name ) );
 	}
 	else
 	if ( strcmp( attribute->datatype, "time" ) == 0
 	||   strcmp( attribute->datatype, "current_time") == 0 )
 	{
-		element = element_new( element_time, strdup( element_name ) );
+		element =
+			element_appaserver_new(
+				element_time,
+				strdup( element_name ) );
 	}
 	else
 	{
-		element = element_new( text_item, strdup( element_name ) );
+		element =
+			element_appaserver_new(
+				text_item,
+				strdup( element_name ) );
 	}
 
 	element_text_item_set_attribute_width( 	
@@ -1462,7 +1484,7 @@ LIST *process_parameter_get_attribute_element_list(
 	if ( *attribute->hint_message )
 	{
 		element =
-			element_new( 
+			element_appaserver_new( 
 				non_edit_text,
 				attribute->hint_message );
 
@@ -1479,23 +1501,23 @@ LIST *process_parameter_get_process_set_output_element_list(
 				char *post_change_javascript,
 				char *prompt_display_text )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	LIST *element_list = list_new();
 
 	/* Start with a line break */
 	/* ----------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer( 	element_list, 
 				element );
 
 	if ( prompt_display_text
 	&&   *prompt_display_text )
 	{
-		element = element_new( prompt, prompt_display_text );
+		element = element_appaserver_new( prompt, prompt_display_text );
 	}
 	else
 	{
-		element = element_new( prompt, "process" );
+		element = element_appaserver_new( prompt, "process" );
 	}
 
 	list_append_pointer( 	element_list, 
@@ -1712,18 +1734,18 @@ LIST *process_parameter_get_folder_process_element_list(
 				boolean multi_select,
 				char *state )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	LIST *element_list = list_new_list();
 
 	/* Start with a line break */
 	/* ----------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer( 	element_list, 
 				element );
 
 	/* Create the prompt element */
 	/* ------------------------- */
-	element = element_new(
+	element = element_appaserver_new(
 			prompt,
 			prompt_string );
 
@@ -1755,18 +1777,18 @@ LIST *process_parameter_get_prompt_process_element_list(
 				boolean multi_select,
 				DICTIONARY *parameter_dictionary )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	LIST *element_list = list_new_list();
 
 	/* Start with a line break */
 	/* ----------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer( 	element_list, 
 				element );
 
 	/* Create the prompt element */
 	/* ------------------------- */
-	element = element_new(
+	element = element_appaserver_new(
 			prompt,
 			prompt_string );
 
@@ -1788,7 +1810,7 @@ LIST *process_parameter_get_prompt_process_element_list(
 	return element_list;
 } /* process_parameter_get_prompt_process_element_list() */
 
-APPASERVER_ELEMENT *process_parameter_get_folder_process_element(
+ELEMENT_APPASERVER *process_parameter_get_folder_process_element(
 				char *login_name,
 				char *application_name,
 				boolean multi_select,
@@ -1798,7 +1820,7 @@ APPASERVER_ELEMENT *process_parameter_get_folder_process_element(
 				char *session,
 				char *state )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_name[ 256 ];
 
 	if ( !populate_drop_down_process )
@@ -1823,7 +1845,7 @@ APPASERVER_ELEMENT *process_parameter_get_folder_process_element(
 		strcpy( element_name, prompt_string );
 	}
 
-	element = element_new( drop_down, strdup( element_name ) );
+	element = element_appaserver_new( drop_down, strdup( element_name ) );
 
 	if ( multi_select )
 	{
@@ -1856,7 +1878,7 @@ APPASERVER_ELEMENT *process_parameter_get_folder_process_element(
 
 } /* process_parameter_get_folder_process_element() */
 
-APPASERVER_ELEMENT *process_parameter_get_prompt_process_element(
+ELEMENT_APPASERVER *process_parameter_get_prompt_process_element(
 				char *login_name,
 				char *application_name,
 				boolean multi_select,
@@ -1866,7 +1888,7 @@ APPASERVER_ELEMENT *process_parameter_get_prompt_process_element(
 				char *session,
 				DICTIONARY *parameter_dictionary )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_name[ 256 ];
 
 	if ( !populate_drop_down_process )
@@ -1891,7 +1913,7 @@ APPASERVER_ELEMENT *process_parameter_get_prompt_process_element(
 		strcpy( element_name, prompt_string );
 	}
 
-	element = element_new( drop_down, strdup( element_name ) );
+	element = element_appaserver_new( drop_down, strdup( element_name ) );
 
 	if ( multi_select )
 	{

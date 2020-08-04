@@ -33,6 +33,7 @@
 #include "date_convert.h"
 #include "appaserver_error.h"
 #include "basename.h"
+#include "element.h"
 #include "process_parameter_list.h"
 
 static char *system_folder_list[] = {
@@ -896,7 +897,7 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 				boolean omit_update )
 {
 	LIST *return_list;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 
 	if ( !datatype ) return (LIST *)0;
 
@@ -906,15 +907,16 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 	&&   list_exists_string( posted_attribute_name_list,
 				 attribute_name ) )
 	{
-		element = element_new(
+		element = element_appaserver_new(
 				hidden, 
 				attribute_name );
 	}
 	else
 	if ( strcmp( datatype, "notepad" ) == 0 )
 	{
-		element = element_new( 	notepad,
-					attribute_name);
+		element = element_appaserver_new(
+				notepad,
+				attribute_name );
 
 		element_notepad_set_attribute_width(
 				element->notepad,
@@ -925,8 +927,9 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 	else
 	if ( strcmp( datatype, "password" ) == 0 )
 	{
-		element = element_new( 	password,
-					attribute_name);
+		element = element_appaserver_new(
+				password,
+				attribute_name );
 
 		element_password_set_attribute_width(
 				element->password,
@@ -939,7 +942,7 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 	else
 	if ( strcmp( datatype, "hidden_text" ) == 0 )
 	{
-		element = element_new(
+		element = element_appaserver_new(
 				hidden,
 				attribute_name );
 	}
@@ -957,8 +960,9 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 	else
 	if ( strcmp( datatype, "reference_number" ) == 0 )
 	{
-		element = element_new( 	reference_number,
-					attribute_name);
+		element = element_appaserver_new(
+				reference_number,
+				attribute_name );
 
 		element_reference_number_set_attribute_width(
 				element->reference_number,
@@ -985,19 +989,22 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 		if ( strcmp( datatype, "date" ) == 0
 		||   strcmp( datatype, "current_date" ) == 0 )
 		{
-			element = element_new( 	element_date,
-						attribute_name);
+			element = element_appaserver_new(
+					element_date,
+					attribute_name );
 		}
 		else
 		if ( strcmp( datatype, "current_date_time" ) == 0 )
 		{
-			element = element_new( 	element_current_date_time,
-						attribute_name);
+			element = element_appaserver_new(
+					element_current_date_time,
+					attribute_name );
 		}
 		else
 		{
-			element = element_new( 	text_item,
-						attribute_name);
+			element = element_appaserver_new(
+					text_item,
+					attribute_name );
 		}
 
 		element_text_item_set_attribute_width(
@@ -1403,13 +1410,14 @@ LIST *appaserver_library_get_prompt_data_element_list(
 				char *attribute_name,
 				boolean is_primary_attribute )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char prompt_data_heading[ 128 ];
 	LIST *element_list = list_new_list();
 
-	element = element_new(
-		prompt_data,
-		attribute_name );
+	element =
+		element_appaserver_new(
+			prompt_data,
+			attribute_name );
 
 	if ( is_primary_attribute )
 	{
@@ -1430,9 +1438,10 @@ LIST *appaserver_library_get_prompt_data_element_list(
 	/* Create a hidden element   */
 	/* so delete will work.      */
 	/* ------------------------- */
-	element = element_new( 
-		hidden,
-		attribute_name );
+	element =
+		element_appaserver_new( 
+			hidden,
+			attribute_name );
 
 	list_append_pointer(
 			element_list, 
@@ -1556,7 +1565,7 @@ char *appaserver_library_get_verify_attribute_widths_submit_control_string(
 					LIST *element_list,
 					char *source_form )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char buffer[ 128 ];
 	char local_element_heading[ 128 ];
 	static char submit_control_string[ FORM_SUBMIT_CONTROL_STRING_SIZE ];
@@ -2315,7 +2324,7 @@ int appaserver_library_add_operations(
 			LIST *operation_list,
 			char *delete_isa_only_folder_name )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	OPERATION *operation;
 	char heading[ 128 ];
 	char buffer[ 128 ];
@@ -2329,16 +2338,18 @@ int appaserver_library_add_operations(
 
 		if ( operation->empty_placeholder_instead )
 		{
-			element = element_new( empty_column, (char *)0 );
+			element = element_appaserver_new(
+					empty_column,
+					(char *)0 );
 
 			list_append(	element_list, 
 					element, 
-					sizeof( APPASERVER_ELEMENT ) );
+					sizeof( ELEMENT_APPASERVER ) );
 
 			continue;
 		}
 
-		element = element_new(
+		element = element_appaserver_new(
 				toggle_button,
 				operation->
 					process->
@@ -2391,7 +2402,7 @@ int appaserver_library_add_operations(
 
 		list_append(	element_list, 
 				element, 
-				sizeof( APPASERVER_ELEMENT ) );
+				sizeof( ELEMENT_APPASERVER ) );
 
 	} while( list_next( operation_list ) );
 
@@ -2623,7 +2634,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 				boolean is_primary_attribute )
 {
 	LIST *return_list;
-	APPASERVER_ELEMENT *element = {0};
+	ELEMENT_APPASERVER *element = {0};
 
 	return_list = list_new();
 
@@ -2631,13 +2642,13 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 			datatype,
 			element_get_type_string( http_filename ) ) == 0 )
 	{
-		element = element_new(
+		element = element_appaserver_new(
 				http_filename, 
 				attribute_name );
 
 		if ( update_yn == 'y' )
 		{
-			APPASERVER_ELEMENT *temp_element;
+			ELEMENT_APPASERVER *temp_element;
 
 			temp_element =
 				element_get_text_item_variant_element(
@@ -2678,7 +2689,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 		}
 
 		element =
-			element_new( 
+			element_appaserver_new( 
 				prompt_data_plus_hidden,
 				attribute_name );
 
@@ -2700,7 +2711,10 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 			primary_attribute_name_list,
 			attribute_name ) )
 		{
-			element = element_new( hidden, attribute_name );
+			element =
+				element_appaserver_new(
+					hidden,
+					attribute_name );
 
 			list_append_pointer( return_list, element );
 		}
@@ -2711,8 +2725,9 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 
 	if ( timlib_strcmp( datatype, "notepad" ) == 0 )
 	{
-		element = element_new( 	notepad,
-					attribute_name);
+		element = element_appaserver_new(
+				notepad,
+				attribute_name );
 
 		element_notepad_set_attribute_width(
 				element->notepad,
@@ -2728,8 +2743,9 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	else
 	if ( timlib_strcmp( datatype, "password" ) == 0 )
 	{
-		element = element_new( 	password,
-					attribute_name);
+		element = element_appaserver_new(
+				password,
+				attribute_name );
 
 		element_password_set_attribute_width(
 				element->password,
@@ -2744,14 +2760,14 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	else
 	if ( timlib_strcmp( datatype, "hidden_text" ) == 0 )
 	{
-		element = element_new(
+		element = element_appaserver_new(
 				hidden, 
 				attribute_name );
 	}
 	else
 	if ( timlib_strcmp( datatype, "timestamp" ) == 0 )
 	{
-		element = element_new( 
+		element = element_appaserver_new( 
 				prompt_data,
 				attribute_name );
 
@@ -2776,13 +2792,13 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	else
 	if ( timlib_strcmp( datatype, "reference_number" ) == 0 )
 	{
-		element = element_new(
+		element = element_appaserver_new(
 				hidden, 
 				attribute_name );
 
 		list_append_pointer( return_list, element );
 
-		element = element_new( 
+		element = element_appaserver_new( 
 				prompt_data,
 				attribute_name );
 
@@ -2805,8 +2821,9 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	if ( timlib_strcmp( datatype, "date" ) == 0
 	||   timlib_strcmp( datatype, "date_time" ) == 0 )
 	{
-		element = element_new( 	element_date,
-					attribute_name );
+		element = element_appaserver_new(
+				element_date,
+				attribute_name );
 
 		element_text_item_set_attribute_width(
 				element->text_item, 
@@ -2843,8 +2860,9 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	else
 	if ( timlib_strcmp( datatype, "current_date" ) == 0 )
 	{
-		element = element_new( 	element_current_date,
-					attribute_name );
+		element = element_appaserver_new(
+				element_current_date,
+				attribute_name );
 
 		element_text_item_set_attribute_width(
 				element->text_item, 
@@ -2883,8 +2901,9 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	else
 	if ( timlib_strcmp( datatype, "current_date_time" ) == 0 )
 	{
-		element = element_new( 	element_current_date_time,
-					attribute_name );
+		element = element_appaserver_new(
+				element_current_date_time,
+				attribute_name );
 
 		element_text_item_set_attribute_width(
 				element->text_item, 
@@ -2924,8 +2943,9 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	if ( timlib_strcmp( datatype, "text" ) == 0
 	||   timlib_strcmp( datatype, "time" ) == 0 )
 	{
-		element = element_new( 	text_item,
-					attribute_name);
+		element = element_appaserver_new(
+				text_item,
+				attribute_name );
 
 		element_text_item_set_attribute_width(
 				element->text_item, 
@@ -2961,8 +2981,9 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	if ( timlib_strcmp( datatype, "integer" ) == 0
 	||   timlib_strcmp( datatype, "float" ) == 0 )
 	{
-		element = element_new( 	text_item,
-					attribute_name);
+		element = element_appaserver_new(
+				text_item,
+				attribute_name );
 
 		element_text_item_set_attribute_width(
 				element->text_item, 

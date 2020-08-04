@@ -249,7 +249,9 @@ int main( int argc, char **argv )
 
 			list_add_head(
 				form->regular_element_list, 
-				element_new( linebreak, (char *)0 ) );
+				element_appaserver_new(
+					linebreak,
+					(char *)0 ) );
 
 			list_add_head(
 				form->regular_element_list,
@@ -1034,7 +1036,7 @@ LIST *get_hidden_preprompt_element_list(
 	char *key;
 	char *data;
 	char element_name[ 128 ];
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	LIST *element_list;
 	int str_len;
 

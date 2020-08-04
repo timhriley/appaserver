@@ -437,9 +437,9 @@ void form_output_trailer_post_change_javascript(
 
 	if ( output_insert_button )
 	{
-		APPASERVER_ELEMENT *element;
+		ELEMENT_APPASERVER *element;
 
-		element = element_new( linebreak, "" );
+		element = element_appaserver_new( linebreak, "" );
 		element_output(	
 				(DICTIONARY *)0 /* hidden_name_dictionary */,
 				element,
@@ -450,7 +450,7 @@ void form_output_trailer_post_change_javascript(
 				(char *)0 /* application_name */,
 				(char *)0 /* login_name */ );
 
-		element = element_new(
+		element = element_appaserver_new(
 				toggle_button,
 				INSERT_PUSH_BUTTON_NAME );
 
@@ -515,8 +515,8 @@ void form_output_row( 		int *form_current_reference_number,
 				char *background_color,
 				char *appaserver_user_foreign_login_name )
 {
-	APPASERVER_ELEMENT *element;
-	APPASERVER_ELEMENT *non_edit_element;
+	ELEMENT_APPASERVER *element;
+	ELEMENT_APPASERVER *non_edit_element;
 	char current_value[ 4096 ];
 	char *dictionary_login_name = {0};
 	boolean set_data_flag;
@@ -524,8 +524,9 @@ void form_output_row( 		int *form_current_reference_number,
 	if ( !list_reset( element_list ) ) return;
 
 	non_edit_element =
-		element_new(	prompt_data_plus_hidden,
-				(char *)0 /* name */ );
+		element_appaserver_new(
+			prompt_data_plus_hidden,
+			(char *)0 /* name */ );
 
 	if ( dictionary_get_index_data(
 			&dictionary_login_name,
@@ -633,7 +634,7 @@ void form_output_sort_buttons(	FILE *output_file,
 				LIST *element_list,
 				char *form_name )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	ELEMENT_TOGGLE_BUTTON *element_toggle_button;
 	char toggle_button_name[ 512 ];
 	LIST *sort_button_type_list = list_new();
@@ -729,7 +730,7 @@ void form_output_sort_buttons(	FILE *output_file,
 void form_output_table_heading(	LIST *element_list,
 				int form_number )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char buffer[ 1024 ];
 	char *heading;
 	char *toggle_button_set_all_control_string;
@@ -787,7 +788,7 @@ void form_output_table_heading(	LIST *element_list,
 
 } /* form_output_table_heading() */
 
-void form_output_prompt( APPASERVER_ELEMENT *element )
+void form_output_prompt( ELEMENT_APPASERVER *element )
 {
 	char buffer[ 512 ];
 	printf( "<td>%s", 
@@ -853,7 +854,7 @@ LIST *form_get_hydrology_validation_element_list(
 	LIST *return_list;
 	ATTRIBUTE *attribute;
 	char *attribute_name;
-	APPASERVER_ELEMENT *element = {0};
+	ELEMENT_APPASERVER *element = {0};
 
 	return_list = list_new();
 
@@ -892,9 +893,10 @@ LIST *form_get_hydrology_validation_element_list(
 			if ( strcmp( 	attribute->attribute_name, 
 					"measurement_value" ) == 0 )
 			{
-				element = element_new( 	text_item,
-							attribute->
-							attribute_name);
+				element =
+					element_appaserver_new(
+						text_item,
+						attribute->attribute_name);
 
 				element_text_item_set_attribute_width(
 						element->text_item, 
@@ -913,24 +915,26 @@ LIST *form_get_hydrology_validation_element_list(
 			||   strcmp(	attribute->attribute_name,
 					"measurement_time" ) == 0 )
 			{
-				element = element_new(	prompt_data,
-							attribute->
-							attribute_name);
+				element =
+					element_appaserver_new(
+						prompt_data,
+						attribute->attribute_name);
 				element_prompt_data_set_heading(
 						element->prompt_data,
 						element->name );
 				list_append( 	return_list, 
 						element, 
-						sizeof( APPASERVER_ELEMENT ) );
+						sizeof( ELEMENT_APPASERVER ) );
 
-				element = element_new( 	hidden,
-							attribute->
-							attribute_name);
+				element =
+					element_appaserver_new(
+						hidden,
+						attribute->attribute_name);
 			}
 
 			list_append( 	return_list, 
 					element, 
-					sizeof( APPASERVER_ELEMENT ) );
+					sizeof( ELEMENT_APPASERVER ) );
 
 		} while( list_next( attribute_name_list ) );
 	return return_list;
@@ -1207,7 +1211,7 @@ LIST *form_dictionary2hidden_element_list( DICTIONARY *dictionary )
 	LIST *element_list;
 	LIST *key_list;
 	char *key, *data;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 
 	element_list = list_new();
 	key_list = dictionary_get_key_list( dictionary );
@@ -1216,16 +1220,16 @@ LIST *form_dictionary2hidden_element_list( DICTIONARY *dictionary )
 	{
 		do {
 			key = list_get( key_list );
-			element = element_new( hidden, key );
+			element = element_appaserver_new( hidden, key );
 			data = dictionary_get( dictionary, key );
 			element_set_data( element, data );
 			list_append( 	element_list,
 					element,
-					sizeof( APPASERVER_ELEMENT ) );
+					sizeof( ELEMENT_APPASERVER ) );
 		} while( list_next( key_list ) );
 	}
 	return element_list;
-} /* form_dictionary2hidden_element_list() */
+}
 
 
 void form_set_action( FORM *form, char *action_string )
@@ -1512,7 +1516,7 @@ void form_set_new_button_onclick_keystrokes_save_string(
 				LIST *element_list,
 				char *onclick_keystrokes_save_string )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 
 	if ( !list_rewind( element_list ) ) return;
 

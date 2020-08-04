@@ -131,6 +131,8 @@ SOURCE_LIBRARY= 							\
 		transaction.o						\
 		journal.o						\
 		account.o						\
+		program.o						\
+		element.o						\
 		ledger.o						\
 		purchase.o						\
 		customer.o						\
@@ -836,4 +838,12 @@ journal.o: journal.c journal.h
 account.o: account.c account.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c account.c
+
+element.o: element.c element.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c element.c
+
+program.o: program.c program.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c program.c
 

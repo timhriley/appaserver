@@ -310,10 +310,21 @@ LIST *string_negative_sequence_occurrance_list( char *source )
 	return occurrance_list;
 }
 
+char *string_escape(
+			char *destination,
+			char *source,
+			char *character_array )
+{
+	return string_escape_character_array(
+			destination,
+			source,
+			character_array );
+}
+
 char *string_escape_character_array(
-				char *destination,
-				char *source,
-				char *character_array )
+			char *destination,
+			char *source,
+			char *character_array )
 {
 	char *character_array_anchor = character_array;
 	char *destination_anchor = destination;

@@ -50,7 +50,7 @@ LIST *validation_form_get_element_list( LIST *primary_column_name_list,
 {
 	LIST *element_list = list_new();
 	char buffer[ 1024 ];
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char *primary_column_name;
 	char *datatype_name;
 
@@ -70,10 +70,10 @@ LIST *validation_form_get_element_list( LIST *primary_column_name_list,
 
 	/* Create a line break */
 	/* ------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append( 	element_list, 
 			element, 
-			sizeof( APPASERVER_ELEMENT ) );
+			sizeof( ELEMENT_APPASERVER ) );
 
 	/* For each primary column */
 	/* ----------------------- */
@@ -84,7 +84,7 @@ LIST *validation_form_get_element_list( LIST *primary_column_name_list,
 		/* Create a prompt element for the primary column */
 		/* ---------------------------------------------- */
 		element = 
-			element_new( 
+			element_appaserver_new( 
 				prompt_data,
 				strdup( format_initial_capital( 
 				   buffer, 
@@ -92,7 +92,7 @@ LIST *validation_form_get_element_list( LIST *primary_column_name_list,
 
 		list_append( 	element_list, 
 				element, 
-				sizeof( APPASERVER_ELEMENT ) );
+				sizeof( ELEMENT_APPASERVER ) );
 	} while( list_next( primary_column_name_list ) );
 
 	/* For each datatype */
@@ -103,14 +103,14 @@ LIST *validation_form_get_element_list( LIST *primary_column_name_list,
 		/* Create a prompt element for the value */
 		/* ------------------------------------- */
 		element = 
-			element_new( 
+			element_appaserver_new( 
 				prompt_data,
 				strdup( format_initial_capital( 
 				   buffer, 
 				   datatype_name ) ) );
 		list_append(	element_list, 
 				element, 
-				sizeof( APPASERVER_ELEMENT ) );
+				sizeof( ELEMENT_APPASERVER ) );
 
 	} while( list_next( datatype_name_list ) );
 
@@ -153,7 +153,7 @@ void validation_form_output_heading(	char *title,
 
 void validation_form_output_table_heading( LIST *element_list )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char buffer[ 1024 ];
 	char *heading;
 
@@ -178,7 +178,7 @@ void validation_form_output_table_heading( LIST *element_list )
 
 void validation_form_output_body( VALIDATION_FORM *validation_form )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	int row_int;
 	char *data;
 	VALIDATION_DATATYPE *datatype;
@@ -215,7 +215,7 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 
 		/* Output the line break */
 		/* --------------------- */
-		element = (APPASERVER_ELEMENT *)
+		element = (ELEMENT_APPASERVER *)
 			list_get( validation_form->element_list );
 		element_simple_output( element, row_int );
 		list_next( validation_form->element_list );

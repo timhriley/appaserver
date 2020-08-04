@@ -240,7 +240,7 @@ int form_output_all_rows(
 			char *attribute_not_null_string,
 			char *appaserver_user_foreign_login_name );
 
-void form_output_prompt( 		APPASERVER_ELEMENT *element );
+void form_output_prompt( 		ELEMENT_APPASERVER *element );
 void form_output_table_heading(		LIST *element_list,
 					int form_number );
 void form_set_output_table_heading(	FORM *form );

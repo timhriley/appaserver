@@ -110,6 +110,11 @@ int environ_next_delimiter( char *looking_string )
 
 } /* environ_next_delimiter() */
 
+char *environment_application( void )
+{
+	return environment_get( "DATABASE" );
+}
+
 char *environment_get( char *variable_name )
 {
 	char datum[ 1024 ];

@@ -1299,7 +1299,7 @@ LIST *attribute_get_attribute_element_list(
 					boolean is_primary_attribute,
 					boolean omit_push_buttons )
 {
-	ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_name[ 256 ];
 	char prompt_string[ 256 ];
 	char buffer[ 256 ];
@@ -1310,7 +1310,7 @@ LIST *attribute_get_attribute_element_list(
 
 	/* Create a line break */
 	/* ------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer(
 			return_list,
 			element );
@@ -1323,7 +1323,7 @@ LIST *attribute_get_attribute_element_list(
 			 NO_DISPLAY_PUSH_BUTTON_PREFIX,
 			 attribute_name );
 	
-		element = element_new(
+		element = element_appaserver_new(
 				toggle_button,
 				strdup( ignore_element_name ) );
 	
@@ -1354,7 +1354,7 @@ LIST *attribute_get_attribute_element_list(
 					attribute_name ) );
 	}
 
-	element = element_new(
+	element = element_appaserver_new(
 			prompt,
 			strdup( prompt_string ) );
 
@@ -1397,7 +1397,7 @@ LIST *attribute_get_attribute_element_list(
 			 	attribute_name );
 		}
 	
-		element = element_new(
+		element = element_appaserver_new(
 				drop_down,
 				strdup( element_name ) );
 	
@@ -1429,7 +1429,7 @@ LIST *attribute_get_attribute_element_list(
 				 	attribute_name );
 			}
 	
-			element = element_new(
+			element = element_appaserver_new(
 					text_item,
 					strdup( element_name ) );
 		
@@ -1464,7 +1464,7 @@ LIST *attribute_get_attribute_element_list(
 					attribute_name );
 			}
 	
-			element = element_new(
+			element = element_appaserver_new(
 					notepad,
 					strdup( element_name ) );
 		
@@ -1498,14 +1498,14 @@ LIST *attribute_get_attribute_element_list(
 			if ( strcmp( datatype, "date" ) == 0
 			||   strcmp( datatype, "current_date" ) == 0 )
 			{
-				element = element_new(
+				element = element_appaserver_new(
 						element_date,
 						strdup( element_name ) );
 			}
 			else
 			if ( strcmp( datatype, "date_time" ) == 0 )
 			{
-				element = element_new(
+				element = element_appaserver_new(
 						element_date_time,
 						strdup( element_name ) );
 
@@ -1515,7 +1515,7 @@ LIST *attribute_get_attribute_element_list(
 			else
 			if ( strcmp( datatype, "current_date_time" ) == 0 )
 			{
-				element = element_new(
+				element = element_appaserver_new(
 						element_current_date_time,
 						strdup( element_name ) );
 
@@ -1524,7 +1524,7 @@ LIST *attribute_get_attribute_element_list(
 			}
 			else
 			{
-				element = element_new(
+				element = element_appaserver_new(
 						text_item,
 						strdup( element_name ) );
 			}
@@ -1541,7 +1541,7 @@ LIST *attribute_get_attribute_element_list(
 			/* Create the between "and" label */
 			/* ------------------------------ */
 			element = 
-				element_new( 
+				element_appaserver_new( 
 					prompt,
 					"and" );
 		
@@ -1570,14 +1570,14 @@ LIST *attribute_get_attribute_element_list(
 			if ( strcmp( datatype, "date" ) == 0
 			||   strcmp( datatype, "current_date" ) == 0)
 			{
-				element = element_new(
+				element = element_appaserver_new(
 						element_date,
 						strdup( element_name ) );
 			}
 			else
 			if ( strcmp( datatype, "date_time" ) == 0 )
 			{
-				element = element_new(
+				element = element_appaserver_new(
 						element_date_time,
 						strdup( element_name ) );
 
@@ -1587,7 +1587,7 @@ LIST *attribute_get_attribute_element_list(
 			else
 			if ( strcmp( datatype, "current_date_time" ) == 0 )
 			{
-				element = element_new(
+				element = element_appaserver_new(
 						element_current_date_time,
 						strdup( element_name ) );
 
@@ -1596,7 +1596,7 @@ LIST *attribute_get_attribute_element_list(
 			}
 			else
 			{
-				element = element_new(
+				element = element_appaserver_new(
 						text_item,
 						strdup( element_name ) );
 			}
@@ -1617,7 +1617,7 @@ LIST *attribute_get_attribute_element_list(
 	if ( hint_message && *hint_message )
 	{
 		element = 
-			element_new( 
+			element_appaserver_new( 
 				non_edit_text,
 				hint_message );
 

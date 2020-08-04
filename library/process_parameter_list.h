@@ -114,7 +114,7 @@ LIST *process_parameter_get_folder_element_list(
 			char *session,
 			char *login_name );
 
-APPASERVER_ELEMENT *process_parameter_get_attribute_element(
+ELEMENT_APPASERVER *process_parameter_get_attribute_element(
 				PROCESS_PARAMETER *process_parameter );
 
 void process_parameter_set_folder( 	
@@ -194,7 +194,7 @@ LIST *process_parameter_get_attribute_element_list(
 				PROCESS_PARAMETER *process_parameter,
 				char *post_change_javascript );
 
-APPASERVER_ELEMENT *process_parameter_get_folder_prompt_element(
+ELEMENT_APPASERVER *process_parameter_get_folder_prompt_element(
 				char *login_name,
 				char *application_name,
 				boolean override_row_restrictions,
@@ -290,7 +290,7 @@ boolean process_parameter_get_prompt_date(
 				char *application_name,
 				char *prompt,
 				PROCESS_PARAMETER *process_parameter );
-APPASERVER_ELEMENT *process_parameter_get_process_set_output_drop_down_element(
+ELEMENT_APPASERVER *process_parameter_get_process_set_output_drop_down_element(
 				char *process_set_name,
 				char *application_name,
 				char *role_name );
@@ -319,7 +319,7 @@ LIST *process_parameter_get_folder_process_element_list(
 				boolean multi_select,
 				char *state );
 
-APPASERVER_ELEMENT *process_parameter_get_prompt_process_element(
+ELEMENT_APPASERVER *process_parameter_get_prompt_process_element(
 				char *login_name,
 				char *application_name,
 				boolean multi_select,
@@ -357,7 +357,7 @@ void process_parameter_parse_parameter_record(
 				char *populate_helper_process,
 				char *parameter_record );
 
-APPASERVER_ELEMENT *process_parameter_get_folder_process_element(
+ELEMENT_APPASERVER *process_parameter_get_folder_process_element(
 				char *login_name,
 				char *application_name,
 				boolean multi_select,

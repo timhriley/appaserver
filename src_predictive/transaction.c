@@ -13,6 +13,8 @@
 #include "date.h"
 #include "semaphore.h"
 #include "sql.h"
+#include "list.h"
+#include "journal.h"
 #include "transaction.h"
 
 TRANSACTION *transaction_new(	char *full_name,
@@ -154,6 +156,11 @@ char *transaction_escape_memo( char *memo )
 
 	string_escape_quote( escape_memo, memo );
 	return escape_memo;
+}
+
+char *transaction_full_name_escape( char *full_name )
+{
+	return transaction_escape_full_name( full_name );
 }
 
 char *transaction_escape_full_name( char *full_name )
@@ -330,20 +337,22 @@ boolean transaction_exists( char *transaction_date_time )
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
 char *transaction_refresh(
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double transaction_amount,
-				char *memo,
-				int check_number,
-				boolean lock_transaction,
-				LIST *journal_ledger_list )
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			int check_number,
+			boolean lock_transaction,
+			LIST *journal_list )
 {
 	transaction_delete(
-			full_name,
-			street_address,
-			transaction_date_time );
+		full_name,
+		street_address,
+		transaction_date_time );
 
+	/* Also does a propagate for each account */
+	/* -------------------------------------- */
 	journal_delete(	full_name,
 			street_address,
 			transaction_date_time );
@@ -371,23 +380,6 @@ char *transaction_journal_insert(
 				boolean lock_transaction,
 				LIST *journal_list )
 {
-	LIST *account_name_list;
-	char *account_name;
-	JOURNAL *journal;
-	FILE *insert_pipe;
-	double amount;
-	boolean is_debit;
-
-	if ( !list_rewind( journal_list ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty journal_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
 	transaction_date_time =
 		transaction_insert(
 			full_name,
@@ -398,8 +390,30 @@ char *transaction_journal_insert(
 			check_number,
 			lock_transaction );
 
-	account_name_list = list_new();
+	transaction_journal_list_insert(
+		full_name,
+		street_address,
+		transaction_date_time,
+		journal_list );
 
+	return transaction_date_time;
+}
+
+void transaction_journal_list_insert(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			LIST *journal_list )
+{
+	LIST *account_name_list;
+	JOURNAL *journal;
+	FILE *insert_pipe;
+	double amount;
+	boolean is_debit;
+
+	if ( !list_rewind( journal_list ) ) return;
+
+	account_name_list = list_new();
 	insert_pipe = journal_insert_pipe();
 
 	do {
@@ -407,7 +421,7 @@ char *transaction_journal_insert(
 
 		if ( !timlib_dollar_virtually_same(
 			journal->debit_amount,
-			0.0 )
+			0.0 ) )
 		{
 			amount = journal->debit_amount;
 			is_debit = 1;
@@ -419,8 +433,8 @@ char *transaction_journal_insert(
 		}
 
 		journal_insert(	insert_pipe,
-				journal->full_name,
-				journal->street_address,
+				full_name,
+				street_address,
 				transaction_date_time,
 				journal->account_name,
 				amount,
@@ -434,40 +448,25 @@ char *transaction_journal_insert(
 
 	pclose( insert_pipe );
 
-	if ( list_rewind( account_name_list ) )
-	{
-		do {
-			account_name = list_get( account_name_list );
-
-			transaction_propagate(
-				transaction_date_time,
-				account_name );
-
-		} while( list_next( account_name_list ) );
-	}
-
-	return transaction_date_time;
+	journal_account_name_list_propagate(
+		transaction_date_time,
+		account_name_list );
 }
 
-void ledger_delete(			char *application_name,
-					char *folder_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time )
+void transaction_delete(char *full_name,
+			char *street_address,
+			char *transaction_date_time )
 {
 	char sys_string[ 1024 ];
 	char *field;
 	FILE *output_pipe;
-	char *table_name;
 
 	field= "full_name,street_address,transaction_date_time";
-
-	table_name = get_table_name( application_name, folder_name );
 
 	sprintf( sys_string,
 		 "delete_statement table=%s field=%s delimiter='^'	|"
 		 "sql.e							 ",
-		 table_name,
+		 "transaction",
 		 field );
 
 	output_pipe = popen( sys_string, "w" );
@@ -479,6 +478,5 @@ void ledger_delete(			char *application_name,
 			transaction_date_time );
 
 	pclose( output_pipe );
-
-} /* ledger_delete() */
+}
 

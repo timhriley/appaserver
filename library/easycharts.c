@@ -1615,9 +1615,9 @@ LIST *easycharts_get_regression_point_list(
 	} while( list_next( point_list ) );
 
 	sprintf( buffer, "rm -f %s", output_filename );
-	system( buffer );
+	if ( system( buffer ) ){};
 	return regression_point_list;
-} /* easycharts_get_regression_point_list() */
+}
 
 void easycharts_output_graph_window(
 			char *application_name,
@@ -1656,7 +1656,7 @@ void easycharts_output_graph_window(
 
 	printf( "<h1>Easycharts Chart Viewer " );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	printf( "</h1>\n" );
 
 	if ( where_clause && *where_clause )

@@ -296,7 +296,7 @@ LIST *related_folder_get_drop_down_element_list(
 	char buffer[ 256 ];
 	char element_name[ 256 ];
 	LIST *return_list;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char relation_operator_equals[ 256 ];
 	boolean set_option_data_option_label_list;
 
@@ -304,7 +304,7 @@ LIST *related_folder_get_drop_down_element_list(
 
 	/* Create the line break */
 	/* --------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer(
 			return_list, 
 			element );
@@ -322,7 +322,7 @@ LIST *related_folder_get_drop_down_element_list(
 			  	foreign_attribute_name_list,
 			  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
-		element = element_new(
+		element = element_appaserver_new(
 				toggle_button, 
 				strdup( element_name ) );
 
@@ -338,7 +338,7 @@ LIST *related_folder_get_drop_down_element_list(
 	if ( role_folder_insert_list
 	&&   !omit_drop_down_new_push_button )
 	{
-		APPASERVER_ELEMENT *new_button_element;
+		ELEMENT_APPASERVER *new_button_element;
 
 		if ( ( new_button_element =
 			related_folder_get_new_button_element(
@@ -352,7 +352,7 @@ LIST *related_folder_get_drop_down_element_list(
 		else
 		{
 			list_append_pointer(	return_list,
-						element_new(
+						element_appaserver_new(
 							empty_column,
 							"" ) );
 		}
@@ -383,7 +383,7 @@ LIST *related_folder_get_drop_down_element_list(
 	}
 
 	element =
-		element_new(
+		element_appaserver_new(
 			prompt,
 			strdup( format_initial_capital_not_parens(
 					buffer, 
@@ -422,7 +422,7 @@ LIST *related_folder_get_drop_down_element_list(
 				QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL,
 				element_name );
 
-		element = element_new(
+		element = element_appaserver_new(
 				drop_down,
 				strdup( drop_down_element_name ) );
 
@@ -432,7 +432,7 @@ LIST *related_folder_get_drop_down_element_list(
 	}
 	else
 	{
-		element = element_new(
+		element = element_appaserver_new(
 				drop_down,
 				strdup( element_name ) );
 
@@ -482,8 +482,10 @@ LIST *related_folder_get_drop_down_element_list(
 
 			/* Create the fill button element */
 			/* ------------------------------ */
-			element = element_new(	push_button, 
-						(char *)0 /* element_name */ );
+			element =
+				element_appaserver_new(
+					push_button, 
+					(char *)0 /* element_name */ );
 
 			element->push_button->label =
 				RELATED_FOLDER_AJAX_FILL_LABEL;
@@ -545,7 +547,7 @@ LIST *related_folder_get_drop_down_element_list(
 	if ( hint_message && *hint_message )
 	{
 		element = 
-			element_new( 
+			element_appaserver_new(
 				non_edit_text,
 				hint_message );
 
@@ -562,7 +564,7 @@ LIST *related_folder_get_drop_down_element_list(
 		 element_name );
 
 	element =
-		element_new( 
+		element_appaserver_new(
 			hidden,
 			strdup( relation_operator_equals ) );
 
@@ -871,7 +873,7 @@ LIST *related_folder_get_insert_element_list(
 			char *one2m_folder_name_for_processes )
 {
 	LIST *element_list = list_new();
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_heading[ 128 ];
 	char primary_attribute_asteric[ 2 ] = {0};
 
@@ -912,7 +914,7 @@ LIST *related_folder_get_insert_element_list(
 
 	if ( prompt_data_element_only )
 	{
-		element = element_new( 
+		element = element_appaserver_new(
 				prompt_data,
 				list_display_delimited(
 					foreign_attribute_name_list,
@@ -931,7 +933,7 @@ LIST *related_folder_get_insert_element_list(
 		/* Create a hidden element   */
 		/* so delete will work.      */
 		/* ------------------------- */
-		element = element_new( 
+		element = element_appaserver_new(
 				hidden,
 				list_display_delimited(
 					foreign_attribute_name_list,
@@ -948,7 +950,7 @@ LIST *related_folder_get_insert_element_list(
 	/* Create the drop down element */
 	/* ---------------------------- */
 	element =
-		element_new(
+		element_appaserver_new(
 			drop_down, 
 			list_display_delimited(
 				foreign_attribute_name_list,
@@ -1022,8 +1024,10 @@ LIST *related_folder_get_insert_element_list(
 
 		/* Create the fill button element */
 		/* ------------------------------ */
-		element = element_new(	push_button, 
-					(char *)0 /* element_name */ );
+		element =
+			element_appaserver_new(
+				push_button, 
+				(char *)0 /* element_name */ );
 
 		element->push_button->label =
 			RELATED_FOLDER_AJAX_FILL_LABEL;
@@ -1104,7 +1108,7 @@ LIST *related_folder_get_update_element_list(
 			boolean omit_lookup_before_drop_down )
 {
 	LIST *element_list = list_new();
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_heading[ 128 ];
 	DICTIONARY *local_preprompt_dictionary = {0};
 	DICTIONARY *parameter_dictionary;
@@ -1161,11 +1165,12 @@ LIST *related_folder_get_update_element_list(
 
 	if ( prompt_data_element_only )
 	{
-		element = element_new( 
-			prompt_data,
-			list_display_delimited(
-			  foreign_attribute_name_list,
-			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
+		element =
+			element_appaserver_new( 
+				prompt_data,
+				list_display_delimited(
+			  	   foreign_attribute_name_list,
+			  	   MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
 		element->prompt_data->heading = strdup( element_heading );
 
@@ -1180,7 +1185,7 @@ LIST *related_folder_get_update_element_list(
 		/* Create a hidden element   */
 		/* so delete will work.      */
 		/* ------------------------- */
-		element = element_new( 
+		element = element_appaserver_new( 
 			hidden,
 			list_display_delimited(
 			  foreign_attribute_name_list,
@@ -1197,7 +1202,7 @@ LIST *related_folder_get_update_element_list(
 	/* Create the drop down element */
 	/* ---------------------------- */
 	element =
-		element_new(
+		element_appaserver_new(
 			drop_down, 
 			list_display_delimited(
 		  	foreign_attribute_name_list,
@@ -1301,8 +1306,10 @@ LIST *related_folder_get_update_element_list(
 
 			/* Create the fill button element */
 			/* ------------------------------ */
-			element = element_new(	push_button, 
-						(char *)0 /* element_name */ );
+			element =
+				element_appaserver_new(
+					push_button, 
+					(char *)0 /* element_name */ );
 
 			element->push_button->label =
 				RELATED_FOLDER_AJAX_FILL_LABEL;
@@ -1363,14 +1370,15 @@ LIST *related_folder_get_update_element_list(
 LIST *related_folder_get_edit_lookup_element_list(
 				LIST *foreign_attribute_name_list )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	LIST *element_list = list_new();
 
-	element = element_new( 
-		prompt_data,
-		list_display_delimited(
-		  foreign_attribute_name_list,
-		  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
+	element =
+		element_appaserver_new( 
+			prompt_data,
+			list_display_delimited(
+				foreign_attribute_name_list,
+				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
 	list_append_pointer(
 			element_list, 
@@ -1380,7 +1388,7 @@ LIST *related_folder_get_edit_lookup_element_list(
 	/* Create a hidden element   */
 	/* so delete will work.      */
 	/* ------------------------- */
-	element = element_new( 
+	element = element_appaserver_new( 
 		hidden,
 		list_display_delimited(
 		  foreign_attribute_name_list,
@@ -2707,13 +2715,13 @@ LIST *related_folder_get_common_non_primary_attribute_name_list(
 
 } /* related_folder_get_common_non_primary_attribute_name_list() */
 
-APPASERVER_ELEMENT *related_folder_get_new_button_element(
+ELEMENT_APPASERVER *related_folder_get_new_button_element(
 				char *folder_name,
 				LIST *role_folder_insert_list,
 				char *form_name )
 {
 	char element_name[ 128 ];
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 
 	if ( role_folder_insert_list
 	&&   list_exists_string( role_folder_insert_list, folder_name ) )
@@ -2723,7 +2731,7 @@ APPASERVER_ELEMENT *related_folder_get_new_button_element(
 			 VERTICAL_NEW_PUSH_BUTTON_PREFIX,
 			 folder_name );
 	
-		element = element_new(
+		element = element_appaserver_new(
 					toggle_button, 
 					strdup( element_name ) );
 	
@@ -2736,7 +2744,7 @@ APPASERVER_ELEMENT *related_folder_get_new_button_element(
 	
 		return element;
 	}
-	return (APPASERVER_ELEMENT *)0;
+	return (ELEMENT_APPASERVER *)0;
 } /* related_folder_get_new_button_element() */
 
 LIST *related_folder_get_mto1_common_non_primary_related_folder_list(
@@ -3644,11 +3652,11 @@ LIST *related_folder_get_non_edit_multi_element_list(
 				char *folder_name )
 {
 	LIST *return_list;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 
 	return_list = list_new_list();
 
-	element = element_new(
+	element = element_appaserver_new(
 			non_edit_multi_select,
 			folder_name );
 

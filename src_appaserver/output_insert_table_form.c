@@ -1027,7 +1027,7 @@ LIST *get_insert_table_element_list(
 	LIST *ignore_attribute_name_list;
 	char *attribute_name;
 	RELATED_FOLDER *related_folder;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
 	LIST *primary_attribute_name_list;
@@ -1226,7 +1226,10 @@ drop-down needing SWEEP.sweep_number in the where clause.
 			attribute_name = list_get_string(
 				no_display_pressed_attribute_name_list );
 
-			element = element_new( hidden, attribute_name );
+			element =
+				element_appaserver_new(
+					hidden,
+					attribute_name );
 
 			list_append_pointer(
 					return_list, 
