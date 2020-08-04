@@ -39,12 +39,6 @@ TRANSACTION *transaction_new(	char *full_name,
 	return transaction;
 }
 
-char *transaction_program_select( void )
-{
-	return
-"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,lock_transaction_yn,program_name";
-}
-
 TRANSACTION *transaction_program_parse( char *input_buffer )
 {
 	char program_name[ 128 ];
@@ -85,10 +79,21 @@ TRANSACTION *transaction_property_parse( char *input_buffer )
 	return transaction;
 }
 
-char *transaction_select( void )
+char *transaction_select( boolean with_program )
 {
-	return
+	char *select;
+
+	if ( with_program )
+	{
+		select =
+"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,lock_transaction_yn,program_name";
+	}
+	else
+	{
+		select =
 "full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,lock_transaction_yn";
+	}
+	return select;
 }
 
 TRANSACTION *transaction_parse( char *input_buffer )
@@ -137,7 +142,7 @@ TRANSACTION *transaction_fetch(
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
-		 transaction_select(),
+		 transaction_select( 0 /* with_program */ ),
 		 "transaction",
 		 /* -------------------------- */
 		 /* Safely returns heap memory */

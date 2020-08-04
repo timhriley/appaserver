@@ -101,51 +101,6 @@ FILE *journal_insert_pipe( void )
 	return popen( sys_string, "w" );
 }
 
-void journal_program_insert(	FILE *insert_pipe,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *program_name,
-				char *account_name,
-				double amount,
-				boolean is_debit )
-{
-	if ( is_debit )
-	{
-		fprintf(	insert_pipe,
-				"%s^%s^%s^%s^%s^%.2lf\n",
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				transaction_escape_full_name( full_name ),
-				street_address,
-				transaction_date_time,
-				program_name,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				account_escape_name( account_name ),
-				amount );
-	}
-	else
-	{
-		fprintf(	insert_pipe,
-				"%s^%s^%s^%s^%s^%.2lf\n",
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				transaction_escape_full_name( full_name ),
-				street_address,
-				transaction_date_time,
-				program_name,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				account_escape_name( account_name ),
-				amount );
-	}
-}
-
 void journal_insert(		FILE *insert_pipe,
 				char *full_name,
 				char *street_address,
@@ -192,16 +147,8 @@ void journal_insert(		FILE *insert_pipe,
 /* ---------------------- */
 char *journal_select( void )
 {
-	if ( journal_program_name_exists() )
-	{
-		return
-"full_name,street_address,transaction_date_time,account_name,previous_balance,debit_amount,credit_amount,balance,program_name";
-	}
-	else
-	{
-		return
+	return
 "full_name,street_address,transaction_date_time,account_name,previous_balance,debit_amount,credit_amount,balance";
-	}
 }
 
 JOURNAL *journal_parse( char *input )
@@ -237,12 +184,6 @@ JOURNAL *journal_parse( char *input )
 
 	piece( piece_buffer, SQL_DELIMITER, input, 6 );
 	journal->balance = atof( piece_buffer );
-
-	if ( journal_program_name_exists() )
-	{
-		piece( piece_buffer, SQL_DELIMITER, input, 7 );
-		journal->program = program_new( strdup( piece_buffer ) );
-	}
 
 	return journal;
 }
@@ -420,21 +361,6 @@ void journal_account_name_propagate(
 		journal_prior_propagate_journal_list(
 			prior,
 			account_name ) );
-}
-
-boolean journal_program_name_exists( void )
-{
-	static int exists = -1;
-
-	if ( exists == -1 )
-	{
-		exists =
-			folder_exists_attribute(
-				environment_application(),
-				JOURNAL_FOLDER_NAME,
-				"program_name" /* attribute_name */ );
-	}
-	return exists;
 }
 
 LIST *journal_account_name_list(

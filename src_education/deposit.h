@@ -10,7 +10,6 @@
 
 #include "boolean.h"
 #include "list.h"
-#include "ledger.h"
 
 /* Enumerated types */
 /* ---------------- */

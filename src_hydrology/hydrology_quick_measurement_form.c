@@ -434,7 +434,7 @@ LIST *get_element_list(		LIST *attribute_list,
 	LIST *return_list;
 	ATTRIBUTE *attribute;
 	char *attribute_name;
-	APPASERVER_ELEMENT *element = {0};
+	ELEMENT_APPASERVER *element = {0};
 
 	return_list = list_new();
 
@@ -474,9 +474,9 @@ LIST *get_element_list(		LIST *attribute_list,
 			if ( strcmp( 	attribute->attribute_name, 
 					"measurement_value" ) == 0 )
 			{
-				element = element_new( 	text_item,
-							attribute->
-							attribute_name);
+				element = element_appaserver_new(
+						text_item,
+						attribute->attribute_name);
 
 				element_text_item_set_attribute_width(
 						element->text_item, 
@@ -496,9 +496,9 @@ LIST *get_element_list(		LIST *attribute_list,
 			||   strcmp(	attribute->attribute_name,
 					"measurement_time" ) == 0 )
 			{
-				element = element_new(	prompt_data,
-							attribute->
-							attribute_name);
+				element = element_appaserver_new(
+						prompt_data,
+						attribute->attribute_name);
 
 				element_prompt_data_set_heading(
 						element->prompt_data,
@@ -506,16 +506,16 @@ LIST *get_element_list(		LIST *attribute_list,
 
 				list_append( 	return_list,
 						element,
-						sizeof( APPASERVER_ELEMENT ) );
+						sizeof( ELEMENT_APPASERVER ) );
 
-				element = element_new( 	hidden,
-							attribute->
-							attribute_name);
+				element = element_appaserver_new(
+						hidden,
+						attribute->attribute_name);
 			}
 
 			list_append( 	return_list,
 					element,
-					sizeof( APPASERVER_ELEMENT ) );
+					sizeof( ELEMENT_APPASERVER ) );
 
 		} while( list_next( attribute_name_list ) );
 	return return_list;

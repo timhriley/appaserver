@@ -302,7 +302,7 @@ void change_sort_order_state_one(
 	LIST *ignore_attribute_name_list;
 	ROW_SECURITY *row_security;
 	DICTIONARY *sort_dictionary;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char onclick[ 1024 ];
 	char key[ 128 ];
 	char *attribute_name;
@@ -491,7 +491,7 @@ void change_sort_order_state_one(
 	/* Create the move and here radio buttons.	     */
 	/* Setting in reverse order because they're stacked. */
 	/* ------------------------------------------------- */
-	element = element_new(
+	element = element_appaserver_new(
 			radio_button,
 			"here" );
 
@@ -508,7 +508,7 @@ void change_sort_order_state_one(
 
 	list_prepend_pointer( form->regular_element_list, element );
 
-	element = element_new(
+	element = element_appaserver_new(
 			radio_button,
 			"move" );
 

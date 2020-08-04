@@ -89,14 +89,11 @@ char *transaction_program_journal_insert(
 			boolean lock_transaction,
 			LIST *journal_list );
 
-char *transaction_program_select(
-			void );
-
 char *transaction_property_select(
 			void );
 
 char *transaction_select(
-			void );
+			boolean with_program );
 
 /* Returns static memory */
 /* --------------------- */

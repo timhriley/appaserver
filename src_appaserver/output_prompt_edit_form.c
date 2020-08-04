@@ -978,7 +978,7 @@ LIST *get_element_list(
 	boolean attribute_exists_in_preprompt_dictionary;
 	FOLDER *folder;
 	FOLDER *prompt_folder;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_name[ 128 ];
 	LIST *omit_update_attribute_name_list;
 
@@ -1024,7 +1024,7 @@ LIST *get_element_list(
 
 	if ( *notepad )
 	{
-		APPASERVER_ELEMENT *element;
+		ELEMENT_APPASERVER *element;
 
 		list_append_pointer(
 				return_list,
@@ -1034,7 +1034,7 @@ LIST *get_element_list(
 					99 /* column span */,
 					ELEMENT_TITLE_NOTEPAD_PADDING_EM ) );
 
-		element = element_new( table_row, "" );
+		element = element_appaserver_new( table_row, "" );
 		list_append_pointer(
 				return_list, 
 				element );
@@ -1338,7 +1338,7 @@ LIST *get_element_list(
 
 			/* Make the line break. */
 			/* -------------------- */
-			element = element_new( linebreak, "" );
+			element = element_appaserver_new( linebreak, "" );
 			list_append_pointer(
 					return_list, 
 					element );
@@ -1356,7 +1356,7 @@ LIST *get_element_list(
 					one2m_folder->
 					folder_name );
 
-			element = element_new(
+			element = element_appaserver_new(
 					toggle_button, 
 					strdup( element_name ) );
 
@@ -1371,10 +1371,11 @@ LIST *get_element_list(
 			/* Make the prompt. */
 			/* ---------------- */
 			element =
-				element_new(	prompt,
-				 		related_folder->
-							one2m_folder->
-							folder_name );
+				element_appaserver_new(
+					prompt,
+				 	related_folder->
+						one2m_folder->
+						folder_name );
 
 			list_append_pointer(
 					return_list, 
@@ -1398,12 +1399,12 @@ LIST *get_radio_button_element_list(
 {
 	LIST *return_list = list_new_list();
 	int output_table_row_boolean = 0;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char onclick_function[ 512 ];
 
 	/* Create the button to set all the no display buttons. */
 	/* ---------------------------------------------------- */
-	element = element_new( toggle_button, "" );
+	element = element_appaserver_new( toggle_button, "" );
 	element->toggle_button->heading = NO_DISPLAY_PUSH_BUTTON_HEADING;
 	sprintf( onclick_function,
 		 "timlib_set_all_push_buttons( this, '%s' )",
@@ -1413,15 +1414,16 @@ LIST *get_radio_button_element_list(
 			return_list, 
 			element );
 
-	element = element_new( table_opening, "" );
+	element = element_appaserver_new( table_opening, "" );
 	list_append_pointer(
 			return_list, 
 			element );
 
 	/* Create the statistics button */
 	/* ---------------------------- */
-	element = element_new( 	radio_button, 
-				LOOKUP_OPTION_RADIO_BUTTON_NAME );
+	element = element_appaserver_new(
+			radio_button, 
+			LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 	element->radio_button->value = 
 				STATISTICS_PUSH_BUTTON_NAME;
@@ -1455,7 +1457,7 @@ LIST *get_radio_button_element_list(
 	{
 		if ( !output_table_row_boolean )
 		{
-			element = element_new( linebreak, "" );
+			element = element_appaserver_new( linebreak, "" );
 			list_append_pointer(
 					return_list, 
 					element );
@@ -1463,8 +1465,10 @@ LIST *get_radio_button_element_list(
 	
 		/* First present "Grace Chart" */
 		/* --------------------------- */
-		element = element_new( 	radio_button,
-					LOOKUP_OPTION_RADIO_BUTTON_NAME );
+		element =
+			element_appaserver_new(
+				radio_button,
+				LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 		element->radio_button->value = 
 					GRACE_CHART_PUSH_BUTTON_NAME;
@@ -1477,8 +1481,10 @@ LIST *get_radio_button_element_list(
 
 		/* Second present "Google Chart" */
 		/* ----------------------------- */
-		element = element_new( 	radio_button,
-					LOOKUP_OPTION_RADIO_BUTTON_NAME );
+		element =
+			element_appaserver_new(
+				radio_button,
+				LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 		element->radio_button->value = 
 					GOOGLE_CHART_PUSH_BUTTON_NAME;
@@ -1499,14 +1505,16 @@ LIST *get_radio_button_element_list(
 	{
 		if ( !output_table_row_boolean )
 		{
-			element = element_new( linebreak, "" );
+			element = element_appaserver_new( linebreak, "" );
 			list_append_pointer(
 					return_list, 
 					element );
 		}
 	
-		element = element_new( 	radio_button,
-					LOOKUP_OPTION_RADIO_BUTTON_NAME );
+		element =
+			element_appaserver_new(
+				radio_button,
+				LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 		element->radio_button->value = 
 					HISTOGRAM_PUSH_BUTTON_NAME;
@@ -1527,14 +1535,16 @@ LIST *get_radio_button_element_list(
 	{
 		if ( !output_table_row_boolean )
 		{
-			element = element_new( linebreak, "" );
+			element = element_appaserver_new( linebreak, "" );
 			list_append_pointer(
 					return_list, 
 					element );
 		}
 	
-		element = element_new( 	radio_button,
-					LOOKUP_OPTION_RADIO_BUTTON_NAME );
+		element =
+			element_appaserver_new(
+				radio_button,
+				LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 		element->radio_button->value =
 					GROUP_PUSH_BUTTON_NAME;
@@ -1555,14 +1565,16 @@ LIST *get_radio_button_element_list(
 	{
 		if ( !output_table_row_boolean )
 		{
-			element = element_new( linebreak, "" );
+			element = element_appaserver_new( linebreak, "" );
 			list_append_pointer(
 					return_list, 
 					element );
 		}
 	
-		element = element_new( 	radio_button,
-					LOOKUP_OPTION_RADIO_BUTTON_NAME );
+		element =
+			element_appaserver_new(
+				radio_button,
+				LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 		element->radio_button->value = 
 					TRANSMIT_PUSH_BUTTON_NAME;
@@ -1583,14 +1595,16 @@ LIST *get_radio_button_element_list(
 	{
 		if ( !output_table_row_boolean )
 		{
-			element = element_new( linebreak, "" );
+			element = element_appaserver_new( linebreak, "" );
 			list_append_pointer(
 					return_list, 
 					element );
 		}
 
-		element = element_new( 	radio_button,
-					LOOKUP_OPTION_RADIO_BUTTON_NAME );
+		element =
+			element_appaserver_new(
+				radio_button,
+				LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 		element->radio_button->value =
 					RADIO_NEW_PUSH_BUTTON_NAME;
@@ -1610,8 +1624,10 @@ LIST *get_radio_button_element_list(
 	/* -------------------------------------- */
 	if ( delete_button )
 	{
-		element = element_new( 	radio_button,
-					LOOKUP_OPTION_RADIO_BUTTON_NAME );
+		element =
+			element_appaserver_new(
+				radio_button,
+				LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 		element->radio_button->value = DELETE_PUSH_BUTTON_NAME;
 		element->radio_button->heading = "delete";
@@ -1630,14 +1646,16 @@ LIST *get_radio_button_element_list(
 	{
 		if ( !output_table_row_boolean )
 		{
-			element = element_new( linebreak, "" );
+			element = element_appaserver_new( linebreak, "" );
 			list_append_pointer(
 					return_list, 
 					element );
 		}
 	
-		element = element_new( 	radio_button,
-					LOOKUP_OPTION_RADIO_BUTTON_NAME );
+		element =
+			element_appaserver_new(
+				radio_button,
+				LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 		element->radio_button->value = SORT_ORDER_PUSH_BUTTON_NAME;
 	
@@ -1655,8 +1673,10 @@ LIST *get_radio_button_element_list(
 	/* -------------------------------------- */
 	if ( output_table_row_boolean )
 	{
-		element = element_new( 	radio_button,
-					LOOKUP_OPTION_RADIO_BUTTON_NAME );
+		element =
+			element_appaserver_new(
+				radio_button,
+				LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 		element->radio_button->value = "lookup";
 		element->radio_button->heading = "lookup";
@@ -1669,47 +1689,52 @@ LIST *get_radio_button_element_list(
 		output_table_row_boolean = 1;
 	}
 
-	element = element_new( table_closing, "" );
+	element = element_appaserver_new( table_closing, "" );
 	list_append_pointer(
 			return_list, 
 			element );
 
+#ifdef NOT_DEFINED
+# Retired 2020-08-03
 	/* Create the email_output text field (maybe) */
 	/* ------------------------------------------ */
 	if ( folder_lookup_email_output )
 	{
-		element = element_new( linebreak, "" );
+		element = element_appaserver_new( linebreak, "" );
 		list_append_pointer(
 				return_list, 
 				element );
 
-		element = element_new( empty_column, "" );
+		element = element_appaserver_new( empty_column, "" );
 		list_append_pointer(
 				return_list, 
 				element );
 
-		element = element_new( 
+		element = element_appaserver_new( 
 				prompt,
 				EMAIL_OUTPUT_NAME );
 		list_append_pointer(
 				return_list, 
 				element );
 
-		element = element_new(
+		element = element_appaserver_new(
 				javascript_filename,
 				"/javascript/jquery_min.js" );
 		list_append_pointer(
 				return_list, 
 				element );
 
-		element = element_new(
+		element = element_appaserver_new(
 				javascript_filename,
 				"/javascript/show_hide_radio_button.js" );
 		list_append_pointer(
 				return_list, 
 				element );
 
-		element = element_new( text_item, EMAIL_OUTPUT_NAME );
+		element =
+			element_appaserver_new(
+				text_item,
+				EMAIL_OUTPUT_NAME );
 		element->text_item->attribute_width = EMAIL_TEXT_ITEM_WIDTH;
 		element->text_item->post_change_javascript =
 			"show_hide_radio_button( this );";
@@ -1717,6 +1742,7 @@ LIST *get_radio_button_element_list(
 					element );
 
 	} /* if folder_lookup_email_output */
+#endif
 
 	return return_list;
 } /* get_radio_button_element_list() */

@@ -9,7 +9,6 @@
 #define REGISTRATION_H
 
 #include "boolean.h"
-#include "ledger.h"
 #include "list.h"
 
 /* Enumerated types */
@@ -33,7 +32,6 @@ typedef struct
 	char *registration_date_time;
 	LIST *registration_enrollment_list;
 	LIST *registration_payment_list;
-	TRANSACTION *registration_revenue_transaction;
 } REGISTRATION;
 
 LIST *registration_enrollment_list(
@@ -65,36 +63,16 @@ double registration_invoice_amount_due(
 			double registration_tuition,
 			double registration_payment_total );
 
-TRANSACTION *registration_revenue_transaction(
-			char *student_full_name,
-			char *street_address,
-			char *registration_date_time
-				/* transaction_date_time */,
-			double registration_tuition,
-			char *ledger_receivable_account,
-			char *program_name,
-			char *offering_revenue_account );
-
 void registration_payment_list_refresh(
 			LIST *registration_payment_list );
 
 void registration_enrollment_list_refresh(
 			LIST *registration_enrollment_list );
 
-/* Returns the true transaction_date_time */
-/* -------------------------------------- */
-char *registration_revenue_transaction_refresh(
-			char *student_full_name,
-			char *student_street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			LIST *journal_list );
-
 void registration_refresh(
 			double registration_tuition,
 			double registration_payment_total,
 			double registration_invoice_amount_due,
-			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
 			char *season_name,
@@ -139,14 +117,6 @@ REGISTRATION *registration_new(
 			char *student_street_address,
 			char *season_name,
 			int year );
-
-char *registration_transaction_refresh(
-			char *student_full_name,
-			char *student_street_address,
-			char *transaction_date_time,
-			char *program_name,
-			double transaction_amount,
-			LIST *journal_list );
 
 #endif
 

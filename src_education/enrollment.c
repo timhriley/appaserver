@@ -13,6 +13,7 @@
 #include "timlib.h"
 #include "sql.h"
 #include "list.h"
+#include "transaction.h"
 #include "enrollment.h"
 
 /* No need to strdup() in. Returns everything on the heap. */
@@ -169,5 +170,18 @@ char *enrollment_primary_where(
 		 year );
 
 	return strdup( where );
+}
+
+TRANSACTION *enrollment_transaction(
+			char *student_full_name,
+			char *street_address,
+			char *registration_date_time
+				/* transaction_date_time */,
+			char *program_name,
+			double offering_course_price,
+			char *account_receivable,
+			char *offering_revenue_account )
+{
+	return (TRANSACTION *)0;
 }
 

@@ -297,7 +297,7 @@ void post_state_one(	char *application_name,
 			char *login_name,
 			char *process_name )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	FOLDER *folder;
 	char buffer[ 256 ];
 	LIST *option_data_list;
@@ -328,7 +328,7 @@ void post_state_one(	char *application_name,
 
 	/* Build keep drop-down */
 	/* -------------------- */
-	element = element_new(
+	element = element_appaserver_new(
 			drop_down,
 			KEEP_LABEL );
 
@@ -388,7 +388,7 @@ void post_state_one(	char *application_name,
 
 	/* Build purge drop-down */
 	/* -------------------- */
-	element = element_new(
+	element = element_appaserver_new(
 			drop_down,
 			PURGE_LABEL );
 
@@ -450,8 +450,10 @@ void post_state_one(	char *application_name,
 
 	/* Build the execute_yn drop-down */
 	/* ------------------------------ */
-	element = element_new(		drop_down,
-					"execute_yn" );
+	element =
+		element_appaserver_new(
+			drop_down,
+			"execute_yn" );
 
 	option_data_list = list_new();
 	list_set_pointer( option_data_list, "y" );

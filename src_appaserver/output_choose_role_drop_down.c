@@ -138,7 +138,7 @@ void output_vertical_frameset_choose_role_drop_down(
 			LIST *role_list,
 			DICTIONARY *hidden_dictionary )
 {
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	FORM *form;
 	char post_change_javascript[ 512 ];
 	LIST *option_data_list = list_new();
@@ -172,8 +172,9 @@ void output_vertical_frameset_choose_role_drop_down(
 		(char *)0 /* post_change_javascript */ );
 
 	element =
-		element_new(	drop_down,
-				CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME );
+		element_appaserver_new(
+			drop_down,
+			CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME );
 
 	sprintf( post_change_javascript, "%s.submit()", FORM_NAME );
 	element->drop_down->post_change_javascript =
