@@ -185,3 +185,34 @@ TRANSACTION *enrollment_transaction(
 	return (TRANSACTION *)0;
 }
 
+ENROLLMENT *enrollment_getset(
+			LIST *enrollment_list,
+			char *student_full_name,
+			char *student_street_address,
+			char *course_name,
+			char *season_name,
+			int year )
+{
+	ENROLLMENT *enrollment;
+
+	if ( ! ( enrollment =
+			enrollment_fetch(
+				student_full_name,
+				student_street_address,
+				course_name,
+				season_name,
+				year ) ) )
+	{
+		enrollment =
+			enrollment_new(
+				strdup( student_full_name ),
+				strdup( student_street_address ),
+				strdup( course_name ),
+				strdup( season_name ),
+				year );
+
+		list_set( enrollment_list, enrollment );
+	}
+	return enrollment;
+}
+

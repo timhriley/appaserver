@@ -24,6 +24,7 @@
 #include "environ.h"
 #include "ledger.h"
 #include "entity.h"
+#include "entity_self.h"
 
 /* Constants */
 /* --------- */

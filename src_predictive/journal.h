@@ -42,7 +42,12 @@ char *journal_select(	void );
 
 JOURNAL	*journal_parse(	char *input );
 
-LIST *journal_list(	char *where_clause );
+LIST *journal_list_fetch(
+			char *where_clause );
+
+LIST *journal_list(	char *full_name,
+			char *street_address,
+			char *transaction_date_time );
 
 JOURNAL *journal_prior(	char *transaction_date_time,
 			char *account_name );
@@ -81,11 +86,13 @@ void journal_account_name_list_propagate(
 			char *transaction_date_time,
 			LIST *account_name_list );
 
+/* Executes journal_list_set_balance() */
+/* ----------------------------------- */
 LIST *journal_prior_propagate_journal_list(
-			JOURNAL *prior,
+			JOURNAL *prior_journal,
 			char *account_name );
 
-LIST *journal_minimum_transaction_date_time_list(
+LIST *journal_minimum_transaction_journal_list(
 			char *minimum_transaction_date_time,
 			char *account_name );
 
@@ -96,5 +103,30 @@ void journal_list_transaction_date_time_propagate(
 void journal_list_propagate(
 			LIST *journal_list,
 			boolean accumulate_debit );
+
+char *journal_list_display(
+			LIST *journal_list );
+
+void journal_stream_output(
+			FILE *debit_output_pipe,
+			FILE *credit_output_pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double amount,
+			char *debit_account_name,
+			char *credit_account_name );
+
+void journal_list_set_balance(
+			LIST *journal_list,
+			boolean accumulate_debit );
+
+JOURNAL *journal_getset(
+			LIST *journal_list,
+			char *account_name );
+
+JOURNAL *journal_getset(
+			LIST *journal_list,
+			char *account_name );
 
 #endif

@@ -118,5 +118,8 @@ REGISTRATION *registration_new(
 			char *season_name,
 			int year );
 
+LIST *registration_list(
+			char *where_clause );
+
 #endif
 

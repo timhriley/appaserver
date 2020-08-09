@@ -2305,7 +2305,8 @@ char *bank_upload_get_account_html(
 				buffer,
 				ledger_get_non_cash_account_name(
 					application_name,
-					feeder_phrase_match_build_transaction )
+					feeder_phrase_match_build_transaction->
+						journal_list )
 			) );
 	}
 	else
@@ -2883,4 +2884,39 @@ char *bank_upload_minimum_transaction_date(
 	return return_date;
 
 } /* bank_upload_minimum_transaction_date() */
+
+char *bank_upload_non_cash_account_name(
+				char *application_name,
+				LIST *journal_list )
+{
+	static char *checking_account = {0};
+	JOURNAL *journal;
+
+	if ( !checking_account )
+	{
+		checking_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				(char *)0 /* fund_name */,
+				LEDGER_CASH_KEY,
+				0 /* not warning_only */,
+			__FUNCTION__ );
+	}
+
+	if ( !list_rewind( journal_list ) )
+		return LEDGER_NOT_SET_ACCOUNT;
+
+	do {
+		journal = list_get( journal_list );
+
+		if ( string_strcmp(	journal_->account_name,
+					checking_account ) != 0 )
+		{
+			return ledger_get_account_name(
+					journal_ledger->account_name );
+		}
+	} while( list_next( journal_ledger_list ) );
+
+	return LEDGER_NOT_SET_ACCOUNT;
+}
 

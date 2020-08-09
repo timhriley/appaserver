@@ -145,8 +145,7 @@ char *fixed_asset_get_account_name(
 				char *application_name,
 				char *asset_name );
 
-LIST *fixed_asset_purchase_fetch_list(
-				char *application_name,
+LIST *fixed_asset_purchase_list(
 				char *full_name,
 				char *street_address,
 				char *purchase_date_time );

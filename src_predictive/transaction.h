@@ -10,9 +10,11 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "journal.h"
 
 /* Constants */
 /* --------- */
+#define TRANSACTION_FOLDER_NAME		"transaction"
 #define TRANSACTION_SEMAPHORE_KEY	12227
 
 /* Structures */
@@ -26,7 +28,7 @@ typedef struct
 	double transaction_amount;
 	char *memo;
 	int check_number;
-	LIST *journal_ledger_list;
+	LIST *journal_list;
 	boolean lock_transaction;
 	char *property_street_address;
 	char *program_name;
@@ -36,7 +38,8 @@ typedef struct
 /* ---------- */
 TRANSACTION *transaction_new(	char *full_name,
 				char *street_address,
-				char *transaction_date_time );
+				char *transaction_date_time,
+				char *memo );
 
 TRANSACTION *transaction_fetch(	char *full_name,
 				char *street_address,
@@ -150,5 +153,67 @@ char *transaction_refresh(
 			int check_number,
 			boolean lock_transaction,
 			LIST *journal_list );
+
+char *transaction_display(
+			TRANSACTION *transaction );
+
+TRANSACTION *transaction_seek(
+			LIST *transaction_list,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
+
+/* Returns transaction_list with transaction_date_time changed if needed. */
+/* ---------------------------------------------------------------------- */
+LIST *ledger_transaction_list_insert(	LIST *transaction_list,
+					char *application_name );
+
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
+char *ledger_transaction_insert(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					double transaction_amount,
+					char *memo,
+					int check_number,
+					boolean lock_transaction );
+
+FILE *ledger_transaction_insert_open_stream(
+				char *application_name );
+
+void ledger_transaction_insert_stream(
+				FILE *output_pipe,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction );
+
+void ledger_transaction_memo_update(	char *application_name,
+					TRANSACTION *transction );
+
+TRANSACTION *transaction_binary(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *debit_account,
+				char *credit_account,
+				double transaction_amount,
+				char *memo );
+
+LIST *transaction_binary_journal_list(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *debit_account,
+				char *credit_account );
+
+TRANSACTION *ledger_check_number_seek_transaction(
+				LIST *transaction_list,
+				int check_number );
 
 #endif

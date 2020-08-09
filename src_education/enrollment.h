@@ -48,9 +48,6 @@ LIST *enrollment_registration_enrollment_list(
 			char *season_name,
 			int year );
 
-void enrollment_list_refresh(
-			LIST *enrollment_list );
-
 ENROLLMENT *enrollment_fetch(
 			char *student_full_name,
 			char *student_street_address,
@@ -76,6 +73,18 @@ TRANSACTION *enrollment_transaction(
 			double offering_course_price,
 			char *account_receivable,
 			char *offering_revenue_account );
+
+void enrollment_list_refresh(
+			LIST *enrollment_list );
+
+
+ENROLLMENT *enrollment_getset(
+			LIST *enrollment_list,
+			char *student_full_name,
+			char *student_street_address,
+			char *course_name,
+			char *season_name,
+			int year );
 
 #endif
 

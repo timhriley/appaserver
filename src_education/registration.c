@@ -63,9 +63,9 @@ REGISTRATION *registration_getset(
 	{
 		registration =
 			registration_new(
-				student_full_name,
-				student_street_address,
-				season_name,
+				strdup( student_full_name ),
+				strdup( student_street_address ),
+				strdup( season_name ),
 				year );
 
 		list_set( semester_registration_list, registration );
@@ -238,7 +238,8 @@ REGISTRATION *registration_parse( char *input_buffer )
 	piece( piece_buffer, SQL_DELIMITER, input_buffer, 3 );
 	year = atoi( piece_buffer );
 
-	registration = registration_new(
+	registration =
+		registration_new(
 			strdup( student_full_name ),
 			strdup( student_street_address ),
 			strdup( season_name ),
@@ -273,6 +274,42 @@ REGISTRATION *registration_parse( char *input_buffer )
 	return registration;
 }
 
+LIST *registration_list( char *where_clause )
+{
+	LIST *list;
+	char sys_string[ 1024 ];
+	char input_buffer[ 1024 ];
+	FILE *input_pipe;
+	REGISTRATION *registration;
+
+	list = list_new();
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 /* ---------------------- */
+		 /* Returns program memory */
+		 /* ---------------------- */
+		 registration_select(),
+		 "registration",
+		 where_clause,
+		 registration_select() );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( string_input( input_buffer, input_pipe, 1024 ) )
+	{
+		if ( ! ( registration =
+				registration_parse( 
+					input_buffer ) ) )
+		{
+			list_set( list, registration );
+		}
+	}
+
+	pclose( input_pipe );
+	return list;
+}
+
 REGISTRATION *registration_fetch(
 			char *student_full_name,
 			char *student_street_address,
@@ -282,7 +319,7 @@ REGISTRATION *registration_fetch(
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "echo \"select %s from %s where %s;\" | sql",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
@@ -295,8 +332,7 @@ REGISTRATION *registration_fetch(
 			student_full_name,
 			student_street_address,
 			season_name,
-			year ),
-		 registration_select() );
+			year ) );
 
 	return registration_parse( pipe2string( sys_string ) );
 }

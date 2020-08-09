@@ -42,7 +42,6 @@
 
 #define LEDGER_CLOSING_ENTRY_MEMO	"close closing"
 #define LEDGER_FOLDER_NAME		"journal_ledger"
-#define TRANSACTION_FOLDER_NAME		"transaction"
 #define ACCOUNT_FOLDER_NAME		"account"
 #define SUBCLASSIFICATION_FOLDER_NAME	"subclassification"
 #define ELEMENT_FOLDER_NAME		"element"
@@ -94,20 +93,6 @@ typedef struct
 	int check_number;
 	boolean match_sum_taken;
 } JOURNAL_LEDGER;
-
-typedef struct
-{
-	char *full_name;
-	char *street_address;
-	char *transaction_date_time;
-	double transaction_amount;
-	double database_transaction_amount;
-	char *memo;
-	int check_number;
-	LIST *journal_ledger_list;
-	boolean lock_transaction;
-	char *property_street_address;
-} TRANSACTION;
 
 typedef struct
 {
@@ -244,9 +229,6 @@ boolean ledger_element_get_accumulate_debit(
 					char *application_name,
 					char *element_name );
 
-void ledger_list_set_balances(		LIST *ledger_list,
-					boolean accumulate_debit );
-
 void ledger_account_list_propagate(	LIST *propagate_account_list,
 					char *application_name );
 
@@ -304,67 +286,17 @@ LEDGER_ELEMENT *ledger_element_list_seek(
 					LIST *element_list,
 					char *element_name );
 
-char *ledger_transaction_display(	TRANSACTION *transaction );
-
 void ledger_list_html_display(		char *transaction_memo,
 					LIST *ledger_list );
 
 void ledger_list_text_display(		char *transaction_memo,
 					LIST *ledger_list );
 
-char *ledger_list_display(		LIST *ledger_list );
-
 char *ledger_journal_ledger_list_display(
 					LIST *journal_ledger_list );
 
 char *ledger_account_list_display(
 					LIST *account_list );
-
-TRANSACTION *ledger_transaction_seek(	LIST *transaction_list,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time );
-
-TRANSACTION *ledger_transaction_new(	char *full_name,
-					char *street_address,
-					char *transaction_date_time,
-					char *memo );
-
-TRANSACTION *ledger_transaction_fetch(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time );
-
-TRANSACTION *ledger_transaction_with_load_new(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time );
-
-boolean ledger_transaction_load(	double *transaction_amount,
-					double *database_transaction_amount,
-					char **memo,
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time );
-
-/* Returns transaction_list with transaction_date_time changed if needed. */
-/* ---------------------------------------------------------------------- */
-LIST *ledger_transaction_list_insert(	LIST *transaction_list,
-					char *application_name );
-
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
-char *ledger_transaction_insert(	char *application_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time,
-					double transaction_amount,
-					char *memo,
-					int check_number,
-					boolean lock_transaction );
 
 void ledger_journal_ledger_insert(	char *application_name,
 					char *full_name,
@@ -401,9 +333,6 @@ void ledger_journal_generic_update(	char *application_name,
 					char *transaction_date_time,
 					char *attribute_name,
 					char *data );
-
-void ledger_transaction_memo_update(	char *application_name,
-					TRANSACTION *transction );
 
 void ledger_journal_ledger_partial_parse(
 					int *transaction_count,
@@ -519,8 +448,6 @@ LIST *ledger_transaction_date_time_account_name_list(
 					char *application_name,
 					char *transaction_date_time );
 
-TRANSACTION *ledger_transaction_calloc(	void );
-
 double ledger_get_account_debit_amount(	LIST *journal_ledger_list,
 					char *account_name );
 
@@ -616,15 +543,6 @@ void ledger_journal_ledger_parse(
 HASH_TABLE *ledger_get_journal_ledger_hash_table(
 				char *application_name,
 				char *inventory_name );
-
-TRANSACTION *ledger_sale_hash_table_build_transaction(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				HASH_TABLE *transaction_hash_table,
-				HASH_TABLE *journal_ledger_hash_table );
 
 void ledger_set_transaction_hash_table(
 				HASH_TABLE *transaction_hash_table,
@@ -866,42 +784,10 @@ JOURNAL_LEDGER *ledger_get_or_set_journal_ledger(
 int ledger_get_non_empty_subclassification_list_length(
 				LIST *subclassification_list );
 
-TRANSACTION *ledger_inventory_purchase_hash_table_build_transaction(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				HASH_TABLE *transaction_hash_table,
-				HASH_TABLE *journal_ledger_hash_table );
-
-FILE *ledger_transaction_insert_open_stream(
-				char *application_name );
-
-void ledger_transaction_insert_stream(
-				FILE *output_pipe,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double transaction_amount,
-				char *memo,
-				int check_number,
-				boolean lock_transaction );
-
 void ledger_journal_insert_open_stream(
 				FILE **debit_account_pipe,
 				FILE **credit_account_pipe,
 				char *application_name );
-
-void ledger_journal_insert_stream(
-				FILE *debit_output_pipe,
-				FILE *credit_output_pipe,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double amount,
-				char *debit_account_name,
-				char *credit_account_name );
 
 char *ledger_get_fund_where(	char *application_name,
 				char *fund_name );
@@ -932,53 +818,6 @@ char *ledger_transaction_refresh(
 boolean ledger_propagate_account_list_exists(
 				LIST *propagate_account_list,
 				char *account_name );
-
-TRANSACTION *ledger_customer_sale_build_transaction(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *memo,
-				LIST *inventory_sale_list,
-				LIST *specific_inventory_sale_list,
-				LIST *fixed_service_sale_list,
-				LIST *hourly_service_sale_list,
-				double shipping_revenue,
-				double sales_tax,
-				double invoice_amount,
-				char *fund_name );
-
-TRANSACTION *ledger_purchase_order_build_transaction(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *memo,
-				double sales_tax,
-				double freight_in,
-				LIST *supply_purchase_list,
-				LIST *service_purchase_list,
-				LIST *fixed_asset_purchase_list,
-				LIST *prepaid_asset_purchase_list,
-				char *fund_name );
-
-TRANSACTION *ledger_specific_inventory_build_transaction(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *memo,
-				LIST *specific_inventory_purchase_list,
-				char *fund_name );
-
-TRANSACTION *ledger_inventory_build_transaction(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *memo,
-				LIST *inventory_purchase_list,
-				char *fund_name );
 
 void ledger_get_payroll_account_names(
 				char **salary_wage_expense_account,
@@ -1147,15 +986,6 @@ void ledger_transaction_delete_propagate(
 				char *transaction_date_time,
 				LIST *journal_ledger_list );
 
-TRANSACTION *ledger_binary_transaction(
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *debit_account,
-				char *credit_account,
-				double transaction_amount,
-				char *memo );
-
 LIST *ledger_build_binary_ledger_list(
 				char *full_name,
 				char *street_address,
@@ -1163,15 +993,6 @@ LIST *ledger_build_binary_ledger_list(
 				double transaction_amount,
 				char *debit_account,
 				char *credit_account );
-
-TRANSACTION *ledger_build_binary_transaction(
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *debit_account,
-				char *credit_account,
-				double transaction_amount,
-				char *memo );
 
 void ledger_transaction_output_pipe_display(
 				FILE *output_pipe,
@@ -1192,12 +1013,6 @@ boolean ledger_transaction_date_time_exists(
 				char *application_name,
 				char *transaction_date_time );
 
-char *ledger_get_non_cash_account_name(
-				char *application_name,
-				TRANSACTION *transaction );
-
-char *ledger_get_account_name(	char *account_name );
-
 double ledger_get_sales_tax(
 				char *application_name,
 				char *full_name,
@@ -1209,10 +1024,6 @@ double ledger_get_total_payment(
 				char *full_name,
 				char *street_address,
 				char *sale_date_time );
-
-TRANSACTION *ledger_check_number_seek_transaction(
-				LIST *transaction_list,
-				int check_number );
 
 JOURNAL_LEDGER *ledger_account_seek_journal_ledger(
 				LIST *journal_ledger_list,

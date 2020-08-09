@@ -144,7 +144,8 @@ SOURCE_LIBRARY= 							\
 		employee.o						\
 		fixed_asset.o						\
 		tax_recovery.o						\
-		entity.o
+		entity.o						\
+		entity_self.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
 
@@ -770,6 +771,10 @@ depreciation.o: depreciation.c depreciation.h
 accrual.o: accrual.c accrual.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c accrual.c
+
+entity_self.o: entity_self.c entity_self.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c entity_self.c
 
 entity.o: entity.c entity.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

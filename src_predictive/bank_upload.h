@@ -420,5 +420,8 @@ char *bank_upload_minimum_transaction_date(
 		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger,
 		LIST *feeder_match_sum_existing_journal_ledger_list );
 
+char *bank_upload_non_cash_account_name(
+			LIST *journal_list );
+
 #endif
 

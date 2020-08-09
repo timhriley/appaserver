@@ -395,7 +395,25 @@ LIST *journal_account_name_list(
 	return pipe2list( sys_string );
 }
 
-LIST *journal_list( char *where_clause )
+LIST *journal_list(	char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	char where_clause[ 512 ];
+
+	sprintf( where_clause,
+		 "full_name = '%s' and		"
+		 "street_address = '%s' and 	"
+		 "transaction_date_time = '%s'	",
+		 transaction_escape_full_name( full_name ),
+		 street_address,
+		 transaction_date_time );
+
+	return journal_list_fetch( where_clause );
+}
+
+LIST *journal_list_fetch(
+			char *where_clause )
 {
 	char sys_string[ 1024 ];
 
@@ -414,7 +432,7 @@ LIST *journal_list( char *where_clause )
 	return journal_parse_sys_string( sys_string );
 }
 
-LIST *journal_minimum_transaction_date_time_list(
+LIST *journal_minimum_transaction_journal_list(
 			char *minimum_transaction_date_time,
 			char *account_name )
 {
@@ -446,8 +464,8 @@ LIST *journal_prior_propagate_journal_list(
 	if ( prior )
 	{
 		journal_list =
-			journal_minimum_transaction_date_time_list(
-				prior->transaction_date_time
+			journal_minimum_transaction_journal_list(
+				prior_journal->transaction_date_time
 					/* minimum_transaction_date_time */,
 				account_name );
 	}
@@ -553,5 +571,343 @@ void journal_list_propagate(
 		prior_journal = journal;
 
 	} while( list_next( journal_list ) );
+}
+
+char *journal_list_display(
+			LIST *journal_list )
+{
+	char buffer[ 65536 ];
+	JOURNAL *journal;
+	char *buf_ptr = buffer;
+
+	*buf_ptr = '\0';
+
+	if ( list_rewind( journal_list ) )
+	{
+		do {
+			journal = list_get( journal_list );
+
+			buf_ptr +=
+			   sprintf(	buf_ptr,
+					"\n"
+					"full_name = %s, "
+					"street_address = %s, "
+					"account=%s, "
+					"transaction_date_time=%s, "
+					"transaction_count=%d, "
+					"database_transaction_count=%d, "
+					"previous_balance=%.2lf, "
+					"database_previous_balance=%.2lf, "
+					"debit_amount=%.2lf, "
+					"credit_amount=%.2lf, "
+					"balance=%.2lf, "
+					"database_balance=%.2lf\n",
+					journal->full_name,
+					journal->street_address,
+					journal->account_name,
+					journal->transaction_date_time,
+					journal->transaction_count,
+					journal->database_transaction_count,
+					journal->previous_balance,
+					journal->database_previous_balance,
+					journal->debit_amount,
+					journal->credit_amount,
+					journal->balance,
+					journal->database_balance );
+		} while( list_next( journal_list ) );
+	}
+	return strdup( buffer );
+}
+
+void journal_stream_output(
+			FILE *debit_output_pipe,
+			FILE *credit_output_pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double amount,
+			char *debit_account_name,
+			char *credit_account_name )
+{
+	if ( debit_output_pipe )
+	{
+		fprintf(	debit_output_pipe,
+				"%s^%s^%s^%s^%.2lf\n",
+				full_name,
+				street_address,
+				transaction_date_time,
+				debit_account_name,
+				amount );
+	}
+
+	if ( credit_output_pipe )
+	{
+		fprintf(	credit_output_pipe,
+				"%s^%s^%s^%s^%.2lf\n",
+				full_name,
+				street_address,
+				transaction_date_time,
+				credit_account_name,
+				amount );
+	}
+}
+
+void journal_stream_open(
+				FILE **debit_account_pipe,
+				FILE **credit_account_pipe )
+{
+	char sys_string[ 1024 ];
+	char *field;
+
+	field=
+"full_name,street_address,transaction_date_time,account,debit_amount";
+
+	sprintf( sys_string,
+		 "insert_statement table=%s field=%s delimiter='^' replace=n |"
+		 "sql.e							      ",
+		 JOURNAL_FOLDER_NAME,
+		 field );
+
+	*debit_account_pipe = popen( sys_string, "w" );
+
+	field=
+"full_name,street_address,transaction_date_time,account,credit_amount";
+
+	sprintf( sys_string,
+		 "insert_statement table=%s field=%s delimiter='^' replace=n |"
+		 "sql.e							      ",
+		 JOURNAL_FOLDER_NAME,
+		 field );
+
+	*credit_account_pipe = popen( sys_string, "w" );
+}
+
+void journal_propagate(	char *transaction_date_time,
+			char *account_name )
+{
+	JOURNAL *prior;
+	LIST *propagate_journal_list;
+
+	if ( !account_name )
+	{
+		fprintf( stderr,
+"Warning in %s/%s()/%d: empty account_name for transaction_date_time = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 transaction_date_time );
+		return;
+	}
+
+	prior =
+		journal_prior(
+			transaction_date_time,
+			account_name );
+
+	propagate_journal_list =
+		journal_propagate_journal_list(
+			prior,
+			account_name );
+
+	journal_propagate_journal_list_execute(
+			propagate_journal_list );
+}
+
+/* Executes journal_list_set_balance() */
+/* ----------------------------------- */
+LIST *journal_propagate_journal_list(
+				JOURNAL *prior_journal,
+				char *account_name )
+{
+	LIST *journal_list = {0};
+	boolean accumulate_debit;
+	JOURNAL *first_journal;
+
+	if ( !account_name ) return (LIST *)0;
+
+	accumulate_debit =
+		account_accumulate_debit(
+			account_name );
+
+	if ( prior_journal )
+	{
+		journal_list =
+			journal_minimum_transaction_journal_list(
+				prior_ledger->transaction_date_time
+					/* minimum_transaction_date_time */,
+				account_name );
+	}
+	else
+	/* ------------------------------------------------- */
+	/* Otherwise doing period of record for the account. */
+	/* ------------------------------------------------- */
+	{
+		journal_list =
+			journal_account_name_list(
+				account_name );
+
+		if ( !list_length( journal_list ) ) return (LIST *)0;
+
+		first_journal = list_get_first( journal_list );
+		first_journal->previous_balance = 0.0;
+		first_journal->transaction_count = 1;
+	}
+
+	/* If deleted the latest one, then no propagate. */
+	/* --------------------------------------------- */
+	if ( prior_journal && list_length( journal_list ) == 1 )
+	{
+		return (LIST *)0;
+	}
+
+	journal_list_set_balance(
+		journal_list,
+		accumulate_debit );
+
+	return journal_list;
+}
+
+void journal_list_set_balance(	LIST *journal_list,
+				boolean accumulate_debit )
+{
+	JOURNAL *journal;
+	JOURNAL *prior_journal = {0};
+	JOURNAL *first_journal = {0};
+	int transaction_count;
+
+	if ( !list_rewind( journal_list ) ) return;
+
+	/* Need a separate transaction_count to keep from double counting. */
+	/* --------------------------------------------------------------- */
+	first_ledger = list_get_first_pointer( ledger_list );
+	transaction_count = first_ledger->transaction_count;
+
+	do {
+		ledger = list_get( ledger_list );
+
+		if ( prior_ledger )
+		{
+			journal->previous_balance = prior_journal->balance;
+		}
+
+		if ( accumulate_debit )
+		{
+			if ( journal->debit_amount )
+			{
+				journal->balance =
+					journal->previous_balance +
+					journal->debit_amount;
+			}
+			else
+			if ( journal->credit_amount )
+			{
+				journal->balance =
+					journal->previous_balance -
+					journal->credit_amount;
+
+			}
+		}
+		else
+		{
+			if ( journal->credit_amount )
+			{
+				journal->balance =
+					journal->previous_balance +
+					journal->credit_amount;
+
+			}
+			else
+			if ( journal->debit_amount )
+			{
+				journal->balance =
+					journal->previous_balance -
+					journal->debit_amount;
+			}
+		}
+
+		if ( timlib_dollar_virtually_same(
+			journal->balance,
+			0.0 ) )
+		{
+			journal->transaction_count = 0;
+			transaction_count = 1;
+		}
+		else
+		{
+			journal->transaction_count = transaction_count;
+			transaction_count++;
+		}
+
+		prior_journal = journal;
+
+	} while( list_next( journal_list ) );
+}
+
+JOURNAL *journal_seek(
+			LIST *journal_list,
+			char *account_name )
+{
+	JOURNAL *journal;
+
+	if ( !list_rewind( journal_list ) ) return (JOURNAL *)0;
+
+	do {
+		journal = list_get( journal_list );
+
+		if ( strcmp(	journal->account_name,
+				account_name ) == 0 )
+		{
+			return journal;
+		}
+	} while( list_next( journal_ledger_list ) );
+
+	return (JOURNAL *)0;
+}
+
+JOURNAL *journal_getset(
+			LIST *journal_list,
+			char *account_name )
+{
+	JOURNAL *journal;
+
+	if ( ( journal =
+			journal_seek(
+				journal_list,
+				account_name ) ) )
+	{
+		return journal;
+	}
+
+	journal =
+		journal_new(
+			(char *)0 /* full_name */,
+			(char *)0 /* street_address */,
+			(char *)0 /* transaction_date_time */,
+			account_name );
+
+	list_set( journal_list, journal );
+	return journal;
+}
+
+JOURNAL *journal_getset(
+			LIST *journal_list,
+			char *account_name )
+{
+	JOURNAL *journal;
+
+	if ( ( journal = journal_getset( journal_list, account_name ) ) )
+	{
+		return journal;
+	}
+
+	journal =
+		journal_new(
+			(char *)0 /* full_name */,
+			(char *)0 /* street_address */,
+			(char *)0 /* transaction_date_time */,
+			strdup( account_name ) );
+
+	list_set( journal_list, journal );
+	return journal;
 }
 

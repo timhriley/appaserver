@@ -133,8 +133,7 @@ PURCHASE_ORDER *purchase_order_fetch_new(char *application_name,
 					char *street_address,
 					char *purchase_date_time );
 
-PURCHASE_ORDER *purchase_order_new(	char *application_name,
-					char *full_name,
+PURCHASE_ORDER *purchase_order_new(	char *full_name,
 					char *street_address,
 					char *purchase_date_time );
 
@@ -611,6 +610,47 @@ LIST *purchase_get_amount_due_purchase_order_list(
 
 double purchase_get_sum_vendor_payment_amount(
 				LIST *vendor_payment_list );
+
+TRANSACTION *inventory_purchase_hash_table_build_transaction(
+				char *application_name,
+				char *fund_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				HASH_TABLE *transaction_hash_table,
+				HASH_TABLE *journal_ledger_hash_table );
+
+TRANSACTION *purchase_inventory_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *inventory_purchase_list,
+				char *fund_name );
+
+TRANSACTION *ledger_purchase_order_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				double sales_tax,
+				double freight_in,
+				LIST *supply_purchase_list,
+				LIST *service_purchase_list,
+				LIST *fixed_asset_purchase_list,
+				LIST *prepaid_asset_purchase_list,
+				char *fund_name );
+
+TRANSACTION *purchaser_specific_inventory_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *specific_inventory_purchase_list,
+				char *fund_name );
 
 #endif
 

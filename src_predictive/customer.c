@@ -1979,7 +1979,7 @@ LIST *customer_get_inventory_customer_sale_list(
 		if ( customer_sale->transaction_date_time )
 		{
 			customer_sale->transaction =
-				ledger_sale_hash_table_build_transaction(
+				sale_hash_table_build_transaction(
 					application_name,
 					customer_sale->fund_name,
 					customer_sale->full_name,
@@ -3956,4 +3956,297 @@ double customer_get_sum_payment_amount(
 	return sum_payment_amount;
 
 } /* customer_get_sum_payment_amount() */
+
+TRANSACTION *sale_hash_table_build_transaction(
+				char *application_name,
+				char *fund_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				HASH_TABLE *transaction_hash_table,
+				HASH_TABLE *journal_ledger_hash_table )
+{
+	static LIST *inventory_account_name_list = {0};
+	static char *sales_tax_payable_account = {0};
+	static char *shipping_revenue_account = {0};
+	static char *receivable_account = {0};
+	char *inventory_account_name;
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *key;
+
+	key = ledger_get_transaction_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	if ( ! ( transaction =
+			hash_table_fetch( 
+				transaction_hash_table,
+				key ) ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	if ( !inventory_account_name_list )
+	{
+		inventory_account_name_list =
+			ledger_get_inventory_account_name_list(
+				application_name );
+
+		ledger_get_customer_sale_account_names(
+			&sales_tax_payable_account,
+			&shipping_revenue_account,
+			&receivable_account,
+			application_name,
+			fund_name );
+	}
+
+	if ( !sales_tax_payable_account ) return (TRANSACTION *)0;
+
+	/* ========================= */
+	/* Build journal_ledger_list */
+	/* ========================= */
+	transaction->journal_ledger_list = list_new();
+
+	/* Sales revenue */
+	/* ------------- */
+	key = ledger_get_journal_ledger_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time,
+			"sales_revenue_account" );
+
+
+	if ( key && ( journal_ledger =
+			hash_table_fetch( 
+				journal_ledger_hash_table,
+				key ) ) )
+	{
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* Sales tax payable */
+	/* ----------------- */
+	key = ledger_get_journal_ledger_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time,
+			sales_tax_payable_account );
+
+	if ( key && ( journal_ledger =
+			hash_table_fetch( 
+				journal_ledger_hash_table,
+				key ) ) )
+	{
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* Shipping revenue */
+	/* ---------------- */
+	key = ledger_get_journal_ledger_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time,
+			shipping_revenue_account );
+
+	if ( key && ( journal_ledger =
+			hash_table_fetch( 
+				journal_ledger_hash_table,
+				key ) ) )
+	{
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* Accounts receivable */
+	/* ------------------- */
+	key = ledger_get_journal_ledger_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time,
+			receivable_account );
+
+	if ( key && ( journal_ledger =
+			hash_table_fetch( 
+				journal_ledger_hash_table,
+				key ) ) )
+	{
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* Inventory and cost_of_goods_sold */
+	/* -------------------------------- */
+	if ( list_rewind( inventory_account_name_list ) )
+	{
+		do {
+			inventory_account_name =
+				list_get_pointer(
+					inventory_account_name_list );
+
+			key = ledger_get_journal_ledger_hash_table_key(
+					full_name,
+					street_address,
+					transaction_date_time,
+					inventory_account_name );
+
+			if ( key && ( journal_ledger =
+					hash_table_fetch( 
+						journal_ledger_hash_table,
+						key ) ) )
+			{
+				list_append_pointer(
+					transaction->journal_ledger_list,
+					journal_ledger );
+			}
+
+		} while( list_next( inventory_account_name_list ) );
+	}
+
+	return transaction;
+}
+
+TRANSACTION *customerr_customer_sale_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *inventory_sale_list,
+				LIST *specific_inventory_sale_list,
+				LIST *fixed_service_sale_list,
+				LIST *hourly_service_sale_list,
+				double shipping_revenue,
+				double sales_tax,
+				double invoice_amount,
+				char *fund_name )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	char *receivable_account = {0};
+	double sales_revenue_amount = {0};
+	double service_revenue_amount = {0};
+
+	if ( !full_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty full_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	ledger_get_customer_sale_account_names(
+		&sales_tax_payable_account,
+		&shipping_revenue_account,
+		&receivable_account,
+		application_name,
+		fund_name );
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			memo );
+
+	transaction->journal_ledger_list =
+		ledger_get_credit_journal_ledger_list(
+			&sales_revenue_amount,
+			&service_revenue_amount,
+			inventory_sale_list,
+			specific_inventory_sale_list,
+			fixed_service_sale_list,
+			hourly_service_sale_list );
+
+	/* shipping_revenue */
+	/* ---------------- */
+	if ( shipping_revenue )
+	{
+		if ( !shipping_revenue_account )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: shipping_revenue exists without shipping_revenue_account set.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction_date_time,
+				shipping_revenue_account );
+
+		journal_ledger->credit_amount = shipping_revenue;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		sales_revenue_amount += shipping_revenue;
+	}
+
+	/* sales_tax */
+	/* --------- */
+	if ( sales_tax )
+	{
+		if ( !sales_tax_payable_account )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: sales_tax exists without sales_tax_payable_account set.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction_date_time,
+				sales_tax_payable_account );
+
+		journal_ledger->credit_amount = sales_tax;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* account_receivable */
+	/* ------------------ */
+	if ( invoice_amount )
+	{
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction_date_time,
+				receivable_account );
+
+		journal_ledger->debit_amount = invoice_amount;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		transaction->transaction_amount = invoice_amount;
+	}
+
+	return transaction;
+}
 

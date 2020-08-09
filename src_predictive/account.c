@@ -50,3 +50,26 @@ boolean account_accumulate_debit(
 	return element->accumulate_debit;
 }
 
+char *account_receivable( void )
+{
+	return "";
+}
+
+char *account_cash( void )
+{
+	return "";
+}
+
+char *account_fees_expense( void )
+{
+	return "";
+}
+
+char *account_name_display( char *account_name )
+{
+	if ( !account_name )
+		return LEDGER_NOT_SET_ACCOUNT;
+	else
+		return account_name;
+}
+

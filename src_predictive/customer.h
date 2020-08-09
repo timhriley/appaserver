@@ -689,5 +689,29 @@ CUSTOMER_SALE *customer_sale_fetch_new(
 double customer_get_sum_payment_amount(
 				LIST *payment_list );
 
+TRANSACTION *sale_hash_table_build_transaction(
+				char *application_name,
+				char *fund_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				HASH_TABLE *transaction_hash_table,
+				HASH_TABLE *journal_ledger_hash_table );
+
+TRANSACTION *customer_sale_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *inventory_sale_list,
+				LIST *specific_inventory_sale_list,
+				LIST *fixed_service_sale_list,
+				LIST *hourly_service_sale_list,
+				double shipping_revenue,
+				double sales_tax,
+				double invoice_amount,
+				char *fund_name );
+
 #endif
 

@@ -46,4 +46,15 @@ ACCOUNT *account_new(	char *account_name );
 boolean account_accumulate_debit(
 			char *account_name );
 
+char *account_receivable(
+			void );
+
+char *account_cash(	void );
+
+char *account_fees_expense(
+			void );
+
+char *account_name_display(
+			char *account_name );
+
 #endif
