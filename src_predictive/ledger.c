@@ -2492,6 +2492,7 @@ char *ledger_list_display( LIST *ledger_list )
 	return journal_list_display( ledger_list );
 }
 
+#ifdef NOT_DEFINED
 LIST *ledger_get_journal_ledger_list(
 				char *application_name,
 				char *full_name,
@@ -2500,7 +2501,7 @@ LIST *ledger_get_journal_ledger_list(
 				char *account_name )
 {
 	char sys_string[ 1024 ];
-	LIST *journal_ledger_list;
+	LIST *journal_list;
 	char where[ 512 ];
 	char *select;
 	FILE *input_pipe;
@@ -2510,7 +2511,7 @@ LIST *ledger_get_journal_ledger_list(
 	char local_transaction_date_time[ 128 ];
 	char local_account_name[ 128 ];
 	char buffer[ 128 ];
-	JOURNAL_LEDGER *ledger;
+	JOURNAL *journal;
 
 	select = ledger_journal_ledger_get_select();
 
@@ -2580,7 +2581,7 @@ LIST *ledger_get_journal_ledger_list(
 		 "transaction_date_time" );
 
 	input_pipe = popen( sys_string, "r" );
-	journal_ledger_list = list_new();
+	journal_list = list_new();
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
@@ -2609,7 +2610,7 @@ LIST *ledger_get_journal_ledger_list(
 		&&   !minimum_transaction_date_time
 		&&   account_name )
 		{
-			ledger = journal_ledger_new(
+			journal = journal_new(
 					strdup( local_full_name ),
 					strdup( local_street_address ),
 					strdup( local_transaction_date_time ),
@@ -2621,7 +2622,7 @@ LIST *ledger_get_journal_ledger_list(
 		&&   minimum_transaction_date_time
 		&&   account_name )
 		{
-			ledger = journal_ledger_new(
+			journal = journal_new(
 					strdup( local_full_name ),
 					strdup( local_street_address ),
 					strdup( local_transaction_date_time ),
@@ -2629,7 +2630,7 @@ LIST *ledger_get_journal_ledger_list(
 		}
 		else
 		{
-			ledger = journal_ledger_new(
+			journal = journal_new(
 					full_name,
 					street_address,
 					minimum_transaction_date_time,
@@ -2637,7 +2638,7 @@ LIST *ledger_get_journal_ledger_list(
 		}
 
 		ledger_journal_ledger_partial_parse(
-			&ledger->transaction_count,
+			&journal->transaction_count,
 			&ledger->database_transaction_count,
 			&ledger->previous_balance,
 			&ledger->database_previous_balance,
@@ -2655,6 +2656,7 @@ LIST *ledger_get_journal_ledger_list(
 	return journal_ledger_list;
 
 } /* ledger_get_journal_ledger_list() */
+#endif
 
 LIST *ledger_get_check_number_journal_ledger_list(
 				char *application_name,
@@ -4021,16 +4023,17 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 			input_buffer,
 			2 );
 
+		transaction = transaction_new(
+					strdup( full_name ),
+					strdup( street_address ),
+					strdup( transaction_date_time ) );
+
 		piece(	memo,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			3 );
 
-		transaction = ledger_transaction_new(
-					strdup( full_name ),
-					strdup( street_address ),
-					strdup( transaction_date_time ),
-					strdup( memo ) );
+		transaction->memo = strdup( memo );
 
 		piece(	check_number,
 			FOLDER_DATA_DELIMITER,
@@ -4050,8 +4053,8 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 				strdup( property_street_address );
 		}
 
-		transaction->journal_ledger_list =
-			ledger_get_journal_ledger_list(
+		transaction->journal_list =
+			ledger_get_journal_list(
 				application_name,
 				transaction->full_name,
 				transaction->street_address,
@@ -4064,8 +4067,7 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 
 	pclose( input_pipe );
 	return transaction_list;
-
-} /* ledger_fetch_transaction_list() */
+}
 
 char *ledger_get_transaction_date_time( char *transaction_date )
 {
@@ -4634,8 +4636,7 @@ HASH_TABLE *ledger_get_transaction_hash_table(
 	pclose( input_pipe );
 
 	return transaction_hash_table;
-
-} /* ledger_get_transaction_hash_table() */
+}
 
 void ledger_set_transaction_hash_table(
 				HASH_TABLE *transaction_hash_table,
@@ -4644,7 +4645,7 @@ void ledger_set_transaction_hash_table(
 	TRANSACTION *transaction;
 	char *key;
 
-	transaction = ledger_transaction_calloc();
+	transaction = transaction_calloc();
 
 	ledger_transaction_parse(
 			&transaction->full_name,
@@ -4662,8 +4663,7 @@ void ledger_set_transaction_hash_table(
 			transaction_hash_table,
 			strdup( key ),
 			transaction );
-
-} /* ledger_set_transaction_hash_table() */
+}
 
 char *ledger_get_transaction_hash_table_key(
 				char *full_name,
@@ -4733,8 +4733,7 @@ char *ledger_get_journal_ledger_purchase_order_join_where( void )
 			"	purchase_order.transaction_date_time	";
 
 	return join_where;
-
-} /* ledger_get_journal_ledger_purchase_order_join_where() */
+}
 
 char *ledger_get_journal_ledger_customer_sale_join_where( void )
 {
@@ -4748,8 +4747,7 @@ char *ledger_get_journal_ledger_customer_sale_join_where( void )
 			"	customer_sale.transaction_date_time	";
 
 	return join_where;
-
-} /* ledger_get_journal_ledger_customer_sale_join_where() */
+}
 
 char *ledger_get_journal_ledger_transaction_join_where( void )
 {
@@ -4763,8 +4761,7 @@ char *ledger_get_journal_ledger_transaction_join_where( void )
 			"	transaction.transaction_date_time	";
 
 	return join_where;
-
-} /* ledger_get_journal_ledger_transaction_order_join_where() */
+}
 
 void ledger_journal_ledger_parse(
 				char **full_name,
@@ -4905,8 +4902,7 @@ HASH_TABLE *ledger_get_journal_ledger_hash_table(
 	pclose( input_pipe );
 
 	return journal_ledger_hash_table;
-
-} /* ledger_get_journal_ledger_hash_table() */
+}
 
 void ledger_set_journal_ledger_hash_table(
 				HASH_TABLE *journal_ledger_hash_table,
@@ -4942,8 +4938,7 @@ void ledger_set_journal_ledger_hash_table(
 		journal_ledger_hash_table,
 		strdup( key ),
 		journal_ledger );
-
-} /* ledger_get_journal_ledger_hash_table() */
+}
 
 char *ledger_get_journal_ledger_hash_table_key(
 				char *full_name,
@@ -4963,8 +4958,7 @@ char *ledger_get_journal_ledger_hash_table_key(
 			account_name );
 
 	return key;
-
-} /* ledger_get_journal_ledger_hash_table_key() */
+}
 
 char *ledger_get_shipped_date_transaction_date_time(
 				char *shipped_date )
@@ -5933,15 +5927,14 @@ LIST *ledger_get_after_balance_zero_journal_ledger_list(
 				transaction_date_time );
 	}
 
-	return ledger_get_journal_ledger_list(
+	return ledger_get_journal_list(
 				application_name,
 				(char *)0 /* full_name */,
 				(char *)0 /* street_address */,
 				transaction_date_time_string
 					/* minimum_transaction_date_time */,
 				account_name );
-
-} /* ledger_get_after_balance_zero_journal_ledger_list() */
+}
 
 int ledger_get_non_empty_subclassification_list_length(
 			LIST *subclassification_list )

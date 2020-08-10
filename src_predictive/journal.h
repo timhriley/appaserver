@@ -66,7 +66,7 @@ void journal_insert(	FILE *insert_pipe,
 			double amount,
 			boolean is_debit );
 
-JOURNAL *journal_account_name_fetch(
+JOURNAL *journal_account_fetch(
 			char *account_name,
 			char *transaction_date_time );
 
@@ -99,7 +99,7 @@ void journal_list_transaction_date_time_propagate(
 char *journal_list_display(
 			LIST *journal_list );
 
-void journal_list_set(
+void journal_list_set_balances(
 			LIST *journal_list,
 			boolean accumulate_debit );
 
@@ -121,6 +121,8 @@ void journal_list_insert(
 			char *transaction_date_time,
 			LIST *journal_list );
 
+/* Executes journal_list_set_balances() */
+/* ------------------------------------ */
 void journal_propagate(
 			char *transaction_date_time,
 			char *account_name );
@@ -128,8 +130,6 @@ void journal_propagate(
 void journal_list_propagate_update(
 			LIST *propagate_journal_list );
 
-/* Executes journal_list_set() */
-/* --------------------------- */
 LIST *journal_list_prior(
 			JOURNAL *prior_journal,
 			char *account_name );

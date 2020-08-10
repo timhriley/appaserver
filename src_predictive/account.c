@@ -68,7 +68,7 @@ char *account_fees_expense( void )
 char *account_name_display( char *account_name )
 {
 	if ( !account_name )
-		return LEDGER_NOT_SET_ACCOUNT;
+		return ACCOUNT_NOT_SET;
 	else
 		return account_name;
 }

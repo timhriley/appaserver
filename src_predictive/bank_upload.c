@@ -18,6 +18,7 @@
 #include "basename.h"
 #include "sed.h"
 #include "feeder_upload.h"
+#include "account.h"
 #include "bank_upload.h"
 
 BANK_UPLOAD *bank_upload_calloc( void )
@@ -2904,7 +2905,7 @@ char *bank_upload_non_cash_account_name(
 	}
 
 	if ( !list_rewind( journal_list ) )
-		return LEDGER_NOT_SET_ACCOUNT;
+		return ACCOUNT_NOT_SET;
 
 	do {
 		journal = list_get( journal_list );
@@ -2917,6 +2918,6 @@ char *bank_upload_non_cash_account_name(
 		}
 	} while( list_next( journal_ledger_list ) );
 
-	return LEDGER_NOT_SET_ACCOUNT;
+	return ACCOUNT_NOT_SET;
 }
 

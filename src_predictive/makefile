@@ -133,7 +133,6 @@ SOURCE_LIBRARY= 							\
 		account.o						\
 		program.o						\
 		element.o						\
-		ledger.o						\
 		purchase.o						\
 		customer.o						\
 		inventory.o						\
@@ -142,7 +141,7 @@ SOURCE_LIBRARY= 							\
 		depreciation.o						\
 		accrual.o						\
 		employee.o						\
-		fixed_asset.o						\
+		fixed_asset_purchase.o					\
 		tax_recovery.o						\
 		entity.o						\
 		entity_self.o
@@ -738,10 +737,6 @@ generate_invoice: generate_invoice.c					\
 	rm generate_workorder
 	ln generate_invoice generate_workorder
 
-ledger.o: ledger.c ledger.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c ledger.c
-
 inventory.o: inventory.c inventory.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c inventory.c
@@ -812,10 +807,10 @@ reoccurring.o: reoccurring.c						\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c reoccurring.c
 
-fixed_asset.o: fixed_asset.c						\
-		fixed_asset.h
+fixed_asset_purchase.o: fixed_asset_purchase.c				\
+		fixed_asset_purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c fixed_asset.c
+		-c fixed_asset_purchase.c
 
 feeder_upload.o: feeder_upload.c					\
 		feeder_upload.h

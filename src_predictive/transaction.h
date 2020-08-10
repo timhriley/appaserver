@@ -34,6 +34,9 @@ typedef struct
 	char *program_name;
 } TRANSACTION;
 
+TRANSACTION *transaction_calloc(
+			void );
+
 TRANSACTION *transaction_new(
 			char *full_name,
 			char *street_address,

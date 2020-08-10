@@ -74,38 +74,6 @@
 
 /* Structures */
 /* ---------- */
-typedef struct
-{
-	char *full_name;
-	char *street_address;
-	char *transaction_date_time;
-	char *account_name;
-	int transaction_count;
-	int database_transaction_count;
-	double previous_balance;
-	double database_previous_balance;
-	double debit_amount;
-	double credit_amount;
-	double balance;
-	double database_balance;
-	char *memo;
-	char *property_street_address;
-	int check_number;
-	boolean match_sum_taken;
-} JOURNAL_LEDGER;
-
-typedef struct
-{
-	char *account_name;
-	char *fund_name;
-	char *subclassification_name;
-	char *hard_coded_account_key;
-	JOURNAL_LEDGER *latest_ledger;
-	LIST *journal_ledger_list;
-	boolean accumulate_debit;
-	double balance;
-	double payment_amount;
-} ACCOUNT;
 
 typedef struct
 {
@@ -350,11 +318,13 @@ LIST *ledger_get_year_journal_ledger_list(
 					int year,
 					char *account_name );
 
+/*
 LIST *ledger_get_journal_ledger_list(	char *application_name,
 					char *full_name,
 					char *street_address,
 					char *minimum_transaction_date_time,
 					char *account_name );
+*/
 
 char *ledger_get_minimum_transaction_date(
 					char *application_name );

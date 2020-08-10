@@ -14,6 +14,7 @@
 
 /* Constants */
 /* --------- */
+#define ACCOUNT_NOT_SET			"not_set"
 
 /* Structures */
 /* ---------- */

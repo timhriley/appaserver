@@ -17,9 +17,7 @@
 #include "journal.h"
 #include "transaction.h"
 
-TRANSACTION *transaction_new(	char *full_name,
-				char *street_address,
-				char *transaction_date_time )
+TRANSACTION *transaction_calloc( void )
 {
 	TRANSACTION *transaction;
 
@@ -32,6 +30,17 @@ TRANSACTION *transaction_new(	char *full_name,
 			 __LINE__ );
 		exit( 1 );
 	}
+
+	return transaction;
+}
+
+TRANSACTION *transaction_new(	char *full_name,
+				char *street_address,
+				char *transaction_date_time )
+{
+	TRANSACTION *transaction;
+
+	transaction = transaction_calloc();
 
 	transaction->full_name = full_name;
 	transaction->street_address = street_address;
@@ -664,12 +673,12 @@ void transaction_update(	double transaction_amount,
 
 	update_pipe = popen( sys_string, "w" );
 
-	fprintf( update_pipe,
-		 "%s^%s^%s^transaction_amount^%.2lf\n",
-			transaction_escape_full_name( full_name ),
-		 	street_address,
-		 	transaction_date_time,
-			transaction_amount );
+	fprintf(update_pipe,
+		"%s^%s^%s^transaction_amount^%.2lf\n",
+		transaction_escape_full_name( full_name ),
+		street_address,
+		transaction_date_time,
+		transaction_amount );
 
 	pclose( update_pipe );
 }
