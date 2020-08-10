@@ -24,10 +24,13 @@ typedef struct
 	char *transaction_date_time;
 	char *account_name;
 	int transaction_count;
+	int transaction_count_database;
 	double previous_balance;
+	double previous_balance_database;
 	double debit_amount;
 	double credit_amount;
 	double balance;
+	double balance_database;
 	boolean match_sum_taken;
 } JOURNAL;
 
@@ -52,7 +55,7 @@ LIST *journal_list(	char *full_name,
 JOURNAL *journal_prior(	char *transaction_date_time,
 			char *account_name );
 
-FILE *journal_insert_pipe(
+FILE *journal_insert_open(
 			void );
 
 void journal_insert(	FILE *insert_pipe,
@@ -78,46 +81,25 @@ void journal_delete(	char *full_name,
 			char *street_address,
 			char *transaction_date_time );
 
-void journal_account_name_propagate(
-			char *transaction_date_time,
-			char *account_name );
-
 void journal_account_name_list_propagate(
 			char *transaction_date_time,
 			LIST *account_name_list );
 
-/* Executes journal_list_set_balance() */
-/* ----------------------------------- */
-LIST *journal_prior_propagate_journal_list(
-			JOURNAL *prior_journal,
+LIST *journal_list_minimum(
+			char *minimum_transaction_date_time,
 			char *account_name );
 
-LIST *journal_minimum_transaction_journal_list(
-			char *minimum_transaction_date_time,
+LIST *journal_list_account(
 			char *account_name );
 
 void journal_list_transaction_date_time_propagate(
 			char *transaction_date_time,
 			LIST *journal_list );
 
-void journal_list_propagate(
-			LIST *journal_list,
-			boolean accumulate_debit );
-
 char *journal_list_display(
 			LIST *journal_list );
 
-void journal_stream_output(
-			FILE *debit_output_pipe,
-			FILE *credit_output_pipe,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double amount,
-			char *debit_account_name,
-			char *credit_account_name );
-
-void journal_list_set_balance(
+void journal_list_set(
 			LIST *journal_list,
 			boolean accumulate_debit );
 
@@ -125,8 +107,31 @@ JOURNAL *journal_getset(
 			LIST *journal_list,
 			char *account_name );
 
-JOURNAL *journal_getset(
-			LIST *journal_list,
+LIST *journal_binary_journal_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *debit_account,
+			char *credit_account );
+
+void journal_list_insert(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			LIST *journal_list );
+
+void journal_propagate(
+			char *transaction_date_time,
+			char *account_name );
+
+void journal_list_propagate_update(
+			LIST *propagate_journal_list );
+
+/* Executes journal_list_set() */
+/* --------------------------- */
+LIST *journal_list_prior(
+			JOURNAL *prior_journal,
 			char *account_name );
 
 #endif
