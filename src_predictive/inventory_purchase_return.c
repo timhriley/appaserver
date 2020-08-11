@@ -17,7 +17,6 @@
 #include "inventory_purchase_return.h"
 #include "purchase.h"
 #include "customer.h"
-#include "ledger.h"
 #include "entity.h"
 
 INVENTORY_PURCHASE_RETURN *inventory_purchase_return_new( void )

@@ -18,7 +18,6 @@
 #include "appaserver_error.h"
 #include "entity.h"
 #include "date.h"
-#include "ledger.h"
 #include "purchase.h"
 
 /* Constants */

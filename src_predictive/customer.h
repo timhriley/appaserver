@@ -12,7 +12,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "inventory.h"
-#include "ledger.h"
+#include "transaction.h"
 #include "hash_table.h"
 #include "entity.h"
 

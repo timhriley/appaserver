@@ -15,7 +15,6 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
-#include "ledger.h"
 
 /* Constants */
 /* --------- */

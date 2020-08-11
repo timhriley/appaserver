@@ -21,7 +21,6 @@
 #include "inventory.h"
 #include "entity.h"
 #include "application.h"
-#include "ledger.h"
 #include "document.h"
 #include "purchase.h"
 #include "customer.h"

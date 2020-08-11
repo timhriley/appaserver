@@ -15,7 +15,6 @@
 #include "date.h"
 #include "folder.h"
 #include "list.h"
-#include "ledger.h"
 #include "purchase.h"
 #include "depreciation.h"
 #include "accrual.h"

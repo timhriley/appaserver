@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------- */
-/* src_predictive/accrual.c						*/
+/* $APPASERVER_HOME/src_predictive/accrual.c				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver accrual ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -13,7 +12,6 @@
 #include "piece.h"
 #include "date.h"
 #include "appaserver_library.h"
-#include "ledger.h"
 #include "accrual.h"
 
 ACCRUAL *accrual_calloc( void )

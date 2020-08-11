@@ -14,7 +14,6 @@
 #include "piece.h"
 #include "date.h"
 #include "appaserver_library.h"
-#include "ledger.h"
 
 boolean tax_recovery_parse(
 				int *service_month,

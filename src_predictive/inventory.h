@@ -12,7 +12,6 @@
 #include "list.h"
 #include "hash_table.h"
 #include "inventory_purchase_return.h"
-#include "ledger.h"
 
 /* Enumerated types */
 /* ---------------- */

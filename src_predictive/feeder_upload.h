@@ -8,7 +8,6 @@
 #ifndef FEEDER_UPLOAD_H
 #define FEEDER_UPLOAD_H
 
-#include "ledger.h"
 
 /* Enumerated types */
 /* ---------------- */

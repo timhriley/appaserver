@@ -8,7 +8,6 @@
 #ifndef BANK_UPLOAD_H
 #define BANK_UPLOAD_H
 
-#include "ledger.h"
 #include "reoccurring.h"
 
 /* Enumerated types */

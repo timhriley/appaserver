@@ -19,7 +19,6 @@
 #include "inventory_sale_return.h"
 #include "purchase.h"
 #include "customer.h"
-#include "ledger.h"
 #include "entity.h"
 
 INVENTORY *inventory_new( char *inventory_name )

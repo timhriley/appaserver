@@ -141,7 +141,7 @@ SOURCE_LIBRARY= 							\
 		depreciation.o						\
 		accrual.o						\
 		employee.o						\
-		fixed_asset_purchase.o					\
+		equipment_purchase.o					\
 		tax_recovery.o						\
 		entity.o						\
 		entity_self.o
@@ -807,10 +807,10 @@ reoccurring.o: reoccurring.c						\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c reoccurring.c
 
-fixed_asset_purchase.o: fixed_asset_purchase.c				\
-		fixed_asset_purchase.h
+equipment_purchase.o: equipment_purchase.c				\
+		equipment_purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c fixed_asset_purchase.c
+		-c equipment_purchase.c
 
 feeder_upload.o: feeder_upload.c					\
 		feeder_upload.h

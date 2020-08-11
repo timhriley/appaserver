@@ -67,7 +67,7 @@ TRANSACTION *transaction_fetch(
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
 		 /* -------------------------- */
-		 transaction_primary_where(
+		 transaction_where_clause(
 			full_name,
 			street_address,
 			transaction_date_time ) );
@@ -138,7 +138,7 @@ char *transaction_escape_full_name( char *full_name )
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *transaction_primary_where(
+char *transaction_where_clause(
 				char *full_name,
 				char *street_address,
 				char *transaction_date_time )

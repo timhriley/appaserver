@@ -13,7 +13,6 @@
 #include "appaserver_library.h"
 #include "purchase.h"
 #include "customer.h"
-#include "ledger.h"
 #include "entity_self.h"
 
 ENTITY_SELF *entity_self_new(	char *full_name,

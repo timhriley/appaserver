@@ -16,7 +16,6 @@
 #include "latex.h"
 #include "hash_table.h"
 #include "dictionary.h"
-#include "ledger.h"
 
 /* Constants */
 /* --------- */

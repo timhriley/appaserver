@@ -18,7 +18,6 @@
 #include "environ.h"
 #include "transaction.h"
 #include "entity.h"
-#include "ledger.h"
 #include "pay_liabilities.h"
 
 /* Constants */

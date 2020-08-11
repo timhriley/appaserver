@@ -22,7 +22,6 @@
 #include "appaserver_parameter_file.h"
 #include "application_constants.h"
 #include "environ.h"
-#include "ledger.h"
 #include "entity.h"
 #include "entity_self.h"
 

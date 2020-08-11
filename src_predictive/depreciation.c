@@ -13,7 +13,6 @@
 #include "piece.h"
 #include "date.h"
 #include "appaserver_library.h"
-#include "ledger.h"
 #include "entity.h"
 #include "folder.h"
 #include "purchase.h"

@@ -11,7 +11,6 @@
 
 #include "list.h"
 #include "hash_table.h"
-#include "ledger.h"
 
 /* Enumerated types */
 /* ---------------- */

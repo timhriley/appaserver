@@ -16,7 +16,6 @@
 #include "appaserver_library.h"
 #include "inventory_sale_return.h"
 #include "customer.h"
-#include "ledger.h"
 #include "entity.h"
 
 INVENTORY_SALE_RETURN *inventory_sale_return_new( void )

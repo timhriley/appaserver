@@ -24,7 +24,6 @@
 #include "appaserver_parameter_file.h"
 #include "html_table.h"
 #include "date.h"
-#include "ledger.h"
 #include "appaserver_link_file.h"
 
 /* Constants */

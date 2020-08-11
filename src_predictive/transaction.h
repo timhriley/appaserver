@@ -163,7 +163,7 @@ char *transaction_select(
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *transaction_primary_where(
+char *transaction_where_clause(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time );

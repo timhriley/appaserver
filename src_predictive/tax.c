@@ -10,7 +10,6 @@
 #include "appaserver_library.h"
 #include "piece.h"
 #include "folder.h"
-#include "ledger.h"
 #include "date.h"
 #include "tax.h"
 

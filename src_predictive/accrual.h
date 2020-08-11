@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------- */
-/* src_predictive/accrual.h						*/
+/* $APPASERVER_HOME/src_predictive/accrual.h				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver accrual ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -9,7 +8,7 @@
 #ifndef ACCRUAL_H
 #define ACCRUAL_H
 
-#include "ledger.h"
+#include "transaction.h"
 
 /* Enumerated types */
 /* ---------------- */

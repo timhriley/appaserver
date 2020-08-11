@@ -20,7 +20,6 @@
 #include "appaserver_error.h"
 #include "document.h"
 #include "application.h"
-#include "ledger.h"
 #include "application_constants.h"
 #include "appaserver_parameter_file.h"
 #include "html_table.h"
