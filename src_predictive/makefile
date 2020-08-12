@@ -134,7 +134,7 @@ SOURCE_LIBRARY= 							\
 		program.o						\
 		element.o						\
 		purchase.o						\
-		customer.o						\
+		customer_sale.o						\
 		inventory.o						\
 		inventory_purchase_return.o				\
 		inventory_sale_return.o					\
@@ -143,6 +143,7 @@ SOURCE_LIBRARY= 							\
 		employee.o						\
 		equipment_purchase.o					\
 		vendor_payment.o					\
+		customer_payment.o					\
 		tax_recovery.o						\
 		entity.o						\
 		entity_self.o
@@ -756,9 +757,9 @@ purchase.o: purchase.c purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c purchase.c
 
-customer.o: customer.c customer.h
+customer_sale.o: customer_sale.c customer_sale.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c customer.c
+		-c customer_sale.c
 
 depreciation.o: depreciation.c depreciation.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -852,4 +853,8 @@ element.o: element.c element.h
 program.o: program.c program.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c program.c
+
+customer_payment.o: customer_payment.c customer_payment.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c customer_payment.c
 

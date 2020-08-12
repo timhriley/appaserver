@@ -106,7 +106,7 @@ char *transaction_select( void )
 		"lock_transaction_yn";
 }
 
-TRANSACTION *transaction_parse( char *input_buffer )
+TRANSACTION *transaction_parse( char *input )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
@@ -114,27 +114,27 @@ TRANSACTION *transaction_parse( char *input_buffer )
 	char piece_buffer[ 1024 ];
 	TRANSACTION *transaction;
 
-	if ( !input_buffer ) return (TRANSACTION *)0;
+	if ( !input ) return (TRANSACTION *)0;
 
-	piece( full_name, SQL_DELIMITER, input_buffer, 0 );
-	piece( street_address, SQL_DELIMITER, input_buffer, 1 );
-	piece( transaction_date_time, SQL_DELIMITER, input_buffer, 2 );
+	piece( full_name, SQL_DELIMITER, input, 0 );
+	piece( street_address, SQL_DELIMITER, input, 1 );
+	piece( transaction_date_time, SQL_DELIMITER, input, 2 );
 
 	transaction = transaction_new(
 			strdup( full_name ),
 			strdup( street_address ),
 			strdup( transaction_date_time ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 3 );
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	transaction->transaction_amount = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 4 );
+	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	transaction->memo = strdup( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 5 );
+	piece( piece_buffer, SQL_DELIMITER, input, 5 );
 	transaction->check_number = atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 6 );
+	piece( piece_buffer, SQL_DELIMITER, input, 6 );
 	transaction->lock_transaction = ( *piece_buffer == 'y' );
 
 	return transaction;

@@ -154,18 +154,17 @@ TRANSACTION *purchase_transaction(
 		transaction_new(
 			full_name,
 			street_address,
-			arrived_date_time );
+			arrived_date_time
+				/* transaction_date_time */ );
 
 	transaction->transaction_amount = invoice_amount;
 
 	transaction->journal_list =
 		transaction_binary_journal_list(
-			full_name,
-			street_address,
-			arrived_date_time
-				/* transaction_date_time */,
-			invoice_amount
-				/* transaction_amount */,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			transaction->transaction_amount,
 			asset_account_name
 				/* debit_account */,
 			account_payable

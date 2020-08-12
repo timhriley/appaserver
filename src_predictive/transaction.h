@@ -171,7 +171,7 @@ char *transaction_primary_where(
 			char *transaction_date_time );
 
 TRANSACTION *transaction_parse(
-			char *input_buffer );
+			char *input );
 
 TRANSACTION *transaction_seek(
 			LIST *transaction_list,
