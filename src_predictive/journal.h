@@ -41,16 +41,19 @@ JOURNAL*journal_new(	char *full_name,
 			char *transaction_date_time,
 			char *account_name );
 
+/* Returns program memory */
+/* ---------------------- */
 char *journal_select(	void );
 
 JOURNAL	*journal_parse(	char *input );
 
-LIST *journal_list_fetch(
-			char *where_clause );
+LIST *journal_list(	char *transaction_where );
 
-LIST *journal_list(	char *full_name,
-			char *street_address,
-			char *transaction_date_time );
+LIST *journal_list_fetch(
+			char *where );
+
+LIST *journal_system_list(
+			char *sys_string );
 
 JOURNAL *journal_prior(	char *transaction_date_time,
 			char *account_name );

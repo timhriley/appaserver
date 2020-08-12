@@ -57,6 +57,16 @@ TRANSACTION *transaction_fetch(
 	char sys_string[ 1024 ];
 	TRANSACTION *transaction;
 
+	if ( !full_name || !street_address )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	if ( !transaction_date_time || !*transaction_date_time )
+	{
+		return (TRANSACTION *)0;
+	}
+
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s;\" | sql",
 		 /* ---------------------- */
@@ -67,7 +77,7 @@ TRANSACTION *transaction_fetch(
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
 		 /* -------------------------- */
-		 transaction_where_clause(
+		 transaction_primary_where(
 			full_name,
 			street_address,
 			transaction_date_time ) );
@@ -76,9 +86,10 @@ TRANSACTION *transaction_fetch(
 
 	transaction->journal_list =
 		journal_list(
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time );
+			transaction_primary_where(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time ) );
 
 	return transaction;
 }
@@ -86,7 +97,13 @@ TRANSACTION *transaction_fetch(
 char *transaction_select( void )
 {
 	return
-"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,lock_transaction_yn";
+		"full_name,"
+		"street_address,"
+		"transaction_date_time,"
+		"transaction_amount,"
+		"memo,"
+		"check_number,"
+		"lock_transaction_yn";
 }
 
 TRANSACTION *transaction_parse( char *input_buffer )
@@ -138,10 +155,10 @@ char *transaction_escape_full_name( char *full_name )
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *transaction_where_clause(
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time )
+char *transaction_primary_where(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
 {
 	char where[ 1024 ];
 

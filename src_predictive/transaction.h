@@ -158,12 +158,14 @@ void transaction_journal_list_insert(
 			char *transaction_date_time,
 			LIST *journal_list );
 
+/* Returns program memory */
+/* ---------------------- */
 char *transaction_select(
 			void );
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *transaction_where_clause(
+char *transaction_primary_where(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time );

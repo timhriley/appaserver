@@ -10,7 +10,6 @@
 
 #include "list.h"
 #include "boolean.h"
-#include "fixed_asset.h"
 #include "transaction.h"
 #include "entity.h"
 #include "depreciation.h"
@@ -20,7 +19,7 @@
 /* --------- */
 #define PURCHASE_ORDER_MEMO		"Purchase Order"
 
-#define purchase_amount_due(						\
+#define Purchase_amount_due(						\
 			purchase_amount,				\
 			vendor_payment_total )				\
 	( purchase_amount - vendor_payment_total )
@@ -37,14 +36,14 @@ typedef struct
 	double sales_tax;
 	double freight_in;
 	char *arrived_date_time;
-	TRANSACTION *transaction;
-	double purchase_fixed_asset_total;
-	double purchase_amount;
+	TRANSACTION *purchase_transaction;
+	double purchase_equipment_total;
+	double invoice_amount;
 	double purchase_vendor_payment_total;
 	double purchase_amount_due;
 	char *purchase_asset_account_name;
 	LIST *purchase_vendor_payment_list;
-	LIST *purchase_fixed_asset_list;
+	LIST *purchase_equipment_list;
 	char *program_name;
 	char *property_street_address;
 } PURCHASE_ORDER;
@@ -61,14 +60,14 @@ PURCHASE_ORDER *purchase_order_new(
 			char *street_address,
 			char *purchase_date_time );
 
-double purchase_fixed_asset_total(
-			LIST *fixed_asset_list );
+double purchase_equipment_total(
+			LIST *equipment_purchase_list );
 
 double purchase_vendor_payment_total(
 			LIST *vendor_payment_list );
 
-void purchase_update(	double fixed_asset_total,
-			double purchase_amount,
+void purchase_update(	double purchase_price_total,
+			double invoice_amount,
 			double vendor_payment_total,
 			double amount_due,
 			char *transaction_date_time,
@@ -114,5 +113,12 @@ char *purchase_select(	void );
 
 PURCHASE_ORDER *purchase_parse(
 			char *input );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *purchase_order_primary_where(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
 
 #endif

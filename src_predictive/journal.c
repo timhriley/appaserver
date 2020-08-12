@@ -148,7 +148,15 @@ void journal_insert(		FILE *insert_pipe,
 char *journal_select( void )
 {
 	return
-"full_name,street_address,transaction_date_time,account_name,previous_balance,debit_amount,credit_amount,balance,transaction_count";
+	"full_name,"
+	"street_address,"
+	"transaction_date_time,"
+	"account_name,"
+	"previous_balance,"
+	"debit_amount,"
+	"credit_amount,"
+	"balance,"
+	"transaction_count";
 }
 
 JOURNAL *journal_parse( char *input )
@@ -194,11 +202,10 @@ JOURNAL *journal_parse( char *input )
 	return journal;
 }
 
-LIST *journal_parse_sys_string(	char *sys_string )
+LIST *journal_system_list( char *sys_string )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
-	JOURNAL *journal;
 	LIST *journal_list;
 
 	journal_list = list_new();
@@ -207,10 +214,7 @@ LIST *journal_parse_sys_string(	char *sys_string )
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
-		if ( ( journal = journal_parse( input ) ) )
-		{
-			list_set( journal_list, journal );
-		}
+		list_set( journal_list, journal_parse( input ) );
 	}
 
 	pclose( input_pipe );
@@ -261,7 +265,7 @@ LIST *journal_list_account(
 		 JOURNAL_FOLDER_NAME,
 		 where );
 
-	return journal_parse_sys_string( sys_string );
+	return journal_system_list( sys_string );
 }
 
 /* Also does a propagate for each account */
@@ -403,29 +407,16 @@ LIST *journal_account_name_list(
 	return pipe2list( sys_string );
 }
 
-LIST *journal_list(	char *full_name,
-			char *street_address,
-			char *transaction_date_time )
+LIST *journal_list( char *transaction_where )
 {
-	char where_clause[ 512 ];
-
-	sprintf( where_clause,
-		 "full_name = '%s' and		"
-		 "street_address = '%s' and 	"
-		 "transaction_date_time = '%s'	",
-		 transaction_escape_full_name( full_name ),
-		 street_address,
-		 transaction_date_time );
-
-	return journal_list_fetch( where_clause );
+	return journal_list_fetch( transaction_where );
 }
 
-LIST *journal_list_fetch(
-			char *where_clause )
+LIST *journal_list_fetch( char *where )
 {
 	char sys_string[ 1024 ];
 
-	if ( !where_clause ) return (LIST *)0;
+	if ( !where ) return (LIST *)0;
 
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s order by %s;\" | sql",
@@ -434,25 +425,25 @@ LIST *journal_list_fetch(
 		 /* ---------------------- */
 		 journal_select(),
 		 JOURNAL_FOLDER_NAME,
-		 where_clause,
+		 where,
 		 journal_select() );
 
-	return journal_parse_sys_string( sys_string );
+	return journal_system_list( sys_string );
 }
 
 LIST *journal_list_minimum(
 			char *minimum_transaction_date_time,
 			char *account_name )
 {
-	char where_clause[ 1024 ];
+	char where[ 1024 ];
 
-	sprintf(where_clause,
+	sprintf(where,
 		"transaction_date_time >= '%s' and		"
 		"account = '%s'					",
 		minimum_transaction_date_time,
 		account_name_escape( account_name ) );
 
-	return journal_list_fetch( where_clause );
+	return journal_list_fetch( where );
 }
 
 LIST *journal_list_prior(

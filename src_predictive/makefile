@@ -142,6 +142,7 @@ SOURCE_LIBRARY= 							\
 		accrual.o						\
 		employee.o						\
 		equipment_purchase.o					\
+		vendor_payment.o					\
 		tax_recovery.o						\
 		entity.o						\
 		entity_self.o
@@ -811,6 +812,11 @@ equipment_purchase.o: equipment_purchase.c				\
 		equipment_purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c equipment_purchase.c
+
+vendor_payment.o: vendor_payment.c					\
+		vendor_payment.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c vendor_payment.c
 
 feeder_upload.o: feeder_upload.c					\
 		feeder_upload.h

@@ -10,6 +10,7 @@
 #define ENTITY_H
 
 #include "boolean.h"
+#include "transaction.h"
 #include "hash_table.h"
 
 /* Enumerated types */
