@@ -24,7 +24,10 @@
 
 EQUIPMENT_PURCHASE *equipment_purchase_new(
 			char *asset_name,
-			char *serial_number )
+			char *serial_number,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time )
 {
 	EQUIPMENT_PURCHASE *equipment_purchase;
 
@@ -41,6 +44,14 @@ EQUIPMENT_PURCHASE *equipment_purchase_new(
 
 	equipment_purchase->asset_name = asset_name;
 	equipment_purchase->serial_number = serial_number;
+
+	equipment_purchase->vendor_entity =
+		entity_new(
+			full_name,
+			street_address );
+
+	equipment_purchase->purchase_date_time = purchase_date_time;
+
 	return equipment_purchase;
 }
 
@@ -82,15 +93,17 @@ EQUIPMENT_PURCHASE *equipment_purchase_parse( char *input )
 
 	piece( asset_name, SQL_DELIMITER, input, 0 );
 	piece( serial_number, SQL_DELIMITER, input, 1 );
+	piece( full_name, SQL_DELIMITER, input, 2 );
+	piece( street_address, SQL_DELIMITER, input, 3 );
+	piece( purchase_date_time, SQL_DELIMITER, input, 4 );
 
 	equipment_purchase =
 		equipment_purchase_new(
 			strdup( asset_name ),
-			strdup( serial_number ) );
-
-	piece( full_name, SQL_DELIMITER, input, 2 );
-	piece( street_address, SQL_DELIMITER, input, 3 );
-	piece( purchase_date_time, SQL_DELIMITER, input, 4 );
+			strdup( serial_number ),
+			strdup( full_name ),
+			strdup( street_address ),
+			strdup( purchase_date_time ) );
 
 	if ( ! ( equipment_purchase->purchase_order =
 			purchase_order_fetch(
@@ -153,7 +166,7 @@ EQUIPMENT_PURCHASE *equipment_purchase_parse( char *input )
 }
 
 LIST *equipment_purchase_list(
-			char *purchase_order_primary_where );
+			char *purchase_order_primary_where )
 {
 	return
 		equipment_purchase_list_fetch(
@@ -266,7 +279,7 @@ EQUIPMENT_PURCHASE *equipment_purchase_fetch(
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
 		 /* -------------------------- */
-		 equipment_purchase_where(
+		 equipment_purchase_primary_where(
 			asset_name,
 			serial_number,
 			full_name,
@@ -278,7 +291,7 @@ EQUIPMENT_PURCHASE *equipment_purchase_fetch(
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *equipment_purchase_where(
+char *equipment_purchase_primary_where(
 			char *asset_name,
 			char *serial_number,
 			char *full_name,

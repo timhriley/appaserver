@@ -9,6 +9,7 @@
 #define TRANSACTION_H
 
 #include "list.h"
+#include "date.h"
 #include "boolean.h"
 #include "journal.h"
 
@@ -253,5 +254,28 @@ void transaction_refresh(
 			int check_number,
 			boolean lock_transaction,
 			LIST *journal_list );
+
+char *transaction_date_max(
+			void );
+
+/* Returns begin_date_string */
+/* ------------------------- */
+char *transaction_report_title_sub_title(
+			char *title,
+			char *sub_title,
+			char *process_name,
+			char *application_name,
+			char *fund_name,
+			char *as_of_date,
+			int fund_name_list_length,
+			char *logo_filename );
+
+char *transaction_date_beginning(
+			char *fund_name,
+			char *ending_transaction_date );
+
+DATE *transaction_prior_closing_transaction_date(
+			char *fund_name,
+			char *ending_transaction_date );
 
 #endif

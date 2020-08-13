@@ -13,6 +13,7 @@
 #include "depreciation.h"
 #include "tax_recovery.h"
 #include "purchase.h"
+#include "entity.h"
 
 /* Constants */
 /* --------- */
@@ -27,6 +28,8 @@ typedef struct
 {
 	char *asset_name;
 	char *serial_number;
+	ENTITY *vendor_entity;
+	char *purchase_date_time;
 	char *asset_account_name;
 	char *service_placement_date;
 	double equipment_cost;
@@ -50,7 +53,10 @@ typedef struct
 /* ---------- */
 EQUIPMENT_PURCHASE *equipment_purchase_new(
 			char *asset_name,
-			char *serial_number );
+			char *serial_number,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
 
 EQUIPMENT_PURCHASE *equipment_purchase_parse(
 			char *input );
@@ -93,7 +99,7 @@ char *equipment_purchase_escape_asset_name(
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *equipment_purchase_where(
+char *equipment_purchase_primary_where(
 			char *asset_name,
 			char *serial_number,
 			char *full_name,

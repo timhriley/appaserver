@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include "String.h"
 #include "timlib.h"
 #include "piece.h"
 #include "column.h"
@@ -27,6 +28,9 @@
 #include "date_convert.h"
 #include "boolean.h"
 #include "appaserver_link_file.h"
+#include "transaction.h"
+#include "journal.h"
+#include "account.h"
 
 /* Constants */
 /* --------- */
@@ -298,8 +302,7 @@ int main( int argc, char **argv )
 			/* -------------------- */
 			/* Returns heap memory. */
 			/* -------------------- */
-			ledger_max_transaction_date(
-				application_name );
+			transaction_date_max() );
 	}
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
@@ -315,7 +318,7 @@ int main( int argc, char **argv )
 			application_name,
 			"logo_filename" /* key */ );
 
-	if ( !ledger_get_report_title_sub_title(
+	if ( !transaction_report_title_sub_title(
 		title,
 		sub_title,
 		process_name,
@@ -1004,7 +1007,7 @@ void trial_balance_PDF(
 
 	fund_name_list = ledger_get_fund_name_list( application_name );
 
-	ledger_get_report_title_sub_title(
+	transaction_report_title_sub_title(
 		title,
 		sub_title,
 		process_name,
@@ -1029,7 +1032,7 @@ void trial_balance_PDF(
 		do {
 			fund_name = list_get_pointer( fund_name_list );
 
-			ledger_get_report_title_sub_title(
+			transaction_report_title_sub_title(
 				title,
 				sub_title,
 				process_name,

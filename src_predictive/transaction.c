@@ -14,6 +14,8 @@
 #include "semaphore.h"
 #include "sql.h"
 #include "list.h"
+#include "environ.h"
+#include "application.h"
 #include "journal.h"
 #include "transaction.h"
 
@@ -806,5 +808,237 @@ TRANSACTION *transaction_check_seek(
 	} while ( list_next( transaction_list ) );
 
 	return (TRANSACTION *)0;
+}
+
+char *transaction_date_max( void )
+{
+	return (char *)0;
+}
+
+/* Returns begin_date_string */
+/* ------------------------- */
+char *transaction_report_title_sub_title(
+		char *title,
+		char *sub_title,
+		char *process_name,
+		char *fund_name,
+		char *as_of_date,
+		int fund_list_length,
+		char *logo_filename )
+{
+	char *begin_date_string;
+	char begin_date_american[ 32 ];
+	char end_date_american[ 32 ];
+
+	*begin_date_american = '\0';
+
+	sprintf(title,
+		"%s",
+		application_get_application_title(
+			environment_database() ) );
+
+	if ( ! ( begin_date_string = 
+			transaction_date_beginning(
+				fund_name,
+				as_of_date ) ) )
+	{
+		return 0;
+	}
+
+	date_convert_source_international(
+		begin_date_american,
+		american,
+		begin_date_string );
+
+	date_convert_source_international(
+		end_date_american,
+		american,
+		as_of_date );
+
+	if ( fund_name
+	&&   *fund_name
+	&&   strcmp( fund_name, "fund" ) != 0 )
+	{
+		sprintf(sub_title,
+	 		"%s, Fund: %s, Beginning: %s, Ending: %s",
+	 		process_name,
+			fund_name,
+			begin_date_american,
+	 		end_date_american );
+	}
+	else
+	if ( fund_list_length > 1 )
+	{
+		sprintf(sub_title,
+	 		"%s, Consolidated Funds, Beginning: %s, Ending: %s",
+	 		process_name,
+			begin_date_american,
+	 		end_date_american );
+	}
+	else
+	{
+		if ( *begin_date_american )
+		{
+			sprintf(sub_title,
+	 			"%s, Beginning: %s, Ending: %s",
+	 			process_name,
+				begin_date_american,
+	 			end_date_american );
+		}
+		else
+		{
+			sprintf(sub_title,
+	 			"%s, as of date: %s",
+	 			process_name,
+	 			end_date_american );
+		}
+	}
+
+	if ( !logo_filename || !*logo_filename )
+	{
+		char buffer[ 256 ];
+
+		sprintf( buffer, "%s %s", title, sub_title );
+		strcpy( sub_title, buffer );
+	}
+
+	format_initial_capital( sub_title, sub_title );
+
+	return begin_date_string;
+}
+
+char *transaction_date_beginning(
+				char *fund_name,
+				char *ending_transaction_date )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *select;
+	char folder[ 128 ];
+	char *results;
+	char transaction_date_string[ 16 ];
+	DATE *prior_closing_transaction_date = {0};
+
+	if ( fund_name && !*fund_name )
+		fund_name = (char *)0;
+	else
+	if ( fund_name && strcmp( fund_name, "fund" ) == 0 )
+		fund_name = (char *)0;
+
+	/* Get the prior closing entry then return its tomorrow. */
+	/* ----------------------------------------------------- */
+	if ( ending_transaction_date )
+	{
+		prior_closing_transaction_date =
+			transaction_prior_closing_transaction_date(
+				fund_name,
+				ending_transaction_date );
+	
+		if ( prior_closing_transaction_date )
+		{
+			date_increment_days(
+				prior_closing_transaction_date,
+				1.0,
+				0 /* utc_offset */ );
+	
+			return date_get_yyyy_mm_dd_string(
+					prior_closing_transaction_date );
+		}
+	}
+
+	/* No closing entries */
+	/* ------------------ */
+	select = "min( transaction_date_time )";
+
+	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
+	{
+		/* Get the first entry for the fund. */
+		/* --------------------------------- */
+		sprintf(folder,
+		 	"%s,%s",
+		 	LEDGER_FOLDER_NAME,
+		 	ACCOUNT_FOLDER_NAME );
+
+		sprintf(where,
+		 	"fund = '%s' and				"
+			"%s.account = %s.account			",
+		 	fund_name,
+			LEDGER_FOLDER_NAME,
+			ACCOUNT_FOLDER_NAME );
+	}
+	else
+	{
+		/* Get the first entry. */
+		/* -------------------- */
+		strcpy( folder, LEDGER_FOLDER_NAME );
+
+		strcpy( where, "1 = 1" );
+	}
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( !results || !*results ) return (char *)0;
+
+	return strdup( column( transaction_date_string, 0, results )  );
+}
+
+DATE *transaction_prior_closing_transaction_date(
+				char *fund_name,
+				char *ending_transaction_date )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *select;
+	char *results;
+	char ending_transaction_date_time[ 32 ];
+	char transaction_date_string[ 16 ];
+	DATE *prior_closing_transaction_date = {0};
+
+	if ( fund_name && !*fund_name )
+		fund_name = (char *)0;
+	else
+	if ( fund_name && strcmp( fund_name, "fund" ) == 0 )
+		fund_name = (char *)0;
+
+	select = "max( transaction_date_time )";
+
+	sprintf( ending_transaction_date_time,
+		 "%s %s",
+		 ending_transaction_date,
+		 TRANSACTION_CLOSING_TRANSACTION_TIME );
+
+	sprintf( where,
+		 "memo = '%s' and transaction_date_time < '%s'",
+		 TRANSACTION_CLOSING_ENTRY_MEMO,
+		 ending_transaction_date_time );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 select,
+		 "transaction",
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( results && *results )
+	{
+		column( transaction_date_string, 0, results );
+
+		prior_closing_transaction_date =
+			date_yyyy_mm_dd_new(
+				transaction_date_string );
+	}
+
+	return prior_closing_transaction_date;
 }
 
