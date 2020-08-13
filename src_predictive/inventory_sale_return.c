@@ -1,6 +1,27 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/inventory_sale_return.c		*/
 /* -------------------------------------------------------------------- */
+/*									*/
+/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------------- */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include "String.h"
+#include "timlib.h"
+#include "date.h"
+#include "piece.h"
+#include "list.h"
+#include "transaction.h"
+#include "entity.h"
+#include "inventory_sale_return.h"
+
+#ifdef NOT_DEFINED
+/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/src_predictive/inventory_sale_return.c		*/
+/* -------------------------------------------------------------------- */
 /* This is the PredictiveBooks inventory_sale_return ADT.		*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -499,4 +520,4 @@ boolean inventory_sale_return_list_delete(
 	return 1;
 
 } /* inventory_sale_return_list_delete() */
-
+#endif

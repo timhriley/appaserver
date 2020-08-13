@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/inventory_purchase_return.c		*/
 /* -------------------------------------------------------------------- */
-/* This is the PredictiveBooks inventory_purchase_return ADT.		*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -10,15 +9,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "String.h"
 #include "timlib.h"
 #include "date.h"
 #include "piece.h"
-#include "appaserver_library.h"
-#include "inventory_purchase_return.h"
 #include "purchase.h"
 #include "customer.h"
 #include "entity.h"
+#include "inventory_purchase_return.h"
 
+#ifdef NOT_DEFINED
 INVENTORY_PURCHASE_RETURN *inventory_purchase_return_new( void )
 {
 	INVENTORY_PURCHASE_RETURN *h;
@@ -522,4 +522,4 @@ boolean inventory_purchase_return_list_delete(
 	return 1;
 
 } /* inventory_purchase_return_list_delete() */
-
+#endif
