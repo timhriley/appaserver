@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/tax.c				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver tax ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -11,6 +10,9 @@
 #include "piece.h"
 #include "folder.h"
 #include "date.h"
+#include "element.h"
+#include "transaction.h"
+#include "journal.h"
 #include "tax.h"
 
 TAX *tax_new(			char *application_name,
@@ -22,17 +24,6 @@ TAX *tax_new(			char *application_name,
 
 	/* TAX_INPUT */
 	/* --------- */
-#ifdef NOT_DEFINED
-	char *checking_account;
-	checking_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			LEDGER_CASH_KEY,
-			0 /* not warning_only */,
-			__FUNCTION__ );
-#endif
-
 	if ( ! ( t = calloc( 1, sizeof( TAX ) ) ) )
 	{
 		fprintf( stderr,
@@ -81,34 +72,8 @@ TAX *tax_new(			char *application_name,
 			application_name,
 			tax_year );
 
-#ifdef NOT_DEFINED
-	/* Tax Recovery Operation */
-	/* ====================== */
-	if ( t->tax_input.tax_input_recovery->total_recovery_amount )
-	{
-		tax_form_line_set_depreciation(
-			t->tax_process.tax_form_line_list,
-			t->tax_input.
-				tax_input_recovery->
-				total_recovery_amount );
-	}
-
-	if ( !t->tax_process.tax_form_line_list )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: tax_process_get_tax_form_line_list() returned null.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	t->tax_process.tax_form = t->tax_input.tax_form->tax_form;
-#endif
-
 	return t;
-
-} /* tax_new() */
+}
 
 TAX_INPUT_RECOVERY *tax_input_recovery_new(
 					char *application_name,
@@ -185,8 +150,7 @@ TAX_INPUT_RECOVERY *tax_input_recovery_new(
 		t->prior_property_recovery_amount;
 
 	return t;
-
-} /* tax_input_recovery_new() */
+}
 
 double tax_fetch_recovery_amount(
 			char *application_name,
@@ -214,8 +178,7 @@ double tax_fetch_recovery_amount(
 		 where );
 
 	return atof( pipe2string( sys_string ) );
-
-} /* tax_fetch_recovery_amount() */
+}
 
 TAX_FORM_LINE_ACCOUNT *tax_form_line_account_new(
 					char *account_name )
@@ -235,8 +198,7 @@ TAX_FORM_LINE_ACCOUNT *tax_form_line_account_new(
 	t->account_name = account_name;
 
 	return t;
-
-} /* tax_form_line_account_new() */
+}
 	
 TAX_FORM *tax_form_new(		char *application_name,
 				char *tax_form,
@@ -363,13 +325,11 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 						/* account_name */ ) );
 
 			account->accumulate_debit =
-				ledger_account_get_accumulate_debit(
-					application_name,
+				element_account_accumulate_debit(
 					account->account_name );
 
-			account->journal_ledger_list =
-				ledger_get_year_journal_ledger_list(
-					application_name,
+			account->journal_list =
+				journal_year_list(
 					tax_year,
 					account->account_name );
 
@@ -418,14 +378,13 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 } /* tax_form_fetch_line_list() */
 
 LIST *tax_fetch_account_transaction_list(
-			char *application_name,
 			char *begin_date_string,
 			char *end_date_string,
 			char *account_name )
 {
-	char where_clause[ 1024 ];
+	char where[ 1024 ];
 
-	sprintf( where_clause,
+	sprintf( where,
 		 "transaction_date_time >= '%s' and			"
 		 "transaction_date_time <= '%s 23:59:59' and		"
 		 "exists (select 1					"
@@ -441,11 +400,8 @@ LIST *tax_fetch_account_transaction_list(
 		 end_date_string,
 		 account_name );
 
-	return ledger_fetch_transaction_list(
-			application_name,
-			where_clause );
-
-} /* tax_fetch_account_transaction_list() */
+	return transaction_list_fetch( where );
+}
 
 TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
 				LIST *tax_form_line_list,
@@ -530,29 +486,29 @@ LIST *tax_process_set_totals(	LIST *input_tax_form_line_list,
 /* --------------------------- */
 /* Returns tax_form_line_list. */
 /* --------------------------- */
-LIST *tax_process_set_journal_ledger_list(
-				LIST *unaccounted_journal_ledger_list,
+LIST *tax_process_set_journal_list(
+				LIST *unaccounted_journal_list,
 				LIST *tax_form_line_list,
 				LIST *transaction_list,
 				char *account_name )
 {
 	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
+	JOURNAL *journal;
 	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
 
 	if ( !list_rewind( transaction_list ) )
 		return tax_form_line_list;
 
 	do {
-		transaction = list_get_pointer( transaction_list );
+		transaction = list_get( transaction_list );
 
-		if ( !list_rewind( transaction->journal_ledger_list ) )
+		if ( !list_rewind( transaction->journal_list ) )
 			continue;
 
 		do {
-			journal_ledger =
-				list_get_pointer(
-					transaction->journal_ledger_list );
+			journal =
+				list_get(
+					transaction->journal_list );
 
 			/* ------------------------------------ */
 			/* Ignore the cash and accumulated	*/
@@ -560,7 +516,7 @@ LIST *tax_process_set_journal_ledger_list(
 			/* other ones.				*/
 			/* ------------------------------------ */
 			if ( timlib_strcmp(
-				journal_ledger->account_name,
+				journal->account_name,
 				account_name ) == 0 )
 			{
 				continue;
@@ -569,39 +525,38 @@ LIST *tax_process_set_journal_ledger_list(
 			tax_form_line_account =
 				tax_form_line_account_seek(
 					tax_form_line_list,
-					journal_ledger->account_name );
+					journal->account_name );
 
 			if ( !tax_form_line_account
-			&&   unaccounted_journal_ledger_list )
+			&&   unaccounted_journal_list )
 			{
 				list_append_pointer(
-					unaccounted_journal_ledger_list,
-					journal_ledger );
+					unaccounted_journal_list,
+					journal );
 				continue;
 			}
 
-			if ( !tax_form_line_account->journal_ledger_list )
+			if ( !tax_form_line_account->journal_list )
 			{
 				tax_form_line_account->
-					journal_ledger_list =
+					journal_list =
 						list_new();
 			}
 
-			journal_ledger->property_street_address =
+			journal->property_street_address =
 				transaction->property_street_address;
 
-			list_append_pointer(
+			list_set(
 				tax_form_line_account->
-					journal_ledger_list,
-				journal_ledger );
+					journal_list,
+				journal );
 
-		} while( list_next( transaction->journal_ledger_list ) );
+		} while( list_next( transaction->journal_list ) );
 
 	} while( list_next( transaction_list ) );
 
 	return tax_form_line_list;
-
-} /* tax_process_set_journal_ledger_list() */
+}
 
 LIST *tax_fetch_property_street_address_list(
 					char *application_name,
@@ -980,7 +935,7 @@ void tax_form_line_address_rental_property_list_set(
 		{
 			tax_output_rental_property->
 				tax_form_line_total +=
-					ledger_debit_credit_get_amount(
+					journal_amount(
 						debit_amount,
 						credit_amount,
 						accumulate_debit );
@@ -1018,7 +973,7 @@ void tax_form_line_distribute_rental_property_list_set(
 
 		tax_output_rental_property->
 			tax_form_line_total +=
-				( ledger_debit_credit_get_amount(
+				( journal_amount(
 					debit_amount,
 					credit_amount,
 					accumulate_debit ) /
@@ -1028,15 +983,15 @@ void tax_form_line_distribute_rental_property_list_set(
 
 } /* tax_form_line_distribute_rental_property_list_set() */
 
-void tax_rental_journal_ledger_list_accumulate_line_total(
+void tax_rental_journal_list_accumulate_line_total(
 				LIST *rental_property_list,
-				LIST *journal_ledger_list,
+				LIST *journal_list,
 				boolean accumulate_debit )
 {
-	JOURNAL_LEDGER *ledger;
+	JOURNAL *journal;
 	double denominator;
 
-	if ( !list_rewind( journal_ledger_list ) ) return;
+	if ( !list_rewind( journal_list ) ) return;
 
 	if ( !list_length( rental_property_list ) ) return;
 
@@ -1046,31 +1001,30 @@ void tax_rental_journal_ledger_list_accumulate_line_total(
 			rental_property_list );
 
 	do {
-		ledger = list_get_pointer( journal_ledger_list );
+		journal = list_get( journal_list );
 
-		if ( ledger->property_street_address
-		&&   *ledger->property_street_address )
+		if ( journal->property_street_address
+		&&   *journal->property_street_address )
 		{
 			tax_form_line_address_rental_property_list_set(
 				rental_property_list,
-				ledger->debit_amount,
-				ledger->credit_amount,
-				ledger->property_street_address,
+				journal->debit_amount,
+				journal->credit_amount,
+				journal->property_street_address,
 				accumulate_debit );
 		}
 		else
 		{
 			tax_form_line_distribute_rental_property_list_set(
 				rental_property_list,
-				ledger->debit_amount,
-				ledger->credit_amount,
+				journal->debit_amount,
+				journal->credit_amount,
 				accumulate_debit,
 				denominator );
 		}
 
-	} while( list_next( journal_ledger_list ) );
-
-} /* tax_rental_journal_ledger_list_accumulate_line_total() */
+	} while( list_next( journal_list ) );
+}
 
 void tax_rental_property_list_accumulate_line_total(
 				LIST *rental_property_list,
@@ -1085,14 +1039,13 @@ void tax_rental_property_list_accumulate_line_total(
 			list_get_pointer(
 				tax_form_line_account_list );
 
-		tax_rental_journal_ledger_list_accumulate_line_total(
+		tax_rental_journal_list_accumulate_line_total(
 				rental_property_list,
-				tax_form_line_account->journal_ledger_list,
+				tax_form_line_account->journal_list,
 				tax_form_line_account->accumulate_debit );
 
 	} while( list_next( tax_form_line_account_list ) );
-
-} /* tax_rental_property_list_accumulate_line_total() */
+}
 
 void tax_form_line_set_depreciation(
 				LIST *tax_form_line_list,
@@ -1118,8 +1071,7 @@ void tax_form_line_set_depreciation(
 		}
 
 	} while( list_next( tax_form_line_list ) );
-
-} /* tax_form_line_set_depreciation() */
+}
 
 TAX_INPUT_RENTAL_PROPERTY *tax_rental_property_seek(
 				LIST *tax_input_rental_property_list,
@@ -1206,11 +1158,11 @@ double tax_form_line_get_total(	LIST *tax_form_line_account_list,
 	do {
 		a = list_get( tax_form_line_account_list );
 
-		if ( list_length( a->journal_ledger_list ) )
+		if ( list_length( a->journal_list ) )
 		{
 			a->tax_form_account_total =
 				tax_form_line_account_get_total(
-					a->journal_ledger_list,
+					a->journal_list,
 					a->accumulate_debit,
 					tax_year );
 
@@ -1223,11 +1175,11 @@ double tax_form_line_get_total(	LIST *tax_form_line_account_list,
 
 } /* tax_form_line_get_total() */
 
-double tax_form_line_account_get_total(	LIST *journal_ledger_list,
+double tax_form_line_account_get_total(	LIST *journal_list,
 					boolean accumulate_debit,
 					int tax_year )
 {
-	JOURNAL_LEDGER *journal_ledger;
+	JOURNAL *journal;
 	double total;
 	double amount;
 	char closing_transaction_date[ 16 ];
@@ -1236,32 +1188,31 @@ double tax_form_line_account_get_total(	LIST *journal_ledger_list,
 	sprintf( closing_transaction_date, "%d-12-31", tax_year );
 
 	closing_transaction_date_time =
-		ledger_get_closing_transaction_date_time(
+		transaction_closing_transaction_date_time(
 				closing_transaction_date );
 
-	if ( !list_rewind( journal_ledger_list ) ) return 0.0;
+	if ( !list_rewind( journal_list ) ) return 0.0;
 
 	total = 0.0;
 
 	do {
-		journal_ledger = list_get( journal_ledger_list );
+		journal = list_get( journal_list );
 
-		if ( strcmp(	journal_ledger->transaction_date_time,
+		if ( strcmp(	journal->transaction_date_time,
 				closing_transaction_date_time ) == 0 )
 		{
 			continue;
 		}
 
-		amount = ledger_debit_credit_get_amount(
-				journal_ledger->debit_amount,
-				journal_ledger->credit_amount,
+		amount = journal_amount(
+				journal->debit_amount,
+				journal->credit_amount,
 				accumulate_debit );
 
 		total += amount;
 
-	} while( list_next( journal_ledger_list ) );
+	} while( list_next( journal_list ) );
 
 	return total;
-
-} /* tax_form_line_account_get_total() */
+}
 

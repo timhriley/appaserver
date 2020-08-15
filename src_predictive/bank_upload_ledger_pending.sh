@@ -31,22 +31,22 @@ select="transaction_date_time,full_name,street_address,debit_amount,credit_amoun
 
 order="transaction_date_time"
 
-table="journal_ledger,account"
+table="journal,account"
 
-journal_ledger_where="	journal_ledger.account = account.account and	\
+journal_where="	journal.account = account.account and			\
 			account.hard_coded_account_key = 'cash_key'"
 
 subquery_where="not exists (
 		select 1						\
 		from bank_upload_transaction				\
-		where journal_ledger.full_name =			\
+		where journal.full_name =				\
 			bank_upload_transaction.full_name and		\
-		      journal_ledger.street_address =			\
+		      journal.street_address =				\
 			bank_upload_transaction.street_address and	\
-		      journal_ledger.transaction_date_time =		\
+		      journal.transaction_date_time =			\
 			bank_upload_transaction.transaction_date_time )"
 
-where="	$journal_ledger_where and $subquery_where and $development_where"
+where="	$journal_where and $subquery_where and $development_where"
 
 echo "select $select from $table where $where order by $order;"		|
 sql.e									|

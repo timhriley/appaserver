@@ -217,8 +217,7 @@ ACCOUNT *ledger_subclassification_fund_seek_account(
 	} while( list_next( account_list ) );
 
 	return (ACCOUNT *)0;
-
-} /* ledger_subclassification_fund_seek_account() */
+}
 
 ACCOUNT *ledger_seek_hard_coded_account_key_account(
 				LIST *account_list,

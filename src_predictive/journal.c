@@ -17,6 +17,7 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "account.h"
+#include "element.h"
 #include "journal.h"
 
 JOURNAL *journal_new(		char *full_name,
@@ -199,6 +200,11 @@ JOURNAL *journal_parse( char *input )
 	journal->transaction_count =
 	journal->transaction_count_database = atoi( piece_buffer );
 
+	if ( piece( piece_buffer, SQL_DELIMITER, input, 8 ) )
+	{
+		journal->check_number = atoi( piece_buffer );
+	}
+
 	return journal;
 }
 
@@ -222,8 +228,8 @@ LIST *journal_system_list( char *sys_string )
 }
 
 JOURNAL *journal_account_fetch(
-				char *account_name,
-				char *transaction_date_time )
+			char *account_name,
+			char *transaction_date_time )
 {
 	char sys_string[ 1024 ];
 	char where[ 256 ];
@@ -371,7 +377,7 @@ void journal_propagate(
 				transaction_date_time,
 				account_name ),
 			account_name ),
-		account_accumulate_debit(
+		element_accumulate_debit(
 			account_name ) );
 }
 
@@ -489,7 +495,7 @@ LIST *journal_list_prior(
 	return journal_list;
 }
 
-char *journal_list_display(
+char *journal_list_audit(
 			LIST *journal_list )
 {
 	char buffer[ 65536 ];
@@ -788,5 +794,327 @@ void journal_list_propagate_update(
 	} while( list_next( propagate_journal_list ) );
 
 	pclose( update_pipe );
+}
+
+JOURNAL *journal_latest(
+			char *account_name,
+			char *as_of_date )
+{
+	char where[ 512 ];
+	char select[ 128 ];
+	char buffer[ 128 ];
+	char sys_string[ 1024 ];
+	char *results;
+	char *latest_transaction_time;
+
+	if ( transaction_exists_closing_entry(
+		as_of_date ) )
+	{
+		latest_transaction_time = TRANSACTION_PRIOR_TRANSACTION_TIME;
+	}
+	else
+	{
+		latest_transaction_time = TRANSACTION_CLOSING_TRANSACTION_TIME;
+	}
+
+	if ( !as_of_date
+	||   !*as_of_date
+	||   strcmp(	as_of_date,
+			"as_of_date" ) == 0 )
+	{
+		sprintf( where,
+		"%s.transaction_date_time = %s.transaction_date_time and "
+		"%s.account = '%s'					 ",
+			JOURNAL_TABLE,
+			"transaction",
+			JOURNAL_TABLE,
+		 	timlib_escape_single_quotes( buffer, account_name ) );
+	}
+	else
+	{
+		sprintf( where,
+		"%s.transaction_date_time = %s.transaction_date_time and "
+		"%s.account = '%s' and					 "
+		"%s.transaction_date_time <= '%s %s'			 ",
+			JOURNAL_TABLE,
+			"transaction",
+			JOURNAL_TABLE,
+		 	timlib_escape_single_quotes( buffer, account_name ),
+			"transaction",
+		 	as_of_date,
+			latest_transaction_time );
+	}
+
+	sprintf(	select,
+			"max( %s.transaction_date_time )",
+			"transaction" );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s,%s where %s;\" | sql.e",
+		 select,
+		 JOURNAL_TABLE,
+		 "transaction",
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( !results || !*results ) return (JOURNAL *)0;
+
+	return journal_account_fetch(
+			account_name,
+			results /* transaction_date_time */ );
+}
+
+LIST *journal_year_list(	int year,
+				char *account_name )
+{
+	char where[ 512 ];
+
+	sprintf(where,
+		"account = '%s' and		 "
+		"transaction_date_time like '%d-%c'",
+		account_name_escape( account_name ),
+		year,
+		'%' );
+
+	return journal_list_fetch( where );
+}
+
+double journal_amount(
+			double debit_amount,
+			double credit_amount,
+			boolean accumulate_debit )
+{
+	double return_amount = 0.0;
+
+	if ( accumulate_debit )
+	{
+		if ( debit_amount )
+		{
+			return_amount = debit_amount;
+		}
+		else
+		if ( credit_amount )
+		{
+			return_amount = 0.0 - credit_amount;
+		}
+	}
+	else
+	{
+		if ( credit_amount )
+		{
+			return_amount = credit_amount;
+		}
+		else
+		if ( debit_amount )
+		{
+			return_amount = 0.0 - debit_amount;
+		}
+	}
+	return return_amount;
+}
+
+JOURNAL *journal_check_number_seek(
+			LIST *journal_list,
+			int check_number )
+{
+	JOURNAL *journal;
+
+	if ( !list_rewind( journal_list ) ) return (JOURNAL *)0;
+
+	do {
+		journal = list_get( journal_list );
+
+		if ( journal->check_number == check_number )
+		{
+			return journal;
+		}
+
+	} while( list_next( journal_list ) );
+
+	return (JOURNAL *)0;
+}
+
+void journal_list_display(
+			FILE *output_pipe,
+			char *transaction_memo,
+			char *heading,
+			LIST *journal_list )
+{
+	double total_debit;
+	double total_credit;
+	char buffer[ 128 ];
+	char transaction_memo_buffer[ 128 ];
+	JOURNAL *journal;
+	int i;
+	boolean displayed_transaction_memo = 0;
+
+	if ( !list_length( journal_list ) ) return;
+
+	*transaction_memo_buffer = '0';
+
+	if ( transaction_memo && *transaction_memo )
+	{
+		strncpy( transaction_memo_buffer, transaction_memo, 30 );
+		*(transaction_memo_buffer + 30) = '\0';
+	}
+
+	if ( heading ) fprintf( output_pipe, "%s\n", heading );
+
+	total_debit = 0.0;
+	total_credit = 0.0;
+
+	/* First do all debits, then do all credits */
+	/* ---------------------------------------- */
+	for( i = 0; i < 2; i++ )
+	{
+		list_rewind( journal_list );
+	
+		do {
+			journal = list_get( journal_list );
+	
+			if ( i == 0
+			&&   !timlib_dollar_virtually_same(
+				journal->debit_amount,
+				0.0 ) )
+			{
+				if ( *transaction_memo_buffer )
+				{
+					if ( !displayed_transaction_memo )
+					{
+						fprintf(
+						   output_pipe,
+						   "%s^",
+						   transaction_memo_buffer );
+
+						displayed_transaction_memo = 1;
+					}
+					else
+					{
+						fprintf( output_pipe, "^" );
+					}
+				}
+
+				fprintf(output_pipe,
+			 		"%s^%.2lf^\n",
+					format_initial_capital(
+						buffer,
+						journal->account_name ),
+			 		journal->debit_amount );
+	
+				total_debit += journal->debit_amount;
+			}
+			else
+			if ( i == 1
+			&&   !timlib_dollar_virtually_same(
+				journal->credit_amount,
+				0.0 ) )
+			{
+				if ( *transaction_memo_buffer )
+				{
+					if ( !displayed_transaction_memo )
+					{
+						fprintf(
+						    output_pipe,
+						    "%s^",
+						    transaction_memo_buffer );
+
+						displayed_transaction_memo = 1;
+					}
+					else
+					{
+						fprintf( output_pipe, "^" );
+					}
+				}
+
+				fprintf(output_pipe,
+			 		"%s^^%.2lf\n",
+					format_initial_capital(
+						buffer,
+						journal->account_name ),
+			 		journal->credit_amount );
+	
+				total_credit += journal->credit_amount;
+			}
+	
+		} while( list_next( journal_list ) );
+	}
+
+	fprintf( output_pipe, "\n" );
+	fflush( stdout );
+}
+
+void journal_list_text_display(
+			char *transaction_memo,
+			LIST *journal_list )
+{
+	char *heading;
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+
+	if ( !list_length( journal_list ) ) return;
+
+	if ( transaction_memo && *transaction_memo )
+	{
+		heading = "Transaction^Account^Debit^Credit";
+	}
+	else
+	{
+		heading = "Account^Debit^Credit";
+	}
+
+	strcpy( sys_string, "delimiter2padded_columns.e '^' 2" );
+
+	fflush( stdout );
+	output_pipe = popen( sys_string, "w" );
+
+	journal_list_display(
+			output_pipe,
+			transaction_memo,
+			heading,
+			journal_list );
+
+	pclose( output_pipe );
+	fflush( stdout );
+}
+
+void journal_list_html_display(
+			char *transaction_memo,
+			LIST *journal_list )
+{
+	char *heading;
+	char *justify;
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+
+	if ( !list_length( journal_list ) ) return;
+
+	if ( transaction_memo && *transaction_memo )
+	{
+		heading = "Transaction,Account,Debit,Credit";
+		justify = "left,left,right,right";
+	}
+	else
+	{
+		heading = "Account,Debit,Credit";
+		justify = "left,right,right";
+	}
+
+	sprintf(sys_string,
+		"html_table.e '' %s '^' %s",
+		heading,
+		justify );
+
+	fflush( stdout );
+	output_pipe = popen( sys_string, "w" );
+
+	journal_list_display(
+			output_pipe,
+			transaction_memo,
+			(char *)0 /* heading */,
+			journal_list );
+
+	pclose( output_pipe );
+	fflush( stdout );
 }
 

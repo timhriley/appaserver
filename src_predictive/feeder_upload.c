@@ -27,7 +27,7 @@ LIST *feeder_upload_get_possible_description_list(
 		/* ----------------------- */
 		/* Returns strdup() memory */
 		/* ----------------------- */
-		feeder_upload_get_description_embedded(
+		feeder_upload_description_embedded(
 			bank_description_file,
 			fund_name,
 			bank_amount,
@@ -85,7 +85,7 @@ char *feeder_upload_get_description_bank_amount(
 
 /* Returns strdup() memory */
 /* ----------------------- */
-char *feeder_upload_get_description_embedded(
+char *feeder_upload_description_embedded(
 			char *bank_description_file,
 			char *fund_name,
 			double bank_amount,
@@ -140,8 +140,7 @@ char *feeder_upload_get_description_embedded(
 		 running_balance_portion );
 
 	return strdup( bank_description_embedded );
-
-} /* feeder_upload_get_description_embedded() */
+}
 
 /* Returns static memory */
 /* --------------------- */
@@ -269,12 +268,12 @@ char *feeder_upload_trim_bank_date_from_description(
 
 } /* feeder_upload_trim_bank_date_from_description() */
 
-JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger(
-				LIST *existing_cash_journal_ledger_list,
+JOURNAL *feeder_check_number_existing_journal(
+				LIST *existing_cash_journal_list,
 				int check_number )
 {
-	return ledger_check_number_seek_journal_ledger(
-			existing_cash_journal_ledger_list,
+	return journal_check_number_seek(
+			existing_cash_journal_list,
 			check_number );
 }
 
@@ -286,10 +285,10 @@ TRANSACTION *feeder_phrase_match_build_transaction(
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
+	JOURNAL *journal;
 
 	if ( ! ( reoccurring_transaction =
-				reoccurring_seek_bank_upload_feeder_phrase(
+				reoccurring_bank_upload_feeder_phrase(
 					reoccurring_transaction_list,
 					bank_description_embedded ) ) )
 	{
@@ -297,62 +296,60 @@ TRANSACTION *feeder_phrase_match_build_transaction(
 	}
 
 	transaction =
-		ledger_transaction_new(
+		transaction_new(
 			reoccurring_transaction->full_name,
 			reoccurring_transaction->street_address,
-			ledger_get_transaction_date_time(
-				bank_date /* transaction_date */ ),
-			(char *)0 /* memo */ );
+			transaction_time_append(
+				bank_date /* transaction_date */ ) );
 
 	transaction->transaction_amount = abs_bank_amount;
 
-	transaction->journal_ledger_list = list_new();
+	transaction->journal_list = list_new();
 
 	/* Set the debit account */
 	/* --------------------- */
-	journal_ledger =
-		journal_ledger_new(
+	journal =
+		journal_new(
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time,
 			reoccurring_transaction->debit_account );
 
-	journal_ledger->debit_amount = transaction->transaction_amount;
+	journal->debit_amount = transaction->transaction_amount;
 
-	list_append_pointer(
-		transaction->journal_ledger_list,
-		journal_ledger );
+	list_set(
+		transaction->journal_list,
+		journal );
 
 	/* Set the credit account */
 	/* ---------------------- */
-	journal_ledger =
-		journal_ledger_new(
+	journal =
+		journal_new(
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time,
 			reoccurring_transaction->credit_account );
 
-	journal_ledger->credit_amount =
+	journal->credit_amount =
 		transaction->transaction_amount;
 
-	list_append_pointer(
-		transaction->journal_ledger_list,
-		journal_ledger );
+	list_set(
+		transaction->journal_list,
+		journal );
 
 	return transaction;
+}
 
-} /* feeder_phrase_match_build_transaction() */
-
-/* Sets journal_ledger->match_sum_taken */
-/* ------------------------------------ */
-LIST *feeder_match_sum_existing_journal_ledger_list(
-				LIST *existing_cash_journal_ledger_list,
+/* Sets journal->match_sum_taken */
+/* ----------------------------- */
+LIST *feeder_match_sum_existing_journal_list(
+				LIST *existing_cash_journal_list,
 				double abs_bank_amount,
 				boolean check_debit )
 {
 	FILE *output_pipe;
 	char temp_output_file[ 128 ];
-	JOURNAL_LEDGER *journal_ledger;
+	JOURNAL *journal;
 	char *pipe_delimited_transaction_list_string;
 	LIST *name_string_list;
 	char *name_string;
@@ -364,7 +361,7 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 	int count = 0;
 	double send_amount;
 
-	if ( !list_rewind( existing_cash_journal_ledger_list ) )
+	if ( !list_rewind( existing_cash_journal_list ) )
 		return (LIST *)0;
 
 	sprintf( temp_output_file,
@@ -379,20 +376,20 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 	output_pipe = popen( sys_string, "w" );
 
 	do {
-		journal_ledger =
-			list_get_pointer( 
-				existing_cash_journal_ledger_list );
+		journal =
+			list_get( 
+				existing_cash_journal_list );
 
-		if ( journal_ledger->match_sum_taken )
+		if ( journal->match_sum_taken )
 			continue;
 
-		if ( journal_ledger->check_number )
+		if ( journal->check_number )
 			continue;
 
 		send_amount =
 			(check_debit)
-				? journal_ledger->debit_amount
-				: journal_ledger->credit_amount;
+				? journal->debit_amount
+				: journal->credit_amount;
 
 		if ( !send_amount ) continue;
 
@@ -400,23 +397,23 @@ LIST *feeder_match_sum_existing_journal_ledger_list(
 fflush( stderr );
 fprintf(stderr,
 "Sending: %s^%s^%s|%.2lf\n",
-journal_ledger->full_name,
-journal_ledger->street_address,
-journal_ledger->transaction_date_time,
+journal->full_name,
+journal->street_address,
+journal->transaction_date_time,
 send_amount );
 */
 
 		fprintf(output_pipe,
 		 	"%s^%s^%s|%.2lf\n",
-			journal_ledger->full_name,
-			journal_ledger->street_address,
-			journal_ledger->transaction_date_time,
+			journal->full_name,
+			journal->street_address,
+			journal->transaction_date_time,
 			send_amount );
 
 		if ( ++count == FEEDER_KEYS_MATCH_SUM_MAX )
 			break;
 
-	} while ( list_next( existing_cash_journal_ledger_list ) );
+	} while ( list_next( existing_cash_journal_list ) );
 
 	pclose( output_pipe );
 
@@ -467,13 +464,12 @@ send_amount );
 		piece( street_address, '^', name_string, 1 );
 		piece( transaction_date_time, '^', name_string, 2 );
 
-		if ( ! ( journal_ledger =
-				ledger_seek_journal_ledger(
-					existing_cash_journal_ledger_list,
+		if ( ! ( journal =
+				journal_seek(
+					existing_cash_journal_list,
 					full_name,
 					street_address,
-					transaction_date_time,
-					(char *)0 /* account_name */ ) ) )
+					transaction_date_time ) ) )
 		{
 			fprintf( stderr,
 				 "ERROR in %s/%s()/%d: cannot seek %s/%s/%s\n",
@@ -486,13 +482,12 @@ send_amount );
 			exit( 1 );
 		}
 
-		journal_ledger->match_sum_taken = 1;
+		journal->match_sum_taken = 1;
 
-		list_append_pointer( return_list, journal_ledger );
+		list_set( return_list, journal );
 
 	} while ( list_next( name_string_list ) );
 
 	return return_list;
-
-} /* feeder_match_sum_existing_journal_ledger_list() */
+}
 

@@ -58,4 +58,8 @@ char *environ_get_shell_snippet(	void );
 
 void environ_display(			FILE *output_pipe );
 
+char *environment_application_name(	void );
+
+char *environ_exit_application_name(	char *argv_0 );
+
 #endif

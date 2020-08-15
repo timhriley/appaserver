@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/tax.h				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver tax ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -82,7 +81,7 @@ typedef struct
 	char *subclassification;
 	char *element;
 	boolean accumulate_debit;
-	LIST *journal_ledger_list;
+	LIST *journal_list;
 	double tax_form_account_total;
 } TAX_FORM_LINE_ACCOUNT;
 
@@ -105,7 +104,7 @@ typedef struct
 {
 	char *tax_form;
 	LIST *tax_form_line_list;
-	LIST *unaccounted_journal_ledger_list;
+	LIST *unaccounted_journal_list;
 } TAX_PROCESS;
 
 typedef struct
@@ -154,7 +153,6 @@ LIST *tax_fetch_account_list(		char *application_name,
 					char *tax_form_line );
 
 LIST *tax_fetch_account_transaction_list(
-					char *application_name,
 					char *begin_date_string,
 					char *end_date_string,
 					char *account_name );
@@ -181,14 +179,6 @@ LIST *tax_get_tax_form_line_rental_list(
 
 LIST *tax_form_line_rental_get_empty_property_list(
 					LIST *rental_property_list );
-
-/*
-void tax_form_line_account_rental_property_list_set(
-					LIST *rental_property_list,
-					LIST *journal_ledger_list,
-					boolean accumulate_debit,
-					LIST *rental_property_list );
-*/
 
 TAX_FORM_LINE_RENTAL *tax_form_line_rental_new(
 					char *tax_form_line,
@@ -223,9 +213,9 @@ void tax_rental_property_list_accumulate_line_total(
 				LIST *rental_property_list,
 				LIST *tax_form_line_account_list );
 
-void tax_rental_journal_ledger_list_accumulate_line_total(
+void tax_rental_journal_list_accumulate_line_total(
 				LIST *rental_property_list,
-				LIST *journal_ledger_list,
+				LIST *journal_list,
 				boolean accumulate_debit );
 
 double tax_fetch_recovery_amount(

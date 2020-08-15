@@ -179,6 +179,12 @@ double customer_sale_sales_tax(
 		entity_state_sales_tax_rate;
 }
 
+double customer_inventory_sale_total(
+			LIST *customer_inventory_sale_list )
+{
+	return 0.0;
+}
+
 TRANSACTION *customer_sale_transaction(
 			char *full_name,
 			char *street_address,

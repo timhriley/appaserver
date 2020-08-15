@@ -15,8 +15,11 @@
 
 /* Constants */
 /* --------- */
-#define TRANSACTION_FOLDER_NAME		"transaction"
-#define TRANSACTION_SEMAPHORE_KEY	12227
+#define TRANSACTION_CLOSING_TRANSACTION_TIME	"23:59:59"
+#define TRANSACTION_PRIOR_TRANSACTION_TIME	"23:59:58"
+#define TRANSACTION_CLOSING_ENTRY_MEMO		"close closing"
+#define TRANSACTION_FOLDER_NAME			"transaction"
+#define TRANSACTION_SEMAPHORE_KEY		12227
 
 /* Structures */
 /* ---------- */
@@ -171,6 +174,8 @@ char *transaction_primary_where(
 			char *street_address,
 			char *transaction_date_time );
 
+/* Also executes journal_list() */
+/* ---------------------------- */
 TRANSACTION *transaction_parse(
 			char *input );
 
@@ -205,7 +210,7 @@ char *transaction_race_free(
 boolean transaction_exists(
 			char *transaction_date_time );
 
-char *transaction_display(
+char *transaction_audit(
 			TRANSACTION *transaction );
 
 void transaction_update(
@@ -235,8 +240,6 @@ TRANSACTION *transaction_check_seek(
 			LIST *transaction_list,
 			int check_number );
 
-char *transaction_memo(	char *memo );
-
 void transaction_check_insert(
 			FILE *insert_pipe,
 			int check_number );
@@ -255,27 +258,88 @@ void transaction_refresh(
 			boolean lock_transaction,
 			LIST *journal_list );
 
-char *transaction_date_max(
-			void );
-
 /* Returns begin_date_string */
 /* ------------------------- */
 char *transaction_report_title_sub_title(
 			char *title,
 			char *sub_title,
 			char *process_name,
-			char *application_name,
 			char *fund_name,
 			char *as_of_date,
 			int fund_name_list_length,
 			char *logo_filename );
 
-char *transaction_date_beginning(
-			char *fund_name,
-			char *ending_transaction_date );
-
 DATE *transaction_prior_closing_transaction_date(
 			char *fund_name,
 			char *ending_transaction_date );
+
+/* Returns heap memory. */
+/* -------------------- */
+char *transaction_date_time_max(
+			void );
+
+/* Returns heap memory. */
+/* -------------------- */
+char *transaction_date_max(
+			void );
+
+char *transaction_date_time_closing(
+			char *as_of_date );
+
+char *transaction_closing_date_time(
+			char *as_of_date );
+
+char *transaction_closing_transaction_date_time(
+			char *as_of_date );
+
+boolean transaction_date_time_exists(
+			char *transaction_date_time );
+
+char *transaction_fund_where(
+			char *fund_name );
+
+boolean transaction_fund_attribute_exists(
+			void );
+
+boolean transaction_exists_closing_entry(
+			char *as_of_date );
+
+LIST *transaction_fund_name_list(
+			void );
+
+LIST *transaction_list_fetch(
+			char *where );
+
+LIST *transaction_system_list(
+			char *sys_string );
+
+char *transaction_journal_join(
+			void );
+
+char *transaction_time_append(
+			char *transaction_date );
+
+char *transaction_date_maximum(
+			void );
+
+char *transaction_date_minimum(
+			void );
+
+char *transaction_date_maximum(
+			void );
+
+char *transaction_beginning_date_string(
+			char *fund_name,
+			char *ending_transaction_date );
+
+char *transaction_date_prior_closing_beginning(
+			char *fund_name,
+			char *as_of_date );
+
+double transaction_net_income(
+			double total_revenues,
+			double total_expenses,
+			double total_gains,
+			double total_losses );
 
 #endif

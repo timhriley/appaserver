@@ -133,6 +133,7 @@ SOURCE_LIBRARY= 							\
 		account.o						\
 		program.o						\
 		element.o						\
+		subclassification.o					\
 		purchase.o						\
 		customer_sale.o						\
 		inventory_purchase_return.o				\
@@ -142,8 +143,7 @@ SOURCE_LIBRARY= 							\
 		vendor_payment.o					\
 		customer_payment.o					\
 		inventory_sale.o					\
-		entity.o						\
-		entity_self.o
+		entity.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
 
@@ -860,4 +860,8 @@ customer_payment.o: customer_payment.c customer_payment.h
 inventory_sale.o: inventory_sale.c inventory_sale.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c inventory_sale.c
+
+subclassification.o: subclassification.c subclassification.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c subclassification.c
 

@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "String.h"
 #include "timlib.h"
 #include "piece.h"
 #include "appaserver_library.h"
@@ -16,7 +17,7 @@
 #include "customer.h"
 #include "entity.h"
 
-enum payroll_pay_period entity_get_payroll_pay_period(
+enum payroll_pay_period entity_payroll_pay_period(
 				char *payroll_pay_period_string )
 {
 	if ( strcasecmp( payroll_pay_period_string, "weekly" ) == 0 )
@@ -32,28 +33,7 @@ enum payroll_pay_period entity_get_payroll_pay_period(
 		return pay_period_monthly;
 	else
 		return pay_period_not_set;
-
-} /* entity_get_payroll_pay_period() */
-
-enum inventory_cost_method entity_get_inventory_cost_method(
-				char *inventory_cost_method_string )
-{
-	if ( strcasecmp( inventory_cost_method_string, "fifo" ) == 0 )
-		return inventory_fifo;
-	else
-	if ( strcasecmp( inventory_cost_method_string, "lifo" ) == 0 )
-		return inventory_lifo;
-	else
-	if ( strcasecmp( inventory_cost_method_string, "average" ) == 0 )
-		return inventory_average;
-	else
-	if ( strcasecmp(	inventory_cost_method_string,
-				"moving_average" ) == 0 )
-		return inventory_average;
-	else
-		return inventory_not_set;
-
-} /* entity_get_inventory_cost_method() */
+}
 
 ENTITY *entity_calloc( void )
 {
@@ -86,135 +66,22 @@ ENTITY *entity_new(	char *full_name,
 
 } /* entity_new() */
 
-boolean entity_load(	char **city,
-			char **state_code,
-			char **zip_code,
-			char **phone_number,
-			char **email_address,
-			char *application_name,
-			char *full_name,
-			char *street_address )
+/* ---------------------- */
+/* Returns program memory */
+/* ---------------------- */
+char *entity_select( void )
 {
-	char sys_string[ 1024 ];
-	char where[ 512 ];
-	char *select;
-	char *results;
-	char buffer[ 128 ];
+	return
+		"full_name,"
+		"street_address,"
+		"city,"
+		"state_code,"
+		"zip_code,"
+		"phone_number,"
+		"email_address";
+}
 
-	select =
-"city,state_code,zip_code,phone_number,email_address";
-
-	sprintf( where,
-		 "full_name = '%s' and			"
-		 "street_address = '%s' 		",
-		 escape_character(	buffer,
-					full_name,
-					'\'' ),
-		 street_address );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=%s			"
-		 "			folder=entity			"
-		 "			where=\"%s\"			",
-		 application_name,
-		 select,
-		 where );
-
-	if ( ! ( results = pipe2string( sys_string ) ) ) return 0;
-
-	if ( city )
-	{
-		piece( buffer, FOLDER_DATA_DELIMITER, results, 0 );
-		*city = strdup( buffer );
-	}
-
-	if ( state_code )
-	{
-		piece( buffer, FOLDER_DATA_DELIMITER, results, 1 );
-		*state_code = strdup( buffer );
-	}
-
-	if ( zip_code )
-	{
-		piece( buffer, FOLDER_DATA_DELIMITER, results, 2 );
-		*zip_code = strdup( buffer );
-	}
-
-	if ( phone_number )
-	{
-		piece( buffer, FOLDER_DATA_DELIMITER, results, 3 );
-		*phone_number = strdup( buffer );
-	}
-
-	if ( email_address )
-	{
-		piece( buffer, FOLDER_DATA_DELIMITER, results, 4 );
-		*email_address = strdup( buffer );
-	}
-
-	free( results );
-
-	return 1;
-
-} /* entity_load() */
-
-void entity_propagate_purchase_order_ledger_accounts(
-				char *application_name,
-				char *fund_name,
-				char *purchase_order_transaction_date_time )
-{
-	LIST *inventory_account_name_list;
-	char *sales_tax_expense_account = {0};
-	char *freight_in_expense_account = {0};
-	char *account_payable_account = {0};
-
-	inventory_account_name_list =
-		ledger_get_inventory_account_name_list(
-			application_name );
-
-	ledger_get_purchase_order_account_names(
-		&sales_tax_expense_account,
-		&freight_in_expense_account,
-		&account_payable_account,
-		application_name,
-		fund_name );
-
-	if ( list_length( inventory_account_name_list ) )
-	{
-		ledger_propagate_account_name_list(
-			application_name,
-			purchase_order_transaction_date_time,
-			inventory_account_name_list );
-	}
-
-	if ( sales_tax_expense_account )
-	{
-		ledger_propagate(
-			application_name,
-			purchase_order_transaction_date_time,
-			sales_tax_expense_account );
-	}
-
-	if ( freight_in_expense_account )
-	{
-		ledger_propagate(
-			application_name,
-			purchase_order_transaction_date_time,
-			freight_in_expense_account );
-	}
-
-	if ( account_payable_account )
-	{
-		ledger_propagate(
-			application_name,
-			purchase_order_transaction_date_time,
-			account_payable_account );
-	}
-
-} /* entity_propagate_purchase_order_ledger_accounts() */
-
-char *entity_get_title_passage_rule_string(
+char *entity_title_passage_rule_string(
 				enum title_passage_rule title_passage_rule )
 {
 	if ( title_passage_rule == title_passage_rule_null )
@@ -227,10 +94,9 @@ char *entity_get_title_passage_rule_string(
 		return TITLE_PASSAGE_RULE_ARRIVED_DATE;
 	else
 		return TITLE_PASSAGE_RULE_NULL;
+}
 
-} /* entity_get_title_passage_rule_string() */
-
-enum title_passage_rule entity_get_title_passage_rule(
+enum title_passage_rule entity_title_passage_rule_resolve(
 				char *title_passage_rule_string )
 {
 	if ( !title_passage_rule_string )
@@ -255,94 +121,9 @@ enum title_passage_rule entity_get_title_passage_rule(
 	{
 		return title_passage_rule_null;
 	}
+}
 
-} /* entity_get_title_passage_rule() */
-
-LIST *entity_get_inventory_list(
-			char *application_name )
-{
-	INVENTORY *inventory;
-	LIST *inventory_list;
-	char *select;
-	char sys_string[ 512 ];
-	char input_buffer[ 512 ];
-	char piece_buffer[ 128 ];
-	FILE *input_pipe;
-
-	select =
-"inventory_name,inventory_account,cost_of_goods_sold_account";
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=%s		"
-		 "			folder=inventory	",
-		 application_name,
-		 select );
-
-	input_pipe = popen( sys_string, "r" );
-
-	inventory_list = list_new();
-
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			0 );
-
-		inventory =
-			inventory_new(
-				strdup( piece_buffer ) );
-
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			1 );
-
-		if ( !*piece_buffer )
-		{
-			fprintf( stderr,
-"ERROR in %s/%s()/%d: empty inventory_account for inventory = (%s).\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 inventory->inventory_name );
-			pclose( input_pipe );
-			exit( 1 );
-		}
-
-		inventory->inventory_account_name = strdup( piece_buffer );
-
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			2 );
-
-		if ( !*piece_buffer )
-		{
-			fprintf( stderr,
-"ERROR in %s/%s()/%d: empty cost_of_goods_sold_account_name for inventory = (%s).\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 inventory->inventory_name );
-			pclose( input_pipe );
-			exit( 1 );
-		}
-
-		inventory->cost_of_goods_sold_account_name =
-			strdup( piece_buffer );
-
-		list_append_pointer( inventory_list, inventory );
-	}
-
-	pclose( input_pipe );
-	return inventory_list;
-
-} /* entity_get_inventory_list() */
-
-ENTITY *entity_get_sales_tax_payable_entity(
-				char *application_name )
+ENTITY *entity_sales_tax_payable_entity( void )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
@@ -352,14 +133,10 @@ ENTITY *entity_get_sales_tax_payable_entity(
 	char *results;
 
 	select = "full_name,street_address";
-
 	folder = "sales_tax_payable_entity";
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=%s		"
-		 "			folder=%s		",
-		 application_name,
+		 "echo \"select %s from %s;\" | sql | head -1",
 		 select,
 		 folder );
 
@@ -367,13 +144,12 @@ ENTITY *entity_get_sales_tax_payable_entity(
 
 	if ( !results ) return (ENTITY *)0;
 
-	piece( full_name, FOLDER_DATA_DELIMITER, results, 0 );
-	piece( street_address, FOLDER_DATA_DELIMITER, results, 1 );
+	piece( full_name, SQL_DELIMITER, results, 0 );
+	piece( street_address, SQL_DELIMITER, results, 1 );
 
 	return entity_new(	strdup( full_name ),
 				strdup( street_address ) );
-
-} /* entity_get_sales_tax_payable_entity() */
+}
 
 char *entity_get_payroll_pay_period_string(
 				enum payroll_pay_period
@@ -439,10 +215,10 @@ ENTITY *entity_seek(		LIST *entity_list,
 
 } /* entity_seek() */
 
-ENTITY *entity_get_or_set(	LIST *entity_list,
-				char *full_name,
-				char *street_address,
-				boolean with_strdup )
+ENTITY *entity_getset(	LIST *entity_list,
+			char *full_name,
+			char *street_address,
+			boolean with_strdup )
 {
 	ENTITY *entity;
 
@@ -452,7 +228,6 @@ ENTITY *entity_get_or_set(	LIST *entity_list,
 				full_name,
 				street_address ) ) )
 	{
-
 		if ( with_strdup )
 		{
 			entity = entity_new(	strdup( full_name ),
@@ -463,12 +238,10 @@ ENTITY *entity_get_or_set(	LIST *entity_list,
 			entity = entity_new( full_name, street_address );
 		}
 
-		list_append_pointer( entity_list, entity );
+		list_set( entity_list, entity );
 	}
-
 	return entity;
-
-} /* entity_get_or_set() */
+}
 
 char *entity_list_display( LIST *entity_list )
 {
@@ -493,8 +266,7 @@ char *entity_list_display( LIST *entity_list )
 	}
 
 	return strdup( buffer );
-
-} /* entity_list_display() */
+}
 
 boolean entity_list_exists(	LIST *entity_list,
 				char *full_name,
@@ -503,52 +275,142 @@ boolean entity_list_exists(	LIST *entity_list,
 	if ( !entity_list )
 		return 0;
 	else
-		return (boolean)entity_seek(
+	if ( entity_seek(
 					entity_list,
 					full_name,
-					street_address );
+					street_address ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
 
-} /* entity_list_exists() */
-
-boolean entity_location_fetch(	char **city,
-				char **state_code,
-				char **zip_code,
-				char *application_name,
-				char *full_name,
-				char *street_address )
+ENTITY *entity_fetch(	char *full_name,
+			char *street_address )
 {
-	return entity_load(	city,
-				state_code,
-				zip_code,
-				(char **)0 /* phone_number */,
-				(char **)0 /* email_address */,
-				application_name,
-				full_name,
-				street_address );
+	char sys_string[ 1024 ];
 
-} /* entity_location_fetch() */
-
-ENTITY *entity_fetch(		char *application_name,
-				char *full_name,
-				char *street_address )
-{
-	ENTITY *entity;
-
-	entity = entity_new( full_name, street_address );
-
-	if ( !entity_load(	&entity->city,
-				&entity->state_code,
-				&entity->zip_code,
-				&entity->phone_number,
-				&entity->email_address,
-				application_name,
-				entity->full_name,
-				entity->street_address ) )
+	if ( !full_name || !street_address )
 	{
 		return (ENTITY *)0;
 	}
 
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 /* ---------------------- */
+		 /* Returns program memory */
+		 /* ---------------------- */
+		 entity_select(),
+		 "entity",
+		 /* -------------------------- */
+		 /* Safely returns heap memory */
+		 /* -------------------------- */
+		 entity_primary_where(
+			full_name,
+			street_address ) );
+
+	return entity_parse( pipe2string( sys_string ) );
+}
+
+ENTITY *entity_parse( char *input )
+{
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	ENTITY *entity;
+
+	if ( !input || !*input ) return (ENTITY *)0;
+
+	piece( full_name, SQL_DELIMITER, input, 0 );
+	piece( street_address, SQL_DELIMITER, input, 1 );
+
+	entity = entity_new(
+			strdup( full_name ),
+			strdup( street_address ) );
+
 	return entity;
+}
 
-} /* entity_fetch() */
+char *entity_escape_full_name(
+			char *full_name )
+{
+	static char escape_full_name[ 256 ];
 
+	return string_escape_quote( escape_full_name, full_name );
+}
+
+char *entity_primary_where(
+			char *full_name,
+			char *street_address )
+{
+	char where[ 512 ];
+
+	sprintf( where,
+		 "full_name = '%s' and	"
+		 "street_address = '%s'	",
+		 /* Returns static memory */
+		 /* --------------------- */
+		 entity_escape_full_name( full_name ),
+		 street_address );
+
+	return strdup( where );
+}
+
+
+#ifdef NOT_DEFINED
+void entity_propagate_purchase_order_ledger_accounts(
+				char *application_name,
+				char *fund_name,
+				char *purchase_order_transaction_date_time )
+{
+	LIST *inventory_account_name_list;
+	char *sales_tax_expense_account = {0};
+	char *freight_in_expense_account = {0};
+	char *account_payable_account = {0};
+
+	inventory_account_name_list =
+		ledger_get_inventory_account_name_list(
+			application_name );
+
+	ledger_get_purchase_order_account_names(
+		&sales_tax_expense_account,
+		&freight_in_expense_account,
+		&account_payable_account,
+		application_name,
+		fund_name );
+
+	if ( list_length( inventory_account_name_list ) )
+	{
+		ledger_propagate_account_name_list(
+			application_name,
+			purchase_order_transaction_date_time,
+			inventory_account_name_list );
+	}
+
+	if ( sales_tax_expense_account )
+	{
+		ledger_propagate(
+			application_name,
+			purchase_order_transaction_date_time,
+			sales_tax_expense_account );
+	}
+
+	if ( freight_in_expense_account )
+	{
+		ledger_propagate(
+			application_name,
+			purchase_order_transaction_date_time,
+			freight_in_expense_account );
+	}
+
+	if ( account_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			purchase_order_transaction_date_time,
+			account_payable_account );
+	}
+}
+#endif

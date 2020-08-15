@@ -28,6 +28,7 @@
 #include "boolean.h"
 #include "appaserver_link_file.h"
 #include "tax.h"
+#include "transaction.h"
 
 /* Constants */
 /* --------- */
@@ -152,11 +153,10 @@ int main( int argc, char **argv )
 	}
 
 	if ( ! ( begin_date_string =
-			ledger_get_report_title_sub_title(
+			transaction_report_title_sub_title(
 				title,
 				sub_title,
 				process_name,
-				application_name,
 				(char *)0 /* fund_name */,
 				tax->tax_input.end_date_string,
 				0 /* length_fund_name_list */,

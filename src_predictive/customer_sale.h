@@ -66,6 +66,9 @@ CUSTOMER_SALE *customer_sale_parse(
 double customer_sale_payment_total(
 			LIST *customer_payment_list );
 
+double customer_inventory_sale_total(
+			LIST *customer_inventory_sale_list );
+
 double customer_sale_sales_tax(
 			LIST *customer_inventory_sale_list,
 			double entity_state_sales_tax_rate );

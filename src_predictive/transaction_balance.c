@@ -275,11 +275,10 @@ TRANSACTION_BALANCE_ROW *transaction_balance_parse_row(
 	r->sequence_number = atoi( piece_buffer );
 
 	return r;
+}
 
-} /* transaction_balance_parse_row() */
-
-LIST *transaction_balance_get_inbalance_block_list(
-					LIST *transaction_balance_row_list )
+LIST *transaction_balance_inbalance_block_list(
+			LIST *transaction_balance_row_list )
 {
 	LIST *block_list;
 	TRANSACTION_BALANCE_ROW *current_row;
@@ -363,11 +362,10 @@ LIST *transaction_balance_get_inbalance_block_list(
 	}
 
 	return block_list;
+}
 
-} /* transaction_balance_get_inbalance_block_list() */
-
-LIST *transaction_balance_get_outbalance_block_list(
-					LIST *transaction_balance_row_list )
+LIST *transaction_balance_outbalance_block_list(
+			LIST *transaction_balance_row_list )
 {
 	LIST *block_list;
 	TRANSACTION_BALANCE_ROW *current_row;
@@ -437,12 +435,11 @@ LIST *transaction_balance_get_outbalance_block_list(
 	}
 
 	return block_list;
+}
 
-} /* transaction_balance_get_outbalance_block_list() */
-
-LIST *transaction_balance_get_merged_block_list(
-					LIST *inbalance_block_list,
-					LIST *outbalance_block_list )
+LIST *transaction_balance_merged_block_list(
+			LIST *inbalance_block_list,
+			LIST *outbalance_block_list )
 {
 	TRANSACTION_BALANCE_BLOCK *inblock;
 	TRANSACTION_BALANCE_BLOCK *outblock;
@@ -503,8 +500,7 @@ LIST *transaction_balance_get_merged_block_list(
 	} /* break in middle */
 
 	return return_list;
-
-} /* transaction_balance_get_merged_block_list() */
+}
 
 double transaction_balance_calculate_anomaly_balance_difference(
 			double cash_running_balance,
@@ -537,8 +533,8 @@ void transaction_balance_row_stdout(
 
 } /* transaction_balance_row_stdout() */
 
-boolean transaction_balance_get_last_block_inbalance(
-				LIST *merged_block_list )
+boolean transaction_balance_last_block_inbalance(
+			LIST *merged_block_list )
 {
 	TRANSACTION_BALANCE_BLOCK *last_block;
 
@@ -547,8 +543,7 @@ boolean transaction_balance_get_last_block_inbalance(
 	last_block = list_get_last_pointer( merged_block_list );
 
 	return last_block->is_inbalance;
-
-} /* transaction_balance_get_last_block_inbalance() */
+}
 
 TRANSACTION_BALANCE_ROW *transaction_balance_seek_row(
 			char *transaction_date_time,
@@ -560,7 +555,7 @@ TRANSACTION_BALANCE_ROW *transaction_balance_seek_row(
 		return (TRANSACTION_BALANCE_ROW *)0;
 
 	do {
-		row = list_get_pointer( transaction_balance_row_list );
+		row = list_get( transaction_balance_row_list );
 
 		if ( strcmp(	row->transaction_date_time,
 				transaction_date_time ) == 0 )
@@ -574,7 +569,7 @@ TRANSACTION_BALANCE_ROW *transaction_balance_seek_row(
 
 } /* transaction_balance_seek_row() */
 
-boolean transaction_balance_get_cash_running_balance_wrong(
+boolean transaction_balance_cash_running_balance_wrong(
 			char *first_outbalance_transaction_date_time,
 			LIST *transaction_balance_row_list,
 			double bank_amount )
@@ -602,7 +597,7 @@ boolean transaction_balance_get_cash_running_balance_wrong(
 
 	list_previous( transaction_balance_row_list );
 
-	prior_row = list_get_pointer( transaction_balance_row_list );
+	prior_row = list_get( transaction_balance_row_list );
 
 	sum = prior_row->cash_running_balance + bank_amount;
 
@@ -616,10 +611,9 @@ boolean transaction_balance_get_cash_running_balance_wrong(
 	{
 		return 0;
 	}
+}
 
-} /* transaction_balance_get_cash_running_balance_wrong() */
-
-boolean transaction_balance_get_bank_running_balance_wrong(
+boolean transaction_balance_bank_running_balance_wrong(
 			char *first_outbalance_transaction_date_time,
 			LIST *transaction_balance_row_list,
 			double bank_amount )
@@ -647,7 +641,7 @@ boolean transaction_balance_get_bank_running_balance_wrong(
 
 	list_previous( transaction_balance_row_list );
 
-	prior_row = list_get_pointer( transaction_balance_row_list );
+	prior_row = list_get( transaction_balance_row_list );
 
 	sum = prior_row->bank_running_balance + bank_amount;
 
@@ -661,8 +655,7 @@ boolean transaction_balance_get_bank_running_balance_wrong(
 	{
 		return 0;
 	}
-
-} /* transaction_balance_get_bank_running_balance_wrong() */
+}
 
 char *transaction_balance_row_display(
 				TRANSACTION_BALANCE_ROW *row,
@@ -699,12 +692,12 @@ char *transaction_balance_row_display(
 		 row->cash_running_balance,
 		 row->bank_running_balance,
 		 row->cash_running_balance - row->bank_running_balance,
-		 transaction_balance_get_cash_running_balance_wrong(
+		 transaction_balance_cash_running_balance_wrong(
 			row->transaction_date_time
 				/* first_outbalance_transaction_date_time */,
 			transaction_balance_row_list,
 			bank_amount ),
-		 transaction_balance_get_bank_running_balance_wrong(
+		 transaction_balance_bank_running_balance_wrong(
 			row->transaction_date_time
 				/* first_outbalance_transaction_date_time */,
 			transaction_balance_row_list,

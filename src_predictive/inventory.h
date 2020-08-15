@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/inventory.h				*/
 /* -------------------------------------------------------------------- */
-/* This is the PredictiveBooks inventory ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -15,6 +14,11 @@
 
 /* Enumerated types */
 /* ---------------- */
+enum inventory_cost_method{	inventory_not_set,
+				inventory_fifo,
+				inventory_average,
+				inventory_lifo };
+
 
 /* Constants */
 /* --------- */
@@ -730,10 +734,18 @@ void inventory_set_layer_inventory_purchase_list(
 /*      inventory_purchase.layer_consumed_quantity	*/
 /* ---------------------------------------------------- */
 LIST *inventory_get_layer_inventory_purchase_list(
-				double *cost_of_goods_sold,
-				LIST *inventory_purchase_list,
-				int sold_quantity,
-				boolean is_fifo );
+			double *cost_of_goods_sold,
+			LIST *inventory_purchase_list,
+			int sold_quantity,
+			boolean is_fifo );
+
+enum inventory_cost_method inventory_cost_method_resolve(
+			char *inventory_cost_method_string );
+
+char *inventory_select(	void );
+
+INVENTORY *inventory_parse(
+			char *input );
 
 #endif
 

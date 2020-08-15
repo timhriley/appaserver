@@ -13,7 +13,8 @@
 
 /* Constants */
 /* --------- */
-#define JOURNAL_FOLDER_NAME	"journal_ledger"
+#define JOURNAL_FOLDER_NAME		"journal_ledger"
+#define JOURNAL_TABLE			JOURNAL_FOLDER_NAME
 
 /* Structures */
 /* ---------- */
@@ -32,6 +33,9 @@ typedef struct
 	double balance;
 	double balance_database;
 	boolean match_sum_taken;
+	char *memo;
+	int check_number;
+	char *property_street_address;
 } JOURNAL;
 
 /* Operations */
@@ -99,7 +103,7 @@ void journal_list_transaction_date_time_propagate(
 			char *transaction_date_time,
 			LIST *journal_list );
 
-char *journal_list_display(
+char *journal_list_audit(
 			LIST *journal_list );
 
 void journal_list_set_balances(
@@ -136,5 +140,36 @@ void journal_list_propagate_update(
 LIST *journal_list_prior(
 			JOURNAL *prior_journal,
 			char *account_name );
+
+JOURNAL *journal_latest(
+			char *account_name,
+			char *as_of_date );
+
+LIST *journal_year_list(
+			int year,
+			char *account_name );
+
+double journal_amount(
+			double debit_amount,
+			double credit_amount,
+			boolean accumulate_debit );
+
+JOURNAL *journal_check_number_seek(
+			LIST *journal_list,
+			int check_number );
+
+void journal_list_text_display(
+			char *transaction_memo,
+			LIST *journal_list );
+
+void journal_list_html_display(
+			char *transaction_memo,
+			LIST *journal_list );
+
+void journal_list_display(
+			FILE *output_pipe,
+			char *transaction_memo,
+			char *heading,
+			LIST *journal_list );
 
 #endif
