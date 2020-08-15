@@ -1779,70 +1779,25 @@ void subclassification_aggregate_net_income_output(
 	html_table->data_list = list_new();
 }
 
-LATEX_ROW *subclassification_latex_net_income_row(
-			double net_income,
-			boolean is_statement_of_activities,
-			double percent_denominator,
-			boolean omit_subclassification )
+boolean subclassification_net_assets_exists(
+			LIST *subclassification_list )
 {
-	LATEX_ROW *latex_row;
+	SUBCLASSIFICATION *subclassification;
 
-	latex_row = latex_new_latex_row();
+	if ( !list_rewind( subclassification_list ) ) return 0;
 
-	if ( is_statement_of_activities )
-	{
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			"Change in Net Assets",
-			1 /* not large_bold */ );
-	}
-	else
-	{
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			"Net Income",
-			1 /* not large_bold */ );
-	}
+	do {
+		subclassification = list_get_pointer( subclassification_list );
 
-	if ( !omit_subclassification )
-	{
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			"",
-			0 /* not large_bold */ );
-	}
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			SUBCLASSIFICATION_NET_ASSETS ) == 0 )
+		{
+			return 1;
+		}
+	} while( list_next( subclassification_list ) );
 
-	latex_append_column_data_list(
-		latex_row->column_data_list,
-		"",
-		0 /* not large_bold */ );
-
-	latex_append_column_data_list(
-		latex_row->column_data_list,
-		strdup( place_commas_in_money(
-			   net_income ) ),
-		0 /* not large_bold */ );
-
-	if ( percent_denominator )
-	{
-		char buffer[ 128 ];
-		double percent_of_total;
-
-		percent_of_total =
-			( net_income /
-	  		percent_denominator ) * 100.0;
-
-		sprintf( buffer,
-	 		"%.1lf%c",
-	 		percent_of_total,
-	 		'%' );
-
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			strdup( buffer ),
-			0 /* not large_bold */ );
-	}
-
-	return latex_row;
+	return 0;
 }
 

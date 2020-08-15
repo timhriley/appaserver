@@ -564,3 +564,288 @@ double element_value(	LIST *subclassification_list,
 	return total_element;
 }
 
+double element_subclassification_aggregate_html_output(
+			HTML_TABLE *html_table,
+			LIST *subclassification_list,
+			char *element_name,
+			double percent_denominator )
+{
+	double total_element = 0.0;
+	char buffer[ 128 ];
+	char format_buffer[ 128 ];
+	SUBCLASSIFICATION *subclassification;
+	char element_title[ 128 ];
+	boolean first_time = 1;
+	double percent_of_total;
+
+	/* For equity, always display the element title */
+	/* -------------------------------------------- */
+	if ( strcmp(	element_name,
+			ELEMENT_EQUITY ) ==  0 )
+	{
+		sprintf(	element_title,
+				"<h2>%s</h2>",
+				format_initial_capital(
+					format_buffer,
+					element_name ) );
+
+		html_table_set_data(
+				html_table->data_list,
+				element_title );
+
+		html_table_output_data(
+				html_table->data_list,
+				html_table->
+					number_left_justified_columns,
+				html_table->
+					number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+		html_table->data_list = list_new();
+
+		first_time = 0;
+
+		if ( !subclassification_net_assets_exists(
+				subclassification_list ) )
+		{
+			goto equity_all_done;
+		}
+
+		total_element =
+			subclassification_net_assets_html_output(
+				html_table,
+				subclassification_list,
+				0 /* not element_accumulate_debit */ );
+
+		first_time = 0;
+	}
+
+equity_all_done:
+
+	if ( !list_rewind( subclassification_list ) ) return 0.0;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		if ( timlib_dollar_virtually_same(
+			subclassification->subclassification_total,
+			0.0 ) )
+		{
+			continue;
+		}
+
+		/* Don't display net assets. */
+		/* ------------------------- */
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			SUBCLASSIFICATION_NET_ASSETS ) == 0 )
+		{
+			continue;
+		}
+
+		if ( first_time )
+		{
+			sprintf(	element_title,
+					"<h2>%s</h2>",
+					format_initial_capital(
+						format_buffer,
+						element_name ) );
+
+			html_table_set_data(
+					html_table->data_list,
+					element_title );
+
+			html_table_output_data(
+					html_table->data_list,
+					html_table->
+						number_left_justified_columns,
+					html_table->
+						number_right_justified_columns,
+					html_table->background_shaded,
+					html_table->justify_list );
+			html_table->data_list = list_new();
+
+			first_time = 0;
+		}
+
+		total_element += subclassification->subclassification_total;
+
+		sprintf(buffer,
+		 	"%s",
+		 	format_initial_capital(
+				format_buffer,
+		 		subclassification->
+				    subclassification_name ) );
+
+		html_table_set_data(	html_table->data_list,
+					strdup( buffer ) );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( place_commas_in_money(
+				subclassification->
+					subclassification_total ) ) );
+	
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( "" ) );
+
+			percent_of_total =
+				( subclassification->
+					subclassification_total /
+				  percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+				 "%.1lf%c",
+				 percent_of_total,
+				 '%' );
+
+			html_table_set_data(
+					html_table->data_list,
+					strdup( buffer ) );
+		}
+
+		html_table_output_data(
+				html_table->data_list,
+				html_table->
+					number_left_justified_columns,
+				html_table->
+					number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+
+		html_table->data_list = list_new();
+
+	} while( list_next( subclassification_list ) );
+
+	if ( !timlib_double_virtually_same( total_element, 0.0 ) )
+	{
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			SUBCLASSIFICATION_CHANGE_IN_NET_ASSETS ) == 0 )
+		{
+			sprintf(element_title,
+				"<h2>%s</h2>",
+				"Equity Ending Balance" );
+		}
+		else
+		{
+			sprintf(element_title,
+				"<h2>Total %s</h2>",
+				element_name );
+		}
+
+		html_table_set_data(	html_table->data_list,
+					element_title );
+	
+		html_table_set_data( html_table->data_list, strdup( "" ) );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( place_commas_in_money(
+				total_element ) ) );
+
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( total_element /
+				  percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+				 "%.1lf%c",
+				 percent_of_total,
+				 '%' );
+
+			html_table_set_data(
+					html_table->data_list,
+					strdup( buffer ) );
+		}
+
+		html_table_output_data(
+					html_table->data_list,
+					html_table->
+						number_left_justified_columns,
+					html_table->
+						number_right_justified_columns,
+					html_table->background_shaded,
+					html_table->justify_list );
+		html_table->data_list = list_new();
+	}
+
+	return total_element;
+}
+
+LATEX_ROW *element_latex_net_income_row(
+			double net_income,
+			boolean is_statement_of_activities,
+			double percent_denominator,
+			boolean omit_subclassification )
+{
+	LATEX_ROW *latex_row;
+
+	latex_row = latex_new_latex_row();
+
+	if ( is_statement_of_activities )
+	{
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"Change in Net Assets",
+			1 /* not large_bold */ );
+	}
+	else
+	{
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"Net Income",
+			1 /* not large_bold */ );
+	}
+
+	if ( !omit_subclassification )
+	{
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
+	}
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( place_commas_in_money(
+			   net_income ) ),
+		0 /* not large_bold */ );
+
+	if ( percent_denominator )
+	{
+		char buffer[ 128 ];
+		double percent_of_total;
+
+		percent_of_total =
+			( net_income /
+	  		percent_denominator ) * 100.0;
+
+		sprintf( buffer,
+	 		"%.1lf%c",
+	 		percent_of_total,
+	 		'%' );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+	}
+	return latex_row;
+}
+

@@ -34,7 +34,7 @@
 
 /* Prototypes */
 /* ---------- */
-void income_net_income_html(
+void income_statement_net_income_html(
 			HTML_TABLE *html_table,
 			double net_income,
 			boolean is_statement_of_activities,
@@ -42,15 +42,15 @@ void income_net_income_html(
 			int skip_columns );
 
 void income_statement_subclassification_omit_PDF(
-					char *application_name,
-					char *title,
-					char *sub_title,
-					char *fund_name,
-					char *as_of_date,
-					char *document_root_directory,
-					boolean is_statement_of_activities,
-					char *process_name,
-					char *logo_filename );
+			char *application_name,
+			char *title,
+			char *sub_title,
+			char *fund_name,
+			char *as_of_date,
+			char *document_root_directory,
+			boolean is_statement_of_activities,
+			char *process_name,
+			char *logo_filename );
 
 void income_statement_net_income_only(
 			char *fund_name,
@@ -66,12 +66,12 @@ LIST *build_subclassification_aggregate_PDF_heading_list(
 					void );
 
 LIST *build_subclassification_omit_PDF_row_list(
-					LIST *element_list,
-					boolean is_statement_of_activities );
+			LIST *element_list,
+			boolean is_statement_of_activities );
 
 LIST *build_subclassification_display_PDF_row_list(
-					LIST *element_list,
-					boolean is_statement_of_activities );
+			LIST *element_list,
+			boolean is_statement_of_activities );
 
 LIST *build_subclassification_aggregate_PDF_row_list(
 			LIST *element_list,
@@ -85,7 +85,6 @@ void income_statement_subclassification_aggregate_html_table(
 			boolean is_statement_of_activities );
 
 void income_statement_subclassification_display_html_table(
-					char *application_name,
 					char *title,
 					char *sub_title,
 					char *fund_name,
@@ -93,7 +92,6 @@ void income_statement_subclassification_display_html_table(
 					boolean is_statement_of_activities );
 
 void income_statement_subclassification_omit_html_table(
-					char *application_name,
 					char *title,
 					char *sub_title,
 					char *fund_name,
@@ -101,15 +99,15 @@ void income_statement_subclassification_omit_html_table(
 					boolean is_statement_of_activities );
 
 void income_statement_subclassification_aggregate_PDF(
-					char *application_name,
-					char *title,
-					char *sub_title,
-					char *fund_name,
-					char *as_of_date,
-					char *document_root_directory,
-					boolean is_statement_of_activities,
-					char *process_name,
-					char *logo_filename );
+			char *application_name,
+			char *title,
+			char *sub_title,
+			char *fund_name,
+			char *as_of_date,
+			char *document_root_directory,
+			boolean is_statement_of_activities,
+			char *process_name,
+			char *logo_filename );
 
 void income_statement_subclassification_display_PDF(
 					char *application_name,
@@ -261,7 +259,6 @@ int main( int argc, char **argv )
 		if ( strcmp( subclassification_option, "display" ) == 0 )
 		{
 			income_statement_subclassification_display_html_table(
-				application_name,
 				title,
 				sub_title,
 				fund_name,
@@ -274,7 +271,6 @@ int main( int argc, char **argv )
 		/* ------------ */
 		{
 			income_statement_subclassification_omit_html_table(
-				application_name,
 				title,
 				sub_title,
 				fund_name,
@@ -346,11 +342,11 @@ void income_statement_net_income_only(
 	LIST *list;
 	ELEMENT *element;
 	LIST *filter_element_name_list;
-	double total_revenues;
-	double total_expenses;
-	double total_gains;
-	double total_losses;
-	double net_income;
+	double total_revenues = {0};
+	double total_expenses = {0};
+	double total_gains = {0};
+	double total_losses = {0};
+	double net_income = {0};
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
@@ -371,83 +367,55 @@ void income_statement_net_income_only(
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_list_seek(
 				list,
 				ELEMENT_REVENUE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_REVENUE );
+		total_revenues =
+			element_value(
+				element->subclassification_list,
+				element->accumulate_debit );
 	}
-
-	total_revenues =
-		element_value(
-			element->subclassification_list,
-			element->accumulate_debit );
 
 	/* Compute total expenses */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_EXPENSE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_EXPENSE );
+		total_expenses =
+			element_value(
+				element->subclassification_list,
+				element->accumulate_debit );
 	}
-
-	total_expenses =
-		element_value(
-			element->subclassification_list,
-			element->accumulate_debit );
 
 	/* Compute total gains */
 	/* ------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_GAIN ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_GAIN );
+		total_gains =
+			element_value(
+				element->subclassification_list,
+				element->accumulate_debit );
 	}
-
-	total_gains =
-		element_value(
-			element->subclassification_list,
-			element->accumulate_debit );
 
 	/* Compute total losses */
 	/* -------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_LOSS ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_LOSS );
+		total_losses =
+			element_value(
+					element->subclassification_list,
+					element->accumulate_debit );
 	}
-
-	total_losses =
-		element_value(
-				element->subclassification_list,
-				element->accumulate_debit );
 
 	net_income = transaction_net_income(
 				total_revenues,
@@ -469,11 +437,11 @@ void income_statement_subclassification_aggregate_html_table(
 	ELEMENT *element;
 	LIST *filter_element_name_list;
 	HTML_TABLE *html_table;
-	double total_revenues;
-	double total_expenses;
-	double total_gains;
-	double total_losses;
-	double net_income;
+	double total_revenues = {0};
+	double total_expenses = {0};
+	double total_gains = {0};
+	double total_losses = {0};
+	double net_income = {0};
 
 	html_table = html_table_new( title, sub_title, "" );
 
@@ -514,93 +482,65 @@ void income_statement_subclassification_aggregate_html_table(
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_REVENUE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_REVENUE );
+		total_revenues =
+			subclassification_aggregate_html_element_output(
+				html_table,
+				element->subclassification_list,
+				element->element_name,
+				element->element_total
+					/* percent_denominator */ );
 	}
-
-	total_revenues =
-		subclassification_aggregate_html_element_output(
-			html_table,
-			element->subclassification_list,
-			element->element_name,
-			element->element_total
-				/* percent_denominator */ );
 
 	/* Compute total expenses */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_EXPENSE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_EXPENSE );
+		total_expenses =
+			subclassification_aggregate_html_element_output(
+				html_table,
+				element->subclassification_list,
+				element->element_name,
+				total_revenues /* percent_denominator */ );
 	}
-
-	total_expenses =
-		subclassification_aggregate_html_element_output(
-			html_table,
-			element->subclassification_list,
-			element->element_name,
-			total_revenues /* percent_denominator */ );
 
 	/* Compute total gains */
 	/* ------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_GAIN ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_GAIN );
+		total_gains =
+			subclassification_aggregate_html_element_output(
+				html_table,
+				element->subclassification_list,
+				element->element_name,
+				total_revenues /* percent_denominator */ );
 	}
-
-	total_gains =
-		subclassification_aggregate_html_element_output(
-			html_table,
-			element->subclassification_list,
-			element->element_name,
-			total_revenues /* percent_denominator */ );
 
 	/* Compute total losses */
 	/* -------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_LOSS ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_LOSS );
+		total_losses =
+			subclassification_aggregate_html_element_output(
+				html_table,
+				element->subclassification_list,
+				element->element_name,
+				total_revenues
+					/* percent_denominator */ );
 	}
-
-	total_losses =
-		subclassification_aggregate_html_element_output(
-			html_table,
-			element->subclassification_list,
-			element->element_name,
-			total_revenues
-				/* percent_denominator */ );
 
 	net_income =
 		transaction_net_income(
@@ -609,7 +549,7 @@ void income_statement_subclassification_aggregate_html_table(
 			total_gains,
 			total_losses );
 
-here1
+	subclassification_aggregate_net_income_output(
 		html_table,
 		net_income,
 		is_statement_of_activities,
@@ -620,7 +560,6 @@ here1
 }
 
 void income_statement_subclassification_display_html_table(
-			char *application_name,
 			char *title,
 			char *sub_title,
 			char *fund_name,
@@ -631,11 +570,11 @@ void income_statement_subclassification_display_html_table(
 	ELEMENT *element;
 	LIST *filter_element_name_list;
 	HTML_TABLE *html_table;
-	double total_revenues;
-	double total_expenses;
-	double total_gains;
-	double total_losses;
-	double net_income;
+	double total_revenues = {0};
+	double total_expenses = {0};
+	double total_gains = {0};
+	double total_losses = {0};
+	double net_income = {0};
 
 	html_table = html_table_new( title, sub_title, "" );
 
@@ -677,99 +616,71 @@ void income_statement_subclassification_display_html_table(
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_REVENUE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_REVENUE );
+		total_revenues =
+			subclassification_html_output(
+				html_table,
+				element->subclassification_list,
+				ELEMENT_REVENUE,
+				element->accumulate_debit,
+				element->element_total
+					/* percent_denominator */ );
 	}
-
-	total_revenues =
-		subclassification_html_output(
-			html_table,
-			element->subclassification_list,
-			ELEMENT_REVENUE,
-			element->accumulate_debit,
-			element->element_total
-				/* percent_denominator */ );
 
 	/* Compute total expenses */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_EXPENSE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_EXPENSE );
+		total_expenses =
+			subclassification_html_output(
+				html_table,
+				element->subclassification_list,
+				ELEMENT_EXPENSE,
+				element->accumulate_debit,
+				total_revenues
+					/* percent_denominator */ );
 	}
-
-	total_expenses =
-		subclassification_html_output(
-			html_table,
-			element->subclassification_list,
-			ELEMENT_EXPENSE,
-			element->accumulate_debit,
-			total_revenues
-				/* percent_denominator */ );
 
 	/* Compute total gains */
 	/* ------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_GAIN ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_GAIN );
+		total_gains =
+			subclassification_html_output(
+				html_table,
+				element->subclassification_list,
+				ELEMENT_GAIN,
+				element->accumulate_debit,
+				total_revenues
+					/* percent_denominator */ );
 	}
-
-	total_gains =
-		subclassification_html_output(
-			html_table,
-			element->subclassification_list,
-			ELEMENT_GAIN,
-			element->accumulate_debit,
-			total_revenues
-				/* percent_denominator */ );
 
 	/* Compute total losses */
 	/* -------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_LOSS ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_LOSS );
+		total_losses =
+			subclassification_html_output(
+				html_table,
+				element->subclassification_list,
+				ELEMENT_LOSS,
+				element->accumulate_debit,
+				total_revenues
+					/* percent_denominator */ );
 	}
-
-	total_losses =
-		subclassification_html_output(
-			html_table,
-			element->subclassification_list,
-			ELEMENT_LOSS,
-			element->accumulate_debit,
-			total_revenues
-				/* percent_denominator */ );
 
 	net_income = transaction_net_income(
 				total_revenues,
@@ -777,7 +688,7 @@ void income_statement_subclassification_display_html_table(
 				total_gains,
 				total_losses );
 
-	income_net_income_output(
+	income_statement_net_income_html(
 		html_table,
 		net_income,
 		is_statement_of_activities,
@@ -804,6 +715,7 @@ void income_statement_subclassification_display_html_table(
 }
 
 void income_statement_subclassification_aggregate_PDF(
+			char *application_name,
 			char *title,
 			char *sub_title,
 			char *fund_name,
@@ -823,7 +735,6 @@ void income_statement_subclassification_aggregate_PDF(
 	char *ftp_output_filename;
 	int pid = getpid();
 	APPASERVER_LINK_FILE *appaserver_link_file;
-	LEDGER_ELEMENT *element;
 
 	printf( "<h1>%s</h1>\n", title );
 	printf( "<h2>%s</h2>\n", sub_title );
@@ -903,22 +814,9 @@ void income_statement_subclassification_aggregate_PDF(
 			as_of_date,
 			0 /* not omit_subclassification */ );
 
-	if ( ! ( element =
-			element_seek(
-				list,
-				LEDGER_REVENUE_ELEMENT ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 LEDGER_REVENUE_ELEMENT );
-	}
-
 	latex_table->row_list =
 		build_subclassification_aggregate_PDF_row_list(
-			element_list,
+			list /* element_list */,
 			is_statement_of_activities );
 
 	if ( !list_length( latex_table->row_list ) )
@@ -984,7 +882,7 @@ void income_statement_subclassification_display_PDF(
 {
 	LATEX *latex;
 	LATEX_TABLE *latex_table;
-	LIST *element_list;
+	LIST *list;
 	LIST *filter_element_name_list;
 	char *latex_filename;
 	char *dvi_filename;
@@ -1056,17 +954,16 @@ void income_statement_subclassification_display_PDF(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_REVENUE_ELEMENT );
+				ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_EXPENSE_ELEMENT );
+				ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_GAIN_ELEMENT );
+				ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_LOSS_ELEMENT );
+				ELEMENT_LOSS );
 
-	element_list =
-		ledger_get_element_list(
-			application_name,
+	list =
+		element_list(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
@@ -1074,7 +971,7 @@ void income_statement_subclassification_display_PDF(
 
 	latex_table->row_list =
 		build_subclassification_display_PDF_row_list(
-			element_list,
+			list,
 			is_statement_of_activities );
 
 	if ( !list_length( latex_table->row_list ) )
@@ -1144,95 +1041,67 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
 				ELEMENT_REVENUE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_REVENUE );
+		list_append_list(
+			row_list,
+			subclassification_aggregate_latex_row_list(
+				&total_revenues,
+				element->subclassification_list,
+				element->element_name,
+				0.0 /* percent_denominator */ ) );
 	}
-
-	list_append_list(
-		row_list,
-		subclassification_aggregate_latex_row_list(
-			&total_revenues,
-			element->subclassification_list,
-			element->element_name,
-			0.0 /* percent_denominator */ ) );
 
 	/* Compute total expenses */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
 				ELEMENT_EXPENSE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_EXPENSE );
+		list_append_list(
+			row_list,
+			subclassification_aggregate_latex_row_list(
+				&total_expenses,
+				element->subclassification_list,
+				element->element_name,
+				0.0 /* percent_denominator */ ) );
 	}
-
-	list_append_list(
-		row_list,
-		subclassification_aggregate_latex_row_list(
-			&total_expenses,
-			element->subclassification_list,
-			element->element_name,
-			0.0 /* percent_denominator */ ) );
 
 	/* Compute total gains */
 	/* ------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
 				ELEMENT_GAIN ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_GAIN );
+		list_append_list(
+			row_list,
+			subclassification_aggregate_latex_row_list(
+				&total_gains,
+				element->subclassification_list,
+				element->element_name,
+					0.0 /* percent_denominator */ ) );
 	}
-
-	list_append_list(
-		row_list,
-		subclassification_aggregate_latex_row_list(
-			&total_gains,
-			element->subclassification_list,
-			element->element_name,
-			0.0 /* percent_denominator */ ) );
 
 	/* Compute total losses */
 	/* -------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
 				ELEMENT_LOSS ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_LOSS );
+		list_append_list(
+			row_list,
+			subclassification_aggregate_latex_row_list(
+				&total_losses,
+				element->subclassification_list,
+				element->element_name,
+				0.0 /* percent_denominator */ ) );
 	}
-
-	list_append_list(
-		row_list,
-		subclassification_aggregate_latex_row_list(
-			&total_losses,
-			element->subclassification_list,
-			element->element_name,
-			0.0 /* percent_denominator */ ) );
 
 	net_income = transaction_net_income(
 				total_revenues,
@@ -1252,12 +1121,12 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 
 	list_set(
 		row_list,
-		subclassification_latex_net_income_row(
+		element_latex_net_income_row(
 			net_income,
 			is_statement_of_activities,
 			total_revenues
-				/* percent_denominator */ ) );
-
+				/* percent_denominator */,
+			0 /* not omit_subclassification */ ) );
 	return row_list;
 }
 
@@ -1278,101 +1147,75 @@ LIST *build_subclassification_display_PDF_row_list(
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
 				ELEMENT_REVENUE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_REVENUE );
+		list_append_list(
+			row_list,
+			subclassification_display_latex_row_list(
+				&total_revenues,
+				element->subclassification_list,
+				element->element_name,
+				element->accumulate_debit,
+				element->
+					element_total
+						/* percent_denominator */ ) );
 	}
-
-	list_append_list(
-		row_list,
-		subclassification_display_latex_row_list(
-			&total_revenues,
-			element->subclassification_list,
-			element->element_name,
-			element->accumulate_debit,
-			element->element_total /* percent_denominator */ ) );
-
+	
 	/* Compute total expenses */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
 				ELEMENT_EXPENSE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_EXPENSE );
+		list_append_list(
+			row_list,
+			subclassification_display_latex_row_list(
+				&total_expenses,
+				element->subclassification_list,
+				element->element_name,
+				element->accumulate_debit,
+				total_revenues /* percent_denominator */ ) );
 	}
-
-	list_append_list(
-		row_list,
-		subclassification_display_latex_row_list(
-			&total_expenses,
-			element->subclassification_list,
-			element->element_name,
-			element->accumulate_debit,
-			total_revenues /* percent_denominator */ ) );
 
 	/* Compute total gains */
 	/* ------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
 				ELEMENT_GAIN ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_GAIN );
+		list_append_list(
+			row_list,
+			subclassification_display_latex_row_list(
+				&total_gains,
+				element->subclassification_list,
+				element->element_name,
+				element->accumulate_debit,
+				total_revenues /* percent_denominator */ ) );
 	}
-
-	list_append_list(
-		row_list,
-		subclassification_display_latex_row_list(
-			&total_gains,
-			element->subclassification_list,
-			element->element_name,
-			element->accumulate_debit,
-			total_revenues /* percent_denominator */ ) );
 
 	/* Compute total losses */
 	/* -------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
-				LEDGER_LOSS_ELEMENT ) ) )
+				ELEMENT_LOSS ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 LEDGER_LOSS_ELEMENT );
+		list_append_list(
+			row_list,
+			subclassification_display_latex_row_list(
+				&total_losses,
+				element->subclassification_list,
+				element->element_name,
+				element->accumulate_debit,
+				total_revenues /* percent_denominator */ ) );
 	}
 
-	list_append_list(
-		row_list,
-		ledger_get_subclassification_display_latex_row_list(
-			&total_losses,
-			element->subclassification_list,
-			element->element_name,
-			element->accumulate_debit,
-			total_revenues /* percent_denominator */ ) );
-
-	net_income = ledger_get_net_income(
+	net_income = transaction_net_income(
 				total_revenues,
 				total_expenses,
 				total_gains,
@@ -1388,17 +1231,16 @@ LIST *build_subclassification_display_PDF_row_list(
 		strdup( "" ),
 		0 /* not large_bold */ );
 
-	list_append_pointer(	row_list,
-				ledger_get_latex_net_income_row(
-					net_income,
-					is_statement_of_activities,
-					total_revenues
-						/* percent_denominator */,
-					0 /* not omit_subclassification */ ) );
+	list_set(	row_list,
+			element_latex_net_income_row(
+				net_income,
+				is_statement_of_activities,
+				total_revenues
+					/* percent_denominator */,
+				0 /* not omit_subclassification */ ) );
 
 	return row_list;
-
-} /* build_subclassification_display_PDF_row_list() */
+}
 
 #ifdef NOT_DEFINED
 void output_earnings_per_share(	HTML_TABLE *html_table,
@@ -1643,99 +1485,71 @@ void income_statement_subclassification_omit_html_table(
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
-	if ( ! ( element =
-			element_list(
+	if ( ( element =
+			element_seek(
 				list,
 				ELEMENT_REVENUE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_REVENUE );
+		total_revenues =
+			account_list_html_output(
+				html_table,
+				element->account_list,
+				ELEMENT_REVENUE,
+				element->accumulate_debit,
+				element->element_total
+					/* percent_denominator */ );
 	}
-
-	total_revenues =
-		account_list_html_output(
-			html_table,
-			element->account_list,
-			ELEMENT_REVENUE,
-			element->accumulate_debit,
-			element->element_total
-				/* percent_denominator */ );
 
 	/* Compute total expenses */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_EXPENSE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_EXPENSE );
+		total_expenses =
+			account_list_html_output(
+				html_table,
+				element->account_list,
+				ELEMENT_EXPENSE,
+				element->accumulate_debit,
+				total_revenues
+					/* percent_denominator */ );
 	}
-
-	total_expenses =
-		account_list_html_output(
-			html_table,
-			element->account_list,
-			ELEMENT_EXPENSE,
-			element->accumulate_debit,
-			total_revenues
-				/* percent_denominator */ );
 
 	/* Compute total gains */
 	/* ------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				list,
 				ELEMENT_GAIN ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_GAIN );
+		total_gains =
+			account_list_html_output(
+				html_table,
+				element->account_list,
+				ELEMENT_GAIN,
+				element->accumulate_debit,
+				total_revenues
+					/* percent_denominator */ );
 	}
-
-	total_gains =
-		account_list_html_output(
-			html_table,
-			element->account_list,
-			ELEMENT_GAIN,
-			element->accumulate_debit,
-			total_revenues
-				/* percent_denominator */ );
 
 	/* Compute total losses */
 	/* -------------------- */ 
-	if ( ! ( element =
-			ledger_element_list_seek(
-				element_list,
-				LEDGER_LOSS_ELEMENT ) ) )
+	if ( ( element =
+			element_seek(
+				list,
+				ELEMENT_LOSS ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 LEDGER_LOSS_ELEMENT );
+		total_losses =
+			account_list_html_output(
+				html_table,
+				element->account_list,
+				ELEMENT_LOSS,
+				element->accumulate_debit,
+				total_revenues
+					/* percent_denominator */ );
 	}
-
-	total_losses =
-		subclassification_html_output(
-			html_table,
-			element->account_list,
-			LEDGER_LOSS_ELEMENT,
-			element->accumulate_debit,
-			total_revenues
-				/* percent_denominator */ );
 
 	net_income = transaction_net_income(
 				total_revenues,
@@ -1743,7 +1557,7 @@ void income_statement_subclassification_omit_html_table(
 				total_gains,
 				total_losses );
 
-	subclassification_net_income_output(
+	income_statement_net_income_html(
 		html_table,
 		net_income,
 		is_statement_of_activities,
@@ -1771,6 +1585,7 @@ void income_statement_subclassification_omit_html_table(
 }
 
 void income_statement_subclassification_omit_PDF(
+			char *application_name,
 			char *title,
 			char *sub_title,
 			char *fund_name,
@@ -1871,7 +1686,7 @@ void income_statement_subclassification_omit_PDF(
 
 	latex_table->row_list =
 		build_subclassification_omit_PDF_row_list(
-			element_list,
+			list /* element_list */,
 			is_statement_of_activities );
 
 	if ( !list_length( latex_table->row_list ) )
@@ -1941,103 +1756,72 @@ LIST *build_subclassification_omit_PDF_row_list(
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
 				ELEMENT_REVENUE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_REVENUE );
-		exit( 1 );
+		list_append_list(
+			row_list,
+			subclassification_omit_latex_row_list(
+				&total_revenues,
+				element->account_list,
+				element->element_name,
+				element->accumulate_debit,
+				element->element_total
+					/* percent_denominator */ ) );
 	}
-
-	list_append_list(
-		row_list,
-		subclassification_omit_latex_row_list(
-			&total_revenues,
-			element->account_list,
-			element->element_name,
-			element->accumulate_debit,
-			element->element_total /* percent_denominator */ ) );
 
 	/* Compute total expenses */
 	/* ---------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
 				ELEMENT_EXPENSE ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_EXPENSE );
-		exit( 1 );
+		list_append_list(
+			row_list,
+			subclassification_omit_latex_row_list(
+				&total_expenses,
+				element->account_list,
+				element->element_name,
+				element->accumulate_debit,
+				total_revenues /* percent_denominator */ ) );
 	}
-
-	list_append_list(
-		row_list,
-		subclassification_omit_latex_row_list(
-			&total_expenses,
-			element->account_list,
-			element->element_name,
-			element->accumulate_debit,
-			total_revenues /* percent_denominator */ ) );
 
 	/* Compute total gains */
 	/* ------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
 				ELEMENT_GAIN ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_GAIN );
-		exit( 1 );
+		list_append_list(
+			row_list,
+			subclassification_omit_latex_row_list(
+				&total_gains,
+				element->account_list,
+				element->element_name,
+				element->accumulate_debit,
+				total_revenues /* percent_denominator */ ) );
 	}
-
-	list_append_list(
-		row_list,
-		subclassification_omit_latex_row_list(
-			&total_gains,
-			element->account_list,
-			element->element_name,
-			element->accumulate_debit,
-			total_revenues /* percent_denominator */ ) );
 
 	/* Compute total losses */
 	/* -------------------- */ 
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				element_list,
 				ELEMENT_LOSS ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_LOSS );
-		exit( 1 );
+		list_append_list(
+			row_list,
+			subclassification_omit_latex_row_list(
+				&total_losses,
+				element->account_list,
+				element->element_name,
+				element->accumulate_debit,
+				total_revenues /* percent_denominator */ ) );
 	}
-
-	list_append_list(
-		row_list,
-		subclassification_omit_latex_row_list(
-			&total_losses,
-			element->account_list,
-			element->element_name,
-			element->accumulate_debit,
-			total_revenues /* percent_denominator */ ) );
 
 	net_income = transaction_net_income(
 				total_revenues,
@@ -2055,18 +1839,17 @@ LIST *build_subclassification_omit_PDF_row_list(
 		strdup( "" ),
 		0 /* not large_bold */ );
 
-	list_append_pointer(	row_list,
-				subclassification_latex_net_income_row(
-					net_income,
-					is_statement_of_activities,
-					total_revenues
-						/* percent_denominator */,
-					1 /* omit_subclassification */ ) );
-
+	list_set(	row_list,
+			element_latex_net_income_row(
+				net_income,
+				is_statement_of_activities,
+				total_revenues
+					/* percent_denominator */,
+				1 /* omit_subclassification */ ) );
 	return row_list;
 }
 
-void income_net_income_html(
+void income_statement_net_income_html(
 			HTML_TABLE *html_table,
 			double net_income,
 			boolean is_statement_of_activities,

@@ -10,6 +10,8 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "latex.h"
+#include "html_table.h"
 #include "account.h"
 
 /* Constants */
@@ -102,6 +104,18 @@ double element_value(	LIST *subclassification_list,
 ELEMENT *element_list_seek(
 			LIST *element_list,
 			char *element_name );
+
+double element_subclassification_aggregate_html_output(
+			HTML_TABLE *html_table,
+			LIST *subclassification_list,
+			char *element_name,
+			double percent_denominator );
+
+LATEX_ROW *element_latex_net_income_row(
+			double net_income,
+			boolean is_statement_of_activities,
+			double percent_denominator,
+			boolean omit_subclassification );
 
 #endif
 

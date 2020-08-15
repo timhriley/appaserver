@@ -16,6 +16,9 @@
 
 /* Constants */
 /* --------- */
+#define SUBCLASSIFICATION_CHANGE_IN_NET_ASSETS		\
+					"change_in_net_assets"
+
 #define SUBCLASSIFICATION_BEGINNING_BALANCE_LABEL	\
 					"Equity Beginning Balance"
 
@@ -104,12 +107,6 @@ LIST *subclassification_aggregate_beginning_row_list(
 			LIST *subclassification_list,
 			double percent_denominator );
 
-LATEX_ROW *subclassification_latex_net_income_row(
-			double net_income,
-			boolean is_statement_of_activities,
-			double percent_denominator,
-			boolean omit_subclassification );
-
 LATEX_ROW *subclassification_latex_liabilities_plus_equity_row(
 			double liabilities_plus_equity,
 			int skip_columns );
@@ -119,5 +116,8 @@ void subclassification_aggregate_net_income_output(
 			double net_income,
 			boolean is_statement_of_activities,
 			double percent_denominator );
+
+boolean subclassification_net_assets_exists(
+			LIST *subclassification_list );
 
 #endif
