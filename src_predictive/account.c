@@ -530,3 +530,166 @@ double account_list_html_output(
 	return total_element;
 }
 
+LIST *account_omit_latex_row_list(
+			double *total_element,
+			LIST *account_list,
+			char *element_name,
+			boolean element_accumulate_debit,
+			double percent_denominator )
+{
+	LIST *row_list;
+	ACCOUNT *account;
+	char total_element_label[ 128 ];
+	char format_buffer[ 128 ];
+	double latest_journal_balance;
+	LATEX_ROW *latex_row;
+	double percent_of_total;
+
+	*total_element = 0.0;
+
+	if ( !list_rewind( account_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	latex_row = latex_new_latex_row();
+	list_append_pointer( row_list, latex_row );
+
+	sprintf( format_buffer,
+		 "\\large \\bf %s",
+		 element_name );
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( format_initial_capital(
+				format_buffer,
+				format_buffer ) ),
+		0 /* not large_bold */ );
+
+	sprintf(format_buffer,
+	 	"\\large \\bf Total %s",
+	 	element_name );
+
+	format_initial_capital( total_element_label, format_buffer );
+
+	do {
+		account =
+			list_get_pointer( account_list ); 
+
+		if ( !account->latest_journal
+		||   !account->latest_journal->balance )
+			continue;
+
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+		if (	element_accumulate_debit ==
+				account->accumulate_debit )
+		{
+			latest_journal_balance =
+				account->latest_journal->balance;
+		}
+		else
+		{
+			latest_journal_balance =
+				0.0 - account->latest_journal->balance;
+		}
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( format_initial_capital(
+					format_buffer,
+					account->
+					    account_name ) ),
+			0 /* not large_bold */ );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( place_commas_in_money(
+			   	     latest_journal_balance ) ),
+			0 /* not large_bold */ );
+
+		/* Blank space for the element column. */
+		/* ----------------------------------- */
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( "" ),
+			0 /* not large_bold */ );
+
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( latest_journal_balance /
+		  		  percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+		 		"%.1lf%c",
+		 		percent_of_total,
+		 		'%' );
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( buffer ),
+				0 /* not large_bold */ );
+		}
+	
+		*total_element += latest_journal_balance;
+
+	} while( list_next( account_list ) );
+
+	if ( *total_element )
+	{
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( total_element_label ),
+			0 /* not large_bold */ );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( "" ),
+			0 /* not large_bold */ );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( place_commas_in_money(
+				   *total_element ) ),
+			0 /* not large_bold */ );
+
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( *total_element /
+		  		percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+		 		"%.1lf%c",
+		 		percent_of_total,
+		 		'%' );
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( buffer ),
+				0 /* not large_bold */ );
+		}
+
+		/* Blank line */
+		/* ---------- */
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( "" ),
+			0 /* not large_bold */ );
+
+	} /* if total_element */
+
+	return row_list;
+}
+

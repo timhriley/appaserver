@@ -16,6 +16,8 @@
 
 /* Constants */
 /* --------- */
+#define SUBCLASSIFICATION_NOTANUMBER	"NAN"
+
 #define SUBCLASSIFICATION_CHANGE_IN_NET_ASSETS		\
 					"change_in_net_assets"
 
@@ -63,14 +65,14 @@ LIST *subclassification_account_list(
 			char *fund_name,
 			char *as_of_date );
 
-double subclassification_html_output(
+double subclassification_html_display(
 			HTML_TABLE *html_table,
 			LIST *subclassification_list,
 			char *element_name,
 			boolean element_accumulate_debit,
 			double percent_denominator );
 
-double subclassification_aggregate_html_element_output(
+double subclassification_aggregate_html(
 			HTML_TABLE *html_table,
 			LIST *subclassification_list,
 			char *element_name,

@@ -117,5 +117,9 @@ LATEX_ROW *element_latex_net_income_row(
 			double percent_denominator,
 			boolean omit_subclassification );
 
+LATEX_ROW *element_latex_liabilities_plus_equity_row(
+			double liabilities_plus_equity,
+			int skip_columns );
+
 #endif
 

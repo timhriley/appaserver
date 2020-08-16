@@ -849,3 +849,33 @@ LATEX_ROW *element_latex_net_income_row(
 	return latex_row;
 }
 
+LATEX_ROW *element_latex_liabilities_plus_equity_row(
+			double liabilities_plus_equity,
+			int skip_columns )
+{
+	LATEX_ROW *latex_row;
+
+	latex_row = latex_new_latex_row();
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( "Liabilities Plus Equity" ),
+		1 /* large_bold */ );
+
+	while ( skip_columns-- )
+	{
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( "" ),
+			0 /* not large_bold */ );
+	}
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( place_commas_in_money(
+			   liabilities_plus_equity ) ),
+		0 /* not large_bold */ );
+
+	return latex_row;
+}
+

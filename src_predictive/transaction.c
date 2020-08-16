@@ -1363,3 +1363,22 @@ double transaction_net_income(
 			total_losses );
 }
 
+double transaction_net_income_fetch(
+			char *fund_name,
+			char *as_of_date )
+{
+	char sys_string[ 1024 ];
+	char *results_string;
+
+	sprintf(sys_string,
+"income_statement process \"%s\" \"%s\" omit output_medium y",
+		(fund_name) ? fund_name : "",
+		as_of_date );
+
+	results_string = pipe2string( sys_string );
+
+	if ( !results_string )
+		return 0.0;
+	else
+		return atof( results_string );
+}

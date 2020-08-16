@@ -336,10 +336,18 @@ char *transaction_date_prior_closing_beginning(
 			char *fund_name,
 			char *as_of_date );
 
+double transaction_net_income_fetch(
+			char *fund_name,
+			char *as_of_date );
+
 double transaction_net_income(
 			double total_revenues,
 			double total_expenses,
 			double total_gains,
 			double total_losses );
+
+double transaction_net_income_fetch(
+			char *fund_name,
+			char *as_of_date );
 
 #endif

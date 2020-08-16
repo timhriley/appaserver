@@ -488,7 +488,7 @@ void income_statement_subclassification_aggregate_html_table(
 				ELEMENT_REVENUE ) ) )
 	{
 		total_revenues =
-			subclassification_aggregate_html_element_output(
+			subclassification_aggregate_html(
 				html_table,
 				element->subclassification_list,
 				element->element_name,
@@ -504,7 +504,7 @@ void income_statement_subclassification_aggregate_html_table(
 				ELEMENT_EXPENSE ) ) )
 	{
 		total_expenses =
-			subclassification_aggregate_html_element_output(
+			subclassification_aggregate_html(
 				html_table,
 				element->subclassification_list,
 				element->element_name,
@@ -519,7 +519,7 @@ void income_statement_subclassification_aggregate_html_table(
 				ELEMENT_GAIN ) ) )
 	{
 		total_gains =
-			subclassification_aggregate_html_element_output(
+			subclassification_aggregate_html(
 				html_table,
 				element->subclassification_list,
 				element->element_name,
@@ -534,7 +534,7 @@ void income_statement_subclassification_aggregate_html_table(
 				ELEMENT_LOSS ) ) )
 	{
 		total_losses =
-			subclassification_aggregate_html_element_output(
+			subclassification_aggregate_html(
 				html_table,
 				element->subclassification_list,
 				element->element_name,
@@ -622,7 +622,7 @@ void income_statement_subclassification_display_html_table(
 				ELEMENT_REVENUE ) ) )
 	{
 		total_revenues =
-			subclassification_html_output(
+			subclassification_html_display(
 				html_table,
 				element->subclassification_list,
 				ELEMENT_REVENUE,
@@ -639,7 +639,7 @@ void income_statement_subclassification_display_html_table(
 				ELEMENT_EXPENSE ) ) )
 	{
 		total_expenses =
-			subclassification_html_output(
+			subclassification_html_display(
 				html_table,
 				element->subclassification_list,
 				ELEMENT_EXPENSE,
@@ -656,7 +656,7 @@ void income_statement_subclassification_display_html_table(
 				ELEMENT_GAIN ) ) )
 	{
 		total_gains =
-			subclassification_html_output(
+			subclassification_html_display(
 				html_table,
 				element->subclassification_list,
 				ELEMENT_GAIN,
@@ -673,7 +673,7 @@ void income_statement_subclassification_display_html_table(
 				ELEMENT_LOSS ) ) )
 	{
 		total_losses =
-			subclassification_html_output(
+			subclassification_html_display(
 				html_table,
 				element->subclassification_list,
 				ELEMENT_LOSS,
@@ -1441,11 +1441,11 @@ void income_statement_subclassification_omit_html_table(
 	ELEMENT *element;
 	LIST *filter_element_name_list;
 	HTML_TABLE *html_table;
-	double total_revenues;
-	double total_expenses;
-	double total_gains;
-	double total_losses;
-	double net_income;
+	double total_revenues = {0};
+	double total_expenses = {0};
+	double total_gains = {0};
+	double total_losses = {0};
+	double net_income = {0};
 
 	html_table = html_table_new( title, sub_title, "" );
 
@@ -1763,7 +1763,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 	{
 		list_append_list(
 			row_list,
-			subclassification_omit_latex_row_list(
+			account_omit_latex_row_list(
 				&total_revenues,
 				element->account_list,
 				element->element_name,
@@ -1781,7 +1781,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 	{
 		list_append_list(
 			row_list,
-			subclassification_omit_latex_row_list(
+			account_omit_latex_row_list(
 				&total_expenses,
 				element->account_list,
 				element->element_name,
@@ -1798,7 +1798,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 	{
 		list_append_list(
 			row_list,
-			subclassification_omit_latex_row_list(
+			account_omit_latex_row_list(
 				&total_gains,
 				element->account_list,
 				element->element_name,
@@ -1815,7 +1815,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 	{
 		list_append_list(
 			row_list,
-			subclassification_omit_latex_row_list(
+			account_omit_latex_row_list(
 				&total_losses,
 				element->account_list,
 				element->element_name,

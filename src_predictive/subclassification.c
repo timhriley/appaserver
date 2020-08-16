@@ -197,7 +197,7 @@ LIST *subclassification_account_list(
 	return account_list;
 }
 
-double subclassification_html_output(
+double subclassification_html_display(
 					HTML_TABLE *html_table,
 					LIST *subclassification_list,
 					char *element_name,
@@ -688,7 +688,7 @@ double subclassification_net_assets_html_output(
 	return 0.0;
 }
 
-double subclassification_aggregate_html_element_output(
+double subclassification_aggregate_html(
 			HTML_TABLE *html_table,
 			LIST *subclassification_list,
 			char *element_name,
@@ -1167,6 +1167,13 @@ equity_all_done:
 				strdup( buffer ),
 				0 /* not large_bold */ );
 		}
+		else
+		{
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( SUBCLASSIFICATION_NOTANUMBER ),
+				0 /* not large_bold */ );
+		}
 	
 		*total_element += subclassification->subclassification_total;
 
@@ -1218,6 +1225,13 @@ equity_all_done:
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( buffer ),
+			0 /* not large_bold */ );
+	}
+	else
+	{
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( SUBCLASSIFICATION_NOTANUMBER ),
 			0 /* not large_bold */ );
 	}
 
