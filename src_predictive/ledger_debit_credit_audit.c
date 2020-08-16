@@ -27,6 +27,8 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
+#include "transaction.h"
+#include "account.h"
 
 /* Constants */
 /* --------- */
@@ -90,8 +92,7 @@ void ledger_debit_credit_audit( char *application_name,
 	}
 
 	transaction_list =
-		ledger_fetch_transaction_list(
-			application_name,
+		transaction_list_fetch(
 			where_clause );
 
 	if ( !list_rewind( transaction_list ) ) return;
@@ -101,9 +102,9 @@ void ledger_debit_credit_audit( char *application_name,
 
 		difference_type = (char *)0;
 
-		if ( !list_length( transaction->journal_ledger_list ) )
+		if ( !list_length( transaction->journal_list ) )
 		{
-			difference_type = "no_journal_ledger";
+			difference_type = "no_journal";
 			report_difference = 0.0;
 		}
 
@@ -113,7 +114,7 @@ void ledger_debit_credit_audit( char *application_name,
 			ledger_debit_credit_difference(
 				&balance_difference,
 				application_name,
-				transaction->journal_ledger_list );
+				transaction->journal_list );
 
 		if ( !difference_type
 		&&   !timlib_double_virtually_same(
@@ -142,65 +143,62 @@ void ledger_debit_credit_audit( char *application_name,
 		}
 
 	} while ( list_next( transaction_list ) );
-
-} /* ledger_debit_credit_audit() */
+}
 
 double ledger_debit_credit_difference(	double *balance_difference,
 					char *application_name,
-					LIST *journal_ledger_list )
+					LIST *journal_list )
 {
-	JOURNAL_LEDGER *journal_ledger;
+	JOURNAL *journal;
 	double sum_debit_amount = 0.0;
 	double sum_credit_amount = 0.0;
 	double balance;
 	double local_balance_difference = 0.0;
 
-	if ( !list_rewind( journal_ledger_list ) ) return -1.0;
+	if ( !list_rewind( journal_list ) ) return -1.0;
 
 	do {
-		journal_ledger = list_get( journal_ledger_list );
+		journal = list_get( journal_list );
 
-		sum_debit_amount += journal_ledger->debit_amount;
-		sum_credit_amount += journal_ledger->credit_amount;
+		sum_debit_amount += journal->debit_amount;
+		sum_credit_amount += journal->credit_amount;
 
 if ( DEBUG_MODE )
 {
 printf( "account = %s; previous_balance = %.2lf; debit_amount = %.2lf; credit_amount = %.2lf; balance = %.2lf\n",
-journal_ledger->account_name,
-journal_ledger->previous_balance,
-journal_ledger->debit_amount,
-journal_ledger->credit_amount,
-journal_ledger->balance );
+journal->account_name,
+journal->previous_balance,
+journal->debit_amount,
+journal->credit_amount,
+journal->balance );
 }
 
-		if ( ledger_account_get_accumulate_debit(
-			application_name,
-			journal_ledger->account_name ) )
+		if ( element_account_accumulate_debit(
+			journal->account_name ) )
 		{
-			balance =	journal_ledger->previous_balance +
-					journal_ledger->debit_amount -
-					journal_ledger->credit_amount;
+			balance =	journal->previous_balance +
+					journal->debit_amount -
+					journal->credit_amount;
 		}
 		else
 		{
-			balance =	journal_ledger->previous_balance +
-					journal_ledger->credit_amount -
-					journal_ledger->debit_amount;
+			balance =	journal->previous_balance +
+					journal->credit_amount -
+					journal->debit_amount;
 		}
 
 /*
-printf( "Got journal_ledger->balance - balance = %.2lf\n",
-journal_ledger->balance - balance );
+printf( "Got journal->balance - balance = %.2lf\n",
+journal->balance - balance );
 */
  
 		local_balance_difference +=
-			( journal_ledger->balance - balance );
+			( journal->balance - balance );
 
-	} while( list_next( journal_ledger_list ) );
+	} while( list_next( journal_list ) );
 
 	*balance_difference = local_balance_difference;
 
 	return sum_debit_amount - sum_credit_amount;
-
-} /* ledger_debit_credit_difference() */
+}
 

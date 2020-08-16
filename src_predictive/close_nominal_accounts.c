@@ -35,12 +35,11 @@ boolean close_nominal_accounts_execute(
 					char *as_of_date );
 
 boolean close_nominal_accounts_fund_execute(
-					char *application_name,
 					char *fund_name,
 					char *transaction_date_time_string,
 					char *as_of_date );
 
-double insert_journal_ledger(		FILE *output_pipe,
+double insert_journal(			FILE *output_pipe,
 					LIST *subclassification_list,
 					boolean accumulate_debit,
 					char *full_name,
@@ -146,8 +145,7 @@ boolean close_nominal_accounts_execute(
 	char sys_string[ 1024 ];
 
 	if ( ( transaction_date_time =
-			ledger_get_existing_closing_transaction_date_time(
-				application_name,
+			transaction_existing_closing_date_time(
 				as_of_date ) ) )
 	{
 		char msg[ 1024 ];
@@ -163,7 +161,7 @@ boolean close_nominal_accounts_execute(
 	}
 
 	transaction_date_time =
-		ledger_get_closing_transaction_date_time(
+		transaction_closing_date_time(
 			as_of_date );
 
 	sprintf( sys_string,
@@ -175,7 +173,6 @@ boolean close_nominal_accounts_execute(
 	if ( system( sys_string ) != 0 )
 	{
 		return close_nominal_accounts_fund_execute(
-				application_name,
 				(char *)0 /* fund_name */,
 				transaction_date_time,
 				as_of_date );
@@ -197,7 +194,6 @@ boolean close_nominal_accounts_execute(
 		fund_name = list_get_pointer( fund_name_list );
 
 		if ( !close_nominal_accounts_fund_execute(
-			application_name,
 			fund_name,
 			transaction_date_time,
 			as_of_date ) )
@@ -208,11 +204,9 @@ boolean close_nominal_accounts_execute(
 	} while( list_next( fund_name_list ) );
 
 	return 1;
-
-} /* close_nominal_accounts_execute() */
+}
 
 boolean close_nominal_accounts_fund_execute(
-				char *application_name,
 				char *fund_name,
 				char *transaction_date_time_string,
 				char *as_of_date )
@@ -223,15 +217,14 @@ boolean close_nominal_accounts_fund_execute(
 	LIST *element_list;
 	double retained_earnings;
 	char *field_list;
-	LEDGER_ELEMENT *element;
+	ELEMENT *element;
 	ENTITY_SELF *self;
 	TRANSACTION *transaction;
 	char *table_name;
 	char *closing_entry_account;
 
 	closing_entry_account =
-		ledger_get_hard_coded_account_name(
-				application_name,
+		account_hard_coded_account_name(
 				fund_name,
 				"closing_key",
 				0 /* not warning_only */,

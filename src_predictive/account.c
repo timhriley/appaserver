@@ -19,6 +19,7 @@
 #include "element.h"
 #include "journal.h"
 #include "account.h"
+#include "element.h"
 
 LIST *account_system_list( char *sys_string )
 {

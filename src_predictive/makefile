@@ -22,6 +22,64 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/hashtbl.o
 
+#EXECUTABLES=	trial_balance						\
+#		tax_form_report						\
+#		transaction_balance_report				\
+#		transaction_date_time					\
+#		income_statement					\
+#		balance_sheet						\
+#		program_profit						\
+#		bank_upload_transaction_insert				\
+#		ledger_unbalance					\
+#		propagate_purchase_order_accounts			\
+#		propagate_customer_sale_accounts			\
+#		ledger_debit_credit_audit				\
+#		close_nominal_accounts					\
+#		pay_liabilities_process					\
+#		populate_print_checks_entity				\
+#		load_bank_spreadsheet					\
+#		feeder_upload_missing					\
+#		inventory_balance_detail				\
+#		propagate_inventory_purchase_layers			\
+#		propagate_inventory_sale_layers				\
+#		depreciate_fixed_assets					\
+#		tax_recover_fixed_assets				\
+#		post_change_supply_purchase				\
+#		post_change_service_purchase				\
+#		post_change_inventory_purchase				\
+#		post_change_inventory_purchase_return			\
+#		post_change_inventory_sale_return			\
+#		post_change_fixed_asset_purchase			\
+#		post_change_fixed_asset					\
+#		post_change_inventory_sale				\
+#		post_change_fixed_service_sale				\
+#		post_change_hourly_service_sale				\
+#		post_change_fixed_service_work				\
+#		post_change_hourly_service_work				\
+#		post_change_activity_work				\
+#		post_change_purchase_order				\
+#		post_change_customer_sale				\
+#		post_change_customer_payment				\
+#		post_change_prior_fixed_asset				\
+#		post_change_account_balance				\
+#		post_change_vendor_payment				\
+#		post_change_prepaid_asset_purchase			\
+#		post_change_prepaid_asset_accrual			\
+#		post_change_bank_upload					\
+#		update_sale_completed					\
+#		post_reoccurring_transaction				\
+#		post_cash_expense_transaction				\
+#		post_payroll						\
+#		collect_customer_payment				\
+#		make_vendor_payment					\
+#		post_change_self					\
+#		post_change_employee_work_day				\
+#		inventory_cost_method_propagate				\
+#		load_receipt_scan					\
+#		shortcut_service_work					\
+#		tax_dvr							\
+#		generate_invoice
+
 EXECUTABLES=	trial_balance						\
 		tax_form_report						\
 		transaction_balance_report				\
@@ -29,56 +87,29 @@ EXECUTABLES=	trial_balance						\
 		income_statement					\
 		balance_sheet						\
 		program_profit						\
-		ledger_propagate					\
 		bank_upload_transaction_insert				\
 		ledger_unbalance					\
-		propagate_purchase_order_accounts			\
-		propagate_customer_sale_accounts			\
 		ledger_debit_credit_audit				\
 		close_nominal_accounts					\
 		pay_liabilities_process					\
 		populate_print_checks_entity				\
 		load_bank_spreadsheet					\
 		feeder_upload_missing					\
-		inventory_balance_detail				\
-		propagate_inventory_purchase_layers			\
-		propagate_inventory_sale_layers				\
 		depreciate_fixed_assets					\
-		tax_recover_fixed_assets				\
-		post_change_supply_purchase				\
-		post_change_service_purchase				\
-		post_change_inventory_purchase				\
-		post_change_inventory_purchase_return			\
-		post_change_inventory_sale_return			\
 		post_change_fixed_asset_purchase			\
 		post_change_fixed_asset					\
-		post_change_inventory_sale				\
 		post_change_fixed_service_sale				\
-		post_change_hourly_service_sale				\
-		post_change_fixed_service_work				\
-		post_change_hourly_service_work				\
-		post_change_activity_work				\
 		post_change_purchase_order				\
 		post_change_customer_sale				\
 		post_change_customer_payment				\
 		post_change_prior_fixed_asset				\
 		post_change_account_balance				\
 		post_change_vendor_payment				\
-		post_change_prepaid_asset_purchase			\
-		post_change_prepaid_asset_accrual			\
 		post_change_bank_upload					\
-		update_sale_completed					\
 		post_reoccurring_transaction				\
 		post_cash_expense_transaction				\
-		post_payroll						\
-		collect_customer_payment				\
 		make_vendor_payment					\
 		post_change_self					\
-		post_change_employee_work_day				\
-		inventory_cost_method_propagate				\
-		load_receipt_scan					\
-		shortcut_service_work					\
-		tax_dvr							\
 		generate_invoice
 
 EXTERNAL_LIBRARY=							\

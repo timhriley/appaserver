@@ -84,7 +84,6 @@ int main( int argc, char **argv )
 		piece( transaction_date_time, '^', operation, 4 );
 
 		bank_upload_transaction_direct_insert(
-			application_name,
 			bank_date,
 			bank_description_embedded,
 			full_name,
