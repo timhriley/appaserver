@@ -43,6 +43,7 @@ typedef struct
 	FILE *input_pipe;
 	FILE *delete_pipe;
 	FILE *html_table_pipe;
+	FILE *insert_statement_pipe;
 	char *argv_0;
 } MEASUREMENT_STRUCTURE;
 
@@ -82,33 +83,31 @@ boolean measurement_set_delimited_record(
 					char *comma_delimited_record,
 					char delimiter );
 
-void measurement_html_display( 		MEASUREMENT_STRUCTURE *m,
-					FILE *html_table_pipe );
+void measurement_pipe_output(
+			FILE *display_pipe,
+			MEASUREMENT_STRUCTURE *m );
 
-void measurement_insert( 		MEASUREMENT_STRUCTURE *m );
+void measurement_insert(
+			MEASUREMENT_STRUCTURE *m,
+			boolean insert_null_value );
 
-/*
-double measurement_get_value_from_db(	int *record_exists,
-					int *db_null_value,
-					char *application_name,
-					char *station_name,
-					char *datatype,
-					char *date,
-					char *time );
-*/
+void measurement_output_insert_pipe(
+			FILE *insert_pipe,
+			char *station_name,
+			char *datatype,
+			char *date,
+			char *time,
+			double valued,
+			boolean null_value );
 
-void measurement_output_insert_pipe(	FILE *insert_pipe,
-					char *station_name,
-					char *datatype,
-					char *date,
-					char *time,
-					double value,
-					boolean null_value );
+FILE *measurement_open_insert_pipe(
+			boolean replace );
 
-FILE *measurement_open_insert_pipe(	char *application_name,
-					boolean replace );
+FILE *measurement_open_insert_statement_pipe(
+			boolean replace );
 
-FILE *measurement_open_html_table_pipe(	void );
+FILE *measurement_open_html_table_pipe(
+			void );
 
 double measurement_get_value(		boolean *null_value,
 					char *value_string );
@@ -137,20 +136,21 @@ char *measurement_display_delimiter(	MEASUREMENT *m,
 void measurement_delete(		FILE *delete_pipe,
 					MEASUREMENT *m );
 
-void measurement_update(		char *application_name,
-					char *station_name,
-					char *datatype,
-					char *date,
-					char *time,
-					double value );
+void measurement_update(
+			char *station_name,
+			char *datatype,
+			char *date,
+			char *time,
+			double value );
 
 MEASUREMENT *measurement_calloc(	void );
 
 LIST *measurement_fetch_list(		FILE *input_pipe,
 					char delimiter );
 
-MEASUREMENT *measurement_parse(		char *buffer,
-					char delimiter );
+MEASUREMENT *measurement_parse(	
+			char *buffer,
+			char delimiter );
 
 boolean measurement_list_update(	char *application_name,
 					LIST *measurement_list );
@@ -168,9 +168,9 @@ void measurement_change_text_output(	LIST *measurement_list,
 					char delimiter );
 
 MEASUREMENT *measurement_variable_parse(
-					char *buffer,
-					char delimiter,
-					LIST *order_integer_list );
+			char *buffer,
+			char delimiter,
+			LIST *order_integer_list );
 
 void measurement_non_execute_display(
 					MEASUREMENT_STRUCTURE *m,
@@ -182,5 +182,9 @@ JULIAN *measurement_adjust_time_to_sequence(
 
 void measurement_text_output(		MEASUREMENT *measurement,
 					char delimiter );
+
+void measurement_pipe_output( 	
+			FILE *output_pipe,
+			MEASUREMENT_STRUCTURE *m );
 
 #endif

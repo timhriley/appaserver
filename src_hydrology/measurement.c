@@ -157,14 +157,14 @@ void measurement_free( MEASUREMENT *m )
 	free( m );
 }
 
-void measurement_html_display( 		MEASUREMENT_STRUCTURE *m,
-					FILE *html_table_pipe )
+void measurement_pipe_output( 	
+			FILE *output_pipe,
+			MEASUREMENT_STRUCTURE *m )
 {
 	measurement_non_execute_display(
-				m,
-				html_table_pipe );
-
-} /* measurement_html_display() */
+			m,
+			output_pipe );
+}
 
 void measurement_text_output(		MEASUREMENT *measurement,
 					char delimiter )
@@ -204,20 +204,13 @@ void measurement_text_output(		MEASUREMENT *measurement,
 			measurement->measurement_time,
 			delimiter );
 	}
+}
 
-} /* measurement_text_output() */
-
-void measurement_insert( MEASUREMENT_STRUCTURE *m )
+void measurement_insert(
+			MEASUREMENT_STRUCTURE *m,
+			boolean insert_null_value )
 {
-	if ( !m || !m->measurement )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: no record set.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	if ( !m || !m->measurement ) return;
 
 	if ( !m->insert_pipe )
 	{
@@ -229,6 +222,18 @@ void measurement_insert( MEASUREMENT_STRUCTURE *m )
 		exit( 1 );
 	}
 
+	if ( m->measurement->null_value && !insert_null_value )
+	{
+		fprintf( stderr,
+			 "%s(): Null value rejection %s/%s/%s/%s\n",
+			 __FUNCTION__,
+			 m->measurement->station_name,
+			 m->measurement->datatype,
+			 m->measurement->measurement_date,
+			 m->measurement->measurement_time );
+		return;
+	}
+
 	measurement_output_insert_pipe(
 			m->insert_pipe,
 			m->measurement->station_name,
@@ -237,8 +242,7 @@ void measurement_insert( MEASUREMENT_STRUCTURE *m )
 			m->measurement->measurement_time,
 			m->measurement->measurement_value,
 			m->measurement->null_value );
-
-} /* measurement_insert() */
+}
 
 void measurement_non_execute_display(
 				MEASUREMENT_STRUCTURE *m,
@@ -296,8 +300,7 @@ void measurement_non_execute_display(
 				m->measurement->measurement_time );
 		}
 	}
-
-} /* measurement_non_execute_display() */
+}
 
 void measurement_output_insert_pipe(	FILE *insert_pipe,
 					char *station,
@@ -326,10 +329,12 @@ void measurement_output_insert_pipe(	FILE *insert_pipe,
 		 	date,
 		 	time );
 	}
-	fflush( insert_pipe );
-} /* measurement_output_insert_pipe() */
 
-FILE *measurement_open_html_table_pipe(	void )
+	fflush( insert_pipe );
+}
+
+FILE *measurement_open_html_table_pipe(
+			void )
 {
 	char sys_string[ 1024 ];
 	char *heading_comma_string;
@@ -346,41 +351,49 @@ FILE *measurement_open_html_table_pipe(	void )
 		 justify_string );
 
 	return popen( sys_string, "w" );
+}
 
-} /* measurement_open_html_table_pipe() */
-
-FILE *measurement_open_insert_pipe(	char *application_name,
-					boolean replace )
+FILE *measurement_open_insert_statement_pipe(
+			boolean replace )
 
 {
 	char sys_string[ 4096 ];
-	char *table_name;
-
-	table_name = get_table_name( application_name, "measurement" );
 
 	sprintf(sys_string,
-		"insert_statement.e table=%s field=%s del='|' replace=%c |"
-		"sql.e						 	 |"
+		"insert_statement table=%s field=%s del='|' replace=%c   |"
 		"cat							  ",
-		table_name,
+		"measurement",
 		MEASUREMENT_INSERT_LIST,
 		(replace) ? 'y' : 'n' );
 
 	return popen( sys_string, "w" );
+}
 
-} /* measurement_open_insert_pipe() */
+FILE *measurement_open_insert_pipe(
+			boolean replace )
 
-void measurement_update(	char *application_name,
-				char *station,
-				char *datatype,
-				char *date,
-				char *time,
-				double value )
 {
 	char sys_string[ 4096 ];
-	char *table_name;
 
-	table_name = get_table_name( application_name, "measurement" );
+	sprintf(sys_string,
+		"insert_statement table=%s field=%s del='|' replace=%c   |"
+		"sql						 	 |"
+		"cat							  ",
+		"measurement",
+		MEASUREMENT_INSERT_LIST,
+		(replace) ? 'y' : 'n' );
+
+	return popen( sys_string, "w" );
+}
+
+void measurement_update(
+			char *station,
+			char *datatype,
+			char *date,
+			char *time,
+			double value )
+{
+	char sys_string[ 4096 ];
 
 	sprintf(sys_string,
 		"echo \"update %s				 "
@@ -391,7 +404,7 @@ void measurement_update(	char *application_name,
 		"	 and measurement_time = '%s';\"		|"
 		"sql.e 2>&1					|"
 		"html_paragraph_wrapper.e		 	 ",
-		table_name,
+		"measurement",
 		value,
 		station,
 		datatype,
@@ -399,8 +412,7 @@ void measurement_update(	char *application_name,
 		time );
 
 	if ( system( sys_string ) ) {};
-
-} /* measurement_update() */
+}
 
 double measurement_get_value(	boolean *null_value,
 				char *value_string )
@@ -439,9 +451,10 @@ LIST *measurement_fetch_list(	FILE *input_pipe,
 
 	while ( timlib_get_line( input_buffer, input_pipe, 1024 ) )
 	{
-		if ( ! ( measurement = measurement_parse(
-						input_buffer,
-						delimiter ) ) )
+		if ( ! ( measurement =
+				measurement_parse(
+					input_buffer,
+					delimiter ) ) )
 		{
 			fprintf( stderr,
 				 "Error in %s/%s()/%d: cannot parse [%s].\n",
@@ -461,9 +474,10 @@ LIST *measurement_fetch_list(	FILE *input_pipe,
 
 } /* measurement_fetch_list(); */
 
-FILE *measurement_open_input_pipe(	char *application_name,
-					char *where_clause,
-					char delimiter )
+FILE *measurement_open_input_pipe(
+			char *application_name,
+			char *where_clause,
+			char delimiter )
 {
 	char sys_string[ 65536 ];
 
@@ -481,8 +495,7 @@ FILE *measurement_open_input_pipe(	char *application_name,
 		 delimiter );
 
 	return popen( sys_string, "r" );
-
-} /* measurement_open_input_pipe() */
+}
 
 boolean measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
 					FILE *input_pipe )
@@ -514,7 +527,7 @@ FILE *measurement_open_delete_pipe( char *application_name )
 "delete_statement.e %s station,datatype,measurement_date,measurement_time | sql.e",
 		 table_name );
 	return popen( sys_string, "w" );
-} /* measurement_open_delete_pipe() */
+}
 
 /* Returns static memory */
 /* --------------------- */
@@ -623,8 +636,9 @@ MEASUREMENT_UPDATE *measurement_update_new( void )
 #define MEASUREMENT_SELECT_LIST	 	"station,datatype,measurement_date,measurement_time,measurement_value"
 */
 
-MEASUREMENT *measurement_parse(		char *buffer,
-					char delimiter )
+MEASUREMENT *measurement_parse(	
+			char *buffer,
+			char delimiter )
 {
 	MEASUREMENT *m;
 	char piece_buffer[ 128 ];
@@ -666,8 +680,7 @@ MEASUREMENT *measurement_parse(		char *buffer,
 	prior_value = m->measurement_value;
 
 	return m;
-
-} /* measurement_parse() */
+}
 
 void measurement_change_text_output(	LIST *measurement_list,
 					char delimiter )
@@ -705,16 +718,12 @@ void measurement_change_text_output(	LIST *measurement_list,
 		}
 
 	} while ( list_next( measurement_list ) );
+}
 
-} /* measurement_change_text_output() */
-
-/*
-#define MEASUREMENT_INSERT_ORDER	 "station,datatype,measurement_date,measurement_time,measurement_value"
-*/
 MEASUREMENT *measurement_variable_parse(
-					char *buffer,
-					char delimiter,
-					LIST *order_integer_list )
+			char *buffer,
+			char delimiter,
+			LIST *order_integer_list )
 {
 	MEASUREMENT *m;
 	char piece_buffer[ 128 ];
@@ -815,8 +824,7 @@ MEASUREMENT *measurement_variable_parse(
 	prior_value = m->measurement_value;
 
 	return m;
-
-} /* measurement_variable_parse() */
+}
 
 JULIAN *measurement_adjust_time_to_sequence(
 				JULIAN *measurement_date_time,
@@ -897,6 +905,5 @@ JULIAN *measurement_adjust_time_to_sequence(
 	} while( list_next( sequence_list ) );
 
 	return measurement_date_time;
-
-} /* measurement_adjust_time_to_sequence() */
+}
 

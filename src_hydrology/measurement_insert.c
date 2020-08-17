@@ -25,6 +25,8 @@ void setup_arg(		NAME_ARG *arg, int argc, char **argv );
 void fetch_parameters(	char **bypass_reject_yn,
 			char **delimiter,
 			char **replace_yn,
+			char **insert_null_value_yn,
+			char **insert_statements_yn,
 			char **execute_yn,
 			NAME_ARG *arg );
 
@@ -35,9 +37,13 @@ int main( int argc, char **argv )
 	char *delimiter;
 	char *bypass_reject_yn;
 	char *replace_yn;
+	char *insert_null_value_yn;
+	char *insert_statements_yn;
 	char *execute_yn;
 	boolean bypass_reject;
 	boolean replace;
+	boolean insert_null_value;
+	boolean insert_statements;
 	boolean execute;
 	MEASUREMENT_STRUCTURE *m;
 	int row_number = 0;
@@ -62,26 +68,40 @@ int main( int argc, char **argv )
 		&bypass_reject_yn,
 		&delimiter,
 		&replace_yn,
+		&insert_null_value_yn,
+		&insert_statements_yn,
 		&execute_yn,
 		arg );
 
 	bypass_reject = ( *bypass_reject_yn == 'y' );
 	replace = ( *replace_yn == 'y' );
+	insert_null_value = ( *insert_null_value_yn == 'y' );
+	insert_statements = ( *insert_statements_yn == 'y' );
 	execute = ( *execute_yn == 'y' );
 
 	m = measurement_structure_new( application_name );
 
+	if ( insert_statements )
+	{
+		m->insert_statement_pipe =
+			measurement_open_insert_statement_pipe(
+				replace );
+		execute = 0;
+	}
+
 	if ( !execute )
 	{
-		m->html_table_pipe = measurement_open_html_table_pipe();
+		if ( !insert_statements )
+		{
+			m->html_table_pipe =
+				measurement_open_html_table_pipe();
+		}
 	}
 
 	if ( execute )
 	{
 		m->insert_pipe = 
-			measurement_open_insert_pipe(
-				m->application_name,
-			replace );
+			measurement_open_insert_pipe( replace );
 	}
 
 	station_datatype_list = list_new();
@@ -159,11 +179,23 @@ fflush( stderr );
 
 		if ( execute )
 		{
-			measurement_insert( m );
+			measurement_insert(
+				m,
+				insert_null_value );
 		}
 		else
+		if ( m->html_table_pipe )
 		{
-			measurement_html_display( m, m->html_table_pipe );
+			measurement_pipe_output(
+				m->html_table_pipe,
+				m );
+		}
+		else
+		if ( m->insert_statement_pipe )
+		{
+			measurement_pipe_output(
+				m->insert_statement_pipe,
+				m );
 		}
 
 		station_datatype->measurement_count++;
@@ -171,27 +203,30 @@ fflush( stderr );
 
 	if ( m->insert_pipe ) pclose( m->insert_pipe );
 	if ( m->html_table_pipe ) pclose( m->html_table_pipe );
+	if ( m->insert_statement_pipe ) pclose( m->insert_statement_pipe );
 
 	fflush( stdout );
 	station_datatype_html_display( station_datatype_list );
 	fflush( stdout );
 
 	return 0;
-
-} /* main() */
+}
 
 void fetch_parameters(	char **bypass_reject_yn,
 			char **delimiter,
 			char **replace_yn,
+			char **insert_null_value_yn,
+			char **insert_statements_yn,
 			char **execute_yn,
 			NAME_ARG *arg )
 {
 	*bypass_reject_yn = fetch_arg( arg, "bypass_reject" );
 	*replace_yn = fetch_arg( arg, "replace" );
+	*insert_null_value_yn = fetch_arg( arg, "insert_null_value" );
+	*insert_statements_yn = fetch_arg( arg, "insert_statements" );
 	*delimiter = fetch_arg( arg, "delimiter" );
 	*execute_yn = fetch_arg( arg, "execute" );
-
-} /* fetch_parameters() */
+}
 
 void setup_arg( NAME_ARG *arg, int argc, char **argv )
 {
@@ -202,7 +237,17 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         add_valid_value( arg, ticket, "n" );
         set_default_value( arg, ticket, "n" );
 
+        ticket = add_valid_option( arg, "insert_null_value" );
+        add_valid_value( arg, ticket, "y" );
+        add_valid_value( arg, ticket, "n" );
+        set_default_value( arg, ticket, "n" );
+
         ticket = add_valid_option( arg, "bypass_reject" );
+        add_valid_value( arg, ticket, "y" );
+        add_valid_value( arg, ticket, "n" );
+        set_default_value( arg, ticket, "n" );
+
+        ticket = add_valid_option( arg, "insert_statements" );
         add_valid_value( arg, ticket, "y" );
         add_valid_value( arg, ticket, "n" );
         set_default_value( arg, ticket, "n" );
@@ -216,6 +261,5 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         set_default_value( arg, ticket, "n" );
 
         ins_all( arg, argc, argv );
-
-} /* setup_arg() */
+}
 

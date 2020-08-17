@@ -22,6 +22,7 @@
 #include "environ.h"
 #include "folder.h"
 #include "session.h"
+#include "element.h"
 #include "hydrology_library.h"
 
 /* Constants */
