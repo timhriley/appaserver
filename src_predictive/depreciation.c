@@ -13,12 +13,11 @@
 #include "piece.h"
 #include "date.h"
 #include "appaserver_library.h"
-#include "ledger.h"
 #include "entity.h"
 #include "folder.h"
 #include "purchase.h"
 #include "column.h"
-#include "fixed_asset.h"
+#include "equipment_purchase.h"
 #include "depreciation.h"
 
 DEPRECIATION_TRANSACTION *depreciation_transaction_new( void )
@@ -112,7 +111,7 @@ DEPRECIATION_ASSET_LIST *depreciation_asset_list_new(
 
 	if ( folder_exists_folder(
 		application_name,
-		"fixed_asset_purchase" ) )
+		"equipment_purchase" ) )
 	{
 		d->purchase_fixed_asset_list =
 			fixed_asset_depreciation_purchase_fetch_list(

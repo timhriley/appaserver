@@ -23,7 +23,6 @@
 #include "latex_invoice.h"
 #include "application_constants.h"
 #include "date_convert.h"
-#include "ledger.h"
 #include "entity.h"
 #include "customer.h"
 #include "appaserver_link_file.h"

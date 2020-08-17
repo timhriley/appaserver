@@ -110,6 +110,11 @@ int environ_next_delimiter( char *looking_string )
 
 } /* environ_next_delimiter() */
 
+char *environment_application_name( void )
+{
+	return environment_application();
+}
+
 char *environment_application( void )
 {
 	return environment_get( "DATABASE" );
@@ -341,6 +346,7 @@ void add_utility_to_path( void )
 
 	appaserver_mount_point =
 		appaserver_parameter_file_get_appaserver_mount_point();
+
 	sprintf( utility_path, "%s/utility", appaserver_mount_point );
 	set_path( utility_path );
 }
@@ -456,6 +462,11 @@ void add_relative_source_directory_to_path( char *application_name )
 		set_path( bin_path );
 	}
 } /* add_relative_source_directory_to_path() */
+
+char *environ_exit_application_name( char *argv_0 )
+{
+	return environ_get_application_name( argv_0 );
+}
 
 char *environ_get_application_name( char *argv_0 )
 {

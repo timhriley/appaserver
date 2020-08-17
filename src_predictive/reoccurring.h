@@ -26,7 +26,6 @@ typedef struct
 	char *transaction_description;
 	char *debit_account;
 	char *credit_account;
-	double transaction_amount;
 	char *bank_upload_feeder_phrase;
 	double accrued_daily_amount;
 	double accrued_monthly_amount;
@@ -40,78 +39,68 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-REOCCURRING_STRUCTURE *reoccurring_structure_new(
-					void );
-
-REOCCURRING_TRANSACTION *reoccurring_reoccurring_transaction_calloc(
-					void );
-
-REOCCURRING_TRANSACTION *reoccurring_transaction_fetch(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_description,
-					double transaction_amount );
-
-boolean reoccurring_transaction_load(
-					char **debit_account,
-					char **credit_account,
-					double *transaction_amount,
-					double *accrued_daily_amount,
-					double *accrued_monthly_amount,
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_description );
-
-LIST *reoccurring_fetch_list(		char *application_name,
-					int starting_sequence_number );
-
-LIST *reoccurring_fetch_existing_cash_journal_ledger_list(
-					char *application_name,
-					char *minimum_bank_date,
-					char *fund_name );
-
-LIST *reoccurring_fetch_reoccurring_transaction_list(
-					char *application_name );
-
-void reoccurring_transaction_parse(
-					char **full_name,
-					char **street_address,
-					char **debit_account,
-					char **credit_account,
-					double *transaction_amount,
-					char **bank_upload_feeder_phrase,
-					double *accrued_daily_amount,
-					double *accrued_monthly_amount,
-					char *input_buffer );
-
-REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_feeder_phrase(
-					LIST *reoccurring_transaction_list,
-					char *bank_description );
+REOCCURRING_TRANSACTION *reoccurring_transaction_calloc(
+			void );
 
 char *reoccurring_transaction_select(
-					void );
+			void );
 
-/* -------------------------- */
-/* Returns 256K static memory */
-/* -------------------------- */
+char *reoccurring_transaction_primary_where(
+			char *full_name,
+			char *street_address,
+			char *transaction_description );
+
+REOCCURRING_TRANSACTION *reoccurring_transaction_parse(
+			char *input );
+
+LIST *reoccurring_existing_cash_journal_list(
+			char *minimum_bank_date,
+			char *fund_name );
+
+LIST *reoccurring_transaction_list(
+			void );
+
+REOCCURRING_TRANSACTION *reoccurring_bank_upload_feeder_phrase(
+			LIST *reoccurring_transaction_list,
+			char *bank_description );
+
+char *reoccurring_transaction_select(
+			void );
+
+/* --------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *reoccurring_memo(
-					char *transaction_description,
-					char *credit_account );
+			char *transaction_description,
+			char *credit_account );
 
 int reoccurring_days_between_last_transaction(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time,
-					char *debit_account,
-					char *credit_account );
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *debit_account,
+			char *credit_account );
 
 void reoccurring_transaction_subquery(
-					char *sub_query,
-					char *debit_account,
-					char *credit_account );
+			char *sub_query,
+			char *debit_account,
+			char *credit_account );
+
+LIST *reoccurring_transaction_system_list(
+			char *sys_string );
+
+REOCCURRING_TRANSACTION *reoccurring_transaction_fetch(
+			char *full_name,
+			char *street_address,
+			char *transaction_description );
+
+REOCCURRING_STRUCTURE *reoccurring_structure_calloc(
+			void );
+
+REOCCURRING_TRANSACTION *reoccurring_transaction_new(
+			char *full_name,
+			char *street_address,
+			char *transaction_description );
 
 #endif
 

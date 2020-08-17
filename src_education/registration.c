@@ -14,7 +14,6 @@
 #include "sql.h"
 #include "environ.h"
 #include "list.h"
-#include "transaction.h"
 #include "enrollment.h"
 #include "payment.h"
 #include "registration.h"
@@ -64,9 +63,9 @@ REGISTRATION *registration_getset(
 	{
 		registration =
 			registration_new(
-				student_full_name,
-				student_street_address,
-				season_name,
+				strdup( student_full_name ),
+				strdup( student_street_address ),
+				strdup( season_name ),
 				year );
 
 		list_set( semester_registration_list, registration );
@@ -120,8 +119,8 @@ double registration_payment_total(
 	do {
 		payment = list_get( registration_payment_list );
 
-		if ( payment->payment_amount_calculate )
-			payment_total += payment->payment_amount_calculate;
+		if ( payment->payment_amount )
+			payment_total += payment->payment_amount;
 		else
 			payment_total += payment->payment_amount_database;
 
@@ -137,18 +136,6 @@ double registration_invoice_amount_due(
 	return registration_tuition - registration_payment_total;
 }
 
-TRANSACTION *registration_revenue_transaction(
-			char *student_full_name,
-			char *street_address,
-			char *registration_date_time,
-			double registration_tuition,
-			char *ledger_receivable_account,
-			char *program_name,
-			char *offering_revenue_account )
-{
-	return (TRANSACTION *)0;
-}
-
 void registration_payment_list_refresh(
 			LIST *registration_payment_list )
 {
@@ -159,13 +146,10 @@ void registration_enrollment_list_refresh(
 {
 }
 
-/* Returns the true transaction_date_time */
-/* -------------------------------------- */
-char *registration_refresh(
+void registration_refresh(
 			double registration_tuition,
 			double registration_payment_total,
 			double registration_invoice_amount_due,
-			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
 			char *season_name,
@@ -205,19 +189,7 @@ char *registration_refresh(
 		 year,
 		 registration_invoice_amount_due );
 
-	fprintf( update_pipe,
-		 "%s^%s^%s^%d^transaction_date_time^%s\n",
-		 student_full_name,
-		 student_street_address,
-		 season_name,
-		 year,
-		 transaction_date_time );
-
 	pclose( update_pipe );
-
-	/* Need to return the true one. */
-	/* ---------------------------- */
-	return transaction_date_time;
 }
 
 /* Safely returns heap memory */
@@ -245,7 +217,7 @@ char *registration_primary_where(
 
 char *registration_select( void )
 {
-	return "full_name,street_address,season_name,year,tuition,payment_total,invoice_amount_due,registration_date_time,transaction_date_time";
+	return "full_name,street_address,season_name,year,tuition,payment_total,invoice_amount_due,registration_date_time";
 }
 
 REGISTRATION *registration_parse( char *input_buffer )
@@ -266,7 +238,8 @@ REGISTRATION *registration_parse( char *input_buffer )
 	piece( piece_buffer, SQL_DELIMITER, input_buffer, 3 );
 	year = atoi( piece_buffer );
 
-	registration = registration_new(
+	registration =
+		registration_new(
 			strdup( student_full_name ),
 			strdup( student_street_address ),
 			strdup( season_name ),
@@ -283,15 +256,6 @@ REGISTRATION *registration_parse( char *input_buffer )
 
 	piece( piece_buffer, SQL_DELIMITER, input_buffer, 7 );
 	registration->registration_date_time = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 8 );
-	registration->registration_revenue_transaction =
-		ledger_transaction_fetch(
-			environment_get( "DATABASE" )
-				/* application_name */,
-			registration->student_full_name,
-			registration->student_street_address,
-			piece_buffer /* transaction_date_time */ );
 
 	registration->registration_enrollment_list =
 		registration_enrollment_list(
@@ -310,6 +274,42 @@ REGISTRATION *registration_parse( char *input_buffer )
 	return registration;
 }
 
+LIST *registration_list( char *where_clause )
+{
+	LIST *list;
+	char sys_string[ 1024 ];
+	char input_buffer[ 1024 ];
+	FILE *input_pipe;
+	REGISTRATION *registration;
+
+	list = list_new();
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 /* ---------------------- */
+		 /* Returns program memory */
+		 /* ---------------------- */
+		 registration_select(),
+		 "registration",
+		 where_clause,
+		 registration_select() );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( string_input( input_buffer, input_pipe, 1024 ) )
+	{
+		if ( ! ( registration =
+				registration_parse( 
+					input_buffer ) ) )
+		{
+			list_set( list, registration );
+		}
+	}
+
+	pclose( input_pipe );
+	return list;
+}
+
 REGISTRATION *registration_fetch(
 			char *student_full_name,
 			char *student_street_address,
@@ -319,7 +319,7 @@ REGISTRATION *registration_fetch(
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "echo \"select %s from %s where %s;\" | sql",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
@@ -332,8 +332,7 @@ REGISTRATION *registration_fetch(
 			student_full_name,
 			student_street_address,
 			season_name,
-			year ),
-		 registration_select() );
+			year ) );
 
 	return registration_parse( pipe2string( sys_string ) );
 }
@@ -400,25 +399,5 @@ REGISTRATION *registration_new(
 	registration->season_name = season_name;
 	registration->year = year;
 	return registration;
-}
-
-char *registration_revenue_transaction_insert(
-			char *student_full_name,
-			char *student_street_address,
-			char *transaction_date_time,
-			char *program_name,
-			double transaction_amount,
-			LIST *journal_list )
-{
-	return transaction_program_journal_insert(
-			student_full_name,
-			student_street_address,
-			transaction_date_time,
-			program_name,
-			transaction_amount,
-			__FUNCTION__ /* memo */,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			journal_list );
 }
 

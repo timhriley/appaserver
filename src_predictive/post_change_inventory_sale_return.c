@@ -16,7 +16,6 @@
 #include "appaserver_error.h"
 #include "inventory_sale_return.h"
 #include "entity.h"
-#include "ledger.h"
 #include "customer.h"
 
 /* Constants */

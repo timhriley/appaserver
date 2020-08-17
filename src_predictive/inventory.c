@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/inventory.c				*/
 /* -------------------------------------------------------------------- */
-/* This is the PredictiveBooks inventory ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -19,7 +18,6 @@
 #include "inventory_sale_return.h"
 #include "purchase.h"
 #include "customer.h"
-#include "ledger.h"
 #include "entity.h"
 
 INVENTORY *inventory_new( char *inventory_name )
@@ -1812,8 +1810,7 @@ INVENTORY_SALE *inventory_sale_list_seek(
 	} while( list_next( inventory_sale_list ) );
 
 	return (INVENTORY_SALE *)0;
-
-} /* inventory_sale_list_seek() */
+}
 
 INVENTORY *inventory_list_seek(
 				LIST *inventory_list,
@@ -4778,4 +4775,77 @@ void inventory_balance_list_table_display(
 	} while ( list_next( inventory_balance_list ) );
 
 } /* inventory_balance_list_table_display() */
+
+enum inventory_cost_method inventory_cost_method_resolve(
+				char *inventory_cost_method_string )
+{
+	if ( strcasecmp( inventory_cost_method_string, "fifo" ) == 0 )
+		return inventory_fifo;
+	else
+	if ( strcasecmp( inventory_cost_method_string, "lifo" ) == 0 )
+		return inventory_lifo;
+	else
+	if ( strcasecmp( inventory_cost_method_string, "average" ) == 0 )
+		return inventory_average;
+	else
+	if ( strcasecmp(	inventory_cost_method_string,
+				"moving_average" ) == 0 )
+		return inventory_average;
+	else
+		return inventory_not_set;
+}
+
+char *inventory_select( void )
+{
+	return
+		"inventory_name,"
+		"inventory_account,"
+		"cost_of_goods_sold_account";
+}
+
+INVENTORY *inventory_parse( char *input )
+{
+	INVENTORY *inventory;
+	char inventory_name[ 128 ];
+	char piece_buffer[ 128 ];
+
+	piece( inventory_name, SQL_DELIMITER, input, 0 );
+
+	inventory = inventory_new( strdup( inventory_name ) );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	inventory->inventory_account_name = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	inventory->cost_of_goods_sold_account_name = strdup( piece_buffer );
+
+	return inventory;
+}
+
+LIST *inventory_list( void )
+{
+	INVENTORY *inventory;
+	LIST *inventory_list;
+	char sys_string[ 512 ];
+	char input[ 512 ];
+	FILE *input_pipe;
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s order by %s;\" | sql",
+		 inventory_select(),
+		 "inventory",
+		 inventory_select() );
+
+	input_pipe = popen( sys_string, "r" );
+
+	inventory_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		list_set( inventory_list, inventory_parse( input ) );
+	}
+
+	pclose( input_pipe );
+	return inventory_list;
+}
 

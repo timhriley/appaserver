@@ -65,33 +65,12 @@ int list_free_string_container( LIST *list )
 	return list_free_container( list );
 }
 
-int list_set( LIST *list, void *this_item )
-{
-	return list_append_pointer( list, this_item );
-}
-
-int list_set_pointer( LIST *list, void *this_item )
-{
-	return list_append_pointer( list, this_item );
-}
-
-int list_append_pointer( LIST *list, void *this_item )
+boolean list_set( LIST *list, void *this_item )
 {
         struct LINKTYPE *newlink;
 
-/*
-	if ( !list )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: list is null\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-*/
-
 	if ( !list ) return 0;
+	if ( !this_item ) return 0;
 
         if ( ! ( newlink = create_node() ) ) return 0;
 
@@ -107,15 +86,24 @@ int list_append_pointer( LIST *list, void *this_item )
 	list->current = newlink;
 
 	return 1;
+}
 
-} /* list_append_pointer() */
+boolean list_set_pointer( LIST *list, void *this_item )
+{
+	return list_set( list, this_item );
+}
 
-int list_add_head( LIST *list, void *this_item )
+boolean list_append_pointer( LIST *list, void *this_item )
+{
+	return list_set( list, this_item );
+}
+
+boolean list_add_head( LIST *list, void *this_item )
 {
 	return list_prepend_pointer( list, this_item );
 }
 
-int list_prepend_pointer( LIST *list, void *this_item )
+boolean list_prepend_pointer( LIST *list, void *this_item )
 {
         struct LINKTYPE *newlink = create_node();
 

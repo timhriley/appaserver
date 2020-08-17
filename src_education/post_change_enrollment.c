@@ -163,7 +163,7 @@ void post_change_enrollment_insert_update(
 				street_address,
 				registration_date_time,
 				registration->registration_tuition,
-				ledger_receivable_account(),
+				account_receivable(),
 				offering_revenue_account() );
 
 		t = registration->registration_revenue_transaction;

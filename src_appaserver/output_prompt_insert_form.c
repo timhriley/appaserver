@@ -692,14 +692,14 @@ int main( int argc, char **argv )
 	/* ------------------------------------------- */
 	if ( pair_one2m->is_participating )
 	{
-		APPASERVER_ELEMENT *element;
+		ELEMENT_APPASERVER *element;
 		char *element_name;
 
 		element_name =
 			pair_one2m_get_pair_one2m_submit_element_name(
 				0 /* not with_suffix_zero */ );
 
-		element = element_new(
+		element = element_appaserver_new(
 				hidden,
 				strdup( element_name ) );
 
@@ -803,7 +803,7 @@ LIST *get_element_list(
 	LIST *done_attribute_name_list;
 	LIST *element_list;
 	char *attribute_name;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	LIST *role_folder_insert_list;
 	LIST *primary_attribute_name_list;
 	boolean is_primary_attribute;
@@ -971,34 +971,38 @@ LIST *get_element_list(
 			exit( 1 );
 		}
 
-		element = element_new(	hidden,
-					isa_multi_attribute_name );
+		element =
+			element_appaserver_new(
+				hidden,
+				isa_multi_attribute_name );
 
 		element_hidden_set_data(	element->hidden,
 						isa_multi_attribute_data );
 
 		list_append( 	return_list, 
 				element, 
-				sizeof( APPASERVER_ELEMENT ) );
+				sizeof( ELEMENT_APPASERVER ) );
 
 	}
 
 	/* Create the lookup push button */
 	/* ----------------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append( 	return_list, 
 			element, 
-			sizeof( APPASERVER_ELEMENT ) );
+			sizeof( ELEMENT_APPASERVER ) );
 
-	element = element_new( 	toggle_button, 
-				LOOKUP_PUSH_BUTTON_NAME );
+	element =
+		element_appaserver_new(
+			toggle_button, 
+			LOOKUP_PUSH_BUTTON_NAME );
 
 	element_toggle_button_set_heading(
 		element->toggle_button, "lookup" );
 
 	list_append(	return_list, 
 			element, 
-			sizeof( APPASERVER_ELEMENT ) );
+			sizeof( ELEMENT_APPASERVER ) );
 
 	return return_list;
 
@@ -1452,7 +1456,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 					char *folder_post_change_javascript )
 {
 	ATTRIBUTE *attribute;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char element_name[ 256 ];
 	LIST *return_list;
 	char ignore_element_name[ 256 ];
@@ -1488,7 +1492,10 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 
 	if ( strcmp( attribute->datatype, "hidden_text" ) == 0 )
 	{
-		element = element_new( hidden, attribute->attribute_name );
+		element =
+			element_appaserver_new(
+				hidden,
+				attribute->attribute_name );
 		list_append_pointer(	return_list,
 					element );
 		return return_list;
@@ -1496,7 +1503,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 
 	/* Start off with a line break */
 	/* --------------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer(
 			return_list, 
 			element );
@@ -1509,7 +1516,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 			 	IGNORE_PUSH_BUTTON_PREFIX,
 			 	attribute_name );
 	
-			element = element_new(
+			element = element_appaserver_new(
 					toggle_button, 
 					strdup( ignore_element_name ) );
 	
@@ -1527,7 +1534,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 		{
 			list_append_pointer(
 					return_list,
-					element_new(
+					element_appaserver_new(
 						empty_column,
 						"" ) );
 		}
@@ -1540,7 +1547,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 	else
 		sprintf( element_name, "%s", attribute->attribute_name );
 
-	element = element_new(
+	element = element_appaserver_new(
 			prompt,
 			strdup( element_name ) );
 
@@ -1550,7 +1557,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 
 	if ( strcmp( attribute->datatype, "notepad" ) == 0 )
 	{
-		element = element_new(
+		element = element_appaserver_new(
 				notepad,
 				attribute->attribute_name );
 
@@ -1569,7 +1576,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 					application_name,
 					1 );
 
-		element = element_new(
+		element = element_appaserver_new(
 				reference_number,
 				attribute->attribute_name );
 
@@ -1592,7 +1599,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 	else
 	if ( strcmp( attribute->datatype, "password" ) == 0 )
 	{
-		element = element_new( password, attribute_name );
+		element = element_appaserver_new( password, attribute_name );
 		element_password_set_attribute_width(
 						element->password,
 						attribute->width );
@@ -1649,7 +1656,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 	&&   *attribute->hint_message )
 	{
 		element = 
-			element_new( 
+			element_appaserver_new( 
 				non_edit_text,
 				attribute->hint_message );
 
@@ -1665,7 +1672,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 		 QUERY_RELATION_OPERATOR_STARTING_LABEL,
 		 attribute->attribute_name );
 
-	element = element_new(
+	element = element_appaserver_new(
 			hidden,
 			strdup( element_name ) );
 

@@ -18,7 +18,6 @@
 #include "appaserver_error.h"
 #include "entity.h"
 #include "date.h"
-#include "ledger.h"
 #include "purchase.h"
 
 /* Constants */
@@ -927,7 +926,7 @@ void post_change_purchase_order_changed_rule_to_null(
 		if ( list_length( purchase_order->inventory_purchase_list ) )
 		{
 			purchase_order->transaction =
-			     ledger_inventory_build_transaction(
+			     purchase_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -941,7 +940,7 @@ void post_change_purchase_order_changed_rule_to_null(
 					specific_inventory_purchase_list ) )
 		{
 			purchase_order->transaction =
-			     ledger_specific_inventory_build_transaction(
+			     purchase_specific_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -954,7 +953,7 @@ void post_change_purchase_order_changed_rule_to_null(
 		else
 		{
 			purchase_order->transaction =
-				ledger_purchase_order_build_transaction(
+				purchase_order_build_transaction(
 					application_name,
 					purchase_order->full_name,
 					purchase_order->street_address,
@@ -1136,7 +1135,7 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 		if ( list_length( purchase_order->inventory_purchase_list ) )
 		{
 			purchase_order->transaction =
-			     ledger_inventory_build_transaction(
+			     purchase_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -1150,7 +1149,7 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 					specific_inventory_purchase_list ) )
 		{
 			purchase_order->transaction =
-			     ledger_specific_inventory_build_transaction(
+			     purchase_specific_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -1163,7 +1162,7 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 		else
 		{
 			purchase_order->transaction =
-				ledger_purchase_order_build_transaction(
+				purchase_order_build_transaction(
 					application_name,
 					purchase_order->full_name,
 					purchase_order->street_address,
@@ -1365,7 +1364,7 @@ void post_change_purchase_order_new_transaction(
 	if ( list_length( purchase_order->inventory_purchase_list ) )
 	{
 		purchase_order->transaction =
-		     ledger_inventory_build_transaction(
+		     purchase_inventory_build_transaction(
 			application_name,
 			purchase_order->full_name,
 			purchase_order->street_address,
@@ -1379,7 +1378,7 @@ void post_change_purchase_order_new_transaction(
 				specific_inventory_purchase_list ) )
 	{
 		purchase_order->transaction =
-		     ledger_specific_inventory_build_transaction(
+		     purchase_specific_inventory_build_transaction(
 			application_name,
 			purchase_order->full_name,
 			purchase_order->street_address,
@@ -1392,7 +1391,7 @@ void post_change_purchase_order_new_transaction(
 	else
 	{
 		purchase_order->transaction =
-			ledger_purchase_order_build_transaction(
+			purchase_order_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -1431,7 +1430,7 @@ void post_change_purchase_order_change_sales_tax_transaction(
 	if ( list_length( purchase_order->inventory_purchase_list ) )
 	{
 		purchase_order->transaction =
-		     ledger_inventory_build_transaction(
+		     purchase_inventory_build_transaction(
 			application_name,
 			purchase_order->full_name,
 			purchase_order->street_address,
@@ -1445,7 +1444,7 @@ void post_change_purchase_order_change_sales_tax_transaction(
 				specific_inventory_purchase_list ) )
 	{
 		purchase_order->transaction =
-		     ledger_specific_inventory_build_transaction(
+		     purchase_specific_inventory_build_transaction(
 			application_name,
 			purchase_order->full_name,
 			purchase_order->street_address,
@@ -1458,7 +1457,7 @@ void post_change_purchase_order_change_sales_tax_transaction(
 	else
 	{
 		purchase_order->transaction =
-			ledger_purchase_order_build_transaction(
+			purchase_order_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,

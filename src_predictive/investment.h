@@ -11,7 +11,6 @@
 
 #include "folder.h"
 #include "list.h"
-#include "ledger.h"
 
 /* Constants */
 /* --------- */

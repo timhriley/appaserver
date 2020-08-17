@@ -16,7 +16,6 @@
 #include "appaserver_error.h"
 #include "inventory.h"
 #include "entity.h"
-#include "ledger.h"
 #include "purchase.h"
 #include "customer.h"
 
@@ -320,7 +319,7 @@ void post_change_inventory_purchase_insert_FOB_shipping(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_build_transaction(
+			purchase_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -450,7 +449,7 @@ void post_change_inventory_purchase_insert_FOB_destination(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_build_transaction(
+			purchase_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -818,7 +817,7 @@ void post_change_inventory_purchase_ordered_quantity_update(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_build_transaction(
+			purchase_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -914,7 +913,7 @@ void post_change_inventory_purchase_unit_cost_update(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_build_transaction(
+			purchase_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -1017,7 +1016,7 @@ void post_change_inventory_purchase_delete(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_build_transaction(
+			purchase_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -1143,7 +1142,7 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_build_transaction(
+			purchase_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,

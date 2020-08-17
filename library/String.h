@@ -62,4 +62,19 @@ char *string_escape_character_array(
 			char *source,
 			char *character_array );
 
+int string_strlen(	char *s );
+
+boolean string_strcmp(	char *s1,
+			char *s2 );
+
+boolean string_strcpy(	char *d,
+			char *s,
+			int buffer_size );
+
+char *string_strcat(	char *d,
+			char *s );
+
+int string_strncmp(	char *s1,
+			char *s2 );
+
 #endif

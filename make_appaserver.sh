@@ -1,4 +1,11 @@
 :
+if [ "$#" -eq 1 -a "$1" = "force" ]
+then
+	force_compile=1
+else
+	force_compile=0
+fi
+
 if [ "$APPASERVER_HOME" = "" ]
 then
 	echo "Error in $0: APPASERVER_HOME not defined" 1>&2
@@ -43,21 +50,54 @@ then
 	fi
 fi
 
-for application in `application_list.sh`
-do
-	directory="$APPASERVER_HOME/src_${application}"
+cd $APPASERVER_HOME
 
-	if [ -f $directory/makefile ]
-	then
-		cd $directory && pwd && make
-
-		if [ "$?" -ne 0 ]
+if [ "$force_compile" -eq 1 ]
+then
+	for application in $(ls -1 -d src_* | sed 's/src_//')
+	do
+		if [ "$application" = "appaserver" -o	\
+		     "$application" = "predictive" ]
 		then
-			echo "$0 exiting early"
-			exit 1
+			continue
 		fi
-	fi
-done
+
+		directory="$APPASERVER_HOME/src_${application}"
+	
+		if [ -f $directory/makefile ]
+		then
+			cd $directory && pwd && make
+	
+			if [ "$?" -ne 0 ]
+			then
+				echo "$0 exiting early"
+				exit 1
+			fi
+		fi
+	done
+else
+	for application in `application_list.sh`
+	do
+		if [ "$application" = "appaserver" -o	\
+		     "$application" = "predictive" ]
+		then
+			continue
+		fi
+
+		directory="$APPASERVER_HOME/src_${application}"
+	
+		if [ -f $directory/makefile ]
+		then
+			cd $directory && pwd && make
+	
+			if [ "$?" -ne 0 ]
+			then
+				echo "$0 exiting early"
+				exit 1
+			fi
+		fi
+	done
+fi
 
 if [ -d $APPASERVER_HOME/src_hydrology/reg_sched ]
 then

@@ -1469,6 +1469,11 @@ char *date_get_yyyy_mm_dd_hh_mm_ss(
 
 } /* date_get_yyyy_mm_dd_hh_mm_ss() */
 
+char *date_now19( int utc_offset )
+{
+	return date_now19( utc_offset );
+}
+
 char *date_get_now19( int utc_offset )
 {
 	DATE *d;

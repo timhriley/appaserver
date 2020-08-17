@@ -10,6 +10,9 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "offering.h"
+#include "registration.h"
+#include "enrollment.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -23,15 +26,36 @@ typedef struct
 {
 	char *season_name;
 	int year;
+	LIST *semester_offering_list;
+	LIST *semester_registration_list;
 } SEMESTER;
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *semester_where(
+SEMESTER *semester_new(	char *season_name,
+			int year );
+
+SEMESTER *semster_fetch(
 			char *season_name,
 			int year );
 
 LIST *semester_offering_list(
+			char *season_name,
+			int year );
+
+LIST *semester_registration_list(
+			char *season_name,
+			int year );
+
+ENROLLMENT *semester_enrollment_getset(
+			LIST *semester_registration_list,
+			char *student_full_name,
+			char *student_street_address,
+			char *course_name,
+			char *season_name,
+			int year );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *semester_primary_where(
 			char *season_name,
 			int year );
 

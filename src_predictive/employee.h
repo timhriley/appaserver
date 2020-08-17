@@ -10,7 +10,6 @@
 #define EMPLOYEE_H
 
 #include "list.h"
-#include "ledger.h"
 #include "entity.h"
 
 /* Enumerated types */

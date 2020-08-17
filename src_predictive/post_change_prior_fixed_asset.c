@@ -15,7 +15,6 @@
 #include "inventory.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "ledger.h"
 #include "entity.h"
 #include "subsidiary_transaction.h"
 

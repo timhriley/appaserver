@@ -9,7 +9,6 @@
 #ifndef DEPRECIATION_H
 #define DEPRECIATION_H
 
-#include "ledger.h"
 #include "entity.h"
 
 /* Enumerated types */

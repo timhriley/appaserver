@@ -16,8 +16,8 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "environ.h"
+#include "transaction.h"
 #include "entity.h"
-#include "ledger.h"
 #include "pay_liabilities.h"
 
 /* Constants */

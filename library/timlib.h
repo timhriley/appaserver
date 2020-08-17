@@ -665,4 +665,6 @@ char *timlib_remove_thousands_separator(
 
 boolean timlib_is_number(	char *string );
 
+char *timlib_sha256sum(		char *input_filename );
+
 #endif

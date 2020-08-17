@@ -388,7 +388,7 @@ void post_state_one(	char *application_name,
 {
 	DOCUMENT *document;
 	FORM *form;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	LIST *folder_name_list;
 	char action_string[ 1024 ];
 	LIST *remember_keystrokes_non_multi_element_name_list;
@@ -494,7 +494,7 @@ void post_state_one(	char *application_name,
 		exit( 0 );
 	}
 
-	element = element_new( drop_down, DROP_DOWN_ELEMENT_NAME );
+	element = element_appaserver_new( drop_down, DROP_DOWN_ELEMENT_NAME );
 
 	element->drop_down->option_data_list = folder_name_list;
 
@@ -571,7 +571,7 @@ void post_state_two(	char *application_name,
 	LIST *one2m_recursive_related_folder_list;
 	LIST *mto1_recursive_related_folder_list;
 	LIST *option_data_list;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char *folder_name;
 	DICTIONARY *post_dictionary;
 	char key[ 128 ];
@@ -633,7 +633,7 @@ void post_state_two(	char *application_name,
 	form_set_output_row_zero_only( form );
 	form->regular_element_list = list_new();
 
-	element = element_new( prompt, "<big>Join</big>" );
+	element = element_appaserver_new( prompt, "<big>Join</big>" );
 	list_append_pointer( form->regular_element_list, element );
 
 	one2m_recursive_related_folder_list =
@@ -647,7 +647,7 @@ void post_state_two(	char *application_name,
 		QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL,
 		DROP_DOWN_ELEMENT_NAME );
 
-	element = element_new( drop_down, strdup( element_name ) );
+	element = element_appaserver_new( drop_down, strdup( element_name ) );
 	element->drop_down->multi_select = 1;
 	element->drop_down->multi_select_element_name =
 		DROP_DOWN_ELEMENT_NAME;
@@ -1189,16 +1189,16 @@ LIST *state_three_get_element_list(
 	LIST *return_list;
 	FOLDER *folder;
 	ROLE *role;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 
 	role = role_new( application_name, role_name );
 
 	return_list = list_new_list();
 
-	element = element_new( prompt_heading, folder_name );
+	element = element_appaserver_new( prompt_heading, folder_name );
 	list_append_pointer( return_list, element );
 
-	element = element_new( linebreak, (char *)0 );
+	element = element_appaserver_new( linebreak, (char *)0 );
 	list_append_pointer( return_list, element );
 
 	list_append_list(
@@ -1224,7 +1224,10 @@ LIST *state_three_get_element_list(
 				list_get(
 					one2m_mto1_related_folder_name_list );
 
-			element = element_new( linebreak, (char *)0 );
+			element =
+				element_appaserver_new(
+					linebreak,
+					(char *)0 );
 			list_append_pointer( return_list, element );
 
 /* Not implemented, yet.
@@ -1250,7 +1253,7 @@ LIST *state_three_get_element_list(
 			if ( *with_foreign_attribute_name )
 			{
 				element =
-					element_new(
+					element_appaserver_new(
 						prompt_heading,
 						strdup(
 						with_foreign_attribute_name ) );
@@ -1258,18 +1261,23 @@ LIST *state_three_get_element_list(
 			else
 			{
 				element =
-					element_new(
+					element_appaserver_new(
 						prompt_heading,
 						folder_name );
 			}
 */
 
-			element = element_new(	prompt_heading,
-						folder_name );
+			element =
+				element_appaserver_new(
+					prompt_heading,
+					folder_name );
 
 			list_append_pointer( return_list, element );
 
-			element = element_new( linebreak, (char *)0 );
+			element =
+				element_appaserver_new(
+					linebreak,
+					(char *)0 );
 			list_append_pointer( return_list, element );
 
 			folder =
@@ -1304,24 +1312,24 @@ LIST *state_three_get_element_list(
 
 	/* Create the double line break */
 	/* ---------------------------- */
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer(
 			return_list, 
 			element );
-	element = element_new(
+	element = element_appaserver_new(
 			prompt,
 			"<br>" );
 	list_append_pointer(
 			return_list, 
 			element );
-	element = element_new( linebreak, "" );
+	element = element_appaserver_new( linebreak, "" );
 	list_append_pointer(
 			return_list, 
 			element );
 
 	/* Create the prompt element */
 	/* ------------------------- */
-	element = element_new(
+	element = element_appaserver_new(
 			prompt,
 			"Output Medium" );
 
@@ -1331,7 +1339,7 @@ LIST *state_three_get_element_list(
 
 	/* Create the drop down element */
 	/* ---------------------------- */
-	element = element_new(
+	element = element_appaserver_new(
 			drop_down,
 			"output_medium" );
 

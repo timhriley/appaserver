@@ -41,7 +41,6 @@ void generic_measurement_load(
 			char *role_name,
 			char *folder_name,
 			LIST *attribute_list,
-			char *database_string,
 			char *login_name,
 			char *process_name );
 
@@ -57,7 +56,6 @@ int main( int argc, char **argv )
 	LIST *attribute_list;
 	char process_title_initial_capital[ 256 ];
 	char title[ 256 ];
-	char *database_string = {0};
 
 	if ( argc != 5 )
 	{
@@ -72,18 +70,14 @@ int main( int argc, char **argv )
 	role_name = argv[ 3 ];
 	process_name = argv[ 4 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
+	environ_set_environment(
+		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+		application_name );
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+			argc,
+			argv,
+			application_name );
 
 	add_dot_to_path();
 	add_utility_to_path();
@@ -162,7 +156,6 @@ int main( int argc, char **argv )
 			role_name,
 			FOLDER_NAME,
 			attribute_list,
-			database_string,
 			login_name,
 			process_name );
 
@@ -177,7 +170,6 @@ void generic_measurement_load(
 			char *role_name,
 			char *folder_name,
 			LIST *attribute_list,
-			char *database_string,
 			char *login_name,
 			char *process_name )
 {
@@ -187,7 +179,7 @@ void generic_measurement_load(
 	ATTRIBUTE *attribute;
 	int default_position = 1;
 	int primary_key_default_position;
-	APPASERVER_ELEMENT *element;
+	ELEMENT_APPASERVER *element;
 	char post_change_javascript[ 128 ];
 
 	mto1_related_folder_list =
@@ -249,7 +241,7 @@ void generic_measurement_load(
 	do {
 		attribute = list_get_pointer( attribute_list );
 
-		element = (APPASERVER_ELEMENT *)0;
+		element = (ELEMENT_APPASERVER *)0;
 
 		if ( ( related_folder =
 	       		related_folder_attribute_consumes_related_folder(
@@ -271,7 +263,7 @@ void generic_measurement_load(
 					"constant_%s",
 					attribute->attribute_name );
 
-				element = element_new(
+				element = element_appaserver_new(
 						drop_down,
 						strdup( element_name ) );
 

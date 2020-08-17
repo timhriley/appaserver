@@ -8,7 +8,8 @@
 #ifndef BANK_UPLOAD_H
 #define BANK_UPLOAD_H
 
-#include "ledger.h"
+#include "transaction.h"
+#include "journal.h"
 #include "reoccurring.h"
 
 /* Enumerated types */
@@ -57,8 +58,8 @@ typedef struct
 	boolean existing_transaction;
 	TRANSACTION *feeder_phrase_match_build_transaction;
 	LIST *reconciled_transaction_list;
-	LIST *feeder_match_sum_existing_journal_ledger_list;
-	JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger;
+	LIST *feeder_match_sum_existing_journal_list;
+	JOURNAL *feeder_check_number_existing_journal;
 } BANK_UPLOAD;
 
 typedef struct
@@ -80,8 +81,8 @@ typedef struct
 typedef struct
 {
 	BANK_UPLOAD_FILE file;
-	LIST *existing_cash_journal_ledger_list;
-	LIST *non_reconciled_cash_journal_ledger_list;
+	LIST *existing_cash_journal_list;
+	LIST *non_reconciled_cash_journal_list;
 	LIST *uncleared_checks_transaction_list;
 	REOCCURRING_STRUCTURE *reoccurring_structure;
 	int starting_sequence_number;
@@ -93,117 +94,103 @@ typedef struct
 /* Operations */
 /* ---------- */
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_calloc(
-					void );
+			void );
 
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
-					char *application_name,
-					char *fund_name,
-					char *feeder_account,
-					char *input_filename,
-					boolean reverse_order,
-					int date_piece_offset,
-					int description_piece_offset,
-					int debit_piece_offset,
-					int credit_piece_offset,
-					int balance_piece_offset );
+			char *fund_name,
+			char *feeder_account,
+			char *input_filename,
+			boolean reverse_order,
+			int date_piece_offset,
+			int description_piece_offset,
+			int debit_piece_offset,
+			int credit_piece_offset,
+			int balance_piece_offset );
 
-BANK_UPLOAD *bank_upload_calloc(	void );
+BANK_UPLOAD *bank_upload_calloc(
+			void );
 
-BANK_UPLOAD *bank_upload_new(		char *bank_date,
-					char *bank_description );
+BANK_UPLOAD *bank_upload_new(
+			char *bank_date,
+			char *bank_description );
 
 void bank_upload_transaction_direct_insert(
-					char *application_name,
-					char *bank_date,
-					char *bank_description_embedded,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time );
+			char *bank_date,
+			char *bank_description_embedded,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
 
 /* Returns table_insert_count */
 /* -------------------------- */
-int bank_upload_insert(			char *fund_name,
-					LIST *bank_upload_list,
-					char *bank_upload_date_time );
+int bank_upload_insert(
+			char *fund_name,
+			LIST *bank_upload_list,
+			char *bank_upload_date_time );
 
-int bank_upload_get_sequence_number(
-					char *application_name,
-					char *input_filename );
+int bank_upload_line_count(
+			char *input_filename,
+			int date_piece_offset );
 
-int bank_upload_get_line_count(		char *input_filename,
-					int date_piece_offset );
+boolean bank_upload_bank_date_international(
+			char *bank_date_international,
+			char *bank_date );
 
-boolean bank_upload_get_bank_date_international(
-					char *bank_date_international,
-					char *bank_date );
+LIST *bank_upload_bank_upload_table_list(	
+			int starting_sequence_number,
+			char *begin_date );
 
-LIST *bank_upload_fetch_bank_upload_table_list(	
-					char *application_name,
-					int starting_sequence_number,
-					char *begin_date );
+BANK_UPLOAD *bank_upload_fetch(
+			char *bank_date,
+			char *bank_description );
 
-BANK_UPLOAD *bank_upload_fetch(		char *application_name,
-					char *bank_date,
-					char *bank_description );
+LIST *bank_upload_existing_cash_journal_list(
+			char *fund_name );
 
-LIST *bank_upload_existing_cash_journal_ledger_list(
-					char *application_name,
-					char *fund_name );
-
-LIST *bank_upload_fetch_uncleared_checks_transaction_list(
-					char *application_name,
-					char *minimum_transaction_date,
-					char *fund_name );
+LIST *bank_upload_uncleared_checks_transaction_list(
+			char *minimum_transaction_date,
+			char *fund_name );
 
 void bank_upload_set_transaction(
-				LIST *bank_upload_list,
-				LIST *reoccurring_transaction_list,
-				LIST *existing_cash_journal_ledger_list );
+			LIST *bank_upload_list,
+			LIST *reoccurring_transaction_list,
+			LIST *existing_cash_journal_list );
 
-/* Insert into TRANSACTION and JOURNAL_LEDGER */
-/* ------------------------------------------ */
-/* Note: this is the bottleneck.	      */
-/* ------------------------------------------ */
+/* Insert into TRANSACTION and JOURNAL  */
+/* ------------------------------------ */
 void bank_upload_transaction_insert(
-					char *application_name,
-					LIST *bank_upload_list );
+			LIST *bank_upload_list );
 
-char *bank_upload_get_select(		void );
+char *bank_upload_select(
+			void );
 
-void bank_upload_fetch_parse(		char **bank_date,
-					char **bank_description,
-					int *sequence_number,
-					double *bank_amount,
-					double *bank_running_balance,
-					int *check_number,
-					char *input_buffer );
+BANK_UPLOAD *bank_upload_parse(	
+			char *input );
 
 void bank_upload_transaction_table_display(
-					LIST *bank_upload_list );
+			LIST *bank_upload_list );
 
 void bank_upload_transaction_text_display(
-					LIST *bank_upload_list );
+			LIST *bank_upload_list );
 
-void bank_upload_journal_ledger_text_display(
-					JOURNAL_LEDGER *journal_ledger );
+void bank_upload_journal_text_display(
+			JOURNAL *journal );
 
-void bank_upload_table_display(		char *application_name,
-					LIST *bank_upload_list );
+void bank_upload_table_display(
+			LIST *bank_upload_list );
 
-int bank_upload_get_starting_sequence_number(
-					char *application_name,
-					char *input_filename,
-					int date_piece_offset );
+int bank_upload_starting_sequence_number(
+			char *input_filename,
+			int date_piece_offset );
 
 BANK_UPLOAD *bank_upload_dictionary_extract(
-					char *application_name,
-					DICTIONARY *dictionary );
+			DICTIONARY *dictionary );
 
-char *bank_upload_get_description_embedded(
-					char *bank_description,
-					char *fund_name,
-					double bank_amount,
-					double bank_running_balance );
+char *bank_upload_description_embedded(
+			char *bank_description,
+			char *fund_name,
+			double bank_amount,
+			double bank_running_balance );
 
 /* Sets:
 		bank_upload->bank_date
@@ -213,11 +200,10 @@ char *bank_upload_get_description_embedded(
 		bank_upload->bank_amount
 		bank_upload->bank_running_balance
 */
-LIST *bank_upload_fetch_file_list(
+LIST *bank_upload_file_list(
 					LIST *error_line_list,
 					char **file_sha256sum,
 					char **minimum_bank_date,
-					char *application_name,
 					char *input_filename,
 					boolean reverse_order,
 					int date_piece_offset,
@@ -228,25 +214,21 @@ LIST *bank_upload_fetch_file_list(
 					int starting_sequence_number,
 					char *fund_name );
 
-char *bank_upload_get_transaction_memo(
+char *bank_upload_transaction_memo(
 					char *full_name,
 					char *street_address,
 					char *transaction_date_time );
 
-void bank_upload_event_insert(		char *application_name,
-					char *bank_upload_date_time,
+void bank_upload_event_insert(		char *bank_upload_date_time,
 					char *login_name,
 					char *bank_upload_filename,
 					char *file_sha256sum,
 					char *fund_name,
 					char *feeder_account );
 
-boolean bank_upload_sha256sum_exists(
-					char *application_name,
-					char *file_sha256sum );
+boolean bank_upload_sha256sum_exists(	 char *file_sha256sum );
 
-void bank_upload_archive_insert(	char *application_name,
-					char *fund_name,
+void bank_upload_archive_insert(	char *fund_name,
 					LIST *bank_upload_list,
 					char *bank_upload_date_time );
 
@@ -254,18 +236,16 @@ int bank_upload_feeder_phrase_match_transaction_count(
 					LIST *bank_upload_list );
 
 boolean bank_upload_transaction_exists(
-					char *application_name,
 					char *bank_date,
 					char *bank_description );
 
-char *bank_upload_get_where(		char *where,
-					char *bank_date,
-					char *bank_description );
+char *bank_upload_primary_where(
+			char *bank_date,
+			char *bank_description_embedded );
 
-double bank_upload_fetch_bank_amount(
-					char *application_name,
-					char *bank_date,
-					char *bank_description );
+double bank_upload_bank_amount(
+			char *bank_date,
+			char *bank_description );
 
 /* --------------------------------------------------- */
 /* Returns transaction_date_time or null if not found. */
@@ -288,15 +268,13 @@ char *bank_upload_pending_amount_deposit(
 BANK_UPLOAD *bank_upload_parse_row(	char *input_row );
 
 BANK_UPLOAD *bank_upload_sequence_number_fetch(
-					char *application_name,
 					int sequence_number );
 
 BANK_UPLOAD *bank_upload_prior_fetch(
-					char *application_name,
 					int sequence_number );
 
-double bank_upload_archive_fetch_latest_running_balance(
-					char *application_name );
+double bank_upload_archive_latest_running_balance(
+					void );
 
 /* Insert into BANK_UPLOAD_TRANSACTION */
 /* ----------------------------------- */
@@ -305,8 +283,7 @@ void bank_upload_reconciliation_transaction_insert(
 					char *bank_description_embedded,
 					LIST *transaction_list );
 
-LIST *bank_upload_get_feeder_transaction_list(
-					char *application_name,
+LIST *bank_upload_feeder_transaction_list(
 					char *fund_name,
 					char *bank_description,
 					double abs_bank_amount,
@@ -316,7 +293,7 @@ LIST *bank_upload_get_feeder_transaction_list(
 char *bank_upload_transaction_bank_upload_subquery(
 					void );
 
-char *bank_upload_transaction_journal_ledger_subquery(
+char *bank_upload_transaction_journal_subquery(
 					void );
 
 LIST *bank_upload_transaction_list_string_parse(
@@ -329,13 +306,12 @@ LIST *bank_upload_transaction_list_string_parse(
 void bank_upload_transaction_balance_propagate(
 					char *bank_date );
 
-char *bank_upload_get_account_html(
-		char *application_name,
+char *bank_upload_account_html(
 		boolean existing_bank_upload,
 		boolean existing_transaction,
 		TRANSACTION *feeder_phrase_match_build_transaction,
-		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger,
-		LIST *match_sum_existing_journal_ledger_list );
+		JOURNAL *feeder_check_number_existing_journal,
+		LIST *match_sum_existing_journal_list );
 
 char *bank_upload_description_crop(	char *bank_description );
 
@@ -346,79 +322,81 @@ char *bank_upload_unique_bank_description(
 					char *bank_amount,
 					char *bank_balance );
 
-LIST *bank_upload_fetch_transaction_date_time_list(
-					char *application_name,
+LIST *bank_upload_transaction_date_time_list(
 					char *minimum_transaction_date,
 					char *account_name );
 
 void bank_upload_set_reoccurring_transaction(
 				LIST *bank_upload_list,
 				LIST *reoccurring_transaction_list,
-				LIST *non_reconciled_cash_journal_ledger_list );
+				LIST *non_reconciled_cash_journal_list );
 
 int bank_upload_parse_check_number(
 				char *bank_description );
 
-/* Does ledger_propagate() */
-/* ----------------------- */
+/* Does journal_propagate() */
+/* ------------------------ */
 void bank_upload_cleared_checks_update(
-				char *application_name,
-				char *fund_name,
-				LIST *bank_upload_list );
+			char *fund_name,
+			LIST *bank_upload_list );
 
 void bank_upload_cleared_journal_text_display(
-		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger );
+			JOURNAL *feeder_check_number_existing_journal );
 
-char *bank_upload_get_insert_bank_upload_filename(
-				char *bank_upload_filename );
+char *bank_upload_insert_bank_upload_filename(
+			char *bank_upload_filename );
 
 /* Insert into BANK_UPLOAD_TRANSACTION */
 /* ----------------------------------- */
 void bank_upload_direct_bank_upload_transaction_insert(
-				LIST *bank_upload_list );
+			LIST *bank_upload_list );
 
-boolean bank_upload_exists(	char *application_name,
-				char *bank_date,
+boolean bank_upload_exists(	char *bank_date,
 				char *bank_description_embedded,
 				char *minimum_bank_date );
 
 void bank_upload_free(		BANK_UPLOAD *b );
 
-int bank_upload_get_file_row_count(
+int bank_upload_file_row_count(
 				LIST *bank_upload_list );
 
 /* Returns strdup() */
 /* ---------------- */
-char *bank_upload_journal_ledger_list_html(
-				LIST *match_sum_existing_journal_ledger_list );
+char *bank_upload_journal_list_html(
+				LIST *match_sum_existing_journal_list );
 
-void bank_upload_match_sum_existing_journal_ledger_list(
+void bank_upload_match_sum_existing_journal_list(
 				LIST *bank_upload_list,
-				LIST *existing_cash_journal_ledger_list );
+				LIST *existing_cash_journal_list );
 
 void bank_upload_feeder_phrase_match_build_transaction(
 				LIST *bank_upload_list,
 				LIST *reoccurring_transaction_list );
 
-void bank_upload_check_number_existing_journal_ledger(
+void bank_upload_check_number_existing_journal(
 				LIST *bank_upload_list,
-				LIST *existing_cash_journal_ledger_list );
+				LIST *existing_cash_journal_list );
 
-LIST *bank_upload_fetch_key_list(
-				char *application_name,
-				char *minimum_bank_date );
+LIST *bank_upload_key_list(
+			char *minimum_bank_date );
 
 /* Returns static memory */
 /* --------------------- */
 char *bank_upload_minimum_bank_date(
-				char *minimum_bank_date,
-				LIST *bank_upload_list );
+			char *minimum_bank_date,
+			LIST *bank_upload_list );
 
 /* Returns static memory */
 /* --------------------- */
 char *bank_upload_minimum_transaction_date(
-		JOURNAL_LEDGER *feeder_check_number_existing_journal_ledger,
-		LIST *feeder_match_sum_existing_journal_ledger_list );
+			JOURNAL *feeder_check_number_existing_journal,
+			LIST *feeder_match_sum_existing_journal_list );
+
+BANK_UPLOAD *bank_upload_parse(
+			char *input );
+
+LIST *bank_upload_transaction_list(
+			LIST *bank_upload_list );
 
 #endif
 

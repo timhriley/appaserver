@@ -20,7 +20,6 @@
 #include "appaserver_error.h"
 #include "document.h"
 #include "application.h"
-#include "ledger.h"
 #include "application_constants.h"
 #include "appaserver_parameter_file.h"
 #include "html_table.h"
@@ -36,46 +35,44 @@
 
 /* Prototypes */
 /* ---------- */
-char *transaction_balance_report_get_missing_expense_message(
-					char *transaction_date_time,
-					LIST *transaction_balance_row_list,
-					double bank_amount,
-					double cash_running_balance,
-					double bank_running_balance );
+char *transaction_balance_report_missing_expense_message(
+			char *transaction_date_time,
+			LIST *transaction_balance_row_list,
+			double bank_amount,
+			double cash_running_balance,
+			double bank_running_balance );
 
-char *transaction_balance_report_get_finished_message(
-					char *application_name,
-					double cash_running_balance,
-					double bank_running_balance );
+char *transaction_balance_report_finished_message(
+			double cash_running_balance,
+			double bank_running_balance );
 
 void transaction_balance_report_summary_inbalance(
-			char *application_name,
 			TRANSACTION_BALANCE_BLOCK *last_inbalance_block );
 
 void transaction_balance_report_summary_outbalance(
 			TRANSACTION_BALANCE_BLOCK *last_outbalance_block,
 			LIST *transaction_balance_row_list );
 
-char *transaction_balance_report_get_duplicated_withdrawal_message(
+char *transaction_balance_report_duplicated_withdrawal_message(
 					double transaction_amount,
 					double bank_amount,
 					double balance,
 					double bank_running_balance );
 
-double transaction_balance_report_get_duplicated_withdrawal_amount(
+double transaction_balance_report_duplicated_withdrawal_amount(
 					char *message,
 					char **duplicated_full_name,
 					char **duplicated_transaction_date_time,
 					double balance,
 					double bank_running_balance );
 
-char *transaction_balance_report_get_deposit_message(
+char *transaction_balance_report_deposit_message(
 					double transaction_amount,
 					double bank_amount,
 					double balance,
 					double bank_running_balance );
 
-double transaction_balance_report_get_duplicated_deposit_amount(
+double transaction_balance_report_duplicated_deposit_amount(
 					char *message,
 					char **duplicated_full_name,
 					char **duplicated_transaction_date_time,
@@ -106,7 +103,7 @@ int main( int argc, char **argv )
 
 	/* Exits if fails */
 	/* -------------- */
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 				argc,
@@ -129,9 +126,9 @@ int main( int argc, char **argv )
 	||   strcmp( begin_date_string, "begin_date" ) == 0 )
 	{
 		begin_date_string =
-			ledger_get_minimum_transaction_date(
-				application_name );
-
+			transaction_beginning_date_string(
+			(char *)0 /* fund_name */,
+			(char *)0 /* ending_transaction_date */ );
 	}
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
@@ -169,7 +166,7 @@ int main( int argc, char **argv )
 				begin_date_string );
 
 		transaction_balance->last_block_inbalance =
-			transaction_balance_get_last_block_inbalance(
+			transaction_balance_last_block_inbalance(
 				transaction_balance->merged_block_list );
 
 		if ( list_length( transaction_balance->inbalance_block_list ) )
@@ -177,7 +174,6 @@ int main( int argc, char **argv )
 			if ( transaction_balance->last_block_inbalance )
 			{
 				transaction_balance_report_summary_inbalance(
-					application_name,
 					list_get_last_pointer( 
 						transaction_balance->
 						     inbalance_block_list ) );
@@ -244,20 +240,20 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 	}
 
 	transaction_balance->inbalance_block_list =
-		transaction_balance_get_inbalance_block_list(
+		transaction_balance_inbalance_block_list(
 			transaction_balance->
 				input.
 				transaction_balance_row_list );
 
 	transaction_balance->outbalance_block_list =
-		transaction_balance_get_outbalance_block_list(
+		transaction_balance_outbalance_block_list(
 			transaction_balance->
 				input.
 				transaction_balance_row_list );
 
 	transaction_balance->merged_block_list =
 	merged_block_list =
-		transaction_balance_get_merged_block_list(
+		transaction_balance_merged_block_list(
 				transaction_balance->inbalance_block_list,
 				transaction_balance->outbalance_block_list );
 
@@ -392,7 +388,6 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 } /* transaction_balance_report_html_table() */
 
 void transaction_balance_report_summary_inbalance(
-			char *application_name,
 			TRANSACTION_BALANCE_BLOCK *last_inbalance_block )
 {
 	TRANSACTION_BALANCE_ROW *row;
@@ -403,8 +398,7 @@ void transaction_balance_report_summary_inbalance(
 	row = last_inbalance_block->end_transaction_balance;
 
 	finished_message =
-		transaction_balance_report_get_finished_message(
-			application_name,
+		transaction_balance_report_finished_message(
 			row->cash_running_balance,
 			row->bank_running_balance );
 
@@ -413,8 +407,7 @@ void transaction_balance_report_summary_inbalance(
 		printf( "<h3>%s</h3>\n", finished_message );
 		return;
 	}
-
-} /* transaction_balance_report_summary_inbalance() */
+}
 
 void transaction_balance_report_summary_outbalance(
 			TRANSACTION_BALANCE_BLOCK *last_outbalance_block,
@@ -437,14 +430,14 @@ void transaction_balance_report_summary_outbalance(
 			transaction_balance_row_list,
 			first_outbalance_row->bank_amount ) );
 
-	if ( transaction_balance_get_cash_running_balance_wrong(
+	if ( transaction_balance_cash_running_balance_wrong(
 			first_outbalance_row->transaction_date_time
 				/* first_outbalance_transaction_date_time */,
 			transaction_balance_row_list,
 			first_outbalance_row->bank_amount ) )
 	{
 		duplicated_transaction_message =
-		   transaction_balance_report_get_duplicated_withdrawal_message(
+		   transaction_balance_report_duplicated_withdrawal_message(
 			first_outbalance_row->transaction_amount,
 			first_outbalance_row->bank_amount,
 			first_outbalance_row->cash_running_balance,
@@ -459,7 +452,7 @@ void transaction_balance_report_summary_outbalance(
 	}
 
 	deposit_message =
-		transaction_balance_report_get_deposit_message(
+		transaction_balance_report_deposit_message(
 			first_outbalance_row->transaction_amount,
 			first_outbalance_row->bank_amount,
 			first_outbalance_row->cash_running_balance,
@@ -472,7 +465,7 @@ void transaction_balance_report_summary_outbalance(
 	}
 
 	missing_expense_message =
-		transaction_balance_report_get_missing_expense_message(
+		transaction_balance_report_missing_expense_message(
 			first_outbalance_row->transaction_date_time,
 			transaction_balance_row_list,
 			first_outbalance_row->bank_amount,
@@ -487,7 +480,7 @@ void transaction_balance_report_summary_outbalance(
 
 } /* transaction_balance_report_summary_outbalance() */
 
-char *transaction_balance_report_get_missing_expense_message(
+char *transaction_balance_report_missing_expense_message(
 			char *transaction_date_time,
 			LIST *transaction_balance_row_list,
 			double bank_amount,
@@ -502,7 +495,7 @@ char *transaction_balance_report_get_missing_expense_message(
 	char message[ 1024 ];
 
 	cash_running_balance_wrong =
-		transaction_balance_get_cash_running_balance_wrong(
+		transaction_balance_cash_running_balance_wrong(
 			transaction_date_time
 				/* first_outbalance_transaction_date_time */,
 			transaction_balance_row_list,
@@ -554,12 +547,11 @@ char *transaction_balance_report_get_missing_expense_message(
 			 pending_transaction );
 
 	return strdup( message );
-
-} /* transaction_balance_report_get_missing_expense_message() */
+}
 
 /* If anomaly_balance_difference > 0 */
 /* --------------------------------- */
-char *transaction_balance_report_get_deposit_message(
+char *transaction_balance_report_deposit_message(
 			double transaction_amount,
 			double bank_amount,
 			double balance,
@@ -586,7 +578,7 @@ char *transaction_balance_report_get_deposit_message(
 	*message = '\0';
 
 	duplicated_transaction_amount =
-		transaction_balance_report_get_duplicated_deposit_amount(
+		transaction_balance_report_duplicated_deposit_amount(
 			message,
 			&duplicated_full_name,
 			&duplicated_transaction_date_time,
@@ -611,10 +603,9 @@ char *transaction_balance_report_get_deposit_message(
 		duplicated_transaction_amount );
 
 	return strdup( message );
+}
 
-} /* transaction_balance_report_get_deposit_message() */
-
-double transaction_balance_report_get_duplicated_deposit_amount(
+double transaction_balance_report_duplicated_deposit_amount(
 			char *message,
 			char **duplicated_full_name,
 			char **duplicated_transaction_date_time,
@@ -663,10 +654,9 @@ double transaction_balance_report_get_duplicated_deposit_amount(
 	/* It found a duplicated transaction to delete. */
 	/* -------------------------------------------- */
 	return duplicated_transaction_amount;
+}
 
-} /* transaction_balance_report_get_duplicated_deposit_amount() */
-
-char *transaction_balance_report_get_duplicated_withdrawal_message(
+char *transaction_balance_report_duplicated_withdrawal_message(
 			double transaction_amount,
 			double bank_amount,
 			double balance,
@@ -691,7 +681,7 @@ char *transaction_balance_report_get_duplicated_withdrawal_message(
 	*message = '\0';
 
 	duplicated_transaction_amount =
-		transaction_balance_report_get_duplicated_withdrawal_amount(
+		transaction_balance_report_duplicated_withdrawal_amount(
 			message,
 			&duplicated_full_name,
 			&duplicated_transaction_date_time,
@@ -714,10 +704,9 @@ char *transaction_balance_report_get_duplicated_withdrawal_message(
 		duplicated_transaction_amount );
 
 	return strdup( message );
+}
 
-} /* transaction_balance_report_get_duplicated_withdrawal_message() */
-
-double transaction_balance_report_get_duplicated_withdrawal_amount(
+double transaction_balance_report_duplicated_withdrawal_amount(
 			char *message,
 			char **duplicated_full_name,
 			char **duplicated_transaction_date_time,
@@ -769,11 +758,9 @@ double transaction_balance_report_get_duplicated_withdrawal_amount(
 		/* -------------------------------------------- */
 		return duplicated_transaction_amount;
 	}
+}
 
-} /* transaction_balance_report_get_duplicated_withdrawal_amount() */
-
-char *transaction_balance_report_get_finished_message(
-			char *application_name,
+char *transaction_balance_report_finished_message(
 			double cash_running_balance,
 			double bank_running_balance )
 {
@@ -784,8 +771,7 @@ char *transaction_balance_report_get_finished_message(
 	*message = '\0';
 
 	if ( ! ( bank_upload_balance =
-			bank_upload_archive_fetch_latest_running_balance(
-				application_name ) ) )
+			bank_upload_archive_latest_running_balance() ) )
 	{
 		sprintf( message,
 		"<h3>Warning: empty bank upload archive balance.</h3>\n" );
@@ -875,6 +861,5 @@ char *transaction_balance_report_get_finished_message(
 	ptr += sprintf( ptr, "</table>\n" );
 
 	return strdup( message );
-
-} /* transaction_balance_report_get_finished_message() */
+}
 

@@ -36,9 +36,18 @@ char *basename_get_directory( char *argv_0 )
 
 } /* basename_get_directory() */
 
+char *basename_filename( char *argv_0 )
+{
+	return basename_get_base_name(
+			argv_0,
+			0 /* no strip_extension */ );
+}
+
 char *basename_get_filename( char *argv_0 )
 {
-	return basename_get_base_name( argv_0, 0 /* no strip_extension */ );
+	return basename_get_base_name(
+			argv_0,
+			0 /* no strip_extension */ );
 }
 
 char *basename_get_extension( char *argv_0 )

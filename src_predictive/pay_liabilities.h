@@ -13,7 +13,6 @@
 /* -------- */
 #include "list.h"
 #include "purchase.h"
-#include "ledger.h"
 
 /* Enumerated types */
 /* ---------------- */

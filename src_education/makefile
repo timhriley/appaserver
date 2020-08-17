@@ -9,6 +9,16 @@ CFLAGS=-O3 -s -Wall ${APPASERVER_UNUSED_PARAMETER_FLAG}
 LIBRARY=${APPASERVER_HOME}/library
 PREDICTIVEBOOKS_LIBRARY=${APPASERVER_HOME}/src_predictive
 
+EDUCATION_CORE=								\
+		offering.o						\
+		registration.o						\
+		enrollment.o						\
+		course.o						\
+		education.o						\
+		deposit.o						\
+		semester.o						\
+		payment.o
+
 STANDARD_LIBRARY=							\
 		${LIBRARY}/date.o 					\
 		${LIBRARY}/julian.o 					\
@@ -69,56 +79,38 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/post2dictionary.o				\
 		${LIBRARY}/dictionary2file.o
 
-SOURCE_LIBRARY_OBJECT= 							\
-		${PREDICTIVEBOOKS_LIBRARY}/ledger.o			\
-		${PREDICTIVEBOOKS_LIBRARY}/accrual.o			\
-		${PREDICTIVEBOOKS_LIBRARY}/purchase.o			\
-		${PREDICTIVEBOOKS_LIBRARY}/reoccurring.o		\
-		${PREDICTIVEBOOKS_LIBRARY}/customer.o			\
-		${PREDICTIVEBOOKS_LIBRARY}/inventory.o			\
-		${PREDICTIVEBOOKS_LIBRARY}/inventory_purchase_return.o	\
-		${PREDICTIVEBOOKS_LIBRARY}/inventory_sale_return.o	\
-		${PREDICTIVEBOOKS_LIBRARY}/depreciation.o		\
-		${PREDICTIVEBOOKS_LIBRARY}/fixed_asset.o		\
-		${PREDICTIVEBOOKS_LIBRARY}/entity.o
-
 PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/transaction.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/journal.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/element.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/entity.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/account.o
 
 EXECUTABLES=	post_change_offering
 
-all: 	${SOURCE_LIBRARY_OBJECT} ${EXECUTABLES}
+all: 	${EXECUTABLES}
 
 touch:
 	/usr/bin/touch *.c
 
 clean:
-	/bin/rm -f ${SOURCE_LIBRARY_OBJECT} ${EXECUTABLES}
+	/bin/rm -f *.o ${EXECUTABLES}
 
 post_change_offering: post_change_offering.c				\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY_OBJECT}			\
+	${EXTERNAL_LIBRARY} 						\
 	${PREDICTIVEBOOKS_CORE}						\
-		offering.o						\
-		registration.o						\
-		enrollment.o						\
-		course.o						\
-		payment.o
+	${EDUCATION_CORE}
 	${CC}	${CFLAGS}						\
 		-I${LIBRARY}						\
 		-I${PREDICTIVEBOOKS_LIBRARY}				\
 		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY_OBJECT}				\
 		${PREDICTIVEBOOKS_CORE}					\
+		${EDUCATION_CORE}					\
 		post_change_offering.c					\
-		offering.o						\
-		registration.o						\
-		enrollment.o						\
-		course.o						\
-		payment.o						\
 		-o post_change_offering
 
+# Education core
+# -------------- 
 offering.o: offering.c offering.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
@@ -143,4 +135,19 @@ payment.o: payment.c payment.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c payment.c
+
+semester.o: semester.c semester.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c semester.c
+
+education.o: education.c education.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c education.c
+
+deposit.o: deposit.c deposit.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c deposit.c
 

@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "timlib.h"
-#include "ledger.h"
 #include "appaserver_library.h"
 #include "piece.h"
 #include "date.h"

@@ -89,13 +89,13 @@ LIST *transaction_balance_fetch_row_list(
 TRANSACTION_BALANCE_ROW *transaction_balance_parse_row(
 					char *input_buffer );
 
-LIST *transaction_balance_get_inbalance_block_list(
+LIST *transaction_balance_inbalance_block_list(
 					LIST *transaction_balance_row_list );
 
-LIST *transaction_balance_get_outbalance_block_list(
+LIST *transaction_balance_outbalance_block_list(
 					LIST *transaction_balance_row_list );
 
-LIST *transaction_balance_get_merged_block_list(
+LIST *transaction_balance_merged_block_list(
 					LIST *inbalance_block_list,
 					LIST *outbalance_block_list );
 
@@ -106,15 +106,15 @@ double transaction_balance_calculate_anomaly_balance_difference(
 void transaction_balance_row_stdout(
 					TRANSACTION_BALANCE_ROW *row );
 
-boolean transaction_balance_get_last_block_inbalance(
+boolean transaction_balance_last_block_inbalance(
 					LIST *merged_block_list );
 
-boolean transaction_balance_get_cash_running_balance_wrong(
+boolean transaction_balance_cash_running_balance_wrong(
 			char *first_outbalance_transaction_date_time,
 			LIST *transaction_balance_row_list,
 			double bank_amount );
 
-boolean transaction_balance_get_bank_running_balance_wrong(
+boolean transaction_balance_bank_running_balance_wrong(
 			char *first_outbalance_transaction_date_time,
 			LIST *transaction_balance_row_list,
 			double bank_amount );

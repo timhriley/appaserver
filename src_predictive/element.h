@@ -10,9 +10,21 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "latex.h"
+#include "html_table.h"
+#include "account.h"
 
 /* Constants */
 /* --------- */
+#define ELEMENT_ASSET			"asset"
+#define ELEMENT_LIABILITY		"liability"
+#define ELEMENT_EQUITY			"equity"
+#define ELEMENT_REVENUE			"revenue"
+#define ELEMENT_EXPENSE			"expense"
+#define ELEMENT_GAIN			"gain"
+#define ELEMENT_LOSS			"loss"
+#define ELEMENT_RETAINED_EARNINGS	"retained_earnings"
+
 
 /* Structures */
 /* ---------- */
@@ -52,6 +64,62 @@ boolean element_accumulate_debit(
 			char *element_name );
 
 ELEMENT *element_fetch(	char *element_name );
+
+ELEMENT *element_seek(	LIST *element_list,
+			char *element_name );
+
+LIST *element_subclassification_list(
+			double *element_total,
+			char *element_name,
+			char *fund_name,
+			char *as_of_date );
+
+LIST *element_account_list(
+			double *element_total,
+			char *element_name,
+			char *fund_name,
+			char *as_of_date );
+
+LIST *element_list_sort(
+			LIST *element_list );
+
+LIST *element_list(	LIST *filter_element_name_list,
+			char *fund_name,
+			char *as_of_date,
+			boolean omit_subclassification );
+
+boolean element_is_period(
+			char *element_name );
+
+ACCOUNT *element_account_seek(
+			LIST *element_list,
+			char *account_name );
+
+boolean element_account_accumulate_debit(
+			char *account_name );
+
+double element_value(	LIST *subclassification_list,
+			boolean element_accumulate_debit );
+
+ELEMENT *element_list_seek(
+			LIST *element_list,
+			char *element_name );
+
+double element_subclassification_aggregate_html_output(
+			HTML_TABLE *html_table,
+			LIST *subclassification_list,
+			char *element_name,
+			double percent_denominator );
+
+LATEX_ROW *element_latex_net_income_row(
+			double net_income,
+			boolean is_statement_of_activities,
+			double percent_denominator,
+			boolean omit_subclassification );
+
+LATEX_ROW *element_latex_liabilities_plus_equity_row(
+			double liabilities_plus_equity,
+			int skip_columns );
 
 #endif
 

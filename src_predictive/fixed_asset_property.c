@@ -74,8 +74,7 @@ char *fixed_asset_purchase_get_fund_where(
 
 } /* fixed_asset_purchase_get_fund_where() */
 
-char *fixed_property_get_select(
-				char *application_name,
+char *fixed_property_select(
 				char *folder_name,
 				boolean with_account )
 {
@@ -89,7 +88,7 @@ char *fixed_property_get_select(
 		account_select = "''";
 
 	if ( ledger_tax_recovery_period_attribute_exists(
-				application_name ) )
+				environment_application_name() ) )
 	{
 		tax_select =
 	"tax_cost_basis,tax_recovery_period,tax_accumulated_depreciation";
@@ -106,11 +105,9 @@ char *fixed_property_get_select(
 		 tax_select );
 
 	return strdup( select) ;
+}
 
-} /* fixed_property_get_select() */
-
-char *fixed_asset_get_select(	char *application_name,
-				char *folder_name,
+char *fixed_asset_select(	char *folder_name,
 				boolean with_account )
 {
 	char select[ 1024 ];
@@ -123,7 +120,7 @@ char *fixed_asset_get_select(	char *application_name,
 		account_select = "''";
 
 	if ( ledger_tax_recovery_period_attribute_exists(
-				application_name ) )
+				environment_application_name() ) )
 	{
 		tax_select =
 	"tax_cost_basis,tax_recovery_period,tax_accumulated_depreciation";
@@ -140,8 +137,7 @@ char *fixed_asset_get_select(	char *application_name,
 		 tax_select );
 
 	return strdup( select) ;
-
-} /* fixed_asset_get_select() */
+}
 
 FIXED_ASSET *fixed_asset_parse( char *input_buffer )
 {
@@ -227,7 +223,6 @@ FIXED_ASSET *fixed_asset_parse( char *input_buffer )
 } /* fixed_asset_parse() */
 
 FIXED_ASSET *fixed_asset_purchase_fetch(
-					char *application_name,
 					char *asset_name,
 					char *serial_number )
 {
@@ -241,8 +236,7 @@ FIXED_ASSET *fixed_asset_purchase_fetch(
 	FIXED_ASSET *fixed_asset;
 
 	select =
-		fixed_asset_get_select(
-			application_name,
+		fixed_asset_select(
 			"fixed_asset_purchase",
 			1 /* with_account */ );
 
@@ -263,7 +257,7 @@ FIXED_ASSET *fixed_asset_purchase_fetch(
 		 "			select=\"%s\"			"
 		 "			folder=%s			"
 		 "			where=\"%s\"			",
-		 application_name,
+		 environment_application_name(),
 		 select,
 		 folder,
 		 where );
@@ -276,10 +270,9 @@ FIXED_ASSET *fixed_asset_purchase_fetch(
 	fixed_asset = fixed_asset_parse( results );
 
 	return fixed_asset;
+}
 
-} /* fixed_asset_purchase_fetch() */
-
-char *fixed_asset_tax_get_where( int tax_year )
+char *fixed_asset_tax_where( int tax_year )
 {
 	char where[ 1024 ];
 	char minimum_disposal_date[ 16 ];
@@ -296,10 +289,9 @@ char *fixed_asset_tax_get_where( int tax_year )
 		 minimum_disposal_date );
 
 	return strdup( where );
+}
 
-} /* fixed_asset_tax_get_where() */
-
-char *fixed_asset_depreciation_get_where(
+char *fixed_asset_depreciation_where(
 				char *fund_where,
 				char *cost_attribute_name )
 {
@@ -316,13 +308,12 @@ char *fixed_asset_depreciation_get_where(
 		 fund_where );
 
 	return strdup( where );
+}
 
-} /* fixed_asset_depreciation_get_where() */
-
-LIST *fixed_asset_purchase_fetch_list(	char *application_name,
-					char *full_name,
-					char *street_address,
-					char *purchase_date_time )
+LIST *fixed_asset_purchase_list(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time )
 {
 	char sys_string[ 1024 ];
 	char where[ 512 ];
@@ -337,7 +328,7 @@ LIST *fixed_asset_purchase_fetch_list(	char *application_name,
 
 	select =
 		fixed_asset_get_select(
-			application_name,
+			environment_application_name(),
 			"fixed_asset_purchase",
 			1 /* with_account */ );
 
@@ -345,12 +336,12 @@ LIST *fixed_asset_purchase_fetch_list(	char *application_name,
 
 	join_where = "fixed_asset_purchase.asset_name = fixed_asset.asset_name";
 
-	ledger_where = ledger_get_transaction_where(
-					full_name,
-					street_address,
-					purchase_date_time,
-					(char *)0 /* folder_name */,
-					"purchase_date_time" );
+	ledger_where = ledger_transaction_where(
+				full_name,
+				street_address,
+				purchase_date_time,
+				(char *)0 /* folder_name */,
+				"purchase_date_time" );
 
 	sprintf( where, "%s and %s", ledger_where, join_where );
 
@@ -359,7 +350,7 @@ LIST *fixed_asset_purchase_fetch_list(	char *application_name,
 		 "			select=\"%s\"			"
 		 "			folder=%s			"
 		 "			where=\"%s\"			",
-		 application_name,
+		 environment_application_name(),
 		 select,
 		 folder,
 		 where );
@@ -371,17 +362,15 @@ LIST *fixed_asset_purchase_fetch_list(	char *application_name,
 	{
 		fixed_asset = fixed_asset_parse( input_buffer );
 
-		list_append_pointer(	fixed_asset_purchase_list,
+		list_set(	fixed_asset_purchase_list,
 					fixed_asset );
 	}
 
 	pclose( input_pipe );
 	return fixed_asset_purchase_list;
+}
 
-} /* fixed_asset_purchase_fetch_list() */
-
-LIST *fixed_asset_depreciation_prior_fetch_list(
-					char *application_name,
+LIST *fixed_asset_depreciation_prior_list(
 					char *fund_name )
 {
 	char sys_string[ 1024 ];
@@ -395,8 +384,7 @@ LIST *fixed_asset_depreciation_prior_fetch_list(
 	LIST *fixed_asset_list;
 
 	select =
-		fixed_asset_get_select(
-			application_name,
+		fixed_asset_select(
 			"prior_fixed_asset",
 			0 /* not with_account */ );
 
@@ -446,11 +434,9 @@ LIST *fixed_asset_depreciation_prior_fetch_list(
 	pclose( input_pipe );
 
 	return fixed_asset_list;
+}
 
-} /* fixed_asset_depreciation_prior_fetch_list() */
-
-LIST *fixed_asset_depreciation_purchase_fetch_list(
-					char *application_name,
+LIST *fixed_asset_depreciation_purchase_list(
 					char *fund_name )
 {
 	char sys_string[ 1024 ];
@@ -464,20 +450,19 @@ LIST *fixed_asset_depreciation_purchase_fetch_list(
 	LIST *fixed_asset_list;
 
 	select =
-		fixed_asset_get_select(
-			application_name,
+		fixed_asset_select(
 			"fixed_asset_purchase",
 			0 /* not with_account */ );
 
 	fund_where =
-		fixed_asset_purchase_get_fund_where(
+		fixed_asset_purchase_fund_where(
 			&folder_from,
 			"fixed_asset_purchase"
 				/* folder_name */,
 			fund_name );
 
 	where =
-		fixed_asset_depreciation_get_where(
+		fixed_asset_depreciation_where(
 			fund_where,
 			"extension"
 				/* cost_attribute_name */ );
@@ -488,7 +473,7 @@ LIST *fixed_asset_depreciation_purchase_fetch_list(
 		 "			folder=\"%s\"			"
 		 "			where=\"%s\"			"
 		 "			order=select			",
-		 application_name,
+		 environment_application_name(),
 		 select,
 		 folder_from,
 		 where );
@@ -501,19 +486,15 @@ LIST *fixed_asset_depreciation_purchase_fetch_list(
 	{
 		fixed_asset = fixed_asset_parse( input_buffer );
 
-		list_append_pointer(
-			fixed_asset_list,
-			fixed_asset );
+		list_set( fixed_asset_list, fixed_asset );
 	}
 
 	pclose( input_pipe );
 
 	return fixed_asset_list;
+}
 
-} /* fixed_asset_depreciation_purchase_fetch_list() */
-
-LIST *fixed_property_depreciation_prior_fetch_list(
-					char *application_name,
+LIST *fixed_property_depreciation_prior_list(
 					char *fund_name )
 {
 	char sys_string[ 1024 ];
@@ -527,8 +508,7 @@ LIST *fixed_property_depreciation_prior_fetch_list(
 	LIST *fixed_asset_list;
 
 	select =
-		fixed_property_get_select(
-			application_name,
+		fixed_property_select(
 			"prior_property",
 			0 /* not with_account */ );
 
@@ -557,7 +537,7 @@ LIST *fixed_property_depreciation_prior_fetch_list(
 		 "			folder=\"%s\"			"
 		 "			where=\"%s\"			"
 		 "			order=select			",
-		 application_name,
+		 environment_application_name(),
 		 select,
 		 folder_from,
 		 where );
@@ -570,7 +550,7 @@ LIST *fixed_property_depreciation_prior_fetch_list(
 	{
 		fixed_asset = fixed_asset_parse( input_buffer );
 
-		list_append_pointer(
+		list_set(
 			fixed_asset_list,
 			fixed_asset );
 	}
@@ -578,11 +558,9 @@ LIST *fixed_property_depreciation_prior_fetch_list(
 	pclose( input_pipe );
 
 	return fixed_asset_list;
+}
 
-} /* fixed_property_depreciation_prior_fetch_list() */
-
-LIST *fixed_property_depreciation_purchase_fetch_list(
-					char *application_name,
+LIST *fixed_property_depreciation_purchase_list(
 					char *fund_name )
 {
 	char sys_string[ 1024 ];
@@ -596,8 +574,7 @@ LIST *fixed_property_depreciation_purchase_fetch_list(
 	LIST *fixed_asset_list;
 
 	select =
-		fixed_property_get_select(
-			application_name,
+		fixed_property_select(
 			"property_purchase",
 			0 /* not with_account */ );
 
@@ -609,7 +586,7 @@ LIST *fixed_property_depreciation_purchase_fetch_list(
 			fund_name );
 
 	where =
-		fixed_asset_depreciation_get_where(
+		fixed_asset_depreciation_where(
 			fund_where,
 			"structure_cost"
 				/* cost_attribute_name */ );
@@ -620,7 +597,7 @@ LIST *fixed_property_depreciation_purchase_fetch_list(
 		 "			folder=\"%s\"			"
 		 "			where=\"%s\"			"
 		 "			order=select			",
-		 application_name,
+		 environment_application_name(),
 		 select,
 		 folder_from,
 		 where );
@@ -633,7 +610,7 @@ LIST *fixed_property_depreciation_purchase_fetch_list(
 	{
 		fixed_asset = fixed_asset_parse( input_buffer );
 
-		list_append_pointer(
+		list_set(
 			fixed_asset_list,
 			fixed_asset );
 	}
@@ -641,13 +618,12 @@ LIST *fixed_property_depreciation_purchase_fetch_list(
 	pclose( input_pipe );
 
 	return fixed_asset_list;
+}
 
-} /* fixed_property_depreciation_purchase_fetch_list() */
-
-FIXED_ASSET *fixed_asset_list_seek(
-				LIST *fixed_asset_list,
-				char *asset_name,
-				char *serial_number )
+FIXED_ASSET *fixed_asset_seek(
+			LIST *fixed_asset_list,
+			char *asset_name,
+			char *serial_number )
 {
 	FIXED_ASSET *fixed_asset;
 
@@ -669,121 +645,9 @@ FIXED_ASSET *fixed_asset_list_seek(
 
 	return (FIXED_ASSET *)0;
 
-} /* fixed_asset_list_seek() */
+}
 
-#ifdef NOT_DEFINED
-char *fixed_asset_accumulated_depreciation_get_update_sys_string(
-				char *folder_name )
-{
-	char sys_string[ 256 ];
-	char *key;
-
-	key = "asset_name,serial_number";
-
-	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql.e",
-		 folder_name,
-		 key );
-
-	return strdup( sys_string );
-
-} /* fixed_asset_accumulated_depreciation_get_update_sys_string() */
-
-void fixed_asset_accumulated_depreciation_update(
-			FILE *output_pipe,
-			LIST *fixed_asset_list )
-{
-	FIXED_ASSET *fixed_asset;
-
-	if ( !list_rewind( fixed_asset_list ) ) return;
-
-	do {
-		fixed_asset =
-			list_get_pointer(
-				fixed_asset_list );
-
-		fprintf(output_pipe,
-			"%s^%s^finance_accumulated_depreciation^%.2lf\n",
-			fixed_asset->asset_name,
-			fixed_asset->serial_number,
-			fixed_asset->finance_accumulated_depreciation );
-
-	} while( list_next( fixed_asset_list ) );
-
-} /* fixed_asset_accumulated_depreciation_update() */
-
-void fixed_asset_depreciation_fund_list_update(
-			LIST *depreciation_fund_list )
-{
-	char *sys_string;
-	FILE *purchase_output_pipe;
-	FILE *prior_output_pipe;
-	DEPRECIATION_FUND *depreciation_fund;
-	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
-
-	if ( !list_rewind( depreciation_fund_list ) ) return;
-
-	sys_string =
-		fixed_asset_accumulated_depreciation_get_update_sys_string(
-			"fixed_asset_purchase" );
-
-	purchase_output_pipe = popen( sys_string, "w" );
-
-	sys_string =
-		fixed_asset_accumulated_depreciation_get_update_sys_string(
-			"prior_fixed_asset" );
-
-	prior_output_pipe = popen( sys_string, "w" );
-
-	do {
-		depreciation_fund =
-			list_get_pointer(
-				depreciation_fund_list );
-
-		depreciation_asset_list =
-			depreciation_fund->
-				depreciation_asset_list;
-
-		if ( !depreciation_asset_list )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: empty depreciation_asset_list.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
-		if ( list_length(
-			depreciation_asset_list->
-				purchase_fixed_asset_list ) )
-		{
-			fixed_asset_accumulated_depreciation_update(
-				purchase_output_pipe,
-				depreciation_asset_list->
-					purchase_fixed_asset_list );
-		}
-
-		if ( list_length(
-			depreciation_asset_list->
-				prior_fixed_asset_list ) )
-		{
-			fixed_asset_accumulated_depreciation_update(
-				prior_output_pipe,
-				depreciation_asset_list->
-					prior_fixed_asset_list );
-		}
-
-	} while( list_next( depreciation_fund_list ) );
-
-	pclose( purchase_output_pipe );
-	pclose( prior_output_pipe );
-
-} /* fixed_asset_depreciation_fund_list_update() */
-#endif
-
-LIST *fixed_asset_fetch_tax_list(
-			char *application_name,
+LIST *fixed_asset_tax_list(
 			int tax_year,
 			char *folder_name )
 {
@@ -796,8 +660,7 @@ LIST *fixed_asset_fetch_tax_list(
 	LIST *fixed_asset_list;
 
 	select =
-		fixed_asset_get_select(
-			application_name,
+		fixed_asset_select(
 			folder_name,
 			0 /* not with_account */ );
 
@@ -809,7 +672,7 @@ LIST *fixed_asset_fetch_tax_list(
 		 "			folder=\"%s\"			"
 		 "			where=\"%s\"			"
 		 "			order=select			",
-		 application_name,
+		 environment_application_name(),
 		 select,
 		 folder_name,
 		 where );
@@ -822,14 +685,11 @@ LIST *fixed_asset_fetch_tax_list(
 	{
 		fixed_asset = fixed_asset_parse( input_buffer );
 
-		list_append_pointer(
-			fixed_asset_list,
-			fixed_asset );
+		list_set( fixed_asset_list, fixed_asset );
 	}
 
 	pclose( input_pipe );
 
 	return fixed_asset_list;
-
-} /* fixed_asset_fetch_tax_list() */
+}
 

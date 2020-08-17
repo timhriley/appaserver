@@ -51,10 +51,15 @@ typedef struct {
 void list_load_from_pipe( LIST *list, char *pipe_string );
 void list_get_from_pipe( LIST *list, char *pipe_string );
 void list_append_string( LIST *list, char *string );
-int list_append_pointer( LIST *list, void *this_item );
-int list_set( LIST *list, void *this_item );
-int list_set_pointer( LIST *list, void *this_item );
-int list_prepend_pointer( LIST *list, void *this_item );
+
+boolean list_append_pointer( LIST *list, void *this_item );
+
+boolean list_set( LIST *list, void *this_item );
+
+boolean list_set_pointer( LIST *list, void *this_item );
+
+boolean list_prepend_pointer( LIST *list, void *this_item );
+
 int list_add_head( LIST *list, void *this_item );
 void list_append_string_list( LIST *list, LIST *string_list );
 void list_append( LIST *list, void *this_item, int num_bytes );

@@ -519,6 +519,8 @@ boolean date_name_to_value(	char *variable_value,
 
 char *date_get_environment(	char *variable_name );
 
+char *date_now19(		int utc_offset );
+
 char *date_get_now19(		int utc_offset );
 
 char *date_get_now16(		int utc_offset );

@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include "String.h"
 #include "timlib.h"
 #include "piece.h"
 #include "column.h"
@@ -19,7 +20,6 @@
 #include "appaserver_error.h"
 #include "document.h"
 #include "application.h"
-#include "ledger.h"
 #include "application_constants.h"
 #include "appaserver_parameter_file.h"
 #include "html_table.h"
@@ -28,6 +28,11 @@
 #include "date_convert.h"
 #include "boolean.h"
 #include "appaserver_link_file.h"
+#include "transaction.h"
+#include "subclassification.h"
+#include "journal.h"
+#include "account.h"
+#include "element.h"
 
 /* Constants */
 /* --------- */
@@ -41,7 +46,6 @@ LIST *build_account_PDF_row_list(
 				LIST *account_list,
 				double *debit_sum,
 				double *credit_sum,
-				char *application_name,
 				char *element_name,
 				double element_total,
 				LIST *prior_element_list );
@@ -50,7 +54,6 @@ LIST *build_subclassification_PDF_row_list(
 				LIST *subclassification_list,
 				double *debit_sum,
 				double *credit_sum,
-				char *application_name,
 				char *element_name,
 				LIST *prior_element_list );
 
@@ -115,16 +118,13 @@ void output_stdout(			char *element_name,
 					double prior_balance_change,
 					double ratio_denominator );
 
-void trial_balance_stdout(
-					char *application_name,
-					char *fund_name,
+void trial_balance_stdout(		char *fund_name,
 					char *as_of_date,
 					boolean omit_subclassification );
 
 void build_PDF_account_row(		LIST *column_data_list,
 					boolean *accumulate_debit,
 					double *balance,
-					char *application_name,
 					ACCOUNT *account,
 					LIST *prior_element_list,
 					double ratio_denominator );
@@ -154,7 +154,6 @@ void trial_balance_account_html_table(
 void trial_balance_account_stdout(
 					double *balance,
 					boolean *accumulate_debit,
-					char *application_name,
 					ACCOUNT *account,
 					LIST *prior_element_list,
 					char *element_name,
@@ -187,7 +186,6 @@ void trial_balance_html_table(
 					boolean omit_subclassification );
 
 LIST *build_PDF_row_list(		LIST *current_element_list,
-					char *application_name,
 					LIST *prior_element_list,
 					boolean omit_subclassification );
 
@@ -204,7 +202,6 @@ void trial_balance_PDF(			char *application_name,
 
 void trial_balance_PDF_fund(		
 					LATEX *latex,
-					char *application_name,
 					char *sub_title,
 					char *fund_name,
 					char *as_of_date,
@@ -299,8 +296,7 @@ int main( int argc, char **argv )
 			/* -------------------- */
 			/* Returns heap memory. */
 			/* -------------------- */
-			ledger_max_transaction_date(
-				application_name );
+			transaction_date_max();
 	}
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
@@ -316,16 +312,13 @@ int main( int argc, char **argv )
 			application_name,
 			"logo_filename" /* key */ );
 
-	if ( !ledger_get_report_title_sub_title(
+	if ( !transaction_report_title_sub_title(
 		title,
 		sub_title,
 		process_name,
-		application_name,
 		fund_name,
 		as_of_date,
-		list_length(
-			ledger_get_fund_name_list(
-				application_name ) ),
+		0 /* fund_name_list_length */,
 		logo_filename ) )
 	{
 		printf( "<h3>Error. No transactions.</h3>\n" );
@@ -339,17 +332,16 @@ int main( int argc, char **argv )
 		char prior_transaction_date_time[ 32 ];
 
 		closing_transaction_date_time =
-			ledger_get_closing_transaction_date_time(
+			transaction_date_time_closing(
 				as_of_date );
 
-		if ( ledger_transaction_date_time_exists(
-				application_name,
+		if ( transaction_date_time_exists(
 				closing_transaction_date_time ) )
 		{
 			sprintf( prior_transaction_date_time,
 				 "%s %s",
 				 as_of_date,
-				 LEDGER_PRIOR_TRANSACTION_TIME );
+				 TRANSACTION_PRIOR_TRANSACTION_TIME );
 
 			trial_balance_html_table(
 				application_name,
@@ -391,7 +383,6 @@ int main( int argc, char **argv )
 	else
 	{
 		trial_balance_stdout(
-			application_name,
 			fund_name,
 			as_of_date,
 			omit_subclassification );
@@ -421,7 +412,7 @@ void trial_balance_html_table(
 	char *credit_string;
 	double debit_sum = 0.0;
 	double credit_sum = 0.0;
-	LEDGER_ELEMENT *element;
+	ELEMENT *element;
 	LIST *current_element_list;
 	LIST *prior_element_list;
 	LIST *prior_filter_element_name_list;
@@ -440,14 +431,13 @@ void trial_balance_html_table(
 		sprintf( buffer,
 			 "%s %s",
 			 as_of_date,
-			 LEDGER_CLOSING_TRANSACTION_TIME );
+			 TRANSACTION_CLOSING_TRANSACTION_TIME );
 
 		as_of_date = strdup( buffer );
 	}
 
 	if ( ! ( beginning_date = 
-			ledger_beginning_transaction_date(
-				application_name,
+			transaction_date_prior_closing_beginning(
 				fund_name,
 				as_of_date ) ) )
 	{
@@ -462,8 +452,7 @@ void trial_balance_html_table(
 	/* Populate the current_element_list */
 	/* --------------------------------- */
 	current_element_list =
-		ledger_get_element_list(
-			application_name,
+		element_list(
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
 			as_of_date,
@@ -472,8 +461,7 @@ void trial_balance_html_table(
 	/* Populate the prior_element_list */
 	/* ------------------------------- */
 	prior_closing_transaction_date =
-		ledger_prior_closing_transaction_date(
-			application_name,
+		transaction_prior_closing_transaction_date(
 			fund_name,
 			as_of_date /* ending_transaction_date */ );
 
@@ -486,8 +474,7 @@ void trial_balance_html_table(
 	else
 	{
 		prior_closing_transaction_date_string =
-			ledger_beginning_transaction_date(
-				application_name,
+			transaction_date_prior_closing_beginning(
 				fund_name,
 				as_of_date );
 	}
@@ -496,15 +483,14 @@ void trial_balance_html_table(
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		LEDGER_ASSET_ELEMENT );
+		ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		LEDGER_LIABILITY_ELEMENT );
+		ELEMENT_LIABILITY );
 
 	prior_element_list =
-		ledger_get_element_list(
-			application_name,
+		element_list(
 			prior_filter_element_name_list,
 			fund_name,
 			prior_closing_transaction_date_string,
@@ -583,7 +569,7 @@ void trial_balance_html_table(
 			if ( !list_length( element->account_list ) )
 				continue;
 
-			if ( ledger_is_period_element(
+			if ( element_is_period(
 					element->element_name ) )
 			{
 				element_total = element->element_total;
@@ -624,7 +610,7 @@ void trial_balance_html_table(
 				application_name,
 				prior_element_list,
 				element_name,
-				ledger_is_period_element(
+				element_is_period(
 					element_name ),
 				element->subclassification_list,
 				beginning_date,
@@ -691,8 +677,8 @@ int trial_balance_html_table_account_list(
 	do {
 		account = list_get_pointer( account_list );
 
-		if ( !account->latest_ledger
-		||   !account->latest_ledger->balance )
+		if ( !account->latest_journal
+		||   !account->latest_journal->balance )
 			continue;
 
 		if ( ++count == ROWS_BETWEEN_HEADING )
@@ -785,8 +771,8 @@ int trial_balance_html_table_subclassification_list(
 					subclassification->
 						account_list );
 
-			if ( !account->latest_ledger
-			||   !account->latest_ledger->balance )
+			if ( !account->latest_journal
+			||   !account->latest_journal->balance )
 				continue;
 
 			if ( ++count == ROWS_BETWEEN_HEADING )
@@ -877,11 +863,10 @@ void trial_balance_account_html_table(
 	double prior_balance_change;
 
 	*accumulate_debit =
-		ledger_account_get_accumulate_debit(
-			application_name,
+		element_account_accumulate_debit(
 			account->account_name );
 
-	*balance = account->latest_ledger->balance;
+	*balance = account->latest_journal->balance;
 
 	prior_balance_change =
 		trial_balance_get_prior_balance_change(
@@ -903,17 +888,17 @@ void trial_balance_account_html_table(
 		subclassification_name,
 		account->account_name,
 		account->
-			latest_ledger->
+			latest_journal->
 			full_name,
 		account->
-			latest_ledger->
+			latest_journal->
 			transaction_count,
 		*balance,
 		account->
-			latest_ledger->
+			latest_journal->
 			transaction_date_time,
 		account->
-			latest_ledger->
+			latest_journal->
 			memo,
 		html_table->
 		 number_left_justified_columns,
@@ -923,10 +908,10 @@ void trial_balance_account_html_table(
 		html_table->justify_list,
 		*accumulate_debit,
 		account->
-			latest_ledger->
+			latest_journal->
 			debit_amount,
 		account->
-			latest_ledger->
+			latest_journal->
 			credit_amount,
 		prior_balance_change,
 		ratio_denominator,
@@ -937,8 +922,7 @@ void trial_balance_account_html_table(
 		login_name,
 		role_name,
 		omit_subclassification );
-
-} /* trial_balance_account_html_table() */
+}
 
 void trial_balance_PDF(
 			char *application_name,
@@ -1003,13 +987,12 @@ void trial_balance_PDF(
 			document_root_directory,
 			application_name );
 
-	fund_name_list = ledger_get_fund_name_list( application_name );
+	fund_name_list = transaction_fund_name_list();
 
-	ledger_get_report_title_sub_title(
+	transaction_report_title_sub_title(
 		title,
 		sub_title,
 		process_name,
-		application_name,
 		fund_name,
 		as_of_date,
 		list_length( fund_name_list ),
@@ -1030,11 +1013,10 @@ void trial_balance_PDF(
 		do {
 			fund_name = list_get_pointer( fund_name_list );
 
-			ledger_get_report_title_sub_title(
+			transaction_report_title_sub_title(
 				title,
 				sub_title,
 				process_name,
-				application_name,
 				fund_name,
 				as_of_date,
 				0 /* fund_name_list_length */,
@@ -1042,7 +1024,6 @@ void trial_balance_PDF(
 
 			trial_balance_PDF_fund(
 					latex,
-					application_name,
 					sub_title,
 					fund_name,
 					as_of_date,
@@ -1056,7 +1037,6 @@ void trial_balance_PDF(
 		/* ----------------------------------- */
 		trial_balance_PDF_fund(
 				latex,
-				application_name,
 				sub_title,
 				fund_name,
 				as_of_date,
@@ -1108,7 +1088,6 @@ void trial_balance_PDF(
 
 void trial_balance_PDF_fund(
 			LATEX *latex,
-			char *application_name,
 			char *sub_title,
 			char *fund_name,
 			char *as_of_date,
@@ -1136,8 +1115,7 @@ void trial_balance_PDF_fund(
 	/* Populate the current_element_list */
 	/* --------------------------------- */
 	current_element_list =
-		ledger_get_element_list(
-			application_name,
+		element_list(
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
 			as_of_date,
@@ -1146,8 +1124,7 @@ void trial_balance_PDF_fund(
 	/* Populate the prior_element_list */
 	/* ------------------------------- */
 	prior_closing_transaction_date =
-		ledger_prior_closing_transaction_date(
-			application_name,
+		transaction_prior_closing_transaction_date(
 			fund_name,
 			as_of_date /* ending_transaction_date */ );
 
@@ -1160,8 +1137,7 @@ void trial_balance_PDF_fund(
 	else
 	{
 		prior_closing_transaction_date_string =
-			ledger_beginning_transaction_date(
-				application_name,
+			transaction_date_prior_closing_beginning(
 				fund_name,
 				as_of_date );
 	}
@@ -1170,15 +1146,14 @@ void trial_balance_PDF_fund(
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		LEDGER_ASSET_ELEMENT );
+		ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		LEDGER_LIABILITY_ELEMENT );
+		ELEMENT_LIABILITY );
 
 	prior_element_list =
-		ledger_get_element_list(
-			application_name,
+		element_list(
 			prior_filter_element_name_list,
 			fund_name,
 			prior_closing_transaction_date_string,
@@ -1187,14 +1162,11 @@ void trial_balance_PDF_fund(
 	latex_table->row_list =
 		build_PDF_row_list(
 			current_element_list,
-			application_name,
 			prior_element_list,
 			omit_subclassification );
-
-} /* trial_balance_PDF_fund() */
+}
 
 LIST *build_PDF_row_list(	LIST *current_element_list,
-				char *application_name,
 				LIST *prior_element_list,
 				boolean omit_subclassification )
 {
@@ -1204,7 +1176,7 @@ LIST *build_PDF_row_list(	LIST *current_element_list,
 	char *credit_amount;
 	double debit_sum = 0.0;
 	double credit_sum = 0.0;
-	LEDGER_ELEMENT *element;
+	ELEMENT *element;
 
 	if ( !list_rewind( current_element_list ) ) return (LIST *)0;
 
@@ -1221,7 +1193,6 @@ LIST *build_PDF_row_list(	LIST *current_element_list,
 					element->subclassification_list,
 					&debit_sum,
 					&credit_sum,
-					application_name,
 					element->element_name,
 					prior_element_list ) );
 		}
@@ -1233,7 +1204,6 @@ LIST *build_PDF_row_list(	LIST *current_element_list,
 					element->account_list,
 					&debit_sum,
 					&credit_sum,
-					application_name,
 					element->element_name,
 					element->element_total,
 					prior_element_list ) );
@@ -1282,14 +1252,12 @@ LIST *build_PDF_row_list(	LIST *current_element_list,
 		0 /* not large_bold */ );
 
 	return row_list;
-
-} /* build_PDF_row_list() */
+}
 
 LIST *build_account_PDF_row_list(
 				LIST *account_list,
 				double *debit_sum,
 				double *credit_sum,
-				char *application_name,
 				char *element_name,
 				double element_total,
 				LIST *prior_element_list )
@@ -1302,7 +1270,7 @@ LIST *build_account_PDF_row_list(
 	boolean accumulate_debit;
 	double balance;
 
-	if ( ledger_is_period_element( element_name ) )
+	if ( element_is_period( element_name ) )
 	{
 		ratio_denominator = element_total;
 	}
@@ -1320,8 +1288,8 @@ LIST *build_account_PDF_row_list(
 			list_get_pointer(
 				account_list );
 
-		if ( !account->latest_ledger
-		||   !account->latest_ledger->balance )
+		if ( !account->latest_journal
+		||   !account->latest_journal->balance )
 			continue;
 
 		latex_row = latex_new_latex_row();
@@ -1355,7 +1323,6 @@ LIST *build_account_PDF_row_list(
 			latex_row->column_data_list,
 			&accumulate_debit,
 			&balance,
-			application_name,
 			account,
 			prior_element_list,
 			ratio_denominator );
@@ -1368,14 +1335,12 @@ LIST *build_account_PDF_row_list(
 	} while( list_next( account_list ) );
 
 	return row_list;
-
-} /* build_account_PDF_row_list() */
+}
 
 LIST *build_subclassification_PDF_row_list(
 				LIST *subclassification_list,
 				double *debit_sum,
 				double *credit_sum,
-				char *application_name,
 				char *element_name,
 				LIST *prior_element_list )
 {
@@ -1392,7 +1357,7 @@ LIST *build_subclassification_PDF_row_list(
 
 	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
 
-	is_period_element = ledger_is_period_element( element_name );
+	is_period_element = element_is_period( element_name );
 	row_list = list_new();
 
 	do {
@@ -1409,8 +1374,8 @@ LIST *build_subclassification_PDF_row_list(
 					subclassification->
 						account_list );
 
-			if ( !account->latest_ledger
-			||   !account->latest_ledger->balance )
+			if ( !account->latest_journal
+			||   !account->latest_journal->balance )
 				continue;
 
 			if ( is_period_element )
@@ -1469,7 +1434,6 @@ LIST *build_subclassification_PDF_row_list(
 				latex_row->column_data_list,
 				&accumulate_debit,
 				&balance,
-				application_name,
 				account,
 				prior_element_list,
 				ratio_denominator );
@@ -1488,8 +1452,7 @@ LIST *build_subclassification_PDF_row_list(
 	} while( list_next( subclassification_list ) );
 
 	return row_list;
-
-} /* build_subclassification_PDF_row_list() */
+}
 
 LIST *build_PDF_heading_list( boolean omit_subclassification )
 {
@@ -1842,11 +1805,11 @@ double trial_balance_get_prior_balance_change(
 	double balance_change;
 
 	if ( ( account =
-		ledger_element_list_account_seek(
+		element_account_seek(
 			prior_element_list,
 			account_name ) ) )
 	{
-		balance = account->latest_ledger->balance;
+		balance = account->latest_journal->balance;
 		balance_change = current_balance - balance;
 
 		if ( balance < 0.0 && balance_change < 0.0 )
@@ -1864,7 +1827,6 @@ double trial_balance_get_prior_balance_change(
 void build_PDF_account_row(	LIST *column_data_list,
 				boolean *accumulate_debit,
 				double *balance,
-				char *application_name,
 				ACCOUNT *account,
 				LIST *prior_element_list,
 				double ratio_denominator )
@@ -1884,8 +1846,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 	today_date_string = date_get_now_yyyy_mm_dd( date_get_utc_offset() );
 
 	*accumulate_debit =
-		ledger_account_get_accumulate_debit(
-			application_name,
+		element_account_accumulate_debit(
 			account->account_name );
 
 	date_convert_source_international(
@@ -1894,24 +1855,24 @@ void build_PDF_account_row(	LIST *column_data_list,
  		column( transaction_date_string,
  			0,
  			account->
-			latest_ledger->
+			latest_journal->
 			transaction_date_time ) );
 
 	account_title =
 		get_latex_account_title(
 			account->account_name,
 			account->
-				latest_ledger->
+				latest_journal->
 				full_name,
 			account->
-				latest_ledger->
+				latest_journal->
 				debit_amount,
 			account->
-				latest_ledger->
+				latest_journal->
 				credit_amount,
 			transaction_date_american,
 			account->
-				latest_ledger->
+				latest_journal->
 				memo );
 
 	latex_append_column_data_list(
@@ -1922,7 +1883,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 	sprintf( transaction_count_string,
 		 "%d",
 		 account->
-			latest_ledger->
+			latest_journal->
 			transaction_count );
 
 	latex_append_column_data_list(
@@ -1930,7 +1891,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 		strdup( transaction_count_string ),
 		0 /* not large_bold */ );
 
-	*balance = account->latest_ledger->balance;
+	*balance = account->latest_journal->balance;
 
 	prior_balance_change =
 		trial_balance_get_prior_balance_change(
@@ -2007,11 +1968,9 @@ void build_PDF_account_row(	LIST *column_data_list,
 			strdup( ratio_denominator_string ),
 			0 /* not large_bold */ );
 	}
-
-} /* build_PDF_account_row() */
+}
 
 void trial_balance_stdout(
-			char *application_name,
 			char *fund_name,
 			char *as_of_date,
 			boolean omit_subclassification )
@@ -2021,7 +1980,7 @@ void trial_balance_stdout(
 	char *credit_string;
 	double debit_sum = 0.0;
 	double credit_sum = 0.0;
-	LEDGER_ELEMENT *element;
+	ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *account;
 	boolean accumulate_debit;
@@ -2038,8 +1997,7 @@ void trial_balance_stdout(
 	/* Populate the current_element_list */
 	/* --------------------------------- */
 	current_element_list =
-		ledger_get_element_list(
-			application_name,
+		element_list(
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
 			as_of_date,
@@ -2048,8 +2006,7 @@ void trial_balance_stdout(
 	/* Populate the prior_element_list */
 	/* ------------------------------- */
 	prior_closing_transaction_date =
-		ledger_prior_closing_transaction_date(
-			application_name,
+		transaction_prior_closing_transaction_date(
 			fund_name,
 			as_of_date /* ending_transaction_date */ );
 
@@ -2062,8 +2019,7 @@ void trial_balance_stdout(
 	else
 	{
 		prior_closing_transaction_date_string =
-			ledger_beginning_transaction_date(
-				application_name,
+			transaction_date_prior_closing_beginning(
 				fund_name,
 				as_of_date );
 	}
@@ -2071,16 +2027,15 @@ void trial_balance_stdout(
 	prior_filter_element_name_list = list_new();
 
 	list_append_pointer(
-		prior_filter_element_name_list, 
-		LEDGER_ASSET_ELEMENT );
+		prior_filter_element_name_list,
+		ELEMENT_ASSET );
 
 	list_append_pointer(
-		prior_filter_element_name_list, 
-		LEDGER_LIABILITY_ELEMENT );
+		prior_filter_element_name_list,
+		ELEMENT_LIABILITY );
 
 	prior_element_list =
-		ledger_get_element_list(
-			application_name,
+		element_list(
 			prior_filter_element_name_list,
 			fund_name,
 			prior_closing_transaction_date_string,
@@ -2129,11 +2084,11 @@ void trial_balance_stdout(
 						subclassification->
 							account_list );
 
-				if ( !account->latest_ledger
-				||   !account->latest_ledger->balance )
+				if ( !account->latest_journal
+				||   !account->latest_journal->balance )
 					continue;
 
-				if ( ledger_is_period_element(
+				if ( element_is_period(
 					element->element_name ) )
 				{
 					ratio_denominator =
@@ -2148,7 +2103,6 @@ void trial_balance_stdout(
 				trial_balance_account_stdout(
 					&balance,
 					&accumulate_debit,
-					application_name,
 					account,
 					prior_element_list,
 					element_name,
@@ -2189,13 +2143,11 @@ void trial_balance_stdout(
 	list_append_pointer( data_list, strdup( credit_string ) );
 
 	printf( "%s\n", list_display_delimited( data_list, '^' ) );
-
-} /* trial_balance_stdout() */
+}
 
 void trial_balance_account_stdout(
 					double *balance,
 					boolean *accumulate_debit,
-					char *application_name,
 					ACCOUNT *account,
 					LIST *prior_element_list,
 					char *element_name,
@@ -2205,11 +2157,10 @@ void trial_balance_account_stdout(
 	double prior_balance_change;
 
 	*accumulate_debit =
-		ledger_account_get_accumulate_debit(
-			application_name,
+		element_account_accumulate_debit(
 			account->account_name );
 
-	*balance = account->latest_ledger->balance;
+	*balance = account->latest_journal->balance;
 
 	prior_balance_change =
 		trial_balance_get_prior_balance_change(
@@ -2230,29 +2181,28 @@ void trial_balance_account_stdout(
 		subclassification_name,
 		account->account_name,
 		account->
-			latest_ledger->
+			latest_journal->
 			full_name,
 		account->
-			latest_ledger->
+			latest_journal->
 			transaction_count,
 		*balance,
 		account->
-			latest_ledger->
+			latest_journal->
 			transaction_date_time,
 		account->
-			latest_ledger->
+			latest_journal->
 			memo,
 		*accumulate_debit,
 		account->
-			latest_ledger->
+			latest_journal->
 			debit_amount,
 		account->
-			latest_ledger->
+			latest_journal->
 			credit_amount,
 		prior_balance_change,
 		ratio_denominator );
-
-} /* trial_balance_account_stdout() */
+}
 
 void output_stdout(	char *element_name,
 			char *subclassification_name,

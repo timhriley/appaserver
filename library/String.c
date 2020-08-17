@@ -359,3 +359,69 @@ char *string_escape_quote(	char *destination,
 			"'" /* character_array */ );
 }
 
+int string_strlen( char *s )
+{
+	if ( !s ) return 0;
+	return strlen( s );
+}
+
+boolean string_strcmp( char *s1, char *s2 )
+{
+	if ( !s1 && !s2 ) return 0;
+	if ( !s2 ) return -1;
+	if ( !s1 ) return 1;
+
+	return strcasecmp( s1, s2 );
+}
+
+boolean string_strcpy( char *d, char *s, int buffer_size )
+{
+	int str_len;
+
+	if ( d && !s )
+	{
+		*d = '\0';
+		return 0;
+	}
+
+	if ( !d || !s ) return 0;
+
+	if ( d == s ) return 1;
+
+	*d = '\0';
+
+	str_len = strlen( s );
+
+	if ( buffer_size && str_len >= buffer_size ) return 0;
+
+	while( *s ) *d++ = *s++;
+
+	*d = '\0';
+	return 1;
+}
+
+char *string_strcat( char *d, char *s )
+{
+	char *end;
+
+	if ( !d ) return "";
+	if ( !s ) return d;
+
+	end = d + strlen( d );
+	while( *s ) *end++ = *s++;
+	*end = '\0';
+	return d;
+}
+
+int string_strncmp( char *s1, char *s2 )
+{
+	int str_len2;
+
+	if ( !s1 || !s2 ) return -1;
+	if ( !*s1 && !*s2 ) return 0;
+	if ( !*s1 || !*s2 ) return -1;
+
+	str_len2 = strlen( s2 );
+	return strncasecmp( s1, s2, str_len2 );
+}
+

@@ -22,6 +22,64 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/hashtbl.o
 
+#EXECUTABLES=	trial_balance						\
+#		tax_form_report						\
+#		transaction_balance_report				\
+#		transaction_date_time					\
+#		income_statement					\
+#		balance_sheet						\
+#		program_profit						\
+#		bank_upload_transaction_insert				\
+#		ledger_unbalance					\
+#		propagate_purchase_order_accounts			\
+#		propagate_customer_sale_accounts			\
+#		ledger_debit_credit_audit				\
+#		close_nominal_accounts					\
+#		pay_liabilities_process					\
+#		populate_print_checks_entity				\
+#		load_bank_spreadsheet					\
+#		feeder_upload_missing					\
+#		inventory_balance_detail				\
+#		propagate_inventory_purchase_layers			\
+#		propagate_inventory_sale_layers				\
+#		depreciate_fixed_assets					\
+#		tax_recover_fixed_assets				\
+#		post_change_supply_purchase				\
+#		post_change_service_purchase				\
+#		post_change_inventory_purchase				\
+#		post_change_inventory_purchase_return			\
+#		post_change_inventory_sale_return			\
+#		post_change_fixed_asset_purchase			\
+#		post_change_fixed_asset					\
+#		post_change_inventory_sale				\
+#		post_change_fixed_service_sale				\
+#		post_change_hourly_service_sale				\
+#		post_change_fixed_service_work				\
+#		post_change_hourly_service_work				\
+#		post_change_activity_work				\
+#		post_change_purchase_order				\
+#		post_change_customer_sale				\
+#		post_change_customer_payment				\
+#		post_change_prior_fixed_asset				\
+#		post_change_account_balance				\
+#		post_change_vendor_payment				\
+#		post_change_prepaid_asset_purchase			\
+#		post_change_prepaid_asset_accrual			\
+#		post_change_bank_upload					\
+#		update_sale_completed					\
+#		post_reoccurring_transaction				\
+#		post_cash_expense_transaction				\
+#		post_payroll						\
+#		collect_customer_payment				\
+#		make_vendor_payment					\
+#		post_change_self					\
+#		post_change_employee_work_day				\
+#		inventory_cost_method_propagate				\
+#		load_receipt_scan					\
+#		shortcut_service_work					\
+#		tax_dvr							\
+#		generate_invoice
+
 EXECUTABLES=	trial_balance						\
 		tax_form_report						\
 		transaction_balance_report				\
@@ -29,56 +87,29 @@ EXECUTABLES=	trial_balance						\
 		income_statement					\
 		balance_sheet						\
 		program_profit						\
-		ledger_propagate					\
 		bank_upload_transaction_insert				\
 		ledger_unbalance					\
-		propagate_purchase_order_accounts			\
-		propagate_customer_sale_accounts			\
 		ledger_debit_credit_audit				\
 		close_nominal_accounts					\
 		pay_liabilities_process					\
 		populate_print_checks_entity				\
 		load_bank_spreadsheet					\
 		feeder_upload_missing					\
-		inventory_balance_detail				\
-		propagate_inventory_purchase_layers			\
-		propagate_inventory_sale_layers				\
 		depreciate_fixed_assets					\
-		tax_recover_fixed_assets				\
-		post_change_supply_purchase				\
-		post_change_service_purchase				\
-		post_change_inventory_purchase				\
-		post_change_inventory_purchase_return			\
-		post_change_inventory_sale_return			\
 		post_change_fixed_asset_purchase			\
 		post_change_fixed_asset					\
-		post_change_inventory_sale				\
 		post_change_fixed_service_sale				\
-		post_change_hourly_service_sale				\
-		post_change_fixed_service_work				\
-		post_change_hourly_service_work				\
-		post_change_activity_work				\
 		post_change_purchase_order				\
 		post_change_customer_sale				\
 		post_change_customer_payment				\
 		post_change_prior_fixed_asset				\
 		post_change_account_balance				\
 		post_change_vendor_payment				\
-		post_change_prepaid_asset_purchase			\
-		post_change_prepaid_asset_accrual			\
 		post_change_bank_upload					\
-		update_sale_completed					\
 		post_reoccurring_transaction				\
 		post_cash_expense_transaction				\
-		post_payroll						\
-		collect_customer_payment				\
 		make_vendor_payment					\
 		post_change_self					\
-		post_change_employee_work_day				\
-		inventory_cost_method_propagate				\
-		load_receipt_scan					\
-		shortcut_service_work					\
-		tax_dvr							\
 		generate_invoice
 
 EXTERNAL_LIBRARY=							\
@@ -133,17 +164,16 @@ SOURCE_LIBRARY= 							\
 		account.o						\
 		program.o						\
 		element.o						\
-		ledger.o						\
+		subclassification.o					\
 		purchase.o						\
-		customer.o						\
-		inventory.o						\
+		customer_sale.o						\
 		inventory_purchase_return.o				\
 		inventory_sale_return.o					\
-		depreciation.o						\
-		accrual.o						\
-		employee.o						\
-		fixed_asset.o						\
-		tax_recovery.o						\
+		equipment_depreciation.o				\
+		equipment_purchase.o					\
+		vendor_payment.o					\
+		customer_payment.o					\
+		inventory_sale.o					\
 		entity.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
@@ -737,10 +767,6 @@ generate_invoice: generate_invoice.c					\
 	rm generate_workorder
 	ln generate_invoice generate_workorder
 
-ledger.o: ledger.c ledger.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c ledger.c
-
 inventory.o: inventory.c inventory.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c inventory.c
@@ -759,17 +785,23 @@ purchase.o: purchase.c purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c purchase.c
 
-customer.o: customer.c customer.h
+customer_sale.o: customer_sale.c customer_sale.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c customer.c
+		-c customer_sale.c
 
-depreciation.o: depreciation.c depreciation.h
+equipment_depreciation.o:						\
+	equipment_depreciation.c					\
+	equipment_depreciation.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c depreciation.c
+		-c equipment_depreciation.c
 
 accrual.o: accrual.c accrual.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c accrual.c
+
+entity_self.o: entity_self.c entity_self.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c entity_self.c
 
 entity.o: entity.c entity.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -807,10 +839,15 @@ reoccurring.o: reoccurring.c						\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c reoccurring.c
 
-fixed_asset.o: fixed_asset.c						\
-		fixed_asset.h
+equipment_purchase.o: equipment_purchase.c				\
+		equipment_purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c fixed_asset.c
+		-c equipment_purchase.c
+
+vendor_payment.o: vendor_payment.c					\
+		vendor_payment.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c vendor_payment.c
 
 feeder_upload.o: feeder_upload.c					\
 		feeder_upload.h
@@ -846,4 +883,16 @@ element.o: element.c element.h
 program.o: program.c program.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c program.c
+
+customer_payment.o: customer_payment.c customer_payment.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c customer_payment.c
+
+inventory_sale.o: inventory_sale.c inventory_sale.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c inventory_sale.c
+
+subclassification.o: subclassification.c subclassification.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c subclassification.c
 
