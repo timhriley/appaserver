@@ -139,11 +139,13 @@ int main( int argc, char **argv )
 					m->measurement->datatype ) ) )
 		{
 			fprintf( stderr,
-	"ERROR in %s/%s()/%d: station_datatype_getset() returned empty.\n",
+		"Warning: station_datatype_getset(%s/%s) returned empty.\n",
 			 	__FILE__,
 			 	__FUNCTION__,
-			 	__LINE__ );
-			exit( 1 );
+			 	__LINE__,
+				m->measurement->station_name,
+				m->measurement->datatype );
+			continue;
 		}
 
 		if ( !bypass_reject )

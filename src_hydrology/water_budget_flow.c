@@ -824,6 +824,7 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( output_medium, "googlechart" ) == 0 )
 	{
+/*
 		if ( !water_budget_flow_output_googlechart(
 					application_name,
 					begin_date,
@@ -841,6 +842,7 @@ int main( int argc, char **argv )
 			document_close();
 			exit( 0 ); 
 		}
+*/
 	}
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
@@ -2217,8 +2219,9 @@ void get_report_title(	char *title,
 				units_display );
 	}
 	format_initial_capital( title, title );
-} /* get_report_title() */
+}
 
+#ifdef NOT_DEFINED
 boolean water_budget_flow_output_googlechart(
 				char *application_name,
 				char *begin_date,
@@ -2231,7 +2234,6 @@ boolean water_budget_flow_output_googlechart(
 				char *flow_units_converted )
 {
 
-#ifdef NOT_DEFINED
 	if ( !water_budget_flow_populate_easycharts_input_chart_list_data(
 			easycharts->input_chart_list,
 			inflow_outflow_hash_table,
@@ -2246,10 +2248,9 @@ boolean water_budget_flow_output_googlechart(
 		easycharts_timeline_get_output_chart_list(
 			easycharts->input_chart_list );
 
-#endif
 	return 1;
-
-} /* water_budget_flow_output_googlechart() */
+}
+#endif
 
 boolean water_budget_flow_populate_easycharts_input_chart_list_data(
 			LIST *input_chart_list,
