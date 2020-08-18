@@ -109,7 +109,7 @@ LIST *station_datatype_fetch_measurement_list(
 			char *begin_measurement_date,
 			char *end_measurement_date );
 
-STATION_DATATYPE *station_datatype_get_or_set(
+STATION_DATATYPE *station_datatype_getset(
 			LIST *station_datatype_list,
 			char *application_name,
 			char *station_name,

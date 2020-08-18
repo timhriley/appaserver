@@ -14,10 +14,8 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "inventory.h"
 #include "entity.h"
-#include "purchase.h"
-#include "customer.h"
+#include "entity_self.h"
 
 /* Constants */
 /* --------- */
@@ -30,17 +28,14 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *preupdate_inventory_cost_method_string;
 	ENTITY_SELF *self;
-	enum inventory_cost_method preupdate_inventory_cost_method;
-	char sys_string[ 128 ];
+	/* enum inventory_cost_method preupdate_inventory_cost_method; */
 
-	/* Exits if failed */
-	/* --------------- */
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+			argc,
+			argv,
+			application_name );
 
 	if ( argc != 3 )
 	{
@@ -58,11 +53,13 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+/*
 	preupdate_inventory_cost_method =
 		entity_get_inventory_cost_method(
 			preupdate_inventory_cost_method_string );
+*/
 
-	if ( ! ( self = entity_self_load( application_name ) ) )
+	if ( ! ( self = entity_self_load() ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: cannot fetch from SELF.\n",
@@ -72,6 +69,8 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+/*
+	char sys_string[ 128 ];
 	if ( ( self->inventory_cost_method != inventory_not_set )
 	&&   (	self->inventory_cost_method !=
 		preupdate_inventory_cost_method ) )
@@ -81,6 +80,7 @@ int main( int argc, char **argv )
 		 	 application_name );
 		system( sys_string );
 	}
+*/
 
 	return 0;
 

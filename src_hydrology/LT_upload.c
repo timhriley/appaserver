@@ -188,7 +188,7 @@ void LT_upload(		char *filename,
 	}
 
 	sprintf( measurement_insert,
-		 "measurement_insert replace=%c execute=%c",
+		 "measurement_insert replace=%c execute=%c html=y",
 		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n' );
 

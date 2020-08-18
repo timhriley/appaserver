@@ -378,6 +378,7 @@ void transaction_journal_list_pipe_display(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
+			char *memo,
 			LIST *journal_list );
 
 /* Returns inserted transaction_date_time */

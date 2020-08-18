@@ -613,7 +613,7 @@ LIST *station_datatype_fetch_measurement_list(
 
 } /* station_datatype_fetch_measurement_list() */
 
-STATION_DATATYPE *station_datatype_get_or_set(
+STATION_DATATYPE *station_datatype_getset(
 			LIST *station_datatype_list,
 			char *application_name,
 			char *station_name,
@@ -639,8 +639,7 @@ STATION_DATATYPE *station_datatype_get_or_set(
 	list_append_pointer( station_datatype_list, station_datatype );
 
 	return station_datatype;
-
-} /* station_datatype_get_or_set() */
+}
 
 void station_datatype_html_display(
 			LIST *station_datatype_list )

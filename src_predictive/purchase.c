@@ -17,6 +17,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "vendor_payment.h"
+#include "depreciation.h"
 #include "equipment_purchase.h"
 #include "purchase.h"
 

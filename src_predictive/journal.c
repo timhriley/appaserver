@@ -102,13 +102,43 @@ FILE *journal_insert_open( void )
 	return popen( sys_string, "w" );
 }
 
-void journal_insert(		FILE *insert_pipe,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *account_name,
-				double amount,
-				boolean is_debit )
+void journal_insert(	char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *account_name,
+			double amount,
+			boolean is_debit )
+{
+	FILE *insert_pipe;
+
+	insert_pipe = journal_insert_open();
+
+	journal_insert_pipe(
+		insert_pipe,
+		full_name,
+		street_address,
+		transaction_date_time,
+		account_name,
+		amount,
+		is_debit );
+
+	pclose( insert_pipe );
+
+	/* Executes journal_list_set_balances() */
+	/* ------------------------------------ */
+	journal_propagate(
+		transaction_date_time,
+		account_name );
+}
+
+void journal_insert_pipe(
+			FILE *insert_pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *account_name,
+			double amount,
+			boolean is_debit )
 {
 	if ( is_debit )
 	{
@@ -694,7 +724,8 @@ void journal_list_insert(
 			is_debit = 0;
 		}
 
-		journal_insert(	insert_pipe,
+		journal_insert_pipe(
+				insert_pipe,
 				full_name,
 				street_address,
 				transaction_date_time,
@@ -702,7 +733,7 @@ void journal_list_insert(
 				amount,
 				is_debit );
 
-		list_append_pointer(
+		list_set(
 			account_name_list,
 			journal->account_name );
 

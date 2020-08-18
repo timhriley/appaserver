@@ -96,7 +96,6 @@ EXECUTABLES=	trial_balance						\
 		post_change_bank_upload					\
 		post_reoccurring_transaction				\
 		post_cash_expense_transaction				\
-		make_vendor_payment					\
 		post_change_self					\
 		generate_invoice
 
@@ -157,6 +156,7 @@ SOURCE_LIBRARY= 							\
 		customer_sale.o						\
 		inventory_purchase_return.o				\
 		inventory_sale_return.o					\
+		depreciation.o						\
 		equipment_depreciation.o				\
 		equipment_purchase.o					\
 		vendor_payment.o					\
@@ -785,6 +785,12 @@ equipment_depreciation.o:						\
 	equipment_depreciation.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c equipment_depreciation.c
+
+depreciation.o:								\
+	depreciation.c							\
+	depreciation.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c depreciation.c
 
 accrual.o: accrual.c accrual.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

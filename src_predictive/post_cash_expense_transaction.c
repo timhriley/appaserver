@@ -23,6 +23,9 @@
 #include "folder_menu.h"
 #include "accrual.h"
 #include "boolean.h"
+#include "journal.h"
+#include "transaction.h"
+#include "account.h"
 #include "bank_upload.h"
 
 /* Constants */
@@ -177,8 +180,7 @@ int main( int argc, char **argv )
 	if ( transaction && execute )
 	{
 		transaction->transaction_date_time =
-			ledger_transaction_journal_ledger_insert(
-				application_name,
+			transaction_journal_insert(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
@@ -186,10 +188,9 @@ int main( int argc, char **argv )
 				transaction->memo,
 				transaction->check_number,
 				transaction->lock_transaction,
-				transaction->journal_ledger_list );
+				transaction->journal_list );
 
 		bank_upload_transaction_direct_insert(
-			application_name,
 			bank_date,
 			bank_description,
 			transaction->full_name,
@@ -209,7 +210,7 @@ int main( int argc, char **argv )
 
 		folder_menu_refresh_row_count(
 			application_name,
-			LEDGER_FOLDER_NAME,
+			JOURNAL_FOLDER_NAME,
 			session,
 			appaserver_parameter_file->
 				appaserver_data_directory,
@@ -231,8 +232,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}
 
 TRANSACTION *post_cash_expense_transaction(
 				FILE *output_pipe,
@@ -249,7 +249,6 @@ TRANSACTION *post_cash_expense_transaction(
 	char *credit_account;
 
 	if ( bank_upload_transaction_exists(
-				application_name,
 				bank_date,
 				bank_description ) )
 	{
@@ -259,16 +258,14 @@ TRANSACTION *post_cash_expense_transaction(
 	}
 
 	credit_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
+		account_hard_coded_account_name(
 			(char *)0 /* fund_name */,
-			LEDGER_CASH_KEY,
+			ACCOUNT_CASH_KEY,
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
 	if ( ! ( bank_amount =
-			bank_upload_fetch_bank_amount(
-				application_name,
+			bank_upload_bank_amount(
 				bank_date,
 				bank_description ) ) )
 	{
@@ -277,10 +274,10 @@ TRANSACTION *post_cash_expense_transaction(
 	}
 
 	if ( ! ( transaction =
-			ledger_build_binary_transaction(
+			transaction_binary(
 				full_name,
 				street_address,
-				ledger_get_transaction_date_time(
+				transaction_generate_date_time(
 					bank_date ),
 				debit_account,
 				credit_account,
@@ -293,15 +290,14 @@ TRANSACTION *post_cash_expense_transaction(
 		return (TRANSACTION *)0;
 	}
 
-	ledger_transaction_output_pipe_display(
+	transaction_journal_list_pipe_display(
 				output_pipe,
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
 				transaction->memo,
-				transaction->journal_ledger_list );
+				transaction->journal_list );
 
 	return transaction;
-
-} /* post_cash_expense_transaction() */
+}
 

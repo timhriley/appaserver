@@ -129,7 +129,7 @@ void load_sfwmd_breakpoint_data(
 
 	sprintf( sys_string,
 "sfwmd_breakpoint_parse \"%s\" 2>%s					|"
-"measurement_insert replace=%c execute=%c 2>%s				|"
+"measurement_insert replace=%c execute=%c html=y 2>%s			|"
 "cat									 ",
 		 filename,
 		 bad_parse,

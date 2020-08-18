@@ -157,7 +157,7 @@ void shef_upload(	char *station_bad_file,
 	char sys_string[ 4096 ];
 
 	sprintf( insert_process,
-		 "measurement_insert replace=%c execute=%c",
+		 "measurement_insert replace=%c execute=%c html=y",
 		 (change_existing_data) ? 'y' : 'n',
 		 (execute) ? 'y' : 'n' );
 

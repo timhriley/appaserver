@@ -131,7 +131,7 @@ void load_sfwmd_single_file(
 
 	sprintf( sys_string,
 "sfwmd_spreadsheet_parse \"%s\" 2>%s					|"
-"measurement_insert bypass=y replace=%c execute=%c 2>%s			|"
+"measurement_insert bypass=y replace=%c execute=%c html=y 2>%s		|"
 "cat									 ",
 		 filename,
 		 bad_parse,

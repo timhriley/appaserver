@@ -10,7 +10,6 @@
 
 #include "list.h"
 #include "boolean.h"
-#include "depreciation.h"
 #include "tax_recovery.h"
 #include "purchase.h"
 #include "entity.h"
@@ -43,7 +42,7 @@ typedef struct
 	char *disposal_date;
 	double finance_accumulated_depreciation;
 	double tax_accumulated_depreciation;
-	DEPRECIATION *depreciation;
+	/* DEPRECIATION *depreciation; */
 	TAX_RECOVERY *tax_recovery;
 	PURCHASE_ORDER *purchase_order;
 	LIST *equipment_purchase_list;

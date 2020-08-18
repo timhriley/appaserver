@@ -195,29 +195,43 @@ boolean measurement_pipe_output(
 		return 0;
 	}
 
+	/* ------------------------------------------- */
+	/* Send to insert_statement, html_table, etc.  */
+	/* ------------------------------------------- */
 	if ( output_pipe )
 	{
 		if ( !m->measurement->null_value )
 		{
 			fprintf(output_pipe,
-				"%s,%s,%s,%s,%.4lf\n",
+				"%s%c%s%c%s%c%s%c%.4lf\n",
 				m->measurement->station_name,
+				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 				m->measurement->datatype,
+				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 				m->measurement->measurement_date,
+				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 				m->measurement->measurement_time,
+				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 				m->measurement->measurement_value );
 		}
 		else
 		{
 			fprintf(output_pipe,
-				"%s,%s,%s,%s,null\n",
+				"%s%c%s%c%s%c%s%cnull\n",
 				m->measurement->station_name,
+				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 				m->measurement->datatype,
+				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 				m->measurement->measurement_date,
-				m->measurement->measurement_time );
+				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
+				m->measurement->measurement_time,
+				MEASUREMENT_INSERT_STATEMENT_DELIMITER );
 		}
 	}
 	else
+	/* -------------- */
+	/* Send to stdout */
+	/* -------------- */
 	{
 		if ( !m->measurement->null_value )
 		{
@@ -369,8 +383,7 @@ void measurement_output_insert_pipe(
 	fflush( insert_pipe );
 }
 
-FILE *measurement_open_html_table_pipe(
-			void )
+FILE *measurement_open_html_table_pipe( void )
 {
 	char sys_string[ 1024 ];
 	char *heading_comma_string;
@@ -381,9 +394,10 @@ FILE *measurement_open_html_table_pipe(
 
 	sprintf( sys_string,
 		 "queue_top_bottom_lines.e %d |"
-		 "html_table.e '' '%s' ',' '%s'",
+		 "html_table.e '' '%s' '%c' '%s'",
 		 MEASUREMENT_QUEUE_TOP_BOTTOM_LINES,
 		 heading_comma_string,
+		 MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 		 justify_string );
 
 	return popen( sys_string, "w" );
@@ -396,10 +410,11 @@ FILE *measurement_open_insert_statement_pipe(
 	char sys_string[ 4096 ];
 
 	sprintf(sys_string,
-		"insert_statement table=%s field=%s del='|' replace=%c   |"
-		"cat							  ",
+	"insert_statement table=%s field=%s delimiter='%c' replace=%c   |"
+	"cat						  		 ",
 		"measurement",
 		MEASUREMENT_INSERT_LIST,
+		MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 		(replace) ? 'y' : 'n' );
 
 	return popen( sys_string, "w" );
@@ -412,11 +427,12 @@ FILE *measurement_open_insert_pipe(
 	char sys_string[ 4096 ];
 
 	sprintf(sys_string,
-		"insert_statement table=%s field=%s del='|' replace=%c   |"
-		"sql						 	 |"
-		"cat							  ",
+	"insert_statement table=%s field=%s delimiter='%c' replace=%c	|"
+	"sql							 	|"
+	"cat							  	 ",
 		"measurement",
 		MEASUREMENT_INSERT_LIST,
+		MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 		(replace) ? 'y' : 'n' );
 
 	return popen( sys_string, "w" );

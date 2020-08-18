@@ -170,7 +170,7 @@ char *customer_sale_primary_where(
 	return strdup( where );
 }
 
-double customer_sale_sales_tax(
+double customer_sale_calculate_sales_tax(
 			LIST *customer_inventory_sale_list,
 			double entity_state_sales_tax_rate )
 {
@@ -252,5 +252,90 @@ double customer_sale_payment_total(
 			LIST *customer_payment_list )
 {
 	return customer_payment_total( customer_payment_list );
+}
+
+char *customer_sale_completed_date_time(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time )
+{
+	char sys_string[ 1024 ];
+	char where[ 256 ];
+	char entity_buffer[ 128 ];
+
+	sprintf( where,
+		 "full_name = '%s' and		"
+		 "street_address = '%s' and	"
+		 "sale_date_time = '%s'",
+		 escape_character(	entity_buffer,
+					full_name,
+					'\'' ),
+		 street_address,
+		 sale_date_time );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 "completed_date_time",
+		 "customer_sale",
+		 where );
+
+	return pipe2string( sys_string );
+}
+
+double customer_sale_fetch_sales_tax(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time )
+{
+	char sys_string[ 1024 ];
+	char where[ 512 ];
+	char *results;
+
+	sprintf( where,
+		 "%s and sale_date_time = '%s'",
+		 entity_primary_where(
+			full_name,
+			street_address ),
+		 sale_date_time );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\"| sql",
+		 "sales_tax",
+		 "customer_sale",
+		 where );
+
+	if ( ! ( results = pipe2string( sys_string ) ) ) return 0.0;
+
+	return atof( results );
+}
+
+double customer_sale_total_payment(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time )
+{
+	char sys_string[ 1024 ];
+	char where[ 512 ];
+	char *results;
+
+	sprintf( where,
+		 "%s and sale_date_time = '%s'",
+		 entity_primary_where(
+			full_name,
+			street_address ),
+		 sale_date_time );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 "sum( payment_amount )",
+		 "customer_payment",
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( !results )
+		return 0.0;
+	else
+		return atof( results );
 }
 

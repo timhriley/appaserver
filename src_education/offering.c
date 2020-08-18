@@ -310,19 +310,6 @@ char *semester_where(
 	return strdup( where );
 }
 
-LIST *semester_offering_list(
-			char *season_name,
-			int year )
-{
-	return offering_list(
-			/* -------------------------- */
-			/* Safely returns heap memory */
-			/* -------------------------- */
-			semester_where(
-				season_name,
-				year ) );
-}
-
 void offering_refresh(
 			int offering_enrollment_count,
 			int offering_capacity_available,

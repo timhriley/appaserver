@@ -174,9 +174,8 @@ void load_cr10_single(	char *appaserver_data_directory,
 	sprintf( bad_insert, "%s/insert_%d.dat", dir, pid );
 
 	sprintf( measurement_insert,
-	"measurement_insert replace=%c bypass=%c execute=%c delimiter=','",
+"measurement_insert replace=%c bypass=n execute=%c delimiter=',' html=y",
 		 (change_existing_data) ? 'y' : 'n',
-		 'n' /* Gordon's file now can load. */,
 		 (execute) ? 'y' : 'n' );
 
 

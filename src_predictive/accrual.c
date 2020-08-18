@@ -8,10 +8,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "String.h"
 #include "timlib.h"
 #include "piece.h"
 #include "date.h"
 #include "appaserver_library.h"
+#include "sql.h"
+#include "entity.h"
+#include "journal.h"
+#include "transaction.h"
+#include "depreciation.h"
 #include "accrual.h"
 
 ACCRUAL *accrual_calloc( void )
@@ -34,65 +40,87 @@ ACCRUAL *accrual_calloc( void )
 
 } /* accrual_calloc() */
 
-char *accrual_get_select( void )
+char *accrual_select( void )
 {
-	char *select =
-"full_name,street_address,purchase_date_time,asset_name,accrual_date,accrual_amount,transaction_date_time";
-
-	return select;
+	return	"full_name,"
+		"street_address,"
+		"purchase_date_time,"
+		"asset_name,"
+		"accrual_date,"
+		"accrual_amount,"
+		"transaction_date_time";
 }
 
-ACCRUAL *accrual_parse(			char *application_name,
-					char *input_buffer )
+ACCRUAL *accrual_parse(	char *input_buffer )
 {
 	ACCRUAL *accrual;
 	char piece_buffer[ 256 ];
 
 	accrual = accrual_calloc();
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+	piece( piece_buffer, SQL_DELIMITER, input_buffer, 0 );
 	accrual->full_name = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+	piece( piece_buffer, SQL_DELIMITER, input_buffer, 1 );
 	accrual->street_address = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+	piece( piece_buffer, SQL_DELIMITER, input_buffer, 2 );
 	accrual->purchase_date_time = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	piece( piece_buffer, SQL_DELIMITER, input_buffer, 3 );
 	accrual->asset_name = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+	piece( piece_buffer, SQL_DELIMITER, input_buffer, 4 );
 	accrual->accrual_date = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
-	if ( *piece_buffer )
-		accrual->accrual_amount =
-		accrual->database_accrual_amount =
-			atof( piece_buffer );
+	piece( piece_buffer, SQL_DELIMITER, input_buffer, 5 );
+	accrual->accrual_amount = atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
+	piece( piece_buffer, SQL_DELIMITER, input_buffer, 6 );
 	if ( *piece_buffer )
-		accrual->transaction_date_time =
-		accrual->database_transaction_date_time =
-			strdup( piece_buffer );
-
-	if ( accrual->transaction_date_time )
 	{
 		accrual->transaction =
-			ledger_transaction_fetch(
-				application_name,
+			transaction_fetch(
 				accrual->full_name,
 				accrual->street_address,
-				accrual->transaction_date_time );
+				piece_buffer /* transaction_date_time */ );
 	}
 
 	return accrual;
+}
 
-} /* accrual_parse() */
+char *accrual_asset_primary_where(
+			char *asset_name )
+{
+	static char asset_where[ 256 ];
+	char buffer[ 256 ];
+
+	sprintf( asset_where,
+		 "asset_name = '%s'",
+		 escape_character(	buffer,
+					asset_name,
+					'\'' ) );
+	return asset_where;
+}
+
+char *accrual_asset_where(
+			char *asset_name,
+			char *accrual_date )
+{
+	static char asset_where[ 256 ];
+	char buffer[ 256 ];
+
+	sprintf( asset_where,
+		 "asset_name = '%s' and accrual_date = '%s'",
+		 escape_character(	buffer,
+					asset_name,
+					'\'' ),
+		 accrual_date );
+
+	return asset_where;
+}
 
 ACCRUAL *accrual_fetch(
-			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
@@ -100,123 +128,88 @@ ACCRUAL *accrual_fetch(
 			char *accrual_date )
 {
 	char sys_string[ 1024 ];
-	char *ledger_where;
-	char buffer[ 128 ];
-	char where[ 256 ];
-	char *select;
+	char full_where[ 512 ];
 	char *results;
 
-	select = accrual_get_select();
-
-	ledger_where = ledger_get_transaction_where(
-					full_name,
-					street_address,
-					purchase_date_time,
-					(char *)0 /* folder_name */,
-					"purchase_date_time" );
-
-	sprintf( where,
-		 "%s and asset_name = '%s' and accrual_date = '%s'",
-		 ledger_where,
-		 escape_character(	buffer,
-					asset_name,
-					'\'' ),
-		 accrual_date );
+	sprintf( full_where,
+		 "%s and purchase_date_time = '%s' and %s",
+		 entity_primary_where(
+			full_name,
+			street_address ),
+		 purchase_date_time,
+		 accrual_asset_where(
+			asset_name,
+			accrual_date ) );
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=%s			"
-		 "			folder=accrual		"
-		 "			where=\"%s\"			",
-		 application_name,
-		 select,
-		 where );
+		 "echo \"select %s from %s where %s;\" | sql",
+		 accrual_select(),
+		 "accrual",
+		 full_where );
 
 	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
 		return (ACCRUAL *)0;
 	}
 
-	return accrual_parse( application_name, results );
-
-} /* accrual_fetch() */
+	return accrual_parse( results );
+}
 
 void accrual_update(
-			char *application_name,
+			double accrual_amount,
+			char *transaction_date_time,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
 			char *asset_name,
-			char *accrual_date,
-			double accrual_amount,
-			double database_accrual_amount,
-			char *transaction_date_time,
-			char *database_transaction_date_time )
+			char *accrual_date )
 {
 	char *sys_string;
 	FILE *output_pipe;
 
-	sys_string = accrual_get_update_sys_string( application_name );
+	sys_string = accrual_update_sys_string();
 	output_pipe = popen( sys_string, "w" );
 
-	if ( !dollar_virtually_same(
-			accrual_amount,
-			database_accrual_amount ) )
-	{
-		fprintf(output_pipe,
-		 	"%s^%s^%s^%s^%s^accrual_amount^%.2lf\n",
-			full_name,
-			street_address,
-			purchase_date_time,
-			asset_name,
-			accrual_date,
-			accrual_amount );
-	}
+	fprintf(output_pipe,
+	 	"%s^%s^%s^%s^%s^accrual_amount^%.2lf\n",
+		full_name,
+		street_address,
+		purchase_date_time,
+		asset_name,
+		accrual_date,
+		accrual_amount );
 
-	if ( timlib_strcmp(	transaction_date_time,
-				database_transaction_date_time ) != 0 )
-	{
-		fprintf(output_pipe,
-		 	"%s^%s^%s^%s^%s^transaction_date_time^%s\n",
-			full_name,
-			street_address,
-			purchase_date_time,
-			asset_name,
-			accrual_date,
-			(transaction_date_time)
-				? transaction_date_time
-				: "" );
-	}
+	fprintf(output_pipe,
+	 	"%s^%s^%s^%s^%s^transaction_date_time^%s\n",
+		full_name,
+		street_address,
+		purchase_date_time,
+		asset_name,
+		accrual_date,
+		(transaction_date_time)
+			? transaction_date_time
+			: "" );
 
 	pclose( output_pipe );
+}
 
-} /* accrual_update() */
-
-char *accrual_get_update_sys_string(
-				char *application_name )
+char *accrual_update_sys_string( void )
 {
 	static char sys_string[ 256 ];
-	char *table_name;
 	char *key;
-
-	table_name =
-		get_table_name(
-			application_name,
-			"prepaid_asset_accrual" );
 
 	key =
 "full_name,street_address,purchase_date_time,asset_name,accrual_date";
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y | sql.e",
-		 table_name,
+		 ACCRUAL_TABLE_NAME,
 		 key );
 
 	return sys_string;
+}
 
-} /* accrual_get_update_sys_string() */
-
-double accrual_get_amount(
+double accrual_amount(
 			double extension,
 			double accrual_period_years,
 			char *prior_accrual_date_string,
@@ -228,7 +221,7 @@ double accrual_get_amount(
 	double accrual_amount;
 
 	fraction_of_year =
-		ledger_get_fraction_of_year(
+		depreciation_fraction_of_year(
 			prior_accrual_date_string,
 			accrual_date_string );
 
@@ -255,17 +248,15 @@ double accrual_get_amount(
 	}
 
 	return accrual_amount;
+}
 
-} /* accrual_get_amount() */
-
-void accrual_journal_ledger_refresh(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double accrual_amount,
-				char *asset_account_name,
-				char *expense_account_name )
+void accrual_transaction_refresh(
+			double accrual_amount,
+			char *asset_account_name,
+			char *expense_account_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
 {
 	if ( !asset_account_name || !*asset_account_name )
 	{
@@ -287,16 +278,15 @@ void accrual_journal_ledger_refresh(
 		exit( 1 );
 	}
 
-	ledger_delete(	application_name,
-			LEDGER_FOLDER_NAME,
-			full_name,
+	journal_delete(	full_name,
 			street_address,
 			transaction_date_time );
 
 	if ( accrual_amount )
 	{
-		ledger_journal_ledger_insert(
-			application_name,
+		/* Executes journal_list_set_balances() */
+		/* ------------------------------------ */
+		journal_insert(
 			full_name,
 			street_address,
 			transaction_date_time,
@@ -304,8 +294,7 @@ void accrual_journal_ledger_refresh(
 			accrual_amount,
 			1 /* is_debit */ );
 
-		ledger_journal_ledger_insert(
-			application_name,
+		journal_insert(
 			full_name,
 			street_address,
 			transaction_date_time,
@@ -313,71 +302,53 @@ void accrual_journal_ledger_refresh(
 			accrual_amount,
 			0 /* not is_debit */ );
 	}
+}
 
-} /* accrual_journal_ledger_refresh() */
-
-LIST *accrual_fetch_list(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name )
+LIST *accrual_system_list( char *sys_string )
 {
-	ACCRUAL *accrual;
-	char *select;
 	LIST *accrual_list;
-	char sys_string[ 1024 ];
-	char *ledger_where;
-	char buffer[ 128 ];
-	char where[ 512 ];
 	FILE *input_pipe;
-	char input_buffer[ 1024 ];
-
-	select = accrual_get_select();
-
-	ledger_where = ledger_get_transaction_where(
-					full_name,
-					street_address,
-					purchase_date_time,
-					(char *)0 /* folder_name */,
-					"purchase_date_time" );
-
-	sprintf( where,
-		 "%s and asset_name = '%s'",
-		 ledger_where,
-		 escape_character(	buffer,
-					asset_name,
-					'\'' ) );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=%s			"
-		 "			folder=prepaid_asset_accrual	"
-		 "			where=\"%s\"			"
-		 "			order=accrual_date		",
-		 application_name,
-		 select,
-		 where );
+	char input[ 1024 ];
 
 	input_pipe = popen( sys_string, "r" );
 
 	accrual_list = list_new();
 
-	while( get_line( input_buffer, input_pipe ) )
+	while( string_input( input, input_pipe, 1024 ) )
 	{
-		accrual =
-			accrual_parse(
-				application_name,
-				input_buffer );
-
-		list_append_pointer( accrual_list, accrual );
+		list_set( accrual_list, accrual_parse( input ) );
 	}
 
 	pclose( input_pipe );
-
 	return accrual_list;
+}
 
-} /* accrual_fetch_list() */
+LIST *accrual_list(	char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *asset_name )
+{
+	char sys_string[ 1024 ];
+	char where[ 512 ];
+
+	sprintf( where,
+		 "%s and purchase_date_time = '%s' and %s",
+		 entity_primary_where(
+			full_name,
+			street_address ),
+		 purchase_date_time,
+		 accrual_asset_primary_where(
+			asset_name ) );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 accrual_select(),
+		 "prepaid_asset_accrual",
+		 where,
+		 accrual_select() );
+
+	return accrual_system_list( sys_string );
+}
 
 /* Returns new accumulated_accrual */
 /* ------------------------------------ */
@@ -403,7 +374,7 @@ double accrual_list_set(
 		accrual = list_get( accrual_list );
 
 		accrual->accrual_amount =
-			accrual_get_amount(
+			accrual_amount(
 				extension,
 				accrual_period_years,
 				prior_accrual_date_string,
@@ -422,6 +393,7 @@ double accrual_list_set(
 
 } /* accrual_list_set() */
 
+#ifdef NOT_DEFINED
 void accrual_list_update_and_transaction_propagate(
 				LIST *accrual_list,
 				char *application_name,
@@ -438,30 +410,31 @@ void accrual_list_update_and_transaction_propagate(
 
 		if ( !accrual->transaction )
 		{
-			accrual->transaction_date_time =
-				ledger_get_transaction_date_time(
+			char *transaction_date_time;
+
+			transaction_date_time =
+				transaction_generate_date_time(
 					accrual->accrual_date );
 	
 			accrual->transaction =
-				ledger_transaction_new(
+				transaction_new(
 					accrual->full_name,
 					accrual->street_address,
-					accrual->transaction_date_time,
-					ACCRUAL_MEMO );
+					transaction_date_time );
+
+			accrual->transaction->memo = ACCRUAL_MEMO;
 	
-			accrual->transaction_date_time =
 			accrual->transaction->transaction_date_time =
-			ledger_transaction_insert(
-				application_name,
-				accrual->transaction->full_name,
-				accrual->transaction->street_address,
-				accrual->
-					transaction->
-					transaction_date_time,
-				accrual->accrual_amount,
-				accrual->transaction->memo,
-				0 /* check_number */,
-				1 /* lock_transaction */ );
+				transaction_insert(
+					accrual->transaction->full_name,
+					accrual->transaction->street_address,
+					accrual->
+						transaction->
+						transaction_date_time,
+					accrual->accrual_amount,
+					accrual->transaction->memo,
+					0 /* check_number */,
+					1 /* lock_transaction */ );
 		}
 
 		if ( !propagate_transaction_date_time )
@@ -482,16 +455,13 @@ void accrual_list_update_and_transaction_propagate(
 			accrual->transaction_date_time,
 			accrual->database_transaction_date_time );
 
-		accrual_journal_ledger_refresh(
-			application_name,
-			accrual->transaction->full_name,
-			accrual->transaction->street_address,
-			accrual->
-				transaction->
-				transaction_date_time,
+		accrual_transaction_refresh(
 			accrual->accrual_amount,
 			asset_account_name,
-			expense_account_name );
+			expense_account_name,
+			accrual->transaction->full_name,
+			accrual->transaction->street_address,
+			accrual->transaction->transaction_date_time );
 
 	} while( list_next( accrual_list ) );
 
@@ -532,24 +502,21 @@ void accrual_list_delete(
 		if ( !accrual->transaction )
 		{
 			fprintf( stderr,
-		"ERROR in %s/%s()/%d: expecting a transaction = (%s).\n",
+		"ERROR in %s/%s()/%d: expecting a transaction = (%s/%s).\n",
 			 	__FILE__,
 			 	__FUNCTION__,
 			 	__LINE__,
-			 	accrual->transaction_date_time );
+			 	accrual->full_name,
+				accrual->street_address );
 			exit( 1 );
 		}
 
-		ledger_delete(
-			application_name,
-			TRANSACTION_FOLDER_NAME,
+		journal_delete(
 			accrual->transaction->full_name,
 			accrual->transaction->street_address,
 			accrual->transaction->transaction_date_time );
 
-		ledger_delete(
-			application_name,
-			LEDGER_FOLDER_NAME,
+		transaction_delete(
 			accrual->transaction->full_name,
 			accrual->transaction->street_address,
 			accrual->transaction->transaction_date_time );
@@ -564,17 +531,14 @@ void accrual_list_delete(
 
 	} while( list_next( accrual_list ) );
 
-	ledger_propagate(
-		application_name,
+	journal_propagate(
 		propagate_transaction_date_time,
 		asset_account_name );
 
-	ledger_propagate(
-		application_name,
+	journal_propagate(
 		propagate_transaction_date_time,
 		expense_account_name );
-
-} /* accrual_list_delete() */
+}
 
 void accrual_delete(
 			char *application_name,
@@ -622,6 +586,7 @@ void accrual_delete(
 	pclose( output_pipe );
 
 } /* accrual_delete() */
+#endif
 
 ACCRUAL *accrual_list_seek(
 			LIST *accrual_list,
@@ -644,9 +609,9 @@ ACCRUAL *accrual_list_seek(
 
 	return (ACCRUAL *)0;
 
-} /* accrual_list_seek() */
+}
 
-char *accrual_get_prior_accrual_date( LIST *accrual_list )
+char *accrual_prior_accrual_date( LIST *accrual_list )
 {
 	ACCRUAL *accrual;
 	char *prior_accrual_date;
@@ -668,8 +633,7 @@ char *accrual_get_prior_accrual_date( LIST *accrual_list )
 	list_next( accrual_list );
 
 	return prior_accrual_date;
-
-} /* accrual_get_prior_accrual_date() */
+}
 
 double accrual_monthly_accrue(	char *begin_date_string,
 				char *end_date_string,
@@ -697,7 +661,7 @@ double accrual_monthly_accrue(	char *begin_date_string,
 	if ( !begin_date_string || !*begin_date_string )
 	{
 		begin_date_string =
-			accrual_get_opening_begin_date_string(
+			accrual_opening_begin_date_string(
 				end_date );
 
 		if ( ! ( begin_date =
@@ -769,10 +733,9 @@ double accrual_monthly_accrue(	char *begin_date_string,
 	}
 
 	return total_accrual;
+}
 
-} /* accrual_monthly_accrue() */
-
-char *accrual_get_opening_begin_date_string(
+char *accrual_opening_begin_date_string(
 				DATE *end_date )
 {
 	char begin_date_string[ 16 ];
@@ -814,8 +777,7 @@ char *accrual_get_opening_begin_date_string(
 	}
 
 	return strdup( begin_date_string );
-
-} /* accrual_get_opening_begin_date_string() */
+}
 
 /* begin_date and end_date are both in the same month. */
 /* --------------------------------------------------- */
@@ -844,7 +806,7 @@ double accrual_monthly_within_month_accrue(
 			date_get_year( begin_date ) );
 
 	month_percent =
-		accrual_get_month_percent(
+		accrual_month_percent(
 			begin_date_day,
 			end_date_day,
 			days_in_month );
@@ -890,13 +852,13 @@ double accrual_monthly_next_month_accrue(
 			date_get_year( end_date ) );
 
 	first_month_percent =
-		accrual_get_month_percent(
+		accrual_month_percent(
 			begin_first_date_day,
 			days_in_first_month,
 			days_in_first_month );
 
 	second_month_percent =
-		accrual_get_month_percent(
+		accrual_month_percent(
 			1,
 			end_second_date_day,
 			days_in_second_month );
@@ -948,13 +910,13 @@ double accrual_monthly_multi_month_accrue(
 			date_get_year( end_date ) );
 
 	first_month_percent =
-		accrual_get_month_percent(
+		accrual_month_percent(
 			begin_first_date_day,
 			days_in_first_month,
 			days_in_first_month );
 
 	last_month_percent =
-		accrual_get_month_percent(
+		accrual_month_percent(
 			1,
 			end_last_date_day,
 			days_in_last_month );
@@ -971,10 +933,9 @@ double accrual_monthly_multi_month_accrue(
 	return	first_month_accrual_amount +
 		middle_months_accrual_amount +
 		last_month_accrual_amount;
+}
 
-} /* accrual_monthly_multi_month_accrue() */
-
-double accrual_get_month_percent(
+double accrual_month_percent(
 			int begin_date_day,
 			int end_date_day,
 			int days_in_month )
@@ -988,5 +949,4 @@ double accrual_get_month_percent(
 			  (double)days_in_month;
 
 	return month_percent;
-
-} /* accrual_get_month_percent() */
+}

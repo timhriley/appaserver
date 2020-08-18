@@ -69,7 +69,7 @@ double customer_sale_payment_total(
 double customer_inventory_sale_total(
 			LIST *customer_inventory_sale_list );
 
-double customer_sale_sales_tax(
+double customer_sale_calculate_sales_tax(
 			LIST *customer_inventory_sale_list,
 			double entity_state_sales_tax_rate );
 
@@ -83,5 +83,20 @@ TRANSACTION *customer_sale_transaction(
 			char *account_revenue,
 			char *account_sales_tax_payable );
 
+
+char *customer_sale_completed_date_time(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time );
+
+double customer_sale_fetch_sales_tax(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time );
+
+double customer_sale_total_payment(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time );
 
 #endif

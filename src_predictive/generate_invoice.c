@@ -24,7 +24,8 @@
 #include "application_constants.h"
 #include "date_convert.h"
 #include "entity.h"
-#include "customer.h"
+#include "customer_sale.h"
+#include "entity_self.h"
 #include "appaserver_link_file.h"
 
 /* Constants */
@@ -40,8 +41,7 @@ double populate_line_item_list(
 				char *sale_date_time,
 				char *completed_date_time );
 
-LATEX_INVOICE_CUSTOMER *get_invoice_customer(
-				char *application_name,
+LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
 				char *full_name,
 				char *street_address,
 				char *sale_date_time );
@@ -270,7 +270,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 	CUSTOMER_SALE *customer_sale;
 	char title[ 128 ];
 
-	if ( ! ( self = entity_self_load( application_name ) ) )
+	if ( ! ( self = entity_self_load() ) )
 	{
 		fprintf( stderr,
 		"ERROR in %s/%s()/%d: cannot load from SELF.\n",
@@ -294,8 +294,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 	}
 
 	completed_date_time =
-		customer_sale_fetch_completed_date_time(
-			application_name,
+		customer_sale_completed_date_time(
 			full_name,
 			street_address,
 			sale_date_time );
@@ -304,10 +303,9 @@ boolean build_latex_invoice(	FILE *output_stream,
 
 	customer_sale =
 		customer_sale_new(
-				application_name,
-				full_name,
-				street_address,
-				sale_date_time );
+			full_name,
+			street_address,
+			sale_date_time );
 
 	customer_sale->completed_date_time = completed_date_time;
 
@@ -329,8 +327,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 			(LIST *)0 /* extra_label_list */ );
 
 	if ( ! ( latex_invoice->invoice_customer =
-			get_invoice_customer(
-				application_name,
+			generate_invoice_customer(
 				full_name,
 				street_address,
 				sale_date_time ) ) )
@@ -427,8 +424,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 
 } /* build_latex_invoice() */
 
-LATEX_INVOICE_CUSTOMER *get_invoice_customer(
-				char *application_name,
+LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
 				char *full_name,
 				char *street_address,
 				char *sale_date_time )
@@ -444,15 +440,14 @@ LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 		street_address,
 		sale_date_time );
 
-	sales_tax = ledger_get_sales_tax(
-			application_name,
+	sales_tax =
+		customer_sale_fetch_sales_tax(
 			full_name,
 			street_address,
 			sale_date_time );
 
 	total_payment =
-		ledger_get_total_payment(
-			application_name,
+		customer_sale_total_payment(
 			full_name,
 			street_address,
 			sale_date_time );
@@ -475,8 +470,7 @@ LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 					total_payment );
 
 	return invoice_customer;
-
-} /* get_invoice_customer() */
+}
 
 double populate_line_item_list(
 			LIST *invoice_line_item_list,

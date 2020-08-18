@@ -181,7 +181,7 @@ void load_cr300_filespecification(
 "			station=\"%s\"					"
 "			date_heading_label=%s				"
 "			time=no 2>%s					|"
-"measurement_insert replace=%c execute=%c 2>%s				|"
+"measurement_insert replace=%c execute=%c html=y 2>%s			|"
 "cat									 ",
 		 filename,
 		 station,

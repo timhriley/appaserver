@@ -268,7 +268,7 @@ void load_ysi_filespecification(
 "				end_date=%s				 "
 "				end_time=%s 2>%s			|"
 "measurement_frequency_reject '^' 2>%s					|"
-"measurement_insert bypass=y replace=%c execute=%c 2>%s			|"
+"measurement_insert bypass=y replace=%c execute=%c html=y 2>%s		|"
 "cat									 ",
 		 filename,
 		 station,

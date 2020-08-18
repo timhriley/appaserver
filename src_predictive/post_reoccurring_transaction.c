@@ -24,6 +24,7 @@
 #include "boolean.h"
 #include "bank_upload.h"
 #include "transaction.h"
+#include "accrual.h"
 #include "reoccurring.h"
 
 /* Constants */
@@ -398,6 +399,7 @@ void post_reoccurring_transaction_display(
 		transaction->full_name,
 		transaction->street_address,
 		transaction->transaction_date_time,
+		transaction->memo,
 		transaction->journal_list );
 }
 
@@ -638,7 +640,7 @@ TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 	column( end_date_string, 0, transaction_date_time );
 
 	accrued_amount =
-		transaction_monthly_accrue(
+		accrual_monthly_accrue(
 			begin_date_string,
 			end_date_string,
 			accrued_monthly_amount

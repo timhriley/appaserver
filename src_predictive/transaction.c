@@ -20,6 +20,7 @@
 #include "application.h"
 #include "journal.h"
 #include "account.h"
+#include "entity.h"
 #include "transaction.h"
 
 TRANSACTION *transaction_calloc( void )
@@ -1450,11 +1451,12 @@ double transaction_net_income_fetch(
 }
 
 void transaction_journal_list_pipe_display(
-				FILE *output_pipe,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				LIST *journal_list )
+			FILE *output_pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *memo,
+			LIST *journal_list )
 {
 	JOURNAL *journal;
 	char buffer[ 256 ];
@@ -1466,14 +1468,12 @@ void transaction_journal_list_pipe_display(
 			 "Expecting a debit and credit journal entry.\n" );
 	}
 
-/*
 	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
 	{
 		fprintf( output_pipe,
 		 	 "Memo: %s\n",
 		 	 memo );
 	}
-*/
 
 	list_rewind( journal_list );
 

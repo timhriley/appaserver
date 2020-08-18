@@ -27,6 +27,7 @@ void fetch_parameters(	char **bypass_reject_yn,
 			char **replace_yn,
 			char **insert_null_values_yn,
 			char **insert_statements_yn,
+			char **html_yn,
 			char **execute_yn,
 			NAME_ARG *arg );
 
@@ -39,11 +40,13 @@ int main( int argc, char **argv )
 	char *replace_yn;
 	char *insert_null_values_yn;
 	char *insert_statements_yn;
+	char *html_yn;
 	char *execute_yn;
 	boolean bypass_reject;
 	boolean replace;
 	boolean insert_null_values;
 	boolean insert_statements;
+	boolean html;
 	boolean execute;
 	MEASUREMENT_STRUCTURE *m;
 	int row_number = 0;
@@ -69,6 +72,7 @@ int main( int argc, char **argv )
 		&replace_yn,
 		&insert_null_values_yn,
 		&insert_statements_yn,
+		&html_yn,
 		&execute_yn,
 		arg );
 
@@ -76,6 +80,7 @@ int main( int argc, char **argv )
 	replace = ( *replace_yn == 'y' );
 	insert_null_values = ( *insert_null_values_yn == 'y' );
 	insert_statements = ( *insert_statements_yn == 'y' );
+	html = ( *html_yn == 'y' );
 	execute = ( *execute_yn == 'y' );
 
 	m = measurement_structure_new( application_name );
@@ -90,7 +95,7 @@ int main( int argc, char **argv )
 
 	if ( !execute )
 	{
-		if ( !insert_statements )
+		if ( html )
 		{
 			m->html_table_pipe =
 				measurement_open_html_table_pipe();
@@ -123,14 +128,14 @@ int main( int argc, char **argv )
 		}
 
 		if ( ! ( station_datatype =
-				station_datatype_get_or_set(
+				station_datatype_getset(
 					station_datatype_list,
 					application_name,
 					m->measurement->station_name,
 					m->measurement->datatype ) ) )
 		{
 			fprintf( stderr,
-		"ERROR in %s/%s()/%d: station_datatype_get_or_set() failed.\n",
+	"ERROR in %s/%s()/%d: station_datatype_getset() returned empty.\n",
 			 	__FILE__,
 			 	__FUNCTION__,
 			 	__LINE__ );
@@ -202,7 +207,7 @@ int main( int argc, char **argv )
 	if ( m->html_table_pipe ) pclose( m->html_table_pipe );
 	if ( m->insert_statement_pipe ) pclose( m->insert_statement_pipe );
 
-	if ( !insert_statements )
+	if ( html )
 	{
 		fflush( stdout );
 		station_datatype_html_display(
@@ -218,6 +223,7 @@ void fetch_parameters(	char **bypass_reject_yn,
 			char **replace_yn,
 			char **insert_null_values_yn,
 			char **insert_statements_yn,
+			char **html_yn,
 			char **execute_yn,
 			NAME_ARG *arg )
 {
@@ -225,6 +231,7 @@ void fetch_parameters(	char **bypass_reject_yn,
 	*replace_yn = fetch_arg( arg, "replace" );
 	*insert_null_values_yn = fetch_arg( arg, "insert_null_values" );
 	*insert_statements_yn = fetch_arg( arg, "insert_statements" );
+	*html_yn = fetch_arg( arg, "html" );
 	*delimiter = fetch_arg( arg, "delimiter" );
 	*execute_yn = fetch_arg( arg, "execute" );
 }
@@ -249,6 +256,11 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         set_default_value( arg, ticket, "n" );
 
         ticket = add_valid_option( arg, "insert_statements" );
+        add_valid_value( arg, ticket, "y" );
+        add_valid_value( arg, ticket, "n" );
+        set_default_value( arg, ticket, "y" );
+
+        ticket = add_valid_option( arg, "html" );
         add_valid_value( arg, ticket, "y" );
         add_valid_value( arg, ticket, "n" );
         set_default_value( arg, ticket, "n" );

@@ -16,6 +16,7 @@
 
 /* Constants */
 /* --------- */
+#define ACCRUAL_TABLE_NAME	"prepaid_asset_accrual"
 #define ACCRUAL_MEMO		"Accrual"
 
 /* Structures */
@@ -98,11 +99,13 @@ double accrual_list_set(
 			double extension,
 			double accrual_period_years );
 
+/*
 void accrual_list_update_and_transaction_propagate(
 			LIST *accrual_list,
 			char *application_name,
 			char *asset_account_name,
 			char *expense_account_name );
+*/
 
 void accrual_list_delete(
 			LIST *accrual_list,
@@ -122,7 +125,7 @@ ACCRUAL *accrual_list_seek(
 			LIST *accrual_list,
 			char *accrual_date );
 
-char *accrual_get_prior_accrual_date(
+char *accrual_prior_accrual_date(
 			LIST *accrual_list );
 
 double accrual_monthly_accrue(
@@ -130,10 +133,10 @@ double accrual_monthly_accrue(
 			char *end_date_string,
 			double monthly_accrual );
 
-char *accrual_get_opening_begin_date_string(
+char *accrual_opening_begin_date_string(
 			DATE *end_date );
 
-double accrual_get_month_percent(
+double accrual_month_percent(
 			int begin_date_day,
 			int end_date_day,
 			int days_in_month );
@@ -159,6 +162,28 @@ double accrual_monthly_multi_month_accrue(
 			DATE *end_date,
 			double monthly_accrual,
 			int months_between );
+
+/* Returns static memory. */
+/* ---------------------- */
+char *accrual_update_sys_string(
+			void );
+
+LIST *accrual_list(	char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *asset_name );
+
+/* Returns static memory. */
+/* ---------------------- */
+char *accrual_asset_where(
+			char *asset_name,
+			char *accrual_date );
+
+char *accrual_asset_primary_where(
+			char *asset_name );
+
+LIST *accrual_system_list(
+			char *sys_string );
 
 #endif
 

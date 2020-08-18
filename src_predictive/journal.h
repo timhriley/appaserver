@@ -66,7 +66,17 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 FILE *journal_insert_open(
 			void );
 
-void journal_insert(	FILE *insert_pipe,
+/* Executes journal_list_set_balances() */
+/* ------------------------------------ */
+void journal_insert(	char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *account_name,
+			double amount,
+			boolean is_debit );
+
+void journal_insert_pipe(
+			FILE *insert_pipe,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,

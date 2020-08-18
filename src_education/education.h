@@ -29,7 +29,7 @@ typedef struct
 
 EDUCATION *education_new(
 			char *season_name,
-			year );
+			int year );
 
 LIST  *education_spreadsheet_deposit_list(
 			LIST *semester_offering_list,

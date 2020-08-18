@@ -16,11 +16,14 @@
 #include "list.h"
 #include "transaction.h"
 #include "entity.h"
+#include "enrollment.h"
+#include "offering.h"
+#include "semester.h"
 #include "education.h"
 
 EDUCATION *education_new(
 			char *season_name,
-			year )
+			int year )
 {
 	EDUCATION *education;
 
@@ -33,6 +36,13 @@ EDUCATION *education_new(
 			 __LINE__ );
 		exit( 1 );
 	}
+
+	education->semester =
+		semester_new(
+			season_name,
+			year );
+
+	return education;
 }
 
 LIST  *education_spreadsheet_deposit_list(

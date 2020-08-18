@@ -236,7 +236,7 @@ void satlink_upload(	char *filename,
 	else
 	{
 		sprintf(insert_process,
-		"measurement_insert delimiter=',' replace=%c execute=%c",
+	"measurement_insert delimiter=',' replace=%c execute=%c html=y",
 		 	(change_existing_data) ? 'y' : 'n',
 		 	(execute) ? 'y' : 'n' );
 	}

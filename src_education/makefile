@@ -84,6 +84,7 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/journal.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/element.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/entity.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/subclassification.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/account.o
 
 EXECUTABLES=	post_change_offering

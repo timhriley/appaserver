@@ -65,7 +65,7 @@ int main( int argc, char **argv )
 		}
 
 		station_datatype =
-			station_datatype_get_or_set(
+			station_datatype_getset(
 				station_datatype_list,
 				application_name,
 				m->measurement->station_name,
