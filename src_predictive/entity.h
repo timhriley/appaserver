@@ -74,16 +74,17 @@ char *entity_payroll_pay_period_string(
 enum payroll_pay_period entity_payroll_pay_period_resolve(
 				char *payroll_pay_period_string );
 
-ENTITY *entity_getset(		LIST *entity_list,
-				char *full_name,
-				char *street_address,
-				boolean with_strdup );
+ENTITY *entity_getset(	LIST *entity_list,
+			char *full_name,
+			char *street_address,
+			boolean with_strdup );
 
-ENTITY *entity_seek(		LIST *entity_list,
-				char *full_name,
-				char *street_address );
+ENTITY *entity_seek(	LIST *entity_list,
+			char *full_name,
+			char *street_address );
 
-char *entity_list_display(	LIST *entity_list );
+char *entity_list_display(
+			LIST *entity_list );
 
 boolean entity_list_exists(
 			LIST *entity_list,

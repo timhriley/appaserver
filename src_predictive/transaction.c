@@ -249,13 +249,45 @@ FILE *transaction_property_insert_open( void )
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
-char *transaction_insert(	char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double transaction_amount,
-				char *memo,
-				int check_number,
-				boolean lock_transaction )
+char *transaction_journal_insert(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			int check_number,
+			boolean lock_transaction,
+			LIST *journal_list )
+{
+	transaction_date_time =
+		transaction_insert(
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			memo,
+			check_number,
+			lock_transaction );
+
+	transaction_journal_list_insert(
+		full_name,
+		street_address,
+		transaction_date_time,
+		journal_list );
+
+	return transaction_date_time;
+}
+
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
+char *transaction_insert(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			int check_number,
+			boolean lock_transaction )
 {
 	FILE *insert_pipe;
 
@@ -1015,8 +1047,12 @@ char *transaction_date_time_max( void )
 	return pipe2string( sys_string );
 }
 
-char *transaction_closing_transaction_date_time(
-			char *as_of_date )
+char *transaction_closing_date_time( char *as_of_date )
+{
+	return transaction_date_time_closing( as_of_date );
+}
+
+char *transaction_closing_transaction_date_time( char *as_of_date )
 {
 	return transaction_date_time_closing( as_of_date );
 }
@@ -1094,16 +1130,38 @@ char *transaction_fund_where( char *fund_name )
 	return strdup( where );
 }
 
-boolean transaction_exists_closing_entry(
-			char *as_of_date )
+char *transaction_existing_closing_date_time( char *as_of_date )
+{
+	return transaction_exists_closing_entry( as_of_date );
+}
+
+char *transaction_existing_closing_entry( char *as_of_date )
+{
+	return transaction_exists_closing_entry( as_of_date );
+}
+
+char *transaction_exists_closing_date_time( char *as_of_date )
+{
+	return transaction_exists_closing_entry( as_of_date );
+}
+
+/* Returns the existing transaction_date_time or NULL */
+/* -------------------------------------------------- */
+char *transaction_exists_closing_entry( char *as_of_date )
 {
 	char where[ 512 ];
 	char sys_string[ 1024 ];
 	char *results;
-	static boolean exists_closing_entry = -1;
 
-	if ( exists_closing_entry != -1 )
-		return exists_closing_entry;
+	/* Can't start with null */
+	/* --------------------- */
+	static char *existing_transaction_date_time = "";
+
+	if ( existing_transaction_date_time
+	&& !*existing_transaction_date_time )
+	{
+		return existing_transaction_date_time;
+	}
 
 	sprintf( where,
 		 "transaction_date_time = '%s %s' and	"
@@ -1114,18 +1172,21 @@ boolean transaction_exists_closing_entry(
 
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s;\" | sql",
-		 "count(1)",
+		 "transaction_date_time",
 		 "transaction",
 		 where );
 
 	results = pipe2string( sys_string );
 
-	if ( atoi( results ) )
-		exists_closing_entry = 1;
+	if ( results && *results )
+	{
+		existing_transaction_date_time = results;
+	}
 	else
-		exists_closing_entry = 0;
-
-	return exists_closing_entry;
+	{
+		existing_transaction_date_time = (char *)0;
+	}
+	return existing_transaction_date_time;
 }
 
 LIST *transaction_fund_name_list( void )
@@ -1158,6 +1219,11 @@ char *transaction_journal_join( void )
 			"	transaction.transaction_date_time";
 
 	return join_where;
+}
+
+char *transaction_generate_date_time( char *transaction_date )
+{
+	return transaction_time_append( transaction_date );
 }
 
 char *transaction_time_append( char *transaction_date )
@@ -1382,3 +1448,66 @@ double transaction_net_income_fetch(
 	else
 		return atof( results_string );
 }
+
+void transaction_journal_list_pipe_display(
+				FILE *output_pipe,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				LIST *journal_list )
+{
+	JOURNAL *journal;
+	char buffer[ 256 ];
+	char full_name_buffer[ 256 ];
+
+	if ( list_length( journal_list ) != 2 )
+	{
+		fprintf( output_pipe,
+			 "Expecting a debit and credit journal entry.\n" );
+	}
+
+/*
+	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
+	{
+		fprintf( output_pipe,
+		 	 "Memo: %s\n",
+		 	 memo );
+	}
+*/
+
+	list_rewind( journal_list );
+
+	journal = list_get( journal_list );
+
+	if ( strcmp( street_address, "null" ) != 0 )
+	{
+		sprintf( full_name_buffer,
+			 "%s/%s",
+			 full_name,
+			 street_address );
+	}
+	else
+	{
+		strcpy( full_name_buffer, full_name );
+	}
+
+	fprintf( output_pipe,
+		 "%s^%s^%.2lf^\n",
+		 full_name_buffer,
+		 format_initial_capital(
+			buffer,
+			journal->account_name ),
+		 journal->debit_amount );
+
+	list_next( journal_list );
+	journal = list_get( journal_list );
+
+	fprintf( output_pipe,
+		 "%s^%s^^%.2lf\n",
+		 transaction_date_time,
+		 format_initial_capital(
+			buffer,
+			journal->account_name ),
+		 journal->credit_amount );
+}
+

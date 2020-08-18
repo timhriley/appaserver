@@ -34,6 +34,7 @@
 #define ACCOUNT_REVENUE_KEY		"revenue_key"
 #define ACCOUNT_ACCOUNT_RECEIVABLE_KEY	"account_receivable_key"
 #define ACCOUNT_CLOSING_KEY		"closing_key"
+#define ACCOUNT_DRAWING_KEY		"drawing_key"
 #define ACCOUNT_UNCLEARED_CHECKS_KEY	"uncleared_checks_key"
 
 /* Structures */
@@ -128,5 +129,8 @@ LIST *account_omit_latex_row_list(
 			char *element_name,
 			boolean element_accumulate_debit,
 			double percent_denominator );
+
+void account_propagate( char *account_name,
+			char *transaction_date_time );
 
 #endif

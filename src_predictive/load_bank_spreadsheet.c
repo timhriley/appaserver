@@ -32,7 +32,6 @@
 /* --------------------------------------------------- */
 int load_bank_spreadsheet(	int *transaction_count,
 				char **minimum_bank_date,
-				char *application_name,
 				char *login_name,
 				char *fund_name,
 				char *feeder_account,
@@ -210,7 +209,6 @@ int main( int argc, char **argv )
 		load_bank_spreadsheet(
 			&transaction_count,
 			&minimum_bank_date,
-			application_name,
 			login_name,
 			fund_name,
 			feeder_account,
@@ -267,7 +265,6 @@ int main( int argc, char **argv )
 int load_bank_spreadsheet(
 			int *transaction_count,
 			char **minimum_bank_date,
-			char *application_name,
 			char *login_name,
 			char *fund_name,
 			char *feeder_account,
@@ -286,7 +283,6 @@ int load_bank_spreadsheet(
 
 	bank_upload_structure =
 		bank_upload_structure_new(
-			application_name,
 			fund_name,
 			feeder_account,
 			input_filename,
@@ -300,11 +296,11 @@ int load_bank_spreadsheet(
 	if ( !bank_upload_structure ) return 0;
 
 /* -------------------------------------------------------------------- */
-/* Sets bank_upload->feeder_check_number_existing_journal_ledger	*/
+/* Sets bank_upload->feeder_check_number_existing_journal		*/
 /* or									*/
 /* Sets bank_upload->feeder_phrase_match_build_transaction		*/
 /* or									*/
-/* Sets bank_upload->feeder_match_sum_existing_journal_ledger_list	*/
+/* Sets bank_upload->feeder_match_sum_existing_journal_list		*/
 /* -------------------------------------------------------------------- */
 	bank_upload_set_transaction(
 		bank_upload_structure->file.bank_upload_list,
@@ -312,10 +308,9 @@ int load_bank_spreadsheet(
 			reoccurring_structure->
 			reoccurring_transaction_list,
 		bank_upload_structure->
-			existing_cash_journal_ledger_list );
+			existing_cash_journal_list );
 
 	if ( bank_upload_sha256sum_exists(
-			application_name,
 			bank_upload_structure->file.file_sha256sum ) )
 	{
 		char *msg;
@@ -335,7 +330,6 @@ int load_bank_spreadsheet(
 	if ( !execute )
 	{
 		bank_upload_table_display(
-			application_name,
 			bank_upload_structure->
 				file.
 				bank_upload_list );
@@ -370,7 +364,6 @@ int load_bank_spreadsheet(
 		}
 
 		bank_upload_event_insert(
-			application_name,
 			bank_upload_structure->bank_upload_date_time,
 			login_name,
 			bank_upload_structure->
@@ -384,7 +377,6 @@ int load_bank_spreadsheet(
 			bank_upload_structure->feeder_account );
 
 		bank_upload_archive_insert(
-			application_name,
 			fund_name,
 			bank_upload_structure->
 				file.
@@ -393,13 +385,12 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				bank_upload_date_time );
 
-		/* ------------------------------------------ */
-		/* Insert into TRANSACTION and JOURNAL_LEDGER */
-		/* ------------------------------------------ */
-		/* Note: this is the bottleneck.	      */
-		/* ------------------------------------------ */
+		/* ------------------------------------ */
+		/* Insert into TRANSACTION and JOURNAL	*/
+		/* ------------------------------------ */
+		/* Note: this is the bottleneck.	*/
+		/* ------------------------------------ */
 		bank_upload_transaction_insert(
-			application_name,
 			bank_upload_structure->file.bank_upload_list );
 
 		bank_upload_transaction_table_display(
@@ -418,13 +409,11 @@ int load_bank_spreadsheet(
 				file.
 				bank_upload_list );
 
-		/* ----------------------------- */
-		/* Update JOURNAL_LEDGER.account */
-		/* ----------------------------- */
-		/* Does ledger_propagate()	 */
-		/* ----------------------------- */
+		/* ------------------------ */
+		/* Update JOURNAL.account   */
+		/* Does journal_propagate() */
+		/* ------------------------ */
 		bank_upload_cleared_checks_update(
-			application_name,
 			bank_upload_structure->fund_name,
 			bank_upload_structure->
 				file.
@@ -462,6 +451,5 @@ int load_bank_spreadsheet(
 		return bank_upload_structure->file.file_row_count;
 	else
 		return bank_upload_structure->file.table_insert_count;
-
-} /* load_bank_spreadsheet() */
+}
 

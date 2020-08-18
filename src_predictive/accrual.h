@@ -8,6 +8,7 @@
 #ifndef ACCRUAL_H
 #define ACCRUAL_H
 
+#include "date.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -154,10 +155,10 @@ double accrual_monthly_next_month_accrue(
 /* begin_date and end_date are more than one month apart. */
 /* ------------------------------------------------------ */
 double accrual_monthly_multi_month_accrue(
-				DATE *begin_date,
-				DATE *end_date,
-				double monthly_accrual,
-				int months_between );
+			DATE *begin_date,
+			DATE *end_date,
+			double monthly_accrual,
+			int months_between );
 
 #endif
 

@@ -1,7 +1,6 @@
 :
 
-touch spreadsheet_parse_header.c
-make spreadsheet_parse_header
+make measurement_insert
 
 #cd - && make parse_alias_data
 

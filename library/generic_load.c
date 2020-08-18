@@ -1263,24 +1263,6 @@ int generic_load_output_to_database(
 	FILE *error_file;
 	char error_filename[ 128 ];
 
-/*
-	if ( list_length( generic_load_folder_list )
-	&&   replace_existing_records_yn
-	&&   *replace_existing_records_yn == 'y' )
-	{
-		if ( ! generic_load_delete_from_database(
-					application_name,
-					load_filename,
-					delimiter,
-					list_get_first_pointer(
-						generic_load_folder_list ),
-					skip_header_rows_integer ) )
-		{
-			return 0;
-		}
-	}
-*/
-
 	if ( !list_rewind( generic_load_folder_list ) ) return 0;
 
 	/* Open the error file */

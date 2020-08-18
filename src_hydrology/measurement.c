@@ -157,96 +157,21 @@ void measurement_free( MEASUREMENT *m )
 	free( m );
 }
 
-void measurement_pipe_output( 	
+boolean measurement_output_pipe( 	
 			FILE *output_pipe,
-			MEASUREMENT_STRUCTURE *m )
-{
-	measurement_non_execute_display(
-			m,
-			output_pipe );
-}
-
-void measurement_text_output(		MEASUREMENT *measurement,
-					char delimiter )
-{
-	if ( !measurement )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: no record set.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !measurement->null_value )
-	{
-		printf( "%s%c%s%c%s%c%s%c%.4lf\n",
-			measurement->station_name,
-			delimiter,
-			measurement->datatype,
-			delimiter,
-			measurement->measurement_date,
-			delimiter,
-			measurement->measurement_time,
-			delimiter,
-			measurement->measurement_value );
-	}
-	else
-	{
-		printf("%s%c%s%c%s%c%s%c\n",
-			measurement->station_name,
-			delimiter,
-			measurement->datatype,
-			delimiter,
-			measurement->measurement_date,
-			delimiter,
-			measurement->measurement_time,
-			delimiter );
-	}
-}
-
-void measurement_insert(
 			MEASUREMENT_STRUCTURE *m,
-			boolean insert_null_value )
+			boolean insert_null_values )
 {
-	if ( !m || !m->measurement ) return;
-
-	if ( !m->insert_pipe )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: insert_pipe not set.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( m->measurement->null_value && !insert_null_value )
-	{
-		fprintf( stderr,
-			 "%s(): Null value rejection %s/%s/%s/%s\n",
-			 __FUNCTION__,
-			 m->measurement->station_name,
-			 m->measurement->datatype,
-			 m->measurement->measurement_date,
-			 m->measurement->measurement_time );
-		return;
-	}
-
-	measurement_output_insert_pipe(
-			m->insert_pipe,
-			m->measurement->station_name,
-			m->measurement->datatype,
-			m->measurement->measurement_date,
-			m->measurement->measurement_time,
-			m->measurement->measurement_value,
-			m->measurement->null_value );
+	return measurement_pipe_output( 	
+			output_pipe,
+			m,
+			insert_null_values );
 }
 
-void measurement_non_execute_display(
-				MEASUREMENT_STRUCTURE *m,
-				FILE *html_table_pipe )
+boolean measurement_pipe_output( 	
+			FILE *output_pipe,
+			MEASUREMENT_STRUCTURE *m,
+			boolean insert_null_values )
 {
 	if ( !m->measurement )
 	{
@@ -258,11 +183,23 @@ void measurement_non_execute_display(
 		exit( 1 );
 	}
 
-	if ( html_table_pipe )
+	if ( m->measurement->null_value && !insert_null_values )
+	{
+		fprintf( stderr,
+			 "Warning: %s(): null value reject %s/%s/%s/%s\n",
+			 __FUNCTION__,
+			 m->measurement->station_name,
+			 m->measurement->datatype,
+			 m->measurement->measurement_date,
+			 m->measurement->measurement_time );
+		return 0;
+	}
+
+	if ( output_pipe )
 	{
 		if ( !m->measurement->null_value )
 		{
-			fprintf(html_table_pipe,
+			fprintf(output_pipe,
 				"%s,%s,%s,%s,%.4lf\n",
 				m->measurement->station_name,
 				m->measurement->datatype,
@@ -272,7 +209,7 @@ void measurement_non_execute_display(
 		}
 		else
 		{
-			fprintf(html_table_pipe,
+			fprintf(output_pipe,
 				"%s,%s,%s,%s,null\n",
 				m->measurement->station_name,
 				m->measurement->datatype,
@@ -300,15 +237,114 @@ void measurement_non_execute_display(
 				m->measurement->measurement_time );
 		}
 	}
+	return 1;
 }
 
-void measurement_output_insert_pipe(	FILE *insert_pipe,
-					char *station,
-					char *datatype,
-					char *date,
-					char *time,
-					double value,
-					boolean null_value )
+boolean measurement_text_output(
+			MEASUREMENT *measurement,
+			char delimiter,
+			boolean insert_null_values )
+{
+	if ( !measurement ) return 0;
+
+	if ( measurement->null_value && !insert_null_values )
+	{
+		fprintf( stderr,
+			 "Warning: %s(): null value rejecting %s/%s/%s/%s\n",
+			 __FUNCTION__,
+			 measurement->station_name,
+			 measurement->datatype,
+			 measurement->measurement_date,
+			 measurement->measurement_time );
+		return 0;
+	}
+
+	if ( !measurement->null_value )
+	{
+		printf( "%s%c%s%c%s%c%s%c%.4lf\n",
+			measurement->station_name,
+			delimiter,
+			measurement->datatype,
+			delimiter,
+			measurement->measurement_date,
+			delimiter,
+			measurement->measurement_time,
+			delimiter,
+			measurement->measurement_value );
+	}
+	else
+	{
+		printf("%s%c%s%c%s%c%s%c\n",
+			measurement->station_name,
+			delimiter,
+			measurement->datatype,
+			delimiter,
+			measurement->measurement_date,
+			delimiter,
+			measurement->measurement_time,
+			delimiter );
+	}
+	return 1;
+}
+
+boolean measurement_insert(
+			MEASUREMENT_STRUCTURE *m,
+			boolean insert_null_value )
+{
+	if ( !m || !m->measurement ) return 0;
+
+	if ( !m->insert_pipe )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: insert_pipe not set.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( m->measurement->null_value && !insert_null_value )
+	{
+		fprintf( stderr,
+			 "%s(): Null value rejection %s/%s/%s/%s\n",
+			 __FUNCTION__,
+			 m->measurement->station_name,
+			 m->measurement->datatype,
+			 m->measurement->measurement_date,
+			 m->measurement->measurement_time );
+		return 0;
+	}
+
+	measurement_output_insert_pipe(
+			m->insert_pipe,
+			m->measurement->station_name,
+			m->measurement->datatype,
+			m->measurement->measurement_date,
+			m->measurement->measurement_time,
+			m->measurement->measurement_value,
+			m->measurement->null_value );
+	return 1;
+}
+
+boolean measurement_non_execute_display(
+			FILE *output_pipe,
+			MEASUREMENT_STRUCTURE *m,
+			boolean insert_null_values )
+{
+	return measurement_output_pipe(
+			output_pipe,
+			m,
+			insert_null_values );
+}
+
+void measurement_output_insert_pipe(
+			FILE *insert_pipe,
+			char *station,
+			char *datatype,
+			char *date,
+			char *time,
+			double value,
+			boolean null_value )
 {
 	if ( !null_value )
 	{
@@ -596,8 +632,7 @@ char *measurement_display( MEASUREMENT *m )
 	}
 
 	return buffer;
-
-} /* measurement_display() */
+}
 
 void measurement_delete( FILE *delete_pipe, MEASUREMENT *m )
 {

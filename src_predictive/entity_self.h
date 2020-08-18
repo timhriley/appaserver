@@ -9,9 +9,7 @@
 #define ENTITY_SELF_H
 
 #include "boolean.h"
-#include "hash_table.h"
 #include "entity.h"
-#include "inventory.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -24,20 +22,6 @@
 typedef struct
 {
 	ENTITY *entity;
-	enum inventory_cost_method inventory_cost_method;
-	LIST *purchase_order_list;
-	LIST *customer_sale_list;
-	INVENTORY *purchase_inventory;
-	INVENTORY *sale_inventory;
-	HASH_TABLE *inventory_purchase_hash_table;
-	LIST *inventory_purchase_name_list;
-	HASH_TABLE *inventory_sale_hash_table;
-	LIST *inventory_sale_name_list;
-	HASH_TABLE *transaction_hash_table;
-	HASH_TABLE *journal_ledger_hash_table;
-	LIST *inventory_list;
-	LIST *employee_list;
-	enum payroll_pay_period payroll_pay_period;
 	char *payroll_beginning_day;
 	double social_security_combined_tax_rate;
 	int social_security_payroll_ceiling;
@@ -55,6 +39,22 @@ typedef struct
 	double state_withholding_allowance_period_value;
 	double state_itemized_allowance_period_value;
 	double state_sales_tax_rate;
+/*
+	enum inventory_cost_method inventory_cost_method;
+	enum payroll_pay_period payroll_pay_period;
+	LIST *purchase_order_list;
+	LIST *customer_sale_list;
+	INVENTORY *purchase_inventory;
+	INVENTORY *sale_inventory;
+	HASH_TABLE *inventory_purchase_hash_table;
+	LIST *inventory_purchase_name_list;
+	HASH_TABLE *inventory_sale_hash_table;
+	LIST *inventory_sale_name_list;
+	HASH_TABLE *transaction_hash_table;
+	HASH_TABLE *journal_ledger_hash_table;
+	LIST *inventory_list;
+	LIST *employee_list;
+*/
 } ENTITY_SELF;
 
 /* Operations */
@@ -84,7 +84,7 @@ boolean entity_load(			char **city,
 					char *full_name,
 					char *street_address );
 
-ENTITY_SELF *entity_self_load(		char *application_name );
+ENTITY_SELF *entity_self_load(		void );
 
 ENTITY_SELF *entity_self_new(		char *full_name,
 					char *street_address );
@@ -105,9 +105,11 @@ void entity_propagate_purchase_order_ledger_accounts(
 				char *fund_name,
 				char *purchase_order_transaction_date_time );
 
+/*
 ENTITY_SELF *entity_self_inventory_load(
 				char *application_name,
 				char *inventory_name );
+*/
 
 enum title_passage_rule
 	entity_get_title_passage_rule(
@@ -137,7 +139,7 @@ ENTITY *entity_seek(		LIST *entity_list,
 				char *full_name,
 				char *street_address );
 
-char *entity_self_get_select(	char *appliction_name );
+char *entity_self_select(	void );
 
 char *entity_list_display(	LIST *entity_list );
 
@@ -149,10 +151,6 @@ boolean entity_location_fetch(	char **city,
 				char **state_code,
 				char **zip_code,
 				char *application_name,
-				char *full_name,
-				char *street_address );
-
-ENTITY *entity_fetch(		char *application_name,
 				char *full_name,
 				char *street_address );
 

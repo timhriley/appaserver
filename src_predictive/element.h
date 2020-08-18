@@ -121,5 +121,9 @@ LATEX_ROW *element_latex_liabilities_plus_equity_row(
 			double liabilities_plus_equity,
 			int skip_columns );
 
+void element_list_propagate(
+			LIST *element_list,
+			char *transaction_date_time_string );
+
 #endif
 

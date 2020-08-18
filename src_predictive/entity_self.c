@@ -11,8 +11,8 @@
 #include "timlib.h"
 #include "piece.h"
 #include "appaserver_library.h"
-#include "purchase.h"
-#include "customer.h"
+#include "environ.h"
+#include "sql.h"
 #include "entity_self.h"
 
 ENTITY_SELF *entity_self_new(	char *full_name,
@@ -30,20 +30,19 @@ ENTITY_SELF *entity_self_new(	char *full_name,
 		exit( 1 );
 	}
 
-	s->entity = entity_new( full_name, street_address );
+	s->entity = entity_fetch( full_name, street_address );
 
 	return s;
+}
 
-} /* entity_self_new() */
-
-char *entity_self_get_select( char *application_name )
+char *entity_self_select( void )
 {
 	char *select;
 	boolean inventory_cost_method_exists;
 
 	inventory_cost_method_exists =
 		attribute_exists(
-			application_name,
+			environment_application_name(),
 			"self"
 				/* folder_name */,
 			"inventory_cost_method"
@@ -61,117 +60,101 @@ char *entity_self_get_select( char *application_name )
 	}
 
 	return select;
+}
 
-} /* entity_self_get_select() */
-
-ENTITY_SELF *entity_self_load(	char *application_name )
+ENTITY_SELF *entity_self_load( void )
 {
 	ENTITY_SELF *self;
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	char piece_buffer[ 128 ];
 	char sys_string[ 1024 ];
-	char *select;
 	char *results;
 
-	select = entity_self_get_select( application_name );
-
 	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=\"%s\"		"
-		 "			folder=self		",
-		 application_name,
-		 select );
+		 "echo \"select %s from %s;\" | sql",
+		 entity_self_select(),
+		 "self" );
 
 	results = pipe2string( sys_string );
 
 	if ( !results ) return (ENTITY_SELF *)0;
 
-	piece( full_name, FOLDER_DATA_DELIMITER, results, 0 );
-	piece( street_address, FOLDER_DATA_DELIMITER, results, 1 );
+	piece( full_name, SQL_DELIMITER, results, 0 );
+	piece( street_address, SQL_DELIMITER, results, 1 );
 
 	self = entity_self_new(
 			strdup( full_name ),
 			strdup( street_address ) );
 
-	if ( !entity_load(	&self->entity->city,
-				&self->entity->state_code,
-				&self->entity->zip_code,
-				&self->entity->phone_number,
-				&self->entity->email_address,
-				application_name,
-				self->entity->full_name,
-				self->entity->street_address ) )
-	{
-		return (ENTITY_SELF *)0;
-	}
-
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
+/*
+	piece(	piece_buffer, SQL_DELIMITER, results, 2 );
 	self->inventory_cost_method =
 		entity_get_inventory_cost_method(
 			piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 3 );
+	piece(	piece_buffer, SQL_DELIMITER, results, 3 );
 	self->payroll_pay_period =
 		entity_get_payroll_pay_period(
 			piece_buffer );
+*/
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 4 );
+	piece( piece_buffer, SQL_DELIMITER, results, 4 );
 	self->payroll_beginning_day = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 5 );
+	piece( piece_buffer, SQL_DELIMITER, results, 5 );
 	self->social_security_combined_tax_rate = atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 6 );
+	piece( piece_buffer, SQL_DELIMITER, results, 6 );
 	self->social_security_payroll_ceiling = atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 7 );
+	piece( piece_buffer, SQL_DELIMITER, results, 7 );
 	self->medicare_combined_tax_rate = atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 8 );
+	piece( piece_buffer, SQL_DELIMITER, results, 8 );
 	self->medicare_additional_withholding_rate = atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 9 );
+	piece( piece_buffer, SQL_DELIMITER, results, 9 );
 	self->medicare_additional_gross_pay_floor = atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 10 );
+	piece( piece_buffer, SQL_DELIMITER, results, 10 );
 	self->federal_unemployment_wage_base = atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 11 );
+	piece( piece_buffer, SQL_DELIMITER, results, 11 );
 	self->federal_unemployment_tax_minimum_rate = atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 12 );
+	piece( piece_buffer, SQL_DELIMITER, results, 12 );
 	self->federal_unemployment_tax_standard_rate = atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 13 );
+	piece( piece_buffer, SQL_DELIMITER, results, 13 );
 	self->federal_withholding_allowance_period_value = atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 14 );
+	piece( piece_buffer, SQL_DELIMITER, results, 14 );
 	self->federal_nonresident_withholding_income_premium =
 		atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 15 );
+	piece( piece_buffer, SQL_DELIMITER, results, 15 );
 	self->state_unemployment_wage_base = atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 16 );
+	piece( piece_buffer, SQL_DELIMITER, results, 16 );
 	self->state_unemployment_tax_rate = atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 17 );
+	piece( piece_buffer, SQL_DELIMITER, results, 17 );
 	self->federal_unemployment_threshold_rate = atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 18 );
+	piece( piece_buffer, SQL_DELIMITER, results, 18 );
 	self->state_withholding_allowance_period_value = atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 19 );
+	piece( piece_buffer, SQL_DELIMITER, results, 19 );
 	self->state_itemized_allowance_period_value = atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 20 );
+	piece( piece_buffer, SQL_DELIMITER, results, 20 );
 	self->state_sales_tax_rate = atof( piece_buffer );
 
 	return self;
+}
 
-} /* entity_self_load() */
-
+#ifdef NOT_DEFINED
 ENTITY_SELF *entity_self_inventory_load(
 			char *application_name,
 			char *inventory_name )
@@ -247,4 +230,5 @@ ENTITY_SELF *entity_self_inventory_load(
 	return entity_self;
 
 } /* entity_self_inventory_load() */
+#endif
 

@@ -91,20 +91,8 @@ EXECUTABLES=	trial_balance						\
 		ledger_unbalance					\
 		ledger_debit_credit_audit				\
 		close_nominal_accounts					\
-		pay_liabilities_process					\
-		populate_print_checks_entity				\
 		load_bank_spreadsheet					\
 		feeder_upload_missing					\
-		depreciate_fixed_assets					\
-		post_change_fixed_asset_purchase			\
-		post_change_fixed_asset					\
-		post_change_fixed_service_sale				\
-		post_change_purchase_order				\
-		post_change_customer_sale				\
-		post_change_customer_payment				\
-		post_change_prior_fixed_asset				\
-		post_change_account_balance				\
-		post_change_vendor_payment				\
 		post_change_bank_upload					\
 		post_reoccurring_transaction				\
 		post_cash_expense_transaction				\
@@ -174,6 +162,7 @@ SOURCE_LIBRARY= 							\
 		vendor_payment.o					\
 		customer_payment.o					\
 		inventory_sale.o					\
+		entity_self.o						\
 		entity.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
@@ -200,6 +189,7 @@ post_reoccurring_transaction: post_reoccurring_transaction.c		\
 		bank_upload.o						\
 		feeder_upload.o						\
 		reoccurring.o						\
+		accrual.o						\
 		${LIBRARY}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
@@ -208,6 +198,7 @@ post_reoccurring_transaction: post_reoccurring_transaction.c		\
 		bank_upload.o						\
 		feeder_upload.o						\
 		reoccurring.o						\
+		accrual.o						\
 		${LIBRARY}/folder_menu.o				\
 		-o post_reoccurring_transaction
 

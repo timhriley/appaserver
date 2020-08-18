@@ -83,11 +83,7 @@ boolean measurement_set_delimited_record(
 					char *comma_delimited_record,
 					char delimiter );
 
-void measurement_pipe_output(
-			FILE *display_pipe,
-			MEASUREMENT_STRUCTURE *m );
-
-void measurement_insert(
+boolean measurement_insert(
 			MEASUREMENT_STRUCTURE *m,
 			boolean insert_null_value );
 
@@ -161,30 +157,32 @@ MEASUREMENT *measurement_list_seek(	char *station_name  /* optional */,
 					char *measurement_time,
 					LIST *measurement_list );
 
-void measurement_text_output(		MEASUREMENT *m,
-					char delimiter );
+boolean measurement_text_output(
+			MEASUREMENT *m,
+			char delimiter,
+			boolean insert_null_values );
 
-void measurement_change_text_output(	LIST *measurement_list,
-					char delimiter );
+void measurement_change_text_output(
+			LIST *measurement_list,
+			char delimiter );
 
 MEASUREMENT *measurement_variable_parse(
 			char *buffer,
 			char delimiter,
 			LIST *order_integer_list );
 
-void measurement_non_execute_display(
-					MEASUREMENT_STRUCTURE *m,
-					FILE *html_table_pipe );
+boolean measurement_non_execute_display(
+			FILE *output_pipe,
+			MEASUREMENT_STRUCTURE *m,
+			boolean insert_null_values );
 
 JULIAN *measurement_adjust_time_to_sequence(
-					JULIAN *measurement_date_time,
-					char *sequence_list_string );
+			JULIAN *measurement_date_time,
+			char *sequence_list_string );
 
-void measurement_text_output(		MEASUREMENT *measurement,
-					char delimiter );
-
-void measurement_pipe_output( 	
+boolean measurement_pipe_output( 	
 			FILE *output_pipe,
-			MEASUREMENT_STRUCTURE *m );
+			MEASUREMENT_STRUCTURE *m,
+			boolean insert_null_values );
 
 #endif

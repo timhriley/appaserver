@@ -21,9 +21,9 @@
 #include "appaserver_parameter_file.h"
 #include "date.h"
 #include "folder_menu.h"
-#include "accrual.h"
 #include "boolean.h"
 #include "bank_upload.h"
+#include "transaction.h"
 #include "reoccurring.h"
 
 /* Constants */
@@ -33,23 +33,19 @@
 /* ---------- */
 void post_reoccurring_transaction_batch(
 			FILE *output_pipe,
-			char *application_name,
 			char *transaction_date_time,
 			boolean execute );
 
 void post_reoccurring_transaction_entity(
 			FILE *output_pipe,
-			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description,
 			char *transaction_date_time,
-			double transaction_amount,
 			char *memo,
 			boolean execute );
 
-char *get_last_transaction_date(
-			char *application_name,
+char *reoccurring_last_transaction_date(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -57,7 +53,6 @@ char *get_last_transaction_date(
 			char *credit_account );
 
 TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
-			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description,
@@ -67,7 +62,6 @@ TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 			double accrued_monthly_amount );
 
 TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
-			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description,
@@ -76,6 +70,7 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			char *credit_account,
 			double accrued_daily_amount );
 
+/*
 TRANSACTION *post_reoccurring_get_recent_transaction(
 			char *full_name,
 			char *street_address,
@@ -84,25 +79,21 @@ TRANSACTION *post_reoccurring_get_recent_transaction(
 			char *credit_account,
 			double transaction_amount,
 			char *memo );
+*/
 
 char *post_reoccurring_transaction(
-			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description,
 			char *transaction_date_time,
-			double transaction_amount,
 			char *memo );
 
 void post_reoccurring_transaction_display(
 			FILE *output_pipe,
-			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo );
+			char *transaction_date_time );
 
 /* Global variables */
 /* ---------------- */
@@ -119,7 +110,6 @@ int main( int argc, char **argv )
 	char *transaction_description;
 	char *transaction_date;
 	char *transaction_date_time;
-	double transaction_amount;
 	char *memo;
 	boolean execute;
 	boolean with_html;
@@ -140,7 +130,7 @@ int main( int argc, char **argv )
 	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s session role process full_name street_address transaction_description transaction_date transaction_amount memo execute_yn with_html_yn\n",
+"Usage: %s session role process full_name street_address transaction_description transaction_date ignored memo execute_yn with_html_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -152,7 +142,7 @@ int main( int argc, char **argv )
 	street_address = argv[ 5 ];
 	transaction_description = argv[ 6 ];
 	transaction_date = argv[ 7 ];
-	transaction_amount = atof( argv[ 8 ] );
+	/* transaction_amount = atof( argv[ 8 ] ); */
 	memo = argv[ 9 ];
 	execute = (*argv[ 10 ] == 'y');
 	with_html = (*argv[ 11 ] == 'y');
@@ -182,7 +172,7 @@ int main( int argc, char **argv )
 	}
 
 	transaction_date_time =
-		ledger_get_transaction_date_time(
+		transaction_generate_date_time(
 			transaction_date );
 
 	if ( with_html )
@@ -209,7 +199,6 @@ int main( int argc, char **argv )
 	{
 		post_reoccurring_transaction_batch(
 				output_pipe,
-				application_name,
 				transaction_date_time,
 				execute );
 	}
@@ -221,12 +210,10 @@ int main( int argc, char **argv )
 	{
 		post_reoccurring_transaction_entity(
 				output_pipe,
-				application_name,
 				full_name,
 				street_address,
 				transaction_description,
 				transaction_date_time,
-				transaction_amount,
 				memo,
 				execute );
 	}
@@ -245,7 +232,7 @@ int main( int argc, char **argv )
 
 		folder_menu_refresh_row_count(
 			application_name,
-			LEDGER_FOLDER_NAME,
+			JOURNAL_FOLDER_NAME,
 			session,
 			appaserver_parameter_file->
 				appaserver_data_directory,
@@ -263,7 +250,6 @@ int main( int argc, char **argv )
 
 void post_reoccurring_transaction_batch(
 				FILE *output_pipe,
-				char *application_name,
 				char *transaction_date_time,
 				boolean execute )
 {
@@ -302,26 +288,21 @@ void post_reoccurring_transaction_batch(
 
 		post_reoccurring_transaction_entity(
 				output_pipe,
-				application_name,
 				full_name,
 				street_address,
 				transaction_description,
 				transaction_date_time,
-				0.0 /* transaction_amount */,
 				(char *)0 /* memo */,
 				execute );
 	}
-
-} /* post_reoccurring_transaction_batch() */
+}
 
 void post_reoccurring_transaction_entity(
 				FILE *output_pipe,
-				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *transaction_description,
 				char *transaction_date_time,
-				double transaction_amount,
 				char *memo,
 				boolean execute )
 {
@@ -329,49 +310,38 @@ void post_reoccurring_transaction_entity(
 	{
 		post_reoccurring_transaction_display(
 			output_pipe,
-			application_name,
 			full_name,
 			street_address,
 			transaction_description,
-			transaction_date_time,
-			transaction_amount,
-			memo );
+			transaction_date_time );
 	}
 	else
 	{
 		transaction_date_time =
 			post_reoccurring_transaction(
-				application_name,
 				full_name,
 				street_address,
 				transaction_description,
 				transaction_date_time,
-				transaction_amount,
 				memo );
 	}
-
-} /* post_reoccurring_transaction_entity() */
+}
 
 void post_reoccurring_transaction_display(
 			FILE *output_pipe,
-			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo )
+			char *transaction_date_time )
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
-	TRANSACTION *transaction;
+	TRANSACTION *transaction = {0};
 
 	if ( ! ( reoccurring_transaction =
 			reoccurring_transaction_fetch(
-					application_name,
 					full_name,
 					street_address,
-					transaction_description,
-					transaction_amount ) ) )
+					transaction_description ) ) )
 	{
 		printf(
 		"<h3>Warning: no valid reoccurring transaction found.</h3>\n" );
@@ -382,7 +352,6 @@ void post_reoccurring_transaction_display(
 	{
 		transaction =
 			post_reoccurring_get_accrued_daily_transaction(
-				application_name,
 				reoccurring_transaction->full_name,
 				reoccurring_transaction->street_address,
 				reoccurring_transaction->
@@ -397,7 +366,6 @@ void post_reoccurring_transaction_display(
 	{
 		transaction =
 			post_reoccurring_get_accrued_monthly_transaction(
-				application_name,
 				reoccurring_transaction->full_name,
 				reoccurring_transaction->street_address,
 				reoccurring_transaction->
@@ -410,6 +378,7 @@ void post_reoccurring_transaction_display(
 	}
 	else
 	{
+/*
 		transaction =
 			post_reoccurring_get_recent_transaction(
 				reoccurring_transaction->full_name,
@@ -419,41 +388,36 @@ void post_reoccurring_transaction_display(
 				reoccurring_transaction->credit_account,
 				reoccurring_transaction->transaction_amount,
 				memo );
+*/
 	}
 
 	if ( !transaction ) return;
 
-	ledger_transaction_output_pipe_display(
+	transaction_journal_list_pipe_display(
 		output_pipe,
 		transaction->full_name,
 		transaction->street_address,
 		transaction->transaction_date_time,
-		(memo && *memo) ? memo : transaction->memo,
-		transaction->journal_ledger_list );
-
-} /* post_reoccurring_transaction_display() */
+		transaction->journal_list );
+}
 
 /* Returns transaction_date_time */
 /* ----------------------------- */
 char *post_reoccurring_transaction(
-			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description,
 			char *transaction_date_time,
-			double transaction_amount,
 			char *memo )
 {
-	TRANSACTION *transaction;
+	TRANSACTION *transaction = {0};
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 
 	if ( ! ( reoccurring_transaction =
 			reoccurring_transaction_fetch(
-					application_name,
 					full_name,
 					street_address,
-					transaction_description,
-					transaction_amount ) ) )
+					transaction_description ) ) )
 	{
 		return (char *)0;
 	}
@@ -462,7 +426,6 @@ char *post_reoccurring_transaction(
 	{
 		transaction =
 			post_reoccurring_get_accrued_daily_transaction(
-				application_name,
 				reoccurring_transaction->full_name,
 				reoccurring_transaction->street_address,
 				reoccurring_transaction->
@@ -477,7 +440,6 @@ char *post_reoccurring_transaction(
 	{
 		transaction =
 			post_reoccurring_get_accrued_monthly_transaction(
-				application_name,
 				reoccurring_transaction->full_name,
 				reoccurring_transaction->street_address,
 				reoccurring_transaction->
@@ -490,6 +452,7 @@ char *post_reoccurring_transaction(
 	}
 	else
 	{
+/*
 		transaction =
 			post_reoccurring_get_recent_transaction(
 				reoccurring_transaction->full_name,
@@ -499,13 +462,15 @@ char *post_reoccurring_transaction(
 				reoccurring_transaction->credit_account,
 				reoccurring_transaction->transaction_amount,
 				memo );
+*/
 	}
 
 	if ( !transaction ) return (char *)0;
 
+	transaction->memo = memo;
+
 	transaction->transaction_date_time =
-		ledger_transaction_journal_ledger_insert(
-			application_name,
+		transaction_journal_insert(
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time,
@@ -513,11 +478,10 @@ char *post_reoccurring_transaction(
 			transaction->memo,
 			0 /* check_number */,
 			0 /* not lock_transaction */,
-			transaction->journal_ledger_list );
+			transaction->journal_list );
 
 	return transaction->transaction_date_time;
-
-} /* post_reoccurring_transaction() */
+}
 
 TRANSACTION *post_reoccurring_get_recent_transaction(
 			char *full_name,
@@ -529,46 +493,45 @@ TRANSACTION *post_reoccurring_get_recent_transaction(
 			char *memo )
 {
 	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
+	JOURNAL *journal;
 
 	transaction =
-		ledger_transaction_new(
+		transaction_new(
 			full_name,
 			street_address,
-			transaction_date_time,
-			memo );
+			transaction_date_time );
+
+	transaction->memo = memo;
 
 	transaction->transaction_amount = transaction_amount;
-	transaction->journal_ledger_list = list_new();
+	transaction->journal_list = list_new();
 
-	journal_ledger =
-		journal_ledger_new(
+	journal =
+		journal_new(
 			full_name,
 			street_address,
 			transaction->transaction_date_time,
 			debit_account );
 
-	journal_ledger->debit_amount = transaction->transaction_amount;
+	journal->debit_amount = transaction->transaction_amount;
 
-	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
+	list_set( transaction->journal_list, journal );
 
-	journal_ledger =
-		journal_ledger_new(
+	journal =
+		journal_new(
 			full_name,
 			street_address,
 			transaction->transaction_date_time,
 			credit_account );
 
-	journal_ledger->credit_amount = transaction->transaction_amount;
+	journal->credit_amount = transaction->transaction_amount;
 
-	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
+	list_set( transaction->journal_list, journal );
 
 	return transaction;
-
-} /* post_reoccurring_get_recent_transaction() */
+}
 
 TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
-			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description,
@@ -578,14 +541,13 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			double accrued_daily_amount )
 {
 	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
+	JOURNAL *journal;
 	int days_between;
 	double accrued_amount;
 	char *memo;
 
 	if ( ! ( days_between =
 			reoccurring_days_between_last_transaction(
-				application_name,
 				full_name,
 				street_address,
 				transaction_date_time,
@@ -613,44 +575,43 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			credit_account );
 
 	transaction =
-		ledger_transaction_new(
+		transaction_new(
 			full_name,
 			street_address,
-			transaction_date_time,
-			strdup( memo ) );
+			transaction_date_time );
+
+	transaction->memo = strdup( memo );
 
 	transaction->transaction_amount = accrued_amount;
 
-	transaction->journal_ledger_list = list_new();
+	transaction->journal_list = list_new();
 
-	journal_ledger =
-		journal_ledger_new(
+	journal =
+		journal_new(
 			full_name,
 			street_address,
 			transaction->transaction_date_time,
 			debit_account );
 
-	journal_ledger->debit_amount = transaction->transaction_amount;
+	journal->debit_amount = transaction->transaction_amount;
 
-	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
+	list_set( transaction->journal_list, journal );
 
-	journal_ledger =
-		journal_ledger_new(
+	journal =
+		journal_new(
 			full_name,
 			street_address,
 			transaction->transaction_date_time,
 			credit_account );
 
-	journal_ledger->credit_amount = transaction->transaction_amount;
+	journal->credit_amount = transaction->transaction_amount;
 
-	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
+	list_set( transaction->journal_list, journal );
 
 	return transaction;
-
-} /* post_reoccurring_get_accrued_daily_transaction() */
+}
 
 TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
-			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description,
@@ -660,15 +621,14 @@ TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 			double accrued_monthly_amount )
 {
 	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
+	JOURNAL *journal;
 	double accrued_amount;
 	char *begin_date_string;
 	char end_date_string[ 16 ];
 	char *memo;
 
 	begin_date_string =
-			get_last_transaction_date(
-				application_name,
+			reoccurring_last_transaction_date(
 				full_name,
 				street_address,
 				transaction_date_time,
@@ -678,7 +638,7 @@ TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 	column( end_date_string, 0, transaction_date_time );
 
 	accrued_amount =
-		accrual_monthly_accrue(
+		transaction_monthly_accrue(
 			begin_date_string,
 			end_date_string,
 			accrued_monthly_amount
@@ -698,44 +658,43 @@ TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 			credit_account );
 
 	transaction =
-		ledger_transaction_new(
+		transaction_new(
 			full_name,
 			street_address,
-			transaction_date_time,
-			strdup( memo ) );
+			transaction_date_time );
+
+	transaction->memo = strdup( memo );
 
 	transaction->transaction_amount = accrued_amount;
 
-	transaction->journal_ledger_list = list_new();
+	transaction->journal_list = list_new();
 
-	journal_ledger =
-		journal_ledger_new(
+	journal =
+		journal_new(
 			full_name,
 			street_address,
 			transaction->transaction_date_time,
 			debit_account );
 
-	journal_ledger->debit_amount = transaction->transaction_amount;
+	journal->debit_amount = transaction->transaction_amount;
 
-	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
+	list_set( transaction->journal_list, journal );
 
-	journal_ledger =
-		journal_ledger_new(
+	journal =
+		journal_new(
 			full_name,
 			street_address,
 			transaction->transaction_date_time,
 			credit_account );
 
-	journal_ledger->credit_amount = transaction->transaction_amount;
+	journal->credit_amount = transaction->transaction_amount;
 
-	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
+	list_set( transaction->journal_list, journal );
 
 	return transaction;
+}
 
-} /* post_reoccurring_get_accrued_monthly_transaction() */
-
-char *get_last_transaction_date(
-			char *application_name,
+char *reoccurring_last_transaction_date(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -777,12 +736,9 @@ char *get_last_transaction_date(
 		 sub_query );
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s			 "
-		 "			select=\"%s\"			 "
-		 "			folder=%s			 "
-		 "			where=\"%s\"			|"
+		 "echo \"select %s from %s where %s;\"			|"
+		 "sql							|"
 		 "column.e 0						 ",
-		 application_name,
 		 select,
 		 folder,
 		 where );
@@ -795,6 +751,5 @@ char *get_last_transaction_date(
 	column( last_transaction_date, 0, last_transaction_date_time );
 
 	return strdup( last_transaction_date );
-
-} /* get_last_transaction_date() */
+}
 

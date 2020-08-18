@@ -475,8 +475,7 @@ void post_generic_measurement_load(
 				generic_load->generic_load_folder_list,
 				skip_header_rows_integer );
 	}
-
-} /* post_generic_measurement_load() */
+}
 
 enum event_parameter_return_value
 	get_measurement_update_event_parameters(
@@ -782,9 +781,8 @@ void execute_measurement_block_delete(
 		 end_measurement_time_string,
 		 notes );
 
-	system( sys_string );
-
-} /* execute_measurement_block_delete() */
+	if ( system( sys_string ) ){};
+}
 
 boolean generic_measurement_load_datatype_okay(
 				char *datatype_name )

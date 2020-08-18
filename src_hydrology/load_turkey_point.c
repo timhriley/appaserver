@@ -147,7 +147,10 @@ void load_turkey_point_file(	char *appaserver_data_directory,
 	sprintf( sys_string,
 "spreadsheet_parse file=\"%s\" station=\"%s\" time=no date_piece=1 2>%s	|"
 "measurement_frequency_reject '^' 2>%s					|"
-"measurement_insert bypass=y replace=%c execute=%c 2>%s			|"
+"measurement_insert	bypass_reject=y					 "
+"			replace=%c					 "
+"			insert_null_values=y				 "
+"			execute=%c 2>%s					|"
 "cat									 ",
 		 input_filename,
 		 station_name,

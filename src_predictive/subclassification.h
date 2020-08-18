@@ -16,6 +16,11 @@
 
 /* Constants */
 /* --------- */
+#define SUBCLASSIFICATION_NET_ASSETS		"net_assets"
+#define SUBCLASSIFICATION_CONTRIBUTED_CAPITAL	"contributed_capital"
+#define SUBCLASSIFICATION_RETAINED_EARNINGS	"retained_earnings"
+#define SUBCLASSIFICATION_DRAWING		"drawing"
+
 #define SUBCLASSIFICATION_NOTANUMBER	"NAN"
 
 #define SUBCLASSIFICATION_CHANGE_IN_NET_ASSETS		\

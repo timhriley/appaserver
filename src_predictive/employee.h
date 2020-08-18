@@ -10,6 +10,7 @@
 #define EMPLOYEE_H
 
 #include "list.h"
+#include "entity_self.h"
 #include "entity.h"
 
 /* Enumerated types */
@@ -259,14 +260,6 @@ boolean employee_get_payroll_begin_end_work_dates(
 LIST *employee_fetch_work_period_list(	char *application_name,
 					int payroll_year,
 					int payroll_period_number );
-
-/*
-LIST *employee_fetch_work_period_list(	char *application_name,
-					char *full_name,
-					char *street_address,
-					char *begin_work_date,
-					char *end_work_date );
-*/
 
 PAYROLL_POSTING *employee_get_payroll_posting(
 				LIST *employee_list,

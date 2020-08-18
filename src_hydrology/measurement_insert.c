@@ -25,7 +25,7 @@ void setup_arg(		NAME_ARG *arg, int argc, char **argv );
 void fetch_parameters(	char **bypass_reject_yn,
 			char **delimiter,
 			char **replace_yn,
-			char **insert_null_value_yn,
+			char **insert_null_values_yn,
 			char **insert_statements_yn,
 			char **execute_yn,
 			NAME_ARG *arg );
@@ -37,12 +37,12 @@ int main( int argc, char **argv )
 	char *delimiter;
 	char *bypass_reject_yn;
 	char *replace_yn;
-	char *insert_null_value_yn;
+	char *insert_null_values_yn;
 	char *insert_statements_yn;
 	char *execute_yn;
 	boolean bypass_reject;
 	boolean replace;
-	boolean insert_null_value;
+	boolean insert_null_values;
 	boolean insert_statements;
 	boolean execute;
 	MEASUREMENT_STRUCTURE *m;
@@ -50,10 +50,9 @@ int main( int argc, char **argv )
 	NAME_ARG *arg;
 	LIST *station_datatype_list;
 	STATION_DATATYPE *station_datatype;
+	boolean insert_okay;
 
-	/* Exits if failure. */
-	/* ----------------- */
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 		argc,
@@ -68,14 +67,14 @@ int main( int argc, char **argv )
 		&bypass_reject_yn,
 		&delimiter,
 		&replace_yn,
-		&insert_null_value_yn,
+		&insert_null_values_yn,
 		&insert_statements_yn,
 		&execute_yn,
 		arg );
 
 	bypass_reject = ( *bypass_reject_yn == 'y' );
 	replace = ( *replace_yn == 'y' );
-	insert_null_value = ( *insert_null_value_yn == 'y' );
+	insert_null_values = ( *insert_null_values_yn == 'y' );
 	insert_statements = ( *insert_statements_yn == 'y' );
 	execute = ( *execute_yn == 'y' );
 
@@ -109,6 +108,7 @@ int main( int argc, char **argv )
 	while( timlib_get_line( delimited_record, stdin, 1024 ) )
 	{
 		row_number++;
+		insert_okay = 0;
 
 		if ( !measurement_set_delimited_record(
 			m, 
@@ -152,17 +152,6 @@ int main( int argc, char **argv )
 							datatype_name );
 			}
 
-/*
-fprintf( stderr, "%s/%s()/%d: with delimited_record = %s, got data_collection_frequency_list = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-delimited_record,
-station_datatype_frequency_display(
-	station_datatype->data_collection_frequency_list ) );
-fflush( stderr );
-*/
-
 			if ( station_datatype_frequency_reject(
 				station_datatype->
 					data_collection_frequency_list,
@@ -179,35 +168,47 @@ fflush( stderr );
 
 		if ( execute )
 		{
-			measurement_insert(
-				m,
-				insert_null_value );
+			insert_okay =
+				measurement_insert(
+					m,
+					insert_null_values );
 		}
 		else
 		if ( m->html_table_pipe )
 		{
-			measurement_pipe_output(
-				m->html_table_pipe,
-				m );
+			insert_okay =
+				measurement_pipe_output(
+					m->html_table_pipe,
+					m,
+					insert_null_values );
 		}
 		else
 		if ( m->insert_statement_pipe )
 		{
-			measurement_pipe_output(
-				m->insert_statement_pipe,
-				m );
+			insert_okay =
+				measurement_pipe_output(
+					m->insert_statement_pipe,
+					m,
+					insert_null_values );
 		}
 
-		station_datatype->measurement_count++;
+		if ( insert_okay )
+		{
+			station_datatype->measurement_count++;
+		}
 	}
 
 	if ( m->insert_pipe ) pclose( m->insert_pipe );
 	if ( m->html_table_pipe ) pclose( m->html_table_pipe );
 	if ( m->insert_statement_pipe ) pclose( m->insert_statement_pipe );
 
-	fflush( stdout );
-	station_datatype_html_display( station_datatype_list );
-	fflush( stdout );
+	if ( !insert_statements )
+	{
+		fflush( stdout );
+		station_datatype_html_display(
+			station_datatype_list );
+		fflush( stdout );
+	}
 
 	return 0;
 }
@@ -215,14 +216,14 @@ fflush( stderr );
 void fetch_parameters(	char **bypass_reject_yn,
 			char **delimiter,
 			char **replace_yn,
-			char **insert_null_value_yn,
+			char **insert_null_values_yn,
 			char **insert_statements_yn,
 			char **execute_yn,
 			NAME_ARG *arg )
 {
 	*bypass_reject_yn = fetch_arg( arg, "bypass_reject" );
 	*replace_yn = fetch_arg( arg, "replace" );
-	*insert_null_value_yn = fetch_arg( arg, "insert_null_value" );
+	*insert_null_values_yn = fetch_arg( arg, "insert_null_values" );
 	*insert_statements_yn = fetch_arg( arg, "insert_statements" );
 	*delimiter = fetch_arg( arg, "delimiter" );
 	*execute_yn = fetch_arg( arg, "execute" );
@@ -237,7 +238,7 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         add_valid_value( arg, ticket, "n" );
         set_default_value( arg, ticket, "n" );
 
-        ticket = add_valid_option( arg, "insert_null_value" );
+        ticket = add_valid_option( arg, "insert_null_values" );
         add_valid_value( arg, ticket, "y" );
         add_valid_value( arg, ticket, "n" );
         set_default_value( arg, ticket, "n" );

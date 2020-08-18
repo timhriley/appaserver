@@ -165,10 +165,12 @@ void execute(		JULIAN *begin_date_julian,
 			continue;
 		}
 
-		measurement_text_output( measurement, *delimiter );
+		measurement_text_output(
+			measurement,
+			*delimiter,
+			0 /* not insert_null_values */ );
 	}
-
-} /* execute() */
+}
 
 void fetch_parameters(	char **begin_date,
 			char **begin_time,
@@ -183,7 +185,7 @@ void fetch_parameters(	char **begin_date,
 	*end_time = fetch_arg( arg, "end_time" );
 	*delimiter = fetch_arg( arg, "delimiter" );
 
-} /* fetch_parameters() */
+}
 
 void setup_arg( NAME_ARG *arg, int argc, char **argv )
 {
@@ -200,5 +202,5 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
 
         ins_all( arg, argc, argv );
 
-} /* setup_arg() */
+}
 

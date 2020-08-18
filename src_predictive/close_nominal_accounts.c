@@ -5,7 +5,7 @@
 /* ----------------------------------------------------------------	*/
 
 /* Includes */
-/* -------- */
+/* -------- */ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,44 +22,61 @@
 #include "appaserver_parameter_file.h"
 #include "application_constants.h"
 #include "environ.h"
+#include "html_table.h"
 #include "entity.h"
 #include "entity_self.h"
+#include "subclassification.h"
+#include "element.h"
+#include "journal.h"
+#include "transaction.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
+double insert_drawing(
+			FILE *output_pipe,
+			LIST *subclassification_list,
+			boolean accumulate_debit,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time_string,
+			char *drawing_account );
+
+double output_drawing_subclassification_list(
+			HTML_TABLE *html_table,
+			LIST *subclassification_list,
+			boolean accumulate_debit );
+
 boolean close_nominal_accounts_execute(
-					char *application_name,
-					char *as_of_date );
+			char *as_of_date );
 
 boolean close_nominal_accounts_fund_execute(
-					char *fund_name,
-					char *transaction_date_time_string,
-					char *as_of_date );
+			char *fund_name,
+			char *transaction_date_time_string,
+			char *as_of_date );
 
-double insert_journal(			FILE *output_pipe,
-					LIST *subclassification_list,
-					boolean accumulate_debit,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time_string );
+double insert_journal(	FILE *output_pipe,
+			LIST *subclassification_list,
+			boolean accumulate_debit,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time_string );
 
 double output_subclassification_list(
-				HTML_TABLE *html_table,
-				LIST *subclassification_list,
-				boolean accumulate_debit );
+			HTML_TABLE *html_table,
+			LIST *subclassification_list,
+			boolean accumulate_debit );
 
 void close_nominal_accounts_display(
-				char *application_name,
-				char *as_of_date );
+			char *as_of_date );
 
 void close_nominal_accounts_fund_display(
-				char *application_name,
-				char *fund_name,
-				char *transaction_date_time_string,
-				char *as_of_date );
+			char *fund_name,
+			char *transaction_date_time_string,
+			char *as_of_date,
+			char *drawing_account );
 
 int main( int argc, char **argv )
 {
@@ -70,17 +87,17 @@ int main( int argc, char **argv )
 	char title[ 128 ];
 	boolean execute;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+			argc,
+			argv,
+			application_name );
 
 	if ( argc != 4 )
 	{
 		fprintf( stderr,
-		"Usage: %s process as_of_date execute_yn\n",
+			 "Usage: %s process as_of_date execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -112,7 +129,6 @@ int main( int argc, char **argv )
 	if ( execute )
 	{
 		if ( close_nominal_accounts_execute(
-			application_name,
 			as_of_date ) )
 		{
 			printf( "<h3>Process complete.</h3>\n" );
@@ -124,9 +140,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		close_nominal_accounts_display(
-			application_name,
-			as_of_date );
+		close_nominal_accounts_display( as_of_date );
 	}
 
 	document_close();
@@ -135,9 +149,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-boolean close_nominal_accounts_execute(
-				char *application_name,
-				char *as_of_date )
+boolean close_nominal_accounts_execute( char *as_of_date )
 {
 	char *transaction_date_time;
 	char *fund_name;
@@ -148,15 +160,6 @@ boolean close_nominal_accounts_execute(
 			transaction_existing_closing_date_time(
 				as_of_date ) ) )
 	{
-		char msg[ 1024 ];
-
-		sprintf( msg,
-			 "Error in %s/%s()/%d: accounts were closed on %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 transaction_date_time );
-		m2( application_name, msg );
 		return 0;
 	}
 
@@ -166,7 +169,7 @@ boolean close_nominal_accounts_execute(
 
 	sprintf( sys_string,
 		 "folder_attribute_exists.sh %s account fund",
-		 application_name );
+		 environment_application_name() );
 
 	/* If no ACCOUNT.fund attribute */
 	/* ---------------------------- */
@@ -178,7 +181,7 @@ boolean close_nominal_accounts_execute(
 				as_of_date );
 	}
 
-	fund_name_list = ledger_get_fund_name_list( application_name );
+	fund_name_list = transaction_fund_name_list();
 
 	if ( !list_rewind( fund_name_list ) )
 	{
@@ -191,7 +194,7 @@ boolean close_nominal_accounts_execute(
 	}
 
 	do {
-		fund_name = list_get_pointer( fund_name_list );
+		fund_name = list_get( fund_name_list );
 
 		if ( !close_nominal_accounts_fund_execute(
 			fund_name,
@@ -214,14 +217,14 @@ boolean close_nominal_accounts_fund_execute(
 	FILE *output_pipe;
 	char sys_string[ 1024 ];
 	LIST *filter_element_name_list;
-	LIST *element_list;
+	LIST *list;
 	double retained_earnings;
 	char *field_list;
 	ELEMENT *element;
 	ENTITY_SELF *self;
 	TRANSACTION *transaction;
-	char *table_name;
 	char *closing_entry_account;
+	char *drawing_account;
 
 	closing_entry_account =
 		account_hard_coded_account_name(
@@ -230,10 +233,14 @@ boolean close_nominal_accounts_fund_execute(
 				0 /* not warning_only */,
 				__FUNCTION__ );
 
+	drawing_account =
+		account_hard_coded_account_name(
+				fund_name,
+				ACCOUNT_DRAWING_KEY,
+				1 /* warning_only */,
+				__FUNCTION__ );
 
-	table_name = get_table_name( application_name, LEDGER_FOLDER_NAME );
-
-	if ( ! ( self = entity_self_load( application_name ) ) )
+	if ( ! ( self = entity_self_load() ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: cannot fetch from SELF.\n",
@@ -243,11 +250,13 @@ boolean close_nominal_accounts_fund_execute(
 		return 0;
 	}
 
-	transaction = ledger_transaction_new(
-				self->entity->full_name,
-				self->entity->street_address,
-				transaction_date_time_string,
-				LEDGER_CLOSING_ENTRY_MEMO );
+	transaction =
+		transaction_new(
+			self->entity->full_name,
+			self->entity->street_address,
+			transaction_date_time_string );
+
+	transaction->memo = TRANSACTION_CLOSING_ENTRY_MEMO;
 
 	field_list =
 "full_name,street_address,transaction_date_time,account,debit_amount,credit_amount";
@@ -257,21 +266,18 @@ boolean close_nominal_accounts_fund_execute(
 	filter_element_name_list = list_new();
 
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_REVENUE_ELEMENT );
+				ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_EXPENSE_ELEMENT );
+				ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_GAIN_ELEMENT );
+				ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_LOSS_ELEMENT );
-/*
+				ELEMENT_LOSS );
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_EQUITY_ELEMENT );
-*/
+				ELEMENT_EQUITY );
 
-	element_list =
-		ledger_get_element_list(
-			application_name,
+	list =
+		element_list(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
@@ -280,27 +286,29 @@ boolean close_nominal_accounts_fund_execute(
 	sprintf( sys_string,
 		 "insert_statement.e table=%s field=%s delimiter='^' 	|"
 		 "sql.e							 ",
-		 table_name,
+		 JOURNAL_TABLE_NAME,
 		 field_list );
 
 	output_pipe = popen( sys_string, "w" );
 
 	/* Revenues */
 	/* -------- */
-	if ( ! ( element = ledger_element_seek(	element_list,
-						LEDGER_REVENUE_ELEMENT ) ) )
+	if ( ! ( element =
+			element_seek(
+				list,
+				ELEMENT_REVENUE ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 LEDGER_REVENUE_ELEMENT );
+			 ELEMENT_REVENUE );
 		exit( 1 );
 	}
 
 	retained_earnings =
-		insert_journal_ledger(
+		insert_journal(
 			output_pipe,
 			element->subclassification_list,
 			element->accumulate_debit,
@@ -310,20 +318,22 @@ boolean close_nominal_accounts_fund_execute(
 
 	/* Expenses */
 	/* -------- */
-	if ( ! ( element = ledger_element_seek(	element_list,
-						LEDGER_EXPENSE_ELEMENT ) ) )
+	if ( ! ( element =
+			element_seek(
+				list,
+				ELEMENT_EXPENSE ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 LEDGER_EXPENSE_ELEMENT );
+			 ELEMENT_EXPENSE );
 		exit( 1 );
 	}
 
 	retained_earnings -=
-		insert_journal_ledger(
+		insert_journal(
 			output_pipe,
 			element->subclassification_list,
 			element->accumulate_debit,
@@ -333,20 +343,22 @@ boolean close_nominal_accounts_fund_execute(
 
 	/* Gains */
 	/* ----- */
-	if ( ! ( element = ledger_element_seek(	element_list,
-						LEDGER_GAIN_ELEMENT ) ) )
+	if ( ! ( element =
+			element_seek(
+				list,
+				ELEMENT_GAIN ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 LEDGER_GAIN_ELEMENT );
+			 ELEMENT_GAIN );
 		exit( 1 );
 	}
 
 	retained_earnings +=
-		insert_journal_ledger(
+		insert_journal(
 			output_pipe,
 			element->subclassification_list,
 			element->accumulate_debit,
@@ -356,20 +368,22 @@ boolean close_nominal_accounts_fund_execute(
 
 	/* Losses */
 	/* ------ */
-	if ( ! ( element = ledger_element_seek(	element_list,
-						LEDGER_LOSS_ELEMENT ) ) )
+	if ( ! ( element =
+			element_seek(
+				list,
+				ELEMENT_LOSS ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 LEDGER_LOSS_ELEMENT );
+			 ELEMENT_LOSS );
 		exit( 1 );
 	}
 
 	retained_earnings -=
-		insert_journal_ledger(
+		insert_journal(
 			output_pipe,
 			element->subclassification_list,
 			element->accumulate_debit,
@@ -377,9 +391,38 @@ boolean close_nominal_accounts_fund_execute(
 			self->entity->street_address,
 			transaction_date_time_string );
 
+	/* Drawing */
+	/* ------- */
+	if ( drawing_account )
+	{
+		if ( ! ( element =
+				element_seek(
+					list,
+					ELEMENT_EQUITY ) ) )
+		{
+			fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	ELEMENT_EQUITY );
+			exit( 1 );
+		}
+
+		retained_earnings -=
+			insert_drawing(
+				output_pipe,
+				element->subclassification_list,
+				element->accumulate_debit,
+				self->entity->full_name,
+				self->entity->street_address,
+				transaction_date_time_string,
+				drawing_account );
+	}
+				
 	/* Insert retained_earnings */
 	/* ------------------------ */
-	if ( retained_earnings > 0.0 )
+	if ( retained_earnings >= 0.0 )
 	{
 		fprintf( output_pipe,
 		 	"%s^%s^%s^%s^^%.2lf\n",
@@ -402,19 +445,16 @@ boolean close_nominal_accounts_fund_execute(
 
 	pclose( output_pipe );
 
-	ledger_propagate_element_list(
-				application_name,
-				transaction_date_time_string,
-				element_list );
+	element_list_propagate(
+		list,
+		transaction_date_time_string );
 
-	ledger_propagate(
-		application_name,
-		transaction_date_time_string,
-		closing_entry_account );
+	account_propagate(
+		closing_entry_account,
+		transaction_date_time_string );
 
-	transaction_date_time_string =
-		ledger_transaction_insert(
-			application_name,
+	/* transaction_date_time_string = */
+		transaction_insert(
 			transaction->full_name,
 			transaction->street_address,
 			transaction_date_time_string,
@@ -425,32 +465,29 @@ boolean close_nominal_accounts_fund_execute(
 			0 /* not lock_transaction */ );
 
 	return 1;
+}
 
-} /* close_nominal_accounts_fund_execute() */
-
-void close_nominal_accounts_display(
-				char *application_name,
-				char *as_of_date )
+void close_nominal_accounts_display( char *as_of_date )
 {
 	char *transaction_date_time;
-	char *fund_name;
 	LIST *fund_name_list;
+	char *fund_name;
 	char sys_string[ 512 ];
+	char *drawing_account;
 
 	sprintf( sys_string,
 		 "folder_attribute_exists.sh %s account fund",
-		 application_name );
+		 environment_application_name() );
 
 	/* If no ACCOUNT.fund attribute */
 	/* ---------------------------- */
 	if ( system( sys_string ) != 0 )
 	{
 		transaction_date_time =
-			ledger_get_closing_transaction_date_time(
+			transaction_closing_transaction_date_time(
 				as_of_date );
 
-		if ( ledger_transaction_date_time_exists(
-				application_name,
+		if ( transaction_existing_closing_date_time(
 				transaction_date_time ) )
 		{
 			printf(
@@ -458,21 +495,28 @@ void close_nominal_accounts_display(
 		}
 		else
 		{
+			drawing_account =
+				account_hard_coded_account_name(
+					(char *)0 /* fund_name */,
+					ACCOUNT_DRAWING_KEY,
+					1 /* warning_only */,
+					__FUNCTION__ );
+
 			close_nominal_accounts_fund_display(
-				application_name,
 				(char *)0 /* fund_name */,
 				transaction_date_time,
-				as_of_date );
+				as_of_date,
+				drawing_account );
 		}
 
 		return;
 	}
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s	"
-		 "			select=fund	"
-		 "			folder=fund	",
-		 application_name );
+		 "echo \"select %s from %s order by %s;\" | sql",
+		 "fund",
+		 "fund",
+		 "fund" );
 
 	fund_name_list = pipe2list( sys_string );
 
@@ -487,33 +531,39 @@ void close_nominal_accounts_display(
 	}
 
 	do {
-		fund_name = list_get_pointer( fund_name_list );
+		fund_name = list_get( fund_name_list );
+
+		drawing_account =
+			account_hard_coded_account_name(
+				fund_name,
+				ACCOUNT_DRAWING_KEY,
+				1 /* warning_only */,
+				__FUNCTION__ );
 
 		transaction_date_time =
-			ledger_get_closing_transaction_date_time(
+			transaction_closing_date_time(
 				as_of_date );
 
 		close_nominal_accounts_fund_display(
-			application_name,
 			fund_name,
 			transaction_date_time,
-			as_of_date );
+			as_of_date,
+			drawing_account );
 
 	} while( list_next( fund_name_list ) );
-
-} /* close_nominal_accounts_display() */
+}
 
 void close_nominal_accounts_fund_display(
-					char *application_name,
-					char *fund_name,
-					char *transaction_date_time,
-					char *as_of_date )
+			char *fund_name,
+			char *transaction_date_time,
+			char *as_of_date,
+			char *drawing_account )
 {
 	HTML_TABLE *html_table;
-	LIST *element_list;
+	LIST *list;
 	LIST *heading_list;
 	LIST *filter_element_name_list;
-	LEDGER_ELEMENT *element;
+	ELEMENT *element;
 	char title[ 128 ];
 	char sub_title[ 128 ];
 	char buffer[ 128 ];
@@ -525,14 +575,13 @@ void close_nominal_accounts_fund_display(
 	double element_total;
 
 	closing_entry_account =
-		ledger_get_hard_coded_account_name(
-				application_name,
-				fund_name,
-				"closing_key",
-				0 /* not warning_only */,
-				__FUNCTION__ );
+		account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_CLOSING_KEY,
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
-	if ( ! ( self = entity_self_load( application_name ) ) )
+	if ( ! ( self = entity_self_load() ) )
 	{
 		fprintf( stderr,
 			"ERROR in %s/%s()/%d: cannot fetch from ENTITY_SELF.\n",
@@ -547,21 +596,18 @@ void close_nominal_accounts_fund_display(
 	filter_element_name_list = list_new();
 
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_REVENUE_ELEMENT );
+				ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_EXPENSE_ELEMENT );
+				ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_GAIN_ELEMENT );
+				ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_LOSS_ELEMENT );
-/*
+				ELEMENT_LOSS );
 	list_append_pointer(	filter_element_name_list,
-				LEDGER_EQUITY_ELEMENT );
-*/
+				ELEMENT_EQUITY );
 
-	element_list =
-		ledger_get_element_list(
-			application_name,
+	list =
+		element_list(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
@@ -606,15 +652,17 @@ void close_nominal_accounts_fund_display(
 
 	/* Revenues */
 	/* -------- */
-	if ( ! ( element = ledger_element_seek(	element_list,
-						LEDGER_REVENUE_ELEMENT ) ) )
+	if ( ! ( element =
+			element_seek(
+				list,
+				ELEMENT_REVENUE ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 LEDGER_REVENUE_ELEMENT );
+			 ELEMENT_REVENUE );
 		exit( 1 );
 	}
 
@@ -629,15 +677,17 @@ void close_nominal_accounts_fund_display(
 
 	/* Expenses */
 	/* -------- */
-	if ( ! ( element = ledger_element_seek(	element_list,
-						LEDGER_EXPENSE_ELEMENT ) ) )
+	if ( ! ( element =
+			element_seek(
+				list,
+				ELEMENT_EXPENSE ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 LEDGER_EXPENSE_ELEMENT );
+			 ELEMENT_EXPENSE );
 		exit( 1 );
 	}
 
@@ -652,15 +702,17 @@ void close_nominal_accounts_fund_display(
 
 	/* Gains */
 	/* ----- */
-	if ( ! ( element = ledger_element_seek(	element_list,
-						LEDGER_GAIN_ELEMENT ) ) )
+	if ( ! ( element =
+			element_seek(
+				list,
+				ELEMENT_GAIN ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 LEDGER_GAIN_ELEMENT );
+			 ELEMENT_GAIN );
 		exit( 1 );
 	}
 
@@ -675,15 +727,17 @@ void close_nominal_accounts_fund_display(
 
 	/* Losses */
 	/* ------ */
-	if ( ! ( element = ledger_element_seek(	element_list,
-						LEDGER_LOSS_ELEMENT ) ) )
+	if ( ! ( element =
+			element_seek(
+				list,
+				ELEMENT_LOSS ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 LEDGER_LOSS_ELEMENT );
+			 ELEMENT_LOSS );
 		exit( 1 );
 	}
 
@@ -695,10 +749,39 @@ void close_nominal_accounts_fund_display(
 
 	retained_earnings -= element_total;
 	credit_sum += element_total;
-	credit_sum += retained_earnings;
+
+	if ( drawing_account )
+	{
+		/* Drawing */
+		/* ------- */
+		if ( ! ( element =
+				element_seek(
+					list,
+					ELEMENT_EQUITY ) ) )
+		{
+			fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	ELEMENT_EQUITY );
+			exit( 1 );
+		}
+
+		element_total =
+			output_drawing_subclassification_list(
+				html_table,
+				element->subclassification_list,
+				element->accumulate_debit );
+
+		retained_earnings -= element_total;
+		credit_sum += element_total;
+	}
 
 	/* Retained Earnings */
 	/* ----------------- */
+	credit_sum += retained_earnings;
+
 	html_table_set_data(
 		html_table->data_list,
 		strdup( format_initial_capital(
@@ -767,13 +850,20 @@ void close_nominal_accounts_fund_display(
 			html_table->justify_list );
 
 	html_table_close();
+}
 
-} /* close_nominal_accounts_fund_display() */
+double output_drawing_subclassification_list(
+			HTML_TABLE *html_table,
+			LIST *subclassification_list,
+			boolean accumulate_debit )
+{
+	return 0.0;
+}
 
 double output_subclassification_list(
-					HTML_TABLE *html_table,
-					LIST *subclassification_list,
-					boolean accumulate_debit )
+			HTML_TABLE *html_table,
+			LIST *subclassification_list,
+			boolean accumulate_debit )
 {
 	double retained_earnings = 0.0;
 	SUBCLASSIFICATION *subclassification;
@@ -792,13 +882,16 @@ double output_subclassification_list(
 
 		if ( strcmp(
 			subclassification->subclassification_name,
-			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0
+			SUBCLASSIFICATION_NET_ASSETS ) == 0
 		||   strcmp(
 			subclassification->subclassification_name,
-			LEDGER_SUBCLASSIFICATION_CONTRIBUTED_CAPITAL ) == 0
+			SUBCLASSIFICATION_CONTRIBUTED_CAPITAL ) == 0
 		||   strcmp(
 			subclassification->subclassification_name,
-			LEDGER_SUBCLASSIFICATION_RETAINED_EARNINGS ) == 0 )
+			SUBCLASSIFICATION_RETAINED_EARNINGS ) == 0
+		||   strcmp(
+			subclassification->subclassification_name,
+			SUBCLASSIFICATION_DRAWING ) == 0 )
 		{
 			continue;
 		}
@@ -808,8 +901,8 @@ double output_subclassification_list(
 				list_get_pointer(
 					subclassification->account_list );
 
-			if ( !account->latest_ledger
-			||   !account->latest_ledger->balance )
+			if ( !account->latest_journal
+			||   !account->latest_journal->balance )
 				continue;
 
 			html_table_set_data(
@@ -829,7 +922,7 @@ double output_subclassification_list(
 				html_table->data_list,
 				strdup( place_commas_in_money(
 					account->
-						latest_ledger->
+						latest_journal->
 						balance ) ) );
 	
 			html_table_output_data(
@@ -845,23 +938,22 @@ double output_subclassification_list(
 			html_table->data_list = list_new();
 
 			retained_earnings +=
-				account->latest_ledger->balance;
+				account->latest_journal->balance;
 
 		} while( list_next( subclassification->account_list ) );
 
 	} while( list_next( subclassification_list ) );
 
 	return retained_earnings;
+}
 
-} /* output_subclassification_list() */
-
-double insert_journal_ledger(
-					FILE *output_pipe,
-					LIST *subclassification_list,
-					boolean accumulate_debit,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time_string )
+double insert_journal(
+			FILE *output_pipe,
+			LIST *subclassification_list,
+			boolean accumulate_debit,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time_string )
 {
 	double retained_earnings = 0.0;
 	SUBCLASSIFICATION *subclassification;
@@ -879,13 +971,16 @@ double insert_journal_ledger(
 
 		if ( strcmp(
 			subclassification->subclassification_name,
-			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0
+			SUBCLASSIFICATION_NET_ASSETS ) == 0
 		||   strcmp(
 			subclassification->subclassification_name,
-			LEDGER_SUBCLASSIFICATION_CONTRIBUTED_CAPITAL ) == 0
+			SUBCLASSIFICATION_CONTRIBUTED_CAPITAL ) == 0
 		||   strcmp(
 			subclassification->subclassification_name,
-			LEDGER_SUBCLASSIFICATION_RETAINED_EARNINGS ) == 0 )
+			SUBCLASSIFICATION_RETAINED_EARNINGS ) == 0
+		||   strcmp(
+			subclassification->subclassification_name,
+			SUBCLASSIFICATION_DRAWING ) == 0 )
 		{
 			continue;
 		}
@@ -895,8 +990,8 @@ double insert_journal_ledger(
 				list_get_pointer(
 					subclassification->account_list );
 
-			if ( !account->latest_ledger
-			||   !account->latest_ledger->balance )
+			if ( !account->latest_journal
+			||   !account->latest_journal->balance )
 				continue;
 
 			if ( accumulate_debit )
@@ -907,7 +1002,7 @@ double insert_journal_ledger(
 					 street_address,
 					 transaction_date_time_string,
 					 account->account_name,
-					 account->latest_ledger->balance );
+					 account->latest_journal->balance );
 			}
 			else
 			{
@@ -917,17 +1012,28 @@ double insert_journal_ledger(
 					 street_address,
 					 transaction_date_time_string,
 					 account->account_name,
-					 account->latest_ledger->balance );
+					 account->latest_journal->balance );
 			}
 
 			retained_earnings +=
-				account->latest_ledger->balance;
+				account->latest_journal->balance;
 
 		} while( list_next( subclassification->account_list ) );
 
 	} while( list_next( subclassification_list ) );
 
 	return retained_earnings;
+}
 
-} /* insert_journal_ledger() */
+double insert_drawing(
+			FILE *output_pipe,
+			LIST *subclassification_list,
+			boolean accumulate_debit,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time_string,
+			char *drawing_account )
+{
+	return 0.0;
+}
 

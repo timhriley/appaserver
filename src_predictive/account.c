@@ -694,3 +694,12 @@ LIST *account_omit_latex_row_list(
 	return row_list;
 }
 
+void account_propagate( char *account_name,
+			char *transaction_date_time )
+{
+	/* Executes journal_list_set_balances() */
+	/* ------------------------------------ */
+	journal_propagate(
+		transaction_date_time,
+		account_name );
+}

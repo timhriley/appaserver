@@ -449,7 +449,6 @@ boolean post_change_bank_upload_delete(
 
 	bank_upload =
 		bank_upload_dictionary_extract(
-			application_name,
 			dictionary );
 
 	/* --------------------- */

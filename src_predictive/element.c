@@ -879,3 +879,45 @@ LATEX_ROW *element_latex_liabilities_plus_equity_row(
 	return latex_row;
 }
 
+void element_list_propagate(
+			LIST *element_list,
+			char *transaction_date_time_string )
+{
+	ELEMENT *element;
+	SUBCLASSIFICATION *subclassification;
+	ACCOUNT *account;
+
+	if ( !list_rewind( element_list ) ) return;
+
+	do {
+		element = list_get( element_list );
+
+		if ( !list_rewind( element->subclassification_list ) ) continue;
+
+		do {
+			subclassification =
+				list_get(
+					element->
+						subclassification_list );
+
+			if ( !list_rewind( subclassification->account_list ) )
+				continue;
+
+			do {
+				account =
+					list_get( 
+						subclassification->
+							account_list );
+
+				if ( account->latest_journal
+				&&   account->latest_journal->balance )
+				{
+					account_propagate(
+						account->account_name,
+						transaction_date_time_string );
+				}
+			} while( list_next( subclassification->account_list ) );
+		} while( list_next( element->subclassification_list ) );
+	} while( list_next( element_list ) );
+}
+

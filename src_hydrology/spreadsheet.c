@@ -199,10 +199,8 @@ SPREADSHEET *spreadsheet_fetch(
 	if ( !list_length( spreadsheet->spreadsheet_datatype_list ) )
 	{
 		fprintf( stderr,
-"WARNING in %s/%s()/%d: spreadsheet_datatype_list() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+"Warning in %s(): spreadsheet_datatype_list() returned empty.\n",
+			 __FUNCTION__ );
 
 		return (SPREADSHEET *)0;
 	}
@@ -302,8 +300,8 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 	if ( !spreadsheet_header_cell->spreadsheet_translate_datatype )
 	{
 		fprintf( stderr,
-	"WARNING in %s: spreadsheet_translate_datatype(%s) returned empty.\n",
-			 __FILE__,
+	"Warning in %s(): spreadsheet_translate_datatype(%s) returned empty.\n",
+			 __FUNCTION__,
 			 datatype_label );
 
 		return (SPREADSHEET_HEADER_CELL *)0;
@@ -637,10 +635,8 @@ DATATYPE *spreadsheet_translate_datatype(
 	if ( !list_rewind( spreadsheet_datatype_list ) )
 	{
 		fprintf( stderr,
-		"WARNING in %s/%s()/%d: empty spreadsheet_datatype_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+		"Warning in %s(): empty spreadsheet_datatype_list.\n",
+			 __FUNCTION__ );
 
 		return (DATATYPE *)0;
 	}

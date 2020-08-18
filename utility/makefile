@@ -69,7 +69,6 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	escape_character.e						\
 	binary_count.e							\
 	decimal_count.e							\
-	payroll_period.e						\
 	location_convert.e						\
 	html_encode_quote_and_ampersand.e				\
 	date_grandfather_father_son.e					\

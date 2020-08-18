@@ -244,7 +244,6 @@ void feeder_upload_missing(
 
 	bank_upload_structure =
 		bank_upload_structure_new(
-			application_name,
 			fund_name,
 			feeder_account,
 			input_filename,

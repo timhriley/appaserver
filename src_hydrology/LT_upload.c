@@ -30,6 +30,7 @@
 
 /* Constants */
 /* --------- */
+#define QUEUE_TOP_BOTTOM_LINES		80
 
 /* Prototypes */
 /* ---------- */
@@ -141,14 +142,12 @@ void LT_upload(		char *filename,
 	char bad_parse[ 128 ];
 	char bad_time[ 128 ];
 	char bad_insert[ 128 ];
-	char *date_heading_label;
 	pid_t pid;
 	char *dir;
 	FILE *input_file;
 	FILE *output_pipe;
 	FILE *bad_time_file;
 
-	date_heading_label = "datetime";
 	pid = getpid();
 	dir = appaserver_data_directory;
 
@@ -239,14 +238,16 @@ void output_bad_records(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"cat %s %s %s | html_table.e '^^Bad Records' '' ''",
+	"cat %s %s %s					|"
+	"queue_top_bottom_lines.e %d			|"
+	"html_table.e '^^Bad Records' '' ''		 ",
 	 	bad_parse_file,
 		bad_time_file,
-	 	bad_insert_file );
+	 	bad_insert_file,
+	QUEUE_TOP_BOTTOM_LINES );
 
 	if ( system( sys_string ) ){};
-
-} /* output_bad_records() */
+}
 
 boolean reject_non_zero_seconds( char *input_buffer )
 {

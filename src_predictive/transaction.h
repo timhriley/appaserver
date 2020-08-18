@@ -69,6 +69,18 @@ char *transaction_insert(
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
+char *transaction_journal_insert(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			int check_number,
+			boolean lock_transaction,
+			LIST *journal_list );
+
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
 char *transaction_insert_pipe(
 			FILE *insert_pipe,
 			char *full_name,
@@ -289,9 +301,6 @@ char *transaction_date_time_closing(
 char *transaction_closing_date_time(
 			char *as_of_date );
 
-char *transaction_closing_transaction_date_time(
-			char *as_of_date );
-
 boolean transaction_date_time_exists(
 			char *transaction_date_time );
 
@@ -301,7 +310,15 @@ char *transaction_fund_where(
 boolean transaction_fund_attribute_exists(
 			void );
 
-boolean transaction_exists_closing_entry(
+/* Returns the existing transaction_date_time */
+/* ------------------------------------------ */
+char *transaction_exists_closing_entry(
+			char *as_of_date );
+
+char *transaction_existing_closing_date_time(
+			char *as_of_date );
+
+char *transaction_exists_closing_date_time(
 			char *as_of_date );
 
 LIST *transaction_fund_name_list(
@@ -349,5 +366,30 @@ double transaction_net_income(
 double transaction_net_income_fetch(
 			char *fund_name,
 			char *as_of_date );
+
+char *transaction_closing_transaction_date_time(
+			char *as_of_date );
+
+char *transaction_generate_date_time(
+			char *transaction_date );
+
+void transaction_journal_list_pipe_display(
+			FILE *output_pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			LIST *journal_list );
+
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
+char *transaction_journal_insert(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			int check_number,
+			boolean lock_transaction,
+			LIST *journal_list );
 
 #endif
