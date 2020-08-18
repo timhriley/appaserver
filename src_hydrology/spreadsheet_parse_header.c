@@ -50,34 +50,34 @@ void fetch_parameters(	char **filename,
 			char **two_lines_yn,
 			NAME_ARG *arg );
 
-void spreadsheet_parse_display(		LIST *datatype_list );
+void spreadsheet_parse_display(
+			LIST *datatype_list );
 
-LIST *input_buffer_datatype_list(	char *application_name,
-					char *station_name,
-					char *heading_buffer,
-					char *second_line );
+LIST *input_buffer_datatype_list(
+			char *application_name,
+			char *station_name,
+			char *heading_buffer,
+			char *second_line );
 
 LIST *spreadsheet_parse_datatype_list(
-					char *application_name,
-					char *station_name,
-					char *filename,
-					char *date_heading_label,
-					boolean two_lines );
+			char *application_name,
+			char *station_name,
+			char *filename,
+			char *date_heading_label,
+			boolean two_lines );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *filename;
-	char *date_heading_label;
-	char *station;
-	LIST *datatype_list;
-	boolean two_lines;
-	char *two_lines_yn;
+	char *filename = {0};
+	char *date_heading_label = {0};
+	char *station = {0};
+	LIST *datatype_list = {0};
+	boolean two_lines = {0};
+	char *two_lines_yn = {0};
 	NAME_ARG *arg;
 
-	/* Exits if failure. */
-	/* ----------------- */
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 				argc,
@@ -147,6 +147,8 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         int ticket;
 
         ticket = add_valid_option( arg, "filename" );
+        set_default_value( arg, ticket, "" );
+
         ticket = add_valid_option( arg, "station" );
 
         ticket = add_valid_option( arg, "date_heading_label" );
@@ -158,8 +160,7 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         set_default_value( arg, ticket, "no" );
 
         ins_all( arg, argc, argv );
-
-} /* setup_arg() */
+}
 
 LIST *spreadsheet_parse_datatype_list(
 				char *application_name,

@@ -102,8 +102,12 @@ double units_converted_from_multiply_by(
 				char *units_converted,
 				LIST *units_converted_list );
 
-UNITS_CONVERTED *units_converted_seek(
-				char *units_converted_string,
+UNITS_CONVERTED *units_converted_to_seek(
+				char *units_converted_to,
+				LIST *units_converted_list );
+
+UNITS_CONVERTED *units_converted_from_seek(
+				char *units_converted_from,
 				LIST *units_converted_list );
 
 LIST *units_fetch_units_converted_list(
@@ -116,5 +120,10 @@ LIST *units_fetch_local_units_converted_list(
 /* Returns heap memory */
 /* ------------------- */
 char *units_alias_list_display(	LIST *units_alias_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *units_converted_list_display(
+				LIST *units_converted_list );
 
 #endif

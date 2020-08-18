@@ -478,7 +478,7 @@ char *spreadsheet_translate_units_name(
 	/* Just check for existance */
 	/* ------------------------ */
 	if ( ( units_converted =
-			units_converted_seek(
+			units_converted_from_seek(
 				spreadsheet_units_label
 					/* units_converted */,
 				units_converted_list ) ) )
@@ -545,8 +545,7 @@ LIST *spreadsheet_shef_upload_datatype_list(
 
 /* Returns heap memory and populates heap memory. */
 /* ---------------------------------------------- */
-char *spreadsheet_header_row(
-				char **second_line,
+char *spreadsheet_header_row(	char **second_line,
 				char *filename,
 				char *date_header_label,
 				boolean two_lines )
@@ -555,15 +554,11 @@ char *spreadsheet_header_row(
 	char header_buffer[ 65536 ];
 	char second_line_buffer[ 65536 ];
 
-	if ( ! ( input_file = fopen( filename, "r" ) ) )
+	if ( !filename
+	||   !*filename
+	||   !( input_file = fopen( filename, "r" ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 filename );
-		exit( 1 );
+		input_file = stdin;
 	}
 
 	*second_line = '\0';
@@ -587,14 +582,20 @@ char *spreadsheet_header_row(
 				*second_line = strdup( second_line_buffer );
 			}
 
-			fclose( input_file );
+			if ( input_file != stdin )
+			{
+				fclose( input_file );
+			}
 			timlib_reset_get_line_check_utf_16();
 
 			return strdup( header_buffer );
 		}
 	}
 
-	fclose( input_file );
+	if ( input_file != stdin )
+	{
+		fclose( input_file );
+	}
 	timlib_reset_get_line_check_utf_16();
 	return (char *)0;
 }

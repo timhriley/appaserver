@@ -9,8 +9,34 @@
 #include "piece.h"
 #include "appaserver_library.h"
 
-UNITS_CONVERTED *units_converted_seek(
-				char *units_converted_string,
+UNITS_CONVERTED *units_converted_to_seek(
+				char *units_converted_to,
+				LIST *units_converted_list )
+{
+	UNITS_CONVERTED *units_converted;
+
+	if ( !list_rewind( units_converted_list ) )
+		return (UNITS_CONVERTED *)0;
+
+	do {
+		units_converted =
+			list_get_pointer( 
+				units_converted_list );
+
+		if ( timlib_strcmp(
+			units_converted->units_converted,
+			units_converted_to ) == 0 )
+		{
+			return units_converted;
+		}
+
+	} while ( list_next( units_converted_list ) );
+
+	return (UNITS_CONVERTED *)0;
+}
+
+UNITS_CONVERTED *units_converted_from_seek(
+				char *units_converted_from,
 				LIST *units_converted_list )
 {
 	UNITS_CONVERTED *units_converted;
@@ -25,10 +51,7 @@ UNITS_CONVERTED *units_converted_seek(
 
 		if ( timlib_strcmp(
 			units_converted->units_name,
-			units_converted_string ) == 0
-		|| ( timlib_strcmp(
-			units_converted->units_converted,
-			units_converted_string ) == 0 ) )
+			units_converted_from ) == 0 )
 		{
 			return units_converted;
 		}
@@ -576,7 +599,7 @@ double units_converted_to_multiply_by(
 	UNITS_CONVERTED *units_converted;
 
 	if ( ( units_converted =
-			units_converted_seek(
+			units_converted_to_seek(
 				units_converted_string,
 				units_converted_list ) ) )
 	{
@@ -596,7 +619,7 @@ double units_converted_from_multiply_by(
 	UNITS_CONVERTED *units_converted;
 
 	if ( ( units_converted =
-			units_converted_seek(
+			units_converted_from_seek(
 				units_converted_string,
 				units_converted_list ) ) )
 	{
@@ -609,9 +632,35 @@ double units_converted_from_multiply_by(
 	return 0.0;
 }
 
+char *units_converted_list_display(
+			LIST *units_converted_list )
+{
+	UNITS_CONVERTED *units_converted;
+	char display[ 65536 ];
+	char *ptr = display;
+
+	if ( list_rewind( units_converted_list ) )
+	{
+		do {
+			units_converted = list_get( units_converted_list );
+
+			ptr += sprintf( ptr,
+			"Units name: %s --> Units converted: %-30s %.5lf\n",
+					units_converted->units_name,
+					units_converted->units_converted,
+					units_converted->multiply_by );
+
+		} while ( list_next( units_converted_list ) );
+	}
+
+	*ptr = '\0';
+	return strdup( display );
+}
+
 /* Returns heap memory */
 /* ------------------- */
-char *units_alias_list_display( LIST *units_alias_list )
+char *units_alias_list_display(
+			LIST *units_alias_list )
 {
 	UNITS_ALIAS *units_alias;
 	char display[ 65536 ];
