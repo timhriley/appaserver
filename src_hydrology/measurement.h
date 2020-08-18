@@ -85,6 +85,7 @@ boolean measurement_set_delimited_record(
 					char delimiter );
 
 boolean measurement_insert(
+			FILE *insert_pipe,
 			MEASUREMENT_STRUCTURE *m,
 			boolean insert_null_value );
 

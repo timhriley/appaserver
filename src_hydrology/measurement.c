@@ -186,8 +186,7 @@ boolean measurement_pipe_output(
 	if ( m->measurement->null_value && !insert_null_values )
 	{
 		fprintf( stderr,
-			 "Warning: %s(): null value reject %s/%s/%s/%s\n",
-			 __FUNCTION__,
+			 "Warning: null value reject %s/%s/%s/%s\n",
 			 m->measurement->station_name,
 			 m->measurement->datatype,
 			 m->measurement->measurement_date,
@@ -264,8 +263,7 @@ boolean measurement_text_output(
 	if ( measurement->null_value && !insert_null_values )
 	{
 		fprintf( stderr,
-			 "Warning: %s(): null value rejecting %s/%s/%s/%s\n",
-			 __FUNCTION__,
+			 "Warning: null value reject %s/%s/%s/%s\n",
 			 measurement->station_name,
 			 measurement->datatype,
 			 measurement->measurement_date,
@@ -302,12 +300,13 @@ boolean measurement_text_output(
 }
 
 boolean measurement_insert(
+			FILE *insert_pipe,
 			MEASUREMENT_STRUCTURE *m,
 			boolean insert_null_value )
 {
 	if ( !m || !m->measurement ) return 0;
 
-	if ( !m->insert_pipe )
+	if ( !insert_pipe )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: insert_pipe not set.\n",
@@ -330,7 +329,7 @@ boolean measurement_insert(
 	}
 
 	measurement_output_insert_pipe(
-			m->insert_pipe,
+			insert_pipe,
 			m->measurement->station_name,
 			m->measurement->datatype,
 			m->measurement->measurement_date,
@@ -363,21 +362,29 @@ void measurement_output_insert_pipe(
 	if ( !null_value )
 	{
 		fprintf( insert_pipe,
-		 	"%s|%s|%s|%s|%.4lf\n",
+		 	"%s%c%s%c%s%c%s%c%.4lf\n",
 		 	station,
+			MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 		 	datatype,
+			MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 		 	date,
+			MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 		 	time,
+			MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 		 	value );
 	}
 	else
 	{
 		fprintf( insert_pipe,
-		 	"%s|%s|%s|%s|\n",
+		 	"%s%c%s%c%s%c%s%c\n",
 		 	station,
+			MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 		 	datatype,
+			MEASUREMENT_INSERT_STATEMENT_DELIMITER,
 		 	date,
-		 	time );
+			MEASUREMENT_INSERT_STATEMENT_DELIMITER,
+		 	time,
+			MEASUREMENT_INSERT_STATEMENT_DELIMITER );
 	}
 
 	fflush( insert_pipe );
@@ -428,7 +435,7 @@ FILE *measurement_open_insert_pipe(
 
 	sprintf(sys_string,
 	"insert_statement table=%s field=%s delimiter='%c' replace=%c	|"
-	"sql							 	|"
+	"sql 							 	|"
 	"cat							  	 ",
 		"measurement",
 		MEASUREMENT_INSERT_LIST,

@@ -85,12 +85,15 @@ int main( int argc, char **argv )
 
 	m = measurement_structure_new( application_name );
 
+	/* Resolve ambiguity */
+	/* ----------------- */
+	if ( execute ) insert_statements = 0;
+
 	if ( insert_statements )
 	{
 		m->insert_statement_pipe =
 			measurement_open_insert_statement_pipe(
 				replace );
-		execute = 0;
 	}
 
 	if ( !execute )
@@ -105,7 +108,8 @@ int main( int argc, char **argv )
 	if ( execute )
 	{
 		m->insert_pipe = 
-			measurement_open_insert_pipe( replace );
+			measurement_open_insert_pipe(
+				replace );
 	}
 
 	station_datatype_list = list_new();
@@ -175,6 +179,7 @@ int main( int argc, char **argv )
 		{
 			insert_okay =
 				measurement_insert(
+					m->insert_pipe,
 					m,
 					insert_null_values );
 		}

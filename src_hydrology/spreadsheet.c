@@ -300,8 +300,7 @@ SPREADSHEET_HEADER_CELL *spreadsheet_header_cell_parse(
 	if ( !spreadsheet_header_cell->spreadsheet_translate_datatype )
 	{
 		fprintf( stderr,
-	"Warning in %s(): spreadsheet_translate_datatype(%s) returned empty.\n",
-			 __FUNCTION__,
+			 "Heading=%s returned empty.\n",
 			 datatype_label );
 
 		return (SPREADSHEET_HEADER_CELL *)0;
