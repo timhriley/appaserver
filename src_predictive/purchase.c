@@ -337,7 +337,7 @@ PURCHASE_ORDER *purchase_parse( char *input )
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *purchase_order_primary_where(
+char *purchase_primary_where(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time )
@@ -356,5 +356,43 @@ char *purchase_order_primary_where(
 		 purchase_date_time );
 
 	return strdup( where );
+}
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *purchase_order_primary_where(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time )
+{
+	return purchase_primary_where(
+			full_name,
+			street_address,
+			purchase_date_time );
+}
+
+double purchase_fetch_amount_due(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time )
+{
+	char sys_string[ 1024 ];
+	char *results_string;
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 "amount_due",
+		 "purchase_order",
+		 purchase_primary_where(
+			full_name,
+			street_address,
+			purchase_date_time ) );
+
+	results_string = pipe2string( sys_string );
+
+	if ( !results_string )
+		return 0.0;
+	else
+		return atof( results_string );
 }
 

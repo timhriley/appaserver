@@ -190,3 +190,88 @@ double vendor_payment_total(
 
 	return total;
 }
+
+void vendor_payment_insert(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *payment_date_time,
+			double payment_amount,
+			int check_number,
+			char *transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char *field_list_string;
+	FILE *output_pipe;
+	char buffer[ 128 ];
+
+	field_list_string =
+"full_name,street_address,purchase_date_time,payment_date_time,payment_amount,check_number,transaction_date_time";
+
+	sprintf( sys_string,
+		 "insert_statement.e table=%s field=%s | sql.e",
+		 "vendor_payment",
+		 field_list_string );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf( output_pipe,
+		 "%s|%s|%s|%s|%.2lf",
+		 escape_character(	buffer,
+					full_name,
+					'\'' ),
+		 street_address,
+		 purchase_date_time,
+		 payment_date_time,
+		 payment_amount );
+
+	if ( check_number )
+	{
+		fprintf( output_pipe,
+			 "|%d",
+			 check_number );
+	}
+	else
+	{
+		fprintf( output_pipe, "|" );
+	}
+
+	if ( transaction_date_time )
+	{
+		fprintf( output_pipe,
+			 "|%s\n",
+			 transaction_date_time );
+	}
+	else
+	{
+		fprintf( output_pipe, "|\n" );
+	}
+
+	pclose( output_pipe );
+}
+
+double vendor_payment_fetch_payment_amount_total(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time )
+{
+	char sys_string[ 1024 ];
+	char *results_string;
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 "sum( payment_amount )",
+		 "vendor_payment",
+		 purchase_primary_where(
+			full_name,
+			street_address,
+			purchase_date_time ) );
+
+	results_string = pipe2string( sys_string );
+
+	if ( !results_string )
+		return 0.0;
+	else
+		return atof( results_string );
+}
+

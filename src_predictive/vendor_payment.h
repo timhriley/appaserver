@@ -66,4 +66,18 @@ LIST *vendor_payment_system_list(
 double vendor_payment_total(
 			LIST *vendor_payment_list );
 
+void vendor_payment_insert(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *payment_date_time,
+			double payment_amount,
+			int check_number,
+			char *transaction_date_time );
+
+double vendor_payment_fetch_payment_amount_total(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
+
 #endif

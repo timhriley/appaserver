@@ -121,4 +121,16 @@ char *purchase_order_primary_where(
 			char *street_address,
 			char *purchase_date_time );
 
+/* Safely returns heap memory */
+/* -------------------------- */
+char *purchase_primary_where(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
+
+double purchase_fetch_amount_due(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
+
 #endif

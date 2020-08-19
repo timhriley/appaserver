@@ -1482,7 +1482,17 @@ char *date_get_now19( int utc_offset )
 	return date_get_yyyy_mm_dd_hh_mm_ss( d );
 }
 
+char *date_time_now( int utc_offset )
+{
+	return date_now16( utc_offset );
+}
+
 char *date_get_now16( int utc_offset )
+{
+	return date_now16( utc_offset );
+}
+
+char *date_now16( int utc_offset )
 {
 	DATE *d;
 
