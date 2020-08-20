@@ -24,33 +24,6 @@
 
 /* Prototypes */
 /* ---------- */
-/*
-void post_change_vendor_payment_entity(
-			char *full_name,
-			char *street_address,
-			LIST *vendor_payment_list,
-			char *preupdate_full_name,
-			char *preupdate_street_address );
-
-void post_change_vendor_payment_date_time_update(
-			char *fund_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *payment_date_time,
-			char *preupdate_payment_date_time );
-
-void post_change_vendor_payment_update(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *payment_date_time,
-			char *preupdate_full_name,
-			char *preupdate_street_address,
-			char *preupdate_payment_date_time,
-			char *preupdate_payment_amount );
-*/
-
 void post_change_vendor_payment_predelete(
 			char *full_name,
 			char *street_address,

@@ -11,7 +11,6 @@
 #include "list.h"
 #include "date.h"
 #include "boolean.h"
-#include "journal.h"
 
 /* Constants */
 /* --------- */

@@ -17,6 +17,7 @@
 #include "transaction.h"
 #include "entity.h"
 #include "customer_payment.h"
+#include "journal.h"
 #include "customer_sale.h"
 
 CUSTOMER_SALE *customer_sale_new(

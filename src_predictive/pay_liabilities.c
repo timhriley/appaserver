@@ -605,8 +605,8 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 				char *street_address )
 {
 	LIST *purchase_order_list;
-	PURCHASE_ORDER *purchase_order;
-	PURCHASE_ORDER *new_purchase_order;
+	PURCHASE *purchase_order;
+	PURCHASE *new_purchase_order;
 
 	if ( !list_rewind( input_purchase_order_list ) ) return (LIST *)0;
 
@@ -625,7 +625,7 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 		new_purchase_order =
 			timlib_memcpy(
 				purchase_order,
-				sizeof( PURCHASE_ORDER ) );
+				sizeof( PURCHASE ) );
 
 		list_append_pointer(
 			purchase_order_list,
@@ -1094,7 +1094,7 @@ LIST *pay_liabilities_output_get_vendor_payment_list(
 {
 	LIST *vendor_payment_list = {0};
 	ENTITY *entity;
-	PURCHASE_ORDER *purchase_order;
+	PURCHASE *purchase_order;
 	VENDOR_PAYMENT *vendor_payment;
 	TRANSACTION *transaction;
 

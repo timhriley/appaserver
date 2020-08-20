@@ -12,12 +12,11 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "entity.h"
-#include "depreciation.h"
-#include "account.h"
 
 /* Constants */
 /* --------- */
-#define PURCHASE_ORDER_MEMO		"Purchase Order"
+#define PURCHASE_MEMO		"Purchase Order"
+#define PURCHASE_TABLE_NAME	"purchase_order"
 
 #define Purchase_amount_due(						\
 			purchase_amount,				\
@@ -52,19 +51,19 @@ typedef struct
 	LIST *purchase_equipment_list;
 	char *program_name;
 	char *property_street_address;
-} PURCHASE_ORDER;
+} PURCHASE;
 
 /* Operations */
 /* ---------- */
-PURCHASE_ORDER *purchase_order_fetch(
+PURCHASE *purchase_fetch(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time );
 
-/* --------------------------------------- */
-/* Allocates purchase_order->vendor_entity */
-/* --------------------------------------- */
-PURCHASE_ORDER *purchase_order_new(
+/* --------------------------------- */
+/* Allocates purchase->vendor_entity */
+/* --------------------------------- */
+PURCHASE *purchase_new(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time );
@@ -75,30 +74,20 @@ double purchase_equipment_total(
 double purchase_vendor_payment_total(
 			LIST *vendor_payment_list );
 
-void purchase_order_update(
-			double purchase_price_total,
-			double invoice_amount,
+void purchase_update(	double purchase_equipment_total,
+			double purchase_invoice_amount,
 			double vendor_payment_total,
-			double amount_due,
+			double purchase_amount_due,
 			char *transaction_date_time,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time );
 
-void purchase_update(	double purchase_price_total,
-			double invoice_amount,
-			double vendor_payment_total,
-			double amount_due,
-			char *transaction_date_time,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time );
-
-PURCHASE_ORDER *purchase_order_calloc(
+PURCHASE *purchase_calloc(
 			void );
 
-PURCHASE_ORDER *purchase_order_seek(
-			LIST *purchase_order_list,
+PURCHASE *purchase_seek(
+			LIST *purchase_list,
 			char *purchase_date_time );
 
 LIST *purchase_vendor_payment_list(
@@ -106,20 +95,24 @@ LIST *purchase_vendor_payment_list(
 			char *street_address,
 			char *purchase_date_time );
 
-LIST *purchase_fixed_asset_list(
+LIST *purchase_equipment_list(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time );
 
+/* Includes transaction->journal_list */
+/* ---------------------------------- */
 TRANSACTION *purchase_transaction(
 			char *full_name,
 			char *street_address,
 			char *arrived_date_time,
-			double purchase_amount,
+			double purchase_invoice_amount,
 			char *asset_account_name,
 			char *account_payable );
 
-void purchase_transaction_refresh(
+/* Returns true transaction_date_time */
+/* ---------------------------------- */
+char *purchase_transaction_refresh(
 			double transaction_amount,
 			LIST *journal_list,
 			char *full_name,
@@ -130,7 +123,7 @@ void purchase_transaction_refresh(
 /* ---------------------- */
 char *purchase_select(	void );
 
-PURCHASE_ORDER *purchase_parse(
+PURCHASE *purchase_parse(
 			char *input );
 
 /* Safely returns heap memory */
@@ -151,5 +144,18 @@ double purchase_fetch_amount_due(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time );
+
+TRANSACTION *purchase_transaction(
+			char *full_name,
+			char *street_address,
+			char *arrived_date_time,
+			double purchase_invoice_amount,
+			char *purchase_asset_account_name,
+			char *account_payable );
+
+LIST *purchase_journal_list(
+			double purchase_invoice_amount,
+			char *purchase_asset_account_name(
+			char *account_payable );
 
 #endif

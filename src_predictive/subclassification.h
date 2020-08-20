@@ -12,7 +12,6 @@
 #include "boolean.h"
 #include "html_table.h"
 #include "latex.h"
-#include "account.h"
 
 /* Constants */
 /* --------- */

@@ -14,7 +14,6 @@
 #include "list.h"
 #include "boolean.h"
 #include "transaction.h"
-#include "purchase.h"
 #include "account.h"
 #include "vendor_payment.h"
 
@@ -37,15 +36,12 @@ VENDOR_PAYMENT *vendor_payment_new(
 	}
 
 
-	vendor_payment->purchase_order =
-		/* --------------------------------------- */
-		/* Allocates purchase_order->vendor_entity */
-		/* --------------------------------------- */
-		purchase_order_new(
+	vendor_payment->vendor_entity =
+		entity_fetch(
 			full_name,
-			street_address,
-			purchase_date_time );
+			street_address );
 
+	vendor_payment->purchase_date_time = purchase_date_time;
 	vendor_payment->payment_date_time = payment_date_time;
 	return vendor_payment;
 }
@@ -76,7 +72,7 @@ VENDOR_PAYMENT *vendor_payment_fetch(
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
 		 /* -------------------------- */
-		 purchase_order_primary_where(
+		 vendor_payment_purchase_where(
 			full_name,
 			street_address,
 			purchase_date_time ) );
@@ -100,7 +96,7 @@ LIST *vendor_payment_list(
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
 		 /* -------------------------- */
-		 purchase_primary_where(
+		 vendor_payment_purchase_where(
 			full_name,
 			street_address,
 			purchase_date_time ) );
@@ -151,11 +147,9 @@ VENDOR_PAYMENT *vendor_payment_parse( char *input )
 	vendor_payment->vendor_payment_transaction =
 		transaction_fetch(
 			vendor_payment->
-				purchase_order->
 				vendor_entity->
 				full_name,
 			vendor_payment->
-				purchase_order->
 				vendor_entity->
 				street_address,
 			piece_buffer /* transaction_date_time */ );
@@ -340,6 +334,8 @@ LIST *vendor_payment_journal_list(
 	char *credit_account;
 	LIST *journal_list = list_new();
 
+	/* Set debit */
+	/* --------- */
 	journal =
 		journal_new(
 			(char *)0 /* full_name */,
@@ -351,6 +347,8 @@ LIST *vendor_payment_journal_list(
 
 	list_set( journal_list, journal );
 
+	/* Set credit */
+	/* ---------- */
 	if ( check_number )
 		credit_account = account_uncleared_checks;
 	else
@@ -409,5 +407,28 @@ void vendor_payment_update(
 			: "" );
 
 	pclose( update_pipe );
+}
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *vendor_payment_purchase_where(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time )
+{
+	char where[ 1024 ];
+
+	sprintf( where,
+		 "full_name = '%s' and		"
+		 "street_address = '%s' and	"
+		 "purchase_date_time = '%s'	",
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 entity_escape_full_name( full_name ),
+		 street_address,
+		 purchase_date_time );
+
+	return strdup( where );
 }
 

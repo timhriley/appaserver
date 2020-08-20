@@ -12,7 +12,6 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "entity.h"
-#include "purchase.h"
 
 /* Constants */
 /* --------- */
@@ -25,7 +24,7 @@
 /* ---------- */
 typedef struct
 {
-	PURCHASE_ORDER *purchase_order;
+	ENTITY *vendor_entity;
 	char *purchase_date_time;
 	char *payment_date_time;
 	double payment_amount;
@@ -109,5 +108,12 @@ void vendor_payment_update(
 /* -------------------------- */
 char *vendor_payment_update_sys_string(
 			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *vendor_payment_purchase_where(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
 
 #endif

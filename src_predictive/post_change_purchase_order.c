@@ -13,11 +13,11 @@
 #include "piece.h"
 #include "column.h"
 #include "list.h"
-#include "inventory.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "entity.h"
 #include "date.h"
+#include "equipment_purchase.h"
 #include "purchase.h"
 
 /* Constants */
@@ -25,92 +25,15 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_purchase_order_change_sales_tax_inventory(
-			char *application_name,
+void post_change_purchase_predelete(
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time,
-			LIST *inventory_purchase_list );
+			char *purchase_date_time );
 
-void post_change_purchase_order_change_sales_tax_transaction(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_new_transaction(
-			PURCHASE_ORDER *purchase_order,
-			char *transaction_date_time,
-			char *application_name );
-
-void post_change_purchase_order_changed_rule_to_null(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_changed_to_FOB_destination(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_changed_to_FOB_shipping(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_FOB_shipping_new_title_passage_rule(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_fixed_arrived_date_time(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_insert(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_FOB_shipping_mistakenly_shipped(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_mistakenly_arrived(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_FOB_shipping_fixed_shipped_date(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_FOB_shipping_just_arrived(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_just_arrived(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_FOB_shipping_just_shipped(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_update(
-			PURCHASE_ORDER *purchase_order,
-			char *preupdate_full_name,
-			char *preupdate_street_address,
-			char *preupdate_title_passage_rule,
-			char *preupdate_shipped_date,
-			char *preupdate_arrived_date_time,
-			char *preupdate_sales_tax,
-			char *preupdate_freight_in,
-			char *application_name );
-
-void post_change_purchase_order_insert_FOB_shipping(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_insert_FOB_destination(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
-
-void post_change_purchase_order_insert_title_passage_null(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name );
+void post_change_purchase_insert_update(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
 
 int main( int argc, char **argv )
 {
@@ -128,32 +51,32 @@ int main( int argc, char **argv )
 	char *preupdate_freight_in;
 	PURCHASE_ORDER *purchase_order;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	if ( argc != 13 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored full_name street_address purchase_date_time state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time preupdate_sales_tax preupdate_freight_in\n",
+"Usage: %s full_name street_address purchase_date_time state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time preupdate_sales_tax preupdate_freight_in\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	full_name = argv[ 2 ];
-	street_address = argv[ 3 ];
-	purchase_date_time = argv[ 4 ];
-	state = argv[ 5 ];
-	preupdate_full_name = argv[ 6 ];
-	preupdate_street_address = argv[ 7 ];
-	preupdate_title_passage_rule = argv[ 8 ];
-	preupdate_shipped_date = argv[ 9 ];
-	preupdate_arrived_date_time = argv[ 10 ];
-	preupdate_sales_tax = argv[ 11 ];
-	preupdate_freight_in = argv[ 12 ];
+	full_name = argv[ 1 ];
+	street_address = argv[ 2 ];
+	purchase_date_time = argv[ 3 ];
+	state = argv[ 4 ];
+	preupdate_full_name = argv[ 5 ];
+	preupdate_street_address = argv[ 6 ];
+	preupdate_title_passage_rule = argv[ 7 ];
+	preupdate_shipped_date = argv[ 8 ];
+	preupdate_arrived_date_time = argv[ 9 ];
+	preupdate_sales_tax = argv[ 10 ];
+	preupdate_freight_in = argv[ 11 ];
 
 	/* -------------------------------------------- */
 	/* Only execute state=predelete because we have	*/
@@ -168,95 +91,200 @@ int main( int argc, char **argv )
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
 		exit( 0 );
 
-	purchase_order =
-		purchase_order_new(
-			application_name,
-			full_name,
-			street_address,
-			purchase_date_time );
-
-	if ( !purchase_order )
+	if ( strcmp( state, "insert" ) == 0
+	||   strcmp( state, "update" ) == 0 )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load purchase_order.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( strcmp( state, "predelete" ) == 0 )
-	{
-		if ( purchase_order->transaction )
-		{
-			purchase_order_transaction_delete_with_propagate(
-				application_name,
-				purchase_order->fund_name,
+		post_change_purchase_insert_update(
 				full_name,
 				street_address,
-				purchase_order->transaction_date_time );
-
-			purchase_order->transaction = (TRANSACTION *)0;
-			purchase_order->transaction_date_time = (char *)0;
-		}
+				purchase_date_time );
 	}
+/*
 	else
 	if ( strcmp( state, "update" ) == 0 )
 	{
-		post_change_purchase_order_update(
-			purchase_order,
-			preupdate_full_name,
-			preupdate_street_address,
-			preupdate_title_passage_rule,
-			preupdate_shipped_date,
-			preupdate_arrived_date_time,
-			preupdate_sales_tax,
-			preupdate_freight_in,
-			application_name );
 	}
 	else
-	if ( strcmp( state, "insert" ) == 0 )
+*/
+	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		post_change_purchase_order_insert(
-			purchase_order,
-			application_name );
-	}
-	else
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: unrecognized state = (%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 state );
-		exit( 1 );
-	}
-
-	if ( strcmp( state, "predelete" ) != 0 )
-	{
-		purchase_order_update(
-			application_name,
-			purchase_order->full_name,
-			purchase_order->street_address,
-			purchase_order->purchase_date_time,
-			purchase_order->sum_extension,
-			purchase_order->database_sum_extension,
-			purchase_order->purchase_amount,
-			purchase_order->database_purchase_amount,
-			purchase_order->amount_due,
-			purchase_order->database_amount_due,
-			purchase_order->transaction_date_time,
-			purchase_order->database_transaction_date_time,
-			purchase_order->arrived_date_time,
-			purchase_order->database_arrived_date_time,
-			purchase_order->shipped_date,
-			purchase_order->database_shipped_date );
+		post_change_purchase_predelete(
+				full_name,
+				street_address,
+				purchase_date_time );
 	}
 
 	return 0;
+}
 
-} /* main() */
+void post_change_purchase_insert_update(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time )
+{
+	PURCHASE *purchase;
+	TRANSACTION *transaction;
+	char *transaction_date_time = {0};
 
+	if ( ! ( purchase =
+			purchase_fetch(
+				full_name,
+				street_address,
+				purchase_date_time ) ) )
+	{
+		return;
+	}
+
+	purchase->purchase_amount_due =
+		Purchase_amount_due(
+			purchase->purchase_invoice_amount,
+			( purchase->purchase_vendor_payment_total =
+				vendor_payment_total(
+					purchase->
+					     purchase_vendor_payment_list ) ) );
+
+	if ( purchase->purchase_transaction )
+	{
+		transaction_date_time =
+			purchase->purchase_transaction->transaction_date_time;
+	}
+	else
+	if ( purchase->arrived_date_time )
+	{
+		transaction_date_time = purchase->arrived_date_time;
+	}
+
+	if ( purchase->arrived_date_time )
+	{
+		/* Refresh the TRANSACTION */
+		/* ----------------------- */
+		purchase->purchase_transaction =
+			/* ---------------------------------- */
+			/* Includes transaction->journal_list */
+			/* ---------------------------------- */
+			purchase_transaction(
+				purchase->full_name,
+				purchase->street_address,
+				purchase->arrived_date_time,
+				purchase->purchase_invoice_amount,
+				purchase_asset_account_name(
+					purchase->
+						purchase_equipment_list ),
+				account_payable() );
+
+		transaction = purchase->purchase_transaction;
+
+		transaction->transaction_date_time =
+			transaction_journal_refresh(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->transaction_amount,
+				transaction->memo,
+				transaction->check_number,
+				1 /* lock_transaction */,
+				transaction->journal_list );
+	}
+
+	purchase_update(
+		purchase_order->purchase_equipment_total,
+		purchase_order->purchase_invoice_amount,
+		purchase_order->purchase_vendor_payment_total,
+		purchase_order->purchase_amount_due,
+		transaction_date_time,
+		purchase_order->vendor_entity->full_name,
+		purchase_order->vendor_entity->street_address,
+		purchase_order->purchase_date_time );
+}
+
+void post_change_vendor_payment_predelete(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *payment_date_time )
+{
+	PURCHASE_ORDER *purchase_order;
+	VENDOR_PAYMENT *vendor_payment;
+	TRANSACTION *transaction;
+	char *transaction_date_time;
+
+	if ( ! ( purchase_order =
+			purchase_order_fetch(
+				full_name,
+				street_address,
+				purchase_date_time ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot find purchase order.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 0 );
+	}
+
+	if ( ! ( vendor_payment =
+			vendor_payment_seek(
+				purchase_order->purchase_vendor_payment_list,
+				payment_date_time ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: vendor_payment_seek(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 payment_date_time );
+		exit( 1 );
+	}
+
+	list_delete_current( purchase_order->purchase_vendor_payment_list );
+
+	purchase_order->purchase_amount_due =
+		Purchase_amount_due(
+			purchase_order->purchase_invoice_amount,
+			( purchase_order->purchase_vendor_payment_total =
+				vendor_payment_total(
+					purchase_order->
+					     purchase_vendor_payment_list ) ) );
+
+	if ( purchase_order->purchase_transaction )
+	{
+		transaction_date_time =
+			purchase_order->
+				purchase_transaction->
+					transaction_date_time;
+	}
+	else
+	{
+		transaction_date_time = (char *)0;
+	}
+
+	purchase_order_update(
+		purchase_order->purchase_equipment_total,
+		purchase_order->purchase_invoice_amount,
+		purchase_order->purchase_vendor_payment_total,
+		purchase_order->purchase_amount_due,
+		transaction_date_time,
+		purchase_order->vendor_entity->full_name,
+		purchase_order->vendor_entity->street_address,
+		purchase_order->purchase_date_time );
+
+	if ( !vendor_payment->vendor_payment_transaction ) return;
+
+	transaction = vendor_payment->vendor_payment_transaction;
+
+	/* Also does a propagate for each account */
+	/* -------------------------------------- */
+	journal_delete(	transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time );
+
+	transaction_delete(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time );
+}
+
+#ifdef NOT_DEFINED
 void post_change_purchase_order_insert(
 			PURCHASE_ORDER *purchase_order,
 			char *application_name )
@@ -1517,4 +1545,4 @@ void post_change_purchase_order_change_sales_tax_inventory(
 	} while( list_next( inventory_purchase_list ) );
 
 } /* post_change_purchase_order_change_sales_tax_inventory() */
-
+#endif

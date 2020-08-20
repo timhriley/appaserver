@@ -62,23 +62,18 @@ STANDARD_LIBRARY=							\
 #		post_change_customer_payment				\
 #		post_change_prior_fixed_asset				\
 #		post_change_account_balance				\
-#		post_change_vendor_payment				\
 #		post_change_prepaid_asset_purchase			\
 #		post_change_prepaid_asset_accrual			\
 #		post_change_bank_upload					\
 #		update_sale_completed					\
 #		post_reoccurring_transaction				\
-#		post_cash_expense_transaction				\
 #		post_payroll						\
 #		collect_customer_payment				\
-#		make_vendor_payment					\
-#		post_change_self					\
 #		post_change_employee_work_day				\
 #		inventory_cost_method_propagate				\
 #		load_receipt_scan					\
 #		shortcut_service_work					\
 #		tax_dvr							\
-#		generate_invoice
 
 EXECUTABLES=	trial_balance						\
 		tax_form_report						\
@@ -99,6 +94,7 @@ EXECUTABLES=	trial_balance						\
 		post_change_self					\
 		make_vendor_payment					\
 		generate_invoice					\
+		post_change_purchase_order				\
 		post_change_vendor_payment
 
 EXTERNAL_LIBRARY=							\
@@ -154,18 +150,18 @@ SOURCE_LIBRARY= 							\
 		program.o						\
 		element.o						\
 		subclassification.o					\
-		purchase.o						\
 		customer_sale.o						\
 		inventory_purchase_return.o				\
 		inventory_sale_return.o					\
 		depreciation.o						\
 		equipment_depreciation.o				\
-		equipment_purchase.o					\
-		vendor_payment.o					\
 		customer_payment.o					\
 		inventory_sale.o					\
 		entity_self.o						\
-		entity.o
+		entity.o						\
+		equipment_purchase.o					\
+		vendor_payment.o					\
+		purchase.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
 

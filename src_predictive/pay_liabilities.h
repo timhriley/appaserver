@@ -12,7 +12,6 @@
 /* Includes */
 /* -------- */
 #include "list.h"
-#include "purchase.h"
 
 /* Enumerated types */
 /* ---------------- */

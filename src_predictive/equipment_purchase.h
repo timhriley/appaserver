@@ -11,7 +11,6 @@
 #include "list.h"
 #include "boolean.h"
 #include "tax_recovery.h"
-#include "purchase.h"
 #include "entity.h"
 
 /* Constants */
@@ -44,7 +43,6 @@ typedef struct
 	double tax_accumulated_depreciation;
 	/* DEPRECIATION *depreciation; */
 	TAX_RECOVERY *tax_recovery;
-	PURCHASE_ORDER *purchase_order;
 	LIST *equipment_purchase_list;
 } EQUIPMENT_PURCHASE;
 
@@ -76,7 +74,7 @@ LIST *equipment_purchase_list_fetch(
 			char *where );
 
 LIST *equipment_purchase_list(
-			char *purchase_order_primary_where );
+			char *purchase_primary_where );
 
 FILE *equipment_purchase_update_open(
 			void );

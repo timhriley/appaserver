@@ -19,7 +19,7 @@
 #include "account.h"
 #include "depreciation.h"
 #include "tax_recovery.h"
-#include "purchase.h"
+#include "entity.h"
 #include "equipment_purchase.h"
 
 EQUIPMENT_PURCHASE *equipment_purchase_new(
@@ -105,20 +105,18 @@ EQUIPMENT_PURCHASE *equipment_purchase_parse( char *input )
 			strdup( street_address ),
 			strdup( purchase_date_time ) );
 
-	if ( ! ( equipment_purchase->purchase_order =
-			purchase_order_fetch(
-				strdup( full_name ),
-				strdup( street_address ),
-				strdup( purchase_date_time ) ) ) )
+	if ( ! ( equipment_purchase->vendor_entity =
+			entity_fetch(
+				full_name,
+				street_address ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s/%d: purchase_order_fetch(%s/%s/%s) returned empty.\n",
+"ERROR in %s/%s/%d: entity_fetch(%s/%s) returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
 			 full_name,
-			 street_address,
-			 purchase_date_time );
+			 street_address );
 		exit( 1 );
 	}
 
@@ -166,11 +164,11 @@ EQUIPMENT_PURCHASE *equipment_purchase_parse( char *input )
 }
 
 LIST *equipment_purchase_list(
-			char *purchase_order_primary_where )
+			char *purchase_primary_where )
 {
 	return
 		equipment_purchase_list_fetch(
-			purchase_order_primary_where );
+			purchase_primary_where );
 }
 
 LIST *equipment_purchase_list_fetch( char *where )
