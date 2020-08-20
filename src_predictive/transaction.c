@@ -569,7 +569,28 @@ boolean transaction_exists( char *transaction_date_time )
 	return return_value;
 }
 
-void transaction_refresh(
+char *transaction_journal_refresh(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			int check_number,
+			boolean lock_transaction,
+			LIST *journal_list )
+{
+	return transaction_refresh(
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			memo,
+			check_number,
+			lock_transaction,
+			journal_list );
+}
+
+char *transaction_refresh(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -604,6 +625,8 @@ void transaction_refresh(
 		street_address,
 		transaction_date_time,
 		journal_list );
+
+	return transaction_date_time;
 }
 
 void transaction_list_journal_insert(

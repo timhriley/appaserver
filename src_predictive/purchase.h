@@ -24,6 +24,12 @@
 			vendor_payment_total )				\
 	( purchase_amount - vendor_payment_total )
 
+#define Purchase_invoice_amount(					\
+			equipment_total,				\
+			sales_tax,					\
+			freight_in )					\
+	( equipment_total + sales + freight_in )
+
 /* Enumerated types */
 /* ---------------- */
 
@@ -38,7 +44,7 @@ typedef struct
 	char *arrived_date_time;
 	TRANSACTION *purchase_transaction;
 	double purchase_equipment_total;
-	double invoice_amount;
+	double purchase_invoice_amount;
 	double purchase_vendor_payment_total;
 	double purchase_amount_due;
 	char *purchase_asset_account_name;
@@ -55,6 +61,9 @@ PURCHASE_ORDER *purchase_order_fetch(
 			char *street_address,
 			char *purchase_date_time );
 
+/* --------------------------------------- */
+/* Allocates purchase_order->vendor_entity */
+/* --------------------------------------- */
 PURCHASE_ORDER *purchase_order_new(
 			char *full_name,
 			char *street_address,
@@ -65,6 +74,16 @@ double purchase_equipment_total(
 
 double purchase_vendor_payment_total(
 			LIST *vendor_payment_list );
+
+void purchase_order_update(
+			double purchase_price_total,
+			double invoice_amount,
+			double vendor_payment_total,
+			double amount_due,
+			char *transaction_date_time,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
 
 void purchase_update(	double purchase_price_total,
 			double invoice_amount,

@@ -260,7 +260,17 @@ void transaction_lock_insert(
 			FILE *insert_pipe,
 			boolean lock_transaction );
 
-void transaction_refresh(
+char *transaction_journal_refresh(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			int check_number,
+			boolean lock_transaction,
+			LIST *journal_list );
+
+char *transaction_refresh(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,

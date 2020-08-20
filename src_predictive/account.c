@@ -94,6 +94,16 @@ char *account_receivable( void )
 	return "";
 }
 
+char *account_payable( void )
+{
+	return "";
+}
+
+char *account_uncleared_checks( void )
+{
+	return "";
+}
+
 char *account_cash( void )
 {
 	return "";

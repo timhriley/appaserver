@@ -183,4 +183,9 @@ void journal_list_display(
 			char *heading,
 			LIST *journal_list );
 
+/* Safely returns heap memory */
+/* -------------------------- */
+char *journal_update_sys_string(
+			void );
+
 #endif

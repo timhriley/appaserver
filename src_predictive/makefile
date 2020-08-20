@@ -98,7 +98,8 @@ EXECUTABLES=	trial_balance						\
 		post_cash_expense_transaction				\
 		post_change_self					\
 		make_vendor_payment					\
-		generate_invoice
+		generate_invoice					\
+		post_change_vendor_payment
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\

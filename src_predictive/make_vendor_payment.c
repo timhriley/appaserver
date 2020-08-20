@@ -33,14 +33,6 @@ boolean total_payment_amount_exceeds_amount_due(
 			double payment_amount,
 			double payment_amount_total );
 
-void insert_vendor_payment(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *payment_date_time,
-			double payment_amount,
-			int check_number );
-
 void display_purchase_order(
 			char *full_name,
 			char *street_address,
@@ -134,10 +126,11 @@ int main( int argc, char **argv )
 	}
 
 	payment_amount_total =
-		vendor_payment_fetch_payment_amount_total(
-			full_name,
-			street_address,
-			purchase_date_time );
+		vendor_payment_total(
+			vendor_payment_list(
+				full_name,
+				street_address,
+				purchase_date_time ) );
 
 	if ( paid_amount_due && !payment_amount )
 	{
@@ -182,13 +175,13 @@ int main( int argc, char **argv )
 
 	if ( payment_amount )
 	{
-		insert_vendor_payment(
-				full_name,
-				street_address,
-				purchase_date_time,
-				payment_date_time,
-				payment_amount,
-				check_number );
+		vendor_payment_insert(
+			full_name,
+			street_address,
+			purchase_date_time,
+			payment_date_time,
+			payment_amount,
+			check_number );
 	}
 
 	/* Builds the transaction */
@@ -245,25 +238,6 @@ void display_purchase_order(
 	fflush( stdout );
 	if ( system( sys_string ) ){};
 	fflush( stdout );
-}
-
-void insert_vendor_payment(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *payment_date_time,
-			double payment_amount,
-			int check_number )
-{
-	
-	vendor_payment_insert(
-		full_name,
-		street_address,
-		purchase_date_time,
-		payment_date_time,
-		payment_amount,
-		check_number,
-		(char *)0 /* transaction_date_time */ );
 }
 
 boolean total_payment_amount_exceeds_amount_due(

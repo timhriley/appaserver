@@ -73,7 +73,12 @@ ACCOUNT *account_seek(	LIST *account_list,
 char *account_receivable(
 			void );
 
+char *account_uncleared_checks(
+			void );
+
 char *account_cash(	void );
+
+char *account_payable(	void );
 
 char *account_fees_expense(
 			void );

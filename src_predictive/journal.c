@@ -746,32 +746,38 @@ void journal_list_insert(
 		account_name_list );
 }
 
-void journal_list_propagate_update(
-			LIST *propagate_journal_list )
+char *journal_update_sys_string( void )
 {
-	JOURNAL *journal;
-	FILE *update_pipe;
+	char *key;
 	char sys_string[ 1024 ];
-	char *key_column_list_string;
 
-	if ( !list_rewind( propagate_journal_list ) ) return;
-
-	key_column_list_string =
-		"full_name,street_address,transaction_date_time,account";
+	key= "full_name,street_address,transaction_date_time,account";
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y		|"
 		 "sql							 ",
 		 JOURNAL_FOLDER_NAME,
-		 key_column_list_string );
+		 key );
 
-	update_pipe = popen( sys_string, "w" );
+	return strdup( sys_string );
+}
+
+void journal_list_propagate_update(
+			LIST *propagate_journal_list )
+{
+	JOURNAL *journal;
+	FILE *update_pipe;
+
+	if ( !list_rewind( propagate_journal_list ) ) return;
+
+	update_pipe =
+		popen(	journal_update_sys_string(),
+			"w" );
 
 	do {
 		journal = list_get( propagate_journal_list );
 
-		if ( !journal->transaction_count
-		||	journal->transaction_count !=
+		if (	journal->transaction_count !=
 			journal->transaction_count_database )
 		{
 			fprintf(update_pipe,
@@ -787,10 +793,7 @@ void journal_list_propagate_update(
 				journal->transaction_count;
 		}
 
-		if ( timlib_dollar_virtually_same(
-			journal->previous_balance,
-			0.0 )
-		||   !timlib_dollar_virtually_same(
+		if ( !timlib_dollar_virtually_same(
 			journal->previous_balance,
 			journal->previous_balance_database ) )
 		{
@@ -806,10 +809,7 @@ void journal_list_propagate_update(
 				journal->previous_balance;
 		}
 
-		if ( timlib_dollar_virtually_same(
-			journal->balance,
-			0.0 )
-		||   !timlib_dollar_virtually_same(
+		if ( !timlib_dollar_virtually_same(
 			journal->balance,
 			journal->balance_database ) )
 		{

@@ -12,10 +12,11 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "entity.h"
+#include "purchase.h"
 
 /* Constants */
 /* --------- */
-#define VENDOR_PAYMENT_PAYMENT_MEMO		"Vendor Payment"
+#define VENDOR_PAYMENT_MEMO		"Vendor Payment"
 
 /* Enumerated types */
 /* ---------------- */
@@ -24,7 +25,7 @@
 /* ---------- */
 typedef struct
 {
-	ENTITY *vendor_entity;
+	PURCHASE_ORDER *purchase_order;
 	char *purchase_date_time;
 	char *payment_date_time;
 	double payment_amount;
@@ -47,7 +48,12 @@ VENDOR_PAYMENT *vendor_payment_new(
 			char *payment_date_time );
 
 LIST *vendor_payment_list(
-			char *purchase_order_where );
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
+
+LIST *vendor_payment_fetch_list(
+			char *where );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -56,9 +62,6 @@ char *vendor_payment_select(
 
 VENDOR_PAYMENT *vendor_payment_parse(
 			char *input );
-
-LIST *vendor_payment_list_fetch(
-			char *where );
 
 LIST *vendor_payment_system_list(
 			char *sys_string );
@@ -72,12 +75,39 @@ void vendor_payment_insert(
 			char *purchase_date_time,
 			char *payment_date_time,
 			double payment_amount,
-			int check_number,
-			char *transaction_date_time );
+			int check_number );
 
-double vendor_payment_fetch_payment_amount_total(
+TRANSACTION *vendor_payment_transaction(
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time );
+			char *payment_date_time,
+			double payment_amount,
+			int check_number,
+			char *account_payable,
+			char *account_cash,
+			char *account_uncleared_checks );
+
+VENDOR_PAYMENT *vendor_payment_seek(
+			LIST *vendor_payment_list,
+			char *payment_date_time );
+
+LIST *vendor_payment_journal_list(
+			double payment_amount,
+			int check_number,
+			char *account_payable,
+			char *account_cash,
+			char *account_uncleared_checks );
+
+void vendor_payment_update(
+			char *transaction_date_time,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *payment_date_time );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *vendor_payment_update_sys_string(
+			void );
 
 #endif

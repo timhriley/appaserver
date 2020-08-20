@@ -27,24 +27,21 @@ PURCHASE_ORDER *purchase_order_fetch(
 			char *purchase_date_time )
 {
 	char sys_string[ 1024 ];
-	char where[ 512 ];
-
-	sprintf( where,
-		 "full_name = '%s' and				"
-		 "street_address = '%s' and 			"
-		 "purchase_date_time = '%s'			",
-		 transaction_escape_full_name( full_name ),
-		 street_address,
-		 purchase_date_time );
 
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s;\" | sql.e",
+		 /* ---------------------- */
+		 /* returns program memory */
+		 /* ---------------------- */
+		 purchase_select(),
+		 "purchase_order",
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
 		 /* -------------------------- */
-		 purchase_select(),
-		 "purchase_order",
-		 where );
+		 purchase_primary_where(
+			full_name,
+			street_address,
+			purchase_date_time ) );
 
 	return purchase_parse( pipe2string( sys_string ) );
 }
@@ -122,7 +119,7 @@ LIST *purchase_vendor_payment_list(
 			char *street_address,
 			char *purchase_date_time )
 {
-	return vendor_payment_list(
+	return vendor_payment_fetch_list(
 			purchase_order_primary_where(
 				full_name,
 				street_address,
@@ -172,6 +169,27 @@ TRANSACTION *purchase_transaction(
 				/* credit_account */ );
 
 	return transaction;
+}
+
+void purchase_order_update(
+			double purchase_price_total,
+			double invoice_amount,
+			double vendor_payment_total,
+			double amount_due,
+			char *transaction_date_time,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time )
+{
+	return purchase_update(
+			purchase_price_total,
+			invoice_amount,
+			vendor_payment_total,
+			amount_due,
+			transaction_date_time,
+			full_name,
+			street_address,
+			purchase_date_time );
 }
 
 void purchase_update(
@@ -304,7 +322,7 @@ PURCHASE_ORDER *purchase_parse( char *input )
 	purchase_order->purchase_equipment_total = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 7 );
-	purchase_order->invoice_amount = atof( piece_buffer );
+	purchase_order->purchase_invoice_amount = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 8 );
 	purchase_order->purchase_amount_due = atof( piece_buffer );
