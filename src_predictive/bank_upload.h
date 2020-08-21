@@ -115,6 +115,7 @@ BANK_UPLOAD *bank_upload_new(
 			char *bank_description );
 
 void bank_upload_transaction_direct_insert(
+			char *fund_name,
 			char *bank_date,
 			char *bank_description_embedded,
 			char *full_name,

@@ -28,7 +28,6 @@ typedef struct
 	char *serial_number;
 	ENTITY *vendor_entity;
 	char *purchase_date_time;
-	char *asset_account_name;
 	char *service_placement_date;
 	double equipment_cost;
 	int estimated_useful_life_years;
@@ -41,9 +40,9 @@ typedef struct
 	char *disposal_date;
 	double finance_accumulated_depreciation;
 	double tax_accumulated_depreciation;
-	/* DEPRECIATION *depreciation; */
 	TAX_RECOVERY *tax_recovery;
-	LIST *equipment_purchase_list;
+	char *asset_account_name;
+	LIST *equipment_depreciation_list;
 } EQUIPMENT_PURCHASE;
 
 /* Operations */
@@ -105,6 +104,9 @@ char *equipment_purchase_primary_where(
 
 double equipment_purchase_total(
 			LIST *equipment_purchase_list );
+
+LIST *equipment_system_list(
+			char *sys_string );
 
 #endif
 

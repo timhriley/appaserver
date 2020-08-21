@@ -30,11 +30,12 @@
 #define ACCOUNT_ACCUMULATED_KEY		"accumulated_depreciation_key"
 #define ACCOUNT_SALES_TAX_EXPENSE_KEY	"sales_tax_key"
 #define ACCOUNT_SALES_TAX_PAYABLE_KEY	"sales_tax_payable_key"
-#define ACCOUNT_ACCOUNT_PAYABLE_KEY	"account_payable_key"
 #define ACCOUNT_REVENUE_KEY		"revenue_key"
-#define ACCOUNT_ACCOUNT_RECEIVABLE_KEY	"account_receivable_key"
+#define ACCOUNT_RECEIVABLE_KEY		"receivable_key"
+#define ACCOUNT_PAYABLE_KEY		"payable_key"
 #define ACCOUNT_CLOSING_KEY		"closing_key"
 #define ACCOUNT_DRAWING_KEY		"drawing_key"
+#define ACCOUNT_FEES_EXPENSE_KEY	"fees_expense_key"
 #define ACCOUNT_UNCLEARED_CHECKS_KEY	"uncleared_checks_key"
 
 /* Structures */
@@ -47,10 +48,10 @@ typedef struct
 	char *hard_coded_account_key;
 	double chart_account_number;
 	JOURNAL *latest_journal;
+	LIST *journal_list;
 	boolean accumulate_debit;
 	double balance;
 	double annual_budget;
-	LIST *journal_ledger_list;
 } ACCOUNT;
 
 /* Operations */
@@ -71,17 +72,19 @@ ACCOUNT *account_seek(	LIST *account_list,
 			char *account_name );
 
 char *account_receivable(
-			void );
+			char *fund_name );
 
 char *account_uncleared_checks(
-			void );
+			char *fund_name );
 
-char *account_cash(	void );
+char *account_cash(	char *fund_name );
 
-char *account_payable(	void );
+char *account_loss(	char *fund_name );
+
+char *account_payable(	char *fund_name );
 
 char *account_fees_expense(
-			void );
+			char *fund_name );
 
 char *account_name_display(
 			char *account_name );
@@ -137,5 +140,11 @@ LIST *account_omit_latex_row_list(
 
 void account_propagate( char *account_name,
 			char *transaction_date_time );
+
+LIST *subclassification_account_list(
+			double *subclassification_total,
+			char *subclassification_name,
+			char *fund_name,
+			char *as_of_date );
 
 #endif

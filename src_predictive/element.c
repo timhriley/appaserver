@@ -13,10 +13,11 @@
 #include "sql.h"
 #include "piece.h"
 #include "environ.h"
+#include "html_table.h"
 #include "boolean.h"
 #include "account.h"
-#include "transaction.h"
 #include "subclassification.h"
+#include "predictive.h"
 #include "element.h"
 
 char *element_select( void )
@@ -41,25 +42,74 @@ ELEMENT *element_parse(	char *input )
 	return element;
 }
 
+char *element_primary_where( char *element_name )
+{
+	char where[ 256 ];
+
+	sprintf( where,
+		 "element_name = '%s'",
+		 element_name );
+
+	return strdup( where );
+}
+
+char *element_sys_string(
+			char *select,
+			char *where,
+			char *order )
+{
+	char sys_string[ 1024 ];
+	char order_clause[ 128 ];
+
+	if ( !select || !where )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null value(s) not allowed.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( order )
+	{
+		sprintf( order_clause,
+			 "order by %s",
+			 order );
+	}
+	else
+	{
+		*order_clause = '\0';
+	}
+
+	sprintf(sys_string,
+		"echo \"select %s from %s where %s %s;\" | sql",
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		element_select(),
+		"element",
+		where,
+		order_clause );
+
+	return strdup( sys_string );
+}
+
 ELEMENT *element_fetch( char *element_name )
 {
 	char sys_string[ 1024 ];
 	char where[ 256 ];
 
 	sprintf(where,
-		"element = '%s'	",
+		"element = '%s'",
 		element_name );
 
-	sprintf(sys_string,
-		"echo \"select %s from %s where %s;\" | sql.e",
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		element_select(),
-		"element",
-		where );
-
-	return element_parse( pipe2string( sys_string ) );
+	return element_parse(
+			pipe2string(
+				element_sys_string(
+					element_select(),
+					element_primary_where( element_name ),
+					(char *)0 /* order */ ) ) );
 }
 
 ELEMENT *element_account_name_fetch(
@@ -268,49 +318,49 @@ LIST *element_list_sort( LIST *element_list )
 
 	if ( ( element = element_seek(
 				element_list,
-				ELEMENT_ASSET ) ) )
+				PREDICTIVE_ELEMENT_ASSET ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
 				element_list,
-				ELEMENT_LIABILITY ) ) )
+				PREDICTIVE_ELEMENT_LIABILITY ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
 				element_list,
-				ELEMENT_REVENUE ) ) )
+				PREDICTIVE_ELEMENT_REVENUE ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
 				element_list,
-				ELEMENT_EXPENSE ) ) )
+				PREDICTIVE_ELEMENT_EXPENSE ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
 				element_list,
-				ELEMENT_GAIN ) ) )
+				PREDICTIVE_ELEMENT_GAIN ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
 				element_list,
-				ELEMENT_LOSS ) ) )
+				PREDICTIVE_ELEMENT_LOSS ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
 				element_list,
-				ELEMENT_EQUITY ) ) )
+				PREDICTIVE_ELEMENT_EQUITY ) ) )
 	{
 		list_set( return_element_list, element );
 	}
@@ -361,7 +411,7 @@ LIST *element_account_list(
 	JOURNAL *latest_journal;
 
 	fund_where =
-		transaction_fund_where(
+		predictive_fund_where(
 			fund_name );
 
 	*element_total = 0.0;
@@ -433,68 +483,22 @@ boolean element_is_period( char *element_name )
 	}
 
 	if ( strcmp(	element_name,
-			ELEMENT_REVENUE ) == 0 )
+			PREDICTIVE_ELEMENT_REVENUE ) == 0 )
 		return 1;
 	else
 	if ( strcmp(	element_name,
-			ELEMENT_EXPENSE ) == 0 )
+			PREDICTIVE_ELEMENT_EXPENSE ) == 0 )
 		return 1;
 	else
 	if ( strcmp(	element_name,
-			ELEMENT_GAIN ) == 0 )
+			PREDICTIVE_ELEMENT_GAIN ) == 0 )
 		return 1;
 	else
 	if ( strcmp(	element_name,
-			ELEMENT_LOSS ) == 0 )
+			PREDICTIVE_ELEMENT_LOSS ) == 0 )
 		return 1;
 	else
 		return 0;
-}
-
-ACCOUNT *element_account_seek(
-			LIST *element_list,
-			char *account_name )
-{
-	ELEMENT *element;
-	SUBCLASSIFICATION *subclassification;
-	ACCOUNT *account;
-
-	if ( !list_rewind( element_list ) ) return (ACCOUNT *)0;
-
-	do {
-		element = list_get( element_list );
-
-		if ( list_length( element->account_list ) )
-		{
-			return account_seek(
-					element->account_list,
-					account_name );
-		}
-
-		if ( !list_rewind( element->subclassification_list ) )
-			continue;
-
-		do {
-			subclassification =
-				list_get(
-					element->
-						subclassification_list );
-
-			if ( !list_rewind( subclassification->account_list ) )
-				continue;
-
-
-			if ( ( account =
-				account_seek(
-					subclassification->account_list,
-					account_name ) ) )
-			{
-				return account;
-			}
-
-		} while( list_next( element->subclassification_list ) );
-	} while( list_next( element_list ) );
-	return (ACCOUNT *)0;
 }
 
 boolean element_account_accumulate_debit(
@@ -581,7 +585,7 @@ double element_subclassification_aggregate_html_output(
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
 	if ( strcmp(	element_name,
-			ELEMENT_EQUITY ) ==  0 )
+			PREDICTIVE_ELEMENT_EQUITY ) ==  0 )
 	{
 		sprintf(	element_title,
 				"<h2>%s</h2>",
@@ -919,5 +923,51 @@ void element_list_propagate(
 			} while( list_next( subclassification->account_list ) );
 		} while( list_next( element->subclassification_list ) );
 	} while( list_next( element_list ) );
+}
+
+ACCOUNT *element_account_seek(
+			LIST *element_list,
+			char *account_name )
+{
+	ELEMENT *element;
+	SUBCLASSIFICATION *subclassification;
+	ACCOUNT *account;
+
+	if ( !list_rewind( element_list ) ) return (ACCOUNT *)0;
+
+	do {
+		element = list_get( element_list );
+
+		if ( list_length( element->account_list ) )
+		{
+			return account_seek(
+					element->account_list,
+					account_name );
+		}
+
+		if ( !list_rewind( element->subclassification_list ) )
+			continue;
+
+		do {
+			subclassification =
+				list_get(
+					element->
+						subclassification_list );
+
+			if ( !list_rewind( subclassification->account_list ) )
+				continue;
+
+
+			if ( ( account =
+				account_seek(
+					subclassification->account_list,
+					account_name ) ) )
+			{
+				return account;
+			}
+
+		} while( list_next( element->subclassification_list ) );
+	} while( list_next( element_list ) );
+	return (ACCOUNT *)0;
 }
 

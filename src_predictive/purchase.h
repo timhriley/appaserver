@@ -100,25 +100,6 @@ LIST *purchase_equipment_list(
 			char *street_address,
 			char *purchase_date_time );
 
-/* Includes transaction->journal_list */
-/* ---------------------------------- */
-TRANSACTION *purchase_transaction(
-			char *full_name,
-			char *street_address,
-			char *arrived_date_time,
-			double purchase_invoice_amount,
-			char *asset_account_name,
-			char *account_payable );
-
-/* Returns true transaction_date_time */
-/* ---------------------------------- */
-char *purchase_transaction_refresh(
-			double transaction_amount,
-			LIST *journal_list,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time );
-
 /* Returns program memory */
 /* ---------------------- */
 char *purchase_select(	void );
@@ -145,6 +126,8 @@ double purchase_fetch_amount_due(
 			char *street_address,
 			char *purchase_date_time );
 
+/* Includes transaction->journal_list */
+/* ---------------------------------- */
 TRANSACTION *purchase_transaction(
 			char *full_name,
 			char *street_address,
@@ -153,9 +136,22 @@ TRANSACTION *purchase_transaction(
 			char *purchase_asset_account_name,
 			char *account_payable );
 
+/* Returns true transaction_date_time */
+/* ---------------------------------- */
+char *purchase_transaction_refresh(
+			double transaction_amount,
+			LIST *journal_list,
+			char *purchase_transaction_memo,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
+
 LIST *purchase_journal_list(
 			double purchase_invoice_amount,
-			char *purchase_asset_account_name(
+			char *purchase_asset_account_name,
 			char *account_payable );
+
+char *purchase_asset_account_name(
+			LIST *purchase_equipment_list );
 
 #endif

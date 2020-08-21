@@ -11,12 +11,11 @@
 #include "String.h"
 #include "list.h"
 #include "sql.h"
+#include "html_table.h"
 #include "piece.h"
 #include "folder.h"
 #include "environ.h"
 #include "boolean.h"
-#include "transaction.h"
-#include "account.h"
 #include "depreciation.h"
 #include "tax_recovery.h"
 #include "entity.h"
@@ -171,21 +170,11 @@ LIST *equipment_purchase_list(
 			purchase_primary_where );
 }
 
-LIST *equipment_purchase_list_fetch( char *where )
+LIST *equipment_system_list( char *sys_string )
 {
-	char sys_string[ 1024 ];
 	char input[ 1024 ];
 	FILE *input_pipe;
 	LIST *equipment_purchase_list = list_new();
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 equipment_purchase_select(),
-		 "equipment_purchase",
-		 where );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -196,6 +185,46 @@ LIST *equipment_purchase_list_fetch( char *where )
 	}
 	pclose( input_pipe );
 	return equipment_purchase_list;
+}
+
+char *equipment_purchase_sys_string(
+			char *where,
+			char *order )
+{
+	char sys_string[ 1024 ];
+	char order_clause[ 128 ];
+
+	if ( order && *order )
+	{
+		sprintf( order_clause,
+			 "order by %s",
+			 order );
+	}
+	else
+	{
+		*order_clause = '\0';
+	}
+		
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s %s;\" | sql",
+		 /* ---------------------- */
+		 /* Returns program memory */
+		 /* ---------------------- */
+		 equipment_purchase_select(),
+		 "equipment_purchase",
+		 where,
+		 order_clause );
+
+	return strdup( sys_string );
+}
+
+LIST *equipment_purchase_list_fetch( char *where )
+{
+	return equipment_system_list(
+		equipment_purchase_sys_string(
+			where,
+			"purchase_date_time"
+				/* order */ ) );
 }
 
 FILE *equipment_purchase_update_open( void )
@@ -241,7 +270,7 @@ void equipment_purchase_update(
 		"%s^%s^%s^%s^%s^finance_accumulated_depreciation^%.2lf\n",
 		equipment_purchase_escape_asset_name( asset_name ),
 		serial_number,
-		transaction_escape_full_name( full_name ),
+		entity_escape_full_name( full_name ),
 		street_address,
 		purchase_date_time,
 		finance_accumulated_depreciation );
@@ -250,7 +279,7 @@ void equipment_purchase_update(
 		"%s^%s^%s^%s^%s^tax_accumulated_depreciation^%.2lf\n",
 		equipment_purchase_escape_asset_name( asset_name ),
 		serial_number,
-		transaction_escape_full_name( full_name ),
+		entity_escape_full_name( full_name ),
 		street_address,
 		purchase_date_time,
 		tax_accumulated_depreciation );
@@ -312,7 +341,7 @@ char *equipment_purchase_primary_where(
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
-		 transaction_escape_full_name( full_name ),
+		 entity_escape_full_name( full_name ),
 		 street_address,
 		 purchase_date_time );
 

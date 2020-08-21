@@ -44,11 +44,12 @@ typedef struct
 	char *email_address;
 	LIST *depreciable_fixed_asset_purchase_list;
 	double depreciation_amount;
-	LIST *liability_account_list;
 	double sum_balance;
 	double payment_amount;
 	double loss_amount;
 	int check_number;
+	LIST *liability_account_list;
+	LIST *purchase_list;
 } ENTITY;
 
 /* Operations */

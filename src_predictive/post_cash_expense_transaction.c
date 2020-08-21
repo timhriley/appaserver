@@ -27,6 +27,7 @@
 #include "transaction.h"
 #include "account.h"
 #include "bank_upload.h"
+#include "predictive.h"
 
 /* Constants */
 /* --------- */
@@ -38,7 +39,6 @@
 /* ---------- */
 TRANSACTION *post_cash_expense_transaction(
 				FILE *output_pipe,
-				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *bank_date,
@@ -167,7 +167,6 @@ int main( int argc, char **argv )
 	transaction =
 		post_cash_expense_transaction(
 				output_pipe,
-				application_name,
 				full_name,
 				street_address,
 				bank_date,
@@ -195,7 +194,8 @@ int main( int argc, char **argv )
 			bank_description,
 			transaction->full_name,
 			transaction->street_address,
-			transaction->transaction_date_time );
+			transaction->transaction_date_time,
+			(char *)0 /* fund_name */ );
 
 		bank_upload_transaction_balance_propagate(
 			bank_date );
@@ -236,7 +236,6 @@ int main( int argc, char **argv )
 
 TRANSACTION *post_cash_expense_transaction(
 				FILE *output_pipe,
-				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *bank_date,
@@ -257,12 +256,7 @@ TRANSACTION *post_cash_expense_transaction(
 		return (TRANSACTION *)0;
 	}
 
-	credit_account =
-		account_hard_coded_account_name(
-			(char *)0 /* fund_name */,
-			ACCOUNT_CASH_KEY,
-			0 /* not warning_only */,
-			__FUNCTION__ );
+	credit_account = account_cash( (char *)0 );
 
 	if ( ! ( bank_amount =
 			bank_upload_bank_amount(
@@ -277,7 +271,7 @@ TRANSACTION *post_cash_expense_transaction(
 			transaction_binary(
 				full_name,
 				street_address,
-				transaction_generate_date_time(
+				predictive_transaction_date_time(
 					bank_date ),
 				debit_account,
 				credit_account,
@@ -291,12 +285,12 @@ TRANSACTION *post_cash_expense_transaction(
 	}
 
 	transaction_journal_list_pipe_display(
-				output_pipe,
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				transaction->memo,
-				transaction->journal_list );
+		output_pipe,
+		transaction->full_name,
+		transaction->street_address,
+		transaction->transaction_date_time,
+		transaction->memo,
+		transaction->journal_list );
 
 	return transaction;
 }

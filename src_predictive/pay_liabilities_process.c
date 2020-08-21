@@ -32,10 +32,11 @@
 /* Prototypes */
 /* ---------- */
 void print_checks_vendor_payment_insert(
-				char *application_name,
-				LIST *vendor_payment_list );
+			char *application_name,
+			LIST *vendor_payment_list );
 
-void output_vendor_payment(	LIST *vendor_payment_list );
+void output_vendor_payment(
+			LIST *vendor_payment_list );
 
 void print_checks_transaction_display(
 				char *application_name,

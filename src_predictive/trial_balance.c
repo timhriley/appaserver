@@ -33,6 +33,7 @@
 #include "journal.h"
 #include "account.h"
 #include "element.h"
+#include "predictive.h"
 
 /* Constants */
 /* --------- */
@@ -483,11 +484,11 @@ void trial_balance_html_table(
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		ELEMENT_ASSET );
+		PREDICTIVE_ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		ELEMENT_LIABILITY );
+		PREDICTIVE_ELEMENT_LIABILITY );
 
 	prior_element_list =
 		element_list(
@@ -1146,11 +1147,11 @@ void trial_balance_PDF_fund(
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		ELEMENT_ASSET );
+		PREDICTIVE_ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		ELEMENT_LIABILITY );
+		PREDICTIVE_ELEMENT_LIABILITY );
 
 	prior_element_list =
 		element_list(
@@ -2028,11 +2029,11 @@ void trial_balance_stdout(
 
 	list_append_pointer(
 		prior_filter_element_name_list,
-		ELEMENT_ASSET );
+		PREDICTIVE_ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list,
-		ELEMENT_LIABILITY );
+		PREDICTIVE_ELEMENT_LIABILITY );
 
 	prior_element_list =
 		element_list(

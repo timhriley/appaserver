@@ -63,12 +63,6 @@ SUBCLASSIFICATION *subclassification_fetch(
 SUBCLASSIFICATION *subclassification_new(
 			char *subclassification_name );
 
-LIST *subclassification_account_list(
-			double *subclassification_total,
-			char *subclassification_name,
-			char *fund_name,
-			char *as_of_date );
-
 double subclassification_html_display(
 			HTML_TABLE *html_table,
 			LIST *subclassification_list,

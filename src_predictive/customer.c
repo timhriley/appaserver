@@ -1638,8 +1638,7 @@ char *customer_sale_fetch_transaction_date_time(
 		 where );
 
 	return pipe2string( sys_string );
-
-} /* customer_sale_fetch_transaction_date_time() */
+}
 
 CUSTOMER_SALE *customer_sale_seek(
 				LIST *customer_sale_list,

@@ -14,12 +14,13 @@
 #include "html_table.h"
 #include "sql.h"
 #include "boolean.h"
-#include "transaction.h"
 #include "entity.h"
+#include "predictive.h"
 #include "element.h"
 #include "journal.h"
-#include "account.h"
+#include "subclassification.h"
 #include "element.h"
+#include "account.h"
 
 LIST *account_system_list( char *sys_string )
 {
@@ -89,29 +90,58 @@ char *account_escape_name(
 	return escape_name;
 }
 
-char *account_receivable( void )
+char *account_receivable( char *fund_name )
 {
-	return "";
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_RECEIVABLE_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
 }
 
-char *account_payable( void )
+char *account_payable( char *fund_name )
 {
-	return "";
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_PAYABLE_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
 }
 
-char *account_uncleared_checks( void )
+char *account_uncleared_checks( char *fund_name )
 {
-	return "";
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_UNCLEARED_CHECKS_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
 }
 
-char *account_cash( void )
+char *account_loss( char *fund_name )
 {
-	return "";
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_LOSS_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
 }
 
-char *account_fees_expense( void )
+char *account_cash( char *fund_name )
 {
-	return "";
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_CASH_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+char *account_fees_expense( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_FEES_EXPENSE_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
 }
 
 char *account_name_display( char *account_name )
@@ -170,7 +200,7 @@ ACCOUNT *account_seek(	LIST *account_list,
 
 char *account_select( void )
 {
-	if ( transaction_fund_attribute_exists() )
+	if ( predictive_fund_attribute_exists() )
 	{
 		return
 			"account,"
@@ -217,14 +247,14 @@ ACCOUNT *account_parse( char *input )
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	account->annual_budget = atof( piece_buffer );
 
-	if ( transaction_fund_attribute_exists() )
+	if ( predictive_fund_attribute_exists() )
 	{
 		piece( piece_buffer, SQL_DELIMITER, input, 5 );
 		account->fund_name = strdup( piece_buffer );
 	}
 
 	account->accumulate_debit =
-		element_account_accumulate_debit(
+		element_accumulate_debit(
 			account->account_name );
 
 	return account;
@@ -288,7 +318,7 @@ char *account_hard_coded_account_name(
 		if ( !warning_only )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d; called from %s(): cannot fetch key=%s.\n",
+		"ERROR in %s/%s()/%d; called from %s(): cannot fetch key=%s.\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
@@ -713,3 +743,80 @@ void account_propagate( char *account_name,
 		transaction_date_time,
 		account_name );
 }
+
+LIST *subclassification_account_list(
+			double *subclassification_total,
+			char *subclassification_name,
+			char *fund_name,
+			char *as_of_date )
+{
+	LIST *account_list;
+	ACCOUNT *account;
+	char sys_string[ 1024 ];
+	char where[ 256 ];
+	char account_name[ 128 ];
+	FILE *input_pipe;
+	JOURNAL *latest_journal;
+
+	if ( fund_name
+	&&   *fund_name
+	&&   strcmp( fund_name, "fund" ) != 0 )
+	{
+		sprintf(where,
+			"fund = '%s' and subclassification = '%s'",
+			fund_name,
+			subclassification_name );
+	}
+	else
+	{
+		sprintf(where,
+			"subclassification = '%s'",
+			subclassification_name );
+	}
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 "account",
+		 "account",
+		 where );
+
+	account_list = list_new();
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( account_name, input_pipe ) )
+	{
+		latest_journal =
+			journal_latest(
+				account_name,
+				as_of_date );
+
+		if ( !latest_journal
+		||   timlib_double_virtually_same(
+			latest_journal->balance,
+			0.0 ) )
+		{
+			continue;
+		}
+
+		account =
+			account_fetch(
+				strdup( account_name ) );
+
+		/* Change account name from stack memory to heap. */
+		/* ---------------------------------------------- */
+		latest_journal->account_name = account->account_name;
+
+		account->latest_journal = latest_journal;
+
+		list_add_pointer_in_order(
+			account_list,
+			account,
+			account_balance_match_function );
+
+		*subclassification_total += account->latest_journal->balance;
+	}
+
+	pclose( input_pipe );
+	return account_list;
+}
+

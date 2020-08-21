@@ -12,7 +12,6 @@
 #include "environ.h"
 #include "piece.h"
 #include "list.h"
-#include "inventory.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "purchase.h"
@@ -72,10 +71,10 @@ int main( int argc, char **argv )
 
 	if ( argc > 6 )
 	{
-		preupdate_full_name = argv[ 6 ];
-		preupdate_street_address = argv[ 7 ];
-		preupdate_payment_date_time = argv[ 8 ];
-		preupdate_payment_amount = argv[ 9 ];
+		if ( ( preupdate_full_name = argv[ 6 ] ) ){};
+		if ( ( preupdate_street_address = argv[ 7 ] ) ){};
+		if ( ( preupdate_payment_date_time = argv[ 8 ] ) ){};
+		if ( ( preupdate_payment_amount = argv[ 9 ] ) ){};
 	}
 
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
@@ -131,13 +130,13 @@ void post_change_vendor_payment_insert_update(
 			char *purchase_date_time,
 			char *payment_date_time )
 {
-	PURCHASE_ORDER *purchase_order;
+	PURCHASE *purchase;
 	VENDOR_PAYMENT *vendor_payment;
 	TRANSACTION *transaction;
 	char *transaction_date_time;
 
-	if ( ! ( purchase_order =
-			purchase_order_fetch(
+	if ( ! ( purchase =
+			purchase_fetch(
 				full_name,
 				street_address,
 				purchase_date_time ) ) )
@@ -147,7 +146,7 @@ void post_change_vendor_payment_insert_update(
 
 	if ( ! ( vendor_payment =
 			vendor_payment_seek(
-				purchase_order->purchase_vendor_payment_list,
+				purchase->purchase_vendor_payment_list,
 				payment_date_time ) ) )
 	{
 		fprintf( stderr,
@@ -200,9 +199,9 @@ void post_change_vendor_payment_insert_update(
 		vendor_payment_journal_list(
 			vendor_payment->payment_amount,
 			vendor_payment->check_number,
-			account_payable(),
-			account_cash(),
-			account_uncleared_checks() );
+			account_payable( (char *)0 /* fund_name */ ),
+			account_cash( (char *)0 /* fund_name */ ),
+			account_uncleared_checks( (char *)0 /* fund_name */ ) );
 
 	transaction->transaction_date_time =
 		transaction_journal_refresh(
@@ -217,28 +216,28 @@ void post_change_vendor_payment_insert_update(
 
 	vendor_payment_update(
 		transaction->transaction_date_time,
-		vendor_payment->purchase_order->vendor_entity->full_name,
-		vendor_payment->purchase_order->vendor_entity->street_address,
-		vendor_payment->purchase_order->purchase_date_time,
+		vendor_payment->vendor_entity->full_name,
+		vendor_payment->vendor_entity->street_address,
+		vendor_payment->purchase_date_time,
 		vendor_payment->payment_date_time );
 
-	purchase_order->purchase_amount_due =
+	purchase->purchase_amount_due =
 		Purchase_amount_due(
-			purchase_order->purchase_invoice_amount,
-			( purchase_order->purchase_vendor_payment_total =
+			purchase->purchase_invoice_amount,
+			( purchase->purchase_vendor_payment_total =
 				vendor_payment_total(
-					purchase_order->
+					purchase->
 					     purchase_vendor_payment_list ) ) );
 
-	purchase_order_update(
-		purchase_order->purchase_equipment_total,
-		purchase_order->purchase_invoice_amount,
-		purchase_order->purchase_vendor_payment_total,
-		purchase_order->purchase_amount_due,
+	purchase_update(
+		purchase->purchase_equipment_total,
+		purchase->purchase_invoice_amount,
+		purchase->purchase_vendor_payment_total,
+		purchase->purchase_amount_due,
 		transaction_date_time,
-		purchase_order->vendor_entity->full_name,
-		purchase_order->vendor_entity->street_address,
-		purchase_order->purchase_date_time );
+		purchase->vendor_entity->full_name,
+		purchase->vendor_entity->street_address,
+		purchase->purchase_date_time );
 }
 
 void post_change_vendor_payment_predelete(
@@ -247,13 +246,13 @@ void post_change_vendor_payment_predelete(
 			char *purchase_date_time,
 			char *payment_date_time )
 {
-	PURCHASE_ORDER *purchase_order;
+	PURCHASE *purchase;
 	VENDOR_PAYMENT *vendor_payment;
 	TRANSACTION *transaction;
 	char *transaction_date_time;
 
-	if ( ! ( purchase_order =
-			purchase_order_fetch(
+	if ( ! ( purchase =
+			purchase_fetch(
 				full_name,
 				street_address,
 				purchase_date_time ) ) )
@@ -268,7 +267,7 @@ void post_change_vendor_payment_predelete(
 
 	if ( ! ( vendor_payment =
 			vendor_payment_seek(
-				purchase_order->purchase_vendor_payment_list,
+				purchase->purchase_vendor_payment_list,
 				payment_date_time ) ) )
 	{
 		fprintf( stderr,
@@ -280,20 +279,20 @@ void post_change_vendor_payment_predelete(
 		exit( 1 );
 	}
 
-	list_delete_current( purchase_order->purchase_vendor_payment_list );
+	list_delete_current( purchase->purchase_vendor_payment_list );
 
-	purchase_order->purchase_amount_due =
+	purchase->purchase_amount_due =
 		Purchase_amount_due(
-			purchase_order->purchase_invoice_amount,
-			( purchase_order->purchase_vendor_payment_total =
+			purchase->purchase_invoice_amount,
+			( purchase->purchase_vendor_payment_total =
 				vendor_payment_total(
-					purchase_order->
+					purchase->
 					     purchase_vendor_payment_list ) ) );
 
-	if ( purchase_order->purchase_transaction )
+	if ( purchase->purchase_transaction )
 	{
 		transaction_date_time =
-			purchase_order->
+			purchase->
 				purchase_transaction->
 					transaction_date_time;
 	}
@@ -302,15 +301,15 @@ void post_change_vendor_payment_predelete(
 		transaction_date_time = (char *)0;
 	}
 
-	purchase_order_update(
-		purchase_order->purchase_equipment_total,
-		purchase_order->purchase_invoice_amount,
-		purchase_order->purchase_vendor_payment_total,
-		purchase_order->purchase_amount_due,
+	purchase_update(
+		purchase->purchase_equipment_total,
+		purchase->purchase_invoice_amount,
+		purchase->purchase_vendor_payment_total,
+		purchase->purchase_amount_due,
 		transaction_date_time,
-		purchase_order->vendor_entity->full_name,
-		purchase_order->vendor_entity->street_address,
-		purchase_order->purchase_date_time );
+		purchase->vendor_entity->full_name,
+		purchase->vendor_entity->street_address,
+		purchase->purchase_date_time );
 
 	if ( !vendor_payment->vendor_payment_transaction ) return;
 

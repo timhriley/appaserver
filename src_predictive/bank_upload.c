@@ -23,6 +23,7 @@
 #include "feeder_upload.h"
 #include "account.h"
 #include "reoccurring.h"
+#include "predictive.h"
 #include "bank_upload.h"
 
 BANK_UPLOAD *bank_upload_calloc( void )
@@ -504,7 +505,7 @@ void bank_upload_event_insert(
 		bank_upload_insert_bank_upload_filename(
 			bank_upload_filename );
 
-	exists_fund = transaction_fund_attribute_exists();
+	exists_fund = predictive_fund_attribute_exists();
 
 /*
 #define INSERT_BANK_UPLOAD_EVENT		\
@@ -624,6 +625,7 @@ void bank_upload_archive_insert(
 }
 
 void bank_upload_transaction_direct_insert(
+			char *fund_name,
 			char *bank_date,
 			char *bank_description_embedded,
 			char *full_name,
@@ -634,12 +636,20 @@ void bank_upload_transaction_direct_insert(
 	FILE *insert_pipe;
 	char *field;
 
-	field =
+	if ( fund_name && *fund_name )
+	{
+		field =
+"bank_date,bank_description,full_name,street_address,transaction_date_time,fund";
+	}
+	else
+	{
+		field =
 "bank_date,bank_description,full_name,street_address,transaction_date_time";
+	}
 
 	sprintf( sys_string,
 	 	 "insert_statement table=%s field=%s del='%c' 		  |"
-	 	 "sql.e 2>&1						  |"
+	 	 "sql 2>&1						  |"
 	 	 "html_paragraph_wrapper.e				   ",
 	 	 "bank_upload_transaction",
 	 	 field,
@@ -647,14 +657,29 @@ void bank_upload_transaction_direct_insert(
 
 	insert_pipe = popen( sys_string, "w" );
 
-	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%s\n",
-		bank_date,
-		bank_upload_description_crop(
-			bank_description_embedded ),
-		full_name,
-		street_address,
-		transaction_date_time );
+	if ( fund_name && *fund_name )
+	{
+		fprintf(insert_pipe,
+			"%s^%s^%s^%s^%s^%s\n",
+			bank_date,
+			bank_upload_description_crop(
+				bank_description_embedded ),
+			full_name,
+			street_address,
+			transaction_date_time,
+			fund_name );
+	}
+	else
+	{
+		fprintf(insert_pipe,
+			"%s^%s^%s^%s^%s\n",
+			bank_date,
+			bank_upload_description_crop(
+				bank_description_embedded ),
+			full_name,
+			street_address,
+			transaction_date_time );
+	}
 
 	pclose( insert_pipe );
 }

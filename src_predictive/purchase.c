@@ -14,8 +14,8 @@
 #include "piece.h"
 #include "list.h"
 #include "boolean.h"
-#include "journal.h"
 #include "transaction.h"
+#include "journal.h"
 #include "entity.h"
 #include "vendor_payment.h"
 #include "equipment_purchase.h"
@@ -138,56 +138,6 @@ LIST *purchase_equipment_list(
 				purchase_date_time ) );
 }
 
-TRANSACTION *purchase_transaction(
-			char *full_name,
-			char *street_address,
-			char *arrived_date_time,
-			double invoice_amount,
-			char *asset_account_name,
-			char *account_payable )
-{
-	TRANSACTION *transaction;
-
-	transaction =
-		transaction_new(
-			full_name,
-			street_address,
-			arrived_date_time
-				/* transaction_date_time */ );
-
-	transaction->transaction_amount = invoice_amount;
-	transaction->memo = PURCHASE_MEMO;
-
-	transaction->journal_list =
-		purchase_journal_list(
-			purchase->purchase_invoice_amount,
-			asset_account_name,
-			account_payable );
-
-	return transaction;
-}
-
-void purchase_update(
-			double purchase_price_total,
-			double invoice_amount,
-			double vendor_payment_total,
-			double amount_due,
-			char *transaction_date_time,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
-{
-	return purchase_update(
-			purchase_price_total,
-			invoice_amount,
-			vendor_payment_total,
-			amount_due,
-			transaction_date_time,
-			full_name,
-			street_address,
-			purchase_date_time );
-}
-
 void purchase_update(
 			double equipment_purchase_total,
 			double invoice_amount,
@@ -213,59 +163,40 @@ void purchase_update(
 
 	fprintf(update_pipe,
 		"%s^%s^%s^equipment_purchase_total^%.2lf\n",
-		transaction_escape_full_name( full_name ),
+		entity_escape_full_name( full_name ),
 		street_address,
 		purchase_date_time,
 		equipment_purchase_total );
 
 	fprintf(update_pipe,
 		"%s^%s^%s^invoice_amount^%.2lf\n",
-		transaction_escape_full_name( full_name ),
+		entity_escape_full_name( full_name ),
 		street_address,
 		purchase_date_time,
 		invoice_amount );
 
 	fprintf(update_pipe,
 		"%s^%s^%s^vendor_payment_total^%.2lf\n",
-		transaction_escape_full_name( full_name ),
+		entity_escape_full_name( full_name ),
 		street_address,
 		purchase_date_time,
 		vendor_payment_total );
 
 	fprintf(update_pipe,
 		"%s^%s^%s^amount_due^%.2lf\n",
-		transaction_escape_full_name( full_name ),
+		entity_escape_full_name( full_name ),
 		street_address,
 		purchase_date_time,
 		amount_due );
 
 	fprintf(update_pipe,
 		"%s^%s^%s^transaction_date_time^%s\n",
-		transaction_escape_full_name( full_name ),
+		entity_escape_full_name( full_name ),
 		street_address,
 		purchase_date_time,
 		transaction_date_time );
 
 	pclose( update_pipe );
-}
-
-char *purchase_transaction_refresh(
-			double transaction_amount,
-			LIST *journal_list,
-			char *purchase_transaction_memo,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time )
-{
-	return transaction_journal_refresh(
-		full_name,
-		street_address,
-		transaction_date_time,
-		transaction_amount,
-		purchase_transaction_memo,
-		0 /* check_number */,
-		1 /* lock_transaction */,
-		journal_list );
 }
 
 /* Returns program memory */
@@ -366,24 +297,11 @@ char *purchase_primary_where(
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
-		 transaction_escape_full_name( full_name ),
+		 entity_escape_full_name( full_name ),
 		 street_address,
 		 purchase_date_time );
 
 	return strdup( where );
-}
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *purchase_primary_where(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
-{
-	return purchase_primary_where(
-			full_name,
-			street_address,
-			purchase_date_time );
 }
 
 double purchase_fetch_amount_due(
@@ -411,9 +329,57 @@ double purchase_fetch_amount_due(
 		return atof( results_string );
 }
 
+char *purchase_transaction_refresh(
+			double transaction_amount,
+			LIST *journal_list,
+			char *purchase_transaction_memo,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	return transaction_journal_refresh(
+		full_name,
+		street_address,
+		transaction_date_time,
+		transaction_amount,
+		purchase_transaction_memo,
+		0 /* check_number */,
+		1 /* lock_transaction */,
+		journal_list );
+}
+
+TRANSACTION *purchase_transaction(
+			char *full_name,
+			char *street_address,
+			char *arrived_date_time,
+			double invoice_amount,
+			char *asset_account_name,
+			char *account_payable )
+{
+	TRANSACTION *transaction;
+
+	transaction =
+		transaction_new(
+			full_name,
+			street_address,
+			arrived_date_time
+				/* transaction_date_time */ );
+
+	transaction->transaction_amount = invoice_amount;
+	transaction->memo = PURCHASE_MEMO;
+
+	transaction->journal_list =
+		purchase_journal_list(
+			invoice_amount,
+			asset_account_name,
+			account_payable );
+
+	return transaction;
+}
+
 LIST *purchase_journal_list(
 			double purchase_invoice_amount,
-			char *purchase_asset_account_name(
+			char *purchase_asset_account_name,
 			char *account_payable )
 {
 	JOURNAL *journal;
@@ -448,40 +414,30 @@ LIST *purchase_journal_list(
 	return journal_list;
 }
 
-TRANSACTION *purchase_transaction(
-			char *full_name,
-			char *street_address,
-			char *arrived_date_time,
-			double purchase_invoice_amount,
-			char *purchase_asset_account_name,
-			char *account_payable )
+char *purchase_asset_account_name(
+			LIST *purchase_equipment_list )
 {
-	if ( ! ( transaction =
-			transaction_new(
-				full_name,
-				street_address,
-				arrived_date_time
-					/* transaction_date_time */ ) ) )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: transaction_new(%s,%s,%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 full_name,
-			 street_address,
-			 arrived_date_time );
-		exit( 1 );
-	}
+	double highest_cost = 0.0;
+	char *asset_account_name = {0};
+	EQUIPMENT_PURCHASE *equipment_purchase;
 
-	transaction->transaction_amount = purchase_invoice_amount;
+	if ( !list_rewind( purchase_equipment_list ) ) return (char *)0;
 
-	transaction->journal_list =
-		purchase_journal_list(
-			purchase_invoice_amount,
-			purchase_asset_account_name,
-			account_payable );
+	do {
+		equipment_purchase =
+			list_get( 
+				purchase_equipment_list );
 
-	return transaction;
+		if ( equipment_purchase->equipment_cost > highest_cost )
+		{
+			asset_account_name =
+				equipment_purchase->
+					asset_account_name;
+
+			highest_cost = equipment_purchase->equipment_cost;
+		}
+	} while ( list_next( purchase_equipment_list ) );
+
+	return asset_account_name;
 }
 

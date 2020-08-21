@@ -1,6 +1,5 @@
 /* html_table.h 							*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver html_table ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
