@@ -27,6 +27,7 @@
 #include "transaction.h"
 #include "subclassification.h"
 #include "element.h"
+#include "predictive.h"
 
 /* Constants */
 /* --------- */
@@ -350,13 +351,13 @@ void income_statement_net_income_only(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_REVENUE );
+				PREDICTIVE_ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_EXPENSE );
+				PREDICTIVE_ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_GAIN );
+				PREDICTIVE_ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_LOSS );
+				PREDICTIVE_ELEMENT_LOSS );
 
 	list =
 		element_list(
@@ -370,7 +371,7 @@ void income_statement_net_income_only(
 	if ( ( element =
 			element_list_seek(
 				list,
-				ELEMENT_REVENUE ) ) )
+				PREDICTIVE_ELEMENT_REVENUE ) ) )
 	{
 		total_revenues =
 			element_value(
@@ -383,7 +384,7 @@ void income_statement_net_income_only(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_EXPENSE ) ) )
+				PREDICTIVE_ELEMENT_EXPENSE ) ) )
 	{
 		total_expenses =
 			element_value(
@@ -396,7 +397,7 @@ void income_statement_net_income_only(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_GAIN ) ) )
+				PREDICTIVE_ELEMENT_GAIN ) ) )
 	{
 		total_gains =
 			element_value(
@@ -409,7 +410,7 @@ void income_statement_net_income_only(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_LOSS ) ) )
+				PREDICTIVE_ELEMENT_LOSS ) ) )
 	{
 		total_losses =
 			element_value(
@@ -465,13 +466,13 @@ void income_statement_subclassification_aggregate_html_table(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_REVENUE );
+				PREDICTIVE_ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_EXPENSE );
+				PREDICTIVE_ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_GAIN );
+				PREDICTIVE_ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_LOSS );
+				PREDICTIVE_ELEMENT_LOSS );
 
 	list =
 		element_list(
@@ -485,7 +486,7 @@ void income_statement_subclassification_aggregate_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_REVENUE ) ) )
+				PREDICTIVE_ELEMENT_REVENUE ) ) )
 	{
 		total_revenues =
 			subclassification_aggregate_html(
@@ -501,7 +502,7 @@ void income_statement_subclassification_aggregate_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_EXPENSE ) ) )
+				PREDICTIVE_ELEMENT_EXPENSE ) ) )
 	{
 		total_expenses =
 			subclassification_aggregate_html(
@@ -516,7 +517,7 @@ void income_statement_subclassification_aggregate_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_GAIN ) ) )
+				PREDICTIVE_ELEMENT_GAIN ) ) )
 	{
 		total_gains =
 			subclassification_aggregate_html(
@@ -531,7 +532,7 @@ void income_statement_subclassification_aggregate_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_LOSS ) ) )
+				PREDICTIVE_ELEMENT_LOSS ) ) )
 	{
 		total_losses =
 			subclassification_aggregate_html(
@@ -599,13 +600,13 @@ void income_statement_subclassification_display_html_table(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_REVENUE );
+				PREDICTIVE_ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_EXPENSE );
+				PREDICTIVE_ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_GAIN );
+				PREDICTIVE_ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_LOSS );
+				PREDICTIVE_ELEMENT_LOSS );
 
 	list =
 		element_list(
@@ -619,13 +620,13 @@ void income_statement_subclassification_display_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_REVENUE ) ) )
+				PREDICTIVE_ELEMENT_REVENUE ) ) )
 	{
 		total_revenues =
 			subclassification_html_display(
 				html_table,
 				element->subclassification_list,
-				ELEMENT_REVENUE,
+				PREDICTIVE_ELEMENT_REVENUE,
 				element->accumulate_debit,
 				element->element_total
 					/* percent_denominator */ );
@@ -636,13 +637,13 @@ void income_statement_subclassification_display_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_EXPENSE ) ) )
+				PREDICTIVE_ELEMENT_EXPENSE ) ) )
 	{
 		total_expenses =
 			subclassification_html_display(
 				html_table,
 				element->subclassification_list,
-				ELEMENT_EXPENSE,
+				PREDICTIVE_ELEMENT_EXPENSE,
 				element->accumulate_debit,
 				total_revenues
 					/* percent_denominator */ );
@@ -653,13 +654,13 @@ void income_statement_subclassification_display_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_GAIN ) ) )
+				PREDICTIVE_ELEMENT_GAIN ) ) )
 	{
 		total_gains =
 			subclassification_html_display(
 				html_table,
 				element->subclassification_list,
-				ELEMENT_GAIN,
+				PREDICTIVE_ELEMENT_GAIN,
 				element->accumulate_debit,
 				total_revenues
 					/* percent_denominator */ );
@@ -670,13 +671,13 @@ void income_statement_subclassification_display_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_LOSS ) ) )
+				PREDICTIVE_ELEMENT_LOSS ) ) )
 	{
 		total_losses =
 			subclassification_html_display(
 				html_table,
 				element->subclassification_list,
-				ELEMENT_LOSS,
+				PREDICTIVE_ELEMENT_LOSS,
 				element->accumulate_debit,
 				total_revenues
 					/* percent_denominator */ );
@@ -799,13 +800,13 @@ void income_statement_subclassification_aggregate_PDF(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_REVENUE );
+				PREDICTIVE_ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_EXPENSE );
+				PREDICTIVE_ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_GAIN );
+				PREDICTIVE_ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_LOSS );
+				PREDICTIVE_ELEMENT_LOSS );
 
 	list =
 		element_list(
@@ -954,13 +955,13 @@ void income_statement_subclassification_display_PDF(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_REVENUE );
+				PREDICTIVE_ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_EXPENSE );
+				PREDICTIVE_ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_GAIN );
+				PREDICTIVE_ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_LOSS );
+				PREDICTIVE_ELEMENT_LOSS );
 
 	list =
 		element_list(
@@ -1044,7 +1045,7 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_REVENUE ) ) )
+				PREDICTIVE_ELEMENT_REVENUE ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1060,7 +1061,7 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_EXPENSE ) ) )
+				PREDICTIVE_ELEMENT_EXPENSE ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1076,7 +1077,7 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_GAIN ) ) )
+				PREDICTIVE_ELEMENT_GAIN ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1092,7 +1093,7 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_LOSS ) ) )
+				PREDICTIVE_ELEMENT_LOSS ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1150,7 +1151,7 @@ LIST *build_subclassification_display_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_REVENUE ) ) )
+				PREDICTIVE_ELEMENT_REVENUE ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1169,7 +1170,7 @@ LIST *build_subclassification_display_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_EXPENSE ) ) )
+				PREDICTIVE_ELEMENT_EXPENSE ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1186,7 +1187,7 @@ LIST *build_subclassification_display_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_GAIN ) ) )
+				PREDICTIVE_ELEMENT_GAIN ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1203,7 +1204,7 @@ LIST *build_subclassification_display_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_LOSS ) ) )
+				PREDICTIVE_ELEMENT_LOSS ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1469,13 +1470,13 @@ void income_statement_subclassification_omit_html_table(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_REVENUE );
+				PREDICTIVE_ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_EXPENSE );
+				PREDICTIVE_ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_GAIN );
+				PREDICTIVE_ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_LOSS );
+				PREDICTIVE_ELEMENT_LOSS );
 
 	list = element_list(
 			filter_element_name_list,
@@ -1488,13 +1489,13 @@ void income_statement_subclassification_omit_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_REVENUE ) ) )
+				PREDICTIVE_ELEMENT_REVENUE ) ) )
 	{
 		total_revenues =
 			account_list_html_output(
 				html_table,
 				element->account_list,
-				ELEMENT_REVENUE,
+				PREDICTIVE_ELEMENT_REVENUE,
 				element->accumulate_debit,
 				element->element_total
 					/* percent_denominator */ );
@@ -1505,13 +1506,13 @@ void income_statement_subclassification_omit_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_EXPENSE ) ) )
+				PREDICTIVE_ELEMENT_EXPENSE ) ) )
 	{
 		total_expenses =
 			account_list_html_output(
 				html_table,
 				element->account_list,
-				ELEMENT_EXPENSE,
+				PREDICTIVE_ELEMENT_EXPENSE,
 				element->accumulate_debit,
 				total_revenues
 					/* percent_denominator */ );
@@ -1522,13 +1523,13 @@ void income_statement_subclassification_omit_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_GAIN ) ) )
+				PREDICTIVE_ELEMENT_GAIN ) ) )
 	{
 		total_gains =
 			account_list_html_output(
 				html_table,
 				element->account_list,
-				ELEMENT_GAIN,
+				PREDICTIVE_ELEMENT_GAIN,
 				element->accumulate_debit,
 				total_revenues
 					/* percent_denominator */ );
@@ -1539,13 +1540,13 @@ void income_statement_subclassification_omit_html_table(
 	if ( ( element =
 			element_seek(
 				list,
-				ELEMENT_LOSS ) ) )
+				PREDICTIVE_ELEMENT_LOSS ) ) )
 	{
 		total_losses =
 			account_list_html_output(
 				html_table,
 				element->account_list,
-				ELEMENT_LOSS,
+				PREDICTIVE_ELEMENT_LOSS,
 				element->accumulate_debit,
 				total_revenues
 					/* percent_denominator */ );
@@ -1669,13 +1670,13 @@ void income_statement_subclassification_omit_PDF(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_REVENUE );
+				PREDICTIVE_ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_EXPENSE );
+				PREDICTIVE_ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_GAIN );
+				PREDICTIVE_ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				ELEMENT_LOSS );
+				PREDICTIVE_ELEMENT_LOSS );
 
 	list =
 		element_list(
@@ -1759,7 +1760,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_REVENUE ) ) )
+				PREDICTIVE_ELEMENT_REVENUE ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1777,7 +1778,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_EXPENSE ) ) )
+				PREDICTIVE_ELEMENT_EXPENSE ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1794,7 +1795,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_GAIN ) ) )
+				PREDICTIVE_ELEMENT_GAIN ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1811,7 +1812,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 	if ( ( element =
 			element_seek(
 				element_list,
-				ELEMENT_LOSS ) ) )
+				PREDICTIVE_ELEMENT_LOSS ) ) )
 	{
 		list_append_list(
 			row_list,

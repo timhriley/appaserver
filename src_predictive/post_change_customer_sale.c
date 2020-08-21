@@ -16,6 +16,7 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "customer.h"
+#include "predictive.h"
 #include "date.h"
 
 /* Constants */
@@ -562,7 +563,7 @@ void post_change_customer_sale_fixed_arrived_date(
 	}
 
 	customer_sale->transaction_date_time =
-		ledger_get_transaction_date_time(
+		predictive_transaction_date_time(
 			customer_sale->arrived_date );
 
 	post_change_customer_sale_transaction_date_time_update(
@@ -1017,7 +1018,7 @@ void post_change_customer_sale_just_arrived_FOB_destination(
 
 	post_change_customer_sale_new_transaction(
 		customer_sale,
-		ledger_get_transaction_date_time(
+		predictive_transaction_date_time(
 			customer_sale->arrived_date ),
 		application_name );
 
@@ -1097,7 +1098,7 @@ void post_change_customer_sale_insert_FOB_destination(
 	if ( !customer_sale->arrived_date ) return;
 
 	customer_sale->transaction_date_time =
-		ledger_get_transaction_date_time(
+		predictive_transaction_date_time(
 			customer_sale->arrived_date );
 
 	customer_sale->transaction =
@@ -1329,7 +1330,7 @@ void post_change_customer_sale_FOB_destination_new_rule(
 	if ( customer_sale->arrived_date )
 	{
 		customer_sale->transaction_date_time =
-			ledger_get_transaction_date_time(
+			predictive__transaction_date_time(
 				customer_sale->arrived_date );
 
 		customer_sale->sum_inventory_extension =
@@ -1500,7 +1501,7 @@ void post_change_customer_sale_changed_to_FOB_destination(
 		if ( customer_sale->arrived_date )
 		{
 			customer_sale->transaction_date_time =
-				ledger_get_transaction_date_time(
+				predictive_transaction_date_time(
 					customer_sale->arrived_date );
 
 			post_change_customer_sale_transaction_date_time_update(

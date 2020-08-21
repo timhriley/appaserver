@@ -22,6 +22,7 @@
 #include "account.h"
 #include "entity.h"
 #include "transaction.h"
+#include "predictive.h"
 
 TRANSACTION *transaction_calloc( void )
 {
@@ -1118,106 +1119,11 @@ boolean transaction_date_time_exists(
 		return 0;
 }
 
-boolean transaction_fund_attribute_exists( void )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-	 	"folder_attribute_exists.sh %s account fund",
-	 	environment_application() );
-
-	return ( system( sys_string ) == 0 );
-}
-
-char *transaction_fund_where( char *fund_name )
-{
-	char where[ 128 ];
-
-	if ( !fund_name
-	||   !*fund_name
-	||   strcmp( fund_name, "fund" ) == 0 )
-	{
-		strcpy( where, "1 = 1" );
-	}
-	else
-	if ( transaction_fund_attribute_exists() )
-	{
-		sprintf(where,
-		 	"fund = '%s'",
-		 	fund_name );
-	}
-	else
-	{
-		strcpy( where, "1 = 1" );
-	}
-
-	return strdup( where );
-}
-
-char *transaction_existing_closing_date_time( char *as_of_date )
-{
-	return transaction_exists_closing_entry( as_of_date );
-}
-
-char *transaction_existing_closing_entry( char *as_of_date )
-{
-	return transaction_exists_closing_entry( as_of_date );
-}
-
-char *transaction_exists_closing_date_time( char *as_of_date )
-{
-	return transaction_exists_closing_entry( as_of_date );
-}
-
-/* Returns the existing transaction_date_time or NULL */
-/* -------------------------------------------------- */
-char *transaction_exists_closing_entry( char *as_of_date )
-{
-	char where[ 512 ];
-	char sys_string[ 1024 ];
-	char *results;
-
-	/* Can't start with null */
-	/* --------------------- */
-	static char *existing_transaction_date_time = "";
-
-	if ( existing_transaction_date_time
-	&& !*existing_transaction_date_time )
-	{
-		return existing_transaction_date_time;
-	}
-
-	sprintf( where,
-		 "transaction_date_time = '%s %s' and	"
-		 "memo = '%s'				",
-		 as_of_date,
-		 TRANSACTION_CLOSING_TRANSACTION_TIME,
-		 TRANSACTION_CLOSING_ENTRY_MEMO );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 "transaction_date_time",
-		 "transaction",
-		 where );
-
-	results = pipe2string( sys_string );
-
-	if ( results && *results )
-	{
-		existing_transaction_date_time = results;
-	}
-	else
-	{
-		existing_transaction_date_time = (char *)0;
-	}
-	return existing_transaction_date_time;
-}
-
 LIST *transaction_fund_name_list( void )
 {
 	char sys_string[ 512 ];
 
-	if ( !transaction_fund_attribute_exists() )
+	if ( !predictive_fund_attribute_exists() )
 	{
 		return (LIST *)0;
 	}
@@ -1532,5 +1438,62 @@ void transaction_journal_list_pipe_display(
 			buffer,
 			journal->account_name ),
 		 journal->credit_amount );
+}
+
+LIST *transaction_after_balance_zero_journal_list(
+			char *account_name )
+{
+	char *transaction_date_time_string;
+
+	if ( ( transaction_date_time_string =
+			transaction_latest_zero_balance_transaction_date_time(
+				account_name ) ) )
+	{
+		DATE *transaction_date_time;
+
+		transaction_date_time =
+			date_yyyy_mm_dd_hms_new(
+				transaction_date_time_string );
+
+		/* Need to start with the transaction following zero balance. */
+		/* ---------------------------------------------------------- */
+		date_increment_seconds(
+			transaction_date_time,
+			1 );
+
+		transaction_date_time_string =
+			date_get_yyyy_mm_dd_hh_mm_ss(
+				transaction_date_time );
+	}
+
+	return journal_minimum_account_journal_list(
+			transaction_date_time_string
+				/* minimum_transaction_date_time */,
+			account_name );
+}
+
+char *transaction_latest_zero_balance_transaction_date_time(
+			char *account_name )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *results;
+
+	sprintf( where,
+		 "account = '%s' and balance = 0",
+		 account_name_escape( account_name ) );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql.e",
+		 "max( transaction_date_time )",
+		 JOURNAL_TABLE_NAME,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( results && *results )
+		return results;
+	else
+		return (char *)0;
 }
 

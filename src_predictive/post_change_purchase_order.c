@@ -17,8 +17,11 @@
 #include "appaserver_error.h"
 #include "entity.h"
 #include "date.h"
+#include "vendor_payment.h"
 #include "equipment_purchase.h"
 #include "purchase.h"
+#include "account.h"
+#include "predictive.h"
 
 /* Constants */
 /* --------- */
@@ -49,7 +52,6 @@ int main( int argc, char **argv )
 	char *preupdate_arrived_date_time;
 	char *preupdate_sales_tax;
 	char *preupdate_freight_in;
-	PURCHASE_ORDER *purchase_order;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -70,13 +72,13 @@ int main( int argc, char **argv )
 	street_address = argv[ 2 ];
 	purchase_date_time = argv[ 3 ];
 	state = argv[ 4 ];
-	preupdate_full_name = argv[ 5 ];
-	preupdate_street_address = argv[ 6 ];
-	preupdate_title_passage_rule = argv[ 7 ];
-	preupdate_shipped_date = argv[ 8 ];
-	preupdate_arrived_date_time = argv[ 9 ];
-	preupdate_sales_tax = argv[ 10 ];
-	preupdate_freight_in = argv[ 11 ];
+	if ( ( preupdate_full_name = argv[ 5 ] ) ){};
+	if ( ( preupdate_street_address = argv[ 6 ] ) ){};
+	if ( ( preupdate_title_passage_rule = argv[ 7 ] ) ){};
+	if ( ( preupdate_shipped_date = argv[ 8 ] ) ){};
+	if ( ( preupdate_arrived_date_time = argv[ 9 ] ) ){};
+	if ( ( preupdate_sales_tax = argv[ 10 ] ) ){};
+	if ( ( preupdate_freight_in = argv[ 11 ] ) ){};
 
 	/* -------------------------------------------- */
 	/* Only execute state=predelete because we have	*/
@@ -99,13 +101,6 @@ int main( int argc, char **argv )
 				street_address,
 				purchase_date_time );
 	}
-/*
-	else
-	if ( strcmp( state, "update" ) == 0 )
-	{
-	}
-	else
-*/
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
 		post_change_purchase_predelete(
@@ -145,132 +140,97 @@ void post_change_purchase_insert_update(
 
 	if ( purchase->purchase_transaction )
 	{
-		transaction_date_time =
-			purchase->purchase_transaction->transaction_date_time;
-	}
-	else
-	if ( purchase->arrived_date_time )
-	{
-		transaction_date_time = purchase->arrived_date_time;
-	}
+		if ( !purchase->arrived_date_time
+		||   !*purchase->arrived_date_time )
+		{
+			TRANSACTION *transaction;
 
-	if ( purchase->arrived_date_time )
-	{
-		/* Refresh the TRANSACTION */
-		/* ----------------------- */
-		purchase->purchase_transaction =
-			/* ---------------------------------- */
-			/* Includes transaction->journal_list */
-			/* ---------------------------------- */
-			purchase_transaction(
-				purchase->full_name,
-				purchase->street_address,
-				purchase->arrived_date_time,
-				purchase->purchase_invoice_amount,
-				purchase_asset_account_name(
-					purchase->
-						purchase_equipment_list ),
-				account_payable() );
+			transaction = purchase->purchase_transaction;
 
-		transaction = purchase->purchase_transaction;
+			/* Also does a propagate for each account */
+			/* -------------------------------------- */
+			journal_delete(	transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time );
 
-		transaction->transaction_date_time =
-			transaction_journal_refresh(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				transaction->transaction_amount,
-				transaction->memo,
-				transaction->check_number,
-				1 /* lock_transaction */,
-				transaction->journal_list );
+			transaction_delete(
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time );
+
+			purchase->purchase_transaction = (TRANSACTION *)0;
+			transaction_date_time = (char *)0;
+		}
+		else
+		{
+			/* Refresh the TRANSACTION */
+			/* ----------------------- */
+			purchase->purchase_transaction =
+				/* ---------------------------------- */
+				/* Includes transaction->journal_list */
+				/* ---------------------------------- */
+				purchase_transaction(
+					purchase->vendor_entity->full_name,
+					purchase->vendor_entity->street_address,
+					purchase->arrived_date_time,
+					purchase->purchase_invoice_amount,
+					purchase_asset_account_name(
+						purchase->
+						     purchase_equipment_list ),
+					account_payable( (char *)0 ) );
+
+			transaction = purchase->purchase_transaction;
+
+			transaction_date_time =
+			transaction->transaction_date_time =
+				transaction_journal_refresh(
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					transaction->transaction_amount,
+					transaction->memo,
+					transaction->check_number,
+					1 /* lock_transaction */,
+					transaction->journal_list );
+		}
 	}
 
 	purchase_update(
-		purchase_order->purchase_equipment_total,
-		purchase_order->purchase_invoice_amount,
-		purchase_order->purchase_vendor_payment_total,
-		purchase_order->purchase_amount_due,
+		purchase->purchase_equipment_total,
+		purchase->purchase_invoice_amount,
+		purchase->purchase_vendor_payment_total,
+		purchase->purchase_amount_due,
 		transaction_date_time,
-		purchase_order->vendor_entity->full_name,
-		purchase_order->vendor_entity->street_address,
-		purchase_order->purchase_date_time );
+		purchase->vendor_entity->full_name,
+		purchase->vendor_entity->street_address,
+		purchase->purchase_date_time );
 }
 
-void post_change_vendor_payment_predelete(
+void post_change_purchase_predelete(
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time,
-			char *payment_date_time )
+			char *purchase_date_time )
 {
-	PURCHASE_ORDER *purchase_order;
-	VENDOR_PAYMENT *vendor_payment;
+	PURCHASE *purchase;
 	TRANSACTION *transaction;
-	char *transaction_date_time;
 
-	if ( ! ( purchase_order =
-			purchase_order_fetch(
+	if ( ! ( purchase =
+			purchase_fetch(
 				full_name,
 				street_address,
 				purchase_date_time ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot find purchase order.\n",
+			 "ERROR in %s/%s()/%d: cannot find purchase.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 0 );
 	}
 
-	if ( ! ( vendor_payment =
-			vendor_payment_seek(
-				purchase_order->purchase_vendor_payment_list,
-				payment_date_time ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: vendor_payment_seek(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 payment_date_time );
-		exit( 1 );
-	}
+	if ( !purchase->purchase_transaction ) return;
 
-	list_delete_current( purchase_order->purchase_vendor_payment_list );
-
-	purchase_order->purchase_amount_due =
-		Purchase_amount_due(
-			purchase_order->purchase_invoice_amount,
-			( purchase_order->purchase_vendor_payment_total =
-				vendor_payment_total(
-					purchase_order->
-					     purchase_vendor_payment_list ) ) );
-
-	if ( purchase_order->purchase_transaction )
-	{
-		transaction_date_time =
-			purchase_order->
-				purchase_transaction->
-					transaction_date_time;
-	}
-	else
-	{
-		transaction_date_time = (char *)0;
-	}
-
-	purchase_order_update(
-		purchase_order->purchase_equipment_total,
-		purchase_order->purchase_invoice_amount,
-		purchase_order->purchase_vendor_payment_total,
-		purchase_order->purchase_amount_due,
-		transaction_date_time,
-		purchase_order->vendor_entity->full_name,
-		purchase_order->vendor_entity->street_address,
-		purchase_order->purchase_date_time );
-
-	if ( !vendor_payment->vendor_payment_transaction ) return;
-
-	transaction = vendor_payment->vendor_payment_transaction;
+	transaction = purchase->purchase_transaction;
 
 	/* Also does a propagate for each account */
 	/* -------------------------------------- */
@@ -369,7 +329,7 @@ void post_change_purchase_order_FOB_shipping_just_arrived(
 	if ( !purchase_order->transaction )
 	{
 		purchase_order->transaction_date_time =
-			ledger_get_shipped_date_transaction_date_time(
+			predictive_transaction_date_time(
 				purchase_order->shipped_date );
 	
 		purchase_order->transaction =
@@ -399,7 +359,7 @@ void post_change_purchase_order_FOB_shipping_just_shipped(
 			char *application_name )
 {
 	purchase_order->transaction_date_time =
-		ledger_get_shipped_date_transaction_date_time(
+		predictive_transaction_date_time(
 			purchase_order->shipped_date );
 	
 	purchase_order->transaction =
@@ -524,7 +484,7 @@ void post_change_purchase_order_FOB_shipping_fixed_shipped_date(
 	}
 
 	new_transaction_date_time =
-		ledger_get_shipped_date_transaction_date_time(
+		predictive_transaction_date_time(
 			purchase_order->shipped_date );
 
 	ledger_transaction_generic_update(
@@ -592,7 +552,7 @@ void post_change_purchase_order_insert_FOB_shipping(
 	if ( purchase_order->shipped_date )
 	{
 		purchase_order->transaction_date_time =
-			ledger_get_shipped_date_transaction_date_time(
+			predictive_transaction_date_time(
 				purchase_order->shipped_date );
 
 		purchase_order->transaction =
@@ -1101,7 +1061,7 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 		char sys_string[ 1024 ];
 
 		transaction_date_time =
-			ledger_get_shipped_date_transaction_date_time(
+			predictive_transaction_date_time(
 				purchase_order->shipped_date );
 
 		ledger_transaction_generic_update(
@@ -1157,7 +1117,7 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 			memo = PURCHASE_ORDER_MEMO;
 
 		purchase_order->transaction_date_time =
-			ledger_get_shipped_date_transaction_date_time(
+			predictive_transaction_date_time(
 				purchase_order->shipped_date );
 
 		if ( list_length( purchase_order->inventory_purchase_list ) )
@@ -1244,7 +1204,7 @@ void post_change_purchase_order_FOB_shipping_new_title_passage_rule(
 	}
 
 	purchase_order->transaction_date_time =
-		ledger_get_shipped_date_transaction_date_time(
+		predictive_transaction_date_time(
 			purchase_order->shipped_date );
 
 	if ( purchase_order->transaction )

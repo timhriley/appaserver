@@ -16,15 +16,6 @@
 
 /* Constants */
 /* --------- */
-#define ELEMENT_ASSET			"asset"
-#define ELEMENT_LIABILITY		"liability"
-#define ELEMENT_EQUITY			"equity"
-#define ELEMENT_REVENUE			"revenue"
-#define ELEMENT_EXPENSE			"expense"
-#define ELEMENT_GAIN			"gain"
-#define ELEMENT_LOSS			"loss"
-#define ELEMENT_RETAINED_EARNINGS	"retained_earnings"
-
 
 /* Structures */
 /* ---------- */
@@ -91,10 +82,6 @@ LIST *element_list(	LIST *filter_element_name_list,
 boolean element_is_period(
 			char *element_name );
 
-ACCOUNT *element_account_seek(
-			LIST *element_list,
-			char *account_name );
-
 boolean element_account_accumulate_debit(
 			char *account_name );
 
@@ -124,6 +111,18 @@ LATEX_ROW *element_latex_liabilities_plus_equity_row(
 void element_list_propagate(
 			LIST *element_list,
 			char *transaction_date_time_string );
+
+char *element_primary_where(
+			char *element_name );
+
+char *element_sys_string(
+			char *select,
+			char *where,
+			char *order );
+
+ACCOUNT *element_account_seek(
+			LIST *element_list,
+			char *account_name );
 
 #endif
 

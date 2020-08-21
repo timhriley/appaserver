@@ -24,18 +24,6 @@ STANDARD_LIBRARY=							\
 
 #EXECUTABLES=	trial_balance						\
 #		tax_form_report						\
-#		transaction_balance_report				\
-#		transaction_date_time					\
-#		income_statement					\
-#		balance_sheet						\
-#		program_profit						\
-#		bank_upload_transaction_insert				\
-#		ledger_unbalance					\
-#		propagate_purchase_order_accounts			\
-#		propagate_customer_sale_accounts			\
-#		ledger_debit_credit_audit				\
-#		close_nominal_accounts					\
-#		pay_liabilities_process					\
 #		populate_print_checks_entity				\
 #		load_bank_spreadsheet					\
 #		feeder_upload_missing					\
@@ -49,7 +37,6 @@ STANDARD_LIBRARY=							\
 #		post_change_inventory_purchase				\
 #		post_change_inventory_purchase_return			\
 #		post_change_inventory_sale_return			\
-#		post_change_fixed_asset_purchase			\
 #		post_change_fixed_asset					\
 #		post_change_inventory_sale				\
 #		post_change_fixed_service_sale				\
@@ -57,14 +44,12 @@ STANDARD_LIBRARY=							\
 #		post_change_fixed_service_work				\
 #		post_change_hourly_service_work				\
 #		post_change_activity_work				\
-#		post_change_purchase_order				\
 #		post_change_customer_sale				\
 #		post_change_customer_payment				\
 #		post_change_prior_fixed_asset				\
 #		post_change_account_balance				\
 #		post_change_prepaid_asset_purchase			\
 #		post_change_prepaid_asset_accrual			\
-#		post_change_bank_upload					\
 #		update_sale_completed					\
 #		post_reoccurring_transaction				\
 #		post_payroll						\
@@ -95,7 +80,9 @@ EXECUTABLES=	trial_balance						\
 		make_vendor_payment					\
 		generate_invoice					\
 		post_change_purchase_order				\
-		post_change_vendor_payment
+		post_change_vendor_payment				\
+		post_change_fixed_asset_purchase			\
+		pay_liabilities_process
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -144,11 +131,7 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/dictionary2file.o
 
 SOURCE_LIBRARY= 							\
-		transaction.o						\
-		journal.o						\
-		account.o						\
 		program.o						\
-		element.o						\
 		subclassification.o					\
 		customer_sale.o						\
 		inventory_purchase_return.o				\
@@ -161,7 +144,12 @@ SOURCE_LIBRARY= 							\
 		entity.o						\
 		equipment_purchase.o					\
 		vendor_payment.o					\
-		purchase.o
+		purchase.o						\
+		predictive.o						\
+		transaction.o						\
+		account.o						\
+		element.o						\
+		journal.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
 
@@ -275,22 +263,6 @@ ledger_unbalance: ledger_unbalance.c					\
 		${SOURCE_LIBRARY}					\
 		ledger_unbalance.c					\
 		-o ledger_unbalance
-
-propagate_purchase_order_accounts: propagate_purchase_order_accounts.c	\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		propagate_purchase_order_accounts.c			\
-		-o propagate_purchase_order_accounts
-
-propagate_customer_sale_accounts: propagate_customer_sale_accounts.c	\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		propagate_customer_sale_accounts.c			\
-		-o propagate_customer_sale_accounts
 
 ledger_debit_credit_audit: ledger_debit_credit_audit.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -770,10 +742,6 @@ inventory_purchase_return.o: inventory_purchase_return.c		\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c inventory_purchase_return.c
 
-purchase.o: purchase.c purchase.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c purchase.c
-
 customer_sale.o: customer_sale.c customer_sale.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c customer_sale.c
@@ -890,4 +858,12 @@ inventory_sale.o: inventory_sale.c inventory_sale.h
 subclassification.o: subclassification.c subclassification.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c subclassification.c
+
+purchase.o: purchase.c purchase.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c purchase.c
+
+predictive.o: predictive.c predictive.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c predictive.c
 
