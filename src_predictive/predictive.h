@@ -36,15 +36,4 @@ char *predictive_fund_where(
 boolean predictive_fund_attribute_exists(
 			void );
 
-/* Returns the existing transaction_date_time */
-/* ------------------------------------------ */
-char *predictive_exists_closing_entry(
-			char *as_of_date );
-
-char *predictive_existing_closing_date_time(
-			char *as_of_date );
-
-char *predictive_exists_closing_date_time(
-			char *as_of_date );
-
 #endif

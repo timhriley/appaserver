@@ -43,10 +43,7 @@ int main( int argc, char **argv )
 	char *purchase_date_time;
 	char *payment_date_time;
 	char *state;
-	char *preupdate_full_name = {0};
-	char *preupdate_street_address = {0};
 	char *preupdate_payment_date_time = {0};
-	char *preupdate_payment_amount = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -58,7 +55,7 @@ int main( int argc, char **argv )
 	if ( argc < 6 )
 	{
 		fprintf( stderr,
-"Usage: %s full_name street_address purchase_date_time payment_date_time state [preupdate_full_name preupdate_street_address preupdate_payment_date_time preupdate_payment_amount]\n",
+"Usage: %s full_name street_address purchase_date_time payment_date_time state [preupdate_payment_date_time]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -71,10 +68,7 @@ int main( int argc, char **argv )
 
 	if ( argc > 6 )
 	{
-		if ( ( preupdate_full_name = argv[ 6 ] ) ){};
-		if ( ( preupdate_street_address = argv[ 7 ] ) ){};
-		if ( ( preupdate_payment_date_time = argv[ 8 ] ) ){};
-		if ( ( preupdate_payment_amount = argv[ 9 ] ) ){};
+		if ( ( preupdate_payment_date_time = argv[ 6 ] ) ){};
 	}
 
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
@@ -96,22 +90,6 @@ int main( int argc, char **argv )
 				purchase_date_time,
 				payment_date_time );
 	}
-/*
-	else
-	if ( strcmp( state, "update" ) == 0 )
-	{
-		post_change_vendor_payment_update(
-				full_name,
-				street_address,
-				purchase_date_time,
-				payment_date_time,
-				preupdate_full_name,
-				preupdate_street_address,
-				preupdate_payment_date_time,
-				preupdate_payment_amount );
-	}
-	else
-*/
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
 		post_change_vendor_payment_predelete(
@@ -150,12 +128,12 @@ void post_change_vendor_payment_insert_update(
 				payment_date_time ) ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: vendor_payment_seek(%s) returned empty.\n",
+	"Warning in %s/%s()/%d: vendor_payment_seek(%s) returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
 			 payment_date_time );
-		exit( 1 );
+		return;
 	}
 
 	if ( vendor_payment->vendor_payment_transaction )

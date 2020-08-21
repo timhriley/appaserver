@@ -724,14 +724,27 @@ TRANSACTION *transaction_seek(
 	do {
 		t = list_get( transaction_list );
 
-		if ( string_strcmp(	t->full_name,
-					full_name ) == 0
-		&&   string_strcmp(	t->street_address,
-					street_address ) == 0
-		&&   string_strcmp(	t->transaction_date_time,
-					transaction_date_time ) == 0 )
+		if ( transaction_date_time )
 		{
-			return t;
+			if ( string_strcmp(	t->full_name,
+						full_name ) == 0
+			&&   string_strcmp(	t->street_address,
+						street_address ) == 0
+			&&   string_strcmp(	t->transaction_date_time,
+						transaction_date_time ) == 0 )
+			{
+				return t;
+			}
+		}
+		else
+		{
+			if ( string_strcmp(	t->full_name,
+						full_name ) == 0
+			&&   string_strcmp(	t->street_address,
+						street_address ) == 0 )
+			{
+				return t;
+			}
 		}
 
 	} while( list_next( transaction_list ) );
@@ -1495,5 +1508,64 @@ char *transaction_latest_zero_balance_transaction_date_time(
 		return results;
 	else
 		return (char *)0;
+}
+
+char *transaction_existing_closing_date_time( char *as_of_date )
+{
+	return transaction_exists_closing_entry( as_of_date );
+}
+
+char *transaction_existing_closing_entry( char *as_of_date )
+{
+	return transaction_exists_closing_entry( as_of_date );
+}
+
+char *transaction_exists_closing_date_time( char *as_of_date )
+{
+	return transaction_exists_closing_entry( as_of_date );
+}
+
+/* Returns the existing transaction_date_time or NULL */
+/* -------------------------------------------------- */
+char *transaction_exists_closing_entry( char *as_of_date )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *results;
+
+	/* Can't start with null */
+	/* --------------------- */
+	static char *existing_transaction_date_time = "";
+
+	if ( existing_transaction_date_time
+	&& !*existing_transaction_date_time )
+	{
+		return existing_transaction_date_time;
+	}
+
+	sprintf( where,
+		 "transaction_date_time = '%s %s' and	"
+		 "memo = '%s'				",
+		 as_of_date,
+		 TRANSACTION_CLOSING_TRANSACTION_TIME,
+		 TRANSACTION_CLOSING_ENTRY_MEMO );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 "transaction_date_time",
+		 "transaction",
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( results && *results )
+	{
+		existing_transaction_date_time = results;
+	}
+	else
+	{
+		existing_transaction_date_time = (char *)0;
+	}
+	return existing_transaction_date_time;
 }
 

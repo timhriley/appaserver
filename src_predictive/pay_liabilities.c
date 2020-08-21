@@ -15,7 +15,10 @@
 #include "appaserver_library.h"
 #include "piece.h"
 #include "date.h"
+#include "environ.h"
 #include "account.h"
+#include "transaction.h"
+#include "purchase.h"
 #include "journal.h"
 #include "pay_liabilities.h"
 
@@ -48,7 +51,6 @@ PAY_LIABILITIES *pay_liabilities_new(
 	PAY_LIABILITIES *p;
 	char *checking_account;
 	char *uncleared_checks_account;
-	char *account_payable_name;
 
 	p = pay_liabilities_calloc();
 
@@ -61,7 +63,6 @@ PAY_LIABILITIES *pay_liabilities_new(
 
 	checking_account = account_cash( fund_name );
 	uncleared_checks_account = account_uncleared_checks( fund_name );
-	account_payable_name = account_payable( fund_name );
 
 	if ( starting_check_number )
 		p->input.credit_account_name = uncleared_checks_account;
@@ -76,23 +77,20 @@ PAY_LIABILITIES *pay_liabilities_new(
 	/* from the displayed dialog box.	   */
 	/* --------------------------------------- */
 	p->input.entity_list =
-		pay_liabilities_input_get_entity_list(
-			application_name,
+		pay_liabilities_input_entity_list(
 			fund_name,
 			full_name_list,
 			street_address_list );
 
-	/* -------------------------------------------------------- */
-	/* Fetch all the current liability accounts and all the     */
-	/* journal ledger rows following the last zero balance row. */
-	/* -------------------------------------------------------- */
+	/* -----------------------------------------------------*/
+	/* Fetch all the current liability accounts and all the */
+	/* journal rows following the last zero balance row.	*/
+	/* ---------------------------------------------------- */
 	p->input.current_liability_account_list =
-		pay_liabilities_fetch_current_liability_account_list(
-			fund_name,
-			(LIST *)0 /* exclude_account_name_list */ );
+		pay_liabilities_current_liability_account_list(
+			fund_name );
 
-	p->input.purchase_list =
-		purchase_amount_due_purchase_list();
+	p->input.purchase_list = purchase_amount_due_purchase_list();
 
 	/* Process */
 	/* ======= */
@@ -127,7 +125,7 @@ PAY_LIABILITIES *pay_liabilities_new(
 		pay_liabilities_process_entity_list(
 			p->input.entity_list,
 			p->process.current_liability_entity_list,
-			p->input.purchase_order_list,
+			p->input.purchase_list,
 			p->input.dialog_box_payment_amount,
 			starting_check_number );
 
@@ -360,7 +358,7 @@ LIST *pay_liabilities_output_entity_transaction_list(
 		/* -------------- */
 		do {
 			account =
-				list_set( 
+				list_get( 
 					entity->
 					     liability_account_list );
 
@@ -592,9 +590,14 @@ LIST *pay_liabilities_distribute_purchase_list(
 	do {
 		purchase = list_get( input_purchase_list );
 
-		if ( ( strcmp( purchase->full_name, full_name ) != 0 )
-		||   ( strcmp( purchase->street_address,
-		       street_address ) != 0 ) )
+		if ( ( strcmp(	purchase->
+					vendor_entity->
+					full_name,
+				full_name ) != 0 )
+		||   ( strcmp(	purchase->
+					vendor_entity->
+					street_address,
+		       		street_address ) != 0 ) )
 		{
 			continue;
 		}
@@ -610,21 +613,21 @@ LIST *pay_liabilities_distribute_purchase_list(
 
 		/* If made a partial payment */
 		/* ------------------------- */
-		if ( payment_amount < purchase->amount_due )
+		if ( payment_amount < purchase->purchase_amount_due )
 		{
 			new_purchase->liability_payment_amount =
 				payment_amount;
 
-			new_purchase->amount_due -= payment_amount;
+			new_purchase->purchase_amount_due -= payment_amount;
 			payment_amount = 0.0;
 		}
 		else
 		{
 			new_purchase->liability_payment_amount =
-				new_purchase->amount_due;
+				new_purchase->purchase_amount_due;
 
-			new_purchase->amount_due = 0.0;
-			payment_amount -= purchase->amount_due;
+			new_purchase->purchase_amount_due = 0.0;
+			payment_amount -= purchase->purchase_amount_due;
 		}
 
 		if ( timlib_dollar_virtually_same( payment_amount, 0.0 )
@@ -633,38 +636,20 @@ LIST *pay_liabilities_distribute_purchase_list(
 			break;
 		}
 
-	} while( list_next( input_purchase_ist ) );
+	} while( list_next( input_purchase_list ) );
 
 	return purchase_list;
 }
 
-LIST *pay_liabilities_fetch_current_liability_account_list(
-				char *fund_name,
-				LIST *exclude_account_name_list )
+LIST *pay_liabilities_current_liability_account_list(
+			char *fund_name )
 {
 	char fund_where[ 128 ];
 	char where[ 256 ];
 	char sys_string[ 1024 ];
-	char in_clause_where[ 1024 ];
-	char *in_clause;
 	LIST *entire_account_list;
 	LIST *return_account_list;
 	ACCOUNT *account;
-
-	if ( list_length( exclude_account_name_list ) )
-	{
-		in_clause =
-			timlib_with_list_get_in_clause(
-				exclude_account_name_list );
-
-		sprintf( in_clause_where,
-			 "account not in (%s)",
-			 in_clause );
-	}
-	else
-	{
-		strcpy( in_clause_where, "1 = 1" );
-	}
 
 	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
@@ -678,20 +663,17 @@ LIST *pay_liabilities_fetch_current_liability_account_list(
 	sprintf( where,
 		 "subclassification = 'current_liability' and	"
 		 "account <> 'uncleared_checks' and		"
-		 "%s and					"
 		 "%s						",
-		 fund_where,
-		 in_clause_where );
+		 fund_where );
 
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 account_select();
+		 account_select(),
 		 "account",
 		 where,
 		 "account" );
 
 	entire_account_list = account_system_list( sys_string );
-
 
 	if ( !list_rewind( entire_account_list ) ) return (LIST *)0;
 
@@ -736,7 +718,7 @@ LIST *pay_liabilities_fetch_liability_account_entity_list( void )
 	select = "account,full_name,street_address";
 
 	sprintf( sys_string,
-		 echo \"select %s from %s;\" | sql",
+		 "echo \"select %s from %s;\" | sql",
 		 select,
 		 folder );
 
@@ -754,41 +736,40 @@ LIST *pay_liabilities_fetch_liability_account_entity_list( void )
 			continue;
 		}
 
-		if ( !latest_ledger->balance ) continue;
+		if ( !latest_journal->balance ) continue;
 
 		piece( full_name, FOLDER_DATA_DELIMITER, input_buffer, 1 );
 		piece( street_address, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 
 		entity =
-			entity_get_or_set(
+			entity_getset(
 				liability_account_entity_list,
 				full_name,
 				street_address,
 				1 /* with_strdup */ );
 
-		entity->sum_balance += latest_ledger->balance;
+		entity->sum_balance += latest_journal->balance;
 
-		account = ledger_account_new( strdup( account_name ) );
-		account->latest_ledger = latest_ledger;
-		account->balance = account->latest_ledger->balance;
+		account = account_new( strdup( account_name ) );
+		account->latest_journal = latest_journal;
+		account->balance = account->latest_journal->balance;
 
 		/* Prior assignment assigns the local memory. */
 		/* ------------------------------------------ */
-		account->latest_ledger->account_name = account->account_name;
+		account->latest_journal->account_name = account->account_name;
 
 		if ( !entity->liability_account_list )
 			entity->liability_account_list = list_new();
 
-		list_append_pointer( entity->liability_account_list, account );
+		list_set( entity->liability_account_list, account );
 	}
 
 	pclose( input_pipe );
 
 	return liability_account_entity_list;
+}
 
-} /* pay_liabilities_fetch_liability_account_entity_list() */
-
-LIST *pay_liabilities_get_liability_account_entity_list(
+LIST *pay_liabilities_liability_account_entity_list(
 		LIST *input_liability_account_entity_list,
 		LIST *input_entity_list,
 		double dialog_box_payment_amount,
@@ -858,8 +839,7 @@ LIST *pay_liabilities_get_liability_account_entity_list(
 	} while( list_next( input_liability_account_entity_list ) );
 
 	return liability_account_entity_list;
-
-} /* pay_liabilities_get_liability_account_entity_list() */
+}
 
 LIST *pay_liabilities_distribute_liability_account_list(
 			LIST *liability_account_list,
@@ -917,11 +897,9 @@ LIST *pay_liabilities_distribute_liability_account_list(
 	} while( list_next( liability_account_list ) );
 
 	return return_liability_account_list;
+}
 
-} /* pay_liabilities_distribute_liability_account_list() */
-
-LIST *pay_liabilities_input_get_entity_list(
-			char *application_name,
+LIST *pay_liabilities_input_entity_list(
 			char *fund_name,
 			LIST *full_name_list,
 			LIST *street_address_list )
@@ -944,7 +922,6 @@ LIST *pay_liabilities_input_get_entity_list(
 
 		if ( ! ( entity->sum_balance =
 				pay_liabilities_fetch_sum_balance(
-					application_name,
 					fund_name,
 					full_name,
 					street_address ) ) )
@@ -968,11 +945,9 @@ LIST *pay_liabilities_input_get_entity_list(
 	} while( list_next( full_name_list ) );
 
 	return entity_list;
-
-} /* pay_liabilities_input_get_entity_list() */
+}
 
 double pay_liabilities_fetch_sum_balance(
-				char *application_name,
 				char *fund_name,
 				char *full_name,
 				char *street_address )
@@ -989,7 +964,7 @@ double pay_liabilities_fetch_sum_balance(
 	{
 		sprintf( sys_string,
 		 	"populate_print_checks_entity %s '%s'",
-		 	application_name,
+		 	environment_application_name(),
 			fund_name );
 
 		entity_record_list = pipe2list( sys_string );
@@ -998,10 +973,10 @@ double pay_liabilities_fetch_sum_balance(
 	if ( !list_rewind( entity_record_list ) ) return 0.0;
 
 	do {
-		record = list_get_pointer( entity_record_list );
+		record = list_get( entity_record_list );
 
 		if ( character_count(
-			FOLDER_DATA_DELIMITER,
+			SQL_DELIMITER,
 			record ) != 1 )
 		{
 			fprintf( stderr,
@@ -1015,12 +990,12 @@ double pay_liabilities_fetch_sum_balance(
 		}
 
 		piece(	input_full_name,
-			FOLDER_DATA_DELIMITER,
+			SQL_DELIMITER,
 			record,
 			0 );
 
 		piece(	input_street_address_balance,
-			FOLDER_DATA_DELIMITER,
+			SQL_DELIMITER,
 			record,
 			1 );
 
@@ -1040,88 +1015,82 @@ double pay_liabilities_fetch_sum_balance(
 	} while( list_next( entity_record_list ) );
 
 	return 0.0;
+}
 
-} /* pay_liabilities_fetch_sum_balance() */
-
-LIST *pay_liabilities_output_get_vendor_payment_list(
-				LIST *process_entity_list,
-				LIST *transaction_list )
+LIST *pay_liabilities_output_vendor_payment_list(
+			LIST *process_entity_list,
+			LIST *transaction_list )
 {
 	LIST *vendor_payment_list = {0};
 	ENTITY *entity;
-	PURCHASE *purchase_order;
+	PURCHASE *purchase;
 	VENDOR_PAYMENT *vendor_payment;
 	TRANSACTION *transaction;
 
 	if ( !list_rewind( process_entity_list ) ) return (LIST *)0;
 
 	do {
-		entity = list_get_pointer( process_entity_list );
+		entity = list_get( process_entity_list );
 
-		if ( !list_rewind( entity->purchase_order_list ) )
+		if ( !list_rewind( entity->purchase_list ) )
 			continue;
 
 		do {
-			purchase_order =
-				list_get_pointer(
-					entity->purchase_order_list );
+			purchase =
+				list_get(
+					entity->purchase_list );
 
 			if ( ! ( transaction =
-					ledger_transaction_seek(
+					transaction_seek(
 						transaction_list,
-						purchase_order->full_name,
-						purchase_order->street_address,
+						purchase->
+							vendor_entity->
+							full_name,
+						purchase->
+							vendor_entity->
+							street_address,
 						(char *)0
 						/* transaction_date_time */) ) )
 			{
-				fprintf(stderr,
-		"ERROR in %s/%s()/%d: cannot seek transaction for (%s/%s)\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					purchase_order->full_name,
-					purchase_order->street_address );
-				exit( 1 );
+				continue;
 			}
 
 			vendor_payment =
-				purchase_vendor_payment_new(
+				vendor_payment_new(
+					purchase->
+						vendor_entity->
+						full_name,
+					purchase->
+						vendor_entity->
+						street_address,
+					purchase->purchase_date_time,
 					transaction->transaction_date_time
 						/* payment_date_time */ );
 
-			vendor_payment->full_name = purchase_order->full_name;
-
-			vendor_payment->street_address =
-				purchase_order->street_address;
-
-			vendor_payment->purchase_date_time =
-				purchase_order->purchase_date_time;
-
 			vendor_payment->payment_amount =
-				purchase_order->liability_payment_amount;
+				purchase->liability_payment_amount;
 
-			vendor_payment->check_number =
-				entity->check_number;
+			vendor_payment->check_number = entity->check_number;
 
-			vendor_payment->transaction = transaction;
+			vendor_payment->vendor_payment_transaction =
+				transaction;
 
-			vendor_payment->purchase_order = purchase_order;
+			vendor_payment->purchase = purchase;
 
 			if ( !vendor_payment_list )
 				vendor_payment_list =
 					list_new();
 
-			list_append_pointer(
+			list_set(
 				vendor_payment_list,
 				vendor_payment );
 
-		} while( list_next( entity->purchase_order_list ) );
+		} while( list_next( entity->purchase_list ) );
 
 	} while ( list_next( process_entity_list ) );
 
 	return vendor_payment_list;
-
-} /* pay_liabilities_output_get_vendor_payment_list() */
+}
 
 VENDOR_PAYMENT *pay_liabilities_vendor_payment_seek(
 				LIST *vendor_payment_list,
@@ -1133,11 +1102,15 @@ VENDOR_PAYMENT *pay_liabilities_vendor_payment_seek(
 	if ( !list_rewind( vendor_payment_list ) ) return (VENDOR_PAYMENT *)0;
 
 	do {
-		vendor_payment = list_get_pointer( vendor_payment_list );
+		vendor_payment = list_get( vendor_payment_list );
 
-		if ( timlib_strcmp(	vendor_payment->full_name,
+		if ( timlib_strcmp(	vendor_payment->
+						vendor_entity->
+						full_name,
 					full_name ) == 0
-		&&   timlib_strcmp(	vendor_payment->street_address,
+		&&   timlib_strcmp(	vendor_payment->
+						vendor_entity->
+						street_address,
 					street_address ) == 0 )
 		{
 			return vendor_payment;
@@ -1145,8 +1118,7 @@ VENDOR_PAYMENT *pay_liabilities_vendor_payment_seek(
 	} while( list_next( vendor_payment_list ) );
 
 	return (VENDOR_PAYMENT *)0;
-
-} /* pay_liabilities_vendor_payment_seek() */
+}
 
 void pay_liabilities_set_lock_transaction(
 			LIST *transaction_list,
@@ -1157,7 +1129,7 @@ void pay_liabilities_set_lock_transaction(
 	if ( !list_rewind( transaction_list ) ) return;
 
 	do {
-		transaction = list_get_pointer( transaction_list );
+		transaction = list_get( transaction_list );
 
 		if ( (boolean)pay_liabilities_vendor_payment_seek(
 				vendor_payment_list,
@@ -1167,54 +1139,34 @@ void pay_liabilities_set_lock_transaction(
 			transaction->lock_transaction = 1;
 		}
 	} while( list_next( transaction_list ) );
+}
 
-} /* pay_liabilities_set_lock_transaction() */
-
-LIST *pay_liabilities_fetch_liability_account_list(
-				char *application_name )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=account			"
-		 "			folder=liability_account_entity	",
-		 application_name );
-
-	return pipe2list( sys_string );
-
-} /* pay_liabilities_fetch_liability_account_list() */
-
-/* -------------------------------- */
-/* Returns memo or strdup() memory. */
-/* -------------------------------- */
-char *pay_liabilities_transaction_memo(	char *application_name,
-					char *fund_name,
+/* --------------------------------------------- */
+/* Returns memo, program memory, or heap memory. */
+/* --------------------------------------------- */
+char *pay_liabilities_transaction_memo(	char *fund_name,
 					char *memo,
 					int check_number )
 {
-	static char *uncleared_checks_account = {0};
-
 	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
 	{
 		return memo;
 	}
 
-	if ( !uncleared_checks_account )
-	{
-		uncleared_checks_account =
-			ledger_get_hard_coded_account_name(
-				application_name,
-				fund_name,
-				LEDGER_UNCLEARED_CHECKS_KEY,
-				0 /* not warning_only */,
-				__FUNCTION__ );
-	}
-
 	if ( check_number )
-		return uncleared_checks_account;
-	else
-		return memo;
+	{
+		char transaction_memo[ 128 ];
 
-} /* pay_liabilities_transaction_memo() */
+		sprintf(transaction_memo,
+			"%s (%d)",
+			account_uncleared_checks( fund_name ),
+			check_number );
+
+		return strdup( transaction_memo );
+	}
+	else
+	{
+		return "Pay liabilities process";
+	}
+}
 

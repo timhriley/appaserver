@@ -441,3 +441,61 @@ char *purchase_asset_account_name(
 	return asset_account_name;
 }
 
+LIST *purchase_amount_due_purchase_list( void )
+{
+	return purchase_system_list(
+			purchase_sys_string(
+			"ifnull( amount_due, 0.0 ) > 0.0",
+			"purchase_date" /* order */ ) );
+}
+
+char *purchase_sys_string(
+			char *where,
+			char *order )
+{
+	char sys_string[ 1024 ];
+	char order_clause[ 128 ];
+
+	if ( !where || !*where ) where = "1 = 1";
+
+	if ( order )
+	{
+		sprintf( order_clause,
+			 "order by %s",
+			 order );
+	}
+	else
+	{
+		*order_clause = '\0';
+	}
+
+	sprintf(sys_string,
+		"echo \"select %s from %s where %s %s;\" | sql",
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		purchase_select(),
+		"purchase",
+		where,
+		order_clause );
+
+	return strdup( sys_string );
+}
+
+LIST *purchase_system_list( char *sys_string )
+{
+	LIST *purchase_list;
+	char input[ 1024 ];
+	FILE *input_pipe;
+
+	purchase_list = list_new();
+	input_pipe = popen( sys_string, "r" );
+
+	while( string_input( input, input_pipe, 1024 ) )
+	{
+
+		list_set( purchase_list, purchase_parse( input ) );
+	}
+	pclose( input_pipe );
+	return purchase_list;
+}

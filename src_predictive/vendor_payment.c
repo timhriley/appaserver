@@ -220,14 +220,15 @@ void vendor_payment_insert(
 			char *purchase_date_time,
 			char *payment_date_time,
 			double payment_amount,
-			int check_number )
+			int check_number,
+			char *transaction_date_time )
 {
 	char sys_string[ 1024 ];
 	char *field_list_string;
 	FILE *output_pipe;
 
 	field_list_string =
-"full_name,street_address,purchase_date_time,payment_date_time,payment_amount,check_number";
+"full_name,street_address,purchase_date_time,payment_date_time,payment_amount,check_number,transaction_date_time";
 
 	sprintf( sys_string,
 		 "insert_statement.e table=%s field=%s | sql.e",
@@ -247,14 +248,20 @@ void vendor_payment_insert(
 	if ( check_number )
 	{
 		fprintf( output_pipe,
-			 "|%d\n",
+			 "|%d",
 			 check_number );
 	}
 	else
 	{
-		fprintf( output_pipe, "|\n" );
+		fprintf( output_pipe, "|" );
 	}
 
+	fprintf( output_pipe,
+		 "|%s\n",
+		 (transaction_date_time)
+			? transaction_date_time
+			: "" );
+		
 	pclose( output_pipe );
 }
 

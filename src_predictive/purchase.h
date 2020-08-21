@@ -49,6 +49,7 @@ typedef struct
 	char *purchase_asset_account_name;
 	LIST *purchase_vendor_payment_list;
 	LIST *purchase_equipment_list;
+	double liability_payment_amount;
 	char *program_name;
 	char *property_street_address;
 } PURCHASE;
@@ -107,12 +108,9 @@ char *purchase_select(	void );
 PURCHASE *purchase_parse(
 			char *input );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *purchase_order_primary_where(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time );
+char *purchase_sys_string(
+			char *where,
+			char *order );
 
 /* Safely returns heap memory */
 /* -------------------------- */
@@ -153,5 +151,11 @@ LIST *purchase_journal_list(
 
 char *purchase_asset_account_name(
 			LIST *purchase_equipment_list );
+
+LIST *purchase_system_list(
+			char *sys_string );
+
+LIST *purchase_amount_due_purchase_list(
+			void );
 
 #endif

@@ -116,13 +116,19 @@ char *element_primary_where(
 			char *element_name );
 
 char *element_sys_string(
-			char *select,
 			char *where,
 			char *order );
 
 ACCOUNT *element_account_seek(
 			LIST *element_list,
 			char *account_name );
+
+LIST *element_system_list(
+			char *sys_string,
+			LIST *filter_element_name_list,
+			char *fund_name,
+			char *as_of_date,
+			boolean omit_subclassification );
 
 #endif
 

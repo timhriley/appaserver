@@ -181,26 +181,32 @@ int main( int argc, char **argv )
 			purchase_date_time,
 			payment_date_time,
 			payment_amount,
-			check_number );
+			check_number,
+			(char *)0 /* transaction_date_time */ );
+
+		/* Builds the transaction */
+		/* ---------------------- */
+		sprintf( sys_string,
+	"post_change_vendor_payment %s \"%s\" \"%s\" '%s' '%s' insert ''",
+		 	application_name,
+		 	full_name,
+		 	street_address,
+		 	purchase_date_time,
+		 	payment_date_time );
+
+		if ( system( sys_string ) ){};
+
+		display_purchase_order(	full_name,
+					street_address,
+					purchase_date_time );
+
+		printf( "<p>Payment stored.\n" );
+	}
+	else
+	{
+		printf( "<p>No payment amount.\n" );
 	}
 
-	/* Builds the transaction */
-	/* ---------------------- */
-	sprintf( sys_string,
-	"post_change_vendor_payment %s \"%s\" \"%s\" '%s' '%s' insert ''",
-		 application_name,
-		 full_name,
-		 street_address,
-		 purchase_date_time,
-		 payment_date_time );
-
-	if ( system( sys_string ) ){};
-
-	display_purchase_order(	full_name,
-				street_address,
-				purchase_date_time );
-
-	printf( "<p>Payment stored.\n" );
 	document_close();
 
 	return 0;

@@ -181,6 +181,22 @@ int account_balance_match_function(
 	}
 }
 
+ACCOUNT *account_getset(
+			LIST *account_list,
+			char *account_name )
+{
+	ACCOUNT *account;
+
+	if ( ( account = account_seek( account_list, account_name ) ) )
+	{
+		return account;
+	}
+
+	account = account_new( strdup( account_name ) );
+	list_set( account_list, account );
+	return account;
+}
+
 ACCOUNT *account_seek(	LIST *account_list,
 			char *account_name )
 {

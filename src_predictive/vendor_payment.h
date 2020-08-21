@@ -11,6 +11,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "transaction.h"
+#include "purchase.h"
 #include "entity.h"
 
 /* Constants */
@@ -30,6 +31,7 @@ typedef struct
 	double payment_amount;
 	int check_number;
 	TRANSACTION *vendor_payment_transaction;
+	PURCHASE *purchase;
 } VENDOR_PAYMENT;
 
 /* Operations */
@@ -74,7 +76,8 @@ void vendor_payment_insert(
 			char *purchase_date_time,
 			char *payment_date_time,
 			double payment_amount,
-			int check_number );
+			int check_number,
+			char *transaction_date_time );
 
 TRANSACTION *vendor_payment_transaction(
 			char *full_name,

@@ -54,22 +54,13 @@ char *element_primary_where( char *element_name )
 }
 
 char *element_sys_string(
-			char *select,
 			char *where,
 			char *order )
 {
 	char sys_string[ 1024 ];
 	char order_clause[ 128 ];
 
-	if ( !select || !where )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: null value(s) not allowed.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	if ( !where || !*where ) where = "1 = 1";
 
 	if ( order )
 	{
@@ -97,7 +88,6 @@ char *element_sys_string(
 
 ELEMENT *element_fetch( char *element_name )
 {
-	char sys_string[ 1024 ];
 	char where[ 256 ];
 
 	sprintf(where,
@@ -107,7 +97,6 @@ ELEMENT *element_fetch( char *element_name )
 	return element_parse(
 			pipe2string(
 				element_sys_string(
-					element_select(),
 					element_primary_where( element_name ),
 					(char *)0 /* order */ ) ) );
 }
@@ -187,28 +176,24 @@ boolean element_accumulate_debit(
 	return element->accumulate_debit;
 }
 
-LIST *element_list(	LIST *filter_element_name_list,
+LIST *element_system_list(
+			char *sys_string,
+			LIST *filter_element_name_list,
 			char *fund_name,
 			char *as_of_date,
 			boolean omit_subclassification )
 {
 	LIST *element_list;
 	ELEMENT *element;
-	char sys_string[ 1024 ];
 	char input_buffer[ 256 ];
 	char element_name[ 128 ];
 	char accumulate_debit_yn[ 2 ];
 	FILE *input_pipe;
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s;\" | sql",
-		 element_select(),
-		 "element" );
-
 	element_list = list_new();
 	input_pipe = popen( sys_string, "r" );
 
-	while( get_line( input_buffer, input_pipe ) )
+	while( string_input( input_buffer, input_pipe, 256 ) )
 	{
 		piece( element_name, SQL_DELIMITER, input_buffer, 0 );
 
@@ -250,13 +235,32 @@ LIST *element_list(	LIST *filter_element_name_list,
 					as_of_date );
 		}
 
-		list_append_pointer(	element_list,
-					element );
+		list_set( element_list, element );
 	}
 
 	pclose( input_pipe );
 
 	return element_list_sort( element_list );
+}
+
+LIST *element_list(	LIST *filter_element_name_list,
+			char *fund_name,
+			char *as_of_date,
+			boolean omit_subclassification )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s;\" | sql",
+		 element_select(),
+		 "element" );
+
+	return element_system_list(
+			sys_string,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			omit_subclassification );
 }
 
 LIST *element_subclassification_list(

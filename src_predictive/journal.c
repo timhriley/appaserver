@@ -18,6 +18,7 @@
 #include "predictive.h"
 #include "account.h"
 #include "journal.h"
+#include "transaction.h"
 
 JOURNAL *journal_new(		char *full_name,
 				char *street_address,
@@ -290,7 +291,7 @@ void journal_insert_pipe(
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
-				journal_account_escape_name(
+				account_escape_name(
 					account_name ),
 				amount );
 	}
@@ -307,7 +308,7 @@ void journal_insert_pipe(
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
-				journal_account_escape_name(
+				account_escape_name(
 					account_name ),
 				amount );
 	}
@@ -480,7 +481,7 @@ LIST *journal_list_account( char *account_name )
 
 	sprintf( where,
 		 "account = '%s' 			",
-		 journal_account_escape_name(
+		 account_escape_name(
 			account_name ) );
 
 	sprintf( sys_string,
@@ -1141,8 +1142,8 @@ void journal_list_text_display(
 }
 
 void journal_list_html_display(
-			char *transaction_memo,
-			LIST *journal_list )
+			LIST *journal_list,
+			char *transaction_memo )
 {
 	char *heading;
 	char *justify;
@@ -1192,9 +1193,7 @@ JOURNAL *journal_account_latest(
 	char *results;
 	char *latest_transaction_time;
 
-	if ( predictive_exists_closing_entry(
-		application_name,
-		as_of_date ) )
+	if ( transaction_exists_closing_entry( as_of_date ) )
 	{
 		latest_transaction_time = TRANSACTION_PRIOR_TRANSACTION_TIME;
 	}
@@ -1238,7 +1237,7 @@ JOURNAL *journal_account_latest(
 	sprintf( sys_string,
 		 "echo \"select %s from %s,%s where %s;\" | sql.e",
 		 select,
-		 ledger_table,
+		 JOURNAL_TABLE,
 		 TRANSACTION_TABLE,
 		 where );
 

@@ -177,8 +177,8 @@ void journal_list_text_display(
 			LIST *journal_list );
 
 void journal_list_html_display(
-			char *transaction_memo,
-			LIST *journal_list );
+			LIST *journal_list,
+			char *transaction_memo );
 
 void journal_list_display(
 			FILE *output_pipe,

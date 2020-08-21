@@ -12,6 +12,7 @@
 /* -------- */
 #include "list.h"
 #include "entity.h"
+#include "vendor_payment.h"
 #include "account.h"
 
 /* Enumerated types */
@@ -73,9 +74,6 @@ LIST *pay_liabilities_input_entity_list(
 			LIST *full_name_list,
 			LIST *street_address_list );
 
-LIST *pay_liabilities_purchase_list(
-			void )
-
 double pay_liabilities_fetch_sum_balance(
 			char *fund_name,
 			char *full_name,
@@ -91,14 +89,13 @@ LIST *pay_liabilities_fetch_liability_account_entity_list(
 			void );
 
 LIST *pay_liabilities_current_liability_account_list(
-			char *fund_name,
-			LIST *exclude_account_name_list );
+			char *fund_name );
 
 LIST *pay_liabilities_distribute_liability_account_list(
 			LIST *liability_account_list,
 			double entity_payment_amount );
 
-LIST *pay_liabilities_process_get_entity_list(
+LIST *pay_liabilities_process_entity_list(
 			LIST *input_entity_list,
 			LIST *process_current_liability_entity_list,
 			LIST *input_purchase_order_list,
@@ -111,7 +108,7 @@ LIST *pay_liabilities_distribute_purchase_list(
 			char *full_name,
 			char *street_address );
 
-LIST *pay_liabilities_get_current_liability_entity_list(
+LIST *pay_liabilities_current_liability_entity_list(
 			LIST *current_liability_account_list,
 			LIST *exclude_entity_list );
 
@@ -144,6 +141,9 @@ void pay_liabilities_set_lock_transaction(
 LIST *pay_liabilities_liability_account_list(
 			void );
 
+/* --------------------------------------------- */
+/* Returns memo, program memory, or heap memory. */
+/* --------------------------------------------- */
 char *pay_liabilities_transaction_memo(
 			char *fund_name,
 			char *memo,

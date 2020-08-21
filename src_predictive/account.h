@@ -49,9 +49,10 @@ typedef struct
 	double chart_account_number;
 	JOURNAL *latest_journal;
 	LIST *journal_list;
-	boolean accumulate_debit;
 	double balance;
 	double annual_budget;
+	boolean accumulate_debit;
+	double payment_amount;
 } ACCOUNT;
 
 /* Operations */
@@ -146,5 +147,9 @@ LIST *subclassification_account_list(
 			char *subclassification_name,
 			char *fund_name,
 			char *as_of_date );
+
+ACCOUNT *account_getset(
+			LIST *account_list,
+			char *account_name );
 
 #endif
