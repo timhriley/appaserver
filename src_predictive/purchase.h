@@ -158,4 +158,7 @@ LIST *purchase_system_list(
 LIST *purchase_amount_due_purchase_list(
 			void );
 
+FILE *purchase_update_open(
+			void );
+
 #endif

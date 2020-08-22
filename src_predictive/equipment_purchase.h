@@ -42,7 +42,7 @@ typedef struct
 	double tax_accumulated_depreciation;
 	TAX_RECOVERY *tax_recovery;
 	char *asset_account_name;
-	LIST *equipment_depreciation_list;
+	LIST *depreciation_list;
 } EQUIPMENT_PURCHASE;
 
 /* Operations */

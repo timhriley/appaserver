@@ -80,7 +80,7 @@ void depreciation_update(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
-			char *depreciation_date_time );
+			char *depreciation_date );
 
 double depreciation_amount_total(
 			LIST *depreciation_list );
@@ -167,5 +167,12 @@ char *depreciation_primary_where(
 
 LIST *depreciation_fetch_list(
 			char *where );
+
+FILE *depreciation_update_pipe_open(
+			void );
+
+double depreciation_accumulated_depreciation(
+			double prior_accumulated_depreciation,
+			double depreciation_amount );
 
 #endif

@@ -138,6 +138,21 @@ LIST *purchase_equipment_list(
 				purchase_date_time ) );
 }
 
+FILE *purchase_update_open( void )
+{
+	char *key;
+	char sys_string[ 1024 ];
+
+	key = "full_name,street_address,purchase_date_time";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql",
+		 PURCHASE_TABLE_NAME,
+		 key );
+
+	return popen( sys_string, "w" );
+}
+
 void purchase_update(
 			double equipment_purchase_total,
 			double invoice_amount,
@@ -148,18 +163,7 @@ void purchase_update(
 			char *street_address,
 			char *purchase_date_time )
 {
-	char sys_string[ 1024 ];
-	FILE *update_pipe;
-	char *key;
-
-	key = "full_name,street_address,purchase_date_time";
-
-	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql",
-		 "transaction",
-		 key );
-
-	update_pipe = popen( sys_string, "w" );
+	FILE *update_pipe = purchase_update_open();
 
 	fprintf(update_pipe,
 		"%s^%s^%s^equipment_purchase_total^%.2lf\n",

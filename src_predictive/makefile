@@ -136,7 +136,6 @@ SOURCE_LIBRARY= 							\
 		inventory_purchase_return.o				\
 		inventory_sale_return.o					\
 		depreciation.o						\
-		equipment_depreciation.o				\
 		customer_payment.o					\
 		inventory_sale.o					\
 		entity_self.o						\
@@ -744,12 +743,6 @@ inventory_purchase_return.o: inventory_purchase_return.c		\
 customer_sale.o: customer_sale.c customer_sale.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c customer_sale.c
-
-equipment_depreciation.o:						\
-	equipment_depreciation.c					\
-	equipment_depreciation.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c equipment_depreciation.c
 
 depreciation.o:								\
 	depreciation.c							\

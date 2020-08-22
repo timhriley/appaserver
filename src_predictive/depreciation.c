@@ -588,7 +588,22 @@ LIST *depreciation_list(
 
 FILE *depreciation_update_open( void )
 {
-	return (FILE *)0;
+	char sys_string[ 1024 ];
+	char *key;
+
+	key =	"asset_name,"
+		"serial_number,"
+		"full_name,"
+		"street_address,"
+		"purchase_date_time,"
+		"depreciation_date";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql",
+		 DEPRECIATION_TABLE_NAME,
+		 key );
+
+	return popen( sys_string, "w" );
 }
 
 void depreciation_update(
@@ -599,8 +614,31 @@ void depreciation_update(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
-			char *depreciation_date_time )
+			char *depreciation_date )
 {
+	FILE *update_pipe = depreciation_update_open();
+
+	fprintf(update_pipe,
+		"%s^%s^%s^%s^%s^%s^depreciation_amount^%.2lf\n",
+		asset_name,
+		serial_number,
+		entity_escape_full_name( full_name ),
+		street_address,
+		purchase_date_time,
+		depreciation_date,
+		depreciation_amount );
+
+	fprintf(update_pipe,
+		"%s^%s^%s^%s^%s^%s^transaction_date_time^%s\n",
+		asset_name,
+		serial_number,
+		entity_escape_full_name( full_name ),
+		street_address,
+		purchase_date_time,
+		depreciation_date,
+		transaction_date_time );
+
+	pclose( update_pipe );
 }
 
 double depreciation_amount_total(
@@ -629,5 +667,12 @@ LIST *depreciation_fetch_list( char *where )
 	return depreciation_system_list(
 			depreciation_sys_string(
 				where ) );
+}
+
+double depreciation_accumulated_depreciation(
+			double prior_accumulated_depreciation,
+			double depreciation_amount )
+{
+	return prior_accumulated_depreciation + depreciation_amount;
 }
 

@@ -176,6 +176,16 @@ void *list_data( LIST *list )
 	return list_get_pointer( list );
 }
 
+void *list_last( LIST *list )
+{
+	return list_get_last_pointer( list );
+}
+
+void *list_get_last( LIST *list )
+{
+	return list_get_last_pointer( list );
+}
+
 void *list_get_last_pointer( LIST *list )
 {
 	if ( !go_tail( list ) ) return (char *)0;

@@ -177,7 +177,13 @@ LIST *list_unique( LIST *string_list );
 char *list_get_string( LIST *list );
 void *list_get_first( LIST *list );
 void *list_get_first_pointer( LIST *list );
+
+void *list_last( LIST *list );
+
+void *list_get_last( LIST *list );
+
 void *list_get_last_pointer( LIST *list );
+
 LIST *list_string_to_list( char *list_string, char delimiter );
 LIST *list_string2list( char *list_string, char delimiter );
 LIST *list_quote_comma_string2list( char *list_string );
