@@ -21,6 +21,7 @@
 #include "account.h"
 #include "predictive.h"
 #include "equipment_purchase.h"
+#include "transaction.h"
 #include "depreciation.h"
 
 /* Constants */
@@ -28,6 +29,9 @@
 
 /* Prototypes */
 /* ---------- */
+FILE *depreciate_equipment_undo_html_open(
+			void );
+
 LIST *depreciate_undo_equipment_purchase_list(
 			char *max_depreciation_date );
 
@@ -136,23 +140,74 @@ LIST *depreciate_fetch_equipment_purchase_list( void )
 LIST *depreciate_undo_equipment_purchase_list(
 			char *max_depreciation_date )
 {
-	char where[ 128 ];
+	char where[ 1024 ];
 
 	sprintf( where,
-		 "depreciation_date = '%s'",
+"exists ( select 1						"
+"	   from depreciation					"
+"	   where						"
+"		equipment_purchase.asset_name =			"
+"			depreciation.asset_name and		"
+"		equipment_purchase.asset_name =			"
+"			depreciation.asset_name and		"
+"		equipment_purchase.asset_name =			"
+"			depreciation.asset_name and		"
+"		equipment_purchase.asset_name =			"
+"			depreciation.asset_name and		"
+"		equipment_purchase.asset_name =			"
+"			depreciation.asset_name and		"
+"		depreciation_date = '%s' )			",
 		 max_depreciation_date );
 
+
 	return equipment_purchase_list_fetch( where );
+}
+
+FILE *depreciate_equipment_undo_html_open( void )
+{
+	char sys_string[ 1024 ];
+	char *heading_list_string;
+	char *justify_list_string;
+
+	heading_list_string =
+		"asset_name,"
+		"serial_number,"
+		"vendor,"
+		"purchase,"
+		"depreciation,"
+		"depreciation_amount";
+
+	justify_list_string = "left,left,left,left,left,right";
+
+	sprintf( sys_string,
+		 "html_table.e '^%s' '%s' '^' '%s'",
+		 "UNDO Depreciate Equipment",
+		 heading_list_string,
+		 justify_list_string );
+
+	return popen( sys_string, "w" );
 }
 
 boolean depreciate_equipment_undo( boolean execute )
 {
 	EQUIPMENT_PURCHASE *equipment_purchase;
 	LIST *equipment_purchase_list;
+	DEPRECIATION *depreciation;
+	char *max_depreciation_date;
+	FILE *html_output;
+	FILE *delete_pipe = {0};
+
+	if ( execute )
+	{
+		delete_pipe = depreciation_delete_open();
+	}
+
+	html_output = depreciate_equipment_undo_html_open();
 
 	equipment_purchase_list =
 		depreciate_undo_equipment_purchase_list(
-			depreciation_max_date() );
+			( max_depreciation_date =
+				depreciation_max_date() ) );
 
 	if ( !list_rewind( equipment_purchase_list ) ) return 0;
 
@@ -161,7 +216,75 @@ boolean depreciate_equipment_undo( boolean execute )
 			list_get(
 				equipment_purchase_list );
 
+		if ( ! ( depreciation =
+				depreciation_seek(
+					equipment_purchase->
+						depreciation_list,
+					max_depreciation_date ) ) )
+		{
+			continue;
+		}
+
+		if ( !depreciation->depreciation_transaction )
+		{
+			fprintf(
+			stderr,
+	"ERROR in %s/%s()/%d: empty depreciation_transaction for %s/%s/%s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 equipment_purchase->asset_name,
+			 equipment_purchase->serial_number,
+			 equipment_purchase->vendor_entity->full_name );
+
+			exit( 1 );
+		}
+
+		fprintf( html_output,
+			 "%s^%s^%s/%s^%s^%s^%.2lf\n",
+			 equipment_purchase->asset_name,
+			 equipment_purchase->serial_number,
+			 equipment_purchase->vendor_entity->full_name,
+			 equipment_purchase->vendor_entity->street_address,
+			 equipment_purchase->purchase_date_time,
+			 depreciation->depreciation_date,
+			 depreciation->depreciation_amount );
+
+		if ( execute )
+		{
+			/* Performs journal_propagate() */
+			/* ---------------------------- */
+			transaction_delete(
+				depreciation->
+					depreciation_transaction->
+					full_name,
+				depreciation->
+					depreciation_transaction->
+					street_address,
+				depreciation->
+					depreciation_transaction->
+					transaction_date_time );
+
+			fprintf(delete_pipe,
+			 	"%s^%s^%s/%s^%s^%s\n",
+			 	equipment_purchase->asset_name,
+			 	equipment_purchase->serial_number,
+			 	equipment_purchase->
+					vendor_entity->
+					full_name,
+			 	equipment_purchase->
+					vendor_entity->
+					street_address,
+			 	equipment_purchase->purchase_date_time,
+			 	depreciation->depreciation_date );
+
+		}
+
 	} while ( list_next( equipment_purchase_list ) );
+
+	pclose( html_output );
+
+	if ( delete_pipe ) pclose( delete_pipe );
 
 	return 1;
 }

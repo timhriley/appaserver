@@ -590,6 +590,26 @@ LIST *depreciation_list(
 			purchase_date_time ) );
 }
 
+FILE *depreciation_delete_open( void )
+{
+	char sys_string[ 1024 ];
+	char *key;
+
+	key =	"asset_name,"
+		"serial_number,"
+		"full_name,"
+		"street_address,"
+		"purchase_date_time,"
+		"depreciation_date";
+
+	sprintf( sys_string,
+		 "delete_statement table=%s field=%s delimiter='%c' | sql",
+		 DEPRECIATION_TABLE_NAME,
+		 key );
+
+	return popen( sys_string, "w" );
+}
+
 FILE *depreciation_update_open( void )
 {
 	char sys_string[ 1024 ];
@@ -603,7 +623,7 @@ FILE *depreciation_update_open( void )
 		"depreciation_date";
 
 	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql",
+		 "update_statement table=%s key=%s carrot=y | sql",
 		 DEPRECIATION_TABLE_NAME,
 		 key );
 
@@ -766,7 +786,7 @@ FILE *depreciation_insert_open( void )
 		"transaction_date_time";
 
 	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s delimiter='^'	|"
+		 "insert_statement table=%s field=%s delimiter='^'	|"
 		 "sql 2>&1						 ",
 		 "depreciation",
 		 field );
@@ -859,3 +879,26 @@ char *depreciation_max_date( void )
 	return pipe2string( sys_string );
 }
 
+DEPRECIATION *depreciation_seek(
+			LIST *depreciation_list,
+			char *depreciation_date )
+{
+	DEPRECIATION *depreciation;
+
+	if ( !list_rewind( depreciation_list ) ) return (DEPRECIATION *)0;
+
+	do {
+		depreciation =
+			list_get(
+				depreciation_list );
+
+		if ( timlib_strcmp(
+			depreciation->depreciation_date,
+			depreciation_date ) == 0 )
+		{
+			return depreciation;
+		}
+	} while ( list_next( depreciation_list ) );
+
+	return (DEPRECIATION *)0;
+}

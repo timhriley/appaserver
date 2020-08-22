@@ -203,4 +203,11 @@ void depreciation_insert(
 char *depreciation_max_date(
 			void );
 
+DEPRECIATION *depreciation_seek(
+			LIST *depreciation_list,
+			char *depreciation_date );
+
+FILE *depreciation_delete_open(
+			void );
+
 #endif
