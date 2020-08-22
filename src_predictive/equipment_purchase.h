@@ -125,5 +125,17 @@ DEPRECIATION *equipment_purchase_depreciation(
 LIST *equipment_purchase_depreciation_list(
 			LIST *equipment_purchase_list );
 
+/* -------------------------------------------- */
+/* Returns equipment_purchase_list with		*/
+/* equipment_purchase->depreciation_list set.	*/
+/* -------------------------------------------- */
+LIST *equipment_purchase_list_depreciate(
+			LIST *equipment_purchase_list,
+			char *depreciation_date,
+			boolean set_depreciation_transaction );
+
+void equipment_purchase_depreciation_table(
+			LIST *equipment_purchase_list );
+
 #endif
 

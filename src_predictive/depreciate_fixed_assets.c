@@ -28,24 +28,13 @@
 
 /* Prototypes */
 /* ---------- */
-LIST *depreciate_fetch_equipment_purchase_list(
-			void );
+LIST *depreciate_undo_equipment_purchase_list(
+			char *max_depreciation_date );
 
-/* -------------------------------------------- */
-/* Returns equipment_purchase_list with		*/
-/* equipment_purchase->depreciation_list set.	*/
-/* -------------------------------------------- */
-LIST *depreciate_equipment_purchase_list(
-			LIST *equipment_purchase_list,
-			char *depreciation_date,
-			boolean set_depreciation_transaction );
-
-void depreciate_equipment_undo(
-			LIST *equipment_purchase_list,
-			char *max_undo_date,
+boolean depreciate_equipment_undo(
 			boolean execute );
 
-void depreciate_fixed_assets(
+boolean depreciate_fixed_assets(
 			boolean execute );
 
 int main( int argc, char **argv )
@@ -105,10 +94,31 @@ int main( int argc, char **argv )
 
 	if ( undo )
 	{
+		if ( depreciate_equipment_undo( execute ) )
+		{
+			if ( execute )
+				printf( "<h3>Undo complete.</h3>\n" );
+			else
+				printf( "<h3>Undo not executed.</h3>\n" );
+		}
+		else
+		{
+			printf( "<h3>No depreciation to undo.</h3>\n" );
+		}
 	}
 	else
 	{
-		depreciate_fixed_assets( execute );
+		if ( depreciate_fixed_assets( execute ) )
+		{
+			if ( execute )
+				printf( "<h3>Posting complete</h3>\n" );
+			else
+				printf( "<h3>Posting not executed</h3>\n" );
+		}
+		else
+		{
+			printf( "<h3>No equipment to depreciate.</h3>\n" );
+		}
 	}
 
 	document_close();
@@ -123,89 +133,59 @@ LIST *depreciate_fetch_equipment_purchase_list( void )
 			/* where */ );
 }
 
-LIST *depreciate_equipment_purchase_list(
-			LIST *equipment_purchase_list,
-			char *depreciation_date,
-			boolean set_depreciation_transaction )
+LIST *depreciate_undo_equipment_purchase_list(
+			char *max_depreciation_date )
+{
+	char where[ 128 ];
+
+	sprintf( where,
+		 "depreciation_date = '%s'",
+		 max_depreciation_date );
+
+	return equipment_purchase_list_fetch( where );
+}
+
+boolean depreciate_equipment_undo( boolean execute )
 {
 	EQUIPMENT_PURCHASE *equipment_purchase;
-	char *prior_depreciation_date;
-	char *transaction_date_time = {0};
+	LIST *equipment_purchase_list;
 
-	if ( !list_rewind( equipment_purchase_list ) ) return (LIST *)0;
+	equipment_purchase_list =
+		depreciate_undo_equipment_purchase_list(
+			depreciation_max_date() );
+
+	if ( !list_rewind( equipment_purchase_list ) ) return 0;
 
 	do {
 		equipment_purchase =
 			list_get(
 				equipment_purchase_list );
 
-		if ( list_length( equipment_purchase->depreciation_list ) )
-		{
-			DEPRECIATION *prior_depreciation;
-
-			prior_depreciation =
-				list_last(
-					equipment_purchase->
-						depreciation_list );
-
-			prior_depreciation_date =
-				prior_depreciation->depreciation_date;
-		}
-		else
-		{
-			prior_depreciation_date = (char *)0;
-		}
-
-		if ( set_depreciation_transaction )
-		{
-			transaction_date_time =
-				/* ---------------------------------- */
-				/* Returns heap memory		      */
-				/* Increments seconds each invocation */
-				/* ---------------------------------- */
-				predictive_transaction_date_time(
-					depreciation_date );
-		}
-
-		list_set(
-			equipment_purchase->depreciation_list,
-			( equipment_purchase->
-				equipment_purchase_depreciation =
-				equipment_purchase_depreciation(
-					equipment_purchase,
-					depreciation_date,
-					prior_depreciation_date,
-					/* Null value omits transaction */
-					/* ---------------------------- */
-					transaction_date_time,
-					0 /* units_produced */ ) ) );
-
 	} while ( list_next( equipment_purchase_list ) );
 
-	return equipment_purchase_list;
+	return 1;
 }
 
-/*
-void depreciate_equipment_undo(
-			LIST *equipment_purchase_list,
-			char *max_undo_date,
-			boolean execute )
-{
-}
-*/
-
-void depreciate_fixed_assets( boolean execute )
+boolean depreciate_fixed_assets( boolean execute )
 {
 	LIST *equipment_purchase_list;
 
 	equipment_purchase_list =
-		depreciate_equipment_purchase_list(
+		/* -------------------------------------------- */
+		/* Returns equipment_purchase_list with		*/
+		/* equipment_purchase->depreciation_list set.	*/
+		/* -------------------------------------------- */
+		equipment_purchase_list_depreciate(
 			depreciate_fetch_equipment_purchase_list(),
 			pipe2string( "now.sh ymd" )
 				/* depreciation_date */,
 			execute /* set_depreciation_transaction */ );
 
-	if ( execute && list_length ( equipment_purchase_list ) )
+	equipment_purchase_depreciation_table( equipment_purchase_list );
+
+	if ( !list_length( equipment_purchase_list ) ) return 0;
+
+	if ( execute )
 	{
 		/* Sets true transaction_date_time */
 		/* ------------------------------- */
@@ -218,5 +198,6 @@ void depreciate_fixed_assets( boolean execute )
 			equipment_purchase_depreciation_list(
 				equipment_purchase_list ) );
 	}
+	return 1;
 }
 

@@ -846,3 +846,16 @@ void depreciation_list_insert(
 
 	pclose( insert_pipe );
 }
+
+char *depreciation_max_date( void )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s;\" | sql",
+		 "max( depreciation_date )",
+		 "depreciation" );
+
+	return pipe2string( sys_string );
+}
+

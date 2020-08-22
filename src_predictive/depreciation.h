@@ -200,4 +200,7 @@ void depreciation_insert(
 			double depreciation_amount,
 			char *transaction_date_time );
 
+char *depreciation_max_date(
+			void );
+
 #endif

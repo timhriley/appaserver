@@ -132,10 +132,9 @@ LIST *purchase_equipment_list(
 			char *purchase_date_time )
 {
 	return equipment_purchase_list(
-			purchase_primary_where(
-				full_name,
-				street_address,
-				purchase_date_time ) );
+			full_name,
+			street_address,
+			purchase_date_time );
 }
 
 FILE *purchase_update_open( void )
