@@ -134,6 +134,8 @@ char *date_yyyy_mm_dd_hhmm_display(
 char *date_display_yyyy_mm_dd_colon_hms(
 				DATE *date );
 
+char *date_hms(			DATE *date );
+
 char *date_get_hms(		DATE *date );
 
 char *date_display_yyyy_mm_dd_hh_mm(
@@ -151,6 +153,8 @@ char *date_get_yesterday_yyyy_mm_dd_string(
 DATE *date_get_today_new(	int utc_offset );
 
 DATE *date_today_new(		int utc_offset );
+
+char *date_now_yyyy_mm_dd(	int utc_offset );
 
 char *date_get_now_yyyy_mm_dd(	int utc_offset );
 
@@ -566,5 +570,8 @@ DATE *date_now(			int utc_offset );
 
 DATE *date_set_now(		DATE *date,
 				int utc_offset );
+
+char *date_now_hh_colon_mm_colon_ss(
+			int utc_offset );
 
 #endif

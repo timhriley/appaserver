@@ -220,8 +220,13 @@ FILE *transaction_insert_open( void )
 	char sys_string[ 1024 ];
 	char *field;
 
-	field =
-"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,lock_transaction_yn";
+	field =	"full_name,"
+		"street_address,"
+		"transaction_date_time,"
+		"transaction_amount,"
+		"memo,"
+		"check_number,"
+		"lock_transaction_yn";
 
 	sprintf( sys_string,
 		 "insert_statement.e table=%s field=%s delimiter='^'	|"
@@ -847,53 +852,13 @@ LIST *transaction_binary_journal_list(
 			char *debit_account,
 			char *credit_account )
 {
-	LIST *journal_list;
-	JOURNAL *journal;
-
-	if ( !debit_account
-	||   !*debit_account
-	||   !credit_account
-	||   !*credit_account )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty account name(s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( timlib_double_virtually_same(
-		transaction_amount, 0.0 ) )
-	{
-		return (LIST *)0;
-	}
-
-	journal_list = list_new();
-
-	journal =
-		journal_new(
-			strdup( full_name ),
-			strdup( street_address ),
-			strdup( transaction_date_time ),
-			strdup( debit_account ) );
-
-	journal->debit_amount = transaction_amount;
-
-	list_set( journal_list, journal );
-
-	journal =
-		journal_new(
-			strdup( full_name ),
-			strdup( street_address ),
-			strdup( transaction_date_time ),
-			strdup( credit_account ) );
-
-	journal->credit_amount = transaction_amount;
-
-	list_set( journal_list, journal );
-
-	return journal_list;
+	return journal_binary_journal_list(
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			debit_account,
+			credit_account );
 }
 
 TRANSACTION *transaction_check_seek(

@@ -19,6 +19,9 @@
 #include "depreciation.h"
 #include "tax_recovery.h"
 #include "entity.h"
+#include "account.h"
+#include "purchase.h"
+#include "depreciation.h"
 #include "equipment_purchase.h"
 
 EQUIPMENT_PURCHASE *equipment_purchase_new(
@@ -159,15 +162,28 @@ EQUIPMENT_PURCHASE *equipment_purchase_parse( char *input )
 	equipment_purchase->tax_accumulated_depreciation =
 		atoi( piece_buffer );
 
+	equipment_purchase->depreciation_list =
+		depreciation_list(
+			equipment_purchase->asset_name,
+			equipment_purchase->serial_number,
+			equipment_purchase->vendor_entity->full_name,
+			equipment_purchase->vendor_entity->street_address,
+			equipment_purchase->purchase_date_time );
+
 	return equipment_purchase;
 }
 
 LIST *equipment_purchase_list(
-			char *purchase_primary_where )
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time )
 {
 	return
 		equipment_purchase_list_fetch(
-			purchase_primary_where );
+			purchase_primary_where(
+				full_name,
+				street_address,
+				purchase_date_time ) );
 }
 
 LIST *equipment_system_list( char *sys_string )
@@ -364,5 +380,97 @@ double equipment_purchase_total(
 	} while ( list_next( l ) );
 
 	return purchase_total;
+}
+
+DEPRECIATION *equipment_purchase_depreciation(
+			EQUIPMENT_PURCHASE *equipment_purchase,
+			char *depreciation_date,
+			char *prior_depreciation_date,
+			char *transaction_date_time,
+			int units_produced )
+{
+	DEPRECIATION *depreciation;
+
+	depreciation =
+		depreciation_new(
+			equipment_purchase->asset_name,
+			equipment_purchase->serial_number,
+			equipment_purchase->vendor_entity->full_name,
+			equipment_purchase->vendor_entity->street_address,
+			equipment_purchase->purchase_date_time,
+			depreciation_date );
+
+	depreciation->depreciation_amount =
+		depreciation_amount(
+			equipment_purchase->depreciation_method,
+			equipment_purchase->equipment_cost,
+			equipment_purchase->estimated_residual_value,
+			equipment_purchase->estimated_useful_life_years,
+			equipment_purchase->estimated_useful_life_units,
+			equipment_purchase->declining_balance_n,
+			prior_depreciation_date,
+			depreciation_date,
+			equipment_purchase->finance_accumulated_depreciation,
+			equipment_purchase->service_placement_date,
+			units_produced );
+
+	if ( timlib_dollar_virtually_same(
+		depreciation->depreciation_amount,
+		0.0 ) )
+	{
+		return (DEPRECIATION *)0;
+	}
+
+	depreciation->depreciation_accumulated_depreciation =
+		depreciation_accumulated_depreciation(
+			depreciation->depreciation_accumulated_depreciation
+				/* prior_accumulated_depreciation */,
+			depreciation->depreciation_amount );
+
+	if ( transaction_date_time )
+	{
+		depreciation->depreciation_transaction =
+			depreciation_transaction(
+				equipment_purchase->
+					vendor_entity->
+					full_name,
+				equipment_purchase->
+					vendor_entity->
+					street_address,
+				transaction_date_time,
+				depreciation->depreciation_amount,
+				account_depreciation_expense(
+					(char *)0 /* fund_name */ ),
+				account_accumulated_depreciation(
+					(char *)0 /* fund_name */ ) );
+	}
+	return depreciation;
+}
+
+LIST *equipment_purchase_depreciation_list(
+			LIST *equipment_purchase_list )
+{
+	LIST *depreciation_list;
+	EQUIPMENT_PURCHASE *equipment_purchase;
+
+	if ( !list_rewind( equipment_purchase_list ) ) return (LIST *)0;
+
+	depreciation_list = list_new();
+
+	do {
+		equipment_purchase =
+			list_get(
+				equipment_purchase_list );
+
+		if ( equipment_purchase->equipment_purchase_depreciation )
+		{
+			list_set(
+				depreciation_list,
+				equipment_purchase->
+					equipment_purchase_depreciation );
+		}
+
+	} while ( list_next( equipment_purchase_list ) );
+	return depreciation_list;
 }
 

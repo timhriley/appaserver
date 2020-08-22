@@ -1185,10 +1185,8 @@ JOURNAL *journal_account_latest(
 			char *account_name,
 			char *as_of_date )
 {
-	JOURNAL *journal;
 	char where[ 512 ];
 	char select[ 128 ];
-	char buffer[ 128 ];
 	char sys_string[ 1024 ];
 	char *results;
 	char *latest_transaction_time;
@@ -1263,5 +1261,83 @@ LIST *journal_minimum_account_journal_list(
 	 	account_name_escape( account_name ) );
 
 	return journal_list_fetch( where );
+}
+
+LIST *journal_binary_journal_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *debit_account,
+			char *credit_account )
+{
+	return journal_binary_list(
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			debit_account,
+			credit_account );
+}
+
+LIST *journal_binary_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *debit_account,
+			char *credit_account )
+{
+	LIST *journal_list;
+	JOURNAL *journal;
+
+	if ( !debit_account
+	||   !*debit_account
+	||   !credit_account
+	||   !*credit_account )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty account name(s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( timlib_double_virtually_same(
+		transaction_amount, 0.0 ) )
+	{
+		return (LIST *)0;
+	}
+
+	journal_list = list_new();
+
+	journal =
+		journal_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			debit_account );
+
+	journal->debit_amount = transaction_amount;
+
+	list_set(
+		journal_list,
+		journal );
+
+	journal =
+		journal_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			credit_account );
+
+	journal->credit_amount = transaction_amount;
+
+	list_set(
+		journal_list,
+		journal );
+
+	return journal_list;
 }
 

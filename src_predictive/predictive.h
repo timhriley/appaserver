@@ -27,6 +27,10 @@
 /* Operations */
 /* ---------- */
 
+/* ------------------------------------ */
+/* Returns heap memory			*/
+/* Increments seconds each invocation   */
+/* ------------------------------------ */
 char *predictive_transaction_date_time(
 			char *transaction_date );
 

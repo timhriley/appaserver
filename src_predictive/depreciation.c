@@ -15,6 +15,10 @@
 #include "sql.h"
 #include "transaction.h"
 #include "equipment_purchase.h"
+#include "journal.h"
+#include "predictive.h"
+#include "transaction.h"
+#include "entity.h"
 #include "depreciation.h"
 
 double depreciation_amount(
@@ -676,3 +680,169 @@ double depreciation_accumulated_depreciation(
 	return prior_accumulated_depreciation + depreciation_amount;
 }
 
+TRANSACTION *depreciation_transaction(
+			char *full_name,
+			char *street_address,
+			char *depreciation_date,
+			double depreciation_amount,
+			char *account_depreciation_expense,
+			char *account_accumulated_depreciation )
+{
+	TRANSACTION *transaction;
+	char *transaction_date_time;
+
+	if ( ! ( transaction =
+			transaction_new(
+				full_name,
+				street_address,
+				( transaction_date_time =
+					predictive_transaction_date_time(
+						depreciation_date ) ) ) ) );
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: transaction_new(%s,%s,%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 full_name,
+			 street_address,
+			 depreciation_date );
+		exit( 1 );
+	}
+
+	transaction->transaction_amount = depreciation_amount;
+
+	transaction->journal_list =
+		journal_binary_list(
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction->transaction_amount,
+			account_depreciation_expense
+				/* debit_account */,
+			account_accumulated_depreciation
+				/* credit_account */ );
+
+	return transaction;
+}
+
+LIST *depreciation_transaction_list(
+			LIST *depreciation_list )
+{
+	DEPRECIATION *depreciation;
+	LIST *transaction_list;
+
+	if ( !list_rewind( depreciation_list ) ) return (LIST *)0;
+
+	transaction_list = list_new();
+
+	do {
+		depreciation = list_get( depreciation_list );
+
+		if ( depreciation->depreciation_transaction )
+		{
+			list_set(
+				transaction_list,
+				depreciation->depreciation_transaction );
+		}
+
+	} while ( list_next( depreciation_list ) );
+
+	return transaction_list;
+}
+
+FILE *depreciation_insert_open( void )
+{
+	char sys_string[ 1024 ];
+	char *field;
+
+	field =	"asset_name,"
+		"serial_number,"
+		"full_name,"
+		"street_address,"
+		"purchase_date_time,"
+		"depreciation_date,"
+		"depreciation_amount,"
+		"transaction_date_time";
+
+	sprintf( sys_string,
+		 "insert_statement.e table=%s field=%s delimiter='^'	|"
+		 "sql 2>&1						 ",
+		 "depreciation",
+		 field );
+
+	return popen( sys_string, "w" );
+}
+
+void depreciation_insert(
+			FILE *insert_pipe,
+			char *asset_name,
+			char *serial_number,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *depreciation_date,
+			double depreciation_amount,
+			char *transaction_date_time )
+{
+
+	fprintf(	insert_pipe,
+			"%s^%s^%s^%s^%s^%s^%.2lf^%s\n",
+			asset_name,
+			serial_number,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+	 		entity_escape_full_name( full_name ),
+			street_address,
+			purchase_date_time,
+			depreciation_date,
+			depreciation_amount,
+			(transaction_date_time)
+				? transaction_date_time
+				: "" );
+}
+
+void depreciation_list_insert(
+			LIST *depreciation_list )
+{
+	DEPRECIATION *depreciation;
+	FILE *insert_pipe;
+	char *transaction_date_time;
+
+	if ( !list_rewind( depreciation_list ) ) return;
+
+	insert_pipe = depreciation_insert_open();
+
+	do {
+		depreciation =
+			list_get(
+				depreciation_list );
+
+		if ( depreciation->depreciation_transaction )
+		{
+			transaction_date_time =
+				depreciation->
+					depreciation_transaction->
+					transaction_date_time;
+		}
+		else
+		{
+			transaction_date_time = (char *)0;
+		}
+
+		depreciation_insert(
+			insert_pipe,
+			depreciation->asset_name,
+			depreciation->serial_number,
+			depreciation->vendor_entity->full_name,
+			depreciation->vendor_entity->street_address,
+			depreciation->purchase_date_time,
+			depreciation->depreciation_date,
+			depreciation->depreciation_amount,
+			transaction_date_time );
+
+	} while ( list_next( depreciation_list ) );
+
+	pclose( insert_pipe );
+}

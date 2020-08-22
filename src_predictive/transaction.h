@@ -383,7 +383,6 @@ char *transaction_journal_insert(
 LIST *transaction_after_balance_zero_journal_list(
 			char *account_name );
 
-
 char *transaction_latest_zero_balance_transaction_date_time(
 			char *account_name );
 

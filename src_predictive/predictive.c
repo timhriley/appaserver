@@ -18,27 +18,29 @@
 #include "transaction.h"
 #include "predictive.h"
 
+/* Returns heap memory */
+/* ------------------- */
 char *predictive_transaction_date_time( char *transaction_date )
 {
 	char transaction_date_time[ 32 ];
+	static char prior_transaction_time[ 32 ] = {0};
 	char *transaction_time;
 	DATE *date;
-	static char prior_transaction_time[ 32 ] = {0};
 
 	if ( !transaction_date
 	||   !*transaction_date
 	||   strcmp( transaction_date, "transaction_date" ) == 0 )
 	{
 		transaction_date =
-			 date_get_now_yyyy_mm_dd(
-				date_get_utc_offset() );
+			 date_now_yyyy_mm_dd(
+				date_utc_offset() );
 	}
 
 	if ( !*prior_transaction_time )
 	{
 		transaction_time =
-			date_get_now_hh_colon_mm_colon_ss(
-				date_get_utc_offset() );
+			date_now_hh_colon_mm_colon_ss(
+				date_utc_offset() );
 
 		sprintf( transaction_date_time,
 			 "%s %s",
@@ -56,7 +58,7 @@ char *predictive_transaction_date_time( char *transaction_date )
 
 		date = date_yyyy_mm_dd_hms_new(	transaction_date_time );
 		date_increment_seconds( date, 1 );
-		transaction_time = date_get_hms( date );
+		transaction_time = date_hms( date );
 
 		sprintf( transaction_date_time,
 			 "%s %s",

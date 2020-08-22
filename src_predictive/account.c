@@ -126,6 +126,25 @@ char *account_loss( char *fund_name )
 			__FUNCTION__ );
 }
 
+char *account_depreciation_expense( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_DEPRECIATION_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+char *account_accumulated_depreciation( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_ACCUMULATED_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+
 char *account_cash( char *fund_name )
 {
 	return account_hard_coded_account_name(

@@ -12,6 +12,7 @@
 #include "boolean.h"
 #include "tax_recovery.h"
 #include "entity.h"
+#include "depreciation.h"
 
 /* Constants */
 /* --------- */
@@ -43,6 +44,7 @@ typedef struct
 	TAX_RECOVERY *tax_recovery;
 	char *asset_account_name;
 	LIST *depreciation_list;
+	DEPRECIATION *equipment_purchase_depreciation;
 } EQUIPMENT_PURCHASE;
 
 /* Operations */
@@ -73,7 +75,9 @@ LIST *equipment_purchase_list_fetch(
 			char *where );
 
 LIST *equipment_purchase_list(
-			char *purchase_primary_where );
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
 
 FILE *equipment_purchase_update_open(
 			void );
@@ -107,6 +111,19 @@ double equipment_purchase_total(
 
 LIST *equipment_system_list(
 			char *sys_string );
+
+DEPRECIATION *equipment_purchase_depreciation(
+			EQUIPMENT_PURCHASE *equipment_purchase,
+			char *depreciation_date,
+			char *prior_depreciation_date,
+			/* ---------------------------- */
+			/* Null value omits transaction */
+			/* ---------------------------- */
+			char *transaction_date_time,
+			int units_produced );
+
+LIST *equipment_purchase_depreciation_list(
+			LIST *equipment_purchase_list );
 
 #endif
 

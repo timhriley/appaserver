@@ -121,8 +121,8 @@ void mail_tim( char *message )
 		 "echo \"%s\" 				|"
 		 "mail timriley@appahost.com		",
 		 message );
-	if ( system( buffer ) ) {};
-} /* mail_tim() */
+	if ( system( buffer ) ) {}
+}
 
 /* Sample: attribute_name = "station_1" */
 /* ------------------------------------ */
@@ -548,7 +548,7 @@ char *get_line_system( char *sys_string )
 		return (char *)0;
 	else
 		return strdup( buffer );
-} /* get_line_system() */
+}
 
 
 char *trim_after_character(	char *destination,
@@ -1835,7 +1835,7 @@ char *get_system( char *sys_str )
 	pclose( p );
 	return strdup( buffer );
 	
-} /* get_system() */
+}
 
 char *skip_spaces( char *s )
 {
@@ -3485,7 +3485,7 @@ void timlib_display_error_file( char *error_filename )
 "cat %s | queue_top_bottom_lines.e 50 | html_table.e 'Load Errors' '' ''",
 			 error_filename );
 		fflush( stdout );
-		if ( system( sys_string ) ) {};
+		if ( system( sys_string ) ) {}
 	}
 } /* timlib_display_error_file() */
 
@@ -3816,7 +3816,7 @@ void timlib_cp(		char *destination_filename,
 		 source_filename,
 		 destination_filename );
 
-	if ( system( sys_string ) ) {};
+	if ( system( sys_string ) ) {}
 
 } /* timlib_cp() */
 
@@ -3974,7 +3974,7 @@ void timlib_remove_file( char *filename )
 		 "rm %s",
 		 filename );
 
-	if ( system( sys_string ) ){};
+	if ( system( sys_string ) ){}
 
 } /* timlib_remove_file() */
 

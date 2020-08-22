@@ -175,4 +175,29 @@ double depreciation_accumulated_depreciation(
 			double prior_accumulated_depreciation,
 			double depreciation_amount );
 
+TRANSACTION *depreciation_transaction(
+			char *full_name,
+			char *street_address,
+			char *depreciation_date,
+			double depreciation_amount,
+			char *account_depreciation_expense,
+			char *account_accumulated_depreciation );
+
+LIST *depreciation_transaction_list(
+			LIST *depreciation_list );
+
+void depreciation_list_insert(
+			LIST *depreciation_list );
+
+void depreciation_insert(
+			FILE *insert_pipe,
+			char *asset_name,
+			char *serial_number,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *depreciation_date,
+			double depreciation_amount,
+			char *transaction_date_time );
+
 #endif

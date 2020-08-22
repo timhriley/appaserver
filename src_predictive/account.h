@@ -27,6 +27,7 @@
 
 #define ACCOUNT_CASH_KEY		"cash_key"
 #define ACCOUNT_LOSS_KEY		"loss_key"
+#define ACCOUNT_DEPRECIATION_KEY 	"depreciation_expense_key"
 #define ACCOUNT_ACCUMULATED_KEY		"accumulated_depreciation_key"
 #define ACCOUNT_SALES_TAX_EXPENSE_KEY	"sales_tax_key"
 #define ACCOUNT_SALES_TAX_PAYABLE_KEY	"sales_tax_payable_key"
@@ -72,6 +73,18 @@ ACCOUNT *account_new(	char *account_name );
 ACCOUNT *account_seek(	LIST *account_list,
 			char *account_name );
 
+char *account_hard_coded_account_name(
+			char *fund_name,
+			char *hard_coded_account_key,
+			boolean warning_only,
+			const char *calling_function_name );
+
+char *account_depreciation_expense(
+			char *fund_name );
+
+char *account_accumulated_depreciation(
+			char *fund_name );
+
 char *account_receivable(
 			char *fund_name );
 
@@ -100,12 +113,6 @@ ACCOUNT *account_parse(	char *input );
 /* -------------------------- */
 char *account_primary_where(
 			char *account_name );
-
-char *account_hard_coded_account_name(
-			char *fund_name,
-			char *hard_coded_account_key,
-			boolean warning_only,
-			const char *calling_function_name );
 
 LIST *account_list(	void );
 

@@ -205,4 +205,20 @@ JOURNAL *journal_fetch(
 			char *transaction_date_time,
 			char *account_name );
 
+LIST *journal_binary_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *debit_account,
+			char *credit_account );
+
+LIST *journal_binary_journal_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *debit_account,
+			char *credit_account );
+
 #endif
