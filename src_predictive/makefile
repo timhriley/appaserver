@@ -24,13 +24,10 @@ STANDARD_LIBRARY=							\
 
 #EXECUTABLES=	trial_balance						\
 #		tax_form_report						\
-#		populate_print_checks_entity				\
-#		load_bank_spreadsheet					\
 #		feeder_upload_missing					\
 #		inventory_balance_detail				\
 #		propagate_inventory_purchase_layers			\
 #		propagate_inventory_sale_layers				\
-#		depreciate_fixed_assets					\
 #		tax_recover_fixed_assets				\
 #		post_change_supply_purchase				\
 #		post_change_service_purchase				\
@@ -82,7 +79,9 @@ EXECUTABLES=	trial_balance						\
 		post_change_purchase_order				\
 		post_change_vendor_payment				\
 		post_change_fixed_asset_purchase			\
-		pay_liabilities_process
+		pay_liabilities_process					\
+		populate_print_checks_entity				\
+		depreciate_fixed_assets
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\

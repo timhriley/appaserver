@@ -176,11 +176,11 @@ LIST *vendor_payment_system_list( char *sys_string )
 	return vendor_payment_list;
 }
 
-LIST *vendor_payment_fetch_list( char *where )
+char *vendor_payment_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
 
-	if ( !where ) return (LIST *)0;
+	if ( !where ) return (char *)0;
 
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s order by %s;\" | sql",
@@ -192,11 +192,19 @@ LIST *vendor_payment_fetch_list( char *where )
 		 where,
 		 "payment_date_time" );
 
-	return vendor_payment_system_list( sys_string );
+	return strdup( sys_string );
 }
 
-double vendor_payment_total(
-			LIST *vendor_payment_list )
+LIST *vendor_payment_fetch_list( char *where )
+{
+	if ( !where ) return (LIST *)0;
+
+	return vendor_payment_system_list(
+			vendor_payment_sys_string(
+				where ) );
+}
+
+double vendor_payment_total( LIST *vendor_payment_list )
 {
 	VENDOR_PAYMENT *vendor_payment;
 	double total;

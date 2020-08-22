@@ -89,7 +89,8 @@ LIST *pay_liabilities_fetch_liability_account_entity_list(
 			void );
 
 LIST *pay_liabilities_current_liability_account_list(
-			char *fund_name );
+			char *fund_name,
+			LIST *exclude_account_name_list );
 
 LIST *pay_liabilities_distribute_liability_account_list(
 			LIST *liability_account_list,
@@ -148,5 +149,8 @@ char *pay_liabilities_transaction_memo(
 			char *fund_name,
 			char *memo,
 			int check_number );
+
+LIST *pay_liabilities_liability_account_name_list(
+			void );
 
 #endif

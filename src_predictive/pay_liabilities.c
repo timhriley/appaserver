@@ -88,7 +88,8 @@ PAY_LIABILITIES *pay_liabilities_new(
 	/* ---------------------------------------------------- */
 	p->input.current_liability_account_list =
 		pay_liabilities_current_liability_account_list(
-			fund_name );
+			fund_name,
+			(LIST *)0 /* exclude_account_name_list */ );
 
 	p->input.purchase_list = purchase_amount_due_purchase_list();
 
@@ -642,7 +643,8 @@ LIST *pay_liabilities_distribute_purchase_list(
 }
 
 LIST *pay_liabilities_current_liability_account_list(
-			char *fund_name )
+			char *fund_name,
+			LIST *exclude_account_name_list )
 {
 	char fund_where[ 128 ];
 	char where[ 256 ];
@@ -650,6 +652,23 @@ LIST *pay_liabilities_current_liability_account_list(
 	LIST *entire_account_list;
 	LIST *return_account_list;
 	ACCOUNT *account;
+	char in_clause_where[ 1024 ];
+	char *in_clause;
+
+	if ( list_length( exclude_account_name_list ) )
+	{
+		in_clause =
+			timlib_with_list_get_in_clause(
+				exclude_account_name_list );
+
+		sprintf( in_clause_where,
+			 "account not in (%s)",
+			 in_clause );
+	}
+	else
+	{
+		strcpy( in_clause_where, "1 = 1" );
+	}
 
 	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
@@ -663,8 +682,10 @@ LIST *pay_liabilities_current_liability_account_list(
 	sprintf( where,
 		 "subclassification = 'current_liability' and	"
 		 "account <> 'uncleared_checks' and		"
+		 "%s and					"
 		 "%s						",
-		 fund_where );
+		 fund_where,
+		 in_clause_where );
 
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s order by %s;\" | sql",
@@ -1168,5 +1189,17 @@ char *pay_liabilities_transaction_memo(	char *fund_name,
 	{
 		return "Pay liabilities process";
 	}
+}
+
+LIST *pay_liabilities_liability_account_name_list( void )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s;\" | sql",
+		 "account",
+		 "liability_account_entity" );
+
+	return pipe2list( sys_string );
 }
 

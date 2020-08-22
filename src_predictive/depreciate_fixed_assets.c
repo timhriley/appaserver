@@ -18,31 +18,28 @@
 #include "appaserver_error.h"
 #include "entity.h"
 #include "appaserver_parameter_file.h"
-#include "fixed_asset.h"
-
-/* In fixed_asset.h, include depreciation.h */
-/* ---------------------------------------- */
+#include "depreciation.h"
+#include "equipment_purchase.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-char *depreciate_transaction_journal_ledger_delete(
-					FILE *output_pipe,
-					char *application_name,
-					char *max_undo_date,
-					char *input_folder_name,
-					char *propagate_transaction_date_time );
+char *depreciate_transaction_journal_delete(
+			FILE *output_pipe,
+			char *max_undo_date,
+			char *input_folder_name,
+			char *propagate_transaction_date_time );
 
-void depreciate_fixed_assets_undo(	char *application_name,
-					char *max_undo_date,
-					LIST *depreciation_fund_list );
+void depreciate_fixed_assets_undo(
+			char *max_undo_date,
+			LIST *depreciation_fund_list );
 
-void depreciate_fixed_assets(		char *application_name,
-					char *process_name,
-					boolean undo,
-					boolean execute );
+void depreciate_fixed_assets(
+			char *process_name,
+			boolean undo,
+			boolean execute );
 
 int main( int argc, char **argv )
 {
@@ -53,17 +50,17 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 4 )
 	{
 		fprintf(stderr,
-	"Usage: %s process undo_yn execute_yn\n",
+			"Usage: %s process undo_yn execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
@@ -94,7 +91,6 @@ int main( int argc, char **argv )
 				document->onload_control_string );
 
 	depreciate_fixed_assets(
-		application_name,
 		process_name,
 		undo,
 		execute );
@@ -105,10 +101,10 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void depreciate_fixed_assets(	char *application_name,
-				char *process_name,
-				boolean undo,
-				boolean execute )
+void depreciate_fixed_assets(
+			char *process_name,
+			boolean undo,
+			boolean execute )
 {
 	char buffer[ 128 ];
 	DEPRECIATION_STRUCTURE *depreciation_structure;

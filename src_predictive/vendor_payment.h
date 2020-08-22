@@ -119,4 +119,9 @@ char *vendor_payment_purchase_where(
 			char *street_address,
 			char *purchase_date_time );
 
+/* Returns heap memory */
+/* ------------------- */
+char *vendor_payment_sys_string(
+			char *where );
+
 #endif
