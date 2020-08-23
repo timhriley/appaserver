@@ -605,7 +605,8 @@ FILE *depreciation_delete_open( void )
 	sprintf( sys_string,
 		 "delete_statement table=%s field=%s delimiter='%c' | sql",
 		 DEPRECIATION_TABLE_NAME,
-		 key );
+		 key,
+		 '^' );
 
 	return popen( sys_string, "w" );
 }

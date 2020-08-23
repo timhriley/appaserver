@@ -48,7 +48,6 @@ int main( int argc, char **argv )
 	boolean execute;
 	boolean undo;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DOCUMENT *document;
 	char buffer[ 256 ];
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -73,23 +72,10 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( process_name /* title */, application_name );
-	document->output_content_type = 1;
-	
-	document_output_heading(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-	
-	document_output_body(	document->application_name,
-				document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	printf( "<h1>%s</h1>\n",
 		format_initial_capital(
@@ -101,13 +87,13 @@ int main( int argc, char **argv )
 		if ( depreciate_equipment_undo( execute ) )
 		{
 			if ( execute )
-				printf( "<h3>Undo complete.</h3>\n" );
+				printf( "<h3>Undo complete</h3>\n" );
 			else
-				printf( "<h3>Undo not executed.</h3>\n" );
+				printf( "<h3>Undo not executed</h3>\n" );
 		}
 		else
 		{
-			printf( "<h3>No depreciation to undo.</h3>\n" );
+			printf( "<h3>No depreciation to undo</h3>\n" );
 		}
 	}
 	else
@@ -121,7 +107,7 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			printf( "<h3>No equipment to depreciate.</h3>\n" );
+			printf( "<h3>No equipment to depreciate</h3>\n" );
 		}
 	}
 
@@ -132,6 +118,10 @@ int main( int argc, char **argv )
 
 LIST *depreciate_fetch_equipment_purchase_list( void )
 {
+	/* -------------------------------------------- */
+	/* Returns equipment_purchase_list with		*/
+	/* equipment_purchase->depreciation_list set.	*/
+	/* -------------------------------------------- */
 	return equipment_purchase_list_fetch(
 		"finance_accumulated_depreciation < purchase_price"
 			/* where */ );
@@ -148,18 +138,21 @@ LIST *depreciate_undo_equipment_purchase_list(
 "	   where						"
 "		equipment_purchase.asset_name =			"
 "			depreciation.asset_name and		"
-"		equipment_purchase.asset_name =			"
-"			depreciation.asset_name and		"
-"		equipment_purchase.asset_name =			"
-"			depreciation.asset_name and		"
-"		equipment_purchase.asset_name =			"
-"			depreciation.asset_name and		"
-"		equipment_purchase.asset_name =			"
-"			depreciation.asset_name and		"
+"		equipment_purchase.serial_number =		"
+"			depreciation.serial_number and		"
+"		equipment_purchase.full_name =			"
+"			depreciation.full_name and		"
+"		equipment_purchase.street_address =		"
+"			depreciation.street_address and		"
+"		equipment_purchase.purchase_date_time =		"
+"			depreciation.purchase_date_time and	"
 "		depreciation_date = '%s' )			",
 		 max_depreciation_date );
 
-
+	/* -------------------------------------------- */
+	/* Returns equipment_purchase_list with		*/
+	/* equipment_purchase->depreciation_list set.	*/
+	/* -------------------------------------------- */
 	return equipment_purchase_list_fetch( where );
 }
 
@@ -294,11 +287,11 @@ boolean depreciate_fixed_assets( boolean execute )
 	LIST *equipment_purchase_list;
 
 	equipment_purchase_list =
-		/* -------------------------------------------- */
-		/* Returns equipment_purchase_list with		*/
-		/* equipment_purchase->depreciation_list set.	*/
-		/* -------------------------------------------- */
 		equipment_purchase_list_depreciate(
+			/* -------------------------------------------- */
+			/* Returns equipment_purchase_list with		*/
+			/* equipment_purchase->depreciation_list set.	*/
+			/* -------------------------------------------- */
 			depreciate_fetch_equipment_purchase_list(),
 			pipe2string( "now.sh ymd" )
 				/* depreciation_date */,

@@ -56,6 +56,9 @@ EQUIPMENT_PURCHASE *equipment_purchase_new(
 			char *street_address,
 			char *purchase_date_time );
 
+/* ------------------------------------------------------- */
+/* Returns with equipment_purchase->depreciation_list set. */
+/* ------------------------------------------------------- */
 EQUIPMENT_PURCHASE *equipment_purchase_parse(
 			char *input );
 
@@ -71,6 +74,10 @@ EQUIPMENT_PURCHASE *equipment_purchase_fetch(
 char *equipment_purchase_select(
 			void );
 
+/* -------------------------------------------- */
+/* Returns equipment_purchase_list with		*/
+/* equipment_purchase->depreciation_list set.	*/
+/* -------------------------------------------- */
 LIST *equipment_purchase_list_fetch(
 			char *where );
 
