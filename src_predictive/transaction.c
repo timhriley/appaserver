@@ -582,7 +582,6 @@ char *transaction_journal_refresh(
 			double transaction_amount,
 			char *memo,
 			int check_number,
-			boolean lock_transaction,
 			LIST *journal_list )
 {
 	return transaction_refresh(
@@ -592,7 +591,6 @@ char *transaction_journal_refresh(
 			transaction_amount,
 			memo,
 			check_number,
-			lock_transaction,
 			journal_list );
 }
 
@@ -603,7 +601,6 @@ char *transaction_refresh(
 			double transaction_amount,
 			char *memo,
 			int check_number,
-			boolean lock_transaction,
 			LIST *journal_list )
 {
 	transaction_delete(
@@ -624,7 +621,7 @@ char *transaction_refresh(
 		transaction_amount,
 		memo,
 		check_number,
-		lock_transaction );
+		1 /* lock_transaction */ );
 
 	transaction_journal_list_insert(
 		full_name,

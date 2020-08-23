@@ -90,6 +90,15 @@ char *account_escape_name(
 	return escape_name;
 }
 
+char *account_revenue( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_REVENUE_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
 char *account_receivable( char *fund_name )
 {
 	return account_hard_coded_account_name(
@@ -122,6 +131,15 @@ char *account_loss( char *fund_name )
 	return account_hard_coded_account_name(
 			fund_name,
 			ACCOUNT_LOSS_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+char *account_sales_tax_payable( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_SALES_TAX_PAYABLE_KEY,
 			0 /* not  warning_only */,
 			__FUNCTION__ );
 }

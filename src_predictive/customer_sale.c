@@ -452,6 +452,24 @@ LIST *customer_fixed_service_sale_list(
 			char *street_address,
 			char *sale_date_time )
 {
+if ( full_name ){}
+if ( street_address ){}
+if ( sale_date_time ){}
+
 	return (LIST *)0;
+}
+
+double customer_sale_inventory_sale_total(
+			LIST *inventory_sale_list )
+{
+if ( inventory_sale_list ){}
+	return 0.0;
+}
+
+double customer_sale_fixed_service_sale_total(
+			LIST *fixed_service_sale_list )
+{
+if ( fixed_service_sale_list ){}
+	return 0.0;
 }
 

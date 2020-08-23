@@ -132,4 +132,10 @@ LIST *customer_fixed_service_sale_list(
 			char *street_address,
 			char *sale_date_time );
 
+double customer_sale_inventory_sale_total(
+			LIST *inventory_sale_list );
+
+double customer_sale_fixed_service_sale_total(
+			LIST *fixed_service_sale_list );
+
 #endif

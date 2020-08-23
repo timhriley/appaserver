@@ -18,6 +18,7 @@
 #include "appaserver_error.h"
 #include "predictive.h"
 #include "transaction.h"
+#include "account.h"
 #include "customer_sale.h"
 
 /* Constants */
@@ -153,8 +154,9 @@ void post_change_customer_sale_insert_update(
 				customer_sale->sale_date_time ) );
 
 	customer_sale->customer_sale_amount_due =
-		customer_sale->customer_sale_invoice_amount,
-		customer_sale->customer_sale_payment_total );
+		Customer_sale_amount_due(
+			customer_sale->customer_sale_invoice_amount,
+			customer_sale->customer_sale_payment_total );
 
 	if ( customer_sale->completed_date_time
 	&&   *customer_sale->completed_date_time )
@@ -171,9 +173,9 @@ void post_change_customer_sale_insert_update(
 					sale_date_time,
 				customer_sale->customer_sale_invoice_amount,
 				0.0 /* sales_tax_amount */,
-				account_receivable(),
-				account_revenue(),
-				account_sales_tax_payable() );
+				account_receivable( (char *)0 ),
+				account_revenue( (char *)0 ),
+				account_sales_tax_payable( (char *)0 ) );
 	}
 	else
 	{
@@ -206,7 +208,7 @@ void post_change_customer_sale_insert_update(
 					full_name,
 				customer_sale->
 					customer_sale_transaction->
-					street_address;
+					street_address,
 				customer_sale->
 					customer_sale_transaction->
 					transaction_date_time,
@@ -217,7 +219,6 @@ void post_change_customer_sale_insert_update(
 					customer_sale_transaction->
 					memo,
 				0 /* check_number */,
-				1 /* lock_transaction */,
 				customer_sale->
 					customer_sale_transaction->
 					journal_list );
@@ -228,23 +229,38 @@ void post_change_customer_sale_insert_update(
 	}
 
 	customer_sale_update(
-			customer_sale->customer_sale_extended_price_total,
-			customer_sale->customer_sale_sales_tax,
-			customer_sale->customer_sale_invoice_amount,
-			customer_sale->customer_sale_payment_total,
-			customer_sale->customer_sale_amount_due,
-			transaction_date_time,
-			customer_sale->
-				customer_entity->
-				full_name,
-			customer_sale->
-				customer_entity->
-				street_address,
-			customer_sale->sale_date_time );
+		customer_sale->customer_sale_extended_price_total,
+		customer_sale->customer_sale_sales_tax,
+		customer_sale->customer_sale_invoice_amount,
+		customer_sale->customer_sale_payment_total,
+		customer_sale->customer_sale_amount_due,
+		transaction_date_time,
+		customer_sale->
+			customer_entity->
+			full_name,
+		customer_sale->
+			customer_entity->
+			street_address,
+		customer_sale->sale_date_time );
 }
 
 void post_change_customer_sale_predelete(
 			CUSTOMER_SALE *customer_sale )
 {
+	if ( customer_sale->customer_sale_transaction )
+	{
+		/* Performs journal_propagate() */
+		/* ---------------------------- */
+		transaction_delete(
+			customer_sale->
+				customer_sale_transaction->
+				full_name,
+			customer_sale->
+				customer_sale_transaction->
+				street_address,
+			customer_sale->
+				customer_sale_transaction->
+				transaction_date_time );
+	}
 }
 

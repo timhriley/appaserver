@@ -82,8 +82,13 @@ char *account_hard_coded_account_name(
 char *account_depreciation_expense(
 			char *fund_name );
 
+char *account_sales_tax_payable(
+			char *fund_name );
+
 char *account_accumulated_depreciation(
 			char *fund_name );
+
+char *account_revenue(	char *fund_name );
 
 char *account_receivable(
 			char *fund_name );

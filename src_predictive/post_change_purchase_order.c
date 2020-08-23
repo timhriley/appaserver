@@ -190,7 +190,6 @@ void post_change_purchase_insert_update(
 					transaction->transaction_amount,
 					transaction->memo,
 					transaction->check_number,
-					1 /* lock_transaction */,
 					transaction->journal_list );
 		}
 	}
