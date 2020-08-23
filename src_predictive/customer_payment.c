@@ -15,6 +15,7 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "entity.h"
+#include "customer_sale.h"
 #include "customer_payment.h"
 
 CUSTOMER_PAYMENT *customer_payment_new(
@@ -47,9 +48,15 @@ CUSTOMER_PAYMENT *customer_payment_new(
 }
 
 LIST *customer_payment_list(
-			char *customer_sale_where )
+			char *full_name,
+			char *street_address,
+			char *sale_date_time )
 {
-	return customer_payment_list_fetch( customer_sale_where );
+	return customer_payment_list_fetch(
+			customer_sale_primary_where(
+				full_name,
+				street_address,
+				sale_date_time ) );
 }
 
 char *customer_payment_select( void )

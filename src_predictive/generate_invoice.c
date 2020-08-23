@@ -447,10 +447,11 @@ LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
 			sale_date_time );
 
 	total_payment =
-		customer_sale_total_payment(
-			full_name,
-			street_address,
-			sale_date_time );
+		customer_sale_payment_total(
+			customer_sale_payment_list(
+				full_name,
+				street_address,
+				sale_date_time ) );
 
 	invoice_customer = latex_invoice_customer_new(
 					strdup( invoice_key ),

@@ -11,12 +11,13 @@
 #include "timlib.h"
 #include "environ.h"
 #include "piece.h"
+#include "date.h"
 #include "list.h"
 #include "inventory.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "predictive.h"
-#include "date.h"
+#include "transaction.h"
 #include "customer_sale.h"
 
 /* Constants */
@@ -91,7 +92,7 @@ int main( int argc, char **argv )
 			 full_name,
 			 street_address,
 			 sale_date_time );
-		return;
+		exit( 1 );
 	}
 
 	if ( strcmp( state, "predelete" ) == 0 )
@@ -123,6 +124,123 @@ int main( int argc, char **argv )
 void post_change_customer_sale_insert_update(
 			CUSTOMER_SALE *customer_sale )
 {
+	char *transaction_date_time;
+
+	if ( !customer_sale ) return;
+
+	customer_sale->customer_sale_invoice_amount =
+	customer_sale->customer_sale_extended_price_total =
+		customer_sale_extended_price_total(
+			(LIST *)0 /* inventory_sale_list */,
+			customer_fixed_service_sale_list(
+				customer_sale->
+					customer_entity->
+					full_name,
+				customer_sale->
+					customer_entity->
+					street_address,
+				customer_sale->sale_date_time ) );
+
+	customer_sale->customer_sale_payment_total =
+		customer_sale_payment_total(
+			customer_sale_payment_list(
+				customer_sale->
+					customer_entity->
+					full_name,
+				customer_sale->
+					customer_entity->
+					street_address,
+				customer_sale->sale_date_time ) );
+
+	customer_sale->customer_sale_amount_due =
+		customer_sale->customer_sale_invoice_amount,
+		customer_sale->customer_sale_payment_total );
+
+	if ( customer_sale->completed_date_time
+	&&   *customer_sale->completed_date_time )
+	{
+		customer_sale->customer_sale_transaction =
+			customer_sale_transaction(
+				customer_sale->
+					customer_entity->
+					full_name,
+				customer_sale->
+					customer_entity->
+					street_address,
+				customer_sale->
+					sale_date_time,
+				customer_sale->customer_sale_invoice_amount,
+				0.0 /* sales_tax_amount */,
+				account_receivable(),
+				account_revenue(),
+				account_sales_tax_payable() );
+	}
+	else
+	{
+		if ( customer_sale->customer_sale_transaction )
+		{
+			/* Also calls journal_propagate() */
+			/* ------------------------------ */
+			transaction_delete(
+				customer_sale->
+					customer_sale_transaction->
+					full_name,
+				customer_sale->
+					customer_sale_transaction->
+					street_address,
+				customer_sale->
+					customer_sale_transaction->
+					transaction_date_time );
+
+			customer_sale->customer_sale_transaction =
+				(TRANSACTION *)0;
+		}
+	}
+
+	if ( customer_sale->customer_sale_transaction )
+	{
+		transaction_date_time =
+			transaction_refresh(
+				customer_sale->
+					customer_sale_transaction->
+					full_name,
+				customer_sale->
+					customer_sale_transaction->
+					street_address;
+				customer_sale->
+					customer_sale_transaction->
+					transaction_date_time,
+				customer_sale->
+					customer_sale_transaction->
+					transaction_amount,
+				customer_sale->
+					customer_sale_transaction->
+					memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					customer_sale_transaction->
+					journal_list );
+	}
+	else
+	{
+		transaction_date_time = (char *)0;
+	}
+
+	customer_sale_update(
+			customer_sale->customer_sale_extended_price_total,
+			customer_sale->customer_sale_sales_tax,
+			customer_sale->customer_sale_invoice_amount,
+			customer_sale->customer_sale_payment_total,
+			customer_sale->customer_sale_amount_due,
+			transaction_date_time,
+			customer_sale->
+				customer_entity->
+				full_name,
+			customer_sale->
+				customer_entity->
+				street_address,
+			customer_sale->sale_date_time );
 }
 
 void post_change_customer_sale_predelete(

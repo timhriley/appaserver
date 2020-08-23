@@ -18,6 +18,9 @@
 #include "entity.h"
 #include "customer_payment.h"
 #include "journal.h"
+#include "inventory_sale.h"
+#include "entity.h"
+#include "customer_payment.h"
 #include "customer_sale.h"
 
 CUSTOMER_SALE *customer_sale_new(
@@ -171,7 +174,7 @@ char *customer_sale_primary_where(
 	return strdup( where );
 }
 
-double customer_sale_calculate_sales_tax(
+double customer_sale_sales_tax(
 			LIST *customer_inventory_sale_list,
 			double entity_state_sales_tax_rate )
 {
@@ -183,7 +186,25 @@ double customer_sale_calculate_sales_tax(
 double customer_inventory_sale_total(
 			LIST *customer_inventory_sale_list )
 {
-	return 0.0;
+	double sale_total;
+	INVENTORY_SALE *inventory_sale;
+
+	if ( !list_rewind( customer_inventory_sale_list ) ) return 0.0;
+
+	sale_total = 0.0;
+
+	do {
+		inventory_sale =
+			list_get(
+				customer_inventory_sale_list );
+
+		sale_total +=
+			inventory_sale->
+				inventory_sale_extended_price;
+
+	} while ( list_next( customer_inventory_sale_list ) );
+
+	return sale_total;
 }
 
 TRANSACTION *customer_sale_transaction(
@@ -249,12 +270,6 @@ TRANSACTION *customer_sale_transaction(
 	return transaction;
 }
 
-double customer_sale_payment_total(
-			LIST *customer_payment_list )
-{
-	return customer_payment_total( customer_payment_list );
-}
-
 char *customer_sale_completed_date_time(
 			char *full_name,
 			char *street_address,
@@ -310,33 +325,133 @@ double customer_sale_fetch_sales_tax(
 	return atof( results );
 }
 
-double customer_sale_total_payment(
+double customer_sale_payment_total(
+			LIST *customer_payment_list )
+{
+	CUSTOMER_PAYMENT *customer_payment;
+	double payment_total;
+
+	if ( !list_rewind( customer_payment_list ) ) return 0.0;
+
+	payment_total = 0.0;
+
+	do {
+		customer_payment =
+			list_get(
+				customer_payment_list );
+
+		payment_total += customer_payment->payment_amount;
+
+	} while ( list_next( customer_payment_list ) );
+
+	return payment_total;
+}
+
+char *customer_sale_update_sys_string( void )
+{
+	char sys_string[ 1024 ];
+	char *key;
+
+	key = "full_name,street_address,sale_date_time";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql",
+		 CUSTOMER_SALE_TABLE,
+		 key );
+
+	return strdup( sys_string );
+}
+
+void customer_sale_update(
+			double extended_price_total,
+			double sales_tax,
+			double invoice_amount,
+			double payment_total,
+			double amount_due,
+			char *transaction_date_time,
 			char *full_name,
 			char *street_address,
 			char *sale_date_time )
 {
-	char sys_string[ 1024 ];
-	char where[ 512 ];
-	char *results;
+	FILE *update_pipe;
 
-	sprintf( where,
-		 "%s and sale_date_time = '%s'",
-		 entity_primary_where(
+	update_pipe =
+		popen(	customer_sale_update_sys_string(),
+			"w" );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^extended_price_total^%.2lf\n",
+		entity_escape_full_name( full_name ),
+		street_address,
+		sale_date_time,
+		extended_price_total );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^sales_tax^%.2lf\n",
+		entity_escape_full_name( full_name ),
+		street_address,
+		sale_date_time,
+		sales_tax );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^invoice_amount^%.2lf\n",
+		entity_escape_full_name( full_name ),
+		street_address,
+		sale_date_time,
+		invoice_amount );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^payment_total^%.2lf\n",
+		entity_escape_full_name( full_name ),
+		street_address,
+		sale_date_time,
+		payment_total );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^amount_due^%.2lf\n",
+		entity_escape_full_name( full_name ),
+		street_address,
+		sale_date_time,
+		amount_due );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^transaction_date_time^%s\n",
+		entity_escape_full_name( full_name ),
+		street_address,
+		sale_date_time,
+		(transaction_date_time)
+			? transaction_date_time
+			: "" );
+
+	pclose( update_pipe );
+}
+
+LIST *customer_sale_payment_list(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time )
+{
+	return customer_payment_list(
 			full_name,
-			street_address ),
-		 sale_date_time );
+			street_address,
+			sale_date_time );
+}
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 "sum( payment_amount )",
-		 "customer_payment",
-		 where );
+double customer_sale_extended_price_total(
+			LIST *inventory_sale_list,
+			LIST *fixed_service_sale_list )
+{
+	return	customer_sale_inventory_sale_total(
+			inventory_sale_list );
+		customer_sale_fixed_service_sale_total(
+			fixed_service_sale_list );
+}
 
-	results = pipe2string( sys_string );
-
-	if ( !results )
-		return 0.0;
-	else
-		return atof( results );
+LIST *customer_fixed_service_sale_list(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time )
+{
+	return (LIST *)0;
 }
 
