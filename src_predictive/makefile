@@ -36,7 +36,6 @@ STANDARD_LIBRARY=							\
 #		post_change_inventory_sale_return			\
 #		post_change_fixed_asset					\
 #		post_change_inventory_sale				\
-#		post_change_fixed_service_sale				\
 #		post_change_hourly_service_sale				\
 #		post_change_fixed_service_work				\
 #		post_change_hourly_service_work				\
@@ -81,7 +80,8 @@ EXECUTABLES=	trial_balance						\
 		pay_liabilities_process					\
 		populate_print_checks_entity				\
 		depreciate_fixed_assets					\
-		post_change_customer_sale
+		post_change_customer_sale				\
+		post_change_fixed_service_sale
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\

@@ -1,12 +1,12 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/customer_sale.h			*/
+/* $APPASERVER_HOME/src_predictive/fixed_service_sale.h			*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef CUSTOMER_SALE_H
-#define CUSTOMER_SALE_H
+#ifndef FIXED_SERVICE_SALE_H
+#define FIXED_SERVICE_SALE_H
 
 #include "list.h"
 #include "boolean.h"
@@ -15,14 +15,7 @@
 
 /* Constants */
 /* --------- */
-#define CUSTOMER_SALE_TABLE		"customer_sale"
-#define CUSTOMER_SALE_MEMO		"Customer Sale"
-
-#define Customer_sale_amount_due(					\
-			invoice_amount,					\
-			payment_total )					\
-	( invoice_amount - payment_total )
-
+#define FIXED_SERVICE_SALE_TABLE		"fixed_service_sale"
 
 /* Enumerated types */
 /* ---------------- */
@@ -33,47 +26,41 @@ typedef struct
 {
 	ENTITY *customer_entity;
 	char *sale_date_time;
-	char *completed_date_time;
-	enum title_passage_rule title_passage_rule;
-	LIST *customer_sale_payment_list;
-	double customer_sale_sales_tax;
-	double customer_sale_extended_price_total;
-	double shipping_revenue;
-	double customer_sale_invoice_amount;
-	double customer_sale_payment_total;
-	double customer_sale_amount_due;
-	TRANSACTION *customer_sale_transaction;
-} CUSTOMER_SALE;
+	char *service_name;
+	double fixed_price;
+	int estimate_work_hours;
+	char *fixed_service_sale_revenue_account_name;
+} FIXED_SERVICE_SALE;
 
 /* Operations */
 /* ---------- */
-CUSTOMER_SALE *customer_sale_new(
+FIXED_SERVICE_SALE *fixed_service_sale_new(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time );
 
-CUSTOMER_SALE *customer_sale_fetch(
+FIXED_SERVICE_SALE *fixed_service_sale_fetch(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time );
 
 /* Returns program memory */
 /* ---------------------- */
-char *customer_sale_select(
+char *fixed_service_sale_select(
 			void );
 
-char *customer_sale_primary_where(
+char *fixed_service_sale_primary_where(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time );
 
-CUSTOMER_SALE *customer_sale_parse(
+FIXED_SERVICE_SALE *fixed_service_sale_parse(
 			char *input );
 
-double customer_sale_payment_total(
-			LIST *customer_sale_payment_list );
+double fixed_service_sale_payment_total(
+			LIST *fixed_service_sale_payment_list );
 
-LIST *customer_sale_payment_list(
+LIST *fixed_service_sale_payment_list(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time );
@@ -81,11 +68,11 @@ LIST *customer_sale_payment_list(
 double customer_inventory_sale_total(
 			LIST *customer_inventory_sale_list );
 
-double customer_sale_sales_tax(
+double fixed_service_sale_sales_tax(
 			LIST *customer_inventory_sale_list,
 			double entity_state_sales_tax_rate );
 
-TRANSACTION *customer_sale_transaction(
+TRANSACTION *fixed_service_sale_transaction(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
@@ -97,7 +84,7 @@ TRANSACTION *customer_sale_transaction(
 			char *account_shipping_revenue,
 			char *account_sales_tax_payable );
 
-void customer_sale_update(
+void fixed_service_sale_update(
 			double extended_price_total,
 			double sales_tax,
 			double invoice_amount,
@@ -108,15 +95,15 @@ void customer_sale_update(
 			char *street_address,
 			char *sale_date_time );
 
-FILE *customer_sale_update_open(
+FILE *fixed_service_sale_update_open(
 			void );
 
-double customer_sale_extended_price_total(
+double fixed_service_sale_extended_price_total(
 			double inventory_sale_total,
 			double fixed_service_sale_total,
 			double hourly_service_sale_total );
 
-double customer_sale_invoice_amount(
+double fixed_service_sale_invoice_amount(
 			double extended_price_total,
 			double sales_tax,
 			double shipping_charge );

@@ -347,7 +347,7 @@ double customer_sale_payment_total(
 	return payment_total;
 }
 
-char *customer_sale_update_sys_string( void )
+FILE *customer_sale_update_open( void )
 {
 	char sys_string[ 1024 ];
 	char *key;
@@ -359,7 +359,7 @@ char *customer_sale_update_sys_string( void )
 		 CUSTOMER_SALE_TABLE,
 		 key );
 
-	return strdup( sys_string );
+	return fopen( sys_string, "w" );
 }
 
 void customer_sale_update(
@@ -375,9 +375,7 @@ void customer_sale_update(
 {
 	FILE *update_pipe;
 
-	update_pipe =
-		popen(	customer_sale_update_sys_string(),
-			"w" );
+	update_pipe = customer_sale_update_open();
 
 	fprintf(update_pipe,
 	 	"%s^%s^%s^extended_price_total^%.2lf\n",
@@ -447,29 +445,13 @@ double customer_sale_extended_price_total(
 			fixed_service_sale_list );
 }
 
-LIST *customer_fixed_service_sale_list(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time )
+double customer_sale_invoice_amount(
+			double extended_price_total,
+			double sales_tax,
+			double shipping_charge )
 {
-if ( full_name ){}
-if ( street_address ){}
-if ( sale_date_time ){}
-
-	return (LIST *)0;
-}
-
-double customer_sale_inventory_sale_total(
-			LIST *inventory_sale_list )
-{
-if ( inventory_sale_list ){}
-	return 0.0;
-}
-
-double customer_sale_fixed_service_sale_total(
-			LIST *fixed_service_sale_list )
-{
-if ( fixed_service_sale_list ){}
-	return 0.0;
+	return	extended_price_total +
+		sales_tax +
+		shipping_charge;
 }
 
