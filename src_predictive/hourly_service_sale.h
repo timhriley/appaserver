@@ -1,12 +1,12 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/fixed_service_sale.h			*/
+/* $APPASERVER_HOME/src_predictive/hourly_service_sale.h		*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FIXED_SERVICE_SALE_H
-#define FIXED_SERVICE_SALE_H
+#ifndef HOURLY_SERVICE_SALE_H
+#define HOURLY_SERVICE_SALE_H
 
 #include "list.h"
 #include "boolean.h"
@@ -15,7 +15,7 @@
 
 /* Constants */
 /* --------- */
-#define FIXED_SERVICE_SALE_TABLE		"fixed_service_sale"
+#define HOURLY_SERVICE_SALE_TABLE	"hourly_service_sale"
 
 /* Enumerated types */
 /* ---------------- */
@@ -27,85 +27,77 @@ typedef struct
 	ENTITY *customer_entity;
 	char *sale_date_time;
 	char *service_name;
-	double fixed_price;
-	int estimate_work_hours;
-	char *fixed_service_sale_revenue_account_name;
-} FIXED_SERVICE_SALE;
+	char *service_description;
+	double hourly_rate;
+	double discount_amount;
+	int estimated_hours;
+	double work_hours_database;
+	double hourly_service_work_hours;
+	char *hourly_service_sale_revenue_account_name;
+} HOURLY_SERVICE_SALE;
 
 /* Operations */
 /* ---------- */
-FIXED_SERVICE_SALE *fixed_service_sale_new(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time );
-
-FIXED_SERVICE_SALE *fixed_service_sale_fetch(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time );
-
-/* Returns program memory */
-/* ---------------------- */
-char *fixed_service_sale_select(
-			void );
-
-char *fixed_service_sale_primary_where(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time );
-
-FIXED_SERVICE_SALE *fixed_service_sale_parse(
-			char *input );
-
-double fixed_service_sale_payment_total(
-			LIST *fixed_service_sale_payment_list );
-
-LIST *fixed_service_sale_payment_list(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time );
-
-double customer_inventory_sale_total(
-			LIST *customer_inventory_sale_list );
-
-double fixed_service_sale_sales_tax(
-			LIST *customer_inventory_sale_list,
-			double entity_state_sales_tax_rate );
-
-TRANSACTION *fixed_service_sale_transaction(
+HOURLY_SERVICE_SALE *hourly_service_sale_new(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
-			double invoice_amount,
-			double sales_tax_amount,
-			double shipping_charge,
-			char *account_receivable,
-			char *account_revenue,
-			char *account_shipping_revenue,
-			char *account_sales_tax_payable );
+			char *service_name,
+			char *service_description );
 
-void fixed_service_sale_update(
-			double extended_price_total,
-			double sales_tax,
-			double invoice_amount,
-			double payment_total,
-			double amount_due,
-			char *transaction_date_time,
+/* Returns program memory */
+/* ---------------------- */
+char *hourly_service_sale_select(
+			void );
+
+char *hourly_service_sale_primary_where(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *service_name,
+			char *service_description );
+
+HOURLY_SERVICE_SALE *hourly_service_sale_parse(
+			char *input );
+
+void hourly_service_sale_update(
+			double hourly_service_sale_work_hours,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *service_name,
+			char *service_description );
+
+FILE *hourly_service_sale_update_open(
+			void );
+
+double hourly_service_sale_work_hours(
+			LIST *hourly_service_work_list );
+
+HOURLY_SERVICE_SALE *hourly_service_sale_steady_state(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *service_name,
+			char *service_description,
+			double hourly_rate,
+			int estimated_hours,
+			double work_hours_database,
+			LIST *hourly_service_work_list );
+
+LIST *hourly_service_sale_list(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time );
 
-FILE *fixed_service_sale_update_open(
-			void );
+char *hourly_service_sale_sys_string(
+			char *where );
 
-double fixed_service_sale_extended_price_total(
-			double inventory_sale_total,
-			double fixed_service_sale_total,
-			double hourly_service_sale_total );
+LIST *hourly_service_sale_system_list(
+			char *sys_string );
 
-double fixed_service_sale_invoice_amount(
-			double extended_price_total,
-			double sales_tax,
-			double shipping_charge );
+char *fixed_service_sale_description_escape(
+			char *service_description );
 
 #endif
+

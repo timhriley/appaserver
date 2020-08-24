@@ -38,7 +38,7 @@ typedef struct
 	double state_unemployment_tax_rate;
 	double state_withholding_allowance_period_value;
 	double state_itemized_allowance_period_value;
-	double state_sales_tax_rate;
+	double sales_tax_rate;
 /*
 	enum inventory_cost_method inventory_cost_method;
 	enum payroll_pay_period payroll_pay_period;

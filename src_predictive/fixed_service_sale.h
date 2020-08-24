@@ -15,7 +15,7 @@
 
 /* Constants */
 /* --------- */
-#define FIXED_SERVICE_SALE_TABLE		"fixed_service_sale"
+#define FIXED_SERVICE_SALE_TABLE	"fixed_service_sale"
 
 /* Enumerated types */
 /* ---------------- */
@@ -28,22 +28,15 @@ typedef struct
 	char *sale_date_time;
 	char *service_name;
 	double fixed_price;
-	int estimate_work_hours;
+	int estimated_hours;
 	double work_hours_database;
-	double fixed_service_sale_work_hours;
+	double fixed_service_work_hours;
 	char *fixed_service_sale_revenue_account_name;
-	LIST *fixed_service_work_list;
 } FIXED_SERVICE_SALE;
 
 /* Operations */
 /* ---------- */
 FIXED_SERVICE_SALE *fixed_service_sale_new(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time,
-			char *service_name );
-
-FIXED_SERVICE_SALE *fixed_service_sale_fetch(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
@@ -74,6 +67,28 @@ FILE *fixed_service_sale_update_open(
 			void );
 
 double fixed_service_sale_work_hours(
-			LIST *fixed_service_work_hours );
+			LIST *fixed_service_work_list );
+
+FIXED_SERVICE_SALE *fixed_service_sale_steady_state(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *service_name,
+			double fixed_price,
+			int estimated_hours,
+			double work_hours_database,
+			LIST *fixed_service_work_list );
+
+LIST *fixed_service_sale_list(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time );
+
+char *fixed_service_sale_sys_string(
+			char *where );
+
+LIST *fixed_service_sale_system_list(
+			char *sys_string );
 
 #endif
+

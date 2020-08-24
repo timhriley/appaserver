@@ -141,6 +141,8 @@ SOURCE_LIBRARY= 							\
 		entity_self.o						\
 		entity.o						\
 		equipment_purchase.o					\
+		fixed_service_sale.o					\
+		hourly_service_sale.o					\
 		vendor_payment.o					\
 		purchase.o						\
 		predictive.o						\
@@ -798,6 +800,16 @@ equipment_purchase.o: equipment_purchase.c				\
 		equipment_purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c equipment_purchase.c
+
+fixed_service_sale.o: fixed_service_sale.c				\
+		fixed_service_sale.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c fixed_service_sale.c
+
+hourly_service_sale.o: hourly_service_sale.c				\
+		hourly_service_sale.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c hourly_service_sale.c
 
 vendor_payment.o: vendor_payment.c					\
 		vendor_payment.h

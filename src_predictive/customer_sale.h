@@ -33,17 +33,25 @@ typedef struct
 {
 	ENTITY *customer_entity;
 	char *sale_date_time;
-	char *completed_date_time;
-	enum title_passage_rule title_passage_rule;
-	LIST *customer_sale_payment_list;
+	LIST *inventory_sale_list;
+	LIST *fixed_service_sale_list;
+	LIST *hourly_service_sale_list;
+	LIST *customer_payment_list;
+	double inventory_sale_total;
+	double fixed_service_sale_total;
+	double hourly_service_sale_total;
+	double customer_sale_gross_revenue;
+	double entity_self_sales_tax_rate;
 	double customer_sale_sales_tax;
-	double customer_sale_extended_price_total;
-	double shipping_revenue;
 	double customer_sale_invoice_amount;
-	double customer_sale_payment_total;
+	double customer_payment_total;
 	double customer_sale_amount_due;
+	double shipping_revenue;
+	char *completed_date_time;
+	char *transaction_date_time_database;
+	double sales_tax_database;
+	enum title_passage_rule title_passage_rule;
 	TRANSACTION *customer_sale_transaction;
-	char *database_transaction_date_time;
 } CUSTOMER_SALE;
 
 /* Operations */
@@ -71,20 +79,17 @@ char *customer_sale_primary_where(
 CUSTOMER_SALE *customer_sale_parse(
 			char *input );
 
-double customer_sale_payment_total(
-			LIST *customer_sale_payment_list );
-
 double customer_sale_sales_tax(
-			LIST *inventory_sale_list,
-			double entity_state_sales_tax_rate );
+			double inventory_sale_total,
+			double entity_self_sales_tax_rate );
 
 TRANSACTION *customer_sale_transaction(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
 			double invoice_amount,
-			double sales_tax_amount,
-			double entity_self_sales_tax_rate,
+			double gross_revenue,
+			double sales_tax,
 			double shipping_charge,
 			char *account_receivable,
 			char *account_revenue,
@@ -92,8 +97,11 @@ TRANSACTION *customer_sale_transaction(
 			char *account_sales_tax_payable );
 
 void customer_sale_update(
-			double extended_price_total,
-			double sales_tax,
+			double inventory_sale_total,
+			double fixed_service_sale_total,
+			double hourly_service_sale_total,
+			double gross_revenue,
+			double sale_tax,
 			double invoice_amount,
 			double payment_total,
 			double amount_due,
@@ -105,13 +113,13 @@ void customer_sale_update(
 FILE *customer_sale_update_open(
 			void );
 
-double customer_sale_extended_price_total(
+double customer_sale_gross_revenue(
 			double inventory_sale_total,
 			double fixed_service_sale_total,
 			double hourly_service_sale_total );
 
 double customer_sale_invoice_amount(
-			double extended_price_total,
+			double gross_revenue,
 			double sales_tax,
 			double shipping_charge );
 
@@ -119,14 +127,17 @@ CUSTOMER_SALE *customer_sale_steady_state(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
-			char *completed_date_time,
-			double shipping_charge,
-			double sales_tax_rate,
 			LIST *inventory_sale_list,
 			LIST *fixed_service_sale_list,
 			LIST *hourly_service_sale_list,
 			LIST *customer_payment_list,
+			double shipping_charge,
+			double entity_self_sales_tax_rate,
+			double sales_tax_database,
+			char *completed_date_time,
+			char *transaction_date_time_database,
 			char *account_receivable,
+			char *account_revenue,
 			char *account_shipping_revenue,
 			char *account_sales_tax_payable );
 

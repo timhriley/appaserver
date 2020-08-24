@@ -92,14 +92,15 @@ LIST *vendor_payment_list(
 		return (LIST *)0;
 	}
 
-	return vendor_payment_fetch_list(
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 vendor_payment_purchase_where(
-			full_name,
-			street_address,
-			purchase_date_time ) );
+	return vendor_payment_system_list(
+			vendor_payment_sys_string(
+		 	/* -------------------------- */
+		 	/* Safely returns heap memory */
+		 	/* -------------------------- */
+		 	purchase_primary_where(
+				full_name,
+				street_address,
+				purchase_date_time ) ) );
 }
 
 char *vendor_payment_select( void )
@@ -193,15 +194,6 @@ char *vendor_payment_sys_string( char *where )
 		 "payment_date_time" );
 
 	return strdup( sys_string );
-}
-
-LIST *vendor_payment_fetch_list( char *where )
-{
-	if ( !where ) return (LIST *)0;
-
-	return vendor_payment_system_list(
-			vendor_payment_sys_string(
-				where ) );
 }
 
 double vendor_payment_total( LIST *vendor_payment_list )
@@ -383,19 +375,22 @@ LIST *vendor_payment_journal_list(
 	return journal_list;
 }
 
-char *vendor_payment_update_sys_string( void )
+FILE *vendor_payment_update_open( void )
 {
 	char sys_string[ 1024 ];
 	char *key;
 
-	key = "full_name,street_address,purchase_date_time,payment_date_time";
+	key =	"full_name,"
+		"street_address,"
+		"purchase_date_time,"
+		"payment_date_time";
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y | sql",
 		 "vendor_payment",
 		 key );
 
-	return strdup( sys_string );
+	return popen( sys_string, "w" );
 }
 
 void vendor_payment_update(
@@ -407,9 +402,7 @@ void vendor_payment_update(
 {
 	FILE *update_pipe;
 
-	update_pipe =
-		popen(	vendor_payment_update_sys_string(),
-			"w" );
+	update_pipe = vendor_payment_update_open();
 
 	fprintf(update_pipe,
 	 	"%s^%s^%s^%s^transaction_date_time^%s\n",

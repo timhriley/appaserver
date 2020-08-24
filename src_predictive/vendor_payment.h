@@ -53,9 +53,6 @@ LIST *vendor_payment_list(
 			char *street_address,
 			char *purchase_date_time );
 
-LIST *vendor_payment_fetch_list(
-			char *where );
-
 /* Returns program memory */
 /* ---------------------- */
 char *vendor_payment_select(
@@ -107,9 +104,7 @@ void vendor_payment_update(
 			char *purchase_date_time,
 			char *payment_date_time );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *vendor_payment_update_sys_string(
+FILE *vendor_payment_update_open(
 			void );
 
 /* Safely returns heap memory */
