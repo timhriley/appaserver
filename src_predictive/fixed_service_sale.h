@@ -29,7 +29,10 @@ typedef struct
 	char *service_name;
 	double fixed_price;
 	int estimate_work_hours;
+	double work_hours_database;
+	double fixed_service_sale_work_hours;
 	char *fixed_service_sale_revenue_account_name;
+	LIST *fixed_service_work_list;
 } FIXED_SERVICE_SALE;
 
 /* Operations */
@@ -37,12 +40,14 @@ typedef struct
 FIXED_SERVICE_SALE *fixed_service_sale_new(
 			char *full_name,
 			char *street_address,
-			char *sale_date_time );
+			char *sale_date_time,
+			char *service_name );
 
 FIXED_SERVICE_SALE *fixed_service_sale_fetch(
 			char *full_name,
 			char *street_address,
-			char *sale_date_time );
+			char *sale_date_time,
+			char *service_name );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -52,60 +57,23 @@ char *fixed_service_sale_select(
 char *fixed_service_sale_primary_where(
 			char *full_name,
 			char *street_address,
-			char *sale_date_time );
+			char *sale_date_time,
+			char *service_name );
 
 FIXED_SERVICE_SALE *fixed_service_sale_parse(
 			char *input );
 
-double fixed_service_sale_payment_total(
-			LIST *fixed_service_sale_payment_list );
-
-LIST *fixed_service_sale_payment_list(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time );
-
-double customer_inventory_sale_total(
-			LIST *customer_inventory_sale_list );
-
-double fixed_service_sale_sales_tax(
-			LIST *customer_inventory_sale_list,
-			double entity_state_sales_tax_rate );
-
-TRANSACTION *fixed_service_sale_transaction(
+void fixed_service_sale_update(
+			double fixed_service_sale_work_hours,
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
-			double invoice_amount,
-			double sales_tax_amount,
-			double shipping_charge,
-			char *account_receivable,
-			char *account_revenue,
-			char *account_shipping_revenue,
-			char *account_sales_tax_payable );
-
-void fixed_service_sale_update(
-			double extended_price_total,
-			double sales_tax,
-			double invoice_amount,
-			double payment_total,
-			double amount_due,
-			char *transaction_date_time,
-			char *full_name,
-			char *street_address,
-			char *sale_date_time );
+			char *service_name );
 
 FILE *fixed_service_sale_update_open(
 			void );
 
-double fixed_service_sale_extended_price_total(
-			double inventory_sale_total,
-			double fixed_service_sale_total,
-			double hourly_service_sale_total );
-
-double fixed_service_sale_invoice_amount(
-			double extended_price_total,
-			double sales_tax,
-			double shipping_charge );
+double fixed_service_sale_work_hours(
+			LIST *fixed_service_work_hours );
 
 #endif

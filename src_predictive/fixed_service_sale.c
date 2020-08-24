@@ -84,28 +84,51 @@ TRANSACTION *fixed_service_sale_transaction(
 			char *account_shipping_revenue,
 			char *account_sales_tax_payable );
 
+FILE *fixed_service_sale_update_open( void )
+{
+}
+
 void fixed_service_sale_update(
-			double extended_price_total,
-			double sales_tax,
-			double invoice_amount,
-			double payment_total,
-			double amount_due,
-			char *transaction_date_time,
+			double fixed_service_sale_work_hours,
 			char *full_name,
 			char *street_address,
-			char *sale_date_time );
+			char *sale_date_time,
+			char *service_name )
+{
+}
 
-FILE *fixed_service_sale_update_open(
-			void );
+FIXED_SERVICE_SALE *fixed_service_sale_steady_state(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *service_name,
+			double fixed_price,
+			LIST *fixed_service_work_list )
+{
+	FIXED_SERVICE_SALE *fixed_service_sale;
 
-double fixed_service_sale_extended_price_total(
-			double inventory_sale_total,
-			double fixed_service_sale_total,
-			double hourly_service_sale_total );
+	fixed_service_sale =
+		fixed_service_sale_new(
+			full_name,
+			street_address,
+			sale_date_time,
+			service_name );
 
-double fixed_service_sale_invoice_amount(
-			double extended_price_total,
-			double sales_tax,
-			double shipping_charge );
+	fixed_service_sale->fixed_price = fixed_price;
 
-#endif
+	fixed_service_sale->fixed_service_sale_work_hours =
+		fixed_service_sale_work_hours(
+			fixed_service_work_list );
+
+	fixed_service_sale->work_hours_database =
+		fixed_service_sale_work_hours;
+
+	return fixed_service_sale;
+}
+
+double fixed_service_sale_work_hours(
+			LIST *fixed_service_work_list )
+{
+	return fixed_service_work_list;
+}
+

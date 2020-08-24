@@ -93,7 +93,7 @@ char *customer_sale_select( void )
 	"sale_date_time,"
 	"extended_price_total,"
 	"sales_tax,"
-	"shipping_revenue,"
+	"shipping_charge,"
 	"invoice_amount,"
 	"total_payment,"
 	"amount_due,"
@@ -106,51 +106,55 @@ CUSTOMER_SALE *customer_sale_parse( char *input )
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	char sale_date_time[ 128 ];
-	char piece_buffer[ 1024 ];
-	CUSTOMER_SALE *customer_sale;
+	char extended_price_total[ 128 ];
+	char sales_tax[ 128 ];
+	char shipping_charge[ 128 ];
+	char invoice_amount[ 128 ];
+	char total_payment[ 128 ];
+	char amount_due[ 128 ];
+	char completed_date_time[ 128 ];
+	char transaction_date_time[ 128 ];
 
 	if ( !input ) return (CUSTOMER_SALE *)0;
 
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( sale_date_time, SQL_DELIMITER, input, 2 );
+	piece( extended_price_total, SQL_DELIMITER, input, 3 );
+	piece( sales_tax, SQL_DELIMITER, input, 4 );
+	piece( shipping_charge, SQL_DELIMITER, input, 5 );
+	piece( invoice_amount, SQL_DELIMITER, input, 6 );
+	piece( total_payment, SQL_DELIMITER, input, 7 );
+	piece( amount_due, SQL_DELIMITER, input, 8 );
+	piece( completed_date_time, SQL_DELIMITER, input, 9 );
+	piece( transaction_date_time, SQL_DELIMITER, input, 10 );
 
-	customer_sale =
-		customer_sale_new(
+	return customer_sale_steady_state(
 			strdup( full_name ),
 			strdup( street_address ),
-			strdup( sale_date_time ) );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	customer_sale->customer_sale_extended_price_total =
-		atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	customer_sale->customer_sale_sales_tax = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	customer_sale->shipping_revenue = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 6 );
-	customer_sale->customer_sale_invoice_amount = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 7 );
-	customer_sale->customer_sale_payment_total = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 8 );
-	customer_sale->customer_sale_amount_due = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 9 );
-	customer_sale->completed_date_time = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 10 );
-	customer_sale->customer_sale_transaction =
-		transaction_fetch(
-			customer_sale->customer_entity->full_name,
-			customer_sale->customer_entity->street_address,
-			piece_buffer /* transaction_date_time */ );
-
-	return customer_sale;
+			strdup( sale_date_time ),
+			strdup( completed_date_time ),
+			atof( shipping_charge ),
+			atof( sales_tax ),
+			inventory_sale_list(
+				full_name,
+				street_address,
+				sale_date_time ),
+			fixed_service_sale_list(
+				full_name,
+				street_address,
+				sale_date_time ),
+			hourly_service_sale_list(
+				full_name,
+				street_address,
+				sale_date_time ),
+			customer_payment_list(
+				full_name,
+				street_address,
+				sale_date_time ),
+			account_receivable( (char *)0 ),
+			account_shipping_revenue( (char *)0 ),
+			account_sales_tax_payable( (char *)0 ) );
 }
 
 char *customer_sale_primary_where(
@@ -175,7 +179,7 @@ char *customer_sale_primary_where(
 }
 
 double customer_sale_sales_tax(
-			LIST *customer_inventory_sale_list,
+			LIST *inventory_sale_list,
 			double entity_state_sales_tax_rate )
 {
 	return customer_inventory_sale_total(
@@ -453,5 +457,80 @@ double customer_sale_invoice_amount(
 	return	extended_price_total +
 		sales_tax +
 		shipping_charge;
+}
+
+CUSTOMER_SALE *customer_sale_steady_state(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *completed_date_time,
+			double shipping_charge,
+			double sales_tax_amount,
+			double entity_self_sales_tax_rate,
+			LIST *inventory_sale_list,
+			LIST *fixed_service_sale_list,
+			LIST *hourly_service_sale_list,
+			LIST *customer_payment_list,
+			char *account_receivable,
+			char *account_shipping_revenue,
+			char *account_sales_tax_payable )
+{
+	CUSTOMER_SALE *customer_sale =
+		customer_sale_new(
+			full_name,
+			street_address,
+			sale_date_time );
+
+	customer_sale->inventory_sale_list = inventory_sale_list;
+	customer_sale->fixed_service_sale_list = fixed_service_sale_list;
+	customer_sale->hourly_service_sale_list = hourly_service_sale_list;
+	customer_sale->customer_payment_list = customer_payment_list;
+
+	customer_sale->customer_sale_extended_price_total =
+		customer_sale_extended_price_total(
+			customer_sale->inventory_sale_list,
+			customer_sale->fixed_service_sale_list,
+			customer_sale->hourly_service_sale_list );
+
+	customer_sale->customer_sale_sales_tax =
+		customer_sale_sales_tax(
+			customer_sale->inventory_sale_list,
+			entity_self_sales_tax_rate );
+
+	customer_sale->customer_sale_invoice_amount =
+		customer_sale_invoice_amount(
+			customer_sale->customer_sale_extended_price_total,
+			customer_sale->customer_sale_sales_tax,
+			shipping_charge );
+
+	customer_sale->customer_sale_amount_due =
+		Customer_sale_amount_due(
+			customer_sale->customer_sale_invoice_amount,
+			customer_payment_total(
+				customer_payment_list ) );
+
+
+	customer_sale->transaction_date_time_database =
+		transaction_date_time;
+
+	customer_sale->sales_tax_amount_database =
+		sales_tax_amount;
+
+	if ( completed_date_time && *completed_date_time )
+	{
+		customer_sale->customer_sale_transaction =
+			customer_sale_transaction(
+				full_name,
+				street_address,
+				sale_date_time,
+				customer_sale->customer_sale_invoice_amount,
+				customer_sale->customer_sale_sales_tax,
+				shipping_charge,
+				account_receivable,
+				account_shipping_revenue,
+				account_sales_tax_payable );
+	}
+
+	return customer_sale;
 }
 

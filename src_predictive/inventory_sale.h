@@ -30,6 +30,8 @@ typedef struct
 	double discount_amount;
 	double inventory_sale_extended_price;
 	double inventory_sale_cost_of_goods_sold;
+	double extended_price_database;
+	double cost_of_goods_sold_database;
 } INVENTORY_SALE;
 
 /* Operations */
@@ -56,7 +58,47 @@ double inventory_sale_sales_tax(
 			double entity_state_sales_tax_rate );
 
 double inventory_sale_extended_price(
+			double retail_price,
+			double discount_amount,
+			int quantity );
+
+LIST *inventory_sale_list(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time );
+
+/* Everything is strdup() in. */
+/* -------------------------- */
+INVENTORY_SALE *inventory_sale_steady_state(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *inventory_name,
 			int quantity,
-			double retail_price );
+			double retail_price,
+			double discount_amount,
+			double extended_price_database,
+			double cost_of_goods_sold_database,
+			LIST *inventory_purchase_list,
+			LIST *inventory_sale_list );
+
+double inventory_sale_extended_price(
+			double retail_price,
+			double discount_amount,
+			int quantity );
+
+double inventory_sale_cost_of_goods_sold(
+			int quantity,
+			LIST *inventory_purchase_list,
+			LIST *inventory_sale_list );
+
+LIST *inventory_sale_fetch_list(
+			char *where );
+
+LIST *inventory_sale_system_list(
+			char *sys_string );
+
+char *inventory_sale_sys_string(
+			char *where );
 
 #endif
