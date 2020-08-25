@@ -17,19 +17,14 @@
 #include "entity.h"
 #include "inventory_sale.h"
 #include "fixed_service_sale.h"
-#include "customer_sale.h"
+#include "sale.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void post_change_fixed_service_sale_delete(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time );
-
-void post_change_fixed_service_sale_insert_update(
+void post_change_fixed_service_sale_insert_update_delete(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
@@ -75,18 +70,11 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
-	if ( strcmp( state, "delete" ) == 0 )
-	{
-		post_change_fixed_service_sale_delete(
-			full_name,
-			street_address,
-			sale_date_time );
-	}
-	else
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) == 0 )
+	||   strcmp( state, "update" ) == 0
+	||   strcmp( state, "delete" ) == 0 )
 	{
-		post_change_fixed_service_sale_insert_update(
+		post_change_fixed_service_sale_insert_update_delete(
 			full_name,
 			street_address,
 			sale_date_time,
@@ -96,17 +84,18 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void post_change_fixed_service_sale_insert_update(
+void post_change_fixed_service_sale_insert_update_delete(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
 			char *service_name )
 {
-	CUSTOMER_SALE *customer_sale;
+	SALE *sale;
 	FIXED_SERVICE_SALE *fixed_service_sale;
+	char *transaction_date_time;
 
-	if ( ! (  customer_sale =
-			customer_sale_fetch(
+	if ( ! ( sale =
+			sale_fetch(
 				full_name,
 				street_address,
 				sale_date_time ) ) )
@@ -114,124 +103,54 @@ void post_change_fixed_service_sale_insert_update(
 		return;
 	}
 
-	if ( ! ( fixed_service_sale =
-			customer_sale_fixed_service_sale_seek(
-				customer_sale->fixed_service_sale_list,
-				customer_sale->
-					customer_entity->
-					full_name,
-				customer_sale->
-					customer_entity->
-					street_address,
-				sale_date_time,
+	if ( ( fixed_service_sale =
+			fixed_service_sale_seek(
+				sale->fixed_service_sale_list,
 				service_name ) ) )
 	{
-		return;
+		fixed_service_sale_update(
+			fixed_service_sale->
+				fixed_service_work_hours,
+			fixed_service_sale->
+				customer_entity->
+				full_name,
+			fixed_service_sale->
+				customer_entity->
+				street_address,
+			fixed_service_sale->sale_date_time,
+			fixed_service_sale->service_name );
 	}
 
-	fixed_service_sale->fixed_service_work_hours =
-		fixed_service_work_hours(
-			fixed_service_work_list(
-				customer_sale->
-					customer_entity->
-					full_name,
-				customer_sale->
-					customer_entity->
-					street_address,
-				sale_date_time,
-				service_name ) );
-
-	fixed_service_sale_update(
-		fixed_service_sale->
-			fixed_service_work_hours,
-		customer_sale->
-			customer_entity->
-			full_name,
-		customer_sale->
-			customer_entity->
-			street_address,
-		sale_date_time,
-		service_name );
-
-	if ( customer_sale->customer_sale_transaction )
+	if ( sale->sale_transaction )
 	{
 		transaction_date_time =
+		sale->sale_transaction->transaction_date_time =
 			transaction_refresh(
-			)
+				sale->sale_transaction->full_name,
+				sale->sale_transaction->street_address,
+				sale->sale_transaction->transaction_date_time,
+				sale->sale_transaction->transaction_amount,
+				sale->sale_transaction->memo,
+				0 /* check_number */,
+				sale->sale_transaction->journal_list );
 	}
 	else
 	{
 		transaction_date_time = (char *)0;
 	}
 
-	customer_sale_update(
-		( customer_sale->
-		  customer_sale_extended_price_total =
-		  customer_sale_extended_price_total(
-			( customer_sale->
-				inventory_sale_list =
-				inventory_sale_list(
-				customer_sale->
-					customer_entity->
-					full_name,
-				customer_sale->
-					customer_entity->
-					street_address,
-				customer_sale->sale_date_time ) ),
-			( customer_sale->
-			  fixed_service_sale_list =
-			  fixed_service_sale_list(
-				customer_sale->
-					customer_entity->
-					full_name,
-				customer_sale->
-					customer_entity->
-					street_address,
-				customer_sale->sale_date_time ) ) ),
-			( customer_sale->
-			  hourly_service_sale_list =
-			  hourly_service_sale_list(
-				customer_sale->
-					customer_entity->
-					full_name,
-				customer_sale->
-					customer_entity->
-					street_address,
-				customer_sale->sale_date_time ) ) ),
-		( customer_sale->
-		  customer_sale_sales_tax =
-		  customer_sale_sales_tax(
-			customer_sale->
-				inventory_sale_list,
-			entity_self_sales_tax_rate() ) ),
-		customer_sale_invoice_amount(
-			customer_sale->
-				customer_sale_extended_price_total ),
-		double payment_total,
-		double amount_due,
-		transaction_date_time,
-		char *full_name,
-		char *street_address,
-		char *sale_date_time );
-
-}
-
-void post_change_fixed_service_sale_delete(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *sale_date_time )
-{
-	CUSTOMER_SALE *customer_sale;
-
-	if ( ! (  customer_sale =
-			customer_sale_fetch(
-				full_name,
-				street_address,
-				sale_date_time ) ) )
-	{
-		return;
-	}
-
+	sale_update(
+			sale->inventory_sale_total,
+			sale->fixed_service_sale_total,
+			sale->hourly_service_sale_total,
+			sale->sale_gross_revenue,
+			sale->sales_tax,
+			sale->sale_invoice_amount,
+			sale->customer_payment_total,
+			sale->sale_amount_due,
+			transaction_date_time,
+			sale->customer_entity->full_name,
+			sale->customer_entity->street_address,
+			sale->sale_date_time );
 }
 

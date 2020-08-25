@@ -163,6 +163,15 @@ char *account_accumulated_depreciation( char *fund_name )
 }
 
 
+char *account_shipping_revenue( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_SHIPPING_REVENUE_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
 char *account_cash( char *fund_name )
 {
 	return account_hard_coded_account_name(

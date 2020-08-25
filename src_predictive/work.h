@@ -94,14 +94,20 @@ WORK *work_steady_state(
 LIST *work_fixed_list(
 			char *full_name,
 			char *street_address,
-			char *sale_date_time );
+			char *sale_date_time,
+			char *service_name );
 
 LIST *work_hourly_list(
 			char *full_name,
 			char *street_address,
-			char *sale_date_time );
+			char *sale_date_time,
+			char *service_name,
+			char *service_description );
 
-double work_hours(
+double work_list_hours(
 			LIST *work_list );
+
+double work_hours(	char *begin_date_time,
+			char *end_date_time );
 
 #endif

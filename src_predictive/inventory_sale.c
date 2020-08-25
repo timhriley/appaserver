@@ -15,7 +15,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "entity.h"
-#include "customer_sale.h"
+#include "sale.h"
 #include "inventory_sale.h"
 
 INVENTORY_SALE *inventory_sale_new(
@@ -99,7 +99,7 @@ INVENTORY_SALE *inventory_sale_parse( char *input )
 			(LIST *)0 );
 }
 
-double inventory_sale_extended_price_total(
+double inventory_sale_total(
 			LIST *inventory_sale_list )
 {
 	INVENTORY_SALE *inventory_sale;
@@ -166,25 +166,17 @@ char *inventory_sale_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-LIST *inventory_sale_fetch_list( char *where )
-{
-	if ( !where ) return (LIST *)0;
-
-	return inventory_sale_system_list(
-			inventory_sale_sys_string(
-				where ) );
-}
-
 LIST *inventory_sale_list(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time )
 {
-	return inventory_sale_fetch_list(
-			customer_sale_primary_where(
-				full_name,
-				street_address,
-				sale_date_time ) );
+	return inventory_sale_system_list(
+			inventory_sale_sys_string(
+				sale_primary_where(
+					full_name,
+					street_address,
+					sale_date_time ) ) );
 }
 
 double inventory_sale_extended_price(

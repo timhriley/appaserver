@@ -14,7 +14,7 @@
 #include "sql.h"
 #include "list.h"
 #include "boolean.h"
-#include "customer_sale.h"
+#include "sale.h"
 #include "entity.h"
 #include "work.h"
 #include "fixed_service_sale.h"
@@ -115,7 +115,7 @@ FIXED_SERVICE_SALE *fixed_service_sale_parse( char *input )
 			atof( fixed_price ),
 			atoi( estimated_hours ),
 			atoi( work_hours ) /* database */,
-			fixed_service_work_list(
+			work_fixed_list(
 				full_name,
 				street_address,
 				sale_date_time,
@@ -182,11 +182,11 @@ FIXED_SERVICE_SALE *fixed_service_sale_steady_state(
 			service_name );
 
 	fixed_service_sale->fixed_price = fixed_price;
-	fixed_service_sale->estimated_hours = estimated_work_hours;
+	fixed_service_sale->estimated_hours = estimated_hours;
 	fixed_service_sale->work_hours_database = work_hours_database;
 
 	fixed_service_sale->fixed_service_work_hours =
-		fixed_service_work_hours(
+		work_list_hours(
 			fixed_service_work_list );
 
 	return fixed_service_sale;
@@ -248,9 +248,60 @@ LIST *fixed_service_sale_list(
 		 	/* -------------------------- */
 		 	/* Safely returns heap memory */
 		 	/* -------------------------- */
-		 	customer_sale_primary_where(
+		 	sale_primary_where(
 				full_name,
 				street_address,
 				sale_date_time ) ) );
+}
+
+double fixed_service_sale_total(
+			LIST *fixed_service_sale_list )
+{
+	FIXED_SERVICE_SALE *fixed_service_sale;
+	double total;
+
+	if ( !list_rewind( fixed_service_sale_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		fixed_service_sale = list_get( fixed_service_sale_list );
+
+		total += fixed_service_sale->fixed_service_sale_net_revenue;
+
+	} while( list_next( fixed_service_sale_list ) );
+
+	return total;
+}
+
+double fixed_service_sale_net_revenue(
+			double fixed_price,
+			double discount_amount )
+{
+	return fixed_price - discount_amount;
+}
+
+FIXED_SERVICE_SALE *fixed_service_sale_seek(
+			LIST *fixed_service_sale_list,
+			char *service_name )
+{
+	FIXED_SERVICE_SALE *fixed_service_sale;
+
+	if ( !list_rewind( fixed_service_sale_list ) )
+		return (FIXED_SERVICE_SALE *)0;
+
+	do {
+		fixed_service_sale = list_get( fixed_service_sale_list );
+
+		if ( timlib_strcmp(
+			fixed_service_sale->service_name,
+			service_name ) == 0 )
+		{
+			return fixed_service_sale;
+		}
+
+	} while( list_next( fixed_service_sale_list ) );
+
+	return (FIXED_SERVICE_SALE *)0;
 }
 

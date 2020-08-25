@@ -119,11 +119,12 @@ LIST *purchase_vendor_payment_list(
 			char *street_address,
 			char *purchase_date_time )
 {
-	return vendor_payment_fetch_list(
-			purchase_primary_where(
-				full_name,
-				street_address,
-				purchase_date_time ) );
+	return vendor_payment_system_list(
+			vendor_payment_sys_string(
+				purchase_primary_where(
+					full_name,
+					street_address,
+					purchase_date_time ) ) );
 }
 
 LIST *purchase_equipment_list(

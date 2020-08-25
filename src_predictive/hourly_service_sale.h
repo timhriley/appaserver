@@ -30,10 +30,13 @@ typedef struct
 	char *service_description;
 	double hourly_rate;
 	double discount_amount;
-	int estimated_hours;
-	double work_hours_database;
 	double hourly_service_work_hours;
+	double work_hours_database;
+	int estimated_hours;
+	double hourly_service_sale_net_revenue;
+	double net_revenue_database;
 	char *hourly_service_sale_revenue_account_name;
+	LIST *hourly_service_work_list;
 } HOURLY_SERVICE_SALE;
 
 /* Operations */
@@ -71,9 +74,6 @@ void hourly_service_sale_update(
 FILE *hourly_service_sale_update_open(
 			void );
 
-double hourly_service_sale_work_hours(
-			LIST *hourly_service_work_list );
-
 HOURLY_SERVICE_SALE *hourly_service_sale_steady_state(
 			char *full_name,
 			char *street_address,
@@ -81,8 +81,10 @@ HOURLY_SERVICE_SALE *hourly_service_sale_steady_state(
 			char *service_name,
 			char *service_description,
 			double hourly_rate,
-			int estimated_hours,
+			double discount_amount,
 			double work_hours_database,
+			int estimated_hours,
+			double net_revenue_database,
 			LIST *hourly_service_work_list );
 
 LIST *hourly_service_sale_list(
@@ -96,8 +98,20 @@ char *hourly_service_sale_sys_string(
 LIST *hourly_service_sale_system_list(
 			char *sys_string );
 
-char *fixed_service_sale_description_escape(
+char *hourly_service_sale_description_escape(
 			char *service_description );
 
+double hourly_service_sale_total(
+			LIST *hourly_service_sale_list );
+
+double hourly_service_sale_net_revenue(
+			double hourly_rate,
+			double work_hours,
+			double discount_amount );
+
+HOURLY_SERVICE_SALE *hourly_service_sale_seek(
+			LIST *hourly_service_sale_list,
+			char *service_name,
+			char *service_description );
 #endif
 

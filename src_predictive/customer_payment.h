@@ -53,7 +53,7 @@ char *customer_payment_select(
 CUSTOMER_PAYMENT *customer_payment_parse(
 			char *input );
 
-LIST *customer_payment_list_fetch(
+char *customer_payment_list_sys_string(
 			char *where );
 
 LIST *customer_payment_system_list(

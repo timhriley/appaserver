@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/customer_sale.c			*/
+/* $APPASERVER_HOME/src_predictive/sale.c				*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -23,17 +23,19 @@
 #include "hourly_service_sale.h"
 #include "entity.h"
 #include "entity_self.h"
+#include "account.h"
+#include "work.h"
 #include "customer_payment.h"
-#include "customer_sale.h"
+#include "sale.h"
 
-CUSTOMER_SALE *customer_sale_new(
+SALE *sale_new(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time )
 {
-	CUSTOMER_SALE *customer_sale;
+	SALE *sale;
 
-	if ( ! ( customer_sale = calloc( 1, sizeof( CUSTOMER_SALE ) ) ) )
+	if ( ! ( sale = calloc( 1, sizeof( SALE ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -43,17 +45,17 @@ CUSTOMER_SALE *customer_sale_new(
 		exit( 1 );
 	}
 
-	customer_sale->customer_entity =
+	sale->customer_entity =
 		entity_new(
 			full_name,
 			street_address );
 
-	customer_sale->sale_date_time = sale_date_time;
+	sale->sale_date_time = sale_date_time;
 	
-	return customer_sale;
+	return sale;
 }
 
-CUSTOMER_SALE *customer_sale_fetch(
+SALE *sale_fetch(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time )
@@ -62,12 +64,12 @@ CUSTOMER_SALE *customer_sale_fetch(
 
 	if ( !full_name || !street_address )
 	{
-		return (CUSTOMER_SALE *)0;
+		return (SALE *)0;
 	}
 
 	if ( !sale_date_time || !*sale_date_time )
 	{
-		return (CUSTOMER_SALE *)0;
+		return (SALE *)0;
 	}
 
 	sprintf( sys_string,
@@ -75,20 +77,20 @@ CUSTOMER_SALE *customer_sale_fetch(
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
-		 customer_sale_select(),
-		 "customer_sale",
+		 sale_select(),
+		 SALE_TABLE_NAME,
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
 		 /* -------------------------- */
-		 customer_sale_primary_where(
+		 sale_primary_where(
 			full_name,
 			street_address,
 			sale_date_time ) );
 
-	return customer_sale_parse( pipe2string( sys_string ) );
+	return sale_parse( pipe2string( sys_string ) );
 }
 
-char *customer_sale_select( void )
+char *sale_select( void )
 {
 	return
 	"full_name,"
@@ -104,7 +106,7 @@ char *customer_sale_select( void )
 	"transaction_date_time";
 }
 
-CUSTOMER_SALE *customer_sale_parse( char *input )
+SALE *sale_parse( char *input )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
@@ -118,7 +120,7 @@ CUSTOMER_SALE *customer_sale_parse( char *input )
 	char completed_date_time[ 128 ];
 	char transaction_date_time[ 128 ];
 
-	if ( !input ) return (CUSTOMER_SALE *)0;
+	if ( !input ) return (SALE *)0;
 
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
@@ -132,7 +134,7 @@ CUSTOMER_SALE *customer_sale_parse( char *input )
 	piece( completed_date_time, SQL_DELIMITER, input, 9 );
 	piece( transaction_date_time, SQL_DELIMITER, input, 10 );
 
-	return customer_sale_steady_state(
+	return sale_steady_state(
 			strdup( full_name ),
 			strdup( street_address ),
 			strdup( sale_date_time ),
@@ -154,15 +156,18 @@ CUSTOMER_SALE *customer_sale_parse( char *input )
 				sale_date_time ),
 			atof( shipping_charge ),
 			entity_self_sales_tax_rate(),
-			atof( sales_tax ) /* sales_tax_database */,
+			atof( sales_tax )
+				/* sales_tax_database */,
 			strdup( completed_date_time ),
+			strdup( transaction_date_time )
+				/* transaction_date_time_database */,
 			account_receivable( (char *)0 ),
 			account_revenue( (char *)0 ),
 			account_shipping_revenue( (char *)0 ),
 			account_sales_tax_payable( (char *)0 ) );
 }
 
-char *customer_sale_primary_where(
+char *sale_primary_where(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time )
@@ -183,40 +188,15 @@ char *customer_sale_primary_where(
 	return strdup( where );
 }
 
-double customer_sale_sales_tax(
-			double 
+double sale_sales_tax(
+			double inventory_sale_total,
 			double entity_state_sales_tax_rate )
 {
-	return customer_inventory_sale_total(
-			customer_inventory_sale_list ) *
+	return	inventory_sale_total *
 		entity_state_sales_tax_rate;
 }
 
-double customer_inventory_sale_total(
-			LIST *customer_inventory_sale_list )
-{
-	double sale_total;
-	INVENTORY_SALE *inventory_sale;
-
-	if ( !list_rewind( customer_inventory_sale_list ) ) return 0.0;
-
-	sale_total = 0.0;
-
-	do {
-		inventory_sale =
-			list_get(
-				customer_inventory_sale_list );
-
-		sale_total +=
-			inventory_sale->
-				inventory_sale_extended_price;
-
-	} while ( list_next( customer_inventory_sale_list ) );
-
-	return sale_total;
-}
-
-TRANSACTION *customer_sale_transaction(
+TRANSACTION *sale_transaction(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
@@ -267,7 +247,7 @@ TRANSACTION *customer_sale_transaction(
 	journal->credit_amount = gross_revenue;
 	list_set( transaction->journal_list, journal );
 
-	if ( shipping_revenue )
+	if ( shipping_charge )
 	{
 		/* Credit shipping revenue */
 		/* ----------------------- */
@@ -278,11 +258,11 @@ TRANSACTION *customer_sale_transaction(
 				transaction->transaction_date_time,
 				account_shipping_revenue );
 	
-		journal->credit_amount = shipping_revenue;
+		journal->credit_amount = shipping_charge;
 		list_set( transaction->journal_list, journal );
 	}
 
-	if ( sales_tax_amount )
+	if ( sales_tax )
 	{
 		/* Credit sales tax payable */
 		/* ------------------------ */
@@ -293,14 +273,14 @@ TRANSACTION *customer_sale_transaction(
 				transaction->transaction_date_time,
 				account_sales_tax_payable );
 	
-		journal->credit_amount = sales_tax_amount;
+		journal->credit_amount = sales_tax;
 		list_set( transaction->journal_list, journal );
 	}
 
 	return transaction;
 }
 
-FILE *customer_sale_update_open( void )
+FILE *sale_update_open( void )
 {
 	char sys_string[ 1024 ];
 	char *key;
@@ -309,18 +289,18 @@ FILE *customer_sale_update_open( void )
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y | sql",
-		 CUSTOMER_SALE_TABLE,
+		 SALE_TABLE_NAME,
 		 key );
 
 	return fopen( sys_string, "w" );
 }
 
-void customer_sale_update(
+void sale_update(
 			double inventory_sale_total,
 			double fixed_service_sale_total,
 			double hourly_service_sale_total,
 			double gross_revenue,
-			double sale_tax,
+			double sales_tax,
 			double invoice_amount,
 			double payment_total,
 			double amount_due,
@@ -331,7 +311,7 @@ void customer_sale_update(
 {
 	FILE *update_pipe;
 
-	update_pipe = customer_sale_update_open();
+	update_pipe = sale_update_open();
 
 	fprintf(update_pipe,
 	 	"%s^%s^%s^inventory_sale_total^%.2lf\n",
@@ -401,18 +381,7 @@ void customer_sale_update(
 	pclose( update_pipe );
 }
 
-LIST *customer_sale_payment_list(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time )
-{
-	return customer_payment_list(
-			full_name,
-			street_address,
-			sale_date_time );
-}
-
-double customer_sale_gross_revenue(
+double sale_gross_revenue(
 			double inventory_sale_total,
 			double fixed_service_sale_total,
 			double hourly_service_sale_total )
@@ -422,7 +391,7 @@ double customer_sale_gross_revenue(
 		hourly_service_sale_total;
 }
 
-double customer_sale_invoice_amount(
+double sale_invoice_amount(
 			double gross_revenue,
 			double sales_tax,
 			double shipping_charge )
@@ -432,7 +401,7 @@ double customer_sale_invoice_amount(
 		shipping_charge;
 }
 
-CUSTOMER_SALE *customer_sale_steady_state(
+SALE *sale_steady_state(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
@@ -448,99 +417,115 @@ CUSTOMER_SALE *customer_sale_steady_state(
 			char *account_receivable,
 			char *account_revenue,
 			char *account_shipping_revenue,
-			char *account_sales_tax_payable );
+			char *account_sales_tax_payable )
 {
-	/* Instantiate a new customer_sale */
-	/* ------------------------------- */
-	CUSTOMER_SALE *customer_sale =
-		customer_sale_new(
+	/* Instantiate a new sale */
+	/* ---------------------- */
+	SALE *sale =
+		sale_new(
 			full_name,
 			street_address,
 			sale_date_time );
 
 	/* Set the input parameters */
 	/* ------------------------ */
-	customer_sale->inventory_sale_list = inventory_sale_list;
-	customer_sale->fixed_service_sale_list = fixed_service_sale_list;
-	customer_sale->hourly_service_sale_list = hourly_service_sale_list;
-	customer_sale->customer_payment_list = customer_payment_list;
-	customer_sale->shipping_charge = shipping_charge;
-	customer_sale->entity_self_sales_tax_rate = entity_self_sales_tax_rate;
-	customer_sale->sales_tax_database = sales_tax_database;
-	customer_sale->completed_date_time = completed_date_time;
+	sale->inventory_sale_list = inventory_sale_list;
+	sale->fixed_service_sale_list = fixed_service_sale_list;
+	sale->hourly_service_sale_list = hourly_service_sale_list;
+	sale->customer_payment_list = customer_payment_list;
+	sale->shipping_charge = shipping_charge;
+	sale->entity_self_sales_tax_rate = entity_self_sales_tax_rate;
+	sale->sales_tax_database = sales_tax_database;
+	sale->completed_date_time = completed_date_time;
 
-	customer_sale->transaction_date_time_database =
+	sale->transaction_date_time_database =
 		transaction_date_time_database;
 
-	customer_sale->account_receivable = account_receivable;
-	customer_sale->account_revenue = account_revenue;
-	customer_sale->account_shipping_revenue = account_shipping_revenue;
-	customer_sale->account_sales_tax_payable = account_sales_tax_payable;
+	sale->account_receivable = account_receivable;
+	sale->account_revenue = account_revenue;
+	sale->account_shipping_revenue = account_shipping_revenue;
+	sale->account_sales_tax_payable = account_sales_tax_payable;
 
 	/* Calculate the totals */
 	/* -------------------- */
-	customer_sale->inventory_sale_total =
+	sale->inventory_sale_total =
 		inventory_sale_total(
-			customer_sale->inventory_sale_list );
+			sale->inventory_sale_list );
 
-	customer_sale->fixed_service_sale_total =
+	sale->fixed_service_sale_total =
 		fixed_service_sale_total(
-			customer_sale->fixed_service_sale_list );
+			sale->fixed_service_sale_list );
 
-	customer_sale->hourly_service_sale_total =
+	sale->hourly_service_sale_total =
 		hourly_service_sale_total(
-			customer_sale->hourly_service_sale_list );
+			sale->hourly_service_sale_list );
 
-	customer_sale->customer_payment_total =
+	sale->customer_payment_total =
 		customer_payment_total(
-			customer_sale->customer_payment_list );
+			sale->customer_payment_list );
 
 	/* Calculate the new values */
 	/* ------------------------ */
-	customer_sale->customer_sale_gross_revenue =
-		customer_sale_gross_revenue(
-			customer_sale->inventory_sale_total,
-			customer_sale->fixed_service_sale_total,
-			customer_sale->hourly_service_sale_total );
+	sale->sale_gross_revenue =
+		sale_gross_revenue(
+			sale->inventory_sale_total,
+			sale->fixed_service_sale_total,
+			sale->hourly_service_sale_total );
 
-	customer_sale->customer_sale_sales_tax =
-		customer_sale_sales_tax(
-			customer_sale->inventory_sale_total,
-			customer_sale->entity_self_sales_tax_rate );
+	sale->sales_tax =
+		sale_sales_tax(
+			sale->inventory_sale_total,
+			sale->entity_self_sales_tax_rate );
 
-	customer_sale->customer_sale_invoice_amount =
-		customer_sale_invoice_amount(
-			customer_sale->customer_sale_gross_revenue,
-			customer_sale->customer_sale_sales_tax,
-			customer_sale->shipping_charge );
+	sale->sale_invoice_amount =
+		sale_invoice_amount(
+			sale->sale_gross_revenue,
+			sale->sales_tax,
+			sale->shipping_charge );
 
-	customer_sale->customer_sale_amount_due =
-		Customer_sale_amount_due(
-			customer_sale->customer_sale_invoice_amount,
-			customer_sale->customer_payment_total );
+	sale->sale_amount_due =
+		Sale_amount_due(
+			sale->sale_invoice_amount,
+			sale->customer_payment_total );
 
 	/* Generate the transaction */
 	/* ------------------------ */
 	if ( completed_date_time && *completed_date_time )
 	{
-		customer_sale->customer_sale_transaction =
-			customer_sale_transaction(
-				customer_sale->
+		if ( *transaction_date_time_database
+		&&   strcmp(	completed_date_time,
+				transaction_date_time_database ) != 0 )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: completed_date_time change is not yet implemented (%s/%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				sale->
 					customer_entity->
 					full_name,
-				customer_sale->
+				sale->sale_date_time );
+			exit( 1 );
+		}
+
+		sale->sale_transaction =
+			sale_transaction(
+				sale->
+					customer_entity->
+					full_name,
+				sale->
 					customer_entity->
 					street_address,
-				customer_sale->sale_date_time,
-				customer_sale->customer_sale_invoice_amount,
-				customer_sale->customer_sale_gross_revenue,
-				customer_sale->customer_sale_sales_tax,
-				customer_sale->shipping_charge,
-				customer_sale->account_receivable,
-				customer_sale->account_revenue,
-				customer_sale->account_shipping_revenue,
-				customer_sale->account_sales_tax_payable );
+				sale->sale_date_time,
+				sale->sale_invoice_amount,
+				sale->sale_gross_revenue,
+				sale->sales_tax,
+				sale->shipping_charge,
+				sale->account_receivable,
+				sale->account_revenue,
+				sale->account_shipping_revenue,
+				sale->account_sales_tax_payable );
 	}
-	return customer_sale;
+	return sale;
 }
 

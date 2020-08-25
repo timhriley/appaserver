@@ -32,6 +32,7 @@
 #define ACCOUNT_SALES_TAX_EXPENSE_KEY	"sales_tax_key"
 #define ACCOUNT_SALES_TAX_PAYABLE_KEY	"sales_tax_payable_key"
 #define ACCOUNT_REVENUE_KEY		"revenue_key"
+#define ACCOUNT_SHIPPING_REVENUE_KEY	"shipping_revenue_key"
 #define ACCOUNT_RECEIVABLE_KEY		"receivable_key"
 #define ACCOUNT_PAYABLE_KEY		"payable_key"
 #define ACCOUNT_CLOSING_KEY		"closing_key"
@@ -94,6 +95,9 @@ char *account_receivable(
 			char *fund_name );
 
 char *account_uncleared_checks(
+			char *fund_name );
+
+char *account_shipping_revenue(
 			char *fund_name );
 
 char *account_cash(	char *fund_name );

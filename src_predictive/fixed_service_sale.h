@@ -31,7 +31,9 @@ typedef struct
 	int estimated_hours;
 	double work_hours_database;
 	double fixed_service_work_hours;
+	double fixed_service_sale_net_revenue;
 	char *fixed_service_sale_revenue_account_name;
+	LIST *fixed_service_work_list;
 } FIXED_SERVICE_SALE;
 
 /* Operations */
@@ -66,9 +68,6 @@ void fixed_service_sale_update(
 FILE *fixed_service_sale_update_open(
 			void );
 
-double fixed_service_sale_work_hours(
-			LIST *fixed_service_work_list );
-
 FIXED_SERVICE_SALE *fixed_service_sale_steady_state(
 			char *full_name,
 			char *street_address,
@@ -89,6 +88,17 @@ char *fixed_service_sale_sys_string(
 
 LIST *fixed_service_sale_system_list(
 			char *sys_string );
+
+double fixed_service_sale_total(
+			LIST *fixed_service_sale_list );
+
+double fixed_service_sale_net_revenue(
+			double fixed_price,
+			double discount_amount );
+
+FIXED_SERVICE_SALE *fixed_service_sale_seek(
+			LIST *fixed_service_sale_list,
+			char *service_name );
 
 #endif
 

@@ -14,7 +14,7 @@
 #include "sql.h"
 #include "list.h"
 #include "boolean.h"
-#include "customer_sale.h"
+#include "sale.h"
 #include "entity.h"
 #include "work.h"
 #include "hourly_service_sale.h"
@@ -51,7 +51,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_new(
 	return hourly_service_sale;
 }
 
-char *fixed_service_sale_description_escape(
+char *hourly_service_sale_description_escape(
 			char *service_description )
 {
 	static char escape_description[ 512 ];
@@ -83,7 +83,7 @@ char *hourly_service_sale_primary_where(
 		 street_address,
 		 sale_date_time,
 		 service_name,
-		 fixed_service_sale_description_escape(
+		 hourly_service_sale_description_escape(
 			service_description ) );
 
 	return strdup( where );
@@ -112,9 +112,12 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse( char *input )
 	char street_address[ 128 ];
 	char sale_date_time[ 128 ];
 	char service_name[ 128 ];
-	char fixed_price[ 128 ];
-	char estimated_hours[ 128 ];
+	char service_description[ 128 ];
+	char hourly_rate[ 128 ];
+	char discount_amount[ 128 ];
 	char work_hours[ 128 ];
+	char estimated_hours[ 128 ];
+	char net_revenue[ 128 ];
 
 	if ( !input ) return (HOURLY_SERVICE_SALE *)0;
 
@@ -122,23 +125,32 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse( char *input )
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( sale_date_time, SQL_DELIMITER, input, 2 );
 	piece( service_name, SQL_DELIMITER, input, 3 );
-	piece( fixed_price, SQL_DELIMITER, input, 4 );
-	piece( estimated_hours, SQL_DELIMITER, input, 5 );
-	piece( work_hours, SQL_DELIMITER, input, 6 );
+	piece( service_description, SQL_DELIMITER, input, 4 );
+	piece( hourly_rate, SQL_DELIMITER, input, 5 );
+	piece( discount_amount, SQL_DELIMITER, input, 6 );
+	piece( work_hours, SQL_DELIMITER, input, 7 );
+	piece( estimated_hours, SQL_DELIMITER, input, 8 );
+	piece( net_revenue, SQL_DELIMITER, input, 9 );
 
 	return hourly_service_sale_steady_state(
 			strdup( full_name ),
 			strdup( street_address ),
 			strdup( sale_date_time ),
 			strdup( service_name ),
-			atof( fixed_price ),
+			strdup( service_description ),
+			atof( hourly_rate ),
+			atof( discount_amount ),
+			atof( work_hours )
+				/* work_hours_database */,
 			atoi( estimated_hours ),
-			atoi( work_hours ) /* database */,
-			hourly_service_work_list(
+			atof( net_revenue )
+				/* net_revenue_database */,
+			work_hourly_list(
 				full_name,
 				street_address,
 				sale_date_time,
-				service_name ) );
+				service_name,
+				service_description ) );
 }
 
 FILE *hourly_service_sale_update_open( void )
@@ -149,7 +161,8 @@ FILE *hourly_service_sale_update_open( void )
 	key =	"full_name,"
 		"street_address,"
 		"sale_date_time,"
-		"service_name";
+		"service_name,"
+		"service_description";
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y | sql",
@@ -164,18 +177,20 @@ void hourly_service_sale_update(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
-			char *service_name )
+			char *service_name,
+			char *service_description )
 {
 	FILE *update_pipe;
 
 	update_pipe = hourly_service_sale_update_open();
 
 	fprintf(update_pipe,
-	 	"%s^%s^%s^%s^work_hours^%.2lf\n",
+	 	"%s^%s^%s^%s^%s^work_hours^%.2lf\n",
 		full_name,
 		street_address,
 		sale_date_time,
 		service_name,
+		service_description,
 		hourly_service_sale_work_hours );
 
 	pclose( update_pipe );
@@ -201,15 +216,28 @@ HOURLY_SERVICE_SALE *hourly_service_sale_steady_state(
 			full_name,
 			street_address,
 			sale_date_time,
-			service_name );
+			service_name,
+			service_description );
 
-	hourly_service_sale->fixed_price = fixed_price;
-	hourly_service_sale->estimated_hours = estimated_hours;
+	hourly_service_sale->hourly_rate = hourly_rate;
+	hourly_service_sale->discount_amount = discount_amount;
 	hourly_service_sale->work_hours_database = work_hours_database;
+	hourly_service_sale->estimated_hours = estimated_hours;
+	hourly_service_sale->net_revenue_database = net_revenue_database;
+
+	hourly_service_sale->hourly_service_work_list =
+		hourly_service_work_list;
 
 	hourly_service_sale->hourly_service_work_hours =
-		hourly_service_work_hours(
-			hourly_service_work_list );
+		work_list_hours(
+			hourly_service_sale->
+				hourly_service_work_list );
+
+	hourly_service_sale->hourly_service_sale_net_revenue =
+		hourly_service_sale_net_revenue(
+			hourly_service_sale->hourly_rate,
+			hourly_service_sale->hourly_service_work_hours,
+			hourly_service_sale->discount_amount );
 
 	return hourly_service_sale;
 }
@@ -228,7 +256,7 @@ char *hourly_service_sale_sys_string( char *where )
 		 hourly_service_sale_select(),
 		 HOURLY_SERVICE_SALE_TABLE,
 		 where,
-		 "service_name" );
+		 "service_name,service_description" );
 
 	return strdup( sys_string );
 }
@@ -270,9 +298,65 @@ LIST *hourly_service_sale_list(
 		 	/* -------------------------- */
 		 	/* Safely returns heap memory */
 		 	/* -------------------------- */
-		 	customer_sale_primary_where(
+		 	sale_primary_where(
 				full_name,
 				street_address,
 				sale_date_time ) ) );
+}
+
+double hourly_service_sale_total(
+			LIST *hourly_service_sale_list )
+{
+	HOURLY_SERVICE_SALE *hourly_service_sale;
+	double total;
+
+	if ( !list_rewind( hourly_service_sale_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		hourly_service_sale = list_get( hourly_service_sale_list );
+
+		total += hourly_service_sale->hourly_service_sale_net_revenue;
+
+	} while( list_next( hourly_service_sale_list ) );
+
+	return total;
+}
+
+double hourly_service_sale_net_revenue(
+			double hourly_rate,
+			double work_hours,
+			double discount_amount )
+{
+	return ( hourly_rate * work_hours ) - discount_amount;
+}
+
+HOURLY_SERVICE_SALE *hourly_service_sale_seek(
+			LIST *hourly_service_sale_list,
+			char *service_name,
+			char *service_description )
+{
+	HOURLY_SERVICE_SALE *hourly_service_sale;
+
+	if ( !list_rewind( hourly_service_sale_list ) )
+		return (HOURLY_SERVICE_SALE *)0;
+
+	do {
+		hourly_service_sale = list_get( hourly_service_sale_list );
+
+		if ( timlib_strcmp(
+			hourly_service_sale->service_name,
+			service_name ) == 0
+		&&   timlib_strcmp(
+			hourly_service_sale->service_description,
+			service_description ) == 0 )
+		{
+			return hourly_service_sale;
+		}
+
+	} while( list_next( hourly_service_sale_list ) );
+
+	return (HOURLY_SERVICE_SALE *)0;
 }
 

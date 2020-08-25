@@ -50,12 +50,8 @@ char *inventory_sale_select(
 INVENTORY_SALE *inventory_sale_parse(
 			char *input );
 
-double inventory_sale_extended_price_total(
+double inventory_sale_total(
 			LIST *inventory_sale_list );
-
-double inventory_sale_sales_tax(
-			double extended_price_total,
-			double entity_state_sales_tax_rate );
 
 double inventory_sale_extended_price(
 			double retail_price,
@@ -92,13 +88,10 @@ double inventory_sale_cost_of_goods_sold(
 			LIST *inventory_purchase_list,
 			LIST *inventory_sale_list );
 
-LIST *inventory_sale_fetch_list(
+char *inventory_sale_sys_string(
 			char *where );
 
 LIST *inventory_sale_system_list(
 			char *sys_string );
-
-char *inventory_sale_sys_string(
-			char *where );
 
 #endif
