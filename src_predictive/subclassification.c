@@ -1739,3 +1739,79 @@ boolean subclassification_net_assets_exists(
 	return 0;
 }
 
+LIST *subclassification_account_list(
+			double *subclassification_total,
+			char *subclassification_name,
+			char *fund_name,
+			char *as_of_date )
+{
+	LIST *account_list;
+	ACCOUNT *account;
+	char sys_string[ 1024 ];
+	char where[ 256 ];
+	char account_name[ 128 ];
+	FILE *input_pipe;
+	JOURNAL *latest_journal;
+
+	if ( fund_name
+	&&   *fund_name
+	&&   strcmp( fund_name, "fund" ) != 0 )
+	{
+		sprintf(where,
+			"fund = '%s' and subclassification = '%s'",
+			fund_name,
+			subclassification_name );
+	}
+	else
+	{
+		sprintf(where,
+			"subclassification = '%s'",
+			subclassification_name );
+	}
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 "account",
+		 "account",
+		 where );
+
+	account_list = list_new();
+	input_pipe = popen( sys_string, "r" );
+
+	while( string_input( account_name, input_pipe, 128 ) )
+	{
+		latest_journal =
+			journal_latest(
+				account_name,
+				as_of_date );
+
+		if ( !latest_journal
+		||   timlib_double_virtually_same(
+			latest_journal->balance,
+			0.0 ) )
+		{
+			continue;
+		}
+
+		account =
+			account_fetch(
+				strdup( account_name ) );
+
+		/* Change account name from stack memory to heap. */
+		/* ---------------------------------------------- */
+		latest_journal->account_name = account->account_name;
+
+		account->latest_journal = latest_journal;
+
+		list_add_pointer_in_order(
+			account_list,
+			account,
+			account_balance_match_function );
+
+		*subclassification_total += account->latest_journal->balance;
+	}
+
+	pclose( input_pipe );
+	return account_list;
+}
+

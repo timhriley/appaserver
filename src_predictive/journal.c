@@ -115,7 +115,7 @@ char *journal_select( void )
 	"full_name,"
 	"street_address,"
 	"transaction_date_time,"
-	"account_name,"
+	"account,"
 	"previous_balance,"
 	"debit_amount,"
 	"credit_amount,"
@@ -145,25 +145,25 @@ JOURNAL *journal_parse( char *input )
 			strdup( transaction_date_time ),
 			strdup( account_name ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
+	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	journal->previous_balance =
 	journal->previous_balance_database = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
+	piece( piece_buffer, SQL_DELIMITER, input, 5 );
 	journal->debit_amount = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
+	piece( piece_buffer, SQL_DELIMITER, input, 6 );
 	journal->credit_amount = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 6 );
+	piece( piece_buffer, SQL_DELIMITER, input, 7 );
 	journal->balance =
 	journal->balance_database = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 7 );
+	piece( piece_buffer, SQL_DELIMITER, input, 8 );
 	journal->transaction_count =
 	journal->transaction_count_database = atoi( piece_buffer );
 
-	if ( piece( piece_buffer, SQL_DELIMITER, input, 8 ) )
+	if ( piece( piece_buffer, SQL_DELIMITER, input, 9 ) )
 	{
 		journal->check_number = atoi( piece_buffer );
 	}
@@ -916,7 +916,7 @@ JOURNAL *journal_latest(
 		 "echo \"select %s from %s,%s where %s;\" | sql.e",
 		 select,
 		 JOURNAL_TABLE,
-		 "transaction",
+		 TRANSACTION_TABLE,
 		 where );
 
 	results = pipe2string( sys_string );
@@ -1244,8 +1244,8 @@ JOURNAL *journal_account_latest(
 	if ( !results || !*results ) return (JOURNAL *)0;
 
 	return journal_account_fetch(
-			results /* transaction_date_time */,
-			account_name );
+			account_name,
+			results /* transaction_date_time */ );
 }
 
 LIST *journal_minimum_account_journal_list(

@@ -252,7 +252,7 @@ int main( int argc, char **argv )
 	char *subclassification_option;
 	boolean omit_subclassification = 0;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 				argc,
@@ -300,6 +300,16 @@ int main( int argc, char **argv )
 			transaction_date_max();
 	}
 
+	if ( !as_of_date )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot retrieve as_of_date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
 		document_quick_output_body(
@@ -336,6 +346,8 @@ int main( int argc, char **argv )
 			transaction_date_time_closing(
 				as_of_date );
 
+		/* If run on the closing date, then run it twice. */
+		/* ---------------------------------------------- */
 		if ( transaction_date_time_exists(
 				closing_transaction_date_time ) )
 		{
@@ -392,9 +404,8 @@ int main( int argc, char **argv )
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 		document_close();
 
-	exit( 0 );
-
-} /* main() */
+	return 0;
+}
 
 void trial_balance_html_table(
 			char *application_name,

@@ -158,12 +158,6 @@ LIST *account_omit_latex_row_list(
 void account_propagate( char *account_name,
 			char *transaction_date_time );
 
-LIST *subclassification_account_list(
-			double *subclassification_total,
-			char *subclassification_name,
-			char *fund_name,
-			char *as_of_date );
-
 ACCOUNT *account_getset(
 			LIST *account_list,
 			char *account_name );

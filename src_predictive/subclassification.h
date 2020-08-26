@@ -12,6 +12,7 @@
 #include "boolean.h"
 #include "html_table.h"
 #include "latex.h"
+#include "account.h"
 
 /* Constants */
 /* --------- */
@@ -119,5 +120,11 @@ void subclassification_aggregate_net_income_output(
 
 boolean subclassification_net_assets_exists(
 			LIST *subclassification_list );
+
+LIST *subclassification_account_list(
+			double *subclassification_total,
+			char *subclassification_name,
+			char *fund_name,
+			char *as_of_date );
 
 #endif

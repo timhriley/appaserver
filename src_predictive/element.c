@@ -22,7 +22,7 @@
 
 char *element_select( void )
 {
-	return "element,accumulate_debit_yn";
+	return "element.element,accumulate_debit_yn";
 }
 
 ELEMENT *element_parse(	char *input )
@@ -47,7 +47,7 @@ char *element_primary_where( char *element_name )
 	char where[ 256 ];
 
 	sprintf( where,
-		 "element_name = '%s'",
+		 "element = '%s'",
 		 element_name );
 
 	return strdup( where );
@@ -155,25 +155,35 @@ ELEMENT *element_new( char *element_name )
 	return element;
 }
 
-boolean element_accumulate_debit(
-			char *element_name )
+boolean element_accumulate_debit( char *element_name )
 {
-	ELEMENT *element;
+	char sys_string[ 1024 ];
+	char where [128 ];
+	char *results;
 
-	if ( ! ( element =
-			element_fetch(
-				element_name ) ) )
+	sprintf( where, "element = '%s'", element_name );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 "accumulate_debit_yn",
+		 "element",
+		 where );
+
+	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
 		fprintf( stderr,
-	"Warning in %s/%s()/%d: cannot fetch element for (%s).\n",
+		"ERROR in %s/%s()/%d: pipe2string(%s) returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
 			 element_name );
-		return 0;
+		exit( 1 );
 	}
 
-	return element->accumulate_debit;
+	if ( *results == 'y' )
+		return 1;
+	else
+		return 0;
 }
 
 LIST *element_system_list(
@@ -290,7 +300,7 @@ LIST *element_subclassification_list(
 	subclassification_list = list_new();
 	input_pipe = popen( sys_string, "r" );
 
-	while( get_line( subclassification_name, input_pipe ) )
+	while( string_input( subclassification_name, input_pipe, 128 ) )
 	{
 		subclassification =
 			subclassification_new(

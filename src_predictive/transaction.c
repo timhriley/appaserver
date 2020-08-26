@@ -1025,7 +1025,8 @@ char *transaction_date_max( void )
 {
 	char *r;
 
-	r = transaction_date_time_max();
+	if ( ! ( r = transaction_date_time_max() ) ) return (char *)0;
+
 	*( r + 10 ) = '\0';
 	return r;
 }
