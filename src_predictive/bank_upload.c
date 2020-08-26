@@ -636,7 +636,7 @@ void bank_upload_transaction_direct_insert(
 	FILE *insert_pipe;
 	char *field;
 
-	if ( fund_name && *fund_name )
+	if ( predictive_fund_exists() )
 	{
 		field =
 "bank_date,bank_description,full_name,street_address,transaction_date_time,fund";
@@ -1329,8 +1329,8 @@ void bank_upload_transaction_table_display( LIST *bank_upload_list )
 						transaction_date_time );
 
 			journal_list_html_display(
-				transaction_memo,
-				transaction->journal_list );
+				transaction->journal_list,
+				transaction_memo );
 		}
 
 	} while( list_next( bank_upload_list ) );

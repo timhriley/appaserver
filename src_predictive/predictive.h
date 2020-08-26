@@ -40,4 +40,7 @@ char *predictive_fund_where(
 boolean predictive_fund_attribute_exists(
 			void );
 
+boolean predictive_fund_exists(
+			void );
+
 #endif

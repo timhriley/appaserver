@@ -101,6 +101,11 @@ char *predictive_fund_where( char *fund_name )
 
 boolean predictive_fund_attribute_exists( void )
 {
+	return predictive_fund_exists();
+}
+
+boolean predictive_fund_exists( void )
+{
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
