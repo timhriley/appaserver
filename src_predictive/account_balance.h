@@ -42,8 +42,6 @@ ACCOUNT_BALANCE *account_balance_new(
 char *account_balance_select(
 			void );
 
-/* Returns account_balance_steady_state() */
-/* -------------------------------------- */
 ACCOUNT_BALANCE *account_balance_parse(
 			char *input );
 
@@ -64,14 +62,9 @@ ACCOUNT_BALANCE *account_balance_steady_state(
 			char *account_number,
 			char *date,
 			double balance,
-			double balance_change_database,
-			int balance_change_percent_database,
-			LIST *account_balance_list );
-
-LIST *account_balance_list(
-			char *full_name,
-			char *street_address,
-			char *account_number );
+			double balance_change,
+			int balance_change_percent,
+			LIST *investment_account_balance_list );
 
 char *account_balance_sys_string(
 			char *where );
@@ -80,18 +73,21 @@ LIST *account_balance_system_list(
 			char *sys_string );
 
 ACCOUNT_BALANCE *account_balance_seek(
-			LIST *account_balance_list,
+			LIST *investment_account_balance_list,
 			char *date );
 
 double account_balance_change(
 			double balance,
-			LIST *account_balance_list );
+			LIST *investment_account_balance_list );
 
 int account_balance_change_percent(
 			double balance,
-			LIST *account_balance_list );
+			LIST *investment_account_balance_list );
 
 double account_balance_latest(
+			LIST *investment_account_balance_list );
+
+LIST *account_balance_list_steady_state(
 			LIST *account_balance_list );
 
 #endif

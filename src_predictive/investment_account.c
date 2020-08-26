@@ -50,16 +50,35 @@ INVESTMENT_ACCOUNT *investment_account_fetch(
 			char *street_address,
 			char *account_number )
 {
-	return investment_account_parse(
-		pipe2string(
-			investment_account_sys_string(
-		 		/* -------------------------- */
-		 		/* Safely returns heap memory */
-		 		/* -------------------------- */
-		 		investment_account_primary_where(
-					full_name,
-					street_address,
-					account_number ) ) ) );
+	INVESTMENT_ACCOUNT *investment_account;
+
+	investment_account =
+		investment_account_parse(
+			pipe2string(
+				investment_account_sys_string(
+		 			/* -------------------------- */
+		 			/* Safely returns heap memory */
+		 			/* -------------------------- */
+		 			investment_account_primary_where(
+						full_name,
+						street_address,
+						account_number ) ) ) );
+
+	return investment_account_steady_state(
+			investment_account->
+				financial_entity->
+				full_name,
+			investment_account->
+				financial_entity->
+				street_address,
+			investment_account->account_number,
+			investment_account->investment_classification,
+			investment_account->investment_purpose,
+			investment_account->certificate_maturity_months,
+			investment_account->certificate_maturity_date,
+			investment_account->interest_rate,
+			investment_account->balance_latest_database,
+			investment_account->investment_account_balance_list );
 }
 
 char *investment_account_select( void )
@@ -87,33 +106,51 @@ INVESTMENT_ACCOUNT *investment_account_parse( char *input )
 	char certificate_maturity_date[ 128 ];
 	char interest_rate[ 128 ];
 	char balance_latest[ 128 ];
+	INVESTMENT_ACCOUNT *investment_account;
 
 	if ( !input || !*input ) return (INVESTMENT_ACCOUNT *)0;
 
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( account_number, SQL_DELIMITER, input, 2 );
-	piece( investment_classification, SQL_DELIMITER, input, 3 );
-	piece( investment_purpose, SQL_DELIMITER, input, 4 );
-	piece( certificate_maturity_months, SQL_DELIMITER, input, 5 );
-	piece( certificate_maturity_date, SQL_DELIMITER, input, 6 );
-	piece( interest_rate, SQL_DELIMITER, input, 7 );
-	piece( balance_latest, SQL_DELIMITER, input, 8 );
 
-	return investment_account_steady_state(
+	investment_account =
+		investment_account_new(
 			strdup( full_name ),
 			strdup( street_address ),
-			strdup( account_number ),
-			strdup( investment_classification ),
-			strdup( investment_purpose ),
-			atoi( certificate_maturity_months ),
-			strdup( certificate_maturity_date ),
-			atoi( interest_rate ),
-			atof( balance_latest ),
-			account_balance_list(
-				full_name,
-				street_address,
-				account_number ) );
+			strdup( account_number ) );
+
+	piece( investment_classification, SQL_DELIMITER, input, 3 );
+	investment_account->investment_classification =
+		strdup( investment_classification );
+
+	piece( investment_purpose, SQL_DELIMITER, input, 4 );
+	investment_account->investment_purpose =
+		strdup( investment_purpose );
+
+	piece( certificate_maturity_months, SQL_DELIMITER, input, 5 );
+	investment_account->certificate_maturity_months =
+		atoi( certificate_maturity_months );
+
+	piece( certificate_maturity_date, SQL_DELIMITER, input, 6 );
+	investment_account->certificate_maturity_date =
+		strdup( certificate_maturity_date );
+
+	piece( interest_rate, SQL_DELIMITER, input, 7 );
+	investment_account->interest_rate =
+		atoi( interest_rate );
+
+	piece( balance_latest, SQL_DELIMITER, input, 8 );
+	investment_account->balance_latest_database =
+		atof( balance_latest );
+
+	investment_account->investment_account_balance_list =
+		investment_account_balance_list(
+			full_name,
+			street_address,
+			account_number );
+
+	return investment_account;
 }
 
 void investment_account_update(
@@ -150,7 +187,7 @@ FILE *investment_account_update_open( void )
 		 INVESTMENT_ACCOUNT_TABLE,
 		 key );
 
-	return fopen( sys_string, "w" );
+	return popen( sys_string, "w" );
 }
 
 INVESTMENT_ACCOUNT *investment_account_steady_state(
@@ -163,7 +200,7 @@ INVESTMENT_ACCOUNT *investment_account_steady_state(
 			char *certificate_maturity_date,
 			double interest_rate,
 			double balance_latest_database,
-			LIST *account_balance_list )
+			LIST *investment_account_balance_list )
 {
 	INVESTMENT_ACCOUNT *investment_account;
 
@@ -189,9 +226,13 @@ INVESTMENT_ACCOUNT *investment_account_steady_state(
 	investment_account->balance_latest_database =
 		balance_latest_database;
 
+	investment_account->investment_account_balance_list =
+		investment_account_balance_list;
+
 	investment_account->account_balance_latest =
 		account_balance_latest(
-			account_balance_list );
+			investment_account->
+				investment_account_balance_list );
 
 	return investment_account;
 }
@@ -256,5 +297,33 @@ char *investment_account_primary_where(
 		 account_number );
 
 	return strdup( where );
+}
+
+LIST *investment_account_balance_list(
+			char *full_name,
+			char *street_address,
+			char *account_number )
+{
+	LIST *account_balance_list;
+
+	if ( !full_name
+	||   !street_address
+	||   !account_number )
+	{
+		return (LIST *)0;
+	}
+
+	account_balance_list =
+		account_balance_system_list(
+			account_balance_sys_string(
+		 	/* -------------------------- */
+		 	/* Safely returns heap memory */
+		 	/* -------------------------- */
+		 	investment_account_primary_where(
+				full_name,
+				street_address,
+				account_number ) ) );
+
+	return account_balance_list_steady_state( account_balance_list );
 }
 

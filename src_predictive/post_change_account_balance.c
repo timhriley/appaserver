@@ -102,7 +102,7 @@ void post_change_account_balance_insert_update_delete(
 	if ( ( account_balance =
 			account_balance_seek(
 				investment_account->
-					account_balance_list,
+					investment_account_balance_list,
 				date ) ) )
 	{
 		account_balance_update(

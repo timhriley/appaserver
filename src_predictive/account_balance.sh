@@ -60,10 +60,10 @@ do
 	account_number=`echo $record | piece.e '^' 2`
 	certificate_maturity_date=`echo $record | piece.e '^' 3`
 
-	select="full_name, account_number, date_time, book_value_balance, '$certificate_maturity_date'"
-	from="equity_account_balance"
-	where="full_name = '$institution_full_name' and street_address = '$street_address' and account_number = '$account_number' and date_time <= '$as_of_date 23:59:59'"
-	order="date_time desc"
+	select="full_name, account_number, date, balance, '$certificate_maturity_date'"
+	from="account_balance"
+	where="full_name = '$institution_full_name' and street_address = '$street_address' and account_number = '$account_number' and date <= '$as_of_date 23:59:59'"
+	order="date desc"
 
 	echo "select $select from $from where $where order by $order;"	|
 	sql '^'								|

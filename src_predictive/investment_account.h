@@ -28,7 +28,7 @@ typedef struct
 	double interest_rate;
 	double account_balance_latest;
 	double balance_latest_database;
-	LIST *account_balance_list;
+	LIST *investment_account_balance_list;
 } INVESTMENT_ACCOUNT;
 
 /* Operations */
@@ -50,8 +50,6 @@ INVESTMENT_ACCOUNT *investment_account_fetch(
 char *investment_account_select(
 			void );
 
-/* Returns investment_account_steady_state() */
-/* -------------------------------------- */
 INVESTMENT_ACCOUNT *investment_account_parse(
 			char *input );
 
@@ -74,7 +72,7 @@ INVESTMENT_ACCOUNT *investment_account_steady_state(
 			char *certificate_maturity_date,
 			double interest_rate,
 			double balance_latest_database,
-			LIST *account_balance_list );
+			LIST *investment_account_balance_list );
 
 char *investment_account_sys_string(
 			char *where );
@@ -91,5 +89,10 @@ char *investment_account_primary_where(
 
 double investment_account_balance_latest(
 			LIST *account_balance_list );
+
+LIST *investment_account_balance_list(
+			char *full_name,
+			char *street_address,
+			char *account_number );
 
 #endif

@@ -61,6 +61,7 @@ char *account_balance_select( void )
 
 ACCOUNT_BALANCE *account_balance_parse( char *input )
 {
+	ACCOUNT_BALANCE *account_balance;
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	char account_number[ 128 ];
@@ -75,24 +76,26 @@ ACCOUNT_BALANCE *account_balance_parse( char *input )
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( account_number, SQL_DELIMITER, input, 2 );
 	piece( date, SQL_DELIMITER, input, 3 );
-	piece( balance, SQL_DELIMITER, input, 4 );
-	piece( balance_change, SQL_DELIMITER, input, 5 );
-	piece( balance_change_percent, SQL_DELIMITER, input, 6 );
 
-	return account_balance_steady_state(
+	account_balance =
+		account_balance_new(
 			strdup( full_name ),
 			strdup( street_address ),
 			strdup( account_number ),
-			strdup( date ),
-			atof( balance ),
-			atof( balance_change )
-				/* database */,
-			atoi( balance_change_percent )
-				/* database */,
-			account_balance_list(
-				full_name,
-				street_address,
-				account_number ) );
+			strdup( date ) );
+
+	piece( balance, SQL_DELIMITER, input, 4 );
+	account_balance->balance = atof( balance );
+
+	piece( balance_change, SQL_DELIMITER, input, 5 );
+	account_balance->balance_change_database =
+		atof( balance_change );
+
+	piece( balance_change_percent, SQL_DELIMITER, input, 6 );
+	account_balance->balance_change_percent_database =
+		atof( balance_change_percent );
+
+	return account_balance;
 }
 
 void account_balance_update(
@@ -108,7 +111,7 @@ void account_balance_update(
 	update_pipe = account_balance_update_open();
 
 	fprintf(update_pipe,
-	 	"%s^%s^%s^%s^account_balance_change^%.2lf\n",
+	 	"%s^%s^%s^%s^balance_change^%.2lf\n",
 		full_name,
 		street_address,
 		account_number,
@@ -116,7 +119,7 @@ void account_balance_update(
 		account_balance_change );
 
 	fprintf(update_pipe,
-	 	"%s^%s^%s^%s^account_balance_change_percent^%d\n",
+	 	"%s^%s^%s^%s^balance_change_percent^%d\n",
 		full_name,
 		street_address,
 		account_number,
@@ -137,11 +140,12 @@ FILE *account_balance_update_open( void )
 		"date";
 
 	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql",
+		 "update_statement.e table=%s key=%s carrot=y	|"
+		 "sql						 ",
 		 ACCOUNT_BALANCE_TABLE,
 		 key );
 
-	return fopen( sys_string, "w" );
+	return popen( sys_string, "w" );
 }
 
 ACCOUNT_BALANCE *account_balance_steady_state(
@@ -150,9 +154,9 @@ ACCOUNT_BALANCE *account_balance_steady_state(
 			char *account_number,
 			char *date,
 			double balance,
-			double balance_change_database,
-			int balance_change_percent_database,
-			LIST *account_balance_list )
+			double balance_change,
+			int balance_change_percent,
+			LIST *investment_account_balance_list )
 {
 	ACCOUNT_BALANCE *account_balance;
 
@@ -163,46 +167,24 @@ ACCOUNT_BALANCE *account_balance_steady_state(
 			account_number,
 			date );
 
+	account_balance->balance = balance;
+
+	account_balance->balance_change_database = balance_change;
+
+	account_balance->balance_change_percent_database =
+		balance_change_percent;
+
 	account_balance->account_balance_change =
 		account_balance_change(
-			balance,
-			account_balance_list );
+			account_balance->balance,
+			investment_account_balance_list );
 
 	account_balance->account_balance_change_percent =
 		account_balance_change_percent(
-			balance,
-			account_balance_list );
-
-	account_balance->balance_change_database =
-		balance_change_database;
-
-	account_balance->balance_change_percent_database =
-		balance_change_percent_database;
+			account_balance->balance,
+			investment_account_balance_list );
 
 	return account_balance;
-}
-
-LIST *account_balance_list(
-			char *full_name,
-			char *street_address,
-			char *account_number )
-{
-	if ( !full_name
-	||   !street_address
-	||   !account_number )
-	{
-		return (LIST *)0;
-	}
-
-	return account_balance_system_list(
-			account_balance_sys_string(
-		 	/* -------------------------- */
-		 	/* Safely returns heap memory */
-		 	/* -------------------------- */
-		 	investment_account_primary_where(
-				full_name,
-				street_address,
-				account_number ) ) );
 }
 
 char *account_balance_sys_string( char *where )
@@ -248,12 +230,12 @@ LIST *account_balance_system_list( char *sys_string )
 
 double account_balance_change(
 			double balance,
-			LIST *account_balance_list )
+			LIST *investment_account_balance_list )
 {
 	ACCOUNT_BALANCE *prior_account_balance;
 	int length;
 
-	length = list_length( account_balance_list );
+	length = list_length( investment_account_balance_list );
 
 	if ( !length )
 	{
@@ -270,9 +252,9 @@ double account_balance_change(
 		return balance;
 	}
 
-	list_last( account_balance_list );
-	list_previous( account_balance_list );
-	prior_account_balance = list_get( account_balance_list );
+	list_last( investment_account_balance_list );
+	list_previous( investment_account_balance_list );
+	prior_account_balance = list_get( investment_account_balance_list );
 
 	return	balance -
 		prior_account_balance->balance;
@@ -280,18 +262,18 @@ double account_balance_change(
 
 int account_balance_change_percent(
 			double balance,
-			LIST *account_balance_list )
+			LIST *investment_account_balance_list )
 {
 	int length;
 	double change;
 	double change_rate;
 
-	length = list_length( account_balance_list );
+	length = list_length( investment_account_balance_list );
 
 	if ( !length )
 	{
 		fprintf( stderr,
-			 "Warning in %s/%s()/%d: empty account_balance_list.\n",
+	"Warning in %s/%s()/%d: empty investment_account_balance_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -304,33 +286,34 @@ int account_balance_change_percent(
 	change =
 		account_balance_change(
 			balance,
-			account_balance_list );
+			investment_account_balance_list );
 
 	change_rate = change / balance;
 	return timlib_round_int( change_rate * 100.0 );
 }
 
 double account_balance_latest(
-			LIST *account_balance_list )
+			LIST *investment_account_balance_list )
 {
 	ACCOUNT_BALANCE *account_balance;
 
-	if ( !list_tail( account_balance_list ) ) return 0.0;
-	account_balance = list_get( account_balance_list );
+	if ( !list_tail( investment_account_balance_list ) ) return 0.0;
+
+	account_balance = list_get( investment_account_balance_list );
 	return account_balance->balance;
 }
 
 ACCOUNT_BALANCE *account_balance_seek(
-			LIST *account_balance_list,
+			LIST *investment_account_balance_list,
 			char *date )
 {
 	ACCOUNT_BALANCE *account_balance;
 
-	if ( !list_rewind( account_balance_list ) )
+	if ( !list_rewind( investment_account_balance_list ) )
 		return (ACCOUNT_BALANCE *)0;
 
 	do {
-		account_balance = list_get( account_balance_list );
+		account_balance = list_get( investment_account_balance_list );
 
 		if ( timlib_strcmp(
 			account_balance->date,
@@ -339,8 +322,47 @@ ACCOUNT_BALANCE *account_balance_seek(
 			return account_balance;
 		}
 
-	} while( list_next( account_balance_list ) );
+	} while( list_next( investment_account_balance_list ) );
 
 	return (ACCOUNT_BALANCE *)0;
+}
+
+LIST *account_balance_list_steady_state(
+			LIST *account_balance_list )
+{
+	ACCOUNT_BALANCE *account_balance;
+	LIST *steady_balance_list;
+
+	if ( !list_rewind( account_balance_list ) ) return (LIST *)0;
+
+	steady_balance_list = list_new();
+
+	do {
+		account_balance = list_get( account_balance_list );
+
+		list_push( account_balance_list );
+
+		list_set(
+			steady_balance_list,
+			account_balance_steady_state(
+				account_balance->
+					financial_entity->
+					full_name,
+				account_balance->
+					financial_entity->
+					street_address,
+				account_balance->account_number,
+				account_balance->date,
+				account_balance->balance,
+				account_balance->balance_change_database,
+				account_balance->
+					balance_change_percent_database,
+				account_balance_list ) );
+
+		list_pop( account_balance_list );
+
+	} while ( list_next( account_balance_list ) );
+
+	return steady_balance_list;
 }
 
