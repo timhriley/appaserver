@@ -65,6 +65,8 @@ SALE *sale_new(
 			char *street_address,
 			char *sale_date_time );
 
+/* Returns sale_steady_state() */
+/* --------------------------- */
 SALE *sale_fetch(
 			char *full_name,
 			char *street_address,
@@ -80,8 +82,9 @@ char *sale_primary_where(
 			char *street_address,
 			char *sale_date_time );
 
-SALE *sale_parse(
-			char *input );
+char *sale_sys_string(	char *where );
+
+SALE *sale_parse(	char *input );
 
 double sale_sales_tax(
 			double inventory_sale_total,
@@ -90,7 +93,7 @@ double sale_sales_tax(
 TRANSACTION *sale_transaction(
 			char *full_name,
 			char *street_address,
-			char *sale_date_time,
+			char *completed_date_time,
 			double invoice_amount,
 			double gross_revenue,
 			double sales_tax,

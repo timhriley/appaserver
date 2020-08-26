@@ -30,7 +30,7 @@ typedef struct
 	char *service_description;
 	double hourly_rate;
 	double discount_amount;
-	double hourly_service_work_hours;
+	double hourly_service_sale_work_hours;
 	double work_hours_database;
 	int estimated_hours;
 	double hourly_service_sale_net_revenue;
@@ -65,6 +65,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse(
 
 void hourly_service_sale_update(
 			double hourly_service_sale_work_hours,
+			double hourly_service_sale_net_revenue,
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,

@@ -121,6 +121,8 @@ void post_change_customer_sale_insert_update(
 	char *transaction_date_time;
 
 	if ( ! ( sale =
+			/* Returns sale_steady_state() */
+			/* --------------------------- */
 			sale_fetch(
 				full_name,
 				street_address,
@@ -132,8 +134,15 @@ void post_change_customer_sale_insert_update(
 	if ( sale->sale_transaction )
 	{
 		transaction_date_time =
-			sale->sale_transaction->
-				transaction_date_time;
+		sale->sale_transaction->transaction_date_time =
+			transaction_refresh(
+				sale->sale_transaction->full_name,
+				sale->sale_transaction->street_address,
+				sale->sale_transaction->transaction_date_time,
+				sale->sale_transaction->transaction_amount,
+				sale->sale_transaction->memo,
+				0 /* check_number */,
+				sale->sale_transaction->journal_list );
 	}
 	else
 	{
@@ -150,12 +159,8 @@ void post_change_customer_sale_insert_update(
 			sale->customer_payment_total,
 			sale->sale_amount_due,
 			transaction_date_time,
-			sale->
-				customer_entity->
-				full_name,
-			sale->
-				customer_entity->
-				street_address,
+			sale->customer_entity->full_name,
+			sale->customer_entity->street_address,
 			sale->sale_date_time );
 }
 
@@ -167,6 +172,8 @@ void post_change_customer_sale_predelete(
 	SALE *sale;
 
 	if ( ! ( sale =
+			/* Returns sale_steady_state() */
+			/* --------------------------- */
 			sale_fetch(
 				full_name,
 				street_address,
@@ -189,6 +196,8 @@ void post_change_customer_sale_predelete(
 			sale->
 				sale_transaction->
 				transaction_date_time );
+
+		sale->sale_transaction = (TRANSACTION *)0;
 	}
 }
 

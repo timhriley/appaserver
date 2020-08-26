@@ -97,7 +97,7 @@ FIXED_SERVICE_SALE *fixed_service_sale_parse( char *input )
 	char estimated_hours[ 128 ];
 	char work_hours[ 128 ];
 
-	if ( !input ) return (FIXED_SERVICE_SALE *)0;
+	if ( !input || !*input ) return (FIXED_SERVICE_SALE *)0;
 
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
@@ -216,6 +216,8 @@ LIST *fixed_service_sale_system_list( char *sys_string )
 	FILE *input_pipe;
 	char input[ 1024 ];
 	LIST *fixed_service_sale_list;
+
+	if ( !sys_string ) return (LIST *)0;
 
 	fixed_service_sale_list = list_new();
 	input_pipe = popen( sys_string, "r" );

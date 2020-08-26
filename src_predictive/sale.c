@@ -55,39 +55,42 @@ SALE *sale_new(
 	return sale;
 }
 
-SALE *sale_fetch(
-			char *full_name,
-			char *street_address,
-			char *sale_date_time )
+char *sale_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
 
-	if ( !full_name || !street_address )
-	{
-		return (SALE *)0;
-	}
-
-	if ( !sale_date_time || !*sale_date_time )
-	{
-		return (SALE *)0;
-	}
+	if ( !where ) return (char *)0;
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
 		 sale_select(),
 		 SALE_TABLE_NAME,
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 sale_primary_where(
-			full_name,
-			street_address,
-			sale_date_time ) );
+		 where,
+		 sale_select() );
 
-	return sale_parse( pipe2string( sys_string ) );
+	return strdup( sys_string );
+}
+
+/* Returns sale_steady_state() */
+/* --------------------------- */
+SALE *sale_fetch(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time )
+{
+	return sale_parse(
+		pipe2string(
+			sale_sys_string(
+		 		/* -------------------------- */
+		 		/* Safely returns heap memory */
+		 		/* -------------------------- */
+		 		sale_primary_where(
+					full_name,
+					street_address,
+					sale_date_time ) ) ) );
 }
 
 char *sale_select( void )
@@ -106,6 +109,8 @@ char *sale_select( void )
 	"transaction_date_time";
 }
 
+/* Returns sale_steady_state() */
+/* --------------------------- */
 SALE *sale_parse( char *input )
 {
 	char full_name[ 128 ];
@@ -199,7 +204,7 @@ double sale_sales_tax(
 TRANSACTION *sale_transaction(
 			char *full_name,
 			char *street_address,
-			char *sale_date_time,
+			char *completed_date_time,
 			double invoice_amount,
 			double gross_revenue,
 			double sales_tax,
@@ -216,7 +221,7 @@ TRANSACTION *sale_transaction(
 		transaction_new(
 			full_name,
 			street_address,
-			sale_date_time
+			completed_date_time
 				/* transaction_date_time */ );
 
 	transaction->transaction_amount = invoice_amount;

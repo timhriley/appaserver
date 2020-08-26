@@ -55,6 +55,8 @@ char *fixed_service_sale_primary_where(
 			char *sale_date_time,
 			char *service_name );
 
+/* Returns fixed_service_sale_steady_state() */
+/* ----------------------------------------- */
 FIXED_SERVICE_SALE *fixed_service_sale_parse(
 			char *input );
 

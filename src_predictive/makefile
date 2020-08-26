@@ -22,9 +22,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/hashtbl.o
 
-#EXECUTABLES=	trial_balance						\
-#		tax_form_report						\
-#		feeder_upload_missing					\
+#EXECUTABLES=	
 #		inventory_balance_detail				\
 #		propagate_inventory_purchase_layers			\
 #		propagate_inventory_sale_layers				\
@@ -36,17 +34,13 @@ STANDARD_LIBRARY=							\
 #		post_change_inventory_sale_return			\
 #		post_change_fixed_asset					\
 #		post_change_inventory_sale				\
-#		post_change_hourly_service_sale				\
 #		post_change_fixed_service_work				\
 #		post_change_hourly_service_work				\
 #		post_change_activity_work				\
 #		post_change_customer_payment				\
 #		post_change_prior_fixed_asset				\
-#		post_change_account_balance				\
 #		post_change_prepaid_asset_purchase			\
 #		post_change_prepaid_asset_accrual			\
-#		update_sale_completed					\
-#		post_reoccurring_transaction				\
 #		post_payroll						\
 #		collect_customer_payment				\
 #		post_change_employee_work_day				\
@@ -81,7 +75,11 @@ EXECUTABLES=	trial_balance						\
 		populate_print_checks_entity				\
 		depreciate_fixed_assets					\
 		post_change_customer_sale				\
-		post_change_fixed_service_sale
+		post_change_fixed_service_sale				\
+		post_change_hourly_service_sale				\
+		update_sale_completed					\
+		post_change_account_balance				\
+		feeder_upload_missing
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -640,11 +638,14 @@ post_change_prior_fixed_asset: post_change_prior_fixed_asset.c		\
 		-o post_change_prior_fixed_asset
 
 post_change_account_balance: post_change_account_balance.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} investment.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		investment_account.o					\
+		account_balance.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		investment.o						\
+		investment_account.o					\
+		account_balance.o					\
 		post_change_account_balance.c				\
 		-o post_change_account_balance
 
@@ -875,4 +876,12 @@ work.o: work.c work.h
 predictive.o: predictive.c predictive.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c predictive.c
+
+investment_account.o: investment_account.c investment_account.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c investment_account.c
+
+account_balance.o: account_balance.c account_balance.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c account_balance.c
 

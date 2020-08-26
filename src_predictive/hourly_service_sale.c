@@ -119,7 +119,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_parse( char *input )
 	char estimated_hours[ 128 ];
 	char net_revenue[ 128 ];
 
-	if ( !input ) return (HOURLY_SERVICE_SALE *)0;
+	if ( !input || !*input ) return (HOURLY_SERVICE_SALE *)0;
 
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
@@ -174,6 +174,7 @@ FILE *hourly_service_sale_update_open( void )
 
 void hourly_service_sale_update(
 			double hourly_service_sale_work_hours,
+			double hourly_service_sale_net_revenue,
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
@@ -192,6 +193,15 @@ void hourly_service_sale_update(
 		service_name,
 		service_description,
 		hourly_service_sale_work_hours );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^%s^%s^net_revenue^%.2lf\n",
+		full_name,
+		street_address,
+		sale_date_time,
+		service_name,
+		service_description,
+		hourly_service_sale_net_revenue );
 
 	pclose( update_pipe );
 }
@@ -228,7 +238,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_steady_state(
 	hourly_service_sale->hourly_service_work_list =
 		hourly_service_work_list;
 
-	hourly_service_sale->hourly_service_work_hours =
+	hourly_service_sale->hourly_service_sale_work_hours =
 		work_list_hours(
 			hourly_service_sale->
 				hourly_service_work_list );
@@ -236,7 +246,7 @@ HOURLY_SERVICE_SALE *hourly_service_sale_steady_state(
 	hourly_service_sale->hourly_service_sale_net_revenue =
 		hourly_service_sale_net_revenue(
 			hourly_service_sale->hourly_rate,
-			hourly_service_sale->hourly_service_work_hours,
+			hourly_service_sale->hourly_service_sale_work_hours,
 			hourly_service_sale->discount_amount );
 
 	return hourly_service_sale;
@@ -266,6 +276,8 @@ LIST *hourly_service_sale_system_list( char *sys_string )
 	FILE *input_pipe;
 	char input[ 1024 ];
 	LIST *hourly_service_sale_list;
+
+	if ( !sys_string ) return (LIST *)0;
 
 	hourly_service_sale_list = list_new();
 	input_pipe = popen( sys_string, "r" );

@@ -16,8 +16,8 @@
 #include "appaserver_error.h"
 #include "entity.h"
 #include "inventory_sale.h"
-#include "fixed_service_sale.h"
 #include "sale.h"
+#include "fixed_service_sale.h"
 
 /* Constants */
 /* --------- */
@@ -95,6 +95,8 @@ void post_change_fixed_service_sale_insert_update_delete(
 	char *transaction_date_time;
 
 	if ( ! ( sale =
+			/* Returns sale_steady_state() */
+			/* --------------------------- */
 			sale_fetch(
 				full_name,
 				street_address,

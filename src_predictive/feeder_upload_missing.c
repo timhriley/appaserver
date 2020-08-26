@@ -41,7 +41,6 @@ void feeder_upload_missing_execute(
 				LIST *bank_upload_list );
 
 void feeder_upload_missing(	
-				char *application_name,
 				char *fund_name,
 				char *feeder_account,
 				char *input_filename,
@@ -206,7 +205,6 @@ int main( int argc, char **argv )
 	}
 
 	feeder_upload_missing(
-				application_name,
 				fund_name,
 				feeder_account,
 				input_filename,
@@ -224,12 +222,10 @@ int main( int argc, char **argv )
 
 	document_close();
 
-	exit( 0 );
-
-} /* main() */
+	return 0;
+}
 
 void feeder_upload_missing(
-			char *application_name,
 			char *fund_name,
 			char *feeder_account,
 			char *input_filename,
@@ -269,8 +265,7 @@ void feeder_upload_missing(
 		bank_upload_structure->
 			file.
 			bank_upload_list );
-
-} /* feeder_upload_missing() */
+}
 
 void feeder_upload_missing_execute(
 			LIST *bank_upload_list )

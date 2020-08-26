@@ -109,7 +109,9 @@ void *list_pointer(		LIST *list );
 void *list_get_pointer(		LIST *list );
 
 void *list_get_current_pointer( LIST *list );
-int go_tail();
+
+boolean go_tail();
+
 int next_node();
 int previous_node();
 int retrieve_item( char *ret_item, LIST *list );
@@ -213,6 +215,8 @@ void list_mark_current(		LIST *list );
 void list_restore_current(	LIST *list );
 void list_save(			LIST *list );
 void list_restore(		LIST *list );
+
+boolean list_tail( 		LIST *list );
 
 boolean list_go_tail( 		LIST *list );
 

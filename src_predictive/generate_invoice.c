@@ -294,6 +294,8 @@ boolean build_latex_invoice(	FILE *output_stream,
 	}
 
 	sale =
+		/* Returns sale_steady_state() */
+		/* --------------------------- */
 		sale_fetch(
 			full_name,
 			street_address,
@@ -434,6 +436,8 @@ LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
 		sale_date_time );
 
 	sale =
+		/* Returns sale_steady_state() */
+		/* --------------------------- */
 		sale_fetch(
 			full_name,
 			street_address,

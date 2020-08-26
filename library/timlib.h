@@ -276,7 +276,9 @@ boolean double_virtually_same( 		double d1, double d2 );
 boolean dollar_virtually_same( 		double d1, double d2 );
 boolean timlib_double_virtually_same( 	double d1, double d2 );
 boolean timlib_dollar_virtually_same( 	double d1, double d2 );
+
 double timlib_round_money(		double d );
+
 double round_double(			double d );
 
 double timlib_round_double(		double d );
@@ -566,6 +568,8 @@ char *timlib_trim_money_characters(
 				char *amount );
 
 void output_starting_argv_stderr( int argc, char **argv );
+
+char *timlib_now_date_time(	void );
 
 char *timlib_get_now_date_time(	void );
 

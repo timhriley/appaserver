@@ -3514,6 +3514,11 @@ boolean timlib_is_valid_time( char *time_string )
 
 char *timlib_get_now_date_time( void )
 {
+	return timlib_now_date_time();
+}
+
+char *timlib_now_date_time( void )
+{
 	char sys_string[ 256 ];
 	char *now_date_string;
 	char *now_time_string;
@@ -3536,8 +3541,7 @@ char *timlib_get_now_date_time( void )
 	free( now_time_string );
 
 	return now_date_time;
-
-} /* timlib_get_now_date_time() */
+}
 
 boolean timlib_string_empty(	char *s,
 				char *empty_label )
