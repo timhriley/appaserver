@@ -16,6 +16,8 @@
 #include "environ.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "transaction.h"
+#include "journal.h"
 #include "appaserver_parameter_file.h"
 
 /* Constants */
@@ -100,8 +102,7 @@ int main( int argc, char **argv )
 		LIST *account_name_list;
 
 		account_name_list =
-			ledger_transaction_date_time_account_name_list(
-				application_name,
+			transaction_date_time_account_name_list(
 				transaction_date_time );
 
 		if ( list_rewind( account_name_list ) )
@@ -112,8 +113,7 @@ int main( int argc, char **argv )
 					list_get_pointer(
 						account_name_list );
 
-				ledger_propagate(
-					application_name,
+				journal_propagate(
 					propagate_transaction_date_time,
 					account_name );
 
@@ -150,8 +150,7 @@ int main( int argc, char **argv )
 			&&   strcmp(	account_name,
 					"account" ) != 0 )
 			{
-				ledger_propagate(
-					application_name,
+				journal_propagate(
 					propagate_transaction_date_time,
 					account_name );
 			}
@@ -160,8 +159,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}
 
 void ledger_propagate_each_account(	char *application_name,
 					char *propagate_transaction_date_time )
@@ -180,13 +178,11 @@ void ledger_propagate_each_account(	char *application_name,
 
 	while( get_line( account, input_pipe ) )
 	{
-		ledger_propagate(
-			application_name,
+		journal_propagate(
 			propagate_transaction_date_time,
 			account );
 	}
 
 	pclose( input_pipe );
-
-} /* ledger_propagate_each_account() */
+}
 

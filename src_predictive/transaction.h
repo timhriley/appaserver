@@ -404,4 +404,7 @@ char *transaction_existing_closing_date_time(
 char *transaction_exists_closing_date_time(
 			char *as_of_date );
 
+LIST *transaction_date_time_account_name_list(
+			char *transaction_date_time );
+
 #endif

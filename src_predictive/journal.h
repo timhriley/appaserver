@@ -13,9 +13,9 @@
 
 /* Constants */
 /* --------- */
-#define JOURNAL_FOLDER_NAME		"journal_ledger"
-#define JOURNAL_TABLE			JOURNAL_FOLDER_NAME
-#define JOURNAL_TABLE_NAME		JOURNAL_FOLDER_NAME
+#define JOURNAL_TABLE			"journal_ledger"
+#define JOURNAL_TABLE_NAME		JOURNAL_TABLE
+#define JOURNAL_FOLDER_NAME		JOURNAL_TABLE
 
 /* Structures */
 /* ---------- */

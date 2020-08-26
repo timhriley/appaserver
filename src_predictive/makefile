@@ -79,6 +79,7 @@ EXECUTABLES=	trial_balance						\
 		post_change_hourly_service_sale				\
 		update_sale_completed					\
 		post_change_account_balance				\
+		ledger_propagate					\
 		feeder_upload_missing
 
 EXTERNAL_LIBRARY=							\

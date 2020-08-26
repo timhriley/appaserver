@@ -1532,3 +1532,22 @@ char *transaction_exists_closing_entry( char *as_of_date )
 	return existing_transaction_date_time;
 }
 
+LIST *transaction_date_time_account_name_list(
+			char *transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char where[ 128 ];
+
+	sprintf(	where,
+			"transaction_date_time = '%s'",
+			transaction_date_time );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "account",
+		 JOURNAL_TABLE,
+		 where,
+		 "account" );
+
+	return pipe2list( sys_string );
+}
