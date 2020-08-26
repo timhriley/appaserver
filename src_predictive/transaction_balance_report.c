@@ -80,7 +80,6 @@ double transaction_balance_report_duplicated_deposit_amount(
 					double bank_running_balance );
 
 TRANSACTION_BALANCE *transaction_balance_report_html_table(
-					char *application_name,
 					char *title,
 					char *sub_title,
 					char *begin_date_string );
@@ -160,7 +159,6 @@ int main( int argc, char **argv )
 	{
 		transaction_balance =
 			transaction_balance_report_html_table(
-				application_name,
 				title,
 				sub_title,
 				begin_date_string );
@@ -204,7 +202,6 @@ int main( int argc, char **argv )
 } /* main() */
 
 TRANSACTION_BALANCE *transaction_balance_report_html_table(
-			char *application_name,
 			char *title,
 			char *sub_title,
 			char *begin_date_string )
@@ -212,6 +209,7 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 	TRANSACTION_BALANCE *transaction_balance;
 	TRANSACTION_BALANCE_BLOCK *block;
 	HTML_TABLE *html_table;
+	LIST *justify_list;
 	LIST *heading_list;
 	LIST *merged_block_list;
 	char buffer[ 128 ];
@@ -219,7 +217,6 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 
 	if ( ! ( transaction_balance =
 			transaction_balance_new(
-				application_name,
 				begin_date_string,
 				0.0 /* cash_ending_balance */ ) ) )
 	{
@@ -258,21 +255,40 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 				transaction_balance->outbalance_block_list );
 
 	heading_list = list_new();
+	justify_list = list_new();
+
 	list_append_string( heading_list, "in/out" );
+	list_append_string( justify_list, "left" );
+
 	list_append_string( heading_list, "begin_transaction" );
+	list_append_string( justify_list, "left" );
+
 	list_append_string( heading_list, "full_name" );
+	list_append_string( justify_list, "left" );
+
 	list_append_string( heading_list, "amount" );
+	list_append_string( justify_list, "right" );
+
 	list_append_string( heading_list, "end_transaction" );
+	list_append_string( justify_list, "left" );
+
 	list_append_string( heading_list, "full_name" );
+	list_append_string( justify_list, "left" );
+
 	list_append_string( heading_list, "amount" );
+	list_append_string( justify_list, "right" );
+
 	list_append_string( heading_list, "block_count" );
+	list_append_string( justify_list, "right" );
 
 	html_table = new_html_table(
 			title,
 			strdup( sub_title ) );
 
-	html_table->number_left_justified_columns = 1;
-	html_table->number_right_justified_columns = 7;
+	html_table->justify_list = justify_list;
+
+	/* html_table->number_left_justified_columns = 1; */
+	/* html_table->number_right_justified_columns = 7; */
 
 	html_table_set_heading_list( html_table, heading_list );
 
@@ -384,8 +400,7 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 	html_table_close();
 
 	return transaction_balance;
-
-} /* transaction_balance_report_html_table() */
+}
 
 void transaction_balance_report_summary_inbalance(
 			TRANSACTION_BALANCE_BLOCK *last_inbalance_block )

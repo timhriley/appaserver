@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "timlib.h"
+#include "String.h"
 #include "date.h"
 #include "appaserver_library.h"
 #include "piece.h"
@@ -73,7 +74,6 @@ TRANSACTION_BALANCE *transaction_balance_calloc( void )
 } /* transaction_balance_calloc() */
 
 TRANSACTION_BALANCE *transaction_balance_new(
-					char *application_name,
 					char *begin_date,
 					double cash_ending_balance )
 {
@@ -86,12 +86,10 @@ TRANSACTION_BALANCE *transaction_balance_new(
 
 	p->input.transaction_balance_row_list =
 		transaction_balance_fetch_row_list(
-			application_name,
 			p->input.begin_date );
 
 	return p;
-
-} /* transaction_balance_new() */
+}
 
 TRANSACTION_BALANCE_ROW *transaction_balance_prior_fetch(
 					char *application_name,
@@ -177,52 +175,42 @@ TRANSACTION_BALANCE_ROW *transaction_balance_transaction_date_time_fetch(
 } /* transaction_balance_transaction_date_time_fetch() */
 
 LIST *transaction_balance_fetch_row_list(
-					char *application_name,
-					char *begin_date )
+			char *begin_date )
 {
-	TRANSACTION_BALANCE_ROW *row;
-	char *select;
-	char *folder;
 	char where[ 512 ];
 	char input_buffer[ 1024 ];
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
 	LIST *transaction_balance_row_list;
 
-	select = TRANSACTION_BALANCE_SELECT;
-	folder = "bank_upload_transaction_balance";
 
 	sprintf( where,
 		 "transaction_date_time >= '%s'",
 		 begin_date );
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=\"%s\"			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			"
-		 "			order=transaction_date_time	",
-		 application_name,
-		 select,
-		 folder,
-		 where );
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 TRANSACTION_BALANCE_SELECT,
+		 "bank_upload_transaction_balance",
+		 where,
+		 "transaction_date_time" );
 
 	input_pipe = popen( sys_string, "r" );
 
 	transaction_balance_row_list = list_new();
 
-	while( get_line( input_buffer, input_pipe ) )
+	while( string_input( input_buffer, input_pipe, 1024) )
 	{
-		row = transaction_balance_parse_row( input_buffer );
 
-		list_append_pointer( transaction_balance_row_list, row );
+		list_set(	transaction_balance_row_list,
+				transaction_balance_parse_row(
+					input_buffer ) );
 	}
 
 	pclose( input_pipe );
 
 	return transaction_balance_row_list;
-
-} /* transaction_balance_fetch_row_list() */
+}
 
 TRANSACTION_BALANCE_ROW *transaction_balance_parse_row(
 				char *input_buffer )

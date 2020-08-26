@@ -70,7 +70,6 @@ TRANSACTION_BALANCE_ROW *transaction_balance_row_new(
 					void );
 
 TRANSACTION_BALANCE *transaction_balance_new(
-					char *application_name,
 					char *begin_date,
 					double cash_ending_balance );
 
@@ -83,8 +82,7 @@ TRANSACTION_BALANCE_ROW *transaction_balance_transaction_date_time_fetch(
 					char *transaction_date_time );
 
 LIST *transaction_balance_fetch_row_list(
-					char *application_name,
-					char *begin_date );
+			char *begin_date );
 
 TRANSACTION_BALANCE_ROW *transaction_balance_parse_row(
 					char *input_buffer );

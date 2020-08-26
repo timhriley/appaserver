@@ -63,13 +63,16 @@ void html_table_output_table_heading(	char *title,
 void html_table_output_table_heading2(	char *title,
 					char *sub_title,
 					char *sub_sub_title );
+
 void html_table_output_data_heading( 	LIST *heading_list,
 					int number_left_justified_columns,
 					int number_right_justified_columns,
 					LIST *justify_list );
+
 void html_table_output_data( 		LIST *data_list,
 					int number_left_justified_columns,
 					int number_right_justified_columns,
 					int background_shaded,
 					LIST *justify_list );
+
 #endif
