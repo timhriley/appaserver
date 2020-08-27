@@ -261,32 +261,24 @@ void unget_line_queue( char *in_line );
 
 int get_line_queue( char *in_line, FILE *infile );
 
-double abs_float(		double f );
-
 double timlib_abs_double(	double f );
-
-double float_abs( double f );
 
 char *insert_string( char *source_destination, char *substring, int pos );
 
 double get_percent_of_day( char *time_string );
 void increment_time_one_hour(		char *time_string );
+
 int zap_file(				char *filename );
-boolean double_virtually_same( 		double d1, double d2 );
-boolean dollar_virtually_same( 		double d1, double d2 );
+
 boolean timlib_double_virtually_same( 	double d1, double d2 );
 boolean timlib_dollar_virtually_same( 	double d1, double d2 );
 
 double timlib_round_money(		double d );
 
-double round_double(			double d );
-
 double timlib_round_double(		double d );
 
 int timlib_round_int(			double d );
 
-double ceiling( 			double d );
-double floor(				double d );
 char *get_node_name(			void );
 
 char *escape_character( 		char *destination,
@@ -381,9 +373,6 @@ char *commas_in_double(			char *destination,
 
 char *reverse_string(			char *destination,
 					char *source );
-
-double ceiling_double(			double d );
-double floor_double(			double d );
 
 void make_single_quotes_double_single_quotes(
 					char *d );

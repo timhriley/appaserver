@@ -11,6 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "String.h"
+#include "float.h"
 #include "timlib.h"
 #include "piece.h"
 #include "column.h"

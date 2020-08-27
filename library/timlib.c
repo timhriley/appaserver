@@ -18,6 +18,7 @@
 #include "piece.h"
 #include "date.h"
 #include "array.h"
+#include "float.h"
 /* #include "sed.h" */
 
 int timlib_strlen( char *s )
@@ -2018,19 +2019,6 @@ double timlib_abs_double ( double f )
 	return abs_float( f );
 }
 
-double float_abs( double f )
-{
-	return abs_float( f );
-}
-
-double abs_float( double f )
-{
-	if ( f < 0.0 )
-		return -f;
-	else
-		return f;
-}
-
 void increment_time_one_hour( char *time_string )
 {
 	char hour[ 3 ], minute[ 3 ];
@@ -2065,162 +2053,17 @@ int zap_file( char *filename )
 	}
 	fclose( f );
 	return 1;
-} /* zap_file() */
+}
 
 boolean timlib_dollar_virtually_same( double d1, double d2 )
 {
 	return dollar_virtually_same( d1, d2 );
 }
 
-boolean dollar_virtually_same( double d1, double d2 )
-{
-	double difference = d1 - d2;
-	boolean results;
-	
-	results = ( abs_float( difference ) < 0.005 );
-
-/*
-fprintf( stderr, "%s/%s(): d1 = %lf and d2 = %lf, virtually same? = %d\n",
-__FILE__,
-__FUNCTION__,
-d1, d2, results );
-*/
-
-	return results;
-}
-
 boolean timlib_double_virtually_same( double d1, double d2 )
 {
 	return double_virtually_same( d1, d2 );
 }
-
-boolean double_virtually_same( double d1, double d2 )
-{
-	double difference = d1 - d2;
-	boolean results;
-	
-	results = ( abs_float( difference ) < 0.000005 );
-
-/*
-fprintf( stderr, "%s/%s(): d1 = %lf and d2 = %lf, virtually same? = %d\n",
-__FILE__,
-__FUNCTION__,
-d1, d2, results );
-*/
-
-	return results;
-}
-
-boolean timlib_double_virtually_same_places(
-		double d1, double d2, int places )
-{
-	char d1_string[ 32 ];
-	char d2_string[ 32 ];
-
-	sprintf( d1_string, "%.*lf", places, d1 );
-	sprintf( d2_string, "%.*lf", places, d2 );
-
-	return ( strcmp( d1_string, d2_string )  == 0 );
-}
-
-double floor( double d )
-{
-	if ( d >=0 )
-		return (double)(int)d;
-	else
-		return -ceiling( -d );
-}
-
-double ceiling( double d )
-{
-	if ( d >= 0 )
-		return (double)(int)(d + 0.99);
-	else
-		return -floor( -d );
-}
-
-double timlib_round_money( double d )
-{
-	char string[ 32 ];
-
-	if ( timlib_double_virtually_same( d, 0.0 ) ) return 0.0;
-
-	sprintf( string, "%.2lf", d );
-	return atof( string );
-
-} /* timlib_round_money() */
-
-int timlib_round_int( double d )
-{
-	if ( d >= 0.0 )
-		return (int)(d + 0.5);
-	else
-		return (int)(d - 0.5);
-}
-
-double timlib_round_double( double d )
-{
-	return round_double( d );
-}
-
-double round_double( double d )
-{
-	if ( d >= 0.0 )
-		return (double)(int)(d + 0.5);
-	else
-		return -floor( -d );
-}
-
-double floor_double( double d )
-{
-	if ( d >= 0.0 )
-	{
-		if ( d > 1.0 )
-			return (double)(int)d;
-		else
-		if ( d > 0.5 )
-			return 0.5;
-		else
-		if ( d > 0.2 )
-			return 0.2;
-		else
-		if ( d > 0.1 )
-			return 0.1;
-		else
-		if ( d > 0.05 )
-			return 0.05;
-		else
-			return 0.0;
-	}
-	else
-	{
-		return -ceiling_double( -d );
-	}
-} /* floor_double() */
-
-double ceiling_double( double d )
-{
-	if ( d >= 0.0 )
-	{
-		if ( d < 0.05 )
-			return 0.05;
-		else
-		if ( d < 0.1 )
-			return 0.1;
-		else
-		if ( d < 0.2 )
-			return 0.2;
-		else
-		if ( d < 0.5 )
-			return 0.5;
-		else
-			return (double)(int)(d + 0.99);
-	}
-	else
-	{
-		return -floor_double( -d );
-	}
-} /* ceiling_double() */
 
 char *get_node_name()
 {
@@ -4019,3 +3862,17 @@ char *timlib_remove_thousands_separator(
 	}
 }
 
+double timlib_round_money( double d )
+{
+	return round_money( d );
+}
+
+int timlib_round_int( double d )
+{
+	return round_int( d );
+}
+
+double timlib_round_double( double d )
+{
+	return round_double( d );
+}

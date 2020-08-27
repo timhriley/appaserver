@@ -29,9 +29,9 @@ void string_reset_get_line_check_utf_16( void )
 
 /* Returns input_buffer or (char *)0 if all done. */
 /* ---------------------------------------------- */
-char *string_input(		char *input_buffer,
-				FILE *infile,
-				int buffer_size )
+char *string_input(	char *input_buffer,
+			FILE *infile,
+			int buffer_size )
 {
 	int in_char;
 	int size = 0;

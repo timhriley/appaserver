@@ -31,6 +31,8 @@ typedef struct
 	double bank_amount;
 	double cash_running_balance;
 	double bank_running_balance;
+	double cash_running_balance_wrong;
+	double bank_running_balance_wrong;
 	int sequence_number;
 } TRANSACTION_BALANCE_ROW;
 
@@ -97,9 +99,9 @@ LIST *transaction_balance_merged_block_list(
 					LIST *inbalance_block_list,
 					LIST *outbalance_block_list );
 
-double transaction_balance_calculate_anomaly_balance_difference(
-					double cash_running_balance,
-					double bank_running_balance );
+double transaction_balance_anomaly_balance_difference(
+			double cash_running_balance,
+			double bank_running_balance );
 
 void transaction_balance_row_stdout(
 					TRANSACTION_BALANCE_ROW *row );
@@ -118,10 +120,19 @@ boolean transaction_balance_bank_running_balance_wrong(
 			double bank_amount );
 
 char *transaction_balance_row_display(
-				TRANSACTION_BALANCE_ROW *row,
-				LIST *transaction_balance_row_list,
-				double bank_amount );
+			TRANSACTION_BALANCE_ROW *row,
+			LIST *transaction_balance_row_list,
+			double bank_amount,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong,
+			int sequence_number );
 
+boolean transaction_balance_debit_credit_reversed(
+			double anomaly_balance_difference,
+			double transaction_amount,
+			double bank_amount,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong );
 
 #endif
 

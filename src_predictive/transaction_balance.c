@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include "timlib.h"
 #include "String.h"
+#include "float.h"
 #include "date.h"
 #include "appaserver_library.h"
 #include "piece.h"
@@ -490,7 +491,7 @@ LIST *transaction_balance_merged_block_list(
 	return return_list;
 }
 
-double transaction_balance_calculate_anomaly_balance_difference(
+double transaction_balance_anomaly_balance_difference(
 			double cash_running_balance,
 			double bank_running_balance )
 {
@@ -555,7 +556,7 @@ TRANSACTION_BALANCE_ROW *transaction_balance_seek_row(
 
 	return (TRANSACTION_BALANCE_ROW *)0;
 
-} /* transaction_balance_seek_row() */
+}
 
 boolean transaction_balance_cash_running_balance_wrong(
 			char *first_outbalance_transaction_date_time,
@@ -648,7 +649,10 @@ boolean transaction_balance_bank_running_balance_wrong(
 char *transaction_balance_row_display(
 				TRANSACTION_BALANCE_ROW *row,
 				LIST *transaction_balance_row_list,
-				double bank_amount )
+				double bank_amount,
+				boolean cash_running_balance_wrong,
+				boolean bank_running_balance_wrong,
+				int sequence_number )
 {
 	char buffer[ 1024 ];
 	char *ptr = buffer;
@@ -680,6 +684,11 @@ char *transaction_balance_row_display(
 		 row->cash_running_balance,
 		 row->bank_running_balance,
 		 row->cash_running_balance - row->bank_running_balance,
+		 cash_running_balance_wrong,
+		 bank_running_balance_wrong,
+		 sequence_number );
+
+#ifdef NOT_DEFINED
 		 transaction_balance_cash_running_balance_wrong(
 			row->transaction_date_time
 				/* first_outbalance_transaction_date_time */,
@@ -690,12 +699,26 @@ char *transaction_balance_row_display(
 				/* first_outbalance_transaction_date_time */,
 			transaction_balance_row_list,
 			bank_amount ),
-		 row->sequence_number );
+#endif
 
 	ptr += sprintf( ptr,
 "</table>" );
 
 	return strdup( buffer );
+}
 
-} /* transaction_balance_row_display() */
+boolean transaction_balance_debit_credit_reversed(
+			double anomaly_balance_difference,
+			double transaction_amount,
+			double bank_amount,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong )
+{
+	if ( !cash_running_balance_wrong ) return 0;
+	if ( bank_running_balance_wrong ) return 0;
+
+	return ( abs_dollar( anomaly_balance_difference ) ==
+		 abs_dollar( bank_amount ) + transaction_amount );
+}
+
 

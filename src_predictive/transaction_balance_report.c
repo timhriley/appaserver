@@ -36,11 +36,12 @@
 /* Prototypes */
 /* ---------- */
 char *transaction_balance_report_missing_expense_message(
-			char *transaction_date_time,
-			LIST *transaction_balance_row_list,
+			double transaction_amount,
 			double bank_amount,
 			double cash_running_balance,
-			double bank_running_balance );
+			double bank_running_balance,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong );
 
 char *transaction_balance_report_finished_message(
 			double cash_running_balance,
@@ -54,35 +55,35 @@ void transaction_balance_report_summary_outbalance(
 			LIST *transaction_balance_row_list );
 
 char *transaction_balance_report_duplicated_withdrawal_message(
-					double transaction_amount,
-					double bank_amount,
-					double balance,
-					double bank_running_balance );
+			double transaction_amount,
+			double bank_amount,
+			double balance,
+			double bank_running_balance );
 
 double transaction_balance_report_duplicated_withdrawal_amount(
-					char *message,
-					char **duplicated_full_name,
-					char **duplicated_transaction_date_time,
-					double balance,
-					double bank_running_balance );
+			char *message,
+			char **duplicated_full_name,
+			char **duplicated_transaction_date_time,
+			double balance,
+			double bank_running_balance );
 
 char *transaction_balance_report_deposit_message(
-					double transaction_amount,
-					double bank_amount,
-					double balance,
-					double bank_running_balance );
+			double transaction_amount,
+			double bank_amount,
+			double balance,
+			double bank_running_balance );
 
 double transaction_balance_report_duplicated_deposit_amount(
-					char *message,
-					char **duplicated_full_name,
-					char **duplicated_transaction_date_time,
-					double balance,
-					double bank_running_balance );
+			char *message,
+			char **duplicated_full_name,
+			char **duplicated_transaction_date_time,
+			double balance,
+			double bank_running_balance );
 
 TRANSACTION_BALANCE *transaction_balance_report_html_table(
-					char *title,
-					char *sub_title,
-					char *begin_date_string );
+			char *title,
+			char *sub_title,
+			char *begin_date_string );
 
 /* Global variables */
 /* ---------------- */
@@ -439,17 +440,30 @@ void transaction_balance_report_summary_outbalance(
 		last_outbalance_block->
 			begin_transaction_balance;
 
+	first_outbalance_row->cash_running_balance_wrong =
+		transaction_balance_cash_running_balance_wrong(
+			first_outbalance_row->transaction_date_time
+				/* first_outbalance_transaction_date_time */,
+			transaction_balance_row_list,
+			first_outbalance_row->bank_amount );
+
+	first_outbalance_row->bank_running_balance_wrong =
+		transaction_balance_bank_running_balance_wrong(
+			first_outbalance_row->transaction_date_time
+				/* first_outbalance_transaction_date_time */,
+			transaction_balance_row_list,
+			first_outbalance_row->bank_amount );
+
 	printf( "<h3>First outbalance row: %s</h3>\n",
 		transaction_balance_row_display(
 			first_outbalance_row,
 			transaction_balance_row_list,
-			first_outbalance_row->bank_amount ) );
+			first_outbalance_row->bank_amount,
+			first_outbalance_row->cash_running_balance_wrong,
+			first_outbalance_row->bank_running_balance_wrong,
+			first_outbalance_row->sequence_number ) );
 
-	if ( transaction_balance_cash_running_balance_wrong(
-			first_outbalance_row->transaction_date_time
-				/* first_outbalance_transaction_date_time */,
-			transaction_balance_row_list,
-			first_outbalance_row->bank_amount ) )
+	if ( first_outbalance_row->cash_running_balance_wrong )
 	{
 		duplicated_transaction_message =
 		   transaction_balance_report_duplicated_withdrawal_message(
@@ -481,58 +495,65 @@ void transaction_balance_report_summary_outbalance(
 
 	missing_expense_message =
 		transaction_balance_report_missing_expense_message(
-			first_outbalance_row->transaction_date_time,
-			transaction_balance_row_list,
+			first_outbalance_row->transaction_amount,
 			first_outbalance_row->bank_amount,
 			first_outbalance_row->cash_running_balance,
-			first_outbalance_row->bank_running_balance );
+			first_outbalance_row->bank_running_balance,
+			first_outbalance_row->cash_running_balance_wrong,
+			first_outbalance_row->bank_running_balance_wrong );
 
 	if ( missing_expense_message && *missing_expense_message )
 	{
 		printf( "<h3>%s</h3>\n", missing_expense_message );
 		return;
 	}
-
-} /* transaction_balance_report_summary_outbalance() */
+}
 
 char *transaction_balance_report_missing_expense_message(
-			char *transaction_date_time,
-			LIST *transaction_balance_row_list,
+			double transaction_amount,
 			double bank_amount,
 			double cash_running_balance,
-			double bank_running_balance )
+			double bank_running_balance,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong )
 {
-	boolean cash_running_balance_wrong;
 	double anomaly_balance_difference;
 	char sys_string[ 1024 ];
 	int transaction_count;
 	char *pending_transaction;
 	char message[ 1024 ];
 
-	cash_running_balance_wrong =
-		transaction_balance_cash_running_balance_wrong(
-			transaction_date_time
-				/* first_outbalance_transaction_date_time */,
-			transaction_balance_row_list,
-			bank_amount );
-
-	if ( !cash_running_balance_wrong ) return (char *)0;
-
 	anomaly_balance_difference =
-		transaction_balance_calculate_anomaly_balance_difference(
+		transaction_balance_anomaly_balance_difference(
 			cash_running_balance,
 			bank_running_balance );
+
+	if ( transaction_balance_debit_credit_reversed(
+			anomaly_balance_difference,
+			transaction_amount,
+			bank_amount,
+			cash_running_balance_wrong,
+			bank_running_balance_wrong ) )
+	{
+		sprintf( message,
+"Warning: the anomaly of %.2lf appears to be a reversing error.",
+			 anomaly_balance_difference );
+
+		return strdup( message );
+	}
+
+	if ( !cash_running_balance_wrong ) return (char *)0;
 
 	if ( anomaly_balance_difference >= 0.0 ) return (char *)0;
 
 	sprintf( sys_string,
 		 "bank_upload_ledger_pending.sh | grep '\\^%.2lf$' | wc -l",
-		 abs_float( anomaly_balance_difference ) );
+		 abs_dollar( anomaly_balance_difference ) );
 
 	if ( ! ( transaction_count = atoi( pipe2string( sys_string ) ) ) )
 	{
 		sprintf( message,
-"Warning: the anomaly is now %.2lf, and it's the cash running balance that is off. However, there no unmatched expense transactions of this amount.",
+"Warning: the anomaly is now %.2lf, and it's the cash running balance that is off. However, there are no unmatched expense transactions of this amount.",
 			 anomaly_balance_difference );
 
 		return strdup( message );
@@ -552,7 +573,7 @@ char *transaction_balance_report_missing_expense_message(
 	/* ------------------ */
 	sprintf( sys_string,
 		 "bank_upload_ledger_pending.sh | grep '\\^%.2lf$'",
-		 abs_float( anomaly_balance_difference ) );
+		 abs_dollar( anomaly_balance_difference ) );
 
 	pending_transaction = pipe2string( sys_string );
 
@@ -634,7 +655,7 @@ double transaction_balance_report_duplicated_deposit_amount(
 	*duplicated_transaction_date_time = (char *)0;
 
 	anomaly_balance_difference =
-		transaction_balance_calculate_anomaly_balance_difference(
+		transaction_balance_anomaly_balance_difference(
 			balance,
 			bank_running_balance );
 
@@ -735,7 +756,7 @@ double transaction_balance_report_duplicated_withdrawal_amount(
 	*duplicated_transaction_date_time = (char *)0;
 
 	anomaly_balance_difference =
-		transaction_balance_calculate_anomaly_balance_difference(
+		transaction_balance_anomaly_balance_difference(
 			balance,
 			bank_running_balance );
 
