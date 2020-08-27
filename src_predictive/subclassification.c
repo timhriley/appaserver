@@ -65,6 +65,34 @@ char *subclassification_select( void )
 }
 
 SUBCLASSIFICATION *subclassification_fetch(
+			char *subclassification_name )
+{
+	SUBCLASSIFICATION *subclassification;
+	char sys_string[ 1024 ];
+
+	if ( !subclassification_name ) return (SUBCLASSIFICATION *)0;
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 /* ---------------------- */
+		 /* Returns program memory */
+		 /* ---------------------- */
+		 subclassification_select(),
+		 "subclassification",
+		 /* -------------------------- */
+		 /* Safely returns heap memory */
+		 /* -------------------------- */
+		 subclassification_primary_where(
+			subclassification_name ) );
+
+	subclassification =
+		subclassification_parse(
+			pipe2string( sys_string ) );
+
+	return subclassification;
+}
+
+SUBCLASSIFICATION *subclassification_total_fetch(
 			double *subclassification_total,
 			char *subclassification_name,
 			char *fund_name,
@@ -93,7 +121,7 @@ SUBCLASSIFICATION *subclassification_fetch(
 			pipe2string( sys_string ) );
 
 	subclassification->account_list =
-		subclassification_account_list(
+		subclassification_total_account_list(
 			subclassification_total,
 			subclassification->subclassification_name,
 			fund_name,
@@ -1739,7 +1767,7 @@ boolean subclassification_net_assets_exists(
 	return 0;
 }
 
-LIST *subclassification_account_list(
+LIST *subclassification_total_account_list(
 			double *subclassification_total,
 			char *subclassification_name,
 			char *fund_name,

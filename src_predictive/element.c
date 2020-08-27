@@ -53,52 +53,31 @@ char *element_primary_where( char *element_name )
 	return strdup( where );
 }
 
-char *element_sys_string(
-			char *where,
-			char *order )
+char *element_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
-	char order_clause[ 128 ];
 
-	if ( !where || !*where ) where = "1 = 1";
-
-	if ( order )
-	{
-		sprintf( order_clause,
-			 "order by %s",
-			 order );
-	}
-	else
-	{
-		*order_clause = '\0';
-	}
+	if ( !where || !*where ) return (char *)0;
 
 	sprintf(sys_string,
-		"echo \"select %s from %s where %s %s;\" | sql",
+		"echo \"select %s from %s where %s;\" | sql",
 		/* -------------------------- */
 		/* Safely returns heap memory */
 		/* -------------------------- */
 		element_select(),
 		"element",
-		where,
-		order_clause );
+		where );
 
 	return strdup( sys_string );
 }
 
 ELEMENT *element_fetch( char *element_name )
 {
-	char where[ 256 ];
-
-	sprintf(where,
-		"element = '%s'",
-		element_name );
-
 	return element_parse(
 			pipe2string(
 				element_sys_string(
-					element_primary_where( element_name ),
-					(char *)0 /* order */ ) ) );
+					element_primary_where(
+						element_name ) ) ) );
 }
 
 ELEMENT *element_account_name_fetch(
@@ -307,7 +286,7 @@ LIST *element_subclassification_list(
 				strdup( subclassification_name ) );
 
 		subclassification->account_list =
-			subclassification_account_list(
+			subclassification_total_account_list(
 				&subclassification->subclassification_total,
 				subclassification->subclassification_name,
 				fund_name,
@@ -513,27 +492,6 @@ boolean element_is_period( char *element_name )
 		return 1;
 	else
 		return 0;
-}
-
-boolean element_account_accumulate_debit(
-			char *account_name )
-{
-	ELEMENT *element;
-
-	if ( ! ( element =
-			element_account_name_fetch(
-				account_name ) ) )
-	{
-		fprintf( stderr,
-	"Warning in %s/%s()/%d: cannot fetch element for account = (%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 account_name );
-		return 0;
-	}
-
-	return element->accumulate_debit;
 }
 
 double element_value(	LIST *subclassification_list,
@@ -983,5 +941,26 @@ ACCOUNT *element_account_seek(
 		} while( list_next( element->subclassification_list ) );
 	} while( list_next( element_list ) );
 	return (ACCOUNT *)0;
+}
+
+boolean element_account_accumulate_debit(
+			char *account_name )
+{
+	ELEMENT *element;
+
+	if ( ! ( element =
+			element_account_name_fetch(
+				account_name ) ) )
+	{
+		fprintf( stderr,
+	"Warning in %s/%s()/%d: cannot fetch element for account = (%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 account_name );
+		return 0;
+	}
+
+	return element->accumulate_debit;
 }
 

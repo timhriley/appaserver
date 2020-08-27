@@ -82,9 +82,6 @@ LIST *element_list(	LIST *filter_element_name_list,
 boolean element_is_period(
 			char *element_name );
 
-boolean element_account_accumulate_debit(
-			char *account_name );
-
 double element_value(	LIST *subclassification_list,
 			boolean element_accumulate_debit );
 
@@ -116,8 +113,7 @@ char *element_primary_where(
 			char *element_name );
 
 char *element_sys_string(
-			char *where,
-			char *order );
+			char *where );
 
 ACCOUNT *element_account_seek(
 			LIST *element_list,
@@ -129,6 +125,9 @@ LIST *element_system_list(
 			char *fund_name,
 			char *as_of_date,
 			boolean omit_subclassification );
+
+boolean element_account_accumulate_debit(
+			char *account_name );
 
 #endif
 

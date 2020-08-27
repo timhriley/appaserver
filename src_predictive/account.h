@@ -162,4 +162,7 @@ ACCOUNT *account_getset(
 			LIST *account_list,
 			char *account_name );
 
+boolean account_accumulate_debit(
+			char *subclassification_name );
+
 #endif

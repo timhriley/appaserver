@@ -316,8 +316,8 @@ ACCOUNT *account_parse( char *input )
 	}
 
 	account->accumulate_debit =
-		element_account_accumulate_debit(
-			account->account_name );
+		account_accumulate_debit(
+			account->subclassification_name );
 
 	return account;
 }
@@ -804,5 +804,38 @@ void account_propagate( char *account_name,
 	journal_propagate(
 		transaction_date_time,
 		account_name );
+}
+
+boolean account_accumulate_debit(
+			char *subclassification_name )
+{
+	SUBCLASSIFICATION *subclassification;
+	ELEMENT *element;
+
+	if ( ! ( subclassification =
+			subclassification_fetch(
+				subclassification_name ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: subclassification_fetch(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 subclassification_name );
+	}
+
+	if ( ! ( element =
+			element_fetch(
+				subclassification->element_name ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: element_fetch(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 subclassification->element_name );
+	}
+
+	return element->accumulate_debit;
 }
 

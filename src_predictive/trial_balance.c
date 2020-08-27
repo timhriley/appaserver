@@ -875,8 +875,8 @@ void trial_balance_account_html_table(
 	double prior_balance_change;
 
 	*accumulate_debit =
-		element_account_accumulate_debit(
-			account->account_name );
+		account_accumulate_debit(
+			account->subclassification_name );
 
 	*balance = account->latest_journal->balance;
 
@@ -1858,8 +1858,8 @@ void build_PDF_account_row(	LIST *column_data_list,
 	today_date_string = date_get_now_yyyy_mm_dd( date_get_utc_offset() );
 
 	*accumulate_debit =
-		element_account_accumulate_debit(
-			account->account_name );
+		account_accumulate_debit(
+			account->subclassification_name );
 
 	date_convert_source_international(
 		transaction_date_american,
@@ -2169,8 +2169,8 @@ void trial_balance_account_stdout(
 	double prior_balance_change;
 
 	*accumulate_debit =
-		element_account_accumulate_debit(
-			account->account_name );
+		account_accumulate_debit(
+			account->subclassification_name );
 
 	*balance = account->latest_journal->balance;
 

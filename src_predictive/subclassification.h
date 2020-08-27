@@ -55,11 +55,14 @@ SUBCLASSIFICATION *subclassification_parse(
 char *subclassification_select(
 			void );
 
-SUBCLASSIFICATION *subclassification_fetch(
+SUBCLASSIFICATION *subclassification_total_fetch(
 			double *subclassification_total,
 			char *subclassification_name,
 			char *fund_name,
 			char *as_of_date );
+
+SUBCLASSIFICATION *subclassification_fetch(
+			char *subclassification_name );
 
 SUBCLASSIFICATION *subclassification_new(
 			char *subclassification_name );
@@ -122,6 +125,15 @@ boolean subclassification_net_assets_exists(
 			LIST *subclassification_list );
 
 LIST *subclassification_account_list(
+			double *subclassification_total,
+			char *subclassification_name,
+			char *fund_name,
+			char *as_of_date );
+
+SUBCLASSIFICATION *subclassification_fetch(
+			char *subclassification_name );
+
+LIST *subclassification_total_account_list(
 			double *subclassification_total,
 			char *subclassification_name,
 			char *fund_name,
