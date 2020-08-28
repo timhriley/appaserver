@@ -67,6 +67,11 @@ char *account_escape_name(
 char *account_name_escape(
 			char *account_name );
 
+/* Returns static memory */
+/* --------------------- */
+char *account_name_format(
+			char *account_name );
+
 ACCOUNT *account_fetch(	char *account_name );
 
 ACCOUNT *account_new(	char *account_name );

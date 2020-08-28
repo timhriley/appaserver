@@ -1198,20 +1198,6 @@ LIST *bank_upload_transaction_list(
 	return transaction_list;
 }
 
-/* Insert into TRANSACTION and JOURNAL */
-/* ----------------------------------- */
-void bank_upload_transaction_insert(
-			LIST *bank_upload_list )
-{
-	LIST *transaction_list;
-
-	transaction_list =
-		bank_upload_transaction_list(
-			bank_upload_list );
-
-	transaction_list_insert( transaction_list );
-}
-
 void bank_upload_table_display(
 				LIST *bank_upload_list )
 {
@@ -1777,8 +1763,7 @@ void bank_upload_reconciliation_transaction_insert(
 	} while( list_next( transaction_list ) );
 
 	pclose( output_pipe );
-
-} /* bank_upload_reconciliation_transaction_insert() */
+}
 
 LIST *bank_upload_feeder_transaction_list(
 				char *fund_name,

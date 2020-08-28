@@ -81,6 +81,14 @@ char *account_name_escape(
 	return account_escape_name( account_name );
 }
 
+char *account_name_format(
+			char *account_name )
+{
+	static char name_format[ 256 ];
+
+	return format_initial_capital( name_format, account_name );
+}
+
 char *account_escape_name(
 			char *account_name )
 {

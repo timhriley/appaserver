@@ -217,16 +217,14 @@ int main( int argc, char **argv )
 
 	if ( execute )
 	{
-		bank_upload_transaction_balance_propagate(
-				minimum_bank_date );
-
 		process_increment_execution_count(
 			application_name,
 			process_name,
 			appaserver_parameter_file_get_dbms() );
 
 		printf(
-		"<p>Process complete with %d rows and %d transactions.\n",
+	"<p>Process complete as of %s with %d rows and %d transactions.\n",
+			minimum_bank_date,
 			load_count,
 			transaction_count );
 	}
@@ -313,6 +311,18 @@ int load_bank_spreadsheet(
 		execute = 0;
 	}
 
+	*minimum_bank_date =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		bank_upload_minimum_bank_date(
+			bank_upload_structure->
+				file.
+				minimum_bank_date,
+			bank_upload_structure->
+				file.
+				bank_upload_list );
+
 	if ( !execute )
 	{
 		bank_upload_table_display(
@@ -336,6 +346,8 @@ int load_bank_spreadsheet(
 	/* Else execute */
 	/* ------------ */
 	{
+		LIST *transaction_list;
+
 		if ( ! ( bank_upload_structure->file.table_insert_count =
 				bank_upload_insert(
 					fund_name,
@@ -366,18 +378,24 @@ int load_bank_spreadsheet(
 			fund_name,
 			bank_upload_structure->
 				file.
-				bank_upload_list
-					/* bank_upload_list */,
+				bank_upload_list,
 			bank_upload_structure->
 				bank_upload_date_time );
+
+		transaction_list =
+			bank_upload_transaction_list(
+				bank_upload_structure->
+					file.
+					bank_upload_list );
+
+		/* transaction_list_stderr( transaction_list ); */
 
 		/* ------------------------------------ */
 		/* Insert into TRANSACTION and JOURNAL	*/
 		/* ------------------------------------ */
 		/* Note: this is the bottleneck.	*/
 		/* ------------------------------------ */
-		bank_upload_transaction_insert(
-			bank_upload_structure->file.bank_upload_list );
+		transaction_list_insert( transaction_list );
 
 		bank_upload_transaction_table_display(
 			bank_upload_structure->file.bank_upload_list );
@@ -404,6 +422,9 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				file.
 				bank_upload_list );
+
+		bank_upload_transaction_balance_propagate(
+			*minimum_bank_date );
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -417,18 +438,6 @@ int load_bank_spreadsheet(
 
 		printf( "\n" );
 	}
-
-	*minimum_bank_date =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		bank_upload_minimum_bank_date(
-			bank_upload_structure->
-				file.
-				minimum_bank_date,
-			bank_upload_structure->
-				file.
-				bank_upload_list );
 
 	if ( bank_upload_exception == duplicated_spreadsheet_file )
 		return 0;

@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "timlib.h"
+#include "float.h"
 #include "String.h"
 #include "list.h"
 #include "sql.h"
@@ -280,7 +281,7 @@ void journal_insert_pipe(
 	if ( is_debit )
 	{
 		fprintf(	insert_pipe,
-				"%s^%s^%s^%s^%.2lf\n",
+				"%s^%s^%s^%s^%.2lf^\n",
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -297,7 +298,7 @@ void journal_insert_pipe(
 	else
 	{
 		fprintf(	insert_pipe,
-				"%s^%s^%s^%s^%.2lf\n",
+				"%s^%s^%s^%s^^%.2lf\n",
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -319,10 +320,10 @@ void journal_propagate(
 			char *transaction_date_time,
 			char *account_name )
 {
-	if ( !account_name )
+	if ( !account_name || !*account_name )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty account_name: %s.\n",
+"ERROR in %s/%s()/%d: empty account_name for transaction_date_time: %s.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -1005,7 +1006,7 @@ JOURNAL *journal_check_number_seek(
 	return (JOURNAL *)0;
 }
 
-void journal_list_display(
+void journal_list_pipe_display(
 			FILE *output_pipe,
 			char *transaction_memo,
 			char *heading,
@@ -1142,7 +1143,7 @@ void journal_list_text_display(
 	fflush( stdout );
 	output_pipe = popen( sys_string, "w" );
 
-	journal_list_display(
+	journal_list_pipe_display(
 			output_pipe,
 			transaction_memo,
 			heading,
@@ -1182,7 +1183,7 @@ void journal_list_html_display(
 	fflush( stdout );
 	output_pipe = popen( sys_string, "w" );
 
-	journal_list_display(
+	journal_list_pipe_display(
 			output_pipe,
 			transaction_memo,
 			(char *)0 /* heading */,
@@ -1388,3 +1389,130 @@ void journal_list_stdout( LIST *journal_list )
 	
 	} while( list_next( journal_list ) );
 }
+
+char *journal_list_display(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			LIST *journal_list )
+{
+	JOURNAL *journal;
+	char full_name_buffer[ 128 ];
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+
+	if ( timlib_strcmp( street_address, "null" ) != 0
+	&&   timlib_strcmp( street_address, "unknown" ) != 0 )
+	{
+		printf(	full_name_buffer,
+			"%s/%s",
+			full_name,
+			street_address );
+	}
+	else
+	{
+		strcpy( full_name_buffer, full_name );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"Name = %s; ",
+		full_name_buffer );
+
+	ptr += sprintf(
+		ptr,
+		"Transaction date time = %s; ",
+		transaction_date_time );
+
+	ptr += sprintf(
+		ptr,
+	 	"Transaction amount = %.2lf; ",
+	 	transaction_amount );
+
+	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
+	{
+		ptr += sprintf(
+			ptr,
+		 	"Memo = %s; ",
+		 	memo );
+	}
+
+	if ( !list_rewind( journal_list ) )
+	{
+		ptr += sprintf(
+			ptr,
+			"Warning: empty journal list" );
+
+		return strdup( buffer );
+	}
+
+	do {
+
+		journal = list_get( journal_list );
+
+		ptr += sprintf( 
+			ptr,
+			"%s",
+			journal_display(
+				journal->account_name,
+				journal->previous_balance,
+				journal->debit_amount,
+				journal->credit_amount,
+				journal->balance ) );
+
+	} while ( list_next( journal_list ) );
+
+	return strdup( buffer );
+}
+
+char *journal_display(
+			char *account_name,
+			double previous_balance,
+			double debit_amount,
+			double credit_amount,
+			double balance )
+{
+	char buffer[ 1024 ];
+	char *ptr = buffer;
+
+	ptr += sprintf(
+		ptr,
+		"account = %s; previous_balance = %.2lf; ",
+		account_name_display( account_name ),
+		previous_balance );
+
+	if ( debit_amount )
+	{
+		ptr += sprintf(
+			ptr,
+			"debit  = %12.2lf; ",
+			debit_amount );
+
+		ptr += sprintf(
+			ptr,
+			"%12s",
+			"" );
+	}
+	else
+	{
+		ptr += sprintf(
+			ptr,
+			"%12s",
+			"" );
+
+		ptr += sprintf(
+			ptr,
+			"credit = %12.2lf; ",
+			credit_amount );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"balance = %12.2lf\n",
+		balance );
+
+	return strdup( buffer );
+}
+

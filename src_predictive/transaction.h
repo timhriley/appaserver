@@ -96,6 +96,9 @@ char *transaction_insert_pipe(
 LIST *transaction_list_insert(
 			LIST *transaction_list );
 
+void transaction_list_stderr(
+			LIST *transaction_list );
+
 /* TRANSACTION with program_name addition */
 /* -------------------------------------- */
 FILE *transaction_program_insert_open(
@@ -406,5 +409,8 @@ char *transaction_exists_closing_date_time(
 
 LIST *transaction_date_time_account_name_list(
 			char *transaction_date_time );
+
+void transaction_list_stderr(
+			LIST *transaction_list );
 
 #endif

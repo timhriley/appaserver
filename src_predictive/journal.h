@@ -180,7 +180,15 @@ void journal_list_html_display(
 			LIST *journal_list,
 			char *transaction_memo );
 
-void journal_list_display(
+char *journal_list_display(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			LIST *journal_list );
+
+void journal_list_pipe_display(
 			FILE *output_pipe,
 			char *transaction_memo,
 			char *heading,
@@ -226,5 +234,12 @@ void journal_list_stdout(
 
 void journal_list_update(
 			LIST *journal_list );
+
+char *journal_display(
+			char *account_name,
+			double previous_balance,
+			double debit_amount,
+			double credit_amount,
+			double balance );
 
 #endif

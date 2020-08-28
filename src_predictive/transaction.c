@@ -229,7 +229,7 @@ FILE *transaction_insert_open( void )
 		"lock_transaction_yn";
 
 	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s delimiter='^'	|"
+		 "insert_statement table=%s field=%s delimiter='^'	|"
 		 "sql 2>&1						 ",
 		 "transaction",
 		 field );
@@ -338,7 +338,7 @@ char *transaction_insert_pipe(
 			street_address,
 			transaction_date_time,
 			transaction_amount,
-			memo );
+			(memo) ? memo : "" );
 
 	transaction_check_insert(
 		insert_pipe,
@@ -753,6 +753,28 @@ TRANSACTION *transaction_seek(
 	return (TRANSACTION *)0;
 }
 
+void transaction_list_stderr( LIST *transaction_list )
+{
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( transaction_list ) ) return;
+
+	do {
+		transaction = list_get( transaction_list );
+
+		fprintf( stderr,
+			 "%s\n",
+			 journal_list_display(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->transaction_amount,
+				transaction->memo,
+				transaction->journal_list ) );
+
+	} while( list_next( transaction_list ) );
+}
+
 /* Returns transaction_list with transaction_date_time changed if needed. */
 /* ---------------------------------------------------------------------- */
 LIST *transaction_list_insert( LIST *transaction_list )
@@ -776,7 +798,7 @@ LIST *transaction_list_insert( LIST *transaction_list )
 
 	} while( list_next( transaction_list ) );
 
-	/* transaction_list_journal_insert( transaction_list ); */
+	transaction_list_journal_insert( transaction_list );
 
 	return transaction_list;
 }
