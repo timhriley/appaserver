@@ -108,20 +108,33 @@ JOURNAL *journal_account_fetch(
 	return journal_parse( pipe2string( sys_string ) );
 }
 
-/* Returns program memory */
-/* ---------------------- */
+/* Safely returns heap memory */
+/* -------------------------- */
 char *journal_select( void )
 {
-	return
-	"full_name,"
-	"street_address,"
-	"transaction_date_time,"
-	"account,"
-	"previous_balance,"
-	"debit_amount,"
-	"credit_amount,"
-	"balance,"
-	"transaction_count";
+	char select[ 512 ];
+
+	sprintf(select,
+		"%s.full_name,"
+		"%s.street_address,"
+		"%s.transaction_date_time,"
+		"%s.account,"
+		"%s.previous_balance,"
+		"%s.debit_amount,"
+		"%s.credit_amount,"
+		"%s.balance,"
+		"%s.transaction_count",
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE );
+
+	return strdup( select );
 }
 
 JOURNAL *journal_parse( char *input )

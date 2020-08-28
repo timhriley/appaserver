@@ -363,7 +363,6 @@ char *account_hard_coded_account_name(
 			const char *calling_function_name )
 {
 	static LIST *local_account_list = {0};
-	char *key;
 	ACCOUNT *account;
 
 	if ( !local_account_list )
@@ -385,7 +384,7 @@ char *account_hard_coded_account_name(
 				 __FUNCTION__,
 				 __LINE__,
 				 calling_function_name,
-				 key );
+				 hard_coded_account_key );
 			exit( 1 );
 		}
 		else
@@ -409,7 +408,9 @@ ACCOUNT *account_key_seek(
 	do {
 		account = list_get( account_list );
 
-		if ( fund_name )
+		if ( fund_name
+		&&   *fund_name
+		&&   strcmp( fund_name, "fund" ) != 0 )
 		{
 			if ( timlib_strcmp(
 				account->fund_name,
@@ -431,6 +432,7 @@ ACCOUNT *account_key_seek(
 			}
 		}
 	} while( list_next( account_list ) );
+
 	return (ACCOUNT *)0;
 }
 

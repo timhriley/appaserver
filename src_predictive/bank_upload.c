@@ -23,6 +23,7 @@
 #include "feeder_upload.h"
 #include "account.h"
 #include "reoccurring.h"
+#include "journal.h"
 #include "predictive.h"
 #include "bank_upload.h"
 
@@ -1002,8 +1003,7 @@ BANK_UPLOAD *bank_upload_parse( char *input )
 	return bank_upload;
 }
 
-LIST *bank_upload_existing_cash_journal_list(
-			char *fund_name )
+LIST *bank_upload_existing_cash_journal_list( char *fund_name )
 {
 	char sys_string[ 2048 ];
 	char *cash_account_name;
@@ -1013,7 +1013,7 @@ LIST *bank_upload_existing_cash_journal_list(
 	char *subquery_join;
 	char *select;
 	char check_number_select[ 512 ];
-	char *folder_list_string;
+	char folder[ 128 ];
 	char *timriley_where;
 
 	cash_account_name =
@@ -1033,7 +1033,9 @@ LIST *bank_upload_existing_cash_journal_list(
 	select = journal_select();
 	sprintf( check_number_select, "%s,check_number", select );
 
-	folder_list_string = "journal,transaction";
+	sprintf( folder,
+		 "%s,transaction",
+		 JOURNAL_TABLE );
 
 	join_where = transaction_journal_join();
 
@@ -1062,7 +1064,7 @@ LIST *bank_upload_existing_cash_journal_list(
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s order by %s;\" | sql",
 		 check_number_select,
-		 folder_list_string,
+		 folder,
 		 where,
 		 "transaction_date_time" );
 
@@ -1787,7 +1789,7 @@ LIST *bank_upload_feeder_transaction_list(
 {
 	char sys_string[ 2048 ];
 	char select[ 512 ];
-	char *folder;
+	char folder[ 128 ];
 	char join_where[ 512 ];
 	char where[ 1024 ];
 	char *order;
@@ -1831,15 +1833,20 @@ LIST *bank_upload_feeder_transaction_list(
 	}
 
 	sprintf( select,
-"journal.full_name, journal.street_address, transaction_date_time, %s, bank_upload_feeder_phrase",
-		 amount_column );
+"%s.full_name, %s.street_address, transaction_date_time, %s, bank_upload_feeder_phrase",
+		 amount_column,
+		 JOURNAL_TABLE,
+		 JOURNAL_TABLE );
 
-	folder = "journal,reoccurring_transaction";
+	sprintf( folder,
+		 "%s,reoccurring_transaction",
+		 JOURNAL_TABLE );
 
 	sprintf(
 join_where,
-"reoccurring_transaction.full_name = journal.full_name and	"
-"reoccurring_transaction.street_address = journal.street_address	" );
+"reoccurring_transaction.full_name = %s.full_name and			"
+"reoccurring_transaction.street_address = journal.street_address	",
+		JOURNAL_TABLE );
 
 	sprintf( where,
 "account = '%s' and ifnull( %s, 0 ) <> 0 and %s and %s and %s",
@@ -2011,27 +2018,28 @@ char *bank_upload_transaction_bank_upload_subquery( void )
 		"	      bank_upload.bank_description )		";
 
 	return subquery;
-
-} /* bank_upload_transaction_bank_upload_subquery() */
+}
 
 char *bank_upload_transaction_journal_subquery( void )
 {
-	char *subquery;
+	char subquery[ 1024 ];
 
-	subquery =
+	sprintf(subquery,
 		"not exists						"
 		"(select 1 from bank_upload_transaction			"
 		"	where bank_upload_transaction.full_name =	"
-		"	      journal.full_name and			"
+		"	      %s.full_name and				"
 		"	      bank_upload_transaction.street_address =	"
-		"	      journal.street_address and		"
+		"	      %s.street_address and			"
 		"	      bank_upload_transaction.			"
 		"		transaction_date_time =			"
-		" 	      journal.transaction_date_time )		";
+		" 	      %s.transaction_date_time )		",
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE );
 
-	return subquery;
-
-} /* bank_upload_transaction_journal_subquery() */
+	return strdup( subquery );
+}
 
 void bank_upload_transaction_balance_propagate(
 			char *bank_date )

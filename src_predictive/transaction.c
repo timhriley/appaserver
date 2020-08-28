@@ -1117,12 +1117,12 @@ char *transaction_journal_join( void )
 {
 	char *join_where;
 
-	join_where =	"journal_ledger.full_name ="
-			"	transaction.full_name and"
-			"journal_ledger.street_address ="
-			"	transaction.street_address and"
-			"journal_ledger.transaction_date_time ="
-			"	transaction.transaction_date_time";
+	join_where =	"journal_ledger.full_name =			"
+			"	transaction.full_name and		"
+			"journal_ledger.street_address =		"
+			"	transaction.street_address and		"
+			"journal_ledger.transaction_date_time =		"
+			"	transaction.transaction_date_time	";
 
 	return join_where;
 }

@@ -53,8 +53,8 @@ JOURNAL *journal_account_fetch(
 			char *account_name,
 			char *transaction_date_time );
 
-/* Returns program memory */
-/* ---------------------- */
+/* Safely returns heap memory */
+/* -------------------------- */
 char *journal_select(	void );
 
 JOURNAL	*journal_parse(	char *input );

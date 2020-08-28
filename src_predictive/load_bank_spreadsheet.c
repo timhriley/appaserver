@@ -68,7 +68,6 @@ int main( int argc, char **argv )
 	int balance_piece_offset;
 	boolean reverse_order;
 	boolean execute;
-	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	int load_count = 0;
 	int transaction_count = 0;
@@ -165,23 +164,10 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	printf( "<h1>%s\n",
 		format_initial_capital( buffer, process_name ) );
