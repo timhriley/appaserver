@@ -968,10 +968,8 @@ char *transaction_balance_report_finished_message(
 	if ( ! ( bank_upload_balance =
 			bank_upload_archive_latest_running_balance() ) )
 	{
-		sprintf( message,
+		ptr += sprintf( ptr,
 		"<h3>Warning: empty bank upload archive balance.</h3>\n" );
-
-		return strdup( message );
 	}
 
 	if ( !timlib_dollar_virtually_same(
