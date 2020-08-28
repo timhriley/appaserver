@@ -187,35 +187,20 @@ JOURNAL *journal_parse( char *input )
 
 boolean journal_accumulate_debit( char *account_name )
 {
-	char sys_string[ 1024 ];
-	char *select;
-	char *from;
-	char where[ 512 ];
-	char *results;
+	ACCOUNT *account;
 
-	select = "element.accumulate_debit_yn";
-	from = "account, subclassification, element";
+	if ( ! ( account = account_fetch( account_name ) ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: account_fetch(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 account_name );
+		exit( 1 );
+	}
 
-	sprintf( where,
-		 "account.account = '%s' and			"
-		 "account.subclassification =			"
-		 "	subclassification.subclassification and	"
-		 "subclassification.element =			"
-		 "	element.element				",
-		 account_name_escape( account_name ) );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 select,
-		 from,
-		 where );
-
-	results = pipe2string( sys_string );
-
-	if ( results && *results == 'y' )
-		return 1;
-	else
-		return 0;
+	return account->accumulate_debit;
 }
 
 LIST *journal_system_list( char *sys_string )
