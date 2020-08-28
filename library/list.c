@@ -194,6 +194,11 @@ void *list_get_last_pointer( LIST *list )
 
 void *list_get_first( LIST *list )
 {
+	return list_first( list );
+}
+
+void *list_first( LIST *list )
+{
 	if ( !go_head( list ) )
 		return (void *)0;
 	else

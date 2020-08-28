@@ -44,8 +44,9 @@ JOURNAL *journal_new(		char *full_name,
 	return journal;
 }
 
-JOURNAL *journal_prior(		char *transaction_date_time,
-				char *account_name )
+JOURNAL *journal_prior(
+			char *transaction_date_time,
+			char *account_name )
 {
 	char where[ 512 ];
 	char *select;
@@ -70,7 +71,7 @@ JOURNAL *journal_prior(		char *transaction_date_time,
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s;\" | sql.e",
 		 select,
-		 "journal",
+		 JOURNAL_TABLE_NAME,
 		 where );
 
 	results = pipe2string( sys_string );
@@ -331,14 +332,15 @@ void journal_propagate(
 		exit( 1 );
 	}
 
-	journal_list_set_balances(
-		journal_list_prior(
-			journal_prior(
-				transaction_date_time,
+	journal_list_update(
+		journal_list_set_balances(
+			journal_list_prior(
+				journal_prior(
+					transaction_date_time,
+					account_name ),
 				account_name ),
-			account_name ),
-		journal_accumulate_debit(
-			account_name ) );
+			journal_accumulate_debit(
+				account_name ) ) );
 }
 
 LIST *journal_list_prior(
@@ -384,7 +386,7 @@ LIST *journal_list_prior(
 	return journal_list;
 }
 
-void journal_list_set_balances(
+LIST *journal_list_set_balances(
 			LIST *journal_list,
 			boolean accumulate_debit )
 {
@@ -393,7 +395,7 @@ void journal_list_set_balances(
 	JOURNAL *first_journal = {0};
 	int transaction_count;
 
-	if ( !list_rewind( journal_list ) ) return;
+	if ( !list_rewind( journal_list ) ) return (LIST *)0;
 
 	/* Need a separate transaction_count to keep from double counting. */
 	/* --------------------------------------------------------------- */
@@ -457,6 +459,8 @@ void journal_list_set_balances(
 		prior_journal = journal;
 
 	} while( list_next( journal_list ) );
+
+	return journal_list;
 }
 
 LIST *journal_list_minimum(
@@ -510,7 +514,7 @@ LIST *journal_list_fetch( char *where )
 		 journal_select(),
 		 JOURNAL_FOLDER_NAME,
 		 where,
-		 journal_select() );
+		 "transaction_date_time" );
 
 	return journal_system_list( sys_string );
 }
@@ -797,17 +801,22 @@ char *journal_update_sys_string( void )
 void journal_list_propagate_update(
 			LIST *propagate_journal_list )
 {
+	journal_list_update( propagate_journal_list );
+}
+
+void journal_list_update( LIST *journal_list )
+{
 	JOURNAL *journal;
 	FILE *update_pipe;
 
-	if ( !list_rewind( propagate_journal_list ) ) return;
+	if ( !list_rewind( journal_list ) ) return;
 
 	update_pipe =
 		popen(	journal_update_sys_string(),
 			"w" );
 
 	do {
-		journal = list_get( propagate_journal_list );
+		journal = list_get( journal_list );
 
 		if (	journal->transaction_count !=
 			journal->transaction_count_database )
@@ -854,7 +863,7 @@ void journal_list_propagate_update(
 			 	journal->balance );
 		}
 
-	} while( list_next( propagate_journal_list ) );
+	} while( list_next( journal_list ) );
 
 	pclose( update_pipe );
 }
@@ -1020,6 +1029,10 @@ void journal_list_display(
 	{
 		strncpy( transaction_memo_buffer, transaction_memo, 30 );
 		*(transaction_memo_buffer + 30) = '\0';
+	}
+	else
+	{
+		*transaction_memo_buffer = '\0';
 	}
 
 	if ( heading ) fprintf( output_pipe, "%s\n", heading );
@@ -1341,3 +1354,39 @@ LIST *journal_binary_list(
 	return journal_list;
 }
 
+void journal_list_stdout( LIST *journal_list )
+{
+	char buffer[ 128 ];
+	JOURNAL *journal;
+
+	if ( !list_rewind( journal_list ) ) return;
+
+	do {
+		journal = list_get( journal_list );
+	
+		if ( !dollar_virtually_same(
+			journal->debit_amount,
+			0.0 ) )
+		{
+			printf( "%s^%.2lf^^%.2lf\n",
+				format_initial_capital(
+					buffer,
+					journal->account_name ),
+			 	journal->debit_amount,
+				journal->balance );
+		}
+		else
+		if ( !dollar_virtually_same(
+			journal->credit_amount,
+			0.0 ) )
+		{
+			printf( "%s^^%.2lf^%.2lf\n",
+				format_initial_capital(
+					buffer,
+					journal->account_name ),
+			 	journal->credit_amount,
+				journal->balance );
+		}
+	
+	} while( list_next( journal_list ) );
+}

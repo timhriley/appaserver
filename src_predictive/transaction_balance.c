@@ -32,8 +32,7 @@ TRANSACTION_BALANCE_ROW *transaction_balance_row_new( void )
 	}
 
 	return p;
-
-} /* transaction_balance_calloc() */
+}
 
 TRANSACTION_BALANCE_BLOCK *transaction_balance_block_new( void )
 {
@@ -52,8 +51,7 @@ TRANSACTION_BALANCE_BLOCK *transaction_balance_block_new( void )
 	}
 
 	return p;
-
-} /* transaction_balance_block_new() */
+}
 
 TRANSACTION_BALANCE *transaction_balance_calloc( void )
 {
@@ -74,9 +72,9 @@ TRANSACTION_BALANCE *transaction_balance_calloc( void )
 
 } /* transaction_balance_calloc() */
 
-TRANSACTION_BALANCE *transaction_balance_new(
-					char *begin_date,
-					double cash_ending_balance )
+TRANSACTION_BALANCE *transaction_balance_fetch(
+			char *begin_date,
+			double cash_ending_balance )
 {
 	TRANSACTION_BALANCE *p;
 
@@ -519,8 +517,7 @@ void transaction_balance_row_stdout(
 	printf( "Bank running balance: %.2lf\n", row->bank_running_balance );
 	printf( "Sequence number: %d\n", row->sequence_number );
 	printf( "\n" );
-
-} /* transaction_balance_row_stdout() */
+}
 
 boolean transaction_balance_last_block_inbalance(
 			LIST *merged_block_list )
@@ -647,14 +644,12 @@ boolean transaction_balance_bank_running_balance_wrong(
 }
 
 char *transaction_balance_row_display(
-				TRANSACTION_BALANCE_ROW *row,
-				LIST *transaction_balance_row_list,
-				double bank_amount,
-				boolean cash_running_balance_wrong,
-				boolean bank_running_balance_wrong,
-				int sequence_number )
+			TRANSACTION_BALANCE_ROW *row,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong,
+			int sequence_number )
 {
-	char buffer[ 1024 ];
+	char buffer[ 2048 ];
 	char *ptr = buffer;
 
 	if ( !row ) return "Error: empty row.";
@@ -688,21 +683,66 @@ char *transaction_balance_row_display(
 		 bank_running_balance_wrong,
 		 sequence_number );
 
-#ifdef NOT_DEFINED
-		 transaction_balance_cash_running_balance_wrong(
-			row->transaction_date_time
-				/* first_outbalance_transaction_date_time */,
-			transaction_balance_row_list,
-			bank_amount ),
-		 transaction_balance_bank_running_balance_wrong(
-			row->transaction_date_time
-				/* first_outbalance_transaction_date_time */,
-			transaction_balance_row_list,
-			bank_amount ),
-#endif
-
 	ptr += sprintf( ptr,
 "</table>" );
+
+	return strdup( buffer );
+}
+
+char *transaction_balance_row_display_stdout(
+			TRANSACTION_BALANCE_ROW *row,
+			double bank_amount,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong,
+			int sequence_number )
+{
+	char buffer[ 2048 ];
+	char *ptr = buffer;
+
+	if ( !row ) return "Error: empty row.";
+
+	ptr += sprintf( ptr,
+		"%-30s = %s\n"
+		"%-30s = %s\n"
+		"%-30s = %.45s\n"
+		"%-30s = %s\n"
+
+		"%-30s = %.2lf\n"
+		"%-30s = %.2lf\n"
+		"%-30s = %.2lf\n"
+		"%-30s = %.2lf\n"
+		"%-30s = %.2lf\n"
+
+		"%-30s = %d\n"
+		"%-30s = %d\n"
+		"%-30s = %d\n",
+
+		"transaction_date_time",
+		row->transaction_date_time,
+		"bank_date",
+		row->bank_date,
+		"bank_description",
+		row->bank_description,
+		"full_name",
+		row->full_name,
+
+		"transaction_amount",
+		row->transaction_amount,
+		"bank_amount",
+		bank_amount,
+		"cash_running_balance",
+		row->cash_running_balance,
+		"bank_running_balance",
+		row->bank_running_balance,
+		"anomaly",
+		row->cash_running_balance - row->bank_running_balance,
+
+		"cash_running_balance_wrong",
+		(boolean)cash_running_balance_wrong,
+		"bank_running_balance_wrong",
+		(boolean)bank_running_balance_wrong,
+		"sequence_number",
+		sequence_number );
 
 	return strdup( buffer );
 }

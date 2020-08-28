@@ -165,4 +165,7 @@ ACCOUNT *account_getset(
 boolean account_accumulate_debit(
 			char *subclassification_name );
 
+void account_transaction_propagate(
+			char *propagate_transaction_date_time );
+
 #endif

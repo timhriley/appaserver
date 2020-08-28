@@ -839,3 +839,27 @@ boolean account_accumulate_debit(
 	return element->accumulate_debit;
 }
 
+void account_transaction_propagate(
+			char *propagate_transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char account[ 256 ];
+	FILE *input_pipe;
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s;\" | sql",
+		 "account",
+		 "account" );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( string_input( account, input_pipe, 256 ) )
+	{
+		journal_propagate(
+			propagate_transaction_date_time,
+			account );
+	}
+
+	pclose( input_pipe );
+}
+

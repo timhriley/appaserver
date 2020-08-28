@@ -177,12 +177,17 @@ LIST *dictionary_string2list( char *dictionary_string,
 LIST *list_trim_indices( LIST *string_list );
 LIST *list_unique( LIST *string_list );
 char *list_get_string( LIST *list );
-void *list_get_first( LIST *list );
-void *list_get_first_pointer( LIST *list );
 
-void *list_last( LIST *list );
+void *list_first(	LIST *list );
 
-void *list_get_last( LIST *list );
+void *list_get_first(	LIST *list );
+
+void *list_get_first_pointer(
+			LIST *list );
+
+void *list_last(	LIST *list );
+
+void *list_get_last(	LIST *list );
 
 void *list_get_last_pointer( LIST *list );
 

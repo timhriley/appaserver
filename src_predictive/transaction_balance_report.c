@@ -47,18 +47,13 @@ char *transaction_balance_report_finished_message(
 			double cash_running_balance,
 			double bank_running_balance );
 
-void transaction_balance_report_summary_inbalance(
-			TRANSACTION_BALANCE_BLOCK *last_inbalance_block );
-
-void transaction_balance_report_summary_outbalance(
-			TRANSACTION_BALANCE_BLOCK *last_outbalance_block,
-			LIST *transaction_balance_row_list );
-
 char *transaction_balance_report_duplicated_withdrawal_message(
 			double transaction_amount,
 			double bank_amount,
 			double balance,
-			double bank_running_balance );
+			double bank_running_balance,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong );
 
 double transaction_balance_report_duplicated_withdrawal_amount(
 			char *message,
@@ -85,6 +80,23 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 			char *sub_title,
 			char *begin_date_string );
 
+TRANSACTION_BALANCE *transaction_balance_report_stdout(
+			char *begin_date_string );
+
+void transaction_balance_summary_inbalance_html(
+			TRANSACTION_BALANCE_BLOCK *last_inbalance_block );
+
+void transaction_balance_summary_outbalance_html(
+			TRANSACTION_BALANCE_BLOCK *last_outbalance_block,
+			LIST *transaction_balance_row_list );
+
+void transaction_balance_summary_inbalance_stdout(
+			TRANSACTION_BALANCE_BLOCK *last_inbalance_block );
+
+void transaction_balance_summary_outbalance_stdout(
+			TRANSACTION_BALANCE_BLOCK *last_inbalance_block,
+			LIST *transaction_balance_row_list );
+
 /* Global variables */
 /* ---------------- */
 enum bank_upload_exception bank_upload_exception = {0};
@@ -93,7 +105,6 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char title[ 256 ];
 	char sub_title[ 256 ];
@@ -132,26 +143,19 @@ int main( int argc, char **argv )
 	}
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
+	{
 		output_medium = "table";
+	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( title, application_name );
-	document->output_content_type = 1;
-
-	document_output_heading(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(	document->application_name,
-				document->onload_control_string );
+	if ( strcmp( output_medium, "stdout" ) != 0 )
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+	}
 
 	format_initial_capital( title, process_name );
 	sprintf( sub_title, "Starting %s", begin_date_string );
@@ -172,7 +176,7 @@ int main( int argc, char **argv )
 		{
 			if ( transaction_balance->last_block_inbalance )
 			{
-				transaction_balance_report_summary_inbalance(
+				transaction_balance_summary_inbalance_html(
 					list_get_last_pointer( 
 						transaction_balance->
 						     inbalance_block_list ) );
@@ -182,7 +186,42 @@ int main( int argc, char **argv )
 					transaction_balance->
 						outbalance_block_list ) )
 			{
-				transaction_balance_report_summary_outbalance(
+				transaction_balance_summary_outbalance_html(
+					list_get_last_pointer( 
+						transaction_balance->
+						     outbalance_block_list ),
+					transaction_balance->
+						input.
+						transaction_balance_row_list );
+			}
+		}
+	}
+	else
+	if ( strcmp( output_medium, "stdout" ) == 0 )
+	{
+		transaction_balance =
+			transaction_balance_report_stdout(
+				begin_date_string );
+
+		transaction_balance->last_block_inbalance =
+			transaction_balance_last_block_inbalance(
+				transaction_balance->merged_block_list );
+
+		if ( list_length( transaction_balance->inbalance_block_list ) )
+		{
+			if ( transaction_balance->last_block_inbalance )
+			{
+				transaction_balance_summary_inbalance_stdout(
+					list_get_last_pointer( 
+						transaction_balance->
+						     inbalance_block_list ) );
+			}
+			else
+			if ( list_length(
+					transaction_balance->
+						outbalance_block_list ) )
+			{
+				transaction_balance_summary_outbalance_stdout(
 					list_get_last_pointer( 
 						transaction_balance->
 						     outbalance_block_list ),
@@ -197,10 +236,11 @@ int main( int argc, char **argv )
 		printf( "<h3>Error: invalid output_medium.</h3>\n" );
 	}
 
-	document_close();
-	exit( 0 );
+	if ( strcmp( output_medium, "stdout" ) != 0 )
+		document_close();
 
-} /* main() */
+	return 0;
+}
 
 TRANSACTION_BALANCE *transaction_balance_report_html_table(
 			char *title,
@@ -217,7 +257,7 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 	int count = 0;
 
 	if ( ! ( transaction_balance =
-			transaction_balance_new(
+			transaction_balance_fetch(
 				begin_date_string,
 				0.0 /* cash_ending_balance */ ) ) )
 	{
@@ -288,9 +328,6 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 
 	html_table->justify_list = justify_list;
 
-	/* html_table->number_left_justified_columns = 1; */
-	/* html_table->number_right_justified_columns = 7; */
-
 	html_table_set_heading_list( html_table, heading_list );
 
 	html_table_output_table_heading(
@@ -306,8 +343,7 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 	if ( !list_rewind( merged_block_list ) )
 	{
 		html_table_close();
-		document_close();
-		exit( 1 );
+		return transaction_balance;
 	}
 
 	do {
@@ -403,7 +439,7 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 	return transaction_balance;
 }
 
-void transaction_balance_report_summary_inbalance(
+void transaction_balance_summary_inbalance_html(
 			TRANSACTION_BALANCE_BLOCK *last_inbalance_block )
 {
 	TRANSACTION_BALANCE_ROW *row;
@@ -425,7 +461,28 @@ void transaction_balance_report_summary_inbalance(
 	}
 }
 
-void transaction_balance_report_summary_outbalance(
+void transaction_balance_report_summary_inbalance_stout(
+			TRANSACTION_BALANCE_BLOCK *last_inbalance_block )
+{
+	TRANSACTION_BALANCE_ROW *row;
+	char *finished_message;
+
+	if ( !last_inbalance_block ) return;
+
+	row = last_inbalance_block->end_transaction_balance;
+
+	finished_message =
+		transaction_balance_report_finished_message(
+			row->cash_running_balance,
+			row->bank_running_balance );
+
+	if ( finished_message && *finished_message )
+	{
+		printf( "%s\n", finished_message );
+	}
+}
+
+void transaction_balance_summary_outbalance_html(
 			TRANSACTION_BALANCE_BLOCK *last_outbalance_block,
 			LIST *transaction_balance_row_list )
 {
@@ -457,8 +514,6 @@ void transaction_balance_report_summary_outbalance(
 	printf( "<h3>First outbalance row: %s</h3>\n",
 		transaction_balance_row_display(
 			first_outbalance_row,
-			transaction_balance_row_list,
-			first_outbalance_row->bank_amount,
 			first_outbalance_row->cash_running_balance_wrong,
 			first_outbalance_row->bank_running_balance_wrong,
 			first_outbalance_row->sequence_number ) );
@@ -470,7 +525,9 @@ void transaction_balance_report_summary_outbalance(
 			first_outbalance_row->transaction_amount,
 			first_outbalance_row->bank_amount,
 			first_outbalance_row->cash_running_balance,
-			first_outbalance_row->bank_running_balance );
+			first_outbalance_row->bank_running_balance,
+			first_outbalance_row->cash_running_balance_wrong,
+			first_outbalance_row->bank_running_balance_wrong );
 	}
 
 	if ( duplicated_transaction_message && *duplicated_transaction_message )
@@ -505,6 +562,91 @@ void transaction_balance_report_summary_outbalance(
 	if ( missing_expense_message && *missing_expense_message )
 	{
 		printf( "<h3>%s</h3>\n", missing_expense_message );
+		return;
+	}
+}
+
+void transaction_balance_summary_outbalance_stdout(
+			TRANSACTION_BALANCE_BLOCK *last_outbalance_block,
+			LIST *transaction_balance_row_list )
+{
+	TRANSACTION_BALANCE_ROW *first_outbalance_row;
+	char *duplicated_transaction_message = {0};
+	char *deposit_message = {0};
+	char *missing_expense_message = {0};
+
+	if ( !last_outbalance_block ) return;
+
+	first_outbalance_row =
+		last_outbalance_block->
+			begin_transaction_balance;
+
+	first_outbalance_row->cash_running_balance_wrong =
+		transaction_balance_cash_running_balance_wrong(
+			first_outbalance_row->transaction_date_time
+				/* first_outbalance_transaction_date_time */,
+			transaction_balance_row_list,
+			first_outbalance_row->bank_amount );
+
+	first_outbalance_row->bank_running_balance_wrong =
+		transaction_balance_bank_running_balance_wrong(
+			first_outbalance_row->transaction_date_time
+				/* first_outbalance_transaction_date_time */,
+			transaction_balance_row_list,
+			first_outbalance_row->bank_amount );
+
+	printf( "First outbalance row:\n%s\n",
+		transaction_balance_row_display_stdout(
+			first_outbalance_row,
+			first_outbalance_row->bank_amount,
+			first_outbalance_row->cash_running_balance_wrong,
+			first_outbalance_row->bank_running_balance_wrong,
+			first_outbalance_row->sequence_number ) );
+
+	if ( first_outbalance_row->cash_running_balance_wrong )
+	{
+		duplicated_transaction_message =
+		   transaction_balance_report_duplicated_withdrawal_message(
+			first_outbalance_row->transaction_amount,
+			first_outbalance_row->bank_amount,
+			first_outbalance_row->cash_running_balance,
+			first_outbalance_row->bank_running_balance,
+			first_outbalance_row->cash_running_balance_wrong,
+			first_outbalance_row->bank_running_balance_wrong );
+	}
+
+	if ( duplicated_transaction_message && *duplicated_transaction_message )
+	{
+		printf( "%s\n",
+			duplicated_transaction_message );
+		return;
+	}
+
+	deposit_message =
+		transaction_balance_report_deposit_message(
+			first_outbalance_row->transaction_amount,
+			first_outbalance_row->bank_amount,
+			first_outbalance_row->cash_running_balance,
+			first_outbalance_row->bank_running_balance );
+
+	if ( deposit_message && *deposit_message )
+	{
+		printf( "%s\n", deposit_message );
+		return;
+	}
+
+	missing_expense_message =
+		transaction_balance_report_missing_expense_message(
+			first_outbalance_row->transaction_amount,
+			first_outbalance_row->bank_amount,
+			first_outbalance_row->cash_running_balance,
+			first_outbalance_row->bank_running_balance,
+			first_outbalance_row->cash_running_balance_wrong,
+			first_outbalance_row->bank_running_balance_wrong );
+
+	if ( missing_expense_message && *missing_expense_message )
+	{
+		printf( "%s\n", missing_expense_message );
 		return;
 	}
 }
@@ -696,7 +838,9 @@ char *transaction_balance_report_duplicated_withdrawal_message(
 			double transaction_amount,
 			double bank_amount,
 			double balance,
-			double bank_running_balance )
+			double bank_running_balance,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong )
 {
 	double duplicated_transaction_amount;
 	char *duplicated_full_name = {0};
@@ -731,6 +875,21 @@ char *transaction_balance_report_duplicated_withdrawal_message(
 		0.0 ) )
 	{
 		return (char *)0;
+	}
+
+	if ( cash_running_balance_wrong
+	&&   !bank_running_balance_wrong
+	&&   !dollar_virtually_same(
+		duplicated_transaction_amount,
+		0.0 ) )
+	{
+		sprintf( message,
+"Unmatched withdrawal: (%s/%s) amount = %.2lf.",
+			duplicated_full_name,
+			duplicated_transaction_date_time,
+			duplicated_transaction_amount );
+
+		return strdup( message );
 	}
 
 	sprintf( message,
@@ -897,5 +1056,137 @@ char *transaction_balance_report_finished_message(
 	ptr += sprintf( ptr, "</table>\n" );
 
 	return strdup( message );
+}
+
+TRANSACTION_BALANCE *transaction_balance_report_stdout(
+			char *begin_date_string )
+{
+	TRANSACTION_BALANCE *transaction_balance;
+	TRANSACTION_BALANCE_BLOCK *block;
+	LIST *merged_block_list;
+
+	if ( ! ( transaction_balance =
+			transaction_balance_fetch(
+				begin_date_string,
+				0.0 /* cash_ending_balance */ ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: transaction_balance_fetch() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length(
+		transaction_balance->
+			input.
+			transaction_balance_row_list ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty BANK_UPLOAD_TRANSACTION_BALANCE\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	transaction_balance->inbalance_block_list =
+		transaction_balance_inbalance_block_list(
+			transaction_balance->
+				input.
+				transaction_balance_row_list );
+
+	transaction_balance->outbalance_block_list =
+		transaction_balance_outbalance_block_list(
+			transaction_balance->
+				input.
+				transaction_balance_row_list );
+
+	transaction_balance->merged_block_list =
+	merged_block_list =
+		transaction_balance_merged_block_list(
+				transaction_balance->inbalance_block_list,
+				transaction_balance->outbalance_block_list );
+
+
+	printf(
+"In/Out^begin_transaction^full_name^amount^end_transaction^full_name^amount^block_count\n" );
+
+	if ( !list_rewind( merged_block_list ) )
+	{
+		return transaction_balance;
+	}
+
+	do {
+		block = list_get( merged_block_list );
+
+		printf( "%s",
+			(block->is_inbalance)
+				? "In"
+				: "Out" );
+
+		/* Begin block section */
+		/* ------------------- */
+		printf( "^%s",
+			block->
+				begin_transaction_balance->
+				transaction_date_time );
+
+		printf( "^%s",
+			block->
+				begin_transaction_balance->
+				full_name );
+
+		printf( "^%.2lf",
+			block->
+				begin_transaction_balance->
+				transaction_amount );
+
+		/* End block section */
+		/* ----------------- */
+		printf( "^%s",
+			block->
+				end_transaction_balance->
+				transaction_date_time );
+
+		printf( "^%s",
+			block->
+				end_transaction_balance->
+				full_name );
+
+		printf( "^%.2lf",
+			block->
+				end_transaction_balance->
+				transaction_amount );
+
+		printf( "^%d\n",
+			block->block_count );
+
+	} while( list_next( merged_block_list ) );
+
+	return transaction_balance;
+}
+
+void transaction_balance_summary_inbalance_stdout(
+			TRANSACTION_BALANCE_BLOCK *last_inbalance_block )
+{
+	TRANSACTION_BALANCE_ROW *row;
+	char *finished_message;
+
+	if ( !last_inbalance_block ) return;
+
+	row = last_inbalance_block->end_transaction_balance;
+
+	finished_message =
+		transaction_balance_report_finished_message(
+			row->cash_running_balance,
+			row->bank_running_balance );
+
+	if ( finished_message && *finished_message )
+	{
+		printf( "%s\n", finished_message );
+		return;
+	}
 }
 

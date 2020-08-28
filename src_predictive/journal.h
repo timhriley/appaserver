@@ -96,7 +96,7 @@ LIST *journal_list_prior(
 			JOURNAL *prior_journal,
 			char *account_name );
 
-void journal_list_set_balances(
+LIST *journal_list_set_balances(
 			LIST *journal_list,
 			boolean accumulate_debit );
 
@@ -220,5 +220,11 @@ LIST *journal_binary_journal_list(
 			double transaction_amount,
 			char *debit_account,
 			char *credit_account );
+
+void journal_list_stdout(
+			LIST *journal_list );
+
+void journal_list_update(
+			LIST *journal_list );
 
 #endif

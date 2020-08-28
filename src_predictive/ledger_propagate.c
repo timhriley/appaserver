@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_predictive/ledger_propagate.c					*/
+/* $APPASERVER_HOME/src_predictive/ledger_propagate.c			*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -14,19 +14,18 @@
 #include "bank_upload.h"
 #include "list.h"
 #include "environ.h"
+#include "appaserver_parameter_file.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "transaction.h"
 #include "journal.h"
-#include "appaserver_parameter_file.h"
+#include "account.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void ledger_propagate_each_account(	char *application_name,
-					char *propagate_transaction_date_time );
 
 /* Global variables */
 /* ---------------- */
@@ -39,40 +38,52 @@ int main( int argc, char **argv )
 	char *preupdate_transaction_date_time;
 	char *propagate_transaction_date_time;
 	char propagate_transaction_date[ 16 ];
-	char *account_name = {0};
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc < 4 )
+	if ( argc < 3 )
 	{
 		fprintf( stderr, 
-"Usage: %s ignored transaction_date_time preupdate_transaction_date_time [account ...]\n",
+"Usage: %s transaction_date_time preupdate_transaction_date_time [account ...]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	transaction_date_time = argv[ 2 ];
-	preupdate_transaction_date_time = argv[ 3 ];
+	transaction_date_time = argv[ 1 ];
+	preupdate_transaction_date_time = argv[ 2 ];
 
+	/* transaction_date_time not set */
+	/* ----------------------------- */
 	if ( strcmp( transaction_date_time, "transaction_date_time" ) == 0 )
+	{
 		transaction_date_time = "";
+	}
 
+	/* preupdate_transaction_date_time not set */
+	/* --------------------------------------- */
 	if ( strcmp(	preupdate_transaction_date_time,
 			"preupdate_transaction_date_time" ) == 0 )
 	{
 		preupdate_transaction_date_time = "";
 	}
 
-	/* Take the earlier of the change in transaction_date_time */
-	/* ------------------------------------------------------- */
+	if ( !*transaction_date_time )
+	{
+		transaction_date_time =
+			pipe2string(
+				"transaction_date_time_minimum.sh" );
+	}
+
+	/* Take the earlier of the two */
+	/* --------------------------- */
 	if ( *preupdate_transaction_date_time
 	&&   strcmp(	preupdate_transaction_date_time,
-				transaction_date_time ) < 0 )
+			transaction_date_time ) < 0 )
 	{
 		propagate_transaction_date_time =
 			preupdate_transaction_date_time;
@@ -91,15 +102,12 @@ int main( int argc, char **argv )
 		propagate_transaction_date
 			/* bank_date */ );
 
-	/* ---------------------------------------------------- */
-	/* If TRANSACTION.transaction_date_time was changed.	*/
-	/* ---------------------------------------------------- */
-	if ( argc == 6
-	&&   *transaction_date_time
-	&&   strcmp( argv[ 4 ], "account" ) == 0
-	&&   strcmp( argv[ 5 ], "preupdate_account" ) == 0 )
+	if ( argc > 3
+	&&   strcmp( argv[ 3 ], "account" ) == 0
+	&&   strcmp( argv[ 4 ], "preupdate_account" ) == 0 )
 	{
 		LIST *account_name_list;
+		char *account_name;
 
 		account_name_list =
 			transaction_date_time_account_name_list(
@@ -107,7 +115,6 @@ int main( int argc, char **argv )
 
 		if ( list_rewind( account_name_list ) )
 		{
-			char *account_name;
 			do {
 				account_name =
 					list_get_pointer(
@@ -121,25 +128,10 @@ int main( int argc, char **argv )
 		}
 	}
 	else
-	if ( argc == 6
-	&&   strcmp( argv[ 4 ], "account" ) == 0
-	&&   strcmp( argv[ 5 ], "preupdate_account" ) == 0 )
+	if ( argc > 3 )
 	{
-		ledger_propagate_each_account(
-			application_name,
-			propagate_transaction_date_time );
-	}
-	else
-	if ( argc < 5 )
-
-	{
-		ledger_propagate_each_account(
-			application_name,
-			propagate_transaction_date_time );
-	}
-	else
-	{
-		int i = 4;
+		int i = 3;
+		char *account_name;
 
 		while( i < argc )
 		{
@@ -157,32 +149,14 @@ int main( int argc, char **argv )
 			i++;
 		}
 	}
-
-	return 0;
-}
-
-void ledger_propagate_each_account(	char *application_name,
-					char *propagate_transaction_date_time )
-{
-	char sys_string[ 1024 ];
-	char account[ 256 ];
-	FILE *input_pipe;
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=account		"
-		 "			folder=account		",
-		 application_name );
-
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( account, input_pipe ) )
+	else
+	/* ----------------- */
+	/* Must be argc <= 2 */
+	/* ----------------- */
 	{
-		journal_propagate(
-			propagate_transaction_date_time,
-			account );
+		account_transaction_propagate(
+			propagate_transaction_date_time );
 	}
-
-	pclose( input_pipe );
+	return 0;
 }
 
