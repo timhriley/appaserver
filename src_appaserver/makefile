@@ -196,7 +196,7 @@ clean:
 	get_document_root						\
 	sql								\
 	sql_quick							\
-	s								\
+	select								\
 	view_pdf_files							\
 	upgrade-appaserver-database					\
 	clone_application
@@ -446,6 +446,9 @@ get_folder_data: get_folder_data.c ${EXTERNAL_LIBS}
 		${EXTERNAL_LIBS}					\
 		get_folder_data.c					\
 		-o get_folder_data
+	touch select
+	/bin/rm -f select
+	ln get_folder_data select
 
 output_frameset: output_frameset.c					\
 		${EXTERNAL_LIBS}

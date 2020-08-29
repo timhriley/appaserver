@@ -73,7 +73,7 @@ SUBCLASSIFICATION *subclassification_fetch(
 	if ( !subclassification_name ) return (SUBCLASSIFICATION *)0;
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
+		 "select.sh \"%s\" %s \"%s\" none",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
@@ -104,7 +104,7 @@ SUBCLASSIFICATION *subclassification_total_fetch(
 	if ( !subclassification_name ) return (SUBCLASSIFICATION *)0;
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
+		 "select.sh \"%s\" %s \"%s\" none",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
@@ -1797,10 +1797,10 @@ LIST *subclassification_total_account_list(
 			subclassification_name );
 	}
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 "account",
-		 "account",
+	sprintf(sys_string,
+		"select.sh \"%s\" %s \"%s\" select",
+		"account",
+		"account",
 		 where );
 
 	account_list = list_new();

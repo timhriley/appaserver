@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/attribute.h					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver attribute ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -124,9 +123,9 @@ char *attribute_get_last_primary_attribute_name(
 					LIST *attribute_list );
 
 LIST *attribute_get_exclude_attribute_name_list(
-					char *application_name,
-					char *role_name,
-					char *exclude_permission );
+			char *application_name,
+			char *role_name,
+			char *exclude_permission );
 
 LIST *attribute_list_get_datatype_attribute_string_list(
 					LIST *attribute_list,
@@ -212,18 +211,24 @@ LIST *attribute_get_date_attribute_name_list(
 LIST *attribute_get_lookup_allowed_attribute_name_list(
 					LIST *attribute_list );
 
-LIST *attribute_name_list(		LIST *attribute_list,
-					char *folder_name );
+LIST *attribute_folder_name_list(
+			LIST *attribute_list,
+			char *folder_name );
 
-LIST *attribute_get_name_list(		LIST *attribute_list );
+LIST *attribute_name_list(
+			LIST *attribute_list );
 
-LIST *attribute_get_attribute_name_list(LIST *attribute_list );
+LIST *attribute_get_name_list(
+			LIST *attribute_list );
+
+LIST *attribute_get_attribute_name_list(
+			LIST *attribute_list );
 
 LIST *attribute_get_primary_attribute_name_list(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
 LIST *attribute_get_lookup_required_attribute_name_list(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
 LIST *attribute_get_insert_required_attribute_name_list(
 					LIST *attribute_list );
@@ -293,42 +298,45 @@ int attribute_get_width(		char *application_name,
 ATTRIBUTE *attribute_seek(		LIST *attribute_list,
 					char *attribute_name );
 
-boolean attribute_exists(		char *application_name,
-					char *folder_name,
-					char *attribute_name );
+boolean attribute_exists(
+			char *application_name,
+			char *folder_name,
+			char *attribute_name );
 
 boolean attribute_record_parse(
-					char *fetched_folder_name,
-					char *fetched_attribute_name,
-					char *attribute_datatype,
-					char *width,
-					char *float_decimal_places,
-					char *primary_key_index,
-					char *display_order,
-					char *omit_insert_yn,
-					char *omit_insert_prompt_yn,
-					char *omit_update_yn,
-					char *hint_message,
-					char *post_change_javascript,
-					char *on_focus_javascript_function,
-					char *additional_unique_index_yn,
-					char *additional_index_yn,
-					char *lookup_required_yn,
-					char *insert_required_yn,
-					char *lookup_histrogram_output_yn,
-					char *lookup_time_chart_output_yn,
-					char *appaserver_yn,
-					char *record,
-					char *folder_name,
-					char *attribute_name );
+			char *fetched_folder_name,
+			char *fetched_attribute_name,
+			char *attribute_datatype,
+			char *width,
+			char *float_decimal_places,
+			char *primary_key_index,
+			char *display_order,
+			char *omit_insert_yn,
+			char *omit_insert_prompt_yn,
+			char *omit_update_yn,
+			char *hint_message,
+			char *post_change_javascript,
+			char *on_focus_javascript_function,
+			char *additional_unique_index_yn,
+			char *additional_index_yn,
+			char *lookup_required_yn,
+			char *insert_required_yn,
+			char *lookup_histrogram_output_yn,
+			char *lookup_time_chart_output_yn,
+			char *appaserver_yn,
+			char *record,
+			char *folder_name,
+			char *attribute_name );
 
 LIST *attribute_append_isa_attribute_list(
-					char *application_name,
-					char *folder_name,
-					LIST *mto1_isa_related_folder_list,
-					char *role_name );
+			char *application_name,
+			char *folder_name,
+			LIST *mto1_isa_related_folder_list,
+			char *role_name );
 
 LIST *attribute_distinct_folder_name_list(
-					LIST *attribute_list );
+			LIST *attribute_list );
+
+LIST *attribute_list(	char *folder_name );
 
 #endif

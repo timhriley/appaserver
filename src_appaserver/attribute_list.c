@@ -1,106 +1,62 @@
-/* attribute_list.c						*/
-/* ------------------------------------------------------------ */
-/* The purpose of this special process is to isolate 		*/
-/* the attribute list for the insert relation drop down to	*/
-/* be only those attributes (related_attribute) assigned to	*/
-/* that folder.							*/
-/* ------------------------------------------------------------ */
-/* Freely available software: see Appaserver.org		*/
-/* ------------------------------------------------------------ */
+/* ---------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/attribute_list.c	*/
+/* ---------------------------------------------------	*/
+/*							*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "appaserver_library.h"
-#include "appaserver_error.h"
-#include "dictionary.h"
-#include "folder.h"
 #include "timlib.h"
-#include "query.h"
+#include "list.h"
 #include "piece.h"
-#include "attribute.h"
+#include "appaserver_error.h"
 #include "environ.h"
 #include "boolean.h"
-#include "appaserver_parameter_file.h"
+#include "attribute.h"
 
 /* Prototypes */
 /* ---------- */
-char *get_attribute_sys_string(
-			char *application_name,
-			char *folder_name );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *folder_name = {0};
-	char *sys_string;
+	char *folder_name;
+	LIST *local_attribute_name_list;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	sys_string = get_attribute_sys_string(
-					application_name,
-					folder_name );
+	if ( argc != 2 )
+	{
+		fprintf(stderr,
+			"Usage: %s folder\n",
+			argv[ 0 ] );
+		exit( 1 );
+	}
 
-	system( sys_string );
+	folder_name = argv[ 1 ];
+
+	local_attribute_name_list =
+		attribute_name_list(
+			attribute_list(
+				folder_name ) );
+
+	if ( list_rewind( local_attribute_name_list ) )
+	{
+		do {
+			printf( "%s\n",
+				(char *)list_get(
+					local_attribute_name_list ) );
+
+		} while ( list_next( local_attribute_name_list ) );
+	}
 
 	return 0;
-
-} /* main() */
-
-char *get_attribute_sys_string(	char *application_name,
-				char *folder_name )
-{
-	char sys_string[ 2048 ];
-	char *attribute_table_name;
-
-	attribute_table_name =
-		get_table_name(	application_name,
-				"attribute" );
-
-	if ( folder_name && *folder_name )
-	{
-		char *folder_attribute_table_name;
-		char where_clause[ 1024 ];
-		char select_clause[ 128 ];
-
-		folder_attribute_table_name =
-			get_table_name(	application_name,
-					"folder_attribute" );
-
-		sprintf( where_clause,
-			 "%s.folder = '%s' and			"
-			 "%s.attribute = %s.attribute and	"
-			 "%s.attribute != 'null'		",
-			 folder_attribute_table_name,
-			 folder_name,
-			 folder_attribute_table_name,
-			 attribute_table_name,
-			 attribute_table_name );
-
-		sprintf( select_clause,
-			 "%s.attribute",
-			 attribute_table_name );
-
-		sprintf( sys_string,
-"(echo null; echo \"select %s from %s,%s where %s;\" | sql.e) | sort",
-		 	 select_clause,
-			 folder_attribute_table_name,
-			 attribute_table_name,
-			 where_clause );
-	}
-	else
-	{
-		sprintf( sys_string,
-"(echo null; echo \"select attribute from %s where attribute != 'null';\" | sql.e) | sort",
-		 	attribute_table_name );
-	}
-
-	return strdup( sys_string );
-
-} /* get_attribute_sys_string() */
+}
 

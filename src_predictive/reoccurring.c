@@ -200,20 +200,14 @@ LIST *reoccurring_transaction_system_list( char *sys_string )
 
 LIST *reoccurring_transaction_list( void )
 {
-	char *select;
 	char sys_string[ 1024 ];
-	char *where;
 
-	select = reoccurring_transaction_select();
-
-	where = "bank_upload_feeder_phrase is not null";
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 select,
-		 "reoccurring_transaction",
-		 where,
-		 select );
+	sprintf(sys_string,
+		"select.sh '%s' %s \"%s\" %s",
+		reoccurring_transaction_select(),
+		"reoccurring_transaction",
+		"bank_upload_feeder_phrase is not null",
+		"select" );
 
 	return reoccurring_transaction_system_list( sys_string );
 }
@@ -284,7 +278,6 @@ int reoccurring_days_between_last_transaction(
 	int current_year;
 	char where[ 1024 ];
 	char sub_query[ 1024 ];
-	char name_buffer[ 256 ];
 	char *select;
 	char *folder;
 	char *max_transaction_date;
@@ -311,19 +304,17 @@ int reoccurring_days_between_last_transaction(
 		 "full_name = '%s' and				"
 		 "street_address = '%s' and			"
 		 "%s						",
-		 escape_character(	name_buffer,
-					full_name,
-					'\'' ),
+		 entity_escape_full_name( full_name ),
 		 street_address,
 		 sub_query );
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\"	|"
-		 "sql					|"
-		 "column.e 0				 ",
-		 select,
-		 folder,
-		 where );
+	sprintf(sys_string,
+		"select.sh '%s' %s \"%s\" %s		|"
+		"column.e 0				 ",
+		select,
+		folder,
+		where,
+		"select" );
 
 	max_transaction_date = pipe2string( sys_string );
 

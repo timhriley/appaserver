@@ -38,6 +38,11 @@ table="$2"
 if [ "$#" -gt 2 ]
 then
 	where="$3"
+
+	if [ "$where" = "" -o "$where" = "where" ]
+	then
+		where="1=1"
+	fi
 else
 	where="1=1"
 fi
@@ -45,11 +50,17 @@ fi
 if [ "$#" -gt 3 ]
 then
 	order="$4"
+
+	if [ "$order" = "" -o "$order" = "order" ]
+	then
+		order="none"
+	fi
 else
 	order="none"
 fi
 
-get_folder_data		application="$application"		\
+$APPASERVER_HOME/src_appaserver/select				\
+			application="$application"		\
 			select="$select"			\
 			folder="$table"				\
 			where="$where"				\

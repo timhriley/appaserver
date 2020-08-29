@@ -560,7 +560,7 @@ void post_state_insert(
 		role_name,
 		insert_database->primary_attribute_name_list,
 		insert_required_attribute_name_list,
-		attribute_name_list(
+		attribute_folder_name_list(
 			insert_database->attribute_list,
 			insert_database->folder_name ),
 		insert_database->row_dictionary,

@@ -253,7 +253,7 @@ src_appaserver/get_appaserver_data_directory
 src_appaserver/get_document_root
 sql
 sql_quick
-s
+select
 view_pdf_files
 upgrade-appaserver-database
 clone_application

@@ -2313,10 +2313,16 @@ LIST *process_generic_output_get_compare_data_list(
 boolean process_generic_output_exists_compare_multi_select(
 				DICTIONARY *post_dictionary )
 {
-	return (boolean)process_generic_output_get_compare_data_list(
+	if ( process_generic_output_get_compare_data_list(
 				post_dictionary,
-				1 /* dictionary_offset */ );
-
+				1 /* dictionary_offset */ ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 char *process_generic_output_get_row_dictionary_where_clause(
