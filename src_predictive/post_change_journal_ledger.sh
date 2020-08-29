@@ -21,6 +21,8 @@ then
 	exit 1
 fi
 
+JOURNAL_TABLE="journal_ledger"
+
 if [ "$#" -ne 7 ]
 then
 	echo "Usage: $0 state full_name street_address transaction_date_time account preupdate_transaction_date_time preupdate_account" 1>&2
@@ -63,7 +65,6 @@ then
 	while read local_account
 	do
 		ledger_propagate					\
-				$application				\
 				"$transaction_date_time"		\
 				"$preupdate_transaction_date_time"	\
 				"$local_account"
@@ -72,8 +73,7 @@ fi
 
 if [ "$account_name" != "" -a "$account_name" != "account" ]
 then
-	ledger_propagate	$application				\
-				"$transaction_date_time"		\
+	ledger_propagate	"$transaction_date_time"		\
 				"$preupdate_transaction_date_time"	\
 				"$account_name"
 fi
@@ -81,8 +81,7 @@ fi
 if [ "$preupdate_account_name" != ""					\
 -a   "$preupdate_account_name" != "preupdate_account" ]
 then
-	ledger_propagate	$application				\
-				"$transaction_date_time"		\
+	ledger_propagate	"$transaction_date_time"		\
 				"$preupdate_transaction_date_time"	\
 				"$preupdate_account_name"
 fi
@@ -96,7 +95,7 @@ fi
 # ----------------------------------
 full_name_escaped=`echo $full_name | escape_character.e "'"`
 
-from=journal_ledger
+from=$JOURNAL_TABLE
 where="full_name = '$full_name_escaped' and street_address = '$street_address' and transaction_date_time = '$transaction_date_time'"
 
 table=transaction

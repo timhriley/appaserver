@@ -30,8 +30,6 @@ enum bank_upload_exception bank_upload_exception = {0};
 
 /* Prototypes */
 /* ---------- */
-void seek_withdrawal(		char *application_name,
-				char *fund_name );
 
 int main( int argc, char **argv )
 {
@@ -48,7 +46,7 @@ int main( int argc, char **argv )
 	if ( argc < 2 )
 	{
 		fprintf( stderr,
-"Usage: %s bank_date^bank_description_embedded^full_name^street_address^transaction_date_time [fund]\n",
+"Input: %s bank_date^bank_description_embedded^full_name^street_address^transaction_date_time [fund]\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
@@ -58,12 +56,12 @@ int main( int argc, char **argv )
 
 	if ( argc == 3 ) fund_name = argv[ 2 ];
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	delimiter_count =
 		timlib_count_delimiters(
@@ -91,8 +89,18 @@ int main( int argc, char **argv )
 			street_address,
 			transaction_date_time );
 	}
+	else
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: invalid delimiter count of %d in [%s]\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			delimiter_count,
+			operation );
+		exit( 1 );
+	}
 
 	return 0;
-
-} /* main() */
+}
 

@@ -1389,6 +1389,7 @@ char *transaction_full_name_display(
 
 	if ( *street_address
 	&&   string_loose_strcmp( street_address, "null" ) != 0
+	&&   string_loose_strcmp( street_address, "any" ) != 0
 	&&   string_loose_strcmp( street_address, "unknown" ) != 0 )
 	{
 		sprintf(full_name_display,

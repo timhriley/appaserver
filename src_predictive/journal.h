@@ -134,7 +134,7 @@ void journal_list_transaction_date_time_propagate(
 char *journal_list_audit(
 			LIST *journal_list );
 
-JOURNAL *journal_getset(
+JOURNAL *journal_account_name_getset(
 			LIST *journal_list,
 			char *account_name );
 
@@ -168,9 +168,19 @@ double journal_amount(
 			double credit_amount,
 			boolean accumulate_debit );
 
+JOURNAL *journal_account_name_seek(
+			LIST *journal_list,
+			char *account_name );
+
 JOURNAL *journal_check_number_seek(
 			LIST *journal_list,
 			int check_number );
+
+JOURNAL *journal_transaction_date_time_seek(
+			LIST *journal_list,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
 
 void journal_list_text_display(
 			char *transaction_memo,

@@ -1138,8 +1138,8 @@ void bank_upload_check_number_existing_journal(
 }
 
 void bank_upload_feeder_phrase_match_build_transaction(
-				LIST *bank_upload_list,
-				LIST *reoccurring_transaction_list )
+			LIST *bank_upload_list,
+			LIST *reoccurring_transaction_list )
 {
 	BANK_UPLOAD *bank_upload;
 
@@ -1168,8 +1168,7 @@ void bank_upload_feeder_phrase_match_build_transaction(
 						/* abs_bank_amount */ );
 
 	} while( list_next( bank_upload_list ) );
-
-} /* bank_upload_feeder_phrase_match_build_transaction() */
+}
 
 LIST *bank_upload_transaction_list(
 			LIST *bank_upload_list )

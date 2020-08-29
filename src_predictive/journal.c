@@ -79,13 +79,6 @@ JOURNAL *journal_prior(
 
 	if ( !results || !*results ) return (JOURNAL *)0;
 
-fprintf( stderr, "%s/%s()/%d: for account = %s, got prior_transaction_date_time = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-account_name,
-results );
-
 	return journal_account_fetch(
 			account_name,
 			results /* transaction_date_time */ );
@@ -97,6 +90,14 @@ JOURNAL *journal_account_fetch(
 {
 	char sys_string[ 1024 ];
 	char where[ 256 ];
+
+	if ( !account_name
+	||   !*account_name
+	||   !transaction_date_time
+	||   !*transaction_date_time )
+	{
+		return (JOURNAL *)0;
+	}
 
 	sprintf( where,
 		 "account = '%s' and			"
@@ -687,7 +688,8 @@ char *journal_list_audit(
 	return strdup( buffer );
 }
 
-JOURNAL *journal_seek(	LIST *journal_list,
+JOURNAL *journal_account_name_seek(
+			LIST *journal_list,
 			char *account_name )
 {
 	JOURNAL *journal;
@@ -707,14 +709,44 @@ JOURNAL *journal_seek(	LIST *journal_list,
 	return (JOURNAL *)0;
 }
 
-JOURNAL *journal_getset(
+JOURNAL *journal_transaction_date_time_seek(
+			LIST *journal_list,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	JOURNAL *journal;
+
+	if ( !list_rewind( journal_list ) ) return (JOURNAL *)0;
+
+	do {
+		journal = list_get( journal_list );
+
+		if ( string_strcmp(
+			journal->full_name,
+			full_name ) == 0
+		&&   string_strcmp(
+			journal->street_address,
+			street_address ) == 0
+		&&   string_strcmp(
+			journal->transaction_date_time,
+			transaction_date_time ) == 0 )
+		{
+			return journal;
+		}
+	} while( list_next( journal_list ) );
+
+	return (JOURNAL *)0;
+}
+
+JOURNAL *journal_account_name_getset(
 			LIST *journal_list,
 			char *account_name )
 {
 	JOURNAL *journal;
 
 	if ( ( journal =
-			journal_seek(
+			journal_account_name_seek(
 				journal_list,
 				account_name ) ) )
 	{
@@ -881,7 +913,6 @@ JOURNAL *journal_latest(
 	char select[ 128 ];
 	char buffer[ 128 ];
 	char sys_string[ 1024 ];
-	char *results;
 	char *latest_transaction_time;
 
 	if ( transaction_exists_closing_entry(
@@ -933,13 +964,10 @@ JOURNAL *journal_latest(
 		 TRANSACTION_TABLE,
 		 where );
 
-	results = pipe2string( sys_string );
-
-	if ( !results || !*results ) return (JOURNAL *)0;
-
 	return journal_account_fetch(
-			account_name,
-			results /* transaction_date_time */ );
+		account_name,
+		pipe2string( sys_string )
+			/* transaction_date_time */ );
 }
 
 LIST *journal_year_list(	int year,

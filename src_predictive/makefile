@@ -821,7 +821,7 @@ vendor_payment.o: vendor_payment.c					\
 		-c vendor_payment.c
 
 feeder_upload.o: feeder_upload.c					\
-		feeder_upload.h
+		feeder_upload.h reoccurring.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c feeder_upload.c
 
