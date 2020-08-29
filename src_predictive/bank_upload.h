@@ -210,6 +210,8 @@ LIST *bank_upload_file_list(
 					int starting_sequence_number,
 					char *fund_name );
 
+/* Returns static memory */
+/* --------------------- */
 char *bank_upload_transaction_memo(
 					char *full_name,
 					char *street_address,

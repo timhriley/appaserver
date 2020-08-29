@@ -15,6 +15,7 @@
 /* Constants */
 /* --------- */
 #define TRANSACTION_TABLE			"transaction"
+#define TRANSACTION_BUFFER_TRIM			50
 #define TRANSACTION_CLOSING_TRANSACTION_TIME	"23:59:59"
 #define TRANSACTION_PRIOR_TRANSACTION_TIME	"23:59:58"
 #define TRANSACTION_CLOSING_ENTRY_MEMO		"close closing"
@@ -412,5 +413,11 @@ LIST *transaction_date_time_account_name_list(
 
 void transaction_list_stderr(
 			LIST *transaction_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_full_name_display(
+			char *full_name,
+			char *street_address );
 
 #endif

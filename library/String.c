@@ -425,3 +425,12 @@ int string_strncmp( char *s1, char *s2 )
 	return strncasecmp( s1, s2, str_len2 );
 }
 
+boolean string_loose_strcmp( char *s1, char *s2 )
+{
+	if ( !s1 && !s2 ) return 0;
+	if ( !s2 ) return -1;
+	if ( !s1 ) return 1;
+
+	return strcmp( s1, s2 );
+}
+

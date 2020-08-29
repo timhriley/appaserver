@@ -1377,6 +1377,33 @@ double transaction_net_income_fetch(
 		return atof( results_string );
 }
 
+char *transaction_full_name_display(
+			char *full_name,
+			char *street_address )
+{
+	static char full_name_display[ 256 ];
+
+	*full_name_display = '\0';
+
+	if ( !full_name || !street_address ) return full_name_display;
+
+	if ( *street_address
+	&&   string_loose_strcmp( street_address, "null" ) != 0
+	&&   string_loose_strcmp( street_address, "unknown" ) != 0 )
+	{
+		sprintf(full_name_display,
+			"%s/%s",
+			full_name,
+			street_address );
+	}
+	else
+	{
+		string_strcpy( full_name_display, full_name, 256 );
+	}
+
+	return full_name_display;
+}
+
 void transaction_journal_list_pipe_display(
 			FILE *output_pipe,
 			char *full_name,
@@ -1387,7 +1414,6 @@ void transaction_journal_list_pipe_display(
 {
 	JOURNAL *journal;
 	char buffer[ 256 ];
-	char full_name_buffer[ 256 ];
 
 	if ( list_length( journal_list ) != 2 )
 	{
@@ -1406,21 +1432,14 @@ void transaction_journal_list_pipe_display(
 
 	journal = list_get( journal_list );
 
-	if ( strcmp( street_address, "null" ) != 0 )
-	{
-		sprintf( full_name_buffer,
-			 "%s/%s",
-			 full_name,
-			 street_address );
-	}
-	else
-	{
-		strcpy( full_name_buffer, full_name );
-	}
-
 	fprintf( output_pipe,
 		 "%s^%s^%.2lf^\n",
-		 full_name_buffer,
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 transaction_full_name_display(
+			full_name,
+			street_address ),
 		 format_initial_capital(
 			buffer,
 			journal->account_name ),

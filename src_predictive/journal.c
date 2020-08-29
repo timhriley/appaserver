@@ -79,6 +79,13 @@ JOURNAL *journal_prior(
 
 	if ( !results || !*results ) return (JOURNAL *)0;
 
+fprintf( stderr, "%s/%s()/%d: for account = %s, got prior_transaction_date_time = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+account_name,
+results );
+
 	return journal_account_fetch(
 			account_name,
 			results /* transaction_date_time */ );
@@ -316,8 +323,7 @@ void journal_insert_pipe(
 
 /* Executes journal_list_set_balances() */
 /* ------------------------------------ */
-void journal_propagate(
-			char *transaction_date_time,
+void journal_propagate( char *transaction_date_time,
 			char *account_name )
 {
 	if ( !account_name || !*account_name )
@@ -1026,8 +1032,11 @@ void journal_list_pipe_display(
 
 	if ( transaction_memo && *transaction_memo )
 	{
-		strncpy( transaction_memo_buffer, transaction_memo, 30 );
-		*(transaction_memo_buffer + 30) = '\0';
+		strncpy(
+			transaction_memo_buffer,
+			transaction_memo,
+			TRANSACTION_BUFFER_TRIM );
+		*(transaction_memo_buffer + TRANSACTION_BUFFER_TRIM ) = '\0';
 	}
 	else
 	{

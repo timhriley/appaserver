@@ -25,6 +25,7 @@
 #include "reoccurring.h"
 #include "journal.h"
 #include "predictive.h"
+#include "transaction.h"
 #include "bank_upload.h"
 
 BANK_UPLOAD *bank_upload_calloc( void )
@@ -1264,6 +1265,9 @@ void bank_upload_transaction_text_display( LIST *bank_upload_list )
 		if ( transaction )
 		{
 			transaction_memo =
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
 				bank_upload_transaction_memo(
 					transaction->
 						full_name,
@@ -1308,6 +1312,9 @@ void bank_upload_transaction_table_display( LIST *bank_upload_list )
 		if ( transaction )
 		{
 			transaction_memo =
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
 				bank_upload_transaction_memo(
 					transaction->
 						full_name,
@@ -1361,30 +1368,15 @@ char *bank_upload_transaction_memo(
 					char *transaction_date_time )
 {
 	static char transaction_memo[ 256 ];
-	char street_address_display[ 128 ];
-
-	if ( street_address
-	&&   *street_address
-	&&   strcmp( street_address, "null" ) != 0 )
-	{
-		sprintf( street_address_display,
-			 "/%s",
-			 street_address );
-	}
-	else
-	{
-		*street_address_display = '\0';
-	}
 
 	sprintf(transaction_memo,
-		"%s%s/%s",
-		full_name,
-		street_address_display,
+		"%s/%s",
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_full_name_display(
+			full_name,
+			street_address ),
 		transaction_date_time );
-
-	format_initial_capital(
-		transaction_memo,
-		transaction_memo );
 
 	return transaction_memo;
 }
