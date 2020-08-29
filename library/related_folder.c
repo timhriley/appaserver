@@ -2669,8 +2669,7 @@ void related_folder_populate_common_non_primary_attribute_name_list(
 		} while( list_next( one2m_related_folder_attribute_list ) );
 
 	} while( list_next( related_folder_attribute_list ) );
-
-} /* related_folder_populate_common_non_primary_attribute_name_list() */
+}
 
 /* Note: this only applies when state=insert. */
 /* ------------------------------------------ */
@@ -2712,8 +2711,7 @@ LIST *related_folder_get_common_non_primary_attribute_name_list(
 
 	} while( list_next( mto1_related_folder_list ) );
 	return return_list;
-
-} /* related_folder_get_common_non_primary_attribute_name_list() */
+}
 
 ELEMENT_APPASERVER *related_folder_get_new_button_element(
 				char *folder_name,

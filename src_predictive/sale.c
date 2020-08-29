@@ -62,14 +62,13 @@ char *sale_sys_string( char *where )
 	if ( !where ) return (char *)0;
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "select.sh \"%s\" %s \%s\" select",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
 		 sale_select(),
 		 SALE_TABLE_NAME,
-		 where,
-		 sale_select() );
+		 where );
 
 	return strdup( sys_string );
 }

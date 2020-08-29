@@ -100,12 +100,12 @@ int main( int argc, char **argv )
 					folder_name );
 
 		folder->attribute_list =
-		attribute_get_attribute_list(
-		application_name,
-		folder_name,
-		(char *)0 /* attribute_name */,
-		(LIST *)0 /* mto1_isa_related_folder_list */,
-		(char *)0 /* role_name */ );
+			attribute_get_attribute_list(
+				application_name,
+				folder_name,
+				(char *)0 /* attribute_name */,
+				(LIST *)0 /* mto1_isa_related_folder_list */,
+				(char *)0 /* role_name */ );
 
 		primary_name_list = 
 			folder_get_primary_attribute_name_list(

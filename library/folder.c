@@ -2110,6 +2110,6 @@ LIST *folder_append_isa_attribute_name_list(
 LIST *folder_attribute_name_list(
 			LIST *attribute_list )
 {
-	return attribute_name_list( attribute_list, (char *)0 );
+	return attribute_folder_name_list( attribute_list, (char *)0 );
 }
 

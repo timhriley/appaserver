@@ -160,7 +160,7 @@ int main( int argc, char **argv )
 
 	float_integer_attribute_name_list =
 		attribute_get_time_chart_attribute_name_list(
-					folder->attribute_list );
+			folder->attribute_list );
 
 	if ( !list_length( float_integer_attribute_name_list ) )
 	{

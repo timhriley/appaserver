@@ -16,6 +16,7 @@
 #include "list.h"
 #include "piece.h"
 #include "query.h"
+#include "environ.h"
 #include "process_parameter_list.h"
 #include "appaserver.h"
 #include "element.h"
@@ -96,15 +97,14 @@ ATTRIBUTE *attribute_load_folder_attribute(
 
 	attribute_list =
 		attribute_get_attribute_list(
-				application_name,
-				folder_name,
-				attribute_name,
-				(LIST *)0 /* mto1_isa_related_folder_list */,
-				(char *)0 /* role_name */ );
+			application_name,
+			folder_name,
+			attribute_name,
+			(LIST *)0 /* mto1_isa_related_folder_list */,
+			(char *)0 /* role_name */ );
 
 	return (ATTRIBUTE *)list_get_first_element( attribute_list );
-
-} /* attribute_load_folder_attribute() */
+}
 
 ATTRIBUTE *attribute_load_attribute(	char *application_name,
 					char *attribute_name )
@@ -113,15 +113,14 @@ ATTRIBUTE *attribute_load_attribute(	char *application_name,
 
 	attribute_list =
 		attribute_get_attribute_list(
-				application_name,
-				(char *)0 /* folder_name */,
-				attribute_name,
-				(LIST *)0 /* mto1_isa_related_folder_list */,
-				(char *)0 /* role_name */ );
+			application_name,
+			(char *)0 /* folder_name */,
+			attribute_name,
+			(LIST *)0 /* mto1_isa_related_folder_list */,
+			(char *)0 /* role_name */ );
 
 	return (ATTRIBUTE *)list_get_first_element( attribute_list );
-
-} /* attribute_load_attribute() */
+}
 
 ATTRIBUTE *attribute_seek(		LIST *attribute_list,
 					char *attribute_name )
@@ -449,8 +448,7 @@ LIST *attribute_get_list(		char *application_name,
 			(char *)0 /* attribute_name */,
 			(LIST *)0 /* mto1_isa_related_folder_list */,
 			role_name );
-
-} /* attribute_get_list() */
+}
 
 LIST *attribute_append_isa_attribute_list(
 					char *application_name,
@@ -517,6 +515,8 @@ LIST *attribute_get_attribute_list(	char *application_name,
 	LIST *attribute_list = list_new_list();
 	RELATED_FOLDER *related_folder;
 
+	/* First, set the primary attributes. */
+	/* ---------------------------------- */
 	attribute_append_attribute_list(
 		attribute_list,
 		application_name,
@@ -526,6 +526,8 @@ LIST *attribute_get_attribute_list(	char *application_name,
 		attribute_primary_only
 			/* attribute_primary_attribute_fetch */ );
 
+	/* Second, set the isa attributes. */
+	/* ------------------------------- */
 	if ( mto1_isa_related_folder_list
 	&&   list_rewind( mto1_isa_related_folder_list ) )
 	{
@@ -554,6 +556,8 @@ LIST *attribute_get_attribute_list(	char *application_name,
 		} while( list_next( mto1_isa_related_folder_list ) );
 	}
 
+	/* Third, set the non primary attributes */
+	/* ------------------------------------- */
 	attribute_append_attribute_list(
 		attribute_list,
 		application_name,
@@ -564,8 +568,7 @@ LIST *attribute_get_attribute_list(	char *application_name,
 			/* attribute_primary_attribute_fetch */ );
 
 	return attribute_list;
-
-} /* attribute_get_attribute_list() */
+}
 
 void attribute_append_attribute_list(
 			LIST *attribute_list,
@@ -1080,8 +1083,9 @@ LIST *attribute_get_lookup_allowed_attribute_name_list( LIST *attribute_list )
 	return attribute_name_list;
 }
 
-LIST *attribute_name_list(	LIST *attribute_list,
-				char *folder_name )
+LIST *attribute_folder_name_list(
+			LIST *attribute_list,
+			char *folder_name )
 {
 	ATTRIBUTE *attribute;
 	LIST *attribute_name_list;
@@ -1099,7 +1103,7 @@ LIST *attribute_name_list(	LIST *attribute_list,
 			continue;
 		}
 
-		list_append_pointer(
+		list_set(
 			attribute_name_list,
 			attribute->attribute_name );
 
@@ -1108,14 +1112,19 @@ LIST *attribute_name_list(	LIST *attribute_list,
 	return attribute_name_list;
 }
 
+LIST *attribute_name_list( LIST *attribute_list )
+{
+	return attribute_folder_name_list( attribute_list, (char *)0 );
+}
+
 LIST *attribute_get_name_list( LIST *attribute_list )
 {
-	return attribute_name_list( attribute_list, (char *)0 );
+	return attribute_folder_name_list( attribute_list, (char *)0 );
 }
 
 LIST *attribute_get_attribute_name_list( LIST *attribute_list )
 {
-	return attribute_name_list( attribute_list, (char *)0 );
+	return attribute_folder_name_list( attribute_list, (char *)0 );
 }
 
 LIST *attribute_get_date_attribute_name_list( LIST *attribute_list )
@@ -2205,5 +2214,16 @@ LIST *attribute_distinct_folder_name_list( LIST *attribute_list )
 	}
 
 	return distinct_folder_name_list;
+}
+
+LIST *attribute_list( char *folder_name )
+{
+	return
+		attribute_get_attribute_list(
+			environment_application_name(),
+			folder_name,
+			(char *)0 /* attribute_name */,
+			(LIST *)0 /* mto1_isa_related_folder_list */,
+			(char *)0 /* role_name */ );
 }
 

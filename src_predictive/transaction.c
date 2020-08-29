@@ -80,11 +80,10 @@ LIST *transaction_list_fetch( char *where )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "select.sh \"%s\" %s \"%s\" select",
 		 transaction_select(),
 		 "transaction",
-		 where,
-		 transaction_select() );
+		 where );
 
 	return transaction_system_list( sys_string );
 }
@@ -107,7 +106,7 @@ TRANSACTION *transaction_fetch(
 	}
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
+		 "select.sh \"%s\" %s \"%s\" none",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
@@ -565,7 +564,8 @@ boolean transaction_exists( char *transaction_date_time )
 	sprintf( where, "transaction_date_time = '%s'", transaction_date_time );
 
 	sprintf( sys_string,
-		 "echo \"select count(1) from %s where %s;\" | sql",
+		 "select.sh \"%s\" %s \"%s\" none",
+		 "count(1)",
 		 "transaction",
 		 where );
 
@@ -1022,7 +1022,7 @@ DATE *transaction_prior_closing_transaction_date(
 		 ending_transaction_date_time );
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
+		 "select.sh \"%s\" %s \"%s\" none",
 		 select,
 		 "transaction",
 		 where );
@@ -1063,7 +1063,7 @@ char *transaction_date_time_max( void )
 	select = "max( transaction_date_time )";
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s;\" | sql",
+		 "select.sh \"%s\" %s",
 		 select,
 		 "transaction" );
 
@@ -1105,7 +1105,8 @@ boolean transaction_date_time_exists(
 		 transaction_date_time );
 
 	sprintf( sys_string,
-		 "echo \"select count(1) from %s where %s;\" | sql",
+		 "select.sh \"%s\" %s \"%s\" none",
+		 "count(1)",
 		 "transaction",
 		 where );
 
@@ -1128,7 +1129,7 @@ LIST *transaction_fund_name_list( void )
 
 	sprintf( sys_string,
 		 "echo \"select %s from %s order by %s;\" | sql",
-		 "fund",
+		 "select.sh \"%s\" %s where %s",
 		 "fund",
 		 "fund" );
 
