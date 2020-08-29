@@ -160,6 +160,5 @@ int main( int argc, char **argv )
 	if ( system( sys_string ) ) {};
 
 	return 0;
-
-} /* main() */
+}
 

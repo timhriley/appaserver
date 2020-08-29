@@ -128,7 +128,8 @@ int main( int argc, char **argv )
 			list2comma_string( primary_name_list );
 	}
 	else
-	if( strcmp( select, "all" ) == 0 )
+	if ( strcmp( select, "*" ) == 0
+	||  strcmp( select, "all" ) == 0 )
 	{
 		folder = folder_new_folder(
 					application_name,
@@ -145,7 +146,7 @@ int main( int argc, char **argv )
 
 		attribute_name_list = 
 			folder_get_attribute_name_list(
-					folder->attribute_list );
+				folder->attribute_list );
 
 		if ( !list_length( attribute_name_list ) )
 		{
@@ -193,15 +194,15 @@ int main( int argc, char **argv )
 
 	/* Set order by clause */
 	/* ------------------- */
-	if ( strcmp( order_clause, "select" ) == 0
-	||   strcmp( order_clause, "order" ) == 0 )
+	if ( strcmp( order_clause, "select" ) == 0 )
 	{
 		sprintf(order_by_clause, 
 		 	"order by %s",
 		 	select );
 	}
 	else
-	if ( *order_clause && strcmp( order_clause, "none" ) != 0 )
+	if ( *order_clause
+	&&   strcmp( order_clause, "none" ) != 0 )
 	{
 		sprintf(order_by_clause, 
 		 	"order by %s",
@@ -303,9 +304,8 @@ fprintf( stderr, "%s\n", sys_string );
 
 	pclose( input_pipe );
 
-	exit( 0 );
-
-} /* main() */
+	return 0;
+}
 
 void fetch_parameters(	char **application_name,
 			char **folder_name,
@@ -326,14 +326,16 @@ void fetch_parameters(	char **application_name,
 	*quick_yes_no = fetch_arg( arg, "quick" );
 	*maxrows = fetch_arg( arg, "maxrows" );
 
-} /* fetch_parameters() */
+}
 
 void setup_arg( NAME_ARG *arg, int argc, char **argv )
 {
         int ticket;
 
-	set_comment( arg, "Valid options for select are" );
-	set_comment( arg, "\"primary\",\"all\",\"count\",column_comma_list" );
+	set_comment( arg, "Valid options for select are:" );
+
+	set_comment( arg,
+	"\"primary\",\"all\",\"count\",\"*\",column_comma_list" );
 
 	set_comment( arg, "" );
 
@@ -346,7 +348,7 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         ticket = add_valid_option( arg, "folder" );
 
         ticket = add_valid_option( arg, "select" );
-        set_default_value( arg, ticket, "" );
+        set_default_value( arg, ticket, "*" );
 
         ticket = add_valid_option( arg, "where_clause" );
         set_default_value( arg, ticket, "1=1" );
@@ -357,7 +359,7 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         set_default_value( arg, ticket, "no" );
 
         ticket = add_valid_option( arg, "order_clause" );
-        set_default_value( arg, ticket, "select" );
+        set_default_value( arg, ticket, "none" );
 
         ticket = add_valid_option( arg, "group_clause" );
         set_default_value( arg, ticket, "" );
@@ -366,6 +368,5 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         set_default_value( arg, ticket, "" );
 
         ins_all( arg, argc, argv );
-
-} /* setup_arg() */
+}
 
