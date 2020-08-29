@@ -149,7 +149,7 @@ ENTITY_SELF *entity_self_load( void )
 	self->state_itemized_allowance_period_value = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, results, 20 );
-	self->state_sales_tax_rate = atof( piece_buffer );
+	self->entity_self_sales_tax_rate = atof( piece_buffer );
 
 	return self;
 }
@@ -232,3 +232,7 @@ ENTITY_SELF *entity_self_inventory_load(
 } /* entity_self_inventory_load() */
 #endif
 
+double entity_self_sales_tax_rate( void )
+{
+	return 8.5;
+}

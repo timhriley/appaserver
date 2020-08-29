@@ -11,6 +11,7 @@
 #include "timlib.h"
 #include "piece.h"
 #include "list.h"
+#include "date.h"
 #include "document.h"
 #include "environ.h"
 #include "application.h"
@@ -18,6 +19,7 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "purchase.h"
+#include "vendor_payment.h"
 
 /* Constants */
 /* --------- */
@@ -25,25 +27,16 @@
 /* Prototypes */
 /* ---------- */
 boolean total_payment_amount_exceeds_amount_due(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *purchase_date_time,
-					double payment_amount,
-					double total_payment_amount );
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			double payment_amount,
+			double payment_amount_total );
 
-void insert_vendor_payment(	char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *payment_date_time,
-				double payment_amount,
-				int check_number );
-
-void display_purchase_order(	char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time );
+void display_purchase_order(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
 
 int main( int argc, char **argv )
 {
@@ -59,37 +52,38 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	char title[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	double total_payment;
+	double payment_amount_total;
 	char sys_string[ 1024 ];
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	if ( argc != 9 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s ignored process full_name street_address purchase_date_time payment_amount check_number paid_amount_due_yn\n",
+"Usage: %s process full_name street_address purchase_date_time payment_amount check_number paid_amount_due_yn\n",
 		argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	process_name = argv[ 2 ];
-	full_name = argv[ 3 ];
-	street_address = argv[ 4 ];
-	purchase_date_time = argv[ 5 ];
-	payment_amount = atof( argv[ 6 ] );
-	check_number = atoi( argv[ 7 ] );
-	paid_amount_due = ( *argv[ 8 ] == 'y' );
+	process_name = argv[ 1 ];
+	full_name = argv[ 2 ];
+	street_address = argv[ 3 ];
+	purchase_date_time = argv[ 4 ];
+	payment_amount = atof( argv[ 5 ] );
+	check_number = atoi( argv[ 6 ] );
+	paid_amount_due = ( *argv[ 7 ] == 'y' );
 
-	payment_date_time = timlib_get_now_date_time();
+	payment_date_time = date_time_now( date_utc_offset() );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	format_initial_capital( title, process_name );
+
 	document = document_new( title, application_name );
 	document->output_content_type = 1;
 
@@ -107,8 +101,9 @@ int main( int argc, char **argv )
 			0 /* not with_dynarch_menu */,
 			1 /* with close_head */ );
 
-	document_output_body(	document->application_name,
-				document->onload_control_string );
+	document_output_body(
+			document->application_name,
+			document->onload_control_string );
 
 	printf( "<h1>%s</h1>\n", title );
 
@@ -124,24 +119,23 @@ int main( int argc, char **argv )
 	if ( paid_amount_due )
 	{
 		payment_amount = 
-			purchase_order_get_amount_due(
-					application_name,
-					full_name,
-					street_address,
-					purchase_date_time );
+			purchase_fetch_amount_due(
+				full_name,
+				street_address,
+				purchase_date_time );
 	}
 
-	total_payment =
-		purchase_order_get_total_payment(
-					application_name,
-					full_name,
-					street_address,
-					purchase_date_time );
+	payment_amount_total =
+		vendor_payment_total(
+			vendor_payment_list(
+				full_name,
+				street_address,
+				purchase_date_time ) );
 
 	if ( paid_amount_due && !payment_amount )
 	{
 		printf(
-"<h3>Error: the purchase order is already paid in full.</h3>\n" );
+	"<h3>Error: the purchase order is already paid in full.</h3>\n" );
 
 		document_close();
 		exit( 0 );
@@ -151,25 +145,24 @@ int main( int argc, char **argv )
 	{
 		printf(
 "<h3>Error: the payment amount is missing. Total existing payments = %.2lf</h3>\n",
-			total_payment );
+			payment_amount_total );
 
 		document_close();
 		exit( 0 );
 	}
 
 	if ( total_payment_amount_exceeds_amount_due(
-				application_name,
 				full_name,
 				street_address,
 				purchase_date_time,
 				payment_amount,
-				total_payment ) )
+				payment_amount_total ) )
 	{
-		if ( total_payment )
+		if ( payment_amount_total )
 		{
 			printf(
 "<h3>Error: the payment amount plus existing payments of %.2lf exceed amount due.</h3>\n",
-				total_payment );
+				payment_amount_total );
 		}
 		else
 		{
@@ -182,200 +175,105 @@ int main( int argc, char **argv )
 
 	if ( payment_amount )
 	{
-		insert_vendor_payment(
-				application_name,
-				full_name,
-				street_address,
-				purchase_date_time,
-				payment_date_time,
-				payment_amount,
-				check_number );
-	}
+		vendor_payment_insert(
+			full_name,
+			street_address,
+			purchase_date_time,
+			payment_date_time,
+			payment_amount,
+			check_number,
+			(char *)0 /* transaction_date_time */ );
 
-	sprintf( sys_string,
+		/* Builds the transaction */
+		/* ---------------------- */
+		sprintf( sys_string,
 	"post_change_vendor_payment %s \"%s\" \"%s\" '%s' '%s' insert ''",
-		 application_name,
-		 full_name,
-		 street_address,
-		 purchase_date_time,
-		 payment_date_time );
+		 	application_name,
+		 	full_name,
+		 	street_address,
+		 	purchase_date_time,
+		 	payment_date_time );
 
-	system( sys_string );
+		if ( system( sys_string ) ){};
 
-	display_purchase_order(	application_name,
-				full_name,
-				street_address,
-				purchase_date_time );
+		display_purchase_order(	full_name,
+					street_address,
+					purchase_date_time );
 
-	printf( "<p>Payment stored.\n" );
+		printf( "<p>Payment stored.\n" );
+	}
+	else
+	{
+		printf( "<p>No payment amount.\n" );
+	}
 
 	document_close();
 
 	return 0;
+}
 
-} /* main() */
-
-void display_purchase_order(	char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time )
+void display_purchase_order(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time )
 {
 	char sys_string[ 1024 ];
-	char *select;
-	char *where;
 	char *justify;
+	char *select;
 
 	select =
 "full_name,street_address,purchase_date_time,purchase_amount,amount_due";
 
-	where = ledger_get_transaction_where(
-				full_name,
-				street_address,
-				purchase_date_time,
-				(char *)0 /* folder_name */,
-				"purchase_date_time" );
-
 	justify = "left,left,left,right,right";
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s		 "
-		 "			select=%s		 "
-		 "			folder=purchase_order	 "
-		 "			where=\"%s\"		|"
-		 "html_table.e '' '%s' '%c' '%s'		 ",
-		 application_name,
+		 "echo \"select %s from %s where %s order by %s;\"	|"
+		 "sql							|"
+		 "html_table.e '' '%s' '%c' '%s'		 	 ",
 		 select,
-		 where,
+		 "purchase_order",
+		 purchase_primary_where(
+			full_name,
+			street_address,
+			purchase_date_time ),
 		 select,
-		 FOLDER_DATA_DELIMITER,
+		 select,
+		 SQL_DELIMITER,
 		 justify );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	fflush( stdout );
-
-} /* display_purchase_order() */
-
-void insert_vendor_payment(	char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *payment_date_time,
-				double payment_amount,
-				int check_number )
-{
-	
-	purchase_vendor_payment_insert(
-		application_name,
-		full_name,
-		street_address,
-		purchase_date_time,
-		payment_date_time,
-		payment_amount,
-		check_number,
-		(char *)0 /* transaction_date_time */ );
-
-/*
-	char sys_string[ 1024 ];
-	char *field_list_string;
-	FILE *output_pipe;
-	char *table_name;
-	char buffer[ 128 ];
-
-	field_list_string =
-"full_name,street_address,purchase_date_time,payment_date_time,payment_amount,check_number";
-
-	table_name = get_table_name( application_name, "vendor_payment" );
-
-	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s | sql.e",
-		 table_name,
-		 field_list_string );
-
-	output_pipe = popen( sys_string, "w" );
-
-	fprintf( output_pipe,
-		 "%s|%s|%s|%s|%.2lf",
-		 escape_character(	buffer,
-					full_name,
-					'\'' ),
-		 street_address,
-		 purchase_date_time,
-		 payment_date_time,
-		 payment_amount );
-
-	if ( check_number )
-	{
-		fprintf( output_pipe,
-			 "|%d\n",
-			 check_number );
-	}
-	else
-	{
-		fprintf( output_pipe, "|\n" );
-	}
-
-	pclose( output_pipe );
-*/
-
-} /* insert_vendor_payment() */
+}
 
 boolean total_payment_amount_exceeds_amount_due(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *purchase_date_time,
-					double payment_amount,
-					double total_payment )
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			double payment_amount,
+			double payment_amount_total )
 {
-	char *table_name;
-	char sys_string[ 1024 ];
-	char *results_string;
 	double amount_due;
-	double local_total_payment;
-	char *where;
+	double local_payment_amount_total;
 
-	table_name = get_table_name( application_name, "purchase_order" );
+	amount_due =
+		purchase_fetch_amount_due(
+			full_name,
+			street_address,
+			purchase_date_time );
 
-	where = ledger_get_transaction_where(
-					full_name,
-					street_address,
-					purchase_date_time,
-					(char *)0 /* folder_name */,
-					"purchase_date_time" );
+	local_payment_amount_total = payment_amount + payment_amount_total;
 
-	sprintf( sys_string,
-		 "echo \"	select amount_due		 "
-		 "		from %s				 "
-		 "		where %s;\"			|"
-		 "sql.e						 ",
-		 table_name,
-		 where );
-
-	results_string = pipe2string( sys_string );
-
-	if ( results_string && *results_string )
+	if ( timlib_double_virtually_same(
+			amount_due,
+			local_payment_amount_total )
+	|| ( local_payment_amount_total < amount_due ) )
 	{
-		amount_due = atof( results_string );
-
-		local_total_payment = payment_amount + total_payment;
-
-		if ( timlib_double_virtually_same(
-				amount_due,
-				local_total_payment )
-		|| ( local_total_payment < amount_due ) )
-		{
-			return 0;
-		}
-		else
-		{
-			return 1;
-		}
+		return 0;
 	}
 	else
 	{
 		return 1;
 	}
-
-} /* total_payment_amount_exceeds_amount_due() */
+}
 

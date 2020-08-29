@@ -115,6 +115,7 @@ BANK_UPLOAD *bank_upload_new(
 			char *bank_description );
 
 void bank_upload_transaction_direct_insert(
+			char *fund_name,
 			char *bank_date,
 			char *bank_description_embedded,
 			char *full_name,
@@ -155,11 +156,6 @@ void bank_upload_set_transaction(
 			LIST *bank_upload_list,
 			LIST *reoccurring_transaction_list,
 			LIST *existing_cash_journal_list );
-
-/* Insert into TRANSACTION and JOURNAL  */
-/* ------------------------------------ */
-void bank_upload_transaction_insert(
-			LIST *bank_upload_list );
 
 char *bank_upload_select(
 			void );
@@ -214,6 +210,8 @@ LIST *bank_upload_file_list(
 					int starting_sequence_number,
 					char *fund_name );
 
+/* Returns static memory */
+/* --------------------- */
 char *bank_upload_transaction_memo(
 					char *full_name,
 					char *street_address,
@@ -351,31 +349,32 @@ char *bank_upload_insert_bank_upload_filename(
 void bank_upload_direct_bank_upload_transaction_insert(
 			LIST *bank_upload_list );
 
-boolean bank_upload_exists(	char *bank_date,
-				char *bank_description_embedded,
-				char *minimum_bank_date );
+boolean bank_upload_exists(
+			char *bank_date,
+			char *bank_description_embedded,
+			char *minimum_bank_date );
 
-void bank_upload_free(		BANK_UPLOAD *b );
+void bank_upload_free(	BANK_UPLOAD *b );
 
 int bank_upload_file_row_count(
-				LIST *bank_upload_list );
+			LIST *bank_upload_list );
 
 /* Returns strdup() */
 /* ---------------- */
 char *bank_upload_journal_list_html(
-				LIST *match_sum_existing_journal_list );
+			LIST *match_sum_existing_journal_list );
 
 void bank_upload_match_sum_existing_journal_list(
-				LIST *bank_upload_list,
-				LIST *existing_cash_journal_list );
+			LIST *bank_upload_list,
+			LIST *existing_cash_journal_list );
 
 void bank_upload_feeder_phrase_match_build_transaction(
-				LIST *bank_upload_list,
-				LIST *reoccurring_transaction_list );
+			LIST *bank_upload_list,
+			LIST *reoccurring_transaction_list );
 
 void bank_upload_check_number_existing_journal(
-				LIST *bank_upload_list,
-				LIST *existing_cash_journal_list );
+			LIST *bank_upload_list,
+			LIST *existing_cash_journal_list );
 
 LIST *bank_upload_key_list(
 			char *minimum_bank_date );

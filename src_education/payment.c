@@ -63,7 +63,14 @@ char *payment_transaction_refresh(
 			double payment_amount,
 			LIST *journal_list )
 {
-	return (char *)0;
+	return transaction_journal_refresh(
+		student_full_name,
+		student_street_address,
+		transaction_date_time,
+		payment_amount,
+		program_name /* memo */,
+		0 /* check_number */,
+		journal_list );
 }
 
 char *payment_update(	double payment_amount_calculate,

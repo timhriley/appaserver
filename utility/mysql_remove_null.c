@@ -81,7 +81,7 @@ int main( int argc, char **argv )
 
 		str_len = strlen( search_string );
 
-		if ( timlib_strict_case_strcmp(
+		if ( timlib_loose_strcmp(
 				timlib_right_string(
 					buffer,
 					str_len ),

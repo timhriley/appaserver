@@ -107,6 +107,7 @@ char *reoccurring_transaction_select( void )
 		"debit_account,"
 		"credit_account,"
 		"bank_upload_feeder_phrase,"
+		"feeder_phrase_ignore_yn,"
 		"accrued_daily_amount,"
 		"accrued_monthly_amount";
 }
@@ -168,9 +169,12 @@ REOCCURRING_TRANSACTION *reoccurring_transaction_parse( char *input )
 	reoccurring_transaction->bank_upload_feeder_phrase = strdup( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input, 6 );
-	reoccurring_transaction->accrued_daily_amount = atof( buffer );
+	reoccurring_transaction->feeder_phrase_ignore = ( *buffer == 'y' );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input, 7 );
+	reoccurring_transaction->accrued_daily_amount = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input, 8 );
 	reoccurring_transaction->accrued_monthly_amount = atof( buffer );
 
 	return reoccurring_transaction;

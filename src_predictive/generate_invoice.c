@@ -24,7 +24,8 @@
 #include "application_constants.h"
 #include "date_convert.h"
 #include "entity.h"
-#include "customer_sale.h"
+#include "sale.h"
+#include "customer_payment.h"
 #include "entity_self.h"
 #include "appaserver_link_file.h"
 
@@ -266,8 +267,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 	LATEX_INVOICE *latex_invoice;
 	ENTITY_SELF *self;
 	char *todays_date;
-	char *completed_date_time;
-	CUSTOMER_SALE *customer_sale;
+	SALE *sale;
 	char title[ 128 ];
 
 	if ( ! ( self = entity_self_load() ) )
@@ -293,21 +293,15 @@ boolean build_latex_invoice(	FILE *output_stream,
 				self->entity->full_name );
 	}
 
-	completed_date_time =
-		customer_sale_completed_date_time(
+	sale =
+		/* Returns sale_steady_state() */
+		/* --------------------------- */
+		sale_fetch(
 			full_name,
 			street_address,
 			sale_date_time );
 
-	if ( !completed_date_time ) return 0;
-
-	customer_sale =
-		customer_sale_new(
-			full_name,
-			street_address,
-			sale_date_time );
-
-	customer_sale->completed_date_time = completed_date_time;
+	if ( !sale->completed_date_time ) return 0;
 
 	todays_date = pipe2string( "now.sh full 0" );
 
@@ -348,7 +342,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 				full_name,
 				street_address,
 				sale_date_time,
-				customer_sale->completed_date_time ) ) )
+				sale->completed_date_time ) ) )
 	{
 		printf( "<H3>Error: no line items for this invoice.</h3>\n" );
 		document_close();
@@ -433,6 +427,7 @@ LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
 	char invoice_key[ 128 ];
 	double sales_tax;
 	double total_payment;
+	SALE *sale;
 
 	sprintf(invoice_key,
 		"%s %s %s",
@@ -440,17 +435,20 @@ LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
 		street_address,
 		sale_date_time );
 
-	sales_tax =
-		customer_sale_fetch_sales_tax(
+	sale =
+		/* Returns sale_steady_state() */
+		/* --------------------------- */
+		sale_fetch(
 			full_name,
 			street_address,
 			sale_date_time );
 
 	total_payment =
-		customer_sale_total_payment(
-			full_name,
-			street_address,
-			sale_date_time );
+		customer_payment_total(
+			customer_payment_list(
+				full_name,
+				street_address,
+				sale_date_time ) );
 
 	invoice_customer = latex_invoice_customer_new(
 					strdup( invoice_key ),

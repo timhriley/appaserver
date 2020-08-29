@@ -29,9 +29,9 @@ void string_reset_get_line_check_utf_16( void )
 
 /* Returns input_buffer or (char *)0 if all done. */
 /* ---------------------------------------------- */
-char *string_input(		char *input_buffer,
-				FILE *infile,
-				int buffer_size )
+char *string_input(	char *input_buffer,
+			FILE *infile,
+			int buffer_size )
 {
 	int in_char;
 	int size = 0;
@@ -423,5 +423,14 @@ int string_strncmp( char *s1, char *s2 )
 
 	str_len2 = strlen( s2 );
 	return strncasecmp( s1, s2, str_len2 );
+}
+
+boolean string_loose_strcmp( char *s1, char *s2 )
+{
+	if ( !s1 && !s2 ) return 0;
+	if ( !s2 ) return -1;
+	if ( !s1 ) return 1;
+
+	return strcmp( s1, s2 );
 }
 

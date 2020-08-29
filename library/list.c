@@ -176,6 +176,16 @@ void *list_data( LIST *list )
 	return list_get_pointer( list );
 }
 
+void *list_last( LIST *list )
+{
+	return list_get_last_pointer( list );
+}
+
+void *list_get_last( LIST *list )
+{
+	return list_get_last_pointer( list );
+}
+
 void *list_get_last_pointer( LIST *list )
 {
 	if ( !go_tail( list ) ) return (char *)0;
@@ -183,6 +193,11 @@ void *list_get_last_pointer( LIST *list )
 }
 
 void *list_get_first( LIST *list )
+{
+	return list_first( list );
+}
+
+void *list_first( LIST *list )
 {
 	if ( !go_head( list ) )
 		return (void *)0;
@@ -1102,23 +1117,27 @@ boolean list_go_last( LIST *list )
 	return (boolean)go_tail( list );
 }
 
-boolean list_go_tail( LIST *list )
-{
-	return (boolean)go_tail( list );
-}
-
-int go_tail( LIST *list )
 /* ----------------------------------------------- */
 /* Move the current pointer to the end of the list */
 /* ----------------------------------------------- */
+boolean list_tail( LIST *list )
 {
         if ( !list || !list->num_in_list)
                 return 0;
 
         list->current = list->tail->previous;
         return 1;
+}
 
-} /* go_tail */
+boolean list_go_tail( LIST *list )
+{
+	return list_tail( list );
+}
+
+boolean go_tail( LIST *list )
+{
+	return list_tail( list );
+}
 
 struct LINKTYPE *get_current_record( LIST *list )
 {

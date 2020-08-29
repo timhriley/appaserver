@@ -22,6 +22,7 @@
 #include "account.h"
 #include "entity.h"
 #include "transaction.h"
+#include "predictive.h"
 
 TRANSACTION *transaction_calloc( void )
 {
@@ -219,11 +220,16 @@ FILE *transaction_insert_open( void )
 	char sys_string[ 1024 ];
 	char *field;
 
-	field =
-"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,lock_transaction_yn";
+	field =	"full_name,"
+		"street_address,"
+		"transaction_date_time,"
+		"transaction_amount,"
+		"memo,"
+		"check_number,"
+		"lock_transaction_yn";
 
 	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s delimiter='^'	|"
+		 "insert_statement table=%s field=%s delimiter='^'	|"
 		 "sql 2>&1						 ",
 		 "transaction",
 		 field );
@@ -332,7 +338,7 @@ char *transaction_insert_pipe(
 			street_address,
 			transaction_date_time,
 			transaction_amount,
-			memo );
+			(memo) ? memo : "" );
 
 	transaction_check_insert(
 		insert_pipe,
@@ -569,14 +575,32 @@ boolean transaction_exists( char *transaction_date_time )
 	return return_value;
 }
 
-void transaction_refresh(
+char *transaction_journal_refresh(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
 			int check_number,
-			boolean lock_transaction,
+			LIST *journal_list )
+{
+	return transaction_refresh(
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			memo,
+			check_number,
+			journal_list );
+}
+
+char *transaction_refresh(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			int check_number,
 			LIST *journal_list )
 {
 	transaction_delete(
@@ -597,13 +621,15 @@ void transaction_refresh(
 		transaction_amount,
 		memo,
 		check_number,
-		lock_transaction );
+		1 /* lock_transaction */ );
 
 	transaction_journal_list_insert(
 		full_name,
 		street_address,
 		transaction_date_time,
 		journal_list );
+
+	return transaction_date_time;
 }
 
 void transaction_list_journal_insert(
@@ -700,18 +726,53 @@ TRANSACTION *transaction_seek(
 	do {
 		t = list_get( transaction_list );
 
-		if ( string_strcmp(	t->full_name,
-					full_name ) == 0
-		&&   string_strcmp(	t->street_address,
-					street_address ) == 0
-		&&   string_strcmp(	t->transaction_date_time,
-					transaction_date_time ) == 0 )
+		if ( transaction_date_time )
 		{
-			return t;
+			if ( string_strcmp(	t->full_name,
+						full_name ) == 0
+			&&   string_strcmp(	t->street_address,
+						street_address ) == 0
+			&&   string_strcmp(	t->transaction_date_time,
+						transaction_date_time ) == 0 )
+			{
+				return t;
+			}
+		}
+		else
+		{
+			if ( string_strcmp(	t->full_name,
+						full_name ) == 0
+			&&   string_strcmp(	t->street_address,
+						street_address ) == 0 )
+			{
+				return t;
+			}
 		}
 
 	} while( list_next( transaction_list ) );
 	return (TRANSACTION *)0;
+}
+
+void transaction_list_stderr( LIST *transaction_list )
+{
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( transaction_list ) ) return;
+
+	do {
+		transaction = list_get( transaction_list );
+
+		fprintf( stderr,
+			 "%s\n",
+			 journal_list_display(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->transaction_amount,
+				transaction->memo,
+				transaction->journal_list ) );
+
+	} while( list_next( transaction_list ) );
 }
 
 /* Returns transaction_list with transaction_date_time changed if needed. */
@@ -737,7 +798,7 @@ LIST *transaction_list_insert( LIST *transaction_list )
 
 	} while( list_next( transaction_list ) );
 
-	/* transaction_list_journal_insert( transaction_list ); */
+	transaction_list_journal_insert( transaction_list );
 
 	return transaction_list;
 }
@@ -810,53 +871,13 @@ LIST *transaction_binary_journal_list(
 			char *debit_account,
 			char *credit_account )
 {
-	LIST *journal_list;
-	JOURNAL *journal;
-
-	if ( !debit_account
-	||   !*debit_account
-	||   !credit_account
-	||   !*credit_account )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty account name(s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( timlib_double_virtually_same(
-		transaction_amount, 0.0 ) )
-	{
-		return (LIST *)0;
-	}
-
-	journal_list = list_new();
-
-	journal =
-		journal_new(
-			strdup( full_name ),
-			strdup( street_address ),
-			strdup( transaction_date_time ),
-			strdup( debit_account ) );
-
-	journal->debit_amount = transaction_amount;
-
-	list_set( journal_list, journal );
-
-	journal =
-		journal_new(
-			strdup( full_name ),
-			strdup( street_address ),
-			strdup( transaction_date_time ),
-			strdup( credit_account ) );
-
-	journal->credit_amount = transaction_amount;
-
-	list_set( journal_list, journal );
-
-	return journal_list;
+	return journal_binary_journal_list(
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			debit_account,
+			credit_account );
 }
 
 TRANSACTION *transaction_check_seek(
@@ -1026,7 +1047,8 @@ char *transaction_date_max( void )
 {
 	char *r;
 
-	r = transaction_date_time_max();
+	if ( ! ( r = transaction_date_time_max() ) ) return (char *)0;
+
 	*( r + 10 ) = '\0';
 	return r;
 }
@@ -1095,106 +1117,11 @@ boolean transaction_date_time_exists(
 		return 0;
 }
 
-boolean transaction_fund_attribute_exists( void )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-	 	"folder_attribute_exists.sh %s account fund",
-	 	environment_application() );
-
-	return ( system( sys_string ) == 0 );
-}
-
-char *transaction_fund_where( char *fund_name )
-{
-	char where[ 128 ];
-
-	if ( !fund_name
-	||   !*fund_name
-	||   strcmp( fund_name, "fund" ) == 0 )
-	{
-		strcpy( where, "1 = 1" );
-	}
-	else
-	if ( transaction_fund_attribute_exists() )
-	{
-		sprintf(where,
-		 	"fund = '%s'",
-		 	fund_name );
-	}
-	else
-	{
-		strcpy( where, "1 = 1" );
-	}
-
-	return strdup( where );
-}
-
-char *transaction_existing_closing_date_time( char *as_of_date )
-{
-	return transaction_exists_closing_entry( as_of_date );
-}
-
-char *transaction_existing_closing_entry( char *as_of_date )
-{
-	return transaction_exists_closing_entry( as_of_date );
-}
-
-char *transaction_exists_closing_date_time( char *as_of_date )
-{
-	return transaction_exists_closing_entry( as_of_date );
-}
-
-/* Returns the existing transaction_date_time or NULL */
-/* -------------------------------------------------- */
-char *transaction_exists_closing_entry( char *as_of_date )
-{
-	char where[ 512 ];
-	char sys_string[ 1024 ];
-	char *results;
-
-	/* Can't start with null */
-	/* --------------------- */
-	static char *existing_transaction_date_time = "";
-
-	if ( existing_transaction_date_time
-	&& !*existing_transaction_date_time )
-	{
-		return existing_transaction_date_time;
-	}
-
-	sprintf( where,
-		 "transaction_date_time = '%s %s' and	"
-		 "memo = '%s'				",
-		 as_of_date,
-		 TRANSACTION_CLOSING_TRANSACTION_TIME,
-		 TRANSACTION_CLOSING_ENTRY_MEMO );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 "transaction_date_time",
-		 "transaction",
-		 where );
-
-	results = pipe2string( sys_string );
-
-	if ( results && *results )
-	{
-		existing_transaction_date_time = results;
-	}
-	else
-	{
-		existing_transaction_date_time = (char *)0;
-	}
-	return existing_transaction_date_time;
-}
-
 LIST *transaction_fund_name_list( void )
 {
 	char sys_string[ 512 ];
 
-	if ( !transaction_fund_attribute_exists() )
+	if ( !predictive_fund_attribute_exists() )
 	{
 		return (LIST *)0;
 	}
@@ -1212,12 +1139,12 @@ char *transaction_journal_join( void )
 {
 	char *join_where;
 
-	join_where =	"journal_ledger.full_name ="
-			"	transaction.full_name and"
-			"journal_ledger.street_address ="
-			"	transaction.street_address and"
-			"journal_ledger.transaction_date_time ="
-			"	transaction.transaction_date_time";
+	join_where =	"journal_ledger.full_name =			"
+			"	transaction.full_name and		"
+			"journal_ledger.street_address =		"
+			"	transaction.street_address and		"
+			"journal_ledger.transaction_date_time =		"
+			"	transaction.transaction_date_time	";
 
 	return join_where;
 }
@@ -1450,6 +1377,34 @@ double transaction_net_income_fetch(
 		return atof( results_string );
 }
 
+char *transaction_full_name_display(
+			char *full_name,
+			char *street_address )
+{
+	static char full_name_display[ 256 ];
+
+	*full_name_display = '\0';
+
+	if ( !full_name || !street_address ) return full_name_display;
+
+	if ( *street_address
+	&&   string_loose_strcmp( street_address, "null" ) != 0
+	&&   string_loose_strcmp( street_address, "any" ) != 0
+	&&   string_loose_strcmp( street_address, "unknown" ) != 0 )
+	{
+		sprintf(full_name_display,
+			"%s/%s",
+			full_name,
+			street_address );
+	}
+	else
+	{
+		string_strcpy( full_name_display, full_name, 256 );
+	}
+
+	return full_name_display;
+}
+
 void transaction_journal_list_pipe_display(
 			FILE *output_pipe,
 			char *full_name,
@@ -1460,7 +1415,6 @@ void transaction_journal_list_pipe_display(
 {
 	JOURNAL *journal;
 	char buffer[ 256 ];
-	char full_name_buffer[ 256 ];
 
 	if ( list_length( journal_list ) != 2 )
 	{
@@ -1479,21 +1433,14 @@ void transaction_journal_list_pipe_display(
 
 	journal = list_get( journal_list );
 
-	if ( strcmp( street_address, "null" ) != 0 )
-	{
-		sprintf( full_name_buffer,
-			 "%s/%s",
-			 full_name,
-			 street_address );
-	}
-	else
-	{
-		strcpy( full_name_buffer, full_name );
-	}
-
 	fprintf( output_pipe,
 		 "%s^%s^%.2lf^\n",
-		 full_name_buffer,
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 transaction_full_name_display(
+			full_name,
+			street_address ),
 		 format_initial_capital(
 			buffer,
 			journal->account_name ),
@@ -1511,3 +1458,138 @@ void transaction_journal_list_pipe_display(
 		 journal->credit_amount );
 }
 
+LIST *transaction_after_balance_zero_journal_list(
+			char *account_name )
+{
+	char *transaction_date_time_string;
+
+	if ( ( transaction_date_time_string =
+			transaction_latest_zero_balance_transaction_date_time(
+				account_name ) ) )
+	{
+		DATE *transaction_date_time;
+
+		transaction_date_time =
+			date_yyyy_mm_dd_hms_new(
+				transaction_date_time_string );
+
+		/* Need to start with the transaction following zero balance. */
+		/* ---------------------------------------------------------- */
+		date_increment_seconds(
+			transaction_date_time,
+			1 );
+
+		transaction_date_time_string =
+			date_get_yyyy_mm_dd_hh_mm_ss(
+				transaction_date_time );
+	}
+
+	return journal_minimum_account_journal_list(
+			transaction_date_time_string
+				/* minimum_transaction_date_time */,
+			account_name );
+}
+
+char *transaction_latest_zero_balance_transaction_date_time(
+			char *account_name )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *results;
+
+	sprintf( where,
+		 "account = '%s' and balance = 0",
+		 account_name_escape( account_name ) );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql.e",
+		 "max( transaction_date_time )",
+		 JOURNAL_TABLE_NAME,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( results && *results )
+		return results;
+	else
+		return (char *)0;
+}
+
+char *transaction_existing_closing_date_time( char *as_of_date )
+{
+	return transaction_exists_closing_entry( as_of_date );
+}
+
+char *transaction_existing_closing_entry( char *as_of_date )
+{
+	return transaction_exists_closing_entry( as_of_date );
+}
+
+char *transaction_exists_closing_date_time( char *as_of_date )
+{
+	return transaction_exists_closing_entry( as_of_date );
+}
+
+/* Returns the existing transaction_date_time or NULL */
+/* -------------------------------------------------- */
+char *transaction_exists_closing_entry( char *as_of_date )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *results;
+
+	/* Can't start with null */
+	/* --------------------- */
+	static char *existing_transaction_date_time = "";
+
+	if ( existing_transaction_date_time
+	&& !*existing_transaction_date_time )
+	{
+		return existing_transaction_date_time;
+	}
+
+	sprintf( where,
+		 "transaction_date_time = '%s %s' and	"
+		 "memo = '%s'				",
+		 as_of_date,
+		 TRANSACTION_CLOSING_TRANSACTION_TIME,
+		 TRANSACTION_CLOSING_ENTRY_MEMO );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 "transaction_date_time",
+		 "transaction",
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( results && *results )
+	{
+		existing_transaction_date_time = results;
+	}
+	else
+	{
+		existing_transaction_date_time = (char *)0;
+	}
+	return existing_transaction_date_time;
+}
+
+LIST *transaction_date_time_account_name_list(
+			char *transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char where[ 128 ];
+
+	sprintf(	where,
+			"transaction_date_time = '%s'",
+			transaction_date_time );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "account",
+		 JOURNAL_TABLE,
+		 where,
+		 "account" );
+
+	return pipe2list( sys_string );
+}

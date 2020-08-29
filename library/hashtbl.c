@@ -738,19 +738,33 @@ LIST *hash_table_get_ordered_key_list( HASH_TABLE *h )
 boolean hash_table_exists_key( HASH_TABLE *h, char *key )
 {
 	int duplicate_indicator;
-	return (boolean)hash_table_retrieve_other_data(	
+	if ( hash_table_retrieve_other_data(	
 						h, 
 						key, 
-						&duplicate_indicator );
+						&duplicate_indicator ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 boolean hash_table_exists( HASH_TABLE *h, char *key )
 {
 	int duplicate_indicator;
-	return (boolean)hash_table_retrieve_other_data(	
+	if ( hash_table_retrieve_other_data(	
 						h, 
 						key, 
-						&duplicate_indicator );
+						&duplicate_indicator ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 int hash_table_remove_data( HASH_TABLE *h, char *key )

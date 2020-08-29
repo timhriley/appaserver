@@ -16,6 +16,7 @@ STANDARD_LIBRARY_OBJECT=						\
 		${LIBRARY}/list.o 					\
 		${LIBRARY}/list_usage.o 				\
 		${LIBRARY}/timlib.o 					\
+		${LIBRARY}/float.o 					\
 		${LIBRARY}/sed.o 					\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\

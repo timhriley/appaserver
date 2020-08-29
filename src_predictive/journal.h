@@ -13,9 +13,9 @@
 
 /* Constants */
 /* --------- */
-#define JOURNAL_FOLDER_NAME		"journal_ledger"
-#define JOURNAL_TABLE			JOURNAL_FOLDER_NAME
-#define JOURNAL_TABLE_NAME		JOURNAL_FOLDER_NAME
+#define JOURNAL_TABLE			"journal_ledger"
+#define JOURNAL_TABLE_NAME		JOURNAL_TABLE
+#define JOURNAL_FOLDER_NAME		JOURNAL_TABLE
 
 /* Structures */
 /* ---------- */
@@ -41,27 +41,29 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-JOURNAL*journal_new(	char *full_name,
+JOURNAL *journal_new(	char *full_name,
 			char *street_address,
 			char *transaction_date_time,
 			char *account_name );
 
-/* Returns program memory */
-/* ---------------------- */
+JOURNAL *journal_prior(	char *transaction_date_time,
+			char *account_name );
+
+JOURNAL *journal_account_fetch(
+			char *account_name,
+			char *transaction_date_time );
+
+/* Safely returns heap memory */
+/* -------------------------- */
 char *journal_select(	void );
 
 JOURNAL	*journal_parse(	char *input );
 
-LIST *journal_list(	char *transaction_where );
-
-LIST *journal_list_fetch(
-			char *where );
+boolean journal_accumulate_debit(
+			char *account_name );
 
 LIST *journal_system_list(
 			char *sys_string );
-
-JOURNAL *journal_prior(	char *transaction_date_time,
-			char *account_name );
 
 FILE *journal_insert_open(
 			void );
@@ -84,24 +86,19 @@ void journal_insert_pipe(
 			double amount,
 			boolean is_debit );
 
-JOURNAL *journal_account_fetch(
-			char *account_name,
-			char *transaction_date_time );
-
-LIST *journal_account_name_list(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time );
-
-/* Also does a propagate for each account */
-/* -------------------------------------- */
-void journal_delete(	char *full_name,
-			char *street_address,
-			char *transaction_date_time );
-
-void journal_account_name_list_propagate(
+/* Executes journal_list_set_balances() */
+/* ------------------------------------ */
+void journal_propagate(
 			char *transaction_date_time,
-			LIST *account_name_list );
+			char *account_name );
+
+LIST *journal_list_prior(
+			JOURNAL *prior_journal,
+			char *account_name );
+
+LIST *journal_list_set_balances(
+			LIST *journal_list,
+			boolean accumulate_debit );
 
 LIST *journal_list_minimum(
 			char *minimum_transaction_date_time,
@@ -110,6 +107,26 @@ LIST *journal_list_minimum(
 LIST *journal_list_account(
 			char *account_name );
 
+LIST *journal_list_fetch(
+			char *where );
+
+/* Also does a propagate for each account */
+/* -------------------------------------- */
+void journal_delete(	char *full_name,
+			char *street_address,
+			char *transaction_date_time );
+
+LIST *journal_account_name_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
+
+void journal_account_name_list_propagate(
+			char *transaction_date_time,
+			LIST *account_name_list );
+
+LIST *journal_list(	char *transaction_where );
+
 void journal_list_transaction_date_time_propagate(
 			char *transaction_date_time,
 			LIST *journal_list );
@@ -117,11 +134,7 @@ void journal_list_transaction_date_time_propagate(
 char *journal_list_audit(
 			LIST *journal_list );
 
-void journal_list_set_balances(
-			LIST *journal_list,
-			boolean accumulate_debit );
-
-JOURNAL *journal_getset(
+JOURNAL *journal_account_name_getset(
 			LIST *journal_list,
 			char *account_name );
 
@@ -139,18 +152,8 @@ void journal_list_insert(
 			char *transaction_date_time,
 			LIST *journal_list );
 
-/* Executes journal_list_set_balances() */
-/* ------------------------------------ */
-void journal_propagate(
-			char *transaction_date_time,
-			char *account_name );
-
 void journal_list_propagate_update(
 			LIST *propagate_journal_list );
-
-LIST *journal_list_prior(
-			JOURNAL *prior_journal,
-			char *account_name );
 
 JOURNAL *journal_latest(
 			char *account_name,
@@ -165,22 +168,88 @@ double journal_amount(
 			double credit_amount,
 			boolean accumulate_debit );
 
+JOURNAL *journal_account_name_seek(
+			LIST *journal_list,
+			char *account_name );
+
 JOURNAL *journal_check_number_seek(
 			LIST *journal_list,
 			int check_number );
+
+JOURNAL *journal_transaction_date_time_seek(
+			LIST *journal_list,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
 
 void journal_list_text_display(
 			char *transaction_memo,
 			LIST *journal_list );
 
 void journal_list_html_display(
-			char *transaction_memo,
+			LIST *journal_list,
+			char *transaction_memo );
+
+char *journal_list_display(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
 			LIST *journal_list );
 
-void journal_list_display(
+void journal_list_pipe_display(
 			FILE *output_pipe,
 			char *transaction_memo,
 			char *heading,
 			LIST *journal_list );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *journal_update_sys_string(
+			void );
+
+JOURNAL *journal_account_latest(
+			char *account_name,
+			char *as_of_date );
+
+LIST *journal_minimum_account_journal_list(
+			char *minimum_transaction_date_time,
+			char *account_name );
+
+JOURNAL *journal_fetch(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *account_name );
+
+LIST *journal_binary_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *debit_account,
+			char *credit_account );
+
+LIST *journal_binary_journal_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *debit_account,
+			char *credit_account );
+
+void journal_list_stdout(
+			LIST *journal_list );
+
+void journal_list_update(
+			LIST *journal_list );
+
+char *journal_display(
+			char *account_name,
+			double previous_balance,
+			double debit_amount,
+			double credit_amount,
+			double balance );
 
 #endif

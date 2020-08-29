@@ -27,14 +27,17 @@
 
 #define ACCOUNT_CASH_KEY		"cash_key"
 #define ACCOUNT_LOSS_KEY		"loss_key"
+#define ACCOUNT_DEPRECIATION_KEY 	"depreciation_expense_key"
 #define ACCOUNT_ACCUMULATED_KEY		"accumulated_depreciation_key"
 #define ACCOUNT_SALES_TAX_EXPENSE_KEY	"sales_tax_key"
 #define ACCOUNT_SALES_TAX_PAYABLE_KEY	"sales_tax_payable_key"
-#define ACCOUNT_ACCOUNT_PAYABLE_KEY	"account_payable_key"
 #define ACCOUNT_REVENUE_KEY		"revenue_key"
-#define ACCOUNT_ACCOUNT_RECEIVABLE_KEY	"account_receivable_key"
+#define ACCOUNT_SHIPPING_REVENUE_KEY	"shipping_revenue_key"
+#define ACCOUNT_RECEIVABLE_KEY		"receivable_key"
+#define ACCOUNT_PAYABLE_KEY		"payable_key"
 #define ACCOUNT_CLOSING_KEY		"closing_key"
 #define ACCOUNT_DRAWING_KEY		"drawing_key"
+#define ACCOUNT_FEES_EXPENSE_KEY	"fees_expense_key"
 #define ACCOUNT_UNCLEARED_CHECKS_KEY	"uncleared_checks_key"
 
 /* Structures */
@@ -47,10 +50,11 @@ typedef struct
 	char *hard_coded_account_key;
 	double chart_account_number;
 	JOURNAL *latest_journal;
-	boolean accumulate_debit;
+	LIST *journal_list;
 	double balance;
 	double annual_budget;
-	LIST *journal_ledger_list;
+	boolean accumulate_debit;
+	double payment_amount;
 } ACCOUNT;
 
 /* Operations */
@@ -63,6 +67,11 @@ char *account_escape_name(
 char *account_name_escape(
 			char *account_name );
 
+/* Returns static memory */
+/* --------------------- */
+char *account_name_format(
+			char *account_name );
+
 ACCOUNT *account_fetch(	char *account_name );
 
 ACCOUNT *account_new(	char *account_name );
@@ -70,13 +79,40 @@ ACCOUNT *account_new(	char *account_name );
 ACCOUNT *account_seek(	LIST *account_list,
 			char *account_name );
 
-char *account_receivable(
-			void );
+char *account_hard_coded_account_name(
+			char *fund_name,
+			char *hard_coded_account_key,
+			boolean warning_only,
+			const char *calling_function_name );
 
-char *account_cash(	void );
+char *account_depreciation_expense(
+			char *fund_name );
+
+char *account_sales_tax_payable(
+			char *fund_name );
+
+char *account_accumulated_depreciation(
+			char *fund_name );
+
+char *account_revenue(	char *fund_name );
+
+char *account_receivable(
+			char *fund_name );
+
+char *account_uncleared_checks(
+			char *fund_name );
+
+char *account_shipping_revenue(
+			char *fund_name );
+
+char *account_cash(	char *fund_name );
+
+char *account_loss(	char *fund_name );
+
+char *account_payable(	char *fund_name );
 
 char *account_fees_expense(
-			void );
+			char *fund_name );
 
 char *account_name_display(
 			char *account_name );
@@ -91,12 +127,6 @@ ACCOUNT *account_parse(	char *input );
 /* -------------------------- */
 char *account_primary_where(
 			char *account_name );
-
-char *account_hard_coded_account_name(
-			char *fund_name,
-			char *hard_coded_account_key,
-			boolean warning_only,
-			const char *calling_function_name );
 
 LIST *account_list(	void );
 
@@ -132,5 +162,15 @@ LIST *account_omit_latex_row_list(
 
 void account_propagate( char *account_name,
 			char *transaction_date_time );
+
+ACCOUNT *account_getset(
+			LIST *account_list,
+			char *account_name );
+
+boolean account_accumulate_debit(
+			char *subclassification_name );
+
+void account_transaction_propagate(
+			char *propagate_transaction_date_time );
 
 #endif

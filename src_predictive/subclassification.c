@@ -13,10 +13,10 @@
 #include "sql.h"
 #include "piece.h"
 #include "boolean.h"
-#include "account.h"
-#include "transaction.h"
-#include "element.h"
 #include "latex.h"
+#include "html_table.h"
+#include "account.h"
+#include "predictive.h"
 #include "subclassification.h"
 
 char *subclassification_primary_where(
@@ -65,6 +65,34 @@ char *subclassification_select( void )
 }
 
 SUBCLASSIFICATION *subclassification_fetch(
+			char *subclassification_name )
+{
+	SUBCLASSIFICATION *subclassification;
+	char sys_string[ 1024 ];
+
+	if ( !subclassification_name ) return (SUBCLASSIFICATION *)0;
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 /* ---------------------- */
+		 /* Returns program memory */
+		 /* ---------------------- */
+		 subclassification_select(),
+		 "subclassification",
+		 /* -------------------------- */
+		 /* Safely returns heap memory */
+		 /* -------------------------- */
+		 subclassification_primary_where(
+			subclassification_name ) );
+
+	subclassification =
+		subclassification_parse(
+			pipe2string( sys_string ) );
+
+	return subclassification;
+}
+
+SUBCLASSIFICATION *subclassification_total_fetch(
 			double *subclassification_total,
 			char *subclassification_name,
 			char *fund_name,
@@ -93,7 +121,7 @@ SUBCLASSIFICATION *subclassification_fetch(
 			pipe2string( sys_string ) );
 
 	subclassification->account_list =
-		subclassification_account_list(
+		subclassification_total_account_list(
 			subclassification_total,
 			subclassification->subclassification_name,
 			fund_name,
@@ -119,82 +147,6 @@ SUBCLASSIFICATION *subclassification_new(
 	}
 	subclassification->subclassification_name = subclassification_name;
 	return subclassification;
-}
-
-LIST *subclassification_account_list(
-			double *subclassification_total,
-			char *subclassification_name,
-			char *fund_name,
-			char *as_of_date )
-{
-	LIST *account_list;
-	ACCOUNT *account;
-	char sys_string[ 1024 ];
-	char where[ 256 ];
-	char account_name[ 128 ];
-	FILE *input_pipe;
-	JOURNAL *latest_journal;
-
-	if ( fund_name
-	&&   *fund_name
-	&&   strcmp( fund_name, "fund" ) != 0 )
-	{
-		sprintf(where,
-			"fund = '%s' and subclassification = '%s'",
-			fund_name,
-			subclassification_name );
-	}
-	else
-	{
-		sprintf(where,
-			"subclassification = '%s'",
-			subclassification_name );
-	}
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 "account",
-		 "account",
-		 where );
-
-	account_list = list_new();
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( account_name, input_pipe ) )
-	{
-		latest_journal =
-			journal_latest(
-				account_name,
-				as_of_date );
-
-		if ( !latest_journal
-		||   timlib_double_virtually_same(
-			latest_journal->balance,
-			0.0 ) )
-		{
-			continue;
-		}
-
-		account =
-			account_fetch(
-				strdup( account_name ) );
-
-		/* Change account name from stack memory to heap. */
-		/* ---------------------------------------------- */
-		latest_journal->account_name = account->account_name;
-
-		account->latest_journal = latest_journal;
-
-		list_add_pointer_in_order(
-			account_list,
-			account,
-			account_balance_match_function );
-
-		*subclassification_total += account->latest_journal->balance;
-	}
-
-	pclose( input_pipe );
-	return account_list;
 }
 
 double subclassification_html_display(
@@ -228,7 +180,7 @@ double subclassification_html_display(
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
 	if ( strcmp(	element_name,
-			ELEMENT_EQUITY ) ==  0 )
+			PREDICTIVE_ELEMENT_EQUITY ) ==  0 )
 	{
 		sprintf(	element_title,
 				"<h2>%s</h2>",
@@ -705,7 +657,7 @@ double subclassification_aggregate_html(
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
 	if ( strcmp(	element_name,
-			ELEMENT_EQUITY ) ==  0 )
+			PREDICTIVE_ELEMENT_EQUITY ) ==  0 )
 	{
 		sprintf(	element_title,
 				"<h2>%s</h2>",
@@ -1056,7 +1008,7 @@ LIST *subclassification_aggregate_latex_row_list(
 
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
-	if ( strcmp( element_name, ELEMENT_EQUITY ) ==  0 )
+	if ( strcmp( element_name, PREDICTIVE_ELEMENT_EQUITY ) ==  0 )
 	{
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
@@ -1273,7 +1225,7 @@ LIST *subclassification_display_latex_row_list(
 
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
-	if ( strcmp( element_name, ELEMENT_EQUITY ) ==  0 )
+	if ( strcmp( element_name, PREDICTIVE_ELEMENT_EQUITY ) ==  0 )
 	{
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
@@ -1813,5 +1765,81 @@ boolean subclassification_net_assets_exists(
 	} while( list_next( subclassification_list ) );
 
 	return 0;
+}
+
+LIST *subclassification_total_account_list(
+			double *subclassification_total,
+			char *subclassification_name,
+			char *fund_name,
+			char *as_of_date )
+{
+	LIST *account_list;
+	ACCOUNT *account;
+	char sys_string[ 1024 ];
+	char where[ 256 ];
+	char account_name[ 128 ];
+	FILE *input_pipe;
+	JOURNAL *latest_journal;
+
+	if ( fund_name
+	&&   *fund_name
+	&&   strcmp( fund_name, "fund" ) != 0 )
+	{
+		sprintf(where,
+			"fund = '%s' and subclassification = '%s'",
+			fund_name,
+			subclassification_name );
+	}
+	else
+	{
+		sprintf(where,
+			"subclassification = '%s'",
+			subclassification_name );
+	}
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql",
+		 "account",
+		 "account",
+		 where );
+
+	account_list = list_new();
+	input_pipe = popen( sys_string, "r" );
+
+	while( string_input( account_name, input_pipe, 128 ) )
+	{
+		latest_journal =
+			journal_latest(
+				account_name,
+				as_of_date );
+
+		if ( !latest_journal
+		||   timlib_double_virtually_same(
+			latest_journal->balance,
+			0.0 ) )
+		{
+			continue;
+		}
+
+		account =
+			account_fetch(
+				strdup( account_name ) );
+
+		/* Change account name from stack memory to heap. */
+		/* ---------------------------------------------- */
+		latest_journal->account_name = account->account_name;
+
+		account->latest_journal = latest_journal;
+
+		list_add_pointer_in_order(
+			account_list,
+			account,
+			account_balance_match_function );
+
+		*subclassification_total += account->latest_journal->balance;
+	}
+
+	pclose( input_pipe );
+	return account_list;
 }
 

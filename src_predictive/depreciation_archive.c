@@ -1,6 +1,7 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/depreciation.c			*/
 /* -------------------------------------------------------------------- */
+/* This is the appaserver depreciation ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -12,9 +13,12 @@
 #include "piece.h"
 #include "date.h"
 #include "appaserver_library.h"
+#include "ledger.h"
 #include "entity.h"
 #include "folder.h"
+#include "purchase.h"
 #include "column.h"
+#include "fixed_asset.h"
 #include "depreciation.h"
 
 DEPRECIATION_TRANSACTION *depreciation_transaction_new( void )
@@ -108,7 +112,7 @@ DEPRECIATION_ASSET_LIST *depreciation_asset_list_new(
 
 	if ( folder_exists_folder(
 		application_name,
-		"equipment_purchase" ) )
+		"fixed_asset_purchase" ) )
 	{
 		d->purchase_fixed_asset_list =
 			fixed_asset_depreciation_purchase_fetch_list(
@@ -519,7 +523,7 @@ double depreciation_straight_line_get_amount(
 	&&   *prior_depreciation_date_string )
 	{
 		fraction_of_year =
-			depreciation_fraction_of_year(
+			ledger_get_fraction_of_year(
 				prior_depreciation_date_string,
 				depreciation_date_string );
 	}
@@ -598,7 +602,7 @@ double depreciation_sum_of_years_digits_get_amount(
 		depreciation_fraction;
 
 	fraction_of_year =
-		depreciation_fraction_of_year(
+		ledger_get_fraction_of_year(
 			prior_depreciation_date_string,
 			depreciation_date_string );
 
@@ -723,7 +727,7 @@ double depreciation_n_declining_balance_get_amount(
 	book_value = extension - finance_accumulated_depreciation;
 
 	fraction_of_year =
-		depreciation_fraction_of_year(
+		ledger_get_fraction_of_year(
 			prior_depreciation_date_string,
 			depreciation_date_string );
 

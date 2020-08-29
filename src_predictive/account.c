@@ -14,12 +14,13 @@
 #include "html_table.h"
 #include "sql.h"
 #include "boolean.h"
-#include "transaction.h"
 #include "entity.h"
+#include "predictive.h"
 #include "element.h"
 #include "journal.h"
-#include "account.h"
+#include "subclassification.h"
 #include "element.h"
+#include "account.h"
 
 LIST *account_system_list( char *sys_string )
 {
@@ -80,6 +81,14 @@ char *account_name_escape(
 	return account_escape_name( account_name );
 }
 
+char *account_name_format(
+			char *account_name )
+{
+	static char name_format[ 256 ];
+
+	return format_initial_capital( name_format, account_name );
+}
+
 char *account_escape_name(
 			char *account_name )
 {
@@ -89,19 +98,104 @@ char *account_escape_name(
 	return escape_name;
 }
 
-char *account_receivable( void )
+char *account_revenue( char *fund_name )
 {
-	return "";
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_REVENUE_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
 }
 
-char *account_cash( void )
+char *account_receivable( char *fund_name )
 {
-	return "";
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_RECEIVABLE_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
 }
 
-char *account_fees_expense( void )
+char *account_payable( char *fund_name )
 {
-	return "";
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_PAYABLE_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+char *account_uncleared_checks( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_UNCLEARED_CHECKS_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+char *account_loss( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_LOSS_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+char *account_sales_tax_payable( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_SALES_TAX_PAYABLE_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+char *account_depreciation_expense( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_DEPRECIATION_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+char *account_accumulated_depreciation( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_ACCUMULATED_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+
+char *account_shipping_revenue( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_SHIPPING_REVENUE_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+char *account_cash( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_CASH_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
+char *account_fees_expense( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_FEES_EXPENSE_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
 }
 
 char *account_name_display( char *account_name )
@@ -141,6 +235,22 @@ int account_balance_match_function(
 	}
 }
 
+ACCOUNT *account_getset(
+			LIST *account_list,
+			char *account_name )
+{
+	ACCOUNT *account;
+
+	if ( ( account = account_seek( account_list, account_name ) ) )
+	{
+		return account;
+	}
+
+	account = account_new( strdup( account_name ) );
+	list_set( account_list, account );
+	return account;
+}
+
 ACCOUNT *account_seek(	LIST *account_list,
 			char *account_name )
 {
@@ -160,7 +270,7 @@ ACCOUNT *account_seek(	LIST *account_list,
 
 char *account_select( void )
 {
-	if ( transaction_fund_attribute_exists() )
+	if ( predictive_fund_attribute_exists() )
 	{
 		return
 			"account,"
@@ -207,15 +317,15 @@ ACCOUNT *account_parse( char *input )
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	account->annual_budget = atof( piece_buffer );
 
-	if ( transaction_fund_attribute_exists() )
+	if ( predictive_fund_attribute_exists() )
 	{
 		piece( piece_buffer, SQL_DELIMITER, input, 5 );
 		account->fund_name = strdup( piece_buffer );
 	}
 
 	account->accumulate_debit =
-		element_account_accumulate_debit(
-			account->account_name );
+		account_accumulate_debit(
+			account->subclassification_name );
 
 	return account;
 }
@@ -261,7 +371,6 @@ char *account_hard_coded_account_name(
 			const char *calling_function_name )
 {
 	static LIST *local_account_list = {0};
-	char *key;
 	ACCOUNT *account;
 
 	if ( !local_account_list )
@@ -278,12 +387,12 @@ char *account_hard_coded_account_name(
 		if ( !warning_only )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d; called from %s(): cannot fetch key=%s.\n",
+		"ERROR in %s/%s()/%d; called from %s(): cannot fetch key=%s.\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
 				 calling_function_name,
-				 key );
+				 hard_coded_account_key );
 			exit( 1 );
 		}
 		else
@@ -307,7 +416,9 @@ ACCOUNT *account_key_seek(
 	do {
 		account = list_get( account_list );
 
-		if ( fund_name )
+		if ( fund_name
+		&&   *fund_name
+		&&   strcmp( fund_name, "fund" ) != 0 )
 		{
 			if ( timlib_strcmp(
 				account->fund_name,
@@ -329,6 +440,7 @@ ACCOUNT *account_key_seek(
 			}
 		}
 	} while( list_next( account_list ) );
+
 	return (ACCOUNT *)0;
 }
 
@@ -703,3 +815,61 @@ void account_propagate( char *account_name,
 		transaction_date_time,
 		account_name );
 }
+
+boolean account_accumulate_debit(
+			char *subclassification_name )
+{
+	SUBCLASSIFICATION *subclassification;
+	ELEMENT *element;
+
+	if ( ! ( subclassification =
+			subclassification_fetch(
+				subclassification_name ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: subclassification_fetch(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 subclassification_name );
+	}
+
+	if ( ! ( element =
+			element_fetch(
+				subclassification->element_name ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: element_fetch(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 subclassification->element_name );
+	}
+
+	return element->accumulate_debit;
+}
+
+void account_transaction_propagate(
+			char *propagate_transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char account[ 256 ];
+	FILE *input_pipe;
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s;\" | sql",
+		 "account",
+		 "account" );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( string_input( account, input_pipe, 256 ) )
+	{
+		journal_propagate(
+			propagate_transaction_date_time,
+			account );
+	}
+
+	pclose( input_pipe );
+}
+

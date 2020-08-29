@@ -17,8 +17,10 @@ STANDARD_LIBRARY=						\
 		list.o 						\
 		list_usage.o 					\
 		timlib.o 					\
+		float.o 					\
 		piece.o 					\
 		column.o 					\
+		float.o 					\
 		date_convert.o 					\
 		String.o 					\
 		hashtbl.o
@@ -100,26 +102,7 @@ APPASERVER_LIBRARY=						\
 		session.o					\
 		mysqldump.o
 
-all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
-		distance.o						\
-		waypoint.o						\
-		post_login_library.o					\
-		covariance_dvr.e					\
-		semaphore_dvr.e						\
-		dollar_dvr.e						\
-		fork_control_dvr.e					\
-		queue_dvr.e						\
-		hashdvr.e						\
-		julian_dvr.e						\
-		moving_average_dvr.e					\
-		histogram_dvr.e						\
-		sed_dvr.e						\
-		queue_dvr.e						\
-		easycharts.o						\
-		pair_one2m.o						\
-		keys_match_sum.o					\
-		julian_time_double_list.o				\
-		token_dvr.e
+all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 
 touch:
 	/usr/bin/touch *.c
@@ -211,6 +194,7 @@ histogram_dvr.e: histogram_dvr.c histogram.o
 	${CC} ${CFLAGS} -I${LIBRARY} histogram_dvr.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		timlib.o 						\
+		float.o 						\
 		date.o 							\
 		julian.o 						\
 		piece.o 						\
@@ -227,6 +211,7 @@ time2day_percentage_dvr.e: time2day_percentage_dvr.c hashtbl.o
 	${CC} ${CFLAGS} -I${LIBRARY} time2day_percentage_dvr.c		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		timlib.o 						\
+		float.o 						\
 		date.o 							\
 		julian.o 						\
 		piece.o 						\
@@ -244,6 +229,7 @@ julian_dvr.e: julian_dvr.c julian.o hashtbl.o
 		column.o 						\
 		date.o 							\
 		timlib.o 						\
+		float.o 						\
 		piece.o 						\
 		list.o 							\
 		list_usage.o 						\
@@ -259,6 +245,7 @@ sed_dvr.e: sed_dvr.c sed.o
 		column.o 						\
 		date.o 							\
 		timlib.o 						\
+		float.o 						\
 		piece.o 						\
 		list.o 							\
 		list_usage.o 						\
@@ -269,13 +256,15 @@ sed_dvr.e: sed_dvr.c sed.o
 		sed.o							\
 	   -o sed_dvr.e
 
-linear_interpolate_dvr.e: linear_interpolate_dvr.c timlib.o hashtbl.o
+linear_interpolate_dvr.e: linear_interpolate_dvr.c timlib.o hashtbl.o	\
+	float.o
 	${CC} ${CFLAGS} linear_interpolate_dvr.c 			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		column.o						\
 		date.o							\
 		julian.o						\
 		timlib.o						\
+		float.o							\
 		list.o							\
 		list_usage.o						\
 		date_convert.o 						\
@@ -335,6 +324,7 @@ parse_report_dvr.e: parse_report_dvr.c parse_report.o hashtbl.o
 		list_usage.o						\
 		date_convert.o 						\
 		timlib.o						\
+		float.o							\
 		environ.o						\
 		dictionary.o						\
 		fopen_path.o						\
@@ -407,6 +397,7 @@ environ_dvr.e: environ_dvr.c environ.o piece.o fopen_path.o hashtbl.o	\
 	${CC} ${CFLAGS} -I${LIBRARY} environ_dvr.c 			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		environ.o timlib.o 					\
+		float.o							\
 		piece.o list.o fopen_path.o				\
 		dictionary.o list_usage.o column.o hashtbl.o		\
 		date_convert.o 						\
@@ -440,6 +431,7 @@ reportdvr.e: reportdvr.c report.o hashtbl.o
 			date_convert.o 		\
 			column.o 		\
 			timlib.o 		\
+			float.o 		\
 			-o reportdvr.e
 
 
@@ -458,6 +450,7 @@ name_dvr.e: name_dvr.c name_arg.o list.o piece.o basename.o hashtbl.o
 			column.o 		\
 			list.o 			\
 			timlib.o 		\
+			float.o 		\
 			-o name_dvr.e
 
 name_arg.o: name_arg.c name_arg.h
@@ -525,6 +518,7 @@ zip_code_dist_dvr.e: zip_code_dist_dvr.c		\
 		hashtbl.o 				\
 		column.o 				\
 		timlib.o 				\
+		float.o 				\
 		rnd_io.o 				\
 		-o zip_code_dist_dvr.e -lm
 
@@ -540,6 +534,7 @@ moving_average_dvr.e: moving_average_dvr.c moving_average.o
 	${CC} ${CFLAGS} -I${LIBRARY} moving_average_dvr.c		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		timlib.o 						\
+		float.o 						\
 		date.o 							\
 		julian.o 						\
 		piece.o 						\
@@ -557,6 +552,7 @@ expected_count_dvr.e: expected_count_dvr.c expected_count.o
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		timlib.o 						\
+		float.o 						\
 		date.o 							\
 		julian.o 						\
 		piece.o 						\
@@ -588,6 +584,7 @@ list_dvr.e: list_dvr.c list.o dictionary.o list_usage.o	\
 		${APPASERVER_ERROR_FILE_FLAG}		\
 			piece.o 			\
 			timlib.o 			\
+			float.o				\
 			date.o 				\
 			julian.o 			\
 			dictionary.o 			\
@@ -624,6 +621,7 @@ dictionary_dvr.e: dictionary_dvr.c dictionary.o hashtbl.o
 			piece.o 			\
 			decode_html_post.o 		\
 			timlib.o 			\
+			float.o 			\
 			list.o 				\
 			-o dictionary_dvr.e
 
@@ -1130,45 +1128,44 @@ row_security.o: row_security.c row_security.h
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c row_security.c
 
-dictionary_appaserver.o: dictionary_appaserver.c			\
-	dictionary_appaserver.h
+dictionary_appaserver.o: dictionary_appaserver.c dictionary_appaserver.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c dictionary_appaserver.c
 
-post_login_library.o: post_login_library.c				\
-	post_login_library.h
+post_login_library.o: post_login_library.c post_login_library.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c post_login_library.c
 
-array.o: array.c							\
-	array.h
+array.o: array.c array.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c array.c
 
-mysqldump.o: mysqldump.c						\
-	mysqldump.h
+mysqldump.o: mysqldump.c mysqldump.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c mysqldump.c
 
-keys_match_sum.o: keys_match_sum.c keys_match_sum.h			\
-	mysqldump.h
+keys_match_sum.o: keys_match_sum.c keys_match_sum.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c keys_match_sum.c
 
-email.o: email.c							\
-	email.h
+email.o: email.c email.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c email.c
 
-string.o: string.c							\
-	email.h
+float.o: float.c float.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
-		-c string.c
+		-c float.c
+
+String.o: String.c String.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c String.c
+
 

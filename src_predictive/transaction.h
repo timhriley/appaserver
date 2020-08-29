@@ -11,10 +11,11 @@
 #include "list.h"
 #include "date.h"
 #include "boolean.h"
-#include "journal.h"
 
 /* Constants */
 /* --------- */
+#define TRANSACTION_TABLE			"transaction"
+#define TRANSACTION_BUFFER_TRIM			50
 #define TRANSACTION_CLOSING_TRANSACTION_TIME	"23:59:59"
 #define TRANSACTION_PRIOR_TRANSACTION_TIME	"23:59:58"
 #define TRANSACTION_CLOSING_ENTRY_MEMO		"close closing"
@@ -94,6 +95,9 @@ char *transaction_insert_pipe(
 /* Returns transaction_list */
 /* ------------------------ */
 LIST *transaction_list_insert(
+			LIST *transaction_list );
+
+void transaction_list_stderr(
 			LIST *transaction_list );
 
 /* TRANSACTION with program_name addition */
@@ -260,14 +264,22 @@ void transaction_lock_insert(
 			FILE *insert_pipe,
 			boolean lock_transaction );
 
-void transaction_refresh(
+char *transaction_journal_refresh(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
 			int check_number,
-			boolean lock_transaction,
+			LIST *journal_list );
+
+char *transaction_refresh(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			int check_number,
 			LIST *journal_list );
 
 /* Returns begin_date_string */
@@ -295,31 +307,11 @@ char *transaction_date_time_max(
 char *transaction_date_max(
 			void );
 
-char *transaction_date_time_closing(
-			char *as_of_date );
-
-char *transaction_closing_date_time(
-			char *as_of_date );
-
-boolean transaction_date_time_exists(
-			char *transaction_date_time );
-
 char *transaction_fund_where(
 			char *fund_name );
 
 boolean transaction_fund_attribute_exists(
 			void );
-
-/* Returns the existing transaction_date_time */
-/* ------------------------------------------ */
-char *transaction_exists_closing_entry(
-			char *as_of_date );
-
-char *transaction_existing_closing_date_time(
-			char *as_of_date );
-
-char *transaction_exists_closing_date_time(
-			char *as_of_date );
 
 LIST *transaction_fund_name_list(
 			void );
@@ -370,9 +362,6 @@ double transaction_net_income_fetch(
 char *transaction_closing_transaction_date_time(
 			char *as_of_date );
 
-char *transaction_generate_date_time(
-			char *transaction_date );
-
 void transaction_journal_list_pipe_display(
 			FILE *output_pipe,
 			char *full_name,
@@ -392,5 +381,43 @@ char *transaction_journal_insert(
 			int check_number,
 			boolean lock_transaction,
 			LIST *journal_list );
+
+LIST *transaction_after_balance_zero_journal_list(
+			char *account_name );
+
+char *transaction_latest_zero_balance_transaction_date_time(
+			char *account_name );
+
+char *transaction_date_time_closing(
+			char *as_of_date );
+
+char *transaction_closing_date_time(
+			char *as_of_date );
+
+boolean transaction_date_time_exists(
+			char *transaction_date_time );
+
+/* Returns the existing transaction_date_time */
+/* ------------------------------------------ */
+char *transaction_exists_closing_entry(
+			char *as_of_date );
+
+char *transaction_existing_closing_date_time(
+			char *as_of_date );
+
+char *transaction_exists_closing_date_time(
+			char *as_of_date );
+
+LIST *transaction_date_time_account_name_list(
+			char *transaction_date_time );
+
+void transaction_list_stderr(
+			LIST *transaction_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_full_name_display(
+			char *full_name,
+			char *street_address );
 
 #endif

@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/entity.c				*/
 /* -------------------------------------------------------------------- */
-/* This is the PredictiveBooks entity ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -13,8 +12,6 @@
 #include "timlib.h"
 #include "piece.h"
 #include "appaserver_library.h"
-#include "purchase.h"
-#include "customer.h"
 #include "entity.h"
 
 enum payroll_pay_period entity_payroll_pay_period(
@@ -50,8 +47,7 @@ ENTITY *entity_calloc( void )
 	}
 
 	return e;
-
-} /* entity_calloc() */
+}
 
 ENTITY *entity_new(	char *full_name,
 			char *street_address )
@@ -63,8 +59,7 @@ ENTITY *entity_new(	char *full_name,
 	e->full_name = full_name;
 	e->street_address = street_address;
 	return e;
-
-} /* entity_new() */
+}
 
 /* ---------------------- */
 /* Returns program memory */
@@ -200,9 +195,10 @@ ENTITY *entity_seek(		LIST *entity_list,
 	if ( !list_rewind( entity_list ) ) return (ENTITY *)0;
 
 	do {
-		entity = list_get_pointer( entity_list );
+		entity = list_get( entity_list );
 
-		if ( timlib_strcmp( entity->full_name, full_name ) == 0
+		if ( timlib_strcmp(	entity->full_name,
+					full_name ) == 0
 		&&   timlib_strcmp(	entity->street_address,
 					street_address ) == 0 )
 		{
@@ -212,8 +208,7 @@ ENTITY *entity_seek(		LIST *entity_list,
 	} while( list_next( entity_list ) );
 
 	return (ENTITY *)0;
-
-} /* entity_seek() */
+}
 
 ENTITY *entity_getset(	LIST *entity_list,
 			char *full_name,
@@ -359,58 +354,3 @@ char *entity_primary_where(
 }
 
 
-#ifdef NOT_DEFINED
-void entity_propagate_purchase_order_ledger_accounts(
-				char *application_name,
-				char *fund_name,
-				char *purchase_order_transaction_date_time )
-{
-	LIST *inventory_account_name_list;
-	char *sales_tax_expense_account = {0};
-	char *freight_in_expense_account = {0};
-	char *account_payable_account = {0};
-
-	inventory_account_name_list =
-		ledger_get_inventory_account_name_list(
-			application_name );
-
-	ledger_get_purchase_order_account_names(
-		&sales_tax_expense_account,
-		&freight_in_expense_account,
-		&account_payable_account,
-		application_name,
-		fund_name );
-
-	if ( list_length( inventory_account_name_list ) )
-	{
-		ledger_propagate_account_name_list(
-			application_name,
-			purchase_order_transaction_date_time,
-			inventory_account_name_list );
-	}
-
-	if ( sales_tax_expense_account )
-	{
-		ledger_propagate(
-			application_name,
-			purchase_order_transaction_date_time,
-			sales_tax_expense_account );
-	}
-
-	if ( freight_in_expense_account )
-	{
-		ledger_propagate(
-			application_name,
-			purchase_order_transaction_date_time,
-			freight_in_expense_account );
-	}
-
-	if ( account_payable_account )
-	{
-		ledger_propagate(
-			application_name,
-			purchase_order_transaction_date_time,
-			account_payable_account );
-	}
-}
-#endif

@@ -15,6 +15,7 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "entity.h"
+#include "sale.h"
 #include "customer_payment.h"
 
 CUSTOMER_PAYMENT *customer_payment_new(
@@ -47,9 +48,16 @@ CUSTOMER_PAYMENT *customer_payment_new(
 }
 
 LIST *customer_payment_list(
-			char *customer_sale_where )
+			char *full_name,
+			char *street_address,
+			char *sale_date_time )
 {
-	return customer_payment_list_fetch( customer_sale_where );
+	return customer_payment_system_list(
+		customer_payment_list_sys_string(
+			sale_primary_where(
+				full_name,
+				street_address,
+				sale_date_time ) ) );
 }
 
 char *customer_payment_select( void )
@@ -100,11 +108,12 @@ CUSTOMER_PAYMENT *customer_payment_parse( char *input )
 	return customer_payment;
 }
 
-LIST *customer_payment_list_fetch( char *where )
+char *customer_payment_list_sys_string(
+			char *where )
 {
 	char sys_string[ 1024 ];
 
-	if ( !where ) return (LIST *)0;
+	if ( !where ) return (char *)0;
 
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s order by %s;\" | sql",
@@ -116,7 +125,7 @@ LIST *customer_payment_list_fetch( char *where )
 		 where,
 		 customer_payment_select() );
 
-	return customer_payment_system_list( sys_string );
+	return strdup( sys_string );
 }
 
 LIST *customer_payment_system_list( char *sys_string )
