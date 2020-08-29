@@ -31,6 +31,8 @@ typedef struct
 	double bank_amount;
 	double cash_running_balance;
 	double bank_running_balance;
+	double cash_running_balance_wrong;
+	double bank_running_balance_wrong;
 	int sequence_number;
 } TRANSACTION_BALANCE_ROW;
 
@@ -61,53 +63,58 @@ typedef struct
 /* Operations */
 /* ---------- */
 TRANSACTION_BALANCE *transaction_balance_calloc(
-					void );
+			void );
 
-TRANSACTION_BALANCE_BLOCK *transaction_balance_block_new(
-					void );
+TRANSACTION_BALANCE_BLOCK *transaction_balance_block_fetch(
+			void );
 
-TRANSACTION_BALANCE_ROW *transaction_balance_row_new(
-					void );
+TRANSACTION_BALANCE_ROW *transaction_balance_row_fetch(
+			void );
 
-TRANSACTION_BALANCE *transaction_balance_new(
-					char *application_name,
-					char *begin_date,
-					double cash_ending_balance );
+TRANSACTION_BALANCE *transaction_balance_fetch(
+			char *begin_date,
+			double cash_ending_balance );
 
 TRANSACTION_BALANCE_ROW *transaction_balance_prior_fetch(
-					char *application_name,
-					char *transaction_date_time );
+			char *application_name,
+			char *transaction_date_time );
 
 TRANSACTION_BALANCE_ROW *transaction_balance_transaction_date_time_fetch(
-					char *application_name,
-					char *transaction_date_time );
+			char *application_name,
+			char *transaction_date_time );
 
 LIST *transaction_balance_fetch_row_list(
-					char *application_name,
-					char *begin_date );
+			char *begin_date );
 
 TRANSACTION_BALANCE_ROW *transaction_balance_parse_row(
-					char *input_buffer );
+			char *input_buffer );
 
 LIST *transaction_balance_inbalance_block_list(
-					LIST *transaction_balance_row_list );
+			LIST *transaction_balance_row_list );
 
 LIST *transaction_balance_outbalance_block_list(
-					LIST *transaction_balance_row_list );
+			LIST *transaction_balance_row_list );
 
 LIST *transaction_balance_merged_block_list(
-					LIST *inbalance_block_list,
-					LIST *outbalance_block_list );
+			LIST *inbalance_block_list,
+			LIST *outbalance_block_list );
 
-double transaction_balance_calculate_anomaly_balance_difference(
-					double cash_running_balance,
-					double bank_running_balance );
+double transaction_balance_anomaly_balance_difference(
+			double cash_running_balance,
+			double bank_running_balance );
+
+char *transaction_balance_row_display_stdout(
+			TRANSACTION_BALANCE_ROW *row,
+			double bank_amount,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong,
+			int sequence_number );
 
 void transaction_balance_row_stdout(
-					TRANSACTION_BALANCE_ROW *row );
+			TRANSACTION_BALANCE_ROW *row );
 
 boolean transaction_balance_last_block_inbalance(
-					LIST *merged_block_list );
+			LIST *merged_block_list );
 
 boolean transaction_balance_cash_running_balance_wrong(
 			char *first_outbalance_transaction_date_time,
@@ -120,10 +127,17 @@ boolean transaction_balance_bank_running_balance_wrong(
 			double bank_amount );
 
 char *transaction_balance_row_display(
-				TRANSACTION_BALANCE_ROW *row,
-				LIST *transaction_balance_row_list,
-				double bank_amount );
+			TRANSACTION_BALANCE_ROW *row,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong,
+			int sequence_number );
 
+boolean transaction_balance_debit_credit_reversed(
+			double anomaly_balance_difference,
+			double transaction_amount,
+			double bank_amount,
+			boolean cash_running_balance_wrong,
+			boolean bank_running_balance_wrong );
 
 #endif
 

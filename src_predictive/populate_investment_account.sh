@@ -32,7 +32,7 @@ parameter_where=$2
 
 table="investment_account"
 
-select="concat( full_name, '^', street_address, '^', account_number, ' [', classification, ']' )"
+select="concat( full_name, '^', street_address, '^', account_number, ' [', investment_classification, ']' )"
 
 if [ "$parameter_where" = "where" -o "$parameter_where" = "" ]
 then

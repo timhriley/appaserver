@@ -15,35 +15,20 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "entity.h"
-#include "inventory.h"
-#include "customer.h"
+#include "inventory_sale.h"
+#include "sale.h"
+#include "fixed_service_sale.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void post_change_fixed_service_sale_delete(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time );
-
-void post_change_fixed_service_sale_insert_update(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *service_name );
-
-/*
-void post_change_fixed_service_sale_update(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *service_name );
-*/
+void post_change_fixed_service_sale_insert_update_delete(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *service_name );
 
 int main( int argc, char **argv )
 {
@@ -54,26 +39,26 @@ int main( int argc, char **argv )
 	char *service_name;
 	char *state;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored full_name street_address sale_date_time service_name state\n",
+"Usage: %s full_name street_address sale_date_time service_name state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	full_name = argv[ 2 ];
-	street_address = argv[ 3 ];
-	sale_date_time = argv[ 4 ];
-	service_name = argv[ 5 ];
-	state = argv[ 6 ];
+	full_name = argv[ 1 ];
+	street_address = argv[ 2 ];
+	sale_date_time = argv[ 3 ];
+	service_name = argv[ 4 ];
+	state = argv[ 5 ];
 
 	/* If change full_name or street address only. */
 	/* --------------------------------------------- */
@@ -85,28 +70,11 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
-	if ( strcmp( state, "delete" ) == 0 )
+	if ( strcmp( state, "insert" ) == 0
+	||   strcmp( state, "update" ) == 0
+	||   strcmp( state, "delete" ) == 0 )
 	{
-		post_change_fixed_service_sale_delete(
-			application_name,
-			full_name,
-			street_address,
-			sale_date_time );
-	}
-	else
-	if ( strcmp( state, "insert" ) == 0 )
-	{
-		post_change_fixed_service_sale_insert_update(
-			application_name,
-			full_name,
-			street_address,
-			sale_date_time,
-			service_name );
-	}
-	else
-	{
-		post_change_fixed_service_sale_insert_update(
-			application_name,
+		post_change_fixed_service_sale_insert_update_delete(
 			full_name,
 			street_address,
 			sale_date_time,
@@ -114,209 +82,77 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
+}
 
-} /* main() */
-
-void post_change_fixed_service_sale_insert_update(
-			char *application_name,
+void post_change_fixed_service_sale_insert_update_delete(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
 			char *service_name )
 {
-	CUSTOMER_SALE *customer_sale;
-	FIXED_SERVICE *fixed_service;
+	SALE *sale;
+	FIXED_SERVICE_SALE *fixed_service_sale;
+	char *transaction_date_time;
 
-	if ( ! (  customer_sale =
-			customer_sale_new(
-				application_name,
+	if ( ! ( sale =
+			/* Returns sale_steady_state() */
+			/* --------------------------- */
+			sale_fetch(
 				full_name,
 				street_address,
 				sale_date_time ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: customer_sale_new() failed.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
 		return;
 	}
 
-	if ( ! ( fixed_service =
-			customer_fixed_service_sale_seek(
-				customer_sale->fixed_service_sale_list,
+	if ( ( fixed_service_sale =
+			fixed_service_sale_seek(
+				sale->fixed_service_sale_list,
 				service_name ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek (%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 service_name );
-		return;
-	}
-
-	customer_sale_update(
-		customer_sale->sum_extension,
-		customer_sale->database_sum_extension,
-		customer_sale->sales_tax,
-		customer_sale->database_sales_tax,
-		customer_sale->invoice_amount,
-		customer_sale->database_invoice_amount,
-		customer_sale->completed_date_time,
-		customer_sale->
-			database_completed_date_time,
-		customer_sale->shipped_date_time,
-		customer_sale->database_shipped_date_time,
-		customer_sale->arrived_date,
-		customer_sale->database_arrived_date,
-		customer_sale->total_payment,
-		customer_sale->database_total_payment,
-		customer_sale->amount_due,
-		customer_sale->database_amount_due,
-		customer_sale->transaction_date_time,
-		customer_sale->
-			database_transaction_date_time,
-		customer_sale->full_name,
-		customer_sale->street_address,
-		customer_sale->sale_date_time,
-		application_name );
-
-	customer_fixed_service_sale_update(
-		application_name,
-		customer_sale->full_name,
-		customer_sale->street_address,
-		customer_sale->sale_date_time,
-		fixed_service->service_name,
-		fixed_service->extension,
-		fixed_service->database_extension,
-		fixed_service->work_hours,
-		fixed_service->database_work_hours );
-
-	if ( customer_sale->transaction_date_time )
-	{
-		customer_sale->transaction =
-			ledger_customer_sale_build_transaction(
-				application_name,
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->transaction->memo,
-				customer_sale->inventory_sale_list,
-				customer_sale->specific_inventory_sale_list,
-				customer_sale->fixed_service_sale_list,
-				customer_sale->hourly_service_sale_list,
-				customer_sale->shipping_revenue,
-				customer_sale->sales_tax,
-				customer_sale->invoice_amount,
-				customer_sale->fund_name );
-
-		if ( customer_sale->transaction )
-		{
-			ledger_transaction_refresh(
-				application_name,
-				customer_sale->full_name,
-				customer_sale->street_address,
-				customer_sale->transaction_date_time,
-				customer_sale->transaction->transaction_amount,
-				customer_sale->transaction->memo,
-				0 /* check_number */,
-				1 /* lock_transaction */,
-				customer_sale->
-					transaction->
-					journal_ledger_list );
-		}
-
-	} /* if transaction_date_time */
-
-} /* post_change_fixed_service_sale_insert_update() */
-
-void post_change_fixed_service_sale_delete(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *sale_date_time )
-{
-	CUSTOMER_SALE *customer_sale;
-
-	if ( ! (  customer_sale =
-			customer_sale_new(
-				application_name,
+		fixed_service_sale_update(
+			fixed_service_sale->
+				fixed_service_work_hours,
+			fixed_service_sale->
+				customer_entity->
 				full_name,
+			fixed_service_sale->
+				customer_entity->
 				street_address,
-				sale_date_time ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: customer_sale_new() failed.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		return;
+			fixed_service_sale->sale_date_time,
+			fixed_service_sale->service_name );
 	}
 
-	customer_sale_update(
-			customer_sale->sum_extension,
-			customer_sale->database_sum_extension,
-			customer_sale->sales_tax,
-			customer_sale->database_sales_tax,
-			customer_sale->invoice_amount,
-			customer_sale->database_invoice_amount,
-			customer_sale->completed_date_time,
-			customer_sale->
-				database_completed_date_time,
-			customer_sale->shipped_date_time,
-			customer_sale->database_shipped_date_time,
-			customer_sale->arrived_date,
-			customer_sale->database_arrived_date,
-			customer_sale->total_payment,
-			customer_sale->database_total_payment,
-			customer_sale->amount_due,
-			customer_sale->database_amount_due,
-			customer_sale->transaction_date_time,
-			customer_sale->
-				database_transaction_date_time,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->sale_date_time,
-			application_name );
-
-	if ( customer_sale->transaction )
+	if ( sale->sale_transaction )
 	{
-		customer_sale->transaction =
-			ledger_customer_sale_build_transaction(
-				application_name,
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->transaction->memo,
-				customer_sale->inventory_sale_list,
-				customer_sale->specific_inventory_sale_list,
-				customer_sale->fixed_service_sale_list,
-				customer_sale->hourly_service_sale_list,
-				customer_sale->shipping_revenue,
-				customer_sale->sales_tax,
-				customer_sale->invoice_amount,
-				customer_sale->fund_name );
-
-		if ( customer_sale->transaction )
-		{
-			ledger_transaction_refresh(
-				application_name,
-				customer_sale->full_name,
-				customer_sale->street_address,
-				customer_sale->transaction_date_time,
-				customer_sale->transaction->transaction_amount,
-				customer_sale->transaction->memo,
+		transaction_date_time =
+		sale->sale_transaction->transaction_date_time =
+			transaction_refresh(
+				sale->sale_transaction->full_name,
+				sale->sale_transaction->street_address,
+				sale->sale_transaction->transaction_date_time,
+				sale->sale_transaction->transaction_amount,
+				sale->sale_transaction->memo,
 				0 /* check_number */,
-				1 /* lock_transaction */,
-				customer_sale->
-					transaction->
-					journal_ledger_list );
-		}
+				sale->sale_transaction->journal_list );
+	}
+	else
+	{
+		transaction_date_time = (char *)0;
+	}
 
-	} /* if transaction */
-
-} /* post_change_fixed_service_sale_delete() */
+	sale_update(
+			sale->inventory_sale_total,
+			sale->fixed_service_sale_total,
+			sale->hourly_service_sale_total,
+			sale->sale_gross_revenue,
+			sale->sales_tax,
+			sale->sale_invoice_amount,
+			sale->customer_payment_total,
+			sale->sale_amount_due,
+			transaction_date_time,
+			sale->customer_entity->full_name,
+			sale->customer_entity->street_address,
+			sale->sale_date_time );
+}
 

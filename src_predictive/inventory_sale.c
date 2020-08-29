@@ -15,6 +15,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "entity.h"
+#include "sale.h"
 #include "inventory_sale.h"
 
 INVENTORY_SALE *inventory_sale_new(
@@ -66,8 +67,11 @@ INVENTORY_SALE *inventory_sale_parse( char *input )
 	char street_address[ 128 ];
 	char sale_date_time[ 128 ];
 	char inventory_name[ 128 ];
-	char piece_buffer[ 1024 ];
-	INVENTORY_SALE *inventory_sale;
+	char quantity[ 128 ];
+	char retail_price[ 128 ];
+	char discount_amount[ 128 ];
+	char extended_price[ 128 ];
+	char cost_of_goods_sold[ 128 ];
 
 	if ( !input ) return (INVENTORY_SALE *)0;
 
@@ -75,34 +79,27 @@ INVENTORY_SALE *inventory_sale_parse( char *input )
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( sale_date_time, SQL_DELIMITER, input, 2 );
 	piece( inventory_name, SQL_DELIMITER, input, 3 );
+	piece( quantity, SQL_DELIMITER, input, 4 );
+	piece( retail_price, SQL_DELIMITER, input, 5 );
+	piece( discount_amount, SQL_DELIMITER, input, 6 );
+	piece( extended_price, SQL_DELIMITER, input, 7 );
+	piece( cost_of_goods_sold, SQL_DELIMITER, input, 8 );
 
-	inventory_sale =
-		inventory_sale_new(
+	return inventory_sale_steady_state(
 			strdup( full_name ),
 			strdup( street_address ),
 			strdup( sale_date_time ),
-			strdup( inventory_name ) );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	inventory_sale->quantity = atoi( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	inventory_sale->retail_price = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 6 );
-	inventory_sale->discount_amount = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 7 );
-	inventory_sale->inventory_sale_extended_price = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 8 );
-	inventory_sale->inventory_sale_cost_of_goods_sold =
-		atof( piece_buffer );
-
-	return inventory_sale;
+			strdup( inventory_name ),
+			atoi( quantity ),
+			atof( retail_price ),
+			atof( discount_amount ),
+			atof( extended_price ),
+			atof( cost_of_goods_sold ),
+			(LIST *)0,
+			(LIST *)0 );
 }
 
-double inventory_sale_extended_price_total(
+double inventory_sale_total(
 			LIST *inventory_sale_list )
 {
 	INVENTORY_SALE *inventory_sale;
@@ -116,7 +113,8 @@ double inventory_sale_extended_price_total(
 
 		total += inventory_sale_extended_price(
 				inventory_sale->quantity,
-				inventory_sale->retail_price );
+				inventory_sale->retail_price,
+				inventory_sale->discount_amount );
 
 	} while ( list_next( inventory_sale_list ) );
 
@@ -130,9 +128,125 @@ double inventory_sale_sales_tax(
 	return extended_price_total * entity_state_sales_tax_rate;
 }
 
-double inventory_sale_extended_price(
-			int quantity,
-			double retail_price )
+LIST *inventory_sale_system_list( char *sys_string )
 {
-	return (double)quantity * retail_price;
+	FILE *input_pipe;
+	char input[ 1024 ];
+	LIST *inventory_sale_list;
+
+	inventory_sale_list = list_new();
+	input_pipe = popen( sys_string, "r" );
+
+	while ( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set(	inventory_sale_list, 
+				inventory_sale_parse( input ) );
+	}
+
+	pclose( input_pipe );
+	return inventory_sale_list;
 }
+
+char *inventory_sale_sys_string( char *where )
+{
+	char sys_string[ 1024 ];
+
+	if ( !where ) return (char *)0;
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 /* ---------------------- */
+		 /* Returns program memory */
+		 /* ---------------------- */
+		 inventory_sale_select(),
+		 "inventory_sale",
+		 where,
+		 "inventory_name" );
+
+	return strdup( sys_string );
+}
+
+LIST *inventory_sale_list(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time )
+{
+	return inventory_sale_system_list(
+			inventory_sale_sys_string(
+				sale_primary_where(
+					full_name,
+					street_address,
+					sale_date_time ) ) );
+}
+
+double inventory_sale_extended_price(
+			double retail_price,
+			double discount_amount,
+			int quantity )
+{
+	return ( ( retail_price *
+		   (double)quantity ) -
+		   discount_amount );
+}
+
+double inventory_sale_cost_of_goods_sold(
+			int quantity,
+			LIST *inventory_purchase_list,
+			LIST *inventory_sale_list )
+{
+if ( quantity ){}
+if ( inventory_purchase_list ){}
+if ( inventory_sale_list ){}
+
+	return 0.0;
+
+}
+
+/* Everything is strdup() in. */
+/* -------------------------- */
+INVENTORY_SALE *inventory_sale_steady_state(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *inventory_name,
+			int quantity,
+			double retail_price,
+			double discount_amount,
+			double extended_price_database,
+			double cost_of_goods_sold_database,
+			LIST *inventory_purchase_list,
+			LIST *inventory_sale_list )
+{
+	INVENTORY_SALE *inventory_sale;
+
+	inventory_sale =
+		inventory_sale_new(
+			full_name,
+			street_address,
+			sale_date_time,
+			inventory_name );
+
+	inventory_sale->quantity = quantity;
+	inventory_sale->discount_amount = discount_amount;
+
+	inventory_sale->inventory_sale_extended_price =
+		inventory_sale_extended_price(
+			retail_price,
+			discount_amount,
+			quantity );
+
+	inventory_sale->inventory_sale_cost_of_goods_sold =
+		inventory_sale_cost_of_goods_sold(
+			quantity,
+			inventory_purchase_list,
+			inventory_sale_list );
+
+	inventory_sale->extended_price_database =
+		extended_price_database;
+
+	inventory_sale->cost_of_goods_sold_database =
+		cost_of_goods_sold_database;
+
+	return inventory_sale;
+}
+

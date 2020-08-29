@@ -13,8 +13,6 @@
 #include "timlib.h"
 #include "date.h"
 #include "piece.h"
-#include "purchase.h"
-#include "customer.h"
 #include "entity.h"
 #include "inventory_purchase_return.h"
 

@@ -982,8 +982,7 @@ m2( application_name, msg );
 			',' );
 
 	return columns_updated;
-
-} /* post_state_update_for_folder() */
+}
 
 void post_state_lookup(
 				DICTIONARY_APPASERVER *dictionary_appaserver,

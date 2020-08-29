@@ -388,8 +388,7 @@ void post_payroll_employee_display(
 	} while( list_next( employee_work_period_list ) );
 
 	pclose( output_pipe );
-
-} /* post_payroll_employee_display() */
+}
 
 void post_payroll(
 			char *application_name,

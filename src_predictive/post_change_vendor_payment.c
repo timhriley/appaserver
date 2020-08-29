@@ -12,63 +12,28 @@
 #include "environ.h"
 #include "piece.h"
 #include "list.h"
-#include "inventory.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "customer.h"
 #include "purchase.h"
+#include "account.h"
+#include "vendor_payment.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void post_change_vendor_payment_amount_update(
-				PURCHASE_ORDER *purchase_order,
-				VENDOR_PAYMENT *vendor_payment,
-				char *application_name );
+void post_change_vendor_payment_predelete(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *payment_date_time );
 
-void post_change_vendor_payment_entity(
-				char *full_name,
-				char *street_address,
-				LIST *vendor_payment_list,
-				char *preupdate_full_name,
-				char *preupdate_street_address,
-				char *application_name );
-
-void post_change_vendor_payment_date_time_update(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *payment_date_time,
-				char *preupdate_payment_date_time );
-
-void post_change_vendor_payment_update(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *payment_date_time,
-				char *preupdate_full_name,
-				char *preupdate_street_address,
-				char *preupdate_payment_date_time,
-				char *preupdate_payment_amount );
-
-void post_change_vendor_payment_delete(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *payment_date_time );
-
-void post_change_vendor_payment_insert(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *payment_date_time );
+void post_change_vendor_payment_insert_update(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *payment_date_time );
 
 int main( int argc, char **argv )
 {
@@ -78,35 +43,33 @@ int main( int argc, char **argv )
 	char *purchase_date_time;
 	char *payment_date_time;
 	char *state;
-	char *preupdate_full_name;
-	char *preupdate_street_address;
-	char *preupdate_payment_date_time;
-	char *preupdate_payment_amount;
+	char *preupdate_payment_date_time = {0};
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc != 11 )
+	if ( argc < 6 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored full_name street_address purchase_date_time payment_date_time state preupdate_full_name preupdate_street_address preupdate_payment_date_time preupdate_payment_amount\n",
+"Usage: %s full_name street_address purchase_date_time payment_date_time state [preupdate_payment_date_time]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	full_name = argv[ 2 ];
-	street_address = argv[ 3 ];
-	purchase_date_time = argv[ 4 ];
-	payment_date_time = argv[ 5 ];
-	state = argv[ 6 ];
-	preupdate_full_name = argv[ 7 ];
-	preupdate_street_address = argv[ 8 ];
-	preupdate_payment_date_time = argv[ 9 ];
-	preupdate_payment_amount = argv[ 10 ];
+	full_name = argv[ 1 ];
+	street_address = argv[ 2 ];
+	purchase_date_time = argv[ 3 ];
+	payment_date_time = argv[ 4 ];
+	state = argv[ 5 ];
+
+	if ( argc > 6 )
+	{
+		if ( ( preupdate_payment_date_time = argv[ 6 ] ) ){};
+	}
 
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
 		exit( 0 );
@@ -118,34 +81,18 @@ int main( int argc, char **argv )
 	/* ----------------------------------------------------------------- */
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
-	if ( strcmp( state, "insert" ) == 0 )
+	if ( strcmp( state, "insert" ) == 0
+	||   strcmp( state, "update" ) == 0 )
 	{
-		post_change_vendor_payment_insert(
-				application_name,
+		post_change_vendor_payment_insert_update(
 				full_name,
 				street_address,
 				purchase_date_time,
 				payment_date_time );
 	}
-	else
-	if ( strcmp( state, "update" ) == 0 )
-	{
-		post_change_vendor_payment_update(
-				application_name,
-				full_name,
-				street_address,
-				purchase_date_time,
-				payment_date_time,
-				preupdate_full_name,
-				preupdate_street_address,
-				preupdate_payment_date_time,
-				preupdate_payment_amount);
-	}
-	else
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		post_change_vendor_payment_delete(
-				application_name,
+		post_change_vendor_payment_predelete(
 				full_name,
 				street_address,
 				purchase_date_time,
@@ -153,151 +100,139 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
+}
 
-} /* main() */
-
-void post_change_vendor_payment_insert(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *payment_date_time )
-{
-	PURCHASE_ORDER *purchase_order;
-	VENDOR_PAYMENT *vendor_payment;
-	LIST *propagate_account_list;
-
-	if ( !( purchase_order =
-		purchase_order_new(
-			application_name,
-			full_name,
-			street_address,
-			purchase_date_time ) ) )
-	{
-		return;
-	}
-
-	/* amount_due set in purchase_order_new(). */
-	/* --------------------------------------- */
-	purchase_order_update(
-		application_name,
-		purchase_order->full_name,
-		purchase_order->street_address,
-		purchase_order->purchase_date_time,
-		purchase_order->sum_extension,
-		purchase_order->database_sum_extension,
-		purchase_order->purchase_amount,
-		purchase_order->database_purchase_amount,
-		purchase_order->amount_due,
-		purchase_order->database_amount_due,
-		purchase_order->transaction_date_time,
-		purchase_order->database_transaction_date_time,
-		purchase_order->arrived_date_time,
-		purchase_order->database_arrived_date_time,
-		purchase_order->shipped_date,
-		purchase_order->database_shipped_date );
-
-	if ( ! ( vendor_payment =
-			purchase_vendor_payment_seek(
-				purchase_order->vendor_payment_list,
-				payment_date_time ) ) )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot seek payment_date_time = (%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 payment_date_time );
-		exit( 1 );
-	}
-
-	if ( vendor_payment->transaction_date_time )
-	{
-		fprintf( stderr,
-"Warning in %s/%s()/%d: not expecting transaction_date_time = (%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 vendor_payment->transaction_date_time );
-	}
-	else
-	{
-		vendor_payment->transaction_date_time =
-			vendor_payment->payment_date_time;
-	}
-
-	/* Insert the TRANSACTION */
-	/* ---------------------- */
-	vendor_payment->transaction =
-		ledger_transaction_new(
-			full_name,
-			street_address,
-			vendor_payment->transaction_date_time,
-			PURCHASE_VENDOR_PAYMENT_MEMO );
-	
-	vendor_payment->transaction_date_time =
-	vendor_payment->transaction->transaction_date_time =
-	ledger_transaction_insert(
-		application_name,
-		vendor_payment->transaction->full_name,
-		vendor_payment->transaction->street_address,
-		vendor_payment->transaction->transaction_date_time,
-		vendor_payment->payment_amount /* transaction_amount */,
-		vendor_payment->transaction->memo,
-		vendor_payment->check_number,
-		1 /* lock_transaction */ );
-
-	purchase_vendor_payment_update(
-		application_name,
-		full_name,
-		street_address,
-		purchase_date_time,
-		payment_date_time,
-		vendor_payment->transaction_date_time,
-		vendor_payment->database_transaction_date_time );
-
-	if ( ( propagate_account_list =
-		purchase_vendor_payment_journal_ledger_refresh(
-			application_name,
-			purchase_order->fund_name,
-			vendor_payment->transaction->full_name,
-			vendor_payment->transaction->street_address,
-			vendor_payment->
-				transaction->
-				transaction_date_time,
-			vendor_payment->payment_amount,
-			vendor_payment->check_number ) ) )
-	{
-		ledger_account_list_propagate(
-			propagate_account_list,
-			application_name );
-	}
-
-} /* post_change_vendor_payment_insert() */
-
-void post_change_vendor_payment_delete(
-			char *application_name,
+void post_change_vendor_payment_insert_update(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
 			char *payment_date_time )
 {
-	PURCHASE_ORDER *purchase_order;
+	PURCHASE *purchase;
 	VENDOR_PAYMENT *vendor_payment;
-	char *checking_account = {0};
-	char *uncleared_checks_account = {0};
-	char *account_payable_account = {0};
+	TRANSACTION *transaction;
+	char *transaction_date_time;
 
-	/* Update purchase_order->amount_due */
-	/* --------------------------------- */
-	purchase_order =
-		purchase_order_new(
-			application_name,
+	if ( ! ( purchase =
+			purchase_fetch(
+				full_name,
+				street_address,
+				purchase_date_time ) ) )
+	{
+		return;
+	}
+
+	if ( ! ( vendor_payment =
+			vendor_payment_seek(
+				purchase->purchase_vendor_payment_list,
+				payment_date_time ) ) )
+	{
+		fprintf( stderr,
+	"Warning in %s/%s()/%d: vendor_payment_seek(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 payment_date_time );
+		return;
+	}
+
+	if ( vendor_payment->vendor_payment_transaction )
+	{
+		transaction_date_time =
+			vendor_payment->
+				vendor_payment_transaction->
+				transaction_date_time;
+	}
+	else
+	{
+		transaction_date_time = vendor_payment->payment_date_time;
+	}
+			
+	/* Refresh the TRANSACTION */
+	/* ----------------------- */
+	if ( ! ( vendor_payment->vendor_payment_transaction =
+			transaction_new(
+				full_name,
+				street_address,
+				transaction_date_time ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: transaction_new(%s,%s,%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
 			full_name,
 			street_address,
-			purchase_date_time );
+			transaction_date_time );
+		exit( 1 );
+	}
 
-	if ( !purchase_order )
+	transaction = vendor_payment->vendor_payment_transaction;
+
+	transaction->transaction_amount = vendor_payment->payment_amount;
+	transaction->memo = VENDOR_PAYMENT_MEMO;
+	transaction->check_number = vendor_payment->check_number;
+
+	transaction->journal_list =
+		vendor_payment_journal_list(
+			vendor_payment->payment_amount,
+			vendor_payment->check_number,
+			account_payable( (char *)0 /* fund_name */ ),
+			account_cash( (char *)0 /* fund_name */ ),
+			account_uncleared_checks( (char *)0 /* fund_name */ ) );
+
+	transaction->transaction_date_time =
+		transaction_journal_refresh(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			transaction->transaction_amount,
+			transaction->memo,
+			transaction->check_number,
+			transaction->journal_list );
+
+	vendor_payment_update(
+		transaction->transaction_date_time,
+		vendor_payment->vendor_entity->full_name,
+		vendor_payment->vendor_entity->street_address,
+		vendor_payment->purchase_date_time,
+		vendor_payment->payment_date_time );
+
+	purchase->purchase_amount_due =
+		Purchase_amount_due(
+			purchase->purchase_invoice_amount,
+			( purchase->purchase_vendor_payment_total =
+				vendor_payment_total(
+					purchase->
+					     purchase_vendor_payment_list ) ) );
+
+	purchase_update(
+		purchase->purchase_equipment_total,
+		purchase->purchase_invoice_amount,
+		purchase->purchase_vendor_payment_total,
+		purchase->purchase_amount_due,
+		transaction_date_time,
+		purchase->vendor_entity->full_name,
+		purchase->vendor_entity->street_address,
+		purchase->purchase_date_time );
+}
+
+void post_change_vendor_payment_predelete(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *payment_date_time )
+{
+	PURCHASE *purchase;
+	VENDOR_PAYMENT *vendor_payment;
+	TRANSACTION *transaction;
+	char *transaction_date_time;
+
+	if ( ! ( purchase =
+			purchase_fetch(
+				full_name,
+				street_address,
+				purchase_date_time ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot find purchase order.\n",
@@ -308,12 +243,12 @@ void post_change_vendor_payment_delete(
 	}
 
 	if ( ! ( vendor_payment =
-			purchase_vendor_payment_seek(
-				purchase_order->vendor_payment_list,
+			vendor_payment_seek(
+				purchase->purchase_vendor_payment_list,
 				payment_date_time ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot seek payment_date_time = (%s).\n",
+	"ERROR in %s/%s()/%d: vendor_payment_seek(%s) returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -321,84 +256,55 @@ void post_change_vendor_payment_delete(
 		exit( 1 );
 	}
 
-	list_delete_current( purchase_order->vendor_payment_list );
+	list_delete_current( purchase->purchase_vendor_payment_list );
 
-	purchase_order->sum_payment_amount =
-		purchase_get_sum_payment_amount(
-			purchase_order->vendor_payment_list );
+	purchase->purchase_amount_due =
+		Purchase_amount_due(
+			purchase->purchase_invoice_amount,
+			( purchase->purchase_vendor_payment_total =
+				vendor_payment_total(
+					purchase->
+					     purchase_vendor_payment_list ) ) );
 
-	purchase_order->amount_due =
-		PURCHASE_GET_AMOUNT_DUE(
-			purchase_order->purchase_amount,
-			purchase_order->sum_payment_amount );
-
-	purchase_order_update(
-			application_name,
-			purchase_order->full_name,
-			purchase_order->street_address,
-			purchase_order->purchase_date_time,
-			purchase_order->sum_extension,
-			purchase_order->database_sum_extension,
-			purchase_order->purchase_amount,
-			purchase_order->database_purchase_amount,
-			purchase_order->amount_due,
-			purchase_order->database_amount_due,
-			purchase_order->transaction_date_time,
-			purchase_order->database_transaction_date_time,
-			purchase_order->arrived_date_time,
-			purchase_order->database_arrived_date_time,
-			purchase_order->shipped_date,
-			purchase_order->database_shipped_date );
-
-	/* Delete TRANSACTION and JOURNAL_LEDGER */
-	/* ------------------------------------- */
-	if ( !vendor_payment->transaction )
+	if ( purchase->purchase_transaction )
 	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: empty transaction for payment_date_time = (%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 payment_date_time );
-		exit( 1 );
+		transaction_date_time =
+			purchase->
+				purchase_transaction->
+					transaction_date_time;
+	}
+	else
+	{
+		transaction_date_time = (char *)0;
 	}
 
-	ledger_delete(	application_name,
-			TRANSACTION_FOLDER_NAME,
-			vendor_payment->transaction->full_name,
-			vendor_payment->transaction->street_address,
-			vendor_payment->transaction->transaction_date_time );
+	purchase_update(
+		purchase->purchase_equipment_total,
+		purchase->purchase_invoice_amount,
+		purchase->purchase_vendor_payment_total,
+		purchase->purchase_amount_due,
+		transaction_date_time,
+		purchase->vendor_entity->full_name,
+		purchase->vendor_entity->street_address,
+		purchase->purchase_date_time );
 
-	ledger_delete(	application_name,
-			LEDGER_FOLDER_NAME,
-			vendor_payment->transaction->full_name,
-			vendor_payment->transaction->street_address,
-			vendor_payment->transaction->transaction_date_time );
+	if ( !vendor_payment->vendor_payment_transaction ) return;
 
-	ledger_get_vendor_payment_account_names(
-		&checking_account,
-		&uncleared_checks_account,
-		&account_payable_account,
-		application_name,
-		purchase_order->fund_name );
+	transaction = vendor_payment->vendor_payment_transaction;
 
-	ledger_propagate(
-		application_name,
-		vendor_payment->transaction_date_time,
-		checking_account );
+	/* Also does a propagate for each account */
+	/* -------------------------------------- */
+	journal_delete(	transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time );
 
-	ledger_propagate(
-		application_name,
-		vendor_payment->transaction_date_time,
-		uncleared_checks_account );
+	transaction_delete(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time );
+}
 
-	ledger_propagate(
-		application_name,
-		vendor_payment->transaction_date_time,
-		account_payable_account );
-
-} /* post_change_vendor_payment_delete() */
-
+#ifdef NOT_DEFINED
 void post_change_vendor_payment_update(
 				char *application_name,
 				char *full_name,
@@ -692,4 +598,4 @@ void post_change_vendor_payment_amount_update(
 	}
 
 } /* post_change_vendor_payment_amount_update() */
-
+#endif

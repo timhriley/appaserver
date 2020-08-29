@@ -23,6 +23,9 @@
 #include "feeder_upload.h"
 #include "account.h"
 #include "reoccurring.h"
+#include "journal.h"
+#include "predictive.h"
+#include "transaction.h"
 #include "bank_upload.h"
 
 BANK_UPLOAD *bank_upload_calloc( void )
@@ -504,7 +507,7 @@ void bank_upload_event_insert(
 		bank_upload_insert_bank_upload_filename(
 			bank_upload_filename );
 
-	exists_fund = transaction_fund_attribute_exists();
+	exists_fund = predictive_fund_attribute_exists();
 
 /*
 #define INSERT_BANK_UPLOAD_EVENT		\
@@ -624,6 +627,7 @@ void bank_upload_archive_insert(
 }
 
 void bank_upload_transaction_direct_insert(
+			char *fund_name,
 			char *bank_date,
 			char *bank_description_embedded,
 			char *full_name,
@@ -634,12 +638,20 @@ void bank_upload_transaction_direct_insert(
 	FILE *insert_pipe;
 	char *field;
 
-	field =
+	if ( predictive_fund_exists() )
+	{
+		field =
+"bank_date,bank_description,full_name,street_address,transaction_date_time,fund";
+	}
+	else
+	{
+		field =
 "bank_date,bank_description,full_name,street_address,transaction_date_time";
+	}
 
 	sprintf( sys_string,
 	 	 "insert_statement table=%s field=%s del='%c' 		  |"
-	 	 "sql.e 2>&1						  |"
+	 	 "sql 2>&1						  |"
 	 	 "html_paragraph_wrapper.e				   ",
 	 	 "bank_upload_transaction",
 	 	 field,
@@ -647,14 +659,29 @@ void bank_upload_transaction_direct_insert(
 
 	insert_pipe = popen( sys_string, "w" );
 
-	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%s\n",
-		bank_date,
-		bank_upload_description_crop(
-			bank_description_embedded ),
-		full_name,
-		street_address,
-		transaction_date_time );
+	if ( fund_name && *fund_name )
+	{
+		fprintf(insert_pipe,
+			"%s^%s^%s^%s^%s^%s\n",
+			bank_date,
+			bank_upload_description_crop(
+				bank_description_embedded ),
+			full_name,
+			street_address,
+			transaction_date_time,
+			fund_name );
+	}
+	else
+	{
+		fprintf(insert_pipe,
+			"%s^%s^%s^%s^%s\n",
+			bank_date,
+			bank_upload_description_crop(
+				bank_description_embedded ),
+			full_name,
+			street_address,
+			transaction_date_time );
+	}
 
 	pclose( insert_pipe );
 }
@@ -977,8 +1004,7 @@ BANK_UPLOAD *bank_upload_parse( char *input )
 	return bank_upload;
 }
 
-LIST *bank_upload_existing_cash_journal_list(
-			char *fund_name )
+LIST *bank_upload_existing_cash_journal_list( char *fund_name )
 {
 	char sys_string[ 2048 ];
 	char *cash_account_name;
@@ -988,7 +1014,7 @@ LIST *bank_upload_existing_cash_journal_list(
 	char *subquery_join;
 	char *select;
 	char check_number_select[ 512 ];
-	char *folder_list_string;
+	char folder[ 128 ];
 	char *timriley_where;
 
 	cash_account_name =
@@ -1008,7 +1034,9 @@ LIST *bank_upload_existing_cash_journal_list(
 	select = journal_select();
 	sprintf( check_number_select, "%s,check_number", select );
 
-	folder_list_string = "journal,transaction";
+	sprintf( folder,
+		 "%s,transaction",
+		 JOURNAL_TABLE );
 
 	join_where = transaction_journal_join();
 
@@ -1037,7 +1065,7 @@ LIST *bank_upload_existing_cash_journal_list(
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s order by %s;\" | sql",
 		 check_number_select,
-		 folder_list_string,
+		 folder,
 		 where,
 		 "transaction_date_time" );
 
@@ -1110,8 +1138,8 @@ void bank_upload_check_number_existing_journal(
 }
 
 void bank_upload_feeder_phrase_match_build_transaction(
-				LIST *bank_upload_list,
-				LIST *reoccurring_transaction_list )
+			LIST *bank_upload_list,
+			LIST *reoccurring_transaction_list )
 {
 	BANK_UPLOAD *bank_upload;
 
@@ -1140,8 +1168,7 @@ void bank_upload_feeder_phrase_match_build_transaction(
 						/* abs_bank_amount */ );
 
 	} while( list_next( bank_upload_list ) );
-
-} /* bank_upload_feeder_phrase_match_build_transaction() */
+}
 
 LIST *bank_upload_transaction_list(
 			LIST *bank_upload_list )
@@ -1169,20 +1196,6 @@ LIST *bank_upload_transaction_list(
 	} while ( list_next( bank_upload_list ) );
 
 	return transaction_list;
-}
-
-/* Insert into TRANSACTION and JOURNAL */
-/* ----------------------------------- */
-void bank_upload_transaction_insert(
-			LIST *bank_upload_list )
-{
-	LIST *transaction_list;
-
-	transaction_list =
-		bank_upload_transaction_list(
-			bank_upload_list );
-
-	transaction_list_insert( transaction_list );
 }
 
 void bank_upload_table_display(
@@ -1251,6 +1264,9 @@ void bank_upload_transaction_text_display( LIST *bank_upload_list )
 		if ( transaction )
 		{
 			transaction_memo =
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
 				bank_upload_transaction_memo(
 					transaction->
 						full_name,
@@ -1295,6 +1311,9 @@ void bank_upload_transaction_table_display( LIST *bank_upload_list )
 		if ( transaction )
 		{
 			transaction_memo =
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
 				bank_upload_transaction_memo(
 					transaction->
 						full_name,
@@ -1304,8 +1323,8 @@ void bank_upload_transaction_table_display( LIST *bank_upload_list )
 						transaction_date_time );
 
 			journal_list_html_display(
-				transaction_memo,
-				transaction->journal_list );
+				transaction->journal_list,
+				transaction_memo );
 		}
 
 	} while( list_next( bank_upload_list ) );
@@ -1348,30 +1367,15 @@ char *bank_upload_transaction_memo(
 					char *transaction_date_time )
 {
 	static char transaction_memo[ 256 ];
-	char street_address_display[ 128 ];
-
-	if ( street_address
-	&&   *street_address
-	&&   strcmp( street_address, "null" ) != 0 )
-	{
-		sprintf( street_address_display,
-			 "/%s",
-			 street_address );
-	}
-	else
-	{
-		*street_address_display = '\0';
-	}
 
 	sprintf(transaction_memo,
-		"%s%s/%s",
-		full_name,
-		street_address_display,
+		"%s/%s",
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_full_name_display(
+			full_name,
+			street_address ),
 		transaction_date_time );
-
-	format_initial_capital(
-		transaction_memo,
-		transaction_memo );
 
 	return transaction_memo;
 }
@@ -1750,8 +1754,7 @@ void bank_upload_reconciliation_transaction_insert(
 	} while( list_next( transaction_list ) );
 
 	pclose( output_pipe );
-
-} /* bank_upload_reconciliation_transaction_insert() */
+}
 
 LIST *bank_upload_feeder_transaction_list(
 				char *fund_name,
@@ -1762,7 +1765,7 @@ LIST *bank_upload_feeder_transaction_list(
 {
 	char sys_string[ 2048 ];
 	char select[ 512 ];
-	char *folder;
+	char folder[ 128 ];
 	char join_where[ 512 ];
 	char where[ 1024 ];
 	char *order;
@@ -1806,15 +1809,20 @@ LIST *bank_upload_feeder_transaction_list(
 	}
 
 	sprintf( select,
-"journal.full_name, journal.street_address, transaction_date_time, %s, bank_upload_feeder_phrase",
-		 amount_column );
+"%s.full_name, %s.street_address, transaction_date_time, %s, bank_upload_feeder_phrase",
+		 amount_column,
+		 JOURNAL_TABLE,
+		 JOURNAL_TABLE );
 
-	folder = "journal,reoccurring_transaction";
+	sprintf( folder,
+		 "%s,reoccurring_transaction",
+		 JOURNAL_TABLE );
 
 	sprintf(
 join_where,
-"reoccurring_transaction.full_name = journal.full_name and	"
-"reoccurring_transaction.street_address = journal.street_address	" );
+"reoccurring_transaction.full_name = %s.full_name and			"
+"reoccurring_transaction.street_address = journal.street_address	",
+		JOURNAL_TABLE );
 
 	sprintf( where,
 "account = '%s' and ifnull( %s, 0 ) <> 0 and %s and %s and %s",
@@ -1986,27 +1994,28 @@ char *bank_upload_transaction_bank_upload_subquery( void )
 		"	      bank_upload.bank_description )		";
 
 	return subquery;
-
-} /* bank_upload_transaction_bank_upload_subquery() */
+}
 
 char *bank_upload_transaction_journal_subquery( void )
 {
-	char *subquery;
+	char subquery[ 1024 ];
 
-	subquery =
+	sprintf(subquery,
 		"not exists						"
 		"(select 1 from bank_upload_transaction			"
 		"	where bank_upload_transaction.full_name =	"
-		"	      journal.full_name and			"
+		"	      %s.full_name and				"
 		"	      bank_upload_transaction.street_address =	"
-		"	      journal.street_address and		"
+		"	      %s.street_address and			"
 		"	      bank_upload_transaction.			"
 		"		transaction_date_time =			"
-		" 	      journal.transaction_date_time )		";
+		" 	      %s.transaction_date_time )		",
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE );
 
-	return subquery;
-
-} /* bank_upload_transaction_journal_subquery() */
+	return strdup( subquery );
+}
 
 void bank_upload_transaction_balance_propagate(
 			char *bank_date )

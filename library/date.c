@@ -1189,6 +1189,11 @@ char *date_display_yyyy_mm_dd_colon_hm( DATE *date )
 	return date_yyyy_mm_dd_hhmm_display( date );
 }
 
+char *date_hms( DATE *date )
+{
+	return date_get_hms( date );
+}
+
 char *date_get_hms( DATE *date )
 {
 	char buffer[ 128 ];
@@ -1357,6 +1362,11 @@ char *date_get_now_hhmm( int utc_offset )
 	return date_get_now_date_hhmm( utc_offset );
 }
 
+char *date_now_yyyy_mm_dd( int utc_offset )
+{
+	return date_get_now_date_yyyy_mm_dd( utc_offset );
+}
+
 char *date_get_now_yyyy_mm_dd( int utc_offset )
 {
 	return date_get_now_date_yyyy_mm_dd( utc_offset );
@@ -1437,6 +1447,11 @@ char *date_get_now_hhmm_colon_ss( int utc_offset )
 	return date_get_now_time_hhmm_colon_ss( utc_offset );
 }
 
+char *date_now_hh_colon_mm_colon_ss( int utc_offset )
+{
+	return date_get_now_hh_colon_mm_colon_ss( utc_offset );
+}
+
 char *date_get_now_time_second( int utc_offset )
 {
 	return date_get_now_hh_colon_mm_colon_ss( utc_offset );
@@ -1469,12 +1484,12 @@ char *date_get_yyyy_mm_dd_hh_mm_ss(
 
 } /* date_get_yyyy_mm_dd_hh_mm_ss() */
 
-char *date_now19( int utc_offset )
+char *date_get_now19( int utc_offset )
 {
 	return date_now19( utc_offset );
 }
 
-char *date_get_now19( int utc_offset )
+char *date_now19( int utc_offset )
 {
 	DATE *d;
 
@@ -1482,7 +1497,17 @@ char *date_get_now19( int utc_offset )
 	return date_get_yyyy_mm_dd_hh_mm_ss( d );
 }
 
+char *date_time_now( int utc_offset )
+{
+	return date_now16( utc_offset );
+}
+
 char *date_get_now16( int utc_offset )
+{
+	return date_now16( utc_offset );
+}
+
+char *date_now16( int utc_offset )
 {
 	DATE *d;
 

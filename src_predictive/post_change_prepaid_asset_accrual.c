@@ -387,7 +387,7 @@ void post_change_accrual_date_update(
 	}
 
 	accrual->transaction_date_time =
-		ledger_get_transaction_date_time(
+		predictive_transaction_date_time(
 			accrual_date );
 
 	accrual_update(
@@ -673,7 +673,7 @@ void post_change_accrual_insert(
 	}
 
 	accrual->transaction_date_time =
-		ledger_get_transaction_date_time(
+		predictive_transaction_date_time(
 			accrual->accrual_date );
 	
 	accrual->transaction =

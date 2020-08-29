@@ -1,7 +1,7 @@
-/* library/covariance.c */
-/* -------------------- */
-/* Tim Riley    	*/
-/* -------------------- */
+/* $APPASERVER_HOME/library/covariance.c		   */
+/* ------------------------------------------------------- */
+/* Freely available software: see Appaserver.org	   */
+/* ------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>

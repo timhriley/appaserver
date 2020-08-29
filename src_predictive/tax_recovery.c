@@ -6,15 +6,12 @@
 
 #include <stdlib.h>
 
-/* Include tax_recovery.h in fixed_asset.h */
-/* --------------------------------------- */
-#include "fixed_asset.h"
-
 #include "timlib.h"
 #include "piece.h"
 #include "date.h"
-#include "appaserver_library.h"
+#include "tax_recovery.h"
 
+#ifdef NOT_DEFINED
 boolean tax_recovery_parse(
 				int *service_month,
 				int *service_year,
@@ -629,4 +626,4 @@ void tax_recovery_fixed_asset_list_display(
 	} while( list_next( fixed_asset_list ) );
 
 } /* tax_recovery_fixed_assets_display() */
-
+#endif

@@ -109,7 +109,9 @@ void *list_pointer(		LIST *list );
 void *list_get_pointer(		LIST *list );
 
 void *list_get_current_pointer( LIST *list );
-int go_tail();
+
+boolean go_tail();
+
 int next_node();
 int previous_node();
 int retrieve_item( char *ret_item, LIST *list );
@@ -175,9 +177,20 @@ LIST *dictionary_string2list( char *dictionary_string,
 LIST *list_trim_indices( LIST *string_list );
 LIST *list_unique( LIST *string_list );
 char *list_get_string( LIST *list );
-void *list_get_first( LIST *list );
-void *list_get_first_pointer( LIST *list );
+
+void *list_first(	LIST *list );
+
+void *list_get_first(	LIST *list );
+
+void *list_get_first_pointer(
+			LIST *list );
+
+void *list_last(	LIST *list );
+
+void *list_get_last(	LIST *list );
+
 void *list_get_last_pointer( LIST *list );
+
 LIST *list_string_to_list( char *list_string, char delimiter );
 LIST *list_string2list( char *list_string, char delimiter );
 LIST *list_quote_comma_string2list( char *list_string );
@@ -207,6 +220,8 @@ void list_mark_current(		LIST *list );
 void list_restore_current(	LIST *list );
 void list_save(			LIST *list );
 void list_restore(		LIST *list );
+
+boolean list_tail( 		LIST *list );
 
 boolean list_go_tail( 		LIST *list );
 

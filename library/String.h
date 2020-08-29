@@ -77,4 +77,8 @@ char *string_strcat(	char *d,
 int string_strncmp(	char *s1,
 			char *s2 );
 
+boolean string_loose_strcmp(
+			char *s1,
+			char *s2 );
+
 #endif

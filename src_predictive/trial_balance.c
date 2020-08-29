@@ -11,6 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "String.h"
+#include "float.h"
 #include "timlib.h"
 #include "piece.h"
 #include "column.h"
@@ -33,6 +34,7 @@
 #include "journal.h"
 #include "account.h"
 #include "element.h"
+#include "predictive.h"
 
 /* Constants */
 /* --------- */
@@ -251,7 +253,7 @@ int main( int argc, char **argv )
 	char *subclassification_option;
 	boolean omit_subclassification = 0;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 				argc,
@@ -299,6 +301,16 @@ int main( int argc, char **argv )
 			transaction_date_max();
 	}
 
+	if ( !as_of_date )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot retrieve as_of_date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
 		document_quick_output_body(
@@ -335,6 +347,8 @@ int main( int argc, char **argv )
 			transaction_date_time_closing(
 				as_of_date );
 
+		/* If run on the closing date, then run it twice. */
+		/* ---------------------------------------------- */
 		if ( transaction_date_time_exists(
 				closing_transaction_date_time ) )
 		{
@@ -391,9 +405,8 @@ int main( int argc, char **argv )
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 		document_close();
 
-	exit( 0 );
-
-} /* main() */
+	return 0;
+}
 
 void trial_balance_html_table(
 			char *application_name,
@@ -483,11 +496,11 @@ void trial_balance_html_table(
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		ELEMENT_ASSET );
+		PREDICTIVE_ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		ELEMENT_LIABILITY );
+		PREDICTIVE_ELEMENT_LIABILITY );
 
 	prior_element_list =
 		element_list(
@@ -863,8 +876,8 @@ void trial_balance_account_html_table(
 	double prior_balance_change;
 
 	*accumulate_debit =
-		element_account_accumulate_debit(
-			account->account_name );
+		account_accumulate_debit(
+			account->subclassification_name );
 
 	*balance = account->latest_journal->balance;
 
@@ -1146,11 +1159,11 @@ void trial_balance_PDF_fund(
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		ELEMENT_ASSET );
+		PREDICTIVE_ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		ELEMENT_LIABILITY );
+		PREDICTIVE_ELEMENT_LIABILITY );
 
 	prior_element_list =
 		element_list(
@@ -1846,8 +1859,8 @@ void build_PDF_account_row(	LIST *column_data_list,
 	today_date_string = date_get_now_yyyy_mm_dd( date_get_utc_offset() );
 
 	*accumulate_debit =
-		element_account_accumulate_debit(
-			account->account_name );
+		account_accumulate_debit(
+			account->subclassification_name );
 
 	date_convert_source_international(
 		transaction_date_american,
@@ -2028,11 +2041,11 @@ void trial_balance_stdout(
 
 	list_append_pointer(
 		prior_filter_element_name_list,
-		ELEMENT_ASSET );
+		PREDICTIVE_ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list,
-		ELEMENT_LIABILITY );
+		PREDICTIVE_ELEMENT_LIABILITY );
 
 	prior_element_list =
 		element_list(
@@ -2157,8 +2170,8 @@ void trial_balance_account_stdout(
 	double prior_balance_change;
 
 	*accumulate_debit =
-		element_account_accumulate_debit(
-			account->account_name );
+		account_accumulate_debit(
+			account->subclassification_name );
 
 	*balance = account->latest_journal->balance;
 

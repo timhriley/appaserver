@@ -27,6 +27,7 @@ typedef struct
 	char *debit_account;
 	char *credit_account;
 	char *bank_upload_feeder_phrase;
+	boolean feeder_phrase_ignore;
 	double accrued_daily_amount;
 	double accrued_monthly_amount;
 	char *rental_property_street_address;

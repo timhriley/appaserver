@@ -56,10 +56,10 @@ fi
 
 # ------------------------------------------------------------------------
 # Get the transaction_date_time for this sequence_number.
-# Note: *this* script is supposed to prevent duplicated sequence_numbers.
-# Nonetheless, get the minimum.
 # ------------------------------------------------------------------------
 
+# Shouldn't need to use min() anymore.
+# ------------------------------------
 select="min( transaction_date_time )"
 where="sequence_number = $max_sequence_number"
 

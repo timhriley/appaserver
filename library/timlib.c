@@ -18,6 +18,7 @@
 #include "piece.h"
 #include "date.h"
 #include "array.h"
+#include "float.h"
 /* #include "sed.h" */
 
 int timlib_strlen( char *s )
@@ -36,15 +37,14 @@ boolean timlib_strcmp( char *s1, char *s2 )
 
 } /* timlib_strcmp() */
 
-boolean timlib_strict_case_strcmp( char *s1, char *s2 )
+boolean timlib_loose_strcmp( char *s1, char *s2 )
 {
 	if ( !s1 && !s2 ) return 0;
 	if ( !s2 ) return -1;
 	if ( !s1 ) return 1;
 
 	return strcmp( s1, s2 );
-
-} /* timlib_strict_case_strcmp() */
+}
 
 boolean timlib_strcpy( char *d, char *s, int buffer_size )
 {
@@ -121,8 +121,8 @@ void mail_tim( char *message )
 		 "echo \"%s\" 				|"
 		 "mail timriley@appahost.com		",
 		 message );
-	if ( system( buffer ) ) {};
-} /* mail_tim() */
+	if ( system( buffer ) ) {}
+}
 
 /* Sample: attribute_name = "station_1" */
 /* ------------------------------------ */
@@ -548,7 +548,7 @@ char *get_line_system( char *sys_string )
 		return (char *)0;
 	else
 		return strdup( buffer );
-} /* get_line_system() */
+}
 
 
 char *trim_after_character(	char *destination,
@@ -1235,8 +1235,7 @@ int timlib_strict_case_instr(	char *substr,
                                 return x;
 	}
         return -1;
-
-} /* timlib_strict_case_instr() */
+}
 
 int instr( char *substr, char *string, int occurrence )
 {
@@ -1835,7 +1834,7 @@ char *get_system( char *sys_str )
 	pclose( p );
 	return strdup( buffer );
 	
-} /* get_system() */
+}
 
 char *skip_spaces( char *s )
 {
@@ -2018,19 +2017,6 @@ double timlib_abs_double ( double f )
 	return abs_float( f );
 }
 
-double float_abs( double f )
-{
-	return abs_float( f );
-}
-
-double abs_float( double f )
-{
-	if ( f < 0.0 )
-		return -f;
-	else
-		return f;
-}
-
 void increment_time_one_hour( char *time_string )
 {
 	char hour[ 3 ], minute[ 3 ];
@@ -2065,162 +2051,17 @@ int zap_file( char *filename )
 	}
 	fclose( f );
 	return 1;
-} /* zap_file() */
+}
 
 boolean timlib_dollar_virtually_same( double d1, double d2 )
 {
 	return dollar_virtually_same( d1, d2 );
 }
 
-boolean dollar_virtually_same( double d1, double d2 )
-{
-	double difference = d1 - d2;
-	boolean results;
-	
-	results = ( abs_float( difference ) < 0.005 );
-
-/*
-fprintf( stderr, "%s/%s(): d1 = %lf and d2 = %lf, virtually same? = %d\n",
-__FILE__,
-__FUNCTION__,
-d1, d2, results );
-*/
-
-	return results;
-}
-
 boolean timlib_double_virtually_same( double d1, double d2 )
 {
 	return double_virtually_same( d1, d2 );
 }
-
-boolean double_virtually_same( double d1, double d2 )
-{
-	double difference = d1 - d2;
-	boolean results;
-	
-	results = ( abs_float( difference ) < 0.000005 );
-
-/*
-fprintf( stderr, "%s/%s(): d1 = %lf and d2 = %lf, virtually same? = %d\n",
-__FILE__,
-__FUNCTION__,
-d1, d2, results );
-*/
-
-	return results;
-}
-
-boolean timlib_double_virtually_same_places(
-		double d1, double d2, int places )
-{
-	char d1_string[ 32 ];
-	char d2_string[ 32 ];
-
-	sprintf( d1_string, "%.*lf", places, d1 );
-	sprintf( d2_string, "%.*lf", places, d2 );
-
-	return ( strcmp( d1_string, d2_string )  == 0 );
-}
-
-double floor( double d )
-{
-	if ( d >=0 )
-		return (double)(int)d;
-	else
-		return -ceiling( -d );
-}
-
-double ceiling( double d )
-{
-	if ( d >= 0 )
-		return (double)(int)(d + 0.99);
-	else
-		return -floor( -d );
-}
-
-double timlib_round_money( double d )
-{
-	char string[ 32 ];
-
-	if ( timlib_double_virtually_same( d, 0.0 ) ) return 0.0;
-
-	sprintf( string, "%.2lf", d );
-	return atof( string );
-
-} /* timlib_round_money() */
-
-int timlib_round_int( double d )
-{
-	if ( d >= 0.0 )
-		return (int)(d + 0.5);
-	else
-		return (int)(d - 0.5);
-}
-
-double timlib_round_double( double d )
-{
-	return round_double( d );
-}
-
-double round_double( double d )
-{
-	if ( d >= 0.0 )
-		return (double)(int)(d + 0.5);
-	else
-		return -floor( -d );
-}
-
-double floor_double( double d )
-{
-	if ( d >= 0.0 )
-	{
-		if ( d > 1.0 )
-			return (double)(int)d;
-		else
-		if ( d > 0.5 )
-			return 0.5;
-		else
-		if ( d > 0.2 )
-			return 0.2;
-		else
-		if ( d > 0.1 )
-			return 0.1;
-		else
-		if ( d > 0.05 )
-			return 0.05;
-		else
-			return 0.0;
-	}
-	else
-	{
-		return -ceiling_double( -d );
-	}
-} /* floor_double() */
-
-double ceiling_double( double d )
-{
-	if ( d >= 0.0 )
-	{
-		if ( d < 0.05 )
-			return 0.05;
-		else
-		if ( d < 0.1 )
-			return 0.1;
-		else
-		if ( d < 0.2 )
-			return 0.2;
-		else
-		if ( d < 0.5 )
-			return 0.5;
-		else
-			return (double)(int)(d + 0.99);
-	}
-	else
-	{
-		return -floor_double( -d );
-	}
-} /* ceiling_double() */
 
 char *get_node_name()
 {
@@ -3485,7 +3326,7 @@ void timlib_display_error_file( char *error_filename )
 "cat %s | queue_top_bottom_lines.e 50 | html_table.e 'Load Errors' '' ''",
 			 error_filename );
 		fflush( stdout );
-		if ( system( sys_string ) ) {};
+		if ( system( sys_string ) ) {}
 	}
 } /* timlib_display_error_file() */
 
@@ -3514,6 +3355,11 @@ boolean timlib_is_valid_time( char *time_string )
 
 char *timlib_get_now_date_time( void )
 {
+	return timlib_now_date_time();
+}
+
+char *timlib_now_date_time( void )
+{
 	char sys_string[ 256 ];
 	char *now_date_string;
 	char *now_time_string;
@@ -3536,8 +3382,7 @@ char *timlib_get_now_date_time( void )
 	free( now_time_string );
 
 	return now_date_time;
-
-} /* timlib_get_now_date_time() */
+}
 
 boolean timlib_string_empty(	char *s,
 				char *empty_label )
@@ -3816,7 +3661,7 @@ void timlib_cp(		char *destination_filename,
 		 source_filename,
 		 destination_filename );
 
-	if ( system( sys_string ) ) {};
+	if ( system( sys_string ) ) {}
 
 } /* timlib_cp() */
 
@@ -3974,7 +3819,7 @@ void timlib_remove_file( char *filename )
 		 "rm %s",
 		 filename );
 
-	if ( system( sys_string ) ){};
+	if ( system( sys_string ) ){}
 
 } /* timlib_remove_file() */
 
@@ -4015,3 +3860,17 @@ char *timlib_remove_thousands_separator(
 	}
 }
 
+double timlib_round_money( double d )
+{
+	return round_money( d );
+}
+
+int timlib_round_int( double d )
+{
+	return round_int( d );
+}
+
+double timlib_round_double( double d )
+{
+	return round_double( d );
+}

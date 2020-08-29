@@ -18,31 +18,28 @@
 #include "appaserver_error.h"
 #include "entity.h"
 #include "appaserver_parameter_file.h"
-#include "fixed_asset.h"
-
-/* In fixed_asset.h, include depreciation.h */
-/* ---------------------------------------- */
+#include "account.h"
+#include "predictive.h"
+#include "equipment_purchase.h"
+#include "transaction.h"
+#include "depreciation.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-char *depreciate_transaction_journal_ledger_delete(
-					FILE *output_pipe,
-					char *application_name,
-					char *max_undo_date,
-					char *input_folder_name,
-					char *propagate_transaction_date_time );
+FILE *depreciate_equipment_undo_html_open(
+			void );
 
-void depreciate_fixed_assets_undo(	char *application_name,
-					char *max_undo_date,
-					LIST *depreciation_fund_list );
+LIST *depreciate_undo_equipment_purchase_list(
+			char *max_depreciation_date );
 
-void depreciate_fixed_assets(		char *application_name,
-					char *process_name,
-					boolean undo,
-					boolean execute );
+boolean depreciate_equipment_undo(
+			boolean execute );
+
+boolean depreciate_fixed_assets(
+			boolean execute );
 
 int main( int argc, char **argv )
 {
@@ -51,19 +48,19 @@ int main( int argc, char **argv )
 	boolean execute;
 	boolean undo;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DOCUMENT *document;
+	char buffer[ 256 ];
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 4 )
 	{
 		fprintf(stderr,
-	"Usage: %s process undo_yn execute_yn\n",
+			"Usage: %s process undo_yn execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
@@ -75,430 +72,248 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( process_name /* title */, application_name );
-	document->output_content_type = 1;
-	
-	document_output_heading(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-	
-	document_output_body(	document->application_name,
-				document->onload_control_string );
-
-	depreciate_fixed_assets(
+	document_quick_output_body(
 		application_name,
-		process_name,
-		undo,
-		execute );
+		appaserver_parameter_file->
+			appaserver_mount_point );
+
+	printf( "<h1>%s</h1>\n",
+		format_initial_capital(
+			buffer,
+			process_name ) );
+
+	if ( undo )
+	{
+		if ( depreciate_equipment_undo( execute ) )
+		{
+			if ( execute )
+				printf( "<h3>Undo complete</h3>\n" );
+			else
+				printf( "<h3>Undo not executed</h3>\n" );
+		}
+		else
+		{
+			printf( "<h3>No depreciation to undo</h3>\n" );
+		}
+	}
+	else
+	{
+		if ( depreciate_fixed_assets( execute ) )
+		{
+			if ( execute )
+				printf( "<h3>Posting complete</h3>\n" );
+			else
+				printf( "<h3>Posting not executed</h3>\n" );
+		}
+		else
+		{
+			printf( "<h3>No equipment to depreciate</h3>\n" );
+		}
+	}
 
 	document_close();
 
 	return 0;
+}
 
-} /* main() */
-
-void depreciate_fixed_assets(	char *application_name,
-				char *process_name,
-				boolean undo,
-				boolean execute )
+LIST *depreciate_fetch_equipment_purchase_list( void )
 {
-	char buffer[ 128 ];
-	DEPRECIATION_STRUCTURE *depreciation_structure;
-	ENTITY_SELF *entity_self;
-	char *depreciation_date_string = {0};
+	/* -------------------------------------------- */
+	/* Returns equipment_purchase_list with		*/
+	/* equipment_purchase->depreciation_list set.	*/
+	/* -------------------------------------------- */
+	return equipment_purchase_list_fetch(
+		"finance_accumulated_depreciation < purchase_price"
+			/* where */ );
+}
 
-	/* ----- */
-	/* Input */
-	/* ----- */
+LIST *depreciate_undo_equipment_purchase_list(
+			char *max_depreciation_date )
+{
+	char where[ 1024 ];
 
-	/* Sets depreciation_date */
-	/* ---------------------- */
-	depreciation_structure =
-		depreciation_structure_new(
-			application_name );
+	sprintf( where,
+"exists ( select 1						"
+"	   from depreciation					"
+"	   where						"
+"		equipment_purchase.asset_name =			"
+"			depreciation.asset_name and		"
+"		equipment_purchase.serial_number =		"
+"			depreciation.serial_number and		"
+"		equipment_purchase.full_name =			"
+"			depreciation.full_name and		"
+"		equipment_purchase.street_address =		"
+"			depreciation.street_address and		"
+"		equipment_purchase.purchase_date_time =		"
+"			depreciation.purchase_date_time and	"
+"		depreciation_date = '%s' )			",
+		 max_depreciation_date );
 
-	if ( !depreciation_structure->depreciation_date )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty depreciation_date.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	/* -------------------------------------------- */
+	/* Returns equipment_purchase_list with		*/
+	/* equipment_purchase->depreciation_list set.	*/
+	/* -------------------------------------------- */
+	return equipment_purchase_list_fetch( where );
+}
 
-	/* ------------------------------------- */
-	/* Sets depreciation_expense_account and */
-	/*      accumulated_depreciation_account */
-	/* ------------------------------------- */
-	depreciation_structure->depreciation_fund_list =
-		depreciation_fetch_fund_list(
-			application_name );
-
-	if ( ! ( entity_self =
-			entity_self_load(
-				application_name ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load entity self.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !undo )
-	{
-		depreciation_date_string = pipe2string( "now.sh ymd" );
-
-		if ( timlib_strcmp( depreciation_structure->
-					depreciation_date->
-					max_undo_date,
-				    depreciation_date_string ) == 0 )
-		{
-			printf(
-"<h3>Error: depreciation date for fixed assets exists for today.</h3>\n" );
-
-			return;
-		}
-	}
-
-	/* ------- */
-	/* Process */
-	/* ------- */
-	if ( execute )
-	{
-		printf( "<h1>%s</h1>\n",
-			format_initial_capital(
-				buffer,
-				process_name ) );
-
-		if ( undo )
-		{
-			depreciate_fixed_assets_undo(
-				application_name,
-				depreciation_structure->
-					depreciation_date->
-					max_undo_date,
-				depreciation_structure->
-					depreciation_fund_list );
-
-			printf(
-"<h3>Depreciation of fixed assets posted on %s is now deleted.</h3>\n",
-				depreciation_structure->
-					depreciation_date->
-					max_undo_date );
-			return;
-		}
-
-		depreciation_fund_list_asset_list_build(
-			depreciation_structure->depreciation_fund_list,
-			application_name );
-
-		depreciation_fund_list_asset_list_set(
-			depreciation_structure->depreciation_fund_list,
-			depreciation_date_string,
-			depreciation_structure->
-				depreciation_date->
-				prior_fixed_asset_date,
-			depreciation_structure->
-				depreciation_date->
-				prior_fixed_prior_date,
-			depreciation_structure->
-				depreciation_date->
-				prior_property_date,
-			depreciation_structure->
-				depreciation_date->
-				prior_property_prior_date );
-
-		depreciation_fund_list_depreciation_amount_set(
-			depreciation_structure->depreciation_fund_list );
-
-		if ( !depreciation_fund_list_transaction_set(
-			depreciation_structure->depreciation_fund_list,
-			entity_self->entity->full_name,
-			entity_self->entity->street_address ) )
-		{
-			printf(
-			"<h3>Warning: no fixed assets to depreciate.</h3>\n" );
-			return;
-		}
-
-		/* Sets the true transaction_date_time */
-		/* ----------------------------------- */
-		depreciation_fund_transaction_insert(
-				depreciation_structure->
-					depreciation_fund_list,
-				application_name );
-
-		if ( !depreciation_fund_asset_depreciation_insert(
-			depreciation_structure->depreciation_fund_list,
-			entity_self->entity->full_name,
-			entity_self->entity->street_address ) )	
-		{
-			printf( "<h3>Error: check log.</h3>\n" );
-		}
-		else
-		{
-			printf(
-				"<h3>Depreciation now posted on %s.</h3>\n",
-				depreciation_date_string );
-		}
-	}
-	else
-	/* --------------- */
-	/* Must be display */
-	/* --------------- */
-	{
-		if ( undo )
-		{
-			printf(
-	"<h3>Will delete the depreciation taken place on %s.</h3>\n",
-				depreciation_structure->
-					depreciation_date->
-					max_undo_date );
-			return;
-		}
-
-		depreciation_fund_list_asset_list_build(
-			depreciation_structure->depreciation_fund_list,
-			application_name );
-
-		depreciation_fund_list_asset_list_set(
-			depreciation_structure->depreciation_fund_list,
-			depreciation_date_string,
-			depreciation_structure->
-				depreciation_date->
-				prior_fixed_asset_date,
-			depreciation_structure->
-				depreciation_date->
-				prior_fixed_prior_date,
-			depreciation_structure->
-				depreciation_date->
-				prior_property_date,
-			depreciation_structure->
-				depreciation_date->
-				prior_property_prior_date );
-
-		depreciation_fund_list_table_display(
-			process_name,
-			depreciation_structure->
-				depreciation_fund_list );
-	}
-
-} /* depreciate_fixed_assets() */
-
-void depreciate_fixed_assets_undo(	char *application_name,
-					char *max_undo_date,
-					LIST *depreciation_fund_list )
+FILE *depreciate_equipment_undo_html_open( void )
 {
 	char sys_string[ 1024 ];
-	char *propagate_transaction_date_time = {0};
-	DEPRECIATION_FUND *depreciation_fund;
-	FILE *output_pipe;
+	char *heading_list_string;
+	char *justify_list_string;
 
-	if ( !max_undo_date || !*max_undo_date )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty max_undo_date.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	heading_list_string =
+		"asset_name,"
+		"serial_number,"
+		"vendor,"
+		"purchase,"
+		"depreciation,"
+		"depreciation_amount";
 
-	output_pipe = popen( "sql.e", "w" );
-
-	/* FIXED_ASSET_PURCHASE */
-	/* -------------------- */
-	if ( folder_exists_folder(
-		application_name,
-		"fixed_asset_depreciation" ) )
-	{
-		propagate_transaction_date_time =
-			depreciate_transaction_journal_ledger_delete(
-				output_pipe,
-				application_name,
-				max_undo_date,
-				"fixed_asset_depreciation"
-					/* input_folder_name */,
-				propagate_transaction_date_time );
-	}
-
-	/* PROPERTY_PURCHASE */
-	/* ------------------ */
-	if ( folder_exists_folder(
-		application_name,
-		"property_depreciation" ) )
-	{
-		propagate_transaction_date_time =
-			depreciate_transaction_journal_ledger_delete(
-				output_pipe,
-				application_name,
-				max_undo_date,
-				"property_depreciation"
-					/* input_folder_name */,
-				propagate_transaction_date_time );
-	}
-
-	/* PRIOR_FIXED_ASSET */
-	/* ------------------ */
-	if ( folder_exists_folder(
-		application_name,
-		"prior_fixed_asset_depreciation" ) )
-	{
-		propagate_transaction_date_time =
-			depreciate_transaction_journal_ledger_delete(
-				output_pipe,
-				application_name,
-				max_undo_date,
-				"prior_fixed_asset_depreciation"
-					/* input_folder_name */,
-				propagate_transaction_date_time );
-	}
-
-	/* PRIOR_PROPERTY */
-	/* -------------- */
-	if ( folder_exists_folder(
-		application_name,
-		"prior_property_depreciation" ) )
-	{
-		propagate_transaction_date_time =
-			depreciate_transaction_journal_ledger_delete(
-				output_pipe,
-				application_name,
-				max_undo_date,
-				"prior_property_depreciation"
-					/* input_folder_name */,
-				propagate_transaction_date_time );
-	}
-
-	pclose( output_pipe );
-
-	if ( propagate_transaction_date_time
-	&&   list_rewind( depreciation_fund_list ) )
-	{
-		do {
-			depreciation_fund =
-				list_get_pointer(
-					depreciation_fund_list );
-
-			sprintf(sys_string,
-		 		"ledger_propagate %s \"%s\" '' \"%s\" \"%s\"",
-		 		application_name,
-		 		propagate_transaction_date_time,
-		 		depreciation_fund->
-					depreciation_expense_account,
-		 		depreciation_fund->
-					accumulated_depreciation_account );
-
-			system( sys_string );
-
-		} while( list_next( depreciation_fund_list ) );
-
-		sprintf(sys_string,
-		 	"finance_accumulated_depreciation_reset.sh %s",
-		 	application_name );
-
-		system( sys_string );
-	}
-
-} /* depreciate_fixed_assets_undo() */
-
-/* Returns propagate_transaction_date_time */
-/* --------------------------------------- */
-char *depreciate_transaction_journal_ledger_delete(
-					FILE *output_pipe,
-					char *application_name,
-					char *max_undo_date,
-					char *input_folder_name,
-					char *propagate_transaction_date_time )
-{
-	char transaction_date_time[ 64 ];
-	char sys_string[ 1024 ];
-	char where[ 128 ];
-	char *select;
-	FILE *input_pipe;
-
-	if ( !max_undo_date || !*max_undo_date )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty max_undo_date.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	select = "transaction_date_time";
-
-	sprintf(where,
-		"depreciation_date = '%s'",
-		max_undo_date );
+	justify_list_string = "left,left,left,left,left,right";
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s			 "
-		 "			select=\"%s\"			 "
-		 "			folder=%s			 "
-		 "			where=\"%s\"			|"
-		 "sort -u						 ",
-		 application_name,
-		 select,
-		 input_folder_name,
-		 where );
+		 "html_table.e '^%s' '%s' '^' '%s'",
+		 "UNDO Depreciate Equipment",
+		 heading_list_string,
+		 justify_list_string );
 
-	input_pipe = popen( sys_string, "r" );
+	return popen( sys_string, "w" );
+}
 
-	while( get_line( transaction_date_time, input_pipe ) )
+boolean depreciate_equipment_undo( boolean execute )
+{
+	EQUIPMENT_PURCHASE *equipment_purchase;
+	LIST *equipment_purchase_list;
+	DEPRECIATION *depreciation;
+	char *max_depreciation_date;
+	FILE *html_output;
+	FILE *delete_pipe = {0};
+
+	if ( execute )
 	{
-		sprintf(where,
-			"transaction_date_time = '%s'",
-			transaction_date_time );
-
-		fprintf( output_pipe,
-		 	 "delete from journal_ledger where %s;\n",
-		 	 where );
-
-		fprintf( output_pipe,
-		 	 "delete from transaction where %s;\n",
-		 	 where );
-
-		if ( !propagate_transaction_date_time )
-		{
-			propagate_transaction_date_time =
-				strdup( transaction_date_time );
-		}
-		else
-		{
-			if ( transaction_date_time <
-			     propagate_transaction_date_time )
-			{
-				propagate_transaction_date_time =
-					strdup( transaction_date_time );
-			}
-		}
+		delete_pipe = depreciation_delete_open();
 	}
 
-	pclose( input_pipe );
+	html_output = depreciate_equipment_undo_html_open();
 
-	sprintf(where,
-		"depreciation_date = '%s'",
-		max_undo_date );
+	equipment_purchase_list =
+		depreciate_undo_equipment_purchase_list(
+			( max_depreciation_date =
+				depreciation_max_date() ) );
 
-	fprintf( output_pipe,
-	 	 "delete from %s where %s;\n",
-		 input_folder_name,
-	 	 where );
+	if ( !list_rewind( equipment_purchase_list ) ) return 0;
 
-	return propagate_transaction_date_time;
+	do {
+		equipment_purchase =
+			list_get(
+				equipment_purchase_list );
 
-} /* depreciate_transaction_journal_ledger_delete() */
+		if ( ! ( depreciation =
+				depreciation_seek(
+					equipment_purchase->
+						depreciation_list,
+					max_depreciation_date ) ) )
+		{
+			continue;
+		}
+
+		if ( !depreciation->depreciation_transaction )
+		{
+			fprintf(
+			stderr,
+	"ERROR in %s/%s()/%d: empty depreciation_transaction for %s/%s/%s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 equipment_purchase->asset_name,
+			 equipment_purchase->serial_number,
+			 equipment_purchase->vendor_entity->full_name );
+
+			exit( 1 );
+		}
+
+		fprintf( html_output,
+			 "%s^%s^%s/%s^%s^%s^%.2lf\n",
+			 equipment_purchase->asset_name,
+			 equipment_purchase->serial_number,
+			 equipment_purchase->vendor_entity->full_name,
+			 equipment_purchase->vendor_entity->street_address,
+			 equipment_purchase->purchase_date_time,
+			 depreciation->depreciation_date,
+			 depreciation->depreciation_amount );
+
+		if ( execute )
+		{
+			/* Performs journal_propagate() */
+			/* ---------------------------- */
+			transaction_delete(
+				depreciation->
+					depreciation_transaction->
+					full_name,
+				depreciation->
+					depreciation_transaction->
+					street_address,
+				depreciation->
+					depreciation_transaction->
+					transaction_date_time );
+
+			fprintf(delete_pipe,
+			 	"%s^%s^%s/%s^%s^%s\n",
+			 	equipment_purchase->asset_name,
+			 	equipment_purchase->serial_number,
+			 	equipment_purchase->
+					vendor_entity->
+					full_name,
+			 	equipment_purchase->
+					vendor_entity->
+					street_address,
+			 	equipment_purchase->purchase_date_time,
+			 	depreciation->depreciation_date );
+
+		}
+
+	} while ( list_next( equipment_purchase_list ) );
+
+	pclose( html_output );
+
+	if ( delete_pipe ) pclose( delete_pipe );
+
+	return 1;
+}
+
+boolean depreciate_fixed_assets( boolean execute )
+{
+	LIST *equipment_purchase_list;
+
+	equipment_purchase_list =
+		equipment_purchase_list_depreciate(
+			/* -------------------------------------------- */
+			/* Returns equipment_purchase_list with		*/
+			/* equipment_purchase->depreciation_list set.	*/
+			/* -------------------------------------------- */
+			depreciate_fetch_equipment_purchase_list(),
+			pipe2string( "now.sh ymd" )
+				/* depreciation_date */,
+			execute /* set_depreciation_transaction */ );
+
+	equipment_purchase_depreciation_table( equipment_purchase_list );
+
+	if ( !list_length( equipment_purchase_list ) ) return 0;
+
+	if ( execute )
+	{
+		/* Sets true transaction_date_time */
+		/* ------------------------------- */
+		transaction_list_insert(
+			depreciation_transaction_list(
+				equipment_purchase_depreciation_list(
+					equipment_purchase_list ) ) );
+
+		depreciation_list_insert(
+			equipment_purchase_depreciation_list(
+				equipment_purchase_list ) );
+	}
+	return 1;
+}
 

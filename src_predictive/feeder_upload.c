@@ -10,6 +10,7 @@
 #include "timlib.h"
 #include "sed.h"
 #include "piece.h"
+#include "journal.h"
 #include "bank_upload.h"
 #include "feeder_upload.h"
 
@@ -288,9 +289,14 @@ TRANSACTION *feeder_phrase_match_build_transaction(
 	JOURNAL *journal;
 
 	if ( ! ( reoccurring_transaction =
-				reoccurring_bank_upload_feeder_phrase(
-					reoccurring_transaction_list,
-					bank_description_embedded ) ) )
+			reoccurring_bank_upload_feeder_phrase(
+				reoccurring_transaction_list,
+				bank_description_embedded ) ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	if ( reoccurring_transaction->feeder_phrase_ignore )
 	{
 		return (TRANSACTION *)0;
 	}
@@ -465,7 +471,7 @@ send_amount );
 		piece( transaction_date_time, '^', name_string, 2 );
 
 		if ( ! ( journal =
-				journal_seek(
+				journal_transaction_date_time_seek(
 					existing_cash_journal_list,
 					full_name,
 					street_address,

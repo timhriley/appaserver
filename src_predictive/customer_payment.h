@@ -15,7 +15,7 @@
 
 /* Constants */
 /* --------- */
-#define CUSTOMER_PAYMENT__MEMO		"Customer Payment"
+#define CUSTOMER_PAYMENT_MEMO		"Customer Payment"
 
 /* Enumerated types */
 /* ---------------- */
@@ -41,7 +41,9 @@ CUSTOMER_PAYMENT *customer_payment_new(
 			char *payment_date_time );
 
 LIST *customer_payment_list(
-			char *customer_sale_where );
+			char *full_name,
+			char *street_address,
+			char *sale_date_time );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -51,7 +53,7 @@ char *customer_payment_select(
 CUSTOMER_PAYMENT *customer_payment_parse(
 			char *input );
 
-LIST *customer_payment_list_fetch(
+char *customer_payment_list_sys_string(
 			char *where );
 
 LIST *customer_payment_system_list(

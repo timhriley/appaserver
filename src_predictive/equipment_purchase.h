@@ -11,8 +11,8 @@
 #include "list.h"
 #include "boolean.h"
 #include "tax_recovery.h"
-#include "purchase.h"
 #include "entity.h"
+#include "depreciation.h"
 
 /* Constants */
 /* --------- */
@@ -29,7 +29,6 @@ typedef struct
 	char *serial_number;
 	ENTITY *vendor_entity;
 	char *purchase_date_time;
-	char *asset_account_name;
 	char *service_placement_date;
 	double equipment_cost;
 	int estimated_useful_life_years;
@@ -42,10 +41,10 @@ typedef struct
 	char *disposal_date;
 	double finance_accumulated_depreciation;
 	double tax_accumulated_depreciation;
-	/* DEPRECIATION *depreciation; */
 	TAX_RECOVERY *tax_recovery;
-	PURCHASE_ORDER *purchase_order;
-	LIST *equipment_purchase_list;
+	char *asset_account_name;
+	LIST *depreciation_list;
+	DEPRECIATION *equipment_purchase_depreciation;
 } EQUIPMENT_PURCHASE;
 
 /* Operations */
@@ -57,6 +56,9 @@ EQUIPMENT_PURCHASE *equipment_purchase_new(
 			char *street_address,
 			char *purchase_date_time );
 
+/* ------------------------------------------------------- */
+/* Returns with equipment_purchase->depreciation_list set. */
+/* ------------------------------------------------------- */
 EQUIPMENT_PURCHASE *equipment_purchase_parse(
 			char *input );
 
@@ -72,11 +74,17 @@ EQUIPMENT_PURCHASE *equipment_purchase_fetch(
 char *equipment_purchase_select(
 			void );
 
+/* -------------------------------------------- */
+/* Returns equipment_purchase_list with		*/
+/* equipment_purchase->depreciation_list set.	*/
+/* -------------------------------------------- */
 LIST *equipment_purchase_list_fetch(
 			char *where );
 
 LIST *equipment_purchase_list(
-			char *purchase_order_primary_where );
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time );
 
 FILE *equipment_purchase_update_open(
 			void );
@@ -106,6 +114,34 @@ char *equipment_purchase_primary_where(
 			char *purchase_date_time );
 
 double equipment_purchase_total(
+			LIST *equipment_purchase_list );
+
+LIST *equipment_system_list(
+			char *sys_string );
+
+DEPRECIATION *equipment_purchase_depreciation(
+			EQUIPMENT_PURCHASE *equipment_purchase,
+			char *depreciation_date,
+			char *prior_depreciation_date,
+			/* ---------------------------- */
+			/* Null value omits transaction */
+			/* ---------------------------- */
+			char *transaction_date_time,
+			int units_produced );
+
+LIST *equipment_purchase_depreciation_list(
+			LIST *equipment_purchase_list );
+
+/* -------------------------------------------- */
+/* Returns equipment_purchase_list with		*/
+/* equipment_purchase->depreciation_list set.	*/
+/* -------------------------------------------- */
+LIST *equipment_purchase_list_depreciate(
+			LIST *equipment_purchase_list,
+			char *depreciation_date,
+			boolean set_depreciation_transaction );
+
+void equipment_purchase_depreciation_table(
 			LIST *equipment_purchase_list );
 
 #endif

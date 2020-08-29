@@ -38,7 +38,7 @@ typedef struct
 	double state_unemployment_tax_rate;
 	double state_withholding_allowance_period_value;
 	double state_itemized_allowance_period_value;
-	double state_sales_tax_rate;
+	double entity_self_sales_tax_rate;
 /*
 	enum inventory_cost_method inventory_cost_method;
 	enum payroll_pay_period payroll_pay_period;
@@ -59,6 +59,9 @@ typedef struct
 
 /* Operations */
 /* ---------- */
+double entity_self_sales_tax_rate(
+			void );
+
 LIST *entity_get_inventory_list(
 					char *application_name );
 

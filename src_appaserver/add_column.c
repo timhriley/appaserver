@@ -238,7 +238,7 @@ int main( int argc, char **argv )
 			sprintf( sys_string,
 				 "chmod +x,g+w %s",
 				 process_filename );
-			system( sys_string );
+			if ( system( sys_string ) ){}
 			printf( "<BR><p>Created %s</p>\n", process_filename );
 		}
 	}
@@ -290,6 +290,7 @@ boolean output_process_script(
 {
 	FILE *output_file;
 	char buffer[ 2048 ];
+	char primary_key_display[ 16 ];
 
 	if ( ! ( output_file = fopen( process_filename, "w" ) ) )
 		return 0;
@@ -319,6 +320,13 @@ boolean output_process_script(
 		 attribute_name,
 		 database_datatype );
 
+	if ( primary_key_index )
+		sprintf(primary_key_display,
+			"%d",
+			primary_key_index );
+	else
+		strcpy( primary_key_display, "null" );
+
 	fprintf( output_file,
 "folder_attribute_table=`get_table_name $application folder_attribute`\n" );
 	fprintf( output_file,
@@ -330,11 +338,11 @@ boolean output_process_script(
 "	 insert_required_yn,						\\\n"
 "	 lookup_required_yn )						\\\n"
 "	values								\\\n"
-"	('%s','%s',%d,%d,'%c','%c','%c','%c','%c','%c','%c');\" 	 |\n"
+"	('%s','%s',%s,%d,'%c','%c','%c','%c','%c','%c','%c');\" 	 |\n"
 "sql.e\n",
 		 folder_name,
 		 attribute_name,
-		 primary_key_index,
+		 primary_key_display,
 		 display_order,
 		 omit_insert_yn,
 		 omit_insert_prompt_yn,
@@ -383,7 +391,7 @@ boolean output_process_script(
 
 	fclose( output_file );
 	return 1;
-} /* output_process_script() */
+}
 
 void output_relation(	FILE *output_file,
 			char *application_name,

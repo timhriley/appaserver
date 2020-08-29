@@ -17,6 +17,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/list_usage.o 				\
 		${LIBRARY}/sed.o 					\
 		${LIBRARY}/timlib.o 					\
+		${LIBRARY}/float.o 					\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/date_convert.o 				\

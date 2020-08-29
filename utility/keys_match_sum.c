@@ -30,7 +30,7 @@ int main( int argc, char **argv )
 	double match_sum;
 	LIST *input_list;
 
-	appaserver_error_stderr( argc, argv );
+	/* appaserver_error_stderr( argc, argv ); */
 
 	if ( argc < 2 )
 	{
