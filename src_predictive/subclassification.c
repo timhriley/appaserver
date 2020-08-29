@@ -39,6 +39,8 @@ SUBCLASSIFICATION *subclassification_parse( char *input )
 
 	if ( !input || !*input ) return (SUBCLASSIFICATION *)0;
 
+	/* See: attribute_list subclassification */
+	/* ------------------------------------- */
 	piece( subclassification_name, SQL_DELIMITER, input, 0 );
 
 	subclassification =
@@ -54,16 +56,6 @@ SUBCLASSIFICATION *subclassification_parse( char *input )
 	return subclassification;
 }
 
-/* Returns program memory */
-/* ---------------------- */
-char *subclassification_select( void )
-{
-	return
-		"subclassification,"
-		"element,"
-		"display_order";
-}
-
 SUBCLASSIFICATION *subclassification_fetch(
 			char *subclassification_name )
 {
@@ -73,11 +65,7 @@ SUBCLASSIFICATION *subclassification_fetch(
 	if ( !subclassification_name ) return (SUBCLASSIFICATION *)0;
 
 	sprintf( sys_string,
-		 "select.sh \"%s\" %s \"%s\" none",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 subclassification_select(),
+		 "select.sh '*' %s \"%s\" none",
 		 "subclassification",
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
@@ -104,11 +92,7 @@ SUBCLASSIFICATION *subclassification_total_fetch(
 	if ( !subclassification_name ) return (SUBCLASSIFICATION *)0;
 
 	sprintf( sys_string,
-		 "select.sh \"%s\" %s \"%s\" none",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 subclassification_select(),
+		 "select.sh '*' %s \"%s\" none",
 		 "subclassification",
 		 /* -------------------------- */
 		 /* Safely returns heap memory */

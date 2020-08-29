@@ -50,11 +50,6 @@ char *subclassification_primary_where(
 SUBCLASSIFICATION *subclassification_parse(
 			char *input );
 
-/* Returns program memory */
-/* ---------------------- */
-char *subclassification_select(
-			void );
-
 SUBCLASSIFICATION *subclassification_total_fetch(
 			double *subclassification_total,
 			char *subclassification_name,
