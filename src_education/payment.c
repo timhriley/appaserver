@@ -180,3 +180,30 @@ PAYMENT *payment_parse( char *input )
 	return payment;
 }
 
+TRANSACTION *payment_transaction(
+			char *financial_institution_full_name,
+			char *financial_institution_street_address,
+			char *deposit_date_time,
+			char *program_name,
+			double transaction_fee,
+			char *account_fees_expense,
+			char *account_cash )
+{
+	TRANSACTION *transaction;
+
+	transaction =
+		transaction_binary(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			char *debit_account,
+			char *credit_account );
+
+	transaction =
+		transaction_binary_program_new(
+
+	return (TRANSACTION *)0;
+}
+

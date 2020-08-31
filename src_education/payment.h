@@ -11,8 +11,8 @@
 #include "boolean.h"
 #include "list.h"
 #include "deposit.h"
-#include "transaction.h"
 #include "enrollment.h"
+#include "transaction.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -71,7 +71,9 @@ char *payment_transaction_refresh(
 			double payment_amount,
 			LIST *journal_list );
 
-char *payment_update(	double payment_amount_calculate,
+char *payment_update(	double payment_amount,
+			double fees_expense,
+			double gain_donation,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
@@ -87,6 +89,19 @@ char *payment_sys_string(
 
 LIST *payment_system_list(
 			char *sys_string );
+
+TRANSACTION *payment_transaction(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time,
+			char *program_name,
+			double payment_amount
+				/* transaction_amount */,
+			double fees_expense,
+			double gain_donation,
+			char *account_receivable,
+			char *account_fees_expense,
+			char *account_gain );
 
 #endif
 

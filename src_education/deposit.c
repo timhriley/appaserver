@@ -14,8 +14,8 @@
 #include "sql.h"
 #include "environ.h"
 #include "list.h"
-#include "transaction.h"
 #include "entity.h"
+#include "transaction.h"
 #include "payment.h"
 #include "deposit.h"
 
@@ -28,6 +28,9 @@ LIST *deposit_payment_list(
 {
 	return	payment_system_list(
 			payment_sys_string(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
 				deposit_primary_where(
 					payor_full_name,
 					payor_street_address,
@@ -104,31 +107,14 @@ double deposit_net_revenue(
 	return deposit_amount - transaction_fee;
 }
 
-TRANSACTION *deposit_fee_transaction(
-			char *financial_institution_full_name,
-			char *financial_institution_street_address,
-			char *deposit_date_time,
-			double transaction_fee,
-			char *account_fees_expense,
-			char *account_cash,
-			char *program_name )
-{
-	return (TRANSACTION *)0;
-}
-
-/* Returns true transaction_date_time */
-/* ---------------------------------- */
-char *deposit_insert(	char *financial_institution_full_name,
-			char *financial_institution_street_address,
-			char *deposit_date_time,
-			double deposit_payment_total(),
+void deposit_insert(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
-			char *year,
-			char *transaction_date_time )
+			int year,
+			char *deposit_date_time,
+			double deposit_total )
 {
-	return (char *)0;
 }
 
 
@@ -160,7 +146,7 @@ char *deposit_primary_where(
 			char *year,
 			char *deposit_date_time )
 {
-	char where[ 1024 ];
+	static char where[ 1024 ];
 
 	sprintf( where,
 		 "payor_full_name = '%s' and		"
@@ -171,17 +157,16 @@ char *deposit_primary_where(
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
-		 entity_escape_full_name( full_name ),
+		 entity_escape_full_name( payor_full_name ),
 		 payor_street_address,
 		 season_name,
 		 year,
 		 deposit_date_time );
 
-	return strdup( where );
+	return where;
 }
 
-DEPOSIT *deposit_new(
-			char *payor_full_name,
+DEPOSIT *deposit_new(	char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
@@ -189,7 +174,7 @@ DEPOSIT *deposit_new(
 {
 	DEPOSIT *deposit;
 
-	if ( ! ( offering = calloc( 1, sizeof( DEPOSIT ) ) ) )
+	if ( ! ( deposit = calloc( 1, sizeof( DEPOSIT ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -200,7 +185,7 @@ DEPOSIT *deposit_new(
 	}
 
 	deposit->payor_full_name = payor_full_name;
-	deposit->payor_street_address = street_address;
+	deposit->payor_street_address = payor_street_address;
 	deposit->season_name = season_name;
 	deposit->year = year;
 	deposit->deposit_date_time = deposit_date_time;
@@ -236,7 +221,49 @@ DEPOSIT *deposit_parse( char *input )
 	return deposit;
 }
 
-char *deposit_system_list(
+char *deposit_sys_string(
 			char *where )
 {
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"select.sh '*' %s \"%s\" select",
+		DEPOSIT_TABLE,
+		where );
+
+	return strdup( sys_string );
 }
+
+LIST *deposit_system_list( char *sys_string )
+{
+	char input[ 1024 ];
+	FILE *input_pipe = popen( sys_string, "r" );
+	LIST *list = list_new();
+
+	while( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set( list, deposit_parse( input ) );
+	}
+	return list;
+}
+
+DEPOSIT *deposit_fetch(	char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time )
+{
+	return	deposit_parse(
+			pipe2string(
+				deposit_sys_string(
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					deposit_primary_where(
+						payor_full_name,
+						payor_street_address,
+						season_name,
+						year,
+						deposit_date_time ) ) ) );
+}
+

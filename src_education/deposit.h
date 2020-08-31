@@ -10,13 +10,15 @@
 
 #include "boolean.h"
 #include "list.h"
-#include "transaction.h"
 
 /* Enumerated types */
 /* ---------------- */
 
 /* Constants */
 /* --------- */
+#define DEPOSIT_TABLE		"deposit"
+#define DEPOSIT_PRIMARY_KEY	\
+   "payor_full_name,payor_street_address,season_name,year,deposit_date_time"
 
 /* Structures */
 /* ---------- */
@@ -78,29 +80,16 @@ double deposit_net_revenue(
 }
 */
 
-TRANSACTION *deposit_fee_transaction(
-			char *financial_institution_full_name,
-			char *financial_institution_street_address,
-			char *deposit_date_time,
-			double transaction_fee,
-			char *account_fees_expense,
-			char *account_cash,
-			char *program_name );
-
-/* Returns true transaction_date_time */
-/* ---------------------------------- */
-char *deposit_insert(	char *financial_institution_full_name,
-			char *financial_institution_street_address,
-			char *deposit_date_time,
-			double deposit_payment_total(),
+void deposit_insert(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
-			char *year,
-			char *transaction_date_time );
+			int year,
+			char *deposit_date_time,
+			double deposit_total );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *deposit_primary_where(
 			char *payor_full_name,
 			char *payor_street_address,
@@ -114,6 +103,22 @@ DEPOSIT *deposit_new(
 			char *season_name,
 			int year,
 			char *deposit_date_time );
+
+LIST *deposit_system_list(
+			char *sys_string );
+
+DEPOSIT *deposit_fetch(	char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time );
+
+DEPOSIT *deposit_parse( char *input );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *deposit_sys_string(
+			char *where );
 
 #endif
 
