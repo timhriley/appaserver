@@ -137,7 +137,9 @@ int offering_class_capacity(
 	}
 }
 
-OFFERING *offering_parse( char *input )
+OFFERING *offering_parse(	char *input,
+				boolean fetch_course,
+				boolean fetch_enrollment_list )
 {
 	char course_name[ 128 ];
 	char season_name[ 128 ];
@@ -178,11 +180,21 @@ OFFERING *offering_parse( char *input )
 	piece( piece_buffer, SQL_DELIMITER, input, 8 );
 	offering->revenue_account = strdup( piece_buffer );
 
-	offering->enrollment_list =
-		offering_enrollment_list(
-			offering->course_name,
-			offering->season_name,
-			offering->year );
+	if ( fetch_course )
+	{
+		offering->course =
+			course_fetch(
+				offering->course_name );
+	}
+
+	if ( fetch_enrollment_list )
+	{
+		offering->enrollment_list =
+			offering_enrollment_list(
+				offering->course_name,
+				offering->season_name,
+				offering->year );
+	}
 
 	return offering;
 }
@@ -190,7 +202,9 @@ OFFERING *offering_parse( char *input )
 OFFERING *offering_fetch(
 			char *course_name,
 			char *season_name,
-			int year )
+			int year,
+			boolean fetch_course,
+			boolean fetch_enrollment_list )
 {
 	if ( !course_name || !course_name || !year )
 	{
@@ -206,7 +220,9 @@ OFFERING *offering_fetch(
 		 			offering_primary_where(
 						course_name,
 						season_name,
-						year ) ) ) );
+						year ) ) ),
+			fetch_course,
+			fetch_enrollment_list );
 }
 
 char *offering_escape_course_name(
@@ -237,15 +253,6 @@ char *offering_primary_where(
 		 year );
 
 	return strdup( where );
-}
-
-LIST *offering_list(	char *season_name,
-			int year )
-{
-	return offering_system_list(
-			semester_primary_where(
-				season_name,
-				year ) );
 }
 
 int offering_enrollment_count(
@@ -316,7 +323,10 @@ void offering_update(	int enrollment_count,
 	pclose( update_pipe );
 }
 
-LIST *offering_system_list( char *sys_string )
+LIST *offering_system_list(
+			char *sys_string,
+			boolean fetch_course,
+			boolean fetch_enrollment_list )
 {
 	char input[ 1024 ];
 	FILE *input_pipe = popen( sys_string, "r" );
@@ -327,7 +337,9 @@ LIST *offering_system_list( char *sys_string )
 		list_set(
 			offering_list,
 			offering_parse(
-				input ) );
+				input,
+				fetch_course,
+				fetch_enrollment_list ) );
 	}
 	pclose( input_pipe );
 	return offering_list;
@@ -344,15 +356,6 @@ char *offering_sys_string( char *where )
 		"year, season" );
 
 	return strdup( sys_string );
-}
-
-/* Usage: offering_list_fetch( season_primary_where() ); */
-/* ----------------------------------------------------- */
-LIST *offering_list_fetch( char *where )
-{
-	return	offering_system_list(
-			offering_sys_string(
-				where ) );
 }
 
 LIST *offering_enrollment_list(

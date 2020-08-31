@@ -83,10 +83,58 @@ LIST *deposit_registration_list(
 	return registration_list;
 }
 
+double registration_tuition_total(
+			LIST *registration_enrollment_list )
+{
+	ENROLLMENT *enrollment;
+	double tuition_total = {0};
+
+	if ( list_rewind( registration_enrollment_list ) )
+	{
+		do {
+			enrollment =
+				list_get( 
+					registration_enrollment_list );
+
+			if ( !enrollment->offering )
+			{
+				fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty offering.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			if ( !enrollment->offering->course )
+			{
+				fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty course.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			tuition_total += 
+				enrollment->
+					offering->
+					course->
+					course_price;
+
+		} while ( list_next( registration_enrollment_list ) );
+	}
+	return tuition_total;
+}
+
 double deposit_remaining(
 			double deposit_amount,
-			LIST *deposit_registration_list )
+			LIST *registration_enrollment_list )
 {
+	double registration_tuition_total;
+
+	registration_tuition_total =
+
 	return 0.0;
 /*
 	return		deposit_amount -
@@ -143,7 +191,7 @@ char *deposit_primary_where(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
-			char *year,
+			int year,
 			char *deposit_date_time )
 {
 	static char where[ 1024 ];
@@ -184,31 +232,51 @@ DEPOSIT *deposit_new(	char *payor_full_name,
 		exit( 1 );
 	}
 
-	deposit->payor_full_name = payor_full_name;
-	deposit->payor_street_address = payor_street_address;
-	deposit->season_name = season_name;
-	deposit->year = year;
-	deposit->deposit_date_time = deposit_date_time;
+	deposit->payor_entity =
+		entity_new(
+			payor_full_name,
+			payor_street_address );
 
+	deposit->semester =
+		semester_new(
+			season_name,
+			year );
+
+	deposit->deposit_date_time = deposit_date_time;
 	return deposit;
 }
 
-DEPOSIT *deposit_parse( char *input )
+DEPOSIT *deposit_parse(	char *input,
+			boolean fetch_payment_list )
 {
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
 	char season_name[ 128 ];
 	char year[ 128 ];
 	char deposit_date_time[ 128 ];
+	char deposit_amount[ 128 ];
+	char transaction_fee[ 128 ];
+	char net_revenue[ 128 ];
+	char account_balance[ 128 ];
+	char check_number[ 128 ];
+
+	char *transaction_ID;
+	char *invoice_number;
+
+
+	char transaction_ID[ 128 ];
+	char invoice_number[ 128 ];
 	DEPOSIT *deposit;
 
 	if ( !input || !*input ) return (DEPOSIT *)0;
 
+	/* See: attribute_list deposit */
+	/* --------------------------- */
 	piece( payor_full_name, SQL_DELIMITER, input, 0 );
-	piece( payor_street_address, SQL_DELIMITER, input, 0 );
-	piece( season_name, SQL_DELIMITER, input, 0 );
-	piece( year, SQL_DELIMITER, input, 0 );
-	piece( deposit_date_time, SQL_DELIMITER, input, 0 );
+	piece( payor_street_address, SQL_DELIMITER, input, 1 );
+	piece( season_name, SQL_DELIMITER, input, 2 );
+	piece( year, SQL_DELIMITER, input, 3 );
+	piece( deposit_date_time, SQL_DELIMITER, input, 4 );
 
 	deposit =
 		deposit_new(
@@ -218,6 +286,20 @@ DEPOSIT *deposit_parse( char *input )
 			atoi( year ),
 			strdup( deposit_date_time ) );
 
+	if ( fetch_payment_list )
+	{
+		deposit->deposit_payment_list =
+			deposit_payment_list(
+				deposit->
+					payor_entity->
+					full_name,
+				deposit->
+					payor_entity->
+					street_address,
+				deposit->season_name,
+				deposit->year,
+				deposit->deposit_date_time );
+	}
 	return deposit;
 }
 
@@ -234,7 +316,9 @@ char *deposit_sys_string(
 	return strdup( sys_string );
 }
 
-LIST *deposit_system_list( char *sys_string )
+LIST *deposit_system_list(
+			char *sys_string,
+			boolean fetch_payment_list )
 {
 	char input[ 1024 ];
 	FILE *input_pipe = popen( sys_string, "r" );
@@ -242,8 +326,13 @@ LIST *deposit_system_list( char *sys_string )
 
 	while( string_input( input, input_pipe, 1024 ) )
 	{
-		list_set( list, deposit_parse( input ) );
+		list_set(
+			list,
+			deposit_parse(
+				input,
+				fetch_payment_list ) );
 	}
+	pclose( input_pipe );
 	return list;
 }
 
@@ -251,7 +340,8 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
-			char *deposit_date_time )
+			char *deposit_date_time,
+			boolean fetch_payment_list )
 {
 	return	deposit_parse(
 			pipe2string(
@@ -264,6 +354,7 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 						payor_street_address,
 						season_name,
 						year,
-						deposit_date_time ) ) ) );
+						deposit_date_time ) ) ),
+			fetch_payment_list );
 }
 

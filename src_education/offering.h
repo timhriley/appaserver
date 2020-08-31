@@ -88,12 +88,16 @@ char *offering_primary_where(
 			int year );
 
 OFFERING *offering_parse(
-			char *input );
+			char *input,
+			boolean fetch_course,
+			boolean fetch_enrollment_list );
 
 OFFERING *offering_fetch(
 			char *course_name,
 			char *season_name,
-			int year );
+			int year,
+			boolean fetch_course,
+			boolean fetch_enrollment_list );
 
 OFFERING *offering_seek(
 			LIST *semester_offering_list,
@@ -107,16 +111,13 @@ char *offering_escape_course_name(
 			char *course_name );
 
 LIST *offering_system_list(
-			char *sys_string );
+			char *sys_string,
+			boolean fetch_course,
+			boolean fetch_enrollment_list );
 
 /* Safely returns heap memory */
 /* --------------------------- */
 char *offering_sys_string(
-			char *where );
-
-/* Usage: offering_list_fetch( season_primary_where() ); */
-/* ----------------------------------------------------- */
-LIST *offering_list_fetch(
 			char *where );
 
 FILE *offering_update_open(

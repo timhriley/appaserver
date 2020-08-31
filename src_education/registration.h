@@ -50,9 +50,6 @@ double registration_invoice_amount_due(
 			double registration_tuition,
 			double registration_payment_total );
 
-void registration_payment_list_refresh(
-			LIST *registration_payment_list );
-
 void registration_enrollment_list_refresh(
 			LIST *registration_enrollment_list );
 
@@ -105,8 +102,14 @@ REGISTRATION *registration_new(
 			char *season_name,
 			int year );
 
-LIST *registration_list(
-			char *where_clause );
+double registration_tuition_total(
+			LIST *registration_enrollment_list );
+
+LIST *registration_enrollment_list(
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year );
 
 #endif
 

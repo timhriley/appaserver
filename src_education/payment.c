@@ -15,6 +15,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "transaction.h"
+#include "journal.h"
 #include "enrollment.h"
 #include "deposit.h"
 #include "payment.h"
@@ -23,7 +24,7 @@ PAYMENT *payment_calloc( void )
 {
 	PAYMENT *payment;
 
-	if ( ! payment = calloc( 1, sizeof( PAYMENT ) ) )
+	if ( ! ( payment = calloc( 1, sizeof( PAYMENT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -35,15 +36,6 @@ PAYMENT *payment_calloc( void )
 	return payment;
 }
 
-LIST *payment_registration_payment_list(
-			char *student_full_name,
-			char *student_street_address,
-			char *season_name,
-			int year )
-{
-	return (LIST *)0;
-}
-
 double payment_amount(
 			double deposit_remaining,
 			double registration_invoice_amount_due )
@@ -52,23 +44,6 @@ double payment_amount(
 		return registration_invoice_amount_due;
 	else
 		return deposit_remaining;
-}
-
-TRANSACTION *payment_transaction(
-			char *student_full_name,
-			char *student_street_address,
-			char *deposit_date_time
-				/* transaction_date_time */,
-			char *program_name,
-			double payment_amount
-				/* transaction_amount */,
-			double fees_expense,
-			double gain_donation,
-			char *account_cash,
-			char *account_gain_donation,
-			char *account_receivable )
-{
-	return (TRANSACTION *)0;
 }
 
 /* Returns true transaction_date_time */
@@ -91,7 +66,7 @@ char *payment_transaction_refresh(
 		journal_list );
 }
 
-char *payment_update(	double payment_amount_calculate,
+char *payment_update(	double payment_amount,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
@@ -100,7 +75,7 @@ char *payment_update(	double payment_amount_calculate,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time )
+			char *deposit_date_time )
 {
 	return transaction_date_time;
 }
@@ -146,7 +121,7 @@ PAYMENT *payment_parse( char *input )
 	char payor_street_address[ 128 ];
 	char deposit_date_time[ 128 ];
 
-	if ( !input || !*input ) return (OFFERING *)0;
+	if ( !input || !*input ) return (PAYMENT *)0;
 
 	/* See: attribute_list payment */
 	/* ---------------------------- */
@@ -159,7 +134,7 @@ PAYMENT *payment_parse( char *input )
 	piece( payor_street_address, SQL_DELIMITER, input, 6 );
 	piece( deposit_date_time, SQL_DELIMITER, input, 7 );
 
-	payment = payment_calloc()
+	payment = payment_calloc();
 
 	payment->enrollment =
 		enrollment_new(
@@ -181,29 +156,111 @@ PAYMENT *payment_parse( char *input )
 }
 
 TRANSACTION *payment_transaction(
-			char *financial_institution_full_name,
-			char *financial_institution_street_address,
+			char *payor_full_name,
+			char *payor_street_address,
 			char *deposit_date_time,
 			char *program_name,
-			double transaction_fee,
+			double payment_amount,
+			double fees_expense,
+			double donation_gain,
+			char *account_cash,
+			char *account_receivable,
 			char *account_fees_expense,
-			char *account_cash )
+			char *account_gain )
 {
 	TRANSACTION *transaction;
+	JOURNAL *journal;
 
 	transaction =
-		transaction_binary(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			char *debit_account,
-			char *credit_account );
+		transaction_full(
+			payor_full_name,
+			payor_street_address,
+			deposit_date_time,
+			payment_amount
+				/* transaction_amount */,
+			PAYMENT_MEMO );
 
-	transaction =
-		transaction_binary_program_new(
+	transaction->program_name = program_name;
 
-	return (TRANSACTION *)0;
+	if ( !transaction->journal_list )
+	{
+		transaction->journal_list = list_new();
+	}
+
+	/* Debit account_cash */
+	/* ------------------- */
+	list_set(
+		transaction->journal_list,
+		( journal =
+			journal_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				account_cash ) ) );
+
+	journal->debit_amount =
+		payment_amount - fees_expense + donation_gain;
+
+	/* Debit fees_expense */
+	/* ------------------ */
+	list_set(
+		transaction->journal_list,
+		( journal =
+			journal_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				account_fees_expense ) ) );
+
+	journal->debit_amount = fees_expense;
+
+	/* Credit account_receivable */
+	/* ------------------------- */
+	list_set(
+		transaction->journal_list,
+		( journal =
+			journal_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				account_receivable ) ) );
+
+	journal->credit_amount = payment_amount;
+
+	if ( donation_gain )
+	{
+		/* Credit account_receivable */
+		/* ------------------------- */
+		list_set(
+			transaction->journal_list,
+			( journal =
+				journal_new(
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					account_gain ) ) );
+
+		journal->credit_amount = donation_gain;
+	}
+	return transaction;
+}
+
+double payment_total(	LIST *payment_list )
+{
+	PAYMENT *payment;
+	double payment_total;
+
+	if ( !list_rewind( payment_list ) ) return 0.0;
+
+	payment_total = 0.0;
+
+	do {
+		payment = list_get( payment_list );
+
+		payment_total += payment->payment_amount;
+
+	} while ( list_next( payment_list ) );
+
+	return payment_total;
 }
 

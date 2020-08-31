@@ -19,6 +19,12 @@
 
 /* Constants */
 /* --------- */
+#define PAYMENT_TABLE_NAME	"payment"
+
+#define PAYMENT_PRIMARY_KEY	\
+"full_name,street_address,season_name,year,payor_full_name,payor_street_address,deposit_date_time"
+
+#define PAYMENT_MEMO		"Customer Payment"
 
 /* Structures */
 /* ---------- */
@@ -37,29 +43,22 @@ typedef struct
 PAYMENT *payment_calloc(
 			void );
 
-LIST *payment_registration_payment_list(
-			char *student_full_name,
-			char *student_street_address,
-			char *season_name,
-			int year );
-
 double payment_amount(
 			double deposit_remaining,
 			double registration_invoice_amount_due );
 
 TRANSACTION *payment_transaction(
-			char *student_full_name,
-			char *student_street_address,
-			char *deposit_date_time
-				/* transaction_date_time */,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time,
 			char *program_name,
-			double payment_amount
-				/* transaction_amount */,
+			double payment_amount,
 			double fees_expense,
-			double gain_donation,
+			double donation_gain,
 			char *account_cash,
-			char *account_gain_donation,
-			char *account_receivable );
+			char *account_receivable,
+			char *account_fees_expense,
+			char *account_gain );
 
 /* Returns true transaction_date_time */
 /* ---------------------------------- */
@@ -72,8 +71,6 @@ char *payment_transaction_refresh(
 			LIST *journal_list );
 
 char *payment_update(	double payment_amount,
-			double fees_expense,
-			double gain_donation,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
@@ -82,7 +79,7 @@ char *payment_update(	double payment_amount,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time );
+			char *deposit_date_time );
 
 char *payment_sys_string(
 			char *where );
@@ -90,18 +87,9 @@ char *payment_sys_string(
 LIST *payment_system_list(
 			char *sys_string );
 
-TRANSACTION *payment_transaction(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *deposit_date_time,
-			char *program_name,
-			double payment_amount
-				/* transaction_amount */,
-			double fees_expense,
-			double gain_donation,
-			char *account_receivable,
-			char *account_fees_expense,
-			char *account_gain );
+double payment_total(	LIST *payment_list );
+
+PAYMENT *payment_parse(	char *input );
 
 #endif
 

@@ -41,9 +41,28 @@ TRANSACTION *transaction_calloc( void )
 	return transaction;
 }
 
-TRANSACTION *transaction_new(	char *full_name,
-				char *street_address,
-				char *transaction_date_time )
+TRANSACTION *transaction_full(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo )
+{
+	TRANSACTION *transaction =
+		transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	transaction->transaction_amount = transaction_amount;
+	transaction->memo = memo;
+	return transaction;
+}
+
+TRANSACTION *transaction_new(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
 {
 	TRANSACTION *transaction;
 

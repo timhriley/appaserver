@@ -10,6 +10,9 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "semester.h"
+#include "payment.h"
+#include "entity.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -24,19 +27,28 @@
 /* ---------- */
 typedef struct
 {
-	char *payor_full_name;
-	char *payor_street_address;
-	char *course_name;
-	char *season_name;
-	int year;
+	ENTITY *payor_entity;
+	SEMESTER *semester;
 	char *deposit_date_time;
-	double transaction_fee;
 	double deposit_amount;
-	char *program_name;
+	double transaction_fee;
+	double net_revenue;
+	double account_balance;
+	int check_number;
+	char *transaction_ID;
+	char *invoice_number;
+	LIST *deposit_payment_list;
 } DEPOSIT;
 
 LIST *deposit_registration_list(
 			LIST *deposit_payment_list );
+
+LIST *deposit_payment_list(
+			char *payor_full_name,
+			char *street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time );
 
 double deposit_remaining(
 			double deposit_amount,
@@ -94,7 +106,7 @@ char *deposit_primary_where(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
-			char *year,
+			int year,
 			char *deposit_date_time );
 
 DEPOSIT *deposit_new(
@@ -105,15 +117,18 @@ DEPOSIT *deposit_new(
 			char *deposit_date_time );
 
 LIST *deposit_system_list(
-			char *sys_string );
+			char *sys_string,
+			boolean fetch_payment_list );
 
 DEPOSIT *deposit_fetch(	char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
-			char *deposit_date_time );
+			char *deposit_date_time,
+			boolean fetch_payment_list );
 
-DEPOSIT *deposit_parse( char *input );
+DEPOSIT *deposit_parse( char *input,
+			boolean fetch_payment_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */

@@ -81,29 +81,6 @@ double registration_tuition(
 	return tuition;
 }
 
-double registration_payment_total(
-			LIST *registration_payment_list )
-{
-	PAYMENT *payment;
-	double payment_total;
-
-	if ( !list_rewind( registration_payment_list ) ) return 0.0;
-
-	payment_total = 0.0;
-
-	do {
-		payment = list_get( registration_payment_list );
-
-		if ( payment->payment_amount )
-			payment_total += payment->payment_amount;
-		else
-			payment_total += payment->payment_amount_database;
-
-	} while ( list_next( registration_payment_list ) );
-
-	return payment_total;
-}
-
 double registration_invoice_amount_due(
 			double registration_tuition,
 			double registration_payment_total )
@@ -114,11 +91,13 @@ double registration_invoice_amount_due(
 void registration_payment_list_refresh(
 			LIST *registration_payment_list )
 {
+if ( registration_payment_list ) {}
 }
 
 void registration_enrollment_list_refresh(
 			LIST *registration_enrollment_list )
 {
+if ( registration_enrollment_list ) {}
 }
 
 void registration_refresh(
@@ -232,15 +211,15 @@ REGISTRATION *registration_parse( char *input )
 	piece( piece_buffer, SQL_DELIMITER, input, 7 );
 	registration->registration_date_time = strdup( piece_buffer );
 
-	registration->enrollment_list =
-		enrollment_list(
+	registration->registration_enrollment_list =
+		registration_enrollment_list(
 			registration->student_full_name,
 			registration->street_address,
 			registration->season_name,
 			registration->year );
 
-	registration->payment_list =
-		payment_list(
+	registration->registration_payment_list =
+		registration_payment_list(
 			registration->student_full_name,
 			registration->street_address,
 			registration->season_name,
@@ -281,6 +260,7 @@ char *registration_sys_string( char *where )
 	return strdup( sys_string );
 }
 
+/* Don't do these for the client. These should be theirs.
 LIST *registration_list(
 			char *student_full_name,
 			char *street_address )
@@ -291,6 +271,7 @@ LIST *registration_list(
 					student_full_name,
 					street_address ) ) );
 }
+*/
 
 REGISTRATION *registration_fetch(
 			char *student_full_name,
@@ -370,5 +351,35 @@ REGISTRATION *registration_new(
 	registration->season_name = season_name;
 	registration->year = year;
 	return registration;
+}
+
+LIST *registration_enrollment_list(
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year )
+{
+	return	enrollment_system_list(
+			enrollment_sys_string(
+				registration_primary_key(
+					student_full_name,
+					street_address,
+					season_name,
+					year ) ) );
+}
+
+LIST *registration_payment_list(
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year )
+{
+	return	payment_system_list(
+			payment_sys_string(
+				registration_primary_key(
+					student_full_name,
+					street_address,
+					season_name,
+					year ) ) );
 }
 

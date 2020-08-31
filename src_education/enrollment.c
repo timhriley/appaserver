@@ -84,19 +84,26 @@ ENROLLMENT *enrollment_parse( char *input )
 			strdup( season_name ),
 			year );
 
+
 	enrollment->offering =
+		/* ------------------------------------ */
+		/* Fetch offering->course->course_price */
+		/* ------------------------------------ */
 		offering_fetch(
 			course_name,
 			season_name,
-			year );
+			year,
+			1 /* fetch_course */,
+			0 /* not fetch_enrollment_list */ );
 
 	enrollment->registration =
-		registration_fetch(
+		registration_new(
 			full_name,
 			street_address,
 			season_name,
 			year );
 
+	enrollment->enrollment_payment_list
 	return enrollment;
 }
 

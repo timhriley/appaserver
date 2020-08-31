@@ -227,6 +227,13 @@ void transaction_update(
 			char *street_address,
 			char *transaction_date_time );
 
+TRANSACTION *transaction_full(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo );
+
 TRANSACTION *transaction_binary(
 			char *full_name,
 			char *street_address,
@@ -432,5 +439,12 @@ LIST *transaction_journal_list(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time );
+
+TRANSACTION *transaction_full(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo );
 
 #endif
