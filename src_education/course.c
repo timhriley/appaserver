@@ -22,19 +22,19 @@ char *course_select( void )
 	return "course_name,course_price";
 }
 
-COURSE *course_parse( char *input_buffer )
+COURSE *course_parse( char *input )
 {
 	char course_name[ 128 ];
 	char piece_buffer[ 128 ];
 	COURSE *course;
 
-	if ( !input_buffer ) return (COURSE *)0;
+	if ( !input || !*input ) return (COURSE *)0;
 
-	piece( course_name, SQL_DELIMITER, input_buffer, 0 );
+	piece( course_name, SQL_DELIMITER, input, 0 );
 
 	course = course_new( strdup( course_name  ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 1 );
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
 	course->course_price = atof( piece_buffer );
 
 	return course;

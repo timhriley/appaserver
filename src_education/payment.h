@@ -24,13 +24,18 @@
 /* ---------- */
 typedef struct
 {
-	DEPOSIT *deposit;
 	ENROLLMENT *enrollment;
+	DEPOSIT *deposit;
 	double payment_amount_database;
 	double payment_amount;
 	LIST *payment_registration_list;
 	TRANSACTION *payment_transaction;
 } PAYMENT;
+
+/* Prototypes */
+/* ---------- */
+PAYMENT *payment_calloc(
+			void );
 
 LIST *payment_registration_payment_list(
 			char *student_full_name,
@@ -76,6 +81,12 @@ char *payment_update(	double payment_amount_calculate,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time );
+
+char *payment_sys_string(
+			char *where );
+
+LIST *payment_system_list(
+			char *sys_string );
 
 #endif
 

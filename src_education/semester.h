@@ -26,22 +26,14 @@ typedef struct
 {
 	char *season_name;
 	int year;
-	LIST *semester_offering_list;
-	LIST *semester_registration_list;
+	LIST *offering_list;
+	LIST *registration_list;
 } SEMESTER;
 
 SEMESTER *semester_new(	char *season_name,
 			int year );
 
 SEMESTER *semster_fetch(
-			char *season_name,
-			int year );
-
-LIST *semester_offering_list(
-			char *season_name,
-			int year );
-
-LIST *semester_registration_list(
 			char *season_name,
 			int year );
 

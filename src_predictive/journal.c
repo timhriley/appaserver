@@ -157,6 +157,8 @@ JOURNAL *journal_parse( char *input )
 
 	if ( !input ) return (JOURNAL *)0;
 
+	/* See: journal_select() */
+	/* --------------------- */
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( transaction_date_time, SQL_DELIMITER, input, 2 );
@@ -217,6 +219,8 @@ LIST *journal_system_list( char *sys_string )
 	FILE *input_pipe;
 	char input[ 1024 ];
 	LIST *journal_list;
+
+	if ( !sys_string ) return (LIST *)0;
 
 	journal_list = list_new();
 
@@ -481,39 +485,32 @@ LIST *journal_list_minimum(
 		minimum_transaction_date_time,
 		account_name_escape( account_name ) );
 
-	return journal_list_fetch( where );
+	return	journal_system_list(
+			journal_sys_string( where ) );
 }
 
 LIST *journal_list_account( char *account_name )
 {
-	char sys_string[ 1024 ];
 	char where[ 256 ];
 
 	sprintf( where,
-		 "account = '%s' 			",
+		 "account = '%s'",
 		 account_escape_name(
 			account_name ) );
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql.e",
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 journal_select(),
-		 JOURNAL_FOLDER_NAME,
-		 where );
-
-	return journal_system_list( sys_string );
+	return	journal_system_list(
+			journal_sys_string(
+				where ) );
 }
 
-LIST *journal_list_fetch( char *where )
+char *journal_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
 
-	if ( !where ) return (LIST *)0;
+	if ( !where ) return (char *)0;
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "select.sh '%s' %s \"%s\" %s",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
@@ -522,7 +519,7 @@ LIST *journal_list_fetch( char *where )
 		 where,
 		 "transaction_date_time" );
 
-	return journal_system_list( sys_string );
+	return strdup( sys_string );
 }
 
 /* Also does a propagate for each account */
@@ -635,11 +632,6 @@ void journal_list_transaction_date_time_propagate(
 			journal->account_name );
 
 	} while( list_next( journal_list ) );
-}
-
-LIST *journal_list( char *transaction_where )
-{
-	return journal_list_fetch( transaction_where );
 }
 
 char *journal_list_audit(
@@ -982,7 +974,8 @@ LIST *journal_year_list(	int year,
 		year,
 		'%' );
 
-	return journal_list_fetch( where );
+	return	journal_system_list(
+			journal_sys_string( where ) );
 }
 
 double journal_amount(
@@ -1309,7 +1302,8 @@ LIST *journal_minimum_account_journal_list(
 	 	minimum_transaction_date_time,
 	 	account_name_escape( account_name ) );
 
-	return journal_list_fetch( where );
+	return	journal_system_list(
+			journal_sys_string( where ) );
 }
 
 LIST *journal_binary_journal_list(

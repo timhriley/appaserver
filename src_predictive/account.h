@@ -173,4 +173,7 @@ boolean account_accumulate_debit(
 void account_transaction_propagate(
 			char *propagate_transaction_date_time );
 
+char *account_sys_string(
+			char *where );
+
 #endif

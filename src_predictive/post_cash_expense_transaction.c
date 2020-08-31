@@ -273,10 +273,10 @@ TRANSACTION *post_cash_expense_transaction(
 				street_address,
 				predictive_transaction_date_time(
 					bank_date ),
-				debit_account,
-				credit_account,
 				0.0 - bank_amount /* transaction_amount */,
-				memo ) ) )
+				memo,
+				debit_account,
+				credit_account ) ) )
 	{
 		fprintf( output_pipe,
 		"<h3>Error: an unknown error occurred. Check log.</h3>" );

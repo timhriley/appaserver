@@ -330,26 +330,35 @@ ACCOUNT *account_parse( char *input )
 	return account;
 }
 
-ACCOUNT *account_fetch(	char *account_name )
+char *account_sys_string(
+			char *where )
 {
 	char sys_string[ 1024 ];
 
-	if ( !account_name ) return (ACCOUNT *)0;
-
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
+		 "select.sh '%s' %s \"%s\" select",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
 		 account_select(),
 		 "account",
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 account_primary_where(
-			account_name ) );
+		 where );
 
-	return account_parse( pipe2string( sys_string ) );
+	return strdup( sys_string );
+}
+
+ACCOUNT *account_fetch(	char *account_name )
+{
+	if ( !account_name ) return (ACCOUNT *)0;
+
+	return	account_parse(
+			pipe2string(
+				account_sys_string(
+		 			/* -------------------------- */
+		 			/* Safely returns heap memory */
+		 			/* -------------------------- */
+		 			account_primary_where(
+						account_name ) ) ) );
 }
 
 char *account_primary_where(

@@ -15,7 +15,25 @@
 #include "boolean.h"
 #include "list.h"
 #include "transaction.h"
+#include "enrollment.h"
+#include "deposit.h"
 #include "payment.h"
+
+PAYMENT *payment_calloc( void )
+{
+	PAYMENT *payment;
+
+	if ( ! payment = calloc( 1, sizeof( PAYMENT ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+	return payment;
+}
 
 LIST *payment_registration_payment_list(
 			char *student_full_name,
@@ -85,5 +103,80 @@ char *payment_update(	double payment_amount_calculate,
 			char *payment_date_time )
 {
 	return transaction_date_time;
+}
+
+LIST *payment_system_list( char *sys_string )
+{
+	char input[ 1024 ];
+	FILE *input_pipe = popen( sys_string, "r" );
+	LIST *payment_list = list_new();
+
+	while ( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set(
+			payment_list,
+			payment_parse(
+				input ) );
+	}
+	pclose( input_pipe );
+	return payment_list;
+}
+
+char *payment_sys_string( char *where )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"select.sh '*' %s \"%s\" select",
+		"payment",
+		where );
+
+	return strdup( sys_string );
+}
+
+PAYMENT *payment_parse( char *input )
+{
+	PAYMENT *payment;
+	char student_full_name[ 128 ];
+	char student_street_address[ 128 ];
+	char course_name[ 128 ];
+	char season_name[ 128 ];
+	char year[ 128 ];
+	char payor_full_name[ 128 ];
+	char payor_street_address[ 128 ];
+	char deposit_date_time[ 128 ];
+
+	if ( !input || !*input ) return (OFFERING *)0;
+
+	/* See: attribute_list payment */
+	/* ---------------------------- */
+	piece( student_full_name, SQL_DELIMITER, input, 0 );
+	piece( student_street_address, SQL_DELIMITER, input, 1 );
+	piece( course_name, SQL_DELIMITER, input, 2 );
+	piece( season_name, SQL_DELIMITER, input, 3 );
+	piece( year, SQL_DELIMITER, input, 4 );
+	piece( payor_full_name, SQL_DELIMITER, input, 5 );
+	piece( payor_street_address, SQL_DELIMITER, input, 6 );
+	piece( deposit_date_time, SQL_DELIMITER, input, 7 );
+
+	payment = payment_calloc()
+
+	payment->enrollment =
+		enrollment_new(
+			student_full_name,
+			student_street_address,
+			course_name,
+			season_name,
+			atoi( year ) );
+
+	payment->deposit =
+		deposit_new(
+			payor_full_name,
+			payor_street_address,
+			season_name,
+			atoi( year ),
+			deposit_date_time );
+
+	return payment;
 }
 

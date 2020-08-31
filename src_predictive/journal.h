@@ -68,8 +68,8 @@ LIST *journal_system_list(
 FILE *journal_insert_open(
 			void );
 
-/* Executes journal_list_set_balances() */
-/* ------------------------------------ */
+/* Executes journal_propagate() */
+/* ---------------------------- */
 void journal_insert(	char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -107,9 +107,6 @@ LIST *journal_list_minimum(
 LIST *journal_list_account(
 			char *account_name );
 
-LIST *journal_list_fetch(
-			char *where );
-
 /* Also does a propagate for each account */
 /* -------------------------------------- */
 void journal_delete(	char *full_name,
@@ -124,8 +121,6 @@ LIST *journal_account_name_list(
 void journal_account_name_list_propagate(
 			char *transaction_date_time,
 			LIST *account_name_list );
-
-LIST *journal_list(	char *transaction_where );
 
 void journal_list_transaction_date_time_propagate(
 			char *transaction_date_time,
@@ -251,5 +246,8 @@ char *journal_display(
 			double debit_amount,
 			double credit_amount,
 			double balance );
+
+char *journal_sys_string(
+			char *where );
 
 #endif

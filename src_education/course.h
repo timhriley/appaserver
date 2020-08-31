@@ -31,7 +31,9 @@ char *course_select(	void );
 
 COURSE *course_new(	char *course_name );
 
-COURSE *course_parse(	char *input_buffer );
+/* See: attribute_list course */
+/* -------------------------- */
+COURSE *course_parse(	char *input );
 
 /* Safely returns heap memory */
 /* -------------------------- */

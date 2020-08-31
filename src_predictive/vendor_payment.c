@@ -184,7 +184,7 @@ char *vendor_payment_sys_string( char *where )
 	if ( !where ) return (char *)0;
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "select.sh '%s' %s \"%s\" %s",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */

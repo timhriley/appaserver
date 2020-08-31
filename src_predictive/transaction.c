@@ -75,7 +75,7 @@ LIST *transaction_system_list( char *sys_string )
 	return transaction_list;
 }
 
-LIST *transaction_list_fetch( char *where )
+char *transaction_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
 
@@ -85,44 +85,36 @@ LIST *transaction_list_fetch( char *where )
 		 "transaction",
 		 where );
 
-	return transaction_system_list( sys_string );
+	return strdup( sys_string );
+}
+
+LIST *transaction_list_fetch( char *where )
+{
+	return transaction_system_list(
+			transaction_sys_string(
+				where ) );
 }
 
 TRANSACTION *transaction_fetch(
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time )
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
 {
-	char sys_string[ 1024 ];
-
-	if ( !full_name || !street_address )
+	if ( !full_name || !street_address || !transaction_date_time )
 	{
 		return (TRANSACTION *)0;
 	}
 
-	if ( !transaction_date_time || !*transaction_date_time )
-	{
-		return (TRANSACTION *)0;
-	}
-
-	sprintf( sys_string,
-		 "select.sh \"%s\" %s \"%s\" none",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 transaction_select(),
-		 "transaction",
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 transaction_primary_where(
-			full_name,
-			street_address,
-			transaction_date_time ) );
-
-	/* Also executes journal_list() */
-	/* ---------------------------- */
-	return transaction_parse( pipe2string( sys_string ) );
+	return transaction_parse(
+			pipe2string(
+				transaction_sys_string(
+		 			/* -------------------------- */
+		 			/* Safely returns heap memory */
+		 			/* -------------------------- */
+		 			transaction_primary_where(
+						full_name,
+						street_address,
+						transaction_date_time ) ) ) );
 }
 
 char *transaction_select( void )
@@ -170,10 +162,9 @@ TRANSACTION *transaction_parse( char *input )
 
 	transaction->journal_list =
 		journal_list(
-			transaction_primary_where(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time ) );
+			full_name,
+			street_address,
+			transaction_date_time );
 
 	return transaction;
 }
@@ -275,7 +266,7 @@ char *transaction_journal_insert(
 			check_number,
 			lock_transaction );
 
-	transaction_journal_list_insert(
+	journal_list_insert(
 		full_name,
 		street_address,
 		transaction_date_time,
@@ -362,7 +353,7 @@ FILE *transaction_program_insert_open( void )
 "full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,lock_transaction_yn,program_name";
 
 	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s delimiter='^'	|"
+		 "insert_statement table=%s field=%s delimiter='^'	|"
 		 "sql 2>&1						 ",
 		 "transaction",
 		 field );
@@ -373,14 +364,14 @@ FILE *transaction_program_insert_open( void )
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
 char *transaction_program_insert(
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *program_name,
-				double transaction_amount,
-				char *memo,
-				int check_number,
-				boolean lock_transaction )
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *program_name,
+			double transaction_amount,
+			char *memo,
+			int check_number,
+			boolean lock_transaction )
 {
 	FILE *insert_pipe;
 
@@ -623,7 +614,7 @@ char *transaction_refresh(
 		check_number,
 		1 /* lock_transaction */ );
 
-	transaction_journal_list_insert(
+	journal_list_insert(
 		full_name,
 		street_address,
 		transaction_date_time,
@@ -632,7 +623,7 @@ char *transaction_refresh(
 	return transaction_date_time;
 }
 
-void transaction_list_journal_insert(
+void transaction_list_journal_list_insert(
 			LIST *transaction_list )
 {
 	TRANSACTION *transaction;
@@ -642,26 +633,13 @@ void transaction_list_journal_insert(
 	do {
 		transaction = list_get( transaction_list );
 
-		transaction_journal_list_insert(
+		journal_list_insert(
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time,
 			transaction->journal_list );
 
 	} while ( list_next( transaction_list ) );
-}
-
-void transaction_journal_list_insert(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			LIST *journal_list )
-{
-	journal_list_insert(
-		full_name,
-		street_address,
-		transaction_date_time,
-		journal_list );
 }
 
 void transaction_delete(
@@ -835,49 +813,32 @@ TRANSACTION *transaction_binary(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			char *debit_account,
-			char *credit_account,
 			double transaction_amount,
-			char *memo )
+			char *memo,
+			char *debit_account,
+			char *credit_account )
 {
 	TRANSACTION *transaction;
 
 	transaction =
 		transaction_new(
-			strdup( full_name ),
-			strdup( street_address ),
-			strdup( transaction_date_time ) );
+			full_name,
+			street_address,
+			transaction_date_time );
 
 	transaction->memo = strdup( memo );
 	transaction->transaction_amount = transaction_amount;
 
 	transaction->journal_list =
-		transaction_binary_journal_list(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				transaction->transaction_amount,
-				debit_account,
-				credit_account );
-
-	return transaction;
-}
-
-LIST *transaction_binary_journal_list(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *debit_account,
-			char *credit_account )
-{
-	return journal_binary_journal_list(
-			full_name,
-			street_address,
-			transaction_date_time,
-			transaction_amount,
+		journal_binary_journal_list(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			transaction->transaction_amount,
 			debit_account,
 			credit_account );
+
+	return transaction;
 }
 
 TRANSACTION *transaction_check_seek(
@@ -1594,3 +1555,78 @@ LIST *transaction_date_time_account_name_list(
 
 	return pipe2list( sys_string );
 }
+
+char *transaction_program_refresh(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *program_name,
+			double transaction_amount,
+			char *memo,
+			int check_number,
+			LIST *journal_list )
+{
+	transaction_delete(
+		full_name,
+		street_address,
+		transaction_date_time );
+
+	/* Also does a propagate for each account */
+	/* -------------------------------------- */
+	journal_delete(	full_name,
+			street_address,
+			transaction_date_time );
+
+	transaction_program_insert(
+		full_name,
+		street_address,
+		transaction_date_time,
+		program_name,
+		transaction_amount,
+		memo,
+		check_number,
+		1 /* lock_transaction */ );
+
+	journal_list_insert(
+		full_name,
+		street_address,
+		transaction_date_time,
+		journal_list );
+
+	return transaction_date_time;
+}
+
+void transaction_list_journal_insert(
+			LIST *transaction_list )
+{
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( transaction_list ) ) return;
+
+	do {
+		transaction =
+			list_get(
+				transaction_list );
+
+		journal_list_insert(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			transaction->journal_list );
+
+	} while ( list_next( transaction_list ) );
+}
+
+LIST *transaction_journal_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	return journal_system_list(
+			journal_sys_string(
+				transaction_primary_where(
+					full_name,
+					street_address,
+					transaction_date_time ) ) );
+}
+

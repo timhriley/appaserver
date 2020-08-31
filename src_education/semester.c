@@ -36,13 +36,13 @@ SEMESTER *semester_new(	char *season_name,
 	semester->season_name = season_name;
 	semester->year = year;
 
-	semester->semester_offering_list =
-		semester_offering_list(
+	semester->offering_list =
+		offering_list(
 			season_name,
 			year );
 
-	semester->semester_registration_list =
-		semester_registration_list(
+	semester->registration_list =
+		registration_list(
 			season_name,
 			year );
 
@@ -64,26 +64,6 @@ char *semester_primary_where(
 		 year );
 
 	return strdup( where );
-}
-
-LIST *semester_offering_list(
-			char *season_name,
-			int year )
-{
-	return offering_list(
-			semester_primary_where(
-				season_name,
-			year ) );
-}
-
-LIST *semester_registration_list(
-			char *season_name,
-			int year )
-{
-	return registration_list(
-			semester_primary_where(
-				season_name,
-			year ) );
 }
 
 ENROLLMENT *semester_enrollment_getset(

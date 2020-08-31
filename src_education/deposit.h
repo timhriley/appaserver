@@ -99,5 +99,21 @@ char *deposit_insert(	char *financial_institution_full_name,
 			char *year,
 			char *transaction_date_time );
 
+/* Safely returns heap memory */
+/* -------------------------- */
+char *deposit_primary_where(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			char *year,
+			char *deposit_date_time );
+
+DEPOSIT *deposit_new(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time );
+
 #endif
 

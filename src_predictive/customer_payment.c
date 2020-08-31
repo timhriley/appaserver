@@ -185,7 +185,7 @@ TRANSACTION *customer_payment_transaction(
 	transaction->transaction_amount = payment_amount;
 
 	transaction->journal_list =
-		transaction_binary_journal_list(
+		journal_binary_journal_list(
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time,

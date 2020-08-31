@@ -11,7 +11,6 @@
 #include "boolean.h"
 #include "list.h"
 #include "course.h"
-#include "enrollment.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -28,7 +27,7 @@ typedef struct
 	char *season_name;
 	int year;
 	char *instructor_full_name;
-	char *instructor_street_address;
+	char *street_address;
 	int class_capacity;
 	int offering_enrollment_count;
 	int offering_capacity_available;
@@ -36,6 +35,13 @@ typedef struct
 	COURSE *course;
 	LIST *enrollment_list;
 } OFFERING;
+
+/* Prototypes */
+/* ---------- */
+OFFERING *offering_new(
+			char *course_name,
+			char *season_name,
+			int year );
 
 OFFERING *offering_getset(
 			LIST *semester_offering_list,
@@ -54,8 +60,6 @@ int offering_class_capacity(
 			char *course_name,
 			char *season_name,
 			int year );
-
-LIST *offering_list(	char *where_clause );
 
 int offering_enrollment_count(
 			LIST *enrollment_list );
@@ -84,7 +88,7 @@ char *offering_primary_where(
 			int year );
 
 OFFERING *offering_parse(
-			char *input_buffer );
+			char *input );
 
 OFFERING *offering_fetch(
 			char *course_name,
@@ -101,6 +105,27 @@ OFFERING *offering_seek(
 /* --------------------- */
 char *offering_escape_course_name(
 			char *course_name );
+
+LIST *offering_system_list(
+			char *sys_string );
+
+/* Safely returns heap memory */
+/* --------------------------- */
+char *offering_sys_string(
+			char *where );
+
+/* Usage: offering_list_fetch( season_primary_where() ); */
+/* ----------------------------------------------------- */
+LIST *offering_list_fetch(
+			char *where );
+
+FILE *offering_update_open(
+			void );
+
+LIST *offering_enrollment_list(
+			char *course_name,
+			char *season_name,
+			int year );
 
 #endif
 

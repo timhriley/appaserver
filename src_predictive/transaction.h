@@ -170,14 +170,6 @@ char *transaction_property_insert_pipe(
 LIST *transaction_list_property_insert(
 			LIST *transaction_list );
 
-/* All projects execute this. */
-/* -------------------------- */
-void transaction_journal_list_insert(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			LIST *journal_list );
-
 /* Returns program memory */
 /* ---------------------- */
 char *transaction_select(
@@ -190,8 +182,8 @@ char *transaction_primary_where(
 			char *street_address,
 			char *transaction_date_time );
 
-/* Also executes journal_list() */
-/* ---------------------------- */
+/* Also fetches journal_list() */
+/* --------------------------- */
 TRANSACTION *transaction_parse(
 			char *input );
 
@@ -201,7 +193,7 @@ TRANSACTION *transaction_seek(
 			char *street_address,
 			char *transaction_date_time );
 
-/* Performs journal_propagate() */
+/* Executes journal_propagate() */
 /* ---------------------------- */
 void transaction_delete(char *full_name,
 			char *street_address,
@@ -239,10 +231,10 @@ TRANSACTION *transaction_binary(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			char *debit_account,
-			char *credit_account,
 			double transaction_amount,
-			char *memo );
+			char *memo,
+			char *debit_account,
+			char *credit_account );
 
 LIST *transaction_binary_journal_list(
 			char *full_name,
@@ -277,6 +269,16 @@ char *transaction_refresh(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			int check_number,
+			LIST *journal_list );
+
+char *transaction_program_refresh(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *program_name,
 			double transaction_amount,
 			char *memo,
 			int check_number,
@@ -419,5 +421,16 @@ void transaction_list_stderr(
 char *transaction_full_name_display(
 			char *full_name,
 			char *street_address );
+
+void transaction_list_journal_insert(
+			LIST *transaction_list );
+
+char *transaction_sys_string(
+			char *where );
+
+LIST *transaction_journal_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
 
 #endif

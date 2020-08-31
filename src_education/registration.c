@@ -15,39 +15,14 @@
 #include "environ.h"
 #include "list.h"
 #include "enrollment.h"
+#include "entity.h"
 #include "payment.h"
 #include "registration.h"
-
-LIST *registration_enrollment_list(
-			char *student_full_name,
-			char *student_street_address,
-			char *season_name,
-			int year )
-{
-	return enrollment_registration_enrollment_list(
-			student_full_name,
-			student_street_address,
-			season_name,
-			year );
-}
-
-LIST *registration_payment_list(
-			char *student_full_name,
-			char *student_street_address,
-			char *season_name,
-			int year )
-{
-	return payment_registration_payment_list(
-			student_full_name,
-			student_street_address,
-			season_name,
-			year );
-}
 
 REGISTRATION *registration_getset(
 			LIST *semester_registration_list,
 			char *student_full_name,
-			char *student_street_address,
+			char *street_address,
 			char *season_name,
 			int year )
 {
@@ -57,14 +32,14 @@ REGISTRATION *registration_getset(
 			registration_seek(
 				semester_registration_list,
 				student_full_name,
-				student_street_address,
+				street_address,
 				season_name,
 				year ) ) )
 	{
 		registration =
 			registration_new(
 				strdup( student_full_name ),
-				strdup( student_street_address ),
+				strdup( street_address ),
 				strdup( season_name ),
 				year );
 
@@ -151,7 +126,7 @@ void registration_refresh(
 			double registration_payment_total,
 			double registration_invoice_amount_due,
 			char *student_full_name,
-			char *student_street_address,
+			char *street_address,
 			char *season_name,
 			int year )
 {
@@ -168,7 +143,7 @@ void registration_refresh(
 	fprintf( update_pipe,
 		 "%s^%s^%s^%d^tuition^%.2lf\n",
 		 student_full_name,
-		 student_street_address,
+		 street_address,
 		 season_name,
 		 year,
 		 registration_tuition );
@@ -176,7 +151,7 @@ void registration_refresh(
 	fprintf( update_pipe,
 		 "%s^%s^%s^%d^payment_total^%.2lf\n",
 		 student_full_name,
-		 student_street_address,
+		 street_address,
 		 season_name,
 		 year,
 		 registration_payment_total );
@@ -184,7 +159,7 @@ void registration_refresh(
 	fprintf( update_pipe,
 		 "%s^%s^%s^%d^invoice_amount_due^%.2lf\n",
 		 student_full_name,
-		 student_street_address,
+		 street_address,
 		 season_name,
 		 year,
 		 registration_invoice_amount_due );
@@ -196,7 +171,7 @@ void registration_refresh(
 /* -------------------------- */
 char *registration_primary_where(
 			char *student_full_name,
-			char *student_street_address,
+			char *street_address,
 			char *season_name,
 			int year )
 {
@@ -208,7 +183,7 @@ char *registration_primary_where(
 		 /* Returns static memory */
 		 /* --------------------- */
 		 registration_escape_full_name( student_full_name ),
-		 student_street_address,
+		 street_address,
 		 season_name,
 		 year );
 
@@ -220,127 +195,123 @@ char *registration_select( void )
 	return "full_name,street_address,season_name,year,tuition,payment_total,invoice_amount_due,registration_date_time";
 }
 
-REGISTRATION *registration_parse( char *input_buffer )
+REGISTRATION *registration_parse( char *input )
 {
 	char student_full_name[ 128 ];
-	char student_street_address[ 128 ];
+	char street_address[ 128 ];
 	char season_name[ 128 ];
 	int year;
 	char piece_buffer[ 128 ];
 	REGISTRATION *registration;
 
-	if ( !input_buffer ) return (REGISTRATION *)0;
+	if ( !input || !*input ) return (REGISTRATION *)0;
 
-	piece( student_full_name, SQL_DELIMITER, input_buffer, 0 );
-	piece( student_street_address, SQL_DELIMITER, input_buffer, 1 );
-	piece( season_name, SQL_DELIMITER, input_buffer, 2 );
+	piece( student_full_name, SQL_DELIMITER, input, 0 );
+	piece( street_address, SQL_DELIMITER, input, 1 );
+	piece( season_name, SQL_DELIMITER, input, 2 );
 
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 3 );
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	year = atoi( piece_buffer );
 
 	registration =
 		registration_new(
 			strdup( student_full_name ),
-			strdup( student_street_address ),
+			strdup( street_address ),
 			strdup( season_name ),
 			year );
 
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 4 );
+	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	registration->registration_tuition = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 5 );
+	piece( piece_buffer, SQL_DELIMITER, input, 5 );
 	registration->registration_payment_total = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 6 );
+	piece( piece_buffer, SQL_DELIMITER, input, 6 );
 	registration->registration_invoice_amount_due = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 7 );
+	piece( piece_buffer, SQL_DELIMITER, input, 7 );
 	registration->registration_date_time = strdup( piece_buffer );
 
-	registration->registration_enrollment_list =
-		registration_enrollment_list(
+	registration->enrollment_list =
+		enrollment_list(
 			registration->student_full_name,
-			registration->student_street_address,
+			registration->street_address,
 			registration->season_name,
 			registration->year );
 
-	registration->registration_payment_list =
-		registration_payment_list(
+	registration->payment_list =
+		payment_list(
 			registration->student_full_name,
-			registration->student_street_address,
+			registration->street_address,
 			registration->season_name,
 			registration->year );
 
 	return registration;
 }
 
-LIST *registration_list( char *where_clause )
+LIST *registration_system_list( char *sys_string )
 {
-	LIST *list;
-	char sys_string[ 1024 ];
-	char input_buffer[ 1024 ];
-	FILE *input_pipe;
-	REGISTRATION *registration;
+	LIST *registration_list = list_new();
+	char input[ 1024 ];
+	FILE *input_pipe = popen( sys_string, "r" );
 
-	list = list_new();
+	while ( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set( registration_list, registration_parse( input ) );
+	}
+
+	pclose( input_pipe );
+
+	return registration_list;
+}
+
+char *registration_sys_string( char *where )
+{
+	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "select.sh '%s' %s \"%s\" select",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
 		 registration_select(),
 		 "registration",
-		 where_clause,
-		 registration_select() );
+		 where );
 
-	input_pipe = popen( sys_string, "r" );
+	return strdup( sys_string );
+}
 
-	while( string_input( input_buffer, input_pipe, 1024 ) )
-	{
-		if ( ! ( registration =
-				registration_parse( 
-					input_buffer ) ) )
-		{
-			list_set( list, registration );
-		}
-	}
-
-	pclose( input_pipe );
-	return list;
+LIST *registration_list(
+			char *student_full_name,
+			char *street_address )
+{
+	return registration_system_list(
+			registation_sys_string(
+				entity_primary_where(
+					student_full_name,
+					street_address ) ) );
 }
 
 REGISTRATION *registration_fetch(
 			char *student_full_name,
-			char *student_street_address,
+			char *street_address,
 			char *season_name,
 			int year )
 {
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 registration_select(),
-		 "registration",
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 registration_primary_where(
-			student_full_name,
-			student_street_address,
-			season_name,
-			year ) );
-
-	return registration_parse( pipe2string( sys_string ) );
+	return	registration_parse(
+			pipe2string(
+				registration_sys_string(
+					registration_primary_where(
+						student_full_name,
+						street_address,
+						season_name,
+						year ) ) ) );
 }
 
 REGISTRATION *registration_seek(
 			LIST *semester_registration_list,
 			char *student_full_name,
-			char *student_street_address,
+			char *street_address,
 			char *season_name,
 			int year )
 {
@@ -354,8 +325,8 @@ REGISTRATION *registration_seek(
 
 		if ( strcmp(	registration->student_full_name,
 				student_full_name ) == 0
-		&&   strcmp(	registration->student_street_address,
-				student_street_address ) == 0
+		&&   strcmp(	registration->street_address,
+				street_address ) == 0
 		&&   strcmp(	registration->season_name,
 				season_name ) == 0
 		&&   registration->year == year )
@@ -378,7 +349,7 @@ char *registration_escape_full_name(
 
 REGISTRATION *registration_new(
 			char *student_full_name,
-			char *student_street_address,
+			char *street_address,
 			char *season_name,
 			int year )
 {
@@ -395,7 +366,7 @@ REGISTRATION *registration_new(
 	}
 
 	registration->student_full_name = student_full_name;
-	registration->student_street_address = student_street_address;
+	registration->street_address = street_address;
 	registration->season_name = season_name;
 	registration->year = year;
 	return registration;

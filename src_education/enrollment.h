@@ -18,6 +18,10 @@
 
 /* Constants */
 /* --------- */
+#define ENROLLMENT_TABLE	"enrollment"
+
+#define ENROLLMENT_PRIMARY_KEY	\
+	"full_name,street_address,course_name,season_name,year"
 
 /* Structures */
 /* ---------- */
@@ -26,10 +30,9 @@ typedef struct
 	OFFERING *offering;
 	REGISTRATION *registration;
 	TRANSACTION *enrollment_transaction;
+	LIST *enrollment_payment_list;
 } ENROLLMENT;
 
-/* No need to strdup() in. Returns everything on the heap. */
-/* ------------------------------------------------------- */
 ENROLLMENT *enrollment_new(
 			char *full_name,
 			char *street_address,
@@ -37,20 +40,9 @@ ENROLLMENT *enrollment_new(
 			char *season_name,
 			int year );
 
-LIST *enrollment_offering_enrollment_list(
-			char *course_name,
-			char *season_name,
-			int year );
-
-LIST *enrollment_registration_enrollment_list(
-			char *student_full_name,
-			char *student_street_address,
-			char *season_name,
-			int year );
-
 ENROLLMENT *enrollment_fetch(
 			char *student_full_name,
-			char *student_street_address,
+			char *street_address,
 			char *course_name,
 			char *season_name,
 			int year );
@@ -59,7 +51,7 @@ ENROLLMENT *enrollment_fetch(
 /* -------------------------- */
 char *enrollment_primary_where(
 			char *student_full_name,
-			char *student_street_address,
+			char *street_address,
 			char *course_name,
 			char *season_name,
 			int year );
@@ -74,14 +66,34 @@ TRANSACTION *enrollment_transaction(
 			char *account_receivable,
 			char *offering_revenue_account );
 
-void enrollment_list_refresh(
-			LIST *enrollment_list );
-
-
 ENROLLMENT *enrollment_getset(
 			LIST *enrollment_list,
 			char *student_full_name,
-			char *student_street_address,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year );
+
+char *enrollment_sys_string(
+			char *sys_string );
+
+FILE *enrollment_update_open(
+			void );
+
+void enrollment_update(
+			char *transaction_date_time,
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year );
+
+LIST *enrollment_system_list(
+			char *sys_string );
+
+LIST *enrollment_payment_list(
+			char *student_full_name,
+			char *street_address,
 			char *course_name,
 			char *season_name,
 			int year );
