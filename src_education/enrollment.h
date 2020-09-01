@@ -47,7 +47,12 @@ ENROLLMENT *enrollment_fetch(
 			char *street_address,
 			char *course_name,
 			char *season_name,
-			int year );
+			int year,
+			boolean fetch_payment_list,
+			/* ------------------------------------ */
+			/* Fetch offering->course->course_price */
+			/* ------------------------------------ */
+			boolean fetch_offering );
 
 /* Returns static memory */
 /* --------------------- */

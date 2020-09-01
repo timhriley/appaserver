@@ -195,7 +195,7 @@ OFFERING *offering_parse(	char *input,
 
 	if ( fetch_enrollment_list )
 	{
-		offering->enrollment_list =
+		offering->offering_enrollment_list =
 			offering_enrollment_list(
 				offering->course_name,
 				offering->season_name,
@@ -390,3 +390,38 @@ if ( season_name ){}
 if ( year ){}
 
 }
+
+OFFERING *offering_steady_state(
+			char *course_name,
+			char *season_name,
+			int year,
+			char *instructor_full_name,
+			char *street_address,
+			double class_capacity,
+			LIST *offering_enrollment_list )
+{
+	OFFERING *offering;
+
+	offering =
+		offering_new(
+			course_name,
+			season_name,
+			year );
+
+	offering->instructor_full_name = instructor_full_name;
+	offering->street_address = street_address;
+	offering->class_capacity = class_capacity;
+	offering->offering_enrollment_list = offering_enrollment_list;
+
+	offering->offering_enrollment_count =
+		offering_enrollment_count(
+			offering->offering_enrollment_list );
+
+	offering->offering_capacity_available =
+		offering_capacity_available(
+			offering->class_capacity,
+			offering->offering_enrollment_count );
+
+	return offering;
+}
+

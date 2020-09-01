@@ -93,7 +93,7 @@ void post_change_offering(
 
 	offering->offering_enrollment_count =
 		offering_enrollment_count(
-			offering->enrollment_list );
+			offering->offering_enrollment_list );
 
 	offering->offering_capacity_available =
 		offering_capacity_available(
@@ -103,7 +103,7 @@ void post_change_offering(
 	offering_refresh(
 		offering->offering_enrollment_count,
 		offering->offering_capacity_available,
-		offering->enrollment_list,
+		offering->offering_enrollment_list,
 		offering->course_name,
 		offering->season_name,
 		offering->year );

@@ -34,7 +34,7 @@ typedef struct
 	int offering_capacity_available;
 	ACCOUNT *offering_revenue_account;
 	COURSE *course;
-	LIST *enrollment_list;
+	LIST *offering_enrollment_list;
 } OFFERING;
 
 /* Prototypes */
@@ -128,6 +128,15 @@ LIST *offering_enrollment_list(
 			char *course_name,
 			char *season_name,
 			int year );
+
+OFFERING *offering_steady_state(
+			char *course_name,
+			char *season_name,
+			int year,
+			char *instructor_full_name,
+			char *street_address,
+			double class_capacity,
+			LIST *offering_enrollment_list );
 
 #endif
 

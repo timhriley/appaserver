@@ -152,7 +152,9 @@ ENROLLMENT *enrollment_fetch(
 			char *street_address,
 			char *season_name,
 			char *course_name,
-			int year )
+			int year,
+			boolean fetch_payment_list,
+			boolean fetch_offering )
 {
 	return enrollment_parse(
 			pipe2string(
@@ -166,11 +168,11 @@ ENROLLMENT *enrollment_fetch(
 						season_name,
 						course_name,
 						year ) ) ),
-			1 /* fetch_payment_list */,
+			fetch_payment_list,
 			/* ------------------------------------ */
 			/* Fetch offering->course->course_price */
 			/* ------------------------------------ */
-			1 /* fetch_offering */ );
+			fetch_offering );
 }
 
 LIST *enrollment_system_list( char *sys_string )
@@ -309,7 +311,9 @@ ENROLLMENT *enrollment_getset(
 				street_address,
 				course_name,
 				season_name,
-				year ) ) )
+				year,
+				1 /* fetch_payment_list */,
+				1 /* fetch_offering */ ) ) )
 	{
 		list_set(
 			enrollment_list,
