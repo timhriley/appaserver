@@ -5,7 +5,7 @@ CC=gcc
 #CFLAGS=-g
 #WARN = -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations
 #CFLAGS=-O3 -s -Wall -W
-CFLAGS=-O3 -s -Wall ${APPASERVER_UNUSED_PARAMETER_FLAG}
+CFLAGS=-O3 -s -Wall -Wunused-parameter
 
 LIBRARY=${APPASERVER_HOME}/library
 UTILITY=${APPASERVER_HOME}/utility

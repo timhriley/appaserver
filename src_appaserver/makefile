@@ -2,9 +2,9 @@
 # -----------------------
 
 CC=gcc
-#WARN = -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations
-#WARN = -Wall -Wextra -Wtype-limits ${APPASERVER_UNUSED_PARAMETER_FLAG}
-WARN = -Wall -Wextra ${APPASERVER_UNUSED_PARAMETER_FLAG}
+#WARN=-Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations
+#WARN=-Wall -Wextra -Wtype-limits ${APPASERVER_UNUSED_PARAMETER_FLAG}
+WARN=-Wall -Wextra -Wunused-parameter
 #CFLAGS=-g
 #CFLAGS=-O3 -s -Wall -W
 CFLAGS=-O3 -s ${WARN}

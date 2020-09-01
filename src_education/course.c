@@ -17,10 +17,6 @@
 #include "list.h"
 #include "course.h"
 
-char *course_select( void )
-{
-	return "course_name,course_price";
-}
 
 COURSE *course_parse( char *input )
 {
@@ -30,12 +26,17 @@ COURSE *course_parse( char *input )
 
 	if ( !input || !*input ) return (COURSE *)0;
 
+	/* See: attribute_list course */
+	/* -------------------------- */
 	piece( course_name, SQL_DELIMITER, input, 0 );
 
 	course = course_new( strdup( course_name  ) );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 1 );
 	course->course_price = atof( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	course->program_name = strdup( piece_buffer );
 
 	return course;
 }
@@ -63,32 +64,24 @@ COURSE *course_fetch( char *course_name )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 course_select(),
-		 "course",
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 course_primary_where(
-			course_name ),
-		 course_select() );
+		 "select.sh '*' %s \"%s\" select",
+		 COURSE_TABLE,
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 course_primary_where( course_name ) );
 
 	return course_parse( pipe2string( sys_string ) );
 }
 
-/* Safely returns heap memory */
-/* -------------------------- */
 char *course_primary_where( char *course_name )
 {
-	char where[ 1024 ];
+	char static where[ 128 ];
 
 	sprintf( where,
 		 "course_name = '%s'",
 		 course_name );
 
-	return strdup( where );
+	return where;
 }
 

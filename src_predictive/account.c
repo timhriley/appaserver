@@ -309,7 +309,7 @@ ACCOUNT *account_parse( char *input )
 	account->subclassification_name = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	account->hard_coded_account_key = strdup( piece_buffer );
+	account->account_key = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	account->chart_account_number = atoi( piece_buffer );
@@ -330,8 +330,7 @@ ACCOUNT *account_parse( char *input )
 	return account;
 }
 
-char *account_sys_string(
-			char *where )
+char *account_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
 
@@ -375,7 +374,7 @@ char *account_primary_where(
 
 char *account_hard_coded_account_name(
 			char *fund_name,
-			char *hard_coded_account_key,
+			char *account_key,
 			boolean warning_only,
 			const char *calling_function_name )
 {
@@ -391,7 +390,7 @@ char *account_hard_coded_account_name(
 			account_key_seek(
 				local_account_list,
 				fund_name,
-				hard_coded_account_key ) ) )
+				account_key ) ) )
 	{
 		if ( !warning_only )
 		{
@@ -401,7 +400,7 @@ char *account_hard_coded_account_name(
 				 __FUNCTION__,
 				 __LINE__,
 				 calling_function_name,
-				 hard_coded_account_key );
+				 account_key );
 			exit( 1 );
 		}
 		else
@@ -409,14 +408,13 @@ char *account_hard_coded_account_name(
 			return "";
 		}
 	}
-
 	return account->account_name;
 }
 
 ACCOUNT *account_key_seek(
 			LIST *account_list,
 			char *fund_name,
-			char *hard_coded_account_key )
+			char *account_key )
 {
 	ACCOUNT *account;
 
@@ -433,8 +431,8 @@ ACCOUNT *account_key_seek(
 				account->fund_name,
 				fund_name ) == 0
 			&&   timlib_strcmp(
-				account->hard_coded_account_key,
-				hard_coded_account_key ) == 0 )
+				account->account_key,
+				account_key ) == 0 )
 			{
 				return account;
 			}
@@ -442,8 +440,8 @@ ACCOUNT *account_key_seek(
 		else
 		{
 			if ( timlib_strcmp(
-				account->hard_coded_account_key,
-				hard_coded_account_key ) == 0 )
+				account->account_key,
+				account_key ) == 0 )
 			{
 				return account;
 			}
@@ -880,5 +878,19 @@ void account_transaction_propagate(
 	}
 
 	pclose( input_pipe );
+}
+
+ACCOUNT *account_key_fetch( char *account_key )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"hard_coded_account_key = '%s'",
+		account_key );
+
+	return account_parse(
+			pipe2string(
+				account_sys_string(
+					where ) ) );
 }
 

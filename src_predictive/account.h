@@ -47,7 +47,7 @@ typedef struct
 	char *account_name;
 	char *fund_name;
 	char *subclassification_name;
-	char *hard_coded_account_key;
+	char *account_key;
 	double chart_account_number;
 	JOURNAL *latest_journal;
 	LIST *journal_list;
@@ -81,7 +81,7 @@ ACCOUNT *account_seek(	LIST *account_list,
 
 char *account_hard_coded_account_name(
 			char *fund_name,
-			char *hard_coded_account_key,
+			char *account_key,
 			boolean warning_only,
 			const char *calling_function_name );
 
@@ -139,7 +139,7 @@ LIST *account_system_list(
 ACCOUNT *account_key_seek(
 			LIST *account_list,
 			char *fund_name,
-			char *hard_coded_account_key );
+			char *account_key );
 
 char *account_select(	void );
 
@@ -175,5 +175,8 @@ void account_transaction_propagate(
 
 char *account_sys_string(
 			char *where );
+
+ACCOUNT *account_key_fetch(
+			char *account_key );
 
 #endif

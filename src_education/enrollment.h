@@ -23,6 +23,8 @@
 #define ENROLLMENT_PRIMARY_KEY	\
 	"full_name,street_address,course_name,season_name,year"
 
+#define ENROLLMENT_MEMO		"Course Enrollment"
+
 /* Structures */
 /* ---------- */
 typedef struct
@@ -102,6 +104,17 @@ ENROLLMENT *enrollment_parse(
 			char *input,
 			boolean fetch_payment_list,
 			boolean fetch_offering );
+
+/* Returns true transaction_date_time */
+/* ---------------------------------- */
+char *enrollment_transaction_refresh(
+			char *student_full_name,
+			char *student_street_address,
+			char *transaction_date_time,
+			char *program_name,
+			double payment_amount,
+			char *memo,
+			LIST *journal_list );
 
 #endif
 

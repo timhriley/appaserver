@@ -20,30 +20,30 @@
 #include "registration.h"
 
 REGISTRATION *registration_getset(
-			LIST *semester_registration_list,
+			LIST *registration_list,
 			char *student_full_name,
 			char *street_address,
 			char *season_name,
 			int year )
 {
-	REGISTRATION *registration;
+	REGISTRATION *registration = {0};
 
 	if ( ! ( registration =
 			registration_seek(
-				semester_registration_list,
+				registration_list,
 				student_full_name,
 				street_address,
 				season_name,
 				year ) ) )
 	{
-		registration =
-			registration_new(
-				strdup( student_full_name ),
-				strdup( street_address ),
-				strdup( season_name ),
-				year );
-
-		list_set( semester_registration_list, registration );
+		list_set(
+			registration_list,
+			( registration =
+				registration_new(
+					strdup( student_full_name ),
+					strdup( street_address ),
+					strdup( season_name ),
+					year ) ) );
 	}
 	return registration;
 }
@@ -110,7 +110,19 @@ void registration_enrollment_list_refresh(
 if ( registration_enrollment_list ) {}
 }
 
-void registration_refresh(
+FILE *registration_update_open( void )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "update_statement table=%s key=%s carrot=y | sql",
+		 "registration",
+		 REGISTRATION_PRIMARY_KEY );
+
+	return popen( sys_string, "w" );
+}
+
+void registration_update(
 			double registration_tuition,
 			double registration_payment_total,
 			double registration_invoice_amount_due,
@@ -119,15 +131,7 @@ void registration_refresh(
 			char *season_name,
 			int year )
 {
-	char sys_string[ 1024 ];
-	FILE *update_pipe;
-
-	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql",
-		 "registration",
-		 REGISTRATION_PRIMARY_KEY );
-
-	update_pipe = popen( sys_string, "w" );
+	FILE *update_pipe = registration_update_open();
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%d^tuition^%.2lf\n",
@@ -436,24 +440,5 @@ double registration_payment_total(
 			LIST *enrollment_list )
 {
 	return payment_total( enrollment_list );
-}
-
-void registration_update(
-			double registration_tuition,
-			double registration_payment_total,
-			double registration_invoice_amount_due,
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year )
-{
-if ( registration_tuition ){}
-if ( registration_payment_total ){}
-if ( registration_invoice_amount_due ){}
-if ( student_full_name ){}
-if ( street_address ){}
-if ( season_name ){}
-if ( year ){}
-
 }
 

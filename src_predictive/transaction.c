@@ -1606,15 +1606,16 @@ char *transaction_program_refresh(
 			street_address,
 			transaction_date_time );
 
-	transaction_program_insert(
-		full_name,
-		street_address,
-		transaction_date_time,
-		program_name,
-		transaction_amount,
-		memo,
-		check_number,
-		1 /* lock_transaction */ );
+	transaction_date_time =
+		transaction_program_insert(
+			full_name,
+			street_address,
+			transaction_date_time,
+			program_name,
+			transaction_amount,
+			memo,
+			check_number,
+			1 /* lock_transaction */ );
 
 	journal_list_insert(
 		full_name,

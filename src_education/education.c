@@ -45,18 +45,20 @@ EDUCATION *education_new(
 	return education;
 }
 
-LIST  *education_spreadsheet_deposit_list(
+LIST *education_deposit_list(
 			LIST *semester_offering_list,
 			LIST *semester_registration_list,
-			ENTITY *education_financial_institution_entity,
 			char *spreadsheet_filename )
 {
+if ( semester_offering_list ){}
+if ( semester_registration_list ){}
+if ( spreadsheet_filename ){}
 	return (LIST *)0;
 }
 
 void education_deposit_list_insert(
-			LIST *education_spreadsheet_deposit_list,
-			ENTITY *education_financial_institution_entity )
+			LIST *education_deposit_list )
 {
+if ( education_deposit_list ){}
 }
 

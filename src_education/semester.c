@@ -49,8 +49,6 @@ SEMESTER *semester_new(	char *season_name,
 	return semester;
 }
 
-/* Returns static memory */
-/* --------------------- */
 char *semester_primary_where(
 			char *season_name,
 			int year )

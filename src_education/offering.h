@@ -11,6 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "course.h"
+#include "account.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -31,7 +32,7 @@ typedef struct
 	int class_capacity;
 	int offering_enrollment_count;
 	int offering_capacity_available;
-	char *revenue_account;
+	ACCOUNT *offering_revenue_account;
 	COURSE *course;
 	LIST *enrollment_list;
 } OFFERING;
@@ -43,20 +44,27 @@ OFFERING *offering_new(
 			char *season_name,
 			int year );
 
+OFFERING *offering_fetch(
+			char *course_name,
+			char *season_name,
+			int year,
+			boolean fetch_course,
+			boolean fetch_enrollment_list );
+
 OFFERING *offering_getset(
-			LIST *semester_offering_list,
+			LIST *offering_list,
 			char *course_name,
 			char *season_name,
 			int year );
 
 double offering_course_price(
-			LIST *semester_offering_list,
+			LIST *offering_list,
 			char *course_name,
 			char *season_name,
 			int year );
 
 int offering_class_capacity(
-			LIST *semester_offering_list,
+			LIST *offering_list,
 			char *course_name,
 			char *season_name,
 			int year );
@@ -89,13 +97,6 @@ char *offering_primary_where(
 
 OFFERING *offering_parse(
 			char *input,
-			boolean fetch_course,
-			boolean fetch_enrollment_list );
-
-OFFERING *offering_fetch(
-			char *course_name,
-			char *season_name,
-			int year,
 			boolean fetch_course,
 			boolean fetch_enrollment_list );
 

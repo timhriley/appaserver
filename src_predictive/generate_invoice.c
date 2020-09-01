@@ -425,23 +425,13 @@ LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
 {
 	LATEX_INVOICE_CUSTOMER *invoice_customer;
 	char invoice_key[ 128 ];
-	double sales_tax;
 	double total_payment;
-	SALE *sale;
 
 	sprintf(invoice_key,
 		"%s %s %s",
 		full_name,
 		street_address,
 		sale_date_time );
-
-	sale =
-		/* Returns sale_steady_state() */
-		/* --------------------------- */
-		sale_fetch(
-			full_name,
-			street_address,
-			sale_date_time );
 
 	total_payment =
 		customer_payment_total(
@@ -463,10 +453,9 @@ LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
 					strdup( "" )
 						/* zip_code */,
 					(char *)0 /* customer_service_key */,
-					sales_tax,
+					0 /* sales_tax */,
 					0.0 /* shipping_charge */,
 					total_payment );
-
 	return invoice_customer;
 }
 

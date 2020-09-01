@@ -4,7 +4,7 @@
 CC=gcc
 #CFLAGS=-g 
 #CFLAGS=-O3 -s -Wall -W
-CFLAGS=-O3 -s -Wall ${APPASERVER_UNUSED_PARAMETER_FLAG}
+CFLAGS=-O3 -s -Wall -Wunused-parameter
 
 SOURCE_EVERGLADES=.
 

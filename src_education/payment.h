@@ -21,8 +21,13 @@
 /* --------- */
 #define PAYMENT_TABLE_NAME	"payment"
 
-#define PAYMENT_PRIMARY_KEY	\
-"full_name,street_address,season_name,year,payor_full_name,payor_street_address,deposit_date_time"
+#define PAYMENT_PRIMARY_KEY	"full_name,"			\
+				"street_address,"		\
+				"season_name,"			\
+				"year,"				\
+				"payor_full_name,"		\
+				"payor_street_address,"		\
+				"deposit_date_time"
 
 #define PAYMENT_MEMO		"Customer Payment"
 
@@ -32,7 +37,6 @@ typedef struct
 {
 	ENROLLMENT *enrollment;
 	DEPOSIT *deposit;
-	double payment_amount_database;
 	double payment_amount;
 	LIST *payment_registration_list;
 	TRANSACTION *payment_transaction;
@@ -42,6 +46,15 @@ typedef struct
 /* ---------- */
 PAYMENT *payment_calloc(
 			void );
+
+PAYMENT *payment_fetch(	char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time );
 
 double payment_amount(
 			double deposit_remaining,
@@ -54,7 +67,7 @@ TRANSACTION *payment_transaction(
 			char *program_name,
 			double payment_amount,
 			double fees_expense,
-			double donation_gain,
+			double gain_donation,
 			char *account_cash,
 			char *account_receivable,
 			char *account_fees_expense,
@@ -67,10 +80,11 @@ char *payment_transaction_refresh(
 			char *student_street_address,
 			char *transaction_date_time,
 			char *program_name,
-			double payment_amount,
+			double transaction_amount,
+			char *memo,
 			LIST *journal_list );
 
-char *payment_update(	double payment_amount,
+void payment_update(	double payment_amount,
 			double fees_expense,
 			double gain_donation,
 			char *transaction_date_time,
@@ -92,6 +106,15 @@ LIST *payment_system_list(
 double payment_total(	LIST *payment_list );
 
 PAYMENT *payment_parse(	char *input );
+
+LIST *payment_deposit_list(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year );
+
+FILE *payment_update_open(
+			void );
 
 #endif
 

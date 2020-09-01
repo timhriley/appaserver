@@ -18,6 +18,7 @@
 #include "registration.h"
 #include "payment.h"
 #include "offering.h"
+#include "course.h"
 #include "enrollment.h"
 
 ENROLLMENT *enrollment_new(
@@ -278,6 +279,7 @@ TRANSACTION *enrollment_transaction(
 
 	transaction->program_name = program_name;
 	transaction->transaction_amount = offering_course_price;
+	transaction->memo = ENROLLMENT_MEMO;
 
 	transaction->journal_list =
 		journal_binary_journal_list(
@@ -309,15 +311,15 @@ ENROLLMENT *enrollment_getset(
 				season_name,
 				year ) ) )
 	{
-		enrollment =
-			enrollment_new(
-				strdup( student_full_name ),
-				strdup( street_address ),
-				strdup( course_name ),
-				strdup( season_name ),
-				year );
-
-		list_set( enrollment_list, enrollment );
+		list_set(
+			enrollment_list,
+			( enrollment =
+				enrollment_new(
+					strdup( student_full_name ),
+					strdup( street_address ),
+					strdup( course_name ),
+					strdup( season_name ),
+					year ) ) );
 	}
 	return enrollment;
 }
@@ -337,5 +339,27 @@ LIST *enrollment_payment_list(
 					course_name,
 					season_name,
 					year ) ) );
+}
+
+/* Returns true transaction_date_time */
+/* ---------------------------------- */
+char *enrollment_transaction_refresh(
+			char *student_full_name,
+			char *student_street_address,
+			char *transaction_date_time,
+			char *program_name,
+			double payment_amount,
+			char *memo,
+			LIST *journal_list )
+{
+	return transaction_program_refresh(
+		student_full_name,
+		student_street_address,
+		transaction_date_time,
+		program_name,
+		payment_amount,
+		memo,
+		0 /* check_number */,
+		journal_list );
 }
 

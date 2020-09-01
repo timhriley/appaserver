@@ -264,8 +264,7 @@ DEPOSIT *deposit_parse(	char *input,
 	return deposit;
 }
 
-char *deposit_sys_string(
-			char *where )
+char *deposit_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
 

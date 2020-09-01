@@ -16,6 +16,7 @@
 
 /* Constants */
 /* --------- */
+#define COURSE_TABLE		"course"
 
 /* Structures */
 /* ---------- */
@@ -23,11 +24,10 @@ typedef struct
 {
 	char *course_name;
 	double course_price;
+	char *program_name;
 } COURSE;
 
 COURSE *course_fetch(	char *course_name );
-
-char *course_select(	void );
 
 COURSE *course_new(	char *course_name );
 
@@ -35,8 +35,8 @@ COURSE *course_new(	char *course_name );
 /* -------------------------- */
 COURSE *course_parse(	char *input );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *course_primary_where(
 			char *course_name );
 

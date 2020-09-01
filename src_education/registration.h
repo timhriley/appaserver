@@ -35,7 +35,7 @@ typedef struct
 } REGISTRATION;
 
 REGISTRATION *registration_getset(
-			LIST *semester_registration_list,
+			LIST *registration_list,
 			char *student_full_name,
 			char *student_street_addres,
 			char *season_name,
@@ -53,15 +53,6 @@ double registration_invoice_amount_due(
 
 void registration_enrollment_list_refresh(
 			LIST *registration_enrollment_list );
-
-void registration_refresh(
-			double registration_tuition,
-			double registration_payment_total,
-			double registration_invoice_amount_due,
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -131,6 +122,9 @@ void registration_update(
 			char *street_address,
 			char *season_name,
 			int year );
+
+FILE *registration_update_open(
+			void );
 
 #endif
 

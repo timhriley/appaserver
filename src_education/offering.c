@@ -14,6 +14,7 @@
 #include "sql.h"
 #include "enrollment.h"
 #include "semester.h"
+#include "account.h"
 #include "offering.h"
 
 OFFERING *offering_new(	char *course_name,
@@ -38,47 +39,51 @@ OFFERING *offering_new(	char *course_name,
 
 	offering->season_name = season_name;
 	offering->year = year;
+
+	offering->offering_revenue_account =
+		account_fetch(
+			ACCOUNT_REVENUE_KEY );
 	return offering;
 }
 
 OFFERING *offering_getset(
-			LIST *semester_offering_list,
+			LIST *offering_list,
 			char *course_name,
 			char *season_name,
 			int year )
 {
-	OFFERING *offering;
+	OFFERING *offering = {0};
 
 	if ( ! ( offering =
 			offering_seek(
-				semester_offering_list,
+				offering_list,
 				course_name,
 				season_name,
 				year ) ) )
 	{
-		offering =
-			offering_new(
-				course_name,
-				season_name,
-				year );
-
-		list_set( semester_offering_list, offering );
+		list_set(
+			offering_list,
+			( offering =
+				offering_new(
+					strdup( course_name ),
+					strdup( season_name ),
+					year ) ) );
 	}
 	return offering;
 }
 
 OFFERING *offering_seek(
-			LIST *semester_offering_list,
+			LIST *offering_list,
 			char *course_name,
 			char *season_name,
 			int year )
 {
 	OFFERING *offering;
 
-	if ( !list_rewind( semester_offering_list ) ) return (OFFERING *)0;
+	if ( !list_rewind( offering_list ) ) return (OFFERING *)0;
 
 	do {
-		offering = list_get( semester_offering_list );
+		offering = list_get( offering_list );
 
 		if ( strcmp( offering->course_name, course_name ) == 0
 		&&   strcmp( offering->season_name, season_name ) == 0
@@ -86,7 +91,7 @@ OFFERING *offering_seek(
 		{
 			return offering;
 		}
-	} while ( list_next( semester_offering_list ) );
+	} while ( list_next( offering_list ) );
 
 	return (OFFERING *)0;
 }
@@ -178,7 +183,8 @@ OFFERING *offering_parse(	char *input,
 	offering->offering_capacity_available = atoi( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 8 );
-	offering->revenue_account = strdup( piece_buffer );
+	offering->offering_revenue_account =
+		account_new( strdup( piece_buffer ) );
 
 	if ( fetch_course )
 	{
@@ -268,20 +274,17 @@ int offering_capacity_available(
 	return class_capacity - offering_enrollment_count;
 }
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *semester_where(
-			char *season_name,
+char *semester_where(	char *season_name,
 			int year )
 {
-	char where[ 1024 ];
+	static char where[ 256 ];
 
 	sprintf( where,
 		 "season_name = '%s' and year = %d",
 		 season_name,
 		 year );
 
-	return strdup( where );
+	return where;
 }
 
 FILE *offering_update_open( void )

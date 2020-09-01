@@ -45,7 +45,7 @@ ENROLLMENT *semester_enrollment_getset(
 			char *season_name,
 			int year );
 
-/* returns static memory */
+/* Returns static memory */
 /* --------------------- */
 char *semester_primary_where(
 			char *season_name,
