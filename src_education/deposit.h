@@ -38,6 +38,8 @@ typedef struct
 	char *transaction_ID;
 	char *invoice_number;
 	LIST *deposit_payment_list;
+	double deposit_payment_total;
+	double deposit_gain_donation;
 } DEPOSIT;
 
 LIST *deposit_registration_list(
@@ -52,53 +54,30 @@ LIST *deposit_payment_list(
 
 double deposit_remaining(
 			double deposit_amount,
-			LIST *deposit_registration_list );
+			double registration_tuition_total );
 
-double deposit_gain_donation_amount(
+double deposit_gain_donation(
 			double deposit_amount,
 			LIST *deposit_registration_list );
-/*
-{
-	double remaining;
-	double donation_amount;
-
-	if ( ( remaing = deposit_remaining(
-			deposit_amount,
-			deposit_registration_list ) ) > 0 )
-	{
-		donation_amount = remaining;
-	}
-	else
-	{
-		donation_amount = 0.0;
-	}
-	return donation_amount;
-}
-*/
-
-double deposit_total(	LIST *deposit_payment_list );
-/*
-{
-	return sum( payment_list->payment->payment_amount );
-}
-*/
 
 double deposit_net_revenue(
 			double deposit_amount,
 			double transaction_fee );
-/*
-{
-	return A - B;
-}
-*/
 
-void deposit_insert(
-			char *payor_full_name,
+void deposit_insert(	char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
 			char *deposit_date_time,
-			double deposit_total );
+			double deposit_amount,
+			double transaction_fee,
+			double net_revenue,
+			double account_balance,
+			int check_number,
+			char *transaction_ID,
+			char *invoice_number,
+			double payment_total,
+			double gain_donation );
 
 /* Returns static memory */
 /* --------------------- */
@@ -134,6 +113,44 @@ DEPOSIT *deposit_parse( char *input,
 /* -------------------------- */
 char *deposit_sys_string(
 			char *where );
+
+void deposit_insert_pipe(
+			FILE *insert_pipe,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			double deposit_amount,
+			double transaction_fee,
+			double net_revenue,
+			double account_balance,
+			int check_number,
+			char *transaction_ID,
+			char *invoice_number,
+			double payment_total,
+			double gain_donation );
+
+void deposit_insert(	char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			double deposit_amount,
+			double transaction_fee,
+			double net_revenue,
+			double account_balance,
+			int check_number,
+			char *transaction_ID,
+			char *invoice_number,
+			double payment_total,
+			double gain_donation );
+
+FILE *deposit_insert_open(
+			void );
+
+double deposit_payment_total(
+			LIST *deposit_payment_list );
 
 #endif
 

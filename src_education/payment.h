@@ -71,6 +71,8 @@ char *payment_transaction_refresh(
 			LIST *journal_list );
 
 char *payment_update(	double payment_amount,
+			double fees_expense,
+			double gain_donation,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,

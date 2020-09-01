@@ -108,7 +108,6 @@ char *sed_trim_double_spaces( char *string )
 	static char return_string[ 1024 ];
 	char *replace;
 	char *regular_expression;
-	char buffer[ 512 ];
 	SED *sed;
 
 	regular_expression = "[ ][ ]";

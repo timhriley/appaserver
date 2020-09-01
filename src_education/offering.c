@@ -371,3 +371,19 @@ LIST *offering_enrollment_list(
 					year ) ) );
 }
 
+void offering_refresh(
+			int offering_enrollment_count,
+			int offering_capacity_available,
+			LIST *enrollment_list,
+			char *course_name,
+			char *season_name,
+			int year )
+{
+if ( offering_enrollment_count ){}
+if ( offering_capacity_available ){}
+if ( enrollment_list ){}
+if ( course_name ){}
+if ( season_name ){}
+if ( year ){}
+
+}

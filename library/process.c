@@ -1400,8 +1400,7 @@ void process_operation_convert(
 		local_executable, 
 		( local_attribute_name_list =
 			attribute_name_list(
-				append_isa_attribute_list,
-				(char *)0 ) ),
+				append_isa_attribute_list ) ),
 		local_parameter_dictionary,
 		0, 	                  /* dictionary_key_offset */
 		QUERY_FROM_STARTING_LABEL,/* dictionary_key_prepend */

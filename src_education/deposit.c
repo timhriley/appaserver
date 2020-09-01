@@ -83,69 +83,11 @@ LIST *deposit_registration_list(
 	return registration_list;
 }
 
-double registration_tuition_total(
-			LIST *registration_enrollment_list )
-{
-	ENROLLMENT *enrollment;
-	double tuition_total = {0};
-
-	if ( list_rewind( registration_enrollment_list ) )
-	{
-		do {
-			enrollment =
-				list_get( 
-					registration_enrollment_list );
-
-			if ( !enrollment->offering )
-			{
-				fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty offering.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__ );
-				exit( 1 );
-			}
-
-			if ( !enrollment->offering->course )
-			{
-				fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty course.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__ );
-				exit( 1 );
-			}
-
-			tuition_total += 
-				enrollment->
-					offering->
-					course->
-					course_price;
-
-		} while ( list_next( registration_enrollment_list ) );
-	}
-	return tuition_total;
-}
-
 double deposit_remaining(
 			double deposit_amount,
-			LIST *registration_enrollment_list )
+			double registration_tuition_total )
 {
-	double registration_tuition_total;
-
-	registration_tuition_total =
-
-	return 0.0;
-/*
-	return		deposit_amount -
-			sum( B->registration->registration_tuition() );
-*/
-}
-
-double deposit_total( LIST *deposit_payment_list )
-{
-	/* return sum( payment_list->payment->payment_amount ); */
-	return 0.0;
+	return deposit_amount - registration_tuition_total;
 }
 
 double deposit_net_revenue(
@@ -155,36 +97,27 @@ double deposit_net_revenue(
 	return deposit_amount - transaction_fee;
 }
 
-void deposit_insert(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			double deposit_total )
-{
-}
 
-
-double deposit_gain_donation_amount(
+double deposit_gain_donation(
 			double deposit_amount,
 			LIST *deposit_registration_list )
 {
 	double remaining;
-	double donation_amount;
+	double gain_donation;
 
 	if ( ( remaining =
 			deposit_remaining(
 				deposit_amount,
-				deposit_registration_list ) ) > 0 )
+				registration_tuition_total(
+					deposit_registration_list ) ) > 0.0 ) )
 	{
-		donation_amount = remaining;
+		gain_donation = remaining;
 	}
 	else
 	{
-		donation_amount = 0.0;
+		gain_donation = 0.0;
 	}
-	return donation_amount;
+	return gain_donation;
 }
 
 char *deposit_primary_where(
@@ -259,13 +192,10 @@ DEPOSIT *deposit_parse(	char *input,
 	char net_revenue[ 128 ];
 	char account_balance[ 128 ];
 	char check_number[ 128 ];
-
-	char *transaction_ID;
-	char *invoice_number;
-
-
 	char transaction_ID[ 128 ];
 	char invoice_number[ 128 ];
+	char payment_total[ 128 ];
+	char gain_donation[ 128 ];
 	DEPOSIT *deposit;
 
 	if ( !input || !*input ) return (DEPOSIT *)0;
@@ -286,6 +216,33 @@ DEPOSIT *deposit_parse(	char *input,
 			atoi( year ),
 			strdup( deposit_date_time ) );
 
+	piece( deposit_amount, SQL_DELIMITER, input, 5 );
+	deposit->deposit_amount = atof( deposit_amount );
+
+	piece( transaction_fee, SQL_DELIMITER, input, 6 );
+	deposit->transaction_fee = atof( transaction_fee );
+
+	piece( net_revenue, SQL_DELIMITER, input, 7 );
+	deposit->net_revenue = atof( net_revenue );
+
+	piece( account_balance, SQL_DELIMITER, input, 8 );
+	deposit->account_balance = atof( account_balance );
+
+	piece( check_number, SQL_DELIMITER, input, 9 );
+	deposit->check_number = atoi( account_balance );
+
+	piece( transaction_ID, SQL_DELIMITER, input, 10 );
+	deposit->transaction_ID = strdup( transaction_ID );
+
+	piece( invoice_number, SQL_DELIMITER, input, 11 );
+	deposit->invoice_number = strdup( invoice_number );
+
+	piece( payment_total, SQL_DELIMITER, input, 12 );
+	deposit->deposit_payment_total = atof( payment_total );
+
+	piece( gain_donation, SQL_DELIMITER, input, 13 );
+	deposit->deposit_gain_donation = atof( gain_donation );
+
 	if ( fetch_payment_list )
 	{
 		deposit->deposit_payment_list =
@@ -296,8 +253,12 @@ DEPOSIT *deposit_parse(	char *input,
 				deposit->
 					payor_entity->
 					street_address,
-				deposit->season_name,
-				deposit->year,
+				deposit->
+					semester->
+					season_name,
+				deposit->
+					semester->
+					year,
 				deposit->deposit_date_time );
 	}
 	return deposit;
@@ -356,5 +317,119 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 						year,
 						deposit_date_time ) ) ),
 			fetch_payment_list );
+}
+
+FILE *deposit_insert_open( void )
+{
+	char sys_string[ 1024 ];
+	char *field;
+
+	field=
+		"payor_full_name,"
+		"payor_street_address,"
+		"season_name,"
+		"year,"
+		"deposit_date_time,"
+		"deposit_amount,"
+		"transaction_fee,"
+		"net_revenue,"
+		"account_balance,"
+		"check_number,"
+		"transaction_ID,"
+		"invoice_number,"
+		"payment_total,"
+		"gain_donation";
+
+	sprintf( sys_string,
+		 "insert_statement table=%s field=%s delimiter='^'	|"
+		 "sql							 ",
+		 DEPOSIT_TABLE,
+		 field );
+
+	return popen( sys_string, "w" );
+}
+
+void deposit_insert_pipe(
+			FILE *insert_pipe,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			double deposit_amount,
+			double transaction_fee,
+			double net_revenue,
+			double account_balance,
+			int check_number,
+			char *transaction_ID,
+			char *invoice_number,
+			double payment_total,
+			double gain_donation )
+{
+	char *format =
+		"%s^%s^%s^%d^%s^%.2lf^%.2lf^%.2lf^%.2lf^%d^%s^%s^%.2lf^%.2lf\n";
+
+	fprintf(	insert_pipe,
+			format,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			entity_escape_full_name( payor_full_name ),
+			payor_street_address,
+			season_name,
+			year,
+			deposit_date_time,
+			deposit_amount,
+			transaction_fee,
+			net_revenue,
+			account_balance,
+			check_number,
+			transaction_ID,
+			invoice_number,
+			payment_total,
+			gain_donation );
+}
+
+void deposit_insert(	char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			double deposit_amount,
+			double transaction_fee,
+			double net_revenue,
+			double account_balance,
+			int check_number,
+			char *transaction_ID,
+			char *invoice_number,
+			double payment_total,
+			double gain_donation )
+{
+	FILE *insert_pipe = deposit_insert_open();
+
+	deposit_insert_pipe(
+		insert_pipe,
+		payor_full_name,
+		payor_street_address,
+		season_name,
+		year,
+		deposit_date_time,
+		deposit_amount,
+		transaction_fee,
+		net_revenue,
+		account_balance,
+		check_number,
+		transaction_ID,
+		invoice_number,
+		payment_total,
+		gain_donation );
+
+	pclose( insert_pipe );
+}
+
+double deposit_payment_total(
+			LIST *deposit_payment_list )
+{
+	return payment_total( deposit_payment_list );
 }
 

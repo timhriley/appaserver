@@ -285,9 +285,9 @@ boolean close_nominal_accounts_fund_execute(
 			0 /* not omit_subclassification */ );
 
 	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s delimiter='^' 	|"
+		 "insert_statement table=%s field=%s delimiter='^' 	|"
 		 "sql.e							 ",
-		 JOURNAL_TABLE_NAME,
+		 JOURNAL_TABLE,
 		 field_list );
 
 	output_pipe = popen( sys_string, "w" );
@@ -1035,6 +1035,14 @@ double insert_drawing(
 			char *transaction_date_time_string,
 			char *drawing_account )
 {
+if ( output_pipe ) {}
+if ( subclassification_list ) {}
+if ( accumulate_debit ) {}
+if ( full_name ) {}
+if ( street_address ) {}
+if ( transaction_date_time_string ) {}
+if ( drawing_account ) {}
+
 	return 0.0;
 }
 

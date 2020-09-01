@@ -86,9 +86,11 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/element.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/entity.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/subclassification.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/predictive.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/account.o
 
-EXECUTABLES=	post_change_offering
+EXECUTABLES=	post_change_offering					\
+		post_change_enrollment
 
 all: 	${EXECUTABLES}
 
@@ -110,6 +112,19 @@ post_change_offering: post_change_offering.c				\
 		${EDUCATION_CORE}					\
 		post_change_offering.c					\
 		-o post_change_offering
+
+post_change_enrollment: post_change_enrollment.c			\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${EDUCATION_CORE}
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${EDUCATION_CORE}					\
+		post_change_enrollment.c				\
+		-o post_change_enrollment
 
 # Education core
 # -------------- 

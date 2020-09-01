@@ -10,6 +10,7 @@
 #include "julian.h"
 #include "date.h"
 #include "timlib.h"
+#include "float.h"
 #include "piece.h"
 #include "appaserver_library.h"
 #include "aggregate_level.h"

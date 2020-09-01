@@ -87,7 +87,11 @@ LIST *transaction_system_list( char *sys_string )
 	{
 		/* Also executes journal_list() */
 		/* ---------------------------- */
-		list_set( transaction_list, transaction_parse( input ) );
+		list_set(
+			transaction_list,
+			transaction_parse(
+				input,
+				1 /* fetch_journal_list */ ) );
 	}
 
 	pclose( input_pipe );
@@ -133,7 +137,8 @@ TRANSACTION *transaction_fetch(
 		 			transaction_primary_where(
 						full_name,
 						street_address,
-						transaction_date_time ) ) ) );
+						transaction_date_time ) ) ),
+			1 /* fetch_joural_list */ );
 }
 
 char *transaction_select( void )
@@ -148,7 +153,9 @@ char *transaction_select( void )
 		"lock_transaction_yn";
 }
 
-TRANSACTION *transaction_parse( char *input )
+TRANSACTION *transaction_parse(
+			char *input,
+			boolean fetch_journal_list )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
@@ -179,11 +186,14 @@ TRANSACTION *transaction_parse( char *input )
 	piece( piece_buffer, SQL_DELIMITER, input, 6 );
 	transaction->lock_transaction = ( *piece_buffer == 'y' );
 
-	transaction->journal_list =
-		journal_list(
-			full_name,
-			street_address,
-			transaction_date_time );
+	if ( fetch_journal_list )
+	{
+		transaction->journal_list =
+			transaction_journal_list(
+				full_name,
+				street_address,
+				transaction_date_time );
+	}
 
 	return transaction;
 }
@@ -1290,21 +1300,21 @@ char *transaction_beginning_date_string(
 		/* --------------------------------- */
 		sprintf(folder,
 		 	"%s,%s",
-		 	JOURNAL_FOLDER_NAME,
+		 	JOURNAL_TABLE,
 		 	ACCOUNT_FOLDER_NAME );
 
 		sprintf(where,
 		 	"fund = '%s' and				"
 			"%s.account = %s.account			",
 		 	fund_name,
-			JOURNAL_FOLDER_NAME,
+			JOURNAL_TABLE,
 			ACCOUNT_FOLDER_NAME );
 	}
 	else
 	{
 		/* Get the first entry. */
 		/* -------------------- */
-		strcpy( folder, JOURNAL_FOLDER_NAME );
+		strcpy( folder, JOURNAL_TABLE );
 
 		strcpy( where, "1 = 1" );
 	}
@@ -1485,7 +1495,7 @@ char *transaction_latest_zero_balance_transaction_date_time(
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s;\" | sql.e",
 		 "max( transaction_date_time )",
-		 JOURNAL_TABLE_NAME,
+		 JOURNAL_TABLE,
 		 where );
 
 	results = pipe2string( sys_string );

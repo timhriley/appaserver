@@ -185,7 +185,8 @@ char *transaction_primary_where(
 /* Also fetches journal_list() */
 /* --------------------------- */
 TRANSACTION *transaction_parse(
-			char *input );
+			char *input,
+			boolean fetch_journal_list );
 
 TRANSACTION *transaction_seek(
 			LIST *transaction_list,

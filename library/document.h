@@ -161,7 +161,6 @@ void document_output_close_head(	FILE *output_stream );
 
 DOCUMENT *document_output_menu_new(
 					char *application_name,
-					char *database_string,
 					char *login_name,
 					char *session,
 					char *role_name,

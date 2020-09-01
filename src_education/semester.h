@@ -26,8 +26,8 @@ typedef struct
 {
 	char *season_name;
 	int year;
-	LIST *offering_list;
-	LIST *registration_list;
+	LIST *semester_offering_list;
+	LIST *semester_registration_list;
 } SEMESTER;
 
 SEMESTER *semester_new(	char *season_name,
@@ -45,9 +45,17 @@ ENROLLMENT *semester_enrollment_getset(
 			char *season_name,
 			int year );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* returns static memory */
+/* --------------------- */
 char *semester_primary_where(
+			char *season_name,
+			int year );
+
+LIST *semester_offering_list(
+			char *season_name,
+			int year );
+
+LIST *semester_registration_list(
 			char *season_name,
 			int year );
 

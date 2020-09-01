@@ -709,7 +709,6 @@ void document_output_dynarch_hide_ul_contents( void )
 
 DOCUMENT *document_output_menu_new(
 			char *application_name,
-			char *database_string,
 			char *login_name,
 			char *session,
 			char *role_name,
@@ -808,6 +807,5 @@ DOCUMENT *document_output_menu_new(
 	}
 
 	return document;
-
-} /* document_output_menu_new() */
+}
 

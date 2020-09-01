@@ -84,7 +84,9 @@ void post_change_offering(
 			offering_fetch(
 				course_name,
 				season_name,
-				year ) ) )
+				year,
+				1 /* fetch_course */,
+				1 /* fetch_enrollment_list */ ) ) )
 	{
 		return;
 	}

@@ -14,11 +14,11 @@
 #include "sql.h"
 #include "boolean.h"
 #include "list.h"
+#include "payment.h"
 #include "transaction.h"
 #include "journal.h"
 #include "enrollment.h"
 #include "deposit.h"
-#include "payment.h"
 
 PAYMENT *payment_calloc( void )
 {
@@ -67,6 +67,8 @@ char *payment_transaction_refresh(
 }
 
 char *payment_update(	double payment_amount,
+			double fees_expense,
+			double gain_donation,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
@@ -77,6 +79,19 @@ char *payment_update(	double payment_amount,
 			char *payor_street_address,
 			char *deposit_date_time )
 {
+if ( payment_amount ){}
+if ( fees_expense ){}
+if ( gain_donation ){}
+if ( transaction_date_time ){}
+if ( student_full_name ){}
+if ( student_street_address ){}
+if ( course_name ){}
+if ( season_name ){}
+if ( year ){}
+if ( payor_full_name ){}
+if ( payor_street_address ){}
+if ( deposit_date_time ){}
+
 	return transaction_date_time;
 }
 
@@ -245,22 +260,22 @@ TRANSACTION *payment_transaction(
 	return transaction;
 }
 
-double payment_total(	LIST *payment_list )
+double payment_total( LIST *payment_list )
 {
 	PAYMENT *payment;
-	double payment_total;
+	double total;
 
 	if ( !list_rewind( payment_list ) ) return 0.0;
 
-	payment_total = 0.0;
+	total = 0.0;
 
 	do {
 		payment = list_get( payment_list );
 
-		payment_total += payment->payment_amount;
+		total += payment->payment_amount;
 
 	} while ( list_next( payment_list ) );
 
-	return payment_total;
+	return total;
 }
 

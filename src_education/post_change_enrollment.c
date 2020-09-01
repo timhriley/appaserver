@@ -24,14 +24,7 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_enrollment_predelete(
-			char *student_full_name,
-			char *student_street_address,
-			char *course_name,
-			char *season_name,
-			int year );
-
-void post_change_enrollment_insert_update(
+void post_change_enrollment_insert_update_delete(
 			char *student_full_name,
 			char *student_street_address,
 			char *course_name,
@@ -74,20 +67,11 @@ int main( int argc, char **argv )
 
 	if ( !year ) exit( 0 );
 
-	if ( strcmp( state, "predelete" ) == 0 )
-	{
-		post_change_enrollment_predelete(
-			student_full_name,
-			student_street_address,
-			course_name,
-			season_name,
-			year );
-	}
-	else
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0
+	||   strcmp( state, "delete" ) ==  0 )
 	{
-		post_change_enrollment_insert_update(
+		post_change_enrollment_insert_update_delete(
 			student_full_name,
 			student_street_address,
 			course_name,
@@ -96,10 +80,9 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
+}
 
-} /* main() */
-
-void post_change_enrollment_insert_update(
+void post_change_enrollment_insert_update_delete(
 			char *student_full_name,
 			char *student_street_address,
 			char *course_name,
@@ -113,7 +96,9 @@ void post_change_enrollment_insert_update(
 			offering_fetch(
 				course_name,
 				season_name,
-				year ) ) )
+				year,
+				1 /* fetch_course */,
+				1 /* fetch_enrollment_list */ ) ) )
 	{
 		offering->offering_enrollment_count =
 			offering_enrollment_count(
@@ -138,10 +123,9 @@ void post_change_enrollment_insert_update(
 				student_full_name,
 				student_street_address,
 				season_name,
-				year ) ) )
+				year,
+				1 /* fetch_enrollment_list */ ) ) )
 	{
-		TRANSACTION *t;
-
 		registration->registration_tuition =
 			registration_tuition(
 				registration->
@@ -152,69 +136,21 @@ void post_change_enrollment_insert_update(
 				registration->
 					registration_payment_list );
 
-		registration->invoice_amount_due =
+		registration->registration_invoice_amount_due =
 			registration_invoice_amount_due(
 				registration->registration_tuition,
-				registration->registration_payment_total );
-
-		registration->registration_revenue_transaction =
-			registration_revenue_transaction(
-				student_full_name,
-				street_address,
-				registration_date_time,
-				registration->registration_tuition,
-				account_receivable(),
-				offering_revenue_account() );
-
-		t = registration->registration_revenue_transaction;
-
-		t->transaction_date_time =
-			registration_transaction_refresh(
-				t->full_name,
-				t->street_address,
-				t->transaction_date_time,
-				t->transaction_amount,
-				t->journal_list );
+				registration_payment_total(
+					registration->
+					     registration_enrollment_list ) );
 
 		registration_update(
 			registration->registration_tuition,
 			registration->registration_payment_total,
 			registration->registration_invoice_amount_due,
-			registration->
-				registration_revenue_transaction->
-				transaction_date_time,
 			registration->student_full_name,
-			registration->student_street_address,
+			registration->street_address,
 			registration->season_name,
 			registration->year );
-	}
-}
-
-void post_change_enrollment_predelete(
-			char *student_full_name,
-			char *student_street_address,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	REGISTRATION *registration;
-
-	if ( ( registration =
-			registration_fetch(
-				student_full_name,
-				student_street_address,
-				season_name,
-				year ) ) )
-	{
-		TRANSACTION *t;
-
-		if ( ( t = registration->registration_revenue_transaction ) )
-		{
-			transaction_delete(
-				t->full_name,
-				t->street_address,
-				t->transaction_date_time );
-		}
 	}
 }
 

@@ -47,8 +47,8 @@ ENROLLMENT *enrollment_fetch(
 			char *season_name,
 			int year );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *enrollment_primary_where(
 			char *student_full_name,
 			char *street_address,
@@ -97,6 +97,11 @@ LIST *enrollment_payment_list(
 			char *course_name,
 			char *season_name,
 			int year );
+
+ENROLLMENT *enrollment_parse(
+			char *input,
+			boolean fetch_payment_list,
+			boolean fetch_offering );
 
 #endif
 

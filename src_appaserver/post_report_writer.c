@@ -597,7 +597,6 @@ void post_state_two(	char *application_name,
 		document =
 			document_output_menu_new(
 				application_name,
-				(char *)0 /* database_string */,
 				login_name,
 				session,
 				role_name,
@@ -688,7 +687,6 @@ void post_state_two(	char *application_name,
 	document =
 		document_output_menu_new(
 			application_name,
-			(char *)0 /* database_string */,
 			login_name,
 			session,
 			role_name,
@@ -1061,7 +1059,6 @@ void post_state_three(	char *application_name,
 	document =
 		document_output_menu_new(
 			application_name,
-			(char *)0 /* database_string */,
 			login_name,
 			session,
 			role_name,

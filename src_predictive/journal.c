@@ -72,7 +72,7 @@ JOURNAL *journal_prior(
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s;\" | sql.e",
 		 select,
-		 JOURNAL_TABLE_NAME,
+		 JOURNAL_TABLE,
 		 where );
 
 	results = pipe2string( sys_string );
@@ -111,7 +111,7 @@ JOURNAL *journal_account_fetch(
 		 /* Safely returns heap memory */
 		 /* -------------------------- */
 		 journal_select(),
-		 JOURNAL_FOLDER_NAME,
+		 JOURNAL_TABLE,
 		 where );
 
 	return journal_parse( pipe2string( sys_string ) );
@@ -241,12 +241,17 @@ FILE *journal_insert_open( void )
 	char *field;
 
 	field=
-"full_name,street_address,transaction_date_time,account,debit_amount,credit_amount";
+		"full_name,"
+		"street_address,"
+		"transaction_date_time,"
+		"account,"
+		"debit_amount,"
+		"credit_amount";
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^'	|"
 		 "sql							 ",
-		 JOURNAL_FOLDER_NAME,
+		 JOURNAL_TABLE,
 		 field );
 
 	return popen( sys_string, "w" );
@@ -515,7 +520,7 @@ char *journal_sys_string( char *where )
 		 /* Returns program memory */
 		 /* ---------------------- */
 		 journal_select(),
-		 JOURNAL_FOLDER_NAME,
+		 JOURNAL_TABLE,
 		 where,
 		 "transaction_date_time" );
 
@@ -544,7 +549,7 @@ void journal_delete(	char *full_name,
 	sprintf( sys_string,
 		 "delete_statement table=%s field=%s delimiter='^'	|"
 		 "sql.e							 ",
-		 JOURNAL_FOLDER_NAME,
+		 JOURNAL_TABLE,
 		 field );
 
 	output_pipe = popen( sys_string, "w" );
@@ -587,7 +592,7 @@ LIST *journal_account_name_list(
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s order by %s;\" | sql",
 		 select,
-		 JOURNAL_FOLDER_NAME,
+		 JOURNAL_TABLE,
 		 where,
 		 select );
 
@@ -821,7 +826,7 @@ char *journal_update_sys_string( void )
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y		|"
 		 "sql							 ",
-		 JOURNAL_FOLDER_NAME,
+		 JOURNAL_TABLE,
 		 key );
 
 	return strdup( sys_string );

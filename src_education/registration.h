@@ -31,6 +31,7 @@ typedef struct
 	double registration_invoice_amount_due;
 	char *registration_date_time;
 	LIST *registration_enrollment_list;
+	LIST *registration_payment_list;
 } REGISTRATION;
 
 REGISTRATION *registration_getset(
@@ -48,7 +49,7 @@ double registration_payment_total(
 
 double registration_invoice_amount_due(
 			double registration_tuition,
-			double registration_payment_total );
+			double payment_total );
 
 void registration_enrollment_list_refresh(
 			LIST *registration_enrollment_list );
@@ -67,8 +68,8 @@ void registration_refresh(
 char *registration_select(
 			void );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *registration_primary_where(
 			char *student_full_name,
 			char *street_address,
@@ -76,13 +77,15 @@ char *registration_primary_where(
 			int year );
 
 REGISTRATION *registration_parse(
-			char *input );
+			char *input,
+			boolean fetch_enrollment_list );
 
 REGISTRATION *registration_fetch(
 			char *student_full_name,
 			char *street_address,
 			char *season_name,
-			int year );
+			int year,
+			boolean fetch_enrollment_list );
 
 REGISTRATION *registration_seek(
 			LIST *semester_registration_list,
@@ -102,10 +105,28 @@ REGISTRATION *registration_new(
 			char *season_name,
 			int year );
 
-double registration_tuition_total(
+LIST *registration_enrollment_list(
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year );
+
+LIST *registration_payment_list(
 			LIST *registration_enrollment_list );
 
-LIST *registration_enrollment_list(
+double registration_tuition_total(
+			LIST *registration_list );
+
+LIST *registration_system_list(
+			char *sys_string );
+
+char *registration_sys_string(
+			char *where );
+
+void registration_update(
+			double registration_tuition,
+			double registration_payment_total,
+			double registration_invoice_amount_due,
 			char *student_full_name,
 			char *street_address,
 			char *season_name,

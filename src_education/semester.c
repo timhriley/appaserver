@@ -36,26 +36,26 @@ SEMESTER *semester_new(	char *season_name,
 	semester->season_name = season_name;
 	semester->year = year;
 
-	semester->offering_list =
-		offering_list(
+	semester->semester_offering_list =
+		semester_offering_list(
 			season_name,
 			year );
 
-	semester->registration_list =
-		registration_list(
+	semester->semester_registration_list =
+		semester_registration_list(
 			season_name,
 			year );
 
 	return semester;
 }
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *semester_primary_where(
 			char *season_name,
 			int year )
 {
-	char where[ 256 ];
+	static char where[ 256 ];
 
 	sprintf( where,
 		 "season_name = '%s' and	"
@@ -63,7 +63,7 @@ char *semester_primary_where(
 		 season_name,
 		 year );
 
-	return strdup( where );
+	return where;
 }
 
 ENROLLMENT *semester_enrollment_getset(
@@ -108,3 +108,28 @@ ENROLLMENT *semester_enrollment_getset(
 
 	return enrollment;
 }
+
+LIST *semester_offering_list(
+			char *season_name,
+			int year )
+{
+	return	offering_system_list(
+			offering_sys_string(
+				semester_primary_where(
+					season_name,
+					year ) ),
+			1 /* fetch_course */,
+			1 /* fetch_enrollment_list */ );
+}
+
+LIST *semester_registration_list(
+			char *season_name,
+			int year )
+{
+	return	registration_system_list(
+			registration_sys_string(
+				semester_primary_where(
+					season_name,
+					year ) ) );
+}
+

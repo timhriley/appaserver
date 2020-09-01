@@ -1808,11 +1808,15 @@ LIST *bank_upload_feeder_transaction_list(
 		strcpy( exact_where, "1 = 1" );
 	}
 
-	sprintf( select,
-"%s.full_name, %s.street_address, transaction_date_time, %s, bank_upload_feeder_phrase",
-		 amount_column,
-		 JOURNAL_TABLE,
-		 JOURNAL_TABLE );
+	sprintf(select,
+		"%s.full_name,"
+		"%s.street_address,"
+		"transaction_date_time,"
+		"%s,"
+		"bank_upload_feeder_phrase",
+		amount_column,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE );
 
 	sprintf( folder,
 		 "%s,reoccurring_transaction",
@@ -2217,11 +2221,11 @@ void bank_upload_cleared_checks_update(
 	key = "full_name,street_address,transaction_date_time,account";
 
 	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y		|"
+		 "update_statement table=%s key=%s carrot=y		|"
 		 "sql.e 2>&1						|"
 		 "html_paragraph_wrapper.e				|"
 		 "cat							 ",
-		 JOURNAL_FOLDER_NAME,
+		 JOURNAL_TABLE,
 		 key );
 
 	output_pipe = popen( sys_string, "w" );

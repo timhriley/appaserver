@@ -210,7 +210,7 @@ int main( int argc, char **argv )
 
 		folder_menu_refresh_row_count(
 			application_name,
-			JOURNAL_FOLDER_NAME,
+			JOURNAL_TABLE,
 			session,
 			appaserver_parameter_file->
 				appaserver_data_directory,
