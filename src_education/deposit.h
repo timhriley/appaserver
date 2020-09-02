@@ -56,10 +56,6 @@ double deposit_remaining(
 			double deposit_amount,
 			double registration_tuition_total );
 
-double deposit_gain_donation(
-			double deposit_amount,
-			LIST *deposit_registration_list );
-
 double deposit_net_revenue(
 			double deposit_amount,
 			double transaction_fee );

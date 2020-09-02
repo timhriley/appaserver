@@ -104,7 +104,7 @@ void post_change_offering(
 			offering->class_capacity,
 			offering->offering_enrollment_list );
 
-	offering_refresh(
+	offering_update(
 			offering->offering_enrollment_count,
 			offering->offering_capacity_available,
 			offering->course_name,

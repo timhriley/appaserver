@@ -70,5 +70,11 @@ LIST *offering_enrollment_list(
 ACCOUNT *offering_revenue_account(
 			void );
 
+void offering_update(	int enrollment_count,
+			int capacity_available,
+			char *course_name,
+			char *season_name,
+			int year );
+
 #endif
 

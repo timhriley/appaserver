@@ -38,6 +38,8 @@ typedef struct
 	ENROLLMENT *enrollment;
 	DEPOSIT *deposit;
 	double payment_amount;
+	double payment_fees_expense;
+	double payment_gain_donation;
 	LIST *payment_registration_list;
 	TRANSACTION *payment_transaction;
 } PAYMENT;
@@ -47,7 +49,7 @@ typedef struct
 PAYMENT *payment_calloc(
 			void );
 
-PAYMENT *payment_fetch(	char *student_full_name,
+PAYMENT *payment_new(	char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
@@ -56,9 +58,14 @@ PAYMENT *payment_fetch(	char *student_full_name,
 			char *payor_street_address,
 			char *deposit_date_time );
 
-double payment_amount(
-			double deposit_remaining,
-			double registration_invoice_amount_due );
+PAYMENT *payment_fetch(	char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time );
 
 TRANSACTION *payment_transaction(
 			char *payor_full_name,
@@ -103,8 +110,6 @@ char *payment_sys_string(
 LIST *payment_system_list(
 			char *sys_string );
 
-double payment_total(	LIST *payment_list );
-
 PAYMENT *payment_parse(	char *input );
 
 LIST *payment_deposit_list(
@@ -115,6 +120,26 @@ LIST *payment_deposit_list(
 
 FILE *payment_update_open(
 			void );
+
+PAYMENT *payment_steady_state(
+			ENROLLMENT *enrollment,
+			DEPOSIT *deposit,
+			LIST *deposit_payment_list,
+			double deposit_transaction_fee );
+
+double payment_fees_expense(
+			double deposit_transaction_fee,
+			LIST *deposit_payment_list );
+
+double payment_gain_donation(
+			double deposit_amount,
+			LIST *deposit_registration_list );
+
+double payment_total(	LIST *payment_list );
+
+double payment_amount(
+			double deposit_remaining,
+			double registration_invoice_amount_due );
 
 #endif
 

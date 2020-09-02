@@ -16,8 +16,11 @@
 #include "list.h"
 #include "payment.h"
 #include "transaction.h"
+#include "deposit.h"
+#include "registration.h"
 #include "journal.h"
 #include "enrollment.h"
+#include "account.h"
 #include "deposit.h"
 
 PAYMENT *payment_calloc( void )
@@ -33,6 +36,35 @@ PAYMENT *payment_calloc( void )
 			__LINE__ );
 		exit( 1 );
 	}
+	return payment;
+}
+
+PAYMENT *payment_new(	char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time )
+{
+	PAYMENT *payment = payment_calloc();
+
+	payment->enrollment =
+		enrollment_new(
+			student_full_name,
+			street_address,
+			course_name,
+			season_name,
+			year );
+
+	payment->deposit =
+		deposit_new(
+			payor_full_name,
+			payor_street_address,
+			season_name,
+			year,
+			deposit_date_time );
 	return payment;
 }
 
@@ -74,8 +106,7 @@ PAYMENT *payment_fetch(	char *student_full_name,
 	return payment;
 }
 
-double payment_amount(
-			double deposit_remaining,
+double payment_amount(	double deposit_remaining,
 			double registration_invoice_amount_due )
 {
 	if ( deposit_remaining < registration_invoice_amount_due )
@@ -366,5 +397,104 @@ double payment_total( LIST *payment_list )
 	} while ( list_next( payment_list ) );
 
 	return total;
+}
+
+double payment_gain_donation(
+			double deposit_amount,
+			LIST *deposit_registration_list )
+{
+	double remaining;
+	double gain_donation;
+
+	if ( ( remaining =
+			deposit_remaining(
+				deposit_amount,
+				registration_tuition_total(
+					deposit_registration_list ) ) > 0.0 ) )
+	{
+		gain_donation = remaining;
+	}
+	else
+	{
+		gain_donation = 0.0;
+	}
+	return gain_donation;
+}
+
+PAYMENT *payment_steady_state(
+			ENROLLMENT *enrollment,
+			DEPOSIT *deposit,
+			LIST *deposit_payment_list,
+			double deposit_transaction_fee )
+{
+	LIST *registration_list =
+		deposit_registration_list(
+			deposit_payment_list );
+
+	PAYMENT *payment =
+			payment_new(
+				enrollment->registration->student_full_name,
+				enrollment->registration->street_address,
+				enrollment->offering->course->course_name,
+				enrollment->offering->season_name,
+				enrollment->offering->year,
+				deposit->payor_entity->full_name,
+				deposit->payor_entity->street_address,
+				deposit->deposit_date_time );
+
+
+	payment->payment_amount =
+		payment_amount(
+			deposit_remaining(
+				deposit->deposit_amount,
+				registration_tuition_total(
+					enrollment->
+					   registration->
+					   registration_enrollment_list ) ),
+			registration_invoice_amount_due(
+				enrollment->
+					registration->
+					registration_tuition,
+				enrollment->
+					registration->
+					registration_payment_total ) );
+
+	payment->payment_fees_expense =
+		payment_fees_expense(
+			deposit_transaction_fee,
+			deposit_payment_list );
+
+	payment->payment_gain_donation =
+		payment_gain_donation(
+			deposit->deposit_amount,
+			registration_list );
+
+	payment->payment_transaction =
+		payment_transaction(
+			deposit->payor_entity->full_name,
+			deposit->payor_entity->street_address,
+			deposit->deposit_date_time,
+			enrollment->offering->course->program_name,
+			payment->payment_amount,
+			payment->payment_fees_expense,
+			payment->payment_gain_donation,
+			account_cash( (char *)0 ),
+			account_receivable( (char *)0 ),
+			account_fees_expense( (char *)0 ),
+			account_gain( (char *)0 ) );
+
+	return payment;
+}
+
+double payment_fees_expense(
+			double deposit_transaction_fee,
+			LIST *deposit_payment_list )
+{
+	int length = list_length( deposit_payment_list );
+
+	if ( !length ) return 0.0;
+
+	return	deposit_transaction_fee /
+		(double)length;
 }
 

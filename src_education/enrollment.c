@@ -379,12 +379,13 @@ ENROLLMENT *enrollment_steady_state(
 			OFFERING *offering,
 			LIST *enrollment_payment_list )
 {
-	ENROLLMENT *enrollment = enrollment_new(
-			registration->student_full_name,
-			registration->street_address,
-			offering->course->course_name,
-			offering->season_name,
-			offering->year );
+	ENROLLMENT *enrollment =
+			enrollment_new(
+				registration->student_full_name,
+				registration->street_address,
+				offering->course->course_name,
+				offering->season_name,
+				offering->year );
 
 	enrollment->enrollment_payment_list = enrollment_payment_list;
 

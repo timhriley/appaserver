@@ -134,6 +134,15 @@ char *account_uncleared_checks( char *fund_name )
 			__FUNCTION__ );
 }
 
+char *account_gain( char *fund_name )
+{
+	return account_hard_coded_account_name(
+			fund_name,
+			ACCOUNT_GAIN_KEY,
+			0 /* not  warning_only */,
+			__FUNCTION__ );
+}
+
 char *account_loss( char *fund_name )
 {
 	return account_hard_coded_account_name(

@@ -100,28 +100,6 @@ double deposit_net_revenue(
 }
 
 
-double deposit_gain_donation(
-			double deposit_amount,
-			LIST *deposit_registration_list )
-{
-	double remaining;
-	double gain_donation;
-
-	if ( ( remaining =
-			deposit_remaining(
-				deposit_amount,
-				registration_tuition_total(
-					deposit_registration_list ) ) > 0.0 ) )
-	{
-		gain_donation = remaining;
-	}
-	else
-	{
-		gain_donation = 0.0;
-	}
-	return gain_donation;
-}
-
 char *deposit_primary_where(
 			char *payor_full_name,
 			char *payor_street_address,

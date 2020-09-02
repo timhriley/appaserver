@@ -372,21 +372,6 @@ LIST *offering_enrollment_list(
 			0 /* not fetch_offering */ );
 }
 
-void offering_refresh(
-			int offering_enrollment_count,
-			int offering_capacity_available,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-if ( offering_enrollment_count ){}
-if ( offering_capacity_available ){}
-if ( course_name ){}
-if ( season_name ){}
-if ( year ){}
-
-}
-
 OFFERING *offering_steady_state(
 			char *course_name,
 			char *season_name,

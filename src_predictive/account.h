@@ -26,6 +26,7 @@
 #define ACCOUNT_NOT_SET			"not_set"
 
 #define ACCOUNT_CASH_KEY		"cash_key"
+#define ACCOUNT_GAIN_KEY		"gain_key"
 #define ACCOUNT_LOSS_KEY		"loss_key"
 #define ACCOUNT_DEPRECIATION_KEY 	"depreciation_expense_key"
 #define ACCOUNT_ACCUMULATED_KEY		"accumulated_depreciation_key"
@@ -106,6 +107,8 @@ char *account_shipping_revenue(
 			char *fund_name );
 
 char *account_cash(	char *fund_name );
+
+char *account_gain(	char *fund_name );
 
 char *account_loss(	char *fund_name );
 
