@@ -12,10 +12,15 @@
 #include "piece.h"
 #include "timlib.h"
 #include "sql.h"
-#include "enrollment.h"
-#include "semester.h"
 #include "account.h"
+#include "enrollment.h"
+#include "course.h"
+#include "journal.h"
+#include "transaction.h"
+#include "semester.h"
 #include "offering.h"
+#include "offering_fns.h"
+#include "enrollment_fns.h"
 
 OFFERING *offering_new(	char *course_name,
 			char *season_name,
@@ -41,8 +46,8 @@ OFFERING *offering_new(	char *course_name,
 	offering->year = year;
 
 	offering->offering_revenue_account =
-		account_fetch(
-			ACCOUNT_REVENUE_KEY );
+		offering_revenue_account();
+
 	return offering;
 }
 
@@ -231,15 +236,6 @@ OFFERING *offering_fetch(
 			fetch_enrollment_list );
 }
 
-char *offering_escape_course_name(
-			char *course_name )
-{
-	static char escape_course_name[ 256 ];
-
-	string_escape_quote( escape_course_name, course_name );
-	return escape_course_name;
-}
-
 /* Safely returns heap memory */
 /* -------------------------- */
 char *offering_primary_where(
@@ -254,7 +250,7 @@ char *offering_primary_where(
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
-		 offering_escape_course_name( course_name ),
+		 course_name_escape( course_name ),
 		 season_name,
 		 year );
 
@@ -371,20 +367,20 @@ LIST *offering_enrollment_list(
 				offering_primary_where(
 					course_name,
 					season_name,
-					year ) ) );
+					year ) ),
+			1 /* fetch_payment_list */,
+			0 /* not fetch_offering */ );
 }
 
 void offering_refresh(
 			int offering_enrollment_count,
 			int offering_capacity_available,
-			LIST *enrollment_list,
 			char *course_name,
 			char *season_name,
 			int year )
 {
 if ( offering_enrollment_count ){}
 if ( offering_capacity_available ){}
-if ( enrollment_list ){}
 if ( course_name ){}
 if ( season_name ){}
 if ( year ){}
@@ -425,3 +421,7 @@ OFFERING *offering_steady_state(
 	return offering;
 }
 
+ACCOUNT *offering_revenue_account( void )
+{
+	return account_key_fetch( ACCOUNT_REVENUE_KEY );
+}

@@ -18,6 +18,8 @@
 #include "entity.h"
 #include "payment.h"
 #include "registration.h"
+#include "registration_fns.h"
+#include "enrollment_fns.h"
 
 REGISTRATION *registration_getset(
 			LIST *registration_list,
@@ -248,7 +250,8 @@ REGISTRATION *registration_parse(
 	return registration;
 }
 
-LIST *registration_system_list( char *sys_string )
+LIST *registration_system_list(	char *sys_string,
+				boolean fetch_enrollment_list )
 {
 	LIST *registration_list = list_new();
 	char input[ 1024 ];
@@ -260,7 +263,7 @@ LIST *registration_system_list( char *sys_string )
 			registration_list,
 			registration_parse(
 				input,
-				1 /* fetch_enrollment_list */ ) );
+				fetch_enrollment_list ) );
 	}
 	pclose( input_pipe );
 	return registration_list;
@@ -382,7 +385,9 @@ LIST *registration_enrollment_list(
 					student_full_name,
 					street_address,
 					season_name,
-					year ) ) );
+					year ) ),
+			1 /* fetch_payment_list */,
+			1 /* fetch_offering */ );
 }
 
 LIST *registration_payment_list(
@@ -442,3 +447,30 @@ double registration_payment_total(
 	return payment_total( enrollment_list );
 }
 
+#ifdef NOT_DEFINED
+REGISTRATION *registration_steady_state(
+
+{
+	REGISTRATION *registration;
+
+		registration->registration_tuition =
+			registration_tuition(
+				registration->
+					registration_enrollment_list );
+
+		registration->registration_payment_total =
+			registration_payment_total(
+				registration->
+					registration_payment_list );
+
+		registration->registration_invoice_amount_due =
+			registration_invoice_amount_due(
+				registration->registration_tuition,
+				registration_payment_total(
+					registration->
+					     registration_enrollment_list ) );
+
+
+	return registration;
+}
+#endif

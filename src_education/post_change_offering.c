@@ -15,7 +15,6 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "enrollment.h"
-#include "registration.h"
 #include "offering.h"
 
 /* Constants */
@@ -58,6 +57,12 @@ int main( int argc, char **argv )
 	year = atoi( argv[ 3 ] );
 	state = argv[ 4 ];
 
+	if ( !*season_name
+	||   strcmp( season_name, "season_name" ) == 0 )
+	{
+		exit( 0 );
+	}
+
 	if ( !year ) exit( 0 );
 
 	if ( strcmp( state, "insert" ) == 0
@@ -68,10 +73,8 @@ int main( int argc, char **argv )
 			season_name,
 			year );
 	}
-
 	return 0;
-
-} /* main() */
+}
 
 void post_change_offering(
 			char *course_name,
@@ -91,21 +94,21 @@ void post_change_offering(
 		return;
 	}
 
-	offering->offering_enrollment_count =
-		offering_enrollment_count(
+	offering =
+		offering_steady_state(
+			offering->course_name,
+			offering->season_name,
+			offering->year,
+			offering->instructor_full_name,
+			offering->street_address,
+			offering->class_capacity,
 			offering->offering_enrollment_list );
 
-	offering->offering_capacity_available =
-		offering_capacity_available(
-			offering->class_capacity,
-			offering->offering_enrollment_count );
-
 	offering_refresh(
-		offering->offering_enrollment_count,
-		offering->offering_capacity_available,
-		offering->offering_enrollment_list,
-		offering->course_name,
-		offering->season_name,
-		offering->year );
+			offering->offering_enrollment_count,
+			offering->offering_capacity_available,
+			offering->course_name,
+			offering->season_name,
+			offering->year );
 }
 

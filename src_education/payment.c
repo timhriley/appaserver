@@ -53,7 +53,9 @@ PAYMENT *payment_fetch(	char *student_full_name,
 				street_address,
 				course_name,
 				season_name,
-				year ) ) )
+				year,
+				1 /* fetch_payment_list */,
+				1 /* fetch_offering */ ) ) )
 	{
 		return (PAYMENT *)0;
 	}

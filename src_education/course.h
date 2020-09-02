@@ -31,13 +31,16 @@ COURSE *course_fetch(	char *course_name );
 
 COURSE *course_new(	char *course_name );
 
-/* See: attribute_list course */
-/* -------------------------- */
 COURSE *course_parse(	char *input );
 
 /* Returns static memory */
 /* --------------------- */
 char *course_primary_where(
+			char *course_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *course_name_escape(
 			char *course_name );
 
 #endif

@@ -13,13 +13,11 @@
 #include "sql.h"
 #include "boolean.h"
 #include "list.h"
-#include "enrollment.h"
-#include "offering.h"
-#include "registration.h"
 #include "semester.h"
+#include "offering_fns.h"
+#include "registration_fns.h"
 
-SEMESTER *semester_new(	char *season_name,
-			int year )
+SEMESTER *semester_calloc( void )
 {
 	SEMESTER *semester;
 
@@ -32,19 +30,45 @@ SEMESTER *semester_new(	char *season_name,
 			 __LINE__ );
 		exit( 1 );
 	}
+	return semester;
+}
+
+SEMESTER *semester_new(	char *season_name,
+			int year )
+{
+	SEMESTER *semester = semester_calloc();
 
 	semester->season_name = season_name;
 	semester->year = year;
+	return semester;
+}
 
-	semester->semester_offering_list =
-		semester_offering_list(
-			season_name,
+SEMESTER *semester_fetch(
+			char *season_name,
+			int year,
+			boolean fetch_offering_list,
+			boolean fetch_registration_list )
+{
+	SEMESTER *semester =
+		semester_new(
+			strdup( season_name ),
 			year );
 
-	semester->semester_registration_list =
-		semester_registration_list(
-			season_name,
-			year );
+	if ( fetch_offering_list )
+	{
+		semester->semester_offering_list =
+			semester_offering_list(
+				season_name,
+				year );
+	}
+
+	if ( fetch_registration_list )
+	{
+		semester->semester_registration_list =
+			semester_registration_list(
+				season_name,
+				year );
+	}
 
 	return semester;
 }
@@ -62,49 +86,6 @@ char *semester_primary_where(
 		 year );
 
 	return where;
-}
-
-ENROLLMENT *semester_enrollment_getset(
-			LIST *semester_registration_list,
-			char *student_full_name,
-			char *student_street_address,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	ENROLLMENT *enrollment;
-	REGISTRATION *registration;
-
-	registration =
-		/* Getset()s always succeed */
-		/* ------------------------ */
-		registration_getset(
-			semester_registration_list,
-			student_full_name,
-			student_street_address,
-			season_name,
-			year );
-
-	if ( !registration->registration_enrollment_list )
-		registration->registration_enrollment_list =
-			list_new();
-
-	enrollment =
-		/* Getset()s always succeed */
-		/* ------------------------ */
-		enrollment_getset(
-			registration->registration_enrollment_list,
-			student_full_name,
-			student_street_address,
-			course_name,
-			season_name,
-			year );
-
-	if ( !enrollment->registration )
-		enrollment->registration =
-			registration;
-
-	return enrollment;
 }
 
 LIST *semester_offering_list(
@@ -128,6 +109,7 @@ LIST *semester_registration_list(
 			registration_sys_string(
 				semester_primary_where(
 					season_name,
-					year ) ) );
+					year ) ),
+			1 /* fetch_enrollment_list */ );
 }
 

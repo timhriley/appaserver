@@ -15,9 +15,12 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "enrollment.h"
+#include "enrollment_fns.h"
 #include "registration.h"
+#include "registration_fns.h"
 #include "offering.h"
 #include "transaction.h"
+#include "course.h"
 
 /* Constants */
 /* --------- */
@@ -106,6 +109,7 @@ void post_change_enrollment_insert_update(
 			int year )
 {
 	ENROLLMENT *enrollment;
+	char *transaction_date_time = {0};
 
 	if ( ! ( enrollment =
 			enrollment_fetch(
@@ -123,74 +127,46 @@ void post_change_enrollment_insert_update(
 		return;
 	}
 
-	enrollment->offering =
-		offering_steady_state(
-			enrollment->offering->course_name,
-			enrollment->offering->season_name,
-			enrollment->offering->year,
-			enrollment->offering->instructor_full_name,
-			enrollment->offering->street_address,
-			enrollment->offering->class_capacity,
-			enrollment->offering->offering_enrollment_list );
+	enrollment =
+		enrollment_steady_state(
+			enrollment->registration,
+			enrollment->offering,
+			enrollment->enrollment_payment_list );
 
-		enrollment->offering->offering_enrollment_count =
-			offering_enrollment_count(
-				enrollment->
-					offering->
-					offering_enrollment_list );
-
-		enrollment->offering->offering_capacity_available =
-			offering_capacity_available(
-				enrollment->offering->class_capacity,
-				enrollment->
-					offering->
-					offering_enrollment_count );
-
-		offering_refresh(
-			enrollment->offering->offering_enrollment_count,
-			enrollment->offering->offering_capacity_available,
-			enrollment->offering->offering_enrollment_list,
-			enrollment->offering->course_name,
-			enrollment->offering->season_name,
-			enrollment->offering->year );
-}
-
-#ifdef NOT_DEFINED
-	if ( ( registration =
-			registration_fetch(
-				student_full_name,
-				student_street_address,
-				season_name,
-				year,
-				1 /* fetch_enrollment_list */ ) ) )
+	if ( enrollment->enrollment_transaction )
 	{
-		registration->registration_tuition =
-			registration_tuition(
-				registration->
-					registration_enrollment_list );
+		TRANSACTION *t = enrollment->enrollment_transaction;
 
-		registration->registration_payment_total =
-			registration_payment_total(
-				registration->
-					registration_payment_list );
-
-		registration->registration_invoice_amount_due =
-			registration_invoice_amount_due(
-				registration->registration_tuition,
-				registration_payment_total(
-					registration->
-					     registration_enrollment_list ) );
-
-		registration_update(
-			registration->registration_tuition,
-			registration->registration_payment_total,
-			registration->registration_invoice_amount_due,
-			registration->student_full_name,
-			registration->street_address,
-			registration->season_name,
-			registration->year );
+		transaction_date_time =
+			enrollment_transaction_refresh(
+				t->full_name,
+				t->street_address,
+				t->transaction_date_time,
+				t->program_name,
+				t->transaction_amount,
+				t->memo,
+				t->journal_list );
 	}
-#endif
+
+	enrollment_update(
+		transaction_date_time,
+		enrollment->
+			registration->
+			student_full_name,
+		enrollment->
+			registration->
+			street_address,
+		enrollment->
+			offering->
+			course->
+			course_name,
+		enrollment->
+			offering->
+			season_name,
+		enrollment->
+			offering->
+			year );
+}
 
 void post_change_enrollment_predelete(
 			char *student_full_name,

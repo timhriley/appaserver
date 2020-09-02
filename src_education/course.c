@@ -16,7 +16,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "course.h"
-
+#include "course.h"
 
 COURSE *course_parse( char *input )
 {
@@ -85,3 +85,9 @@ char *course_primary_where( char *course_name )
 	return where;
 }
 
+char *course_name_escape( char *course_name )
+{
+	static char name[ 256 ];
+
+	return string_escape_quote( name, course_name );
+}

@@ -13,13 +13,17 @@
 #include "timlib.h"
 #include "sql.h"
 #include "list.h"
+#include "account.h"
 #include "transaction.h"
 #include "journal.h"
 #include "registration.h"
 #include "payment.h"
 #include "offering.h"
+#include "offering_fns.h"
 #include "course.h"
 #include "enrollment.h"
+#include "enrollment_fns.h"
+#include "registration_fns.h"
 
 ENROLLMENT *enrollment_new(
 			char *student_full_name,
@@ -175,7 +179,9 @@ ENROLLMENT *enrollment_fetch(
 			fetch_offering );
 }
 
-LIST *enrollment_system_list( char *sys_string )
+LIST *enrollment_system_list(	char *sys_string,
+				boolean fetch_payment_list,
+				boolean fetch_offering )
 {
 	char input[ 1024 ];
 	FILE *input_pipe = popen( sys_string, "r" );
@@ -187,11 +193,11 @@ LIST *enrollment_system_list( char *sys_string )
 			enrollment_list,
 			enrollment_parse(
 				input,
-				1 /* fetch_payment_list */,
+				fetch_payment_list,
 				/* ------------------------------------ */
 				/* Fetch offering->course->course_price */
 				/* ------------------------------------ */
-				1 /* fetch_offering */ ) );
+				fetch_offering ) );
 	}
 	pclose( input_pipe );
 	return enrollment_list;
@@ -254,7 +260,7 @@ char *enrollment_primary_where(
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
-		 offering_escape_course_name( course_name ),
+		 course_name_escape( course_name ),
 		 season_name,
 		 year );
 
@@ -269,7 +275,7 @@ TRANSACTION *enrollment_transaction(
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
-			char *offering_revenue_account )
+			ACCOUNT *offering_revenue_account )
 {
 	TRANSACTION *transaction;
 
@@ -290,7 +296,8 @@ TRANSACTION *enrollment_transaction(
 			transaction->transaction_date_time,
 			transaction->transaction_amount,
 			account_receivable,
-			offering_revenue_account );
+			offering_revenue_account->
+				account_name );
 
 	return transaction;
 }
@@ -349,7 +356,7 @@ LIST *enrollment_payment_list(
 /* ---------------------------------- */
 char *enrollment_transaction_refresh(
 			char *student_full_name,
-			char *student_street_address,
+			char *street_address,
 			char *transaction_date_time,
 			char *program_name,
 			double payment_amount,
@@ -358,12 +365,39 @@ char *enrollment_transaction_refresh(
 {
 	return transaction_program_refresh(
 		student_full_name,
-		student_street_address,
+		street_address,
 		transaction_date_time,
 		program_name,
 		payment_amount,
 		memo,
 		0 /* check_number */,
 		journal_list );
+}
+
+ENROLLMENT *enrollment_steady_state(
+			REGISTRATION *registration,
+			OFFERING *offering,
+			LIST *enrollment_payment_list )
+{
+	ENROLLMENT *enrollment = enrollment_new(
+			registration->student_full_name,
+			registration->street_address,
+			offering->course->course_name,
+			offering->season_name,
+			offering->year );
+
+	enrollment->enrollment_payment_list = enrollment_payment_list;
+
+	enrollment->enrollment_transaction =
+		enrollment_transaction(
+			registration->student_full_name,
+			registration->street_address,
+			registration->registration_date_time,
+			offering->course->program_name,
+			offering->course->course_price,
+			account_receivable( (char *)0 ),
+			offering_revenue_account() );
+
+	return enrollment;
 }
 
