@@ -16,10 +16,10 @@
 #include "list.h"
 #include "entity.h"
 #include "transaction.h"
-#include "payment.h"
-#include "deposit.h"
 #include "semester.h"
 #include "registration_fns.h"
+#include "deposit.h"
+#include "payment.h"
 
 LIST *deposit_payment_list(
 			char *payor_full_name,

@@ -11,7 +11,6 @@
 #include "boolean.h"
 #include "list.h"
 #include "semester.h"
-#include "payment.h"
 #include "entity.h"
 
 /* Enumerated types */

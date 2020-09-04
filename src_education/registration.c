@@ -432,9 +432,8 @@ double registration_tuition_total(
 				registration_list );
 
 		tuition_total +=
-			registration_tuition(
-				registration->
-					registration_enrollment_list );
+			registration->
+				registration_tuition;
 
 	} while ( list_next( registration_list ) );
 

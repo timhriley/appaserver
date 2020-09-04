@@ -10,8 +10,8 @@
 
 #include "boolean.h"
 #include "list.h"
-#include "deposit.h"
 #include "enrollment.h"
+#include "deposit.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -35,12 +35,22 @@
 /* ---------- */
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	ENROLLMENT *enrollment;
 	DEPOSIT *deposit;
+
+	/* Process */
+	/* ------- */
+	double deposit_amount;
+	double registration_tuition_total;
+	double deposit_transaction_fee;
+	double deposit_remaining;
+
 	double payment_amount;
 	double payment_fees_expense;
 	double payment_gain_donation;
-	LIST *payment_registration_list;
+	LIST *payment_deposit_list;
 	TRANSACTION *payment_transaction;
 } PAYMENT;
 
@@ -65,7 +75,9 @@ PAYMENT *payment_fetch(	char *student_full_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time );
+			char *deposit_date_time,
+			boolean fetch_enrollment,
+			boolean fetch_deposit );
 
 TRANSACTION *payment_transaction(
 			char *payor_full_name,
@@ -121,12 +133,6 @@ LIST *payment_deposit_list(
 FILE *payment_update_open(
 			void );
 
-PAYMENT *payment_steady_state(
-			ENROLLMENT *enrollment,
-			DEPOSIT *deposit,
-			LIST *deposit_payment_list,
-			double deposit_transaction_fee );
-
 double payment_fees_expense(
 			double deposit_transaction_fee,
 			LIST *deposit_payment_list );
@@ -140,6 +146,13 @@ double payment_total(	LIST *payment_list );
 double payment_amount(
 			double deposit_remaining,
 			double registration_invoice_amount_due );
+
+PAYMENT *payment_steady_state(
+			ENROLLMENT *enrollment,
+			DEPOSIT *deposit,
+			double deposit_amount,
+			double deposit_transaction_fee,
+			char *program_name );
 
 #endif
 

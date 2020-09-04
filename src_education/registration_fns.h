@@ -73,5 +73,8 @@ void registration_update(
 FILE *registration_update_open(
 			void );
 
+double registration_tuition_total(
+			LIST *deposit_registration_list );
+
 #endif
 

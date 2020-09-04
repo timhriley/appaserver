@@ -65,12 +65,5 @@ REGISTRATION *registration_new(
 			char *season_name,
 			int year );
 
-double registration_tuition_total(
-			LIST *registration_list );
-
-double registration_invoice_amount_due(
-			double registration_tuition,
-			double payment_total );
-
 #endif
 

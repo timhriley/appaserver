@@ -90,7 +90,8 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/account.o
 
 EXECUTABLES=	post_change_offering					\
-		post_change_enrollment
+		post_change_enrollment					\
+		post_change_payment
 
 all: 	${EXECUTABLES}
 
@@ -125,6 +126,19 @@ post_change_enrollment: post_change_enrollment.c			\
 		${EDUCATION_CORE}					\
 		post_change_enrollment.c				\
 		-o post_change_enrollment
+
+post_change_payment: post_change_payment.c				\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${EDUCATION_CORE}
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${EDUCATION_CORE}					\
+		post_change_payment.c					\
+		-o post_change_payment
 
 # Education core
 # -------------- 
