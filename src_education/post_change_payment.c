@@ -56,6 +56,7 @@ int main( int argc, char **argv )
 	int year;
 	char *payor_full_name;
 	char *payor_street_address;
+	char *deposit_date_time;
 	char *state;
 
 	/* Exits if fails. */
@@ -67,10 +68,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 9 )
+	if ( argc != 10 )
 	{
 		fprintf( stderr,
-"Usage: %s student_full_name street_address course_name season_name year payor_full_name payor_street_address state\n",
+"Usage: %s student_full_name street_address course_name season_name year payor_full_name payor_street_address deposit_date_time state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -82,7 +83,8 @@ int main( int argc, char **argv )
 	course_name = argv[ 5 ];
 	season_name = argv[ 6 ];
 	year = atoi( argv[ 7 ] );
-	state = argv[ 8 ];
+	deposit_date_time = argv[ 8 ];
+	state = argv[ 9 ];
 
 	if ( !year ) exit( 0 );
 
@@ -150,46 +152,62 @@ void post_change_payment_insert_update(
 			payment->enrollment,
 			payment->deposit,
 			payment->deposit_amount,
-			payment->registration_tuition_total,
 			payment->deposit_transaction_fee,
-			payment->enrollment->course->program_name,
-			payment->payment_amount,
-			payment->payment_fees_expense,
-			payment->payment_gain_donation );
+			payment->enrollment->offering->course->program_name );
 
 	if ( payment->payment_transaction )
 	{
 		TRANSACTION *t = payment->payment_transaction;
 
 		transaction_date_time =
-			payment_transaction_refresh(
+			transaction_program_refresh(
 				t->full_name,
-				t->payor_street_address,
+				t->street_address,
 				t->transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
+				0 /* check_number */,
 				t->journal_list );
 	}
 
 	payment_update(
+		payment->payment_amount,
+		payment->payment_fees_expense,
+		payment->payment_gain_donation,
 		transaction_date_time,
 		payment->
+			enrollment->
 			registration->
-			payor_full_name,
+			student_full_name,
 		payment->
+			enrollment->
 			registration->
-			payor_street_address,
+			street_address,
 		payment->
+			enrollment->
 			offering->
 			course->
 			course_name,
 		payment->
+			enrollment->
 			offering->
 			season_name,
 		payment->
+			enrollment->
 			offering->
-			year );
+			year,
+		payment->
+			deposit->
+			payor_entity->
+			full_name,
+		payment->
+			deposit->
+			payor_entity->
+			street_address,
+		payment->
+			deposit->
+			deposit_date_time );
 }
 
 void post_change_payment_predelete(

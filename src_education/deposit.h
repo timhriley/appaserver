@@ -19,16 +19,26 @@
 /* Constants */
 /* --------- */
 #define DEPOSIT_TABLE		"deposit"
-#define DEPOSIT_PRIMARY_KEY	\
-   "payor_full_name,payor_street_address,season_name,year,deposit_date_time"
+
+#define DEPOSIT_PRIMARY_KEY	"payor_full_name,"		\
+				"payor_street_address,"		\
+				"season_name,"			\
+				"year,"				\
+				"deposit_date_time"
 
 /* Structures */
 /* ---------- */
 typedef struct
 {
+	/* ----------- */
+	/* Primary key */
+	/* ----------- */
 	ENTITY *payor_entity;
 	SEMESTER *semester;
 	char *deposit_date_time;
+	/* ---------- */
+	/* Attributes */
+	/* ---------- */
 	double deposit_amount;
 	double transaction_fee;
 	double net_revenue;
@@ -36,7 +46,13 @@ typedef struct
 	int check_number;
 	char *transaction_ID;
 	char *invoice_number;
+	/* ------- */
+	/* Process */
+	/* ------- */
+	double deposit_remaining;
+	double deposit_net_revenue;
 	LIST *deposit_payment_list;
+	LIST *deposit_registration_list;
 	double deposit_payment_total;
 	double deposit_gain_donation;
 } DEPOSIT;
@@ -146,6 +162,15 @@ FILE *deposit_insert_open(
 
 double deposit_payment_total(
 			LIST *deposit_payment_list );
+
+DEPOSIT *deposit_steady_state(
+			ENTITY *payor_entity,
+			SEMESTER *semester,
+			char *deposit_date_time,
+			double deposit_amount,
+			double deposit_transaction_fee,
+			LIST *deposit_payment_list,
+			double registration_invoice_amount_due );
 
 #endif
 

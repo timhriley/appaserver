@@ -57,16 +57,5 @@ LIST *enrollment_payment_list(
 			char *season_name,
 			int year );
 
-/* Returns true transaction_date_time */
-/* ---------------------------------- */
-char *enrollment_transaction_refresh(
-			char *student_full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *program_name,
-			double payment_amount,
-			char *memo,
-			LIST *journal_list );
-
 #endif
 

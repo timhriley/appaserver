@@ -15,6 +15,8 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "enrollment.h"
+#include "semester.h"
+#include "offering_fns.h"
 #include "offering.h"
 
 /* Constants */
@@ -102,6 +104,9 @@ void post_change_offering(
 			offering->instructor_full_name,
 			offering->street_address,
 			offering->class_capacity,
+			semester_offering_list(
+				season_name,
+				year ),
 			offering->offering_enrollment_list );
 
 	offering_update(

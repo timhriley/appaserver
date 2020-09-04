@@ -379,6 +379,7 @@ OFFERING *offering_steady_state(
 			char *instructor_full_name,
 			char *street_address,
 			double class_capacity,
+			LIST *semester_offering_list,
 			LIST *offering_enrollment_list )
 {
 	OFFERING *offering;
@@ -392,7 +393,15 @@ OFFERING *offering_steady_state(
 	offering->instructor_full_name = instructor_full_name;
 	offering->street_address = street_address;
 	offering->class_capacity = class_capacity;
+	offering->semester_offering_list = semester_offering_list;
 	offering->offering_enrollment_list = offering_enrollment_list;
+
+	offering->offering_course_price =
+		offering_course_price(
+			semester_offering_list,
+			course_name,
+			season_name,
+			year );
 
 	offering->offering_enrollment_count =
 		offering_enrollment_count(
@@ -410,3 +419,4 @@ ACCOUNT *offering_revenue_account( void )
 {
 	return account_key_fetch( ACCOUNT_REVENUE_KEY );
 }
+

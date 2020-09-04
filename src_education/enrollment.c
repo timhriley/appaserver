@@ -352,28 +352,6 @@ LIST *enrollment_payment_list(
 					year ) ) );
 }
 
-/* Returns true transaction_date_time */
-/* ---------------------------------- */
-char *enrollment_transaction_refresh(
-			char *student_full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *program_name,
-			double payment_amount,
-			char *memo,
-			LIST *journal_list )
-{
-	return transaction_program_refresh(
-		student_full_name,
-		street_address,
-		transaction_date_time,
-		program_name,
-		payment_amount,
-		memo,
-		0 /* check_number */,
-		journal_list );
-}
-
 ENROLLMENT *enrollment_steady_state(
 			REGISTRATION *registration,
 			OFFERING *offering,

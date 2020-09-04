@@ -412,3 +412,53 @@ double deposit_payment_total(
 	return payment_total( deposit_payment_list );
 }
 
+DEPOSIT *deposit_steady_state(
+			ENTITY *payor_entity,
+			SEMESTER *semester,
+			char *deposit_date_time,
+			double deposit_amount,
+			double deposit_transaction_fee,
+			LIST *deposit_payment_list,
+			double registration_invoice_amount_due )
+{
+	DEPOSIT *deposit;
+
+	/* Get a new DEPOSIT */
+	/* ----------------- */
+	deposit =
+		deposit_new(
+			payor_entity->full_name,
+			payor_entity->street_address,
+			semester->season_name,
+			semester->year,
+			deposit_date_time );
+
+	/* Set the input parameters */
+	/* ------------------------ */
+	deposit->deposit_amount = deposit_amount;
+	deposit->transaction_fee = deposit_transaction_fee;
+	deposit->deposit_payment_list = deposit_payment_list;
+
+	/* Do the work */
+	/* ----------- */
+	deposit->deposit_registration_list =
+		deposit_registration_list(
+			deposit->deposit_payment_list );
+
+	deposit->deposit_payment_total =
+		deposit_payment_total(
+			deposit_payment_list );
+
+	deposit->deposit_remaining =
+		deposit_remaining(
+			deposit_amount,
+			registration_invoice_amount_due );
+
+	deposit->deposit_net_revenue =
+		deposit_net_revenue(
+			deposit_amount,
+			deposit->transaction_fee );
+
+	return deposit;
+}
+

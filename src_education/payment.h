@@ -35,22 +35,26 @@
 /* ---------- */
 typedef struct
 {
-	/* Input */
-	/* ----- */
+	/* Primary key */
+	/* ----------- */
 	ENROLLMENT *enrollment;
 	DEPOSIT *deposit;
 
+	/* Input */
+	/* ----- */
+	double deposit_amount;
+
 	/* Process */
 	/* ------- */
-	double deposit_amount;
 	double registration_tuition_total;
 	double deposit_transaction_fee;
 	double deposit_remaining;
-
 	double payment_amount;
+
 	double payment_fees_expense;
 	double payment_gain_donation;
-	LIST *payment_deposit_list;
+	LIST *deposit_payment_list;
+	LIST *deposit_registration_list;
 	TRANSACTION *payment_transaction;
 } PAYMENT;
 
@@ -92,16 +96,28 @@ TRANSACTION *payment_transaction(
 			char *account_fees_expense,
 			char *account_gain );
 
-/* Returns true transaction_date_time */
-/* ---------------------------------- */
-char *payment_transaction_refresh(
-			char *student_full_name,
-			char *student_street_address,
-			char *transaction_date_time,
-			char *program_name,
-			double transaction_amount,
-			char *memo,
-			LIST *journal_list );
+PAYMENT *payment_parse(	char *input );
+
+PAYMENT *payment_steady_state(
+			ENROLLMENT *enrollment,
+			DEPOSIT *deposit,
+			double deposit_amount,
+			double deposit_transaction_fee,
+			char *program_name );
+
+boolean payment_extract_structure(
+			REGISTRATION **registraton,
+			OFFERING **offering,
+			ENROLLMENT **enrollment,
+			DEPOSIT **deposit,
+			SEMESTER **semester,
+			PAYMENT *payment );
+
+void payment_stamp_structure(
+			REGISTRATION *registration,
+			OFFERING *offering,
+			DEPOSIT *deposit,
+			SEMESTER *semester );
 
 void payment_update(	double payment_amount,
 			double fees_expense,
@@ -115,44 +131,6 @@ void payment_update(	double payment_amount,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *deposit_date_time );
-
-char *payment_sys_string(
-			char *where );
-
-LIST *payment_system_list(
-			char *sys_string );
-
-PAYMENT *payment_parse(	char *input );
-
-LIST *payment_deposit_list(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year );
-
-FILE *payment_update_open(
-			void );
-
-double payment_fees_expense(
-			double deposit_transaction_fee,
-			LIST *deposit_payment_list );
-
-double payment_gain_donation(
-			double deposit_amount,
-			LIST *deposit_registration_list );
-
-double payment_total(	LIST *payment_list );
-
-double payment_amount(
-			double deposit_remaining,
-			double registration_invoice_amount_due );
-
-PAYMENT *payment_steady_state(
-			ENROLLMENT *enrollment,
-			DEPOSIT *deposit,
-			double deposit_amount,
-			double deposit_transaction_fee,
-			char *program_name );
 
 #endif
 

@@ -17,6 +17,7 @@
 #include "enrollment.h"
 #include "entity.h"
 #include "payment.h"
+#include "payment_fns.h"
 #include "registration.h"
 #include "registration_fns.h"
 #include "enrollment_fns.h"
@@ -446,32 +447,47 @@ double registration_payment_total(
 	return payment_total( enrollment_list );
 }
 
-#ifdef NOT_DEFINED
 REGISTRATION *registration_steady_state(
-
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year,
+			LIST *registration_enrollment_list,
+			LIST *registration_payment_list )
 {
 	REGISTRATION *registration;
 
-		registration->registration_tuition =
-			registration_tuition(
-				registration->
-					registration_enrollment_list );
+	if ( ! ( registration =
+			registration_new(
+				student_full_name,
+				street_address,
+				season_name,
+				year ) ) )
+	{
+		fprintf(stderr,
+			"%s/%s()/%d: registration_new(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			student_full_name );
+		exit( 1 );
+	}
 
-		registration->registration_payment_total =
+	registration->registration_tuition =
+		registration_tuition(
+			registration_enrollment_list );
+
+	registration->registration_payment_total =
+		registration_payment_total(
+			registration_payment_list );
+
+	registration->registration_invoice_amount_due =
+		registration_invoice_amount_due(
+			registration->registration_tuition,
 			registration_payment_total(
-				registration->
-					registration_payment_list );
-
-		registration->registration_invoice_amount_due =
-			registration_invoice_amount_due(
-				registration->registration_tuition,
-				registration_payment_total(
-					registration->
-					     registration_enrollment_list ) );
-
+				    registration_enrollment_list ) );
 
 	return registration;
 }
-#endif
 
 

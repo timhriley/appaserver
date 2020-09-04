@@ -138,13 +138,14 @@ void post_change_enrollment_insert_update(
 		TRANSACTION *t = enrollment->enrollment_transaction;
 
 		transaction_date_time =
-			enrollment_transaction_refresh(
+			transaction_program_refresh(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
+				0 /* check_number */,
 				t->journal_list );
 	}
 

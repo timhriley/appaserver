@@ -24,17 +24,31 @@
 /* ---------- */
 typedef struct
 {
+	/* ----------- */
+	/* Primary key */
+	/* ----------- */
 	char *course_name;
 	char *season_name;
 	int year;
+	/* ---------- */
+	/* Attributes */
+	/* ---------- */
 	char *instructor_full_name;
 	char *street_address;
 	int class_capacity;
+	/* ---------- */
+	/* Operations */
+	/* ---------- */
 	int offering_enrollment_count;
 	int offering_capacity_available;
+	double offering_course_price;
+	LIST *offering_enrollment_list;
+	/* ------------------- */
+	/* Dependent variables */
+	/* ------------------- */
 	ACCOUNT *offering_revenue_account;
 	COURSE *course;
-	LIST *offering_enrollment_list;
+	LIST *semester_offering_list;
 } OFFERING;
 
 /* Prototypes */
@@ -75,6 +89,7 @@ OFFERING *offering_steady_state(
 			char *instructor_full_name,
 			char *street_address,
 			double class_capacity,
+			LIST *semester_offering_list,
 			LIST *offering_enrollment_list );
 
 #endif
