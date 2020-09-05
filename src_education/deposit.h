@@ -53,6 +53,7 @@ typedef struct
 	double deposit_net_revenue;
 	LIST *deposit_payment_list;
 	LIST *deposit_registration_list;
+	LIST *registration_payment_list;
 	double deposit_payment_total;
 	double deposit_gain_donation;
 } DEPOSIT;
@@ -169,8 +170,18 @@ DEPOSIT *deposit_steady_state(
 			char *deposit_date_time,
 			double deposit_amount,
 			double deposit_transaction_fee,
-			LIST *deposit_payment_list,
-			double registration_invoice_amount_due );
+			LIST *deposit_payment_list );
+
+void deposit_update(
+			double deposit_payment_total,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time );
+
+FILE *deposit_update_open(
+			void );
 
 #endif
 

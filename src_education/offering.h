@@ -20,6 +20,8 @@
 /* --------- */
 #define OFFERING_PRIMARY_KEY	"course_name,season_name,year"
 
+#define OFFERING_TABLE		"offering"
+
 /* Structures */
 /* ---------- */
 typedef struct

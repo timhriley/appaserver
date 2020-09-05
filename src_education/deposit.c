@@ -18,8 +18,9 @@
 #include "transaction.h"
 #include "semester.h"
 #include "registration_fns.h"
-#include "deposit.h"
 #include "payment.h"
+#include "payment_fns.h"
+#include "deposit.h"
 
 LIST *deposit_payment_list(
 			char *payor_full_name,
@@ -418,8 +419,7 @@ DEPOSIT *deposit_steady_state(
 			char *deposit_date_time,
 			double deposit_amount,
 			double deposit_transaction_fee,
-			LIST *deposit_payment_list,
-			double registration_invoice_amount_due )
+			LIST *deposit_payment_list )
 {
 	DEPOSIT *deposit;
 
@@ -447,18 +447,58 @@ DEPOSIT *deposit_steady_state(
 
 	deposit->deposit_payment_total =
 		deposit_payment_total(
-			deposit_payment_list );
+			deposit->deposit_payment_list );
 
 	deposit->deposit_remaining =
 		deposit_remaining(
-			deposit_amount,
-			registration_invoice_amount_due );
+			deposit->deposit_amount,
+			registration_invoice_amount_due(
+				registration_tuition(
+				      deposit->deposit_registration_list ),
+				registration_payment_total(
+	 			      deposit->registration_payment_list ) ) );
 
 	deposit->deposit_net_revenue =
 		deposit_net_revenue(
-			deposit_amount,
+			deposit->deposit_amount,
 			deposit->transaction_fee );
 
 	return deposit;
+}
+
+FILE *deposit_update_open( void )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "update_statement table=%s key=%s carrot=y | sql",
+		 DEPOSIT_TABLE,
+		 DEPOSIT_PRIMARY_KEY );
+
+	return popen( sys_string, "w" );
+}
+
+void deposit_update(
+			double deposit_payment_total,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time )
+{
+	FILE *update_pipe;
+
+	update_pipe = deposit_update_open();
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%d^%s^payment_total^%.2lf\n",
+		 payor_full_name,
+		 payor_street_address,
+		 season_name,
+		 year,
+		 deposit_date_time,
+		 deposit_payment_total );
+
+	pclose( update_pipe );
 }
 

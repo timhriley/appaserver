@@ -37,9 +37,7 @@ int main( int argc, char **argv )
 	int year;
 	char *state;
 
-	/* Exits if fails. */
-	/* --------------- */
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 		argc,
@@ -96,18 +94,26 @@ void post_change_offering(
 		return;
 	}
 
-	offering =
-		offering_steady_state(
-			offering->course_name,
-			offering->season_name,
-			offering->year,
-			offering->instructor_full_name,
-			offering->street_address,
-			offering->class_capacity,
-			semester_offering_list(
-				season_name,
-				year ),
-			offering->offering_enrollment_list );
+	if ( ! ( offering =
+			offering_steady_state(
+				offering->course_name,
+				offering->season_name,
+				offering->year,
+				offering->instructor_full_name,
+				offering->street_address,
+				offering->class_capacity,
+				semester_offering_list(
+					season_name,
+					year ),
+				offering->offering_enrollment_list ) ) )
+	{
+		fprintf(stderr,
+			"%s/%s()/%d: offering_steady_state() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	offering_update(
 			offering->offering_enrollment_count,

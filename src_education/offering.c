@@ -289,7 +289,7 @@ FILE *offering_update_open( void )
 
 	sprintf( sys_string,
 		 "update_statement table=%s key=%s carrot=y | sql",
-		 "offering",
+		 OFFERING_TABLE,
 		 OFFERING_PRIMARY_KEY );
 
 	return popen( sys_string, "w" );
@@ -350,7 +350,7 @@ char *offering_sys_string( char *where )
 
 	sprintf(sys_string,
 		"select.sh '*' %s \"%s\" '%s'",
-		"offering",
+		OFFERING_TABLE,
 		where,
 		"year, season" );
 
