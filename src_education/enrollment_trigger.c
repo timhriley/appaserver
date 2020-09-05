@@ -1,9 +1,9 @@
-/* ------------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/post_change_enrollment.c */
-/* ------------------------------------------------------- */
-/* 							   */
-/* Freely available software: see Appaserver.org	   */
-/* ------------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* $APPASERVER_HOME/src_education/enrollment_trigger.c	*/
+/* ---------------------------------------------------- */
+/* 							*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <string.h>
@@ -27,14 +27,14 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_enrollment_predelete(
+void enrollment_trigger_predelete(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
 			int year );
 
-void post_change_enrollment_insert_update(
+void enrollment_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -79,7 +79,7 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		post_change_enrollment_predelete(
+		enrollment_trigger_predelete(
 			student_full_name,
 			street_address,
 			course_name,
@@ -90,7 +90,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		post_change_enrollment_insert_update(
+		enrollment_trigger_insert_update(
 			student_full_name,
 			street_address,
 			course_name,
@@ -101,7 +101,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void post_change_enrollment_insert_update(
+void enrollment_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -169,7 +169,7 @@ void post_change_enrollment_insert_update(
 			year );
 }
 
-void post_change_enrollment_predelete(
+void enrollment_trigger_predelete(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,

@@ -1,5 +1,5 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/post_change_deposit.c	*/
+/* $APPASERVER_HOME/src_education/deposit_trigger.c	*/
 /* ---------------------------------------------------- */
 /* 							*/
 /* Freely available software: see Appaserver.org	*/
@@ -23,7 +23,7 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_deposit(
+void deposit_trigger(
 				char *payor_full_name,
 				char *payor_street_address,
 				char *season_name,
@@ -73,7 +73,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		post_change_deposit(
+		deposit_trigger(
 			payor_full_name,
 			payor_street_address,
 			season_name,
@@ -83,7 +83,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void post_change_deposit(
+void deposit_trigger(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,

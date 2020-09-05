@@ -16,6 +16,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/list.o 					\
 		${LIBRARY}/list_usage.o 				\
 		${LIBRARY}/timlib.o 					\
+		${LIBRARY}/String.o 					\
 		${LIBRARY}/float.o 					\
 		${LIBRARY}/sed.o 					\
 		${LIBRARY}/piece.o 					\

@@ -18,6 +18,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/sed.o 					\
 		${LIBRARY}/list_usage.o 				\
 		${LIBRARY}/timlib.o 					\
+		${LIBRARY}/String.o 					\
 		${LIBRARY}/float.o 					\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\
@@ -442,8 +443,7 @@ alias_datatype: alias_datatype.c					\
 
 spreadsheet_parse_header: spreadsheet_parse_header.c			\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}					\
-		spreadsheet.o						\
-		${LIBRARY}/String.o
+		spreadsheet.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
@@ -451,7 +451,6 @@ spreadsheet_parse_header: spreadsheet_parse_header.c			\
 		spreadsheet_parse_header.c				\
 		${SOURCE_LIBS}						\
 		spreadsheet.o						\
-		${LIBRARY}/String.o					\
 		-o spreadsheet_parse_header
 
 measurement_adjust_time_to_sequence:					\

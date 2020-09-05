@@ -609,9 +609,16 @@ char *dictionary_display( DICTIONARY *d )
 	return dictionary_display_delimiter( d, ',' );
 }
 
+DICTIONARY *dictionary_string2dictionary(
+			char *dictionary_string )
+{
+	return dictionary_string_dictionary( dictionary_string );
+}
+
 /* Sample: "datatype=salinity&station=BA&grade_1=a" */
 /* ------------------------------------------------ */
-DICTIONARY *dictionary_string2dictionary( char *dictionary_string )
+DICTIONARY *dictionary_string_dictionary(
+			char *dictionary_string )
 {
 	DICTIONARY *d;
         char attribute[ 1024 ];
@@ -671,8 +678,7 @@ DICTIONARY *dictionary_string2dictionary( char *dictionary_string )
 	}
 
 	return d;
-
-} /* dictionary_string2dictionary() */
+}
 
 DICTIONARY *dictionary_index_string2dictionary( char *dictionary_string )
 {

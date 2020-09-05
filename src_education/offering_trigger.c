@@ -1,9 +1,9 @@
-/* ----------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/post_change_offering.c */
-/* ----------------------------------------------------- */
-/* 							 */
-/* Freely available software: see Appaserver.org	 */
-/* ----------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* $APPASERVER_HOME/src_education/offering_trigger.c	*/
+/* ---------------------------------------------------- */
+/* 							*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <string.h>
@@ -24,7 +24,7 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_offering(
+void offering_trigger(
 				char *course_name,
 				char *season_name,
 				int year );
@@ -68,7 +68,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		post_change_offering(
+		offering_trigger(
 			course_name,
 			season_name,
 			year );
@@ -76,7 +76,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void post_change_offering(
+void offering_trigger(
 			char *course_name,
 			char *season_name,
 			int year )

@@ -113,6 +113,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/list.o 						\
 		${LIB}/list_usage.o 					\
 		${LIB}/timlib.o 					\
+		${LIB}/String.o 					\
 		${LIB}/float.o 						\
 		${LIB}/column.o 					\
 		${LIB}/date_aggregate.o 				\

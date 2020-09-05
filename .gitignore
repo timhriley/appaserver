@@ -14,9 +14,9 @@
 # src_education
 # ---------------
 post_change_payment
-post_change_deposit
-post_change_offering
-post_change_enrollment
+deposit_trigger
+enrollment_trigger
+offering_trigger
 registration_trigger
 # ---------------
 # src_coronavirus

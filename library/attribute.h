@@ -70,31 +70,37 @@ typedef struct
 	boolean lookup_histogram_output;
 	boolean lookup_time_chart_output;
 	boolean appaserver;
+	LIST *attribute_list;
 } ATTRIBUTE;
 
 /* Operations */
 /* ---------- */
+ATTRIBUTE *attribute_calloc(
+			void );
+ATTRIBUTE *attribute_new(
+			char *attribute_name );
+
 ATTRIBUTE *attribute_new_attribute(
-					char *folder_name,
-					char *attribute_name,
-					char *datatype,
-					int width,
-					int primary_key_index,
-					int display_order,
-					int float_decimal_places,
-					boolean omit_insert,
-					boolean omit_insert_prompt,
-					boolean omit_update,
-					char *hint_message,
-					char *post_change_javascript,
-					char *on_focus_javascript_function,
-					boolean additional_unique_index,
-					boolean additional_index,
-					boolean lookup_histogram_output,
-					boolean lookup_time_chart_output,
-					boolean lookup_required,
-					boolean insert_required,
-					boolean appaserver );
+			char *folder_name,
+			char *attribute_name,
+			char *datatype,
+			int width,
+			int primary_key_index,
+			int display_order,
+			int float_decimal_places,
+			boolean omit_insert,
+			boolean omit_insert_prompt,
+			boolean omit_update,
+			char *hint_message,
+			char *post_change_javascript,
+			char *on_focus_javascript_function,
+			boolean additional_unique_index,
+			boolean additional_index,
+			boolean lookup_histogram_output,
+			boolean lookup_time_chart_output,
+			boolean lookup_required,
+			boolean insert_required,
+			boolean appaserver );
 
 ATTRIBUTE *attribute_load_attribute(	char *application_name,
 					char *attribute_name );
@@ -262,8 +268,6 @@ char *attribute_get_reference_number_attribute_name(
 					LIST *attribute_list,
 					LIST *attribute_name_list );
 
-ATTRIBUTE *attribute_new(		char *attribute_name );
-
 boolean attribute_list_exists(		LIST *attribute_list,
 					char *attribute_name );
 
@@ -293,9 +297,6 @@ void attribute_list_remove_exclude_permission_list(
 					LIST *attribute_list );
 
 int attribute_get_width(		char *application_name,
-					char *attribute_name );
-
-ATTRIBUTE *attribute_seek(		LIST *attribute_list,
 					char *attribute_name );
 
 boolean attribute_exists(
@@ -338,5 +339,17 @@ LIST *attribute_distinct_folder_name_list(
 			LIST *attribute_list );
 
 LIST *attribute_list(	char *folder_name );
+
+LIST *attribute_system_list(
+			char *sys_string );
+
+ATTRIBUTE *attribute_parse(
+			char *input );
+
+char *attribute_list_sys_string(
+			char *folder_name );
+
+LIST *attribute_folder_attribute_name_list(
+			LIST *attribute_list );
 
 #endif

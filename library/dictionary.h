@@ -36,9 +36,13 @@ DICTIONARY *dictionary_new_super_dictionary();
 DICTIONARY *dictionary_new_duper_dictionary();
 
 DICTIONARY *dictionary_index_string2dictionary(
-					char *dictionary_string );
+			char *dictionary_string );
 
-DICTIONARY *dictionary_string2dictionary( char *dictionary_string );
+DICTIONARY *dictionary_string_dictionary(
+			char *dictionary_string );
+
+DICTIONARY *dictionary_string2dictionary(
+			char *dictionary_string );
 
 int dictionary_len(	DICTIONARY *d );
 int dictionary_length(	DICTIONARY *d );

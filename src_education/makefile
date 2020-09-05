@@ -89,10 +89,10 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/predictive.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/account.o
 
-EXECUTABLES=	post_change_offering					\
-		post_change_deposit					\
-		registration_trigger				\
-		post_change_enrollment					\
+EXECUTABLES=	offering_trigger					\
+		deposit_trigger					\
+		registration_trigger					\
+		enrollment_trigger					\
 		post_change_payment
 
 all: 	${EXECUTABLES}
@@ -103,7 +103,7 @@ touch:
 clean:
 	/bin/rm -f *.o ${EXECUTABLES}
 
-post_change_offering: post_change_offering.c				\
+offering_trigger: offering_trigger.c					\
 	${EXTERNAL_LIBRARY} 						\
 	${PREDICTIVEBOOKS_CORE}						\
 	${EDUCATION_CORE}
@@ -113,10 +113,10 @@ post_change_offering: post_change_offering.c				\
 		${EXTERNAL_LIBRARY}					\
 		${PREDICTIVEBOOKS_CORE}					\
 		${EDUCATION_CORE}					\
-		post_change_offering.c					\
-		-o post_change_offering
+		offering_trigger.c					\
+		-o offering_trigger
 
-post_change_enrollment: post_change_enrollment.c			\
+enrollment_trigger: enrollment_trigger.c				\
 	${EXTERNAL_LIBRARY} 						\
 	${PREDICTIVEBOOKS_CORE}						\
 	${EDUCATION_CORE}
@@ -126,8 +126,8 @@ post_change_enrollment: post_change_enrollment.c			\
 		${EXTERNAL_LIBRARY}					\
 		${PREDICTIVEBOOKS_CORE}					\
 		${EDUCATION_CORE}					\
-		post_change_enrollment.c				\
-		-o post_change_enrollment
+		enrollment_trigger.c					\
+		-o enrollment_trigger
 
 post_change_payment: post_change_payment.c				\
 	${EXTERNAL_LIBRARY} 						\
@@ -142,7 +142,7 @@ post_change_payment: post_change_payment.c				\
 		post_change_payment.c					\
 		-o post_change_payment
 
-post_change_deposit: post_change_deposit.c				\
+deposit_trigger: deposit_trigger.c					\
 	${EXTERNAL_LIBRARY} 						\
 	${PREDICTIVEBOOKS_CORE}						\
 	${EDUCATION_CORE}
@@ -152,8 +152,8 @@ post_change_deposit: post_change_deposit.c				\
 		${EXTERNAL_LIBRARY}					\
 		${PREDICTIVEBOOKS_CORE}					\
 		${EDUCATION_CORE}					\
-		post_change_deposit.c					\
-		-o post_change_deposit
+		deposit_trigger.c					\
+		-o deposit_trigger
 
 registration_trigger: registration_trigger.c				\
 	${EXTERNAL_LIBRARY} 						\

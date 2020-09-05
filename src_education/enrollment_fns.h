@@ -32,7 +32,7 @@ TRANSACTION *enrollment_transaction(
 			ACCOUNT *offering_revenue_account );
 
 char *enrollment_sys_string(
-			char *sys_string );
+			char *where );
 
 FILE *enrollment_update_open(
 			void );

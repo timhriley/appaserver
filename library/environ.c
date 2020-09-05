@@ -117,7 +117,24 @@ char *environment_application_name( void )
 
 char *environment_application( void )
 {
-	return environment_get( "DATABASE" );
+	char *results;
+
+	if ( ( results = environment_get( "DATABASE" ) ) )
+	{
+		return results;
+	}
+	else
+	if ( ( results = environment_get( "APPASERVER_DATABASE" ) ) )
+	{
+		return results;
+	}
+
+	fprintf(stderr,
+		"ERROR in %s/%s()/%d: can't get appaserver database.\n",
+		__FILE__,
+		__FUNCTION__,
+		__LINE__ );
+	exit( 1 );
 }
 
 char *environment_get( char *variable_name )
@@ -498,8 +515,7 @@ char *environ_get_application_name( char *argv_0 )
 	}
 
 	return application_name;
-
-} /* environ_get_application_name() */
+}
 
 void environ_output_application_shell( FILE *output_file )
 {
