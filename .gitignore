@@ -17,7 +17,7 @@ post_change_payment
 post_change_deposit
 post_change_offering
 post_change_enrollment
-post_change_registration
+registration_trigger
 # ---------------
 # src_coronavirus
 # ---------------

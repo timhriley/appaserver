@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------ */
-/* $APPASERVER_HOME/src_education/post_change_registration.c	*/
+/* $APPASERVER_HOME/src_education/registration_trigger.c	*/
 /* ------------------------------------------------------------ */
 /* 								*/
 /* Freely available software: see Appaserver.org		*/
@@ -24,7 +24,7 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_registration(
+void registration_trigger(
 				char *student_full_name,
 				char *street_address,
 				char *season_name,
@@ -71,7 +71,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		post_change_registration(
+		registration_trigger(
 			student_full_name,
 			street_address,
 			season_name,
@@ -80,7 +80,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void post_change_registration(
+void registration_trigger(
 			char *student_full_name,
 			char *street_address,
 			char *season_name,
