@@ -16,7 +16,12 @@
 
 /* Constants */
 /* --------- */
-#define REGISTRATION_PRIMARY_KEY "full_name,street_address,season_name,year"
+#define REGISTRATION_TABLE		"registration"
+
+#define REGISTRATION_PRIMARY_KEY	"full_name,"		\
+					"street_address,"	\
+					"season_name,"		\
+					"year"
 
 /* Structures */
 /* ---------- */

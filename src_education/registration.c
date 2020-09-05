@@ -113,56 +113,6 @@ void registration_enrollment_list_refresh(
 if ( registration_enrollment_list ) {}
 }
 
-FILE *registration_update_open( void )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "update_statement table=%s key=%s carrot=y | sql",
-		 "registration",
-		 REGISTRATION_PRIMARY_KEY );
-
-	return popen( sys_string, "w" );
-}
-
-void registration_update(
-			double registration_tuition,
-			double registration_payment_total,
-			double registration_invoice_amount_due,
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year )
-{
-	FILE *update_pipe = registration_update_open();
-
-	fprintf( update_pipe,
-		 "%s^%s^%s^%d^tuition^%.2lf\n",
-		 student_full_name,
-		 street_address,
-		 season_name,
-		 year,
-		 registration_tuition );
-
-	fprintf( update_pipe,
-		 "%s^%s^%s^%d^payment_total^%.2lf\n",
-		 student_full_name,
-		 street_address,
-		 season_name,
-		 year,
-		 registration_payment_total );
-
-	fprintf( update_pipe,
-		 "%s^%s^%s^%d^invoice_amount_due^%.2lf\n",
-		 student_full_name,
-		 street_address,
-		 season_name,
-		 year,
-		 registration_invoice_amount_due );
-
-	pclose( update_pipe );
-}
-
 char *registration_primary_where(
 			char *student_full_name,
 			char *street_address,
@@ -490,4 +440,55 @@ REGISTRATION *registration_steady_state(
 	return registration;
 }
 
+FILE *registration_update_open( void )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "update_statement table=%s key=%s carrot=y | sql",
+		 REGISTRATION_TABLE,
+		 REGISTRATION_PRIMARY_KEY );
+
+	return popen( sys_string, "w" );
+}
+
+void registration_update(
+			double registration_tuition,
+			double payment_total,
+			double invoice_amount_due,
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year )
+{
+	FILE *update_pipe;
+
+	update_pipe = registration_update_open();
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%d^tuition^%.2lf\n",
+		 student_full_name,
+		 street_address,
+		 season_name,
+		 year,
+		 registration_tuition );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%d^payment_total^%.2lf\n",
+		 student_full_name,
+		 street_address,
+		 season_name,
+		 year,
+		 payment_total );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%d^invoice_amount_due^%.2lf\n",
+		 student_full_name,
+		 street_address,
+		 season_name,
+		 year,
+		 invoice_amount_due );
+
+	pclose( update_pipe );
+}
 
