@@ -82,7 +82,10 @@ int main( int argc, char **argv )
 			get_table_name( application_name, "catches" );
 
 		sprintf( sys_string,
-"sort -u | insert_statement.e t=%s f=%s d='|' | sql.e 2>&1 | grep -vi duplicate",
+			 "sort -u					|"
+			 "insert_statement t=%s f=%s d='|' replace=y	|"
+			 "sql 2>&1					|"
+			 "cat						 ",
 			 table_name,
 			 CATCHES_FIELD_LIST );
 

@@ -91,7 +91,10 @@ int main( int argc, char **argv )
 			get_table_name( application_name, "fishing_trips" );
 
 		sprintf( sys_string,
-"sort -u | insert_statement.e t=%s f=%s d='|' | sql.e 2>&1 | grep -vi duplicate",
+			 "sort -u					|"
+			 "insert_statement t=%s f=%s d='|' replace=y	|"
+			 "sql 2>&1					|"
+			 "cat						 ",
 			 table_name,
 			 FISHING_TRIPS_FIELD_LIST );
 	}
