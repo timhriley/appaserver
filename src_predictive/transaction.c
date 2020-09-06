@@ -105,7 +105,7 @@ char *transaction_sys_string( char *where )
 	sprintf( sys_string,
 		 "select.sh \"%s\" %s \"%s\" select",
 		 transaction_select(),
-		 "transaction",
+		 TRANSACTION_TABLE,
 		 where );
 
 	return strdup( sys_string );
@@ -250,7 +250,7 @@ FILE *transaction_insert_open( void )
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^'	|"
 		 "sql 2>&1						 ",
-		 "transaction",
+		 TRANSACTION_TABLE,
 		 field );
 
 	return popen( sys_string, "w" );
@@ -261,13 +261,19 @@ FILE *transaction_property_insert_open( void )
 	char sys_string[ 1024 ];
 	char *field;
 
-	field =
-"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,lock_transaction_yn,property_street_address";
+	field =	"full_name,"
+		"street_address,"
+		"transaction_date_time,"
+		"transaction_amount,"
+		"memo,"
+		"check_number,"
+		"lock_transaction_yn,"
+		"property_street_address";
 
 	sprintf( sys_string,
 		 "insert_statement.e table=%s field=%s delimiter='^'	|"
 		 "sql 2>&1						 ",
-		 "transaction",
+		 TRANSACTION_TABLE,
 		 field );
 
 	return popen( sys_string, "w" );
@@ -378,13 +384,19 @@ FILE *transaction_program_insert_open( void )
 	char sys_string[ 1024 ];
 	char *field;
 
-	field =
-"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,lock_transaction_yn,program_name";
+	field =	"full_name,"
+		"street_address,"
+		"transaction_date_time,"
+		"program_name,"
+		"transaction_amount,"
+		"memo,"
+		"check_number,"
+		"lock_transaction_yn";
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^'	|"
 		 "sql 2>&1						 ",
-		 "transaction",
+		 TRANSACTION_TABLE,
 		 field );
 
 	return popen( sys_string, "w" );
@@ -496,8 +508,8 @@ char *transaction_program_insert_pipe(
 			FILE *insert_pipe,
 			char *full_name,
 			char *street_address,
-			char *program_name,
 			char *transaction_date_time,
+			char *program_name,
 			double transaction_amount,
 			char *memo,
 			int check_number,
@@ -586,7 +598,7 @@ boolean transaction_exists( char *transaction_date_time )
 	sprintf( sys_string,
 		 "select.sh \"%s\" %s \"%s\" none",
 		 "count(1)",
-		 "transaction",
+		 TRANSACTION_TABLE,
 		 where );
 
 	results = pipe2string( sys_string );
@@ -685,7 +697,7 @@ void transaction_delete(
 	sprintf( sys_string,
 		 "delete_statement table=%s field=%s delimiter='^'	|"
 		 "sql							 ",
-		 "transaction",
+		 TRANSACTION_TABLE,
 		 field );
 
 	output_pipe = popen( sys_string, "w" );
@@ -823,7 +835,7 @@ void transaction_update(	double transaction_amount,
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y | sql",
-		 "transaction",
+		 TRANSACTION_TABLE,
 		 key );
 
 	update_pipe = popen( sys_string, "w" );
@@ -1014,7 +1026,7 @@ DATE *transaction_prior_closing_transaction_date(
 	sprintf( sys_string,
 		 "select.sh \"%s\" %s \"%s\" none",
 		 select,
-		 "transaction",
+		 TRANSACTION_TABLE,
 		 where );
 
 	results = pipe2string( sys_string );
@@ -1055,7 +1067,7 @@ char *transaction_date_time_max( void )
 	sprintf( sys_string,
 		 "select.sh \"%s\" %s",
 		 select,
-		 "transaction" );
+		 TRANSACTION_TABLE );
 
 	return pipe2string( sys_string );
 }
@@ -1097,7 +1109,7 @@ boolean transaction_date_time_exists(
 	sprintf( sys_string,
 		 "select.sh \"%s\" %s \"%s\" none",
 		 "count(1)",
-		 "transaction",
+		 TRANSACTION_TABLE,
 		 where );
 
 	results = pipe2string( sys_string );
@@ -1211,7 +1223,7 @@ char *transaction_date_maximum( void )
 	sprintf( sys_string,
 		 "echo \"select %s from %s;\" | sql",
 		 select,
-		 "transaction" );
+		 TRANSACTION_TABLE );
 
 	results = pipe2string( sys_string );
 
@@ -1232,7 +1244,7 @@ char *transaction_date_minimum( void )
 	sprintf( sys_string,
 		 "echo \"select %s from %s;\" | sql",
 		 select,
-		 "transaction" );
+		 TRANSACTION_TABLE );
 
 	results = pipe2string( sys_string );
 
@@ -1549,7 +1561,7 @@ char *transaction_exists_closing_entry( char *as_of_date )
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s;\" | sql",
 		 "transaction_date_time",
-		 "transaction",
+		 TRANSACTION_TABLE,
 		 where );
 
 	results = pipe2string( sys_string );

@@ -56,12 +56,16 @@ int main( int argc, char **argv )
 
 	/* -------------------------------------------- */
 	/* Usage: attribute_list [folder | with_table]  */
-	/*    or: attribute_list ignored dictionary	*/
+	/*    or: attribute_list ignored $dictionary	*/
 	/* -------------------------------------------- */
 
 	if ( argc == 3 )
 	{
-		attribute_list_dictionary( argv[ 2 ] );
+		if ( strcmp( argv[ 2 ], "$dictionary" ) != 0 )
+		{
+			attribute_list_dictionary( argv[ 2 ] );
+			exit( 0 );
+		}
 	}
 	else
 	if ( argc == 2 )
@@ -69,16 +73,16 @@ int main( int argc, char **argv )
 		if ( strcmp( argv[ 1 ], "with_table" ) == 0 )
 		{
 			attribute_list_folder_attribute();
+			exit( 0 );
 		}
 		else
 		{
 			attribute_list_attribute_name( argv[ 1 ] );
+			exit( 0 );
 		}
 	}
-	else
-	{
-		attribute_list_without_folder();
-	}
+
+	attribute_list_without_folder();
 
 	return 0;
 }

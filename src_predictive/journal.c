@@ -1368,6 +1368,7 @@ LIST *journal_binary_list(
 			debit_account );
 
 	journal->debit_amount = transaction_amount;
+	journal->transaction_date_time = transaction_date_time;
 
 	list_set(
 		journal_list,
@@ -1381,6 +1382,7 @@ LIST *journal_binary_list(
 			credit_account );
 
 	journal->credit_amount = transaction_amount;
+	journal->transaction_date_time = transaction_date_time;
 
 	list_set(
 		journal_list,

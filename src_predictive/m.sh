@@ -1,9 +1,10 @@
 :
 
-make trial_balance
+make transaction.o journal.o
 
-#if [ "$?" -eq 0 ]
-#then
-	#cd ../src_rentalproperty
-	#make
-#fi
+if [ "$?" -eq 0 ]
+then
+	cd ../src_education
+	touch enrollment.c
+	make enrollment_trigger
+fi

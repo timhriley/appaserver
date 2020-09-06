@@ -387,17 +387,17 @@ char *account_hard_coded_account_name(
 			boolean warning_only,
 			const char *calling_function_name )
 {
-	static LIST *local_account_list = {0};
+	static LIST *list = {0};
 	ACCOUNT *account;
 
-	if ( !local_account_list )
+	if ( !list )
 	{
-		local_account_list = account_list();
+		list = account_list();
 	}
 
 	if ( ! ( account =
 			account_key_seek(
-				local_account_list,
+				list,
 				fund_name,
 				account_key ) ) )
 	{

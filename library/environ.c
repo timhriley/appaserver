@@ -128,13 +128,10 @@ char *environment_application( void )
 	{
 		return results;
 	}
-
-	fprintf(stderr,
-		"ERROR in %s/%s()/%d: can't get appaserver database.\n",
-		__FILE__,
-		__FUNCTION__,
-		__LINE__ );
-	exit( 1 );
+	else
+	{
+		return (char *)0;
+	}
 }
 
 char *environment_get( char *variable_name )
@@ -370,11 +367,15 @@ void add_utility_to_path( void )
 
 void add_appaserver_home_to_environment( void )
 {
+	environ_appaserver_home();
+}
+
+void environ_appaserver_home( void )
+{
 	environ_set_environment(
 		"APPASERVER_HOME",
 		appaserver_parameter_file_get_appaserver_mount_point() );
-
-} /* add_appaserver_home_to_environment() */
+}
 
 void add_src_appaserver_to_path( void )
 {
@@ -480,27 +481,16 @@ void add_relative_source_directory_to_path( char *application_name )
 	}
 } /* add_relative_source_directory_to_path() */
 
-char *environ_exit_application_name( char *argv_0 )
+char *environ_get_application_name( char *argv_0 )
 {
-	return environ_get_application_name( argv_0 );
+	return environ_exit_application_name( argv_0 );
 }
 
-char *environ_get_application_name( char *argv_0 )
+char *environ_exit_application_name( char *argv_0 )
 {
 	char *application_name;
 
-	application_name =
-		environ_get_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
-
-	if ( !application_name )
-	{
-		application_name =
-			environ_get_environment(
-				"DATABASE" );
-	}
-
-	if ( !application_name )
+	if ( ! ( application_name = environment_application() ) )
 	{
 		fprintf( stderr,
 		"ERROR in %s/%s()/%d: cannot get application from (%s).\n",
@@ -510,10 +500,8 @@ char *environ_get_application_name( char *argv_0 )
 			 argv_0 );
 
 		fprintf( stderr, "Try executing . set_database\n" );
-
 		exit( 1 );
 	}
-
 	return application_name;
 }
 

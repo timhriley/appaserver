@@ -90,8 +90,13 @@ OFFERING *offering_seek(
 	do {
 		offering = list_get( offering_list );
 
-		if ( strcmp( offering->course_name, course_name ) == 0
-		&&   strcmp( offering->season_name, season_name ) == 0
+		if ( strcmp(	offering->
+					course->
+					course_name,
+				course_name ) == 0
+		&&   strcmp(	offering->
+					season_name,
+				season_name ) == 0
 		&&   offering->year == year )
 		{
 			return offering;
@@ -195,14 +200,16 @@ OFFERING *offering_parse(	char *input,
 	{
 		offering->course =
 			course_fetch(
-				offering->course_name );
+				offering->
+					course->
+					course_name );
 	}
 
 	if ( fetch_enrollment_list )
 	{
 		offering->offering_enrollment_list =
 			offering_enrollment_list(
-				offering->course_name,
+				offering->course->course_name,
 				offering->season_name,
 				offering->year );
 	}
@@ -352,7 +359,7 @@ char *offering_sys_string( char *where )
 		"select.sh '*' %s \"%s\" '%s'",
 		OFFERING_TABLE,
 		where,
-		"year, season" );
+		"year desc, season_name" );
 
 	return strdup( sys_string );
 }
@@ -368,8 +375,7 @@ LIST *offering_enrollment_list(
 					course_name,
 					season_name,
 					year ) ),
-			1 /* fetch_payment_list */,
-			0 /* not fetch_offering */ );
+			1 /* fetch_payment_list */ );
 }
 
 OFFERING *offering_steady_state(
@@ -417,6 +423,18 @@ OFFERING *offering_steady_state(
 
 ACCOUNT *offering_revenue_account( void )
 {
-	return account_key_fetch( ACCOUNT_REVENUE_KEY );
+	ACCOUNT *account;
+
+	if ( ! ( account = account_key_fetch( ACCOUNT_REVENUE_KEY ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_key_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			ACCOUNT_REVENUE_KEY );
+		exit( 1 );
+	}
+	return account;
 }
 

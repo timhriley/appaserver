@@ -86,16 +86,28 @@ int main( int argc, char **argv )
 			season_name,
 			year );
 	}
-
+	else
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0
+	||   strcmp( state, "delete" ) ==  0 )
 	{
+		char sys_string[ 1024 ];
+
 		enrollment_trigger_insert_update(
 			student_full_name,
 			street_address,
 			course_name,
 			season_name,
 			year );
+
+		sprintf(sys_string,
+			"registration_trigger \"%s\" \"%s\" \"%s\" %d update",
+			student_full_name,
+			street_address,
+			season_name,
+			year );
+
+		if ( system( sys_string ) ){}
 	}
 
 	return 0;
@@ -118,11 +130,7 @@ void enrollment_trigger_insert_update(
 				course_name,
 				season_name,
 				year,
-				1 /* fetch_payment_list */,
-				/* ------------------------------------ */
-				/* Fetch offering->course->course_price */
-				/* ------------------------------------ */
-				1 /* fetch_offering */ ) ) )
+				1 /* fetch_payment_list */ ) ) )
 	{
 		return;
 	}

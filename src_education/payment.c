@@ -86,19 +86,6 @@ PAYMENT *payment_fetch(	char *student_full_name,
 {
 	PAYMENT *payment = payment_calloc();
 
-	if ( ! ( payment->enrollment =
-			enrollment_fetch(
-				student_full_name,
-				street_address,
-				course_name,
-				season_name,
-				year,
-				1 /* fetch_payment_list */,
-				1 /* fetch_offering */ ) ) )
-	{
-		return (PAYMENT *)0;
-	}
-
 	if ( fetch_enrollment )
 	{
 		if ( ! ( payment->enrollment =
@@ -108,8 +95,7 @@ PAYMENT *payment_fetch(	char *student_full_name,
 					course_name,
 					season_name,
 					year,
-					1 /* fetch_payment_list */,
-					1 /* fetch_offering */ ) ) )
+					1 /* fetch_payment_list */ ) ) )
 		{
 			return (PAYMENT *)0;
 		}
@@ -223,8 +209,10 @@ void payment_update(	double payment_amount,
 LIST *payment_system_list( char *sys_string )
 {
 	char input[ 1024 ];
-	FILE *input_pipe = popen( sys_string, "r" );
+	FILE *input_pipe;
 	LIST *payment_list = list_new();
+
+	input_pipe = popen( sys_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -233,6 +221,7 @@ LIST *payment_system_list( char *sys_string )
 			payment_parse(
 				input ) );
 	}
+
 	pclose( input_pipe );
 	return payment_list;
 }

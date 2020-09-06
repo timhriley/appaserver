@@ -21,7 +21,7 @@
 COURSE *course_parse( char *input )
 {
 	char course_name[ 128 ];
-	char piece_buffer[ 128 ];
+	char piece_buffer[ 1024 ];
 	COURSE *course;
 
 	if ( !input || !*input ) return (COURSE *)0;
@@ -33,10 +33,13 @@ COURSE *course_parse( char *input )
 	course = course_new( strdup( course_name  ) );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	course->course_price = atof( piece_buffer );
+	course->program_name = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	course->program_name = strdup( piece_buffer );
+	course->course_price = atof( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
+	course->description = strdup( piece_buffer );
 
 	return course;
 }
@@ -62,6 +65,17 @@ COURSE *course_new( char *course_name )
 COURSE *course_fetch( char *course_name )
 {
 	char sys_string[ 1024 ];
+	COURSE *course;
+
+	if ( !course_name || !*course_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty course_name.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	sprintf( sys_string,
 		 "select.sh '*' %s \"%s\" select",
@@ -71,7 +85,9 @@ COURSE *course_fetch( char *course_name )
 		 /* --------------------- */
 		 course_primary_where( course_name ) );
 
-	return course_parse( pipe2string( sys_string ) );
+	course = course_parse( pipe2string( sys_string ) );
+
+	return course;
 }
 
 char *course_primary_where( char *course_name )

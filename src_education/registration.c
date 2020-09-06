@@ -337,8 +337,7 @@ LIST *registration_enrollment_list(
 					street_address,
 					season_name,
 					year ) ),
-			1 /* fetch_payment_list */,
-			1 /* fetch_offering */ );
+			1 /* fetch_payment_list */ );
 }
 
 LIST *registration_payment_list(

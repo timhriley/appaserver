@@ -96,7 +96,7 @@ void offering_trigger(
 
 	if ( ! ( offering =
 			offering_steady_state(
-				offering->course_name,
+				offering->course->course_name,
 				offering->season_name,
 				offering->year,
 				offering->instructor_full_name,
@@ -118,7 +118,7 @@ void offering_trigger(
 	offering_update(
 			offering->offering_enrollment_count,
 			offering->offering_capacity_available,
-			offering->course_name,
+			offering->course->course_name,
 			offering->season_name,
 			offering->year );
 }

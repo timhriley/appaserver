@@ -26,6 +26,12 @@ then
 	exit 1
 fi
 
+if [ "$APPASERVER_HOME" = "" ]
+then
+	echo "ERROR in `basename.e $0 n`: APPASERVER_HOME not set" 1>&2
+	exit 1
+fi
+
 select="$1"
 
 if [ "$select" = "" -o "$select" = "select" ]

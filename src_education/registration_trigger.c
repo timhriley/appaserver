@@ -49,7 +49,7 @@ int main( int argc, char **argv )
 	if ( argc != 6 )
 	{
 		fprintf( stderr,
-"Usage: %s student_full_name street_address season_name year state\n",
+	"Usage: %s student_full_name street_address season_name year state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}

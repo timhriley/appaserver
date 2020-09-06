@@ -117,8 +117,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}
 
 boolean post_change_bank_upload_update(
 			char *application_name,
@@ -153,8 +152,7 @@ boolean post_change_bank_upload_update(
 		posted_first_bank_upload->fund_name );
 
 	return 1;
-
-} /* post_change_bank_upload_update() */
+}
 
 void post_change_bank_upload_update_execute(
 		char *application_name,
@@ -237,8 +235,7 @@ SELECT="bank_date,bank_description,bank_amount,bank_running_balance"
 
 	pclose( input_pipe );
 	pclose( output_pipe );
-
-} /* post_change_bank_upload_update_execute() */
+}
 
 int bank_upload_get_prior_sequence_number(
 			char *application_name,
@@ -283,8 +280,7 @@ int bank_upload_get_prior_sequence_number(
 		return 0;
 	else
 		return atoi( results );
-
-} /* bank_upload_get_prior_sequence_number() */
+}
 
 BANK_UPLOAD *bank_upload_get_starting(
 				char *application_name,
@@ -333,8 +329,7 @@ BANK_UPLOAD *bank_upload_get_starting(
 			bank_upload->bank_description );
 
 	return bank_upload;
-
-} /* bank_upload_get_starting() */
+}
 
 char *bank_upload_get_fund_name(
 			char *application_name,
@@ -375,8 +370,7 @@ char *bank_upload_get_fund_name(
 		 where );
 
 	return pipe2string( sys_string );
-
-} /* bank_upload_get_fund_name() */
+}
 
 FILE *bank_upload_open_input_pipe(
 			char *application_name,
@@ -422,8 +416,7 @@ FILE *bank_upload_open_input_pipe(
 		 order );
 
 	return popen( sys_string, "r" );
-
-} /* bank_upload_open_input_pipe() */
+}
 
 FILE *bank_upload_open_output_pipe( void )
 {
@@ -438,13 +431,16 @@ FILE *bank_upload_open_output_pipe( void )
 		 key );
 
 	return popen( sys_string, "w" );
-
-} /* bank_upload_open_output_pipe() */
+}
 
 boolean post_change_bank_upload_delete(
 			char *application_name,
 			DICTIONARY *dictionary )
 {
+if ( application_name ){}
+if ( dictionary ){}
+
+#ifdef NOT_DEFINED
 	BANK_UPLOAD *bank_upload;
 
 	bank_upload =
@@ -454,7 +450,7 @@ boolean post_change_bank_upload_delete(
 	/* --------------------- */
 	/* Needs to be finished. */
 	/* --------------------- */
+#endif
 	return 1;
-
-} /* post_change_bank_upload_delete() */
+}
 

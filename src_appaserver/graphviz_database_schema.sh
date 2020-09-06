@@ -54,7 +54,7 @@ function select_attributes ()
 		from $from
 		where $primary_where and $join
 		order by $primary_order;"		|
-	sql.e						|
+	sql						|
 	sed 's/align=left/align="left"/g'		|
 	sed "s/,0//"					|
 	cat

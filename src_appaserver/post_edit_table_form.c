@@ -189,6 +189,7 @@ int main( int argc, char **argv )
 	add_utility_to_path();
 	add_local_bin_to_path();
 	add_relative_source_directory_to_path( application_name );
+	environ_appaserver_home();
 
 	/* ------------------------------------------------------------ */
 	/* Coming from the detail screen is communicated via the	*/

@@ -47,8 +47,7 @@ void enrollment_update(
 
 LIST *enrollment_system_list(
 			char *sys_string,
-			boolean fetch_payment_list,
-			boolean fetch_offering );
+			boolean fetch_payment_list );
 
 LIST *enrollment_payment_list(
 			char *student_full_name,

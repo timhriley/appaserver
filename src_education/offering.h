@@ -29,7 +29,7 @@ typedef struct
 	/* ----------- */
 	/* Primary key */
 	/* ----------- */
-	char *course_name;
+	COURSE *course;
 	char *season_name;
 	int year;
 	/* ---------- */
@@ -49,7 +49,6 @@ typedef struct
 	/* Dependent variables */
 	/* ------------------- */
 	ACCOUNT *offering_revenue_account;
-	COURSE *course;
 	LIST *semester_offering_list;
 } OFFERING;
 

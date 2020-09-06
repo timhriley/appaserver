@@ -60,6 +60,8 @@ int main( int argc, char **argv )
 	char input_buffer[ 65536 ];
 	FILE *input_pipe;
 
+	/* appaserver_error_stderr( argc, argv ); */
+
 	setup_arg( arg, argc, argv );
 
 	fetch_parameters(	&application_name,

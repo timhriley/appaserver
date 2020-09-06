@@ -23,8 +23,9 @@
 typedef struct
 {
 	char *course_name;
-	double course_price;
 	char *program_name;
+	double course_price;
+	char *description;
 } COURSE;
 
 COURSE *course_fetch(	char *course_name );

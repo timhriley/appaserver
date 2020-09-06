@@ -35,8 +35,15 @@ void add_dot_to_path( 			void );
 void environ_prepend_dot_to_path( 	void );
 void add_utility_to_path( 		void );
 void add_src_appaserver_to_path( 	void );
-void add_appaserver_home_to_environment(void );
+
+void environ_appaserver_home(
+			void );
+
+void add_appaserver_home_to_environment(
+			void );
+
 void add_library_to_python_path( 	void );
+
 void add_appaserver_home_to_python_path(void );
 void add_python_library_path( 		void );
 

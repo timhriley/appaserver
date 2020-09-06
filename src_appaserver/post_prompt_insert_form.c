@@ -145,13 +145,14 @@ int main( int argc, char **argv )
 	environ_set_utc_offset( application_name );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+			argc,
+			argv,
+			application_name );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
 	add_relative_source_directory_to_path( application_name );
+	environ_appaserver_home();
 
 	if ( session_remote_ip_address_changed(
 		application_name,
