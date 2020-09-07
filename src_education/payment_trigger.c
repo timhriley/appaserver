@@ -1,5 +1,5 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/post_change_payment.c	*/
+/* $APPASERVER_HOME/src_education/payment_trigger.c	*/
 /* ---------------------------------------------------- */
 /* 							*/
 /* Freely available software: see Appaserver.org	*/
@@ -15,18 +15,15 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "payment.h"
-#include "registration.h"
-#include "registration_fns.h"
-#include "offering.h"
+#include "payment_fns.h"
 #include "transaction.h"
-#include "course.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void post_change_payment_predelete(
+void payment_trigger_predelete(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -36,7 +33,7 @@ void post_change_payment_predelete(
 			char *payor_street_address,
 			char *deposit_date_time );
 
-void post_change_payment_insert_update(
+void payment_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -78,11 +75,11 @@ int main( int argc, char **argv )
 
 	student_full_name = argv[ 1 ];
 	street_address = argv[ 2 ];
-	payor_full_name = argv[ 3 ];
-	payor_street_address = argv[ 4 ];
-	course_name = argv[ 5 ];
-	season_name = argv[ 6 ];
-	year = atoi( argv[ 7 ] );
+	course_name = argv[ 3 ];
+	season_name = argv[ 4 ];
+	year = atoi( argv[ 5 ] );
+	payor_full_name = argv[ 6 ];
+	payor_street_address = argv[ 7 ];
 	deposit_date_time = argv[ 8 ];
 	state = argv[ 9 ];
 
@@ -90,7 +87,7 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		post_change_payment_predelete(
+		payment_trigger_predelete(
 			student_full_name,
 			street_address,
 			course_name,
@@ -104,7 +101,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		post_change_payment_insert_update(
+		payment_trigger_insert_update(
 			student_full_name,
 			street_address,
 			course_name,
@@ -118,7 +115,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void post_change_payment_insert_update(
+void payment_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -141,8 +138,8 @@ void post_change_payment_insert_update(
 				payor_full_name,
 				payor_street_address,
 				deposit_date_time,
-				1 /* fetch_enrollment */,
-				1 /* fetch_deposit */ ) ) )
+				1 /* fetch_deposit */,
+				1 /* fetch_enrollment */ ) ) )
 	{
 		return;
 	}
@@ -210,7 +207,7 @@ void post_change_payment_insert_update(
 			deposit_date_time );
 }
 
-void post_change_payment_predelete(
+void payment_trigger_predelete(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,

@@ -41,11 +41,6 @@ void payment_update(	double payment_amount,
 char *payment_sys_string(
 			char *where );
 
-LIST *payment_system_list(
-			char *sys_string );
-
-PAYMENT *payment_parse(	char *input );
-
 LIST *payment_deposit_list(
 			char *payor_full_name,
 			char *payor_street_address,
@@ -68,6 +63,21 @@ double payment_total(	LIST *payment_list );
 double payment_amount(
 			double deposit_remaining,
 			double registration_invoice_amount_due );
+
+char *payment_primary_where(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time );
+
+LIST *payment_system_list(
+			char *sys_string,
+			boolean fetch_deposit,
+			boolean fetch_enrollment );
 
 #endif
 

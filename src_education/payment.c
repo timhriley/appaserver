@@ -81,42 +81,26 @@ PAYMENT *payment_fetch(	char *student_full_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *deposit_date_time,
-			boolean fetch_enrollment,
-			boolean fetch_deposit )
+			boolean fetch_deposit,
+			boolean fetch_enrollment )
 {
-	PAYMENT *payment = payment_calloc();
-
-	if ( fetch_enrollment )
-	{
-		if ( ! ( payment->enrollment =
-				enrollment_fetch(
-					student_full_name,
-					street_address,
-					course_name,
-					season_name,
-					year,
-					1 /* fetch_payment_list */ ) ) )
-		{
-			return (PAYMENT *)0;
-		}
-	}
-
-	if ( fetch_deposit )
-	{
-		if ( ! ( payment->deposit =
-				deposit_fetch(
-					payor_full_name,
-					payor_street_address,
-					season_name,
-					year,
-					deposit_date_time,
-					0 /* not fetch_payment_list */ ) ) )
-		{
-			return (PAYMENT *)0;
-		}
-	}
-
-	return payment;
+	return	payment_parse(
+			pipe2string(
+				payment_sys_string(
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					payment_primary_where(
+						student_full_name,
+						street_address,
+						course_name,
+						season_name,
+						year,
+						payor_full_name,
+						payor_street_address,
+						deposit_date_time ) ) ),
+			fetch_deposit,
+			fetch_enrollment );
 }
 
 double payment_amount(	double deposit_remaining,
@@ -133,7 +117,9 @@ FILE *payment_update_open( void )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "update_statement table=%s key=%s carrot=y | sql",
+		 "update_statement table=%s key=%s carrot=y	|"
+"tee /dev/tty |"
+		 "sql						 ",
 		 "payment",
 		 PAYMENT_PRIMARY_KEY );
 
@@ -206,7 +192,10 @@ void payment_update(	double payment_amount,
 	pclose( update_pipe );
 }
 
-LIST *payment_system_list( char *sys_string )
+LIST *payment_system_list(
+			char *sys_string,
+			boolean fetch_deposit,
+			boolean fetch_enrollment )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -219,7 +208,9 @@ LIST *payment_system_list( char *sys_string )
 		list_set(
 			payment_list,
 			payment_parse(
-				input ) );
+				input,
+				fetch_deposit,
+				fetch_enrollment ) );
 	}
 
 	pclose( input_pipe );
@@ -235,14 +226,24 @@ char *payment_sys_string( char *where )
 		"payment",
 		where );
 
+fprintf(stderr,
+	"%s/%s()/%d: %s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+sys_string );
+
 	return strdup( sys_string );
 }
 
-PAYMENT *payment_parse( char *input )
+PAYMENT *payment_parse(
+			char *input,
+			boolean fetch_deposit,
+			boolean fetch_enrollment )
 {
 	PAYMENT *payment;
 	char student_full_name[ 128 ];
-	char student_street_address[ 128 ];
+	char street_address[ 128 ];
 	char course_name[ 128 ];
 	char season_name[ 128 ];
 	char year[ 128 ];
@@ -255,7 +256,7 @@ PAYMENT *payment_parse( char *input )
 	/* See: attribute_list payment */
 	/* ---------------------------- */
 	piece( student_full_name, SQL_DELIMITER, input, 0 );
-	piece( student_street_address, SQL_DELIMITER, input, 1 );
+	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( course_name, SQL_DELIMITER, input, 2 );
 	piece( season_name, SQL_DELIMITER, input, 3 );
 	piece( year, SQL_DELIMITER, input, 4 );
@@ -265,22 +266,55 @@ PAYMENT *payment_parse( char *input )
 
 	payment = payment_calloc();
 
-	payment->enrollment =
-		enrollment_new(
-			student_full_name,
-			student_street_address,
-			course_name,
-			season_name,
-			atoi( year ) );
+	if ( fetch_enrollment )
+	{
+		if ( ! ( payment->enrollment =
+				enrollment_fetch(
+					student_full_name,
+					street_address,
+					course_name,
+					season_name,
+					atoi( year ),
+					1 /* fetch_payment_list */ ) ) )
+		{
+			return (PAYMENT *)0;
+		}
+	}
+	else
+	{
+		payment->enrollment =
+			enrollment_new(
+				student_full_name,
+				street_address,
+				course_name,
+				season_name,
+				atoi( year ) );
+	}
 
-	payment->deposit =
-		deposit_new(
-			payor_full_name,
-			payor_street_address,
-			season_name,
-			atoi( year ),
-			deposit_date_time );
-
+	if ( fetch_deposit )
+	{
+		if ( ! ( payment->deposit =
+				deposit_fetch(
+					payor_full_name,
+					payor_street_address,
+					season_name,
+					atoi( year ),
+					deposit_date_time,
+					0 /* not fetch_payment_list */ ) ) )
+		{
+			return (PAYMENT *)0;
+		}
+	}
+	else
+	{
+		payment->deposit =
+			deposit_new(
+				payor_full_name,
+				payor_street_address,
+				season_name,
+				atoi( year ),
+				deposit_date_time );
+	}
 	return payment;
 }
 
@@ -648,3 +682,46 @@ void payment_stamp_structure(
 			deposit->deposit_payment_list );
 
 }
+
+char *payment_primary_where(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time )
+{
+	char static where[ 512 ];
+
+	sprintf(where,
+		"full_name = '%s' and			"
+		"street_address = '%s' and		"
+		"course_name = '%s' and			"
+		"season_name = '%s' and			"
+		"year = %d and				"
+		"payor_full_name = '%s' and		"
+		"payor_street_address = '%s' and	"
+		"deposit_date_time = '%s'		",
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 registration_escape_full_name( student_full_name ),
+		 street_address,
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 course_name_escape( course_name ),
+		 season_name,
+		 year,
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 entity_escape_full_name( payor_full_name ),
+		 payor_street_address,
+		 deposit_date_time );
+
+	return where;
+}
+

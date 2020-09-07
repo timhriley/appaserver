@@ -13,7 +13,7 @@
 # ---------------
 # src_education
 # ---------------
-post_change_payment
+payment_trigger
 deposit_trigger
 enrollment_trigger
 offering_trigger

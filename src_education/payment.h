@@ -80,8 +80,8 @@ PAYMENT *payment_fetch(	char *student_full_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *deposit_date_time,
-			boolean fetch_enrollment,
-			boolean fetch_deposit );
+			boolean fetch_deposit,
+			boolean fetch_enrollment );
 
 TRANSACTION *payment_transaction(
 			char *payor_full_name,
@@ -96,7 +96,9 @@ TRANSACTION *payment_transaction(
 			char *account_fees_expense,
 			char *account_gain );
 
-PAYMENT *payment_parse(	char *input );
+PAYMENT *payment_parse(	char *input,
+			boolean fetch_deposit,
+			boolean fetch_enrollment );
 
 PAYMENT *payment_steady_state(
 			ENROLLMENT *enrollment,
@@ -119,18 +121,8 @@ void payment_stamp_structure(
 			DEPOSIT *deposit,
 			SEMESTER *semester );
 
-void payment_update(	double payment_amount,
-			double fees_expense,
-			double gain_donation,
-			char *transaction_date_time,
-			char *student_full_name,
-			char *student_street_address,
-			char *course_name,
-			char *season_name,
-			int year,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *deposit_date_time );
-
+/* -------------------------------- */
+/* Place functions in payment_fns.h */
+/* -------------------------------- */
 #endif
 

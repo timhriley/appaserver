@@ -90,10 +90,10 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/account.o
 
 EXECUTABLES=	offering_trigger					\
-		deposit_trigger					\
+		deposit_trigger						\
 		registration_trigger					\
 		enrollment_trigger					\
-		post_change_payment
+		payment_trigger
 
 all: 	${EXECUTABLES}
 
@@ -129,7 +129,7 @@ enrollment_trigger: enrollment_trigger.c				\
 		enrollment_trigger.c					\
 		-o enrollment_trigger
 
-post_change_payment: post_change_payment.c				\
+payment_trigger: payment_trigger.c					\
 	${EXTERNAL_LIBRARY} 						\
 	${PREDICTIVEBOOKS_CORE}						\
 	${EDUCATION_CORE}
@@ -139,8 +139,8 @@ post_change_payment: post_change_payment.c				\
 		${EXTERNAL_LIBRARY}					\
 		${PREDICTIVEBOOKS_CORE}					\
 		${EDUCATION_CORE}					\
-		post_change_payment.c					\
-		-o post_change_payment
+		payment_trigger.c					\
+		-o payment_trigger
 
 deposit_trigger: deposit_trigger.c					\
 	${EXTERNAL_LIBRARY} 						\
