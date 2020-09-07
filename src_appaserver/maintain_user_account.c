@@ -336,14 +336,12 @@ int main( int argc, char **argv )
 		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
-	query = query_folder_new(
+	query = query_edit_table_new(
 			application_name,
 			login_name,
 			folder_name,
 			query_dictionary,
-			role_new( application_name, role_name ),
-			(LIST *)0,
-			(LIST *)0 );
+			role_new( application_name, role_name ) );
 
 	attribute_list_remove_exclude_permission_list(
 		query->folder->append_isa_attribute_list );

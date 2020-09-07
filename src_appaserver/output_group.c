@@ -226,14 +226,12 @@ int main( int argc, char **argv )
 						mto1_related_folder_list,
 					exclude_attribute_name_list );
 
-	query = query_folder_new(
+	query = query_edit_table_new(
 			application_name,
 			login_name,
 			appaserver->folder->folder_name,
 			dictionary_appaserver->query_dictionary,
-			role_new( application_name, role_name ),
-			(LIST *)0,
-			(LIST *)0 );
+			role_new( application_name, role_name ) );
 
 	if ( ! ( total_count =
 			get_total_count(

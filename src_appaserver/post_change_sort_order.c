@@ -456,7 +456,7 @@ void change_sort_order_state_one(
 	row_security->select_folder->join_1tom_related_folder_list = (LIST *)0;
 
 	row_security->row_security_element_list_structure =
-		row_security_element_list_structure_new(
+		row_security_edit_table_structure_new(
 			application_name,
 			row_security->row_security_state,
 			row_security->login_name,
@@ -470,8 +470,6 @@ void change_sort_order_state_one(
 			row_security->select_folder,
 			row_security->attribute_not_null_folder,
 			row_security->foreign_login_name_folder,
-			(LIST *)0 /* where_clause_attribute_name_list */,
-			(LIST *)0 /* where_clause_data_list */,
 			(LIST *)0 /* non_edit_folder_name_list */,
 			0 /* not make_primary_keys_non_edit */,
 			omit_delete_dont_care,

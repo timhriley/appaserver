@@ -226,13 +226,14 @@ QUERY *query_process_drop_down_new(
 	return query;
 }
 
-QUERY *query_folder_new(	char *application_name,
-				char *login_name,
-				char *folder_name,
-				DICTIONARY *dictionary,
-				ROLE *role,
-				LIST *where_attribute_name_list,
-				LIST *where_attribute_data_list )
+QUERY *query_folder_new(
+			char *application_name,
+			char *login_name,
+			char *folder_name,
+			DICTIONARY *dictionary,
+			ROLE *role,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list )
 {
 	QUERY *query;
 	char first_folder_name[ 128 ];
@@ -973,16 +974,12 @@ generate_select_clause:
 					query_output->from_clause,
 					join_folder->folder_name );
 
-			mto1_query = query_folder_new(
+			mto1_query = query_edit_table_new(
 					folder->application_name,
 					query->login_name,
 					join_folder->folder_name,
 					query->dictionary,
-					(ROLE *)0,
-					(LIST *)0
-					   /* where_attribute_name_list */,
-					(LIST *)0
-					   /* where_attribute_data_list */ );
+					(ROLE *)0 );
 
 			query_output->where_clause =
 				query_append_where_clause(
@@ -1543,14 +1540,6 @@ LIST *query_primary_data_drop_down_list(
 	RELATED_FOLDER *related_folder;
 	RELATED_FOLDER *sub_related_folder;
 	QUERY_DROP_DOWN *drop_down;
-
-fprintf(stderr,
-	"%s/%s()/%d: root_folder = %s and include = %d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-root_folder->folder_name,
-include_root_folder );
 
 	if ( include_root_folder )
 	{
@@ -2235,14 +2224,6 @@ QUERY_DROP_DOWN *query_drop_down(
 	QUERY_DROP_DOWN *drop_down = {0};
 	int highest_index;
 	int index;
-
-fprintf(stderr,
-	"%s/%s()/%d: root_folder_name = %s; dictionary = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-root_folder_name,
-dictionary_display( dictionary ) );
 
 	highest_index =
 		dictionary_attribute_name_list_get_highest_index(
@@ -5951,16 +5932,12 @@ QUERY_OUTPUT *query_folder_output_new(
 						query_output->from_clause,
 						join_folder->folder_name );
 
-				mto1_query = query_folder_new(
+				mto1_query = query_edit_table_new(
 						folder->application_name,
 						query->login_name,
 						join_folder->folder_name,
 						query->dictionary,
-						(ROLE *)0,
-						(LIST *)0
-					   	/* where_at..._name_list */,
-						(LIST *)0
-					   	/* where_at..._data_list */ );
+						(ROLE *)0 );
 
 				query_output->where_clause =
 					query_append_where_clause(
@@ -6172,16 +6149,12 @@ m2( folder->application_name, msg );
 					query_output->from_clause,
 					join_folder->folder_name );
 
-			mto1_query = query_folder_new(
+			mto1_query = query_edit_table_new(
 					folder->application_name,
 					query->login_name,
 					join_folder->folder_name,
 					query->dictionary,
-					(ROLE *)0,
-					(LIST *)0
-					   /* where_attribute_name_list */,
-					(LIST *)0
-					   /* where_attribute_data_list */ );
+					(ROLE *)0 );
 
 			query_output->where_clause =
 				query_append_where_clause(
@@ -6479,13 +6452,6 @@ QUERY *query_related_folder_data_new(
 {
 	QUERY *query;
 
-fprintf(stderr,
-	"%s/%s()/%d: folder_name = %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-folder_name );
-
 	query = query_calloc();
 
 	if ( !folder_name )
@@ -6647,13 +6613,6 @@ QUERY_OUTPUT *query_related_data_output_new(
 				mto1_isa_related_folder_list ) );
 	}
 
-fprintf(stderr,
-	"%s/%s()/%d: returning where_clause = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-query_output->where_clause );
-
 	return query_output;
 }
 
@@ -6669,13 +6628,6 @@ LIST *query_related_data_drop_down_list(
 	RELATED_FOLDER *sub_related_folder;
 	QUERY_DROP_DOWN *drop_down;
 
-fprintf(stderr,
-	"%s/%s()/%d: root_folder = %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-root_folder->folder_name );
-
 	if ( !list_rewind( mto1_related_folder_list ) )
 		goto check_mto1_append_isa_related_folder_list;
 
@@ -6683,13 +6635,6 @@ root_folder->folder_name );
 		related_folder =
 			list_get(
 				mto1_related_folder_list );
-
-fprintf(stderr,
-	"%s/%s()/%d: checking related_folder = %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-related_folder->folder->folder_name );
 
 		if ( ( drop_down =
 			query_related_data_drop_down(
@@ -6726,13 +6671,6 @@ check_mto1_append_isa_related_folder_list:
 				mto1_append_isa_related_folder_list );
 
 		if ( !related_folder->relation_type_isa ) continue;
-
-fprintf(stderr,
-	"%s/%s()/%d: checking related_folder = %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-related_folder->folder->folder_name );
 
 		if ( !list_rewind( related_folder->
 					folder->
@@ -7110,16 +7048,12 @@ m2( folder->application_name, msg );
 					query_output->from_clause,
 					join_folder->folder_name );
 
-			mto1_query = query_folder_new(
+			mto1_query = query_edit_table_new(
 					folder->application_name,
 					query->login_name,
 					join_folder->folder_name,
 					query->dictionary,
-					(ROLE *)0,
-					(LIST *)0
-					   /* where_attribute_name_list */,
-					(LIST *)0
-					   /* where_attribute_data_list */ );
+					(ROLE *)0 );
 
 			query_output->where_clause =
 				query_append_where_clause(

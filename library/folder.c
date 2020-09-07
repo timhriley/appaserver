@@ -2290,14 +2290,6 @@ LIST *folder_related_primary_data_table_list(
 		folder_get_primary_attribute_name_list(
 			attribute_list );
 
-fprintf(stderr,
-	"%s/%s()/%d: folder = %s; primary_attribute_name_list = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-folder_name,
-list_display( primary_attribute_name_list ) );
-
 	date_attribute_name_list =
 		attribute_get_date_attribute_name_list(
 			attribute_list );

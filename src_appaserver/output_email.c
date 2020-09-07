@@ -229,14 +229,12 @@ int main( int argc, char **argv )
 	attribute_name_list =
 		folder_get_attribute_name_list( folder->attribute_list );
 
-	query = query_folder_new(
+	query = query_edit_table_new(
 			application_name,
 			login_name,
 			folder->folder_name,
 			query_dictionary,
-			role,
-			(LIST *)0,
-			(LIST *)0 );
+			role );
 
 	row_dictionary_list =
 		query_row_dictionary_list(

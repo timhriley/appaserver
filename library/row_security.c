@@ -229,8 +229,7 @@ non_owner_view_only_dont_append:
 	}
 
 	return row_security;
-
-} /* row_security_new() */
+}
 
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	row_security_element_list_structure_calloc( void )

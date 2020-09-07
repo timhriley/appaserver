@@ -234,6 +234,15 @@ char *get_families_sys_string(		char *application_name,
 				(LIST *)0 /* mto1_isa_related_folder_list */,
 				(char *)0 /* role_name */ );
 
+		query =
+			query_edit_table_new(
+				application_name,
+				login_name,
+				folder->folder_name,
+				post_dictionary /* query_dictionary */,
+				(ROLE *)0 );
+
+#ifdef NOT_DEFINED
 		query = query_folder_new(
 				application_name,
 				login_name,
@@ -243,7 +252,6 @@ char *get_families_sys_string(		char *application_name,
 				(LIST *)0,
 				(LIST *)0 );
 
-#ifdef NOT_DEFINED
 		query =	query_new(
 				application_name,
 				login_name,

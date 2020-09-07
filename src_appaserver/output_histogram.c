@@ -188,7 +188,7 @@ int main( int argc, char **argv )
 				query_select_attribute_name_list,
 				select_attribute_name );
 
-			query = query_folder_new(
+			query = query_edit_table_new(
 					application_name,
 					login_name,
 					folder_name,
@@ -196,9 +196,7 @@ int main( int argc, char **argv )
 						query_dictionary,
 					role_new(
 						application_name,
-						role_name ),
-					(LIST *)0,
-					(LIST *)0 );
+						role_name ) );
 
 			query_record_list =
 				query_get_record_list(

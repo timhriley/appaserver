@@ -184,14 +184,12 @@ int main( int argc, char **argv )
 					(LIST *)0 /* related_folder_list */,
 					(char *)0 /* role_name */ );
 
-	query = query_folder_new(
+	query = query_edit_table_new(
 			application_name,
 			login_name,
 			folder_name,
 			query_dictionary,
-			(ROLE *)0,
-			(LIST *)0,
-			(LIST *)0 );
+			(ROLE *)0 );
 
 	query->query_output->where_clause =
 		get_where_clause(	query->dictionary,

@@ -192,14 +192,12 @@ int main( int argc, char **argv )
 			role_name,
 			(LIST *)0 /* mto1_related_folder_list */ );
 
-	query = query_folder_new(
+	query = query_edit_table_new(
 			application_name,
 			login_name,
 			folder->folder_name,
 			dictionary_appaserver->query_dictionary,
-			role,
-			(LIST *)0,
-			(LIST *)0 );
+			role );
 
 	row_dictionary_list =
 		query_row_dictionary_list(

@@ -264,14 +264,12 @@ void output_chart(	char *application_name,
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
-	query = query_folder_new(
+	query = query_edit_table_new(
 			application_name,
 			login_name,
 			folder_name,
 			query_dictionary,
-			role_new( application_name, role_name ),
-			(LIST *)0,
-			(LIST *)0 );
+			role_new( application_name, role_name ) );
 
 	query_record_list =
 		query_get_record_list(

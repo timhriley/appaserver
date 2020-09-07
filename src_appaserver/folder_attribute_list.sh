@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # -------------------------------------------------
 # src_appaserver/folder_attribute_list.sh
 # -------------------------------------------------
@@ -25,14 +25,45 @@ fi
 
 if [ "$#" -eq 1 ]
 then
-	folder_where="folder_attribute.folder = '$1'"
-else
-	folder_where="1 = 1"
+	folder_name=$1
 fi
 
 order_clause=display_order,primary_key_index
 
-echo "select folder_attribute.folder,				\
+function folder_attribute_name_list()
+{
+	echo "select '',					\
+	     attribute.attribute,				\
+	     attribute_datatype,				\
+	     width, 						\
+	     float_decimal_places,				\
+	     '',						\
+	     '',						\
+	     '',						\
+	     '',						\
+	     '',						\
+	     hint_message,					\
+	     attribute.post_change_javascript,			\
+	     attribute.on_focus_javascript_function,		\
+	     '',						\
+	     '',						\
+	     '',						\
+	     '',						\
+	     attribute.lookup_histogram_output_yn,		\
+	     attribute.lookup_time_chart_output_yn,		\
+	     attribute.appaserver_yn				\
+      from	attribute					\
+      order by attribute;"					|
+sql
+}
+
+function folder_attribute_name_list_folder()
+{
+	folder_name=$1
+
+	folder_where="folder_attribute.folder = '$1'"
+
+	echo "select folder_attribute.folder,			\
 	     attribute.attribute,				\
 	     attribute_datatype,				\
 	     width, 						\
@@ -58,5 +89,13 @@ echo "select folder_attribute.folder,				\
 	and $folder_where					\
       order by ${order_clause};"				|
 sql
+}
+
+if [ "$folder_name" != "" ]
+then
+	folder_attribute_name_list_folder $folder_name
+else
+	folder_attribute_name_list
+fi
 
 exit 0

@@ -2950,6 +2950,7 @@ LIST *related_folder_get_preselection_dictionary_list(
 	}
 	else
 	{
+/*
 		query = query_folder_new(
 				application_name,
 				login_name,
@@ -2958,6 +2959,14 @@ LIST *related_folder_get_preselection_dictionary_list(
 				(ROLE *)0,
 				(LIST *)0,
 				(LIST *)0 );
+*/
+
+		query = query_edit_table_new(
+				application_name,
+				login_name,
+				related_folder->folder_name,
+				query_dictionary,
+				(ROLE *)0 );
 
 		related_folder_dictionary_list =
 			query_row_dictionary_list(

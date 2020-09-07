@@ -168,6 +168,15 @@ int main( int argc, char **argv )
 			dictionary_appaserver->preprompt_dictionary,
 			folder->lookup_before_drop_down );
 
+	query =
+		query_edit_table_new(
+			application_name,
+			login_name,
+			folder_name,
+			dictionary_appaserver->query_dictionary,
+			role_new( application_name, role_name ) );
+
+#ifdef NOT_DEFINED
 	query = query_folder_new(
 			application_name,
 			login_name,
@@ -176,6 +185,7 @@ int main( int argc, char **argv )
 			role_new( application_name, role_name ),
 			(LIST *)0,
 			(LIST *)0 );
+#endif
 
 	where_clause = query->query_output->where_clause;
 

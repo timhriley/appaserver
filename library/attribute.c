@@ -2243,7 +2243,6 @@ LIST *attribute_distinct_folder_name_list( LIST *attribute_list )
 	return distinct_folder_name_list;
 }
 
-
 LIST *attribute_list( char *folder_name )
 {
 	return attribute_system_list(
