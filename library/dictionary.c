@@ -1492,12 +1492,12 @@ DICTIONARY *dictionary_prepend_key(	DICTIONARY *dictionary,
 		} while( list_next( key_list ) );
 	}
 	return destination;
-} /* dictionary_prepend_key() */
+}
 
 DICTIONARY *dictionary_extract_prepended_key(
-					DICTIONARY *dictionary,
-					char *label,
-					int with_strip )
+			DICTIONARY *dictionary,
+			char *label,
+			int with_strip )
 {
 	DICTIONARY *destination;
 	LIST *key_list;
@@ -1533,7 +1533,7 @@ DICTIONARY *dictionary_extract_prepended_key(
 		} while( list_next( key_list ) );
 	}
 	return destination;
-} /* dictionary_extract_prepended_key() */
+}
 
 boolean dictionary_key_exists_index_zero(
 					DICTIONARY *indexed_dictionary,
@@ -2911,13 +2911,13 @@ void dictionary_output_with_prefix(
 					key ) );
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_output_with_prefix() */
+}
 
 void dictionary_output_html_table(
-				DICTIONARY *dictionary,
-				char *heading1,
-				char *heading2,
-				boolean align_right )
+			DICTIONARY *dictionary,
+			char *heading1,
+			char *heading2,
+			boolean align_right )
 {
 	char *key;
 	LIST *key_list;
@@ -2957,10 +2957,11 @@ void dictionary_output_html_table(
 		} while( list_next( key_list ) );
 	}
 	printf( "</table>\n" );
-} /* dictionary_output_html_table() */
+}
 
-void dictionary_convert_index_to_index_zero(	DICTIONARY *dictionary,
-						int index )
+void dictionary_convert_index_to_index_zero(
+			DICTIONARY *dictionary,
+			int index )
 {
 	char *key;
 	LIST *key_list;
@@ -2992,7 +2993,7 @@ void dictionary_convert_index_to_index_zero(	DICTIONARY *dictionary,
 			}
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_convert_index_to_index_zero() */
+}
 
 DICTIONARY *dictionary_add_prefix(	DICTIONARY *dictionary,
 					char *prefix )
@@ -3469,12 +3470,13 @@ void dictionary_add_login_name_if_necessary(
 						EQUAL_OPERATOR );
 		}
 	}
-} /* dictionary_add_login_name_if_necessary() */
+}
 
-void dictionary_list_output_to_file(	char *output_filename, 
-					LIST *row_dictionary_list,
-					LIST *attribute_name_list,
-					char *heading_display )
+void dictionary_list_output_to_file(
+			char *output_filename, 
+			LIST *row_dictionary_list,
+			LIST *attribute_name_list,
+			char *heading_display )
 {
 	DICTIONARY *row_dictionary;
 	FILE *output_file;
@@ -3514,13 +3516,12 @@ void dictionary_list_output_to_file(	char *output_filename,
 	} while( list_next( row_dictionary_list ) );
 
 	fclose( output_file );
-
-} /* dictionary_list_output_to_file() */
+}
 
 void dictionary_row_output_to_file(
-				FILE *output_file, 
-				DICTIONARY *row_dictionary,
-				LIST *attribute_name_list )
+			FILE *output_file, 
+			DICTIONARY *row_dictionary,
+			LIST *attribute_name_list )
 {
 	char *value;
 	char *attribute_name;
@@ -3552,11 +3553,11 @@ void dictionary_row_output_to_file(
 	} while( next_item( attribute_name_list ) );
 
 	fprintf( output_file, "\n" );
+}
 
-} /* dictionary_row_output_to_file() */
-
-void dictionary_output_heading_to_file(	FILE *output_file, 
-					LIST *attribute_name_list )
+void dictionary_output_heading_to_file(
+			FILE *output_file, 
+			LIST *attribute_name_list )
 {
 	char *attribute_name;
 	int first_time = 1;
@@ -3580,14 +3581,13 @@ void dictionary_output_heading_to_file(	FILE *output_file,
 	} while( next_item( attribute_name_list ) );
 
 	fprintf( output_file, "\n" );
-
-} /* dictionary_output_heading_to_file() */
+}
 
 /* Set the current time, if expected but not there. */
 /* ------------------------------------------------ */
 void dictionary_set_indexed_date_time_to_current(
-					DICTIONARY *dictionary,
-					LIST *attribute_list )
+			DICTIONARY *dictionary,
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 	char date_time_string[ 32 ];

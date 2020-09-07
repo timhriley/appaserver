@@ -640,8 +640,8 @@ void session_update_access_date_time(
 		 date_display_yyyy_mm_dd( now ),
 		 date_display_hhmm( now ),
 		 session );
-	system( sys_string );
-} /* session_update_access_date_time() */
+	if ( system( sys_string ) ){}
+}
 
 boolean session_remote_ip_address_changed(
 				char *application_name,

@@ -68,8 +68,7 @@ LIST *related_folder_get_primary_data_list(
 	} while( list_next( primary_data_list ) );
 
 	return return_list;
-
-} /* related_folder_get_primary_data_list() */
+}
 
 RELATED_FOLDER *related_folder_new(
 					char *application_name,
@@ -255,7 +254,7 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 
 } /* related_folder_attribute_consumes_related_folder() */
 
-LIST *related_folder_get_drop_down_element_list(
+LIST *related_folder_drop_down_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char *application_name,
 			char *session,
@@ -510,7 +509,7 @@ LIST *related_folder_get_drop_down_element_list(
 		element_drop_down_set_option_data_option_label_list(
 			&element->drop_down->option_data_list,
 			&element->drop_down->option_label_list,
-			folder_get_primary_data_list(
+			folder_related_primary_data_list(
 				application_name,
 				session,
 				folder_name,
@@ -530,8 +529,7 @@ LIST *related_folder_get_drop_down_element_list(
 				role_name,
 				state,
 				one2m_folder_name_for_processes,
-				appaserver_user_foreign_login_name,
-				1 /* include_root_folder */ ) );
+				appaserver_user_foreign_login_name ) );
 	}
 
 	if ( set_first_initial_data
@@ -575,8 +573,7 @@ LIST *related_folder_get_drop_down_element_list(
 			element );
 
 	return return_list;
-
-} /* related_folder_get_drop_down_element_list() */
+}
 
 void related_folder_set_ignore_output_for_duplicate(
 					LIST *related_folder_list )
@@ -1050,7 +1047,7 @@ LIST *related_folder_get_insert_element_list(
 		element_drop_down_set_option_data_option_label_list(
 			&element->drop_down->option_data_list,
 			&element->drop_down->option_label_list,
-			folder_get_primary_data_list(
+			folder_primary_data_list(
 				application_name,
 				session,
 				related_folder->folder->folder_name,
@@ -1334,7 +1331,7 @@ LIST *related_folder_get_update_element_list(
 		element_drop_down_set_option_data_option_label_list(
 			&element->drop_down->option_data_list,
 			&element->drop_down->option_label_list,
-			folder_get_primary_data_list(
+			folder_primary_data_list(
 				application_name,
 				session,
 				related_folder->folder->folder_name,

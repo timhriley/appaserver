@@ -150,7 +150,7 @@ LIST *folder_get_process_primary_data_list(
 			char *process_name,
 			char *prompt );
 
-LIST *folder_get_primary_data_list(
+LIST *folder_primary_data_list(
 				char *application_name,
 				char *session,
 				char *folder_name,
@@ -242,15 +242,16 @@ boolean folder_exists_attribute(	char *application_name,
 					char *folder_name,
 					char *attribute_name );
 
-LIST *folder_get_data_list(	char *application_name,
-				char *folder_name,
-				LIST *attribute_name_list,
-				char *where_clause,
-				char delimiter,
-				LIST *common_non_primary_attribute_name_list,
-				char *login_name,
-				LIST *date_position_list,
-				int maxrows );
+LIST *folder_data_list(
+			char *application_name,
+			char *folder_name,
+			LIST *attribute_name_list,
+			char *where_clause,
+			char delimiter,
+			LIST *common_non_primary_attribute_name_list,
+			char *login_name,
+			LIST *date_position_list,
+			int maxrows );
 
 LIST *folder_get_non_primary_attribute_list(
 					LIST *attribute_list );
@@ -374,6 +375,60 @@ LIST *folder_mto1_isa_related_folder_list(
 LIST *folder_attribute_list(
 			char *application_name,
 			char *folder_name,
+			char *role_name );
+
+LIST *folder_primary_data_process_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes );
+
+LIST *folder_primary_data_table_list(
+			char *application_name,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			LIST *exclude_attribute_name_list,
+			char *role_name,
+			boolean include_root_folder );
+
+LIST *folder_related_primary_data_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			boolean filter_only_login_name,
+			LIST *exclude_attribute_name_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			char *appaserver_user_foreign_login_name );
+
+LIST *folder_related_primary_data_table_list(
+			char *application_name,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			LIST *exclude_attribute_name_list,
 			char *role_name );
 
 #endif

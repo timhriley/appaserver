@@ -209,7 +209,7 @@ LIST *query_get_subquery_drop_down_list(
 				LIST *mto1_append_isa_related_folder_list,
 				DICTIONARY *dictionary );
 
-LIST *query_get_primary_data_drop_down_list(
+LIST *query_primary_data_drop_down_list(
 				LIST *exclude_attribute_name_list,
 				FOLDER *root_folder,
 				LIST *mto1_related_folder_list,
@@ -217,7 +217,7 @@ LIST *query_get_primary_data_drop_down_list(
 				DICTIONARY *dictionary,
 				boolean include_root_folder );
 
-LIST *query_get_drop_down_list(	LIST *exclude_attribute_name_list,
+LIST *query_drop_down_list(	LIST *exclude_attribute_name_list,
 				FOLDER *root_folder,
 				LIST *mto1_related_folder_list,
 				LIST *mto1_append_isa_related_folder_list,
@@ -232,7 +232,7 @@ QUERY_DROP_DOWN *query_get_subquery_drop_down(
 				DICTIONARY *dictionary,
 				char *dictionary_prepend_folder_name );
 
-QUERY_DROP_DOWN *query_get_primary_data_drop_down(
+QUERY_DROP_DOWN *query_primary_data_drop_down(
 				LIST *exclude_attribute_name_list,
 				char *root_folder_name,
 				char *dictionary_prepend_folder_name,
@@ -240,7 +240,7 @@ QUERY_DROP_DOWN *query_get_primary_data_drop_down(
 				LIST *attribute_list,
 				DICTIONARY *dictionary );
 
-QUERY_DROP_DOWN *query_get_drop_down(
+QUERY_DROP_DOWN *query_drop_down(
 				LIST *exclude_attribute_name_list,
 				char *root_folder_name,
 				char *dictionary_prepend_folder_name,
@@ -248,7 +248,7 @@ QUERY_DROP_DOWN *query_get_drop_down(
 				LIST *attribute_list,
 				DICTIONARY *dictionary );
 
-QUERY_DROP_DOWN *query_get_row_drop_down(
+QUERY_DROP_DOWN *query_row_drop_down(
 				LIST *exclude_attribute_name_list,
 				QUERY_DROP_DOWN *query_drop_down,
 				char *folder_name,
@@ -279,8 +279,7 @@ char *query_get_operator_name(	char *attribute_name,
 				char *dictionary_prepend_folder_name );
 
 void query_convert_date_international(
-				char **data,
-				char *datatype );
+				char **data );
 
 boolean query_get_dictionary_data(
 				char **data,
@@ -288,16 +287,14 @@ boolean query_get_dictionary_data(
 				char *attribute_name,
 				int dictionary_offset,
 				char *starting_label,
-				char *datatype,
 				char *dictionary_prepend_folder_name );
 
 char *query_get_data_escaped(
-				DICTIONARY *dictionary,
-				char *attribute_name,
-				char *attribute_datatype,
-				int dictionary_offset,
-				char *starting_label,
-				char *dictionary_prepend_folder_name );
+			DICTIONARY *dictionary,
+			char *attribute_name,
+			int dictionary_offset,
+			char *starting_label,
+			char *dictionary_prepend_folder_name );
 
 LIST *query_get_attribute_list(
 				LIST *append_isa_attribute_list,
@@ -642,5 +639,102 @@ QUERY_DROP_DOWN *query_process_multi_drop_down(
 				LIST *foreign_attribute_name_list,
 				LIST *attribute_list,
 				DICTIONARY *dictionary );
+
+QUERY *query_folder_data_new(
+			char *application_name,
+			char *login_name,
+			char *folder_name,
+			DICTIONARY *dictionary,
+			ROLE *role,
+			int max_rows,
+			boolean include_root_folder );
+
+QUERY_DROP_DOWN *query_related_drop_down(
+			LIST *exclude_attribute_name_list,
+			char *root_folder_name,
+			char *dictionary_prepend_folder_name,
+			LIST *foreign_attribute_name_list,
+			LIST *attribute_list,
+			DICTIONARY *dictionary );
+
+QUERY *query_related_folder_data_new(
+			char *application_name,
+			char *login_name,
+			char *folder_name,
+			DICTIONARY *dictionary,
+			ROLE *role,
+			int max_rows );
+
+QUERY_OUTPUT *query_related_data_output_new(
+			QUERY *query,
+			FOLDER *folder );
+
+LIST *query_related_data_drop_down_list(
+			LIST *exclude_attribute_name_list,
+			FOLDER *root_folder,
+			LIST *mto1_related_folder_list,
+			LIST *mto1_append_isa_related_folder_list,
+			DICTIONARY *dictionary );
+
+QUERY_DROP_DOWN *query_related_data_drop_down(
+			LIST *exclude_attribute_name_list,
+			char *root_folder_name,
+			char *dictionary_prepend_folder_name,
+			LIST *foreign_attribute_name_list,
+			LIST *attribute_list,
+			DICTIONARY *dictionary );
+
+LIST *query_edit_table_dictionary_list(
+			char *application_name,
+			char *select_clause,
+			char *from_clause,
+			char *where_clause,
+			char *order_clause,
+			int max_rows,
+			LIST *append_isa_attribute_list,
+			char *login_name );
+
+QUERY_OUTPUT *query_edit_table_output_new(
+			QUERY *query,
+			FOLDER *folder,
+			PROMPT_RECURSIVE *prompt_recursive,
+			LIST *mto1_join_folder_list );
+
+LIST *query_edit_table_drop_down_list(
+			LIST *exclude_attribute_name_list,
+			FOLDER *root_folder,
+			LIST *mto1_related_folder_list,
+			LIST *mto1_append_isa_related_folder_list,
+			DICTIONARY *dictionary );
+
+QUERY *query_edit_table_new(
+			char *application_name,
+			char *login_name,
+			char *folder_name,
+			DICTIONARY *dictionary,
+			ROLE *role );
+
+QUERY_DROP_DOWN *query_edit_table_drop_down(
+			LIST *exclude_attribute_name_list,
+			char *root_folder_name,
+			char *dictionary_prepend_folder_name,
+			LIST *foreign_attribute_name_list,
+			LIST *attribute_list,
+			DICTIONARY *dictionary );
+
+QUERY_DROP_DOWN *query_edit_table_row_drop_down(
+			LIST *exclude_attribute_name_list,
+			QUERY_DROP_DOWN *query_drop_down,
+			char *root_folder_name,
+			LIST *foreign_attribute_name_list,
+			LIST *attribute_list,
+			DICTIONARY *dictionary,
+			int index,
+			char *dictionary_prepend_folder_name );
+
+QUERY_DROP_DOWN_ROW *query_drop_down_edit_table_new(
+			LIST *attribute_name_list,
+			LIST *attribute_list,
+			LIST *data_list );
 
 #endif

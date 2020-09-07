@@ -1838,7 +1838,7 @@ void build_related_folder_element_list(
 
 	list_append_list(
 		element_list,
-		related_folder_get_drop_down_element_list(
+		related_folder_drop_down_element_list(
 			ajax_fill_drop_down_related_folder,
 			application_name,
 			session,

@@ -338,8 +338,7 @@ LIST *folder_get_primary_attribute_name_list(
 	} while( list_next( attribute_list ) );
 
 	return primary_attribute_name_list;
-
-} /* folder_get_primary_attribute_name_list() */
+}
 
 LIST *folder_get_primary_attribute_list( LIST *attribute_list )
 {
@@ -370,7 +369,7 @@ LIST *folder_get_primary_attribute_list( LIST *attribute_list )
 
 	return primary_attribute_list;
 
-} /* folder_get_primary_attribute_list() */
+}
 
 LIST *folder_get_process_primary_data_list(
 			char *application_name,
@@ -394,7 +393,7 @@ LIST *folder_get_process_primary_data_list(
 	LIST *primary_attribute_name_list;
 	LIST *date_attribute_name_list;
 	LIST *date_position_list;
-	LIST *folder_data_list;
+	LIST *data_list;
 	char where_clause[ 65536 ];
 	QUERY *query;
 
@@ -496,22 +495,65 @@ LIST *folder_get_process_primary_data_list(
 				attribute_where_clause );
 	}
 
-	folder_data_list = folder_get_data_list(
-				application_name,
-				folder_name,
-				primary_attribute_name_list,
-				where_clause,
-				delimiter,
-				common_non_primary_attribute_name_list,
-				login_name,
-				date_position_list,
-				0 /* maxrows */ );
+	data_list =
+		folder_data_list(
+			application_name,
+			folder_name,
+			primary_attribute_name_list,
+			where_clause,
+			delimiter,
+			common_non_primary_attribute_name_list,
+			login_name,
+			date_position_list,
+			0 /* maxrows */ );
 
-	return folder_data_list;
+	return data_list;
+}
 
-} /* folder_get_process_primary_data_list() */
+LIST *folder_primary_data_process_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes )
+{
+	LIST *drop_down_process_list;
+	char *local_role_name;
 
-LIST *folder_get_primary_data_list(
+	if ( role_name )
+		local_role_name = role_name;
+	else
+		local_role_name = 
+			populate_drop_down_process->role_name;
+
+	drop_down_process_list =
+	     folder_get_drop_down_process_list(
+		application_name,
+		session,
+		folder_name,
+		login_name,
+		populate_drop_down_process,
+		local_role_name,
+		parameter_dictionary,
+		where_clause_dictionary,
+		state,
+		one2m_folder_name_for_processes,
+		attribute_list,
+		0
+		/* piece_multi_attribute_data_label_delimiter */,
+		(char *)0 /* process_name */,
+		(char *)0 /* prompt */ );
+
+	return drop_down_process_list;
+}
+
+LIST *folder_related_primary_data_list(
 				char *application_name,
 				char *session,
 				char *folder_name,
@@ -527,15 +569,8 @@ LIST *folder_get_primary_data_list(
 				char *role_name,
 				char *state,
 				char *one2m_folder_name_for_processes,
-				char *appaserver_user_foreign_login_name,
-				boolean include_root_folder )
+				char *appaserver_user_foreign_login_name )
 {
-	char *where_clause;
-	LIST *primary_attribute_name_list;
-	LIST *date_attribute_name_list;
-	LIST *date_position_list;
-	LIST *folder_data_list;
-	QUERY *query;
 
 	/* if row level non-owner forbid */
 	/* ----------------------------- */
@@ -595,88 +630,140 @@ LIST *folder_get_primary_data_list(
 
 	if ( populate_drop_down_process )
 	{
-		LIST *drop_down_process_list;
-		char *local_role_name;
-
-		if ( role_name )
-			local_role_name = role_name;
-		else
-			local_role_name = 
-				populate_drop_down_process->role_name;
-
-		drop_down_process_list =
-		     folder_get_drop_down_process_list(
+		return folder_primary_data_process_list(
 			application_name,
 			session,
 			folder_name,
 			login_name,
-			populate_drop_down_process,
-			local_role_name,
 			parameter_dictionary,
 			where_clause_dictionary,
-			state,
-			one2m_folder_name_for_processes,
+			populate_drop_down_process,
 			attribute_list,
-			0
-			/* piece_multi_attribute_data_label_delimiter */,
-			(char *)0 /* process_name */,
-			(char *)0 /* prompt */ );
-
-		return drop_down_process_list;
+			role_name,
+			state,
+			one2m_folder_name_for_processes );
 	}
-
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
-			attribute_list );
-
-	date_attribute_name_list =
-		attribute_get_date_attribute_name_list(
-			attribute_list );
-
-	if ( exclude_attribute_name_list
-	&&   list_length( exclude_attribute_name_list ) )
+	else
 	{
-		primary_attribute_name_list =
-			list_subtract_string_list(
-				primary_attribute_name_list,
-				exclude_attribute_name_list );
-	}
-
-	if ( !list_length( primary_attribute_name_list ) )
-		return list_new();
-
-	query =	query_primary_data_new(
-				application_name,
-				login_name,
-				folder_name,
-				where_clause_dictionary,
-				role_new( application_name, role_name ),
-				0 /* infinite max_rows */,
-				include_root_folder );
-
-	where_clause = query->query_output->where_clause;
-
-	date_position_list =
-		list_get_position_list(
-			primary_attribute_name_list,
-			date_attribute_name_list );
-
-	folder_data_list =
-		folder_get_data_list(
+		return folder_related_primary_data_table_list(
 			application_name,
-			query->query_output->from_clause
-				/* folder_name */,
-			primary_attribute_name_list,
-			where_clause,
-			delimiter,
-			common_non_primary_attribute_name_list,
+			folder_name,
 			login_name,
-			date_position_list,
-			FOLDER_MAXROWS );
+			where_clause_dictionary,
+			delimiter,
+			attribute_list,
+			common_non_primary_attribute_name_list,
+			exclude_attribute_name_list,
+			role_name );
+	}
+}
 
-	return folder_data_list;
+LIST *folder_primary_data_list(
+				char *application_name,
+				char *session,
+				char *folder_name,
+				char *login_name,
+				DICTIONARY *parameter_dictionary,
+				DICTIONARY *where_clause_dictionary,
+				char delimiter,
+				PROCESS *populate_drop_down_process,
+				LIST *attribute_list,
+				LIST *common_non_primary_attribute_name_list,
+				boolean filter_only_login_name,
+				LIST *exclude_attribute_name_list,
+				char *role_name,
+				char *state,
+				char *one2m_folder_name_for_processes,
+				char *appaserver_user_foreign_login_name,
+				boolean include_root_folder )
+{
 
-} /* folder_get_primary_data_list() */
+	/* if row level non-owner forbid */
+	/* ----------------------------- */
+	if ( filter_only_login_name && login_name )
+	{
+		char operator_entry[ 128 ];
+
+		if ( !parameter_dictionary )
+			parameter_dictionary =
+				dictionary_small_new();
+
+		if ( !where_clause_dictionary )
+			where_clause_dictionary =
+				dictionary_small_new();
+
+		dictionary_set_pointer(	parameter_dictionary,
+					"login_name",
+					login_name );
+
+		dictionary_set_pointer(	where_clause_dictionary,
+					"login_name",
+					login_name );
+
+		sprintf(operator_entry,
+		 	"%s%s",
+		 	QUERY_RELATION_OPERATOR_STARTING_LABEL,
+		 	"login_name" );
+
+		dictionary_set_pointer(	where_clause_dictionary,
+					strdup( operator_entry ),
+					EQUAL_OPERATOR );
+
+		if ( appaserver_user_foreign_login_name )
+		{
+			dictionary_set_pointer(
+				parameter_dictionary,
+				appaserver_user_foreign_login_name,
+				login_name );
+
+			dictionary_set_pointer(
+				where_clause_dictionary,
+				appaserver_user_foreign_login_name,
+				login_name );
+
+			sprintf(operator_entry,
+		 		"%s%s",
+		 		QUERY_RELATION_OPERATOR_STARTING_LABEL,
+		 		appaserver_user_foreign_login_name );
+
+			dictionary_set_pointer(	where_clause_dictionary,
+						strdup( operator_entry ),
+						EQUAL_OPERATOR );
+
+		}
+
+	} /* if row level non-owner forbid */
+
+	if ( populate_drop_down_process )
+	{
+		return folder_primary_data_process_list(
+			application_name,
+			session,
+			folder_name,
+			login_name,
+			parameter_dictionary,
+			where_clause_dictionary,
+			populate_drop_down_process,
+			attribute_list,
+			role_name,
+			state,
+			one2m_folder_name_for_processes );
+	}
+	else
+	{
+		return folder_primary_data_table_list(
+			application_name,
+			folder_name,
+			login_name,
+			where_clause_dictionary,
+			delimiter,
+			attribute_list,
+			common_non_primary_attribute_name_list,
+			exclude_attribute_name_list,
+			role_name,
+			include_root_folder );
+	}
+}
 
 LIST *folder_get_process_dictionary_list(
 			char *application_name,
@@ -828,17 +915,18 @@ boolean folder_get_pair_one2m_related_folder_boolean(
 		} while( list_next( one2m_related_folder_list ) );
 	}
 	return 0;
-} /* folder_get_pair_one2m_related_folder_boolean() */
+}
 
-LIST *folder_get_data_list(	char *application_name,
-				char *folder_name,
-				LIST *attribute_name_list,
-				char *where_clause,
-				char delimiter,
-				LIST *common_non_primary_attribute_name_list,
-				char *login_name,
-				LIST *date_position_list,
-				int maxrows )
+LIST *folder_data_list(
+			char *application_name,
+			char *folder_name,
+			LIST *attribute_name_list,
+			char *where_clause,
+			char delimiter,
+			LIST *common_non_primary_attribute_name_list,
+			char *login_name,
+			LIST *date_position_list,
+			int maxrows )
 {
 	char sys_string[ 65536 ];
 	char select[ 4096 ];
@@ -846,7 +934,6 @@ LIST *folder_get_data_list(	char *application_name,
 	char date_convert_process[ 512 ];
 	char escape_delimiter_process[ 512 ];
 	char first_folder_name[ 128 ];
-	LIST *results_list;
 
 	sprintf( escape_delimiter_process,
 		 "sed 's/%c/\\\\%c/g'",
@@ -913,11 +1000,8 @@ LIST *folder_get_data_list(	char *application_name,
 			common_non_primary_process,
 			escape_delimiter_process );
 
-	results_list = pipe2list( sys_string );
-
-	return results_list;
-
-} /* folder_get_data_list() */
+	return pipe2list( sys_string );
+}
 
 boolean folder_load(	int *insert_rows_number,
 			boolean *lookup_email_output,
@@ -2111,5 +2195,153 @@ LIST *folder_attribute_name_list(
 			LIST *attribute_list )
 {
 	return attribute_folder_name_list( attribute_list, (char *)0 );
+}
+
+LIST *folder_primary_data_table_list(
+			char *application_name,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			LIST *exclude_attribute_name_list,
+			char *role_name,
+			boolean include_root_folder )
+{
+	char *where_clause;
+	LIST *primary_attribute_name_list;
+	LIST *date_attribute_name_list;
+	LIST *date_position_list;
+	LIST *data_list;
+	QUERY *query;
+
+	primary_attribute_name_list =
+		folder_get_primary_attribute_name_list(
+			attribute_list );
+
+	date_attribute_name_list =
+		attribute_get_date_attribute_name_list(
+			attribute_list );
+
+	if ( exclude_attribute_name_list
+	&&   list_length( exclude_attribute_name_list ) )
+	{
+		primary_attribute_name_list =
+			list_subtract_string_list(
+				primary_attribute_name_list,
+				exclude_attribute_name_list );
+	}
+
+	if ( !list_length( primary_attribute_name_list ) )
+		return list_new();
+
+	query =	query_folder_data_new(
+			application_name,
+			login_name,
+			folder_name,
+			where_clause_dictionary,
+			role_new( application_name, role_name ),
+			0 /* infinite max_rows */,
+			include_root_folder );
+
+	where_clause = query->query_output->where_clause;
+
+	date_position_list =
+		list_get_position_list(
+			primary_attribute_name_list,
+			date_attribute_name_list );
+
+	data_list =
+		folder_data_list(
+			application_name,
+			query->query_output->from_clause
+				/* folder_name */,
+			primary_attribute_name_list,
+			where_clause,
+			delimiter,
+			common_non_primary_attribute_name_list,
+			login_name,
+			date_position_list,
+			FOLDER_MAXROWS );
+
+	return data_list;
+}
+
+LIST *folder_related_primary_data_table_list(
+			char *application_name,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			LIST *exclude_attribute_name_list,
+			char *role_name )
+{
+	char *where_clause;
+	LIST *primary_attribute_name_list;
+	LIST *date_attribute_name_list;
+	LIST *date_position_list;
+	LIST *data_list;
+	QUERY *query;
+
+	primary_attribute_name_list =
+		folder_get_primary_attribute_name_list(
+			attribute_list );
+
+fprintf(stderr,
+	"%s/%s()/%d: folder = %s; primary_attribute_name_list = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+folder_name,
+list_display( primary_attribute_name_list ) );
+
+	date_attribute_name_list =
+		attribute_get_date_attribute_name_list(
+			attribute_list );
+
+	if ( exclude_attribute_name_list
+	&&   list_length( exclude_attribute_name_list ) )
+	{
+		primary_attribute_name_list =
+			list_subtract_string_list(
+				primary_attribute_name_list,
+				exclude_attribute_name_list );
+	}
+
+	if ( !list_length( primary_attribute_name_list ) )
+		return list_new();
+
+	query =	query_related_folder_data_new(
+			application_name,
+			login_name,
+			folder_name,
+			where_clause_dictionary,
+			role_new( application_name, role_name ),
+			0 /* infinite max_rows */ );
+
+	where_clause = query->query_output->where_clause;
+
+	date_position_list =
+		list_get_position_list(
+			primary_attribute_name_list,
+			date_attribute_name_list );
+
+	data_list =
+		folder_data_list(
+			application_name,
+			query->query_output->from_clause
+				/* folder_name */,
+			primary_attribute_name_list,
+			where_clause,
+			delimiter,
+			common_non_primary_attribute_name_list,
+			login_name,
+			date_position_list,
+			FOLDER_MAXROWS );
+
+	return data_list;
 }
 

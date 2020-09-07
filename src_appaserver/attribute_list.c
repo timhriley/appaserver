@@ -18,6 +18,9 @@
 
 /* Prototypes */
 /* ---------- */
+void attribute_list_not_dictionary(
+			void );
+
 void attribute_list_attribute_name(
 			char *folder_name );
 
@@ -41,7 +44,6 @@ void attribute_list_without_folder(
 /* ----------------------------------------------------------------- */
 void attribute_list_dictionary(
 			char *dictionary_string );
-
 
 int main( int argc, char **argv )
 {
@@ -128,6 +130,19 @@ void attribute_list_folder( char *folder_name )
 		0 /* not with_sort */ );
 }
 
+void attribute_list_not_dictionary( void )
+{
+	ATTRIBUTE *attribute = attribute_calloc();
+
+	attribute->attribute_list =
+		attribute_list( (char *)0 /* folder_name */ );
+
+	attribute_name_list_display(
+		attribute_name_list(
+			attribute->attribute_list ),
+		1 /* with_sort */ );
+}
+
 void attribute_list_folder_attribute( void )
 {
 	ATTRIBUTE *attribute = attribute_calloc();
@@ -183,7 +198,7 @@ void attribute_list_dictionary( char *dictionary_string )
 			}
 		}
 	}
-	attribute_list_folder( (char *)0 /* folder_name */ );
+	attribute_list_not_dictionary();
 }
 
 void attribute_list_with_null( char *folder_name )

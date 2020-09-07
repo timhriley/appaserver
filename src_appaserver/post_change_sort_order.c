@@ -657,7 +657,6 @@ void post_change_sort_order_post_change_process_execute(
 		(char *)0 /* operation_row_count_string */,
 		(char *)0 /* prompt */ );
 
-	system( post_change_process->executable );
-
-} /* post_change_sort_order_post_change_process_execute() */
+	if ( system( post_change_process->executable ) ){}
+}
 

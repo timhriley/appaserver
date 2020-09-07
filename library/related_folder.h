@@ -110,7 +110,7 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 				char *attribute_name,
 				LIST *include_attribute_name_list );
 
-LIST *related_folder_get_drop_down_element_list(
+LIST *related_folder_drop_down_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char *application_name,
 			char *session,

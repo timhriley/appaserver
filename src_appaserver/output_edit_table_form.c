@@ -606,7 +606,7 @@ int main( int argc, char **argv )
 
 
 	row_security->row_security_element_list_structure =
-		row_security_element_list_structure_new(
+		row_security_edit_table_structure_new(
 			application_name,
 			row_security->row_security_state,
 			row_security->login_name,
@@ -620,8 +620,6 @@ int main( int argc, char **argv )
 			row_security->select_folder,
 			row_security->attribute_not_null_folder,
 			row_security->foreign_login_name_folder,
-			(LIST *)0 /* where_clause_attribute_name_list */,
-			(LIST *)0 /* where_clause_data_list */,
 			non_edit_folder_name_list,
 			make_primary_keys_non_edit,
 			omit_delete_dont_care,

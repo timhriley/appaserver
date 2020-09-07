@@ -268,7 +268,7 @@ void generic_measurement_load(
 						strdup( element_name ) );
 
 				element->drop_down->option_data_list =
-				   folder_get_primary_data_list(
+				   folder_primary_data_list(
 					application_name,
 					BOGUS_SESSION,
 					related_folder->

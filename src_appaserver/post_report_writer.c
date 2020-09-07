@@ -1412,7 +1412,7 @@ LIST *state_three_get_folder_element_list(
 
 		list_append_list(
 			return_list,
-			related_folder_get_drop_down_element_list(
+			related_folder_drop_down_element_list(
 			       (RELATED_FOLDER **)0,
 			       application_name,
 			       session,

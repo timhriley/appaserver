@@ -203,4 +203,35 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_fetch(
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_element_list_structure_calloc(
 			void );
 
+ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_edit_table_structure_new(
+			char *application_name,
+			enum row_security_state row_security_state,
+			char *login_name,
+			char *state,
+			ROLE *login_role,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			LIST *no_display_pressed_attribute_name_list,
+			FOLDER *select_folder,
+			FOLDER *attribute_not_null_folder,
+			FOLDER *foreign_login_name_folder,
+			LIST *non_edit_folder_name_list,
+			boolean make_primary_keys_non_edit,
+			enum omit_delete_operation omit_delete_operation,
+			boolean omit_operation_buttons,
+			char update_yn,
+			boolean ajax_fill_drop_down_omit,
+			LIST *append_isa_attribute_list );
+
+LIST *row_security_edit_table_dictionary_list(
+			LIST *append_isa_attribute_list,
+			char *application_name,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			ROLE *login_role,
+			char *login_name,
+			char *select_folder_name,
+			LIST *join_1tom_related_folder_list );
+
 #endif

@@ -350,7 +350,7 @@ LIST *get_element_list(		char *login_name,
 			strdup( element_name ) );
 
 	element->drop_down->option_data_list =
-		folder_get_primary_data_list(
+		folder_primary_data_list(
 			application_name,
 			session,
 			isa_related_folder_name,

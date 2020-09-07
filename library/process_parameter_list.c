@@ -974,7 +974,7 @@ LIST *process_parameter_get_primary_data_list(
 			override_row_restrictions,
 			role_name );
 
-	return folder_get_primary_data_list(
+	return folder_primary_data_list(
 			application_name,
 			BOGUS_SESSION,
 			folder_name,

@@ -105,7 +105,6 @@ int exists_hidden_text_datatype(	LIST *attribute_list );
 LIST *get_radio_button_element_list(
 					LIST *attribute_list,
 					int folder_lookup_transmit_output,
-					int folder_lookup_email_output,
 					char new_button_yn,
 					boolean delete_button,
 					boolean group_button,
@@ -142,7 +141,6 @@ LIST *get_element_list(
 			char *folder_name,
 			LIST *attribute_list,
 			LIST *mto1_related_folder_list,
-			int folder_lookup_email_output,
 			int folder_lookup_transmit_output,
 			char new_button_yn,
 			char *notepad,
@@ -560,7 +558,6 @@ void output_prompt_edit_form(
 			folder_name,
 			appaserver->folder->attribute_list,
 			mto1_related_folder_list,
-			appaserver->folder->lookup_email_output,
 			1 /* appaserver->folder->lookup_transmit_output */,
 			new_button_yn,
 			appaserver->folder->notepad,
@@ -933,8 +930,7 @@ m2( application_name, msg );
 		(char *)0 /* post_change_javascript */ );
 
 	document_close();
-
-} /* output_prompt_edit_form() */
+}
 
 LIST *get_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
@@ -945,7 +941,6 @@ LIST *get_element_list(
 			char *folder_name,
 			LIST *attribute_list,
 			LIST *mto1_related_folder_list,
-			int folder_lookup_email_output,
 			int folder_lookup_transmit_output,
 			char new_button_yn,
 			char *notepad,
@@ -1054,7 +1049,6 @@ LIST *get_element_list(
 			get_radio_button_element_list(
 				attribute_list,
 				folder_lookup_transmit_output,
-				folder_lookup_email_output,
 				new_button_yn,
 				delete_button,
 				group_button,
@@ -1276,7 +1270,7 @@ LIST *get_element_list(
 
 			list_append_list(
 				return_list,
-				related_folder_get_drop_down_element_list(
+				related_folder_drop_down_element_list(
 				   (RELATED_FOLDER **)0,
 				   application_name,
 				   session,
@@ -1385,13 +1379,11 @@ LIST *get_element_list(
 	}
 
 	return return_list;
-
-} /* get_element_list() */
+}
 
 LIST *get_radio_button_element_list(
 					LIST *attribute_list,
 					int folder_lookup_transmit_output,
-					int folder_lookup_email_output,
 					char new_button_yn,
 					boolean delete_button,
 					boolean group_button,
@@ -1696,6 +1688,7 @@ LIST *get_radio_button_element_list(
 
 #ifdef NOT_DEFINED
 # Retired 2020-08-03
+int folder_lookup_email_output,
 	/* Create the email_output text field (maybe) */
 	/* ------------------------------------------ */
 	if ( folder_lookup_email_output )
@@ -1745,7 +1738,7 @@ LIST *get_radio_button_element_list(
 #endif
 
 	return return_list;
-} /* get_radio_button_element_list() */
+}
 
 int exists_hidden_text_datatype( LIST *attribute_list )
 {
@@ -1860,7 +1853,7 @@ LIST *get_prompt_mto1_recursive_element_list(
 	{
 		list_append_list(
 			recursive_element_list,
-			related_folder_get_drop_down_element_list(
+			related_folder_drop_down_element_list(
 				(RELATED_FOLDER **)0,
 				application_name,
 				session,
@@ -1924,7 +1917,7 @@ LIST *get_prompt_mto1_recursive_element_list(
 
 		list_append_list(
 			recursive_element_list,
-			related_folder_get_drop_down_element_list(
+			related_folder_drop_down_element_list(
 				(RELATED_FOLDER **)0,
 				application_name,
 				session,
@@ -2290,7 +2283,7 @@ void build_related_folder_element_list(
 
 	list_append_list(
 		element_list,
-		related_folder_get_drop_down_element_list(
+		related_folder_drop_down_element_list(
 			only_one_ajax_fill_drop_down,
 			application_name,
 			session,
@@ -2336,6 +2329,5 @@ void build_related_folder_element_list(
 			) );
 
 	related_folder->ignore_output = 1;
-
-} /* build_related_folder_element_list() */
+}
 

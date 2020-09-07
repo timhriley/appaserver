@@ -384,7 +384,7 @@ void post_state_one(	char *application_name,
 						strdup( element_name ) );
 
 			element->drop_down->option_data_list =
-				folder_get_primary_data_list(
+				folder_primary_data_list(
 					application_name,
 					BOGUS_SESSION,
 					related_folder->

@@ -333,7 +333,7 @@ void post_state_one(	char *application_name,
 			KEEP_LABEL );
 
 	element->drop_down->option_data_list =
-		folder_get_primary_data_list(
+		folder_primary_data_list(
 			application_name,
 			session,
 			folder->folder_name,
@@ -393,7 +393,7 @@ void post_state_one(	char *application_name,
 			PURGE_LABEL );
 
 	element->drop_down->option_data_list =
-		folder_get_primary_data_list(
+		folder_primary_data_list(
 			application_name,
 			session,
 			folder->folder_name,

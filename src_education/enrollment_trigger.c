@@ -88,8 +88,7 @@ int main( int argc, char **argv )
 	}
 	else
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0
-	||   strcmp( state, "delete" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0 )
 	{
 		char sys_string[ 1024 ];
 
@@ -104,6 +103,36 @@ int main( int argc, char **argv )
 			"registration_trigger \"%s\" \"%s\" \"%s\" %d update",
 			student_full_name,
 			street_address,
+			season_name,
+			year );
+
+		if ( system( sys_string ) ){}
+
+		sprintf(sys_string,
+			"offering_trigger \"%s\" \"%s\" %d update",
+			course_name,
+			season_name,
+			year );
+
+		if ( system( sys_string ) ){}
+	}
+	else
+	if ( strcmp( state, "delete" ) ==  0 )
+	{
+		char sys_string[ 1024 ];
+
+		sprintf(sys_string,
+			"registration_trigger \"%s\" \"%s\" \"%s\" %d update",
+			student_full_name,
+			street_address,
+			season_name,
+			year );
+
+		if ( system( sys_string ) ){}
+
+		sprintf(sys_string,
+			"offering_trigger \"%s\" \"%s\" %d update",
+			course_name,
 			season_name,
 			year );
 
