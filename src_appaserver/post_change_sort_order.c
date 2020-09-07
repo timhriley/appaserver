@@ -249,6 +249,10 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "one" ) == 0 )
 	{
+		dictionary_appaserver_parse_multi_attribute_keys(
+			dictionary_appaserver->query_dictionary,
+			QUERY_RELATION_OPERATOR_STARTING_LABEL );
+
 		change_sort_order_state_one(
 				application_name,
 				folder,

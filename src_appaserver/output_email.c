@@ -230,10 +230,10 @@ int main( int argc, char **argv )
 		folder_get_attribute_name_list( folder->attribute_list );
 
 	query = query_edit_table_new(
+			query_dictionary,
 			application_name,
 			login_name,
 			folder->folder_name,
-			query_dictionary,
 			role );
 
 	row_dictionary_list =

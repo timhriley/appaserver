@@ -450,10 +450,10 @@ void export_output_spreadsheet_folder(	char *output_filename,
 			(LIST *)0 /* mto1_related_folder_list */ );
 
 	query = query_edit_table_new(
+			(DICTIONARY *)0 /* query_dictionary */,
 			application_name,
 			(char *)0 /* login_name */,
 			folder->folder_name,
-			(DICTIONARY *)0 /* query_dictionary */,
 			(ROLE *)0 );
 
 	row_dictionary_list =

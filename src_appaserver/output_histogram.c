@@ -189,11 +189,11 @@ int main( int argc, char **argv )
 				select_attribute_name );
 
 			query = query_edit_table_new(
+					dictionary_appaserver->
+						query_dictionary,
 					application_name,
 					login_name,
 					folder_name,
-					dictionary_appaserver->
-						query_dictionary,
 					role_new(
 						application_name,
 						role_name ) );

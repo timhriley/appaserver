@@ -1,9 +1,9 @@
 :
 cd ../library
-make
+make 
 if [ "$?" -eq 0 ]
 then
 	cd -
-	make export_subschema
+	make statistics_folder output_edit_table_form
 fi
 

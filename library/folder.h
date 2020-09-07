@@ -414,7 +414,6 @@ LIST *folder_related_primary_data_list(
 			LIST *attribute_list,
 			LIST *common_non_primary_attribute_name_list,
 			boolean filter_only_login_name,
-			LIST *exclude_attribute_name_list,
 			char *role_name,
 			char *state,
 			char *one2m_folder_name_for_processes,

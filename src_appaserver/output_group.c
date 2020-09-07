@@ -227,10 +227,10 @@ int main( int argc, char **argv )
 					exclude_attribute_name_list );
 
 	query = query_edit_table_new(
+			dictionary_appaserver->query_dictionary,
 			application_name,
 			login_name,
 			appaserver->folder->folder_name,
-			dictionary_appaserver->query_dictionary,
 			role_new( application_name, role_name ) );
 
 	if ( ! ( total_count =

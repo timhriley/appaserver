@@ -168,24 +168,19 @@ int main( int argc, char **argv )
 			dictionary_appaserver->preprompt_dictionary,
 			folder->lookup_before_drop_down );
 
+/*
+	dictionary_appaserver_parse_multi_attribute_keys(
+		dictionary_appaserver->query_dictionary,
+		QUERY_RELATION_OPERATOR_STARTING_LABEL );
+*/
+
 	query =
 		query_edit_table_new(
+			dictionary_appaserver->query_dictionary,
 			application_name,
 			login_name,
 			folder_name,
-			dictionary_appaserver->query_dictionary,
 			role_new( application_name, role_name ) );
-
-#ifdef NOT_DEFINED
-	query = query_folder_new(
-			application_name,
-			login_name,
-			folder_name,
-			dictionary_appaserver->query_dictionary,
-			role_new( application_name, role_name ),
-			(LIST *)0,
-			(LIST *)0 );
-#endif
 
 	where_clause = query->query_output->where_clause;
 
@@ -231,7 +226,7 @@ int main( int argc, char **argv )
 		return 0;
 	}
 
-	system( sys_string );
+	if ( system( sys_string ) ){}
 
 	query_attribute_statistics_list_populate_list(
 			query_attribute_statistics_list->list );

@@ -237,10 +237,10 @@ int main( int argc, char **argv )
 		folder->row_level_non_owner_forbid = 1;
 
 	query = query_edit_table_new(
+			dictionary_appaserver->query_dictionary,
 			application_name,
 			login_name,
 			folder_name,
-			dictionary_appaserver->query_dictionary,
 			role_new( application_name, role_name ) );
 
 	where_clause = query->query_output->where_clause;

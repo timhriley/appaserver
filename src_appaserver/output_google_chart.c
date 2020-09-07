@@ -265,10 +265,10 @@ void output_chart(	char *application_name,
 			0 /* not with_dynarch_menu */ );
 
 	query = query_edit_table_new(
+			query_dictionary,
 			application_name,
 			login_name,
 			folder_name,
-			query_dictionary,
 			role_new( application_name, role_name ) );
 
 	query_record_list =

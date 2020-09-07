@@ -225,7 +225,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_edit_table_structure_new(
 			LIST *append_isa_attribute_list );
 
 LIST *row_security_edit_table_dictionary_list(
-			LIST *append_isa_attribute_list,
 			char *application_name,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,

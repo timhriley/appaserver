@@ -236,41 +236,11 @@ char *get_families_sys_string(		char *application_name,
 
 		query =
 			query_edit_table_new(
+				post_dictionary /* query_dictionary */,
 				application_name,
 				login_name,
 				folder->folder_name,
-				post_dictionary /* query_dictionary */,
 				(ROLE *)0 );
-
-#ifdef NOT_DEFINED
-		query = query_folder_new(
-				application_name,
-				login_name,
-				folder->folder_name,
-				post_dictionary /* query_dictionary */,
-				(ROLE *)0,
-				(LIST *)0,
-				(LIST *)0 );
-
-		query =	query_new(
-				application_name,
-				login_name,
-				folder->folder_name,
-				(LIST *)0 /* attribute_list */,
-				post_dictionary,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				(ROLE *)0 /* role */,
-				(LIST *)0 /* where_attribute_name_list */,
-				(LIST *)0 /* where_attribute_data_list */,
-				0 /* max_rows */,
-				0 /* not include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
 
 		where_clause =
 			query->query_output->where_clause;

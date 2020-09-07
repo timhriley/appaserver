@@ -152,11 +152,15 @@ char *list_string_display( LIST *list );
 void list_subtract_dictionary_string( LIST *list, char *dictionary_string );
 void list_subtract_string( LIST *list, char *string );
 int delete_current( LIST *list );
+
 int list_delete_current( LIST *list );
+
 char *list_display_quoted( char *destination, LIST *list );
+
 char *list_display_quoted_delimiter( 	char *destination, 
 					LIST *list,
 					char delimiter );
+
 char *list_display_quoted_delimited( 	char *destination, 
 					LIST *list,
 					char delimiter );
@@ -168,7 +172,9 @@ void list_display_lines(		LIST *list );
 char *list_display_delimited( LIST *list, char delimiter );
 
 char *list_display_delimited_plus_space( LIST *list, char delimiter );
+
 boolean is_subset_of( LIST *subset, LIST *set );
+
 boolean list_is_subset_of( LIST *subset, LIST *set );
 void list_delete_from_list( LIST *set, LIST *delete_list );
 void list_delete_string( LIST *list, char *string );
@@ -199,6 +205,9 @@ LIST *list_duplicate_string_list( LIST *list );
 LIST *list_duplicate( LIST *list );
 void list_replace_last_string( 	LIST *list, char *string );
 void list_replace_string( 	LIST *list, char *old, char *new );
+
+LIST *list_set_list(		LIST *destination_list,
+				LIST *source_list );
 
 LIST *list_append_list( 	LIST *destination_list, 
 				LIST *source_list );

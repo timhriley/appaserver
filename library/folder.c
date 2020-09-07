@@ -554,24 +554,22 @@ LIST *folder_primary_data_process_list(
 }
 
 LIST *folder_related_primary_data_list(
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *login_name,
-				DICTIONARY *parameter_dictionary,
-				DICTIONARY *where_clause_dictionary,
-				char delimiter,
-				PROCESS *populate_drop_down_process,
-				LIST *attribute_list,
-				LIST *common_non_primary_attribute_name_list,
-				boolean filter_only_login_name,
-				LIST *exclude_attribute_name_list,
-				char *role_name,
-				char *state,
-				char *one2m_folder_name_for_processes,
-				char *appaserver_user_foreign_login_name )
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			boolean filter_only_login_name,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			char *appaserver_user_foreign_login_name )
 {
-
 	/* if row level non-owner forbid */
 	/* ----------------------------- */
 	if ( filter_only_login_name && login_name )
@@ -653,7 +651,7 @@ LIST *folder_related_primary_data_list(
 			delimiter,
 			attribute_list,
 			common_non_primary_attribute_name_list,
-			exclude_attribute_name_list,
+			list_new() /* exclude_attribute_name_list */,
 			role_name );
 	}
 }
@@ -2318,7 +2316,7 @@ LIST *folder_related_primary_data_table_list(
 
 	date_position_list =
 		list_get_position_list(
-			primary_attribute_name_list,
+			query->folder->primary_attribute_name_list,
 			date_attribute_name_list );
 
 	data_list =
@@ -2326,7 +2324,7 @@ LIST *folder_related_primary_data_table_list(
 			application_name,
 			query->query_output->from_clause
 				/* folder_name */,
-			primary_attribute_name_list,
+			query->folder->primary_attribute_name_list,
 			where_clause,
 			delimiter,
 			common_non_primary_attribute_name_list,

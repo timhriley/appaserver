@@ -604,7 +604,6 @@ int main( int argc, char **argv )
 	row_security->select_folder->join_1tom_related_folder_list =
 		folder->join_1tom_related_folder_list;
 
-
 	row_security->row_security_element_list_structure =
 		row_security_edit_table_structure_new(
 			application_name,

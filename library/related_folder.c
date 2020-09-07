@@ -106,9 +106,9 @@ RELATED_FOLDER *related_folder_calloc( void )
 } /* related_folder_calloc() */
 
 LIST *related_folder_foreign_attribute_name_list(
-				LIST *primary_attribute_name_list,
-				char *related_attribute_name,
-				LIST *folder_foreign_attribute_name_list )
+			LIST *primary_attribute_name_list,
+			char *related_attribute_name,
+			LIST *folder_foreign_attribute_name_list )
 {
 	LIST *return_list = {0};
 
@@ -329,9 +329,9 @@ LIST *related_folder_drop_down_element_list(
 			element->toggle_button,
 			ignore_or_no_display_push_button_heading );
 
-		list_append_pointer(
-				return_list, 
-				element );
+		list_set(
+			return_list, 
+			element );
 	}
 
 	if ( role_folder_insert_list
@@ -525,7 +525,6 @@ LIST *related_folder_drop_down_element_list(
 				( row_level_non_owner_view_only ||
 				  row_level_non_owner_forbid )
 					/* filter_only_login_name */,
-				(LIST *)0 /* exclude_attribute_name_list */,
 				role_name,
 				state,
 				one2m_folder_name_for_processes,
@@ -568,9 +567,9 @@ LIST *related_folder_drop_down_element_list(
 
 	element->hidden->data = "equals";
 
-	list_append_pointer(
-			return_list, 
-			element );
+	list_set(
+		return_list, 
+		element );
 
 	return return_list;
 }
@@ -2950,22 +2949,11 @@ LIST *related_folder_get_preselection_dictionary_list(
 	}
 	else
 	{
-/*
-		query = query_folder_new(
-				application_name,
-				login_name,
-				related_folder->folder_name,
-				query_dictionary,
-				(ROLE *)0,
-				(LIST *)0,
-				(LIST *)0 );
-*/
-
 		query = query_edit_table_new(
+				query_dictionary,
 				application_name,
 				login_name,
 				related_folder->folder_name,
-				query_dictionary,
 				(ROLE *)0 );
 
 		related_folder_dictionary_list =

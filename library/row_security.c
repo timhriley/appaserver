@@ -1385,7 +1385,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 
 	element_list_structure->row_dictionary_list =
 		row_security_edit_table_dictionary_list(
-			append_isa_attribute_list,
 			application_name,
 			query_dictionary,
 			sort_dictionary,
@@ -1457,7 +1456,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 }
 
 LIST *row_security_edit_table_dictionary_list(
-			LIST *append_isa_attribute_list,
 			char *application_name,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
@@ -1469,23 +1467,46 @@ LIST *row_security_edit_table_dictionary_list(
 	QUERY *query;
 	LIST *row_dictionary_list;
 
-	if ( !list_length( append_isa_attribute_list ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty append_isa_attribute_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: select_folder_name = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+select_folder_name );
+m2( application_name, msg );
+}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: edit_table query_dictionary = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display( query_dictionary ) );
+m2( application_name, msg );
+}
+*/
 	query =
 		query_edit_table_new(
+			query_dictionary,
 			application_name,
 			login_name,
 			select_folder_name,
-			query_dictionary,
 			login_role );
+
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: where_clause = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+query->query_output->where_clause );
+m2( application_name, msg );
+}
+*/
 
 	query->sort_dictionary = sort_dictionary;
 
@@ -1495,13 +1516,13 @@ LIST *row_security_edit_table_dictionary_list(
 			query_get_order_clause(
 				query->sort_dictionary,
 				select_folder_name,
-				append_isa_attribute_list );
+				query->folder->append_isa_attribute_list );
 	}
 
 	query->query_output->from_clause =
 		list_display_delimited(
 			attribute_distinct_folder_name_list(
-				append_isa_attribute_list ),
+				query->folder->append_isa_attribute_list ),
 			',' );
 
 	row_dictionary_list =
@@ -1512,7 +1533,7 @@ LIST *row_security_edit_table_dictionary_list(
 			query->query_output->where_clause,
 			query->query_output->order_clause,
 			query->max_rows,
-			append_isa_attribute_list,
+			query->folder->append_isa_attribute_list,
 			query->login_name  );
 
 	if ( list_length( join_1tom_related_folder_list ) )
@@ -1522,7 +1543,7 @@ LIST *row_security_edit_table_dictionary_list(
 			join_1tom_related_folder_list,
 			application_name,
 			attribute_get_primary_attribute_name_list(
-				append_isa_attribute_list ) );
+				query->folder->append_isa_attribute_list ) );
 	}
 
 	return row_dictionary_list;

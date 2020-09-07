@@ -337,10 +337,10 @@ int main( int argc, char **argv )
 		(char *)0 /* post_change_javascript */ );
 
 	query = query_edit_table_new(
+			query_dictionary,
 			application_name,
 			login_name,
 			folder_name,
-			query_dictionary,
 			role_new( application_name, role_name ) );
 
 	attribute_list_remove_exclude_permission_list(
