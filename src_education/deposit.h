@@ -165,11 +165,9 @@ double deposit_payment_total(
 			LIST *deposit_payment_list );
 
 DEPOSIT *deposit_steady_state(
-			ENTITY *payor_entity,
-			SEMESTER *semester,
-			char *deposit_date_time,
+			double registration_payment_total,
 			double deposit_amount,
-			double deposit_transaction_fee,
+			double transaction_fee,
 			LIST *deposit_payment_list,
 			/* ----------------------------- */
 			/* Don't take anything from here */

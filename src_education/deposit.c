@@ -426,6 +426,8 @@ double deposit_payment_total(
 
 DEPOSIT *deposit_steady_state(
 			double registration_payment_total,
+			double deposit_amount,
+			double transaction_fee,
 			LIST *deposit_payment_list,
 			DEPOSIT *deposit )
 {
@@ -445,7 +447,7 @@ fprintf(stderr,
 
 	deposit->deposit_remaining =
 		deposit_remaining(
-			deposit->deposit_amount,
+			deposit_amount,
 			registration_invoice_amount_due(
 				registration_tuition(
 				      deposit->deposit_registration_list ),
@@ -460,8 +462,8 @@ deposit->deposit_remaining );
 
 	deposit->deposit_net_revenue =
 		deposit_net_revenue(
-			deposit->deposit_amount,
-			deposit->transaction_fee );
+			deposit_amount,
+			transaction_fee );
 
 fprintf(stderr,
 	"%s/%s()/%d\n",

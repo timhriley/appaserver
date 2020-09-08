@@ -82,5 +82,8 @@ REGISTRATION *registration_steady_state(
 			/* ----------------------------- */
 			REGISTRATION *registration );
 
+/* ------------------------------------- */
+/* Place functions in registration_fns.h */
+/* ------------------------------------- */
 #endif
 
