@@ -58,12 +58,25 @@ double registration_tuition(
 	OFFERING *offering;
 	double tuition;
 
+fprintf(stderr,
+	"%s/%s()/%d: got length( enrollment_list ) = %d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+list_length( enrollment_list ) );
+
 	if ( !list_rewind( enrollment_list ) ) return 0.0;
 
 	tuition = 0.0;
 
 	do {
 		enrollment = list_get( enrollment_list );
+
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
 
 		if ( !enrollment->offering )
 		{
@@ -87,9 +100,36 @@ double registration_tuition(
 			exit( 1 );
 		}
 
+fprintf(stderr,
+	"%s/%s()/%d: course = %x\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+offering->course );
+
+fprintf(stderr,
+	"%s/%s()/%d: course_price = %.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+offering->course->course_price );
+
 		tuition += offering->course->course_price;
 
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
 	} while ( list_next( enrollment_list ) );
+
+fprintf(stderr,
+	"%s/%s()/%d: returning tuition = %.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+tuition );
 
 	return tuition;
 }
@@ -402,26 +442,9 @@ REGISTRATION *registration_steady_state(
 			char *season_name,
 			int year,
 			LIST *registration_enrollment_list,
-			LIST *registration_payment_list )
+			LIST *registration_payment_list,
+			REGISTRATION *registration )
 {
-	REGISTRATION *registration;
-
-	if ( ! ( registration =
-			registration_new(
-				student_full_name,
-				street_address,
-				season_name,
-				year ) ) )
-	{
-		fprintf(stderr,
-			"%s/%s()/%d: registration_new(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			student_full_name );
-		exit( 1 );
-	}
-
 	registration->registration_tuition =
 		registration_tuition(
 			registration_enrollment_list );

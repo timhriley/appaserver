@@ -49,6 +49,8 @@ int main( int argc, char **argv )
 		fprintf( stderr,
 			 "Usage: %s course_name season_name year state\n",
 			 argv[ 0 ] );
+		fprintf( stderr,
+			 "state in {insert,update,delete,enrollment}\n" );
 		exit ( 1 );
 	}
 
@@ -66,7 +68,8 @@ int main( int argc, char **argv )
 	if ( !year ) exit( 0 );
 
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0
+	||   strcmp( state, "enrollment" ) ==  0 )
 	{
 		offering_trigger(
 			course_name,
@@ -105,7 +108,11 @@ void offering_trigger(
 				semester_offering_list(
 					season_name,
 					year ),
-				offering->offering_enrollment_list ) ) )
+				offering->offering_enrollment_list,
+				/* ----------------------------- */
+				/* Don't take anything from here */
+				/* ----------------------------- */
+				offering ) ) )
 	{
 		fprintf(stderr,
 			"%s/%s()/%d: offering_steady_state() returned empty.\n",

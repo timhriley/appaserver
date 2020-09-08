@@ -105,21 +105,11 @@ PAYMENT *payment_steady_state(
 			DEPOSIT *deposit,
 			double deposit_amount,
 			double deposit_transaction_fee,
-			char *program_name );
-
-boolean payment_extract_structure(
-			REGISTRATION **registraton,
-			OFFERING **offering,
-			ENROLLMENT **enrollment,
-			DEPOSIT **deposit,
-			SEMESTER **semester,
+			char *program_name,
+			/* ----------------------------- */
+			/* Don't take anything from here */
+			/* ----------------------------- */
 			PAYMENT *payment );
-
-void payment_stamp_structure(
-			REGISTRATION *registration,
-			OFFERING *offering,
-			DEPOSIT *deposit,
-			SEMESTER *semester );
 
 /* -------------------------------- */
 /* Place functions in payment_fns.h */

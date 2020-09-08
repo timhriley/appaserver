@@ -100,7 +100,7 @@ int main( int argc, char **argv )
 			year );
 
 		sprintf(sys_string,
-			"registration_trigger \"%s\" \"%s\" \"%s\" %d update",
+		"registration_trigger \"%s\" \"%s\" \"%s\" %d enrollment",
 			student_full_name,
 			street_address,
 			season_name,
@@ -109,7 +109,7 @@ int main( int argc, char **argv )
 		if ( system( sys_string ) ){}
 
 		sprintf(sys_string,
-			"offering_trigger \"%s\" \"%s\" %d update",
+			"offering_trigger \"%s\" \"%s\" %d enrollment",
 			course_name,
 			season_name,
 			year );
@@ -122,7 +122,7 @@ int main( int argc, char **argv )
 		char sys_string[ 1024 ];
 
 		sprintf(sys_string,
-			"registration_trigger \"%s\" \"%s\" \"%s\" %d update",
+		"registration_trigger \"%s\" \"%s\" \"%s\" %d enrollment",
 			student_full_name,
 			street_address,
 			season_name,
@@ -131,7 +131,7 @@ int main( int argc, char **argv )
 		if ( system( sys_string ) ){}
 
 		sprintf(sys_string,
-			"offering_trigger \"%s\" \"%s\" %d update",
+			"offering_trigger \"%s\" \"%s\" %d enrollment",
 			course_name,
 			season_name,
 			year );
@@ -168,7 +168,11 @@ void enrollment_trigger_insert_update(
 		enrollment_steady_state(
 			enrollment->registration,
 			enrollment->offering,
-			enrollment->enrollment_payment_list );
+			enrollment->enrollment_payment_list,
+			/* ----------------------------- */
+			/* Don't take anything from here */
+			/* ----------------------------- */
+			enrollment );
 
 	if ( enrollment->enrollment_transaction )
 	{

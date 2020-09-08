@@ -104,6 +104,13 @@ ENROLLMENT *enrollment_parse(
 			1 /* fetch_course */,
 			0 /* not fetch_enrollment_list */ );
 
+fprintf(stderr,
+	"%s/%s()/%d: course = [%x]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+enrollment->offering->course );
+
 	enrollment->registration =
 		registration_fetch(
 			full_name,
@@ -157,7 +164,10 @@ ENROLLMENT *enrollment_fetch(
 			int year,
 			boolean fetch_payment_list )
 {
-	return enrollment_parse(
+	ENROLLMENT *enrollment;
+
+	enrollment =
+		enrollment_parse(
 			pipe2string(
 				enrollment_sys_string(
 					/* --------------------- */
@@ -170,6 +180,8 @@ ENROLLMENT *enrollment_fetch(
 						course_name,
 						year ) ) ),
 			fetch_payment_list );
+
+	return enrollment;
 }
 
 LIST *enrollment_system_list(
@@ -341,27 +353,18 @@ LIST *enrollment_payment_list(
 					street_address,
 					course_name,
 					season_name,
-					year ) ) );
+					year ) ),
+		1 /* fetch_deposit */,
+		0 /* fetch_enrollment */ );
 	return payment_list;
 }
 
 ENROLLMENT *enrollment_steady_state(
 			REGISTRATION *registration,
 			OFFERING *offering,
-			LIST *enrollment_payment_list )
+			LIST *enrollment_payment_list,
+			ENROLLMENT *enrollment )
 {
-	ENROLLMENT *enrollment;
-
-	enrollment =
-		enrollment_new(
-			registration->student_full_name,
-			registration->street_address,
-			offering->course->course_name,
-			offering->season_name,
-			offering->year );
-
-	enrollment->enrollment_payment_list = enrollment_payment_list;
-
 	enrollment->enrollment_transaction =
 		enrollment_transaction(
 			registration->student_full_name,

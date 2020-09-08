@@ -84,7 +84,9 @@ PAYMENT *payment_fetch(	char *student_full_name,
 			boolean fetch_deposit,
 			boolean fetch_enrollment )
 {
-	return	payment_parse(
+	PAYMENT *payment;
+
+	payment = payment_parse(
 			pipe2string(
 				payment_sys_string(
 					/* --------------------- */
@@ -101,6 +103,8 @@ PAYMENT *payment_fetch(	char *student_full_name,
 						deposit_date_time ) ) ),
 			fetch_deposit,
 			fetch_enrollment );
+
+	return payment;
 }
 
 double payment_amount(	double deposit_remaining,
@@ -114,11 +118,11 @@ double payment_amount(	double deposit_remaining,
 
 FILE *payment_update_open( void )
 {
-	char sys_string[ 1024 ];
+	char sys_string[ 2048 ];
 
 	sprintf( sys_string,
 		 "update_statement table=%s key=%s carrot=y	|"
-"tee /dev/tty |"
+"tee -a /var/log/appaserver/appaserver_tnt.err |"
 		 "sql						 ",
 		 "payment",
 		 PAYMENT_PRIMARY_KEY );
@@ -226,13 +230,6 @@ char *payment_sys_string( char *where )
 		"payment",
 		where );
 
-fprintf(stderr,
-	"%s/%s()/%d: %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-sys_string );
-
 	return strdup( sys_string );
 }
 
@@ -264,57 +261,54 @@ PAYMENT *payment_parse(
 	piece( payor_street_address, SQL_DELIMITER, input, 6 );
 	piece( deposit_date_time, SQL_DELIMITER, input, 7 );
 
-	payment = payment_calloc();
+	payment =
+		payment_new(
+			strdup( student_full_name ),
+			strdup( street_address ),
+			strdup( course_name ),
+			strdup( season_name ),
+			atoi( year ),
+			strdup( payor_full_name ),
+			strdup( payor_street_address ),
+			strdup( deposit_date_time ) );
 
 	if ( fetch_enrollment )
 	{
-		if ( ! ( payment->enrollment =
-				enrollment_fetch(
-					student_full_name,
-					street_address,
-					course_name,
-					season_name,
-					atoi( year ),
-					1 /* fetch_payment_list */ ) ) )
-		{
-			return (PAYMENT *)0;
-		}
-	}
-	else
-	{
+fprintf(stderr,
+	"%s/%s()/%d: fetching enrollment\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
 		payment->enrollment =
-			enrollment_new(
+			enrollment_fetch(
 				student_full_name,
 				street_address,
 				course_name,
 				season_name,
-				atoi( year ) );
+				atoi( year ),
+				0 /* not fetch_payment_list */ );
+fprintf(stderr,
+	"%s/%s()/%d: got course = [%x]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+payment->enrollment->offering->course );
+
 	}
 
 	if ( fetch_deposit )
 	{
-		if ( ! ( payment->deposit =
-				deposit_fetch(
-					payor_full_name,
-					payor_street_address,
-					season_name,
-					atoi( year ),
-					deposit_date_time,
-					0 /* not fetch_payment_list */ ) ) )
-		{
-			return (PAYMENT *)0;
-		}
-	}
-	else
-	{
 		payment->deposit =
-			deposit_new(
+			deposit_fetch(
 				payor_full_name,
 				payor_street_address,
 				season_name,
 				atoi( year ),
-				deposit_date_time );
+				deposit_date_time,
+				0 /* not fetch_payment_list */ );
 	}
+
 	return payment;
 }
 
@@ -466,47 +460,25 @@ PAYMENT *payment_steady_state(
 			DEPOSIT *deposit,
 			double deposit_amount,
 			double deposit_transaction_fee,
-			char *program_name )
+			char *program_name,
+			PAYMENT *payment )
 {
-	REGISTRATION *registration = {0};
-	PAYMENT *payment = {0};
-	OFFERING *offering = {0};
-	SEMESTER *semester = {0};
-
-	/* Get a new PAYMENT */
-	/* ----------------- */
-	payment =
-		payment_new(
-			enrollment->registration->student_full_name,
-			enrollment->registration->street_address,
-			enrollment->offering->course->course_name,
-			enrollment->offering->season_name,
-			enrollment->offering->year,
-			deposit->payor_entity->full_name,
-			deposit->payor_entity->street_address,
-			deposit->deposit_date_time );
-
-	if  ( !payment_extract_structure(
-			&registration,
-			&offering,
-			&enrollment,
-			&deposit,
-			&semester,
-			payment ) )
+	if ( !enrollment )
 	{
 		fprintf(stderr,
-			"%s/%s()/%d: payment_extract_structure() failed.\n",
+			"ERROR in %s/%s()/%d: empty enrollment.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
-		
-	payment_stamp_structure(
-			registration,
-			offering,
-			deposit,
-			semester );
+
+fprintf(stderr,
+	"%s/%s()/%d: BUT NOW? got course = [%x]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+enrollment->offering->course );
 
 	/* Set the input parameters */
 	/* ------------------------ */
@@ -560,129 +532,6 @@ PAYMENT *payment_steady_state(
 	return payment;
 }
 
-boolean payment_extract_structure(
-			REGISTRATION **registration,
-			OFFERING **offering,
-			ENROLLMENT **enrollment,
-			DEPOSIT **deposit,
-			SEMESTER **semester,
-			PAYMENT *payment )
-{
-	ENROLLMENT *enrollment_object;
-	DEPOSIT *deposit_object;
-
-	enrollment_object = *enrollment;
-	deposit_object = *deposit;
-
-	if ( ! ( enrollment_object = payment->enrollment ) )
-	{
-		fprintf(stderr,
-		"%s/%s()/%d: payment_new() returned an empty enrollment.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return 0;
-	}
-
-	if ( ! ( *offering = enrollment_object->offering ) )
-	{
-		fprintf(stderr,
-		"%s/%s()/%d: payment_new() returned an empty offering.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return 0;
-	}
-
-	if ( ! ( deposit_object = payment->deposit ) )
-	{
-		fprintf(stderr,
-		"%s/%s()/%d: payment_new() returned an empty deposit.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return 0;
-	}
-
-	if ( ! ( *registration = enrollment_object->registration ) )
-	{
-		fprintf(stderr,
-		"%s/%s()/%d: payment_new() returned an empty registration.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return 0;
-	}
-
-	if ( ! ( *semester = deposit_object->semester ) )
-	{
-		fprintf(stderr,
-		"%s/%s()/%d: payment_new() returned an empty semester.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return 0;
-	}
-
-	return 1;
-}
-
-void payment_stamp_structure(
-			REGISTRATION *registration,
-			OFFERING *offering,
-			DEPOSIT *deposit,
-			SEMESTER *semester )
-{
-	/* See: registration_steady_state() */
-	/* -------------------------------- */
-	registration->registration_payment_list =
-		registration_payment_list(
-			registration->
-				registration_enrollment_list );
-			
-	registration->registration_tuition =
-		registration_tuition(
-			registration->
-				registration_enrollment_list );
-
-	registration->registration_payment_total =
-		registration_payment_total(
-			registration->
-				registration_payment_list );
-
-	registration->registration_invoice_amount_due =
-		registration_invoice_amount_due(
-			registration->
-				registration_tuition,
-			registration->
-				registration_payment_total );
-
-	/* See: offering_steady_state() */
-	/* ---------------------------- */
-	offering->offering_course_price =
-		offering_course_price(
-			semester->semester_offering_list,
-			offering->course->course_name,
-			offering->season_name,
-			offering->year );
-
-	offering->offering_enrollment_count =
-		offering_enrollment_count(
-			offering->offering_enrollment_list );
-
-	offering->offering_capacity_available =
-		offering_capacity_available(
-			offering->class_capacity,
-			offering->offering_enrollment_count );
-
-	/* See: deposit_steady_state() */
-	/* --------------------------- */
-	deposit->deposit_registration_list =
-		deposit_registration_list(
-			deposit->deposit_payment_list );
-
-}
-
 char *payment_primary_where(
 			char *student_full_name,
 			char *street_address,
@@ -693,7 +542,7 @@ char *payment_primary_where(
 			char *payor_street_address,
 			char *deposit_date_time )
 {
-	char static where[ 512 ];
+	char static where[ 1024 ];
 
 	sprintf(where,
 		"full_name = '%s' and			"

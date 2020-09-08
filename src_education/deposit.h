@@ -52,8 +52,8 @@ typedef struct
 	double deposit_remaining;
 	double deposit_net_revenue;
 	LIST *deposit_payment_list;
+	LIST *deposit_enrollment_list;
 	LIST *deposit_registration_list;
-	LIST *registration_payment_list;
 	double deposit_payment_total;
 	double deposit_gain_donation;
 } DEPOSIT;
@@ -170,7 +170,11 @@ DEPOSIT *deposit_steady_state(
 			char *deposit_date_time,
 			double deposit_amount,
 			double deposit_transaction_fee,
-			LIST *deposit_payment_list );
+			LIST *deposit_payment_list,
+			/* ----------------------------- */
+			/* Don't take anything from here */
+			/* ----------------------------- */
+			DEPOSIT *deposit );
 
 void deposit_update(
 			double deposit_payment_total,
@@ -182,6 +186,9 @@ void deposit_update(
 
 FILE *deposit_update_open(
 			void );
+
+LIST *deposit_enrollment_list(
+			LIST *deposit_payment_list );
 
 #endif
 

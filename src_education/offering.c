@@ -198,6 +198,13 @@ OFFERING *offering_parse(	char *input,
 
 	if ( fetch_course )
 	{
+fprintf(stderr,
+	"%s/%s()/%d: fetching course_name = %s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+offering->course->course_name );
+
 		offering->course =
 			course_fetch(
 				offering->
@@ -386,22 +393,9 @@ OFFERING *offering_steady_state(
 			char *street_address,
 			double class_capacity,
 			LIST *semester_offering_list,
-			LIST *offering_enrollment_list )
+			LIST *offering_enrollment_list,
+			OFFERING *offering )
 {
-	OFFERING *offering;
-
-	offering =
-		offering_new(
-			course_name,
-			season_name,
-			year );
-
-	offering->instructor_full_name = instructor_full_name;
-	offering->street_address = street_address;
-	offering->class_capacity = class_capacity;
-	offering->semester_offering_list = semester_offering_list;
-	offering->offering_enrollment_list = offering_enrollment_list;
-
 	offering->offering_course_price =
 		offering_course_price(
 			semester_offering_list,

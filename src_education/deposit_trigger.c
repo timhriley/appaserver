@@ -14,7 +14,6 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "enrollment.h"
 #include "semester.h"
 #include "deposit.h"
 
@@ -47,11 +46,13 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
 "Usage: %s payor_full_name payor_street_address season_name year deposit_date_time state\n",
 			 argv[ 0 ] );
+		fprintf( stderr,
+			 "state in {insert,update,delete,payment}\n" );
 		exit ( 1 );
 	}
 
@@ -60,7 +61,7 @@ int main( int argc, char **argv )
 	season_name = argv[ 3 ];
 	year = atoi( argv[ 4 ] );
 	deposit_date_time = argv[ 5 ];
-	state = argv[ 4 ];
+	state = argv[ 6 ];
 
 	if ( !*season_name
 	||   strcmp( season_name, "season_name" ) == 0 )
@@ -71,7 +72,8 @@ int main( int argc, char **argv )
 	if ( !year ) exit( 0 );
 
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0
+	||   strcmp( state, "payment" ) ==  0 )
 	{
 		deposit_trigger(
 			payor_full_name,
@@ -104,22 +106,69 @@ void deposit_trigger(
 		return;
 	}
 
-	if ( ! ( deposit =
-			deposit_steady_state(
-				deposit->payor_entity,
-				deposit->semester,
-				deposit->deposit_date_time,
-				deposit->deposit_amount,
-				deposit->transaction_fee,
-				deposit->deposit_payment_list ) ) )
+	if ( !deposit->payor_entity )
 	{
 		fprintf(stderr,
-			"%s/%s()/%d: deposit_steady_state() returned empty.\n",
+	"ERROR in %s/%s()/%d: deposit_fetch() returned empty payor_entity.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
+
+	if ( !deposit->semester )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: deposit_fetch() returned empty semester.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( deposit =
+			deposit_steady_state(
+				registration_payment_total(
+					
+				deposit->deposit_payment_list,
+				/* ----------------------------- */
+				/* Don't take anything from here */
+				/* ----------------------------- */
+				deposit ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: deposit_steady_state() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !deposit->payor_entity )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: deposit_steady_state() returned empty payor_entity.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !deposit->semester )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: deposit_steady_state() returned empty semester.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
 
 	deposit_update(
 			deposit->deposit_payment_total,
@@ -128,5 +177,11 @@ void deposit_trigger(
 			deposit->semester->season_name,
 			deposit->semester->year,
 			deposit->deposit_date_time );
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
 }
 

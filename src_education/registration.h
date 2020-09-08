@@ -76,7 +76,11 @@ REGISTRATION *registration_steady_state(
 			char *season_name,
 			int year,
 			LIST *registration_enrollment_list,
-			LIST *registration_payment_list );
+			LIST *registration_payment_list,
+			/* ----------------------------- */
+			/* Don't take anything from here */
+			/* ----------------------------- */
+			REGISTRATION *registration );
 
 #endif
 

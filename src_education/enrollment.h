@@ -66,7 +66,14 @@ ENROLLMENT *enrollment_parse(
 ENROLLMENT *enrollment_steady_state(
 			REGISTRATION *registration,
 			OFFERING *offering,
-			LIST *enrollment_payment_list );
+			LIST *enrollment_payment_list,
+			/* ----------------------------- */
+			/* Don't take anything from here */
+			/* ----------------------------- */
+			ENROLLMENT *enrollment );
 
+/* ----------------------------------- */
+/* Place functions in enrollment_fns.h */
+/* ----------------------------------- */
 #endif
 

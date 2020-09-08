@@ -29,7 +29,10 @@ LIST *deposit_payment_list(
 			int year,
 			char *deposit_date_time )
 {
-	return	payment_system_list(
+	LIST *payment_list;
+
+	payment_list =
+		payment_system_list(
 			payment_sys_string(
 				/* --------------------- */
 				/* Returns static memory */
@@ -39,7 +42,18 @@ LIST *deposit_payment_list(
 					payor_street_address,
 					season_name,
 					year,
-					deposit_date_time ) ) );
+					deposit_date_time ) ),
+			0 /* not fetch_deposit */,
+			1 /* fetch_enrollment */ );
+
+fprintf(stderr,
+	"%s/%s()/%d: returning length( payment_list ) = %d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+list_length( payment_list ) );
+
+	return payment_list;
 }
 
 LIST *deposit_registration_list(
@@ -228,19 +242,11 @@ DEPOSIT *deposit_parse(	char *input,
 	{
 		deposit->deposit_payment_list =
 			deposit_payment_list(
-				deposit->
-					payor_entity->
-					full_name,
-				deposit->
-					payor_entity->
-					street_address,
-				deposit->
-					semester->
-					season_name,
-				deposit->
-					semester->
-					year,
-				deposit->deposit_date_time );
+				payor_full_name,
+				payor_street_address,
+				season_name,
+				deposit->semester->year,
+				deposit_date_time );
 	}
 	return deposit;
 }
@@ -284,7 +290,10 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 			char *deposit_date_time,
 			boolean fetch_payment_list )
 {
-	return	deposit_parse(
+	DEPOSIT *deposit;
+
+	deposit =
+		deposit_parse(
 			pipe2string(
 				deposit_sys_string(
 					/* --------------------- */
@@ -297,6 +306,8 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 						year,
 						deposit_date_time ) ) ),
 			fetch_payment_list );
+
+	return deposit;
 }
 
 FILE *deposit_insert_open( void )
@@ -414,40 +425,23 @@ double deposit_payment_total(
 }
 
 DEPOSIT *deposit_steady_state(
-			ENTITY *payor_entity,
-			SEMESTER *semester,
-			char *deposit_date_time,
-			double deposit_amount,
-			double deposit_transaction_fee,
-			LIST *deposit_payment_list )
+			double registration_payment_total,
+			LIST *deposit_payment_list,
+			DEPOSIT *deposit )
 {
-	DEPOSIT *deposit;
-
-	/* Get a new DEPOSIT */
-	/* ----------------- */
-	deposit =
-		deposit_new(
-			payor_entity->full_name,
-			payor_entity->street_address,
-			semester->season_name,
-			semester->year,
-			deposit_date_time );
-
-	/* Set the input parameters */
-	/* ------------------------ */
-	deposit->deposit_amount = deposit_amount;
-	deposit->transaction_fee = deposit_transaction_fee;
-	deposit->deposit_payment_list = deposit_payment_list;
-
-	/* Do the work */
-	/* ----------- */
 	deposit->deposit_registration_list =
 		deposit_registration_list(
-			deposit->deposit_payment_list );
+			deposit_payment_list );
 
 	deposit->deposit_payment_total =
 		deposit_payment_total(
-			deposit->deposit_payment_list );
+			deposit_payment_list );
+
+fprintf(stderr,
+	"%s/%s()/%d: calling deposit_remaining()\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
 
 	deposit->deposit_remaining =
 		deposit_remaining(
@@ -455,13 +449,25 @@ DEPOSIT *deposit_steady_state(
 			registration_invoice_amount_due(
 				registration_tuition(
 				      deposit->deposit_registration_list ),
-				registration_payment_total(
-	 			      deposit->registration_payment_list ) ) );
+				registration_payment_total ) );
+
+fprintf(stderr,
+	"%s/%s()/%d: deposit_remaining = %.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+deposit->deposit_remaining );
 
 	deposit->deposit_net_revenue =
 		deposit_net_revenue(
 			deposit->deposit_amount,
 			deposit->transaction_fee );
+
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
 
 	return deposit;
 }
@@ -500,5 +506,39 @@ void deposit_update(
 		 deposit_payment_total );
 
 	pclose( update_pipe );
+}
+
+LIST *deposit_enrollment_list(
+			LIST *deposit_payment_list )
+{
+	PAYMENT *payment;
+	LIST *enrollment_list;
+
+	if ( !list_rewind( deposit_payment_list ) ) return (LIST *)0;
+
+	enrollment_list = list_new();
+
+	do {
+		payment =
+			list_get(
+				deposit_payment_list );
+
+		if ( !payment->enrollment )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: empty enrollment.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			enrollment_list,
+			payment->enrollment );
+
+	} while ( list_next( deposit_payment_list ) );
+
+	return enrollment_list;
 }
 

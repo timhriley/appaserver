@@ -67,9 +67,11 @@ int main( int argc, char **argv )
 
 	if ( argc != 10 )
 	{
-		fprintf( stderr,
+		fprintf(stderr,
 "Usage: %s student_full_name street_address course_name season_name year payor_full_name payor_street_address deposit_date_time state\n",
 			 argv[ 0 ] );
+		fprintf(stderr,
+			"state in {insert,update,predelete,delete}\n" );
 		exit ( 1 );
 	}
 
@@ -101,6 +103,8 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
+		char sys_string[ 1024 ];
+
 		payment_trigger_insert_update(
 			student_full_name,
 			street_address,
@@ -110,6 +114,25 @@ int main( int argc, char **argv )
 			payor_full_name,
 			payor_street_address,
 			deposit_date_time );
+
+		sprintf(sys_string,
+		 "deposit_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" payment",
+			entity_escape_full_name( payor_full_name ),
+			payor_street_address,
+			season_name,
+			year,
+			deposit_date_time );
+
+		if ( system( sys_string ) ){}
+
+		sprintf(sys_string,
+		 "registration_trigger \"%s\" \"%s\" \"%s\" %d update",
+			entity_escape_full_name( student_full_name ),
+			street_address,
+			season_name,
+			year );
+
+		if ( system( sys_string ) ){}
 	}
 
 	return 0;
@@ -144,13 +167,38 @@ void payment_trigger_insert_update(
 		return;
 	}
 
+fprintf(stderr,
+	"%s/%s()/%d: got course = [%x]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+payment->enrollment->offering->course );
+
+	if ( !payment->deposit )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty deposit.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return;
+	}
+
 	payment =
 		payment_steady_state(
 			payment->enrollment,
 			payment->deposit,
 			payment->deposit_amount,
 			payment->deposit_transaction_fee,
-			payment->enrollment->offering->course->program_name );
+			payment->
+				enrollment->
+				offering->
+				course->
+				program_name,
+			/* ----------------------------- */
+			/* Don't take anything from here */
+			/* ----------------------------- */
+			payment );
 
 	if ( payment->payment_transaction )
 	{
@@ -173,38 +221,14 @@ void payment_trigger_insert_update(
 		payment->payment_fees_expense,
 		payment->payment_gain_donation,
 		transaction_date_time,
-		payment->
-			enrollment->
-			registration->
-			student_full_name,
-		payment->
-			enrollment->
-			registration->
-			street_address,
-		payment->
-			enrollment->
-			offering->
-			course->
-			course_name,
-		payment->
-			enrollment->
-			offering->
-			season_name,
-		payment->
-			enrollment->
-			offering->
-			year,
-		payment->
-			deposit->
-			payor_entity->
-			full_name,
-		payment->
-			deposit->
-			payor_entity->
-			street_address,
-		payment->
-			deposit->
-			deposit_date_time );
+		student_full_name,
+		street_address,
+		course_name,
+		season_name,
+		year,
+		payor_full_name,
+		payor_street_address,
+		deposit_date_time );
 }
 
 void payment_trigger_predelete(
