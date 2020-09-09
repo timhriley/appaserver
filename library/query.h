@@ -750,15 +750,6 @@ char *query_edit_table_where(
 			char *folder_name,
 			boolean combine_date_time );
 
-QUERY *query_detail_new(
-			char *application_name,
-			char *login_name,
-			char *folder_name,
-			DICTIONARY *dictionary,
-			ROLE *role,
-			LIST *where_attribute_name_list,
-			LIST *where_attribute_data_list );
-
 QUERY_OUTPUT *query_detail_output_new(
 			QUERY *query,
 			FOLDER *folder,

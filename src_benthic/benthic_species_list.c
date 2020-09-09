@@ -294,10 +294,9 @@ char *get_species_where_clause(
 
 	} while( list_next( species_record_list ) );
 
-	return query_get_drop_down_where_clause(
+	return query_drop_down_where(
 			query_drop_down_list,
 			application_name,
 			(char *)0 /* folder_name */ );
-
-} /* get_species_where_clause() */
+}
 

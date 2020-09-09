@@ -15,6 +15,7 @@
 #include "list.h"
 #include "list_usage.h"
 #include "appaserver_library.h"
+#include "appaserver_user.h"
 #include "appaserver_error.h"
 #include "folder.h"
 #include "query.h"
@@ -209,10 +210,10 @@ int main( int argc, char **argv )
 		session_access_failed_message_and_exit(
 				application_name, session, login_name );
 	}
+*/
 
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
-*/
 
 	role = role_new_role(	application_name,
 				role_name );
@@ -1371,7 +1372,7 @@ DICTIONARY *output_folder_detail(
 	}
 
 	row_security->row_security_element_list_structure =
-		row_security_detail_structure_new(
+		row_security_element_list_structure_new(
 			application_name,
 			row_security->row_security_state,
 			row_security->login_name,
@@ -1392,6 +1393,7 @@ DICTIONARY *output_folder_detail(
 			omit_delete_operation,
 			omit_operation_buttons,
 			update_yn,
+			1 /* ajax_fill_drop_down_omit */,
 			row_security->
 				select_folder->
 				append_isa_attribute_list );
