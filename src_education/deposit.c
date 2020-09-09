@@ -17,6 +17,7 @@
 #include "entity.h"
 #include "transaction.h"
 #include "semester.h"
+#include "registration.h"
 #include "registration_fns.h"
 #include "payment.h"
 #include "payment_fns.h"
@@ -27,7 +28,9 @@ LIST *deposit_payment_list(
 			char *payor_street_address,
 			char *season_name,
 			int year,
-			char *deposit_date_time )
+			char *deposit_date_time,
+			boolean fetch_deposit,
+			boolean fetch_enrollment )
 {
 	LIST *payment_list;
 
@@ -43,15 +46,8 @@ LIST *deposit_payment_list(
 					season_name,
 					year,
 					deposit_date_time ) ),
-			0 /* not fetch_deposit */,
-			1 /* fetch_enrollment */ );
-
-fprintf(stderr,
-	"%s/%s()/%d: returning length( payment_list ) = %d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-list_length( payment_list ) );
+			fetch_deposit,
+			fetch_enrollment );
 
 	return payment_list;
 }
@@ -246,7 +242,9 @@ DEPOSIT *deposit_parse(	char *input,
 				payor_street_address,
 				season_name,
 				deposit->semester->year,
-				deposit_date_time );
+				deposit_date_time,
+				0 /* not fetch_deposit */,
+				0 /* not fetch_enrollment */ );
 	}
 	return deposit;
 }
@@ -425,7 +423,6 @@ double deposit_payment_total(
 }
 
 DEPOSIT *deposit_steady_state(
-			double registration_payment_total,
 			double deposit_amount,
 			double transaction_fee,
 			LIST *deposit_payment_list,
@@ -439,37 +436,21 @@ DEPOSIT *deposit_steady_state(
 		deposit_payment_total(
 			deposit_payment_list );
 
-fprintf(stderr,
-	"%s/%s()/%d: calling deposit_remaining()\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
+	deposit->deposit_invoice_amount_due =
+		deposit_invoice_amount_due(
+			deposit->
+				deposit_registration_list );
 
 	deposit->deposit_remaining =
 		deposit_remaining(
 			deposit_amount,
-			registration_invoice_amount_due(
-				registration_tuition(
-				      deposit->deposit_registration_list ),
-				registration_payment_total ) );
-
-fprintf(stderr,
-	"%s/%s()/%d: deposit_remaining = %.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-deposit->deposit_remaining );
+			deposit->
+				deposit_invoice_amount_due );
 
 	deposit->deposit_net_revenue =
 		deposit_net_revenue(
 			deposit_amount,
 			transaction_fee );
-
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
 
 	return deposit;
 }
@@ -542,5 +523,48 @@ LIST *deposit_enrollment_list(
 	} while ( list_next( deposit_payment_list ) );
 
 	return enrollment_list;
+}
+
+double deposit_invoice_amount_due(
+			LIST *deposit_registration_list )
+{
+	REGISTRATION *registration;
+	double invoice_amount_due;
+
+	if ( !list_rewind( deposit_registration_list ) ) return 0.0;
+
+	invoice_amount_due = 0.0;
+
+	do {
+		registration = list_get( deposit_registration_list );
+
+		invoice_amount_due +=
+			registration->
+				registration_invoice_amount_due;
+
+	} while ( list_next( deposit_registration_list ) );
+
+	return invoice_amount_due;
+}
+
+double deposit_gain_donation(
+			double deposit_amount,
+			double deposit_payment_total )
+{
+	double d;
+	double gain_donation;
+
+	if ( ( d = deposit_remaining(
+			deposit_amount,
+			deposit_payment_total ) ) > 0 )
+	{
+		gain_donation = d;
+	}
+	else
+	{
+		gain_donation = 0.0;
+	}
+
+	return gain_donation;
 }
 

@@ -128,8 +128,6 @@ void deposit_trigger(
 
 	if ( ! ( deposit =
 			deposit_steady_state(
-				registration_deposit_payment_total(
-),
 				deposit->deposit_amount,
 				deposit->transaction_fee,
 				deposit->deposit_payment_list,

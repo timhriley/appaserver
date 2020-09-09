@@ -101,15 +101,11 @@ PAYMENT *payment_parse(	char *input,
 			boolean fetch_enrollment );
 
 PAYMENT *payment_steady_state(
-			ENROLLMENT *enrollment,
-			DEPOSIT *deposit,
+			DEPOSIT *deposit /* in/out */,
+			ENROLLMENT *enrollment /* in only */,
 			double deposit_amount,
 			double deposit_transaction_fee,
-			char *program_name,
-			/* ----------------------------- */
-			/* Don't take anything from here */
-			/* ----------------------------- */
-			PAYMENT *payment );
+			PAYMENT *payment /* in only */ );
 
 /* -------------------------------- */
 /* Place functions in payment_fns.h */

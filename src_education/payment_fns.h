@@ -61,8 +61,8 @@ double payment_gain_donation(
 double payment_total(	LIST *payment_list );
 
 double payment_amount(
-			double deposit_remaining,
-			double registration_invoice_amount_due );
+			double deposit_amount,
+			double deposit_invoice_amount_due );
 
 char *payment_primary_where(
 			char *student_full_name,

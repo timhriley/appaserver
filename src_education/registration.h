@@ -71,10 +71,6 @@ REGISTRATION *registration_new(
 			int year );
 
 REGISTRATION *registration_steady_state(
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year,
 			LIST *registration_enrollment_list,
 			LIST *registration_payment_list,
 			/* ----------------------------- */

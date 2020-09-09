@@ -87,11 +87,7 @@ OFFERING *offering_steady_state(
 			char *course_name,
 			char *season_name,
 			int year,
-			char *instructor_full_name,
-			char *street_address,
-			double class_capacity,
 			LIST *semester_offering_list,
-			LIST *offering_enrollment_list,
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */

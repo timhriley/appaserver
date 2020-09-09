@@ -102,13 +102,9 @@ void offering_trigger(
 				offering->course->course_name,
 				offering->season_name,
 				offering->year,
-				offering->instructor_full_name,
-				offering->street_address,
-				offering->class_capacity,
 				semester_offering_list(
 					season_name,
 					year ),
-				offering->offering_enrollment_list,
 				/* ----------------------------- */
 				/* Don't take anything from here */
 				/* ----------------------------- */

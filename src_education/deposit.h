@@ -56,6 +56,7 @@ typedef struct
 	LIST *deposit_registration_list;
 	double deposit_payment_total;
 	double deposit_gain_donation;
+	double deposit_invoice_amount_due;
 } DEPOSIT;
 
 LIST *deposit_registration_list(
@@ -66,7 +67,9 @@ LIST *deposit_payment_list(
 			char *street_address,
 			char *season_name,
 			int year,
-			char *deposit_date_time );
+			char *deposit_date_time,
+			boolean fetch_deposit,
+			boolean fetch_enrollment );
 
 double deposit_remaining(
 			double deposit_amount,
@@ -165,7 +168,6 @@ double deposit_payment_total(
 			LIST *deposit_payment_list );
 
 DEPOSIT *deposit_steady_state(
-			double registration_payment_total,
 			double deposit_amount,
 			double transaction_fee,
 			LIST *deposit_payment_list,
@@ -187,6 +189,13 @@ FILE *deposit_update_open(
 
 LIST *deposit_enrollment_list(
 			LIST *deposit_payment_list );
+
+double deposit_invoice_amount_due(
+			LIST *deposit_registration_list );
+
+double deposit_gain_donation(
+			double deposit_amount,
+			double deposit_payment_total );
 
 #endif
 

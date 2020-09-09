@@ -100,45 +100,18 @@ fprintf(stderr,
 			exit( 1 );
 		}
 
-fprintf(stderr,
-	"%s/%s()/%d: course = %x\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-offering->course );
-
-fprintf(stderr,
-	"%s/%s()/%d: course_price = %.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-offering->course->course_price );
-
 		tuition += offering->course->course_price;
 
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 	} while ( list_next( enrollment_list ) );
-
-fprintf(stderr,
-	"%s/%s()/%d: returning tuition = %.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-tuition );
 
 	return tuition;
 }
 
 double registration_invoice_amount_due(
 			double registration_tuition,
-			double payment_total )
+			double registration_payment_total )
 {
-	return registration_tuition - payment_total;
+	return registration_tuition - registration_payment_total;
 }
 
 void registration_payment_list_refresh(
@@ -377,7 +350,9 @@ LIST *registration_enrollment_list(
 					street_address,
 					season_name,
 					year ) ),
-			1 /* fetch_payment_list */ );
+			1 /* fetch_payment_list */,
+			0 /* not fetch_offering */,
+			0 /* not fetch_registration */ );
 }
 
 LIST *registration_payment_list(
@@ -437,10 +412,6 @@ double registration_payment_total(
 }
 
 REGISTRATION *registration_steady_state(
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year,
 			LIST *registration_enrollment_list,
 			LIST *registration_payment_list,
 			REGISTRATION *registration )

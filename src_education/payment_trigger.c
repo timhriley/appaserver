@@ -167,13 +167,6 @@ void payment_trigger_insert_update(
 		return;
 	}
 
-fprintf(stderr,
-	"%s/%s()/%d: got course = [%x]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-payment->enrollment->offering->course );
-
 	if ( !payment->deposit )
 	{
 		fprintf(stderr,
@@ -186,19 +179,14 @@ payment->enrollment->offering->course );
 
 	payment =
 		payment_steady_state(
-			payment->enrollment,
-			payment->deposit,
+			payment->deposit /* in/out */,
+			payment->enrollment /* in only */,
 			payment->deposit_amount,
 			payment->deposit_transaction_fee,
-			payment->
-				enrollment->
-				offering->
-				course->
-				program_name,
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */
-			payment );
+			payment /* in only */ );
 
 	if ( payment->payment_transaction )
 	{

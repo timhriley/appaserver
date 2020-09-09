@@ -49,7 +49,9 @@ ENROLLMENT *enrollment_fetch(
 			char *course_name,
 			char *season_name,
 			int year,
-			boolean fetch_payment_list );
+			boolean fetch_payment_list,
+			boolean fetch_offering,
+			boolean fetch_registration );
 
 ENROLLMENT *enrollment_getset(
 			LIST *enrollment_list,
@@ -61,12 +63,13 @@ ENROLLMENT *enrollment_getset(
 
 ENROLLMENT *enrollment_parse(
 			char *input,
-			boolean fetch_payment_list );
+			boolean fetch_payment_list,
+			boolean fetch_offering,
+			boolean fetch_registration );
 
 ENROLLMENT *enrollment_steady_state(
 			REGISTRATION *registration,
 			OFFERING *offering,
-			LIST *enrollment_payment_list,
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */

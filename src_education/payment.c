@@ -107,13 +107,13 @@ PAYMENT *payment_fetch(	char *student_full_name,
 	return payment;
 }
 
-double payment_amount(	double deposit_remaining,
+double payment_amount(	double deposit_amount,
 			double registration_invoice_amount_due )
 {
-	if ( deposit_remaining < registration_invoice_amount_due )
-		return registration_invoice_amount_due;
+	if ( deposit_amount <= registration_invoice_amount_due )
+		return deposit_amount;
 	else
-		return deposit_remaining;
+		return registration_invoice_amount_due;
 }
 
 FILE *payment_update_open( void )
@@ -274,12 +274,6 @@ PAYMENT *payment_parse(
 
 	if ( fetch_enrollment )
 	{
-fprintf(stderr,
-	"%s/%s()/%d: fetching enrollment\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 		payment->enrollment =
 			enrollment_fetch(
 				student_full_name,
@@ -287,13 +281,9 @@ fprintf(stderr,
 				course_name,
 				season_name,
 				atoi( year ),
-				0 /* not fetch_payment_list */ );
-fprintf(stderr,
-	"%s/%s()/%d: got course = [%x]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-payment->enrollment->offering->course );
+				0 /* not fetch_payment_list */,
+				0 /* not fetch_offering */,
+				1 /* fetch_registration */ );
 
 	}
 
@@ -306,7 +296,7 @@ payment->enrollment->offering->course );
 				season_name,
 				atoi( year ),
 				deposit_date_time,
-				0 /* not fetch_payment_list */ );
+				1 /* fetch_payment_list */ );
 	}
 
 	return payment;
@@ -456,14 +446,23 @@ double payment_fees_expense(
 }
 
 PAYMENT *payment_steady_state(
-			ENROLLMENT *enrollment,
 			DEPOSIT *deposit,
+			ENROLLMENT *enrollment,
 			double deposit_amount,
 			double deposit_transaction_fee,
-			char *program_name,
 			PAYMENT *payment )
 {
-	if ( !enrollment )
+	if ( !payment->deposit )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty deposit.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !payment->enrollment )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: empty enrollment.\n",
@@ -473,12 +472,15 @@ PAYMENT *payment_steady_state(
 		exit( 1 );
 	}
 
-fprintf(stderr,
-	"%s/%s()/%d: BUT NOW? got course = [%x]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-enrollment->offering->course );
+	if ( !payment->enrollment->registration )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty registration.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	/* Set the input parameters */
 	/* ------------------------ */
@@ -487,40 +489,96 @@ enrollment->offering->course );
 
 	/* Do the work */
 	/* ----------- */
-	payment->registration_tuition_total =
-		registration_tuition_total(
-			deposit->
-				deposit_registration_list );
+	payment->
+		deposit->
+		deposit_payment_list =
+			deposit_payment_list(
+				payment->
+					deposit->
+					payor_entity->
+					full_name,
+				payment->
+					deposit->
+					payor_entity->
+					street_address,
+				payment->
+					enrollment->
+					offering->
+					season_name,
+				payment->
+					enrollment->
+					offering->
+					year,
+				payment->
+					deposit->
+					deposit_date_time,
+				0 /* not fetch_deposit */,
+				0 /* not fetch_enrollment */ );
 
-	payment->deposit_remaining =
-		deposit_remaining(
-			deposit_amount,
-			registration->
-				registration_invoice_amount_due );
+	payment->
+		enrollment->
+		registration->
+		registration_invoice_amount_due =
+			registration_invoice_amount_due(
+				payment->
+					enrollment->
+					registration->
+					registration_tuition,
+				payment->
+					enrollment->
+					registration->
+					registration_payment_total );
 
 	payment->payment_amount =
 		payment_amount(
 			payment->
-				deposit_remaining,
-			registration->
-				registration_invoice_amount_due );
+				deposit_amount,
+			payment->
+				enrollment->
+				registration->
+					registration_invoice_amount_due );
 
 	payment->payment_fees_expense =
 		payment_fees_expense(
-			deposit_transaction_fee,
-			payment->deposit_payment_list );
+			payment->deposit_transaction_fee,
+			payment->deposit->deposit_payment_list );
+
+	payment->
+		deposit->
+		deposit_payment_total =
+			deposit_payment_total(
+				payment->
+					deposit->
+					deposit_payment_list );
+
+	payment->
+		deposit->
+		deposit_gain_donation =
+			deposit_gain_donation(
+				payment->
+					deposit_amount,
+				payment->
+					deposit->
+					deposit_payment_total );
 
 	payment->payment_gain_donation =
 		payment_gain_donation(
-			deposit_amount,
-			payment->deposit_registration_list );
+			payment->
+				deposit->
+				deposit_gain_donation,
+			payment->
+				deposit->
+				deposit_payment_list );
 
 	payment->payment_transaction =
 		payment_transaction(
-			payment->deposit->payor_entity->full_name,
-			payment->deposit->payor_entity->street_address,
-			payment->deposit->deposit_date_time,
-			program_name,
+			deposit->payor_entity->full_name,
+			deposit->payor_entity->street_address,
+			deposit->deposit_date_time,
+			enrollment->
+				offering->
+				course->
+				program_name,
 			payment->payment_amount,
 			payment->payment_fees_expense,
 			payment->payment_gain_donation,

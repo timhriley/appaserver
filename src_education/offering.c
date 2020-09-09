@@ -382,18 +382,16 @@ LIST *offering_enrollment_list(
 					course_name,
 					season_name,
 					year ) ),
-			1 /* fetch_payment_list */ );
+			1 /* fetch_payment_list */,
+			0 /* not fetch_offering */,
+			1 /* fetch registration */ );
 }
 
 OFFERING *offering_steady_state(
 			char *course_name,
 			char *season_name,
 			int year,
-			char *instructor_full_name,
-			char *street_address,
-			double class_capacity,
 			LIST *semester_offering_list,
-			LIST *offering_enrollment_list,
 			OFFERING *offering )
 {
 	offering->offering_course_price =

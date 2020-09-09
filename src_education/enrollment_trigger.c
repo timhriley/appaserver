@@ -159,7 +159,9 @@ void enrollment_trigger_insert_update(
 				course_name,
 				season_name,
 				year,
-				1 /* fetch_payment_list */ ) ) )
+				1 /* fetch_payment_list */,
+				1 /* fetch_offering */,
+				1 /* fetch_registration */ ) ) )
 	{
 		return;
 	}
@@ -168,7 +170,6 @@ void enrollment_trigger_insert_update(
 		enrollment_steady_state(
 			enrollment->registration,
 			enrollment->offering,
-			enrollment->enrollment_payment_list,
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */

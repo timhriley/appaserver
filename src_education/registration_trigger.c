@@ -104,10 +104,6 @@ void registration_trigger(
 
 	if ( ! ( registration =
 			registration_steady_state(
-				registration->student_full_name,
-				registration->street_address,
-				registration->season_name,
-				registration->year,
 				registration->registration_enrollment_list,
 				registration->registration_payment_list,
 				/* ----------------------------- */

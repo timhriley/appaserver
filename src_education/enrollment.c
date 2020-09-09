@@ -63,7 +63,9 @@ ENROLLMENT *enrollment_new(
 
 ENROLLMENT *enrollment_parse(
 			char *input,
-			boolean fetch_payment_list )
+			boolean fetch_payment_list,
+			boolean fetch_offering,
+			boolean fetch_registration )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
@@ -93,32 +95,6 @@ ENROLLMENT *enrollment_parse(
 			strdup( season_name ),
 			year );
 
-	enrollment->offering =
-		/* ------------------------------------ */
-		/* Fetch offering->course->course_price */
-		/* ------------------------------------ */
-		offering_fetch(
-			course_name,
-			season_name,
-			year,
-			1 /* fetch_course */,
-			0 /* not fetch_enrollment_list */ );
-
-fprintf(stderr,
-	"%s/%s()/%d: course = [%x]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-enrollment->offering->course );
-
-	enrollment->registration =
-		registration_fetch(
-			full_name,
-			street_address,
-			season_name,
-			year,
-			0 /* not fetch_enrollment_list */ );
-
 	if ( fetch_payment_list )
 	{
 		enrollment->enrollment_payment_list =
@@ -139,6 +115,31 @@ enrollment->offering->course );
 				enrollment->
 					offering->
 					year );
+	}
+
+	if ( fetch_offering )
+	{
+		enrollment->offering =
+			/* ------------------------------------ */
+			/* Fetch offering->course->course_price */
+			/* ------------------------------------ */
+			offering_fetch(
+				course_name,
+				season_name,
+				year,
+				1 /* fetch_course */,
+				0 /* not fetch_enrollment_list */ );
+	}
+
+	if ( fetch_registration )
+	{
+		enrollment->registration =
+			registration_fetch(
+				full_name,
+				street_address,
+				season_name,
+				year,
+				0 /* not fetch_enrollment_list */ );
 	}
 
 	return enrollment;
@@ -162,7 +163,9 @@ ENROLLMENT *enrollment_fetch(
 			char *season_name,
 			char *course_name,
 			int year,
-			boolean fetch_payment_list )
+			boolean fetch_payment_list,
+			boolean fetch_offering,
+			boolean fetch_registration )
 {
 	ENROLLMENT *enrollment;
 
@@ -179,14 +182,18 @@ ENROLLMENT *enrollment_fetch(
 						season_name,
 						course_name,
 						year ) ) ),
-			fetch_payment_list );
+			fetch_payment_list,
+			fetch_offering,
+			fetch_registration );
 
 	return enrollment;
 }
 
 LIST *enrollment_system_list(
 			char *sys_string,
-			boolean fetch_payment_list )
+			boolean fetch_payment_list,
+			boolean fetch_offering,
+			boolean fetch_registration )
 {
 	char input[ 1024 ];
 	FILE *input_pipe = popen( sys_string, "r" );
@@ -198,7 +205,9 @@ LIST *enrollment_system_list(
 			enrollment_list,
 			enrollment_parse(
 				input,
-				fetch_payment_list ) );
+				fetch_payment_list,
+				fetch_offering,
+				fetch_registration ) );
 	}
 	pclose( input_pipe );
 	return enrollment_list;
@@ -321,7 +330,9 @@ ENROLLMENT *enrollment_getset(
 				course_name,
 				season_name,
 				year,
-				1 /* fetch_payment_list */ ) ) )
+				1 /* fetch_payment_list */,
+				1 /* fetch_offering */,
+				1 /* fetch_registration */ ) ) )
 	{
 		list_set(
 			enrollment_list,
@@ -356,15 +367,45 @@ LIST *enrollment_payment_list(
 					year ) ),
 		1 /* fetch_deposit */,
 		0 /* fetch_enrollment */ );
+
 	return payment_list;
 }
 
 ENROLLMENT *enrollment_steady_state(
 			REGISTRATION *registration,
 			OFFERING *offering,
-			LIST *enrollment_payment_list,
 			ENROLLMENT *enrollment )
 {
+	if ( !registration )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty registration.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !offering )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty offering.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !enrollment )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty enrollment.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	enrollment->enrollment_transaction =
 		enrollment_transaction(
 			registration->student_full_name,
