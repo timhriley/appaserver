@@ -117,6 +117,7 @@ int main( int argc, char **argv )
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
 	add_relative_source_directory_to_path( application_name );
+	environ_appaserver_home();
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

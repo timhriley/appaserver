@@ -272,21 +272,6 @@ PAYMENT *payment_parse(
 			strdup( payor_street_address ),
 			strdup( deposit_date_time ) );
 
-	if ( fetch_enrollment )
-	{
-		payment->enrollment =
-			enrollment_fetch(
-				student_full_name,
-				street_address,
-				course_name,
-				season_name,
-				atoi( year ),
-				0 /* not fetch_payment_list */,
-				0 /* not fetch_offering */,
-				1 /* fetch_registration */ );
-
-	}
-
 	if ( fetch_deposit )
 	{
 		payment->deposit =
@@ -297,6 +282,21 @@ PAYMENT *payment_parse(
 				atoi( year ),
 				deposit_date_time,
 				1 /* fetch_payment_list */ );
+	}
+
+	if ( fetch_enrollment )
+	{
+		payment->enrollment =
+			enrollment_fetch(
+				student_full_name,
+				street_address,
+				course_name,
+				season_name,
+				atoi( year ),
+				0 /* not fetch_payment_list */,
+				1 /* not fetch_offering */,
+				1 /* fetch_registration */ );
+
 	}
 
 	return payment;
@@ -450,6 +450,7 @@ PAYMENT *payment_steady_state(
 			ENROLLMENT *enrollment,
 			double deposit_amount,
 			double deposit_transaction_fee,
+			char *program_name,
 			PAYMENT *payment )
 {
 	if ( !payment->deposit )
@@ -476,6 +477,16 @@ PAYMENT *payment_steady_state(
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: empty registration.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !program_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty progam_name.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -575,10 +586,7 @@ PAYMENT *payment_steady_state(
 			deposit->payor_entity->full_name,
 			deposit->payor_entity->street_address,
 			deposit->deposit_date_time,
-			enrollment->
-				offering->
-				course->
-				program_name,
+			program_name,
 			payment->payment_amount,
 			payment->payment_fees_expense,
 			payment->payment_gain_donation,

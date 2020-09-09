@@ -115,6 +115,7 @@ int main( int argc, char **argv )
 				application_name );
 
 	add_relative_source_directory_to_path( application_name );
+	environ_appaserver_home();
 
 	if ( session_remote_ip_address_changed(
 		application_name,

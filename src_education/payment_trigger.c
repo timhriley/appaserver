@@ -177,12 +177,23 @@ void payment_trigger_insert_update(
 		return;
 	}
 
+	if ( !payment->enrollment->offering->course->program_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: program_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	payment =
 		payment_steady_state(
 			payment->deposit /* in/out */,
 			payment->enrollment /* in only */,
-			payment->deposit_amount,
-			payment->deposit_transaction_fee,
+			payment->deposit->deposit_amount,
+			payment->deposit->transaction_fee,
+			payment->enrollment->offering->course->program_name,
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */

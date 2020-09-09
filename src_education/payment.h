@@ -23,6 +23,7 @@
 
 #define PAYMENT_PRIMARY_KEY	"full_name,"			\
 				"street_address,"		\
+				"course_name,"			\
 				"season_name,"			\
 				"year,"				\
 				"payor_full_name,"		\
@@ -105,6 +106,7 @@ PAYMENT *payment_steady_state(
 			ENROLLMENT *enrollment /* in only */,
 			double deposit_amount,
 			double deposit_transaction_fee,
+			char *program_name,
 			PAYMENT *payment /* in only */ );
 
 /* -------------------------------- */

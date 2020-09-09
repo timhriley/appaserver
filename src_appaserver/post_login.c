@@ -135,6 +135,7 @@ int main( int argc, char **argv )
 			0 );
 
 	add_relative_source_directory_to_path( application_name );
+	environ_appaserver_home();
 
 	sprintf(sys_string,
 	 	"password4appaserver_user.sh \"%s\" \"%s\" 2>>%s",

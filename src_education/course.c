@@ -38,22 +38,8 @@ COURSE *course_parse( char *input )
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
 	course->course_price = atof( piece_buffer );
 
-fprintf(stderr,
-	"%s/%s()/%d: course->course_price = %.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-course->course_price );
-
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	course->description = strdup( piece_buffer );
-
-fprintf(stderr,
-	"%s/%s()/%d: returning course = [%x]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-course );
 
 	return course;
 }

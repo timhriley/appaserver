@@ -198,13 +198,6 @@ OFFERING *offering_parse(	char *input,
 
 	if ( fetch_course )
 	{
-fprintf(stderr,
-	"%s/%s()/%d: fetching course_name = %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-offering->course->course_name );
-
 		offering->course =
 			course_fetch(
 				offering->

@@ -58,25 +58,12 @@ double registration_tuition(
 	OFFERING *offering;
 	double tuition;
 
-fprintf(stderr,
-	"%s/%s()/%d: got length( enrollment_list ) = %d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-list_length( enrollment_list ) );
-
 	if ( !list_rewind( enrollment_list ) ) return 0.0;
 
 	tuition = 0.0;
 
 	do {
 		enrollment = list_get( enrollment_list );
-
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
 
 		if ( !enrollment->offering )
 		{
@@ -351,7 +338,7 @@ LIST *registration_enrollment_list(
 					season_name,
 					year ) ),
 			1 /* fetch_payment_list */,
-			0 /* not fetch_offering */,
+			1 /* not fetch_offering */,
 			0 /* not fetch_registration */ );
 }
 
