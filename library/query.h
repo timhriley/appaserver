@@ -758,4 +758,9 @@ QUERY_OUTPUT *query_detail_output_new(
 			LIST *where_attribute_data_list,
 			LIST *mto1_join_folder_list );
 
+char *query_drop_down_where(
+			LIST *query_drop_down_list,
+			char *application_name,
+			char *folder_name );
+
 #endif

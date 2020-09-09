@@ -4524,21 +4524,34 @@ char *query_folder_drop_down_where(
 	return strdup( where_clause );
 }
 
-char *query_get_drop_down_where_clause(	LIST *query_drop_down_list,
-					char *application_name,
-					char *folder_name )
+char *query_get_drop_down_where_clause(
+			LIST *query_drop_down_list,
+			char *application_name,
+			char *folder_name )
+{
+	return query_drop_down_where(
+			query_drop_down_list,
+			application_name,
+			folder_name );
+}
+
+char *query_drop_down_where(
+			LIST *query_drop_down_list,
+			char *application_name,
+			char *folder_name )
 {
 	QUERY_DROP_DOWN *query_drop_down;
 	QUERY_DROP_DOWN_ROW *query_drop_down_row;
 	LIST *query_drop_down_row_list;
 	char where_clause[ 65536 ];
-	char *ptr = where_clause;
+	char *ptr;
 	char *attribute_name;
 	char *data;
 	boolean outter_first_time;
 	boolean inner_first_time;
 	boolean inner_inner_first_time;
 
+	ptr = where_clause;
 	*ptr = '\0';
 
 	if ( !list_rewind( query_drop_down_list ) )
@@ -4667,8 +4680,7 @@ char *query_get_drop_down_where_clause(	LIST *query_drop_down_list,
 	} while( list_next( query_drop_down_list ) );
 
 	return strdup( where_clause );
-
-} /* query_get_drop_down_where_clause() */
+}
 
 char *query_get_subquery_where_clause(	char *application_name,
 					char *folder_name,
