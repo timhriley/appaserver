@@ -430,4 +430,36 @@ LIST *folder_related_primary_data_table_list(
 			LIST *exclude_attribute_name_list,
 			char *role_name );
 
+LIST *folder_detail_primary_data_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			boolean filter_only_login_name,
+			LIST *exclude_attribute_name_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			char *appaserver_user_foreign_login_name,
+			boolean include_root_folder );
+
+LIST *folder_primary_data_detail_list(
+			char *application_name,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			LIST *exclude_attribute_name_list,
+			char *role_name,
+			boolean include_root_folder );
+
+
 #endif

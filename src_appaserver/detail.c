@@ -1392,7 +1392,6 @@ DICTIONARY *output_folder_detail(
 			omit_delete_operation,
 			omit_operation_buttons,
 			update_yn,
-			1 /* ajax_fill_drop_down_omit */,
 			row_security->
 				select_folder->
 				append_isa_attribute_list );

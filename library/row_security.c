@@ -1118,8 +1118,7 @@ skip_checking_drop_down:
 	}
 
 	return return_list;
-
-} /* row_security_get_update_element_list() */
+}
 
 enum row_security_state row_security_get_row_security_state(
 			FOLDER **attribute_not_null_folder,
@@ -1570,7 +1569,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
 			char update_yn,
-			boolean ajax_fill_drop_down_omit,
 			LIST *append_isa_attribute_list )
 {
 	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *element_list_structure;
@@ -1654,7 +1652,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 				row_dictionary_list );
 
 	element_list_structure->regular_element_list =
-		row_security_get_element_list(
+		row_security_detail_element_list(
 			&element_list_structure->
 				ajax_fill_drop_down_related_folder,
 			application_name,
@@ -1675,17 +1673,14 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			make_primary_keys_non_edit,
 			prompt_data_separate_folder );
 
-	if ( ajax_fill_drop_down_omit )
-	{
-		element_list_structure->
-			ajax_fill_drop_down_related_folder =
-				(RELATED_FOLDER *)0;
-	}
+	element_list_structure->
+		ajax_fill_drop_down_related_folder =
+			(RELATED_FOLDER *)0;
 
 	if ( row_security_state == security_user && update_yn == 'y' )
 	{
 		element_list_structure->viewonly_element_list =
-			row_security_get_element_list(
+			row_security_detail_element_list(
 				(RELATED_FOLDER **)0
 				     /* ajax_fill_drop_down_related_folder */,
 				application_name,
@@ -1711,3 +1706,401 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	return element_list_structure;
 }
 
+LIST *row_security_detail_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *application_name,
+			FOLDER *select_folder,
+			LIST *mto1_append_isa_related_folder_list,
+			ROLE *login_role,
+			LIST *no_display_pressed_attribute_name_list,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *query_dictionary,
+			int row_dictionary_list_length,
+			char *state,
+			LIST *non_edit_folder_name_list,
+			char *login_name,
+			char update_yn,
+			enum omit_delete_operation omit_delete_operation,
+			boolean omit_operation_buttons,
+			LIST *join_1tom_related_folder_list,
+			boolean make_primary_keys_non_edit,
+			boolean prompt_data_separate_folder )
+{
+	LIST *ignore_attribute_name_list;
+	LIST *include_attribute_name_list;
+	LIST *element_list = (LIST *)0;
+	OPERATION_LIST_STRUCTURE *operation_list_structure = {0};
+	LIST *operation_list = {0};
+
+	if ( omit_delete_operation == dont_omit_delete
+	&&   update_yn != 'y' )
+	{
+		omit_delete_operation = omit_delete;
+	}
+
+	if ( !omit_operation_buttons )
+	{
+		operation_list_structure =
+			operation_list_structure_new(
+					application_name,
+					BOGUS_SESSION,
+					select_folder->folder_name,
+					login_role->role_name,
+					omit_delete_operation );
+
+		operation_list = operation_list_structure->operation_list;
+	}
+
+	ignore_attribute_name_list = list_new_list();
+
+	list_append_unique_string_list(
+			ignore_attribute_name_list,
+			no_display_pressed_attribute_name_list );
+
+	include_attribute_name_list =
+		list_subtract(
+			folder_get_attribute_name_list(
+				select_folder->
+					append_isa_attribute_list ),
+			ignore_attribute_name_list );
+
+	element_list =
+		row_security_attribute_detail_element_list(
+			ajax_fill_drop_down_related_folder,
+			login_name,
+			application_name,
+			BOGUS_SESSION,
+			select_folder->folder_name,
+			login_role->role_name,
+			select_folder->attribute_list,
+			select_folder->append_isa_attribute_list,
+			include_attribute_name_list,
+			mto1_append_isa_related_folder_list,
+			preprompt_dictionary,
+			query_dictionary,
+			operation_list,
+			row_dictionary_list_length,
+			no_display_pressed_attribute_name_list,
+			update_yn,
+			state,
+			non_edit_folder_name_list,
+			role_get_override_row_restrictions(
+				login_role->override_row_restrictions_yn ),
+			select_folder->post_change_javascript,
+			application_get_max_query_rows_for_drop_downs(
+				application_name ),
+			select_folder->folder_name
+				/* one2m_folder_name_for_processes */,
+			join_1tom_related_folder_list,
+			make_primary_keys_non_edit,
+			prompt_data_separate_folder,
+			select_folder->row_level_non_owner_forbid );
+
+	return element_list;
+}
+
+LIST *row_security_attribute_detail_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *login_name,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			LIST *attribute_list,
+			LIST *append_isa_attribute_list,
+			LIST *include_attribute_name_list,
+			LIST *mto1_append_isa_related_folder_list,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *query_dictionary,
+			LIST *operation_list_list,
+			int row_dictionary_list_length,
+			LIST *no_display_pressed_attribute_name_list,
+			char update_yn,
+			char *state,
+			LIST *non_edit_folder_name_list,
+			boolean override_row_restrictions,
+			char *folder_post_change_javascript,
+			int max_query_rows_for_drop_downs,
+			char *one2m_folder_name_for_processes,
+			LIST *join_1tom_related_folder_list,
+			boolean make_primary_keys_non_edit,
+			boolean prompt_data_separate_folder,
+			boolean row_level_non_owner_forbid )
+{
+	LIST *return_list;
+	LIST *element_list;
+	LIST *ignore_attribute_name_list;
+	char *attribute_name;
+	RELATED_FOLDER *related_folder;
+	ELEMENT_APPASERVER *element;
+	LIST *foreign_attribute_name_list = {0};
+	int objects_outputted = 0;
+	LIST *primary_attribute_name_list;
+	boolean prompt_data_element_only;
+	LIST *isa_folder_list;
+	int max_drop_down_size = 0;
+	boolean is_primary_attribute;
+	ATTRIBUTE *attribute;
+
+	if ( !list_reset( include_attribute_name_list ) )
+		return list_new_list();
+
+	max_drop_down_size =
+		application_get_max_drop_down_size(
+			application_name );
+
+	if ( row_dictionary_list_length <= MAX_QUERY_ROWS_FORCE_DROP_DOWNS )
+		max_drop_down_size = INT_MAX;
+
+	isa_folder_list =
+		appaserver_get_isa_folder_list(
+			application_name );
+
+	primary_attribute_name_list =
+		folder_get_primary_attribute_name_list(
+			attribute_list );
+
+	return_list = list_new_list();
+	ignore_attribute_name_list = list_new();
+
+	objects_outputted =
+		appaserver_library_add_operations(
+			return_list,
+			objects_outputted,
+			operation_list_list,
+			folder_name /* delete_isa_only_folder_name */ );
+
+	related_folder_set_no_ignore_output(
+		mto1_append_isa_related_folder_list );
+
+	/* For each attribute */
+	/* ------------------ */
+	do {
+		attribute_name = 
+			list_get_pointer(
+				include_attribute_name_list );
+
+		if ( list_exists_string( ignore_attribute_name_list,
+					 attribute_name ) )
+		{
+			continue;
+		}
+
+		attribute =
+			attribute_seek_attribute( 
+				append_isa_attribute_list,
+				attribute_name );
+
+		if ( !attribute )
+		{
+			char msg[ 1024 ];
+
+			sprintf(msg,
+		"ERROR in %s/%s(): cannot find attribute = (%s) in list\n",
+				__FILE__,
+				__FUNCTION__,
+				attribute_name );
+
+			appaserver_output_error_message(
+				application_name, msg, (char *)0 );
+
+			exit( 1 );
+		}
+
+		if ( list_exists_string( attribute->exclude_permission_list,
+					 "lookup" ) )
+		{
+			continue;
+		}
+
+		is_primary_attribute =
+			list_exists_string(	
+				primary_attribute_name_list,
+				attribute_name );
+
+		if ( is_primary_attribute && make_primary_keys_non_edit )
+			prompt_data_element_only = 1;
+		else
+		if ( update_yn != 'y' )
+			prompt_data_element_only = 1;
+		else
+		if ( list_exists_string( attribute->exclude_permission_list,
+					 "update" ) )
+			prompt_data_element_only = 1;
+		else
+			prompt_data_element_only = 0;
+
+		if ( ( related_folder =
+		       related_folder_attribute_consumes_related_folder(
+			       &foreign_attribute_name_list,
+			       ignore_attribute_name_list,
+			       attribute_get_omit_update_attribute_name_list(
+					attribute_list ),
+			       mto1_append_isa_related_folder_list,
+			       attribute_name,
+			       (LIST *)0 /* include_attribute_name_list */ ) ) )
+		{
+			if ( list_exists_string(
+					 non_edit_folder_name_list,
+					 related_folder->
+							folder->
+							folder_name ) )
+			{
+				ignore_attribute_name_list =
+					list_subtract_string_list(
+						ignore_attribute_name_list,
+						foreign_attribute_name_list );
+
+				prompt_data_element_only = 1;
+				goto skip_checking_drop_down;
+			}
+
+			if ( appaserver_exclude_permission(
+				attribute->exclude_permission_list,
+				"update" )
+			||   attribute->omit_update )
+			{
+				prompt_data_element_only = 1;
+			}
+
+			if ( prompt_data_separate_folder
+			&&   prompt_data_element_only )
+			{
+				ignore_attribute_name_list =
+					list_subtract_string_list(
+						ignore_attribute_name_list,
+						foreign_attribute_name_list );
+
+				goto skip_checking_drop_down;
+			}
+
+			if ( related_folder->ignore_output )
+			{
+				ignore_attribute_name_list =
+					list_subtract_string_list(
+						ignore_attribute_name_list,
+						foreign_attribute_name_list );
+
+				goto skip_checking_drop_down;
+			}
+
+			if ( isa_folder_list
+			&&   list_length( isa_folder_list )
+			&&   appaserver_isa_folder_accounted_for(
+				isa_folder_list,
+				related_folder->folder->folder_name,
+				related_folder->
+					related_attribute_name ) )
+			{
+				ignore_attribute_name_list =
+					list_subtract_string_list(
+						ignore_attribute_name_list,
+						foreign_attribute_name_list );
+
+				goto skip_checking_drop_down;
+			}
+
+			list_append_list(
+				return_list,
+				related_folder_detail_element_list(
+					ajax_fill_drop_down_related_folder,
+					application_name,
+					session,
+					login_name,
+					related_folder,
+					foreign_attribute_name_list,
+					update_yn,
+					row_dictionary_list_length,
+					preprompt_dictionary,
+					query_dictionary,
+					state,
+					prompt_data_element_only,
+					folder_post_change_javascript,
+					max_drop_down_size,
+					row_level_non_owner_forbid,
+					override_row_restrictions,
+					is_primary_attribute,
+					role_name,
+					max_query_rows_for_drop_downs,
+					0 /* drop_down_multi_select */,
+					related_folder->
+						folder->
+						no_initial_capital,
+					one2m_folder_name_for_processes,
+					related_folder->
+						omit_lookup_before_drop_down
+				) );
+
+			related_folder->ignore_output = 1;
+
+			objects_outputted++;
+		}
+
+skip_checking_drop_down:
+
+		if ( !list_exists_string(	ignore_attribute_name_list,
+						attribute_name ) )
+		{
+			element_list =
+			appaserver_library_get_update_attribute_element_list(
+					&objects_outputted,
+					attribute,
+					update_yn,
+					primary_attribute_name_list,
+					is_primary_attribute,
+					folder_post_change_javascript,
+					prompt_data_element_only );
+
+			if ( element_list )
+			{
+				list_append_list(
+					return_list,
+					element_list );
+
+				list_append_pointer(
+					ignore_attribute_name_list,
+					attribute_name );
+			}
+		}
+
+	} while( list_next( include_attribute_name_list ) );
+
+	/* For each join_1tom_related_folder_list */
+	/* -------------------------------------- */
+	if ( list_rewind( join_1tom_related_folder_list ) )
+	{
+		do {
+			related_folder =
+				list_get_pointer(
+					join_1tom_related_folder_list );
+
+			list_append_list(
+				return_list,
+				related_folder_get_non_edit_multi_element_list(
+					related_folder->
+						one2m_folder->
+						folder_name ) );
+
+		} while( list_next( join_1tom_related_folder_list ) );
+	}
+
+	if ( no_display_pressed_attribute_name_list 
+	&&   list_rewind( no_display_pressed_attribute_name_list ) )
+	{
+		do {
+			attribute_name = list_get_string(
+				no_display_pressed_attribute_name_list );
+
+			element =
+				element_appaserver_new(
+					hidden,
+					attribute_name );
+
+			list_append_pointer(
+					return_list, 
+					element );
+		} while( list_next( no_display_pressed_attribute_name_list ) );
+	}
+
+	return return_list;
+}
