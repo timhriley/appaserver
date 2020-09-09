@@ -164,24 +164,13 @@ void deposit_trigger(
 		exit( 1 );
 	}
 
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 	deposit_update(
 			deposit->deposit_payment_total,
+			deposit->deposit_net_revenue,
 			deposit->payor_entity->full_name,
 			deposit->payor_entity->street_address,
 			deposit->semester->season_name,
 			deposit->semester->year,
 			deposit->deposit_date_time );
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 }
 

@@ -98,9 +98,9 @@ LIST *deposit_registration_list(
 
 double deposit_remaining(
 			double deposit_amount,
-			double registration_tuition_total )
+			double deposit_payment_total )
 {
-	return deposit_amount - registration_tuition_total;
+	return deposit_amount - deposit_payment_total;
 }
 
 double deposit_net_revenue(
@@ -441,12 +441,6 @@ DEPOSIT *deposit_steady_state(
 			deposit->
 				deposit_registration_list );
 
-	deposit->deposit_remaining =
-		deposit_remaining(
-			deposit_amount,
-			deposit->
-				deposit_invoice_amount_due );
-
 	deposit->deposit_net_revenue =
 		deposit_net_revenue(
 			deposit_amount,
@@ -469,6 +463,7 @@ FILE *deposit_update_open( void )
 
 void deposit_update(
 			double deposit_payment_total,
+			double deposit_net_revenue,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -487,6 +482,15 @@ void deposit_update(
 		 year,
 		 deposit_date_time,
 		 deposit_payment_total );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%d^%s^net_revenue^%.2lf\n",
+		 payor_full_name,
+		 payor_street_address,
+		 season_name,
+		 year,
+		 deposit_date_time,
+		 deposit_net_revenue );
 
 	pclose( update_pipe );
 }

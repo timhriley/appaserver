@@ -73,7 +73,7 @@ LIST *deposit_payment_list(
 
 double deposit_remaining(
 			double deposit_amount,
-			double registration_tuition_total );
+			double deposit_payment_total );
 
 double deposit_net_revenue(
 			double deposit_amount,
@@ -178,6 +178,7 @@ DEPOSIT *deposit_steady_state(
 
 void deposit_update(
 			double deposit_payment_total,
+			double deposit_net_revenue,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
