@@ -518,7 +518,7 @@ LIST *get_element_list(		char *login_name,
 
 			list_append_list(
 				return_list,
-				related_folder_get_update_element_list(
+				related_folder_update_element_list(
 					(RELATED_FOLDER **)0,
 					application_name,
 					session_key,

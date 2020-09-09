@@ -250,6 +250,7 @@ FILE *journal_insert_open( void )
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^'	|"
+		 "tee_appaserver_error.sh				|"
 		 "sql							 ",
 		 JOURNAL_TABLE,
 		 field );
@@ -548,7 +549,8 @@ void journal_delete(	char *full_name,
 
 	sprintf( sys_string,
 		 "delete_statement table=%s field=%s delimiter='^'	|"
-		 "sql.e							 ",
+		 "tee_appaserver_error.sh				|"
+		 "sql							 ",
 		 JOURNAL_TABLE,
 		 field );
 

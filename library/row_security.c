@@ -1017,7 +1017,7 @@ LIST *row_security_get_update_element_list(
 
 			list_append_list(
 				return_list,
-				related_folder_get_update_element_list(
+				related_folder_update_element_list(
 					ajax_fill_drop_down_related_folder,
 					application_name,
 					session,
@@ -1547,5 +1547,167 @@ m2( application_name, msg );
 	}
 
 	return row_dictionary_list;
+}
+
+ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
+		row_security_detail_structure_new(
+			char *application_name,
+			enum row_security_state row_security_state,
+			char *login_name,
+			char *state,
+			ROLE *login_role,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			LIST *no_display_pressed_attribute_name_list,
+			FOLDER *select_folder,
+			FOLDER *attribute_not_null_folder,
+			FOLDER *foreign_login_name_folder,
+			LIST *where_clause_attribute_name_list,
+			LIST *where_clause_data_list,
+			LIST *non_edit_folder_name_list,
+			boolean make_primary_keys_non_edit,
+			enum omit_delete_operation omit_delete_operation,
+			boolean omit_operation_buttons,
+			char update_yn,
+			boolean ajax_fill_drop_down_omit,
+			LIST *append_isa_attribute_list )
+{
+	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *element_list_structure;
+	int row_dictionary_list_length;
+	char query_select_folder_name[ 128 ];
+	boolean prompt_data_separate_folder;
+
+	if ( !list_length( append_isa_attribute_list ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty append_isa_attribute_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !select_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: select_folder is null.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element_list_structure = row_security_element_list_structure_calloc();
+
+	if ( row_security_state == security_supervisor
+	||   row_security_state == security_user )
+	{
+		prompt_data_separate_folder = 0;
+	}
+	else
+	{
+		prompt_data_separate_folder = 1;
+	}
+
+	if ( attribute_not_null_folder
+	&&   strcmp(	attribute_not_null_folder->folder_name,
+			select_folder->folder_name ) != 0 )
+	{
+		sprintf( query_select_folder_name,
+			 "%s,%s",
+			 select_folder->folder_name,
+			 attribute_not_null_folder->folder_name );
+	}
+	else
+	{
+		strcpy( query_select_folder_name,
+			list_display_delimited(
+				attribute_distinct_folder_name_list(
+					append_isa_attribute_list ),
+				',' ) );
+	}
+
+	if ( foreign_login_name_folder )
+	{
+		sprintf(	query_select_folder_name +
+				strlen( query_select_folder_name ),
+				",%s",
+				foreign_login_name_folder->folder_name );
+	}
+
+	element_list_structure->row_dictionary_list =
+		row_security_row_dictionary_list(
+			append_isa_attribute_list,
+			application_name,
+			query_dictionary,
+			sort_dictionary,
+			login_role,
+			login_name,
+			query_select_folder_name,
+			where_clause_attribute_name_list,
+			where_clause_data_list,
+			select_folder->join_1tom_related_folder_list );
+
+	row_dictionary_list_length =
+		list_length( element_list_structure->
+				row_dictionary_list );
+
+	element_list_structure->regular_element_list =
+		row_security_get_element_list(
+			&element_list_structure->
+				ajax_fill_drop_down_related_folder,
+			application_name,
+			select_folder,
+			select_folder->mto1_append_isa_related_folder_list,
+			login_role,
+			no_display_pressed_attribute_name_list,
+			preprompt_dictionary,
+			query_dictionary,
+			row_dictionary_list_length,
+			state,
+			non_edit_folder_name_list,
+			login_name,
+			update_yn,
+			omit_delete_operation,
+			omit_operation_buttons,
+			select_folder->join_1tom_related_folder_list,
+			make_primary_keys_non_edit,
+			prompt_data_separate_folder );
+
+	if ( ajax_fill_drop_down_omit )
+	{
+		element_list_structure->
+			ajax_fill_drop_down_related_folder =
+				(RELATED_FOLDER *)0;
+	}
+
+	if ( row_security_state == security_user && update_yn == 'y' )
+	{
+		element_list_structure->viewonly_element_list =
+			row_security_get_element_list(
+				(RELATED_FOLDER **)0
+				     /* ajax_fill_drop_down_related_folder */,
+				application_name,
+				select_folder,
+				select_folder->
+					mto1_append_isa_related_folder_list,
+				login_role,
+				no_display_pressed_attribute_name_list,
+				preprompt_dictionary,
+				query_dictionary,
+				row_dictionary_list_length,
+				state,
+				non_edit_folder_name_list,
+				login_name,
+				'n' /* update_yn */,
+				omit_delete_with_placeholder,
+				omit_operation_buttons,
+				select_folder->join_1tom_related_folder_list,
+				make_primary_keys_non_edit,
+				prompt_data_separate_folder );
+	}
+
+	return element_list_structure;
 }
 

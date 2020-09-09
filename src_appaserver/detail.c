@@ -180,6 +180,7 @@ int main( int argc, char **argv )
 	primary_data_list_string = argv[ 7 ];
 	original_post_dictionary = dictionary_string2dictionary( argv[ 8 ] );
 
+/*
 	if ( session_remote_ip_address_changed(
 		application_name,
 		session ) )
@@ -211,6 +212,7 @@ int main( int argc, char **argv )
 
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
+*/
 
 	role = role_new_role(	application_name,
 				role_name );
@@ -1369,7 +1371,7 @@ DICTIONARY *output_folder_detail(
 	}
 
 	row_security->row_security_element_list_structure =
-		row_security_element_list_structure_new(
+		row_security_detail_structure_new(
 			application_name,
 			row_security->row_security_state,
 			row_security->login_name,

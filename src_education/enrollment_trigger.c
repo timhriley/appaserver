@@ -218,9 +218,44 @@ void enrollment_trigger_predelete(
 			char *season_name,
 			int year )
 {
-if ( student_full_name ){}
-if ( street_address ){}
-if ( course_name ){}
-if ( season_name ){}
-if ( year ){}
+	ENROLLMENT *enrollment;
+
+	if ( ! ( enrollment =
+			enrollment_fetch(
+				student_full_name,
+				street_address,
+				course_name,
+				season_name,
+				year,
+				0 /* not fetch_payment_list */,
+				0 /* not fetch_offering */,
+				0 /* not fetch_registration */ ) ) )
+	{
+		return;
+	}
+
+	if ( enrollment->enrollment_transaction )
+	{
+		transaction_delete(
+			enrollment->
+				enrollment_transaction->
+				full_name,
+			enrollment->
+				enrollment_transaction->
+				street_address,
+			enrollment->
+				enrollment_transaction->
+				transaction_date_time );
+
+		journal_delete(
+			enrollment->
+				enrollment_transaction->
+				full_name,
+			enrollment->
+				enrollment_transaction->
+				street_address,
+			enrollment->
+				enrollment_transaction->
+				transaction_date_time );
+	}
 }

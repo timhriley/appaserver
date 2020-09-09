@@ -603,7 +603,9 @@ FILE *depreciation_delete_open( void )
 		"depreciation_date";
 
 	sprintf( sys_string,
-		 "delete_statement table=%s field=%s delimiter='%c' | sql",
+		 "delete_statement table=%s field=%s delimiter='%c'	|"
+		 "tee_appaserver_error.sh				|"
+		 "sql							 ",
 		 DEPRECIATION_TABLE_NAME,
 		 key,
 		 '^' );

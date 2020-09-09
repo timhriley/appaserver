@@ -249,6 +249,7 @@ FILE *transaction_insert_open( void )
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^'	|"
+		 "tee_appaserver_error.sh				|"
 		 "sql 2>&1						 ",
 		 TRANSACTION_TABLE,
 		 field );
@@ -395,6 +396,7 @@ FILE *transaction_program_insert_open( void )
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^'	|"
+		 "tee_appaserver_error.sh				|"
 		 "sql 2>&1						 ",
 		 TRANSACTION_TABLE,
 		 field );
@@ -696,6 +698,7 @@ void transaction_delete(
 
 	sprintf( sys_string,
 		 "delete_statement table=%s field=%s delimiter='^'	|"
+		 "tee_appaserver_error.sh				|"
 		 "sql							 ",
 		 TRANSACTION_TABLE,
 		 field );

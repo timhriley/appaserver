@@ -40,7 +40,7 @@ int main( int argc, char **argv )
 	char buffer[ 1024 ];
 	char *results;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -100,8 +100,7 @@ int main( int argc, char **argv )
 	printf( "%d\n", rows_to_insert );
 
 	return 0;
-
-} /* main() */
+}
 
 int insert_mysql(		char *application_name,
 				int rows_to_insert,
@@ -119,13 +118,14 @@ int insert_mysql(		char *application_name,
 #ifdef DEBUG_MODE
 	sql_executable = "html_paragraph_wrapper.e";
 #else
-	sql_executable = "sql.e";
+	sql_executable = "sql";
 #endif
 	sprintf( buffer,
 		 "cat %s			|"
 		 "unescape_single_quotes.e	|"
-		 "insert_statement.e %s %s '^'	|"
+		 "insert_statement %s %s '^'	|"
 		 "sed 's/\\\\\\$/$/g'		|"
+		 "tee_appaserver_error.sh	|"
 		 "%s 2>&1			 ",
 		 carrot_delimited_row_filename,
 		 table_name,

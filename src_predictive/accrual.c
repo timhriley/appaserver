@@ -565,7 +565,8 @@ void accrual_delete(
 
 	sprintf( sys_string,
 		 "delete_statement table=%s field=%s delimiter='^'	|"
-		 "sql.e							 ",
+		 "tee_appaserver_error.sh				|"
+		 "sql							 ",
 		 table_name,
 		 field );
 

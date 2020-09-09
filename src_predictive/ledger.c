@@ -3549,7 +3549,8 @@ void ledger_journal_delete(		char *application_name,
 
 	sprintf( sys_string,
 		 "delete_statement table=%s field=%s delimiter='^'	|"
-		 "sql.e							 ",
+		 "tee_appaserver_error.sh				|"
+		 "sql							 ",
 		 table_name,
 		 field );
 
@@ -3594,7 +3595,8 @@ void ledger_delete(			char *application_name,
 
 	sprintf( sys_string,
 		 "delete_statement table=%s field=%s delimiter='^'	|"
-		 "sql.e							 ",
+		 "tee_appaserver_error.sh				|"
+		 "sql							 ",
 		 table_name,
 		 field );
 

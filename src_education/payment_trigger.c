@@ -243,12 +243,47 @@ void payment_trigger_predelete(
 			char *payor_street_address,
 			char *deposit_date_time )
 {
-if ( student_full_name ){}
-if ( street_address ){}
-if ( course_name ){}
-if ( season_name ){}
-if ( year ){}
-if ( payor_full_name ){}
-if ( payor_street_address ){}
-if ( deposit_date_time ){}
+	PAYMENT *payment;
+
+	if ( ! ( payment =
+			payment_fetch(
+				student_full_name,
+				street_address,
+				course_name,
+				season_name,
+				year,
+				payor_full_name,
+				payor_street_address,
+				deposit_date_time,
+				0 /* not fetch_deposit */,
+				0 /* not fetch_enrollment */ ) ) )
+	{
+		return;
+	}
+
+	if ( payment->payment_transaction )
+	{
+		transaction_delete(
+			payment->
+				payment_transaction->
+				full_name,
+			payment->
+				payment_transaction->
+				street_address,
+			payment->
+				payment_transaction->
+				transaction_date_time );
+
+		journal_delete(
+			payment->
+				payment_transaction->
+				full_name,
+			payment->
+				payment_transaction->
+				street_address,
+			payment->
+				payment_transaction->
+				transaction_date_time );
+
+	}
 }

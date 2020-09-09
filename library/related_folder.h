@@ -190,7 +190,7 @@ LIST *related_folder_get_insert_element_list(
 			boolean no_initial_capital,
 			char *one2m_folder_name_for_processes );
 
-LIST *related_folder_get_update_element_list(
+LIST *related_folder_update_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char *application_name,
 			char *session,

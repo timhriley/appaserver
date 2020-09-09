@@ -18,9 +18,9 @@
 #include "list.h"
 
 INSERT_DATABASE *insert_database_calloc(
-						char *application_name,
-						char *session,
-						char *folder_name )
+			char *application_name,
+			char *session,
+			char *folder_name )
 {
 	INSERT_DATABASE *i = (INSERT_DATABASE *)
 				calloc( 1, sizeof( INSERT_DATABASE ) );
@@ -28,7 +28,7 @@ INSERT_DATABASE *insert_database_calloc(
 	i->session = session;
 	i->folder_name = folder_name;
 	return i;
-} /* insert_database_calloc() */
+}
 
 INSERT_DATABASE *insert_database_new(
 				char *application_name,
@@ -64,7 +64,7 @@ INSERT_DATABASE *insert_database_new(
 	i->attribute_list = attribute_list;
 
 	return i;
-} /* insert_database_new() */
+}
 
 void insert_database_set_row_zero_only(
 				INSERT_DATABASE *insert_database )
@@ -199,8 +199,7 @@ int insert_database_execute(	char **message,
 	}
 
 	return rows_inserted;
-
-} /* insert_database_execute() */
+}
 
 void insert_database_remove_tmp_file( char *tmp_file_name )
 {
@@ -248,20 +247,20 @@ FILE *insert_database_open_tmp_file(	char **tmp_file_name,
 	*tmp_file_name = local_tmp_file_name;
 	return tmp_file;
 
-} /* insert_database_open_tmp_file() */
+}
 
 void build_insert_tmp_file_each_row(
-				DICTIONARY *row_dictionary,
-				char *application_name,
-				LIST *primary_attribute_name_list,
-				LIST *insert_required_attribute_name_list,
-				LIST *attribute_name_list,
-				LIST *ignore_attribute_name_list,
-				FILE *insert_tmp_file,
-				LIST *mto1_related_folder_list,
-				LIST *common_non_primary_attribute_name_list,
-				LIST *attribute_list,
-				boolean exists_reference_number )
+			DICTIONARY *row_dictionary,
+			char *application_name,
+			LIST *primary_attribute_name_list,
+			LIST *insert_required_attribute_name_list,
+			LIST *attribute_name_list,
+			LIST *ignore_attribute_name_list,
+			FILE *insert_tmp_file,
+			LIST *mto1_related_folder_list,
+			LIST *common_non_primary_attribute_name_list,
+			LIST *attribute_list,
+			boolean exists_reference_number )
 {
 	char data_pipe_string[ MAX_INPUT_LINE ];
 	int row, highest_index;
@@ -323,7 +322,7 @@ void build_insert_tmp_file_each_row(
 				 data_pipe_string );
 		}
 	}
-} /* build_insert_tmp_file_each_row() */
+}
 
 void insert_database_execute_post_change_process_row_zero(
 				char **message,
@@ -371,7 +370,7 @@ void insert_database_execute_post_change_process_row_zero(
 
 		*message = pipe2string( post_change_process->executable );
 	}
-} /* insert_database_execute_post_change_process_row_zero() */
+}
 
 void insert_database_execute_post_change_process_each_row(
 				char **message,
@@ -467,7 +466,7 @@ void insert_database_execute_post_change_process_each_row(
 			if ( results && *results ) *message = results;
 		}
 	}
-} /* insert_database_execute_post_change_process_each_row() */
+}
 
 void build_insert_tmp_file_row_zero(
 				DICTIONARY *row_dictionary,
@@ -547,8 +546,7 @@ m2( application_name, msg );
 	fprintf( insert_tmp_file, 
 		 "%s\n", 
 		 data_pipe_string );
-
-} /* build_insert_tmp_file_row_zero() */
+}
 
 void insert_database_set_reference_number(
 			char *application_name,
@@ -594,7 +592,7 @@ void insert_database_set_reference_number(
 			}
 		}
 	} while( list_next( attribute_list ) );
-} /* insert_database_set_reference_number() */
+}
 
 /* Returns the number of rows inserted */
 /* ----------------------------------- */
@@ -644,7 +642,7 @@ int insert_database_execute_insert_mysql(
 	if ( system( sys_string ) ){};
 	return rows_inserted;
 
-} /* insert_database_execute_insert_mysql() */
+}
 
 void build_insert_data_string( 	DICTIONARY *row_dictionary,
 				char *destination,
@@ -779,7 +777,7 @@ void build_insert_data_string( 	DICTIONARY *row_dictionary,
 				data );
 		}
 	} while( list_next( attribute_name_list ) );
-} /* build_insert_data_string() */
+}
 
 LIST *insert_database_get_missing_attribute_name_list(
 				int row,
@@ -811,7 +809,7 @@ LIST *insert_database_get_missing_attribute_name_list(
 	else
 		return (LIST *)0;
 
-} /* insert_database_get_missing_attribute_name_list() */
+}
 
 void insert_database_populate_missing_attribute_name_list(
 				LIST **missing_attribute_name_list,
@@ -855,7 +853,7 @@ void insert_database_populate_missing_attribute_name_list(
 				attribute_name );
 		}
 	} while( list_next( check_attribute_name_list ) );
-} /* insert_database_populate_missing_attribute_name_list() */
+}
 
 int insert_database_ignore_button_pressed(
 					LIST *ignore_attribute_name_list,
@@ -922,7 +920,7 @@ char *insert_database_get_common_data(
 
 	return results;
 
-} /* insert_database_get_common_data() */
+}
 
 RELATED_FOLDER *insert_database_get_common_data_related_folder(
 			char *attribute_name,
@@ -949,7 +947,7 @@ RELATED_FOLDER *insert_database_get_common_data_related_folder(
 
 	return (RELATED_FOLDER *)0;
 
-} /* insert_database_get_common_data_related_folder() */
+}
 
 char *insert_database_fetch_common_data(
 			char *application_name,
@@ -979,8 +977,7 @@ char *insert_database_fetch_common_data(
 
 	strcpy( common_data, pipe2string( sys_string ) );
 	return common_data;
-
-} /* insert_database_fetch_common_data() */
+}
 
 char *insert_database_get_fetch_common_data_where_clause_string( 	
 				LIST *primary_attribute_name_list,
@@ -1024,7 +1021,7 @@ char *insert_database_get_fetch_common_data_where_clause_string(
 		} while( list_next( primary_attribute_name_list ) );
 	}
 	return strdup( where_clause );
-} /* insert_database_get_fetch_common_data_where_clause_string() */
+}
 
 boolean insert_database_non_primary_attribute_populated(
 				int row,
@@ -1055,7 +1052,7 @@ boolean insert_database_non_primary_attribute_populated(
 
 	return 0;
 
-} /* insert_database_non_primary_attribute_populated() */
+}
 
 LIST *insert_database_get_trim_indices_dictionary_key_list(
 			DICTIONARY *dictionary )
@@ -1068,7 +1065,7 @@ LIST *insert_database_get_trim_indices_dictionary_key_list(
 
 	return dictionary_key_list;
 
-} /* insert_database_get_trim_indices_dictionary_key_list() */
+}
 
 LIST *insert_database_set_ignore_primary_key_to_null(
 			DICTIONARY *row_dictionary,
@@ -1157,5 +1154,5 @@ LIST *insert_database_set_ignore_primary_key_to_null(
 
 	return new_ignore_attribute_name_list;
 
-} /* insert_database_set_ignore_primary_key_to_null() */
+}
 

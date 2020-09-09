@@ -1075,10 +1075,9 @@ LIST *related_folder_get_insert_element_list(
 	}
 
 	return element_list;
+}
 
-} /* related_folder_get_insert_element_list() */
-
-LIST *related_folder_get_update_element_list(
+LIST *related_folder_update_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char *application_name,
 			char *session,
@@ -1361,7 +1360,7 @@ LIST *related_folder_get_update_element_list(
 
 	return element_list;
 
-} /* related_folder_get_update_element_list() */
+}
 
 LIST *related_folder_get_edit_lookup_element_list(
 				LIST *foreign_attribute_name_list )
@@ -1394,7 +1393,7 @@ LIST *related_folder_get_edit_lookup_element_list(
 			element_list, 
 			element );
 	return element_list;
-} /* related_folder_get_edit_lookup_element_list() */
+}
 
 LIST *related_folder_get_mto1_related_folder_list(
 		LIST *related_folder_list,
@@ -1575,7 +1574,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 
 	return related_folder_list;
 
-} /* related_folder_get_mto1_related_folder_list() */
+}
 
 LIST *related_folder_1tom_related_folder_list(
 		char *application_name,
