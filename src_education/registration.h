@@ -72,7 +72,6 @@ REGISTRATION *registration_new(
 
 REGISTRATION *registration_steady_state(
 			LIST *registration_enrollment_list,
-			LIST *registration_payment_list,
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */

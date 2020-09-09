@@ -454,7 +454,9 @@ FILE *deposit_update_open( void )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "update_statement table=%s key=%s carrot=y | sql",
+		 "update_statement table=%s key=%s carrot=y	|"
+		 "tee_appaserver_error.sh			|"
+		 "sql						 ",
 		 DEPOSIT_TABLE,
 		 DEPOSIT_PRIMARY_KEY );
 

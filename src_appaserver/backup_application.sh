@@ -1,7 +1,7 @@
 :
 if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Error in $0: you must .set_project first." 1>&2
+	echo "Error in $0: you must .set_database first." 1>&2
 	exit 1
 fi
 

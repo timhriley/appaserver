@@ -393,29 +393,31 @@ double registration_tuition_total(
 }
 
 double registration_payment_total(
-			LIST *enrollment_list )
+			LIST *registration_payment_list )
 {
-	return payment_total( enrollment_list );
+	return payment_total( registration_payment_list );
 }
 
 REGISTRATION *registration_steady_state(
 			LIST *registration_enrollment_list,
-			LIST *registration_payment_list,
 			REGISTRATION *registration )
 {
 	registration->registration_tuition =
 		registration_tuition(
 			registration_enrollment_list );
 
+	registration->registration_payment_list =
+		registration_payment_list(
+			registration_enrollment_list );
+
 	registration->registration_payment_total =
 		registration_payment_total(
-			registration_payment_list );
+			registration->registration_payment_list );
 
 	registration->registration_invoice_amount_due =
 		registration_invoice_amount_due(
 			registration->registration_tuition,
-			registration_payment_total(
-				    registration_enrollment_list ) );
+			registration->registration_payment_total );
 
 	return registration;
 }
@@ -425,7 +427,9 @@ FILE *registration_update_open( void )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "update_statement table=%s key=%s carrot=y | sql",
+		 "update_statement table=%s key=%s carrot=y	|"
+		 "tee_appaserver_error.sh			|"
+		 "sql						 ",
 		 REGISTRATION_TABLE,
 		 REGISTRATION_PRIMARY_KEY );
 

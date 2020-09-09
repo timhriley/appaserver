@@ -295,7 +295,9 @@ FILE *offering_update_open( void )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "update_statement table=%s key=%s carrot=y | sql",
+		 "update_statement table=%s key=%s carrot=y	|"
+		 "tee_appaserver_error.sh			|"
+		 "sql						 ",
 		 OFFERING_TABLE,
 		 OFFERING_PRIMARY_KEY );
 

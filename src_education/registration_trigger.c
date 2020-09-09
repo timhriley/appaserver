@@ -52,7 +52,7 @@ int main( int argc, char **argv )
 	"Usage: %s student_full_name street_address season_name year state\n",
 			 argv[ 0 ] );
 		fprintf( stderr,
-			 "state in {insert,update,delete,enrollment\n" );
+			"state in {insert,update,delete,enrollment,payment\n" );
 		exit ( 1 );
 	}
 
@@ -72,7 +72,8 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0
-	||   strcmp( state, "enrollment" ) ==  0 )
+	||   strcmp( state, "enrollment" ) ==  0
+	||   strcmp( state, "payment" ) ==  0 )
 	{
 		registration_trigger(
 			student_full_name,
@@ -105,7 +106,6 @@ void registration_trigger(
 	if ( ! ( registration =
 			registration_steady_state(
 				registration->registration_enrollment_list,
-				registration->registration_payment_list,
 				/* ----------------------------- */
 				/* Don't take anything from here */
 				/* ----------------------------- */

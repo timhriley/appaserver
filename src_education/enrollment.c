@@ -219,6 +219,7 @@ FILE *enrollment_update_open( void )
 
 	sprintf(sys_string,
 		"update_statement table=%s key=\"%s\" carrot=y	|"
+		"tee_appaserver_error.sh			|"
 		"sql						 ",
 		ENROLLMENT_TABLE,
 		ENROLLMENT_PRIMARY_KEY );

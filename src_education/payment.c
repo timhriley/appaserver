@@ -122,7 +122,7 @@ FILE *payment_update_open( void )
 
 	sprintf( sys_string,
 		 "update_statement table=%s key=%s carrot=y	|"
-"tee -a /var/log/appaserver/appaserver_tnt.err |"
+		 "tee_appaserver_error.sh 			|"
 		 "sql						 ",
 		 "payment",
 		 PAYMENT_PRIMARY_KEY );
@@ -247,6 +247,10 @@ PAYMENT *payment_parse(
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
 	char deposit_date_time[ 128 ];
+	char payment_amount[ 128 ];
+	char fees_expense[ 128 ];
+	char gain_donation[ 128 ];
+	char transaction_date_time[ 128 ];
 
 	if ( !input || !*input ) return (PAYMENT *)0;
 
@@ -271,6 +275,40 @@ PAYMENT *payment_parse(
 			strdup( payor_full_name ),
 			strdup( payor_street_address ),
 			strdup( deposit_date_time ) );
+
+	piece( payment_amount, SQL_DELIMITER, input, 8 );
+	payment->payment_amount = atof( payment_amount );
+
+	piece( fees_expense, SQL_DELIMITER, input, 9 );
+	payment->payment_fees_expense = atof( fees_expense );
+
+	piece( gain_donation, SQL_DELIMITER, input, 10 );
+	payment->payment_gain_donation = atof( gain_donation );
+
+	piece( transaction_date_time, SQL_DELIMITER, input, 11 );
+
+	if ( *transaction_date_time )
+	{
+		if ( ! ( payment->payment_transaction =
+				transaction_fetch(
+					payment->
+						enrollment->
+						registration->
+						student_full_name,
+					payment->
+						enrollment->
+						registration->
+						street_address,
+					transaction_date_time ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: transaction_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
 
 	if ( fetch_deposit )
 	{
@@ -447,7 +485,6 @@ double payment_fees_expense(
 
 PAYMENT *payment_steady_state(
 			DEPOSIT *deposit,
-			ENROLLMENT *enrollment,
 			double deposit_amount,
 			double deposit_transaction_fee,
 			char *program_name,
@@ -554,6 +591,28 @@ PAYMENT *payment_steady_state(
 			payment->deposit_transaction_fee,
 			payment->deposit->deposit_payment_list );
 
+	{
+		PAYMENT *p;
+
+		if ( ! ( p = payment_seek(
+				payment->
+					deposit->
+					deposit_payment_list,
+				payment->
+					deposit->
+					deposit_date_time ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: payment_seek() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		p->payment_amount = payment->payment_amount;
+	}
+
 	payment->
 		deposit->
 		deposit_payment_total =
@@ -638,5 +697,37 @@ char *payment_primary_where(
 		 deposit_date_time );
 
 	return where;
+}
+
+PAYMENT *payment_seek(
+			LIST *deposit_payment_list,
+			char *deposit_date_time )
+{
+	PAYMENT *payment;
+
+	if ( !list_rewind( deposit_payment_list ) )
+		return (PAYMENT *)0;
+
+	do {
+		payment = list_get( deposit_payment_list );
+
+		if ( !payment->deposit )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty deposit.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( strcmp(	payment->deposit->deposit_date_time,
+				deposit_date_time ) == 0 )
+		{
+			return payment;
+		}
+	} while ( list_next( deposit_payment_list ) );
+
+	return (PAYMENT *)0;
 }
 

@@ -15,6 +15,7 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "semester.h"
+#include "payment.h"
 #include "deposit.h"
 
 /* Constants */
@@ -22,12 +23,15 @@
 
 /* Prototypes */
 /* ---------- */
-void deposit_trigger(
-				char *payor_full_name,
-				char *payor_street_address,
-				char *season_name,
-				int year,
-				char *deposit_date_time );
+void deposit_trigger_payment(
+			LIST *deposit_payment_list );
+
+DEPOSIT *deposit_trigger(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time );
 
 int main( int argc, char **argv )
 {
@@ -75,17 +79,25 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) ==  0
 	||   strcmp( state, "payment" ) ==  0 )
 	{
-		deposit_trigger(
-			payor_full_name,
-			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time );
+		DEPOSIT *deposit =
+			deposit_trigger(
+				payor_full_name,
+				payor_street_address,
+				season_name,
+				year,
+				deposit_date_time );
+
+		if ( strcmp( state, "payment" ) != 0 )
+		{
+			deposit_trigger_payment(
+				deposit->
+					deposit_payment_list );
+		}
 	}
 	return 0;
 }
 
-void deposit_trigger(
+DEPOSIT *deposit_trigger(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -103,7 +115,7 @@ void deposit_trigger(
 				deposit_date_time,
 				1 /* fetch_payment_list */ ) ) )
 	{
-		return;
+		return (DEPOSIT *)0;
 	}
 
 	if ( !deposit->payor_entity )
@@ -172,5 +184,58 @@ void deposit_trigger(
 			deposit->semester->season_name,
 			deposit->semester->year,
 			deposit->deposit_date_time );
+	return deposit;
 }
+
+void deposit_trigger_payment(
+			LIST *deposit_payment_list )
+{
+	char sys_string[ 1024 ];
+	PAYMENT *payment;
+
+	if ( !list_rewind( deposit_payment_list ) ) return;
+
+	do {
+		payment = list_get( deposit_payment_list );
+
+		sprintf(sys_string,
+"payment_trigger \"%s\" \"%s\" \"%s\" \"%s\" %d \"%s\" \"%s\" \"%s\" deposit",
+			payment->
+				enrollment->
+				registration->
+				student_full_name,
+			payment->
+				enrollment->
+				registration->
+				street_address,
+			payment->
+				enrollment->
+				offering->
+				course->
+				course_name,
+			payment->
+				enrollment->
+				offering->
+				season_name,
+			payment->
+				enrollment->
+				offering->
+				year,
+			payment->
+				deposit->
+				payor_entity->
+				full_name,
+			payment->
+				deposit->
+				payor_entity->
+				street_address,
+			payment->
+				deposit->
+				deposit_date_time );
+
+		if ( system( sys_string ) ){}
+
+	} while ( list_next( deposit_payment_list ) );
+}
+
 

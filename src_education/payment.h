@@ -103,11 +103,14 @@ PAYMENT *payment_parse(	char *input,
 
 PAYMENT *payment_steady_state(
 			DEPOSIT *deposit /* in/out */,
-			ENROLLMENT *enrollment /* in only */,
 			double deposit_amount,
 			double deposit_transaction_fee,
 			char *program_name,
 			PAYMENT *payment /* in only */ );
+
+PAYMENT *payment_seek(
+			LIST *deposit_payment_list,
+			char *deposit_date_time );
 
 /* -------------------------------- */
 /* Place functions in payment_fns.h */

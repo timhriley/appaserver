@@ -71,7 +71,7 @@ int main( int argc, char **argv )
 "Usage: %s student_full_name street_address course_name season_name year payor_full_name payor_street_address deposit_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
-			"state in {insert,update,predelete,delete}\n" );
+			"state in {insert,update,predelete,delete,deposit}\n" );
 		exit ( 1 );
 	}
 
@@ -101,7 +101,8 @@ int main( int argc, char **argv )
 	}
 
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0
+	||   strcmp( state, "deposit" ) ==  0 )
 	{
 		char sys_string[ 1024 ];
 
@@ -115,18 +116,21 @@ int main( int argc, char **argv )
 			payor_street_address,
 			deposit_date_time );
 
-		sprintf(sys_string,
+		if ( strcmp( state, "deposit" ) != 0 )
+		{
+			sprintf(sys_string,
 		 "deposit_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" payment",
-			entity_escape_full_name( payor_full_name ),
-			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time );
+				entity_escape_full_name( payor_full_name ),
+				payor_street_address,
+				season_name,
+				year,
+				deposit_date_time );
 
-		if ( system( sys_string ) ){}
+			if ( system( sys_string ) ){}
+		}
 
 		sprintf(sys_string,
-		 "registration_trigger \"%s\" \"%s\" \"%s\" %d update",
+		 "registration_trigger \"%s\" \"%s\" \"%s\" %d payment",
 			entity_escape_full_name( student_full_name ),
 			street_address,
 			season_name,
@@ -190,7 +194,6 @@ void payment_trigger_insert_update(
 	payment =
 		payment_steady_state(
 			payment->deposit /* in/out */,
-			payment->enrollment /* in only */,
 			payment->deposit->deposit_amount,
 			payment->deposit->transaction_fee,
 			payment->enrollment->offering->course->program_name,
