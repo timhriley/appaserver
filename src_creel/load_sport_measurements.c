@@ -19,6 +19,7 @@
 #include "creel_load_library.h"
 #include "creel_library.h"
 #include "environ.h"
+#include "boolean.h"
 #include "date_convert.h"
 #include "application.h"
 #include "process.h"
@@ -33,7 +34,8 @@
 /* Prototypes */
 /* ---------- */
 void insert_catches(		char *application_name,
-				char *input_filename );
+				char *input_filename,
+				boolean replace_existing_data );
 
 void delete_catch_measurements(
 				char *application_name,
@@ -43,7 +45,8 @@ int insert_catch_measurements(
 				char *application_name,
 				char *login_name,
 				char *input_filename,
-				char really_yn );
+				boolean replace_existing_data,
+				boolean execute );
 
 int main( int argc, char **argv )
 {
@@ -51,86 +54,64 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *login_name;
 	char *input_filename;
-	char really_yn;
-	DOCUMENT *document;
+	boolean replace_existing_data;
+	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	int lines_processed;
+
+	application_name = environ_exit_application_name( argv[ 0 ] );
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process login_name filename really_yn\n",
+"Usage: %s process login_name filename replace_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
-	process_name = argv[ 2 ];
-	login_name = argv[ 3 ];
-	input_filename = argv[ 4 ];
-	really_yn = *argv[ 5 ];
+	process_name = argv[ 1 ];
+	login_name = argv[ 2 ];
+	input_filename = argv[ 3 ];
+	replace_existing_data = ( *argv[ 4 ] == 'y' );
+	execute = ( *argv[ 5 ] == 'y' );
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
-
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	printf( "<h2>Load Sport Measurement Lengths\n" );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	printf( "</h2>\n" );
 	fflush( stdout );
 
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
 		delete_catch_measurements(
 			application_name, input_filename );
 
 		insert_catches(	application_name,
-				input_filename );
+				input_filename,
+				replace_existing_data );
 	}
 
-	lines_processed = insert_catch_measurements(
-					application_name,
-					login_name,
-					input_filename,
-					really_yn );
+	lines_processed =
+		insert_catch_measurements(
+				application_name,
+				login_name,
+				input_filename,
+				replace_existing_data,
+				execute );
 
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
 		printf( "<p>Process complete with %d lines.\n",
 			lines_processed );
@@ -144,13 +125,16 @@ int main( int argc, char **argv )
 	document_close();
 
 	process_increment_execution_count(
-				application_name,
-				process_name,
-				appaserver_parameter_file_get_dbms() );
-	exit( 0 );
-} /* main() */
+			application_name,
+			process_name,
+			appaserver_parameter_file_get_dbms() );
+	return 0;
+}
 
-#define DELETE_FIELD_LIST "fishing_purpose,census_date,interview_location,interview_number"
+#define DELETE_FIELD_LIST	"fishing_purpose,"	\
+				"census_date,"		\
+				"interview_location,"	\
+				"interview_number"
 
 void delete_catch_measurements(	char *application_name,
 				char *input_filename )
@@ -171,7 +155,7 @@ void delete_catch_measurements(	char *application_name,
 			application_name, "catch_measurements" );
 
 	sprintf( sys_string,
-"sort -u | delete_statement.e t=%s f=%s d='|' | sql.e 2>&1",
+"sort -u | delete_statement.e t=%s f=%s d='|' | sql 2>&1",
 		 table_name,
 		 DELETE_FIELD_LIST );
 
@@ -243,17 +227,38 @@ void delete_catch_measurements(	char *application_name,
 
 	fclose( input_file );
 	pclose( catch_measurements_delete_pipe );
+}
 
-} /* delete_catch_measurements() */
+#define INSERT_CATCH_MEASUREMENTS_FIELD_LIST		\
+			"fishing_purpose,"		\
+			"census_date,"			\
+			"interview_location,"		\
+			"interview_number,"		\
+			"family,"			\
+			"genus,"			\
+			"species,"			\
+			"catch_measurement_number,"	\
+			"length_millimeters"
 
-#define INSERT_CATCH_MEASUREMENTS_FIELD_LIST	"fishing_purpose,census_date,interview_location,interview_number,family,genus,species,catch_measurement_number,length_millimeters"
-#define INSERT_FISHING_TRIPS_FIELD_LIST	"fishing_purpose,census_date,interview_location,interview_number,fishing_area,last_changed_by,validation_date"
-#define INSERT_CREEL_CENSUS_FIELD_LIST	"fishing_purpose,census_date,interview_location"
+#define INSERT_FISHING_TRIPS_FIELD_LIST			\
+			"fishing_purpose,"		\
+			"census_date,"			\
+			"interview_location,"		\
+			"interview_number,"		\
+			"fishing_area,"			\
+			"last_changed_by,"		\
+			"validation_date"
+
+#define INSERT_CREEL_CENSUS_FIELD_LIST			\
+			"fishing_purpose,"		\
+			"census_date,"			\
+			"interview_location"
 
 int insert_catch_measurements(	char *application_name,
 				char *login_name,
 				char *input_filename,
-				char really_yn )
+				boolean replace_existing_data,
+				boolean execute )
 {
 	FILE *input_file;
 	FILE *catch_measurements_output_pipe = {0};
@@ -295,16 +300,16 @@ int insert_catch_measurements(	char *application_name,
 		exit( 1 );
 	}
 
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
-		char *table_name =
-			get_table_name(
-				application_name, "catch_measurements" );
-
-		sprintf( sys_string,
-"insert_statement.e t=%s f=%s d='|' | sql.e 2>&1 | grep -vi duplicate",
-			 table_name,
-			 INSERT_CATCH_MEASUREMENTS_FIELD_LIST );
+		sprintf(sys_string,
+			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"sql 2>&1				 	|"
+			"html_paragrph_wrapper				|"
+			"cat						 ",
+			"catch_measurements",
+			INSERT_CATCH_MEASUREMENTS_FIELD_LIST,
+			(replace_existing_data) ? 'y' : 'n' );
 	}
 	else
 	{
@@ -315,28 +320,30 @@ int insert_catch_measurements(	char *application_name,
 
 	catch_measurements_output_pipe = popen( sys_string, "w" );
 
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
-		char *table_name;
+		sprintf(sys_string,
+			"sort -u					|"
+			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"sql 2>&1					|"
+			"html_paragraph_wrapper				|"
+			"cat						 ",
+			 "fishing_trips",
+			 INSERT_FISHING_TRIPS_FIELD_LIST,
+			(replace_existing_data) ? 'y' : 'n' );
 
-		table_name = get_table_name(
-				application_name,
-				"fishing_trips" );
-
-		sprintf( sys_string,
-"sort -u | insert_statement.e t=%s f=%s d='|' | sql.e 2>&1 | grep -vi duplicate",
-			 table_name,
-			 INSERT_FISHING_TRIPS_FIELD_LIST );
 		fishing_trips_output_pipe = popen( sys_string, "w" );
 
-		table_name = get_table_name(
-				application_name,
-				"creel_census" );
+		sprintf(sys_string,
+			"sort -u					|"
+			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"sql 2>&1					|"
+			"html_paragraph_wrapper				|"
+			"cat						 ",
+			 "creel_census",
+			 INSERT_CREEL_CENSUS_FIELD_LIST,
+			(replace_existing_data) ? 'y' : 'n' );
 
-		sprintf( sys_string,
-"sort -u | insert_statement.e t=%s f=%s d='|' | sql.e 2>&1 | grep -vi duplicate",
-			 table_name,
-			 INSERT_CREEL_CENSUS_FIELD_LIST );
 		creel_census_output_pipe = popen( sys_string, "w" );
 
 	}
@@ -575,11 +582,11 @@ int insert_catch_measurements(	char *application_name,
 		sprintf( sys_string,
 "cat %s | queue_top_bottom_lines.e 50 | html_table.e 'Catch Measurement Errors' '' '|'",
 			 error_filename );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	}
 
 	sprintf( sys_string, "rm %s", error_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	return line_number;
 
@@ -588,7 +595,8 @@ int insert_catch_measurements(	char *application_name,
 #define INSERT_CATCHES_FIELD_LIST	"fishing_purpose,census_date,interview_location,interview_number,family,genus,species,kept_count"
 
 void insert_catches(	char *application_name,
-			char *input_filename )
+			char *input_filename,
+			boolean replace_existing_data )
 {
 	FILE *input_file;
 	FILE *input_pipe;
@@ -742,11 +750,11 @@ void insert_catches(	char *application_name,
 		*family = '\0';
 
 		if ( !creel_load_library_get_family_genus_species(
-					family,
-					genus,
-					species,
-					florida_state_code,
-					application_name ) )
+				family,
+				genus,
+				species,
+				florida_state_code,
+				application_name ) )
 		{
 			continue;
 		}
@@ -794,10 +802,14 @@ void insert_catches(	char *application_name,
 			application_name,
 			"catches" );
 
-	sprintf( sys_string,
-"insert_statement.e t=%s f=%s d='|' | sql.e 2>&1 | grep -vi duplicate",
-		 table_name,
-		 INSERT_CATCHES_FIELD_LIST );
+	sprintf(sys_string,
+		"insert_statement.e t=%s f=%s d='|' replace=%c	|"
+		"sql 2>&1					|"
+		"html_paragraph_wrapper				|"
+		"cat						 ",
+		table_name,
+		INSERT_CATCHES_FIELD_LIST,
+		(replace_existing_data) ? 'y' : 'n' );
 
 	catches_output_pipe = popen( sys_string, "w" );
 
@@ -809,7 +821,6 @@ void insert_catches(	char *application_name,
 	pclose( catches_output_pipe );
 
 	sprintf( sys_string, "rm -f %s", output_filename );
-	system( sys_string );
-
-} /* insert_catches() */
+	if ( system( sys_string ) ){};
+}
 

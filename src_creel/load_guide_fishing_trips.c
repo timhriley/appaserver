@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_creel/load_guide_fishing_trips.c			*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -----------------------------------------------------	*/
+/* $APPASERVER_HOME/src_creel/load_guide_fishing_trips.c	*/
+/* -----------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +15,7 @@
 #include "timlib.h"
 #include "piece.h"
 #include "date.h"
+#include "boolean.h"
 #include "creel_library.h"
 #include "creel_load_library.h"
 #include "environ.h"
@@ -45,7 +46,7 @@ void output_catches(		FILE *catches_output_pipe,
 				int *catch_count,
 				char *input_string,
 				int line_number,
-				char really_yn,
+				boolean execute,
 				char *application_name,
 				char *census_date_international,
 				char *interview_number );
@@ -62,7 +63,8 @@ void insert_fishing_trips(	int *fishing_trip_count,
 				char *application_name,
 				char *login_name,
 				char *input_filename,
-				char really_yn );
+				boolean replace_existing_data,
+				boolean execute );
 
 int main( int argc, char **argv )
 {
@@ -70,64 +72,39 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *login_name;
 	char *input_filename;
-	char really_yn;
-	DOCUMENT *document;
+	boolean replace_existing_data;
+	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	int fishing_trip_count = 0;
 	int catch_count = 0;
+
+	application_name = environ_exit_application_name( argv[ 0 ] );
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process login_name filename really_yn\n",
+"Usage: %s process login_name filename replace_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
-	process_name = argv[ 2 ];
-	login_name = argv[ 3 ];
-	input_filename = argv[ 4 ];
-	really_yn = *argv[ 5 ];
+	process_name = argv[ 1 ];
+	login_name = argv[ 2 ];
+	input_filename = argv[ 3 ];
+	replace_existing_data = (*argv[ 4 ] == 'y');
+	execute = (*argv[ 5 ] == 'y');
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
-
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	printf( "<h2>Load Guide Fishing Trips\n" );
 	fflush( stdout );
@@ -135,7 +112,7 @@ int main( int argc, char **argv )
 	printf( "</h2>\n" );
 	fflush( stdout );
 
-	if ( really_yn == 'y' )
+	if ( execute && !replace_existing_data )
 	{
 		delete_fishing_trips( application_name, input_filename );
 	}
@@ -145,9 +122,10 @@ int main( int argc, char **argv )
 				application_name,
 				login_name,
 				input_filename,
-				really_yn );
+				replace_existing_data,
+				execute );
 
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
 		printf(
 "<p>Process complete with %d fishing trips and %d catch records.\n",
@@ -170,10 +148,12 @@ int main( int argc, char **argv )
 	document_close();
 
 	return 0;
+}
 
-} /* main() */
-
-#define DELETE_FIELD_LIST	"fishing_purpose,census_date,interview_location"
+#define DELETE_FIELD_LIST		\
+		"fishing_purpose,"	\
+		"census_date,"		\
+		"interview_location"
 
 void delete_fishing_trips(	char *application_name,
 				char *input_filename )
@@ -274,20 +254,50 @@ void delete_fishing_trips(	char *application_name,
 	fclose( input_file );
 	pclose( fishing_trips_delete_pipe );
 	pclose( catches_delete_pipe );
+}
 
-} /* delete_fishing_permits() */
+#define INSERT_CREEL_CENSUS_FIELD_LIST		\
+		"fishing_purpose,"		\
+		"census_date,"			\
+		"interview_location,"		\
+		"researcher"
 
-#define INSERT_CREEL_CENSUS_FIELD_LIST	"fishing_purpose,census_date,interview_location,researcher"
-#define INSERT_FISHING_TRIPS_FIELD_LIST	"fishing_purpose,census_date,interview_location,interview_number,permit_code,hours_fishing,number_of_people_fishing,family,genus,species_preferred,fishing_area,last_changed_by,validation_date"
-#define INSERT_CATCHES_FIELD_LIST	"fishing_purpose,census_date,interview_location,interview_number,family,genus,species,kept_count,released_count"
-#define INSERT_PERMITS_FIELD_LIST	"permit_code"
+#define INSERT_FISHING_TRIPS_FIELD_LIST		\
+		"fishing_purpose,"		\
+		"census_date,"			\
+		"interview_location,"		\
+		"interview_number,"		\
+		"permit_code,"			\
+		"hours_fishing,"		\
+		"number_of_people_fishing,"	\
+		"family,"			\
+		"genus,"			\
+		"species_preferred,"		\
+		"fishing_area,"			\
+		"last_changed_by,"		\
+		"validation_date"
+
+#define INSERT_CATCHES_FIELD_LIST		\
+		"fishing_purpose,"		\
+		"census_date,"			\
+		"interview_location,"		\
+		"interview_number,"		\
+		"family,"			\
+		"genus,"			\
+		"species,"			\
+		"kept_count,"			\
+		"released_count"
+
+#define INSERT_PERMITS_FIELD_LIST		\
+		"permit_code"
 
 void insert_fishing_trips(	int *fishing_trip_count,
 				int *catch_count,
 				char *application_name,
 				char *login_name,
 				char *input_filename,
-				char really_yn )
+				boolean replace_existing_data,
+				boolean execute )
 {
 	FILE *input_file;
 	FILE *creel_census_output_pipe = {0};
@@ -312,7 +322,6 @@ void insert_fishing_trips(	int *fishing_trip_count,
 	char fishing_area[ 16 ];
 	char sys_string[ 1024 ];
 	char error_filename[ 128 ];
-	char sql_error_filename[ 128 ];
 	FILE *error_file;
 	int line_number = 0;
 	char *now_string = pipe2string( "now.sh ymd" );
@@ -332,49 +341,50 @@ void insert_fishing_trips(	int *fishing_trip_count,
 		exit( 1 );
 	}
 
-	sprintf( sql_error_filename,
-		 "/tmp/sql_fishing_trip_error_%d.txt",
-		 getpid() );
-
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
-		char *table_name =
-			get_table_name( application_name, "creel_census" );
+		sprintf(sys_string,
+			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"sql 2>&1					|"
+			"html_paragraph_wrapper				|"
+			"cat						 ",
+			 "creel_census",
+			 INSERT_CREEL_CENSUS_FIELD_LIST,
+			 (replace_existing_data) ? 'y' : 'n' );
 
-		sprintf( sys_string,
-"insert_statement.e t=%s f=%s d='|' | sql.e 2>&1 | grep -vi duplicate",
-			 table_name,
-			 INSERT_CREEL_CENSUS_FIELD_LIST );
 		creel_census_output_pipe = popen( sys_string, "w" );
 
-		table_name =
-			get_table_name( application_name, "fishing_trips" );
-
-		sprintf( sys_string,
-"insert_statement.e t=%s f=%s d='|' | sql.e 2>&1 | grep -vi duplicate >> %s 2>&1",
-			 table_name,
+		sprintf(sys_string,
+			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"sql 2>&1					|"
+			"html_paragraph_wrapper				|"
+			"cat						 ",
+			"fishing_trips",
 			 INSERT_FISHING_TRIPS_FIELD_LIST,
-			 sql_error_filename );
+			 (replace_existing_data) ? 'y' : 'n' );
+
 		fishing_trips_output_pipe = popen( sys_string, "w" );
 
-		table_name =
-			get_table_name( application_name, "catches" );
-
-		sprintf( sys_string,
-"insert_statement.e t=%s f=%s d='|' | sql.e >> %s 2>&1",
-			 table_name,
+		sprintf(sys_string,
+			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"sql.e 2>&1					|"
+			"html_paragraph_wrapper				|"
+			"cat						",
+			"catches",
 			 INSERT_CATCHES_FIELD_LIST,
-			 sql_error_filename );
+			 (replace_existing_data) ? 'y' : 'n' );
+
 		catches_output_pipe = popen( sys_string, "w" );
 
-		table_name =
-			get_table_name( application_name, "permits" );
-
-		sprintf( sys_string,
-"insert_statement.e t=%s f=%s d='|' | sql.e 2>&1 | grep -vi duplicate >> %s",
-			 table_name,
+		sprintf(sys_string,
+			"insert_statement.e t=%s f=%s d='|' replace=%c	|"
+			"sql 2>&1					|"
+			"html_paragrph_wrapper				|"
+			"cat						 ",
+			 "permits",
 			 INSERT_PERMITS_FIELD_LIST,
-			 sql_error_filename );
+			 (replace_existing_data) ? 'y' : 'n' );
+
 		permits_output_pipe = popen( sys_string, "w" );
 	}
 	else
@@ -570,7 +580,7 @@ void insert_fishing_trips(	int *fishing_trip_count,
 
 		(*fishing_trip_count)++;
 
-		if ( really_yn == 'y' )
+		if ( execute )
 		{
 			fprintf( fishing_trips_output_pipe, "\n" );
 
@@ -585,7 +595,7 @@ void insert_fishing_trips(	int *fishing_trip_count,
 				catch_count,
 				input_string,
 				line_number,
-				really_yn,
+				execute,
 				application_name,
 				census_date_international,
 				interview_number );
@@ -615,22 +625,7 @@ void insert_fishing_trips(	int *fishing_trip_count,
 
 	sprintf( sys_string, "rm %s", error_filename );
 	if ( system( sys_string ) );
-
-	if ( really_yn == 'y' )
-	{
-		if ( timlib_file_populated( sql_error_filename ) )
-		{
-			sprintf( sys_string,
-"cat %s | html_table.e 'SQL Errors' '' '|'",
-			 	sql_error_filename );
-			if ( system( sys_string ) );
-		}
-
-		sprintf( sys_string, "rm %s", sql_error_filename );
-		if ( system( sys_string ) );
-	}
-
-} /* insert_fishing_trips() */
+}
 
 char *get_creel_census_date_mdyy(
 				char *compressed_date_string )
@@ -671,8 +666,7 @@ char *get_creel_census_date_mdyy(
 	*(return_date + 9) = *compressed_date_string++;
 
 	return return_date;
-
-} /* get_creel_census_date_mdyy() */
+}
 
 void output_catches(	FILE *catches_output_pipe,
 			FILE *fishing_trips_output_pipe,
@@ -680,7 +674,7 @@ void output_catches(	FILE *catches_output_pipe,
 			int *catch_count,
 			char *input_string,
 			int line_number,
-			char really_yn,
+			boolean execute,
 			char *application_name,
 			char *census_date_international,
 			char *interview_number )
@@ -696,7 +690,7 @@ void output_catches(	FILE *catches_output_pipe,
 
 	if ( !list_rewind( catches_list ) )
 	{
-		if ( really_yn != 'y' )
+		if ( execute )
 		{
 			fprintf(fishing_trips_output_pipe,
 				"\n" );
@@ -705,7 +699,7 @@ void output_catches(	FILE *catches_output_pipe,
 	}
 
 	do {
-		catches = list_get_pointer( catches_list );
+		catches = list_get( catches_list );
 
 		if ( ! ( catches->kept_integer +
 			 catches->released_integer ) )
@@ -713,7 +707,7 @@ void output_catches(	FILE *catches_output_pipe,
 			continue;
 		}
 
-		if ( really_yn == 'y' )
+		if ( execute )
 		{
 			fprintf(catches_output_pipe,
 				"%s|%s|%s|%s|%s|%s|%s|%d|%d\n",
@@ -756,8 +750,7 @@ void output_catches(	FILE *catches_output_pipe,
 
 	list_free_data( catches_list );
 	list_free( catches_list );
-
-} /* output_catches() */
+}
 
 LIST *get_catches_list(	FILE *error_file,
 			char *input_string,
@@ -846,5 +839,5 @@ LIST *get_catches_list(	FILE *error_file,
 		catch_offset += CATCHES_INCREMENT;
 	}
 	return catches_list;
-} /* get_catches_list(); */
+}
 

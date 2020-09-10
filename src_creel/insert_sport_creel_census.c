@@ -16,13 +16,17 @@
 #include "creel_library.h"
 #include "creel_load_library.h"
 
-#define FIELD_LIST	"fishing_purpose,census_date,interview_location,researcher"
+#define FIELD_LIST	"fishing_purpose,"	\
+			"census_date,"		\
+			"interview_location,"	\
+			"researcher"
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *input_filename;
-	char really_yn;
+	boolean replace_existing_data;
+	boolean execute;
 	FILE *input_file;
 	FILE *output_pipe;
 	char input_string[ 1024 ];
@@ -37,22 +41,23 @@ int main( int argc, char **argv )
 	char researcher_code[ 16 ];
 	FILE *error_file;
 
-	if ( argc != 4 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr, 
-"Usage: %s application filename really_yn\n",
+	"Usage: %s application filename replace_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name = argv[ 1 ];
 	input_filename = argv[ 2 ];
-	really_yn = *argv[ 3 ];
+	replace_existing_data = ( *argv[ 3 ] == 'y' );
+	execute = ( *argv[ 4 ] == 'y' );
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
 	{
@@ -68,23 +73,21 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
-		char *table_name =
-			get_table_name( application_name, "creel_census" );
-
 		sprintf( sys_string,
 			 "sort -u					|"
-			 "insert_statement t=%s f=%s d='|' replace=y	|"
+			 "insert_statement t=%s f=%s d='|' replace=%c	|"
 			 "sql 2>&1					|"
 			 "cat						 ",
-			 table_name,
-			 FIELD_LIST );
+			 "creel_census",
+			 FIELD_LIST,
+			 (replace_existing_data) ? 'y' : 'n' );
 	}
 	else
 	{
 		sprintf( sys_string,
-"sort -u | html_table.e 'Insert into Creel Census' %s '|'",
+		"sort -u | html_table.e 'Insert into Creel Census' %s '|'",
 			 FIELD_LIST );
 	}
 
@@ -206,12 +209,12 @@ int main( int argc, char **argv )
 		sprintf( sys_string,
 "cat %s | queue_top_bottom_lines.e 50 | html_table.e 'Creel Census Errors' '' '|'",
 			 error_filename );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	}
 
 	sprintf( sys_string, "rm %s", error_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	return 0;
-} /* main() */
+}
 

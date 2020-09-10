@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_creel/load_sport_fishing_trips.c			*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ----------------------------------------------------- */
+/* $APPASERVER_HOME/src_creel/load_sport_fishing_trips.c */
+/* ----------------------------------------------------- */
+/* Freely available software: see Appaserver.org	 */
+/* ----------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +17,7 @@
 #include "environ.h"
 #include "process.h"
 #include "dictionary.h"
+#include "boolean.h"
 #include "application.h"
 #include "session.h"
 
@@ -35,66 +36,42 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *login_name;
 	char *input_filename;
-	char really_yn;
-	DOCUMENT *document;
+	boolean replace_existing_data;
+	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	char sys_string[ 1024 ];
+
+	application_name = environ_exit_application_name( argv[ 0 ] );
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process login_name filename really_yn\n",
+"Usage: %s process login_name filename replace_existing_data_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
-	process_name = argv[ 2 ];
-	login_name = argv[ 3 ];
-	input_filename = argv[ 4 ];
-	really_yn = *argv[ 5 ];
+	process_name = argv[ 1 ];
+	login_name = argv[ 2 ];
+	input_filename = argv[ 3 ];
+	replace_existing_data = ( *argv[ 4 ] == 'y' );
+	execute = ( *argv[ 5 ] == 'y' );
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	printf( "<h2>Load Sport Fishing Trips\n" );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	printf( "</h2>\n" );
 	fflush( stdout );
 
@@ -106,49 +83,52 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( really_yn == 'y' )
+	if ( execute && !replace_existing_data )
 	{
 		sprintf( sys_string,
-		 	"delete_sport_creel_census %s %s",
+		 	"delete_sport_creel_census %s \"%s\"",
 		 	application_name,
 		 	input_filename );
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		fflush( stdout );
 	}
 
 	sprintf( sys_string,
-		 "insert_sport_creel_census %s %s %c",
+		 "insert_sport_creel_census %s \"%s\" %c %c",
 		 application_name,
 		 input_filename,
-		 really_yn );
+		 (replace_existing_data) ? 'y' : 'n',
+		 (execute) ? 'y' : 'n' );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	fflush( stdout );
 
 	sprintf( sys_string,
-		 "insert_sport_fishing_trips %s '%s' '%s' %c",
+		 "insert_sport_fishing_trips %s %s \"%s\" %c %c",
 		 application_name,
 		 login_name,
 		 input_filename,
-		 really_yn );
+		 (replace_existing_data) ? 'y' : 'n',
+		 (execute) ? 'y' : 'n' );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	fflush( stdout );
 
 	sprintf( sys_string,
-		 "insert_sport_catches %s %s %c",
+		 "insert_sport_catches %s \"%s\" %c %c",
 		 application_name,
 		 input_filename,
-		 really_yn );
+		 (replace_existing_data) ? 'y' : 'n',
+		 (execute) ? 'y' : 'n' );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 	fflush( stdout );
 
-	if ( really_yn == 'y' )
+	if ( execute )
 		printf( "<p>Process complete\n" );
 	else
 		printf( "<p>Process not executed\n" );

@@ -553,4 +553,7 @@ LIST *related_folder_mto1_isa_related_folder_list(
 			char *role_name,
 			int recursive_level );
 
+char *related_folder_mto1_list_display(
+			LIST *related_folder_list );
+
 #endif

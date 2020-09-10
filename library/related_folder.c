@@ -657,7 +657,7 @@ LIST *related_folder_subtract_related_attribute_name_list(
 		}
 	} while( list_next( foreign_attribute_name_list ) );
 	return attribute_name_list;
-} /* related_folder_subtract_related_attribute_name_list() */
+}
 
 char *related_folder_list_display(	LIST *related_folder_list,
 					enum relation_type relation_type,
@@ -697,8 +697,7 @@ char *related_folder_list_display(	LIST *related_folder_list,
 	list_pop( related_folder_list );
 
 	return strdup( buffer );
-
-} /* related_folder_list_display() */
+}
 
 char *related_folder_display(	RELATED_FOLDER *related_folder,
 				enum relation_type relation_type )
@@ -800,14 +799,22 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 		buf_ptr +=
 			sprintf(
 			buf_ptr,
+			", length( mto1_related_folder_list ) = %d",
+			list_length(
+				folder->
+				mto1_related_folder_list ) );
+/*
+		buf_ptr +=
+			sprintf(
+			buf_ptr,
 			", mto1_related_folder_list = (%s)",
 			related_folder_list_display(
 				folder->mto1_related_folder_list, mto1, ';' ) );
+*/
 	}
 
 	return strdup( buffer );
-
-} /* related_folder_display() */
+}
 
 LIST *related_folder_remove_duplicate_mto1_related_folder_list(
 			LIST *related_folder_list )
@@ -4357,5 +4364,43 @@ LIST *related_folder_mto1_isa_related_folder_list(
 	} while( list_next( local_related_folder_list ) );
 
 	return existing_related_folder_list;
+}
+
+char *related_folder_mto1_list_display(
+			LIST *related_folder_list )
+{
+	RELATED_FOLDER *related_folder;
+	int first_time = 1;
+	char buffer[ 65536 ], *buf_ptr = buffer;
+
+	if ( !list_length( related_folder_list ) ) return "";
+
+	list_push( related_folder_list );
+
+	*buf_ptr = '\0';
+
+	list_rewind( related_folder_list );
+
+	do {
+		related_folder =
+			list_get_pointer(
+				related_folder_list );
+
+		if ( first_time )
+			first_time = 0;
+		else
+			buf_ptr += sprintf( buf_ptr, ";" );
+
+		buf_ptr += sprintf(	buf_ptr,
+					"%s\n",
+					related_folder_display(
+						related_folder,
+						mto1 ) );
+
+	} while( list_next( related_folder_list ) );
+
+	list_pop( related_folder_list );
+
+	return strdup( buffer );
 }
 
