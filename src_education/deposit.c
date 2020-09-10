@@ -436,13 +436,6 @@ DEPOSIT *deposit_steady_state(
 		deposit_payment_total(
 			deposit_payment_list );
 
-fprintf(stderr,
-	"%s/%s()/%d: deposit_payment_total = %.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-deposit->deposit_payment_total );
-
 	deposit->deposit_invoice_amount_due =
 		deposit_invoice_amount_due(
 			deposit->

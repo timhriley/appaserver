@@ -56,6 +56,8 @@ typedef struct
 	double payment_gain_donation;
 	LIST *deposit_payment_list;
 	LIST *deposit_registration_list;
+	double receivable_credit_amount;
+	double payment_cash_debit_amount;
 	TRANSACTION *payment_transaction;
 } PAYMENT;
 
@@ -92,6 +94,8 @@ TRANSACTION *payment_transaction(
 			double payment_amount,
 			double fees_expense,
 			double gain_donation,
+			double receivable_credit_amount,
+			double cash_debit_amount,
 			char *account_cash,
 			char *account_receivable,
 			char *account_fees_expense,

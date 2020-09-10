@@ -349,6 +349,8 @@ TRANSACTION *payment_transaction(
 			double payment_amount,
 			double fees_expense,
 			double gain_donation,
+			double receivable_credit_amount,
+			double cash_debit_amount,
 			char *account_cash,
 			char *account_receivable,
 			char *account_fees_expense,
@@ -387,8 +389,7 @@ TRANSACTION *payment_transaction(
 				transaction->transaction_date_time,
 				account_cash ) ) );
 
-	journal->debit_amount =
-		payment_amount - fees_expense + gain_donation;
+	journal->debit_amount = cash_debit_amount;
 
 	/* Debit fees_expense */
 	/* ------------------ */
@@ -414,7 +415,7 @@ TRANSACTION *payment_transaction(
 				transaction->transaction_date_time,
 				account_receivable ) ) );
 
-	journal->credit_amount = payment_amount;
+	journal->credit_amount = receivable_credit_amount;
 
 	if ( gain_donation )
 	{
@@ -595,6 +596,8 @@ PAYMENT *payment_steady_state(
 			payment->deposit_transaction_fee,
 			payment->deposit->deposit_payment_list );
 
+	/* Set the payment amount in the list, so the total will add up. */
+	/* ------------------------------------------------------------- */
 	{
 		PAYMENT *p;
 
@@ -644,6 +647,14 @@ PAYMENT *payment_steady_state(
 				deposit->
 				deposit_payment_list );
 
+	payment->receivable_credit_amount = payment->payment_amount;
+
+	payment->payment_cash_debit_amount =
+		payment_cash_debit_amount(
+			payment->payment_amount,
+			payment->payment_gain_donation,
+			payment->payment_fees_expense );
+
 	payment->payment_transaction =
 		payment_transaction(
 			deposit->payor_entity->full_name,
@@ -653,6 +664,8 @@ PAYMENT *payment_steady_state(
 			payment->payment_amount,
 			payment->payment_fees_expense,
 			payment->payment_gain_donation,
+			payment->receivable_credit_amount,
+			payment->payment_cash_debit_amount,
 			account_cash( (char *)0 ),
 			account_receivable( (char *)0 ),
 			account_fees_expense( (char *)0 ),
@@ -733,5 +746,15 @@ PAYMENT *payment_seek(
 	} while ( list_next( deposit_payment_list ) );
 
 	return (PAYMENT *)0;
+}
+
+double payment_cash_debit_amount(
+			double payment_amount,
+			double payment_gain_donation,
+			double payment_fees_expense )
+{
+	return	payment_amount +
+		payment_gain_donation -
+		payment_fees_expense;
 }
 

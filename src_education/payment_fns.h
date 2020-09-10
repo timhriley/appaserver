@@ -79,5 +79,10 @@ LIST *payment_system_list(
 			boolean fetch_deposit,
 			boolean fetch_enrollment );
 
+double payment_cash_debit_amount(
+			double payment_amount,
+			double payment_gain_donation,
+			double payment_fees_expense );
+
 #endif
 
