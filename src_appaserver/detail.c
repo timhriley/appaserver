@@ -1550,6 +1550,10 @@ DICTIONARY *output_folder_detail(
 		( update_yn == 'y' ||
 		  !omit_operation_buttons );
 
+/* There's a bug. */
+/* -------------- */
+omit_insert_flag = 1;
+
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,
 		1 - omit_insert_flag /* output_insert_button */,

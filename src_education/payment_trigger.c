@@ -116,9 +116,11 @@ int main( int argc, char **argv )
 			payor_street_address,
 			deposit_date_time );
 
-		if ( strcmp( state, "deposit" ) != 0 )
-		{
-			sprintf(sys_string,
+		/* ------------------------------------ */
+		/* Even if called from deposit_trigger,	*/
+		/* need to set payment_total.		*/
+		/* ------------------------------------ */
+		sprintf(sys_string,
 		 "deposit_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" payment",
 				entity_escape_full_name( payor_full_name ),
 				payor_street_address,
@@ -126,8 +128,7 @@ int main( int argc, char **argv )
 				year,
 				deposit_date_time );
 
-			if ( system( sys_string ) ){}
-		}
+		if ( system( sys_string ) ){}
 
 		sprintf(sys_string,
 		 "registration_trigger \"%s\" \"%s\" \"%s\" %d payment",

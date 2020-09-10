@@ -13,6 +13,7 @@
 #include "timlib.h"
 #include "sql.h"
 #include "boolean.h"
+#include "float.h"
 #include "list.h"
 #include "payment.h"
 #include "payment_fns.h"
@@ -191,7 +192,7 @@ void payment_update(	double payment_amount,
 		 payor_full_name,
 		 payor_street_address,
 		 deposit_date_time,
-		 transaction_date_time );
+		 (transaction_date_time) ? transaction_date_time : "" );
 
 	pclose( update_pipe );
 }
@@ -355,6 +356,9 @@ TRANSACTION *payment_transaction(
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
+
+	if ( dollar_virtually_same( payment_amount, 0.0 ) )
+		return (TRANSACTION *)0;
 
 	transaction =
 		transaction_full(
