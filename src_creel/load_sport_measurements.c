@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_creel/load_sport_measurements.c			*/
-/* ---------------------------------------------------	*/
+/* ----------------------------------------------------	*/
+/* $APPASERVER_HOME/src_creel/load_sport_measurements.c	*/
+/* ----------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ----------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +13,6 @@
 #include "appaserver_parameter_file.h"
 #include "document.h"
 #include "timlib.h"
-#include "hashtbl.h"
 #include "piece.h"
 #include "date.h"
 #include "creel_load_library.h"
@@ -92,6 +91,13 @@ int main( int argc, char **argv )
 	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	printf( "</h2>\n" );
 	fflush( stdout );
+
+	if ( !*input_filename || strcmp( input_filename, "filename" ) == 0 )
+	{
+		printf( "<h3>Please transmit a file.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
 
 	if ( execute )
 	{

@@ -519,7 +519,7 @@ void insert_permits(	char *input_filename,
 	}
 
 	sprintf(sys_string,
-		"insert_statement.e t=%s f=%s d='|' replace=%c	|"
+		"insert_statement t=%s f=%s d='|' replace=%c	|"
 		"sql 2>&1					|"
 		"html_paragraph_wrapper				|"
 		"cat						 ",
@@ -720,7 +720,7 @@ void insert_guide_boat_decal(
 	}
 
 	sprintf(sys_string,
-		"insert_statement.e t=%s f=%s d='|' replace=%c	|"
+		"insert_statement t=%s f=%s d='|' replace=%c	|"
 		"sql 2>&1					|"
 		"html_paragraph_wrapper				|"
 		"cat						 ",
