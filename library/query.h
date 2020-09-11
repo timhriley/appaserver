@@ -109,11 +109,11 @@ typedef struct
 typedef struct
 {
 	FOLDER *folder;
-	LIST *mto1_join_folder_list;
 	LIST *one2m_subquery_related_folder_list;
 	char *login_name;
 	DICTIONARY *dictionary;
 	DICTIONARY *sort_dictionary;
+	LIST *mto1_join_folder_list;
 	LIST *where_attribute_name_list;
 	LIST *where_attribute_data_list;
 	int max_rows /* use zero for unlimited */;
@@ -151,7 +151,6 @@ QUERY *query_new(		char *application_name,
 				int max_rows /* zero for unlimited */,
 				boolean include_root_folder,
 				LIST *one2m_subquery_folder_name_list,
-				LIST *mto1_join_folder_name_list,
 				RELATED_FOLDER *root_related_folder );
 
 QUERY *query_primary_data_new(	char *application_name,
@@ -344,21 +343,21 @@ char *query_get_drop_down_where_clause(
 				char *folder_name );
 
 char *query_get_attribute_where_clause(
-				LIST *query_attribute_list,
-				char *application_name,
-				boolean combine_date_time );
+			LIST *query_attribute_list,
+			char *application_name,
+			boolean combine_date_time );
 
 char *query_get_simple_where_clause(
-				FOLDER *folder,
-				LIST *where_attribute_name_list,
-				LIST *where_attribute_data_list,
-				char *login_name );
+			FOLDER *folder,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list,
+			char *login_name );
 
 char *query_get_display_where_clause(
-				char *where_clause,
-				char *application_name,
-				char *folder_name,
-				boolean is_primary_application );
+			char *where_clause,
+			char *application_name,
+			char *folder_name,
+			boolean is_primary_application );
 
 char *query_append_where_clause_related_join(
 				char *application_name,
@@ -442,16 +441,6 @@ char *query_get_drop_down_data_where(
 				char *folder_name,
 				char *attribute_name,
 				char *data );
-
-LIST *query_with_folder_name_get_mto1_join_folder_list(
-				char *application_name,
-				char *folder_name,
-				ROLE *role );
-
-LIST *query_with_folder_name_list_get_mto1_join_folder_list(
-				char *application_name,
-				LIST *mto1_folder_name_list,
-				ROLE *role );
 
 LIST *query_get_one2m_subquery_related_folder_list(
 				char *application_name,
@@ -697,8 +686,7 @@ LIST *query_edit_table_dictionary_list(
 QUERY_OUTPUT *query_edit_table_output_new(
 			QUERY *query,
 			FOLDER *folder,
-			PROMPT_RECURSIVE *prompt_recursive,
-			LIST *mto1_join_folder_list );
+			PROMPT_RECURSIVE *prompt_recursive );
 
 LIST *query_edit_table_drop_down_list(
 			LIST *exclude_attribute_name_list,
@@ -755,10 +743,110 @@ QUERY_OUTPUT *query_detail_output_new(
 			FOLDER *folder,
 			PROMPT_RECURSIVE *prompt_recursive,
 			LIST *where_attribute_name_list,
-			LIST *where_attribute_data_list,
-			LIST *mto1_join_folder_list );
+			LIST *where_attribute_data_list );
 
 char *query_drop_down_where(
+			LIST *query_drop_down_list,
+			char *application_name,
+			char *folder_name );
+
+char *query_simple_where(
+			char *application_name,
+			char *folder_name,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list );
+
+QUERY *query_simple_new(
+			char *application_name,
+			char *folder_name,
+			ROLE *role,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list );
+
+QUERY_OUTPUT *query_simple_output_new(
+			FOLDER *folder,
+			LIST *mto1_isa_related_folder_list,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list );
+
+char *query_output_one2m_isa_where(
+			char **from_clause,
+			char *application_name,
+			char *folder_name,
+			LIST *one2m_isa_related_folder_list,
+			LIST *primary_attribute_name_list,
+			char *where_clause,
+			boolean one_only );
+
+char *query_output_mto1_isa_where(
+			char **from_clause,
+			char *application_name,
+			char *folder_name,
+			LIST *mto1_isa_related_folder_list,
+			LIST *primary_attribute_name_list,
+			char *where_clause,
+			boolean one_only );
+
+char *query_simple_where_clause(
+			FOLDER *folder,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list );
+
+char *query_related_join_where(
+			char *application_name,
+			char *source_where_clause,
+			LIST *primary_attribute_name_list,
+			LIST *foreign_attribute_name_list,
+			char *folder_name,
+			char *related_folder_name );
+
+LIST *query_get_drop_down_list(
+			LIST *exclude_attribute_name_list,
+			FOLDER *root_folder,
+			LIST *mto1_related_folder_list,
+			LIST *mto1_append_isa_related_folder_list,
+			DICTIONARY *dictionary,
+			boolean include_root_folder );
+
+QUERY_DROP_DOWN *query_get_drop_down(
+			LIST *exclude_attribute_name_list,
+			char *root_folder_name,
+			char *dictionary_prepend_folder_name,
+			LIST *foreign_attribute_name_list,
+			LIST *attribute_list,
+			DICTIONARY *dictionary );
+
+LIST *query_with_folder_name_get_mto1_join_folder_list(
+			char *application_name,
+			char *folder_name,
+			ROLE *role );
+
+char *query_get_simple_where_clause(
+			FOLDER *folder,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list,
+			char *login_name );
+
+QUERY_DROP_DOWN *query_get_row_drop_down(
+			LIST *exclude_attribute_name_list,
+			QUERY_DROP_DOWN *query_drop_down,
+			char *root_folder_name,
+			LIST *foreign_attribute_name_list,
+			LIST *attribute_list,
+			DICTIONARY *dictionary,
+			int index,
+			char *dictionary_prepend_folder_name );
+
+char *query_folder_get_where_clause(
+			char **drop_down_where_clause,
+			char **attribute_where_clause,
+			LIST *query_drop_down_list,
+			LIST *query_attribute_list,
+			char *application_name,
+			char *folder_name,
+			boolean combine_date_time );
+
+char *query_get_folder_drop_down_where_clause(
 			LIST *query_drop_down_list,
 			char *application_name,
 			char *folder_name );

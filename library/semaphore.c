@@ -150,7 +150,7 @@ void semaphore_operation_check(
 		sprintf( sys_string, "echo 1 > %s", semaphore_filename );
 
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		fflush( stdout );
 
 		*group_first_time = 1;
@@ -171,7 +171,7 @@ void semaphore_operation_check(
 		 operation_row_current,
 		 semaphore_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	*group_last_time = ( operation_row_current == operation_row_total );
 

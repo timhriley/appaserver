@@ -73,7 +73,8 @@ ROW_SECURITY *row_security_new(
 			DICTIONARY *sort_dictionary,
 			LIST *no_display_pressed_attribute_name_list );
 
-ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_element_list_structure_new(
+ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
+	row_security_detail_element_list_structure(
 			char *application_name,
 			enum row_security_state row_security_state,
 			char *login_name,
@@ -131,13 +132,11 @@ void row_security_set_additional_select_attribute(
 			LIST *attribute_list,
 			ATTRIBUTE *attribute_not_null );
 
-LIST *row_security_row_dictionary_list(
+LIST *row_security_detail_dictionary_list(
 			LIST *append_isa_attribute_list,
 			char *application_name,
-			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
 			ROLE *login_role,
-			char *login_name,
 			char *folder_name,
 			LIST *where_clause_attribute_name_list,
 			LIST *where_clause_data_list,

@@ -91,9 +91,9 @@ RELATED_FOLDER *related_folder_new(
 					char *related_attribute_name );
 
 LIST *related_folder_foreign_attribute_name_list(
-				LIST *primary_attribute_name_list,
-				char *related_attribute_name,
-				LIST *folder_foreign_attribute_name_list );
+			LIST *primary_attribute_name_list,
+			char *related_attribute_name,
+			LIST *folder_foreign_attribute_name_list );
 
 LIST *related_folder_get_primary_data_list(
 				char *application_name,
@@ -468,7 +468,10 @@ RELATED_FOLDER *related_folder_one2m_seek(
 				char *folder_name );
 
 LIST *related_folder_get_join_1tom_related_folder_list(
-				LIST *one2m_related_folder_list );
+			LIST *one2m_related_folder_list );
+
+LIST *related_folder_join_1tom_related_folder_list(
+			LIST *one2m_related_folder_list );
 
 LIST *related_folder_get_non_edit_multi_element_list(
 				char *folder_name );
@@ -555,5 +558,8 @@ LIST *related_folder_mto1_isa_related_folder_list(
 
 char *related_folder_mto1_list_display(
 			LIST *related_folder_list );
+
+LIST *related_folder_one2m_isa_related_folder_list(
+			LIST *one2m_related_folder_list );
 
 #endif

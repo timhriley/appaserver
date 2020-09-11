@@ -1195,7 +1195,14 @@ LIST *attribute_get_date_attribute_name_list( LIST *attribute_list )
 	return attribute_name_list;
 }
 
-LIST *attribute_get_primary_attribute_name_list( LIST *attribute_list )
+LIST *attribute_primary_attribute_name_list(
+			LIST *attribute_list )
+{
+	return folder_get_primary_attribute_name_list( attribute_list );
+}
+
+LIST *attribute_get_primary_attribute_name_list(
+			LIST *attribute_list )
 {
 	return folder_get_primary_attribute_name_list( attribute_list );
 }

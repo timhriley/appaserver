@@ -315,7 +315,13 @@ LIST *folder_get_attribute_name_list( LIST *attribute_list )
 }
 
 LIST *folder_get_primary_attribute_name_list(
-				LIST *attribute_list )
+			LIST *attribute_list )
+{
+	return folder_primary_attribute_name_list( attribute_list );
+}
+
+LIST *folder_primary_attribute_name_list(
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 	LIST *primary_attribute_name_list;
@@ -654,6 +660,45 @@ LIST *folder_related_primary_data_list(
 			list_new() /* exclude_attribute_name_list */,
 			role_name );
 	}
+}
+
+LIST *folder_get_primary_data_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			boolean filter_only_login_name,
+			LIST *exclude_attribute_name_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			char *appaserver_user_foreign_login_name,
+			boolean include_root_folder )
+{
+	return folder_primary_data_list(
+			application_name,
+			session,
+			folder_name,
+			login_name,
+			parameter_dictionary,
+			where_clause_dictionary,
+			delimiter,
+			populate_drop_down_process,
+			attribute_list,
+			common_non_primary_attribute_name_list,
+			filter_only_login_name,
+			exclude_attribute_name_list,
+			role_name,
+			state,
+			one2m_folder_name_for_processes,
+			appaserver_user_foreign_login_name,
+			include_root_folder );
 }
 
 LIST *folder_primary_data_list(

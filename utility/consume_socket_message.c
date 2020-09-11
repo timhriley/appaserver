@@ -15,7 +15,7 @@
 int main( int argc, char **argv )
 {
 	struct sockaddr_in addr;
-	int fd, addrlen;
+	unsigned int fd, addrlen;
 	struct ip_mreq mreq;
 	char message[ MSGSIZE + 1 ];
 	char *source_ip_address;

@@ -40,6 +40,8 @@
 
 /* Constants */
 /* --------- */
+#define SECURITY_ON		0
+
 /* See site_visit_device_addition -> site_visit */
 /*--------------------------------------------- */
 #define MAKE_LONG_DROP_DOWNS_NON_EDIT 1
@@ -157,7 +159,7 @@ int main( int argc, char **argv )
 	int form_number;
 	APPASERVER *appaserver;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -167,12 +169,12 @@ int main( int argc, char **argv )
 	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application session login_name folder role target_frame primary_data_bar_list dictionary\n",
+"Usage: %s ignored session login_name folder role target_frame primary_data_bar_list dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
+	/* application_name = argv[ 1 ]; */
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	base_folder_name = folder_name = argv[ 4 ];
@@ -181,7 +183,8 @@ int main( int argc, char **argv )
 	primary_data_list_string = argv[ 7 ];
 	original_post_dictionary = dictionary_string2dictionary( argv[ 8 ] );
 
-/*
+if ( SECURITY_ON )
+{
 	if ( session_remote_ip_address_changed(
 		application_name,
 		session ) )
@@ -210,10 +213,10 @@ int main( int argc, char **argv )
 		session_access_failed_message_and_exit(
 				application_name, session, login_name );
 	}
-*/
 
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
+}
 
 	role = role_new_role(	application_name,
 				role_name );
@@ -748,6 +751,7 @@ void output_1tom_folder_detail(	int *form_number,
 	DOCUMENT *document;
 	boolean local_omit_insert_flag;
 	boolean local_output_even_if_not_populated;
+	boolean remove_update_permission;
 
 	omit_insert_flag = 1 - OUTPUT_INSERT_BUTTON;
 
@@ -825,6 +829,8 @@ void output_1tom_folder_detail(	int *form_number,
 			continue;
 		}
 
+		remove_update_permission = 0;
+
 		document = document_new( "", application_name );
 
 		document_set_folder_javascript_files(
@@ -843,6 +849,7 @@ void output_1tom_folder_detail(	int *form_number,
 
 		if ( related_folder->relation_type_isa )
 		{
+			remove_update_permission = 1;
 			local_output_even_if_not_populated = 0;
 			local_omit_insert_flag = 1;
 		}
@@ -959,7 +966,7 @@ void output_1tom_folder_detail(	int *form_number,
 				/* where_data_list */,
 			login_name,
 			appaserver_data_directory,
-			0 /* dont remove_update_permission */,
+			remove_update_permission,
 			base_folder_name,
 			local_omit_insert_flag,
 			0 /* dont omit_operation_buttons */,
@@ -1372,7 +1379,7 @@ DICTIONARY *output_folder_detail(
 	}
 
 	row_security->row_security_element_list_structure =
-		row_security_element_list_structure_new(
+		row_security_detail_element_list_structure(
 			application_name,
 			row_security->row_security_state,
 			row_security->login_name,

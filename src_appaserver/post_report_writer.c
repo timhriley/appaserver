@@ -1620,7 +1620,7 @@ void post_table_state_four(
 			MAX_ROWS,
 			0 /* not_include_root_folder */,
 			one2m_subquery_folder_name_list,
-			mto1_join_folder_name_list,
+			/* mto1_join_folder_name_list, */
 			root_related_folder );
 
 	input_sys_string = 
@@ -1844,7 +1844,7 @@ void post_statistics_state_four(
 			MAX_ROWS,
 			0 /* not_include_root_folder */,
 			one2m_subquery_folder_name_list,
-			mto1_join_folder_name_list,
+			/* mto1_join_folder_name_list, */
 			root_related_folder );
 
 	query_attribute_statistics_list =
@@ -2111,7 +2111,7 @@ void post_spreadsheet_state_four(
 			MAX_ROWS,
 			0 /* not_include_root_folder */,
 			one2m_subquery_folder_name_list,
-			mto1_join_folder_name_list,
+			/* mto1_join_folder_name_list, */
 			root_related_folder );
 
 	input_sys_string = 

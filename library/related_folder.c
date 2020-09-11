@@ -3334,76 +3334,7 @@ boolean related_folder_exists_mto1_folder_name_list(
 
 	return 0;
 
-} /* related_folder_exists_mto1_folder_name_list() */
-
-char *related_folder_append_where_clause_related_join(
-					FOLDER *folder,
-					char *application_name,
-					char *source_where_clause,
-					RELATED_FOLDER *related_folder )
-{
-	if ( !folder || !related_folder )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty folder or related folder.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_length( folder->primary_attribute_name_list ) )
-	{
-		folder->primary_attribute_name_list =
-			folder_get_primary_attribute_name_list(
-					folder->attribute_list );
-	}
-
-	if ( !list_length( related_folder->foreign_attribute_name_list ) )
-	{
-		related_folder->foreign_attribute_name_list =
-			related_folder_foreign_attribute_name_list(
-				folder->primary_attribute_name_list,
-				related_folder->related_attribute_name,
-				related_folder->
-					folder_foreign_attribute_name_list );
-	}
-
-	return query_append_where_clause_related_join(
-			application_name,
-			source_where_clause,
-			folder->primary_attribute_name_list,
-			related_folder->foreign_attribute_name_list,
-			folder->folder_name,
-			related_folder->one2m_folder->folder_name );
-
-} /* related_folder_append_where_clause_related_join() */
-
-void related_folder_set_join_where_clause(
-					LIST *one2m_related_folder_list,
-					FOLDER *folder,
-					char *application_name )
-{
-	RELATED_FOLDER *related_folder;
-
-	if ( !list_rewind( one2m_related_folder_list ) )
-		return;
-
-	do {
-		related_folder =
-			list_get_pointer(
-				one2m_related_folder_list );
-
-		related_folder->join_where_clause =
-			related_folder_append_where_clause_related_join(
-					folder,
-					application_name,
-					(char *)0 /* source_where_clause */,
-					related_folder );
-
-	} while( list_next( one2m_related_folder_list ) );
-
-} /* related_folder_set_join_where_clause() */
+}
 
 LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				LIST *related_folder_list,
@@ -3549,7 +3480,7 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 
 	return related_folder_list;
 
-} /* related_folder_get_lookup_before_drop_down_related_folder_list() */
+}
 
 void related_folder_set_no_ignore_output(
 				LIST *mto1_related_folder_list )
@@ -3565,7 +3496,7 @@ void related_folder_set_no_ignore_output(
 
 	} while( list_next( mto1_related_folder_list ) );
 
-} /* related_folder_set_no_ignore_output() */
+}
 
 RELATED_FOLDER *related_folder_mto1_seek(
 				LIST *mto1_related_folder_list,
@@ -3615,10 +3546,17 @@ RELATED_FOLDER *related_folder_one2m_seek(
 
 	return (RELATED_FOLDER *)0;
 
-} /* related_folder_one2m_seek() */
+}
 
 LIST *related_folder_get_join_1tom_related_folder_list(
-				LIST *one2m_related_folder_list )
+			LIST *one2m_related_folder_list )
+{
+	return related_folder_join_1tom_related_folder_list(
+			one2m_related_folder_list );
+}
+
+LIST *related_folder_join_1tom_related_folder_list(
+			LIST *one2m_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
 	LIST *related_folder_list = {0};
@@ -3634,15 +3572,15 @@ LIST *related_folder_get_join_1tom_related_folder_list(
 			if ( !related_folder_list )
 				related_folder_list = list_new();
 
-			list_append_pointer(	related_folder_list,
-						related_folder );
+			list_set(
+				related_folder_list,
+				related_folder );
 		}
 
 	} while( list_next( one2m_related_folder_list ) );
 
 	return related_folder_list;
-
-} /* related_folder_get_join_1tom_related_folder_list() */
+}
 
 LIST *related_folder_get_non_edit_multi_element_list(
 				char *folder_name )
@@ -4402,5 +4340,99 @@ char *related_folder_mto1_list_display(
 	list_pop( related_folder_list );
 
 	return strdup( buffer );
+}
+
+LIST *related_folder_one2m_isa_related_folder_list(
+			LIST *one2m_related_folder_list )
+{
+	RELATED_FOLDER *related_folder;
+	LIST *related_folder_list = {0};
+
+	if ( !list_rewind( one2m_related_folder_list ) )
+		return (LIST *)0;
+
+	do {
+		related_folder = list_get( one2m_related_folder_list );
+
+		if ( related_folder->relation_type_isa )
+		{
+			if ( !related_folder_list )
+				related_folder_list = list_new();
+
+			list_set(
+				related_folder_list,
+				related_folder );
+		}
+
+	} while( list_next( one2m_related_folder_list ) );
+
+	return related_folder_list;
+}
+
+char *related_folder_append_where_clause_related_join(
+					FOLDER *folder,
+					char *application_name,
+					char *source_where_clause,
+					RELATED_FOLDER *related_folder )
+{
+	if ( !folder || !related_folder )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty folder or related folder.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( folder->primary_attribute_name_list ) )
+	{
+		folder->primary_attribute_name_list =
+			folder_get_primary_attribute_name_list(
+					folder->attribute_list );
+	}
+
+	if ( !list_length( related_folder->foreign_attribute_name_list ) )
+	{
+		related_folder->foreign_attribute_name_list =
+			related_folder_foreign_attribute_name_list(
+				folder->primary_attribute_name_list,
+				related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
+	}
+
+	return query_append_where_clause_related_join(
+			application_name,
+			source_where_clause,
+			folder->primary_attribute_name_list,
+			related_folder->foreign_attribute_name_list,
+			folder->folder_name,
+			related_folder->one2m_folder->folder_name );
+}
+
+void related_folder_set_join_where_clause(
+					LIST *one2m_related_folder_list,
+					FOLDER *folder,
+					char *application_name )
+{
+	RELATED_FOLDER *related_folder;
+
+	if ( !list_rewind( one2m_related_folder_list ) )
+		return;
+
+	do {
+		related_folder =
+			list_get_pointer(
+				one2m_related_folder_list );
+
+		related_folder->join_where_clause =
+			related_folder_append_where_clause_related_join(
+					folder,
+					application_name,
+					(char *)0 /* source_where_clause */,
+					related_folder );
+
+	} while( list_next( one2m_related_folder_list ) );
 }
 

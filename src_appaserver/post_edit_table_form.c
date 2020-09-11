@@ -719,7 +719,7 @@ void post_state_insert(
 				(char *)0
 				/* changed_folder_name_list_string */ );
 
-} /* post_state_insert() */
+}
 
 void post_state_update(
 				DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -817,19 +817,19 @@ void post_state_update(
 
 	columns_updated =
 		post_state_update_for_folder(
-					&changed_folder_name_list_string,
-					dictionary_appaserver,
-					application_name,
-					session,
-					folder_name,
-					login_name,
-					role_name,
-					insert_update_key,
-					appaserver_data_directory,
-					appaserver_mount_point,
-					dictionary_process_id,
-					folder_name,
-					optional_related_attribute_name );
+				&changed_folder_name_list_string,
+				dictionary_appaserver,
+				application_name,
+				session,
+				folder_name,
+				login_name,
+				role_name,
+				insert_update_key,
+				appaserver_data_directory,
+				appaserver_mount_point,
+				dictionary_process_id,
+				folder_name,
+				optional_related_attribute_name );
 
 	operation_list_structure->performed_any_output =
 		operation_list_perform_operations(
@@ -872,7 +872,7 @@ void post_state_update(
 			columns_updated,
 			changed_folder_name_list_string );
 
-} /* post_state_update() */
+}
 
 int post_state_update_for_folder(
 				char **changed_folder_name_list_string,
@@ -1130,7 +1130,7 @@ void post_state_lookup(
 			(char *)0
 			/* changed_folder_name_list_string */ );
 
-} /* post_state_lookup() */
+}
 
 void execute_output_process(	
 				DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -1408,7 +1408,7 @@ void execute_output_process(
 
 	if ( system( sys_string ) ) {};
 
-} /* execute_output_process() */
+}
 
 boolean get_insert_flag( DICTIONARY *non_prefixed_dictionary )
 {
@@ -1424,7 +1424,7 @@ boolean get_insert_flag( DICTIONARY *non_prefixed_dictionary )
 	else
 		return ( strcmp( results_string, "yes" ) == 0 );
 
-} /* get_insert_flag() */
+}
 
 void set_insert_flag( DICTIONARY *non_prefixed_dictionary )
 {
@@ -1435,5 +1435,5 @@ void set_insert_flag( DICTIONARY *non_prefixed_dictionary )
 	dictionary_set_string( 	non_prefixed_dictionary,
 				strdup( search_key ),
 				"yes" );
-} /* set_insert_flag() */
+}
 

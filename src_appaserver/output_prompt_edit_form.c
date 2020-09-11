@@ -1004,7 +1004,7 @@ LIST *get_element_list(
 		lookup_participating_not_root )
 	{
 		folder->join_1tom_related_folder_list =
-			related_folder_get_join_1tom_related_folder_list(
+			related_folder_join_1tom_related_folder_list(
 				folder->one2m_related_folder_list );
 	}
 

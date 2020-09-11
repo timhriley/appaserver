@@ -129,8 +129,7 @@ UPDATE_DATABASE *update_database_new(
 	}
 
 	return update_database;
-
-} /* update_database_new() */
+}
 
 WHERE_ATTRIBUTE *update_database_where_attribute_new(
 			char *where_attribute_name,
@@ -155,7 +154,7 @@ WHERE_ATTRIBUTE *update_database_where_attribute_new(
 
 	return where_attribute;
 
-} /* update_database_where_attribute_new() */
+}
 
 CHANGED_ATTRIBUTE *update_database_changed_attribute_new(
 			char *folder_name,
@@ -186,8 +185,7 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute_new(
 		changed_attribute->new_data = new_data;
 
 	return changed_attribute;
-
-} /* update_database_changed_attribute_new() */
+}
 
 boolean update_database_get_index_data_if_changed(
 					char **old_data,
@@ -264,7 +262,7 @@ boolean update_database_get_index_data_if_changed(
 
 		return 1;
 	}
-} /* update_database_get_index_data_if_changed() */
+}
 
 UPDATE_ROW *update_database_update_row_new( int row )
 {
@@ -289,7 +287,7 @@ UPDATE_ROW *update_database_update_row_new( int row )
 
 	return update_row;
 
-} /* update_database_update_row_new() */
+}
 
 UPDATE_FOLDER *update_database_update_folder_new(
 			char *folder_name )
@@ -311,7 +309,7 @@ UPDATE_FOLDER *update_database_update_folder_new(
 	update_folder->folder_name = folder_name;
 	return update_folder;
 
-} /* update_database_update_folder_new() */
+}
 
 LIST *update_database_update_row_list(
 			DICTIONARY *row_dictionary,
@@ -379,7 +377,7 @@ LIST *update_database_update_row_list(
 
 	return update_row_list;
 
-} /* update_database_update_row_list() */
+}
 
 UPDATE_ROW *update_database_get_update_row(
 			int row,
@@ -438,7 +436,7 @@ UPDATE_ROW *update_database_get_update_row(
 
 	return update_row;
 
-} /* update_database_get_update_row() */
+}
 
 UPDATE_FOLDER *update_database_get_folder_foreign_update_folder(
 			int row,
@@ -485,7 +483,7 @@ UPDATE_FOLDER *update_database_get_folder_foreign_update_folder(
 
 	return update_folder;
 
-} /* update_database_get_folder_foreign_update_folder() */
+}
 
 UPDATE_FOLDER *update_database_get_update_folder(
 			boolean *changed_key,
@@ -545,8 +543,7 @@ UPDATE_FOLDER *update_database_get_update_folder(
 			foreign_attribute_dictionary );
 
 	return update_folder;
-
-} /* update_database_get_update_folder() */
+}
 
 LIST *update_database_get_changed_attribute_name_list(
 			LIST *changed_attribute_list )
@@ -567,8 +564,7 @@ LIST *update_database_get_changed_attribute_name_list(
 	} while( list_next( changed_attribute_list ) );
 
 	return changed_attribute_name_list;
-
-} /* update_database_get_changed_attribute_name_list() */
+}
 
 LIST *update_database_get_folder_foreign_where_attribute_list(
 			DICTIONARY *file_dictionary,
@@ -675,8 +671,7 @@ LIST *update_database_get_folder_foreign_where_attribute_list(
 	} while( list_next( folder_foreign_attribute_name_list ) );
 
 	return where_attribute_list;
-
-} /* update_database_get_folder_foreign_where_attribute_list() */
+}
 
 LIST *update_database_where_attribute_list(
 			DICTIONARY *file_dictionary,
@@ -853,8 +848,7 @@ LIST *update_database_get_folder_foreign_changed_attribute_list(
 	} while( list_next( primary_attribute_name_list ) );
 
 	return changed_attribute_list;
-
-} /* update_database_get_folder_foreign_changed_attribute_list() */
+}
 
 LIST *update_database_get_changed_attribute_list(
 			boolean *changed_key,
@@ -980,8 +974,7 @@ LIST *update_database_get_changed_attribute_list(
 	} while( list_next( attribute_list ) );
 
 	return changed_attribute_list;
-
-} /* update_database_get_changed_attribute_list() */
+}
 
 char *update_database_execute(	char *application_name,
 				char *session,
@@ -1019,8 +1012,7 @@ char *update_database_execute(	char *application_name,
 	} while( list_next( update_row_list ) );
 
 	return error_messages;
-
-} /* update_database_execute() */
+}
 
 void update_database_execute_for_row(
 			char *error_messages,
@@ -1141,7 +1133,7 @@ void update_database_execute_for_row(
 		}
 	} while( list_next( update_folder_list ) );
 
-} /* update_database_execute_for_row() */
+}
 
 char *update_database_execute_for_folder(
 			char *application_name,
@@ -1277,7 +1269,7 @@ char *update_database_execute_for_folder(
 
 	return (char *)0;
 
-} /* update_database_execute_for_folder() */
+}
 
 void update_database_build_where_clause(
 				char *destination,
@@ -1318,7 +1310,7 @@ void update_database_build_where_clause(
 
 	} while( list_next( where_attribute_list ) );
 
-} /* update_database_build_where_clause() */
+}
 
 void update_database_build_update_clause(
 				char *destination,
@@ -1405,7 +1397,7 @@ void update_database_build_update_clause(
 
 	} while( list_next( changed_attribute_list ) );
 
-} /* update_database_build_update_clause() */
+}
 
 boolean update_database_get_dictionary_index_data(
 				char **destination,
@@ -1428,7 +1420,7 @@ boolean update_database_get_dictionary_index_data(
 
 	return 1;
 
-} /* update_database_get_dictionary_index_data() */
+}
 
 void update_database_set_one2m_related_folder_list(
 			LIST *update_folder_list,
@@ -1500,13 +1492,13 @@ void update_database_set_one2m_related_folder_list(
 
 	} while( list_next( one2m_recursive_related_folder_list ) );
 
-} /* update_database_set_one2m_related_folder_list() */
+}
 
 void update_row_free( UPDATE_ROW *update_row )
 {
 	list_free( update_row->update_folder_list );
 	free( update_row );
-} /* update_row_free() */
+}
 
 boolean update_database_changed_attribute(
 			char *attribute_name,
@@ -1554,7 +1546,7 @@ boolean update_database_changed_attribute(
 
 	return 0;
 
-} /* update_database_changed_attribute() */
+}
 
 char *update_database_update_row_list_display(
 			LIST *update_row_list )
@@ -1594,7 +1586,7 @@ char *update_database_update_row_list_display(
 
 	return strdup( output_buffer );
 
-} /* update_database_update_row_list_display() */
+}
 
 char *update_database_folder_list_display(
 				LIST *update_folder_list )
@@ -1623,7 +1615,7 @@ char *update_database_folder_list_display(
 
 	return buffer;
 
-} /* update_database_folder_list_display() */
+}
 
 char *update_database_folder_display(
 				UPDATE_FOLDER *update_folder )
@@ -1665,7 +1657,7 @@ char *update_database_folder_display(
 
 	return buffer;
 
-} /* update_database_folder_display() */
+}
 
 int update_database_changed_display(	char *buffer_pointer,
 					LIST *changed_attribute_list )
@@ -1686,7 +1678,7 @@ int update_database_changed_display(	char *buffer_pointer,
 				 changed_attribute->new_data );
 	} while( list_next( changed_attribute_list ) );
 	return output_character_count;
-} /* update_database_changed_display() */
+}
 
 int update_database_where_display(	char *buffer_pointer,
 					LIST *where_attribute_list )
@@ -1707,7 +1699,7 @@ int update_database_where_display(	char *buffer_pointer,
 
 	} while( list_next( where_attribute_list ) );
 	return output_character_count;
-} /* update_database_where_display() */
+}
 
 void update_database_set_login_name_each_row(
 				DICTIONARY *dictionary,
@@ -1727,7 +1719,7 @@ void update_database_set_login_name_each_row(
 					login_name );
 	}
 
-} /* update_database_set_login_name_each_row() */
+}
 
 int update_database_get_columns_updated(
 				char *application_name,
@@ -1799,8 +1791,7 @@ int update_database_get_columns_updated(
 	} while( list_next( update_row_list ) );
 
 	return columns_updated;
-
-} /* update_database_get_columns_updated() */
+}
 
 LIST *update_database_get_changed_folder_name_list(
 				LIST *update_row_list )
@@ -1853,6 +1844,5 @@ LIST *update_database_get_changed_folder_name_list(
 	} while( list_next( update_row_list ) );
 
 	return changed_folder_name_list;
-
-} /* update_database_get_changed_folder_name_list() */
+}
 

@@ -135,7 +135,6 @@ int main( int argc, char **argv )
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
 	add_relative_source_directory_to_path( application_name );
-	environ_appaserver_home();
 
 	login_name = session_get_login_name(
 				application_name,
@@ -334,7 +333,7 @@ void post_state_one(	char *application_name,
 			KEEP_LABEL );
 
 	element->drop_down->option_data_list =
-		folder_primary_data_list(
+		folder_get_primary_data_list(
 			application_name,
 			session,
 			folder->folder_name,
@@ -394,7 +393,7 @@ void post_state_one(	char *application_name,
 			PURGE_LABEL );
 
 	element->drop_down->option_data_list =
-		folder_primary_data_list(
+		folder_get_primary_data_list(
 			application_name,
 			session,
 			folder->folder_name,

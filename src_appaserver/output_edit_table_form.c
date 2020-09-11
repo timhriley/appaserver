@@ -264,7 +264,7 @@ int main( int argc, char **argv )
 			(char *)0 /* prior_related_attribute_name */ );
 
 	folder->join_1tom_related_folder_list =
-		related_folder_get_join_1tom_related_folder_list(
+		related_folder_join_1tom_related_folder_list(
 			folder->one2m_related_folder_list );
 
 	folder->join_1tom_related_folder_list =

@@ -352,4 +352,7 @@ char *attribute_list_sys_string(
 LIST *attribute_folder_attribute_name_list(
 			LIST *attribute_list );
 
+LIST *attribute_primary_attribute_name_list(
+			LIST *attribute_list );
+
 #endif

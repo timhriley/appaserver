@@ -71,6 +71,7 @@ typedef struct
 	boolean lookup_before_drop_down;
 	boolean no_initial_capital;
 	LIST *one2m_related_folder_list;
+	LIST *one2m_isa_related_folder_list;
 	LIST *one2m_recursive_related_folder_list;
 	LIST *pair_one2m_related_folder_list;
 	LIST *mto1_related_folder_list;
@@ -125,13 +126,21 @@ FOLDER *folder_folder_new( 		char *application_name,
 					char *session,
 					char *folder_name );
 
-LIST *folder_get_attribute_name_list( 	LIST *attribute_list );
+LIST *folder_get_attribute_name_list( 
+				LIST *attribute_list );
+
+LIST *folder_attribute_name_list( 
+				LIST *attribute_list );
 
 LIST *folder_get_primary_attribute_name_list(
-					LIST *attribute_list );
+				LIST *attribute_list );
 
-void folder_set_list_delimiter(		FOLDER *folder,
-					char delimiter );
+LIST *folder_primary_attribute_name_list(
+			LIST *attribute_list );
+
+void folder_set_list_delimiter(
+			FOLDER *folder,
+			char delimiter );
 
 LIST *folder_get_process_primary_data_list(
 			char *application_name,
@@ -150,24 +159,43 @@ LIST *folder_get_process_primary_data_list(
 			char *process_name,
 			char *prompt );
 
+LIST *folder_get_primary_data_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			boolean filter_only_login_name,
+			LIST *exclude_attribute_name_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			char *appaserver_user_foreign_login_name,
+			boolean include_root_folder );
+
 LIST *folder_primary_data_list(
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *login_name,
-				DICTIONARY *parameter_dictionary,
-				DICTIONARY *where_clause_dictionary,
-				char delimiter,
-				PROCESS *populate_drop_down_process,
-				LIST *attribute_list,
-				LIST *common_non_primary_attribute_name_list,
-				boolean filter_only_login_name,
-				LIST *exclude_attribute_name_list,
-				char *role_name,
-				char *state,
-				char *one2m_folder_name_for_processes,
-				char *appaserver_user_foreign_login_name,
-				boolean include_root_folder );
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			boolean filter_only_login_name,
+			LIST *exclude_attribute_name_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			char *appaserver_user_foreign_login_name,
+			boolean include_root_folder );
 
 boolean folder_load(	int *insert_rows_number,
 			boolean *lookup_email_output,
@@ -198,9 +226,6 @@ int folder_get_insert_rows_number(	char *session,
 
 LIST *folder_append_isa_attribute_name_list(
 				LIST *append_isa_attribute_list );
-
-LIST *folder_attribute_name_list(
-				LIST *attribute_list );
 
 LIST *folder_get_attribute_list(	char *application_name,
 					char *folder_name );
@@ -429,5 +454,24 @@ LIST *folder_related_primary_data_table_list(
 			LIST *common_non_primary_attribute_name_list,
 			LIST *exclude_attribute_name_list,
 			char *role_name );
+
+LIST *folder_get_primary_data_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			boolean filter_only_login_name,
+			LIST *exclude_attribute_name_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			char *appaserver_user_foreign_login_name,
+			boolean include_root_folder );
 
 #endif

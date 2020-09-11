@@ -771,7 +771,7 @@ void process_generic_datatype_load(
 	}
 
 	free( results );
-} /* process_generic_datatype_load() */
+}
 
 char *process_generic_get_datatype_where_clause(
 			LIST *primary_attribute_name_list,
@@ -792,8 +792,6 @@ char *process_generic_get_datatype_where_clause(
 				0 /* not include_root_folder */,
 				(LIST *)0
 					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
 
@@ -2367,8 +2365,6 @@ char *process_generic_output_get_row_dictionary_where_clause(
 				0 /* not include_root_folder */,
 				(LIST *)0
 					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
 
