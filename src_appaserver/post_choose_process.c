@@ -61,9 +61,9 @@ int main( int argc, char **argv )
 	environ_set_utc_offset( application_name );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
@@ -120,7 +120,7 @@ int main( int argc, char **argv )
 	/* Get the parameters for this process */
 	/* ----------------------------------- */
 	process_parameter_record_list = 
-		process_parameter_list_get_process_parameter_record_list(
+		process_parameter_list_process_parameter_record_list(
 					&is_process_set,
 					application_name,
 					process,
@@ -128,8 +128,17 @@ int main( int argc, char **argv )
 						application_name ),
 					0 /* not is_preprompt */ );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got length() = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_length( process_parameter_record_list ) );
+m2( application_name, msg );
+}
 	preprompt_process_parameter_record_list = 
-		process_parameter_list_get_process_parameter_record_list(
+		process_parameter_list_process_parameter_record_list(
 					&is_process_set,
 					application_name,
 					process,

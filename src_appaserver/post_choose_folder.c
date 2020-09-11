@@ -35,7 +35,6 @@
 char *prompt_edit_form_get_sys_string(
 					char *login_name,
 					char *application_name,
-					char *database_string,
 					char *session,
 					char *folder_name,
 					char *role_name,
@@ -44,7 +43,6 @@ char *prompt_edit_form_get_sys_string(
 char *prompt_insert_form_get_sys_string(
 					char *login_name,
 					char *application_name,
-					char *database_string,
 					char *session,
 					char *folder_name,
 					char *role_name,
@@ -53,7 +51,6 @@ char *prompt_insert_form_get_sys_string(
 int main( int argc, char **argv )
 {
 	char *login_name, *application_name, *session, *folder_name, *state;
-	char *database_string = {0};
 	char *role_name;
 	char *form;
 	char sys_string[ 1024 ];
@@ -76,27 +73,17 @@ int main( int argc, char **argv )
 	role_name = argv[ 5 ];
 	state = argv[ 6 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
+	environ_set_environment(
+		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+		application_name );
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
@@ -250,7 +237,6 @@ int main( int argc, char **argv )
 				prompt_insert_form_get_sys_string(
 					login_name,
 					application_name,
-					database_string,
 					session,
 					folder_name,
 					role_name,
@@ -297,7 +283,6 @@ int main( int argc, char **argv )
 				prompt_edit_form_get_sys_string(
 					login_name,
 					application_name,
-					database_string,
 					session,
 					folder_name,
 					role_name,
@@ -305,16 +290,14 @@ int main( int argc, char **argv )
 		}
 	}
 
-	system( sys_string );
+	if ( system( sys_string ) ){}
 
 	return 0;
-
-} /* main() */
+}
 
 char *prompt_edit_form_get_sys_string(
 					char *login_name,
 					char *application_name,
-					char *database_string,
 					char *session,
 					char *folder_name,
 					char *role_name,
@@ -388,12 +371,11 @@ char *prompt_edit_form_get_sys_string(
 
 	return sys_string;
 
-} /* prompt_edit_form_get_sys_string() */
+}
 
 char *prompt_insert_form_get_sys_string(
 					char *login_name,
 					char *application_name,
-					char *database_string,
 					char *session,
 					char *folder_name,
 					char *role_name,
@@ -485,5 +467,5 @@ char *prompt_insert_form_get_sys_string(
 
 	return sys_string;
 
-} /* prompt_insert_form_get_sys_string() */
+}
 

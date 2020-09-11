@@ -251,12 +251,14 @@ LIST *process_parameter_get_primary_key_and_data_list(
 
 char *process_parameter_list_display(
 				PROCESS_PARAMETER_LIST *p );
-LIST *process_parameter_list_get_process_parameter_record_list(
+
+LIST *process_parameter_list_process_parameter_record_list(
 				boolean *is_process_set,
 				char *application_name,
 				char *process,
 				char *error_file,
 				boolean is_preprompt );
+
 PARAMETER_DROP_DOWN_PROMPT *parameter_drop_down_prompt_new(
 				char *application_name,
 				char *drop_down_prompt,

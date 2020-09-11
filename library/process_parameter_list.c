@@ -75,7 +75,7 @@ PROCESS_PARAMETER_LIST *process_parameter_list_new(
 	p->process_parameter_list = list_new_list();
 
 	parameter_record_list =
-		process_parameter_list_get_process_parameter_record_list(
+		process_parameter_list_process_parameter_record_list(
 				&p->is_process_set,
 				application_name,
 				process_name,
@@ -1575,7 +1575,7 @@ char *process_parameter_list_display( PROCESS_PARAMETER_LIST *p )
 
 /* Output format: folder^attribute^prompt^input_width^hint_message^drop_down_multi_select_yn^populate_drop_down_process^upload_filename_yn^prompt_date_yn^populate_help_process */
 
-LIST *process_parameter_list_get_process_parameter_record_list(
+LIST *process_parameter_list_process_parameter_record_list(
 					boolean *is_process_set,
 					char *application_name,
 					char *process_name,
@@ -1617,7 +1617,7 @@ LIST *process_parameter_list_get_process_parameter_record_list(
 
 	if ( list_length( return_list ) ) *is_process_set = 1;
 	return return_list;
-} /* process_parameter_list_get_process_parameter_record_list() */
+}
 
 int process_parameter_list_element_name_boolean( char *element_name )
 {
@@ -1659,8 +1659,7 @@ char *process_parameter_get_prompt_hint_message(
 		return results;
 	else
 		return (char *)0;
-
-} /* process_parameter_get_prompt_hint_message() */
+}
 
 boolean process_parameter_get_prompt_date(
 				char *application_name,
@@ -1697,7 +1696,7 @@ boolean process_parameter_get_prompt_date(
 		else
 			return 0;
 	}
-} /* process_parameter_get_prompt_date() */
+}
 
 PARAMETER_PROCESS *parameter_process_new(
 				char *prompt,
@@ -1722,7 +1721,7 @@ PARAMETER_PROCESS *parameter_process_new(
 	p->multi_select = ( drop_down_multi_select == 'y' );
 
 	return p;
-} /* parameter_process_new() */
+}
 
 LIST *process_parameter_get_folder_process_element_list(
 				char *login_name,
@@ -1765,7 +1764,7 @@ LIST *process_parameter_get_folder_process_element_list(
 	list_append_pointer( 	element_list,
 				element );
 	return element_list;
-} /* process_parameter_get_folder_process_element_list() */
+}
 
 LIST *process_parameter_get_prompt_process_element_list(
 				char *login_name,
@@ -1808,7 +1807,7 @@ LIST *process_parameter_get_prompt_process_element_list(
 	list_append_pointer( 	element_list,
 				element );
 	return element_list;
-} /* process_parameter_get_prompt_process_element_list() */
+}
 
 ELEMENT_APPASERVER *process_parameter_get_folder_process_element(
 				char *login_name,
@@ -1876,7 +1875,7 @@ ELEMENT_APPASERVER *process_parameter_get_folder_process_element(
 	element->drop_down->multi_select = multi_select;
 	return element;
 
-} /* process_parameter_get_folder_process_element() */
+}
 
 ELEMENT_APPASERVER *process_parameter_get_prompt_process_element(
 				char *login_name,
@@ -1936,7 +1935,7 @@ ELEMENT_APPASERVER *process_parameter_get_prompt_process_element(
 	element->drop_down->multi_select = multi_select;
 
 	return element;
-} /* process_parameter_get_prompt_process_element() */
+}
 
 LIST *process_parameter_get_prompt_process_list(
 				char *application_name,
@@ -1981,7 +1980,7 @@ LIST *process_parameter_get_prompt_process_list(
 
 	return process2list( populate_drop_down_process->executable );
 
-} /* process_parameter_get_prompt_process_list() */
+}
 
 LIST *process_parameter_list_get_process_folder_name_list(
 			char *application_name,
@@ -2027,7 +2026,7 @@ LIST *process_parameter_list_get_process_folder_name_list(
 
 	} while( list_next( process_parameter_list->process_parameter_list ) );
 	return folder_name_list;
-} /* process_parameter_list_get_process_folder_name_list() */
+}
 
 void process_parameter_list_dictionary_set_drop_down_prompt_optional_display(
 			DICTIONARY *dictionary,
@@ -2072,7 +2071,7 @@ void process_parameter_list_dictionary_set_drop_down_prompt_optional_display(
 				drop_down_prompt_data );
 		}
 	} while( list_next( process_parameter_list ) );
-} /* process_parameter_list_dictionary_set_drop_down_prompt_optional_display()*/
+}
 
 LIST *process_parameter_list_get_preprompt_folder_name_list(
 				char *application_name,
@@ -2097,7 +2096,7 @@ LIST *process_parameter_list_get_preprompt_folder_name_list(
 	char *parameter_record;
 
 	parameter_record_list =
-		process_parameter_list_get_process_parameter_record_list(
+		process_parameter_list_process_parameter_record_list(
 					&is_process_set,
 					application_name,
 					process_name,
@@ -2162,7 +2161,7 @@ m( msg );
 	} while( list_next( parameter_record_list ) );
 	return preprompt_folder_name_list;
 
-} /* process_parameter_list_get_preprompt_folder_name_list() */
+}
 
 void process_parameter_parse_parameter_record(
 				char *folder_name,
@@ -2209,7 +2208,7 @@ void process_parameter_parse_parameter_record(
 		piece( populate_helper_process, '^',
 			parameter_record, 12 );
 
-} /* process_parameter_parse_parameter_record() */
+}
 
 LIST *process_parameter_get_records4process_list(
 				char *application_name,
@@ -2265,7 +2264,7 @@ m( msg );
 		records4process_list = pipe2list( sys_string );
 		return records4process_list;
 	}
-} /* process_parameter_get_records4process_list() */
+}
 
 LIST *process_parameter_get_records4process_set_list(
 				char *application_name,
@@ -2311,7 +2310,7 @@ LIST *process_parameter_get_records4process_set_list(
 		records4process_set_list = pipe2list( sys_string );
 		return records4process_set_list;
 	}
-} /* process_parameter_get_records4process_set_list() */
+}
 
 LIST *process_parameter_get_preprompt_attribute_name_list(
 				char *application_name,
@@ -2337,7 +2336,7 @@ LIST *process_parameter_get_preprompt_attribute_name_list(
 	char *parameter_record;
 
 	parameter_record_list =
-		process_parameter_list_get_process_parameter_record_list(
+		process_parameter_list_process_parameter_record_list(
 					&is_process_set,
 					application_name,
 					process_name,
@@ -2381,7 +2380,7 @@ LIST *process_parameter_get_preprompt_attribute_name_list(
 		}
 	} while( list_next( parameter_record_list ) );
 	return preprompt_attribute_name_list;
-} /* process_parameter_get_preprompt_attribute_name_list() */
+}
 
 boolean process_parameter_get_no_initial_capital(
 			char *application_name,
@@ -2417,7 +2416,7 @@ boolean process_parameter_get_no_initial_capital(
 			(LIST *)0 /* mto1_related_folder_list */ );
 
 	return folder->no_initial_capital;
-} /* process_parameter_get_no_initial_capital() */
+}
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -2469,5 +2468,5 @@ char *process_parameter_command_line(
 	process_free( process );
 	return return_string;
 
-} /* process_parameter_command_line() */
+}
 
