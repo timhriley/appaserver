@@ -2244,26 +2244,7 @@ LIST *process_parameter_get_records4process_list(
 			 (is_preprompt) ? 'y' : 'n',
 			 error_file );
 
-{
-char msg[ 1024 ];
-sprintf( msg, "%s/%s()/%d: got sys_string = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-m( msg );
-}
-		/* records4process_list = pipe2list( sys_string ); */
-		records4process_list = pipe2list2( sys_string );
-{
-char msg[ 1024 ];
-sprintf( msg, "%s/%s()/%d: got returning = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-list_display( records4process_list ) );
-m( msg );
-}
+		records4process_list = pipe2list( sys_string );
 		return records4process_list;
 	}
 }
