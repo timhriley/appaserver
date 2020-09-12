@@ -2253,7 +2253,8 @@ __LINE__,
 sys_string );
 m( msg );
 }
-		records4process_list = pipe2list( sys_string );
+		/* records4process_list = pipe2list( sys_string ); */
+		records4process_list = pipe2list2( sys_string );
 {
 char msg[ 1024 ];
 sprintf( msg, "%s/%s()/%d: got returning = [%s]\n",

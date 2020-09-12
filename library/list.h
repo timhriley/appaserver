@@ -438,4 +438,8 @@ void list_linktype_free(	struct LINKTYPE *linktype );
 
 LIST *list_string_new(		char *string );
 
+LIST *pipe2list2(		char *pipe_string );
+
+void list_load_from_pipe2(	 LIST *list, char *pipe_string );
+
 #endif

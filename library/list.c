@@ -790,10 +790,17 @@ LIST *pipe2list_append( LIST *source_list, char *pipe_string )
 	return source_list;
 } /* pipe2list_append() */
 
+LIST *pipe2list2( char *pipe_string )
+{
+	LIST *list = create_list();
+	list_load_from_pipe2( list, pipe_string );
+	return list;
+}
+
 LIST *pipe2list( char *pipe_string )
 {
 	LIST *list = create_list();
-	list_load_from_pipe( list, pipe_string );
+	list_load_from_pipe2( list, pipe_string );
 	return list;
 }
 
@@ -2372,5 +2379,35 @@ LIST *list_string_new( char *string )
 
 	list_set( l, string );
 	return l;
+}
+
+void list_load_from_pipe2( LIST *list, char *pipe_string )
+{
+	char buffer[ 65536 ];
+	FILE *p;
+
+	p = popen( pipe_string, "r" );
+
+fprintf(stderr,
+	"%s/%s()/%d: pipe_string = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+pipe_string );
+
+	while( timlib_get_line( buffer, p, 65536 ) )
+	{
+
+fprintf(stderr,
+	"%s/%s()/%d: returning [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+buffer );
+
+		append( list, buffer, strlen( buffer ) + 1 );
+	}
+
+	pclose( p );
 }
 
