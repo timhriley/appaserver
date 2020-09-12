@@ -150,7 +150,9 @@ SOURCE_LIBRARY= 							\
 		transaction.o						\
 		account.o						\
 		element.o						\
-		journal.o
+		journal.o						\
+		spreadsheet.o						\
+		spreadsheet_column.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
 
@@ -886,4 +888,12 @@ investment_account.o: investment_account.c investment_account.h
 account_balance.o: account_balance.c account_balance.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c account_balance.c
+
+spreadsheet.o: spreadsheet.c spreadsheet.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c spreadsheet.c
+
+spreadsheet_column.o: spreadsheet_column.c spreadsheet_column.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c spreadsheet_column.c
 

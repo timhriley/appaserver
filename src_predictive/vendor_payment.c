@@ -52,8 +52,6 @@ VENDOR_PAYMENT *vendor_payment_fetch(
 			char *purchase_date_time,
 			char *payment_date_time )
 {
-	char sys_string[ 1024 ];
-
 	if ( !full_name
 	||   !street_address
 	||   !purchase_date_time
@@ -62,22 +60,14 @@ VENDOR_PAYMENT *vendor_payment_fetch(
 		return (VENDOR_PAYMENT *)0;
 	}
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 vendor_payment_select(),
-		 "vendor_payment",
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 vendor_payment_purchase_where(
-			full_name,
-			street_address,
-			purchase_date_time ) );
-
-	return vendor_payment_parse( pipe2string( sys_string ) );
+	return vendor_payment_parse(
+			pipe2string(
+				vendor_payment_sys_string(
+		 			vendor_payment_purchase_where(
+						full_name,
+						street_address,
+						purchase_date_time,
+						payment_date_time ) ) ) );
 }
 
 LIST *vendor_payment_list(
@@ -422,20 +412,23 @@ void vendor_payment_update(
 char *vendor_payment_purchase_where(
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time )
+			char *purchase_date_time,
+			char *payment_date_time )
 {
 	char where[ 1024 ];
 
 	sprintf( where,
 		 "full_name = '%s' and		"
 		 "street_address = '%s' and	"
-		 "purchase_date_time = '%s'	",
+		 "purchase_date_time = '%s' and	"
+		 "payment_date_time = '%s'	",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
 		 entity_escape_full_name( full_name ),
 		 street_address,
-		 purchase_date_time );
+		 purchase_date_time,
+		 payment_date_time );
 
 	return strdup( where );
 }
