@@ -246,4 +246,7 @@ copy_document_root_template $execute
 link_document_root $execute
 enable_apache $execute
 
+echo "Next:"
+echo "$ sudo ./protect_appaserver_filesystem.sh noexecute|execute"
+
 exit 0

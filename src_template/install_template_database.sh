@@ -99,4 +99,11 @@ create_template_database $execute
 load_mysqldump_template $execute
 update_ssl_support $execute
 
+echo "Next:"
+echo "$ upgrade-appaserver-database template"
+
+echo ""
+echo "Followed by:"
+echo '$ appaserver_virgin_install.sh `whoami` noexecute'
+
 exit 0

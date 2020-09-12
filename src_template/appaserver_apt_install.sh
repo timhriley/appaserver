@@ -57,4 +57,7 @@ sudo apt -y install r-base-core
 # -------------
 sudo apt -y install proj-bin
 
+echo "Next:"
+echo "$ sudo ./install_appaserver_profile.sh noexecute|execute"
+
 exit 0

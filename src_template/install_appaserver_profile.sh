@@ -93,4 +93,7 @@ else
 	append_etc_profile_display $appaserver_home $document_root
 fi
 
+echo "Next:"
+echo "$ . /etc/profile"
+
 exit 0
