@@ -130,12 +130,12 @@ int main( int argc, char **argv )
 
 {
 char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: process = [%s], got length() = %d\n",
+sprintf( msg, "%s/%s()/%d: process = [%s], got records = [%s]\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 process,
-list_length( process_parameter_record_list ) );
+list_display( process_parameter_record_list ) );
 m2( application_name, msg );
 }
 	preprompt_process_parameter_record_list = 

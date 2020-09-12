@@ -993,8 +993,7 @@ LIST *process_parameter_get_primary_data_list(
 			(char *)0 /* one2m_folder_name_for_processes */,
 			(char *)0 /* appaserver_user_foreign_login_name */,
 			0 /* not include_root_folder */ );
-
-} /* process_parameter_get_primary_data_list() */
+}
 
 LIST *process_parameter_get_process_members4set_list(
 			char *application_name,
@@ -1009,8 +1008,7 @@ LIST *process_parameter_get_process_members4set_list(
 		 process_set,
 		 role_name );
 	return pipe2list( sys_string );
-} /* process_parameter_get_process_members4set_list() */
-
+}
 
 FOLDER *process_parameter_get_and_set_distinct_folder(
 				LIST *distinct_folder_list,
@@ -2216,10 +2214,6 @@ LIST *process_parameter_get_records4process_list(
 				boolean is_preprompt,
 				char *error_file )
 {
-/*
-	static LIST *records4process_list = {0};
-	static LIST *preprompt_records4process_list = {0};
-*/
 	LIST *records4process_list = {0};
 	LIST *preprompt_records4process_list = {0};
 	char sys_string[ 1024 ];
@@ -2250,7 +2244,6 @@ LIST *process_parameter_get_records4process_list(
 			 (is_preprompt) ? 'y' : 'n',
 			 error_file );
 
-/*
 {
 char msg[ 1024 ];
 sprintf( msg, "%s/%s()/%d: got sys_string = (%s)\n",
@@ -2260,8 +2253,16 @@ __LINE__,
 sys_string );
 m( msg );
 }
-*/
 		records4process_list = pipe2list( sys_string );
+{
+char msg[ 1024 ];
+sprintf( msg, "%s/%s()/%d: got returning = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_display( records4process_list ) );
+m( msg );
+}
 		return records4process_list;
 	}
 }
@@ -2272,10 +2273,6 @@ LIST *process_parameter_get_records4process_set_list(
 				boolean is_preprompt,
 				char *error_file )
 {
-/*
-	static LIST *records4process_set_list = {0};
-	static LIST *preprompt_records4process_set_list = {0};
-*/
 	LIST *records4process_set_list = {0};
 	LIST *preprompt_records4process_set_list = {0};
 	char sys_string[ 1024 ];
