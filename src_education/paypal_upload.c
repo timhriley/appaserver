@@ -30,7 +30,10 @@
 /* ---------- */
 
 PAYPAL *paypal_upload(
+			char *spreadsheet_name,
 			char *spreadsheet_filename,
+			char *season_name,
+			int year,
 			char *login_name,
 			char *fund_name,
 			char *date_heading,
@@ -40,6 +43,9 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
+	char *spreadsheet_name;
+	char *season_name;
+	int year;
 	char *login_name;
 	char *fund_name;
 	char *spreadsheet_filename;
@@ -47,7 +53,7 @@ int main( int argc, char **argv )
 	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 128 ];
-	SPREADSHEET *spreadsheet;
+	PAYPAL *paypal;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -56,24 +62,27 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 6 )
+	if ( argc < 9 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name fund filename execute_yn [date_heading]\n",
+"Usage: %s process_name spreadsheet_name season_name year login_name fund filename execute_yn [date_heading]\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	login_name = argv[ 2 ];
-	fund_name = argv[ 3 ];
-	spreadsheet_filename = argv[ 4 ];
-	execute = (*argv[ 5 ] == 'y');
+	spreadsheet_name = argv[ 2 ];
+	season_name = argv[ 3 ];
+	year = atoi( argv[ 4 ] );
+	login_name = argv[ 5 ];
+	fund_name = argv[ 6 ];
+	spreadsheet_filename = argv[ 7 ];
+	execute = (*argv[ 8 ] == 'y');
 
-	if ( argc == 7 )
+	if ( argc == 10 )
 	{
-		date_heading = argv[ 6 ];
+		date_heading = argv[ 9 ];
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
@@ -98,11 +107,14 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( ! ( spreadsheet =
+	if ( ! ( paypal =
 			paypall_upload(
+				spreadsheet_name,
+				spreadsheet_filename,
+				season_name,
+				year,
 				login_name,
 				fund_name,
-				spreadsheet_filename,
 				date_heading,
 				execute ) ) )
 	{
@@ -118,14 +130,14 @@ int main( int argc, char **argv )
 
 		printf(
 	"<p>Process complete as of %s with %d deposits.\n",
-			spreadsheet->maximum_date,
-			spreadsheet->load_count );
+			paypal->spreadsheet->maximum_date,
+			paypal->spreadsheet->load_count );
 	}
 	else
 	{
 		printf(
 		"<p>Process did not load %d deposits.\n",
-			spreadsheet->load_count );
+			paypal->spreadsheet->load_count );
 	}
 
 	document_close();
@@ -133,7 +145,10 @@ int main( int argc, char **argv )
 }
 
 PAYPAL *paypall_upload(
+			char *spreadsheet_name,
 			char *spreadsheet_filename,
+			char *season_name,
+			int year,
 			char *login_name,
 			char *fund_name,
 			char *date_heading,
@@ -141,28 +156,69 @@ PAYPAL *paypall_upload(
 {
 	PAYPAL *paypal;
 
-	paypal =
-		paypal_new(
-			spreadsheet_filename,
-			login_name,
-			fund_name,
-			date_heading );
+	if ( ! ( paypal =
+			paypal_fetch(
+				spreadsheet_name ) ) )
+	{
+		return (PAYPAL *)0;
+	}
 
-if ( login_name ){}
-if ( fund_name ){}
-if ( date_heading ){}
-
-	spreadsheet =
-		spreadsheet_fetch(
-			spreadsheet_filename );
+	paypal->spradsheet_filename = spreadsheet_filename;
 
 	if ( execute )
 	{
+		return paypal_upload_execute(
+				spreadsheet_filename,
+				paypal );
+
 	}
 	else
 	{
+		return paypal_upload_display(
+				spreadsheet_filename,
+				paypal );
 	}
 
 	return paypal;
+}
+
+PAYPAL *paypal_upload_execute(
+			spreadsheet_filename,
+			paypal )
+{
+	FILE *input_file;
+	char input[ 65536 ];
+
+	if ( ! ( input_file = fopen( spreadsheet_filename, "r" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot open [%s] for read.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+		spreadsheet_filename );
+
+		return (PAYPAL *)0;
+	}
+
+	while ( string_input( input, input_file, 65536 ) )
+	{
+		if ( ( paypal->paypal_data =
+				paypal_data_parse(
+					input,
+					paypal->
+						spreadsheet->
+						spreadsheet_column_list ) ) )
+		{
+		}
+	}
+	fclose( input_file );
+	return paypal;
+}
+
+PAYPAL *paypal_upload_display(
+			spreadsheet_filename,
+			paypal )
+{
 }
 

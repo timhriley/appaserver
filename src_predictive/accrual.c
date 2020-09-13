@@ -21,11 +21,9 @@
 
 ACCRUAL *accrual_calloc( void )
 {
-	ACCRUAL *p =
-		(ACCRUAL *)
-			calloc( 1, sizeof( ACCRUAL ) );
+	ACCRUAL *a;
 
-	if ( !p )
+	if ( ! ( a = (ACCRUAL *) calloc( 1, sizeof( ACCRUAL ) ) ) )
 	{
 		fprintf( stderr,
 			 "Error in %s/%s()/%d: cannot allocate memory.\n",
@@ -34,10 +32,8 @@ ACCRUAL *accrual_calloc( void )
 			 __LINE__ );
 		exit(1 );
 	}
-
-	return p;
-
-} /* accrual_calloc() */
+	return a;
+}
 
 char *accrual_select( void )
 {

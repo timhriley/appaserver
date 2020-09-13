@@ -150,12 +150,16 @@ SOURCE_LIBRARY= 							\
 		transaction.o						\
 		account.o						\
 		element.o						\
-		journal.o						\
+		journal.o
+
+SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\
 		spreadsheet_column.o					\
-		spreadsheet_upload_event.o
+		spreadsheet_upload_event.o				\
+		paypal.o						\
+		paypal_data.o
 
-all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
+all: 	${SPREADSHEET_LIBRARY} ${SOURCE_LIBRARY} ${EXECUTABLES}
 
 touch:
 	/usr/bin/touch *.c
@@ -893,6 +897,14 @@ account_balance.o: account_balance.c account_balance.h
 spreadsheet.o: spreadsheet.c spreadsheet.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c spreadsheet.c
+
+paypal.o: paypal.c paypal.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c paypal.c
+
+paypal_data.o: paypal_data.c paypal_data.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c paypal_data.c
 
 spreadsheet_column.o: spreadsheet_column.c spreadsheet_column.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

@@ -61,9 +61,17 @@ char *spreadsheet_minimum_date(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *spreadsheet_data(
+char *spreadsheet_heading_data(
 			LIST *spreadsheet_column_list,
 			char *input_row,
 			char *heading );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *spreadsheet_attribute_data(
+			LIST *spreadsheet_column_list,
+			char *input_row,
+			char *folder_name,
+			char *attribute_name );
 
 #endif
