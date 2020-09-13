@@ -89,11 +89,17 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/predictive.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/account.o
 
+PREDICTIVEBOOKS_SPREADSHEET=						\
+		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet_upload_event.o	\
+		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet_column.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet.o
+
 EXECUTABLES=	offering_trigger					\
 		deposit_trigger						\
 		registration_trigger					\
 		enrollment_trigger					\
-		payment_trigger
+		payment_trigger						\
+		paypal_upload
 
 all: 	${EXECUTABLES}
 
@@ -167,6 +173,21 @@ registration_trigger: registration_trigger.c				\
 		${EDUCATION_CORE}					\
 		registration_trigger.c					\
 		-o registration_trigger
+
+paypal_upload: paypal_upload.c						\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${PREDICTIVEBOOKS_SPREADSHEET}					\
+	${EDUCATION_CORE}
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${PREDICTIVEBOOKS_SPREADSHEET}				\
+		${EDUCATION_CORE}					\
+		paypal_upload.c						\
+		-o paypal_upload
 
 # Education core
 # -------------- 

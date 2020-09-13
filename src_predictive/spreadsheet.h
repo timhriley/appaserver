@@ -10,6 +10,7 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "spreadsheet_upload_event.h"
 
 /* Constants */
 /* --------- */
@@ -18,16 +19,27 @@
 /* ---------- */
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	char *spreadsheet_name;
+	char *date_column_string;
+
+	/* Process */
+	/* ------- */
 	LIST *spreadsheet_column_list;
+	SPREADSHEET_UPLOAD_EVENT *spreadsheet_upload_event;
+
+	char *spreadsheet_minimum_date;
+	char *maximum_date;
+	int load_count;
 } SPREADSHEET;
 
 /* Operations */
 /* ---------- */
-SPREADSHEET *spreadsheet_new(
+SPREADSHEET *spreadsheet_fetch(
 			char *spreadsheet_name );
 
-SPREADSHEET *spreadsheet_fetch(
+SPREADSHEET *spreadsheet_new(
 			char *spreadsheet_name );
 
 LIST *spreadsheet_column_list(
@@ -42,5 +54,9 @@ char *spreadsheet_primary_where(
 /* --------------------- */
 char *spreadsheet_escape_name(
 			char *spreadsheet_name );
+
+char *spreadsheet_minimum_date(
+			char **maximum_date,
+			char *spreadsheet_filename );
 
 #endif

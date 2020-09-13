@@ -152,7 +152,8 @@ SOURCE_LIBRARY= 							\
 		element.o						\
 		journal.o						\
 		spreadsheet.o						\
-		spreadsheet_column.o
+		spreadsheet_column.o					\
+		spreadsheet_upload_event.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
 
@@ -896,4 +897,10 @@ spreadsheet.o: spreadsheet.c spreadsheet.h
 spreadsheet_column.o: spreadsheet_column.c spreadsheet_column.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c spreadsheet_column.c
+
+spreadsheet_upload_event.o:						\
+		spreadsheet_upload_event.c				\
+		spreadsheet_upload_event.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c spreadsheet_upload_event.c
 

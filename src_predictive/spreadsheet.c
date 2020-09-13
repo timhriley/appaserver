@@ -87,3 +87,13 @@ char *spreadsheet_primary_where(
 	return strdup( where );
 }
 
+char *spreadsheet_minimum_date(
+			char **maximum_date,
+			char *spreadsheet_filename )
+{
+if ( maximum_date ){}
+if ( spreadsheet_filename ){}
+
+	return (char *)0;
+}
+
