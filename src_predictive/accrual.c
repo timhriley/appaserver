@@ -12,7 +12,6 @@
 #include "timlib.h"
 #include "piece.h"
 #include "date.h"
-#include "appaserver_library.h"
 #include "sql.h"
 #include "entity.h"
 #include "journal.h"
@@ -278,9 +277,14 @@ void accrual_transaction_refresh(
 		exit( 1 );
 	}
 
-	journal_delete(	full_name,
-			street_address,
-			transaction_date_time );
+	journal_account_name_list_propagate(
+		transaction_date_time,
+		/* ------------------------- */
+		/* Returns account_name_list */
+		/* ------------------------- */
+		journal_delete(	full_name,
+				street_address,
+				transaction_date_time ) );
 
 	if ( accrual_amount )
 	{
@@ -511,10 +515,15 @@ void accrual_list_delete(
 			exit( 1 );
 		}
 
-		journal_delete(
-			accrual->transaction->full_name,
-			accrual->transaction->street_address,
-			accrual->transaction->transaction_date_time );
+		journal_account_name_list_propagate(
+			accrual->transaction->transaction_date_time,
+			/* ------------------------- */
+			/* Returns account_name_list */
+			/* ------------------------- */
+			journal_delete(
+				accrual->transaction->full_name,
+				accrual->transaction->street_address,
+				accrual->transaction->transaction_date_time );
 
 		transaction_delete(
 			accrual->transaction->full_name,

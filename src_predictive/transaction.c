@@ -302,11 +302,17 @@ char *transaction_journal_insert(
 			check_number,
 			lock_transaction );
 
-	journal_list_insert(
-		full_name,
-		street_address,
+	
+	journal_account_name_list_propagate(
 		transaction_date_time,
-		journal_list );
+		/* ------------------------- */
+		/* Returns account_name_list */
+		/* ------------------------- */
+		journal_list_insert(
+			full_name,
+			street_address,
+			transaction_date_time,
+			journal_list ) );
 
 	return transaction_date_time;
 }
@@ -642,26 +648,36 @@ char *transaction_refresh(
 		street_address,
 		transaction_date_time );
 
-	/* Also does a propagate for each account */
-	/* -------------------------------------- */
-	journal_delete(	full_name,
+	/* ------------------------- */
+	/* Returns account_name_list */
+	/* ------------------------- */
+	journal_delete(
+		full_name,
+		street_address,
+		transaction_date_time );
+
+	/* Note: transaction_date_time shouldn't change. */
+	/* --------------------------------------------- */
+	transaction_date_time =
+		transaction_insert(
+			full_name,
 			street_address,
-			transaction_date_time );
+			transaction_date_time,
+			transaction_amount,
+			memo,
+			check_number,
+			1 /* lock_transaction */ );
 
-	transaction_insert(
-		full_name,
-		street_address,
+	journal_account_name_list_propagate(
 		transaction_date_time,
-		transaction_amount,
-		memo,
-		check_number,
-		1 /* lock_transaction */ );
-
-	journal_list_insert(
-		full_name,
-		street_address,
-		transaction_date_time,
-		journal_list );
+		/* ------------------------- */
+		/* Returns account_name_list */
+		/* ------------------------- */
+		journal_list_insert(
+			full_name,
+			street_address,
+			transaction_date_time,
+			journal_list ) );
 
 	return transaction_date_time;
 }
@@ -669,20 +685,7 @@ char *transaction_refresh(
 void transaction_list_journal_list_insert(
 			LIST *transaction_list )
 {
-	TRANSACTION *transaction;
-
-	if ( !list_rewind( transaction_list ) ) return;
-
-	do {
-		transaction = list_get( transaction_list );
-
-		journal_list_insert(
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			transaction->journal_list );
-
-	} while ( list_next( transaction_list ) );
+	transaction_list_journal_insert( transaction_list );
 }
 
 void transaction_delete(
@@ -1615,11 +1618,13 @@ char *transaction_program_refresh(
 		street_address,
 		transaction_date_time );
 
-	/* Also does a propagate for each account */
-	/* -------------------------------------- */
-	journal_delete(	full_name,
-			street_address,
-			transaction_date_time );
+	/* ------------------------- */
+	/* Returns account_name_list */
+	/* ------------------------- */
+	journal_delete(
+		full_name,
+		street_address,
+		transaction_date_time );
 
 	transaction_date_time =
 		transaction_program_insert(
@@ -1632,11 +1637,16 @@ char *transaction_program_refresh(
 			check_number,
 			1 /* lock_transaction */ );
 
-	journal_list_insert(
-		full_name,
-		street_address,
+	journal_account_name_list_propagate(
 		transaction_date_time,
-		journal_list );
+		/* ------------------------- */
+		/* Returns account_name_list */
+		/* ------------------------- */
+		journal_list_insert(
+			full_name,
+			street_address,
+			transaction_date_time,
+			journal_list ) );
 
 	return transaction_date_time;
 }
@@ -1653,11 +1663,16 @@ void transaction_list_journal_insert(
 			list_get(
 				transaction_list );
 
-		journal_list_insert(
-			transaction->full_name,
-			transaction->street_address,
+		journal_account_name_list_propagate(
 			transaction->transaction_date_time,
-			transaction->journal_list );
+			/* ------------------------- */
+			/* Returns account_name_list */
+			/* ------------------------- */
+			journal_list_insert(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->journal_list ) );
 
 	} while ( list_next( transaction_list ) );
 }

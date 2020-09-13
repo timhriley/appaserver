@@ -97,3 +97,30 @@ if ( spreadsheet_filename ){}
 	return (char *)0;
 }
 
+char *spreadsheet_data(
+			LIST *spreadsheet_column_list,
+			char *input_row,
+			char *heading )
+{
+	char data[ 65536 ];
+	SPREADSHEET_COLUMN *spreadsheet_column;
+
+	if ( ! ( spreadsheet_column =
+			spreadsheet_column_heading_seek(
+				spreadsheet_column_list,
+				heading ) ) )
+	{
+		return (char *)0;
+	}
+
+	if ( !piece_quote(
+			data /* destination */,
+			input_row,
+			spreadsheet_column->
+				spreadsheet_column_piece ) )
+	{
+		return (char *)0;
+	}
+	return strdup( data );
+}
+

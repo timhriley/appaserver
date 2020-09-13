@@ -59,4 +59,11 @@ char *spreadsheet_minimum_date(
 			char **maximum_date,
 			char *spreadsheet_filename );
 
+/* Returns heap memory or null */
+/* --------------------------- */
+char *spreadsheet_data(
+			LIST *spreadsheet_column_list,
+			char *input_row,
+			char *heading );
+
 #endif

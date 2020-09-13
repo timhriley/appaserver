@@ -275,16 +275,22 @@ void payment_trigger_predelete(
 				payment_transaction->
 				transaction_date_time );
 
-		journal_delete(
+		journal_account_name_list_propagate(
 			payment->
 				payment_transaction->
-				full_name,
-			payment->
-				payment_transaction->
-				street_address,
-			payment->
-				payment_transaction->
-				transaction_date_time );
-
+				transaction_date_time,
+			/* ------------------------- */
+			/* Returns account_name_list */
+			/* ------------------------- */
+			journal_delete(
+				payment->
+					payment_transaction->
+					full_name,
+				payment->
+					payment_transaction->
+					street_address,
+				payment->
+					payment_transaction->
+					transaction_date_time ) );
 	}
 }

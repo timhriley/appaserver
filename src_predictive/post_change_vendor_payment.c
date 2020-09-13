@@ -292,16 +292,21 @@ void post_change_vendor_payment_predelete(
 
 	transaction = vendor_payment->vendor_payment_transaction;
 
-	/* Also does a propagate for each account */
-	/* -------------------------------------- */
-	journal_delete(	transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time );
-
 	transaction_delete(
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time );
+
+	journal_account_name_list_propagate(
+		transaction_date_time,
+		/* ------------------------- */
+		/* Returns account_name_list */
+		/* ------------------------- */
+		journal_delete(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time ) );
+
 }
 
 #ifdef NOT_DEFINED

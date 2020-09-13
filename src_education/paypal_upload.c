@@ -21,8 +21,7 @@
 #include "process.h"
 #include "application.h"
 #include "application_constants.h"
-#include "spreadsheet.h"
-#include "spreadsheet_column.h"
+#include "paypal.h"
 
 /* Constants */
 /* --------- */
@@ -30,10 +29,10 @@
 /* Prototypes */
 /* ---------- */
 
-SPREADSHEET *paypall_upload(
+PAYPAL *paypal_upload(
+			char *spreadsheet_filename,
 			char *login_name,
 			char *fund_name,
-			char *spreadsheet_filename,
 			char *date_heading,
 			boolean execute );
 
@@ -133,15 +132,21 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-SPREADSHEET *paypall_upload(
+PAYPAL *paypall_upload(
+			char *spreadsheet_filename,
 			char *login_name,
 			char *fund_name,
-			char *spreadsheet_filename,
 			char *date_heading,
 			boolean execute )
 {
-	SPREADSHEET *spreadsheet;
-	/* PAYPAL_UPLOAD *paypal_upload; */
+	PAYPAL *paypal;
+
+	paypal =
+		paypal_new(
+			spreadsheet_filename,
+			login_name,
+			fund_name,
+			date_heading );
 
 if ( login_name ){}
 if ( fund_name ){}
@@ -158,6 +163,6 @@ if ( date_heading ){}
 	{
 	}
 
-	return spreadsheet;
+	return paypal;
 }
 
