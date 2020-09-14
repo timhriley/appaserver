@@ -16,18 +16,29 @@
 #include "document.h"
 #include "timlib.h"
 #include "list.h"
-#include "environ.h"
-#include "date.h"
-#include "process.h"
-#include "application.h"
-#include "application_constants.h"
 #include "paypal.h"
+#include "deposit.h"
+#include "education.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
+
+/* Returns deposit_list */
+/* -------------------- */
+LIST *paypal_upload_display(
+			char *spreadsheet_filename,
+			char *season_name,
+			int year,
+			PAYPAL *paypal );
+
+PAYPAL *paypal_upload_execute(
+			char *spreadsheet_filename,
+			char *season_name,
+			int year,
+			PAYPAL *paypal );
 
 PAYPAL *paypal_upload(
 			char *spreadsheet_name,
@@ -169,6 +180,10 @@ PAYPAL *paypall_upload(
 	{
 		return paypal_upload_execute(
 				spreadsheet_filename,
+				season_name,
+				year,
+				/* Don't take anything from here */
+				/* ----------------------------- */
 				paypal );
 
 	}
@@ -176,20 +191,38 @@ PAYPAL *paypall_upload(
 	{
 		return paypal_upload_display(
 				spreadsheet_filename,
+				season_name,
+				year,
+				/* Don't take anything from here */
+				/* ----------------------------- */
 				paypal );
 	}
 
 	return paypal;
 }
 
-PAYPAL *paypal_upload_execute(
-			spreadsheet_filename,
-			paypal )
+/* Returns deposit_list */
+/* -------------------- */
+LIST *paypal_upload_execute(
+			char *spreadsheet_filename,
+			char *season_name,
+			int year,
+			PAYPAL *paypal )
 {
-	FILE *input_file;
+	EDUCATION *education;
+	LIST *deposit_list;
+	FILE *spreadsheet_file;
 	char input[ 65536 ];
 
-	if ( ! ( input_file = fopen( spreadsheet_filename, "r" ) ) )
+	if ( ! ( education =
+			education_fetch(
+				season_name,
+				year ) ) )
+	{
+		return (LIST *)0;
+	}
+
+	if ( ! ( spreadsheet_file = fopen( spreadsheet_filename, "r" ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: cannot open [%s] for read.\n",
@@ -201,7 +234,16 @@ PAYPAL *paypal_upload_execute(
 		return (PAYPAL *)0;
 	}
 
-	while ( string_input( input, input_file, 65536 ) )
+	education->deposit_list =
+		paypal_deposit_list(
+			spreadsheet_file,
+			education->semester_offering_list,
+			education->semester_registration_list );
+
+	fclose( spreadsheet_file );
+
+
+	while ( string_input( input, spreadsheet_file, 65536 ) )
 	{
 		if ( ( paypal->paypal_data =
 				paypal_data_parse(
@@ -212,13 +254,14 @@ PAYPAL *paypal_upload_execute(
 		{
 		}
 	}
-	fclose( input_file );
-	return paypal;
+	return education->deposit_list;
 }
 
 PAYPAL *paypal_upload_display(
-			spreadsheet_filename,
-			paypal )
+			char *spreadsheet_filename,
+			char *season_name,
+			int year,
+			PAYPAL *paypal )
 {
 }
 
