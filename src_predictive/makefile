@@ -157,7 +157,7 @@ SPREADSHEET_LIBRARY= 							\
 		spreadsheet_column.o					\
 		spreadsheet_upload_event.o				\
 		paypal.o						\
-		paypal_data.o
+		paypal_datasheet.o
 
 all: 	${SPREADSHEET_LIBRARY} ${SOURCE_LIBRARY} ${EXECUTABLES}
 
@@ -902,9 +902,9 @@ paypal.o: paypal.c paypal.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c paypal.c
 
-paypal_data.o: paypal_data.c paypal_data.h
+paypal_datasheet.o: paypal_datasheet.c paypal_datasheet.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c paypal_data.c
+		-c paypal_datasheet.c
 
 spreadsheet_column.o: spreadsheet_column.c spreadsheet_column.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

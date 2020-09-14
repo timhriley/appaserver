@@ -1,12 +1,12 @@
 /* ------------------------------------------------------------ */
-/* $APPASERVER_HOME/src_predictive/paypal_data.h		*/
+/* $APPASERVER_HOME/src_predictive/paypal_datasheet.h		*/
 /* ------------------------------------------------------------ */
 /*								*/
 /* Freely available software: see Appaserver.org		*/
 /* ------------------------------------------------------------ */
 
-#ifndef PAYPAL_DATA_H
-#define PAYPAL_DATA_H
+#ifndef PAYPAL_DATASHEET_H
+#define PAYPAL_DATASHEET_H
 
 #include "list.h"
 #include "boolean.h"
@@ -61,11 +61,11 @@ typedef struct
 	char *note_AM;
 	char *country_code_AN;
 	char *balance_impact_AO;
-} PAYPAL_DATA;
+} PAYPAL_DATASHEET;
 
 /* Operations */
 /* ---------- */
-PAYPAL_DATA *paypal_data_calloc(
+PAYPAL_DATASHEET *paypal_datasheet_calloc(
 			void );
 
 #endif

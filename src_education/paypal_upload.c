@@ -237,6 +237,8 @@ LIST *paypal_upload_execute(
 	education->deposit_list =
 		paypal_deposit_list(
 			spreadsheet_file,
+			paypal->spreadsheet,
+			paypal->paypal_datasheet,
 			education->semester_offering_list,
 			education->semester_registration_list );
 

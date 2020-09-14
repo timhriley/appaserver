@@ -19,11 +19,11 @@
 #include "enrollment.h"
 #include "offering.h"
 #include "semester.h"
+#include "deposit.h"
+#include "spreadsheet.h"
 #include "education.h"
 
-EDUCATION *education_new(
-			char *season_name,
-			int year )
+EDUCATION *education_calloc( void )
 {
 	EDUCATION *education;
 
@@ -37,28 +37,93 @@ EDUCATION *education_new(
 		exit( 1 );
 	}
 
+	return education;
+}
+
+EDUCATION *education_new(
+			char *season_name,
+			int year,
+			char *spreadsheet_name,
+			char *spreadsheet_filename )
+{
+	EDUCATION *education = education_calloc();
+
 	education->semester =
 		semester_new(
 			season_name,
 			year );
 
+	education->paypal =
+		paypal_new(
+			spreadsheet_name,
+			spreadsheet_filename );
+
 	return education;
 }
 
-LIST *education_deposit_list(
-			LIST *semester_offering_list,
-			LIST *semester_registration_list,
+EDUCATION *education_fetch(
+			char *season_name,
+			int year,
+			char *spreadsheet_name,
 			char *spreadsheet_filename )
 {
-if ( semester_offering_list ){}
-if ( semester_registration_list ){}
-if ( spreadsheet_filename ){}
-	return (LIST *)0;
+	EDUCATION *education = education_calloc();
+
+	education->semester =
+		semester_fetch(
+			season_name,
+			year,
+			1 /* fetch_offering_list */,
+			1 /* fetch_registration_list */ );
+
+	education->paypal =
+		paypal_fetch(
+			spreadsheet_name,
+			spreadsheet_filename );
+
+	return education;
 }
 
 void education_deposit_list_insert(
 			LIST *education_deposit_list )
 {
 if ( education_deposit_list ){}
+}
+
+LIST *education_deposit_list(
+			FILE *spreadsheet_file,
+			SPREADSHEET *spreadsheet,
+			PAYPAL_DATASHEET *paypal_datasheet,
+			LIST *semester_offering_list,
+			LIST *semester_registration_list )
+{
+	LIST *deposit_list = list_new();
+	DEPOSIT *deposit;
+	char input[ 65536 ];
+
+	while ( string_input( input, spreadsheet_file, 65536 ) )
+	{
+		if ( ( deposit =
+				education_deposit(
+					input,
+					spreadsheet,
+					paypal_datasheet,
+					semester_offering_list,
+					semester_registration_list ) ) )
+		{
+			list_set( deposit_list, deposit );
+		}
+	}
+	return deposit_list;
+}
+
+DEPOSIT *education_deposit(
+			char *input,
+			SPREADSHEET *spreadsheet,
+			PAYPAL_DATASHEET *paypal_datasheet,
+			LIST *semester_offering_list,
+			LIST *semester_registration_list )
+{
+	return (DEPOSIT *)0;
 }
 

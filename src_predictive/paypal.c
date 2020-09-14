@@ -46,3 +46,16 @@ PAYPAL *paypal_fetch(	char *spreadsheet_name,
 	return paypal;
 }
 
+PAYPAL *paypal_new(	char *spreadsheet_name,
+			char *spreadsheet_filename )
+{
+	PAYPAL *paypal = paypal_calloc();
+
+	paypal->spreadsheet =
+		spreadsheet_new(
+			spreadsheet_name );
+
+	paypal->spreadsheet_filename = spreadsheet_filename;
+	return paypal;
+}
+
