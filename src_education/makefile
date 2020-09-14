@@ -92,7 +92,9 @@ PREDICTIVEBOOKS_CORE= 							\
 PREDICTIVEBOOKS_SPREADSHEET=						\
 		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet_upload_event.o	\
 		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet_column.o		\
-		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet.o
+		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/paypal.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/paypal_dataset.o
 
 EXECUTABLES=	offering_trigger					\
 		deposit_trigger						\

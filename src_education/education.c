@@ -91,9 +91,11 @@ if ( education_deposit_list ){}
 }
 
 LIST *education_deposit_list(
+			char *season_name,
+			int year,
 			FILE *spreadsheet_file,
 			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASHEET *paypal_datasheet,
+			PAYPAL_DATASET *paypal_dataset,
 			LIST *semester_offering_list,
 			LIST *semester_registration_list )
 {
@@ -105,9 +107,11 @@ LIST *education_deposit_list(
 	{
 		if ( ( deposit =
 				education_deposit(
+					season_name,
+					year,
 					input,
 					spreadsheet,
-					paypal_datasheet,
+					paypal_dataset,
 					semester_offering_list,
 					semester_registration_list ) ) )
 		{
@@ -118,12 +122,52 @@ LIST *education_deposit_list(
 }
 
 DEPOSIT *education_deposit(
+			char *season_name,
+			int year,
 			char *input,
 			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASHEET *paypal_datasheet,
+			PAYPAL_DATASET *paypal_dataset,
 			LIST *semester_offering_list,
 			LIST *semester_registration_list )
 {
-	return (DEPOSIT *)0;
+	paypal_dataset =
+		education_dataset_parse(
+			input,
+			spreadsheet,
+			/* Return only */
+			/* ----------- */
+			paypal_dataset );
+
+	return education_deposit_parse(
+			season_name,
+			year,
+			paypal_dataset,
+			semester_offering_list,
+			semester_registration_list );
 }
 
+PAYPAL_DATASET *education_dataset_parse(
+			char *input,
+			SPREADSHEET *spreadsheet,
+			/* Return only */
+			/* ----------- */
+			PAYPAL_DATASET *paypal_dataset )
+{
+	return paypal_dataset;
+}
+
+DEPOSIT *education_deposit_parse(
+			char *season_name,
+			int year,
+			PAYPAL_DATASET *paypal_dataset,
+			LIST *semester_offering_list,
+			LIST *semester_registration_list )
+{
+	DEPOSIT *deposit deposit_calloc();
+
+	deposit->
+	deposit->payment_list =
+		education_payment_list(
+
+	return deposit;
+}

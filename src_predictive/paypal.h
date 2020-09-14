@@ -12,7 +12,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "spreadsheet.h"
-#include "paypal_datasheet.h"
+#include "paypal_dataset.h"
 
 /* Constants */
 /* --------- */
@@ -29,7 +29,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	PAYPAL_DATASHEET *paypal_datasheet;
+	PAYPAL_DATASET *paypal_dataset;
 } PAYPAL;
 
 /* Operations */

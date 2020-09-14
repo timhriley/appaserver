@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------ */
-/* $APPASERVER_HOME/src_predictive/paypal_datasheet.c		*/
+/* $APPASERVER_HOME/src_predictive/paypal_dataset.c		*/
 /* ------------------------------------------------------------ */
 /*								*/
 /* Freely available software: see Appaserver.org		*/
@@ -15,14 +15,14 @@
 #include "sql.h"
 #include "list.h"
 #include "boolean.h"
-#include "paypal_datasheet.h"
+#include "paypal_dataset.h"
 
-PAYPAL_DATASHEET *paypal_datasheet_calloc( void )
+PAYPAL_DATASET *paypal_dataset_calloc( void )
 {
-	PAYPAL_DATASHEET *a;
+	PAYPAL_DATASET *a;
 
-	if ( ! ( a = (PAYPAL_DATASHEET *)
-			calloc( 1, sizeof( PAYPAL_DATASHEET ) ) ) )
+	if ( ! ( a = (PAYPAL_DATASET *)
+			calloc( 1, sizeof( PAYPAL_DATASET ) ) ) )
 	{
 		fprintf( stderr,
 			 "Error in %s/%s()/%d: cannot allocate memory.\n",

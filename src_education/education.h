@@ -13,7 +13,7 @@
 #include "entity.h"
 #include "semester.h"
 #include "paypal.h"
-#include "paypal_datasheet.h"
+#include "paypal_dataset.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -49,16 +49,34 @@ EDUCATION *education_fetch(
 			char *spreadsheet_filename );
 
 LIST *education_deposit_list(
+			char *season_name,
+			int year,
 			FILE *spreadsheet_file,
 			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASHEET *paypal_datasheet,
+			PAYPAL_DATASET *paypal_dataset,
 			LIST *semester_offering_list,
 			LIST *semester_registration_list );
 
 DEPOSIT *education_deposit(
+			char *season_name,
+			int year,
 			char *input,
 			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASHEET *paypal_datasheet,
+			PAYPAL_DATASET *paypal_dataset,
+			LIST *semester_offering_list,
+			LIST *semester_registration_list );
+
+PAYPAL_DATASET *education_dataset_parse(
+			char *input,
+			SPREADSHEET *spreadsheet,
+			/* Return only */
+			/* ----------- */
+			PAYPAL_DATASET *paypal_dataset );
+
+DEPOSIT *education_deposit_parse(
+			char *season_name,
+			int year,
+			PAYPAL_DATASET *paypal_dataset,
 			LIST *semester_offering_list,
 			LIST *semester_registration_list );
 
