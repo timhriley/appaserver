@@ -138,6 +138,22 @@ char *deposit_primary_where(
 	return where;
 }
 
+DEPOSIT *deposit_calloc( void )
+{
+	DEPOSIT *deposit;
+
+	if ( ! ( deposit = calloc( 1, sizeof( DEPOSIT ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+	return deposit;
+}
+
 DEPOSIT *deposit_new(	char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,

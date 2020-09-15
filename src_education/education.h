@@ -20,6 +20,7 @@
 
 /* Constants */
 /* --------- */
+#define EDUCATION_DEFAULT_STREET_ADDRESS	"unknown"
 
 /* Structures */
 /* ---------- */
@@ -79,6 +80,17 @@ DEPOSIT *education_deposit_parse(
 			PAYPAL_DATASET *paypal_dataset,
 			LIST *semester_offering_list,
 			LIST *semester_registration_list );
+
+LIST *education_payment_list(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			/* ------------ */
+			/* Stamp couple */
+			/* ------------ */
+			PAYPAL_DATASET *paypal_dataset );
 
 #endif
 

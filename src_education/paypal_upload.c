@@ -15,6 +15,8 @@
 #include "appaserver_parameter_file.h"
 #include "document.h"
 #include "timlib.h"
+#include "process.h"
+#include "environ.h"
 #include "list.h"
 #include "paypal.h"
 #include "deposit.h"
@@ -119,7 +121,7 @@ int main( int argc, char **argv )
 	}
 
 	if ( ! ( paypal =
-			paypall_upload(
+			paypal_upload(
 				spreadsheet_name,
 				spreadsheet_filename,
 				season_name,
@@ -169,12 +171,11 @@ PAYPAL *paypall_upload(
 
 	if ( ! ( paypal =
 			paypal_fetch(
-				spreadsheet_name ) ) )
+				spreadsheet_name,
+				spreadsheet_filename ) ) )
 	{
 		return (PAYPAL *)0;
 	}
-
-	paypal->spradsheet_filename = spreadsheet_filename;
 
 	if ( execute )
 	{

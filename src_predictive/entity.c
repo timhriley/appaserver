@@ -328,8 +328,12 @@ ENTITY *entity_parse( char *input )
 	return entity;
 }
 
-char *entity_escape_full_name(
-			char *full_name )
+char *entity_escape_name( char *full_name )
+{
+	return entity_escape_full_name( full_name );
+}
+
+char *entity_escape_full_name( char *full_name )
 {
 	static char escape_full_name[ 256 ];
 
@@ -353,4 +357,21 @@ char *entity_primary_where(
 	return strdup( where );
 }
 
+char *entity_street_address(
+			char *full_name )
+{
+	char sys_string[ 1024 ];
+	char where[ 256 ];
+
+	sprintf(where,
+		"full_name = '%s'",
+		entity_escape_name( full_name ) );
+
+	sprintf(sys_string,
+		"select.sh street_address \"%s\"	|"
+		"head -1				 ",
+		where );
+
+	return pipe2string( sys_string );
+}
 
