@@ -5462,7 +5462,7 @@ LIST *query_append_prompt_recursive_folder_list(
 
 				list_append_pointer(
 					query_drop_down_list,
-					query_drop_down );
+					drop_down );
 			}
 
 		} while( list_next( prompt_recursive_folder->
