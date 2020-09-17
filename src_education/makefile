@@ -87,7 +87,10 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/entity.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/subclassification.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/predictive.o			\
-		${PREDICTIVEBOOKS_LIBRARY}/account.o
+		${PREDICTIVEBOOKS_LIBRARY}/account.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/paypal.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet_column.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet.o
 
 PREDICTIVEBOOKS_SPREADSHEET=						\
 		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet_upload_event.o	\

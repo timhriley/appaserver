@@ -28,29 +28,25 @@
 /* Prototypes */
 /* ---------- */
 
-/* Returns deposit_list */
-/* -------------------- */
-LIST *paypal_upload_display(
+void paypal_upload_display(
 			char *spreadsheet_filename,
 			char *season_name,
 			int year,
-			PAYPAL *paypal );
+			LIST *education_deposit_list );
 
-PAYPAL *paypal_upload_execute(
+void paypal_upload_execute(
 			char *spreadsheet_filename,
 			char *season_name,
 			int year,
-			PAYPAL *paypal );
+			LIST *education_deposit_list );
 
-PAYPAL *paypal_upload(
-			char *spreadsheet_name,
+PAYPAL *paypal_upload(	char *spreadsheet_name,
 			char *spreadsheet_filename,
 			char *season_name,
 			int year,
 			char *login_name,
 			char *fund_name,
-			char *date_heading,
-			boolean execute );
+			char *date_heading );
 
 int main( int argc, char **argv )
 {
@@ -66,7 +62,7 @@ int main( int argc, char **argv )
 	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 128 ];
-	PAYPAL *paypal;
+	EDUCATION *education;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -120,16 +116,31 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( ! ( paypal =
-			paypal_upload(
-				spreadsheet_name,
-				spreadsheet_filename,
+	if ( ! ( education =
+			education_fetch(
 				season_name,
 				year,
-				login_name,
-				fund_name,
-				date_heading,
-				execute ) ) )
+				spreadsheet_name,
+				spreadsheet_filename ) ) )
+	{
+		printf(
+		"<h3>An internal error occurred. Please check log.</h3>\n" );
+
+		document_close();
+		exit( 1 );
+	}
+
+	education->deposit_list =
+		paypal_upload_deposit_list(
+			spreadsheet_name,
+			spreadsheet_filename,
+			season_name,
+			year,
+			login_name,
+			fund_name,
+			date_heading );
+
+	if ( !list_length( deposit_list ) )
 	{
 		printf( "<h3>Load aborted.</h3>\n" );
 	}
@@ -212,7 +223,6 @@ LIST *paypal_upload_execute(
 {
 	EDUCATION *education;
 	LIST *deposit_list;
-	FILE *spreadsheet_file;
 	char input[ 65536 ];
 
 	if ( ! ( education =
@@ -221,18 +231,6 @@ LIST *paypal_upload_execute(
 				year ) ) )
 	{
 		return (LIST *)0;
-	}
-
-	if ( ! ( spreadsheet_file = fopen( spreadsheet_filename, "r" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: cannot open [%s] for read.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-		spreadsheet_filename );
-
-		return (PAYPAL *)0;
 	}
 
 	education->deposit_list =
@@ -245,18 +243,6 @@ LIST *paypal_upload_execute(
 
 	fclose( spreadsheet_file );
 
-
-	while ( string_input( input, spreadsheet_file, 65536 ) )
-	{
-		if ( ( paypal->paypal_data =
-				paypal_data_parse(
-					input,
-					paypal->
-						spreadsheet->
-						spreadsheet_column_list ) ) )
-		{
-		}
-	}
 	return education->deposit_list;
 }
 
