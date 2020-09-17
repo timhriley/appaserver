@@ -17,7 +17,8 @@ EDUCATION_CORE=								\
 		education.o						\
 		deposit.o						\
 		semester.o						\
-		payment.o
+		payment.o						\
+		payment_item_title.o
 
 STANDARD_LIBRARY=							\
 		${LIBRARY}/date.o 					\
@@ -220,6 +221,11 @@ payment.o: payment.c payment.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c payment.c
+
+payment_item_title.o: payment_item_title.c payment_item_title.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c payment_item_title.c
 
 semester.o: semester.c semester.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\

@@ -223,12 +223,7 @@ DEPOSIT *education_deposit(
 }
 
 LIST *education_payment_list(
-			char *season_name,
-			int year,
-			/* ------------ */
-			/* Stamp couple */
-			/* ------------ */
-			PAYPAL_DATASET *paypal_dataset,
+			char *item_title_P,
 			/* -------- */
 			/* Set only */
 			/* -------- */
@@ -254,22 +249,15 @@ LIST *education_payment_list(
 }
 
 PAYMENT *education_payment(
-			char *season_name,
-			int year,
 			char *item_title_P,
+			int student_number,
 			/* -------- */
 			/* Set only */
 			/* -------- */
 			DEPOSIT *deposit )
 {
 	PAYMENT *payment;
-	char *student_name;
-	char *street_address;
-	char *course_name;
-	int student_number;
-
-	for (	student_number = 1;
-		( payment =
+	PAYMENT_ITEM_TITLE *item_title;
 }
 
 PAYPAL_DATASET *education_paypal_dataset(

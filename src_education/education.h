@@ -75,22 +75,15 @@ PAYPAL_DATASET *education_dataset_parse(
 			PAYPAL_DATASET *paypal_dataset );
 
 LIST *education_payment_list(
-			char *season_name,
-			int year,
-			char *input,
-			/* ------------ */
-			/* Stamp couple */
-			/* ------------ */
-			PAYPAL_DATASET *paypal_dataset,
+			char *item_title_P,
 			/* -------- */
 			/* Set only */
 			/* -------- */
 			DEPOSIT *deposit );
 
 PAYMENT *education_payment(
-			char *season_name,
-			int year,
 			char *item_title_P,
+			int student_number,
 			/* -------- */
 			/* Set only */
 			/* -------- */
