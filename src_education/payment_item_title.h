@@ -40,12 +40,21 @@ PAYMENT_ITEM_TITLE *payment_item_title_new(
 			char *item_title_P,
 			int student_number );
 
+/* Note: COURSE.course_name can't have colons or commas. */
+/* ----------------------------------------------------- */
 ENTITY *payment_item_title_entity(
 			char *item_title_P,
 			int student_number );
 
-char *payment_item_title_year(
+/* Returns heap memory or null */
+/* --------------------------- */
+char *payment_item_title_course_name(
 			char *item_title_P,
 			int student_number );
 
+/* Returns static memory or null */
+/* ----------------------------- */
+char *payment_item_title_enrollment_block(
+			char *item_title_P,
+			int student_number );
 #endif

@@ -30,6 +30,7 @@ enum payroll_pay_period{	pay_period_not_set,
 #define TITLE_PASSAGE_RULE_SHIPPED_DATE "FOB_shipping"
 #define TITLE_PASSAGE_RULE_ARRIVED_DATE "FOB_destination"
 #define TITLE_PASSAGE_RULE_NULL		""
+#define ENTITY_STREET_ADDRESS_UNKNOWN	"unknown"
 
 /* Structures */
 /* ---------- */
@@ -116,6 +117,8 @@ char *entity_escape_name(
 			char *full_name );
 
 
+/* Returns heap memory or null */
+/* --------------------------- */
 char *entity_street_address(
 			char *full_name );
 

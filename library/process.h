@@ -48,6 +48,9 @@ typedef struct
 
 /* Operations */
 /* ---------- */
+void process_execution_count_increment(
+				char *process_name );
+
 void process_increment_execution_count(
 				char *application_name,
 				char *process_name,

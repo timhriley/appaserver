@@ -20,7 +20,6 @@
 
 /* Constants */
 /* --------- */
-#define EDUCATION_DEFAULT_STREET_ADDRESS	"unknown"
 
 /* Structures */
 /* ---------- */
@@ -56,16 +55,13 @@ LIST *education_deposit_list(
 			SPREADSHEET *spreadsheet,
 			PAYPAL_DATASET *paypal_dataset,
 			LIST *semester_offering_list,
-			LIST *semester_registration_list );
+			LIST *semester_registration_list,
+			char *fund_name );
 
 DEPOSIT *education_deposit(
 			char *season_name,
 			int year,
-			char *input,
-			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASET *paypal_dataset,
-			LIST *semester_offering_list,
-			LIST *semester_registration_list );
+			PAYPAL_DATASET *paypal_dataset );
 
 PAYPAL_DATASET *education_dataset_parse(
 			char *input,
@@ -75,6 +71,8 @@ PAYPAL_DATASET *education_dataset_parse(
 			PAYPAL_DATASET *paypal_dataset );
 
 LIST *education_payment_list(
+			char *season_name,
+			int year,
 			char *item_title_P,
 			/* -------- */
 			/* Set only */
@@ -82,6 +80,8 @@ LIST *education_payment_list(
 			DEPOSIT *deposit );
 
 PAYMENT *education_payment(
+			char *season_name,
+			int year,
 			char *item_title_P,
 			int student_number,
 			/* -------- */
@@ -89,19 +89,12 @@ PAYMENT *education_payment(
 			/* -------- */
 			DEPOSIT *deposit );
 
-DEPOSIT *education_deposit(
-			char *season_name,
-			int year,
-			PAYPAL_DATASET *paypal_dataset,
-			LIST *semester_offering_list,
-			LIST *semester_registration_list );
-
 PAYPAL_DATASET *education_paypal_dataset(
-			char *input,
+			char *input_string,
 			SPREADSHEET *spreadsheet,
-			/* ------------ */
-			/* Returns this */
-			/* ------------ */
+			/* ---------------------- */
+			/* Returns paypal_dataset */
+			/* ---------------------- */
 			PAYPAL_DATASET *paypal_dataset );
 
 #endif

@@ -38,11 +38,23 @@ PAYPAL *paypal_fetch(	char *spreadsheet_name,
 {
 	PAYPAL *paypal = paypal_calloc();
 
-	paypal->spreadsheet =
-		spreadsheet_fetch(
-			spreadsheet_name );
+	if ( ! ( paypal->spreadsheet =
+			spreadsheet_fetch(
+				spreadsheet_name ) ) )
+	{
+		return (PAYPAL *)0;
+	}
+
+	if ( ! ( paypal->spreadsheet->spreadsheet_minimum_date =
+			spreadsheet_minimum_date(
+				&paypal->spreadsheet->maximum_date,
+				spreadsheet_filename ) ) )
+	{
+		return (PAYPAL *)0;
+	}
 
 	paypal->spreadsheet_filename = spreadsheet_filename;
+
 	return paypal;
 }
 

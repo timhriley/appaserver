@@ -55,6 +55,8 @@ char *spreadsheet_primary_where(
 char *spreadsheet_escape_name(
 			char *spreadsheet_name );
 
+/* Returns heap memory or null */
+/* --------------------------- */
 char *spreadsheet_minimum_date(
 			char **maximum_date,
 			char *spreadsheet_filename );
