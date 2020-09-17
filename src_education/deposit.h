@@ -103,6 +103,9 @@ char *deposit_primary_where(
 			int year,
 			char *deposit_date_time );
 
+DEPOSIT *deposit_calloc(
+			void );
+
 DEPOSIT *deposit_new(
 			char *payor_full_name,
 			char *payor_street_address,

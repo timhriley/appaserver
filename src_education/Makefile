@@ -17,7 +17,8 @@ EDUCATION_CORE=								\
 		education.o						\
 		deposit.o						\
 		semester.o						\
-		payment.o
+		payment.o						\
+		payment_item_title.o
 
 STANDARD_LIBRARY=							\
 		${LIBRARY}/date.o 					\
@@ -87,13 +88,24 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/entity.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/subclassification.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/predictive.o			\
-		${PREDICTIVEBOOKS_LIBRARY}/account.o
+		${PREDICTIVEBOOKS_LIBRARY}/account.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/paypal.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet_column.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet.o
+
+PREDICTIVEBOOKS_SPREADSHEET=						\
+		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet_upload_event.o	\
+		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet_column.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/paypal.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/paypal_dataset.o
 
 EXECUTABLES=	offering_trigger					\
 		deposit_trigger						\
 		registration_trigger					\
 		enrollment_trigger					\
-		payment_trigger
+		payment_trigger						\
+		paypal_upload
 
 all: 	${EXECUTABLES}
 
@@ -168,6 +180,21 @@ registration_trigger: registration_trigger.c				\
 		registration_trigger.c					\
 		-o registration_trigger
 
+paypal_upload: paypal_upload.c						\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${PREDICTIVEBOOKS_SPREADSHEET}					\
+	${EDUCATION_CORE}
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${PREDICTIVEBOOKS_SPREADSHEET}				\
+		${EDUCATION_CORE}					\
+		paypal_upload.c						\
+		-o paypal_upload
+
 # Education core
 # -------------- 
 offering.o: offering.c offering.h
@@ -194,6 +221,11 @@ payment.o: payment.c payment.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c payment.c
+
+payment_item_title.o: payment_item_title.c payment_item_title.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c payment_item_title.c
 
 semester.o: semester.c semester.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\

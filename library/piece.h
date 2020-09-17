@@ -56,6 +56,11 @@ char *piece_quoted(
 			int offset,
 			char quote_character );
 
+char *piece_quote(
+			char *destination,
+			char *source,
+			int offset );
+
 char *piece_quote_comma(
 			char *destination,
 			char *source,

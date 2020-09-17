@@ -5,6 +5,7 @@
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "timlib.h"
@@ -54,7 +55,7 @@ LIST *customer_payment_list(
 			char *sale_date_time )
 {
 	return customer_payment_system_list(
-		customer_payment_list_sys_string(
+		customer_payment_sys_string(
 			sale_primary_where(
 				full_name,
 				street_address,
@@ -82,7 +83,7 @@ CUSTOMER_PAYMENT *customer_payment_parse( char *input )
 	char piece_buffer[ 1024 ];
 	CUSTOMER_PAYMENT *customer_payment;
 
-	if ( !input ) return (CUSTOMER_PAYMENT *)0;
+	if ( !input || !*input ) return (CUSTOMER_PAYMENT *)0;
 
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
@@ -109,22 +110,20 @@ CUSTOMER_PAYMENT *customer_payment_parse( char *input )
 	return customer_payment;
 }
 
-char *customer_payment_list_sys_string(
-			char *where )
+char *customer_payment_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
 
 	if ( !where ) return (char *)0;
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "select.sh '%s' %s \"%s\" select",
 		 /* ---------------------- */
 		 /* Returns program memory */
 		 /* ---------------------- */
 		 customer_payment_select(),
 		 "customer_payment",
-		 where,
-		 customer_payment_select() );
+		 where );
 
 	return strdup( sys_string );
 }

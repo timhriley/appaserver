@@ -524,6 +524,7 @@ boolean date_name_to_value(	char *variable_value,
 char *date_get_environment(	char *variable_name );
 
 char *date_now19(		int utc_offset );
+
 char *date_get_now19(		int utc_offset );
 
 char *date_time_now(		int utc_offset );
@@ -566,12 +567,30 @@ char *date_get_month_number_string(
 char *date_get_day_number_string(
 				DATE *date );
 
-DATE *date_now(			int utc_offset );
+DATE *date_now(		int utc_offset );
 
-DATE *date_set_now(		DATE *date,
-				int utc_offset );
+DATE *date_set_now(	DATE *date,
+			int utc_offset );
 
 char *date_now_hh_colon_mm_colon_ss(
 			int utc_offset );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *date_time_now19(	int utc_offset );
+
+int date_seconds(	DATE *d );
+
+int date_minutes(	DATE *d );
+
+int date_hour(		DATE *d );
+
+int date_day_of_month(	DATE *d );
+
+int date_year(		DATE *d );
+
+int date_day(		DATE *d );
+
+int date_month(		DATE *d );
 
 #endif

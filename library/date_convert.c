@@ -635,53 +635,13 @@ char *date_convert_international2american( char *international )
 		atoi( day ),
 		year );
 	return american;
-} /* date_convert_international2american() */
+}
+
 
 char *date_convert_american2international( char *american )
 {
-	char day[ 16 ];
-	char month[ 16 ];
-	char year[ 16 ];
-	static char international[ 256 ];
-	char delimiter;
-
-	delimiter = date_convert_get_delimiter( american );
-
-	if ( !delimiter
-	||   character_count( delimiter, american ) != 2 )
-	{
-		sprintf( international, "invalid: %s", american );
-		return international;
-	}
-
-	piece( month, delimiter, american, 0 );
-	piece( day, delimiter, american, 1 );
-	piece( year, delimiter, american, 2 );
-
-	/* If like: 2019/08/25 */
-	/* ------------------- */
-	if ( strlen( month ) == 4 )
-	{
-		search_replace_character( american, '/', '-' );
-		strcpy( international, american );
-	}
-	else
-	{ 
-		if ( strlen( year ) == 2 )
-		{
-			strcpy( year, julian_make_y2k_year( year ) );
-		}
-
-		sprintf(international,
-			"%s-%.2d-%.2d",
-			year,
-			atoi( month ),
-			atoi( day ) );
-	}
-
-	return international;
-
-} /* date_convert_american2international() */
+	return date_convert_international_string( american );
+}
 
 enum date_convert_format date_convert_get_date_convert_format(
 					char *format_string )
@@ -696,7 +656,7 @@ enum date_convert_format date_convert_get_date_convert_format(
 		return military;
 	else
 		return date_convert_unknown;
-} /* date_convert_get_date_convert_format() */
+}
 
 char *date_convert_get_date_format_string(
 				enum date_convert_format date_convert_format )
@@ -714,8 +674,7 @@ char *date_convert_get_date_format_string(
 		return "date_convert_unknown";
 	else
 		return "";
-
-} /* date_convert_get_date_format_string() */
+}
 
 char date_convert_get_delimiter( char *date_string )
 {
@@ -729,8 +688,7 @@ char date_convert_get_delimiter( char *date_string )
 		return '-';
 	else
 		return 0;
-
-} /* date_convert_get_delimiter() */
+}
 
 boolean date_convert_international_correct_format( char *date_string )
 {
@@ -760,8 +718,7 @@ boolean date_convert_international_correct_format( char *date_string )
 		atoi( day ) );
 
 	return 1;
-
-} /* date_convert_international_correct_format() */
+}
 
 boolean date_convert_is_valid_military(
 				char *date_string )
@@ -784,11 +741,16 @@ boolean date_convert_is_valid_military(
 	if ( month < 1 ) return 0;
 
 	return 1;
-
-} /* date_convert_is_valid_military() */
+}
 
 boolean date_convert_is_valid_american(
-				char *date_string )
+			char *date_string )
+{
+	return date_convert_valid_american( date_string );
+}
+
+boolean date_convert_valid_american(
+			char *date_string )
 {
 	char day[ 128 ];
 	char month[ 128 ];
@@ -808,8 +770,7 @@ boolean date_convert_is_valid_american(
 			year_integer,
 			month_integer,
 			day_integer );
-
-} /* date_convert_is_valid_american() */
+}
 
 boolean date_convert_is_valid_international(
 				char *date_string )
@@ -838,8 +799,7 @@ boolean date_convert_is_valid_international(
 			year_integer,
 			month_integer,
 			day_integer );
-
-} /* date_convert_is_valid_international() */
+}
 
 boolean date_convert_is_valid_integers(
 				int year_integer,
@@ -867,8 +827,7 @@ boolean date_convert_is_valid_integers(
 	if ( year_integer < 1492 || year_integer > 3000 ) return 0;
 
 	return 1;
-
-} /* date_convert_is_valid_integers() */
+}
 
 char *date_convert_american_sans_slashes(
 				char *compressed_date_string )
@@ -909,11 +868,53 @@ char *date_convert_american_sans_slashes(
 	*(return_date + 9) = *compressed_date_string++;
 
 	return return_date;
-
-} /* date_convert_american_sans_slashes() */
+}
 
 char *date_convert_display( enum date_convert_format date_convert_format )
 {
 	return date_convert_get_date_format_string( date_convert_format );
 }
 
+char *date_convert_international_string(
+			char *american_string )
+{
+	static char international[ 256 ];
+	char day[ 16 ];
+	char month[ 16 ];
+	char year[ 16 ];
+
+	*international = '\0';
+
+	if ( !date_convert_valid_american(
+		american_string ) )
+	{
+		return international;
+	}
+
+	piece( month, '/', american_string, 0 );
+	piece( day, '/', american_string, 1 );
+	piece( year, '/', american_string, 2 );
+
+	/* If like: 2019/08/25 */
+	/* ------------------- */
+	if ( strlen( month ) == 4 )
+	{
+		search_replace_character( american_string, '/', '-' );
+		strcpy( international, american_string );
+	}
+	else
+	{ 
+		if ( strlen( year ) == 2 )
+		{
+			strcpy( year, julian_make_y2k_year( year ) );
+		}
+
+		sprintf(international,
+			"%s-%.2d-%.2d",
+			year,
+			atoi( month ),
+			atoi( day ) );
+	}
+
+	return international;
+}

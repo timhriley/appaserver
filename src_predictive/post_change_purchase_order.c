@@ -147,11 +147,15 @@ void post_change_purchase_insert_update(
 
 			transaction = purchase->purchase_transaction;
 
-			/* Also does a propagate for each account */
-			/* -------------------------------------- */
-			journal_delete(	transaction->full_name,
+			journal_account_name_list_propagate(
+				transaction->transaction_date_time,
+				/* ------------------------- */
+				/* Returns account_name_list */
+				/* ------------------------- */
+				journal_delete(
+					transaction->full_name,
 					transaction->street_address,
-					transaction->transaction_date_time );
+					transaction->transaction_date_time ) );
 
 			transaction_delete(
 					transaction->full_name,
@@ -231,11 +235,15 @@ void post_change_purchase_predelete(
 
 	transaction = purchase->purchase_transaction;
 
-	/* Also does a propagate for each account */
-	/* -------------------------------------- */
-	journal_delete(	transaction->full_name,
+	journal_account_name_list_propagate(
+		transaction->transaction_date_time,
+		/* ------------------------- */
+		/* Returns account_name_list */
+		/* ------------------------- */
+		journal_delete(
+			transaction->full_name,
 			transaction->street_address,
-			transaction->transaction_date_time );
+			transaction->transaction_date_time ) );
 
 	transaction_delete(
 			transaction->full_name,

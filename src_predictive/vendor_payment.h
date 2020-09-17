@@ -112,7 +112,8 @@ FILE *vendor_payment_update_open(
 char *vendor_payment_purchase_where(
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time );
+			char *purchase_date_time,
+			char *payment_date_time );
 
 /* Returns heap memory */
 /* ------------------- */

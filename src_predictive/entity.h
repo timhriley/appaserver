@@ -112,6 +112,12 @@ char *entity_primary_where(
 /* --------------------- */
 char *entity_escape_full_name(
 			char *full_name );
+char *entity_escape_name(
+			char *full_name );
+
+
+char *entity_street_address(
+			char *full_name );
 
 #endif
 

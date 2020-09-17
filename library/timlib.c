@@ -3679,12 +3679,12 @@ void timlib_error_stderr(	int argc,
 
 } /* timlib_error_stderr() */
 
-char *timlib_sha256sum( char *input_filename )
+char *timlib_get_sha256sum( char *input_filename )
 {
-	return timlib_get_sha256sum( input_filename );
+	return timlib_sha256sum( input_filename );
 }
 
-char *timlib_get_sha256sum( char *input_filename )
+char *timlib_sha256sum( char *input_filename )
 {
 	char sys_string[ 1024 ];
 
@@ -3698,8 +3698,7 @@ char *timlib_get_sha256sum( char *input_filename )
 		 input_filename );
 
 	return pipe2string( sys_string );
-
-} /* timlib_get_sha256sum() */
+}
 
 char *timlib_reverse_string(	char *destination,
 				char *string )

@@ -314,13 +314,15 @@ TRANSACTION *enrollment_transaction(
 	return transaction;
 }
 
-ENROLLMENT *enrollment_getset(
-			LIST *enrollment_list,
+ENROLLMENT *enrollment_fetchnew(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
-			int year )
+			int year,
+			boolean fetch_payment_list,
+			boolean fetch_offering,
+			boolean fetch_registration )
 {
 	ENROLLMENT *enrollment;
 
@@ -331,19 +333,17 @@ ENROLLMENT *enrollment_getset(
 				course_name,
 				season_name,
 				year,
-				1 /* fetch_payment_list */,
-				1 /* fetch_offering */,
-				1 /* fetch_registration */ ) ) )
+				fetch_payment_list,
+				fetch_offering,
+				fetch_registration ) ) )
 	{
-		list_set(
-			enrollment_list,
-			( enrollment =
-				enrollment_new(
-					strdup( student_full_name ),
-					strdup( street_address ),
-					strdup( course_name ),
-					strdup( season_name ),
-					year ) ) );
+		enrollment =
+			enrollment_new(
+				strdup( student_full_name ),
+				strdup( street_address ),
+				strdup( course_name ),
+				strdup( season_name ),
+				year );
 	}
 	return enrollment;
 }

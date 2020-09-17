@@ -53,13 +53,15 @@ ENROLLMENT *enrollment_fetch(
 			boolean fetch_offering,
 			boolean fetch_registration );
 
-ENROLLMENT *enrollment_getset(
-			LIST *enrollment_list,
+ENROLLMENT *enrollment_fetchnew(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
-			int year );
+			int year,
+			boolean fetch_payment_list,
+			boolean fetch_offering,
+			boolean fetch_registration );
 
 ENROLLMENT *enrollment_parse(
 			char *input,

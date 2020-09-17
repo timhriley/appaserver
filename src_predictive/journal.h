@@ -105,9 +105,9 @@ LIST *journal_list_minimum(
 LIST *journal_list_account(
 			char *account_name );
 
-/* Also does a propagate for each account */
-/* -------------------------------------- */
-void journal_delete(	char *full_name,
+/* Returns account_name_list */
+/* ------------------------- */
+LIST *journal_delete(	char *full_name,
 			char *street_address,
 			char *transaction_date_time );
 
@@ -139,7 +139,9 @@ LIST *journal_binary_journal_list(
 			char *debit_account,
 			char *credit_account );
 
-void journal_list_insert(
+/* Returns account_name_list */
+/* ------------------------- */
+LIST *journal_list_insert(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,

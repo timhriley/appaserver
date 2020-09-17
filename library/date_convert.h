@@ -115,6 +115,8 @@ boolean date_convert_international_correct_format(
 boolean date_convert_is_valid_international(
 				char *date_string );
 
+boolean date_convert_valid_american(
+			char *date_string );
 boolean date_convert_is_valid_american(
 				char *date_string );
 
@@ -135,5 +137,10 @@ boolean date_convert_date_time_source_unknown(
 			char *return_date_time,
 			enum date_convert_format destination_format,
 			char *date_time_string );
+
+/* Returns static memory */
+/* --------------------- */
+char *date_convert_international_string(
+			char *american_string );
 
 #endif

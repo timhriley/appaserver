@@ -862,381 +862,20 @@ int piece_delimiter_position(
 		position++;
 	}
 	return -1;
-} /* piece_delimiter_position() */
-
-char *piece_quote_comma_delimited(
-			char *destination,
-			char *source,
-			int offset )
-{
-	return piece_quote_comma(
-			destination,
-			source,
-			offset );
 }
 
-char piece_delimiter_search( char *source )
-{
-	PIECE_DELIMITER_COUNT *piece_delimiter_count;
-	LIST *piece_delimiter_count_list;
-	char search_highest;
-
-/*
-	int str_len = strlen( source );
-	if ( str_len
-	&&   *source == '"'
-	&&   *( source + str_len - 1 ) == '"' )
-	{
-		return PIECE_QUOTE_COMMA_DELIMITER_CODE;
-	}
-*/
-
-	if ( timlib_exists_string( source, ",\"" ) )
-		return PIECE_QUOTE_COMMA_DELIMITER_CODE;
-
-	piece_delimiter_count_list = list_new();
-
-	piece_delimiter_count = piece_delimiter_count_new( '|' );
-	piece_delimiter_count->count = character_count( '|', source );
-	list_append_pointer(	piece_delimiter_count_list,
-				piece_delimiter_count );
-
-	piece_delimiter_count = piece_delimiter_count_new( '^' );
-	piece_delimiter_count->count = character_count( '^', source );
-	list_append_pointer(	piece_delimiter_count_list,
-				piece_delimiter_count );
-
-	piece_delimiter_count = piece_delimiter_count_new( '&' );
-	piece_delimiter_count->count = character_count( '&', source );
-	list_append_pointer(	piece_delimiter_count_list,
-				piece_delimiter_count );
-
-	piece_delimiter_count = piece_delimiter_count_new( ',' );
-	piece_delimiter_count->count = character_count( ',', source );
-	list_append_pointer(	piece_delimiter_count_list,
-				piece_delimiter_count );
-
-/*
-	piece_delimiter_count = piece_delimiter_count_new(
-					PIECE_SPACES_DELIMITER_CODE );
-	piece_delimiter_count->count = column_count( source );
-	list_append_pointer(	piece_delimiter_count_list,
-				piece_delimiter_count );
-*/
-
-	if ( ! ( search_highest =
-		piece_delimiter_search_highest(
-			piece_delimiter_count_list ) ) )
-	{
-		if ( column_count( source ) > 1 )
-			return PIECE_SPACES_DELIMITER_CODE;
-		else
-			return ',';
-	}
-
-	return search_highest;
-
-} /* piece_delimiter_search() */
-
-char piece_delimiter_search_highest( LIST *piece_delimiter_count_list )
-{
-	PIECE_DELIMITER_COUNT *piece_delimiter_count;
-	PIECE_DELIMITER_COUNT *highest_piece_delimiter_count = {0};
-
-	if ( !list_rewind( piece_delimiter_count_list ) ) return ',';
-
-	do {
-		piece_delimiter_count =
-			list_get_pointer(
-				piece_delimiter_count_list );
-
-		if ( !highest_piece_delimiter_count )
-		{
-			highest_piece_delimiter_count = piece_delimiter_count;
-		}
-		else
-		{
-			if ( piece_delimiter_count->count >
-			     highest_piece_delimiter_count->count )
-			{
-				highest_piece_delimiter_count =
-					piece_delimiter_count;
-			}
-		}
-	} while( list_next( piece_delimiter_count_list ) );
-
-	if ( !highest_piece_delimiter_count->count )
-		return (char)0;
-	else
-		return highest_piece_delimiter_count->delimiter;
-
-} /* piece_delimiter_search_highest() */
-
-char *piece_unknown(	char *destination,
-			char *delimiter,
+char *piece_quote(	char *destination,
 			char *source,
 			int offset )
-{
-	if ( !*delimiter )
-	{
-		*delimiter = piece_delimiter_search( source );
-	}
-
-	if ( *delimiter == PIECE_QUOTE_COMMA_DELIMITER_CODE )
-	{
-		return piece_quoted(
-				destination,
-				',',
-				source,
-				offset,
-				'"' );
-	}
-	else
-	if ( *delimiter == PIECE_SPACES_DELIMITER_CODE
-	||   *delimiter == 9
-	||   *delimiter == 't' )
-	{
-		return column(
-			destination, 
-			offset, 
-			source );
-	}
-	else
-	{
-		return piece(	destination,
-				*delimiter,
-				source,
-				offset );
-	}
-
-} /* piece_unknown() */
-
-char *piece_string(	char *destination,
-			char *delimiter,
-			char *source,
-			int piece_offset )
-{
-	int start_offset;
-	int end_offset;
-	int source_strlen = strlen( source );
-	int delimiter_strlen = strlen( delimiter );
-
-	*destination = '\0';
-	if ( !source ) return (char *)0;
-	if ( !*source ) return "";
-
-	if ( piece_offset == 0 )
-		start_offset = 0;
-	else
-		start_offset = instr( delimiter, source, piece_offset );
-
-	if ( start_offset == -1 )
-	{
-		*destination = '\0';
-		return (char *)0;
-	}
-
-	end_offset = instr( delimiter, source, piece_offset + 1 );
-
-	if ( end_offset == -1 ) end_offset = source_strlen;
-
-	if ( start_offset == 0 )
-	{
-		timlib_strncpy(	destination,
-				source,
-				end_offset - start_offset );
-	}
-	else
-	{
-		timlib_strncpy(
-			destination,
-			source + start_offset + delimiter_strlen,
-			( end_offset - start_offset ) - delimiter_strlen );
-	}
-
-	return destination;
-
-} /* piece_string() */
-
-char *piece_delete_quote_comma(	char *destination,
-				char *source,
-				int piece_offset )
-{
-	int start_offset;
-	int end_offset;
-	char *delimiter = "\",\"";
-
-	*destination = '\0';
-	if ( !source ) return (char *)0;
-	if ( !*source ) return "";
-
-	if ( piece_offset == 0 )
-	{
-		start_offset = 0;
-	}
-	else
-	{
-		start_offset =
-			instr( delimiter, source, piece_offset ) + 2;
-	}
-
-	end_offset = instr( delimiter, source, piece_offset + 1 );
-
-	/* If not enough delimiters */
-	/* ------------------------ */
-	if ( start_offset == 1 && end_offset == -1 ) return (char *)0;
-
-	/* If deleting the only piece */
-	/* -------------------------- */
-	if ( start_offset == 0 && end_offset == -1 ) return "";
-
-	/* If deleting the first piece */
-	/* --------------------------- */
-	if ( start_offset == 0 )
-	{
-		timlib_strcpy(	destination,
-				source + end_offset + 2,
-				9999 );
-	}
-	else
-	{
-		/* -------------------------- */
-		/* If deleting a middle piece */
-		/* -------------------------- */
-		if ( end_offset != -1 )
-		{
-			timlib_strncpy(
-				destination,
-				source,
-				start_offset );
-
-			strcat( destination,
-				source + end_offset + 2 );
-		}
-		else
-		/* -------------------------- */
-		/* If deleting the last piece */
-		/* -------------------------- */
-		{
-			timlib_strncpy(
-				destination,
-				source,
-				start_offset - 1 );
-		}
-	}
-
-	return destination;
-
-} /* piece_delete_quote_comma() */
-
-char *piece_insert_quote_comma(	char *destination,
-				char *source,
-				char *string,
-				int piece_offset )
-{
-	int start_offset;
-	char *delimiter = "\",\"";
-
-	if ( !source ) return (char *)0;
-
-	/* If empty source */
-	/* --------------- */
-	if ( !*source )
-	{
-		sprintf( destination, "\"%s\"", string );
-		return destination;
-	}
-
-	/* If insert at the beginning */
-	/* -------------------------- */
-	if ( piece_offset == 0 )
-	{
-		sprintf( destination, "\"%s\",", string );
-		strcat( destination, source );
-		return destination;
-	}
-
-	start_offset =
-		instr( delimiter, source, piece_offset );
-
-	if ( start_offset != -1 )
-	{
-		/* ----------------------- */
-		/* If insert in the middle */
-		/* ----------------------- */
-		timlib_strncpy( destination, source, start_offset );
-		strcat( destination, "\",\"" );
-		strcat( destination, string );
-		strcat( destination, source + start_offset );
-	}
-	else
-	{
-		/* ----------------------- */
-		/* If insert at the end */
-		/* ----------------------- */
-		sprintf( destination,
-			 "%s,\"%s\"",
-			 source,
-			 string );
-	}
-
-	return destination;
-
-} /* piece_insert_quote_comma() */
-
-char *piece_replace_quote_comma(
-			char *destination, 
-			char *source, 
-			char *new_data, 
-			int piece_offset )
-{
-	char tmp[ 1024 ];
-	char *results;
-
-	piece_delete_quote_comma( tmp, source, piece_offset );
-
-	*destination = '\0';
-	results = piece_insert_quote_comma(
-				destination,
-				tmp,
-				new_data,
-				piece_offset );
-	return results;
-
-} /* piece_replace_quote_comma() */
-
-PIECE_DELIMITER_COUNT *piece_delimiter_count_new(
-				char delimiter )
-{
-	PIECE_DELIMITER_COUNT *piece_delimiter_count;
-
-	piece_delimiter_count =
-		(PIECE_DELIMITER_COUNT *)
-			calloc( 1, sizeof( PIECE_DELIMITER_COUNT ) );
-	if ( !piece_delimiter_count )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s(): cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
-
-	piece_delimiter_count->delimiter = delimiter;
-	return piece_delimiter_count;
-
-} /* piece_delimiter_count_new() */
-
-char *piece_quote_comma(	char *destination,
-				char *source,
-				int offset )
 {
         int mark = 0;
         char *buf_ptr = destination;
 	boolean inside_quote = 0;
 	char next_character;
-	char buffer[ 1024 ];
+	char buffer[ 65536 ];
  
+	if ( !destination || !source ) return (char *)0;
+
 	*destination = '\0';
 
         /* if offset is not zero, find the mark */
@@ -1419,8 +1058,363 @@ char *piece_quote_comma(	char *destination,
 	strcpy( buffer, destination );
 
 	return timlib_remove_thousands_separator(
+			destination,
+			buffer );
+}
+
+char *piece_quote_comma_delimited(
+			char *destination,
+			char *source,
+			int offset )
+{
+	return piece_quote_comma(
+			destination,
+			source,
+			offset );
+}
+
+char piece_delimiter_search( char *source )
+{
+	PIECE_DELIMITER_COUNT *piece_delimiter_count;
+	LIST *piece_delimiter_count_list;
+	char search_highest;
+
+	if ( timlib_exists_string( source, ",\"" ) )
+		return PIECE_QUOTE_COMMA_DELIMITER_CODE;
+
+	piece_delimiter_count_list = list_new();
+
+	piece_delimiter_count = piece_delimiter_count_new( '|' );
+	piece_delimiter_count->count = character_count( '|', source );
+	list_append_pointer(	piece_delimiter_count_list,
+				piece_delimiter_count );
+
+	piece_delimiter_count = piece_delimiter_count_new( '^' );
+	piece_delimiter_count->count = character_count( '^', source );
+	list_append_pointer(	piece_delimiter_count_list,
+				piece_delimiter_count );
+
+	piece_delimiter_count = piece_delimiter_count_new( '&' );
+	piece_delimiter_count->count = character_count( '&', source );
+	list_append_pointer(	piece_delimiter_count_list,
+				piece_delimiter_count );
+
+	piece_delimiter_count = piece_delimiter_count_new( ',' );
+	piece_delimiter_count->count = character_count( ',', source );
+	list_append_pointer(	piece_delimiter_count_list,
+				piece_delimiter_count );
+
+/*
+	piece_delimiter_count = piece_delimiter_count_new(
+					PIECE_SPACES_DELIMITER_CODE );
+	piece_delimiter_count->count = column_count( source );
+	list_append_pointer(	piece_delimiter_count_list,
+				piece_delimiter_count );
+*/
+
+	if ( ! ( search_highest =
+		piece_delimiter_search_highest(
+			piece_delimiter_count_list ) ) )
+	{
+		if ( column_count( source ) > 1 )
+			return PIECE_SPACES_DELIMITER_CODE;
+		else
+			return ',';
+	}
+
+	return search_highest;
+}
+
+char piece_delimiter_search_highest( LIST *piece_delimiter_count_list )
+{
+	PIECE_DELIMITER_COUNT *piece_delimiter_count;
+	PIECE_DELIMITER_COUNT *highest_piece_delimiter_count = {0};
+
+	if ( !list_rewind( piece_delimiter_count_list ) ) return ',';
+
+	do {
+		piece_delimiter_count =
+			list_get_pointer(
+				piece_delimiter_count_list );
+
+		if ( !highest_piece_delimiter_count )
+		{
+			highest_piece_delimiter_count = piece_delimiter_count;
+		}
+		else
+		{
+			if ( piece_delimiter_count->count >
+			     highest_piece_delimiter_count->count )
+			{
+				highest_piece_delimiter_count =
+					piece_delimiter_count;
+			}
+		}
+	} while( list_next( piece_delimiter_count_list ) );
+
+	if ( !highest_piece_delimiter_count->count )
+		return (char)0;
+	else
+		return highest_piece_delimiter_count->delimiter;
+}
+
+char *piece_unknown(	char *destination,
+			char *delimiter,
+			char *source,
+			int offset )
+{
+	if ( !*delimiter )
+	{
+		*delimiter = piece_delimiter_search( source );
+	}
+
+	if ( *delimiter == PIECE_QUOTE_COMMA_DELIMITER_CODE )
+	{
+		return piece_quoted(
 				destination,
-				buffer );
- 
-} /* piece_quote_comma() */
+				',',
+				source,
+				offset,
+				'"' );
+	}
+	else
+	if ( *delimiter == PIECE_SPACES_DELIMITER_CODE
+	||   *delimiter == 9
+	||   *delimiter == 't' )
+	{
+		return column(
+			destination, 
+			offset, 
+			source );
+	}
+	else
+	{
+		return piece(	destination,
+				*delimiter,
+				source,
+				offset );
+	}
+}
+
+char *piece_string(	char *destination,
+			char *delimiter,
+			char *source,
+			int piece_offset )
+{
+	int start_offset;
+	int end_offset;
+	int source_strlen = strlen( source );
+	int delimiter_strlen = strlen( delimiter );
+
+	*destination = '\0';
+	if ( !source ) return (char *)0;
+	if ( !*source ) return "";
+
+	if ( piece_offset == 0 )
+		start_offset = 0;
+	else
+		start_offset = instr( delimiter, source, piece_offset );
+
+	if ( start_offset == -1 )
+	{
+		*destination = '\0';
+		return (char *)0;
+	}
+
+	end_offset = instr( delimiter, source, piece_offset + 1 );
+
+	if ( end_offset == -1 ) end_offset = source_strlen;
+
+	if ( start_offset == 0 )
+	{
+		timlib_strncpy(	destination,
+				source,
+				end_offset - start_offset );
+	}
+	else
+	{
+		timlib_strncpy(
+			destination,
+			source + start_offset + delimiter_strlen,
+			( end_offset - start_offset ) - delimiter_strlen );
+	}
+
+	return destination;
+}
+
+char *piece_delete_quote_comma(	char *destination,
+				char *source,
+				int piece_offset )
+{
+	int start_offset;
+	int end_offset;
+	char *delimiter = "\",\"";
+
+	*destination = '\0';
+	if ( !source ) return (char *)0;
+	if ( !*source ) return "";
+
+	if ( piece_offset == 0 )
+	{
+		start_offset = 0;
+	}
+	else
+	{
+		start_offset =
+			instr( delimiter, source, piece_offset ) + 2;
+	}
+
+	end_offset = instr( delimiter, source, piece_offset + 1 );
+
+	/* If not enough delimiters */
+	/* ------------------------ */
+	if ( start_offset == 1 && end_offset == -1 ) return (char *)0;
+
+	/* If deleting the only piece */
+	/* -------------------------- */
+	if ( start_offset == 0 && end_offset == -1 ) return "";
+
+	/* If deleting the first piece */
+	/* --------------------------- */
+	if ( start_offset == 0 )
+	{
+		timlib_strcpy(	destination,
+				source + end_offset + 2,
+				9999 );
+	}
+	else
+	{
+		/* -------------------------- */
+		/* If deleting a middle piece */
+		/* -------------------------- */
+		if ( end_offset != -1 )
+		{
+			timlib_strncpy(
+				destination,
+				source,
+				start_offset );
+
+			strcat( destination,
+				source + end_offset + 2 );
+		}
+		else
+		/* -------------------------- */
+		/* If deleting the last piece */
+		/* -------------------------- */
+		{
+			timlib_strncpy(
+				destination,
+				source,
+				start_offset - 1 );
+		}
+	}
+
+	return destination;
+}
+
+char *piece_insert_quote_comma(	char *destination,
+				char *source,
+				char *string,
+				int piece_offset )
+{
+	int start_offset;
+	char *delimiter = "\",\"";
+
+	if ( !source ) return (char *)0;
+
+	/* If empty source */
+	/* --------------- */
+	if ( !*source )
+	{
+		sprintf( destination, "\"%s\"", string );
+		return destination;
+	}
+
+	/* If insert at the beginning */
+	/* -------------------------- */
+	if ( piece_offset == 0 )
+	{
+		sprintf( destination, "\"%s\",", string );
+		strcat( destination, source );
+		return destination;
+	}
+
+	start_offset =
+		instr( delimiter, source, piece_offset );
+
+	if ( start_offset != -1 )
+	{
+		/* ----------------------- */
+		/* If insert in the middle */
+		/* ----------------------- */
+		timlib_strncpy( destination, source, start_offset );
+		strcat( destination, "\",\"" );
+		strcat( destination, string );
+		strcat( destination, source + start_offset );
+	}
+	else
+	{
+		/* ----------------------- */
+		/* If insert at the end */
+		/* ----------------------- */
+		sprintf( destination,
+			 "%s,\"%s\"",
+			 source,
+			 string );
+	}
+
+	return destination;
+}
+
+char *piece_replace_quote_comma(
+			char *destination, 
+			char *source, 
+			char *new_data, 
+			int piece_offset )
+{
+	char tmp[ 1024 ];
+	char *results;
+
+	piece_delete_quote_comma( tmp, source, piece_offset );
+
+	*destination = '\0';
+	results = piece_insert_quote_comma(
+				destination,
+				tmp,
+				new_data,
+				piece_offset );
+	return results;
+}
+
+PIECE_DELIMITER_COUNT *piece_delimiter_count_new(
+				char delimiter )
+{
+	PIECE_DELIMITER_COUNT *piece_delimiter_count;
+
+	piece_delimiter_count =
+		(PIECE_DELIMITER_COUNT *)
+			calloc( 1, sizeof( PIECE_DELIMITER_COUNT ) );
+	if ( !piece_delimiter_count )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s(): cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__ );
+		exit( 1 );
+	}
+
+	piece_delimiter_count->delimiter = delimiter;
+	return piece_delimiter_count;
+
+}
+
+char *piece_quote_comma(	char *destination,
+				char *source,
+				int offset )
+{
+	return piece_quote_comma(
+			destination,
+			source,
+			offset );
+}
 

@@ -480,9 +480,9 @@ void date_increment_months(	DATE *d,
 	int month;
 	int day;
 
-	year = date_get_year( d );
-	month = date_get_month( d );
-	day = date_get_day( d );
+	year = date_year( d );
+	month = date_month( d );
+	day = date_day( d );
 	month += months;
 
 	date_set_date_integers(
@@ -508,9 +508,9 @@ void date_decrement_years(	DATE *d,
 	int month;
 	int day;
 
-	year = date_get_year( d );
-	month = date_get_month( d );
-	day = date_get_day( d );
+	year = date_year( d );
+	month = date_month( d );
+	day = date_day( d );
 	year -= years;
 
 	date_set_date_integers(
@@ -538,6 +538,11 @@ void increment_week( DATE *d )
 	date_set_tm_structures( d, d->current, date_utc_offset() );
 }
 
+int date_get_month( DATE *d )
+{
+	return date_month( d );
+}
+
 int get_month( DATE *d )
 {
 	return date_get_month( d );
@@ -548,9 +553,14 @@ int date_month_integer( DATE *d )
 	return date_get_month( d );
 }
 
-int date_get_month( DATE *d )
+int date_month( DATE *d )
 {
 	return d->tm->tm_mon + 1;
+}
+
+int date_day_of_month( DATE *d )
+{
+	return date_get_day_of_month( d );
 }
 
 int get_day_of_month( DATE *d )
@@ -594,14 +604,24 @@ char *date_get_day_of_week_string( DATE *d )
 		return "Unknown";
 }
 
-int get_year( DATE *d )
+int date_year( DATE *d )
 {
-	return date_get_year( d );
+	return d->tm->tm_year + 1900;
 }
 
 int date_get_year( DATE *d )
 {
-	return d->tm->tm_year + 1900;
+	return date_year( d );
+}
+
+int get_year( DATE *d )
+{
+	return date_year( d );
+}
+
+int date_hour( DATE *d )
+{
+	return date_get_hour( d );
 }
 
 int get_hour( DATE *d )
@@ -614,9 +634,19 @@ int date_get_hour( DATE *d )
 	return d->tm->tm_hour;
 }
 
+int date_minutes( DATE *d )
+{
+	return date_get_minutes( d );
+}
+
 int get_minutes( DATE *d )
 {
 	return date_get_minutes( d );
+}
+
+int date_seconds( DATE *d )
+{
+	return date_get_seconds( d );
 }
 
 int get_seconds( DATE *d )
@@ -642,11 +672,11 @@ int date_months_between(	DATE *from_date,
 	int from_month;
 	int to_month;
 
-	from_year = date_get_year( from_date );
-	to_year = date_get_year( to_date );
+	from_year = date_year( from_date );
+	to_year = date_year( to_date );
 
-	from_month = date_get_month( from_date );
-	to_month = date_get_month( to_date );
+	from_month = date_month( from_date );
+	to_month = date_month( to_date );
 
 	return ( ( to_year - from_year ) * 12 ) + ( to_month - from_month );
 
@@ -1075,7 +1105,7 @@ char *date_get_month_number_string(
 
 	sprintf( 	number_string, 
 			"%02d",
-			date_get_month( date ) );
+			date_month( date ) );
 
 	return number_string;
 }
@@ -1098,9 +1128,9 @@ char *date_get_yyyy_mm_dd( char *destination, DATE *date )
 {
 	sprintf( 	destination, 
 			"%d-%02d-%02d",
-			date_get_year( date ),
-			date_get_month( date ),
-			date_get_day_of_month( date ) );
+			date_year( date ),
+			date_month( date ),
+			date_day_of_month( date ) );
 	return destination;
 }
 
@@ -1151,13 +1181,12 @@ char *date_static_display_yyyy_mm_dd( DATE *date )
 
 	sprintf( 	buffer, 
 			"%d-%02d-%02d",
-			date_get_year( date ),
-			date_get_month( date ),
-			date_get_day_of_month( date ) );
+			date_year( date ),
+			date_month( date ),
+			date_day_of_month( date ) );
 
 	return buffer;
-
-} /* date_static_display_yyyy_mm_dd() */
+}
 
 char *date_static_display( DATE *date )
 {
@@ -1226,12 +1255,12 @@ char *date_display_yyyy_mm_dd( DATE *date )
 
 	sprintf( 	buffer, 
 			"%d-%02d-%02d",
-			date_get_year( date ),
-			date_get_month( date ),
-			date_get_day_of_month( date ) );
+			date_year( date ),
+			date_month( date ),
+			date_day_of_month( date ) );
 
 	return strdup( buffer );
-} /* date_display_yyyy_mm_dd() */
+}
 
 char *date_display_hhmm( DATE *date )
 {
@@ -1287,8 +1316,7 @@ char *date_get_yesterday_yyyy_mm_dd_string(
 	date = date_today_new( utc_offset );
 	date_increment_days( date, -1.0, utc_offset );
 	return date_get_yyyy_mm_dd_string( date );
-
-} /* date_get_yesterday_yyyy_mm_dd_string() */
+}
 
 DATE *date_now_new( int utc_offset )
 {
@@ -1308,11 +1336,10 @@ boolean date_is_daylight_time( void )
 
 	date_set_TZ( DATE_GMT );
 	return (boolean)tm->tm_isdst;
+}
 
-} /* date_is_daylight_time() */
-
-DATE *date_set_now(		DATE *date,
-				int utc_offset )
+DATE *date_set_now(	DATE *date,
+			int utc_offset )
 {
 	if ( date ) date_free( date );
 
@@ -1344,8 +1371,7 @@ DATE *date_now( int utc_offset )
 	}
 
 	return return_date;
-
-} /* date_now() */
+}
 
 DATE *date_today_new( int utc_offset )
 {
@@ -1409,8 +1435,7 @@ char *date_get_now_date_yyyy_mm_dd( int utc_offset )
 {
 	DATE *date = date_today_new( utc_offset );
 	return date_display_yyyy_mm_dd( date );
-
-} /* date_get_now_date_yyyy_mm_dd() */
+}
 
 char *date_get_now_time_hhmm( int utc_offset )
 {
@@ -1422,8 +1447,7 @@ char *date_get_now_time_hhmm( int utc_offset )
 	sprintf( buffer, "%02d%02d", d->tm->tm_hour, d->tm->tm_min );
 
 	return strdup( buffer );
-
-} /* date_get_now_time_hhmm() */
+}
 
 char *date_get_now_hhmmss( int utc_offset )
 {
@@ -1437,8 +1461,7 @@ char *date_get_now_hhmmss( int utc_offset )
 			return_string /* source_destination */,
 			":" /* search_str */,
 			"" /* replace_str */ );
-
-} /* date_get_now_hhmmss() */
+}
 
 char *date_get_now_hhmm_colon_ss( int utc_offset )
 {
@@ -1466,23 +1489,21 @@ char *date_get_now_yyyy_mm_dd_hh_mm(
 	return date_display_yyyy_mm_dd_hh_mm( d );
 }
 
-char *date_get_yyyy_mm_dd_hh_mm_ss(
-				DATE *date_time )
+char *date_get_yyyy_mm_dd_hh_mm_ss( DATE *date_time )
 {
 	char buffer[ 32 ];
 
 	sprintf( 	buffer, 
 			"%d-%02d-%02d %02d:%02d:%02d",
-			date_get_year( date_time ),
-			date_get_month( date_time ),
-			date_get_day_of_month( date_time ),
-			date_get_hour( date_time ),
-			date_get_minutes( date_time ),
-			date_get_seconds( date_time ) );
+			date_year( date_time ),
+			date_month( date_time ),
+			date_day_of_month( date_time ),
+			date_hour( date_time ),
+			date_minutes( date_time ),
+			date_seconds( date_time ) );
 
 	return strdup( buffer );
-
-} /* date_get_yyyy_mm_dd_hh_mm_ss() */
+}
 
 char *date_get_now19( int utc_offset )
 {
@@ -1529,7 +1550,7 @@ char *date_get_now_hh_colon_mm( int utc_offset )
 
 	return strdup( buffer );
 
-} /* date_get_now_hh_colon_mm() */
+}
 
 char *date_get_now_hh_colon_mm_colon_ss( int utc_offset )
 {
@@ -1545,11 +1566,20 @@ char *date_get_now_hh_colon_mm_colon_ss( int utc_offset )
 			d->tm->tm_sec );
 
 	return strdup( buffer );
+}
 
-} /* date_get_now_hh_colon_mm_colon_ss() */
+/* Safely returns heap memory. */
+/* --------------------------- */
+char *date_time_now19( int utc_offset )
+{
+	DATE *d;
 
-/* Returns heap memory. */
-/* -------------------- */
+	d = date_now_new( utc_offset );
+	return date_get_yyyy_mm_dd_hh_mm_ss( d );
+}
+
+/* Safely returns heap memory. */
+/* --------------------------- */
 char *date_get_now_time_hhmm_colon_ss( int utc_offset )
 {
 	char buffer[ 128 ];
@@ -1564,8 +1594,7 @@ char *date_get_now_time_hhmm_colon_ss( int utc_offset )
 			d->tm->tm_sec );
 
 	return strdup( buffer );
-
-} /* date_get_now_time_hhmm_colon_ss() */
+}
 
 void date_set_tm_structures(	DATE *d,
 				time_t current,
@@ -1582,8 +1611,7 @@ void date_set_tm_structures(	DATE *d,
 	{
 		memcpy( d->tm, gmtime( &current ), sizeof( struct tm ) );
 	}
-
-} /* date_set_tm_structures() */
+}
 
 void date_set_tm_structures_pre_1970(	DATE *d,
 					time_t current,
@@ -1606,21 +1634,18 @@ void date_set_tm_structures_pre_1970(	DATE *d,
 
 	memcpy( d->tm, gmtime( &new_current ), sizeof( struct tm ) );
 	d->tm->tm_year -= 56;
-
-} /* date_set_tm_structures_pre_1970() */
+}
 
 time_t date_mktime(	struct tm *tm,
 			int utc_offset )
 {
 	time_t return_value;
 
-	/* tm->tm_isdst = 0; */
 	return_value = mktime( tm );
 	return_value += (SECONDS_IN_HOUR * utc_offset);
 
 	return return_value;
-
-} /* date_mktime() */
+}
 
 char *date_hhmm( DATE *d )
 {
@@ -1638,7 +1663,7 @@ char *date_get_hhmm_string( DATE *d )
 	char buffer[ 128 ];
 	sprintf( buffer, "%02d%02d", d->tm->tm_hour, d->tm->tm_min );
 	return strdup( buffer );
-} /* date_get_hhmm_string() */
+}
 
 DATE *date_new_yyyy_mm_dd_hhmm(	char *date_string,
 				char *time_string )
@@ -1665,8 +1690,7 @@ boolean date_is_day_of_week(	DATE *d,
 	
 	wday = d->tm->tm_wday;
 	return( wday == day_of_week );
-
-} /* date_is_day_of_week() */
+}
 
 boolean date_is_sunday( DATE *d )
 {
@@ -1712,8 +1736,7 @@ DATE *date_forward_to_first_month(	DATE *d,
 	date_increment_months( return_date, 1, utc_offset );
 
 	return return_date;
-
-} /* date_forward_to_first_month() */
+}
 
 DATE *date_back_to_first_month(		DATE *d,
 					int utc_offset )
@@ -1730,8 +1753,7 @@ DATE *date_back_to_first_month(		DATE *d,
 		current -= SECONDS_IN_DAY;
 	}
 	return date_current_new( current, utc_offset );
-
-} /* date_back_to_first_month() */
+}
 
 DATE *date_get_prior_day(	DATE *date,
 				int wday_parameter,
@@ -1756,8 +1778,7 @@ DATE *date_get_prior_day(	DATE *date,
 	}
 
 	return date_current_new( current, utc_offset );
-
-} /* date_get_prior_day() */
+}
 
 DATE *date_get_prior_saturday(	DATE *date,
 				int utc_offset )
@@ -1798,8 +1819,7 @@ DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,
 	date_set_time( date, hour, minutes );
 
 	return date;
-
-} /* date_yyyy_mm_dd_hhmm_new() */
+}
 
 boolean date_set_time_hhmm(	DATE *date,
 				char *hhmm )
@@ -1847,8 +1867,7 @@ boolean date_set_time_hhmm(	DATE *date,
 	date_set_time( date, hours, minutes );
 
 	return 1;
-
-} /* date_set_time_hhmm() */
+}
 
 void date_increment_hours(	DATE *d,
 				double hours )
@@ -1885,7 +1904,7 @@ int date_subtract_minutes( DATE *later_date, DATE *earlier_date )
 	difference = later_date->current - earlier_date->current;
 	results = (int)((double)difference / (double)SECONDS_IN_MINUTE);
 	return results;
-} /* date_subtract_minutes() */
+}
 
 int date_subtract_days( DATE *later_date, DATE *earlier_date )
 {
@@ -1895,7 +1914,7 @@ int date_subtract_days( DATE *later_date, DATE *earlier_date )
 	difference = later_date->current - earlier_date->current;
 	results = (int)((double)difference / (double)SECONDS_IN_DAY);
 	return results;
-} /* date_subtract_days() */
+}
 
 int date_get_month_day_number( DATE *date )
 {
@@ -1907,9 +1926,14 @@ int date_get_day( DATE *date )
 	return date_get_day_number( date );
 }
 
-int date_get_day_number( DATE *date )
+int date_day( DATE *date )
 {
 	return date->tm->tm_mday;
+}
+
+int date_get_day_number( DATE *date )
+{
+	return date_day( date );
 }
 
 int date_get_week_number( DATE *date )
@@ -1968,8 +1992,7 @@ void date_round2five_minutes( DATE *date )
 	}
 	
 	date_set_time( date, hour, minutes );
-
-} /* date_round2five_minutes() */
+}
 
 double date_yyyy_mm_dd_hhmm_to_julian( char *yyyy_mm_dd, char *hhmm )
 {
@@ -1996,12 +2019,12 @@ char *date_display_mdy( DATE *date )
 
 	sprintf( 	buffer, 
 			"%02d/%02d/%04d",
-			date_get_month( date ),
-			date_get_day_of_month( date ),
-			date_get_year( date ) );
+			date_month( date ),
+			date_day_of_month( date ),
+			date_year( date ) );
 
 	return strdup( buffer );
-} /* date_display_mdy() */
+}
 
 char *date_get_yyyy_mm_dd_hhmm( DATE *date )
 {
@@ -2014,15 +2037,14 @@ char *date_display_yyyy_mm_dd_hhmm( DATE *date )
 
 	sprintf( 	buffer, 
 			"%d-%02d-%02d:%02d%02d",
-			date_get_year( date ),
-			date_get_month( date ),
-			date_get_day_of_month( date ),
-			date_get_hour( date ),
-			date_get_minutes( date ) );
+			date_year( date ),
+			date_month( date ),
+			date_day_of_month( date ),
+			date_hour( date ),
+			date_minutes( date ) );
 
 	return strdup( buffer );
-
-} /* date_display_yyyy_mm_dd_hhmm() */
+}
 
 char *date_display_yyyy_mm_dd_hh_colon_mm( DATE *date )
 {
@@ -2030,22 +2052,36 @@ char *date_display_yyyy_mm_dd_hh_colon_mm( DATE *date )
 
 	sprintf( 	buffer, 
 			"%d-%02d-%02d %02d:%02d",
-			date_get_year( date ),
-			date_get_month( date ),
-			date_get_day_of_month( date ),
-			date_get_hour( date ),
-			date_get_minutes( date ) );
+			date_year( date ),
+			date_month( date ),
+			date_day_of_month( date ),
+			date_hour( date ),
+			date_minutes( date ) );
 
 	return strdup( buffer );
+}
 
-} /* date_display_yyyy_mm_dd_hh_colon_mm() */
+char *date_display_yyyy_mm_dd_hh_colon_mmss( DATE *date )
+{
+	char buffer[ 32 ];
+
+	sprintf( 	buffer, 
+			"%d-%02d-%02d %02d:%02d%02d",
+			date_year( date ),
+			date_month( date ),
+			date_day_of_month( date ),
+			date_hour( date ),
+			date_minutes( date ),
+			date_seconds( date ) );
+
+	return strdup( buffer );
+}
 
 void date_increment_weekly_ceiling(	DATE *date )
 {
 	while( date_get_day_of_week( date ) != DATE_END_OF_WEEK_INDICATOR )
 		date_increment_day( date );
-
-} /* date_increment_weekly_ceiling() */
+}
 
 boolean date_compare(		DATE *date1,
 				DATE *date2 )
@@ -2058,7 +2094,7 @@ boolean date_compare(		DATE *date1,
 	return ( strcmp(
 			date_get_yyyy_mm_dd( buffer1, date1 ),
 			date_get_yyyy_mm_dd( buffer2, date2 ) ) );
-} /* date_compare() */
+}
 
 boolean date_same_day(		DATE *old_date,
 				DATE *new_date )
@@ -2071,7 +2107,7 @@ boolean date_same_day(		DATE *old_date,
 	return ( strcmp(
 			date_get_yyyy_mm_dd( buffer1, old_date ),
 			date_get_yyyy_mm_dd( buffer2, new_date ) ) == 0 );
-} /* date_same_day() */
+}
 
 boolean date_tomorrow( 		DATE *old_date, 
 				DATE *new_date )
@@ -2092,7 +2128,7 @@ boolean date_tomorrow( 		DATE *old_date,
 			date_get_yyyy_mm_dd( buffer2, tomorrow_date ) ) == 0 );
 	date_free( tomorrow_date );
 	return return_value;
-} /* date_tomorrow() */
+}
 
 boolean date_year_in_future(	DATE *date,
 				int year )
@@ -2128,7 +2164,7 @@ char *date_current_to_static_yyyy_mm_dd_string(
 	strcpy( yyyy_mm_dd_string, date_static_display_yyyy_mm_dd( d ) );
 	date_free( d );
 	return yyyy_mm_dd_string;
-} /* date_current_to_static_yyyy_mm_dd_string() */
+}
 
 char *date_prior_day_of_week_yyyy_mm_dd_string(	DATE *d,
 						int day_of_week,
@@ -2150,8 +2186,7 @@ char *date_prior_day_of_week_yyyy_mm_dd_string(	DATE *d,
 	return date_current_to_static_yyyy_mm_dd_string(
 			current,
 			utc_offset );
-
-} /* date_prior_day_of_week_yyyy_mm_dd_string() */
+}
 
 char *date_get_unix_now_string(	void )
 {
@@ -2162,30 +2197,28 @@ char *date_get_unix_now_string(	void )
 		 '%', '%', '%' );
 
 	return pipe2string( sys_string );
-
-} /* date_get_unix_now_string() */
+}
 
 boolean date_is_greatgreatgrandfather( DATE *d )
 {
 	int month;
 	int day;
 
-	month = date_get_month( d );
+	month = date_month( d );
 	day = date_get_day( d );
 
 	if ( month == 1 && day == 1 )
 		return 1;
 	else
 		return 0;
-
-} /* date_is_greatgreatgrandfather() */
+}
 
 boolean date_is_greatgrandfather( DATE *d )
 {
 	int month;
 	int day;
 
-	month = date_get_month( d );
+	month = date_month( d );
 	day = date_get_day( d );
 
 	if ( month == 1 && day == 1 )
@@ -2201,8 +2234,7 @@ boolean date_is_greatgrandfather( DATE *d )
 		return 1;
 	else
 		return 0;
-
-} /* date_is_greatgrandfather() */
+}
 
 boolean date_is_grandfather( DATE *d )
 {
@@ -2214,14 +2246,12 @@ boolean date_is_grandfather( DATE *d )
 		return 1;
 	else
 		return 0;
-
-} /* date_is_grandfather() */
+}
 
 boolean date_is_father( DATE *d )
 {
 	return date_is_sunday( d );
-
-} /* date_is_father() */
+}
 
 char *date_get_colon_now_time( void )
 {
@@ -2229,8 +2259,7 @@ char *date_get_colon_now_time( void )
 
 	sys_string = "now.sh hhmmss | sed 's/\\([0-9][0-9]$\\)/:&/'";
 	return pipe2string( sys_string );
-
-} /* date_get_colon_now_time() */
+}
 
 void date_remove_colon_in_time( char *time_string )
 {
@@ -2246,8 +2275,7 @@ void date_remove_colon_in_time( char *time_string )
 	*(minute + 2) = '\0';
 
 	sprintf( time_string, "%s%s", hour, minute );
-
-} /* date_remove_colon_in_time() */
+}
 
 void date_place_colon_in_time( char *time_string )
 {
@@ -2264,8 +2292,7 @@ void date_place_colon_in_time( char *time_string )
 	*(minute + 2) = '\0';
 
 	sprintf( time_string, "%s:%s", hour, minute );
-
-} /* date_place_colon_in_time() */
+}
 
 char *date_append_hhmmss( char *date_string )
 {
@@ -2285,8 +2312,7 @@ char *date_append_hhmmss( char *date_string )
 
 	free( hhmmss );
 	return date_hhmmss;
-
-} /* date_append_hhmmss() */
+}
 
 char *date_remove_colon_from_time( char *time_string )
 {
@@ -2334,8 +2360,7 @@ char *date_remove_colon_from_time( char *time_string )
 	{
 		return (char *)0;
 	}
-
-} /* date_remove_colon_from_time() */
+}
 
 int date_get_week_of_year( DATE *date )
 {
@@ -2357,7 +2382,7 @@ int date_get_week_of_year( DATE *date )
 		exit( 1 );
 	}
 
-	year = date_get_year( date );
+	year = date_year( date );
 
 	january_1st = date_new( year, 1, 1 );
 
@@ -2407,8 +2432,7 @@ int date_get_week_of_year( DATE *date )
 	}
 
 	return week_of_year;
-
-} /* date_get_week_of_year() */
+}
 
 int date_get_last_month_day(	int month,
 				int year )
@@ -2437,8 +2461,7 @@ int date_get_last_month_day(	int month,
 	{
 		return 29;
 	}
-
-} /* date_get_last_month_day() */
+}
 
 int date_utc_offset( void )
 {
@@ -2455,8 +2478,7 @@ int date_utc_offset( void )
 		utc_offset_integer = DATE_DEFAULT_UTC_OFFSET;
 
 	return utc_offset_integer;
-
-} /* date_utc_offset() */
+}
 
 int date_get_utc_offset( void )
 {
@@ -2471,7 +2493,7 @@ char *date_get_environment( char *variable_name )
 		return datum;
 	else
 		return (char *)0;
-} /* date_get_environment() */
+}
 
 boolean date_name_to_value( char *variable_value, char *variable_name )
 {
@@ -2494,8 +2516,7 @@ boolean date_name_to_value( char *variable_value, char *variable_name )
 		*variable_value = '\0';
 		return 0;
 	}
-
-} /* date_name_to_value() */
+}
 
 int date_get_days_in_year( int year )
 {
@@ -2514,8 +2535,7 @@ void date_set_TZ( char *TZ )
 
 	sprintf( statement, "TZ=%s", TZ );
 	putenv( strdup( statement ) );
-
-} /* date_set_TZ() */
+}
 
 boolean date_parse_american_date_time(
 			char *date_international,
@@ -2567,15 +2587,14 @@ boolean date_parse_american_date_time(
 	}
 
 	return 1;
-
-} /* date_parse_american_date_time() */
+}
 
 boolean date_set_yyyy_mm_dd_hh_mm_ss_colon(
-				DATE *date,
-				/* ------------------- */
-				/* 2017-12-01 11:00:00 */
-				/* ------------------- */
-				char *date_time_string )
+			DATE *date,
+			/* ------------------- */
+			/* 2017-12-01 11:00:00 */
+			/* ------------------- */
+			char *date_time_string )
 {
 	char year_string[ 16 ];
 	char month_string[ 16 ];
@@ -2619,6 +2638,5 @@ boolean date_set_yyyy_mm_dd_hh_mm_ss_colon(
 				0 /* utc_offset */ );
 
 	return 1;
-
-} /* date_set_yyyy_mm_dd_hh_mm_ss_colon() */
+}
 

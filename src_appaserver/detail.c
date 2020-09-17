@@ -40,7 +40,7 @@
 
 /* Constants */
 /* --------- */
-#define SECURITY_ON		0
+#define SECURITY_ON		1
 
 /* See site_visit_device_addition -> site_visit */
 /*--------------------------------------------- */

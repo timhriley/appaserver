@@ -528,9 +528,7 @@ char *journal_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-/* Also does a propagate for each account */
-/* -------------------------------------- */
-void journal_delete(	char *full_name,
+LIST *journal_delete(	char *full_name,
 			char *street_address,
 			char *transaction_date_time )
 {
@@ -563,10 +561,7 @@ void journal_delete(	char *full_name,
 			transaction_date_time );
 
 	pclose( output_pipe );
-
-	journal_account_name_list_propagate(
-			transaction_date_time,
-			account_name_list );
+	return account_name_list;
 }
 
 LIST *journal_account_name_list(
@@ -763,7 +758,7 @@ JOURNAL *journal_account_name_getset(
 	return journal;
 }
 
-void journal_list_insert(
+LIST *journal_list_insert(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -775,7 +770,13 @@ void journal_list_insert(
 	double amount;
 	boolean is_debit;
 
-	if ( !list_rewind( journal_list ) ) return;
+	if ( !full_name
+	||   !street_address
+	||   !transaction_date_time
+	||   !list_rewind( journal_list ) )
+	{
+		return (LIST *)0;
+	}
 
 	account_name_list = list_new();
 	insert_pipe = journal_insert_open();
@@ -783,7 +784,7 @@ void journal_list_insert(
 	do {
 		journal = list_get( journal_list );
 
-		if ( !timlib_dollar_virtually_same(
+		if ( !dollar_virtually_same(
 			journal->debit_amount,
 			0.0 ) )
 		{
@@ -812,10 +813,7 @@ void journal_list_insert(
 	} while( list_next( journal_list ) );
 
 	pclose( insert_pipe );
-
-	journal_account_name_list_propagate(
-		transaction_date_time,
-		account_name_list );
+	return account_name_list;
 }
 
 char *journal_update_sys_string( void )

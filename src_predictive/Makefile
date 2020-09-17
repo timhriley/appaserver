@@ -152,7 +152,14 @@ SOURCE_LIBRARY= 							\
 		element.o						\
 		journal.o
 
-all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
+SPREADSHEET_LIBRARY= 							\
+		spreadsheet.o						\
+		spreadsheet_column.o					\
+		spreadsheet_upload_event.o				\
+		paypal.o						\
+		paypal_dataset.o
+
+all: 	${SPREADSHEET_LIBRARY} ${SOURCE_LIBRARY} ${EXECUTABLES}
 
 touch:
 	/usr/bin/touch *.c
@@ -886,4 +893,26 @@ investment_account.o: investment_account.c investment_account.h
 account_balance.o: account_balance.c account_balance.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c account_balance.c
+
+spreadsheet.o: spreadsheet.c spreadsheet.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c spreadsheet.c
+
+paypal.o: paypal.c paypal.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c paypal.c
+
+paypal_dataset.o: paypal_dataset.c paypal_dataset.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c paypal_dataset.c
+
+spreadsheet_column.o: spreadsheet_column.c spreadsheet_column.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c spreadsheet_column.c
+
+spreadsheet_upload_event.o:						\
+		spreadsheet_upload_event.c				\
+		spreadsheet_upload_event.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c spreadsheet_upload_event.c
 
