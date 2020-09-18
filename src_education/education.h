@@ -53,10 +53,7 @@ LIST *education_deposit_list(
 			int year,
 			char *spreadsheet_filename,
 			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASET *paypal_dataset,
-			LIST *semester_offering_list,
-			LIST *semester_registration_list,
-			char *fund_name );
+			PAYPAL_DATASET *paypal_dataset );
 
 DEPOSIT *education_deposit(
 			char *season_name,
@@ -74,6 +71,7 @@ LIST *education_payment_list(
 			char *season_name,
 			int year,
 			char *item_title_P,
+			double gross_revenue_H,
 			/* -------- */
 			/* Set only */
 			/* -------- */
@@ -83,6 +81,7 @@ PAYMENT *education_payment(
 			char *season_name,
 			int year,
 			char *item_title_P,
+			double gross_revenue_H,
 			int student_number,
 			/* -------- */
 			/* Set only */

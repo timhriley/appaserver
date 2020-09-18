@@ -45,8 +45,7 @@ LIST *paypal_upload_deposit_list(
 			char *spreadsheet_name,
 			char *spreadsheet_filename,
 			char *season_name,
-			int year,
-			char *fund_name );
+			int year );
 
 int main( int argc, char **argv )
 {
@@ -56,7 +55,6 @@ int main( int argc, char **argv )
 	char *season_name;
 	int year;
 	char *login_name;
-	char *fund_name;
 	char *spreadsheet_filename;
 	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -71,10 +69,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 9 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name spreadsheet_name season_name year login_name fund filename execute_yn\n",
+"Usage: %s process_name spreadsheet_name season_name year login_name filename execute_yn\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
@@ -85,9 +83,8 @@ int main( int argc, char **argv )
 	season_name = argv[ 3 ];
 	year = atoi( argv[ 4 ] );
 	login_name = argv[ 5 ];
-	fund_name = argv[ 6 ];
-	spreadsheet_filename = argv[ 7 ];
-	execute = (*argv[ 8 ] == 'y');
+	spreadsheet_filename = argv[ 6 ];
+	execute = (*argv[ 7 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -120,8 +117,7 @@ int main( int argc, char **argv )
 			spreadsheet_name,
 			spreadsheet_filename,
 			season_name,
-			year,
-			fund_name );
+			year );
 
 	if ( !maximum_date || !list_length( deposit_list ) )
 	{
@@ -173,8 +169,7 @@ LIST *paypal_upload_deposit_list(
 			char *spreadsheet_name,
 			char *spreadsheet_filename,
 			char *season_name,
-			int year,
-			char *fund_name )
+			int year )
 {
 	PAYPAL *paypal;
 	EDUCATION *education;
@@ -216,18 +211,12 @@ LIST *paypal_upload_deposit_list(
 		exit( 1 );
 	}
 
-	education->education_deposit_list =
-		education_deposit_list(
+	return education_deposit_list(
 			season_name,
 			year,
 			spreadsheet_filename,
 			paypal->spreadsheet,
-			paypal->paypal_dataset,
-			education->semester->semester_offering_list,
-			education->semester->semester_registration_list,
-			fund_name );
-
-	return education->education_deposit_list;
+			paypal->paypal_dataset );
 }
 
 void paypal_upload_display(

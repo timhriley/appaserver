@@ -99,10 +99,7 @@ LIST *education_deposit_list(
 			int year,
 			char *spreadsheet_filename,
 			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASET *paypal_dataset,
-			LIST *semester_offering_list,
-			LIST *semester_registration_list,
-			char *fund_name )
+			PAYPAL_DATASET *paypal_dataset )
 {
 	LIST *deposit_list = list_new();
 	DEPOSIT *deposit;
@@ -149,10 +146,6 @@ LIST *education_deposit_list(
 	}
 
 	fclose( spreadsheet_file );
-
-if ( semester_offering_list ){}
-if ( semester_registration_list ){}
-if ( fund_name ){}
 
 	return deposit_list;
 }
@@ -216,6 +209,7 @@ DEPOSIT *education_deposit(
 			season_name,
 			year,
 			paypal_dataset->item_title_P,
+			atof( paypal_dataset->gross_revenue_H ),
 			/* -------- */
 			/* Set only */
 			/* -------- */
@@ -228,6 +222,7 @@ LIST *education_payment_list(
 			char *season_name,
 			int year,
 			char *item_title_P,
+			double gross_revenue_H,
 			DEPOSIT *deposit )
 {
 	LIST *payment_list = list_new();
@@ -240,6 +235,7 @@ LIST *education_payment_list(
 				season_name,
 				year,
 				item_title_P,
+				gross_revenue_H,
 				student_number,
 				deposit ) );
 		student_number++ )
@@ -254,6 +250,7 @@ PAYMENT *education_payment(
 			char *season_name,
 			int year,
 			char *item_title_P,
+			double gross_revenue_H,
 			int student_number,
 			/* -------- */
 			/* Set only */
@@ -271,8 +268,12 @@ PAYMENT *education_payment(
 		return (PAYMENT *)0;
 	}
 
+	/* New payment */
+	/* ----------- */
 	payment = payment_calloc();
 
+	/* Build enrollment */
+	/* ---------------- */
 	payment->enrollment =
 		enrollment_new(
 			payment_item_title->
@@ -286,6 +287,45 @@ PAYMENT *education_payment(
 			season_name,
 			year );
 
+	/* Build offering */
+	/* -------------- */
+	payment->enrollment->offering =
+		offering_new(
+			payment_item_title->
+				payment_item_title_course_name,
+			season_name,
+			year );
+
+	/* Build course */
+	/* ------------ */
+	payment->enrollment->offering->course =
+		course_new(
+			payment_item_title->
+				payment_item_title_course_name );
+
+	/* Not sure of the best way to ensure accurate course_price */
+	/* -------------------------------------------------------- */
+	if ( student_number == 1 )
+	{
+		payment->enrollment->offering->course->course_price =
+			gross_revenue_H;
+	}
+
+	/* Build registration */
+	/* ------------------ */
+	payment->enrollment->registration =
+		registration_new(
+			payment_item_title->
+				payment_item_title_entity->
+				full_name,
+			payment_item_title->
+				payment_item_title_entity->
+				street_address,
+			season_name,
+			year );
+
+	/* Set deposit */
+	/* ----------- */
 	payment->deposit = deposit;
 
 	return payment;
