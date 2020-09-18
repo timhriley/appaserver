@@ -476,3 +476,38 @@ void registration_update(
 	pclose( update_pipe );
 }
 
+FILE *registration_insert_open( char *error_filename )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
+		"sql 2>&1						|"
+		"grep -vi duplicate					|"
+		"cat >%s 2>&1						 ",
+		REGISTRATION_TABLE,
+		REGISTRATION_INSERT_COLUMNS,
+		SQL_DELIMITER,
+		error_filename );
+
+	return popen( sys_string, "w" );
+}
+
+void registration_insert_pipe(
+			FILE *insert_pipe,
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year )
+{
+	fprintf(insert_pipe,
+		"%s^%s^%s^%d\n",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_full_name( student_full_name ),
+		street_address,
+		season_name,
+		year );
+}
+

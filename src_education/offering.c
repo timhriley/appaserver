@@ -425,3 +425,33 @@ ACCOUNT *offering_revenue_account( void )
 	return account;
 }
 
+FILE *offering_insert_open( char *error_filename )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
+		"sql 2>&1						|"
+		"grep -vi duplicate					|"
+		"cat >%s 2>&1						 ",
+		OFFERING_TABLE,
+		OFFERING_INSERT_COLUMNS,
+		SQL_DELIMITER,
+		error_filename );
+
+	return popen( sys_string, "w" );
+}
+
+void offering_insert_pipe(
+			FILE *insert_pipe,
+			char *course_name,
+			char *season_name,
+			int year )
+{
+	fprintf(insert_pipe,
+		"%s^%s^%d\n",
+		course_escape_name( course_name ),
+		season_name,
+		year );
+}
+

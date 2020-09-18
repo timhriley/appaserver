@@ -23,6 +23,11 @@
 					"season_name,"		\
 					"year"
 
+#define REGISTRATION_INSERT_COLUMNS	"full_name,"		\
+					"street_address,"	\
+					"season_name,"		\
+					"year"
+
 /* Structures */
 /* ---------- */
 typedef struct

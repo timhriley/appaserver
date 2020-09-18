@@ -88,12 +88,6 @@ EDUCATION *education_fetch(
 	return education;
 }
 
-void education_deposit_list_insert(
-			LIST *education_deposit_list )
-{
-if ( education_deposit_list ){}
-}
-
 LIST *education_deposit_list(
 			char *season_name,
 			int year,
@@ -342,6 +336,17 @@ if ( spreadsheet ){};
 	return paypal_dataset;
 }
 
+void education_deposit_list_insert(
+			LIST *education_deposit_list )
+{
+	education_deposit_insert( education_deposit_list );
+	education_payment_insert( education_deposit_list );
+	education_enrollment_insert( education_deposit_list );
+	education_registration_insert( education_deposit_list );
+	education_offering_insert( education_deposit_list );
+	education_course_insert( education_deposit_list );
+}
+
 void education_deposit_insert( LIST *deposit_list )
 {
 	deposit_list_insert( deposit_list );
@@ -350,5 +355,25 @@ void education_deposit_insert( LIST *deposit_list )
 void education_payment_insert( LIST *deposit_list )
 {
 	deposit_list_payment_insert( deposit_list );
+}
+
+void education_enrollment_insert( LIST *deposit_list )
+{
+	deposit_list_enrollment_insert( deposit_list );
+}
+
+void education_registration_insert( LIST *deposit_list )
+{
+	deposit_list_registration_insert( deposit_list );
+}
+
+void education_offering_insert( LIST *deposit_list )
+{
+	deposit_list_offering_insert( deposit_list );
+}
+
+void education_course_insert( LIST *deposit_list )
+{
+	deposit_list_course_insert( deposit_list );
 }
 

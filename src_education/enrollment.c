@@ -420,3 +420,40 @@ ENROLLMENT *enrollment_steady_state(
 	return enrollment;
 }
 
+FILE *enrollment_insert_open( char *error_filename )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
+		"sql 2>&1						|"
+		"grep -vi duplicate					|"
+		"cat >%s 2>&1						 ",
+		ENROLLMENT_TABLE,
+		ENROLLMENT_INSERT_COLUMNS,
+		SQL_DELIMITER,
+		error_filename );
+
+	return popen( sys_string, "w" );
+}
+
+void enrollment_insert_pipe(
+			FILE *insert_pipe,
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year )
+{
+	fprintf(insert_pipe,
+		"%s^%s^%s^%s^%d\n",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_full_name( student_full_name ),
+		street_address,
+		course_name,
+		season_name,
+		year );
+}
+

@@ -58,5 +58,16 @@ LIST *enrollment_payment_list(
 			char *season_name,
 			int year );
 
+FILE *enrollment_insert_open(
+			char *error_filename );
+
+void enrollment_insert_pipe(
+			FILE *insert_pipe,
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year );
+
 #endif
 

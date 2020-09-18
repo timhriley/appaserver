@@ -102,5 +102,23 @@ void payment_insert_pipe(
 			char *payor_street_address,
 			char *deposit_date_time );
 
+void payment_list_enrollment_insert(
+			LIST *payment_list );
+
+void payment_list_registration_insert(
+			LIST *deposit_payment_list );
+
+void payment_list_offering_insert(
+			LIST *deposit_payment_list );
+
+void payment_list_course_insert(
+			LIST *deposit_payment_list );
+
+void payment_list_student_insert(
+			LIST *deposit_payment_list );
+
+void payment_list_entity_insert(
+			LIST *deposit_payment_list );
+
 #endif
 

@@ -25,6 +25,11 @@ enum payroll_pay_period{	pay_period_not_set,
 
 /* Constants */
 /* --------- */
+#define ENTITY_TABLE		"entity"
+
+#define ENTITY_INSERT_COLUMNS	"full_name,"		\
+				"street_address"
+
 /* #define REFRESH_COMPLETELY	1 */
 
 #define TITLE_PASSAGE_RULE_SHIPPED_DATE "FOB_shipping"
@@ -121,6 +126,14 @@ char *entity_escape_name(
 /* --------------------------- */
 char *entity_street_address(
 			char *full_name );
+
+FILE *entity_insert_open(
+			char *error_filename );
+
+void entity_insert_pipe(
+			FILE *insert_pipe,
+			char *full_name,
+			char *street_address );
 
 #endif
 

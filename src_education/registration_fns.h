@@ -76,5 +76,15 @@ FILE *registration_update_open(
 double registration_tuition_total(
 			LIST *deposit_registration_list );
 
+FILE *registration_insert_open(
+			char *error_filename );
+
+void registration_insert_pipe(
+			FILE *insert_pipe,
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year );
+
 #endif
 

@@ -36,9 +36,6 @@ EDUCATION *education_new(
 			char *spreadsheet_name,
 			char *spreadsheet_filename );
 
-void education_deposit_list_insert(
-			LIST *deposit_list );
-
 EDUCATION *education_calloc(
 			void );
 
@@ -95,6 +92,27 @@ PAYPAL_DATASET *education_paypal_dataset(
 			/* Returns paypal_dataset */
 			/* ---------------------- */
 			PAYPAL_DATASET *paypal_dataset );
+
+void education_deposit_list_insert(
+			LIST *deposit_list );
+
+void education_deposit_insert(
+			LIST *deposit_list );
+
+void education_payment_insert(
+			LIST *deposit_list );
+
+void education_enrollment_insert(
+			LIST *deposit_list );
+
+void education_registration_insert(
+			LIST *deposit_list );
+
+void education_offering_insert(
+			LIST *deposit_list );
+
+void education_course_insert(
+			LIST *deposit_list );
 
 #endif
 

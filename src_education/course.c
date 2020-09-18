@@ -101,9 +101,52 @@ char *course_primary_where( char *course_name )
 	return where;
 }
 
+char *course_escape_name( char *course_name )
+{
+	return course_name_escape( course_name );
+}
+
 char *course_name_escape( char *course_name )
 {
 	static char name[ 256 ];
 
 	return string_escape_quote( name, course_name );
 }
+
+FILE *course_insert_open( char *error_filename )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
+		"sql 2>&1						|"
+		"grep -vi duplicate					|"
+		"cat >%s 2>&1						 ",
+		COURSE_TABLE,
+		COURSE_INSERT_COLUMNS,
+		SQL_DELIMITER,
+		error_filename );
+
+	return popen( sys_string, "w" );
+}
+
+void course_insert_pipe(
+			FILE *insert_pipe,
+			char *course_name,
+			double course_price )
+{
+	if ( course_price )
+	{
+		fprintf(insert_pipe,
+			"%s^%.2lf\n",
+			course_name,
+			course_price );
+	}
+	else
+	{
+		fprintf(insert_pipe,
+			"%s^\n",
+			course_name );
+	}
+}
+

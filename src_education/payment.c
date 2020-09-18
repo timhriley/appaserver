@@ -25,8 +25,10 @@
 #include "offering.h"
 #include "offering_fns.h"
 #include "enrollment.h"
+#include "enrollment_fns.h"
 #include "semester.h"
 #include "account.h"
+#include "student.h"
 #include "deposit.h"
 
 PAYMENT *payment_calloc( void )
@@ -832,5 +834,327 @@ void payment_insert_pipe(
 			char *payor_street_address,
 			char *deposit_date_time )
 {
+	fprintf(insert_pipe,
+		"%s^%s^%s^%s^%d^%s^%s^%s\n",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		registration_escape_full_name( student_full_name ),
+		street_address,
+		course_name,
+		season_name,
+		year,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_full_name( payor_full_name ),
+		payor_street_address,
+		deposit_date_time );
+}
+
+void payment_list_enrollment_insert( LIST *payment_list )
+{
+	PAYMENT *payment;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( payment_list ) ) return;
+
+	insert_pipe =
+		enrollment_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		payment = list_get( payment_list );
+
+		enrollment_insert_pipe(
+			insert_pipe,
+			payment->enrollment->registration->student_full_name,
+			payment->enrollment->registration->street_address,
+			payment->enrollment->offering->course->course_name,
+			payment->enrollment->offering->season_name,
+			payment->enrollment->offering->year );
+
+	} while ( list_next( payment_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Enrollment Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+
+void payment_list_registration_insert(
+			LIST *payment_list )
+{
+	PAYMENT *payment;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( payment_list ) ) return;
+
+	insert_pipe =
+		registration_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		payment = list_get( payment_list );
+
+		registration_insert_pipe(
+			insert_pipe,
+			payment->enrollment->registration->student_full_name,
+			payment->enrollment->registration->street_address,
+			payment->enrollment->offering->season_name,
+			payment->enrollment->offering->year );
+
+	} while ( list_next( payment_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Registration Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+
+void payment_list_offering_insert(
+			LIST *payment_list )
+{
+	PAYMENT *payment;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( payment_list ) ) return;
+
+	insert_pipe =
+		offering_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		payment = list_get( payment_list );
+
+		offering_insert_pipe(
+			insert_pipe,
+			payment->enrollment->offering->course->course_name,
+			payment->enrollment->offering->season_name,
+			payment->enrollment->offering->year );
+
+	} while ( list_next( payment_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Offering Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+
+void payment_list_course_insert(
+			LIST *payment_list )
+{
+	PAYMENT *payment;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( payment_list ) ) return;
+
+	insert_pipe =
+		course_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		payment = list_get( payment_list );
+
+		course_insert_pipe(
+			insert_pipe,
+			payment->enrollment->offering->course->course_name,
+			payment->enrollment->offering->course->course_price );
+
+	} while ( list_next( payment_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Course Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+
+void payment_list_student_insert(
+			LIST *payment_list )
+{
+	PAYMENT *payment;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( payment_list ) ) return;
+
+	insert_pipe =
+		student_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		payment = list_get( payment_list );
+
+		student_insert_pipe(
+			insert_pipe,
+			payment->enrollment->registration->student_full_name,
+			payment->enrollment->registration->street_address );
+
+	} while ( list_next( payment_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Student Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+
+void payment_list_student_entity_insert(
+			LIST *payment_list )
+{
+	PAYMENT *payment;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( payment_list ) ) return;
+
+	insert_pipe =
+		entity_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		payment = list_get( payment_list );
+
+		entity_insert_pipe(
+			insert_pipe,
+			payment->enrollment->registration->student_full_name,
+			payment->enrollment->registration->street_address );
+
+	} while ( list_next( payment_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Entity Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+
+void payment_list_payor_entity_insert(
+			LIST *payment_list )
+{
+	PAYMENT *payment;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( payment_list ) ) return;
+
+	insert_pipe =
+		entity_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		payment = list_get( payment_list );
+
+		entity_insert_pipe(
+			insert_pipe,
+			payment->deposit->payor_entity->full_name,
+			payment->deposit->payor_entity->street_address );
+
+	} while ( list_next( payment_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Entity Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
 }
 

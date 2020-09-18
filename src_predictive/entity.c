@@ -375,3 +375,32 @@ char *entity_street_address(
 	return pipe2string( sys_string );
 }
 
+FILE *entity_insert_open(
+			char *error_filename )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
+		"sql 2>&1						|"
+		"grep -vi duplicate					|"
+		"cat >%s 2>&1						 ",
+		ENTITY_TABLE,
+		ENTITY_INSERT_COLUMNS,
+		SQL_DELIMITER,
+		error_filename );
+
+	return popen( sys_string, "w" );
+}
+
+void entity_insert_pipe(
+			FILE *insert_pipe,
+			char *full_name,
+			char *street_address )
+{
+	fprintf(insert_pipe,
+		"%s^%s\n",
+		entity_escape_name( full_name ),
+		street_address );
+}
+

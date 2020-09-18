@@ -22,6 +22,10 @@
 
 #define OFFERING_TABLE		"offering"
 
+#define OFFERING_INSERT_COLUMNS	"course_name,"		\
+				"season_name,"		\
+				"year"
+
 /* Structures */
 /* ---------- */
 typedef struct
@@ -92,6 +96,15 @@ OFFERING *offering_steady_state(
 			/* Don't take anything from here */
 			/* ----------------------------- */
 			OFFERING *offering );
+
+FILE *offering_insert_open(
+			char *error_filename );
+
+void offering_insert_pipe(
+			FILE *insert_pipe,
+			char *course_name,
+			char *season_name,
+			int year );
 
 #endif
 

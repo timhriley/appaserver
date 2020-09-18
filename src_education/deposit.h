@@ -202,5 +202,26 @@ void deposit_insert_pipe(
 void deposit_list_payment_insert(
 			LIST *deposit_list );
 
+void deposit_list_enrollment_insert(
+			LIST *deposit_list );
+
+void deposit_list_registration_insert(
+			LIST *deposit_list );
+
+void deposit_list_offering_insert(
+			LIST *deposit_list );
+
+void deposit_list_course_insert(
+			LIST *deposit_list );
+
+void deposit_list_student_insert(
+			LIST *deposit_list );
+
+void deposit_list_student_entity_insert(
+			LIST *deposit_list );
+
+void deposit_list_payor_entity_insert(
+			LIST *deposit_list );
+
 #endif
 
