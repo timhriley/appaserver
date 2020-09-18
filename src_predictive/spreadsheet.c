@@ -87,6 +87,8 @@ char *spreadsheet_primary_where(
 	return strdup( where );
 }
 
+/* Returns heap memory or null */
+/* --------------------------- */
 char *spreadsheet_minimum_date(
 			char **maximum_date,
 			char *spreadsheet_filename )

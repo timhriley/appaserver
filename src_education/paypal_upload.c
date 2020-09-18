@@ -15,9 +15,11 @@
 #include "appaserver_parameter_file.h"
 #include "document.h"
 #include "timlib.h"
+#include "date.h"
 #include "process.h"
 #include "environ.h"
 #include "list.h"
+#include "payment.h"
 #include "paypal.h"
 #include "deposit.h"
 #include "education.h"
@@ -27,26 +29,23 @@
 
 /* Prototypes */
 /* ---------- */
+void paypal_upload_event_insert(
+			char *login_name,
+			char *maximum_date );
 
 void paypal_upload_display(
-			char *spreadsheet_filename,
+			LIST *education_deposit_list,
 			char *season_name,
-			int year,
-			LIST *education_deposit_list );
+			int year );
 
-void paypal_upload_execute(
+/* Returns education_deposit_list() */
+/* -------------------------------- */
+LIST *paypal_upload_deposit_list(
+			char **maximum_date,
+			char *spreadsheet_name,
 			char *spreadsheet_filename,
 			char *season_name,
-			int year,
-			LIST *education_deposit_list );
-
-PAYPAL *paypal_upload(	char *spreadsheet_name,
-			char *spreadsheet_filename,
-			char *season_name,
-			int year,
-			char *login_name,
-			char *fund_name,
-			char *date_heading );
+			int year );
 
 int main( int argc, char **argv )
 {
@@ -56,13 +55,12 @@ int main( int argc, char **argv )
 	char *season_name;
 	int year;
 	char *login_name;
-	char *fund_name;
 	char *spreadsheet_filename;
-	char *date_heading = {0};
 	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 128 ];
-	EDUCATION *education;
+	char *maximum_date = {0};
+	LIST *deposit_list;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -71,10 +69,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 9 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name spreadsheet_name season_name year login_name fund filename execute_yn [date_heading]\n",
+"Usage: %s process_name spreadsheet_name season_name year login_name filename execute_yn\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
@@ -85,14 +83,8 @@ int main( int argc, char **argv )
 	season_name = argv[ 3 ];
 	year = atoi( argv[ 4 ] );
 	login_name = argv[ 5 ];
-	fund_name = argv[ 6 ];
-	spreadsheet_filename = argv[ 7 ];
-	execute = (*argv[ 8 ] == 'y');
-
-	if ( argc == 10 )
-	{
-		date_heading = argv[ 9 ];
-	}
+	spreadsheet_filename = argv[ 6 ];
+	execute = (*argv[ 7 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -101,12 +93,12 @@ int main( int argc, char **argv )
 		appaserver_parameter_file->
 			appaserver_mount_point );
 
-	printf( "<h1>%s\n",
+	printf( "<h1>%s</h1><h2>",
 		format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
-	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
-	printf( "</h1>\n" );
+	if ( system( timlib_system_date_string() ) ){}
 	fflush( stdout );
+	printf( "</h2>\n" );
 
 	if (	!*spreadsheet_filename
 	||	strcmp( spreadsheet_filename, "filename" ) == 0 )
@@ -116,141 +108,132 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( ! ( education =
-			education_fetch(
-				season_name,
-				year,
-				spreadsheet_name,
-				spreadsheet_filename ) ) )
-	{
-		printf(
-		"<h3>An internal error occurred. Please check log.</h3>\n" );
-
-		document_close();
-		exit( 1 );
-	}
-
-	education->deposit_list =
+	deposit_list =
+		/* -------------------------------- */
+		/* Returns education_deposit_list() */
+		/* -------------------------------- */
 		paypal_upload_deposit_list(
+			&maximum_date,
 			spreadsheet_name,
 			spreadsheet_filename,
 			season_name,
-			year,
-			login_name,
-			fund_name,
-			date_heading );
+			year );
 
-	if ( !list_length( deposit_list ) )
+	if ( !maximum_date || !list_length( deposit_list ) )
 	{
-		printf( "<h3>Load aborted.</h3>\n" );
+		printf( "<h3>Invalid spreadsheet.</h3>\n" );
 	}
 	else
 	if ( execute )
 	{
-		process_increment_execution_count(
-			application_name,
-			process_name,
-			appaserver_parameter_file_get_dbms() );
+		paypal_upload_display(
+			deposit_list,
+			season_name,
+			year );
 
-		printf(
-	"<p>Process complete as of %s with %d deposits.\n",
-			paypal->spreadsheet->maximum_date,
-			paypal->spreadsheet->load_count );
+		education_deposit_list_insert( deposit_list );
+
+		paypal_upload_event_insert(
+			login_name,
+			maximum_date );
+
+			printf(
+		"<p>Process complete as of %s with %d spreadsheet rows.\n",
+				maximum_date,
+				list_length( deposit_list ) );
+
+		process_execution_count_increment(
+			process_name );
+
 	}
 	else
 	{
-		printf(
-		"<p>Process did not load %d deposits.\n",
-			paypal->spreadsheet->load_count );
+		paypal_upload_display(
+			deposit_list,
+			season_name,
+			year );
+
+			printf(
+		"<p>Process did not load %d spreadsheet rows as of %s.\n",
+				list_length( 
+					deposit_list ),
+				maximum_date );
 	}
 
 	document_close();
 	return 0;
 }
 
-PAYPAL *paypall_upload(
+LIST *paypal_upload_deposit_list(
+			char **maximum_date,
 			char *spreadsheet_name,
 			char *spreadsheet_filename,
 			char *season_name,
-			int year,
-			char *login_name,
-			char *fund_name,
-			char *date_heading,
-			boolean execute )
+			int year )
 {
 	PAYPAL *paypal;
+	EDUCATION *education;
+	char *minimum_date;
+
+	if ( ! ( minimum_date =
+			spreadsheet_minimum_date(
+				maximum_date,
+				spreadsheet_filename ) ) )
+	{
+		return (LIST *)0;
+	}
 
 	if ( ! ( paypal =
 			paypal_fetch(
 				spreadsheet_name,
 				spreadsheet_filename ) ) )
 	{
-		return (PAYPAL *)0;
+		return (LIST *)0;
 	}
-
-	if ( execute )
-	{
-		return paypal_upload_execute(
-				spreadsheet_filename,
-				season_name,
-				year,
-				/* Don't take anything from here */
-				/* ----------------------------- */
-				paypal );
-
-	}
-	else
-	{
-		return paypal_upload_display(
-				spreadsheet_filename,
-				season_name,
-				year,
-				/* Don't take anything from here */
-				/* ----------------------------- */
-				paypal );
-	}
-
-	return paypal;
-}
-
-/* Returns deposit_list */
-/* -------------------- */
-LIST *paypal_upload_execute(
-			char *spreadsheet_filename,
-			char *season_name,
-			int year,
-			PAYPAL *paypal )
-{
-	EDUCATION *education;
-	LIST *deposit_list;
-	char input[ 65536 ];
 
 	if ( ! ( education =
 			education_fetch(
 				season_name,
-				year ) ) )
+				year,
+				spreadsheet_name,
+				spreadsheet_filename ) ) )
 	{
 		return (LIST *)0;
 	}
 
-	education->deposit_list =
-		paypal_deposit_list(
-			spreadsheet_file,
+	if ( !education->semester )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: emnpty semester.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return education_deposit_list(
+			season_name,
+			year,
+			spreadsheet_filename,
 			paypal->spreadsheet,
-			paypal->paypal_datasheet,
-			education->semester_offering_list,
-			education->semester_registration_list );
-
-	fclose( spreadsheet_file );
-
-	return education->deposit_list;
+			paypal->paypal_dataset );
 }
 
-PAYPAL *paypal_upload_display(
-			char *spreadsheet_filename,
+void paypal_upload_display(
+			LIST *education_deposit_list,
 			char *season_name,
-			int year,
-			PAYPAL *paypal )
+			int year )
 {
+if ( education_deposit_list ){}
+if ( season_name ){}
+if ( year ){}
+}
+
+void paypal_upload_event_insert(
+			char *login_name,
+			char *maximum_date )
+{
+if ( login_name ){}
+if ( maximum_date ){}
 }
 

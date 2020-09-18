@@ -23,6 +23,8 @@
 #include "payment.h"
 #include "deposit.h"
 #include "spreadsheet.h"
+#include "paypal_dataset.h"
+#include "payment_item_title.h"
 #include "education.h"
 
 EDUCATION *education_calloc( void )
@@ -97,13 +99,11 @@ LIST *education_deposit_list(
 			int year,
 			char *spreadsheet_filename,
 			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASET *paypal_dataset,
-			LIST *semester_offering_list,
-			LIST *semester_registration_list )
+			PAYPAL_DATASET *paypal_dataset )
 {
 	LIST *deposit_list = list_new();
 	DEPOSIT *deposit;
-	char input[ 65536 ];
+	char input_string[ 65536 ];
 	FILE *spreadsheet_file;
 	/* ------------------------------------------ */
 	/* Don't want to loose paypal_dataset pointer */
@@ -122,14 +122,14 @@ LIST *education_deposit_list(
 		return (LIST *)0;
 	}
 
-	while ( string_input( input, spreadsheet_file, 65536 ) )
+	while ( string_input( input_string, spreadsheet_file, 65536 ) )
 	{
 		if ( ( dataset_return =
 				/* ---------------------- */
 				/* Returns paypal_dataset */
 				/* ---------------------- */
 				education_paypal_dataset(
-					input,
+					input_string,
 					spreadsheet,
 					paypal_dataset ) ) )
 		{
@@ -138,23 +138,22 @@ LIST *education_deposit_list(
 					season_name,
 					year,
 					dataset_return
-						/* paypal_dataset */,
-					semester_offering_list,
-					semester_registration_list ) ) )
-		{
-			list_set( deposit_list, deposit );
+						/* paypal_dataset */ ) ) )
+			{
+				list_set( deposit_list, deposit );
+			}
 		}
 	}
+
 	fclose( spreadsheet_file );
+
 	return deposit_list;
 }
 
 DEPOSIT *education_deposit(
 			char *season_name,
 			int year,
-			PAYPAL_DATASET *paypal_dataset,
-			LIST *semester_offering_list,
-			LIST *semester_registration_list )
+			PAYPAL_DATASET *paypal_dataset )
 {
 	DEPOSIT *deposit;
 	char *payor_street_address;
@@ -186,7 +185,7 @@ DEPOSIT *education_deposit(
 		deposit->payor_entity =
 			entity_new(
 				paypal_dataset->full_name_D,
-				EDUCATION_DEFAULT_STREET_ADDRESS );
+				ENTITY_STREET_ADDRESS_UNKNOWN );
 	}
 
 	sprintf(deposit_date_time,
@@ -209,11 +208,8 @@ DEPOSIT *education_deposit(
 		education_payment_list(
 			season_name,
 			year,
-			input,
-			/* ------------ */
-			/* Stamp couple */
-			/* ------------ */
-			paypal_dataset,
+			paypal_dataset->item_title_P,
+			atof( paypal_dataset->gross_revenue_H ),
 			/* -------- */
 			/* Set only */
 			/* -------- */
@@ -223,10 +219,10 @@ DEPOSIT *education_deposit(
 }
 
 LIST *education_payment_list(
+			char *season_name,
+			int year,
 			char *item_title_P,
-			/* -------- */
-			/* Set only */
-			/* -------- */
+			double gross_revenue_H,
 			DEPOSIT *deposit )
 {
 	LIST *payment_list = list_new();
@@ -238,7 +234,9 @@ LIST *education_payment_list(
 			education_payment(
 				season_name,
 				year,
-				paypal_dataset->item_title_P,
+				item_title_P,
+				gross_revenue_H,
+				student_number,
 				deposit ) );
 		student_number++ )
 	{
@@ -249,7 +247,10 @@ LIST *education_payment_list(
 }
 
 PAYMENT *education_payment(
+			char *season_name,
+			int year,
 			char *item_title_P,
+			double gross_revenue_H,
 			int student_number,
 			/* -------- */
 			/* Set only */
@@ -257,14 +258,87 @@ PAYMENT *education_payment(
 			DEPOSIT *deposit )
 {
 	PAYMENT *payment;
-	PAYMENT_ITEM_TITLE *item_title;
+	PAYMENT_ITEM_TITLE *payment_item_title;
+
+	if ( ! ( payment_item_title =
+			payment_item_title_new(
+				item_title_P,
+				student_number ) ) )
+	{
+		return (PAYMENT *)0;
+	}
+
+	/* New payment */
+	/* ----------- */
+	payment = payment_calloc();
+
+	/* Build enrollment */
+	/* ---------------- */
+	payment->enrollment =
+		enrollment_new(
+			payment_item_title->
+				payment_item_title_entity->
+				full_name,
+			payment_item_title->
+				payment_item_title_entity->
+				street_address,
+			payment_item_title->
+				payment_item_title_course_name,
+			season_name,
+			year );
+
+	/* Build offering */
+	/* -------------- */
+	payment->enrollment->offering =
+		offering_new(
+			payment_item_title->
+				payment_item_title_course_name,
+			season_name,
+			year );
+
+	/* Build course */
+	/* ------------ */
+	payment->enrollment->offering->course =
+		course_new(
+			payment_item_title->
+				payment_item_title_course_name );
+
+	/* Not sure of the best way to ensure accurate course_price */
+	/* -------------------------------------------------------- */
+	if ( student_number == 1 )
+	{
+		payment->enrollment->offering->course->course_price =
+			gross_revenue_H;
+	}
+
+	/* Build registration */
+	/* ------------------ */
+	payment->enrollment->registration =
+		registration_new(
+			payment_item_title->
+				payment_item_title_entity->
+				full_name,
+			payment_item_title->
+				payment_item_title_entity->
+				street_address,
+			season_name,
+			year );
+
+	/* Set deposit */
+	/* ----------- */
+	payment->deposit = deposit;
+
+	return payment;
 }
 
 PAYPAL_DATASET *education_paypal_dataset(
-			char *input,
+			char *input_string,
 			SPREADSHEET *spreadsheet,
 			PAYPAL_DATASET *paypal_dataset )
 {
-	return *paypal_dataset;
+if ( input_string ){};
+if ( spreadsheet ){};
+
+	return paypal_dataset;
 }
 

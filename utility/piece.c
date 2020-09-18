@@ -1,4 +1,4 @@
-/* utility/piece.c 					*/
+/* $APPASERVER_HOME/utility/piece.c			*/
 /* ---------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------	*/
@@ -27,7 +27,7 @@ int main( int argc, char **argv )
 
 	delimiter = *argv[ 1 ];
 
-	while( get_line( buffer, stdin ) )
+	while( timlib_get_line( buffer, stdin, 65536 ) )
 	{
 		line_number++;
 
@@ -71,7 +71,6 @@ int main( int argc, char **argv )
 		printf( "\n" );
 		fflush( stdout );
 	}
-
 	return 0;
-} /* main() */
+}
 

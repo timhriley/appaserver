@@ -1015,34 +1015,36 @@ void process_replace_parameter_variables(
 
 } /* process_replace_parameter_variables() */
 
-void process_increment_execution_count(
-				char *application_name,
-				char *process_name,
-				char *database_management_system )
+void process_execution_count_increment(
+			char *process_name )
 {
 	char sys_string[ 1024 ];
-	char *table_name;
-
-/* stub */
-/* ---- */
-database_management_system = (char *)0;
 
 	if ( !process_name || !*process_name ) return;
-
-	table_name = get_table_name( application_name, "process" );
 
 	sprintf(sys_string,
 		"echo \"update %s					 "
 		"	set execution_count =				 "
 		"		if(execution_count,execution_count+1,1)	 "
 		"	where process = '%s';\"				|"
-		"sql.e							 ",
-		table_name,
+		"sql							 ",
+		"process",
 		process_name );
 
-	if ( system( sys_string ) ){};
+	if ( system( sys_string ) ){}
+}
 
-} /* process_increment_execution_count() */
+void process_increment_execution_count(
+			char *application_name,
+			char *process_name,
+			char *database_management_system )
+{
+if ( application_name ){}
+if ( database_management_system ){}
+
+	process_execution_count_increment( process_name );
+
+}
 
 boolean process_exists_appaserver_process(
 					char *application_name,
