@@ -113,7 +113,7 @@ int main( int argc, char **argv )
 	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( timlib_system_date_string() ) ){};
 	fflush( stdout );
 	printf( "</h2>\n" );
 	fflush( stdout );
@@ -175,8 +175,7 @@ void get_title_and_sub_title(	char *title,
 	format_initial_capital( title, process_name );
 
 	*sub_title = '\0';
-
-} /* get_title_and_sub_title() */
+}
 
 boolean upload_field_sheet(
 				char *application_name,
@@ -212,14 +211,14 @@ boolean upload_field_sheet(
 		 DESTINATION_DIRECTORY,
 		 field_sheet_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	sprintf( sys_string,
 		 "chmod g+w %s/%s",
 		 DESTINATION_DIRECTORY,
 		 field_sheet_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	list_rewind( quad_sheet_list );
 	list_rewind( site_number_list );
@@ -242,8 +241,7 @@ boolean upload_field_sheet(
 	} while( list_next( quad_sheet_list ) );
 
 	return 1;
-
-} /* upload_field_sheet() */
+}
 
 void update_site_visit(		char *application_name,
 				char *quad_sheet,
@@ -273,7 +271,6 @@ void update_site_visit(		char *application_name,
 		 table_name,
 		 key_field_list );
 
-	system( sys_string );
-
-} /* update_site_visit() */
+	if ( system( sys_string ) ){};
+}
 
