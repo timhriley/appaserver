@@ -37,7 +37,7 @@ EDUCATION *education_new(
 			char *spreadsheet_filename );
 
 void education_deposit_list_insert(
-			LIST *education_deposit_list );
+			LIST *deposit_list );
 
 EDUCATION *education_calloc(
 			void );

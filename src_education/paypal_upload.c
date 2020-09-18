@@ -124,13 +124,15 @@ int main( int argc, char **argv )
 		printf( "<h3>Invalid spreadsheet.</h3>\n" );
 	}
 	else
-	if ( execute )
 	{
 		paypal_upload_display(
 			deposit_list,
 			season_name,
 			year );
+	}
 
+	if ( execute )
+	{
 		education_deposit_list_insert( deposit_list );
 
 		paypal_upload_event_insert(
@@ -148,11 +150,6 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		paypal_upload_display(
-			deposit_list,
-			season_name,
-			year );
-
 			printf(
 		"<p>Process did not load %d spreadsheet rows as of %s.\n",
 				list_length( 

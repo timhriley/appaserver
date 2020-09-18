@@ -11,6 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 
+/* ---------- */
 /* Prototypes */
 /* ---------- */
 
@@ -83,6 +84,23 @@ double payment_cash_debit_amount(
 			double payment_amount,
 			double payment_gain_donation,
 			double payment_fees_expense );
+
+void payment_list_insert(
+			LIST *payment_list );
+
+FILE *payment_insert_open(
+			char *error_filename );
+
+void payment_insert_pipe(
+			FILE *insert_pipe,
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time );
 
 #endif
 

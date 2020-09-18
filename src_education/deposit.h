@@ -26,6 +26,18 @@
 				"year,"				\
 				"deposit_date_time"
 
+#define DEPOSIT_INSERT_COLUMNS	"payor_full_name,"		\
+				"payor_street_address,"		\
+				"season_name,"			\
+				"year,"				\
+				"deposit_date_time,"		\
+				"deposit_amount,"		\
+				"transaction_fee,"		\
+				"net_revenue,"			\
+				"account_balance,"		\
+				"transaction_ID,"		\
+				"invoice_number"
+
 /* Structures */
 /* ---------- */
 typedef struct
@@ -132,41 +144,6 @@ DEPOSIT *deposit_parse( char *input,
 char *deposit_sys_string(
 			char *where );
 
-void deposit_insert_pipe(
-			FILE *insert_pipe,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			double deposit_amount,
-			double transaction_fee,
-			double net_revenue,
-			double account_balance,
-			int check_number,
-			char *transaction_ID,
-			char *invoice_number,
-			double payment_total,
-			double gain_donation );
-
-void deposit_insert(	char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			double deposit_amount,
-			double transaction_fee,
-			double net_revenue,
-			double account_balance,
-			int check_number,
-			char *transaction_ID,
-			char *invoice_number,
-			double payment_total,
-			double gain_donation );
-
-FILE *deposit_insert_open(
-			void );
-
 double deposit_payment_total(
 			LIST *deposit_payment_list );
 
@@ -200,6 +177,30 @@ double deposit_invoice_amount_due(
 double deposit_gain_donation(
 			double deposit_amount,
 			double deposit_payment_total );
+
+void deposit_list_insert(
+			LIST *deposit_list );
+
+FILE *deposit_insert_open(
+			char *error_filename );
+
+void deposit_insert_pipe(
+			FILE *insert_pipe,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			double deposit_amount,
+			double transaction_fee,
+			double net_revenue,
+			double account_balance,
+			int check_number,
+			char *transaction_ID,
+			char *invoice_number );
+
+void deposit_list_payment_insert(
+			LIST *deposit_list );
 
 #endif
 

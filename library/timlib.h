@@ -17,7 +17,6 @@
 
 /* Constants */
 /* --------- */
-/* #define NUMBER_BINARY_DIGITS	16 */
 #define NUMBER_BINARY_DIGITS	32
 #define NULL_STRING		"null"
 #define FORBIDDEN_NULL		"NULL"
@@ -640,24 +639,31 @@ char *search_replace_strict_case_string(
 				char *source_destination );
 
 char *timlib_trim_trailing_character(
-				char *source_destination,
-				char character );
+			char *source_destination,
+			char character );
 
-char *timlib_rtrim(		char *buffer );
+char *timlib_rtrim(	char *buffer );
 
-char *timlib_system_date_string( void );
+char *timlib_system_date_string(
+			void );
 
-void timlib_remove_file(	char *filename );
+void timlib_remove_file(char *filename );
 
-char *timlib_trim_character(	char *source_destination,
-				char *string_of_chars );
+char *timlib_trim_character(
+			char *source_destination,
+			char *string_of_chars );
 
 char *timlib_remove_thousands_separator(
-				char *destination,
-				char *source );
+			char *destination,
+			char *source );
 
-boolean timlib_is_number(	char *string );
+boolean timlib_is_number(
+			char *string );
 
-char *timlib_sha256sum(		char *input_filename );
+char *timlib_sha256sum(	char *input_filename );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *timlib_tmpfile(	void );
 
 #endif

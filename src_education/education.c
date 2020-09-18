@@ -342,3 +342,13 @@ if ( spreadsheet ){};
 	return paypal_dataset;
 }
 
+void education_deposit_insert( LIST *deposit_list )
+{
+	deposit_list_insert( deposit_list );
+}
+
+void education_payment_insert( LIST *deposit_list )
+{
+	deposit_list_payment_insert( deposit_list );
+}
+

@@ -324,114 +324,6 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 	return deposit;
 }
 
-FILE *deposit_insert_open( void )
-{
-	char sys_string[ 1024 ];
-	char *field;
-
-	field=
-		"payor_full_name,"
-		"payor_street_address,"
-		"season_name,"
-		"year,"
-		"deposit_date_time,"
-		"deposit_amount,"
-		"transaction_fee,"
-		"net_revenue,"
-		"account_balance,"
-		"check_number,"
-		"transaction_ID,"
-		"invoice_number,"
-		"payment_total,"
-		"gain_donation";
-
-	sprintf( sys_string,
-		 "insert_statement table=%s field=%s delimiter='^'	|"
-		 "sql							 ",
-		 DEPOSIT_TABLE,
-		 field );
-
-	return popen( sys_string, "w" );
-}
-
-void deposit_insert_pipe(
-			FILE *insert_pipe,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			double deposit_amount,
-			double transaction_fee,
-			double net_revenue,
-			double account_balance,
-			int check_number,
-			char *transaction_ID,
-			char *invoice_number,
-			double payment_total,
-			double gain_donation )
-{
-	char *format =
-		"%s^%s^%s^%d^%s^%.2lf^%.2lf^%.2lf^%.2lf^%d^%s^%s^%.2lf^%.2lf\n";
-
-	fprintf(	insert_pipe,
-			format,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			entity_escape_full_name( payor_full_name ),
-			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time,
-			deposit_amount,
-			transaction_fee,
-			net_revenue,
-			account_balance,
-			check_number,
-			transaction_ID,
-			invoice_number,
-			payment_total,
-			gain_donation );
-}
-
-void deposit_insert(	char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			double deposit_amount,
-			double transaction_fee,
-			double net_revenue,
-			double account_balance,
-			int check_number,
-			char *transaction_ID,
-			char *invoice_number,
-			double payment_total,
-			double gain_donation )
-{
-	FILE *insert_pipe = deposit_insert_open();
-
-	deposit_insert_pipe(
-		insert_pipe,
-		payor_full_name,
-		payor_street_address,
-		season_name,
-		year,
-		deposit_date_time,
-		deposit_amount,
-		transaction_fee,
-		net_revenue,
-		account_balance,
-		check_number,
-		transaction_ID,
-		invoice_number,
-		payment_total,
-		gain_donation );
-
-	pclose( insert_pipe );
-}
-
 double deposit_payment_total(
 			LIST *deposit_payment_list )
 {
@@ -588,5 +480,121 @@ double deposit_gain_donation(
 	}
 
 	return gain_donation;
+}
+
+FILE *deposit_insert_open( char *error_filename )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
+		"sql >%s 2>&1						 ",
+		DEPOSIT_TABLE,
+		DEPOSIT_INSERT_COLUMNS,
+		SQL_DELIMITER,
+		error_filename );
+
+	return popen( sys_string, "w" );
+}
+
+void deposit_list_insert( LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( deposit_list ) ) return;
+
+	insert_pipe =
+		deposit_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		deposit = list_get( deposit_list );
+
+		deposit_insert_pipe(
+			insert_pipe,
+			deposit->payor_entity->full_name,
+			deposit->payor_entity->street_address,
+			deposit->semester->season_name,
+			deposit->semester->year,
+			deposit->deposit_date_time,
+			deposit->deposit_amount,
+			deposit->transaction_fee,
+			deposit->net_revenue,
+			deposit->account_balance,
+			deposit->check_number,
+			deposit->transaction_ID,
+			deposit->invoice_number );
+
+	} while ( list_next( deposit_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Deposit Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+
+void deposit_insert_pipe(
+			FILE *insert_pipe,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			double deposit_amount,
+			double transaction_fee,
+			double net_revenue,
+			double account_balance,
+			int check_number,
+			char *transaction_ID,
+			char *invoice_number )
+{
+	fprintf(insert_pipe,
+		"%s^%s^%s^%d^%s^%.2lf^%.2lf^%.2lf^%.2lf^%d^%s^%s\n",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_full_name( payor_full_name ),
+		payor_street_address,
+		season_name,
+		year,
+		deposit_date_time,
+		deposit_amount,
+		transaction_fee,
+		net_revenue,
+		account_balance,
+		check_number,
+		transaction_ID,
+		invoice_number );
+}
+
+void deposit_list_payment_insert(
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+
+	if ( !list_rewind( deposit_list ) ) return;
+
+	do {
+		deposit = list_get( deposit_list );
+
+		payment_list_insert( deposit->deposit_payment_list );
+
+	} while ( list_next( deposit_list ) );
 }
 

@@ -3873,3 +3873,8 @@ double timlib_round_double( double d )
 {
 	return round_double( d );
 }
+
+char *timlib_tmpfile( void )
+{
+	return pipe2string( "tmpfile.py" );
+}

@@ -20,6 +20,7 @@
 /* Constants */
 /* --------- */
 #define PAYMENT_TABLE_NAME	"payment"
+#define PAYMENT_TABLE		PAYMENT_TABLE_NAME
 
 #define PAYMENT_PRIMARY_KEY	"full_name,"			\
 				"street_address,"		\
@@ -31,6 +32,15 @@
 				"deposit_date_time"
 
 #define PAYMENT_MEMO		"Customer Payment"
+
+#define PAYMENT_INSERT_COLUMNS	"full_name,"			\
+				"street_address,"		\
+				"course_name,"			\
+				"season_name,"			\
+				"year,"				\
+				"payor_full_name,"		\
+				"payor_street_address,"		\
+				"deposit_date_time"
 
 /* Structures */
 /* ---------- */

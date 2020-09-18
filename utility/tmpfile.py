@@ -14,7 +14,7 @@ class tmpfile:
 	# ---------------------
 	def __init__( self, key_string ):
 		self.key_string = key_string
-		self.tmpfile_template_string = '/tmp/tmpfile_%s_%d.dat'
+		self.tmpfile_template_string = '/tmp/%s_%d.dat'
 
 	# Set section
 	# -----------
@@ -45,7 +45,7 @@ class tmpfile:
 if ( __name__ == "__main__" ):
 
 	t = tmpfile( 'tmpfile' )
-	print "t = %s" % t.display()
+	print "%s" % t.display()
 
 	sys.exit( 0 )
 	

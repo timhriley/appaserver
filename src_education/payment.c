@@ -758,3 +758,79 @@ double payment_cash_debit_amount(
 		payment_fees_expense;
 }
 
+void payment_list_insert( LIST *payment_list )
+{
+	PAYMENT *payment;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( payment_list ) ) return;
+
+	insert_pipe =
+		payment_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		payment = list_get( payment_list );
+
+		payment_insert_pipe(
+			insert_pipe,
+			payment->enrollment->registration->student_full_name,
+			payment->enrollment->registration->street_address,
+			payment->enrollment->offering->course->course_name,
+			payment->enrollment->offering->season_name,
+			payment->enrollment->offering->year,
+			payment->deposit->payor_entity->full_name,
+			payment->deposit->payor_entity->street_address,
+			payment->deposit->deposit_date_time );
+
+	} while ( list_next( payment_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Payment Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+
+FILE *payment_insert_open( char *error_filename )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
+		"sql >%s 2>&1						 ",
+		PAYMENT_TABLE,
+		PAYMENT_INSERT_COLUMNS,
+		SQL_DELIMITER,
+		error_filename );
+
+	return popen( sys_string, "w" );
+}
+
+void payment_insert_pipe(
+			FILE *insert_pipe,
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time )
+{
+}
+
