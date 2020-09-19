@@ -126,5 +126,10 @@ void payment_list_payor_entity_insert(
 void payment_list_program_insert(
 			LIST *deposit_payment_list );
 
+/* Safely returns heap memory */
+/* -------------------------- */
+char *payment_list_display(
+			LIST *payment_list );
+
 #endif
 

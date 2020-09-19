@@ -20,6 +20,7 @@
 #include "environ.h"
 #include "list.h"
 #include "payment.h"
+#include "payment_fns.h"
 #include "paypal.h"
 #include "deposit.h"
 #include "education.h"
@@ -217,13 +218,70 @@ LIST *paypal_upload_deposit_list(
 }
 
 void paypal_upload_display(
-			LIST *education_deposit_list,
+			LIST *deposit_list,
 			char *season_name,
 			int year )
 {
-if ( education_deposit_list ){}
-if ( season_name ){}
-if ( year ){}
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+	DEPOSIT *deposit;
+	char sub_title[ 128 ];
+	char *heading;
+	char *justification;
+
+	sprintf( sub_title, "Semester: %s/%d", season_name, year );
+
+	heading =	"payor,"		\
+			"deposit_date_time,"	\
+			"deposit_amount,"	\
+			"transaction_fee,"	\
+			"net_revenue,"		\
+			"account_balance,"	\
+			"payments";
+
+	justification =	"left,"		\
+			"left,"		\
+			"right,"	\
+			"right,"	\
+			"right,"	\
+			"right,"	\
+			"left";
+
+	sprintf(sys_string,
+		"html_table '^%s' '%s' '^ '%s'",
+		sub_title,
+		heading,
+		justification );
+
+	output_pipe = popen( sys_string, "w" );
+
+	if ( !list_rewind( deposit_list ) )
+	{
+		pclose( output_pipe );
+		return;
+	}
+
+	do {
+		deposit =
+			list_get(
+				deposit_list );
+
+		fprintf(output_pipe,
+			"%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s\n",
+			entity_name_display(
+				deposit->payor_entity->full_name,
+				deposit->payor_entity->street_address ),
+			deposit->deposit_date_time,
+			deposit->deposit_amount,
+			deposit->transaction_fee,
+			deposit->net_revenue,
+			deposit->account_balance,
+			payment_list_display(
+				deposit->deposit_payment_list ) );
+
+	} while ( list_next( deposit_list ) );
+
+	pclose( output_pipe );
 }
 
 void paypal_upload_event_insert(

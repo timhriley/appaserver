@@ -204,6 +204,7 @@ clean:
 	rm -f *.[oe]							\
 	build_date_where						\
 	cal2linear							\
+	html_table							\
 	findgrep							\
 	produce_socket_message						\
 	consume_socket_message						\
@@ -1629,6 +1630,9 @@ html_table.e: html_table.c ${LIBRARY}/html_table.o
 		${STANDARD_LIBRARY}					\
 		${LIBRARY}/html_table.o 				\
 		-o html_table.e
+		touch html_table
+		rm html_table
+		ln html_table.e html_table
 
 piece_arithmatic.e: piece_arithmatic.c ${LIBRARY}/piece.o
 	$(CC)	${CFLAGS} -I${LIBRARY} piece_arithmatic.c		\

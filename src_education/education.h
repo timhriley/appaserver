@@ -87,7 +87,7 @@ PAYMENT *education_payment(
 
 PAYPAL_DATASET *education_paypal_dataset(
 			char *input_string,
-			SPREADSHEET *spreadsheet,
+			LIST *spreadsheet_column_list,
 			/* ---------------------- */
 			/* Returns paypal_dataset */
 			/* ---------------------- */
@@ -112,6 +112,9 @@ void education_offering_insert(
 			LIST *deposit_list );
 
 void education_course_insert(
+			LIST *deposit_list );
+
+void education_program_insert(
 			LIST *deposit_list );
 
 #endif

@@ -121,7 +121,6 @@ char *entity_escape_full_name(
 char *entity_escape_name(
 			char *full_name );
 
-
 /* Returns heap memory or null */
 /* --------------------------- */
 char *entity_street_address(
@@ -132,6 +131,10 @@ FILE *entity_insert_open(
 
 void entity_insert_pipe(
 			FILE *insert_pipe,
+			char *full_name,
+			char *street_address );
+
+char *entity_name_display(
 			char *full_name,
 			char *street_address );
 

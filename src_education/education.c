@@ -104,6 +104,16 @@ LIST *education_deposit_list(
 	/* ------------------------------------------ */
 	PAYPAL_DATASET *dataset_return;
 
+	if ( !spreadsheet )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty spreadsheet.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( ! ( spreadsheet_file = fopen( spreadsheet_filename, "r" ) ) )
 	{
 		fprintf(stderr,
@@ -124,7 +134,7 @@ LIST *education_deposit_list(
 				/* ---------------------- */
 				education_paypal_dataset(
 					input_string,
-					spreadsheet,
+					spreadsheet->spreadsheet_column_list,
 					paypal_dataset ) ) )
 		{
 			if ( ( deposit =
@@ -325,17 +335,6 @@ PAYMENT *education_payment(
 	return payment;
 }
 
-PAYPAL_DATASET *education_paypal_dataset(
-			char *input_string,
-			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASET *paypal_dataset )
-{
-if ( input_string ){};
-if ( spreadsheet ){};
-
-	return paypal_dataset;
-}
-
 void education_deposit_list_insert(
 			LIST *education_deposit_list )
 {
@@ -345,6 +344,7 @@ void education_deposit_list_insert(
 	education_registration_insert( education_deposit_list );
 	education_offering_insert( education_deposit_list );
 	education_course_insert( education_deposit_list );
+	education_program_insert( education_deposit_list );
 }
 
 void education_deposit_insert( LIST *deposit_list )
@@ -375,5 +375,185 @@ void education_offering_insert( LIST *deposit_list )
 void education_course_insert( LIST *deposit_list )
 {
 	deposit_list_course_insert( deposit_list );
+}
+
+void education_program_insert( LIST *deposit_list )
+{
+	deposit_list_program_insert( deposit_list );
+}
+
+PAYPAL_DATASET *education_paypal_dataset(
+			char *input_string,
+			LIST *spreadsheet_column_list,
+			PAYPAL_DATASET *paypal_dataset )
+{
+	if ( !paypal_dataset )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty paypal_dataset\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !input_string || !*input_string )
+		return (PAYPAL_DATASET *)0;
+
+	if ( ! ( paypal_dataset->date_A =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Date" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't parse date_A.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
+	if ( ! ( paypal_dataset->time_B =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Time" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't parse time_B.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
+	if ( ! ( paypal_dataset->full_name_D =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Name" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't parse full_name_D.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
+	if ( ! ( paypal_dataset->gross_revenue_H =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Gross" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't parse gross_revenue_H.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
+	if ( ! ( paypal_dataset->transaction_fee_I =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Fee" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't parse transaction_fee_I.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
+	if ( ! ( paypal_dataset->net_revenue_J =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Net" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't parse net_revenue_J.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
+	if ( ! ( paypal_dataset->from_email_address_K =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"From Email Address" ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: can't parse from_email_address_K.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
+	if ( ! ( paypal_dataset->transaction_ID_M =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Transaction ID" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't parse transaction_ID_M.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
+	if ( ! ( paypal_dataset->item_title_P =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Item Title" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't parse item_title_P.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
+	if ( ! ( paypal_dataset->invoice_number_Z =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Invoice Number" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't parse invoice_number_Z.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
+	if ( ! ( paypal_dataset->balance_AD =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Balance" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't parse balance_AD.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
+	return paypal_dataset;
 }
 

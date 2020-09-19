@@ -1196,3 +1196,48 @@ void payment_list_program_insert(
 	if ( system( sys_string ) ){};
 }
 
+char *payment_list_display( LIST *payment_list )
+{
+	char display[ 65536 ];
+	char *ptr = display;
+	PAYMENT *payment;
+
+	*ptr = '\0';
+
+	if ( !list_rewind( payment_list ) ) return strdup( display );
+
+	do {
+		payment =
+			list_get(
+				payment_list );
+
+		if ( !list_at_head( payment_list ) )
+		{
+			ptr += sprintf( ptr, ", " );
+		}
+
+		ptr += sprintf(	ptr,
+				"%s; %s; Payment: %.2lf\n",
+				entity_name_display(
+					payment->
+						enrollment->
+						registration->
+						student_full_name,
+					payment->
+						enrollment->
+						registration->
+						street_address ),
+				payment->
+					enrollment->
+					offering->
+					course->
+					course_name,
+				payment->
+					payment_amount );
+
+	} while ( list_next( payment_list ) );
+
+	return strdup( display );
+}
+
+

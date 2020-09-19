@@ -404,3 +404,27 @@ void entity_insert_pipe(
 		street_address );
 }
 
+char *entity_name_display(
+			char *full_name,
+			char *street_address )
+{
+	static char display[ 256 ];
+
+	if ( !full_name || !*full_name ) return "";
+
+	if ( !street_address
+	||   !*street_address
+	||   timlib_strcmp( street_address, "unknown" ) == 0
+	||   timlib_strcmp( street_address, "null" ) == 0 )
+	{
+		strcpy( display, full_name );
+	}
+	else
+	{
+		sprintf( display, "%s/%s", full_name, street_address );
+	}
+
+	return display;
+}
+
+

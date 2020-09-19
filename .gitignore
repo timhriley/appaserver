@@ -219,6 +219,7 @@ inventory_cost_method_propagate
 # utility
 # -------
 build_date_where
+html_table
 cal2linear
 findgrep
 produce_socket_message
