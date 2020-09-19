@@ -155,6 +155,7 @@ void payment_trigger_insert_update(
 {
 	PAYMENT *payment;
 	char *transaction_date_time = {0};
+	char *program_name;
 
 	if ( ! ( payment =
 			payment_fetch(
@@ -182,14 +183,19 @@ void payment_trigger_insert_update(
 		return;
 	}
 
-	if ( !payment->enrollment->offering->course->program_name )
+	if ( payment->enrollment->offering->course->program )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: program_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		program_name = 
+			payment->
+				enrollment->
+				offering->
+				course->
+				program->
+				program_name;
+	}
+	else
+	{
+		program_name = (char *)0;
 	}
 
 	payment =
@@ -197,7 +203,7 @@ void payment_trigger_insert_update(
 			payment->deposit /* in/out */,
 			payment->deposit->deposit_amount,
 			payment->deposit->transaction_fee,
-			payment->enrollment->offering->course->program_name,
+			program_name,
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */

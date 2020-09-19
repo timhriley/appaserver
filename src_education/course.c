@@ -16,7 +16,6 @@
 #include "boolean.h"
 #include "list.h"
 #include "course.h"
-#include "course.h"
 
 COURSE *course_parse( char *input )
 {
@@ -33,7 +32,11 @@ COURSE *course_parse( char *input )
 	course = course_new( strdup( course_name ) );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	course->program_name = strdup( piece_buffer );
+
+	if ( *piece_buffer )
+	{
+		course->program = program_new( strdup( piece_buffer ) );
+	}
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
 	course->course_price = atof( piece_buffer );

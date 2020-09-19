@@ -14,6 +14,7 @@ EDUCATION_CORE=								\
 		registration.o						\
 		enrollment.o						\
 		course.o						\
+		program.o						\
 		education.o						\
 		deposit.o						\
 		semester.o						\
@@ -210,6 +211,11 @@ course.o: course.c course.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c course.c
+
+program.o: program.c program.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c program.c
 
 payment.o: payment.c payment.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\

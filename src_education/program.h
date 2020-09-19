@@ -16,6 +16,9 @@
 
 /* Constants */
 /* --------- */
+#define PROGRAM_TABLE		"program"
+
+#define PROGRAM_INSERT_COLUMNS	"program_name"
 
 /* Structures */
 /* ---------- */
@@ -27,11 +30,12 @@ typedef struct
 
 PROGRAM *program_new(	char *program_name );
 
-PROGRAM *program_fetch( char *progam_name );
+FILE *program_insert_open(
+			char *error_filename );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *program_where(	char *program_name );
+void program_insert_pipe(
+			FILE *insert_pipe,
+			char *program_name );
 
 #endif
 

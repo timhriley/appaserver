@@ -377,6 +377,8 @@ ENROLLMENT *enrollment_steady_state(
 			OFFERING *offering,
 			ENROLLMENT *enrollment )
 {
+	char *program_name;
+
 	if ( !registration )
 	{
 		fprintf(stderr,
@@ -407,12 +409,21 @@ ENROLLMENT *enrollment_steady_state(
 		exit( 1 );
 	}
 
+	if ( offering->course->program )
+	{
+		program_name = offering->course->program->program_name;
+	}
+	else
+	{
+		program_name = (char *)0;
+	}
+
 	enrollment->enrollment_transaction =
 		enrollment_transaction(
 			registration->student_full_name,
 			registration->street_address,
 			registration->registration_date_time,
-			offering->course->program_name,
+			program_name,
 			offering->course->course_price,
 			account_receivable( (char *)0 ),
 			offering_revenue_account() );

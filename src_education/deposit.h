@@ -223,5 +223,8 @@ void deposit_list_student_entity_insert(
 void deposit_list_payor_entity_insert(
 			LIST *deposit_list );
 
+void deposit_list_program_insert(
+			LIST *deposit_list );
+
 #endif
 

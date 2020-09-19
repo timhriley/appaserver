@@ -8,6 +8,7 @@
 #ifndef COURSE_H
 #define COURSE_H
 
+#include "program.h"
 #include "boolean.h"
 #include "list.h"
 
@@ -26,9 +27,9 @@
 typedef struct
 {
 	char *course_name;
-	char *program_name;
 	double course_price;
 	char *description;
+	PROGRAM *program;
 } COURSE;
 
 COURSE *course_fetch(	char *course_name );

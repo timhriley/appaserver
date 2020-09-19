@@ -114,10 +114,16 @@ void payment_list_offering_insert(
 void payment_list_course_insert(
 			LIST *deposit_payment_list );
 
+void payment_list_student_entity_insert(
+			LIST *deposit_payment_list );
+
 void payment_list_student_insert(
 			LIST *deposit_payment_list );
 
-void payment_list_entity_insert(
+void payment_list_payor_entity_insert(
+			LIST *payment_list );
+
+void payment_list_program_insert(
 			LIST *deposit_payment_list );
 
 #endif

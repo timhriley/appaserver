@@ -18,7 +18,6 @@
 #include "payment.h"
 #include "payment_fns.h"
 #include "transaction.h"
-#include "deposit.h"
 #include "registration.h"
 #include "registration_fns.h"
 #include "journal.h"
@@ -29,6 +28,7 @@
 #include "semester.h"
 #include "account.h"
 #include "student.h"
+#include "program.h"
 #include "deposit.h"
 
 PAYMENT *payment_calloc( void )
@@ -527,16 +527,6 @@ PAYMENT *payment_steady_state(
 		exit( 1 );
 	}
 
-	if ( !program_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty progam_name.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	/* Set the input parameters */
 	/* ------------------------ */
 	payment->deposit_amount = deposit_amount;
@@ -886,7 +876,7 @@ void payment_list_enrollment_insert( LIST *payment_list )
 		sprintf(sys_string,
 			"cat %s						|"
 			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Enrollment Errors' '' '^'",
+			"html_table.e 'Insert Enrollment Errors' '' '^'	 ",
 			 error_filename );
 
 		if ( system( sys_string ) ){}
@@ -975,7 +965,7 @@ void payment_list_offering_insert(
 		sprintf(sys_string,
 			"cat %s						|"
 			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Offering Errors' '' '^'",
+			"html_table.e 'Insert Offering Errors' '' '^'	 ",
 			 error_filename );
 
 		if ( system( sys_string ) ){}
@@ -1018,7 +1008,7 @@ void payment_list_course_insert(
 		sprintf(sys_string,
 			"cat %s						|"
 			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Course Errors' '' '^'",
+			"html_table.e 'Insert Course Errors' '' '^'	 ",
 			 error_filename );
 
 		if ( system( sys_string ) ){}
@@ -1061,7 +1051,7 @@ void payment_list_student_insert(
 		sprintf(sys_string,
 			"cat %s						|"
 			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Student Errors' '' '^'",
+			"html_table.e 'Insert Student Errors' '' '^'	 ",
 			 error_filename );
 
 		if ( system( sys_string ) ){}
@@ -1104,7 +1094,7 @@ void payment_list_student_entity_insert(
 		sprintf(sys_string,
 			"cat %s						|"
 			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Entity Errors' '' '^'",
+			"html_table.e 'Insert Entity Errors' '' '^'	 ",
 			 error_filename );
 
 		if ( system( sys_string ) ){}
@@ -1147,7 +1137,55 @@ void payment_list_payor_entity_insert(
 		sprintf(sys_string,
 			"cat %s						|"
 			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Entity Errors' '' '^'",
+			"html_table.e 'Insert Entity Errors' '' '^'	 ",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+
+void payment_list_program_insert(
+			LIST *payment_list )
+{
+	PAYMENT *payment;
+	COURSE *course;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( payment_list ) ) return;
+
+	insert_pipe =
+		program_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		payment = list_get( payment_list );
+
+		course = payment->enrollment->offering->course;
+
+		if ( course->course_price )
+		{
+			program_insert_pipe(
+				insert_pipe,
+				course->program->program_name );
+		}
+
+	} while ( list_next( payment_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Program Errors' '' '^'	 ",
 			 error_filename );
 
 		if ( system( sys_string ) ){}

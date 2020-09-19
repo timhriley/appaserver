@@ -710,3 +710,19 @@ void deposit_list_payor_entity_insert(
 	} while ( list_next( deposit_list ) );
 }
 
+void deposit_list_program_insert(
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+
+	if ( !list_rewind( deposit_list ) ) return;
+
+	do {
+		deposit = list_get( deposit_list );
+
+		payment_list_program_insert(
+			deposit->deposit_payment_list );
+
+	} while ( list_next( deposit_list ) );
+}
+
