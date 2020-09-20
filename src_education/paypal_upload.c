@@ -43,7 +43,6 @@ void paypal_upload_display(
 /* -------------------------------- */
 LIST *paypal_upload_deposit_list(
 			char **maximum_date,
-			char *spreadsheet_name,
 			char *spreadsheet_filename,
 			char *season_name,
 			int year );
@@ -52,7 +51,6 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	char *spreadsheet_name;
 	char *season_name;
 	int year;
 	char *login_name;
@@ -70,22 +68,21 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name spreadsheet_name season_name year login_name filename execute_yn\n",
+"Usage: %s process_name season_name year login_name filename execute_yn\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	spreadsheet_name = argv[ 2 ];
-	season_name = argv[ 3 ];
-	year = atoi( argv[ 4 ] );
-	login_name = argv[ 5 ];
-	spreadsheet_filename = argv[ 6 ];
-	execute = (*argv[ 7 ] == 'y');
+	season_name = argv[ 2 ];
+	year = atoi( argv[ 3 ] );
+	login_name = argv[ 4 ];
+	spreadsheet_filename = argv[ 5 ];
+	execute = (*argv[ 6 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -115,7 +112,6 @@ int main( int argc, char **argv )
 		/* -------------------------------- */
 		paypal_upload_deposit_list(
 			&maximum_date,
-			spreadsheet_name,
 			spreadsheet_filename,
 			season_name,
 			year );
@@ -164,12 +160,10 @@ int main( int argc, char **argv )
 
 LIST *paypal_upload_deposit_list(
 			char **maximum_date,
-			char *spreadsheet_name,
 			char *spreadsheet_filename,
 			char *season_name,
 			int year )
 {
-	PAYPAL *paypal;
 	EDUCATION *education;
 	char *minimum_date;
 
@@ -181,20 +175,12 @@ LIST *paypal_upload_deposit_list(
 		return (LIST *)0;
 	}
 
-	if ( ! ( paypal =
-			paypal_fetch(
-				spreadsheet_name,
-				spreadsheet_filename ) ) )
-	{
-		return (LIST *)0;
-	}
-
 	if ( ! ( education =
 			education_fetch(
 				season_name,
 				year,
-				spreadsheet_name,
-				spreadsheet_filename ) ) )
+				spreadsheet_filename,
+				"date" /* heading_label */ ) ) )
 	{
 		return (LIST *)0;
 	}
@@ -213,8 +199,8 @@ LIST *paypal_upload_deposit_list(
 			season_name,
 			year,
 			spreadsheet_filename,
-			paypal->spreadsheet,
-			paypal->paypal_dataset );
+			education->paypal->spreadsheet,
+			education->paypal->paypal_dataset );
 }
 
 void paypal_upload_display(

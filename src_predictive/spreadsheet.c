@@ -103,7 +103,7 @@ char *spreadsheet_minimum_date(
 if ( maximum_date ){}
 if ( spreadsheet_filename ){}
 
-	return (char *)0;
+	return "2020-09-19";
 }
 
 char *spreadsheet_heading_data(
