@@ -726,3 +726,92 @@ void deposit_list_program_insert(
 	} while ( list_next( deposit_list ) );
 }
 
+void deposit_list_payment_trigger(
+			char *season_name,
+			int year,
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+	PAYMENT *payment;
+
+	if ( !list_rewind( deposit_list ) ) return;
+
+	do {
+		deposit = list_get( deposit_list );
+
+		if ( !list_rewind( deposit->deposit_payment_list ) )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty deposit_payment_list\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		do {
+			payment =
+				list_get(
+					deposit->deposit_payment_list );
+
+			deposit_payment_trigger(
+				payment->
+					enrollment->
+					registration->
+					student_full_name,
+				payment->
+					enrollment->
+					registration->
+					street_address,
+				payment->
+					enrollment->
+					offering->
+					course->
+					course_name,
+				season_name,
+				year,
+				payment->
+					deposit->
+					payor_entity->
+					full_name,
+				payment->
+					deposit->
+					payor_entity->
+					street_address,
+				payment->
+					deposit->
+					deposit_date_time );
+
+		} while ( list_next( deposit->deposit_payment_list ) );
+
+		payment_list_program_insert(
+			deposit->deposit_payment_list );
+
+	} while ( list_next( deposit_list ) );
+}
+
+void deposit_payment_trigger(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s'",
+		student_full_name,
+		street_address,
+		course_name,
+		season_name,
+		year,
+		payor_full_name,
+		payor_street_address,
+		deposit_date_time );
+
+	if ( system( sys_string ) ){}
+}

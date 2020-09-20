@@ -33,41 +33,18 @@ PAYPAL *paypal_calloc( void )
 	return p;
 }
 
-PAYPAL *paypal_fetch(	char *spreadsheet_name,
-			char *spreadsheet_filename )
+PAYPAL *paypal_fetch(	char *spreadsheet_filename,
+			char *date_label )
 {
 	PAYPAL *paypal = paypal_calloc();
 
 	if ( ! ( paypal->spreadsheet =
 			spreadsheet_fetch(
-				spreadsheet_name ) ) )
+				spreadsheet_filename,
+				date_label ) ) )
 	{
 		return (PAYPAL *)0;
 	}
-
-	if ( ! ( paypal->spreadsheet->spreadsheet_minimum_date =
-			spreadsheet_minimum_date(
-				&paypal->spreadsheet->maximum_date,
-				spreadsheet_filename ) ) )
-	{
-		return (PAYPAL *)0;
-	}
-
-	paypal->spreadsheet_filename = spreadsheet_filename;
-
-	return paypal;
-}
-
-PAYPAL *paypal_new(	char *spreadsheet_name,
-			char *spreadsheet_filename )
-{
-	PAYPAL *paypal = paypal_calloc();
-
-	paypal->spreadsheet =
-		spreadsheet_new(
-			spreadsheet_name );
-
-	paypal->spreadsheet_filename = spreadsheet_filename;
 	return paypal;
 }
 

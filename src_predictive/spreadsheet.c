@@ -18,8 +18,7 @@
 #include "spreadsheet_column.h"
 #include "spreadsheet.h"
 
-SPREADSHEET *spreadsheet_new(
-			char *spreadsheet_name )
+SPREADSHEET *spreadsheet_calloc( void )
 {
 	SPREADSHEET *spreadsheet;
 
@@ -33,59 +32,67 @@ SPREADSHEET *spreadsheet_new(
 		exit( 1 );
 	}
 
-	spreadsheet->spreadsheet_name = spreadsheet_name;
 	return spreadsheet;
 }
 
-LIST *spreadsheet_column_list( char *spreadsheet_name )
-{
-	return spreadsheet_column_system_list(
-		spreadsheet_column_sys_string(
-			spreadsheet_primary_where(
-				spreadsheet_name ) ) );
-}
-
 SPREADSHEET *spreadsheet_fetch(
-			char *spreadsheet_name )
+			char *spreadsheet_filename,
+			char *date_label )
 {
-	SPREADSHEET *spreadsheet;
+	SPREADSHEET *spreadsheet = spreadsheet_calloc();
 
-	if ( !spreadsheet_name || !*spreadsheet_name )
-	{
-		return (SPREADSHEET *)0;
-	}
-
-	spreadsheet = spreadsheet_new( strdup( spreadsheet_name ) );
+	spreadsheet->spreadsheet_filename = spreadsheet_filename;
 
 	spreadsheet->
 		spreadsheet_column_list =
 			spreadsheet_column_list(
-				spreadsheet_name );
+				spreadsheet_filename,
+				date_label );
 
+	if ( !list_length( 
+		spreadsheet->
+			spreadsheet_column_list ) )
+	{
+		return (SPREADSHEET *)0;
+	}
 	return spreadsheet;
 }
 
-char *spreadsheet_escape_name( char *spreadsheet_name )
+LIST *spreadsheet_column_list(
+			char *spreadsheet_filename,
+			char *date_label )
 {
-	static char escape_spreadsheet_name[ 256 ];
+	char *header_row;
+	int p;
+	char header_data[ 1024 ];
+	LIST *column_list;
 
-	return string_escape_quote(
-			escape_spreadsheet_name,
-			spreadsheet_name );
+	if ( ! ( header_row =
+			spreadsheet_header_row(
+				spreadsheet_filename,
+				date_label ) ) )
+	{
+		return (LIST *)0;
+	}
+
+	column_list = list_new();
+
+	for(	p = 0;
+		piece_quote_comma(
+			header_data,
+			header_row,
+			p );
+		p++ )
+	{
+		list_set(
+			column_list,
+			spreadsheet_column_new(
+				strdup( header_data ),
+				p ) );
+	}
+	return column_list;
 }
 
-char *spreadsheet_primary_where(
-			char *spreadsheet_name )
-{
-	char where[ 128 ];
-
-	sprintf(where,
-		"spreadsheet = '%s'",
-		spreadsheet_escape_name(
-			spreadsheet_name ) );
-
-	return strdup( where );
-}
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -119,39 +126,52 @@ char *spreadsheet_heading_data(
 			data /* destination */,
 			input_row,
 			spreadsheet_column->
-				spreadsheet_column_piece ) )
+				piece_offset ) )
 	{
 		return (char *)0;
 	}
 	return strdup( data );
 }
 
-char *spreadsheet_attribute_data(
-			LIST *spreadsheet_column_list,
-			char *input_row,
-			char *folder_name,
-			char *attribute_name )
+char *spreadsheet_header_row(
+			char *filename,
+			char *date_label )
 {
-	char data[ 65536 ];
-	SPREADSHEET_COLUMN *spreadsheet_column;
+	FILE *input_file;
+	char header_buffer[ 65536 ];
 
-	if ( ! ( spreadsheet_column =
-			spreadsheet_column_attribute_seek(
-				spreadsheet_column_list,
-				folder_name,
-				attribute_name ) ) )
+	if ( ! ( input_file = fopen( filename, "r" ) ) )
 	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			filename );
 		return (char *)0;
 	}
 
-	if ( !piece_quote(
-			data /* destination */,
-			input_row,
-			spreadsheet_column->
-				spreadsheet_column_piece ) )
+	while( string_input( header_buffer, input_file, 65536 ) )
 	{
-		return (char *)0;
+		if ( spreadsheet_header_label_success(
+			date_label,
+			header_buffer ) )
+		{
+			fclose( input_file );
+			return strdup( header_buffer );
+		}
 	}
-	return strdup( data );
+	fclose( input_file );
+	return (char *)0;
+}
+
+boolean spreadsheet_header_label_success(
+			char *date_label,
+			char *header_buffer )
+{
+	if ( instr( date_label, header_buffer, 1 ) > -1 )
+		return 1;
+	else
+		return 0;
 }
 

@@ -21,8 +21,8 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	char *spreadsheet_name;
-	char *date_column_string;
+	char *spreadsheet_filename;
+	char *date_label;
 
 	/* Process */
 	/* ------- */
@@ -31,29 +31,20 @@ typedef struct
 
 	char *spreadsheet_minimum_date;
 	char *maximum_date;
-	int load_count;
 } SPREADSHEET;
 
 /* Operations */
 /* ---------- */
-SPREADSHEET *spreadsheet_fetch(
-			char *spreadsheet_name );
+SPREADSHEET *spreadsheet_calloc(
+			void );
 
-SPREADSHEET *spreadsheet_new(
-			char *spreadsheet_name );
+SPREADSHEET *spreadsheet_fetch(
+			char *spreadsheet_filename,
+			char *date_label );
 
 LIST *spreadsheet_column_list(
-			char *spreadsheet_name );
-
-/* Safely returns heap memory. */
-/* --------------------------- */
-char *spreadsheet_primary_where(
-			char *spreadsheet_name );
-
-/* Returns static memory */
-/* --------------------- */
-char *spreadsheet_escape_name(
-			char *spreadsheet_name );
+			char *spreadsheet_filename,
+			char *date_label );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -68,12 +59,12 @@ char *spreadsheet_heading_data(
 			char *input_row,
 			char *heading );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *spreadsheet_attribute_data(
-			LIST *spreadsheet_column_list,
-			char *input_row,
-			char *folder_name,
-			char *attribute_name );
+char *spreadsheet_header_row(
+			char *filename,
+			char *date_label );
+
+boolean spreadsheet_header_label_success(
+			char *date_label,
+			char *header_buffer );
 
 #endif

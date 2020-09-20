@@ -25,8 +25,6 @@ typedef struct
 	/* ----- */
 	SPREADSHEET *spreadsheet;
 
-	char *spreadsheet_filename;
-
 	/* Process */
 	/* ------- */
 	PAYPAL_DATASET *paypal_dataset;
@@ -34,14 +32,9 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-PAYPAL *paypal_calloc( void );
+PAYPAL *paypal_calloc(	void );
 
-PAYPAL *paypal_fetch(
-			char *spreadsheet_name,
-			char *spreadsheet_filename );
-
-PAYPAL *paypal_new(
-			char *spreadsheet_name,
-			char *spreadsheet_filename );
+PAYPAL *paypal_fetch(	char *spreadsheet_filename,
+			char *date_label );
 
 #endif

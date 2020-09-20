@@ -44,32 +44,11 @@ EDUCATION *education_calloc( void )
 	return education;
 }
 
-EDUCATION *education_new(
-			char *season_name,
-			int year,
-			char *spreadsheet_name,
-			char *spreadsheet_filename )
-{
-	EDUCATION *education = education_calloc();
-
-	education->semester =
-		semester_new(
-			season_name,
-			year );
-
-	education->paypal =
-		paypal_new(
-			spreadsheet_name,
-			spreadsheet_filename );
-
-	return education;
-}
-
 EDUCATION *education_fetch(
 			char *season_name,
 			int year,
-			char *spreadsheet_name,
-			char *spreadsheet_filename )
+			char *spreadsheet_filename,
+			char *date_label )
 {
 	EDUCATION *education = education_calloc();
 
@@ -82,8 +61,8 @@ EDUCATION *education_fetch(
 
 	education->paypal =
 		paypal_fetch(
-			spreadsheet_name,
-			spreadsheet_filename );
+			spreadsheet_filename,
+			date_label );
 
 	return education;
 }

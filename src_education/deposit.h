@@ -226,5 +226,21 @@ void deposit_list_payor_entity_insert(
 void deposit_list_program_insert(
 			LIST *deposit_list );
 
+void deposit_list_payment_trigger(
+			char *season_name,
+			int year,
+			LIST *deposit_list );
+
+
+void deposit_payment_trigger(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time );
+
 #endif
 

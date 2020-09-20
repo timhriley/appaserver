@@ -109,8 +109,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}
 
 void spreadsheet_parse_display( LIST *datatype_list )
 {
@@ -139,7 +138,6 @@ void fetch_parameters(	char **filename,
 	*station = fetch_arg( arg, "station" );
 	*date_heading_label = fetch_arg( arg, "date_heading_label" );
 	*two_lines_yn = fetch_arg( arg, "two_lines" );
-
 }
 
 void setup_arg( NAME_ARG *arg, int argc, char **argv )

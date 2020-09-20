@@ -30,20 +30,14 @@ typedef struct
 	LIST *education_deposit_list;
 } EDUCATION;
 
-EDUCATION *education_new(
-			char *season_name,
-			int year,
-			char *spreadsheet_name,
-			char *spreadsheet_filename );
-
 EDUCATION *education_calloc(
 			void );
 
 EDUCATION *education_fetch(
 			char *season_name,
 			int year,
-			char *spreadsheet_name,
-			char *spreadsheet_filename );
+			char *spreadsheet_filename,
+			char *date_label );
 
 LIST *education_deposit_list(
 			char *season_name,
