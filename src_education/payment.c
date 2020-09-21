@@ -305,11 +305,10 @@ PAYMENT *payment_parse(
 					transaction_date_time ) ) )
 		{
 			fprintf(stderr,
-		"ERROR in %s/%s()/%d: transaction_fetch() returned empty.\n",
+		"Warning in %s/%s()/%d: transaction_fetch() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
 		}
 	}
 
@@ -1169,7 +1168,9 @@ void payment_list_program_insert(
 
 		course = payment->enrollment->offering->course;
 
-		if ( course->course_price )
+		if ( course->program
+		&&   course->program->program_name
+		&&   course->course_price )
 		{
 			program_insert_pipe(
 				insert_pipe,
@@ -1217,7 +1218,7 @@ char *payment_list_display( LIST *payment_list )
 		}
 
 		ptr += sprintf(	ptr,
-				"%s; %s; Payment: %.2lf\n",
+				"%s is enrolled in %s\n",
 				entity_name_display(
 					payment->
 						enrollment->
@@ -1231,9 +1232,7 @@ char *payment_list_display( LIST *payment_list )
 					enrollment->
 					offering->
 					course->
-					course_name,
-				payment->
-					payment_amount );
+					course_name );
 
 	} while ( list_next( payment_list ) );
 

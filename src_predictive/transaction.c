@@ -207,6 +207,16 @@ char *transaction_escape_full_name( char *full_name )
 {
 	static char escape_full_name[ 256 ];
 
+	if ( !full_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty full_name.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	string_escape_quote( escape_full_name, full_name );
 	return escape_full_name;
 }
@@ -329,6 +339,36 @@ char *transaction_insert(
 			boolean lock_transaction )
 {
 	FILE *insert_pipe;
+
+	if ( !full_name )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty full_name.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (char *)0;
+	}
+
+	if ( !street_address )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty street_address.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (char *)0;
+	}
+
+	if ( !transaction_date_time )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty transaction_date_time.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (char *)0;
+	}
 
 	insert_pipe = transaction_insert_open();
 
@@ -496,7 +536,9 @@ char *transaction_property_insert_pipe(
 	 		transaction_escape_full_name( full_name ),
 			street_address,
 			transaction_date_time,
-			property_street_address,
+			(property_street_address)
+				? property_street_address
+				: "",
 			transaction_amount,
 			memo );
 
@@ -535,7 +577,7 @@ char *transaction_program_insert_pipe(
 	 		transaction_escape_full_name( full_name ),
 			street_address,
 			transaction_date_time,
-			program_name,
+			(program_name) ? program_name : "",
 			transaction_amount,
 			memo );
 
@@ -696,6 +738,36 @@ void transaction_delete(
 	char sys_string[ 1024 ];
 	char *field;
 	FILE *output_pipe;
+
+	if ( !full_name )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty full_name.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return;
+	}
+
+	if ( !street_address )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty street_address.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return;
+	}
+
+	if ( !transaction_date_time )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty transaction_date_time.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return;
+	}
 
 	field= "full_name,street_address,transaction_date_time";
 

@@ -198,11 +198,10 @@ DEPOSIT *deposit_parse(	char *input,
 	char transaction_fee[ 128 ];
 	char net_revenue[ 128 ];
 	char account_balance[ 128 ];
-	char check_number[ 128 ];
 	char transaction_ID[ 128 ];
 	char invoice_number[ 128 ];
+	char from_email_address[ 128 ];
 	char payment_total[ 128 ];
-	char gain_donation[ 128 ];
 	DEPOSIT *deposit;
 
 	if ( !input || !*input ) return (DEPOSIT *)0;
@@ -235,20 +234,17 @@ DEPOSIT *deposit_parse(	char *input,
 	piece( account_balance, SQL_DELIMITER, input, 8 );
 	deposit->account_balance = atof( account_balance );
 
-	piece( check_number, SQL_DELIMITER, input, 9 );
-	deposit->check_number = atoi( account_balance );
-
-	piece( transaction_ID, SQL_DELIMITER, input, 10 );
+	piece( transaction_ID, SQL_DELIMITER, input, 9 );
 	deposit->transaction_ID = strdup( transaction_ID );
 
-	piece( invoice_number, SQL_DELIMITER, input, 11 );
+	piece( invoice_number, SQL_DELIMITER, input, 10 );
 	deposit->invoice_number = strdup( invoice_number );
+
+	piece( from_email_address, SQL_DELIMITER, input, 11 );
+	deposit->from_email_address = strdup( from_email_address );
 
 	piece( payment_total, SQL_DELIMITER, input, 12 );
 	deposit->deposit_payment_total = atof( payment_total );
-
-	piece( gain_donation, SQL_DELIMITER, input, 13 );
-	deposit->deposit_gain_donation = atof( gain_donation );
 
 	if ( fetch_payment_list )
 	{
@@ -508,12 +504,12 @@ void deposit_insert_pipe(
 			double transaction_fee,
 			double net_revenue,
 			double account_balance,
-			int check_number,
 			char *transaction_ID,
-			char *invoice_number )
+			char *invoice_number,
+			char *from_email_address )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%d^%s^%.2lf^%.2lf^%.2lf^%.2lf^%d^%s^%s\n",
+		"%s^%s^%s^%d^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s^%s^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -526,9 +522,9 @@ void deposit_insert_pipe(
 		transaction_fee,
 		net_revenue,
 		account_balance,
-		check_number,
 		transaction_ID,
-		invoice_number );
+		invoice_number,
+		from_email_address );
 }
 
 void deposit_list_insert( LIST *deposit_list )
@@ -559,9 +555,9 @@ void deposit_list_insert( LIST *deposit_list )
 			deposit->transaction_fee,
 			deposit->net_revenue,
 			deposit->account_balance,
-			deposit->check_number,
 			deposit->transaction_ID,
-			deposit->invoice_number );
+			deposit->invoice_number,
+			deposit->from_email_address );
 
 	} while ( list_next( deposit_list ) );
 
@@ -784,8 +780,55 @@ void deposit_list_payment_trigger(
 
 		} while ( list_next( deposit->deposit_payment_list ) );
 
-		payment_list_program_insert(
-			deposit->deposit_payment_list );
+	} while ( list_next( deposit_list ) );
+}
+
+void deposit_list_enrollment_trigger(
+			char *season_name,
+			int year,
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+	PAYMENT *payment;
+
+	if ( !list_rewind( deposit_list ) ) return;
+
+	do {
+		deposit = list_get( deposit_list );
+
+		if ( !list_rewind( deposit->deposit_payment_list ) )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty deposit_payment_list\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		do {
+			payment =
+				list_get(
+					deposit->deposit_payment_list );
+
+			deposit_enrollment_trigger(
+				payment->
+					enrollment->
+					registration->
+					student_full_name,
+				payment->
+					enrollment->
+					registration->
+					street_address,
+				payment->
+					enrollment->
+					offering->
+					course->
+					course_name,
+				season_name,
+				year );
+
+		} while ( list_next( deposit->deposit_payment_list ) );
 
 	} while ( list_next( deposit_list ) );
 }
@@ -803,7 +846,7 @@ void deposit_payment_trigger(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s'",
+	"payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s' insert",
 		student_full_name,
 		street_address,
 		course_name,
@@ -815,3 +858,24 @@ void deposit_payment_trigger(
 
 	if ( system( sys_string ) ){}
 }
+
+void deposit_enrollment_trigger(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"enrollment_trigger \"%s\" '%s' \"%s\" '%s' %d insert",
+		student_full_name,
+		street_address,
+		course_name,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+}
+

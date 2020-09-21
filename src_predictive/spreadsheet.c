@@ -100,10 +100,11 @@ char *spreadsheet_minimum_date(
 			char **maximum_date,
 			char *spreadsheet_filename )
 {
-if ( maximum_date ){}
 if ( spreadsheet_filename ){}
 
-	return "2020-09-19";
+*maximum_date = "2020-09-30";
+
+	return "2020-09-01";
 }
 
 char *spreadsheet_heading_data(

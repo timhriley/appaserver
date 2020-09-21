@@ -1412,7 +1412,7 @@ char *piece_quote_comma(	char *destination,
 				char *source,
 				int offset )
 {
-	return piece_quote_comma(
+	return piece_quote(
 			destination,
 			source,
 			offset );

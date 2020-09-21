@@ -337,6 +337,16 @@ char *entity_escape_full_name( char *full_name )
 {
 	static char escape_full_name[ 256 ];
 
+	if ( !full_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty full_name.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	return string_escape_quote( escape_full_name, full_name );
 }
 
@@ -357,8 +367,7 @@ char *entity_primary_where(
 	return strdup( where );
 }
 
-char *entity_street_address(
-			char *full_name )
+char *entity_street_address( char *full_name )
 {
 	char sys_string[ 1024 ];
 	char where[ 256 ];
@@ -368,7 +377,7 @@ char *entity_street_address(
 		entity_escape_name( full_name ) );
 
 	sprintf(sys_string,
-		"select.sh street_address \"%s\"	|"
+		"select.sh street_address entity \"%s\"	|"
 		"head -1				 ",
 		where );
 
@@ -426,5 +435,4 @@ char *entity_name_display(
 
 	return display;
 }
-
 

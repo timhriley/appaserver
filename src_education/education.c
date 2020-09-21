@@ -6,6 +6,7 @@
 /* ---------------------------------------------------- */
 
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include "String.h"
@@ -13,6 +14,7 @@
 #include "timlib.h"
 #include "sql.h"
 #include "boolean.h"
+#include "float.h"
 #include "list.h"
 #include "date_convert.h"
 #include "transaction.h"
@@ -107,6 +109,15 @@ LIST *education_deposit_list(
 
 	while ( string_input( input_string, spreadsheet_file, 65536 ) )
 	{
+/*
+fprintf(stderr,
+	"%s/%s()/%d: input_string = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+input_string );
+*/
+
 		if ( ( dataset_return =
 				/* ---------------------- */
 				/* Returns paypal_dataset */
@@ -116,6 +127,13 @@ LIST *education_deposit_list(
 					spreadsheet->spreadsheet_column_list,
 					paypal_dataset ) ) )
 		{
+			if ( !dataset_return->date_A
+			||   !*dataset_return->date_A
+			||   !isdigit( *dataset_return->date_A ) )
+			{
+				continue;
+			}
+
 			if ( ( deposit =
 				education_deposit(
 					season_name,
@@ -154,6 +172,26 @@ DEPOSIT *education_deposit(
 
 	deposit = deposit_calloc();
 
+	deposit->semester =
+		semester_new(
+			season_name,
+			year );
+
+	/* Columns A and B */
+	/* --------------- */
+	sprintf(deposit_date_time,
+		"%s %s",
+		/* --------------------------------- */
+		/* Looks like: 1/2/2020 and 12:28:39 */
+		/* --------------------------------- */
+		date_convert_international_string(
+			paypal_dataset->date_A ),
+		paypal_dataset->time_B );
+	
+	deposit->deposit_date_time = strdup( deposit_date_time );
+
+	/* Column D */
+	/* -------- */
 	if ( ( payor_street_address =
 		entity_street_address(
 			paypal_dataset->full_name_D ) ) )
@@ -171,21 +209,36 @@ DEPOSIT *education_deposit(
 				ENTITY_STREET_ADDRESS_UNKNOWN );
 	}
 
-	sprintf(deposit_date_time,
-		"%s %s",
-		/* --------------------------------- */
-		/* Looks like: 1/2/2020 and 12:28:39 */
-		/* --------------------------------- */
-		date_convert_international_string(
-			paypal_dataset->date_A ),
-		paypal_dataset->time_B );
-	
-	deposit->deposit_date_time = strdup( deposit_date_time );
+	/* Column H */
+	/* -------- */
+	deposit->deposit_amount = atof( paypal_dataset->gross_revenue_H );
 
-	deposit->semester =
-		semester_new(
-			season_name,
-			year );
+	/* Column I */
+	/* -------- */
+	deposit->transaction_fee = 
+		float_abs(
+			atof( paypal_dataset->transaction_fee_I ) );
+
+	/* Column J */
+	/* -------- */
+	deposit->net_revenue = atof( paypal_dataset->net_revenue_J );
+
+	/* Column K */
+	/* -------- */
+	deposit->from_email_address =
+		strdup( paypal_dataset->from_email_address_K );
+
+	/* Column M */
+	/* -------- */
+	deposit->transaction_ID = paypal_dataset->transaction_ID_M;
+
+	/* Column Z */
+	/* -------- */
+	deposit->invoice_number = paypal_dataset->invoice_number_Z;
+
+	/* Column AD */
+	/* --------- */
+	deposit->account_balance = atof( paypal_dataset->account_balance_AD );
 
 	deposit->deposit_payment_list =
 		education_payment_list(
@@ -247,6 +300,24 @@ PAYMENT *education_payment(
 			payment_item_title_new(
 				item_title_P,
 				student_number ) ) )
+	{
+		return (PAYMENT *)0;
+	}
+
+	if ( ! ( payment_item_title->
+			payment_item_title_entity =
+				payment_item_title_entity(
+				item_title_P,
+				student_number ) ) )
+	{
+		return (PAYMENT *)0;
+	}
+
+	if ( ! ( payment_item_title->
+			payment_item_title_course_name =
+				payment_item_title_course_name(
+					item_title_P,
+					student_number ) ) )
 	{
 		return (PAYMENT *)0;
 	}
@@ -519,7 +590,7 @@ PAYPAL_DATASET *education_paypal_dataset(
 		return (PAYPAL_DATASET *)0;
 	}
 
-	if ( ! ( paypal_dataset->balance_AD =
+	if ( ! ( paypal_dataset->account_balance_AD =
 			spreadsheet_heading_data(
 				spreadsheet_column_list,
 				input_string,

@@ -120,12 +120,9 @@ char *payment_item_title_course_name(
 			char *item_title_P,
 			int student_number )
 {
-	char course_name[ 256 ];
+	char course_name[ 1024 ];
 	char *enrollment_block;
 
-/* Enrollment_block looks like:
-Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James (EJ) Crans)
-*/
 	if ( ! ( enrollment_block =
 			payment_item_title_enrollment_block(
 				item_title_P,
@@ -134,6 +131,9 @@ Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James 
 		return (char *)0;
 	}
 
+/* Enrollment_block looks like:
+Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James (EJ) Crans)
+*/
 	if ( !piece( course_name, ':', enrollment_block, 0 ) )
 	{
 		return (char *)0;

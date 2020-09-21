@@ -36,7 +36,8 @@
 				"net_revenue,"			\
 				"account_balance,"		\
 				"transaction_ID,"		\
-				"invoice_number"
+				"invoice_number,"		\
+				"from_email_address"
 
 /* Structures */
 /* ---------- */
@@ -55,9 +56,9 @@ typedef struct
 	double transaction_fee;
 	double net_revenue;
 	double account_balance;
-	int check_number;
 	char *transaction_ID;
 	char *invoice_number;
+	char *from_email_address;
 	/* ------- */
 	/* Process */
 	/* ------- */
@@ -90,21 +91,6 @@ double deposit_remaining(
 double deposit_net_revenue(
 			double deposit_amount,
 			double transaction_fee );
-
-void deposit_insert(	char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			double deposit_amount,
-			double transaction_fee,
-			double net_revenue,
-			double account_balance,
-			int check_number,
-			char *transaction_ID,
-			char *invoice_number,
-			double payment_total,
-			double gain_donation );
 
 /* Returns static memory */
 /* --------------------- */
@@ -195,9 +181,9 @@ void deposit_insert_pipe(
 			double transaction_fee,
 			double net_revenue,
 			double account_balance,
-			int check_number,
 			char *transaction_ID,
-			char *invoice_number );
+			char *invoice_number,
+			char *from_email_address );
 
 void deposit_list_payment_insert(
 			LIST *deposit_list );
@@ -226,11 +212,22 @@ void deposit_list_payor_entity_insert(
 void deposit_list_program_insert(
 			LIST *deposit_list );
 
-void deposit_list_payment_trigger(
+void deposit_list_enrollment_trigger(
 			char *season_name,
 			int year,
 			LIST *deposit_list );
 
+void deposit_enrollment_trigger(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year );
+
+void deposit_list_payment_trigger(
+			char *season_name,
+			int year,
+			LIST *deposit_list );
 
 void deposit_payment_trigger(
 			char *student_full_name,

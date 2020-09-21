@@ -128,6 +128,7 @@ int main( int argc, char **argv )
 						application_name ),
 					0 /* not is_preprompt */ );
 
+/*
 {
 char msg[ 65536 ];
 sprintf( msg, "%s/%s()/%d: process = [%s], got records = [%s]\n",
@@ -138,6 +139,7 @@ process,
 list_display( process_parameter_record_list ) );
 m2( application_name, msg );
 }
+*/
 	preprompt_process_parameter_record_list = 
 		process_parameter_list_process_parameter_record_list(
 					&is_process_set,

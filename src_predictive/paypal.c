@@ -45,6 +45,7 @@ PAYPAL *paypal_fetch(	char *spreadsheet_filename,
 	{
 		return (PAYPAL *)0;
 	}
+
 	return paypal;
 }
 

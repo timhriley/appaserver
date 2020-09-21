@@ -49,7 +49,7 @@ typedef struct
 	char *custom_number_AA;
 	char *quantity_AB;
 	char *receipt_ID_AC;
-	char *balance_AD;
+	char *account_balance_AD;
 	char *address_line_1_AE;
 	char *address_2_district_neighborhood_AF;
 	char *town_city_AG;
