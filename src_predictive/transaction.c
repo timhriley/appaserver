@@ -939,6 +939,8 @@ TRANSACTION *transaction_binary(
 {
 	TRANSACTION *transaction;
 
+	if ( !transaction_amount ) return (TRANSACTION *)0;
+
 	transaction =
 		transaction_new(
 			full_name,

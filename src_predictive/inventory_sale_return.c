@@ -300,8 +300,7 @@ TRANSACTION *inventory_sale_return_build_transaction(
 			sum_customer_payment_amount );
 
 	return transaction;
-
-} /* inventory_sale_return_build_transaction() */
+}
 
 LIST *inventory_sale_return_get_journal_ledger_list(
 				double *transaction_amount,

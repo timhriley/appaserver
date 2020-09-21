@@ -351,6 +351,8 @@ TRANSACTION *subsidiary_get_transaction(
 	JOURNAL_LEDGER *journal_ledger;
 	char *transaction_date_time_string;
 
+	if ( !transaction_amount ) return (TRANSACTION *)0;
+
 	transaction_date_time_string =
 		date_get_now19(
 			date_get_utc_offset() );

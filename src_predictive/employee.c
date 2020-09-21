@@ -2428,8 +2428,7 @@ void employee_work_period_set_transaction(
 			1 );
 
 	} while( list_next( employee_work_period_list ) );
-
-} /* employee_work_period_set_transaction() */
+}
 
 /* ----------------------------------------------------- */
 /* Future work: need to check if crossed 2:00 AM for DST */

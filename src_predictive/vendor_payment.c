@@ -289,6 +289,8 @@ TRANSACTION *vendor_payment_transaction(
 {
 	TRANSACTION *transaction;
 
+	if ( !payment_amount ) return (TRANSACTION *)0;
+
 	if ( ! ( transaction =
 			transaction_new(
 				full_name,

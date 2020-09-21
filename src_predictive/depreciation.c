@@ -714,6 +714,8 @@ TRANSACTION *depreciation_transaction(
 	TRANSACTION *transaction;
 	char *transaction_date_time;
 
+	if ( !depreciation_amount ) return (TRANSACTION *)0;
+
 	if ( ! ( transaction =
 			transaction_new(
 				full_name,

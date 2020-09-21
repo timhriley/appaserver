@@ -260,7 +260,12 @@ boolean close_nominal_accounts_fund_execute(
 	transaction->memo = TRANSACTION_CLOSING_ENTRY_MEMO;
 
 	field_list =
-"full_name,street_address,transaction_date_time,account,debit_amount,credit_amount";
+		"full_name,"
+		"street_address,"
+		"transaction_date_time,"
+		"account,"
+		"debit_amount,"
+		"credit_amount";
 
 	/* Get the element list. */
 	/* --------------------- */
@@ -286,7 +291,7 @@ boolean close_nominal_accounts_fund_execute(
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^' 	|"
-		 "sql.e							 ",
+		 "sql							 ",
 		 JOURNAL_TABLE,
 		 field_list );
 

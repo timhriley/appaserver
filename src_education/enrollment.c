@@ -291,6 +291,8 @@ TRANSACTION *enrollment_transaction(
 {
 	TRANSACTION *transaction;
 
+	if ( !offering_course_price ) return (TRANSACTION *)0;
+
 	transaction =
 		transaction_new(
 			student_full_name,

@@ -524,8 +524,7 @@ void post_change_accrual_delete(
 		purchase_prepaid_asset->asset_name,
 		purchase_prepaid_asset->accumulated_accrual,
 		purchase_prepaid_asset->database_accumulated_accrual );
-
-} /* post_change_accrual_delete() */
+}
 
 void post_change_accrual_insert(
 			char *application_name,
@@ -662,14 +661,14 @@ void post_change_accrual_insert(
 			accrual->accrual_date,
 			purchase_prepaid_asset->accumulated_accrual );
 
-	if ( accrual->transaction_date_time )
+	if ( !accrual->accrual_amount )
 	{
-		fprintf( stderr,
-"Warning in %s/%s()/%d: not expecting transaction_date_time = (%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 accrual->transaction_date_time );
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty accrual_amount.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return;
 	}
 
 	accrual->transaction_date_time =
@@ -740,8 +739,7 @@ void post_change_accrual_insert(
 		purchase_prepaid_asset->asset_name,
 		purchase_prepaid_asset->accumulated_accrual,
 		purchase_prepaid_asset->database_accumulated_accrual );
-
-} /* post_change_accrual_insert() */
+}
 
 void post_change_accrual_entity(
 			char *full_name,
@@ -825,6 +823,5 @@ void post_change_accrual_entity(
 		} while( list_next( purchase_prepaid_asset->accrual_list ) );
 
 	} while( list_next( purchase_order->prepaid_asset_purchase_list ) );
-
-} /* post_change_accrual_entity() */
+}
 

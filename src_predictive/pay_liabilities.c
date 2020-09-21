@@ -201,6 +201,8 @@ LIST *pay_liabilities_output_liability_account_transaction_list(
 			continue;
 		}
 
+		if ( !entity->payment_amount ) continue;
+
 		transaction_date_time_string =
 			date_display_yyyy_mm_dd_colon_hms(
 				transaction_date_time );
@@ -324,6 +326,18 @@ LIST *pay_liabilities_output_entity_transaction_list(
 		{
 			fprintf( stderr,
 	"Warning in %s/%s()/%d: empty liability_account_list for (%s/%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 entity->full_name,
+				 entity->street_address );
+			continue;
+		}
+
+		if ( !entity->payment_amount )
+		{
+			fprintf( stderr,
+	"Warning in %s/%s()/%d: empty payment_amount for (%s/%s).\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,

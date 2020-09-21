@@ -216,6 +216,8 @@ TRANSACTION *sale_transaction(
 	TRANSACTION *transaction;
 	JOURNAL *journal;
 
+	if ( !invoice_amount ) return (TRANSACTION *)0;
+
 	transaction =
 		transaction_new(
 			full_name,

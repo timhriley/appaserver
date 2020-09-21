@@ -497,6 +497,8 @@ TRANSACTION *post_reoccurring_get_recent_transaction(
 	TRANSACTION *transaction;
 	JOURNAL *journal;
 
+	if ( !transaction_amount ) return (TRANSACTION *)0;
+
 	transaction =
 		transaction_new(
 			full_name,

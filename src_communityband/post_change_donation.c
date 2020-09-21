@@ -149,6 +149,8 @@ void post_change_donation_insert(
 		return;
 	}
 
+	if ( !donation->total_donation_amount ) return;
+
 	donation->transaction_date_time =
 		ledger_get_transaction_date_time(
 			donation->donation_date );
@@ -179,8 +181,7 @@ void post_change_donation_insert(
 			donation->database_total_donation_amount,
 			donation->transaction_date_time,
 			donation->database_transaction_date_time );
-
-} /* post_change_donation_insert() */
+}
 
 void post_change_donation_delete(
 			char *application_name,

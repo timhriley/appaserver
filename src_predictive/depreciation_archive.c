@@ -37,8 +37,7 @@ DEPRECIATION_TRANSACTION *depreciation_transaction_new( void )
 	}
 
 	return p;
-
-} /* depreciation_transaction_new() */
+}
 
 DEPRECIATION_AMOUNT *depreciation_amount_new( void )
 {

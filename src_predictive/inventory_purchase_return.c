@@ -292,8 +292,7 @@ TRANSACTION *inventory_purchase_return_build_transaction(
 			sum_vendor_payment_amount );
 
 	return transaction;
-
-} /* inventory_purchase_return_build_transaction() */
+}
 
 LIST *inventory_purchase_return_get_journal_ledger_list(
 				double *transaction_amount,

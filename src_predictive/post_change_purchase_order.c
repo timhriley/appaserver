@@ -358,8 +358,7 @@ void post_change_purchase_order_FOB_shipping_just_arrived(
 			0 /* check_number */,
 			1 /* lock_transaction */ );
 	}
-
-} /* post_change_purchase_order_FOB_shipping_just_arrived() */
+}
 
 void post_change_purchase_order_FOB_shipping_just_shipped(
 			PURCHASE_ORDER *purchase_order,

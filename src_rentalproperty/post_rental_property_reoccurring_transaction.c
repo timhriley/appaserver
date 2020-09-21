@@ -179,7 +179,7 @@ int main( int argc, char **argv )
 
 	exit( 0 );
 
-} /* main() */
+}
 
 void post_reoccurring_transaction_display(
 			char *application_name,
@@ -254,8 +254,7 @@ void post_reoccurring_transaction_display(
 		 reoccurring_transaction->transaction_amount );
 
 	pclose( output_pipe );
-
-} /* post_reoccurring_transaction_display() */
+}
 
 void post_reoccurring_transaction(
 			char *application_name,
@@ -272,6 +271,8 @@ void post_reoccurring_transaction(
 	JOURNAL_LEDGER *prior_ledger;
 	ACCOUNT *account;
 	LIST *propagate_account_list = list_new();
+
+	if ( !transaction_amount ) return;
 
 	if ( ! ( reoccurring_transaction =
 			reoccurring_transaction_fetch(
@@ -382,6 +383,5 @@ void post_reoccurring_transaction(
 	ledger_account_list_propagate(
 			propagate_account_list,
 			application_name );
-
-} /* post_reoccurring_transaction() */
+}
 

@@ -3802,6 +3802,7 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	char transaction_date_time[ 128 ];
+	char transaction_amount[ 128 ];
 	char check_number[ 128 ];
 	char property_street_address[ 128 ];
 	char memo[ 1024 ];
@@ -3821,11 +3822,23 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 	if ( property_street_address_exists )
 	{
 		select =
-"full_name,street_address,transaction_date_time,memo,check_number,property_street_address";
+			"full_name,"
+			"street_address,"
+			"transaction_date_time,"
+			"transaction_amount,"
+			"memo,"
+			"check_number,"
+			"property_street_address";
 	}
 	else
 	{
-		select = "full_name,street_address,transaction_date_time,memo,check_number";
+		select =
+			"full_name,"
+			"street_address,"
+			"transaction_date_time,"
+			"transaction_amount,"
+			"memo,"
+			"check_number";
 	}
 
 	sprintf( sys_string,
@@ -3863,17 +3876,24 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 					strdup( street_address ),
 					strdup( transaction_date_time ) );
 
-		piece(	memo,
+		piece(	transaction_amount,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			3 );
+
+		transaction->transaction_amount = atof( transaction_amount );
+
+		piece(	memo,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			4 );
 
 		transaction->memo = strdup( memo );
 
 		piece(	check_number,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
-			4 );
+			5 );
 
 		transaction->check_number = atoi( check_number );
 
@@ -3882,7 +3902,7 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 			piece(	property_street_address,
 				FOLDER_DATA_DELIMITER,
 				input_buffer,
-				5 );
+				6 );
 
 			transaction->property_street_address =
 				strdup( property_street_address );
@@ -4100,8 +4120,7 @@ JOURNAL_LEDGER *ledger_journal_ledger_seek(
 	} while( list_next( journal_ledger_list ) );
 
 	return (JOURNAL_LEDGER *)0;
-
-} /* ledger_journal_ledger_seek() */
+}
 
 void ledger_debit_credit_update(	char *application_name,
 					char *full_name,

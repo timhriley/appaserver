@@ -301,6 +301,8 @@ TRANSACTION *feeder_phrase_match_build_transaction(
 		return (TRANSACTION *)0;
 	}
 
+	if ( !abs_bank_amount ) return (TRANSACTION *)0;
+
 	transaction =
 		transaction_new(
 			reoccurring_transaction->full_name,

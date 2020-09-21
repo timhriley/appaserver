@@ -401,6 +401,7 @@ void accrual_list_update_and_transaction_propagate(
 				char *expense_account_name )
 {
 	ACCRUAL *accrual;
+	char *transaction_date_time;
 	char *propagate_transaction_date_time = {0};
 
 	if ( !list_rewind( accrual_list ) ) return;
@@ -408,10 +409,8 @@ void accrual_list_update_and_transaction_propagate(
 	do {
 		accrual = list_get( accrual_list );
 
-		if ( !accrual->transaction )
+		if ( accrual->accrual_amount )
 		{
-			char *transaction_date_time;
-
 			transaction_date_time =
 				transaction_generate_date_time(
 					accrual->accrual_date );

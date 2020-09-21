@@ -461,8 +461,7 @@ void post_change_customer_payment_delete(
 		application_name,
 		customer_payment->transaction_date_time,
 		subsidiary_transaction->process.credit_account_name );
-
-} /* post_change_customer_payment_delete() */
+}
 
 void post_change_customer_payment_update(
 				char *application_name,
@@ -652,8 +651,7 @@ void post_change_customer_payment_amount_update(
 		application_name,
 		customer_payment->transaction_date_time,
 		subsidiary_transaction->process.credit_account_name );
-
-} /* post_change_customer_payment_amount_update() */
+}
 
 void post_change_customer_payment_date_time_update(
 				char *application_name,
