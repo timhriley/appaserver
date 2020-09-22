@@ -710,6 +710,7 @@ void deposit_list_payor_entity_insert(
 	} while ( list_next( deposit_list ) );
 }
 
+#ifdef NOT_DEFINED
 void deposit_list_program_insert(
 			LIST *deposit_list )
 {
@@ -725,6 +726,7 @@ void deposit_list_program_insert(
 
 	} while ( list_next( deposit_list ) );
 }
+#endif
 
 void deposit_list_payment_trigger(
 			char *season_name,

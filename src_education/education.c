@@ -21,6 +21,7 @@
 #include "entity.h"
 #include "enrollment.h"
 #include "offering.h"
+#include "offering_fns.h"
 #include "semester.h"
 #include "payment.h"
 #include "deposit.h"
@@ -431,10 +432,12 @@ void education_offering_insert( LIST *deposit_list )
 	deposit_list_offering_insert( deposit_list );
 }
 
+/*
 void education_program_insert( LIST *deposit_list )
 {
 	deposit_list_program_insert( deposit_list );
 }
+*/
 
 PAYPAL_DATASET *education_paypal_dataset(
 			char *input_string,

@@ -1168,6 +1168,7 @@ void payment_list_payor_entity_insert(
 	if ( system( sys_string ) ){};
 }
 
+#ifdef NOT_DEFINED
 void payment_list_program_insert(
 			LIST *payment_list )
 {
@@ -1217,6 +1218,7 @@ void payment_list_program_insert(
 
 	if ( system( sys_string ) ){};
 }
+#endif
 
 char *payment_list_display( LIST *payment_list )
 {

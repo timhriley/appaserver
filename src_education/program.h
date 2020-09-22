@@ -10,31 +10,67 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "transaction.h"
 
 /* Enumerated types */
 /* ---------------- */
 
 /* Constants */
 /* --------- */
-#define PROGRAM_TABLE		"program"
+#define PROGRAM_TABLE			"program"
 
-#define PROGRAM_INSERT_COLUMNS	"program_name"
+#define PROGRAM_ALIAS_TABLE		"program_alias"
 
 /* Structures */
 /* ---------- */
 typedef struct
 {
 	char *program_name;
-	char *description;
+	char *alias_name;
+} PROGRAM_ALIAS;
+
+typedef struct
+{
+	char *program_name;
+	LIST *program_alias_list;
 } PROGRAM;
 
 PROGRAM *program_new(	char *program_name );
 
-FILE *program_insert_open(
-			char *error_filename );
+PROGRAM *program_fetch(	char *program_name );
 
-void program_insert_pipe(
-			FILE *insert_pipe,
+LIST *program_list(	void );
+
+PROGRAM_ALIAS *program_alias_new(
+			char *program_name,
+			char *alias_name );
+
+PROGRAM *program_list_seek(
+			LIST *program_list,
+			char *program_alias_name );
+
+LIST *program_alias_list(
+			char *program_name );
+
+PROGRAM *program_calloc(
+			void );
+
+LIST *program_system_list(
+			char *sys_string );
+
+LIST *program_alias_system_list(
+			char *sys_string );
+
+PROGRAM *program_parse(
+			char *input );
+
+char *program_sys_string(
+			char *where );
+
+char *program_alias_sys_string(
+			char *where );
+
+char *program_name_escape(
 			char *program_name );
 
 #endif
