@@ -39,6 +39,7 @@ typedef struct
 	OFFERING *offering;
 	REGISTRATION *registration;
 	TRANSACTION *enrollment_transaction;
+	char *transaction_date_time;
 	LIST *enrollment_payment_list;
 } ENROLLMENT;
 
@@ -57,27 +58,20 @@ ENROLLMENT *enrollment_fetch(
 			int year,
 			boolean fetch_payment_list,
 			boolean fetch_offering,
-			boolean fetch_registration );
-
-ENROLLMENT *enrollment_fetchnew(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year,
-			boolean fetch_payment_list,
-			boolean fetch_offering,
-			boolean fetch_registration );
+			boolean fetch_registration,
+			boolean fetch_transaction );
 
 ENROLLMENT *enrollment_parse(
 			char *input,
 			boolean fetch_payment_list,
 			boolean fetch_offering,
-			boolean fetch_registration );
+			boolean fetch_registration,
+			boolean fetch_transaction );
 
 ENROLLMENT *enrollment_steady_state(
 			REGISTRATION *registration,
 			OFFERING *offering,
+			char *program_name,
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */

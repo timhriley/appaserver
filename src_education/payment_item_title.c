@@ -85,6 +85,13 @@ Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James 
 		return (ENTITY *)0;
 	}
 
+	if ( instr(	"Child: " /* substr */,
+			enrollment_block /* string */,
+			1 /* occurrence */ ) < 0 )
+	{
+		return (ENTITY *)0;
+	}
+
 	if ( !piece( student_full_name, ':', enrollment_block, 1 ) )
 	{
 		return (ENTITY *)0;

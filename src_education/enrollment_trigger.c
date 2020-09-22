@@ -161,21 +161,57 @@ void enrollment_trigger_insert_update(
 				year,
 				1 /* fetch_payment_list */,
 				1 /* fetch_offering */,
-				1 /* fetch_registration */ ) ) )
+				1 /* fetch_registration */,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		return;
+	}
+
+	if ( !enrollment->registration )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: registration is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !enrollment->offering )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: offering is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !enrollment->offering->course )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: course is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	enrollment =
 		enrollment_steady_state(
 			enrollment->registration,
 			enrollment->offering,
+			course_program_name(
+				enrollment->offering->course ),
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */
 			enrollment );
 
-	if ( enrollment->enrollment_transaction )
+	if (	enrollment->enrollment_transaction
+	&&	enrollment->enrollment_transaction->transaction_amount
+	&&	enrollment->enrollment_transaction->transaction_date_time
+	&&	*enrollment->enrollment_transaction->transaction_date_time )
 	{
 		TRANSACTION *t = enrollment->enrollment_transaction;
 
@@ -229,40 +265,28 @@ void enrollment_trigger_predelete(
 				year,
 				0 /* not fetch_payment_list */,
 				0 /* not fetch_offering */,
-				0 /* not fetch_registration */ ) ) )
+				0 /* not fetch_registration */,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		return;
 	}
 
-	if ( enrollment->enrollment_transaction )
+	if ( enrollment->transaction_date_time
+	&&   *enrollment->transaction_date_time )
 	{
 		transaction_delete(
-			enrollment->
-				enrollment_transaction->
-				full_name,
-			enrollment->
-				enrollment_transaction->
-				street_address,
-			enrollment->
-				enrollment_transaction->
-				transaction_date_time );
+			enrollment->registration->student_full_name,
+			enrollment->registration->street_address,
+			enrollment->transaction_date_time );
 
 		journal_account_name_list_propagate(
-			enrollment->
-				enrollment_transaction->
-				transaction_date_time,
+			enrollment->transaction_date_time,
 			/* ------------------------- */
 			/* Returns account_name_list */
 			/* ------------------------- */
 			journal_delete(
-				enrollment->
-					enrollment_transaction->
-					full_name,
-				enrollment->
-					enrollment_transaction->
-					street_address,
-				enrollment->
-					enrollment_transaction->
-					transaction_date_time ) );
+				enrollment->registration->student_full_name,
+				enrollment->registration->street_address,
+				enrollment->transaction_date_time ) );
 	}
 }

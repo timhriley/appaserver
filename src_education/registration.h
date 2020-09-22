@@ -26,7 +26,8 @@
 #define REGISTRATION_INSERT_COLUMNS	"full_name,"		\
 					"street_address,"	\
 					"season_name,"		\
-					"year"
+					"year,"			\
+					"registration_date_time"
 
 /* Structures */
 /* ---------- */

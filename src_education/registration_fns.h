@@ -84,7 +84,8 @@ void registration_insert_pipe(
 			char *student_full_name,
 			char *street_address,
 			char *season_name,
-			int year );
+			int year,
+			char *registration_date_time );
 
 #endif
 

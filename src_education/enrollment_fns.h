@@ -29,7 +29,7 @@ TRANSACTION *enrollment_transaction(
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
-			ACCOUNT *offering_revenue_account );
+			char *offering_revenue_account );
 
 char *enrollment_sys_string(
 			char *where );
@@ -49,7 +49,8 @@ LIST *enrollment_system_list(
 			char *sys_string,
 			boolean fetch_payment_list,
 			boolean fetch_offering,
-			boolean fetch_registration );
+			boolean fetch_registration,
+			boolean fetch_transaction );
 
 LIST *enrollment_payment_list(
 			char *student_full_name,
@@ -68,6 +69,9 @@ void enrollment_insert_pipe(
 			char *course_name,
 			char *season_name,
 			int year );
+
+LIST *enrollment_course_name_list(
+			LIST *enrollment_list );
 
 #endif
 

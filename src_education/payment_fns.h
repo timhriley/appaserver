@@ -78,7 +78,8 @@ char *payment_primary_where(
 LIST *payment_system_list(
 			char *sys_string,
 			boolean fetch_deposit,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_transaction );
 
 double payment_cash_debit_amount(
 			double payment_amount,

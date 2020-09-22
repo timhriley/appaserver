@@ -155,7 +155,6 @@ void payment_trigger_insert_update(
 {
 	PAYMENT *payment;
 	char *transaction_date_time = {0};
-	char *program_name;
 
 	if ( ! ( payment =
 			payment_fetch(
@@ -168,7 +167,8 @@ void payment_trigger_insert_update(
 				payor_street_address,
 				deposit_date_time,
 				1 /* fetch_deposit */,
-				1 /* fetch_enrollment */ ) ) )
+				1 /* fetch_enrollment */,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		return;
 	}
@@ -183,33 +183,21 @@ void payment_trigger_insert_update(
 		return;
 	}
 
-	if ( payment->enrollment->offering->course->program )
-	{
-		program_name = 
-			payment->
-				enrollment->
-				offering->
-				course->
-				program->
-				program_name;
-	}
-	else
-	{
-		program_name = (char *)0;
-	}
-
 	payment =
 		payment_steady_state(
 			payment->deposit /* in/out */,
 			payment->deposit->deposit_amount,
 			payment->deposit->transaction_fee,
-			program_name,
+			course_program_name(
+				payment->enrollment->offering->course ),
+			payment->transaction_date_time,
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */
 			payment /* in only */ );
 
-	if ( payment->payment_transaction )
+	if ( payment->payment_transaction
+	&&   payment->payment_transaction->transaction_amount )
 	{
 		TRANSACTION *t = payment->payment_transaction;
 
@@ -223,6 +211,10 @@ void payment_trigger_insert_update(
 				t->memo,
 				0 /* check_number */,
 				t->journal_list );
+	}
+	else
+	{
+		transaction_date_time = (char *)0;
 	}
 
 	payment_update(
@@ -263,40 +255,28 @@ void payment_trigger_predelete(
 				payor_street_address,
 				deposit_date_time,
 				0 /* not fetch_deposit */,
-				0 /* not fetch_enrollment */ ) ) )
+				0 /* not fetch_enrollment */,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		return;
 	}
 
-	if ( payment->payment_transaction )
+	if ( payment->transaction_date_time
+	&&   *payment->transaction_date_time )
 	{
 		transaction_delete(
-			payment->
-				payment_transaction->
-				full_name,
-			payment->
-				payment_transaction->
-				street_address,
-			payment->
-				payment_transaction->
-				transaction_date_time );
+			payment->deposit->payor_entity->full_name,
+			payment->deposit->payor_entity->street_address,
+			payment->transaction_date_time );
 
 		journal_account_name_list_propagate(
-			payment->
-				payment_transaction->
-				transaction_date_time,
+			payment->transaction_date_time,
 			/* ------------------------- */
 			/* Returns account_name_list */
 			/* ------------------------- */
 			journal_delete(
-				payment->
-					payment_transaction->
-					full_name,
-				payment->
-					payment_transaction->
-					street_address,
-				payment->
-					payment_transaction->
-					transaction_date_time ) );
+				payment->deposit->payor_entity->full_name,
+				payment->deposit->payor_entity->street_address,
+				payment->transaction_date_time ) );
 	}
 }

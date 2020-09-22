@@ -85,7 +85,8 @@ PAYMENT *payment_fetch(	char *student_full_name,
 			char *payor_street_address,
 			char *deposit_date_time,
 			boolean fetch_deposit,
-			boolean fetch_enrollment )
+			boolean fetch_enrollment,
+			boolean fetch_transaction )
 {
 	PAYMENT *payment;
 
@@ -105,7 +106,8 @@ PAYMENT *payment_fetch(	char *student_full_name,
 						payor_street_address,
 						deposit_date_time ) ) ),
 			fetch_deposit,
-			fetch_enrollment );
+			fetch_enrollment,
+			fetch_transaction );
 
 	return payment;
 }
@@ -202,7 +204,8 @@ void payment_update(	double payment_amount,
 LIST *payment_system_list(
 			char *sys_string,
 			boolean fetch_deposit,
-			boolean fetch_enrollment )
+			boolean fetch_enrollment,
+			boolean fetch_transaction )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -217,7 +220,8 @@ LIST *payment_system_list(
 			payment_parse(
 				input,
 				fetch_deposit,
-				fetch_enrollment ) );
+				fetch_enrollment,
+				fetch_transaction ) );
 	}
 
 	pclose( input_pipe );
@@ -239,7 +243,8 @@ char *payment_sys_string( char *where )
 PAYMENT *payment_parse(
 			char *input,
 			boolean fetch_deposit,
-			boolean fetch_enrollment )
+			boolean fetch_enrollment,
+			boolean fetch_transaction )
 {
 	PAYMENT *payment;
 	char student_full_name[ 128 ];
@@ -289,8 +294,9 @@ PAYMENT *payment_parse(
 	payment->payment_gain_donation = atof( gain_donation );
 
 	piece( transaction_date_time, SQL_DELIMITER, input, 11 );
+	payment->transaction_date_time = strdup( transaction_date_time );
 
-	if ( *transaction_date_time )
+	if ( fetch_transaction && *transaction_date_time )
 	{
 		if ( ! ( payment->payment_transaction =
 				transaction_fetch(
@@ -309,6 +315,8 @@ PAYMENT *payment_parse(
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
+
+			payment->transaction_date_time = "";
 		}
 	}
 
@@ -334,11 +342,10 @@ PAYMENT *payment_parse(
 				season_name,
 				atoi( year ),
 				0 /* not fetch_payment_list */,
-				1 /* not fetch_offering */,
-				1 /* fetch_registration */ );
-
+				1 /* fetch_offering */,
+				1 /* fetch_registration */,
+				0 /* not fetch_transaction */ );
 	}
-
 	return payment;
 }
 
@@ -494,6 +501,7 @@ PAYMENT *payment_steady_state(
 			double deposit_amount,
 			double deposit_transaction_fee,
 			char *program_name,
+			char *transaction_date_time,
 			PAYMENT *payment )
 {
 	if ( !payment->deposit )
@@ -557,7 +565,8 @@ PAYMENT *payment_steady_state(
 					deposit->
 					deposit_date_time,
 				0 /* not fetch_deposit */,
-				0 /* not fetch_enrollment */ );
+				0 /* not fetch_enrollment */,
+				0 /* not fetch_transaction */ );
 
 	payment->
 		enrollment->
@@ -646,11 +655,18 @@ PAYMENT *payment_steady_state(
 			payment->payment_gain_donation,
 			payment->payment_fees_expense );
 
+	if ( !transaction_date_time
+	||   !*transaction_date_time )
+	{
+		transaction_date_time =
+			deposit->deposit_date_time;
+	}
+
 	payment->payment_transaction =
 		payment_transaction(
 			deposit->payor_entity->full_name,
 			deposit->payor_entity->street_address,
-			deposit->deposit_date_time,
+			transaction_date_time,
 			program_name,
 			payment->payment_amount,
 			payment->payment_fees_expense,
@@ -802,8 +818,9 @@ FILE *payment_insert_open( char *error_filename )
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
-		"sql >%s 2>&1						 ",
+		"insert_statement t=%s f=\"%s\" replace=n delimiter='%c'|"
+		"sql 2>&1						|"
+		"cat >%s 						 ",
 		PAYMENT_TABLE,
 		PAYMENT_INSERT_COLUMNS,
 		SQL_DELIMITER,
@@ -909,7 +926,9 @@ void payment_list_registration_insert(
 			payment->enrollment->registration->student_full_name,
 			payment->enrollment->registration->street_address,
 			payment->enrollment->offering->season_name,
-			payment->enrollment->offering->year );
+			payment->enrollment->offering->year,
+			payment->deposit->deposit_date_time
+				/* registration_date_time */ );
 
 	} while ( list_next( payment_list ) );
 
@@ -996,7 +1015,9 @@ void payment_list_course_insert(
 		course_insert_pipe(
 			insert_pipe,
 			payment->enrollment->offering->course->course_name,
-			payment->enrollment->offering->course->course_price );
+			payment->enrollment->offering->course->course_price,
+			course_program_name(
+				payment->enrollment->offering->course ) );
 
 	} while ( list_next( payment_list ) );
 
@@ -1205,7 +1226,10 @@ char *payment_list_display( LIST *payment_list )
 
 	*ptr = '\0';
 
-	if ( !list_rewind( payment_list ) ) return strdup( display );
+	if ( !list_rewind( payment_list ) )
+	{
+		return "No Payments/No Deposit";
+	}
 
 	do {
 		payment =
@@ -1218,7 +1242,7 @@ char *payment_list_display( LIST *payment_list )
 		}
 
 		ptr += sprintf(	ptr,
-				"%s is enrolled in %s\n",
+				"%s will enroll in %s\n",
 				entity_name_display(
 					payment->
 						enrollment->

@@ -101,18 +101,6 @@ double registration_invoice_amount_due(
 	return registration_tuition - registration_payment_total;
 }
 
-void registration_payment_list_refresh(
-			LIST *registration_payment_list )
-{
-if ( registration_payment_list ) {}
-}
-
-void registration_enrollment_list_refresh(
-			LIST *registration_enrollment_list )
-{
-if ( registration_enrollment_list ) {}
-}
-
 char *registration_primary_where(
 			char *student_full_name,
 			char *street_address,
@@ -339,7 +327,8 @@ LIST *registration_enrollment_list(
 					year ) ),
 			1 /* fetch_payment_list */,
 			1 /* not fetch_offering */,
-			0 /* not fetch_registration */ );
+			0 /* not fetch_registration */,
+			0 /* not fetch_transaction */ );
 }
 
 LIST *registration_payment_list(
@@ -402,6 +391,16 @@ REGISTRATION *registration_steady_state(
 			LIST *registration_enrollment_list,
 			REGISTRATION *registration )
 {
+	if ( !registration )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty registration\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	registration->registration_tuition =
 		registration_tuition(
 			registration_enrollment_list );
@@ -481,10 +480,9 @@ FILE *registration_insert_open( char *error_filename )
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
+		"insert_statement t=%s f=\"%s\" replace=n delimiter='%c'|"
 		"sql 2>&1						|"
-		"grep -vi duplicate					|"
-		"cat >%s 2>&1						 ",
+		"cat >%s						 ",
 		REGISTRATION_TABLE,
 		REGISTRATION_INSERT_COLUMNS,
 		SQL_DELIMITER,
@@ -498,16 +496,18 @@ void registration_insert_pipe(
 			char *student_full_name,
 			char *street_address,
 			char *season_name,
-			int year )
+			int year,
+			char *registration_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%d\n",
+		"%s^%s^%s^%d^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		entity_escape_full_name( student_full_name ),
 		street_address,
 		season_name,
-		year );
+		year,
+		registration_date_time );
 }
 

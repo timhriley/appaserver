@@ -20,7 +20,8 @@
 #define COURSE_TABLE		"course"
 
 #define COURSE_INSERT_COLUMNS	"course_name,"		\
-				"course_price"
+				"course_price,"		\
+				"program_name"
 
 /* Structures */
 /* ---------- */
@@ -56,7 +57,11 @@ FILE *course_insert_open(
 void course_insert_pipe(
 			FILE *insert_pipe,
 			char *course_name,
-			double course_price );
+			double course_price,
+			char *program_name );
+
+char *course_program_name(
+			COURSE *course );
 
 #endif
 

@@ -67,6 +67,7 @@ typedef struct
 	LIST *deposit_payment_list;
 	LIST *deposit_enrollment_list;
 	LIST *deposit_registration_list;
+	LIST *deposit_course_list;
 	double deposit_payment_total;
 	double deposit_gain_donation;
 	double deposit_invoice_amount_due;
@@ -82,7 +83,8 @@ LIST *deposit_payment_list(
 			int year,
 			char *deposit_date_time,
 			boolean fetch_deposit,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_transaction );
 
 double deposit_remaining(
 			double deposit_amount,
@@ -238,6 +240,9 @@ void deposit_payment_trigger(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *deposit_date_time );
+
+LIST *deposit_course_name_list(
+			LIST *deposit_list );
 
 #endif
 

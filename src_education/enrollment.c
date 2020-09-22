@@ -65,14 +65,15 @@ ENROLLMENT *enrollment_parse(
 			char *input,
 			boolean fetch_payment_list,
 			boolean fetch_offering,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_transaction )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	char course_name[ 128 ];
 	char season_name[ 128 ];
-	char piece_buffer[ 128 ];
-	int year;
+	char year[ 128 ];
+	char transaction_date_time[ 128 ];
 	ENROLLMENT *enrollment;
 
 	if ( !input || !*input ) return (ENROLLMENT *)0;
@@ -83,9 +84,7 @@ ENROLLMENT *enrollment_parse(
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( course_name, SQL_DELIMITER, input, 2 );
 	piece( season_name, SQL_DELIMITER, input, 3 );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	year = atoi( piece_buffer );
+	piece( year, SQL_DELIMITER, input, 4 );
 
 	enrollment =
 		enrollment_new(
@@ -93,7 +92,10 @@ ENROLLMENT *enrollment_parse(
 			strdup( street_address ),
 			strdup( course_name ),
 			strdup( season_name ),
-			year );
+			atoi( year ) );
+
+	piece( transaction_date_time, SQL_DELIMITER, input, 5 );
+	enrollment->transaction_date_time = transaction_date_time;
 
 	if ( fetch_payment_list )
 	{
@@ -126,7 +128,7 @@ ENROLLMENT *enrollment_parse(
 			offering_fetch(
 				course_name,
 				season_name,
-				year,
+				enrollment->offering->year,
 				1 /* fetch_course */,
 				0 /* not fetch_enrollment_list */ );
 	}
@@ -138,8 +140,19 @@ ENROLLMENT *enrollment_parse(
 				full_name,
 				street_address,
 				season_name,
-				year,
+				enrollment->offering->year,
 				0 /* not fetch_enrollment_list */ );
+	}
+
+	if (	fetch_transaction
+	&&	enrollment->transaction_date_time
+	&&	*enrollment->transaction_date_time )
+	{
+		enrollment->enrollment_transaction =
+			transaction_fetch(
+				full_name,
+				street_address,
+				enrollment->transaction_date_time );
 	}
 
 	return enrollment;
@@ -165,7 +178,8 @@ ENROLLMENT *enrollment_fetch(
 			int year,
 			boolean fetch_payment_list,
 			boolean fetch_offering,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_transaction )
 {
 	ENROLLMENT *enrollment;
 
@@ -184,7 +198,8 @@ ENROLLMENT *enrollment_fetch(
 						year ) ) ),
 			fetch_payment_list,
 			fetch_offering,
-			fetch_registration );
+			fetch_registration,
+			fetch_transaction );
 
 	return enrollment;
 }
@@ -193,7 +208,8 @@ LIST *enrollment_system_list(
 			char *sys_string,
 			boolean fetch_payment_list,
 			boolean fetch_offering,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_transaction )
 {
 	char input[ 1024 ];
 	FILE *input_pipe = popen( sys_string, "r" );
@@ -207,7 +223,8 @@ LIST *enrollment_system_list(
 				input,
 				fetch_payment_list,
 				fetch_offering,
-				fetch_registration ) );
+				fetch_registration,
+				fetch_transaction ) );
 	}
 	pclose( input_pipe );
 	return enrollment_list;
@@ -244,7 +261,9 @@ void enrollment_update(
 		course_name,
 		season_name,
 		year,
-		transaction_date_time );
+		(transaction_date_time)
+			? transaction_date_time
+			: "" );
 
 	pclose( update_pipe );
 }
@@ -287,7 +306,7 @@ TRANSACTION *enrollment_transaction(
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
-			ACCOUNT *offering_revenue_account )
+			char *offering_revenue_account )
 {
 	TRANSACTION *transaction;
 
@@ -310,8 +329,7 @@ TRANSACTION *enrollment_transaction(
 			transaction->transaction_date_time,
 			transaction->transaction_amount,
 			account_receivable,
-			offering_revenue_account->
-				account_name );
+			offering_revenue_account );
 
 	return transaction;
 }
@@ -337,7 +355,8 @@ ENROLLMENT *enrollment_fetchnew(
 				year,
 				fetch_payment_list,
 				fetch_offering,
-				fetch_registration ) ) )
+				fetch_registration,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		enrollment =
 			enrollment_new(
@@ -369,7 +388,8 @@ LIST *enrollment_payment_list(
 					season_name,
 					year ) ),
 		1 /* fetch_deposit */,
-		0 /* fetch_enrollment */ );
+		0 /* fetch_enrollment */,
+		0 /* not fetch_transaction */ );
 
 	return payment_list;
 }
@@ -377,10 +397,12 @@ LIST *enrollment_payment_list(
 ENROLLMENT *enrollment_steady_state(
 			REGISTRATION *registration,
 			OFFERING *offering,
+			char *program_name,
+			/* ----------------------------- */
+			/* Don't take anything from here */
+			/* ----------------------------- */
 			ENROLLMENT *enrollment )
 {
-	char *program_name;
-
 	if ( !registration )
 	{
 		fprintf(stderr,
@@ -411,6 +433,7 @@ ENROLLMENT *enrollment_steady_state(
 		exit( 1 );
 	}
 
+/*
 	if ( offering->course->program )
 	{
 		program_name = offering->course->program->program_name;
@@ -419,16 +442,20 @@ ENROLLMENT *enrollment_steady_state(
 	{
 		program_name = (char *)0;
 	}
+*/
 
-	enrollment->enrollment_transaction =
-		enrollment_transaction(
-			registration->student_full_name,
-			registration->street_address,
-			registration->registration_date_time,
-			program_name,
-			offering->course->course_price,
-			account_receivable( (char *)0 ),
-			offering_revenue_account() );
+	if ( offering->course->course_price )
+	{
+		enrollment->enrollment_transaction =
+			enrollment_transaction(
+				registration->student_full_name,
+				registration->street_address,
+				registration->registration_date_time,
+				program_name,
+				offering->course->course_price,
+				account_receivable( (char *)0 ),
+				offering->revenue_account );
+	}
 
 	return enrollment;
 }
@@ -438,10 +465,9 @@ FILE *enrollment_insert_open( char *error_filename )
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
+		"insert_statement t=%s f=\"%s\" replace=n delimiter='%c'|"
 		"sql 2>&1						|"
-		"grep -vi duplicate					|"
-		"cat >%s 2>&1						 ",
+		"cat >%s						 ",
 		ENROLLMENT_TABLE,
 		ENROLLMENT_INSERT_COLUMNS,
 		SQL_DELIMITER,
@@ -468,5 +494,33 @@ void enrollment_insert_pipe(
 		course_name,
 		season_name,
 		year );
+}
+
+LIST *enrollment_course_name_list(
+			LIST *enrollment_list )
+{
+	LIST *course_name_list;
+	ENROLLMENT *enrollment;
+
+	if ( !list_rewind( enrollment_list ) ) return (LIST *)0;
+
+	course_name_list = list_new();
+
+	do {
+		enrollment =
+			list_get(
+				enrollment_list );
+
+		if ( enrollment->offering
+		&&   enrollment->offering->course )
+		{
+			list_set(
+				course_name_list,
+				enrollment->offering->course->course_name );
+		}
+
+	} while ( list_next( enrollment_list ) );
+
+	return course_name_list;
 }
 

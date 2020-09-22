@@ -104,7 +104,9 @@ void offering_trigger(
 				offering->year,
 				semester_offering_list(
 					season_name,
-					year ),
+					year,
+					1 /* fetch_course */,
+					0 /* not fetch_enrollment_list */ ),
 				/* ----------------------------- */
 				/* Don't take anything from here */
 				/* ----------------------------- */

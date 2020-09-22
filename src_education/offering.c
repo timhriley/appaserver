@@ -45,9 +45,6 @@ OFFERING *offering_new(	char *course_name,
 	offering->season_name = season_name;
 	offering->year = year;
 
-	offering->offering_revenue_account =
-		offering_revenue_account();
-
 	return offering;
 }
 
@@ -193,8 +190,7 @@ OFFERING *offering_parse(	char *input,
 	offering->offering_capacity_available = atoi( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 8 );
-	offering->offering_revenue_account =
-		account_new( strdup( piece_buffer ) );
+	offering->revenue_account = strdup( piece_buffer );
 
 	if ( fetch_course )
 	{
@@ -379,7 +375,8 @@ LIST *offering_enrollment_list(
 					year ) ),
 			1 /* fetch_payment_list */,
 			0 /* not fetch_offering */,
-			1 /* fetch registration */ );
+			1 /* fetch registration */,
+			0 /* not fetch_transaction */ );
 }
 
 OFFERING *offering_steady_state(
@@ -408,23 +405,6 @@ OFFERING *offering_steady_state(
 	return offering;
 }
 
-ACCOUNT *offering_revenue_account( void )
-{
-	ACCOUNT *account;
-
-	if ( ! ( account = account_key_fetch( ACCOUNT_REVENUE_KEY ) ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: account_key_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			ACCOUNT_REVENUE_KEY );
-		exit( 1 );
-	}
-	return account;
-}
-
 FILE *offering_insert_open( char *error_filename )
 {
 	char sys_string[ 1024 ];
@@ -433,7 +413,7 @@ FILE *offering_insert_open( char *error_filename )
 		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
 		"sql 2>&1						|"
 		"grep -vi duplicate					|"
-		"cat >%s 2>&1						 ",
+		"cat >%s 						 ",
 		OFFERING_TABLE,
 		OFFERING_INSERT_COLUMNS,
 		SQL_DELIMITER,
@@ -453,5 +433,55 @@ void offering_insert_pipe(
 		course_escape_name( course_name ),
 		season_name,
 		year );
+}
+
+LIST *offering_not_exists_course_name_list(
+			char *season_name,
+			int year,
+			LIST *course_name_list )
+{
+	char *course_name;
+	LIST *not_exists_list;
+
+	if ( !list_rewind( course_name_list ) ) return (LIST *)0;
+
+	not_exists_list = list_new();
+
+	do {
+		course_name =
+			list_get(
+				course_name_list );
+
+		if ( !offering_exists(
+			season_name,
+			year,
+			course_name ) )
+		{
+			list_set_unique(
+				not_exists_list,
+				course_name );
+		}
+	} while ( list_next( course_name_list ) );
+	return not_exists_list;
+}
+
+boolean offering_exists(
+			char *season_name,
+			int year,
+			char *course_name )
+{
+	if ( offering_fetch(
+			course_name,
+			season_name,
+			year,
+			0 /* not fetch_course */,
+			0 /* not fetch_enrollment_list */ ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 

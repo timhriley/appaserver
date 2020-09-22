@@ -1436,16 +1436,22 @@ void list_append_unique_string_list(
 			list_append_unique_string( destination_list, item );
 		} while( list_next( source_list ) );
 	}
+}
 
-} /* list_append_unique_string_list() */
+void list_append_unique_string(
+			LIST *list,
+			char *item )
+{
+	list_set_unique( list, item );
+}
 
-void list_append_unique_string(	LIST *list,
-				char *this_item )
+void list_set_unique(
+			LIST *list,
+			char *this_item )
 {
 	if ( !item_exists( list, this_item, strcmp ) )
 	{
-		list_append_pointer(	list,
-					this_item );
+		list_set( list, this_item );
 	}
 }
 

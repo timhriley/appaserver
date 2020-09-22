@@ -59,7 +59,9 @@ SEMESTER *semester_fetch(
 		semester->semester_offering_list =
 			semester_offering_list(
 				season_name,
-				year );
+				year,
+				1 /* fetch_course */,
+				0 /* not fetch_enrollment_list */ );
 	}
 
 	if ( fetch_registration_list )
@@ -90,15 +92,17 @@ char *semester_primary_where(
 
 LIST *semester_offering_list(
 			char *season_name,
-			int year )
+			int year,
+			boolean fetch_course,
+			boolean fetch_enrollment_list )
 {
 	return	offering_system_list(
 			offering_sys_string(
 				semester_primary_where(
 					season_name,
 					year ) ),
-			1 /* fetch_course */,
-			1 /* fetch_enrollment_list */ );
+			fetch_course,
+			fetch_enrollment_list );
 }
 
 LIST *semester_registration_list(

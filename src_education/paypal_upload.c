@@ -61,6 +61,7 @@ int main( int argc, char **argv )
 	char buffer[ 128 ];
 	char *maximum_date = {0};
 	LIST *deposit_list;
+	LIST *not_exists_course_name_list;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -125,14 +126,31 @@ int main( int argc, char **argv )
 	if ( !maximum_date || !list_length( deposit_list ) )
 	{
 		printf( "<h3>Invalid spreadsheet.</h3>\n" );
+		document_close();
+		exit( 0 );
 	}
-	else
-	{
-		paypal_upload_display(
-			deposit_list,
+
+	
+	not_exists_course_name_list =
+		education_not_exists_course_name_list(
 			season_name,
-			year );
+			year,
+			deposit_list );
+
+	if ( list_length( not_exists_course_name_list ) )
+	{
+		printf(
+		"<h3>Can't execute with non-existing offerings: %s</h3>\n",
+			list_display( not_exists_course_name_list ) );
+		fflush( stdout );
+
+		execute = 0;
 	}
+
+	paypal_upload_display(
+		deposit_list,
+		season_name,
+		year );
 
 	if ( execute )
 	{

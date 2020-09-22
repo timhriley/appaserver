@@ -67,14 +67,30 @@ LIST *offering_enrollment_list(
 			char *season_name,
 			int year );
 
-ACCOUNT *offering_revenue_account(
-			void );
-
 void offering_update(	int enrollment_count,
 			int capacity_available,
 			char *course_name,
 			char *season_name,
 			int year );
+
+FILE *offering_insert_open(
+			char *error_filename );
+
+void offering_insert_pipe(
+			FILE *insert_pipe,
+			char *course_name,
+			char *season_name,
+			int year );
+
+LIST *offering_not_exists_course_name_list(
+			char *season_name,
+			int year,
+			LIST *course_name_list );
+
+boolean offering_exists(
+			char *season_name,
+			int year,
+			char *course_name );
 
 #endif
 

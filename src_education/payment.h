@@ -69,6 +69,7 @@ typedef struct
 	double receivable_credit_amount;
 	double payment_cash_debit_amount;
 	TRANSACTION *payment_transaction;
+	char *transaction_date_time;
 } PAYMENT;
 
 /* Prototypes */
@@ -94,7 +95,8 @@ PAYMENT *payment_fetch(	char *student_full_name,
 			char *payor_street_address,
 			char *deposit_date_time,
 			boolean fetch_deposit,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_transaction );
 
 TRANSACTION *payment_transaction(
 			char *payor_full_name,
@@ -113,13 +115,15 @@ TRANSACTION *payment_transaction(
 
 PAYMENT *payment_parse(	char *input,
 			boolean fetch_deposit,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_transaction );
 
 PAYMENT *payment_steady_state(
 			DEPOSIT *deposit /* in/out */,
 			double deposit_amount,
 			double deposit_transaction_fee,
 			char *program_name,
+			char *transaction_date_time,
 			PAYMENT *payment /* in only */ );
 
 PAYMENT *payment_seek(

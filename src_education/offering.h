@@ -52,8 +52,7 @@ typedef struct
 	/* ------------------- */
 	/* Dependent variables */
 	/* ------------------- */
-	ACCOUNT *offering_revenue_account;
-	LIST *semester_offering_list;
+	char *revenue_account;
 } OFFERING;
 
 /* Prototypes */
@@ -97,14 +96,9 @@ OFFERING *offering_steady_state(
 			/* ----------------------------- */
 			OFFERING *offering );
 
-FILE *offering_insert_open(
-			char *error_filename );
-
-void offering_insert_pipe(
-			FILE *insert_pipe,
-			char *course_name,
-			char *season_name,
-			int year );
+/* ------------------ */
+/* See offering_fns.h */
+/* ------------------ */
 
 #endif
 

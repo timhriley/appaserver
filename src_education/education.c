@@ -58,8 +58,8 @@ EDUCATION *education_fetch(
 		semester_fetch(
 			season_name,
 			year,
-			1 /* fetch_offering_list */,
-			1 /* fetch_registration_list */ );
+			0 /* not fetch_offering_list */,
+			0 /* not fetch_registration_list */ );
 
 	education->paypal =
 		paypal_fetch(
@@ -118,7 +118,7 @@ fprintf(stderr,
 input_string );
 */
 
-		if ( ( dataset_return =
+		if ( ! ( dataset_return =
 				/* ---------------------- */
 				/* Returns paypal_dataset */
 				/* ---------------------- */
@@ -127,22 +127,29 @@ input_string );
 					spreadsheet->spreadsheet_column_list,
 					paypal_dataset ) ) )
 		{
-			if ( !dataset_return->date_A
-			||   !*dataset_return->date_A
-			||   !isdigit( *dataset_return->date_A ) )
-			{
-				continue;
-			}
+			continue;
+		}
 
-			if ( ( deposit =
-				education_deposit(
-					season_name,
-					year,
-					dataset_return
-						/* paypal_dataset */ ) ) )
-			{
-				list_set( deposit_list, deposit );
-			}
+		if ( !dataset_return->date_A
+		||   !*dataset_return->date_A
+		||   !isdigit( *dataset_return->date_A ) )
+		{
+			continue;
+		}
+
+		if ( *dataset_return->gross_revenue_H == '-' )
+		{
+			continue;
+		}
+
+		if ( ( deposit =
+			education_deposit(
+				season_name,
+				year,
+				dataset_return
+					/* paypal_dataset */ ) ) )
+		{
+			list_set( deposit_list, deposit );
 		}
 	}
 
@@ -388,13 +395,15 @@ PAYMENT *education_payment(
 void education_deposit_list_insert(
 			LIST *education_deposit_list )
 {
+/*
+	education_program_insert( education_deposit_list );
+	education_course_insert( education_deposit_list );
+	education_offering_insert( education_deposit_list );
+*/
+	education_registration_insert( education_deposit_list );
+	education_enrollment_insert( education_deposit_list );
 	education_deposit_insert( education_deposit_list );
 	education_payment_insert( education_deposit_list );
-	education_enrollment_insert( education_deposit_list );
-	education_registration_insert( education_deposit_list );
-	education_offering_insert( education_deposit_list );
-	education_course_insert( education_deposit_list );
-	education_program_insert( education_deposit_list );
 }
 
 void education_deposit_insert( LIST *deposit_list )
@@ -420,11 +429,6 @@ void education_registration_insert( LIST *deposit_list )
 void education_offering_insert( LIST *deposit_list )
 {
 	deposit_list_offering_insert( deposit_list );
-}
-
-void education_course_insert( LIST *deposit_list )
-{
-	deposit_list_course_insert( deposit_list );
 }
 
 void education_program_insert( LIST *deposit_list )
@@ -605,5 +609,22 @@ PAYPAL_DATASET *education_paypal_dataset(
 	}
 
 	return paypal_dataset;
+}
+
+LIST *education_not_exists_course_name_list(
+			char *season_name,
+			int year,
+			LIST *deposit_list )
+{
+	LIST *course_name_list;
+
+	course_name_list =
+		deposit_course_name_list(
+			deposit_list );
+
+	return offering_not_exists_course_name_list(
+			season_name,
+			year,
+			course_name_list );
 }
 

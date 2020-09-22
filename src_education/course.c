@@ -124,7 +124,7 @@ FILE *course_insert_open( char *error_filename )
 		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
 		"sql 2>&1						|"
 		"grep -vi duplicate					|"
-		"cat >%s 2>&1						 ",
+		"cat >%s 						 ",
 		COURSE_TABLE,
 		COURSE_INSERT_COLUMNS,
 		SQL_DELIMITER,
@@ -136,20 +136,64 @@ FILE *course_insert_open( char *error_filename )
 void course_insert_pipe(
 			FILE *insert_pipe,
 			char *course_name,
-			double course_price )
+			double course_price,
+			char *program_name )
 {
+	fprintf(insert_pipe,
+		"%s",
+		course_name );
+
 	if ( course_price )
 	{
 		fprintf(insert_pipe,
-			"%s^%.2lf\n",
-			course_name,
+			"^%.2lf",
 			course_price );
 	}
 	else
 	{
 		fprintf(insert_pipe,
-			"%s^\n",
-			course_name );
+			"^" );
+	}
+
+	if ( program_name && *program_name )
+	{
+		fprintf(insert_pipe,
+			"^%s\n",
+			program_name );
+	}
+	else
+	{
+		fprintf(insert_pipe,
+			"^\n" );
 	}
 }
 
+char *course_program_name( COURSE *course )
+{
+	char *program_name;
+
+	if ( !course )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty course.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( course->program )
+	{
+		program_name = 
+			course->
+				program->
+				program_name;
+	}
+	else
+	{
+		program_name =
+			course->
+				course_name;
+	}
+	return program_name;
+}

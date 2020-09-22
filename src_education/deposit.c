@@ -21,6 +21,7 @@
 #include "registration_fns.h"
 #include "payment.h"
 #include "payment_fns.h"
+#include "enrollment_fns.h"
 #include "deposit.h"
 
 LIST *deposit_payment_list(
@@ -30,7 +31,8 @@ LIST *deposit_payment_list(
 			int year,
 			char *deposit_date_time,
 			boolean fetch_deposit,
-			boolean fetch_enrollment )
+			boolean fetch_enrollment,
+			boolean fetch_transaction )
 {
 	LIST *payment_list;
 
@@ -47,7 +49,8 @@ LIST *deposit_payment_list(
 					year,
 					deposit_date_time ) ),
 			fetch_deposit,
-			fetch_enrollment );
+			fetch_enrollment,
+			fetch_transaction );
 
 	return payment_list;
 }
@@ -256,7 +259,8 @@ DEPOSIT *deposit_parse(	char *input,
 				deposit->semester->year,
 				deposit_date_time,
 				0 /* not fetch_deposit */,
-				0 /* not fetch_enrollment */ );
+				0 /* not fetch_enrollment */,
+				0 /* not fetch_transaction */ );
 	}
 	return deposit;
 }
@@ -316,7 +320,6 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 						year,
 						deposit_date_time ) ) ),
 			fetch_payment_list );
-
 	return deposit;
 }
 
@@ -483,8 +486,9 @@ FILE *deposit_insert_open( char *error_filename )
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
-		"sql >%s 2>&1						 ",
+		"insert_statement t=%s f=\"%s\" replace=n delimiter='%c'|"
+		"sql 2>&1						|"
+		"cat >%s						 ",
 		DEPOSIT_TABLE,
 		DEPOSIT_INSERT_COLUMNS,
 		SQL_DELIMITER,
@@ -798,12 +802,7 @@ void deposit_list_enrollment_trigger(
 
 		if ( !list_rewind( deposit->deposit_payment_list ) )
 		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty deposit_payment_list\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
+			continue;
 		}
 
 		do {
@@ -846,7 +845,7 @@ void deposit_payment_trigger(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s' insert",
+	"payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s' update",
 		student_full_name,
 		street_address,
 		course_name,
@@ -869,7 +868,7 @@ void deposit_enrollment_trigger(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"enrollment_trigger \"%s\" '%s' \"%s\" '%s' %d insert",
+	"enrollment_trigger \"%s\" '%s' \"%s\" '%s' %d update",
 		student_full_name,
 		street_address,
 		course_name,
@@ -877,5 +876,31 @@ void deposit_enrollment_trigger(
 		year );
 
 	if ( system( sys_string ) ){}
+}
+
+LIST *deposit_course_name_list(
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+	LIST *course_name_list;
+
+	if ( !list_rewind( deposit_list ) ) return (LIST *)0;
+
+	course_name_list = list_new();
+
+	do {
+		deposit =
+			list_get(
+				deposit_list );
+
+		list_append_list(
+			course_name_list,
+			enrollment_course_name_list(
+				deposit_enrollment_list(
+					deposit->deposit_payment_list ) ) );
+
+	} while ( list_next( deposit_list ) );
+
+	return course_name_list;
 }
 

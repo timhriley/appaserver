@@ -314,8 +314,13 @@ void list_append_unique_string_list(
 				LIST *destination_list,
 				LIST *source_list );
 
-void list_append_unique_string(	LIST *list,
-				char *this_item );
+void list_set_unique(
+			LIST *list,
+			char *this_item );
+
+void list_append_unique_string(
+			LIST *list,
+			char *this_item );
 
 char *list_buffered_display(	char *destination,
 				LIST *list, 

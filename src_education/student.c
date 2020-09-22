@@ -58,7 +58,7 @@ FILE *student_insert_open(
 		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
 		"sql 2>&1						|"
 		"grep -vi duplicate					|"
-		"cat >%s 2>&1						 ",
+		"cat >%s						 ",
 		STUDENT_TABLE,
 		STUDENT_INSERT_COLUMNS,
 		SQL_DELIMITER,
