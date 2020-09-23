@@ -14,8 +14,12 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "program_payment.h"
+#include "entity.h"
 #include "transaction.h"
+#include "account.h"
+#include "program.h"
+#include "journal.h"
+#include "program_payment.h"
 
 /* Constants */
 /* --------- */
@@ -41,6 +45,7 @@ void program_payment_trigger_insert_update(
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *program_name;
 	char *payor_full_name;
 	char *payor_street_address;
 	char *season_name;
@@ -129,7 +134,6 @@ void program_payment_trigger_insert_update(
 			char *deposit_date_time )
 {
 	PROGRAM_PAYMENT *program_payment;
-	char *transaction_date_time = {0};
 
 	if ( ! ( program_payment =
 			program_payment_fetch(
@@ -138,7 +142,8 @@ void program_payment_trigger_insert_update(
 				payor_street_address,
 				season_name,
 				year,
-				deposit_date_time ) ) )
+				deposit_date_time,
+				1 /* fetch_program */ ) ) )
 	{
 		return;
 	}
@@ -153,12 +158,12 @@ void program_payment_trigger_insert_update(
 				payor_street_address,
 				deposit_date_time,
 				program_name,
-				payment_amount,
-				fees_expense,
-				net_payment_amount,
-				account_cash,
-				account_fees_expense,
-				program_revenue_account );
+				program_payment->payment_amount,
+				program_payment->fees_expense,
+				program_payment->net_payment_amount,
+				account_cash( (char *)0 ),
+				account_fees_expense( (char *)0 ),
+				program_payment->program->revenue_account );
 
 		program_payment->transaction_date_time =
 			program_payment->program_payment_transaction->
@@ -184,7 +189,6 @@ void program_payment_trigger_insert_update(
 
 	program_payment_update(
 		program_payment->
-			program_payment_transaction->
 			transaction_date_time,
 		program_name,
 		payor_full_name,
@@ -211,7 +215,8 @@ void program_payment_trigger_predelete(
 				payor_street_address,
 				season_name,
 				year,
-				deposit_date_time ) ) )
+				deposit_date_time,
+				0 /* not fetch_program */ ) ) )
 	{
 		return;
 	}

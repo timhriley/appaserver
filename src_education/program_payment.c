@@ -43,7 +43,8 @@ PROGRAM_PAYMENT *program_payment_fetch(
 			char *payor_street_address,
 			char *season_name,
 			int year,
-			char *deposit_date_time )
+			char *deposit_date_time,
+			boolean fetch_program )
 {
 	PROGRAM_PAYMENT *program_payment;
 
@@ -60,13 +61,15 @@ PROGRAM_PAYMENT *program_payment_fetch(
 						payor_street_address,
 						season_name,
 						year,
-						deposit_date_time ) ) ) );
+						deposit_date_time ) ) ),
+			fetch_program );
 
 	return program_payment;
 }
 
 LIST *program_payment_system_list(
-			char *sys_string )
+			char *sys_string,
+			boolean fetch_program )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -78,7 +81,9 @@ LIST *program_payment_system_list(
 	{
 		list_set(
 			program_payment_list,
-			program_payment_parse( input ) );
+			program_payment_parse(
+				input,
+				fetch_program ) );
 	}
 
 	pclose( input_pipe );
@@ -198,7 +203,9 @@ void program_payment_insert_pipe(
 			: "" );
 }
 
-PROGRAM_PAYMENT *program_payment_parse( char *input )
+PROGRAM_PAYMENT *program_payment_parse(
+			char *input,
+			boolean fetch_program )
 {
 	char buffer[ 128 ];
 	PROGRAM_PAYMENT *program_payment;
@@ -238,6 +245,14 @@ PROGRAM_PAYMENT *program_payment_parse( char *input )
 
 	piece( buffer, SQL_DELIMITER, input, 9 );
 	program_payment->transaction_date_time = strdup( buffer );
+
+	if ( fetch_program )
+	{
+		program_payment->program =
+			program_fetch(
+				program_payment->program_name,
+				0 /* not fetch_alias_list */ );
+	}
 
 	return program_payment;
 }
@@ -349,5 +364,45 @@ TRANSACTION *program_payment_transaction(
 	journal->credit_amount = payment_amount;
 
 	return transaction;
+}
+
+FILE *program_payment_update_open( void )
+{
+	char sys_string[ 2048 ];
+
+	sprintf( sys_string,
+		 "update_statement table=%s key=%s carrot=y	|"
+		 "tee_appaserver_error.sh 			|"
+		 "sql						 ",
+		 PROGRAM_PAYMENT_TABLE,
+		 PAYMENT_PRIMARY_KEY );
+
+	return popen( sys_string, "w" );
+}
+
+void program_payment_update(
+			char *transaction_date_time,
+			char *program_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time )
+{
+	FILE *update_pipe = program_payment_update_open();
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%s^%d^%s^transaction_date_time^%s\n",
+		 program_name,
+		 payor_full_name,
+		 payor_street_address,
+		 season_name,
+		 year,
+		 deposit_date_time,
+		 (transaction_date_time)
+			? transaction_date_time
+			: "" );
+
+	pclose( update_pipe );
 }
 

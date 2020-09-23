@@ -16,6 +16,17 @@
 #include "list.h"
 #include "program.h"
 
+char *program_primary_where( char *program_name )
+{
+	char static where[ 128 ];
+
+	sprintf( where,
+		 "program_name = '%s'",
+		 program_name_escape( program_name ) );
+
+	return where;
+}
+
 char *program_name_escape( char *program_name )
 {
 	static char name[ 256 ];
@@ -47,22 +58,44 @@ PROGRAM *program_new( char *program_name )
 	return program;
 }
 
-PROGRAM *program_fetch( char *program_name )
+PROGRAM *program_fetch( char *program_name,
+			boolean fetch_alias_list )
 {
-	PROGRAM *program = program_calloc();
+	PROGRAM *program;
+	char sys_string[ 1024 ];
 
-	program->program_name = program_name;
+	if ( !program_name || !*program_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty program_name.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	program->program_alias_list =
-		program_alias_list(
-			program_name );
+	sprintf( sys_string,
+		 "select.sh '*' %s \"%s\" select",
+		 PROGRAM_TABLE,
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 program_primary_where( program_name ) );
+
+	program =
+		program_parse(
+			pipe2string( sys_string ),
+			fetch_alias_list );
 
 	return program;
 }
 
-PROGRAM *program_parse( char *input )
+PROGRAM *program_parse(
+			char *input,
+			boolean fetch_alias_list )
 {
 	char program_name[ 128 ];
+	char revenue_account[ 128 ];
 	PROGRAM *program;
 
 	if ( !input || !*input ) return (PROGRAM *)0;
@@ -74,6 +107,16 @@ PROGRAM *program_parse( char *input )
 	program =
 		program_new(
 			strdup( program_name ) );
+
+	piece( revenue_account, SQL_DELIMITER, input, 1 );
+	program->revenue_account = strdup( revenue_account );
+
+	if ( fetch_alias_list )
+	{
+		program->program_alias_list =
+			program_alias_list(
+				program_name );
+	}
 
 	return program;
 }
@@ -103,7 +146,8 @@ LIST *program_list( void )
 {
 	return program_system_list(
 			program_sys_string(
-				"1 = 1" ) );
+				"1 = 1" /* where */ ),
+				0 /* not fetch_alias_list */ );
 }
 
 PROGRAM_ALIAS *program_alias_new(
@@ -183,7 +227,8 @@ LIST *program_alias_list( char *program_name )
 }
 
 LIST *program_system_list(
-			char *sys_string )
+			char *sys_string,
+			boolean fetch_alias_list )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -195,7 +240,9 @@ LIST *program_system_list(
 	{
 		list_set(
 			program_list,
-			program_parse( input ) );
+			program_parse(
+				input,
+				fetch_alias_list ) );
 	}
 
 	pclose( input_pipe );

@@ -32,12 +32,14 @@ typedef struct
 typedef struct
 {
 	char *program_name;
+	char *revenue_account;
 	LIST *program_alias_list;
 } PROGRAM;
 
 PROGRAM *program_new(	char *program_name );
 
-PROGRAM *program_fetch(	char *program_name );
+PROGRAM *program_fetch(	char *program_name,
+			boolean fetch_alias_list );
 
 LIST *program_list(	void );
 
@@ -56,13 +58,15 @@ PROGRAM *program_calloc(
 			void );
 
 LIST *program_system_list(
-			char *sys_string );
+			char *sys_string,
+			boolean fetch_alias_list );
 
 LIST *program_alias_system_list(
 			char *sys_string );
 
 PROGRAM *program_parse(
-			char *input );
+			char *input,
+			boolean fetch_alias_list );
 
 char *program_sys_string(
 			char *where );
@@ -71,6 +75,9 @@ char *program_alias_sys_string(
 			char *where );
 
 char *program_name_escape(
+			char *program_name );
+
+char *program_primary_where(
 			char *program_name );
 
 #endif

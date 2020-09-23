@@ -129,7 +129,7 @@ FILE *payment_update_open( void )
 		 "update_statement table=%s key=%s carrot=y	|"
 		 "tee_appaserver_error.sh 			|"
 		 "sql						 ",
-		 "payment",
+		 PAYMENT_TABLE,
 		 PAYMENT_PRIMARY_KEY );
 
 	return popen( sys_string, "w" );

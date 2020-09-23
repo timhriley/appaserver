@@ -99,7 +99,7 @@ char *course_primary_where( char *course_name )
 
 	sprintf( where,
 		 "course_name = '%s'",
-		 course_name );
+		 course_name_escape( course_name ) );
 
 	return where;
 }
