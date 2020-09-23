@@ -22,7 +22,29 @@
 #include "payment.h"
 #include "payment_fns.h"
 #include "enrollment_fns.h"
+#include "program_payment.h"
 #include "deposit.h"
+
+LIST *deposit_program_payment_list(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time )
+{
+	return
+		program_payment_system_list(
+			program_payment_sys_string(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				deposit_primary_where(
+					payor_full_name,
+					payor_street_address,
+					season_name,
+					year,
+					deposit_date_time ) ) );
+}
 
 LIST *deposit_payment_list(
 			char *payor_full_name,
@@ -34,9 +56,7 @@ LIST *deposit_payment_list(
 			boolean fetch_enrollment,
 			boolean fetch_transaction )
 {
-	LIST *payment_list;
-
-	payment_list =
+	return
 		payment_system_list(
 			payment_sys_string(
 				/* --------------------- */
@@ -51,8 +71,6 @@ LIST *deposit_payment_list(
 			fetch_deposit,
 			fetch_enrollment,
 			fetch_transaction );
-
-	return payment_list;
 }
 
 LIST *deposit_registration_list(
@@ -710,23 +728,46 @@ void deposit_list_payor_entity_insert(
 	} while ( list_next( deposit_list ) );
 }
 
-#ifdef NOT_DEFINED
-void deposit_list_program_insert(
+void deposit_list_program_payment_trigger(
+			char *season_name,
+			int year,
 			LIST *deposit_list )
 {
 	DEPOSIT *deposit;
+	PROGRAM_PAYMENT *program_payment;
 
 	if ( !list_rewind( deposit_list ) ) return;
 
 	do {
 		deposit = list_get( deposit_list );
 
-		payment_list_program_insert(
-			deposit->deposit_payment_list );
+		if ( !list_rewind( deposit->deposit_program_payment_list ) )
+		{
+			continue;
+		}
+
+		do {
+			program_payment =
+				list_get(
+					deposit->
+						deposit_program_payment_list );
+
+			deposit_program_payment_trigger(
+				program_payment->
+					program_name,
+				program_payment->
+					payor_full_name,
+				program_payment->
+					payor_street_address,
+				season_name,
+				year,
+				program_payment->
+					deposit_date_time );
+
+		} while ( list_next( deposit->deposit_program_payment_list ) );
 
 	} while ( list_next( deposit_list ) );
 }
-#endif
 
 void deposit_list_payment_trigger(
 			char *season_name,
@@ -743,12 +784,7 @@ void deposit_list_payment_trigger(
 
 		if ( !list_rewind( deposit->deposit_payment_list ) )
 		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty deposit_payment_list\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
+			continue;
 		}
 
 		do {
@@ -832,6 +868,28 @@ void deposit_list_enrollment_trigger(
 		} while ( list_next( deposit->deposit_payment_list ) );
 
 	} while ( list_next( deposit_list ) );
+}
+
+void deposit_program_payment_trigger(
+			char *program_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+"program_payment_trigger \"%s\" \"%s\" '%s' '%s' %d '%s' insert",
+		program_name,
+		payor_full_name,
+		payor_street_address,
+		season_name,
+		year,
+		deposit_date_time );
+
+	if ( system( sys_string ) ){}
 }
 
 void deposit_payment_trigger(

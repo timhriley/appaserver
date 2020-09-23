@@ -65,6 +65,7 @@ typedef struct
 	double deposit_remaining;
 	double deposit_net_revenue;
 	LIST *deposit_payment_list;
+	LIST *deposit_program_payment_list;
 	LIST *deposit_enrollment_list;
 	LIST *deposit_registration_list;
 	LIST *deposit_course_list;
@@ -75,6 +76,13 @@ typedef struct
 
 LIST *deposit_registration_list(
 			LIST *deposit_payment_list );
+
+LIST *deposit_program_payment_list(
+			char *payor_full_name,
+			char *street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time );
 
 LIST *deposit_payment_list(
 			char *payor_full_name,
@@ -135,6 +143,9 @@ char *deposit_sys_string(
 double deposit_payment_total(
 			LIST *deposit_payment_list );
 
+double deposit_program_payment_total(
+			LIST *deposit_payment_list );
+
 DEPOSIT *deposit_steady_state(
 			double deposit_amount,
 			double transaction_fee,
@@ -190,16 +201,13 @@ void deposit_insert_pipe(
 void deposit_list_payment_insert(
 			LIST *deposit_list );
 
+void deposit_list_program_payment_insert(
+			LIST *deposit_list );
+
 void deposit_list_enrollment_insert(
 			LIST *deposit_list );
 
 void deposit_list_registration_insert(
-			LIST *deposit_list );
-
-void deposit_list_offering_insert(
-			LIST *deposit_list );
-
-void deposit_list_course_insert(
 			LIST *deposit_list );
 
 void deposit_list_student_insert(
@@ -210,11 +218,6 @@ void deposit_list_student_entity_insert(
 
 void deposit_list_payor_entity_insert(
 			LIST *deposit_list );
-
-/*
-void deposit_list_program_insert(
-			LIST *deposit_list );
-*/
 
 void deposit_list_enrollment_trigger(
 			char *season_name,
@@ -233,6 +236,11 @@ void deposit_list_payment_trigger(
 			int year,
 			LIST *deposit_list );
 
+void deposit_list_program_payment_trigger(
+			char *season_name,
+			int year,
+			LIST *deposit_list );
+
 void deposit_payment_trigger(
 			char *student_full_name,
 			char *street_address,
@@ -245,6 +253,14 @@ void deposit_payment_trigger(
 
 LIST *deposit_course_name_list(
 			LIST *deposit_list );
+
+void deposit_program_payment_trigger(
+			char *program_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time );
 
 #endif
 

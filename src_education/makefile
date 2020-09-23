@@ -103,6 +103,7 @@ EXECUTABLES=	offering_trigger					\
 		registration_trigger					\
 		enrollment_trigger					\
 		payment_trigger						\
+		program_payment_trigger					\
 		paypal_upload
 
 all: 	${EXECUTABLES}
@@ -151,6 +152,19 @@ payment_trigger: payment_trigger.c					\
 		${EDUCATION_CORE}					\
 		payment_trigger.c					\
 		-o payment_trigger
+
+program_payment_trigger: program_payment_trigger.c			\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${EDUCATION_CORE}
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${EDUCATION_CORE}					\
+		program_payment_trigger.c				\
+		-o program_payment_trigger
 
 deposit_trigger: deposit_trigger.c					\
 	${EXTERNAL_LIBRARY} 						\

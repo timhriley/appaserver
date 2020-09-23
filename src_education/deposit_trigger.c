@@ -56,7 +56,7 @@ int main( int argc, char **argv )
 "Usage: %s payor_full_name payor_street_address season_name year deposit_date_time state\n",
 			 argv[ 0 ] );
 		fprintf( stderr,
-			 "state in {insert,update,delete,payment}\n" );
+		 "state in {insert,update,delete,payment,program_payment}\n" );
 		exit ( 1 );
 	}
 
