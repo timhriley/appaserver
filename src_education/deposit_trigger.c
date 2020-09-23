@@ -191,7 +191,7 @@ void deposit_trigger_payment(
 			LIST *deposit_payment_list )
 {
 	char sys_string[ 1024 ];
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 
 	if ( !list_rewind( deposit_payment_list ) ) return;
 

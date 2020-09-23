@@ -153,7 +153,7 @@ void payment_trigger_insert_update(
 			char *payor_street_address,
 			char *deposit_date_time )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	char *transaction_date_time = {0};
 
 	if ( ! ( payment =
@@ -242,7 +242,7 @@ void payment_trigger_predelete(
 			char *payor_street_address,
 			char *deposit_date_time )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 
 	if ( ! ( payment =
 			payment_fetch(

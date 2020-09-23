@@ -31,11 +31,11 @@
 #include "program.h"
 #include "deposit.h"
 
-PAYMENT *payment_calloc( void )
+TUITION_PAYMENT *payment_calloc( void )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 
-	if ( ! ( payment = calloc( 1, sizeof( PAYMENT ) ) ) )
+	if ( ! ( payment = calloc( 1, sizeof( TUITION_PAYMENT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -47,7 +47,7 @@ PAYMENT *payment_calloc( void )
 	return payment;
 }
 
-PAYMENT *payment_new(	char *student_full_name,
+TUITION_PAYMENT *payment_new(	char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
@@ -56,7 +56,7 @@ PAYMENT *payment_new(	char *student_full_name,
 			char *payor_street_address,
 			char *deposit_date_time )
 {
-	PAYMENT *payment = payment_calloc();
+	TUITION_PAYMENT *payment = payment_calloc();
 
 	payment->enrollment =
 		enrollment_new(
@@ -76,7 +76,7 @@ PAYMENT *payment_new(	char *student_full_name,
 	return payment;
 }
 
-PAYMENT *payment_fetch(	char *student_full_name,
+TUITION_PAYMENT *payment_fetch(	char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
@@ -88,7 +88,7 @@ PAYMENT *payment_fetch(	char *student_full_name,
 			boolean fetch_enrollment,
 			boolean fetch_transaction )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 
 	payment = payment_parse(
 			pipe2string(
@@ -129,8 +129,8 @@ FILE *payment_update_open( void )
 		 "update_statement table=%s key=%s carrot=y	|"
 		 "tee_appaserver_error.sh 			|"
 		 "sql						 ",
-		 PAYMENT_TABLE,
-		 PAYMENT_PRIMARY_KEY );
+		 TUITION_PAYMENT_TABLE,
+		 TUITION_PAYMENT_PRIMARY_KEY );
 
 	return popen( sys_string, "w" );
 }
@@ -240,13 +240,13 @@ char *payment_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-PAYMENT *payment_parse(
+TUITION_PAYMENT *payment_parse(
 			char *input,
 			boolean fetch_deposit,
 			boolean fetch_enrollment,
 			boolean fetch_transaction )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	char student_full_name[ 128 ];
 	char street_address[ 128 ];
 	char course_name[ 128 ];
@@ -260,7 +260,7 @@ PAYMENT *payment_parse(
 	char gain_donation[ 128 ];
 	char transaction_date_time[ 128 ];
 
-	if ( !input || !*input ) return (PAYMENT *)0;
+	if ( !input || !*input ) return (TUITION_PAYMENT *)0;
 
 	/* See: attribute_list payment */
 	/* ---------------------------- */
@@ -377,7 +377,7 @@ TRANSACTION *payment_transaction(
 			deposit_date_time,
 			payment_amount
 				/* transaction_amount */,
-			PAYMENT_MEMO );
+			TUITION_PAYMENT_MEMO );
 
 	transaction->program_name = program_name;
 
@@ -445,7 +445,7 @@ TRANSACTION *payment_transaction(
 
 double payment_total( LIST *payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	double total;
 
 	if ( !list_rewind( payment_list ) ) return 0.0;
@@ -496,13 +496,13 @@ double payment_fees_expense(
 		(double)length;
 }
 
-PAYMENT *payment_steady_state(
+TUITION_PAYMENT *payment_steady_state(
 			DEPOSIT *deposit,
 			double deposit_amount,
 			double deposit_transaction_fee,
 			char *program_name,
 			char *transaction_date_time,
-			PAYMENT *payment )
+			TUITION_PAYMENT *payment )
 {
 	if ( !payment->deposit )
 	{
@@ -599,7 +599,7 @@ PAYMENT *payment_steady_state(
 	/* Set the payment amount in the list, so the total will add up. */
 	/* ------------------------------------------------------------- */
 	{
-		PAYMENT *p;
+		TUITION_PAYMENT *p;
 
 		if ( ! ( p = payment_seek(
 				payment->
@@ -723,14 +723,14 @@ char *payment_primary_where(
 	return where;
 }
 
-PAYMENT *payment_seek(
+TUITION_PAYMENT *payment_seek(
 			LIST *deposit_payment_list,
 			char *deposit_date_time )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 
 	if ( !list_rewind( deposit_payment_list ) )
-		return (PAYMENT *)0;
+		return (TUITION_PAYMENT *)0;
 
 	do {
 		payment = list_get( deposit_payment_list );
@@ -752,7 +752,7 @@ PAYMENT *payment_seek(
 		}
 	} while ( list_next( deposit_payment_list ) );
 
-	return (PAYMENT *)0;
+	return (TUITION_PAYMENT *)0;
 }
 
 double payment_cash_debit_amount(
@@ -767,7 +767,7 @@ double payment_cash_debit_amount(
 
 void payment_list_insert( LIST *payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
@@ -821,8 +821,8 @@ FILE *payment_insert_open( char *error_filename )
 		"insert_statement t=%s f=\"%s\" replace=n delimiter='%c'|"
 		"sql 2>&1						|"
 		"cat >%s 						 ",
-		PAYMENT_TABLE,
-		PAYMENT_INSERT_COLUMNS,
+		TUITION_PAYMENT_TABLE,
+		TUITION_PAYMENT_INSERT_COLUMNS,
 		SQL_DELIMITER,
 		error_filename );
 
@@ -860,7 +860,7 @@ void payment_insert_pipe(
 
 void payment_list_enrollment_insert( LIST *payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
@@ -906,7 +906,7 @@ void payment_list_enrollment_insert( LIST *payment_list )
 void payment_list_registration_insert(
 			LIST *payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
@@ -953,7 +953,7 @@ void payment_list_registration_insert(
 void payment_list_offering_insert(
 			LIST *payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
@@ -997,7 +997,7 @@ void payment_list_offering_insert(
 void payment_list_course_insert(
 			LIST *payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
@@ -1042,7 +1042,7 @@ void payment_list_course_insert(
 void payment_list_student_insert(
 			LIST *payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
@@ -1085,7 +1085,7 @@ void payment_list_student_insert(
 void payment_list_student_entity_insert(
 			LIST *payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
@@ -1128,7 +1128,7 @@ void payment_list_student_entity_insert(
 void payment_list_payor_entity_insert(
 			LIST *payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
@@ -1172,7 +1172,7 @@ void payment_list_payor_entity_insert(
 void payment_list_program_insert(
 			LIST *payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	COURSE *course;
 	FILE *insert_pipe;
 	char *error_filename;
@@ -1224,7 +1224,7 @@ char *payment_list_display( LIST *payment_list )
 {
 	char display[ 65536 ];
 	char *ptr = display;
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 
 	*ptr = '\0';
 

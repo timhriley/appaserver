@@ -315,7 +315,7 @@ TRANSACTION *program_payment_transaction(
 			deposit_date_time,
 			payment_amount
 				/* transaction_amount */,
-			PAYMENT_MEMO );
+			PROGRAM_PAYMENT_MEMO );
 
 	transaction->program_name = program_name;
 
@@ -375,7 +375,7 @@ FILE *program_payment_update_open( void )
 		 "tee_appaserver_error.sh 			|"
 		 "sql						 ",
 		 PROGRAM_PAYMENT_TABLE,
-		 PAYMENT_PRIMARY_KEY );
+		 PROGRAM_PAYMENT_PRIMARY_KEY );
 
 	return popen( sys_string, "w" );
 }

@@ -270,7 +270,7 @@ LIST *education_payment_list(
 			DEPOSIT *deposit )
 {
 	LIST *payment_list = list_new();
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	int student_number;
 
 	for (	student_number = 1;
@@ -290,7 +290,7 @@ LIST *education_payment_list(
 	return payment_list;
 }
 
-PAYMENT *education_payment(
+TUITION_PAYMENT *education_payment(
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -301,7 +301,7 @@ PAYMENT *education_payment(
 			/* -------- */
 			DEPOSIT *deposit )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	PAYMENT_ITEM_TITLE *payment_item_title;
 
 	if ( ! ( payment_item_title =
@@ -309,7 +309,7 @@ PAYMENT *education_payment(
 				item_title_P,
 				student_number ) ) )
 	{
-		return (PAYMENT *)0;
+		return (TUITION_PAYMENT *)0;
 	}
 
 	if ( ! ( payment_item_title->
@@ -318,7 +318,7 @@ PAYMENT *education_payment(
 				item_title_P,
 				student_number ) ) )
 	{
-		return (PAYMENT *)0;
+		return (TUITION_PAYMENT *)0;
 	}
 
 	if ( ! ( payment_item_title->
@@ -327,7 +327,7 @@ PAYMENT *education_payment(
 					item_title_P,
 					student_number ) ) )
 	{
-		return (PAYMENT *)0;
+		return (TUITION_PAYMENT *)0;
 	}
 
 	/* New payment */
@@ -396,11 +396,6 @@ PAYMENT *education_payment(
 void education_deposit_list_insert(
 			LIST *education_deposit_list )
 {
-/*
-	education_program_insert( education_deposit_list );
-	education_course_insert( education_deposit_list );
-	education_offering_insert( education_deposit_list );
-*/
 	education_registration_insert( education_deposit_list );
 	education_enrollment_insert( education_deposit_list );
 	education_deposit_insert( education_deposit_list );
@@ -426,18 +421,6 @@ void education_registration_insert( LIST *deposit_list )
 {
 	deposit_list_registration_insert( deposit_list );
 }
-
-void education_offering_insert( LIST *deposit_list )
-{
-	deposit_list_offering_insert( deposit_list );
-}
-
-/*
-void education_program_insert( LIST *deposit_list )
-{
-	deposit_list_program_insert( deposit_list );
-}
-*/
 
 PAYPAL_DATASET *education_paypal_dataset(
 			char *input_string,

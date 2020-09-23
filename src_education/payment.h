@@ -5,8 +5,8 @@
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
 
-#ifndef PAYMENT_H
-#define PAYMENT_H
+#ifndef TUITION_PAYMENT_H
+#define TUITION_PAYMENT_H
 
 #include "boolean.h"
 #include "list.h"
@@ -19,10 +19,10 @@
 
 /* Constants */
 /* --------- */
-#define PAYMENT_TABLE_NAME	"payment"
-#define PAYMENT_TABLE		PAYMENT_TABLE_NAME
+#define TUITION_PAYMENT_TABLE		"tuition_payment"
 
-#define PAYMENT_PRIMARY_KEY	"full_name,"			\
+#define TUITION_PAYMENT_PRIMARY_KEY				\
+				"full_name,"			\
 				"street_address,"		\
 				"course_name,"			\
 				"season_name,"			\
@@ -31,9 +31,10 @@
 				"payor_street_address,"		\
 				"deposit_date_time"
 
-#define PAYMENT_MEMO		"Customer Payment"
+#define TUITION_PAYMENT_MEMO	"Tuition Payment"
 
-#define PAYMENT_INSERT_COLUMNS	"full_name,"			\
+#define TUITION_PAYMENT_INSERT_COLUMNS				\
+				"full_name,"			\
 				"street_address,"		\
 				"course_name,"			\
 				"season_name,"			\
@@ -70,14 +71,14 @@ typedef struct
 	double payment_cash_debit_amount;
 	TRANSACTION *payment_transaction;
 	char *transaction_date_time;
-} PAYMENT;
+} TUITION_PAYMENT;
 
 /* Prototypes */
 /* ---------- */
-PAYMENT *payment_calloc(
+TUITION_PAYMENT *payment_calloc(
 			void );
 
-PAYMENT *payment_new(	char *student_full_name,
+TUITION_PAYMENT *payment_new(	char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
@@ -86,7 +87,7 @@ PAYMENT *payment_new(	char *student_full_name,
 			char *payor_street_address,
 			char *deposit_date_time );
 
-PAYMENT *payment_fetch(	char *student_full_name,
+TUITION_PAYMENT *payment_fetch(	char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
@@ -113,20 +114,20 @@ TRANSACTION *payment_transaction(
 			char *account_fees_expense,
 			char *account_gain );
 
-PAYMENT *payment_parse(	char *input,
+TUITION_PAYMENT *payment_parse(	char *input,
 			boolean fetch_deposit,
 			boolean fetch_enrollment,
 			boolean fetch_transaction );
 
-PAYMENT *payment_steady_state(
+TUITION_PAYMENT *payment_steady_state(
 			DEPOSIT *deposit /* in/out */,
 			double deposit_amount,
 			double deposit_transaction_fee,
 			char *program_name,
 			char *transaction_date_time,
-			PAYMENT *payment /* in only */ );
+			TUITION_PAYMENT *payment /* in only */ );
 
-PAYMENT *payment_seek(
+TUITION_PAYMENT *payment_seek(
 			LIST *deposit_payment_list,
 			char *deposit_date_time );
 

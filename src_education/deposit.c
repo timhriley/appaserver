@@ -43,7 +43,8 @@ LIST *deposit_program_payment_list(
 					payor_street_address,
 					season_name,
 					year,
-					deposit_date_time ) ) );
+					deposit_date_time ) ),
+			1 /* fetch_alias_list */ );
 }
 
 LIST *deposit_payment_list(
@@ -76,7 +77,7 @@ LIST *deposit_payment_list(
 LIST *deposit_registration_list(
 			LIST *deposit_payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	LIST *registration_list;
 
 	if ( !list_rewind( deposit_payment_list ) ) return (LIST *)0;
@@ -425,7 +426,7 @@ void deposit_update(
 LIST *deposit_enrollment_list(
 			LIST *deposit_payment_list )
 {
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 	LIST *enrollment_list;
 
 	if ( !list_rewind( deposit_payment_list ) ) return (LIST *)0;
@@ -775,7 +776,7 @@ void deposit_list_payment_trigger(
 			LIST *deposit_list )
 {
 	DEPOSIT *deposit;
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 
 	if ( !list_rewind( deposit_list ) ) return;
 
@@ -831,7 +832,7 @@ void deposit_list_enrollment_trigger(
 			LIST *deposit_list )
 {
 	DEPOSIT *deposit;
-	PAYMENT *payment;
+	TUITION_PAYMENT *payment;
 
 	if ( !list_rewind( deposit_list ) ) return;
 

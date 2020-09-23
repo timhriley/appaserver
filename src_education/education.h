@@ -68,7 +68,7 @@ LIST *education_payment_list(
 			/* -------- */
 			DEPOSIT *deposit );
 
-PAYMENT *education_payment(
+TUITION_PAYMENT *education_payment(
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -100,15 +100,6 @@ void education_enrollment_insert(
 			LIST *deposit_list );
 
 void education_registration_insert(
-			LIST *deposit_list );
-
-void education_offering_insert(
-			LIST *deposit_list );
-
-void education_course_insert(
-			LIST *deposit_list );
-
-void education_program_insert(
 			LIST *deposit_list );
 
 LIST *education_not_exists_course_name_list(
