@@ -1,12 +1,12 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/payment_fns.h		*/
+/* $APPASERVER_HOME/src_education/tuition_payment_fns.h	*/
 /* ---------------------------------------------------- */
 /*							*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
 
-#ifndef PAYMENT_FNS_H
-#define PAYMENT_FNS_H
+#ifndef TUITION_PAYMENT_FNS_H
+#define TUITION_PAYMENT_FNS_H
 
 #include "boolean.h"
 #include "list.h"
@@ -17,7 +17,7 @@
 
 /* Returns true transaction_date_time */
 /* ---------------------------------- */
-char *payment_transaction_refresh(
+char *tuition_payment_transaction_refresh(
 			char *student_full_name,
 			char *student_street_address,
 			char *transaction_date_time,
@@ -26,7 +26,8 @@ char *payment_transaction_refresh(
 			char *memo,
 			LIST *journal_list );
 
-void payment_update(	double payment_amount,
+void tuition_payment_update(
+			double payment_amount,
 			double fees_expense,
 			double gain_donation,
 			char *transaction_date_time,
@@ -39,19 +40,19 @@ void payment_update(	double payment_amount,
 			char *payor_street_address,
 			char *deposit_date_time );
 
-char *payment_sys_string(
+char *tuition_payment_sys_string(
 			char *where );
 
-LIST *payment_deposit_list(
+LIST *tuition_payment_deposit_list(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year );
 
-FILE *payment_update_open(
+FILE *tuition_payment_update_open(
 			void );
 
-double payment_fees_expense(
+double tuition_payment_fees_expense(
 			double deposit_transaction_fee,
 			LIST *deposit_payment_list );
 
@@ -59,13 +60,13 @@ double payment_gain_donation(
 			double deposit_amount,
 			LIST *deposit_registration_list );
 
-double payment_total(	LIST *payment_list );
+double tuition_payment_total(	LIST *payment_list );
 
-double payment_amount(
+double tuition_payment_amount(
 			double deposit_amount,
 			double deposit_invoice_amount_due );
 
-char *payment_primary_where(
+char *tuition_payment_primary_where(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -75,24 +76,24 @@ char *payment_primary_where(
 			char *payor_street_address,
 			char *deposit_date_time );
 
-LIST *payment_system_list(
+LIST *tuition_payment_system_list(
 			char *sys_string,
 			boolean fetch_deposit,
 			boolean fetch_enrollment,
 			boolean fetch_transaction );
 
-double payment_cash_debit_amount(
+double tuition_payment_cash_debit_amount(
 			double payment_amount,
 			double payment_gain_donation,
 			double payment_fees_expense );
 
-void payment_list_insert(
+void tuition_payment_list_insert(
 			LIST *payment_list );
 
-FILE *payment_insert_open(
+FILE *tuition_payment_insert_open(
 			char *error_filename );
 
-void payment_insert_pipe(
+void tuition_payment_insert_pipe(
 			FILE *insert_pipe,
 			char *student_full_name,
 			char *street_address,
@@ -103,34 +104,28 @@ void payment_insert_pipe(
 			char *payor_street_address,
 			char *deposit_date_time );
 
-void payment_list_enrollment_insert(
+void tuition_payment_list_enrollment_insert(
 			LIST *payment_list );
 
-void payment_list_registration_insert(
+void tuition_payment_list_registration_insert(
 			LIST *deposit_payment_list );
 
-void payment_list_offering_insert(
+void tuition_payment_list_student_entity_insert(
 			LIST *deposit_payment_list );
 
-void payment_list_course_insert(
+void tuition_payment_list_student_insert(
 			LIST *deposit_payment_list );
 
-void payment_list_student_entity_insert(
-			LIST *deposit_payment_list );
-
-void payment_list_student_insert(
-			LIST *deposit_payment_list );
-
-void payment_list_payor_entity_insert(
+void tuition_payment_list_payor_entity_insert(
 			LIST *payment_list );
 
-void payment_list_program_insert(
+void tuition_payment_list_program_insert(
 			LIST *deposit_payment_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *payment_list_display(
-			LIST *payment_list );
+char *tuition_payment_list_display(
+			LIST *tuition_payment_list );
 
 #endif
 

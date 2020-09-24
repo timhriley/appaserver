@@ -14,11 +14,10 @@
 #include "sql.h"
 #include "environ.h"
 #include "list.h"
+#include "registration.h"
 #include "enrollment.h"
 #include "entity.h"
-#include "payment.h"
-#include "payment_fns.h"
-#include "registration.h"
+#include "tuition_payment_fns.h"
 #include "registration_fns.h"
 #include "enrollment_fns.h"
 
@@ -350,7 +349,7 @@ LIST *registration_payment_list(
 		list_append_list(
 			payment_list,
 			enrollment->
-				enrollment_payment_list );
+				enrollment_tuition_payment_list );
 
 	} while ( list_next( registration_enrollment_list ) );
 
@@ -384,7 +383,7 @@ double registration_tuition_total(
 double registration_payment_total(
 			LIST *registration_payment_list )
 {
-	return payment_total( registration_payment_list );
+	return tuition_payment_total( registration_payment_list );
 }
 
 REGISTRATION *registration_steady_state(

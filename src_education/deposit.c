@@ -19,18 +19,19 @@
 #include "semester.h"
 #include "registration.h"
 #include "registration_fns.h"
-#include "payment.h"
-#include "payment_fns.h"
-#include "enrollment_fns.h"
+#include "tuition_payment.h"
 #include "program_payment.h"
+#include "tuition_payment_fns.h"
+#include "enrollment_fns.h"
 #include "deposit.h"
 
-LIST *deposit_program_payment_list(
+LIST *deposit_fetch_program_payment_list(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
-			char *deposit_date_time )
+			char *deposit_date_time,
+			boolean fetch_program )
 {
 	return
 		program_payment_system_list(
@@ -44,10 +45,10 @@ LIST *deposit_program_payment_list(
 					season_name,
 					year,
 					deposit_date_time ) ),
-			1 /* fetch_alias_list */ );
+			fetch_program );
 }
 
-LIST *deposit_payment_list(
+LIST *deposit_fetch_tuition_payment_list(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -58,8 +59,8 @@ LIST *deposit_payment_list(
 			boolean fetch_transaction )
 {
 	return
-		payment_system_list(
-			payment_sys_string(
+		tuition_payment_system_list(
+			tuition_payment_sys_string(
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -271,7 +272,7 @@ DEPOSIT *deposit_parse(	char *input,
 	if ( fetch_payment_list )
 	{
 		deposit->deposit_tuition_payment_list =
-			deposit_tuition_payment_list(
+			deposit_fetch_tuition_payment_list(
 				payor_full_name,
 				payor_street_address,
 				season_name,
@@ -281,13 +282,13 @@ DEPOSIT *deposit_parse(	char *input,
 				0 /* not fetch_enrollment */ );
 
 		deposit->deposit_program_payment_list =
-			deposit_program_payment_list(
+			deposit_fetch_program_payment_list(
 				payor_full_name,
 				payor_street_address,
 				season_name,
 				deposit->semester->year,
 				deposit_date_time,
-				0 /* not fetch_deposit */ );
+				1 /* fetch_program */ );
 	}
 	return deposit;
 }
@@ -778,7 +779,7 @@ void deposit_list_program_payment_trigger(
 	} while ( list_next( deposit_list ) );
 }
 
-void deposit_list_payment_trigger(
+void deposit_list_tuition_payment_trigger(
 			char *season_name,
 			int year,
 			LIST *deposit_list )
@@ -801,7 +802,7 @@ void deposit_list_payment_trigger(
 				list_get(
 					deposit->deposit_payment_list );
 
-			deposit_payment_trigger(
+			deposit_tuition_payment_trigger(
 				payment->
 					enrollment->
 					registration->
@@ -890,7 +891,7 @@ void deposit_program_payment_trigger(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"program_payment_trigger \"%s\" \"%s\" '%s' '%s' %d '%s' insert",
+"program_payment_trigger \"%s\" \"%s\" '%s' '%s' %d '%s' deposit",
 		program_name,
 		payor_full_name,
 		payor_street_address,
@@ -901,7 +902,7 @@ void deposit_program_payment_trigger(
 	if ( system( sys_string ) ){}
 }
 
-void deposit_payment_trigger(
+void deposit_tuition_payment_trigger(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -914,7 +915,7 @@ void deposit_payment_trigger(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s' update",
+"tuition_payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s' deposit",
 		student_full_name,
 		street_address,
 		course_name,
@@ -937,7 +938,7 @@ void deposit_enrollment_trigger(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"enrollment_trigger \"%s\" '%s' \"%s\" '%s' %d update",
+	"enrollment_trigger \"%s\" '%s' \"%s\" '%s' %d insert",
 		student_full_name,
 		street_address,
 		course_name,
@@ -973,7 +974,7 @@ LIST *deposit_course_name_list(
 	return course_name_list;
 }
 
-LIST *deposit_calculate_program_payment_list(
+LIST *deposit_program_payment_list(
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -1001,7 +1002,7 @@ LIST *deposit_calculate_program_payment_list(
 	return payment_list;
 }
 
-LIST *deposit_calculate_tuition_payment_list(
+LIST *deposit_tuition_payment_list(
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -1144,37 +1145,19 @@ PROGRAM_PAYMENT *deposit_program_payment(
 			DEPOSIT *deposit )
 {
 	PROGRAM_PAYMENT *payment;
-	PAYMENT_ITEM_TITLE *payment_item_title;
+	PROGRAM_PAYMENT_ITEM_TITLE *payment_item_title;
 
 	if ( ! ( payment_item_title =
-			payment_item_title_new(
+			program_payment_item_title_new(
 				item_title_P,
-				student_number ) ) )
+				program_number ) ) )
 	{
-		return (TUITION_PAYMENT *)0;
-	}
-
-	if ( ! ( payment_item_title->
-			payment_item_title_entity =
-				payment_item_title_entity(
-				item_title_P,
-				student_number ) ) )
-	{
-		return (TUITION_PAYMENT *)0;
-	}
-
-	if ( ! ( payment_item_title->
-			payment_item_title_course_name =
-				payment_item_title_course_name(
-					item_title_P,
-					student_number ) ) )
-	{
-		return (TUITION_PAYMENT *)0;
+		return (PROGRAM_PAYMENT *)0;
 	}
 
 	/* New payment */
 	/* ----------- */
-	payment = payment_calloc();
+	payment = program_payment_calloc();
 
 	/* Build enrollment */
 	/* ---------------- */

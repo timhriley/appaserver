@@ -15,6 +15,7 @@
 #include "environ.h"
 #include "boolean.h"
 #include "list.h"
+#include "program.h"
 #include "course.h"
 
 COURSE *course_parse( char *input )

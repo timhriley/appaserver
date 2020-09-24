@@ -15,7 +15,8 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "semester.h"
-#include "payment.h"
+#include "tuition_payment.h"
+#include "program_payment.h"
 #include "deposit.h"
 
 /* Constants */
@@ -23,7 +24,10 @@
 
 /* Prototypes */
 /* ---------- */
-void deposit_trigger_payment(
+void deposit_trigger_tuition_payment(
+			LIST *deposit_payment_list );
+
+void deposit_trigger_program_payment(
 			LIST *deposit_payment_list );
 
 DEPOSIT *deposit_trigger(
@@ -56,7 +60,7 @@ int main( int argc, char **argv )
 "Usage: %s payor_full_name payor_street_address season_name year deposit_date_time state\n",
 			 argv[ 0 ] );
 		fprintf( stderr,
-		 "state in {insert,update,delete,payment,program_payment}\n" );
+"state in {insert,update,delete,payment,tuition_payment,program_payment}\n" );
 		exit ( 1 );
 	}
 
@@ -87,12 +91,20 @@ int main( int argc, char **argv )
 				year,
 				deposit_date_time );
 
-		if ( strcmp( state, "payment" ) != 0 )
+		if ( strcmp( state, "tuition_payment" ) != 0 )
 		{
-			deposit_trigger_payment(
+			deposit_trigger_tuition_payment(
 				deposit->
 					deposit_payment_list );
 		}
+
+		if ( strcmp( state, "program_payment" ) != 0 )
+		{
+			deposit_trigger_program_payment(
+				deposit->
+					deposit_payment_list );
+		}
+
 	}
 	return 0;
 }
@@ -187,7 +199,7 @@ DEPOSIT *deposit_trigger(
 	return deposit;
 }
 
-void deposit_trigger_payment(
+void deposit_tuition_trigger_payment(
 			LIST *deposit_payment_list )
 {
 	char sys_string[ 1024 ];
@@ -199,7 +211,7 @@ void deposit_trigger_payment(
 		payment = list_get( deposit_payment_list );
 
 		sprintf(sys_string,
-"payment_trigger \"%s\" \"%s\" \"%s\" \"%s\" %d \"%s\" \"%s\" \"%s\" deposit",
+"tuition_payment_trigger \"%s\" \"%s\" \"%s\" \"%s\" %d \"%s\" \"%s\" \"%s\" deposit",
 			payment->
 				enrollment->
 				registration->
@@ -238,4 +250,28 @@ void deposit_trigger_payment(
 	} while ( list_next( deposit_payment_list ) );
 }
 
+void deposit_program_trigger_payment(
+			LIST *deposit_payment_list )
+{
+	char sys_string[ 1024 ];
+	PROGRAM_PAYMENT *payment;
+
+	if ( !list_rewind( deposit_payment_list ) ) return;
+
+	do {
+		payment = list_get( deposit_payment_list );
+
+		sprintf(sys_string,
+"program_payment_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" \"%s\" \"%s\" deposit",
+			payment->program->program_name,
+			payment->deposit->payor_entity->full_name,
+			payment->deposit->payor_entity->street_address,
+			payment->deposit->semester->season_name,
+			payment->deposit->semester->year,
+			payment->deposit->deposit_date_time );
+
+		if ( system( sys_string ) ){}
+
+	} while ( list_next( deposit_payment_list ) );
+}
 

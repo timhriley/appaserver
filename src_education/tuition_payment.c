@@ -1,5 +1,5 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/payment.c		*/
+/* $APPASERVER_HOME/src_education/tuition_payment.c	*/
 /* ---------------------------------------------------- */
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -15,7 +15,6 @@
 #include "boolean.h"
 #include "float.h"
 #include "list.h"
-#include "payment.h"
 #include "payment_fns.h"
 #include "transaction.h"
 #include "registration.h"
@@ -30,6 +29,7 @@
 #include "student.h"
 #include "program.h"
 #include "deposit.h"
+#include "tuition_payment.h"
 
 TUITION_PAYMENT *payment_calloc( void )
 {
@@ -47,7 +47,8 @@ TUITION_PAYMENT *payment_calloc( void )
 	return payment;
 }
 
-TUITION_PAYMENT *payment_new(	char *student_full_name,
+TUITION_PAYMENT *tuition_payment_new(
+			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
@@ -76,7 +77,8 @@ TUITION_PAYMENT *payment_new(	char *student_full_name,
 	return payment;
 }
 
-TUITION_PAYMENT *payment_fetch(	char *student_full_name,
+TUITION_PAYMENT *tuition_payment_fetch(
+			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
@@ -90,13 +92,13 @@ TUITION_PAYMENT *payment_fetch(	char *student_full_name,
 {
 	TUITION_PAYMENT *payment;
 
-	payment = payment_parse(
+	payment = tuition_payment_parse(
 			pipe2string(
-				payment_sys_string(
+				tuition_payment_sys_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
-					payment_primary_where(
+					tuition_payment_primary_where(
 						student_full_name,
 						street_address,
 						course_name,
@@ -112,7 +114,8 @@ TUITION_PAYMENT *payment_fetch(	char *student_full_name,
 	return payment;
 }
 
-double payment_amount(	double deposit_amount,
+double tuition_payment_amount(
+			double deposit_amount,
 			double registration_invoice_amount_due )
 {
 	if ( deposit_amount <= registration_invoice_amount_due )
@@ -121,7 +124,7 @@ double payment_amount(	double deposit_amount,
 		return registration_invoice_amount_due;
 }
 
-FILE *payment_update_open( void )
+FILE *tuition_payment_update_open( void )
 {
 	char sys_string[ 2048 ];
 
@@ -135,7 +138,8 @@ FILE *payment_update_open( void )
 	return popen( sys_string, "w" );
 }
 
-void payment_update(	double payment_amount,
+void tuition_payment_update(
+			double payment_amount,
 			double fees_expense,
 			double gain_donation,
 			char *transaction_date_time,
@@ -148,7 +152,7 @@ void payment_update(	double payment_amount,
 			char *payor_street_address,
 			char *deposit_date_time )
 {
-	FILE *update_pipe = payment_update_open();
+	FILE *update_pipe = tuition_payment_update_open();
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%d^%s^%s^%s^payment_amount^%.2lf\n",
@@ -201,7 +205,7 @@ void payment_update(	double payment_amount,
 	pclose( update_pipe );
 }
 
-LIST *payment_system_list(
+LIST *tuition_payment_system_list(
 			char *sys_string,
 			boolean fetch_deposit,
 			boolean fetch_enrollment,
@@ -217,7 +221,7 @@ LIST *payment_system_list(
 	{
 		list_set(
 			payment_list,
-			payment_parse(
+			tuition_payment_parse(
 				input,
 				fetch_deposit,
 				fetch_enrollment,
@@ -228,7 +232,7 @@ LIST *payment_system_list(
 	return payment_list;
 }
 
-char *payment_sys_string( char *where )
+char *tuition_payment_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
 
@@ -240,7 +244,7 @@ char *payment_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-TUITION_PAYMENT *payment_parse(
+TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
 			boolean fetch_deposit,
 			boolean fetch_enrollment,
@@ -349,7 +353,7 @@ TUITION_PAYMENT *payment_parse(
 	return payment;
 }
 
-TRANSACTION *payment_transaction(
+TRANSACTION *tuition_payment_transaction(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *deposit_date_time,
@@ -443,7 +447,7 @@ TRANSACTION *payment_transaction(
 	return transaction;
 }
 
-double payment_total( LIST *payment_list )
+double tuition_payment_total( LIST *payment_list )
 {
 	TUITION_PAYMENT *payment;
 	double total;
@@ -462,7 +466,7 @@ double payment_total( LIST *payment_list )
 	return total;
 }
 
-double payment_gain_donation(
+double tuition_payment_gain_donation(
 			double deposit_amount,
 			LIST *deposit_registration_list )
 {
@@ -484,7 +488,7 @@ double payment_gain_donation(
 	return gain_donation;
 }
 
-double payment_fees_expense(
+double tuition_payment_fees_expense(
 			double deposit_transaction_fee,
 			LIST *deposit_payment_list )
 {
@@ -496,7 +500,7 @@ double payment_fees_expense(
 		(double)length;
 }
 
-TUITION_PAYMENT *payment_steady_state(
+TUITION_PAYMENT *tuition_payment_steady_state(
 			DEPOSIT *deposit,
 			double deposit_amount,
 			double deposit_transaction_fee,
@@ -582,8 +586,8 @@ TUITION_PAYMENT *payment_steady_state(
 					registration->
 					registration_payment_total );
 
-	payment->payment_amount =
-		payment_amount(
+	payment->tuition_payment_amount =
+		tuition_payment_amount(
 			payment->
 				deposit_amount,
 			payment->
@@ -591,8 +595,8 @@ TUITION_PAYMENT *payment_steady_state(
 				registration->
 					registration_invoice_amount_due );
 
-	payment->payment_fees_expense =
-		payment_fees_expense(
+	payment->tuition_payment_fees_expense =
+		tuition_payment_fees_expense(
 			payment->deposit_transaction_fee,
 			payment->deposit->deposit_payment_list );
 
@@ -601,7 +605,7 @@ TUITION_PAYMENT *payment_steady_state(
 	{
 		TUITION_PAYMENT *p;
 
-		if ( ! ( p = payment_seek(
+		if ( ! ( p = tuition_payment_seek(
 				payment->
 					deposit->
 					deposit_payment_list,
@@ -638,8 +642,8 @@ TUITION_PAYMENT *payment_steady_state(
 					deposit->
 					deposit_payment_total );
 
-	payment->payment_gain_donation =
-		payment_gain_donation(
+	payment->tuition_payment_gain_donation =
+		tuition_payment_gain_donation(
 			payment->
 				deposit->
 				deposit_gain_donation,
@@ -650,7 +654,7 @@ TUITION_PAYMENT *payment_steady_state(
 	payment->receivable_credit_amount = payment->payment_amount;
 
 	payment->payment_cash_debit_amount =
-		payment_cash_debit_amount(
+		tuition_payment_cash_debit_amount(
 			payment->payment_amount,
 			payment->payment_gain_donation,
 			payment->payment_fees_expense );
@@ -662,8 +666,8 @@ TUITION_PAYMENT *payment_steady_state(
 			deposit->deposit_date_time;
 	}
 
-	payment->payment_transaction =
-		payment_transaction(
+	payment->tuition_payment_transaction =
+		tuition_payment_transaction(
 			deposit->payor_entity->full_name,
 			deposit->payor_entity->street_address,
 			transaction_date_time,
@@ -681,7 +685,7 @@ TUITION_PAYMENT *payment_steady_state(
 	return payment;
 }
 
-char *payment_primary_where(
+char *tuition_payment_primary_where(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -755,7 +759,7 @@ TUITION_PAYMENT *payment_seek(
 	return (TUITION_PAYMENT *)0;
 }
 
-double payment_cash_debit_amount(
+double tuition_payment_cash_debit_amount(
 			double payment_amount,
 			double payment_gain_donation,
 			double payment_fees_expense )
@@ -765,7 +769,7 @@ double payment_cash_debit_amount(
 		payment_fees_expense;
 }
 
-void payment_list_insert( LIST *payment_list )
+void tuition_payment_list_insert( LIST *payment_list )
 {
 	TUITION_PAYMENT *payment;
 	FILE *insert_pipe;
@@ -775,14 +779,14 @@ void payment_list_insert( LIST *payment_list )
 	if ( !list_rewind( payment_list ) ) return;
 
 	insert_pipe =
-		payment_insert_open(
+		tuition_payment_insert_open(
 			( error_filename =
 				timlib_tmpfile() ) );
 
 	do {
 		payment = list_get( payment_list );
 
-		payment_insert_pipe(
+		tuition_payment_insert_pipe(
 			insert_pipe,
 			payment->enrollment->registration->student_full_name,
 			payment->enrollment->registration->street_address,
@@ -813,7 +817,7 @@ void payment_list_insert( LIST *payment_list )
 	if ( system( sys_string ) ){};
 }
 
-FILE *payment_insert_open( char *error_filename )
+FILE *tuition_payment_insert_open( char *error_filename )
 {
 	char sys_string[ 1024 ];
 
@@ -829,7 +833,7 @@ FILE *payment_insert_open( char *error_filename )
 	return popen( sys_string, "w" );
 }
 
-void payment_insert_pipe(
+void tuition_payment_insert_pipe(
 			FILE *insert_pipe,
 			char *student_full_name,
 			char *street_address,
@@ -858,7 +862,7 @@ void payment_insert_pipe(
 		deposit_date_time );
 }
 
-void payment_list_enrollment_insert( LIST *payment_list )
+void tuition_payment_list_enrollment_insert( LIST *payment_list )
 {
 	TUITION_PAYMENT *payment;
 	FILE *insert_pipe;
@@ -903,7 +907,7 @@ void payment_list_enrollment_insert( LIST *payment_list )
 	if ( system( sys_string ) ){};
 }
 
-void payment_list_registration_insert(
+void tuition_payment_list_registration_insert(
 			LIST *payment_list )
 {
 	TUITION_PAYMENT *payment;
@@ -950,96 +954,7 @@ void payment_list_registration_insert(
 	if ( system( sys_string ) ){};
 }
 
-void payment_list_offering_insert(
-			LIST *payment_list )
-{
-	TUITION_PAYMENT *payment;
-	FILE *insert_pipe;
-	char *error_filename;
-	char sys_string[ 1024 ];
-
-	if ( !list_rewind( payment_list ) ) return;
-
-	insert_pipe =
-		offering_insert_open(
-			( error_filename =
-				timlib_tmpfile() ) );
-
-	do {
-		payment = list_get( payment_list );
-
-		offering_insert_pipe(
-			insert_pipe,
-			payment->enrollment->offering->course->course_name,
-			payment->enrollment->offering->season_name,
-			payment->enrollment->offering->year );
-
-	} while ( list_next( payment_list ) );
-
-	pclose( insert_pipe );
-
-	if ( timlib_file_populated( error_filename ) )
-	{
-		sprintf(sys_string,
-			"cat %s						|"
-			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Offering Errors' '' '^'	 ",
-			 error_filename );
-
-		if ( system( sys_string ) ){}
-	}
-
-	sprintf( sys_string, "rm %s", error_filename );
-
-	if ( system( sys_string ) ){};
-}
-
-void payment_list_course_insert(
-			LIST *payment_list )
-{
-	TUITION_PAYMENT *payment;
-	FILE *insert_pipe;
-	char *error_filename;
-	char sys_string[ 1024 ];
-
-	if ( !list_rewind( payment_list ) ) return;
-
-	insert_pipe =
-		course_insert_open(
-			( error_filename =
-				timlib_tmpfile() ) );
-
-	do {
-		payment = list_get( payment_list );
-
-		course_insert_pipe(
-			insert_pipe,
-			payment->enrollment->offering->course->course_name,
-			payment->enrollment->offering->course->course_price,
-			course_program_name(
-				payment->enrollment->offering->course ) );
-
-	} while ( list_next( payment_list ) );
-
-	pclose( insert_pipe );
-
-	if ( timlib_file_populated( error_filename ) )
-	{
-		sprintf(sys_string,
-			"cat %s						|"
-			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Course Errors' '' '^'	 ",
-			 error_filename );
-
-		if ( system( sys_string ) ){}
-	}
-
-	sprintf( sys_string, "rm %s", error_filename );
-
-	if ( system( sys_string ) ){};
-}
-
-void payment_list_student_insert(
+void tuition_payment_list_student_insert(
 			LIST *payment_list )
 {
 	TUITION_PAYMENT *payment;
@@ -1082,7 +997,7 @@ void payment_list_student_insert(
 	if ( system( sys_string ) ){};
 }
 
-void payment_list_student_entity_insert(
+void tuition_payment_list_student_entity_insert(
 			LIST *payment_list )
 {
 	TUITION_PAYMENT *payment;
@@ -1125,7 +1040,7 @@ void payment_list_student_entity_insert(
 	if ( system( sys_string ) ){};
 }
 
-void payment_list_payor_entity_insert(
+void tuition_payment_list_payor_entity_insert(
 			LIST *payment_list )
 {
 	TUITION_PAYMENT *payment;
@@ -1168,59 +1083,7 @@ void payment_list_payor_entity_insert(
 	if ( system( sys_string ) ){};
 }
 
-#ifdef NOT_DEFINED
-void payment_list_program_insert(
-			LIST *payment_list )
-{
-	TUITION_PAYMENT *payment;
-	COURSE *course;
-	FILE *insert_pipe;
-	char *error_filename;
-	char sys_string[ 1024 ];
-
-	if ( !list_rewind( payment_list ) ) return;
-
-	insert_pipe =
-		program_insert_open(
-			( error_filename =
-				timlib_tmpfile() ) );
-
-	do {
-		payment = list_get( payment_list );
-
-		course = payment->enrollment->offering->course;
-
-		if ( course->program
-		&&   course->program->program_name
-		&&   course->course_price )
-		{
-			program_insert_pipe(
-				insert_pipe,
-				course->program->program_name );
-		}
-
-	} while ( list_next( payment_list ) );
-
-	pclose( insert_pipe );
-
-	if ( timlib_file_populated( error_filename ) )
-	{
-		sprintf(sys_string,
-			"cat %s						|"
-			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Program Errors' '' '^'	 ",
-			 error_filename );
-
-		if ( system( sys_string ) ){}
-	}
-
-	sprintf( sys_string, "rm %s", error_filename );
-
-	if ( system( sys_string ) ){};
-}
-#endif
-
-char *payment_list_display( LIST *payment_list )
+char *tuition_payment_list_display( LIST *payment_list )
 {
 	char display[ 65536 ];
 	char *ptr = display;
@@ -1230,7 +1093,7 @@ char *payment_list_display( LIST *payment_list )
 
 	if ( !list_rewind( payment_list ) )
 	{
-		return "No Payments/No Deposit";
+		return "";
 	}
 
 	do {
@@ -1244,7 +1107,7 @@ char *payment_list_display( LIST *payment_list )
 		}
 
 		ptr += sprintf(	ptr,
-				"%s will enroll in %s\n",
+				"%s will enroll in %s",
 				entity_name_display(
 					payment->
 						enrollment->
@@ -1262,7 +1125,8 @@ char *payment_list_display( LIST *payment_list )
 
 	} while ( list_next( payment_list ) );
 
+	ptr += sprintf( "\n" );
+
 	return strdup( display );
 }
-
 

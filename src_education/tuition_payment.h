@@ -1,5 +1,5 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/payment.h		*/
+/* $APPASERVER_HOME/src_education/tuition_payment.h	*/
 /* ---------------------------------------------------- */
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -61,24 +61,25 @@ typedef struct
 	double registration_tuition_total;
 	double deposit_transaction_fee;
 	double deposit_remaining;
-	double payment_amount;
+	double tuition_payment_amount;
 
-	double payment_fees_expense;
-	double payment_gain_donation;
+	double tuition_payment_fees_expense;
+	double tuition_payment_gain_donation;
 	LIST *deposit_payment_list;
 	LIST *deposit_registration_list;
 	double receivable_credit_amount;
 	double payment_cash_debit_amount;
-	TRANSACTION *payment_transaction;
+	TRANSACTION *tuition_payment_transaction;
 	char *transaction_date_time;
 } TUITION_PAYMENT;
 
 /* Prototypes */
 /* ---------- */
-TUITION_PAYMENT *payment_calloc(
+TUITION_PAYMENT *tuition_payment_calloc(
 			void );
 
-TUITION_PAYMENT *payment_new(	char *student_full_name,
+TUITION_PAYMENT *tuition_payment_new(
+			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
@@ -87,7 +88,8 @@ TUITION_PAYMENT *payment_new(	char *student_full_name,
 			char *payor_street_address,
 			char *deposit_date_time );
 
-TUITION_PAYMENT *payment_fetch(	char *student_full_name,
+TUITION_PAYMENT *tuition_payment_fetch(
+			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
@@ -99,7 +101,7 @@ TUITION_PAYMENT *payment_fetch(	char *student_full_name,
 			boolean fetch_enrollment,
 			boolean fetch_transaction );
 
-TRANSACTION *payment_transaction(
+TRANSACTION *tuition_payment_transaction(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *deposit_date_time,
@@ -114,12 +116,13 @@ TRANSACTION *payment_transaction(
 			char *account_fees_expense,
 			char *account_gain );
 
-TUITION_PAYMENT *payment_parse(	char *input,
+TUITION_PAYMENT *tuition_payment_parse(
+			char *input,
 			boolean fetch_deposit,
 			boolean fetch_enrollment,
 			boolean fetch_transaction );
 
-TUITION_PAYMENT *payment_steady_state(
+TUITION_PAYMENT *tuition_payment_steady_state(
 			DEPOSIT *deposit /* in/out */,
 			double deposit_amount,
 			double deposit_transaction_fee,
@@ -127,12 +130,12 @@ TUITION_PAYMENT *payment_steady_state(
 			char *transaction_date_time,
 			TUITION_PAYMENT *payment /* in only */ );
 
-TUITION_PAYMENT *payment_seek(
+TUITION_PAYMENT *tuition_payment_seek(
 			LIST *deposit_payment_list,
 			char *deposit_date_time );
 
-/* -------------------------------- */
-/* Place functions in payment_fns.h */
-/* -------------------------------- */
+/* ---------------------------------------- */
+/* Place functions in tuition_payment_fns.h */
+/* ---------------------------------------- */
 #endif
 

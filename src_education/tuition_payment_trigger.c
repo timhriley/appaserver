@@ -1,9 +1,9 @@
-/* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/payment_trigger.c	*/
-/* ---------------------------------------------------- */
-/* 							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------- */
+/* --------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_education/tuition_payment_trigger.c	*/
+/* --------------------------------------------------------	*/
+/* 								*/
+/* Freely available software: see Appaserver.org		*/
+/* --------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -14,7 +14,7 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "payment.h"
+#include "tuition_payment.h"
 #include "payment_fns.h"
 #include "transaction.h"
 
@@ -23,7 +23,7 @@
 
 /* Prototypes */
 /* ---------- */
-void payment_trigger_predelete(
+void tuition_payment_trigger_predelete(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -33,7 +33,7 @@ void payment_trigger_predelete(
 			char *payor_street_address,
 			char *deposit_date_time );
 
-void payment_trigger_insert_update(
+void tuition_payment_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -89,7 +89,7 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		payment_trigger_predelete(
+		tuition_payment_trigger_predelete(
 			student_full_name,
 			street_address,
 			course_name,
@@ -106,7 +106,7 @@ int main( int argc, char **argv )
 	{
 		char sys_string[ 1024 ];
 
-		payment_trigger_insert_update(
+		tuition_payment_trigger_insert_update(
 			student_full_name,
 			street_address,
 			course_name,
@@ -118,10 +118,10 @@ int main( int argc, char **argv )
 
 		/* ------------------------------------ */
 		/* Even if called from deposit_trigger,	*/
-		/* need to set payment_total.		*/
+		/* need to set tuition_payment_total.		*/
 		/* ------------------------------------ */
 		sprintf(sys_string,
-		 "deposit_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" payment",
+	 "deposit_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" tuition_payment",
 				entity_escape_full_name( payor_full_name ),
 				payor_street_address,
 				season_name,
@@ -131,7 +131,7 @@ int main( int argc, char **argv )
 		if ( system( sys_string ) ){}
 
 		sprintf(sys_string,
-		 "registration_trigger \"%s\" \"%s\" \"%s\" %d payment",
+		 "registration_trigger \"%s\" \"%s\" \"%s\" %d tuition_payment",
 			entity_escape_full_name( student_full_name ),
 			street_address,
 			season_name,
@@ -143,7 +143,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void payment_trigger_insert_update(
+void tuition_payment_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -153,11 +153,11 @@ void payment_trigger_insert_update(
 			char *payor_street_address,
 			char *deposit_date_time )
 {
-	TUITION_PAYMENT *payment;
+	TUITION_PAYMENT *tuition_payment;
 	char *transaction_date_time = {0};
 
-	if ( ! ( payment =
-			payment_fetch(
+	if ( ! ( tuition_payment =
+			tuition_payment_fetch(
 				student_full_name,
 				street_address,
 				course_name,
@@ -173,7 +173,7 @@ void payment_trigger_insert_update(
 		return;
 	}
 
-	if ( !payment->deposit )
+	if ( !tuition_payment->deposit )
 	{
 		fprintf(stderr,
 			"Warning in %s/%s()/%d: empty deposit.\n",
@@ -183,23 +183,23 @@ void payment_trigger_insert_update(
 		return;
 	}
 
-	payment =
-		payment_steady_state(
-			payment->deposit /* in/out */,
-			payment->deposit->deposit_amount,
-			payment->deposit->transaction_fee,
+	tuition_payment =
+		tuition_payment_steady_state(
+			tuition_payment->deposit /* in/out */,
+			tuition_payment->deposit->deposit_amount,
+			tuition_payment->deposit->transaction_fee,
 			course_program_name(
-				payment->enrollment->offering->course ),
-			payment->transaction_date_time,
+				tuition_payment->enrollment->offering->course ),
+			tuition_payment->transaction_date_time,
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */
-			payment /* in only */ );
+			tuition_payment /* in only */ );
 
-	if ( payment->payment_transaction
-	&&   payment->payment_transaction->transaction_amount )
+	if ( tuition_payment->tuition_payment_transaction
+	&&   tuition_payment->tuition_payment_transaction->transaction_amount )
 	{
-		TRANSACTION *t = payment->payment_transaction;
+		TRANSACTION *t = tuition_payment->tuition_payment_transaction;
 
 		transaction_date_time =
 			transaction_program_refresh(
@@ -217,10 +217,10 @@ void payment_trigger_insert_update(
 		transaction_date_time = (char *)0;
 	}
 
-	payment_update(
-		payment->payment_amount,
-		payment->payment_fees_expense,
-		payment->payment_gain_donation,
+	tuition_payment_update(
+		tuition_payment->tuition_payment_amount,
+		tuition_payment->tuition_payment_fees_expense,
+		tuition_payment->tuition_payment_gain_donation,
 		transaction_date_time,
 		student_full_name,
 		street_address,
@@ -232,7 +232,7 @@ void payment_trigger_insert_update(
 		deposit_date_time );
 }
 
-void payment_trigger_predelete(
+void tuition_payment_trigger_predelete(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -242,10 +242,10 @@ void payment_trigger_predelete(
 			char *payor_street_address,
 			char *deposit_date_time )
 {
-	TUITION_PAYMENT *payment;
+	TUITION_PAYMENT *tuition_payment;
 
-	if ( ! ( payment =
-			payment_fetch(
+	if ( ! ( tuition_payment =
+			tuition_payment_fetch(
 				student_full_name,
 				street_address,
 				course_name,
@@ -261,22 +261,28 @@ void payment_trigger_predelete(
 		return;
 	}
 
-	if ( payment->transaction_date_time
-	&&   *payment->transaction_date_time )
+	if ( tuition_payment->transaction_date_time
+	&&   *tuition_payment->transaction_date_time )
 	{
 		transaction_delete(
-			payment->deposit->payor_entity->full_name,
-			payment->deposit->payor_entity->street_address,
-			payment->transaction_date_time );
+			tuition_payment->deposit->payor_entity->full_name,
+			tuition_payment->deposit->payor_entity->street_address,
+			tuition_payment->transaction_date_time );
 
 		journal_account_name_list_propagate(
-			payment->transaction_date_time,
+			tuition_payment->transaction_date_time,
 			/* ------------------------- */
 			/* Returns account_name_list */
 			/* ------------------------- */
 			journal_delete(
-				payment->deposit->payor_entity->full_name,
-				payment->deposit->payor_entity->street_address,
-				payment->transaction_date_time ) );
+				tuition_payment->
+					deposit->
+					payor_entity->
+					full_name,
+				tuition_payment->
+					deposit->
+					payor_entity->
+					street_address,
+				tuition_payment->transaction_date_time ) );
 	}
 }

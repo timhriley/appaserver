@@ -52,7 +52,7 @@ LIST *enrollment_system_list(
 			boolean fetch_registration,
 			boolean fetch_transaction );
 
-LIST *enrollment_payment_list(
+LIST *enrollment_tuition_payment_list(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,

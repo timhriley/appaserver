@@ -8,9 +8,9 @@
 #ifndef COURSE_H
 #define COURSE_H
 
-#include "program.h"
 #include "boolean.h"
 #include "list.h"
+#include "program.h"
 
 /* Enumerated types */
 /* ---------------- */

@@ -15,7 +15,6 @@
 #include "boolean.h"
 #include "list.h"
 #include "program.h"
-#include "payment.h"
 #include "transaction.h"
 #include "journal.h"
 #include "entity.h"
@@ -251,7 +250,7 @@ PROGRAM_PAYMENT *program_payment_parse(
 		program_payment->program =
 			program_fetch(
 				program_payment->program_name,
-				0 /* not fetch_alias_list */ );
+				1 /* fetch_alias_list */ );
 	}
 
 	return program_payment;
@@ -404,5 +403,51 @@ void program_payment_update(
 			: "" );
 
 	pclose( update_pipe );
+}
+
+char *program_payment_list_display( LIST *payment_list )
+{
+	char display[ 65536 ];
+	char *ptr = display;
+	PROGRAM_PAYMENT *payment;
+
+	*ptr = '\0';
+
+	if ( !list_rewind( payment_list ) )
+	{
+		return "";
+	}
+
+	do {
+		payment =
+			list_get(
+				payment_list );
+
+		if ( !list_at_head( payment_list ) )
+		{
+			ptr += sprintf( ptr, ", " );
+		}
+
+		ptr += sprintf(	ptr,
+				"%s\n",
+				payment->program->program_name );
+				entity_name_display(
+					payment->
+						enrollment->
+						registration->
+						student_full_name,
+					payment->
+						enrollment->
+						registration->
+						street_address ),
+				payment->
+					enrollment->
+					offering->
+					course->
+					course_name );
+
+	} while ( list_next( payment_list ) );
+
+	return strdup( display );
 }
 

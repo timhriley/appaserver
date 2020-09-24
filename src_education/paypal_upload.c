@@ -19,7 +19,8 @@
 #include "process.h"
 #include "environ.h"
 #include "list.h"
-#include "payment.h"
+#include "tuition_payment.h"
+#include "program_payment.h"
 #include "payment_fns.h"
 #include "paypal.h"
 #include "deposit.h"
@@ -162,7 +163,12 @@ int main( int argc, char **argv )
 			year,
 			deposit_list );
 
-		deposit_list_payment_trigger(
+		deposit_list_tuition_payment_trigger(
+			season_name,
+			year,
+			deposit_list );
+
+		deposit_list_program_payment_trigger(
 			season_name,
 			year,
 			deposit_list );
@@ -303,7 +309,7 @@ void paypal_upload_display(
 				deposit_list );
 
 		fprintf(output_pipe,
-			"%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s\n",
+			"%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s^%s\n",
 			entity_name_display(
 				deposit->payor_entity->full_name,
 				deposit->payor_entity->street_address ),
@@ -312,8 +318,10 @@ void paypal_upload_display(
 			deposit->transaction_fee,
 			deposit->net_revenue,
 			deposit->account_balance,
-			payment_list_display(
-				deposit->deposit_payment_list ) );
+			tuition_payment_list_display(
+				deposit->deposit_tuition_payment_list ),
+			program_payment_list_display(
+				deposit->deposit_program_payment_list ) );
 
 	} while ( list_next( deposit_list ) );
 

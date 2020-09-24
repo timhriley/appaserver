@@ -16,13 +16,13 @@
 #include "account.h"
 #include "transaction.h"
 #include "journal.h"
+#include "entity.h"
+#include "enrollment.h"
 #include "registration.h"
-#include "payment.h"
-#include "payment_fns.h"
+#include "tuition_payment_fns.h"
 #include "offering.h"
 #include "offering_fns.h"
 #include "course.h"
-#include "enrollment.h"
 #include "enrollment_fns.h"
 #include "registration_fns.h"
 
@@ -63,7 +63,7 @@ ENROLLMENT *enrollment_new(
 
 ENROLLMENT *enrollment_parse(
 			char *input,
-			boolean fetch_payment_list,
+			boolean fetch_tuition_payment_list,
 			boolean fetch_offering,
 			boolean fetch_registration,
 			boolean fetch_transaction )
@@ -97,10 +97,10 @@ ENROLLMENT *enrollment_parse(
 	piece( transaction_date_time, SQL_DELIMITER, input, 5 );
 	enrollment->transaction_date_time = transaction_date_time;
 
-	if ( fetch_payment_list )
+	if ( fetch_tuition_payment_list )
 	{
-		enrollment->enrollment_payment_list =
-			enrollment_payment_list(
+		enrollment->enrollment_tuition_payment_list =
+			enrollment_tuition_payment_list(
 				enrollment->
 					registration->
 					student_full_name,
@@ -176,7 +176,7 @@ ENROLLMENT *enrollment_fetch(
 			char *season_name,
 			char *course_name,
 			int year,
-			boolean fetch_payment_list,
+			boolean fetch_tuition_payment_list,
 			boolean fetch_offering,
 			boolean fetch_registration,
 			boolean fetch_transaction )
@@ -196,7 +196,7 @@ ENROLLMENT *enrollment_fetch(
 						season_name,
 						course_name,
 						year ) ) ),
-			fetch_payment_list,
+			fetch_tuition_payment_list,
 			fetch_offering,
 			fetch_registration,
 			fetch_transaction );
@@ -206,7 +206,7 @@ ENROLLMENT *enrollment_fetch(
 
 LIST *enrollment_system_list(
 			char *sys_string,
-			boolean fetch_payment_list,
+			boolean fetch_tuition_payment_list,
 			boolean fetch_offering,
 			boolean fetch_registration,
 			boolean fetch_transaction )
@@ -221,7 +221,7 @@ LIST *enrollment_system_list(
 			enrollment_list,
 			enrollment_parse(
 				input,
-				fetch_payment_list,
+				fetch_tuition_payment_list,
 				fetch_offering,
 				fetch_registration,
 				fetch_transaction ) );
@@ -334,42 +334,7 @@ TRANSACTION *enrollment_transaction(
 	return transaction;
 }
 
-ENROLLMENT *enrollment_fetchnew(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year,
-			boolean fetch_payment_list,
-			boolean fetch_offering,
-			boolean fetch_registration )
-{
-	ENROLLMENT *enrollment;
-
-	if ( ! ( enrollment =
-			enrollment_fetch(
-				student_full_name,
-				street_address,
-				course_name,
-				season_name,
-				year,
-				fetch_payment_list,
-				fetch_offering,
-				fetch_registration,
-				0 /* not fetch_transaction */ ) ) )
-	{
-		enrollment =
-			enrollment_new(
-				strdup( student_full_name ),
-				strdup( street_address ),
-				strdup( course_name ),
-				strdup( season_name ),
-				year );
-	}
-	return enrollment;
-}
-
-LIST *enrollment_payment_list(
+LIST *enrollment_tuition_payment_list(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -379,8 +344,8 @@ LIST *enrollment_payment_list(
 	LIST *payment_list;
 
 	payment_list =
-		payment_system_list(
-			payment_sys_string(
+		tuition_payment_system_list(
+			tuition_payment_sys_string(
 				enrollment_primary_where(
 					student_full_name,
 					street_address,
