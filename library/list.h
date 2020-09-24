@@ -429,8 +429,12 @@ int list_double_list_match(	LIST *double_list,
 LIST *list_append_current_list(	LIST *destination_list,
 				LIST *source_list );
 
-void list_html_table_display(	LIST *list,
-				char *heading_string );
+void list_html_display(
+			LIST *list );
+
+void list_html_table_display(
+			LIST *list,
+			char *heading_string );
 
 LIST *list_cycle_right(		LIST *list );
 

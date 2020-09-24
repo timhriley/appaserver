@@ -141,7 +141,7 @@ int main( int argc, char **argv )
 	{
 		printf(
 		"<h3>Can't execute with non-existing offerings: %s</h3>\n",
-			list_display( not_exists_course_name_list ) );
+			list_html_display( not_exists_course_name_list ) );
 		fflush( stdout );
 
 		execute = 0;

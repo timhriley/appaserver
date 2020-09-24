@@ -46,15 +46,5 @@ char *semester_primary_where(
 			char *season_name,
 			int year );
 
-LIST *semester_offering_list(
-			char *season_name,
-			int year,
-			boolean fetch_course,
-			boolean fetch_enrollment_list );
-
-LIST *semester_registration_list(
-			char *season_name,
-			int year );
-
 #endif
 

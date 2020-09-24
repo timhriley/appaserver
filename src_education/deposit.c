@@ -270,16 +270,24 @@ DEPOSIT *deposit_parse(	char *input,
 
 	if ( fetch_payment_list )
 	{
-		deposit->deposit_payment_list =
-			deposit_payment_list(
+		deposit->deposit_tuition_payment_list =
+			deposit_tuition_payment_list(
 				payor_full_name,
 				payor_street_address,
 				season_name,
 				deposit->semester->year,
 				deposit_date_time,
 				0 /* not fetch_deposit */,
-				0 /* not fetch_enrollment */,
-				0 /* not fetch_transaction */ );
+				0 /* not fetch_enrollment */ );
+
+		deposit->deposit_program_payment_list =
+			deposit_program_payment_list(
+				payor_full_name,
+				payor_street_address,
+				season_name,
+				deposit->semester->year,
+				deposit_date_time,
+				0 /* not fetch_deposit */ );
 	}
 	return deposit;
 }
@@ -963,5 +971,267 @@ LIST *deposit_course_name_list(
 	} while ( list_next( deposit_list ) );
 
 	return course_name_list;
+}
+
+LIST *deposit_calculate_program_payment_list(
+			char *season_name,
+			int year,
+			char *item_title_P,
+			double gross_revenue_H,
+			DEPOSIT *deposit )
+{
+	LIST *payment_list = list_new();
+	PROGRAM_PAYMENT *payment;
+	int program_number;
+
+	for (	program_number = 1;
+		( payment =
+			deposit_program_payment(
+				season_name,
+				year,
+				item_title_P,
+				gross_revenue_H,
+				program_number,
+				deposit ) );
+		program_number++ )
+	{
+		list_set( payment_list, payment );
+	}
+
+	return payment_list;
+}
+
+LIST *deposit_calculate_tuition_payment_list(
+			char *season_name,
+			int year,
+			char *item_title_P,
+			double gross_revenue_H,
+			DEPOSIT *deposit )
+{
+	LIST *payment_list = list_new();
+	TUITION_PAYMENT *payment;
+	int student_number;
+
+	for (	student_number = 1;
+		( payment =
+			deposit_tuition_payment(
+				season_name,
+				year,
+				item_title_P,
+				gross_revenue_H,
+				student_number,
+				deposit ) );
+		student_number++ )
+	{
+		list_set( payment_list, payment );
+	}
+
+	return payment_list;
+}
+
+TUITION_PAYMENT *deposit_tuition_payment(
+			char *season_name,
+			int year,
+			char *item_title_P,
+			double gross_revenue_H,
+			int student_number,
+			/* -------- */
+			/* Set only */
+			/* -------- */
+			DEPOSIT *deposit )
+{
+	TUITION_PAYMENT *payment;
+	TUITION_PAYMENT_ITEM_TITLE *payment_item_title;
+
+	if ( ! ( payment_item_title =
+			tuition_payment_item_title_new(
+				item_title_P,
+				student_number ) ) )
+	{
+		return (TUITION_PAYMENT *)0;
+	}
+
+	if ( ! ( payment_item_title->
+			payment_item_title_entity =
+				payment_item_title_entity(
+				item_title_P,
+				student_number ) ) )
+	{
+		return (TUITION_PAYMENT *)0;
+	}
+
+	if ( ! ( payment_item_title->
+			payment_item_title_course_name =
+				payment_item_title_course_name(
+					item_title_P,
+					student_number ) ) )
+	{
+		return (TUITION_PAYMENT *)0;
+	}
+
+	/* New payment */
+	/* ----------- */
+	payment = payment_calloc();
+
+	/* Build enrollment */
+	/* ---------------- */
+	payment->enrollment =
+		enrollment_new(
+			payment_item_title->
+				payment_item_title_entity->
+				full_name,
+			payment_item_title->
+				payment_item_title_entity->
+				street_address,
+			payment_item_title->
+				payment_item_title_course_name,
+			season_name,
+			year );
+
+	/* Build offering */
+	/* -------------- */
+	payment->enrollment->offering =
+		offering_new(
+			payment_item_title->
+				payment_item_title_course_name,
+			season_name,
+			year );
+
+	/* Build course */
+	/* ------------ */
+	payment->enrollment->offering->course =
+		course_new(
+			payment_item_title->
+				payment_item_title_course_name );
+
+	/* Not sure of the best way to ensure accurate course_price */
+	/* -------------------------------------------------------- */
+	if ( student_number == 1 )
+	{
+		payment->enrollment->offering->course->course_price =
+			gross_revenue_H;
+	}
+
+	/* Build registration */
+	/* ------------------ */
+	payment->enrollment->registration =
+		registration_new(
+			payment_item_title->
+				payment_item_title_entity->
+				full_name,
+			payment_item_title->
+				payment_item_title_entity->
+				street_address,
+			season_name,
+			year );
+
+	/* Set deposit */
+	/* ----------- */
+	payment->deposit = deposit;
+
+	return payment;
+}
+
+PROGRAM_PAYMENT *deposit_program_payment(
+			char *season_name,
+			int year,
+			char *item_title_P,
+			double gross_revenue_H,
+			int program_number,
+			/* -------- */
+			/* Set only */
+			/* -------- */
+			DEPOSIT *deposit )
+{
+	PROGRAM_PAYMENT *payment;
+	PAYMENT_ITEM_TITLE *payment_item_title;
+
+	if ( ! ( payment_item_title =
+			payment_item_title_new(
+				item_title_P,
+				student_number ) ) )
+	{
+		return (TUITION_PAYMENT *)0;
+	}
+
+	if ( ! ( payment_item_title->
+			payment_item_title_entity =
+				payment_item_title_entity(
+				item_title_P,
+				student_number ) ) )
+	{
+		return (TUITION_PAYMENT *)0;
+	}
+
+	if ( ! ( payment_item_title->
+			payment_item_title_course_name =
+				payment_item_title_course_name(
+					item_title_P,
+					student_number ) ) )
+	{
+		return (TUITION_PAYMENT *)0;
+	}
+
+	/* New payment */
+	/* ----------- */
+	payment = payment_calloc();
+
+	/* Build enrollment */
+	/* ---------------- */
+	payment->enrollment =
+		enrollment_new(
+			payment_item_title->
+				payment_item_title_entity->
+				full_name,
+			payment_item_title->
+				payment_item_title_entity->
+				street_address,
+			payment_item_title->
+				payment_item_title_course_name,
+			season_name,
+			year );
+
+	/* Build offering */
+	/* -------------- */
+	payment->enrollment->offering =
+		offering_new(
+			payment_item_title->
+				payment_item_title_course_name,
+			season_name,
+			year );
+
+	/* Build course */
+	/* ------------ */
+	payment->enrollment->offering->course =
+		course_new(
+			payment_item_title->
+				payment_item_title_course_name );
+
+	/* Not sure of the best way to ensure accurate course_price */
+	/* -------------------------------------------------------- */
+	if ( student_number == 1 )
+	{
+		payment->enrollment->offering->course->course_price =
+			gross_revenue_H;
+	}
+
+	/* Build registration */
+	/* ------------------ */
+	payment->enrollment->registration =
+		registration_new(
+			payment_item_title->
+				payment_item_title_entity->
+				full_name,
+			payment_item_title->
+				payment_item_title_entity->
+				street_address,
+			season_name,
+			year );
+
+	/* Set deposit */
+	/* ----------- */
+	payment->deposit = deposit;
+
+	return payment;
 }
 

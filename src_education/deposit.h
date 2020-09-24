@@ -64,39 +64,40 @@ typedef struct
 	/* ------- */
 	double deposit_remaining;
 	double deposit_net_revenue;
-	LIST *deposit_payment_list;
+	LIST *deposit_tuition_payment_list;
 	LIST *deposit_program_payment_list;
 	LIST *deposit_enrollment_list;
 	LIST *deposit_registration_list;
 	LIST *deposit_course_list;
-	double deposit_payment_total;
+	double deposit_tuition_payment_total;
+	double deposit_program_payment_total;
 	double deposit_gain_donation;
 	double deposit_invoice_amount_due;
 } DEPOSIT;
 
 LIST *deposit_registration_list(
-			LIST *deposit_payment_list );
+			LIST *deposit_tuition_payment_list );
 
-LIST *deposit_program_payment_list(
+LIST *deposit_fetch_program_payment_list(
 			char *payor_full_name,
 			char *street_address,
 			char *season_name,
 			int year,
-			char *deposit_date_time );
+			char *deposit_date_time,
+			boolean fetch_deposit );
 
-LIST *deposit_payment_list(
+LIST *deposit_fetch_tuition_payment_list(
 			char *payor_full_name,
 			char *street_address,
 			char *season_name,
 			int year,
 			char *deposit_date_time,
 			boolean fetch_deposit,
-			boolean fetch_enrollment,
-			boolean fetch_transaction );
+			boolean fetch_enrollment );
 
 double deposit_remaining(
 			double deposit_amount,
-			double deposit_payment_total );
+			double deposit_tuition_payment_total );
 
 double deposit_net_revenue(
 			double deposit_amount,
@@ -140,16 +141,17 @@ DEPOSIT *deposit_parse( char *input,
 char *deposit_sys_string(
 			char *where );
 
-double deposit_payment_total(
-			LIST *deposit_payment_list );
+double deposit_tuition_payment_total(
+			LIST *deposit_tuition_payment_list );
 
 double deposit_program_payment_total(
-			LIST *deposit_payment_list );
+			LIST *deposit_program_payment_list );
 
 DEPOSIT *deposit_steady_state(
 			double deposit_amount,
 			double transaction_fee,
-			LIST *deposit_payment_list,
+			LIST *deposit_tuition_payment_list,
+			LIST *deposit_program_payment_list,
 			/* ----------------------------- */
 			/* Don't take anything from here */
 			/* ----------------------------- */
@@ -241,7 +243,7 @@ void deposit_list_program_payment_trigger(
 			int year,
 			LIST *deposit_list );
 
-void deposit_payment_trigger(
+void deposit_tuition_payment_trigger(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -249,6 +251,13 @@ void deposit_payment_trigger(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *deposit_date_time );
+
+void deposit_program_payment_trigger(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
 			char *deposit_date_time );
 
 LIST *deposit_course_name_list(
@@ -261,6 +270,48 @@ void deposit_program_payment_trigger(
 			char *season_name,
 			int year,
 			char *deposit_date_time );
+
+LIST *deposit_tuition_payment_list(
+			char *season_name,
+			int year,
+			char *item_title_P,
+			double gross_revenue_H,
+			/* -------- */
+			/* Set only */
+			/* -------- */
+			DEPOSIT *deposit );
+
+TUITION_PAYMENT *deposit_tuition_payment(
+			char *season_name,
+			int year,
+			char *item_title_P,
+			double gross_revenue_H,
+			int student_number,
+			/* -------- */
+			/* Set only */
+			/* -------- */
+			DEPOSIT *deposit );
+
+LIST *deposit_program_payment_list(
+			char *season_name,
+			int year,
+			char *item_title_P,
+			double gross_revenue_H,
+			/* -------- */
+			/* Set only */
+			/* -------- */
+			DEPOSIT *deposit );
+
+PROGRAM_PAYMENT *deposit_program_payment(
+			char *season_name,
+			int year,
+			char *item_title_P,
+			double gross_revenue_H,
+			int program_number,
+			/* -------- */
+			/* Set only */
+			/* -------- */
+			DEPOSIT *deposit );
 
 #endif
 

@@ -357,8 +357,14 @@ void list_display_lines( LIST *list )
 	do {
 		printf( "%s\n", (char *)list_get_pointer( list ) );
 	} while( list_next( list ) );
+}
 
-} /* list_display_lines() */
+void list_html_display(	LIST *list )
+{
+	list_html_table_display(
+		list,
+		(char *)0 /* heading_string */ );
+}
 
 void list_html_table_display(	LIST *list,
 				char *heading_string )
@@ -370,14 +376,16 @@ void list_html_table_display(	LIST *list,
 
 	sprintf( sys_string,
 		 "html_table.e '' '%s' '^'",
-		 heading_string );
+		 (heading_string)
+			? heading_string
+			: "" );
 
 	output_pipe = popen( sys_string, "w" );
 
 	do {
 		fprintf( output_pipe,
 			 "%s\n",
-			 (char *)list_get_pointer( list ) );
+			 (char *)list_get( list ) );
 
 	} while( list_next( list ) );
 

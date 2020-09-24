@@ -38,18 +38,15 @@
 /* ---------- */
 typedef struct
 {
-	char *program_name;
-	char *payor_full_name;
-	char *payor_street_address;
+	DEPOSIT *deposit;
+	PROGRAM *program;
 	char *season_name;
 	int year;
-	char *deposit_date_time;
 	double payment_amount;
 	double fees_expense;
 	double net_payment_amount;
 	char *transaction_date_time;
 	TRANSACTION *program_payment_transaction;
-	PROGRAM *program;
 } PROGRAM_PAYMENT;
 
 PROGRAM_PAYMENT *program_payment_calloc(

@@ -58,27 +58,6 @@ PAYPAL_DATASET *education_dataset_parse(
 			/* ----------- */
 			PAYPAL_DATASET *paypal_dataset );
 
-LIST *education_payment_list(
-			char *season_name,
-			int year,
-			char *item_title_P,
-			double gross_revenue_H,
-			/* -------- */
-			/* Set only */
-			/* -------- */
-			DEPOSIT *deposit );
-
-TUITION_PAYMENT *education_payment(
-			char *season_name,
-			int year,
-			char *item_title_P,
-			double gross_revenue_H,
-			int student_number,
-			/* -------- */
-			/* Set only */
-			/* -------- */
-			DEPOSIT *deposit );
-
 PAYPAL_DATASET *education_paypal_dataset(
 			char *input_string,
 			LIST *spreadsheet_column_list,
@@ -106,6 +85,13 @@ LIST *education_not_exists_course_name_list(
 			char *season_name,
 			int year,
 			LIST *deposit_list );
+
+LIST *education_program_payment_list(
+			char *season_name,
+			int year,
+			char *item_title_P,
+			double gross_revenue_H,
+			DEPOSIT *deposit );
 
 #endif
 

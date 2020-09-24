@@ -17,13 +17,13 @@
 #include "entity.h"
 #include "payment_item_title.h"
 
-PAYMENT_ITEM_TITLE *payment_item_title_new(
+TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title_new(
 			char *item_title_P,
 			int student_number )
 {
-	PAYMENT_ITEM_TITLE *p;
+	TUITION_PAYMENT_ITEM_TITLE *p;
 
-	if ( ! ( p = calloc( 1, sizeof( PAYMENT_ITEM_TITLE ) ) ) )
+	if ( ! ( p = calloc( 1, sizeof( TUTION_PAYMENT_ITEM_TITLE ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -35,6 +35,27 @@ PAYMENT_ITEM_TITLE *payment_item_title_new(
 
 	p->item_title_P = item_title_P;
 	p->student_number = student_number;
+	return p;
+}
+
+PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title_new(
+			char *item_title_P,
+			int program_number )
+{
+	PROGRAM_PAYMENT_ITEM_TITLE *p;
+
+	if ( ! ( p = calloc( 1, sizeof( PROGRAM_PAYMENT_ITEM_TITLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	p->item_title_P = item_title_P;
+	p->program_number = program_number;
 	return p;
 }
 
@@ -51,7 +72,7 @@ Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Macie Post
 
 */
 
-char *payment_item_title_enrollment_block(
+char *tuition_payment_item_title_enrollment_block(
 			char *item_title_P,
 			int student_number )
 {
@@ -65,7 +86,7 @@ char *payment_item_title_enrollment_block(
 	return enrollment_block;
 }
 
-ENTITY *payment_item_title_entity(
+ENTITY *tuition_payment_item_title_entity(
 			char *item_title_P,
 			int student_number )
 {
@@ -78,7 +99,7 @@ ENTITY *payment_item_title_entity(
 Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James (EJ) Crans)
 */
 	if ( ! ( enrollment_block =
-			payment_item_title_enrollment_block(
+			tuition_payment_item_title_enrollment_block(
 				item_title_P,
 				student_number ) ) )
 	{
