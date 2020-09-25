@@ -274,33 +274,11 @@ LIST *deposit_tuition_payment_list(
 			/* -------- */
 			DEPOSIT *deposit );
 
-TUITION_PAYMENT *deposit_tuition_payment(
-			char *season_name,
-			int year,
-			char *item_title_P,
-			double gross_revenue_H,
-			int student_number,
-			/* -------- */
-			/* Set only */
-			/* -------- */
-			DEPOSIT *deposit );
-
 LIST *deposit_program_payment_list(
 			char *season_name,
 			int year,
 			char *item_title_P,
 			double gross_revenue_H,
-			/* -------- */
-			/* Set only */
-			/* -------- */
-			DEPOSIT *deposit );
-
-PROGRAM_PAYMENT *deposit_program_payment(
-			char *season_name,
-			int year,
-			char *item_title_P,
-			double gross_revenue_H,
-			int program_number,
 			/* -------- */
 			/* Set only */
 			/* -------- */

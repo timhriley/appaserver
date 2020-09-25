@@ -49,8 +49,7 @@ LIST *enrollment_system_list(
 			char *sys_string,
 			boolean fetch_payment_list,
 			boolean fetch_offering,
-			boolean fetch_registration,
-			boolean fetch_transaction );
+			boolean fetch_registration );
 
 LIST *enrollment_tuition_payment_list(
 			char *student_full_name,

@@ -80,5 +80,8 @@ char *program_name_escape(
 char *program_primary_where(
 			char *program_name );
 
+boolean program_payment_is_tuition(
+			char *item_title_block );
+
 #endif
 

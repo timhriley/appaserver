@@ -58,15 +58,13 @@ ENROLLMENT *enrollment_fetch(
 			int year,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_offering,
-			boolean fetch_registration,
-			boolean fetch_transaction );
+			boolean fetch_registration );
 
 ENROLLMENT *enrollment_parse(
 			char *input,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_offering,
-			boolean fetch_registration,
-			boolean fetch_transaction );
+			boolean fetch_registration );
 
 ENROLLMENT *enrollment_steady_state(
 			REGISTRATION *registration,

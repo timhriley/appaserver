@@ -19,9 +19,8 @@
 #include "semester.h"
 #include "registration.h"
 #include "registration_fns.h"
-#include "tuition_payment.h"
-#include "program_payment.h"
 #include "tuition_payment_fns.h"
+#include "program_payment_fns.h"
 #include "enrollment_fns.h"
 #include "deposit.h"
 
@@ -73,50 +72,6 @@ LIST *deposit_fetch_tuition_payment_list(
 			fetch_deposit,
 			fetch_enrollment,
 			fetch_transaction );
-}
-
-LIST *deposit_registration_list(
-			LIST *deposit_payment_list )
-{
-	TUITION_PAYMENT *payment;
-	LIST *registration_list;
-
-	if ( !list_rewind( deposit_payment_list ) ) return (LIST *)0;
-
-	registration_list = list_new();
-
-	do {
-		payment =
-			list_get(
-				deposit_payment_list );
-
-		if ( !payment->enrollment )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: empty enrollment.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
-		if ( !payment->enrollment->registration )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: empty registration.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
-		list_set(
-			registration_list,
-			payment->enrollment->registration );
-
-	} while ( list_next( deposit_payment_list ) );
-
-	return registration_list;
 }
 
 double deposit_remaining(
@@ -430,40 +385,6 @@ void deposit_update(
 		 deposit_net_revenue );
 
 	pclose( update_pipe );
-}
-
-LIST *deposit_enrollment_list(
-			LIST *deposit_payment_list )
-{
-	TUITION_PAYMENT *payment;
-	LIST *enrollment_list;
-
-	if ( !list_rewind( deposit_payment_list ) ) return (LIST *)0;
-
-	enrollment_list = list_new();
-
-	do {
-		payment =
-			list_get(
-				deposit_payment_list );
-
-		if ( !payment->enrollment )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: empty enrollment.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
-		list_set(
-			enrollment_list,
-			payment->enrollment );
-
-	} while ( list_next( deposit_payment_list ) );
-
-	return enrollment_list;
 }
 
 double deposit_invoice_amount_due(
@@ -785,52 +706,17 @@ void deposit_list_tuition_payment_trigger(
 			LIST *deposit_list )
 {
 	DEPOSIT *deposit;
-	TUITION_PAYMENT *payment;
 
 	if ( !list_rewind( deposit_list ) ) return;
 
 	do {
 		deposit = list_get( deposit_list );
 
-		if ( !list_rewind( deposit->deposit_payment_list ) )
+		if ( list_length( deposit->deposit_tuition_payment_list ) )
 		{
-			continue;
+			tuition_payment_list_trigger(
+				deposit->deposit_tuition_payment_list );
 		}
-
-		do {
-			payment =
-				list_get(
-					deposit->deposit_payment_list );
-
-			deposit_tuition_payment_trigger(
-				payment->
-					enrollment->
-					registration->
-					student_full_name,
-				payment->
-					enrollment->
-					registration->
-					street_address,
-				payment->
-					enrollment->
-					offering->
-					course->
-					course_name,
-				season_name,
-				year,
-				payment->
-					deposit->
-					payor_entity->
-					full_name,
-				payment->
-					deposit->
-					payor_entity->
-					street_address,
-				payment->
-					deposit->
-					deposit_date_time );
-
-		} while ( list_next( deposit->deposit_payment_list ) );
 
 	} while ( list_next( deposit_list ) );
 }
@@ -981,25 +867,12 @@ LIST *deposit_program_payment_list(
 			double gross_revenue_H,
 			DEPOSIT *deposit )
 {
-	LIST *payment_list = list_new();
-	PROGRAM_PAYMENT *payment;
-	int program_number;
-
-	for (	program_number = 1;
-		( payment =
-			deposit_program_payment(
-				season_name,
-				year,
-				item_title_P,
-				gross_revenue_H,
-				program_number,
-				deposit ) );
-		program_number++ )
-	{
-		list_set( payment_list, payment );
-	}
-
-	return payment_list;
+	return program_payment_list(
+			season_name,
+			year,
+			item_title_P,
+			gross_revenue_H,
+			deposit );
 }
 
 LIST *deposit_tuition_payment_list(
@@ -1009,212 +882,24 @@ LIST *deposit_tuition_payment_list(
 			double gross_revenue_H,
 			DEPOSIT *deposit )
 {
-	LIST *payment_list = list_new();
-	TUITION_PAYMENT *payment;
-	int student_number;
-
-	for (	student_number = 1;
-		( payment =
-			deposit_tuition_payment(
-				season_name,
-				year,
-				item_title_P,
-				gross_revenue_H,
-				student_number,
-				deposit ) );
-		student_number++ )
-	{
-		list_set( payment_list, payment );
-	}
-
-	return payment_list;
+	return tuition_payment_list(
+			season_name,
+			year,
+			item_title_P,
+			gross_revenue_H,
+			deposit );
 }
 
-TUITION_PAYMENT *deposit_tuition_payment(
-			char *season_name,
-			int year,
-			char *item_title_P,
-			double gross_revenue_H,
-			int student_number,
-			/* -------- */
-			/* Set only */
-			/* -------- */
-			DEPOSIT *deposit )
+LIST *deposit_registration_list(
+			LIST *deposit_tuition_payment_list )
 {
-	TUITION_PAYMENT *payment;
-	TUITION_PAYMENT_ITEM_TITLE *payment_item_title;
-
-	if ( ! ( payment_item_title =
-			tuition_payment_item_title_new(
-				item_title_P,
-				student_number ) ) )
-	{
-		return (TUITION_PAYMENT *)0;
-	}
-
-	if ( ! ( payment_item_title->
-			payment_item_title_entity =
-				payment_item_title_entity(
-				item_title_P,
-				student_number ) ) )
-	{
-		return (TUITION_PAYMENT *)0;
-	}
-
-	if ( ! ( payment_item_title->
-			payment_item_title_course_name =
-				payment_item_title_course_name(
-					item_title_P,
-					student_number ) ) )
-	{
-		return (TUITION_PAYMENT *)0;
-	}
-
-	/* New payment */
-	/* ----------- */
-	payment = payment_calloc();
-
-	/* Build enrollment */
-	/* ---------------- */
-	payment->enrollment =
-		enrollment_new(
-			payment_item_title->
-				payment_item_title_entity->
-				full_name,
-			payment_item_title->
-				payment_item_title_entity->
-				street_address,
-			payment_item_title->
-				payment_item_title_course_name,
-			season_name,
-			year );
-
-	/* Build offering */
-	/* -------------- */
-	payment->enrollment->offering =
-		offering_new(
-			payment_item_title->
-				payment_item_title_course_name,
-			season_name,
-			year );
-
-	/* Build course */
-	/* ------------ */
-	payment->enrollment->offering->course =
-		course_new(
-			payment_item_title->
-				payment_item_title_course_name );
-
-	/* Not sure of the best way to ensure accurate course_price */
-	/* -------------------------------------------------------- */
-	if ( student_number == 1 )
-	{
-		payment->enrollment->offering->course->course_price =
-			gross_revenue_H;
-	}
-
-	/* Build registration */
-	/* ------------------ */
-	payment->enrollment->registration =
-		registration_new(
-			payment_item_title->
-				payment_item_title_entity->
-				full_name,
-			payment_item_title->
-				payment_item_title_entity->
-				street_address,
-			season_name,
-			year );
-
-	/* Set deposit */
-	/* ----------- */
-	payment->deposit = deposit;
-
-	return payment;
+	return tuition_payment_registration_list(
+			deposit_tuition_payment_list );
 }
 
-PROGRAM_PAYMENT *deposit_program_payment(
-			char *season_name,
-			int year,
-			char *item_title_P,
-			double gross_revenue_H,
-			int program_number,
-			/* -------- */
-			/* Set only */
-			/* -------- */
-			DEPOSIT *deposit )
+LIST *deposit_enrollment_list(
+			LIST *deposit_payment_list )
 {
-	PROGRAM_PAYMENT *payment;
-	PROGRAM_PAYMENT_ITEM_TITLE *payment_item_title;
-
-	if ( ! ( payment_item_title =
-			program_payment_item_title_new(
-				item_title_P,
-				program_number ) ) )
-	{
-		return (PROGRAM_PAYMENT *)0;
-	}
-
-	/* New payment */
-	/* ----------- */
-	payment = program_payment_calloc();
-
-	/* Build enrollment */
-	/* ---------------- */
-	payment->enrollment =
-		enrollment_new(
-			payment_item_title->
-				payment_item_title_entity->
-				full_name,
-			payment_item_title->
-				payment_item_title_entity->
-				street_address,
-			payment_item_title->
-				payment_item_title_course_name,
-			season_name,
-			year );
-
-	/* Build offering */
-	/* -------------- */
-	payment->enrollment->offering =
-		offering_new(
-			payment_item_title->
-				payment_item_title_course_name,
-			season_name,
-			year );
-
-	/* Build course */
-	/* ------------ */
-	payment->enrollment->offering->course =
-		course_new(
-			payment_item_title->
-				payment_item_title_course_name );
-
-	/* Not sure of the best way to ensure accurate course_price */
-	/* -------------------------------------------------------- */
-	if ( student_number == 1 )
-	{
-		payment->enrollment->offering->course->course_price =
-			gross_revenue_H;
-	}
-
-	/* Build registration */
-	/* ------------------ */
-	payment->enrollment->registration =
-		registration_new(
-			payment_item_title->
-				payment_item_title_entity->
-				full_name,
-			payment_item_title->
-				payment_item_title_entity->
-				street_address,
-			season_name,
-			year );
-
-	/* Set deposit */
-	/* ----------- */
-	payment->deposit = deposit;
-
-	return payment;
+	return tuition_payment_enrollment_list(
+			deposit_payment_list );
 }
-

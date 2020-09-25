@@ -1,10 +1,9 @@
-/* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/payment_item_title.c	*/
-/* ---------------------------------------------------- */
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------- */
-
+/* -----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_education/tuition_payment_item_title.c	*/
+/* -----------------------------------------------------------	*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -15,7 +14,8 @@
 #include "boolean.h"
 #include "list.h"
 #include "entity.h"
-#include "payment_item_title.h"
+#include "program.h"
+#include "tuition_payment_item_title.h"
 
 TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title_new(
 			char *item_title_P,
@@ -23,7 +23,7 @@ TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title_new(
 {
 	TUITION_PAYMENT_ITEM_TITLE *p;
 
-	if ( ! ( p = calloc( 1, sizeof( TUTION_PAYMENT_ITEM_TITLE ) ) ) )
+	if ( ! ( p = calloc( 1, sizeof( TUITION_PAYMENT_ITEM_TITLE ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -35,27 +35,6 @@ TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title_new(
 
 	p->item_title_P = item_title_P;
 	p->student_number = student_number;
-	return p;
-}
-
-PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title_new(
-			char *item_title_P,
-			int program_number )
-{
-	PROGRAM_PAYMENT_ITEM_TITLE *p;
-
-	if ( ! ( p = calloc( 1, sizeof( PROGRAM_PAYMENT_ITEM_TITLE ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	p->item_title_P = item_title_P;
-	p->program_number = program_number;
 	return p;
 }
 
@@ -78,11 +57,13 @@ char *tuition_payment_item_title_enrollment_block(
 {
 	static char enrollment_block[ 512 ];
 
+	if ( !program_payment_is_tuition( item_title_P ) )
+		return (char *)0;
+
 	if ( !piece( enrollment_block, ',', item_title_P, student_number - 1 ) )
 	{
 		return (char *)0;
 	}
-
 	return enrollment_block;
 }
 
@@ -95,6 +76,9 @@ ENTITY *tuition_payment_item_title_entity(
 	char *street_address;
 	char *enrollment_block;
 
+	if ( !program_payment_is_tuition( item_title_P ) )
+		return (ENTITY *)0;
+
 /* Enrollment_block looks like:
 Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James (EJ) Crans)
 */
@@ -102,13 +86,6 @@ Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James 
 			tuition_payment_item_title_enrollment_block(
 				item_title_P,
 				student_number ) ) )
-	{
-		return (ENTITY *)0;
-	}
-
-	if ( instr(	"Child: " /* substr */,
-			enrollment_block /* string */,
-			1 /* occurrence */ ) < 0 )
 	{
 		return (ENTITY *)0;
 	}
@@ -144,15 +121,18 @@ Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James 
 	return student_entity;
 }
 
-char *payment_item_title_course_name(
+char *tuition_payment_item_title_course_name(
 			char *item_title_P,
 			int student_number )
 {
 	char course_name[ 1024 ];
 	char *enrollment_block;
 
+	if ( !program_payment_is_tuition( item_title_P ) )
+		return (char *)0;
+
 	if ( ! ( enrollment_block =
-			payment_item_title_enrollment_block(
+			tuition_payment_item_title_enrollment_block(
 				item_title_P,
 				student_number ) ) )
 	{

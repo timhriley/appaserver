@@ -14,13 +14,14 @@ EDUCATION_CORE=								\
 		registration.o						\
 		enrollment.o						\
 		course.o						\
-		tuition_program.o					\
+		tuition_payment.o					\
 		program_payment.o					\
 		education.o						\
 		deposit.o						\
 		semester.o						\
 		student.o						\
-		payment_item_title.o
+		tuition_payment_item_title.o				\
+		program_payment_item_title.o
 
 STANDARD_LIBRARY=							\
 		${LIBRARY}/date.o 					\
@@ -246,10 +247,19 @@ student.o: student.c student.h
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c student.c
 
-payment_item_title.o: payment_item_title.c payment_item_title.h
+tuition_payment_item_title.o:						\
+	tuition_payment_item_title.c					\
+	tuition_payment_item_title.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
-		-c payment_item_title.c
+		-c tuition_payment_item_title.c
+
+program_payment_item_title.o:						\
+	program_payment_item_title.c					\
+	program_payment_item_title.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c program_payment_item_title.c
 
 semester.o: semester.c semester.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\

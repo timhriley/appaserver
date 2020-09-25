@@ -1,12 +1,12 @@
-/* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/payment_item_title.h	*/
-/* ---------------------------------------------------- */
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------- */
+/* -----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_education/tuition_payment_item_title.h	*/
+/* -----------------------------------------------------------	*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------------	*/
 
-#ifndef PAYMENT_ITEM_TITLE_H
-#define PAYMENT_ITEM_TITLE_H
+#ifndef TUITION_PAYMENT_ITEM_TITLE_H
+#define TUITION_PAYMENT_ITEM_TITLE_H
 
 #include "boolean.h"
 #include "list.h"
@@ -29,32 +29,32 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	ENTITY *payment_item_title_entity;
-	char *payment_item_title_course_name;
+	ENTITY *tuition_payment_item_title_entity;
+	char *tuition_payment_item_title_course_name;
 
-} PAYMENT_ITEM_TITLE;
+} TUITION_PAYMENT_ITEM_TITLE;
 
 /* Prototypes */
 /* ---------- */
-PAYMENT_ITEM_TITLE *payment_item_title_new(
+TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title_new(
 			char *item_title_P,
 			int student_number );
 
 /* Note: COURSE.course_name can't have colons or commas. */
 /* ----------------------------------------------------- */
-ENTITY *payment_item_title_entity(
+ENTITY *tuition_payment_item_title_entity(
 			char *item_title_P,
 			int student_number );
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *payment_item_title_course_name(
+char *tuition_payment_item_title_course_name(
 			char *item_title_P,
 			int student_number );
 
 /* Returns static memory or null */
 /* ----------------------------- */
-char *payment_item_title_enrollment_block(
+char *tuition_payment_item_title_enrollment_block(
 			char *item_title_P,
 			int student_number );
 #endif
