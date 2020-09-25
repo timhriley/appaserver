@@ -99,18 +99,8 @@ void offering_trigger(
 
 	if ( ! ( offering =
 			offering_steady_state(
-				offering->course->course_name,
-				offering->season_name,
-				offering->year,
-				semester_offering_list(
-					season_name,
-					year,
-					1 /* fetch_course */,
-					0 /* not fetch_enrollment_list */ ),
-				/* ----------------------------- */
-				/* Don't take anything from here */
-				/* ----------------------------- */
-				offering ) ) )
+				offering,
+				offering->offering_enrollment_list );
 	{
 		fprintf(stderr,
 			"%s/%s()/%d: offering_steady_state() returned empty.\n",
@@ -124,7 +114,7 @@ void offering_trigger(
 			offering->offering_enrollment_count,
 			offering->offering_capacity_available,
 			offering->course->course_name,
-			offering->season_name,
-			offering->year );
+			offering->semester->season_name,
+			offering->semester->year );
 }
 

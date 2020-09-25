@@ -235,7 +235,8 @@ LIST *journal_system_list( char *sys_string )
 	return journal_list;
 }
 
-FILE *journal_insert_open( void )
+FILE *journal_insert_open(
+			boolean replace )
 {
 	char sys_string[ 1024 ];
 	char *field;
@@ -249,11 +250,12 @@ FILE *journal_insert_open( void )
 		"credit_amount";
 
 	sprintf( sys_string,
-		 "insert_statement table=%s field=%s delimiter='^'	|"
+		 "insert_statement t=%s f=%s replace=%c delimiter='^'	|"
 		 "tee_appaserver_error.sh				|"
 		 "sql							 ",
 		 JOURNAL_TABLE,
-		 field );
+		 field,
+		 (replace) ? 'y' : 'n' );
 
 	return popen( sys_string, "w" );
 }
@@ -263,11 +265,12 @@ void journal_insert(	char *full_name,
 			char *transaction_date_time,
 			char *account_name,
 			double amount,
-			boolean is_debit )
+			boolean is_debit,
+			boolean replace )
 {
 	FILE *insert_pipe;
 
-	insert_pipe = journal_insert_open();
+	insert_pipe = journal_insert_open( replace );
 
 	journal_insert_pipe(
 		insert_pipe,
@@ -280,8 +283,6 @@ void journal_insert(	char *full_name,
 
 	pclose( insert_pipe );
 
-	/* Executes journal_list_set_balances() */
-	/* ------------------------------------ */
 	journal_propagate(
 		transaction_date_time,
 		account_name );
@@ -332,9 +333,7 @@ void journal_insert_pipe(
 	}
 }
 
-/* Executes journal_list_set_balances() */
-/* ------------------------------------ */
-void journal_propagate( char *transaction_date_time,
+void journal_propagate(char *transaction_date_time,
 			char *account_name )
 {
 	if ( !account_name || !*account_name )
@@ -762,7 +761,8 @@ LIST *journal_list_insert(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			LIST *journal_list )
+			LIST *journal_list,
+			boolean replace )
 {
 	LIST *account_name_list;
 	JOURNAL *journal;
@@ -779,7 +779,7 @@ LIST *journal_list_insert(
 	}
 
 	account_name_list = list_new();
-	insert_pipe = journal_insert_open();
+	insert_pipe = journal_insert_open( replace );
 
 	do {
 		journal = list_get( journal_list );

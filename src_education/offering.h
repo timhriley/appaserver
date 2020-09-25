@@ -10,8 +10,10 @@
 
 #include "boolean.h"
 #include "list.h"
-#include "account.h"
+#include "entity.h"
 #include "course.h"
+#include "semester.h"
+#include "entity.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -30,29 +32,20 @@
 /* ---------- */
 typedef struct
 {
-	/* ----------- */
-	/* Primary key */
-	/* ----------- */
+	/* Input */
+	/* ----- */
 	COURSE *course;
-	char *season_name;
-	int year;
-	/* ---------- */
-	/* Attributes */
-	/* ---------- */
-	char *instructor_full_name;
-	char *street_address;
+	SEMESTER *semester;
+	ENTITY *instructor_entity;
+
 	int class_capacity;
-	/* ---------- */
-	/* Operations */
-	/* ---------- */
+	char *revenue_account;
+
+	/* Process */
+	/* ------- */
 	int offering_enrollment_count;
 	int offering_capacity_available;
-	double offering_course_price;
 	LIST *offering_enrollment_list;
-	/* ------------------- */
-	/* Dependent variables */
-	/* ------------------- */
-	char *revenue_account;
 } OFFERING;
 
 /* Prototypes */
@@ -69,32 +62,14 @@ OFFERING *offering_fetch(
 			boolean fetch_course,
 			boolean fetch_enrollment_list );
 
-OFFERING *offering_getset(
-			LIST *offering_list,
-			char *course_name,
-			char *season_name,
-			int year );
-
 OFFERING *offering_parse(
 			char *input,
 			boolean fetch_course,
 			boolean fetch_enrollment_list );
 
-OFFERING *offering_seek(
-			LIST *semester_offering_list,
-			char *course_name,
-			char *season_name,
-			int year );
-
 OFFERING *offering_steady_state(
-			char *course_name,
-			char *season_name,
-			int year,
-			LIST *semester_offering_list,
-			/* ----------------------------- */
-			/* Don't take anything from here */
-			/* ----------------------------- */
-			OFFERING *offering );
+			OFFERING *offering,
+			LIST *offering_enrollment_list );
 
 /* ------------------ */
 /* See offering_fns.h */

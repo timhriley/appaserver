@@ -70,16 +70,16 @@ char *tuition_payment_primary_where(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_deposit,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_deposit );
 
 double tuition_payment_cash_debit_amount(
-			double payment_amount,
-			double payment_gain_donation,
-			double payment_fees_expense );
+			double tuition_payment_amount,
+			double tuition_payment_gain_donation,
+			double tuition_payment_fees_expense );
 
 void tuition_payment_list_insert(
-			LIST *payment_list );
+			LIST *tuition_payment_list );
 
 FILE *tuition_payment_insert_open(
 			char *error_filename );
@@ -132,7 +132,21 @@ LIST *tuition_payment_list(
 			DEPOSIT *deposit );
 
 double tuition_payment_receivable_credit_amount(
-			double payment_amount );
+			double tuition_payment_amount );
+
+double tuition_payment_total(
+			LIST *tuition_payment_list );
+
+void tuition_payment_trigger(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time,
+			char *state );
 
 #endif
 

@@ -64,7 +64,7 @@ LIST *journal_system_list(
 			char *sys_string );
 
 FILE *journal_insert_open(
-			void );
+			boolean replace );
 
 /* Executes journal_propagate() */
 /* ---------------------------- */
@@ -73,7 +73,8 @@ void journal_insert(	char *full_name,
 			char *transaction_date_time,
 			char *account_name,
 			double amount,
-			boolean is_debit );
+			boolean is_debit,
+			boolean replace );
 
 void journal_insert_pipe(
 			FILE *insert_pipe,
@@ -145,7 +146,8 @@ LIST *journal_list_insert(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			LIST *journal_list );
+			LIST *journal_list,
+			boolean replace );
 
 void journal_list_propagate_update(
 			LIST *propagate_journal_list );

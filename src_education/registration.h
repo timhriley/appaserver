@@ -38,7 +38,7 @@ typedef struct
 	char *season_name;
 	int year;
 	double registration_tuition;
-	double registration_payment_total;
+	double registration_tuition_payment_total;
 	double registration_invoice_amount_due;
 	char *registration_date_time;
 	LIST *registration_enrollment_list;
@@ -77,11 +77,8 @@ REGISTRATION *registration_new(
 			int year );
 
 REGISTRATION *registration_steady_state(
-			LIST *registration_enrollment_list,
-			/* ----------------------------- */
-			/* Don't take anything from here */
-			/* ----------------------------- */
-			REGISTRATION *registration );
+			REGISTRATION *registration,
+			LIST *registration_enrollment_list );
 
 /* ------------------------------------- */
 /* Place functions in registration_fns.h */

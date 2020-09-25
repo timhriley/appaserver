@@ -18,7 +18,9 @@
 #include "transaction.h"
 #include "journal.h"
 #include "entity.h"
+#include "account.h"
 #include "deposit.h"
+#include "program_payment_item_title.h"
 #include "program_payment_fns.h"
 #include "program_payment.h"
 
@@ -123,11 +125,11 @@ void program_payment_list_insert( LIST *program_payment_list )
 		program_payment_insert_pipe(
 			insert_pipe,
 			program_payment->program->program_name,
-			program_payment->payor_full_name,
-			program_payment->payor_street_address,
-			program_payment->season_name,
-			program_payment->year,
-			program_payment->deposit_date_time,
+			program_payment->deposit->payor_entity->full_name,
+			program_payment->deposit->payor_entity->street_address,
+			program_payment->deposit->semester->season_name,
+			program_payment->deposit->semester->year,
+			program_payment->deposit->deposit_date_time,
 			program_payment->deposit_payment_amount,
 			program_payment->deposit_fees_expense,
 			program_payment->deposit_net_payment_amount,
@@ -208,44 +210,61 @@ PROGRAM_PAYMENT *program_payment_parse(
 			char *input,
 			boolean fetch_program )
 {
-	char buffer[ 128 ];
+	char program_name[ 128 ];
+	char payor_full_name[ 128 ];
+	char payor_street_address[ 128 ];
+	char season_name[ 128 ];
+	char year[ 128 ];
+	char deposit_date_time[ 128 ];
+	char payment_amount[ 128 ];
+	char fees_expense[ 128 ];
+	char net_payment_amount[ 128 ];
+	char transaction_date_time[ 128 ];
 	PROGRAM_PAYMENT *program_payment;
 
 	if ( !input || !*input ) return (PROGRAM_PAYMENT *)0;
 
 	program_payment = program_payment_calloc();
 
-	/* See: attribute_list */
-	/* ------------------- */
-	piece( buffer, SQL_DELIMITER, input, 0 );
-	program_payment->program = program_new( strdup( buffer ) );
+	/* See: attribute_list program_payment */
+	/* ----------------------------------- */
+	piece( program_name, SQL_DELIMITER, input, 0 );
+	program_payment->program = program_new( strdup( program_name ) );
 
-	piece( buffer, SQL_DELIMITER, input, 1 );
-	program_payment->payor_full_name = strdup( buffer );
+	piece( payor_full_name, SQL_DELIMITER, input, 1 );
+	piece( payor_street_address, SQL_DELIMITER, input, 2 );
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
-	program_payment->payor_street_address = strdup( buffer );
+	program_payment->deposit->payor_entity =
+		entity_new(
+			strdup( payor_full_name ),
+			strdup( payor_street_address ) );
 
-	piece( buffer, SQL_DELIMITER, input, 3 );
-	program_payment->season_name = strdup( buffer );
+	piece( season_name, SQL_DELIMITER, input, 3 );
+	program_payment->deposit->semester->season_name =
+		strdup( season_name );
 
-	piece( buffer, SQL_DELIMITER, input, 4 );
-	program_payment->year = atoi( buffer );
+	piece( year, SQL_DELIMITER, input, 4 );
+	program_payment->deposit->semester->year =
+		atoi( year );
 
-	piece( buffer, SQL_DELIMITER, input, 5 );
-	program_payment->deposit_date_time = strdup( buffer );
+	piece( deposit_date_time, SQL_DELIMITER, input, 5 );
+	program_payment->deposit->deposit_date_time =
+		strdup( deposit_date_time );
 
-	piece( buffer, SQL_DELIMITER, input, 6 );
-	program_payment->program_payment_amount = atof( buffer );
+	piece( payment_amount, SQL_DELIMITER, input, 6 );
+	program_payment->program_payment_amount =
+		atof( payment_amount );
 
-	piece( buffer, SQL_DELIMITER, input, 7 );
-	program_payment->program_payment_fees_expense = atof( buffer );
+	piece( fees_expense, SQL_DELIMITER, input, 7 );
+	program_payment->program_payment_fees_expense = atof( fees_expense );
 
-	piece( buffer, SQL_DELIMITER, input, 8 );
-	program_payment->program_payment_net_payment_amount = atof( buffer );
+	piece( net_payment_amount, SQL_DELIMITER, input, 8 );
+	program_payment->program_payment_net_payment_amount =
+		atof( net_payment_amount );
 
-	piece( buffer, SQL_DELIMITER, input, 9 );
-	program_payment->transaction_date_time = strdup( buffer );
+	piece( transaction_date_time, SQL_DELIMITER, input, 9 );
+	program_payment->transaction_date_time =
+		strdup( transaction_date_time );
 
 	if ( fetch_program )
 	{
@@ -254,7 +273,6 @@ PROGRAM_PAYMENT *program_payment_parse(
 				program_payment->program->program_name,
 				1 /* fetch_alias_list */ );
 	}
-
 	return program_payment;
 }
 
@@ -458,15 +476,34 @@ double program_payment_net_payment_amount(
 }
 
 PROGRAM_PAYMENT *program_payment_steady_state(
+			PROGRAM_PAYMENT *program_payment,
+			LIST *deposit_program_payment_list,
 			double deposit_payment_amount,
 			double deposit_fees_expense,
-			double deposit_net_payment_amount,
-			LIST *deposit_program_payment_list,
-			/* ----------- */
-			/* Return only */
-			/* ----------- */
-			PROGRAM_PAYMENT *program_payment )
+			double deposit_net_payment_amount )
 {
+	/* No core dumps. Follow the diagram and trust the structures. */
+	/* ----------------------------------------------------------- */
+	if ( !program_payment->transaction_date_time
+	||   !*program_payment->transaction_date_time )
+	{
+		program_payment->transaction_date_time =
+			program_payment->deposit->deposit_date_time;
+	}
+
+	program_payment->program_payment_transaction =
+		program_payment_transaction(
+			program_payment->deposit->payor_entity->full_name,
+			program_payment->deposit->payor_entity->street_address,
+			program_payment->transaction_date_time,
+			program_payment->program->program_name,
+			program_payment->program_payment_payment_amount,
+			program_payment->program_payment_fees_expense,
+			program_payment->program_payment_net_payment_amount,
+			account_cash( (char *)0 ),
+			account_fees_expense( (char *)0 ),
+			program_payment->program->revenue_account );
+
 	return program_payment;
 }
 
@@ -495,58 +532,6 @@ PROGRAM_PAYMENT *program_payment(
 	/* New payment */
 	/* ----------- */
 	payment = program_payment_calloc();
-
-	/* Build enrollment */
-	/* ---------------- */
-	payment->enrollment =
-		enrollment_new(
-			payment_item_title->
-				payment_item_title_entity->
-				full_name,
-			payment_item_title->
-				payment_item_title_entity->
-				street_address,
-			payment_item_title->
-				payment_item_title_course_name,
-			season_name,
-			year );
-
-	/* Build offering */
-	/* -------------- */
-	payment->enrollment->offering =
-		offering_new(
-			payment_item_title->
-				payment_item_title_course_name,
-			season_name,
-			year );
-
-	/* Build course */
-	/* ------------ */
-	payment->enrollment->offering->course =
-		course_new(
-			payment_item_title->
-				payment_item_title_course_name );
-
-	/* Not sure of the best way to ensure accurate course_price */
-	/* -------------------------------------------------------- */
-	if ( student_number == 1 )
-	{
-		payment->enrollment->offering->course->course_price =
-			gross_revenue_H;
-	}
-
-	/* Build registration */
-	/* ------------------ */
-	payment->enrollment->registration =
-		registration_new(
-			payment_item_title->
-				payment_item_title_entity->
-				full_name,
-			payment_item_title->
-				payment_item_title_entity->
-				street_address,
-			season_name,
-			year );
 
 	/* Set deposit */
 	/* ----------- */
@@ -581,3 +566,28 @@ LIST *program_payment_list(
 	}
 	return payment_list;
 }
+
+void program_payment_trigger(
+			char *program_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			char *state )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+"program_payment_trigger \"%s\" \"%s\" '%s' '%s' %d '%s' '%s'",
+		program_name,
+		payor_full_name,
+		payor_street_address,
+		season_name,
+		year,
+		deposit_date_time,
+		state );
+
+	if ( system( sys_string ) ){}
+}
+

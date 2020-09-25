@@ -95,9 +95,9 @@ double registration_tuition(
 
 double registration_invoice_amount_due(
 			double registration_tuition,
-			double registration_payment_total )
+			double registration_tuition_payment_total )
 {
-	return registration_tuition - registration_payment_total;
+	return registration_tuition - registration_tuition_payment_total;
 }
 
 char *registration_primary_where(
@@ -167,7 +167,7 @@ REGISTRATION *registration_parse(
 	registration->registration_tuition = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	registration->registration_payment_total = atof( piece_buffer );
+	registration->registration_tuition_payment_total = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 6 );
 	registration->registration_invoice_amount_due = atof( piece_buffer );
@@ -324,13 +324,12 @@ LIST *registration_enrollment_list(
 					street_address,
 					season_name,
 					year ) ),
-			1 /* fetch_payment_list */,
-			1 /* not fetch_offering */,
-			0 /* not fetch_registration */,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_tuition_payment_list */,
+			1 /* fetch_offering */,
+			0 /* not fetch_registration */ );
 }
 
-LIST *registration_payment_list(
+LIST *registration_tuition_payment_list(
 			LIST *registration_enrollment_list )
 {
 	ENROLLMENT *enrollment;
@@ -380,15 +379,15 @@ double registration_tuition_total(
 	return tuition_total;
 }
 
-double registration_payment_total(
-			LIST *registration_payment_list )
+double registration_tuition_payment_total(
+			LIST *registration_tuition_payment_list )
 {
-	return tuition_payment_total( registration_payment_list );
+	return tuition_payment_total( registration_tuition_payment_list );
 }
 
 REGISTRATION *registration_steady_state(
-			LIST *registration_enrollment_list,
-			REGISTRATION *registration )
+			REGISTRATION *registration,
+			LIST *registration_enrollment_list )
 {
 	if ( !registration )
 	{
@@ -408,14 +407,14 @@ REGISTRATION *registration_steady_state(
 		registration_payment_list(
 			registration_enrollment_list );
 
-	registration->registration_payment_total =
-		registration_payment_total(
+	registration->registration_tuition_payment_total =
+		registration_tuition_payment_total(
 			registration->registration_payment_list );
 
 	registration->registration_invoice_amount_due =
 		registration_invoice_amount_due(
 			registration->registration_tuition,
-			registration->registration_payment_total );
+			registration->registration_tuition_payment_total );
 
 	return registration;
 }

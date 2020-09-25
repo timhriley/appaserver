@@ -337,8 +337,7 @@ LIST *enrollment_tuition_payment_list(
 					season_name,
 					year ) ),
 		1 /* fetch_deposit */,
-		0 /* fetch_enrollment */,
-		0 /* not fetch_transaction */ );
+		0 /* fetch_enrollment */ );
 
 	return payment_list;
 }

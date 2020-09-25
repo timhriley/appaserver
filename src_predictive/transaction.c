@@ -244,7 +244,8 @@ char *transaction_primary_where(
 	return strdup( where );
 }
 
-FILE *transaction_insert_open( void )
+FILE *transaction_insert_open(
+			boolean replace )
 {
 	char sys_string[ 1024 ];
 	char *field;
@@ -258,16 +259,18 @@ FILE *transaction_insert_open( void )
 		"lock_transaction_yn";
 
 	sprintf( sys_string,
-		 "insert_statement table=%s field=%s delimiter='^'	|"
+		 "insert_statement t=%s f=%s replace=%c delimiter='^'	|"
 		 "tee_appaserver_error.sh				|"
 		 "sql 2>&1						 ",
 		 TRANSACTION_TABLE,
-		 field );
+		 field,
+		 (replace) ? 'y' : 'n' );
 
 	return popen( sys_string, "w" );
 }
 
-FILE *transaction_property_insert_open( void )
+FILE *transaction_property_insert_open(
+			boolean replace )
 {
 	char sys_string[ 1024 ];
 	char *field;
@@ -282,10 +285,12 @@ FILE *transaction_property_insert_open( void )
 		"property_street_address";
 
 	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s delimiter='^'	|"
+		 "insert_statement t=%s f=%s replace=%c delimiter='^'	|"
+		 "tee_appaserver_error.sh				|"
 		 "sql 2>&1						 ",
 		 TRANSACTION_TABLE,
-		 field );
+		 field,
+		 (replace) ? 'y' : 'n' );
 
 	return popen( sys_string, "w" );
 }
@@ -300,7 +305,8 @@ char *transaction_journal_insert(
 			char *memo,
 			int check_number,
 			boolean lock_transaction,
-			LIST *journal_list )
+			LIST *journal_list,
+			boolean replace )
 {
 	transaction_date_time =
 		transaction_insert(
@@ -310,7 +316,8 @@ char *transaction_journal_insert(
 			transaction_amount,
 			memo,
 			check_number,
-			lock_transaction );
+			lock_transaction,
+			replace );
 
 	
 	journal_account_name_list_propagate(
@@ -322,7 +329,8 @@ char *transaction_journal_insert(
 			full_name,
 			street_address,
 			transaction_date_time,
-			journal_list ) );
+			journal_list,
+			replace ) );
 
 	return transaction_date_time;
 }
@@ -336,7 +344,8 @@ char *transaction_insert(
 			double transaction_amount,
 			char *memo,
 			int check_number,
-			boolean lock_transaction )
+			boolean lock_transaction,
+			boolean replace )
 {
 	FILE *insert_pipe;
 
@@ -370,7 +379,7 @@ char *transaction_insert(
 		return (char *)0;
 	}
 
-	insert_pipe = transaction_insert_open();
+	insert_pipe = transaction_insert_open( replace );
 
 	transaction_date_time =
 		transaction_insert_pipe(
@@ -426,7 +435,8 @@ char *transaction_insert_pipe(
 
 /* TRANSACTION with program_name addition */
 /* -------------------------------------- */
-FILE *transaction_program_insert_open( void )
+FILE *transaction_program_insert_open(
+			boolean replace )
 {
 	char sys_string[ 1024 ];
 	char *field;
@@ -441,11 +451,12 @@ FILE *transaction_program_insert_open( void )
 		"lock_transaction_yn";
 
 	sprintf( sys_string,
-		 "insert_statement table=%s field=%s delimiter='^'	|"
+		 "insert_statement t=%s f=%s replace=%c delimiter='^'	|"
 		 "tee_appaserver_error.sh				|"
 		 "sql 2>&1						 ",
 		 TRANSACTION_TABLE,
-		 field );
+		 field,
+		 (replace) ? 'y' : 'n' );
 
 	return popen( sys_string, "w" );
 }
@@ -460,11 +471,12 @@ char *transaction_program_insert(
 			double transaction_amount,
 			char *memo,
 			int check_number,
-			boolean lock_transaction )
+			boolean lock_transaction,
+			boolean replace )
 {
 	FILE *insert_pipe;
 
-	insert_pipe = transaction_program_insert_open();
+	insert_pipe = transaction_program_insert_open( replace );
 
 	transaction_date_time =
 		transaction_program_insert_pipe(
@@ -685,19 +697,6 @@ char *transaction_refresh(
 			int check_number,
 			LIST *journal_list )
 {
-	transaction_delete(
-		full_name,
-		street_address,
-		transaction_date_time );
-
-	/* ------------------------- */
-	/* Returns account_name_list */
-	/* ------------------------- */
-	journal_delete(
-		full_name,
-		street_address,
-		transaction_date_time );
-
 	/* Note: transaction_date_time shouldn't change. */
 	/* --------------------------------------------- */
 	transaction_date_time =
@@ -708,7 +707,8 @@ char *transaction_refresh(
 			transaction_amount,
 			memo,
 			check_number,
-			1 /* lock_transaction */ );
+			1 /* lock_transaction */,
+			1 /* replace */ );
 
 	journal_account_name_list_propagate(
 		transaction_date_time,
@@ -719,7 +719,8 @@ char *transaction_refresh(
 			full_name,
 			street_address,
 			transaction_date_time,
-			journal_list ) );
+			journal_list,
+			1 /* replace */ ) );
 
 	return transaction_date_time;
 }
@@ -891,7 +892,8 @@ LIST *transaction_list_insert( LIST *transaction_list )
 				transaction->transaction_amount,
 				transaction->memo,
 				transaction->check_number,
-				transaction->lock_transaction );
+				transaction->lock_transaction,
+				0 /* not replace */ );
 
 	} while( list_next( transaction_list ) );
 
@@ -1249,15 +1251,15 @@ char *transaction_time_append( char *transaction_date )
 	||   strcmp( transaction_date, "transaction_date" ) == 0 )
 	{
 		transaction_date =
-			 date_get_now_yyyy_mm_dd(
-				date_get_utc_offset() );
+			 date_now_yyyy_mm_dd(
+				date_utc_offset() );
 	}
 
 	if ( !*prior_transaction_time )
 	{
 		transaction_time =
-			date_get_now_hh_colon_mm_colon_ss(
-				date_get_utc_offset() );
+			date_now_hh_colon_mm_colon_ss(
+				date_utc_offset() );
 
 		sprintf( transaction_date_time,
 			 "%s %s",
@@ -1687,19 +1689,6 @@ char *transaction_program_refresh(
 			int check_number,
 			LIST *journal_list )
 {
-	transaction_delete(
-		full_name,
-		street_address,
-		transaction_date_time );
-
-	/* ------------------------- */
-	/* Returns account_name_list */
-	/* ------------------------- */
-	journal_delete(
-		full_name,
-		street_address,
-		transaction_date_time );
-
 	transaction_date_time =
 		transaction_program_insert(
 			full_name,
@@ -1709,7 +1698,8 @@ char *transaction_program_refresh(
 			transaction_amount,
 			memo,
 			check_number,
-			1 /* lock_transaction */ );
+			1 /* lock_transaction */,
+			1 /* replace */ );
 
 	journal_account_name_list_propagate(
 		transaction_date_time,
@@ -1720,7 +1710,8 @@ char *transaction_program_refresh(
 			full_name,
 			street_address,
 			transaction_date_time,
-			journal_list ) );
+			journal_list,
+			1 /* replace */ ) );
 
 	return transaction_date_time;
 }
@@ -1746,7 +1737,8 @@ void transaction_list_journal_insert(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				transaction->journal_list ) );
+				transaction->journal_list,
+				0 /* not replace */ ) );
 
 	} while ( list_next( transaction_list ) );
 }

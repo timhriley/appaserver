@@ -83,5 +83,14 @@ LIST *program_payment_list(
 			double gross_revenue_H,
 			DEPOSIT *deposit );
 
+void program_payment_trigger(
+			char *program_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			char *state );
+
 #endif
 

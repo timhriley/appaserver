@@ -42,15 +42,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	PROGRAM *program;
-	char *payor_full_name;
-	char *payor_street_address;
-	char *season_name;
-	int year;
-	char *deposit_date_time;
-
-	double deposit_payment_amount;
-	double deposit_fees_expense;
-	double deposit_net_payment_amount;
+	DEPOSIT *deposit;
 
 	/* Process */
 	/* ------- */
@@ -79,14 +71,11 @@ PROGRAM_PAYMENT *program_payment_parse(
 			boolean fetch_program );
 
 PROGRAM_PAYMENT *program_payment_steady_state(
+			PROGRAM_PAYMENT *program_payment,
+			LIST *deposit_program_payment_list,
 			double deposit_payment_amount,
 			double deposit_fees_expense,
-			double deposit_net_payment_amount,
-			LIST *deposit_program_payment_list,
-			/* ----------- */
-			/* Return only */
-			/* ----------- */
-			PROGRAM_PAYMENT *program_payment );
+			double deposit_net_payment_amount );
 
 /* ---------------------------------------- */
 /* Place functions in program_payment_fns.h */

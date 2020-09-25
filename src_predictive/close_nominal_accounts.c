@@ -468,7 +468,8 @@ boolean close_nominal_accounts_fund_execute(
 				/* transaction_amount */,
 			transaction->memo,
 			0 /* check_number */,
-			0 /* not lock_transaction */ );
+			0 /* not lock_transaction */,
+			0 /* not replace */ );
 
 	return 1;
 }

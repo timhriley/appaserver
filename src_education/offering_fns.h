@@ -12,31 +12,12 @@
 #include "boolean.h"
 #include "account.h"
 
-double offering_course_price(
-			LIST *offering_list,
-			char *course_name,
-			char *season_name,
-			int year );
-
-int offering_class_capacity(
-			LIST *offering_list,
-			char *course_name,
-			char *season_name,
-			int year );
-
 int offering_enrollment_count(
 			LIST *enrollment_list );
 
 int offering_capacity_available(
 			int class_capacity,
 			int offering_enrollment_count );
-
-void offering_refresh(
-			int offering_enrollment_count,
-			int offering_capacity_available,
-			char *course_name,
-			char *season_name,
-			int year );
 
 /* Returns program memory */
 /* ---------------------- */

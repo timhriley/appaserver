@@ -55,7 +55,7 @@ TRANSACTION *transaction_fetch(
 /* TRANSACTION without any additions */
 /* --------------------------------- */
 FILE *transaction_insert_open(
-			void );
+			boolean replace );
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
@@ -66,7 +66,8 @@ char *transaction_insert(
 			double transaction_amount,
 			char *memo,
 			int check_number,
-			boolean lock_transaction );
+			boolean lock_transaction,
+			boolean replace );
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
@@ -78,7 +79,8 @@ char *transaction_journal_insert(
 			char *memo,
 			int check_number,
 			boolean lock_transaction,
-			LIST *journal_list );
+			LIST *journal_list,
+			boolean replace );
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
@@ -103,7 +105,7 @@ void transaction_list_stderr(
 /* TRANSACTION with program_name addition */
 /* -------------------------------------- */
 FILE *transaction_program_insert_open(
-			void );
+			boolean replace );
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
@@ -115,7 +117,8 @@ char *transaction_program_insert(
 			double transaction_amount,
 			char *memo,
 			int check_number,
-			boolean lock_transaction );
+			boolean lock_transaction,
+			boolean replace );
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
@@ -130,15 +133,10 @@ char *transaction_program_insert_pipe(
 			int check_number,
 			boolean lock_transaction );
 
-/* Returns transaction_list */
-/* ------------------------ */
-LIST *transaction_list_program_insert(
-			LIST *transaction_list );
-
 /* TRANSACTION with property_street_address addition */
 /* ------------------------------------------------- */
 FILE *transaction_property_insert_open(
-			void );
+			boolean replace );
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
@@ -390,7 +388,8 @@ char *transaction_journal_insert(
 			char *memo,
 			int check_number,
 			boolean lock_transaction,
-			LIST *journal_list );
+			LIST *journal_list,
+			boolean replace );
 
 LIST *transaction_after_balance_zero_journal_list(
 			char *account_name );
@@ -447,5 +446,8 @@ TRANSACTION *transaction_full(
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo );
+
+char *transaction_generate_date_time(
+			char *transaction_date );
 
 #endif

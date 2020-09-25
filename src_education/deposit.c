@@ -766,54 +766,6 @@ void deposit_list_enrollment_trigger(
 	} while ( list_next( deposit_list ) );
 }
 
-void deposit_program_payment_trigger(
-			char *program_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"program_payment_trigger \"%s\" \"%s\" '%s' '%s' %d '%s' deposit",
-		program_name,
-		payor_full_name,
-		payor_street_address,
-		season_name,
-		year,
-		deposit_date_time );
-
-	if ( system( sys_string ) ){}
-}
-
-void deposit_tuition_payment_trigger(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *deposit_date_time )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"tuition_payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s' deposit",
-		student_full_name,
-		street_address,
-		course_name,
-		season_name,
-		year,
-		payor_full_name,
-		payor_street_address,
-		deposit_date_time );
-
-	if ( system( sys_string ) ){}
-}
-
 void deposit_enrollment_trigger(
 			char *student_full_name,
 			char *street_address,

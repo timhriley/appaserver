@@ -86,8 +86,8 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *deposit_date_time,
-			boolean fetch_deposit,
-			boolean fetch_enrollment )
+			boolean fetch_enrollment,
+			boolean fetch_deposit )
 {
 	TUITION_PAYMENT *payment;
 
@@ -205,8 +205,8 @@ void tuition_payment_update(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_deposit,
-			boolean fetch_enrollment )
+			boolean fetch_enrollment,
+			boolean fetch_deposit )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -220,8 +220,8 @@ LIST *tuition_payment_system_list(
 			payment_list,
 			tuition_payment_parse(
 				input,
-				fetch_deposit,
-				fetch_enrollment ) );
+				fetch_enrollment,
+				fetch_deposit ) );
 	}
 
 	pclose( input_pipe );
@@ -437,32 +437,22 @@ double tuition_payment_total( LIST *payment_list )
 }
 
 double tuition_payment_gain_donation(
-			double deposit_amount,
+			double deposit_gain_donation,
 			LIST *deposit_registration_list )
 {
-	double remaining;
-	double gain_donation;
+	int length = list_length( deposit_registration_list );
 
-	if ( ( remaining =
-			deposit_remaining(
-				deposit_amount,
-				registration_tuition(
-					deposit_registration_list ) ) ) > 0.0 )
-	{
-		gain_donation = remaining;
-	}
+	if ( !length )
+		return 0.0;
 	else
-	{
-		gain_donation = 0.0;
-	}
-	return gain_donation;
+		return deposit_gain_donation / (double)length;
 }
 
 double tuition_payment_fees_expense(
 			double deposit_transaction_fee,
-			LIST *deposit_payment_list )
+			LIST *deposit_tuition_payment_list )
 {
-	int length = list_length( deposit_payment_list );
+	int length = list_length( deposit_tuition_payment_list );
 
 	if ( !length ) return 0.0;
 
@@ -473,13 +463,25 @@ double tuition_payment_fees_expense(
 TUITION_PAYMENT *tuition_payment_steady_state(
 			TUITION_PAYMENT *tuition_payment,
 			LIST *deposit_tuition_payment_list,
-			LIST *deposit_registation_list,
+			LIST *deposit_registration_list,
+			LIST *registration_enrollment_list,
 			double deposit_amount,
-			double deposit_transaction_fee,
-			double deposit_net_payment_amount )
+			double deposit_transaction_fee )
 {
-	/* No core dumps. Follow the diagram and trust the structures. */
-	/* ----------------------------------------------------------- */
+	tuition_payment->
+		enrollment->
+		registration->
+		registration_tuition_payment_total =
+			registration_tuition_payment_total(
+				deposit_registration_list );
+
+	tuition_payment->
+		enrollment->
+		registration->
+		registration_tuition =
+			registration_tuition(
+				registration_enrollment_list );
+
 	tuition_payment->
 		enrollment->
 		registration->
@@ -492,12 +494,13 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 				tuition_payment->
 					enrollment->
 					registration->
-					registration_payment_total );
+					registration_tuition_payment_total );
 
 	tuition_payment->tuition_payment_amount =
 		tuition_payment_amount(
 			deposit_amount,
-			enrollment->
+			tuition_payment->
+				enrollment->
 				registration->
 				registration_invoice_amount_due );
 
@@ -531,26 +534,18 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			deposit_tuition_payment_list );
 
 	tuition_payment->
-		deposit->
-		deposit_payment_total =
-			deposit_payment_total(
+		tuition_payment_total =
+			tuition_payment_total(
 				deposit_tuition_payment_list );
 
 	tuition_payment->
-		deposit->
-		deposit_gain_donation =
-			deposit_gain_donation(
-				deposit_amount,
-				tuition_payment->
-					deposit->
-					deposit_payment_total );
-
-	tuition_payment->tuition_payment_gain_donation =
-		tuition_payment_gain_donation(
-			tuition_payment->
-				deposit->
-				deposit_gain_donation,
-			deposit_tution_payment_list );
+		tuition_payment_gain_donation =
+			tuition_payment_gain_donation(
+				deposit_gain_donation(
+					deposit_amount,
+					deposit_tuition_payment_total(
+					     deposit_tuition_payment_list ) ),
+				deposit_registration_list );
 
 	tuition_payment->tuition_payment_cash_debit_amount =
 		tuition_payment_cash_debit_amount(
@@ -560,13 +555,13 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 
 	tuition_payment->tuition_payment_receivable_credit_amount =
 		tuition_payment_receivable_credit_amount(
-			tuition_payment->payment_amount );
+			tuition_payment->tuition_payment_amount );
 
 	if ( !tuition_payment->transaction_date_time
 	||   !*tuition_payment->transaction_date_time )
 	{
 		tuition_payment->transaction_date_time =
-			deposit->deposit_date_time;
+			tuition_payment->deposit->deposit_date_time;
 	}
 
 	tuition_payment->tuition_payment_transaction =
@@ -583,14 +578,15 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			tuition_payment->tuition_payment_amount,
 			tuition_payment->tuition_payment_fees_expense,
 			tuition_payment->tuition_payment_gain_donation,
-			tuition_payment->receivable_credit_amount,
+			tuition_payment->
+				tuition_payment_receivable_credit_amount,
 			tuition_payment->tuition_payment_cash_debit_amount,
 			account_cash( (char *)0 ),
 			account_receivable( (char *)0 ),
 			account_fees_expense( (char *)0 ),
 			account_gain( (char *)0 ) );
 
-	return payment;
+	return tuition_payment;
 }
 
 char *tuition_payment_primary_where(
@@ -636,16 +632,16 @@ char *tuition_payment_primary_where(
 }
 
 TUITION_PAYMENT *payment_seek(
-			LIST *deposit_payment_list,
+			LIST *deposit_tuition_payment_list,
 			char *deposit_date_time )
 {
 	TUITION_PAYMENT *payment;
 
-	if ( !list_rewind( deposit_payment_list ) )
+	if ( !list_rewind( deposit_tuition_payment_list ) )
 		return (TUITION_PAYMENT *)0;
 
 	do {
-		payment = list_get( deposit_payment_list );
+		payment = list_get( deposit_tuition_payment_list );
 
 		if ( !payment->deposit )
 		{
@@ -662,19 +658,19 @@ TUITION_PAYMENT *payment_seek(
 		{
 			return payment;
 		}
-	} while ( list_next( deposit_payment_list ) );
+	} while ( list_next( deposit_tuition_payment_list ) );
 
 	return (TUITION_PAYMENT *)0;
 }
 
 double tuition_payment_cash_debit_amount(
-			double payment_amount,
-			double payment_gain_donation,
-			double payment_fees_expense )
+			double tuition_payment_amount,
+			double tuition_payment_gain_donation,
+			double tuition_payment_fees_expense )
 {
-	return	payment_amount +
-		payment_gain_donation -
-		payment_fees_expense;
+	return	tuition_payment_amount +
+		tuition_payment_gain_donation -
+		tuition_payment_fees_expense;
 }
 
 void tuition_payment_list_insert( LIST *payment_list )
@@ -1033,7 +1029,7 @@ char *tuition_payment_list_display( LIST *payment_list )
 
 	} while ( list_next( payment_list ) );
 
-	ptr += sprintf( "\n" );
+	ptr += sprintf( ptr, "\n" );
 
 	return strdup( display );
 }
@@ -1083,19 +1079,19 @@ LIST *tuition_payment_registration_list(
 }
 
 LIST *tuition_payment_enrollment_list(
-			LIST *deposit_payment_list )
+			LIST *deposit_tuition_payment_list )
 {
 	TUITION_PAYMENT *payment;
 	LIST *enrollment_list;
 
-	if ( !list_rewind( deposit_payment_list ) ) return (LIST *)0;
+	if ( !list_rewind( deposit_tuition_payment_list ) ) return (LIST *)0;
 
 	enrollment_list = list_new();
 
 	do {
 		payment =
 			list_get(
-				deposit_payment_list );
+				deposit_tuition_payment_list );
 
 		if ( !payment->enrollment )
 		{
@@ -1111,7 +1107,7 @@ LIST *tuition_payment_enrollment_list(
 			enrollment_list,
 			payment->enrollment );
 
-	} while ( list_next( deposit_payment_list ) );
+	} while ( list_next( deposit_tuition_payment_list ) );
 
 	return enrollment_list;
 }
@@ -1142,13 +1138,26 @@ void tuition_payment_list_trigger(
 				offering->
 				course->
 				course_name,
-			season_name,
-			year,
 			tuition_payment->
-				payor_full_name,
+				enrollment->
+				offering->
+				semester->
+				season_name,
 			tuition_payment->
-				payor_street_address,
+				enrollment->
+				offering->
+				semester->
+				year,
 			tuition_payment->
+				deposit->
+				payor_entity->
+				full_name,
+			tuition_payment->
+				deposit->
+				payor_entity->
+				street_address,
+			tuition_payment->
+				deposit->
 				deposit_date_time );
 
 	} while ( list_next( deposit_tuition_payment_list ) );
@@ -1193,7 +1202,7 @@ TUITION_PAYMENT *tuition_payment(
 			/* -------- */
 			DEPOSIT *deposit )
 {
-	TUITION_PAYMENT *tuition_payment;
+	TUITION_PAYMENT *payment;
 	TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title;
 
 	if ( ! ( tuition_payment_item_title =
@@ -1224,11 +1233,11 @@ TUITION_PAYMENT *tuition_payment(
 
 	/* New payment */
 	/* ----------- */
-	tuition_payment = tuition_payment_calloc();
+	payment = tuition_payment_calloc();
 
 	/* Build enrollment */
 	/* ---------------- */
-	tuition_payment->enrollment =
+	payment->enrollment =
 		enrollment_new(
 			tuition_payment_item_title->
 				tuition_payment_item_title_entity->
@@ -1243,7 +1252,7 @@ TUITION_PAYMENT *tuition_payment(
 
 	/* Build registration */
 	/* ------------------ */
-	tuition_payment->enrollment->registration =
+	payment->enrollment->registration =
 		registration_new(
 			tuition_payment_item_title->
 				tuition_payment_item_title_entity->
@@ -1256,14 +1265,42 @@ TUITION_PAYMENT *tuition_payment(
 
 	/* Set deposit */
 	/* ----------- */
-	tuition_payment->deposit = deposit;
+	payment->deposit = deposit;
 
-	return tution_payment;
+	return payment;
 }
 
 double tuition_payment_receivable_credit_amount(
 			double payment_amount )
 {
 	return payment_amount;
+}
+
+void tuition_payment_trigger(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time,
+			char *state )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+"tuition_payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s' '%s'",
+		student_full_name,
+		street_address,
+		course_name,
+		season_name,
+		year,
+		payor_full_name,
+		payor_street_address,
+		deposit_date_time,
+		state );
+
+	if ( system( sys_string ) ){}
 }
 

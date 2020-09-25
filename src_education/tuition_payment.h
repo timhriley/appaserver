@@ -52,19 +52,12 @@ typedef struct
 	ENROLLMENT *enrollment;
 	DEPOSIT *deposit;
 
-	LIST *deposit_tuition_payment_list;
-	LIST *deposit_registration_list;
-
-	double deposit_amount;
-	double deposit_transaction_fee;
-	double deposit_net_payment_amount;
-
 	/* Process */
 	/* ------- */
 	double tuition_payment_amount;
 	double tuition_payment_fees_expense;
-	double tuition_payment_gain_donation;
 	double tuition_payment_total;
+	double tuition_payment_gain_donation;
 	double tuition_payment_receivable_credit_amount;
 	double tuition_payment_cash_debit_amount;
 
@@ -96,8 +89,8 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *deposit_date_time,
-			boolean fetch_deposit,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_deposit );
 
 TRANSACTION *tuition_payment_transaction(
 			char *payor_full_name,
@@ -116,16 +109,16 @@ TRANSACTION *tuition_payment_transaction(
 
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
-			boolean fetch_deposit,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_deposit );
 
 TUITION_PAYMENT *tuition_payment_steady_state(
 			TUITION_PAYMENT *tuition_payment,
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_registration_list,
+			LIST *registration_enrollment_list,
 			double deposit_amount,
-			double deposit_transaction_fee,
-			double deposit_net_payment_amount );
+			double deposit_transaction_fee );
 
 TUITION_PAYMENT *tuition_payment_seek(
 			LIST *deposit_tuition_payment_list,

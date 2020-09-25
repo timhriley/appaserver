@@ -187,7 +187,8 @@ int main( int argc, char **argv )
 				transaction->memo,
 				transaction->check_number,
 				transaction->lock_transaction,
-				transaction->journal_list );
+				transaction->journal_list,
+				0 /* not replace */ );
 
 		bank_upload_transaction_direct_insert(
 			bank_date,

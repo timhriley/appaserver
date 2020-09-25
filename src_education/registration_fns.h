@@ -14,12 +14,12 @@
 double registration_tuition(
 			LIST *enrollment_list );
 
-double registration_payment_total(
+double registration_tuition_payment_total(
 			LIST *registration_payment_list );
 
 double registration_invoice_amount_due(
 			double registration_tuition,
-			double payment_total );
+			double tution_payment_total );
 
 void registration_enrollment_list_refresh(
 			LIST *registration_enrollment_list );
@@ -63,7 +63,7 @@ char *registration_sys_string(
 
 void registration_update(
 			double registration_tuition,
-			double registration_payment_total,
+			double registration_tuition_payment_total,
 			double registration_invoice_amount_due,
 			char *student_full_name,
 			char *street_address,

@@ -42,111 +42,12 @@ OFFERING *offering_new(	char *course_name,
 		course_new(
 			course_name );
 
-	offering->season_name = season_name;
-	offering->year = year;
+	offering->semester =
+		semester_new(
+			season_name,
+			year );
 
 	return offering;
-}
-
-OFFERING *offering_getset(
-			LIST *offering_list,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	OFFERING *offering = {0};
-
-	if ( ! ( offering =
-			offering_seek(
-				offering_list,
-				course_name,
-				season_name,
-				year ) ) )
-	{
-		list_set(
-			offering_list,
-			( offering =
-				offering_new(
-					strdup( course_name ),
-					strdup( season_name ),
-					year ) ) );
-	}
-	return offering;
-}
-
-OFFERING *offering_seek(
-			LIST *offering_list,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	OFFERING *offering;
-
-	if ( !list_rewind( offering_list ) ) return (OFFERING *)0;
-
-	do {
-		offering = list_get( offering_list );
-
-		if ( strcmp(	offering->
-					course->
-					course_name,
-				course_name ) == 0
-		&&   strcmp(	offering->
-					season_name,
-				season_name ) == 0
-		&&   offering->year == year )
-		{
-			return offering;
-		}
-	} while ( list_next( offering_list ) );
-
-	return (OFFERING *)0;
-}
-
-double offering_course_price(
-			LIST *semester_offering_list,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	OFFERING *offering;
-
-	if ( ( offering =
-			offering_seek(
-				semester_offering_list,
-				course_name,
-				season_name,
-				year ) ) )
-	{
-		return offering->course->course_price;
-	}
-	else
-	{
-		return 0.0;
-	}
-}
-
-int offering_class_capacity(
-			LIST *semester_offering_list,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	OFFERING *offering;
-
-	if ( ( offering =
-			offering_seek(
-				semester_offering_list,
-				course_name,
-				season_name,
-				year ) ) )
-	{
-		return offering->class_capacity;
-	}
-	else
-	{
-		return 0.0;
-	}
 }
 
 OFFERING *offering_parse(	char *input,
@@ -155,8 +56,13 @@ OFFERING *offering_parse(	char *input,
 {
 	char course_name[ 128 ];
 	char season_name[ 128 ];
-	int year;
-	char piece_buffer[ 128 ];
+	char year[ 128 ];
+	char instructor_full_name[ 128 ];
+	char instructor_street_address[ 128 ];
+	char class_capacity[ 128 ];
+	char enrollment_count[ 128 ];
+	char capacity_available[ 128 ];
+	char revenue_account[ 128 ];
 	OFFERING *offering;
 
 	if ( !input || !*input ) return (OFFERING *)0;
@@ -165,32 +71,32 @@ OFFERING *offering_parse(	char *input,
 	/* ---------------------------- */
 	piece( course_name, SQL_DELIMITER, input, 0 );
 	piece( season_name, SQL_DELIMITER, input, 1 );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	year = atoi( piece_buffer );
+	piece( year, SQL_DELIMITER, input, 2 );
 
 	offering = offering_new(
 			strdup( course_name ),
 			strdup( season_name ),
-			year );
+			atoi( year ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	offering->instructor_full_name = strdup( piece_buffer );
+	piece( instructor_full_name, SQL_DELIMITER, input, 3 );
+	piece( instructor_street_address, SQL_DELIMITER, input, 4 );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	offering->street_address = strdup( piece_buffer );
+	offering->instructor_entity =
+		entity_new(
+			strdup( instructor_full_name ),
+			strdup( instructor_street_address ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	offering->class_capacity = atoi( piece_buffer );
+	piece( class_capacity, SQL_DELIMITER, input, 5 );
+	offering->class_capacity = atoi( class_capacity );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 6 );
-	offering->offering_enrollment_count = atoi( piece_buffer );
+	piece( enrollment_count, SQL_DELIMITER, input, 6 );
+	offering->offering_enrollment_count = atoi( enrollment_count );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 7 );
-	offering->offering_capacity_available = atoi( piece_buffer );
+	piece( capacity_available, SQL_DELIMITER, input, 7 );
+	offering->offering_capacity_available = atoi( capacity_available );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 8 );
-	offering->revenue_account = strdup( piece_buffer );
+	piece( revenue_account, SQL_DELIMITER, input, 8 );
+	offering->revenue_account = strdup( revenue_account );
 
 	if ( fetch_course )
 	{
@@ -206,8 +112,8 @@ OFFERING *offering_parse(	char *input,
 		offering->offering_enrollment_list =
 			offering_enrollment_list(
 				offering->course->course_name,
-				offering->season_name,
-				offering->year );
+				offering->semester->season_name,
+				offering->semester->year );
 	}
 
 	return offering;
@@ -373,29 +279,18 @@ LIST *offering_enrollment_list(
 					course_name,
 					season_name,
 					year ) ),
-			1 /* fetch_payment_list */,
+			0 /* not fetch_payment_list */,
 			0 /* not fetch_offering */,
-			1 /* fetch registration */,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_registration */ );
 }
 
 OFFERING *offering_steady_state(
-			char *course_name,
-			char *season_name,
-			int year,
-			LIST *semester_offering_list,
-			OFFERING *offering )
+			OFFERING *offering,
+			LIST *offering_enrollment_list )
 {
-	offering->offering_course_price =
-		offering_course_price(
-			semester_offering_list,
-			course_name,
-			season_name,
-			year );
-
 	offering->offering_enrollment_count =
 		offering_enrollment_count(
-			offering->offering_enrollment_list );
+			offering_enrollment_list );
 
 	offering->offering_capacity_available =
 		offering_capacity_available(

@@ -480,7 +480,8 @@ char *post_reoccurring_transaction(
 			transaction->memo,
 			0 /* check_number */,
 			0 /* not lock_transaction */,
-			transaction->journal_list );
+			transaction->journal_list,
+			0 /* not replace */ );
 
 	return transaction->transaction_date_time;
 }

@@ -243,26 +243,8 @@ void deposit_list_program_payment_trigger(
 			int year,
 			LIST *deposit_list );
 
-void deposit_tuition_payment_trigger(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *deposit_date_time );
-
 LIST *deposit_course_name_list(
 			LIST *deposit_list );
-
-void deposit_program_payment_trigger(
-			char *program_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time );
 
 LIST *deposit_tuition_payment_list(
 			char *season_name,
