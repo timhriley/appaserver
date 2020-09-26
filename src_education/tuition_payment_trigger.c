@@ -15,7 +15,7 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "tuition_payment.h"
-#include "payment_fns.h"
+#include "tuition_payment_fns.h"
 #include "transaction.h"
 
 /* Constants */
@@ -184,23 +184,31 @@ void tuition_payment_trigger_insert_update(
 
 	tuition_payment =
 		tuition_payment_steady_state(
-			tuition_payment->deposit /* in/out */,
-			tuition_payment->deposit->deposit_amount,
-			tuition_payment->deposit->transaction_fee,
-			course_program_name(
-				tuition_payment->enrollment->offering->course ),
-			tuition_payment->transaction_date_time,
-			/* ----------------------------- */
-			/* Don't take anything from here */
-			/* ----------------------------- */
-			tuition_payment /* in only */ );
+			tuition_payment,
+			tuition_payment->
+				deposit->
+				deposit_tuition_payment_list,
+			tuition_payment->
+				deposit->
+				deposit_registration_list,
+			tuition_payment->
+				enrollment->
+				registration->
+				registration_enrollment_list,
+			tuition_payment->
+				deposit->
+				deposit_amount,
+			tuition_payment->
+				deposit->
+				transaction_fee );
 
-	if ( tuition_payment->tuition_payment_transaction
+	if ( tuition_payment->transaction_date_time
+	&&  *tuition_payment->transaction_date_time
 	&&   tuition_payment->tuition_payment_transaction->transaction_amount )
 	{
 		TRANSACTION *t = tuition_payment->tuition_payment_transaction;
 
-		transaction_date_time =
+		tuition_payment->transaction_date_time =
 			transaction_program_refresh(
 				t->full_name,
 				t->street_address,
@@ -211,16 +219,12 @@ void tuition_payment_trigger_insert_update(
 				0 /* check_number */,
 				t->journal_list );
 	}
-	else
-	{
-		transaction_date_time = (char *)0;
-	}
 
 	tuition_payment_update(
 		tuition_payment->tuition_payment_amount,
 		tuition_payment->tuition_payment_fees_expense,
 		tuition_payment->tuition_payment_gain_donation,
-		transaction_date_time,
+		tuition_payment->transaction_date_time,
 		student_full_name,
 		street_address,
 		course_name,

@@ -471,9 +471,9 @@ char *program_payment_list_display( LIST *payment_list )
 }
 
 double program_payment_amount(
-			double deposit_payment_amount )
+			double deposit_amount )
 {
-	return deposit_payment_amount;
+	return deposit_amount;
 }
 
 double program_payment_fees_expense(
@@ -490,13 +490,13 @@ double program_payment_net_payment_amount(
 
 PROGRAM_PAYMENT *program_payment_steady_state(
 			PROGRAM_PAYMENT *program_payment,
-			double deposit_payment_amount,
+			double deposit_amount,
 			double deposit_transaction_fee,
 			double deposit_net_payment_amount )
 {
 	program_payment->program_payment_amount =
 		program_payment_amount(
-			deposit_payment_amount );
+			deposit_amount );
 
 	program_payment->program_payment_fees_expense =
 		program_payment_fees_expense(
@@ -513,7 +513,7 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 			program_payment->deposit->deposit_date_time;
 	}
 
-	program_payment->program_payment_transaction =
+	if ( ( program_payment->program_payment_transaction =
 		program_payment_transaction(
 			program_payment->deposit->payor_entity->full_name,
 			program_payment->deposit->payor_entity->street_address,
@@ -524,7 +524,16 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 			program_payment->program_payment_net_payment_amount,
 			account_cash( (char *)0 ),
 			account_fees_expense( (char *)0 ),
-			program_payment->program->revenue_account );
+			program_payment->program->revenue_account ) ) )
+	{
+		program_payment->transaction_date_time =
+			program_payment->program_payment_transaction->
+				transaction_date_time;
+	}
+	else
+	{
+		program_payment->transaction_date_time = (char *)0;
+	}
 
 	return program_payment;
 }

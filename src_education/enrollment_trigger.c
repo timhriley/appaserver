@@ -20,6 +20,7 @@
 #include "registration_fns.h"
 #include "offering.h"
 #include "transaction.h"
+#include "journal.h"
 #include "course.h"
 
 /* Constants */
@@ -161,8 +162,7 @@ void enrollment_trigger_insert_update(
 				year,
 				1 /* fetch_payment_list */,
 				1 /* fetch_offering */,
-				1 /* fetch_registration */,
-				0 /* not fetch_transaction */ ) ) )
+				1 /* fetch_registration */ ) ) )
 	{
 		return;
 	}
@@ -241,9 +241,11 @@ void enrollment_trigger_insert_update(
 			course_name,
 		enrollment->
 			offering->
+			semester->
 			season_name,
 		enrollment->
 			offering->
+			semester->
 			year );
 }
 
@@ -265,8 +267,7 @@ void enrollment_trigger_predelete(
 				year,
 				0 /* not fetch_payment_list */,
 				0 /* not fetch_offering */,
-				0 /* not fetch_registration */,
-				0 /* not fetch_transaction */ ) ) )
+				0 /* not fetch_registration */ ) ) )
 	{
 		return;
 	}

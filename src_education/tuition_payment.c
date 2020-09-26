@@ -32,7 +32,7 @@
 #include "tuition_payment_item_title.h"
 #include "tuition_payment.h"
 
-TUITION_PAYMENT *payment_calloc( void )
+TUITION_PAYMENT *tuition_payment_calloc( void )
 {
 	TUITION_PAYMENT *payment;
 
@@ -58,7 +58,7 @@ TUITION_PAYMENT *tuition_payment_new(
 			char *payor_street_address,
 			char *deposit_date_time )
 {
-	TUITION_PAYMENT *payment = payment_calloc();
+	TUITION_PAYMENT *payment = tuition_payment_calloc();
 
 	payment->enrollment =
 		enrollment_new(
@@ -235,7 +235,7 @@ char *tuition_payment_sys_string( char *where )
 
 	sprintf(sys_string,
 		"select.sh '*' %s \"%s\" select",
-		"payment",
+		TUITION_PAYMENT_TABLE,
 		where );
 
 	return strdup( sys_string );
@@ -262,8 +262,8 @@ TUITION_PAYMENT *tuition_payment_parse(
 
 	if ( !input || !*input ) return (TUITION_PAYMENT *)0;
 
-	/* See: attribute_list payment */
-	/* ---------------------------- */
+	/* See: attribute_list tuition_payment */
+	/* ----------------------------------- */
 	piece( student_full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( course_name, SQL_DELIMITER, input, 2 );
@@ -566,7 +566,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			tuition_payment->deposit->deposit_date_time;
 	}
 
-	tuition_payment->tuition_payment_transaction =
+	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
 			tuition_payment->deposit->payor_entity->full_name,
 			tuition_payment->deposit->payor_entity->street_address,
@@ -586,7 +586,12 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			account_cash( (char *)0 ),
 			account_receivable( (char *)0 ),
 			account_fees_expense( (char *)0 ),
-			account_gain( (char *)0 ) );
+			account_gain( (char *)0 ) ) ) )
+	{
+	}
+	else
+	{
+	}
 
 	return tuition_payment;
 }
@@ -633,7 +638,7 @@ char *tuition_payment_primary_where(
 	return where;
 }
 
-TUITION_PAYMENT *payment_seek(
+TUITION_PAYMENT *tuition_payment_seek(
 			LIST *deposit_tuition_payment_list,
 			char *deposit_date_time )
 {
@@ -701,7 +706,11 @@ void tuition_payment_list_insert( LIST *payment_list )
 			payment->enrollment->offering->semester->year,
 			payment->deposit->payor_entity->full_name,
 			payment->deposit->payor_entity->street_address,
-			payment->deposit->deposit_date_time );
+			payment->deposit->deposit_date_time,
+			payment->tuition_payment_amount,
+			payment->tuition_payment_fees_expense,
+			payment->tuition_payment_gain_donation,
+			payment->transaction_date_time );
 
 	} while ( list_next( payment_list ) );
 
@@ -748,10 +757,14 @@ void tuition_payment_insert_pipe(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time )
+			char *deposit_date_time,
+			double payment_amount,
+			double fees_expense,
+			double gain_donation,
+			char *transaction_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%d^%s^%s^%s\n",
+		"%s^%s^%s^%s^%d^%s^%s^%s^%.2lf^%.2lf^%.2lf^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -765,7 +778,13 @@ void tuition_payment_insert_pipe(
 		/* --------------------- */
 		entity_escape_full_name( payor_full_name ),
 		payor_street_address,
-		deposit_date_time );
+		deposit_date_time,
+		payment_amount,
+		fees_expense,
+		gain_donation,
+		(transaction_date_time)
+			? transaction_date_time
+			: "" );
 }
 
 void tuition_payment_list_enrollment_insert( LIST *payment_list )

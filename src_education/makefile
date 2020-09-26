@@ -103,7 +103,7 @@ EXECUTABLES=	offering_trigger					\
 		deposit_trigger						\
 		registration_trigger					\
 		enrollment_trigger					\
-		payment_trigger						\
+		tuition_payment_trigger					\
 		program_payment_trigger					\
 		paypal_upload
 
@@ -141,7 +141,7 @@ enrollment_trigger: enrollment_trigger.c				\
 		enrollment_trigger.c					\
 		-o enrollment_trigger
 
-payment_trigger: payment_trigger.c					\
+tuition_payment_trigger: tuition_payment_trigger.c			\
 	${EXTERNAL_LIBRARY} 						\
 	${PREDICTIVEBOOKS_CORE}						\
 	${EDUCATION_CORE}
@@ -151,8 +151,8 @@ payment_trigger: payment_trigger.c					\
 		${EXTERNAL_LIBRARY}					\
 		${PREDICTIVEBOOKS_CORE}					\
 		${EDUCATION_CORE}					\
-		payment_trigger.c					\
-		-o payment_trigger
+		tuition_payment_trigger.c				\
+		-o tuition_payment_trigger
 
 program_payment_trigger: program_payment_trigger.c			\
 	${EXTERNAL_LIBRARY} 						\

@@ -11,6 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "program.h"
+#include "deposit.h"
 #include "program_payment_item_title.h"
 #include "transaction.h"
 
@@ -76,7 +77,7 @@ PROGRAM_PAYMENT *program_payment_parse(
 
 PROGRAM_PAYMENT *program_payment_steady_state(
 			PROGRAM_PAYMENT *program_payment,
-			double deposit_payment_amount,
+			double deposit_amount,
 			double deposit_transaction_fee,
 			double deposit_net_payment_amount );
 

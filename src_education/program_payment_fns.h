@@ -11,6 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "transaction.h"
+#include "deposit.h"
 
 FILE *program_payment_insert_open(
 			char *error_filename );
@@ -69,7 +70,7 @@ FILE *program_payment_update_open(
 			void );
 
 double program_payment_amount(
-			double deposit_payment_amount );
+			double deposit_amount );
 
 double program_payment_fees_expense(
 			double deposit_fees_expense );

@@ -55,11 +55,9 @@ EDUCATION *education_fetch(
 	EDUCATION *education = education_calloc();
 
 	education->semester =
-		semester_fetch(
-			season_name,
-			year,
-			0 /* not fetch_offering_list */,
-			0 /* not fetch_registration_list */ );
+		semester_new(
+			strdup( season_name ),
+			year );
 
 	education->paypal =
 		paypal_fetch(
@@ -248,7 +246,6 @@ DEPOSIT *education_deposit(
 			season_name,
 			year,
 			paypal_dataset->item_title_P,
-			atof( paypal_dataset->gross_revenue_H ),
 			/* -------- */
 			/* Set only */
 			/* -------- */

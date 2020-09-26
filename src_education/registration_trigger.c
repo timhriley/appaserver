@@ -105,23 +105,16 @@ void registration_trigger(
 
 	if ( ! ( registration =
 			registration_steady_state(
-				registration->registration_enrollment_list,
-				/* ----------------------------- */
-				/* Don't take anything from here */
-				/* ----------------------------- */
-				registration ) ) )
+				registration,
+				registration->
+					registration_enrollment_list ) ) )
 	{
-		fprintf(stderr,
-		"%s/%s()/%d: registration_steady_state() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		return;
 	}
 
 	registration_update(
 		registration->registration_tuition,
-		registration->registration_payment_total,
+		registration->registration_tuition_payment_total,
 		registration->registration_invoice_amount_due,
 		registration->student_full_name,
 		registration->street_address,

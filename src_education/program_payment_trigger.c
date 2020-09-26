@@ -19,6 +19,7 @@
 #include "account.h"
 #include "program.h"
 #include "journal.h"
+#include "program_payment_fns.h"
 #include "program_payment.h"
 
 /* Constants */
@@ -97,8 +98,6 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) ==  0
 	||   strcmp( state, "deposit" ) ==  0 )
 	{
-		char sys_string[ 1024 ];
-
 		program_payment_trigger_insert_update(
 			program_name,
 			payor_full_name,
@@ -111,15 +110,13 @@ int main( int argc, char **argv )
 		/* Even if called from deposit_trigger,	*/
 		/* need to set payment_total.		*/
 		/* ------------------------------------ */
-		sprintf(sys_string,
-	"deposit_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" program_payment",
-				entity_escape_full_name( payor_full_name ),
-				payor_street_address,
-				season_name,
-				year,
-				deposit_date_time );
-
-		if ( system( sys_string ) ){}
+		deposit_trigger(
+			payor_full_name,
+			payor_street_address,
+			season_name,
+			year,
+			deposit_date_time,
+			"program_payment" /* state */ );
 	}
 
 	return 0;
@@ -149,28 +146,20 @@ void program_payment_trigger_insert_update(
 		return;
 	}
 
-	if ( program_payment->payment_amount )
+	if ( ! ( program_payment =
+			program_payment_steady_state(
+			program_payment,
+			program_payment->deposit->deposit_amount,
+			program_payment->deposit->transaction_fee,
+			program_payment->deposit->net_revenue ) ) )
 	{
-		TRANSACTION *t;
+		return;
+	}
 
-		program_payment->program_payment_transaction =
-			program_payment_transaction(
-				payor_full_name,
-				payor_street_address,
-				deposit_date_time,
-				program_name,
-				program_payment->payment_amount,
-				program_payment->fees_expense,
-				program_payment->net_payment_amount,
-				account_cash( (char *)0 ),
-				account_fees_expense( (char *)0 ),
-				program_payment->program->revenue_account );
-
-		program_payment->transaction_date_time =
-			program_payment->program_payment_transaction->
-				transaction_date_time;
-
-		t = program_payment->program_payment_transaction;
+	if ( program_payment->transaction_date_time
+	&&  *program_payment->transaction_date_time )
+	{
+		TRANSACTION *t = program_payment->program_payment_transaction;
 
 		program_payment->transaction_date_time =
 			transaction_program_refresh(
@@ -182,10 +171,6 @@ void program_payment_trigger_insert_update(
 				t->memo,
 				0 /* check_number */,
 				t->journal_list );
-	}
-	else
-	{
-		program_payment->transaction_date_time = (char *)0;
 	}
 
 	program_payment_update(
@@ -227,8 +212,14 @@ void program_payment_trigger_predelete(
 	&&   *program_payment->transaction_date_time )
 	{
 		transaction_delete(
-			program_payment->payor_full_name,
-			program_payment->payor_street_address,
+			program_payment->
+				deposit->
+				payor_entity->
+				full_name,
+			program_payment->
+				deposit->
+				payor_entity->
+				street_address,
 			program_payment->transaction_date_time );
 
 		journal_account_name_list_propagate(
@@ -237,8 +228,14 @@ void program_payment_trigger_predelete(
 			/* Returns account_name_list */
 			/* ------------------------- */
 			journal_delete(
-				program_payment->payor_full_name,
-				program_payment->payor_street_address,
+				program_payment->
+					deposit->
+					payor_entity->
+					full_name,
+				program_payment->
+					deposit->
+					payor_entity->
+					street_address,
 				program_payment->transaction_date_time ) );
 	}
 }

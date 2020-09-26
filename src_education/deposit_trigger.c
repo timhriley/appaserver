@@ -15,8 +15,8 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "semester.h"
-#include "tuition_payment.h"
-#include "program_payment.h"
+#include "tuition_payment_fns.h"
+#include "program_payment_fns.h"
 #include "deposit.h"
 
 /* Constants */
@@ -24,13 +24,7 @@
 
 /* Prototypes */
 /* ---------- */
-void deposit_trigger_tuition_payment(
-			LIST *deposit_payment_list );
-
-void deposit_trigger_program_payment(
-			LIST *deposit_payment_list );
-
-DEPOSIT *deposit_trigger(
+DEPOSIT *deposit_trigger_execute(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -84,32 +78,35 @@ int main( int argc, char **argv )
 	||   strcmp( state, "payment" ) ==  0 )
 	{
 		DEPOSIT *deposit =
-			deposit_trigger(
+			deposit_trigger_execute(
 				payor_full_name,
 				payor_street_address,
 				season_name,
 				year,
 				deposit_date_time );
 
-		if ( strcmp( state, "tuition_payment" ) != 0 )
+		if ( strcmp( state, "tuition_payment" ) != 0
+		&&   strcmp( state, "program_payment" ) != 0 )
 		{
-			deposit_trigger_tuition_payment(
-				deposit->
-					deposit_payment_list );
-		}
+			if ( list_length(
+				deposit->deposit_tuition_payment_list ) )
+			{
+				tuition_payment_list_trigger(
+					deposit->deposit_tuition_payment_list );
+			}
 
-		if ( strcmp( state, "program_payment" ) != 0 )
-		{
-			deposit_trigger_program_payment(
-				deposit->
-					deposit_payment_list );
+			if ( list_length(
+				deposit->deposit_program_payment_list ) )
+			{
+				program_payment_list_trigger(
+					deposit->deposit_program_payment_list );
+			}
 		}
-
 	}
 	return 0;
 }
 
-DEPOSIT *deposit_trigger(
+DEPOSIT *deposit_trigger_execute(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -153,126 +150,25 @@ DEPOSIT *deposit_trigger(
 
 	if ( ! ( deposit =
 			deposit_steady_state(
+				deposit,
 				deposit->deposit_amount,
 				deposit->transaction_fee,
-				deposit->deposit_payment_list,
-				/* ----------------------------- */
-				/* Don't take anything from here */
-				/* ----------------------------- */
-				deposit ) ) )
+				deposit->deposit_tuition_payment_list,
+				deposit->deposit_program_payment_list ) ) )
 	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: deposit_steady_state() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !deposit->payor_entity )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: deposit_steady_state() returned empty payor_entity.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !deposit->semester )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: deposit_steady_state() returned empty semester.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		return (DEPOSIT *)0;
 	}
 
 	deposit_update(
-			deposit->deposit_payment_total,
+			deposit->deposit_tuition_payment_total,
+			deposit->deposit_program_payment_total,
 			deposit->deposit_net_revenue,
 			deposit->payor_entity->full_name,
 			deposit->payor_entity->street_address,
 			deposit->semester->season_name,
 			deposit->semester->year,
 			deposit->deposit_date_time );
+
 	return deposit;
-}
-
-void deposit_tuition_trigger_payment(
-			LIST *deposit_payment_list )
-{
-	char sys_string[ 1024 ];
-	TUITION_PAYMENT *payment;
-
-	if ( !list_rewind( deposit_payment_list ) ) return;
-
-	do {
-		payment = list_get( deposit_payment_list );
-
-		sprintf(sys_string,
-"tuition_payment_trigger \"%s\" \"%s\" \"%s\" \"%s\" %d \"%s\" \"%s\" \"%s\" deposit",
-			payment->
-				enrollment->
-				registration->
-				student_full_name,
-			payment->
-				enrollment->
-				registration->
-				street_address,
-			payment->
-				enrollment->
-				offering->
-				course->
-				course_name,
-			payment->
-				enrollment->
-				offering->
-				season_name,
-			payment->
-				enrollment->
-				offering->
-				year,
-			payment->
-				deposit->
-				payor_entity->
-				full_name,
-			payment->
-				deposit->
-				payor_entity->
-				street_address,
-			payment->
-				deposit->
-				deposit_date_time );
-
-		if ( system( sys_string ) ){}
-
-	} while ( list_next( deposit_payment_list ) );
-}
-
-void deposit_program_trigger_payment(
-			LIST *deposit_payment_list )
-{
-	char sys_string[ 1024 ];
-	PROGRAM_PAYMENT *payment;
-
-	if ( !list_rewind( deposit_payment_list ) ) return;
-
-	do {
-		payment = list_get( deposit_payment_list );
-
-		sprintf(sys_string,
-"program_payment_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" \"%s\" \"%s\" deposit",
-			payment->program->program_name,
-			payment->deposit->payor_entity->full_name,
-			payment->deposit->payor_entity->street_address,
-			payment->deposit->semester->season_name,
-			payment->deposit->semester->year,
-			payment->deposit->deposit_date_time );
-
-		if ( system( sys_string ) ){}
-
-	} while ( list_next( deposit_payment_list ) );
 }
 

@@ -93,7 +93,11 @@ void tuition_payment_insert_pipe(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time );
+			char *deposit_date_time,
+			double payment_amount,
+			double fees_expense,
+			double gain_donation,
+			char *transaction_date_time );
 
 void tuition_payment_list_enrollment_insert(
 			LIST *deposit_tuition_payment_list );

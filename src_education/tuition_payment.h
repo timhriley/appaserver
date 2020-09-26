@@ -41,7 +41,11 @@
 				"year,"				\
 				"payor_full_name,"		\
 				"payor_street_address,"		\
-				"deposit_date_time"
+				"deposit_date_time,"		\
+				"payment_amount,"		\
+				"fees_expense,"			\
+				"gain_donation,"		\
+				"transaction_date_time"
 
 /* Structures */
 /* ---------- */

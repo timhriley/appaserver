@@ -47,13 +47,6 @@ PROGRAM_ALIAS *program_alias_new(
 			char *program_name,
 			char *alias_name );
 
-PROGRAM *program_list_seek(
-			LIST *program_list,
-			char *program_alias_name );
-
-LIST *program_alias_list(
-			char *program_name );
-
 PROGRAM *program_calloc(
 			void );
 
@@ -82,6 +75,21 @@ char *program_primary_where(
 
 boolean program_payment_is_tuition(
 			char *item_title_block );
+
+LIST *program_list_fetch(
+			boolean fetch_alias_list );
+
+
+LIST *program_alias_list(
+			char *program_name );
+
+PROGRAM *program_list_seek(
+			LIST *program_list,
+			char *program_alias_name );
+
+char *program_peek_name(
+			LIST *program_list,
+			char *program_name );
 
 #endif
 

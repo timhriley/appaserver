@@ -333,11 +333,11 @@ double deposit_program_payment_total(
 }
 
 DEPOSIT *deposit_steady_state(
+			DEPOSIT *deposit,
 			double deposit_amount,
 			double transaction_fee,
 			LIST *deposit_tuition_payment_list,
-			LIST *deposit_program_payment_list,
-			DEPOSIT *deposit )
+			LIST *deposit_program_payment_list )
 {
 	deposit->deposit_registration_list =
 		deposit_registration_list(
@@ -782,4 +782,26 @@ LIST *deposit_enrollment_list(
 {
 	return tuition_payment_enrollment_list(
 			deposit_payment_list );
+}
+
+void deposit_trigger(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			char *state )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"deposit_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" %s",
+		entity_escape_full_name( payor_full_name ),
+		payor_street_address,
+		season_name,
+		year,
+		deposit_date_time,
+		state );
+
+	if ( system( sys_string ) ){}
 }

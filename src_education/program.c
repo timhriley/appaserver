@@ -298,7 +298,7 @@ boolean program_payment_is_tuition(
 			char *item_title_block )
 {
 	if ( instr(	"Child: " /* substr */,
-			item_block /* string */,
+			item_title_block /* string */,
 			1 /* occurrence */ ) >= 0 )
 	{
 		return 1;
@@ -308,3 +308,20 @@ boolean program_payment_is_tuition(
 		return 0;
 	}
 }
+
+char *program_peek_name(
+			LIST *program_list,
+			char *program_name )
+{
+	PROGRAM *program;
+
+	if ( ( program = program_list_seek( program_list, program_name ) ) )
+	{
+		return program->program_name;
+	}
+	else
+	{
+		return (char *)0;
+	}
+}
+
