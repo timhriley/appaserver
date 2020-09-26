@@ -147,5 +147,8 @@ void tuition_payment_trigger(
 			char *deposit_date_time,
 			char *state );
 
+void tuition_payment_list_enrollment_trigger(
+			LIST *tuition_payment_list );
+
 #endif
 

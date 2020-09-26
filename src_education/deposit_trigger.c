@@ -125,7 +125,8 @@ DEPOSIT *deposit_trigger(
 				season_name,
 				year,
 				deposit_date_time,
-				1 /* fetch_payment_list */ ) ) )
+				1 /* fetch_tuition_payment_list */,
+				1 /* fetch_program_payment_list */ ) ) )
 	{
 		return (DEPOSIT *)0;
 	}

@@ -80,6 +80,14 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 			double deposit_transaction_fee,
 			double deposit_net_payment_amount );
 
+PROGRAM_PAYMENT *program_payment(
+			char *item_title_P,
+			int program_number,
+			/* -------- */
+			/* Set only */
+			/* -------- */
+			DEPOSIT *deposit );
+
 /* ---------------------------------------- */
 /* Place functions in program_payment_fns.h */
 /* ---------------------------------------- */

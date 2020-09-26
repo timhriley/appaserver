@@ -20,6 +20,7 @@ EDUCATION_CORE=								\
 		deposit.o						\
 		semester.o						\
 		student.o						\
+		program.o						\
 		tuition_payment_item_title.o				\
 		program_payment_item_title.o
 

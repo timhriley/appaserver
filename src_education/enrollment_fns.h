@@ -72,5 +72,12 @@ void enrollment_insert_pipe(
 LIST *enrollment_course_name_list(
 			LIST *enrollment_list );
 
+void enrollment_trigger(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year );
+
 #endif
 

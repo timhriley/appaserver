@@ -403,13 +403,13 @@ REGISTRATION *registration_steady_state(
 		registration_tuition(
 			registration_enrollment_list );
 
-	registration->registration_payment_list =
-		registration_payment_list(
+	registration->registration_tuition_payment_list =
+		registration_tuition_payment_list(
 			registration_enrollment_list );
 
 	registration->registration_tuition_payment_total =
 		registration_tuition_payment_total(
-			registration->registration_payment_list );
+			registration->registration_tuition_payment_list );
 
 	registration->registration_invoice_amount_due =
 		registration_invoice_amount_due(

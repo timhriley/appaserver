@@ -78,10 +78,7 @@ double program_payment_net_payment_amount(
 			double deposit_net_payment_amount );
 
 LIST *program_payment_list(
-			char *season_name,
-			int year,
 			char *item_title_P,
-			double gross_revenue_H,
 			DEPOSIT *deposit );
 
 void program_payment_trigger(
@@ -94,6 +91,12 @@ void program_payment_trigger(
 			char *state );
 
 void program_payment_list_insert(
+			LIST *program_payment_list );
+
+double program_payment_total(
+			LIST *program_payment_list );
+
+void program_payment_list_trigger(
 			LIST *program_payment_list );
 
 #endif

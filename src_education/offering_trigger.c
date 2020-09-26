@@ -100,7 +100,7 @@ void offering_trigger(
 	if ( ! ( offering =
 			offering_steady_state(
 				offering,
-				offering->offering_enrollment_list );
+				offering->offering_enrollment_list ) ) )
 	{
 		fprintf(stderr,
 			"%s/%s()/%d: offering_steady_state() returned empty.\n",
@@ -111,10 +111,10 @@ void offering_trigger(
 	}
 
 	offering_update(
-			offering->offering_enrollment_count,
-			offering->offering_capacity_available,
-			offering->course->course_name,
-			offering->semester->season_name,
-			offering->semester->year );
+		offering->offering_enrollment_count,
+		offering->offering_capacity_available,
+		offering->course->course_name,
+		offering->semester->season_name,
+		offering->semester->year );
 }
 

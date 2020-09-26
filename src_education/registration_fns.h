@@ -15,7 +15,7 @@ double registration_tuition(
 			LIST *enrollment_list );
 
 double registration_tuition_payment_total(
-			LIST *registration_payment_list );
+			LIST *registration_tuition_payment_list );
 
 double registration_invoice_amount_due(
 			double registration_tuition,
@@ -48,7 +48,7 @@ LIST *registration_enrollment_list(
 			char *season_name,
 			int year );
 
-LIST *registration_payment_list(
+LIST *registration_tuition_payment_list(
 			LIST *registration_enrollment_list );
 
 double registration_tuition_total(

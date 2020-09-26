@@ -530,8 +530,6 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 }
 
 PROGRAM_PAYMENT *program_payment(
-			char *season_name,
-			int year,
 			char *item_title_P,
 			int program_number,
 			/* -------- */
@@ -561,8 +559,6 @@ PROGRAM_PAYMENT *program_payment(
 }
 
 LIST *program_payment_list(
-			char *season_name,
-			int year,
 			char *item_title_P,
 			DEPOSIT *deposit )
 {
@@ -573,8 +569,6 @@ LIST *program_payment_list(
 	for (	program_number = 1;
 		( payment =
 			program_payment(
-				season_name,
-				year,
 				item_title_P,
 				program_number,
 				deposit ) );
@@ -609,3 +603,51 @@ void program_payment_trigger(
 	if ( system( sys_string ) ){}
 }
 
+double program_payment_total( LIST *payment_list )
+{
+	PROGRAM_PAYMENT *payment;
+	double total;
+
+	if ( !list_rewind( payment_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		payment = list_get( payment_list );
+
+		total += payment->program_payment_amount;
+
+	} while ( list_next( payment_list ) );
+
+	return total;
+}
+
+void program_payment_list_trigger(
+			LIST *program_payment_list )
+{
+	PROGRAM_PAYMENT *program_payment;
+
+	if ( !list_rewind( program_payment_list ) ) return;
+
+	do {
+		program_payment = list_get( program_payment_list );
+
+		program_payment_trigger(
+			program_payment->program->program_name,
+			program_payment->
+				deposit->
+				payor_entity->
+				full_name,
+			program_payment->
+				deposit->
+				payor_entity->
+				street_address,
+			program_payment->deposit->semester->season_name,
+			program_payment->deposit->semester->year,
+			program_payment->
+				deposit->
+				deposit_date_time,
+			"insert" /* state */ );
+
+	} while ( list_next( program_payment_list ) );
+}

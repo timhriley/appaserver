@@ -86,12 +86,5 @@ LIST *education_not_exists_course_name_list(
 			int year,
 			LIST *deposit_list );
 
-LIST *education_program_payment_list(
-			char *season_name,
-			int year,
-			char *item_title_P,
-			double gross_revenue_H,
-			DEPOSIT *deposit );
-
 #endif
 

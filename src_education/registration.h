@@ -42,7 +42,7 @@ typedef struct
 	double registration_invoice_amount_due;
 	char *registration_date_time;
 	LIST *registration_enrollment_list;
-	LIST *registration_payment_list;
+	LIST *registration_tuition_payment_list;
 } REGISTRATION;
 
 REGISTRATION *registration_getset(

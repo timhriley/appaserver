@@ -305,7 +305,8 @@ TUITION_PAYMENT *tuition_payment_parse(
 				season_name,
 				atoi( year ),
 				deposit_date_time,
-				1 /* fetch_payment_list */ );
+				1 /* fetch_tuition_payment_list */,
+				0 /* not fetch_program_payment_list */ );
 	}
 
 	if ( fetch_enrollment )
@@ -1303,3 +1304,42 @@ void tuition_payment_trigger(
 	if ( system( sys_string ) ){}
 }
 
+void tuition_payment_list_enrollment_trigger(
+			LIST *tuition_payment_list )
+{
+	TUITION_PAYMENT *payment;
+
+	if ( !list_rewind( tuition_payment_list ) ) return;
+
+	do {
+		payment =
+			list_get(
+				tuition_payment_list );
+
+		enrollment_trigger(
+			payment->
+				enrollment->
+				registration->
+				student_full_name,
+			payment->
+				enrollment->
+				registration->
+				street_address,
+			payment->
+				enrollment->
+				offering->
+				course->
+				course_name,
+			payment->
+				enrollment->
+				offering->
+				semester->
+				season_name,
+			payment->
+				enrollment->
+				offering->
+				semester->
+				year );
+
+	} while ( list_next( tuition_payment_list ) );
+}

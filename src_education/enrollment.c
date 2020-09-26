@@ -474,3 +474,23 @@ LIST *enrollment_course_name_list(
 	return course_name_list;
 }
 
+void enrollment_trigger(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"enrollment_trigger \"%s\" '%s' \"%s\" '%s' %d insert",
+		student_full_name,
+		street_address,
+		course_name,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+}
+

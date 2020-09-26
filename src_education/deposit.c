@@ -30,7 +30,8 @@ LIST *deposit_fetch_program_payment_list(
 			char *season_name,
 			int year,
 			char *deposit_date_time,
-			boolean fetch_program )
+			boolean fetch_program,
+			boolean fetch_deposit )
 {
 	return
 		program_payment_system_list(
@@ -44,7 +45,8 @@ LIST *deposit_fetch_program_payment_list(
 					season_name,
 					year,
 					deposit_date_time ) ),
-			fetch_program );
+			fetch_program,
+			fetch_deposit );
 }
 
 LIST *deposit_fetch_tuition_payment_list(
@@ -54,8 +56,7 @@ LIST *deposit_fetch_tuition_payment_list(
 			int year,
 			char *deposit_date_time,
 			boolean fetch_deposit,
-			boolean fetch_enrollment,
-			boolean fetch_transaction )
+			boolean fetch_enrollment )
 {
 	return
 		tuition_payment_system_list(
@@ -70,8 +71,7 @@ LIST *deposit_fetch_tuition_payment_list(
 					year,
 					deposit_date_time ) ),
 			fetch_deposit,
-			fetch_enrollment,
-			fetch_transaction );
+			fetch_enrollment );
 }
 
 double deposit_remaining(
@@ -180,7 +180,8 @@ DEPOSIT *deposit_parse(	char *input,
 	char transaction_ID[ 128 ];
 	char invoice_number[ 128 ];
 	char from_email_address[ 128 ];
-	char payment_total[ 128 ];
+	char tuition_payment_total[ 128 ];
+	char program_payment_total[ 128 ];
 	DEPOSIT *deposit;
 
 	if ( !input || !*input ) return (DEPOSIT *)0;
@@ -222,8 +223,11 @@ DEPOSIT *deposit_parse(	char *input,
 	piece( from_email_address, SQL_DELIMITER, input, 11 );
 	deposit->from_email_address = strdup( from_email_address );
 
-	piece( payment_total, SQL_DELIMITER, input, 12 );
-	deposit->deposit_payment_total = atof( payment_total );
+	piece( tuition_payment_total, SQL_DELIMITER, input, 12 );
+	deposit->deposit_tuition_payment_total = atof( tuition_payment_total );
+
+	piece( program_payment_total, SQL_DELIMITER, input, 13 );
+	deposit->deposit_program_payment_total = atof( program_payment_total );
 
 	if ( fetch_tuition_payment_list )
 	{
@@ -247,7 +251,8 @@ DEPOSIT *deposit_parse(	char *input,
 				season_name,
 				deposit->semester->year,
 				deposit_date_time,
-				1 /* fetch_program */ );
+				1 /* fetch_program */,
+				1 /* fetch_deposit */ );
 	}
 
 	return deposit;
@@ -267,7 +272,8 @@ char *deposit_sys_string( char *where )
 
 LIST *deposit_system_list(
 			char *sys_string,
-			boolean fetch_payment_list )
+			boolean fetch_tuition_payment_list,
+			boolean fetch_program_payment_list )
 {
 	char input[ 1024 ];
 	FILE *input_pipe = popen( sys_string, "r" );
@@ -309,30 +315,41 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 						season_name,
 						year,
 						deposit_date_time ) ) ),
-			fetch_tution_payment_list,
+			fetch_tuition_payment_list,
 			fetch_program_payment_list );
 	return deposit;
 }
 
-double deposit_payment_total(
-			LIST *deposit_payment_list )
+double deposit_tuition_payment_total(
+			LIST *deposit_tuition_payment_list )
 {
-	return payment_total( deposit_payment_list );
+	return tuition_payment_total( deposit_tuition_payment_list );
+}
+
+double deposit_program_payment_total(
+			LIST *deposit_program_payment_list )
+{
+	return program_payment_total( deposit_program_payment_list );
 }
 
 DEPOSIT *deposit_steady_state(
 			double deposit_amount,
 			double transaction_fee,
-			LIST *deposit_payment_list,
+			LIST *deposit_tuition_payment_list,
+			LIST *deposit_program_payment_list,
 			DEPOSIT *deposit )
 {
 	deposit->deposit_registration_list =
 		deposit_registration_list(
-			deposit_payment_list );
+			deposit_tuition_payment_list );
 
-	deposit->deposit_payment_total =
-		deposit_payment_total(
-			deposit_payment_list );
+	deposit->deposit_tuition_payment_total =
+		deposit_tuition_payment_total(
+			deposit_tuition_payment_list );
+
+	deposit->deposit_program_payment_total =
+		deposit_program_payment_total(
+			deposit_program_payment_list );
 
 	deposit->deposit_invoice_amount_due =
 		deposit_invoice_amount_due(
@@ -362,7 +379,8 @@ FILE *deposit_update_open( void )
 }
 
 void deposit_update(
-			double deposit_payment_total,
+			double deposit_tuition_payment_total,
+			double deposit_program_payment_total,
 			double deposit_net_revenue,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -375,13 +393,22 @@ void deposit_update(
 	update_pipe = deposit_update_open();
 
 	fprintf( update_pipe,
-		 "%s^%s^%s^%d^%s^payment_total^%.2lf\n",
+		 "%s^%s^%s^%d^%s^tuition_payment_total^%.2lf\n",
 		 payor_full_name,
 		 payor_street_address,
 		 season_name,
 		 year,
 		 deposit_date_time,
-		 deposit_payment_total );
+		 deposit_tuition_payment_total );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%d^%s^program_payment_total^%.2lf\n",
+		 payor_full_name,
+		 payor_street_address,
+		 season_name,
+		 year,
+		 deposit_date_time,
+		 deposit_program_payment_total );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%d^%s^net_revenue^%.2lf\n",
@@ -550,7 +577,11 @@ void deposit_list_payment_insert(
 	do {
 		deposit = list_get( deposit_list );
 
-		payment_list_insert( deposit->deposit_payment_list );
+		tuition_payment_list_insert(
+			deposit->deposit_tuition_payment_list );
+
+		program_payment_list_insert(
+			deposit->deposit_program_payment_list );
 
 	} while ( list_next( deposit_list ) );
 }
@@ -565,8 +596,8 @@ void deposit_list_enrollment_insert(
 	do {
 		deposit = list_get( deposit_list );
 
-		payment_list_enrollment_insert(
-			deposit->deposit_payment_list );
+		tuition_payment_list_enrollment_insert(
+			deposit->deposit_tuition_payment_list );
 
 	} while ( list_next( deposit_list ) );
 }
@@ -581,40 +612,8 @@ void deposit_list_registration_insert(
 	do {
 		deposit = list_get( deposit_list );
 
-		payment_list_registration_insert(
-			deposit->deposit_payment_list );
-
-	} while ( list_next( deposit_list ) );
-}
-
-void deposit_list_offering_insert(
-			LIST *deposit_list )
-{
-	DEPOSIT *deposit;
-
-	if ( !list_rewind( deposit_list ) ) return;
-
-	do {
-		deposit = list_get( deposit_list );
-
-		payment_list_offering_insert(
-			deposit->deposit_payment_list );
-
-	} while ( list_next( deposit_list ) );
-}
-
-void deposit_list_course_insert(
-			LIST *deposit_list )
-{
-	DEPOSIT *deposit;
-
-	if ( !list_rewind( deposit_list ) ) return;
-
-	do {
-		deposit = list_get( deposit_list );
-
-		payment_list_course_insert(
-			deposit->deposit_payment_list );
+		tuition_payment_list_registration_insert(
+			deposit->deposit_tuition_payment_list );
 
 	} while ( list_next( deposit_list ) );
 }
@@ -629,8 +628,8 @@ void deposit_list_student_insert(
 	do {
 		deposit = list_get( deposit_list );
 
-		payment_list_student_insert(
-			deposit->deposit_payment_list );
+		tuition_payment_list_student_insert(
+			deposit->deposit_tuition_payment_list );
 
 	} while ( list_next( deposit_list ) );
 }
@@ -645,8 +644,8 @@ void deposit_list_student_entity_insert(
 	do {
 		deposit = list_get( deposit_list );
 
-		payment_list_student_entity_insert(
-			deposit->deposit_payment_list );
+		tuition_payment_list_student_entity_insert(
+			deposit->deposit_tuition_payment_list );
 
 	} while ( list_next( deposit_list ) );
 }
@@ -661,56 +660,31 @@ void deposit_list_payor_entity_insert(
 	do {
 		deposit = list_get( deposit_list );
 
-		payment_list_payor_entity_insert(
-			deposit->deposit_payment_list );
+		tuition_payment_list_payor_entity_insert(
+			deposit->deposit_tuition_payment_list );
 
 	} while ( list_next( deposit_list ) );
 }
 
 void deposit_list_program_payment_trigger(
-			char *season_name,
-			int year,
 			LIST *deposit_list )
 {
 	DEPOSIT *deposit;
-	PROGRAM_PAYMENT *program_payment;
 
 	if ( !list_rewind( deposit_list ) ) return;
 
 	do {
 		deposit = list_get( deposit_list );
 
-		if ( !list_rewind( deposit->deposit_program_payment_list ) )
+		if ( list_rewind( deposit->deposit_program_payment_list ) )
 		{
-			continue;
+			program_payment_list_trigger(
+				deposit->deposit_program_payment_list );
 		}
-
-		do {
-			program_payment =
-				list_get(
-					deposit->
-						deposit_program_payment_list );
-
-			deposit_program_payment_trigger(
-				program_payment->
-					program_name,
-				program_payment->
-					payor_full_name,
-				program_payment->
-					payor_street_address,
-				season_name,
-				year,
-				program_payment->
-					deposit_date_time );
-
-		} while ( list_next( deposit->deposit_program_payment_list ) );
-
 	} while ( list_next( deposit_list ) );
 }
 
 void deposit_list_tuition_payment_trigger(
-			char *season_name,
-			int year,
 			LIST *deposit_list )
 {
 	DEPOSIT *deposit;
@@ -725,73 +699,28 @@ void deposit_list_tuition_payment_trigger(
 			tuition_payment_list_trigger(
 				deposit->deposit_tuition_payment_list );
 		}
-
 	} while ( list_next( deposit_list ) );
 }
 
 void deposit_list_enrollment_trigger(
-			char *season_name,
-			int year,
 			LIST *deposit_list )
 {
 	DEPOSIT *deposit;
-	TUITION_PAYMENT *payment;
 
 	if ( !list_rewind( deposit_list ) ) return;
 
 	do {
 		deposit = list_get( deposit_list );
 
-		if ( !list_rewind( deposit->deposit_payment_list ) )
+		if ( !list_rewind( deposit->deposit_tuition_payment_list ) )
 		{
 			continue;
 		}
 
-		do {
-			payment =
-				list_get(
-					deposit->deposit_payment_list );
-
-			deposit_enrollment_trigger(
-				payment->
-					enrollment->
-					registration->
-					student_full_name,
-				payment->
-					enrollment->
-					registration->
-					street_address,
-				payment->
-					enrollment->
-					offering->
-					course->
-					course_name,
-				season_name,
-				year );
-
-		} while ( list_next( deposit->deposit_payment_list ) );
+		tuition_payment_list_enrollment_trigger(
+			deposit->deposit_tuition_payment_list );
 
 	} while ( list_next( deposit_list ) );
-}
-
-void deposit_enrollment_trigger(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-	"enrollment_trigger \"%s\" '%s' \"%s\" '%s' %d insert",
-		student_full_name,
-		street_address,
-		course_name,
-		season_name,
-		year );
-
-	if ( system( sys_string ) ){}
 }
 
 LIST *deposit_course_name_list(
@@ -805,15 +734,14 @@ LIST *deposit_course_name_list(
 	course_name_list = list_new();
 
 	do {
-		deposit =
-			list_get(
-				deposit_list );
+		deposit = list_get( deposit_list );
 
 		list_append_list(
 			course_name_list,
 			enrollment_course_name_list(
 				deposit_enrollment_list(
-					deposit->deposit_payment_list ) ) );
+					deposit->
+					     deposit_tuition_payment_list ) ) );
 
 	} while ( list_next( deposit_list ) );
 
@@ -821,17 +749,11 @@ LIST *deposit_course_name_list(
 }
 
 LIST *deposit_program_payment_list(
-			char *season_name,
-			int year,
 			char *item_title_P,
-			double gross_revenue_H,
 			DEPOSIT *deposit )
 {
 	return program_payment_list(
-			season_name,
-			year,
 			item_title_P,
-			gross_revenue_H,
 			deposit );
 }
 
@@ -839,14 +761,12 @@ LIST *deposit_tuition_payment_list(
 			char *season_name,
 			int year,
 			char *item_title_P,
-			double gross_revenue_H,
 			DEPOSIT *deposit )
 {
 	return tuition_payment_list(
 			season_name,
 			year,
 			item_title_P,
-			gross_revenue_H,
 			deposit );
 }
 

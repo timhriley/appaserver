@@ -23,12 +23,10 @@
 #include "offering.h"
 #include "offering_fns.h"
 #include "semester.h"
-#include "payment.h"
 #include "deposit.h"
 #include "spreadsheet.h"
 #include "paypal_dataset.h"
 #include "program.h"
-#include "payment_item_title.h"
 #include "education.h"
 
 EDUCATION *education_calloc( void )
@@ -79,7 +77,6 @@ LIST *education_deposit_list(
 			PAYPAL_DATASET *paypal_dataset )
 {
 	LIST *deposit_list = list_new();
-	DEPOSIT *deposit;
 	char input_string[ 65536 ];
 	FILE *spreadsheet_file;
 	/* ------------------------------------------ */
@@ -154,7 +151,6 @@ input_string );
 	}
 
 	fclose( spreadsheet_file );
-
 	return deposit_list;
 }
 
@@ -260,10 +256,7 @@ DEPOSIT *education_deposit(
 
 	deposit->deposit_program_payment_list =
 		deposit_program_payment_list(
-			season_name,
-			year,
 			paypal_dataset->item_title_P,
-			atof( paypal_dataset->gross_revenue_H ),
 			/* -------- */
 			/* Set only */
 			/* -------- */
@@ -499,108 +492,5 @@ LIST *education_not_exists_course_name_list(
 			season_name,
 			year,
 			course_name_list );
-}
-
-PROGRAM_PAYMENT *education_program_payment(
-			char *season_name,
-			int year,
-			char *item_title_P,
-			double gross_revenue_H,
-			int program_number,
-			/* -------- */
-			/* Set only */
-			/* -------- */
-			DEPOSIT *deposit )
-{
-	TUITION_PAYMENT *payment;
-	PAYMENT_ITEM_TITLE *payment_item_title;
-
-	if ( ! ( payment_item_title =
-			payment_item_title_new(
-				item_title_P,
-				student_number ) ) )
-	{
-		return (TUITION_PAYMENT *)0;
-	}
-
-	if ( ! ( payment_item_title->
-			payment_item_title_entity =
-				payment_item_title_entity(
-				item_title_P,
-				student_number ) ) )
-	{
-		return (TUITION_PAYMENT *)0;
-	}
-
-	if ( ! ( payment_item_title->
-			payment_item_title_course_name =
-				payment_item_title_course_name(
-					item_title_P,
-					student_number ) ) )
-	{
-		return (TUITION_PAYMENT *)0;
-	}
-
-	/* New payment */
-	/* ----------- */
-	payment = payment_calloc();
-
-	/* Build enrollment */
-	/* ---------------- */
-	payment->enrollment =
-		enrollment_new(
-			payment_item_title->
-				payment_item_title_entity->
-				full_name,
-			payment_item_title->
-				payment_item_title_entity->
-				street_address,
-			payment_item_title->
-				payment_item_title_course_name,
-			season_name,
-			year );
-
-	/* Build offering */
-	/* -------------- */
-	payment->enrollment->offering =
-		offering_new(
-			payment_item_title->
-				payment_item_title_course_name,
-			season_name,
-			year );
-
-	/* Build course */
-	/* ------------ */
-	payment->enrollment->offering->course =
-		course_new(
-			payment_item_title->
-				payment_item_title_course_name );
-
-	/* Not sure of the best way to ensure accurate course_price */
-	/* -------------------------------------------------------- */
-	if ( student_number == 1 )
-	{
-		payment->enrollment->offering->course->course_price =
-			gross_revenue_H;
-	}
-
-	/* Build registration */
-	/* ------------------ */
-	payment->enrollment->registration =
-		registration_new(
-			payment_item_title->
-				payment_item_title_entity->
-				full_name,
-			payment_item_title->
-				payment_item_title_entity->
-				street_address,
-			season_name,
-			year );
-
-	/* Set deposit */
-	/* ----------- */
-	payment->deposit = deposit;
-
-	return payment;
 }
 
