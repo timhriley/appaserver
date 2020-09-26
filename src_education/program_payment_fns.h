@@ -30,7 +30,8 @@ void program_payment_insert_pipe(
 
 LIST *program_payment_system_list(
 			char *sys_string,
-			boolean fetch_program );
+			boolean fetch_program,
+			boolean fetch_deposit );
 
 char *program_payment_sys_string(
 			char *where );
@@ -91,6 +92,9 @@ void program_payment_trigger(
 			int year,
 			char *deposit_date_time,
 			char *state );
+
+void program_payment_list_insert(
+			LIST *program_payment_list );
 
 #endif
 

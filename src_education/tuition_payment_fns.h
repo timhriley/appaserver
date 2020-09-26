@@ -128,7 +128,6 @@ LIST *tuition_payment_list(
 			char *season_name,
 			int year,
 			char *item_title_P,
-			double gross_revenue_H,
 			DEPOSIT *deposit );
 
 double tuition_payment_receivable_credit_amount(

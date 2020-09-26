@@ -128,7 +128,6 @@ TUITION_PAYMENT *tuition_payment(
 			char *season_name,
 			int year,
 			char *item_title_P,
-			double gross_revenue_H,
 			int student_number,
 			/* -------- */
 			/* Set only */

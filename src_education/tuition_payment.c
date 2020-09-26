@@ -29,6 +29,7 @@
 #include "student.h"
 #include "program.h"
 #include "deposit.h"
+#include "tuition_payment_item_title.h"
 #include "tuition_payment.h"
 
 TUITION_PAYMENT *payment_calloc( void )
@@ -695,8 +696,8 @@ void tuition_payment_list_insert( LIST *payment_list )
 			payment->enrollment->registration->student_full_name,
 			payment->enrollment->registration->street_address,
 			payment->enrollment->offering->course->course_name,
-			payment->enrollment->offering->season_name,
-			payment->enrollment->offering->year,
+			payment->enrollment->offering->semester->season_name,
+			payment->enrollment->offering->semester->year,
 			payment->deposit->payor_entity->full_name,
 			payment->deposit->payor_entity->street_address,
 			payment->deposit->deposit_date_time );
@@ -788,8 +789,8 @@ void tuition_payment_list_enrollment_insert( LIST *payment_list )
 			payment->enrollment->registration->student_full_name,
 			payment->enrollment->registration->street_address,
 			payment->enrollment->offering->course->course_name,
-			payment->enrollment->offering->season_name,
-			payment->enrollment->offering->year );
+			payment->enrollment->offering->semester->season_name,
+			payment->enrollment->offering->semester->year );
 
 	} while ( list_next( payment_list ) );
 
@@ -833,8 +834,8 @@ void tuition_payment_list_registration_insert(
 			insert_pipe,
 			payment->enrollment->registration->student_full_name,
 			payment->enrollment->registration->street_address,
-			payment->enrollment->offering->season_name,
-			payment->enrollment->offering->year,
+			payment->enrollment->offering->semester->season_name,
+			payment->enrollment->offering->semester->year,
 			payment->deposit->deposit_date_time
 				/* registration_date_time */ );
 
@@ -1158,7 +1159,8 @@ void tuition_payment_list_trigger(
 				street_address,
 			tuition_payment->
 				deposit->
-				deposit_date_time );
+				deposit_date_time,
+			"insert" /* state */ );
 
 	} while ( list_next( deposit_tuition_payment_list ) );
 }
@@ -1167,7 +1169,6 @@ LIST *tuition_payment_list(
 			char *season_name,
 			int year,
 			char *item_title_P,
-			double gross_revenue_H,
 			DEPOSIT *deposit )
 {
 	LIST *payment_list = list_new();
@@ -1180,7 +1181,6 @@ LIST *tuition_payment_list(
 				season_name,
 				year,
 				item_title_P,
-				gross_revenue_H,
 				student_number,
 				deposit ) );
 		student_number++ )
@@ -1195,7 +1195,6 @@ TUITION_PAYMENT *tuition_payment(
 			char *season_name,
 			int year,
 			char *item_title_P,
-			double gross_revenue_H,
 			int student_number,
 			/* -------- */
 			/* Set only */
@@ -1215,7 +1214,7 @@ TUITION_PAYMENT *tuition_payment(
 
 	if ( ! ( tuition_payment_item_title->
 			tuition_payment_item_title_entity =
-				tution_payment_item_title_entity(
+				tuition_payment_item_title_entity(
 				item_title_P,
 				student_number ) ) )
 	{
@@ -1246,7 +1245,7 @@ TUITION_PAYMENT *tuition_payment(
 				tuition_payment_item_title_entity->
 				street_address,
 			tuition_payment_item_title->
-				tution_payment_item_title_course_name,
+				tuition_payment_item_title_course_name,
 			season_name,
 			year );
 

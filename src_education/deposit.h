@@ -124,17 +124,20 @@ DEPOSIT *deposit_new(
 
 LIST *deposit_system_list(
 			char *sys_string,
-			boolean fetch_payment_list );
+			boolean fetch_tuition_payment_list,
+			boolean fetch_program_payment_list );
 
 DEPOSIT *deposit_fetch(	char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
 			char *deposit_date_time,
-			boolean fetch_payment_list );
+			boolean fetch_tuition_payment_list,
+			boolean fetch_program_payment_list );
 
 DEPOSIT *deposit_parse( char *input,
-			boolean fetch_payment_list );
+			boolean fetch_tuition_payment_list,
+			boolean fetch_program_payment_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */

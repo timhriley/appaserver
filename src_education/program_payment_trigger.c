@@ -143,7 +143,8 @@ void program_payment_trigger_insert_update(
 				season_name,
 				year,
 				deposit_date_time,
-				1 /* fetch_program */ ) ) )
+				1 /* fetch_program */,
+				1 /* fetch_deposit */ ) ) )
 	{
 		return;
 	}
@@ -216,7 +217,8 @@ void program_payment_trigger_predelete(
 				season_name,
 				year,
 				deposit_date_time,
-				0 /* not fetch_program */ ) ) )
+				0 /* not fetch_program */,
+				0 /* not fetch_deposit */ ) ) )
 	{
 		return;
 	}

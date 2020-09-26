@@ -112,9 +112,11 @@ ENROLLMENT *enrollment_parse(
 					course_name,
 				enrollment->
 					offering->
+					semester->
 					season_name,
 				enrollment->
 					offering->
+					semester->
 					year );
 	}
 
@@ -127,7 +129,7 @@ ENROLLMENT *enrollment_parse(
 			offering_fetch(
 				course_name,
 				season_name,
-				enrollment->offering->year,
+				enrollment->offering->semester->year,
 				1 /* fetch_course */,
 				0 /* not fetch_enrollment_list */ );
 	}
@@ -138,8 +140,8 @@ ENROLLMENT *enrollment_parse(
 			registration_fetch(
 				full_name,
 				street_address,
-				season_name,
-				enrollment->offering->year,
+				enrollment->offering->semester->season_name,
+				enrollment->offering->semester->year,
 				0 /* not fetch_enrollment_list */ );
 	}
 

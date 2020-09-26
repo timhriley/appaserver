@@ -165,7 +165,8 @@ DEPOSIT *deposit_new(	char *payor_full_name,
 }
 
 DEPOSIT *deposit_parse(	char *input,
-			boolean fetch_payment_list )
+			boolean fetch_tuition_payment_list,
+			boolean fetch_program_payment_list )
 {
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
@@ -224,7 +225,7 @@ DEPOSIT *deposit_parse(	char *input,
 	piece( payment_total, SQL_DELIMITER, input, 12 );
 	deposit->deposit_payment_total = atof( payment_total );
 
-	if ( fetch_payment_list )
+	if ( fetch_tuition_payment_list )
 	{
 		deposit->deposit_tuition_payment_list =
 			deposit_fetch_tuition_payment_list(
@@ -235,7 +236,10 @@ DEPOSIT *deposit_parse(	char *input,
 				deposit_date_time,
 				0 /* not fetch_deposit */,
 				0 /* not fetch_enrollment */ );
+	}
 
+	if ( fetch_program_payment_list )
+	{
 		deposit->deposit_program_payment_list =
 			deposit_fetch_program_payment_list(
 				payor_full_name,
@@ -245,6 +249,7 @@ DEPOSIT *deposit_parse(	char *input,
 				deposit_date_time,
 				1 /* fetch_program */ );
 	}
+
 	return deposit;
 }
 
@@ -274,7 +279,8 @@ LIST *deposit_system_list(
 			list,
 			deposit_parse(
 				input,
-				fetch_payment_list ) );
+				fetch_tuition_payment_list,
+				fetch_program_payment_list ) );
 	}
 	pclose( input_pipe );
 	return list;
@@ -285,7 +291,8 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 			char *season_name,
 			int year,
 			char *deposit_date_time,
-			boolean fetch_payment_list )
+			boolean fetch_tuition_payment_list,
+			boolean fetch_program_payment_list )
 {
 	DEPOSIT *deposit;
 
@@ -302,7 +309,8 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 						season_name,
 						year,
 						deposit_date_time ) ) ),
-			fetch_payment_list );
+			fetch_tution_payment_list,
+			fetch_program_payment_list );
 	return deposit;
 }
 
