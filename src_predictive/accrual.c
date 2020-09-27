@@ -292,7 +292,8 @@ void accrual_transaction_refresh(
 			transaction_date_time,
 			expense_account_name,
 			accrual_amount,
-			1 /* is_debit */ );
+			1 /* is_debit */,
+			0 /* not replace */ );
 
 		journal_insert(
 			full_name,
@@ -300,7 +301,8 @@ void accrual_transaction_refresh(
 			transaction_date_time,
 			asset_account_name,
 			accrual_amount,
-			0 /* not is_debit */ );
+			0 /* not is_debit */,
+			0 /* not replace */ );
 	}
 }
 
