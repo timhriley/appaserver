@@ -750,10 +750,12 @@ LIST *deposit_course_name_list(
 
 LIST *deposit_program_payment_list(
 			char *item_title_P,
+			LIST *education_program_list,
 			DEPOSIT *deposit )
 {
 	return program_payment_list(
 			item_title_P,
+			education_program_list,
 			deposit );
 }
 

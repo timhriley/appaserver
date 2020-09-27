@@ -67,19 +67,32 @@ if ( program_number > 1 ) return (char *)0;
 
 char *program_payment_item_title_name(
 			char *item_title_P,
-			int program_number )
+			int program_number,
+			LIST *program_list )
 {
+	char *item_title_block;
+
 	if ( program_payment_is_tuition( item_title_P ) )
 	{
 		return (char *)0;
 	}
 
 /* Program item title block like:
+
 Mary Poppins Junior Tickets
+
 */
-	return
-		program_payment_item_title_block(
-			item_title_P,
-			program_number );
+	if ( ! ( item_title_block =
+			program_payment_item_title_block(
+				item_title_P,
+				program_number ) ) )
+	{
+		return (char *)0;
+	}
+
+	return program_seek_name(
+		program_list,
+		item_title_block
+			/* program_name */ );
 }
 

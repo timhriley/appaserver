@@ -142,9 +142,10 @@ int main( int argc, char **argv )
 	if ( list_length( not_exists_course_name_list ) )
 	{
 		printf(
-		"<h3>Can't execute with non-existing offerings: %s</h3>\n",
-			list_html_display( not_exists_course_name_list ) );
+		"<h3>Can't execute with non-existing offerings</h3>\n" );
+
 		fflush( stdout );
+		list_html_display( not_exists_course_name_list );
 
 		execute = 0;
 	}
@@ -160,18 +161,12 @@ int main( int argc, char **argv )
 			deposit_list );
 
 		deposit_list_enrollment_trigger(
-			season_name,
-			year,
 			deposit_list );
 
 		deposit_list_tuition_payment_trigger(
-			season_name,
-			year,
 			deposit_list );
 
 		deposit_list_program_payment_trigger(
-			season_name,
-			year,
 			deposit_list );
 
 		paypal_upload_event_insert(
@@ -257,7 +252,9 @@ LIST *paypal_upload_deposit_list(
 			year,
 			spreadsheet_filename,
 			education->paypal->spreadsheet,
-			paypal_dataset_calloc() );
+			paypal_dataset_calloc(),
+			( education->education_program_list =
+				education_program_list() ) );
 }
 
 void paypal_upload_display(

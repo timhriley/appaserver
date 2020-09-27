@@ -142,12 +142,12 @@ PROGRAM_ALIAS *program_alias_parse( char *input )
 	return program_alias;
 }
 
-LIST *program_list( void )
+LIST *program_list( boolean fetch_alias_list )
 {
 	return program_system_list(
 			program_sys_string(
 				"1 = 1" /* where */ ),
-				0 /* not fetch_alias_list */ );
+				fetch_alias_list );
 }
 
 PROGRAM_ALIAS *program_alias_new(
@@ -309,7 +309,7 @@ boolean program_payment_is_tuition(
 	}
 }
 
-char *program_peek_name(
+char *program_seek_name(
 			LIST *program_list,
 			char *program_name )
 {

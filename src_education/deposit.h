@@ -246,6 +246,7 @@ LIST *deposit_tuition_payment_list(
 
 LIST *deposit_program_payment_list(
 			char *item_title_P,
+			LIST *education_program_list,
 			/* -------- */
 			/* Set only */
 			/* -------- */

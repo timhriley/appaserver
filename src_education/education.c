@@ -72,7 +72,8 @@ LIST *education_deposit_list(
 			int year,
 			char *spreadsheet_filename,
 			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASET *paypal_dataset )
+			PAYPAL_DATASET *paypal_dataset,
+			LIST *education_program_list )
 {
 	LIST *deposit_list = list_new();
 	char input_string[ 65536 ];
@@ -144,6 +145,7 @@ input_string );
 			education_deposit(
 				season_name,
 				year,
+				education_program_list,
 				dataset_return
 					/* paypal_dataset */ ) );
 	}
@@ -155,6 +157,7 @@ input_string );
 DEPOSIT *education_deposit(
 			char *season_name,
 			int year,
+			LIST *education_program_list,
 			PAYPAL_DATASET *paypal_dataset )
 {
 	DEPOSIT *deposit;
@@ -254,6 +257,7 @@ DEPOSIT *education_deposit(
 	deposit->deposit_program_payment_list =
 		deposit_program_payment_list(
 			paypal_dataset->item_title_P,
+			education_program_list,
 			/* -------- */
 			/* Set only */
 			/* -------- */
@@ -490,4 +494,10 @@ LIST *education_not_exists_course_name_list(
 			year,
 			course_name_list );
 }
+
+LIST *education_program_list( void )
+{
+	return program_list( 1 /* fetch_alias_list */ );
+}
+
 

@@ -27,6 +27,7 @@ typedef struct
 {
 	SEMESTER *semester;
 	PAYPAL *paypal;
+	LIST *education_program_list;
 	LIST *education_deposit_list;
 } EDUCATION;
 
@@ -44,16 +45,18 @@ LIST *education_deposit_list(
 			int year,
 			char *spreadsheet_filename,
 			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASET *paypal_dataset );
+			PAYPAL_DATASET *paypal_dataset,
+			LIST *education_program_list );
 
 DEPOSIT *education_deposit(
 			char *season_name,
 			int year,
+			LIST *education_program_list,
 			PAYPAL_DATASET *paypal_dataset );
 
 PAYPAL_DATASET *education_dataset_parse(
 			char *input,
-			SPREADSHEET *spreadsheet,
+			LIST *spreadsheet_column_list,
 			/* Return only */
 			/* ----------- */
 			PAYPAL_DATASET *paypal_dataset );
@@ -85,6 +88,9 @@ LIST *education_not_exists_course_name_list(
 			char *season_name,
 			int year,
 			LIST *deposit_list );
+
+LIST *education_program_list(
+			void );
 
 #endif
 

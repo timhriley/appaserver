@@ -17,6 +17,7 @@
 #include "tuition_payment.h"
 #include "tuition_payment_fns.h"
 #include "transaction.h"
+#include "journal.h"
 
 /* Constants */
 /* --------- */
@@ -154,7 +155,6 @@ void tuition_payment_trigger_insert_update(
 			char *deposit_date_time )
 {
 	TUITION_PAYMENT *tuition_payment;
-	char *transaction_date_time = {0};
 
 	if ( ! ( tuition_payment =
 			tuition_payment_fetch(

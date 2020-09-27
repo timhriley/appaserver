@@ -43,7 +43,8 @@ PROGRAM_PAYMENT_ITEM_TITLE *
 /* --------------------------- */
 char *program_payment_item_title_name(
 			char *item_title_P,
-			int program_number );
+			int program_number,
+			LIST *program_list );
 
 /* Returns static memory or null */
 /* ----------------------------- */

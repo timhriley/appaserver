@@ -310,7 +310,7 @@ void list_push(			LIST *list );
 LIST *list_intersect_string_list(
 				LIST *list1, LIST *list2 );
 
-void list_append_unique_string_list(
+LIST *list_append_unique_string_list(
 				LIST *destination_list,
 				LIST *source_list );
 

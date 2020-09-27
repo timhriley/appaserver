@@ -541,13 +541,15 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 PROGRAM_PAYMENT *program_payment(
 			char *item_title_P,
 			int program_number,
+			LIST *education_program_list,
 			/* -------- */
 			/* Set only */
 			/* -------- */
 			DEPOSIT *deposit )
 {
-	PROGRAM_PAYMENT *payment;
+	PROGRAM_PAYMENT *program_payment;
 	PROGRAM_PAYMENT_ITEM_TITLE *payment_item_title;
+	char *program_name;
 
 	if ( ! ( payment_item_title =
 			program_payment_item_title_new(
@@ -557,18 +559,29 @@ PROGRAM_PAYMENT *program_payment(
 		return (PROGRAM_PAYMENT *)0;
 	}
 
+	if ( ! ( program_name =
+			program_payment_item_title_name(
+				item_title_P,
+				program_number,
+				education_program_list ) ) )
+	{
+		return (PROGRAM_PAYMENT *)0;
+	}
+
 	/* New payment */
 	/* ----------- */
-	payment = program_payment_calloc();
+	program_payment = program_payment_calloc();
 
-	payment->program_payment_item_title = payment_item_title;
-	payment->deposit = deposit;
+	program_payment->program = program_new( strdup( program_name ) );
+	program_payment->program_payment_item_title = payment_item_title;
+	program_payment->deposit = deposit;
 
-	return payment;
+	return program_payment;
 }
 
 LIST *program_payment_list(
 			char *item_title_P,
+			LIST *education_program_list,
 			DEPOSIT *deposit )
 {
 	LIST *payment_list = list_new();
@@ -580,6 +593,7 @@ LIST *program_payment_list(
 			program_payment(
 				item_title_P,
 				program_number,
+				education_program_list,
 				deposit ) );
 		program_number++ )
 	{
@@ -660,3 +674,4 @@ void program_payment_list_trigger(
 
 	} while ( list_next( program_payment_list ) );
 }
+

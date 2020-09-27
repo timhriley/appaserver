@@ -80,6 +80,7 @@ double program_payment_net_payment_amount(
 
 LIST *program_payment_list(
 			char *item_title_P,
+			LIST *education_program_list,
 			DEPOSIT *deposit );
 
 void program_payment_trigger(
@@ -99,6 +100,11 @@ double program_payment_total(
 
 void program_payment_list_trigger(
 			LIST *program_payment_list );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *program_payment_list_display(
+			LIST *deposit_program_payment_list );
 
 #endif
 

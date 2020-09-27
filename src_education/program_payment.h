@@ -84,6 +84,7 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 PROGRAM_PAYMENT *program_payment(
 			char *item_title_P,
 			int program_number,
+			LIST *education_program_list,
 			/* -------- */
 			/* Set only */
 			/* -------- */
