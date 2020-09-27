@@ -239,7 +239,7 @@ DEPOSIT *deposit_parse(	char *input,
 				deposit->semester->year,
 				deposit_date_time,
 				0 /* not fetch_deposit */,
-				0 /* not fetch_enrollment */ );
+				1 /* fetch_enrollment */ );
 	}
 
 	if ( fetch_program_payment_list )
@@ -339,9 +339,12 @@ DEPOSIT *deposit_steady_state(
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_program_payment_list )
 {
-	deposit->deposit_registration_list =
-		deposit_registration_list(
-			deposit_tuition_payment_list );
+	if ( !deposit->deposit_registration_list )
+	{
+		deposit->deposit_registration_list =
+			deposit_registration_list(
+				deposit_tuition_payment_list );
+	}
 
 	deposit->deposit_tuition_payment_total =
 		deposit_tuition_payment_total(
@@ -807,3 +810,78 @@ void deposit_trigger(
 
 	if ( system( sys_string ) ){}
 }
+
+LIST *deposit_transaction_list(
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+	LIST *transaction_list;
+
+	if ( !list_rewind( deposit_list ) ) return (LIST *)0;
+
+	transaction_list = list_new();
+
+	do {
+		deposit = list_get( deposit_list );
+
+		list_append_list(
+			transaction_list,
+			tuition_payment_transaction_list(
+				deposit->deposit_tuition_payment_list ) );
+
+		list_append_list(
+			transaction_list,
+			program_payment_transaction_list(
+				deposit->deposit_program_payment_list ) );
+
+	} while ( list_next( deposit_list ) );
+
+	return transaction_list;
+}
+
+LIST *deposit_list_steady_state(
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+
+	if ( !list_rewind( deposit_list ) ) return deposit_list;
+
+	do {
+		deposit = list_get( deposit_list );
+
+		if ( !deposit->deposit_registration_list )
+		{
+			deposit->deposit_registration_list =
+				deposit_registration_list(
+					deposit->
+						deposit_tuition_payment_list );
+		}
+
+		deposit->deposit_tuition_payment_list =
+			tuition_payment_list_steady_state(
+				deposit->deposit_tuition_payment_list,
+				deposit->deposit_registration_list,
+				deposit->deposit_amount,
+				deposit->transaction_fee );
+
+		deposit->deposit_program_payment_list =
+			program_payment_list_steady_state(
+				deposit->deposit_program_payment_list,
+				deposit->deposit_amount,
+				deposit->transaction_fee,
+				deposit->net_revenue
+					/* net_payment_amount */ );
+
+		deposit =
+			deposit_steady_state(
+				deposit,
+				deposit->deposit_amount,
+				deposit->transaction_fee,
+				deposit->deposit_tuition_payment_list,
+				deposit->deposit_program_payment_list );
+
+	} while ( list_next( deposit_list ) );
+
+	return deposit_list;
+}
+

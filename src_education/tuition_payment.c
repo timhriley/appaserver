@@ -206,8 +206,8 @@ void tuition_payment_update(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_enrollment,
-			boolean fetch_deposit )
+			boolean fetch_deposit,
+			boolean fetch_enrollment )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -221,8 +221,8 @@ LIST *tuition_payment_system_list(
 			payment_list,
 			tuition_payment_parse(
 				input,
-				fetch_enrollment,
-				fetch_deposit ) );
+				fetch_deposit,
+				fetch_enrollment ) );
 	}
 
 	pclose( input_pipe );
@@ -470,6 +470,8 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			double deposit_amount,
 			double deposit_transaction_fee )
 {
+return tuition_payment;
+
 	tuition_payment->
 		enrollment->
 		registration->
@@ -560,7 +562,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			tuition_payment->tuition_payment_amount );
 
 	if ( !tuition_payment->transaction_date_time
-	||   !*tuition_payment->transaction_date_time )
+	||  !*tuition_payment->transaction_date_time )
 	{
 		tuition_payment->transaction_date_time =
 			tuition_payment->deposit->deposit_date_time;
@@ -588,9 +590,13 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			account_fees_expense( (char *)0 ),
 			account_gain( (char *)0 ) ) ) )
 	{
+		tuition_payment->transaction_date_time =
+			tuition_payment->tuition_payment_transaction->
+				transaction_date_time;
 	}
 	else
 	{
+		tuition_payment->transaction_date_time = (char *)0;
 	}
 
 	return tuition_payment;
@@ -1216,9 +1222,6 @@ TUITION_PAYMENT *tuition_payment(
 			int year,
 			char *item_title_P,
 			int student_number,
-			/* -------- */
-			/* Set only */
-			/* -------- */
 			DEPOSIT *deposit )
 {
 	TUITION_PAYMENT *payment;
@@ -1268,6 +1271,17 @@ TUITION_PAYMENT *tuition_payment(
 				tuition_payment_item_title_course_name,
 			season_name,
 			year );
+
+	/* Fetch the offering */
+	/* ------------------- */
+	payment->enrollment->offering =
+		offering_fetch(
+			tuition_payment_item_title->
+				tuition_payment_item_title_course_name,
+			season_name,
+			year,
+			1 /* fetch_course */,
+			0 /* not fetch_enrollment_list */ );
 
 	/* Build registration */
 	/* ------------------ */
@@ -1362,3 +1376,164 @@ void tuition_payment_list_enrollment_trigger(
 
 	} while ( list_next( tuition_payment_list ) );
 }
+
+LIST *tuition_payment_transaction_list(
+			LIST *tuition_payment_list )
+{
+	TUITION_PAYMENT *tuition_payment;
+	LIST *transaction_list;
+
+	if ( !list_rewind( tuition_payment_list ) ) return (LIST *)0;
+
+	transaction_list = list_new();
+
+	do {
+		tuition_payment =
+			list_get(
+				tuition_payment_list );
+
+		if ( !tuition_payment->enrollment )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: empty enrollment.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		if ( tuition_payment->enrollment->enrollment_transaction )
+		{
+			list_set(
+				transaction_list,
+				tuition_payment->
+					enrollment->
+					enrollment_transaction );
+		}
+
+		if ( tuition_payment->tuition_payment_transaction )
+		{
+			list_set(
+				transaction_list,
+				tuition_payment->
+					tuition_payment_transaction );
+		}
+
+	} while ( list_next( tuition_payment_list ) );
+
+	return transaction_list;
+}
+
+boolean tuition_payment_structure(
+			TUITION_PAYMENT *tuition_payment )
+{
+	if ( !tuition_payment ) return 0;
+	if ( !tuition_payment->enrollment ) return 0;
+	if ( !tuition_payment->enrollment->registration ) return 0;
+	if ( !tuition_payment->enrollment->offering ) return 0;
+	if ( !tuition_payment->enrollment->offering->course ) return 0;
+	return 1;
+}
+
+LIST *tuition_payment_list_steady_state(
+			LIST *deposit_tuition_payment_list,
+			LIST *deposit_registration_list,
+			double deposit_amount,
+			double transaction_fee )
+{
+	TUITION_PAYMENT *tuition_payment;
+	REGISTRATION *registration;
+	OFFERING *offering;
+	ENROLLMENT *enrollment;
+
+	if ( !list_rewind( deposit_tuition_payment_list ) ) return (LIST *)0;
+
+	do {
+		tuition_payment = list_get( deposit_tuition_payment_list );
+
+		if ( !tuition_payment_structure( tuition_payment ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: tuition_payment_structure() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		/* Separate out the components */
+		/* --------------------------- */
+		registration =
+			tuition_payment->
+				enrollment->
+				registration;
+
+		enrollment =
+			tuition_payment->
+				enrollment;
+
+		offering =
+			tuition_payment->
+				enrollment->
+				offering;
+
+		/* Execute the steady states */
+		/* ------------------------- */
+		if ( ! ( offering =
+				offering_steady_state(
+					offering,
+					offering->
+						offering_enrollment_list ) ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: offering_steady_state() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( ! ( enrollment =
+				enrollment_steady_state(
+					enrollment ) ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: enrollment_steady_state() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( ! ( registration =
+				registration_steady_state(
+					registration,
+					registration->
+					     registration_enrollment_list ) ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: registration_steady_state() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_push( deposit_tuition_payment_list );
+
+		tuition_payment =
+			tuition_payment_steady_state(
+				tuition_payment,
+				deposit_tuition_payment_list,
+				deposit_registration_list,
+				registration->registration_enrollment_list,
+				deposit_amount,
+				transaction_fee );
+
+		list_pop( deposit_tuition_payment_list );
+
+	} while ( list_next( deposit_tuition_payment_list ) );
+
+	return deposit_tuition_payment_list;
+}
+

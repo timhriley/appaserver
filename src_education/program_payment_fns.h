@@ -106,5 +106,14 @@ void program_payment_list_trigger(
 char *program_payment_list_display(
 			LIST *deposit_program_payment_list );
 
+LIST *program_payment_transaction_list(
+			LIST *program_payment_list );
+
+LIST *program_payment_list_steady_state(
+			LIST *deposit_program_payment_list,
+			double deposit_amount,
+			double transaction_fee,
+			double net_payment_amount );
+
 #endif
 

@@ -1462,7 +1462,7 @@ char *journal_list_display(
 	ptr += sprintf(
 		ptr,
 		"Transaction date time = %s; ",
-		transaction_date_time );
+		(transaction_date_time) ? transaction_date_time : "NULL" );
 
 	ptr += sprintf(
 		ptr,

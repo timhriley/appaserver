@@ -70,8 +70,8 @@ char *tuition_payment_primary_where(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_enrollment,
-			boolean fetch_deposit );
+			boolean fetch_deposit,
+			boolean fetch_enrollment );
 
 double tuition_payment_cash_debit_amount(
 			double tuition_payment_amount,
@@ -153,6 +153,15 @@ void tuition_payment_trigger(
 
 void tuition_payment_list_enrollment_trigger(
 			LIST *tuition_payment_list );
+
+LIST *tuition_payment_transaction_list(
+			LIST *tution_payment_list );
+
+LIST *tuition_payment_list_steady_state(
+			LIST *deposit_tuition_payment_list,
+			LIST *deposit_registration_list,
+			double deposit_amount,
+			double transaction_fee );
 
 #endif
 

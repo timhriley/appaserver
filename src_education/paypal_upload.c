@@ -19,6 +19,7 @@
 #include "process.h"
 #include "environ.h"
 #include "list.h"
+#include "transaction.h"
 #include "tuition_payment.h"
 #include "tuition_payment_fns.h"
 #include "program_payment.h"
@@ -32,6 +33,9 @@
 
 /* Prototypes */
 /* ---------- */
+void paypal_upload_transaction_display(
+			LIST *deposit_list );
+
 void paypal_upload_event_insert(
 			char *login_name,
 			char *maximum_date );
@@ -116,14 +120,15 @@ int main( int argc, char **argv )
 	}
 
 	deposit_list =
-		/* -------------------------------- */
-		/* Returns education_deposit_list() */
-		/* -------------------------------- */
-		paypal_upload_deposit_list(
-			&maximum_date,
-			spreadsheet_filename,
-			season_name,
-			year );
+		deposit_list_steady_state(
+			/* -------------------------------- */
+			/* Returns education_deposit_list() */
+			/* -------------------------------- */
+			paypal_upload_deposit_list(
+				&maximum_date,
+				spreadsheet_filename,
+				season_name,
+				year ) );
 
 	if ( !maximum_date || !list_length( deposit_list ) )
 	{
@@ -154,6 +159,8 @@ int main( int argc, char **argv )
 		deposit_list,
 		season_name,
 		year );
+
+	paypal_upload_transaction_display( deposit_list );
 
 	if ( execute )
 	{
@@ -255,6 +262,20 @@ LIST *paypal_upload_deposit_list(
 			paypal_dataset_calloc(),
 			( education->education_program_list =
 				education_program_list() ) );
+}
+
+void paypal_upload_transaction_display(
+			LIST *deposit_list )
+{
+	LIST *transaction_list;
+
+	transaction_list =
+		deposit_transaction_list(
+			deposit_list );
+
+	printf( "<h3>Transactions</h3>\n" );
+
+	transaction_list_html_display( transaction_list );
 }
 
 void paypal_upload_display(

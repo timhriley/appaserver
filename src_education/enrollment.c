@@ -344,72 +344,6 @@ LIST *enrollment_tuition_payment_list(
 	return payment_list;
 }
 
-ENROLLMENT *enrollment_steady_state(
-			REGISTRATION *registration,
-			OFFERING *offering,
-			char *program_name,
-			/* ----------------------------- */
-			/* Don't take anything from here */
-			/* ----------------------------- */
-			ENROLLMENT *enrollment )
-{
-	if ( !registration )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty registration.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !offering )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty offering.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !enrollment )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty enrollment.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-/*
-	if ( offering->course->program )
-	{
-		program_name = offering->course->program->program_name;
-	}
-	else
-	{
-		program_name = (char *)0;
-	}
-*/
-
-	if ( offering->course->course_price )
-	{
-		enrollment->enrollment_transaction =
-			enrollment_transaction(
-				registration->student_full_name,
-				registration->street_address,
-				registration->registration_date_time,
-				program_name,
-				offering->course->course_price,
-				account_receivable( (char *)0 ),
-				offering->revenue_account );
-	}
-
-	return enrollment;
-}
-
 FILE *enrollment_insert_open( char *error_filename )
 {
 	char sys_string[ 1024 ];
@@ -492,5 +426,89 @@ void enrollment_trigger(
 		year );
 
 	if ( system( sys_string ) ){}
+}
+
+ENROLLMENT *enrollment_steady_state( ENROLLMENT *enrollment )
+{
+	if ( !enrollment )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty enrollment.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !enrollment->registration )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty registration.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !enrollment->offering )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty offering.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !enrollment->offering->course )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty course.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( enrollment->offering->course->course_price )
+	{
+		char *program_name;
+
+		if ( enrollment->offering->course->program )
+		{
+			program_name =
+				enrollment->
+					offering->
+					course->
+					program->
+					program_name;
+		}
+		else
+		{
+			program_name = (char *)0;
+		}
+
+		enrollment->enrollment_transaction =
+			enrollment_transaction(
+				enrollment->registration->student_full_name,
+				enrollment->registration->street_address,
+				enrollment->
+					registration->
+					registration_date_time,
+				program_name,
+				enrollment->offering->course->course_price,
+				account_receivable( (char *)0 ),
+				enrollment->offering->revenue_account );
+	}
+
+fprintf(stderr,
+	"%s/%s()/%d: returning transaction:\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
+transaction_stderr( enrollment->enrollment_transaction );
+
+	return enrollment;
 }
 

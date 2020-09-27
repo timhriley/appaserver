@@ -113,8 +113,8 @@ TRANSACTION *tuition_payment_transaction(
 
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
-			boolean fetch_enrollment,
-			boolean fetch_deposit );
+			boolean fetch_deposit,
+			boolean fetch_enrollment );
 
 TUITION_PAYMENT *tuition_payment_steady_state(
 			TUITION_PAYMENT *tuition_payment,
@@ -133,10 +133,10 @@ TUITION_PAYMENT *tuition_payment(
 			int year,
 			char *item_title_P,
 			int student_number,
-			/* -------- */
-			/* Set only */
-			/* -------- */
 			DEPOSIT *deposit );
+
+boolean tuition_payment_structure(
+			TUITION_PAYMENT *tuition_payment );
 
 /* ---------------------------------------- */
 /* Place functions in tuition_payment_fns.h */

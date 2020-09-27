@@ -260,5 +260,11 @@ void deposit_trigger(
 			char *deposit_date_time,
 			char *state );
 
+LIST *deposit_transaction_list(
+			LIST *deposit_list );
+
+LIST *deposit_list_steady_state(
+			LIST *deposit_list );
+
 #endif
 

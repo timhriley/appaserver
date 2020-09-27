@@ -151,7 +151,6 @@ void enrollment_trigger_insert_update(
 			int year )
 {
 	ENROLLMENT *enrollment;
-	char *transaction_date_time = {0};
 
 	if ( ! ( enrollment =
 			enrollment_fetch(
@@ -199,23 +198,13 @@ void enrollment_trigger_insert_update(
 
 	enrollment =
 		enrollment_steady_state(
-			enrollment->registration,
-			enrollment->offering,
-			course_program_name(
-				enrollment->offering->course ),
-			/* ----------------------------- */
-			/* Don't take anything from here */
-			/* ----------------------------- */
 			enrollment );
 
-	if (	enrollment->enrollment_transaction
-	&&	enrollment->enrollment_transaction->transaction_amount
-	&&	enrollment->enrollment_transaction->transaction_date_time
-	&&	*enrollment->enrollment_transaction->transaction_date_time )
+	if ( enrollment->enrollment_transaction )
 	{
 		TRANSACTION *t = enrollment->enrollment_transaction;
 
-		transaction_date_time =
+		enrollment->transaction_date_time =
 			transaction_program_refresh(
 				t->full_name,
 				t->street_address,
@@ -228,7 +217,7 @@ void enrollment_trigger_insert_update(
 	}
 
 	enrollment_update(
-		transaction_date_time,
+		enrollment->transaction_date_time,
 		enrollment->
 			registration->
 			student_full_name,

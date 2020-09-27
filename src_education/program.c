@@ -218,7 +218,7 @@ LIST *program_alias_list( char *program_name )
 	char where[ 256 ];
 
 	sprintf(where,
-		"program = '%s'",
+		"program_name = '%s'",
 		program_name ); 
 
 	return program_alias_system_list(

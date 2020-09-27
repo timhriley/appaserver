@@ -67,12 +67,6 @@ ENROLLMENT *enrollment_parse(
 			boolean fetch_registration );
 
 ENROLLMENT *enrollment_steady_state(
-			REGISTRATION *registration,
-			OFFERING *offering,
-			char *program_name,
-			/* ----------------------------- */
-			/* Don't take anything from here */
-			/* ----------------------------- */
 			ENROLLMENT *enrollment );
 
 /* ----------------------------------- */

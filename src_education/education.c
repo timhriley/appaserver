@@ -500,4 +500,3 @@ LIST *education_program_list( void )
 	return program_list( 1 /* fetch_alias_list */ );
 }
 
-

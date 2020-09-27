@@ -901,13 +901,6 @@ LIST *row_security_get_update_element_list(
 			list_get_pointer(
 				include_attribute_name_list );
 
-fprintf(stderr,
-	"%s/%s()/%d: attribute_name = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-attribute_name );
-
 		if ( list_exists_string( ignore_attribute_name_list,
 					 attribute_name ) )
 		{

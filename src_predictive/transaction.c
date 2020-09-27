@@ -859,18 +859,22 @@ void transaction_list_stderr( LIST *transaction_list )
 
 	do {
 		transaction = list_get( transaction_list );
-
-		fprintf( stderr,
-			 "%s\n",
-			 journal_list_display(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				transaction->transaction_amount,
-				transaction->memo,
-				transaction->journal_list ) );
+		transaction_stderr( transaction );
 
 	} while( list_next( transaction_list ) );
+}
+
+void transaction_stderr( TRANSACTION *transaction )
+{
+	fprintf( stderr,
+		 "%s\n",
+		 journal_list_display(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			transaction->transaction_amount,
+			transaction->memo,
+			transaction->journal_list ) );
 }
 
 /* Returns transaction_list with transaction_date_time changed if needed. */
@@ -1756,3 +1760,23 @@ LIST *transaction_journal_list(
 					transaction_date_time ) ) );
 }
 
+
+void transaction_list_html_display(
+			LIST *transaction_list )
+{
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( transaction_list ) ) return;
+
+	do {
+		transaction =
+			list_get(
+				transaction_list );
+
+		journal_list_html_display(
+			transaction->journal_list,
+			transaction->memo );
+
+	} while ( list_next( transaction_list ) );
+
+}

@@ -675,3 +675,57 @@ void program_payment_list_trigger(
 	} while ( list_next( program_payment_list ) );
 }
 
+LIST *program_payment_transaction_list(
+			LIST *program_payment_list )
+{
+	PROGRAM_PAYMENT *program_payment;
+	LIST *transaction_list;
+
+	if ( !list_rewind( program_payment_list ) ) return (LIST *)0;
+
+	transaction_list = list_new();
+
+	do {
+		program_payment =
+			list_get(
+				program_payment_list );
+
+		if ( program_payment->program_payment_transaction )
+		{
+			list_set(
+				transaction_list,
+				program_payment->program_payment_transaction );
+		}
+
+	} while ( list_next( program_payment_list ) );
+
+	return transaction_list;
+}
+
+LIST *program_payment_list_steady_state(
+			LIST *deposit_program_payment_list,
+			double deposit_amount,
+			double transaction_fee,
+			double net_payment_amount )
+{
+	PROGRAM_PAYMENT *program_payment;
+
+	if ( !list_rewind( deposit_program_payment_list ) ) return (LIST *)0;
+
+	do {
+		program_payment = list_get( deposit_program_payment_list );
+
+		program_payment =
+			program_payment_steady_state(
+				program_payment,
+				deposit_amount,
+				transaction_fee,
+				net_payment_amount );
+
+		list_pop( deposit_program_payment_list );
+
+	} while( list_next( deposit_program_payment_list ) );
+
+	return deposit_program_payment_list;
+}
+

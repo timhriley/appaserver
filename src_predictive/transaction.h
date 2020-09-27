@@ -450,4 +450,10 @@ TRANSACTION *transaction_full(
 char *transaction_generate_date_time(
 			char *transaction_date );
 
+void transaction_list_html_display(
+			LIST *transaction_list );
+
+void transaction_stderr(
+			TRANSACTION *transaction );
+
 #endif
