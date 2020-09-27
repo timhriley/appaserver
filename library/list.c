@@ -760,9 +760,7 @@ LIST *list_append_current_list(	LIST *destination_list,
 LIST *list_append_list(	LIST *destination_list,
 			LIST *source_list )
 {
-	return list_append_unique_string_list(
-			destination_list,
-			source_list );
+	return list_set_list( destination_list, source_list );
 }
 
 LIST *list_set_list(	LIST *destination_list,
@@ -781,7 +779,8 @@ LIST *list_set_list(	LIST *destination_list,
 	}
 
 	return destination_list;
-}
+
+} /* list_append_list() */
 
 void list_append( LIST *list, void *this_item, int num_bytes )
 {
@@ -1576,7 +1575,7 @@ LIST *list_trim_indices( LIST *string_list )
 		} while( list_next( string_list ) );
 	}
 	return new_list;
-}
+} /* list_trim_indices() */
 
 LIST *list_unique( LIST *string_list )
 {
@@ -1594,7 +1593,7 @@ LIST *list_unique( LIST *string_list )
 	
 		} while( next_item( string_list ) );
 	return new_list;
-}
+} /* list_unique() */
 
 LIST *list_delimiter_string_to_integer_list(
 				char *list_string,

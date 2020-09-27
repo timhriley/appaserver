@@ -479,8 +479,7 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
 		attribute_not_null_string;
 
 	return row_security_role_update;
-
-} /* row_security_role_update_new() */
+}
 
 LIST *row_security_get_role_update_list(
 			char *application_name )
@@ -817,8 +816,7 @@ void row_security_set_dictionary_related_folder(
 				folder_name,
 		 	"" );
 	}
-
-} /* row_security_set_dictionary_related_folder() */
+}
 
 LIST *row_security_get_update_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
@@ -863,7 +861,7 @@ LIST *row_security_get_update_element_list(
 	boolean is_primary_attribute;
 	ATTRIBUTE *attribute;
 
-	if ( !list_reset( include_attribute_name_list ) )
+	if ( !list_length( include_attribute_name_list ) )
 		return list_new_list();
 
 	max_drop_down_size =
@@ -896,10 +894,19 @@ LIST *row_security_get_update_element_list(
 
 	/* For each attribute */
 	/* ------------------ */
+	list_rewind( include_attribute_name_list );
+
 	do {
 		attribute_name = 
 			list_get_pointer(
 				include_attribute_name_list );
+
+fprintf(stderr,
+	"%s/%s()/%d: attribute_name = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+attribute_name );
 
 		if ( list_exists_string( ignore_attribute_name_list,
 					 attribute_name ) )
