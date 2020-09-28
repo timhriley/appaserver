@@ -126,7 +126,7 @@ OFFERING *offering_fetch(
 			boolean fetch_course,
 			boolean fetch_enrollment_list )
 {
-	if ( !course_name || !course_name || !year )
+	if ( !course_name || !season_name || !year )
 	{
 		return (OFFERING *)0;
 	}

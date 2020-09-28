@@ -164,6 +164,7 @@ int main( int argc, char **argv )
 		education_deposit_list_insert(
 			deposit_list );
 
+/*
 		deposit_list_enrollment_trigger(
 			deposit_list );
 
@@ -172,6 +173,7 @@ int main( int argc, char **argv )
 
 		deposit_list_program_payment_trigger(
 			deposit_list );
+*/
 
 		paypal_upload_event_insert(
 			login_name,

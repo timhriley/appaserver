@@ -1260,6 +1260,9 @@ TUITION_PAYMENT *tuition_payment(
 
 	if ( ! ( tuition_payment_item_title->
 			tuition_payment_item_title_course_name =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
 				tuition_payment_item_title_course_name(
 					item_title_P,
 					student_number ) ) )
@@ -1289,19 +1292,19 @@ TUITION_PAYMENT *tuition_payment(
 	/* Fetch the offering, course, and program */
 	/* --------------------------------------- */
 	payment->enrollment->offering =
-		offering_fetch(
-			tuition_payment_item_title->
-				tuition_payment_item_title_course_name,
-			season_name,
-			year,
-			1 /* fetch_course */,
-			0 /* not fetch_enrollment_list */ );
+			offering_fetch(
+				tuition_payment_item_title->
+					tuition_payment_item_title_course_name,
+				season_name,
+				year,
+				1 /* fetch_course */,
+				0 /* not fetch_enrollment_list */ );
 
 	if ( !payment->enrollment->offering )
 	{
 		payment->enrollment->not_exists_course_name =
-			strdup( tuition_payment_item_title->
-				tuition_payment_item_title_course_name );
+			tuition_payment_item_title->
+				tuition_payment_item_title_course_name;
 	}
 
 	/* Build registration */

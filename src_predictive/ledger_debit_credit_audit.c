@@ -28,6 +28,7 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "transaction.h"
+#include "element.h"
 #include "account.h"
 
 /* Constants */
@@ -36,18 +37,18 @@
 
 /* Prototypes */
 /* ---------- */
-void ledger_debit_credit_audit(		char *application_name,
-					char *begin_date );
+void ledger_debit_credit_audit(
+			char *begin_date );
 
-double ledger_debit_credit_difference(	double *balance_difference,
-					char *application_name,
-					LIST *journal_ledger_list );
+double ledger_debit_credit_difference(
+			double *balance_difference,
+			LIST *journal_ledger_list );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 				argc,
@@ -62,14 +63,13 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
-	ledger_debit_credit_audit( application_name, argv[ 1 ] );
+	ledger_debit_credit_audit( argv[ 1 ] );
 
 	return 0;
 
 } /* main() */
 
-void ledger_debit_credit_audit( char *application_name,
-				char *begin_date )
+void ledger_debit_credit_audit( char *begin_date )
 {
 	LIST *transaction_list;
 	TRANSACTION *transaction;
@@ -113,7 +113,6 @@ void ledger_debit_credit_audit( char *application_name,
 		difference =
 			ledger_debit_credit_difference(
 				&balance_difference,
-				application_name,
 				transaction->journal_list );
 
 		if ( !difference_type
@@ -146,7 +145,6 @@ void ledger_debit_credit_audit( char *application_name,
 }
 
 double ledger_debit_credit_difference(	double *balance_difference,
-					char *application_name,
 					LIST *journal_list )
 {
 	JOURNAL *journal;
