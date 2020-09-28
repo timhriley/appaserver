@@ -500,15 +500,6 @@ ENROLLMENT *enrollment_steady_state( ENROLLMENT *enrollment )
 				account_receivable( (char *)0 ),
 				enrollment->offering->revenue_account );
 	}
-
-fprintf(stderr,
-	"%s/%s()/%d: returning transaction:\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
-transaction_stderr( enrollment->enrollment_transaction );
-
 	return enrollment;
 }
 

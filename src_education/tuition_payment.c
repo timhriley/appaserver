@@ -470,7 +470,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			double deposit_amount,
 			double deposit_transaction_fee )
 {
-return tuition_payment;
+	if ( !tuition_payment->enrollment->offering ) return tuition_payment;
 
 	tuition_payment->
 		enrollment->
@@ -1019,6 +1019,7 @@ char *tuition_payment_list_display( LIST *payment_list )
 	char display[ 65536 ];
 	char *ptr = display;
 	TUITION_PAYMENT *payment;
+	char *course_name;
 
 	*ptr = '\0';
 
@@ -1037,6 +1038,20 @@ char *tuition_payment_list_display( LIST *payment_list )
 			ptr += sprintf( ptr, ", " );
 		}
 
+		if ( payment->enrollment->offering )
+		{
+			course_name =
+				payment->
+					enrollment->
+					offering->
+					course->
+					course_name;
+		}
+		else
+		{
+			course_name = "Unrecognized course";
+		}
+
 		ptr += sprintf(	ptr,
 				"%s will enroll in %s",
 				entity_name_display(
@@ -1048,11 +1063,7 @@ char *tuition_payment_list_display( LIST *payment_list )
 						enrollment->
 						registration->
 						street_address ),
-				payment->
-					enrollment->
-					offering->
-					course->
-					course_name );
+				course_name );
 
 	} while ( list_next( payment_list ) );
 
@@ -1272,8 +1283,8 @@ TUITION_PAYMENT *tuition_payment(
 			season_name,
 			year );
 
-	/* Fetch the offering */
-	/* ------------------- */
+	/* Fetch the offering, course, and program */
+	/* --------------------------------------- */
 	payment->enrollment->offering =
 		offering_fetch(
 			tuition_payment_item_title->
@@ -1295,6 +1306,19 @@ TUITION_PAYMENT *tuition_payment(
 				street_address,
 			season_name,
 			year );
+
+	payment->
+		enrollment->
+		registration->
+		registration_enrollment_list =
+			list_new();
+
+	list_set(
+		payment->
+			enrollment->
+			registration->
+			registration_enrollment_list,
+		payment->enrollment );
 
 	/* Set deposit */
 	/* ----------- */
@@ -1427,11 +1451,60 @@ LIST *tuition_payment_transaction_list(
 boolean tuition_payment_structure(
 			TUITION_PAYMENT *tuition_payment )
 {
-	if ( !tuition_payment ) return 0;
-	if ( !tuition_payment->enrollment ) return 0;
-	if ( !tuition_payment->enrollment->registration ) return 0;
-	if ( !tuition_payment->enrollment->offering ) return 0;
-	if ( !tuition_payment->enrollment->offering->course ) return 0;
+	if ( !tuition_payment )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty tuition_payment\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return 0;
+	}
+
+	if ( !tuition_payment->enrollment )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty enrollment\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return 0;
+	}
+
+	if ( !tuition_payment->enrollment->registration )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty registration\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return 0;
+	}
+
+	/* Offering can remain null */
+	/* ------------------------ */
+	return 1;
+
+	if ( !tuition_payment->enrollment->offering )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty offering\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return 0;
+	}
+
+	if ( !tuition_payment->enrollment->offering->course )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty course\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return 0;
+	}
+
 	return 1;
 }
 
@@ -1476,6 +1549,8 @@ LIST *tuition_payment_list_steady_state(
 			tuition_payment->
 				enrollment->
 				offering;
+
+		if ( !offering ) continue;
 
 		/* Execute the steady states */
 		/* ------------------------- */

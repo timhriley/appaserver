@@ -109,11 +109,16 @@ char *account_revenue( char *fund_name )
 
 char *account_receivable( char *fund_name )
 {
-	return account_hard_coded_account_name(
+	char *account_name;
+
+	account_name =
+		account_hard_coded_account_name(
 			fund_name,
 			ACCOUNT_RECEIVABLE_KEY,
 			0 /* not  warning_only */,
 			__FUNCTION__ );
+
+	return account_name;
 }
 
 char *account_payable( char *fund_name )
@@ -835,6 +840,9 @@ void account_propagate( char *account_name,
 boolean account_accumulate_debit(
 			char *subclassification_name )
 {
+/* -------------- */
+/* Cute but slow. */
+/* -------------- */
 	SUBCLASSIFICATION *subclassification;
 	ELEMENT *element;
 

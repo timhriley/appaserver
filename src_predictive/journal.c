@@ -1054,8 +1054,6 @@ void journal_list_pipe_display(
 
 	if ( !list_length( journal_list ) ) return;
 
-	*transaction_memo_buffer = '0';
-
 	if ( transaction_memo && *transaction_memo )
 	{
 		strncpy(
@@ -1067,6 +1065,16 @@ void journal_list_pipe_display(
 	else
 	{
 		*transaction_memo_buffer = '\0';
+	}
+
+	journal = list_first( journal_list );
+
+	if ( journal->full_name && *journal->full_name )
+	{
+		sprintf(transaction_memo_buffer +
+		    	strlen( transaction_memo_buffer ),
+			"<br>%s",
+			journal->full_name );
 	}
 
 	if ( heading ) fprintf( output_pipe, "%s\n", heading );

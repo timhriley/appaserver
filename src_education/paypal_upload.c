@@ -137,7 +137,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	
 	not_exists_course_name_list =
 		education_not_exists_course_name_list(
 			season_name,
@@ -213,6 +212,7 @@ LIST *paypal_upload_deposit_list(
 {
 	EDUCATION *education;
 	char *minimum_date;
+	LIST *deposit_list;
 
 	/* Only a stub. Doesn't work yet. */
 	/* ------------------------------ */
@@ -254,7 +254,8 @@ LIST *paypal_upload_deposit_list(
 		exit( 1 );
 	}
 
-	return education_deposit_list(
+	deposit_list =
+		education_deposit_list(
 			season_name,
 			year,
 			spreadsheet_filename,
@@ -262,6 +263,8 @@ LIST *paypal_upload_deposit_list(
 			paypal_dataset_calloc(),
 			( education->education_program_list =
 				education_program_list() ) );
+
+	return deposit_list;
 }
 
 void paypal_upload_transaction_display(
