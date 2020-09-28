@@ -122,6 +122,13 @@ ENROLLMENT *enrollment_parse(
 
 	if ( fetch_offering )
 	{
+fprintf(stderr,
+	"%s/%s()/%d: fetching %s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+course_name );
+
 		enrollment->offering =
 			/* ------------------------------------ */
 			/* Fetch offering->course->course_price */
@@ -132,6 +139,18 @@ ENROLLMENT *enrollment_parse(
 				enrollment->offering->semester->year,
 				1 /* fetch_course */,
 				0 /* not fetch_enrollment_list */ );
+
+		if ( !enrollment->offering )
+		{
+fprintf(stderr,
+	"%s/%s()/%d: not exist setting.\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
+			enrollment->not_exists_course_name =
+				strdup( course_name );
+		}
 	}
 
 	if ( fetch_registration )

@@ -84,11 +84,6 @@ void education_enrollment_insert(
 void education_registration_insert(
 			LIST *deposit_list );
 
-LIST *education_not_exists_course_name_list(
-			char *season_name,
-			int year,
-			LIST *deposit_list );
-
 LIST *education_program_list(
 			void );
 

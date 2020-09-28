@@ -330,36 +330,6 @@ void offering_insert_pipe(
 		year );
 }
 
-LIST *offering_not_exists_course_name_list(
-			char *season_name,
-			int year,
-			LIST *course_name_list )
-{
-	char *course_name;
-	LIST *not_exists_list;
-
-	if ( !list_rewind( course_name_list ) ) return (LIST *)0;
-
-	not_exists_list = list_new();
-
-	do {
-		course_name =
-			list_get(
-				course_name_list );
-
-		if ( !offering_exists(
-			season_name,
-			year,
-			course_name ) )
-		{
-			list_set_unique(
-				not_exists_list,
-				course_name );
-		}
-	} while ( list_next( course_name_list ) );
-	return not_exists_list;
-}
-
 boolean offering_exists(
 			char *season_name,
 			int year,

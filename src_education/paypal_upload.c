@@ -138,9 +138,7 @@ int main( int argc, char **argv )
 	}
 
 	not_exists_course_name_list =
-		education_not_exists_course_name_list(
-			season_name,
-			year,
+		deposit_not_exists_course_name_list(
 			deposit_list );
 
 	if ( list_length( not_exists_course_name_list ) )

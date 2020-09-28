@@ -63,11 +63,6 @@ void offering_insert_pipe(
 			char *season_name,
 			int year );
 
-LIST *offering_not_exists_course_name_list(
-			char *season_name,
-			int year,
-			LIST *course_name_list );
-
 boolean offering_exists(
 			char *season_name,
 			int year,

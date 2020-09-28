@@ -163,5 +163,9 @@ LIST *tuition_payment_list_steady_state(
 			double deposit_amount,
 			double transaction_fee );
 
+LIST *tuition_payment_not_exists_course_name_list(
+			LIST *course_name_list,
+			LIST *deposit_tuition_payment_list );
+
 #endif
 

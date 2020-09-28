@@ -478,23 +478,6 @@ PAYPAL_DATASET *education_paypal_dataset(
 	return paypal_dataset;
 }
 
-LIST *education_not_exists_course_name_list(
-			char *season_name,
-			int year,
-			LIST *deposit_list )
-{
-	LIST *course_name_list;
-
-	course_name_list =
-		deposit_course_name_list(
-			deposit_list );
-
-	return offering_not_exists_course_name_list(
-			season_name,
-			year,
-			course_name_list );
-}
-
 LIST *education_program_list( void )
 {
 	return program_list( 1 /* fetch_alias_list */ );

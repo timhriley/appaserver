@@ -1452,6 +1452,13 @@ void list_append_unique_string(
 	list_set_unique( list, item );
 }
 
+void list_unique_set(
+			LIST *list,
+			char *this_item )
+{
+	list_set_unique( list, this_item );
+}
+
 void list_set_unique(
 			LIST *list,
 			char *this_item )

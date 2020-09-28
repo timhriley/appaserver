@@ -266,5 +266,8 @@ LIST *deposit_transaction_list(
 LIST *deposit_list_steady_state(
 			LIST *deposit_list );
 
+LIST *deposit_not_exists_course_name_list(
+			LIST *deposit_list );
+
 #endif
 
