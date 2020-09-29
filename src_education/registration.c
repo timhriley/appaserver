@@ -480,6 +480,7 @@ FILE *registration_insert_open( char *error_filename )
 	sprintf(sys_string,
 		"insert_statement t=%s f=\"%s\" replace=n delimiter='%c'|"
 		"sql 2>&1						|"
+		"grep -vi duplicate					|"
 		"cat >%s						 ",
 		REGISTRATION_TABLE,
 		REGISTRATION_INSERT_COLUMNS,
@@ -501,7 +502,7 @@ void registration_insert_pipe(
 			char *registration_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%d^%s\n",
+		"%s^%s^%s^%d^%.2lf^%.2lf^%.2lf^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -509,6 +510,9 @@ void registration_insert_pipe(
 		street_address,
 		season_name,
 		year,
+		tuition,
+		payment_total,
+		invoice_amount_due,
 		registration_date_time );
 }
 

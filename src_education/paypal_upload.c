@@ -37,6 +37,7 @@ void paypal_upload_transaction_display(
 			LIST *deposit_list );
 
 void paypal_upload_event_insert(
+			char *spreadsheet_filename,
 			char *login_name,
 			char *maximum_date );
 
@@ -179,7 +180,12 @@ int main( int argc, char **argv )
 		education_deposit_list_insert(
 			deposit_list );
 
+		transaction_list_insert(
+			deposit_transaction_list(
+				deposit_list ) );
+
 		paypal_upload_event_insert(
+			spreadsheet_filename,
 			login_name,
 			maximum_date );
 
@@ -358,9 +364,11 @@ void paypal_upload_display(
 }
 
 void paypal_upload_event_insert(
+			char *spreadsheet_filename,
 			char *login_name,
 			char *maximum_date )
 {
+if ( spreadsheet_filename ){}
 if ( login_name ){}
 if ( maximum_date ){}
 }

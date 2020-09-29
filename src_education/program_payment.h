@@ -24,7 +24,7 @@
 
 #define PROGRAM_PAYMENT_PRIMARY_KEY	"program_name"
 
-#define PROGRAM_PAYMENT_INSERT_COLUMNS	"program_name"		\
+#define PROGRAM_PAYMENT_INSERT_COLUMNS	"program_name,"		\
 					"payor_full_name,"	\
 					"payor_street_address,"	\
 					"season_name,"		\
