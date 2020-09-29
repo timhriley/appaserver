@@ -116,5 +116,10 @@ LIST *program_payment_list_steady_state(
 			double transaction_fee,
 			double net_payment_amount );
 
+/* Returns static memory */
+/* --------------------- */
+char *program_payment_memo(
+			char *program_name );
+
 #endif
 

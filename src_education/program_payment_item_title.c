@@ -85,6 +85,9 @@ Mary Poppins Junior Tickets
 
 */
 	if ( ! ( item_title_block =
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
 			program_payment_item_title_block(
 				item_title_P,
 				program_number ) ) )
@@ -105,7 +108,7 @@ Mary Poppins Junior Tickets
 	{
 		list_set_unique(
 			not_exists_program_name_list,
-			item_title_block );
+			strdup( item_title_block ) );
 	}
 	return program_name;
 }

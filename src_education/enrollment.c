@@ -306,7 +306,7 @@ TRANSACTION *enrollment_transaction(
 
 	transaction->program_name = program_name;
 	transaction->transaction_amount = offering_course_price;
-	transaction->memo = ENROLLMENT_MEMO;
+	transaction->memo = enrollment_memo( program_name );
 
 	transaction->journal_list =
 		journal_binary_list(
@@ -366,10 +366,11 @@ void enrollment_insert_pipe(
 			char *street_address,
 			char *course_name,
 			char *season_name,
-			int year )
+			int year,
+			char *transaction_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%d\n",
+		"%s^%s^%s^%s^%d^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -377,7 +378,10 @@ void enrollment_insert_pipe(
 		street_address,
 		course_name,
 		season_name,
-		year );
+		year,
+		(transaction_date_time)
+			? transaction_date_time
+			: "" );
 }
 
 LIST *enrollment_course_name_list(
@@ -501,5 +505,23 @@ ENROLLMENT *enrollment_steady_state( ENROLLMENT *enrollment )
 				enrollment->offering->revenue_account );
 	}
 	return enrollment;
+}
+
+char *enrollment_memo( char *program_name )
+{
+	static char payment_memo[ 128 ];
+
+	if ( program_name && *program_name )
+	{
+		sprintf(payment_memo,
+			"%s/%s",
+			ENROLLMENT_MEMO,
+			program_name );
+	}
+	else
+	{
+		strcpy( payment_memo, ENROLLMENT_MEMO );
+	}
+	return payment_memo;
 }
 

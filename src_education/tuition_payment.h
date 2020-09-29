@@ -21,31 +21,31 @@
 /* --------- */
 #define TUITION_PAYMENT_TABLE		"tuition_payment"
 
-#define TUITION_PAYMENT_PRIMARY_KEY				\
-				"full_name,"			\
-				"street_address,"		\
-				"course_name,"			\
-				"season_name,"			\
-				"year,"				\
-				"payor_full_name,"		\
-				"payor_street_address,"		\
-				"deposit_date_time"
+#define TUITION_PAYMENT_PRIMARY_KEY					\
+					"full_name,"			\
+					"street_address,"		\
+					"course_name,"			\
+					"season_name,"			\
+					"year,"				\
+					"payor_full_name,"		\
+					"payor_street_address,"		\
+					"deposit_date_time"
 
-#define TUITION_PAYMENT_MEMO	"Tuition Payment"
+#define TUITION_PAYMENT_MEMO		"Tuition"
 
-#define TUITION_PAYMENT_INSERT_COLUMNS				\
-				"full_name,"			\
-				"street_address,"		\
-				"course_name,"			\
-				"season_name,"			\
-				"year,"				\
-				"payor_full_name,"		\
-				"payor_street_address,"		\
-				"deposit_date_time,"		\
-				"payment_amount,"		\
-				"fees_expense,"			\
-				"gain_donation,"		\
-				"transaction_date_time"
+#define TUITION_PAYMENT_INSERT_COLUMNS					\
+					"full_name,"			\
+					"street_address,"		\
+					"course_name,"			\
+					"season_name,"			\
+					"year,"				\
+					"payor_full_name,"		\
+					"payor_street_address,"		\
+					"deposit_date_time,"		\
+					"payment_amount,"		\
+					"fees_expense,"			\
+					"gain_donation,"		\
+					"transaction_date_time"
 
 /* Structures */
 /* ---------- */

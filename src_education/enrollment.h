@@ -24,13 +24,14 @@
 #define ENROLLMENT_PRIMARY_KEY		\
 	"full_name,street_address,course_name,season_name,year"
 
-#define ENROLLMENT_MEMO			"Course Enrollment"
+#define ENROLLMENT_MEMO			"Enrollment"
 
 #define ENROLLMENT_INSERT_COLUMNS	"full_name,"		\
 					"street_address,"	\
 					"course_name,"		\
 					"season_name,"		\
-					"year"
+					"year,"			\
+					"transaction_date_time"
 
 /* Structures */
 /* ---------- */

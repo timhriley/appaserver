@@ -19,10 +19,6 @@
 /* --------- */
 #define COURSE_TABLE		"course"
 
-#define COURSE_INSERT_COLUMNS	"course_name,"		\
-				"course_price,"		\
-				"program_name"
-
 /* Structures */
 /* ---------- */
 typedef struct
@@ -50,15 +46,6 @@ char *course_name_escape(
 			char *course_name );
 char *course_escape_name(
 			char *course_name );
-
-FILE *course_insert_open(
-			char *error_filename );
-
-void course_insert_pipe(
-			FILE *insert_pipe,
-			char *course_name,
-			double course_price,
-			char *program_name );
 
 char *course_program_name(
 			COURSE *course );

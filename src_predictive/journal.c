@@ -1047,7 +1047,7 @@ void journal_list_pipe_display(
 	double total_debit;
 	double total_credit;
 	char buffer[ 128 ];
-	char memo_buffer[ 128 ];
+	char memo_buffer[ 256 ];
 	JOURNAL *journal;
 	int i;
 	boolean displayed_memo = 0;

@@ -117,58 +117,6 @@ char *course_name_escape( char *course_name )
 	return string_escape_quote( name, course_name );
 }
 
-FILE *course_insert_open( char *error_filename )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
-		"sql 2>&1						|"
-		"grep -vi duplicate					|"
-		"cat >%s 						 ",
-		COURSE_TABLE,
-		COURSE_INSERT_COLUMNS,
-		SQL_DELIMITER,
-		error_filename );
-
-	return popen( sys_string, "w" );
-}
-
-void course_insert_pipe(
-			FILE *insert_pipe,
-			char *course_name,
-			double course_price,
-			char *program_name )
-{
-	fprintf(insert_pipe,
-		"%s",
-		course_name );
-
-	if ( course_price )
-	{
-		fprintf(insert_pipe,
-			"^%.2lf",
-			course_price );
-	}
-	else
-	{
-		fprintf(insert_pipe,
-			"^" );
-	}
-
-	if ( program_name && *program_name )
-	{
-		fprintf(insert_pipe,
-			"^%s\n",
-			program_name );
-	}
-	else
-	{
-		fprintf(insert_pipe,
-			"^\n" );
-	}
-}
-
 char *course_program_name( COURSE *course )
 {
 	char *program_name;

@@ -274,13 +274,6 @@ PROGRAM_PAYMENT *program_payment_parse(
 			program_fetch(
 				program_payment->program->program_name,
 				1 /* fetch_alias_list */ );
-fprintf(stderr,
-	"%s/%s()/%d: got revenue_account = %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-program_payment->program->revenue_account );
-
 	}
 
 	if ( fetch_deposit )
@@ -368,7 +361,10 @@ TRANSACTION *program_payment_transaction(
 			deposit_date_time,
 			payment_amount
 				/* transaction_amount */,
-			PROGRAM_PAYMENT_MEMO );
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			program_payment_memo( program_name ) );
 
 	transaction->program_name = program_name;
 
@@ -793,5 +789,25 @@ LIST *program_payment_list_steady_state(
 	} while( list_next( deposit_program_payment_list ) );
 
 	return deposit_program_payment_list;
+}
+
+char *program_payment_memo( char *program_name )
+{
+	static char payment_memo[ 128 ];
+
+	if ( program_name && *program_name )
+	{
+		sprintf(payment_memo,
+			"%s/%s",
+			PROGRAM_PAYMENT_MEMO,
+			program_name );
+	}
+	else
+	{
+		sprintf(payment_memo,
+			"%s Payment",
+			PROGRAM_PAYMENT_MEMO );
+	}
+	return payment_memo;
 }
 

@@ -67,7 +67,8 @@ void enrollment_insert_pipe(
 			char *street_address,
 			char *course_name,
 			char *season_name,
-			int year );
+			int year,
+			char *transaction_date_time );
 
 LIST *enrollment_course_name_list(
 			LIST *enrollment_list );
@@ -78,6 +79,8 @@ void enrollment_trigger(
 			char *course_name,
 			char *season_name,
 			int year );
+
+char *enrollment_memo(	char *program_name );
 
 #endif
 

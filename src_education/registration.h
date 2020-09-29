@@ -18,15 +18,18 @@
 /* --------- */
 #define REGISTRATION_TABLE		"registration"
 
-#define REGISTRATION_PRIMARY_KEY	"full_name,"		\
-					"street_address,"	\
-					"season_name,"		\
+#define REGISTRATION_PRIMARY_KEY	"full_name,"			\
+					"street_address,"		\
+					"season_name,"			\
 					"year"
 
-#define REGISTRATION_INSERT_COLUMNS	"full_name,"		\
-					"street_address,"	\
-					"season_name,"		\
-					"year,"			\
+#define REGISTRATION_INSERT_COLUMNS	"full_name,"			\
+					"street_address,"		\
+					"season_name,"			\
+					"year,"				\
+					"tuition,"			\
+					"payment_total,"		\
+					"invoice_amount_due,"		\
 					"registration_date_time"
 
 /* Structures */

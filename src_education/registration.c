@@ -495,6 +495,9 @@ void registration_insert_pipe(
 			char *street_address,
 			char *season_name,
 			int year,
+			double tuition,
+			double payment_total,
+			double invoice_amount_due,
 			char *registration_date_time )
 {
 	fprintf(insert_pipe,

@@ -353,7 +353,7 @@ TRANSACTION *tuition_payment_transaction(
 			deposit_date_time,
 			payment_amount
 				/* transaction_amount */,
-			TUITION_PAYMENT_MEMO );
+			tuition_payment_memo( program_name ) );
 
 	transaction->program_name = program_name;
 
@@ -816,7 +816,8 @@ void tuition_payment_list_enrollment_insert( LIST *payment_list )
 			payment->enrollment->registration->street_address,
 			payment->enrollment->offering->course->course_name,
 			payment->enrollment->offering->semester->season_name,
-			payment->enrollment->offering->semester->year );
+			payment->enrollment->offering->semester->year,
+			payment->enrollment->transaction_date_time );
 
 	} while ( list_next( payment_list ) );
 
@@ -860,10 +861,24 @@ void tuition_payment_list_registration_insert(
 			insert_pipe,
 			payment->enrollment->registration->student_full_name,
 			payment->enrollment->registration->street_address,
-			payment->enrollment->offering->semester->season_name,
-			payment->enrollment->offering->semester->year,
-			payment->deposit->deposit_date_time
-				/* registration_date_time */ );
+			payment->enrollment->registration->season_name,
+			payment->enrollment->registration->year,
+			payment->
+				enrollment->
+				registration->
+				registration_tuition,
+			payment->
+				enrollment->
+				registration->
+				registration_tuition_payment_total,
+			payment->
+				enrollment->
+				registration->
+				registration_invoice_amount_due,
+			payment->
+				enrollment->
+				registration->
+				registration_date_time );
 
 	} while ( list_next( payment_list ) );
 
@@ -871,11 +886,14 @@ void tuition_payment_list_registration_insert(
 
 	if ( timlib_file_populated( error_filename ) )
 	{
+		char *title = "Insert Registration Errors";
+
 		sprintf(sys_string,
 			"cat %s						|"
 			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Registration Errors' '' '^'",
-			 error_filename );
+			"html_table.e '%s' '' '^'			 ",
+			 error_filename,
+			 title );
 
 		if ( system( sys_string ) ){}
 	}
@@ -1627,5 +1645,25 @@ LIST *tuition_payment_list_steady_state(
 	} while ( list_next( deposit_tuition_payment_list ) );
 
 	return deposit_tuition_payment_list;
+}
+
+char *tuition_payment_memo( char *program_name )
+{
+	static char payment_memo[ 128 ];
+
+	if ( program_name && *program_name )
+	{
+		sprintf(payment_memo,
+			"%s/%s",
+			TUITION_PAYMENT_MEMO,
+			program_name );
+	}
+	else
+	{
+		sprintf(payment_memo,
+			"%s Payment",
+			TUITION_PAYMENT_MEMO );
+	}
+	return payment_memo;
 }
 

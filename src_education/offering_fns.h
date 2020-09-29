@@ -54,15 +54,6 @@ void offering_update(	int enrollment_count,
 			char *season_name,
 			int year );
 
-FILE *offering_insert_open(
-			char *error_filename );
-
-void offering_insert_pipe(
-			FILE *insert_pipe,
-			char *course_name,
-			char *season_name,
-			int year );
-
 boolean offering_exists(
 			char *season_name,
 			int year,

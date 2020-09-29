@@ -202,6 +202,12 @@ DEPOSIT *education_deposit(
 
 	/* Column D */
 	/* -------- */
+	if ( !paypal_dataset->full_name_D
+	||  !*paypal_dataset->full_name_D )
+	{
+		return (DEPOSIT *)0;
+	}
+
 	if ( ( payor_street_address =
 		entity_street_address(
 			paypal_dataset->full_name_D ) ) )

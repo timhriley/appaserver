@@ -24,10 +24,6 @@
 
 #define OFFERING_TABLE		"offering"
 
-#define OFFERING_INSERT_COLUMNS	"course_name,"		\
-				"season_name,"		\
-				"year"
-
 /* Structures */
 /* ---------- */
 typedef struct

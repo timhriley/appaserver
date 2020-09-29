@@ -164,5 +164,10 @@ LIST *tuition_payment_list_steady_state(
 			double deposit_amount,
 			double transaction_fee );
 
+/* Returns static memory */
+/* --------------------- */
+char *tuition_payment_memo(
+			char *program_name );
+
 #endif
 
