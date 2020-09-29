@@ -765,12 +765,14 @@ LIST *deposit_program_payment_list(
 }
 
 LIST *deposit_tuition_payment_list(
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
 			DEPOSIT *deposit )
 {
 	return tuition_payment_list(
+			not_exists_course_name_list,
 			season_name,
 			year,
 			item_title_P,
@@ -885,26 +887,5 @@ LIST *deposit_list_steady_state(
 	} while ( list_next( deposit_list ) );
 
 	return deposit_list;
-}
-
-LIST *deposit_not_exists_course_name_list(
-			LIST *deposit_list )
-{
-	DEPOSIT *deposit;
-	LIST *course_name_list = list_new();
-
-	if ( !list_rewind( deposit_list ) ) return (LIST *)0;
-
-	do {
-		deposit = list_get( deposit_list );
-
-		course_name_list =
-			tuition_payment_not_exists_course_name_list(
-				course_name_list,
-				deposit->deposit_tuition_payment_list );
-
-	} while ( list_next( deposit_list ) );
-
-	return course_name_list;
 }
 

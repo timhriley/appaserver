@@ -132,12 +132,6 @@ ENROLLMENT *enrollment_parse(
 				enrollment->offering->semester->year,
 				1 /* fetch_course */,
 				0 /* not fetch_enrollment_list */ );
-
-		if ( !enrollment->offering )
-		{
-			enrollment->not_exists_course_name =
-				strdup( course_name );
-		}
 	}
 
 	if ( fetch_registration )

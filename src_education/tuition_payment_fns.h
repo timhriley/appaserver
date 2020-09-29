@@ -129,6 +129,7 @@ void tuition_payment_list_trigger(
 			LIST *deposit_tuition_payment_list );
 
 LIST *tuition_payment_list(
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -162,10 +163,6 @@ LIST *tuition_payment_list_steady_state(
 			LIST *deposit_registration_list,
 			double deposit_amount,
 			double transaction_fee );
-
-LIST *tuition_payment_not_exists_course_name_list(
-			LIST *course_name_list,
-			LIST *deposit_tuition_payment_list );
 
 #endif
 

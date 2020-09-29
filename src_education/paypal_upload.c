@@ -48,6 +48,7 @@ void paypal_upload_display(
 /* Returns education_deposit_list() */
 /* -------------------------------- */
 LIST *paypal_upload_deposit_list(
+			LIST *not_exists_course_name_list,
 			LIST *not_exists_program_name_list,
 			char **maximum_date,
 			char *spreadsheet_filename,
@@ -121,6 +122,7 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	not_exists_course_name_list = list_new();
 	not_exists_program_name_list = list_new();
 
 	deposit_list =
@@ -129,6 +131,7 @@ int main( int argc, char **argv )
 			/* Returns education_deposit_list() */
 			/* -------------------------------- */
 			paypal_upload_deposit_list(
+				not_exists_course_name_list,
 				not_exists_program_name_list,
 				&maximum_date,
 				spreadsheet_filename,
@@ -153,14 +156,10 @@ int main( int argc, char **argv )
 		execute = 0;
 	}
 
-	not_exists_course_name_list =
-		deposit_not_exists_course_name_list(
-			deposit_list );
-
 	if ( list_length( not_exists_course_name_list ) )
 	{
 		printf(
-		"<h3>Can't execute with non-existing offering</h3>\n" );
+		"<h3>Can't execute with non-existing offering:</h3>\n" );
 
 		fflush( stdout );
 		list_html_display( not_exists_course_name_list );
@@ -180,23 +179,12 @@ int main( int argc, char **argv )
 		education_deposit_list_insert(
 			deposit_list );
 
-/*
-		deposit_list_enrollment_trigger(
-			deposit_list );
-
-		deposit_list_tuition_payment_trigger(
-			deposit_list );
-
-		deposit_list_program_payment_trigger(
-			deposit_list );
-*/
-
 		paypal_upload_event_insert(
 			login_name,
 			maximum_date );
 
 			printf(
-		"<p>Process complete as of %s with %d spreadsheet rows.\n",
+		"<p>Process complete as of %s with row count %d.\n",
 				maximum_date,
 				list_length( deposit_list ) );
 
@@ -208,9 +196,8 @@ int main( int argc, char **argv )
 		if ( maximum_date )
 		{
 			printf(
-		"<p>Process did not load %d spreadsheet rows as of %s.\n",
-				list_length( 
-					deposit_list ),
+		"<p>Process did not execute with row count %d as of %s.\n",
+				list_length( deposit_list ),
 				maximum_date );
 		}
 	}
@@ -221,6 +208,7 @@ int main( int argc, char **argv )
 }
 
 LIST *paypal_upload_deposit_list(
+			LIST *not_exists_course_name_list,
 			LIST *not_exists_program_name_list,
 			char **maximum_date,
 			char *spreadsheet_filename,
@@ -273,6 +261,7 @@ LIST *paypal_upload_deposit_list(
 
 	deposit_list =
 		education_deposit_list(
+			not_exists_course_name_list,
 			not_exists_program_name_list,
 			season_name,
 			year,
@@ -349,7 +338,7 @@ void paypal_upload_display(
 				deposit_list );
 
 		fprintf(output_pipe,
-			"%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s^%s\n",
+			"%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s\n",
 			entity_name_display(
 				deposit->payor_entity->full_name,
 				deposit->payor_entity->street_address ),

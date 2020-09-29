@@ -129,6 +129,7 @@ TUITION_PAYMENT *tuition_payment_seek(
 			char *deposit_date_time );
 
 TUITION_PAYMENT *tuition_payment(
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,

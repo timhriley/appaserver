@@ -145,11 +145,14 @@ void program_payment_list_insert( LIST *program_payment_list )
 
 	if ( timlib_file_populated( error_filename ) )
 	{
+		char *title = "Insert Program Payment Errors";
+
 		sprintf(sys_string,
 			"cat %s						|"
 			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Payment Errors' '' '^'",
-			 error_filename );
+			"html_table.e '%s' '' '^'			 ",
+			error_filename,
+			title );
 
 		if ( system( sys_string ) ){}
 	}
@@ -271,6 +274,13 @@ PROGRAM_PAYMENT *program_payment_parse(
 			program_fetch(
 				program_payment->program->program_name,
 				1 /* fetch_alias_list */ );
+fprintf(stderr,
+	"%s/%s()/%d: got revenue_account = %s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+program_payment->program->revenue_account );
+
 	}
 
 	if ( fetch_deposit )
@@ -336,6 +346,17 @@ TRANSACTION *program_payment_transaction(
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
+
+	if ( !program_revenue_account )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: empty program_revenue_account.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return (TRANSACTION *)0;
+	}
 
 	if ( dollar_virtually_same( payment_amount, 0.0 ) )
 		return (TRANSACTION *)0;
@@ -461,9 +482,18 @@ char *program_payment_list_display( LIST *payment_list )
 			ptr += sprintf( ptr, ", " );
 		}
 
-		ptr += sprintf(	ptr,
-				"%s\n",
-				payment->program->program_name );
+		if ( payment && payment->program )
+		{
+			ptr += sprintf(	ptr,
+					"%s",
+					payment->program->program_name );
+		}
+		else
+		{
+			ptr += sprintf(	ptr,
+					"%s",
+					"Non existing program" );
+		}
 
 	} while ( list_next( payment_list ) );
 
@@ -494,6 +524,26 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 			double deposit_transaction_fee,
 			double deposit_net_payment_amount )
 {
+	if ( !program_payment->program )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty program.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !program_payment->program->revenue_account )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty revenue_account.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PROGRAM_PAYMENT *)0;
+	}
+
 	program_payment->program_payment_amount =
 		program_payment_amount(
 			deposit_amount );
@@ -514,7 +564,7 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 	}
 
 	if ( ( program_payment->program_payment_transaction =
-		program_payment_transaction(
+	       program_payment_transaction(
 			program_payment->deposit->payor_entity->full_name,
 			program_payment->deposit->payor_entity->street_address,
 			program_payment->transaction_date_time,
@@ -574,7 +624,21 @@ PROGRAM_PAYMENT *program_payment(
 	/* ----------- */
 	program_payment = program_payment_calloc();
 
-	program_payment->program = program_new( strdup( program_name ) );
+	if ( ! ( program_payment->program =
+			program_list_seek(
+				education_program_list,
+				program_name ) ) )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: program_list_seek(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			program_name );
+
+		return (PROGRAM_PAYMENT *)0;
+	}
+
 	program_payment->program_payment_item_title = payment_item_title;
 	program_payment->deposit = deposit;
 
@@ -725,8 +789,6 @@ LIST *program_payment_list_steady_state(
 				deposit_amount,
 				transaction_fee,
 				net_payment_amount );
-
-		list_pop( deposit_program_payment_list );
 
 	} while( list_next( deposit_program_payment_list ) );
 

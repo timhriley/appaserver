@@ -92,17 +92,21 @@ Mary Poppins Junior Tickets
 		return (char *)0;
 	}
 
+	if ( !*item_title_block ) return (char *)0;
+
 	program_name =
 		program_seek_name(
 			program_list,
 			item_title_block
 				/* program_name */ );
 
-	if ( !program_name && not_exists_program_name_list )
+	if ( ( !program_name || !*program_name )
+	&&     not_exists_program_name_list )
 	{
 		list_set_unique(
 			not_exists_program_name_list,
 			item_title_block );
 	}
+	return program_name;
 }
 

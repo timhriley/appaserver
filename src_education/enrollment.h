@@ -41,7 +41,6 @@ typedef struct
 	TRANSACTION *enrollment_transaction;
 	char *transaction_date_time;
 	LIST *enrollment_tuition_payment_list;
-	char *not_exists_course_name;
 } ENROLLMENT;
 
 ENROLLMENT *enrollment_new(

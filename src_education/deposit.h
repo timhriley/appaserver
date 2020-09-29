@@ -236,6 +236,7 @@ LIST *deposit_course_name_list(
 			LIST *deposit_list );
 
 LIST *deposit_tuition_payment_list(
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -265,9 +266,6 @@ LIST *deposit_transaction_list(
 			LIST *deposit_list );
 
 LIST *deposit_list_steady_state(
-			LIST *deposit_list );
-
-LIST *deposit_not_exists_course_name_list(
 			LIST *deposit_list );
 
 #endif

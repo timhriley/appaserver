@@ -1049,10 +1049,7 @@ char *tuition_payment_list_display( LIST *payment_list )
 		}
 		else
 		{
-			course_name =
-				payment->
-					enrollment->
-					not_exists_course_name;
+			course_name = "Unknown";
 		}
 
 		ptr += sprintf(	ptr,
@@ -1206,6 +1203,7 @@ void tuition_payment_list_trigger(
 }
 
 LIST *tuition_payment_list(
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -1218,6 +1216,7 @@ LIST *tuition_payment_list(
 	for (	student_number = 1;
 		( payment =
 			tuition_payment(
+				not_exists_course_name_list,
 				season_name,
 				year,
 				item_title_P,
@@ -1232,6 +1231,7 @@ LIST *tuition_payment_list(
 }
 
 TUITION_PAYMENT *tuition_payment(
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -1302,9 +1302,10 @@ TUITION_PAYMENT *tuition_payment(
 
 	if ( !payment->enrollment->offering )
 	{
-		payment->enrollment->not_exists_course_name =
+		list_set(
+			not_exists_course_name_list,
 			tuition_payment_item_title->
-				tuition_payment_item_title_course_name;
+				tuition_payment_item_title_course_name );
 	}
 
 	/* Build registration */
@@ -1626,43 +1627,5 @@ LIST *tuition_payment_list_steady_state(
 	} while ( list_next( deposit_tuition_payment_list ) );
 
 	return deposit_tuition_payment_list;
-}
-
-LIST *tuition_payment_not_exists_course_name_list(
-			LIST *course_name_list,
-			LIST *deposit_tuition_payment_list )
-{
-	TUITION_PAYMENT *tuition_payment;
-
-	if ( !list_rewind( deposit_tuition_payment_list ) )
-		return course_name_list;
-
-	do {
-		tuition_payment =
-			list_get(
-				deposit_tuition_payment_list );
-
-		if ( !tuition_payment_structure( tuition_payment ) )
-		{
-			fprintf(stderr,
-	"ERROR in %s/%s()/%d: tuition_payment_structure() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		if ( tuition_payment->enrollment->not_exists_course_name )
-		{
-			list_unique_set(
-				course_name_list,
-				tuition_payment->
-					enrollment->
-					not_exists_course_name );
-		}
-
-	} while ( list_next( deposit_tuition_payment_list ) );
-
-	return course_name_list;
 }
 
