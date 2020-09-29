@@ -4824,8 +4824,7 @@ char *query_get_drop_down_data_where(	char *application_name,
 	} /* if !folder_name */
 
 	return where;
-
-} /* query_get_drop_down_data_where() */
+}
 
 boolean query_data_list_accounted_for(
 			LIST *query_drop_down_row_list,
@@ -7459,6 +7458,7 @@ query_drop_down_list_display(	folder->folder_name,
 m2( folder->application_name, msg );
 }
 */
+
 	if ( folder->row_level_non_owner_forbid )
 	{
 		query_set_row_level_non_owner_forbid_dictionary(
@@ -7496,7 +7496,7 @@ m2( folder->application_name, msg );
 		query_output->query_drop_down_list,
 		query_output->query_attribute_list,
 		folder->application_name,
-		folder->folder_name,
+		(char *)0 /* folder->folder_name */,
 		0 /* not combine_date_time */ );
 
 /*
@@ -7642,11 +7642,12 @@ LIST *query_edit_table_drop_down_list(
 				exclude_attribute_name_list,
 				related_folder->
 					folder->
-					folder_name,
+					folder_name
+					/* root_folder_name */,
 				related_folder->
 					folder->
 					folder_name
-				   /* dictionary_prepend_folder_name */,
+				   	/* dictionary_prepend_folder_name */,
 				foreign_attribute_name_list,
 				related_folder->folder->attribute_list,
 				dictionary ) ) )
