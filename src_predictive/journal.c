@@ -1047,34 +1047,42 @@ void journal_list_pipe_display(
 	double total_debit;
 	double total_credit;
 	char buffer[ 128 ];
-	char transaction_memo_buffer[ 128 ];
+	char memo_buffer[ 128 ];
 	JOURNAL *journal;
 	int i;
-	boolean displayed_transaction_memo = 0;
+	boolean displayed_memo = 0;
 
 	if ( !list_length( journal_list ) ) return;
 
 	if ( transaction_memo && *transaction_memo )
 	{
 		strncpy(
-			transaction_memo_buffer,
+			memo_buffer,
 			transaction_memo,
 			TRANSACTION_BUFFER_TRIM );
-		*(transaction_memo_buffer + TRANSACTION_BUFFER_TRIM ) = '\0';
+		*(memo_buffer + TRANSACTION_BUFFER_TRIM ) = '\0';
 	}
 	else
 	{
-		*transaction_memo_buffer = '\0';
+		*memo_buffer = '\0';
 	}
 
 	journal = list_first( journal_list );
 
 	if ( journal->full_name && *journal->full_name )
 	{
-		sprintf(transaction_memo_buffer +
-		    	strlen( transaction_memo_buffer ),
+		sprintf(memo_buffer +
+		    	strlen( memo_buffer ),
 			"<br>%s",
 			journal->full_name );
+	}
+
+	if ( journal->transaction_date_time && *journal->transaction_date_time )
+	{
+		sprintf(memo_buffer +
+		    	strlen( memo_buffer ),
+			"<br>%s",
+			journal->transaction_date_time );
 	}
 
 	if ( heading ) fprintf( output_pipe, "%s\n", heading );
@@ -1096,16 +1104,16 @@ void journal_list_pipe_display(
 				journal->debit_amount,
 				0.0 ) )
 			{
-				if ( *transaction_memo_buffer )
+				if ( *memo_buffer )
 				{
-					if ( !displayed_transaction_memo )
+					if ( !displayed_memo )
 					{
 						fprintf(
 						   output_pipe,
 						   "%s^",
-						   transaction_memo_buffer );
+						   memo_buffer );
 
-						displayed_transaction_memo = 1;
+						displayed_memo = 1;
 					}
 					else
 					{
@@ -1128,16 +1136,16 @@ void journal_list_pipe_display(
 				journal->credit_amount,
 				0.0 ) )
 			{
-				if ( *transaction_memo_buffer )
+				if ( *memo_buffer )
 				{
-					if ( !displayed_transaction_memo )
+					if ( !displayed_memo )
 					{
 						fprintf(
 						    output_pipe,
 						    "%s^",
-						    transaction_memo_buffer );
+						    memo_buffer );
 
-						displayed_transaction_memo = 1;
+						displayed_memo = 1;
 					}
 					else
 					{
@@ -1378,9 +1386,7 @@ LIST *journal_binary_list(
 	journal->debit_amount = transaction_amount;
 	journal->transaction_date_time = transaction_date_time;
 
-	list_set(
-		journal_list,
-		journal );
+	list_set( journal_list, journal );
 
 	journal =
 		journal_new(
@@ -1392,9 +1398,7 @@ LIST *journal_binary_list(
 	journal->credit_amount = transaction_amount;
 	journal->transaction_date_time = transaction_date_time;
 
-	list_set(
-		journal_list,
-		journal );
+	list_set( journal_list, journal );
 
 	return journal_list;
 }

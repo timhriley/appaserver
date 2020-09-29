@@ -1320,6 +1320,9 @@ TUITION_PAYMENT *tuition_payment(
 			season_name,
 			year );
 
+	payment->enrollment->registration->registration_date_time =
+		deposit->deposit_date_time;
+	
 	payment->
 		enrollment->
 		registration->

@@ -122,13 +122,6 @@ ENROLLMENT *enrollment_parse(
 
 	if ( fetch_offering )
 	{
-fprintf(stderr,
-	"%s/%s()/%d: fetching %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-course_name );
-
 		enrollment->offering =
 			/* ------------------------------------ */
 			/* Fetch offering->course->course_price */
@@ -142,12 +135,6 @@ course_name );
 
 		if ( !enrollment->offering )
 		{
-fprintf(stderr,
-	"%s/%s()/%d: not exist setting.\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 			enrollment->not_exists_course_name =
 				strdup( course_name );
 		}
