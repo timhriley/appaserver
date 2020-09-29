@@ -93,7 +93,7 @@ int main( int argc, char **argv )
 	system( sys_string );
 
 	return 0;
-} /* main() */
+}
 
 char *get_species_sys_string(	char *application_name,
 				char *fishing_purpose,
@@ -163,8 +163,7 @@ char *get_species_sys_string(	char *application_name,
 		 sort_clause );
 
 	return strdup( sys_string );
-
-} /* get_species_sys_string() */
+}
 
 boolean get_dictionary_variables(
 			char **fishing_purpose,
@@ -250,8 +249,7 @@ boolean get_dictionary_variables(
 	}
 
 	return 1;
-
-} /* get_dictionary_variables() */
+}
 
 LIST *get_species_record_list(
 			char *application_name,
@@ -287,8 +285,7 @@ LIST *get_species_record_list(
 		 where_clause );
 
 	return pipe2list( sys_string );
-
-} /* get_species_record_list() */
+}
 
 void get_catches_species_in_clause(
 			char *catches_species_in_clause,
@@ -414,6 +411,5 @@ void get_catches_species_in_clause(
 				query_or_sequence->attribute_name_list,
 				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ ) );
-
-} /* get_catches_species_in_clause() */
+}
 
