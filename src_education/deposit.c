@@ -752,11 +752,13 @@ LIST *deposit_course_name_list(
 }
 
 LIST *deposit_program_payment_list(
+			LIST *not_exists_program_name_list,
 			char *item_title_P,
 			LIST *education_program_list,
 			DEPOSIT *deposit )
 {
 	return program_payment_list(
+			not_exists_program_name_list,
 			item_title_P,
 			education_program_list,
 			deposit );

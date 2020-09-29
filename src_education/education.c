@@ -68,6 +68,7 @@ EDUCATION *education_fetch(
 }
 
 LIST *education_deposit_list(
+			LIST *not_exists_program_name_list,
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
@@ -143,6 +144,7 @@ input_string );
 		list_set(
 			deposit_list,
 			education_deposit(
+				not_exists_program_name_list,
 				season_name,
 				year,
 				education_program_list,
@@ -155,6 +157,7 @@ input_string );
 }
 
 DEPOSIT *education_deposit(
+			LIST *not_exists_program_name_list,
 			char *season_name,
 			int year,
 			LIST *education_program_list,
@@ -256,6 +259,7 @@ DEPOSIT *education_deposit(
 
 	deposit->deposit_program_payment_list =
 		deposit_program_payment_list(
+			not_exists_program_name_list,
 			paypal_dataset->item_title_P,
 			education_program_list,
 			/* -------- */

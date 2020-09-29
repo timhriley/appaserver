@@ -82,6 +82,7 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 			double deposit_net_payment_amount );
 
 PROGRAM_PAYMENT *program_payment(
+			LIST *not_exists_program_payment_list,
 			char *item_title_P,
 			int program_number,
 			LIST *education_program_list,

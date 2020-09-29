@@ -66,11 +66,13 @@ if ( program_number > 1 ) return (char *)0;
 }
 
 char *program_payment_item_title_name(
+			LIST *not_exists_program_name_list,
 			char *item_title_P,
 			int program_number,
 			LIST *program_list )
 {
 	char *item_title_block;
+	char *program_name;
 
 	if ( program_payment_is_tuition( item_title_P ) )
 	{
@@ -90,9 +92,17 @@ Mary Poppins Junior Tickets
 		return (char *)0;
 	}
 
-	return program_seek_name(
-		program_list,
-		item_title_block
-			/* program_name */ );
+	program_name =
+		program_seek_name(
+			program_list,
+			item_title_block
+				/* program_name */ );
+
+	if ( !program_name && not_exists_program_name_list )
+	{
+		list_set_unique(
+			not_exists_program_name_list,
+			item_title_block );
+	}
 }
 

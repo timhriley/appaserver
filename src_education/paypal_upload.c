@@ -48,6 +48,7 @@ void paypal_upload_display(
 /* Returns education_deposit_list() */
 /* -------------------------------- */
 LIST *paypal_upload_deposit_list(
+			LIST *not_exists_program_name_list,
 			char **maximum_date,
 			char *spreadsheet_filename,
 			char *season_name,
@@ -68,6 +69,7 @@ int main( int argc, char **argv )
 	char *maximum_date = {0};
 	LIST *deposit_list;
 	LIST *not_exists_course_name_list;
+	LIST *not_exists_program_name_list;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -119,22 +121,36 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	not_exists_program_name_list = list_new();
+
 	deposit_list =
 		deposit_list_steady_state(
 			/* -------------------------------- */
 			/* Returns education_deposit_list() */
 			/* -------------------------------- */
 			paypal_upload_deposit_list(
+				not_exists_program_name_list,
 				&maximum_date,
 				spreadsheet_filename,
 				season_name,
 				year ) );
 
-	if ( !maximum_date || !list_length( deposit_list ) )
+	if ( !maximum_date )
 	{
 		printf( "<h3>Invalid spreadsheet.</h3>\n" );
 		document_close();
 		exit( 0 );
+	}
+
+	if ( list_length( not_exists_program_name_list ) )
+	{
+		printf(
+		"<h3>Can't execute with non-existing program:</h3>\n" );
+
+		fflush( stdout );
+		list_html_display( not_exists_program_name_list );
+
+		execute = 0;
 	}
 
 	not_exists_course_name_list =
@@ -144,7 +160,7 @@ int main( int argc, char **argv )
 	if ( list_length( not_exists_course_name_list ) )
 	{
 		printf(
-		"<h3>Can't execute with non-existing offerings</h3>\n" );
+		"<h3>Can't execute with non-existing offering</h3>\n" );
 
 		fflush( stdout );
 		list_html_display( not_exists_course_name_list );
@@ -205,6 +221,7 @@ int main( int argc, char **argv )
 }
 
 LIST *paypal_upload_deposit_list(
+			LIST *not_exists_program_name_list,
 			char **maximum_date,
 			char *spreadsheet_filename,
 			char *season_name,
@@ -256,6 +273,7 @@ LIST *paypal_upload_deposit_list(
 
 	deposit_list =
 		education_deposit_list(
+			not_exists_program_name_list,
 			season_name,
 			year,
 			spreadsheet_filename,

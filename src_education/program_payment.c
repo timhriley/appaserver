@@ -539,6 +539,7 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 }
 
 PROGRAM_PAYMENT *program_payment(
+			LIST *not_exists_program_name_list,
 			char *item_title_P,
 			int program_number,
 			LIST *education_program_list,
@@ -561,6 +562,7 @@ PROGRAM_PAYMENT *program_payment(
 
 	if ( ! ( program_name =
 			program_payment_item_title_name(
+				not_exists_program_name_list,
 				item_title_P,
 				program_number,
 				education_program_list ) ) )
@@ -580,6 +582,7 @@ PROGRAM_PAYMENT *program_payment(
 }
 
 LIST *program_payment_list(
+			LIST *not_exists_program_payment_list,
 			char *item_title_P,
 			LIST *education_program_list,
 			DEPOSIT *deposit )
@@ -591,6 +594,7 @@ LIST *program_payment_list(
 	for (	program_number = 1;
 		( payment =
 			program_payment(
+				not_exists_program_payment_list,
 				item_title_P,
 				program_number,
 				education_program_list,

@@ -79,6 +79,7 @@ double program_payment_net_payment_amount(
 			double deposit_net_payment_amount );
 
 LIST *program_payment_list(
+			LIST *not_exists_program_name_list,
 			char *item_title_P,
 			LIST *education_program_list,
 			DEPOSIT *deposit );
