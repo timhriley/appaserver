@@ -271,5 +271,10 @@ LIST *deposit_list_steady_state(
 void deposit_list_registration_fetch_update(
 			LIST *deposit_list );
 
+void deposit_list_offering_fetch_update(
+			LIST *deposit_list,
+			char *season_name,
+			int year );
+
 #endif
 

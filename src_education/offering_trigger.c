@@ -24,10 +24,12 @@
 
 /* Prototypes */
 /* ---------- */
+/*
 void offering_trigger(
 				char *course_name,
 				char *season_name,
 				int year );
+*/
 
 int main( int argc, char **argv )
 {
@@ -71,7 +73,7 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) ==  0
 	||   strcmp( state, "enrollment" ) ==  0 )
 	{
-		offering_trigger(
+		offering_fetch_update(
 			course_name,
 			season_name,
 			year );
@@ -79,6 +81,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
+#ifdef NOT_DEFINED
 void offering_trigger(
 			char *course_name,
 			char *season_name,
@@ -117,4 +120,5 @@ void offering_trigger(
 		offering->semester->season_name,
 		offering->semester->year );
 }
+#endif
 

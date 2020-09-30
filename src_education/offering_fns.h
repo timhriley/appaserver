@@ -59,5 +59,15 @@ boolean offering_exists(
 			int year,
 			char *course_name );
 
+void offering_fetch_update(
+			char *course_name,
+			char *season_name,
+			int year );
+
+void offering_list_fetch_update(
+			LIST *course_name_list,
+			char *season_name,
+			int year );
+
 #endif
 

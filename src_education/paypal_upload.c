@@ -203,6 +203,11 @@ int main( int argc, char **argv )
 			deposit_list_registration_fetch_update(
 				deposit_list );
 
+			deposit_list_offering_fetch_update(
+				deposit_list,
+				season_name,
+				year );
+
 			paypal_upload_event_insert(
 				spreadsheet_filename,
 				login_name,

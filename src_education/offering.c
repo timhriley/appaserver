@@ -320,3 +320,47 @@ boolean offering_exists(
 	}
 }
 
+void offering_fetch_update(
+			char *course_name,
+			char *season_name,
+			int year )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"offering_enrollment_count.sh \"%s\" '%s' %d y",
+		course_name,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+
+	sprintf(sys_string,
+		"offering_capacity_available.sh \"%s\" '%s' %d y",
+		course_name,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+}
+
+void offering_list_fetch_update(
+			LIST *course_name_list,
+			char *season_name,
+			int year )
+{
+	char *course_name;
+
+	if ( !list_rewind( course_name_list ) ) return;
+
+	do {
+		course_name = list_get( course_name_list );
+
+		offering_fetch_update(
+			course_name,
+			season_name,
+			year );
+
+	} while ( list_next( course_name_list ) );
+}
+

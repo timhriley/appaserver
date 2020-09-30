@@ -910,3 +910,14 @@ void deposit_list_registration_fetch_update(
 	} while ( list_next( deposit_list ) );
 }
 
+void deposit_list_offering_fetch_update(
+			LIST *deposit_list,
+			char *season_name,
+			int year )
+{
+	offering_list_fetch_update(
+		deposit_course_name_list( deposit_list ),
+		season_name,
+		year );
+}
+

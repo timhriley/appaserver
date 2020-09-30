@@ -536,7 +536,7 @@ void registration_fetch_update(
 	if ( system( sys_string ) ){}
 
 	sprintf(sys_string,
-		"registration_payment_total.sh \"%s\" '%s' '%s' %d y",
+		"registration_tuition_payment_total.sh \"%s\" '%s' '%s' %d y",
 		student_full_name,
 		street_address,
 		season_name,
