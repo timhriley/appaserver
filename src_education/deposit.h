@@ -268,5 +268,8 @@ LIST *deposit_transaction_list(
 LIST *deposit_list_steady_state(
 			LIST *deposit_list );
 
+void deposit_list_registration_fetch_update(
+			LIST *deposit_list );
+
 #endif
 

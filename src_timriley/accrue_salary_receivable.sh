@@ -79,12 +79,12 @@ fi
 
 salary_receivable_balance=`						\
 	echo "$accrued_daily_amount|$days_passed"			|
-	piece_arithmatic.e 0 1 multiply '|'				|
+	piece_arithmetic.e 0 1 multiply '|'				|
 	piece.e '|' 2`
 
 salary_receivable_difference=`						     \
 	echo "$salary_receivable_balance|$current_salary_receivable_balance" |
-		piece_arithmatic.e 0 1 subtract '|'			     |
+		piece_arithmetic.e 0 1 subtract '|'			     |
 		piece.e '|' 2`
 
 a=$salary_receivable_account

@@ -24,11 +24,13 @@
 
 /* Prototypes */
 /* ---------- */
+/*
 void registration_trigger(
 				char *student_full_name,
 				char *street_address,
 				char *season_name,
 				int year );
+*/
 
 int main( int argc, char **argv )
 {
@@ -75,7 +77,7 @@ int main( int argc, char **argv )
 	||   strcmp( state, "enrollment" ) ==  0
 	||   strcmp( state, "payment" ) ==  0 )
 	{
-		registration_trigger(
+		registration_fetch_update(
 			student_full_name,
 			street_address,
 			season_name,
@@ -84,6 +86,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
+#ifdef NOT_DEFINED
 void registration_trigger(
 			char *student_full_name,
 			char *street_address,
@@ -121,4 +124,5 @@ void registration_trigger(
 		registration->season_name,
 		registration->year );
 }
+#endif
 

@@ -518,3 +518,58 @@ void registration_insert_pipe(
 		registration_date_time );
 }
 
+void registration_fetch_update(
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"registration_tuition.sh \"%s\" '%s' '%s' %d y",
+		student_full_name,
+		street_address,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+
+	sprintf(sys_string,
+		"registration_payment_total.sh \"%s\" '%s' '%s' %d y",
+		student_full_name,
+		street_address,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+
+	sprintf(sys_string,
+		"registration_invoice_amount_due.sh \"%s\" '%s' '%s' %d y",
+		student_full_name,
+		street_address,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+}
+
+void registration_list_fetch_update(
+			LIST *registration_list )
+{
+	REGISTRATION *registration;
+
+	if ( !list_rewind( registration_list ) ) return;
+
+	do {
+		registration = list_get( registration_list );
+
+		registration_fetch_update(
+			registration->student_full_name,
+			registration->street_address,
+			registration->season_name,
+			registration->year );
+
+	} while ( list_next( registration_list ) );
+}
+

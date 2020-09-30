@@ -90,5 +90,14 @@ void registration_insert_pipe(
 			double invoice_amount_due,
 			char *registration_date_time );
 
+void registration_fetch_update(
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year );
+
+void registration_list_fetch_update(
+			LIST *registration_list );
+
 #endif
 

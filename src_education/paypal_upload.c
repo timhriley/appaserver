@@ -200,6 +200,9 @@ int main( int argc, char **argv )
 			education_deposit_list_insert(
 				deposit_list );
 
+			deposit_list_registration_fetch_update(
+				deposit_list );
+
 			paypal_upload_event_insert(
 				spreadsheet_filename,
 				login_name,

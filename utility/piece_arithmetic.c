@@ -1,4 +1,4 @@
-/* utility/piece_arithmatic.c */
+/* utility/piece_arithmetic.c */
 /* -------------------------- */
 
 #include <stdio.h>
@@ -7,7 +7,7 @@
 #include "timlib.h"
 #include "piece.h"
 
-void piece_arithmatic(	int piece_offset_1,
+void piece_arithmetic(	int piece_offset_1,
 			int piece_offset_2,
 			char *operation,
 			char delimiter );
@@ -32,7 +32,7 @@ int main( int argc, char **argv )
 	operation = argv[ 3 ];
 	delimiter = *argv[ 4 ];
 
-	piece_arithmatic(	piece_offset_1,
+	piece_arithmetic(	piece_offset_1,
 				piece_offset_2,
 				operation,
 				delimiter );
@@ -40,7 +40,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void piece_arithmatic(	int piece_offset_1,
+void piece_arithmetic(	int piece_offset_1,
 			int piece_offset_2,
 			char *operation,
 			char delimiter )
@@ -117,7 +117,6 @@ void piece_arithmatic(	int piece_offset_1,
 
 		printf( "%s%c%lf\n", buffer, delimiter, results );
 	}
-
-} /* piece_arithmatic() */
+}
 
 

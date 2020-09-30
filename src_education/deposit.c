@@ -891,3 +891,22 @@ LIST *deposit_list_steady_state(
 	return deposit_list;
 }
 
+void deposit_list_registration_fetch_update(
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+
+	if ( !list_rewind( deposit_list ) ) return;
+
+	do {
+		deposit = list_get( deposit_list );
+
+		if ( deposit->deposit_registration_list )
+		{
+			registration_list_fetch_update(
+				deposit->deposit_registration_list );
+		}
+
+	} while ( list_next( deposit_list ) );
+}
+

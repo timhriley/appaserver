@@ -24,7 +24,7 @@ sql '|'							|
 # Subtract 4 to provide absolute positioning		|
 # ------------------------------------------		|
 sed 's/$/|4/'						|
-piece_arithmatic.e 2 3 subtraction '|'			|
+piece_arithmetic.e 2 3 subtraction '|'			|
 sed 's/\.00*$//g'					|
 piece_inverse.e 2,3 '|'					|
 merge_position_translation_table $station		|

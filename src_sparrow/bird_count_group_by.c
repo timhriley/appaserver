@@ -211,7 +211,7 @@ char *get_group_by_location_sys_string(
 
 	sys_ptr += sprintf(
 			sys_ptr,
-			"| piece_arithmatic.e 2 1 divide '^'" );
+			"| piece_arithmetic.e 2 1 divide '^'" );
 
 	if ( sort_by_per_visit )
 	{
@@ -291,7 +291,7 @@ char *get_group_by_year_location_sys_string(
 
 	sys_ptr += sprintf(
 			sys_ptr,
-			"| piece_arithmatic.e 2 1 divide '^'" );
+			"| piece_arithmetic.e 2 1 divide '^'" );
 
 	if ( sort_by_per_visit )
 	{

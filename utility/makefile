@@ -87,7 +87,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	trim_right.e							\
 	reverse.e							\
 	reverse_lines.e							\
-	printer_control.e days_passed.e format_stamp.e			\
+	days_passed.e format_stamp.e					\
 	date_subtract.e							\
 	format_stamp_undo.e menu.e select2delimiter.e			\
 	queue_top_bottom_lines.e					\
@@ -162,7 +162,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	toupper_to_delimiter.e						\
 	shuffle_lines.e							\
 	html_table.e							\
-	piece_arithmatic.e						\
+	piece_arithmetic.e						\
 	piece_sum.e							\
 	cut.e								\
 	restore_database.e						\
@@ -974,16 +974,6 @@ date_subtract.e: date_subtract.c
 		${STANDARD_LIBRARY}					\
 		-o date_subtract.e
 
-printer_control.e: printer_control.c printer_control.h			\
-	${LIBRARY}/name_arg.o ${APPASERVER_LIBRARY}
-	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		printer_control.c 					\
-		${STANDARD_LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/name_arg.o 					\
-		-o printer_control.e
-
 label.e: label.c							\
 	${LIBRARY}/name_arg.o
 	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
@@ -1634,11 +1624,11 @@ html_table.e: html_table.c ${LIBRARY}/html_table.o
 		rm html_table
 		ln html_table.e html_table
 
-piece_arithmatic.e: piece_arithmatic.c ${LIBRARY}/piece.o
-	$(CC)	${CFLAGS} -I${LIBRARY} piece_arithmatic.c		\
+piece_arithmetic.e: piece_arithmetic.c ${LIBRARY}/piece.o
+	$(CC)	${CFLAGS} -I${LIBRARY} piece_arithmetic.c		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
-		-o piece_arithmatic.e
+		-o piece_arithmetic.e
 
 piece_sum.e: piece_sum.c ${LIBRARY}/piece.o
 	$(CC)	${CFLAGS} -I${LIBRARY} piece_sum.c			\
