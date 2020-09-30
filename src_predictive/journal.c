@@ -1566,3 +1566,59 @@ char *journal_display(
 	return strdup( buffer );
 }
 
+LIST *journal_list_insert_pipe(
+			FILE *insert_pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			LIST *journal_list )
+{
+	LIST *account_name_list;
+	JOURNAL *journal;
+	double amount;
+	boolean is_debit;
+
+	if ( !full_name
+	||   !street_address
+	||   !transaction_date_time
+	||   !list_rewind( journal_list ) )
+	{
+		return (LIST *)0;
+	}
+
+	account_name_list = list_new();
+
+	do {
+		journal = list_get( journal_list );
+
+		if ( !dollar_virtually_same(
+			journal->debit_amount,
+			0.0 ) )
+		{
+			amount = journal->debit_amount;
+			is_debit = 1;
+		}
+		else
+		{
+			amount = journal->credit_amount;
+			is_debit = 0;
+		}
+
+		journal_insert_pipe(
+				insert_pipe,
+				full_name,
+				street_address,
+				transaction_date_time,
+				journal->account_name,
+				amount,
+				is_debit );
+
+		list_set(
+			account_name_list,
+			journal->account_name );
+
+	} while( list_next( journal_list ) );
+
+	return account_name_list;
+}
+

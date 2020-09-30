@@ -14,6 +14,7 @@
 #include "sql.h"
 #include "environ.h"
 #include "list.h"
+#include "paypal_upload.h"
 #include "registration.h"
 #include "enrollment.h"
 #include "entity.h"
@@ -478,12 +479,13 @@ FILE *registration_insert_open( char *error_filename )
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"insert_statement t=%s f=\"%s\" replace=n delimiter='%c'|"
-		"sql 2>&1						|"
-		"grep -vi duplicate					|"
-		"cat >%s						 ",
+		"insert_statement t=%s f=\"%s\" replace=%c delimiter='%c'|"
+		"sql 2>&1						 |"
+		"grep -vi duplicate					 |"
+		"cat >%s						  ",
 		REGISTRATION_TABLE,
 		REGISTRATION_INSERT_COLUMNS,
+		(PAYPAL_TRANSACTION_REPLACE) ? 'y' : 'n',
 		SQL_DELIMITER,
 		error_filename );
 

@@ -82,5 +82,8 @@ void enrollment_trigger(
 
 char *enrollment_memo(	char *program_name );
 
+void enrollment_list_steady_state(
+			LIST *registration_enrollment_list );
+
 #endif
 

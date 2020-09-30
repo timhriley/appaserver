@@ -319,7 +319,6 @@ char *transaction_journal_insert(
 			lock_transaction,
 			replace );
 
-	
 	journal_account_name_list_propagate(
 		transaction_date_time,
 		/* ------------------------- */
@@ -430,67 +429,6 @@ char *transaction_insert_pipe(
 		lock_transaction );
 
 	fflush( insert_pipe );
-	return transaction_date_time;
-}
-
-/* TRANSACTION with program_name addition */
-/* -------------------------------------- */
-FILE *transaction_program_insert_open(
-			boolean replace )
-{
-	char sys_string[ 1024 ];
-	char *field;
-
-	field =	"full_name,"
-		"street_address,"
-		"transaction_date_time,"
-		"program_name,"
-		"transaction_amount,"
-		"memo,"
-		"check_number,"
-		"lock_transaction_yn";
-
-	sprintf( sys_string,
-		 "insert_statement t=%s f=%s replace=%c delimiter='^'	|"
-		 "tee_appaserver_error.sh				|"
-		 "sql 2>&1						 ",
-		 TRANSACTION_TABLE,
-		 field,
-		 (replace) ? 'y' : 'n' );
-
-	return popen( sys_string, "w" );
-}
-
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
-char *transaction_program_insert(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *program_name,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction,
-			boolean replace )
-{
-	FILE *insert_pipe;
-
-	insert_pipe = transaction_program_insert_open( replace );
-
-	transaction_date_time =
-		transaction_program_insert_pipe(
-			insert_pipe,
-			full_name,
-			street_address,
-			transaction_date_time,
-			program_name,
-			transaction_amount,
-			memo,
-			check_number,
-			lock_transaction );
-
-	pclose( insert_pipe );
 	return transaction_date_time;
 }
 
@@ -879,6 +817,36 @@ void transaction_stderr( TRANSACTION *transaction )
 
 /* Returns transaction_list with transaction_date_time changed if needed. */
 /* ---------------------------------------------------------------------- */
+LIST *transaction_list_program_insert( LIST *transaction_list )
+{
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( transaction_list ) ) return transaction_list;
+
+	do {
+		transaction = list_get( transaction_list );
+
+		transaction->transaction_date_time =
+			transaction_program_insert(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->program_name,
+				transaction->transaction_amount,
+				transaction->memo,
+				transaction->check_number,
+				1 /* lock_transaction */,
+				0 /* not replace */ );
+
+	} while( list_next( transaction_list ) );
+
+	transaction_list_journal_insert( transaction_list );
+
+	return transaction_list;
+}
+
+/* Returns transaction_list with transaction_date_time changed if needed. */
+/* ---------------------------------------------------------------------- */
 LIST *transaction_list_insert( LIST *transaction_list )
 {
 	TRANSACTION *transaction;
@@ -896,7 +864,7 @@ LIST *transaction_list_insert( LIST *transaction_list )
 				transaction->transaction_amount,
 				transaction->memo,
 				transaction->check_number,
-				transaction->lock_transaction,
+				1 /* lock_transaction */,
 				0 /* not replace */ );
 
 	} while( list_next( transaction_list ) );
@@ -1780,3 +1748,146 @@ void transaction_list_html_display(
 	} while ( list_next( transaction_list ) );
 
 }
+
+/* TRANSACTION with program_name addition */
+/* -------------------------------------- */
+FILE *transaction_program_insert_open( boolean replace )
+{
+	char sys_string[ 1024 ];
+	char *field;
+
+	field =	"full_name,"
+		"street_address,"
+		"transaction_date_time,"
+		"program_name,"
+		"transaction_amount,"
+		"memo,"
+		"check_number,"
+		"lock_transaction_yn";
+
+	sprintf( sys_string,
+		 "insert_statement t=%s f=%s replace=%c delimiter='^'	|"
+		 "tee_appaserver_error.sh				|"
+		 "sql 2>&1						 ",
+		 TRANSACTION_TABLE,
+		 field,
+		 (replace) ? 'y' : 'n' );
+
+	return popen( sys_string, "w" );
+}
+
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
+char *transaction_program_insert(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *program_name,
+			double transaction_amount,
+			char *memo,
+			int check_number,
+			boolean lock_transaction,
+			boolean replace )
+{
+	FILE *insert_pipe;
+
+	insert_pipe = transaction_program_insert_open( replace );
+
+	transaction_date_time =
+		transaction_program_insert_pipe(
+			insert_pipe,
+			full_name,
+			street_address,
+			transaction_date_time,
+			program_name,
+			transaction_amount,
+			memo,
+			check_number,
+			lock_transaction );
+
+	pclose( insert_pipe );
+	return transaction_date_time;
+}
+
+/* Returns account_name_list */
+/* ------------------------- */
+LIST *transaction_list_journal_program_insert(
+			char **first_transaction_date_time,
+			LIST *transaction_list,
+			boolean replace )
+{
+	TRANSACTION *transaction;
+	FILE *insert_pipe;
+	LIST *account_name_list = list_new();
+
+	if ( !list_rewind( transaction_list ) ) return (LIST *)0;
+
+	if ( !first_transaction_date_time ) return (LIST *)0;
+
+	*first_transaction_date_time = (char *)0;
+
+	insert_pipe = transaction_program_insert_open( replace );
+
+	do {
+		transaction =
+			list_get(
+				transaction_list );
+
+		transaction->transaction_date_time =
+			transaction_program_insert_pipe(
+				insert_pipe,
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->program_name,
+				transaction->transaction_amount,
+				transaction->memo,
+				transaction->check_number,
+				1 /* lock_transaction */ );
+
+		if ( !*first_transaction_date_time )
+		{
+			*first_transaction_date_time =
+				transaction->
+					transaction_date_time;
+		}
+
+	} while ( list_next( transaction_list ) );
+
+	pclose( insert_pipe );
+
+	insert_pipe = journal_insert_open( replace );
+
+	list_rewind( transaction_list );
+
+	do {
+		transaction =
+			list_get(
+				transaction_list );
+
+		list_append_unique_string_list(
+			account_name_list
+					/* destination_list */,
+			/* ------------------------- */
+			/* Returns account_name_list */
+			/* ------------------------- */
+			journal_list_insert_pipe(
+				insert_pipe,
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->journal_list )
+					/* source_list */ );
+
+	} while ( list_next( transaction_list ) );
+
+	pclose( insert_pipe );
+
+/*
+	journal_account_name_list_propagate(
+		transaction_date_time,
+		account_name_list );
+*/
+	return account_name_list;
+}
+

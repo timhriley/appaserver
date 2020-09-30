@@ -16,6 +16,7 @@
 #include "list.h"
 #include "entity.h"
 #include "transaction.h"
+#include "paypal_upload.h"
 #include "semester.h"
 #include "registration.h"
 #include "registration_fns.h"
@@ -473,11 +474,12 @@ FILE *deposit_insert_open( char *error_filename )
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"insert_statement t=%s f=\"%s\" replace=n delimiter='%c'|"
-		"sql 2>&1						|"
-		"cat >%s						 ",
+		"insert_statement t=%s f=\"%s\" replace=%c delimiter='%c'|"
+		"sql 2>&1						 |"
+		"cat >%s						  ",
 		DEPOSIT_TABLE,
 		DEPOSIT_INSERT_COLUMNS,
+		(PAYPAL_TRANSACTION_REPLACE) ? 'y' : 'n',
 		SQL_DELIMITER,
 		error_filename );
 

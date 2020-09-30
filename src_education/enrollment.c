@@ -17,6 +17,7 @@
 #include "transaction.h"
 #include "journal.h"
 #include "entity.h"
+#include "paypal_upload.h"
 #include "enrollment.h"
 #include "registration.h"
 #include "tuition_payment_fns.h"
@@ -349,11 +350,12 @@ FILE *enrollment_insert_open( char *error_filename )
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"insert_statement t=%s f=\"%s\" replace=n delimiter='%c'|"
-		"sql 2>&1						|"
-		"cat >%s						 ",
+		"insert_statement t=%s f=\"%s\" replace=%c delimiter='%c'|"
+		"sql 2>&1						 |"
+		"cat >%s						  ",
 		ENROLLMENT_TABLE,
 		ENROLLMENT_INSERT_COLUMNS,
+		(PAYPAL_TRANSACTION_REPLACE) ? 'y' : 'n',
 		SQL_DELIMITER,
 		error_filename );
 
@@ -430,6 +432,19 @@ void enrollment_trigger(
 		year );
 
 	if ( system( sys_string ) ){}
+}
+
+void enrollment_list_steady_state(
+			LIST *enrollment_list )
+{
+	if ( !list_rewind( enrollment_list ) ) return;
+
+	do {
+		enrollment_steady_state(
+			list_get(
+				enrollment_list ) );
+
+	} while ( list_next( enrollment_list ) );
 }
 
 ENROLLMENT *enrollment_steady_state( ENROLLMENT *enrollment )

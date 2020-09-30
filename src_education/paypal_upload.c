@@ -20,6 +20,7 @@
 #include "environ.h"
 #include "list.h"
 #include "transaction.h"
+#include "journal.h"
 #include "tuition_payment.h"
 #include "tuition_payment_fns.h"
 #include "program_payment.h"
@@ -27,6 +28,7 @@
 #include "paypal.h"
 #include "deposit.h"
 #include "education.h"
+#include "paypal_upload.h"
 
 /* Constants */
 /* --------- */
@@ -177,25 +179,46 @@ int main( int argc, char **argv )
 
 	if ( execute )
 	{
-		education_deposit_list_insert(
-			deposit_list );
+		LIST *account_name_list;
+		char *first_transaction_date_time;
 
-		transaction_list_insert(
-			deposit_transaction_list(
-				deposit_list ) );
+		account_name_list =
+			/* Sets transaction->transaction_date_time */
+			/* --------------------------------------- */
+			transaction_list_journal_program_insert(
+				&first_transaction_date_time,
+				deposit_transaction_list(
+					deposit_list ),
+				PAYPAL_TRANSACTION_REPLACE );
 
-		paypal_upload_event_insert(
-			spreadsheet_filename,
-			login_name,
-			maximum_date );
+		if ( list_length( account_name_list ) )
+		{
+			journal_account_name_list_propagate(
+				first_transaction_date_time,
+				account_name_list );
+
+			education_deposit_list_insert(
+				deposit_list );
+
+			paypal_upload_event_insert(
+				spreadsheet_filename,
+				login_name,
+				maximum_date );
 
 			printf(
 		"<p>Process complete as of %s with row count %d.\n",
 				maximum_date,
 				list_length( deposit_list ) );
 
-		process_execution_count_increment(
-			process_name );
+			process_execution_count_increment(
+				process_name );
+		}
+		else
+		{
+			printf(
+"<p>Process not executed because no generated transactions; row count %d.\n",
+				list_length( deposit_list ) );
+		}
 	}
 	else
 	{

@@ -252,4 +252,11 @@ char *journal_display(
 char *journal_sys_string(
 			char *where );
 
+LIST *journal_list_insert_pipe(
+			FILE *insert_pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			LIST *journal_list );
+
 #endif

@@ -15,11 +15,12 @@
 #include "boolean.h"
 #include "float.h"
 #include "list.h"
+#include "paypal_upload.h"
 #include "tuition_payment_fns.h"
-#include "transaction.h"
 #include "registration.h"
 #include "registration_fns.h"
 #include "journal.h"
+#include "education.h"
 #include "offering.h"
 #include "offering_fns.h"
 #include "enrollment.h"
@@ -692,6 +693,7 @@ void tuition_payment_list_insert( LIST *payment_list )
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
+	char *transaction_date_time;
 
 	if ( !list_rewind( payment_list ) ) return;
 
@@ -702,6 +704,13 @@ void tuition_payment_list_insert( LIST *payment_list )
 
 	do {
 		payment = list_get( payment_list );
+
+		transaction_date_time =
+			(payment->tuition_payment_transaction)
+				? payment->
+					tuition_payment_transaction->
+					transaction_date_time
+				: (char *)0;
 
 		tuition_payment_insert_pipe(
 			insert_pipe,
@@ -716,7 +725,7 @@ void tuition_payment_list_insert( LIST *payment_list )
 			payment->tuition_payment_amount,
 			payment->tuition_payment_fees_expense,
 			payment->tuition_payment_gain_donation,
-			payment->transaction_date_time );
+			transaction_date_time );
 
 	} while ( list_next( payment_list ) );
 
@@ -743,11 +752,12 @@ FILE *tuition_payment_insert_open( char *error_filename )
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"insert_statement t=%s f=\"%s\" replace=n delimiter='%c'|"
-		"sql 2>&1						|"
-		"cat >%s 						 ",
+		"insert_statement t=%s f=\"%s\" replace=%c delimiter='%c'|"
+		"sql 2>&1						 |"
+		"cat >%s 						  ",
 		TUITION_PAYMENT_TABLE,
 		TUITION_PAYMENT_INSERT_COLUMNS,
+		(PAYPAL_TRANSACTION_REPLACE) ? 'y' : 'n',
 		SQL_DELIMITER,
 		error_filename );
 
@@ -799,6 +809,7 @@ void tuition_payment_list_enrollment_insert( LIST *payment_list )
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
+	char *transaction_date_time;
 
 	if ( !list_rewind( payment_list ) ) return;
 
@@ -810,6 +821,14 @@ void tuition_payment_list_enrollment_insert( LIST *payment_list )
 	do {
 		payment = list_get( payment_list );
 
+		transaction_date_time =
+			(payment->enrollment->enrollment_transaction)
+				? payment->
+					enrollment->
+					enrollment_transaction->
+					transaction_date_time
+				: (char *)0;
+
 		enrollment_insert_pipe(
 			insert_pipe,
 			payment->enrollment->registration->student_full_name,
@@ -817,7 +836,7 @@ void tuition_payment_list_enrollment_insert( LIST *payment_list )
 			payment->enrollment->offering->course->course_name,
 			payment->enrollment->offering->semester->season_name,
 			payment->enrollment->offering->semester->year,
-			payment->enrollment->transaction_date_time );
+			transaction_date_time );
 
 	} while ( list_next( payment_list ) );
 
@@ -1571,24 +1590,14 @@ LIST *tuition_payment_list_steady_state(
 
 		/* Separate out the components */
 		/* --------------------------- */
-		registration =
-			tuition_payment->
-				enrollment->
-				registration;
-
-		enrollment =
-			tuition_payment->
-				enrollment;
-
-		offering =
-			tuition_payment->
-				enrollment->
-				offering;
+		enrollment = tuition_payment->enrollment;
+		registration = enrollment->registration;
+		offering = enrollment->offering;
 
 		if ( !offering ) continue;
 
-		/* Execute the steady states */
-		/* ------------------------- */
+		/* Execute OFFERING steady state */
+		/* ----------------------------- */
 		if ( ! ( offering =
 				offering_steady_state(
 					offering,
@@ -1603,6 +1612,8 @@ LIST *tuition_payment_list_steady_state(
 			exit( 1 );
 		}
 
+		/* Execute ENROLLMENT steady state */
+		/* ------------------------------- */
 		if ( ! ( enrollment =
 				enrollment_steady_state(
 					enrollment ) ) )
@@ -1615,6 +1626,8 @@ LIST *tuition_payment_list_steady_state(
 			exit( 1 );
 		}
 
+		/* Execute REGISTRATION steady state */
+		/* --------------------------------- */
 		if ( ! ( registration =
 				registration_steady_state(
 					registration,
@@ -1629,6 +1642,8 @@ LIST *tuition_payment_list_steady_state(
 			exit( 1 );
 		}
 
+		/* Execute TUITION_DEPOSIT steady state */
+		/* ------------------------------------ */
 		list_push( deposit_tuition_payment_list );
 
 		tuition_payment =

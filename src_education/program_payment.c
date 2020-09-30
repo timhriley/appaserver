@@ -14,6 +14,7 @@
 #include "sql.h"
 #include "boolean.h"
 #include "list.h"
+#include "paypal_upload.h"
 #include "program.h"
 #include "transaction.h"
 #include "journal.h"
@@ -115,6 +116,7 @@ void program_payment_list_insert( LIST *program_payment_list )
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
+	char *transaction_date_time;
 
 	if ( !list_rewind( program_payment_list ) ) return;
 
@@ -125,6 +127,13 @@ void program_payment_list_insert( LIST *program_payment_list )
 
 	do {
 		program_payment = list_get( program_payment_list );
+
+		transaction_date_time =
+			(program_payment->program_payment_transaction)
+				? program_payment->
+					program_payment_transaction->
+					transaction_date_time
+				: (char *)0;
 
 		program_payment_insert_pipe(
 			insert_pipe,
@@ -137,7 +146,7 @@ void program_payment_list_insert( LIST *program_payment_list )
 			program_payment->program_payment_amount,
 			program_payment->program_payment_fees_expense,
 			program_payment->program_payment_net_payment_amount,
-			program_payment->transaction_date_time );
+			transaction_date_time );
 
 	} while ( list_next( program_payment_list ) );
 
@@ -167,11 +176,12 @@ FILE *program_payment_insert_open( char *error_filename )
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"insert_statement t=%s f=\"%s\" replace=n delimiter='%c'|"
-		"sql 2>&1						|"
-		"cat >%s 						 ",
+		"insert_statement t=%s f=\"%s\" replace=%c delimiter='%c'|"
+		"sql 2>&1						 |"
+		"cat >%s 						  ",
 		PROGRAM_PAYMENT_TABLE,
 		PROGRAM_PAYMENT_INSERT_COLUMNS,
+		(PAYPAL_TRANSACTION_REPLACE) ? 'y' : 'n',
 		SQL_DELIMITER,
 		error_filename );
 

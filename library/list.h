@@ -181,7 +181,9 @@ void list_delete_string( LIST *list, char *string );
 LIST *dictionary_string2list( char *dictionary_string, 
 			      int attribute_or_data );
 LIST *list_trim_indices( LIST *string_list );
+
 LIST *list_unique( LIST *string_list );
+
 char *list_get_string( LIST *list );
 
 void *list_first(	LIST *list );
@@ -309,6 +311,7 @@ void list_pop(			LIST *list );
 void list_push(			LIST *list );
 LIST *list_intersect_string_list(
 				LIST *list1, LIST *list2 );
+
 LIST *list_append_unique_string_list(
 				LIST *destination_list,
 				LIST *source_list );
