@@ -94,7 +94,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 1 ];
 	season_name = argv[ 2 ];
 	year = atoi( argv[ 3 ] );
-	login_name = argv[ 4 ];
+	if ( ( login_name = argv[ 4 ] ) ){};
 	spreadsheet_filename = argv[ 5 ];
 	execute = (*argv[ 6 ] == 'y');
 	nohtml = ( strcmp( argv[ 6 ], "nohtml" ) == 0 );
@@ -208,14 +208,15 @@ int main( int argc, char **argv )
 				season_name,
 				year );
 
+/*
 			paypal_upload_event_insert(
 				spreadsheet_filename,
 				login_name,
 				maximum_date );
+*/
 
 			printf(
-		"<p>Process complete as of %s with row count %d.\n",
-				maximum_date,
+		"<p>Process complete with row count %d.\n",
 				list_length( deposit_list ) );
 
 			process_execution_count_increment(
@@ -233,9 +234,8 @@ int main( int argc, char **argv )
 		if ( maximum_date )
 		{
 			printf(
-		"<p>Process did not execute with row count %d as of %s.\n",
-				list_length( deposit_list ),
-				maximum_date );
+		"<p>Process did not execute with row count %d.\n",
+				list_length( deposit_list ) );
 		}
 	}
 

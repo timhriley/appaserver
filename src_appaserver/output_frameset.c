@@ -258,7 +258,7 @@ int main( int argc, char **argv )
 					content_type );
 	}
 	exit( 0 );
-} /* main() */
+}
 
 void output_vertical_frameset(		char *application_name,
 					char *session,
@@ -285,7 +285,7 @@ void output_vertical_frameset(		char *application_name,
 			LOCAL_CONTENT_TYPE_YN,
 			menu_frame_create_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	sprintf( sys_string,
 		 "output_blank_screen.sh \"%s\" \"%s\" n > %s 2>>%s",
@@ -293,14 +293,14 @@ void output_vertical_frameset(		char *application_name,
 		 title,
 		 prompt_frame_create_filename,
 		 appaserver_get_error_filename( application_name ) );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	sprintf( sys_string,
 		 "output_blank_screen.sh \"%s\" '' n > %s 2>>%s",
 		 application_get_background_color( application_name ),
 		 edit_frame_create_filename,
 		 appaserver_get_error_filename( application_name ) );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	if ( content_type )
 	{
@@ -330,8 +330,7 @@ void output_vertical_frameset(		char *application_name,
 	prompt_frame_prompt_filename,
 	EDIT_FRAME,
 	edit_frame_prompt_filename );
-
-} /* output_vertical_frameset() */
+}
 
 void output_horizontal_frameset(	char *application_name,
 					char *session,
@@ -346,6 +345,16 @@ void output_horizontal_frameset(	char *application_name,
 {
 	char sys_string[ 1024 ];
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: edit_frame_prompt_filename = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+	edit_frame_prompt_filename );
+m2( application_name, msg );
+}
+
 	sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' \"%s\" %s >> %s",
 			application_name,
@@ -356,7 +365,7 @@ void output_horizontal_frameset(	char *application_name,
 			LOCAL_CONTENT_TYPE_YN,
 			prompt_frame_create_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	sprintf( sys_string,
 		 "output_blank_screen.sh \"%s\" '' n > %s 2>>%s",
@@ -365,7 +374,7 @@ void output_horizontal_frameset(	char *application_name,
 		 appaserver_error_get_filename(
 				application_name ) );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	if ( content_type )
 	{
@@ -389,5 +398,5 @@ void output_horizontal_frameset(	char *application_name,
 	EDIT_FRAME,
 	edit_frame_prompt_filename );
 
-} /* output_horizontal_frameset() */
+}
 

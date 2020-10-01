@@ -74,18 +74,30 @@ PAYPAL_DATASET *education_paypal_dataset(
 			PAYPAL_DATASET *paypal_dataset );
 
 void education_deposit_list_insert(
-			LIST *deposit_list );
+			LIST *education_deposit_list );
 
 void education_deposit_insert(
 			LIST *deposit_list );
 
-void education_payment_insert(
+void education_tuition_payment_insert(
+			LIST *deposit_list );
+
+void education_program_payment_insert(
 			LIST *deposit_list );
 
 void education_enrollment_insert(
 			LIST *deposit_list );
 
 void education_registration_insert(
+			LIST *deposit_list );
+
+void education_student_insert(
+			LIST *deposit_list );
+
+void education_student_entity_insert(
+			LIST *deposit_list );
+
+void education_payor_entity_insert(
 			LIST *deposit_list );
 
 LIST *education_program_list(

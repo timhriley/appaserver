@@ -202,7 +202,7 @@ void deposit_insert_pipe(
 			char *invoice_number,
 			char *from_email_address );
 
-void deposit_list_payment_insert(
+void deposit_list_tuition_payment_insert(
 			LIST *deposit_list );
 
 void deposit_list_program_payment_insert(

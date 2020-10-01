@@ -572,7 +572,7 @@ void deposit_list_insert( LIST *deposit_list )
 	if ( system( sys_string ) ){};
 }
 
-void deposit_list_payment_insert(
+void deposit_list_tuition_payment_insert(
 			LIST *deposit_list )
 {
 	DEPOSIT *deposit;
@@ -584,6 +584,19 @@ void deposit_list_payment_insert(
 
 		tuition_payment_list_insert(
 			deposit->deposit_tuition_payment_list );
+
+	} while ( list_next( deposit_list ) );
+}
+
+void deposit_list_program_payment_insert(
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+
+	if ( !list_rewind( deposit_list ) ) return;
+
+	do {
+		deposit = list_get( deposit_list );
 
 		program_payment_list_insert(
 			deposit->deposit_program_payment_list );

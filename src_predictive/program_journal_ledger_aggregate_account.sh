@@ -44,7 +44,7 @@ transaction_join="journal_ledger.full_name = transaction.full_name and journal_l
 
 date_where="journal_ledger.transaction_date_time >= '${begin_date_time}' and journal_ledger.transaction_date_time <= '${end_date_time}'"
 
-common_where="${date_where} and ${transaction_join} and ${subclassification_join} and ${account_join} and transaction.program = '$program'"
+common_where="${date_where} and ${transaction_join} and ${subclassification_join} and ${account_join} and transaction.program_name = '$program'"
 
 from="journal_ledger,transaction,account,subclassification"
 

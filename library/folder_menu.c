@@ -199,8 +199,8 @@ void folder_menu_create_spool_file(
 
 	if ( with_count )
 	{
-		sprintf( sys_string, 
-"get_folder_count_list.sh %s \"%s\" %s >%s 2>>%s",
+		sprintf(sys_string, 
+			"folder_count_list.sh %s \"%s\" %s >%s 2>>%s",
 		 	application_name,
 			role_name,
 			FOLDER_MENU_PERMISSIONS,
@@ -210,8 +210,8 @@ void folder_menu_create_spool_file(
 	}
 	else
 	{
-		sprintf( sys_string,
-"get_permission_folder_list.sh %s \"%s\" %s >%s 2>>%s",
+		sprintf(sys_string,
+			"permission_folder_list.sh %s \"%s\" %s >%s 2>>%s",
 		 	application_name,
 			role_name,
 			FOLDER_MENU_PERMISSIONS,
@@ -221,8 +221,7 @@ void folder_menu_create_spool_file(
 	}
 
 	system( sys_string );
-
-} /* folder_menu_create_spool_file() */
+}
 
 LIST *folder_menu_get_choose_folder_list(
 					char *application_name,

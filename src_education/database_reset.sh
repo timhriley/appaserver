@@ -5,6 +5,8 @@ echo "delete from enrollment;" | sql
 echo "delete from registration;" | sql
 echo "delete from program_payment;" | sql
 echo "delete from tuition_payment;" | sql
+echo "delete from student;" | sql
+echo "delete from entity where full_name <> 'TNT';" | sql
 echo "delete from deposit;" | sql
 
 echo "	update offering					\

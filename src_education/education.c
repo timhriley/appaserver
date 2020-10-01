@@ -294,7 +294,26 @@ void education_deposit_list_insert(
 	education_registration_insert( education_deposit_list );
 	education_enrollment_insert( education_deposit_list );
 	education_deposit_insert( education_deposit_list );
-	education_payment_insert( education_deposit_list );
+	education_tuition_payment_insert( education_deposit_list );
+	education_program_payment_insert( education_deposit_list );
+	education_student_insert( education_deposit_list );
+	education_student_entity_insert( education_deposit_list );
+	education_payor_entity_insert( education_deposit_list );
+}
+
+void education_student_insert( LIST *deposit_list )
+{
+	deposit_list_student_insert( deposit_list );
+}
+
+void education_student_entity_insert( LIST *deposit_list )
+{
+	deposit_list_student_entity_insert( deposit_list );
+}
+
+void education_payor_entity_insert( LIST *deposit_list )
+{
+	deposit_list_payor_entity_insert( deposit_list );
 }
 
 void education_deposit_insert( LIST *deposit_list )
@@ -302,9 +321,14 @@ void education_deposit_insert( LIST *deposit_list )
 	deposit_list_insert( deposit_list );
 }
 
-void education_payment_insert( LIST *deposit_list )
+void education_tuition_payment_insert( LIST *deposit_list )
 {
-	deposit_list_payment_insert( deposit_list );
+	deposit_list_tuition_payment_insert( deposit_list );
+}
+
+void education_program_payment_insert( LIST *deposit_list )
+{
+	deposit_list_program_payment_insert( deposit_list );
 }
 
 void education_enrollment_insert( LIST *deposit_list )
