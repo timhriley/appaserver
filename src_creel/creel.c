@@ -689,7 +689,7 @@ CREEL_CENSUS *creel_census_fetch(	HASH_TABLE *creel_census_hash_table,
 
 	return creel_census;
 
-} /* creel_census_fetch() */
+}
 
 CREEL_FISHING_TRIPS *creel_fishing_trips_fetch(
 					HASH_TABLE *fishing_trips_hash_table,
@@ -720,8 +720,7 @@ CREEL_FISHING_TRIPS *creel_fishing_trips_fetch(
 	}
 
 	return fishing_trips;
-
-} /* creel_fishing_trips_fetch() */
+}
 
 CREEL_CATCHES *creel_catches_fetch(	HASH_TABLE *catches_hash_table,
 					char *fishing_purpose,
@@ -756,8 +755,7 @@ CREEL_CATCHES *creel_catches_fetch(	HASH_TABLE *catches_hash_table,
 	}
 
 	return catches;
-
-} /* creel_catches_fetch() */
+}
 
 void creel_append_fishing_trips(	HASH_TABLE *creel_census_hash_table,
 					HASH_TABLE *fishing_trips_hash_table )
@@ -824,8 +822,7 @@ void creel_append_fishing_trips(	HASH_TABLE *creel_census_hash_table,
 					fishing_trips );
 
 	} while( list_next( key_list ) );
-
-} /* creel_append_fishing_trips() */
+}
 
 void creel_append_catches(		HASH_TABLE *fishing_trips_hash_table,
 					HASH_TABLE *catches_hash_table )
@@ -902,6 +899,5 @@ void creel_append_catches(		HASH_TABLE *fishing_trips_hash_table,
 					catches );
 
 	} while( list_next( key_list ) );
-
-} /* creel_append_catches() */
+}
 

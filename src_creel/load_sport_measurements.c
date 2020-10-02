@@ -36,9 +36,11 @@ void insert_catches(		char *application_name,
 				char *input_filename,
 				boolean replace_existing_data );
 
+/*
 void delete_catch_measurements(
 				char *application_name,
 				char *input_filename );
+*/
 
 int insert_catch_measurements(
 				char *application_name,
@@ -101,8 +103,10 @@ int main( int argc, char **argv )
 
 	if ( execute )
 	{
+/*
 		delete_catch_measurements(
 			application_name, input_filename );
+*/
 
 		insert_catches(	application_name,
 				input_filename,
@@ -137,6 +141,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
+#ifdef NOT_DEFINED
 #define DELETE_FIELD_LIST	"fishing_purpose,"	\
 				"census_date,"		\
 				"interview_location,"	\
@@ -234,6 +239,7 @@ void delete_catch_measurements(	char *application_name,
 	fclose( input_file );
 	pclose( catch_measurements_delete_pipe );
 }
+#endif
 
 #define INSERT_CATCH_MEASUREMENTS_FIELD_LIST		\
 			"fishing_purpose,"		\

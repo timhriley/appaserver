@@ -602,8 +602,7 @@ void output_spreadsheet_fishing_trip_horizontally(
 
 	fprintf(output_codes_file, "\n" );
 	fprintf(output_no_codes_file, "\n" );
-
-} /* output_spreadsheet_fishing_trip_horizontally() */
+}
 
 void output_spreadsheet_fishing_trip_vertically(
 					FILE *output_codes_file,
@@ -726,6 +725,5 @@ void output_spreadsheet_fishing_trip_vertically(
 		 	fishing_area,
 		 	fishing_zone );
 	}
-	
-} /* output_spreadsheet_fishing_trip_vertically() */
+}
 

@@ -111,7 +111,7 @@ SPECIES *total_caught_species_new(
 	species->genus = genus;
 	species->species_name = species_name;
 	return species;
-} /* total_caught_species_new() */
+}
 
 FISHING_TRIP *total_caught_fishing_trip_new(
 				char *fishing_purpose,
@@ -144,8 +144,7 @@ FISHING_TRIP *total_caught_fishing_trip_new(
 	fishing_trip->catch_list = list_new();
 
 	return fishing_trip;
-
-} /* total_caught_fishing_trip_new() */
+}
 
 ESTIMATED_TOTAL_CAUGHT *estimated_total_caught_new(
 				int begin_month,
@@ -173,8 +172,7 @@ ESTIMATED_TOTAL_CAUGHT *estimated_total_caught_new(
 			application_name );
 
 	return caught;
-
-} /* estimated_total_caught_new() */
+}
 
 ESTIMATED_TOTAL_CAUGHT_INPUT *total_caught_input_new(
 				int begin_month,
@@ -228,8 +226,7 @@ ESTIMATED_TOTAL_CAUGHT_INPUT *total_caught_input_new(
 				year );
 
 	return input;
-
-} /* total_caught_input_new() */
+}
 
 DICTIONARY *total_caught_get_weekend_creel_census_dictionary(
 				char *application_name,
@@ -281,8 +278,7 @@ DICTIONARY *total_caught_get_weekend_creel_census_dictionary(
 		 where_clause );
 
 	return pipe2dictionary( sys_string, FOLDER_DATA_DELIMITER );
-
-} /* total_caught_get_weekend_creel_census_dictionary() */
+}
 
 DICTIONARY *total_caught_get_trailer_count_dictionary(
 				char *application_name,
@@ -322,8 +318,7 @@ DICTIONARY *total_caught_get_trailer_count_dictionary(
 		 where_clause );
 
 	return pipe2dictionary( sys_string, FOLDER_DATA_DELIMITER );
-
-} /* total_caught_get_trailer_count_dictionary() */
+}
 
 LIST *total_caught_get_species_list(
 			boolean *all_species,
@@ -430,8 +425,7 @@ LIST *total_caught_get_species_list(
 	pclose( input_pipe );
 
 	return species_list;
-
-} /* total_caught_get_species_list() */
+}
 
 HASH_TABLE *total_caught_get_fishing_trip_hash_table(
 			FISHING_TRIP_LIST *fishing_trip_list_array
@@ -592,8 +586,7 @@ HASH_TABLE *total_caught_get_fishing_trip_hash_table(
 	pclose( input_pipe );
 
 	return fishing_trip_hash_table;
-
-} /* total_caught_get_fishing_trip_hash_table() */
+}
 
 void total_caught_populate_catch_list(
 				HASH_TABLE *fishing_trip_hash_table,
@@ -747,7 +740,7 @@ void total_caught_populate_catch_list(
 		catch->released += atoi( released_count_string );
 	}
 	pclose( input_pipe );
-} /* total_caught_populate_catch_list() */
+}
 
 CATCH *total_caught_get_or_set_fishing_trip_catch(
 					LIST *catch_list,
@@ -779,8 +772,7 @@ CATCH *total_caught_get_or_set_fishing_trip_catch(
 	catch->species = species;
 	list_append_pointer( catch_list, catch );
 	return catch;
-	
-} /* total_caught_get_or_set_fishing_trip_catch() */
+}
 
 char *total_caught_get_trailer_key(
 				char *trailer_count_date_string,
@@ -795,7 +787,7 @@ char *total_caught_get_trailer_key(
 		 parking_lot );
 
 	return key;
-} /* total_caught_get_trailer_key() */
+}
 
 char *total_caught_get_fishing_trip_key(
 				char *fishing_purpose,
@@ -816,7 +808,7 @@ char *total_caught_get_fishing_trip_key(
 		 interview_number_string );
 
 	return key;
-} /* total_caught_get_fishing_trip_key() */
+}
 
 char *total_caught_get_weekend_key(
 				char *census_date_string,
@@ -831,7 +823,7 @@ char *total_caught_get_weekend_key(
 		 interview_location );
 
 	return key;
-} /* total_caught_get_weekend_key() */
+}
 
 char *total_caught_get_species_key(
 				char *family,
@@ -849,7 +841,7 @@ char *total_caught_get_species_key(
 		 species_name );
 
 	return key;
-} /* total_caught_get_species_key() */
+}
 
 void total_caught_get_begin_end_date_string(
 			char *begin_date_string,
@@ -882,8 +874,7 @@ void total_caught_get_begin_end_date_string(
 		 "%d-%.2d-31",
 		 year,
 		 end_month );
-
-} /* total_caught_get_begin_end_date_string() */
+}
 
 MONTH_SHEET *total_caught_month_sheet_new( int month )
 {
@@ -902,8 +893,7 @@ MONTH_SHEET *total_caught_month_sheet_new( int month )
 	month_sheet->month = month;
 	month_sheet->row_list = list_new();
 	return month_sheet;
-
-} /* total_caught_month_sheet_new() */
+}
 
 TOTAL_SHEET *total_caught_total_sheet_new( int year )
 {
@@ -921,7 +911,7 @@ TOTAL_SHEET *total_caught_total_sheet_new( int year )
 	total_sheet->year = year;
 	total_sheet->total_row_list = list_new();
 	return total_sheet;
-} /* total_caught_total_sheet_new() */
+}
 
 MONTH_ROW *total_caught_month_row_new( int day )
 {
