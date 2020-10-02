@@ -379,7 +379,7 @@ void insert_fishing_trips(	int *fishing_trip_count,
 		sprintf(sys_string,
 			"insert_statement.e t=%s f=%s d='|' replace=%c	|"
 			"sql 2>&1					|"
-			"html_paragrph_wrapper				|"
+			"html_paragraph_wrapper				|"
 			"cat						 ",
 			 "permits",
 			 INSERT_PERMITS_FIELD_LIST,

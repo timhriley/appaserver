@@ -175,7 +175,7 @@ int main( int argc, char **argv )
 		"species_preferred,"		\
 		"fishing_area,"			\
 		"guide_angler_submission_yn,"	\
-		"last_changed_by,v"		\
+		"last_changed_by,"		\
 		"validation_date"
 
 #define INSERT_CATCHES_FIELD_LIST		\
@@ -204,7 +204,7 @@ int insert_fishing_trips(	char *application_name,
 {
 	FILE *input_file;
 	FILE *creel_census_output_pipe = {0};
-	FILE *fishing_trips_output_pipe;
+	FILE *fishing_trips_output_pipe = {0};
 	FILE *catches_output_pipe = {0};
 	FILE *guide_anglers_output_pipe = {0};
 	FILE *permits_insert_pipe = {0};
@@ -278,7 +278,7 @@ int insert_fishing_trips(	char *application_name,
 		sprintf(sys_string,
 			"insert_statement t=%s f=%s d='|' replace=%c	|"
 			"sql 2>&1					|"
-			"html_paragrapgh_wrapper			|"
+			"html_paragraph_wrapper				|"
 			"cat						 ",
 			"fishing_trips",
 			INSERT_FISHING_TRIPS_FIELD_LIST,
@@ -289,7 +289,7 @@ int insert_fishing_trips(	char *application_name,
 		sprintf(sys_string,
 			"insert_statement t=%s f=%s d='|' replace=%c	|"
 			"sql 2>&1					|"
-			"html_paragrapgh_wrapper			|"
+			"html_paragraph_wrapper				|"
 			"cat						 ",
 			 "catches",
 			 INSERT_CATCHES_FIELD_LIST,
@@ -300,7 +300,7 @@ int insert_fishing_trips(	char *application_name,
 		sprintf(sys_string,
 			"insert_statement t=%s f=%s d='|' replace=%c	|"
 			"sql 2>&1					|"
-			"html_paragrapgh_wrapper			|"
+			"html_paragraph_wrapper				|"
 			"cat						 ",
 			 "guide_anglers",
 			 INSERT_GUIDE_ANGLERS_FIELD_LIST,
@@ -311,7 +311,7 @@ int insert_fishing_trips(	char *application_name,
 		sprintf(sys_string,
 			"insert_statement t=%s f=%s d='|' replace=%c	|"
 			"sql 2>&1					|"
-			"html_paragrapgh_wrapper			|"
+			"html_paragraph_wrapper				|"
 			"cat						 ",
 			 "permits",
 			 INSERT_PERMITS_FIELD_LIST,
@@ -335,6 +335,7 @@ int insert_fishing_trips(	char *application_name,
 "queue_top_bottom_lines.e %d | html_table.e 'Insert into Fishing Trips' %s,family,genus,species,kept,released '|'",
 			 QUEUE_TOP_BOTTOM_LINES,
 			 INSERT_FISHING_TRIPS_FIELD_LIST );
+
 		fishing_trips_output_pipe = popen( sys_string, "w" );
 	}
 
@@ -670,7 +671,8 @@ int insert_fishing_trips(	char *application_name,
 
 		if ( system( sys_string ) );
 	}
-	sprintf( sys_string, "rm %s", error_filename );
+
+	sprintf( sys_string, "rm %s 2>/dev/null", error_filename );
 	if ( system( sys_string ) );
 
 	if ( execute )
@@ -686,8 +688,8 @@ int insert_fishing_trips(	char *application_name,
 
 			if ( system( sys_string ) );
 		}
-		sprintf( sys_string, "rm %s", sql_error_filename );
 
+		sprintf( sys_string, "rm %s 2>/dev/null", sql_error_filename );
 		if ( system( sys_string ) );
 	}
 
