@@ -345,16 +345,6 @@ void output_horizontal_frameset(	char *application_name,
 {
 	char sys_string[ 1024 ];
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: edit_frame_prompt_filename = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-	edit_frame_prompt_filename );
-m2( application_name, msg );
-}
-
 	sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' \"%s\" %s >> %s",
 			application_name,
