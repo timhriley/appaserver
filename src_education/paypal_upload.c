@@ -170,13 +170,6 @@ int main( int argc, char **argv )
 		execute = 0;
 	}
 
-	paypal_upload_display(
-		deposit_list,
-		season_name,
-		year );
-
-	paypal_upload_transaction_display( deposit_list );
-
 	if ( execute )
 	{
 		LIST *account_name_list;
@@ -231,12 +224,16 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		if ( maximum_date )
-		{
-			printf(
+		paypal_upload_display(
+			deposit_list,
+			season_name,
+			year );
+
+		paypal_upload_transaction_display( deposit_list );
+
+		printf(
 		"<p>Process did not execute with row count %d.\n",
 				list_length( deposit_list ) );
-		}
 	}
 
 	if ( !nohtml ) document_close();
