@@ -227,7 +227,6 @@ int insert_fishing_trips(	char *application_name,
 	char sys_string[ 1024 ];
 	char error_filename[ 128 ];
 	FILE *error_file;
-	char sql_error_filename[ 128 ];
 	int line_number = 0;
 	int input_record_count;
 	int next_reference_number;
@@ -257,10 +256,6 @@ int insert_fishing_trips(	char *application_name,
 		fclose( input_file );
 		exit( 1 );
 	}
-
-	sprintf(	sql_error_filename,
-			"/tmp/fishing_trip_sql_error_%d.txt",
-			getpid() );
 
 	if ( execute )
 	{
@@ -674,24 +669,6 @@ int insert_fishing_trips(	char *application_name,
 
 	sprintf( sys_string, "rm %s 2>/dev/null", error_filename );
 	if ( system( sys_string ) );
-
-	if ( execute )
-	{
-		if ( timlib_file_populated( sql_error_filename ) )
-		{
-			sprintf( sys_string,
-"cat %s						|"
-"queue_top_bottom_lines.e %d			|"
-"html_table.e 'SQL Errors' '' '|'		 ",
-			 	sql_error_filename,
-				QUEUE_TOP_BOTTOM_LINES );
-
-			if ( system( sys_string ) );
-		}
-
-		sprintf( sys_string, "rm %s 2>/dev/null", sql_error_filename );
-		if ( system( sys_string ) );
-	}
 
 	return fishing_trip_count;
 }
