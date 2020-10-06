@@ -653,7 +653,7 @@ void print_checks_transaction_display(
 	TRANSACTION *transaction;
 	char transaction_memo[ 256 ];
 
-	if ( ! ( pay_liabilities =
+	pay_liabilities =
 		pay_liabilities_new(
 			fund_name,
 			full_name_list,
@@ -666,18 +666,14 @@ void print_checks_transaction_display(
 			pay_liabilities_transaction_memo(
 				fund_name,
 				memo,
-				starting_check_number ) ) ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: pay_liabilities_new() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+				starting_check_number ) );
 
-	if ( !list_rewind( pay_liabilities->output.transaction_list ) )
+	if ( !pay_liabilities
+	||   !list_rewind( pay_liabilities->output.transaction_list ) )
+	{
+		printf( "<h3>No transactions generated.</h3>\n" );
 		return;
+	}
 
 	do {
 		transaction =

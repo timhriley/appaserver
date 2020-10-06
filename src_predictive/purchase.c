@@ -14,6 +14,7 @@
 #include "piece.h"
 #include "list.h"
 #include "boolean.h"
+#include "folder.h"
 #include "transaction.h"
 #include "journal.h"
 #include "entity.h"
@@ -448,8 +449,11 @@ char *purchase_asset_account_name(
 
 LIST *purchase_amount_due_purchase_list( void )
 {
+	if ( !folder_exists_folder( environment_application(), "purchase" ) )
+		return (LIST *)0;
+
 	return purchase_system_list(
-			purchase_sys_string(
+		purchase_sys_string(
 			"ifnull( amount_due, 0.0 ) > 0.0",
 			"purchase_date" /* order */ ) );
 }

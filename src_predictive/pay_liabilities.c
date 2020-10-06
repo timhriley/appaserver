@@ -15,6 +15,7 @@
 #include "appaserver_library.h"
 #include "piece.h"
 #include "date.h"
+#include "folder.h"
 #include "environ.h"
 #include "account.h"
 #include "transaction.h"
@@ -112,6 +113,11 @@ PAY_LIABILITIES *pay_liabilities_new(
 			p->input.entity_list,
 			p->input.dialog_box_payment_amount,
 			starting_check_number );
+
+	if ( !list_length( p->process.liability_account_entity_list ) )
+	{
+		return (PAY_LIABILITIES *)0;
+	}
 
 	if ( starting_check_number )
 	{
@@ -742,20 +748,18 @@ LIST *pay_liabilities_fetch_liability_account_entity_list( void )
 	char account_name[ 128 ];
 	char full_name[ 128 ];
 	char street_address[ 128 ];
-	char *folder;
 	char *select;
 	ENTITY *entity;
 	JOURNAL *latest_journal;
 	ACCOUNT *account;
 	LIST *liability_account_entity_list = list_new();
 
-	folder = "liability_account_entity";
 	select = "account,full_name,street_address";
 
 	sprintf( sys_string,
 		 "echo \"select %s from %s;\" | sql",
 		 select,
-		 folder );
+		 "liability_account_entity" );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -1166,7 +1170,7 @@ void pay_liabilities_set_lock_transaction(
 	do {
 		transaction = list_get( transaction_list );
 
-		if ( (boolean)pay_liabilities_vendor_payment_seek(
+		if ( pay_liabilities_vendor_payment_seek(
 				vendor_payment_list,
 				transaction->full_name,
 				transaction->street_address ) )

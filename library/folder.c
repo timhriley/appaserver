@@ -2088,8 +2088,7 @@ boolean folder_exists_folder(		char *application_name,
 
 	return (boolean)( folder_seek_folder(	folder_list,
 						folder_name ) != (void *)0 );
-
-} /* folder_exists_folder() */
+}
 
 boolean folder_exists_attribute(	char *application_name,
 					char *folder_name,
@@ -2105,8 +2104,7 @@ boolean folder_exists_attribute(	char *application_name,
 	return (boolean) ( attribute_seek_attribute(
 				attribute_list,
 				attribute_name ) != (void *)0 );
-
-} /* folder_exists_folder() */
+}
 
 char *folder_display( FOLDER *folder )
 {
