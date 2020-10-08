@@ -1071,11 +1071,17 @@ boolean hydrology_library_some_measurements_validated(
 		 application_name,
 		 local_where_clause );
 
+fprintf(stderr,
+	"%s/%s()/%d: sys_string = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+sys_string );
+
 	results = pipe2string( sys_string );
 
 	return (boolean)atoi( results );
-
-} /* hydrology_library_some_measurements_validated() */
+}
 
 boolean hydrology_library_get_drift_ratio_variables(
 					DICTIONARY *parameter_dictionary,
@@ -1472,12 +1478,12 @@ char *hydrology_library_provisional_where(
 {
 	if ( validation_level == provisional )
 	{
-		return " and last_validation_date is null";
+		return " and last_validation_date is not null";
 	}
 	else
 	if ( validation_level == validated )
 	{
-		return " and last_validation_date is not null";
+		return " and last_validation_date is null";
 	}
 	else
 	{
