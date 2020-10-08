@@ -56,6 +56,7 @@ typedef struct
 	double annual_budget;
 	boolean accumulate_debit;
 	double payment_amount;
+	LIST *transaction_after_balance_zero_journal_list;
 } ACCOUNT;
 
 /* Operations */

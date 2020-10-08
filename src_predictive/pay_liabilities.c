@@ -183,6 +183,20 @@ LIST *pay_liabilities_output_liability_account_transaction_list(
 
 	transaction_list = list_new();
 
+fprintf(stderr,
+	"%s/%s()/%d: got length = %d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+list_length( liability_account_entity_list ) );
+
+fprintf(stderr,
+	"%s/%s()/%d: entity_list = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+entity_list_display( liability_account_entity_list ) );
+
 	if ( !list_rewind( liability_account_entity_list ) )
 		return transaction_list;
 
@@ -192,8 +206,20 @@ LIST *pay_liabilities_output_liability_account_transaction_list(
 		memo = PAY_LIABILITIES_MEMO;
 
 	do {
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
 		entity = list_get( liability_account_entity_list );
 
+fprintf(stderr,
+	"%s/%s()/%d: entity = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+entity->full_name );
 
 		if ( !list_rewind( entity->liability_account_list ) )
 		{
@@ -237,6 +263,13 @@ LIST *pay_liabilities_output_liability_account_transaction_list(
 				list_get( 
 					entity->liability_account_list );
 
+fprintf(stderr,
+	"%s/%s()/%d: got account_name = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+account->account_name );
+
 			journal =
 				journal_new(
 					transaction->full_name,
@@ -271,6 +304,13 @@ LIST *pay_liabilities_output_liability_account_transaction_list(
 				journal );
 		}
 
+fprintf(stderr,
+	"%s/%s()/%d: credit_account_name = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+credit_account_name );
+
 		/* Credit account */
 		/* -------------- */
 		journal =
@@ -286,9 +326,21 @@ LIST *pay_liabilities_output_liability_account_transaction_list(
 			transaction->journal_list,
 			journal );
 
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
 		date_increment_seconds(
 			transaction_date_time,
 			1 );
+
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
 
 	} while( list_next( liability_account_entity_list ) );
 
@@ -662,80 +714,6 @@ LIST *pay_liabilities_distribute_purchase_list(
 	return purchase_list;
 }
 
-LIST *pay_liabilities_current_liability_account_list(
-			char *fund_name,
-			LIST *exclude_account_name_list )
-{
-	char fund_where[ 128 ];
-	char where[ 256 ];
-	char sys_string[ 1024 ];
-	LIST *entire_account_list;
-	LIST *return_account_list;
-	ACCOUNT *account;
-	char in_clause_where[ 1024 ];
-	char *in_clause;
-
-	if ( list_length( exclude_account_name_list ) )
-	{
-		in_clause =
-			timlib_with_list_get_in_clause(
-				exclude_account_name_list );
-
-		sprintf( in_clause_where,
-			 "account not in (%s)",
-			 in_clause );
-	}
-	else
-	{
-		strcpy( in_clause_where, "1 = 1" );
-	}
-
-	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
-	{
-		sprintf( fund_where, "fund = '%s'", fund_name );
-	}
-	else
-	{
-		strcpy( fund_where, "1 = 1" );
-	}
-
-	sprintf( where,
-		 "subclassification = 'current_liability' and	"
-		 "account <> 'uncleared_checks' and		"
-		 "%s and					"
-		 "%s						",
-		 fund_where,
-		 in_clause_where );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 account_select(),
-		 "account",
-		 where,
-		 "account" );
-
-	entire_account_list = account_system_list( sys_string );
-
-	if ( !list_rewind( entire_account_list ) ) return (LIST *)0;
-
-	return_account_list = list_new();
-
-	do {
-		account = list_get( entire_account_list );
-
-		account->journal_list =
-			transaction_after_balance_zero_journal_list(
-				account->account_name );
-
-		if ( list_length( account->journal_list ) )
-		{
-			list_set( return_account_list, account );
-		}
-
-	} while ( list_next( entire_account_list ) );
-
-	return return_account_list;
-}
 
 /* ------------------------------------------ */
 /* Future work: need to optionally join fund. */
