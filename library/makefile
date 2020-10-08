@@ -42,6 +42,7 @@ APPASERVER_LIBRARY=						\
 		basename.o					\
 		role.o						\
 		role_folder.o					\
+		token.o						\
 		make_date_time_between_compatable.o		\
 		populate_helper_process.o			\
 		lookup_before_drop_down.o			\
