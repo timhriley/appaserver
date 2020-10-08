@@ -19,7 +19,7 @@
 #include "environ.h"
 #include "transaction.h"
 #include "entity.h"
-#include "liability.h"
+#include "pay_liabilities.h"
 
 /* Constants */
 /* --------- */
@@ -48,17 +48,18 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 2 )
+	if ( argc != 3 )
 	{
 		fprintf( stderr,
-			 "Usage: %s fund\n",
+			 "Usage: %s ignored fund\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	fund_name = argv[ 1 ];
+	fund_name = argv[ 2 ];
 
-	populate_print_checks_entity( fund_name );
+	populate_print_checks_entity(
+		fund_name );
 
 	return 0;
 }
@@ -67,11 +68,10 @@ void populate_print_checks_entity(
 			char *fund_name )
 {
 	FILE *output_pipe;
-	LIABILITY *liability;
+	PAY_LIABILITIES *p;
 
-	liability = liability_calloc();
+	p = pay_liabilities_calloc();
 
-	liability->
 	p->input.current_liability_account_list =
 		pay_liabilities_current_liability_account_list(
 			fund_name,

@@ -78,8 +78,7 @@ char *print_checks_create(
 			char *fund_name,
 			char personal_size_yn );
 
-char *pay_liabilities_process(
-			char *application_name,
+char *pay_liabilities(	char *application_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
 			int starting_check_number,
@@ -106,6 +105,7 @@ int main( int argc, char **argv )
 	char personal_size_yn;
 	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	DOCUMENT *document;
 	char title[ 128 ];
 	LIST *full_name_list;
 	LIST *street_address_list;
@@ -139,12 +139,23 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document_quick_output_body(
-		application_name,
-		appaserver_parameter_file->
-			appaserver_mount_point );
-
 	format_initial_capital( title, process_name ),
+
+	document = document_new( title, application_name );
+	document->output_content_type = 1;
+
+	document_output_head_stream(
+			stdout,
+			document->application_name,
+			document->title,
+			document->output_content_type,
+			appaserver_parameter_file->appaserver_mount_point,
+			document->javascript_module_list,
+			document->stylesheet_filename,
+			application_get_relative_source_directory(
+				application_name ),
+			0 /* not with_dynarch_menu */,
+			1 /* with close_head */ );
 
 	printf( "<h1>%s</h1>\n", title );
 	fflush( stdout );
@@ -182,7 +193,7 @@ int main( int argc, char **argv )
 	}
 
 	pdf_filename =
-		pay_liabilities_process(
+		pay_liabilities(
 			application_name,
 			full_name_list,
 			street_address_list,
@@ -215,8 +226,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-char *pay_liabilities_process(
-			char *application_name,
+char *pay_liabilities(	char *application_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
 			int starting_check_number,
@@ -512,8 +522,9 @@ double print_checks_balance(
 
 	if ( !entity_list )
 	{
-		sprintf(sys_string,
-		 	"populate_print_checks_entity '%s'",
+		sprintf( sys_string,
+		 	"populate_print_checks_entity %s '%s'",
+		 	environment_application_name(),
 			fund_name );
 
 		entity_list = pipe2list( sys_string );
@@ -642,7 +653,7 @@ void print_checks_transaction_display(
 	TRANSACTION *transaction;
 	char transaction_memo[ 256 ];
 
-	pay_liabilities =
+	if ( ! ( pay_liabilities =
 		pay_liabilities_new(
 			fund_name,
 			full_name_list,
@@ -655,14 +666,18 @@ void print_checks_transaction_display(
 			pay_liabilities_transaction_memo(
 				fund_name,
 				memo,
-				starting_check_number ) );
-
-	if ( !pay_liabilities
-	||   !list_rewind( pay_liabilities->output.transaction_list ) )
+				starting_check_number ) ) ) )
 	{
-		printf( "<h3>No transactions generated.</h3>\n" );
-		return;
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: pay_liabilities_new() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
+
+	if ( !list_rewind( pay_liabilities->output.transaction_list ) )
+		return;
 
 	do {
 		transaction =
