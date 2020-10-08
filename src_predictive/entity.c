@@ -12,6 +12,8 @@
 #include "timlib.h"
 #include "piece.h"
 #include "appaserver_library.h"
+#include "account.h"
+#include "transaction.h"
 #include "entity.h"
 
 enum payroll_pay_period entity_payroll_pay_period(
@@ -436,3 +438,64 @@ char *entity_name_display(
 	return display;
 }
 
+LIST *entity_liability_account_list(
+			LIST *exclude_account_name_list )
+{
+	char where[ 256 ];
+	char sys_string[ 1024 ];
+	LIST *entire_account_list;
+	LIST *return_account_list;
+	ACCOUNT *account;
+	char in_clause_where[ 1024 ];
+	char *in_clause;
+
+	if ( list_length( exclude_account_name_list ) )
+	{
+		in_clause =
+			timlib_with_list_get_in_clause(
+				exclude_account_name_list );
+
+		sprintf( in_clause_where,
+			 "account not in (%s)",
+			 in_clause );
+	}
+	else
+	{
+		strcpy( in_clause_where, "1 = 1" );
+	}
+
+	sprintf( where,
+		 "subclassification = 'current_liability' and	"
+		 "account <> 'uncleared_checks' and		"
+		 "%s						",
+		 in_clause_where );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 account_select(),
+		 "account",
+		 where,
+		 "account" );
+
+	entire_account_list = account_system_list( sys_string );
+
+	if ( !list_rewind( entire_account_list ) ) return (LIST *)0;
+
+	return_account_list = list_new();
+
+	do {
+		account = list_get( entire_account_list );
+
+		account->transaction_after_balance_zero_journal_list =
+			transaction_after_balance_zero_journal_list(
+				account->account_name );
+
+		if ( list_length( account->journal_list ) )
+		{
+			list_set( return_account_list, account );
+		}
+
+	} while ( list_next( entire_account_list ) );
+
+	return return_account_list;
+}

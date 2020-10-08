@@ -20,7 +20,7 @@
 
 /* Constants */
 /* --------- */
-#define PAY_LIABILITIES_MEMO	"Automatic Payment"
+#define PAY_LIABILITIES_MEMO	"Liability Payment"
 
 /* Structures */
 /* ---------- */

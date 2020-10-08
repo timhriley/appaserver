@@ -13,6 +13,7 @@
 #include "sql.h"
 #include "piece.h"
 #include "list.h"
+#include "environ.h"
 #include "boolean.h"
 #include "folder.h"
 #include "transaction.h"
