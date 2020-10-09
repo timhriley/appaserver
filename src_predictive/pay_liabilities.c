@@ -41,7 +41,6 @@ PAY_LIABILITIES *pay_liabilities_calloc( void )
 }
 
 PAY_LIABILITIES *pay_liabilities_new(
-			char *fund_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
 			int starting_check_number,
@@ -59,10 +58,14 @@ PAY_LIABILITIES *pay_liabilities_new(
 	p->input.starting_check_number = starting_check_number;
 	p->input.dialog_box_payment_amount = dialog_box_payment_amount;
 
-	p->input.loss_account_name = account_loss( fund_name );
+	p->input.loss_account_name =
+		account_loss( (char *)0 /* fund_name */ );
 
-	checking_account = account_cash( fund_name );
-	uncleared_checks_account = account_uncleared_checks( fund_name );
+	checking_account =
+		account_cash( (char *)0 /* fund_name */ );
+
+	uncleared_checks_account =
+		account_uncleared_checks( (char *)0 /* fund_name */ );
 
 	if ( starting_check_number )
 		p->input.credit_account_name = uncleared_checks_account;
@@ -78,7 +81,6 @@ PAY_LIABILITIES *pay_liabilities_new(
 	/* --------------------------------------- */
 	p->input.entity_list =
 		pay_liabilities_input_entity_list(
-			fund_name,
 			full_name_list,
 			street_address_list );
 
@@ -88,7 +90,6 @@ PAY_LIABILITIES *pay_liabilities_new(
 	/* ---------------------------------------------------- */
 	p->input.current_liability_account_list =
 		pay_liabilities_current_liability_account_list(
-			fund_name,
 			(LIST *)0 /* exclude_account_name_list */ );
 
 	p->input.purchase_list = purchase_amount_due_purchase_list();
@@ -657,10 +658,8 @@ LIST *pay_liabilities_distribute_purchase_list(
 }
 
 LIST *pay_liabilities_current_liability_account_list(
-			char *fund_name,
 			LIST *exclude_account_name_list )
 {
-	char fund_where[ 128 ];
 	char where[ 256 ];
 	char sys_string[ 1024 ];
 	LIST *entire_account_list;
@@ -684,21 +683,10 @@ LIST *pay_liabilities_current_liability_account_list(
 		strcpy( in_clause_where, "1 = 1" );
 	}
 
-	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
-	{
-		sprintf( fund_where, "fund = '%s'", fund_name );
-	}
-	else
-	{
-		strcpy( fund_where, "1 = 1" );
-	}
-
 	sprintf( where,
 		 "subclassification = 'current_liability' and	"
 		 "account <> 'uncleared_checks' and		"
-		 "%s and					"
 		 "%s						",
-		 fund_where,
 		 in_clause_where );
 
 	sprintf( sys_string,
@@ -935,7 +923,6 @@ LIST *pay_liabilities_distribute_liability_account_list(
 }
 
 LIST *pay_liabilities_input_entity_list(
-			char *fund_name,
 			LIST *full_name_list,
 			LIST *street_address_list )
 {
@@ -957,7 +944,6 @@ LIST *pay_liabilities_input_entity_list(
 
 		if ( ! ( entity->sum_balance =
 				pay_liabilities_fetch_sum_balance(
-					fund_name,
 					full_name,
 					street_address ) ) )
 		{
@@ -983,11 +969,9 @@ LIST *pay_liabilities_input_entity_list(
 }
 
 double pay_liabilities_fetch_sum_balance(
-				char *fund_name,
 				char *full_name,
 				char *street_address )
 {
-	char sys_string[ 128 ];
 	char *record;
 	char input_full_name[ 128 ];
 	char input_street_address_balance[ 128 ];
@@ -997,12 +981,8 @@ double pay_liabilities_fetch_sum_balance(
 
 	if ( !entity_record_list )
 	{
-		sprintf( sys_string,
-		 	"populate_print_checks_entity %s '%s'",
-		 	environment_application_name(),
-			fund_name );
-
-		entity_record_list = pipe2list( sys_string );
+		entity_record_list =
+			pipe2list( "populate_print_checks_entity" );
 	}
 
 	if ( !list_rewind( entity_record_list ) ) return 0.0;
@@ -1179,8 +1159,7 @@ void pay_liabilities_set_lock_transaction(
 /* --------------------------------------------- */
 /* Returns memo, program memory, or heap memory. */
 /* --------------------------------------------- */
-char *pay_liabilities_transaction_memo(	char *fund_name,
-					char *memo,
+char *pay_liabilities_transaction_memo(	char *memo,
 					int check_number )
 {
 	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
@@ -1194,7 +1173,7 @@ char *pay_liabilities_transaction_memo(	char *fund_name,
 
 		sprintf(transaction_memo,
 			"%s (%d)",
-			account_uncleared_checks( fund_name ),
+			account_uncleared_checks( (char *)0 /* fund_name */ ),
 			check_number );
 
 		return strdup( transaction_memo );

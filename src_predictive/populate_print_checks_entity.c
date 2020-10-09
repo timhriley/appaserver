@@ -19,58 +19,40 @@
 #include "environ.h"
 #include "transaction.h"
 #include "entity.h"
-#include "pay_liabilities.h"
+#include "liability.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void output_entity_list(	FILE *output_pipe,
-				LIST *entity_list );
+void output_entity_list(
+			FILE *output_pipe,
+			LIST *entity_list );
 
 void output_checks_not_taxes(
-				FILE *output_pipe,
-				char *fund_name );
+			FILE *output_pipe );
 
 void populate_print_checks_entity(
-				char *fund_name );
+			void );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *fund_name;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
-	appaserver_output_starting_argv_append_file(
-		argc,
-		argv,
-		application_name );
-
-	if ( argc != 3 )
-	{
-		fprintf( stderr,
-			 "Usage: %s ignored fund\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
-
-	fund_name = argv[ 2 ];
-
-	populate_print_checks_entity(
-		fund_name );
+	populate_print_checks_entity()
 
 	return 0;
 }
 
-void populate_print_checks_entity(
-			char *fund_name )
+void populate_print_checks_entity( void )
 {
 	FILE *output_pipe;
-	PAY_LIABILITIES *p;
+	LIABILITY *liability;
 
-	p = pay_liabilities_calloc();
+	liability = liability_calloc();
 
 	p->input.current_liability_account_list =
 		pay_liabilities_current_liability_account_list(

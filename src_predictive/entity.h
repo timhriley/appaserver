@@ -138,5 +138,11 @@ char *entity_name_display(
 			char *full_name,
 			char *street_address );
 
+LIST *entity_system_list(
+			char *sys_string );
+
+char *entity_sys_string(
+			char *where );
+
 #endif
 

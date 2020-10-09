@@ -62,7 +62,6 @@ PAY_LIABILITIES *pay_liabilities_calloc(
 			void );
 
 PAY_LIABILITIES *pay_liabilities_new(
-			char *fund_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
 			int starting_check_number,
@@ -70,12 +69,10 @@ PAY_LIABILITIES *pay_liabilities_new(
 			char *transaction_memo );
 
 LIST *pay_liabilities_input_entity_list(
-			char *fund_name,
 			LIST *full_name_list,
 			LIST *street_address_list );
 
 double pay_liabilities_fetch_sum_balance(
-			char *fund_name,
 			char *full_name,
 			char *street_address );
 
@@ -89,7 +86,6 @@ LIST *pay_liabilities_fetch_liability_account_entity_list(
 			void );
 
 LIST *pay_liabilities_current_liability_account_list(
-			char *fund_name,
 			LIST *exclude_account_name_list );
 
 LIST *pay_liabilities_distribute_liability_account_list(
@@ -146,7 +142,6 @@ LIST *pay_liabilities_liability_account_list(
 /* Returns memo, program memory, or heap memory. */
 /* --------------------------------------------- */
 char *pay_liabilities_transaction_memo(
-			char *fund_name,
 			char *memo,
 			int check_number );
 

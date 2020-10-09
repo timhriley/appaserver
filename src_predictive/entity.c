@@ -316,6 +316,7 @@ ENTITY *entity_parse( char *input )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
+	char piece_buffer[ 128 ];
 	ENTITY *entity;
 
 	if ( !input || !*input ) return (ENTITY *)0;
@@ -326,6 +327,18 @@ ENTITY *entity_parse( char *input )
 	entity = entity_new(
 			strdup( full_name ),
 			strdup( street_address ) );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	entity->city = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
+	entity->state_code = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 4 );
+	entity->zip_code = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 5 );
+	entity->phone_number = strdup( piece_buffer );
 
 	return entity;
 }
@@ -499,3 +512,43 @@ LIST *entity_liability_account_list(
 
 	return return_account_list;
 }
+
+LIST *entity_system_list( char *sys_string )
+{
+	FILE *input_pipe;
+	char input[ 1024 ];
+	LIST *entity_list;
+
+	if ( !sys_string ) return (LIST *)0;
+
+	entity_list = list_new();
+
+	input_pipe = popen( sys_string, "r" );
+
+	while ( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set( entity_list, entity_parse( input ) );
+	}
+
+	pclose( input_pipe );
+	return entity_list;
+}
+
+char *entity_sys_string( char *where )
+{
+	char sys_string[ 1024 ];
+
+	if ( !where ) return (char *)0;
+
+	sprintf( sys_string,
+		 "select.sh '%s' %s \"%s\" select",
+		 /* ---------------------- */
+		 /* Returns program memory */
+		 /* ---------------------- */
+		 entity_select(),
+		 ENTITY_TABLE,
+		 where );
+
+	return strdup( sys_string );
+}
+

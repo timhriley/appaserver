@@ -183,4 +183,7 @@ char *account_sys_string(
 ACCOUNT *account_key_fetch(
 			char *account_key );
 
+LIST *account_entity_list(
+			LIST *account_list );
+
 #endif

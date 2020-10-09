@@ -43,17 +43,14 @@ void print_checks_transaction_display(
 			LIST *street_address_list,
 			int starting_check_number,
 			double dialog_box_payment_amount,
-			char *fund_name,
 			char *memo );
 
 boolean output_html_table(
 			LIST *full_name_list,
 			LIST *street_address_list,
-			double dialog_box_payment_amount,
-			char *fund_name );
+			double dialog_box_payment_amount );
 
 double print_checks_balance(
-			char *fund_name,
 			char *full_name,
 			char *street_address );
 
@@ -62,7 +59,6 @@ void print_checks_post(
 			LIST *street_address_list,
 			int starting_check_number,
 			double dialog_box_payment_amount,
-			char *fund_name,
 			char *memo );
 
 char *print_checks_create(
@@ -75,7 +71,6 @@ char *print_checks_create(
 			char *document_root_directory,
 			char *process_name,
 			char *session,
-			char *fund_name,
 			char personal_size_yn );
 
 char *pay_liabilities(	char *application_name,
@@ -88,7 +83,6 @@ char *pay_liabilities(	char *application_name,
 			char *document_root_directory,
 			char *process_name,
 			char *session,
-			char *fund_name,
 			char personal_size_yn );
 
 int main( int argc, char **argv )
@@ -96,7 +90,6 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *session;
-	char *fund_name;
 	char *full_name_list_string;
 	char *street_address_list_string;
 	int starting_check_number;
@@ -105,7 +98,6 @@ int main( int argc, char **argv )
 	char personal_size_yn;
 	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DOCUMENT *document;
 	char title[ 128 ];
 	LIST *full_name_list;
 	LIST *street_address_list;
@@ -118,44 +110,32 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 11 )
+	if ( argc != 10 )
 	{
 		fprintf( stderr,
-"Usage: %s process session fund full_name[,full_name] street_address[,street_address] starting_check_number memo payment_amount personal_size_yn execute_yn\n",
+"Usage: %s process session full_name[,full_name] street_address[,street_address] starting_check_number memo payment_amount personal_size_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
 	session = argv[ 2 ];
-	fund_name = argv[ 3 ];
-	full_name_list_string = argv[ 4 ];
-	street_address_list_string = argv[ 5 ];
-	starting_check_number = atoi( argv[ 6 ] );
-	memo = argv[ 7 ];
-	dialog_box_payment_amount = atof( argv[ 8 ] );
-	personal_size_yn = *argv[ 9 ];
-	execute = ( *argv[ 10 ] == 'y' );
+	full_name_list_string = argv[ 3 ];
+	street_address_list_string = argv[ 4 ];
+	starting_check_number = atoi( argv[ 5 ] );
+	memo = argv[ 6 ];
+	dialog_box_payment_amount = atof( argv[ 7 ] );
+	personal_size_yn = *argv[ 8 ];
+	execute = ( *argv[ 9 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	format_initial_capital( title, process_name ),
 
-	document = document_new( title, application_name );
-	document->output_content_type = 1;
-
-	document_output_head_stream(
-			stdout,
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */,
-			1 /* with close_head */ );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	printf( "<h1>%s</h1>\n", title );
 	fflush( stdout );
@@ -204,7 +184,6 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->document_root,
 			process_name,
 			session,
-			fund_name,
 			personal_size_yn );
 
 	if ( !pdf_filename )
@@ -236,7 +215,6 @@ char *pay_liabilities(	char *application_name,
 			char *document_root_directory,
 			char *process_name,
 			char *session,
-			char *fund_name,
 			char personal_size_yn )
 {
 	char *pdf_filename = {0};
@@ -254,7 +232,6 @@ char *pay_liabilities(	char *application_name,
 				document_root_directory,
 				process_name,
 				session,
-				fund_name,
 				personal_size_yn );
 	}
 	else
@@ -269,7 +246,6 @@ char *pay_liabilities(	char *application_name,
 			street_address_list,
 			starting_check_number,
 			dialog_box_payment_amount,
-			fund_name,
 			memo );
 	}
 
@@ -280,7 +256,6 @@ char *pay_liabilities(	char *application_name,
 			street_address_list,
 			starting_check_number,
 			dialog_box_payment_amount,
-			fund_name,
 			memo );
 	}
 
@@ -297,7 +272,6 @@ char *print_checks_create(
 			char *document_root_directory,
 			char *process_name,
 			char *session,
-			char *fund_name,
 			char personal_size_yn )
 {
 	char *full_name;
@@ -373,7 +347,6 @@ char *print_checks_create(
 		/* ------------------------------------------------ */
 		if ( ! ( balance =
 				print_checks_balance(
-					fund_name,
 					full_name,
 					street_address ) ) )
 		{
@@ -460,14 +433,12 @@ void print_checks_post(
 			LIST *street_address_list,
 			int starting_check_number,
 			double dialog_box_payment_amount,
-			char *fund_name,
 			char *memo )
 {
 	PAY_LIABILITIES *pay_liabilities;
 
 	if ( ! ( pay_liabilities =
 		pay_liabilities_new(
-			fund_name,
 			full_name_list,
 			street_address_list,
 			starting_check_number,
@@ -476,7 +447,6 @@ void print_checks_post(
 			/* Returns memo, program memory, or heap memory. */
 			/* --------------------------------------------- */
 			pay_liabilities_transaction_memo(
-				fund_name,
 				memo,
 				starting_check_number ) ) ) )
 	{
@@ -508,11 +478,9 @@ void print_checks_post(
 }
 
 double print_checks_balance(
-			char *fund_name,
 			char *full_name,
 			char *street_address )
 {
-	char sys_string[ 128 ];
 	char *results;
 	char input_full_name[ 128 ];
 	char input_street_address_balance[ 128 ];
@@ -522,12 +490,7 @@ double print_checks_balance(
 
 	if ( !entity_list )
 	{
-		sprintf( sys_string,
-		 	"populate_print_checks_entity %s '%s'",
-		 	environment_application_name(),
-			fund_name );
-
-		entity_list = pipe2list( sys_string );
+		entity_list = pipe2list( "populate_print_checks_entity" );
 	}
 
 	if ( !list_rewind( entity_list ) ) return 0.0;
@@ -580,8 +543,7 @@ double print_checks_balance(
 boolean output_html_table(
 			LIST *full_name_list,
 			LIST *street_address_list,
-			double dialog_box_payment_amount,
-			char *fund_name )
+			double dialog_box_payment_amount )
 {
 	char *full_name;
 	char *street_address;
@@ -617,7 +579,6 @@ boolean output_html_table(
 		/* ------------------------------------------------ */
 		if ( ! ( balance =
 				print_checks_balance(
-					fund_name,
 					full_name,
 					street_address ) ) )
 		{
@@ -646,7 +607,6 @@ void print_checks_transaction_display(
 			LIST *street_address_list,
 			int starting_check_number,
 			double dialog_box_payment_amount,
-			char *fund_name,
 			char *memo )
 {
 	PAY_LIABILITIES *pay_liabilities;
@@ -655,7 +615,6 @@ void print_checks_transaction_display(
 
 	if ( ! ( pay_liabilities =
 		pay_liabilities_new(
-			fund_name,
 			full_name_list,
 			street_address_list,
 			starting_check_number,
@@ -664,7 +623,6 @@ void print_checks_transaction_display(
 			/* Returns memo, program memory, or heap memory. */
 			/* --------------------------------------------- */
 			pay_liabilities_transaction_memo(
-				fund_name,
 				memo,
 				starting_check_number ) ) ) )
 	{
