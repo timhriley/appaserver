@@ -378,21 +378,21 @@ close_nominal_accounts: close_nominal_accounts.c			\
 		-o close_nominal_accounts
 
 pay_liabilities_process: pay_liabilities_process.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} pay_liabilities.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} liability.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		pay_liabilities_process.c				\
-		pay_liabilities.o					\
+		liability.o						\
 		-o pay_liabilities_process
 
 populate_print_checks_entity: populate_print_checks_entity.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} pay_liabilities.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} liability.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		populate_print_checks_entity.c				\
-		pay_liabilities.o					\
+		liability.o						\
 		-o populate_print_checks_entity
 
 load_bank_spreadsheet: load_bank_spreadsheet.c				\
@@ -779,9 +779,9 @@ employee.o: employee.c employee.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c employee.c
 
-pay_liabilities.o: pay_liabilities.c pay_liabilities.h
+liability.o: liability.c liability.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c pay_liabilities.c
+		-c liability.c
 
 tax.o: tax.c tax.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

@@ -22,8 +22,7 @@
 #include "application_constants.h"
 #include "environ.h"
 #include "latex.h"
-#include "pay_liabilities.h"
-#include "vendor_payment.h"
+#include "liability.h"
 #include "appaserver_link_file.h"
 
 /* Constants */
@@ -32,11 +31,6 @@
 
 /* Prototypes */
 /* ---------- */
-void print_checks_vendor_payment_insert(
-			LIST *vendor_payment_list );
-
-void output_vendor_payment(
-			LIST *vendor_payment_list );
 
 void print_checks_transaction_display(
 			LIST *full_name_list,
@@ -73,7 +67,8 @@ char *print_checks_create(
 			char *session,
 			char personal_size_yn );
 
-char *pay_liabilities(	char *application_name,
+char *pay_liabilities_process(
+			char *application_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
 			int starting_check_number,
@@ -173,7 +168,7 @@ int main( int argc, char **argv )
 	}
 
 	pdf_filename =
-		pay_liabilities(
+		pay_liabilities_process(
 			application_name,
 			full_name_list,
 			street_address_list,
@@ -205,7 +200,8 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-char *pay_liabilities(	char *application_name,
+char *pay_liabilities_process(
+			char *application_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
 			int starting_check_number,
@@ -435,44 +431,11 @@ void print_checks_post(
 			double dialog_box_payment_amount,
 			char *memo )
 {
-	PAY_LIABILITIES *pay_liabilities;
-
-	if ( ! ( pay_liabilities =
-		pay_liabilities_new(
-			full_name_list,
-			street_address_list,
-			starting_check_number,
-			dialog_box_payment_amount,
-			/* --------------------------------------------- */
-			/* Returns memo, program memory, or heap memory. */
-			/* --------------------------------------------- */
-			pay_liabilities_transaction_memo(
-				memo,
-				starting_check_number ) ) ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: pay_liabilities_new() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_length( pay_liabilities->output.transaction_list ) )
-	{
-		printf( "<h3>Nothing to post.</h3>\n" );
-		return;
-	}
-
+/*
 	pay_liabilities->output.transaction_list =
 		transaction_list_insert(
 			pay_liabilities->output.transaction_list );
-
-	if ( list_length( pay_liabilities->output.vendor_payment_list ) )
-	{
-		print_checks_vendor_payment_insert(
-			pay_liabilities->output.vendor_payment_list );
-	}
+*/
 
 	printf( "<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
 }
@@ -481,62 +444,38 @@ double print_checks_balance(
 			char *full_name,
 			char *street_address )
 {
-	char *results;
-	char input_full_name[ 128 ];
-	char input_street_address_balance[ 128 ];
-	char input_street_address[ 128 ];
-	char input_balance[ 128 ];
-	static LIST *entity_list = {0};
+	static LIABILITY *liability = {0};
+	ENTITY *entity;
 
-	if ( !entity_list )
+	if ( !liability )
 	{
-		entity_list = pipe2list( "populate_print_checks_entity" );
+		liability = liability_calloc();
+
+		liability->liability_account_entity_list =
+			liability_account_entity_list();
+
+		liability->liability_current_account_list =
+			liability_current_account_list(
+				liability->liability_account_entity_list );
+
+		liability->liability_entity_list =
+			liability_entity_list(
+				liability->liability_current_account_list );
 	}
 
-	if ( !list_rewind( entity_list ) ) return 0.0;
-
-	do {
-		results = list_get( entity_list );
-
-		if ( character_count(
-			SQL_DELIMITER,
-			results ) != 1 )
+	if ( ( entity =
+		entity_seek(
+			liability->liability_entity_list,
+			full_name,
+			street_address ) ) )
+	{
+		if ( ( entity->liability_entity_amount_due =
+			liability_entity_amount_due(
+				entity->liability_journal_list ) ) )
 		{
-			fprintf( stderr,
-		"Warning in %s/%s()/%d: expecting one delimiter in (%s)\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 results );
-
-			return 0.0;
+			return entity->liability_entity_amount_due;
 		}
-
-		piece(	input_full_name,
-			FOLDER_DATA_DELIMITER,
-			results,
-			0 );
-
-		piece(	input_street_address_balance,
-			FOLDER_DATA_DELIMITER,
-			results,
-			1 );
-
-		piece(	input_street_address,
-			'[',
-			input_street_address_balance,
-			0 );
-
-		piece( input_balance, '[', input_street_address_balance, 1 );
-
-		if ( strcmp( input_full_name, full_name ) == 0
-		&&   strcmp( input_street_address, street_address ) == 0 )
-		{
-			return atof( input_balance );
-		}
-
-	} while( list_next( entity_list ) );
-
+	}
 	return 0.0;
 }
 
@@ -609,30 +548,9 @@ void print_checks_transaction_display(
 			double dialog_box_payment_amount,
 			char *memo )
 {
-	PAY_LIABILITIES *pay_liabilities;
+#ifdef NOT_DEFINED
 	TRANSACTION *transaction;
 	char transaction_memo[ 256 ];
-
-	if ( ! ( pay_liabilities =
-		pay_liabilities_new(
-			full_name_list,
-			street_address_list,
-			starting_check_number,
-			dialog_box_payment_amount,
-			/* --------------------------------------------- */
-			/* Returns memo, program memory, or heap memory. */
-			/* --------------------------------------------- */
-			pay_liabilities_transaction_memo(
-				memo,
-				starting_check_number ) ) ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: pay_liabilities_new() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
 
 	if ( !list_rewind( pay_liabilities->output.transaction_list ) )
 		return;
@@ -670,106 +588,6 @@ void print_checks_transaction_display(
 		output_vendor_payment(
 			pay_liabilities->output.vendor_payment_list );
 	}
-}
-
-void output_vendor_payment(
-			LIST *vendor_payment_list )
-{
-	VENDOR_PAYMENT *vendor_payment;
-	char sys_string[ 1024 ];
-	FILE *output_pipe;
-
-	if ( !list_rewind( vendor_payment_list ) ) return;
-
-	strcpy( sys_string,
-"html_table.e '^^Vendor Payment' 'full_name,street_address,purchase_order,payment' '^' 'left,left,left,right'" );
-
-	output_pipe = popen( sys_string, "w" );
-
-	do {
-		vendor_payment = list_get_pointer( vendor_payment_list );
-
-		fprintf( output_pipe,
-			 "%s^%s^%s^%.2lf\n",
-			 vendor_payment->vendor_entity->full_name,
-			 vendor_payment->vendor_entity->street_address,
-			 vendor_payment->purchase_date_time,
-			 vendor_payment->payment_amount );
-
-	} while( list_next( vendor_payment_list ) );
-
-	pclose( output_pipe );
-}
-
-void print_checks_vendor_payment_insert(
-			LIST *vendor_payment_list )
-{
-	PURCHASE *purchase;
-	VENDOR_PAYMENT *vendor_payment;
-
-	if ( !list_rewind( vendor_payment_list ) ) return;
-
-	do {
-		vendor_payment = list_get( vendor_payment_list );
-
-		if ( !vendor_payment->vendor_payment_transaction )
-		{
-			fprintf( stderr,
-				 "Warning in %s/%s()/%d: empty transaction.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			continue;
-		}
-
-		if ( !vendor_payment->purchase )
-		{
-			fprintf( stderr,
-				 "Warning in %s/%s()/%d: empty purchase.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			continue;
-		}
-
-		vendor_payment_insert(
-			vendor_payment->
-				vendor_entity->
-				full_name,
-			vendor_payment->
-				vendor_entity->
-				street_address,
-			vendor_payment->purchase_date_time,
-			vendor_payment->payment_date_time,
-			vendor_payment->payment_amount,
-			vendor_payment->check_number,
-			vendor_payment->
-				vendor_payment_transaction->
-				transaction_date_time );
-
-		purchase = vendor_payment->purchase;
-
-		/* Update amount_due */
-		/* ----------------- */
-		purchase->purchase_amount_due =
-			Purchase_amount_due(
-				purchase->purchase_invoice_amount,
-				( purchase->purchase_vendor_payment_total =
-					vendor_payment_total(
-					   purchase->
-					     purchase_vendor_payment_list ) ) );
-
-		purchase_update(
-			purchase->purchase_equipment_total,
-			purchase->purchase_invoice_amount,
-			purchase->purchase_vendor_payment_total,
-			purchase->purchase_amount_due,
-			purchase->purchase_transaction->transaction_date_time,
-			purchase->vendor_entity->full_name,
-			purchase->vendor_entity->street_address,
-			purchase->purchase_date_time );
-
-
-	} while( list_next( vendor_payment_list ) );
+#endif
 }
 

@@ -10,6 +10,7 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "entity.h"
 #include "journal.h"
 #include "html_table.h"
 
@@ -56,6 +57,7 @@ typedef struct
 	double annual_budget;
 	boolean accumulate_debit;
 	double payment_amount;
+	ENTITY *liability_account_entity;
 	LIST *transaction_after_balance_zero_journal_list;
 } ACCOUNT;
 
@@ -182,8 +184,5 @@ char *account_sys_string(
 
 ACCOUNT *account_key_fetch(
 			char *account_key );
-
-LIST *account_entity_list(
-			LIST *account_list );
 
 #endif

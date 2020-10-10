@@ -50,12 +50,11 @@ typedef struct
 	char *email_address;
 	LIST *depreciable_fixed_asset_purchase_list;
 	double depreciation_amount;
-	double sum_balance;
-	double payment_amount;
-	double loss_amount;
+	double liability_entity_amount_due;
+	double dialog_box_payment_amount;
+	double liability_loss_amount;
 	int check_number;
-	LIST *liability_account_list;
-	LIST *purchase_list;
+	LIST *liability_journal_list;
 } ENTITY;
 
 /* Operations */
