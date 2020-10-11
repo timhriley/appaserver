@@ -1339,7 +1339,7 @@ TUITION_PAYMENT *tuition_payment(
 
 	if ( !payment->enrollment->offering )
 	{
-		list_set(
+		list_unique_set(
 			not_exists_course_name_list,
 			tuition_payment_item_title->
 				tuition_payment_item_title_course_name );

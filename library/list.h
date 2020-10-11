@@ -182,7 +182,7 @@ LIST *dictionary_string2list( char *dictionary_string,
 			      int attribute_or_data );
 LIST *list_trim_indices( LIST *string_list );
 
-LIST *list_unique( LIST *string_list );
+LIST *list_unique(	LIST *string_list );
 
 char *list_get_string( LIST *list );
 
