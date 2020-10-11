@@ -20,7 +20,7 @@ fi
 
 if [ "$#" -ne 9 ]
 then
-	echo "Usage: `basename.e $0 n` process full_name street_address transaction_date account transaction_amount check_number memo fund" 1>&2
+	echo "Usage: `basename.e $0 n` process full_name street_address transaction_date account transaction_amount check_number memo program_name" 1>&2
 	exit 1
 fi
 
@@ -34,7 +34,7 @@ debit_account="$5"
 transaction_amount=$6
 check_number=$7
 memo="$8"
-fund="$9"
+program_name="$9"
 
 content_type_cgi.sh
 
@@ -90,12 +90,7 @@ fi
 
 # Build where_clause
 # ------------------
-if [ "$fund" = "" -o "$fund" = "fund" ]
-then
-	where="hard_coded_account_key = 'cash_key'"
-else
-	where="hard_coded_account_key = 'cash_key' and fund = '$fund'"
-fi
+where="hard_coded_account_key = 'cash_key'"
 
 credit_account=`echo "	select account		\
 			from account		\
@@ -154,9 +149,24 @@ fi
 # ------------------
 table="transaction"
 
-field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo"
+if [ "$program_name" != "" -a "$program_name" != "program_name" ]
+then
 
-results=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo" | insert_statement.e table=$table field=$field del='^' | sql.e 2>&1`
+	field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo,program_name"
+
+	results=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo^$program_name"				|\
+		insert_statement.e table=$table field=$field del='^'	|\
+		sql.e 2>&1`
+
+else
+
+	field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo"
+
+	results=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo"					|\
+		insert_statement.e table=$table field=$field del='^'	|\
+		sql.e 2>&1`
+
+fi
 
 if [ "$results" != "" ]
 then
@@ -185,6 +195,16 @@ field="full_name,street_address,transaction_date_time,account,credit_amount"
 echo "$full_name^$street_address^$transaction_date_time^$credit_account^$transaction_amount"							|
 insert_statement.e table=$table field=$field del='^'		|
 sql.e 2>&1							|
+html_paragraph_wrapper.e
+
+# Insert entity
+# -------------
+field="full_name,street_address"
+
+echo "$full_name^$street_address"				|
+insert_statement.e table=entity field=$field del='^'		|
+sql.e 2>&1							|
+grep -vi duplicate						|
 html_paragraph_wrapper.e
 
 # Execute the post change process for debit and credit accounts
