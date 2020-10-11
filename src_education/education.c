@@ -356,6 +356,13 @@ PAYPAL_DATASET *education_paypal_dataset(
 		exit( 1 );
 	}
 
+fprintf(stderr,
+	"%s/%s()/%d: input_string = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+input_string );
+
 	if ( !input_string || !*input_string )
 		return (PAYPAL_DATASET *)0;
 
