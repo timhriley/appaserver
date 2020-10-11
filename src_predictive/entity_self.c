@@ -232,7 +232,58 @@ ENTITY_SELF *entity_self_inventory_load(
 } /* entity_self_inventory_load() */
 #endif
 
-double entity_self_sales_tax_rate( void )
+double entity_self_state_sales_tax_rate( void )
 {
-	return 8.5;
+	char sys_string[ 1024 ];
+	char *results;
+	static double sales_tax_rate = {0};
+
+	if ( sales_tax_rate ) return sales_tax_rate;
+
+	sprintf(sys_string,
+		"select.sh %s self",
+		"state_sales_tax_rate" );
+
+	results = pipe2string( sys_string );
+
+	if ( !results || !*results )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty state_sales_tax_rate.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sales_tax_rate = atof( results );
+	return sales_tax_rate;
+}
+
+char *entity_self_paypal_cash_account_name( void )
+{
+	char sys_string[ 1024 ];
+	char *results;
+	static char *cash_account_name = {0};
+
+	if ( cash_account_name ) return cash_account_name;
+
+	sprintf(sys_string,
+		"select.sh %s self",
+		"paypal_cash_account" );
+
+	results = pipe2string( sys_string );
+
+	if ( !results || !*results )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty paypal_cash_account.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	cash_account_name = strdup( results );
+	return cash_account_name;
 }

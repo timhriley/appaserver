@@ -53,7 +53,7 @@ TRANSACTION *program_payment_transaction(
 			double payment_amount,
 			double fees_expense,
 			double net_payment_amount,
-			char *account_cash,
+			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
 			char *program_revenue_account );
 

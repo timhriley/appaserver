@@ -159,7 +159,7 @@ SALE *sale_parse( char *input )
 				street_address,
 				sale_date_time ),
 			atof( shipping_charge ),
-			entity_self_sales_tax_rate(),
+			entity_self_state_sales_tax_rate(),
 			atof( sales_tax )
 				/* sales_tax_database */,
 			strdup( completed_date_time ),

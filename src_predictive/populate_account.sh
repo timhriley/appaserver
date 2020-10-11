@@ -104,6 +104,11 @@ fi
 
 one2m_where="1 = 1"
 
+if [ "$one2m_folder" = "self" ]
+then
+	one2m_where="account.subclassification = 'cash'"
+fi
+
 if [ "$one2m_folder" = "inventory" ]
 then
 	one2m_where="account.subclassification = 'inventory' or account.subclassification = 'cost_of_goods_sold'"

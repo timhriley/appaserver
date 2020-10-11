@@ -14,6 +14,7 @@
 #include "sql.h"
 #include "boolean.h"
 #include "list.h"
+#include "entity_self.h"
 #include "paypal_upload.h"
 #include "program.h"
 #include "transaction.h"
@@ -343,7 +344,7 @@ TRANSACTION *program_payment_transaction(
 			double payment_amount,
 			double fees_expense,
 			double net_payment_amount,
-			char *account_cash,
+			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
 			char *program_revenue_account )
 {
@@ -392,7 +393,7 @@ TRANSACTION *program_payment_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				account_cash ) ) );
+				entity_self_paypal_cash_account_name ) ) );
 
 	journal->debit_amount = net_payment_amount;
 
@@ -578,7 +579,7 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 			program_payment->program_payment_amount,
 			program_payment->program_payment_fees_expense,
 			program_payment->program_payment_net_payment_amount,
-			account_cash( (char *)0 ),
+			entity_self_paypal_cash_account_name(),
 			account_fees_expense( (char *)0 ),
 			program_payment->program->revenue_account ) ) )
 	{

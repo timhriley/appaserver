@@ -39,6 +39,7 @@ typedef struct
 	double state_withholding_allowance_period_value;
 	double state_itemized_allowance_period_value;
 	double entity_self_sales_tax_rate;
+	char *entity_self_paypal_cash_account_name;
 /*
 	enum inventory_cost_method inventory_cost_method;
 	enum payroll_pay_period payroll_pay_period;
@@ -59,9 +60,6 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-double entity_self_sales_tax_rate(
-			void );
-
 LIST *entity_get_inventory_list(
 					char *application_name );
 
@@ -144,17 +142,26 @@ ENTITY *entity_seek(		LIST *entity_list,
 
 char *entity_self_select(	void );
 
-char *entity_list_display(	LIST *entity_list );
+char *entity_list_display(
+			LIST *entity_list );
 
-boolean entity_list_exists(	LIST *entity_list,
-				char *full_name,
-				char *street_address );
+boolean entity_list_exists(
+			LIST *entity_list,
+			char *full_name,
+			char *street_address );
 
-boolean entity_location_fetch(	char **city,
-				char **state_code,
-				char **zip_code,
-				char *application_name,
-				char *full_name,
-				char *street_address );
+boolean entity_location_fetch(
+			char **city,
+			char **state_code,
+			char **zip_code,
+			char *application_name,
+			char *full_name,
+			char *street_address );
+
+double entity_self_state_sales_tax_rate(
+			void );
+
+char *entity_self_paypal_cash_account_name(
+			void );
 
 #endif

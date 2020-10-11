@@ -125,6 +125,13 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	if ( !*season_name || strcmp( season_name, "season_name" ) == 0 )
+	{
+		printf( "<h3>Please choose a semester.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
 	not_exists_course_name_list = list_new();
 	not_exists_program_name_list = list_new();
 

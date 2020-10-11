@@ -106,7 +106,7 @@ TRANSACTION *tuition_payment_transaction(
 			double gain_donation,
 			double receivable_credit_amount,
 			double cash_debit_amount,
-			char *account_cash,
+			char *entity_self_paypal_cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense,
 			char *account_gain );

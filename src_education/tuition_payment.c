@@ -15,6 +15,7 @@
 #include "boolean.h"
 #include "float.h"
 #include "list.h"
+#include "entity_self.h"
 #include "paypal_upload.h"
 #include "tuition_payment_fns.h"
 #include "registration.h"
@@ -336,7 +337,7 @@ TRANSACTION *tuition_payment_transaction(
 			double gain_donation,
 			double receivable_credit_amount,
 			double cash_debit_amount,
-			char *account_cash,
+			char *entity_self_paypal_cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense,
 			char *account_gain )
@@ -372,7 +373,7 @@ TRANSACTION *tuition_payment_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				account_cash ) ) );
+				entity_self_paypal_cash_account_name ) ) );
 
 	journal->debit_amount = cash_debit_amount;
 
@@ -586,7 +587,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			tuition_payment->
 				tuition_payment_receivable_credit_amount,
 			tuition_payment->tuition_payment_cash_debit_amount,
-			account_cash( (char *)0 ),
+			entity_self_paypal_cash_account_name(),
 			account_receivable( (char *)0 ),
 			account_fees_expense( (char *)0 ),
 			account_gain( (char *)0 ) ) ) )
