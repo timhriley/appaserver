@@ -109,15 +109,6 @@ LIST *education_deposit_list(
 
 	while ( string_input( input_string, spreadsheet_file, 65536 ) )
 	{
-/*
-fprintf(stderr,
-	"%s/%s()/%d: input_string = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-input_string );
-*/
-
 		if ( ! ( dataset_return =
 				/* ---------------------- */
 				/* Returns paypal_dataset */
@@ -355,13 +346,6 @@ PAYPAL_DATASET *education_paypal_dataset(
 			__LINE__ );
 		exit( 1 );
 	}
-
-fprintf(stderr,
-	"%s/%s()/%d: input_string = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-input_string );
 
 	if ( !input_string || !*input_string )
 		return (PAYPAL_DATASET *)0;

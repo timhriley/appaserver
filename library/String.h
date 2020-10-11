@@ -81,4 +81,7 @@ boolean string_loose_strcmp(
 			char *s1,
 			char *s2 );
 
+char *string_remove_control(
+			char *input );
+
 #endif

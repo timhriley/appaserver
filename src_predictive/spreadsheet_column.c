@@ -92,7 +92,7 @@ SPREADSHEET_COLUMN *spreadsheet_column_heading_seek(
 		spreadsheet_column = list_get( spreadsheet_column_list );
 
 		if ( string_strcmp(	spreadsheet_column->heading,
-					heading ) == 0 )
+					string_remove_contol( heading ) ) == 0 )
 		{
 			return spreadsheet_column;
 		}

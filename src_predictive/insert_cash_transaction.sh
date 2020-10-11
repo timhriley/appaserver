@@ -116,6 +116,11 @@ transaction_date_time="${transaction_date} `now.sh seconds`"
 # ---------------------
 full_name_escaped=`echo $full_name | escape_character.e "'"`
 
+if [ "$street_address" = "street_address" -o "$street_address" = "" ]
+then
+	street_address="unknown"
+fi
+
 from=transaction
 
 where="full_name = '$full_name_escaped' and street_address = '$street_address' and transaction_date_time like '$transaction_date %' and transaction_amount = $transaction_amount"

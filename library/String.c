@@ -7,6 +7,7 @@
 /* -------- */
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include "boolean.h"
 #include "list.h"
@@ -434,3 +435,18 @@ boolean string_loose_strcmp( char *s1, char *s2 )
 	return strcmp( s1, s2 );
 }
 
+char *string_remove_control( char *input )
+{
+	static char remove_control[ 256 ];
+	char *ptr = remove_control;
+	unsigned char ch;
+
+	while ( *input )
+	{
+		ch = *input;
+		if ( isprint( ch ) ) *ptr++ = ch;
+		input++;
+	}
+	*ptr = '\0';
+	return remove_control;
+}
