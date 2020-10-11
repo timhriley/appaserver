@@ -91,8 +91,9 @@ SPREADSHEET_COLUMN *spreadsheet_column_heading_seek(
 	do {
 		spreadsheet_column = list_get( spreadsheet_column_list );
 
-		if ( string_strcmp(	spreadsheet_column->heading,
-					string_remove_contol( heading ) ) == 0 )
+		if ( string_strcmp(
+			string_remove_control( spreadsheet_column->heading ),
+			heading ) == 0 )
 		{
 			return spreadsheet_column;
 		}
