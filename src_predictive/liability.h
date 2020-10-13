@@ -25,6 +25,7 @@ typedef struct
 	char *liability_credit_account_name;
 	LIST *liability_account_entity_list;
 	LIST *liability_current_account_list;
+	LIST *liability_tax_redirect_account_list;
 	LIST *liability_entity_list;
 } LIABILITY;
 
@@ -36,6 +37,10 @@ typedef struct
 
 /* Operations */
 /* ---------- */
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek(
+			LIST *liability_account_entity_list,
+			char *account_name );
+
 LIABILITY_ACCOUNT_ENTITY *liability_account_entity_calloc(
 			void );
 
@@ -55,19 +60,55 @@ LIABILITY *liability_calloc(
 			void );
 
 LIST *liability_current_account_list(
+			void );
+
+LIST *liability_tax_redirect_account_list(
+			LIST *liability_current_account_list,
 			LIST *liability_account_entity_list );
 
 LIST *liability_entity_list(
-			LIST *liability_current_account_list );
-
-ENTITY *liability_account_entity(
-			LIST *liability_account_entity_list,
-			char *account_name );
-
-LIST *liability_entity_list(
-			LIST *account_list );
+			LIST *liability_tax_redirect_account_list );
 
 double liability_entity_amount_due(
 			LIST *journal_list );
+
+LIST *liability_transaction_list(
+			LIST *liability_entity_list,
+			char *account_loss );
+
+TRANSACTION *liability_entity_transaction(
+			ENTITY *entity,
+			char *transaction_date_time,
+			char *liability_credit_account_name,
+			char *account_loss,
+			char *memo );
+
+void liability_set_entity(
+			LIST *transaction_after_balance_zero_journal_list,
+			char *full_name,
+			char *street_address );
+
+ENTITY *liability_entity_steady_state(
+			ENTITY *entity,
+			liability_tax_redirected_account_list );
+
+double liability_entity_payment_amount(
+			double dialog_box_payment_amount,
+			double liability_entity_amount_due );
+
+double liability_entity_loss_amount(
+			double dialog_box_payment_amount,
+			double liability_entity_payment_amount );
+
+LIST *liability_entity_list_steady_state(
+			LIST *entity_list );
+
+char *liability_credit_account_name(
+			int starting_check_number );
+
+LIST *liability_entity_journal_list(
+			LIST *liability_tax_redirect_account_list,
+			char *full_name,
+			char *street_address );
 
 #endif
