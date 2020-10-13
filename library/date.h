@@ -126,15 +126,19 @@ char *date_get_colon_hhmmss(	char *destination,
 char *date_get_hhmmss( 		char *destination,
 				DATE *date );
 
-char *date_display_yyyy_mm_dd(	DATE *date );
+char *date_display_yyyy_mm_dd(
+			DATE *date );
 
 char *date_yyyy_mm_dd_hhmm_display(
-				DATE *date );
+			DATE *date );
+
+char *date_display_19(
+			DATE *date );
 
 char *date_display_yyyy_mm_dd_colon_hms(
-				DATE *date );
+			DATE *date );
 
-char *date_hms(			DATE *date );
+char *date_hms(		DATE *date );
 
 char *date_get_hms(		DATE *date );
 

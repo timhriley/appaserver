@@ -30,9 +30,6 @@ void output_entity_list(
 			FILE *output_pipe,
 			LIST *entity_list );
 
-void output_checks_not_taxes(
-			FILE *output_pipe );
-
 void populate_print_checks_entity(
 			void );
 
@@ -56,17 +53,26 @@ void populate_print_checks_entity( void )
 		liability_account_entity_list();
 
 	liability->liability_current_account_list =
-		liability_current_account_list(
+		liability_current_account_list();
+
+	liability->liability_tax_redirect_account_list =
+		liability_tax_redirect_account_list(
+			liability->liability_current_account_list,
 			liability->liability_account_entity_list );
 
 	liability->liability_entity_list =
 		liability_entity_list(
-			liability->liability_current_account_list );
+			liability->
+				liability_tax_redirect_account_list );
 
 	output_pipe = popen( "sort", "w" );
 
-	output_entity_list(	output_pipe,
-				liability->liability_entity_list );
+	output_entity_list(
+		output_pipe,
+		liability->
+			liability_entity_list,
+		liability->
+			liability_tax_redirect_account_list );
 
 	pclose( output_pipe );
 }
@@ -82,9 +88,12 @@ void output_entity_list(
 	do {
 		entity = list_get( entity_list );
 
+		if ( !list_length( entity->liability_entity_journal_list ) )
+			continue;
+
 		if ( ( entity->liability_entity_amount_due =
 			liability_entity_amount_due(
-				entity->liability_journal_list ) ) )
+				entity->liability_entity_journal_list ) ) )
 		{
 			fprintf( output_pipe,
 			 	"%s^%s [%.2lf]\n",

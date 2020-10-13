@@ -52,6 +52,7 @@ typedef struct
 	double depreciation_amount;
 
 	double dialog_box_payment_amount;
+	char *liability_entity_debit_account_name;
 	LIST *liability_entity_journal_list;
 	double liability_entity_amount_due;
 	double liability_entity_payment_amount;

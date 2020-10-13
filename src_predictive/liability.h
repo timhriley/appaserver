@@ -74,14 +74,21 @@ double liability_entity_amount_due(
 
 LIST *liability_transaction_list(
 			LIST *liability_entity_list,
-			char *account_loss );
-
-TRANSACTION *liability_entity_transaction(
-			ENTITY *entity,
-			char *transaction_date_time,
 			char *liability_credit_account_name,
 			char *account_loss,
-			char *memo );
+			int starting_check_number );
+
+TRANSACTION *liability_entity_transaction(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double payment_amount,
+			double loss_amount,
+			char *liability_entity_debit_account_name,
+			char *account_loss,
+			char *liability_credit_account_name,
+			char *memo,
+			int check_number );
 
 void liability_set_entity(
 			LIST *transaction_after_balance_zero_journal_list,
@@ -90,7 +97,7 @@ void liability_set_entity(
 
 ENTITY *liability_entity_steady_state(
 			ENTITY *entity,
-			liability_tax_redirected_account_list );
+			LIST *liability_entity_journal_list );
 
 double liability_entity_payment_amount(
 			double dialog_box_payment_amount,
@@ -110,5 +117,8 @@ LIST *liability_entity_journal_list(
 			LIST *liability_tax_redirect_account_list,
 			char *full_name,
 			char *street_address );
+
+char *liability_entity_debit_account_name(
+			char *account_name );
 
 #endif

@@ -1230,7 +1230,12 @@ char *date_get_hms( DATE *date )
 	date_get_colon_hhmmss( buffer, date );
 	return strdup( buffer );
 
-} /* date_get_hms() */
+}
+
+char *date_display_19( DATE *date )
+{
+	return date_display_yyyy_mm_dd_colon_hms( date );
+}
 
 char *date_display_yyyy_mm_dd_colon_hms( DATE *date )
 {
