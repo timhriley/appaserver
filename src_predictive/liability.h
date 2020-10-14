@@ -67,7 +67,8 @@ LIST *liability_tax_redirect_account_list(
 			LIST *liability_account_entity_list );
 
 LIST *liability_entity_list(
-			LIST *liability_tax_redirect_account_list );
+			LIST *liability_tax_redirect_account_list,
+			LIST *input_entity_list );
 
 double liability_entity_amount_due(
 			LIST *journal_list );

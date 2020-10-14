@@ -241,7 +241,9 @@ LIST *liability_entity_list_steady_state(
 	return entity_list;
 }
 
-LIST *liability_entity_list( LIST *account_list )
+LIST *liability_entity_list(
+			LIST *account_list,
+			LIST *input_entity_list )
 {
 	ACCOUNT *account;
 	LIST *journal_list;
@@ -273,6 +275,15 @@ LIST *liability_entity_list( LIST *account_list )
 					__FUNCTION__,
 					__LINE__ );
 				exit( 1 );
+			}
+
+			if ( input_entity_list
+			&&   !entity_seek(
+				input_entity_list,
+				journal->full_name,
+				journal->street_address ) )
+			{
+				continue;
 			}
 
 			entity =

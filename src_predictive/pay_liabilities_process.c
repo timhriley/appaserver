@@ -23,6 +23,8 @@
 #include "environ.h"
 #include "latex.h"
 #include "liability.h"
+#include "account.h"
+#include "journal.h"
 #include "appaserver_link_file.h"
 
 /* Constants */
@@ -33,41 +35,24 @@
 /* ---------- */
 
 void print_checks_transaction_display(
-			LIST *full_name_list,
-			LIST *street_address_list,
-			int starting_check_number,
-			double dialog_box_payment_amount,
-			char *memo );
-
-boolean output_html_table(
-			LIST *full_name_list,
-			LIST *street_address_list,
-			double dialog_box_payment_amount );
-
-double print_checks_balance(
-			char *full_name,
-			char *street_address );
+			LIST *liability_transaction_list );
 
 void print_checks_post(
-			LIST *full_name_list,
-			LIST *street_address_list,
-			int starting_check_number,
-			double dialog_box_payment_amount,
-			char *memo );
+			LIST *liability_transaction_list );
 
 char *print_checks_create(
+			char **error_message,
 			char *application_name,
-			LIST *full_name_list,
-			LIST *street_address_list,
+			LIST *liability_entity_list,
 			char *memo,
 			int starting_check_number,
-			double dialog_box_payment_amount,
 			char *document_root_directory,
 			char *process_name,
 			char *session,
 			char personal_size_yn );
 
 char *pay_liabilities_process(
+			char **error_message,
 			char *application_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
@@ -97,6 +82,7 @@ int main( int argc, char **argv )
 	LIST *full_name_list;
 	LIST *street_address_list;
 	char *pdf_filename;
+	char *error_message;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -167,8 +153,11 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	error_message = (char *)0;
+
 	pdf_filename =
 		pay_liabilities_process(
+			&error_message,
 			application_name,
 			full_name_list,
 			street_address_list,
@@ -183,6 +172,11 @@ int main( int argc, char **argv )
 
 	if ( !pdf_filename )
 	{
+		if ( error_message )
+		{
+			printf( "<h3>%s</h3>\n", error_message );
+		}
+		else
 		if ( list_length( full_name_list ) > 1 )
 		{
 			printf(
@@ -201,6 +195,7 @@ int main( int argc, char **argv )
 }
 
 char *pay_liabilities_process(
+			char **error_message,
 			char *application_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
@@ -214,65 +209,100 @@ char *pay_liabilities_process(
 			char personal_size_yn )
 {
 	char *pdf_filename = {0};
+	LIABILITY *liability;
+	LIST *input_entity_list;
+
+	input_entity_list =
+		entity_full_street_list(
+			full_name_list,
+			street_address_list );
+
+	if ( list_length( input_entity_list ) > 1
+	&&   dialog_box_payment_amount )
+	{
+		*error_message = "Set payment amount only for one entity.";
+		return (char *)0;
+	}
+
+	liability = liability_calloc();
+
+	liability->liability_account_entity_list =
+		liability_account_entity_list();
+
+	liability->liability_current_account_list =
+		liability_current_account_list();
+
+	liability->liability_tax_redirect_account_list =
+		liability_tax_redirect_account_list(
+			liability->liability_current_account_list,
+			liability->liability_account_entity_list );
+
+	liability->liability_entity_list =
+		liability_entity_list(
+			liability->
+				liability_tax_redirect_account_list,
+			input_entity_list );
 
 	if ( starting_check_number )
 	{
-		pdf_filename =
-			print_checks_create(
-				application_name,
-				full_name_list,
-				street_address_list,
-				memo,
-				starting_check_number,
-				dialog_box_payment_amount,
-				document_root_directory,
-				process_name,
-				session,
-				personal_size_yn );
+		if ( ! ( pdf_filename =
+				print_checks_create(
+					error_message,
+					application_name,
+					liability->liability_entity_list,
+					memo,
+					starting_check_number,
+					document_root_directory,
+					process_name,
+					session,
+					personal_size_yn ) ) )
+		{
+			return (char *)0;
+		}
 	}
 	else
 	{
 		pdf_filename = "";
 	}
 
-	if ( execute && pdf_filename )
+	if ( execute )
 	{
 		print_checks_post(
-			full_name_list,
-			street_address_list,
-			starting_check_number,
-			dialog_box_payment_amount,
-			memo );
+			liability_transaction_list(
+				liability_entity_list_steady_state(
+					liability->liability_entity_list ),
+				liability_credit_account_name(
+					starting_check_number ),
+				account_loss( (char *)0 /* fund */ ),
+				starting_check_number ) );
 	}
-
-	if ( !execute )
+	else
 	{
 		print_checks_transaction_display(
-			full_name_list,
-			street_address_list,
-			starting_check_number,
-			dialog_box_payment_amount,
-			memo );
+			liability_transaction_list(
+				liability_entity_list_steady_state(
+					liability->liability_entity_list ),
+				liability_credit_account_name(
+					starting_check_number ),
+				account_loss( (char *)0 /* fund */ ),
+				starting_check_number ) );
 	}
 
 	return pdf_filename;
 }
 
 char *print_checks_create(
+			char **error_message,
 			char *application_name,
-			LIST *full_name_list,
-			LIST *street_address_list,
+			LIST *liability_entity_list,
 			char *memo,
 			int starting_check_number,
-			double dialog_box_payment_amount,
 			char *document_root_directory,
 			char *process_name,
 			char *session,
 			char personal_size_yn )
 {
-	char *full_name;
-	char *street_address;
-	double balance;
+	ENTITY *entity;
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
 	char *output_filename;
@@ -280,6 +310,11 @@ char *print_checks_create(
 	char *document_root_filename;
 	char *ftp_filename;
 	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	if ( !list_length( liability_entity_list ) )
+	{
+		return (char *)0;
+	}
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -323,45 +358,29 @@ char *print_checks_create(
 
 	output_pipe = popen( sys_string, "w" );
 
-	if ( !list_rewind( full_name_list ) )
-	{
-		fprintf(stderr,
-			"Error in %s/%s()/%d: empty full_name_list.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	list_rewind( street_address_list );
+	if ( list_rewind( liability_entity_list ) ) return (char *)0;
 
 	do {
-		full_name = list_get_pointer( full_name_list );
-		street_address = list_get_pointer( street_address_list );
+		entity = list_get( liability_entity_list );
 
+		/* ------------------------------------------------ */
 		/* If no balance, then user pressed <Submit> twice. */
 		/* ------------------------------------------------ */
-		if ( ! ( balance =
-				print_checks_balance(
-					full_name,
-					street_address ) ) )
+		if ( !entity->liability_entity_amount_due )
 		{
+			*error_message = "Liability has been fulfilled.";
 			pclose( output_pipe );
 			return (char *)0;
 		}
 
 		fprintf( output_pipe,
 			 "%s^%.2lf^%s^%d\n",
-			 full_name,
-			 (dialog_box_payment_amount)
-				? dialog_box_payment_amount
-				: balance,
+			 entity->full_name,
+			 entity->liability_entity_payment_amount,
 			 (*memo) ? memo : "",
 			 starting_check_number++ );
 
-		list_next( street_address_list );
-
-	} while( list_next( full_name_list ) );
+	} while( list_next( liability_entity_list ) );
 
 	pclose( output_pipe );
 
@@ -424,141 +443,25 @@ char *print_checks_create(
 	return pdf_filename;
 }
 
-void print_checks_post(
-			LIST *full_name_list,
-			LIST *street_address_list,
-			int starting_check_number,
-			double dialog_box_payment_amount,
-			char *memo )
+void print_checks_post( LIST *liability_transaction_list )
 {
-/*
-	pay_liabilities->output.transaction_list =
-		transaction_list_insert(
-			pay_liabilities->output.transaction_list );
-*/
-
+	transaction_list_insert( liability_transaction_list );
 	printf( "<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
 }
 
-double print_checks_balance(
-			char *full_name,
-			char *street_address )
-{
-	static LIABILITY *liability = {0};
-	ENTITY *entity;
-
-	if ( !liability )
-	{
-		liability = liability_calloc();
-
-		liability->liability_account_entity_list =
-			liability_account_entity_list();
-
-		liability->liability_current_account_list =
-			liability_current_account_list(
-				liability->liability_account_entity_list );
-
-		liability->liability_entity_list =
-			liability_entity_list(
-				liability->liability_current_account_list );
-	}
-
-	if ( ( entity =
-		entity_seek(
-			liability->liability_entity_list,
-			full_name,
-			street_address ) ) )
-	{
-		if ( ( entity->liability_entity_amount_due =
-			liability_entity_amount_due(
-				entity->liability_journal_list ) ) )
-		{
-			return entity->liability_entity_amount_due;
-		}
-	}
-	return 0.0;
-}
-
-boolean output_html_table(
-			LIST *full_name_list,
-			LIST *street_address_list,
-			double dialog_box_payment_amount )
-{
-	char *full_name;
-	char *street_address;
-	double balance;
-	char sys_string[ 1024 ];
-	FILE *output_pipe;
-
-	if ( !list_length( full_name_list )
-	|| ( list_length( full_name_list ) !=
-	     list_length( street_address_list ) ) )
-	{
-		fprintf( stderr,
-			 "Warning in %s/%s()/%d: list lengths do not match.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		return 0;
-	}
-
-	strcpy( sys_string,
-"html_table.e '' 'full_name,street_address,payment' '^' 'left,left,right'" );
-
-	output_pipe = popen( sys_string, "w" );
-
-	list_rewind( full_name_list );
-	list_rewind( street_address_list );
-
-	do {
-		full_name = list_get( full_name_list );
-		street_address = list_get( street_address_list );
-
-		/* If no balance, then user pressed <Submit> twice. */
-		/* ------------------------------------------------ */
-		if ( ! ( balance =
-				print_checks_balance(
-					full_name,
-					street_address ) ) )
-		{
-			pclose( output_pipe );
-			return 0;
-		}
-
-		fprintf( output_pipe,
-			 "%s^%s^%.2lf\n",
-			 full_name,
-			 street_address,
-			 (dialog_box_payment_amount)
-				? dialog_box_payment_amount
-				: balance );
-
-		list_next( street_address_list );
-
-	} while( list_next( full_name_list ) );
-
-	pclose( output_pipe );
-	return 1;
-}
-
 void print_checks_transaction_display(
-			LIST *full_name_list,
-			LIST *street_address_list,
-			int starting_check_number,
-			double dialog_box_payment_amount,
-			char *memo )
+			LIST *liability_transaction_list )
 {
-#ifdef NOT_DEFINED
 	TRANSACTION *transaction;
 	char transaction_memo[ 256 ];
 
-	if ( !list_rewind( pay_liabilities->output.transaction_list ) )
+	if ( !list_rewind( liability_transaction_list ) )
 		return;
 
 	do {
 		transaction =
 			list_get(
-				pay_liabilities->output.transaction_list );
+				liability_transaction_list );
 
 		sprintf(transaction_memo,
 			"%s/%s: %s",
@@ -581,13 +484,6 @@ void print_checks_transaction_display(
 			transaction->journal_list,
 			transaction_memo );
 
-	} while( list_next( pay_liabilities->output.transaction_list ) );
-
-	if ( list_length( pay_liabilities->output.vendor_payment_list ) )
-	{
-		output_vendor_payment(
-			pay_liabilities->output.vendor_payment_list );
-	}
-#endif
+	} while( list_next( liability_transaction_list ) );
 }
 

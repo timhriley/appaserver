@@ -552,3 +552,42 @@ char *entity_sys_string( char *where )
 	return strdup( sys_string );
 }
 
+LIST *entity_full_street_list(
+			LIST *full_name_list,
+			LIST *street_address_list )
+{
+	LIST *entity_list;
+
+	if ( !list_length( full_name_list ) ) return (LIST *)0;
+
+	if (	list_length( full_name_list ) !=
+		list_length( street_address_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: list_lengths not same [%d vs. %d]\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			list_length( full_name_list ),
+			list_length( street_address_list ) );
+		exit( 1 );
+	}
+
+	list_rewind( full_name_list );
+	list_rewind( street_address_list );
+	entity_list = list_new();
+
+	do {
+		list_set(
+			entity_list,
+			entity_new(
+				list_get( full_name_list ),
+				list_get( street_address_list ) ) );
+
+		list_next( street_address_list );
+
+	} while( list_next( full_name_list ) );
+
+	return entity_list;
+}
+

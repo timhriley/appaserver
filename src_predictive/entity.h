@@ -146,5 +146,9 @@ LIST *entity_system_list(
 char *entity_sys_string(
 			char *where );
 
+LIST *entity_full_street_list(
+			LIST *full_name_list,
+			LIST *street_address_list );
+
 #endif
 

@@ -63,16 +63,15 @@ void populate_print_checks_entity( void )
 	liability->liability_entity_list =
 		liability_entity_list(
 			liability->
-				liability_tax_redirect_account_list );
+				liability_tax_redirect_account_list,
+			(LIST *)0 /* input_entity_list */ );
 
 	output_pipe = popen( "sort", "w" );
 
 	output_entity_list(
 		output_pipe,
 		liability->
-			liability_entity_list,
-		liability->
-			liability_tax_redirect_account_list );
+			liability_entity_list );
 
 	pclose( output_pipe );
 }
