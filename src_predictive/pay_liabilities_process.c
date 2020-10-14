@@ -41,7 +41,6 @@ void print_checks_post(
 			LIST *liability_transaction_list );
 
 char *print_checks_create(
-			char **error_message,
 			char *application_name,
 			LIST *liability_entity_list,
 			char *memo,
@@ -224,7 +223,10 @@ char *pay_liabilities_process(
 		return (char *)0;
 	}
 
-	liability = liability_calloc();
+	liability =
+		liability_new(
+			dialog_box_payment_amount,
+			starting_check_number );
 
 	liability->liability_account_entity_list =
 		liability_account_entity_list();
@@ -238,24 +240,38 @@ char *pay_liabilities_process(
 			liability->liability_account_entity_list );
 
 	liability->liability_entity_list =
+		/* ----------------------------------------------------- */
+		/* Also sets entity->liability_entity_debit_account_name */
+		/* ----------------------------------------------------- */
 		liability_entity_list(
 			liability->
 				liability_tax_redirect_account_list,
-			input_entity_list );
+			input_entity_list,
+			liability->dialog_box_payment_amount );
+
+	liability->liability_journal_list_entity_list =
+		liability_journal_list_entity_list(
+			liability->liability_entity_list,
+			liability->
+				liability_tax_redirect_account_list );
+
+	liability->liability_steady_state_entity_list =
+		liability_steady_state_entity_list(
+			liability->
+				liability_journal_list_entity_list );
 
 	if ( starting_check_number )
 	{
 		if ( ! ( pdf_filename =
-				print_checks_create(
-					error_message,
-					application_name,
-					liability->liability_entity_list,
-					memo,
-					starting_check_number,
-					document_root_directory,
-					process_name,
-					session,
-					personal_size_yn ) ) )
+			   print_checks_create(
+				application_name,
+				liability->liability_steady_state_entity_list,
+				memo,
+				starting_check_number,
+				document_root_directory,
+				process_name,
+				session,
+				personal_size_yn ) ) )
 		{
 			return (char *)0;
 		}
@@ -269,8 +285,7 @@ char *pay_liabilities_process(
 	{
 		print_checks_post(
 			liability_transaction_list(
-				liability_entity_list_steady_state(
-					liability->liability_entity_list ),
+				liability->liability_steady_state_entity_list,
 				liability_credit_account_name(
 					starting_check_number ),
 				account_loss( (char *)0 /* fund */ ),
@@ -280,8 +295,7 @@ char *pay_liabilities_process(
 	{
 		print_checks_transaction_display(
 			liability_transaction_list(
-				liability_entity_list_steady_state(
-					liability->liability_entity_list ),
+				liability->liability_steady_state_entity_list,
 				liability_credit_account_name(
 					starting_check_number ),
 				account_loss( (char *)0 /* fund */ ),
@@ -292,7 +306,6 @@ char *pay_liabilities_process(
 }
 
 char *print_checks_create(
-			char **error_message,
 			char *application_name,
 			LIST *liability_entity_list,
 			char *memo,
@@ -358,20 +371,12 @@ char *print_checks_create(
 
 	output_pipe = popen( sys_string, "w" );
 
-	if ( list_rewind( liability_entity_list ) ) return (char *)0;
+	list_rewind( liability_entity_list );
 
 	do {
 		entity = list_get( liability_entity_list );
 
-		/* ------------------------------------------------ */
-		/* If no balance, then user pressed <Submit> twice. */
-		/* ------------------------------------------------ */
-		if ( !entity->liability_entity_amount_due )
-		{
-			*error_message = "Liability has been fulfilled.";
-			pclose( output_pipe );
-			return (char *)0;
-		}
+		if ( !entity->liability_entity_payment_amount ) continue;
 
 		fprintf( output_pipe,
 			 "%s^%.2lf^%s^%d\n",
@@ -446,7 +451,7 @@ char *print_checks_create(
 void print_checks_post( LIST *liability_transaction_list )
 {
 	transaction_list_insert( liability_transaction_list );
-	printf( "<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
+	printf( "<h3>Post to transaction complete.</h3>\n" );
 }
 
 void print_checks_transaction_display(

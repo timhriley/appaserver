@@ -222,7 +222,7 @@ ENTITY *liability_account_entity(
 	return (ENTITY *)0;
 }
 
-LIST *liability_entity_list_steady_state(
+LIST *liability_steady_state_entity_list(
 			LIST *entity_list )
 {
 	ENTITY *entity;
@@ -232,7 +232,7 @@ LIST *liability_entity_list_steady_state(
 	do {
 		entity = list_get( entity_list );
 
-		liability_entity_steady_state(
+		liability_steady_state_entity(
 			entity,
 			entity->liability_entity_journal_list );
 
@@ -241,15 +241,21 @@ LIST *liability_entity_list_steady_state(
 	return entity_list;
 }
 
+/* Also sets entity->liability_entity_debit_account_name */
+/* ----------------------------------------------------- */
 LIST *liability_entity_list(
-			LIST *account_list,
-			LIST *input_entity_list )
+			LIST *liability_tax_redirect_account_list,
+			LIST *input_entity_list,
+			double dialog_box_payment_amount )
 {
 	ACCOUNT *account;
 	LIST *journal_list;
 	JOURNAL *journal;
 	LIST *entity_list;
 	ENTITY *entity;
+	LIST *account_list;
+
+	account_list = liability_tax_redirect_account_list;
 
 	if ( !list_rewind( account_list ) ) return (LIST *)0;
 
@@ -296,6 +302,9 @@ LIST *liability_entity_list(
 			entity->liability_entity_debit_account_name =
 				liability_entity_debit_account_name(
 					account->account_name );
+
+			entity->dialog_box_payment_amount =
+				dialog_box_payment_amount;
 
 		} while( list_next( journal_list ) );
 
@@ -369,8 +378,8 @@ LIST *liability_transaction_list(
 				entity->
 					liability_entity_loss_amount,
 				entity->liability_entity_debit_account_name,
-				liability_credit_account_name,
 				account_loss,
+				liability_credit_account_name,
 				LIABILITY_MEMO,
 				starting_check_number ) );
 
@@ -386,7 +395,7 @@ LIST *liability_transaction_list(
 	return transaction_list;
 }
 
-ENTITY *liability_entity_steady_state(
+ENTITY *liability_steady_state_entity(
 			ENTITY *entity,
 			LIST *liability_entity_journal_list )
 {
@@ -404,6 +413,11 @@ ENTITY *liability_entity_steady_state(
 		liability_entity_amount_due(
 			liability_entity_journal_list );
 
+	entity->liability_entity_payment_amount =
+		liability_entity_payment_amount(
+			entity->dialog_box_payment_amount,
+			entity->liability_entity_amount_due );
+
 	entity->liability_entity_loss_amount =
 		liability_entity_loss_amount(
 			entity->dialog_box_payment_amount,
@@ -416,7 +430,8 @@ double liability_entity_payment_amount(
 			double dialog_box_payment_amount,
 			double liability_entity_amount_due )
 {
-	if ( !dialog_box_payment_amount ) return 0.0;
+	if ( !dialog_box_payment_amount )
+		return liability_entity_amount_due;
 
 	if ( dialog_box_payment_amount < liability_entity_amount_due )
 		return dialog_box_payment_amount;
@@ -617,3 +632,40 @@ char *liability_entity_debit_account_name( char *account_name )
 {
 	return account_name;
 }
+
+LIST *liability_journal_list_entity_list(
+			LIST *liability_entity_list,
+			LIST *liability_tax_redirect_account_list )
+{
+	ENTITY *entity;
+
+	if ( !list_rewind( liability_entity_list ) ) return (LIST *)0;
+
+	do {
+		entity = list_get( liability_entity_list );
+
+		entity->liability_entity_journal_list =
+			liability_entity_journal_list(
+				liability_tax_redirect_account_list,
+				entity->full_name,
+				entity->street_address );
+
+	} while ( list_next( liability_entity_list ) );
+
+	return liability_entity_list;
+}
+
+LIABILITY *liability_new(
+			double dialog_box_payment_amount,
+			int starting_check_number  )
+{
+	LIABILITY *liability;
+
+	liability = liability_calloc();
+
+	liability->dialog_box_payment_amount = dialog_box_payment_amount;
+	liability->starting_check_number = starting_check_number;
+
+	return liability;
+}
+

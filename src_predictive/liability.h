@@ -27,6 +27,8 @@ typedef struct
 	LIST *liability_current_account_list;
 	LIST *liability_tax_redirect_account_list;
 	LIST *liability_entity_list;
+	LIST *liability_journal_list_entity_list;
+	LIST *liability_steady_state_entity_list;
 } LIABILITY;
 
 typedef struct
@@ -56,6 +58,10 @@ char *liability_account_entity_sys_string(
 LIST *liability_account_entity_system_list(
 			char *sys_string );
 
+LIABILITY *liability_new(
+			double dialog_box_payment_amount,
+			int starting_check_number  );
+
 LIABILITY *liability_calloc(
 			void );
 
@@ -66,9 +72,12 @@ LIST *liability_tax_redirect_account_list(
 			LIST *liability_current_account_list,
 			LIST *liability_account_entity_list );
 
+/* Also sets entity->liability_entity_debit_account_name */
+/* ----------------------------------------------------- */
 LIST *liability_entity_list(
 			LIST *liability_tax_redirect_account_list,
-			LIST *input_entity_list );
+			LIST *input_entity_list,
+			double dialog_box_payment_amount );
 
 double liability_entity_amount_due(
 			LIST *journal_list );
@@ -96,7 +105,7 @@ void liability_set_entity(
 			char *full_name,
 			char *street_address );
 
-ENTITY *liability_entity_steady_state(
+ENTITY *liability_steady_state_entity(
 			ENTITY *entity,
 			LIST *liability_entity_journal_list );
 
@@ -108,7 +117,7 @@ double liability_entity_loss_amount(
 			double dialog_box_payment_amount,
 			double liability_entity_payment_amount );
 
-LIST *liability_entity_list_steady_state(
+LIST *liability_steady_state_entity_list(
 			LIST *entity_list );
 
 char *liability_credit_account_name(
@@ -121,5 +130,9 @@ LIST *liability_entity_journal_list(
 
 char *liability_entity_debit_account_name(
 			char *account_name );
+
+LIST *liability_journal_list_entity_list(
+			LIST *liability_entity_list,
+			LIST *liability_tax_redirect_account_list );;
 
 #endif
