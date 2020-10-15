@@ -3,5 +3,5 @@ ${APPASERVER_HOME}/UPGRADE
 
 1) $ cd $APPASERVER_HOME
 2) $ git_pull_master.sh
-3) $ make [touch] && make
+3) $ make [touch|force] && make
 4) $ upgrade-appaserver-database
