@@ -442,8 +442,10 @@ char *print_checks_create(
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,
 			PROMPT,
-			(char *)0 /* target */,
+			"check_page" /* target */,
 			(char *)0 /* application_type */ );
+
+	printf( "<p>\n" );
 
 	return pdf_filename;
 }
@@ -458,7 +460,6 @@ void print_checks_transaction_display(
 			LIST *liability_transaction_list )
 {
 	TRANSACTION *transaction;
-	char transaction_memo[ 256 ];
 
 	if ( !list_rewind( liability_transaction_list ) )
 		return;
@@ -468,26 +469,9 @@ void print_checks_transaction_display(
 			list_get(
 				liability_transaction_list );
 
-		sprintf(transaction_memo,
-			"%s/%s: %s",
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time );
-
-		if ( transaction->check_number )
-		{
-			sprintf( transaction_memo +
-				 strlen( transaction_memo ),
-				 " (%d)", transaction->check_number );
-		}
-
-		format_initial_capital(
-			transaction_memo,
-			transaction_memo );
-
 		journal_list_html_display(
 			transaction->journal_list,
-			transaction_memo );
+			(char *)0 /* transaction_memo */ );
 
 	} while( list_next( liability_transaction_list ) );
 }
