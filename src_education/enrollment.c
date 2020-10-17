@@ -489,7 +489,7 @@ ENROLLMENT *enrollment_steady_state( ENROLLMENT *enrollment )
 		exit( 1 );
 	}
 
-	if ( enrollment->offering->course->course_price )
+	if ( enrollment->offering->course_price )
 	{
 		char *program_name;
 
@@ -515,7 +515,7 @@ ENROLLMENT *enrollment_steady_state( ENROLLMENT *enrollment )
 					registration->
 					registration_date_time,
 				program_name,
-				enrollment->offering->course->course_price,
+				enrollment->offering->course_price,
 				account_receivable( (char *)0 ),
 				enrollment->offering->revenue_account );
 	}

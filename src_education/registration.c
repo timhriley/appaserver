@@ -87,7 +87,7 @@ double registration_tuition(
 			exit( 1 );
 		}
 
-		tuition += offering->course->course_price;
+		tuition += offering->course_price;
 
 	} while ( list_next( enrollment_list ) );
 

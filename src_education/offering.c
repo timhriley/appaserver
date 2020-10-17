@@ -59,6 +59,7 @@ OFFERING *offering_parse(	char *input,
 	char year[ 128 ];
 	char instructor_full_name[ 128 ];
 	char instructor_street_address[ 128 ];
+	char course_price[ 128 ];
 	char class_capacity[ 128 ];
 	char enrollment_count[ 128 ];
 	char capacity_available[ 128 ];
@@ -78,24 +79,27 @@ OFFERING *offering_parse(	char *input,
 			strdup( season_name ),
 			atoi( year ) );
 
-	piece( instructor_full_name, SQL_DELIMITER, input, 3 );
-	piece( instructor_street_address, SQL_DELIMITER, input, 4 );
+	piece( course_price, SQL_DELIMITER, input, 3 );
+	offering->course_price = atof( course_price );
+
+	piece( instructor_full_name, SQL_DELIMITER, input, 4 );
+	piece( instructor_street_address, SQL_DELIMITER, input, 5 );
 
 	offering->instructor_entity =
 		entity_new(
 			strdup( instructor_full_name ),
 			strdup( instructor_street_address ) );
 
-	piece( class_capacity, SQL_DELIMITER, input, 5 );
+	piece( class_capacity, SQL_DELIMITER, input, 6 );
 	offering->class_capacity = atoi( class_capacity );
 
-	piece( enrollment_count, SQL_DELIMITER, input, 6 );
+	piece( enrollment_count, SQL_DELIMITER, input, 7 );
 	offering->offering_enrollment_count = atoi( enrollment_count );
 
-	piece( capacity_available, SQL_DELIMITER, input, 7 );
+	piece( capacity_available, SQL_DELIMITER, input, 8 );
 	offering->offering_capacity_available = atoi( capacity_available );
 
-	piece( revenue_account, SQL_DELIMITER, input, 8 );
+	piece( revenue_account, SQL_DELIMITER, input, 9 );
 	offering->revenue_account = strdup( revenue_account );
 
 	if ( fetch_course )

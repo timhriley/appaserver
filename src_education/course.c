@@ -40,9 +40,6 @@ COURSE *course_parse( char *input )
 	}
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	course->course_price = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	course->description = strdup( piece_buffer );
 
 	return course;

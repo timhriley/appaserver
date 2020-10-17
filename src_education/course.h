@@ -24,7 +24,6 @@
 typedef struct
 {
 	char *course_name;
-	double course_price;
 	char *description;
 	PROGRAM *program;
 } COURSE;

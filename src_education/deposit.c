@@ -23,6 +23,7 @@
 #include "tuition_payment_fns.h"
 #include "program_payment_fns.h"
 #include "enrollment_fns.h"
+#include "offering_fns.h"
 #include "deposit.h"
 
 LIST *deposit_fetch_program_payment_list(
@@ -830,7 +831,7 @@ void deposit_trigger(
 	if ( system( sys_string ) ){}
 }
 
-LIST *deposit_transaction_list(
+LIST *deposit_list_transaction_list(
 			LIST *deposit_list )
 {
 	DEPOSIT *deposit;
@@ -845,12 +846,8 @@ LIST *deposit_transaction_list(
 
 		list_append_list(
 			transaction_list,
-			tuition_payment_transaction_list(
-				deposit->deposit_tuition_payment_list ) );
-
-		list_append_list(
-			transaction_list,
-			program_payment_transaction_list(
+			deposit_transaction_list(
+				deposit->deposit_tuition_payment_list,
 				deposit->deposit_program_payment_list ) );
 
 	} while ( list_next( deposit_list ) );
@@ -934,3 +931,23 @@ void deposit_list_offering_fetch_update(
 		year );
 }
 
+LIST *deposit_transaction_list(
+			LIST *deposit_tuition_payment_list,
+			LIST *deposit_program_payment_list )
+{
+	LIST *transaction_list;
+
+	transaction_list = list_new();
+
+	list_append_list(
+		transaction_list,
+		tuition_payment_transaction_list(
+			deposit_tuition_payment_list ) );
+
+	list_append_list(
+		transaction_list,
+		program_payment_transaction_list(
+			deposit_program_payment_list ) );
+
+	return transaction_list;
+}

@@ -262,7 +262,7 @@ void deposit_trigger(
 			char *deposit_date_time,
 			char *state );
 
-LIST *deposit_transaction_list(
+LIST *deposit_list_transaction_list(
 			LIST *deposit_list );
 
 LIST *deposit_list_steady_state(
@@ -275,6 +275,10 @@ void deposit_list_offering_fetch_update(
 			LIST *deposit_list,
 			char *season_name,
 			int year );
+
+LIST *deposit_transaction_list(
+			LIST *deposit_tuition_payment_list,
+			LIST *deposit_program_payment_list );
 
 #endif
 

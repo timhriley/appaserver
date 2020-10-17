@@ -34,6 +34,7 @@ typedef struct
 	SEMESTER *semester;
 	ENTITY *instructor_entity;
 
+	double course_price;
 	int class_capacity;
 	char *revenue_account;
 

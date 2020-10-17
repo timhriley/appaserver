@@ -187,7 +187,7 @@ int main( int argc, char **argv )
 			/* --------------------------------------- */
 			transaction_list_journal_program_insert(
 				&first_transaction_date_time,
-				deposit_transaction_list(
+				deposit_list_transaction_list(
 					deposit_list ),
 				PAYPAL_TRANSACTION_REPLACE );
 
@@ -236,7 +236,7 @@ int main( int argc, char **argv )
 			season_name,
 			year );
 
-		paypal_upload_transaction_display( deposit_list );
+		/* paypal_upload_transaction_display( deposit_list ); */
 
 		printf(
 		"<p>Process did not execute with row count %d.\n",
@@ -321,7 +321,7 @@ void paypal_upload_transaction_display(
 	LIST *transaction_list;
 
 	transaction_list =
-		deposit_transaction_list(
+		deposit_list_transaction_list(
 			deposit_list );
 
 	printf( "<h3>Transactions</h3>\n" );
@@ -337,11 +337,15 @@ void paypal_upload_display(
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
 	DEPOSIT *deposit;
+	char buffer[ 128 ];
 	char sub_title[ 128 ];
 	char *heading;
 	char *justification;
 
-	sprintf( sub_title, "Semester: %s/%d", season_name, year );
+	sprintf(	sub_title,
+			"Semester: %s/%d",
+			format_initial_capital( buffer, season_name ),
+			year );
 
 	heading =	"payor,"		\
 			"deposit_date_time,"	\
@@ -365,10 +369,9 @@ void paypal_upload_display(
 		heading,
 		justification );
 
-	output_pipe = popen( sys_string, "w" );
-
 	if ( !list_rewind( deposit_list ) )
 	{
+		output_pipe = popen( sys_string, "w" );
 		pclose( output_pipe );
 		return;
 	}
@@ -377,6 +380,8 @@ void paypal_upload_display(
 		deposit =
 			list_get(
 				deposit_list );
+
+		output_pipe = popen( sys_string, "w" );
 
 		fprintf(output_pipe,
 			"%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s\n",
@@ -393,9 +398,14 @@ void paypal_upload_display(
 			program_payment_list_display(
 				deposit->deposit_program_payment_list ) );
 
-	} while ( list_next( deposit_list ) );
+		pclose( output_pipe );
 
-	pclose( output_pipe );
+		transaction_list_html_display(
+			deposit_transaction_list(
+				deposit->deposit_tuition_payment_list,
+				deposit->deposit_program_payment_list ) );
+
+	} while ( list_next( deposit_list ) );
 }
 
 void paypal_upload_event_insert(
