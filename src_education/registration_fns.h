@@ -12,7 +12,8 @@
 #include "list.h"
 
 double registration_tuition(
-			LIST *enrollment_list );
+			LIST *enrollment_list,
+			LIST *semester_offering_list );
 
 double registration_tuition_payment_total(
 			LIST *registration_tuition_payment_list );

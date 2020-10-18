@@ -383,19 +383,6 @@ void transaction_journal_list_pipe_display(
 			char *memo,
 			LIST *journal_list );
 
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
-char *transaction_journal_insert(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction,
-			LIST *journal_list,
-			boolean replace );
-
 LIST *transaction_after_balance_zero_journal_list(
 			char *account_name );
 

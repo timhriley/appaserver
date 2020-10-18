@@ -75,7 +75,6 @@ LIST *tuition_payment_system_list(
 
 double tuition_payment_cash_debit_amount(
 			double tuition_payment_amount,
-			double tuition_payment_gain_donation,
 			double tuition_payment_fees_expense );
 
 void tuition_payment_list_insert(
@@ -161,6 +160,7 @@ LIST *tuition_payment_transaction_list(
 LIST *tuition_payment_list_steady_state(
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_registration_list,
+			LIST *semester_offering_list,
 			double deposit_amount,
 			double transaction_fee );
 

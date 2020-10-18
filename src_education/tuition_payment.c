@@ -469,6 +469,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_registration_list,
 			LIST *registration_enrollment_list,
+			LIST *semester_offering_list,
 			double deposit_amount,
 			double deposit_transaction_fee )
 {
@@ -486,7 +487,8 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 		registration->
 		registration_tuition =
 			registration_tuition(
-				registration_enrollment_list );
+				registration_enrollment_list,
+				semester_offering_list );
 
 	tuition_payment->
 		enrollment->
@@ -510,30 +512,6 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 				registration->
 				registration_invoice_amount_due );
 
-	/* Set the payment_amount in the list, so the total will add up. */
-	/* ------------------------------------------------------------- */
-	{
-		TUITION_PAYMENT *p;
-
-		if ( ! ( p = tuition_payment_seek(
-				deposit_tuition_payment_list,
-				tuition_payment->
-					deposit->
-					deposit_date_time ) ) )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: tuition_payment_seek() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		p->tuition_payment_amount =
-			tuition_payment->
-				tuition_payment_amount;
-	}
-
 	tuition_payment->tuition_payment_fees_expense =
 		tuition_payment_fees_expense(
 			deposit_transaction_fee,
@@ -549,14 +527,14 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			tuition_payment_gain_donation(
 				deposit_gain_donation(
 					deposit_amount,
-					deposit_tuition_payment_total(
-					     deposit_tuition_payment_list ) ),
+					deposit_registration_tuition(
+						deposit_registration_list,
+						semester_offering_list ) ),
 				deposit_registration_list );
 
 	tuition_payment->tuition_payment_cash_debit_amount =
 		tuition_payment_cash_debit_amount(
 			tuition_payment->tuition_payment_amount,
-			tuition_payment->tuition_payment_gain_donation,
 			tuition_payment->tuition_payment_fees_expense );
 
 	tuition_payment->tuition_payment_receivable_credit_amount =
@@ -680,11 +658,9 @@ TUITION_PAYMENT *tuition_payment_seek(
 
 double tuition_payment_cash_debit_amount(
 			double tuition_payment_amount,
-			double tuition_payment_gain_donation,
 			double tuition_payment_fees_expense )
 {
-	return	tuition_payment_amount +
-		tuition_payment_gain_donation -
+	return	tuition_payment_amount -
 		tuition_payment_fees_expense;
 }
 
@@ -1114,6 +1090,7 @@ LIST *tuition_payment_registration_list(
 			LIST *deposit_tuition_payment_list )
 {
 	TUITION_PAYMENT *payment;
+	REGISTRATION *registration;
 	LIST *registration_list;
 
 	if ( !list_rewind( deposit_tuition_payment_list ) ) return (LIST *)0;
@@ -1145,9 +1122,11 @@ LIST *tuition_payment_registration_list(
 			exit( 1 );
 		}
 
+		registration = payment->enrollment->registration;
+
 		list_set(
 			registration_list,
-			payment->enrollment->registration );
+			registration );
 
 	} while ( list_next( deposit_tuition_payment_list ) );
 
@@ -1566,6 +1545,7 @@ boolean tuition_payment_structure(
 LIST *tuition_payment_list_steady_state(
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_registration_list,
+			LIST *semester_offering_list,
 			double deposit_amount,
 			double transaction_fee )
 {
@@ -1633,7 +1613,8 @@ LIST *tuition_payment_list_steady_state(
 				registration_steady_state(
 					registration,
 					registration->
-					     registration_enrollment_list ) ) )
+					     registration_enrollment_list,
+					semester_offering_list ) ) )
 		{
 			fprintf(stderr,
 	"ERROR in %s/%s()/%d: registration_steady_state() returned empty.\n",
@@ -1653,6 +1634,7 @@ LIST *tuition_payment_list_steady_state(
 				deposit_tuition_payment_list,
 				deposit_registration_list,
 				registration->registration_enrollment_list,
+				semester_offering_list,
 				deposit_amount,
 				transaction_fee );
 

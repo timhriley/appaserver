@@ -146,7 +146,10 @@ int main( int argc, char **argv )
 				&maximum_date,
 				spreadsheet_filename,
 				season_name,
-				year ) );
+				year ),
+		semester_offering_list(
+			season_name,
+			year ) );
 
 	if ( !maximum_date )
 	{

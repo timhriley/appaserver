@@ -64,6 +64,10 @@ OFFERING *offering_parse(
 			boolean fetch_course,
 			boolean fetch_enrollment_list );
 
+OFFERING *offering_seek(
+			LIST *offering_list,
+			char *course_name );
+
 OFFERING *offering_steady_state(
 			OFFERING *offering,
 			LIST *offering_enrollment_list );

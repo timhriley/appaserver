@@ -43,3 +43,94 @@ SEMESTER *semester_new(	char *season_name,
 	return semester;
 }
 
+SEMESTER *semester_fetch(
+			char *season_name,
+			int year,
+			boolean fetch_offering_list )
+{
+	if ( !season_name || !season_name || !year )
+	{
+		return (SEMESTER *)0;
+	}
+
+	return semester_parse(
+			pipe2string(
+				semester_sys_string(
+		 			/* -------------------------- */
+		 			/* Safely returns heap memory */
+		 			/* -------------------------- */
+		 			semester_primary_where(
+						season_name,
+						year ) ) ),
+			fetch_offering_list );
+}
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *semester_primary_where(
+			char *season_name,
+			int year )
+{
+	char where[ 1024 ];
+
+	sprintf( where,
+		 "season_name = '%s' and year = %d",
+		 season_name,
+		 year );
+
+	return strdup( where );
+}
+
+char *semester_sys_string( char *where )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"select.sh '*' %s \"%s\" select",
+		SEMESTER_TABLE,
+		where );
+
+	return strdup( sys_string );
+}
+
+SEMESTER *semester_parse(
+			char *input,
+			boolean fetch_offering_list )
+{
+	char season_name[ 128 ];
+	char year[ 128 ];
+	SEMESTER *semester;
+
+	if ( !input || !*input ) return (SEMESTER *)0;
+
+	/* See: attribute_list semester */
+	/* ---------------------------- */
+	piece( season_name, SQL_DELIMITER, input, 0 );
+	piece( year, SQL_DELIMITER, input, 1 );
+
+	semester =
+		semester_new(
+			strdup( season_name ),
+			atoi( year ) );
+
+	if ( fetch_offering_list )
+	{
+		semester->semester_offering_list =
+			offering_list(
+				semester_primary_where(
+					season_name,
+					year ) );
+	}
+
+	return semester;
+}
+
+LIST *semester_offering_list(
+			char *season_name,
+			int year )
+{
+	return offering_list(
+			semester_primary_where(
+				season_name,
+				year ) );
+}

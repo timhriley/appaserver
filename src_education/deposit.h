@@ -72,7 +72,7 @@ typedef struct
 	double deposit_tuition_payment_total;
 	double deposit_program_payment_total;
 	double deposit_gain_donation;
-	double deposit_invoice_amount_due;
+	double deposit_registration_tuition;
 } DEPOSIT;
 
 LIST *deposit_registration_list(
@@ -96,9 +96,9 @@ LIST *deposit_fetch_tuition_payment_list(
 			boolean fetch_deposit,
 			boolean fetch_enrollment );
 
-double deposit_remaining(
+double deposit_gain_donation(
 			double deposit_amount,
-			double deposit_tuition_payment_total );
+			double deposit_registration_tuition );
 
 double deposit_net_revenue(
 			double deposit_amount,
@@ -156,7 +156,8 @@ DEPOSIT *deposit_steady_state(
 			double deposit_amount,
 			double transaction_fee,
 			LIST *deposit_tuition_payment_list,
-			LIST *deposit_program_payment_list );
+			LIST *deposit_program_payment_list,
+			LIST *semester_offering_list );
 
 void deposit_update(
 			double deposit_tuition_payment_total,
@@ -174,12 +175,9 @@ FILE *deposit_update_open(
 LIST *deposit_enrollment_list(
 			LIST *deposit_payment_list );
 
-double deposit_invoice_amount_due(
-			LIST *deposit_registration_list );
-
-double deposit_gain_donation(
-			double deposit_amount,
-			double deposit_payment_total );
+double deposit_registration_tuition(
+			LIST *deposit_registration_list,
+			LIST *semester_offering_list );
 
 void deposit_list_insert(
 			LIST *deposit_list );
@@ -236,7 +234,7 @@ LIST *deposit_course_name_list(
 			LIST *deposit_list );
 
 LIST *deposit_tuition_payment_list(
-			LIST *not_exists_course_name_list,
+			LIST *not_exists_course_name_list /* out */,
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -266,7 +264,8 @@ LIST *deposit_list_transaction_list(
 			LIST *deposit_list );
 
 LIST *deposit_list_steady_state(
-			LIST *deposit_list );
+			LIST *deposit_list,
+			LIST *semester_offering_list );
 
 void deposit_list_registration_fetch_update(
 			LIST *deposit_list );

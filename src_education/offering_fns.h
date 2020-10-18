@@ -30,6 +30,8 @@ char *offering_primary_where(
 			char *season_name,
 			int year );
 
+LIST *offering_list(	char *where );
+
 LIST *offering_system_list(
 			char *sys_string,
 			boolean fetch_course,

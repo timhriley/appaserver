@@ -154,7 +154,10 @@ DEPOSIT *deposit_trigger_execute(
 				deposit->deposit_amount,
 				deposit->transaction_fee,
 				deposit->deposit_tuition_payment_list,
-				deposit->deposit_program_payment_list ) ) )
+				deposit->deposit_program_payment_list,
+				semester_offering_list(
+					deposit->semester->season_name,
+					deposit->semester->year ) ) ) )
 	{
 		return (DEPOSIT *)0;
 	}

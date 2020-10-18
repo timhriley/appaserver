@@ -121,6 +121,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_registration_list,
 			LIST *registration_enrollment_list,
+			LIST *semester_offering_list,
 			double deposit_amount,
 			double deposit_transaction_fee );
 

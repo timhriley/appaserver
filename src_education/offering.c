@@ -368,3 +368,35 @@ void offering_list_fetch_update(
 	} while ( list_next( course_name_list ) );
 }
 
+OFFERING *offering_seek(
+			LIST *offering_list,
+			char *course_name )
+{
+	OFFERING *offering;
+
+	if ( !list_rewind( offering_list ) ) return (OFFERING *)0;
+
+	do {
+		offering = list_get( offering_list );
+
+		if ( string_strcmp(
+			offering->course->course_name,
+			course_name ) == 0 )
+		{
+			return offering;
+		}
+
+	} while ( list_next( offering_list ) );
+
+	return (OFFERING *)0;
+}
+
+LIST *offering_list( char *where )
+{
+	return offering_system_list(
+			offering_sys_string(
+			    	where ),
+			0 /* not fetch_course */,
+			0 /* not fetch_enrollment_list */ );
+}
+

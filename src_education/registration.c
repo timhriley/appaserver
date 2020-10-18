@@ -52,7 +52,8 @@ REGISTRATION *registration_getset(
 }
 
 double registration_tuition(
-			LIST *enrollment_list )
+			LIST *enrollment_list,
+			LIST *semester_offering_list )
 {
 	ENROLLMENT *enrollment;
 	OFFERING *offering;
@@ -75,19 +76,26 @@ double registration_tuition(
 			exit( 1 );
 		}
 
-		offering = enrollment->offering;
-
-		if ( !offering->course )
+		if ( ! ( offering =
+				offering_seek(
+					semester_offering_list,
+					enrollment->
+						offering->
+						course->
+						course_name ) ) )
 		{
 			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: course is empty.\n",
+			"ERROR in %s/%s()/%d: offering not exists = [%s].\n",
 				 __FILE__,
 				 __FUNCTION__,
-				 __LINE__ );
+				 __LINE__,
+				enrollment->offering->course->course_name );
 			exit( 1 );
 		}
 
-		tuition += offering->course_price;
+		enrollment->offering->course_price = offering->course_price;
+
+		tuition += enrollment->offering->course_price;
 
 	} while ( list_next( enrollment_list ) );
 
@@ -388,7 +396,8 @@ double registration_tuition_payment_total(
 
 REGISTRATION *registration_steady_state(
 			REGISTRATION *registration,
-			LIST *registration_enrollment_list )
+			LIST *registration_enrollment_list,
+			LIST *semester_offering_list )
 {
 	if ( !registration )
 	{
@@ -402,7 +411,8 @@ REGISTRATION *registration_steady_state(
 
 	registration->registration_tuition =
 		registration_tuition(
-			registration_enrollment_list );
+			registration_enrollment_list,
+			semester_offering_list );
 
 	registration->registration_tuition_payment_list =
 		registration_tuition_payment_list(

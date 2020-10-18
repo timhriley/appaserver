@@ -339,7 +339,8 @@ DEPOSIT *deposit_steady_state(
 			double deposit_amount,
 			double transaction_fee,
 			LIST *deposit_tuition_payment_list,
-			LIST *deposit_program_payment_list )
+			LIST *deposit_program_payment_list,
+			LIST *semester_offering_list )
 {
 	if ( !deposit->deposit_registration_list )
 	{
@@ -356,10 +357,11 @@ DEPOSIT *deposit_steady_state(
 		deposit_program_payment_total(
 			deposit_program_payment_list );
 
-	deposit->deposit_invoice_amount_due =
-		deposit_invoice_amount_due(
+	deposit->deposit_registration_tuition =
+		deposit_registration_tuition(
 			deposit->
-				deposit_registration_list );
+				deposit_registration_list,
+			semester_offering_list );
 
 	deposit->deposit_net_revenue =
 		deposit_net_revenue(
@@ -427,45 +429,44 @@ void deposit_update(
 	pclose( update_pipe );
 }
 
-double deposit_invoice_amount_due(
-			LIST *deposit_registration_list )
+double deposit_registration_tuition(
+			LIST *deposit_registration_list,
+			LIST *semester_offering_list )
 {
 	REGISTRATION *registration;
-	double invoice_amount_due;
+	double tuition;
 
 	if ( !list_rewind( deposit_registration_list ) ) return 0.0;
 
-	invoice_amount_due = 0.0;
+	tuition = 0.0;
 
 	do {
 		registration = list_get( deposit_registration_list );
 
-		invoice_amount_due +=
-			registration->
-				registration_invoice_amount_due;
+		tuition +=
+			( registration->registration_tuition =
+				registration_tuition(
+					registration->
+					     registration_enrollment_list,
+					semester_offering_list ) );
 
 	} while ( list_next( deposit_registration_list ) );
 
-	return invoice_amount_due;
+	return tuition;
 }
 
 double deposit_gain_donation(
 			double deposit_amount,
-			double deposit_payment_total )
+			double deposit_registration_tuition )
 {
-	double d;
 	double gain_donation;
 
-	if ( ( d = deposit_remaining(
-			deposit_amount,
-			deposit_payment_total ) ) > 0 )
-	{
-		gain_donation = d;
-	}
-	else
-	{
+	gain_donation =
+		deposit_amount -
+		deposit_registration_tuition;
+
+	if ( gain_donation <= 0.0 )
 		gain_donation = 0.0;
-	}
 
 	return gain_donation;
 }
@@ -856,7 +857,8 @@ LIST *deposit_list_transaction_list(
 }
 
 LIST *deposit_list_steady_state(
-			LIST *deposit_list )
+			LIST *deposit_list,
+			LIST *semester_offering_list )
 {
 	DEPOSIT *deposit;
 
@@ -877,6 +879,7 @@ LIST *deposit_list_steady_state(
 			tuition_payment_list_steady_state(
 				deposit->deposit_tuition_payment_list,
 				deposit->deposit_registration_list,
+				semester_offering_list,
 				deposit->deposit_amount,
 				deposit->transaction_fee );
 
@@ -894,7 +897,8 @@ LIST *deposit_list_steady_state(
 				deposit->deposit_amount,
 				deposit->transaction_fee,
 				deposit->deposit_tuition_payment_list,
-				deposit->deposit_program_payment_list );
+				deposit->deposit_program_payment_list,
+				semester_offering_list );
 
 	} while ( list_next( deposit_list ) );
 

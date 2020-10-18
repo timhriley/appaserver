@@ -195,6 +195,9 @@ void tuition_payment_trigger_insert_update(
 				enrollment->
 				registration->
 				registration_enrollment_list,
+			semester_offering_list(
+				season_name,
+				year ),
 			tuition_payment->
 				deposit->
 				deposit_amount,

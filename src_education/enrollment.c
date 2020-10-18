@@ -124,9 +124,6 @@ ENROLLMENT *enrollment_parse(
 	if ( fetch_offering )
 	{
 		enrollment->offering =
-			/* ------------------------------------ */
-			/* Fetch offering->course->course_price */
-			/* ------------------------------------ */
 			offering_fetch(
 				course_name,
 				season_name,

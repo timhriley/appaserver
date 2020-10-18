@@ -81,7 +81,8 @@ REGISTRATION *registration_new(
 
 REGISTRATION *registration_steady_state(
 			REGISTRATION *registration,
-			LIST *registration_enrollment_list );
+			LIST *registration_enrollment_list,
+			LIST *semester_offering_list );
 
 /* ------------------------------------- */
 /* Place functions in registration_fns.h */
