@@ -112,11 +112,6 @@ LIST *journal_delete(	char *full_name,
 			char *street_address,
 			char *transaction_date_time );
 
-LIST *journal_account_name_list(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time );
-
 void journal_account_name_list_propagate(
 			char *transaction_date_time,
 			LIST *account_name_list );
@@ -258,5 +253,10 @@ LIST *journal_list_insert_pipe(
 			char *street_address,
 			char *transaction_date_time,
 			LIST *journal_list );
+
+LIST *journal_account_name_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
 
 #endif

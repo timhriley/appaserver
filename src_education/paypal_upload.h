@@ -11,7 +11,5 @@
 #include "list.h"
 #include "boolean.h"
 
-#define PAYPAL_TRANSACTION_REPLACE		0
-
 #endif
 

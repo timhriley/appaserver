@@ -1894,8 +1894,16 @@ void date_increment_minutes(	DATE *d,
 	date_set_tm_structures( d, d->current, date_utc_offset() );
 }
 
-void date_increment_seconds(	DATE *d,
-				int seconds )
+void date_add_seconds(
+			DATE *d,
+			int seconds )
+{
+	date_increment_seconds( d, seconds );
+}
+
+void date_increment_seconds(
+			DATE *d,
+			int seconds )
 {
 	d->current += (long)seconds;
 	date_set_tm_structures( d, d->current, date_utc_offset() );

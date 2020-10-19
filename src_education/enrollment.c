@@ -293,14 +293,24 @@ TRANSACTION *enrollment_transaction(
 			char *offering_revenue_account )
 {
 	TRANSACTION *transaction;
+	DATE *transaction_date;
+	static int seconds_to_add = 0;
 
 	if ( !offering_course_price ) return (TRANSACTION *)0;
+
+	transaction_date =
+		date_yyyy_mm_dd_hms_new(
+			registration_date_time );
+
+	date_add_seconds( transaction_date, seconds_to_add );
+
+	seconds_to_add += 2;
 
 	transaction =
 		transaction_new(
 			student_full_name,
 			street_address,
-			registration_date_time );
+			date_display_19( transaction_date ) );
 
 	transaction->program_name = program_name;
 	transaction->transaction_amount = offering_course_price;
@@ -352,7 +362,7 @@ FILE *enrollment_insert_open( char *error_filename )
 		"cat >%s						  ",
 		ENROLLMENT_TABLE,
 		ENROLLMENT_INSERT_COLUMNS,
-		(PAYPAL_TRANSACTION_REPLACE) ? 'y' : 'n',
+		'y',
 		SQL_DELIMITER,
 		error_filename );
 

@@ -192,7 +192,7 @@ int main( int argc, char **argv )
 				&first_transaction_date_time,
 				deposit_list_transaction_list(
 					deposit_list ),
-				PAYPAL_TRANSACTION_REPLACE );
+				1 /* replace */ );
 
 		if ( list_length( account_name_list ) )
 		{

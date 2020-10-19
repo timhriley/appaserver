@@ -495,7 +495,7 @@ FILE *registration_insert_open( char *error_filename )
 		"cat >%s						  ",
 		REGISTRATION_TABLE,
 		REGISTRATION_INSERT_COLUMNS,
-		(PAYPAL_TRANSACTION_REPLACE) ? 'y' : 'n',
+		'y',
 		SQL_DELIMITER,
 		error_filename );
 

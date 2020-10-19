@@ -56,7 +56,8 @@ double tuition_payment_total(
 
 double tuition_payment_amount(
 			double deposit_amount,
-			double registration_invoice_amount_due );
+			double registration_invoice_amount_due,
+			int deposit_registration_list_length );
 
 char *tuition_payment_primary_where(
 			char *student_full_name,
@@ -74,8 +75,9 @@ LIST *tuition_payment_system_list(
 			boolean fetch_enrollment );
 
 double tuition_payment_cash_debit_amount(
-			double tuition_payment_amount,
-			double tuition_payment_fees_expense );
+			double deposit_amount,
+			double tuition_payment_fees_expense,
+			int deposit_registration_list_length );
 
 void tuition_payment_list_insert(
 			LIST *tuition_payment_list );

@@ -58,8 +58,7 @@ EDUCATION *education_fetch(
 		semester_fetch(
 			strdup( season_name ),
 			year,
-			1 /* fetch_offering_list */,
-			0 /* not fetch_registration_list */ );
+			1 /* fetch_offering_list */ );
 
 	education->paypal =
 		paypal_fetch(
@@ -174,6 +173,11 @@ DEPOSIT *education_deposit(
 	}
 
 	deposit = deposit_calloc();
+
+	deposit->semester =
+		semester_new(
+			season_name,
+			year );
 
 	/* Columns A and B */
 	/* --------------- */

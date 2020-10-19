@@ -117,10 +117,17 @@ TUITION_PAYMENT *tuition_payment_fetch(
 
 double tuition_payment_amount(
 			double deposit_amount,
-			double registration_invoice_amount_due )
+			double registration_invoice_amount_due,
+			int deposit_registration_list_length )
 {
-	if ( deposit_amount <= registration_invoice_amount_due )
-		return deposit_amount;
+	double payment_amount;
+
+	payment_amount =
+		deposit_amount /
+		(double)deposit_registration_list_length;
+
+	if ( payment_amount <= registration_invoice_amount_due )
+		return payment_amount;
 	else
 		return registration_invoice_amount_due;
 }
@@ -344,15 +351,25 @@ TRANSACTION *tuition_payment_transaction(
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
+	DATE *transaction_date;
+	static int seconds_to_add = 1;
 
 	if ( dollar_virtually_same( payment_amount, 0.0 ) )
 		return (TRANSACTION *)0;
+
+	transaction_date =
+		date_yyyy_mm_dd_hms_new(
+			deposit_date_time );
+
+	date_add_seconds( transaction_date, seconds_to_add );
+
+	seconds_to_add += 2;
 
 	transaction =
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			deposit_date_time,
+			date_display_19( transaction_date ),
 			payment_amount
 				/* transaction_amount */,
 			tuition_payment_memo( program_name ) );
@@ -510,7 +527,8 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			tuition_payment->
 				enrollment->
 				registration->
-				registration_invoice_amount_due );
+				registration_invoice_amount_due,
+			list_length( deposit_registration_list ) );
 
 	tuition_payment->tuition_payment_fees_expense =
 		tuition_payment_fees_expense(
@@ -534,8 +552,9 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 
 	tuition_payment->tuition_payment_cash_debit_amount =
 		tuition_payment_cash_debit_amount(
-			tuition_payment->tuition_payment_amount,
-			tuition_payment->tuition_payment_fees_expense );
+			deposit_amount,
+		 	tuition_payment->tuition_payment_fees_expense,
+			list_length( deposit_registration_list ) );
 
 	tuition_payment->tuition_payment_receivable_credit_amount =
 		tuition_payment_receivable_credit_amount(
@@ -657,10 +676,11 @@ TUITION_PAYMENT *tuition_payment_seek(
 }
 
 double tuition_payment_cash_debit_amount(
-			double tuition_payment_amount,
-			double tuition_payment_fees_expense )
+			double deposit_amount,
+			double tuition_payment_fees_expense,
+			int deposit_registration_list_length )
 {
-	return	tuition_payment_amount -
+	return	( deposit_amount / (double)deposit_registration_list_length ) -
 		tuition_payment_fees_expense;
 }
 
@@ -734,7 +754,7 @@ FILE *tuition_payment_insert_open( char *error_filename )
 		"cat >%s 						  ",
 		TUITION_PAYMENT_TABLE,
 		TUITION_PAYMENT_INSERT_COLUMNS,
-		(PAYPAL_TRANSACTION_REPLACE) ? 'y' : 'n',
+		'y',
 		SQL_DELIMITER,
 		error_filename );
 

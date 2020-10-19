@@ -79,6 +79,9 @@ DATE *date_yyyy_mm_dd_hm_new(	char *date_time_string );
 void date_increment_hours(	DATE *d,
 				double hours );
 
+void date_add_seconds(		DATE *d,
+				int seconds );
+
 void date_increment_seconds(	DATE *d,
 				int seconds );
 

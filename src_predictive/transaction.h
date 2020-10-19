@@ -168,11 +168,6 @@ char *transaction_property_insert_pipe(
 LIST *transaction_list_property_insert(
 			LIST *transaction_list );
 
-/* Returns transaction_list */
-/* ------------------------ */
-LIST *transaction_list_program_insert(
-			LIST *transaction_list );
-
 /* Returns program memory */
 /* ---------------------- */
 char *transaction_select(
@@ -448,11 +443,20 @@ void transaction_list_html_display(
 void transaction_stderr(
 			TRANSACTION *transaction );
 
-/* Returns account_name_list */
-/* ------------------------- */
+/* ---------------------------------------------- */
+/* Returns account_name_list			  */
+/* ---------------------------------------------- */
+/* Note: transaction_date_time changed if needed. */
+/* ---------------------------------------------- */
 LIST *transaction_list_journal_program_insert(
 			char **first_transaction_date_time,
 			LIST *transaction_list,
 			boolean replace );
+
+/* ------------------------- */
+/* Returns account_name_list */
+/* ------------------------- */
+LIST *transaction_list_delete(
+			LIST *transaction_list );
 
 #endif

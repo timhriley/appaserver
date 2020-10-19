@@ -773,8 +773,8 @@ LIST *list_set_list(	LIST *destination_list,
 	if ( list_reset( source_list ) )
 	{
 		do {
-			a = list_get_pointer( source_list );
-			list_append_pointer( destination_list, a );
+			a = list_get( source_list );
+			list_set( destination_list, a );
 		} while( list_next( source_list ) );
 	}
 

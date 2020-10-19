@@ -481,7 +481,7 @@ FILE *deposit_insert_open( char *error_filename )
 		"cat >%s						  ",
 		DEPOSIT_TABLE,
 		DEPOSIT_INSERT_COLUMNS,
-		(PAYPAL_TRANSACTION_REPLACE) ? 'y' : 'n',
+		'y',
 		SQL_DELIMITER,
 		error_filename );
 
@@ -538,6 +538,16 @@ void deposit_list_insert( LIST *deposit_list )
 
 	do {
 		deposit = list_get( deposit_list );
+
+		if ( !deposit->semester )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty semester.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		deposit_insert_pipe(
 			insert_pipe,
@@ -852,7 +862,6 @@ LIST *deposit_list_transaction_list(
 				deposit->deposit_program_payment_list ) );
 
 	} while ( list_next( deposit_list ) );
-
 	return transaction_list;
 }
 

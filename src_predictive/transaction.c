@@ -817,36 +817,6 @@ void transaction_stderr( TRANSACTION *transaction )
 
 /* Returns transaction_list with transaction_date_time changed if needed. */
 /* ---------------------------------------------------------------------- */
-LIST *transaction_list_program_insert( LIST *transaction_list )
-{
-	TRANSACTION *transaction;
-
-	if ( !list_rewind( transaction_list ) ) return transaction_list;
-
-	do {
-		transaction = list_get( transaction_list );
-
-		transaction->transaction_date_time =
-			transaction_program_insert(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				transaction->program_name,
-				transaction->transaction_amount,
-				transaction->memo,
-				transaction->check_number,
-				1 /* lock_transaction */,
-				0 /* not replace */ );
-
-	} while( list_next( transaction_list ) );
-
-	transaction_list_journal_insert( transaction_list );
-
-	return transaction_list;
-}
-
-/* Returns transaction_list with transaction_date_time changed if needed. */
-/* ---------------------------------------------------------------------- */
 LIST *transaction_list_insert( LIST *transaction_list )
 {
 	TRANSACTION *transaction;
@@ -1809,8 +1779,11 @@ char *transaction_program_insert(
 	return transaction_date_time;
 }
 
-/* Returns account_name_list */
-/* ------------------------- */
+/* ---------------------------------------------- */
+/* Returns account_name_list			  */
+/* ---------------------------------------------- */
+/* Note: transaction_date_time changed if needed. */
+/* ---------------------------------------------- */
 LIST *transaction_list_journal_program_insert(
 			char **first_transaction_date_time,
 			LIST *transaction_list,
@@ -1820,10 +1793,22 @@ LIST *transaction_list_journal_program_insert(
 	FILE *insert_pipe;
 	LIST *account_name_list = list_new();
 
-	if ( !list_rewind( transaction_list ) ) return (LIST *)0;
+	if ( !list_length( transaction_list ) ) return (LIST *)0;
 
 	if ( !first_transaction_date_time ) return (LIST *)0;
 
+	if ( replace )
+	{
+		list_append_unique_string_list(
+			account_name_list /* destination_list */,
+			/* ------------------------- */
+			/* Returns account_name_list */
+			/* ------------------------- */
+			transaction_list_delete(
+				transaction_list ) );
+	}
+
+	list_rewind( transaction_list );
 	*first_transaction_date_time = (char *)0;
 
 	insert_pipe = transaction_program_insert_open( replace );
@@ -1866,8 +1851,7 @@ LIST *transaction_list_journal_program_insert(
 				transaction_list );
 
 		list_append_unique_string_list(
-			account_name_list
-					/* destination_list */,
+			account_name_list /* destination_list */,
 			/* ------------------------- */
 			/* Returns account_name_list */
 			/* ------------------------- */
@@ -1883,11 +1867,38 @@ LIST *transaction_list_journal_program_insert(
 
 	pclose( insert_pipe );
 
-/*
-	journal_account_name_list_propagate(
-		transaction_date_time,
-		account_name_list );
-*/
+	return account_name_list;
+}
+
+LIST *transaction_list_delete(
+			LIST *transaction_list )
+{
+	TRANSACTION *transaction;
+	LIST *account_name_list;
+
+	if ( !list_rewind( transaction_list ) ) return (LIST *)0;
+
+	account_name_list = list_new();
+
+	do {
+		transaction = list_get( transaction_list );
+
+		transaction_delete(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time );
+
+		list_append_list(
+			account_name_list,
+			/* ------------------------- */
+			/* Returns account_name_list */
+			/* ------------------------- */
+			journal_delete(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time ) );
+
+	} while ( list_next( transaction_list ) );
 	return account_name_list;
 }
 
