@@ -554,7 +554,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 		tuition_payment_cash_debit_amount(
 			deposit_amount,
 		 	tuition_payment->tuition_payment_fees_expense,
-			list_length( deposit_registration_list ) );
+			deposit_registration_list );
 
 	tuition_payment->tuition_payment_receivable_credit_amount =
 		tuition_payment_receivable_credit_amount(
@@ -678,9 +678,10 @@ TUITION_PAYMENT *tuition_payment_seek(
 double tuition_payment_cash_debit_amount(
 			double deposit_amount,
 			double tuition_payment_fees_expense,
-			int deposit_registration_list_length )
+			LIST *deposit_registration_list )
 {
-	return	( deposit_amount / (double)deposit_registration_list_length ) -
+	return	( deposit_amount /
+		  (double)list_length( deposit_registration_list ) ) -
 		tuition_payment_fees_expense;
 }
 

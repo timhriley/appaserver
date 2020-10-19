@@ -77,7 +77,7 @@ LIST *tuition_payment_system_list(
 double tuition_payment_cash_debit_amount(
 			double deposit_amount,
 			double tuition_payment_fees_expense,
-			int deposit_registration_list_length );
+			LIST *deposit_registration_list );
 
 void tuition_payment_list_insert(
 			LIST *tuition_payment_list );
