@@ -144,15 +144,6 @@ int main( int argc, char **argv )
 				application_name,
 				datatype );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d: validation_level_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-validation_level_string );
-m2( "hydrology", msg );
-}
 	validation_level =
 		validation_level_get_validation_level(
 			validation_level_string);
@@ -170,13 +161,6 @@ m2( "hydrology", msg );
 		 datatype,
 		 begin_date,
 		 end_date );
-
-fprintf(stderr,
-	"%s/%s()/%d: validation_level = %d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-validation_level );
 
 	validated_where_clause =
 		/* ----------------------- */
