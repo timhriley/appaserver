@@ -1032,26 +1032,33 @@ boolean hydrology_library_some_measurements_validated(
 {
 	char sys_string[ 2048 ];
 	char local_where_clause[ 2048 ];
-	char *provisional_where;
+	char *validated_where;
 	char *results;
 
-	provisional_where =
+	if ( !where_clause )
+	{
+		where_clause = "1 = 1";
+	}
+
+	validated_where =
 		/* ----------------------- */
 		/* Returns program memory. */
 		/* ----------------------- */
 		hydrology_library_provisional_where(
-				provisional );
+				validated );
 
 	sprintf(local_where_clause,
 		"station = '%s' and				"
 		"datatype = '%s' and				"
 		"measurement_date between '%s' and '%s' 	"
+		"%s and						"
 		"%s						",
 		station,
 		datatype,
 		begin_measurement_date,
 		end_measurement_date,
-		provisional_where );
+		validated_where,
+		where_clause );
 
 	sprintf( sys_string,
 		 "get_folder_data		application=%s		"
@@ -1461,12 +1468,12 @@ char *hydrology_library_provisional_where(
 {
 	if ( validation_level == provisional )
 	{
-		return " and last_validation_date is not null";
+		return " and last_validation_date is null";
 	}
 	else
 	if ( validation_level == validated )
 	{
-		return " and last_validation_date is null";
+		return " and last_validation_date is not null";
 	}
 	else
 	{
