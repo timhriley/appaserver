@@ -144,8 +144,18 @@ int main( int argc, char **argv )
 				application_name,
 				datatype );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "\n%s/%s()/%d: validation_level_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+validation_level_string );
+m2( "hydrology", msg );
+}
 	validation_level =
-		validation_level_get_validation_level( validation_level_string);
+		validation_level_get_validation_level(
+			validation_level_string);
 
 	measurement_table_name =
 		get_table_name( application_name, FOLDER_NAME );
@@ -160,6 +170,13 @@ int main( int argc, char **argv )
 		 datatype,
 		 begin_date,
 		 end_date );
+
+fprintf(stderr,
+	"%s/%s()/%d: validation_level = %d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+validation_level );
 
 	validated_where_clause =
 		/* ----------------------- */
@@ -196,7 +213,7 @@ int main( int argc, char **argv )
 
 	printf( "<h2>Statistics Report\n" );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	printf( "</h2>\n" );
 	fflush( stdout );
 
@@ -521,10 +538,10 @@ int main( int argc, char **argv )
 "<p>Note: If a station has measurements stored as both real time and daily values, then the weight given to each real time measurement is proportionally less.\n" );
 
 	sprintf( sys_string, "/bin/rm -f %s", statistics_temp_file );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	sprintf( sys_string, "/bin/rm -f %s", date_min_max_temp_file );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	document_close();
 	process_increment_execution_count(
@@ -532,5 +549,5 @@ int main( int argc, char **argv )
 				PROCESS_NAME,
 				appaserver_parameter_file_get_dbms() );
 	exit( 0 );
-} /* main() */
+}
 

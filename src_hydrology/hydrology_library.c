@@ -87,7 +87,7 @@ char *hydrology_library_get_expected_count_list_string(
 	*ptr = '\0';
 	pclose( input_pipe );
 	return strdup( list_string );
-} /* hydrology_library_get_expected_count_list_string() */
+}
 
 char *hydrology_library_get_units_string(	boolean *bar_graph,
 						char *application_name,
@@ -98,7 +98,7 @@ char *hydrology_library_get_units_string(	boolean *bar_graph,
 			application_name,
 			datatype_name );
 
-} /* hydrology_library_get_units_string() */
+}
 
 char hydrology_library_get_aggregation_sum(
 				char *application_name,
@@ -122,7 +122,7 @@ char hydrology_library_get_aggregation_sum(
 	{
 		return 'n';
 	}
-} /* hydrology_library_get_aggregation_sum() */
+}
 
 LIST *based_on_datatype_get_aggregate_statistic_list(
 				char *application_name,
@@ -152,7 +152,7 @@ LIST *based_on_datatype_get_aggregate_statistic_list(
 	} while( list_next( datatype_name_list ) );
 
 	return aggregate_statistic_list;
-} /* based_on_datatype_get_aggregate_statistic_list() */
+}
 
 enum aggregate_statistic based_on_datatype_get_aggregate_statistic(
 				char *application_name,
@@ -189,8 +189,7 @@ enum aggregate_statistic based_on_datatype_get_aggregate_statistic(
 	}
 
 	return aggregate_statistic;
-
-} /* based_on_datatype_get_aggregate_statistic() */
+}
 
 double hydrology_library_get_measurement_value(
 					boolean *is_null,
@@ -235,7 +234,7 @@ double hydrology_library_get_measurement_value(
 	{
 		return atof( results );
 	}
-} /* hydrology_library_get_measurement_value() */
+}
 
 double hydrology_library_get_latest_before_measurement_value(
 					char *application_name,
@@ -276,7 +275,7 @@ double hydrology_library_get_latest_before_measurement_value(
 		 where );
 
 	return atof( pipe2string( sys_string ) );
-} /* hydrology_library_get_latest_before_measurement_value() */
+}
 
 char *hydrology_library_get_latest_measurement_date_time(
 			char **latest_measurement_time,
@@ -330,7 +329,7 @@ char *hydrology_library_get_latest_measurement_date_time(
 
 	*latest_measurement_time = pipe2string( sys_string );
 	return latest_date;
-} /* hydrology_library_get_latest_measurement_date_time() */
+}
 
 void hydrology_library_get_period_of_record_begin_end_dates(
 				char **begin_date_string,
@@ -350,8 +349,7 @@ void hydrology_library_get_period_of_record_begin_end_dates(
 			application_name,
 			station,
 			datatype );
-
-} /* hydrology_library_get_period_of_record_begin_end_dates() */
+}
 
 char *hydrology_library_get_period_of_record_begin_date(
 				char *application_name,
@@ -389,8 +387,7 @@ char *hydrology_library_get_period_of_record_begin_date(
 			where_clause );
 
 	return pipe2string( sys_string );
-
-} /* hydrology_library_get_period_of_record_begin_date() */
+}
 
 char *hydrology_library_get_period_of_record_end_date(
 				char *application_name,
@@ -428,8 +425,7 @@ char *hydrology_library_get_period_of_record_end_date(
 			where_clause );
 
 	return pipe2string( sys_string );
-
-} /* hydrology_library_get_period_of_record_end_date() */
+}
 
 void hydrology_library_with_list_get_clean_begin_end_date(
 					char **begin_date,
@@ -547,8 +543,7 @@ void hydrology_library_with_list_get_clean_begin_end_date(
 
 		*end_date = strdup( maximum_end_date );
 	}
-
-} /* hydrology_library_with_list_get_clean_begin_end_date() */
+}
 
 void hydrology_library_get_clean_begin_end_date(
 					char **begin_date,
@@ -591,8 +586,7 @@ void hydrology_library_get_clean_begin_end_date(
 			*end_date = *begin_date;
 		}
 	}
-
-} /* hydrology_library_get_clean_begin_end_date() */
+}
 
 void hydrology_library_get_clean_begin_end_time(
 					char **begin_time_string,
@@ -611,8 +605,7 @@ void hydrology_library_get_clean_begin_end_time(
 	{
 		*end_time_string = "2359";
 	}
-
-} /* hydrology_library_get_clean_begin_end_time() */
+}
 
 boolean hydrology_library_get_bar_graph(	char *application_name,
 						char *datatype_name )
@@ -637,7 +630,7 @@ boolean hydrology_library_get_bar_graph(	char *application_name,
 		return 0;
 	else
 		return (*results == 'y' );
-} /* hydrology_library_get_bar_graph() */
+}
 
 void hydrology_library_get_title(
 				char *title,
@@ -727,8 +720,7 @@ void hydrology_library_get_title(
 	sprintf( sub_title, "Beginning: %s Ending: %s",
 		 begin_date_string,
 		 end_date_string );
-
-} /* hydrology_library_get_title() */
+}
 
 int get_latest_measurements_per_day(	char *application,
 					char *station,
@@ -791,8 +783,7 @@ int get_latest_measurements_per_day(	char *application,
 		return 0;
 	else
 		return atoi( results );
-
-} /* get_latest_measurements_per_day() */
+}
 
 int hydrology_library_insert_null_measurements(
 				char *station,
@@ -941,8 +932,7 @@ int hydrology_library_insert_null_measurements(
 		pclose( display_pipe );
 	}
 	return count;
-
-} /* hydrology_library_insert_null_measurements() */
+}
 
 char *hydrology_library_get_datatype_units_display(
 				char *application_name,
@@ -984,7 +974,7 @@ char *hydrology_library_get_datatype_units_display(
 		units_display = datatype_units;
 	}
 	return units_display;
-} /* hydrology_library_get_datatype_units_display() */
+}
 
 char *hydrology_library_get_output_invalid_units_error(
 					char *datatype,
@@ -998,7 +988,7 @@ char *hydrology_library_get_output_invalid_units_error(
 		 units,
 		 units_converted );
 	return message;
-} /* hydrology_library_get_output_invalid_units_error() */
+}
 
 boolean hydrology_library_can_convert_to_units(
 			char *application_name,
@@ -1030,7 +1020,7 @@ boolean hydrology_library_can_convert_to_units(
 		units_converted_table_name,
 		units_converted );
 	return atoi( pipe2string( sys_string ) );
-} /* hydrology_library_can_convert_to_units() */
+}
 
 boolean hydrology_library_some_measurements_validated(
 			char *application_name,
@@ -1071,16 +1061,16 @@ boolean hydrology_library_some_measurements_validated(
 		 application_name,
 		 local_where_clause );
 
-fprintf(stderr,
-	"%s/%s()/%d: sys_string = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-sys_string );
-
 	results = pipe2string( sys_string );
 
-	return (boolean)atoi( results );
+	if ( results && *results )
+	{
+		return (boolean)atoi( results );
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 boolean hydrology_library_get_drift_ratio_variables(
@@ -1188,8 +1178,7 @@ boolean hydrology_library_get_drift_ratio_variables(
 	}
 
 	return 1;
-
-} /* hydrology_library_get_drift_ratio_variables() */
+}
 
 char *hydrology_library_get_ground_surface_elevation_string(
 			double ground_surface_elevation_ft,
@@ -1207,8 +1196,7 @@ char *hydrology_library_get_ground_surface_elevation_string(
 
 		return elevation_string;
 	}
-
-} /* hydrology_library_get_ground_surface_elevation_string() */
+}
 
 void hydrology_library_output_station_table(
 				char *application_name,
@@ -1273,8 +1261,7 @@ void hydrology_library_output_station_table(
 	fflush( stdout );
 	printf( "<br>\n" );
 	fflush( stdout );
-
-} /* hydrology_library_output_station_table() */
+}
 
 void hydrology_library_output_station_text_filename(
 				char *output_filename,
@@ -1310,8 +1297,7 @@ void hydrology_library_output_station_text_filename(
 
 	if ( strcmp( output_filename, "stdout" ) != 0 )
 		fclose( output_file );
-
-} /* hydrology_library_output_station_text_filename() */
+}
 
 void hydrology_library_output_station_text_file(
 				FILE *output_file,
@@ -1355,8 +1341,7 @@ void hydrology_library_output_station_text_file(
 		 station->ngvd29_navd88_conversion );
 
 	fflush( output_file );
-
-} /* hydrology_library_output_station_text_file() */
+}
 
 void hydrology_library_output_data_collection_frequency_table(
 				char *application_name,
@@ -1409,8 +1394,7 @@ void hydrology_library_output_data_collection_frequency_table(
 	fflush( stdout );
 	printf( "<br>\n" );
 	fflush( stdout );
-
-} /* hydrology_library_output_data_collection_frequency_table() */
+}
 
 void hydrology_library_output_data_collection_frequency_text_file(
 				FILE *output_file,
@@ -1441,8 +1425,7 @@ void hydrology_library_output_data_collection_frequency_text_file(
 		fprintf( output_file, "#%s\n", piece_buffer );
 	}
 	fprintf( output_file, "\n" );
-
-} /* hydrology_library_output_data_collection_frequency_text_file() */
+}
 
 boolean hydrology_library_get_begin_end_year(
 		char **begin_year,
@@ -1469,7 +1452,7 @@ boolean hydrology_library_get_begin_end_year(
 
 	return 1;
 
-} /* hydrology_library_get_begin_end_year() */
+}
 
 /* Returns program memory. */
 /* ----------------------- */
@@ -1489,6 +1472,5 @@ char *hydrology_library_provisional_where(
 	{
 		return " and 1 = 1";
 	}
-
-} /* hydrology_library_provisional_where() */
+}
 
