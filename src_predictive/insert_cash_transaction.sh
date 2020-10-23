@@ -47,7 +47,7 @@ cat << all_done
 <h1>`echo $process | format_initial_capital.e`</h1>
 all_done
 
-if [	"$full_name" = "" -o		\
+if [	"$full_name" = "" -o				\
 	"$full_name" = "full_name" ]
 then
 	echo "<h2> `now.sh 19` </h2>"
@@ -57,8 +57,8 @@ then
 	exit 0
 fi
 
-if [	"$debit_account" = "" -o		\
-	"$debit_account" = "account" -o	\
+if [	"$debit_account" = "" -o			\
+	"$debit_account" = "account" -o			\
 	"$debit_account" = "null" ]
 then
 	echo "<h2> `now.sh 19` </h2>"
@@ -69,7 +69,7 @@ then
 fi
 
 if [	"$transaction_date" = "" -o			\
-	"$transaction_date" = "transaction_date" -o ]
+	"$transaction_date" = "transaction_date" ]
 then
 	echo "<h2> `now.sh 19` </h2>"
 	echo "<h3>Please enter in a transaction date.</h3>"
