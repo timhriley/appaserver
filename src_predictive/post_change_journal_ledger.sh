@@ -37,15 +37,15 @@ account_name=$5
 preupdate_transaction_date_time=$6
 preupdate_account_name=$7
 
-hard_coded_account_key=`hard_coded_account_key.sh "$account_name"`
-
-if [ "$state" = "insert" ]
-then
-	if [ "$hard_coded_account_key" = "cash_key" ]
-	then
-		automatic_transaction_assign.sh all process_name fund
-	fi
-fi
+#hard_coded_account_key=`hard_coded_account_key.sh "$account_name"`
+#
+#if [ "$state" = "insert" ]
+#then
+#	if [ "$hard_coded_account_key" = "cash_key" ]
+#	then
+#		automatic_transaction_assign.sh all process_name fund
+#	fi
+#fi
 
 if [ "$transaction_date_time" = ""				\
 -o   "$transaction_date_time" = "transaction_date_time" ]

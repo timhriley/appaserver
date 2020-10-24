@@ -155,6 +155,12 @@ double ledger_debit_credit_difference(	double *balance_difference,
 
 	if ( !list_rewind( journal_list ) ) return -1.0;
 
+if ( DEBUG_MODE )
+{
+printf( "Input balance_difference = %.2lf\n",
+*balance_difference );
+}
+
 	do {
 		journal = list_get( journal_list );
 
@@ -163,8 +169,9 @@ double ledger_debit_credit_difference(	double *balance_difference,
 
 if ( DEBUG_MODE )
 {
-printf( "account = %s; previous_balance = %.2lf; debit_amount = %.2lf; credit_amount = %.2lf; balance = %.2lf\n",
+printf( "account = %s; transaction = %s; previous_balance = %.2lf; debit_amount = %.2lf; credit_amount = %.2lf; balance = %.2lf\n",
 journal->account_name,
+journal->transaction_date_time,
 journal->previous_balance,
 journal->debit_amount,
 journal->credit_amount,
@@ -185,10 +192,13 @@ journal->balance );
 					journal->debit_amount;
 		}
 
-/*
-printf( "Got journal->balance - balance = %.2lf\n",
-journal->balance - balance );
-*/
+if ( DEBUG_MODE )
+{
+printf( "journal->balance = %.2lf\n", journal->balance );
+printf( "balance = %.2lf\n", balance );
+printf( "difference = %.2lf\n",
+	journal->balance - balance );
+}
  
 		local_balance_difference +=
 			( journal->balance - balance );
@@ -197,6 +207,17 @@ journal->balance - balance );
 
 	*balance_difference = local_balance_difference;
 
+if ( DEBUG_MODE )
+{
+printf( "Output balance_difference = %.2lf\n",
+*balance_difference );
+}
+
+if ( DEBUG_MODE )
+{
+printf( "Returning sum_debit_amount - sum_credit_amount = %.2lf\n",
+sum_debit_amount - sum_credit_amount );
+}
 	return sum_debit_amount - sum_credit_amount;
 }
 

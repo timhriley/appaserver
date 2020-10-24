@@ -103,7 +103,7 @@ char *transaction_sys_string( char *where )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "select.sh \"%s\" %s \"%s\" select",
+		 "select.sh \"%s\" %s \"%s\" transaction_date_time",
 		 transaction_select(),
 		 TRANSACTION_TABLE,
 		 where );
