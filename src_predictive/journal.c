@@ -333,7 +333,8 @@ void journal_insert_pipe(
 	}
 }
 
-void journal_propagate(char *transaction_date_time,
+void journal_propagate(
+			char *transaction_date_time,
 			char *account_name )
 {
 	if ( !account_name || !*account_name )
@@ -386,7 +387,7 @@ LIST *journal_list_prior(
 
 		if ( !list_length( journal_list ) ) return (LIST *)0;
 
-		first_journal = list_get( journal_list );
+		first_journal = list_first( journal_list );
 		first_journal->previous_balance = 0.0;
 		first_journal->transaction_count = 1;
 	}
@@ -416,6 +417,8 @@ LIST *journal_list_set_balances(
 	/* --------------------------------------------------------------- */
 	first_journal = list_get_first_pointer( journal_list );
 	transaction_count = first_journal->transaction_count;
+
+	if ( !transaction_count ) transaction_count = 1;
 
 	do {
 		journal = list_get( journal_list );
@@ -825,6 +828,7 @@ char *journal_update_sys_string( void )
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y		|"
+		 "tee_appaserver_error.sh				|"
 		 "sql							 ",
 		 JOURNAL_TABLE,
 		 key );

@@ -151,7 +151,7 @@ int main( int argc, char **argv )
 	}
 	else
 	/* ----------------- */
-	/* Must be argc <= 2 */
+	/* Must be argc <= 3 */
 	/* ----------------- */
 	{
 		account_transaction_propagate(
