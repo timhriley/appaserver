@@ -1173,6 +1173,11 @@ char *date_display( DATE *date )
 	return date_display_yyyy_mm_dd( date );
 }
 
+char *date_yyyy_mm_dd_display( DATE *date )
+{
+	return  date_static_display_yyyy_mm_dd( date );
+}
+
 char *date_static_display_yyyy_mm_dd( DATE *date )
 {
 	static char buffer[ 16 ];

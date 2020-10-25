@@ -238,8 +238,7 @@ int main( int argc, char **argv )
 	document_close();
 
 	exit( 0 );
-
-} /* main() */
+}
 
 /* ---------------------------------------------------- */
 /* If display then it returns file_row_count.		*/
@@ -425,7 +424,9 @@ int load_bank_spreadsheet(
 				bank_upload_list );
 
 		bank_upload_transaction_balance_propagate(
-			*minimum_bank_date );
+			*minimum_bank_date,
+			transaction_list_minimum_transaction_date_time(
+				transaction_list ) );
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )

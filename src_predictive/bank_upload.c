@@ -1996,28 +1996,6 @@ char *bank_upload_transaction_journal_subquery( void )
 	return strdup( subquery );
 }
 
-void bank_upload_transaction_balance_propagate(
-			char *bank_date )
-{
-	char sys_string [ 1024 ];
-
-	sprintf( sys_string,
-		 "bank_upload_sequence_propagate.sh \"%s\" 		|"
-		 "sql.e 2>&1						|"
-		 "html_paragraph_wrapper.e			 	 ",
-		 bank_date );
-
-	if ( system( sys_string ) ) {};
-
-	sprintf( sys_string,
-		 "bank_upload_balance_propagate.sh \"%s\" 		|"
-		 "sql.e 2>&1						|"
-		 "html_paragraph_wrapper.e			 	 ",
-		 bank_date );
-
-	if ( system( sys_string ) ) {};
-}
-
 char *bank_upload_account_html(
 		boolean existing_bank_upload,
 		boolean existing_transaction,
@@ -2147,8 +2125,7 @@ int bank_upload_parse_check_number( char *bank_description )
 	search_replace_string( buffer, "#", "" );
 
 	return atof( buffer );
-
-} /* bank_upload_parse_check_number() */
+}
 
 /* Does journal_propagate() */
 /* ------------------------ */
@@ -2605,5 +2582,63 @@ char *bank_upload_minimum_transaction_date(
 	} while ( list_next( l ) );
 
 	return return_date;
+}
+
+void bank_upload_transaction_balance_propagate(
+			char *bank_date,
+			char *transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char transaction_date[ 128 ];
+	char *minimum_date;
+	DATE *yesterday;
+
+	if ( !bank_date )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty bank_date\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( transaction_date_time )
+	{
+		column( transaction_date, 0, transaction_date_time );
+	}
+	else
+	{
+		*transaction_date = '\0';
+	}
+
+	if ( *transaction_date
+	&&   strcmp( transaction_date, bank_date ) < 0 )
+	{
+		minimum_date = transaction_date;
+	}
+	else
+	{
+		minimum_date = bank_date;
+	}
+
+	yesterday = date_yyyy_mm_dd_new( minimum_date );
+	date_increment_days( yesterday, -1.0, date_utc_offset() );
+
+	sprintf( sys_string,
+		 "bank_upload_sequence_propagate.sh \"%s\" 		|"
+		 "sql.e 2>&1						|"
+		 "html_paragraph_wrapper.e			 	 ",
+		 date_yyyy_mm_dd_display( yesterday ) );
+
+	if ( system( sys_string ) ) {};
+
+	sprintf( sys_string,
+		 "bank_upload_balance_propagate.sh \"%s\" 		|"
+		 "sql.e 2>&1						|"
+		 "html_paragraph_wrapper.e			 	 ",
+		 date_yyyy_mm_dd_display( yesterday ) );
+
+	if ( system( sys_string ) ) {};
 }
 

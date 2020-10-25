@@ -196,7 +196,8 @@ int main( int argc, char **argv )
 			(char *)0 /* fund_name */ );
 
 		bank_upload_transaction_balance_propagate(
-			bank_date );
+			bank_date,
+			transaction->transaction_date_time );
 
 		folder_menu_refresh_row_count(
 			application_name,

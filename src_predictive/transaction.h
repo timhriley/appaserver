@@ -460,4 +460,7 @@ LIST *transaction_list_journal_program_insert(
 LIST *transaction_list_delete(
 			LIST *transaction_list );
 
+char *transaction_list_minimum_transaction_date_time(
+			LIST *transaction_list );
+
 #endif

@@ -100,7 +100,8 @@ int main( int argc, char **argv )
 
 	bank_upload_transaction_balance_propagate(
 		propagate_transaction_date
-			/* bank_date */ );
+			/* bank_date */,
+		propagate_transaction_date_time );
 
 	if ( argc > 3
 	&&   strcmp( argv[ 3 ], "account" ) == 0

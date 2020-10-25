@@ -1904,3 +1904,33 @@ LIST *transaction_list_delete(
 	return account_name_list;
 }
 
+char *transaction_list_minimum_transaction_date_time(
+			LIST *transaction_list )
+{
+	TRANSACTION *transaction;
+	char *minimum_transaction_date_time = {0};
+
+	if ( !list_rewind( transaction_list ) ) return (char *)0;
+
+	do {
+		transaction = list_get( transaction_list );
+
+		if ( !minimum_transaction_date_time )
+		{
+			minimum_transaction_date_time =
+				transaction->transaction_date_time;
+		}
+		else
+		if ( strcmp(
+			transaction->transaction_date_time,
+ 			minimum_transaction_date_time ) < 0 )
+		{
+			minimum_transaction_date_time =
+				transaction->transaction_date_time;
+		}
+
+	} while ( list_next( transaction_list ) );
+
+	return minimum_transaction_date_time;
+}
+

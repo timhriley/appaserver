@@ -411,66 +411,80 @@ char *date_prior_day_of_week_yyyy_mm_dd_string(
 				int day_of_week,
 				int utc_offset );
 
+char *date_yyyy_mm_dd_display(
+			DATE *date );
+
 char *date_static_display_yyyy_mm_dd(
-				DATE *date );
+			DATE *date );
 
 char *date_current_to_static_yyyy_mm_dd_string(
-				time_t current,
-				int utc_offset );
+			time_t current,
+			int utc_offset );
 
-char *date_static_display(	DATE *date );
+char *date_static_display(
+			DATE *date );
 
-void date_time_parse(		int *hours,
-				int *minutes,
-				char *hhmm );
+void date_time_parse(	int *hours,
+			int *minutes,
+			char *hhmm );
 
-boolean date_parse(		int *year,
-				int *month,
-				int *day,
-				char *date_string );
+boolean date_parse(	int *year,
+			int *month,
+			int *day,
+			char *date_string );
 
-char *date_get_unix_now_string(	void );
+char *date_get_unix_now_string(
+			void );
 
-int date_get_day(		DATE *date );
+int date_get_day(	DATE *date );
 
 boolean date_is_greatgreatgrandfather(
-				DATE *d );
+			DATE *d );
 
 boolean date_is_greatgrandfather(
-				DATE *d );
+			DATE *d );
 
-boolean date_is_grandfather(	DATE *d );
+boolean date_is_grandfather(
+			DATE *d );
 
-boolean date_is_sunday(		DATE *d );
-boolean date_is_monday(		DATE *d );
-boolean date_is_tuesday(	DATE *d );
-boolean date_is_wednesday(	DATE *d );
-boolean date_is_thursday(	DATE *d );
-boolean date_is_friday(		DATE *d );
-boolean date_is_saturday(	DATE *d );
+boolean date_is_sunday(	DATE *d );
+boolean date_is_monday(	DATE *d );
+boolean date_is_tuesday(DATE *d );
+boolean date_is_wednesday(
+			DATE *d );
+boolean date_is_thursday(
+			DATE *d );
+boolean date_is_friday(	DATE *d );
+boolean date_is_saturday(
+			DATE *d );
 
-boolean date_is_father(		DATE *d );
+boolean date_is_father(	DATE *d );
 
-boolean date_is_day_of_week(	DATE *d,
-				int day_of_week );
+boolean date_is_day_of_week(
+			DATE *d,
+			int day_of_week );
 
-DATE *date_back_to_first_month(	DATE *d,
-				int utc_offset );
+DATE *date_back_to_first_month(
+			DATE *d,
+			int utc_offset );
 
-DATE *date_current_new(		time_t current,
-				int utc_offset );
+DATE *date_current_new(	time_t current,
+			int utc_offset );
 
-void date_decrement_years(	DATE *d,
-				int years,
-				int utc_offset );
+void date_decrement_years(
+			DATE *d,
+			int years,
+			int utc_offset );
 
-void date_increment_months(	DATE *d,
-				int months,
-				int utc_offset );
+void date_increment_months(
+			DATE *d,
+			int months,
+			int utc_offset );
 
-void date_increment_years(	DATE *d,
-				int years,
-				int utc_offset );
+void date_increment_years(
+			DATE *d,
+			int years,
+			int utc_offset );
 
 DATE *date_forward_to_first_month(
 				DATE *d,
@@ -536,29 +550,30 @@ char *date_now16(		int utc_offset );
 char *date_get_now16(		int utc_offset );
 
 char *date_display_yyyy_mm_dd_hh_colon_mm(
-				DATE *date );
+			DATE *date );
 
-int date_months_between(	DATE *from_date,
-				DATE *to_date );
+int date_months_between(DATE *from_date,
+			DATE *to_date );
 
-int date_get_days_in_year(	int year );
+int date_get_days_in_year(
+			int year );
 
-void date_set_TZ(		char *TZ );
+void date_set_TZ(	char *TZ );
 
-char *date_get_hms(		DATE *date );
+char *date_get_hms(	DATE *date );
 
 boolean date_parse_american_date_time(
-				char *date_international,
-				char *time_hhmm,
-				char **error_message,
-				char *american_date_time );
+			char *date_international,
+			char *time_hhmm,
+			char **error_message,
+			char *american_date_time );
 
 boolean date_set_yyyy_mm_dd_hh_mm_ss_colon(
-				DATE *date,
-				/* ------------------- */
-				/* 2017-12-01 11:00:00 */
-				/* ------------------- */
-				char *date_time_string );
+			DATE *date,
+			/* ------------------- */
+			/* 2017-12-01 11:00:00 */
+			/* ------------------- */
+			char *date_time_string );
 
 /* Returns static memory */
 /* --------------------- */

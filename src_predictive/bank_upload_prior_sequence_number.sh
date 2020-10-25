@@ -58,9 +58,7 @@ fi
 # Get the transaction_date_time for this sequence_number.
 # ------------------------------------------------------------------------
 
-# Shouldn't need to use min() anymore.
-# ------------------------------------
-select="min( transaction_date_time )"
+select="transaction_date_time"
 where="sequence_number = $max_sequence_number"
 
 transaction_date_time=`echo "select $select from $from where $where;" | sql.e`

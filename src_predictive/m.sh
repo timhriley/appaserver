@@ -1,6 +1,6 @@
 :
 
-make ledger_propagate
+make load_bank_spreadsheet
 
 #if [ "$?" -eq 0 ]
 #then

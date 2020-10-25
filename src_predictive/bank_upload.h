@@ -301,7 +301,8 @@ LIST *bank_upload_transaction_list_string_parse(
 	char delimiter );
 
 void bank_upload_transaction_balance_propagate(
-					char *bank_date );
+			char *bank_date,
+			char *transaction_date_time );
 
 char *bank_upload_account_html(
 		boolean existing_bank_upload,
