@@ -817,7 +817,9 @@ void transaction_stderr( TRANSACTION *transaction )
 
 /* Returns transaction_list with transaction_date_time changed if needed. */
 /* ---------------------------------------------------------------------- */
-LIST *transaction_list_insert( LIST *transaction_list )
+LIST *transaction_list_insert(
+			LIST *transaction_list,
+			boolean lock_transaction )
 {
 	TRANSACTION *transaction;
 
@@ -834,7 +836,7 @@ LIST *transaction_list_insert( LIST *transaction_list )
 				transaction->transaction_amount,
 				transaction->memo,
 				transaction->check_number,
-				1 /* lock_transaction */,
+				lock_transaction,
 				0 /* not replace */ );
 
 	} while( list_next( transaction_list ) );

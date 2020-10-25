@@ -452,7 +452,10 @@ char *print_checks_create(
 
 void print_checks_post( LIST *liability_transaction_list )
 {
-	transaction_list_insert( liability_transaction_list );
+	transaction_list_insert(
+		liability_transaction_list,
+		0 /* not lock_transaction */ );
+
 	printf( "<h3>Post to transaction complete.</h3>\n" );
 }
 

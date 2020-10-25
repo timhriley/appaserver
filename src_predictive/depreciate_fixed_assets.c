@@ -308,7 +308,8 @@ boolean depreciate_fixed_assets( boolean execute )
 		transaction_list_insert(
 			depreciation_transaction_list(
 				equipment_purchase_depreciation_list(
-					equipment_purchase_list ) ) );
+					equipment_purchase_list ) ),
+			0 /* not lock_transaciton */ );
 
 		depreciation_list_insert(
 			equipment_purchase_depreciation_list(

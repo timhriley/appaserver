@@ -97,7 +97,8 @@ char *transaction_insert_pipe(
 /* Returns transaction_list */
 /* ------------------------ */
 LIST *transaction_list_insert(
-			LIST *transaction_list );
+			LIST *transaction_list,
+			boolean lock_transaction );
 
 void transaction_list_stderr(
 			LIST *transaction_list );

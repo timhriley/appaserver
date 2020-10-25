@@ -394,7 +394,9 @@ int load_bank_spreadsheet(
 		/* ------------------------------------ */
 		/* Note: this is the bottleneck.	*/
 		/* ------------------------------------ */
-		transaction_list_insert( transaction_list );
+		transaction_list_insert(
+			transaction_list,
+			0 /* not lock_transaction */ );
 
 		bank_upload_transaction_table_display(
 			bank_upload_structure->file.bank_upload_list );
