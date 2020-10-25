@@ -57,8 +57,7 @@ LIST *feeder_upload_get_possible_description_list(
 	}
 
 	return possible_description_list;
-
-} /* feeder_upload_get_possible_description_list() */
+}
 
 /* Returns static memory */
 /* --------------------- */
@@ -81,8 +80,7 @@ char *feeder_upload_get_description_bank_amount(
 		 bank_amount_portion );
 
 	return bank_description_bank_amount;
-
-} /* feeder_upload_get_description_bank_amount() */
+}
 
 /* Returns strdup() memory */
 /* ----------------------- */
@@ -99,26 +97,13 @@ char *feeder_upload_description_embedded(
 
 	*fund_portion = '\0';
 
-	/* -------------------------------------- */
-	/* Gets sed_trim_double_spaces()'s memory */
-	/* -------------------------------------- */
 	bank_description_file =
-		/* ------------ */
-		/* Returns self */
-		/* ------------ */
-		bank_upload_description_crop(
-			/* ------------------------- */
-			/* Both Return static memory */
-			/* ------------------------- */
-			sed_trim_double_spaces(
-				feeder_upload_trim_bank_date_from_description(
-					bank_description_file ) ) );
-
-/*
-	bank_description_file =
-		feeder_upload_trim_bank_date_from_description(
-			bank_description_file );
-*/
+		/* ------------------------- */
+		/* Both Return static memory */
+		/* ------------------------- */
+		sed_trim_double_spaces(
+			feeder_upload_trim_bank_date_from_description(
+				bank_description_file ) );
 
 	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
@@ -140,7 +125,9 @@ char *feeder_upload_description_embedded(
 		 bank_amount_portion,
 		 running_balance_portion );
 
-	return strdup( bank_description_embedded );
+	return strdup(
+			feeder_description_crop(
+				bank_description_embedded ) );
 }
 
 /* Returns static memory */
@@ -171,8 +158,7 @@ char *feeder_upload_get_bank_amount_portion(
 	}
 
 	return bank_amount_portion;
-
-} /* feeder_upload_get_bank_amount_portion() */
+}
 
 /* Returns static memory */
 /* --------------------- */
@@ -189,8 +175,7 @@ char *feeder_upload_get_fund_portion(
 	}
 
 	return fund_portion;
-
-} /* feeder_upload_get_fund_portion() */
+}
 
 /* Returns static memory */
 /* --------------------- */
@@ -207,8 +192,7 @@ char *feeder_upload_get_check_portion(
 	}
 
 	return check_portion;
-
-} /* feeder_upload_get_check_portion() */
+}
 
 char *feeder_upload_get_like_where(	char *where,
 					char *bank_date,
@@ -226,8 +210,7 @@ char *feeder_upload_get_like_where(	char *where,
 		 '%' );
 
 	return where;
-
-} /* feeder_upload_get_like_where() */
+}
 
 /* Returns static memory */
 /* --------------------- */
@@ -266,8 +249,7 @@ char *feeder_upload_trim_bank_date_from_description(
 	sed_free( sed );
 
 	return timlib_rtrim( sans_bank_date_description );
-
-} /* feeder_upload_trim_bank_date_from_description() */
+}
 
 JOURNAL *feeder_check_number_existing_journal(
 				LIST *existing_cash_journal_list,
@@ -497,5 +479,14 @@ send_amount );
 	} while ( list_next( name_string_list ) );
 
 	return return_list;
+}
+
+char *feeder_description_crop( char *bank_description )
+{
+	if ( strlen( bank_description ) > FEEDER_DESCRIPTION_SIZE )
+	{
+		*( bank_description + FEEDER_DESCRIPTION_SIZE ) = '\0';
+	}
+	return bank_description;
 }
 

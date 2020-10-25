@@ -42,7 +42,7 @@ TRANSACTION *post_cash_expense_transaction(
 				char *full_name,
 				char *street_address,
 				char *bank_date,
-				char *bank_description,
+				char *bank_description_embedded,
 				char *debit_account,
 				char *memo );
 
@@ -59,7 +59,7 @@ int main( int argc, char **argv )
 	char *full_name;
 	char *street_address;
 	char *bank_date;
-	char *bank_description;
+	char *bank_description_embedded;
 	char *debit_account;
 	char *memo;
 	char *output_medium;
@@ -85,7 +85,7 @@ int main( int argc, char **argv )
 	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s process session role full_name street_address bank_date bank_description debit_account memo output_medium execute_yn\n",
+"Usage: %s process session role full_name street_address bank_date bank_description_embedded debit_account memo output_medium execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -96,10 +96,7 @@ int main( int argc, char **argv )
 	full_name = argv[ 4 ];
 	street_address = argv[ 5 ];
 	bank_date = argv[ 6 ];
-
-	bank_description = argv[ 7 ];
-	bank_upload_description_crop( bank_description );
-
+	bank_description_embedded = argv[ 7 ];
 	debit_account = argv[ 8 ];
 	memo = argv[ 9 ];
 	output_medium = argv[ 10 ];
@@ -170,7 +167,7 @@ int main( int argc, char **argv )
 				full_name,
 				street_address,
 				bank_date,
-				bank_description,
+				bank_description_embedded,
 				debit_account,
 				memo );
 
@@ -192,7 +189,7 @@ int main( int argc, char **argv )
 
 		bank_upload_transaction_direct_insert(
 			bank_date,
-			bank_description,
+			bank_description_embedded,
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time,

@@ -418,20 +418,6 @@ LIST *bank_upload_file_list(
 			continue;
 		}
 
-		/* Trim off trailing date and crop to database size. */
-		/* ------------------------------------------------- */
-		strcpy( bank_description,
-			/* ------------ */
-			/* Returns self */
-			/* ------------ */
-			bank_upload_description_crop(
-				/* ------------------------- */
-				/* Both Return static memory */
-				/* ------------------------- */
-				sed_trim_double_spaces(
-				  feeder_upload_trim_bank_date_from_description(
-					bank_description ) ) ) );
-
 		/* Get bank_balance */
 		/* ---------------- */
 		if ( balance_piece_offset >= 0 )
@@ -445,10 +431,7 @@ LIST *bank_upload_file_list(
 		bank_upload = bank_upload_calloc();
 
 		bank_upload->bank_date = strdup( bank_date_international );
-
-		bank_upload->bank_description =
-		bank_upload->bank_description_embedded =
-			strdup( bank_description );
+		bank_upload->bank_description = strdup( bank_description );
 
 		bank_upload->check_number =
 			bank_upload_parse_check_number(
@@ -466,11 +449,11 @@ LIST *bank_upload_file_list(
 			/* Returns strdup() memory */
 			/* ----------------------- */
 			feeder_upload_description_embedded(
-					bank_upload->bank_description
-						/* bank_description_file */,
-					fund_name,
-					bank_upload->bank_amount,
-					bank_upload->bank_running_balance );
+				bank_upload->bank_description
+					/* bank_description_file */,
+				fund_name,
+				bank_upload->bank_amount,
+				bank_upload->bank_running_balance );
 
 		if ( bank_upload_exists(
 			bank_upload->bank_date,
@@ -566,7 +549,6 @@ void bank_upload_event_insert(
 }
 
 void bank_upload_archive_insert(
-			char *fund_name,
 			LIST *bank_upload_list,
 			char *bank_upload_date_time )
 {
@@ -600,22 +582,18 @@ void bank_upload_archive_insert(
 
 		if ( !bank_upload->bank_description_embedded )
 		{
-			bank_upload->bank_description_embedded =
-				/* ----------------------- */
-				/* Returns strdup() memory */
-				/* ----------------------- */
-				feeder_upload_description_embedded(
-					bank_upload->bank_description,
-					fund_name,
-					bank_upload->bank_amount,
-					bank_upload->bank_running_balance );
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: empty bank_description_embeded.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
 		}
 
 		fprintf(bank_upload_archive_insert_pipe,
 			"%s^%s^%d^%.2lf^%.2lf^%s\n",
 		 	bank_upload->bank_date,
-			bank_upload_description_crop(
-				bank_upload->bank_description_embedded ),
+			bank_upload->bank_description_embedded,
 			bank_upload->sequence_number,
 		 	bank_upload->bank_amount,
 			bank_upload->bank_running_balance,
@@ -664,8 +642,7 @@ void bank_upload_transaction_direct_insert(
 		fprintf(insert_pipe,
 			"%s^%s^%s^%s^%s^%s\n",
 			bank_date,
-			bank_upload_description_crop(
-				bank_description_embedded ),
+			bank_description_embedded,
 			full_name,
 			street_address,
 			transaction_date_time,
@@ -676,8 +653,7 @@ void bank_upload_transaction_direct_insert(
 		fprintf(insert_pipe,
 			"%s^%s^%s^%s^%s\n",
 			bank_date,
-			bank_upload_description_crop(
-				bank_description_embedded ),
+			bank_description_embedded,
 			full_name,
 			street_address,
 			transaction_date_time );
@@ -747,8 +723,7 @@ int bank_upload_insert(			char *fund_name,
 		fprintf(bank_upload_insert_pipe,
 			"%s^%s^%d^%.2lf^%s\n",
 		 	bank_upload->bank_date,
-			bank_upload_description_crop(
-				bank_upload->bank_description_embedded ),
+			bank_upload->bank_description_embedded,
 			bank_upload->sequence_number,
 		 	bank_upload->bank_amount,
 			bank_upload_date_time );
@@ -1707,9 +1682,9 @@ double bank_upload_archive_latest_running_balance( void )
 /* Insert into BANK_UPLOAD_TRANSACTION */
 /* ----------------------------------- */
 void bank_upload_reconciliation_transaction_insert(
-					char *bank_date,
-					char *bank_description_embedded,
-					LIST *transaction_list )
+			char *bank_date,
+			char *bank_description_embedded,
+			LIST *transaction_list )
 {
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
@@ -2100,17 +2075,6 @@ char *bank_upload_account_html(
 	}
 }
 
-char *bank_upload_description_crop( char *bank_description )
-{
-	if ( strlen( bank_description ) >  BANK_UPLOAD_DESCRIPTION_SIZE )
-	{
-		*( bank_description + BANK_UPLOAD_DESCRIPTION_SIZE ) = '\0';
-	}
-
-	return bank_description;
-
-} /* bank_upload_description_crop() */
-
 char *bank_upload_unique_bank_description(
 				boolean exists_fund,
 				char *fund_name,
@@ -2144,8 +2108,7 @@ char *bank_upload_unique_bank_description(
 		 balance_portion );
 
 	return bank_description;
-
-} /* bank_upload_unique_bank_description() */
+}
 
 LIST *bank_upload_transaction_date_time_list(
 			char *minimum_transaction_date,
@@ -2200,7 +2163,7 @@ void bank_upload_cleared_checks_update(
 	char *key;
 	char *cash_account;
 	char *uncleared_checks_account;
-	char *first_transaction_date_time = {0};
+	char *earliest_transaction_date_time = {0};
 
 	if ( !list_rewind( bank_upload_list ) ) return;
 
@@ -2222,6 +2185,7 @@ void bank_upload_cleared_checks_update(
 
 	sprintf( sys_string,
 		 "update_statement table=%s key=%s carrot=y		|"
+		 "tee_appaserver_error.sh				|"
 		 "sql.e 2>&1						|"
 		 "html_paragraph_wrapper.e				|"
 		 "cat							 ",
@@ -2247,25 +2211,37 @@ void bank_upload_cleared_checks_update(
 				 uncleared_checks_account,
 				 cash_account );
 
-			if ( !first_transaction_date_time )
-				first_transaction_date_time =
+			if ( !earliest_transaction_date_time )
+			{
+				earliest_transaction_date_time =
 					journal->transaction_date_time;
+			}
+			else
+			{
+				if ( strcmp( 
+					journal->transaction_date_time,
+					earliest_transaction_date_time ) < 0 )
+				{
+					earliest_transaction_date_time =
+						journal->transaction_date_time;
+				}
+			}
 		}
 
 	} while( list_next( bank_upload_list ) );
 
 	pclose( output_pipe );
 
-	if ( first_transaction_date_time )
+	if ( earliest_transaction_date_time )
 	{
 		journal_propagate(
-			first_transaction_date_time,
+			earliest_transaction_date_time,
 			cash_account );
 
 		journal_propagate(
-			first_transaction_date_time,
+			earliest_transaction_date_time,
 			uncleared_checks_account );
-	} 
+	}
 }
 
 void bank_upload_journal_text_display(
@@ -2452,7 +2428,7 @@ void bank_upload_match_sum_existing_journal_list(
 /* Insert into BANK_UPLOAD_TRANSACTION */
 /* ----------------------------------- */
 void bank_upload_direct_bank_upload_transaction_insert(
-					LIST *bank_upload_list )
+			LIST *bank_upload_list )
 {
 	char sys_string[ 1024 ];
 	FILE *output_pipe;

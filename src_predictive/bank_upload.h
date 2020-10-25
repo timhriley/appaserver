@@ -22,7 +22,6 @@ enum bank_upload_exception {	bank_upload_exception_none,
 
 /* Constants */
 /* --------- */
-#define BANK_UPLOAD_DESCRIPTION_SIZE	140
 #define BANK_UPLOAD_FILENAME_SIZE	80
 #define BANK_UPLOAD_TABLE_NAME		"bank_upload"
 
@@ -226,9 +225,9 @@ void bank_upload_event_insert(		char *bank_upload_date_time,
 
 boolean bank_upload_sha256sum_exists(	 char *file_sha256sum );
 
-void bank_upload_archive_insert(	char *fund_name,
-					LIST *bank_upload_list,
-					char *bank_upload_date_time );
+void bank_upload_archive_insert(
+			LIST *bank_upload_list,
+			char *bank_upload_date_time );
 
 int bank_upload_feeder_phrase_match_transaction_count(
 					LIST *bank_upload_list );

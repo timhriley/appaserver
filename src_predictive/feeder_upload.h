@@ -17,6 +17,7 @@
 /* Constants */
 /* --------- */
 #define FEEDER_KEYS_MATCH_SUM_MAX 	18
+#define FEEDER_DESCRIPTION_SIZE		140
 
 /* Structures */
 /* ---------- */
@@ -79,15 +80,18 @@ JOURNAL *feeder_check_number_existing_journal(
 			int check_number );
 
 TRANSACTION *feeder_phrase_match_build_transaction(
-				LIST *reoccurring_transaction_list,
-				char *bank_date,
-				char *bank_description_embedded,
-				double abs_bank_amount );
+			LIST *reoccurring_transaction_list,
+			char *bank_date,
+			char *bank_description_embedded,
+			double abs_bank_amount );
 
 LIST *feeder_match_sum_existing_journal_list(
-				LIST *existing_cash_journal_list,
-				double abs_bank_amount,
-				boolean check_debit );
+			LIST *existing_cash_journal_list,
+			double abs_bank_amount,
+			boolean check_debit );
+
+char *feeder_description_crop(
+			char *bank_description );
 
 #endif
 

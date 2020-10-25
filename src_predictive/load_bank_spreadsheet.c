@@ -223,8 +223,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file_get_dbms() );
 
 		printf(
-	"<p>Process complete as of %s with %d rows and %d transactions.\n",
-			minimum_bank_date,
+	"<p>Process complete with %d rows and %d transactions.\n",
 			load_count,
 			transaction_count );
 	}
@@ -300,7 +299,8 @@ int load_bank_spreadsheet(
 		char *msg;
 
 		if ( execute )
-			msg = "<h3>ERROR: duplicated file.</h3>";
+			msg =
+			"<h3>Warning: duplicated file; will not execute.</h3>";
 		else
 			msg = "<h3>Warning: duplicated file.</h3>";
 
@@ -375,7 +375,6 @@ int load_bank_spreadsheet(
 			bank_upload_structure->feeder_account );
 
 		bank_upload_archive_insert(
-			fund_name,
 			bank_upload_structure->
 				file.
 				bank_upload_list,
