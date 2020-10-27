@@ -490,6 +490,7 @@ void transaction_balance_summary_outbalance_html(
 	char *duplicated_transaction_message = {0};
 	char *deposit_message = {0};
 	char *missing_expense_message = {0};
+	char *internal_recordkeeping_message = {0};
 
 	if ( !last_outbalance_block ) return;
 
@@ -517,6 +518,18 @@ void transaction_balance_summary_outbalance_html(
 			first_outbalance_row->cash_running_balance_wrong,
 			first_outbalance_row->bank_running_balance_wrong,
 			first_outbalance_row->sequence_number ) );
+
+	if ( !first_outbalance_row->bank_running_balance )
+	{
+		internal_recordkeeping_message =
+"An internal recordkeeping error occurred. Bank running balance is zero. Try &lt;Manipulate&gt; &lt;Ledger Propagate&gt;.";
+	}
+
+	if ( internal_recordkeeping_message )
+	{
+		printf( "<h3>%s</h3>\n", internal_recordkeeping_message );
+		return;
+	}
 
 	if ( first_outbalance_row->cash_running_balance_wrong )
 	{
