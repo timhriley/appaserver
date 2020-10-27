@@ -1173,52 +1173,6 @@ LIST *bank_upload_transaction_list(
 	return transaction_list;
 }
 
-void bank_upload_table_display(
-				LIST *bank_upload_list )
-{
-	BANK_UPLOAD *bank_upload;
-	FILE *output_pipe;
-	char sys_string[ 1024 ];
-	char *heading;
-	LIST *match_sum_journal_list;
-
-	if ( !list_rewind( bank_upload_list ) ) return;
-
-	heading =
-	"Account<br>Entity/Transaction,bank_date,bank_description,amount";
-
-	sprintf( sys_string,
-		 "html_table.e '' '%s' '^' left,left,left,right",
-		 heading );
-
-	output_pipe = popen( sys_string, "w" );
-
-	do {
-		bank_upload = list_get( bank_upload_list );
-
-		match_sum_journal_list =
-			bank_upload->
-			feeder_match_sum_existing_journal_list;
-
-		fprintf( output_pipe,
-			 "%s^%s^%s^%.2lf\n",
-			 bank_upload_account_html(
-				bank_upload->existing_bank_upload,
-				bank_upload->existing_transaction,
-				bank_upload->
-					feeder_phrase_match_build_transaction,
-				bank_upload->
-				    feeder_check_number_existing_journal,
-				match_sum_journal_list ),
-			 bank_upload->bank_date,
-			 bank_upload->bank_description_embedded,
-			 bank_upload->bank_amount );
-
-	} while( list_next( bank_upload_list ) );
-
-	pclose( output_pipe );
-}
-
 void bank_upload_transaction_text_display( LIST *bank_upload_list )
 {
 	BANK_UPLOAD *bank_upload;
@@ -2640,5 +2594,71 @@ void bank_upload_transaction_balance_propagate(
 		 date_yyyy_mm_dd_display( yesterday ) );
 
 	if ( system( sys_string ) ) {};
+}
+
+void bank_upload_table_display(
+				LIST *bank_upload_list )
+{
+	BANK_UPLOAD *bank_upload;
+	FILE *output_pipe = {0};
+	char sys_string[ 1024 ];
+	char *heading;
+	LIST *match_sum_journal_list;
+
+	heading =
+	"Account<br>Entity/Transaction,bank_date,bank_description,amount";
+
+	sprintf( sys_string,
+		 "html_table.e '' '%s' '^' left,left,left,right",
+		 heading );
+
+	if ( !list_rewind( bank_upload_list ) )
+	{
+		output_pipe = popen( sys_string, "w" );
+		pclose( output_pipe );
+		return;
+	}
+
+	do {
+		if ( !output_pipe )
+		{
+			output_pipe = popen( sys_string, "w" );
+		}
+
+		bank_upload = list_get( bank_upload_list );
+
+		match_sum_journal_list =
+			bank_upload->
+			feeder_match_sum_existing_journal_list;
+
+		fprintf( output_pipe,
+			 "%s^%s^%s^%.2lf\n",
+			 bank_upload_account_html(
+				bank_upload->existing_bank_upload,
+				bank_upload->existing_transaction,
+				bank_upload->
+					feeder_phrase_match_build_transaction,
+				bank_upload->
+				    feeder_check_number_existing_journal,
+				match_sum_journal_list ),
+			 bank_upload->bank_date,
+			 bank_upload->bank_description_embedded,
+			 bank_upload->bank_amount );
+
+		if ( bank_upload->feeder_phrase_match_build_transaction )
+		{
+			pclose( output_pipe );
+			output_pipe = (FILE *)0;
+
+			journal_list_html_display(
+				bank_upload->
+					feeder_phrase_match_build_transaction->
+					journal_list,
+				bank_upload->
+					feeder_phrase_match_build_transaction->
+					memo );
+		}
+
+	} while( list_next( bank_upload_list ) );
 }
 

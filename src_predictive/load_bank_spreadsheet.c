@@ -329,10 +329,12 @@ int load_bank_spreadsheet(
 				file.
 				bank_upload_list );
 
+/*
 		bank_upload_transaction_table_display(
 			bank_upload_structure->
 				file.
 				bank_upload_list );
+*/
 
 		*transaction_count =
 			bank_upload_feeder_phrase_match_transaction_count(

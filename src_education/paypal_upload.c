@@ -35,9 +35,6 @@
 
 /* Prototypes */
 /* ---------- */
-void paypal_upload_transaction_display(
-			LIST *deposit_list );
-
 void paypal_upload_event_insert(
 			char *spreadsheet_filename,
 			char *login_name,
@@ -239,8 +236,6 @@ int main( int argc, char **argv )
 			season_name,
 			year );
 
-		/* paypal_upload_transaction_display( deposit_list ); */
-
 		printf(
 		"<p>Process did not execute with row count %d.\n",
 				list_length( deposit_list ) );
@@ -316,20 +311,6 @@ LIST *paypal_upload_deposit_list(
 				education_program_list() ) );
 
 	return deposit_list;
-}
-
-void paypal_upload_transaction_display(
-			LIST *deposit_list )
-{
-	LIST *transaction_list;
-
-	transaction_list =
-		deposit_list_transaction_list(
-			deposit_list );
-
-	printf( "<h3>Transactions</h3>\n" );
-
-	transaction_list_html_display( transaction_list );
 }
 
 void paypal_upload_display(

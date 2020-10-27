@@ -1226,8 +1226,8 @@ void journal_list_html_display(
 	}
 	else
 	{
-		heading = "Account,Debit,Credit";
-		justify = "left,right,right";
+		heading = ",Account,Debit,Credit";
+		justify = "left,left,right,right";
 	}
 
 	sprintf(sys_string,
