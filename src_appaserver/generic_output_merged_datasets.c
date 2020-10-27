@@ -99,7 +99,6 @@ boolean merged_datasets_output_table(
 					LIST *compare_datatype_list,
 					enum aggregate_level,
 					char *value_folder_name,
-					char *application_name,
 					boolean accumulate );
 
 boolean merged_datasets_output_spreadsheet_header(
@@ -381,7 +380,6 @@ int main( int argc, char **argv )
 					process_generic_output->
 						value_folder->
 							value_folder_name,
-					application_name,
 					process_generic_output->accumulate ) )
 		{
 			printf(
@@ -682,7 +680,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	exit( 0 );
-} /* main() */
+}
 
 boolean merged_datasets_output_spreadsheet_header(
 					FILE *output_pipe,
@@ -721,7 +719,7 @@ boolean merged_datasets_output_spreadsheet_header(
 
 	return 1;
 
-} /* merged_datasets_output_header() */
+}
 
 boolean merged_datasets_output_header(
 					FILE *output_pipe,
@@ -760,7 +758,7 @@ boolean merged_datasets_output_header(
 
 	return 1;
 
-} /* merged_datasets_output_header() */
+}
 
 boolean merged_datasets_output_transmit(
 					FILE *output_pipe,
@@ -843,7 +841,7 @@ boolean merged_datasets_output_transmit(
 	list_free_container( key_list );
 	return 1;
 
-} /* merged_datasets_output_transmit() */
+}
 
 boolean merged_datasets_output_gracechart(
 			LIST *compare_datatype_list,
@@ -1162,7 +1160,7 @@ boolean merged_datasets_output_gracechart(
 				(char *)0 /* where_clause */ );
 	}
 	return 1;
-} /* merged_datasets_output_gracechart() */
+}
 
 char *get_title(	char *medium,
 			enum aggregate_level aggregate_level,
@@ -1192,15 +1190,13 @@ char *get_title(	char *medium,
 
 	format_initial_capital( title, title );
 	return strdup( title );
-
-} /* get_title() */
+}
 
 boolean merged_datasets_output_table(
-					LIST *compare_datatype_list,
-					enum aggregate_level aggregate_level,
-					char *value_folder_name,
-					char *application_name,
-					boolean accumulate )
+			LIST *compare_datatype_list,
+			enum aggregate_level aggregate_level,
+			char *value_folder_name,
+			boolean accumulate )
 {
 	LIST *key_list;
 	char *key;
@@ -1351,8 +1347,7 @@ boolean merged_datasets_output_table(
 
 	html_table_close();
 	return 1;
-
-} /* merged_datasets_output_table() */
+}
 
 HASH_TABLE *get_merged_hash_table( LIST *compare_datatype_list )
 {
@@ -1393,7 +1388,7 @@ HASH_TABLE *get_merged_hash_table( LIST *compare_datatype_list )
 
 	return merged_hash_table;
 
-} /* get_merged_hash_table() */
+}
 
 boolean get_has_bar_graph( LIST *compare_datatype_list )
 {
@@ -1410,7 +1405,7 @@ boolean get_has_bar_graph( LIST *compare_datatype_list )
 	} while( list_next( compare_datatype_list ) );
 
 	return 0;
-} /* get_has_bar_graph() */
+}
 
 boolean merged_datasets_output_googlechart(
 			char *application_name,
@@ -1542,7 +1537,7 @@ boolean merged_datasets_output_googlechart(
 
 	return 1;
 
-} /* merged_datasets_output_googlechart() */
+}
 
 char *merged_datasets_get_googlechart_output_datatype_name(
 				char *datatype_entity_name,
@@ -1560,7 +1555,7 @@ char *merged_datasets_get_googlechart_output_datatype_name(
 
 	return output_datatype_name;
 
-} /* merged_datasets_get_googlechart_output_datatype_name() */
+}
 
 void merged_datasets_googlechart_set_output_chart(
 			/* ---- */
@@ -1707,5 +1702,5 @@ void merged_datasets_googlechart_set_output_chart(
 
 	} while( list_next( compare_datatype_list ) );
 
-} /* merged_datasets_googlechart_set_output_chart() */
+}
 

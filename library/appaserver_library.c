@@ -99,7 +99,7 @@ void output_update_pipe_string( 	FILE *destination,
 		 attribute_name,
 		 data );
 	fprintf( destination, "\n" );
-} /* output_update_pipe_string() */
+}
 
 char *get_full_attribute_name( 	char *application_name,
 				char *folder_name,
@@ -127,7 +127,7 @@ char *get_full_attribute_name( 	char *application_name,
 	}
 
 	return strdup( full_attribute_name );
-} /* get_full_attribute_name() */
+}
 
 char *get_multiple_table_names(
 			char *application_name,
@@ -161,7 +161,7 @@ char *get_multi_table_name(	char *application_name,
 
 	return strdup( multi_table_name );
 
-} /* get_multi_table_name() */
+}
 
 char *get_folder_name(		char *application_name,
 				char *table_name )
@@ -203,7 +203,7 @@ char *get_folder_name(		char *application_name,
 
 	return strdup( folder_name );
 
-} /* get_folder_name() */
+}
 
 char *appaserver_library_get_table_name(
 				char *application_name,
@@ -236,7 +236,7 @@ char *get_table_name( 	char *application_name,
 
 	return strdup( table_name );
 
-} /* get_table_name() */
+}
 
 /* Sample: dictionary_string = "first_name=tim&last_name=riley" */
 /* ------------------------------------------------------------ */
@@ -257,7 +257,7 @@ void output_dictionary_string_as_hidden( char *dictionary_string )
 			attribute, data );
 		}
 	}
-} /* output_dictionary_string_as_hidden() */
+}
 
 void appaserver_library_output_dictionary_as_hidden( DICTIONARY *dictionary )
 {
@@ -286,7 +286,7 @@ void output_dictionary_as_hidden( DICTIONARY *dictionary )
 		} while( list_next( key_list ) );
 	}
 	list_free_container( key_list );
-} /* output_dictionary_as_hidden() */
+}
 
 LIST *get_relation_operator_list( char *datatype )
 {
@@ -352,7 +352,7 @@ LIST *get_relation_operator_list( char *datatype )
 	}
 
 	return list;
-} /* get_relation_operator_list() */
+}
 
 LIST *get_relation_operator_equal_list()
 {
@@ -363,7 +363,7 @@ LIST *get_relation_operator_equal_list()
 	list = list_new();
 	list_append_string( list, EQUAL_OPERATOR );
 	return list;
-} /* get_relation_operator_equal_list() */
+}
 
 char *get_operator_character( char *operator_string )
 {
@@ -410,7 +410,7 @@ char *get_operator_character( char *operator_string )
 		return NOT_NULL_OPERATOR;
 	else
 		return "unknown operator";
-} /* get_operator_character() */
+}
 
 boolean appaserver_library_is_system_folder( char *folder_name )
 {
@@ -425,7 +425,7 @@ boolean is_system_folder( char *folder_name )
 		if ( strcmp( folder_name, *f ) == 0 )
 			return 1;
 	return 0;
-} /* is_system_folder() */
+}
 
 char **get_system_folder_list( void )
 {
@@ -448,7 +448,7 @@ LIST *get_role_list(	char *application_name,
 		 application_name,
 		 login_name, error_file );
 	return pipe2list( sys_string );
-} /* get_role_list() */
+}
 
 void appaserver_library_set_no_display_pressed(
 					DICTIONARY *ignore_dictionary, 
@@ -473,7 +473,7 @@ void appaserver_library_set_no_display_pressed(
 		} while( list_next( key_list ) );
 	}
 
-} /* appaserver_library_set_no_display_pressed() */
+}
 
 LIST *appaserver_library_get_no_display_pressed_attribute_name_list( 	
 					DICTIONARY *ignore_dictionary,
@@ -506,7 +506,7 @@ LIST *appaserver_library_get_no_display_pressed_attribute_name_list(
 
 	} while( list_next( attribute_name_list ) );
 	return return_list;
-} /* appaserver_library_get_no_display_pressed_attribute_name_list() */
+}
 
 LIST *appaserver_library_get_ignore_pressed_attribute_name_list( 	
 					DICTIONARY *ignore_dictionary,
@@ -546,7 +546,7 @@ LIST *appaserver_library_get_ignore_pressed_attribute_name_list(
 
 	return return_list;
 
-} /* appaserver_library_get_ignore_pressed_attribute_name_list() */
+}
 
 int get_attribute_width(	char *application,
 				char *attribute_name )
@@ -565,7 +565,7 @@ int get_attribute_width(	char *application,
 		return 0;
 	else
 		return atoi( results );
-} /* get_attribute_width() */
+}
 
 
 LIST *get_date_slot_list( 	char *begin_date,
@@ -578,7 +578,7 @@ LIST *get_date_slot_list( 	char *begin_date,
 		 begin_date,
 		 end_date );
 	return pipe2list( sys_string );
-} /* get_date_slot_list() */
+}
 
 LIST *get_attribute4table_list( char *table_name )
 {
@@ -586,7 +586,7 @@ LIST *get_attribute4table_list( char *table_name )
 
 	sprintf( sys_string, "attributes4table.sh %s", table_name );
 	return pipe2list( sys_string );
-} /* get_attribute4table_list() */
+}
 
 
 void populate_no_display_button_for_ignore( DICTIONARY *dictionary )
@@ -631,7 +631,7 @@ void populate_no_display_button_for_ignore( DICTIONARY *dictionary )
 			}
 		} while( list_next( attribute_name_list ) );
 	}
-} /* populate_no_display_button_for_ignore() */
+}
 
 void populate_ignore_button_for_no_display_pressed( DICTIONARY *dictionary )
 {
@@ -675,7 +675,7 @@ void populate_ignore_button_for_no_display_pressed( DICTIONARY *dictionary )
 			}
 		} while( list_next( attribute_name_list ) );
 	}
-} /* populate_ignore_button_for_no_display_pressed() */
+}
 
 LIST *appaserver_library_get_datatype_name_list( char *application )
 {
@@ -694,7 +694,7 @@ char *get_displayable_primary_attribute_list_string(
 					list_display_delimited(
 						primary_attribute_name_list,
 						'/' ) ) );
-} /* get_displayable_primary_attribute_list_string() */
+}
 
 LIST *appaserver_library_get_attribute_name_list(
 					char *application, 
@@ -707,7 +707,7 @@ LIST *appaserver_library_get_attribute_name_list(
 		 application, folder_name );
 
 	return pipe2list( sys_string );
-} /* appaserver_library_get_attribute_name_list() */
+}
 
 /*
 int is_primary_application( char *application_name )
@@ -740,7 +740,7 @@ char *build_multi_attribute_key( LIST *key_list, char delimiter )
 	} while( list_next( key_list ) );
 
 	return strdup( multi_attribute_key );
-} /* build_multi_attribute_key() */
+}
 
 LIST *appaserver_library_get_folder_name_list(
 					char *application_name,
@@ -756,7 +756,7 @@ LIST *appaserver_library_get_folder_name_list(
 		table_name,
 		attribute_name );
 	return pipe2list( sys_string );
-} /* appaserver_library_get_folder_name_list() */
+}
 
 LIST *appaserver_library_get_update_attribute_element_list(
 					int *objects_outputted,
@@ -808,7 +808,7 @@ LIST *appaserver_library_get_update_attribute_element_list(
 
 	return return_list;
 
-} /* appaserver_library_get_update_attribute_element_list() */
+}
 
 LIST *appaserver_library_get_insert_attribute_element_list(
 					int *objects_outputted,
@@ -884,7 +884,7 @@ LIST *appaserver_library_get_insert_attribute_element_list(
 	}
 
 	return return_list;
-} /* appaserver_library_get_insert_attribute_element_list() */
+}
 
 LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 				char *attribute_name,
@@ -1067,7 +1067,7 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 	list_append_pointer( return_list, element );
 	return return_list;
 
-} /* appaserver_library_with_attribute_get_insert_attribute_element_list() */
+}
 
 boolean appaserver_library_validate_begin_end_date(
 					char **begin_date,
@@ -1187,7 +1187,7 @@ boolean appaserver_library_validate_begin_end_date(
 	else
 		return 1;
 
-} /* appaserver_library_validate_begin_end_date() */
+}
 
 LIST *appaserver_library_get_primary_data_list(
 					DICTIONARY *post_dictionary,
@@ -1225,7 +1225,7 @@ LIST *appaserver_library_get_primary_data_list(
 		list_append_pointer( primary_data_list, data );
 	} while( list_next( primary_attribute_name_list ) );
 	return primary_data_list;
-} /* appaserver_library_get_primary_data_list() */
+}
 
 char *appaserver_library_get_server_address( void )
 {
@@ -1250,7 +1250,7 @@ char *appaserver_library_get_server_address( void )
 
 	return strdup( server_address );
 
-} /* appaserver_library_get_server_address() */
+}
 
 void appaserver_library_output_ftp_prompt(
 				char *output_filename,
@@ -1289,7 +1289,7 @@ void appaserver_library_output_ftp_prompt(
 			prompt );
 	}
 	
-} /* appaserver_library_output_ftp_prompt() */
+}
 
 char *appaserver_library_get_http_prompt(
 				 	char *cgi_directory,
@@ -1330,7 +1330,7 @@ char *appaserver_library_get_http_prompt(
 
 	return http_prompt;
 
-} /* appaserver_library_get_http_prompt() */
+}
 
 char *appaserver_library_get_whoami( void )
 {
@@ -1352,7 +1352,7 @@ boolean appaserver_library_get_from_preprompt( DICTIONARY *dictionary )
 		return 0;
 
 	return ( strcmp( data, "yes" ) == 0 );
-} /* appaserver_library_get_from_preprompt() */
+}
 
 LIST *appaserver_library_get_omit_insert_prompt_attribute_name_list(
 						LIST *attribute_list )
@@ -1380,7 +1380,7 @@ LIST *appaserver_library_get_omit_insert_prompt_attribute_name_list(
 		} while( list_next( attribute_list ) );
 	}
 	return omit_insert_prompt_attribute_name_list;
-} /* appaserver_library_get_omit_insert_prompt_attribute_name_list() */
+}
 
 LIST *appaserver_library_get_omit_insert_attribute_name_list(
 						LIST *attribute_list )
@@ -1404,7 +1404,7 @@ LIST *appaserver_library_get_omit_insert_attribute_name_list(
 		} while( list_next( attribute_list ) );
 	}
 	return omit_insert_attribute_name_list;
-} /* appaserver_library_get_omit_insert_attribute_name_list() */
+}
 
 LIST *appaserver_library_get_prompt_data_element_list(
 				char *attribute_name,
@@ -1447,7 +1447,7 @@ LIST *appaserver_library_get_prompt_data_element_list(
 			element_list, 
 			element );
 	return element_list;
-} /* appaserver_library_get_prompt_data_element_list() */
+}
 
 void appaserver_library_output_style_sheet(
 					FILE *output_file, 
@@ -1482,7 +1482,7 @@ void appaserver_library_output_style_sheet(
 	fflush( stdout );
 	fprintf( output_file,
 		 "</style>\n" );
-} /* appaserver_library_output_style_sheet() */
+}
 
 LIST *appaserver_library_trim_carrot_number( LIST *data_list )
 {
@@ -1508,7 +1508,7 @@ LIST *appaserver_library_trim_carrot_number( LIST *data_list )
 	} while( list_next( data_list ) );
 
 	return data_list;
-} /* appaserver_library_trim_carrot_number() */
+}
 
 void appaserver_library_set_vertical_new_button_folder_name(
 				DICTIONARY *non_prefixed_dictionary,
@@ -1526,8 +1526,7 @@ void appaserver_library_set_vertical_new_button_folder_name(
 			non_prefixed_dictionary,
 			strdup( key ),
 			"yes" );
-
-} /* appaserver_library_set_vertical_new_button_folder_name() */
+}
 
 char *appaserver_library_get_vertical_new_button_folder_name(
 				DICTIONARY *non_prefixed_dictionary,
@@ -1559,7 +1558,7 @@ char *appaserver_library_get_vertical_new_button_folder_name(
 		}
 	} while( list_next( key_list ) );
 	return (char *)0;
-} /* appaserver_library_get_vertical_new_button_folder_name() */
+}
 
 char *appaserver_library_get_verify_attribute_widths_submit_control_string(
 					LIST *element_list,
@@ -1675,8 +1674,7 @@ char *appaserver_library_get_verify_attribute_widths_submit_control_string(
 		source_form );
 
 	return submit_control_string;
-
-} /* appaserver_library_get_verify_attribute_widths_submit_control_string() */
+}
 
 void appaserver_library_dictionary_convert_date(
 						DICTIONARY *dictionary,
@@ -1756,8 +1754,7 @@ void appaserver_library_dictionary_convert_date(
 		dictionary,
 		key,
 		strdup( destination ) );
-
-} /* appaserver_library_dictionary_convert_date() */
+}
 
 void appaserver_library_dictionary_database_convert_begin_end_dates(
 					DICTIONARY *dictionary,
@@ -1832,8 +1829,7 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 				date_string,
 				key );
 	}
-
-} /* appaserver_library_dictionary_database_convert_begin_end_dates() */
+}
 
 void appaserver_library_post_dictionary_database_convert_dates(
 					DICTIONARY *post_dictionary,
@@ -1937,8 +1933,7 @@ void appaserver_library_post_dictionary_database_convert_dates(
 		} while( list_next( date_attribute_name_list ) );
 
 	} /* for each index */
-
-} /* appaserver_library_post_dictionary_database_convert_dates() */
+}
 
 void appaserver_library_dictionary_convert_dates(
 					DICTIONARY *dictionary,
@@ -1989,8 +1984,7 @@ void appaserver_library_dictionary_convert_dates(
 	} while( list_next( key_list ) );
 
 	list_free_container( key_list );
-
-} /* appaserver_library_dictionary_convert_dates() */
+}
 
 void appaserver_library_list_database_convert_dates(
 					LIST *data_list,
@@ -2054,7 +2048,7 @@ void appaserver_library_list_database_convert_dates(
 		if ( !list_next( data_list ) ) break;
 	} while( list_next( primary_attribute_name_list ) );
 	if ( date_convert ) date_convert_free( date_convert );
-} /* appaserver_library_list_database_convert_dates() */
+}
 
 void appaserver_library_output_calendar_javascript( void )
 {
@@ -2071,7 +2065,7 @@ void appaserver_library_output_calendar_javascript( void )
 			CALENDAR_RELATIVE_DIRECTORY,
 			CALENDAR_RELATIVE_DIRECTORY );
 		fflush( stdout );
-} /* appaserver_library_output_calendar_javascript() */
+}
 
 int appaserver_library_get_reference_number(
 				char *application_name,
@@ -2085,9 +2079,9 @@ int appaserver_library_get_reference_number(
 		 insert_rows_number,
 		 appaserver_get_error_filename( application_name ) );
 	return atoi( pipe2string( sys_string ) );
-} /* appaserver_library_get_reference_number() */
+}
 
-char *appaserver_library_get_prelookup_button_control_string(
+char *appaserver_library_prelookup_button_control_string(
 				char *application_name,
 				char *cgi_directory,
 				char *server_address,
@@ -2123,8 +2117,7 @@ char *appaserver_library_get_prelookup_button_control_string(
 		 state );
 
 	return control_string;
-
-} /* appaserver_library_get_prelookup_button_control_string() */
+}
 
 void appaserver_library_populate_last_foreign_attribute_key(
 			DICTIONARY *post_dictionary,
@@ -2247,8 +2240,7 @@ void appaserver_library_populate_last_foreign_attribute_key(
 		}
 
 	} while( list_next( mto1_related_folder_list ) );
-
-} /* appaserver_library_populate_last_foreign_attribute_key() */
+}
 
 boolean appaserver_library_get_from_php( DICTIONARY *post_dictionary )
 {
@@ -2264,7 +2256,7 @@ boolean appaserver_library_get_from_php( DICTIONARY *post_dictionary )
 
 	extension = basename_get_extension( filename );
 	return ( strcmp( extension, "php" ) == 0 );
-} /* appaserver_library_get_from_php() */
+}
 
 boolean appaserver_library_application_exists(
 				char *application,
@@ -2291,8 +2283,7 @@ boolean appaserver_library_application_exists(
 		return 1;
 	else
 		return 0;
-
-} /* appaserver_library_application_exists() */
+}
 
 char *appaserver_library_get_default_role_name(
 				char *application_name,
@@ -2315,8 +2306,7 @@ char *appaserver_library_get_default_role_name(
 		return "";
 	else
 		return results;
-
-} /* appaserver_library_get_default_role_name() */
+}
 
 int appaserver_library_add_operations(
 			LIST *element_list,
@@ -2408,7 +2398,7 @@ int appaserver_library_add_operations(
 
 	return objects_outputted;
 
-} /* appaserver_library_add_operations() */
+}
 
 boolean appaserver_library_exists_javascript_folder(
 				char *application_name,
@@ -2428,7 +2418,7 @@ boolean appaserver_library_exists_javascript_folder(
 		 where );
 
 	return atoi( pipe2string( sys_string ) );
-} /* appaserver_library_exists_javascript_folder() */
+}
 
 void appaserver_library_purge_temporary_files( char *application_name )
 {
@@ -2489,7 +2479,7 @@ void appaserver_library_automatically_set_login_name(
 		}
 	}
 
-} /* appaserver_library_automatically_set_login_name() */
+}
 
 char *appaserver_library_change_state_display(
 			enum preupdate_change_state preupdate_change_state )
@@ -2512,7 +2502,7 @@ char *appaserver_library_preupdate_change_state_display(
 	else
 		return "no_change";
 
-} /* appaserver_library_preupdate_change_state_display() */
+}
 
 enum preupdate_change_state appaserver_library_get_preupdate_change_state(
 				char *preupdate_data,
@@ -2593,7 +2583,7 @@ enum preupdate_change_state appaserver_library_get_preupdate_change_state(
 		return from_something_to_something_else;
 	}
 
-} /* appaserver_library_get_preupdate_change_state() */
+}
 
 char *appaserver_library_get_sort_attribute_name( LIST *attribute_list )
 {
@@ -2620,7 +2610,7 @@ char *appaserver_library_get_sort_attribute_name( LIST *attribute_list )
 
 	return (char *)0;
 
-} /* appaserver_library_get_sort_attribute_name() */
+}
 
 LIST *appaserver_library_get_update_lookup_attribute_element_list(
 				char update_yn,
@@ -3035,7 +3025,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 
 	return return_list;
 
-} /* appaserver_library_get_update_lookup_attribute_element_list() */
+}
 
 char *appaserver_library_get_folder_foreign_translation(
 			char *attribute_name,
@@ -3070,7 +3060,7 @@ char *appaserver_library_get_folder_foreign_translation(
 
 	return (char *)0;
 
-} /* appaserver_library_get_folder_foreign_translation() */
+}
 
 LIST *appaserver_library_get_application_name_list(
 				char *appaserver_error_directory )
@@ -3097,5 +3087,5 @@ LIST *appaserver_library_get_application_name_list(
 
 	return pipe2list( sys_string );;
 
-} /* appaserver_library_get_application_name_list() */
+}
 

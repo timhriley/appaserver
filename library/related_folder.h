@@ -562,4 +562,41 @@ char *related_folder_mto1_list_display(
 LIST *related_folder_one2m_isa_related_folder_list(
 			LIST *one2m_related_folder_list );
 
+LIST *related_folder_prompt_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *application_name,
+			char *session,
+			char *role_name,
+			char *login_name,
+			char *folder_name,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *foreign_attribute_name_list,
+			boolean omit_drop_down_new_push_button,
+			boolean omit_ignore_push_buttons,
+			DICTIONARY *preprompt_dictionary,
+			char *ignore_or_no_display_push_button_prefix,
+			char *ignore_or_no_display_push_button_heading,
+			char *post_change_javascript,
+			char *hint_message,
+			LIST *role_folder_insert_list,
+			char *form_name,
+			int max_drop_down_size,
+			LIST *common_non_primary_attribute_name_list,
+			boolean is_primary_attribute,
+			boolean row_level_non_owner_view_only,
+			boolean row_level_non_owner_forbid,
+			char *related_attribute_name,
+			boolean drop_down_multi_select,
+			boolean no_initial_capital,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			int tab_index,
+			boolean set_first_initial_data,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option,
+			char *appaserver_user_foreign_login_name,
+			boolean omit_lookup_before_drop_down );
+
 #endif

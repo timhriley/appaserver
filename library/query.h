@@ -851,4 +851,16 @@ char *query_get_folder_drop_down_where_clause(
 			char *application_name,
 			char *folder_name );
 
+QUERY *query_prompt_folder_data_new(
+			char *application_name,
+			char *login_name,
+			char *folder_name,
+			DICTIONARY *dictionary,
+			ROLE *role,
+			int max_rows );
+
+QUERY_OUTPUT *query_prompt_data_output_new(
+			QUERY *query,
+			FOLDER *folder );
+
 #endif

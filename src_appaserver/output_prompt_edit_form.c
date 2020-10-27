@@ -85,7 +85,7 @@ void mark_ignore_for_prelookup_skipped(
 LIST *get_preprompt_attribute_name_list(
 				DICTIONARY *preprompt_dictionary );
 
-LIST *get_prompt_mto1_recursive_element_list(
+LIST *prompt_mto1_recursive_element_list_fetch(
 			LIST *done_folder_name_list,
 			char **post_change_javascript,
 			LIST *exclude_attribute_name_list,
@@ -313,7 +313,7 @@ int main( int argc, char **argv )
 			lookup_participating_not_root )
 	{
 		lookup_before_drop_down->first_prelookup =
-			lookup_before_drop_down_get_is_first_prelookup(
+			lookup_before_drop_down_first_prelookup(
 				dictionary_appaserver->
 					lookup_before_drop_down_dictionary );
 	}
@@ -352,11 +352,12 @@ int main( int argc, char **argv )
 				appaserver->folder->mto1_related_folder_list );
 	}
 
-	role_folder = role_folder_new_role_folder(
-					application_name,
-					session,
-					role_name,
-					folder_name );
+	role_folder =
+		role_folder_new_role_folder(
+			application_name,
+			session,
+			role_name,
+			folder_name );
 
 	omit_delete_button = 
 		( get_omit_delete_button(
@@ -398,8 +399,7 @@ int main( int argc, char **argv )
 		lookup_before_drop_down->insert_folder_name );
 
 	exit( 0 );
-
-} /* main() */
+}
 
 void output_prompt_edit_form(
 			char *application_name,
@@ -856,7 +856,7 @@ m2( application_name, msg );
 			lookup_skipped )
 	{
 		prelookup_button_control_string =
-			appaserver_library_get_prelookup_button_control_string(
+			appaserver_library_prelookup_button_control_string(
 				application_name,
 				appaserver_parameter_file_get_cgi_directory(),
 				appaserver_library_get_server_address(),
@@ -893,18 +893,19 @@ m2( application_name, msg );
 				(LIST *)0 /* form_button_list */,
 				(char *)0 /* post_change_javascript */ );
 
-	form_output_row(&form->current_reference_number,
-			form->hidden_name_dictionary,
-			form->regular_element_list,
-			(DICTIONARY *)0 /* query_dictionary */,
-			0 /* row */,
-			1 /* with push buttons */,
-			(FILE *)0 /* spool_file */,
-			0 /* row_level_non_owner_view_only */,
-			application_name,
-			login_name,
-			(char *)0 /* background_color */,
-			(char *)0 /* appaserver_user_foreign_login_name */ );
+	form_output_row(
+		&form->current_reference_number,
+		form->hidden_name_dictionary,
+		form->regular_element_list,
+		(DICTIONARY *)0 /* query_dictionary */,
+		0 /* row */,
+		1 /* with push buttons */,
+		(FILE *)0 /* spool_file */,
+		0 /* row_level_non_owner_view_only */,
+		application_name,
+		login_name,
+		(char *)0 /* background_color */,
+		(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	output_dictionary_as_hidden(
 		dictionary_add_prefix(
@@ -1103,7 +1104,7 @@ LIST *get_element_list(
 			}
 
 			prompt_mto1_recursive_element_list =
-				get_prompt_mto1_recursive_element_list(
+				prompt_mto1_recursive_element_list_fetch(
 					done_folder_name_list,
 					post_change_javascript,
 					exclude_attribute_name_list,
@@ -1270,8 +1271,9 @@ LIST *get_element_list(
 
 			list_append_list(
 				return_list,
-				related_folder_drop_down_element_list(
-				   (RELATED_FOLDER **)0,
+				related_folder_prompt_element_list(
+				   (RELATED_FOLDER **)0
+				       /* ajax_fill_drop_down_related_folder */,
 				   application_name,
 				   session,
 				   role_name,
@@ -1314,7 +1316,6 @@ LIST *get_element_list(
 				   1 /* output_select_option */,
 				   (char *)0
 				   /* appaserver_user_foreign_login_name */,
-				   0 /* not prepend_folder_name */,
 			           related_folder->omit_lookup_before_drop_down
 				   ) );
 	
@@ -1756,9 +1757,9 @@ int exists_hidden_text_datatype( LIST *attribute_list )
 		} while( list_next( attribute_list ) );
 	}
 	return 0;
-} /* exists_hidden_text_datatype() */
+}
 
-LIST *get_prompt_mto1_recursive_element_list(
+LIST *prompt_mto1_recursive_element_list_fetch(
 				LIST *done_folder_name_list,
 				char **post_change_javascript,
 				LIST *exclude_attribute_name_list,
@@ -1853,7 +1854,7 @@ LIST *get_prompt_mto1_recursive_element_list(
 	{
 		list_append_list(
 			recursive_element_list,
-			related_folder_drop_down_element_list(
+			related_folder_prompt_element_list(
 				(RELATED_FOLDER **)0,
 				application_name,
 				session,
@@ -1890,7 +1891,6 @@ LIST *get_prompt_mto1_recursive_element_list(
 				1 /* output_select_option */,
 				(char *)0
 				/* appaserver_user_foreign_login_name */,
-				0 /* not prepend_folder_name */,
 			        0 /* not omit_lookup_before_drop_down */
 				) );
 	
@@ -1917,7 +1917,7 @@ LIST *get_prompt_mto1_recursive_element_list(
 
 		list_append_list(
 			recursive_element_list,
-			related_folder_drop_down_element_list(
+			related_folder_prompt_element_list(
 				(RELATED_FOLDER **)0,
 				application_name,
 				session,
@@ -1970,7 +1970,6 @@ LIST *get_prompt_mto1_recursive_element_list(
 				1 /* output_select_option */,
 				(char *)0
 				/* appaserver_user_foreign_login_name */,
-				0 /* not prepend_folder_name */,
 			        0 /* not omit_lookup_before_drop_down */
 				) );
 
@@ -1984,8 +1983,7 @@ LIST *get_prompt_mto1_recursive_element_list(
 	} while( list_next( prompt_recursive_mto1_folder_list ) );
 
 	return recursive_element_list;
-
-} /* get_prompt_mto1_recursive_element_list() */
+}
 
 LIST *get_preprompt_attribute_name_list(
 				DICTIONARY *preprompt_dictionary )
@@ -2117,19 +2115,10 @@ boolean get_omit_delete_button(
 		{
 			return_value = 0;
 		}
-
-/*
-		return_value =
-			(boolean)
-			row_security_role_update_fetch(
-				row_security->role_update_list,
-				select_folder_name );
-*/
 	}
 
 	return return_value;
-
-} /* get_omit_delete_button() */
+}
 
 void build_related_folder_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
@@ -2246,19 +2235,6 @@ void build_related_folder_element_list(
 		related_folder->
 			drop_down_multi_select;
 
-/* -------------------------------------------- */
-/* This broke:					*/
-/*	waterquality				*/
-/*	<Lookup><Results>			*/
-/*	First prelookup=STATION_PARAMETER	*/
-/*	Second prelookup=COLLECTION		*/
-/* -------------------------------------------- */
-/*
-	if ( related_folder->folder->lookup_before_drop_down )
-		send_preprompt_dictionary = preprompt_dictionary;
-	else
-		send_preprompt_dictionary = (DICTIONARY *)0;
-*/
 	send_preprompt_dictionary = preprompt_dictionary;
 
 /* ---------------------------------------------------- */
@@ -2283,7 +2259,7 @@ void build_related_folder_element_list(
 
 	list_append_list(
 		element_list,
-		related_folder_drop_down_element_list(
+		related_folder_prompt_element_list(
 			only_one_ajax_fill_drop_down,
 			application_name,
 			session,
@@ -2324,7 +2300,6 @@ void build_related_folder_element_list(
 			output_select_option,
 			(char *)0
 			/* appaserver_user_foreign_login_name */,
-			0 /* not prepend_folder_name */,
 			related_folder->omit_lookup_before_drop_down
 			) );
 

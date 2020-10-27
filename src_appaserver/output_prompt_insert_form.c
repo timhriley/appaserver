@@ -741,7 +741,7 @@ int main( int argc, char **argv )
 					base_folder->folder_name;
 
 		prelookup_button_control_string =
-			appaserver_library_get_prelookup_button_control_string(
+			appaserver_library_prelookup_button_control_string(
 				application_name,
 				appaserver_parameter_file_get_cgi_directory(),
 				appaserver_library_get_server_address(),
@@ -1838,7 +1838,7 @@ void build_related_folder_element_list(
 
 	list_append_list(
 		element_list,
-		related_folder_drop_down_element_list(
+		related_folder_prompt_element_list(
 			ajax_fill_drop_down_related_folder,
 			application_name,
 			session,
@@ -1879,11 +1879,9 @@ void build_related_folder_element_list(
 			0 /* no output_not_null_option */,
 			1 /* output_select_option */,
 			appaserver_user_foreign_login_name,
-			0 /* not prepend_folder_name */,
 			related_folder->omit_lookup_before_drop_down
 	 ) );
 
 	related_folder->ignore_output = 1;
-
-} /* build_related_folder_element_list() */
+}
 

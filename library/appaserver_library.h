@@ -198,6 +198,7 @@ LIST *folder_name_list2table_name_list(
 				char *entity,
 				char *application,
 				LIST *folder_name_list );
+
 void populate_no_display_button_for_ignore(
 				DICTIONARY *dictionary );
 void populate_ignore_button_for_no_display_pressed(
@@ -355,7 +356,7 @@ int appaserver_library_get_reference_number(
 				char *application_name,
 				int insert_rows_number );
 
-char *appaserver_library_get_prelookup_button_control_string(
+char *appaserver_library_prelookup_button_control_string(
 			char *application_name,
 			char *cgi_directory,
 			char *server_address,

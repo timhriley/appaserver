@@ -156,7 +156,7 @@ char *lookup_before_drop_down_get_state_string(
 			enum lookup_before_drop_down_state
 				lookup_before_drop_down_state );
 
-boolean lookup_before_drop_down_get_is_first_prelookup(
+boolean lookup_before_drop_down_first_prelookup(
 			DICTIONARY *lookup_before_drop_down_dictionary );
 
 char *lookup_before_drop_down_get_insert_pair_base_folder_name(

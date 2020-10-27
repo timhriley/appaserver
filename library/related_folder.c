@@ -508,15 +508,12 @@ LIST *related_folder_drop_down_element_list(
 		element_drop_down_set_option_data_option_label_list(
 			&element->drop_down->option_data_list,
 			&element->drop_down->option_label_list,
-			folder_related_primary_data_list(
+			folder_prompt_primary_data_list(
 				application_name,
 				session,
 				folder_name,
 				login_name,
-				preprompt_dictionary
-					/* parameter_dictionary */,
-				preprompt_dictionary
-					/* where_clause_dictionary */,
+				preprompt_dictionary,
 				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 				populate_drop_down_process,
 				attribute_list,
@@ -4434,5 +4431,307 @@ void related_folder_set_join_where_clause(
 					related_folder );
 
 	} while( list_next( one2m_related_folder_list ) );
+}
+
+LIST *related_folder_prompt_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *application_name,
+			char *session,
+			char *role_name,
+			char *login_name,
+			char *folder_name,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *foreign_attribute_name_list,
+			boolean omit_drop_down_new_push_button,
+			boolean omit_ignore_push_buttons,
+			DICTIONARY *preprompt_dictionary,
+			char *ignore_or_no_display_push_button_prefix,
+			char *ignore_or_no_display_push_button_heading,
+			char *post_change_javascript,
+			char *hint_message,
+			LIST *role_folder_insert_list,
+			char *form_name,
+			int max_drop_down_size,
+			LIST *common_non_primary_attribute_name_list,
+			boolean is_primary_attribute,
+			boolean row_level_non_owner_view_only,
+			boolean row_level_non_owner_forbid,
+			char *related_attribute_name,
+			boolean drop_down_multi_select,
+			boolean no_initial_capital,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			int tab_index,
+			boolean set_first_initial_data,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option,
+			char *appaserver_user_foreign_login_name,
+			boolean omit_lookup_before_drop_down )
+{
+	char buffer[ 256 ];
+	char element_name[ 256 ];
+	LIST *return_list;
+	ELEMENT_APPASERVER *element;
+	char relation_operator_equals[ 256 ];
+	boolean set_option_data_option_label_list;
+
+	return_list = list_new_list();
+
+	/* Create the line break */
+	/* --------------------- */
+	element = element_appaserver_new( linebreak, "" );
+	list_append_pointer(
+			return_list, 
+			element );
+
+	if ( !omit_ignore_push_buttons
+	&&   ignore_or_no_display_push_button_prefix
+	&&   *ignore_or_no_display_push_button_prefix
+	&&   ignore_or_no_display_push_button_heading
+	&&   *ignore_or_no_display_push_button_heading )
+	{
+		sprintf(element_name,
+		 	"%s%s",
+		 	ignore_or_no_display_push_button_prefix,
+		 	list_display_delimited(
+			  	foreign_attribute_name_list,
+			  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
+
+		element = element_appaserver_new(
+				toggle_button, 
+				strdup( element_name ) );
+
+		element_toggle_button_set_heading(
+			element->toggle_button,
+			ignore_or_no_display_push_button_heading );
+
+		list_set(
+			return_list, 
+			element );
+	}
+
+	if ( role_folder_insert_list
+	&&   !omit_drop_down_new_push_button )
+	{
+		ELEMENT_APPASERVER *new_button_element;
+
+		if ( ( new_button_element =
+			related_folder_get_new_button_element(
+				folder_name,
+				role_folder_insert_list,
+				form_name ) ) )
+		{
+			list_append_pointer(	return_list,
+						new_button_element );
+		}
+		else
+		{
+			list_append_pointer(	return_list,
+						element_appaserver_new(
+							empty_column,
+							"" ) );
+		}
+	}
+
+	/* Create the prompt element */
+	/* ------------------------- */
+	if ( is_primary_attribute )
+	{
+		sprintf( element_name,
+		 	 "*%s",
+		 	 strdup( folder_name ) );
+	}
+	else
+	{
+		sprintf( element_name,
+		 	 "%s",
+		 	 strdup( folder_name ) );
+	}
+
+	if ( related_attribute_name
+	&&   *related_attribute_name
+	&&   strcmp( related_attribute_name, "null" ) != 0 )
+	{
+		sprintf( element_name + strlen( element_name ),
+			 " (%s)",
+			 related_attribute_name );
+	}
+
+	element =
+		element_appaserver_new(
+			prompt,
+			strdup( format_initial_capital_not_parens(
+					buffer, 
+					element_name ) ) );
+
+	list_append_pointer(
+			return_list, 
+			element );
+
+	sprintf(element_name, 
+	 	"%s",
+	 	list_display_delimited(
+		  	foreign_attribute_name_list,
+		  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
+
+	if ( drop_down_multi_select )
+	{
+		char drop_down_element_name[ 128 ];
+
+		sprintf(	drop_down_element_name,
+				"%s%s",
+				QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL,
+				element_name );
+
+		element = element_appaserver_new(
+				drop_down,
+				strdup( drop_down_element_name ) );
+
+		element->drop_down->multi_select = 1;
+		element->drop_down->multi_select_element_name =
+			strdup( element_name );
+	}
+	else
+	{
+		element = element_appaserver_new(
+				drop_down,
+				strdup( element_name ) );
+
+		element->drop_down->output_null_option =
+			output_null_option;
+
+		element->drop_down->output_not_null_option =
+			output_not_null_option;
+
+		element->drop_down->output_select_option =
+			output_select_option;
+	}
+
+	element->drop_down->post_change_javascript =
+		post_change_javascript;
+
+	element->drop_down->max_drop_down_size = max_drop_down_size;
+	element->drop_down->no_initial_capital = no_initial_capital;
+	element->tab_index = tab_index;
+
+	list_append_pointer(
+			return_list, 
+			element );
+
+	set_option_data_option_label_list = 1;
+
+	if ( !drop_down_multi_select
+	&&   !omit_lookup_before_drop_down
+	&&   ajax_fill_drop_down_related_folder
+	&&   !*ajax_fill_drop_down_related_folder
+			/* Can only execute this once.		     */
+			/* Therefore, only one ajaxed mto1 relation. */ )
+	{
+		FOLDER *folder;
+
+		folder = folder_with_load_new(
+				application_name,
+				session,
+				folder_name,
+				(ROLE *)0 );
+
+		if ( ( *ajax_fill_drop_down_related_folder =
+		       related_folder_get_ajax_fill_drop_down_related_folder(
+			folder->mto1_related_folder_list ) ) )
+		{
+			char *onclick_function;
+
+			/* Create the fill button element */
+			/* ------------------------------ */
+			element =
+				element_appaserver_new(
+					push_button, 
+					(char *)0 /* element_name */ );
+
+			element->push_button->label =
+				RELATED_FOLDER_AJAX_FILL_LABEL;
+
+			onclick_function =
+				related_folder_get_ajax_onclick_function(
+					foreign_attribute_name_list );
+
+			element->push_button->onclick_function =
+				onclick_function;
+
+			list_append_pointer(
+				return_list, 
+				element );
+
+			set_option_data_option_label_list = 0;
+		}
+	}
+
+	if ( set_option_data_option_label_list )
+	{
+		element_drop_down_set_option_data_option_label_list(
+			&element->drop_down->option_data_list,
+			&element->drop_down->option_label_list,
+			folder_prompt_primary_data_list(
+				application_name,
+				session,
+				folder_name,
+				login_name,
+				preprompt_dictionary,
+				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+				populate_drop_down_process,
+				attribute_list,
+				common_non_primary_attribute_name_list,
+				( row_level_non_owner_view_only ||
+				  row_level_non_owner_forbid )
+					/* filter_only_login_name */,
+				role_name,
+				state,
+				one2m_folder_name_for_processes,
+				appaserver_user_foreign_login_name ) );
+	}
+
+	if ( set_first_initial_data
+	&&   list_length( element->drop_down->option_data_list ) )
+	{
+		element->drop_down->initial_data =
+			list_get_first_pointer(
+				element->drop_down->option_data_list );
+	}
+
+	/* Create the hint message */
+	/* ----------------------- */
+	if ( hint_message && *hint_message )
+	{
+		element = 
+			element_appaserver_new(
+				non_edit_text,
+				hint_message );
+
+		list_append_pointer(
+				return_list, 
+				element );
+	}
+
+	/* Create the hidden equals operator */
+	/* --------------------------------- */
+	sprintf( relation_operator_equals,
+		 "%s%s",
+		 QUERY_RELATION_OPERATOR_STARTING_LABEL,
+		 element_name );
+
+	element =
+		element_appaserver_new(
+			hidden,
+			strdup( relation_operator_equals ) );
+
+	element->hidden->data = "equals";
+
+	list_set(
+		return_list, 
+		element );
+
+	return return_list;
 }
 

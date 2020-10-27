@@ -385,8 +385,7 @@ int form_output_body(	int *form_current_reference_number,
 	if ( spool_file ) fclose( spool_file );
 
 	return number_rows_outputted;
-
-} /* form_output_body() */
+}
 
 void form_output_trailer(
 			boolean output_submit_reset_buttons,
@@ -414,8 +413,7 @@ void form_output_trailer(
 			post_change_javascript,
 			(LIST *)0 /* pair_one2m_related_folder_name_list */,
 			form_button_list );
-
-} /* form_output_trailer() */
+}
 
 void form_output_trailer_post_change_javascript(
 			boolean output_submit_reset_buttons,
@@ -499,8 +497,7 @@ void form_output_trailer_post_change_javascript(
 
 	printf( "</table>\n" );
 	printf( "</form>\n" );
-
-} /* form_output_trailer_post_change_javascript() */
+}
 
 void form_output_row( 		int *form_current_reference_number,
 				DICTIONARY *hidden_name_dictionary,
@@ -627,8 +624,7 @@ void form_output_row( 		int *form_current_reference_number,
 					row );
 		}
 	} while( list_next( element_list ) );
-
-} /* form_output_row() */
+}
 
 void form_output_sort_buttons(	FILE *output_file,
 				LIST *element_list,
@@ -725,7 +721,7 @@ void form_output_sort_buttons(	FILE *output_file,
 			fprintf( output_file, "\n" );
 		}
 	} while( list_next( sort_button_type_list ) );
-} /* form_output_sort_buttons() */
+}
 
 void form_output_table_heading(	LIST *element_list,
 				int form_number )
@@ -785,8 +781,7 @@ void form_output_table_heading(	LIST *element_list,
 	} while( next_item( element_list ) );
 
 	printf( "\n" );
-
-} /* form_output_table_heading() */
+}
 
 void form_output_prompt( ELEMENT_APPASERVER *element )
 {
@@ -801,7 +796,7 @@ void form_output_prompt( ELEMENT_APPASERVER *element )
 					(char **)0,
 					element,
 					0 /* form_number */ ) ) ) );
-} /* form_output_prompt() */
+}
 
 int form_output_insert_rows(	int *form_current_reference_number,
 				DICTIONARY *hidden_name_dictionary,
@@ -843,8 +838,7 @@ int form_output_insert_rows(	int *form_current_reference_number,
 	}
 
 	return number_rows_outputted;
-
-} /* form_output_insert_rows() */
+}
 
 
 LIST *form_get_hydrology_validation_element_list(
@@ -938,7 +932,7 @@ LIST *form_get_hydrology_validation_element_list(
 
 		} while( list_next( attribute_name_list ) );
 	return return_list;
-} /* form_get_hydrology_validation_element_list() */
+}
 
 void form_output_back_to_top_button( void )
 {
@@ -974,7 +968,7 @@ void form_output_prelookup_button(	char *control_string,
 	printf(
 "<td><input type=button value=\"Back to Prelookup\" onClick=\"document.forms[1].submit();\"></td>\n" );
 
-} /* form_output_prelookup_button() */
+}
 
 void form_set_remember_keystrokes_button_in_heading( FORM *form )
 {
@@ -1113,7 +1107,7 @@ int form_output_all_rows(	int *form_current_reference_number,
 
 	} while( list_next( row_dictionary_list ) );
 	return number_rows_outputted;
-} /* form_output_all_rows() */
+}
 
 void form_set_row_dictionary_list( FORM *form, LIST *row_dictionary_list )
 {
@@ -1141,13 +1135,6 @@ void form_set_drop_down_number_columns(	FORM *form,
 	form->drop_down_number_columns = drop_down_number_columns;
 }
 
-/*
-void form_set_output_tri( FORM *form )
-{
-	form->output_tri = 1;
-}
-*/
-
 void form_set_post_dictionary_string(	FORM *form,
 					char *post_dictionary_string )
 {
@@ -1173,7 +1160,6 @@ void form_set_output_dynamic_drop_down(
 		strdup( option_display_string_array_string );
 	form->output_dynamic_drop_down = 1;
 }
-
 
 void form_set_omit_output_body( FORM *form )
 {
@@ -1230,7 +1216,6 @@ LIST *form_dictionary2hidden_element_list( DICTIONARY *dictionary )
 	}
 	return element_list;
 }
-
 
 void form_set_action( FORM *form, char *action_string )
 {
@@ -1767,8 +1752,7 @@ char **form_get_background_color_array(
 		*background_color_array_length = 5;
 	}
 	return background_color_array;
-
-} /* form_get_background_color_array() */
+}
 
 void form_output_back_forward_buttons( void )
 {
@@ -1778,7 +1762,7 @@ void form_output_back_forward_buttons( void )
 	printf(
 "<input type=\"button\" value=\"Forward\" onClick=\"timlib_history_forward()\">\n" );
 
-} /* form_output_back_forward_buttons() */
+}
 
 
 void form_output_reset_button(	char *post_change_javascript,
@@ -1797,8 +1781,7 @@ void form_output_reset_button(	char *post_change_javascript,
 	}
 
 	printf( "\">\n" );
-
-} /* form_output_reset_button() */
+}
 
 void form_output_prelookup_skip_button(	int form_number )
 {
@@ -1809,8 +1792,7 @@ void form_output_prelookup_skip_button(	int form_number )
 		form_number );
 
 	printf( "\">\n" );
-
-} /* form_output_prelookup_skip_button() */
+}
 
 void form_output_html_help_file_anchor(
 			char *application_name,
@@ -1876,8 +1858,7 @@ void form_output_html_help_file_anchor(
 	printf(
 "<input type=button value=Help onclick='window.open(\"%s\",\"help_window\",\"width=600,height=350,resizable=yes,scrollbars=yes\")'>\n",
 			full_pathname );
-
-} /* form_output_html_help_file_anchor() */
+}
 
 void form_output_submit_reset_buttons(
 			char *submit_control_string,
@@ -1945,8 +1926,7 @@ void form_output_submit_reset_buttons(
 	}
 
 	if ( with_table_tags ) printf( "</td>\n" );
-
-} /* form_output_submit_reset_buttons() */
+}
 
 void form_output_submit_button(	char *submit_control_string,
 				char *button_label,
@@ -1985,8 +1965,7 @@ void form_output_submit_button(	char *submit_control_string,
 			button_label,
 		     	form_number );
 	}
-
-} /* form_output_submit_button() */
+}
 
 void form_output_generic_button(char *onclick_control_string,
 				char *button_label )
@@ -1996,8 +1975,7 @@ void form_output_generic_button(char *onclick_control_string,
 "	onClick=\"%s;\">			\n",
 			button_label,
 			onclick_control_string );
-
-} /* form_output_generic_button() */
+}
 
 void form_output_insert_pair_one2m_submit_buttons(
 				char *submit_control_string,
@@ -2067,8 +2045,7 @@ void form_output_insert_pair_one2m_submit_buttons(
 				related_folder_name ) );
 
 	} while( list_next( pair_one2m_related_folder_name_list ) );
-
-} /* form_output_insert_pair_one2m_submit_buttons() */
+}
 
 FORM_BUTTON *form_button_new(		char *button_label,
 					char *onclick_control_string )
@@ -2089,6 +2066,5 @@ FORM_BUTTON *form_button_new(		char *button_label,
 	f->onclick_control_string = onclick_control_string;
 
 	return f;
-
-} /* form_button_new() */
+}
 
