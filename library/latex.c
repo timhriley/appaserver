@@ -169,9 +169,10 @@ void latex_output_longtable_document_heading(
 		fprintf( output_stream,
 "\\pagestyle{fancy}\n"
 "\\fancyhf{}\n"
-"\\cfoot{%s (PB)}\n"
+"\\cfoot{%s (%s)}\n"
 "\\rfoot{Page \\thepage}\n",
-			 footline );
+			 footline,
+			 LATEX_PBJ );
 	}
 	else
 	if ( omit_page_numbers )

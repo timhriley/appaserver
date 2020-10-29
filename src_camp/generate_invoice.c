@@ -588,7 +588,7 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 	fclose( output_stream );
 
 	output_directory =
-		appaserver_link_get_source_directory(
+		appaserver_link_source_directory(
 			document_root_directory,
 			application_name );
 

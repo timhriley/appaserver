@@ -100,7 +100,7 @@ char *appaserver_link_get_link_prompt(
 /* ---------------- */
 /* Returns strdup() */
 /* ---------------- */
-char *appaserver_link_get_source_directory(
+char *appaserver_link_source_directory(
 		char *document_root_directory,
 		char *application_name );
 

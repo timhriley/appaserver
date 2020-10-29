@@ -660,7 +660,7 @@ void trial_balance_html_table(
 
 	html_table_close();
 
-} /* trial_balance_html_table() */
+}
 
 /* Returns count */
 /* ------------- */
@@ -741,7 +741,7 @@ int trial_balance_html_table_account_list(
 
 	return count;
 
-} /* trial_balance_html_table_account_list() */
+}
 
 /* Returns count */
 /* ------------- */
@@ -854,7 +854,7 @@ int trial_balance_html_table_subclassification_list(
 
 	return count;
 
-} /* trial_balance_html_table_subclassification_list() */
+}
 
 void trial_balance_account_html_table(
 					double *balance,
@@ -996,7 +996,7 @@ void trial_balance_PDF(
 				appaserver_link_file->extension ) );
 
 	working_directory =
-		appaserver_link_get_source_directory(
+		appaserver_link_source_directory(
 			document_root_directory,
 			application_name );
 
@@ -1097,7 +1097,7 @@ void trial_balance_PDF(
 		process_name /* target */,
 		(char *)0 /* mime_type */ );
 
-} /* trial_balance_PDF() */
+}
 
 void trial_balance_PDF_fund(
 			LATEX *latex,
@@ -1514,7 +1514,7 @@ LIST *build_PDF_heading_list( boolean omit_subclassification )
 
 	return heading_list;
 
-} /* build_PDF_heading_list() */
+}
 
 void output_html_table(	LIST *data_list,
 			char *element_name,
@@ -1692,7 +1692,7 @@ void output_html_table(	LIST *data_list,
 		background_shaded,
 		justify_list );
 
-} /* output_html_table() */
+}
 
 char *get_latex_account_title(	char *account_name,
 				char *full_name,
@@ -1747,7 +1747,7 @@ char *get_latex_account_title(	char *account_name,
 
 	return account_title;
 
-} /* get_latex_account_title() */
+}
 
 char *get_html_table_account_title(
 			char *account_name,
@@ -1806,7 +1806,7 @@ char *get_html_table_account_title(
 
 	return account_title;
 
-} /* get_html_table_account_title() */
+}
 
 double trial_balance_get_prior_balance_change(
 			LIST *prior_element_list,
@@ -1835,7 +1835,7 @@ double trial_balance_get_prior_balance_change(
 		return 0.0;
 	}
 
-} /* trial_balance_get_prior_balance_change() */
+}
 
 void build_PDF_account_row(	LIST *column_data_list,
 				boolean *accumulate_debit,
@@ -2349,7 +2349,7 @@ void output_stdout(	char *element_name,
 
 	printf( "%s\n", list_display_delimited( data_list, '^' ) );
 
-} /* output_stdout() */
+}
 
 char *get_action_string(
 			char *application_name,
@@ -2373,6 +2373,5 @@ char *get_action_string(
 		 as_of_date );
 
 	return strdup( action_string );
-
-} /* get_action_string() */
+}
 

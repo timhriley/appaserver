@@ -58,13 +58,13 @@ void income_statement_net_income_only(
 			char *as_of_date );
 
 LIST *build_subclassification_display_PDF_heading_list(
-					void );
+			void );
 
 LIST *build_subclassification_omit_PDF_heading_list(
-					void );
+			void );
 
 LIST *build_subclassification_aggregate_PDF_heading_list(
-					void );
+			void );
 
 LIST *build_subclassification_omit_PDF_row_list(
 			LIST *element_list,
@@ -778,7 +778,7 @@ void income_statement_subclassification_aggregate_PDF(
 			appaserver_link_file->extension ) );
 
 	working_directory =
-		appaserver_link_get_source_directory(
+		appaserver_link_source_directory(
 			document_root_directory,
 			application_name );
 
@@ -933,7 +933,7 @@ void income_statement_subclassification_display_PDF(
 				appaserver_link_file->extension ) );
 
 	working_directory =
-		appaserver_link_get_source_directory(
+		appaserver_link_source_directory(
 			document_root_directory,
 			application_name );
 
@@ -1053,7 +1053,8 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 				&total_revenues,
 				element->subclassification_list,
 				element->element_name,
-				0.0 /* percent_denominator */ ) );
+				element->element_total
+					 /* percent_denominator */ ) );
 	}
 
 	/* Compute total expenses */
@@ -1069,7 +1070,7 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 				&total_expenses,
 				element->subclassification_list,
 				element->element_name,
-				0.0 /* percent_denominator */ ) );
+				total_revenues /* percent_denominator */ ) );
 	}
 
 	/* Compute total gains */
@@ -1085,7 +1086,7 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 				&total_gains,
 				element->subclassification_list,
 				element->element_name,
-					0.0 /* percent_denominator */ ) );
+				total_revenues /* percent_denominator */ ) );
 	}
 
 	/* Compute total losses */
@@ -1101,14 +1102,15 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 				&total_losses,
 				element->subclassification_list,
 				element->element_name,
-				0.0 /* percent_denominator */ ) );
+				total_revenues /* percent_denominator */ ) );
 	}
 
-	net_income = transaction_net_income(
-				total_revenues,
-				total_expenses,
-				total_gains,
-				total_losses );
+	net_income =
+		transaction_net_income(
+			total_revenues,
+			total_expenses,
+			total_gains,
+			total_losses );
 
 	/* Blank line */
 	/* ---------- */
@@ -1122,12 +1124,11 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 
 	list_set(
 		row_list,
-		element_latex_net_income_row(
+		element_latex_subclassification_aggregate_net_income_row(
 			net_income,
 			is_statement_of_activities,
 			total_revenues
-				/* percent_denominator */,
-			0 /* not omit_subclassification */ ) );
+				/* percent_denominator */ ) );
 	return row_list;
 }
 
@@ -1648,7 +1649,7 @@ void income_statement_subclassification_omit_PDF(
 				appaserver_link_file->extension ) );
 
 	working_directory =
-		appaserver_link_get_source_directory(
+		appaserver_link_source_directory(
 			document_root_directory,
 			application_name );
 

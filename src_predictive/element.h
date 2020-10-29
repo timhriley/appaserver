@@ -95,6 +95,11 @@ double element_subclassification_aggregate_html_output(
 			char *element_name,
 			double percent_denominator );
 
+LATEX_ROW *element_latex_subclassification_aggregate_net_income_row(
+			double net_income,
+			boolean is_statement_of_activities,
+			double percent_denominator );
+
 LATEX_ROW *element_latex_net_income_row(
 			double net_income,
 			boolean is_statement_of_activities,

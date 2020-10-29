@@ -825,6 +825,58 @@ LATEX_ROW *element_latex_net_income_row(
 	return latex_row;
 }
 
+LATEX_ROW *element_latex_subclassification_aggregate_net_income_row(
+			double net_income,
+			boolean is_statement_of_activities,
+			double percent_denominator )
+{
+	LATEX_ROW *latex_row;
+
+	latex_row = latex_new_latex_row();
+
+	if ( is_statement_of_activities )
+	{
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"Change in Net Assets",
+			1 /* not large_bold */ );
+	}
+	else
+	{
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"Net Income",
+			1 /* not large_bold */ );
+	}
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( place_commas_in_money(
+			   net_income ) ),
+		0 /* not large_bold */ );
+
+	if ( percent_denominator )
+	{
+		char buffer[ 128 ];
+		double percent_of_total;
+
+		percent_of_total =
+			( net_income /
+	  		percent_denominator ) * 100.0;
+
+		sprintf( buffer,
+	 		"%.1lf%c",
+	 		percent_of_total,
+	 		'%' );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+	}
+	return latex_row;
+}
+
 LATEX_ROW *element_latex_liabilities_plus_equity_row(
 			double liabilities_plus_equity,
 			int skip_columns )

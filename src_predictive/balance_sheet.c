@@ -366,7 +366,7 @@ void balance_sheet_subclassification_aggregate_PDF(
 				appaserver_link_file->extension ) );
 
 	working_directory =
-		appaserver_link_get_source_directory(
+		appaserver_link_source_directory(
 			document_root_directory,
 			application_name );
 
@@ -522,7 +522,7 @@ void balance_sheet_subclassification_display_PDF(
 				appaserver_link_file->extension ) );
 
 	working_directory =
-		appaserver_link_get_source_directory(
+		appaserver_link_source_directory(
 			document_root_directory,
 			application_name );
 
@@ -1531,7 +1531,7 @@ void balance_sheet_account_omit_PDF(
 				appaserver_link_file->extension ) );
 
 	working_directory =
-		appaserver_link_get_source_directory(
+		appaserver_link_source_directory(
 			document_root_directory,
 			application_name );
 

@@ -1,6 +1,5 @@
-/* library/latex_invoice.c						*/
+/* $APPASERVER_HOME/library/latex_invoice.c				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver latex_invoice ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -11,18 +10,19 @@
 #include "latex_invoice.h"
 #include "timlib.h"
 
-LATEX_INVOICE *latex_invoice_new(	char *invoice_date,
-					char *company_name,
-					char *company_street_address,
-					char *company_suite_number,
-					char *company_city,
-					char *company_state,
-					char *company_zip_code,
-					char *company_phone_number,
-					char *company_email_address,
-					char *line_item_key_heading,
-					char *instructions,
-					LIST *extra_label_list )
+LATEX_INVOICE *latex_invoice_new(
+			char *invoice_date,
+			char *company_name,
+			char *company_street_address,
+			char *company_suite_number,
+			char *company_city,
+			char *company_state,
+			char *company_zip_code,
+			char *company_phone_number,
+			char *company_email_address,
+			char *line_item_key_heading,
+			char *instructions,
+			LIST *extra_label_list )
 {
 	LATEX_INVOICE *h =
 		(LATEX_INVOICE *)
@@ -43,7 +43,7 @@ LATEX_INVOICE *latex_invoice_new(	char *invoice_date,
 	h->invoice_company.email_address = company_email_address;
 	h->quantity_decimal_places = LATEX_INVOICE_QUANTITY_DECIMAL_PLACES;
 	return h;
-} /* latex_invoice_new() */
+}
 
 LATEX_INVOICE_CUSTOMER *latex_invoice_customer_new(
 					char *invoice_key,
@@ -75,14 +75,15 @@ LATEX_INVOICE_CUSTOMER *latex_invoice_customer_new(
 	h->total_payment = total_payment;
 	h->invoice_line_item_list = list_new();
 	return h;
-} /* latex_invoice_customer_new() */
+}
 
-double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
-					char *item_key,
-					char *item,
-					double quantity,
-					double retail_price,
-					double discount_amount )
+double latex_invoice_append_line_item(
+			LIST *invoice_line_item_list,
+			char *item_key,
+			char *item,
+			double quantity,
+			double retail_price,
+			double discount_amount )
 {
 	LATEX_INVOICE_LINE_ITEM *line_item;
 
@@ -95,15 +96,14 @@ double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 
 	list_append_pointer( invoice_line_item_list, line_item );
 	return LATEX_EXTENSION( quantity, retail_price, discount_amount );
-
-} /* latex_invoice_append_line_item() */
+}
 
 LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
-					char *item_key,
-					char *item,
-					double quantity,
-					double retail_price,
-					double discount_amount )
+			char *item_key,
+			char *item,
+			double quantity,
+			double retail_price,
+			double discount_amount )
 {
 	LATEX_INVOICE_LINE_ITEM *h;
 
@@ -124,8 +124,7 @@ LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
 	h->retail_price = retail_price;
 	h->discount_amount = discount_amount;
 	return h;
-
-} /* latex_invoice_line_item_new() */
+}
 
 void latex_invoice_line_item_free(	LATEX_INVOICE_LINE_ITEM *
 						latex_invoice_line_item )
@@ -146,24 +145,22 @@ void latex_invoice_output_header(	FILE *output_stream )
 "\\usepackage[	margin=1in,\n"
 "		nohead]{geometry}\n"
 "\\begin{document}\n" );
-
-
-} /* latex_invoice_output_header() */
+}
 
 void latex_invoice_output_invoice_header(
-					FILE *output_stream,
-					char *invoice_date,
-					char *line_item_key_heading,
-					LATEX_INVOICE_COMPANY *
-						latex_invoice_company,
-	       				LATEX_INVOICE_CUSTOMER *
-						latex_invoice_customer,
-					boolean exists_discount_amount,
-					char *title,
-					boolean omit_money,
-					char *logo_filename,
-					char *instructions,
-					LIST *extra_label_list )
+			FILE *output_stream,
+			char *invoice_date,
+			char *line_item_key_heading,
+			LATEX_INVOICE_COMPANY *
+				latex_invoice_company,
+      				LATEX_INVOICE_CUSTOMER *
+				latex_invoice_customer,
+			boolean exists_discount_amount,
+			char *title,
+			boolean omit_money,
+			char *logo_filename,
+			char *instructions,
+			LIST *extra_label_list )
 {
 	char buffer[ 128 ];
 	char company_street_address[ 128 ];
@@ -338,7 +335,7 @@ void latex_invoice_output_invoice_header(
 	fprintf( output_stream,
 "\\hline \\hline\n" );
 
-} /* latex_invoice_output_invoice_header() */
+}
 
 void latex_invoice_output_invoice_footer(
 					FILE *output_stream,
@@ -416,7 +413,7 @@ void latex_invoice_output_invoice_footer(
 						shipping_charge -
 						total_payment ) );
 
-} /* latex_invoice_output_invoice_footer() */
+}
 
 void latex_invoice_output_footer(
 				FILE *output_stream,
@@ -440,8 +437,7 @@ void latex_invoice_output_footer(
 
 	fprintf( output_stream,
 "\\end{document}\n" );
-
-} /* latex_invoice_output_footer() */
+}
 
 void latex_invoice_company_free(		LATEX_INVOICE_COMPANY *
 						invoice_company )
@@ -457,7 +453,7 @@ void latex_invoice_company_free(		LATEX_INVOICE_COMPANY *
 	free( invoice_company->zip_code );
 	free( invoice_company->phone_number );
 	free( invoice_company->email_address );
-} /* latex_invoice_company_free() */
+}
 
 void latex_invoice_customer_free(	LATEX_INVOICE_CUSTOMER *
 						latex_invoice_customer )
@@ -491,8 +487,7 @@ void latex_invoice_customer_free(	LATEX_INVOICE_CUSTOMER *
 
 	list_free( line_item_list );
 	free( latex_invoice_customer );
-
-} /* latex_invoice_customer_free() */
+}
 
 void latex_invoice_output_invoice_line_items(
 					FILE *output_stream,
@@ -572,8 +567,7 @@ void latex_invoice_output_invoice_line_items(
 		}
 
 	} while( list_next( invoice_line_item_list ) );
-
-} /* latex_invoice_output_invoice_line_items() */
+}
 
 void latex_invoice_free( LATEX_INVOICE *invoice )
 {
@@ -583,8 +577,7 @@ void latex_invoice_free( LATEX_INVOICE *invoice )
 		free( invoice->line_item_key_heading );
 
 	free( invoice );
-
-} /* latex_invoice_free() */
+}
 
 boolean latex_invoice_each_quantity_integer(
 					LIST *invoice_line_item_list )
@@ -606,7 +599,7 @@ boolean latex_invoice_each_quantity_integer(
 
 	return 1;
 
-} /* latex_invoice_each_quantity_integer() */
+}
 
 boolean latex_invoice_get_exists_discount_amount(
 			LIST *invoice_line_item_list )
@@ -624,4 +617,4 @@ boolean latex_invoice_get_exists_discount_amount(
 
 	return 0;
 
-} /* latex_invoice_get_exists_discount_amount() */
+}

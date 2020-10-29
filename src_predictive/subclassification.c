@@ -955,6 +955,13 @@ LIST *subclassification_aggregate_beginning_row_list(
 					subclassification_total /
 	  		  	  percent_denominator ) * 100.0;
 
+fprintf(stderr,
+	"%s/%s()/%d: percent_of_total = %.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+percent_of_total );
+
 			sprintf( buffer,
 	 			"%.1lf%c",
 	 			percent_of_total,
@@ -964,7 +971,7 @@ LIST *subclassification_aggregate_beginning_row_list(
 				latex_row->column_data_list,
 				strdup( buffer ),
 				0 /* not large_bold */ );
-	}
+		}
 
 	} while( list_next( subclassification_list ) );
 

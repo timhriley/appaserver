@@ -289,7 +289,7 @@ char *appaserver_link_get_tail_half(
 
 } /* appaserver_link_get_tail_half() */
 
-char *appaserver_link_get_source_directory(
+char *appaserver_link_source_directory(
 		char *document_root_directory,
 		char *application_name )
 {

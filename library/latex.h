@@ -14,6 +14,7 @@
 /* Constants */
 /* --------- */
 #define WITH_CAPTION	1
+#define LATEX_PBJ	"PB\\&J"
 
 /* Structures */
 /* ---------- */
