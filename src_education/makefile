@@ -15,6 +15,7 @@ EDUCATION_CORE=								\
 		enrollment.o						\
 		course.o						\
 		tuition_payment.o					\
+		tuition_refund.o					\
 		program_payment.o					\
 		education.o						\
 		deposit.o						\
@@ -105,6 +106,7 @@ EXECUTABLES=	offering_trigger					\
 		registration_trigger					\
 		enrollment_trigger					\
 		tuition_payment_trigger					\
+		tuition_refund_trigger					\
 		program_payment_trigger					\
 		paypal_upload
 
@@ -154,6 +156,19 @@ tuition_payment_trigger: tuition_payment_trigger.c			\
 		${EDUCATION_CORE}					\
 		tuition_payment_trigger.c				\
 		-o tuition_payment_trigger
+
+tuition_refund_trigger: tuition_refund_trigger.c			\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${EDUCATION_CORE}
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${EDUCATION_CORE}					\
+		tuition_refund_trigger.c				\
+		-o tuition_refund_trigger
 
 program_payment_trigger: program_payment_trigger.c			\
 	${EXTERNAL_LIBRARY} 						\
@@ -238,6 +253,11 @@ tuition_payment.o: tuition_payment.c tuition_payment.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c tuition_payment.c
+
+tuition_refund.o: tuition_refund.c tuition_refund.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c tuition_refund.c
 
 program_payment.o: program_payment.c program_payment.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
