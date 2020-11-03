@@ -117,7 +117,7 @@ TUITION_REFUND *tuition_refund_fetch(
 
 double tuition_refund_amount(
 			double deposit_amount,
-			double registration_invoice_amount_due,
+			double registration_tuition,
 			int deposit_registration_list_length )
 {
 	double refund_amount;
@@ -126,10 +126,10 @@ double tuition_refund_amount(
 		deposit_amount /
 		(double)deposit_registration_list_length;
 
-	if ( refund_amount <= registration_invoice_amount_due )
+	if ( refund_amount <= registration_tuition )
 		return refund_amount;
 	else
-		return registration_invoice_amount_due;
+		return registration_tuition;
 }
 
 FILE *tuition_refund_update_open( void )
@@ -149,7 +149,7 @@ FILE *tuition_refund_update_open( void )
 void tuition_refund_update(
 			double refund_amount,
 			double fees_expense,
-			double overrefund_loss,
+			double overpayment_loss,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *street_address,
@@ -187,7 +187,7 @@ void tuition_refund_update(
 		 fees_expense );
 
 	fprintf( update_pipe,
-		 "%s^%s^%s^%s^%d^%s^%s^%s^overrefund_loss^%.2lf\n",
+		 "%s^%s^%s^%s^%d^%s^%s^%s^overpayment_loss^%.2lf\n",
 		 student_full_name,
 		 street_address,
 		 course_name,
@@ -196,7 +196,7 @@ void tuition_refund_update(
 		 payor_full_name,
 		 payor_street_address,
 		 deposit_date_time,
-		 overrefund_loss );
+		 overpayment_loss );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%d^%s^%s^%s^transaction_date_time^%s\n",
@@ -266,7 +266,7 @@ TUITION_REFUND *tuition_refund_parse(
 	char deposit_date_time[ 128 ];
 	char refund_amount[ 128 ];
 	char fees_expense[ 128 ];
-	char overrefund_loss[ 128 ];
+	char overpayment_loss[ 128 ];
 	char transaction_date_time[ 128 ];
 
 	if ( !input || !*input ) return (TUITION_REFUND *)0;
@@ -299,8 +299,8 @@ TUITION_REFUND *tuition_refund_parse(
 	piece( fees_expense, SQL_DELIMITER, input, 9 );
 	refund->tuition_refund_fees_expense = atof( fees_expense );
 
-	piece( overrefund_loss, SQL_DELIMITER, input, 10 );
-	refund->tuition_refund_overrefund_loss = atof( overrefund_loss );
+	piece( overpayment_loss, SQL_DELIMITER, input, 10 );
+	refund->tuition_refund_overpayment_loss = atof( overpayment_loss );
 
 	piece( transaction_date_time, SQL_DELIMITER, input, 11 );
 	refund->transaction_date_time = strdup( transaction_date_time );
@@ -341,13 +341,13 @@ TRANSACTION *tuition_refund_transaction(
 			char *program_name,
 			double refund_amount,
 			double fees_expense,
-			double overrefund_loss,
+			double overpayment_loss,
 			double receivable_credit_amount,
 			double cash_debit_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense,
-			char *account_gain )
+			char *account_loss )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
@@ -420,10 +420,8 @@ TRANSACTION *tuition_refund_transaction(
 
 	journal->credit_amount = receivable_credit_amount;
 
-	if ( overrefund_loss )
+	if ( overpayment_loss )
 	{
-		/* Credit account_receivable */
-		/* ------------------------- */
 		list_set(
 			transaction->journal_list,
 			( journal =
@@ -431,9 +429,9 @@ TRANSACTION *tuition_refund_transaction(
 					transaction->full_name,
 					transaction->street_address,
 					transaction->transaction_date_time,
-					account_gain ) ) );
+					account_loss ) ) );
 
-		journal->credit_amount = overrefund_loss;
+		journal->debit_amount = overpayment_loss;
 	}
 	return transaction;
 }
@@ -457,8 +455,8 @@ double tuition_refund_total( LIST *refund_list )
 	return total;
 }
 
-double tuition_refund_overrefund_loss(
-			double deposit_overrefund_loss,
+double tuition_refund_overpayment_loss(
+			double deposit_overpayment_loss,
 			LIST *deposit_registration_list )
 {
 	int length = list_length( deposit_registration_list );
@@ -466,19 +464,17 @@ double tuition_refund_overrefund_loss(
 	if ( !length )
 		return 0.0;
 	else
-		return deposit_overrefund_loss / (double)length;
+		return deposit_overpayment_loss / (double)length;
 }
 
 double tuition_refund_fees_expense(
 			double deposit_transaction_fee,
-			LIST *deposit_tuition_refund_list )
+			int deposit_tuition_refund_list_length )
 {
-	int length = list_length( deposit_tuition_refund_list );
-
-	if ( !length ) return 0.0;
+	if ( !deposit_tuition_refund_list_length ) return 0.0;
 
 	return	deposit_transaction_fee /
-		(double)length;
+		(double)deposit_tuition_refund_list_length;
 }
 
 TUITION_REFUND *tuition_refund_steady_state(
@@ -523,17 +519,17 @@ TUITION_REFUND *tuition_refund_steady_state(
 
 	tuition_refund->tuition_refund_amount =
 		tuition_refund_amount(
-			deposit_amount,
+			float_abs( deposit_amount ),
 			tuition_refund->
 				enrollment->
 				registration->
-				registration_invoice_amount_due,
+				registration_tuition,
 			list_length( deposit_registration_list ) );
 
 	tuition_refund->tuition_refund_fees_expense =
 		tuition_refund_fees_expense(
 			deposit_transaction_fee,
-			deposit_tuition_refund_list );
+			list_length( deposit_tuition_refund_list ) );
 
 	tuition_refund->
 		tuition_refund_total =
@@ -541,9 +537,9 @@ TUITION_REFUND *tuition_refund_steady_state(
 				deposit_tuition_refund_list );
 
 	tuition_refund->
-		tuition_refund_overrefund_loss =
-			tuition_refund_overrefund_loss(
-				deposit_overrefund_loss(
+		tuition_refund_overpayment_loss =
+			tuition_refund_overpayment_loss(
+				deposit_overpayment_loss(
 					deposit_amount,
 					deposit_registration_tuition(
 						deposit_registration_list,
@@ -580,14 +576,14 @@ TUITION_REFUND *tuition_refund_steady_state(
 				program_name,
 			tuition_refund->tuition_refund_amount,
 			tuition_refund->tuition_refund_fees_expense,
-			tuition_refund->tuition_refund_overrefund_loss,
+			tuition_refund->tuition_refund_overpayment_loss,
 			tuition_refund->
 				tuition_refund_receivable_credit_amount,
 			tuition_refund->tuition_refund_cash_debit_amount,
 			entity_self_paypal_cash_account_name(),
 			account_receivable( (char *)0 ),
 			account_fees_expense( (char *)0 ),
-			account_gain( (char *)0 ) ) ) )
+			account_loss( (char *)0 ) ) ) )
 	{
 		tuition_refund->transaction_date_time =
 			tuition_refund->tuition_refund_transaction->
@@ -722,7 +718,7 @@ void tuition_refund_list_insert( LIST *refund_list )
 			refund->deposit->deposit_date_time,
 			refund->tuition_refund_amount,
 			refund->tuition_refund_fees_expense,
-			refund->tuition_refund_overrefund_loss,
+			refund->tuition_refund_overpayment_loss,
 			transaction_date_time );
 
 	} while ( list_next( refund_list ) );
@@ -774,7 +770,7 @@ void tuition_refund_insert_pipe(
 			char *deposit_date_time,
 			double refund_amount,
 			double fees_expense,
-			double overrefund_loss,
+			double overpayment_loss,
 			char *transaction_date_time )
 {
 	fprintf(insert_pipe,
@@ -795,7 +791,7 @@ void tuition_refund_insert_pipe(
 		deposit_date_time,
 		refund_amount,
 		fees_expense,
-		overrefund_loss,
+		overpayment_loss,
 		(transaction_date_time)
 			? transaction_date_time
 			: "" );

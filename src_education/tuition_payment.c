@@ -422,8 +422,6 @@ TRANSACTION *tuition_payment_transaction(
 
 	if ( gain_donation )
 	{
-		/* Credit account_receivable */
-		/* ------------------------- */
 		list_set(
 			transaction->journal_list,
 			( journal =
@@ -459,14 +457,13 @@ double tuition_payment_total( LIST *payment_list )
 
 double tuition_payment_gain_donation(
 			double deposit_gain_donation,
-			LIST *deposit_registration_list )
+			int deposit_registration_list_length )
 {
-	int length = list_length( deposit_registration_list );
-
-	if ( !length )
+	if ( !deposit_registration_list_length )
 		return 0.0;
 	else
-		return deposit_gain_donation / (double)length;
+		return	deposit_gain_donation /
+			(double)deposit_registration_list_length;
 }
 
 double tuition_payment_fees_expense(
@@ -554,7 +551,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 		tuition_payment_cash_debit_amount(
 			deposit_amount,
 		 	tuition_payment->tuition_payment_fees_expense,
-			deposit_registration_list );
+			list_length( deposit_registration_list ) );
 
 	tuition_payment->tuition_payment_receivable_credit_amount =
 		tuition_payment_receivable_credit_amount(
@@ -678,10 +675,10 @@ TUITION_PAYMENT *tuition_payment_seek(
 double tuition_payment_cash_debit_amount(
 			double deposit_amount,
 			double tuition_payment_fees_expense,
-			LIST *deposit_registration_list )
+			int deposit_registration_list_length )
 {
 	return	( deposit_amount /
-		  (double)list_length( deposit_registration_list ) ) -
+		  (double)deposit_registration_list_length ) -
 		tuition_payment_fees_expense;
 }
 

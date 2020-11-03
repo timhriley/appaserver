@@ -96,21 +96,6 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			boolean fetch_enrollment,
 			boolean fetch_deposit );
 
-TRANSACTION *tuition_payment_transaction(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *deposit_date_time,
-			char *program_name,
-			double payment_amount,
-			double fees_expense,
-			double gain_donation,
-			double receivable_credit_amount,
-			double cash_debit_amount,
-			char *entity_self_paypal_cash_account_name,
-			char *account_receivable,
-			char *account_fees_expense,
-			char *account_gain );
-
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
 			boolean fetch_deposit,

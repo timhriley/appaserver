@@ -62,8 +62,8 @@ typedef struct
 	double tuition_refund_fees_expense;
 	double tuition_refund_total;
 	double tuition_refund_overpayment_loss;
-	double tuition_refund_receivable_credit_amount;
-	double tuition_refund_cash_debit_amount;
+	double tuition_refund_receivable_debit_amount;
+	double tuition_refund_cash_credit_amount;
 
 	char *transaction_date_time;
 	TRANSACTION *tuition_refund_transaction;
@@ -95,21 +95,6 @@ TUITION_REFUND *tuition_refund_fetch(
 			char *deposit_date_time,
 			boolean fetch_enrollment,
 			boolean fetch_deposit );
-
-TRANSACTION *tuition_refund_transaction(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *deposit_date_time,
-			char *program_name,
-			double refund_amount,
-			double fees_expense,
-			double overpayment_loss,
-			double receivable_credit_amount,
-			double cash_debit_amount,
-			char *entity_self_paypal_cash_account_name,
-			char *account_receivable,
-			char *account_fees_expense,
-			char *account_gain );
 
 TUITION_REFUND *tuition_refund_parse(
 			char *input,

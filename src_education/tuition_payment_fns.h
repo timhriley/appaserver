@@ -45,11 +45,11 @@ FILE *tuition_payment_update_open(
 
 double tuition_payment_fees_expense(
 			double deposit_transaction_fee,
-			LIST *deposit_tuition_payment_list );
+			int deposit_tuition_payment_list_length );
 
 double tution_payment_gain_donation(
 			double deposit_amount,
-			LIST *deposit_registration_list );
+			int deposit_registration_list_length );
 
 double tuition_payment_total(
 			LIST *tuition_payment_list );
@@ -77,7 +77,7 @@ LIST *tuition_payment_system_list(
 double tuition_payment_cash_debit_amount(
 			double deposit_amount,
 			double tuition_payment_fees_expense,
-			LIST *deposit_registration_list );
+			int deposit_registration_list_length );
 
 void tuition_payment_list_insert(
 			LIST *tuition_payment_list );
@@ -170,6 +170,21 @@ LIST *tuition_payment_list_steady_state(
 /* --------------------- */
 char *tuition_payment_memo(
 			char *program_name );
+
+TRANSACTION *tuition_payment_transaction(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time,
+			char *program_name,
+			double payment_amount,
+			double fees_expense,
+			double gain_donation,
+			double receivable_credit_amount,
+			double cash_debit_amount,
+			char *entity_self_paypal_cash_account_name,
+			char *account_receivable,
+			char *account_fees_expense,
+			char *account_gain );
 
 #endif
 

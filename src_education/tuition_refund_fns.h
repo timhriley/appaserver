@@ -45,18 +45,18 @@ FILE *tuition_refund_update_open(
 
 double tuition_refund_fees_expense(
 			double deposit_transaction_fee,
-			LIST *deposit_tuition_refund_list );
+			int deposit_tuition_refund_list_length );
 
-double tution_payment_overpayment_loss(
-			double deposit_amount,
-			LIST *deposit_registration_list );
+double tution_refund_overpayment_loss(
+			double deposit_overpayment_loss,
+			int deposit_registration_list_length;
 
 double tuition_refund_total(
 			LIST *tuition_refund_list );
 
 double tuition_refund_amount(
 			double deposit_amount,
-			double registration_invoice_amount_due,
+			double registration_tuition,
 			int deposit_registration_list_length );
 
 char *tuition_refund_primary_where(
@@ -77,7 +77,7 @@ LIST *tuition_refund_system_list(
 double tuition_refund_cash_debit_amount(
 			double deposit_amount,
 			double tuition_refund_fees_expense,
-			LIST *deposit_registration_list );
+			int deposit_registration_list_length );
 
 void tuition_refund_list_insert(
 			LIST *tuition_refund_list );
@@ -157,7 +157,7 @@ void tuition_refund_list_enrollment_trigger(
 			LIST *tuition_refund_list );
 
 LIST *tuition_refund_transaction_list(
-			LIST *tution_payment_list );
+			LIST *tution_refund_list );
 
 LIST *tuition_refund_list_steady_state(
 			LIST *deposit_tuition_refund_list,
@@ -170,6 +170,21 @@ LIST *tuition_refund_list_steady_state(
 /* --------------------- */
 char *tuition_refund_memo(
 			char *program_name );
+
+TRANSACTION *tuition_refund_transaction(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *deposit_date_time,
+			char *program_name,
+			double refund_amount,
+			double fees_expense,
+			double overpayment_loss,
+			double receivable_credit_amount,
+			double cash_debit_amount,
+			char *entity_self_paypal_cash_account_name,
+			char *account_receivable,
+			char *account_fees_expense,
+			char *account_loss );
 
 #endif
 
