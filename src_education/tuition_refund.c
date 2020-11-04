@@ -1696,3 +1696,24 @@ char *tuition_refund_memo( char *program_name )
 	return refund_memo;
 }
 
+LIST *tuition_refund_enrollment_list(
+			LIST *tuition_refund_list )
+{
+	TUITION_REFUND *tuition_refund;
+	LIST *enrollment_list;
+
+	if ( !list_rewind( tution_refund_list ) ) return (LIST *)0;
+
+	enrollment_list = list_new();
+
+	do {
+		tuition_refund = list_get( tuition_refund_list );
+
+		list_set( enrollment_list, tuition_refund->enrollment );
+
+	} while ( list_next( tution_refund_list ) );
+
+	return enrollment_list;
+}
+
+

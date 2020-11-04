@@ -197,16 +197,21 @@ int main( int argc, char **argv )
 				first_transaction_date_time,
 				account_name_list );
 
-			education_deposit_list_insert(
-				deposit_list );
+			deposit_list =
+				education_deposit_list_insert(
+					deposit_list );
 
-			deposit_list_registration_fetch_update(
-				deposit_list );
+			deposit_list =
+				deposit_list_registration_fetch_update(
+					deposit_list,
+					season_name,
+					year );
 
-			deposit_list_offering_fetch_update(
-				deposit_list,
-				season_name,
-				year );
+			deposit_list =
+				deposit_list_offering_fetch_update(
+					deposit_list,
+					season_name,
+					year );
 
 /*
 			paypal_upload_event_insert(

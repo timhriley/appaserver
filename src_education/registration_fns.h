@@ -98,7 +98,9 @@ void registration_fetch_update(
 			int year );
 
 void registration_list_fetch_update(
-			LIST *registration_list );
+			LIST *registration_list,
+			char *season_name,
+			int year );
 
 #endif
 

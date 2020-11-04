@@ -26,28 +26,28 @@ function registration_set()
 	street_address=$2
 	season_name=$3
 	year=$4
-	tuition_payment_total=$5
+	tuition_refund_total=$5
 
 	table="registration"
 	key="full_name,street_address,season_name,year"
 
-	data=`echo "$full_name^$street_address^$season_name^$year^tuition_payment_total^$tuition_payment_total"`
+	data=`echo "$full_name^$street_address^$season_name^$year^tuition_refund_total^$tuition_refund_total"`
 
 	echo $data 						|
 	update_statement table=$table key=$key carrot=y 	|
 	sql
 }
 
-function fetch_tuition_payment_total()
+function fetch_tuition_refund_total()
 {
 	full_name_escaped=$1
 	street_address=$2
 	season_name=$3
 	year=$4
 
-	tuition_payment_total=`						\
-		echo "	select sum(tuition_payment_amount)		\
-			from tuition_payment				\
+	tuition_refund_total=`						\
+		echo "	select sum(tuition_refund_amount)		\
+			from tuition_refund				\
 			where full_name = '$full_name_escaped'		\
 	  		and street_address = '$street_address'		\
 	  		and season_name = '$season_name'		\
@@ -55,7 +55,7 @@ function fetch_tuition_payment_total()
 	sql`
 }
 
-fetch_tuition_payment_total	"$full_name_escaped"			\
+fetch_tuition_refund_total	"$full_name_escaped"			\
 				"$street_address"			\
 				"$season_name"				\
 				$year
@@ -67,9 +67,9 @@ then
 		"$street_address"					\
 		"$season_name"						\
 		$year							\
-		$tuition_payment_total
+		$tuition_refund_total
 else
-	echo "$tuition_payment_total"
+	echo "$tuition_refund_total"
 fi
 
 exit 0

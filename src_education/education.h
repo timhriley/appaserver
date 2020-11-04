@@ -73,7 +73,7 @@ PAYPAL_DATASET *education_paypal_dataset(
 			/* ---------------------- */
 			PAYPAL_DATASET *paypal_dataset );
 
-void education_deposit_list_insert(
+LIST *education_deposit_list_insert(
 			LIST *education_deposit_list );
 
 void education_deposit_insert(

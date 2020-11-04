@@ -76,10 +76,8 @@ typedef struct
 	double deposit_registration_tuition;
 } DEPOSIT;
 
-LIST *deposit_payment_registration_list(
-			LIST *deposit_tuition_payment_list );
-
-LIST *deposit_refund_registration_list(
+LIST *deposit_registration_list(
+			LIST *deposit_tuition_payment_list,
 			LIST *deposit_tuition_refund_list );
 
 LIST *deposit_fetch_program_payment_list(
@@ -159,11 +157,6 @@ double deposit_program_payment_total(
 
 DEPOSIT *deposit_steady_state(
 			DEPOSIT *deposit,
-			double deposit_amount,
-			double transaction_fee,
-			LIST *deposit_tuition_payment_list,
-			LIST *deposit_program_payment_list,
-			LIST *deposit_tuition_refund_list,
 			LIST *semester_offering_list );
 
 void deposit_update(
@@ -180,7 +173,7 @@ FILE *deposit_update_open(
 			void );
 
 LIST *deposit_enrollment_list(
-			LIST *deposit_payment_list );
+			LIST *deposit_tuition_payment_list );
 
 double deposit_registration_tuition(
 			LIST *deposit_registration_list,
@@ -211,6 +204,9 @@ void deposit_list_tuition_payment_insert(
 			LIST *deposit_list );
 
 void deposit_list_program_payment_insert(
+			LIST *deposit_list );
+
+void deposit_list_tuition_refund_insert(
 			LIST *deposit_list );
 
 void deposit_list_enrollment_insert(
@@ -274,10 +270,12 @@ LIST *deposit_list_steady_state(
 			LIST *deposit_list,
 			LIST *semester_offering_list );
 
-void deposit_list_registration_fetch_update(
-			LIST *deposit_list );
+LIST *deposit_list_registration_fetch_update(
+			LIST *deposit_list,
+			char *season_name,
+			int year );
 
-void deposit_list_offering_fetch_update(
+LIST *deposit_list_offering_fetch_update(
 			LIST *deposit_list,
 			char *season_name,
 			int year );
@@ -285,6 +283,14 @@ void deposit_list_offering_fetch_update(
 LIST *deposit_transaction_list(
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_program_payment_list );
+
+LIST *deposit_list_enrollment_update(
+			LIST *deposit_list,
+			char *season_name,
+			int year );
+
+LIST *deposit_list_refund_enrollment_list(
+			LIST *deposit_list );
 
 #endif
 

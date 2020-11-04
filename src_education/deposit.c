@@ -352,30 +352,62 @@ double deposit_program_payment_total(
 {
 	return program_payment_total( deposit_program_payment_list );
 }
-
+ 
 DEPOSIT *deposit_steady_state(
 			DEPOSIT *deposit,
-			double deposit_amount,
-			double transaction_fee,
-			LIST *deposit_tuition_payment_list,
-			LIST *deposit_program_payment_list,
-			LIST *deposit_tuition_refund_list,
 			LIST *semester_offering_list )
 {
-	if ( !deposit->deposit_registration_list )
+	if ( list_length( deposit->deposit_tuition_payment_list )
+	||   list_length( deposit->deposit_tuition_refund_list ) )
 	{
 		deposit->deposit_registration_list =
 			deposit_registration_list(
-				deposit_tuition_payment_list );
+				deposit->deposit_tuition_payment_list,
+				deposit->deposit_tuition_refund_list );
 	}
 
-	deposit->deposit_tuition_payment_total =
-		deposit_tuition_payment_total(
-			deposit_tuition_payment_list );
+	if ( list_length( deposit->deposit_tuition_payment_list ) )
+	{
+		deposit->deposit_tuition_payment_list =
+			tuition_payment_list_steady_state(
+				deposit->deposit_tuition_payment_list,
+				deposit->deposit_registration_list,
+				semester_offering_list,
+				deposit->deposit_amount,
+				deposit->transaction_fee );
+	}
 
-	deposit->deposit_program_payment_total =
-		deposit_program_payment_total(
-			deposit_program_payment_list );
+	if ( list_length( deposit->deposit_program_payment_list ) )
+	{
+		deposit->deposit_program_payment_list =
+			program_payment_list_steady_state(
+				deposit->deposit_program_payment_list,
+				deposit->deposit_amount,
+				deposit->transaction_fee,
+				deposit->net_revenue
+					/* net_payment_amount */ );
+	}
+
+	if ( list_length( deposit->deposit_tuition_payment_list ) )
+	{
+		deposit->deposit_tuition_payment_total =
+			deposit_tuition_payment_total(
+				deposit->deposit_tuition_payment_list );
+	}
+
+	if ( list_length( deposit->deposit_program_payment_list ) )
+	{
+		deposit->deposit_program_payment_total =
+			deposit_program_payment_total(
+				deposit->deposit_program_payment_list );
+	}
+
+	if ( list_length( deposit->deposit_tuition_refund_list ) )
+	{
+		deposit->deposit_program_payment_total =
+			deposit_program_payment_total(
+				deposit->deposit_program_payment_list );
+	}
 
 	deposit->deposit_registration_tuition =
 		deposit_registration_tuition(
@@ -636,6 +668,22 @@ void deposit_list_program_payment_insert(
 	} while ( list_next( deposit_list ) );
 }
 
+void deposit_list_tuition_refund_insert(
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+
+	if ( !list_rewind( deposit_list ) ) return;
+
+	do {
+		deposit = list_get( deposit_list );
+
+		tuition_refund_list_insert(
+			deposit->deposit_tuition_refund_list );
+
+	} while ( list_next( deposit_list ) );
+}
+
 void deposit_list_enrollment_insert(
 			LIST *deposit_list )
 {
@@ -840,17 +888,26 @@ LIST *deposit_tuition_refund_list(
 }
 
 LIST *deposit_registration_list(
-			LIST *deposit_tuition_payment_list )
+			LIST *deposit_tuition_payment_list,
+			LIST *deposit_tuition_refund_list )
 {
-	return tuition_payment_registration_list(
+	if ( list_length( deposit_tuition_payment_list ) )
+	{
+		return tuition_payment_registration_list(
 			deposit_tuition_payment_list );
+	}
+	else
+	{
+		return tuition_refund_registration_list(
+			deposit_tuition_refund_list );
+	}
 }
 
 LIST *deposit_enrollment_list(
-			LIST *deposit_payment_list )
+			LIST *deposit_tuition_payment_list )
 {
 	return tuition_payment_enrollment_list(
-			deposit_payment_list );
+			deposit_tuition_payment_list );
 }
 
 void deposit_trigger(
@@ -909,6 +966,21 @@ LIST *deposit_list_steady_state(
 	do {
 		deposit = list_get( deposit_list );
 
+		deposit =
+			deposit_steady_state(
+				deposit,
+				semester_offering_list );
+
+#ifdef NOT_DEFINED
+		deposit =
+			deposit_steady_state(
+				deposit,
+				deposit->deposit_amount,
+				deposit->transaction_fee,
+				deposit->deposit_tuition_payment_list,
+				deposit->deposit_program_payment_list,
+				semester_offering_list );
+
 		if ( !deposit->deposit_registration_list )
 		{
 			deposit->deposit_registration_list =
@@ -932,23 +1004,17 @@ LIST *deposit_list_steady_state(
 				deposit->transaction_fee,
 				deposit->net_revenue
 					/* net_payment_amount */ );
-
-		deposit =
-			deposit_steady_state(
-				deposit,
-				deposit->deposit_amount,
-				deposit->transaction_fee,
-				deposit->deposit_tuition_payment_list,
-				deposit->deposit_program_payment_list,
-				semester_offering_list );
+#endif
 
 	} while ( list_next( deposit_list ) );
 
 	return deposit_list;
 }
 
-void deposit_list_registration_fetch_update(
-			LIST *deposit_list )
+LIST *deposit_list_registration_fetch_update(
+			LIST *deposit_list,
+			char *season_name,
+			int year )
 {
 	DEPOSIT *deposit;
 
@@ -957,16 +1023,20 @@ void deposit_list_registration_fetch_update(
 	do {
 		deposit = list_get( deposit_list );
 
-		if ( deposit->deposit_registration_list )
+		if ( list_length( deposit->deposit_registration_list ) )
 		{
 			registration_list_fetch_update(
-				deposit->deposit_registration_list );
+				deposit->deposit_registration_list,
+				season_name,
+				year );
 		}
 
 	} while ( list_next( deposit_list ) );
+
+	return deposit_list;
 }
 
-void deposit_list_offering_fetch_update(
+LIST *deposit_list_offering_fetch_update(
 			LIST *deposit_list,
 			char *season_name,
 			int year )
@@ -975,6 +1045,8 @@ void deposit_list_offering_fetch_update(
 		deposit_course_name_list( deposit_list ),
 		season_name,
 		year );
+
+	return deposit_list;
 }
 
 LIST *deposit_transaction_list(
@@ -997,3 +1069,44 @@ LIST *deposit_transaction_list(
 
 	return transaction_list;
 }
+
+LIST *deposit_list_enrollment_update(
+			LIST *deposit_list,
+			char *season_name,
+			int year )
+{
+	enrollment_list_cancelled_update(
+		deposit_list_refund_enrollment_list( deposit_list ),
+		season_name,
+		year );
+
+	return deposit_list;
+}
+
+LIST *deposit_list_refund_enrollment_list(
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+	LIST *enrollment_list;
+
+	if ( !list_rewind( deposit_list ) ) return (LIST *)0;
+
+	enrollment_list = list_new();
+
+	do {
+		deposit = list_get( deposit_list );
+
+		if ( list_length( deposit->deposit_tuition_refund_list ) )
+		{
+			list_append_list(
+				enrollment_list,
+				tuition_refund_enrollment_list(
+					deposit->
+						deposit_tuition_refund_list ) );
+		}
+
+	} while ( list_next( deposit_list ) );
+
+	return enrollment_list;
+}
+

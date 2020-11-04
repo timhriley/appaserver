@@ -1152,7 +1152,7 @@ LIST *tuition_payment_registration_list(
 LIST *tuition_payment_enrollment_list(
 			LIST *deposit_tuition_payment_list )
 {
-	TUITION_PAYMENT *payment;
+	TUITION_PAYMENT *tuition_payment;
 	LIST *enrollment_list;
 
 	if ( !list_rewind( deposit_tuition_payment_list ) ) return (LIST *)0;
@@ -1160,11 +1160,11 @@ LIST *tuition_payment_enrollment_list(
 	enrollment_list = list_new();
 
 	do {
-		payment =
+		tuition_payment =
 			list_get(
 				deposit_tuition_payment_list );
 
-		if ( !payment->enrollment )
+		if ( !tuition_payment->enrollment )
 		{
 			fprintf( stderr,
 				 "ERROR in %s/%s()/%d: empty enrollment.\n",
@@ -1176,7 +1176,7 @@ LIST *tuition_payment_enrollment_list(
 
 		list_set(
 			enrollment_list,
-			payment->enrollment );
+			tuition_payment->enrollment );
 
 	} while ( list_next( deposit_tuition_payment_list ) );
 

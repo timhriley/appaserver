@@ -255,28 +255,21 @@ FILE *enrollment_update_open( void )
 	return popen( sys_string, "w" );
 }
 
-void enrollment_update(
-			char *transaction_date_time,
+void enrollment_cancelled_yn(
+			FILE *update_pipe,
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
 			int year )
 {
-	FILE *update_pipe = enrollment_update_open();
-
 	fprintf(update_pipe,
-		"%s^%s^%s^%s^%d^transaction_date_time^%s\n",
+		"%s^%s^%s^%s^%d^enrollment_cancelled_yn^y\n",
 		student_full_name,
 		street_address,
 		course_name,
 		season_name,
-		year,
-		(transaction_date_time)
-			? transaction_date_time
-			: "" );
-
-	pclose( update_pipe );
+		year );
 }
 
 char *enrollment_primary_where(
@@ -597,4 +590,31 @@ char *enrollment_memo( char *program_name )
 	}
 	return payment_memo;
 }
+
+void enrollment_list_cancelled_update(
+			LIST *enrollment_list,
+			char *season_name,
+			int year )
+{
+	ENROLLMENT *enrollment;
+	FILE *update_pipe = enrollment_update_open();
+
+	if ( !list_rewind( enrollment_list ) ) return;
+
+	do {
+		enrollment = list_get( enrollment_list );
+
+		enrollment_cancelled_yn(
+			update_pipe,
+			enrollment->student_full_name,
+			enrollment->street_address,
+			enrollment->course_name,
+			season_name,
+			year );
+
+	} while ( list_next( enrollment_list ) );
+
+	pclose( update_pipe );
+}
+
 

@@ -37,8 +37,8 @@ char *enrollment_sys_string(
 FILE *enrollment_update_open(
 			void );
 
-void enrollment_update(
-			char *transaction_date_time,
+void enrollment_cancelled_yn(
+			FILE *update_pipe,
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -92,6 +92,11 @@ char *enrollment_memo(	char *program_name );
 
 void enrollment_list_steady_state(
 			LIST *registration_enrollment_list );
+
+void enrollment_list_cancelled_update(
+			LIST *enrollment_list,
+			char *season_name,
+			int year );
 
 #endif
 

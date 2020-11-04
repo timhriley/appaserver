@@ -555,6 +555,15 @@ void registration_fetch_update(
 	if ( system( sys_string ) ){}
 
 	sprintf(sys_string,
+		"registration_tuition_refund_total.sh \"%s\" '%s' '%s' %d y",
+		student_full_name,
+		street_address,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+
+	sprintf(sys_string,
 		"registration_invoice_amount_due.sh \"%s\" '%s' '%s' %d y",
 		student_full_name,
 		street_address,
@@ -565,7 +574,9 @@ void registration_fetch_update(
 }
 
 void registration_list_fetch_update(
-			LIST *registration_list )
+			LIST *registration_list,
+			char *season_name,
+			int year )
 {
 	REGISTRATION *registration;
 
@@ -577,8 +588,8 @@ void registration_list_fetch_update(
 		registration_fetch_update(
 			registration->student_full_name,
 			registration->street_address,
-			registration->season_name,
-			registration->year );
+			season_name,
+			year );
 
 	} while ( list_next( registration_list ) );
 }
