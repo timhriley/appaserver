@@ -468,20 +468,18 @@ double tuition_payment_gain_donation(
 
 double tuition_payment_fees_expense(
 			double deposit_transaction_fee,
-			LIST *deposit_tuition_payment_list )
+			int deposit_tuition_payment_list_length )
 {
-	int length = list_length( deposit_tuition_payment_list );
-
-	if ( !length ) return 0.0;
+	if ( !deposit_tuition_payment_list_length ) return 0.0;
 
 	return	deposit_transaction_fee /
-		(double)length;
+		(double)deposit_tuition_payment_list_length;
 }
 
 TUITION_PAYMENT *tuition_payment_steady_state(
 			TUITION_PAYMENT *tuition_payment,
 			LIST *deposit_tuition_payment_list,
-			LIST *deposit_registration_list,
+			LIST *deposit_tuition_registration_list,
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
@@ -530,7 +528,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 	tuition_payment->tuition_payment_fees_expense =
 		tuition_payment_fees_expense(
 			deposit_transaction_fee,
-			deposit_tuition_payment_list );
+			list_length( deposit_tuition_payment_list ) );
 
 	tuition_payment->
 		tuition_payment_total =
@@ -1562,7 +1560,7 @@ boolean tuition_payment_structure(
 
 LIST *tuition_payment_list_steady_state(
 			LIST *deposit_tuition_payment_list,
-			LIST *deposit_registration_list,
+			LIST *deposit_tuition_registration_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
 			double transaction_fee )
@@ -1650,7 +1648,7 @@ LIST *tuition_payment_list_steady_state(
 			tuition_payment_steady_state(
 				tuition_payment,
 				deposit_tuition_payment_list,
-				deposit_registration_list,
+				deposit_tuition_registration_list,
 				registration->registration_enrollment_list,
 				semester_offering_list,
 				deposit_amount,

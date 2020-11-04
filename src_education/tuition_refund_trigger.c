@@ -166,8 +166,8 @@ void tuition_refund_trigger_insert_update(
 				payor_full_name,
 				payor_street_address,
 				deposit_date_time,
-				1 /* fetch_enrollment */,
-				1 /* fetch_deposit */ ) ) )
+				1 /* fetch_deposit */,
+				1 /* fetch_enrollment */ ) ) )
 	{
 		return;
 	}
@@ -260,8 +260,8 @@ void tuition_refund_trigger_predelete(
 				payor_full_name,
 				payor_street_address,
 				deposit_date_time,
-				0 /* not fetch_enrollment */,
-				0 /* not fetch_deposit */ ) ) )
+				0 /* not fetch_deposit */,
+				0 /* not fetch_enrollment */ ) ) )
 	{
 		return;
 	}

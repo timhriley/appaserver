@@ -66,6 +66,7 @@ typedef struct
 	double deposit_net_revenue;
 	LIST *deposit_tuition_payment_list;
 	LIST *deposit_program_payment_list;
+	LIST *deposit_tuition_refund_list;
 	LIST *deposit_enrollment_list;
 	LIST *deposit_registration_list;
 	LIST *deposit_course_list;
@@ -75,8 +76,11 @@ typedef struct
 	double deposit_registration_tuition;
 } DEPOSIT;
 
-LIST *deposit_registration_list(
+LIST *deposit_payment_registration_list(
 			LIST *deposit_tuition_payment_list );
+
+LIST *deposit_refund_registration_list(
+			LIST *deposit_tuition_refund_list );
 
 LIST *deposit_fetch_program_payment_list(
 			char *payor_full_name,
@@ -126,7 +130,8 @@ DEPOSIT *deposit_new(
 LIST *deposit_system_list(
 			char *sys_string,
 			boolean fetch_tuition_payment_list,
-			boolean fetch_program_payment_list );
+			boolean fetch_program_payment_list,
+			boolean fetch_tuition_refund_list );
 
 DEPOSIT *deposit_fetch(	char *payor_full_name,
 			char *payor_street_address,
@@ -138,7 +143,8 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 
 DEPOSIT *deposit_parse( char *input,
 			boolean fetch_tuition_payment_list,
-			boolean fetch_program_payment_list );
+			boolean fetch_program_payment_list,
+			boolean fetch_tuition_refund_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */
@@ -157,6 +163,7 @@ DEPOSIT *deposit_steady_state(
 			double transaction_fee,
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_program_payment_list,
+			LIST *deposit_tuition_refund_list,
 			LIST *semester_offering_list );
 
 void deposit_update(

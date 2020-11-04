@@ -48,10 +48,18 @@ void enrollment_update(
 LIST *enrollment_system_list(
 			char *sys_string,
 			boolean fetch_payment_list,
+			boolean fetch_refund_list,
 			boolean fetch_offering,
 			boolean fetch_registration );
 
 LIST *enrollment_tuition_payment_list(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year );
+
+LIST *enrollment_tuition_refund_list(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,

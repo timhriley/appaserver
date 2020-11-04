@@ -248,29 +248,45 @@ DEPOSIT *education_deposit(
 	/* --------- */
 	deposit->account_balance = atof( paypal_dataset->account_balance_AD );
 
-	deposit->deposit_tuition_payment_list =
-		deposit_tuition_payment_list(
-			not_exists_course_name_list,
-			season_name,
-			year,
-			paypal_dataset->item_title_P,
-			/* -------- */
-			/* Set only */
-			/* -------- */
-			deposit );
-
-	deposit->deposit_program_payment_list =
-		deposit_program_payment_list(
-			not_exists_program_name_list,
-			paypal_dataset->item_title_P,
-			education_program_list,
-			/* -------- */
-			/* Set only */
-			/* -------- */
-			deposit );
+	if ( deposit->deposit_amount > 0.0 )
+	{
+		deposit->deposit_tuition_payment_list =
+			deposit_tuition_payment_list(
+				not_exists_course_name_list,
+				season_name,
+				year,
+				paypal_dataset->item_title_P,
+				/* -------- */
+				/* Set only */
+				/* -------- */
+				deposit );
+	
+		deposit->deposit_program_payment_list =
+			deposit_program_payment_list(
+				not_exists_program_name_list,
+				paypal_dataset->item_title_P,
+				education_program_list,
+				/* -------- */
+				/* Set only */
+				/* -------- */
+				deposit );
+	}
+	else
+	{
+		deposit->deposit_tuition_refund_list =
+			deposit_tuition_refund_list(
+				season_name,
+				year,
+				paypal_dataset->item_title_P,
+				/* -------- */
+				/* Set only */
+				/* -------- */
+				deposit );
+	}
 
 	if ( list_length( deposit->deposit_tuition_payment_list )
-	||   list_length( deposit->deposit_program_payment_list ) )
+	||   list_length( deposit->deposit_program_payment_list )
+	||   list_length( deposit->deposit_tuition_refund_list ) )
 	{
 		return deposit;
 	}

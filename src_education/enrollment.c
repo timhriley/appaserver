@@ -65,6 +65,7 @@ ENROLLMENT *enrollment_new(
 ENROLLMENT *enrollment_parse(
 			char *input,
 			boolean fetch_tuition_payment_list,
+			boolean fetch_tuition_refund_list,
 			boolean fetch_offering,
 			boolean fetch_registration )
 {
@@ -101,6 +102,30 @@ ENROLLMENT *enrollment_parse(
 	{
 		enrollment->enrollment_tuition_payment_list =
 			enrollment_tuition_payment_list(
+				enrollment->
+					registration->
+					student_full_name,
+				enrollment->
+					registration->
+					street_address,
+				enrollment->
+					offering->
+					course->
+					course_name,
+				enrollment->
+					offering->
+					semester->
+					season_name,
+				enrollment->
+					offering->
+					semester->
+					year );
+	}
+
+	if ( fetch_tuition_refund_list )
+	{
+		enrollment->enrollment_tuition_refund_list =
+			enrollment_tuition_refund_list(
 				enrollment->
 					registration->
 					student_full_name,
@@ -165,6 +190,7 @@ ENROLLMENT *enrollment_fetch(
 			char *course_name,
 			int year,
 			boolean fetch_tuition_payment_list,
+			boolean fetch_tuition_refund_list,
 			boolean fetch_offering,
 			boolean fetch_registration )
 {
@@ -184,6 +210,7 @@ ENROLLMENT *enrollment_fetch(
 						course_name,
 						year ) ) ),
 			fetch_tuition_payment_list,
+			fetch_tuition_refund_list,
 			fetch_offering,
 			fetch_registration );
 
@@ -350,6 +377,30 @@ LIST *enrollment_tuition_payment_list(
 		0 /* fetch_enrollment */ );
 
 	return payment_list;
+}
+
+LIST *enrollment_tuition_refund_list(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year )
+{
+	LIST *refund_list;
+
+	refund_list =
+		tuition_refund_system_list(
+			tuition_refund_sys_string(
+				enrollment_primary_where(
+					student_full_name,
+					street_address,
+					course_name,
+					season_name,
+					year ) ),
+		1 /* fetch_deposit */,
+		0 /* fetch_enrollment */ );
+
+	return refund_list;
 }
 
 FILE *enrollment_insert_open( char *error_filename )

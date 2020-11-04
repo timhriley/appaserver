@@ -22,6 +22,7 @@
 #include "registration_fns.h"
 #include "tuition_payment_fns.h"
 #include "program_payment_fns.h"
+#include "tuition_refund_fns.h"
 #include "enrollment_fns.h"
 #include "offering_fns.h"
 #include "deposit.h"
@@ -168,7 +169,8 @@ DEPOSIT *deposit_new(	char *payor_full_name,
 
 DEPOSIT *deposit_parse(	char *input,
 			boolean fetch_tuition_payment_list,
-			boolean fetch_program_payment_list )
+			boolean fetch_program_payment_list,
+			boolean fetch_tuition_refund_list )
 {
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
@@ -257,6 +259,19 @@ DEPOSIT *deposit_parse(	char *input,
 				1 /* fetch_deposit */ );
 	}
 
+	if ( fetch_tuition_refund_list )
+	{
+		deposit->deposit_tuition_refund_list =
+			deposit_fetch_tuition_refund_list(
+				payor_full_name,
+				payor_street_address,
+				season_name,
+				deposit->semester->year,
+				deposit_date_time,
+				0 /* not fetch_deposit */,
+				1 /* fetch_enrollment */ );
+	}
+
 	return deposit;
 }
 
@@ -275,7 +290,8 @@ char *deposit_sys_string( char *where )
 LIST *deposit_system_list(
 			char *sys_string,
 			boolean fetch_tuition_payment_list,
-			boolean fetch_program_payment_list )
+			boolean fetch_program_payment_list,
+			boolean fetch_tuition_refund_list )
 {
 	char input[ 1024 ];
 	FILE *input_pipe = popen( sys_string, "r" );
@@ -288,7 +304,8 @@ LIST *deposit_system_list(
 			deposit_parse(
 				input,
 				fetch_tuition_payment_list,
-				fetch_program_payment_list ) );
+				fetch_program_payment_list,
+				fetch_tuition_refund_list ) );
 	}
 	pclose( input_pipe );
 	return list;
@@ -300,7 +317,8 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 			int year,
 			char *deposit_date_time,
 			boolean fetch_tuition_payment_list,
-			boolean fetch_program_payment_list )
+			boolean fetch_program_payment_list,
+			boolean fetch_tuition_refund_list )
 {
 	DEPOSIT *deposit;
 
@@ -318,7 +336,8 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 						year,
 						deposit_date_time ) ) ),
 			fetch_tuition_payment_list,
-			fetch_program_payment_list );
+			fetch_program_payment_list,
+			fetch_tuition_refund_list );
 	return deposit;
 }
 
@@ -340,6 +359,7 @@ DEPOSIT *deposit_steady_state(
 			double transaction_fee,
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_program_payment_list,
+			LIST *deposit_tuition_refund_list,
 			LIST *semester_offering_list )
 {
 	if ( !deposit->deposit_registration_list )
@@ -800,6 +820,19 @@ LIST *deposit_tuition_payment_list(
 {
 	return tuition_payment_list(
 			not_exists_course_name_list,
+			season_name,
+			year,
+			item_title_P,
+			deposit );
+}
+
+LIST *deposit_tuition_refund_list(
+			char *season_name,
+			int year,
+			char *item_title_P,
+			DEPOSIT *deposit )
+{
+	return tuition_refund_list(
 			season_name,
 			year,
 			item_title_P,

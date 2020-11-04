@@ -327,6 +327,7 @@ TUITION_REFUND *tuition_refund_parse(
 				course_name,
 				season_name,
 				atoi( year ),
+				0 /* not fetch_payment_list */,
 				0 /* not fetch_refund_list */,
 				1 /* fetch_offering */,
 				1 /* fetch_registration */ );
@@ -1237,7 +1238,6 @@ void tuition_refund_list_trigger(
 }
 
 LIST *tuition_refund_list(
-			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -1250,7 +1250,6 @@ LIST *tuition_refund_list(
 	for (	student_number = 1;
 		( refund =
 			tuition_refund(
-				not_exists_course_name_list,
 				season_name,
 				year,
 				item_title_P,
@@ -1265,7 +1264,6 @@ LIST *tuition_refund_list(
 }
 
 TUITION_REFUND *tuition_refund(
-			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -1273,31 +1271,31 @@ TUITION_REFUND *tuition_refund(
 			DEPOSIT *deposit )
 {
 	TUITION_REFUND *refund;
-	TUITION_REFUND_ITEM_TITLE *tuition_refund_item_title;
+	TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title;
 
-	if ( ! ( tuition_refund_item_title =
-			tuition_refund_item_title_new(
+	if ( ! ( tuition_payment_item_title =
+			tuition_payment_item_title_new(
 				item_title_P,
 				student_number ) ) )
 	{
 		return (TUITION_REFUND *)0;
 	}
 
-	if ( ! ( tuition_refund_item_title->
-			tuition_refund_item_title_entity =
-				tuition_refund_item_title_entity(
+	if ( ! ( tuition_payment_item_title->
+			tuition_payment_item_title_entity =
+				tuition_payment_item_title_entity(
 				item_title_P,
 				student_number ) ) )
 	{
 		return (TUITION_REFUND *)0;
 	}
 
-	if ( ! ( tuition_refund_item_title->
-			tuition_refund_item_title_course_name =
+	if ( ! ( tuition_payment_item_title->
+			tuition_payment_item_title_course_name =
 				/* --------------------------- */
 				/* Returns heap memory or null */
 				/* --------------------------- */
-				tuition_refund_item_title_course_name(
+				tuition_payment_item_title_course_name(
 					item_title_P,
 					student_number ) ) )
 	{
@@ -1305,23 +1303,39 @@ TUITION_REFUND *tuition_refund(
 	}
 
 	/* New refund */
-	/* ----------- */
+	/* ---------- */
 	refund = tuition_refund_calloc();
 
-	/* Build enrollment */
+	/* Fetch enrollment */
 	/* ---------------- */
 	refund->enrollment =
-		enrollment_new(
-			tuition_refund_item_title->
-				tuition_refund_item_title_entity->
+		enrollment_fetch(
+			tuition_payment_item_title->
+				tuition_payment_item_title_entity->
 				full_name,
-			tuition_refund_item_title->
-				tuition_refund_item_title_entity->
+			tuition_payment_item_title->
+				tuition_payment_item_title_entity->
 				street_address,
-			tuition_refund_item_title->
-				tuition_refund_item_title_course_name,
+			tuition_payment_item_title->
+				tuition_payment_item_title_course_name,
 			season_name,
 			year );
+
+	if ( !refund->enrollment )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: enrollment_fetch(%/%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			tuition_payment_item_title->
+				tuition_payment_item_title_entity->
+				full_name,
+			tuition_payment_item_title->
+				tuition_payment_item_title_course_name );
+
+		return (TUITION_REFUND *)0;
+	}
 
 	/* Fetch the offering, course, and program */
 	/* --------------------------------------- */
