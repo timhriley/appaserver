@@ -327,7 +327,8 @@ TUITION_PAYMENT *tuition_payment_parse(
 				course_name,
 				season_name,
 				atoi( year ),
-				0 /* not fetch_payment_list */,
+				0 /* not fetch_tuition_payment_list */,
+				0 /* not fetch_tuition_refund_list */,
 				1 /* fetch_offering */,
 				1 /* fetch_registration */ );
 	}
@@ -347,12 +348,12 @@ TRANSACTION *tuition_payment_transaction(
 			char *entity_self_paypal_cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense,
-			char *account_gain )
+			char *account_gain,
+			int seconds_to_add )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
 	DATE *transaction_date;
-	static int seconds_to_add = 1;
 
 	if ( dollar_virtually_same( payment_amount, 0.0 ) )
 		return (TRANSACTION *)0;
@@ -362,8 +363,6 @@ TRANSACTION *tuition_payment_transaction(
 			deposit_date_time );
 
 	date_add_seconds( transaction_date, seconds_to_add );
-
-	seconds_to_add += 2;
 
 	transaction =
 		transaction_full(
@@ -479,13 +478,31 @@ double tuition_payment_fees_expense(
 TUITION_PAYMENT *tuition_payment_steady_state(
 			TUITION_PAYMENT *tuition_payment,
 			LIST *deposit_tuition_payment_list,
-			LIST *deposit_tuition_registration_list,
+			LIST *deposit_registration_list,
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
 			double deposit_transaction_fee )
 {
-	if ( !tuition_payment->enrollment->offering ) return tuition_payment;
+	/* -------------------------------------------- */
+	/* Note: ENROLLMENT.transaction_date_time gets 	*/
+	/* REGISTRATION.registration_date_time.		*/
+	/* So, start with 1.				*/
+	/* Note: DEPOSIT.deposit_date becomes		*/
+	/* REGISTRATION.registration_date_time.		*/
+	/* -------------------------------------------- */
+	static int transaction_seconds_to_add = 1;
+
+	if ( !tuition_payment->enrollment->offering )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: missing offfering.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return tuition_payment;
+	}
 
 	tuition_payment->
 		enrollment->
@@ -543,7 +560,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 					deposit_registration_tuition(
 						deposit_registration_list,
 						semester_offering_list ) ),
-				deposit_registration_list );
+				list_length( deposit_registration_list ) );
 
 	tuition_payment->tuition_payment_cash_debit_amount =
 		tuition_payment_cash_debit_amount(
@@ -582,7 +599,8 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			entity_self_paypal_cash_account_name(),
 			account_receivable( (char *)0 ),
 			account_fees_expense( (char *)0 ),
-			account_gain( (char *)0 ) ) ) )
+			account_gain( (char *)0 ),
+			transaction_seconds_to_add++ ) ) )
 	{
 		tuition_payment->transaction_date_time =
 			tuition_payment->tuition_payment_transaction->
@@ -875,18 +893,6 @@ void tuition_payment_list_registration_insert(
 			payment->enrollment->registration->street_address,
 			payment->enrollment->registration->season_name,
 			payment->enrollment->registration->year,
-			payment->
-				enrollment->
-				registration->
-				registration_tuition,
-			payment->
-				enrollment->
-				registration->
-				registration_tuition_payment_total,
-			payment->
-				enrollment->
-				registration->
-				registration_invoice_amount_due,
 			payment->
 				enrollment->
 				registration->
@@ -1560,7 +1566,7 @@ boolean tuition_payment_structure(
 
 LIST *tuition_payment_list_steady_state(
 			LIST *deposit_tuition_payment_list,
-			LIST *deposit_tuition_registration_list,
+			LIST *deposit_registration_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
 			double transaction_fee )
@@ -1648,7 +1654,7 @@ LIST *tuition_payment_list_steady_state(
 			tuition_payment_steady_state(
 				tuition_payment,
 				deposit_tuition_payment_list,
-				deposit_tuition_registration_list,
+				deposit_registration_list,
 				registration->registration_enrollment_list,
 				semester_offering_list,
 				deposit_amount,

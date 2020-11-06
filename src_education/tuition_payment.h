@@ -104,7 +104,7 @@ TUITION_PAYMENT *tuition_payment_parse(
 TUITION_PAYMENT *tuition_payment_steady_state(
 			TUITION_PAYMENT *tuition_payment,
 			LIST *deposit_tuition_payment_list,
-			LIST *deposit_tuition_registration_list,
+			LIST *deposit_registration_list,
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
@@ -124,6 +124,13 @@ TUITION_PAYMENT *tuition_payment(
 
 boolean tuition_payment_structure(
 			TUITION_PAYMENT *tuition_payment );
+
+LIST *tuition_payment_list(
+			LIST *not_exists_course_name_list,
+			char *season_name,
+			int year,
+			char *item_title_P,
+			DEPOSIT *deposit );
 
 /* ---------------------------------------- */
 /* Place functions in tuition_payment_fns.h */

@@ -20,8 +20,10 @@
 #include "semester.h"
 #include "registration.h"
 #include "registration_fns.h"
+#include "tuition_payment.h"
 #include "tuition_payment_fns.h"
 #include "program_payment_fns.h"
+#include "tuition_refund.h"
 #include "tuition_refund_fns.h"
 #include "enrollment_fns.h"
 #include "offering_fns.h"
@@ -64,6 +66,31 @@ LIST *deposit_fetch_tuition_payment_list(
 	return
 		tuition_payment_system_list(
 			tuition_payment_sys_string(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				deposit_primary_where(
+					payor_full_name,
+					payor_street_address,
+					season_name,
+					year,
+					deposit_date_time ) ),
+			fetch_deposit,
+			fetch_enrollment );
+}
+
+LIST *deposit_fetch_tuition_refund_list(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			boolean fetch_deposit,
+			boolean fetch_enrollment )
+{
+	return
+		tuition_refund_system_list(
+			tuition_refund_sys_string(
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -353,6 +380,12 @@ double deposit_program_payment_total(
 	return program_payment_total( deposit_program_payment_list );
 }
  
+double deposit_tuition_refund_total(
+			LIST *deposit_tuition_refund_list )
+{
+	return tuition_refund_total( deposit_tuition_refund_list );
+}
+ 
 DEPOSIT *deposit_steady_state(
 			DEPOSIT *deposit,
 			LIST *semester_offering_list )
@@ -404,9 +437,9 @@ DEPOSIT *deposit_steady_state(
 
 	if ( list_length( deposit->deposit_tuition_refund_list ) )
 	{
-		deposit->deposit_program_payment_total =
-			deposit_program_payment_total(
-				deposit->deposit_program_payment_list );
+		deposit->deposit_tuition_refund_total =
+			deposit_tuition_refund_total(
+				deposit->deposit_tuition_refund_list );
 	}
 
 	deposit->deposit_registration_tuition =
@@ -417,8 +450,8 @@ DEPOSIT *deposit_steady_state(
 
 	deposit->deposit_net_revenue =
 		deposit_net_revenue(
-			deposit_amount,
-			transaction_fee );
+			deposit->deposit_amount,
+			deposit->transaction_fee );
 
 	return deposit;
 }
@@ -521,6 +554,22 @@ double deposit_gain_donation(
 		gain_donation = 0.0;
 
 	return gain_donation;
+}
+
+double deposit_overpayment_loss(
+			double deposit_amount,
+			double deposit_registration_tuition )
+{
+	double overpayment_loss;
+
+	overpayment_loss =
+		deposit_amount -
+		deposit_registration_tuition;
+
+	if ( overpayment_loss <= 0.0 )
+		overpayment_loss = 0.0;
+
+	return overpayment_loss;
 }
 
 FILE *deposit_insert_open( char *error_filename )
@@ -971,41 +1020,6 @@ LIST *deposit_list_steady_state(
 				deposit,
 				semester_offering_list );
 
-#ifdef NOT_DEFINED
-		deposit =
-			deposit_steady_state(
-				deposit,
-				deposit->deposit_amount,
-				deposit->transaction_fee,
-				deposit->deposit_tuition_payment_list,
-				deposit->deposit_program_payment_list,
-				semester_offering_list );
-
-		if ( !deposit->deposit_registration_list )
-		{
-			deposit->deposit_registration_list =
-				deposit_registration_list(
-					deposit->
-						deposit_tuition_payment_list );
-		}
-
-		deposit->deposit_tuition_payment_list =
-			tuition_payment_list_steady_state(
-				deposit->deposit_tuition_payment_list,
-				deposit->deposit_registration_list,
-				semester_offering_list,
-				deposit->deposit_amount,
-				deposit->transaction_fee );
-
-		deposit->deposit_program_payment_list =
-			program_payment_list_steady_state(
-				deposit->deposit_program_payment_list,
-				deposit->deposit_amount,
-				deposit->transaction_fee,
-				deposit->net_revenue
-					/* net_payment_amount */ );
-#endif
-
 	} while ( list_next( deposit_list ) );
 
 	return deposit_list;
@@ -1018,7 +1032,7 @@ LIST *deposit_list_registration_fetch_update(
 {
 	DEPOSIT *deposit;
 
-	if ( !list_rewind( deposit_list ) ) return;
+	if ( !list_rewind( deposit_list ) ) return (LIST *)0;
 
 	do {
 		deposit = list_get( deposit_list );

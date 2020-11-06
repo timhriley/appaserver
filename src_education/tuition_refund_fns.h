@@ -10,7 +10,7 @@
 
 #include "boolean.h"
 #include "list.h"
-#include "deposit.h"
+#include "transaction.h"
 
 /* Returns true transaction_date_time */
 /* ---------------------------------- */
@@ -49,7 +49,7 @@ double tuition_refund_fees_expense(
 
 double tution_refund_overpayment_loss(
 			double deposit_overpayment_loss,
-			int deposit_registration_list_length;
+			int deposit_registration_list_length );
 
 double tuition_refund_total(
 			LIST *tuition_refund_list );
@@ -74,7 +74,7 @@ LIST *tuition_refund_system_list(
 			boolean fetch_deposit,
 			boolean fetch_enrollment );
 
-double tuition_refund_cash_debit_amount(
+double tuition_refund_cash_credit_amount(
 			double deposit_amount,
 			double tuition_refund_fees_expense,
 			int deposit_registration_list_length );
@@ -129,18 +129,8 @@ LIST *tuition_refund_enrollment_list(
 void tuition_refund_list_trigger(
 			LIST *deposit_tuition_refund_list );
 
-LIST *tuition_refund_list(
-			LIST *not_exists_course_name_list,
-			char *season_name,
-			int year,
-			char *item_title_P,
-			DEPOSIT *deposit );
-
 double tuition_refund_receivable_credit_amount(
 			double tuition_refund_amount );
-
-double tuition_refund_total(
-			LIST *tuition_refund_list );
 
 void tuition_refund_trigger(
 			char *student_full_name,
@@ -184,7 +174,11 @@ TRANSACTION *tuition_refund_transaction(
 			char *entity_self_paypal_cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense,
-			char *account_loss );
+			char *account_loss,
+			int seconds_to_add );
+
+double tuition_refund_receivable_debit_amount(
+			double refund_amount );
 
 #endif
 

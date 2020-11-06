@@ -43,6 +43,7 @@ typedef struct
 	char *transaction_date_time;
 	LIST *enrollment_tuition_payment_list;
 	LIST *enrollment_tuition_refund_list;
+	char *enrollment_cancelled_date;
 } ENROLLMENT;
 
 ENROLLMENT *enrollment_new(

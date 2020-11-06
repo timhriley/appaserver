@@ -10,7 +10,7 @@
 
 #include "boolean.h"
 #include "list.h"
-#include "deposit.h"
+#include "transaction.h"
 
 /* Returns true transaction_date_time */
 /* ---------------------------------- */
@@ -129,13 +129,6 @@ LIST *tuition_payment_enrollment_list(
 void tuition_payment_list_trigger(
 			LIST *deposit_tuition_payment_list );
 
-LIST *tuition_payment_list(
-			LIST *not_exists_course_name_list,
-			char *season_name,
-			int year,
-			char *item_title_P,
-			DEPOSIT *deposit );
-
 double tuition_payment_receivable_credit_amount(
 			double tuition_payment_amount );
 
@@ -184,7 +177,8 @@ TRANSACTION *tuition_payment_transaction(
 			char *entity_self_paypal_cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense,
-			char *account_gain );
+			char *account_gain,
+			int seconds_to_add );
 
 #endif
 

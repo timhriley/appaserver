@@ -19,6 +19,7 @@
 #include "enrollment.h"
 #include "entity.h"
 #include "tuition_payment_fns.h"
+#include "tuition_refund_fns.h"
 #include "registration_fns.h"
 #include "enrollment_fns.h"
 
@@ -334,6 +335,7 @@ LIST *registration_enrollment_list(
 					season_name,
 					year ) ),
 			0 /* not fetch_tuition_payment_list */,
+			0 /* not fetch_tuition_refund_list */,
 			1 /* fetch_offering */,
 			0 /* not fetch_registration */ );
 }
@@ -392,6 +394,12 @@ double registration_tuition_payment_total(
 			LIST *registration_tuition_payment_list )
 {
 	return tuition_payment_total( registration_tuition_payment_list );
+}
+
+double registration_tuition_refund_total(
+			LIST *registration_tuition_refund_list )
+{
+	return tuition_refund_total( registration_tuition_refund_list );
 }
 
 REGISTRATION *registration_steady_state(
@@ -508,13 +516,10 @@ void registration_insert_pipe(
 			char *street_address,
 			char *season_name,
 			int year,
-			double tuition,
-			double payment_total,
-			double invoice_amount_due,
 			char *registration_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%d^%.2lf^%.2lf^%.2lf^%s\n",
+		"%s^%s^%s^%d^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -522,9 +527,6 @@ void registration_insert_pipe(
 		street_address,
 		season_name,
 		year,
-		tuition,
-		payment_total,
-		invoice_amount_due,
 		registration_date_time );
 }
 

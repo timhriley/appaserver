@@ -27,9 +27,6 @@
 					"street_address,"		\
 					"season_name,"			\
 					"year,"				\
-					"tuition,"			\
-					"payment_total,"		\
-					"invoice_amount_due,"		\
 					"registration_date_time"
 
 /* Structures */
@@ -42,6 +39,7 @@ typedef struct
 	int year;
 	double registration_tuition;
 	double registration_tuition_payment_total;
+	double registration_tuition_refund_total;
 	double registration_invoice_amount_due;
 	char *registration_date_time;
 	LIST *registration_enrollment_list;

@@ -123,7 +123,8 @@ DEPOSIT *deposit_trigger_execute(
 				year,
 				deposit_date_time,
 				1 /* fetch_tuition_payment_list */,
-				1 /* fetch_program_payment_list */ ) ) )
+				1 /* fetch_program_payment_list */,
+				1 /* fetch_tuition_refund_list */ ) ) )
 	{
 		return (DEPOSIT *)0;
 	}
@@ -151,10 +152,6 @@ DEPOSIT *deposit_trigger_execute(
 	if ( ! ( deposit =
 			deposit_steady_state(
 				deposit,
-				deposit->deposit_amount,
-				deposit->transaction_fee,
-				deposit->deposit_tuition_payment_list,
-				deposit->deposit_program_payment_list,
 				semester_offering_list(
 					deposit->semester->season_name,
 					deposit->semester->year ) ) ) )

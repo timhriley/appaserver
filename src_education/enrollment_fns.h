@@ -37,18 +37,19 @@ char *enrollment_sys_string(
 FILE *enrollment_update_open(
 			void );
 
-void enrollment_cancelled_yn(
+void enrollment_cancelled_date_update(
 			FILE *update_pipe,
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
-			int year );
+			int year,
+			char *cancelled_date );
 
 LIST *enrollment_system_list(
 			char *sys_string,
-			boolean fetch_payment_list,
-			boolean fetch_refund_list,
+			boolean fetch_tuition_payment_list,
+			boolean fetch_tuition_refund_list,
 			boolean fetch_offering,
 			boolean fetch_registration );
 

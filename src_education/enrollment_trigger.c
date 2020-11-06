@@ -159,7 +159,8 @@ void enrollment_trigger_insert_update(
 				course_name,
 				season_name,
 				year,
-				1 /* fetch_payment_list */,
+				1 /* fetch_tuition_payment_list */,
+				1 /* fetch_tuition_refund_list */,
 				1 /* fetch_offering */,
 				1 /* fetch_registration */ ) ) )
 	{
@@ -215,27 +216,6 @@ void enrollment_trigger_insert_update(
 				0 /* check_number */,
 				t->journal_list );
 	}
-
-	enrollment_update(
-		enrollment->transaction_date_time,
-		enrollment->
-			registration->
-			student_full_name,
-		enrollment->
-			registration->
-			street_address,
-		enrollment->
-			offering->
-			course->
-			course_name,
-		enrollment->
-			offering->
-			semester->
-			season_name,
-		enrollment->
-			offering->
-			semester->
-			year );
 }
 
 void enrollment_trigger_predelete(
@@ -254,7 +234,8 @@ void enrollment_trigger_predelete(
 				course_name,
 				season_name,
 				year,
-				0 /* not fetch_payment_list */,
+				0 /* not fetch_tution_payment_list */,
+				0 /* not fetch_tution_refund_list */,
 				0 /* not fetch_offering */,
 				0 /* not fetch_registration */ ) ) )
 	{

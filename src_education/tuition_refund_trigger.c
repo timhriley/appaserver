@@ -226,7 +226,7 @@ void tuition_refund_trigger_insert_update(
 	tuition_refund_update(
 		tuition_refund->tuition_refund_amount,
 		tuition_refund->tuition_refund_fees_expense,
-		tuition_refund->tuition_refund_gain_donation,
+		tuition_refund->tuition_refund_overpayment_loss,
 		tuition_refund->transaction_date_time,
 		student_full_name,
 		street_address,

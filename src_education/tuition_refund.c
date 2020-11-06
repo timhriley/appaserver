@@ -10,6 +10,7 @@
 #include <string.h>
 #include "String.h"
 #include "piece.h"
+#include "column.h"
 #include "timlib.h"
 #include "sql.h"
 #include "boolean.h"
@@ -31,7 +32,7 @@
 #include "student.h"
 #include "program.h"
 #include "deposit.h"
-#include "tuition_refund_item_title.h"
+#include "tuition_payment_item_title.h"
 #include "tuition_refund.h"
 
 TUITION_REFUND *tuition_refund_calloc( void )
@@ -314,8 +315,9 @@ TUITION_REFUND *tuition_refund_parse(
 				season_name,
 				atoi( year ),
 				deposit_date_time,
-				1 /* fetch_tuition_refund_list */,
-				0 /* not fetch_program_refund_list */ );
+				0 /* not fetch_tuition_payment_list */,
+				0 /* not fetch_program_payment_list */,
+				0 /* not fetch_tuition_refund_list */ );
 	}
 
 	if ( fetch_enrollment )
@@ -327,8 +329,8 @@ TUITION_REFUND *tuition_refund_parse(
 				course_name,
 				season_name,
 				atoi( year ),
-				0 /* not fetch_payment_list */,
-				0 /* not fetch_refund_list */,
+				0 /* not fetch_tuition_payment_list */,
+				0 /* not fetch_tuition_refund_list */,
 				1 /* fetch_offering */,
 				1 /* fetch_registration */ );
 	}
@@ -343,17 +345,17 @@ TRANSACTION *tuition_refund_transaction(
 			double refund_amount,
 			double fees_expense,
 			double overpayment_loss,
-			double receivable_credit_amount,
-			double cash_debit_amount,
+			double receivable_debit_amount,
+			double cash_credit_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense,
-			char *account_loss )
+			char *account_loss,
+			int seconds_to_add )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
 	DATE *transaction_date;
-	static int seconds_to_add = 1;
 
 	if ( dollar_virtually_same( refund_amount, 0.0 ) )
 		return (TRANSACTION *)0;
@@ -363,8 +365,6 @@ TRANSACTION *tuition_refund_transaction(
 			deposit_date_time );
 
 	date_add_seconds( transaction_date, seconds_to_add );
-
-	seconds_to_add += 2;
 
 	transaction =
 		transaction_full(
@@ -382,34 +382,8 @@ TRANSACTION *tuition_refund_transaction(
 		transaction->journal_list = list_new();
 	}
 
-	/* Debit account_cash */
-	/* ------------------- */
-	list_set(
-		transaction->journal_list,
-		( journal =
-			journal_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				entity_self_paypal_cash_account_name ) ) );
-
-	journal->debit_amount = cash_debit_amount;
-
-	/* Debit fees_expense */
-	/* ------------------ */
-	list_set(
-		transaction->journal_list,
-		( journal =
-			journal_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				account_fees_expense ) ) );
-
-	journal->debit_amount = fees_expense;
-
-	/* Credit account_receivable */
-	/* ------------------------- */
+	/* Debit account_receivable */
+	/* ------------------------ */
 	list_set(
 		transaction->journal_list,
 		( journal =
@@ -419,7 +393,33 @@ TRANSACTION *tuition_refund_transaction(
 				transaction->transaction_date_time,
 				account_receivable ) ) );
 
-	journal->credit_amount = receivable_credit_amount;
+	journal->debit_amount = receivable_debit_amount;
+
+	/* Credit account_cash */
+	/* -------------------- */
+	list_set(
+		transaction->journal_list,
+		( journal =
+			journal_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				entity_self_paypal_cash_account_name ) ) );
+
+	journal->credit_amount = cash_credit_amount;
+
+	/* Credit fees_expense */
+	/* ------------------- */
+	list_set(
+		transaction->journal_list,
+		( journal =
+			journal_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				account_fees_expense ) ) );
+
+	journal->credit_amount = fees_expense;
 
 	if ( overpayment_loss )
 	{
@@ -487,6 +487,15 @@ TUITION_REFUND *tuition_refund_steady_state(
 			double deposit_amount,
 			double deposit_transaction_fee )
 {
+	/* -------------------------------------------- */
+	/* Note: ENROLLMENT.transaction_date_time gets 	*/
+	/* REGISTRATION.registration_date_time.		*/
+	/* So, start with 1.				*/
+	/* Note: DEPOSIT.deposit_date becomes		*/
+	/* REGISTRATION.registration_date_time.		*/
+	/* -------------------------------------------- */
+	static int transaction_seconds_to_add = 1;
+
 	if ( !tuition_refund->enrollment->offering ) return tuition_refund;
 
 	tuition_refund->
@@ -547,14 +556,14 @@ TUITION_REFUND *tuition_refund_steady_state(
 						semester_offering_list ) ),
 				deposit_registration_list );
 
-	tuition_refund->tuition_refund_cash_debit_amount =
-		tuition_refund_cash_debit_amount(
+	tuition_refund->tuition_refund_cash_credit_amount =
+		tuition_refund_cash_credit_amount(
 			deposit_amount,
 		 	tuition_refund->tuition_refund_fees_expense,
-			deposit_registration_list );
+			list_length( deposit_registration_list ) );
 
-	tuition_refund->tuition_refund_receivable_credit_amount =
-		tuition_refund_receivable_credit_amount(
+	tuition_refund->tuition_refund_receivable_debit_amount =
+		tuition_refund_receivable_debit_amount(
 			tuition_refund->tuition_refund_amount );
 
 	if ( !tuition_refund->transaction_date_time
@@ -579,12 +588,13 @@ TUITION_REFUND *tuition_refund_steady_state(
 			tuition_refund->tuition_refund_fees_expense,
 			tuition_refund->tuition_refund_overpayment_loss,
 			tuition_refund->
-				tuition_refund_receivable_credit_amount,
-			tuition_refund->tuition_refund_cash_debit_amount,
+				tuition_refund_receivable_debit_amount,
+			tuition_refund->tuition_refund_cash_credit_amount,
 			entity_self_paypal_cash_account_name(),
 			account_receivable( (char *)0 ),
 			account_fees_expense( (char *)0 ),
-			account_loss( (char *)0 ) ) ) )
+			account_loss( (char *)0 ),
+			transaction_seconds_to_add++ ) ) )
 	{
 		tuition_refund->transaction_date_time =
 			tuition_refund->tuition_refund_transaction->
@@ -672,13 +682,15 @@ TUITION_REFUND *tuition_refund_seek(
 	return (TUITION_REFUND *)0;
 }
 
-double tuition_refund_cash_debit_amount(
+double tuition_refund_cash_credit_amount(
 			double deposit_amount,
 			double tuition_refund_fees_expense,
-			LIST *deposit_registration_list )
+			int deposit_registration_list_length )
 {
+	if ( !deposit_registration_list_length ) return 0.0;
+
 	return	( deposit_amount /
-		  (double)list_length( deposit_registration_list ) ) -
+		  (double)deposit_registration_list_length ) -
 		tuition_refund_fees_expense;
 }
 
@@ -877,18 +889,6 @@ void tuition_refund_list_registration_insert(
 			refund->enrollment->registration->street_address,
 			refund->enrollment->registration->season_name,
 			refund->enrollment->registration->year,
-			refund->
-				enrollment->
-				registration->
-				registration_tuition,
-			refund->
-				enrollment->
-				registration->
-				registration_tuition_refund_total,
-			refund->
-				enrollment->
-				registration->
-				registration_invoice_amount_due,
 			refund->
 				enrollment->
 				registration->
@@ -1155,6 +1155,7 @@ LIST *tuition_refund_enrollment_list(
 			LIST *deposit_tuition_refund_list )
 {
 	TUITION_REFUND *refund;
+	char enrollment_cancelled_date[ 128 ];
 	LIST *enrollment_list;
 
 	if ( !list_rewind( deposit_tuition_refund_list ) ) return (LIST *)0;
@@ -1175,6 +1176,16 @@ LIST *tuition_refund_enrollment_list(
 				 __LINE__ );
 			exit( 1 );
 		}
+
+		refund->enrollment->enrollment_cancelled_date =
+			strdup(
+				column(
+					enrollment_cancelled_date,
+					0,
+					refund->
+						enrollment->
+						registration->
+						registration_date_time ) );
 
 		list_set(
 			enrollment_list,
@@ -1319,12 +1330,16 @@ TUITION_REFUND *tuition_refund(
 			tuition_payment_item_title->
 				tuition_payment_item_title_course_name,
 			season_name,
-			year );
+			year,
+			0 /* not fetch_tuition_payment_list */,
+			0 /* not fetch_tuition_refund_list */,
+			1 /* fetch_offering */,
+			1 /* fetch_registration */ );
 
 	if ( !refund->enrollment )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: enrollment_fetch(%/%s) returned empty.\n",
+	"Warning in %s/%s()/%d: enrollment_fetch(%s/%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
@@ -1341,8 +1356,8 @@ TUITION_REFUND *tuition_refund(
 	/* --------------------------------------- */
 	refund->enrollment->offering =
 			offering_fetch(
-				tuition_refund_item_title->
-					tuition_refund_item_title_course_name,
+				tuition_payment_item_title->
+					tuition_payment_item_title_course_name,
 				season_name,
 				year,
 				1 /* fetch_course */,
@@ -1350,21 +1365,23 @@ TUITION_REFUND *tuition_refund(
 
 	if ( !refund->enrollment->offering )
 	{
-		list_unique_set(
-			not_exists_course_name_list,
-			tuition_refund_item_title->
-				tuition_refund_item_title_course_name );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: offering is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	/* Build registration */
 	/* ------------------ */
 	refund->enrollment->registration =
 		registration_new(
-			tuition_refund_item_title->
-				tuition_refund_item_title_entity->
+			tuition_payment_item_title->
+				tuition_payment_item_title_entity->
 				full_name,
-			tuition_refund_item_title->
-				tuition_refund_item_title_entity->
+			tuition_payment_item_title->
+				tuition_payment_item_title_entity->
 				street_address,
 			season_name,
 			year );
@@ -1392,7 +1409,7 @@ TUITION_REFUND *tuition_refund(
 	return refund;
 }
 
-double tuition_refund_receivable_credit_amount(
+double tuition_refund_receivable_debit_amount(
 			double refund_amount )
 {
 	return refund_amount;
@@ -1695,25 +1712,4 @@ char *tuition_refund_memo( char *program_name )
 	}
 	return refund_memo;
 }
-
-LIST *tuition_refund_enrollment_list(
-			LIST *tuition_refund_list )
-{
-	TUITION_REFUND *tuition_refund;
-	LIST *enrollment_list;
-
-	if ( !list_rewind( tution_refund_list ) ) return (LIST *)0;
-
-	enrollment_list = list_new();
-
-	do {
-		tuition_refund = list_get( tuition_refund_list );
-
-		list_set( enrollment_list, tuition_refund->enrollment );
-
-	} while ( list_next( tution_refund_list ) );
-
-	return enrollment_list;
-}
-
 

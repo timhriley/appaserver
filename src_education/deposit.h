@@ -72,6 +72,7 @@ typedef struct
 	LIST *deposit_course_list;
 	double deposit_tuition_payment_total;
 	double deposit_program_payment_total;
+	double deposit_tuition_refund_total;
 	double deposit_gain_donation;
 	double deposit_registration_tuition;
 } DEPOSIT;
@@ -92,6 +93,15 @@ LIST *deposit_fetch_program_payment_list(
 LIST *deposit_fetch_tuition_payment_list(
 			char *payor_full_name,
 			char *street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			boolean fetch_deposit,
+			boolean fetch_enrollment );
+
+LIST *deposit_fetch_tuition_refund_list(
+			char *payor_full_name,
+			char *payor_street_address,
 			char *season_name,
 			int year,
 			char *deposit_date_time,
@@ -137,7 +147,8 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 			int year,
 			char *deposit_date_time,
 			boolean fetch_tuition_payment_list,
-			boolean fetch_program_payment_list );
+			boolean fetch_program_payment_list,
+			boolean fetch_tuition_refund_list );
 
 DEPOSIT *deposit_parse( char *input,
 			boolean fetch_tuition_payment_list,
@@ -291,6 +302,16 @@ LIST *deposit_list_enrollment_update(
 
 LIST *deposit_list_refund_enrollment_list(
 			LIST *deposit_list );
+
+LIST *deposit_tuition_refund_list(
+			char *season_name,
+			int year,
+			char *item_title_P,
+			DEPOSIT *deposit );
+
+double deposit_overpayment_loss(
+			double deposit_amount,
+			double deposit_registration_tuition );
 
 #endif
 

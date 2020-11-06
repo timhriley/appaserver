@@ -13,6 +13,7 @@
 #include "entity.h"
 #include "semester.h"
 #include "paypal.h"
+#include "deposit.h"
 #include "paypal_dataset.h"
 
 /* Enumerated types */

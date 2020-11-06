@@ -20,12 +20,25 @@
 #include "paypal_upload.h"
 #include "enrollment.h"
 #include "registration.h"
-#include "tuition_payment_fns.h"
 #include "offering.h"
 #include "offering_fns.h"
 #include "course.h"
 #include "enrollment_fns.h"
 #include "registration_fns.h"
+#include "tuition_payment_fns.h"
+#include "tuition_refund_fns.h"
+
+char *enrollment_sys_string( char *where )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "select.sh '*' %s \"%s\" select",
+		 "enrollment",
+		 where );
+
+	return strdup( sys_string );
+}
 
 ENROLLMENT *enrollment_new(
 			char *student_full_name,
@@ -171,18 +184,6 @@ ENROLLMENT *enrollment_parse(
 	return enrollment;
 }
 
-char *enrollment_sys_string( char *where )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "select.sh '*' %s \"%s\" select",
-		 "enrollment",
-		 where );
-
-	return strdup( sys_string );
-}
-
 ENROLLMENT *enrollment_fetch(
 			char *student_full_name,
 			char *street_address,
@@ -220,6 +221,7 @@ ENROLLMENT *enrollment_fetch(
 LIST *enrollment_system_list(
 			char *sys_string,
 			boolean fetch_tuition_payment_list,
+			boolean fetch_tuition_refund_list,
 			boolean fetch_offering,
 			boolean fetch_registration )
 {
@@ -234,6 +236,7 @@ LIST *enrollment_system_list(
 			enrollment_parse(
 				input,
 				fetch_tuition_payment_list,
+				fetch_tuition_refund_list,
 				fetch_offering,
 				fetch_registration ) );
 	}
@@ -255,21 +258,23 @@ FILE *enrollment_update_open( void )
 	return popen( sys_string, "w" );
 }
 
-void enrollment_cancelled_yn(
+void enrollment_cancelled_date_update(
 			FILE *update_pipe,
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
-			int year )
+			int year,
+			char *cancelled_date )
 {
 	fprintf(update_pipe,
-		"%s^%s^%s^%s^%d^enrollment_cancelled_yn^y\n",
+		"%s^%s^%s^%s^%d^enrollment_cancelled_date^%s\n",
 		student_full_name,
 		street_address,
 		course_name,
 		season_name,
-		year );
+		year,
+		cancelled_date );
 }
 
 char *enrollment_primary_where(
@@ -604,17 +609,28 @@ void enrollment_list_cancelled_update(
 	do {
 		enrollment = list_get( enrollment_list );
 
-		enrollment_cancelled_yn(
+		if ( !enrollment->enrollment_cancelled_date )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty cancelled_date.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			pclose( update_pipe );
+			exit( 1 );
+		}
+
+		enrollment_cancelled_date_update(
 			update_pipe,
-			enrollment->student_full_name,
-			enrollment->street_address,
-			enrollment->course_name,
+			enrollment->registration->student_full_name,
+			enrollment->registration->street_address,
+			enrollment->offering->course->course_name,
 			season_name,
-			year );
+			year,
+			enrollment->enrollment_cancelled_date );
 
 	} while ( list_next( enrollment_list ) );
 
 	pclose( update_pipe );
 }
-
 

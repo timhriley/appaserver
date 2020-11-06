@@ -18,6 +18,9 @@ double registration_tuition(
 double registration_tuition_payment_total(
 			LIST *registration_tuition_payment_list );
 
+double registration_tuition_refund_total(
+			LIST *registration_tuition_refund_list );
+
 double registration_invoice_amount_due(
 			double registration_tuition,
 			double tution_payment_total );
@@ -86,9 +89,6 @@ void registration_insert_pipe(
 			char *street_address,
 			char *season_name,
 			int year,
-			double tuition,
-			double payment_total,
-			double invoice_amount_due,
 			char *registration_date_time );
 
 void registration_fetch_update(
