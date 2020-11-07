@@ -58,7 +58,7 @@ EDUCATION *education_fetch(
 		semester_fetch(
 			strdup( season_name ),
 			year,
-			1 /* fetch_offering_list */ );
+			1 /* not fetch_offering_list */ );
 
 	education->paypal =
 		paypal_fetch(
@@ -76,6 +76,7 @@ LIST *education_deposit_list(
 			char *spreadsheet_filename,
 			SPREADSHEET *spreadsheet,
 			PAYPAL_DATASET *paypal_dataset,
+			LIST *semester_offering_list,
 			LIST *education_program_list )
 {
 	LIST *deposit_list = list_new();
@@ -141,6 +142,7 @@ LIST *education_deposit_list(
 				not_exists_program_name_list,
 				season_name,
 				year,
+				semester_offering_list,
 				education_program_list,
 				dataset_return
 					/* paypal_dataset */ ) );
@@ -155,6 +157,7 @@ DEPOSIT *education_deposit(
 			LIST *not_exists_program_name_list,
 			char *season_name,
 			int year,
+			LIST *semester_offering_list,
 			LIST *education_program_list,
 			PAYPAL_DATASET *paypal_dataset )
 {
@@ -256,6 +259,7 @@ DEPOSIT *education_deposit(
 				season_name,
 				year,
 				paypal_dataset->item_title_P,
+				semester_offering_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */

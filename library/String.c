@@ -210,17 +210,6 @@ char *string_enforce_utf16(	char *destination,
 		string_negative_sequence_occurrance_list(
 			destination );
 
-if ( list_length( negative_occurrance_list ) )
-{
-char buffer[ 65536 ];
-fprintf( stderr, "%s/%s()/%d: negative_occurrance_list = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-string_occurrance_list_display( buffer, negative_occurrance_list ) );
-fflush( stderr );
-}
-
 	if ( !list_go_tail( negative_occurrance_list ) )
 		return destination;
 
@@ -327,37 +316,42 @@ char *string_escape_character_array(
 			char *source,
 			char *character_array )
 {
-	char *character_array_anchor = character_array;
-	char *destination_anchor = destination;
+	char local_source[ 1024 ];
 
-	while ( *source )
+	strcpy( local_source, source );
+
+	while ( *character_array )
 	{
-		character_array = character_array_anchor;
-
-		while( *character_array )
-		{
-			if ( *source == *character_array )
-			{
-				*destination++ = '\\';
-				break;
-			}
-			character_array++;
-		}
-		*destination++ = *source++;
-
+		destination =
+			string_escape_character(
+				destination,
+				local_source,
+				*character_array
+					/* character_to_escape */ );
+		character_array++;
+		strcpy( local_source, destination );
 	}
-	*destination = '\0';
-
-	return destination_anchor;
+	return destination;
 }
 
-char *string_escape_quote(	char *destination,
-				char *source )
+char *string_escape_quote(
+			char *destination,
+			char *source )
 {
 	return string_escape_character_array(
 			destination,
 			source,
 			"'" /* character_array */ );
+}
+
+char *string_escape_quote_dollar(
+			char *destination,
+			char *source )
+{
+	return string_escape_character_array(
+			destination,
+			source,
+			"$'" /* character_array */ );
 }
 
 int string_strlen( char *s )
@@ -450,3 +444,27 @@ char *string_remove_control( char *input )
 	*ptr = '\0';
 	return remove_control;
 }
+
+char *string_escape_character(
+			char *destination,
+			char *data,
+			int character_to_escape )
+{
+	char *anchor = destination;
+
+	if ( !data )
+	{
+		*destination = '\0';
+		return destination;
+	}
+
+	while ( *data )
+	{
+		if ( *data == character_to_escape )
+			*destination++ = '\\';
+		*destination++ = *data++;
+	}
+	*destination = '\0';
+	return anchor;
+}
+

@@ -1239,6 +1239,7 @@ LIST *tuition_payment_list(
 			char *season_name,
 			int year,
 			char *item_title_P,
+			LIST *semester_offering_list,
 			DEPOSIT *deposit )
 {
 	LIST *payment_list = list_new();
@@ -1253,6 +1254,7 @@ LIST *tuition_payment_list(
 				year,
 				item_title_P,
 				student_number,
+				semester_offering_list,
 				deposit ) );
 		student_number++ )
 	{
@@ -1268,6 +1270,7 @@ TUITION_PAYMENT *tuition_payment(
 			int year,
 			char *item_title_P,
 			int student_number,
+			LIST *semester_offering_list,
 			DEPOSIT *deposit )
 {
 	TUITION_PAYMENT *payment;
@@ -1321,16 +1324,13 @@ TUITION_PAYMENT *tuition_payment(
 			season_name,
 			year );
 
-	/* Fetch the offering, course, and program */
-	/* --------------------------------------- */
+	/* Seek the offering, course, and program */
+	/* -------------------------------------- */
 	payment->enrollment->offering =
-			offering_fetch(
-				tuition_payment_item_title->
-					tuition_payment_item_title_course_name,
-				season_name,
-				year,
-				1 /* fetch_course */,
-				0 /* not fetch_enrollment_list */ );
+		offering_seek(
+			semester_offering_list,
+			tuition_payment_item_title->
+				tuition_payment_item_title_course_name );
 
 	if ( !payment->enrollment->offering )
 	{

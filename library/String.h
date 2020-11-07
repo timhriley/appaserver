@@ -52,6 +52,10 @@ char *string_escape_quote(
 			char *destination,
 			char *source );
 
+char *string_escape_quote_dollar(
+			char *destination,
+			char *source );
+
 char *string_escape(
 			char *destination,
 			char *source,
@@ -83,5 +87,10 @@ boolean string_loose_strcmp(
 
 char *string_remove_control(
 			char *input );
+
+char *string_escape_character(
+			char *destination,
+			char *data,
+			int character_to_escape );
 
 #endif

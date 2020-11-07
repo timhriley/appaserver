@@ -913,6 +913,7 @@ LIST *deposit_tuition_payment_list(
 			char *season_name,
 			int year,
 			char *item_title_P,
+			LIST *semester_offering_list,
 			DEPOSIT *deposit )
 {
 	return tuition_payment_list(
@@ -920,6 +921,7 @@ LIST *deposit_tuition_payment_list(
 			season_name,
 			year,
 			item_title_P,
+			semester_offering_list,
 			deposit );
 }
 

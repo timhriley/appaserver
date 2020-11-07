@@ -49,6 +49,7 @@ LIST *education_deposit_list(
 			char *spreadsheet_filename,
 			SPREADSHEET *spreadsheet,
 			PAYPAL_DATASET *paypal_dataset,
+			LIST *semester_offering_list,
 			LIST *education_program_list );
 
 DEPOSIT *education_deposit(
@@ -56,6 +57,7 @@ DEPOSIT *education_deposit(
 			LIST *not_exists_program_name_list,
 			char *season_name,
 			int year,
+			LIST *semester_offering_list,
 			LIST *education_program_list,
 			PAYPAL_DATASET *paypal_dataset );
 
@@ -84,6 +86,9 @@ void education_tuition_payment_insert(
 			LIST *deposit_list );
 
 void education_program_payment_insert(
+			LIST *deposit_list );
+
+void education_tuition_refund_insert(
 			LIST *deposit_list );
 
 void education_enrollment_insert(

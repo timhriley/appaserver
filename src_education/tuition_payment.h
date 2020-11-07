@@ -121,6 +121,7 @@ TUITION_PAYMENT *tuition_payment(
 			int year,
 			char *item_title_P,
 			int student_number,
+			LIST *semester_offering_list,
 			DEPOSIT *deposit );
 
 boolean tuition_payment_structure(
@@ -131,6 +132,7 @@ LIST *tuition_payment_list(
 			char *season_name,
 			int year,
 			char *item_title_P,
+			LIST *semester_offering_list,
 			DEPOSIT *deposit );
 
 /* ---------------------------------------- */

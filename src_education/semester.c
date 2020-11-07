@@ -118,8 +118,8 @@ SEMESTER *semester_parse(
 		semester->semester_offering_list =
 			offering_list(
 				semester_primary_where(
-					season_name,
-					year ) );
+					semester->season_name,
+					semester->year ) );
 	}
 
 	return semester;

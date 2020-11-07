@@ -74,7 +74,10 @@ OFFERING *offering_parse(	char *input,
 	piece( season_name, SQL_DELIMITER, input, 1 );
 	piece( year, SQL_DELIMITER, input, 2 );
 
-	offering = offering_new(
+	offering =
+		/* Executes course_new() */
+		/* --------------------- */
+		offering_new(
 			strdup( course_name ),
 			strdup( season_name ),
 			atoi( year ) );
@@ -104,11 +107,20 @@ OFFERING *offering_parse(	char *input,
 
 	if ( fetch_course )
 	{
-		offering->course =
-			course_fetch(
-				offering->
-					course->
-					course_name );
+		if ( ! ( offering->course =
+				course_fetch(
+					offering->
+						course->
+						course_name ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: fetch_course(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				course_name );
+			exit( 1 );
+		}
 	}
 
 	if ( fetch_enrollment_list )
@@ -380,6 +392,16 @@ OFFERING *offering_seek(
 	do {
 		offering = list_get( offering_list );
 
+		if ( !offering->course )
+		{
+			fprintf(stderr,
+				"Warning in %s/%s()/%d: empty course.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
 		if ( string_strcmp(
 			offering->course->course_name,
 			course_name ) == 0 )
@@ -397,7 +419,7 @@ LIST *offering_list( char *where )
 	return offering_system_list(
 			offering_sys_string(
 			    	where ),
-			0 /* not fetch_course */,
+			1 /* fetch_course */,
 			0 /* not fetch_enrollment_list */ );
 }
 

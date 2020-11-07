@@ -312,6 +312,7 @@ LIST *paypal_upload_deposit_list(
 			spreadsheet_filename,
 			education->paypal->spreadsheet,
 			paypal_dataset_calloc(),
+			education->semester->semester_offering_list,
 			( education->education_program_list =
 				education_program_list() ) );
 

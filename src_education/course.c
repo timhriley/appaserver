@@ -111,7 +111,7 @@ char *course_name_escape( char *course_name )
 {
 	static char name[ 256 ];
 
-	return string_escape_quote( name, course_name );
+	return string_escape_quote_dollar( name, course_name );
 }
 
 char *course_program_name( COURSE *course )

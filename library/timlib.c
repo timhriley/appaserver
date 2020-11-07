@@ -2214,8 +2214,7 @@ char *timlib_escape_character_array(
 	*destination = '\0';
 
 	return destination_anchor;
-
-} /* timlib_escape_character_array() */
+}
 
 char *escape_character( char *destination,
 			char *data,
