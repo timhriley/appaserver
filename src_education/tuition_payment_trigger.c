@@ -203,7 +203,8 @@ void tuition_payment_trigger_insert_update(
 				deposit_amount,
 			tuition_payment->
 				deposit->
-				transaction_fee );
+				transaction_fee,
+			0 /* transaction_seconds_to_add */ );
 
 	if ( tuition_payment->transaction_date_time
 	&&  *tuition_payment->transaction_date_time

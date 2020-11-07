@@ -203,7 +203,8 @@ void tuition_refund_trigger_insert_update(
 				deposit_amount,
 			tuition_refund->
 				deposit->
-				transaction_fee );
+				transaction_fee,
+			0 /* transaction_seconds_to_add */ );
 
 	if ( tuition_refund->transaction_date_time
 	&&  *tuition_refund->transaction_date_time

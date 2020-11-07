@@ -297,7 +297,8 @@ PROGRAM_PAYMENT *program_payment_parse(
 			 program_payment->deposit->semester->year,
 			 program_payment->deposit->deposit_date_time,
 			 0 /* not fetch_tuition_payment_list */,
-			 0 /* not fetch_program_payment_list */ );
+			 0 /* not fetch_program_payment_list */,
+			 0 /* not fetch_tuition_refund_list */ );
 	}
 
 	return program_payment;

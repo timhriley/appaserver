@@ -283,7 +283,8 @@ LIST *offering_enrollment_list(
 					course_name,
 					season_name,
 					year ) ),
-			0 /* not fetch_payment_list */,
+			0 /* not fetch_tuition_payment_list */,
+			0 /* not fetch_tuition_refund_list */,
 			0 /* not fetch_offering */,
 			0 /* not fetch_registration */ );
 }

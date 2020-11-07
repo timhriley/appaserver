@@ -314,8 +314,9 @@ TUITION_PAYMENT *tuition_payment_parse(
 				season_name,
 				atoi( year ),
 				deposit_date_time,
-				1 /* fetch_tuition_payment_list */,
-				0 /* not fetch_program_payment_list */ );
+				0 /* not fetch_tuition_payment_list */,
+				0 /* not fetch_program_payment_list */,
+				0 /* not fetch_tuition_refund_list */ );
 	}
 
 	if ( fetch_enrollment )
@@ -482,17 +483,9 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
-			double deposit_transaction_fee )
+			double deposit_transaction_fee,
+			int transaction_seconds_to_add )
 {
-	/* -------------------------------------------- */
-	/* Note: ENROLLMENT.transaction_date_time gets 	*/
-	/* REGISTRATION.registration_date_time.		*/
-	/* So, start with 1.				*/
-	/* Note: DEPOSIT.deposit_date becomes		*/
-	/* REGISTRATION.registration_date_time.		*/
-	/* -------------------------------------------- */
-	static int transaction_seconds_to_add = 1;
-
 	if ( !tuition_payment->enrollment->offering )
 	{
 		fprintf(stderr,
@@ -600,7 +593,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			account_receivable( (char *)0 ),
 			account_fees_expense( (char *)0 ),
 			account_gain( (char *)0 ),
-			transaction_seconds_to_add++ ) ) )
+			transaction_seconds_to_add ) ) )
 	{
 		tuition_payment->transaction_date_time =
 			tuition_payment->tuition_payment_transaction->
@@ -1576,6 +1569,15 @@ LIST *tuition_payment_list_steady_state(
 	OFFERING *offering;
 	ENROLLMENT *enrollment;
 
+	/* -------------------------------------------- */
+	/* Note: ENROLLMENT.transaction_date_time gets 	*/
+	/* REGISTRATION.registration_date_time.		*/
+	/* So, start with 1.				*/
+	/* Note: DEPOSIT.deposit_date becomes		*/
+	/* REGISTRATION.registration_date_time.		*/
+	/* -------------------------------------------- */
+	int transaction_seconds_to_add = 1;
+
 	if ( !list_rewind( deposit_tuition_payment_list ) ) return (LIST *)0;
 
 	do {
@@ -1619,7 +1621,8 @@ LIST *tuition_payment_list_steady_state(
 		/* ------------------------------- */
 		if ( ! ( enrollment =
 				enrollment_steady_state(
-					enrollment ) ) )
+					enrollment,
+					transaction_seconds_to_add - 1 ) ) )
 		{
 			fprintf(stderr,
 	"ERROR in %s/%s()/%d: enrollment_steady_state() returned empty.\n",
@@ -1658,9 +1661,12 @@ LIST *tuition_payment_list_steady_state(
 				registration->registration_enrollment_list,
 				semester_offering_list,
 				deposit_amount,
-				transaction_fee );
+				transaction_fee,
+				transaction_seconds_to_add );
 
 		list_pop( deposit_tuition_payment_list );
+
+		transaction_seconds_to_add += 2;
 
 	} while ( list_next( deposit_tuition_payment_list ) );
 

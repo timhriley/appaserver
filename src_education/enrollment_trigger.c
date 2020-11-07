@@ -199,7 +199,8 @@ void enrollment_trigger_insert_update(
 
 	enrollment =
 		enrollment_steady_state(
-			enrollment );
+			enrollment,
+			0 /* transaction_seconds_to_add */ );
 
 	if ( enrollment->enrollment_transaction )
 	{

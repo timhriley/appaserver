@@ -29,7 +29,8 @@ TRANSACTION *enrollment_transaction(
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
-			char *offering_revenue_account );
+			char *offering_revenue_account,
+			int seconds_to_add );
 
 char *enrollment_sys_string(
 			char *where );

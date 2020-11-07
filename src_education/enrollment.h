@@ -72,7 +72,8 @@ ENROLLMENT *enrollment_parse(
 			boolean fetch_registration );
 
 ENROLLMENT *enrollment_steady_state(
-			ENROLLMENT *enrollment );
+			ENROLLMENT *enrollment,
+			int transaction_seconds_to_add );
 
 /* ----------------------------------- */
 /* Place functions in enrollment_fns.h */

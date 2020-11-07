@@ -67,15 +67,9 @@ double registration_tuition(
 	do {
 		enrollment = list_get( enrollment_list );
 
-		if ( !enrollment->offering )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: offering is empty.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		/* Not found offering will report later. */
+		/* ------------------------------------- */
+		if ( !enrollment->offering ) return 0.0;
 
 		if ( ! ( offering =
 				offering_seek(

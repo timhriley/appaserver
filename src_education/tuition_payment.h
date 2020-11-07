@@ -42,7 +42,7 @@
 					"payor_full_name,"		\
 					"payor_street_address,"		\
 					"deposit_date_time,"		\
-					"payment_amount,"		\
+					"tuition_payment_amount,"	\
 					"fees_expense,"			\
 					"gain_donation,"		\
 					"transaction_date_time"
@@ -108,7 +108,8 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
-			double deposit_transaction_fee );
+			double deposit_transaction_fee,
+			int transaction_seconds_to_add );
 
 TUITION_PAYMENT *tuition_payment_seek(
 			LIST *deposit_tuition_payment_list,

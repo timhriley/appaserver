@@ -315,11 +315,11 @@ TRANSACTION *enrollment_transaction(
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
-			char *offering_revenue_account )
+			char *offering_revenue_account,
+			int seconds_to_add )
 {
 	TRANSACTION *transaction;
 	DATE *transaction_date;
-	static int seconds_to_add = 0;
 
 	if ( !offering_course_price ) return (TRANSACTION *)0;
 
@@ -328,8 +328,6 @@ TRANSACTION *enrollment_transaction(
 			registration_date_time );
 
 	date_add_seconds( transaction_date, seconds_to_add );
-
-	seconds_to_add += 2;
 
 	transaction =
 		transaction_new(
@@ -493,17 +491,24 @@ void enrollment_trigger(
 void enrollment_list_steady_state(
 			LIST *enrollment_list )
 {
+	int transaction_seconds_to_add = 0;
+
 	if ( !list_rewind( enrollment_list ) ) return;
 
 	do {
 		enrollment_steady_state(
 			list_get(
-				enrollment_list ) );
+				enrollment_list ),
+			transaction_seconds_to_add );
+
+		transaction_seconds_to_add += 2;
 
 	} while ( list_next( enrollment_list ) );
 }
 
-ENROLLMENT *enrollment_steady_state( ENROLLMENT *enrollment )
+ENROLLMENT *enrollment_steady_state(
+			ENROLLMENT *enrollment,
+			int transaction_seconds_to_add )
 {
 	if ( !enrollment )
 	{
@@ -573,7 +578,8 @@ ENROLLMENT *enrollment_steady_state( ENROLLMENT *enrollment )
 				program_name,
 				enrollment->offering->course_price,
 				account_receivable( (char *)0 ),
-				enrollment->offering->revenue_account );
+				enrollment->offering->revenue_account,
+				transaction_seconds_to_add );
 	}
 	return enrollment;
 }
