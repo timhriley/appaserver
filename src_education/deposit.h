@@ -294,7 +294,8 @@ LIST *deposit_list_offering_fetch_update(
 
 LIST *deposit_transaction_list(
 			LIST *deposit_tuition_payment_list,
-			LIST *deposit_program_payment_list );
+			LIST *deposit_program_payment_list,
+			LIST *deposit_tuition_refund_list );
 
 LIST *deposit_list_enrollment_update(
 			LIST *deposit_list,

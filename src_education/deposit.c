@@ -390,6 +390,8 @@ DEPOSIT *deposit_steady_state(
 			DEPOSIT *deposit,
 			LIST *semester_offering_list )
 {
+	/* Build the registration list */
+	/* --------------------------- */
 	if ( list_length( deposit->deposit_tuition_payment_list )
 	||   list_length( deposit->deposit_tuition_refund_list ) )
 	{
@@ -399,6 +401,8 @@ DEPOSIT *deposit_steady_state(
 				deposit->deposit_tuition_refund_list );
 	}
 
+	/* Execute the three steady states */
+	/* ------------------------------- */
 	if ( list_length( deposit->deposit_tuition_payment_list ) )
 	{
 		deposit->deposit_tuition_payment_list =
@@ -421,6 +425,19 @@ DEPOSIT *deposit_steady_state(
 					/* net_payment_amount */ );
 	}
 
+	if ( list_length( deposit->deposit_tuition_refund_list ) )
+	{
+		deposit->deposit_tuition_refund_list =
+			tuition_refund_list_steady_state(
+				deposit->deposit_tuition_refund_list,
+				deposit->deposit_registration_list,
+				semester_offering_list,
+				deposit->deposit_amount,
+				deposit->transaction_fee );
+	}
+
+	/* Set the three totals */
+	/* -------------------- */
 	if ( list_length( deposit->deposit_tuition_payment_list ) )
 	{
 		deposit->deposit_tuition_payment_total =
@@ -442,12 +459,16 @@ DEPOSIT *deposit_steady_state(
 				deposit->deposit_tuition_refund_list );
 	}
 
+	/* Calculate deposit_registration_income */
+	/* ------------------------------------- */
 	deposit->deposit_registration_tuition =
 		deposit_registration_tuition(
 			deposit->
 				deposit_registration_list,
 			semester_offering_list );
 
+	/* Calculate deposit_net_revenue */
+	/* ----------------------------- */
 	deposit->deposit_net_revenue =
 		deposit_net_revenue(
 			deposit->deposit_amount,
@@ -1000,7 +1021,8 @@ LIST *deposit_list_transaction_list(
 			transaction_list,
 			deposit_transaction_list(
 				deposit->deposit_tuition_payment_list,
-				deposit->deposit_program_payment_list ) );
+				deposit->deposit_program_payment_list,
+				deposit->deposit_tuition_refund_list ) );
 
 	} while ( list_next( deposit_list ) );
 	return transaction_list;
@@ -1067,7 +1089,8 @@ LIST *deposit_list_offering_fetch_update(
 
 LIST *deposit_transaction_list(
 			LIST *deposit_tuition_payment_list,
-			LIST *deposit_program_payment_list )
+			LIST *deposit_program_payment_list,
+			LIST *deposit_tuition_refund_list )
 {
 	LIST *transaction_list;
 
@@ -1082,6 +1105,11 @@ LIST *deposit_transaction_list(
 		transaction_list,
 		program_payment_transaction_list(
 			deposit_program_payment_list ) );
+
+	list_append_list(
+		transaction_list,
+		tuition_refund_transaction_list(
+			deposit_tuition_refund_list ) );
 
 	return transaction_list;
 }

@@ -130,11 +130,6 @@ LIST *education_deposit_list(
 			continue;
 		}
 
-		if ( *dataset_return->gross_revenue_H == '-' )
-		{
-			continue;
-		}
-
 		list_set(
 			deposit_list,
 			education_deposit(

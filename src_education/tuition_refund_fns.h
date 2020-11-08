@@ -180,5 +180,8 @@ TRANSACTION *tuition_refund_transaction(
 double tuition_refund_receivable_debit_amount(
 			double refund_amount );
 
+char *tuition_refund_list_display(
+			LIST *refund_list );
+
 #endif
 

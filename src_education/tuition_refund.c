@@ -681,7 +681,8 @@ double tuition_refund_cash_credit_amount(
 {
 	if ( !deposit_registration_list_length ) return 0.0;
 
-	return	( deposit_amount /
+	return	0.0 -
+		( deposit_amount /
 		  (double)deposit_registration_list_length ) -
 		tuition_refund_fees_expense;
 }
@@ -1038,64 +1039,6 @@ void tuition_refund_list_payor_entity_insert(
 	if ( system( sys_string ) ){};
 }
 
-char *tuition_refund_list_display( LIST *refund_list )
-{
-	char display[ 65536 ];
-	char *ptr = display;
-	TUITION_REFUND *refund;
-	char *course_name;
-
-	*ptr = '\0';
-
-	if ( !list_rewind( refund_list ) )
-	{
-		return "";
-	}
-
-	do {
-		refund =
-			list_get(
-				refund_list );
-
-		if ( !list_at_head( refund_list ) )
-		{
-			ptr += sprintf( ptr, ", " );
-		}
-
-		if ( refund->enrollment->offering )
-		{
-			course_name =
-				refund->
-					enrollment->
-					offering->
-					course->
-					course_name;
-		}
-		else
-		{
-			course_name = "Unknown";
-		}
-
-		ptr += sprintf(	ptr,
-				"%s will enroll in %s",
-				entity_name_display(
-					refund->
-						enrollment->
-						registration->
-						student_full_name,
-					refund->
-						enrollment->
-						registration->
-						street_address ),
-				course_name );
-
-	} while ( list_next( refund_list ) );
-
-	ptr += sprintf( ptr, "\n" );
-
-	return strdup( display );
-}
-
 LIST *tuition_refund_registration_list(
 			LIST *deposit_tuition_refund_list )
 {
@@ -1330,18 +1273,20 @@ TUITION_REFUND *tuition_refund(
 
 	if ( !refund->enrollment )
 	{
-		fprintf(stderr,
-	"Warning in %s/%s()/%d: enrollment_fetch(%s/%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			tuition_payment_item_title->
-				tuition_payment_item_title_entity->
-				full_name,
-			tuition_payment_item_title->
-				tuition_payment_item_title_course_name );
-
-		return (TUITION_REFUND *)0;
+		/* Enrolled and refunded in the same spreadsheet. */
+		/* ---------------------------------------------- */
+		refund->enrollment =
+			enrollment_new(
+				tuition_payment_item_title->
+					tuition_payment_item_title_entity->
+					full_name,
+				tuition_payment_item_title->
+					tuition_payment_item_title_entity->
+					street_address,
+				tuition_payment_item_title->
+					tuition_payment_item_title_course_name,
+				season_name,
+				year );
 	}
 
 	/* Fetch the offering, course, and program */
@@ -1716,5 +1661,63 @@ char *tuition_refund_memo( char *program_name )
 			TUITION_REFUND_MEMO );
 	}
 	return refund_memo;
+}
+
+char *tuition_refund_list_display( LIST *refund_list )
+{
+	char display[ 65536 ];
+	char *ptr = display;
+	TUITION_REFUND *refund;
+	char *course_name;
+
+	*ptr = '\0';
+
+	if ( !list_rewind( refund_list ) )
+	{
+		return "";
+	}
+
+	do {
+		refund =
+			list_get(
+				refund_list );
+
+		if ( !list_at_head( refund_list ) )
+		{
+			ptr += sprintf( ptr, ", " );
+		}
+
+		if ( refund->enrollment->offering )
+		{
+			course_name =
+				refund->
+					enrollment->
+					offering->
+					course->
+					course_name;
+		}
+		else
+		{
+			course_name = "Unknown";
+		}
+
+		ptr += sprintf(	ptr,
+				"%s will be refunded in %s",
+				entity_name_display(
+					refund->
+						enrollment->
+						registration->
+						student_full_name,
+					refund->
+						enrollment->
+						registration->
+						street_address ),
+				course_name );
+
+	} while ( list_next( refund_list ) );
+
+	ptr += sprintf( ptr, "\n" );
+
+	return strdup( display );
 }
 
