@@ -47,7 +47,8 @@ function fetch_invoice_amount_due()
 
 	invoice_amount_due=`						\
 		echo "	select ifnull(tuition,0) -			\
-			       ifnull(tuition_payment_total,0) 		\
+			       ifnull(tuition_payment_total,0) -	\
+			       ifnull(tuition_refund_total,0) 		\
 			from registration				\
 			where full_name = '$full_name_escaped'		\
 	  		and street_address = '$street_address'		\
@@ -60,22 +61,6 @@ function fetch_invoice_amount_due()
 	# Overpayment goes to gain_donation.
 	# ----------------------------------
 	if [ "`echo $invoice_amount_due | piece.e '-' 1 2>/dev/null`" != "" ]
-	then
-		invoice_amount_due=0
-	fi
-
-	tuition_refund_total=`						\
-		echo "	select ifnull(tuition_refund_total,0) 		\
-			from registration				\
-			where full_name = '$full_name_escaped'		\
-	  		and street_address = '$street_address'		\
-	  		and season_name = '$season_name'		\
-	  		and year = $year;"				|
-	sql`
-
-	# If any refund, then no amount due.
-	# ----------------------------------
-	if [ "$tuition_refund_total" != "0" ]
 	then
 		invoice_amount_due=0
 	fi
