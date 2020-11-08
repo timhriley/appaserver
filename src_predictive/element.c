@@ -73,11 +73,28 @@ char *element_sys_string( char *where )
 
 ELEMENT *element_fetch( char *element_name )
 {
-	return element_parse(
-			pipe2string(
+	static LIST *list = {0};
+	ELEMENT *element;
+
+	if ( !list )
+	{
+		list =
+			element_fetch_list(
 				element_sys_string(
-					element_primary_where(
-						element_name ) ) ) );
+					"1 = 1" ) );
+	}
+
+	if ( ! ( element = element_seek( list, element_name ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: element_seek(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__, __LINE__,
+			element_name );
+		exit( 1 );
+	}
+
+	return element;
 }
 
 ELEMENT *element_account_name_fetch(
@@ -163,6 +180,40 @@ boolean element_accumulate_debit( char *element_name )
 		return 1;
 	else
 		return 0;
+}
+
+LIST *element_fetch_list( char *sys_string )
+{
+	LIST *element_list;
+	ELEMENT *element;
+	char input_buffer[ 256 ];
+	char element_name[ 128 ];
+	char accumulate_debit_yn[ 2 ];
+	FILE *input_pipe;
+
+	element_list = list_new();
+	input_pipe = popen( sys_string, "r" );
+
+	while( string_input( input_buffer, input_pipe, 256 ) )
+	{
+		piece( element_name, SQL_DELIMITER, input_buffer, 0 );
+
+		element =
+			element_new(
+				strdup( element_name ) );
+
+		piece(	accumulate_debit_yn,
+			SQL_DELIMITER,
+			input_buffer,
+			1 );
+
+		element->accumulate_debit = ( *accumulate_debit_yn == 'y' );
+
+		list_set( element_list, element );
+	}
+
+	pclose( input_pipe );
+	return element_list;
 }
 
 LIST *element_system_list(

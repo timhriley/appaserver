@@ -22,8 +22,7 @@
 #define ACCOUNT_CHANGE_IN_NET_ASSETS		\
 					"change_in_net_assets"
 
-#define ACCOUNT_FOLDER_NAME		"account"
-#define ACCOUNT_TABLE_NAME		ACCOUNT_FOLDER_NAME
+#define ACCOUNT_TABLE_NAME		"account"
 #define ACCOUNT_NOT_SET			"not_set"
 
 #define ACCOUNT_CASH_KEY		"cash_key"

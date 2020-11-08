@@ -134,5 +134,8 @@ LIST *element_system_list(
 boolean element_account_accumulate_debit(
 			char *account_name );
 
+LIST *element_fetch_list(
+			char *sys_string );
+
 #endif
 

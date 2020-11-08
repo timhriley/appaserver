@@ -46,7 +46,7 @@ LIST *account_list_fetch( char *where )
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s order by %s;\" | sql",
 		 account_select(),
-		 "account",
+		 ACCOUNT_TABLE_NAME,
 		 where,
 		 "account" );
 
@@ -354,7 +354,7 @@ char *account_sys_string( char *where )
 		 /* Returns program memory */
 		 /* ---------------------- */
 		 account_select(),
-		 "account",
+		 ACCOUNT_TABLE_NAME,
 		 where );
 
 	return strdup( sys_string );
@@ -840,9 +840,6 @@ void account_propagate( char *account_name,
 boolean account_accumulate_debit(
 			char *subclassification_name )
 {
-/* -------------- */
-/* Cute but slow. */
-/* -------------- */
 	SUBCLASSIFICATION *subclassification;
 	ELEMENT *element;
 
@@ -883,7 +880,7 @@ void account_transaction_propagate(
 	sprintf( sys_string,
 		 "echo \"select %s from %s;\" | sql",
 		 "account",
-		 "account" );
+		 ACCOUNT_TABLE_NAME );
 
 	input_pipe = popen( sys_string, "r" );
 

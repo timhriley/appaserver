@@ -16,6 +16,7 @@
 
 /* Constants */
 /* --------- */
+#define SUBCLASSIFICATION_TABLE_NAME		"subclassification"
 #define SUBCLASSIFICATION_NET_ASSETS		"net_assets"
 #define SUBCLASSIFICATION_CONTRIBUTED_CAPITAL	"contributed_capital"
 #define SUBCLASSIFICATION_RETAINED_EARNINGS	"retained_earnings"
@@ -133,5 +134,18 @@ LIST *subclassification_total_account_list(
 			char *subclassification_name,
 			char *fund_name,
 			char *as_of_date );
+
+LIST *subclassification_list(
+			void );
+
+LIST *subclassification_system_list(
+			char *sys_string );
+
+char *subclassification_sys_string(
+			char *where );
+
+SUBCLASSIFICATION *subclassification_seek(
+			LIST *subclassification_list,
+			char *subclassification_name );
 
 #endif

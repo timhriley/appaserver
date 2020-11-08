@@ -59,23 +59,27 @@ SUBCLASSIFICATION *subclassification_parse( char *input )
 SUBCLASSIFICATION *subclassification_fetch(
 			char *subclassification_name )
 {
+	static LIST *list = {0};
 	SUBCLASSIFICATION *subclassification;
-	char sys_string[ 1024 ];
 
-	if ( !subclassification_name ) return (SUBCLASSIFICATION *)0;
+	if ( !list )
+	{
+		list = subclassification_list();
+	}
 
-	sprintf( sys_string,
-		 "select.sh '*' %s \"%s\" none",
-		 "subclassification",
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 subclassification_primary_where(
-			subclassification_name ) );
-
-	subclassification =
-		subclassification_parse(
-			pipe2string( sys_string ) );
+	if ( ! ( subclassification =
+			subclassification_seek(
+				list,
+				subclassification_name ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: subclassification_seek(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			subclassification_name );
+		exit( 1 );
+	}
 
 	return subclassification;
 }
@@ -1832,5 +1836,69 @@ LIST *subclassification_total_account_list(
 
 	pclose( input_pipe );
 	return account_list;
+}
+
+LIST *subclassification_list( void )
+{
+	return subclassification_system_list(
+			subclassification_sys_string(
+				"1 = 1" ) );
+}
+
+LIST *subclassification_system_list( char *sys_string )
+{
+	FILE *input_pipe;
+	char input[ 1024 ];
+	LIST *subclassification_list;
+
+	input_pipe = popen( sys_string, "r" );
+	subclassification_list = list_new();
+
+	while ( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set(
+			subclassification_list,
+			subclassification_parse( input ) );
+	}
+	pclose( input_pipe );
+	return subclassification_list;
+}
+
+char *subclassification_sys_string( char *where )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "select.sh '*' %s \"%s\" select",
+		 SUBCLASSIFICATION_TABLE_NAME,
+		 where );
+
+	return strdup( sys_string );
+}
+
+SUBCLASSIFICATION *subclassification_seek(
+			LIST *subclassification_list,
+			char *subclassification_name )
+{
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !list_rewind( subclassification_list ) )
+		return (SUBCLASSIFICATION *)0;
+
+	do {
+		subclassification =
+			list_get(
+				subclassification_list );
+
+		if ( string_strcmp(
+			subclassification->subclassification_name,
+			subclassification_name ) == 0 )
+		{
+			return subclassification;
+		}
+
+	} while ( list_next( subclassification_list ) );
+
+	return (SUBCLASSIFICATION *)0;
 }
 
