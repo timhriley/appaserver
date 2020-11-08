@@ -135,7 +135,7 @@ char *registration_select( void )
 		"season_name,"
 		"year,"
 		"tuition,"
-		"payment_total,"
+		"tuition_payment_total,"
 		"invoice_amount_due,"
 		"registration_date_time";
 }
