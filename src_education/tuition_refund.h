@@ -62,7 +62,7 @@ typedef struct
 	double tuition_refund_fees_expense;
 	double tuition_refund_total;
 	double tuition_refund_overpayment_loss;
-	double tuition_refund_receivable_debit_amount;
+	double tuition_refund_revenue_debit_amount;
 	double tuition_refund_cash_credit_amount;
 
 	char *transaction_date_time;

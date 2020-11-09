@@ -172,12 +172,12 @@ TRANSACTION *tuition_refund_transaction(
 			double receivable_credit_amount,
 			double cash_debit_amount,
 			char *entity_self_paypal_cash_account_name,
-			char *account_receivable,
+			char *account_revenue,
 			char *account_fees_expense,
 			char *account_loss,
 			int seconds_to_add );
 
-double tuition_refund_receivable_debit_amount(
+double tuition_refund_revenue_debit_amount(
 			double refund_amount );
 
 char *tuition_refund_list_display(

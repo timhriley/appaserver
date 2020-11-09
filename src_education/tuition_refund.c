@@ -345,10 +345,10 @@ TRANSACTION *tuition_refund_transaction(
 			double refund_amount,
 			double fees_expense,
 			double overpayment_loss,
-			double receivable_debit_amount,
+			double revenue_debit_amount,
 			double cash_credit_amount,
 			char *entity_self_paypal_cash_account_name,
-			char *account_receivable,
+			char *account_revenue,
 			char *account_fees_expense,
 			char *account_loss,
 			int seconds_to_add )
@@ -382,8 +382,8 @@ TRANSACTION *tuition_refund_transaction(
 		transaction->journal_list = list_new();
 	}
 
-	/* Debit account_receivable */
-	/* ------------------------ */
+	/* Debit account_revenue */
+	/* --------------------- */
 	list_set(
 		transaction->journal_list,
 		( journal =
@@ -391,9 +391,9 @@ TRANSACTION *tuition_refund_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				account_receivable ) ) );
+				account_revenue ) ) );
 
-	journal->debit_amount = receivable_debit_amount;
+	journal->debit_amount = revenue_debit_amount;
 
 	/* Credit account_cash */
 	/* -------------------- */
@@ -554,8 +554,8 @@ TUITION_REFUND *tuition_refund_steady_state(
 		 	tuition_refund->tuition_refund_fees_expense,
 			list_length( deposit_registration_list ) );
 
-	tuition_refund->tuition_refund_receivable_debit_amount =
-		tuition_refund_receivable_debit_amount(
+	tuition_refund->tuition_refund_revenue_debit_amount =
+		tuition_refund_revenue_debit_amount(
 			tuition_refund->tuition_refund_amount );
 
 	if ( !tuition_refund->transaction_date_time
@@ -580,10 +580,13 @@ TUITION_REFUND *tuition_refund_steady_state(
 			tuition_refund->tuition_refund_fees_expense,
 			tuition_refund->tuition_refund_overpayment_loss,
 			tuition_refund->
-				tuition_refund_receivable_debit_amount,
+				tuition_refund_revenue_debit_amount,
 			tuition_refund->tuition_refund_cash_credit_amount,
 			entity_self_paypal_cash_account_name(),
-			account_receivable( (char *)0 ),
+			tuition_refund->
+				enrollment->
+				offering->
+				revenue_account,
 			account_fees_expense( (char *)0 ),
 			account_loss( (char *)0 ),
 			transaction_seconds_to_add ) ) )
@@ -1346,7 +1349,7 @@ TUITION_REFUND *tuition_refund(
 	return refund;
 }
 
-double tuition_refund_receivable_debit_amount(
+double tuition_refund_revenue_debit_amount(
 			double refund_amount )
 {
 	return refund_amount;
