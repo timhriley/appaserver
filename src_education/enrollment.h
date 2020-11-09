@@ -73,7 +73,8 @@ ENROLLMENT *enrollment_parse(
 
 ENROLLMENT *enrollment_steady_state(
 			ENROLLMENT *enrollment,
-			int transaction_seconds_to_add );
+			int transaction_seconds_to_add,
+			double deposit_amount );
 
 /* ----------------------------------- */
 /* Place functions in enrollment_fns.h */

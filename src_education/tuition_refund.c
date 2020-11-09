@@ -1595,7 +1595,8 @@ LIST *tuition_refund_list_steady_state(
 		if ( ! ( enrollment =
 				enrollment_steady_state(
 					enrollment,
-					transaction_seconds_to_add - 1 ) ) )
+					transaction_seconds_to_add - 1,
+					deposit_amount ) ) )
 		{
 			fprintf(stderr,
 	"ERROR in %s/%s()/%d: enrollment_steady_state() returned empty.\n",

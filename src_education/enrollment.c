@@ -489,7 +489,8 @@ void enrollment_trigger(
 }
 
 void enrollment_list_steady_state(
-			LIST *enrollment_list )
+			LIST *enrollment_list,
+			double deposit_amount )
 {
 	int transaction_seconds_to_add = 0;
 
@@ -499,7 +500,8 @@ void enrollment_list_steady_state(
 		enrollment_steady_state(
 			list_get(
 				enrollment_list ),
-			transaction_seconds_to_add );
+			transaction_seconds_to_add,
+			deposit_amount );
 
 		transaction_seconds_to_add += 2;
 
@@ -508,7 +510,8 @@ void enrollment_list_steady_state(
 
 ENROLLMENT *enrollment_steady_state(
 			ENROLLMENT *enrollment,
-			int transaction_seconds_to_add )
+			int transaction_seconds_to_add,
+			double deposit_amount )
 {
 	if ( !enrollment )
 	{
@@ -550,7 +553,10 @@ ENROLLMENT *enrollment_steady_state(
 		exit( 1 );
 	}
 
-	if ( enrollment->offering->course_price )
+	/* Build the transaction, if know it's not a refund */
+	/* ------------------------------------------------ */
+	if ( deposit_amount >= 0.0
+	&&   enrollment->offering->course_price )
 	{
 		char *program_name;
 
