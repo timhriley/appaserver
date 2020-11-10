@@ -1339,14 +1339,14 @@ char *transaction_beginning_date_string(
 		sprintf(folder,
 		 	"%s,%s",
 		 	JOURNAL_TABLE,
-		 	ACCOUNT_FOLDER_NAME );
+		 	ACCOUNT_TABLE_NAME );
 
 		sprintf(where,
 		 	"fund = '%s' and				"
 			"%s.account = %s.account			",
 		 	fund_name,
 			JOURNAL_TABLE,
-			ACCOUNT_FOLDER_NAME );
+			ACCOUNT_TABLE_NAME );
 	}
 	else
 	{
