@@ -161,13 +161,17 @@ int main( int argc, char **argv )
 
 	if ( !*end_date || strcmp( end_date, "end_date" ) == 0 )
 	{
-		end_date = date_get_now_yyyy_mm_dd( date_get_utc_offset() );
+		char sys_string[ 1024 ];
+
+		sprintf( sys_string,
+			 "program_max_date.sh '%s'",
+			 program_name );
+
+		end_date = pipe2string( sys_string );
 	}
 
 	sprintf( title, "%s for %s", process_name, program_name );
 	format_initial_capital( title, title );
-
-	sprintf( sub_title, "As of %s", end_date );
 
 	document = document_new( title, application_name );
 	document->output_content_type = 1;
@@ -193,6 +197,15 @@ int main( int argc, char **argv )
 		document_close();
 		exit( 0 );
 	}
+
+	if ( !end_date || !*end_date )
+	{
+		printf( "<h3>No transactions for this program.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	sprintf( sub_title, "As of %s", end_date );
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
