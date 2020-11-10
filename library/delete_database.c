@@ -1165,6 +1165,5 @@ void delete_database_refresh_row_count(
 			role_name );
 
 	} while( list_next( delete_folder_list ) );
-
-} /* delete_database_refresh_row_count() */
+}
 

@@ -1483,6 +1483,11 @@ LIST *folder_get_role_folder_name_list(
 				char *application_name,
 				char *role_name )
 {
+	return folder_lookup_update_folder_name_list(
+				application_name,
+				role_name );
+
+/*
 	char *role_folder_table_name;
 	char sys_string[ 2048 ];
 
@@ -1502,6 +1507,7 @@ LIST *folder_get_role_folder_name_list(
 		 role_name );
 
 	return pipe2list( sys_string );
+*/
 
 }
 
@@ -2539,3 +2545,16 @@ LIST *folder_prompt_primary_data_table_list(
 	return data_list;
 }
 
+LIST *folder_lookup_update_folder_name_list(
+			char *application_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "role_folder_list.sh %s %s lookup,update",
+		 application_name,
+		 role_name );
+
+	return pipe2list( sys_string );
+}

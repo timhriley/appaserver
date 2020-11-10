@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "appaserver_library.h"
+#include "folder_menu.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "document.h"
@@ -65,6 +66,8 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *spreadsheet_filename;
 	boolean execute;
+	char *role_name;
+	char *session;
 	boolean nohtml;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 128 ];
@@ -80,22 +83,24 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name season_name year login_name filename execute_yn|nohtml\n",
+"Usage: %s process_name session login_name role season_name year filename execute_yn|nohtml\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	season_name = argv[ 2 ];
-	year = atoi( argv[ 3 ] );
-	if ( ( login_name = argv[ 4 ] ) ){};
-	spreadsheet_filename = argv[ 5 ];
-	execute = (*argv[ 6 ] == 'y');
-	nohtml = ( strcmp( argv[ 6 ], "nohtml" ) == 0 );
+	session = argv[ 2 ];
+	if ( ( login_name = argv[ 3 ] ) ){};
+	role_name = argv[ 4 ];
+	season_name = argv[ 5 ];
+	year = atoi( argv[ 6 ] );
+	spreadsheet_filename = argv[ 7 ];
+	execute = (*argv[ 8 ] == 'y');
+	nohtml = ( strcmp( argv[ 8 ], "nohtml" ) == 0 );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -214,6 +219,13 @@ int main( int argc, char **argv )
 					season_name,
 					year );
 
+			if ( session && role_name )
+			{
+				folder_menu_refresh_role(
+					application_name,
+					session,
+					role_name );
+			}
 /*
 			paypal_upload_event_insert(
 				spreadsheet_filename,

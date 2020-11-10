@@ -38,6 +38,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/String.o	 				\
+		${LIBRARY}/folder_menu.o 				\
 		${LIBRARY}/hashtbl.o
 
 EXTERNAL_LIBRARY=							\

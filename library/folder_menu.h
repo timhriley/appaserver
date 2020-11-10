@@ -57,29 +57,40 @@ char *folder_menu_get_filename(
 					char *role_name );
 
 void folder_menu_create_spool_file(
-					char *application_name,
-					char *session,
-					char *appaserver_data_directory,
-					char *role_name,
-					boolean with_count );
+			char *application_name,
+			char *session,
+			char *appaserver_data_directory,
+			char *role_name,
+			boolean with_count );
 
 boolean folder_menu_file_exists(
-					char *application_name,
-					char *session,
-					char *appaserver_data_directory,
-					char *role_name );
+			char *application_name,
+			char *session,
+			char *appaserver_data_directory,
+			char *role_name );
 
 void folder_menu_remove_file(
-					char *application_name,
-					char *session,
-					char *appaserver_data_directory,
-					char *role_name );
+			char *application_name,
+			char *session,
+			char *appaserver_data_directory,
+			char *role_name );
 
 void folder_menu_refresh_row_count(
-					char *application_name,
-					char *folder_name,
-					char *session,
-					char *appaserver_data_directory,
-					char *role_name );
+			char *application_name,
+			char *folder_name,
+			char *session,
+			char *appaserver_data_directory,
+			char *role_name );
+
+void folder_menu_refresh_folder_name_list(
+			char *application_name,
+			LIST *folder_name_list,
+			char *session,
+			char *role_name );
+
+void folder_menu_refresh_role(
+			char *application_name,
+			char *session,
+			char *role_name );
 
 #endif
