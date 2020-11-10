@@ -2135,8 +2135,7 @@ char *escape_field( char *source_destination )
 
 	return source_destination;
 */
-
-} /* escape_field() */
+}
 
 char *timlib_escape_single_quotes( char *destination, char *source )
 {
@@ -2148,7 +2147,7 @@ char *escape_single_quotes( char *data )
 {
 	char buffer[ 65536 ];
 	strcpy( data, escape_character( buffer, data, '\'' ) );
-	return data;
+	return escape_dollar_signs( data );
 }
 
 char *escape_dollar_signs( char *data )

@@ -338,10 +338,9 @@ char *string_escape_quote(
 			char *destination,
 			char *source )
 {
-	return string_escape_character_array(
+	return string_escape_quote_dollar(
 			destination,
-			source,
-			"'" /* character_array */ );
+			source );
 }
 
 char *string_escape_quote_dollar(
