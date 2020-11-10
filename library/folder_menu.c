@@ -11,6 +11,7 @@
 #include "folder_menu.h"
 #include "list.h"
 #include "appaserver_error.h"
+#include "appaserver_parameter_file.h"
 #include "folder.h"
 #include "piece.h"
 
@@ -62,8 +63,7 @@ FOLDER_MENU *folder_menu_new(	char *application_name,
 			1 /* with_count */ );
 
 	return f;
-
-} /* folder_menu_new() */
+}
 
 void folder_menu_refresh_row_count(
 					char *application_name,
@@ -115,11 +115,11 @@ void folder_menu_refresh_row_count(
 			 __FUNCTION__,
 			 __LINE__ );
 	}
+}
 
-} /* folder_menu_refresh_row_count() */
-
-long int folder_menu_fetch_folder_count(char *application_name,
-					char *folder_name )
+long int folder_menu_fetch_folder_count(
+			char *application_name,
+			char *folder_name )
 {
 	char *table_name;
 	char sys_string[ 256 ];
@@ -127,12 +127,12 @@ long int folder_menu_fetch_folder_count(char *application_name,
 	table_name = get_table_name( application_name, folder_name );
 
 	sprintf( sys_string,
-		 "echo \"select count(*) from %s;\" | sql.e",
+		 "echo \"select count(*) from %s;\" | sql_timeout.sh 1",
 		 table_name );
 
 	return atol( pipe2string( sys_string ) );
 
-} /* folder_menu_fetch_folder_count() */
+}
 
 boolean folder_menu_write_folder_count_list(
 					char *filename,
@@ -159,7 +159,7 @@ boolean folder_menu_write_folder_count_list(
 
 	return 1;
 
-} /* folder_menu_write_folder_count_list() */
+}
 
 void folder_menu_create_spool_file(
 					char *application_name,
@@ -220,7 +220,7 @@ void folder_menu_create_spool_file(
 				application_name ) );
 	}
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 }
 
 LIST *folder_menu_get_choose_folder_list(
@@ -322,7 +322,7 @@ LIST *folder_menu_get_choose_folder_list(
 
 	return folder_list;
 
-} /* folder_menu_get_choose_folder_list() */
+}
 
 char *folder_menu_get_input_pipe_sys_string(
 					char *application_name,
@@ -353,7 +353,7 @@ char *folder_menu_get_input_pipe_sys_string(
 
 	return strdup( sys_string );
 
-} /* folder_menu_get_input_pipe_sys_string() */
+}
 
 char *folder_menu_get_filename(
 				char *application_name,
@@ -380,7 +380,7 @@ char *folder_menu_get_filename(
 
 	return strdup( filename );
 
-} /* folder_menu_get_filename() */
+}
 
 void folder_menu_remove_file(
 				char *application_name,
@@ -409,9 +409,9 @@ void folder_menu_remove_file(
 		 "rm %s",
 		 filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
-} /* folder_menu_remove_file() */
+}
 
 boolean folder_menu_file_exists(
 				char *application_name,
@@ -438,6 +438,53 @@ boolean folder_menu_file_exists(
 			 __LINE__ );
 		exit( 1 );
 	}
+}
 
-} /* folder_menu_file_exists() */
+void folder_menu_refresh_folder_name_list(
+			char *application_name,
+			LIST *folder_name_list,
+			char *session,
+			char *role_name )
+{
+	char *folder_name;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+
+	if ( !list_rewind( folder_name_list ) ) return;
+
+	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	do {
+		folder_name = list_get( folder_name_list );
+
+		folder_menu_refresh_row_count(
+			application_name,
+			folder_name,
+			session,
+			appaserver_parameter_file->
+				appaserver_data_directory,
+			role_name );
+
+	} while( list_next( folder_name_list ) );
+}
+
+void folder_menu_refresh_role(
+			char *application_name,
+			char *session,
+			char *role_name )
+{
+	LIST *folder_name_list;
+
+	folder_name_list =
+		folder_lookup_update_folder_name_list(
+			application_name,
+			role_name );
+
+	if ( !list_length( folder_name_list ) ) return;
+
+	folder_menu_refresh_folder_name_list(
+			application_name,
+			folder_name_list,
+			session,
+			role_name );
+}
 

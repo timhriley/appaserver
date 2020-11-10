@@ -501,4 +501,8 @@ LIST *folder_prompt_primary_data_table_list(
 			LIST *exclude_attribute_name_list,
 			char *role_name );
 
+LIST *folder_lookup_update_folder_name_list(
+			char *application_name,
+			char *role_name );
+
 #endif
