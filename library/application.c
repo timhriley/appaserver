@@ -387,7 +387,7 @@ char application_get_frameset_menu_horizontal_yn( char *application_string )
 
 }
 
-char application_get_ssl_support_yn( char *application_string )
+char application_ssl_support_yn( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -403,7 +403,18 @@ char application_get_ssl_support_yn( char *application_string )
 				global_application->ssl_support_yn	:
 				'n' );
 	}
-} /* application_get_ssl_support_yn() */
+}
+
+char application_get_ssl_support_yn( char *application_string )
+{
+	return application_ssl_support_yn( application_string );
+}
+
+char application_prepend_http_protocol_yn( char *application_string )
+{
+	return application_get_prepend_http_protocol_yn(
+			application_string );
+}
 
 char application_get_prepend_http_protocol_yn( char *application_string )
 {
@@ -422,7 +433,7 @@ char application_get_prepend_http_protocol_yn( char *application_string )
 			global_application->prepend_http_protocol_yn	:
 			'n' );
 	}
-} /* application_get_prepend_http_protocol_yn() */
+}
 
 int application_get_max_drop_down_size( char *application_string )
 {
@@ -478,7 +489,7 @@ void application_reset( void )
 	is_primary_application = -1;
 }
 
-char *application_get_http_prefix( char *application_string )
+char *application_http_prefix( char *application_string )
 {
 	char ssl_support_yn;
 
@@ -498,6 +509,10 @@ char *application_get_http_prefix( char *application_string )
 		return "https";
 	else
 		return "http";
+}
 
-} /* application_get_http_prefix() */
+char *application_get_http_prefix( char *application_string )
+{
+	return application_http_prefix( application_string );
+}
 

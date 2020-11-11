@@ -39,7 +39,7 @@ void frameset_set_parameters( 	FRAMESET *frameset,
 	frameset->state = state;
 	frameset->appaserver_mount_point = appaserver_mount_point;
 	frameset->error_file = error_file;
-} /* frameset_set_parameters() */
+}
 
 void frameset_remove_files( FRAMESET *frameset )
 {
@@ -49,16 +49,16 @@ void frameset_remove_files( FRAMESET *frameset )
 	filename = frameset_get_create_destination_filename( frameset );
 
 	sprintf( sys_string, "/bin/rm -f %s", filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	if ( frameset->output_bottom_frame )
 	{
 		filename = frameset_get_create_bottom_filename( frameset );
 
 		sprintf( sys_string, "/bin/rm -f %s", filename );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	}
-} /* frameset_remove_files() */
+}
 
 void frameset_output_by_frameset( FRAMESET *frameset )
 {
@@ -71,7 +71,7 @@ void frameset_output_by_frameset( FRAMESET *frameset )
 		frameset_get_prompt_destination_filename( frameset ),
 		frameset->target_frame,
 		frameset_get_prompt_bottom_filename( frameset ) );
-} /* frameset_output_by_frameset() */
+}
 
 void frameset_output_by_cat( FRAMESET *frameset )
 {
@@ -80,9 +80,9 @@ void frameset_output_by_cat( FRAMESET *frameset )
 	sprintf( sys_string, 
 		 "cat %s",
 		 frameset_get_create_destination_filename( frameset ) );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
-} /* frameset_output_by_cat() */
+}
 
 char *frameset_get_prompt_destination_filename( FRAMESET *frameset )
 {
@@ -98,7 +98,7 @@ char *frameset_get_prompt_destination_filename( FRAMESET *frameset )
 		frameset->prompt_destination_filename = strdup( filename );
 	}
 	return frameset->prompt_destination_filename;
-} /* frameset_get_prompt_destination_filename() */
+}
 
 char *frameset_get_create_destination_filename( FRAMESET *frameset )
 {
@@ -115,7 +115,7 @@ char *frameset_get_create_destination_filename( FRAMESET *frameset )
 		frameset->create_destination_filename = strdup( filename );
 	}
 	return frameset->create_destination_filename;
-} /* frameset_get_create_destination_filename() */
+}
 
 char *frameset_get_prompt_bottom_filename( FRAMESET *frameset )
 {
@@ -130,7 +130,7 @@ char *frameset_get_prompt_bottom_filename( FRAMESET *frameset )
 		frameset->prompt_bottom_filename = strdup( filename );
 	}
 	return frameset->prompt_bottom_filename;
-} /* frameset_get_prompt_bottom_filename() */
+}
 
 char *frameset_get_create_bottom_filename( FRAMESET *frameset)
 {
@@ -146,7 +146,7 @@ char *frameset_get_create_bottom_filename( FRAMESET *frameset)
 		frameset->create_bottom_filename = strdup( filename );
 	}
 	return frameset->create_bottom_filename;
-} /* frameset_get_create_bottom_filename() */
+}
 
 void frameset_set_dictionary_string( 	FRAMESET *frameset,
 					char *dictionary_string )

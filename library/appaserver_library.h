@@ -276,7 +276,10 @@ LIST *appaserver_library_get_primary_data_list(
 					LIST *attribute_list );
 
 char *appaserver_library_get_server_address(
-					void );
+			void );
+
+char *appaserver_library_server_address(
+			void );
 
 void appaserver_library_output_ftp_prompt(
 					char *output_filename,

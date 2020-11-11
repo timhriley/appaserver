@@ -109,7 +109,8 @@ EXECUTABLES=	offering_trigger					\
 		tuition_payment_trigger					\
 		tuition_refund_trigger					\
 		program_payment_trigger					\
-		paypal_upload
+		paypal_upload						\
+		generate_invoice
 
 all: 	${EXECUTABLES}
 
@@ -118,6 +119,23 @@ touch:
 
 clean:
 	/bin/rm -f *.o ${EXECUTABLES}
+
+generate_invoice: generate_invoice.c					\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${EDUCATION_CORE}						\
+	${LIBRARY}/latex_invoice.o					\
+	${LIBRARY}/email.o
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${EDUCATION_CORE}					\
+		generate_invoice.c					\
+		${LIBRARY}/latex_invoice.o				\
+		${LIBRARY}/email.o					\
+		-o generate_invoice
 
 offering_trigger: offering_trigger.c					\
 	${EXTERNAL_LIBRARY} 						\

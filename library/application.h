@@ -48,7 +48,13 @@ char *application_get_grace_execution_directory(char *application_string );
 char application_get_grace_free_option_yn(	char *application_string );
 char *application_get_grace_output(		char *application_string );
 char application_get_ssl_support_yn(		char *application_string );
-char application_get_prepend_http_protocol_yn(	char *application_string );
+
+char application_get_prepend_http_protocol_yn(
+			char *application_string );
+
+char application_prepend_http_protocol_yn(
+			char *application_string );
+
 int application_get_max_drop_down_size(		char *application_string );
 int application_get_max_query_rows_for_drop_downs(
 						char *application_string );
@@ -69,9 +75,17 @@ boolean application_get_alternative_is_primary_application(
 char *application_get_version(			char *application_string );
 
 void application_reset(				void );
-char *application_get_http_prefix(		char *application_string );
+
+char *application_get_http_prefix(
+			char *application_string );
+
+char *application_http_prefix(
+			char *application_string );
 
 char *application_get_first_relative_source_directory(
 						char *application_string );
+
+char application_ssl_support_yn(
+			char *application_string );
 
 #endif

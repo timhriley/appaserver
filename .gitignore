@@ -13,6 +13,7 @@
 # ---------------
 # src_education
 # ---------------
+generate_invoice
 tuition_payment_trigger
 tuition_refund_trigger
 deposit_trigger

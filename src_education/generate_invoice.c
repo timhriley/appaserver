@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/src_camp/generate_invoice.c				*/
+/* $APPASERVER_HOME/src_education/generate_invoice.c			*/
 /* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ----------------------------------------------------------------	*/
@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include "timlib.h"
 #include "piece.h"
+#include "column.h"
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
@@ -20,15 +21,16 @@
 #include "environ.h"
 #include "latex_invoice.h"
 #include "application_constants.h"
-#include "ledger.h"
 #include "entity.h"
-#include "camp.h"
+#include "entity_self.h"
+#include "enrollment.h"
+#include "registration.h"
 #include "email.h"
 #include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
-#define FROM_ADDRESS	"donner@cloudacus.com"
+#define FROM_ADDRESS	"TNT@cloudacus.com"
 #define SUBJECT		"Invoice"
 #define MESSAGE		"Here is your invoice."
 
@@ -38,20 +40,20 @@ void generate_invoice_email_display(
 				char *application_name,
 				char *process_name,
 				char *document_root_directory,
-				char *camp_begin_date,
-				char *camp_title,
 				char *full_name,
 				char *street_address,
+				char *season_name,
+				int year,
 				pid_t process_id );
 
 void generate_invoice_email_send(
 				char *application_name,
 				char *process_name,
 				char *document_root_directory,
-				char *camp_begin_date,
-				char *camp_title,
 				char *full_name,
 				char *street_address,
+				char *season_name,
+				int year,
 				pid_t process_id );
 
 /* Returns output_filename */
@@ -60,36 +62,34 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 				char *application_name,
 				char *process_name,
 				char *document_root_directory,
-				char *camp_begin_date,
-				char *camp_title,
 				char *full_name,
 				char *street_address,
+				char *season_name,
+				int year,
 				int process_id );
 
-void generate_invoice(		char *application_name,
-				char *process_name,
-				char *document_root_directory,
-				char *camp_begin_date,
-				char *camp_title,
-				char *full_name,
-				char *street_address,
-				char *output_option );
+void generate_invoice(	char *application_name,
+			char *process_name,
+			char *document_root_directory,
+			char *full_name,
+			char *street_address,
+			char *season_name,
+			int year,
+			char *output_option );
 
-double generate_invoice_populate_line_item_list(
-				LIST *invoice_line_item_list,
-				double enrollment_cost,
-				CAMP_ENROLLMENT *camp_enrollment );
+LIST *generate_invoice_line_item_list(
+			LIST *enrollment_list );
 
 LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
-				CAMP_ENROLLMENT *camp_enrollment );
+			REGISTRATION *registration );
 
-boolean build_latex_invoice(	FILE *output_stream,
-				char *application_name,
-				char *camp_begin_date,
-				char *camp_title,
-				char *full_name,
-				char *street_address,
-				DICTIONARY *application_constants_dictionary );
+boolean build_latex_invoice(
+			FILE *output_stream,
+			char *full_name,
+			char *street_address,
+			char *season_name,
+			int year,
+			DICTIONARY *application_constants_dictionary );
 
 void output_invoice_window(
 				char *application_name,
@@ -101,14 +101,14 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char title[ 128 ];
-	char *camp_begin_date;
-	char *camp_title;
 	char *full_name;
 	char *street_address;
+	char *season_name;
+	int year;
 	char *output_option;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-	application_name = environ_application_name( argv[ 0 ] );
+	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 		argc,
@@ -118,16 +118,16 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s process camp_begin_date camp_title full_name street_address output_option\n",
+"Usage: %s process full_name street_address course_name year output_option\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	camp_begin_date = argv[ 2 ];
-	camp_title = argv[ 3 ];
-	full_name = argv[ 4 ];
-	street_address = argv[ 5 ];
+	full_name = argv[ 2 ];
+	street_address = argv[ 3 ];
+	season_name = argv[ 4 ];
+	year = atoi( argv[ 5 ] );
 	output_option = argv[ 6 ];
 
 	if ( !*output_option
@@ -154,10 +154,10 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file->
 					document_root,
-				camp_begin_date,
-				camp_title,
 				full_name,
 				street_address,
+				season_name,
+				year,
 				output_option );
 
 	document_close();
@@ -176,7 +176,7 @@ void output_invoice_window(
 
 	printf(
 "<body bgcolor=\"%s\" onload=\"window.open('%s','%s','menubar=yes,resizeable=yes,scrollbars=yes,status=no,toolbar=no,location=no', 'false');\">\n",
-			application_background_color(
+			application_get_background_color(
 				application_name ),
 			ftp_output_filename,
 			window_label );
@@ -189,23 +189,22 @@ void output_invoice_window(
 }
 
 boolean build_latex_invoice(	FILE *output_stream,
-				char *application_name,
-				char *camp_begin_date,
-				char *camp_title,
 				char *full_name,
 				char *street_address,
+				char *season_name,
+				int year,
 				DICTIONARY *application_constants_dictionary )
 {
 	LATEX_INVOICE *latex_invoice;
 	ENTITY_SELF *self;
 	char *todays_date;
-	CAMP *camp;
+	REGISTRATION *registration;
 	char title[ 128 ];
 
-	if ( ! ( self = entity_self_load( application_name ) ) )
+	if ( ! ( self = entity_self_load() ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot load from SELF.\n",
+		"ERROR in %s/%s()/%d: entity_self_load() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -216,61 +215,51 @@ boolean build_latex_invoice(	FILE *output_stream,
 			"%s Invoice",
 			self->entity->full_name );
 
-	if ( ! ( camp =
-			camp_fetch(
-				application_name,
-				camp_begin_date,
-				camp_title ) ) )
-	{
-		return 0;
-	}
-
-	if ( ! ( camp->camp_enrollment =
-			camp_enrollment_fetch(
-				application_name,
-				camp->camp_begin_date,
-				camp->camp_title,
+	if ( ! ( registration =
+			registration_fetch(
 				full_name,
 				street_address,
-				camp->enrollment_cost ) ) )
+				season_name,
+				year,
+				1 /* fetch_enrollment_list */ ) ) )
 	{
 		return 0;
 	}
 
 	todays_date = pipe2string( "now.sh full 0" );
 
-	latex_invoice = latex_invoice_new(
-				strdup( todays_date ),
-				self->entity->full_name,
-				self->entity->street_address,
-				(char *)0 /* unit */,
-				self->entity->city,
-				self->entity->state_code,
-				self->entity->zip_code,
-				self->entity->phone_number,
-				self->entity->email_address,
-				strdup( "" ) /* line_item_key_heading */,
-				(char *)0 /* instructions */,
-				(LIST *)0 /* extra_label_list */ );
+	latex_invoice =
+		latex_invoice_new(
+			strdup( todays_date ),
+			self->entity->full_name,
+			self->entity->street_address,
+			(char *)0 /* unit */,
+			self->entity->city,
+			self->entity->state_code,
+			self->entity->zip_code,
+			self->entity->phone_number,
+			self->entity->email_address,
+			strdup( "" ) /* line_item_key_heading */,
+			(char *)0 /* instructions */,
+			(LIST *)0 /* extra_label_list */ );
 
 	if ( ! ( latex_invoice->invoice_customer =
 			generate_invoice_customer(
-				camp->camp_enrollment ) ) )
+				registration ) ) )
 	{
 		return 0;
 	}
 
 	latex_invoice_output_header( output_stream );
 
-	if ( ! ( latex_invoice->invoice_customer->extension_total =
-			generate_invoice_populate_line_item_list(
-				latex_invoice->
-					invoice_customer->
-					invoice_line_item_list,
-				camp->enrollment_cost,
-				camp->camp_enrollment ) ) )
+	if ( ! ( latex_invoice->
+			invoice_customer->
+			invoice_line_item_list =
+				generate_invoice_line_item_list(
+					registration->
+					     registration_enrollment_list ) ) )
 	{
-		printf( "<H3>Error: No camp to generate.</h3>\n" );
+		printf( "<H3>Error: Registration has no enrollments.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
@@ -332,111 +321,80 @@ boolean build_latex_invoice(	FILE *output_stream,
 	latex_invoice_free( latex_invoice );
 
 	return 1;
-
 }
 
 LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
-				CAMP_ENROLLMENT *camp_enrollment )
+			REGISTRATION *registration )
 {
 	LATEX_INVOICE_CUSTOMER *invoice_customer;
-	char *transaction_date_time;
+	char registration_date[ 16 ];
 	char invoice_key[ 128 ];
 
-	if ( !camp_enrollment
-	||   !camp_enrollment->camp_enrollment_transaction )
+	if ( !registration )
 	{
 		return (LATEX_INVOICE_CUSTOMER *)0;
 	}
 
-	transaction_date_time = 
-		camp_enrollment->
-			camp_enrollment_transaction->
-			transaction_date_time;
-
 	sprintf(invoice_key,
 		"%s %s %s",
-		camp_enrollment->full_name,
-		camp_enrollment->street_address,
-		transaction_date_time );
+		registration->student_full_name,
+		registration->street_address,
+		column( registration_date,
+			0,
+			registration->registration_date_time ) );
 
 	invoice_customer =
 		latex_invoice_customer_new(
 			strdup( invoice_key ),
-			strdup( camp_enrollment->full_name ),
-			strdup( camp_enrollment->street_address ),
-			strdup( "" )
-				/* suite_number */,
-			strdup( camp_enrollment->city ),
-			strdup( camp_enrollment->state_code ),
-			strdup( camp_enrollment->zip_code ),
+			strdup( registration->student_full_name ),
+			strdup( registration->street_address ),
+			strdup( "" ) /* suite_number */,
+			strdup( "" ) /* city */,
+			strdup( "" ) /* state_code */,
+			strdup( "" ) /* zip_code */,
 			(char *)0 /* customer_service_key */,
 			0.0 /* sales_tax */,
 			0.0 /* shipping_charge */,
-			camp_enrollment->
-				camp_enrollment_total_payment_amount );
+			registration->
+				registration_tuition_payment_total
+					/* total_payment */ );
 
 	return invoice_customer;
-
 }
 
-double generate_invoice_populate_line_item_list(
-			LIST *invoice_line_item_list,
-			double enrollment_cost,
-			CAMP_ENROLLMENT *camp_enrollment )
+LIST *generate_invoice_line_item_list(
+			LIST *enrollment_list )
 {
-	SERVICE_ENROLLMENT *service_enrollment;
-	LIST *l;
-	double extension_total;
+	ENROLLMENT *enrollment;
+	LIST *line_item_list;
 
-	if ( !camp_enrollment ) return 0.0;
+	if ( !list_rewind( enrollment_list ) ) return (LIST *)0;
 
-	/* Returns (quantity * retail_price ) - discount_amount */
-	/* ---------------------------------------------------- */
-	extension_total = latex_invoice_append_line_item(
-				invoice_line_item_list,
-				(char *)0 /* item_key */,
-				"Camp Enrollment" /* item */,
-				1.0 /* quantity */,
-				enrollment_cost /* retail_price */,
-				0.0 /* discount_amount */ );
-
-	if ( !list_rewind( camp_enrollment->
-				camp_enrollment_service_enrollment_list ) )
-	{
-		return extension_total;
-	}
-
-	l = camp_enrollment->camp_enrollment_service_enrollment_list;
+	line_item_list = list_new();
 
 	do {
-		service_enrollment = list_get( l );
+		enrollment = list_get( enrollment_list );
 
-		/* Returns (quantity * retail_price ) - discount_amount */
-		/* ---------------------------------------------------- */
-		extension_total +=
-			latex_invoice_append_line_item(
-				invoice_line_item_list,
-				(char *)0 /* item_key */,
-				service_enrollment->service_name /* item */,
-				(double)service_enrollment->purchase_quantity
-					/* quantity */,
-				service_enrollment->service_price
-					/* retail_price */,
-				0.0 /* discount_amount */ );
+		latex_invoice_append_line_item(
+			line_item_list,
+			(char *)0 /* item_key */,
+			enrollment->offering->course->course_name /* item */,
+			1.0 /* quantity */,
+			enrollment->offering->course_price /* retail_price */,
+			0.0 /* discount_amount */ );
 
-	} while ( list_next( l ) );
+	} while ( list_next( enrollment_list ) );
 
-	return extension_total;
-
+	return line_item_list;
 }
 
 void generate_invoice(		char *application_name,
 				char *process_name,
 				char *document_root_directory,
-				char *camp_begin_date,
-				char *camp_title,
 				char *full_name,
 				char *street_address,
+				char *season_name,
+				int year,
 				char *output_option )
 {
 	int process_id = getpid();
@@ -451,10 +409,10 @@ void generate_invoice(		char *application_name,
 					application_name,
 					process_name,
 					document_root_directory,
-					camp_begin_date,
-					camp_title,
 					full_name,
 					street_address,
+					season_name,
+					year,
 					process_id ) ) )
 		{
 			fprintf( stderr,
@@ -477,10 +435,10 @@ void generate_invoice(		char *application_name,
 				application_name,
 				process_name,
 				document_root_directory,
-				camp_begin_date,
-				camp_title,
 				full_name,
 				street_address,
+				season_name,
+				year,
 				process_id );
 	}
 	else
@@ -490,13 +448,12 @@ void generate_invoice(		char *application_name,
 				application_name,
 				process_name,
 				document_root_directory,
-				camp_begin_date,
-				camp_title,
 				full_name,
 				street_address,
+				season_name,
+				year,
 				process_id );
 	}
-
 }
 
 /* Returns output_filename */
@@ -505,10 +462,10 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 				char *application_name,
 				char *process_name,
 				char *document_root_directory,
-				char *camp_begin_date,
-				char *camp_title,
 				char *full_name,
 				char *street_address,
+				char *season_name,
+				int year,
 				int process_id )
 {
 	FILE *output_stream;
@@ -518,9 +475,15 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 	char sys_string[ 1024 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
 	application_constants = application_constants_new();
 	application_constants->dictionary =
-		application_constants_dictionary(
+		application_constants_get_dictionary(
 			application_name );
 
 	appaserver_link_file =
@@ -551,6 +514,12 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
 	if ( ! ( output_stream = fopen( output_filename, "w" ) ) )
 	{
 		fprintf(stderr,
@@ -562,16 +531,21 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 		exit( 1 );
 	}
 
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
 	if ( !build_latex_invoice(
 			output_stream,
-			application_name,
-			camp_begin_date,
-			camp_title,
 			full_name,
 			street_address,
+			season_name,
+			year,
 			application_constants->dictionary ) )
 	{
-		printf( "<h3>Please choose a Camp Enrollment.</h3>\n" );
+		printf( "<h3>Please choose a Registration.</h3>\n" );
 		fclose( output_stream );
 		document_close();
 		exit( 0 );
@@ -630,17 +604,16 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
 }
 
 void generate_invoice_email_display(
 				char *application_name,
 				char *process_name,
 				char *document_root_directory,
-				char *camp_begin_date,
-				char *camp_title,
 				char *full_name,
 				char *street_address,
+				char *season_name,
+				int year,
 				int process_id )
 {
 	char *output_filename;
@@ -655,14 +628,13 @@ void generate_invoice_email_display(
 			application_name,
 			process_name,
 			document_root_directory,
-			camp_begin_date,
-			camp_title,
 			full_name,
 			street_address,
+			season_name,
+			year,
 			process_id );
 
 	if ( ! ( entity = entity_fetch(
-				application_name,
 				full_name,
 				street_address ) ) )
 	{
@@ -701,10 +673,10 @@ void generate_invoice_email_send(
 				char *application_name,
 				char *process_name,
 				char *document_root_directory,
-				char *camp_begin_date,
-				char *camp_title,
 				char *full_name,
 				char *street_address,
+				char *season_name,
+				int year,
 				pid_t process_id )
 {
 	char *output_filename;
@@ -717,14 +689,13 @@ void generate_invoice_email_send(
 			application_name,
 			process_name,
 			document_root_directory,
-			camp_begin_date,
-			camp_title,
 			full_name,
 			street_address,
+			season_name,
+			year,
 			process_id );
 
 	if ( ! ( entity = entity_fetch(
-				application_name,
 				full_name,
 				street_address ) ) )
 	{
@@ -743,6 +714,5 @@ void generate_invoice_email_send(
 			output_filename /* attachment_filename */ );
 
 	printf( "<h3>Message send.</h3>\n" );
-
 }
 

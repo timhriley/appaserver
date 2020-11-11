@@ -51,8 +51,7 @@ APPASERVER_LINK_FILE *appaserver_link_file_new(
 			document_root_directory );
 
 	return h;
-
-} /* appaserver_link_file_new() */
+}
 
 LINK_PROMPT *appaserver_link_prompt_new(
 			char *http_prefix,
@@ -95,8 +94,24 @@ LINK_OUTPUT_FILE *appaserver_link_output_file_new(
 
 	h->document_root_directory = document_root_directory;
 	return h;
+}
 
-} /* appaserver_link_output_file_new() */
+char *appaserver_link_abbreviated_output_filename(
+		char *filename_stem,
+		char *begin_date_string,
+		char *end_date_string,
+		pid_t process_id,
+		char *session,
+		char *extension )
+{
+	return appaserver_link_get_abbreviated_output_filename(
+		filename_stem,
+		begin_date_string,
+		end_date_string,
+		process_id,
+		session,
+		extension );
+}
 
 char *appaserver_link_get_abbreviated_output_filename(
 		char *filename_stem,
@@ -118,7 +133,7 @@ char *appaserver_link_get_abbreviated_output_filename(
 	}
 
 	strcpy(  output_filename,
-		 appaserver_link_get_tail_half(
+		 appaserver_link_tail_half(
 			(char *)0 /* application_name */,
 			filename_stem,
 			begin_date_string,
@@ -128,8 +143,28 @@ char *appaserver_link_get_abbreviated_output_filename(
 			extension ) );
 
 	return strdup( output_filename );
+}
 
-} /* appaserver_link_get_abbreviated_output_filename() */
+char *appaserver_link_output_filename(
+		char *document_root_directory,
+		char *application_name,
+		char *filename_stem,
+		char *begin_date_string,
+		char *end_date_string,
+		pid_t process_id,
+		char *session,
+		char *extension )
+{
+	return appaserver_link_get_output_filename(
+		document_root_directory,
+		application_name,
+		filename_stem,
+		begin_date_string,
+		end_date_string,
+		process_id,
+		session,
+		extension );
+}
 
 char *appaserver_link_get_output_filename(
 		char *document_root_directory,
@@ -155,7 +190,7 @@ char *appaserver_link_get_output_filename(
 	sprintf( output_filename,
 		 "%s%s",
 		 document_root_directory,
-		 appaserver_link_get_tail_half(
+		 appaserver_link_tail_half(
 			application_name,
 			filename_stem,
 			begin_date_string,
@@ -165,8 +200,7 @@ char *appaserver_link_get_output_filename(
 			extension ) );
 
 	return strdup( output_filename );
-
-} /* appaserver_link_get_output_filename() */
+}
 
 char *appaserver_link_get_link_prompt(
 		boolean prepend_http_boolean,
@@ -205,7 +239,7 @@ char *appaserver_link_get_link_prompt(
 	sprintf( link_prompt,
 		 "%s%s",
 		 link_half,
-		 appaserver_link_get_tail_half(
+		 appaserver_link_tail_half(
 			application_name,
 			filename_stem,
 			begin_date_string,
@@ -215,8 +249,26 @@ char *appaserver_link_get_link_prompt(
 			extension ) );
 
 	return strdup( link_prompt );
+}
 
-} /* appaserver_link_get_link_prompt() */
+char *appaserver_link_tail_half(
+		char *application_name,
+		char *filename_stem,
+		char *begin_date_string,
+		char *end_date_string,
+		pid_t process_id,
+		char *session,
+		char *extension )
+{
+	return appaserver_link_get_tail_half(
+		application_name,
+		filename_stem,
+		begin_date_string,
+		end_date_string,
+		process_id,
+		session,
+		extension );
+}
 
 char *appaserver_link_get_tail_half(
 		char *application_name,
@@ -286,8 +338,16 @@ char *appaserver_link_get_tail_half(
 		 (extension) ? extension : "null" );
 
 	return tail_half;
+}
 
-} /* appaserver_link_get_tail_half() */
+char *appaserver_link_get_source_directory(
+		char *document_root_directory,
+		char *application_name )
+{
+	return appaserver_link_source_directory(
+		document_root_directory,
+		application_name );
+}
 
 char *appaserver_link_source_directory(
 		char *document_root_directory,
@@ -302,8 +362,26 @@ char *appaserver_link_source_directory(
 		 application_name );
 
 	return strdup( source_directory );
+}
 
-} /* appaserver_link_get_source_directory() */
+void appaserver_link_pid_filename(
+				char **output_filename,
+				char **prompt_filename,
+				char *application_name,
+				char *document_root_directory,
+				pid_t pid,
+				char *process_name,
+				char *extension )
+{
+	appaserver_link_get_pid_filename(
+				output_filename,
+				prompt_filename,
+				application_name,
+				document_root_directory,
+				pid,
+				process_name,
+				extension );
+}
 
 void appaserver_link_get_pid_filename(
 				char **output_filename,
@@ -318,9 +396,9 @@ void appaserver_link_get_pid_filename(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			application_http_prefix( application_name ),
+			appaserver_library_server_address(),
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			process_name /* FILENAME_STEM */,
@@ -330,7 +408,7 @@ void appaserver_link_get_pid_filename(
 			extension );
 
 	*output_filename =
-		appaserver_link_get_output_filename(
+		appaserver_link_output_filename(
 			appaserver_link_file->
 				output_file->
 				document_root_directory,
@@ -359,6 +437,5 @@ void appaserver_link_get_pid_filename(
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-} /* appaserver_link_get_pid_filename() */
+}
 

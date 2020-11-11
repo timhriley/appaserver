@@ -36,7 +36,7 @@ GENERIC_LOAD *generic_load_new( void )
 	}
 
 	return generic_load;
-} /* generic_load_new() */
+}
 
 GENERIC_LOAD_FOLDER *generic_load_folder_new( char *folder_name )
 {
@@ -60,7 +60,7 @@ GENERIC_LOAD_FOLDER *generic_load_folder_new( char *folder_name )
 	generic_load_folder->primary_key_time_offset = -1;
 
 	return generic_load_folder;
-} /* generic_load_folder_new() */
+}
 
 GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_new(
 			char *attribute_name,
@@ -83,7 +83,7 @@ GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_new(
 	generic_load_attribute->attribute_name = attribute_name;
 	generic_load_attribute->is_primary_key = is_primary_key;
 	return generic_load_attribute;
-} /* generic_load_attribute_new() */
+}
 
 FOLDER *generic_load_get_database_folder(
 			char *application_name,
@@ -152,7 +152,7 @@ FOLDER *generic_load_get_database_folder(
 	}
 
 	return folder;
-} /* generic_load_get_database_folder() */
+}
 
 LIST *generic_load_get_folder_list(
 			FOLDER *folder,
@@ -236,7 +236,7 @@ LIST *generic_load_get_folder_list(
 
 	return generic_load_folder_list;
 
-} /* generic_load_get_folder_list() */
+}
 
 GENERIC_LOAD_FOLDER *generic_load_get_folder(
 				char *folder_name,
@@ -342,7 +342,7 @@ GENERIC_LOAD_FOLDER *generic_load_get_folder(
 
 	return generic_load_folder;
 
-} /* generic_load_get_folder() */
+}
 
 void generic_load_replace_time_2400_with_0000(
 				char *input_buffer,
@@ -399,7 +399,7 @@ void generic_load_replace_time_2400_with_0000(
 			"0000",
 			primary_key_time_offset );
 
-} /* generic_load_replace_time_2400_with_0000() */
+}
 
 boolean generic_load_fix_time(
 				char *input_buffer,
@@ -443,7 +443,7 @@ boolean generic_load_fix_time(
 				primary_key_time_offset );
 	}
 	return 1;
-} /* generic_load_fix_time() */
+}
 
 void generic_load_get_primary_key_date_time_offset(
 			int *primary_key_date_offset,
@@ -484,7 +484,7 @@ void generic_load_get_primary_key_date_time_offset(
 
 	} while( list_next( generic_load_attribute_list ) );
 
-} /* generic_load_get_primary_key_date_time_offset() */
+}
 
 char *generic_load_get_piece_buffer(
 			char *input_buffer,
@@ -588,7 +588,7 @@ char *generic_load_get_piece_buffer(
 	}
 
 	return piece_buffer;
-} /* generic_load_get_piece_buffer() */
+}
 
 boolean position_all_valid( DICTIONARY *position_dictionary )
 {
@@ -631,7 +631,7 @@ boolean position_all_valid( DICTIONARY *position_dictionary )
 
 	return 1;
 
-} /* position_all_valid() */
+}
 
 void generic_load_attribute_set_is_participating(
 		LIST *generic_load_folder_list,
@@ -731,7 +731,7 @@ void generic_load_attribute_set_is_participating(
 
 	fclose( input_file );
 
-} /* generic_load_attribute_set_is_participating() */
+}
 
 char *generic_load_get_heading_string(	LIST *generic_load_attribute_list )
 {
@@ -762,7 +762,7 @@ char *generic_load_get_heading_string(	LIST *generic_load_attribute_list )
 
 	return heading_string;
 
-} /* generic_load_get_heading_string() */
+}
 
 boolean generic_load_has_participating(
 				LIST *generic_load_attribute_list )
@@ -783,7 +783,7 @@ boolean generic_load_has_participating(
 
 	return 0;
 
-} /* generic_load_has_participating() */
+}
 
 static int row_count = 0;
 void generic_load_reset_row_count( void )
@@ -801,7 +801,7 @@ boolean generic_load_skip_header_rows( int skip_header_rows )
 		}
 	}
 	return 0;
-} /* generic_load_skip_header_rows() */
+}
 
 boolean generic_load_delimiters_only(
 				char *input_buffer,
@@ -814,7 +814,7 @@ boolean generic_load_delimiters_only(
 	}
 
 	return 1;
-} /* generic_load_delimiters_only() */
+}
 
 char *generic_load_get_primary_key_list_string(
 				LIST *generic_load_attribute_list )
@@ -854,7 +854,7 @@ char *generic_load_get_primary_key_list_string(
 
 	return primary_key_list_string;
 
-} /* generic_load_get_primary_key_list_string() */
+}
 
 #ifdef NOT_DEFINED
 boolean generic_load_delete_from_database(
@@ -1076,7 +1076,7 @@ boolean generic_load_build_sys_string(
 
 	return did_any;
 
-} /* generic_load_build_sys_string() */
+}
 
 int generic_load_output_test_only_report(
 			char *load_filename,
@@ -1238,11 +1238,11 @@ int generic_load_output_test_only_report(
 	if ( display_errors ) timlib_display_error_file( error_filename );
 
 	sprintf( sys_string, "rm %s", error_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	return input_record_count;
 
-} /* generic_load_output_test_only_report() */
+}
 
 int generic_load_output_to_database(
 			char *application_name,
@@ -1419,10 +1419,10 @@ int generic_load_output_to_database(
 	timlib_display_error_file( error_filename );
 
 	sprintf( sys_string, "rm %s", error_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	return input_record_count;
-} /* generic_load_output_to_database() */
+}
 
 int generic_load_get_position_integer(	DICTIONARY *position_dictionary,
 					char *attribute_name,
@@ -1455,7 +1455,7 @@ int generic_load_get_position_integer(	DICTIONARY *position_dictionary,
 		}
 	}
 	return position_integer;
-} /* generic_load_get_position_integer() */
+}
 
 void generic_load_set_international_date(
 				char *input_buffer,
@@ -1537,5 +1537,5 @@ void generic_load_set_international_date(
 				primary_key_date_offset );
 	}
 
-} /* generic_load_set_international_date() */
+}
 

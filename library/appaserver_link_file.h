@@ -72,6 +72,19 @@ char *appaserver_link_get_abbreviated_output_filename(
 /* ---------------- */
 /* Returns strdup() */
 /* ---------------- */
+char *appaserver_link_output_filename(
+		char *document_root_directory,
+		char *application_name,
+		char *filename_stem,
+		char *begin_date_string,
+		char *end_date_string,
+		pid_t process_id,
+		char *session,
+		char *extension );
+
+/* ---------------- */
+/* Returns strdup() */
+/* ---------------- */
 char *appaserver_link_get_output_filename(
 		char *document_root_directory,
 		char *application_name,
@@ -107,6 +120,18 @@ char *appaserver_link_source_directory(
 /* -------------- */
 /* Returns static */
 /* -------------- */
+char *appaserver_link_tail_half(
+		char *application_name,
+		char *filename_stem,
+		char *begin_date_string,
+		char *end_date_string,
+		pid_t process_id,
+		char *session,
+		char *extension );
+
+/* -------------- */
+/* Returns static */
+/* -------------- */
 char *appaserver_link_get_tail_half(
 		char *application_name,
 		char *filename_stem,
@@ -117,6 +142,15 @@ char *appaserver_link_get_tail_half(
 		char *extension );
 
 void appaserver_link_get_pid_filename(
+		char **output_filename,
+		char **prompt_filename,
+		char *application_name,
+		char *document_root_directory,
+		pid_t pid,
+		char *process_name,
+		char *extension );
+
+void appaserver_link_pid_filename(
 		char **output_filename,
 		char **prompt_filename,
 		char *application_name,

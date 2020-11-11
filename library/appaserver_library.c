@@ -1227,6 +1227,11 @@ LIST *appaserver_library_get_primary_data_list(
 	return primary_data_list;
 }
 
+char *appaserver_library_server_address( void )
+{
+	return appaserver_library_get_server_address();
+}
+
 char *appaserver_library_get_server_address( void )
 {
 	char server_address[ 128 ] = {0};
