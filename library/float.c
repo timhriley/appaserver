@@ -21,6 +21,8 @@ double float_abs( double f )
 	return abs_float( f );
 }
 
+/* Rounds to the dollar, not the pennies */
+/* ------------------------------------- */
 double abs_dollar( double f )
 {
 	return round_float( abs_float( f ) );
@@ -78,6 +80,11 @@ double ceiling( double d )
 		return (double)(int)(d + 0.99);
 	else
 		return -floor( -d );
+}
+
+double round_pennies( double d )
+{
+	return round_money( d );
 }
 
 double round_money( double d )

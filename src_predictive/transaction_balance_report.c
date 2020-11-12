@@ -703,7 +703,7 @@ char *transaction_balance_report_missing_expense_message(
 
 	sprintf( sys_string,
 		 "bank_upload_ledger_pending.sh | grep '\\^%.2lf$' | wc -l",
-		 abs_dollar( anomaly_balance_difference ) );
+		 abs_float( anomaly_balance_difference ) );
 
 	if ( ! ( transaction_count = atoi( pipe2string( sys_string ) ) ) )
 	{
@@ -728,7 +728,7 @@ char *transaction_balance_report_missing_expense_message(
 	/* ------------------ */
 	sprintf( sys_string,
 		 "bank_upload_ledger_pending.sh | grep '\\^%.2lf$'",
-		 abs_dollar( anomaly_balance_difference ) );
+		 abs_float( anomaly_balance_difference ) );
 
 	pending_transaction = pipe2string( sys_string );
 

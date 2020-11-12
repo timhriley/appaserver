@@ -757,8 +757,9 @@ boolean transaction_balance_debit_credit_reversed(
 	if ( !cash_running_balance_wrong ) return 0;
 	if ( bank_running_balance_wrong ) return 0;
 
-	return ( abs_dollar( anomaly_balance_difference ) ==
-		 abs_dollar( bank_amount ) + transaction_amount );
+	return ( dollar_virtually_same(
+			abs_float( anomaly_balance_difference ),
+		 	abs_float( bank_amount ) + transaction_amount ) );
 }
 
 

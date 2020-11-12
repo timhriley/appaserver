@@ -51,4 +51,6 @@ double round_dollar(	double d );
 
 double round_float(	double d );
 
+double round_pennies(	double d );
+
 #endif
