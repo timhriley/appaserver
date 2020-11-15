@@ -1,4 +1,4 @@
-/* library/environ.h					   */
+/* $APPASERVER_HOME/library/environ.h			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -55,7 +55,14 @@ void environ_prepend_path(		char *path_to_add );
 
 void environ_set_utc_offset(		char *application_name );
 
-char *environ_get_application_name(	char *argv_0 );
+char *environ_exit_application_name(
+			char *argv_0 );
+
+char *environ_get_application_name(
+			char *argv_0 );
+
+char *environ_application_name(
+			char *argv_0 );
 
 char *environment_application(		void );
 
@@ -65,8 +72,7 @@ char *environ_get_shell_snippet(	void );
 
 void environ_display(			FILE *output_pipe );
 
-char *environment_application_name(	void );
-
-char *environ_exit_application_name(	char *argv_0 );
+char *environment_application_name(
+			void );
 
 #endif

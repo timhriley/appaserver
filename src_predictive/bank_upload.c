@@ -664,9 +664,10 @@ void bank_upload_transaction_direct_insert(
 
 /* Returns table_insert_count */
 /* -------------------------- */
-int bank_upload_insert(			char *fund_name,
-					LIST *bank_upload_list,
-					char *bank_upload_date_time )
+int bank_upload_insert(
+			char *fund_name,
+			LIST *bank_upload_list,
+			char *bank_upload_date_time )
 {
 	char sys_string[ 1024 ];
 	FILE *bank_upload_insert_pipe = {0};
@@ -2460,6 +2461,13 @@ char *bank_upload_minimum_bank_date(
 	BANK_UPLOAD *bank_upload;
 	char *transaction_date;
 
+fprintf(stderr,
+	"%s/%s()/%d: minimum_bank_date = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+minimum_bank_date );
+
 	if ( !minimum_bank_date || !*minimum_bank_date )
 		return (char *)0;
 
@@ -2467,8 +2475,6 @@ char *bank_upload_minimum_bank_date(
 
 	if ( !list_rewind( bank_upload_list ) )
 		return return_date;
-
-	strcpy( return_date, minimum_bank_date );
 
 	do {
 		bank_upload = list_get( bank_upload_list );

@@ -76,7 +76,7 @@ int main( int argc, char **argv )
 
 	/* Exits if not found. */
 	/* ------------------- */
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 				argc,
@@ -207,7 +207,7 @@ int main( int argc, char **argv )
 			balance_piece_offset,
 			execute );
 
-	if ( !minimum_bank_date )
+	if ( !minimum_bank_date || !*minimum_bank_date )
 	{
 		printf(
 		"<h3>Error: could not fetch the minimum bank date.</h3>\n" );
@@ -310,6 +310,7 @@ int load_bank_spreadsheet(
 		execute = 0;
 	}
 
+#ifdef NOT_DEFINED
 	*minimum_bank_date =
 		/* --------------------- */
 		/* Returns static memory */
@@ -321,6 +322,9 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				file.
 				bank_upload_list );
+#endif
+
+	*minimum_bank_date = bank_upload_structure->file.minimum_bank_date;
 
 	if ( !execute )
 	{
@@ -328,13 +332,6 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				file.
 				bank_upload_list );
-
-/*
-		bank_upload_transaction_table_display(
-			bank_upload_structure->
-				file.
-				bank_upload_list );
-*/
 
 		*transaction_count =
 			bank_upload_feeder_phrase_match_transaction_count(
@@ -392,8 +389,6 @@ int load_bank_spreadsheet(
 
 		/* ------------------------------------ */
 		/* Insert into TRANSACTION and JOURNAL	*/
-		/* ------------------------------------ */
-		/* Note: this is the bottleneck.	*/
 		/* ------------------------------------ */
 		transaction_list_insert(
 			transaction_list,

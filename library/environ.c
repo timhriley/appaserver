@@ -48,8 +48,7 @@ char *resolve_environment_variables( char *return_string, char *s )
 
 	strcpy( return_string, looking_string );
 	return return_string;
-
-} /* resolve_environment_variables() */
+}
 
 boolean environ_variable_exists( char *variable_name, char *looking_string )
 {
@@ -81,7 +80,7 @@ boolean environ_variable_exists( char *variable_name, char *looking_string )
 	*variable_name = '\0';
 	return 0;
 
-} /* environ_variable_exists() */
+}
 
 int environ_next_delimiter( char *looking_string )
 {
@@ -107,8 +106,7 @@ int environ_next_delimiter( char *looking_string )
 	}
 
 	return i + 1;
-
-} /* environ_next_delimiter() */
+}
 
 char *environment_application_name( void )
 {
@@ -171,7 +169,7 @@ boolean environ_name_to_value( char *variable_value, char *variable_name )
 		return 0;
 	}
 
-} /* environ_name_to_value() */
+}
 
 void environ_set_environment( char *environment, char *datum )
 {
@@ -185,7 +183,7 @@ void set_environment( char *environment, char *datum )
 	sprintf( statement, "%s=%s", environment, datum );
 	putenv( strdup( statement ) );
 
-} /* set_environment() */
+}
 
 void environ_prepend_path( char *path_to_add )
 {
@@ -206,7 +204,7 @@ void environ_prepend_path( char *path_to_add )
 
 	putenv( strdup( new_path ) );
 
-} /* environ_prepend_path() */
+}
 
 void set_path( char *path_to_add )
 {
@@ -227,7 +225,7 @@ void set_path( char *path_to_add )
 
 	putenv( strdup( new_path ) );
 
-} /* set_path() */
+}
 
 boolean environ_get_browser_internet_explorer( void )
 {
@@ -238,7 +236,7 @@ boolean environ_get_browser_internet_explorer( void )
 
 	return ( instr( "MSIE", http_user_agent, 1 ) != -1 );
 
-} /* environ_get_browser_internet_explorer() */
+}
 
 char *environ_get_http_referer(	void )
 {
@@ -257,7 +255,7 @@ char *environ_get_http_referer(	void )
 		return http_referer;
 	}
 
-} /* environ_get_http_referer() */
+}
 
 void environ_set_utc_offset( char *application_name )
 {
@@ -288,7 +286,7 @@ void environ_set_utc_offset( char *application_name )
 			 __LINE__ );
 	}
 
-} /* environ_set_utc_offset() */
+}
 
 char *environ_get_http_referer_filename( void )
 {
@@ -320,7 +318,7 @@ char *environ_get_http_referer_filename( void )
 		return http_referer_filename;
 	}
 
-} /* environ_get_http_referer_filename() */
+}
 
 void add_standard_unix_to_path( void )
 {
@@ -424,7 +422,7 @@ void environ_display( FILE *output_pipe )
 		ptr++;
 	}
 
-} /* environ_display() */
+}
 
 void add_appaserver_home_to_python_path( void )
 {
@@ -479,7 +477,12 @@ void add_relative_source_directory_to_path( char *application_name )
 			piece_buffer );
 		set_path( bin_path );
 	}
-} /* add_relative_source_directory_to_path() */
+}
+
+char *environ_application_name( char *argv_0 )
+{
+	return environ_exit_application_name( argv_0 );
+}
 
 char *environ_get_application_name( char *argv_0 )
 {
@@ -511,7 +514,7 @@ void environ_output_application_shell( FILE *output_file )
 		 "%s",
 		 environ_get_shell_snippet() );
 
-} /* environ_output_application_shell() */
+}
 
 char *environ_get_shell_snippet( void )
 {
@@ -539,6 +542,5 @@ char *environ_get_shell_snippet( void )
 "fi\n" );
 
 	return strdup( buffer );
-
-} /* environ_get_shell_snippet() */
+}
 
