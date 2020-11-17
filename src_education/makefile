@@ -125,7 +125,8 @@ generate_invoice: generate_invoice.c					\
 	${PREDICTIVEBOOKS_CORE}						\
 	${EDUCATION_CORE}						\
 	${LIBRARY}/latex_invoice.o					\
-	${LIBRARY}/email.o
+	${LIBRARY}/email.o						\
+	${LIBRARY}/table.o
 	${CC}	${CFLAGS}						\
 		-I${LIBRARY}						\
 		-I${PREDICTIVEBOOKS_LIBRARY}				\
@@ -135,6 +136,7 @@ generate_invoice: generate_invoice.c					\
 		generate_invoice.c					\
 		${LIBRARY}/latex_invoice.o				\
 		${LIBRARY}/email.o					\
+		${LIBRARY}/table.o					\
 		-o generate_invoice
 
 offering_trigger: offering_trigger.c					\

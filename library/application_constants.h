@@ -16,6 +16,9 @@ typedef struct
 
 APPLICATION_CONSTANTS *application_constants_new( void );
 
+DICTIONARY *application_constants_dictionary(
+				char *application_name );
+
 DICTIONARY *application_constants_get_dictionary(
 				char *application_name );
 

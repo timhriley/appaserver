@@ -74,23 +74,25 @@ LATEX *latex_new_latex(			char *tex_filename,
 LATEX_TABLE *latex_new_latex_table(	char *caption );
 LATEX_ROW *latex_new_latex_row(		void );
 LATEX_TABLE_HEADING *latex_new_latex_table_heading(
-					void );
+			void );
 
 void latex_output_longtable_document_heading(
-					FILE *output_stream,
-					boolean landscape_flag,
-					boolean table_package_flag,
-					char *logo_filename,
-					boolean omit_page_numbers,
-					char *footline );
+			FILE *output_stream,
+			boolean landscape_flag,
+			boolean table_package_flag,
+			char *logo_filename,
+			boolean omit_page_numbers,
+			char *footline );
 
-void latex_output_longtable_heading(	FILE *output_stream,
-					char *caption,
-					LIST *heading_list );
+void latex_output_longtable_heading(
+			FILE *output_stream,
+			char *caption,
+			LIST *heading_list );
 
-void latex_output_table_row_list(	FILE *output_stream,
-					LIST *row_list,
-					int heading_list_length );
+void latex_output_table_row_list(
+			FILE *output_stream,
+			LIST *row_list,
+			int heading_list_length );
 
 void latex_output_document_footer(	FILE *output_stream );
 

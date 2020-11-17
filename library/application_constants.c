@@ -20,7 +20,14 @@ APPLICATION_CONSTANTS *application_constants_new( void )
 		calloc( 1, sizeof( APPLICATION_CONSTANTS ) );
 
 	return a;
-} /* application_constants_new() */
+}
+
+DICTIONARY *application_constants_dictionary(
+				char *application_name )
+{
+	return application_constants_get_dictionary(
+				application_name );
+}
 
 DICTIONARY *application_constants_get_dictionary(
 				char *application_name )
@@ -57,7 +64,7 @@ DICTIONARY *application_constants_get_dictionary(
 	pclose( input_pipe );
 	return dictionary;
 
-} /* application_constants_get_dictionary() */
+}
 
 char *application_constants_safe_fetch(
 				DICTIONARY *application_constants_dictionary,
@@ -79,7 +86,7 @@ char *application_constants_safe_fetch(
 		return "";
 	}
 	return results;
-} /* application_constants_safe_fetch() */
+}
 
 char *application_constants_fetch(
 				DICTIONARY *application_constants_dictionary,
@@ -87,7 +94,7 @@ char *application_constants_fetch(
 {
 	return dictionary_fetch( application_constants_dictionary, key );
 
-} /* application_constants_fetch() */
+}
 
 void application_constants_get_easycharts_width_height(
 			int *easycharts_width,
@@ -126,14 +133,14 @@ void application_constants_get_easycharts_width_height(
 		*easycharts_height = 0;
 	}
 
-} /* application_constants_get_easycharts_width_height() */
+}
 
 void application_constants_free(
 			APPLICATION_CONSTANTS *application_constants )
 {
 	dictionary_free( application_constants->dictionary );
 	free( application_constants );
-} /* application_constants_free() */
+}
 
 char *application_constants_quick_fetch(
 				char *application_name,
@@ -160,7 +167,7 @@ char *application_constants_quick_fetch(
 
 	return results;
 
-} /* application_constants_quick_fetch() */
+}
 
 boolean application_constants_cat_javascript_source( char *application_name )
 {
@@ -183,5 +190,5 @@ boolean application_constants_cat_javascript_source( char *application_name )
 
 	return return_value;
 
-} /* application_constants_cat_javascript_source() */
+}
 

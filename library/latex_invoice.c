@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/latex_invoice.c				*/
 /* -------------------------------------------------------------------- */
-/*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
@@ -126,8 +125,9 @@ LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
 	return h;
 }
 
-void latex_invoice_line_item_free(	LATEX_INVOICE_LINE_ITEM *
-						latex_invoice_line_item )
+void latex_invoice_line_item_free(
+			LATEX_INVOICE_LINE_ITEM *
+				latex_invoice_line_item )
 {
 	if ( latex_invoice_line_item->item_key )
 		free( latex_invoice_line_item->item_key );
@@ -151,9 +151,9 @@ void latex_invoice_output_invoice_header(
 			FILE *output_stream,
 			char *invoice_date,
 			char *line_item_key_heading,
-			LATEX_INVOICE_COMPANY *
-				latex_invoice_company,
-      				LATEX_INVOICE_CUSTOMER *
+			LATEX_INVOICE_SELF *
+				latex_invoice_self,
+      			LATEX_INVOICE_CUSTOMER *
 				latex_invoice_customer,
 			boolean exists_discount_amount,
 			char *title,
@@ -166,18 +166,18 @@ void latex_invoice_output_invoice_header(
 	char company_street_address[ 128 ];
 	char customer_street_address[ 128 ];
 
-	if ( latex_invoice_company->suite_number
-	&&   *latex_invoice_company->suite_number )
+	if ( latex_invoice_self->suite_number
+	&&   *latex_invoice_self->suite_number )
 	{
 		sprintf( company_street_address,
 			 "%s, Suite %s",
-			 latex_invoice_company->street_address,
-			 latex_invoice_company->suite_number );
+			 latex_invoice_self->street_address,
+			 latex_invoice_self->suite_number );
 	}
 	else
 	{
 		strcpy( company_street_address,
-			latex_invoice_company->street_address );
+			latex_invoice_self->street_address );
 	}
 
 	if ( latex_invoice_customer->suite_number
@@ -226,11 +226,11 @@ void latex_invoice_output_invoice_header(
 			buffer,
 			company_street_address,
 			'#' ),
-		latex_invoice_company->phone_number,
-	 	latex_invoice_company->city,
-	 	latex_invoice_company->state,
-	 	latex_invoice_company->zip_code,
-	 	latex_invoice_company->email_address );
+		latex_invoice_self->phone_number,
+	 	latex_invoice_self->city,
+	 	latex_invoice_self->state,
+	 	latex_invoice_self->zip_code,
+	 	latex_invoice_self->email_address );
 
 	fprintf( output_stream,
 "\\begin{tabular}[t]{l}\n"
@@ -439,62 +439,26 @@ void latex_invoice_output_footer(
 "\\end{document}\n" );
 }
 
-void latex_invoice_company_free(		LATEX_INVOICE_COMPANY *
-						invoice_company )
-{
-	free( invoice_company->name );
-	free( invoice_company->street_address );
-
-	if ( invoice_company->suite_number )
-		free( invoice_company->suite_number );
-
-	free( invoice_company->city );
-	free( invoice_company->state );
-	free( invoice_company->zip_code );
-	free( invoice_company->phone_number );
-	free( invoice_company->email_address );
-}
-
-void latex_invoice_customer_free(	LATEX_INVOICE_CUSTOMER *
-						latex_invoice_customer )
+void latex_invoice_line_item_list_free(
+			LIST *line_item_list )
 {
 	LATEX_INVOICE_LINE_ITEM *line_item;
-	LIST *line_item_list;
-
-	line_item_list = latex_invoice_customer->invoice_line_item_list;
 
 	if ( list_rewind( line_item_list ) )
 	{
 		do {
-			line_item = list_get_pointer( line_item_list );
+			line_item = list_get( line_item_list );
 			latex_invoice_line_item_free( line_item );
 		} while( list_next( line_item_list ) );
 	}
-
-	free( latex_invoice_customer->invoice_key );
-	free( latex_invoice_customer->name );
-	free( latex_invoice_customer->street_address );
-
-	if ( latex_invoice_customer->suite_number )
-		free( latex_invoice_customer->suite_number );
-
-	free( latex_invoice_customer->city );
-	free( latex_invoice_customer->state );
-	free( latex_invoice_customer->zip_code );
-
-	if ( latex_invoice_customer->customer_service_key )
-		free( latex_invoice_customer->customer_service_key );
-
-	list_free( line_item_list );
-	free( latex_invoice_customer );
 }
 
 void latex_invoice_output_invoice_line_items(
-					FILE *output_stream,
-					LIST *invoice_line_item_list,
-					boolean exists_discount_amount,
-					boolean omit_money,
-					int quantity_decimal_places )
+			FILE *output_stream,
+			LIST *invoice_line_item_list,
+			boolean exists_discount_amount,
+			boolean omit_money,
+			int quantity_decimal_places )
 {
 	LATEX_INVOICE_LINE_ITEM *line_item;
 	char buffer[ 256 ];
@@ -569,18 +533,8 @@ void latex_invoice_output_invoice_line_items(
 	} while( list_next( invoice_line_item_list ) );
 }
 
-void latex_invoice_free( LATEX_INVOICE *invoice )
-{
-	free( invoice->invoice_date );
-
-	if ( invoice->line_item_key_heading )
-		free( invoice->line_item_key_heading );
-
-	free( invoice );
-}
-
 boolean latex_invoice_each_quantity_integer(
-					LIST *invoice_line_item_list )
+				LIST *invoice_line_item_list )
 {
 	LATEX_INVOICE_LINE_ITEM *line_item;
 

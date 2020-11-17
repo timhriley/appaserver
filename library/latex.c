@@ -60,7 +60,7 @@ LATEX *latex_new_latex(		char *tex_filename,
 	latex->logo_filename = logo_filename;
 
 	return latex;
-} /* latex_new_latex() */
+}
 
 LATEX_TABLE *latex_new_latex_table( char *caption )
 {
@@ -77,7 +77,7 @@ LATEX_TABLE *latex_new_latex_table( char *caption )
 	}
 	latex_table->caption = caption;
 	return latex_table;
-} /* latex_new_latex_table() */
+}
 
 LATEX_TABLE_HEADING *latex_new_latex_table_heading( void )
 {
@@ -95,7 +95,7 @@ LATEX_TABLE_HEADING *latex_new_latex_table_heading( void )
 		exit( 1 );
 	}
 	return latex_table_heading;
-} /* latex_new_latex_table_heading() */
+}
 
 void latex_output_table_footer( FILE *output_stream )
 {
@@ -116,12 +116,12 @@ void latex_output_document_footer( FILE *output_stream )
 }
 
 void latex_output_longtable_document_heading(
-					FILE *output_stream,
-					boolean landscape_flag,
-					boolean table_package_flag,
-					char *logo_filename,
-					boolean omit_page_numbers,
-					char *footline )
+			FILE *output_stream,
+			boolean landscape_flag,
+			boolean table_package_flag,
+			char *logo_filename,
+			boolean omit_page_numbers,
+			char *footline )
 {
 	fprintf( output_stream,
 "\\documentclass{report}\n"
@@ -195,7 +195,7 @@ void latex_output_longtable_document_heading(
 		 	 logo_filename );
 	}
 
-} /* latex_output_longtable_document_heading() */
+}
 
 void latex_output_longtable_heading(	FILE *output_stream,
 					char *caption,
@@ -287,7 +287,7 @@ void latex_output_longtable_heading(	FILE *output_stream,
 	fprintf( output_stream, "\\endfoot\n" );
 	fprintf( output_stream, "\\endlastfoot\n" );
 
-} /* latex_output_longtable_heading() */
+}
 
 void latex_output_table_row_list(	FILE *output_stream,
 					LIST *row_list,
@@ -367,7 +367,7 @@ void latex_output_table_row_list(	FILE *output_stream,
 
 	} while( list_next( row_list ) );
 
-} /* latex_output_table_row_list() */
+}
 
 void latex_output_table_vertical_padding(
 				FILE *output_stream,
@@ -395,7 +395,7 @@ void latex_output_table_vertical_padding(
 		fprintf( output_stream, "\\\\\n" );
 	}
 
-} /* latex_output_table_vertical_padding() */
+}
 
 LATEX_ROW *latex_new_latex_row( void )
 {
@@ -412,7 +412,7 @@ LATEX_ROW *latex_new_latex_row( void )
 	}
 	row->column_data_list = list_new_list();
 	return row;
-} /* latex_new_latex_row() */
+}
 
 void latex_tex2pdf(	char *tex_filename,
 			char *working_directory )
@@ -450,7 +450,7 @@ void latex_tex2pdf(	char *tex_filename,
 	if ( system( sys_string ) );
 	if ( system( sys_string ) );
 
-} /* latex_tex2pdf() */
+}
 
 void latex_longtable_output(	FILE *output_stream,
 				boolean landscape_flag,
@@ -491,7 +491,7 @@ void latex_longtable_output(	FILE *output_stream,
 
 	latex_output_document_footer( output_stream );
 
-} /* latex_longtable_output() */
+}
 
 void latex_output_documentclass_letter(	FILE *output_stream,
 					boolean omit_page_numbers )
@@ -514,7 +514,7 @@ void latex_output_documentclass_letter(	FILE *output_stream,
 	fprintf( output_stream,
 		 "\\begin{document}\n" );
 
-} /* latex_output_documentclass_letter() */
+}
 
 void latex_output_letterhead_document_heading(
 					FILE *output_stream,
@@ -559,7 +559,7 @@ void latex_output_letterhead_document_heading(
 "\\hfill\n"
 "\\parbox{2.5in}{ }\n\n" );
 
-} /* latex_output_letterhead_document_heading() */
+}
 
 void latex_output_return_envelope_document_heading(
 					FILE *output_stream,
@@ -606,7 +606,7 @@ void latex_output_return_envelope_document_heading(
 		 logo_filename,
 		 date_string );
 
-} /* latex_output_return_envelope_document_heading() */
+}
 
 void latex_output_indented_address(	FILE *output_stream,
 					char *full_name,
@@ -636,7 +636,7 @@ void latex_output_indented_address(	FILE *output_stream,
 			city_state_zip,
 			128 ) );
 
-} /* latex_output_indented_address() */
+}
 
 void latex_output_table_heading(	FILE *output_stream,
 					char *caption,
@@ -715,7 +715,7 @@ void latex_output_table_heading(	FILE *output_stream,
 
 	fprintf( output_stream, "\\\\ \\hline \\hline\n" );
 
-} /* latex_output_table_heading() */
+}
 
 char *latex_escape_data(	char *destination,
 				char *source,
@@ -747,7 +747,7 @@ char *latex_escape_data(	char *destination,
 
 	return destination;
 
-} /* latex_escape_data() */
+}
 
 void latex_append_column_data_list(	LIST *column_data_list,
 					char *column_data,
@@ -758,7 +758,7 @@ void latex_append_column_data_list(	LIST *column_data_list,
 	l = latex_column_data_new( column_data, large_bold );
 	list_append_pointer( column_data_list, l );
 
-} /* latex_append_column_data_list() */
+}
 
 LATEX_COLUMN_DATA *latex_column_data_new(
 					char *column_data,
@@ -781,5 +781,5 @@ LATEX_COLUMN_DATA *latex_column_data_new(
 
 	return l;
 
-} /* latex_column_data_new() */
+}
 

@@ -13,6 +13,7 @@
 #include "piece.h"
 #include "column.h"
 #include "list.h"
+#include "table.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "document.h"
@@ -27,6 +28,7 @@
 #include "registration.h"
 #include "email.h"
 #include "appaserver_link_file.h"
+#include "table.h"
 
 /* Constants */
 /* --------- */
@@ -89,7 +91,7 @@ boolean build_latex_invoice(
 			char *street_address,
 			char *season_name,
 			int year,
-			DICTIONARY *application_constants_dictionary );
+			char *predictive_logo_filename );
 
 void output_invoice_window(
 				char *application_name,
@@ -108,7 +110,7 @@ int main( int argc, char **argv )
 	char *output_option;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 		argc,
@@ -186,141 +188,6 @@ void output_invoice_window(
 		window_label );
 	fflush( stdout );
 
-}
-
-boolean build_latex_invoice(	FILE *output_stream,
-				char *full_name,
-				char *street_address,
-				char *season_name,
-				int year,
-				DICTIONARY *application_constants_dictionary )
-{
-	LATEX_INVOICE *latex_invoice;
-	ENTITY_SELF *self;
-	char *todays_date;
-	REGISTRATION *registration;
-	char title[ 128 ];
-
-	if ( ! ( self = entity_self_load() ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: entity_self_load() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(	title,
-			"%s Invoice",
-			self->entity->full_name );
-
-	if ( ! ( registration =
-			registration_fetch(
-				full_name,
-				street_address,
-				season_name,
-				year,
-				1 /* fetch_enrollment_list */ ) ) )
-	{
-		return 0;
-	}
-
-	todays_date = pipe2string( "now.sh full 0" );
-
-	latex_invoice =
-		latex_invoice_new(
-			strdup( todays_date ),
-			self->entity->full_name,
-			self->entity->street_address,
-			(char *)0 /* unit */,
-			self->entity->city,
-			self->entity->state_code,
-			self->entity->zip_code,
-			self->entity->phone_number,
-			self->entity->email_address,
-			strdup( "" ) /* line_item_key_heading */,
-			(char *)0 /* instructions */,
-			(LIST *)0 /* extra_label_list */ );
-
-	if ( ! ( latex_invoice->invoice_customer =
-			generate_invoice_customer(
-				registration ) ) )
-	{
-		return 0;
-	}
-
-	latex_invoice_output_header( output_stream );
-
-	if ( ! ( latex_invoice->
-			invoice_customer->
-			invoice_line_item_list =
-				generate_invoice_line_item_list(
-					registration->
-					     registration_enrollment_list ) ) )
-	{
-		printf( "<H3>Error: Registration has no enrollments.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
-
-	latex_invoice_output_invoice_header(
-		output_stream,
-		latex_invoice->invoice_date,
-		latex_invoice->line_item_key_heading,
-		&latex_invoice->invoice_company,
-		latex_invoice->invoice_customer,
-		latex_invoice->
-			invoice_customer->
-			exists_discount_amount,
-		title,
-		latex_invoice->omit_money,
-	 	application_constants_safe_fetch(
-			application_constants_dictionary,
-			PREDICTIVE_LOGO_FILENAME_KEY ),
-		latex_invoice->instructions,
-		latex_invoice->extra_label_list );
-
-	if ( latex_invoice_each_quantity_integer(
-		latex_invoice->invoice_customer->invoice_line_item_list ) )
-	{
-		latex_invoice->quantity_decimal_places = 0;
-	}
-
-	latex_invoice_output_invoice_line_items(
-		output_stream,
-		latex_invoice->
-			invoice_customer->
-			invoice_line_item_list,
-		latex_invoice->
-			invoice_customer->
-			exists_discount_amount,
-		latex_invoice->omit_money,
-		latex_invoice->quantity_decimal_places );
-
-	latex_invoice_output_invoice_footer(
-			output_stream,
-			latex_invoice->invoice_customer->extension_total,
-			latex_invoice->invoice_customer->sales_tax,
-			latex_invoice->invoice_customer->shipping_charge,
-			latex_invoice->invoice_customer->total_payment,
-			latex_invoice->line_item_key_heading,
-				latex_invoice->
-					invoice_customer->
-					exists_discount_amount,
-			0 /* not is_estimate */ );
-
-	latex_invoice_output_footer(
-		output_stream,
-		0 /* not with_customer_signature */ );
-
-	/* Needs all strdups() */
-	/* ------------------- */
-	/* latex_invoice_company_free( &latex_invoice->invoice_company ); */
-
-	latex_invoice_free( latex_invoice );
-
-	return 1;
 }
 
 LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
@@ -475,15 +342,9 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 	char sys_string[ 1024 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 	application_constants = application_constants_new();
 	application_constants->dictionary =
-		application_constants_get_dictionary(
+		application_constants_dictionary(
 			application_name );
 
 	appaserver_link_file =
@@ -514,12 +375,6 @@ fprintf(stderr,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 	if ( ! ( output_stream = fopen( output_filename, "w" ) ) )
 	{
 		fprintf(stderr,
@@ -531,19 +386,15 @@ fprintf(stderr,
 		exit( 1 );
 	}
 
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 	if ( !build_latex_invoice(
 			output_stream,
 			full_name,
 			street_address,
 			season_name,
 			year,
-			application_constants->dictionary ) )
+	 		application_constants_safe_fetch(
+				application_constants->dictionary,
+				PREDICTIVE_LOGO_FILENAME_KEY ) );
 	{
 		printf( "<h3>Please choose a Registration.</h3>\n" );
 		fclose( output_stream );
@@ -714,5 +565,143 @@ void generate_invoice_email_send(
 			output_filename /* attachment_filename */ );
 
 	printf( "<h3>Message send.</h3>\n" );
+}
+
+boolean build_latex_invoice(	FILE *output_stream,
+				char *full_name,
+				char *street_address,
+				char *season_name,
+				int year,
+				char *predictive_logo_filename )
+{
+	TABLE *table;
+	ENTITY_SELF *self;
+	char *todays_date;
+	REGISTRATION *registration;
+	char title[ 128 ];
+
+	table = table_new();
+
+	if ( ! ( self = entity_self_load() ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: entity_self_load() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(	title,
+			"%s Invoice",
+			self->entity->full_name );
+
+	if ( ! ( registration =
+			registration_fetch(
+				full_name,
+				street_address,
+				season_name,
+				year,
+				1 /* fetch_enrollment_list */ ) ) )
+	{
+		return 0;
+	}
+
+	todays_date = pipe2string( "now.sh full 0" );
+
+#ifdef NOT_DEFINED
+	LATEX_INVOICE *latex_invoice;
+	latex_invoice =
+		latex_invoice_new(
+			strdup( todays_date ),
+			self->entity->full_name,
+			self->entity->street_address,
+			(char *)0 /* unit */,
+			self->entity->city,
+			self->entity->state_code,
+			self->entity->zip_code,
+			self->entity->phone_number,
+			self->entity->email_address,
+			strdup( "" ) /* line_item_key_heading */,
+			(char *)0 /* instructions */,
+			(LIST *)0 /* extra_label_list */ );
+
+	if ( ! ( latex_invoice->invoice_customer =
+			generate_invoice_customer(
+				registration ) ) )
+	{
+		return 0;
+	}
+
+	latex_invoice_output_header( output_stream );
+
+	if ( ! ( latex_invoice->
+			invoice_customer->
+			invoice_line_item_list =
+				generate_invoice_line_item_list(
+					registration->
+					     registration_enrollment_list ) ) )
+	{
+		printf( "<H3>Error: Registration has no enrollments.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	latex_invoice_output_invoice_header(
+		output_stream,
+		latex_invoice->invoice_date,
+		latex_invoice->line_item_key_heading,
+		&latex_invoice->invoice_company,
+		latex_invoice->invoice_customer,
+		latex_invoice->
+			invoice_customer->
+			exists_discount_amount,
+		title,
+		latex_invoice->omit_money,
+		predictive_logo_filename,
+		latex_invoice->instructions,
+		latex_invoice->extra_label_list );
+
+	if ( latex_invoice_each_quantity_integer(
+		latex_invoice->invoice_customer->invoice_line_item_list ) )
+	{
+		latex_invoice->quantity_decimal_places = 0;
+	}
+
+	latex_invoice_output_invoice_line_items(
+		output_stream,
+		latex_invoice->
+			invoice_customer->
+			invoice_line_item_list,
+		latex_invoice->
+			invoice_customer->
+			exists_discount_amount,
+		latex_invoice->omit_money,
+		latex_invoice->quantity_decimal_places );
+
+	latex_invoice_output_invoice_footer(
+			output_stream,
+			latex_invoice->invoice_customer->extension_total,
+			latex_invoice->invoice_customer->sales_tax,
+			latex_invoice->invoice_customer->shipping_charge,
+			latex_invoice->invoice_customer->total_payment,
+			latex_invoice->line_item_key_heading,
+				latex_invoice->
+					invoice_customer->
+					exists_discount_amount,
+			0 /* not is_estimate */ );
+
+	latex_invoice_output_footer(
+		output_stream,
+		0 /* not with_customer_signature */ );
+
+	/* Needs all strdups() */
+	/* ------------------- */
+	/* latex_invoice_company_free( &latex_invoice->invoice_company ); */
+
+	latex_invoice_free( latex_invoice );
+#endif
+
+	return 1;
 }
 
