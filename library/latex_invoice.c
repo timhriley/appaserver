@@ -205,21 +205,40 @@ void latex_invoice_output_invoice_header(
 	 	 	invoice_date );
 	}
 
-	fprintf( output_stream,
+	if ( latex_invoice_self->city && *latex_invoice_self->city )
+	{
+		fprintf( output_stream,
 "\\begin{tabular}[t]{p{5.0in}r}\n"
 "%s & %s \\\\\n"
 "%s, %s %s & %s \\\\\n"
 "\\end{tabular}\n\n",
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-	 	appaserver_escape_street_address(
-			latex_invoice_self->street_address ),
-		latex_invoice_self->phone_number,
-	 	latex_invoice_self->city,
-	 	latex_invoice_self->state_code,
-	 	latex_invoice_self->zip_code,
-	 	latex_invoice_self->email_address );
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+	 		appaserver_escape_street_address(
+				latex_invoice_self->street_address ),
+			(latex_invoice_self->phone_number)
+				? latex_invoice_self->phone_number
+				: "",
+	 		latex_invoice_self->city,
+	 		latex_invoice_self->state_code,
+	 		latex_invoice_self->zip_code,
+	 		(latex_invoice_self->email_address)
+	 			? latex_invoice_self->email_address
+				: "" );
+	}
+	else
+	{
+		fprintf( output_stream,
+"\\begin{tabular}[t]{l}\n"
+"%s\\\\\n"
+"\\end{tabular}\n\n",
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+	 		appaserver_escape_street_address(
+				latex_invoice_self->street_address ) );
+	}
 
 	fprintf( output_stream,
 "\\begin{tabular}[t]{l}\n"
@@ -538,12 +557,12 @@ char *latex_invoice_header_text_line(
 		if ( exists_discount_amount )
 		{
 			sprintf( text_line,
-"\\bf Description & \\bf Quantity & \\bf Retail Price & \\bf Discount & \\bf Extension \\\\[0.5ex]\n" );
+"\\bf Description & \\bf Quantity & \\bf Retail Price & \\bf Discount & \\bf Extended \\\\[0.5ex]\n" );
 		}
 		else
 		{
 			sprintf( text_line,
-"\\bf Description & \\bf Quantity & \\bf Retail Price & \\bf Extension \\\\[0.5ex]\n" );
+"\\bf Description & \\bf Quantity & \\bf Retail Price & \\bf Extended \\\\[0.5ex]\n" );
 		}
 	}
 	else

@@ -37,13 +37,13 @@ typedef struct
 	char *street_address;
 	char *season_name;
 	int year;
-	double registration_tuition;
-	double registration_tuition_payment_total;
-	double registration_tuition_refund_total;
-	double registration_invoice_amount_due;
+	double tuition;
+	double tuition_payment_total;
+	double tuition_refund_total;
+	double invoice_amount_due;
 	char *registration_date_time;
-	LIST *registration_enrollment_list;
-	LIST *registration_tuition_payment_list;
+	LIST *enrollment_list;
+	LIST *tuition_payment_list;
 } REGISTRATION;
 
 REGISTRATION *registration_getset(

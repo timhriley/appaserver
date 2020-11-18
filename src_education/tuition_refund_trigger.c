@@ -194,7 +194,7 @@ void tuition_refund_trigger_insert_update(
 			tuition_refund->
 				enrollment->
 				registration->
-				registration_enrollment_list,
+				enrollment_list,
 			semester_offering_list(
 				season_name,
 				year ),

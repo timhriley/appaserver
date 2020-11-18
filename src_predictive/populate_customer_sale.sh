@@ -1,6 +1,6 @@
 #!/bin/bash
 # ---------------------------------------------------------------
-# $APPASERVER_HOME/src_accountancymodel/populate_tax_form_line.sh
+# $APPASERVER_HOME/src_predictive/populate_customer_sale.sh
 # ---------------------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]

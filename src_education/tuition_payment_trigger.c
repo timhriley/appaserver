@@ -194,7 +194,7 @@ void tuition_payment_trigger_insert_update(
 			tuition_payment->
 				enrollment->
 				registration->
-				registration_enrollment_list,
+				enrollment_list,
 			semester_offering_list(
 				season_name,
 				year ),

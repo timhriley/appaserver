@@ -168,20 +168,20 @@ REGISTRATION *registration_parse(
 			year );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	registration->registration_tuition = atof( piece_buffer );
+	registration->tuition = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	registration->registration_tuition_payment_total = atof( piece_buffer );
+	registration->tuition_payment_total = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 6 );
-	registration->registration_invoice_amount_due = atof( piece_buffer );
+	registration->invoice_amount_due = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 7 );
 	registration->registration_date_time = strdup( piece_buffer );
 
 	if ( fetch_enrollment_list )
 	{
-		registration->registration_enrollment_list =
+		registration->enrollment_list =
 			registration_enrollment_list(
 				registration->student_full_name,
 				registration->street_address,
@@ -375,9 +375,7 @@ double registration_tuition_total(
 			list_get(
 				registration_list );
 
-		tuition_total +=
-			registration->
-				registration_tuition;
+		tuition_total += registration->tuition;
 
 	} while ( list_next( registration_list ) );
 
@@ -411,23 +409,23 @@ REGISTRATION *registration_steady_state(
 		exit( 1 );
 	}
 
-	registration->registration_tuition =
+	registration->tuition =
 		registration_tuition(
 			registration_enrollment_list,
 			semester_offering_list );
 
-	registration->registration_tuition_payment_list =
+	registration->tuition_payment_list =
 		registration_tuition_payment_list(
 			registration_enrollment_list );
 
-	registration->registration_tuition_payment_total =
+	registration->tuition_payment_total =
 		registration_tuition_payment_total(
-			registration->registration_tuition_payment_list );
+			registration->tuition_payment_list );
 
-	registration->registration_invoice_amount_due =
+	registration->invoice_amount_due =
 		registration_invoice_amount_due(
-			registration->registration_tuition,
-			registration->registration_tuition_payment_total );
+			registration->tuition,
+			registration->tuition_payment_total );
 
 	return registration;
 }

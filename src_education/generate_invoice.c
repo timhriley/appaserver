@@ -79,7 +79,8 @@ void generate_invoice(	char *application_name,
 			int year,
 			char *output_option );
 
-LIST *generate_invoice_line_item_list(
+boolean generate_invoice_line_item_list(
+			LIST *invoice_line_item_list,
 			LIST *enrollment_list );
 
 LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
@@ -196,6 +197,7 @@ LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
 	LATEX_INVOICE_CUSTOMER *invoice_customer;
 	char registration_date[ 16 ];
 	char invoice_key[ 128 ];
+	ENTITY *student_entity;
 
 	if ( !registration )
 	{
@@ -210,49 +212,61 @@ LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
 			0,
 			registration->registration_date_time ) );
 
+	if ( ! ( student_entity =
+			entity_fetch( 
+				registration->student_full_name,
+				registration->street_address ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: entity_fetch(%s/%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			registration->student_full_name,
+			registration->street_address );
+		exit( 1 );
+	}
+
 	invoice_customer =
 		latex_invoice_customer_new(
-			strdup( invoice_key ),
-			strdup( registration->student_full_name ),
-			strdup( registration->street_address ),
-			strdup( "" ) /* suite_number */,
-			strdup( "" ) /* city */,
-			strdup( "" ) /* state_code */,
-			strdup( "" ) /* zip_code */,
-			(char *)0 /* customer_service_key */,
-			0.0 /* sales_tax */,
-			0.0 /* shipping_charge */,
-			registration->
-				registration_tuition_payment_total
-					/* total_payment */ );
+			student_entity->full_name,
+			student_entity->street_address,
+			student_entity->city,
+			student_entity->state_code,
+			student_entity->zip_code,
+			student_entity->phone_number,
+			student_entity->email_address );
 
 	return invoice_customer;
 }
 
-LIST *generate_invoice_line_item_list(
+boolean generate_invoice_line_item_list(
+			LIST *invoice_line_item_list,
 			LIST *enrollment_list )
 {
 	ENROLLMENT *enrollment;
-	LIST *line_item_list;
 
-	if ( !list_rewind( enrollment_list ) ) return (LIST *)0;
-
-	line_item_list = list_new();
+	if ( !list_rewind( enrollment_list ) ) return 0;
 
 	do {
 		enrollment = list_get( enrollment_list );
 
-		latex_invoice_append_line_item(
-			line_item_list,
-			(char *)0 /* item_key */,
-			enrollment->offering->course->course_name /* item */,
-			1.0 /* quantity */,
-			enrollment->offering->course_price /* retail_price */,
-			0.0 /* discount_amount */ );
+		invoice_line_item_list =
+			latex_invoice_line_item_set(
+				invoice_line_item_list,
+				(char *)0 /* item_key */,
+				enrollment->offering->course->course_name
+					/* item_name */,
+				1.0	/* quantity */,
+				enrollment->offering->course_price
+					/* retail_price */,
+				0.0	/* discount_amount */,
+				enrollment->offering->course_price
+					/* extended_price */ );
 
 	} while ( list_next( enrollment_list ) );
 
-	return line_item_list;
+	return 1;
 }
 
 void generate_invoice(		char *application_name,
@@ -394,7 +408,7 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 			year,
 	 		application_constants_safe_fetch(
 				application_constants->dictionary,
-				PREDICTIVE_LOGO_FILENAME_KEY ) );
+				PREDICTIVE_LOGO_FILENAME_KEY ) ) )
 	{
 		printf( "<h3>Please choose a Registration.</h3>\n" );
 		fclose( output_stream );
@@ -575,13 +589,10 @@ boolean build_latex_invoice(	FILE *output_stream,
 				char *predictive_logo_filename )
 {
 	LATEX_INVOICE *latex_invoice;
-	TABLE *table;
 	ENTITY_SELF *self;
 	char *todays_date;
 	REGISTRATION *registration;
 	char title[ 128 ];
-
-	table = table_new();
 
 	if ( ! ( self = entity_self_load() ) )
 	{
@@ -632,13 +643,15 @@ boolean build_latex_invoice(	FILE *output_stream,
 
 	if ( !generate_invoice_line_item_list(
 			latex_invoice->invoice_line_item_list,
-			registration->
-			     registration_enrollment_list ) ) )
+			registration->enrollment_list ) )
 	{
 		printf( "<H3>Error: Registration has no enrollments.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
+
+	latex_invoice->extended_price_total = registration->tuition;
+	latex_invoice->total_payment = registration->tuition_payment_total;
 
 	latex_invoice->exists_discount_amount =
 		latex_invoice_exists_discount_amount(
@@ -646,6 +659,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 
 	latex_invoice_output_invoice_header(
 		output_stream,
+		latex_invoice->invoice_key,
 		latex_invoice->invoice_date,
 		latex_invoice->line_item_key_heading,
 		latex_invoice->invoice_self,
@@ -664,7 +678,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 				latex_invoice->invoice_line_item_list ),
 			LATEX_INVOICE_QUANTITY_DECIMAL_PLACES );
 
-	latex_invoice_output_invoice_line_item_list(
+	latex_invoice_output_line_item_list(
 		output_stream,
 		latex_invoice->
 			invoice_line_item_list,
@@ -672,25 +686,12 @@ boolean build_latex_invoice(	FILE *output_stream,
 		latex_invoice->omit_money,
 		latex_invoice->quantity_decimal_places );
 
-	if ( !omit_money )
-	{
-		latex_invoice_output_invoice_footer(
-			output_stream,
-			latex_invoice->extended_price_total,
-			latex_invoice->sales_tax,
-			latex_invoice->shipping_charge,
-			latex_invoice->total_payment,
-			latex_invoice->line_item_key_heading,
-			latex_invoice->exists_discount_amount,
-			workorder /* is_estimate */ );
-	}
-
 	latex_invoice_output_invoice_footer(
 		output_stream,
-		latex_invoice->invoice_customer->extended_price_total,
-		latex_invoice->invoice_customer->sales_tax,
-		latex_invoice->invoice_customer->shipping_charge,
-		latex_invoice->invoice_customer->total_payment,
+		latex_invoice->extended_price_total,
+		latex_invoice->sales_tax,
+		latex_invoice->shipping_charge,
+		latex_invoice->total_payment,
 		latex_invoice->line_item_key_heading,
 		latex_invoice->exists_discount_amount,
 		0 /* not is_estimate */ );
