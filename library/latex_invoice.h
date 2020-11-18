@@ -11,7 +11,7 @@
 /* Constants */
 /* --------- */
 #define LATEX_EXTENSION( quantity, retail_price, discount_amount )	\
-				( quantity * retail_price - discount_amount )
+			( quantity * retail_price - discount_amount )
 
 #define LATEX_INVOICE_QUANTITY_DECIMAL_PLACES	4
 
@@ -20,21 +20,22 @@
 typedef struct
 {
 	char *item_key;
-	char *item;
+	char *item_name;
 	double quantity;
 	double retail_price;
 	double discount_amount;
+	double extended_price;
 } LATEX_INVOICE_LINE_ITEM;
 
 typedef struct
 {
-	char *invoice_key;
-	char *name;
+	char *full_name;
 	char *street_address;
-	char *suite_number;
 	char *city;
-	char *state;
+	char *state_code;
 	char *zip_code;
+	char *phone_number;
+	char *email_address;
 } LATEX_INVOICE_CUSTOMER;
 
 typedef struct
@@ -50,21 +51,30 @@ typedef struct
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
+	char *invoice_key;
 	char *invoice_date;
 	char *line_item_key_heading;
-	LATEX_INVOICE_SELF *latex_invoice_self;
-	LATEX_INVOICE_CUSTOMER *latex_invoice_customer;
+	LATEX_INVOICE_SELF *invoice_self;
+	LATEX_INVOICE_CUSTOMER *invoice_customer;
 	char *customer_service_key;
-	LIST *invoice_line_item_list;
 	double sales_tax;
 	double shipping_charge;
 	double total_payment;
 	double extended_price_total;
-	boolean exists_discount_amount;
 	boolean omit_money;
-	int quantity_decimal_places;
 	char *instructions;
-	/* LIST *extra_label_list; */
+	boolean is_estimate;
+	LIST *extra_label_list;
+
+	/* Process */
+	/* ------- */
+	boolean exists_discount_amount;
+	boolean each_quantity_integer;
+	boolean exists_extended_price;
+	boolean quantity_decimal_places;
+	LIST *invoice_line_item_list;
 } LATEX_INVOICE;
 
 /* Operations */
@@ -77,41 +87,43 @@ LATEX_INVOICE *latex_invoice_new(
 			char *self_state_code,
 			char *self_zip_code,
 			char *self_phone_number,
-			char *self_email_address,
-			char *line_item_key_heading,
-			char *instructions );
+			char *self_email_address );
 
 LATEX_INVOICE_CUSTOMER *latex_invoice_customer_new(
 			char *customer_full_name,
 			char *customer_street_address,
 			char *customer_city,
-			char *customer_state,
+			char *customer_state_code,
 			char *customer_zip_code,
-			char *customer_service_key );
+			char *customer_phone_number,
+			char *customer_email_address );
 
-void latex_invoice_line_item_list_free(
-			LIST  *line_item_list )
+LATEX_INVOICE_SELF *
+	latex_invoice_self_new(
+			char *full_name,
+			char *street_address,
+			char *city,
+			char *state_code,
+			char *zip_code,
+			char *phone_number,
+			char *email_address );
 
-/* Returns (quantity * retail_price ) - discount_amount */
-/* ---------------------------------------------------- */
-double latex_invoice_append_line_item(
+LIST *latex_invoice_line_item_set(
 			LIST *invoice_line_item_list,
 			char *item_key,
-			char *item,
+			char *item_name,
 			double quantity,
 			double retail_price,
-			double discount_amount );
+			double discount_amount,
+			double extended_price );
 
 LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
 			char *item_key,
-			char *item,
+			char *item_name,
 			double quantity,
 			double retail_price,
-			double discount_amount );
-
-void latex_invoice_line_item_free(
-			LATEX_INVOICE_LINE_ITEM *
-				latex_invoice_line_item );
+			double discount_amount,
+			double extended_price );
 
 void latex_invoice_output_header(
 			FILE *output_stream );
@@ -120,13 +132,16 @@ void latex_invoice_output_footer(
 			FILE *output_stream,
 			boolean with_customer_signature );
 
-void latex_invoice_output_invoice_header(FILE *output_stream,
+void latex_invoice_output_invoice_header(
+			FILE *output_stream,
+			char *invoice_key,
 			char *invoice_date,
 			char *line_item_key_heading,
 			LATEX_INVOICE_SELF *
 				latex_invoice_self,
 	       		LATEX_INVOICE_CUSTOMER *
 				latex_invoice_customer,
+			char *customer_service_key,
 			boolean exists_discount_amount,
 			char *title,
 			boolean omit_money,
@@ -134,7 +149,7 @@ void latex_invoice_output_invoice_header(FILE *output_stream,
 			char *instructions,
 			LIST *extra_label_list );
 
-void latex_invoice_output_invoice_line_items(
+void latex_invoice_output_line_item_list(
 			FILE *output_stream,
 			LIST *invoice_line_item_list,
 			boolean exists_discount_amount,
@@ -151,11 +166,29 @@ void latex_invoice_output_invoice_footer(
 			boolean exists_discount_amount,
 			boolean is_estimate );
 
-boolean latex_invoice_get_exists_discount_amount(
+boolean latex_invoice_exists_discount_amount(
 			LIST *invoice_line_item_list );
 
 boolean latex_invoice_each_quantity_integer(
 			LIST *invoice_line_item_list );
+
+boolean latex_invoice_exists_extended_price(
+			LIST *invoice_line_item_list );
+
+int latex_invoice_quantity_decimal_places(
+			boolean each_quantity_integer,
+			int default_quantity_decimal_places );
+
+/* Returns heap memory */
+/* ------------------- */
+char *latex_invoice_header_text_line(
+			boolean exists_discount_amount,
+			boolean omit_money );
+
+/* Returns heap memory */
+/* ------------------- */
+char *latex_invoice_header_format_line(
+			boolean exists_discount_amount );
 
 #endif
 

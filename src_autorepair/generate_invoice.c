@@ -286,7 +286,7 @@ int main( int argc, char **argv )
 
 	exit( 0 );
 
-} /* main() */
+}
 
 void output_invoice_window(
 			char *application_name,
@@ -315,7 +315,7 @@ void output_invoice_window(
 		ftp_output_filename,
 		window_label );
 	fflush( stdout );
-} /* output_invoice_window() */
+}
 
 boolean build_latex_invoice(	FILE *output_stream,
 				char *application_name,
@@ -403,20 +403,19 @@ boolean build_latex_invoice(	FILE *output_stream,
 
 	todays_date = pipe2string( "now.sh full 0" );
 
-	latex_invoice = latex_invoice_new(
-				strdup( todays_date ),
-				self->entity->full_name,
-				self->entity->street_address,
-				(char *)0 /* unit */,
-				self->entity->city,
-				self->entity->state_code,
-				self->entity->zip_code,
-				self->entity->phone_number,
-				self->entity->email_address,
-				strdup( "" ) /* line_item_key_heading */,
-				customer_sale->symptom /* instructions */,
-				extra_label_list );
+	latex_invoice =
+		latex_invoice_new(
+			strdup( todays_date ),
+			self->entity->full_name,
+			self->entity->street_address,
+			self->entity->city,
+			self->entity->state_code,
+			self->entity->zip_code,
+			self->entity->phone_number,
+			self->entity->email_address );
 
+	latex_invoice->instructions = customer_sale->symptom;
+	latex_invoice->extra_label_list = extra_label_list;
 	latex_invoice->omit_money = omit_money;
 
 	latex_invoice_output_header( output_stream );
@@ -432,37 +431,31 @@ boolean build_latex_invoice(	FILE *output_stream,
 			vehicle_trim,
 			vehicle_year );
 
-	if ( ! ( latex_invoice->invoice_customer->extension_total =
-			populate_line_item_list(
-				latex_invoice->
-					invoice_customer->
-					invoice_line_item_list,
-				application_name,
-				full_name,
-				street_address,
-				sale_date_time,
-				customer_sale->completed_date_time ) ) )
+	if ( !populate_line_item_list(
+			latex_invoice->invoice_line_item_list,
+			application_name,
+			full_name,
+			street_address,
+			sale_date_time,
+			customer_sale->completed_date_time ) )
 	{
 		printf( "<H3>Error: no line items for this invoice.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
 
-	latex_invoice->invoice_customer->exists_discount_amount =
-		latex_invoice_get_exists_discount_amount(
-			latex_invoice->
-				invoice_customer->
-				invoice_line_item_list );
+	latex_invoice->exists_discount_amount =
+		latex_invoice_exists_discount_amount(
+			latex_invoice->invoice_line_item_list );
 
 	latex_invoice_output_invoice_header(
 			output_stream,
+			latex_invoice->invoice_key,
 			latex_invoice->invoice_date,
 			latex_invoice->line_item_key_heading,
-			&latex_invoice->invoice_company,
+			latex_invoice->invoice_company,
 			latex_invoice->invoice_customer,
-			latex_invoice->
-				invoice_customer->
-				exists_discount_amount,
+			latex_invoice->exists_discount_amount,
 			title,
 			latex_invoice->omit_money,
 		 	application_constants_safe_fetch(
@@ -471,20 +464,16 @@ boolean build_latex_invoice(	FILE *output_stream,
 			latex_invoice->instructions,
 			latex_invoice->extra_label_list );
 
-	if ( latex_invoice_each_quantity_integer(
-		latex_invoice->invoice_customer->invoice_line_item_list ) )
-	{
-		latex_invoice->quantity_decimal_places = 0;
-	}
+	latex_invoice->quantity_decimal_places =
+		latex_invoice_quantity_decimal_places(
+			latex_invoice_each_quantity_integer(
+				latex_invoice->invoice_line_item_list ),
+			LATEX_INVOICE_QUANTITY_DECIMAL_PLACES );
 
 	latex_invoice_output_invoice_line_items(
 		output_stream,
-		latex_invoice->
-			invoice_customer->
-			invoice_line_item_list,
-		latex_invoice->
-			invoice_customer->
-			exists_discount_amount,
+		latex_invoice->invoice_line_item_list,
+		latex_invoice->exists_discount_amount,
 		latex_invoice->omit_money,
 		latex_invoice->quantity_decimal_places );
 
@@ -497,9 +486,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 			latex_invoice->invoice_customer->shipping_charge,
 			latex_invoice->invoice_customer->total_payment,
 			latex_invoice->line_item_key_heading,
-				latex_invoice->
-					invoice_customer->
-					exists_discount_amount,
+			latex_invoice->exists_discount_amount,
 			workorder /* is_estimate */ );
 	}
 
@@ -507,15 +494,9 @@ boolean build_latex_invoice(	FILE *output_stream,
 		output_stream,
 		workorder /* with_customer_signature */ );
 
-	latex_invoice_customer_free(
-		latex_invoice->invoice_customer );
-
-	latex_invoice_company_free( &latex_invoice->invoice_company );
-	latex_invoice_free( latex_invoice );
-
 	return 1;
 
-} /* build_latex_invoice() */
+}
 
 LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 				char *application_name,
@@ -574,7 +555,7 @@ LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 
 	return invoice_customer;
 
-} /* get_invoice_customer() */
+}
 
 double populate_line_item_list(
 			LIST *invoice_line_item_list,
@@ -622,26 +603,7 @@ double populate_line_item_list(
 	pclose( input_pipe );
 	return extension_total;
 
-} /* populate_line_item_list() */
-
-#ifdef NOT_DEFINED
-char *get_order_date_international( char *order_date )
-{
-	DATE_CONVERT *date;
-	static char order_date_international[ 16 ];
-
-	/* Source American */
-	/* --------------- */
-	date = date_convert_new_date_convert( 
-				international,
-				order_date );
-
-	strcpy( order_date_international, date->return_date );
-	date_convert_free( date );
-	return order_date_international;
-
-} /* get_order_date_international() */
-#endif
+}
 
 boolean get_vehicle_information(
 				char **vehicle_make,
@@ -697,5 +659,5 @@ boolean get_vehicle_information(
 
 	return 1;
 
-} /* get_vehicle_information() */
+}
 

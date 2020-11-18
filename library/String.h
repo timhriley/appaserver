@@ -56,6 +56,10 @@ char *string_escape_quote_dollar(
 			char *destination,
 			char *source );
 
+char *string_escape_full(
+			char *destination,
+			char *source );
+
 char *string_escape(
 			char *destination,
 			char *source,
@@ -92,5 +96,19 @@ char *string_escape_character(
 			char *destination,
 			char *data,
 			int character_to_escape );
+
+char *string_commas_rounded_dollar(
+			double d );
+
+char *string_commas_dollar(
+			double d );
+
+char *string_commas_money(
+			double d );
+
+/* Returns heap memory of 3 decimal places */
+/* --------------------------------------- */
+char *string_commas_double(
+			double d );
 
 #endif

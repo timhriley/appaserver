@@ -125,4 +125,9 @@ char appaserver_get_aggregation_sum_yn(
 				char *appaserver_mount_point,
 				char *datatype );
 
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_escape_street_address(
+			char *street_address );
+
 #endif

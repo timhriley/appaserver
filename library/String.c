@@ -11,6 +11,9 @@
 #include <stdlib.h>
 #include "boolean.h"
 #include "list.h"
+#include "float.h"
+#include "timlib.h"
+#include "piece.h"
 #include "String.h"
 
 /* Class variables */
@@ -343,6 +346,16 @@ char *string_escape_quote(
 			source );
 }
 
+char *string_escape_full(
+			char *destination,
+			char *source )
+{
+	return string_escape_character_array(
+			destination,
+			source,
+			"$'#" /* character_array */ );
+}
+
 char *string_escape_quote_dollar(
 			char *destination,
 			char *source )
@@ -465,5 +478,79 @@ char *string_escape_character(
 	}
 	*destination = '\0';
 	return anchor;
+}
+
+char *string_commas_rounded_dollar( double d )
+{
+	char s[ 20 ];
+
+	sprintf( s, "%.0lf", round_double( d ) );
+	return place_commas_in_number_string( s );
+
+}
+
+char *string_commas_money( double d )
+{
+	return string_commas_dollar( d );
+}
+
+char *string_commas_dollar( double d )
+{
+	char *results;
+
+	/* Returns static memory of 3 decimal places */
+	/* ----------------------------------------- */
+	results = string_commas_double( d );
+	*( results + strlen( results ) - 1 ) = '\0';
+	return results;
+}
+
+/* Returns heap memory of 3 decimal places */
+/* --------------------------------------- */
+char *string_commas_double( double d )
+{
+	char integer_part[ 64 ];
+	char buffer[ 64 ];
+	char decimal_part[ 8 ];
+	char d_string[ 128 ];
+	char reversed_integer[ 64 ];
+	char *reversed_integer_pointer = reversed_integer;
+	char *integer_part_pointer;
+	int counter = 0;
+	char destination[ 1024 ];
+
+	/* Sometimes, d is -0.0 */
+	/* -------------------- */
+	if ( double_virtually_same( d, 0.0 ) ) d = 0.0;
+
+	sprintf( d_string, "%.3lf", d );
+
+	piece( integer_part, '.', d_string, 0 );
+	piece( decimal_part, '.', d_string, 1 );
+ 
+	integer_part_pointer = integer_part + strlen( integer_part ) - 1;
+
+	while( integer_part_pointer >= integer_part )
+	{
+		*reversed_integer_pointer++ = *integer_part_pointer;
+
+		if ( integer_part_pointer > integer_part
+		&&   *(integer_part_pointer - 1) != '-' )
+		{
+			if ( !(++counter % 3 ) )
+			{
+				if ( integer_part_pointer != integer_part )
+				{
+					*reversed_integer_pointer++ = ',';
+				}
+			}
+		}
+		integer_part_pointer--;
+	}
+	*reversed_integer_pointer = '\0';
+	reverse_string( buffer, reversed_integer );
+	sprintf( destination, "%s.%s", buffer, decimal_part );
+
+	return strdup( destination );
 }
 

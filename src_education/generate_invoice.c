@@ -574,6 +574,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 				int year,
 				char *predictive_logo_filename )
 {
+	LATEX_INVOICE *latex_invoice;
 	TABLE *table;
 	ENTITY_SELF *self;
 	char *todays_date;
@@ -609,22 +610,16 @@ boolean build_latex_invoice(	FILE *output_stream,
 
 	todays_date = pipe2string( "now.sh full 0" );
 
-#ifdef NOT_DEFINED
-	LATEX_INVOICE *latex_invoice;
 	latex_invoice =
 		latex_invoice_new(
 			strdup( todays_date ),
 			self->entity->full_name,
 			self->entity->street_address,
-			(char *)0 /* unit */,
 			self->entity->city,
 			self->entity->state_code,
 			self->entity->zip_code,
 			self->entity->phone_number,
-			self->entity->email_address,
-			strdup( "" ) /* line_item_key_heading */,
-			(char *)0 /* instructions */,
-			(LIST *)0 /* extra_label_list */ );
+			self->entity->email_address );
 
 	if ( ! ( latex_invoice->invoice_customer =
 			generate_invoice_customer(
@@ -635,72 +630,75 @@ boolean build_latex_invoice(	FILE *output_stream,
 
 	latex_invoice_output_header( output_stream );
 
-	if ( ! ( latex_invoice->
-			invoice_customer->
-			invoice_line_item_list =
-				generate_invoice_line_item_list(
-					registration->
-					     registration_enrollment_list ) ) )
+	if ( !generate_invoice_line_item_list(
+			latex_invoice->invoice_line_item_list,
+			registration->
+			     registration_enrollment_list ) ) )
 	{
 		printf( "<H3>Error: Registration has no enrollments.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
 
+	latex_invoice->exists_discount_amount =
+		latex_invoice_exists_discount_amount(
+			latex_invoice->invoice_line_item_list );
+
 	latex_invoice_output_invoice_header(
 		output_stream,
 		latex_invoice->invoice_date,
 		latex_invoice->line_item_key_heading,
-		&latex_invoice->invoice_company,
+		latex_invoice->invoice_self,
 		latex_invoice->invoice_customer,
-		latex_invoice->
-			invoice_customer->
-			exists_discount_amount,
+		latex_invoice->customer_service_key,
+		latex_invoice->exists_discount_amount,
 		title,
 		latex_invoice->omit_money,
 		predictive_logo_filename,
 		latex_invoice->instructions,
 		latex_invoice->extra_label_list );
 
-	if ( latex_invoice_each_quantity_integer(
-		latex_invoice->invoice_customer->invoice_line_item_list ) )
-	{
-		latex_invoice->quantity_decimal_places = 0;
-	}
+	latex_invoice->quantity_decimal_places =
+		latex_invoice_quantity_decimal_places(
+			latex_invoice_each_quantity_integer(
+				latex_invoice->invoice_line_item_list ),
+			LATEX_INVOICE_QUANTITY_DECIMAL_PLACES );
 
-	latex_invoice_output_invoice_line_items(
+	latex_invoice_output_invoice_line_item_list(
 		output_stream,
 		latex_invoice->
-			invoice_customer->
 			invoice_line_item_list,
-		latex_invoice->
-			invoice_customer->
-			exists_discount_amount,
+		latex_invoice->exists_discount_amount,
 		latex_invoice->omit_money,
 		latex_invoice->quantity_decimal_places );
 
-	latex_invoice_output_invoice_footer(
+	if ( !omit_money )
+	{
+		latex_invoice_output_invoice_footer(
 			output_stream,
-			latex_invoice->invoice_customer->extension_total,
-			latex_invoice->invoice_customer->sales_tax,
-			latex_invoice->invoice_customer->shipping_charge,
-			latex_invoice->invoice_customer->total_payment,
+			latex_invoice->extended_price_total,
+			latex_invoice->sales_tax,
+			latex_invoice->shipping_charge,
+			latex_invoice->total_payment,
 			latex_invoice->line_item_key_heading,
-				latex_invoice->
-					invoice_customer->
-					exists_discount_amount,
-			0 /* not is_estimate */ );
+			latex_invoice->exists_discount_amount,
+			workorder /* is_estimate */ );
+	}
+
+	latex_invoice_output_invoice_footer(
+		output_stream,
+		latex_invoice->invoice_customer->extended_price_total,
+		latex_invoice->invoice_customer->sales_tax,
+		latex_invoice->invoice_customer->shipping_charge,
+		latex_invoice->invoice_customer->total_payment,
+		latex_invoice->line_item_key_heading,
+		latex_invoice->exists_discount_amount,
+		0 /* not is_estimate */ );
 
 	latex_invoice_output_footer(
 		output_stream,
 		0 /* not with_customer_signature */ );
 
-	/* Needs all strdups() */
-	/* ------------------- */
-	/* latex_invoice_company_free( &latex_invoice->invoice_company ); */
-
-	latex_invoice_free( latex_invoice );
-#endif
 
 	return 1;
 }

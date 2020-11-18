@@ -194,7 +194,8 @@ boolean build_latex_invoice(	FILE *output_stream,
 				char *camp_title,
 				char *full_name,
 				char *street_address,
-				DICTIONARY *application_constants_dictionary )
+				DICTIONARY *application_constants_dictionary,
+				double extended_price_total )
 {
 	LATEX_INVOICE *latex_invoice;
 	ENTITY_SELF *self;
@@ -243,15 +244,13 @@ boolean build_latex_invoice(	FILE *output_stream,
 				strdup( todays_date ),
 				self->entity->full_name,
 				self->entity->street_address,
-				(char *)0 /* unit */,
 				self->entity->city,
 				self->entity->state_code,
 				self->entity->zip_code,
 				self->entity->phone_number,
-				self->entity->email_address,
-				strdup( "" ) /* line_item_key_heading */,
-				(char *)0 /* instructions */,
-				(LIST *)0 /* extra_label_list */ );
+				self->entity->email_address );
+
+	latex_invoice->extended_price_total = extended_price_total;
 
 	if ( ! ( latex_invoice->invoice_customer =
 			generate_invoice_customer(
@@ -260,30 +259,31 @@ boolean build_latex_invoice(	FILE *output_stream,
 		return 0;
 	}
 
-	latex_invoice_output_header( output_stream );
-
-	if ( ! ( latex_invoice->invoice_customer->extension_total =
-			generate_invoice_populate_line_item_list(
-				latex_invoice->
-					invoice_customer->
-					invoice_line_item_list,
-				camp->enrollment_cost,
-				camp->camp_enrollment ) ) )
+	if ( !generate_invoice_populate_line_item_list(
+			latex_invoice->invoice_line_item_list,
+			camp->enrollment_cost,
+			camp->camp_enrollment ) ) )
 	{
 		printf( "<H3>Error: No camp to generate.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
 
+	latex_invoice_output_header( output_stream );
+
+	latex_invoice->exists_discount_amount =
+		latex_invoice_exists_discount_amount(
+			latex_invoice->invoice_line_item_list );
+
 	latex_invoice_output_invoice_header(
 		output_stream,
+		latex_invoice->invoice_key,
 		latex_invoice->invoice_date,
 		latex_invoice->line_item_key_heading,
-		&latex_invoice->invoice_company,
+		latex_invoice->invoice_self,
 		latex_invoice->invoice_customer,
-		latex_invoice->
-			invoice_customer->
-			exists_discount_amount,
+		latex_invoice->customer_service_key,
+		latex_invoice->exists_discount_amount,
 		title,
 		latex_invoice->omit_money,
 	 	application_constants_safe_fetch(
@@ -292,47 +292,34 @@ boolean build_latex_invoice(	FILE *output_stream,
 		latex_invoice->instructions,
 		latex_invoice->extra_label_list );
 
-	if ( latex_invoice_each_quantity_integer(
-		latex_invoice->invoice_customer->invoice_line_item_list ) )
-	{
-		latex_invoice->quantity_decimal_places = 0;
-	}
+	latex_invoice->quantity_decimal_places =
+		latex_invoice_quantity_decimal_places(
+			latex_invoice_each_quantity_integer(
+				latex_invoice->invoice_line_item_list ),
+			LATEX_INVOICE_QUANTITY_DECIMAL_PLACES );
 
 	latex_invoice_output_invoice_line_items(
 		output_stream,
-		latex_invoice->
-			invoice_customer->
-			invoice_line_item_list,
-		latex_invoice->
-			invoice_customer->
-			exists_discount_amount,
+		latex_invoice->invoice_line_item_list,
+		latex_invoice->exists_discount_amount,
 		latex_invoice->omit_money,
 		latex_invoice->quantity_decimal_places );
 
 	latex_invoice_output_invoice_footer(
-			output_stream,
-			latex_invoice->invoice_customer->extension_total,
-			latex_invoice->invoice_customer->sales_tax,
-			latex_invoice->invoice_customer->shipping_charge,
-			latex_invoice->invoice_customer->total_payment,
-			latex_invoice->line_item_key_heading,
-				latex_invoice->
-					invoice_customer->
-					exists_discount_amount,
-			0 /* not is_estimate */ );
+		output_stream,
+		latex_invoice->extended_price_total,
+		latex_invoice->sales_tax,
+		latex_invoice->shipping_charge,
+		latex_invoice->total_payment,
+		latex_invoice->line_item_key_heading,
+		latex_invoice->exists_discount_amount,
+		0 /* not is_estimate */ );
 
 	latex_invoice_output_footer(
 		output_stream,
 		0 /* not with_customer_signature */ );
 
-	/* Needs all strdups() */
-	/* ------------------- */
-	/* latex_invoice_company_free( &latex_invoice->invoice_company ); */
-
-	latex_invoice_free( latex_invoice );
-
 	return 1;
-
 }
 
 LATEX_INVOICE_CUSTOMER *generate_invoice_customer(

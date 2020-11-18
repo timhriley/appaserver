@@ -27,14 +27,15 @@ fixed_service_sale=`get_table_name $application fixed_service_sale`
 hourly_service_sale=`get_table_name $application hourly_service_sale`
 hourly_service_work=`get_table_name $application hourly_service_work`
 
-inventory_sale_select="inventory_name,quantity,retail_price,discount_amount"
+inventory_sale_select="inventory_name,quantity,retail_price,discount_amount,extended_price"
 
-fixed_service_sale_select="service_name,'1',retail_price,discount_amount"
+fixed_service_sale_select="service_name,'1',retail_price,discount_amount,extended_price"
 
 hourly_service_sale_select="	concat( service_name, '--', description ),
 				estimated_hours,
 				hourly_rate,
-				'0'"
+				'0',
+				extended_price"
 
 hourly_service_work_select="	concat( ${hourly_service_work}.description,
 				' from: ',
@@ -43,7 +44,8 @@ hourly_service_work_select="	concat( ${hourly_service_work}.description,
 				substr( end_work_date_time, 1, 16 ) ),
 				${hourly_service_work}.work_hours,
 				hourly_rate,
-				'0'"
+				'0',
+				extended_price"
 
 hourly_service_work_join="	hourly_service_work.full_name =
 				hourly_service_sale.full_name and

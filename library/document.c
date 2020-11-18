@@ -312,7 +312,7 @@ void document_output_javascript_source(
 		 	source_directory,
 		 	source_filename );
 		fflush( stdout );
-		system( buffer );
+		if ( system( buffer ) ){};
 		fflush( stdout );
 		printf( "</SCRIPT>\n" );
 	}
@@ -779,7 +779,7 @@ DOCUMENT *document_output_menu_new(
 					application_name ) );
 
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		fflush( stdout );
 		printf( "</ul>\n" );
 	}

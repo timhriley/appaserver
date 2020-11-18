@@ -505,7 +505,7 @@ void regression_remove_temp_file( char *temp_filename )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string, "rm -f %s", temp_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 } /* regression_remove_temp_file() */
 

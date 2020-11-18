@@ -20,6 +20,7 @@
 #include "environ.h"
 #include "appaserver_parameter_file.h"
 #include "hashtbl.h"
+#include "String.h"
 
 APPASERVER *appaserver_new_appaserver(
 		char *application_name,
@@ -41,7 +42,7 @@ APPASERVER *appaserver_new_appaserver(
 
 	return appaserver;
 
-} /* appaserver_new_appaserver() */
+}
 
 char *appaserver_get_delete_display_string(
 					char *folder_name,
@@ -89,7 +90,7 @@ char *appaserver_get_delete_display_string(
 
 	} while( list_next( related_folder_list ) );
 	return strdup( buffer );
-} /* appaserver_get_delete_display_string() */
+}
 
 LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
 					LIST *related_folder_list,
@@ -133,7 +134,7 @@ LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
 		} while( list_next( related_folder_list ) );
 	}
 	return return_list;
-} /* appaserver_remove_attribute_name_list_from_related_folder_list() */
+}
 
 LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 						LIST *related_folder_list,
@@ -177,7 +178,7 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 		} while( list_next( related_folder_list ) );
 	}
 	return return_list;
-} /* appaserver_include_attribute_name_list_in_related_folder_list() */
+}
 
 LIST *appaserver_get_exclude_permission_record_list(
 					char *application_name )
@@ -191,7 +192,7 @@ LIST *appaserver_get_exclude_permission_record_list(
 		 application_name );
 
 	return pipe2list( sys_string );
-} /* appaserver_get_exclude_permission_record_list() */
+}
 
 static LIST *global_exclude_permission_record_list = {0};
 
@@ -254,7 +255,7 @@ LIST *appaserver_get_exclude_permission_list(
 
 	return exclude_permission_list;
 
-} /* appaserver_get_exclude_permission_list() */
+}
 
 boolean appaserver_exclude_permission(	LIST *exclude_permission_list,
 					char *permission )
@@ -271,7 +272,7 @@ boolean appaserver_exclude_permission(	LIST *exclude_permission_list,
 			return 1;
 	} while( list_next( exclude_permission_list ) );
 	return 0;
-} /* appaserver_exclude_permission() */
+}
 
 void appaserver_append_isa_related_attribute_list(
 					LIST *attribute_list,
@@ -293,7 +294,7 @@ void appaserver_append_isa_related_attribute_list(
 		} while( list_next( mto1_isa_related_folder_list ) );
 	}
 
-} /* appaserver_append_isa_related_attribute_list() */
+}
 
 LIST *appaserver_get_exclude_attribute_name_list(
 			LIST *attribute_list,
@@ -333,7 +334,7 @@ LIST *appaserver_get_exclude_attribute_name_list(
 
 	return exclude_attribute_name_list;
 
-} /* appaserver_get_exclude_attribute_name_list() */
+}
 
 boolean appaserver_frameset_menu_horizontal(
 						char *application_name,
@@ -360,7 +361,7 @@ boolean appaserver_frameset_menu_horizontal(
 
 	return return_value;
 
-} /* appaserver_frameset_menu_horizontal() */
+}
 
 LIST *appaserver_get_isa_folder_list( char *application_name )
 {
@@ -405,7 +406,7 @@ LIST *appaserver_get_isa_folder_list( char *application_name )
 	}
 	pclose( pipe );
 	return isa_folder_list;
-} /* appaserver_get_isa_folder_list() */
+}
 
 char *appaserver_isa_folder_list_display(
 				LIST *isa_folder_list )
@@ -443,7 +444,7 @@ char *appaserver_isa_folder_list_display(
 		} while( list_next( isa_folder_list ) );
 	}
 	return strdup( buffer );
-} /* appaserver_isa_folder_list_display() */
+}
 
 ISA_FOLDER *appaserver_new_isa_folder(	char *folder_name,
 					char *related_folder_name,
@@ -461,7 +462,7 @@ ISA_FOLDER *appaserver_new_isa_folder(	char *folder_name,
 	a->related_folder_name = related_folder_name;
 	a->related_attribute_name = related_attribute_name;
 	return a;
-} /* appaserver_new_isa_folder() */
+}
 
 int appaserver_isa_folder_accounted_for(
 				LIST *isa_folder_list,
@@ -499,7 +500,7 @@ int appaserver_isa_folder_accounted_for(
 
 	return 0;
 
-} /* appaserver_isa_folder_accounted_for() */
+}
 
 enum aggregate_statistic appaserver_based_on_datatype_get_aggregate_statistic(
 				char *application_name,
@@ -528,7 +529,7 @@ enum aggregate_statistic appaserver_based_on_datatype_get_aggregate_statistic(
 
 	return aggregate_statistic;
 
-} /* appaserver_based_on_datatype_get_aggregate_statistic() */
+}
 
 char appaserver_get_aggregation_sum_yn(
 				char *application,
@@ -554,5 +555,16 @@ char appaserver_get_aggregation_sum_yn(
 	{
 		return *results;
 	}
-} /* appaserver_get_aggregation_sum_yn() */
+}
+
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_escape_street_address( char *street_address )
+{
+	char escape_street_address[ 1024 ];
+
+	return strdup( string_escape_full(
+				escape_street_address,
+				street_address ) );
+}
 

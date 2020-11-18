@@ -1,9 +1,7 @@
-/* utility/table.c		         */
-/* ------------------------------------- */
-/* Utility program for TABLE ADT      	 */
-/* ------------------------------------- */
-/* Tim Riley				 */
-/* ------------------------------------- */
+/* $APPASERVER_HOME/utility/table.c	*/
+/* ------------------------------------ */
+/* Utility program for TABLE ADT       	*/
+/* ------------------------------------ */
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -120,7 +120,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	isolate_line.e delete_statement.e remove_duplicate_rows.e	\
 	trim_right_until_character.e					\
 	append_radio_html.e merge_n_groups.e 				\
-	commas_in_long.e each_week.e table.e				\
+	commas_in_long.e each_week.e					\
 	statistics_on_group.e range.e parse_post.e			\
 	decode_html_post.e dayofyear2date.e html_wrapper.e		\
 	date2dayofyear.e						\

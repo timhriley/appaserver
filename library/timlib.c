@@ -1689,7 +1689,7 @@ char *place_commas_in_number_string( char *s )
 
 	return r_ptr + 1;
 
-} /* place_commas_in_number_string()  */
+}
 
 char *place_commas_in_integer( int n )
 {
@@ -1698,7 +1698,7 @@ char *place_commas_in_integer( int n )
 	sprintf( s, "%d", n );
 	return place_commas_in_number_string( s );
 
-} /* place_commas_in_integer()  */
+}
 
 char *place_commas_in_unsigned_int( unsigned int n )
 {
@@ -1707,7 +1707,7 @@ char *place_commas_in_unsigned_int( unsigned int n )
 	sprintf( s, "%u", n );
 	return place_commas_in_number_string( s );
 
-} /* place_commas_in_unsigned_int()  */
+}
 
 char *place_commas_in_unsigned_long( unsigned long n )
 {
@@ -1716,7 +1716,7 @@ char *place_commas_in_unsigned_long( unsigned long n )
 	sprintf( s, "%lu", n );
 	return place_commas_in_number_string( s );
 
-} /* place_commas_in_unsigned_long() */
+}
  
 char *place_commas_in_long( long n )
 {
@@ -1725,7 +1725,7 @@ char *place_commas_in_long( long n )
 	sprintf( s, "%ld", n );
 	return place_commas_in_number_string( s );
 
-} /* place_commas_in_long() */
+}
 
 char *center( char *string, int screen_len )
 {
@@ -1746,7 +1746,7 @@ char *center( char *string, int screen_len )
 
         return line;
 
-} /* center() */
+}
 
 char *center_rpad( char *string, int screen_len )
 {
@@ -1767,7 +1767,7 @@ char *center_rpad( char *string, int screen_len )
 
         return line;
 
-} /* center_rpad() */
+}
 
 char *right( char *string, char *substr, int width )
 {
@@ -1785,7 +1785,7 @@ char *right( char *string, char *substr, int width )
 	strcpy( line + here, substr );
 	return line;
 
-} /* right() */
+}
 
 char *timlib_right_string( char *string, int width )
 {
@@ -1804,7 +1804,7 @@ char *timlib_right_string( char *string, int width )
 	*return_ptr = '\0';
 	return return_string;
 
-} /* timlib_right_string() */
+}
 
 
 char *get_date( char *d )
@@ -1813,7 +1813,7 @@ char *get_date( char *d )
 	get_line( d, p );
 	pclose( p );
 	return d;
-} /* get_date() */
+}
 
 char *get_system( char *sys_str )
 {
@@ -1840,7 +1840,7 @@ char *skip_spaces( char *s )
 {
 	while ( *s && isspace( *s ) ) s++;
 	return s;
-} /* skip_spaces() */
+}
 
 FILE *open_file( char *s, char *mode )
 {
@@ -1851,7 +1851,7 @@ FILE *open_file( char *s, char *mode )
 		exit( 1 );
 	}
 	return f;
-} /* open_file() */
+}
 
 char **pipe_list2list( char *pipe_list, int max_items )
 {
@@ -1863,7 +1863,7 @@ char **pipe_list2list( char *pipe_list, int max_items )
 	for( i = 0; piece( buffer, '|', pipe_list, i ); i++ )
 		*return_list_ptr++ = strdup( buffer );
 	return return_list;
-} /* pipe_list2list() */
+}
 
 char *double_quotes_around( char *destination, char *s )
 {
@@ -1907,13 +1907,13 @@ char *timlib_pad_spaces_to_justify_left( char *d, char *s, int size )
 	*end_ptr = '\0';
 */
 	return d;
-} /* timlib_pad_spaces_to_justify_left() */
+}
 
 char *timlib_pad_spaces_to_justify_right( char *d, char *s, int size )
 {
 	sprintf( d, "%*s", size, s );
 	return d;
-} /* timlib_pad_spaces_to_justify_right() */
+}
 
 double *linear_interpolate( 	double *buffer,
 				int x1,
@@ -1941,7 +1941,7 @@ double *linear_interpolate( 	double *buffer,
 
 	return anchor;
 
-} /* linear_interpolate() */
+}
 
 double timlib_atof( char *s )
 {
@@ -1974,7 +1974,7 @@ void timlib_atof_array( double *f_array, char *pipe_delimited_string )
 		piece( buffer, '|', pipe_delimited_string, i );
 		f_array[ i ] = atof( buffer );
 	}
-} /* timlib_atof_array() */
+}
 
 double get_percent_of_day( char *time_string )
 {
@@ -1998,7 +1998,7 @@ double get_percent_of_day( char *time_string )
 	minute = atoi( temp_buffer );
 	return time2day_percentage( hour, minute );
 
-} /* get_percent_of_day() */
+}
 
 
 double time2day_percentage( int hour, int minute )
@@ -2010,7 +2010,7 @@ double time2day_percentage( int hour, int minute )
 	minute_percentage = (double)minute / 1440.0;
 
 	return hour_percentage + minute_percentage;
-} /* time2day_percentage() */
+}
 
 double timlib_abs_double ( double f )
 {
@@ -2038,7 +2038,7 @@ void increment_time_one_hour( char *time_string )
 	new_hour = atoi( hour ) + 1;
 	sprintf( time_string, "%.2d%s", new_hour, minute );
 
-} /* increment_time_one_hour() */
+}
 
 int zap_file( char *filename )
 {
@@ -2179,7 +2179,7 @@ char *timlib_trim_money_characters( char *amount )
 
 	*ptr = '\0';
 	return destination;
-} /* timlib_trim_money_characters() */
+}
 
 char *escape_single_quote( char *data )
 {
@@ -2280,7 +2280,7 @@ char *timlib_string_array_display( char **string_array )
 		ptr += sprintf( ptr, "%s", *string_array++ );
 	}
 	return strdup( buffer );
-} /* timlib_string_array_display() */
+}
 
 int string_array_search_offset( char **string_array, char *search_string )
 {
@@ -2294,7 +2294,7 @@ int string_array_search_offset( char **string_array, char *search_string )
 		string_array++;
 	}
 	return -1;
-} /* string_array_search_offset() */
+}
 
 char *last_word_string( char *s )
 {
@@ -2314,7 +2314,7 @@ char *last_word_string( char *s )
 		end--;
 	}
 	return end;
-} /* last_word_string() */
+}
 
 int is_mnemonic( char *s )
 {
@@ -2373,7 +2373,7 @@ void search_replace_special_characters( char *buffer )
 	search_replace_string( buffer, "^", "+" );
 */
 
-} /* search_replace_special_characters() */
+}
 
 void escape_special_characters( char *data )
 {
@@ -2396,7 +2396,7 @@ void escape_special_characters( char *data )
 	strcpy( buffer, data );
 	escape_character( data, buffer, '`' );
 
-} /* escape_special_characters() */
+}
 
 char *mysql2american_date( char *date_buffer, char *mysql_date )
 {
@@ -2417,7 +2417,7 @@ char *mysql2american_date( char *date_buffer, char *mysql_date )
 
 	return date_buffer;
 
-} /* mysql2american_date() */
+}
 
 char *place_commas_in_double( double d )
 {
@@ -2427,7 +2427,7 @@ char *place_commas_in_double( double d )
 				d );
 	return destination;
 
-} /* place_commas_in_double() */
+}
  
 char *timlib_place_commas_in_dollars( double d )
 {
@@ -2436,7 +2436,7 @@ char *timlib_place_commas_in_dollars( double d )
 	sprintf( s, "%.0lf", round_double( d ) );
 	return place_commas_in_number_string( s );
 
-} /* timlib_place_commas_in_dollars()  */
+}
 
 char *timlib_commas_in_dollars( double d )
 {
@@ -2457,8 +2457,7 @@ char *place_commas_in_money( double d )
 	results = place_commas_in_double( d );
 	*( results + strlen( results ) - 1 ) = '\0';
 	return results;
-
-} /* place_commas_in_money() */
+}
 
 char *commas_in_double(		char *destination, 
 				double d )
@@ -2503,7 +2502,7 @@ char *commas_in_double(		char *destination,
 	reverse_string( buffer, reversed_integer );
 	sprintf( destination, "%s.%s", buffer, decimal_part );
 	return destination;
-} /* commas_in_double() */
+}
 
 char *reverse_string(			char *destination,
 					char *source )
@@ -2517,7 +2516,7 @@ char *reverse_string(			char *destination,
 	}
 	*destination = '\0';
 	return marker;
-} /* reverse_string() */
+}
 
 void make_single_quotes_double_single_quotes( char *d )
 {
@@ -2583,7 +2582,7 @@ void make_single_quotes_double_single_quotes( char *d )
 
 	*d = '\0';
 
-} /* make_single_quotes_double_single_quotes() */
+}
 
 boolean timlib_file_populated( char *filename )
 {
@@ -2601,7 +2600,7 @@ boolean timlib_file_populated( char *filename )
 	else
 		return atoi( return_string );
 
-} /* timlib_file_populated() */
+}
 
 char *timlib_mysql_date2ddmmyyyy(	char *destination,
 					char *source )
@@ -2655,7 +2654,7 @@ char *timlib_ora_date_to_yyyy_mm_dd( char *s )
 
 	return ret_buffer;
 
-} /* timlib_ora_date_to_yyyy_mm_dd() */
+}
 
 char *timlib_month_array[] = { 	"JAN",
 				"FEB",
@@ -2688,7 +2687,7 @@ char *timlib_get_three_character_month_string( int month_offset )
 		return timlib_month_array[ month_offset ];
 	}
 
-} /* timlib_get_three_character_month_string() */
+}
 
 char *timlib_full_month_array[] = {
 				"January",
@@ -2723,7 +2722,7 @@ int timlib_full_month2integer( char *full_month )
 		}
 	}
 	return -1;
-} /* timlib_full_month2integer() */
+}
 
 char *timlib_integer2full_month( int month_integer )
 {
@@ -2751,7 +2750,7 @@ int timlib_ora_month2integer( char *ora_month )
 		}
 	}
 	return 0;
-} /* timlib_ora_month2integer() */
+}
 
 char *timlib_yyyymmdd_to_oracle_format(	char *s )
 {
@@ -2781,7 +2780,7 @@ char *timlib_yyyymmdd_to_ora_date( char *s )
 
 	return ret_buffer;
 
-} /* timlib_yyyymmdd_to_ora_date() */
+}
 
 boolean timlib_exists_character( 	char *s,
 					char ch )
@@ -2830,7 +2829,7 @@ char *timlib_trim_double_quotes( char *s )
 
 	return s;
 
-} /* timlib_trim_double_quotes() */
+}
 
 boolean timlib_parse_database_string(	char **database_string,
 					char *application_name )
@@ -2846,7 +2845,7 @@ boolean timlib_parse_database_string(	char **database_string,
 		return 1;
 	}
 	return 0;
-} /* timlib_parse_database_string() */
+}
 
 #ifdef NOT_DEFINED
 char *timlib_get_parameter_application_name(
@@ -2869,7 +2868,7 @@ char *timlib_get_parameter_application_name(
 		return application_name;
 	}
 
-} /* timlib_get_parameter_application_name() */
+}
 #endif
 
 int timlib_get_x_increment_seconds(
@@ -2893,7 +2892,7 @@ int timlib_get_x_increment_seconds(
 		x_increment = 0.0;
 
 	return x_increment;
-} /* timlib_get_x_increment_seconds() */
+}
 
 double timlib_get_x_increment_days(
 				int expected_count_per_day,
@@ -2916,7 +2915,7 @@ double timlib_get_x_increment_days(
 		x_increment = 0.0;
 
 	return x_increment;
-} /* timlib_get_x_increment_days() */
+}
 
 double timlib_get_x_increment(	int expected_count_per_day,
 				enum aggregate_level aggregate_level )
@@ -2938,7 +2937,7 @@ double timlib_get_x_increment(	int expected_count_per_day,
 		x_increment = 0.0;
 
 	return x_increment;
-} /* timlib_get_x_increment() */
+}
 
 /* From "The C Programming Language" by Kernighan and Ritchie */
 /* ---------------------------------------------------------- */
@@ -2967,7 +2966,7 @@ char *timlib_integer2binary( unsigned integer )
 
 	return binary;
 
-} /* timlib_integer2binary() */
+}
 
 boolean timlib_string_until_character_matches(
 					char *source,
@@ -2981,7 +2980,7 @@ boolean timlib_string_until_character_matches(
 		if ( !*source ) return 0;
 	}
 	return 0;
-} /* timlib_string_until_character_matches() */
+}
 
 unsigned int timlib_factoral( int n )
 {
@@ -2989,7 +2988,7 @@ unsigned int timlib_factoral( int n )
 
 	while( n ) factoral *= n--;
 	return factoral;
-} /* timlib_factoral() */
+}
 
 char timlib_get_delimiter( char *string )
 {
@@ -3046,7 +3045,7 @@ int timlib_delimiter_independent_strcmp(
 		return 0;
 	else
 		return 1;
-} /* timlib_delimiter_independent_strcmp() */
+}
 
 char *timlib_in_clause(	LIST *data_list )
 {
@@ -3094,7 +3093,7 @@ char *timlib_get_in_clause( char *data_list_string )
 
 	return in_clause;
 
-} /* timlib_get_in_clause() */
+}
 
 boolean timlib_file_exists( char *filename )
 {
@@ -3124,7 +3123,7 @@ double timlib_latitude_longitude_degrees_minutes_to_decimal(
 	{
 		return ( atof( degrees ) + (atof( decimal ) / 60.0 ) );
 	}
-} /* timlib_latitude_longitude_degrees_minutes_to_decimal() */
+}
 
 char *timlib_latitude_longitude_degrees_decimal_to_minutes(
 					char *latitude_longitude_decimal )
@@ -3152,7 +3151,7 @@ char *timlib_latitude_longitude_degrees_decimal_to_minutes(
 	sprintf( degrees_minutes, "%s %.5lf", degrees, decimal_double );
 	return degrees_minutes;
 
-} /* timlib_latitude_longitude_degrees_decimal_to_minutes() */
+}
 
 void **timlib_allocate_pointer_array(
 				int array_pointer_size,
@@ -3180,7 +3179,7 @@ void **timlib_allocate_pointer_array(
 		pointer_array[ x ] = calloc( 1, item_pointer_size );
 	}
 	return pointer_array;
-} /* timlib_allocate_pointer_array() */
+}
 
 int timlib_strncmp( char *s1, char *s2 )
 {
@@ -3193,7 +3192,7 @@ int timlib_strncmp( char *s1, char *s2 )
 	str_len2 = strlen( s2 );
 	return strncasecmp( s1, s2, str_len2 );
 
-} /* timlib_strncmp() */
+}
 
 /* Returns 1 for yes, did some padding or 0 for no, didn't pad any. */
 /* ---------------------------------------------------------------- */
@@ -3212,7 +3211,7 @@ boolean timlib_pad_time_four( char *time_string )
 
 	strcpy( time_string, buffer );
 	return 1;
-} /* timlib_pad_time_four() */
+}
 
 int timlib_sum_delimited_string(char *string,
 				char delimiter,
@@ -3236,7 +3235,7 @@ int timlib_sum_delimited_string(char *string,
 	}
 
 	return sum;
-} /* timlib_sum_delimited_string() */
+}
 
 char *timlib_character_pad(		char delimiter,
 					int column_count )
@@ -3250,7 +3249,7 @@ char *timlib_character_pad(		char delimiter,
 	*ptr = '\0';
 	return buffer;
 
-} /* timlib_character_pad() */
+}
 
 int timlib_get_seed( void )
 {
@@ -3258,7 +3257,7 @@ int timlib_get_seed( void )
 
 	seed = atoi( pipe2string( "now.sh hhmmss" ) );
 	return seed;
-} /* timlib_get_seed() */
+}
 
 char *timlib_strncpy( char *s1, char *s2, int count )
 {
@@ -3267,7 +3266,7 @@ char *timlib_strncpy( char *s1, char *s2, int count )
 	results = strncpy( s1, s2, count );
 	*(s1 + count) = '\0';
 	return results;
-} /* timlib_strncpy() */
+}
 
 /* Returns heap memory */
 /* ------------------- */
@@ -3289,7 +3288,7 @@ char *timlib_sql_injection_escape( char *source )
 
 	return strdup( destination );
 
-} /* timlib_sql_injection_escape() */
+}
 
 char *timlib_delete_character(
 			char *source_destination,
@@ -3312,7 +3311,7 @@ char *timlib_delete_character(
 
 	return source_destination;
 
-} /* timlib_delete_character() */
+}
 
 void timlib_display_error_file( char *error_filename )
 {
@@ -3326,7 +3325,7 @@ void timlib_display_error_file( char *error_filename )
 		fflush( stdout );
 		if ( system( sys_string ) ) {}
 	}
-} /* timlib_display_error_file() */
+}
 
 boolean timlib_is_valid_time( char *time_string )
 {
@@ -3349,7 +3348,7 @@ boolean timlib_is_valid_time( char *time_string )
 
 	return 1;
 
-} /* timlib_is_valid_time() */
+}
 
 char *timlib_get_now_date_time( void )
 {
@@ -3396,7 +3395,7 @@ boolean timlib_string_empty(	char *s,
 	else
 		return 0;
 
-} /* timlib_string_empty() */
+}
 
 char *timlib_directory_filesystem(	long int *available_megabytes,
 					char *directory )
@@ -3452,7 +3451,7 @@ char *timlib_directory_filesystem(	long int *available_megabytes,
 
 	return filesystem;
 
-} /* timlib_directory_filesystem() */
+}
 
 char *timlib_get_latest_filename_datestamp( char *directory )
 {
@@ -3479,7 +3478,7 @@ char *timlib_get_latest_filename_datestamp( char *directory )
 	*(datestamp + 8) = '\0';
 	return datestamp;
 
-} /* timlib_get_latest_filename_datestamp() */
+}
 
 boolean timlib_login_name_email_address(
 				char *login_name )
@@ -3522,7 +3521,7 @@ void *timlib_memcpy( void *object, int sizeof_object )
 
 	return new_object;
 
-} /* timlib_memcpy() */
+}
 
 int timlib_get_line_escape_CR(	char *in_line,
 				FILE *infile,
@@ -3621,7 +3620,7 @@ int timlib_get_line_escape_CR(	char *in_line,
 
 		*in_line++ = in_char;
 	}
-} /* timlib_get_line_escape_CR() */
+}
 
 int timlib_atoi( char *s )
 {
@@ -3633,7 +3632,7 @@ int timlib_atoi( char *s )
 
 	return atoi( buffer );
 
-} /* timlib_atoi() */
+}
 
 void timlib_cp(		char *destination_filename,
 			char *source_filename )
@@ -3661,7 +3660,7 @@ void timlib_cp(		char *destination_filename,
 
 	if ( system( sys_string ) ) {}
 
-} /* timlib_cp() */
+}
 
 void timlib_error_stderr(	int argc,
 				char **argv )
@@ -3675,7 +3674,7 @@ void timlib_error_stderr(	int argc,
 	fprintf( stderr, "\n" );
 	fflush( stderr );
 
-} /* timlib_error_stderr() */
+}
 
 char *timlib_get_sha256sum( char *input_filename )
 {
@@ -3724,7 +3723,7 @@ char *timlib_reverse_string(	char *destination,
 	*destination = '\0';
 	return anchor;
 
-} /* timlib_reverse_string() */
+}
 
 char *timlib_pad_zero(		int number,
 				int length )
@@ -3742,7 +3741,7 @@ char *timlib_pad_zero(		int number,
 
         return return_string;
 
-}  /* timlib_pad_zero() */
+}
 
 char *timlib_get_first_line(	char *destination,
 				char *input_filename,
@@ -3780,7 +3779,7 @@ char *timlib_get_first_line(	char *destination,
 	fclose( input_file );
 	return destination;
 
-} /* timlib_get_first_line() */
+}
 
 char *timlib_dollar_string( double amount )
 {
@@ -3790,7 +3789,7 @@ char *timlib_dollar_string( double amount )
 
 	return place_commas_in_number_string( return_string );
 
-} /* timlib_dollar_string() */
+}
 
 char *timlib_dollar_round_string( double amount )
 {
@@ -3800,7 +3799,7 @@ char *timlib_dollar_round_string( double amount )
 
 	return place_commas_in_number_string( return_string );
 
-} /* timlib_dollar_round_string() */
+}
 
 char *timlib_system_date_string( void )
 {
@@ -3818,7 +3817,7 @@ void timlib_remove_file( char *filename )
 
 	if ( system( sys_string ) ){}
 
-} /* timlib_remove_file() */
+}
 
 boolean timlib_is_number( char *string )
 {
