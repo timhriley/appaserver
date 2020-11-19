@@ -156,22 +156,144 @@ void latex_invoice_output_header( FILE *output_stream )
 "\\begin{document}\n" );
 }
 
+void latex_invoice_education_invoice_header(
+			FILE *output_stream,
+			char *invoice_date,
+			LATEX_INVOICE_SELF *invoice_self,
+			LATEX_INVOICE_CUSTOMER *invoice_customer,
+			char *title,
+			char *logo_filename )
+{
+	if ( title && *title )
+	{
+		fprintf(output_stream,
+"\\begin{center}{\\Large \\bf %s} \\end{center}\n",
+	 	 	title );
+	}
+
+	if ( logo_filename
+	&&   *logo_filename
+	&&   timlib_file_exists( logo_filename ) )
+	{
+		fprintf(output_stream,
+"\\begin{center}\n"
+"\\includegraphics{%s}\n"
+"\\end{center}\n",
+		 	logo_filename );
+	}
+
+	if ( invoice_date && *invoice_date )
+	{
+		fprintf(output_stream,
+"\\begin{center}{%s} \\end{center}\n",
+	 	 	invoice_date );
+	}
+
+	if ( invoice_self->city && *invoice_self->city )
+	{
+		fprintf( output_stream,
+"\\begin{tabular}[t]{p{5.0in}r}\n"
+"%s & %s \\\\\n"
+"%s, %s %s & %s \\\\\n"
+"\\end{tabular}\n\n",
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+	 		appaserver_escape_street_address(
+				invoice_self->street_address ),
+			(invoice_self->phone_number)
+				? invoice_self->phone_number
+				: "",
+	 		invoice_self->city,
+	 		invoice_self->state_code,
+	 		invoice_self->zip_code,
+	 		(invoice_self->email_address)
+	 			? invoice_self->email_address
+				: "" );
+	}
+	else
+	{
+		fprintf( output_stream,
+"\\begin{tabular}[t]{l}\n"
+"%s\\\\\n"
+"\\end{tabular}\n\n",
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+	 		appaserver_escape_street_address(
+				invoice_self->street_address ) );
+	}
+
+	fprintf( output_stream,
+"\\begin{tabular}[t]{l}\n"
+"\\bf %s:\n"
+"\\end{tabular}\n\n",
+		 "Student" );
+
+	if ( invoice_customer->city
+	&&   *invoice_customer->city )
+	{
+		fprintf( output_stream,
+"\\begin{tabular}{p{0.5in}l}\n"
+"& %s \\\\\n"
+"& %s \\\\\n"
+"& %s, %s %s\n"
+"\\end{tabular}\n\n",
+		 	invoice_customer->full_name,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+	 		appaserver_escape_street_address(
+				invoice_customer->street_address ),
+		 	invoice_customer->city,
+		 	invoice_customer->state_code,
+		 	invoice_customer->zip_code );
+	}
+	else
+	{
+		fprintf( output_stream,
+"\\begin{tabular}{p{0.5in}l}\n"
+"& %s\n"
+"\\end{tabular}\n\n",
+		 	invoice_customer->full_name );
+	}
+
+	fprintf( output_stream,
+		 "%s\n",
+		 /* Returns heap memory */
+		 /* ------------------- */
+		 latex_invoice_header_education_format_line() );
+
+	fprintf( output_stream,
+		 "%s\n",
+		 /* ------------------- */
+		 /* Returns heap memory */
+		 /* ------------------- */
+		 latex_invoice_header_education_text_line(
+			"Tuition" ) );
+
+	fprintf( output_stream,
+"\\hline \\hline\n" );
+
+}
+
+
 void latex_invoice_output_invoice_header(
 			FILE *output_stream,
 			char *invoice_key,
 			char *invoice_date,
 			char *line_item_key_heading,
-			LATEX_INVOICE_SELF *
-				latex_invoice_self,
-      			LATEX_INVOICE_CUSTOMER *
-				latex_invoice_customer,
+			LATEX_INVOICE_SELF *invoice_self,
+      			LATEX_INVOICE_CUSTOMER *invoice_customer,
 			char *customer_service_key,
 			boolean exists_discount_amount,
 			char *title,
 			boolean omit_money,
 			char *logo_filename,
 			char *instructions,
-			LIST *extra_label_list )
+			LIST *extra_label_list,
+			char *last_column_label,
+			char *customer_label )
 {
 	if ( title && *title )
 	{
@@ -205,7 +327,7 @@ void latex_invoice_output_invoice_header(
 	 	 	invoice_date );
 	}
 
-	if ( latex_invoice_self->city && *latex_invoice_self->city )
+	if ( invoice_self->city && *invoice_self->city )
 	{
 		fprintf( output_stream,
 "\\begin{tabular}[t]{p{5.0in}r}\n"
@@ -216,15 +338,15 @@ void latex_invoice_output_invoice_header(
 			/* Returns heap memory */
 			/* ------------------- */
 	 		appaserver_escape_street_address(
-				latex_invoice_self->street_address ),
-			(latex_invoice_self->phone_number)
-				? latex_invoice_self->phone_number
+				invoice_self->street_address ),
+			(invoice_self->phone_number)
+				? invoice_self->phone_number
 				: "",
-	 		latex_invoice_self->city,
-	 		latex_invoice_self->state_code,
-	 		latex_invoice_self->zip_code,
-	 		(latex_invoice_self->email_address)
-	 			? latex_invoice_self->email_address
+	 		invoice_self->city,
+	 		invoice_self->state_code,
+	 		invoice_self->zip_code,
+	 		(invoice_self->email_address)
+	 			? invoice_self->email_address
 				: "" );
 	}
 	else
@@ -237,16 +359,17 @@ void latex_invoice_output_invoice_header(
 			/* Returns heap memory */
 			/* ------------------- */
 	 		appaserver_escape_street_address(
-				latex_invoice_self->street_address ) );
+				invoice_self->street_address ) );
 	}
 
 	fprintf( output_stream,
 "\\begin{tabular}[t]{l}\n"
-"\\bf Customer:\n"
-"\\end{tabular}\n\n" );
+"\\bf %s:\n"
+"\\end{tabular}\n\n",
+		 customer_label );
 
-	if ( latex_invoice_customer->city
-	&&   *latex_invoice_customer->city )
+	if ( invoice_customer->city
+	&&   *invoice_customer->city )
 	{
 		fprintf( output_stream,
 "\\begin{tabular}{p{0.5in}l}\n"
@@ -254,15 +377,15 @@ void latex_invoice_output_invoice_header(
 "& %s \\\\\n"
 "& %s, %s %s\n"
 "\\end{tabular}\n\n",
-		 	latex_invoice_customer->full_name,
+		 	invoice_customer->full_name,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 	 		appaserver_escape_street_address(
-				latex_invoice_customer->street_address ),
-		 	latex_invoice_customer->city,
-		 	latex_invoice_customer->state_code,
-		 	latex_invoice_customer->zip_code );
+				invoice_customer->street_address ),
+		 	invoice_customer->city,
+		 	invoice_customer->state_code,
+		 	invoice_customer->zip_code );
 	}
 	else
 	{
@@ -270,7 +393,7 @@ void latex_invoice_output_invoice_header(
 "\\begin{tabular}{p{0.5in}l}\n"
 "& %s\n"
 "\\end{tabular}\n\n",
-		 	latex_invoice_customer->full_name );
+		 	invoice_customer->full_name );
 	}
 
 	if ( customer_service_key
@@ -318,13 +441,13 @@ void latex_invoice_output_invoice_header(
 
 	fprintf( output_stream,
 		 "%s\n",
-		 /* Returns heap memory */
 		 /* ------------------- */
 		 /* Returns heap memory */
 		 /* ------------------- */
 		 latex_invoice_header_text_line(
 			exists_discount_amount,
-			omit_money ) );
+			omit_money,
+			last_column_label ) );
 
 	fprintf( output_stream,
 "\\hline \\hline\n" );
@@ -377,6 +500,10 @@ void latex_invoice_output_invoice_footer(
 	{
 		fprintf( output_stream, "Payment (Thank you) &" );
 
+		/* Quantity column */
+		/* --------------- */
+		fprintf( output_stream, "&" );
+
 		if ( line_item_key_heading )
 			fprintf( output_stream, "&" );
 
@@ -394,6 +521,10 @@ void latex_invoice_output_invoice_footer(
 	else
 		fprintf( output_stream, "\\bf Amount Due &" );
 
+	/* Quantity column */
+	/* --------------- */
+	fprintf( output_stream, "&" );
+
 	if ( line_item_key_heading )
 		fprintf( output_stream, "&" );
 
@@ -405,6 +536,27 @@ void latex_invoice_output_invoice_footer(
 		 string_commas_dollar(	extended_price_total +
 					sales_tax +
 					shipping_charge -
+					total_payment ) );
+}
+
+void latex_invoice_education_invoice_footer(
+			FILE *output_stream,
+			double extended_price_total,
+			double total_payment )
+{
+	if ( total_payment )
+	{
+		fprintf( output_stream,
+"Payment (Thank you) & -%s \\\\\n",
+		 	string_commas_dollar( total_payment ) );
+
+	}
+
+	fprintf( output_stream, "\\bf Amount Due &" );
+
+	fprintf( output_stream,
+"\\bf \\$%s \\\\\n",
+		 string_commas_dollar(	extended_price_total -
 					total_payment ) );
 }
 
@@ -430,6 +582,34 @@ void latex_invoice_output_footer(
 
 	fprintf( output_stream,
 "\\end{document}\n" );
+}
+
+void latex_invoice_education_line_item_list(
+			FILE *output_stream,
+			LIST *invoice_line_item_list )
+{
+	LATEX_INVOICE_LINE_ITEM *line_item;
+	char buffer[ 256 ];
+	char dollar_string[ 3 ];
+
+	strcpy( dollar_string, "\\$" );
+
+	if ( !list_rewind( invoice_line_item_list ) ) return;
+
+	do {
+		line_item = list_get_pointer( invoice_line_item_list );
+
+		fprintf(output_stream,
+"%s & %s%s \\\\\n",
+		 	format_initial_capital(
+				buffer, line_item->item_name ),
+		 	dollar_string,
+			timlib_place_commas_in_money(
+				line_item->extended_price ) );
+
+		if ( *dollar_string ) *dollar_string = '\0';
+
+	} while( list_next( invoice_line_item_list ) );
 }
 
 void latex_invoice_output_line_item_list(
@@ -548,7 +728,8 @@ int latex_invoice_quantity_decimal_places(
 
 char *latex_invoice_header_text_line(
 			boolean exists_discount_amount,
-			boolean omit_money )
+			boolean omit_money,
+			char *last_column_label )
 {
 	char text_line[ 1024 ];
 
@@ -557,12 +738,14 @@ char *latex_invoice_header_text_line(
 		if ( exists_discount_amount )
 		{
 			sprintf( text_line,
-"\\bf Description & \\bf Quantity & \\bf Retail Price & \\bf Discount & \\bf Extended \\\\[0.5ex]\n" );
+"\\bf Description & \\bf Quantity & \\bf Retail Price & \\bf Discount & \\bf %s \\\\[0.5ex]\n",
+				 last_column_label );
 		}
 		else
 		{
 			sprintf( text_line,
-"\\bf Description & \\bf Quantity & \\bf Retail Price & \\bf Extended \\\\[0.5ex]\n" );
+"\\bf Description & \\bf Quantity & \\bf Retail Price & \\bf %s \\\\[0.5ex]\n",
+				 last_column_label );
 		}
 	}
 	else
@@ -570,6 +753,18 @@ char *latex_invoice_header_text_line(
 		sprintf( text_line,
 "\\bf Description & \\bf Quantity \\\\[0.5ex]\n" );
 	}
+
+	return strdup( text_line );
+}
+
+char *latex_invoice_header_education_text_line(
+			char *last_column_label )
+{
+	char text_line[ 1024 ];
+
+	sprintf( text_line,
+"\\bf Description & \\bf %s \\\\[0.5ex]\n",
+		 last_column_label );
 
 	return strdup( text_line );
 }
@@ -591,6 +786,17 @@ char *latex_invoice_header_format_line(
 "\\begin{longtable}[t]{|p{4.2in}|r|r|r|} \\hline\n"
 "\\hline\n" );
 	}
+
+	return strdup( format_line );
+}
+
+char *latex_invoice_header_education_format_line( void )
+{
+	char format_line[ 1024 ];
+
+	sprintf( format_line,
+"\\begin{longtable}[t]{|p{4.2in}|r|} \\hline\n"
+"\\hline\n" );
 
 	return strdup( format_line );
 }

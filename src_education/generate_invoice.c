@@ -12,6 +12,7 @@
 #include "timlib.h"
 #include "piece.h"
 #include "column.h"
+#include "String.h"
 #include "list.h"
 #include "table.h"
 #include "appaserver_library.h"
@@ -26,6 +27,7 @@
 #include "entity_self.h"
 #include "enrollment.h"
 #include "registration.h"
+#include "registration_fns.h"
 #include "email.h"
 #include "appaserver_link_file.h"
 #include "table.h"
@@ -38,40 +40,44 @@
 
 /* Prototypes */
 /* ---------- */
+void generate_invoice_amount_due(
+			char *application_name,
+			char *document_root_directory,
+			char *season_name,
+			int year,
+			char *output_option );
+
 void generate_invoice_email_display(
-				char *application_name,
-				char *process_name,
-				char *document_root_directory,
-				char *full_name,
-				char *street_address,
-				char *season_name,
-				int year,
-				pid_t process_id );
+			char *application_name,
+			char *document_root_directory,
+			char *full_name,
+			char *street_address,
+			char *season_name,
+			int year,
+			pid_t process_id );
 
 void generate_invoice_email_send(
-				char *application_name,
-				char *process_name,
-				char *document_root_directory,
-				char *full_name,
-				char *street_address,
-				char *season_name,
-				int year,
-				pid_t process_id );
+			char *application_name,
+			char *document_root_directory,
+			char *full_name,
+			char *street_address,
+			char *season_name,
+			int year,
+			pid_t process_id );
 
 /* Returns output_filename */
 /* ----------------------- */
-char *generate_invoice_PDF(	char **ftp_output_filename,
-				char *application_name,
-				char *process_name,
-				char *document_root_directory,
-				char *full_name,
-				char *street_address,
-				char *season_name,
-				int year,
-				int process_id );
+char *generate_invoice_PDF(
+			char **ftp_output_filename,
+			char *application_name,
+			char *document_root_directory,
+			char *full_name,
+			char *street_address,
+			char *season_name,
+			int year,
+			int process_id );
 
 void generate_invoice(	char *application_name,
-			char *process_name,
 			char *document_root_directory,
 			char *full_name,
 			char *street_address,
@@ -95,9 +101,9 @@ boolean build_latex_invoice(
 			char *predictive_logo_filename );
 
 void output_invoice_window(
-				char *application_name,
-				char *ftp_output_filename,
-				int process_id );
+			char *ftp_output_filename,
+			int process_id,
+			char *full_name );
 
 int main( int argc, char **argv )
 {
@@ -153,42 +159,97 @@ int main( int argc, char **argv )
 	if ( system( timlib_system_date_string() ) ){};
 	fflush( stdout );
 
-	generate_invoice(	application_name,
-				process_name,
-				appaserver_parameter_file->
-					document_root,
-				full_name,
-				street_address,
-				season_name,
-				year,
-				output_option );
+	if ( strcmp( full_name, "full_name" ) == 0 )
+	{
+		generate_invoice_amount_due(
+			application_name,
+			appaserver_parameter_file->
+				document_root,
+			season_name,
+			year,
+			output_option );
+	}
+	else
+	{
+		generate_invoice(
+			application_name,
+			appaserver_parameter_file->
+				document_root,
+			full_name,
+			street_address,
+			season_name,
+			year,
+			output_option );
+	}
 
 	document_close();
 
 	exit( 0 );
 }
 
-void output_invoice_window(
+void generate_invoice_amount_due(
 			char *application_name,
+			char *document_root_directory,
+			char *season_name,
+			int year,
+			char *output_option )
+{
+	LIST *registration_list;
+	REGISTRATION *registration;
+	char *where;
+
+	where = "invoice_amount_due > 0";
+
+	registration_list =
+		registration_system_list(
+			registration_sys_string(
+				where ),
+			0 /* not fetch_enrollment_list */ );
+
+	if ( !list_rewind( registration_list ) )
+	{
+		printf("<h3>No registrations with invoice amount due.</h3>\n" );
+		return;
+	}
+
+	do {
+		registration = list_get( registration_list );
+
+		generate_invoice(
+			application_name,
+			document_root_directory,
+			registration->student_full_name,
+			registration->street_address,
+			season_name,
+			year,
+			output_option );
+
+	} while ( list_next( registration_list ) );
+}
+
+void output_invoice_window(
 			char *ftp_output_filename,
-			int process_id )
+			int process_id,
+			char *full_name )
 {
 	char window_label[ 128 ];
 
 	sprintf( window_label, "latex_invoice_window_%d", process_id );
 
+/*
 	printf(
 "<body bgcolor=\"%s\" onload=\"window.open('%s','%s','menubar=yes,resizeable=yes,scrollbars=yes,status=no,toolbar=no,location=no', 'false');\">\n",
 			application_get_background_color(
 				application_name ),
 			ftp_output_filename,
 			window_label );
+*/
 
-	printf( "<a href='%s' target=%s>Press to view document.</a>\n",
+	printf( "<br><a href='%s' target=%s>Invoice for %s.</a>\n",
 		ftp_output_filename,
-		window_label );
+		window_label,
+		full_name );
 	fflush( stdout );
-
 }
 
 LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
@@ -255,7 +316,11 @@ boolean generate_invoice_line_item_list(
 			latex_invoice_line_item_set(
 				invoice_line_item_list,
 				(char *)0 /* item_key */,
-				enrollment->offering->course->course_name
+				course_name_escape(
+					enrollment->
+						offering->
+						course->
+						course_name )
 					/* item_name */,
 				1.0	/* quantity */,
 				enrollment->offering->course_price
@@ -270,7 +335,6 @@ boolean generate_invoice_line_item_list(
 }
 
 void generate_invoice(		char *application_name,
-				char *process_name,
 				char *document_root_directory,
 				char *full_name,
 				char *street_address,
@@ -288,7 +352,6 @@ void generate_invoice(		char *application_name,
 				generate_invoice_PDF(
 					&ftp_output_filename,
 					application_name,
-					process_name,
 					document_root_directory,
 					full_name,
 					street_address,
@@ -305,16 +368,15 @@ void generate_invoice(		char *application_name,
 		}
 
 		output_invoice_window(
-			application_name,
 			ftp_output_filename,
-			process_id );
+			process_id,
+			full_name );
 	}
 	else
 	if ( strcmp( output_option, "email_display" ) == 0 )
 	{
 		generate_invoice_email_display(
 				application_name,
-				process_name,
 				document_root_directory,
 				full_name,
 				street_address,
@@ -327,7 +389,6 @@ void generate_invoice(		char *application_name,
 	{
 		generate_invoice_email_send(
 				application_name,
-				process_name,
 				document_root_directory,
 				full_name,
 				street_address,
@@ -341,7 +402,6 @@ void generate_invoice(		char *application_name,
 /* ----------------------- */
 char *generate_invoice_PDF(	char **ftp_output_filename,
 				char *application_name,
-				char *process_name,
 				char *document_root_directory,
 				char *full_name,
 				char *street_address,
@@ -355,11 +415,20 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 	APPLICATION_CONSTANTS *application_constants;
 	char sys_string[ 1024 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
+	char mnemonic[ 256 ];
+	char filename_stem[ 256 ];
 
 	application_constants = application_constants_new();
+
 	application_constants->dictionary =
 		application_constants_dictionary(
 			application_name );
+
+	sprintf( filename_stem,
+		 "invoice_%s",
+		 string_format_mnemonic(
+			mnemonic,
+			full_name ) );
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -368,7 +437,7 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
-			process_name /* filename_stem */,
+			filename_stem,
 			application_name,
 			process_id,
 			(char *)0 /* session */,
@@ -473,7 +542,6 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 
 void generate_invoice_email_display(
 				char *application_name,
-				char *process_name,
 				char *document_root_directory,
 				char *full_name,
 				char *street_address,
@@ -491,7 +559,6 @@ void generate_invoice_email_display(
 		generate_invoice_PDF(
 			&ftp_output_filename,
 			application_name,
-			process_name,
 			document_root_directory,
 			full_name,
 			street_address,
@@ -536,7 +603,6 @@ void generate_invoice_email_display(
 
 void generate_invoice_email_send(
 				char *application_name,
-				char *process_name,
 				char *document_root_directory,
 				char *full_name,
 				char *street_address,
@@ -552,7 +618,6 @@ void generate_invoice_email_send(
 		generate_invoice_PDF(
 			&ftp_output_filename,
 			application_name,
-			process_name,
 			document_root_directory,
 			full_name,
 			street_address,
@@ -657,6 +722,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 		latex_invoice_exists_discount_amount(
 			latex_invoice->invoice_line_item_list );
 
+#ifdef NOT_DEFINED
 	latex_invoice_output_invoice_header(
 		output_stream,
 		latex_invoice->invoice_key,
@@ -670,31 +736,28 @@ boolean build_latex_invoice(	FILE *output_stream,
 		latex_invoice->omit_money,
 		predictive_logo_filename,
 		latex_invoice->instructions,
-		latex_invoice->extra_label_list );
+		latex_invoice->extra_label_list,
+		"Tuition" /* last_column_label */,
+		"Student" /* customer_label */ );
+#endif
 
-	latex_invoice->quantity_decimal_places =
-		latex_invoice_quantity_decimal_places(
-			latex_invoice_each_quantity_integer(
-				latex_invoice->invoice_line_item_list ),
-			LATEX_INVOICE_QUANTITY_DECIMAL_PLACES );
+	latex_invoice_education_invoice_header(
+		output_stream,
+		latex_invoice->invoice_date,
+		latex_invoice->invoice_self,
+		latex_invoice->invoice_customer,
+		title,
+		predictive_logo_filename );
 
-	latex_invoice_output_line_item_list(
+	latex_invoice_education_line_item_list(
 		output_stream,
 		latex_invoice->
-			invoice_line_item_list,
-		latex_invoice->exists_discount_amount,
-		latex_invoice->omit_money,
-		latex_invoice->quantity_decimal_places );
+			invoice_line_item_list );
 
-	latex_invoice_output_invoice_footer(
+	latex_invoice_education_invoice_footer(
 		output_stream,
 		latex_invoice->extended_price_total,
-		latex_invoice->sales_tax,
-		latex_invoice->shipping_charge,
-		latex_invoice->total_payment,
-		latex_invoice->line_item_key_heading,
-		latex_invoice->exists_discount_amount,
-		0 /* not is_estimate */ );
+		latex_invoice->total_payment );
 
 	latex_invoice_output_footer(
 		output_stream,

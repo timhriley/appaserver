@@ -290,7 +290,9 @@ boolean build_latex_invoice(	FILE *output_stream,
 			application_constants_dictionary,
 			PREDICTIVE_LOGO_FILENAME_KEY ),
 		latex_invoice->instructions,
-		latex_invoice->extra_label_list );
+		latex_invoice->extra_label_list,
+		"Tuition" /* last_column_label */,
+		"Student" /* customer_label */ );
 
 	latex_invoice->quantity_decimal_places =
 		latex_invoice_quantity_decimal_places(

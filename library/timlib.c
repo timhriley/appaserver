@@ -302,7 +302,7 @@ char *format_mnemonic( char *mnemonic, char *string )
 	*mnemonic = '\0';
 
 	return mnemonic_anchor;
-} /* format_mnemonic() */
+}
 
 char *format_first_initial_capital( char *destination, char *string )
 {
@@ -371,7 +371,7 @@ char *format_initial_capital_cr( char *destination, char *string )
 
 	return destination;
 
-} /* format_initial_capital_cr() */
+}
 
 char *format_initial_capital( char *destination, char *string )
 {
@@ -468,7 +468,7 @@ char *format_initial_capital_delimiter(
 
 	return destination;
 
-} /* format_initial_capital_delimiter() */
+}
 
 void output_starting_argv_stderr( int argc, char **argv )
 {
@@ -511,7 +511,7 @@ char *pipe_multiple_lines2string(	char *sys_string,
 		return (char *)0;
 	else
 		return strdup( buffer );
-} /* pipe_multiple_lines2string() */
+}
 
 char *pipe2string( char *sys_string )
 {
@@ -533,7 +533,7 @@ char *pipe2string( char *sys_string )
 	else
 		return strdup( buffer );
 
-} /* pipe2string() */
+}
 
 char *get_line_system( char *sys_string )
 {
@@ -574,7 +574,7 @@ char *trim_after_character(	char *destination,
 		*destination++ = *source++;
 	}
 	return anchor;
-} /* trim_after_character() */
+}
 
 char *trim_until_character(	char *destination,
 				char c,
@@ -598,7 +598,7 @@ char *trim_until_character(	char *destination,
 		source++;
 	}
 	return anchor;
-} /* trim_until_character() */
+}
 
 char *timlib_trim_character(	char *source_destination,
 				char *string_of_chars )
@@ -632,7 +632,7 @@ char *trim_character( char *destination, char c, char *source )
 	*destination = '\0';
 	return anchor;
 
-} /* trim_character() */
+}
 
 int timlib_character_exists( char *buffer, int c )
 {
@@ -652,7 +652,7 @@ boolean timlib_exists_alpha( char *s )
 	}
 	return 0;
 
-} /* timlib_exists_alpha() */
+}
 
 boolean timlib_exists_numeric( char *s )
 {
@@ -662,7 +662,7 @@ boolean timlib_exists_numeric( char *s )
 	}
 	return 0;
 
-} /* timlib_exists_numeric() */
+}
 
 boolean timlib_string_exists(	 	char *string,
 					char *substring )
@@ -675,14 +675,14 @@ boolean timlib_exists_string(	 	char *string,
 {
 	return ( instr( substring, string, 1 ) > -1 );
 
-} /* timlib_exists_string() */
+}
 
 boolean timlib_begins_string(	 	char *string,
 					char *substring )
 {
 	return ( instr( substring, string, 1 ) == 0 );
 
-} /* timlib_begins_string() */
+}
 
 boolean timlib_ends_string(	 	char *string,
 					char *substring )
@@ -704,7 +704,7 @@ boolean timlib_ends_string(	 	char *string,
 		if ( string_end < string ) return 0;
 	}
 
-} /* timlib_ends_string() */
+}
 
 int exists_character( char *buffer, int c )
 {
@@ -734,7 +734,7 @@ int character_position( char *buffer, int c )
 		position++;
 	}
 	return position;
-} /* character_position() */
+}
 
 char *reformat_double_return_string( double d, char *format_string )
 {
@@ -743,7 +743,7 @@ char *reformat_double_return_string( double d, char *format_string )
 	sprintf( return_buffer, format_string, d );
 	return strdup( return_buffer );
 
-} /* reformat_float() */
+}
 
 char *trim_right( char *buffer, int length )
 {
@@ -782,7 +782,7 @@ char *right_trim_session( char *buffer )
 
         return buffer;
 
-} /* right_trim_session() */
+}
 
 char *timlib_rtrim( char *buffer )
 {
@@ -806,7 +806,7 @@ char *rtrim( char *buffer )
 
         return buffer;
 
-} /* rtrim() */
+}
 
 char *trim_length(	char *buffer,
 			int length )
@@ -816,7 +816,7 @@ char *trim_length(	char *buffer,
 	buffer[ length ] = '\0';
 	return buffer;
 
-} /* trim_length() */
+}
 
 char *trim( char *buffer )
 {
@@ -866,7 +866,7 @@ char *trim( char *buffer )
 
         return buffer;
 
-} /* trim() */
+}
 
 char *up_string_to_delimiter ( char *s, char delimiter )
 {
@@ -879,7 +879,7 @@ char *up_string_to_delimiter ( char *s, char delimiter )
         }
         return hold;
 
-} /* up_string_to_delimiter() */
+}
 
 char *up_string ( char *s )
 {
@@ -891,7 +891,7 @@ char *up_string ( char *s )
         }
         return hold;
 
-} /* up_string() */
+}
 
 char *low_string ( char *s )
 {
@@ -903,7 +903,7 @@ char *low_string ( char *s )
         }
         return hold;
 
-} /* low_string() */
+}
 
 static boolean get_line_check_utf_16 = 1;
 static boolean is_utf_16 = 0;
@@ -1043,7 +1043,7 @@ int get_line( char *in_line, FILE *infile )
 {
 	return timlib_get_line( in_line, infile, 0 );
 
-} /* get_line */
+}
 
 void skip_line( FILE *infile )
 {
@@ -1054,7 +1054,7 @@ void skip_line( FILE *infile )
 		in_char = fgetc(infile);
 		if (in_char == EOF || in_char == LF) return;
 	}
-} /* skip_line */
+}
 
 char queue_static_buffer[ QUEUE_STATIC_BUFFER_SIZE ] = {0};
 int queue_toggle = 0;
@@ -1098,7 +1098,7 @@ int get_line_queue( char *in_line, FILE *infile )
 	{
 		return get_line( in_line, infile );
 	}
-} /* get_line_queue() */
+}
 
 int timlib_get_block_delimiter(
 				char **block,
@@ -1152,7 +1152,7 @@ int timlib_get_block_delimiter(
 
 	return count;
 
-} /* timlib_get_block_delimiter() */
+}
 
 void free_array_string_with_count( 	char **block, 
 					int block_count )
@@ -1169,7 +1169,7 @@ char *left_string(		char *destination,
 			0 /* start */,
 			how_many );
 
-} /* left_string() */
+}
 
 char *midstr( char *d, char *s, int start, int how_many )
 {
@@ -1177,7 +1177,7 @@ char *midstr( char *d, char *s, int start, int how_many )
 	*( d + how_many ) = '\0';
 	return d;
 
-} /* midstr() */
+}
 
 
 boolean instr_exclude_double_quoted(
@@ -1200,7 +1200,7 @@ boolean instr_exclude_double_quoted(
 	}
         return -1;
 
-} /* instr_exclude_double_quoted() */
+}
 
 int instr_character( char delimiter, char *string )
 {
@@ -1210,7 +1210,7 @@ int instr_character( char delimiter, char *string )
 		if ( *string++ == delimiter )
 			return x;
 	return -1;
-} /* instr_character() */
+}
 
 int timlib_strict_case_instr(	char *substr,
 				char *string,
@@ -1259,7 +1259,7 @@ int instr( char *substr, char *string, int occurrence )
 	}
         return -1;
 
-} /* instr() */
+}
 
 
 char *delete_str( char *string, int start, int num_chars )
@@ -1272,7 +1272,7 @@ char *delete_str( char *string, int start, int num_chars )
 
         return string;
 
-} /* delete_str() */
+}
 
 char *insert_string( char *source_destination, char *substring, int pos )
 {
@@ -1301,7 +1301,7 @@ char *insert_str( char *sub, char *string, int pos )
         free(temp);
         return string;
 
-} /* insert_str() */
+}
 
 
 char *search_replace_word( 	char *source_destination,
@@ -1320,7 +1320,7 @@ char *search_replace_word( 	char *source_destination,
 	delete_str( source_destination, here, len_search );
 	insert_str( replace_str, source_destination, here );
 	return source_destination;
-} /* search_replace_word */
+}
 
 char *search_replace_single_quoted_string(
 			char *source_destination,
@@ -1357,7 +1357,7 @@ char *timlib_search_replace_character_limited(
 	}
 
 	return source_destination;
-} /* timlib_search_replace_character_limited() */
+}
 
 char *search_replace_character(
 			char *source_destination,
@@ -1373,7 +1373,7 @@ char *search_replace_character(
 	}
 
 	return source_destination;
-} /* search_replace_character() */
+}
 
 char *search_replace_string(
 			char *source_destination,
@@ -1383,7 +1383,7 @@ char *search_replace_string(
 	return search_replace( 	search_string, 
 				replace_string, 
 				source_destination );
-} /* search_replace_string() */
+}
 
 char *search_replace_once(
 			char *source_destination,
@@ -1401,7 +1401,7 @@ char *search_replace_once(
         insert_str( replace_string, source_destination, here );
         return source_destination;
 
-} /* search_replace_once() */
+}
 
 char *search_replace_strict_case_once(
 			char *source_destination,
@@ -1429,7 +1429,7 @@ char *search_replace_strict_case_once(
 
         return source_destination;
 
-} /* search_replace_strict_case_once() */
+}
 
 char *timlib_remove_character( char *source_destination, char character )
 {
@@ -1455,7 +1455,7 @@ char *remove_character( char *source_destination, char character )
 
 	return anchor;
 
-} /* remove_character() */
+}
 
 char *search_replace( 	char *search_str, 
 			char *replace_str, 
@@ -1482,7 +1482,7 @@ char *search_replace( 	char *search_str,
 		source_destination += (here + str_len );
         }
 
-} /* search_replace() */
+}
 
 char *search_replace_strict_case_string( 
 			char *source_destination,
@@ -1502,7 +1502,7 @@ char *search_replace_strict_case_string(
 
 	return source_destination;
 
-} /* search_replace_strict_case_string() */
+}
 
 char *skip_words( char *source, int number_words )
 {
@@ -1569,7 +1569,7 @@ int get_parameter(	char *destination,
 	/* remove_quotes( destination, destination ); */
 	return 1;
 
-} /* get_parameter() */
+}
 
 
 void remove_parans( char *without_parans, char *source )
@@ -1585,7 +1585,7 @@ void remove_parans( char *without_parans, char *source )
 	}
 	piece( without_parans, ')', tmp_buffer, 0 );
 
-} /* remove_parans() */
+}
 
 int count_character( int char_to_count, char *source )
 {
@@ -1627,7 +1627,7 @@ int number_occurrences_char( int char_to_count, char *source )
 
 	return count;
 
-} /* number_occurrences_char() */
+}
 
 char *place_commas_in_unsigned_long_long( unsigned long long n )
 {
@@ -1636,7 +1636,7 @@ char *place_commas_in_unsigned_long_long( unsigned long long n )
         sprintf( s, "%llu", n );
 	return place_commas_in_number_string( s );
 
-} /* place_commas_in_unsigned_long_long() */
+}
  
 char *place_commas_in_number_string( char *s )
 {

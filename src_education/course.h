@@ -39,8 +39,8 @@ COURSE *course_parse(	char *input );
 char *course_primary_where(
 			char *course_name );
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *course_name_escape(
 			char *course_name );
 char *course_escape_name(

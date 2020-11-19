@@ -109,9 +109,9 @@ char *course_escape_name( char *course_name )
 
 char *course_name_escape( char *course_name )
 {
-	static char name[ 256 ];
+	char name[ 256 ];
 
-	return string_escape_quote_dollar( name, course_name );
+	return strdup( string_escape_quote_dollar( name, course_name ) );
 }
 
 char *course_program_name( COURSE *course )

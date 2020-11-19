@@ -147,7 +147,9 @@ void latex_invoice_output_invoice_header(
 			boolean omit_money,
 			char *logo_filename,
 			char *instructions,
-			LIST *extra_label_list );
+			LIST *extra_label_list,
+			char *last_column_label,
+			char *customer_label );
 
 void latex_invoice_output_line_item_list(
 			FILE *output_stream,
@@ -183,12 +185,37 @@ int latex_invoice_quantity_decimal_places(
 /* ------------------- */
 char *latex_invoice_header_text_line(
 			boolean exists_discount_amount,
-			boolean omit_money );
+			boolean omit_money,
+			char *last_column_label );
 
 /* Returns heap memory */
 /* ------------------- */
 char *latex_invoice_header_format_line(
 			boolean exists_discount_amount );
+
+void latex_invoice_education_invoice_header(
+			FILE *output_stream,
+			char *invoice_date,
+			LATEX_INVOICE_SELF *invoice_self,
+			LATEX_INVOICE_CUSTOMER *invoice_customer,
+			char *title,
+			char *logo_filename );
+
+char *latex_invoice_header_education_format_line(
+			void );
+
+
+char *latex_invoice_header_education_text_line(
+			char *last_column_label );
+
+void latex_invoice_education_line_item_list(
+			FILE *output_stream,
+			LIST *invoice_line_item_list );
+
+void latex_invoice_education_invoice_footer(
+			FILE *output_stream,
+			double extended_price_total,
+			double total_payment );
 
 #endif
 

@@ -554,3 +554,55 @@ char *string_commas_double( double d )
 	return strdup( destination );
 }
 
+char *string_format_mnemonic(
+			char *mnemonic,
+			char *string )
+{
+	char *mnemonic_anchor = mnemonic;
+
+	int beginning = 1;
+
+	if ( !string ) return "";
+
+	while( *string )
+	{
+		if ( *string == '\\' )
+		{
+			string++;
+		}
+
+		if ( beginning )
+		{
+			if ( isspace( *string )
+			||   ispunct( *string ) )
+			{
+				beginning = 1;
+			}
+			else
+			{
+				beginning = 0;
+				*mnemonic++ = tolower( *string++ );
+			}
+		}
+		else
+		if ( isspace( *string ) )
+		{
+			beginning = 1;
+			*mnemonic++ = '_';
+			string++;
+		}
+		else
+		if ( ispunct( *string ) )
+		{
+			beginning = 1;
+			string++;
+		}
+		else
+		{
+			*mnemonic++ = tolower( *string++ );
+		}
+	}
+	*mnemonic = '\0';
+
+	return mnemonic_anchor;
+}

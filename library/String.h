@@ -111,4 +111,8 @@ char *string_commas_money(
 char *string_commas_double(
 			double d );
 
+char *string_format_mnemonic(
+			char *mnemonic,
+			char *string );
+
 #endif

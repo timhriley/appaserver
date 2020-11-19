@@ -64,7 +64,9 @@ char *format_initial_capital_delimiter(
 			char delimiter,
 			boolean with_inside_parens );
 
-char *format_mnemonic( char *mnemonic, char *string );
+char *format_mnemonic(
+			char *mnemonic,
+			char *string );
 
 char *format_first_initial_capital(
 				char *destination,

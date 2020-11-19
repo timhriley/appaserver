@@ -133,8 +133,7 @@ void html_invoice_output_header(	FILE *output_stream )
 "	page-break-before: avoid; }		\n"
 "-->						\n"
 "</style>					\n" );
-
-} /* html_invoice_output_header() */
+}
 
 void html_invoice_output_invoice_header(FILE *output_stream,
 					char *invoice_date,
@@ -274,9 +273,7 @@ void html_invoice_output_invoice_header(FILE *output_stream,
 		fprintf( output_stream,
 "<th>Item<th>Quantity</tr>\n" );
 	}
-
-
-} /* html_invoice_output_invoice_header() */
+}
 
 void html_invoice_output_invoice_footer(
 					FILE *output_stream,
