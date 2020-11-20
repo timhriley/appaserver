@@ -109,6 +109,9 @@ int timlib_character_count(	char char_to_count,
 int timlib_count_delimiters(	char delimiter,
 				char *source );
 
+int timlib_delimiter_count(	char *source,
+				char delimiter );
+
 FILE *open_file(		char *s,
 				char *mode );
 

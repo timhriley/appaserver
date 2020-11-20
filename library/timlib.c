@@ -1597,6 +1597,11 @@ int count_characters( int char_to_count, char *source )
 	return number_occurrences_char( char_to_count, source );
 }
 
+int timlib_delimiter_count( char *source, char delimiter )
+{
+	return number_occurrences_char( delimiter, source );
+}
+
 int timlib_count_delimiters( char delimiter, char *source )
 {
 	return number_occurrences_char( delimiter, source );

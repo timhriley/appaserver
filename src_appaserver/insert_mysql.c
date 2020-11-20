@@ -15,8 +15,6 @@
 #include "appaserver_user.h"
 #include "environ.h"
 
-/* #define DEBUG_MODE		1 */
-
 /* Prototypes */
 /* ---------- */
 int insert_mysql_appaserver_user(
@@ -110,27 +108,20 @@ int insert_mysql(		char *application_name,
 {
 	FILE *p;
 	char *table_name;
-	char *sql_executable;
 	char buffer[ 1024 ];
 
 	table_name = get_table_name( application_name, folder_name );
 
-#ifdef DEBUG_MODE
-	sql_executable = "html_paragraph_wrapper.e";
-#else
-	sql_executable = "sql";
-#endif
 	sprintf( buffer,
 		 "cat %s			|"
 		 "unescape_single_quotes.e	|"
 		 "insert_statement %s %s '^'	|"
 		 "sed 's/\\\\\\$/$/g'		|"
 		 "tee_appaserver_error.sh	|"
-		 "%s 2>&1			 ",
+		 "sql 2>&1			 ",
 		 carrot_delimited_row_filename,
 		 table_name,
-		 attribute_comma_string,
-		 sql_executable );
+		 attribute_comma_string );
 
 	p = popen( buffer, "r" );
 
@@ -148,7 +139,7 @@ int insert_mysql(		char *application_name,
 
 	return rows_to_insert;
 
-} /* insert_mysql() */
+}
 
 int insert_mysql_appaserver_user(
 				char *application_name,
@@ -170,7 +161,7 @@ int insert_mysql_appaserver_user(
 		exit( 1 );
 	}
 
-	while ( get_line( input_buffer, f ) )
+	while ( timlib_get_line( input_buffer, f, 1024 ) )
 	{
 		if ( ! ( appaserver_user =
 				appaserver_user_parse(
@@ -190,11 +181,12 @@ int insert_mysql_appaserver_user(
 					appaserver_user_mysql_version() );
 
 		if ( !appaserver_user_insert(
-					application_name,
-					appaserver_user->login_name,
-					appaserver_user->person_full_name,
-					appaserver_user->database_password,
-					appaserver_user->user_date_format ) )
+				application_name,
+				appaserver_user->login_name,
+				appaserver_user->database_password,
+				appaserver_user->person_full_name,
+				appaserver_user->frameset_menu_horizontal_yn,
+				appaserver_user->user_date_format ) )
 		{
 			rows_to_insert--;
 		}
@@ -203,5 +195,5 @@ int insert_mysql_appaserver_user(
 	fclose( f );
 	return rows_to_insert;
 
-} /* insert_mysql_appaserver_user() */
+}
 

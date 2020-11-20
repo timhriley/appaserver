@@ -37,7 +37,7 @@ APPASERVER_USER *appaserver_user_calloc( void )
 
 	return a;
 
-} /* appaserver_user_calloc() */
+}
 
 APPASERVER_USER *appaserver_user_fetch(
 				char *application_name,
@@ -139,7 +139,7 @@ APPASERVER_USER *appaserver_user_fetch(
 
 	return appaserver_user;
 
-} /* appaserver_user_fetch() */
+}
 
 LIST *appaserver_user_session_list(	char *application_name,
 					char *login_name )
@@ -159,7 +159,7 @@ LIST *appaserver_user_session_list(	char *application_name,
 
 	return pipe2list( sys_string );
 
-} /* appaserver_user_session_list() */
+}
 
 char *appaserver_user_person_full_name(
 			char *application_name, char *login_name )
@@ -176,7 +176,7 @@ char *appaserver_user_person_full_name(
 	else
 		return global_appaserver_user->person_full_name;
 
-} /* appaserver_user_person_full_name() */
+}
 
 char *appaserver_user_password_fetch(
 				char *application_name,
@@ -194,7 +194,7 @@ char *appaserver_user_password_fetch(
 	else
 		return global_appaserver_user->database_password;
 
-} /* appaserver_user_password_fetch() */
+}
 
 boolean appaserver_user_frameset_menu_horizontal(
 						char *application_name,
@@ -214,7 +214,7 @@ boolean appaserver_user_frameset_menu_horizontal(
 
 	return global_appaserver_user->frameset_menu_horizontal;
 
-} /* appaserver_user_frameset_menu_horizontal() */
+}
 
 boolean appaserver_user_exists_session(	char *application_name,
 					char *login_name,
@@ -239,7 +239,7 @@ boolean appaserver_user_exists_session(	char *application_name,
 		global_appaserver_user->session_list,
 		session );
 
-} /* appaserver_user_exists_session() */
+}
 
 boolean appaserver_user_exists_role(	char *application_name,
 					char *login_name,
@@ -264,7 +264,7 @@ boolean appaserver_user_exists_role(	char *application_name,
 		global_appaserver_user->role_list,
 		role_name );
 
-} /* appaserver_user_exists_role() */
+}
 
 LIST *appaserver_user_role_list(
 				char *application_name,
@@ -284,7 +284,7 @@ LIST *appaserver_user_role_list(
 
 	return pipe2list( sys_string );
 
-} /* appaserver_user_role_list() */
+}
 
 enum password_function
 	appaserver_user_password_function(
@@ -312,7 +312,7 @@ enum password_function
 		return no_encryption;
 	}
 
-} /* appaserver_user_password_function() */
+}
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -372,7 +372,7 @@ char *appaserver_user_encryption_select(
 
 	return strdup( encryption_function );
 
-} /* appaserver_user_encryption_select() */
+}
 
 /* Returns heap memory */
 /* ------------------- */
@@ -424,7 +424,7 @@ char *appaserver_user_function_encrypted_password(
 
 	return results;
 
-} /* appaserver_user_function_encrypted_password() */
+}
 
 boolean appaserver_user_password_match(
 					char *application_name,
@@ -446,7 +446,7 @@ boolean appaserver_user_password_match(
 
 	return ( timlib_strcmp( encrypted_password, database_password ) == 0 );
 
-} /* appaserver_user_password_match() */
+}
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -461,7 +461,7 @@ char *appaserver_user_mysql_version( void )
 
 	return version;
 
-} /* appaserver_user_mysql_version() */
+}
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -485,7 +485,7 @@ char *appaserver_user_version_encrypted_password(
 				typed_in_password,
 				password_function );
 
-} /* appaserver_user_version_encrypted_password() */
+}
 
 enum password_function
 	appaserver_user_version_password_function(
@@ -506,15 +506,17 @@ enum password_function
 	else
 		return sha2_function;
 
-} /* appaserver_user_version_password_function() */
+}
 
 /* Returns 1 if no error. */
 /* ---------------------- */
-boolean appaserver_user_insert(		char *application_name,
-					char *login_name,
-					char *person_full_name,
-					char *database_password,
-					char *user_date_format )
+boolean appaserver_user_insert(
+			char *application_name,
+			char *login_name,
+			char *database_password,
+			char *person_full_name,
+			char *frameset_menu_horizontal_yn,
+			char *user_date_format )
 {
 	FILE *output_pipe;
 	char error_filename[ 128 ];
@@ -527,13 +529,15 @@ boolean appaserver_user_insert(		char *application_name,
 	output_pipe =
 		appaserver_user_insert_open(
 			application_name,
-			error_filename );
+			error_filename,
+			frameset_menu_horizontal_yn );
 
 	appaserver_user_insert_stream(
 		output_pipe,
 		login_name,
-		person_full_name,
 		database_password,
+		person_full_name,
+		frameset_menu_horizontal_yn,
 		user_date_format );
 
 	pclose( output_pipe );
@@ -547,17 +551,34 @@ boolean appaserver_user_insert(		char *application_name,
 	else
 		return 1;
 
-} /* appaserver_user_insert() */
+}
 
-FILE *appaserver_user_insert_open(	char *application_name,
-					char *error_filename )
+FILE *appaserver_user_insert_open(
+			char *application_name,
+			char *error_filename,
+			char *frameset_menu_horizontal_yn )
 {
 	char sys_string[ 1024 ];
 	char *field;
 	char *table_name;
 	FILE *output_pipe;
 
-	field = "login_name,person_full_name,password,user_date_format";
+	if (	frameset_menu_horizontal_yn &&
+		*frameset_menu_horizontal_yn )
+	{
+		field =	"login_name,"
+			"password,"
+			"person_full_name,"
+			"frameset_menu_horizontal_yn,"
+			"user_date_format";
+	}
+	else
+	{
+		field =	"login_name,"
+			"password,"
+			"person_full_name,"
+			"user_date_format";
+	}
 
 	table_name =
 		get_table_name(
@@ -574,53 +595,66 @@ FILE *appaserver_user_insert_open(	char *application_name,
 	output_pipe = popen( sys_string, "w" );
 
 	return output_pipe;
+}
 
-} /* appaserver_user_insert_open() */
-
-void appaserver_user_insert_stream(	FILE *output_pipe,
-					char *login_name,
-					char *person_full_name,
-					char *database_password,
-					char *user_date_format )
+void appaserver_user_insert_stream(
+			FILE *output_pipe,
+			char *login_name,
+			char *database_password,
+			char *person_full_name,
+			char *frameset_menu_horizontal_yn,
+			char *user_date_format )
 {
 	char entity_buffer[ 128 ];
 
-	fprintf(	output_pipe,
-			"%s^%s^%s^%s\n",
+	if ( frameset_menu_horizontal_yn
+	&&   *frameset_menu_horizontal_yn )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^%s\n",
 			login_name,
+			(database_password) ? database_password : "",
 	 		escape_character(	entity_buffer,
 						person_full_name,
 						'\'' ),
-			(database_password) ? database_password : "",
+			frameset_menu_horizontal_yn,
 			user_date_format );
-
-} /* appaserver_user_insert_stream() */
+	}
+	else
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s\n",
+			login_name,
+			(database_password) ? database_password : "",
+	 		escape_character(	entity_buffer,
+						person_full_name,
+						'\'' ),
+			user_date_format );
+	}
+}
 
 APPASERVER_USER *appaserver_user_parse(
 				char *input_buffer )
 {
 	APPASERVER_USER *appaserver_user;
 	char piece_buffer[ 512 ];
+	int delimiter_count;
 
 	appaserver_user = appaserver_user_calloc();
 
+	delimiter_count =
+		timlib_delimiter_count(
+			input_buffer,
+			FOLDER_DATA_DELIMITER );
+
+	/* Parse login_name */
+	/* ---------------- */
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 	appaserver_user->login_name = strdup( piece_buffer );
 
+	/* Parse password */
+	/* -------------- */
 	if ( !piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 input_buffer );
-		return (APPASERVER_USER *)0;
-	}
-
-	appaserver_user->person_full_name = strdup( piece_buffer );
-
-	if ( !piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
@@ -633,7 +667,9 @@ APPASERVER_USER *appaserver_user_parse(
 
 	appaserver_user->typed_in_password = strdup( piece_buffer );
 
-	if ( !piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 ) )
+	/* Parse person_full_name */
+	/* ---------------------- */
+	if ( !piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
@@ -644,9 +680,33 @@ APPASERVER_USER *appaserver_user_parse(
 		return (APPASERVER_USER *)0;
 	}
 
+	appaserver_user->person_full_name = strdup( piece_buffer );
+
+	/* Parse user_date_format */
+	/* ---------------------- */
+	if ( delimiter_count == 3 )
+	{
+		/* If without frameset_menu_horizontal_yn */
+		/* -------------------------------------- */
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	}
+	else
+	{
+		/* If frameset_menu_horizontal_yn */
+		/* ------------------------------ */
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+	}
+
 	appaserver_user->user_date_format = strdup( piece_buffer );
 
+	/* Parse frameset_menu_horizontal_yn */
+	/* --------------------------------- */
+	if ( delimiter_count == 4 )
+	{
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+		appaserver_user->frameset_menu_horizontal_yn =
+			strdup( piece_buffer );
+	}
 	return appaserver_user;
-
-} /* appaserver_user_parse() */
+}
 
