@@ -196,9 +196,12 @@ void generate_invoice_amount_due(
 {
 	LIST *registration_list;
 	REGISTRATION *registration;
-	char *where;
+	char where[ 1024 ];
 
-	where = "invoice_amount_due > 0";
+	sprintf(where,
+		"season = '%s' and year = %d and invoice_amount_due > 0",
+		season_name,
+		year );
 
 	registration_list =
 		registration_system_list(
@@ -721,25 +724,6 @@ boolean build_latex_invoice(	FILE *output_stream,
 	latex_invoice->exists_discount_amount =
 		latex_invoice_exists_discount_amount(
 			latex_invoice->invoice_line_item_list );
-
-#ifdef NOT_DEFINED
-	latex_invoice_output_invoice_header(
-		output_stream,
-		latex_invoice->invoice_key,
-		latex_invoice->invoice_date,
-		latex_invoice->line_item_key_heading,
-		latex_invoice->invoice_self,
-		latex_invoice->invoice_customer,
-		latex_invoice->customer_service_key,
-		latex_invoice->exists_discount_amount,
-		title,
-		latex_invoice->omit_money,
-		predictive_logo_filename,
-		latex_invoice->instructions,
-		latex_invoice->extra_label_list,
-		"Tuition" /* last_column_label */,
-		"Student" /* customer_label */ );
-#endif
 
 	latex_invoice_education_invoice_header(
 		output_stream,

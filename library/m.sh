@@ -3,7 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make insert_mysql
+	cd ../src_education
+	make generate_invoice
 fi
 

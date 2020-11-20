@@ -270,6 +270,7 @@ void latex_invoice_education_invoice_header(
 		 /* Returns heap memory */
 		 /* ------------------- */
 		 latex_invoice_header_education_text_line(
+			"Course",
 			"Tuition" ) );
 
 	fprintf( output_stream,
@@ -292,6 +293,7 @@ void latex_invoice_output_invoice_header(
 			char *logo_filename,
 			char *instructions,
 			LIST *extra_label_list,
+			char *first_column_label,
 			char *last_column_label,
 			char *customer_label )
 {
@@ -447,6 +449,7 @@ void latex_invoice_output_invoice_header(
 		 latex_invoice_header_text_line(
 			exists_discount_amount,
 			omit_money,
+			first_column_label,
 			last_column_label ) );
 
 	fprintf( output_stream,
@@ -575,6 +578,7 @@ void latex_invoice_output_footer(
 		fprintf( output_stream,
 "\\bf \\large{Customer Signature}  & \\line(1,0){175} &"
 "\\bf \\large{Date}  & \\line(1,0){100} \\\\\n" );
+
 		fprintf( output_stream,
 "\\end{tabular}\n" );
 
@@ -729,6 +733,7 @@ int latex_invoice_quantity_decimal_places(
 char *latex_invoice_header_text_line(
 			boolean exists_discount_amount,
 			boolean omit_money,
+			char *first_column_label,
 			char *last_column_label )
 {
 	char text_line[ 1024 ];
@@ -738,32 +743,37 @@ char *latex_invoice_header_text_line(
 		if ( exists_discount_amount )
 		{
 			sprintf( text_line,
-"\\bf Description & \\bf Quantity & \\bf Retail Price & \\bf Discount & \\bf %s \\\\[0.5ex]\n",
+"\\bf %s & \\bf Quantity & \\bf Retail Price & \\bf Discount & \\bf %s \\\\[0.5ex]\n",
+				 first_column_label,
 				 last_column_label );
 		}
 		else
 		{
 			sprintf( text_line,
-"\\bf Description & \\bf Quantity & \\bf Retail Price & \\bf %s \\\\[0.5ex]\n",
+"\\bf %s & \\bf Quantity & \\bf Retail Price & \\bf %s \\\\[0.5ex]\n",
+				 first_column_label,
 				 last_column_label );
 		}
 	}
 	else
 	{
 		sprintf( text_line,
-"\\bf Description & \\bf Quantity \\\\[0.5ex]\n" );
+"\\bf %s & \\bf Quantity \\\\[0.5ex]\n",
+			 first_column_label );
 	}
 
 	return strdup( text_line );
 }
 
 char *latex_invoice_header_education_text_line(
+			char *first_column_label,
 			char *last_column_label )
 {
 	char text_line[ 1024 ];
 
 	sprintf( text_line,
-"\\bf Description & \\bf %s \\\\[0.5ex]\n",
+"\\bf %s & \\bf %s \\\\[0.5ex]\n",
+		 first_column_label,
 		 last_column_label );
 
 	return strdup( text_line );

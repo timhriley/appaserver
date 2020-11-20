@@ -148,6 +148,7 @@ void latex_invoice_output_invoice_header(
 			char *logo_filename,
 			char *instructions,
 			LIST *extra_label_list,
+			char *first_column_label,
 			char *last_column_label,
 			char *customer_label );
 
@@ -186,6 +187,7 @@ int latex_invoice_quantity_decimal_places(
 char *latex_invoice_header_text_line(
 			boolean exists_discount_amount,
 			boolean omit_money,
+			char *first_column_label,
 			char *last_column_label );
 
 /* Returns heap memory */
@@ -206,6 +208,7 @@ char *latex_invoice_header_education_format_line(
 
 
 char *latex_invoice_header_education_text_line(
+			char *first_column_label,
 			char *last_column_label );
 
 void latex_invoice_education_line_item_list(

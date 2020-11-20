@@ -462,12 +462,12 @@ void latex_longtable_output(	FILE *output_stream,
 	LATEX_TABLE *table;
 
 	latex_output_longtable_document_heading(
-					output_stream,
-					landscape_flag,
-					1 /* table_package_flag */,
-					logo_filename,
-					omit_page_numbers,
-					footline );
+		output_stream,
+		landscape_flag,
+		1 /* table_package_flag */,
+		logo_filename,
+		omit_page_numbers,
+		footline );
 
 	if ( !list_rewind( table_list ) ) return;
 

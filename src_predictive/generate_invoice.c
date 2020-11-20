@@ -362,6 +362,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 			PREDICTIVE_LOGO_FILENAME_KEY ),
 		latex_invoice->instructions,
 		latex_invoice->extra_label_list,
+		"Description" /* first_column_label */,
 		"Extended" /* last_column_label */,
 		"Customer" /* customer_label */ );
 
