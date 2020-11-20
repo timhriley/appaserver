@@ -55,14 +55,14 @@ char *email_sendmail_command(	char *to_address,
 
 	return strdup( sendmail_command );
 
-} /* email_sendmail_command() */
+}
 
 void email_sendmail(	char *from_address,
 			char *to_address,
 			char *subject,
 			char *message,
 			char *reply_to,
-			char *full_name,
+			char *self_full_name,
 			char *attachment_filename )
 {
 	char sys_string[ 1024 ];
@@ -86,7 +86,7 @@ void email_sendmail(	char *from_address,
 			subject,
 			message,
 			reply_to,
-			full_name );
+			self_full_name );
 
 	sprintf(	sys_string,
 			"echo \"%s\" | %s",
@@ -94,8 +94,7 @@ void email_sendmail(	char *from_address,
 			sendmail_command );
 
 	if ( system( sys_string ) ){};
-
-} /* email_sendmail() */
+}
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -105,7 +104,7 @@ char *email_sendmail_string(
 			char *subject,
 			char *message,
 			char *reply_to,
-			char *full_name )
+			char *self_full_name )
 {
 	char sendmail_string[ 65536 ];
 	char *ptr = sendmail_string;
@@ -132,17 +131,16 @@ char *email_sendmail_string(
 		ptr += sprintf( ptr, "Subject: %s\n", subject );
 	}
 
-	if ( full_name && *full_name )
+	if ( self_full_name && *self_full_name )
 	{
-		ptr += sprintf( ptr, "From: %s\n", full_name );
+		ptr += sprintf( ptr, "From: %s\n", self_full_name );
 	}
 
 	if ( message && *message )
 	{
-		ptr += sprintf( ptr, "%s\n", message );
+		ptr += sprintf( ptr, "\n%s\n", message );
 	}
 
 	return strdup( sendmail_string );
-
-} /* email_sendmail_string() */
+}
 

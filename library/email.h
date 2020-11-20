@@ -26,7 +26,7 @@ void email_sendmail(	char *from_address,
 			char *subject,
 			char *message,
 			char *reply_to,
-			char *full_name,
+			char *self_full_name,
 			char *attachment_filename );
 
 /* Returns heap memory. */
@@ -43,6 +43,6 @@ char *email_sendmail_string(
 			char *subject,
 			char *message,
 			char *reply_to,
-			char *full_name );
+			char *self_full_name );
 
 #endif

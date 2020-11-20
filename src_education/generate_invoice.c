@@ -34,7 +34,6 @@
 
 /* Constants */
 /* --------- */
-#define FROM_ADDRESS	"TNT@cloudacus.com"
 #define SUBJECT		"Invoice"
 #define MESSAGE		"Here is your invoice."
 
@@ -45,7 +44,8 @@ void generate_invoice_amount_due(
 			char *document_root_directory,
 			char *season_name,
 			int year,
-			char *output_option );
+			char *output_option,
+			ENTITY_SELF *self );
 
 void generate_invoice_email_display(
 			char *application_name,
@@ -54,7 +54,8 @@ void generate_invoice_email_display(
 			char *street_address,
 			char *season_name,
 			int year,
-			pid_t process_id );
+			pid_t process_id,
+			ENTITY_SELF *self );
 
 void generate_invoice_email_send(
 			char *application_name,
@@ -63,7 +64,8 @@ void generate_invoice_email_send(
 			char *street_address,
 			char *season_name,
 			int year,
-			pid_t process_id );
+			pid_t process_id,
+			ENTITY_SELF *self );
 
 /* Returns output_filename */
 /* ----------------------- */
@@ -75,7 +77,8 @@ char *generate_invoice_PDF(
 			char *street_address,
 			char *season_name,
 			int year,
-			int process_id );
+			int process_id,
+			ENTITY_SELF *self );
 
 void generate_invoice(	char *application_name,
 			char *document_root_directory,
@@ -83,7 +86,8 @@ void generate_invoice(	char *application_name,
 			char *street_address,
 			char *season_name,
 			int year,
-			char *output_option );
+			char *output_option,
+			ENTITY_SELF *self );
 
 boolean generate_invoice_line_item_list(
 			LIST *invoice_line_item_list,
@@ -98,7 +102,8 @@ boolean build_latex_invoice(
 			char *street_address,
 			char *season_name,
 			int year,
-			char *predictive_logo_filename );
+			char *predictive_logo_filename,
+			ENTITY_SELF *self );
 
 void output_invoice_window(
 			char *ftp_output_filename,
@@ -116,6 +121,7 @@ int main( int argc, char **argv )
 	int year;
 	char *output_option;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	ENTITY_SELF *self;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -159,6 +165,16 @@ int main( int argc, char **argv )
 	if ( system( timlib_system_date_string() ) ){};
 	fflush( stdout );
 
+	if ( ! ( self = entity_self_load() ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: entity_self_load() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	if ( strcmp( full_name, "full_name" ) == 0 )
 	{
 		generate_invoice_amount_due(
@@ -167,7 +183,8 @@ int main( int argc, char **argv )
 				document_root,
 			season_name,
 			year,
-			output_option );
+			output_option,
+			self );
 	}
 	else
 	{
@@ -179,7 +196,8 @@ int main( int argc, char **argv )
 			street_address,
 			season_name,
 			year,
-			output_option );
+			output_option,
+			self );
 	}
 
 	document_close();
@@ -192,7 +210,8 @@ void generate_invoice_amount_due(
 			char *document_root_directory,
 			char *season_name,
 			int year,
-			char *output_option )
+			char *output_option,
+			ENTITY_SELF *self )
 {
 	LIST *registration_list;
 	REGISTRATION *registration;
@@ -225,7 +244,8 @@ void generate_invoice_amount_due(
 			registration->street_address,
 			season_name,
 			year,
-			output_option );
+			output_option,
+			self );
 
 	} while ( list_next( registration_list ) );
 }
@@ -343,7 +363,8 @@ void generate_invoice(		char *application_name,
 				char *street_address,
 				char *season_name,
 				int year,
-				char *output_option )
+				char *output_option,
+				ENTITY_SELF *self )
 {
 	int process_id = getpid();
 	char *ftp_output_filename;
@@ -360,7 +381,8 @@ void generate_invoice(		char *application_name,
 					street_address,
 					season_name,
 					year,
-					process_id ) ) )
+					process_id,
+					self ) ) )
 		{
 			fprintf( stderr,
 			"ERROR in %s/%s()/%d: generate_invoice_PDF() failed.\n",
@@ -379,25 +401,27 @@ void generate_invoice(		char *application_name,
 	if ( strcmp( output_option, "email_display" ) == 0 )
 	{
 		generate_invoice_email_display(
-				application_name,
-				document_root_directory,
-				full_name,
-				street_address,
-				season_name,
-				year,
-				process_id );
+			application_name,
+			document_root_directory,
+			full_name,
+			street_address,
+			season_name,
+			year,
+			process_id,
+			self );
 	}
 	else
 	if ( strcmp( output_option, "email_send" ) == 0 )
 	{
 		generate_invoice_email_send(
-				application_name,
-				document_root_directory,
-				full_name,
-				street_address,
-				season_name,
-				year,
-				process_id );
+			application_name,
+			document_root_directory,
+			full_name,
+			street_address,
+			season_name,
+			year,
+			process_id,
+			self );
 	}
 }
 
@@ -410,7 +434,8 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 				char *street_address,
 				char *season_name,
 				int year,
-				int process_id )
+				int process_id,
+				ENTITY_SELF *self )
 {
 	FILE *output_stream;
 	char *output_filename;
@@ -480,7 +505,8 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 			year,
 	 		application_constants_safe_fetch(
 				application_constants->dictionary,
-				PREDICTIVE_LOGO_FILENAME_KEY ) ) )
+				PREDICTIVE_LOGO_FILENAME_KEY ),
+			self ) )
 	{
 		printf( "<h3>Please choose a Registration.</h3>\n" );
 		fclose( output_stream );
@@ -544,13 +570,14 @@ char *generate_invoice_PDF(	char **ftp_output_filename,
 }
 
 void generate_invoice_email_display(
-				char *application_name,
-				char *document_root_directory,
-				char *full_name,
-				char *street_address,
-				char *season_name,
-				int year,
-				int process_id )
+			char *application_name,
+			char *document_root_directory,
+			char *full_name,
+			char *street_address,
+			char *season_name,
+			int year,
+			int process_id,
+			ENTITY_SELF *self )
 {
 	char *output_filename;
 	char *ftp_output_filename;
@@ -567,13 +594,22 @@ void generate_invoice_email_display(
 			street_address,
 			season_name,
 			year,
-			process_id );
+			process_id,
+			self );
 
 	if ( ! ( entity = entity_fetch(
 				full_name,
 				street_address ) ) )
 	{
 		printf( "<h3>Error: cannot fetch %s/%s</h3>\n",
+			full_name,
+			street_address );
+		return;
+	}
+
+	if ( !*entity->email_address )
+	{
+		printf( "<h3>Error: no email address for %s/%s</h3>\n",
 			full_name,
 			street_address );
 		return;
@@ -592,16 +628,19 @@ void generate_invoice_email_display(
 	/* -------------------- */
 	sendmail_string =
 		email_sendmail_string(
-			FROM_ADDRESS,
-			entity->email_address /* to_address */,
+			self->entity->email_address
+				/* from_address */,
+			entity->email_address
+				/* to_address */,
 			SUBJECT,
-			"Here is your invoice." /* message */,
-			(char *)0 /* reply_to */,
-			entity->full_name );
+			"Here is your invoice."
+				/* message */,
+			self->entity->email_address
+				/* reply_to */,
+			self->entity->full_name );
 
 	printf( "<p>%s\n", sendmail_command );
 	printf( "<p>%s\n", sendmail_string );
-
 }
 
 void generate_invoice_email_send(
@@ -611,7 +650,8 @@ void generate_invoice_email_send(
 				char *street_address,
 				char *season_name,
 				int year,
-				pid_t process_id )
+				pid_t process_id,
+				ENTITY_SELF *self )
 {
 	char *output_filename;
 	char *ftp_output_filename;
@@ -626,7 +666,8 @@ void generate_invoice_email_send(
 			street_address,
 			season_name,
 			year,
-			process_id );
+			process_id,
+			self );
 
 	if ( ! ( entity = entity_fetch(
 				full_name,
@@ -638,13 +679,17 @@ void generate_invoice_email_send(
 		return;
 	}
 
-	email_sendmail(	FROM_ADDRESS,
-			entity->email_address /* to_address */,
+	email_sendmail( self->entity->email_address
+				/* from_address */,
+			entity->email_address
+				/* to_address */,
 			SUBJECT,
 			MESSAGE,
-			(char *)0 /* reply_to */,
+			self->entity->email_address
+				/* reply_to */,
 			entity->full_name,
-			output_filename /* attachment_filename */ );
+			output_filename
+				/* attachment_filename */ );
 
 	printf( "<h3>Message send.</h3>\n" );
 }
@@ -654,23 +699,13 @@ boolean build_latex_invoice(	FILE *output_stream,
 				char *street_address,
 				char *season_name,
 				int year,
-				char *predictive_logo_filename )
+				char *predictive_logo_filename,
+				ENTITY_SELF *self )
 {
 	LATEX_INVOICE *latex_invoice;
-	ENTITY_SELF *self;
 	char *todays_date;
 	REGISTRATION *registration;
 	char title[ 128 ];
-
-	if ( ! ( self = entity_self_load() ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: entity_self_load() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
 
 	sprintf(	title,
 			"%s Invoice",

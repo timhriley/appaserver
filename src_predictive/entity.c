@@ -301,7 +301,7 @@ ENTITY *entity_fetch(	char *full_name,
 		 /* Returns program memory */
 		 /* ---------------------- */
 		 entity_select(),
-		 "entity",
+		 ENTITY_TABLE,
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
 		 /* -------------------------- */
@@ -339,6 +339,9 @@ ENTITY *entity_parse( char *input )
 
 	piece( piece_buffer, SQL_DELIMITER, input, 5 );
 	entity->phone_number = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 6 );
+	entity->email_address = strdup( piece_buffer );
 
 	return entity;
 }
