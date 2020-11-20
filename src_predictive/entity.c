@@ -423,12 +423,16 @@ FILE *entity_insert_open(
 void entity_insert_pipe(
 			FILE *insert_pipe,
 			char *full_name,
-			char *street_address )
+			char *street_address,
+			char *email_address )
 {
 	fprintf(insert_pipe,
-		"%s^%s\n",
+		"%s^%s^%s\n",
 		entity_escape_name( full_name ),
-		street_address );
+		street_address,
+		(email_address)
+			? email_address
+			: "" );
 }
 
 char *entity_name_display(

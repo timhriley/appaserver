@@ -97,10 +97,10 @@ OFFERING *offering_parse(	char *input,
 	offering->class_capacity = atoi( class_capacity );
 
 	piece( enrollment_count, SQL_DELIMITER, input, 7 );
-	offering->offering_enrollment_count = atoi( enrollment_count );
+	offering->enrollment_count = atoi( enrollment_count );
 
 	piece( capacity_available, SQL_DELIMITER, input, 8 );
-	offering->offering_capacity_available = atoi( capacity_available );
+	offering->capacity_available = atoi( capacity_available );
 
 	piece( revenue_account, SQL_DELIMITER, input, 9 );
 	offering->revenue_account = strdup( revenue_account );
@@ -125,7 +125,7 @@ OFFERING *offering_parse(	char *input,
 
 	if ( fetch_enrollment_list )
 	{
-		offering->offering_enrollment_list =
+		offering->enrollment_list =
 			offering_enrollment_list(
 				offering->course->course_name,
 				offering->semester->season_name,
@@ -190,9 +190,9 @@ int offering_enrollment_count(
 
 int offering_capacity_available(
 			int class_capacity,
-			int offering_enrollment_count )
+			int enrollment_count )
 {
-	return class_capacity - offering_enrollment_count;
+	return class_capacity - enrollment_count;
 }
 
 char *semester_where(	char *season_name,
@@ -305,14 +305,14 @@ OFFERING *offering_steady_state(
 			OFFERING *offering,
 			LIST *offering_enrollment_list )
 {
-	offering->offering_enrollment_count =
+	offering->enrollment_count =
 		offering_enrollment_count(
 			offering_enrollment_list );
 
-	offering->offering_capacity_available =
+	offering->capacity_available =
 		offering_capacity_available(
 			offering->class_capacity,
-			offering->offering_enrollment_count );
+			offering->enrollment_count );
 
 	return offering;
 }

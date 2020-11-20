@@ -17,7 +17,7 @@ int offering_enrollment_count(
 
 int offering_capacity_available(
 			int class_capacity,
-			int offering_enrollment_count );
+			int enrollment_count );
 
 /* Returns program memory */
 /* ---------------------- */

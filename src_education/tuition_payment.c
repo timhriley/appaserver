@@ -500,14 +500,14 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 	tuition_payment->
 		enrollment->
 		registration->
-		registration_tuition_payment_total =
+		tuition_payment_total =
 			registration_tuition_payment_total(
 				deposit_registration_list );
 
 	tuition_payment->
 		enrollment->
 		registration->
-		registration_tuition =
+		tuition =
 			registration_tuition(
 				registration_enrollment_list,
 				semester_offering_list );
@@ -515,16 +515,16 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 	tuition_payment->
 		enrollment->
 		registration->
-		registration_invoice_amount_due =
+		invoice_amount_due =
 			registration_invoice_amount_due(
 				tuition_payment->
 					enrollment->
 					registration->
-					registration_tuition,
+					tuition,
 				tuition_payment->
 					enrollment->
 					registration->
-					registration_tuition_payment_total );
+					tuition_payment_total );
 
 	tuition_payment->tuition_payment_amount =
 		tuition_payment_amount(
@@ -532,7 +532,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			tuition_payment->
 				enrollment->
 				registration->
-				registration_invoice_amount_due,
+				invoice_amount_due,
 			list_length( deposit_registration_list ) );
 
 	tuition_payment->tuition_payment_fees_expense =
@@ -978,7 +978,8 @@ void tuition_payment_list_student_entity_insert(
 		entity_insert_pipe(
 			insert_pipe,
 			payment->enrollment->registration->student_full_name,
-			payment->enrollment->registration->street_address );
+			payment->enrollment->registration->street_address,
+			(char *)0 /* email_address */ );
 
 	} while ( list_next( payment_list ) );
 
@@ -1021,7 +1022,8 @@ void tuition_payment_list_payor_entity_insert(
 		entity_insert_pipe(
 			insert_pipe,
 			payment->deposit->payor_entity->full_name,
-			payment->deposit->payor_entity->street_address );
+			payment->deposit->payor_entity->street_address,
+			payment->deposit->payor_entity->email_address );
 
 	} while ( list_next( payment_list ) );
 
@@ -1359,14 +1361,14 @@ TUITION_PAYMENT *tuition_payment(
 	payment->
 		enrollment->
 		registration->
-		registration_enrollment_list =
+		enrollment_list =
 			list_new();
 
 	list_set(
 		payment->
 			enrollment->
 			registration->
-			registration_enrollment_list,
+			enrollment_list,
 		payment->enrollment );
 
 	/* Set deposit */
@@ -1607,7 +1609,7 @@ LIST *tuition_payment_list_steady_state(
 				offering_steady_state(
 					offering,
 					offering->
-						offering_enrollment_list ) ) )
+						enrollment_list ) ) )
 		{
 			fprintf(stderr,
 	"ERROR in %s/%s()/%d: offering_steady_state() returned empty.\n",
@@ -1639,7 +1641,7 @@ LIST *tuition_payment_list_steady_state(
 				registration_steady_state(
 					registration,
 					registration->
-					     registration_enrollment_list,
+					     enrollment_list,
 					semester_offering_list ) ) )
 		{
 			fprintf(stderr,
@@ -1659,7 +1661,7 @@ LIST *tuition_payment_list_steady_state(
 				tuition_payment,
 				deposit_tuition_payment_list,
 				deposit_registration_list,
-				registration->registration_enrollment_list,
+				registration->enrollment_list,
 				semester_offering_list,
 				deposit_amount,
 				transaction_fee,

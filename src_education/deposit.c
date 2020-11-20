@@ -550,10 +550,10 @@ double deposit_registration_tuition(
 		registration = list_get( deposit_registration_list );
 
 		tuition +=
-			( registration->registration_tuition =
+			( registration->tuition =
 				registration_tuition(
 					registration->
-					     registration_enrollment_list,
+					     enrollment_list,
 					semester_offering_list ) );
 
 	} while ( list_next( deposit_registration_list ) );

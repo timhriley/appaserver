@@ -232,6 +232,7 @@ DEPOSIT *education_deposit(
 	/* Column K */
 	/* -------- */
 	deposit->from_email_address =
+	deposit->payor_entity->email_address =
 		strdup( paypal_dataset->from_email_address_K );
 
 	/* Column M */

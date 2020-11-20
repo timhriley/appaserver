@@ -28,7 +28,8 @@ enum payroll_pay_period{	pay_period_not_set,
 #define ENTITY_TABLE		"entity"
 
 #define ENTITY_INSERT_COLUMNS	"full_name,"		\
-				"street_address"
+				"street_address,"	\
+				"email_address"
 
 /* #define REFRESH_COMPLETELY	1 */
 
@@ -134,7 +135,8 @@ FILE *entity_insert_open(
 void entity_insert_pipe(
 			FILE *insert_pipe,
 			char *full_name,
-			char *street_address );
+			char *street_address,
+			char *email_address );
 
 char *entity_name_display(
 			char *full_name,

@@ -40,9 +40,9 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	int offering_enrollment_count;
-	int offering_capacity_available;
-	LIST *offering_enrollment_list;
+	int enrollment_count;
+	int capacity_available;
+	LIST *enrollment_list;
 } OFFERING;
 
 /* Prototypes */
