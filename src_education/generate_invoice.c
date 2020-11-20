@@ -218,7 +218,7 @@ void generate_invoice_amount_due(
 	char where[ 1024 ];
 
 	sprintf(where,
-		"season = '%s' and year = %d and invoice_amount_due > 0",
+		"season_name = '%s' and year = %d and invoice_amount_due > 0",
 		season_name,
 		year );
 
