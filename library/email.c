@@ -138,7 +138,7 @@ char *email_sendmail_string(
 
 	if ( message && *message )
 	{
-		ptr += sprintf( ptr, "\n%s\n", message );
+		ptr += sprintf( ptr, "%s\n", message );
 	}
 
 	return strdup( sendmail_string );
