@@ -69,12 +69,18 @@ void program_payment_update(
 FILE *program_payment_update_open(
 			void );
 
+/* Note: there's always only one of them. */
+/* -------------------------------------- */
 double program_payment_amount(
 			double deposit_amount );
 
+/* Note: there's always only one of them. */
+/* -------------------------------------- */
 double program_payment_fees_expense(
 			double deposit_fees_expense );
 
+/* Note: there's always only one of them. */
+/* -------------------------------------- */
 double program_payment_net_payment_amount(
 			double deposit_net_payment_amount );
 
