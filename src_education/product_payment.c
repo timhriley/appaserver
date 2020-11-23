@@ -1,5 +1,5 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/program_payment.c	*/
+/* $APPASERVER_HOME/src_education/product_payment.c	*/
 /* ---------------------------------------------------- */
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -16,21 +16,21 @@
 #include "list.h"
 #include "entity_self.h"
 #include "paypal_upload.h"
-#include "program.h"
+#include "product.h"
 #include "transaction.h"
 #include "journal.h"
 #include "entity.h"
 #include "account.h"
 #include "deposit.h"
 #include "program_payment_item_title.h"
-#include "program_payment_fns.h"
-#include "program_payment.h"
+#include "product_payment_fns.h"
+#include "product_payment.h"
 
-PROGRAM_PAYMENT *program_payment_calloc( void )
+PRODUCT_PAYMENT *product_payment_calloc( void )
 {
-	PROGRAM_PAYMENT *program_payment;
+	PRODUCT_PAYMENT *product_payment;
 
-	if ( ! ( program_payment = calloc( 1, sizeof( PROGRAM_PAYMENT ) ) ) )
+	if ( ! ( product_payment = calloc( 1, sizeof( PRODUCT_PAYMENT ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -39,123 +39,123 @@ PROGRAM_PAYMENT *program_payment_calloc( void )
 			 __LINE__ );
 		exit( 1 );
 	}
-	return program_payment;
+	return product_payment;
 }
 
-PROGRAM_PAYMENT *program_payment_fetch(
-			char *program_name,
+PRODUCT_PAYMENT *product_payment_fetch(
+			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
 			char *deposit_date_time,
-			boolean fetch_program,
+			boolean fetch_product,
 			boolean fetch_deposit )
 {
-	PROGRAM_PAYMENT *program_payment;
+	PRODUCT_PAYMENT *product_payment;
 
-	program_payment =
-		program_payment_parse(
+	product_payment =
+		product_payment_parse(
 			pipe2string(
-				program_payment_sys_string(
+				product_payment_sys_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
-					program_payment_primary_where(
-						program_name,
+					product_payment_primary_where(
+						product_name,
 						payor_full_name,
 						payor_street_address,
 						season_name,
 						year,
 						deposit_date_time ) ) ),
-			fetch_program,
+			fetch_product,
 			fetch_deposit );
 
-	return program_payment;
+	return product_payment;
 }
 
-LIST *program_payment_system_list(
+LIST *product_payment_system_list(
 			char *sys_string,
-			boolean fetch_program,
+			boolean fetch_product,
 			boolean fetch_deposit )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
-	LIST *program_payment_list = list_new();
+	LIST *product_payment_list = list_new();
 
 	input_pipe = popen( sys_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
 		list_set(
-			program_payment_list,
-			program_payment_parse(
+			product_payment_list,
+			product_payment_parse(
 				input,
-				fetch_program,
+				fetch_product,
 				fetch_deposit ) );
 	}
 
 	pclose( input_pipe );
-	return program_payment_list;
+	return product_payment_list;
 }
 
-char *program_payment_sys_string( char *where )
+char *product_payment_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
 		 "select.sh '*' %s \"%s\" select",
-		 PROGRAM_PAYMENT_TABLE,
+		 PRODUCT_PAYMENT_TABLE,
 		 where );
 
 	return strdup( sys_string );
 }
 
-void program_payment_list_insert( LIST *program_payment_list )
+void product_payment_list_insert( LIST *product_payment_list )
 {
-	PROGRAM_PAYMENT *program_payment;
+	PRODUCT_PAYMENT *product_payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
 	char *transaction_date_time;
 
-	if ( !list_rewind( program_payment_list ) ) return;
+	if ( !list_rewind( product_payment_list ) ) return;
 
 	insert_pipe =
-		program_payment_insert_open(
+		product_payment_insert_open(
 			( error_filename =
 				timlib_tmpfile() ) );
 
 	do {
-		program_payment = list_get( program_payment_list );
+		product_payment = list_get( product_payment_list );
 
 		transaction_date_time =
-			(program_payment->program_payment_transaction)
-				? program_payment->
-					program_payment_transaction->
+			(product_payment->product_payment_transaction)
+				? product_payment->
+					product_payment_transaction->
 					transaction_date_time
 				: (char *)0;
 
-		program_payment_insert_pipe(
+		product_payment_insert_pipe(
 			insert_pipe,
-			program_payment->program->program_name,
-			program_payment->deposit->payor_entity->full_name,
-			program_payment->deposit->payor_entity->street_address,
-			program_payment->deposit->semester->season_name,
-			program_payment->deposit->semester->year,
-			program_payment->deposit->deposit_date_time,
-			program_payment->program_payment_amount,
-			program_payment->fees_expense,
-			program_payment->net_payment_amount,
+			product_payment->product->product_name,
+			product_payment->deposit->payor_entity->full_name,
+			product_payment->deposit->payor_entity->street_address,
+			product_payment->deposit->semester->season_name,
+			product_payment->deposit->semester->year,
+			product_payment->deposit->deposit_date_time,
+			product_payment->product_payment_amount,
+			product_payment->fees_expense,
+			product_payment->net_payment_amount,
 			transaction_date_time );
 
-	} while ( list_next( program_payment_list ) );
+	} while ( list_next( product_payment_list ) );
 
 	pclose( insert_pipe );
 
 	if ( timlib_file_populated( error_filename ) )
 	{
-		char *title = "Insert Program Payment Errors";
+		char *title = "Insert Product Payment Errors";
 
 		sprintf(sys_string,
 			"cat %s						|"
@@ -172,7 +172,7 @@ void program_payment_list_insert( LIST *program_payment_list )
 	if ( system( sys_string ) ){};
 }
 
-FILE *program_payment_insert_open( char *error_filename )
+FILE *product_payment_insert_open( char *error_filename )
 {
 	char sys_string[ 1024 ];
 
@@ -180,8 +180,8 @@ FILE *program_payment_insert_open( char *error_filename )
 		"insert_statement t=%s f=\"%s\" replace=%c delimiter='%c'|"
 		"sql 2>&1						 |"
 		"cat >%s 						  ",
-		PROGRAM_PAYMENT_TABLE,
-		PROGRAM_PAYMENT_INSERT_COLUMNS,
+		PRODUCT_PAYMENT_TABLE,
+		PRODUCT_PAYMENT_INSERT_COLUMNS,
 		'y',
 		SQL_DELIMITER,
 		error_filename );
@@ -189,9 +189,9 @@ FILE *program_payment_insert_open( char *error_filename )
 	return popen( sys_string, "w" );
 }
 
-void program_payment_insert_pipe(
+void product_payment_insert_pipe(
 			FILE *insert_pipe,
-			char *program_name,
+			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -207,7 +207,7 @@ void program_payment_insert_pipe(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		program_name_escape( program_name ),
+		product_name_escape( product_name ),
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -224,12 +224,12 @@ void program_payment_insert_pipe(
 			: "" );
 }
 
-PROGRAM_PAYMENT *program_payment_parse(
+PRODUCT_PAYMENT *product_payment_parse(
 			char *input,
-			boolean fetch_program,
+			boolean fetch_product,
 			boolean fetch_deposit )
 {
-	char program_name[ 128 ];
+	char product_name[ 128 ];
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
 	char season_name[ 128 ];
@@ -239,16 +239,16 @@ PROGRAM_PAYMENT *program_payment_parse(
 	char fees_expense[ 128 ];
 	char net_payment_amount[ 128 ];
 	char transaction_date_time[ 128 ];
-	PROGRAM_PAYMENT *program_payment;
+	PRODUCT_PAYMENT *product_payment;
 
-	if ( !input || !*input ) return (PROGRAM_PAYMENT *)0;
+	if ( !input || !*input ) return (PRODUCT_PAYMENT *)0;
 
-	program_payment = program_payment_calloc();
+	product_payment = product_payment_calloc();
 
-	/* See: attribute_list program_payment */
+	/* See: attribute_list product_payment */
 	/* ----------------------------------- */
-	piece( program_name, SQL_DELIMITER, input, 0 );
-	program_payment->program = program_new( strdup( program_name ) );
+	piece( product_name, SQL_DELIMITER, input, 0 );
+	product_payment->product = product_new( strdup( product_name ) );
 
 	piece( payor_full_name, SQL_DELIMITER, input, 1 );
 	piece( payor_street_address, SQL_DELIMITER, input, 2 );
@@ -256,7 +256,7 @@ PROGRAM_PAYMENT *program_payment_parse(
 	piece( year, SQL_DELIMITER, input, 4 );
 	piece( deposit_date_time, SQL_DELIMITER, input, 5 );
 
-	program_payment->deposit =
+	product_payment->deposit =
 		deposit_new(
 			strdup( payor_full_name ),
 			strdup( payor_street_address ),
@@ -265,47 +265,48 @@ PROGRAM_PAYMENT *program_payment_parse(
 			strdup( deposit_date_time ) );
 
 	piece( payment_amount, SQL_DELIMITER, input, 6 );
-	program_payment->program_payment_amount =
+	product_payment->product_payment_amount =
 		atof( payment_amount );
 
 	piece( fees_expense, SQL_DELIMITER, input, 7 );
-	program_payment->fees_expense = atof( fees_expense );
+	product_payment->fees_expense = atof( fees_expense );
 
 	piece( net_payment_amount, SQL_DELIMITER, input, 8 );
-	program_payment->net_payment_amount = atof( net_payment_amount );
+	product_payment->net_payment_amount = atof( net_payment_amount );
 
 	piece( transaction_date_time, SQL_DELIMITER, input, 9 );
-	program_payment->transaction_date_time =
+	product_payment->transaction_date_time =
 		strdup( transaction_date_time );
 
-	if ( fetch_program )
+	if ( fetch_product )
 	{
-		program_payment->program =
-			program_fetch(
-				program_payment->program->program_name,
-				1 /* fetch_alias_list */ );
+		product_payment->product =
+			product_fetch(
+				product_payment->
+					product->
+					product_name );
 	}
 
 	if ( fetch_deposit )
 	{
-		program_payment->deposit =
+		product_payment->deposit =
 		    deposit_fetch(
-			 program_payment->deposit->payor_entity->full_name,
-			 program_payment->deposit->payor_entity->street_address,
-			 program_payment->deposit->semester->season_name,
-			 program_payment->deposit->semester->year,
-			 program_payment->deposit->deposit_date_time,
+			 product_payment->deposit->payor_entity->full_name,
+			 product_payment->deposit->payor_entity->street_address,
+			 product_payment->deposit->semester->season_name,
+			 product_payment->deposit->semester->year,
+			 product_payment->deposit->deposit_date_time,
 			 0 /* not fetch_tuition_payment_list */,
 			 0 /* not fetch_program_payment_list */,
 			 0 /* not fetch_product_payment_list */,
 			 0 /* not fetch_tuition_refund_list */ );
 	}
 
-	return program_payment;
+	return product_payment;
 }
 
-char *program_payment_primary_where(
-			char *program_name,
+char *product_payment_primary_where(
+			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -315,7 +316,7 @@ char *program_payment_primary_where(
 	char static where[ 1024 ];
 
 	sprintf(where,
-		"program_name = '%s' and		"
+		"product_name = '%s' and		"
 		"payor_full_name = '%s' and		"
 		"payor_street_address = '%s' and	"
 		"season_name = '%s' and			"
@@ -324,7 +325,7 @@ char *program_payment_primary_where(
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
-		 program_name_escape( program_name ),
+		 product_name_escape( product_name ),
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
@@ -337,25 +338,26 @@ char *program_payment_primary_where(
 	return where;
 }
 
-TRANSACTION *program_payment_transaction(
+TRANSACTION *product_payment_transaction(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *deposit_date_time,
+			char *product_name,
 			char *program_name,
 			double payment_amount,
 			double fees_expense,
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
-			char *program_revenue_account )
+			char *product_revenue_account )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
 
-	if ( !program_revenue_account )
+	if ( !product_revenue_account )
 	{
 		fprintf(stderr,
-		"Warning in %s/%s()/%d: empty program_revenue_account.\n",
+		"Warning in %s/%s()/%d: empty product_revenue_account.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -376,7 +378,7 @@ TRANSACTION *program_payment_transaction(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			program_payment_memo( program_name ) );
+			product_payment_memo( product_name ) );
 
 	transaction->program_name = program_name;
 
@@ -420,14 +422,14 @@ TRANSACTION *program_payment_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				program_revenue_account ) ) );
+				product_revenue_account ) ) );
 
 	journal->credit_amount = payment_amount;
 
 	return transaction;
 }
 
-FILE *program_payment_update_open( void )
+FILE *product_payment_update_open( void )
 {
 	char sys_string[ 2048 ];
 
@@ -435,26 +437,26 @@ FILE *program_payment_update_open( void )
 		 "update_statement table=%s key=%s carrot=y	|"
 		 "tee_appaserver_error.sh 			|"
 		 "sql						 ",
-		 PROGRAM_PAYMENT_TABLE,
-		 PROGRAM_PAYMENT_PRIMARY_KEY );
+		 PRODUCT_PAYMENT_TABLE,
+		 PRODUCT_PAYMENT_PRIMARY_KEY );
 
 	return popen( sys_string, "w" );
 }
 
-void program_payment_update(
+void product_payment_update(
 			char *transaction_date_time,
-			char *program_name,
+			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
 			char *deposit_date_time )
 {
-	FILE *update_pipe = program_payment_update_open();
+	FILE *update_pipe = product_payment_update_open();
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%d^%s^transaction_date_time^%s\n",
-		 program_name,
+		 product_name,
 		 payor_full_name,
 		 payor_street_address,
 		 season_name,
@@ -467,11 +469,11 @@ void program_payment_update(
 	pclose( update_pipe );
 }
 
-char *program_payment_list_display( LIST *payment_list )
+char *product_payment_list_display( LIST *payment_list )
 {
 	char display[ 65536 ];
 	char *ptr = display;
-	PROGRAM_PAYMENT *payment;
+	PRODUCT_PAYMENT *payment;
 
 	*ptr = '\0';
 
@@ -490,17 +492,17 @@ char *program_payment_list_display( LIST *payment_list )
 			ptr += sprintf( ptr, ", " );
 		}
 
-		if ( payment && payment->program )
+		if ( payment && payment->product )
 		{
 			ptr += sprintf(	ptr,
 					"%s",
-					payment->program->program_name );
+					payment->product->product_name );
 		}
 		else
 		{
 			ptr += sprintf(	ptr,
 					"%s",
-					"Non existing program" );
+					"Non existing product" );
 		}
 
 	} while ( list_next( payment_list ) );
@@ -508,175 +510,176 @@ char *program_payment_list_display( LIST *payment_list )
 	return strdup( display );
 }
 
-double program_payment_amount(
+double product_payment_amount(
 			double deposit_amount )
 {
 	return deposit_amount;
 }
 
-double program_payment_fees_expense(
+double product_payment_fees_expense(
 			double deposit_fees_expense )
 {
 	return deposit_fees_expense;
 }
 
-double program_payment_net_payment_amount(
+double product_payment_net_payment_amount(
 			double deposit_net_payment_amount )
 {
 	return deposit_net_payment_amount;
 }
 
-PROGRAM_PAYMENT *program_payment_steady_state(
-			PROGRAM_PAYMENT *program_payment,
+PRODUCT_PAYMENT *product_payment_steady_state(
+			PRODUCT_PAYMENT *product_payment,
 			double deposit_amount,
 			double deposit_transaction_fee,
 			double deposit_net_payment_amount )
 {
-	if ( !program_payment->program )
+	if ( !product_payment->product )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty program.\n",
+			"ERROR in %s/%s()/%d: empty product.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( !program_payment->program->revenue_account
-	||   !*program_payment->program->revenue_account )
+	if ( !product_payment->product->revenue_account
+	||   !*product_payment->product->revenue_account )
 	{
 		fprintf(stderr,
 			"Warning in %s/%s()/%d: empty revenue_account.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (PROGRAM_PAYMENT *)0;
+		return (PRODUCT_PAYMENT *)0;
 	}
 
-	program_payment->program_payment_amount =
-		program_payment_amount(
+	product_payment->product_payment_amount =
+		product_payment_amount(
 			deposit_amount );
 
-	program_payment->fees_expense =
-		program_payment_fees_expense(
+	product_payment->fees_expense =
+		product_payment_fees_expense(
 			deposit_transaction_fee );
 
-	program_payment->net_payment_amount =
-		program_payment_net_payment_amount(
+	product_payment->net_payment_amount =
+		product_payment_net_payment_amount(
 			deposit_net_payment_amount );
 
-	if ( !program_payment->transaction_date_time
-	||   !*program_payment->transaction_date_time )
+	if ( !product_payment->transaction_date_time
+	||   !*product_payment->transaction_date_time )
 	{
-		program_payment->transaction_date_time =
-			program_payment->deposit->deposit_date_time;
+		product_payment->transaction_date_time =
+			product_payment->deposit->deposit_date_time;
 	}
 
-	if ( ( program_payment->program_payment_transaction =
-	       program_payment_transaction(
-			program_payment->deposit->payor_entity->full_name,
-			program_payment->deposit->payor_entity->street_address,
-			program_payment->transaction_date_time,
-			program_payment->program->program_name,
-			program_payment->program_payment_amount,
-			program_payment->fees_expense,
-			program_payment->net_payment_amount,
+	if ( ( product_payment->product_payment_transaction =
+	       product_payment_transaction(
+			product_payment->deposit->payor_entity->full_name,
+			product_payment->deposit->payor_entity->street_address,
+			product_payment->transaction_date_time,
+			product_payment->product->product_name,
+			product_payment->product->program_name,
+			product_payment->product_payment_amount,
+			product_payment->fees_expense,
+			product_payment->net_payment_amount,
 			entity_self_paypal_cash_account_name(),
 			account_fees_expense( (char *)0 ),
-			program_payment->program->revenue_account ) ) )
+			product_payment->product->revenue_account ) ) )
 	{
-		program_payment->transaction_date_time =
-			program_payment->program_payment_transaction->
+		product_payment->transaction_date_time =
+			product_payment->product_payment_transaction->
 				transaction_date_time;
 	}
 	else
 	{
-		program_payment->transaction_date_time = (char *)0;
+		product_payment->transaction_date_time = (char *)0;
 	}
 
-	return program_payment;
+	return product_payment;
 }
 
-PROGRAM_PAYMENT *program_payment(
+PRODUCT_PAYMENT *product_payment(
 			char *item_title_P,
-			int program_number,
-			LIST *education_program_list,
+			int product_number,
+			LIST *education_product_list,
 			/* -------- */
 			/* Set only */
 			/* -------- */
 			DEPOSIT *deposit )
 {
-	PROGRAM_PAYMENT *program_payment;
+	PRODUCT_PAYMENT *product_payment;
 	PROGRAM_PAYMENT_ITEM_TITLE *payment_item_title;
-	char *program_name;
+	char *product_name;
 
 	if ( ! ( payment_item_title =
 			program_payment_item_title_new(
 				item_title_P,
-				program_number ) ) )
+				product_number ) ) )
 	{
-		return (PROGRAM_PAYMENT *)0;
+		return (PRODUCT_PAYMENT *)0;
 	}
 
-	if ( ! ( program_name =
-			program_payment_item_title_name(
+	if ( ! ( product_name =
+			product_payment_item_title_name(
 				item_title_P,
-				program_number,
-				education_program_list ) ) )
+				product_number,
+				education_product_list ) ) )
 	{
-		return (PROGRAM_PAYMENT *)0;
+		return (PRODUCT_PAYMENT *)0;
 	}
 
 	/* New payment */
 	/* ----------- */
-	program_payment = program_payment_calloc();
+	product_payment = product_payment_calloc();
 
-	if ( ! ( program_payment->program =
-			program_list_seek(
-				education_program_list,
-				program_name ) ) )
+	if ( ! ( product_payment->product =
+			product_list_seek(
+				education_product_list,
+				product_name ) ) )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: program_list_seek(%s) returned empty.\n",
+	"Warning in %s/%s()/%d: product_list_seek(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			program_name );
+			product_name );
 
-		return (PROGRAM_PAYMENT *)0;
+		return (PRODUCT_PAYMENT *)0;
 	}
 
-	program_payment->program_payment_item_title = payment_item_title;
-	program_payment->deposit = deposit;
+	product_payment->program_payment_item_title = payment_item_title;
+	product_payment->deposit = deposit;
 
-	return program_payment;
+	return product_payment;
 }
 
-LIST *program_payment_list(
+LIST *product_payment_list(
 			char *item_title_P,
-			LIST *education_program_list,
+			LIST *education_product_list,
 			DEPOSIT *deposit )
 {
 	LIST *payment_list = list_new();
-	PROGRAM_PAYMENT *payment;
-	int program_number;
+	PRODUCT_PAYMENT *payment;
+	int product_number;
 
-	for (	program_number = 1;
+	for (	product_number = 1;
 		( payment =
-			program_payment(
+			product_payment(
 				item_title_P,
-				program_number,
-				education_program_list,
+				product_number,
+				education_product_list,
 				deposit ) );
-		program_number++ )
+		product_number++ )
 	{
 		list_set( payment_list, payment );
 	}
 	return payment_list;
 }
 
-void program_payment_trigger(
-			char *program_name,
+void product_payment_trigger(
+			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -687,8 +690,8 @@ void program_payment_trigger(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"program_payment_trigger \"%s\" \"%s\" '%s' '%s' %d '%s' '%s'",
-		program_name,
+"product_payment_trigger \"%s\" \"%s\" '%s' '%s' %d '%s' '%s'",
+		product_name,
 		payor_full_name,
 		payor_street_address,
 		season_name,
@@ -699,9 +702,9 @@ void program_payment_trigger(
 	if ( system( sys_string ) ){}
 }
 
-double program_payment_total( LIST *payment_list )
+double product_payment_total( LIST *payment_list )
 {
-	PROGRAM_PAYMENT *payment;
+	PRODUCT_PAYMENT *payment;
 	double total;
 
 	if ( !list_rewind( payment_list ) ) return 0.0;
@@ -711,124 +714,124 @@ double program_payment_total( LIST *payment_list )
 	do {
 		payment = list_get( payment_list );
 
-		total += payment->program_payment_amount;
+		total += payment->product_payment_amount;
 
 	} while ( list_next( payment_list ) );
 
 	return total;
 }
 
-void program_payment_list_trigger(
-			LIST *program_payment_list )
+void product_payment_list_trigger(
+			LIST *product_payment_list )
 {
-	PROGRAM_PAYMENT *program_payment;
+	PRODUCT_PAYMENT *product_payment;
 
-	if ( !list_rewind( program_payment_list ) ) return;
+	if ( !list_rewind( product_payment_list ) ) return;
 
 	do {
-		program_payment = list_get( program_payment_list );
+		product_payment = list_get( product_payment_list );
 
-		program_payment_trigger(
-			program_payment->program->program_name,
-			program_payment->
+		product_payment_trigger(
+			product_payment->product->product_name,
+			product_payment->
 				deposit->
 				payor_entity->
 				full_name,
-			program_payment->
+			product_payment->
 				deposit->
 				payor_entity->
 				street_address,
-			program_payment->deposit->semester->season_name,
-			program_payment->deposit->semester->year,
-			program_payment->
+			product_payment->deposit->semester->season_name,
+			product_payment->deposit->semester->year,
+			product_payment->
 				deposit->
 				deposit_date_time,
 			"insert" /* state */ );
 
-	} while ( list_next( program_payment_list ) );
+	} while ( list_next( product_payment_list ) );
 }
 
-LIST *program_payment_transaction_list(
-			LIST *program_payment_list )
+LIST *product_payment_transaction_list(
+			LIST *product_payment_list )
 {
-	PROGRAM_PAYMENT *program_payment;
+	PRODUCT_PAYMENT *product_payment;
 	LIST *transaction_list;
 
-	if ( !list_rewind( program_payment_list ) ) return (LIST *)0;
+	if ( !list_rewind( product_payment_list ) ) return (LIST *)0;
 
 	transaction_list = list_new();
 
 	do {
-		program_payment =
+		product_payment =
 			list_get(
-				program_payment_list );
+				product_payment_list );
 
-		if ( program_payment->program_payment_transaction )
+		if ( product_payment->product_payment_transaction )
 		{
 			list_set(
 				transaction_list,
-				program_payment->program_payment_transaction );
+				product_payment->product_payment_transaction );
 		}
 
-	} while ( list_next( program_payment_list ) );
+	} while ( list_next( product_payment_list ) );
 
 	return transaction_list;
 }
 
-LIST *program_payment_list_steady_state(
-			LIST *deposit_program_payment_list,
+LIST *product_payment_list_steady_state(
+			LIST *deposit_product_payment_list,
 			double deposit_amount,
 			double transaction_fee,
 			double net_payment_amount )
 {
-	PROGRAM_PAYMENT *program_payment;
+	PRODUCT_PAYMENT *product_payment;
 
-	if ( !list_rewind( deposit_program_payment_list ) ) return (LIST *)0;
+	if ( !list_rewind( deposit_product_payment_list ) ) return (LIST *)0;
 
 	do {
-		program_payment = list_get( deposit_program_payment_list );
+		product_payment = list_get( deposit_product_payment_list );
 
-		program_payment =
-			program_payment_steady_state(
-				program_payment,
+		product_payment =
+			product_payment_steady_state(
+				product_payment,
 				deposit_amount,
 				transaction_fee,
 				net_payment_amount );
 
-	} while( list_next( deposit_program_payment_list ) );
+	} while( list_next( deposit_product_payment_list ) );
 
-	return deposit_program_payment_list;
+	return deposit_product_payment_list;
 }
 
-char *program_payment_memo( char *program_name )
+char *product_payment_memo( char *product_name )
 {
 	static char payment_memo[ 128 ];
 
-	if ( program_name && *program_name )
+	if ( product_name && *product_name )
 	{
 		sprintf(payment_memo,
 			"%s/%s",
-			PROGRAM_PAYMENT_MEMO,
-			program_name );
+			PRODUCT_PAYMENT_MEMO,
+			product_name );
 	}
 	else
 	{
 		sprintf(payment_memo,
 			"%s Payment",
-			PROGRAM_PAYMENT_MEMO );
+			PRODUCT_PAYMENT_MEMO );
 	}
 	return payment_memo;
 }
 
-void program_payment_list_payor_entity_insert(
-			LIST *program_payment_list )
+void product_payment_list_payor_entity_insert(
+			LIST *product_payment_list )
 {
-	PROGRAM_PAYMENT *program_payment;
+	PRODUCT_PAYMENT *product_payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
 
-	if ( !list_rewind( program_payment_list ) ) return;
+	if ( !list_rewind( product_payment_list ) ) return;
 
 	insert_pipe =
 		entity_insert_open(
@@ -836,15 +839,15 @@ void program_payment_list_payor_entity_insert(
 				timlib_tmpfile() ) );
 
 	do {
-		program_payment = list_get( program_payment_list );
+		product_payment = list_get( product_payment_list );
 
 		entity_insert_pipe(
 			insert_pipe,
-			program_payment->deposit->payor_entity->full_name,
-			program_payment->deposit->payor_entity->street_address,
-			program_payment->deposit->payor_entity->email_address );
+			product_payment->deposit->payor_entity->full_name,
+			product_payment->deposit->payor_entity->street_address,
+			product_payment->deposit->payor_entity->email_address );
 
-	} while ( list_next( program_payment_list ) );
+	} while ( list_next( product_payment_list ) );
 
 	pclose( insert_pipe );
 

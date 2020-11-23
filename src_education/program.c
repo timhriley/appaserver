@@ -22,6 +22,9 @@ char *program_primary_where( char *program_name )
 
 	sprintf( where,
 		 "program_name = '%s'",
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
 		 program_name_escape( program_name ) );
 
 	return where;
@@ -61,7 +64,6 @@ PROGRAM *program_new( char *program_name )
 PROGRAM *program_fetch( char *program_name,
 			boolean fetch_alias_list )
 {
-	PROGRAM *program;
 	char sys_string[ 1024 ];
 
 	if ( !program_name || !*program_name )
@@ -82,12 +84,10 @@ PROGRAM *program_fetch( char *program_name,
 		 /* --------------------- */
 		 program_primary_where( program_name ) );
 
-	program =
+	return
 		program_parse(
 			pipe2string( sys_string ),
 			fetch_alias_list );
-
-	return program;
 }
 
 PROGRAM *program_parse(

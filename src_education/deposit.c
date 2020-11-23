@@ -23,6 +23,7 @@
 #include "tuition_payment.h"
 #include "tuition_payment_fns.h"
 #include "program_payment_fns.h"
+#include "product_payment_fns.h"
 #include "tuition_refund.h"
 #include "tuition_refund_fns.h"
 #include "enrollment_fns.h"
@@ -197,6 +198,7 @@ DEPOSIT *deposit_new(	char *payor_full_name,
 DEPOSIT *deposit_parse(	char *input,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_program_payment_list,
+			boolean fetch_product_payment_list,
 			boolean fetch_tuition_refund_list )
 {
 	char payor_full_name[ 128 ];
@@ -283,7 +285,20 @@ DEPOSIT *deposit_parse(	char *input,
 				deposit->semester->year,
 				deposit_date_time,
 				1 /* fetch_program */,
-				1 /* fetch_deposit */ );
+				0 /* not fetch_deposit */ );
+	}
+
+	if ( fetch_product_payment_list )
+	{
+		deposit->deposit_product_payment_list =
+			deposit_fetch_product_payment_list(
+				payor_full_name,
+				payor_street_address,
+				season_name,
+				deposit->semester->year,
+				deposit_date_time,
+				1 /* fetch_product */,
+				0 /* not fetch_deposit */ );
 	}
 
 	if ( fetch_tuition_refund_list )
@@ -318,6 +333,7 @@ LIST *deposit_system_list(
 			char *sys_string,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_program_payment_list,
+			boolean fetch_product_payment_list,
 			boolean fetch_tuition_refund_list )
 {
 	char input[ 1024 ];
@@ -332,6 +348,7 @@ LIST *deposit_system_list(
 				input,
 				fetch_tuition_payment_list,
 				fetch_program_payment_list,
+				fetch_product_payment_list,
 				fetch_tuition_refund_list ) );
 	}
 	pclose( input_pipe );
@@ -345,6 +362,7 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 			char *deposit_date_time,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_program_payment_list,
+			boolean fetch_product_payment_list,
 			boolean fetch_tuition_refund_list )
 {
 	DEPOSIT *deposit;
@@ -364,6 +382,7 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 						deposit_date_time ) ) ),
 			fetch_tuition_payment_list,
 			fetch_program_payment_list,
+			fetch_product_payment_list,
 			fetch_tuition_refund_list );
 	return deposit;
 }
@@ -738,6 +757,22 @@ void deposit_list_program_payment_insert(
 	} while ( list_next( deposit_list ) );
 }
 
+void deposit_list_product_payment_insert(
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+
+	if ( !list_rewind( deposit_list ) ) return;
+
+	do {
+		deposit = list_get( deposit_list );
+
+		product_payment_list_insert(
+			deposit->deposit_product_payment_list );
+
+	} while ( list_next( deposit_list ) );
+}
+
 void deposit_list_tuition_refund_insert(
 			LIST *deposit_list )
 {
@@ -920,13 +955,11 @@ LIST *deposit_course_name_list(
 }
 
 LIST *deposit_program_payment_list(
-			LIST *not_exists_program_name_list,
 			char *item_title_P,
 			LIST *education_program_list,
 			DEPOSIT *deposit )
 {
 	return program_payment_list(
-			not_exists_program_name_list,
 			item_title_P,
 			education_program_list,
 			deposit );
@@ -1025,6 +1058,7 @@ LIST *deposit_list_transaction_list(
 			deposit_transaction_list(
 				deposit->deposit_tuition_payment_list,
 				deposit->deposit_program_payment_list,
+				deposit->deposit_product_payment_list,
 				deposit->deposit_tuition_refund_list ) );
 
 	} while ( list_next( deposit_list ) );
@@ -1093,6 +1127,7 @@ LIST *deposit_list_offering_fetch_update(
 LIST *deposit_transaction_list(
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_program_payment_list,
+			LIST *deposit_product_payment_list,
 			LIST *deposit_tuition_refund_list )
 {
 	LIST *transaction_list;
@@ -1108,6 +1143,11 @@ LIST *deposit_transaction_list(
 		transaction_list,
 		program_payment_transaction_list(
 			deposit_program_payment_list ) );
+
+	list_append_list(
+		transaction_list,
+		product_payment_transaction_list(
+			deposit_product_payment_list ) );
 
 	list_append_list(
 		transaction_list,
@@ -1155,5 +1195,30 @@ LIST *deposit_list_refund_enrollment_list(
 	} while ( list_next( deposit_list ) );
 
 	return enrollment_list;
+}
+
+LIST *deposit_fetch_product_payment_list(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			boolean fetch_product,
+			boolean fetch_deposit )
+{
+	return
+		product_payment_system_list(
+			product_payment_sys_string(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				deposit_primary_where(
+					payor_full_name,
+					payor_street_address,
+					season_name,
+					year,
+					deposit_date_time ) ),
+			fetch_product,
+			fetch_deposit );
 }
 

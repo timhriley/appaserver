@@ -1,24 +1,24 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/program_payment_fns.h	*/
+/* $APPASERVER_HOME/src_education/product_payment_fns.h	*/
 /* ---------------------------------------------------- */
 /*							*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
 
-#ifndef PROGRAM_PAYMENT_FNS_H
-#define PROGRAM_PAYMENT_FNS_H
+#ifndef PRODUCT_PAYMENT_FNS_H
+#define PRODUCT_PAYMENT_FNS_H
 
 #include "boolean.h"
 #include "list.h"
 #include "transaction.h"
 #include "deposit.h"
 
-FILE *program_payment_insert_open(
+FILE *product_payment_insert_open(
 			char *error_filename );
 
-void program_payment_insert_pipe(
+void product_payment_insert_pipe(
 			FILE *insert_pipe,
-			char *program_name,
+			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -29,70 +29,71 @@ void program_payment_insert_pipe(
 			double net_payment_amount,
 			char *transaction_date_time );
 
-LIST *program_payment_system_list(
+LIST *product_payment_system_list(
 			char *sys_string,
-			boolean fetch_program,
+			boolean fetch_product,
 			boolean fetch_deposit );
 
-char *program_payment_sys_string(
+char *product_payment_sys_string(
 			char *where );
 
-char *program_payment_primary_where(
-			char *program_name,
+char *product_payment_primary_where(
+			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
 			char *deposit_date_time );
 
-TRANSACTION *program_payment_transaction(
+TRANSACTION *product_payment_transaction(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *deposit_date_time,
+			char *product_name,
 			char *program_name,
 			double payment_amount,
 			double fees_expense,
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
-			char *program_revenue_account );
+			char *product_revenue_account );
 
-void program_payment_update(
+void product_payment_update(
 			char *transaction_date_time,
-			char *program_name,
+			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
 			char *deposit_date_time );
 
-FILE *program_payment_update_open(
+FILE *product_payment_update_open(
 			void );
 
 /* Note: there's always only one of them. */
 /* -------------------------------------- */
-double program_payment_amount(
+double product_payment_amount(
 			double deposit_amount );
 
 /* Note: there's always only one of them. */
 /* -------------------------------------- */
-double program_payment_fees_expense(
+double product_payment_fees_expense(
 			double deposit_fees_expense );
 
 /* Note: there's always only one of them. */
 /* -------------------------------------- */
-double program_payment_net_payment_amount(
+double product_payment_net_payment_amount(
 			double deposit_net_payment_amount );
 
 /* Returns list of one, for now */
 /* ---------------------------- */
-LIST *program_payment_list(
+LIST *product_payment_list(
 			char *item_title_P,
-			LIST *education_program_list,
+			LIST *education_product_list,
 			DEPOSIT *deposit );
 
-void program_payment_trigger(
-			char *program_name,
+void product_payment_trigger(
+			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -100,36 +101,36 @@ void program_payment_trigger(
 			char *deposit_date_time,
 			char *state );
 
-void program_payment_list_insert(
-			LIST *program_payment_list );
+void product_payment_list_insert(
+			LIST *product_payment_list );
 
-double program_payment_total(
-			LIST *program_payment_list );
+double product_payment_total(
+			LIST *product_payment_list );
 
-void program_payment_list_trigger(
-			LIST *program_payment_list );
+void product_payment_list_trigger(
+			LIST *product_payment_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *program_payment_list_display(
-			LIST *deposit_program_payment_list );
+char *product_payment_list_display(
+			LIST *deposit_product_payment_list );
 
-LIST *program_payment_transaction_list(
-			LIST *program_payment_list );
+LIST *product_payment_transaction_list(
+			LIST *product_payment_list );
 
-LIST *program_payment_list_steady_state(
-			LIST *deposit_program_payment_list,
+LIST *product_payment_list_steady_state(
+			LIST *deposit_product_payment_list,
 			double deposit_amount,
 			double transaction_fee,
 			double net_payment_amount );
 
 /* Returns static memory */
 /* --------------------- */
-char *program_payment_memo(
-			char *program_name );
+char *product_payment_memo(
+			char *product_name );
 
-void program_payment_list_payor_entity_insert(
-			LIST *deposit_program_payment_list );
+void product_payment_list_payor_entity_insert(
+			LIST *deposit_product_payment_list );
 
 #endif
 

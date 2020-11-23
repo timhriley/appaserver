@@ -1,16 +1,16 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/program_payment.h	*/
+/* $APPASERVER_HOME/src_education/product_payment.h	*/
 /* ---------------------------------------------------- */
 /*							*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
 
-#ifndef PROGRAM_PAYMENT_H
-#define PROGRAM_PAYMENT_H
+#ifndef PRODUCT_PAYMENT_H
+#define PRODUCT_PAYMENT_H
 
 #include "boolean.h"
 #include "list.h"
-#include "program.h"
+#include "product.h"
 #include "deposit.h"
 #include "program_payment_item_title.h"
 #include "transaction.h"
@@ -20,22 +20,22 @@
 
 /* Constants */
 /* --------- */
-#define PROGRAM_PAYMENT_TABLE		"program_payment"
+#define PRODUCT_PAYMENT_TABLE		"product_payment"
 
-#define PROGRAM_PAYMENT_PRIMARY_KEY	"program_name"
+#define PRODUCT_PAYMENT_PRIMARY_KEY	"product_name"
 
-#define PROGRAM_PAYMENT_INSERT_COLUMNS	"program_name,"			\
+#define PRODUCT_PAYMENT_INSERT_COLUMNS	"product_name,"			\
 					"payor_full_name,"		\
 					"payor_street_address,"		\
 					"season_name,"			\
 					"year,"				\
 					"deposit_date_time,"		\
-					"program_payment_amount,"	\
+					"product_payment_amount,"	\
 					"fees_expense,"			\
 					"net_payment_amount,"		\
 					"transaction_date_time"
 
-#define PROGRAM_PAYMENT_MEMO		"Program"
+#define PRODUCT_PAYMENT_MEMO		"Program"
 
 /* Structures */
 /* ---------- */
@@ -43,55 +43,55 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	PROGRAM *program;
+	PRODUCT *product;
 	DEPOSIT *deposit;
 
 	/* Process */
 	/* ------- */
-	double program_payment_amount;
+	double product_payment_amount;
 	double fees_expense;
 	double net_payment_amount;
 
 	PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title;
 	char *transaction_date_time;
-	TRANSACTION *program_payment_transaction;
-} PROGRAM_PAYMENT;
+	TRANSACTION *product_payment_transaction;
+} PRODUCT_PAYMENT;
 
-PROGRAM_PAYMENT *program_payment_calloc(
+PRODUCT_PAYMENT *product_payment_calloc(
 			void );
 
-PROGRAM_PAYMENT *program_payment_fetch(
-			char *program_name,
+PRODUCT_PAYMENT *product_payment_fetch(
+			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
 			char *deposit_date_time,
-			boolean fetch_program,
+			boolean fetch_product,
 			boolean fetch_deposit );
 
-PROGRAM_PAYMENT *program_payment_parse(
+PRODUCT_PAYMENT *product_payment_parse(
 			char *input,
-			boolean fetch_program,
+			boolean fetch_product,
 			boolean fetch_deposit );
 
-PROGRAM_PAYMENT *program_payment_steady_state(
-			PROGRAM_PAYMENT *program_payment,
+PRODUCT_PAYMENT *product_payment_steady_state(
+			PRODUCT_PAYMENT *product_payment,
 			double deposit_amount,
 			double deposit_transaction_fee,
 			double deposit_net_payment_amount );
 
-PROGRAM_PAYMENT *program_payment(
+PRODUCT_PAYMENT *product_payment(
 			char *item_title_P,
-			int program_number,
-			LIST *education_program_list,
+			int product_number,
+			LIST *education_product_list,
 			/* -------- */
 			/* Set only */
 			/* -------- */
 			DEPOSIT *deposit );
 
 /* ---------------------------------------- */
-/* Place functions in program_payment_fns.h */
+/* Place functions in product_payment_fns.h */
 /* ---------------------------------------- */
 #endif
 

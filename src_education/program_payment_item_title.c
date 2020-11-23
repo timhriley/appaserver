@@ -15,6 +15,7 @@
 #include "list.h"
 #include "entity.h"
 #include "program.h"
+#include "product.h"
 #include "program_payment_item_title.h"
 
 PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title_new(
@@ -66,13 +67,11 @@ if ( program_number > 1 ) return (char *)0;
 }
 
 char *program_payment_item_title_name(
-			LIST *not_exists_program_name_list,
 			char *item_title_P,
 			int program_number,
 			LIST *program_list )
 {
 	char *item_title_block;
-	char *program_name;
 
 	if ( program_payment_is_tuition( item_title_P ) )
 	{
@@ -97,19 +96,47 @@ Mary Poppins Junior Tickets
 
 	if ( !*item_title_block ) return (char *)0;
 
-	program_name =
+	return
 		program_seek_name(
 			program_list,
 			item_title_block
 				/* program_name */ );
+}
 
-	if ( ( !program_name || !*program_name )
-	&&     not_exists_program_name_list )
+char *product_payment_item_title_name(
+			char *item_title_P,
+			int program_number,
+			LIST *product_list )
+{
+	char *item_title_block;
+
+	if ( program_payment_is_tuition( item_title_P ) )
 	{
-		list_set_unique(
-			not_exists_program_name_list,
-			strdup( item_title_block ) );
+		return (char *)0;
 	}
-	return program_name;
+
+/* Product item title block like:
+
+Mary Poppins Junior DVD
+
+*/
+	if ( ! ( item_title_block =
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			program_payment_item_title_block(
+				item_title_P,
+				program_number ) ) )
+	{
+		return (char *)0;
+	}
+
+	if ( !*item_title_block ) return (char *)0;
+
+	return
+		product_seek_name(
+			product_list,
+			item_title_block
+				/* program_name */ );
 }
 

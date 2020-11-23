@@ -43,7 +43,6 @@ EDUCATION *education_fetch(
 
 LIST *education_deposit_list(
 			LIST *not_exists_course_name_list,
-			LIST *not_exists_program_name_list,
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
@@ -54,7 +53,6 @@ LIST *education_deposit_list(
 
 DEPOSIT *education_deposit(
 			LIST *not_exists_course_name_list,
-			LIST *not_exists_program_name_list,
 			char *season_name,
 			int year,
 			LIST *semester_offering_list,
@@ -108,6 +106,9 @@ void education_payor_entity_insert(
 
 LIST *education_program_list(
 			void );
+
+void education_product_payment_insert(
+			LIST *deposit_list );
 
 #endif
 

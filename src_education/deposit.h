@@ -66,12 +66,14 @@ typedef struct
 	double deposit_net_revenue;
 	LIST *deposit_tuition_payment_list;
 	LIST *deposit_program_payment_list;
+	LIST *deposit_product_payment_list;
 	LIST *deposit_tuition_refund_list;
 	LIST *deposit_enrollment_list;
 	LIST *deposit_registration_list;
 	LIST *deposit_course_list;
 	double deposit_tuition_payment_total;
 	double deposit_program_payment_total;
+	double deposit_product_payment_total;
 	double deposit_tuition_refund_total;
 	double deposit_gain_donation;
 	double deposit_registration_tuition;
@@ -139,6 +141,7 @@ LIST *deposit_system_list(
 			char *sys_string,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_program_payment_list,
+			boolean fetch_product_payment_list,
 			boolean fetch_tuition_refund_list );
 
 DEPOSIT *deposit_fetch(	char *payor_full_name,
@@ -148,11 +151,13 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 			char *deposit_date_time,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_program_payment_list,
+			boolean fetch_product_payment_list,
 			boolean fetch_tuition_refund_list );
 
 DEPOSIT *deposit_parse( char *input,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_program_payment_list,
+			boolean fetch_product_payment_list,
 			boolean fetch_tuition_refund_list );
 
 /* Safely returns heap memory */
@@ -165,6 +170,9 @@ double deposit_tuition_payment_total(
 
 double deposit_program_payment_total(
 			LIST *deposit_program_payment_list );
+
+double deposit_product_payment_total(
+			LIST *deposit_product_payment_list );
 
 DEPOSIT *deposit_steady_state(
 			DEPOSIT *deposit,
@@ -259,7 +267,6 @@ LIST *deposit_tuition_payment_list(
 			DEPOSIT *deposit );
 
 LIST *deposit_program_payment_list(
-			LIST *not_exists_program_name_list,
 			char *item_title_P,
 			LIST *education_program_list,
 			/* -------- */
@@ -295,6 +302,7 @@ LIST *deposit_list_offering_fetch_update(
 LIST *deposit_transaction_list(
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_program_payment_list,
+			LIST *deposit_product_payment_list,
 			LIST *deposit_tuition_refund_list );
 
 LIST *deposit_list_enrollment_update(
@@ -314,6 +322,18 @@ LIST *deposit_tuition_refund_list(
 double deposit_overpayment_loss(
 			double deposit_amount,
 			double deposit_registration_tuition );
+
+LIST *deposit_fetch_product_payment_list(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			boolean fetch_product,
+			boolean fetch_deposit );
+
+void deposit_list_product_payment_insert(
+			LIST *deposit_list );
 
 #endif
 

@@ -317,6 +317,7 @@ TUITION_REFUND *tuition_refund_parse(
 				deposit_date_time,
 				0 /* not fetch_tuition_payment_list */,
 				0 /* not fetch_program_payment_list */,
+				0 /* not fetch_product_payment_list */,
 				0 /* not fetch_tuition_refund_list */ );
 	}
 

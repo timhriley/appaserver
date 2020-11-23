@@ -27,6 +27,7 @@
 #include "tuition_refund_fns.h"
 #include "program_payment.h"
 #include "program_payment_fns.h"
+#include "product_payment_fns.h"
 #include "paypal.h"
 #include "deposit.h"
 #include "education.h"
@@ -51,7 +52,6 @@ void paypal_upload_display(
 /* -------------------------------- */
 LIST *paypal_upload_deposit_list(
 			LIST *not_exists_course_name_list,
-			LIST *not_exists_program_name_list,
 			char **maximum_date,
 			char *spreadsheet_filename,
 			char *season_name,
@@ -74,7 +74,6 @@ int main( int argc, char **argv )
 	char *maximum_date = {0};
 	LIST *deposit_list;
 	LIST *not_exists_course_name_list;
-	LIST *not_exists_program_name_list;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -136,7 +135,6 @@ int main( int argc, char **argv )
 	}
 
 	not_exists_course_name_list = list_new();
-	not_exists_program_name_list = list_new();
 
 	deposit_list =
 		deposit_list_steady_state(
@@ -145,7 +143,6 @@ int main( int argc, char **argv )
 			/* -------------------------------- */
 			paypal_upload_deposit_list(
 				not_exists_course_name_list,
-				not_exists_program_name_list,
 				&maximum_date,
 				spreadsheet_filename,
 				season_name,
@@ -159,17 +156,6 @@ int main( int argc, char **argv )
 		printf( "<h3>Invalid spreadsheet.</h3>\n" );
 		document_close();
 		exit( 0 );
-	}
-
-	if ( list_length( not_exists_program_name_list ) )
-	{
-		printf(
-		"<h3>Can't execute with non-existing program:</h3>\n" );
-
-		fflush( stdout );
-		list_html_display( not_exists_program_name_list );
-
-		execute = 0;
 	}
 
 	if ( list_length( not_exists_course_name_list ) )
@@ -266,7 +252,6 @@ int main( int argc, char **argv )
 
 LIST *paypal_upload_deposit_list(
 			LIST *not_exists_course_name_list,
-			LIST *not_exists_program_name_list,
 			char **maximum_date,
 			char *spreadsheet_filename,
 			char *season_name,
@@ -319,7 +304,6 @@ LIST *paypal_upload_deposit_list(
 	deposit_list =
 		education_deposit_list(
 			not_exists_course_name_list,
-			not_exists_program_name_list,
 			season_name,
 			year,
 			spreadsheet_filename,
@@ -387,7 +371,7 @@ void paypal_upload_display(
 		output_pipe = popen( sys_string, "w" );
 
 		fprintf(output_pipe,
-			"%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s\n",
+			"%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s\n",
 			entity_name_display(
 				deposit->payor_entity->full_name,
 				deposit->payor_entity->street_address ),
@@ -400,6 +384,8 @@ void paypal_upload_display(
 				deposit->deposit_tuition_payment_list ),
 			program_payment_list_display(
 				deposit->deposit_program_payment_list ),
+			product_payment_list_display(
+				deposit->deposit_product_payment_list ),
 			tuition_refund_list_display(
 				deposit->deposit_tuition_refund_list ) );
 
@@ -409,6 +395,7 @@ void paypal_upload_display(
 			deposit_transaction_list(
 				deposit->deposit_tuition_payment_list,
 				deposit->deposit_program_payment_list,
+				deposit->deposit_product_payment_list,
 				deposit->deposit_tuition_refund_list ) );
 
 	} while ( list_next( deposit_list ) );

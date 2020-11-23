@@ -54,7 +54,7 @@ int main( int argc, char **argv )
 "Usage: %s payor_full_name payor_street_address season_name year deposit_date_time state\n",
 			 argv[ 0 ] );
 		fprintf( stderr,
-"state in {insert,update,delete,payment,tuition_payment,program_payment}\n" );
+"state in {insert,update,delete,payment,tuition_payment,program_payment,product_payment}\n" );
 		exit ( 1 );
 	}
 
@@ -124,6 +124,7 @@ DEPOSIT *deposit_trigger_execute(
 				deposit_date_time,
 				1 /* fetch_tuition_payment_list */,
 				1 /* fetch_program_payment_list */,
+				1 /* fetch_product_payment_list */,
 				1 /* fetch_tuition_refund_list */ ) ) )
 	{
 		return (DEPOSIT *)0;

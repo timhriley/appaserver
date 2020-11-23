@@ -42,7 +42,13 @@ PROGRAM_PAYMENT_ITEM_TITLE *
 /* Returns heap memory or null */
 /* --------------------------- */
 char *program_payment_item_title_name(
-			LIST *not_exists_program_name_list,
+			char *item_title_P,
+			int program_number,
+			LIST *program_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *product_payment_item_title_name(
 			char *item_title_P,
 			int program_number,
 			LIST *program_list );

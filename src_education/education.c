@@ -70,7 +70,6 @@ EDUCATION *education_fetch(
 
 LIST *education_deposit_list(
 			LIST *not_exists_course_name_list,
-			LIST *not_exists_program_name_list,
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
@@ -134,7 +133,6 @@ LIST *education_deposit_list(
 			deposit_list,
 			education_deposit(
 				not_exists_course_name_list,
-				not_exists_program_name_list,
 				season_name,
 				year,
 				semester_offering_list,
@@ -149,7 +147,6 @@ LIST *education_deposit_list(
 
 DEPOSIT *education_deposit(
 			LIST *not_exists_course_name_list,
-			LIST *not_exists_program_name_list,
 			char *season_name,
 			int year,
 			LIST *semester_offering_list,
@@ -263,7 +260,6 @@ DEPOSIT *education_deposit(
 	
 		deposit->deposit_program_payment_list =
 			deposit_program_payment_list(
-				not_exists_program_name_list,
 				paypal_dataset->item_title_P,
 				education_program_list,
 				/* -------- */
@@ -286,6 +282,7 @@ DEPOSIT *education_deposit(
 
 	if ( list_length( deposit->deposit_tuition_payment_list )
 	||   list_length( deposit->deposit_program_payment_list )
+	||   list_length( deposit->deposit_product_payment_list )
 	||   list_length( deposit->deposit_tuition_refund_list ) )
 	{
 		return deposit;
@@ -304,6 +301,7 @@ LIST *education_deposit_list_insert(
 	education_enrollment_insert( education_deposit_list );
 	education_tuition_payment_insert( education_deposit_list );
 	education_program_payment_insert( education_deposit_list );
+	education_product_payment_insert( education_deposit_list );
 	education_tuition_refund_insert( education_deposit_list );
 	education_student_insert( education_deposit_list );
 	education_student_entity_insert( education_deposit_list );
@@ -340,6 +338,11 @@ void education_tuition_payment_insert( LIST *deposit_list )
 void education_program_payment_insert( LIST *deposit_list )
 {
 	deposit_list_program_payment_insert( deposit_list );
+}
+
+void education_product_payment_insert( LIST *deposit_list )
+{
+	deposit_list_product_payment_insert( deposit_list );
 }
 
 void education_tuition_refund_insert( LIST *deposit_list )
