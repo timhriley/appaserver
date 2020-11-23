@@ -21,6 +21,7 @@ enrollment_trigger
 offering_trigger
 registration_trigger
 program_payment_trigger
+product_payment_trigger
 paypal_upload
 # ---------------
 # src_coronavirus
