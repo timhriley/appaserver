@@ -1307,12 +1307,15 @@ TUITION_REFUND *tuition_refund(
 
 	if ( !refund->enrollment->offering )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: offering is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		printf(
+		"<h3>Warning: refund without an enrollment for %s/%s</h3>\n",
+				tuition_payment_item_title->
+					tuition_payment_item_title_entity->
+					full_name,
+				tuition_payment_item_title->
+					tuition_payment_item_title_entity->
+					street_address );
+		return (TUITION_REFUND *)0;
 	}
 
 	/* Build registration */

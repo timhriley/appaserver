@@ -823,3 +823,47 @@ char *program_payment_memo( char *program_name )
 	return payment_memo;
 }
 
+void program_payment_list_payor_entity_insert(
+			LIST *program_payment_list )
+{
+	PROGRAM_PAYMENT *program_payment;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( program_payment_list ) ) return;
+
+	insert_pipe =
+		entity_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		program_payment = list_get( program_payment_list );
+
+		entity_insert_pipe(
+			insert_pipe,
+			program_payment->deposit->payor_entity->full_name,
+			program_payment->deposit->payor_entity->street_address,
+			program_payment->deposit->payor_entity->email_address );
+
+	} while ( list_next( program_payment_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Entity Errors' '' '^'	 ",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+

@@ -679,17 +679,26 @@ void generate_invoice_email_send(
 		return;
 	}
 
-	email_sendmail( self->entity->email_address
-				/* from_address */,
-			entity->email_address
-				/* to_address */,
-			SUBJECT,
-			MESSAGE,
-			self->entity->email_address
-				/* reply_to */,
-			entity->full_name,
-			output_filename
-				/* attachment_filename */ );
+	if ( !*entity->email_address )
+	{
+		printf( "<h3>Error: no email address for %s/%s</h3>\n",
+			full_name,
+			street_address );
+		return;
+	}
+
+	email_sendmail(
+		self->entity->email_address
+			/* from_address */,
+		entity->email_address
+			/* to_address */,
+		SUBJECT,
+		MESSAGE,
+		self->entity->email_address
+			/* reply_to */,
+		entity->full_name,
+		output_filename
+			/* attachment_filename */ );
 
 	printf( "<h3>Message send.</h3>\n" );
 }
@@ -781,7 +790,6 @@ boolean build_latex_invoice(	FILE *output_stream,
 	latex_invoice_output_footer(
 		output_stream,
 		0 /* not with_customer_signature */ );
-
 
 	return 1;
 }
