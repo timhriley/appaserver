@@ -831,6 +831,9 @@ void deposit_list_payor_entity_insert(
 		tuition_payment_list_payor_entity_insert(
 			deposit->deposit_tuition_payment_list );
 
+		program_payment_list_payor_entity_insert(
+			deposit->deposit_program_payment_list );
+
 	} while ( list_next( deposit_list ) );
 }
 

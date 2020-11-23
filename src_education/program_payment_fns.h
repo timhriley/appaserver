@@ -121,5 +121,8 @@ LIST *program_payment_list_steady_state(
 char *program_payment_memo(
 			char *program_name );
 
+void program_payment_list_payor_entity_insert(
+			LIST *deposit_program_payment_list );
+
 #endif
 
