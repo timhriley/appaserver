@@ -311,7 +311,9 @@ LIST *paypal_upload_deposit_list(
 			paypal_dataset_calloc(),
 			education->semester->semester_offering_list,
 			( education->education_program_list =
-				education_program_list() ) );
+				education_program_list() ),
+			( education->education_product_list =
+				education_product_list() ) );
 
 	return deposit_list;
 }

@@ -35,7 +35,7 @@
 					"net_payment_amount,"		\
 					"transaction_date_time"
 
-#define PRODUCT_PAYMENT_MEMO		"Program"
+#define PRODUCT_PAYMENT_MEMO		"Product"
 
 /* Structures */
 /* ---------- */

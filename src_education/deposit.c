@@ -444,6 +444,17 @@ DEPOSIT *deposit_steady_state(
 					/* net_payment_amount */ );
 	}
 
+	if ( list_length( deposit->deposit_product_payment_list ) )
+	{
+		deposit->deposit_product_payment_list =
+			product_payment_list_steady_state(
+				deposit->deposit_product_payment_list,
+				deposit->deposit_amount,
+				deposit->transaction_fee,
+				deposit->net_revenue
+					/* net_payment_amount */ );
+	}
+
 	if ( list_length( deposit->deposit_tuition_refund_list ) )
 	{
 		deposit->deposit_tuition_refund_list =
@@ -962,6 +973,17 @@ LIST *deposit_program_payment_list(
 	return program_payment_list(
 			item_title_P,
 			education_program_list,
+			deposit );
+}
+
+LIST *deposit_product_payment_list(
+			char *item_title_P,
+			LIST *education_product_list,
+			DEPOSIT *deposit )
+{
+	return product_payment_list(
+			item_title_P,
+			education_product_list,
 			deposit );
 }
 

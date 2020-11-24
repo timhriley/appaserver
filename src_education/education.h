@@ -29,6 +29,7 @@ typedef struct
 	SEMESTER *semester;
 	PAYPAL *paypal;
 	LIST *education_program_list;
+	LIST *education_product_list;
 	LIST *education_deposit_list;
 } EDUCATION;
 
@@ -49,7 +50,8 @@ LIST *education_deposit_list(
 			SPREADSHEET *spreadsheet,
 			PAYPAL_DATASET *paypal_dataset,
 			LIST *semester_offering_list,
-			LIST *education_program_list );
+			LIST *education_program_list,
+			LIST *education_product_list );
 
 DEPOSIT *education_deposit(
 			LIST *not_exists_course_name_list,
@@ -57,6 +59,7 @@ DEPOSIT *education_deposit(
 			int year,
 			LIST *semester_offering_list,
 			LIST *education_program_list,
+			LIST *education_product_list,
 			PAYPAL_DATASET *paypal_dataset );
 
 PAYPAL_DATASET *education_dataset_parse(
@@ -105,6 +108,9 @@ void education_payor_entity_insert(
 			LIST *deposit_list );
 
 LIST *education_program_list(
+			void );
+
+LIST *education_product_list(
 			void );
 
 void education_product_payment_insert(

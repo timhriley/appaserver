@@ -27,6 +27,7 @@
 #include "spreadsheet.h"
 #include "paypal_dataset.h"
 #include "program.h"
+#include "product.h"
 #include "education.h"
 
 EDUCATION *education_calloc( void )
@@ -76,7 +77,8 @@ LIST *education_deposit_list(
 			SPREADSHEET *spreadsheet,
 			PAYPAL_DATASET *paypal_dataset,
 			LIST *semester_offering_list,
-			LIST *education_program_list )
+			LIST *education_program_list,
+			LIST *education_product_list )
 {
 	LIST *deposit_list = list_new();
 	char input_string[ 65536 ];
@@ -137,6 +139,7 @@ LIST *education_deposit_list(
 				year,
 				semester_offering_list,
 				education_program_list,
+				education_product_list,
 				dataset_return
 					/* paypal_dataset */ ) );
 	}
@@ -151,6 +154,7 @@ DEPOSIT *education_deposit(
 			int year,
 			LIST *semester_offering_list,
 			LIST *education_program_list,
+			LIST *education_product_list,
 			PAYPAL_DATASET *paypal_dataset )
 {
 	DEPOSIT *deposit;
@@ -266,6 +270,18 @@ DEPOSIT *education_deposit(
 				/* Set only */
 				/* -------- */
 				deposit );
+
+		if ( !list_length( deposit->deposit_program_payment_list ) )
+		{
+			deposit->deposit_product_payment_list =
+				deposit_product_payment_list(
+					paypal_dataset->item_title_P,
+					education_product_list,
+					/* -------- */
+					/* Set only */
+					/* -------- */
+					deposit );
+		}
 	}
 	else
 	{
@@ -538,5 +554,10 @@ PAYPAL_DATASET *education_paypal_dataset(
 LIST *education_program_list( void )
 {
 	return program_list( 1 /* fetch_alias_list */ );
+}
+
+LIST *education_product_list( void )
+{
+	return product_list();
 }
 

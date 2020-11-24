@@ -335,5 +335,10 @@ LIST *deposit_fetch_product_payment_list(
 void deposit_list_product_payment_insert(
 			LIST *deposit_list );
 
+LIST *deposit_product_payment_list(
+			char *item_title_P,
+			LIST *education_product_list,
+			DEPOSIT *deposit );
+
 #endif
 
