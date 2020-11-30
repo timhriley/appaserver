@@ -88,7 +88,7 @@ RELATED_FOLDER *related_folder_new(
 	related_folder->related_attribute_name = related_attribute_name;
 	return related_folder;
 
-} /* related_folder_new() */
+}
 
 RELATED_FOLDER *related_folder_calloc( void )
 {
@@ -103,7 +103,7 @@ RELATED_FOLDER *related_folder_calloc( void )
 
 	return related_folder;
 
-} /* related_folder_calloc() */
+}
 
 LIST *related_folder_foreign_attribute_name_list(
 			LIST *primary_attribute_name_list,
@@ -489,7 +489,7 @@ LIST *related_folder_drop_down_element_list(
 				RELATED_FOLDER_AJAX_FILL_LABEL;
 
 			onclick_function =
-				related_folder_get_ajax_onclick_function(
+				related_folder_ajax_onclick_function(
 					foreign_attribute_name_list );
 
 			element->push_button->onclick_function =
@@ -606,7 +606,7 @@ void related_folder_set_ignore_output_for_duplicate(
 
 	list_free_string_list( folder_attribute_name_list );
 
-} /* related_folder_set_ignore_output_for_duplicate() */
+}
 
 LIST *related_folder_subtract_related_attribute_name_list(
 					LIST *foreign_attribute_name_list,
@@ -844,9 +844,9 @@ LIST *related_folder_remove_duplicate_mto1_related_folder_list(
 	}
 
 	return new_related_folder_list;
-} /* related_folder_remove_duplicate_mto1_related_folder_list() */
+}
 
-LIST *related_folder_get_insert_element_list(
+LIST *related_folder_insert_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			/* --------------------------- */
 			/* sets related_folder->folder */
@@ -1032,10 +1032,8 @@ LIST *related_folder_get_insert_element_list(
 			RELATED_FOLDER_AJAX_FILL_LABEL;
 
 		onclick_function =
-			related_folder_get_ajax_onclick_function(
-				related_folder->
-					folder->
-					primary_attribute_name_list );
+			related_folder_ajax_onclick_function(
+				foreign_attribute_name_list );
 
 		element->push_button->onclick_function =
 			onclick_function;
@@ -1313,7 +1311,7 @@ LIST *related_folder_update_element_list(
 				RELATED_FOLDER_AJAX_FILL_LABEL;
 
 			onclick_function =
-				related_folder_get_ajax_onclick_function(
+				related_folder_ajax_onclick_function(
 					foreign_attribute_name_list );
 
 			element->push_button->onclick_function =
@@ -2076,7 +2074,7 @@ LIST *related_folder_get_global_related_folder_list(
 	} while( list_next( related_record_list ) );
 	list_free_string_list( related_record_list );
 	return related_folder_list;
-} /* related_folder_get_global_related_folder_list() */
+}
 
 LIST *related_folder_mto1_related_folder_list(
 			char *application_name,
@@ -2137,7 +2135,7 @@ LIST *related_folder_mto1_related_folder_list(
 
 	return related_folder_list;
 
-} /* related_folder_mto1_related_folder_list() */
+}
 
 LIST *related_folder_get_related_folder_list(
 			char *application_name,
@@ -2215,7 +2213,7 @@ LIST *related_folder_get_related_folder_list(
 
 	return related_folder_list;
 
-} /* related_folder_get_related_folder_list() */
+}
 
 boolean related_folder_exists_one2m_related_folder_list(
 					char *related_folder_name,
@@ -2247,7 +2245,7 @@ boolean related_folder_exists_one2m_related_folder_list(
 
 	return 0;
 	
-} /* related_folder_exists_one2m_related_folder_list() */
+}
 
 boolean related_folder_exists_related_folder_list(
 					char *related_folder_name,
@@ -2283,7 +2281,7 @@ boolean related_folder_exists_related_folder_list(
 
 	return 0;
 	
-} /* related_folder_exists_related_folder_list() */
+}
 
 LIST *related_folder_subtract_duplicate_related_folder_list(
 			LIST *new_related_folder_list,
@@ -2336,7 +2334,7 @@ LIST *related_folder_subtract_duplicate_related_folder_list(
 
 	return new_related_folder_list;
 
-} /* related_folder_subtract_duplicate_related_folder_list() */
+}
 
 LIST *related_folder_get_related_folder_name_list( LIST *related_folder_list )
 {
@@ -2365,7 +2363,7 @@ LIST *related_folder_get_one2m_related_folder_name_list(
 
 	return related_folder_name_list;
 
-} /* related_folder_get_one2m_related_folder_name_list() */
+}
 
 LIST *related_folder_get_mto1_multi_key_name_list(
 				LIST *mto1_related_folder_list )
@@ -2396,7 +2394,7 @@ LIST *related_folder_get_mto1_multi_key_name_list(
 
 	return related_folder_name_list;
 
-} /* related_folder_get_mto1_multi_key_name_list() */
+}
 
 LIST *related_folder_get_mto1_related_folder_name_list(
 				LIST *mto1_related_folder_list )
@@ -2418,7 +2416,7 @@ LIST *related_folder_get_mto1_related_folder_name_list(
 
 	return related_folder_name_list;
 
-} /* related_folder_get_mto1_related_folder_name_list() */
+}
 
 LIST *related_folder_get_isa_related_folder_list(
 				char *application_name,
@@ -2463,7 +2461,7 @@ LIST *related_folder_get_isa_related_folder_list(
 
 	} while( list_next( mto1_isa_related_folder_list ) );
 	return mto1_isa_related_folder_list;
-} /* related_folder_get_isa_related_folder_list() */
+}
 
 boolean related_folder_exists_1tom_relations(
 				char *application_name,
@@ -2565,7 +2563,7 @@ boolean related_folder_exists_1tom_relations(
 
 	return 0;
 
-} /* related_folder_exists_1tom_relations() */
+}
 
 void related_folder_reset_ignore_output( LIST *related_folder_list )
 {
@@ -2581,7 +2579,7 @@ void related_folder_reset_ignore_output( LIST *related_folder_list )
 			related_folder->ignore_output = 0;
 		} while( list_next( related_folder_list ) );
 	}
-} /* related_folder_reset_ignore_output() */
+}
 
 LIST *related_folder_get_mto1_folder_name_list(
 					LIST *mto1_related_folder_list )
@@ -2606,7 +2604,7 @@ LIST *related_folder_get_mto1_folder_name_list(
 	}
 
 	return folder_name_list;
-} /* related_folder_get_mto1_folder_name_list() */
+}
 
 
 void related_folder_populate_common_non_primary_attribute_name_list(
@@ -2740,7 +2738,7 @@ ELEMENT_APPASERVER *related_folder_get_new_button_element(
 		return element;
 	}
 	return (ELEMENT_APPASERVER *)0;
-} /* related_folder_get_new_button_element() */
+}
 
 LIST *related_folder_get_mto1_common_non_primary_related_folder_list(
 			char *application_name,
@@ -2795,7 +2793,7 @@ LIST *related_folder_get_mto1_common_non_primary_related_folder_list(
 	} while( list_next( mto1_related_folder_list ) );
 	return return_list;
 
-} /* related_folder_get_mto1_common_non_primary_related_folder_list() */
+}
 
 LIST *related_folder_list_get_preselection_dictionary_list(
 				char *application_name,
@@ -2827,7 +2825,7 @@ LIST *related_folder_list_get_preselection_dictionary_list(
 	} while( list_next( mto1_related_folder_list ) );
 	return (LIST *)0;
 
-} /* related_folder_list_get_preselection_dictionary_list() */
+}
 
 boolean related_folder_exists_prompt_mto1_recursive(
 				LIST *mto1_related_folder_list )
@@ -2849,7 +2847,7 @@ boolean related_folder_exists_prompt_mto1_recursive(
 	} while( list_next( mto1_related_folder_list ) );
 	return 0;
 
-} /* related_folder_exists_prompt_mto1_recursive() */
+}
 
 boolean related_folder_exists_automatic_preselection(
 				LIST *mto1_related_folder_list )
@@ -2871,7 +2869,7 @@ boolean related_folder_exists_automatic_preselection(
 	} while( list_next( mto1_related_folder_list ) );
 	return 0;
 
-} /* related_folder_exists_automatic_preselection() */
+}
 
 LIST *related_folder_get_preselection_dictionary_list(
 				char *application_name,
@@ -2978,7 +2976,7 @@ LIST *related_folder_get_preselection_dictionary_list(
 			login_name,
 			related_primary_attribute_name_list );
 
-} /* related_folder_get_preselection_dictionary_list() */
+}
 
 LIST *related_folder_subtract_preselection_existing_dictionary_list(
 			LIST *related_folder_dictionary_list,
@@ -3086,7 +3084,7 @@ LIST *related_folder_subtract_preselection_existing_dictionary_list(
 
 	return return_dictionary_list;
 
-} /* related_folder_subtract_preselection_existing_dictionary_list() */
+}
 
 boolean related_folder_exists_all_key_data_list(
 					DICTIONARY *dictionary,
@@ -3128,7 +3126,7 @@ boolean related_folder_exists_all_key_data_list(
 		}
 	} while( list_next( key_data_list ) );
 	return 1;
-} /* related_folder_exists_key_all_data_list() */
+}
 
 boolean related_folder_exists_pair_1tom( LIST *related_folder_list )
 {
@@ -3148,7 +3146,7 @@ boolean related_folder_exists_pair_1tom( LIST *related_folder_list )
 	} while( list_next( related_folder_list ) );
 	return 0;
 
-} /* related_folder_exists_pair_1tom() */
+}
 
 char *related_folder_get_hint_message(
 				char *attribute_hint_message,
@@ -3183,7 +3181,7 @@ char *related_folder_get_hint_message(
 		hint_message = folder_notepad;
 	}
 	return hint_message;
-} /* related_folder_get_hint_message() */
+}
 
 LIST *related_folder_get_pair_one2m_related_folder_list(
 			char *application_name,
@@ -3240,7 +3238,7 @@ LIST *related_folder_get_pair_one2m_related_folder_list(
 
 	return pair_one2m_related_folder_list;
 
-} /* related_folder_get_pair_one2m_related_folder_list() */
+}
 
 void related_folder_populate_primary_data_dictionary(
 			LIST *mto1_related_folder_list,
@@ -3279,7 +3277,7 @@ void related_folder_populate_primary_data_dictionary(
 
 	} while( list_next( mto1_related_folder_list ) );
 
-} /* related_folder_populate_primary_data_dictionary() */
+}
 
 boolean related_folder_exists_mto1_folder_name(
 				LIST *mto1_related_folder_list,
@@ -3307,7 +3305,7 @@ boolean related_folder_exists_mto1_folder_name(
 
 	return 0;
 
-} /* related_folder_exists_mto1_folder_name() */
+}
 
 boolean related_folder_exists_mto1_folder_name_list(
 				LIST *mto1_related_folder_list,
@@ -3517,7 +3515,7 @@ RELATED_FOLDER *related_folder_mto1_seek(
 
 	return (RELATED_FOLDER *)0;
 
-} /* related_folder_mto1_seek() */
+}
 
 RELATED_FOLDER *related_folder_one2m_seek(
 				LIST *one2m_related_folder_list,
@@ -3597,7 +3595,7 @@ LIST *related_folder_get_non_edit_multi_element_list(
 
 	return return_list;
 
-} /* related_folder_get_non_edit_multi_element_list() */
+}
 
 boolean related_folder_mto1_exists_drop_down_multi_select(
 			LIST *mto1_related_folder_list )
@@ -3617,7 +3615,7 @@ boolean related_folder_mto1_exists_drop_down_multi_select(
 
 	return 0;
 
-} /* related_folder_mto1_exists_drop_down_multi_select() */
+}
 
 LIST *related_folder_fetch_non_primary_foreign_data_list(
 					char *application_name,
@@ -3644,7 +3642,7 @@ LIST *related_folder_fetch_non_primary_foreign_data_list(
 			pipe2string( sys_string ),
 			FOLDER_DATA_DELIMITER );
 
-} /* related_folder_fetch_non_primary_foreign_data_list() */
+}
 
 void related_folder_one2m_append_unique(
 			LIST *one2m_related_folder_list,
@@ -3669,7 +3667,7 @@ void related_folder_one2m_append_unique(
 			related_folder );
 	}
 
-} /* related_folder_one2m_append_unique() */
+}
 
 void related_folder_mto1_append_unique(
 			LIST *mto1_related_folder_list1,
@@ -3694,7 +3692,7 @@ void related_folder_mto1_append_unique(
 		}
 	} while( list_next( mto1_related_folder_list2 ) );
 
-} /* related_folder_mto1_append_unique() */
+}
 
 char *related_folder_get_appaserver_user_foreign_login_name(
 			LIST *mto1_related_folder_list )
@@ -3759,7 +3757,7 @@ return_foreign_login_name:
 	}
 	return appaserver_user_foreign_login_name;
 
-} /* related_folder_get_appaserver_user_foreign_login_name() */
+}
 
 RELATED_FOLDER *related_folder_get_view_only_related_folder(
 			LIST *mto1_related_folder_list )
@@ -3779,7 +3777,7 @@ RELATED_FOLDER *related_folder_get_view_only_related_folder(
 
 	return (RELATED_FOLDER *)0;
 
-} /* related_folder_get_view_only_related_folder() */
+}
 
 void related_folder_populate_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
@@ -3818,7 +3816,7 @@ void related_folder_populate_one2m_foreign_attribute_dictionary(
 		}
 	}
 
-} /* related_folder_populate_one2m_foreign_attribute_dictionary() */
+}
 
 void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
@@ -3856,7 +3854,7 @@ void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 
 	} while( list_next( one2m_recursive_related_folder_list ) );
 
-} /* related_folder_list_populate_one2m_foreign_attribute_dictionary() */
+}
 
 void related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
@@ -3934,7 +3932,7 @@ void related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
 
 	} while( list_next( mto1_isa_related_folder_list ) );
 
-} /* related_folder_list_populate_mto1_isa_foreign_attribute_dictionary() */
+}
 
 int related_folder_pair_match_function(
 				RELATED_FOLDER *related_folder_from_list,
@@ -3950,7 +3948,7 @@ int related_folder_pair_match_function(
 		return 1;
 	}
 
-} /* related_folder_pair_match_function() */
+}
 
 boolean related_folder_is_one2one_firewall(
 					LIST *foreign_attribute_name_list,
@@ -3990,7 +3988,7 @@ boolean related_folder_is_one2one_firewall(
 
 	return 0;
 
-} /* related_folder_is_one2one_firewall() */
+}
 
 LIST *related_folder_fetch_folder_foreign_attribute_record_list(
 				char *application_name )
@@ -4173,7 +4171,7 @@ RELATED_FOLDER *related_folder_get_ajax_fill_drop_down_related_folder(
 	return (RELATED_FOLDER *)0;
 }
 
-char *related_folder_get_ajax_onclick_function(
+char *related_folder_ajax_onclick_function(
 				LIST *attribute_name_list )
 {
 	char onclick_function[ 512 ];
@@ -4186,7 +4184,7 @@ char *related_folder_get_ajax_onclick_function(
 
 	return strdup( onclick_function );
 
-} /* related_folder_get_ajax_onclick_function() */
+}
 
 LIST *related_folder_mto1_isa_related_folder_list(
 			LIST *existing_related_folder_list,
@@ -4654,7 +4652,7 @@ LIST *related_folder_prompt_element_list(
 				RELATED_FOLDER_AJAX_FILL_LABEL;
 
 			onclick_function =
-				related_folder_get_ajax_onclick_function(
+				related_folder_ajax_onclick_function(
 					foreign_attribute_name_list );
 
 			element->push_button->onclick_function =

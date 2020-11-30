@@ -13,18 +13,18 @@ application=$APPASERVER_DATABASE
 
 # echo "$0 $*" 1>&2
 
-if [ "$#" -ne 7 ]
+if [ "$#" -ne 6 ]
 then
-	echo "Usage: $0 ignored login_name role session one2m_folder mto1_folder select" 1>&2
+	echo "Usage: $0 login_name role session one2m_folder mto1_folder select" 1>&2
 	exit 1
 fi
 
-login_name=$2
-role=$3
-session=$4
-one2m_folder=$5
-mto1_folder=$6
-select=$7
+login_name=$1
+role=$2
+session=$3
+one2m_folder=$4
+mto1_folder=$5
+select=$6
 
 function output_script_header()
 {

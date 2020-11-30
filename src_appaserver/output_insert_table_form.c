@@ -834,8 +834,7 @@ int main( int argc, char **argv )
 		char sys_string[ 1024 ];
 
 		sprintf( sys_string,
-			 "ajax_fill_drop_down.sh %s '%s' '%s' %s %s %s '%s'",
-			 application_name,
+			 "ajax_fill_drop_down.sh '%s' '%s' %s %s %s '%s'",
 			 login_name,
 			 role_name,
 			 session,
@@ -1157,7 +1156,7 @@ drop-down needing SWEEP.sweep_number in the where clause.
 
 			list_append_list(
 				return_list,
-				related_folder_get_insert_element_list(
+				related_folder_insert_element_list(
 					 only_one_ajax_fill_drop_down,
 					 /* --------------------------- */
 					 /* sets related_folder->folder */

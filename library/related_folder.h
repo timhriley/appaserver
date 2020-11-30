@@ -165,7 +165,7 @@ char *related_folder_display(		RELATED_FOLDER *related_folder,
 LIST *related_folder_remove_duplicate_mto1_related_folder_list(
 					LIST *mto1_related_folder_list );
 
-LIST *related_folder_get_insert_element_list(
+LIST *related_folder_insert_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			/* --------------------------- */
 			/* sets related_folder->folder */
@@ -546,7 +546,7 @@ void related_populate_folder_foreign_attribute_dictionary(
 RELATED_FOLDER *related_folder_get_ajax_fill_drop_down_related_folder(
 			LIST *mto1_related_folder_list );
 
-char *related_folder_get_ajax_onclick_function(
+char *related_folder_ajax_onclick_function(
 			LIST *attribute_name_list );
 
 LIST *related_folder_mto1_isa_related_folder_list(

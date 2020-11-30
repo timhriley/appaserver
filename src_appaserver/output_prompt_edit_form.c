@@ -705,8 +705,7 @@ m2( application_name, msg );
 		char sys_string[ 1024 ];
 
 		sprintf( sys_string,
-			 "ajax_fill_drop_down.sh %s '%s' '%s' %s %s %s '%s'",
-			 application_name,
+			 "ajax_fill_drop_down.sh '%s' '%s' %s %s %s '%s'",
 			 login_name,
 			 role_name,
 			 session,
