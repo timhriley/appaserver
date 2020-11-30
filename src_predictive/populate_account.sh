@@ -127,7 +127,7 @@ fi
 if [	"$one2m_folder" = "fixed_service" -o	\
 	"$one2m_folder" = "hourly_service" 	]
 then
-	one2m_where="account.subclassification = 'revenue'"
+	one2m_where="account.subclassification like '%revenue%'"
 fi
 
 if [ "$one2m_folder" = "liability_account_entity" ]
@@ -143,6 +143,11 @@ fi
 if [ "$one2m_folder" = "service_purchase" ]
 then
 	one2m_where="account.subclassification = 'service_expense'"
+fi
+
+if [ "$one2m_folder" = "offering" ]
+then
+	one2m_where="account.subclassification like '%revenue%'"
 fi
 
 where="$one2m_where and $subclassification_where and $element_where"
