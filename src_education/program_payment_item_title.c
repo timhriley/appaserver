@@ -20,7 +20,10 @@
 #include "program_payment_item_title.h"
 
 PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title_new(
-			char *item_title_P,
+			/* ----------------------------------------- */
+			/* Either item_title_P or transaction_type_E */
+			/* ----------------------------------------- */
+			char *program_name_column,
 			int program_number )
 {
 	PROGRAM_PAYMENT_ITEM_TITLE *p;
@@ -35,7 +38,7 @@ PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title_new(
 		exit( 1 );
 	}
 
-	p->item_title_P = item_title_P;
+	p->program_name_column = program_name_column;
 	p->program_number = program_number;
 	return p;
 }
@@ -50,7 +53,7 @@ Mary Poppins Junior Tickets: Saturday, March 28, 7:00pm, Mary Poppins Junior Tic
 */
 
 char *program_payment_item_title_block(
-			char *item_title_P,
+			char *program_name_column,
 			int program_number )
 {
 	static char program_block[ 512 ];
@@ -59,7 +62,10 @@ char *program_payment_item_title_block(
 /* ----------------------------- */
 if ( program_number > 1 ) return (char *)0;
 
-	if ( !piece( program_block, ':', item_title_P, program_number - 1 ) )
+	if ( !piece(	program_block,
+			':',
+			program_name_column,
+			program_number - 1 ) )
 	{
 		return (char *)0;
 	}
@@ -68,13 +74,13 @@ if ( program_number > 1 ) return (char *)0;
 }
 
 char *program_payment_item_title_name(
-			char *item_title_P,
+			char *program_name_column,
 			int program_number,
 			LIST *program_list )
 {
 	char *item_title_block;
 
-	if ( tuition_payment_is_tuition( item_title_P ) )
+	if ( tuition_payment_is_tuition( program_name_column ) )
 	{
 		return (char *)0;
 	}
@@ -89,7 +95,7 @@ Mary Poppins Junior Tickets
 			/* Returns static memory or null */
 			/* ----------------------------- */
 			program_payment_item_title_block(
-				item_title_P,
+				program_name_column,
 				program_number ) ) )
 	{
 		return (char *)0;

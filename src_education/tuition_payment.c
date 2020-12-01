@@ -373,7 +373,10 @@ TRANSACTION *tuition_payment_transaction(
 			date_display_19( transaction_date ),
 			payment_amount
 				/* transaction_amount */,
-			tuition_payment_memo( program_name ) );
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			strdup( tuition_payment_memo( program_name ) ) );
 
 	transaction->program_name = program_name;
 

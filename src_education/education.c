@@ -552,6 +552,20 @@ PAYPAL_DATASET *education_paypal_dataset(
 		return (PAYPAL_DATASET *)0;
 	}
 
+	if ( ! ( paypal_dataset->transaction_type_E =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Type" ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: can't parse transaction_type_E.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
 	if ( ! ( paypal_dataset->invoice_number_Z =
 			spreadsheet_heading_data(
 				spreadsheet_column_list,

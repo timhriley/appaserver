@@ -82,7 +82,7 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 			double deposit_net_payment_amount );
 
 PROGRAM_PAYMENT *program_payment(
-			char *item_title_P,
+			char *program_name_column,
 			int program_number,
 			LIST *education_program_list,
 			/* -------- */

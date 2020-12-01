@@ -374,7 +374,10 @@ TRANSACTION *tuition_refund_transaction(
 			date_display_19( transaction_date ),
 			refund_amount
 				/* transaction_amount */,
-			tuition_refund_memo( program_name ) );
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			strdup( tuition_refund_memo( program_name ) ) );
 
 	transaction->program_name = program_name;
 

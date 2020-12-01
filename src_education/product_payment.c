@@ -378,7 +378,7 @@ TRANSACTION *product_payment_transaction(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			product_payment_memo( product_name ) );
+			strdup( product_payment_memo( product_name ) ) );
 
 	transaction->program_name = program_name;
 

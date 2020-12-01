@@ -220,7 +220,7 @@ int main( int argc, char **argv )
 */
 
 			printf(
-		"<p>Process complete with row count %d.\n",
+		"<p>Process complete with deposit count %d.\n",
 				list_length( deposit_list ) );
 
 			process_execution_count_increment(
@@ -229,7 +229,7 @@ int main( int argc, char **argv )
 		else
 		{
 			printf(
-"<p>Process not executed because no generated transactions; row count %d.\n",
+"<p>Process not executed because no generated transactions; deposit count %d.\n",
 				list_length( deposit_list ) );
 		}
 	}
@@ -241,7 +241,7 @@ int main( int argc, char **argv )
 			year );
 
 		printf(
-		"<p>Process did not execute with row count %d.\n",
+		"<p>Process did not execute with deposit count %d.\n",
 				list_length( deposit_list ) );
 	}
 

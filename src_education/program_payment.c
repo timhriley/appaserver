@@ -376,7 +376,7 @@ TRANSACTION *program_payment_transaction(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			program_payment_memo( program_name ) );
+			strdup( program_payment_memo( program_name ) ) );
 
 	transaction->program_name = program_name;
 
@@ -598,7 +598,7 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 }
 
 PROGRAM_PAYMENT *program_payment(
-			char *item_title_P,
+			char *program_name_column,
 			int program_number,
 			LIST *education_program_list,
 			/* -------- */
@@ -612,7 +612,7 @@ PROGRAM_PAYMENT *program_payment(
 
 	if ( ! ( payment_item_title =
 			program_payment_item_title_new(
-				item_title_P,
+				program_name_column,
 				program_number ) ) )
 	{
 		return (PROGRAM_PAYMENT *)0;
@@ -620,7 +620,7 @@ PROGRAM_PAYMENT *program_payment(
 
 	if ( ! ( program_name =
 			program_payment_item_title_name(
-				item_title_P,
+				program_name_column,
 				program_number,
 				education_program_list ) ) )
 	{
