@@ -1233,26 +1233,17 @@ TUITION_REFUND *tuition_refund(
 		return (TUITION_REFUND *)0;
 	}
 
-	if ( ! ( tuition_payment_item_title->
-			tuition_payment_item_title_entity =
-				tuition_payment_item_title_entity(
-				item_title_P,
-				student_number ) ) )
-	{
-		return (TUITION_REFUND *)0;
-	}
+	tuition_payment_item_title->
+		tuition_payment_item_title_entity =
+			tuition_payment_item_title_entity(
+				tuition_payment_item_title->
+					item_title_enrollment );
 
-	if ( ! ( tuition_payment_item_title->
-			tuition_payment_item_title_course_name =
-				/* --------------------------- */
-				/* Returns heap memory or null */
-				/* --------------------------- */
-				tuition_payment_item_title_course_name(
-					item_title_P,
-					student_number ) ) )
-	{
-		return (TUITION_REFUND *)0;
-	}
+	tuition_payment_item_title->
+		tuition_payment_item_title_course_name =
+			tuition_payment_item_title_course_name(
+				tuition_payment_item_title->
+					item_title_enrollment );
 
 	/* New refund */
 	/* ---------- */

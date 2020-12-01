@@ -606,3 +606,67 @@ char *string_format_mnemonic(
 
 	return mnemonic_anchor;
 }
+
+int string_character_exists(
+			char *buffer,
+			char c )
+{
+	return string_character_position( buffer, c );
+}
+
+int string_character_position(
+			char *buffer,
+			char c )
+{
+	int position = 1;
+
+	if ( !buffer ) return 0;
+
+	while( *buffer )
+	{
+		if ( *buffer++ == c ) return position;
+		position++;
+	}
+	return 0;
+}
+
+char *string_trim_right(
+			char *buffer,
+			int length )
+{
+	int str_len;
+
+	if ( !buffer || !*buffer ) return (char *)0;
+
+	str_len = strlen( buffer );
+
+	if ( str_len < length ) return buffer;
+
+	buffer[ str_len - length ] = '\0';
+	return buffer;
+}
+
+char *string_trim_character(
+			char *buffer,
+			char delimiter )
+{
+	int position;
+	int offset;
+
+	if ( ! ( position =
+			/* ------------------- */
+			/* Position is 1 based */
+			/* ------------------- */
+			string_character_position(
+				buffer,
+				delimiter ) ) )
+	{
+		return buffer;
+	}
+
+	offset = position - 1;
+
+	string_strcpy( buffer, buffer + offset, 0 );
+	return buffer;
+}
+

@@ -115,4 +115,18 @@ char *string_format_mnemonic(
 			char *mnemonic,
 			char *string );
 
+boolean string_character_exists(
+			char *buffer,
+			char c );
+
+/* Position is 1 based */
+/* ------------------- */
+int string_character_position(
+			char *buffer,
+			char c );
+
+char *string_trim_character(
+			char *buffer,
+			char delimiter );
+
 #endif

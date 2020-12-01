@@ -77,6 +77,7 @@ typedef struct
 	double deposit_tuition_refund_total;
 	double deposit_gain_donation;
 	double deposit_registration_tuition;
+	int row_number;
 } DEPOSIT;
 
 LIST *deposit_registration_list(

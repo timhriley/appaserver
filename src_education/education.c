@@ -87,6 +87,7 @@ LIST *education_deposit_list(
 	/* Don't want to loose paypal_dataset pointer */
 	/* ------------------------------------------ */
 	PAYPAL_DATASET *dataset_return;
+	int row_number = 0;
 
 	if ( !spreadsheet )
 	{
@@ -141,7 +142,8 @@ LIST *education_deposit_list(
 				education_program_list,
 				education_product_list,
 				dataset_return
-					/* paypal_dataset */ ) );
+					/* paypal_dataset */,
+				++row_number ) );
 	}
 
 	fclose( spreadsheet_file );
@@ -155,7 +157,8 @@ DEPOSIT *education_deposit(
 			LIST *semester_offering_list,
 			LIST *education_program_list,
 			LIST *education_product_list,
-			PAYPAL_DATASET *paypal_dataset )
+			PAYPAL_DATASET *paypal_dataset,
+			int row_number )
 {
 	DEPOSIT *deposit;
 	char *payor_street_address;
@@ -172,6 +175,8 @@ DEPOSIT *education_deposit(
 	}
 
 	deposit = deposit_calloc();
+
+	deposit->row_number = row_number;
 
 	deposit->semester =
 		semester_new(

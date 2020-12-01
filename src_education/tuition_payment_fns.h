@@ -180,5 +180,8 @@ TRANSACTION *tuition_payment_transaction(
 			char *account_gain,
 			int seconds_to_add );
 
+boolean tuition_payment_is_tuition(
+			char *item_title_block );
+
 #endif
 

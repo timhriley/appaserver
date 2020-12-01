@@ -132,16 +132,29 @@ int list_at_head( LIST *list );
 int list_at_first( LIST *list );
 int at_head( LIST *list );
 int at_end( LIST *list );
-LIST *sys_string2list( char *sys_string );
-LIST *pipe2list( char *sys_string );
 
-LIST *list_string_list(			char *list_string,
-					char delimiter );
+LIST *sys_string2list(
+			char *sys_string );
+
+LIST *pipe2list(	char *sys_string );
+
+LIST *list_string_list(	char *list_string,
+			char delimiter );
 
 LIST *string2list( char *list_string, char delimiter );
 
 LIST *list_delimiter_string_to_list( char *list_string, char delimiter );
-char *list_get_offset( LIST *list, int offset );
+
+/* offset is zero based */
+/* -------------------- */
+char *list_get_offset(	LIST *list,
+			int offset );
+
+/* offset is zero based */
+/* -------------------- */
+char *list_seek_offset(	LIST *list,
+			int offset );
+
 LIST *list_subtract( LIST *big_list, LIST *subtract_this );
 LIST *subtract_list( LIST *big_list, LIST *subtract_this );
 LIST *list_subtract_list( LIST *big_list, LIST *subtract_this );

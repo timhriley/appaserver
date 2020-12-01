@@ -69,7 +69,7 @@ boolean timlib_strcpy( char *d, char *s, int buffer_size )
 
 	return 1;
 
-} /* timlib_strcpy() */
+}
 
 char *timlib_strcat( char *d, char *s )
 {

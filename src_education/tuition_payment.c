@@ -1287,26 +1287,17 @@ TUITION_PAYMENT *tuition_payment(
 		return (TUITION_PAYMENT *)0;
 	}
 
-	if ( ! ( tuition_payment_item_title->
-			tuition_payment_item_title_entity =
-				tuition_payment_item_title_entity(
-				item_title_P,
-				student_number ) ) )
-	{
-		return (TUITION_PAYMENT *)0;
-	}
+	tuition_payment_item_title->
+		tuition_payment_item_title_entity =
+			tuition_payment_item_title_entity(
+				tuition_payment_item_title->
+					item_title_enrollment );
 
-	if ( ! ( tuition_payment_item_title->
-			tuition_payment_item_title_course_name =
-				/* --------------------------- */
-				/* Returns heap memory or null */
-				/* --------------------------- */
-				tuition_payment_item_title_course_name(
-					item_title_P,
-					student_number ) ) )
-	{
-		return (TUITION_PAYMENT *)0;
-	}
+	tuition_payment_item_title->
+		tuition_payment_item_title_course_name =
+			tuition_payment_item_title_course_name(
+				tuition_payment_item_title->
+					item_title_enrollment );
 
 	/* New payment */
 	/* ----------- */
@@ -1695,5 +1686,20 @@ char *tuition_payment_memo( char *program_name )
 			TUITION_PAYMENT_MEMO );
 	}
 	return payment_memo;
+}
+
+boolean tuition_payment_is_tuition(
+			char *item_title_block )
+{
+	if ( instr(	"Child: " /* substr */,
+			item_title_block /* string */,
+			1 /* occurrence */ ) >= 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 

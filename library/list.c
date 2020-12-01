@@ -706,8 +706,15 @@ LIST *list_subtract( LIST *big_list, LIST *subtract_this )
 	return return_list;
 } /* list_subtract() */
 
-/* offset is zero based. */
-/* --------------------- */
+/* offset is zero based */
+/* -------------------- */
+char *list_seek_offset( LIST *list, int offset )
+{
+	return list_get_offset( list, offset );
+}
+
+/* offset is zero based */
+/* -------------------- */
 char *list_get_offset( LIST *list, int offset )
 {
 	if ( list_go_offset( list, offset ) )

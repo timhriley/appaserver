@@ -294,21 +294,6 @@ char *program_alias_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-boolean program_payment_is_tuition(
-			char *item_title_block )
-{
-	if ( instr(	"Child: " /* substr */,
-			item_title_block /* string */,
-			1 /* occurrence */ ) >= 0 )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
 char *program_seek_name(
 			LIST *program_list,
 			char *program_name )

@@ -60,7 +60,8 @@ DEPOSIT *education_deposit(
 			LIST *semester_offering_list,
 			LIST *education_program_list,
 			LIST *education_product_list,
-			PAYPAL_DATASET *paypal_dataset );
+			PAYPAL_DATASET *paypal_dataset,
+			int row_number );
 
 PAYPAL_DATASET *education_dataset_parse(
 			char *input,

@@ -16,6 +16,7 @@
 #include "entity.h"
 #include "program.h"
 #include "product.h"
+#include "tuition_payment_fns.h"
 #include "program_payment_item_title.h"
 
 PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title_new(
@@ -73,7 +74,7 @@ char *program_payment_item_title_name(
 {
 	char *item_title_block;
 
-	if ( program_payment_is_tuition( item_title_P ) )
+	if ( tuition_payment_is_tuition( item_title_P ) )
 	{
 		return (char *)0;
 	}
@@ -110,7 +111,7 @@ char *product_payment_item_title_name(
 {
 	char *item_title_block;
 
-	if ( program_payment_is_tuition( item_title_P ) )
+	if ( tuition_payment_is_tuition( item_title_P ) )
 	{
 		return (char *)0;
 	}
