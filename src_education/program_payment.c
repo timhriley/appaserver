@@ -653,7 +653,7 @@ PROGRAM_PAYMENT *program_payment(
 }
 
 LIST *program_payment_list(
-			char *item_title_P,
+			char *program_name_column,
 			LIST *education_program_list,
 			DEPOSIT *deposit )
 {
@@ -664,7 +664,7 @@ LIST *program_payment_list(
 	for (	program_number = 1;
 		( payment =
 			program_payment(
-				item_title_P,
+				program_name_column,
 				program_number,
 				education_program_list,
 				deposit ) );

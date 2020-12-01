@@ -258,6 +258,8 @@ DEPOSIT *education_deposit(
 	/* --------- */
 	deposit->account_balance = atof( paypal_dataset->account_balance_AD );
 
+	/* Columns E and P */
+	/* --------------- */
 	if ( deposit->deposit_amount > 0.0 )
 	{
 		deposit->deposit_tuition_payment_list =
@@ -272,26 +274,44 @@ DEPOSIT *education_deposit(
 				/* -------- */
 				deposit );
 	
+		if ( list_length( deposit->deposit_tuition_payment_list ) )
+			goto all_done;
+
 		deposit->deposit_program_payment_list =
 			deposit_program_payment_list(
-				paypal_dataset->item_title_P,
+				paypal_dataset->item_title_P
+					/* program_name_column */,
 				education_program_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
 				deposit );
 
-		if ( !list_length( deposit->deposit_program_payment_list ) )
-		{
-			deposit->deposit_product_payment_list =
-				deposit_product_payment_list(
-					paypal_dataset->item_title_P,
-					education_product_list,
-					/* -------- */
-					/* Set only */
-					/* -------- */
-					deposit );
-		}
+		if ( list_length( deposit->deposit_program_payment_list ) )
+			goto all_done;
+
+		deposit->deposit_product_payment_list =
+			deposit_product_payment_list(
+				paypal_dataset->item_title_P,
+				education_product_list,
+				/* -------- */
+				/* Set only */
+				/* -------- */
+				deposit );
+
+		if ( list_length( deposit->deposit_product_payment_list ) )
+			goto all_done;
+
+		deposit->deposit_program_payment_list =
+			deposit_program_payment_list(
+				paypal_dataset->transaction_type_E
+					/* program_name_column */,
+				education_program_list,
+				/* -------- */
+				/* Set only */
+				/* -------- */
+				deposit );
+
 	}
 	else
 	{
@@ -305,6 +325,8 @@ DEPOSIT *education_deposit(
 				/* -------- */
 				deposit );
 	}
+
+all_done:
 
 	if ( list_length( deposit->deposit_tuition_payment_list )
 	||   list_length( deposit->deposit_program_payment_list )

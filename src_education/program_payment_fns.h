@@ -87,7 +87,7 @@ double program_payment_net_payment_amount(
 /* Returns list of one, for now */
 /* ---------------------------- */
 LIST *program_payment_list(
-			char *item_title_P,
+			char *program_name_column,
 			LIST *education_program_list,
 			DEPOSIT *deposit );
 
