@@ -83,11 +83,16 @@ LIST *education_deposit_list(
 	LIST *deposit_list = list_new();
 	char input_string[ 65536 ];
 	FILE *spreadsheet_file;
+
 	/* ------------------------------------------ */
 	/* Don't want to loose paypal_dataset pointer */
 	/* ------------------------------------------ */
 	PAYPAL_DATASET *dataset_return;
-	int row_number = 0;
+
+	/* -------------------------------------------- */
+	/* The first line, the header, is already read. */
+	/* -------------------------------------------- */
+	int row_number = 1;
 
 	if ( !spreadsheet )
 	{

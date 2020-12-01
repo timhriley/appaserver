@@ -15,6 +15,7 @@
 #include "list.h"
 #include "entity.h"
 #include "program.h"
+#include "tuition_payment_fns.h"
 #include "tuition_payment_item_title.h"
 
 TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
@@ -95,7 +96,6 @@ ENTITY *tuition_payment_item_title_entity(
 		TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *item_title_enrollment )
 {
 	ENTITY *student_entity;
-	char student_full_name[ 128 ];
 	char *street_address;
 
 	if ( !item_title_enrollment ) return (ENTITY *)0;
@@ -135,8 +135,6 @@ TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
 			char *item_title_P,
 			int student_number )
 {
-	char course_name[ 1024 ];
-	char *enrollment_block;
 	TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *item_title_enrollment = {0};
 
 /* item_title_P looks like:
@@ -184,12 +182,14 @@ TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
 			item_title_P /* list_string */,
 			',' /* delimiter */ );
 
-	if ( block = list_seek_offset( block_list, student_number - 1 ) )
+	if ( ! ( block = list_seek_offset( block_list, student_number - 1 ) ) )
 	{
-		if ( !string_character_exists( block, ':' ) )
-		{
-			return (TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *)0;
-		}
+		return (TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *)0;
+	}
+
+	if ( !string_character_exists( block, ':' ) )
+	{
+		return (TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *)0;
 	}
 
 	/* Build course_name */

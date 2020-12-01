@@ -129,4 +129,8 @@ char *string_trim_character(
 			char *buffer,
 			char delimiter );
 
+char *string_trim_right(
+			char *buffer,
+			int length );
+
 #endif

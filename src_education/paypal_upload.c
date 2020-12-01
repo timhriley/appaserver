@@ -336,7 +336,8 @@ void paypal_upload_display(
 			format_initial_capital( buffer, season_name ),
 			year );
 
-	heading =	"payor,"		\
+	heading =	"row_number,"		\
+			"payor,"		\
 			"deposit_date_time,"	\
 			"deposit_amount,"	\
 			"transaction_fee,"	\
@@ -344,7 +345,8 @@ void paypal_upload_display(
 			"account_balance,"	\
 			"payments/refunds";
 
-	justification =	"left,"		\
+	justification =	"right,"	\
+			"left,"		\
 			"left,"		\
 			"right,"	\
 			"right,"	\
@@ -373,7 +375,8 @@ void paypal_upload_display(
 		output_pipe = popen( sys_string, "w" );
 
 		fprintf(output_pipe,
-			"%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s\n",
+			"%d^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s\n",
+			deposit->row_number,
 			entity_name_display(
 				deposit->payor_entity->full_name,
 				deposit->payor_entity->street_address ),
