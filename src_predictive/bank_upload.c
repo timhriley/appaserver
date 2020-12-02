@@ -432,6 +432,7 @@ LIST *bank_upload_file_list(
 
 		bank_upload->bank_date = strdup( bank_date_international );
 		bank_upload->bank_description = strdup( bank_description );
+		bank_upload->row_number = line_number;
 
 		bank_upload->check_number =
 			bank_upload_parse_check_number(
@@ -2612,10 +2613,10 @@ void bank_upload_table_display(
 	LIST *match_sum_journal_list;
 
 	heading =
-	"Account<br>Entity/Transaction,bank_date,bank_description,amount";
+	"Row,Account<br>Entity/Transaction,bank_date,bank_description,amount";
 
 	sprintf( sys_string,
-		 "html_table.e '' '%s' '^' left,left,left,right",
+		 "html_table.e '' '%s' '^' right,left,left,left,right",
 		 heading );
 
 	if ( !list_rewind( bank_upload_list ) )
@@ -2638,7 +2639,8 @@ void bank_upload_table_display(
 			feeder_match_sum_existing_journal_list;
 
 		fprintf( output_pipe,
-			 "%s^%s^%s^%.2lf\n",
+			 "%d^%s^%s^%s^%.2lf\n",
+			 bank_upload->row_number,
 			 bank_upload_account_html(
 				bank_upload->existing_bank_upload,
 				bank_upload->existing_transaction,
@@ -2666,5 +2668,7 @@ void bank_upload_table_display(
 		}
 
 	} while( list_next( bank_upload_list ) );
+
+	if ( output_pipe ) pclose( output_pipe );
 }
 

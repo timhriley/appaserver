@@ -59,6 +59,7 @@ typedef struct
 	LIST *reconciled_transaction_list;
 	LIST *feeder_match_sum_existing_journal_list;
 	JOURNAL *feeder_check_number_existing_journal;
+	int row_number;
 } BANK_UPLOAD;
 
 typedef struct

@@ -310,20 +310,6 @@ int load_bank_spreadsheet(
 		execute = 0;
 	}
 
-#ifdef NOT_DEFINED
-	*minimum_bank_date =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		bank_upload_minimum_bank_date(
-			bank_upload_structure->
-				file.
-				minimum_bank_date,
-			bank_upload_structure->
-				file.
-				bank_upload_list );
-#endif
-
 	*minimum_bank_date = bank_upload_structure->file.minimum_bank_date;
 
 	if ( !execute )
