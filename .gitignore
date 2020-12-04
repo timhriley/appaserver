@@ -31,6 +31,7 @@ post_change_patient_count
 # -------------
 # src_hydrology
 # -------------
+measurement_value_manipulation_history
 output_merged_waterquality
 cr10_parse
 sfwmd_breakpoint_parse

@@ -128,6 +128,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		output_merged_waterquality				\
 		water_budget_flow					\
 		output_measurement_differences				\
+		measurement_value_manipulation_history			\
 		output_hydroperiod					\
 		output_annual_comparison				\
 		calculate_hydroperiod					\
@@ -765,6 +766,21 @@ water_budget_flow: water_budget_flow.c					\
 		${LIBRARY}/easycharts.o					\
 		${LIBRARY}/grace.o					\
 		-o water_budget_flow
+
+measurement_value_manipulation_history:					\
+		measurement_value_manipulation_history.c		\
+		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
+		${LIBRARY}/google_chart.o				\
+		${LIBRARY}/grace.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		measurement_value_manipulation_history.c		\
+		${LIBRARY}/google_chart.o				\
+		${LIBRARY}/grace.o					\
+		-o measurement_value_manipulation_history
 
 output_measurement_differences: output_measurement_differences.c	\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\

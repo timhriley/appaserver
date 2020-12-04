@@ -141,19 +141,6 @@ int main( int argc, char **argv )
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	sprintf( output_filename,
-		 OUTPUT_FILE_TEMPLATE,
-		 appaserver_parameter_file->appaserver_mount_point,
-		 application_name,
-		 session );
-	
-	sprintf( http_filename,
-		 HTTP_FILE_TEMPLATE,
-		 application_name,
-		 session );
-*/
-	
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
 		fprintf( stderr,

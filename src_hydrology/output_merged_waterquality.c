@@ -110,14 +110,12 @@ int main( int argc, char **argv )
 	DICTIONARY *parameter_dictionary;
 	MERGED_INPUT *merged_input;
 
-	/* Exits if failure. */
-	/* ----------------- */
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 6 )
 	{
@@ -164,13 +162,10 @@ int main( int argc, char **argv )
 				process_name ) );
 		fflush( stdout );
 
-		if ( strcmp( output_medium, "gracechart" ) == 0 )
+		if ( strcmp( output_medium, "gracechart" ) != 0 )
 		{
-		}
-		else
-		{
+			printf( "<h2>\n" );
 			if ( system( timlib_system_date_string() ) ) {};
-
 			printf( "</h2>\n" );
 		}
 		fflush( stdout );
@@ -215,8 +210,7 @@ int main( int argc, char **argv )
 		appaserver_parameter_file_get_dbms() );
 
 	return 0;
-
-} /* main() */
+}
 
 DICTIONARY *output_merged_parameter_dictionary(
 				char *parameter_dictionary_string )
