@@ -1631,7 +1631,6 @@ int number_occurrences_char( int char_to_count, char *source )
 	}
 
 	return count;
-
 }
 
 char *place_commas_in_unsigned_long_long( unsigned long long n )

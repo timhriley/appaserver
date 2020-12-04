@@ -7,13 +7,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include "timlib.h"
+#include "String.h"
 #include "piece.h"
+#include "sql.h"
 #include "appaserver_library.h"
 #include "hydrology_library.h"
+#include "measurement_backup.h"
 #include "measurement.h"
 
-MEASUREMENT_STRUCTURE *measurement_structure_new( 
-			char *application_name )
+MEASUREMENT_STRUCTURE *measurement_structure_calloc( void )
 {
 	MEASUREMENT_STRUCTURE *m;
 
@@ -30,12 +32,19 @@ MEASUREMENT_STRUCTURE *measurement_structure_new(
 		exit( 1 );
 	}
 
+	return m;
+}
+
+MEASUREMENT_STRUCTURE *measurement_structure_new( 
+			char *application_name )
+{
+	MEASUREMENT_STRUCTURE *m = measurement_structure_calloc();
+
 	m->application_name = application_name;
 	m->argv_0 = "";
 
 	return m;
-
-} /* measurement_structure_new() */
+}
 
 boolean measurement_set_delimited_record( 
 					MEASUREMENT_STRUCTURE *m,
@@ -103,7 +112,7 @@ boolean measurement_set_delimited_record(
 
 	return 1;
 
-} /* measurement_set_delimited_record() */
+}
 
 MEASUREMENT *measurement_calloc( void )
 {
@@ -121,7 +130,7 @@ MEASUREMENT *measurement_calloc( void )
 		exit( 1 );
 	}
 	return m;
-} /* measurement_calloc() */
+}
 
 /* This function does strdup() for all the memory. */
 /* ----------------------------------------------- */
@@ -146,7 +155,7 @@ MEASUREMENT *measurement_strdup_new(	char *station_name,
 			&m->null_value, value_string );
 	return m;
 
-} /* measurement_strdup_new() */
+}
 
 void measurement_free( MEASUREMENT *m )
 {
@@ -164,33 +173,33 @@ boolean measurement_output_pipe(
 {
 	return measurement_pipe_output( 	
 			output_pipe,
-			m,
+			m->measurement,
 			insert_null_values );
 }
 
-boolean measurement_pipe_output( 	
+boolean measurement_pipe_output(
 			FILE *output_pipe,
-			MEASUREMENT_STRUCTURE *m,
+			MEASUREMENT *measurement,
 			boolean insert_null_values )
 {
-	if ( !m->measurement )
+	if ( !measurement )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: no record set.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty measurement.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return 0;
 	}
 
-	if ( m->measurement->null_value && !insert_null_values )
+	if ( measurement->null_value && !insert_null_values )
 	{
 		fprintf( stderr,
 			 "Warning: null value reject %s/%s/%s/%s\n",
-			 m->measurement->station_name,
-			 m->measurement->datatype,
-			 m->measurement->measurement_date,
-			 m->measurement->measurement_time );
+			 measurement->station_name,
+			 measurement->datatype,
+			 measurement->measurement_date,
+			 measurement->measurement_time );
 		return 0;
 	}
 
@@ -199,31 +208,31 @@ boolean measurement_pipe_output(
 	/* ------------------------------------------- */
 	if ( output_pipe )
 	{
-		if ( !m->measurement->null_value )
+		if ( !measurement->null_value )
 		{
 			fprintf(output_pipe,
 				"%s%c%s%c%s%c%s%c%.4lf\n",
-				m->measurement->station_name,
+				measurement->station_name,
 				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
-				m->measurement->datatype,
+				measurement->datatype,
 				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
-				m->measurement->measurement_date,
+				measurement->measurement_date,
 				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
-				m->measurement->measurement_time,
+				measurement->measurement_time,
 				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
-				m->measurement->measurement_value );
+				measurement->measurement_value );
 		}
 		else
 		{
 			fprintf(output_pipe,
 				"%s%c%s%c%s%c%s%cnull\n",
-				m->measurement->station_name,
+				measurement->station_name,
 				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
-				m->measurement->datatype,
+				measurement->datatype,
 				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
-				m->measurement->measurement_date,
+				measurement->measurement_date,
 				MEASUREMENT_INSERT_STATEMENT_DELIMITER,
-				m->measurement->measurement_time,
+				measurement->measurement_time,
 				MEASUREMENT_INSERT_STATEMENT_DELIMITER );
 		}
 	}
@@ -232,22 +241,22 @@ boolean measurement_pipe_output(
 	/* Send to stdout */
 	/* -------------- */
 	{
-		if ( !m->measurement->null_value )
+		if ( !measurement->null_value )
 		{
 			printf( "Not inserting: %s,%s,%s,%s,%.4lf\n",
-				m->measurement->station_name,
-				m->measurement->datatype,
-				m->measurement->measurement_date,
-				m->measurement->measurement_time,
-				m->measurement->measurement_value );
+				measurement->station_name,
+				measurement->datatype,
+				measurement->measurement_date,
+				measurement->measurement_time,
+				measurement->measurement_value );
 		}
 		else
 		{
 			printf( "Not inserting: %s,%s,%s,%s,null\n",
-				m->measurement->station_name,
-				m->measurement->datatype,
-				m->measurement->measurement_date,
-				m->measurement->measurement_time );
+				measurement->station_name,
+				measurement->datatype,
+				measurement->measurement_date,
+				measurement->measurement_time );
 		}
 	}
 	return 1;
@@ -487,7 +496,7 @@ double measurement_get_value(	boolean *null_value,
 		*null_value = 0;
 		return atof( value_string );
 	}
-} /* measurement_get_value() */
+}
 
 LIST *measurement_fetch_list(	FILE *input_pipe,
 				char delimiter )
@@ -508,7 +517,7 @@ LIST *measurement_fetch_list(	FILE *input_pipe,
 
 	measurement_list = list_new();
 
-	while ( timlib_get_line( input_buffer, input_pipe, 1024 ) )
+	while ( string_input( input_buffer, input_pipe, 1024 ) )
 	{
 		if ( ! ( measurement =
 				measurement_parse(
@@ -526,12 +535,10 @@ LIST *measurement_fetch_list(	FILE *input_pipe,
 			exit( 1 );
 		}
 
-		list_append_pointer( measurement_list, measurement );
+		list_set( measurement_list, measurement );
 	}
-
 	return measurement_list;
-
-} /* measurement_fetch_list(); */
+}
 
 FILE *measurement_open_input_pipe(
 			char *application_name,
@@ -568,7 +575,7 @@ boolean measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
 			buffer,
 			',' );
 
-} /* measurement_structure_fetch() */
+}
 
 void measurement_set_argv_0( MEASUREMENT_STRUCTURE *m, char *argv_0 )
 {
@@ -626,7 +633,7 @@ char *measurement_display_delimiter(
 
 	return buffer;
 
-} /* measurement_display_delimiter() */
+}
 
 /* Returns static memory */
 /* --------------------- */
@@ -666,7 +673,7 @@ void measurement_delete( FILE *delete_pipe, MEASUREMENT *m )
 		 m->measurement_date,
 		 m->measurement_time );
 
-} /* measurement_delete() */
+}
 
 MEASUREMENT_UPDATE *measurement_update_new( void )
 {
@@ -688,7 +695,7 @@ MEASUREMENT_UPDATE *measurement_update_new( void )
 
 	return m;
 
-} /* measurement_update_new() */
+}
 
 /*
 #define MEASUREMENT_SELECT_LIST	 	"station,datatype,measurement_date,measurement_time,measurement_value"
@@ -703,7 +710,7 @@ MEASUREMENT *measurement_parse(
 	static boolean first_time = 0;
 	static double prior_value = 0.0;
 
-	if ( timlib_character_count( delimiter, buffer ) != 4 )
+	if ( string_character_count( delimiter, buffer ) < 4 )
 	{
 		return (MEASUREMENT *)0;
 	}
@@ -713,18 +720,28 @@ MEASUREMENT *measurement_parse(
 	m->datatype = strdup( piece( piece_buffer, delimiter, buffer, 1 ) );
 
 	m->measurement_date =
-		strdup( piece( piece_buffer, delimiter, buffer, 2 ) );
+		strdup( piece(	piece_buffer,
+				delimiter,
+				buffer,
+				2 ) );
 
 	m->measurement_time =
-		strdup( piece( piece_buffer, delimiter, buffer, 3 ) );
+		strdup( piece(	piece_buffer,
+				delimiter,
+				buffer,
+				3 ) );
 
 	m->value_string =
-		strdup( piece( piece_buffer, delimiter, buffer, 4 ) );
+		strdup( piece(	piece_buffer,
+				delimiter,
+				buffer,
+				4 ) );
 
 	if ( !*m->value_string )
 		m->null_value = 1;
 	else
-		m->measurement_value = atof( m->value_string );
+		m->measurement_value =
+			atof( m->value_string );
 
 	if ( first_time )
 	{
@@ -963,5 +980,162 @@ JULIAN *measurement_adjust_time_to_sequence(
 	} while( list_next( sequence_list ) );
 
 	return measurement_date_time;
+}
+
+MEASUREMENT *measurement_fetch(
+			char *station,
+			char *datatype,
+			char *measurement_date,
+			char *measurement_time )
+{
+	if ( !station
+	||   !datatype
+	||   !measurement_date
+	||   !measurement_time )
+	{
+		return (MEASUREMENT *)0;
+	}
+
+	return	measurement_parse(
+			pipe2string(
+				measurement_sys_string(
+		 			/* -------------------------- */
+		 			/* Safely returns heap memory */
+		 			/* -------------------------- */
+		 			measurement_primary_where(
+						station,
+						datatype,
+						measurement_date,
+						measurement_time ) ) ),
+			SQL_DELIMITER );
+}
+
+char *measurement_primary_where(
+			char *station,
+			char *datatype,
+			char *measurement_date,
+			char *measurement_time  )
+{
+	char where[ 512 ];
+
+	sprintf(where,
+		"station = '%s' and		"
+		"datatype = '%s' and		"
+		"measurement_date = '%s' and	"
+		"measurement_time = '%s'	",
+		station,
+		datatype,
+		measurement_date,
+		measurement_time );
+
+	return strdup( where );
+}
+
+char *measurement_sys_string( char *where )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "select.sh '*' %s \"%s\" select",
+		 MEASUREMENT_TABLE,
+		 where );
+
+	return strdup( sys_string );
+}
+
+LIST *measurement_system_list( char *sys_string )
+{
+	FILE *input_pipe;
+	char input[ 1024 ];
+	LIST *measurement_list;
+
+	input_pipe = popen( sys_string, "r" );
+	measurement_list = list_new();
+
+	while ( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set(
+			measurement_list,
+			measurement_parse(
+				input,
+				SQL_DELIMITER ) );
+	}
+	pclose( input_pipe );
+	return measurement_list;
+}
+
+void measurement_list_table_display(
+			LIST *measurement_list )
+{
+	MEASUREMENT *measurement;
+	FILE *output_pipe;
+
+	output_pipe = measurement_open_html_table_pipe();
+
+	if ( !list_rewind( measurement_list ) )
+	{
+		pclose( output_pipe );
+		return;
+	}
+
+	do {
+		measurement = list_get( measurement_list );
+
+		measurement_pipe_output(
+			output_pipe,
+			measurement,
+			1 /* insert_null_values */ );
+
+	} while ( list_next( measurement_list ) );
+
+	pclose( output_pipe );
+}
+
+void measurement_list_pipe_output(
+			FILE *output_pipe,
+			LIST *measurement_list )
+{
+	MEASUREMENT *measurement;
+
+	if ( !list_rewind( measurement_list ) )
+	{
+		return;
+	}
+
+	do {
+		measurement = list_get( measurement_list );
+
+		measurement_pipe_output(
+			output_pipe,
+			measurement,
+			1 /* insert_null_values */ );
+
+	} while ( list_next( measurement_list ) );
+}
+
+MEASUREMENT_BACKUP *measurement_convert_measurement_backup(
+			MEASUREMENT *measurement )
+{
+	MEASUREMENT_BACKUP *measurement_backup;
+
+	if ( !measurement )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty measurement\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	measurement_backup = measurement_backup_calloc();
+
+	measurement_backup->station = measurement->station_name;
+	measurement_backup->datatype = measurement->datatype;
+	measurement_backup->measurement_date = measurement->measurement_date;
+	measurement_backup->measurement_time = measurement->measurement_time;
+	measurement_backup->original_value = measurement->measurement_value;
+
+	return measurement_backup;
 }
 

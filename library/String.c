@@ -670,3 +670,19 @@ char *string_trim_character(
 	return buffer;
 }
 
+int string_character_count(
+			char ch,
+			char *source )
+{
+	register int count = 0;
+
+	if ( source )
+	{
+		while( *source )
+		{
+			if ( *source == ch ) count++;
+			source++;
+		}
+	}
+	return count;
+}

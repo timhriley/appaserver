@@ -32,11 +32,11 @@
 #include "application_constants.h"
 #include "appaserver_link_file.h"
 #include "google_chart.h"
+#include "measurement.h"
 
 /* Constants */
 /* --------- */
 #define DEFAULT_OUTPUT_MEDIUM			"table"
-#define ROWS_BETWEEN_HEADING			20
 #define GRACE_TICKLABEL_ANGLE			90
 
 /* Structures */
@@ -45,6 +45,35 @@
 	
 /* Prototypes */
 /* ---------- */
+LIST *manipulate_history_measurement_backup_list(
+			char *station,
+			char *datatype,
+			char *measurement_date,
+			char *measurement_time );
+
+/* -------------------------------------------- */
+/* Sets measurement and measurement_backup_list */
+/* -------------------------------------------- */
+MEASUREMENT_STRUCTURE *manipulation_history_structure_fetch(
+			char *station,
+			char *datatype,
+			char *measurement_date,
+			char *measurement_time );
+
+boolean measurement_manipulation_output_table(
+			char *station,
+			char *datatype,
+			char *measurement_date,
+			char *measurement_time );
+
+boolean measurement_manipulation_output_transmit(
+			FILE *output_pipe,
+			char *station,
+			char *datatype,
+			char *measurement_date,
+			char *measurement_time );
+
+/*
 void measurement_manipulation_output_googlechart(
 			char *application_name,
 			char *station,
@@ -59,27 +88,7 @@ void measurement_manipulation_output_gracechart(
 			char *measurement_date,
 			char *measurement_time );
 
-void measurement_manipulation_output_gracechart(
-			char *application_name,
-			char *station,
-			char *datatype,
-			char *measurement_date,
-			char *measurement_time );
-
-void measurement_manipulation_output_table(
-			char *application_name,
-			char *station,
-			char *datatype,
-			char *measurement_date,
-			char *measurement_time );
-
-void measurement_manipulation_output_transmit(
-			FILE *output_pipe,
-			char *application_name,
-			char *station,
-			char *datatype,
-			char *measurement_date,
-			char *measurement_time );
+*/
 
 int main( int argc, char **argv )
 {
@@ -91,6 +100,7 @@ int main( int argc, char **argv )
 	char *measurement_date;
 	char *measurement_time;
 	char *output_medium;
+	boolean success = 0;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -146,11 +156,12 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
-		measurement_manipulation_output_table(
-			station,
-			datatype,
-			measurement_date,
-			measurement_time );
+		success =
+			measurement_manipulation_output_table(
+				station,
+				datatype,
+				measurement_date,
+				measurement_time );
 	}
 	else
 	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
@@ -225,20 +236,24 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
-		measurement_manipulation_output_transmit(
-					output_pipe,
-					station,
-					datatype,
-					measurement_date,
-					measurement_time );
+		success =
+			measurement_manipulation_output_transmit(
+				output_pipe,
+				station,
+				datatype,
+				measurement_date,
+				measurement_time );
 
 		pclose( output_pipe );
 
-		appaserver_library_output_ftp_prompt(
+		if ( success )
+		{
+			appaserver_library_output_ftp_prompt(
 				ftp_filename,
 				TRANSMIT_PROMPT,
 				(char *)0 /* target */,
 				(char *)0 /* application_type */ );
+		}
 	}
 	else
 	if ( strcmp( output_medium, "stdout" ) == 0 )
@@ -252,81 +267,182 @@ int main( int argc, char **argv )
 		output_pipe = popen( sys_string, "w" );
 
 		measurement_manipulation_output_transmit(
-					output_pipe,
-					station,
-					datatype,
-					measurement_date,
-					measurement_time );
+			output_pipe,
+			station,
+			datatype,
+			measurement_date,
+			measurement_time );
 
 		pclose( output_pipe );
 	}
 	else
 	if ( strcmp( output_medium, "gracechart" ) == 0 )
 	{
+/*
 		measurement_manipulation_output_gracechart(
-				application_name,
-				station,
-				datatype,
-				measurement_date,
-				measurement_time );
+			application_name,
+			station,
+			datatype,
+			measurement_date,
+			measurement_time );
+*/
 	}
 	else
 	if ( strcmp( output_medium, "googlechart" ) == 0 )
 	{
+/*
 		measurement_manipulation_output_googlechart(
-				application_name,
-				station,
-				datatype,
-				measurement_date,
-				measurement_time );
+			application_name,
+			station,
+			datatype,
+			measurement_date,
+			measurement_time );
+*/
 	}
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
+		if ( !success )
+		{
+			printf(
+			"<h3>An internal error occurrred. Check log.</h3>\n" );
+		}
+
 		document_close();
 	}
 
 	process_increment_execution_count(
-			application_name,
-			process_name,
-			appaserver_parameter_file_get_dbms() );
+		application_name,
+		process_name,
+		appaserver_parameter_file_get_dbms() );
 
 	exit( 0 );
 }
 
-void measurement_manipulation_output_transmit(
+boolean measurement_manipulation_output_transmit(
 			FILE *output_pipe,
 			char *station,
 			char *datatype,
 			char *measurement_date,
 			char *measurement_time )
 {
+	MEASUREMENT_STRUCTURE *measurement_structure;
 
+	if ( ! ( measurement_structure =
+			/* -------------------------------------------- */
+			/* Sets measurement and measurement_backup_list */
+			/* -------------------------------------------- */
+			manipulation_history_structure_fetch(
+				station,
+				datatype,
+				measurement_date,
+				measurement_time ) ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: manipulation_history_structure_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return 0;
+	}
+
+	list_set(	measurement_structure->measurement_list,
+			measurement_convert_measurement_backup(
+				measurement_structure->measurement ) );
+
+	measurement_backup_list_pipe_output(
+		output_pipe,
+		measurement_structure->
+			measurement_backup_list );
+
+	return 1;
 }
 
-void measurement_manipulation_output_table(
+boolean measurement_manipulation_output_table(
 			char *station,
 			char *datatype,
 			char *measurement_date,
 			char *measurement_time )
 {
+	MEASUREMENT_STRUCTURE *measurement_structure;
+
+	if ( ! ( measurement_structure =
+			/* -------------------------------------------- */
+			/* Sets measurement and measurement_backup_list */
+			/* -------------------------------------------- */
+			manipulation_history_structure_fetch(
+				station,
+				datatype,
+				measurement_date,
+				measurement_time ) ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: manipulation_history_structure_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return 0;
+	}
+
+	list_set(	measurement_structure->measurement_backup_list,
+			measurement_convert_measurement_backup(
+				measurement_structure->measurement ) );
+
+	measurement_backup_list_table_display(
+		measurement_structure->measurement_backup_list );
+
+	return 1;
 }
 
-void measurement_manipulation_output_gracechart(
-			char *application_name,
+MEASUREMENT_STRUCTURE *manipulation_history_structure_fetch(
 			char *station,
 			char *datatype,
 			char *measurement_date,
 			char *measurement_time )
 {
+	MEASUREMENT_STRUCTURE *measurement_structure;
+	MEASUREMENT_STRUCTURE *m;
+
+	m = measurement_structure = measurement_structure_calloc();
+
+	if ( ! ( m->measurement =
+			measurement_fetch(
+				station,
+				datatype,
+				measurement_date,
+				measurement_time ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: measurement_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return (MEASUREMENT_STRUCTURE *)0;
+	}
+
+	m->measurement_backup_list =
+		manipulate_history_measurement_backup_list(
+			station,
+			datatype,
+			measurement_date,
+			measurement_time );
+
+	return measurement_structure;
 }
 
-void measurement_manipulation_output_googlechart(
-			char *application_name,
+LIST *manipulate_history_measurement_backup_list(
 			char *station,
 			char *datatype,
 			char *measurement_date,
 			char *measurement_time )
 {
+	return measurement_backup_system_list(
+		measurement_backup_sys_string(
+			measurement_primary_where(
+				station,
+				datatype,
+				measurement_date,
+				measurement_time ) ) );
 }
 

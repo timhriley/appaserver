@@ -22,37 +22,6 @@
 #include "element.h"
 #include "account.h"
 
-LIST *account_system_list( char *sys_string )
-{
-	FILE *input_pipe;
-	char input[ 1024 ];
-	LIST *account_list;
-
-	input_pipe = popen( sys_string, "r" );
-	account_list = list_new();
-
-	while ( string_input( input, input_pipe, 1024 ) )
-	{
-		list_set( account_list, account_parse( input ) );
-	}
-	pclose( input_pipe );
-	return account_list;
-}
-
-LIST *account_list_fetch( char *where )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 account_select(),
-		 ACCOUNT_TABLE_NAME,
-		 where,
-		 "account" );
-
-	return account_system_list( sys_string );
-}
-
 LIST *account_list( void )
 {
 	return account_list_fetch( "1 = 1" );
@@ -342,22 +311,6 @@ ACCOUNT *account_parse( char *input )
 			account->subclassification_name );
 
 	return account;
-}
-
-char *account_sys_string( char *where )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "select.sh '%s' %s \"%s\" select",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 account_select(),
-		 ACCOUNT_TABLE_NAME,
-		 where );
-
-	return strdup( sys_string );
 }
 
 ACCOUNT *account_fetch(	char *account_name )
@@ -906,5 +859,58 @@ ACCOUNT *account_key_fetch( char *account_key )
 			pipe2string(
 				account_sys_string(
 					where ) ) );
+}
+
+LIST *account_list_fetch( char *where )
+{
+	char *sys_string;
+
+/*
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 account_select(),
+		 ACCOUNT_TABLE_NAME,
+		 where,
+		 "account" );
+*/
+
+	sys_string = account_sys_string( where );
+
+	return account_system_list( sys_string );
+}
+
+char *account_sys_string( char *where )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "select.sh '%s' %s \"%s\" select",
+		 /* ---------------------- */
+		 /* Returns program memory */
+		 /* ---------------------- */
+		 account_select(),
+		 ACCOUNT_TABLE_NAME,
+		 where );
+
+	return strdup( sys_string );
+}
+
+LIST *account_system_list( char *sys_string )
+{
+	FILE *input_pipe;
+	char input[ 1024 ];
+	LIST *account_list;
+
+	input_pipe = popen( sys_string, "r" );
+	account_list = list_new();
+
+	while ( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set( account_list, account_parse( input ) );
+	}
+	pclose( input_pipe );
+	return account_list;
 }
 

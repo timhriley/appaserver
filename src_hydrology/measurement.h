@@ -10,6 +10,7 @@
 #include "julian.h"
 #include "boolean.h"
 
+#define MEASUREMENT_TABLE			"measurement"
 #define MEASUREMENT_INSERT_STATEMENT_DELIMITER	'|'
 #define MEASUREMENT_QUEUE_TOP_BOTTOM_LINES	50
 
@@ -46,6 +47,8 @@ typedef struct
 	FILE *html_table_pipe;
 	FILE *insert_statement_pipe;
 	char *argv_0;
+	LIST *measurement_list;
+	LIST *measurement_backup_list;
 } MEASUREMENT_STRUCTURE;
 
 /* Constants */
@@ -73,16 +76,16 @@ void measurement_free(			MEASUREMENT *m );
 /* This function does strdup() for the memory. */
 /* ------------------------------------------- */
 MEASUREMENT *measurement_strdup_new(
-					char *station_name,
-					char *datatype,
-					char *date,
-					char *time,
-					char *value_string );
+			char *station_name,
+			char *datatype,
+			char *date,
+			char *time,
+			char *value_string );
 
 boolean measurement_set_delimited_record(
-					MEASUREMENT_STRUCTURE *m, 
-					char *comma_delimited_record,
-					char delimiter );
+			MEASUREMENT_STRUCTURE *m, 
+			char *comma_delimited_record,
+			char delimiter );
 
 boolean measurement_insert(
 			FILE *insert_pipe,
@@ -107,24 +110,30 @@ FILE *measurement_open_insert_statement_pipe(
 FILE *measurement_open_html_table_pipe(
 			void );
 
-double measurement_get_value(		boolean *null_value,
-					char *value_string );
+double measurement_get_value(
+			boolean *null_value,
+			char *value_string );
 
-void measurement_set_load_process( 	MEASUREMENT *m,
-					char *load_process,
-					boolean execute );
+void measurement_set_load_process(
+			MEASUREMENT *m,
+			char *load_process,
+			boolean execute );
 
-void measurement_set_argv_0(		MEASUREMENT_STRUCTURE *m,
-					char *argv_0 );
+void measurement_set_argv_0(
+			MEASUREMENT_STRUCTURE *m,
+			char *argv_0 );
 
-boolean measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
-					FILE *input_pipe );
+boolean measurement_structure_fetch(
+			MEASUREMENT_STRUCTURE *m,
+			FILE *input_pipe );
 
-FILE *measurement_open_delete_pipe(	char *application_name );
+FILE *measurement_open_delete_pipe(
+			char *application_name );
 
 /* Returns static memory */
 /* --------------------- */
-char *measurement_display(		MEASUREMENT *m );
+char *measurement_display(
+			MEASUREMENT *m );
 
 /* Returns static memory */
 /* --------------------- */
@@ -141,23 +150,18 @@ void measurement_update(
 			char *time,
 			double value );
 
-MEASUREMENT *measurement_calloc(	void );
-
-LIST *measurement_fetch_list(		FILE *input_pipe,
-					char delimiter );
-
-MEASUREMENT *measurement_parse(	
-			char *buffer,
-			char delimiter );
+MEASUREMENT *measurement_calloc(
+			void );
 
 boolean measurement_list_update(	char *application_name,
 					LIST *measurement_list );
 
-MEASUREMENT *measurement_list_seek(	char *station_name  /* optional */,
-					char *datatype_name /* optional */,
-					char *measurement_date,
-					char *measurement_time,
-					LIST *measurement_list );
+MEASUREMENT *measurement_list_seek(
+			char *station_name  /* optional */,
+			char *datatype_name /* optional */,
+			char *measurement_date,
+			char *measurement_time,
+			LIST *measurement_list );
 
 boolean measurement_text_output(
 			MEASUREMENT *m,
@@ -184,7 +188,45 @@ JULIAN *measurement_adjust_time_to_sequence(
 
 boolean measurement_pipe_output( 	
 			FILE *output_pipe,
-			MEASUREMENT_STRUCTURE *m,
+			MEASUREMENT *m,
 			boolean insert_null_values );
+
+LIST *measurement_fetch_list(
+			FILE *input_pipe,
+			char delimiter );
+
+MEASUREMENT *measurement_parse(	
+			char *buffer,
+			char delimiter );
+
+MEASUREMENT *measurement_fetch(
+			char *station,
+			char *datatype,
+			char *measurement_date,
+			char *measurement_time );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *measurement_primary_where(
+			char *station,
+			char *datatype,
+			char *measurement_date,
+			char *measurement_time  );
+
+char *measurement_sys_string(
+			char *where );
+
+LIST *measurement_system_list(
+			char *sys_string );
+
+void measurement_list_table_display(
+			LIST *measurement_list );
+
+void measurement_list_pipe_output(
+			FILE *output_pipe,
+			LIST *measurement_list );
+
+MEASUREMENT_STRUCTURE *measurement_structure_calloc(
+			void );
 
 #endif

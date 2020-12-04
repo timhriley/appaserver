@@ -1,6 +1,6 @@
 :
 
-make measurement_insert
+make measurement_value_manipulation_history
 
 #cd - && make parse_alias_data
 

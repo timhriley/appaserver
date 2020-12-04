@@ -133,4 +133,8 @@ char *string_trim_right(
 			char *buffer,
 			int length );
 
+int string_character_count(
+			char ch,
+			char *source );
+
 #endif
