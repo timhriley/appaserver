@@ -229,4 +229,7 @@ void measurement_list_pipe_output(
 MEASUREMENT_STRUCTURE *measurement_structure_calloc(
 			void );
 
+MEASUREMENT_BACKUP *measurement_convert_measurement_backup(
+			MEASUREMENT *measurement );
+
 #endif
