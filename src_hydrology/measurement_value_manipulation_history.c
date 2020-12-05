@@ -346,7 +346,7 @@ boolean measurement_manipulation_output_transmit(
 		return 0;
 	}
 
-	list_set(	measurement_structure->measurement_list,
+	list_set(	measurement_structure->measurement_backup_list,
 			measurement_convert_measurement_backup(
 				measurement_structure->measurement ) );
 
