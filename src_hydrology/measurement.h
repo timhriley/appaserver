@@ -9,6 +9,7 @@
 #include "dictionary.h"
 #include "julian.h"
 #include "boolean.h"
+#include "measurement_backup.h"
 
 #define MEASUREMENT_TABLE			"measurement"
 #define MEASUREMENT_INSERT_STATEMENT_DELIMITER	'|'
