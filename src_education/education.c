@@ -311,7 +311,6 @@ DEPOSIT *education_deposit(
 				/* Set only */
 				/* -------- */
 				deposit );
-
 	}
 	else
 	{

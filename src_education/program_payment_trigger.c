@@ -150,8 +150,7 @@ void program_payment_trigger_insert_update(
 			program_payment_steady_state(
 			program_payment,
 			program_payment->deposit->deposit_amount,
-			program_payment->deposit->transaction_fee,
-			program_payment->deposit->net_revenue ) ) )
+			program_payment->deposit->transaction_fee ) ) )
 	{
 		return;
 	}

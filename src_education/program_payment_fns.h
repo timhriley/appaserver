@@ -82,7 +82,8 @@ double program_payment_fees_expense(
 /* Note: there's always only one of them. */
 /* -------------------------------------- */
 double program_payment_net_payment_amount(
-			double deposit_net_payment_amount );
+			double program_payment_amount,
+			double fees_expense );
 
 /* Returns list of one, for now */
 /* ---------------------------- */
@@ -120,8 +121,7 @@ LIST *program_payment_transaction_list(
 LIST *program_payment_list_steady_state(
 			LIST *deposit_program_payment_list,
 			double deposit_amount,
-			double transaction_fee,
-			double net_payment_amount );
+			double transaction_fee );
 
 /* Returns static memory */
 /* --------------------- */

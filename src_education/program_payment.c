@@ -521,16 +521,17 @@ double program_payment_fees_expense(
 }
 
 double program_payment_net_payment_amount(
-			double deposit_net_payment_amount )
+			double program_payment_amount,
+			double fees_expense )
 {
-	return deposit_net_payment_amount;
+	return	program_payment_amount -
+		fees_expense;
 }
 
 PROGRAM_PAYMENT *program_payment_steady_state(
 			PROGRAM_PAYMENT *program_payment,
 			double deposit_amount,
-			double deposit_transaction_fee,
-			double deposit_net_payment_amount )
+			double deposit_transaction_fee )
 {
 	if ( !program_payment->program )
 	{
@@ -563,7 +564,8 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 
 	program_payment->net_payment_amount =
 		program_payment_net_payment_amount(
-			deposit_net_payment_amount );
+			program_payment->program_payment_amount,
+			program_payment->fees_expense );
 
 	if ( !program_payment->transaction_date_time
 	||   !*program_payment->transaction_date_time )
@@ -778,8 +780,7 @@ LIST *program_payment_transaction_list(
 LIST *program_payment_list_steady_state(
 			LIST *deposit_program_payment_list,
 			double deposit_amount,
-			double transaction_fee,
-			double net_payment_amount )
+			double transaction_fee )
 {
 	PROGRAM_PAYMENT *program_payment;
 
@@ -792,8 +793,7 @@ LIST *program_payment_list_steady_state(
 			program_payment_steady_state(
 				program_payment,
 				deposit_amount,
-				transaction_fee,
-				net_payment_amount );
+				transaction_fee );
 
 	} while( list_next( deposit_program_payment_list ) );
 
