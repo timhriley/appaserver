@@ -24,9 +24,8 @@ typedef struct
 	/* Input */
 	/* ----- */
 
-	/* Either item_title_P or transaction_type_E */
-	/* ----------------------------------------- */
-	char *program_name_column;
+	char *item_title_P;
+	char *transaction_type_E;
 	int program_number;
 
 	/* Process */
@@ -39,13 +38,15 @@ typedef struct
 /* ---------- */
 PROGRAM_PAYMENT_ITEM_TITLE *
 	program_payment_item_title_new(
-			char *program_name_column,
+			char *item_title_P,
+			char *transaction_type_E,
 			int program_number );
 
 /* Returns heap memory or null */
 /* --------------------------- */
 char *program_payment_item_title_name(
-			char *program_name_column,
+			char *item_title_P,
+			char *transaction_type_E,
 			int program_number,
 			LIST *program_list );
 
@@ -53,13 +54,15 @@ char *program_payment_item_title_name(
 /* --------------------------- */
 char *product_payment_item_title_name(
 			char *item_title_P,
+			char *transaction_type_E,
 			int program_number,
 			LIST *program_list );
 
 /* Returns static memory or null */
 /* ----------------------------- */
 char *program_payment_item_title_block(
-			char *program_name_column,
+			char *item_title_P,
+			char *transaction_type_E,
 			int program_number );
 
 #endif
