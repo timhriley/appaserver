@@ -22,6 +22,7 @@ offering_trigger
 registration_trigger
 program_payment_trigger
 product_payment_trigger
+product_refund_trigger
 paypal_upload
 # ---------------
 # src_coronavirus
