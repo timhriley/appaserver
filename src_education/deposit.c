@@ -439,9 +439,7 @@ DEPOSIT *deposit_steady_state(
 			program_payment_list_steady_state(
 				deposit->deposit_program_payment_list,
 				deposit->deposit_amount,
-				deposit->transaction_fee,
-				deposit->net_revenue
-					/* net_payment_amount */ );
+				deposit->transaction_fee );
 	}
 
 	if ( list_length( deposit->deposit_product_payment_list ) )

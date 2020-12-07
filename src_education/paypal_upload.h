@@ -11,5 +11,7 @@
 #include "list.h"
 #include "boolean.h"
 
+#define PAYPAL_UPLOAD_DEFAULT_FULL_NAME	"Unknown Payor"
+
 #endif
 

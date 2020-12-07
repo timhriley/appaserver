@@ -25,6 +25,7 @@
 #include "semester.h"
 #include "deposit.h"
 #include "spreadsheet.h"
+#include "paypal_upload.h"
 #include "paypal_dataset.h"
 #include "program.h"
 #include "product.h"
@@ -206,7 +207,7 @@ DEPOSIT *education_deposit(
 	if ( !paypal_dataset->full_name_D
 	||  !*paypal_dataset->full_name_D )
 	{
-		return (DEPOSIT *)0;
+		paypal_dataset->full_name_D = PAYPAL_UPLOAD_DEFAULT_FULL_NAME;
 	}
 
 	if ( ( payor_street_address =

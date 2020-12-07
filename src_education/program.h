@@ -79,12 +79,20 @@ LIST *program_alias_list(
 			char *program_name );
 
 PROGRAM *program_list_seek(
-			LIST *program_list,
-			char *program_alias_name );
+			char *program_name,
+			LIST *program_list );
 
-char *program_seek_name(
-			LIST *program_list,
-			char *program_name );
+PROGRAM *program_seek_name(
+			char *program_name,
+			LIST *program_list );
+
+PROGRAM_ALIAS *program_alias_seek(
+			char *program_alias_name,
+			LIST *program_alias_list );
+
+PROGRAM *program_name_seek(
+			char *program_name,
+			LIST *program_list );
 
 #endif
 

@@ -173,44 +173,13 @@ PROGRAM_ALIAS *program_alias_new(
 }
 
 PROGRAM *program_list_seek(
-			LIST *program_list,
-			char *program_alias_name )
+			char *program_name,
+			LIST *program_list )
 {
-	PROGRAM *program;
-	PROGRAM_ALIAS *program_alias;
-
-	if ( !list_rewind( program_list ) ) return (PROGRAM *)0;
-
-	do {
-		program =
-			list_get(
-				program_list );
-
-		if ( string_strcmp(	program->program_name,
-					program_alias_name ) == 0 )
-		{
-			return program;
-		}
-
-		if ( !list_rewind( program->program_alias_list ) ) continue;
-
-		do {
-			program_alias =
-				list_get(
-					program->program_alias_list );
-
-			if ( string_strcmp(	program_alias->
-							alias_name,
-						program_alias_name ) == 0 )
-			{
-				return program;
-			}
-
-		} while ( list_next( program->program_alias_list ) );
-
-	} while ( list_next( program_list ) );
-
-	return (PROGRAM *)0;
+	return
+		program_name_seek(
+			program_name,
+			program_list );
 }
 
 LIST *program_alias_list( char *program_name )
@@ -294,19 +263,66 @@ char *program_alias_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-char *program_seek_name(
-			LIST *program_list,
-			char *program_name )
+PROGRAM *program_name_seek(
+			char *program_name,
+			LIST *program_list )
 {
 	PROGRAM *program;
 
-	if ( ( program = program_list_seek( program_list, program_name ) ) )
-	{
-		return program->program_name;
-	}
-	else
-	{
-		return (char *)0;
-	}
+	if ( !list_rewind( program_list ) ) return (PROGRAM *)0;
+
+	do {
+		program = list_get( program_list );
+
+		if ( string_strcmp(	program->program_name,
+					program_name ) == 0 )
+		{
+			return program;
+		}
+
+		if ( program_alias_seek(
+			program_name
+				/* program_alias_name */,
+			program->program_alias_list ) )
+		{
+			return program;
+		}
+	} while ( list_next( program_list ) );
+
+	return (PROGRAM *)0;
 }
 
+PROGRAM *program_seek_name(
+			char *program_name,
+			LIST *program_list )
+{
+	return
+		program_list_seek(
+			program_name,
+			program_list );
+}
+
+PROGRAM_ALIAS *program_alias_seek(
+			char *program_alias_name,
+			LIST *program_alias_list )
+{
+	
+	PROGRAM_ALIAS *program_alias;
+
+	if ( !list_rewind( program_alias_list ) )
+		return (PROGRAM_ALIAS *)0;
+
+	do {
+		program_alias = list_get( program_alias_list );
+
+		if ( string_strcmp(
+			program_alias->alias_name,
+			program_alias_name ) == 0 )
+		{
+			return program_alias;
+		}
+
+	} while ( list_next( program_alias_list ) );
+
+	return (PROGRAM_ALIAS *)0;
+}

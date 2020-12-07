@@ -635,8 +635,8 @@ PROGRAM_PAYMENT *program_payment(
 
 	if ( ! ( program_payment->program =
 			program_list_seek(
-				education_program_list,
-				program_name ) ) )
+				program_name,
+				education_program_list ) ) )
 	{
 		fprintf(stderr,
 	"Warning in %s/%s()/%d: program_list_seek(%s) returned empty.\n",
