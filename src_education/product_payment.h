@@ -12,7 +12,7 @@
 #include "list.h"
 #include "product.h"
 #include "deposit.h"
-#include "program_payment_item_title.h"
+#include "item_title.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -52,7 +52,6 @@ typedef struct
 	double fees_expense;
 	double net_payment_amount;
 
-	PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title;
 	char *transaction_date_time;
 	TRANSACTION *product_payment_transaction;
 } PRODUCT_PAYMENT;
