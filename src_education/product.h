@@ -55,12 +55,12 @@ char *product_primary_where(
 			char *product_name );
 
 PRODUCT *product_list_seek(
-			LIST *product_list,
-			char *product_name );
+			char *product_name,
+			LIST *product_list );
 
 char *product_seek_name(
-			LIST *product_list,
-			char *product_name );
+			char *product_name,
+			LIST *product_list );
 
 char *product_fetch_program_name(
 			char *product_name );

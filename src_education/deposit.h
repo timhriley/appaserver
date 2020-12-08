@@ -268,7 +268,8 @@ LIST *deposit_tuition_payment_list(
 			DEPOSIT *deposit );
 
 LIST *deposit_program_payment_list(
-			char *program_name_column,
+			char *item_title_P,
+			char *transaction_type_E,
 			LIST *education_program_list,
 			/* -------- */
 			/* Set only */

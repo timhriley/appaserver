@@ -296,8 +296,8 @@ PRODUCT_REFUND *product_refund_parse(
 			 product_refund->deposit->semester->season_name,
 			 product_refund->deposit->semester->year,
 			 product_refund->deposit->deposit_date_time,
-			 0 /* not fetch_tuition_payment_list */,
-			 0 /* not fetch_program_payment_list */,
+			 0 /* not fetch_tuition_refund_list */,
+			 0 /* not fetch_program_refund_list */,
 			 0 /* not fetch_product_refund_list */,
 			 0 /* not fetch_tuition_refund_list */ );
 	}
@@ -469,7 +469,7 @@ void product_refund_update(
 	pclose( update_pipe );
 }
 
-char *product_refund_list_display( LIST *payment_list )
+char *product_refund_list_display( LIST *refund_list )
 {
 	char display[ 65536 ];
 	char *ptr = display;
@@ -477,7 +477,7 @@ char *product_refund_list_display( LIST *payment_list )
 
 	*ptr = '\0';
 
-	if ( !list_rewind( payment_list ) )
+	if ( !list_rewind( refund_list ) )
 	{
 		return "";
 	}
@@ -485,9 +485,9 @@ char *product_refund_list_display( LIST *payment_list )
 	do {
 		payment =
 			list_get(
-				payment_list );
+				refund_list );
 
-		if ( !list_at_head( payment_list ) )
+		if ( !list_at_head( refund_list ) )
 		{
 			ptr += sprintf( ptr, ", " );
 		}
@@ -505,7 +505,7 @@ char *product_refund_list_display( LIST *payment_list )
 					"Non existing product" );
 		}
 
-	} while ( list_next( payment_list ) );
+	} while ( list_next( refund_list ) );
 
 	return strdup( display );
 }
@@ -610,18 +610,18 @@ PRODUCT_REFUND *product_refund(
 			DEPOSIT *deposit )
 {
 	PRODUCT_REFUND *product_refund;
-	PROGRAM_PAYMENT_ITEM_TITLE *payment_item_title;
-	char *product_name;
+	PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title;
 
-	if ( ! ( payment_item_title =
-			program_payment_item_title_new(
-				item_title_P,
-				product_number ) ) )
-	{
-		return (PRODUCT_REFUND *)0;
-	}
+	program_payment_item_title =
+		program_payment_item_title_new(
+			item_title_P,
+			(char *)0 /* transaction_type_E */,
+			product_number );
 
-	if ( ! ( product_name =
+	if ( ! ( program_payment_item_title->item_title_name =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			product_payment_item_title_name(
 				item_title_P,
 				product_number,
@@ -630,26 +630,22 @@ PRODUCT_REFUND *product_refund(
 		return (PRODUCT_REFUND *)0;
 	}
 
-	/* New payment */
-	/* ----------- */
+	/* New refund */
+	/* ---------- */
 	product_refund = product_refund_calloc();
 
 	if ( ! ( product_refund->product =
 			product_list_seek(
-				education_product_list,
-				product_name ) ) )
+				program_payment_item_title->
+					item_title_name,
+				education_product_list ) ) )
 	{
-		fprintf(stderr,
-	"Warning in %s/%s()/%d: product_list_seek(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			product_name );
-
 		return (PRODUCT_REFUND *)0;
 	}
 
-	product_refund->program_payment_item_title = payment_item_title;
+	product_refund->program_payment_item_title =
+		program_payment_item_title;
+
 	product_refund->deposit = deposit;
 
 	return product_refund;
@@ -660,12 +656,12 @@ LIST *product_refund_list(
 			LIST *education_product_list,
 			DEPOSIT *deposit )
 {
-	LIST *payment_list = list_new();
-	PRODUCT_REFUND *payment;
+	LIST *refund_list = list_new();
+	PRODUCT_REFUND *refund;
 	int product_number;
 
 	for (	product_number = 1;
-		( payment =
+		( refund =
 			product_refund(
 				item_title_P,
 				product_number,
@@ -673,9 +669,9 @@ LIST *product_refund_list(
 				deposit ) );
 		product_number++ )
 	{
-		list_set( payment_list, payment );
+		list_set( refund_list, refund );
 	}
-	return payment_list;
+	return refund_list;
 }
 
 void product_refund_trigger(
@@ -702,21 +698,21 @@ void product_refund_trigger(
 	if ( system( sys_string ) ){}
 }
 
-double product_refund_total( LIST *payment_list )
+double product_refund_total( LIST *refund_list )
 {
 	PRODUCT_REFUND *payment;
 	double total;
 
-	if ( !list_rewind( payment_list ) ) return 0.0;
+	if ( !list_rewind( refund_list ) ) return 0.0;
 
 	total = 0.0;
 
 	do {
-		payment = list_get( payment_list );
+		payment = list_get( refund_list );
 
 		total += payment->product_refund_amount;
 
-	} while ( list_next( payment_list ) );
+	} while ( list_next( refund_list ) );
 
 	return total;
 }

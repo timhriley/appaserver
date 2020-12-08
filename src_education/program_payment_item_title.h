@@ -30,7 +30,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	char *program_payment_item_title_name;
+	char *item_title_name;
 
 } PROGRAM_PAYMENT_ITEM_TITLE;
 
@@ -54,12 +54,11 @@ char *program_payment_item_title_name(
 /* --------------------------- */
 char *product_payment_item_title_name(
 			char *item_title_P,
-			char *transaction_type_E,
 			int program_number,
-			LIST *program_list );
+			LIST *product_list );
 
-/* Returns static memory or null */
-/* ----------------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *program_payment_item_title_block(
 			char *item_title_P,
 			char *transaction_type_E,

@@ -154,8 +154,8 @@ char *product_sys_string( char *where )
 }
 
 PRODUCT *product_list_seek(
-			LIST *product_list,
-			char *product_name )
+			char *product_name,
+			LIST *product_list )
 {
 	PRODUCT *product;
 
@@ -177,10 +177,10 @@ PRODUCT *product_list_seek(
 }
 
 char *product_seek_name(
-			LIST *product_list,
-			char *product_name )
+			char *product_name,
+			LIST *product_list );
 {
-	PRODUCT *product = product_list_seek( product_list, product_name );
+	PRODUCT *product = product_list_seek( product_name, product_list );
 
 	if ( !product )
 		return (char *)0;

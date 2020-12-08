@@ -610,18 +610,18 @@ PRODUCT_PAYMENT *product_payment(
 			DEPOSIT *deposit )
 {
 	PRODUCT_PAYMENT *product_payment;
-	PROGRAM_PAYMENT_ITEM_TITLE *payment_item_title;
-	char *product_name;
+	PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title;
 
-	if ( ! ( payment_item_title =
-			program_payment_item_title_new(
-				item_title_P,
-				product_number ) ) )
-	{
-		return (PRODUCT_PAYMENT *)0;
-	}
+	program_payment_item_title =
+		program_payment_item_title_new(
+			item_title_P,
+			(char *)0 /* transaction_type_E */,
+			product_number );
 
-	if ( ! ( product_name =
+	if ( ! ( program_payment_item_title->item_title_name =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			product_payment_item_title_name(
 				item_title_P,
 				product_number,
@@ -636,20 +636,16 @@ PRODUCT_PAYMENT *product_payment(
 
 	if ( ! ( product_payment->product =
 			product_list_seek(
-				education_product_list,
-				product_name ) ) )
+				program_payment_item_title->
+					item_title_name,
+				education_product_list ) ) )
 	{
-		fprintf(stderr,
-	"Warning in %s/%s()/%d: product_list_seek(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			product_name );
-
 		return (PRODUCT_PAYMENT *)0;
 	}
 
-	product_payment->program_payment_item_title = payment_item_title;
+	product_payment->program_payment_item_title =
+		program_payment_item_title;
+
 	product_payment->deposit = deposit;
 
 	return product_payment;

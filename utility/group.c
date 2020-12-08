@@ -11,8 +11,7 @@
 #include "boolean.h"
 
 void group(	char delimiter,
-		char *operation,
-		char *argv_0 );
+		char *operation );
 
 int main( int argc, char **argv )
 {
@@ -31,14 +30,13 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	group( delimiter, operation, argv[ 0 ] );
+	group( delimiter, operation );
 	
 	return 0;
+}
 
-} /* main() */
 
-
-void group( char delimiter, char *operation, char *argv_0 )
+void group( char delimiter, char *operation )
 {
 	char input_buffer[ 1024 ];
 	char compare_buffer[ 1024 ];
@@ -62,11 +60,6 @@ void group( char delimiter, char *operation, char *argv_0 )
 					input_buffer,
 					1 ) )
 			{
-				fprintf( stderr,
-				"Warning in %s: cannot piece(%c) in (%s)\n",
-					 argv_0,
-					 delimiter,
-					 input_buffer );
 				*value_buffer = '\0';
 			}
 		}
@@ -130,6 +123,5 @@ void group( char delimiter, char *operation, char *argv_0 )
 				sum );
 		}
 	}
-
-} /* group() */
+}
 

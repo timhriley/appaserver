@@ -600,7 +600,8 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 }
 
 PROGRAM_PAYMENT *program_payment(
-			char *program_name_column,
+			char *item_title_P,
+			char *transaction_type_E,
 			int program_number,
 			LIST *education_program_list,
 			/* -------- */
@@ -610,19 +611,23 @@ PROGRAM_PAYMENT *program_payment(
 {
 	PROGRAM_PAYMENT *program_payment;
 	PROGRAM_PAYMENT_ITEM_TITLE *payment_item_title;
-	char *program_name;
 
 	if ( ! ( payment_item_title =
 			program_payment_item_title_new(
-				program_name_column,
+				item_title_P,
+				transaction_type_E,
 				program_number ) ) )
 	{
 		return (PROGRAM_PAYMENT *)0;
 	}
 
-	if ( ! ( program_name =
+	if ( ! ( payment_item_title->item_title_name =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			program_payment_item_title_name(
-				program_name_column,
+				item_title_P,
+				transaction_type_E,
 				program_number,
 				education_program_list ) ) )
 	{
@@ -635,16 +640,9 @@ PROGRAM_PAYMENT *program_payment(
 
 	if ( ! ( program_payment->program =
 			program_list_seek(
-				program_name,
+				payment_item_title->item_title_name,
 				education_program_list ) ) )
 	{
-		fprintf(stderr,
-	"Warning in %s/%s()/%d: program_list_seek(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			program_name );
-
 		return (PROGRAM_PAYMENT *)0;
 	}
 
@@ -655,7 +653,8 @@ PROGRAM_PAYMENT *program_payment(
 }
 
 LIST *program_payment_list(
-			char *program_name_column,
+			char *item_title_P,
+			char *transaction_type_E,
 			LIST *education_program_list,
 			DEPOSIT *deposit )
 {
@@ -666,7 +665,8 @@ LIST *program_payment_list(
 	for (	program_number = 1;
 		( payment =
 			program_payment(
-				program_name_column,
+				item_title_P,
+				transaction_type_E,
 				program_number,
 				education_program_list,
 				deposit ) );

@@ -20,10 +20,8 @@
 #include "program_payment_item_title.h"
 
 PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title_new(
-			/* ----------------------------------------- */
-			/* Either item_title_P or transaction_type_E */
-			/* ----------------------------------------- */
-			char *program_name_column,
+			char *item_title_P,
+			char *transaction_type_E,
 			int program_number )
 {
 	PROGRAM_PAYMENT_ITEM_TITLE *p;
@@ -53,10 +51,11 @@ Mary Poppins Junior Tickets: Saturday, March 28, 7:00pm, Mary Poppins Junior Tic
 */
 
 char *program_payment_item_title_block(
-			char *program_name_column,
+			char *item_title_P,
+			char *transaction_type_E,
 			int program_number )
 {
-	static char program_block[ 512 ];
+	char program_block[ 512 ];
 
 /* Only doing list of 1 for now. */
 /* ----------------------------- */
@@ -64,24 +63,32 @@ if ( program_number > 1 ) return (char *)0;
 
 	if ( !piece(	program_block,
 			',',
-			program_name_column,
+			item_title_P,
 			program_number - 1 ) )
 	{
-		return (char *)0;
+		if ( !transaction_type_E
+		||   !piece(	program_block,
+				',',
+				transaction_type_E,
+				program_number - 1 ) )
+		{
+			return (char *)0;
+		}
 	}
 
 	return program_block;
 }
 
 char *program_payment_item_title_name(
-			char *program_name_column,
+			char *item_title_P,
+			char *transaction_type_E,
 			int program_number,
 			LIST *program_list )
 {
 	char *item_title_block;
 	PROGRAM *program;
 
-	if ( tuition_payment_is_tuition( program_name_column ) )
+	if ( tuition_payment_is_tuition( item_title_P ) )
 	{
 		return (char *)0;
 	}
@@ -92,28 +99,26 @@ Mary Poppins Junior Tickets
 
 */
 	if ( ! ( item_title_block =
-			/* ----------------------------- */
-			/* Returns static memory or null */
-			/* ----------------------------- */
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			program_payment_item_title_block(
-				program_name_column,
+				item_title_P,
+				transaction_type_E,
 				program_number ) ) )
 	{
 		return (char *)0;
 	}
 
-	if ( !*item_title_block ) return (char *)0;
-
-	if ( ( program = 
-		program_seek_name(
-			item_title_block
-				/* program_name */,
-			program_list ) ) )
+	if ( ! ( program = 
+			program_seek_name(
+				item_title_block
+					/* program_name */,
+				program_list ) ) )
 	{
-		return program->program_name;
+		return (char *)0;
 	}
-
-	return (char *)0;
+	return program->program_name;
 }
 
 char *product_payment_item_title_name(
@@ -133,23 +138,22 @@ char *product_payment_item_title_name(
 Mary Poppins Junior DVD
 
 */
+
 	if ( ! ( item_title_block =
-			/* ----------------------------- */
-			/* Returns static memory or null */
-			/* ----------------------------- */
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			program_payment_item_title_block(
 				item_title_P,
+				(char *)0 /* transaction_type_E */,
 				program_number ) ) )
 	{
 		return (char *)0;
 	}
 
-	if ( !*item_title_block ) return (char *)0;
-
 	return
 		product_seek_name(
-			product_list,
-			item_title_block
-				/* program_name */ );
+			item_title_block /* product_name */,
+			product_list );
 }
 

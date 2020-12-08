@@ -81,7 +81,8 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 			double deposit_transaction_fee );
 
 PROGRAM_PAYMENT *program_payment(
-			char *program_name_column,
+			char *item_title_P,
+			char *transaction_type_E,
 			int program_number,
 			LIST *education_program_list,
 			/* -------- */

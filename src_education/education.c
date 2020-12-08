@@ -280,8 +280,8 @@ DEPOSIT *education_deposit(
 
 		deposit->deposit_program_payment_list =
 			deposit_program_payment_list(
-				paypal_dataset->item_title_P
-					/* program_name_column */,
+				paypal_dataset->item_title_P,
+				paypal_dataset->transaction_type_E,
 				education_program_list,
 				/* -------- */
 				/* Set only */
@@ -305,8 +305,8 @@ DEPOSIT *education_deposit(
 
 		deposit->deposit_program_payment_list =
 			deposit_program_payment_list(
-				paypal_dataset->transaction_type_E
-					/* program_name_column */,
+				paypal_dataset->item_title_P,
+				paypal_dataset->transaction_type_E,
 				education_program_list,
 				/* -------- */
 				/* Set only */

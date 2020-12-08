@@ -964,12 +964,14 @@ LIST *deposit_course_name_list(
 }
 
 LIST *deposit_program_payment_list(
-			char *program_name_column,
+			char *item_title_P,
+			char *transaction_type_E,
 			LIST *education_program_list,
 			DEPOSIT *deposit )
 {
 	return program_payment_list(
-			program_name_column,
+			item_title_P,
+			transaction_type_E,
 			education_program_list,
 			deposit );
 }
