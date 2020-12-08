@@ -178,7 +178,7 @@ PRODUCT *product_list_seek(
 
 char *product_seek_name(
 			char *product_name,
-			LIST *product_list );
+			LIST *product_list )
 {
 	PRODUCT *product = product_list_seek( product_name, product_list );
 

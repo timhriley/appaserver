@@ -22,7 +22,7 @@
 #include "entity.h"
 #include "account.h"
 #include "deposit.h"
-#include "program_payment_item_title.h"
+#include "item_title.h"
 #include "product_payment_fns.h"
 #include "product_payment.h"
 
@@ -610,19 +610,13 @@ PRODUCT_PAYMENT *product_payment(
 			DEPOSIT *deposit )
 {
 	PRODUCT_PAYMENT *product_payment;
-	PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title;
+	char *item_title_name;
 
-	program_payment_item_title =
-		program_payment_item_title_new(
-			item_title_P,
-			(char *)0 /* transaction_type_E */,
-			product_number );
-
-	if ( ! ( program_payment_item_title->item_title_name =
+	if ( ! ( item_title_name =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			product_payment_item_title_name(
+			item_title_product_payment_name(
 				item_title_P,
 				product_number,
 				education_product_list ) ) )
@@ -636,15 +630,11 @@ PRODUCT_PAYMENT *product_payment(
 
 	if ( ! ( product_payment->product =
 			product_list_seek(
-				program_payment_item_title->
-					item_title_name,
+				item_title_name,
 				education_product_list ) ) )
 	{
 		return (PRODUCT_PAYMENT *)0;
 	}
-
-	product_payment->program_payment_item_title =
-		program_payment_item_title;
 
 	product_payment->deposit = deposit;
 

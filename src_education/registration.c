@@ -73,11 +73,11 @@ double registration_tuition(
 
 		if ( ! ( offering =
 				offering_seek(
-					semester_offering_list,
 					enrollment->
 						offering->
 						course->
-						course_name ) ) )
+						course_name,
+					semester_offering_list ) ) )
 		{
 			fprintf( stderr,
 			"ERROR in %s/%s()/%d: offering not exists = [%s].\n",

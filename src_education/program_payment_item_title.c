@@ -19,28 +19,6 @@
 #include "tuition_payment_fns.h"
 #include "program_payment_item_title.h"
 
-PROGRAM_PAYMENT_ITEM_TITLE *program_payment_item_title_new(
-			char *item_title_P,
-			char *transaction_type_E,
-			int program_number )
-{
-	PROGRAM_PAYMENT_ITEM_TITLE *p;
-
-	if ( ! ( p = calloc( 1, sizeof( PROGRAM_PAYMENT_ITEM_TITLE ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	p->program_name_column = program_name_column;
-	p->program_number = program_number;
-	return p;
-}
-
 /* ------------------- */
 /* Sample item_title_P */
 /* ------------------- */
@@ -50,7 +28,7 @@ Mary Poppins Junior Tickets: Saturday, March 28, 7:00pm, Mary Poppins Junior Tic
 
 */
 
-char *program_payment_item_title_block(
+char *item_title_program_payment_block(
 			char *item_title_P,
 			char *transaction_type_E,
 			int program_number )
@@ -79,7 +57,7 @@ if ( program_number > 1 ) return (char *)0;
 	return program_block;
 }
 
-char *program_payment_item_title_name(
+char *item_title_program_payment_name(
 			char *item_title_P,
 			char *transaction_type_E,
 			int program_number,
@@ -121,7 +99,7 @@ Mary Poppins Junior Tickets
 	return program->program_name;
 }
 
-char *product_payment_item_title_name(
+char *item_title_product_payment_name(
 			char *item_title_P,
 			int program_number,
 			LIST *product_list )

@@ -31,7 +31,7 @@
 #include "student.h"
 #include "program.h"
 #include "deposit.h"
-#include "tuition_payment_item_title.h"
+#include "item_title.h"
 #include "tuition_payment.h"
 
 TUITION_PAYMENT *tuition_payment_calloc( void )
@@ -1280,26 +1280,26 @@ TUITION_PAYMENT *tuition_payment(
 			DEPOSIT *deposit )
 {
 	TUITION_PAYMENT *payment;
-	TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title;
+	ITEM_TITLE_TUITION_PAYMENT *item_title_tuition_payment;
 
-	if ( ! ( tuition_payment_item_title =
-			tuition_payment_item_title_new(
+	if ( ! ( item_title_tuition_payment =
+			item_title_tuition_payment_new(
 				item_title_P,
 				student_number ) ) )
 	{
 		return (TUITION_PAYMENT *)0;
 	}
 
-	tuition_payment_item_title->
-		tuition_payment_item_title_entity =
-			tuition_payment_item_title_entity(
-				tuition_payment_item_title->
+	item_title_tuition_payment->
+		item_title_tuition_payment_entity =
+			item_title_tuition_payment_entity(
+				item_title_tuition_payment->
 					item_title_enrollment );
 
-	tuition_payment_item_title->
-		tuition_payment_item_title_course_name =
-			tuition_payment_item_title_course_name(
-				tuition_payment_item_title->
+	item_title_tuition_payment->
+		item_title_tuition_payment_course_name =
+			item_title_tuition_payment_course_name(
+				item_title_tuition_payment->
 					item_title_enrollment );
 
 	/* New payment */
@@ -1310,14 +1310,14 @@ TUITION_PAYMENT *tuition_payment(
 	/* ---------------- */
 	payment->enrollment =
 		enrollment_new(
-			tuition_payment_item_title->
-				tuition_payment_item_title_entity->
+			item_title_tuition_payment->
+				item_title_tuition_payment_entity->
 				full_name,
-			tuition_payment_item_title->
-				tuition_payment_item_title_entity->
+			item_title_tuition_payment->
+				item_title_tuition_payment_entity->
 				street_address,
-			tuition_payment_item_title->
-				tuition_payment_item_title_course_name,
+			item_title_tuition_payment->
+				item_title_tuition_payment_course_name,
 			season_name,
 			year );
 
@@ -1325,27 +1325,27 @@ TUITION_PAYMENT *tuition_payment(
 	/* -------------------------------------- */
 	payment->enrollment->offering =
 		offering_seek(
-			semester_offering_list,
-			tuition_payment_item_title->
-				tuition_payment_item_title_course_name );
+			item_title_tuition_payment->
+				item_title_tuition_payment_course_name,
+			semester_offering_list );
 
 	if ( !payment->enrollment->offering )
 	{
 		list_unique_set(
 			not_exists_course_name_list,
-			tuition_payment_item_title->
-				tuition_payment_item_title_course_name );
+			item_title_tuition_payment->
+				item_title_tuition_payment_course_name );
 	}
 
 	/* Build registration */
 	/* ------------------ */
 	payment->enrollment->registration =
 		registration_new(
-			tuition_payment_item_title->
-				tuition_payment_item_title_entity->
+			item_title_tuition_payment->
+				item_title_tuition_payment_entity->
 				full_name,
-			tuition_payment_item_title->
-				tuition_payment_item_title_entity->
+			item_title_tuition_payment->
+				item_title_tuition_payment_entity->
 				street_address,
 			season_name,
 			year );

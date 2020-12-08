@@ -22,7 +22,7 @@
 #include "entity.h"
 #include "account.h"
 #include "deposit.h"
-#include "program_payment_item_title.h"
+#include "item_title.h"
 #include "program_payment_fns.h"
 #include "program_payment.h"
 
@@ -610,22 +610,13 @@ PROGRAM_PAYMENT *program_payment(
 			DEPOSIT *deposit )
 {
 	PROGRAM_PAYMENT *program_payment;
-	PROGRAM_PAYMENT_ITEM_TITLE *payment_item_title;
+	char *item_title_name;
 
-	if ( ! ( payment_item_title =
-			program_payment_item_title_new(
-				item_title_P,
-				transaction_type_E,
-				program_number ) ) )
-	{
-		return (PROGRAM_PAYMENT *)0;
-	}
-
-	if ( ! ( payment_item_title->item_title_name =
+	if ( ! ( item_title_name =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			program_payment_item_title_name(
+			item_title_program_payment_name(
 				item_title_P,
 				transaction_type_E,
 				program_number,
@@ -640,13 +631,12 @@ PROGRAM_PAYMENT *program_payment(
 
 	if ( ! ( program_payment->program =
 			program_list_seek(
-				payment_item_title->item_title_name,
+				item_title_name,
 				education_program_list ) ) )
 	{
 		return (PROGRAM_PAYMENT *)0;
 	}
 
-	program_payment->program_payment_item_title = payment_item_title;
 	program_payment->deposit = deposit;
 
 	return program_payment;

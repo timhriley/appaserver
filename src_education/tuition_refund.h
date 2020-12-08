@@ -116,19 +116,23 @@ TUITION_REFUND *tuition_refund_seek(
 			char *deposit_date_time );
 
 TUITION_REFUND *tuition_refund(
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
 			int student_number,
+			LIST *semester_offering_list,
 			DEPOSIT *deposit );
 
 boolean tuition_refund_structure(
 			TUITION_REFUND *tuition_refund );
 
 LIST *tuition_refund_list(
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
+			LIST *semester_offering_list,
 			DEPOSIT *deposit );
 
 /* ---------------------------------------- */

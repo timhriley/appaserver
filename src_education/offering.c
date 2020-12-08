@@ -382,8 +382,8 @@ void offering_list_fetch_update(
 }
 
 OFFERING *offering_seek(
-			LIST *offering_list,
-			char *course_name )
+			char *course_name,
+			LIST *offering_list )
 {
 	OFFERING *offering;
 

@@ -317,9 +317,11 @@ DEPOSIT *education_deposit(
 	{
 		deposit->deposit_tuition_refund_list =
 			deposit_tuition_refund_list(
+				not_exists_course_name_list,
 				season_name,
 				year,
 				paypal_dataset->item_title_P,
+				semester_offering_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */

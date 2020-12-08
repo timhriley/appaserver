@@ -1,9 +1,9 @@
-/* -----------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_education/tuition_payment_item_title.c	*/
-/* -----------------------------------------------------------	*/
-/*								*/
-/* Freely available software: see Appaserver.org		*/
-/* -----------------------------------------------------------	*/
+/* -------------------------------------------		*/
+/* $APPASERVER_HOME/src_education/item_title.c		*/
+/* -------------------------------------------		*/
+/*							*/
+/* Freely available software: see Appaserver.org	*/
+/* ----------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -15,18 +15,19 @@
 #include "list.h"
 #include "entity.h"
 #include "program.h"
+#include "product.h"
 #include "tuition_payment_fns.h"
-#include "tuition_payment_item_title.h"
+#include "item_title.h"
 
-TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
-	tuition_payment_item_title_enrollment_calloc(
+ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *
+	item_title_tuition_payment_enrollment_calloc(
 			void )
 {
-	TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *p;
+	ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *p;
 
 	if ( ! ( p =
 		calloc(	1,
-			sizeof( TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT ) ) ) )
+			sizeof( ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -39,12 +40,12 @@ TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
 	return p;
 }
 
-TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title_calloc(
+ITEM_TITLE_TUITION_PAYMENT *item_title_tuition_payment_calloc(
 			void )
 {
-	TUITION_PAYMENT_ITEM_TITLE *p;
+	ITEM_TITLE_TUITION_PAYMENT *p;
 
-	if ( ! ( p = calloc( 1, sizeof( TUITION_PAYMENT_ITEM_TITLE ) ) ) )
+	if ( ! ( p = calloc( 1, sizeof( ITEM_TITLE_TUITION_PAYMENT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -57,27 +58,27 @@ TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title_calloc(
 	return p;
 }
 
-TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title_new(
+ITEM_TITLE_TUITION_PAYMENT *item_title_tuition_payment_new(
 			char *item_title_P,
 			int student_number )
 {
-	TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title;
-	TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *enrollment;
+	ITEM_TITLE_TUITION_PAYMENT *item_title_tuition_payment;
+	ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *enrollment;
 
 	if ( ( enrollment =
-		tuition_payment_item_title_enrollment_new(
+		item_title_tuition_payment_enrollment_new(
 			item_title_P,
 			student_number ) ) )
 	{
-		tuition_payment_item_title =
-			tuition_payment_item_title_calloc();
+		item_title_tuition_payment =
+			item_title_tuition_payment_calloc();
 
-		tuition_payment_item_title->item_title_enrollment = enrollment;
-		return tuition_payment_item_title;
+		item_title_tuition_payment->item_title_enrollment = enrollment;
+		return item_title_tuition_payment;
 	}
 	else
 	{
-		return (TUITION_PAYMENT_ITEM_TITLE *)0;
+		return (ITEM_TITLE_TUITION_PAYMENT *)0;
 	}
 }
 
@@ -92,8 +93,8 @@ Play Theory in  Improv for High Schoolers (Spring 2020) (Child: Atticus Weaver,A
 
 */
 
-ENTITY *tuition_payment_item_title_entity(
-		TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *item_title_enrollment )
+ENTITY *item_title_tuition_payment_entity(
+		ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *item_title_enrollment )
 {
 	ENTITY *student_entity;
 	char *street_address;
@@ -122,20 +123,20 @@ ENTITY *tuition_payment_item_title_entity(
 	return student_entity;
 }
 
-char *tuition_payment_item_title_course_name(
-		TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *item_title_enrollment )
+char *item_title_tuition_payment_course_name(
+		ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *item_title_enrollment )
 {
 	if ( !item_title_enrollment ) return (char *)0;
 
 	return item_title_enrollment->course_name;
 }
 
-TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
-	tuition_payment_item_title_enrollment_new(
+ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *
+	item_title_tuition_payment_enrollment_new(
 			char *item_title_P,
 			int student_number )
 {
-	TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *item_title_enrollment = {0};
+	ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *item_title_enrollment = {0};
 
 /* item_title_P looks like:
 Shakespeare FUN-tensive PLUS!- Freshmen and Beyond! (Child: Ethan Fife), PLAY THEORY in Performance - A Kidsummer Night's Dream (Child: Ethan Fife), ADVANCED Improv for High Schoolers (Spring 2020) (Child: Ethan Fife)
@@ -145,17 +146,17 @@ Play Theory in  Improv for High Schoolers (Spring 2020) (Child: Atticus Weaver,A
 */
 
 	if ( !tuition_payment_is_tuition( item_title_P ) )
-		return (TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *)0;
+		return (ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *)0;
 
 	item_title_enrollment =
-		tuition_payment_item_title_enrollment_block_A(
+		item_title_tuition_payment_enrollment_block_A(
 			item_title_P,
 			student_number );
 
 	if ( !item_title_enrollment )
 	{
 		item_title_enrollment =
-			tuition_payment_item_title_enrollment_block_B(
+			item_title_tuition_payment_enrollment_block_B(
 				item_title_P,
 				student_number );
 	}
@@ -166,8 +167,8 @@ Play Theory in  Improv for High Schoolers (Spring 2020) (Child: Atticus Weaver,A
 /* item_title_P for block A looks like:
 PLAY THEORY in Performance -- Mary Poppins Jr. EXTENDED CAST (Child: Camille Pojda), PLAY THEORY in Performance -- Mary Poppins Jr. EXTENDED CAST (Child: Allison Pojda)
 */
-TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
-	tuition_payment_item_title_enrollment_block_A(
+ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *
+	item_title_tuition_payment_enrollment_block_A(
 			char *item_title_P,
 			int student_number )
 {
@@ -175,7 +176,7 @@ TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
 	char *block;
 	char course_name[ 256 ];
 	char student_full_name[ 256 ];
-	TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *item_title_enrollment;
+	ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *item_title_enrollment;
 
 	block_list =
 		list_string_list(
@@ -184,12 +185,12 @@ TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
 
 	if ( ! ( block = list_seek_offset( block_list, student_number - 1 ) ) )
 	{
-		return (TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *)0;
+		return (ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *)0;
 	}
 
 	if ( !string_character_exists( block, ':' ) )
 	{
-		return (TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *)0;
+		return (ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *)0;
 	}
 
 	/* Build course_name */
@@ -198,7 +199,7 @@ TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
 
 	if ( strlen( course_name ) < 8 )
 	{
-		return (TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *)0;
+		return (ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *)0;
 	}
 
 	/* Zap <sp>(Child */
@@ -213,7 +214,7 @@ TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
 	/* ---------- */
 	if ( string_character_exists( student_full_name, ',' ) )
 	{
-		return (TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *)0;
+		return (ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *)0;
 	}
 
 	/* Trim the trailing ')' */
@@ -221,7 +222,7 @@ TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
 	string_trim_right( student_full_name, 1 );
 
 	item_title_enrollment =
-		tuition_payment_item_title_enrollment_calloc();
+		item_title_tuition_payment_enrollment_calloc();
 
 	item_title_enrollment->course_name = strdup( course_name );
 	item_title_enrollment->student_full_name = strdup( student_full_name );
@@ -232,19 +233,19 @@ TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
 /* item_title_P for block B looks like:
 Play Theory in  Improv for High Schoolers (Spring 2020) (Child: Atticus Weaver,Andy Madrigal Villalobos)
 */
-TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
-	tuition_payment_item_title_enrollment_block_B(
+ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *
+	item_title_tuition_payment_enrollment_block_B(
 			char *item_title_P,
 			int student_number )
 {
 	char course_name[ 256 ];
 	char student_full_name_block[ 256 ];
 	char student_full_name[ 128 ];
-	TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *item_title_enrollment;
+	ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *item_title_enrollment;
 
 	if ( !string_character_exists( student_full_name, ':' ) )
 	{
-		return (TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *)0;
+		return (ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *)0;
 	}
 
 	/* Build course_name */
@@ -253,7 +254,7 @@ TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
 
 	if ( strlen( course_name ) < 8 )
 	{
-		return (TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *)0;
+		return (ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *)0;
 	}
 
 	/* Zap <sp>(Child */
@@ -269,17 +270,133 @@ TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *
 			item_title_P,
 			student_number - 1 ) )
 	{
-		return (TUITION_PAYMENT_ITEM_TITLE_ENROLLMENT *)0;
+		return (ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *)0;
 	}
 
 	string_trim_character( student_full_name, ')' );
 
 	item_title_enrollment =
-		tuition_payment_item_title_enrollment_calloc();
+		item_title_tuition_payment_enrollment_calloc();
 
 	item_title_enrollment->course_name = strdup( course_name );
 	item_title_enrollment->student_full_name = strdup( student_full_name );
 
 	return item_title_enrollment;
+}
+
+/* ------------------- */
+/* Sample item_title_P */
+/* ------------------- */
+/*
+
+Mary Poppins Junior Tickets: Saturday, March 28, 7:00pm, Mary Poppins Junior Tickets: Monday, March 30, 7:00pm
+
+*/
+
+char *item_title_program_payment_block(
+			char *item_title_P,
+			char *transaction_type_E,
+			int program_number )
+{
+	char program_block[ 512 ];
+
+/* Only doing list of 1 for now. */
+/* ----------------------------- */
+if ( program_number > 1 ) return (char *)0;
+
+	if ( !piece(	program_block,
+			',',
+			item_title_P,
+			program_number - 1 ) )
+	{
+		if ( !transaction_type_E
+		||   !piece(	program_block,
+				',',
+				transaction_type_E,
+				program_number - 1 ) )
+		{
+			return (char *)0;
+		}
+	}
+
+	return strdup( program_block );
+}
+
+char *item_title_program_payment_name(
+			char *item_title_P,
+			char *transaction_type_E,
+			int program_number,
+			LIST *program_list )
+{
+	char *item_title_block;
+	PROGRAM *program;
+
+	if ( tuition_payment_is_tuition( item_title_P ) )
+	{
+		return (char *)0;
+	}
+
+/* Program item title block like:
+
+Mary Poppins Junior Tickets
+
+*/
+	if ( ! ( item_title_block =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			item_title_program_payment_block(
+				item_title_P,
+				transaction_type_E,
+				program_number ) ) )
+	{
+		return (char *)0;
+	}
+
+	if ( ! ( program = 
+			program_seek_name(
+				item_title_block
+					/* program_name */,
+				program_list ) ) )
+	{
+		return (char *)0;
+	}
+	return program->program_name;
+}
+
+char *item_title_product_payment_name(
+			char *item_title_P,
+			int program_number,
+			LIST *product_list )
+{
+	char *item_title_block;
+
+	if ( tuition_payment_is_tuition( item_title_P ) )
+	{
+		return (char *)0;
+	}
+
+/* Product item title block like:
+
+Mary Poppins Junior DVD
+
+*/
+
+	if ( ! ( item_title_block =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			item_title_program_payment_block(
+				item_title_P,
+				(char *)0 /* transaction_type_E */,
+				program_number ) ) )
+	{
+		return (char *)0;
+	}
+
+	return
+		product_seek_name(
+			item_title_block /* product_name */,
+			product_list );
 }
 

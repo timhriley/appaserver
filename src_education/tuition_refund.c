@@ -32,7 +32,7 @@
 #include "student.h"
 #include "program.h"
 #include "deposit.h"
-#include "tuition_payment_item_title.h"
+#include "item_title.h"
 #include "tuition_refund.h"
 
 TUITION_REFUND *tuition_refund_calloc( void )
@@ -1193,9 +1193,11 @@ void tuition_refund_list_trigger(
 }
 
 LIST *tuition_refund_list(
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
+			LIST *semester_offering_list,
 			DEPOSIT *deposit )
 {
 	LIST *refund_list = list_new();
@@ -1205,10 +1207,12 @@ LIST *tuition_refund_list(
 	for (	student_number = 1;
 		( refund =
 			tuition_refund(
+				not_exists_course_name_list,
 				season_name,
 				year,
 				item_title_P,
 				student_number,
+				semester_offering_list,
 				deposit ) );
 		student_number++ )
 	{
@@ -1219,33 +1223,35 @@ LIST *tuition_refund_list(
 }
 
 TUITION_REFUND *tuition_refund(
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
 			int student_number,
+			LIST *semester_offering_list,
 			DEPOSIT *deposit )
 {
 	TUITION_REFUND *refund;
-	TUITION_PAYMENT_ITEM_TITLE *tuition_payment_item_title;
+	ITEM_TITLE_TUITION_PAYMENT *item_title_tuition_payment;
 
-	if ( ! ( tuition_payment_item_title =
-			tuition_payment_item_title_new(
+	if ( ! ( item_title_tuition_payment =
+			item_title_tuition_payment_new(
 				item_title_P,
 				student_number ) ) )
 	{
 		return (TUITION_REFUND *)0;
 	}
 
-	tuition_payment_item_title->
-		tuition_payment_item_title_entity =
-			tuition_payment_item_title_entity(
-				tuition_payment_item_title->
+	item_title_tuition_payment->
+		item_title_tuition_payment_entity =
+			item_title_tuition_payment_entity(
+				item_title_tuition_payment->
 					item_title_enrollment );
 
-	tuition_payment_item_title->
-		tuition_payment_item_title_course_name =
-			tuition_payment_item_title_course_name(
-				tuition_payment_item_title->
+	item_title_tuition_payment->
+		item_title_tuition_payment_course_name =
+			item_title_tuition_payment_course_name(
+				item_title_tuition_payment->
 					item_title_enrollment );
 
 	/* New refund */
@@ -1256,14 +1262,14 @@ TUITION_REFUND *tuition_refund(
 	/* ---------------- */
 	refund->enrollment =
 		enrollment_fetch(
-			tuition_payment_item_title->
-				tuition_payment_item_title_entity->
+			item_title_tuition_payment->
+				item_title_tuition_payment_entity->
 				full_name,
-			tuition_payment_item_title->
-				tuition_payment_item_title_entity->
+			item_title_tuition_payment->
+				item_title_tuition_payment_entity->
 				street_address,
-			tuition_payment_item_title->
-				tuition_payment_item_title_course_name,
+			item_title_tuition_payment->
+				item_title_tuition_payment_course_name,
 			season_name,
 			year,
 			0 /* not fetch_tuition_payment_list */,
@@ -1277,51 +1283,43 @@ TUITION_REFUND *tuition_refund(
 		/* ---------------------------------------------- */
 		refund->enrollment =
 			enrollment_new(
-				tuition_payment_item_title->
-					tuition_payment_item_title_entity->
+				item_title_tuition_payment->
+					item_title_tuition_payment_entity->
 					full_name,
-				tuition_payment_item_title->
-					tuition_payment_item_title_entity->
+				item_title_tuition_payment->
+					item_title_tuition_payment_entity->
 					street_address,
-				tuition_payment_item_title->
-					tuition_payment_item_title_course_name,
+				item_title_tuition_payment->
+					item_title_tuition_payment_course_name,
 				season_name,
 				year );
 	}
 
-	/* Fetch the offering, course, and program */
-	/* --------------------------------------- */
+	/* Seek the offering, course, and program */
+	/* -------------------------------------- */
 	refund->enrollment->offering =
-			offering_fetch(
-				tuition_payment_item_title->
-					tuition_payment_item_title_course_name,
-				season_name,
-				year,
-				1 /* fetch_course */,
-				0 /* not fetch_enrollment_list */ );
+		offering_seek(
+			item_title_tuition_payment->
+				item_title_tuition_payment_course_name,
+			semester_offering_list );
 
 	if ( !refund->enrollment->offering )
 	{
-		printf(
-		"<h3>Warning: refund without an enrollment for %s/%s</h3>\n",
-				tuition_payment_item_title->
-					tuition_payment_item_title_entity->
-					full_name,
-				tuition_payment_item_title->
-					tuition_payment_item_title_entity->
-					street_address );
-		return (TUITION_REFUND *)0;
+		list_unique_set(
+			not_exists_course_name_list,
+			item_title_tuition_payment->
+				item_title_tuition_payment_course_name );
 	}
 
 	/* Build registration */
 	/* ------------------ */
 	refund->enrollment->registration =
 		registration_new(
-			tuition_payment_item_title->
-				tuition_payment_item_title_entity->
+			item_title_tuition_payment->
+				item_title_tuition_payment_entity->
 				full_name,
-			tuition_payment_item_title->
-				tuition_payment_item_title_entity->
+			item_title_tuition_payment->
+				item_title_tuition_payment_entity->
 				street_address,
 			season_name,
 			year );

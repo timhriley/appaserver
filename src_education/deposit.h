@@ -316,9 +316,11 @@ LIST *deposit_list_refund_enrollment_list(
 			LIST *deposit_list );
 
 LIST *deposit_tuition_refund_list(
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
+			LIST *semester_offering_list,
 			DEPOSIT *deposit );
 
 double deposit_overpayment_loss(
@@ -334,10 +336,24 @@ LIST *deposit_fetch_product_payment_list(
 			boolean fetch_product,
 			boolean fetch_deposit );
 
+LIST *deposit_fetch_product_refund_list(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *deposit_date_time,
+			boolean fetch_product,
+			boolean fetch_deposit );
+
 void deposit_list_product_payment_insert(
 			LIST *deposit_list );
 
 LIST *deposit_product_payment_list(
+			char *item_title_P,
+			LIST *education_product_list,
+			DEPOSIT *deposit );
+
+LIST *deposit_product_refund_list(
 			char *item_title_P,
 			LIST *education_product_list,
 			DEPOSIT *deposit );
