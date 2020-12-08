@@ -68,6 +68,7 @@ typedef struct
 	LIST *deposit_program_payment_list;
 	LIST *deposit_product_payment_list;
 	LIST *deposit_tuition_refund_list;
+	LIST *deposit_product_refund_list;
 	LIST *deposit_enrollment_list;
 	LIST *deposit_registration_list;
 	LIST *deposit_course_list;
@@ -75,6 +76,7 @@ typedef struct
 	double deposit_program_payment_total;
 	double deposit_product_payment_total;
 	double deposit_tuition_refund_total;
+	double deposit_product_refund_total;
 	double deposit_gain_donation;
 	double deposit_registration_tuition;
 	int row_number;

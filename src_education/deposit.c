@@ -24,6 +24,7 @@
 #include "tuition_payment_fns.h"
 #include "program_payment_fns.h"
 #include "product_payment_fns.h"
+#include "product_refund_fns.h"
 #include "tuition_refund.h"
 #include "tuition_refund_fns.h"
 #include "enrollment_fns.h"
@@ -982,6 +983,17 @@ LIST *deposit_product_payment_list(
 			DEPOSIT *deposit )
 {
 	return product_payment_list(
+			item_title_P,
+			education_product_list,
+			deposit );
+}
+
+LIST *deposit_product_refund_list(
+			char *item_title_P,
+			LIST *education_product_list,
+			DEPOSIT *deposit )
+{
+	return product_refund_list(
 			item_title_P,
 			education_product_list,
 			deposit );

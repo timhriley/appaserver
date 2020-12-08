@@ -326,6 +326,18 @@ DEPOSIT *education_deposit(
 				/* Set only */
 				/* -------- */
 				deposit );
+
+		if ( list_length( deposit->deposit_tuition_refund_list ) )
+			goto all_done;
+
+		deposit->deposit_product_refund_list =
+			deposit_product_refund_list(
+				paypal_dataset->item_title_P,
+				education_product_list,
+				/* -------- */
+				/* Set only */
+				/* -------- */
+				deposit );
 	}
 
 all_done:
@@ -333,7 +345,8 @@ all_done:
 	if ( list_length( deposit->deposit_tuition_payment_list )
 	||   list_length( deposit->deposit_program_payment_list )
 	||   list_length( deposit->deposit_product_payment_list )
-	||   list_length( deposit->deposit_tuition_refund_list ) )
+	||   list_length( deposit->deposit_tuition_refund_list )
+	||   list_length( deposit->deposit_product_refund_list ) )
 	{
 		return deposit;
 	}
