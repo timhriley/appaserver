@@ -24,8 +24,7 @@ EDUCATION_CORE=								\
 		semester.o						\
 		student.o						\
 		program.o						\
-		product.o						\
-		item_title.o
+		product.o
 
 STANDARD_LIBRARY=							\
 		${LIBRARY}/date.o 					\
@@ -102,6 +101,7 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet_column.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/spreadsheet.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/paypal.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/paypal_item.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/paypal_dataset.o
 
 EXECUTABLES=	offering_trigger					\
@@ -334,11 +334,6 @@ student.o: student.c student.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c student.c
-
-item_title.o: item_title.c item_title.h
-	${CC}	${CFLAGS}	-I${LIBRARY}				\
-				-I${PREDICTIVEBOOKS_LIBRARY}		\
-		-c item_title.c
 
 semester.o: semester.c semester.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\

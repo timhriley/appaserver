@@ -631,7 +631,8 @@ PROGRAM_PAYMENT *program_payment(
 
 	if ( ! ( program_payment->program =
 			program_list_seek(
-				item_title_name,
+				item_title_name
+					/* program_name */,
 				education_program_list ) ) )
 	{
 		return (PROGRAM_PAYMENT *)0;

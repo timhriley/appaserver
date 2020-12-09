@@ -15,7 +15,7 @@
 /* Constants */
 /* --------- */
 #define TRANSACTION_TABLE			"transaction"
-#define TRANSACTION_BUFFER_TRIM			60
+#define TRANSACTION_MEMO_LENGTH			60
 #define TRANSACTION_CLOSING_TRANSACTION_TIME	"23:59:59"
 #define TRANSACTION_PRIOR_TRANSACTION_TIME	"23:59:58"
 #define TRANSACTION_CLOSING_ENTRY_MEMO		"close closing"
@@ -462,5 +462,9 @@ LIST *transaction_list_delete(
 
 char *transaction_list_minimum_transaction_date_time(
 			LIST *transaction_list );
+
+/* Returns memo or "" */
+/* ------------------ */
+char *transaction_memo( char *memo );
 
 #endif

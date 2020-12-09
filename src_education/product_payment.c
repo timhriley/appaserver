@@ -523,16 +523,16 @@ double product_payment_fees_expense(
 }
 
 double product_payment_net_payment_amount(
-			double deposit_net_payment_amount )
+			double deposit_amount,
+			double transaction_fee )
 {
-	return deposit_net_payment_amount;
+	return deposit_amount - transaction_fee;
 }
 
 PRODUCT_PAYMENT *product_payment_steady_state(
 			PRODUCT_PAYMENT *product_payment,
 			double deposit_amount,
-			double deposit_transaction_fee,
-			double deposit_net_payment_amount )
+			double deposit_transaction_fee )
 {
 	if ( !product_payment->product )
 	{
@@ -565,7 +565,8 @@ PRODUCT_PAYMENT *product_payment_steady_state(
 
 	product_payment->net_payment_amount =
 		product_payment_net_payment_amount(
-			deposit_net_payment_amount );
+			deposit_amount,
+			deposit_transaction_fee );
 
 	if ( !product_payment->transaction_date_time
 	||   !*product_payment->transaction_date_time )
@@ -767,8 +768,7 @@ LIST *product_payment_transaction_list(
 LIST *product_payment_list_steady_state(
 			LIST *deposit_product_payment_list,
 			double deposit_amount,
-			double transaction_fee,
-			double net_payment_amount )
+			double transaction_fee )
 {
 	PRODUCT_PAYMENT *product_payment;
 
@@ -781,8 +781,7 @@ LIST *product_payment_list_steady_state(
 			product_payment_steady_state(
 				product_payment,
 				deposit_amount,
-				transaction_fee,
-				net_payment_amount );
+				transaction_fee );
 
 	} while( list_next( deposit_product_payment_list ) );
 

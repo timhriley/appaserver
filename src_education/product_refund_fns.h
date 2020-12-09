@@ -51,7 +51,7 @@ TRANSACTION *product_refund_transaction(
 			char *deposit_date_time,
 			char *product_name,
 			char *program_name,
-			double payment_amount,
+			double refund_amount,
 			double fees_expense,
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
@@ -83,7 +83,8 @@ double product_refund_fees_expense(
 /* Note: there's always only one of them. */
 /* -------------------------------------- */
 double product_refund_net_payment_amount(
-			double deposit_net_payment_amount );
+			double deposit_amount,
+			double transaction_fee );
 
 /* Returns list of one, for now */
 /* ---------------------------- */
@@ -121,8 +122,7 @@ LIST *product_refund_transaction_list(
 LIST *product_refund_list_steady_state(
 			LIST *deposit_product_refund_list,
 			double deposit_amount,
-			double transaction_fee,
-			double net_payment_amount );
+			double transaction_fee );
 
 /* Returns static memory */
 /* --------------------- */

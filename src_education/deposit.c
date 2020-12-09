@@ -421,8 +421,8 @@ DEPOSIT *deposit_steady_state(
 				deposit->deposit_tuition_refund_list );
 	}
 
-	/* Execute the three steady states */
-	/* ------------------------------- */
+	/* Execute the four steady states */
+	/* ------------------------------ */
 	if ( list_length( deposit->deposit_tuition_payment_list ) )
 	{
 		deposit->deposit_tuition_payment_list =
@@ -449,9 +449,7 @@ DEPOSIT *deposit_steady_state(
 			product_payment_list_steady_state(
 				deposit->deposit_product_payment_list,
 				deposit->deposit_amount,
-				deposit->transaction_fee,
-				deposit->net_revenue
-					/* net_payment_amount */ );
+				deposit->transaction_fee );
 	}
 
 	if ( list_length( deposit->deposit_tuition_refund_list ) )
@@ -465,8 +463,17 @@ DEPOSIT *deposit_steady_state(
 				deposit->transaction_fee );
 	}
 
-	/* Set the three totals */
-	/* -------------------- */
+	if ( list_length( deposit->deposit_product_refund_list ) )
+	{
+		deposit->deposit_product_refund_list =
+			product_refund_list_steady_state(
+				deposit->deposit_product_refund_list,
+				deposit->deposit_amount,
+				deposit->transaction_fee );
+	}
+
+	/* Set the four totals */
+	/* ------------------- */
 	if ( list_length( deposit->deposit_tuition_payment_list ) )
 	{
 		deposit->deposit_tuition_payment_total =
@@ -1097,7 +1104,8 @@ LIST *deposit_list_transaction_list(
 				deposit->deposit_tuition_payment_list,
 				deposit->deposit_program_payment_list,
 				deposit->deposit_product_payment_list,
-				deposit->deposit_tuition_refund_list ) );
+				deposit->deposit_tuition_refund_list,
+				deposit->deposit_product_refund_list ) );
 
 	} while ( list_next( deposit_list ) );
 	return transaction_list;
@@ -1166,7 +1174,8 @@ LIST *deposit_transaction_list(
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_program_payment_list,
 			LIST *deposit_product_payment_list,
-			LIST *deposit_tuition_refund_list )
+			LIST *deposit_tuition_refund_list,
+			LIST *deposit_product_refund_list )
 {
 	LIST *transaction_list;
 
@@ -1191,6 +1200,11 @@ LIST *deposit_transaction_list(
 		transaction_list,
 		tuition_refund_transaction_list(
 			deposit_tuition_refund_list ) );
+
+	list_append_list(
+		transaction_list,
+		product_refund_transaction_list(
+			deposit_product_refund_list ) );
 
 	return transaction_list;
 }

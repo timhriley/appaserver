@@ -153,8 +153,7 @@ void product_payment_trigger_insert_update(
 			product_payment_steady_state(
 			product_payment,
 			product_payment->deposit->deposit_amount,
-			product_payment->deposit->transaction_fee,
-			product_payment->deposit->net_revenue ) ) )
+			product_payment->deposit->transaction_fee ) ) )
 	{
 		return;
 	}

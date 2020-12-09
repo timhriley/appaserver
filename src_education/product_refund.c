@@ -344,7 +344,7 @@ TRANSACTION *product_refund_transaction(
 			char *deposit_date_time,
 			char *product_name,
 			char *program_name,
-			double payment_amount,
+			double refund_amount,
 			double fees_expense,
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
@@ -365,7 +365,7 @@ TRANSACTION *product_refund_transaction(
 		return (TRANSACTION *)0;
 	}
 
-	if ( dollar_virtually_same( payment_amount, 0.0 ) )
+	if ( dollar_virtually_same( refund_amount, 0.0 ) )
 		return (TRANSACTION *)0;
 
 	transaction =
@@ -373,7 +373,7 @@ TRANSACTION *product_refund_transaction(
 			payor_full_name,
 			payor_street_address,
 			deposit_date_time,
-			payment_amount
+			refund_amount
 				/* transaction_amount */,
 			/* --------------------- */
 			/* Returns static memory */
@@ -387,7 +387,20 @@ TRANSACTION *product_refund_transaction(
 		transaction->journal_list = list_new();
 	}
 
-	/* Debit account_cash */
+	/* Debit revenue */
+	/* ------------- */
+	list_set(
+		transaction->journal_list,
+		( journal =
+			journal_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				product_revenue_account ) ) );
+
+	journal->debit_amount = refund_amount;
+
+	/* Credit account_cash */
 	/* ------------------- */
 	list_set(
 		transaction->journal_list,
@@ -398,10 +411,10 @@ TRANSACTION *product_refund_transaction(
 				transaction->transaction_date_time,
 				entity_self_paypal_cash_account_name ) ) );
 
-	journal->debit_amount = net_payment_amount;
+	journal->credit_amount = 0.0 - net_payment_amount;
 
-	/* Debit fees_expense */
-	/* ------------------ */
+	/* Credit fees_expense */
+	/* ------------------- */
 	list_set(
 		transaction->journal_list,
 		( journal =
@@ -411,20 +424,7 @@ TRANSACTION *product_refund_transaction(
 				transaction->transaction_date_time,
 				account_fees_expense ) ) );
 
-	journal->debit_amount = fees_expense;
-
-	/* Credit revenue */
-	/* -------------- */
-	list_set(
-		transaction->journal_list,
-		( journal =
-			journal_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				product_revenue_account ) ) );
-
-	journal->credit_amount = payment_amount;
+	journal->credit_amount = fees_expense;
 
 	return transaction;
 }
@@ -513,7 +513,7 @@ char *product_refund_list_display( LIST *refund_list )
 double product_refund_amount(
 			double deposit_amount )
 {
-	return deposit_amount;
+	return 0.0 - deposit_amount;
 }
 
 double product_refund_fees_expense(
@@ -523,16 +523,16 @@ double product_refund_fees_expense(
 }
 
 double product_refund_net_payment_amount(
-			double deposit_net_payment_amount )
+			double deposit_amount,
+			double transaction_fee )
 {
-	return deposit_net_payment_amount;
+	return deposit_amount + transaction_fee;
 }
 
 PRODUCT_REFUND *product_refund_steady_state(
 			PRODUCT_REFUND *product_refund,
 			double deposit_amount,
-			double deposit_transaction_fee,
-			double deposit_net_payment_amount )
+			double deposit_transaction_fee )
 {
 	if ( !product_refund->product )
 	{
@@ -565,7 +565,8 @@ PRODUCT_REFUND *product_refund_steady_state(
 
 	product_refund->net_payment_amount =
 		product_refund_net_payment_amount(
-			deposit_net_payment_amount );
+			deposit_amount,
+			deposit_transaction_fee );
 
 	if ( !product_refund->transaction_date_time
 	||   !*product_refund->transaction_date_time )
@@ -767,8 +768,7 @@ LIST *product_refund_transaction_list(
 LIST *product_refund_list_steady_state(
 			LIST *deposit_product_refund_list,
 			double deposit_amount,
-			double transaction_fee,
-			double net_payment_amount )
+			double transaction_fee )
 {
 	PRODUCT_REFUND *product_refund;
 
@@ -781,8 +781,7 @@ LIST *product_refund_list_steady_state(
 			product_refund_steady_state(
 				product_refund,
 				deposit_amount,
-				transaction_fee,
-				net_payment_amount );
+				transaction_fee );
 
 	} while( list_next( deposit_product_refund_list ) );
 

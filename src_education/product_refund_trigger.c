@@ -153,8 +153,7 @@ void product_refund_trigger_insert_update(
 			product_refund_steady_state(
 			product_refund,
 			product_refund->deposit->deposit_amount,
-			product_refund->deposit->transaction_fee,
-			product_refund->deposit->net_revenue ) ) )
+			product_refund->deposit->transaction_fee ) ) )
 	{
 		return;
 	}
@@ -163,6 +162,8 @@ void product_refund_trigger_insert_update(
 	&&  *product_refund->transaction_date_time )
 	{
 		TRANSACTION *t = product_refund->product_refund_transaction;
+
+		t->program_name = program_name;
 
 		product_refund->transaction_date_time =
 			transaction_program_refresh(

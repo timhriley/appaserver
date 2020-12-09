@@ -418,7 +418,9 @@ char *transaction_insert_pipe(
 			street_address,
 			transaction_date_time,
 			transaction_amount,
-			(memo) ? memo : "" );
+			/* Returns memo or "" */
+			/* ------------------ */
+			transaction_memo( memo ) );
 
 	transaction_check_insert(
 		insert_pipe,
@@ -432,11 +434,16 @@ char *transaction_insert_pipe(
 	return transaction_date_time;
 }
 
-char *transation_memo( char *memo )
+char *transaction_memo( char *memo )
 {
 	if ( !memo || strcmp( memo, "memo" ) == 0 )
 	{
 		memo = "";
+	}
+
+	if ( strlen( memo ) > TRANSACTION_MEMO_LENGTH )
+	{
+		*( memo + TRANSACTION_MEMO_LENGTH ) = '\0';
 	}
 	return memo;
 }
@@ -490,7 +497,10 @@ char *transaction_property_insert_pipe(
 				? property_street_address
 				: "",
 			transaction_amount,
-			memo );
+			/* ------------------ */
+			/* Returns memo or "" */
+			/* ------------------ */
+			transaction_memo( memo ) );
 
 	transaction_check_insert(
 		insert_pipe,
@@ -529,7 +539,10 @@ char *transaction_program_insert_pipe(
 			transaction_date_time,
 			(program_name) ? program_name : "",
 			transaction_amount,
-			memo );
+			/* ------------------ */
+			/* Returns memo or "" */
+			/* ------------------ */
+			transaction_memo( memo ) );
 
 	transaction_check_insert(
 		insert_pipe,

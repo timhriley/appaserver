@@ -35,7 +35,7 @@
 					"net_payment_amount,"		\
 					"transaction_date_time"
 
-#define PRODUCT_REFUND_MEMO		"Product"
+#define PRODUCT_REFUND_MEMO		"Product refund"
 
 /* Structures */
 /* ---------- */
@@ -77,8 +77,7 @@ PRODUCT_REFUND *product_refund_parse(
 PRODUCT_REFUND *product_refund_steady_state(
 			PRODUCT_REFUND *product_refund,
 			double deposit_amount,
-			double deposit_transaction_fee,
-			double deposit_net_payment_amount );
+			double deposit_transaction_fee );
 
 PRODUCT_REFUND *product_refund(
 			char *item_title_P,

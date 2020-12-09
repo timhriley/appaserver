@@ -1,16 +1,15 @@
-/* -----------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_education/item_title_tuition_payment.h	*/
-/* -----------------------------------------------------------	*/
-/*								*/
-/* Freely available software: see Appaserver.org		*/
-/* -----------------------------------------------------------	*/
+/* ---------------------------------------------	*/
+/* $APPASERVER_HOME/src_predictive/paypal_item.h	*/
+/* ---------------------------------------------	*/
+/*							*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------	*/
 
-#ifndef ITEM_TITLE_TUITION_PAYMENT_H
-#define ITEM_TITLE_TUITION_PAYMENT_H
+#ifndef PAYPAL_ITEM
+#define PAYPAL_ITEM
 
 #include "boolean.h"
 #include "list.h"
-#include "entity.h"
 
 /* Enumerated types */
 /* ---------------- */

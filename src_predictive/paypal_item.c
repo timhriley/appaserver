@@ -1,9 +1,9 @@
-/* -------------------------------------------		*/
-/* $APPASERVER_HOME/src_education/item_title.c		*/
-/* -------------------------------------------		*/
+/* ---------------------------------------------	*/
+/* $APPASERVER_HOME/src_predictive/paypal_item.c	*/
+/* ---------------------------------------------	*/
 /*							*/
 /* Freely available software: see Appaserver.org	*/
-/* ----------------------------------------------	*/
+/* ---------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -308,6 +308,11 @@ if ( program_number > 1 ) return (char *)0;
 			',',
 			item_title_P,
 			program_number - 1 ) )
+	{
+		return (char *)0;
+	}
+
+	if ( !*program_block )
 	{
 		if ( !transaction_type_E
 		||   !piece(	program_block,

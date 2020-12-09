@@ -83,7 +83,8 @@ double product_payment_fees_expense(
 /* Note: there's always only one of them. */
 /* -------------------------------------- */
 double product_payment_net_payment_amount(
-			double deposit_net_payment_amount );
+			double deposit_amount,
+			double transaction_fee );
 
 /* Returns list of one, for now */
 /* ---------------------------- */
@@ -121,8 +122,7 @@ LIST *product_payment_transaction_list(
 LIST *product_payment_list_steady_state(
 			LIST *deposit_product_payment_list,
 			double deposit_amount,
-			double transaction_fee,
-			double net_payment_amount );
+			double transaction_fee );
 
 /* Returns static memory */
 /* --------------------- */

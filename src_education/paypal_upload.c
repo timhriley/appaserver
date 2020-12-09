@@ -28,6 +28,7 @@
 #include "program_payment.h"
 #include "program_payment_fns.h"
 #include "product_payment_fns.h"
+#include "product_refund_fns.h"
 #include "paypal.h"
 #include "deposit.h"
 #include "education.h"
@@ -375,7 +376,7 @@ void paypal_upload_display(
 		output_pipe = popen( sys_string, "w" );
 
 		fprintf(output_pipe,
-			"%d^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s\n",
+			"%d^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s %s\n",
 			deposit->row_number,
 			entity_name_display(
 				deposit->payor_entity->full_name,
@@ -392,7 +393,9 @@ void paypal_upload_display(
 			product_payment_list_display(
 				deposit->deposit_product_payment_list ),
 			tuition_refund_list_display(
-				deposit->deposit_tuition_refund_list ) );
+				deposit->deposit_tuition_refund_list ),
+			product_refund_list_display(
+				deposit->deposit_product_refund_list ) );
 
 		pclose( output_pipe );
 
@@ -401,7 +404,8 @@ void paypal_upload_display(
 				deposit->deposit_tuition_payment_list,
 				deposit->deposit_program_payment_list,
 				deposit->deposit_product_payment_list,
-				deposit->deposit_tuition_refund_list ) );
+				deposit->deposit_tuition_refund_list,
+				deposit->deposit_product_refund_list ) );
 
 	} while ( list_next( deposit_list ) );
 }

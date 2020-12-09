@@ -77,8 +77,7 @@ PRODUCT_PAYMENT *product_payment_parse(
 PRODUCT_PAYMENT *product_payment_steady_state(
 			PRODUCT_PAYMENT *product_payment,
 			double deposit_amount,
-			double deposit_transaction_fee,
-			double deposit_net_payment_amount );
+			double deposit_transaction_fee );
 
 PRODUCT_PAYMENT *product_payment(
 			char *item_title_P,

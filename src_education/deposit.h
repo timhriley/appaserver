@@ -307,7 +307,8 @@ LIST *deposit_transaction_list(
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_program_payment_list,
 			LIST *deposit_product_payment_list,
-			LIST *deposit_tuition_refund_list );
+			LIST *deposit_tuition_refund_list,
+			LIST *deposit_product_refund_list );
 
 LIST *deposit_list_enrollment_update(
 			LIST *deposit_list,
