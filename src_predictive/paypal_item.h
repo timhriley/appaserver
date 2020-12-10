@@ -5,11 +5,12 @@
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------	*/
 
-#ifndef PAYPAL_ITEM
-#define PAYPAL_ITEM
+#ifndef PAYPAL_ITEM_H
+#define PAYPAL_ITEM_H
 
 #include "boolean.h"
 #include "list.h"
+#include "entity.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -21,90 +22,64 @@
 /* ---------- */
 typedef struct
 {
-	char *course_name;
-	char *student_full_name;
-} ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT;
-
-typedef struct
-{
 	/* Input */
 	/* ----- */
-	char *item_title_P;
-	int student_number;
+	char *entity_delimited_item_title_P;
+	char *transaction_type_E;
+	int position_number;
+	LIST *allowed_item_list;
+	double expected_revenue;
 
 	/* Process */
 	/* ------- */
-	ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *item_title_enrollment;
-	ENTITY *item_title_tuition_payment_entity;
-	char *item_title_tuition_payment_course_name;
-
-} ITEM_TITLE_TUITION_PAYMENT;
+	char *item_data;
+	ENTITY *entity;
+} PAYPAL_ITEM;
 
 /* Prototypes */
 /* ---------- */
-ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *
-	item_title_tuition_payment_enrollment_calloc(
+PAYPAL_ITEM *paypal_item_calloc(
 			void );
 
-ITEM_TITLE_TUITION_PAYMENT *item_title_tuition_payment_calloc(
-			void );
-
-ITEM_TITLE_TUITION_PAYMENT *item_title_tuition_payment_new(
-			char *item_title_P,
-			int student_number );
-
-ENTITY *item_title_tuition_payment_entity(
-			ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT * );
-
-/* ----------------------------------------------------- */
-/* Note: COURSE.course_name can't have colons or commas. */
-/* ----------------------------------------------------- */
-/* Returns heap memory or null */
-/* --------------------------- */
-char *item_title_tuition_payment_course_name(
-			ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT * );
-
-ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *
-	item_title_tuition_payment_enrollment_new(
-			char *item_title_P,
-			int student_number );
-
-ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *
-		item_title_tuition_payment_enrollment_block_A(
-			char *item_title_P,
-			int student_number );
-
-ITEM_TITLE_TUITION_PAYMENT_ENROLLMENT *
-		item_title_tuition_payment_enrollment_block_B(
-			char *item_title_P,
-			int student_number );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *item_title_program_payemnt_name(
-			char *item_title_P,
+PAYPAL_ITEM *paypal_item(
+			LIST *not_exists_item_list,
+			char *entity_delimited_item_title_P,
 			char *transaction_type_E,
-			int program_number,
-			LIST *program_list );
+			int position_number,
+			LIST *allowed_item_list );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *item_title_product_payment_name(
-			char *item_title_P,
-			int program_number,
-			LIST *product_list );
+double paypal_item_value(
+			double expected_revenue,
+			double deposit_amount,
+			double expected_revenue_total,
+			double nonexpected_list_length );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *item_title_program_payment_block(
-			char *item_title_P,
-			char *transaction_type_E,
-			int program_number );
+double paypal_item_fee(
+			double deposit_amount,
+			double transaction_fee,
+			double paypal_item_value );
 
-char *item_title_program_payment_name(
-			char *item_title_P,
-			char *transaction_type_E,
-			int program_number,
-			LIST *program_list );
+double paypal_gain_donation(
+			double expected_revenue,
+			double deposit_amount,
+			double expected_revenue_total,
+			double nonexpected_list_length );
+
+ENTITY *paypal_entity(	char *full_name );
+
+LIST *paypal_entity_item_list(
+			LIST *not_found_item_list,
+			char *item_title_P_piece,
+			LIST *allowed_item_list );
+
+/* Returns list of 1 */
+/* ----------------- */
+LIST *paypal_nonentity_item_list(
+			LIST *not_found_item_list,
+			char *item_data,
+			LIST *allowed_item_list );
+
+boolean paypal_item_is_entity(
+			char *entity_piece );
 
 #endif

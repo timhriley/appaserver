@@ -2244,7 +2244,7 @@ boolean bank_upload_exists(	char *bank_date,
 
 	sprintf( key, "%s^%s", bank_date, bank_description_embedded );
 
-	return list_string_exists( local_bank_upload_key_list, key );
+	return list_string_exists( key, local_bank_upload_key_list );
 }
 
 LIST *bank_upload_key_list(

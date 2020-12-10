@@ -686,3 +686,25 @@ int string_character_count(
 	}
 	return count;
 }
+
+char *string_rtrim( char *buffer )
+{
+        char *buf_ptr;
+
+        /* If buffer is empty then return */
+        /* ------------------------------ */
+        if ( !buffer || !*buffer ) return buffer;
+
+        buf_ptr = buffer + strlen( buffer ) - 1;
+
+        while ( *buf_ptr && isspace( *buf_ptr ) )
+        	buf_ptr--;
+
+	if ( isspace( *buf_ptr ) )
+		*buf_ptr = '\0';
+	else
+        	*(buf_ptr + 1) = '\0';
+
+        return buffer;
+}
+

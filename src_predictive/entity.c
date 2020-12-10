@@ -176,32 +176,43 @@ char *entity_get_payroll_pay_period_string(
 
 	exit( 1 );
 
-} /* entity_get_payroll_pay_period_string() */
+}
 
-ENTITY *entity_seek(		LIST *entity_list,
-				char *full_name,
-				char *street_address )
+ENTITY *entity_full_name_seek(	char *full_name,
+				LIST *entity_list )
 {
 	ENTITY *entity;
-
-	if ( !entity_list )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: entity_list is null.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
 
 	if ( !list_rewind( entity_list ) ) return (ENTITY *)0;
 
 	do {
 		entity = list_get( entity_list );
 
-		if ( timlib_strcmp(	entity->full_name,
+		if ( string_strcmp(	entity->full_name,
+					full_name ) == 0 )
+		{
+			return entity;
+		}
+
+	} while( list_next( entity_list ) );
+
+	return (ENTITY *)0;
+}
+
+ENTITY *entity_seek(	char *full_name,
+			char *street_address,
+			LIST *entity_list )
+{
+	ENTITY *entity;
+
+	if ( !list_rewind( entity_list ) ) return (ENTITY *)0;
+
+	do {
+		entity = list_get( entity_list );
+
+		if ( string_strcmp(	entity->full_name,
 					full_name ) == 0
-		&&   timlib_strcmp(	entity->street_address,
+		&&   string_strcmp(	entity->street_address,
 					street_address ) == 0 )
 		{
 			return entity;
@@ -221,9 +232,9 @@ ENTITY *entity_getset(	LIST *entity_list,
 
 	if ( ! ( entity =
 			entity_seek(
-				entity_list,
 				full_name,
-				street_address ) ) )
+				street_address,
+				entity_list ) ) )
 	{
 		if ( with_strdup )
 		{
@@ -265,17 +276,18 @@ char *entity_list_display( LIST *entity_list )
 	return strdup( buffer );
 }
 
-boolean entity_list_exists(	LIST *entity_list,
-				char *full_name,
-				char *street_address )
+boolean entity_list_exists(
+			char *full_name,
+			char *street_address,
+			LIST *entity_list )
 {
 	if ( !entity_list )
 		return 0;
 	else
 	if ( entity_seek(
-					entity_list,
-					full_name,
-					street_address ) )
+				full_name,
+				street_address,
+				entity_list ) )
 	{
 		return 1;
 	}
@@ -387,19 +399,25 @@ char *entity_primary_where(
 
 char *entity_street_address( char *full_name )
 {
-	char sys_string[ 1024 ];
-	char where[ 256 ];
+	static LIST *entity_list = {0};
+	ENTITY *entity;
 
-	sprintf(where,
-		"full_name = '%s'",
-		entity_escape_name( full_name ) );
+	if ( !entity_list )
+	{
+		entity_list =
+			entity_system_list(
+				entity_sys_string(
+					"1 = 1" ) );
+	}
 
-	sprintf(sys_string,
-		"select.sh street_address entity \"%s\"	|"
-		"head -1				 ",
-		where );
-
-	return pipe2string( sys_string );
+	if ( ( entity = entity_full_name_seek( full_name, entity_list ) ) )
+	{
+		return entity->street_address;
+	}
+	else
+	{
+		return (char *)0;
+	}
 }
 
 FILE *entity_insert_open(
@@ -598,3 +616,33 @@ LIST *entity_full_street_list(
 	return entity_list;
 }
 
+
+ENTITY *entity_full_name_entity(
+			char *full_name )
+{
+	ENTITY *entity;
+	char *street_address;
+
+	if ( !full_name ) return (ENTITY *)0;
+
+	if ( ( street_address =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			entity_street_address(
+				full_name ) ) )
+	{
+		entity =
+			entity_new(
+				full_name,
+				street_address );
+	}
+	else
+	{
+		entity =
+			entity_new(
+				full_name,
+				ENTITY_STREET_ADDRESS_UNKNOWN );
+	}
+	return entity;
+}

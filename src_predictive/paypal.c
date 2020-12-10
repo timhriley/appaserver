@@ -49,3 +49,78 @@ PAYPAL *paypal_fetch(	char *spreadsheet_filename,
 	return paypal;
 }
 
+/* Looks like:
+Play Theory in  Improv for High Schoolers (Spring 2020) (Child: Atticus Weaver,Andy Madrigal Villalobos)
+*/
+
+char *paypal_entity_delimit( char *item_title_P )
+{
+	boolean inside_paran = 0;
+	char *ptr = item_title_P;
+
+	if ( !ptr ) return (char *)0;
+
+	while( *ptr )
+	{
+		if ( *ptr == '(' )
+		{
+			inside_paran = 1;
+			ptr++;
+			continue;
+		}
+		if ( *ptr == ')' )
+		{
+			inside_paran = 0;
+			ptr++;
+			continue;
+		}
+		if ( *ptr == PAYPAL_ITEM_DELIMITER && inside_paran )
+		{
+			*ptr = PAYPAL_ENTITY_DELIMITER;
+		}
+		ptr++;
+	}
+	return item_title_P;
+}
+
+/* Looks like:
+Mary Poppins Junior Tickets: Saturday, March 28, 7:00pm, Mary Poppins Junior Tickets: Monday, March 30, 7:00pm
+*/
+
+char *paypal_date_remove( char *item_title_P )
+{
+	boolean inside_colon = 0;
+	int comma_count = 0;
+	char destination[ 1024 ];
+	char *ptr = destination;
+
+	if ( !item_title_P ) return (char *)0;
+
+	while( *item_title_P )
+	{
+		if ( *item_title_P == ':' && !inside_colon )
+		{
+			inside_colon = 1;
+			comma_count = 0;
+			item_title_P++;
+			continue;
+		}
+		if ( *item_title_P == ',' && inside_colon )
+		{
+			comma_count++;
+
+			if ( comma_count < 3 )
+			{
+				item_title_P++;
+				continue;
+			}
+			*ptr++ = *item_title_P++;
+			inside_colon = 0;
+			continue;
+		}
+		*ptr++ = *item_title_P++;
+	}
+	*ptr = '\0';
+	return strdup( destination );
+}
+

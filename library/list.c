@@ -250,7 +250,7 @@ boolean list_search_string( LIST *list, char *string )
 	return list_exists_string( list, string );
 }
 
-boolean list_string_exists( LIST *list, char *string )
+boolean list_string_exists( char *string, LIST *list )
 {
 	if ( !list ) return 0;
 	if ( !string ) return 0;

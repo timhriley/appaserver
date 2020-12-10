@@ -88,8 +88,8 @@ boolean list_exists( LIST *list, char *item, int (*match_fn)() );
 boolean list_exists_string(	LIST *list,
 				char *string );
 
-boolean list_string_exists(	LIST *list,
-				char *string );
+boolean list_string_exists(	char *string,
+				LIST *list );
 
 boolean list_exists_string_beginning(
 				LIST *list,

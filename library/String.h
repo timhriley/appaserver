@@ -137,4 +137,6 @@ int string_character_count(
 			char ch,
 			char *source );
 
+char *string_rtrim(	char *buffer );
+
 #endif

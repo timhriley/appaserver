@@ -16,6 +16,8 @@
 
 /* Constants */
 /* --------- */
+#define PAYPAL_ITEM_DELIMITER		','
+#define PAYPAL_ENTITY_DELIMITER		'^'
 
 /* Structures */
 /* ---------- */
@@ -36,5 +38,15 @@ PAYPAL *paypal_calloc(	void );
 
 PAYPAL *paypal_fetch(	char *spreadsheet_filename,
 			char *date_label );
+
+/* Returns item_title_P */
+/* -------------------- */
+char *paypal_entity_delimit(
+			char *item_title_P );
+
+/* Returns heap memory */
+/* ------------------- */
+char *paypal_date_remove(
+			char *item_title_P );
 
 #endif

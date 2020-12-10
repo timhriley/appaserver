@@ -89,17 +89,17 @@ ENTITY *entity_getset(	LIST *entity_list,
 			char *street_address,
 			boolean with_strdup );
 
-ENTITY *entity_seek(	LIST *entity_list,
-			char *full_name,
-			char *street_address );
+ENTITY *entity_seek(	char *full_name,
+			char *street_address,
+			LIST *entity_list );
 
 char *entity_list_display(
 			LIST *entity_list );
 
 boolean entity_list_exists(
-			LIST *entity_list,
 			char *full_name,
-			char *street_address );
+			char *street_address,
+			LIST *entity_list );
 
 ENTITY *entity_parse(	char *input );
 
@@ -151,6 +151,13 @@ char *entity_sys_string(
 LIST *entity_full_street_list(
 			LIST *full_name_list,
 			LIST *street_address_list );
+
+ENTITY *entity_full_name_seek(
+			char *full_name,
+			LIST *entity_list );
+
+ENTITY *entity_full_name_entity(
+			char *full_name );
 
 #endif
 

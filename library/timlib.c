@@ -786,7 +786,7 @@ char *right_trim_session( char *buffer )
 
 char *timlib_rtrim( char *buffer )
 {
-	return trim( buffer );
+	return rtrim( buffer );
 }
 
 char *rtrim( char *buffer )
@@ -805,7 +805,6 @@ char *rtrim( char *buffer )
         *(buf_ptr + 1) = '\0';
 
         return buffer;
-
 }
 
 char *trim_length(	char *buffer,
