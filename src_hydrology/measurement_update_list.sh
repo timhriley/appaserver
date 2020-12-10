@@ -19,6 +19,7 @@ where="$station_where and measurement_date >= '$begin_measurement_date'"
 
 echo "select $select from $from where $where;"		|
 sql							|
+sort							|
 group.e '|' count					|
 piece_shift_right.e '|'					|
 sed 's/|/ [/'						|
