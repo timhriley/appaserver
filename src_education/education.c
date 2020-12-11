@@ -25,8 +25,10 @@
 #include "semester.h"
 #include "deposit.h"
 #include "spreadsheet.h"
+#include "paypal.h"
 #include "paypal_upload.h"
 #include "paypal_dataset.h"
+#include "paypal_item.h"
 #include "program.h"
 #include "product.h"
 #include "education.h"
@@ -71,7 +73,7 @@ EDUCATION *education_fetch(
 }
 
 LIST *education_deposit_list(
-			LIST *not_exists_course_name_list,
+			LIST *not_found_item_list,
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
@@ -141,7 +143,7 @@ LIST *education_deposit_list(
 		list_set(
 			deposit_list,
 			education_deposit(
-				not_exists_course_name_list,
+				not_found_item_list,
 				season_name,
 				year,
 				semester_offering_list,
@@ -157,7 +159,7 @@ LIST *education_deposit_list(
 }
 
 DEPOSIT *education_deposit(
-			LIST *not_exists_course_name_list,
+			LIST *not_found_item_list,
 			char *season_name,
 			int year,
 			LIST *semester_offering_list,
@@ -210,22 +212,9 @@ DEPOSIT *education_deposit(
 		paypal_dataset->full_name_D = PAYPAL_UPLOAD_DEFAULT_FULL_NAME;
 	}
 
-	if ( ( payor_street_address =
-		entity_street_address(
-			paypal_dataset->full_name_D ) ) )
-	{
-		deposit->payor_entity =
-			entity_new(
-				paypal_dataset->full_name_D,
-				payor_street_address );
-	}
-	else
-	{
-		deposit->payor_entity =
-			entity_new(
-				paypal_dataset->full_name_D,
-				ENTITY_STREET_ADDRESS_UNKNOWN );
-	}
+	deposit->payor_entity =
+		entity_full_name_entity(
+			paypal_dataset->full_name_D );
 
 	/* Column H */
 	/* -------- */
@@ -259,55 +248,86 @@ DEPOSIT *education_deposit(
 	/* --------- */
 	deposit->account_balance = atof( paypal_dataset->account_balance_AD );
 
+	/* Steady state */
+	/* ------------ */
+	deposit->paypal_item_list =
+		paypal_item_list(
+			not_found_item_list,
+			paypal_date_remove(
+				paypal_entity_delimit(
+					paypal_dataset->item_title_P ) ),
+			paypal_dataset->transaction_type_E,
+			education_paypal_allowed_list(
+				semester_offering_name_list(
+					semester_offering_list ),
+				program_name_list(
+					education_program_list ),
+				program_alias_name_list(
+					education_program_list ),
+				product_name_list(
+					education_product_list ) ) );
+
+			allowed_item_list );
+
+	deposit->paypal_expected_revenue =
+		deposit_paypal_expected_revenue(
+			deposit->paypal_item_list,
+			semester_offering_list );
+
+	
+	deposit->paypal_steady_state_list =
+		deposit_paypal_steady_state_list(
+			deposit->paypal_expected_revenue,
+			deposit->deposit_amount,
+			deposit->transaction_fee );
+
 	/* Columns E and P */
 	/* --------------- */
 	if ( deposit->deposit_amount > 0.0 )
 	{
-		deposit->deposit_tuition_payment_list =
+		deposit->tuition_payment_list =
 			deposit_tuition_payment_list(
-				not_exists_course_name_list,
+				not_found_item_list,
 				season_name,
 				year,
-				paypal_dataset->item_title_P,
-				semester_offering_list,
+				deposit->paypal_steady_state_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
 				deposit );
 	
-		if ( list_length( deposit->deposit_tuition_payment_list ) )
-			goto all_done;
-
-		deposit->deposit_program_payment_list =
+		deposit->program_payment_list =
 			deposit_program_payment_list(
-				paypal_dataset->item_title_P,
-				paypal_dataset->transaction_type_E,
-				education_program_list,
+				not_found_item_list,
+				deposit->paypal_steady_state_list,
+				program_name_list(
+					education_program_list ),
+				program_alias_name_list(
+					education_program_list ),
 				/* -------- */
 				/* Set only */
 				/* -------- */
 				deposit );
 
-		if ( list_length( deposit->deposit_program_payment_list ) )
-			goto all_done;
-
-		deposit->deposit_product_payment_list =
+		deposit->product_payment_list =
 			deposit_product_payment_list(
-				paypal_dataset->item_title_P,
-				education_product_list,
+				not_found_item_list,
+				deposit->paypal_steady_state_list,
+				product_name_list(
+					education_product_list ),
 				/* -------- */
 				/* Set only */
 				/* -------- */
 				deposit );
 
-		if ( list_length( deposit->deposit_product_payment_list ) )
-			goto all_done;
-
-		deposit->deposit_program_payment_list =
+		deposit->program_payment_list =
 			deposit_program_payment_list(
-				paypal_dataset->item_title_P,
-				paypal_dataset->transaction_type_E,
-				education_program_list,
+				not_found_item_list,
+				deposit->paypal_steady_state_list,
+				program_name_list(
+					education_program_list ),
+				program_alias_name_list(
+					education_program_list ),
 				/* -------- */
 				/* Set only */
 				/* -------- */
@@ -315,38 +335,36 @@ DEPOSIT *education_deposit(
 	}
 	else
 	{
-		deposit->deposit_tuition_refund_list =
+		deposit->tuition_refund_list =
 			deposit_tuition_refund_list(
-				not_exists_course_name_list,
+				not_found_item_list,
 				season_name,
 				year,
-				paypal_dataset->item_title_P,
-				semester_offering_list,
+				deposit->paypal_steady_state_list,
+				offering_name_list(
+					semester_offering_list ),
 				/* -------- */
 				/* Set only */
 				/* -------- */
 				deposit );
 
-		if ( list_length( deposit->deposit_tuition_refund_list ) )
-			goto all_done;
-
-		deposit->deposit_product_refund_list =
+		deposit->product_refund_list =
 			deposit_product_refund_list(
-				paypal_dataset->item_title_P,
-				education_product_list,
+				not_found_item_list,
+				deposit->paypal_steady_state_list,
+				product_name_list(
+					education_product_list ),
 				/* -------- */
 				/* Set only */
 				/* -------- */
 				deposit );
 	}
 
-all_done:
-
-	if ( list_length( deposit->deposit_tuition_payment_list )
-	||   list_length( deposit->deposit_program_payment_list )
-	||   list_length( deposit->deposit_product_payment_list )
-	||   list_length( deposit->deposit_tuition_refund_list )
-	||   list_length( deposit->deposit_product_refund_list ) )
+	if ( list_length( deposit->tuition_payment_list )
+	||   list_length( deposit->program_payment_list )
+	||   list_length( deposit->product_payment_list )
+	||   list_length( deposit->tuition_refund_list )
+	||   list_length( deposit->product_refund_list ) )
 	{
 		return deposit;
 	}

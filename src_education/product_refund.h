@@ -12,7 +12,7 @@
 #include "list.h"
 #include "product.h"
 #include "deposit.h"
-#include "item_title.h"
+#include "paypal_item.h"
 #include "transaction.h"
 
 /* Enumerated types */

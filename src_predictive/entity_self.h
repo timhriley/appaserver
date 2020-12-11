@@ -136,19 +136,10 @@ ENTITY *entity_get_or_set(	LIST *entity_list,
 				char *street_address,
 				boolean with_strdup );
 
-ENTITY *entity_seek(		LIST *entity_list,
-				char *full_name,
-				char *street_address );
-
 char *entity_self_select(	void );
 
 char *entity_list_display(
 			LIST *entity_list );
-
-boolean entity_list_exists(
-			LIST *entity_list,
-			char *full_name,
-			char *street_address );
 
 boolean entity_location_fetch(
 			char **city,

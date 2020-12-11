@@ -54,7 +54,6 @@ typedef struct
 	/* ---------- */
 	double deposit_amount;
 	double transaction_fee;
-	double net_revenue;
 	double account_balance;
 	char *transaction_ID;
 	char *invoice_number;
@@ -62,23 +61,23 @@ typedef struct
 	/* ------- */
 	/* Process */
 	/* ------- */
-	double deposit_remaining;
-	double deposit_net_revenue;
-	LIST *deposit_tuition_payment_list;
-	LIST *deposit_program_payment_list;
-	LIST *deposit_product_payment_list;
-	LIST *deposit_tuition_refund_list;
-	LIST *deposit_product_refund_list;
-	LIST *deposit_enrollment_list;
-	LIST *deposit_registration_list;
-	LIST *deposit_course_list;
-	double deposit_tuition_payment_total;
-	double deposit_program_payment_total;
-	double deposit_product_payment_total;
-	double deposit_tuition_refund_total;
-	double deposit_product_refund_total;
-	double deposit_gain_donation;
-	double deposit_registration_tuition;
+	double net_revenue;
+	LIST *paypal_item_list;
+	LIST *tuition_payment_list;
+	LIST *program_payment_list;
+	LIST *product_payment_list;
+	LIST *tuition_refund_list;
+	LIST *product_refund_list;
+	LIST *enrollment_list;
+	LIST *registration_list;
+	LIST *course_list;
+	double tuition_payment_total;
+	double program_payment_total;
+	double product_payment_total;
+	double tuition_refund_total;
+	double product_refund_total;
+	double gain_donation;
+	double registration_tuition;
 	int row_number;
 } DEPOSIT;
 

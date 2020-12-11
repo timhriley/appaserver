@@ -22,7 +22,7 @@
 #include "entity.h"
 #include "account.h"
 #include "deposit.h"
-#include "item_title.h"
+#include "paypal_item.h"
 #include "product_payment_fns.h"
 #include "product_payment.h"
 

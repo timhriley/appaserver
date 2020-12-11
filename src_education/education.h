@@ -43,7 +43,7 @@ EDUCATION *education_fetch(
 			char *date_label );
 
 LIST *education_deposit_list(
-			LIST *not_exists_course_name_list,
+			LIST *not_found_item_list,
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
@@ -54,7 +54,7 @@ LIST *education_deposit_list(
 			LIST *education_product_list );
 
 DEPOSIT *education_deposit(
-			LIST *not_exists_course_name_list,
+			LIST *not_found_item_list,
 			char *season_name,
 			int year,
 			LIST *semester_offering_list,

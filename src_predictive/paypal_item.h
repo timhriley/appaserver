@@ -82,4 +82,10 @@ LIST *paypal_nonentity_item_list(
 boolean paypal_item_is_entity(
 			char *entity_piece );
 
+LIST *paypal_item_list(
+			LIST *not_found_item_list,
+			char *entity_delimited_date_removed,
+			char *transaction_type_E,
+			LIST *allowed_item_list );
+
 #endif

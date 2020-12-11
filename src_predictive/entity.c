@@ -646,3 +646,4 @@ ENTITY *entity_full_name_entity(
 	}
 	return entity;
 }
+
