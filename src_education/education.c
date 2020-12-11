@@ -275,8 +275,8 @@ DEPOSIT *education_deposit(
 			semester_offering_list );
 
 	
-	deposit->paypal_steady_state_list =
-		deposit_paypal_steady_state_list(
+	deposit->paypal_item_steady_state_list =
+		paypal_item_steady_state_list(
 			deposit->paypal_expected_revenue,
 			deposit->deposit_amount,
 			deposit->transaction_fee );
@@ -290,7 +290,7 @@ DEPOSIT *education_deposit(
 				not_found_item_list,
 				season_name,
 				year,
-				deposit->paypal_steady_state_list,
+				deposit->paypal_item_steady_state_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
@@ -299,7 +299,7 @@ DEPOSIT *education_deposit(
 		deposit->program_payment_list =
 			deposit_program_payment_list(
 				not_found_item_list,
-				deposit->paypal_steady_state_list,
+				deposit->paypal_item_steady_state_list,
 				program_name_list(
 					education_program_list ),
 				program_alias_name_list(
@@ -312,7 +312,7 @@ DEPOSIT *education_deposit(
 		deposit->product_payment_list =
 			deposit_product_payment_list(
 				not_found_item_list,
-				deposit->paypal_steady_state_list,
+				deposit->paypal_item_steady_state_list,
 				product_name_list(
 					education_product_list ),
 				/* -------- */
@@ -323,7 +323,7 @@ DEPOSIT *education_deposit(
 		deposit->program_payment_list =
 			deposit_program_payment_list(
 				not_found_item_list,
-				deposit->paypal_steady_state_list,
+				deposit->paypal_item_steady_state_list,
 				program_name_list(
 					education_program_list ),
 				program_alias_name_list(
@@ -340,7 +340,7 @@ DEPOSIT *education_deposit(
 				not_found_item_list,
 				season_name,
 				year,
-				deposit->paypal_steady_state_list,
+				deposit->paypal_item_steady_state_list,
 				offering_name_list(
 					semester_offering_list ),
 				/* -------- */
@@ -349,9 +349,9 @@ DEPOSIT *education_deposit(
 				deposit );
 
 		deposit->product_refund_list =
-			deposit_product_refund_list(
+			product_refund_list(
 				not_found_item_list,
-				deposit->paypal_steady_state_list,
+				deposit->paypal_item_steady_state_list,
 				product_name_list(
 					education_product_list ),
 				/* -------- */
@@ -638,5 +638,21 @@ LIST *education_program_list( void )
 LIST *education_product_list( void )
 {
 	return product_list();
+}
+
+LIST *education_paypal_allowed_list(
+			LIST *offering_name_list,
+			LIST *program_name_list,
+			LIST *program_alias_name_list,
+			LIST *product_name_list )
+{
+	LIST *allowed_list = list_new();
+
+	list_append_list( allowed_list, offering_name_list );
+	list_append_list( allowed_list, program_name_list );
+	list_append_list( allowed_list, program_alias_name_list );
+	list_append_list( allowed_list, product_name_list );
+
+	return allowed_list;
 }
 

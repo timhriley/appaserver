@@ -86,11 +86,13 @@ double product_refund_net_payment_amount(
 			double deposit_amount,
 			double transaction_fee );
 
-/* Returns list of one, for now */
-/* ---------------------------- */
 LIST *product_refund_list(
-			char *item_title_P,
-			LIST *education_product_list,
+			LIST *not_found_item_list,
+			LIST *paypal_item_steady_state_list,
+			LIST *product_name_list,
+			/* -------- */
+			/* Set only */
+			/* -------- */
 			DEPOSIT *deposit );
 
 void product_refund_trigger(

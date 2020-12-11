@@ -250,3 +250,55 @@ boolean paypal_item_is_entity(
 	}
 }
 
+
+LIST *paypal_item_steady_state_list(
+			LIST *paypal_item_list,
+			double deposit_amount,
+			double transaction_fee,
+			double expected_revenue_total,
+			int nonexpected_list_length )
+{
+	PAYPAL_ITEM *paypal_item;
+
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		paypal_item_steady_state(
+			paypal_item,
+			paypal_item->expected_revenue,
+			deposit_amount,
+			transaction_fee,
+			expected_revenue_total,
+			nonexpected_list_length );
+
+	} while ( list_next( paypal_item_list ) );
+
+	return paypal_item_list;
+}
+
+PAYPAL_ITEM *paypal_item_steady_state(
+			PAYPAL_ITEM *paypal_item,
+			double expected_revenue,
+			double deposit_amount,
+			double transaction_fee,
+			expected_revenue_total,
+			nonexpected_list_length )
+{
+	paypal_item->item_value =
+		paypal_item_value(
+			expected_revenue,
+			deposit_amount,
+			expected_revenue_total,
+			nonexpected_list_length );
+
+	paypal_item->fee =
+		paypal_item_fee(
+			deposit_amount,
+			transaction_fee,
+			paypal_item->item_value );
+
+	return paypal_item;
+}
+

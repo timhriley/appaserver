@@ -32,8 +32,11 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	char *item_data;
 	ENTITY *entity;
+	char *item_data;
+	double value;
+	double fee;
+	double gain;
 } PAYPAL_ITEM;
 
 /* Prototypes */
@@ -87,5 +90,13 @@ LIST *paypal_item_list(
 			char *entity_delimited_date_removed,
 			char *transaction_type_E,
 			LIST *allowed_item_list );
+
+PAYPAL_ITEM *paypal_item_steady_state(
+			PAYPAL_ITEM *paypal_item,
+			double expected_revenue,
+			double deposit_amount,
+			double transaction_fee,
+			double expected_revenue_total,
+			int nonexpected_list_length );
 
 #endif

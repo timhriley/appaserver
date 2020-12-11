@@ -117,5 +117,11 @@ LIST *education_product_list(
 void education_product_payment_insert(
 			LIST *deposit_list );
 
+LIST *education_paypal_allowed_list(
+			LIST *offering_name_list,
+			LIST *program_name_list,
+			LIST *program_alias_name_list,
+			LIST *product_name_list );
+
 #endif
 

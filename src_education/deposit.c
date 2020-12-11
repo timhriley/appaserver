@@ -988,17 +988,6 @@ LIST *deposit_product_payment_list(
 			deposit );
 }
 
-LIST *deposit_product_refund_list(
-			char *item_title_P,
-			LIST *education_product_list,
-			DEPOSIT *deposit )
-{
-	return product_refund_list(
-			item_title_P,
-			education_product_list,
-			deposit );
-}
-
 LIST *deposit_tuition_payment_list(
 			LIST *not_exists_course_name_list,
 			char *season_name,
@@ -1265,4 +1254,3 @@ LIST *deposit_fetch_product_payment_list(
 			fetch_product,
 			fetch_deposit );
 }
-

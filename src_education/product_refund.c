@@ -602,25 +602,17 @@ PRODUCT_REFUND *product_refund_steady_state(
 }
 
 PRODUCT_REFUND *product_refund(
-			char *item_title_P,
-			int product_number,
-			LIST *education_product_list,
+			LIST *not_found_item_list,
+			PAYPAL_ITEM *paypal_item,
+			LIST *product_name_list,
 			/* -------- */
 			/* Set only */
 			/* -------- */
 			DEPOSIT *deposit )
 {
 	PRODUCT_REFUND *product_refund;
-	char *item_title_name;
 
-	if ( ! ( item_title_name =
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			item_title_product_payment_name(
-				item_title_P,
-				product_number,
-				education_product_list ) ) )
+	if ( !list_string_exists( paypal_item->item_data, product_name_list ) )
 	{
 		return (PRODUCT_REFUND *)0;
 	}
@@ -629,36 +621,32 @@ PRODUCT_REFUND *product_refund(
 	/* ---------- */
 	product_refund = product_refund_calloc();
 
-	if ( ! ( product_refund->product =
-			product_list_seek(
-				item_title_name,
-				education_product_list ) ) )
-	{
-		return (PRODUCT_REFUND *)0;
-	}
-
 	product_refund->deposit = deposit;
 
 	return product_refund;
 }
 
 LIST *product_refund_list(
-			char *item_title_P,
-			LIST *education_product_list,
+			LIST *not_found_item_list,
+			LIST *paypal_item_list,
+			LIST *product_name_list,
 			DEPOSIT *deposit )
 {
 	LIST *refund_list = list_new();
 	PRODUCT_REFUND *refund;
-	int product_number;
+	PAYPAL_ITEM *paypal_item;
 
-	for (	product_number = 1;
-		( refund =
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( ( refund =
 			product_refund(
-				item_title_P,
-				product_number,
-				education_product_list,
-				deposit ) );
-		product_number++ )
+				not_found_item_list,
+				paypal_item,
+				product_name_list,
+				deposit ) ) )
 	{
 		list_set( refund_list, refund );
 	}

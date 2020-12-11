@@ -355,10 +355,12 @@ LIST *deposit_product_payment_list(
 			LIST *education_product_list,
 			DEPOSIT *deposit );
 
-LIST *deposit_product_refund_list(
-			char *item_title_P,
-			LIST *education_product_list,
-			DEPOSIT *deposit );
+LIST *deposit_steady_state_paypal_item_list(
+			LIST *paypal_item_list,
+			double deposit_amount,
+			double transaction_fee,
+			double expected_revenue_total,
+			int nonexpected_list_length );
 
 #endif
 
