@@ -66,7 +66,8 @@ typedef struct
 	LIST *paypal_item_steady_state_list;
 	double paypal_item_expected_revenue;
 	double paypal_item_expected_revenue_total;
-	int paypal_item_nonexpected_revenue_list_length;
+	int paypal_item_nonexpected_revenue_length;
+	int paypal_item_expected_revenue_length;
 	LIST *tuition_payment_list;
 	LIST *program_payment_list;
 	LIST *product_payment_list;
@@ -170,15 +171,6 @@ DEPOSIT *deposit_parse( char *input,
 /* -------------------------- */
 char *deposit_sys_string(
 			char *where );
-
-double deposit_tuition_payment_total(
-			LIST *deposit_tuition_payment_list );
-
-double deposit_program_payment_total(
-			LIST *deposit_program_payment_list );
-
-double deposit_product_payment_total(
-			LIST *deposit_product_payment_list );
 
 DEPOSIT *deposit_steady_state(
 			DEPOSIT *deposit,

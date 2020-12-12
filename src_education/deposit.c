@@ -382,24 +382,6 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 	return deposit;
 }
 
-double deposit_tuition_payment_total(
-			LIST *deposit_tuition_payment_list )
-{
-	return tuition_payment_total( deposit_tuition_payment_list );
-}
-
-double deposit_program_payment_total(
-			LIST *deposit_program_payment_list )
-{
-	return program_payment_total( deposit_program_payment_list );
-}
- 
-double deposit_tuition_refund_total(
-			LIST *deposit_tuition_refund_list )
-{
-	return tuition_refund_total( deposit_tuition_refund_list );
-}
- 
 DEPOSIT *deposit_steady_state(
 			DEPOSIT *deposit,
 			LIST *semester_offering_list )
@@ -471,21 +453,21 @@ DEPOSIT *deposit_steady_state(
 	if ( list_length( deposit->tuition_payment_list ) )
 	{
 		deposit->tuition_payment_total =
-			deposit_tuition_payment_total(
+			tuition_payment_total(
 				deposit->tuition_payment_list );
 	}
 
 	if ( list_length( deposit->program_payment_list ) )
 	{
 		deposit->program_payment_total =
-			deposit_program_payment_total(
+			program_payment_total(
 				deposit->program_payment_list );
 	}
 
 	if ( list_length( deposit->tuition_refund_list ) )
 	{
 		deposit->tuition_refund_total =
-			deposit_tuition_refund_total(
+			tuition_refund_total(
 				deposit->tuition_refund_list );
 	}
 
@@ -963,30 +945,6 @@ LIST *deposit_course_name_list(
 	} while ( list_next( deposit_list ) );
 
 	return course_name_list;
-}
-
-LIST *deposit_program_payment_list(
-			char *item_title_P,
-			char *transaction_type_E,
-			LIST *education_program_list,
-			DEPOSIT *deposit )
-{
-	return program_payment_list(
-			item_title_P,
-			transaction_type_E,
-			education_program_list,
-			deposit );
-}
-
-LIST *deposit_product_payment_list(
-			char *item_title_P,
-			LIST *education_product_list,
-			DEPOSIT *deposit )
-{
-	return product_payment_list(
-			item_title_P,
-			education_product_list,
-			deposit );
 }
 
 LIST *deposit_registration_list(

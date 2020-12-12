@@ -20,10 +20,19 @@
 #include "transaction.h"
 #include "entity.h"
 #include "enrollment.h"
+#include "semester.h"
 #include "offering.h"
 #include "offering_fns.h"
-#include "semester.h"
 #include "tuition_refund.h"
+#include "tuition_refund_fns.h"
+#include "tuition_payment.h"
+#include "tuition_payment_fns.h"
+#include "program_payment.h"
+#include "program_payment_fns.h"
+#include "product_payment.h"
+#include "product_payment_fns.h"
+#include "product_refund.h"
+#include "product_refund_fns.h"
 #include "deposit.h"
 #include "spreadsheet.h"
 #include "paypal.h"
@@ -170,7 +179,6 @@ DEPOSIT *education_deposit(
 			int row_number )
 {
 	DEPOSIT *deposit;
-	char *payor_street_address;
 	char deposit_date_time[ 128 ];
 
 	if ( !paypal_dataset )
@@ -277,17 +285,22 @@ DEPOSIT *education_deposit(
 		paypal_item_expected_revenue_total(
 			deposit->paypal_item_list );
 
-	deposit->paypal_item_nonexpected_revenue_list_length =
-		paypal_item_nonexpected_revenue_list_length(
+	deposit->paypal_item_nonexpected_revenue_length =
+		paypal_item_nonexpected_revenue_length(
 			deposit->paypal_item_list );
-	
+
+	deposit->paypal_item_expected_revenue_length =
+		paypal_item_expected_revenue_length(
+			deposit->paypal_item_list );
+
 	deposit->paypal_item_steady_state_list =
 		paypal_item_steady_state_list(
 			deposit->paypal_item_list,
 			deposit->deposit_amount,
 			deposit->transaction_fee,
 			deposit->paypal_item_expected_revenue_total,
-			deposit->paypal_item_nonexpected_revenue_list_length );
+			deposit->paypal_item_nonexpected_revenue_length,
+			deposit->paypal_item_expected_revenue_length );
 
 	/* Columns E and P */
 	/* --------------- */
