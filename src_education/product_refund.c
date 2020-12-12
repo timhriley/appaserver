@@ -602,17 +602,20 @@ PRODUCT_REFUND *product_refund_steady_state(
 }
 
 PRODUCT_REFUND *product_refund(
-			LIST *not_found_item_list,
 			PAYPAL_ITEM *paypal_item,
-			LIST *product_name_list,
+			LIST *product_list,
 			/* -------- */
 			/* Set only */
 			/* -------- */
 			DEPOSIT *deposit )
 {
 	PRODUCT_REFUND *product_refund;
+	PRODUCT *product;
 
-	if ( !list_string_exists( paypal_item->item_data, product_name_list ) )
+	if ( ! ( product =
+			product_seek(
+				paypal_item->item_data,
+				product_list ) ) )
 	{
 		return (PRODUCT_REFUND *)0;
 	}
@@ -621,15 +624,15 @@ PRODUCT_REFUND *product_refund(
 	/* ---------- */
 	product_refund = product_refund_calloc();
 
+	product_refund->product = product;
 	product_refund->deposit = deposit;
 
 	return product_refund;
 }
 
 LIST *product_refund_list(
-			LIST *not_found_item_list,
 			LIST *paypal_item_list,
-			LIST *product_name_list,
+			LIST *product_list,
 			DEPOSIT *deposit )
 {
 	LIST *refund_list = list_new();
@@ -643,13 +646,14 @@ LIST *product_refund_list(
 
 		if ( ( refund =
 			product_refund(
-				not_found_item_list,
 				paypal_item,
-				product_name_list,
+				product_list,
 				deposit ) ) )
-	{
-		list_set( refund_list, refund );
-	}
+		{
+			list_set( refund_list, refund );
+		}
+	} while ( list_next( paypal_item_list ) );
+
 	return refund_list;
 }
 

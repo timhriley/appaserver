@@ -52,7 +52,6 @@ void paypal_upload_display(
 /* Returns education_deposit_list() */
 /* -------------------------------- */
 LIST *paypal_upload_deposit_list(
-			LIST *not_exists_course_name_list,
 			char **maximum_date,
 			char *spreadsheet_filename,
 			char *season_name,
@@ -74,7 +73,7 @@ int main( int argc, char **argv )
 	char buffer[ 128 ];
 	char *maximum_date = {0};
 	LIST *deposit_list;
-	LIST *not_exists_course_name_list;
+	LIST *not_exists_course_name_list = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -135,15 +134,12 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	not_exists_course_name_list = list_new();
-
 	deposit_list =
 		deposit_list_steady_state(
 			/* -------------------------------- */
 			/* Returns education_deposit_list() */
 			/* -------------------------------- */
 			paypal_upload_deposit_list(
-				not_exists_course_name_list,
 				&maximum_date,
 				spreadsheet_filename,
 				season_name,
@@ -162,7 +158,7 @@ int main( int argc, char **argv )
 	if ( list_length( not_exists_course_name_list ) )
 	{
 		printf(
-		"<h3>Can't execute with non-existing offering:</h3>\n" );
+		"<h3>Can't execute with non-existing offerings:</h3>\n" );
 
 		fflush( stdout );
 		list_html_display( not_exists_course_name_list );
@@ -252,7 +248,6 @@ int main( int argc, char **argv )
 }
 
 LIST *paypal_upload_deposit_list(
-			LIST *not_exists_course_name_list,
 			char **maximum_date,
 			char *spreadsheet_filename,
 			char *season_name,
@@ -304,7 +299,6 @@ LIST *paypal_upload_deposit_list(
 
 	deposit_list =
 		education_deposit_list(
-			not_exists_course_name_list,
 			season_name,
 			year,
 			spreadsheet_filename,
@@ -387,25 +381,25 @@ void paypal_upload_display(
 			deposit->net_revenue,
 			deposit->account_balance,
 			tuition_payment_list_display(
-				deposit->deposit_tuition_payment_list ),
+				deposit->tuition_payment_list ),
 			program_payment_list_display(
-				deposit->deposit_program_payment_list ),
+				deposit->program_payment_list ),
 			product_payment_list_display(
-				deposit->deposit_product_payment_list ),
+				deposit->product_payment_list ),
 			tuition_refund_list_display(
-				deposit->deposit_tuition_refund_list ),
+				deposit->tuition_refund_list ),
 			product_refund_list_display(
-				deposit->deposit_product_refund_list ) );
+				deposit->product_refund_list ) );
 
 		pclose( output_pipe );
 
 		transaction_list_html_display(
 			deposit_transaction_list(
-				deposit->deposit_tuition_payment_list,
-				deposit->deposit_program_payment_list,
-				deposit->deposit_product_payment_list,
-				deposit->deposit_tuition_refund_list,
-				deposit->deposit_product_refund_list ) );
+				deposit->tuition_payment_list,
+				deposit->program_payment_list,
+				deposit->product_payment_list,
+				deposit->tuition_refund_list,
+				deposit->product_refund_list ) );
 
 	} while ( list_next( deposit_list ) );
 }

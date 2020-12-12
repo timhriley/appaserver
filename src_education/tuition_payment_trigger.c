@@ -187,10 +187,10 @@ void tuition_payment_trigger_insert_update(
 			tuition_payment,
 			tuition_payment->
 				deposit->
-				deposit_tuition_payment_list,
+				tuition_payment_list,
 			tuition_payment->
 				deposit->
-				deposit_registration_list,
+				registration_list,
 			tuition_payment->
 				enrollment->
 				registration->

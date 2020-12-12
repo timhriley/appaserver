@@ -381,6 +381,15 @@ void offering_list_fetch_update(
 	} while ( list_next( course_name_list ) );
 }
 
+OFFERING *offering_course_name_seek(
+			char *course_name,
+			LIST *offering_list )
+{
+	return offering_seek(
+			course_name,
+			offering_list );
+}
+
 OFFERING *offering_seek(
 			char *course_name,
 			LIST *offering_list )
@@ -421,5 +430,24 @@ LIST *offering_list( char *where )
 			    	where ),
 			1 /* fetch_course */,
 			0 /* not fetch_enrollment_list */ );
+}
+
+LIST *offering_name_list( LIST *offering_list )
+{
+	LIST *name_list;
+	OFFERING *offering;
+
+	if ( !list_rewind( offering_list ) ) return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		offering = list_get( offering_list );
+
+		list_set( name_list, offering->course->course_name );
+
+	} while ( list_next( offering_list ) );
+
+	return name_list;
 }
 

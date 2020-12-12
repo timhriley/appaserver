@@ -40,7 +40,6 @@ Joseph Cast - Principles (Child: Henry Thomas,Ian Thomas), Chitty Chitty Bang Ba
 /* Returns list of 1 */
 /* ----------------- */
 LIST *paypal_nonentity_item_list(
-			LIST *not_found_item_list,
 			char *item_data,
 			LIST *allowed_item_list )
 {
@@ -64,10 +63,6 @@ Child: Atticus Weaver,Andy Madrigal Villalobos)
 
 	if ( !list_string_exists( item_data, allowed_item_list ) )
 	{
-		if ( not_found_item_list )
-		{
-			list_set( not_found_item_list, strdup( item_data ) );
-		}
 		return (LIST *)0;
 	}
 
@@ -79,7 +74,7 @@ Child: Atticus Weaver,Andy Madrigal Villalobos)
 }
 
 LIST *paypal_entity_item_list(
-			LIST *not_found_item_list,
+			LIST *not_exists_revenue_item_list,
 			char *item_title_P_piece,
 			LIST *allowed_item_list )
 {
@@ -99,15 +94,6 @@ LIST *paypal_entity_item_list(
 
 	string_rtrim( piece( item_data, '(', item_title_P_piece, 0 ) );
 
-	if ( !list_string_exists( item_data, allowed_item_list ) )
-	{
-		if ( not_found_item_list )
-		{
-			list_set( not_found_item_list, strdup( item_data ) );
-		}
-		return (LIST *)0;
-	}
-
 	piece( entity_piece, '(', item_title_P_piece, 1 );
 
 /* Sample entity_piece:
@@ -115,6 +101,17 @@ Child: Atticus Weaver,Andy Madrigal Villalobos)
 */
 	if ( !paypal_item_is_entity( entity_piece ) )
 	{
+		return (LIST *)0;
+	}
+
+	if ( !list_string_exists( item_data, allowed_item_list ) )
+	{
+		if ( not_exists_revenue_item_list )
+		{
+			list_set(
+				not_exists_revenue_item_list,
+				strdup( item_data ) );
+		}
 		return (LIST *)0;
 	}
 
@@ -134,14 +131,15 @@ Child: Atticus Weaver,Andy Madrigal Villalobos)
 
 		paypal_item->item_data = strdup( item_data );
 
-		paypal_item->entity = paypal_entity( full_name );
+		paypal_item->benefit_entity =
+			paypal_benefit_entity( full_name );
 
 		list_set( item_list, paypal_item );
 	}
 	return item_list;
 }
 
-ENTITY *paypal_entity( char *full_name )
+ENTITY *paypal_benefit_entity( char *full_name )
 {
 	return entity_full_name_entity( full_name );
 }
@@ -164,7 +162,7 @@ PAYPAL_ITEM *paypal_item_calloc( void )
 }
 
 LIST *paypal_item_list(
-			LIST *not_found_item_list,
+			LIST *not_exists_revenue_item_list,
 			char *entity_delimited_date_removed,
 			char *transaction_type_E,
 			LIST *allowed_item_list )
@@ -185,14 +183,13 @@ LIST *paypal_item_list(
 		list_append_list(
 			item_list,
 			paypal_entity_item_list(
-				not_found_item_list,
+				not_exists_revenue_item_list,
 				item_title_P_piece,
 				allowed_item_list ) );
 
 		list_append_list(
 			item_list,
 			paypal_nonentity_item_list(
-				not_found_item_list,
 				item_title_P_piece,
 				allowed_item_list ) );
 	}
@@ -202,7 +199,6 @@ LIST *paypal_item_list(
 		list_append_list(
 			item_list,
 			paypal_nonentity_item_list(
-				(LIST *)0 /* not_found_item_list */,
 				transaction_type_E,
 				allowed_item_list ) );
 	}
@@ -213,7 +209,7 @@ double paypal_item_value(
 			double expected_revenue,
 			double deposit_amount,
 			double expected_revenue_total,
-			double nonexpected_list_length )
+			int nonexpected_list_length )
 {
 	return 0.0;
 }
@@ -221,16 +217,28 @@ double paypal_item_value(
 double paypal_item_fee(
 			double deposit_amount,
 			double transaction_fee,
-			double paypal_item_value )
+			int nonexpected_revenue_list_length )
 {
-	return 0.0;
+	double item_fee;
+
+	if ( nonexpected_revenue_list_length )
+	{
+		item_fee = (deposit_amount - transaction_fee) /
+				(double) nonexpected_revenue_list_length;
+	}
+	else
+	{
+		item_fee = 0.0;
+	}
+
+	return item_fee;
 }
 
-double paypal_gain_donation(
+double paypal_item_gain(
 			double expected_revenue,
 			double deposit_amount,
 			double expected_revenue_total,
-			double nonexpected_list_length )
+			int nonexpected_revenue_list_length )
 {
 	return 0.0;
 }
@@ -249,7 +257,6 @@ boolean paypal_item_is_entity(
 		return 0;
 	}
 }
-
 
 LIST *paypal_item_steady_state_list(
 			LIST *paypal_item_list,
@@ -283,22 +290,73 @@ PAYPAL_ITEM *paypal_item_steady_state(
 			double expected_revenue,
 			double deposit_amount,
 			double transaction_fee,
-			expected_revenue_total,
-			nonexpected_list_length )
+			double expected_revenue_total,
+			int nonexpected_revenue_list_length )
 {
 	paypal_item->item_value =
 		paypal_item_value(
 			expected_revenue,
 			deposit_amount,
 			expected_revenue_total,
-			nonexpected_list_length );
+			nonexpected_revenue_list_length );
 
-	paypal_item->fee =
+	paypal_item->item_fee =
 		paypal_item_fee(
 			deposit_amount,
 			transaction_fee,
-			paypal_item->item_value );
+			nonexpected_revenue_list_length );
+
+	paypal_item->item_gain =
+		paypal_item_gain(
+			expected_revenue,
+			deposit_amount,
+			expected_revenue_total,
+			nonexpected_revenue_list_length );
 
 	return paypal_item;
+}
+
+double paypal_item_expected_revenue_total(
+			LIST *paypal_item_list )
+{
+	double expected_revenue_total;
+	PAYPAL_ITEM *paypal_item;
+
+	if ( !list_rewind( paypal_item_list ) ) return 0.0;
+
+	expected_revenue_total = 0.0;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( paypal_item->expected_revenue )
+		{
+			expected_revenue_total += 
+				paypal_item->expected_revenue;
+		}
+
+	} while ( list_next( paypal_item_list ) );
+
+	return expected_revenue_total;
+}
+
+int paypal_item_nonexpected_revenue_list_length(
+			LIST *paypal_item_list )
+{
+	int revenue_list_length;
+	PAYPAL_ITEM *paypal_item;
+
+	if ( !list_rewind( paypal_item_list ) ) return 0;
+
+	revenue_list_length = 0;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( paypal_item->expected_revenue ) revenue_list_length++;
+
+	} while ( list_next( paypal_item_list ) );
+
+	return revenue_list_length;
 }
 

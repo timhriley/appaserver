@@ -86,11 +86,9 @@ double product_payment_net_payment_amount(
 			double deposit_amount,
 			double transaction_fee );
 
-/* Returns list of one, for now */
-/* ---------------------------- */
 LIST *product_payment_list(
-			char *item_title_P,
-			LIST *education_product_list,
+			LIST *paypal_item_list,
+			LIST *product_list,
 			DEPOSIT *deposit );
 
 void product_payment_trigger(

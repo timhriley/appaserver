@@ -17,6 +17,7 @@
 #include "entity.h"
 #include "transaction.h"
 #include "paypal_upload.h"
+#include "paypal_item.h"
 #include "semester.h"
 #include "registration.h"
 #include "registration_fns.h"
@@ -988,40 +989,6 @@ LIST *deposit_product_payment_list(
 			deposit );
 }
 
-LIST *deposit_tuition_payment_list(
-			LIST *not_exists_course_name_list,
-			char *season_name,
-			int year,
-			char *item_title_P,
-			LIST *semester_offering_list,
-			DEPOSIT *deposit )
-{
-	return tuition_payment_list(
-			not_exists_course_name_list,
-			season_name,
-			year,
-			item_title_P,
-			semester_offering_list,
-			deposit );
-}
-
-LIST *deposit_tuition_refund_list(
-			LIST *not_exists_course_name_list,
-			char *season_name,
-			int year,
-			char *item_title_P,
-			LIST *semester_offering_list,
-			DEPOSIT *deposit )
-{
-	return tuition_refund_list(
-			not_exists_course_name_list,
-			season_name,
-			year,
-			item_title_P,
-			semester_offering_list,
-			deposit );
-}
-
 LIST *deposit_registration_list(
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_tuition_refund_list )
@@ -1254,3 +1221,27 @@ LIST *deposit_fetch_product_payment_list(
 			fetch_product,
 			fetch_deposit );
 }
+
+void deposit_set_paypal_item_expected_revenue(
+			LIST *paypal_item_list,
+			LIST *semester_offering_list )
+{
+	PAYPAL_ITEM *paypal_item;
+	OFFERING *offering;
+
+	if ( !list_rewind( paypal_item_list ) ) return;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( ( offering =
+			offering_course_name_seek(
+				paypal_item->item_data,
+				semester_offering_list ) ) )
+		{
+			paypal_item->expected_revenue = offering->course_price;
+		}
+
+	} while( list_next( paypal_item_list ) );
+}
+

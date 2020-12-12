@@ -78,6 +78,10 @@ char *program_primary_where(
 LIST *program_alias_list(
 			char *program_name );
 
+PROGRAM *program_seek(
+			char *program_name,
+			LIST *program_list );
+
 PROGRAM *program_list_seek(
 			char *program_name,
 			LIST *program_list );
@@ -92,6 +96,12 @@ PROGRAM_ALIAS *program_alias_seek(
 
 PROGRAM *program_name_seek(
 			char *program_name,
+			LIST *program_list );
+
+LIST *program_name_list(
+			LIST *program_list );
+
+LIST *program_alias_name_list(
 			LIST *program_list );
 
 #endif

@@ -134,3 +134,4 @@ LIST *semester_offering_list(
 				season_name,
 				year ) );
 }
+

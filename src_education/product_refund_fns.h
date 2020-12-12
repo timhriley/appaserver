@@ -87,9 +87,8 @@ double product_refund_net_payment_amount(
 			double transaction_fee );
 
 LIST *product_refund_list(
-			LIST *not_found_item_list,
 			LIST *paypal_item_steady_state_list,
-			LIST *product_name_list,
+			LIST *product_list,
 			/* -------- */
 			/* Set only */
 			/* -------- */

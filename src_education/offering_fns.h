@@ -71,5 +71,8 @@ void offering_list_fetch_update(
 			char *season_name,
 			int year );
 
+LIST *offering_name_list(
+			LIST *offering_list );
+
 #endif
 

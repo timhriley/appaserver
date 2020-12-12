@@ -600,71 +600,52 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 }
 
 PROGRAM_PAYMENT *program_payment(
-			char *item_title_P,
-			char *transaction_type_E,
-			int program_number,
-			LIST *education_program_list,
-			/* -------- */
-			/* Set only */
-			/* -------- */
+			PROGRAM *program,
 			DEPOSIT *deposit )
 {
 	PROGRAM_PAYMENT *program_payment;
-	char *item_title_name;
 
-	if ( ! ( item_title_name =
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			item_title_program_payment_name(
-				item_title_P,
-				transaction_type_E,
-				program_number,
-				education_program_list ) ) )
-	{
-		return (PROGRAM_PAYMENT *)0;
-	}
-
-	/* New payment */
-	/* ----------- */
 	program_payment = program_payment_calloc();
-
-	if ( ! ( program_payment->program =
-			program_list_seek(
-				item_title_name
-					/* program_name */,
-				education_program_list ) ) )
-	{
-		return (PROGRAM_PAYMENT *)0;
-	}
-
+	program_payment->program = program;
 	program_payment->deposit = deposit;
 
 	return program_payment;
 }
 
 LIST *program_payment_list(
-			char *item_title_P,
-			char *transaction_type_E,
-			LIST *education_program_list,
+			LIST *paypal_item_list,
+			LIST *program_list,
+			/* -------- */
+			/* Set only */
+			/* -------- */
 			DEPOSIT *deposit )
 {
-	LIST *payment_list = list_new();
+	LIST *payment_list;
 	PROGRAM_PAYMENT *payment;
-	int program_number;
+	PAYPAL_ITEM *paypal_item;
+	PROGRAM *program;
 
-	for (	program_number = 1;
-		( payment =
-			program_payment(
-				item_title_P,
-				transaction_type_E,
-				program_number,
-				education_program_list,
-				deposit ) );
-		program_number++ )
-	{
-		list_set( payment_list, payment );
-	}
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	payment_list = list_new();
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( ( program =
+			program_seek(
+				paypal_item->item_data,
+				program_list ) ) )
+		{
+			payment =
+				program_payment(
+					program,
+					deposit );
+
+			list_set( payment_list, payment );
+		}
+	} while ( list_next( paypal_item_list ) );
+
 	return payment_list;
 }
 

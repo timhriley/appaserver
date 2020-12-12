@@ -80,12 +80,7 @@ PRODUCT_PAYMENT *product_payment_steady_state(
 			double deposit_transaction_fee );
 
 PRODUCT_PAYMENT *product_payment(
-			char *item_title_P,
-			int product_number,
-			LIST *education_product_list,
-			/* -------- */
-			/* Set only */
-			/* -------- */
+			PRODUCT *product,
 			DEPOSIT *deposit );
 
 /* ---------------------------------------- */

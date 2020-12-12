@@ -187,10 +187,10 @@ void tuition_refund_trigger_insert_update(
 			tuition_refund,
 			tuition_refund->
 				deposit->
-				deposit_tuition_refund_list,
+				tuition_refund_list,
 			tuition_refund->
 				deposit->
-				deposit_registration_list,
+				registration_list,
 			tuition_refund->
 				enrollment->
 				registration->

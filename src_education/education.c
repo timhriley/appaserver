@@ -23,6 +23,7 @@
 #include "offering.h"
 #include "offering_fns.h"
 #include "semester.h"
+#include "tuition_refund.h"
 #include "deposit.h"
 #include "spreadsheet.h"
 #include "paypal.h"
@@ -73,7 +74,6 @@ EDUCATION *education_fetch(
 }
 
 LIST *education_deposit_list(
-			LIST *not_found_item_list,
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
@@ -86,6 +86,7 @@ LIST *education_deposit_list(
 	LIST *deposit_list = list_new();
 	char input_string[ 65536 ];
 	FILE *spreadsheet_file;
+	LIST *not_exists_course_name_list = list_new();
 
 	/* ------------------------------------------ */
 	/* Don't want to loose paypal_dataset pointer */
@@ -143,7 +144,7 @@ LIST *education_deposit_list(
 		list_set(
 			deposit_list,
 			education_deposit(
-				not_found_item_list,
+				not_exists_course_name_list,
 				season_name,
 				year,
 				semester_offering_list,
@@ -159,7 +160,7 @@ LIST *education_deposit_list(
 }
 
 DEPOSIT *education_deposit(
-			LIST *not_found_item_list,
+			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			LIST *semester_offering_list,
@@ -252,13 +253,14 @@ DEPOSIT *education_deposit(
 	/* ------------ */
 	deposit->paypal_item_list =
 		paypal_item_list(
-			not_found_item_list,
+			not_exists_course_name_list
+				/* not_exists_revenue_item_list */,
 			paypal_date_remove(
 				paypal_entity_delimit(
 					paypal_dataset->item_title_P ) ),
 			paypal_dataset->transaction_type_E,
 			education_paypal_allowed_list(
-				semester_offering_name_list(
+				offering_name_list(
 					semester_offering_list ),
 				program_name_list(
 					education_program_list ),
@@ -267,67 +269,54 @@ DEPOSIT *education_deposit(
 				product_name_list(
 					education_product_list ) ) );
 
-			allowed_item_list );
+	deposit_set_paypal_item_expected_revenue(
+		deposit->paypal_item_list,
+		semester_offering_list );
 
-	deposit->paypal_expected_revenue =
-		deposit_paypal_expected_revenue(
-			deposit->paypal_item_list,
-			semester_offering_list );
+	deposit->paypal_item_expected_revenue_total =
+		paypal_item_expected_revenue_total(
+			deposit->paypal_item_list );
 
+	deposit->paypal_item_nonexpected_revenue_list_length =
+		paypal_item_nonexpected_revenue_list_length(
+			deposit->paypal_item_list );
 	
 	deposit->paypal_item_steady_state_list =
 		paypal_item_steady_state_list(
-			deposit->paypal_expected_revenue,
+			deposit->paypal_item_list,
 			deposit->deposit_amount,
-			deposit->transaction_fee );
+			deposit->transaction_fee,
+			deposit->paypal_item_expected_revenue_total,
+			deposit->paypal_item_nonexpected_revenue_list_length );
 
 	/* Columns E and P */
 	/* --------------- */
 	if ( deposit->deposit_amount > 0.0 )
 	{
 		deposit->tuition_payment_list =
-			deposit_tuition_payment_list(
-				not_found_item_list,
+			tuition_payment_list(
 				season_name,
 				year,
 				deposit->paypal_item_steady_state_list,
+				semester_offering_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
 				deposit );
 	
 		deposit->program_payment_list =
-			deposit_program_payment_list(
-				not_found_item_list,
+			program_payment_list(
 				deposit->paypal_item_steady_state_list,
-				program_name_list(
-					education_program_list ),
-				program_alias_name_list(
-					education_program_list ),
+				education_program_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
 				deposit );
 
 		deposit->product_payment_list =
-			deposit_product_payment_list(
-				not_found_item_list,
+			product_payment_list(
 				deposit->paypal_item_steady_state_list,
-				product_name_list(
-					education_product_list ),
-				/* -------- */
-				/* Set only */
-				/* -------- */
-				deposit );
-
-		deposit->program_payment_list =
-			deposit_program_payment_list(
-				not_found_item_list,
-				deposit->paypal_item_steady_state_list,
-				program_name_list(
-					education_program_list ),
-				program_alias_name_list(
-					education_program_list ),
+				education_product_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
@@ -336,13 +325,11 @@ DEPOSIT *education_deposit(
 	else
 	{
 		deposit->tuition_refund_list =
-			deposit_tuition_refund_list(
-				not_found_item_list,
+			tuition_refund_list(
 				season_name,
 				year,
 				deposit->paypal_item_steady_state_list,
-				offering_name_list(
-					semester_offering_list ),
+				semester_offering_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
@@ -350,10 +337,8 @@ DEPOSIT *education_deposit(
 
 		deposit->product_refund_list =
 			product_refund_list(
-				not_found_item_list,
 				deposit->paypal_item_steady_state_list,
-				product_name_list(
-					education_product_list ),
+				education_product_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */

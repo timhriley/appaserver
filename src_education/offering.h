@@ -72,6 +72,10 @@ OFFERING *offering_steady_state(
 			OFFERING *offering,
 			LIST *offering_enrollment_list );
 
+OFFERING *offering_course_name_seek(
+			char *course_name,
+			LIST *offering_list );
+
 /* ------------------ */
 /* See offering_fns.h */
 /* ------------------ */

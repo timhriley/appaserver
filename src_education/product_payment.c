@@ -602,66 +602,49 @@ PRODUCT_PAYMENT *product_payment_steady_state(
 }
 
 PRODUCT_PAYMENT *product_payment(
-			char *item_title_P,
-			int product_number,
-			LIST *education_product_list,
-			/* -------- */
-			/* Set only */
-			/* -------- */
+			PRODUCT *product,
 			DEPOSIT *deposit )
 {
 	PRODUCT_PAYMENT *product_payment;
-	char *item_title_name;
 
-	if ( ! ( item_title_name =
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			item_title_product_payment_name(
-				item_title_P,
-				product_number,
-				education_product_list ) ) )
-	{
-		return (PRODUCT_PAYMENT *)0;
-	}
-
-	/* New payment */
-	/* ----------- */
 	product_payment = product_payment_calloc();
-
-	if ( ! ( product_payment->product =
-			product_list_seek(
-				item_title_name,
-				education_product_list ) ) )
-	{
-		return (PRODUCT_PAYMENT *)0;
-	}
-
+	product_payment->product = product;
 	product_payment->deposit = deposit;
 
 	return product_payment;
 }
 
 LIST *product_payment_list(
-			char *item_title_P,
-			LIST *education_product_list,
+			LIST *paypal_item_list,
+			LIST *product_list,
 			DEPOSIT *deposit )
 {
-	LIST *payment_list = list_new();
+	LIST *payment_list;
 	PRODUCT_PAYMENT *payment;
-	int product_number;
+	PAYPAL_ITEM *paypal_item;
+	PRODUCT *product;
 
-	for (	product_number = 1;
-		( payment =
-			product_payment(
-				item_title_P,
-				product_number,
-				education_product_list,
-				deposit ) );
-		product_number++ )
-	{
-		list_set( payment_list, payment );
-	}
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	payment_list = list_new();
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( ( product =
+			product_seek(
+				paypal_item->item_data,
+				product_list ) ) )
+		{
+			payment =
+				product_payment(
+					product,
+					deposit );
+
+			list_set( payment_list, payment );
+		}
+	} while ( list_next( paypal_item_list ) );
+
 	return payment_list;
 }
 

@@ -89,17 +89,17 @@ int main( int argc, char **argv )
 		&&   strcmp( state, "program_payment" ) != 0 )
 		{
 			if ( list_length(
-				deposit->deposit_tuition_payment_list ) )
+				deposit->tuition_payment_list ) )
 			{
 				tuition_payment_list_trigger(
-					deposit->deposit_tuition_payment_list );
+					deposit->tuition_payment_list );
 			}
 
 			if ( list_length(
-				deposit->deposit_program_payment_list ) )
+				deposit->program_payment_list ) )
 			{
 				program_payment_list_trigger(
-					deposit->deposit_program_payment_list );
+					deposit->program_payment_list );
 			}
 		}
 	}
@@ -161,9 +161,9 @@ DEPOSIT *deposit_trigger_execute(
 	}
 
 	deposit_update(
-			deposit->deposit_tuition_payment_total,
-			deposit->deposit_program_payment_total,
-			deposit->deposit_net_revenue,
+			deposit->tuition_payment_total,
+			deposit->program_payment_total,
+			deposit->net_revenue,
 			deposit->payor_entity->full_name,
 			deposit->payor_entity->street_address,
 			deposit->semester->season_name,

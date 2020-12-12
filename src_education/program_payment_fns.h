@@ -79,18 +79,12 @@ double program_payment_amount(
 double program_payment_fees_expense(
 			double deposit_fees_expense );
 
-/* Note: there's always only one of them. */
-/* -------------------------------------- */
-double program_payment_net_payment_amount(
-			double program_payment_amount,
-			double fees_expense );
-
-/* Returns list of one, for now */
-/* ---------------------------- */
 LIST *program_payment_list(
-			char *item_title_P,
-			char *transaction_type_E,
-			LIST *education_program_list,
+			LIST *paypal_item_list,
+			LIST *program_list,
+			/* -------- */
+			/* Set only */
+			/* -------- */
 			DEPOSIT *deposit );
 
 void program_payment_trigger(

@@ -18,6 +18,7 @@
 #include "list.h"
 #include "entity_self.h"
 #include "paypal_upload.h"
+#include "paypal_item.h"
 #include "tuition_refund_fns.h"
 #include "registration.h"
 #include "registration_fns.h"
@@ -32,7 +33,6 @@
 #include "student.h"
 #include "program.h"
 #include "deposit.h"
-#include "item_title.h"
 #include "tuition_refund.h"
 
 TUITION_REFUND *tuition_refund_calloc( void )
@@ -1193,133 +1193,76 @@ void tuition_refund_list_trigger(
 }
 
 LIST *tuition_refund_list(
-			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
-			char *item_title_P,
+			LIST *paypal_item_list,
 			LIST *semester_offering_list,
+			/* -------- */
+			/* Set only */
+			/* -------- */
 			DEPOSIT *deposit )
 {
 	LIST *refund_list = list_new();
 	TUITION_REFUND *refund;
-	int student_number;
+	PAYPAL_ITEM *paypal_item;
+	OFFERING *offering;
 
-	for (	student_number = 1;
-		( refund =
-			tuition_refund(
-				not_exists_course_name_list,
-				season_name,
-				year,
-				item_title_P,
-				student_number,
-				semester_offering_list,
-				deposit ) );
-		student_number++ )
-	{
-		list_set( refund_list, refund );
-	}
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( ( offering =
+				offering_seek(
+				paypal_item->item_data
+					/* course_name */,
+				semester_offering_list ) ) )
+		{
+			refund =
+				tuition_refund(
+					season_name,
+					year,
+					paypal_item->benefit_entity,
+					offering,
+					deposit );
+
+			list_set( refund_list, refund );
+		}
+	} while ( list_next( paypal_item_list ) );
 
 	return refund_list;
 }
 
 TUITION_REFUND *tuition_refund(
-			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
-			char *item_title_P,
-			int student_number,
-			LIST *semester_offering_list,
+			ENTITY *benefit_entity,
+			OFFERING *offering,
 			DEPOSIT *deposit )
 {
 	TUITION_REFUND *refund;
-	ITEM_TITLE_TUITION_PAYMENT *item_title_tuition_payment;
 
-	if ( ! ( item_title_tuition_payment =
-			item_title_tuition_payment_new(
-				item_title_P,
-				student_number ) ) )
-	{
-		return (TUITION_REFUND *)0;
-	}
-
-	item_title_tuition_payment->
-		item_title_tuition_payment_entity =
-			item_title_tuition_payment_entity(
-				item_title_tuition_payment->
-					item_title_enrollment );
-
-	item_title_tuition_payment->
-		item_title_tuition_payment_course_name =
-			item_title_tuition_payment_course_name(
-				item_title_tuition_payment->
-					item_title_enrollment );
-
-	/* New refund */
-	/* ---------- */
+	/* New TUITION_REFUND */
+	/* ------------------ */
 	refund = tuition_refund_calloc();
 
-	/* Fetch enrollment */
-	/* ---------------- */
 	refund->enrollment =
-		enrollment_fetch(
-			item_title_tuition_payment->
-				item_title_tuition_payment_entity->
-				full_name,
-			item_title_tuition_payment->
-				item_title_tuition_payment_entity->
-				street_address,
-			item_title_tuition_payment->
-				item_title_tuition_payment_course_name,
+		enrollment_new(
+			benefit_entity->full_name,
+			benefit_entity->street_address,
+			offering->course->course_name,
 			season_name,
-			year,
-			0 /* not fetch_tuition_payment_list */,
-			0 /* not fetch_tuition_refund_list */,
-			1 /* fetch_offering */,
-			1 /* fetch_registration */ );
+			year );
 
-	if ( !refund->enrollment )
-	{
-		/* Enrolled and refunded in the same spreadsheet. */
-		/* ---------------------------------------------- */
-		refund->enrollment =
-			enrollment_new(
-				item_title_tuition_payment->
-					item_title_tuition_payment_entity->
-					full_name,
-				item_title_tuition_payment->
-					item_title_tuition_payment_entity->
-					street_address,
-				item_title_tuition_payment->
-					item_title_tuition_payment_course_name,
-				season_name,
-				year );
-	}
-
-	/* Seek the offering, course, and program */
-	/* -------------------------------------- */
-	refund->enrollment->offering =
-		offering_seek(
-			item_title_tuition_payment->
-				item_title_tuition_payment_course_name,
-			semester_offering_list );
-
-	if ( !refund->enrollment->offering )
-	{
-		list_unique_set(
-			not_exists_course_name_list,
-			item_title_tuition_payment->
-				item_title_tuition_payment_course_name );
-	}
+	refund->enrollment->offering = offering;
 
 	/* Build registration */
 	/* ------------------ */
 	refund->enrollment->registration =
 		registration_new(
-			item_title_tuition_payment->
-				item_title_tuition_payment_entity->
+			benefit_entity->
 				full_name,
-			item_title_tuition_payment->
-				item_title_tuition_payment_entity->
+			benefit_entity->
 				street_address,
 			season_name,
 			year );

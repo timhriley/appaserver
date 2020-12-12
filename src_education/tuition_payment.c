@@ -17,6 +17,7 @@
 #include "list.h"
 #include "entity_self.h"
 #include "paypal_upload.h"
+#include "paypal_item.h"
 #include "tuition_payment_fns.h"
 #include "registration.h"
 #include "registration_fns.h"
@@ -31,7 +32,6 @@
 #include "student.h"
 #include "program.h"
 #include "deposit.h"
-#include "item_title.h"
 #include "tuition_payment.h"
 
 TUITION_PAYMENT *tuition_payment_calloc( void )
@@ -1241,111 +1241,79 @@ void tuition_payment_list_trigger(
 }
 
 LIST *tuition_payment_list(
-			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
-			char *item_title_P,
+			LIST *paypal_item_list,
 			LIST *semester_offering_list,
 			DEPOSIT *deposit )
 {
-	LIST *payment_list = list_new();
+	LIST *payment_list;
 	TUITION_PAYMENT *payment;
-	int student_number;
+	OFFERING *offering;
+	PAYPAL_ITEM *paypal_item;
 
-	for (	student_number = 1;
-		( payment =
-			tuition_payment(
-				not_exists_course_name_list,
-				season_name,
-				year,
-				item_title_P,
-				student_number,
-				semester_offering_list,
-				deposit ) );
-		student_number++ )
-	{
-		list_set( payment_list, payment );
-	}
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	payment_list = list_new();
+
+	do {
+
+		paypal_item = list_get( paypal_item_list );
+
+		if ( ( offering = 
+			offering_seek(
+				paypal_item->item_data,
+				semester_offering_list ) ) )
+		{
+			payment =
+				tuition_payment(
+					season_name,
+					year,
+					paypal_item->benefit_entity,
+					offering,
+					deposit );
+
+			list_set( payment_list, payment );
+		}
+	} while ( list_next( paypal_item_list ) );
 
 	return payment_list;
 }
 
 TUITION_PAYMENT *tuition_payment(
-			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
-			char *item_title_P,
-			int student_number,
-			LIST *semester_offering_list,
+			ENTITY *benefit_entity,
+			OFFERING *offering,
 			DEPOSIT *deposit )
 {
 	TUITION_PAYMENT *payment;
-	ITEM_TITLE_TUITION_PAYMENT *item_title_tuition_payment;
 
-	if ( ! ( item_title_tuition_payment =
-			item_title_tuition_payment_new(
-				item_title_P,
-				student_number ) ) )
-	{
-		return (TUITION_PAYMENT *)0;
-	}
-
-	item_title_tuition_payment->
-		item_title_tuition_payment_entity =
-			item_title_tuition_payment_entity(
-				item_title_tuition_payment->
-					item_title_enrollment );
-
-	item_title_tuition_payment->
-		item_title_tuition_payment_course_name =
-			item_title_tuition_payment_course_name(
-				item_title_tuition_payment->
-					item_title_enrollment );
-
-	/* New payment */
-	/* ----------- */
+	/* New TUTION_PAYMENT */
+	/* ------------------ */
 	payment = tuition_payment_calloc();
 
 	/* Build enrollment */
 	/* ---------------- */
 	payment->enrollment =
 		enrollment_new(
-			item_title_tuition_payment->
-				item_title_tuition_payment_entity->
+			benefit_entity->
 				full_name,
-			item_title_tuition_payment->
-				item_title_tuition_payment_entity->
+			benefit_entity->
 				street_address,
-			item_title_tuition_payment->
-				item_title_tuition_payment_course_name,
+			offering->course->course_name,
 			season_name,
 			year );
 
-	/* Seek the offering, course, and program */
-	/* -------------------------------------- */
-	payment->enrollment->offering =
-		offering_seek(
-			item_title_tuition_payment->
-				item_title_tuition_payment_course_name,
-			semester_offering_list );
-
-	if ( !payment->enrollment->offering )
-	{
-		list_unique_set(
-			not_exists_course_name_list,
-			item_title_tuition_payment->
-				item_title_tuition_payment_course_name );
-	}
+	payment->enrollment->offering = offering;
 
 	/* Build registration */
 	/* ------------------ */
 	payment->enrollment->registration =
 		registration_new(
-			item_title_tuition_payment->
-				item_title_tuition_payment_entity->
+			benefit_entity->
 				full_name,
-			item_title_tuition_payment->
-				item_title_tuition_payment_entity->
+			benefit_entity->
 				street_address,
 			season_name,
 			year );

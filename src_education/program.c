@@ -172,6 +172,16 @@ PROGRAM_ALIAS *program_alias_new(
 	return program_alias;
 }
 
+PROGRAM *program_seek(
+			char *program_name,
+			LIST *program_list )
+{
+	return
+		program_name_seek(
+			program_name,
+			program_list );
+}
+
 PROGRAM *program_list_seek(
 			char *program_name,
 			LIST *program_list )
@@ -326,3 +336,55 @@ PROGRAM_ALIAS *program_alias_seek(
 
 	return (PROGRAM_ALIAS *)0;
 }
+
+LIST *program_name_list( LIST *program_list )
+{
+	PROGRAM *program;
+	LIST *name_list;
+
+	if ( !list_rewind( program_list ) ) return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		program = list_get( program_list );
+
+		list_set( name_list, program->program_name );
+
+	} while ( list_next( program_list ) );
+
+	return name_list;
+}
+
+LIST *program_alias_name_list(
+			LIST *program_list )
+{
+	PROGRAM *program;
+	PROGRAM_ALIAS *program_alias;
+	LIST *name_list;
+
+	if ( !list_rewind( program_list ) ) return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		program = list_get( program_list );
+
+		if ( !list_rewind( program->program_alias_list ) )
+			continue;
+
+		do {
+			program_alias =
+				list_get(
+					program->program_alias_list );
+
+			list_set(	name_list,
+					program_alias->alias_name );
+
+		} while ( list_next( program->program_alias_list ) );
+
+	} while ( list_next( program_list ) );
+
+	return name_list;
+}
+

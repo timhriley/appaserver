@@ -80,9 +80,8 @@ PRODUCT_REFUND *product_refund_steady_state(
 			double deposit_transaction_fee );
 
 PRODUCT_REFUND *product_refund(
-			char *item_title_P,
-			int product_number,
-			LIST *education_product_list,
+			PAYPAL_ITEM *paypal_item,
+			LIST *product_list,
 			/* -------- */
 			/* Set only */
 			/* -------- */

@@ -63,6 +63,10 @@ typedef struct
 	/* ------- */
 	double net_revenue;
 	LIST *paypal_item_list;
+	LIST *paypal_item_steady_state_list;
+	double paypal_item_expected_revenue;
+	double paypal_item_expected_revenue_total;
+	int paypal_item_nonexpected_revenue_list_length;
 	LIST *tuition_payment_list;
 	LIST *program_payment_list;
 	LIST *product_payment_list;
@@ -257,26 +261,6 @@ void deposit_list_program_payment_trigger(
 LIST *deposit_course_name_list(
 			LIST *deposit_list );
 
-LIST *deposit_tuition_payment_list(
-			LIST *not_exists_course_name_list /* out */,
-			char *season_name,
-			int year,
-			char *item_title_P,
-			LIST *semester_offering_list,
-			/* -------- */
-			/* Set only */
-			/* -------- */
-			DEPOSIT *deposit );
-
-LIST *deposit_program_payment_list(
-			char *item_title_P,
-			char *transaction_type_E,
-			LIST *education_program_list,
-			/* -------- */
-			/* Set only */
-			/* -------- */
-			DEPOSIT *deposit );
-
 void deposit_trigger(
 			char *payor_full_name,
 			char *payor_street_address,
@@ -318,7 +302,6 @@ LIST *deposit_list_refund_enrollment_list(
 			LIST *deposit_list );
 
 LIST *deposit_tuition_refund_list(
-			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
 			char *item_title_P,
@@ -359,8 +342,12 @@ LIST *deposit_steady_state_paypal_item_list(
 			LIST *paypal_item_list,
 			double deposit_amount,
 			double transaction_fee,
-			double expected_revenue_total,
-			int nonexpected_list_length );
+			double paypal_expected_revenue_total,
+			int nonexpected_revenue_list_length );
+
+void deposit_set_paypal_item_expected_revenue(
+			LIST *paypal_item_list,
+			LIST *semester_offering_list );
 
 #endif
 

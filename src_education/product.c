@@ -153,6 +153,15 @@ char *product_sys_string( char *where )
 	return strdup( sys_string );
 }
 
+PRODUCT *product_seek(
+			char *product_name,
+			LIST *product_list )
+{
+	return product_list_seek(
+			product_name,
+			product_list );
+}
+
 PRODUCT *product_list_seek(
 			char *product_name,
 			LIST *product_list )
@@ -198,4 +207,24 @@ char *product_fetch_program_name(
 	else
 		return product->program_name;
 }
+
+LIST *product_name_list( LIST *product_list )
+{
+	LIST *name_list;
+	PRODUCT *product;
+
+	if ( !list_rewind( product_list ) ) return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		product = list_get( product_list );
+
+		list_set( name_list, product->product_name );
+
+	} while ( list_next( product_list ) );
+
+	return name_list;
+}
+
 
