@@ -157,6 +157,9 @@ ENTITY *entity_full_name_seek(
 			LIST *entity_list );
 
 ENTITY *entity_full_name_entity(
+			/* ------------------- */
+			/* Expect stack memory */
+			/* ------------------- */
 			char *full_name );
 
 #endif

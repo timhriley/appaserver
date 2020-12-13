@@ -1212,6 +1212,8 @@ LIST *tuition_refund_list(
 	do {
 		paypal_item = list_get( paypal_item_list );
 
+		if ( !paypal_item->benefit_entity ) continue;
+
 		if ( ( offering =
 				offering_seek(
 				paypal_item->item_data

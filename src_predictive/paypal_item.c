@@ -16,11 +16,8 @@
 #include "paypal.h"
 #include "paypal_item.h"
 
-/* ------------------- */
-/* Sample item_title_P */
-/* ------------------- */
-
-/*
+/* ----------- */
+/* Looks like:
 PLAY THEORY in Performance -- Mary Poppins Jr. EXTENDED CAST (Child: Camille Pojda), PLAY THEORY in Performance -- Mary Poppins Jr. EXTENDED CAST (Child: Allison Pojda)
 
 Play Theory in  Improv for High Schoolers (Spring 2020) (Child: Atticus Weaver,Andy Madrigal Villalobos)
@@ -31,9 +28,12 @@ PLAY THEORY in Performance -- Mary Poppins Jr. EXTENDED CAST (Child: Camille Poj
 
 Play Theory in  Improv for High Schoolers (Spring 2020) (Child: Atticus Weaver,Andy Madrigal Villalobos)
 
-Mary Poppins Junior Tickets: Saturday, March 28, 7:00pm, Mary Poppins Junior Tickets: Monday, March 30, 7:00pm
-
 Joseph Cast - Principles (Child: Henry Thomas,Ian Thomas), Chitty Chitty Bang Bang October 18th: 7pm, Chitty Chitty Bang Bang October 19th: 7pm, Chitty Chitty Bang Bang October 21st: 7pm
+
+Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James (EJ) Crans)
+
+Can't handle this:
+Mary Poppins Junior Tickets: Saturday, March 28, 7:00pm, Mary Poppins Junior Tickets: Monday, March 30, 7:00pm
 
 */
 
@@ -49,15 +49,10 @@ LIST *paypal_nonentity_item_list(
 	PAYPAL_ITEM *paypal_item;
 	LIST *item_list;
 
-	if ( string_character_exists( item_data, '(' ) )
-	{
-		return (LIST *)0;
-	}
-
-/* Sample entity_piece:
-Child: Atticus Weaver,Andy Madrigal Villalobos)
+/* Sample entity item_data:
+(Child: Atticus Weaver,Andy Madrigal Villalobos)
 */
-	if ( !paypal_item_is_entity( item_data ) )
+	if ( paypal_item_is_entity( item_data ) )
 	{
 		return (LIST *)0;
 	}
@@ -91,7 +86,10 @@ LIST *paypal_entity_item_list(
 	char full_name[ 128 ];
 	int p;
 
-	if ( !string_character_exists( item_title_P_piece, '(' ) )
+/* Sample item_title_P_piece:
+The Class (Child: Atticus Weaver^Andy Madrigal Villalobos)
+*/
+	if ( !paypal_item_is_entity( item_title_P_piece ) )
 	{
 		return (LIST *)0;
 	}
@@ -100,15 +98,10 @@ LIST *paypal_entity_item_list(
 
 	string_rtrim( piece( item_data, '(', item_title_P_piece, 0 ) );
 
-	piece( entity_piece, '(', item_title_P_piece, 1 );
-
-/* Sample entity_piece:
-Child: Atticus Weaver,Andy Madrigal Villalobos)
-*/
-	if ( !paypal_item_is_entity( entity_piece ) )
-	{
-		return (LIST *)0;
-	}
+	string_strcpy(
+		entity_piece,
+		item_title_P_piece + strlen( item_data ) + 1,
+		0 );
 
 	if ( !list_string_exists( item_data, allowed_item_list ) )
 	{
@@ -121,9 +114,12 @@ Child: Atticus Weaver,Andy Madrigal Villalobos)
 		return (LIST *)0;
 	}
 
-	/* Zap Child:<sp> */
-	/* -------------- */
-	string_strcpy( entity_piece, entity_piece + 7, 0 );
+/* Sample entity_piece:
+(Child: Atticus Weaver^Andy Madrigal Villalobos)
+*/
+	/* Zap (Child:<sp> */
+	/* --------------- */
+	string_strcpy( entity_piece, entity_piece + 8, 0 );
 
 	/* Zap closing paren */
 	/* ----------------- */
@@ -138,7 +134,11 @@ Child: Atticus Weaver,Andy Madrigal Villalobos)
 		paypal_item->item_data = strdup( item_data );
 
 		paypal_item->benefit_entity =
-			paypal_benefit_entity( full_name );
+			paypal_benefit_entity(
+				/* ------------------- */
+				/* Expect stack memory */
+				/* ------------------- */
+				full_name );
 
 		list_set( item_list, paypal_item );
 	}
@@ -147,7 +147,11 @@ Child: Atticus Weaver,Andy Madrigal Villalobos)
 
 ENTITY *paypal_benefit_entity( char *full_name )
 {
-	return entity_full_name_entity( full_name );
+	return entity_full_name_entity(
+			/* ------------------- */
+			/* Expect stack memory */
+			/* ------------------- */
+			full_name );
 }
 
 PAYPAL_ITEM *paypal_item_calloc( void )
@@ -267,10 +271,9 @@ double paypal_item_gain(
 	return item_gain;
 }
 
-boolean paypal_item_is_entity(
-			char *entity_piece )
+boolean paypal_item_is_entity( char *entity_piece )
 {
-	if ( instr(	"Child: " /* substr */,
+	if ( instr(	"(Child: " /* substr */,
 			entity_piece /* string */,
 			1 /* occurrence */ ) >= 0 )
 	{
@@ -394,5 +397,39 @@ int paypal_item_expected_revenue_length(
 	return	list_length( paypal_item_list ) -
 		paypal_item_nonexpected_revenue_length(
 			paypal_item_list );
+}
+
+/* Looks like:
+Play Theory in  Improv for High Schoolers (Spring 2020) (Child: Atticus Weaver,Andy Madrigal Villalobos)
+*/
+
+char *paypal_item_entity_delimit( char *item_title_P )
+{
+	boolean inside_entity = 0;
+	char *ptr = item_title_P;
+
+	if ( !ptr ) return (char *)0;
+
+	while( *ptr )
+	{
+		if ( string_strncmp( ptr, "(Child: " ) == 0 )
+		{
+			inside_entity = 1;
+			ptr += 8;
+			continue;
+		}
+		if ( *ptr == ')' )
+		{
+			inside_entity = 0;
+			ptr++;
+			continue;
+		}
+		if ( *ptr == PAYPAL_ITEM_DELIMITER && inside_entity )
+		{
+			*ptr = PAYPAL_ENTITY_DELIMITER;
+		}
+		ptr++;
+	}
+	return item_title_P;
 }
 

@@ -78,7 +78,7 @@ boolean paypal_item_is_entity(
 
 LIST *paypal_item_list(
 			LIST *not_exists_revenue_item_list,
-			char *entity_delimited_date_removed_item_title_P,
+			char *entity_delimited_item_title_P,
 			char *transaction_type_E,
 			LIST *allowed_item_list );
 
@@ -114,5 +114,10 @@ double paypal_item_gain(
 			double expected_revenue_total,
 			int nonexpected_revenue_length,
 			int expected_revenue_length );
+
+/* Returns item_title_P */
+/* -------------------- */
+char *paypal_item_entity_delimit(
+			char *item_title_P );
 
 #endif

@@ -1,10 +1,10 @@
 :
 
-make load_bank_spreadsheet
+make
 
-#if [ "$?" -eq 0 ]
-#then
-#	cd ../src_education
-#	touch paypal_upload.c
-#	make paypal_upload
-#fi
+if [ "$?" -eq 0 ]
+then
+	cd ../src_education
+	touch paypal_upload.c
+	make paypal_upload
+fi

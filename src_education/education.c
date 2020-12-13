@@ -263,9 +263,8 @@ DEPOSIT *education_deposit(
 		paypal_item_list(
 			not_exists_course_name_list
 				/* not_exists_revenue_item_list */,
-			paypal_date_remove(
-				paypal_entity_delimit(
-					paypal_dataset->item_title_P ) ),
+			paypal_item_entity_delimit(
+				paypal_dataset->item_title_P ),
 			paypal_dataset->transaction_type_E,
 			education_paypal_allowed_list(
 				offering_name_list(
@@ -276,6 +275,11 @@ DEPOSIT *education_deposit(
 					education_program_list ),
 				product_name_list(
 					education_product_list ) ) );
+
+	if ( !list_length( deposit->paypal_item_list ) )
+	{
+		return (DEPOSIT *)0;
+	}
 
 	deposit_set_paypal_item_expected_revenue(
 		deposit->paypal_item_list,

@@ -119,6 +119,9 @@ TUITION_PAYMENT *tuition_payment(
 			char *season_name,
 			int year,
 			ENTITY *benefit_entity,
+			double item_value,
+			double item_fee,
+			double item_gain,
 			OFFERING *offering,
 			DEPOSIT *deposit );
 

@@ -632,6 +632,8 @@ LIST *program_payment_list(
 	do {
 		paypal_item = list_get( paypal_item_list );
 
+		if ( paypal_item->benefit_entity ) continue;
+
 		if ( ( program =
 			program_seek(
 				paypal_item->item_data,

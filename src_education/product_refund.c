@@ -644,6 +644,8 @@ LIST *product_refund_list(
 	do {
 		paypal_item = list_get( paypal_item_list );
 
+		if ( paypal_item->benefit_entity ) continue;
+
 		if ( ( refund =
 			product_refund(
 				paypal_item,

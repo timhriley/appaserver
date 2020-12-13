@@ -618,6 +618,9 @@ LIST *entity_full_street_list(
 
 
 ENTITY *entity_full_name_entity(
+			/* ------------------- */
+			/* Expect stack memory */
+			/* ------------------- */
 			char *full_name )
 {
 	ENTITY *entity;
@@ -634,14 +637,14 @@ ENTITY *entity_full_name_entity(
 	{
 		entity =
 			entity_new(
-				full_name,
+				strdup( full_name ),
 				street_address );
 	}
 	else
 	{
 		entity =
 			entity_new(
-				full_name,
+				strdup( full_name ),
 				ENTITY_STREET_ADDRESS_UNKNOWN );
 	}
 	return entity;

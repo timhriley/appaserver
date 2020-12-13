@@ -1260,6 +1260,8 @@ LIST *tuition_payment_list(
 
 		paypal_item = list_get( paypal_item_list );
 
+		if ( !paypal_item->benefit_entity ) continue;
+
 		if ( ( offering = 
 			offering_seek(
 				paypal_item->item_data,
@@ -1270,6 +1272,9 @@ LIST *tuition_payment_list(
 					season_name,
 					year,
 					paypal_item->benefit_entity,
+					paypal_item->item_value,
+					paypal_item->item_fee,
+					paypal_item->item_gain,
 					offering,
 					deposit );
 
@@ -1284,6 +1289,9 @@ TUITION_PAYMENT *tuition_payment(
 			char *season_name,
 			int year,
 			ENTITY *benefit_entity,
+			double item_value,
+			double item_fee,
+			double item_gain,
 			OFFERING *offering,
 			DEPOSIT *deposit )
 {
@@ -1333,6 +1341,18 @@ TUITION_PAYMENT *tuition_payment(
 			registration->
 			enrollment_list,
 		payment->enrollment );
+
+	payment->tuition_payment_amount = item_value;
+
+	payment->tuition_payment_fees_expense = item_fee;
+
+	payment->tuition_payment_total = item_value;
+
+	payment->tuition_payment_gain_donation = item_gain;
+
+	payment->tuition_payment_receivable_credit_amount = item_value;
+
+	payment->tuition_payment_cash_debit_amount = item_value;
 
 	/* Set deposit */
 	/* ----------- */
