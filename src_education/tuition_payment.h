@@ -135,8 +135,17 @@ LIST *tuition_payment_list(
 			LIST *semester_offering_list,
 			DEPOSIT *deposit );
 
-/* ---------------------------------------- */
-/* Place functions in tuition_payment_fns.h */
-/* ---------------------------------------- */
+void tuition_payment_set_transaction(
+			TUITION_PAYMENT *tuition_payment,
+			char *cash_account_name,
+			char *account_receivable,
+			char *account_fees_expense,
+			char *account_gain,
+			int transaction_seconds_to_add );
+
+/* ---------------------------------------------------- */
+/* Place functions that don't reference TUITION_PAYMENT */
+/* in tuition_payment_fns.h				*/
+/* ---------------------------------------------------- */
 #endif
 

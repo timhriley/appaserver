@@ -126,5 +126,8 @@ char *program_payment_memo(
 void program_payment_list_payor_entity_insert(
 			LIST *deposit_program_payment_list );
 
+void program_payment_list_set_transaction(
+			LIST *program_payment_list );
+
 #endif
 

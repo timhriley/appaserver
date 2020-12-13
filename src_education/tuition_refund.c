@@ -1668,3 +1668,9 @@ char *tuition_refund_list_display( LIST *refund_list )
 	return strdup( display );
 }
 
+void tuition_refund_list_set_transaction(
+			LIST *tuition_refund_list )
+{
+}
+
+

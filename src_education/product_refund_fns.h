@@ -133,5 +133,8 @@ char *product_refund_memo(
 void product_refund_list_payor_entity_insert(
 			LIST *deposit_product_refund_list );
 
+void product_refund_list_set_transaction(
+			LIST *product_refund_list );
+
 #endif
 

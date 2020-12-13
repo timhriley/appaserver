@@ -183,5 +183,8 @@ TRANSACTION *tuition_payment_transaction(
 boolean tuition_payment_is_tuition(
 			char *item_title_block );
 
+void tuition_payment_list_set_transaction(
+			LIST *tuition_payment_list );
+
 #endif
 

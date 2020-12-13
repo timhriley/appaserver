@@ -130,5 +130,8 @@ char *product_payment_memo(
 void product_payment_list_payor_entity_insert(
 			LIST *deposit_product_payment_list );
 
+void product_payment_list_set_transaction(
+			LIST *product_payment_list );
+
 #endif
 

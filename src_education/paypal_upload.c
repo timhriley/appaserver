@@ -135,7 +135,7 @@ int main( int argc, char **argv )
 	}
 
 	deposit_list =
-		deposit_list_steady_state(
+		deposit_list_set_transaction(
 			/* -------------------------------- */
 			/* Returns education_deposit_list() */
 			/* -------------------------------- */
@@ -143,10 +143,7 @@ int main( int argc, char **argv )
 				&maximum_date,
 				spreadsheet_filename,
 				season_name,
-				year ),
-		semester_offering_list(
-			season_name,
-			year ) );
+				year ) );
 
 	if ( !maximum_date )
 	{

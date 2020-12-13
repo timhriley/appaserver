@@ -341,5 +341,13 @@ void deposit_set_paypal_item_expected_revenue(
 			LIST *paypal_item_list,
 			LIST *semester_offering_list );
 
+/* Returns deposit_list */
+/* -------------------- */
+LIST *deposit_list_set_transaction(
+			LIST *deposit_list );
+
+void deposit_set_transaction(
+			DEPOSIT *deposit );
+
 #endif
 

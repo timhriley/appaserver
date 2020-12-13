@@ -837,3 +837,8 @@ void product_payment_list_payor_entity_insert(
 	if ( system( sys_string ) ){};
 }
 
+void product_payment_list_set_transaction(
+			LIST *product_payment_list )
+{
+}
+

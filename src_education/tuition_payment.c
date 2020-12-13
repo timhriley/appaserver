@@ -1694,3 +1694,85 @@ boolean tuition_payment_is_tuition(
 	}
 }
 
+void tuition_payment_list_set_transaction(
+			LIST *tuition_payment_list )
+{
+	TUITION_PAYMENT *tuition_payment;
+	char *cash_account_name;
+	char *receivable;
+	char *fees_expense;
+	char *gain;
+
+	/* -------------------------------------------- */
+	/* Note: ENROLLMENT.transaction_date_time gets 	*/
+	/* REGISTRATION.registration_date_time.		*/
+	/* So, start with 1.				*/
+	/* Note: DEPOSIT.deposit_date becomes		*/
+	/* REGISTRATION.registration_date_time.		*/
+	/* -------------------------------------------- */
+	int transaction_seconds_to_add = 1;
+
+	if ( !list_rewind( tuition_payment_list ) ) return;
+
+	cash_account_name = entity_self_paypal_cash_account_name();
+	receivable = account_receivable( (char *)0 );
+	fees_expense = account_fees_expense( (char *)0 );
+	gain = account_gain( (char *)0 );
+
+	do {
+		tuition_payment = list_get( tuition_payment_list );
+
+		tuition_payment_set_transaction(
+			tuition_payment,
+			cash_account_name,
+			receivable,
+			fees_expense,
+			gain,
+			transaction_seconds_to_add );
+
+		transaction_seconds_to_add += 2;
+
+	} while ( list_next( tuition_payment_list ) );
+}
+
+void tuition_payment_set_transaction(
+			TUITION_PAYMENT *tuition_payment,
+			char *cash_account_name,
+			char *account_receivable,
+			char *account_fees_expense,
+			char *account_gain,
+			int transaction_seconds_to_add )
+{
+	if ( ( tuition_payment->tuition_payment_transaction =
+		tuition_payment_transaction(
+			tuition_payment->deposit->payor_entity->full_name,
+			tuition_payment->deposit->payor_entity->street_address,
+			tuition_payment->transaction_date_time,
+			tuition_payment->
+				enrollment->
+				offering->
+				course->
+				program->
+				program_name,
+			tuition_payment->tuition_payment_amount,
+			tuition_payment->tuition_payment_fees_expense,
+			tuition_payment->tuition_payment_gain_donation,
+			tuition_payment->
+				tuition_payment_receivable_credit_amount,
+			tuition_payment->tuition_payment_cash_debit_amount,
+			cash_account_name,
+			account_receivable,
+			account_fees_expense,
+			account_gain,
+			transaction_seconds_to_add ) ) )
+	{
+		tuition_payment->transaction_date_time =
+			tuition_payment->tuition_payment_transaction->
+				transaction_date_time;
+	}
+	else
+	{
+		tuition_payment->transaction_date_time = (char *)0;
+	}
+}
+

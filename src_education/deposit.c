@@ -382,6 +382,39 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 	return deposit;
 }
 
+void deposit_set_transaction( DEPOSIT *deposit )
+{
+	if ( list_length( deposit->tuition_payment_list ) )
+	{
+		tuition_payment_list_set_transaction(
+			deposit->tuition_payment_list );
+	}
+
+	if ( list_length( deposit->program_payment_list ) )
+	{
+		program_payment_list_set_transaction(
+			deposit->program_payment_list );
+	}
+
+	if ( list_length( deposit->product_payment_list ) )
+	{
+		product_payment_list_set_transaction(
+			deposit->product_payment_list );
+	}
+
+	if ( list_length( deposit->tuition_refund_list ) )
+	{
+		tuition_refund_list_set_transaction(
+			deposit->tuition_refund_list );
+	}
+
+	if ( list_length( deposit->product_refund_list ) )
+	{
+		product_refund_list_set_transaction(
+			deposit->product_refund_list );
+	}
+}
+
 DEPOSIT *deposit_steady_state(
 			DEPOSIT *deposit,
 			LIST *semester_offering_list )
@@ -1016,6 +1049,23 @@ LIST *deposit_list_transaction_list(
 
 	} while ( list_next( deposit_list ) );
 	return transaction_list;
+}
+
+LIST *deposit_list_set_transaction(
+			LIST *deposit_list )
+{
+	DEPOSIT *deposit;
+
+	if ( !list_rewind( deposit_list ) ) return deposit_list;
+
+	do {
+		deposit = list_get( deposit_list );
+
+		deposit_set_transaction( deposit );
+
+	} while ( list_next( deposit_list ) );
+
+	return deposit_list;
 }
 
 LIST *deposit_list_steady_state(

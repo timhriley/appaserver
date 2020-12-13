@@ -183,5 +183,8 @@ double tuition_refund_revenue_debit_amount(
 char *tuition_refund_list_display(
 			LIST *refund_list );
 
+void tuition_refund_list_set_transaction(
+			LIST *tuition_refund_list );
+
 #endif
 
