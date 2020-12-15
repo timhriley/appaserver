@@ -1217,11 +1217,21 @@ LIST *tuition_refund_list(
 					/* course_name */,
 				semester_offering_list ) ) )
 		{
+fprintf(stderr,
+	"%s/%s()/%d: for %s, got item_value = %.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+paypal_item->benefit_entity->full_name,
+paypal_item->item_value );
+
 			refund =
 				tuition_refund(
 					season_name,
 					year,
 					paypal_item->benefit_entity,
+					paypal_item->item_value,
+					paypal_item->item_fee,
 					offering,
 					deposit );
 
@@ -1236,6 +1246,8 @@ TUITION_REFUND *tuition_refund(
 			char *season_name,
 			int year,
 			ENTITY *benefit_entity,
+			double item_value,
+			double item_fee,
 			OFFERING *offering,
 			DEPOSIT *deposit )
 {
@@ -1244,6 +1256,13 @@ TUITION_REFUND *tuition_refund(
 	/* New TUITION_REFUND */
 	/* ------------------ */
 	refund = tuition_refund_calloc();
+
+	refund->tuition_refund_amount = item_value;
+	refund->tuition_refund_fees_expense = item_fee;
+	refund->tuition_refund_revenue_debit_amount = item_value;
+
+	refund->tuition_refund_cash_credit_amount =
+		item_value - item_fee;
 
 	refund->enrollment =
 		enrollment_new(
@@ -1611,6 +1630,8 @@ char *tuition_refund_list_display( LIST *refund_list )
 		return "";
 	}
 
+	ptr += sprintf( ptr, "Tuition refund: " );
+
 	do {
 		refund =
 			list_get(
@@ -1650,8 +1671,6 @@ char *tuition_refund_list_display( LIST *refund_list )
 
 	} while ( list_next( refund_list ) );
 
-	ptr += sprintf( ptr, "\n" );
-
 	return strdup( display );
 }
 
@@ -1668,7 +1687,6 @@ void tuition_refund_list_set_transaction(
 	if ( !list_rewind( tuition_refund_list ) ) return;
 
 	cash_account_name = entity_self_paypal_cash_account_name();
-
 	fees_expense = account_fees_expense( (char *)0 );
 	loss = account_loss( (char *)0 );
 

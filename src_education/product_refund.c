@@ -485,6 +485,8 @@ char *product_refund_list_display( LIST *refund_list )
 		return "";
 	}
 
+	ptr += sprintf( ptr, "Product refund: " );
+
 	do {
 		payment =
 			list_get(
@@ -609,11 +611,10 @@ PRODUCT_REFUND *product_refund_steady_state(
 }
 
 PRODUCT_REFUND *product_refund(
-			PAYPAL_ITEM *paypal_item,
 			LIST *product_list,
-			/* -------- */
-			/* Set only */
-			/* -------- */
+			char *item_data,
+			double item_value,
+			double item_fee,
 			DEPOSIT *deposit )
 {
 	PRODUCT_REFUND *product_refund;
@@ -621,7 +622,7 @@ PRODUCT_REFUND *product_refund(
 
 	if ( ! ( product =
 			product_seek(
-				paypal_item->item_data,
+				item_data,
 				product_list ) ) )
 	{
 		return (PRODUCT_REFUND *)0;
@@ -630,6 +631,12 @@ PRODUCT_REFUND *product_refund(
 	/* New refund */
 	/* ---------- */
 	product_refund = product_refund_calloc();
+
+	product_refund->product_refund_amount = item_value;
+	product_refund->fees_expense = item_fee;
+
+	product_refund->net_payment_amount =
+		item_value + item_fee;
 
 	product_refund->product = product;
 	product_refund->deposit = deposit;
@@ -655,8 +662,10 @@ LIST *product_refund_list(
 
 		if ( ( refund =
 			product_refund(
-				paypal_item,
 				product_list,
+				paypal_item->item_data,
+				paypal_item->item_value,
+				paypal_item->item_fee,
 				deposit ) ) )
 		{
 			list_set( refund_list, refund );

@@ -223,14 +223,24 @@ double paypal_item_value(
 {
 	double item_value = 0.0;
 
-	/* Case 1: this is an enrollment */
+	/* Case 1: this is a refund */
+	/* ------------------------ */
+	if ( deposit_amount < 0.0 )
+	{
+		item_value = 0.0 - deposit_amount;
+	}
+	else
+	/* Case 2: this is an enrollment */
 	/* ----------------------------- */
 	if ( expected_revenue )
 	{
-		item_value = expected_revenue;
+		if ( deposit_amount < expected_revenue )
+			item_value = deposit_amount;
+		else
+			item_value = expected_revenue;
 	}
 	else
-	/* Case 2: this isn't an enrollment */
+	/* Case 3: this isn't an enrollment */
 	/* -------------------------------- */
 	{
 		double remaining_cost;
@@ -249,9 +259,20 @@ double paypal_item_fee(	double deposit_amount,
 			double item_value )
 {
 	double item_percent;
+	double item_fee;
 
-	item_percent = item_value / deposit_amount;
-	return transaction_fee * item_percent;
+	/* Case 1: this is a refund */
+	/* ------------------------ */
+	if ( deposit_amount < 0.0 )
+	{
+		item_fee = transaction_fee;
+	}
+	else
+	{
+		item_percent = item_value / deposit_amount;
+		item_fee = transaction_fee * item_percent;
+	}
+	return item_fee;
 }
 
 double paypal_item_gain(
@@ -262,12 +283,21 @@ double paypal_item_gain(
 {
 	double item_gain;
 
-	if ( nonexpected_revenue_length ) return 0.0;
-
-	item_gain =
-		( deposit_amount - expected_revenue_total ) /
-		(double)expected_revenue_length;
-
+	if ( nonexpected_revenue_length )
+	{
+		item_gain = 0.0;
+	}
+	else
+	if ( deposit_amount < expected_revenue_total )
+	{
+		item_gain = 0.0;
+	}
+	else
+	{
+		item_gain =
+			( deposit_amount - expected_revenue_total ) /
+			(double)expected_revenue_length;
+	}
 	return item_gain;
 }
 
@@ -336,12 +366,15 @@ PAYPAL_ITEM *paypal_item_steady_state(
 			transaction_fee,
 			paypal_item->item_value );
 
-	paypal_item->item_gain =
-		paypal_item_gain(
-			deposit_amount,
-			expected_revenue_total,
-			nonexpected_revenue_length,
-			expected_revenue_length );
+	if ( deposit_amount > 0.0 )
+	{
+		paypal_item->item_gain =
+			paypal_item_gain(
+				deposit_amount,
+				expected_revenue_total,
+				nonexpected_revenue_length,
+				expected_revenue_length );
+	}
 
 	return paypal_item;
 }

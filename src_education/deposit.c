@@ -388,6 +388,11 @@ void deposit_set_transaction( DEPOSIT *deposit )
 
 	if ( list_length( deposit->tuition_payment_list ) )
 	{
+		enrollment_list_set_transaction(
+			&transaction_seconds_to_add,
+			tuition_payment_list_enrollment_list(
+				deposit->tuition_payment_list ) );
+
 		tuition_payment_list_set_transaction(
 			&transaction_seconds_to_add,
 			deposit->tuition_payment_list );

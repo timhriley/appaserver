@@ -485,6 +485,8 @@ char *product_payment_list_display( LIST *payment_list )
 		return "";
 	}
 
+	ptr += sprintf( ptr, "Product payment: " );
+
 	do {
 		payment =
 			list_get(
@@ -610,11 +612,20 @@ PRODUCT_PAYMENT *product_payment_steady_state(
 
 PRODUCT_PAYMENT *product_payment(
 			PRODUCT *product,
+			double item_value,
+			double item_fee,
 			DEPOSIT *deposit )
 {
 	PRODUCT_PAYMENT *product_payment;
 
 	product_payment = product_payment_calloc();
+
+	product_payment->product_payment_amount = item_value;
+	product_payment->fees_expense = item_fee;
+
+	product_payment->net_payment_amount =
+		item_value - item_fee;
+
 	product_payment->product = product;
 	product_payment->deposit = deposit;
 
@@ -648,6 +659,8 @@ LIST *product_payment_list(
 			payment =
 				product_payment(
 					product,
+					paypal_item->item_value,
+					paypal_item->item_fee,
 					deposit );
 
 			list_set( payment_list, payment );

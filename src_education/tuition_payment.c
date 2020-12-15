@@ -383,12 +383,6 @@ TRANSACTION *tuition_payment_transaction(
 			strdup( tuition_payment_memo( program_name ) ),
 			seconds_to_add );
 
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 	transaction->program_name = program_name;
 
 	if ( !transaction->journal_list )
@@ -586,13 +580,6 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 		tuition_payment->transaction_date_time =
 			tuition_payment->deposit->deposit_date_time;
 	}
-
-fprintf(stderr,
-	"%s/%s()/%d: transaction_date_time = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-tuition_payment->transaction_date_time );
 
 	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
@@ -1083,6 +1070,8 @@ char *tuition_payment_list_display( LIST *payment_list )
 		return "";
 	}
 
+	ptr += sprintf( ptr, "Tuition payment: " );
+
 	do {
 		payment =
 			list_get(
@@ -1121,8 +1110,6 @@ char *tuition_payment_list_display( LIST *payment_list )
 				course_name );
 
 	} while ( list_next( payment_list ) );
-
-	ptr += sprintf( ptr, "\n" );
 
 	return strdup( display );
 }
@@ -1174,20 +1161,27 @@ LIST *tuition_payment_registration_list(
 	return registration_list;
 }
 
+LIST *tuition_payment_list_enrollment_list(
+			LIST *tuition_payment_list )
+{
+	return tuition_payment_enrollment_list(
+			tuition_payment_list );
+}
+
 LIST *tuition_payment_enrollment_list(
-			LIST *deposit_tuition_payment_list )
+			LIST *tuition_payment_list )
 {
 	TUITION_PAYMENT *tuition_payment;
 	LIST *enrollment_list;
 
-	if ( !list_rewind( deposit_tuition_payment_list ) ) return (LIST *)0;
+	if ( !list_rewind( tuition_payment_list ) ) return (LIST *)0;
 
 	enrollment_list = list_new();
 
 	do {
 		tuition_payment =
 			list_get(
-				deposit_tuition_payment_list );
+				tuition_payment_list );
 
 		if ( !tuition_payment->enrollment )
 		{
@@ -1203,7 +1197,7 @@ LIST *tuition_payment_enrollment_list(
 			enrollment_list,
 			tuition_payment->enrollment );
 
-	} while ( list_next( deposit_tuition_payment_list ) );
+	} while ( list_next( tuition_payment_list ) );
 
 	return enrollment_list;
 }
@@ -1372,7 +1366,8 @@ TUITION_PAYMENT *tuition_payment(
 
 	payment->tuition_payment_receivable_credit_amount = item_value;
 
-	payment->tuition_payment_cash_debit_amount = item_value;
+	payment->tuition_payment_cash_debit_amount =
+		item_value - item_fee;
 
 	/* Set deposit */
 	/* ----------- */
@@ -1724,13 +1719,6 @@ void tuition_payment_list_set_transaction(
 	do {
 		tuition_payment = list_get( tuition_payment_list );
 
-fprintf(stderr,
-	"%s/%s()/%d: payment = %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-tuition_payment->enrollment->registration->student_full_name );
-
 		tuition_payment_set_transaction(
 			transaction_seconds_to_add,
 			tuition_payment,
@@ -1739,20 +1727,7 @@ tuition_payment->enrollment->registration->student_full_name );
 			fees_expense,
 			gain );
 
-fprintf(stderr,
-	"%s/%s()/%d: seconds_to_add = %d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-*transaction_seconds_to_add );
-
 	} while ( list_next( tuition_payment_list ) );
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 }
 
 void tuition_payment_set_transaction(
@@ -1763,12 +1738,6 @@ void tuition_payment_set_transaction(
 			char *account_fees_expense,
 			char *account_gain )
 {
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
 			tuition_payment->deposit->payor_entity->full_name,
@@ -1792,12 +1761,6 @@ fprintf(stderr,
 			account_gain,
 			*transaction_seconds_to_add ) ) )
 	{
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 		tuition_payment->transaction_date_time =
 			tuition_payment->tuition_payment_transaction->
 				transaction_date_time;

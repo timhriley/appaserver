@@ -82,6 +82,8 @@ PRODUCT_PAYMENT *product_payment_steady_state(
 
 PRODUCT_PAYMENT *product_payment(
 			PRODUCT *product,
+			double item_value,
+			double item_fee,
 			DEPOSIT *deposit );
 
 void product_payment_set_transaction(

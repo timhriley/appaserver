@@ -119,6 +119,8 @@ TUITION_REFUND *tuition_refund(
 			char *season_name,
 			int year,
 			ENTITY *benefit_entity,
+			double item_value,
+			double item_fee,
 			OFFERING *offering,
 			DEPOSIT *deposit );
 

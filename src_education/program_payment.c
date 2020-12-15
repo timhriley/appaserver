@@ -483,6 +483,8 @@ char *program_payment_list_display( LIST *payment_list )
 		return "";
 	}
 
+	ptr += sprintf( ptr, "Program payment: " );
+
 	do {
 		payment =
 			list_get(
@@ -608,11 +610,20 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 
 PROGRAM_PAYMENT *program_payment(
 			PROGRAM *program,
+			double item_value,
+			double item_fee,
 			DEPOSIT *deposit )
 {
 	PROGRAM_PAYMENT *program_payment;
 
 	program_payment = program_payment_calloc();
+
+	program_payment->program_payment_amount = item_value;
+	program_payment->fees_expense = item_fee;
+
+	program_payment->net_payment_amount =
+		item_value - item_fee;
+
 	program_payment->program = program;
 	program_payment->deposit = deposit;
 
@@ -649,6 +660,8 @@ LIST *program_payment_list(
 			payment =
 				program_payment(
 					program,
+					paypal_item->item_value,
+					paypal_item->item_fee,
 					deposit );
 
 			list_set( payment_list, payment );

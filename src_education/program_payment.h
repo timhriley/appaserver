@@ -82,6 +82,8 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 
 PROGRAM_PAYMENT *program_payment(
 			PROGRAM *program,
+			double item_value,
+			double item_fee,
 			DEPOSIT *deposit );
 
 void program_payment_set_transaction(

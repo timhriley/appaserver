@@ -571,7 +571,7 @@ ENROLLMENT *enrollment_steady_state(
 			program_name = (char *)0;
 		}
 
-		enrollment->enrollment_transaction =
+		if ( ( enrollment->enrollment_transaction =
 			enrollment_transaction(
 				enrollment->registration->student_full_name,
 				enrollment->registration->street_address,
@@ -582,9 +582,18 @@ ENROLLMENT *enrollment_steady_state(
 				enrollment->offering->course_price,
 				account_receivable( (char *)0 ),
 				enrollment->offering->revenue_account,
-				*transaction_seconds_to_add );
+				*transaction_seconds_to_add ) ) )
+		{
+			enrollment->transaction_date_time =
+				enrollment->enrollment_transaction->
+					transaction_date_time;
 
-		(*transaction_seconds_to_add)++;
+			(*transaction_seconds_to_add)++;
+		}
+		else
+		{
+			enrollment->transaction_date_time = (char *)0;
+		}
 	}
 	return enrollment;
 }
@@ -643,5 +652,67 @@ void enrollment_list_cancelled_update(
 	} while ( list_next( enrollment_list ) );
 
 	pclose( update_pipe );
+}
+
+void enrollment_list_set_transaction(
+			int *transaction_seconds_to_add,
+			LIST *enrollment_list )
+{
+	ENROLLMENT *enrollment;
+	char *receivable;
+	char *revenue_account;
+
+	if ( !list_rewind( enrollment_list ) ) return;
+
+	receivable = account_receivable( (char *)0 );
+
+	do {
+		enrollment = list_get( enrollment_list );
+
+		revenue_account =
+			enrollment->offering->revenue_account;
+
+		enrollment_set_transaction(
+			transaction_seconds_to_add,
+			enrollment,
+			receivable,
+			revenue_account );
+
+	} while ( list_next( enrollment_list ) );
+}
+
+void enrollment_set_transaction(
+			int *transaction_seconds_to_add,
+			ENROLLMENT *enrollment,
+			char *account_receivable,
+			char *revenue_account )
+{
+	if ( ( enrollment->enrollment_transaction =
+		enrollment_transaction(
+			enrollment->registration->student_full_name,
+			enrollment->registration->street_address,
+			enrollment->
+				registration->
+				registration_date_time,
+			enrollment->
+				offering->
+				course->
+				program->
+				program_name,
+			enrollment->offering->course_price,
+			account_receivable,
+			revenue_account,
+			*transaction_seconds_to_add ) ) )
+	{
+		enrollment->transaction_date_time =
+			enrollment->enrollment_transaction->
+				transaction_date_time;
+
+		(*transaction_seconds_to_add)++;
+	}
+	else
+	{
+		enrollment->transaction_date_time = (char *)0;
+	}
 }
 

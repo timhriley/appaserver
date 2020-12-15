@@ -76,6 +76,12 @@ ENROLLMENT *enrollment_steady_state(
 			ENROLLMENT *enrollment,
 			double deposit_amount );
 
+void enrollment_set_transaction(
+			int *transaction_seconds_to_add,
+			ENROLLMENT *enrollment,
+			char *account_receivable,
+			char *revenue_account );
+
 /* ----------------------------------- */
 /* Place functions in enrollment_fns.h */
 /* ----------------------------------- */

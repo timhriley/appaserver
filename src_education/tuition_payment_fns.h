@@ -123,6 +123,9 @@ char *tuition_payment_list_display(
 LIST *tuition_payment_registration_list(
 			LIST *deposit_tuition_payment_list );
 
+LIST *tuition_payment_list_enrollment_list(
+			LIST *deposit_tuition_payment_list );
+
 LIST *tuition_payment_enrollment_list(
 			LIST *deposit_tuition_payment_list );
 

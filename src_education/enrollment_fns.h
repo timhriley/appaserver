@@ -102,5 +102,9 @@ void enrollment_list_cancelled_update(
 			char *season_name,
 			int year );
 
+void enrollment_list_set_transaction(
+			int *transaction_seconds_to_add,
+			LIST *enrollment_list );
+
 #endif
 

@@ -81,8 +81,10 @@ PRODUCT_REFUND *product_refund_steady_state(
 			double deposit_transaction_fee );
 
 PRODUCT_REFUND *product_refund(
-			PAYPAL_ITEM *paypal_item,
 			LIST *product_list,
+			char *item_data,
+			double item_value,
+			double item_fee,
 			/* -------- */
 			/* Set only */
 			/* -------- */
