@@ -1063,8 +1063,8 @@ void journal_list_pipe_display(
 		strncpy(
 			memo_buffer,
 			transaction_memo,
-			TRANSACTION_BUFFER_TRIM );
-		*(memo_buffer + TRANSACTION_BUFFER_TRIM ) = '\0';
+			TRANSACTION_MEMO_LENGTH );
+		*(memo_buffer + TRANSACTION_MEMO_LENGTH ) = '\0';
 	}
 	else
 	{
