@@ -151,6 +151,7 @@ void enrollment_trigger_insert_update(
 			int year )
 {
 	ENROLLMENT *enrollment;
+	int transaction_seconds_to_add = 0;
 
 	if ( ! ( enrollment =
 			enrollment_fetch(
@@ -199,8 +200,8 @@ void enrollment_trigger_insert_update(
 
 	enrollment =
 		enrollment_steady_state(
+			&transaction_seconds_to_add,
 			enrollment,
-			0 /* transaction_seconds_to_add */,
 			0.0 /* zero deposit_amount shows not a refund */ );
 
 	if ( enrollment->enrollment_transaction )

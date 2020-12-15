@@ -898,7 +898,7 @@ void product_refund_set_transaction(
 	       product_refund_transaction(
 			product_refund->deposit->payor_entity->full_name,
 			product_refund->deposit->payor_entity->street_address,
-			product_refund->transaction_date_time,
+			product_refund->deposit->deposit_date_time,
 			product_refund->product->product_name,
 			product_refund->product->program_name,
 			product_refund->product_refund_amount,

@@ -889,7 +889,7 @@ void product_payment_set_transaction(
 	       product_payment_transaction(
 			product_payment->deposit->payor_entity->full_name,
 			product_payment->deposit->payor_entity->street_address,
-			product_payment->transaction_date_time,
+			product_payment->deposit->deposit_date_time,
 			product_payment->product->product_name,
 			product_payment->product->program_name,
 			product_payment->product_payment_amount,

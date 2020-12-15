@@ -890,7 +890,7 @@ void program_payment_set_transaction(
 	       program_payment_transaction(
 			program_payment->deposit->payor_entity->full_name,
 			program_payment->deposit->payor_entity->street_address,
-			program_payment->transaction_date_time,
+			program_payment->deposit->deposit_date_time,
 			program_payment->program->program_name,
 			program_payment->program_payment_amount,
 			program_payment->fees_expense,

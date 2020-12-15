@@ -1704,7 +1704,7 @@ void tuition_refund_set_transaction(
 		tuition_refund_transaction(
 			tuition_refund->deposit->payor_entity->full_name,
 			tuition_refund->deposit->payor_entity->street_address,
-			tuition_refund->transaction_date_time,
+			tuition_refund->deposit->deposit_date_time,
 			tuition_refund->
 				enrollment->
 				offering->

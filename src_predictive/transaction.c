@@ -51,6 +51,16 @@ TRANSACTION *transaction_full(
 {
 	TRANSACTION *transaction;
 
+	if ( !transaction_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty transaction_date_time\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( seconds_to_add )
 	{
 		DATE *transaction_date;
