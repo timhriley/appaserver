@@ -75,6 +75,7 @@ PRODUCT_REFUND *product_refund_parse(
 			boolean fetch_deposit );
 
 PRODUCT_REFUND *product_refund_steady_state(
+			int *transaction_seconds_to_add,
 			PRODUCT_REFUND *product_refund,
 			double deposit_amount,
 			double deposit_transaction_fee );
@@ -86,6 +87,13 @@ PRODUCT_REFUND *product_refund(
 			/* Set only */
 			/* -------- */
 			DEPOSIT *deposit );
+
+void product_refund_set_transaction(
+			int *transaction_seconds_to_add,
+			PRODUCT_REFUND *product_refund,
+			char *cash_account_name,
+			char *account_fees_expense,
+			char *revenue_account );
 
 /* ---------------------------------------- */
 /* Place functions in product_refund_fns.h */

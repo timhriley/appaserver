@@ -134,6 +134,7 @@ void product_refund_trigger_insert_update(
 			char *deposit_date_time )
 {
 	PRODUCT_REFUND *product_refund;
+	int transaction_seconds_to_add = 0;
 
 	if ( ! ( product_refund =
 			product_refund_fetch(
@@ -151,9 +152,10 @@ void product_refund_trigger_insert_update(
 
 	if ( ! ( product_refund =
 			product_refund_steady_state(
-			product_refund,
-			product_refund->deposit->deposit_amount,
-			product_refund->deposit->transaction_fee ) ) )
+				&transaction_seconds_to_add,
+				product_refund,
+				product_refund->deposit->deposit_amount,
+				product_refund->deposit->transaction_fee ) ) )
 	{
 		return;
 	}

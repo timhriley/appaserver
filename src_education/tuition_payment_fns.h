@@ -153,6 +153,7 @@ LIST *tuition_payment_transaction_list(
 			LIST *tution_payment_list );
 
 LIST *tuition_payment_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_registration_list,
 			LIST *semester_offering_list,
@@ -184,6 +185,7 @@ boolean tuition_payment_is_tuition(
 			char *item_title_block );
 
 void tuition_payment_list_set_transaction(
+			int *transaction_seconds_to_add,
 			LIST *tuition_payment_list );
 
 #endif

@@ -56,7 +56,8 @@ TRANSACTION *product_payment_transaction(
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
-			char *product_revenue_account );
+			char *product_revenue_account,
+			int seconds_to_add );
 
 void product_payment_update(
 			char *transaction_date_time,
@@ -118,6 +119,7 @@ LIST *product_payment_transaction_list(
 			LIST *product_payment_list );
 
 LIST *product_payment_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *deposit_product_payment_list,
 			double deposit_amount,
 			double transaction_fee );
@@ -131,6 +133,7 @@ void product_payment_list_payor_entity_insert(
 			LIST *deposit_product_payment_list );
 
 void product_payment_list_set_transaction(
+			int *transaction_seconds_to_add,
 			LIST *product_payment_list );
 
 #endif

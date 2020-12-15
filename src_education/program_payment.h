@@ -75,6 +75,7 @@ PROGRAM_PAYMENT *program_payment_parse(
 			boolean fetch_deposit );
 
 PROGRAM_PAYMENT *program_payment_steady_state(
+			int *transaction_seconds_to_add,
 			PROGRAM_PAYMENT *program_payment,
 			double deposit_amount,
 			double deposit_transaction_fee );
@@ -82,6 +83,13 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 PROGRAM_PAYMENT *program_payment(
 			PROGRAM *program,
 			DEPOSIT *deposit );
+
+void program_payment_set_transaction(
+			int *transaction_seconds_to_add,
+			PROGRAM_PAYMENT *program_payment,
+			char *cash_account_name,
+			char *account_fees_expense,
+			char *revenue_account );
 
 /* ---------------------------------------- */
 /* Place functions in program_payment_fns.h */

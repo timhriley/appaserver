@@ -349,7 +349,8 @@ TRANSACTION *product_refund_transaction(
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
-			char *product_revenue_account )
+			char *product_revenue_account,
+			int seconds_to_add )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
@@ -372,13 +373,15 @@ TRANSACTION *product_refund_transaction(
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			deposit_date_time,
+			deposit_date_time
+				/* transaction_date_time */,
 			refund_amount
 				/* transaction_amount */,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			strdup( product_refund_memo( product_name ) ) );
+			strdup( product_refund_memo( product_name ) ),
+			seconds_to_add );
 
 	transaction->program_name = program_name;
 
@@ -530,6 +533,7 @@ double product_refund_net_payment_amount(
 }
 
 PRODUCT_REFUND *product_refund_steady_state(
+			int *transaction_seconds_to_add,
 			PRODUCT_REFUND *product_refund,
 			double deposit_amount,
 			double deposit_transaction_fee )
@@ -587,11 +591,14 @@ PRODUCT_REFUND *product_refund_steady_state(
 			product_refund->net_payment_amount,
 			entity_self_paypal_cash_account_name(),
 			account_fees_expense( (char *)0 ),
-			product_refund->product->revenue_account ) ) )
+			product_refund->product->revenue_account,
+			*transaction_seconds_to_add ) ) )
 	{
 		product_refund->transaction_date_time =
 			product_refund->product_refund_transaction->
 				transaction_date_time;
+
+		(*transaction_seconds_to_add)++;
 	}
 	else
 	{
@@ -760,6 +767,7 @@ LIST *product_refund_transaction_list(
 }
 
 LIST *product_refund_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *deposit_product_refund_list,
 			double deposit_amount,
 			double transaction_fee )
@@ -773,6 +781,7 @@ LIST *product_refund_list_steady_state(
 
 		product_refund =
 			product_refund_steady_state(
+				transaction_seconds_to_add,
 				product_refund,
 				deposit_amount,
 				transaction_fee );
@@ -847,7 +856,68 @@ void product_refund_list_payor_entity_insert(
 }
 
 void product_refund_list_set_transaction(
+			int *transaction_seconds_to_add,
 			LIST *product_refund_list )
 {
+	PRODUCT_REFUND *product_refund;
+	char *cash_account_name;
+	char *revenue_account;
+	char *fees_expense;
+
+	if ( !list_rewind( product_refund_list ) ) return;
+
+	cash_account_name = entity_self_paypal_cash_account_name();
+	fees_expense = account_fees_expense( (char *)0 );
+
+	do {
+		product_refund = list_get( product_refund_list );
+
+		revenue_account =
+			product_refund->
+				product->
+				revenue_account;
+
+		product_refund_set_transaction(
+			transaction_seconds_to_add,
+			product_refund,
+			cash_account_name,
+			fees_expense,
+			revenue_account );
+
+	} while ( list_next( product_refund_list ) );
+}
+
+void product_refund_set_transaction(
+			int *transaction_seconds_to_add,
+			PRODUCT_REFUND *product_refund,
+			char *cash_account_name,
+			char *account_fees_expense,
+			char *revenue_account )
+{
+	if ( ( product_refund->product_refund_transaction =
+	       product_refund_transaction(
+			product_refund->deposit->payor_entity->full_name,
+			product_refund->deposit->payor_entity->street_address,
+			product_refund->transaction_date_time,
+			product_refund->product->product_name,
+			product_refund->product->program_name,
+			product_refund->product_refund_amount,
+			product_refund->fees_expense,
+			product_refund->net_payment_amount,
+			cash_account_name,
+			account_fees_expense,
+			revenue_account,
+			*transaction_seconds_to_add ) ) )
+	{
+		product_refund->transaction_date_time =
+			product_refund->product_refund_transaction->
+				transaction_date_time;
+
+		(*transaction_seconds_to_add)++;
+	}
+	else
+	{
+		product_refund->transaction_date_time = (char *)0;
+	}
 }
 

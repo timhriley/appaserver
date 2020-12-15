@@ -489,28 +489,25 @@ void enrollment_trigger(
 }
 
 void enrollment_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *enrollment_list,
 			double deposit_amount )
 {
-	int transaction_seconds_to_add = 0;
-
 	if ( !list_rewind( enrollment_list ) ) return;
 
 	do {
 		enrollment_steady_state(
+			transaction_seconds_to_add,
 			list_get(
 				enrollment_list ),
-			transaction_seconds_to_add,
 			deposit_amount );
-
-		transaction_seconds_to_add += 2;
 
 	} while ( list_next( enrollment_list ) );
 }
 
 ENROLLMENT *enrollment_steady_state(
+			int *transaction_seconds_to_add,
 			ENROLLMENT *enrollment,
-			int transaction_seconds_to_add,
 			double deposit_amount )
 {
 	if ( !enrollment )
@@ -585,7 +582,9 @@ ENROLLMENT *enrollment_steady_state(
 				enrollment->offering->course_price,
 				account_receivable( (char *)0 ),
 				enrollment->offering->revenue_account,
-				transaction_seconds_to_add );
+				*transaction_seconds_to_add );
+
+		(*transaction_seconds_to_add)++;
 	}
 	return enrollment;
 }

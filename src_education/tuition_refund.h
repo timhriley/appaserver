@@ -102,14 +102,14 @@ TUITION_REFUND *tuition_refund_parse(
 			boolean fetch_enrollment );
 
 TUITION_REFUND *tuition_refund_steady_state(
+			int *transaction_seconds_to_add,
 			TUITION_REFUND *tuition_refund,
 			LIST *deposit_tuition_refund_list,
 			LIST *deposit_registration_list,
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
-			double deposit_transaction_fee,
-			int transaction_seconds_to_add );
+			double deposit_transaction_fee );
 
 TUITION_REFUND *tuition_refund_seek(
 			LIST *deposit_tuition_refund_list,
@@ -134,6 +134,14 @@ LIST *tuition_refund_list(
 			/* Set only */
 			/* -------- */
 			DEPOSIT *deposit );
+
+void tuition_refund_set_transaction(
+			int *transaction_seconds_to_add,
+			TUITION_REFUND *tuition_refund,
+			char *cash_account_name,
+			char *revenue_account,
+			char *account_fees_expense,
+			char *account_loss );
 
 /* ---------------------------------------- */
 /* Place functions in tuition_refund_fns.h */

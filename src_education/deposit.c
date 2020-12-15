@@ -384,33 +384,40 @@ DEPOSIT *deposit_fetch(	char *payor_full_name,
 
 void deposit_set_transaction( DEPOSIT *deposit )
 {
+	int transaction_seconds_to_add = 0;
+
 	if ( list_length( deposit->tuition_payment_list ) )
 	{
 		tuition_payment_list_set_transaction(
+			&transaction_seconds_to_add,
 			deposit->tuition_payment_list );
 	}
 
 	if ( list_length( deposit->program_payment_list ) )
 	{
 		program_payment_list_set_transaction(
+			&transaction_seconds_to_add,
 			deposit->program_payment_list );
 	}
 
 	if ( list_length( deposit->product_payment_list ) )
 	{
 		product_payment_list_set_transaction(
+			&transaction_seconds_to_add,
 			deposit->product_payment_list );
 	}
 
 	if ( list_length( deposit->tuition_refund_list ) )
 	{
 		tuition_refund_list_set_transaction(
+			&transaction_seconds_to_add,
 			deposit->tuition_refund_list );
 	}
 
 	if ( list_length( deposit->product_refund_list ) )
 	{
 		product_refund_list_set_transaction(
+			&transaction_seconds_to_add,
 			deposit->product_refund_list );
 	}
 }
@@ -419,6 +426,8 @@ DEPOSIT *deposit_steady_state(
 			DEPOSIT *deposit,
 			LIST *semester_offering_list )
 {
+	int transaction_seconds_to_add = 0;
+
 	/* Build the registration list */
 	/* --------------------------- */
 	if ( list_length( deposit->tuition_payment_list )
@@ -436,6 +445,7 @@ DEPOSIT *deposit_steady_state(
 	{
 		deposit->tuition_payment_list =
 			tuition_payment_list_steady_state(
+				&transaction_seconds_to_add,
 				deposit->tuition_payment_list,
 				deposit->registration_list,
 				semester_offering_list,
@@ -447,6 +457,7 @@ DEPOSIT *deposit_steady_state(
 	{
 		deposit->program_payment_list =
 			program_payment_list_steady_state(
+				&transaction_seconds_to_add,
 				deposit->program_payment_list,
 				deposit->deposit_amount,
 				deposit->transaction_fee );
@@ -456,6 +467,7 @@ DEPOSIT *deposit_steady_state(
 	{
 		deposit->product_payment_list =
 			product_payment_list_steady_state(
+				&transaction_seconds_to_add,
 				deposit->product_payment_list,
 				deposit->deposit_amount,
 				deposit->transaction_fee );
@@ -465,6 +477,7 @@ DEPOSIT *deposit_steady_state(
 	{
 		deposit->tuition_refund_list =
 			tuition_refund_list_steady_state(
+				&transaction_seconds_to_add,
 				deposit->tuition_refund_list,
 				deposit->registration_list,
 				semester_offering_list,
@@ -476,6 +489,7 @@ DEPOSIT *deposit_steady_state(
 	{
 		deposit->product_refund_list =
 			product_refund_list_steady_state(
+				&transaction_seconds_to_add,
 				deposit->product_refund_list,
 				deposit->deposit_amount,
 				deposit->transaction_fee );

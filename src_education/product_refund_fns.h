@@ -56,7 +56,8 @@ TRANSACTION *product_refund_transaction(
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
-			char *product_revenue_account );
+			char *product_revenue_account,
+			int seconds_to_add );
 
 void product_refund_update(
 			char *transaction_date_time,
@@ -121,6 +122,7 @@ LIST *product_refund_transaction_list(
 			LIST *product_refund_list );
 
 LIST *product_refund_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *deposit_product_refund_list,
 			double deposit_amount,
 			double transaction_fee );
@@ -134,6 +136,7 @@ void product_refund_list_payor_entity_insert(
 			LIST *deposit_product_refund_list );
 
 void product_refund_list_set_transaction(
+			int *transaction_seconds_to_add,
 			LIST *product_refund_list );
 
 #endif

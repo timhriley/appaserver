@@ -347,7 +347,8 @@ TRANSACTION *program_payment_transaction(
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
-			char *program_revenue_account )
+			char *program_revenue_account,
+			int seconds_to_add )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
@@ -370,13 +371,15 @@ TRANSACTION *program_payment_transaction(
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			deposit_date_time,
+			deposit_date_time
+				/* transaction_date_time */,
 			payment_amount
 				/* transaction_amount */,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			strdup( program_payment_memo( program_name ) ) );
+			strdup( program_payment_memo( program_name ) ),
+			seconds_to_add );
 
 	transaction->program_name = program_name;
 
@@ -529,6 +532,7 @@ double program_payment_net_payment_amount(
 }
 
 PROGRAM_PAYMENT *program_payment_steady_state(
+			int *transaction_seconds_to_add,
 			PROGRAM_PAYMENT *program_payment,
 			double deposit_amount,
 			double deposit_transaction_fee )
@@ -585,11 +589,14 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 			program_payment->net_payment_amount,
 			entity_self_paypal_cash_account_name(),
 			account_fees_expense( (char *)0 ),
-			program_payment->program->revenue_account ) ) )
+			program_payment->program->revenue_account,
+			*transaction_seconds_to_add ) ) )
 	{
 		program_payment->transaction_date_time =
 			program_payment->program_payment_transaction->
 				transaction_date_time;
+
+		(*transaction_seconds_to_add)++;
 	}
 	else
 	{
@@ -752,6 +759,7 @@ LIST *program_payment_transaction_list(
 }
 
 LIST *program_payment_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *deposit_program_payment_list,
 			double deposit_amount,
 			double transaction_fee )
@@ -765,6 +773,7 @@ LIST *program_payment_list_steady_state(
 
 		program_payment =
 			program_payment_steady_state(
+				transaction_seconds_to_add,
 				program_payment,
 				deposit_amount,
 				transaction_fee );
@@ -839,8 +848,67 @@ void program_payment_list_payor_entity_insert(
 }
 
 void program_payment_list_set_transaction(
+			int *transaction_seconds_to_add,
 			LIST *program_payment_list )
 {
+	PROGRAM_PAYMENT *program_payment;
+	char *cash_account_name;
+	char *revenue_account;
+	char *fees_expense;
+
+	if ( !list_rewind( program_payment_list ) ) return;
+
+	cash_account_name = entity_self_paypal_cash_account_name();
+	fees_expense = account_fees_expense( (char *)0 );
+
+	do {
+		program_payment = list_get( program_payment_list );
+
+		revenue_account =
+			program_payment->
+				program->
+				revenue_account;
+
+		program_payment_set_transaction(
+			transaction_seconds_to_add,
+			program_payment,
+			cash_account_name,
+			fees_expense,
+			revenue_account );
+
+	} while ( list_next( program_payment_list ) );
 }
 
+void program_payment_set_transaction(
+			int *transaction_seconds_to_add,
+			PROGRAM_PAYMENT *program_payment,
+			char *cash_account_name,
+			char *account_fees_expense,
+			char *revenue_account )
+{
+	if ( ( program_payment->program_payment_transaction =
+	       program_payment_transaction(
+			program_payment->deposit->payor_entity->full_name,
+			program_payment->deposit->payor_entity->street_address,
+			program_payment->transaction_date_time,
+			program_payment->program->program_name,
+			program_payment->program_payment_amount,
+			program_payment->fees_expense,
+			program_payment->net_payment_amount,
+			cash_account_name,
+			account_fees_expense,
+			revenue_account,
+			*transaction_seconds_to_add ) ) )
+	{
+		program_payment->transaction_date_time =
+			program_payment->program_payment_transaction->
+				transaction_date_time;
+
+		(*transaction_seconds_to_add)++;
+	}
+	else
+	{
+		program_payment->transaction_date_time = (char *)0;
+	}
+}
 

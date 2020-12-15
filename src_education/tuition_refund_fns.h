@@ -150,6 +150,7 @@ LIST *tuition_refund_transaction_list(
 			LIST *tution_refund_list );
 
 LIST *tuition_refund_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *deposit_tuition_refund_list,
 			LIST *deposit_registration_list,
 			LIST *semester_offering_list,
@@ -184,6 +185,7 @@ char *tuition_refund_list_display(
 			LIST *refund_list );
 
 void tuition_refund_list_set_transaction(
+			int *transaction_seconds_to_add,
 			LIST *tuition_refund_list );
 
 #endif

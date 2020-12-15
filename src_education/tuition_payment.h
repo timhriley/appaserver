@@ -102,14 +102,14 @@ TUITION_PAYMENT *tuition_payment_parse(
 			boolean fetch_enrollment );
 
 TUITION_PAYMENT *tuition_payment_steady_state(
+			int *transaction_seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_registration_list,
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
-			double deposit_transaction_fee,
-			int transaction_seconds_to_add );
+			double deposit_transaction_fee );
 
 TUITION_PAYMENT *tuition_payment_seek(
 			LIST *deposit_tuition_payment_list,
@@ -136,12 +136,12 @@ LIST *tuition_payment_list(
 			DEPOSIT *deposit );
 
 void tuition_payment_set_transaction(
+			int *transaction_seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
 			char *cash_account_name,
-			char *account_receivable,
+			char *account_revenue,
 			char *account_fees_expense,
-			char *account_gain,
-			int transaction_seconds_to_add );
+			char *account_gain );
 
 /* ---------------------------------------------------- */
 /* Place functions that don't reference TUITION_PAYMENT */

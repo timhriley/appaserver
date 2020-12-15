@@ -155,6 +155,7 @@ void tuition_payment_trigger_insert_update(
 			char *deposit_date_time )
 {
 	TUITION_PAYMENT *tuition_payment;
+	int transaction_seconds_to_add = 0;
 
 	if ( ! ( tuition_payment =
 			tuition_payment_fetch(
@@ -184,6 +185,7 @@ void tuition_payment_trigger_insert_update(
 
 	tuition_payment =
 		tuition_payment_steady_state(
+			&transaction_seconds_to_add,
 			tuition_payment,
 			tuition_payment->
 				deposit->
@@ -203,8 +205,7 @@ void tuition_payment_trigger_insert_update(
 				deposit_amount,
 			tuition_payment->
 				deposit->
-				transaction_fee,
-			0 /* transaction_seconds_to_add */ );
+				transaction_fee );
 
 	if ( tuition_payment->transaction_date_time
 	&&  *tuition_payment->transaction_date_time

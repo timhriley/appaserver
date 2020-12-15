@@ -55,7 +55,8 @@ TRANSACTION *program_payment_transaction(
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
-			char *program_revenue_account );
+			char *program_revenue_account,
+			int seconds_to_add );
 
 void program_payment_update(
 			char *transaction_date_time,
@@ -114,6 +115,7 @@ LIST *program_payment_transaction_list(
 			LIST *program_payment_list );
 
 LIST *program_payment_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *deposit_program_payment_list,
 			double deposit_amount,
 			double transaction_fee );
@@ -127,6 +129,7 @@ void program_payment_list_payor_entity_insert(
 			LIST *deposit_program_payment_list );
 
 void program_payment_list_set_transaction(
+			int *transaction_seconds_to_add,
 			LIST *program_payment_list );
 
 #endif

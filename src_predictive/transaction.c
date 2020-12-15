@@ -46,9 +46,27 @@ TRANSACTION *transaction_full(
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo )
+			char *memo,
+			int seconds_to_add )
 {
-	TRANSACTION *transaction =
+	TRANSACTION *transaction;
+
+	if ( seconds_to_add )
+	{
+		DATE *transaction_date;
+
+		transaction_date =
+			date_yyyy_mm_dd_hms_new(
+				transaction_date_time );
+
+		date_add_seconds( transaction_date, seconds_to_add );
+
+		transaction_date_time =
+			date_display_19(	
+				transaction_date );
+	}
+
+	transaction =
 		transaction_new(
 			full_name,
 			street_address,

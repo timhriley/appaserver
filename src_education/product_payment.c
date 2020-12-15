@@ -349,7 +349,8 @@ TRANSACTION *product_payment_transaction(
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
-			char *product_revenue_account )
+			char *product_revenue_account,
+			int seconds_to_add )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
@@ -372,13 +373,15 @@ TRANSACTION *product_payment_transaction(
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			deposit_date_time,
+			deposit_date_time
+				/* transaction_date_time */,
 			payment_amount
 				/* transaction_amount */,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			strdup( product_payment_memo( product_name ) ) );
+			strdup( product_payment_memo( product_name ) ),
+			seconds_to_add );
 
 	transaction->program_name = program_name;
 
@@ -530,6 +533,7 @@ double product_payment_net_payment_amount(
 }
 
 PRODUCT_PAYMENT *product_payment_steady_state(
+			int *transaction_seconds_to_add,
 			PRODUCT_PAYMENT *product_payment,
 			double deposit_amount,
 			double deposit_transaction_fee )
@@ -587,11 +591,14 @@ PRODUCT_PAYMENT *product_payment_steady_state(
 			product_payment->net_payment_amount,
 			entity_self_paypal_cash_account_name(),
 			account_fees_expense( (char *)0 ),
-			product_payment->product->revenue_account ) ) )
+			product_payment->product->revenue_account,
+			*transaction_seconds_to_add ) ) )
 	{
 		product_payment->transaction_date_time =
 			product_payment->product_payment_transaction->
 				transaction_date_time;
+
+		(*transaction_seconds_to_add)++;
 	}
 	else
 	{
@@ -751,6 +758,7 @@ LIST *product_payment_transaction_list(
 }
 
 LIST *product_payment_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *deposit_product_payment_list,
 			double deposit_amount,
 			double transaction_fee )
@@ -764,6 +772,7 @@ LIST *product_payment_list_steady_state(
 
 		product_payment =
 			product_payment_steady_state(
+				transaction_seconds_to_add,
 				product_payment,
 				deposit_amount,
 				transaction_fee );
@@ -838,7 +847,68 @@ void product_payment_list_payor_entity_insert(
 }
 
 void product_payment_list_set_transaction(
+			int *transaction_seconds_to_add,
 			LIST *product_payment_list )
 {
+	PRODUCT_PAYMENT *product_payment;
+	char *cash_account_name;
+	char *revenue_account;
+	char *fees_expense;
+
+	if ( !list_rewind( product_payment_list ) ) return;
+
+	cash_account_name = entity_self_paypal_cash_account_name();
+	fees_expense = account_fees_expense( (char *)0 );
+
+	do {
+		product_payment = list_get( product_payment_list );
+
+		revenue_account =
+			product_payment->
+				product->
+				revenue_account;
+
+		product_payment_set_transaction(
+			transaction_seconds_to_add,
+			product_payment,
+			cash_account_name,
+			fees_expense,
+			revenue_account );
+
+	} while ( list_next( product_payment_list ) );
+}
+
+void product_payment_set_transaction(
+			int *transaction_seconds_to_add,
+			PRODUCT_PAYMENT *product_payment,
+			char *cash_account_name,
+			char *account_fees_expense,
+			char *revenue_account )
+{
+	if ( ( product_payment->product_payment_transaction =
+	       product_payment_transaction(
+			product_payment->deposit->payor_entity->full_name,
+			product_payment->deposit->payor_entity->street_address,
+			product_payment->transaction_date_time,
+			product_payment->product->product_name,
+			product_payment->product->program_name,
+			product_payment->product_payment_amount,
+			product_payment->fees_expense,
+			product_payment->net_payment_amount,
+			cash_account_name,
+			account_fees_expense,
+			revenue_account,
+			*transaction_seconds_to_add ) ) )
+	{
+		product_payment->transaction_date_time =
+			product_payment->product_payment_transaction->
+				transaction_date_time;
+
+		(*transaction_seconds_to_add)++;
+	}
+	else
+	{
+		product_payment->transaction_date_time = (char *)0;
+	}
 }
 

@@ -232,7 +232,8 @@ TRANSACTION *transaction_full(
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo );
+			char *memo,
+			int seconds_to_add );
 
 TRANSACTION *transaction_binary(
 			char *full_name,
@@ -427,13 +428,6 @@ LIST *transaction_journal_list(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time );
-
-TRANSACTION *transaction_full(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo );
 
 char *transaction_generate_date_time(
 			char *transaction_date );

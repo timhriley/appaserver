@@ -155,6 +155,7 @@ void tuition_refund_trigger_insert_update(
 			char *deposit_date_time )
 {
 	TUITION_REFUND *tuition_refund;
+	int transaction_seconds_to_add = 0;
 
 	if ( ! ( tuition_refund =
 			tuition_refund_fetch(
@@ -184,6 +185,7 @@ void tuition_refund_trigger_insert_update(
 
 	tuition_refund =
 		tuition_refund_steady_state(
+			&transaction_seconds_to_add,
 			tuition_refund,
 			tuition_refund->
 				deposit->
@@ -203,8 +205,7 @@ void tuition_refund_trigger_insert_update(
 				deposit_amount,
 			tuition_refund->
 				deposit->
-				transaction_fee,
-			0 /* transaction_seconds_to_add */ );
+				transaction_fee );
 
 	if ( tuition_refund->transaction_date_time
 	&&  *tuition_refund->transaction_date_time

@@ -131,6 +131,7 @@ void program_payment_trigger_insert_update(
 			char *deposit_date_time )
 {
 	PROGRAM_PAYMENT *program_payment;
+	int transaction_seconds_to_add = 0;
 
 	if ( ! ( program_payment =
 			program_payment_fetch(
@@ -148,9 +149,10 @@ void program_payment_trigger_insert_update(
 
 	if ( ! ( program_payment =
 			program_payment_steady_state(
-			program_payment,
-			program_payment->deposit->deposit_amount,
-			program_payment->deposit->transaction_fee ) ) )
+				&transaction_seconds_to_add,
+				program_payment,
+				program_payment->deposit->deposit_amount,
+				program_payment->deposit->transaction_fee ) ) )
 	{
 		return;
 	}

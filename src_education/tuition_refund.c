@@ -356,28 +356,23 @@ TRANSACTION *tuition_refund_transaction(
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
-	DATE *transaction_date;
 
 	if ( dollar_virtually_same( refund_amount, 0.0 ) )
 		return (TRANSACTION *)0;
-
-	transaction_date =
-		date_yyyy_mm_dd_hms_new(
-			deposit_date_time );
-
-	date_add_seconds( transaction_date, seconds_to_add );
 
 	transaction =
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			date_display_19( transaction_date ),
+			deposit_date_time
+				/* transaction_date_time */,
 			refund_amount
 				/* transaction_amount */,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			strdup( tuition_refund_memo( program_name ) ) );
+			strdup( tuition_refund_memo( program_name ) ),
+			seconds_to_add );
 
 	transaction->program_name = program_name;
 
@@ -483,14 +478,14 @@ double tuition_refund_fees_expense(
 }
 
 TUITION_REFUND *tuition_refund_steady_state(
+			int *transaction_seconds_to_add,
 			TUITION_REFUND *tuition_refund,
 			LIST *deposit_tuition_refund_list,
 			LIST *deposit_registration_list,
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
-			double deposit_transaction_fee,
-			int transaction_seconds_to_add )
+			double deposit_transaction_fee )
 {
 	if ( !tuition_refund->enrollment->offering ) return tuition_refund;
 
@@ -593,11 +588,13 @@ TUITION_REFUND *tuition_refund_steady_state(
 				revenue_account,
 			account_fees_expense( (char *)0 ),
 			account_loss( (char *)0 ),
-			transaction_seconds_to_add ) ) )
+			*transaction_seconds_to_add ) ) )
 	{
 		tuition_refund->transaction_date_time =
 			tuition_refund->tuition_refund_transaction->
 				transaction_date_time;
+
+		(*transaction_seconds_to_add)++;
 	}
 	else
 	{
@@ -1474,6 +1471,7 @@ boolean tuition_refund_structure(
 }
 
 LIST *tuition_refund_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *deposit_tuition_refund_list,
 			LIST *deposit_registration_list,
 			LIST *semester_offering_list,
@@ -1484,15 +1482,6 @@ LIST *tuition_refund_list_steady_state(
 	REGISTRATION *registration;
 	OFFERING *offering;
 	ENROLLMENT *enrollment;
-
-	/* -------------------------------------------- */
-	/* Note: ENROLLMENT.transaction_date_time gets 	*/
-	/* REGISTRATION.registration_date_time.		*/
-	/* So, start with 1.				*/
-	/* Note: DEPOSIT.deposit_date becomes		*/
-	/* REGISTRATION.registration_date_time.		*/
-	/* -------------------------------------------- */
-	int transaction_seconds_to_add = 1;
 
 	if ( !list_rewind( deposit_tuition_refund_list ) ) return (LIST *)0;
 
@@ -1537,8 +1526,8 @@ LIST *tuition_refund_list_steady_state(
 		/* ------------------------------- */
 		if ( ! ( enrollment =
 				enrollment_steady_state(
+					transaction_seconds_to_add,
 					enrollment,
-					transaction_seconds_to_add - 1,
 					deposit_amount ) ) )
 		{
 			fprintf(stderr,
@@ -1572,18 +1561,16 @@ LIST *tuition_refund_list_steady_state(
 
 		tuition_refund =
 			tuition_refund_steady_state(
+				transaction_seconds_to_add,
 				tuition_refund,
 				deposit_tuition_refund_list,
 				deposit_registration_list,
 				registration->enrollment_list,
 				semester_offering_list,
 				deposit_amount,
-				transaction_fee,
-				transaction_seconds_to_add );
+				transaction_fee );
 
 		list_pop( deposit_tuition_refund_list );
-
-		transaction_seconds_to_add += 2;
 
 	} while ( list_next( deposit_tuition_refund_list ) );
 
@@ -1669,8 +1656,82 @@ char *tuition_refund_list_display( LIST *refund_list )
 }
 
 void tuition_refund_list_set_transaction(
+			int *transaction_seconds_to_add,
 			LIST *tuition_refund_list )
 {
+	TUITION_REFUND *tuition_refund;
+	char *cash_account_name;
+	char *revenue_account;
+	char *fees_expense;
+	char *loss;
+
+	if ( !list_rewind( tuition_refund_list ) ) return;
+
+	cash_account_name = entity_self_paypal_cash_account_name();
+
+	fees_expense = account_fees_expense( (char *)0 );
+	loss = account_loss( (char *)0 );
+
+	do {
+		tuition_refund = list_get( tuition_refund_list );
+
+		revenue_account =
+			tuition_refund->
+				enrollment->
+				offering->
+				revenue_account;
+
+		tuition_refund_set_transaction(
+			transaction_seconds_to_add,
+			tuition_refund,
+			cash_account_name,
+			revenue_account,
+			fees_expense,
+			loss );
+
+	} while ( list_next( tuition_refund_list ) );
 }
 
+void tuition_refund_set_transaction(
+			int *transaction_seconds_to_add,
+			TUITION_REFUND *tuition_refund,
+			char *cash_account_name,
+			char *revenue_account,
+			char *account_fees_expense,
+			char *account_loss )
+{
+	if ( ( tuition_refund->tuition_refund_transaction =
+		tuition_refund_transaction(
+			tuition_refund->deposit->payor_entity->full_name,
+			tuition_refund->deposit->payor_entity->street_address,
+			tuition_refund->transaction_date_time,
+			tuition_refund->
+				enrollment->
+				offering->
+				course->
+				program->
+				program_name,
+			tuition_refund->tuition_refund_amount,
+			tuition_refund->tuition_refund_fees_expense,
+			tuition_refund->tuition_refund_overpayment_loss,
+			tuition_refund->
+				tuition_refund_revenue_debit_amount,
+			tuition_refund->tuition_refund_cash_credit_amount,
+			cash_account_name,
+			revenue_account,
+			account_fees_expense,
+			account_loss,
+			*transaction_seconds_to_add ) ) )
+	{
+		tuition_refund->transaction_date_time =
+			tuition_refund->tuition_refund_transaction->
+				transaction_date_time;
+
+		(*transaction_seconds_to_add)++;
+	}
+	else
+	{
+		tuition_refund->transaction_date_time = (char *)0;
+	}
+}
 

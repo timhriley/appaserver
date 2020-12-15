@@ -93,6 +93,7 @@ void enrollment_trigger(
 char *enrollment_memo(	char *program_name );
 
 void enrollment_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *registration_enrollment_list,
 			double deposit_amount );
 

@@ -355,28 +355,23 @@ TRANSACTION *tuition_payment_transaction(
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
-	DATE *transaction_date;
 
 	if ( dollar_virtually_same( payment_amount, 0.0 ) )
 		return (TRANSACTION *)0;
-
-	transaction_date =
-		date_yyyy_mm_dd_hms_new(
-			deposit_date_time );
-
-	date_add_seconds( transaction_date, seconds_to_add );
 
 	transaction =
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			date_display_19( transaction_date ),
+			deposit_date_time
+				/* transaction_date_time */,
 			payment_amount
 				/* transaction_amount */,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			strdup( tuition_payment_memo( program_name ) ) );
+			strdup( tuition_payment_memo( program_name ) ),
+			seconds_to_add );
 
 	transaction->program_name = program_name;
 
@@ -481,14 +476,14 @@ double tuition_payment_fees_expense(
 }
 
 TUITION_PAYMENT *tuition_payment_steady_state(
+			int *transaction_seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_registration_list,
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
-			double deposit_transaction_fee,
-			int transaction_seconds_to_add )
+			double deposit_transaction_fee )
 {
 	if ( !tuition_payment->enrollment->offering )
 	{
@@ -597,11 +592,13 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			account_receivable( (char *)0 ),
 			account_fees_expense( (char *)0 ),
 			account_gain( (char *)0 ),
-			transaction_seconds_to_add ) ) )
+			*transaction_seconds_to_add ) ) )
 	{
 		tuition_payment->transaction_date_time =
 			tuition_payment->tuition_payment_transaction->
 				transaction_date_time;
+
+		(*transaction_seconds_to_add)++;
 	}
 	else
 	{
@@ -1543,6 +1540,7 @@ boolean tuition_payment_structure(
 }
 
 LIST *tuition_payment_list_steady_state(
+			int *transaction_seconds_to_add,
 			LIST *deposit_tuition_payment_list,
 			LIST *deposit_registration_list,
 			LIST *semester_offering_list,
@@ -1553,15 +1551,6 @@ LIST *tuition_payment_list_steady_state(
 	REGISTRATION *registration;
 	OFFERING *offering;
 	ENROLLMENT *enrollment;
-
-	/* -------------------------------------------- */
-	/* Note: ENROLLMENT.transaction_date_time gets 	*/
-	/* REGISTRATION.registration_date_time.		*/
-	/* So, start with 1.				*/
-	/* Note: DEPOSIT.deposit_date becomes		*/
-	/* REGISTRATION.registration_date_time.		*/
-	/* -------------------------------------------- */
-	int transaction_seconds_to_add = 1;
 
 	if ( !list_rewind( deposit_tuition_payment_list ) ) return (LIST *)0;
 
@@ -1606,8 +1595,8 @@ LIST *tuition_payment_list_steady_state(
 		/* ------------------------------- */
 		if ( ! ( enrollment =
 				enrollment_steady_state(
+					transaction_seconds_to_add,
 					enrollment,
-					transaction_seconds_to_add - 1,
 					deposit_amount ) ) )
 		{
 			fprintf(stderr,
@@ -1641,18 +1630,16 @@ LIST *tuition_payment_list_steady_state(
 
 		tuition_payment =
 			tuition_payment_steady_state(
+				transaction_seconds_to_add,
 				tuition_payment,
 				deposit_tuition_payment_list,
 				deposit_registration_list,
 				registration->enrollment_list,
 				semester_offering_list,
 				deposit_amount,
-				transaction_fee,
-				transaction_seconds_to_add );
+				transaction_fee );
 
 		list_pop( deposit_tuition_payment_list );
-
-		transaction_seconds_to_add += 2;
 
 	} while ( list_next( deposit_tuition_payment_list ) );
 
@@ -1695,6 +1682,7 @@ boolean tuition_payment_is_tuition(
 }
 
 void tuition_payment_list_set_transaction(
+			int *transaction_seconds_to_add,
 			LIST *tuition_payment_list )
 {
 	TUITION_PAYMENT *tuition_payment;
@@ -1702,15 +1690,6 @@ void tuition_payment_list_set_transaction(
 	char *receivable;
 	char *fees_expense;
 	char *gain;
-
-	/* -------------------------------------------- */
-	/* Note: ENROLLMENT.transaction_date_time gets 	*/
-	/* REGISTRATION.registration_date_time.		*/
-	/* So, start with 1.				*/
-	/* Note: DEPOSIT.deposit_date becomes		*/
-	/* REGISTRATION.registration_date_time.		*/
-	/* -------------------------------------------- */
-	int transaction_seconds_to_add = 1;
 
 	if ( !list_rewind( tuition_payment_list ) ) return;
 
@@ -1723,12 +1702,12 @@ void tuition_payment_list_set_transaction(
 		tuition_payment = list_get( tuition_payment_list );
 
 		tuition_payment_set_transaction(
+			transaction_seconds_to_add,
 			tuition_payment,
 			cash_account_name,
 			receivable,
 			fees_expense,
-			gain,
-			transaction_seconds_to_add );
+			gain );
 
 		transaction_seconds_to_add += 2;
 
@@ -1736,12 +1715,12 @@ void tuition_payment_list_set_transaction(
 }
 
 void tuition_payment_set_transaction(
+			int *transaction_seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
 			char *cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense,
-			char *account_gain,
-			int transaction_seconds_to_add )
+			char *account_gain )
 {
 	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
@@ -1764,11 +1743,13 @@ void tuition_payment_set_transaction(
 			account_receivable,
 			account_fees_expense,
 			account_gain,
-			transaction_seconds_to_add ) ) )
+			*transaction_seconds_to_add ) ) )
 	{
 		tuition_payment->transaction_date_time =
 			tuition_payment->tuition_payment_transaction->
 				transaction_date_time;
+
+		(*transaction_seconds_to_add)++;
 	}
 	else
 	{

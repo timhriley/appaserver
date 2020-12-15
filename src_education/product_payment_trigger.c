@@ -134,6 +134,7 @@ void product_payment_trigger_insert_update(
 			char *deposit_date_time )
 {
 	PRODUCT_PAYMENT *product_payment;
+	int transaction_seconds_to_add = 0;
 
 	if ( ! ( product_payment =
 			product_payment_fetch(
@@ -151,9 +152,10 @@ void product_payment_trigger_insert_update(
 
 	if ( ! ( product_payment =
 			product_payment_steady_state(
-			product_payment,
-			product_payment->deposit->deposit_amount,
-			product_payment->deposit->transaction_fee ) ) )
+				&transaction_seconds_to_add,
+				product_payment,
+				product_payment->deposit->deposit_amount,
+				product_payment->deposit->transaction_fee ) ) )
 	{
 		return;
 	}
