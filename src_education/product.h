@@ -24,6 +24,7 @@
 typedef struct
 {
 	char *product_name;
+	double price;
 	char *program_name;
 	char *revenue_account;
 } PRODUCT;

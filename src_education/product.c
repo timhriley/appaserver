@@ -93,6 +93,7 @@ PRODUCT *product_parse( char *input )
 	char product_name[ 128 ];
 	char program_name[ 128 ];
 	char revenue_account[ 128 ];
+	char price[ 128 ];
 	PRODUCT *product;
 
 	if ( !input || !*input ) return (PRODUCT *)0;
@@ -110,6 +111,9 @@ PRODUCT *product_parse( char *input )
 
 	piece( revenue_account, SQL_DELIMITER, input, 2 );
 	product->revenue_account = strdup( revenue_account );
+
+	piece( price, SQL_DELIMITER, input, 3 );
+	product->price = atof( revenue_account );
 
 	return product;
 }
