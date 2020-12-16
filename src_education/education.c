@@ -281,16 +281,13 @@ DEPOSIT *education_deposit(
 		return (DEPOSIT *)0;
 	}
 
-	if ( deposit->deposit_amount > 0.0 )
-	{
-		deposit_set_paypal_item_expected_revenue(
-			deposit->paypal_item_list,
-			semester_offering_list );
+	deposit_set_paypal_item_expected_revenue(
+		deposit->paypal_item_list,
+		semester_offering_list );
 
-		deposit->paypal_item_expected_revenue_total =
-			paypal_item_expected_revenue_total(
-				deposit->paypal_item_list );
-	}
+	deposit->paypal_item_expected_revenue_total =
+		paypal_item_expected_revenue_total(
+			deposit->paypal_item_list );
 
 	deposit->paypal_item_nonexpected_revenue_length =
 		paypal_item_nonexpected_revenue_length(

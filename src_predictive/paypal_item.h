@@ -106,6 +106,7 @@ double paypal_item_value(
 			int nonexpected_revenue_length );
 
 double paypal_item_fee(	double deposit_amount,
+			double expected_revenue,
 			double transaction_fee,
 			double item_value );
 

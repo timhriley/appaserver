@@ -223,14 +223,21 @@ double paypal_item_value(
 {
 	double item_value = 0.0;
 
-	/* Case 1: this is a refund */
+	/* Case 1: this is a refund of an enrollment */
+	/* ----------------------------------------- */
+	if ( expected_revenue && deposit_amount < 0.0 )
+	{
+		item_value = expected_revenue;
+	}
+	else
+	/* Case 2: this is a refund */
 	/* ------------------------ */
 	if ( deposit_amount < 0.0 )
 	{
 		item_value = 0.0 - deposit_amount;
 	}
 	else
-	/* Case 2: this is an enrollment */
+	/* Case 3: this is an enrollment */
 	/* ----------------------------- */
 	if ( expected_revenue )
 	{
@@ -240,7 +247,7 @@ double paypal_item_value(
 			item_value = expected_revenue;
 	}
 	else
-	/* Case 3: this isn't an enrollment */
+	/* Case 4: this isn't an enrollment */
 	/* -------------------------------- */
 	{
 		double remaining_cost;
@@ -255,13 +262,22 @@ double paypal_item_value(
 }
 
 double paypal_item_fee(	double deposit_amount,
+			double expected_revenue,
 			double transaction_fee,
 			double item_value )
 {
 	double item_percent;
 	double item_fee;
 
-	/* Case 1: this is a refund */
+	/* Case 1: this is a refund of an enrollment */
+	/* ----------------------------------------- */
+	if ( expected_revenue && deposit_amount < 0.0 )
+	{
+		item_percent = item_value / ( 0.0 - deposit_amount );
+		item_fee = transaction_fee * item_percent;
+	}
+	else
+	/* Case 2: this is a refund */
 	/* ------------------------ */
 	if ( deposit_amount < 0.0 )
 	{
@@ -363,6 +379,7 @@ PAYPAL_ITEM *paypal_item_steady_state(
 	paypal_item->item_fee =
 		paypal_item_fee(
 			deposit_amount,
+			expected_revenue,
 			transaction_fee,
 			paypal_item->item_value );
 
