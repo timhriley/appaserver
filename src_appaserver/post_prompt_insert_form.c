@@ -87,8 +87,12 @@ int post_prompt_insert_database(
 
 int main( int argc, char **argv )
 {
-	char *login_name, *session, *application_name, *folder_name;
-	char *role_name, *state;
+	char *login_name;
+	char *session;
+	char *application_name;
+	char *folder_name;
+	char *role_name;
+	char *state;
 	LIST *posted_attribute_name_list;
 	LIST *non_populated_attribute_name_list;
 	LIST *ignore_primary_attribute_name_list;
@@ -196,10 +200,11 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	appaserver = appaserver_new_appaserver(
-					application_name,
-					session,
-					folder_name );
+	appaserver =
+		appaserver_new_appaserver(
+			application_name,
+			session,
+			folder_name );
 
 	appaserver->folder->attribute_list =
 		attribute_get_attribute_list(
@@ -367,9 +372,9 @@ int main( int argc, char **argv )
 			role->attribute_exclude_list );
 
 	appaserver->folder->primary_attribute_name_list =
-			folder_get_primary_attribute_name_list(
-				appaserver->folder->
-					attribute_list );
+		folder_get_primary_attribute_name_list(
+			appaserver->folder->
+				attribute_list );
 
 	/* -------------------------------------------- */
 	/* If pressed <Insert> from the lookup screen	*/
@@ -569,6 +574,14 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	sprintf( sys_string,
 "echo \"%s\" 								|"
 "output_insert_table_form %s %s %s %s '%s' '%s' '%s' '%s' 2>>%s		 ",
@@ -590,7 +603,7 @@ int main( int argc, char **argv )
 
 	exit( 0 );
 
-} /* main() */
+}
 
 int post_prompt_insert_database(
 				char **message,
@@ -745,7 +758,7 @@ int post_prompt_insert_database(
 
 	return results;
 
-} /* post_prompt_insert_database() */
+}
 
 void output_missing_information_message(char *application_name,
 					char *appaserver_mount_point,
@@ -775,7 +788,7 @@ void output_missing_information_message(char *application_name,
 		list_display( missing_attribute_name_list ) );
 	document_close();
 
-} /* output_missing_information_message() */
+}
 
 void remove_primary_key_reference_number(
 			DICTIONARY *post_dictionary,
@@ -803,7 +816,7 @@ void remove_primary_key_reference_number(
 				key );
 		}
 	} while( list_next( attribute_list ) );
-} /* remove_primary_key_reference_number() */
+}
 
 void insert_one2m_pair_sequence(
 			FOLDER *folder,
@@ -936,7 +949,7 @@ void insert_one2m_pair_sequence(
 
 	exit( 0 );
 
-} /* insert_one2m_pair_sequence() */
+}
 
 void set_null_operator_data_to_null(
 			DICTIONARY *query_dictionary,
@@ -1002,5 +1015,5 @@ void set_null_operator_data_to_null(
 
 	} while( list_next( attribute_name_list ) );
 
-} /* set_null_operator_data_to_null() */
+}
 

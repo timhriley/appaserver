@@ -78,7 +78,7 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 		DICTIONARY *lookup_before_drop_down_dictionary,
 		char *state );
 
-LIST *lookup_before_drop_down_get_folder_list(
+LIST *lookup_before_drop_down_folder_list(
 		boolean *omit_lookup_before_drop_down,
 		LIST *mto1_lookup_before_drop_down_related_folder_list,
 		char *state );
@@ -182,7 +182,7 @@ LIST *lookup_before_drop_down_get_non_edit_folder_name_list(
 boolean lookup_before_drop_down_preprompt_dictionary_empty(
 			DICTIONARY *preprompt_dictionary );
 
-boolean lookup_before_drop_down_get_omit(
+boolean lookup_before_drop_down_omit(
 		LIST *mto1_lookup_before_drop_down_related_folder_list );
 
 #endif

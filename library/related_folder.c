@@ -1414,7 +1414,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 	if ( !related_folder_list ) related_folder_list = list_new_list();
 
 	local_related_folder_list =
-		related_folder_get_related_folder_list(
+		related_folder_related_folder_list(
 			application_name,
 			session,
 			folder_name,
@@ -1595,7 +1595,7 @@ LIST *related_folder_1tom_related_folder_list(
 	LIST *local_related_folder_list;
 
 	local_related_folder_list =
-		related_folder_get_related_folder_list(
+		related_folder_related_folder_list(
 			application_name,
 			session,
 			folder_name,
@@ -1912,7 +1912,7 @@ LIST *related_folder_1tom_related_folder_list(
 
 static LIST *global_related_folder_list = {0};
 
-LIST *related_folder_get_global_related_folder_list(
+LIST *related_folder_global_related_folder_list(
 			char *application_name,
 			char *session,
 			char delimiter )
@@ -2046,14 +2046,12 @@ LIST *related_folder_get_global_related_folder_list(
 		related_folder->join_1tom_each_row =
 				(*buffer == 'y');
 
-/* Want to retire omit_lookup_before_drop_down.
 		piece(	buffer,
 			delimiter,
 			related_record,
 			RELATED_FOLDER_OMIT_LOOKUP_BEFORE_DROP_DOWN_PIECE );
 		related_folder->omit_lookup_before_drop_down =
 				(*buffer == 'y');
-*/
 
 		piece(	buffer,
 			delimiter,
@@ -2089,7 +2087,7 @@ LIST *related_folder_mto1_related_folder_list(
 	if ( !global_related_folder_list )
 	{
 		global_related_folder_list =
-			related_folder_get_global_related_folder_list(
+			related_folder_global_related_folder_list(
 				application_name,
 				BOGUS_SESSION,
 				RELATED_FOLDER_DELIMITER );
@@ -2137,7 +2135,7 @@ LIST *related_folder_mto1_related_folder_list(
 
 }
 
-LIST *related_folder_get_related_folder_list(
+LIST *related_folder_related_folder_list(
 			char *application_name,
 			char *session,
 			char *folder_name,
@@ -2152,10 +2150,10 @@ LIST *related_folder_get_related_folder_list(
 	if ( !global_related_folder_list )
 	{
 		global_related_folder_list =
-			related_folder_get_global_related_folder_list(
-						application_name,
-						session,
-						RELATED_FOLDER_DELIMITER );
+			related_folder_global_related_folder_list(
+				application_name,
+				session,
+				RELATED_FOLDER_DELIMITER );
 	}
 
 	related_folder_list = list_new_list();
@@ -2482,7 +2480,7 @@ boolean related_folder_exists_1tom_relations(
 			(LIST *)0 /* folder_foreign_attribute_name_list */ );
 
 	one2m_related_folder_list =
-		related_folder_get_related_folder_list(
+		related_folder_related_folder_list(
 			application_name,
 			session,
 			folder_name,
@@ -3331,7 +3329,7 @@ boolean related_folder_exists_mto1_folder_name_list(
 
 }
 
-LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
+LIST *related_folder_lookup_before_drop_down_related_folder_list(
 				LIST *related_folder_list,
 				char *application_name,
 				char *folder_name,
@@ -3354,7 +3352,7 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 	if ( !related_folder_list ) related_folder_list = list_new_list();
 
 	local_related_folder_list =
-		related_folder_get_related_folder_list(
+		related_folder_related_folder_list(
 			application_name,
 			BOGUS_SESSION,
 			folder_name,
@@ -3463,7 +3461,7 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 			related_folder );
 
 		related_folder_list =
-		related_folder_get_lookup_before_drop_down_related_folder_list(
+		related_folder_lookup_before_drop_down_related_folder_list(
 				related_folder_list,
 				application_name,
 				related_folder->folder->folder_name,

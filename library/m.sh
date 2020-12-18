@@ -3,7 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_education
-	make generate_invoice
+	cd ../src_appaserver
+	make post_choose_folder
 fi
 

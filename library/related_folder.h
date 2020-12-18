@@ -254,12 +254,12 @@ LIST *related_folder_1tom_related_folder_list(
 			LIST *original_primary_attribute_name_list,
 			char *prior_related_attribute_name );
 
-LIST *related_folder_get_related_folder_list(
-					char *application_name,
-					char *session,
-					char *folder_name,
-					enum relation_type,
-					LIST *existing_related_folder_list );
+LIST *related_folder_related_folder_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			enum relation_type,
+			LIST *existing_related_folder_list );
 
 LIST *related_folder_get_mto1_related_folder_list(
 				LIST *related_folder_list,
@@ -304,7 +304,7 @@ boolean related_folder_exists_1tom_relations(
 				LIST *original_primary_attribute_name_list,
 				char *related_attribute_name );
 
-LIST *related_folder_get_global_related_folder_list(
+LIST *related_folder_global_related_folder_list(
 					char *application_name,
 					char *session,
 					char delimiter );
@@ -449,7 +449,7 @@ void related_folder_set_join_where_clause(
 				FOLDER *folder,
 				char *application_name );
 
-LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
+LIST *related_folder_lookup_before_drop_down_related_folder_list(
 				LIST *related_folder_list,
 				char *application_name,
 				char *folder_name,

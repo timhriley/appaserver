@@ -40,7 +40,7 @@ char *prompt_edit_form_get_sys_string(
 					char *role_name,
 					char *state );
 
-char *prompt_insert_form_get_sys_string(
+char *prompt_insert_form_sys_string(
 					char *login_name,
 					char *application_name,
 					char *session,
@@ -50,7 +50,11 @@ char *prompt_insert_form_get_sys_string(
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name, *state;
+	char *login_name;
+	char *application_name;
+	char *session;
+	char *folder_name;
+	char *state;
 	char *role_name;
 	char *form;
 	char sys_string[ 1024 ];
@@ -89,22 +93,6 @@ int main( int argc, char **argv )
 	add_utility_to_path();
 	add_relative_source_directory_to_path( application_name );
 	environ_appaserver_home();
-
-	if ( !*folder_name )
-	{
-		DICTIONARY *post_dictionary;
-
-		post_dictionary =
-			post2dictionary(
-				stdin,
-				(char *)0 /* appaserver_data_directory */,
-				(char *)0 /* session */ );
-
-		folder_name =
-			dictionary_get_string(
-				post_dictionary,
-				CHOOSE_FOLDER_MENU_NAME );
-	}
 
 	if ( session_remote_ip_address_changed(
 		application_name,
@@ -146,13 +134,30 @@ int main( int argc, char **argv )
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
 
+	if ( !*folder_name )
+	{
+		DICTIONARY *post_dictionary;
+
+		post_dictionary =
+			post2dictionary(
+				stdin,
+				(char *)0 /* appaserver_data_directory */,
+				(char *)0 /* session */ );
+
+		folder_name =
+			dictionary_get_string(
+				post_dictionary,
+				CHOOSE_FOLDER_MENU_NAME );
+	}
+
 	role = role_new_role(	application_name,
 				role_name );
 
-	appaserver = appaserver_new_appaserver(
-					application_name,
-					session,
-					folder_name );
+	appaserver =
+		appaserver_new_appaserver(
+			application_name,
+			session,
+			folder_name );
 
 	appaserver->folder->mto1_related_folder_list = 
 		related_folder_get_mto1_related_folder_list(
@@ -234,7 +239,7 @@ int main( int argc, char **argv )
 		if ( strcmp( form, "prompt" ) == 0 )
 		{
 			strcpy( sys_string,
-				prompt_insert_form_get_sys_string(
+				prompt_insert_form_sys_string(
 					login_name,
 					application_name,
 					session,
@@ -373,13 +378,13 @@ char *prompt_edit_form_get_sys_string(
 
 }
 
-char *prompt_insert_form_get_sys_string(
-					char *login_name,
-					char *application_name,
-					char *session,
-					char *folder_name,
-					char *role_name,
-					char *state )
+char *prompt_insert_form_sys_string(
+			char *login_name,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			char *state )
 {
 	static char sys_string[ 1024 ];
 	DICTIONARY *lookup_before_drop_down_dictionary;
@@ -398,6 +403,15 @@ char *prompt_insert_form_get_sys_string(
 			lookup_before_drop_down_dictionary,
 			state );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: boolean = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+lookup_before_drop_down->omit_lookup_before_drop_down );
+m2( application_name, msg );
+}
 	if ( !lookup_before_drop_down->omit_lookup_before_drop_down
 	&&   ( lookup_before_drop_down->insert_pair_base_folder_name =
 		lookup_before_drop_down_get_insert_pair_base_folder_name(
