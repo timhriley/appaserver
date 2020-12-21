@@ -44,12 +44,12 @@ FILE *tuition_refund_update_open(
 			void );
 
 double tuition_refund_fees_expense(
-			double deposit_transaction_fee,
-			int deposit_tuition_refund_list_length );
+			double paypal_transaction_fee,
+			int paypal_tuition_refund_list_length );
 
 double tution_refund_overpayment_loss(
-			double deposit_overpayment_loss,
-			int deposit_registration_list_length );
+			double paypal_overpayment_loss,
+			int paypal_registration_list_length );
 
 double tuition_refund_total(
 			LIST *tuition_refund_list );
@@ -57,7 +57,7 @@ double tuition_refund_total(
 double tuition_refund_amount(
 			double deposit_amount,
 			double registration_tuition,
-			int deposit_registration_list_length );
+			int paypal_registration_list_length );
 
 char *tuition_refund_primary_where(
 			char *student_full_name,
@@ -71,13 +71,13 @@ char *tuition_refund_primary_where(
 
 LIST *tuition_refund_system_list(
 			char *sys_string,
-			boolean fetch_deposit,
+			boolean fetch_paypal,
 			boolean fetch_enrollment );
 
 double tuition_refund_cash_credit_amount(
 			double deposit_amount,
 			double tuition_refund_fees_expense,
-			int deposit_registration_list_length );
+			int paypal_registration_list_length );
 
 void tuition_refund_list_insert(
 			LIST *tuition_refund_list );
@@ -101,33 +101,33 @@ void tuition_refund_insert_pipe(
 			char *transaction_date_time );
 
 void tuition_refund_list_enrollment_insert(
-			LIST *deposit_tuition_refund_list );
+			LIST *paypal_tuition_refund_list );
 
 void tuition_refund_list_registration_insert(
-			LIST *deposit_tuition_refund_list );
+			LIST *paypal_tuition_refund_list );
 
 void tuition_refund_list_student_entity_insert(
-			LIST *deposit_tuition_refund_list );
+			LIST *paypal_tuition_refund_list );
 
 void tuition_refund_list_student_insert(
-			LIST *deposit_tuition_refund_list );
+			LIST *paypal_tuition_refund_list );
 
 void tuition_refund_list_payor_entity_insert(
-			LIST *deposit_tuition_refund_list );
+			LIST *paypal_tuition_refund_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */
 char *tuition_refund_list_display(
-			LIST *deposit_tuition_refund_list );
+			LIST *paypal_tuition_refund_list );
 
 LIST *tuition_refund_registration_list(
-			LIST *deposit_tuition_refund_list );
+			LIST *paypal_tuition_refund_list );
 
 LIST *tuition_refund_enrollment_list(
-			LIST *deposit_tuition_refund_list );
+			LIST *paypal_tuition_refund_list );
 
 void tuition_refund_list_trigger(
-			LIST *deposit_tuition_refund_list );
+			LIST *paypal_tuition_refund_list );
 
 double tuition_refund_receivable_credit_amount(
 			double tuition_refund_amount );
@@ -151,8 +151,8 @@ LIST *tuition_refund_transaction_list(
 
 LIST *tuition_refund_list_steady_state(
 			int *transaction_seconds_to_add,
-			LIST *deposit_tuition_refund_list,
-			LIST *deposit_registration_list,
+			LIST *paypal_tuition_refund_list,
+			LIST *paypal_registration_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
 			double transaction_fee );

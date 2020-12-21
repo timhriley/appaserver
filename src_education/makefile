@@ -20,7 +20,7 @@ EDUCATION_CORE=								\
 		product_payment.o					\
 		product_refund.o					\
 		education.o						\
-		deposit.o						\
+		paypal_deposit.o					\
 		semester.o						\
 		student.o						\
 		program.o						\
@@ -105,7 +105,7 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/paypal_dataset.o
 
 EXECUTABLES=	offering_trigger					\
-		deposit_trigger						\
+		paypal_trigger						\
 		registration_trigger					\
 		enrollment_trigger					\
 		tuition_payment_trigger					\
@@ -234,7 +234,7 @@ product_refund_trigger: product_refund_trigger.c			\
 		product_refund_trigger.c				\
 		-o product_refund_trigger
 
-deposit_trigger: deposit_trigger.c					\
+paypal_trigger: paypal_trigger.c					\
 	${EXTERNAL_LIBRARY} 						\
 	${PREDICTIVEBOOKS_CORE}						\
 	${EDUCATION_CORE}
@@ -244,8 +244,8 @@ deposit_trigger: deposit_trigger.c					\
 		${EXTERNAL_LIBRARY}					\
 		${PREDICTIVEBOOKS_CORE}					\
 		${EDUCATION_CORE}					\
-		deposit_trigger.c					\
-		-o deposit_trigger
+		paypal_trigger.c					\
+		-o paypal_trigger
 
 registration_trigger: registration_trigger.c				\
 	${EXTERNAL_LIBRARY} 						\
@@ -345,8 +345,8 @@ education.o: education.c education.h
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c education.c
 
-deposit.o: deposit.c deposit.h
+paypal_deposit.o: paypal_deposit.c paypal_deposit.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
-		-c deposit.c
+		-c paypal_deposit.c
 

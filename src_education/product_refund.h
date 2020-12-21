@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "product.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "transaction.h"
 
@@ -44,7 +44,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	PRODUCT *product;
-	DEPOSIT *deposit;
+	PAYPAL_DEPOSIT *paypal_deposit;
 
 	/* Process */
 	/* ------- */
@@ -67,18 +67,18 @@ PRODUCT_REFUND *product_refund_fetch(
 			int year,
 			char *deposit_date_time,
 			boolean fetch_product,
-			boolean fetch_deposit );
+			boolean fetch_paypal );
 
 PRODUCT_REFUND *product_refund_parse(
 			char *input,
 			boolean fetch_product,
-			boolean fetch_deposit );
+			boolean fetch_paypal );
 
 PRODUCT_REFUND *product_refund_steady_state(
 			int *transaction_seconds_to_add,
 			PRODUCT_REFUND *product_refund,
 			double deposit_amount,
-			double deposit_transaction_fee );
+			double paypal_transaction_fee );
 
 PRODUCT_REFUND *product_refund(
 			LIST *product_list,
@@ -88,7 +88,7 @@ PRODUCT_REFUND *product_refund(
 			/* -------- */
 			/* Set only */
 			/* -------- */
-			DEPOSIT *deposit );
+			PAYPAL_DEPOSIT *paypal_deposit );
 
 void product_refund_set_transaction(
 			int *transaction_seconds_to_add,

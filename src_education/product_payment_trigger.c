@@ -37,7 +37,6 @@ void product_payment_trigger_predelete(
 
 void product_payment_trigger_insert_update(
 			char *product_name,
-			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -101,7 +100,6 @@ int main( int argc, char **argv )
 	{
 		product_payment_trigger_insert_update(
 			product_name,
-			product_fetch_program_name( product_name ),
 			payor_full_name,
 			payor_street_address,
 			season_name,
@@ -112,7 +110,7 @@ int main( int argc, char **argv )
 		/* Even if called from deposit_trigger,	*/
 		/* need to set payment_total.		*/
 		/* ------------------------------------ */
-		deposit_trigger(
+		paypal_deposit_trigger(
 			payor_full_name,
 			payor_street_address,
 			season_name,
@@ -126,7 +124,6 @@ int main( int argc, char **argv )
 
 void product_payment_trigger_insert_update(
 			char *product_name,
-			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -154,8 +151,12 @@ void product_payment_trigger_insert_update(
 			product_payment_steady_state(
 				&transaction_seconds_to_add,
 				product_payment,
-				product_payment->deposit->deposit_amount,
-				product_payment->deposit->transaction_fee ) ) )
+				product_payment->
+					paypal_deposit->
+					deposit_amount,
+				product_payment->
+					paypal_deposit->
+					transaction_fee ) ) )
 	{
 		return;
 	}
@@ -207,7 +208,7 @@ void product_payment_trigger_predelete(
 				year,
 				deposit_date_time,
 				0 /* not fetch_product */,
-				0 /* not fetch_deposit */ ) ) )
+				0 /* not fetch_paypal */ ) ) )
 	{
 		return;
 	}
@@ -217,11 +218,11 @@ void product_payment_trigger_predelete(
 	{
 		transaction_delete(
 			product_payment->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				full_name,
 			product_payment->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				street_address,
 			product_payment->transaction_date_time );
@@ -233,11 +234,11 @@ void product_payment_trigger_predelete(
 			/* ------------------------- */
 			journal_delete(
 				product_payment->
-					deposit->
+					paypal_deposit->
 					payor_entity->
 					full_name,
 				product_payment->
-					deposit->
+					paypal_deposit->
 					payor_entity->
 					street_address,
 				product_payment->transaction_date_time ) );

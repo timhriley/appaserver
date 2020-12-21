@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "enrollment.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -54,7 +54,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	ENROLLMENT *enrollment;
-	DEPOSIT *deposit;
+	PAYPAL_DEPOSIT *paypal_deposit;
 
 	/* Process */
 	/* ------- */
@@ -94,25 +94,25 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			char *payor_street_address,
 			char *deposit_date_time,
 			boolean fetch_enrollment,
-			boolean fetch_deposit );
+			boolean fetch_paypal );
 
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
-			boolean fetch_deposit,
+			boolean fetch_paypal,
 			boolean fetch_enrollment );
 
 TUITION_PAYMENT *tuition_payment_steady_state(
 			int *transaction_seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
-			LIST *deposit_tuition_payment_list,
-			LIST *deposit_registration_list,
+			LIST *paypal_tuition_payment_list,
+			LIST *paypal_registration_list,
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
-			double deposit_transaction_fee );
+			double paypal_transaction_fee );
 
 TUITION_PAYMENT *tuition_payment_seek(
-			LIST *deposit_tuition_payment_list,
+			LIST *paypal_tuition_payment_list,
 			char *deposit_date_time );
 
 TUITION_PAYMENT *tuition_payment(
@@ -123,7 +123,7 @@ TUITION_PAYMENT *tuition_payment(
 			double item_fee,
 			double item_gain,
 			OFFERING *offering,
-			DEPOSIT *deposit );
+			PAYPAL_DEPOSIT *paypal_deposit );
 
 boolean tuition_payment_structure(
 			TUITION_PAYMENT *tuition_payment );
@@ -133,7 +133,7 @@ LIST *tuition_payment_list(
 			int year,
 			LIST *paypal_item_steady_state_list,
 			LIST *semester_offering_list,
-			DEPOSIT *deposit );
+			PAYPAL_DEPOSIT *paypal_deposit );
 
 void tuition_payment_set_transaction(
 			int *transaction_seconds_to_add,

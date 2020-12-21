@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "transaction.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 
 FILE *program_payment_insert_open(
 			char *error_filename );
@@ -86,7 +86,7 @@ LIST *program_payment_list(
 			/* -------- */
 			/* Set only */
 			/* -------- */
-			DEPOSIT *deposit );
+			PAYPAL_DEPOSIT *paypal_deposit );
 
 void program_payment_trigger(
 			char *program_name,

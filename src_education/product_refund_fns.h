@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "transaction.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 
 FILE *product_refund_insert_open(
 			char *error_filename );
@@ -32,7 +32,7 @@ void product_refund_insert_pipe(
 LIST *product_refund_system_list(
 			char *sys_string,
 			boolean fetch_product,
-			boolean fetch_deposit );
+			boolean fetch_paypal );
 
 char *product_refund_sys_string(
 			char *where );
@@ -79,7 +79,7 @@ double product_refund_amount(
 /* Note: there's always only one of them. */
 /* -------------------------------------- */
 double product_refund_fees_expense(
-			double deposit_fees_expense );
+			double paypal_fees_expense );
 
 /* Note: there's always only one of them. */
 /* -------------------------------------- */
@@ -93,7 +93,7 @@ LIST *product_refund_list(
 			/* -------- */
 			/* Set only */
 			/* -------- */
-			DEPOSIT *deposit );
+			PAYPAL_DEPOSIT *paypal_deposit );
 
 void product_refund_trigger(
 			char *product_name,
@@ -116,14 +116,14 @@ void product_refund_list_trigger(
 /* Safely returns heap memory */
 /* -------------------------- */
 char *product_refund_list_display(
-			LIST *deposit_product_refund_list );
+			LIST *paypal_product_refund_list );
 
 LIST *product_refund_transaction_list(
 			LIST *product_refund_list );
 
 LIST *product_refund_list_steady_state(
 			int *transaction_seconds_to_add,
-			LIST *deposit_product_refund_list,
+			LIST *paypal_product_refund_list,
 			double deposit_amount,
 			double transaction_fee );
 
@@ -133,7 +133,7 @@ char *product_refund_memo(
 			char *product_name );
 
 void product_refund_list_payor_entity_insert(
-			LIST *deposit_product_refund_list );
+			LIST *paypal_product_refund_list );
 
 void product_refund_list_set_transaction(
 			int *transaction_seconds_to_add,

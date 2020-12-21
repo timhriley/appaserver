@@ -1,5 +1,5 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/deposit_trigger.c	*/
+/* $APPASERVER_HOME/src_education/paypal_trigger.c	*/
 /* ---------------------------------------------------- */
 /* 							*/
 /* Freely available software: see Appaserver.org	*/
@@ -17,14 +17,14 @@
 #include "semester.h"
 #include "tuition_payment_fns.h"
 #include "program_payment_fns.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-DEPOSIT *deposit_trigger_execute(
+PAYPAL_DEPOSIT *paypal_deposit_trigger_execute(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
@@ -77,8 +77,8 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) ==  0
 	||   strcmp( state, "payment" ) ==  0 )
 	{
-		DEPOSIT *deposit =
-			deposit_trigger_execute(
+		PAYPAL_DEPOSIT *paypal_deposit =
+			paypal_deposit_trigger_execute(
 				payor_full_name,
 				payor_street_address,
 				season_name,
@@ -89,34 +89,34 @@ int main( int argc, char **argv )
 		&&   strcmp( state, "program_payment" ) != 0 )
 		{
 			if ( list_length(
-				deposit->tuition_payment_list ) )
+				paypal_deposit->tuition_payment_list ) )
 			{
 				tuition_payment_list_trigger(
-					deposit->tuition_payment_list );
+					paypal_deposit->tuition_payment_list );
 			}
 
 			if ( list_length(
-				deposit->program_payment_list ) )
+				paypal_deposit->program_payment_list ) )
 			{
 				program_payment_list_trigger(
-					deposit->program_payment_list );
+					paypal_deposit->program_payment_list );
 			}
 		}
 	}
 	return 0;
 }
 
-DEPOSIT *deposit_trigger_execute(
+PAYPAL_DEPOSIT *paypal_deposit_trigger_execute(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *season_name,
 			int year,
 			char *deposit_date_time )
 {
-	DEPOSIT *deposit;
+	PAYPAL_DEPOSIT *paypal_deposit;
 
-	if ( ! ( deposit =
-			deposit_fetch(
+	if ( ! ( paypal_deposit =
+			paypal_deposit_fetch(
 				payor_full_name,
 				payor_street_address,
 				season_name,
@@ -127,49 +127,49 @@ DEPOSIT *deposit_trigger_execute(
 				1 /* fetch_product_payment_list */,
 				1 /* fetch_tuition_refund_list */ ) ) )
 	{
-		return (DEPOSIT *)0;
+		return (PAYPAL_DEPOSIT *)0;
 	}
 
-	if ( !deposit->payor_entity )
+	if ( !paypal_deposit->payor_entity )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: deposit_fetch() returned empty payor_entity.\n",
+"ERROR in %s/%s()/%d: paypal_deposit_fetch() returned empty payor_entity.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( !deposit->semester )
+	if ( !paypal_deposit->semester )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: deposit_fetch() returned empty semester.\n",
+"ERROR in %s/%s()/%d: paypal_deposit_fetch() returned empty semester.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( deposit =
-			deposit_steady_state(
-				deposit,
+	if ( ! ( paypal_deposit =
+			paypal_deposit_steady_state(
+				paypal_deposit,
 				semester_offering_list(
-					deposit->semester->season_name,
-					deposit->semester->year ) ) ) )
+					paypal_deposit->semester->season_name,
+					paypal_deposit->semester->year ) ) ) )
 	{
-		return (DEPOSIT *)0;
+		return (PAYPAL_DEPOSIT *)0;
 	}
 
-	deposit_update(
-			deposit->tuition_payment_total,
-			deposit->program_payment_total,
-			deposit->net_revenue,
-			deposit->payor_entity->full_name,
-			deposit->payor_entity->street_address,
-			deposit->semester->season_name,
-			deposit->semester->year,
-			deposit->deposit_date_time );
+	paypal_deposit_update(
+			paypal_deposit->tuition_payment_total,
+			paypal_deposit->program_payment_total,
+			paypal_deposit->net_revenue,
+			paypal_deposit->payor_entity->full_name,
+			paypal_deposit->payor_entity->street_address,
+			paypal_deposit->semester->season_name,
+			paypal_deposit->semester->year,
+			paypal_deposit->deposit_date_time );
 
-	return deposit;
+	return paypal_deposit;
 }
 

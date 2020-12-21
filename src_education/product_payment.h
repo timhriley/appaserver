@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "product.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "transaction.h"
 
@@ -44,7 +44,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	PRODUCT *product;
-	DEPOSIT *deposit;
+	PAYPAL_DEPOSIT *paypal_deposit;
 
 	/* Process */
 	/* ------- */
@@ -84,7 +84,7 @@ PRODUCT_PAYMENT *product_payment(
 			PRODUCT *product,
 			double item_value,
 			double item_fee,
-			DEPOSIT *deposit );
+			PAYPAL_DEPOSIT *paypal_deposit );
 
 void product_payment_set_transaction(
 			int *transaction_seconds_to_add,

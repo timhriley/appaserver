@@ -29,8 +29,9 @@
 #include "program_payment_fns.h"
 #include "product_payment_fns.h"
 #include "product_refund_fns.h"
+#include "product.h"
 #include "paypal.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 #include "education.h"
 #include "paypal_upload.h"
 
@@ -72,7 +73,7 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 128 ];
 	char *maximum_date = {0};
-	LIST *deposit_list;
+	LIST *paypal_deposit_list;
 	LIST *not_exists_course_name_list = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -134,11 +135,11 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	deposit_list =
-		deposit_list_set_transaction(
-			/* -------------------------------- */
-			/* Returns education_deposit_list() */
-			/* -------------------------------- */
+	paypal_deposit_list =
+		paypal_deposit_list_set_transaction(
+			/* --------------------------------------- */
+			/* Returns education_paypal_deposit_list() */
+			/* --------------------------------------- */
 			paypal_upload_deposit_list(
 				&maximum_date,
 				spreadsheet_filename,
@@ -173,8 +174,8 @@ int main( int argc, char **argv )
 			/* --------------------------------------- */
 			transaction_list_journal_program_insert(
 				&first_transaction_date_time,
-				deposit_list_transaction_list(
-					deposit_list ),
+				paypal_deposit_list_transaction_list(
+					paypal_deposit_list ),
 				1 /* replace */ );
 
 		if ( list_length( account_name_list ) )
@@ -183,19 +184,19 @@ int main( int argc, char **argv )
 				first_transaction_date_time,
 				account_name_list );
 
-			deposit_list =
-				education_deposit_list_insert(
-					deposit_list );
+			paypal_deposit_list =
+				education_paypal_deposit_list_insert(
+					paypal_deposit_list );
 
-			deposit_list =
-				deposit_list_registration_fetch_update(
-					deposit_list,
+			paypal_deposit_list =
+				paypal_deposit_list_registration_fetch_update(
+					paypal_deposit_list,
 					season_name,
 					year );
 
-			deposit_list =
-				deposit_list_offering_fetch_update(
-					deposit_list,
+			paypal_deposit_list =
+				paypal_deposit_list_offering_fetch_update(
+					paypal_deposit_list,
 					season_name,
 					year );
 
@@ -214,8 +215,8 @@ int main( int argc, char **argv )
 */
 
 			printf(
-		"<p>Process complete with deposit count %d.\n",
-				list_length( deposit_list ) );
+		"<p>Process complete with PAYPAL count %d.\n",
+				list_length( paypal_deposit_list ) );
 
 			process_execution_count_increment(
 				process_name );
@@ -223,20 +224,20 @@ int main( int argc, char **argv )
 		else
 		{
 			printf(
-"<p>Process not executed because no generated transactions; deposit count %d.\n",
-				list_length( deposit_list ) );
+"<p>Process not executed because no generated transactions; PAYPAL count %d.\n",
+				list_length( paypal_deposit_list ) );
 		}
 	}
 	else
 	{
 		paypal_upload_display(
-			deposit_list,
+			paypal_deposit_list,
 			season_name,
 			year );
 
 		printf(
-		"<p>Process did not execute with deposit count %d.\n",
-				list_length( deposit_list ) );
+		"<p>Process did not execute with PAYPAL count %d.\n",
+				list_length( paypal_deposit_list ) );
 	}
 
 	if ( !nohtml ) document_close();
@@ -252,7 +253,7 @@ LIST *paypal_upload_deposit_list(
 {
 	EDUCATION *education;
 	char *minimum_date;
-	LIST *deposit_list;
+	LIST *paypal_deposit_list;
 
 	/* Only a stub. Doesn't work yet. */
 	/* ------------------------------ */
@@ -294,8 +295,8 @@ LIST *paypal_upload_deposit_list(
 		exit( 1 );
 	}
 
-	deposit_list =
-		education_deposit_list(
+	paypal_deposit_list =
+		education_paypal_deposit_list(
 			season_name,
 			year,
 			spreadsheet_filename,
@@ -303,21 +304,21 @@ LIST *paypal_upload_deposit_list(
 			paypal_dataset_calloc(),
 			education->semester->semester_offering_list,
 			( education->education_program_list =
-				education_program_list() ),
+				program_list( 1 /* fetch_alias_list */ ) ),
 			( education->education_product_list =
-				education_product_list() ) );
+				product_list() ) );
 
-	return deposit_list;
+	return paypal_deposit_list;
 }
 
 void paypal_upload_display(
-			LIST *deposit_list,
+			LIST *paypal_deposit_list,
 			char *season_name,
 			int year )
 {
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
-	DEPOSIT *deposit;
+	PAYPAL_DEPOSIT *paypal_deposit;
 	char buffer[ 128 ];
 	char sub_title[ 128 ];
 	char *heading;
@@ -352,7 +353,7 @@ void paypal_upload_display(
 		heading,
 		justification );
 
-	if ( !list_rewind( deposit_list ) )
+	if ( !list_rewind( paypal_deposit_list ) )
 	{
 		output_pipe = popen( sys_string, "w" );
 		pclose( output_pipe );
@@ -360,45 +361,45 @@ void paypal_upload_display(
 	}
 
 	do {
-		deposit =
+		paypal_deposit =
 			list_get(
-				deposit_list );
+				paypal_deposit_list );
 
 		output_pipe = popen( sys_string, "w" );
 
 		fprintf(output_pipe,
 			"%d^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s %s\n",
-			deposit->row_number,
+			paypal_deposit->row_number,
 			entity_name_display(
-				deposit->payor_entity->full_name,
-				deposit->payor_entity->street_address ),
-			deposit->deposit_date_time,
-			deposit->deposit_amount,
-			deposit->transaction_fee,
-			deposit->net_revenue,
-			deposit->account_balance,
+				paypal_deposit->payor_entity->full_name,
+				paypal_deposit->payor_entity->street_address ),
+			paypal_deposit->deposit_date_time,
+			paypal_deposit->deposit_amount,
+			paypal_deposit->transaction_fee,
+			paypal_deposit->net_revenue,
+			paypal_deposit->account_balance,
 			tuition_payment_list_display(
-				deposit->tuition_payment_list ),
+				paypal_deposit->tuition_payment_list ),
 			program_payment_list_display(
-				deposit->program_payment_list ),
+				paypal_deposit->program_payment_list ),
 			product_payment_list_display(
-				deposit->product_payment_list ),
+				paypal_deposit->product_payment_list ),
 			tuition_refund_list_display(
-				deposit->tuition_refund_list ),
+				paypal_deposit->tuition_refund_list ),
 			product_refund_list_display(
-				deposit->product_refund_list ) );
+				paypal_deposit->product_refund_list ) );
 
 		pclose( output_pipe );
 
 		transaction_list_html_display(
-			deposit_transaction_list(
-				deposit->tuition_payment_list,
-				deposit->program_payment_list,
-				deposit->product_payment_list,
-				deposit->tuition_refund_list,
-				deposit->product_refund_list ) );
+			paypal_deposit_transaction_list(
+				paypal_deposit->tuition_payment_list,
+				paypal_deposit->program_payment_list,
+				paypal_deposit->product_payment_list,
+				paypal_deposit->tuition_refund_list,
+				paypal_deposit->product_refund_list ) );
 
-	} while ( list_next( deposit_list ) );
+	} while ( list_next( paypal_deposit_list ) );
 }
 
 void paypal_upload_event_insert(

@@ -44,12 +44,12 @@ FILE *tuition_payment_update_open(
 			void );
 
 double tuition_payment_fees_expense(
-			double deposit_transaction_fee,
-			int deposit_tuition_payment_list_length );
+			double paypal_transaction_fee,
+			int paypal_tuition_payment_list_length );
 
 double tution_payment_gain_donation(
 			double deposit_amount,
-			int deposit_registration_list_length );
+			int paypal_registration_list_length );
 
 double tuition_payment_total(
 			LIST *tuition_payment_list );
@@ -57,7 +57,7 @@ double tuition_payment_total(
 double tuition_payment_amount(
 			double deposit_amount,
 			double registration_invoice_amount_due,
-			int deposit_registration_list_length );
+			int paypal_registration_list_length );
 
 char *tuition_payment_primary_where(
 			char *student_full_name,
@@ -71,13 +71,13 @@ char *tuition_payment_primary_where(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_deposit,
+			boolean fetch_paypal,
 			boolean fetch_enrollment );
 
 double tuition_payment_cash_debit_amount(
 			double deposit_amount,
 			double tuition_payment_fees_expense,
-			int deposit_registration_list_length );
+			int paypal_registration_list_length );
 
 void tuition_payment_list_insert(
 			LIST *tuition_payment_list );
@@ -101,36 +101,36 @@ void tuition_payment_insert_pipe(
 			char *transaction_date_time );
 
 void tuition_payment_list_enrollment_insert(
-			LIST *deposit_tuition_payment_list );
+			LIST *paypal_tuition_payment_list );
 
 void tuition_payment_list_registration_insert(
-			LIST *deposit_tuition_payment_list );
+			LIST *paypal_tuition_payment_list );
 
 void tuition_payment_list_student_entity_insert(
-			LIST *deposit_tuition_payment_list );
+			LIST *paypal_tuition_payment_list );
 
 void tuition_payment_list_student_insert(
-			LIST *deposit_tuition_payment_list );
+			LIST *paypal_tuition_payment_list );
 
 void tuition_payment_list_payor_entity_insert(
-			LIST *deposit_tuition_payment_list );
+			LIST *paypal_tuition_payment_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */
 char *tuition_payment_list_display(
-			LIST *deposit_tuition_payment_list );
+			LIST *paypal_tuition_payment_list );
 
 LIST *tuition_payment_registration_list(
-			LIST *deposit_tuition_payment_list );
+			LIST *paypal_tuition_payment_list );
 
 LIST *tuition_payment_list_enrollment_list(
-			LIST *deposit_tuition_payment_list );
+			LIST *paypal_tuition_payment_list );
 
 LIST *tuition_payment_enrollment_list(
-			LIST *deposit_tuition_payment_list );
+			LIST *paypal_tuition_payment_list );
 
 void tuition_payment_list_trigger(
-			LIST *deposit_tuition_payment_list );
+			LIST *paypal_tuition_payment_list );
 
 double tuition_payment_receivable_credit_amount(
 			double tuition_payment_amount );
@@ -157,8 +157,8 @@ LIST *tuition_payment_transaction_list(
 
 LIST *tuition_payment_list_steady_state(
 			int *transaction_seconds_to_add,
-			LIST *deposit_tuition_payment_list,
-			LIST *deposit_registration_list,
+			LIST *paypal_tuition_payment_list,
+			LIST *paypal_registration_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
 			double transaction_fee );

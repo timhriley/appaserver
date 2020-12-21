@@ -31,7 +31,7 @@
 #include "account.h"
 #include "student.h"
 #include "program.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 #include "tuition_payment.h"
 
 TUITION_PAYMENT *tuition_payment_calloc( void )
@@ -70,8 +70,8 @@ TUITION_PAYMENT *tuition_payment_new(
 			season_name,
 			year );
 
-	payment->deposit =
-		deposit_new(
+	payment->paypal_deposit =
+		paypal_deposit_new(
 			payor_full_name,
 			payor_street_address,
 			season_name,
@@ -90,7 +90,7 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			char *payor_street_address,
 			char *deposit_date_time,
 			boolean fetch_enrollment,
-			boolean fetch_deposit )
+			boolean fetch_paypal )
 {
 	TUITION_PAYMENT *payment;
 
@@ -109,7 +109,7 @@ TUITION_PAYMENT *tuition_payment_fetch(
 						payor_full_name,
 						payor_street_address,
 						deposit_date_time ) ) ),
-			fetch_deposit,
+			fetch_paypal,
 			fetch_enrollment );
 
 	return payment;
@@ -118,13 +118,13 @@ TUITION_PAYMENT *tuition_payment_fetch(
 double tuition_payment_amount(
 			double deposit_amount,
 			double registration_invoice_amount_due,
-			int deposit_registration_list_length )
+			int paypal_registration_list_length )
 {
 	double payment_amount;
 
 	payment_amount =
 		deposit_amount /
-		(double)deposit_registration_list_length;
+		(double)paypal_registration_list_length;
 
 	if ( payment_amount <= registration_invoice_amount_due )
 		return payment_amount;
@@ -215,7 +215,7 @@ void tuition_payment_update(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_deposit,
+			boolean fetch_paypal,
 			boolean fetch_enrollment )
 {
 	char input[ 1024 ];
@@ -230,7 +230,7 @@ LIST *tuition_payment_system_list(
 			payment_list,
 			tuition_payment_parse(
 				input,
-				fetch_deposit,
+				fetch_paypal,
 				fetch_enrollment ) );
 	}
 
@@ -252,7 +252,7 @@ char *tuition_payment_sys_string( char *where )
 
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
-			boolean fetch_deposit,
+			boolean fetch_paypal,
 			boolean fetch_enrollment )
 {
 	TUITION_PAYMENT *payment;
@@ -305,10 +305,10 @@ TUITION_PAYMENT *tuition_payment_parse(
 	piece( transaction_date_time, SQL_DELIMITER, input, 11 );
 	payment->transaction_date_time = strdup( transaction_date_time );
 
-	if ( fetch_deposit )
+	if ( fetch_paypal )
 	{
-		payment->deposit =
-			deposit_fetch(
+		payment->paypal_deposit =
+			paypal_deposit_fetch(
 				payor_full_name,
 				payor_street_address,
 				season_name,
@@ -465,35 +465,35 @@ double tuition_payment_total( LIST *payment_list )
 }
 
 double tuition_payment_gain_donation(
-			double deposit_gain_donation,
-			int deposit_registration_list_length )
+			double paypal_gain_donation,
+			int paypal_registration_list_length )
 {
-	if ( !deposit_registration_list_length )
+	if ( !paypal_registration_list_length )
 		return 0.0;
 	else
-		return	deposit_gain_donation /
-			(double)deposit_registration_list_length;
+		return	paypal_gain_donation /
+			(double)paypal_registration_list_length;
 }
 
 double tuition_payment_fees_expense(
-			double deposit_transaction_fee,
-			int deposit_tuition_payment_list_length )
+			double paypal_transaction_fee,
+			int paypal_tuition_payment_list_length )
 {
-	if ( !deposit_tuition_payment_list_length ) return 0.0;
+	if ( !paypal_tuition_payment_list_length ) return 0.0;
 
-	return	deposit_transaction_fee /
-		(double)deposit_tuition_payment_list_length;
+	return	paypal_transaction_fee /
+		(double)paypal_tuition_payment_list_length;
 }
 
 TUITION_PAYMENT *tuition_payment_steady_state(
 			int *transaction_seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
-			LIST *deposit_tuition_payment_list,
-			LIST *deposit_registration_list,
+			LIST *paypal_tuition_payment_list,
+			LIST *paypal_registration_list,
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
-			double deposit_transaction_fee )
+			double paypal_transaction_fee )
 {
 	if ( !tuition_payment->enrollment->offering )
 	{
@@ -511,7 +511,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 		registration->
 		tuition_payment_total =
 			registration_tuition_payment_total(
-				deposit_registration_list );
+				paypal_registration_list );
 
 	tuition_payment->
 		enrollment->
@@ -542,33 +542,33 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 				enrollment->
 				registration->
 				invoice_amount_due,
-			list_length( deposit_registration_list ) );
+			list_length( paypal_registration_list ) );
 
 	tuition_payment->tuition_payment_fees_expense =
 		tuition_payment_fees_expense(
-			deposit_transaction_fee,
-			list_length( deposit_tuition_payment_list ) );
+			paypal_transaction_fee,
+			list_length( paypal_tuition_payment_list ) );
 
 	tuition_payment->
 		tuition_payment_total =
 			tuition_payment_total(
-				deposit_tuition_payment_list );
+				paypal_tuition_payment_list );
 
 	tuition_payment->
 		tuition_payment_gain_donation =
 			tuition_payment_gain_donation(
-				deposit_gain_donation(
+				paypal_gain_donation(
 					deposit_amount,
-					deposit_registration_tuition(
-						deposit_registration_list,
+					paypal_registration_tuition(
+						paypal_registration_list,
 						semester_offering_list ) ),
-				list_length( deposit_registration_list ) );
+				list_length( paypal_registration_list ) );
 
 	tuition_payment->tuition_payment_cash_debit_amount =
 		tuition_payment_cash_debit_amount(
 			deposit_amount,
 		 	tuition_payment->tuition_payment_fees_expense,
-			list_length( deposit_registration_list ) );
+			list_length( paypal_registration_list ) );
 
 	tuition_payment->tuition_payment_receivable_credit_amount =
 		tuition_payment_receivable_credit_amount(
@@ -578,14 +578,22 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 	||  !*tuition_payment->transaction_date_time )
 	{
 		tuition_payment->transaction_date_time =
-			tuition_payment->deposit->deposit_date_time;
+			tuition_payment->paypal_deposit->deposit_date_time;
 	}
 
 	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
-			tuition_payment->deposit->payor_entity->full_name,
-			tuition_payment->deposit->payor_entity->street_address,
-			tuition_payment->deposit->deposit_date_time,
+			tuition_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			tuition_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
+			tuition_payment->
+				paypal_deposit->
+				deposit_date_time,
 			tuition_payment->
 				enrollment->
 				offering->
@@ -661,33 +669,33 @@ char *tuition_payment_primary_where(
 }
 
 TUITION_PAYMENT *tuition_payment_seek(
-			LIST *deposit_tuition_payment_list,
+			LIST *paypal_tuition_payment_list,
 			char *deposit_date_time )
 {
 	TUITION_PAYMENT *payment;
 
-	if ( !list_rewind( deposit_tuition_payment_list ) )
+	if ( !list_rewind( paypal_tuition_payment_list ) )
 		return (TUITION_PAYMENT *)0;
 
 	do {
-		payment = list_get( deposit_tuition_payment_list );
+		payment = list_get( paypal_tuition_payment_list );
 
-		if ( !payment->deposit )
+		if ( !payment->paypal_deposit )
 		{
 			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty deposit.\n",
+				"ERROR in %s/%s()/%d: empty paypal_deposit.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
 			exit( 1 );
 		}
 
-		if ( strcmp(	payment->deposit->deposit_date_time,
+		if ( strcmp(	payment->paypal_deposit->deposit_date_time,
 				deposit_date_time ) == 0 )
 		{
 			return payment;
 		}
-	} while ( list_next( deposit_tuition_payment_list ) );
+	} while ( list_next( paypal_tuition_payment_list ) );
 
 	return (TUITION_PAYMENT *)0;
 }
@@ -695,10 +703,10 @@ TUITION_PAYMENT *tuition_payment_seek(
 double tuition_payment_cash_debit_amount(
 			double deposit_amount,
 			double tuition_payment_fees_expense,
-			int deposit_registration_list_length )
+			int paypal_registration_list_length )
 {
 	return	( deposit_amount /
-		  (double)deposit_registration_list_length ) -
+		  (double)paypal_registration_list_length ) -
 		tuition_payment_fees_expense;
 }
 
@@ -734,9 +742,9 @@ void tuition_payment_list_insert( LIST *payment_list )
 			payment->enrollment->offering->course->course_name,
 			payment->enrollment->offering->semester->season_name,
 			payment->enrollment->offering->semester->year,
-			payment->deposit->payor_entity->full_name,
-			payment->deposit->payor_entity->street_address,
-			payment->deposit->deposit_date_time,
+			payment->paypal_deposit->payor_entity->full_name,
+			payment->paypal_deposit->payor_entity->street_address,
+			payment->paypal_deposit->deposit_date_time,
 			payment->tuition_payment_amount,
 			payment->tuition_payment_fees_expense,
 			payment->tuition_payment_gain_donation,
@@ -1032,9 +1040,9 @@ void tuition_payment_list_payor_entity_insert(
 
 		entity_insert_pipe(
 			insert_pipe,
-			payment->deposit->payor_entity->full_name,
-			payment->deposit->payor_entity->street_address,
-			payment->deposit->payor_entity->email_address );
+			payment->paypal_deposit->payor_entity->full_name,
+			payment->paypal_deposit->payor_entity->street_address,
+			payment->paypal_deposit->payor_entity->email_address );
 
 	} while ( list_next( payment_list ) );
 
@@ -1115,20 +1123,20 @@ char *tuition_payment_list_display( LIST *payment_list )
 }
 
 LIST *tuition_payment_registration_list(
-			LIST *deposit_tuition_payment_list )
+			LIST *paypal_tuition_payment_list )
 {
 	TUITION_PAYMENT *payment;
 	REGISTRATION *registration;
 	LIST *registration_list;
 
-	if ( !list_rewind( deposit_tuition_payment_list ) ) return (LIST *)0;
+	if ( !list_rewind( paypal_tuition_payment_list ) ) return (LIST *)0;
 
 	registration_list = list_new();
 
 	do {
 		payment =
 			list_get(
-				deposit_tuition_payment_list );
+				paypal_tuition_payment_list );
 
 		if ( !payment->enrollment )
 		{
@@ -1156,7 +1164,7 @@ LIST *tuition_payment_registration_list(
 			registration_list,
 			registration );
 
-	} while ( list_next( deposit_tuition_payment_list ) );
+	} while ( list_next( paypal_tuition_payment_list ) );
 
 	return registration_list;
 }
@@ -1203,16 +1211,16 @@ LIST *tuition_payment_enrollment_list(
 }
 
 void tuition_payment_list_trigger(
-			LIST *deposit_tuition_payment_list )
+			LIST *paypal_tuition_payment_list )
 {
 	TUITION_PAYMENT *tuition_payment;
 
-	if ( !list_rewind( deposit_tuition_payment_list ) ) return;
+	if ( !list_rewind( paypal_tuition_payment_list ) ) return;
 
 	do {
 		tuition_payment =
 			list_get(
-				deposit_tuition_payment_list );
+				paypal_tuition_payment_list );
 
 		tuition_payment_trigger(
 			tuition_payment->
@@ -1239,19 +1247,19 @@ void tuition_payment_list_trigger(
 				semester->
 				year,
 			tuition_payment->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				full_name,
 			tuition_payment->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				street_address,
 			tuition_payment->
-				deposit->
+				paypal_deposit->
 				deposit_date_time,
 			"insert" /* state */ );
 
-	} while ( list_next( deposit_tuition_payment_list ) );
+	} while ( list_next( paypal_tuition_payment_list ) );
 }
 
 LIST *tuition_payment_list(
@@ -1259,7 +1267,7 @@ LIST *tuition_payment_list(
 			int year,
 			LIST *paypal_item_list,
 			LIST *semester_offering_list,
-			DEPOSIT *deposit )
+			PAYPAL_DEPOSIT *paypal_deposit )
 {
 	LIST *payment_list;
 	TUITION_PAYMENT *payment;
@@ -1290,7 +1298,7 @@ LIST *tuition_payment_list(
 					paypal_item->item_fee,
 					paypal_item->item_gain,
 					offering,
-					deposit );
+					paypal_deposit );
 
 			list_set( payment_list, payment );
 		}
@@ -1307,7 +1315,7 @@ TUITION_PAYMENT *tuition_payment(
 			double item_fee,
 			double item_gain,
 			OFFERING *offering,
-			DEPOSIT *deposit )
+			PAYPAL_DEPOSIT *paypal_deposit )
 {
 	TUITION_PAYMENT *payment;
 
@@ -1341,7 +1349,7 @@ TUITION_PAYMENT *tuition_payment(
 			year );
 
 	payment->enrollment->registration->registration_date_time =
-		deposit->deposit_date_time;
+		paypal_deposit->deposit_date_time;
 	
 	payment->
 		enrollment->
@@ -1369,9 +1377,9 @@ TUITION_PAYMENT *tuition_payment(
 	payment->tuition_payment_cash_debit_amount =
 		item_value - item_fee;
 
-	/* Set deposit */
-	/* ----------- */
-	payment->deposit = deposit;
+	/* Set paypal_deposit */
+	/* ------------------ */
+	payment->paypal_deposit = paypal_deposit;
 
 	return payment;
 }
@@ -1559,8 +1567,8 @@ boolean tuition_payment_structure(
 
 LIST *tuition_payment_list_steady_state(
 			int *transaction_seconds_to_add,
-			LIST *deposit_tuition_payment_list,
-			LIST *deposit_registration_list,
+			LIST *paypal_tuition_payment_list,
+			LIST *paypal_registration_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
 			double transaction_fee )
@@ -1570,10 +1578,10 @@ LIST *tuition_payment_list_steady_state(
 	OFFERING *offering;
 	ENROLLMENT *enrollment;
 
-	if ( !list_rewind( deposit_tuition_payment_list ) ) return (LIST *)0;
+	if ( !list_rewind( paypal_tuition_payment_list ) ) return (LIST *)0;
 
 	do {
-		tuition_payment = list_get( deposit_tuition_payment_list );
+		tuition_payment = list_get( paypal_tuition_payment_list );
 
 		if ( !tuition_payment_structure( tuition_payment ) )
 		{
@@ -1644,24 +1652,24 @@ LIST *tuition_payment_list_steady_state(
 
 		/* Execute TUITION_DEPOSIT steady state */
 		/* ------------------------------------ */
-		list_push( deposit_tuition_payment_list );
+		list_push( paypal_tuition_payment_list );
 
 		tuition_payment =
 			tuition_payment_steady_state(
 				transaction_seconds_to_add,
 				tuition_payment,
-				deposit_tuition_payment_list,
-				deposit_registration_list,
+				paypal_tuition_payment_list,
+				paypal_registration_list,
 				registration->enrollment_list,
 				semester_offering_list,
 				deposit_amount,
 				transaction_fee );
 
-		list_pop( deposit_tuition_payment_list );
+		list_pop( paypal_tuition_payment_list );
 
-	} while ( list_next( deposit_tuition_payment_list ) );
+	} while ( list_next( paypal_tuition_payment_list ) );
 
-	return deposit_tuition_payment_list;
+	return paypal_tuition_payment_list;
 }
 
 char *tuition_payment_memo( char *program_name )
@@ -1740,9 +1748,17 @@ void tuition_payment_set_transaction(
 {
 	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
-			tuition_payment->deposit->payor_entity->full_name,
-			tuition_payment->deposit->payor_entity->street_address,
-			tuition_payment->deposit->deposit_date_time,
+			tuition_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			tuition_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
+			tuition_payment->
+				paypal_deposit->
+				deposit_date_time,
 			tuition_payment->
 				enrollment->
 				offering->

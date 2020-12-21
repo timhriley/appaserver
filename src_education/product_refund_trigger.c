@@ -112,7 +112,7 @@ int main( int argc, char **argv )
 		/* Even if called from deposit_trigger,	*/
 		/* need to set payment_total.		*/
 		/* ------------------------------------ */
-		deposit_trigger(
+		paypal_deposit_trigger(
 			payor_full_name,
 			payor_street_address,
 			season_name,
@@ -154,8 +154,12 @@ void product_refund_trigger_insert_update(
 			product_refund_steady_state(
 				&transaction_seconds_to_add,
 				product_refund,
-				product_refund->deposit->deposit_amount,
-				product_refund->deposit->transaction_fee ) ) )
+				product_refund->
+					paypal_deposit->
+					deposit_amount,
+				product_refund->
+					paypal_deposit->
+					transaction_fee ) ) )
 	{
 		return;
 	}
@@ -209,7 +213,7 @@ void product_refund_trigger_predelete(
 				year,
 				deposit_date_time,
 				0 /* not fetch_product */,
-				0 /* not fetch_deposit */ ) ) )
+				1 /* fetch_paypal */ ) ) )
 	{
 		return;
 	}
@@ -219,11 +223,11 @@ void product_refund_trigger_predelete(
 	{
 		transaction_delete(
 			product_refund->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				full_name,
 			product_refund->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				street_address,
 			product_refund->transaction_date_time );
@@ -235,11 +239,11 @@ void product_refund_trigger_predelete(
 			/* ------------------------- */
 			journal_delete(
 				product_refund->
-					deposit->
+					paypal_deposit->
 					payor_entity->
 					full_name,
 				product_refund->
-					deposit->
+					paypal_deposit->
 					payor_entity->
 					street_address,
 				product_refund->transaction_date_time ) );

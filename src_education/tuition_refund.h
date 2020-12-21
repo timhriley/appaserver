@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "enrollment.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -54,7 +54,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	ENROLLMENT *enrollment;
-	DEPOSIT *deposit;
+	PAYPAL_DEPOSIT *paypal_deposit;
 
 	/* Process */
 	/* ------- */
@@ -94,25 +94,25 @@ TUITION_REFUND *tuition_refund_fetch(
 			char *payor_street_address,
 			char *deposit_date_time,
 			boolean fetch_enrollment,
-			boolean fetch_deposit );
+			boolean fetch_paypal );
 
 TUITION_REFUND *tuition_refund_parse(
 			char *input,
-			boolean fetch_deposit,
+			boolean fetch_paypal,
 			boolean fetch_enrollment );
 
 TUITION_REFUND *tuition_refund_steady_state(
 			int *transaction_seconds_to_add,
 			TUITION_REFUND *tuition_refund,
-			LIST *deposit_tuition_refund_list,
-			LIST *deposit_registration_list,
+			LIST *paypal_tuition_refund_list,
+			LIST *paypal_registration_list,
 			LIST *registration_enrollment_list,
 			LIST *semester_offering_list,
 			double deposit_amount,
-			double deposit_transaction_fee );
+			double paypal_transaction_fee );
 
 TUITION_REFUND *tuition_refund_seek(
-			LIST *deposit_tuition_refund_list,
+			LIST *paypal_tuition_refund_list,
 			char *deposit_date_time );
 
 TUITION_REFUND *tuition_refund(
@@ -122,7 +122,7 @@ TUITION_REFUND *tuition_refund(
 			double item_value,
 			double item_fee,
 			OFFERING *offering,
-			DEPOSIT *deposit );
+			PAYPAL_DEPOSIT *paypal_deposit );
 
 boolean tuition_refund_structure(
 			TUITION_REFUND *tuition_refund );
@@ -135,7 +135,7 @@ LIST *tuition_refund_list(
 			/* -------- */
 			/* Set only */
 			/* -------- */
-			DEPOSIT *deposit );
+			PAYPAL_DEPOSIT *paypal_deposit );
 
 void tuition_refund_set_transaction(
 			int *transaction_seconds_to_add,

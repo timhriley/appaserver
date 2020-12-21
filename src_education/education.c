@@ -33,7 +33,7 @@
 #include "product_payment_fns.h"
 #include "product_refund.h"
 #include "product_refund_fns.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 #include "spreadsheet.h"
 #include "paypal.h"
 #include "paypal_upload.h"
@@ -82,7 +82,7 @@ EDUCATION *education_fetch(
 	return education;
 }
 
-LIST *education_deposit_list(
+LIST *education_paypal_deposit_list(
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
@@ -92,7 +92,7 @@ LIST *education_deposit_list(
 			LIST *education_program_list,
 			LIST *education_product_list )
 {
-	LIST *deposit_list = list_new();
+	LIST *paypal_list = list_new();
 	char input_string[ 65536 ];
 	FILE *spreadsheet_file;
 	LIST *not_exists_course_name_list = list_new();
@@ -151,8 +151,8 @@ LIST *education_deposit_list(
 		}
 
 		list_set(
-			deposit_list,
-			education_deposit(
+			paypal_list,
+			education_paypal_deposit(
 				not_exists_course_name_list,
 				season_name,
 				year,
@@ -165,10 +165,10 @@ LIST *education_deposit_list(
 	}
 
 	fclose( spreadsheet_file );
-	return deposit_list;
+	return paypal_list;
 }
 
-DEPOSIT *education_deposit(
+PAYPAL_DEPOSIT *education_paypal_deposit(
 			LIST *not_exists_course_name_list,
 			char *season_name,
 			int year,
@@ -178,7 +178,7 @@ DEPOSIT *education_deposit(
 			PAYPAL_DATASET *paypal_dataset,
 			int row_number )
 {
-	DEPOSIT *deposit;
+	PAYPAL_DEPOSIT *paypal_deposit;
 	char deposit_date_time[ 128 ];
 
 	if ( !paypal_dataset )
@@ -191,11 +191,11 @@ DEPOSIT *education_deposit(
 		exit( 1 );
 	}
 
-	deposit = deposit_calloc();
+	paypal_deposit = paypal_deposit_calloc();
 
-	deposit->row_number = row_number;
+	paypal_deposit->row_number = row_number;
 
-	deposit->semester =
+	paypal_deposit->semester =
 		semester_new(
 			season_name,
 			year );
@@ -211,7 +211,7 @@ DEPOSIT *education_deposit(
 			paypal_dataset->date_A ),
 		paypal_dataset->time_B );
 	
-	deposit->deposit_date_time = strdup( deposit_date_time );
+	paypal_deposit->deposit_date_time = strdup( deposit_date_time );
 
 	/* Column D */
 	/* -------- */
@@ -221,45 +221,47 @@ DEPOSIT *education_deposit(
 		paypal_dataset->full_name_D = PAYPAL_UPLOAD_DEFAULT_FULL_NAME;
 	}
 
-	deposit->payor_entity =
+	paypal_deposit->payor_entity =
 		entity_full_name_entity(
 			paypal_dataset->full_name_D );
 
 	/* Column H */
 	/* -------- */
-	deposit->deposit_amount = atof( paypal_dataset->gross_revenue_H );
+	paypal_deposit->deposit_amount =
+		atof( paypal_dataset->gross_revenue_H );
 
 	/* Column I */
 	/* -------- */
-	deposit->transaction_fee = 
+	paypal_deposit->transaction_fee = 
 		float_abs(
 			atof( paypal_dataset->transaction_fee_I ) );
 
 	/* Column J */
 	/* -------- */
-	deposit->net_revenue = atof( paypal_dataset->net_revenue_J );
+	paypal_deposit->net_revenue = atof( paypal_dataset->net_revenue_J );
 
 	/* Column K */
 	/* -------- */
-	deposit->from_email_address =
-	deposit->payor_entity->email_address =
+	paypal_deposit->from_email_address =
+	paypal_deposit->payor_entity->email_address =
 		strdup( paypal_dataset->from_email_address_K );
 
 	/* Column M */
 	/* -------- */
-	deposit->transaction_ID = paypal_dataset->transaction_ID_M;
+	paypal_deposit->transaction_ID = paypal_dataset->transaction_ID_M;
 
 	/* Column Z */
 	/* -------- */
-	deposit->invoice_number = paypal_dataset->invoice_number_Z;
+	paypal_deposit->invoice_number = paypal_dataset->invoice_number_Z;
 
 	/* Column AD */
 	/* --------- */
-	deposit->account_balance = atof( paypal_dataset->account_balance_AD );
+	paypal_deposit->account_balance =
+		atof( paypal_dataset->account_balance_AD );
 
 	/* Steady state */
 	/* ------------ */
-	deposit->paypal_item_list =
+	paypal_deposit->paypal_item_list =
 		paypal_item_list(
 			not_exists_course_name_list
 				/* not_exists_revenue_item_list */,
@@ -276,171 +278,121 @@ DEPOSIT *education_deposit(
 				product_name_list(
 					education_product_list ) ) );
 
-	if ( !list_length( deposit->paypal_item_list ) )
+	if ( !list_length( paypal_deposit->paypal_item_list ) )
 	{
-		return (DEPOSIT *)0;
+		return (PAYPAL_DEPOSIT *)0;
 	}
 
-	deposit_set_paypal_item_expected_revenue(
-		deposit->paypal_item_list,
+	paypal_deposit_set_paypal_item_expected_revenue(
+		paypal_deposit->paypal_item_list,
 		semester_offering_list );
 
-	deposit->paypal_item_expected_revenue_total =
+	paypal_deposit->paypal_item_expected_revenue_total =
 		paypal_item_expected_revenue_total(
-			deposit->paypal_item_list );
+			paypal_deposit->paypal_item_list );
 
-	deposit->paypal_item_nonexpected_revenue_length =
+	paypal_deposit->paypal_item_nonexpected_revenue_length =
 		paypal_item_nonexpected_revenue_length(
-			deposit->paypal_item_list );
+			paypal_deposit->paypal_item_list );
 
-	deposit->paypal_item_expected_revenue_length =
+	paypal_deposit->paypal_item_expected_revenue_length =
 		paypal_item_expected_revenue_length(
-			deposit->paypal_item_list );
+			paypal_deposit->paypal_item_list );
 
-	deposit->paypal_item_steady_state_list =
+	paypal_deposit->paypal_item_steady_state_list =
 		paypal_item_steady_state_list(
-			deposit->paypal_item_list,
-			deposit->deposit_amount,
-			deposit->transaction_fee,
-			deposit->paypal_item_expected_revenue_total,
-			deposit->paypal_item_nonexpected_revenue_length,
-			deposit->paypal_item_expected_revenue_length );
+			paypal_deposit->paypal_item_list,
+			paypal_deposit->deposit_amount,
+			paypal_deposit->transaction_fee,
+			paypal_deposit->paypal_item_expected_revenue_total,
+			paypal_deposit->paypal_item_nonexpected_revenue_length,
+			paypal_deposit->paypal_item_expected_revenue_length );
 
 	/* Columns E and P */
 	/* --------------- */
-	if ( deposit->deposit_amount > 0.0 )
+	if ( paypal_deposit->deposit_amount > 0.0 )
 	{
-		deposit->tuition_payment_list =
+		paypal_deposit->tuition_payment_list =
 			tuition_payment_list(
 				season_name,
 				year,
-				deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_steady_state_list,
 				semester_offering_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
-				deposit );
+				paypal_deposit );
 	
-		deposit->program_payment_list =
+		paypal_deposit->program_payment_list =
 			program_payment_list(
-				deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_steady_state_list,
 				education_program_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
-				deposit );
+				paypal_deposit );
 
-		deposit->product_payment_list =
+		paypal_deposit->product_payment_list =
 			product_payment_list(
-				deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_steady_state_list,
 				education_product_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
-				deposit );
+				paypal_deposit );
 	}
 	else
 	{
-		deposit->tuition_refund_list =
+		paypal_deposit->tuition_refund_list =
 			tuition_refund_list(
 				season_name,
 				year,
-				deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_steady_state_list,
 				semester_offering_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
-				deposit );
+				paypal_deposit );
 
-		deposit->product_refund_list =
+		paypal_deposit->product_refund_list =
 			product_refund_list(
-				deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_steady_state_list,
 				education_product_list,
 				/* -------- */
 				/* Set only */
 				/* -------- */
-				deposit );
+				paypal_deposit );
 	}
 
-	if ( list_length( deposit->tuition_payment_list )
-	||   list_length( deposit->program_payment_list )
-	||   list_length( deposit->product_payment_list )
-	||   list_length( deposit->tuition_refund_list )
-	||   list_length( deposit->product_refund_list ) )
+	if ( list_length( paypal_deposit->tuition_payment_list )
+	||   list_length( paypal_deposit->program_payment_list )
+	||   list_length( paypal_deposit->product_payment_list )
+	||   list_length( paypal_deposit->tuition_refund_list )
+	||   list_length( paypal_deposit->product_refund_list ) )
 	{
-		return deposit;
+		return paypal_deposit;
 	}
 	else
 	{
-		return (DEPOSIT *)0;
+		return (PAYPAL_DEPOSIT *)0;
 	}
 }
 
-LIST *education_deposit_list_insert(
-			LIST *education_deposit_list )
+LIST *education_paypal_deposit_list_insert(
+			LIST *education_paypal_list )
 {
-	education_deposit_insert( education_deposit_list );
-	education_registration_insert( education_deposit_list );
-	education_enrollment_insert( education_deposit_list );
-	education_tuition_payment_insert( education_deposit_list );
-	education_program_payment_insert( education_deposit_list );
-	education_product_payment_insert( education_deposit_list );
-	education_tuition_refund_insert( education_deposit_list );
-	education_student_insert( education_deposit_list );
-	education_student_entity_insert( education_deposit_list );
-	education_payor_entity_insert( education_deposit_list );
+	paypal_deposit_list_insert( education_paypal_list );
+	paypal_list_registration_insert( education_paypal_list );
+	paypal_list_enrollment_insert( education_paypal_list );
+	paypal_list_tuition_payment_insert( education_paypal_list );
+	paypal_list_program_payment_insert( education_paypal_list );
+	paypal_list_product_payment_insert( education_paypal_list );
+	paypal_list_tuition_refund_insert( education_paypal_list );
+	paypal_list_student_insert( education_paypal_list );
+	paypal_list_student_entity_insert( education_paypal_list );
+	paypal_list_payor_entity_insert( education_paypal_list );
 
-	return education_deposit_list;
-}
-
-void education_student_insert( LIST *deposit_list )
-{
-	deposit_list_student_insert( deposit_list );
-}
-
-void education_student_entity_insert( LIST *deposit_list )
-{
-	deposit_list_student_entity_insert( deposit_list );
-}
-
-void education_payor_entity_insert( LIST *deposit_list )
-{
-	deposit_list_payor_entity_insert( deposit_list );
-}
-
-void education_deposit_insert( LIST *deposit_list )
-{
-	deposit_list_insert( deposit_list );
-}
-
-void education_tuition_payment_insert( LIST *deposit_list )
-{
-	deposit_list_tuition_payment_insert( deposit_list );
-}
-
-void education_program_payment_insert( LIST *deposit_list )
-{
-	deposit_list_program_payment_insert( deposit_list );
-}
-
-void education_product_payment_insert( LIST *deposit_list )
-{
-	deposit_list_product_payment_insert( deposit_list );
-}
-
-void education_tuition_refund_insert( LIST *deposit_list )
-{
-	deposit_list_tuition_refund_insert( deposit_list );
-}
-
-void education_enrollment_insert( LIST *deposit_list )
-{
-	deposit_list_enrollment_insert( deposit_list );
-}
-
-void education_registration_insert( LIST *deposit_list )
-{
-	deposit_list_registration_insert( deposit_list );
+	return education_paypal_list;
 }
 
 PAYPAL_DATASET *education_paypal_dataset(
@@ -630,16 +582,6 @@ PAYPAL_DATASET *education_paypal_dataset(
 	}
 
 	return paypal_dataset;
-}
-
-LIST *education_program_list( void )
-{
-	return program_list( 1 /* fetch_alias_list */ );
-}
-
-LIST *education_product_list( void )
-{
-	return product_list();
 }
 
 LIST *education_paypal_allowed_list(

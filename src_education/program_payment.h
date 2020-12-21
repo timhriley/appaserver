@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "program.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "transaction.h"
 
@@ -44,7 +44,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	PROGRAM *program;
-	DEPOSIT *deposit;
+	PAYPAL_DEPOSIT *paypal_deposit;
 
 	/* Process */
 	/* ------- */
@@ -67,24 +67,24 @@ PROGRAM_PAYMENT *program_payment_fetch(
 			int year,
 			char *deposit_date_time,
 			boolean fetch_program,
-			boolean fetch_deposit );
+			boolean fetch_paypal );
 
 PROGRAM_PAYMENT *program_payment_parse(
 			char *input,
 			boolean fetch_program,
-			boolean fetch_deposit );
+			boolean fetch_paypal );
 
 PROGRAM_PAYMENT *program_payment_steady_state(
 			int *transaction_seconds_to_add,
 			PROGRAM_PAYMENT *program_payment,
 			double deposit_amount,
-			double deposit_transaction_fee );
+			double paypal_transaction_fee );
 
 PROGRAM_PAYMENT *program_payment(
 			PROGRAM *program,
 			double item_value,
 			double item_fee,
-			DEPOSIT *deposit );
+			PAYPAL_DEPOSIT *paypal_deposit );
 
 void program_payment_set_transaction(
 			int *transaction_seconds_to_add,

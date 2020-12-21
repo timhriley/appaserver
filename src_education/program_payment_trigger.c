@@ -110,7 +110,7 @@ int main( int argc, char **argv )
 		/* Even if called from deposit_trigger,	*/
 		/* need to set payment_total.		*/
 		/* ------------------------------------ */
-		deposit_trigger(
+		paypal_deposit_trigger(
 			payor_full_name,
 			payor_street_address,
 			season_name,
@@ -151,8 +151,12 @@ void program_payment_trigger_insert_update(
 			program_payment_steady_state(
 				&transaction_seconds_to_add,
 				program_payment,
-				program_payment->deposit->deposit_amount,
-				program_payment->deposit->transaction_fee ) ) )
+				program_payment->
+					paypal_deposit->
+					deposit_amount,
+				program_payment->
+					paypal_deposit->
+					transaction_fee ) ) )
 	{
 		return;
 	}
@@ -204,7 +208,7 @@ void program_payment_trigger_predelete(
 				year,
 				deposit_date_time,
 				0 /* not fetch_program */,
-				0 /* not fetch_deposit */ ) ) )
+				1 /* fetch_paypal */ ) ) )
 	{
 		return;
 	}
@@ -214,11 +218,11 @@ void program_payment_trigger_predelete(
 	{
 		transaction_delete(
 			program_payment->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				full_name,
 			program_payment->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				street_address,
 			program_payment->transaction_date_time );
@@ -230,11 +234,11 @@ void program_payment_trigger_predelete(
 			/* ------------------------- */
 			journal_delete(
 				program_payment->
-					deposit->
+					paypal_deposit->
 					payor_entity->
 					full_name,
 				program_payment->
-					deposit->
+					paypal_deposit->
 					payor_entity->
 					street_address,
 				program_payment->transaction_date_time ) );

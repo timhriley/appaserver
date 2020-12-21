@@ -173,10 +173,10 @@ void tuition_refund_trigger_insert_update(
 		return;
 	}
 
-	if ( !tuition_refund->deposit )
+	if ( !tuition_refund->paypal_deposit )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty deposit.\n",
+			"Warning in %s/%s()/%d: empty paypal_deposit.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -188,10 +188,10 @@ void tuition_refund_trigger_insert_update(
 			&transaction_seconds_to_add,
 			tuition_refund,
 			tuition_refund->
-				deposit->
+				paypal_deposit->
 				tuition_refund_list,
 			tuition_refund->
-				deposit->
+				paypal_deposit->
 				registration_list,
 			tuition_refund->
 				enrollment->
@@ -201,10 +201,10 @@ void tuition_refund_trigger_insert_update(
 				season_name,
 				year ),
 			tuition_refund->
-				deposit->
+				paypal_deposit->
 				deposit_amount,
 			tuition_refund->
-				deposit->
+				paypal_deposit->
 				transaction_fee );
 
 	if ( tuition_refund->transaction_date_time
@@ -262,7 +262,7 @@ void tuition_refund_trigger_predelete(
 				payor_full_name,
 				payor_street_address,
 				deposit_date_time,
-				0 /* not fetch_deposit */,
+				0 /* not fetch_paypal */,
 				0 /* not fetch_enrollment */ ) ) )
 	{
 		return;
@@ -272,8 +272,13 @@ void tuition_refund_trigger_predelete(
 	&&   *tuition_refund->transaction_date_time )
 	{
 		transaction_delete(
-			tuition_refund->deposit->payor_entity->full_name,
-			tuition_refund->deposit->payor_entity->street_address,
+			tuition_refund->
+				paypal_deposit->
+				payor_entity->full_name,
+			tuition_refund->
+				paypal_deposit->
+				payor_entity->
+				street_address,
 			tuition_refund->transaction_date_time );
 
 		journal_account_name_list_propagate(
@@ -283,11 +288,11 @@ void tuition_refund_trigger_predelete(
 			/* ------------------------- */
 			journal_delete(
 				tuition_refund->
-					deposit->
+					paypal_deposit->
 					payor_entity->
 					full_name,
 				tuition_refund->
-					deposit->
+					paypal_deposit->
 					payor_entity->
 					street_address,
 				tuition_refund->transaction_date_time ) );

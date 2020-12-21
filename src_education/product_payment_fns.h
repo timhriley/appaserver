@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "transaction.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 
 FILE *product_payment_insert_open(
 			char *error_filename );
@@ -32,7 +32,7 @@ void product_payment_insert_pipe(
 LIST *product_payment_system_list(
 			char *sys_string,
 			boolean fetch_product,
-			boolean fetch_deposit );
+			boolean fetch_paypal );
 
 char *product_payment_sys_string(
 			char *where );
@@ -79,7 +79,7 @@ double product_payment_amount(
 /* Note: there's always only one of them. */
 /* -------------------------------------- */
 double product_payment_fees_expense(
-			double deposit_fees_expense );
+			double paypal_fees_expense );
 
 /* Note: there's always only one of them. */
 /* -------------------------------------- */
@@ -90,7 +90,7 @@ double product_payment_net_payment_amount(
 LIST *product_payment_list(
 			LIST *paypal_item_list,
 			LIST *product_list,
-			DEPOSIT *deposit );
+			PAYPAL_DEPOSIT *paypal_deposit );
 
 void product_payment_trigger(
 			char *product_name,
@@ -113,14 +113,14 @@ void product_payment_list_trigger(
 /* Safely returns heap memory */
 /* -------------------------- */
 char *product_payment_list_display(
-			LIST *deposit_product_payment_list );
+			LIST *paypal_product_payment_list );
 
 LIST *product_payment_transaction_list(
 			LIST *product_payment_list );
 
 LIST *product_payment_list_steady_state(
 			int *transaction_seconds_to_add,
-			LIST *deposit_product_payment_list,
+			LIST *paypal_product_payment_list,
 			double deposit_amount,
 			double transaction_fee );
 
@@ -130,7 +130,7 @@ char *product_payment_memo(
 			char *product_name );
 
 void product_payment_list_payor_entity_insert(
-			LIST *deposit_product_payment_list );
+			LIST *paypal_product_payment_list );
 
 void product_payment_list_set_transaction(
 			int *transaction_seconds_to_add,

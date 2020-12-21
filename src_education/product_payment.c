@@ -21,7 +21,7 @@
 #include "journal.h"
 #include "entity.h"
 #include "account.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "product_payment_fns.h"
 #include "product_payment.h"
@@ -50,7 +50,7 @@ PRODUCT_PAYMENT *product_payment_fetch(
 			int year,
 			char *deposit_date_time,
 			boolean fetch_product,
-			boolean fetch_deposit )
+			boolean fetch_paypal )
 {
 	PRODUCT_PAYMENT *product_payment;
 
@@ -69,7 +69,7 @@ PRODUCT_PAYMENT *product_payment_fetch(
 						year,
 						deposit_date_time ) ) ),
 			fetch_product,
-			fetch_deposit );
+			fetch_paypal );
 
 	return product_payment;
 }
@@ -77,7 +77,7 @@ PRODUCT_PAYMENT *product_payment_fetch(
 LIST *product_payment_system_list(
 			char *sys_string,
 			boolean fetch_product,
-			boolean fetch_deposit )
+			boolean fetch_paypal )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -92,7 +92,7 @@ LIST *product_payment_system_list(
 			product_payment_parse(
 				input,
 				fetch_product,
-				fetch_deposit ) );
+				fetch_paypal ) );
 	}
 
 	pclose( input_pipe );
@@ -139,11 +139,25 @@ void product_payment_list_insert( LIST *product_payment_list )
 		product_payment_insert_pipe(
 			insert_pipe,
 			product_payment->product->product_name,
-			product_payment->deposit->payor_entity->full_name,
-			product_payment->deposit->payor_entity->street_address,
-			product_payment->deposit->semester->season_name,
-			product_payment->deposit->semester->year,
-			product_payment->deposit->deposit_date_time,
+			product_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			product_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
+			product_payment->
+				paypal_deposit->
+				semester->
+				season_name,
+			product_payment->
+				paypal_deposit->
+				semester->
+				year,
+			product_payment->
+				paypal_deposit->
+				deposit_date_time,
 			product_payment->product_payment_amount,
 			product_payment->fees_expense,
 			product_payment->net_payment_amount,
@@ -227,7 +241,7 @@ void product_payment_insert_pipe(
 PRODUCT_PAYMENT *product_payment_parse(
 			char *input,
 			boolean fetch_product,
-			boolean fetch_deposit )
+			boolean fetch_paypal )
 {
 	char product_name[ 128 ];
 	char payor_full_name[ 128 ];
@@ -256,8 +270,8 @@ PRODUCT_PAYMENT *product_payment_parse(
 	piece( year, SQL_DELIMITER, input, 4 );
 	piece( deposit_date_time, SQL_DELIMITER, input, 5 );
 
-	product_payment->deposit =
-		deposit_new(
+	product_payment->paypal_deposit =
+		paypal_deposit_new(
 			strdup( payor_full_name ),
 			strdup( payor_street_address ),
 			strdup( season_name ),
@@ -287,15 +301,29 @@ PRODUCT_PAYMENT *product_payment_parse(
 					product_name );
 	}
 
-	if ( fetch_deposit )
+	if ( fetch_paypal )
 	{
-		product_payment->deposit =
-		    deposit_fetch(
-			 product_payment->deposit->payor_entity->full_name,
-			 product_payment->deposit->payor_entity->street_address,
-			 product_payment->deposit->semester->season_name,
-			 product_payment->deposit->semester->year,
-			 product_payment->deposit->deposit_date_time,
+		product_payment->paypal_deposit =
+		    paypal_deposit_fetch(
+			 product_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			 product_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
+			 product_payment->
+				paypal_deposit->
+				semester->
+				season_name,
+			 product_payment->
+				paypal_deposit->
+				semester->
+				year,
+			 product_payment->
+				paypal_deposit->
+				deposit_date_time,
 			 0 /* not fetch_tuition_payment_list */,
 			 0 /* not fetch_program_payment_list */,
 			 0 /* not fetch_product_payment_list */,
@@ -522,9 +550,9 @@ double product_payment_amount(
 }
 
 double product_payment_fees_expense(
-			double deposit_fees_expense )
+			double paypal_fees_expense )
 {
-	return deposit_fees_expense;
+	return paypal_fees_expense;
 }
 
 double product_payment_net_payment_amount(
@@ -538,7 +566,7 @@ PRODUCT_PAYMENT *product_payment_steady_state(
 			int *transaction_seconds_to_add,
 			PRODUCT_PAYMENT *product_payment,
 			double deposit_amount,
-			double deposit_transaction_fee )
+			double paypal_transaction_fee )
 {
 	if ( !product_payment->product )
 	{
@@ -567,24 +595,32 @@ PRODUCT_PAYMENT *product_payment_steady_state(
 
 	product_payment->fees_expense =
 		product_payment_fees_expense(
-			deposit_transaction_fee );
+			paypal_transaction_fee );
 
 	product_payment->net_payment_amount =
 		product_payment_net_payment_amount(
 			deposit_amount,
-			deposit_transaction_fee );
+			paypal_transaction_fee );
 
 	if ( !product_payment->transaction_date_time
 	||   !*product_payment->transaction_date_time )
 	{
 		product_payment->transaction_date_time =
-			product_payment->deposit->deposit_date_time;
+			product_payment->
+				paypal_deposit->
+				deposit_date_time;
 	}
 
 	if ( ( product_payment->product_payment_transaction =
 	       product_payment_transaction(
-			product_payment->deposit->payor_entity->full_name,
-			product_payment->deposit->payor_entity->street_address,
+			product_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			product_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
 			product_payment->transaction_date_time,
 			product_payment->product->product_name,
 			product_payment->product->program_name,
@@ -614,7 +650,7 @@ PRODUCT_PAYMENT *product_payment(
 			PRODUCT *product,
 			double item_value,
 			double item_fee,
-			DEPOSIT *deposit )
+			PAYPAL_DEPOSIT *paypal_deposit )
 {
 	PRODUCT_PAYMENT *product_payment;
 
@@ -627,7 +663,7 @@ PRODUCT_PAYMENT *product_payment(
 		item_value - item_fee;
 
 	product_payment->product = product;
-	product_payment->deposit = deposit;
+	product_payment->paypal_deposit = paypal_deposit;
 
 	return product_payment;
 }
@@ -635,7 +671,7 @@ PRODUCT_PAYMENT *product_payment(
 LIST *product_payment_list(
 			LIST *paypal_item_list,
 			LIST *product_list,
-			DEPOSIT *deposit )
+			PAYPAL_DEPOSIT *paypal_deposit )
 {
 	LIST *payment_list;
 	PRODUCT_PAYMENT *payment;
@@ -661,7 +697,7 @@ LIST *product_payment_list(
 					product,
 					paypal_item->item_value,
 					paypal_item->item_fee,
-					deposit );
+					paypal_deposit );
 
 			list_set( payment_list, payment );
 		}
@@ -726,17 +762,23 @@ void product_payment_list_trigger(
 		product_payment_trigger(
 			product_payment->product->product_name,
 			product_payment->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				full_name,
 			product_payment->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				street_address,
-			product_payment->deposit->semester->season_name,
-			product_payment->deposit->semester->year,
 			product_payment->
-				deposit->
+				paypal_deposit->
+				semester->
+				season_name,
+			product_payment->
+				paypal_deposit->
+				semester->
+				year,
+			product_payment->
+				paypal_deposit->
 				deposit_date_time,
 			"insert" /* state */ );
 
@@ -772,16 +814,16 @@ LIST *product_payment_transaction_list(
 
 LIST *product_payment_list_steady_state(
 			int *transaction_seconds_to_add,
-			LIST *deposit_product_payment_list,
+			LIST *paypal_product_payment_list,
 			double deposit_amount,
 			double transaction_fee )
 {
 	PRODUCT_PAYMENT *product_payment;
 
-	if ( !list_rewind( deposit_product_payment_list ) ) return (LIST *)0;
+	if ( !list_rewind( paypal_product_payment_list ) ) return (LIST *)0;
 
 	do {
-		product_payment = list_get( deposit_product_payment_list );
+		product_payment = list_get( paypal_product_payment_list );
 
 		product_payment =
 			product_payment_steady_state(
@@ -790,9 +832,9 @@ LIST *product_payment_list_steady_state(
 				deposit_amount,
 				transaction_fee );
 
-	} while( list_next( deposit_product_payment_list ) );
+	} while( list_next( paypal_product_payment_list ) );
 
-	return deposit_product_payment_list;
+	return paypal_product_payment_list;
 }
 
 char *product_payment_memo( char *product_name )
@@ -835,9 +877,18 @@ void product_payment_list_payor_entity_insert(
 
 		entity_insert_pipe(
 			insert_pipe,
-			product_payment->deposit->payor_entity->full_name,
-			product_payment->deposit->payor_entity->street_address,
-			product_payment->deposit->payor_entity->email_address );
+			product_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			product_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
+			product_payment->
+				paypal_deposit->
+				payor_entity->
+				email_address );
 
 	} while ( list_next( product_payment_list ) );
 
@@ -900,9 +951,17 @@ void product_payment_set_transaction(
 {
 	if ( ( product_payment->product_payment_transaction =
 	       product_payment_transaction(
-			product_payment->deposit->payor_entity->full_name,
-			product_payment->deposit->payor_entity->street_address,
-			product_payment->deposit->deposit_date_time,
+			product_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			product_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
+			product_payment->
+				paypal_deposit->
+				deposit_date_time,
 			product_payment->product->product_name,
 			product_payment->product->program_name,
 			product_payment->product_payment_amount,

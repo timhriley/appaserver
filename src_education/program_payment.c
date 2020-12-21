@@ -21,7 +21,7 @@
 #include "journal.h"
 #include "entity.h"
 #include "account.h"
-#include "deposit.h"
+#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "program_payment_fns.h"
 #include "program_payment.h"
@@ -139,11 +139,25 @@ void program_payment_list_insert( LIST *program_payment_list )
 		program_payment_insert_pipe(
 			insert_pipe,
 			program_payment->program->program_name,
-			program_payment->deposit->payor_entity->full_name,
-			program_payment->deposit->payor_entity->street_address,
-			program_payment->deposit->semester->season_name,
-			program_payment->deposit->semester->year,
-			program_payment->deposit->deposit_date_time,
+			program_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			program_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
+			program_payment->
+				paypal_deposit->
+				semester->
+				season_name,
+			program_payment->
+				paypal_deposit->
+				semester->
+				year,
+			program_payment->
+				paypal_deposit->
+				deposit_date_time,
 			program_payment->program_payment_amount,
 			program_payment->fees_expense,
 			program_payment->net_payment_amount,
@@ -227,7 +241,7 @@ void program_payment_insert_pipe(
 PROGRAM_PAYMENT *program_payment_parse(
 			char *input,
 			boolean fetch_program,
-			boolean fetch_deposit )
+			boolean fetch_paypal )
 {
 	char program_name[ 128 ];
 	char payor_full_name[ 128 ];
@@ -256,8 +270,8 @@ PROGRAM_PAYMENT *program_payment_parse(
 	piece( year, SQL_DELIMITER, input, 4 );
 	piece( deposit_date_time, SQL_DELIMITER, input, 5 );
 
-	program_payment->deposit =
-		deposit_new(
+	program_payment->paypal_deposit =
+		paypal_deposit_new(
 			strdup( payor_full_name ),
 			strdup( payor_street_address ),
 			strdup( season_name ),
@@ -286,15 +300,29 @@ PROGRAM_PAYMENT *program_payment_parse(
 				1 /* fetch_alias_list */ );
 	}
 
-	if ( fetch_deposit )
+	if ( fetch_paypal )
 	{
-		program_payment->deposit =
-		    deposit_fetch(
-			 program_payment->deposit->payor_entity->full_name,
-			 program_payment->deposit->payor_entity->street_address,
-			 program_payment->deposit->semester->season_name,
-			 program_payment->deposit->semester->year,
-			 program_payment->deposit->deposit_date_time,
+		program_payment->paypal_deposit =
+		    paypal_deposit_fetch(
+			 program_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			 program_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
+			 program_payment->
+				paypal_deposit->
+				semester->
+				season_name,
+			 program_payment->
+				paypal_deposit->
+				semester->
+				year,
+			 program_payment->
+				paypal_deposit->
+				deposit_date_time,
 			 0 /* not fetch_tuition_payment_list */,
 			 0 /* not fetch_program_payment_list */,
 			 0 /* not fetch_product_payment_list */,
@@ -577,13 +605,19 @@ PROGRAM_PAYMENT *program_payment_steady_state(
 	||   !*program_payment->transaction_date_time )
 	{
 		program_payment->transaction_date_time =
-			program_payment->deposit->deposit_date_time;
+			program_payment->paypal_deposit->deposit_date_time;
 	}
 
 	if ( ( program_payment->program_payment_transaction =
 	       program_payment_transaction(
-			program_payment->deposit->payor_entity->full_name,
-			program_payment->deposit->payor_entity->street_address,
+			program_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			program_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
 			program_payment->transaction_date_time,
 			program_payment->program->program_name,
 			program_payment->program_payment_amount,
@@ -612,7 +646,7 @@ PROGRAM_PAYMENT *program_payment(
 			PROGRAM *program,
 			double item_value,
 			double item_fee,
-			DEPOSIT *deposit )
+			PAYPAL_DEPOSIT *paypal_deposit )
 {
 	PROGRAM_PAYMENT *program_payment;
 
@@ -625,7 +659,7 @@ PROGRAM_PAYMENT *program_payment(
 		item_value - item_fee;
 
 	program_payment->program = program;
-	program_payment->deposit = deposit;
+	program_payment->paypal_deposit = paypal_deposit;
 
 	return program_payment;
 }
@@ -636,7 +670,7 @@ LIST *program_payment_list(
 			/* -------- */
 			/* Set only */
 			/* -------- */
-			DEPOSIT *deposit )
+			PAYPAL_DEPOSIT *paypal_deposit )
 {
 	LIST *payment_list;
 	PROGRAM_PAYMENT *payment;
@@ -662,7 +696,7 @@ LIST *program_payment_list(
 					program,
 					paypal_item->item_value,
 					paypal_item->item_fee,
-					deposit );
+					paypal_deposit );
 
 			list_set( payment_list, payment );
 		}
@@ -727,17 +761,23 @@ void program_payment_list_trigger(
 		program_payment_trigger(
 			program_payment->program->program_name,
 			program_payment->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				full_name,
 			program_payment->
-				deposit->
+				paypal_deposit->
 				payor_entity->
 				street_address,
-			program_payment->deposit->semester->season_name,
-			program_payment->deposit->semester->year,
 			program_payment->
-				deposit->
+				paypal_deposit->
+				semester->
+				season_name,
+			program_payment->
+				paypal_deposit->
+				semester->
+				year,
+			program_payment->
+				paypal_deposit->
 				deposit_date_time,
 			"insert" /* state */ );
 
@@ -773,16 +813,16 @@ LIST *program_payment_transaction_list(
 
 LIST *program_payment_list_steady_state(
 			int *transaction_seconds_to_add,
-			LIST *deposit_program_payment_list,
+			LIST *paypal_program_payment_list,
 			double deposit_amount,
 			double transaction_fee )
 {
 	PROGRAM_PAYMENT *program_payment;
 
-	if ( !list_rewind( deposit_program_payment_list ) ) return (LIST *)0;
+	if ( !list_rewind( paypal_program_payment_list ) ) return (LIST *)0;
 
 	do {
-		program_payment = list_get( deposit_program_payment_list );
+		program_payment = list_get( paypal_program_payment_list );
 
 		program_payment =
 			program_payment_steady_state(
@@ -791,9 +831,9 @@ LIST *program_payment_list_steady_state(
 				deposit_amount,
 				transaction_fee );
 
-	} while( list_next( deposit_program_payment_list ) );
+	} while( list_next( paypal_program_payment_list ) );
 
-	return deposit_program_payment_list;
+	return paypal_program_payment_list;
 }
 
 char *program_payment_memo( char *program_name )
@@ -836,9 +876,18 @@ void program_payment_list_payor_entity_insert(
 
 		entity_insert_pipe(
 			insert_pipe,
-			program_payment->deposit->payor_entity->full_name,
-			program_payment->deposit->payor_entity->street_address,
-			program_payment->deposit->payor_entity->email_address );
+			program_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			program_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
+			program_payment->
+				paypal_deposit->
+				payor_entity->
+				email_address );
 
 	} while ( list_next( program_payment_list ) );
 
@@ -901,9 +950,17 @@ void program_payment_set_transaction(
 {
 	if ( ( program_payment->program_payment_transaction =
 	       program_payment_transaction(
-			program_payment->deposit->payor_entity->full_name,
-			program_payment->deposit->payor_entity->street_address,
-			program_payment->deposit->deposit_date_time,
+			program_payment->
+				paypal_deposit->
+				payor_entity->
+				full_name,
+			program_payment->
+				paypal_deposit->
+				payor_entity->
+				street_address,
+			program_payment->
+				paypal_deposit->
+				deposit_date_time,
 			program_payment->program->program_name,
 			program_payment->program_payment_amount,
 			program_payment->fees_expense,
