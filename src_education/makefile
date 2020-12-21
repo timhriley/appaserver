@@ -105,7 +105,6 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/paypal_dataset.o
 
 EXECUTABLES=	offering_trigger					\
-		paypal_trigger						\
 		registration_trigger					\
 		enrollment_trigger					\
 		tuition_payment_trigger					\
@@ -233,19 +232,6 @@ product_refund_trigger: product_refund_trigger.c			\
 		${EDUCATION_CORE}					\
 		product_refund_trigger.c				\
 		-o product_refund_trigger
-
-paypal_trigger: paypal_trigger.c					\
-	${EXTERNAL_LIBRARY} 						\
-	${PREDICTIVEBOOKS_CORE}						\
-	${EDUCATION_CORE}
-	${CC}	${CFLAGS}						\
-		-I${LIBRARY}						\
-		-I${PREDICTIVEBOOKS_LIBRARY}				\
-		${EXTERNAL_LIBRARY}					\
-		${PREDICTIVEBOOKS_CORE}					\
-		${EDUCATION_CORE}					\
-		paypal_trigger.c					\
-		-o paypal_trigger
 
 registration_trigger: registration_trigger.c				\
 	${EXTERNAL_LIBRARY} 						\
