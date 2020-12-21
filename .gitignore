@@ -16,7 +16,6 @@
 generate_invoice
 tuition_payment_trigger
 tuition_refund_trigger
-paypal_trigger
 enrollment_trigger
 offering_trigger
 registration_trigger
