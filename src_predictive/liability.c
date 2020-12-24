@@ -285,9 +285,9 @@ LIST *liability_entity_list(
 
 			if ( input_entity_list
 			&&   !entity_seek(
-				input_entity_list,
 				journal->full_name,
-				journal->street_address ) )
+				journal->street_address,
+				input_entity_list ) )
 			{
 				continue;
 			}
