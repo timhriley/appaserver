@@ -122,5 +122,13 @@ LIST *education_paypal_allowed_list(
 			LIST *program_alias_name_list,
 			LIST *product_name_list );
 
+double education_net_payment_amount(
+			double payment_amount,
+			double merchant_fees_expense );
+
+double education_net_refund_amount(
+			double refund_amount,
+			double merchant_fees_expense );
+
 #endif
 

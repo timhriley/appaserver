@@ -19,7 +19,7 @@ tuition_refund_trigger
 enrollment_trigger
 offering_trigger
 registration_trigger
-program_payment_trigger
+program_donation_trigger
 product_payment_trigger
 product_refund_trigger
 paypal_upload

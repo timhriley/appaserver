@@ -22,18 +22,18 @@
 
 #define PAYPAL_PRIMARY_KEY	"payor_full_name,"		\
 				"payor_street_address,"		\
-				"season_name,"			\
-				"year,"				\
-				"deposit_date_time"
+				"paypal_date_time"
 
 #define PAYPAL_INSERT_COLUMNS	"payor_full_name,"		\
 				"payor_street_address,"		\
+				"paypal_date_time,"		\
 				"season_name,"			\
 				"year,"				\
-				"deposit_date_time,"		\
-				"deposit_amount,"		\
+				"paypal_amount,"		\
 				"transaction_fee,"		\
 				"net_revenue,"			\
+				"tuition_payment_total,"	\
+				"program_donation_total,"	\
 				"account_balance,"		\
 				"transaction_ID,"		\
 				"invoice_number,"		\
@@ -77,11 +77,11 @@ typedef struct
 	LIST *registration_list;
 	LIST *course_list;
 	double tuition_payment_total;
-	double program_payment_total;
-	double product_payment_total;
+	double program_donation_total;
+	double product_sale_total;
 	double tuition_refund_total;
 	double product_refund_total;
-	double gain_donation;
+	double overpayment_donation;
 	double registration_tuition;
 	int row_number;
 } PAYPAL_DEPOSIT;
@@ -140,34 +140,18 @@ PAYPAL_DEPOSIT *paypal_deposit_calloc(
 PAYPAL_DEPOSIT *paypal_deposit_new(
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time );
+			char *paypal_date_time );
 
 LIST *paypal_deposit_system_list(
-			char *sys_string,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_program_payment_list,
-			boolean fetch_product_payment_list,
-			boolean fetch_tuition_refund_list );
+			char *sys_string );
 
 PAYPAL_DEPOSIT *paypal_deposit_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_program_payment_list,
-			boolean fetch_product_payment_list,
-			boolean fetch_tuition_refund_list );
+			char *paypal_date_time );
 
 PAYPAL_DEPOSIT *paypal_deposit_parse(
-			char *input,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_program_payment_list,
-			boolean fetch_product_payment_list,
-			boolean fetch_tuition_refund_list );
+			char *input );
 
 /* Safely returns heap memory */
 /* -------------------------- */
@@ -177,16 +161,6 @@ char *paypal_deposit_sys_string(
 PAYPAL_DEPOSIT *paypal_deposit_steady_state(
 			PAYPAL_DEPOSIT *paypal_deposit,
 			LIST *semester_offering_list );
-
-void paypal_deposit_update(
-			double paypal_tuition_payment_total,
-			double paypal_program_payment_total,
-			double paypal_net_revenue,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time );
 
 FILE *paypal_deposit_update_open(
 			void );
@@ -208,12 +182,21 @@ void paypal_deposit_insert_pipe(
 			FILE *insert_pipe,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *paypal_date_time,
+			int row_number,
 			char *season_name,
 			int year,
-			char *deposit_date_time,
-			double deposit_amount,
+			double paypal_amount,
 			double transaction_fee,
 			double net_revenue,
+			double tuition_payment_total,
+			double program_donation_total,
+			double ticket_sale_total,
+			double product_sale_total,
+			double sweep_amount,
+			double tuition_refund_total,
+			double ticket_refund_total,
+			double product_refund_total,
 			double account_balance,
 			char *transaction_ID,
 			char *invoice_number,
@@ -254,14 +237,6 @@ void paypal_list_program_payment_trigger(
 
 LIST *paypal_deposit_course_name_list(
 			LIST *paypal_deposit_list );
-
-void paypal_deposit_trigger(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			char *state );
 
 LIST *paypal_deposit_list_transaction_list(
 			LIST *paypal_deposit_list );
@@ -305,24 +280,6 @@ LIST *paypal_tuition_refund_list(
 double paypal_overpayment_loss(
 			double deposit_amount,
 			double paypal_deposit_registration_tuition );
-
-LIST *paypal_fetch_product_payment_list(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			boolean fetch_product,
-			boolean fetch_paypal );
-
-LIST *paypal_fetch_product_refund_list(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			boolean fetch_product,
-			boolean fetch_paypal );
 
 void paypal_list_product_payment_insert(
 			LIST *paypal_deposit_list );

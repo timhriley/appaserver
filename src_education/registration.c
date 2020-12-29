@@ -18,7 +18,7 @@
 #include "registration.h"
 #include "enrollment.h"
 #include "entity.h"
-#include "tuition_payment_fns.h"
+#include "tuition_payment.h"
 #include "tuition_refund_fns.h"
 #include "registration_fns.h"
 #include "enrollment_fns.h"
@@ -310,6 +310,26 @@ REGISTRATION *registration_new(
 	registration->season_name = season_name;
 	registration->year = year;
 	return registration;
+}
+
+double registration_fetch_invoice_amount_due(
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year )
+{
+	REGISTRATION *registration =
+		registration_fetch(
+			student_full_name,
+			street_address,
+			season_name,
+			year,
+			0 /* not fetch_enrollment_list */ );
+
+	if ( registration )
+		return registration->invoice_amount_due;
+	else
+		return 0.0;
 }
 
 LIST *registration_enrollment_list(

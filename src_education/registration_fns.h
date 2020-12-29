@@ -102,5 +102,11 @@ void registration_list_fetch_update(
 			char *season_name,
 			int year );
 
+double registration_fetch_invoice_amount_due(
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year );
+
 #endif
 

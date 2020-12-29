@@ -16,7 +16,7 @@ EDUCATION_CORE=								\
 		course.o						\
 		tuition_payment.o					\
 		tuition_refund.o					\
-		program_payment.o					\
+		program_donation.o					\
 		product_payment.o					\
 		product_refund.o					\
 		education.o						\
@@ -109,7 +109,7 @@ EXECUTABLES=	offering_trigger					\
 		enrollment_trigger					\
 		tuition_payment_trigger					\
 		tuition_refund_trigger					\
-		program_payment_trigger					\
+		program_donation_trigger				\
 		product_payment_trigger					\
 		product_refund_trigger					\
 		paypal_upload						\
@@ -194,7 +194,7 @@ tuition_refund_trigger: tuition_refund_trigger.c			\
 		tuition_refund_trigger.c				\
 		-o tuition_refund_trigger
 
-program_payment_trigger: program_payment_trigger.c			\
+program_donation_trigger: program_donation_trigger.c			\
 	${EXTERNAL_LIBRARY} 						\
 	${PREDICTIVEBOOKS_CORE}						\
 	${EDUCATION_CORE}
@@ -204,8 +204,8 @@ program_payment_trigger: program_payment_trigger.c			\
 		${EXTERNAL_LIBRARY}					\
 		${PREDICTIVEBOOKS_CORE}					\
 		${EDUCATION_CORE}					\
-		program_payment_trigger.c				\
-		-o program_payment_trigger
+		program_donation_trigger.c				\
+		-o program_donation_trigger
 
 product_payment_trigger: product_payment_trigger.c			\
 	${EXTERNAL_LIBRARY} 						\
@@ -301,10 +301,10 @@ tuition_refund.o: tuition_refund.c tuition_refund.h
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c tuition_refund.c
 
-program_payment.o: program_payment.c program_payment.h
+program_donation.o: program_donation.c program_donation.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
-		-c program_payment.c
+		-c program_donation.c
 
 product_payment.o: product_payment.c product_payment.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\

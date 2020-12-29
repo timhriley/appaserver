@@ -31,7 +31,7 @@
 					"payor_street_address,"		\
 					"payment_date_time"
 
-#define TUITION_PAYMENT_MEMO		"Tuition"
+#define TUITION_PAYMENT_MEMO		"Tuition Payment"
 
 #define TUITION_PAYMENT_INSERT_COLUMNS					\
 					"full_name,"			\
@@ -42,10 +42,11 @@
 					"payor_full_name,"		\
 					"payor_street_address,"		\
 					"payment_date_time,"		\
-					"tuition_payment_amount,"	\
-					"fees_expense,"			\
-					"gain_donation,"		\
-					"transaction_date_time"
+					"payment_amount,"		\
+					"merchant_fees_expense,"	\
+					"transaction_date_time,"	\
+					"merchant_fees_expense,"	\
+					"paypal_date_time"
 
 /* Structures */
 /* ---------- */
@@ -54,6 +55,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	ENROLLMENT *enrollment;
+	PAYPAL_DEPOSIT *paypal_deposit;
 	char *payor_full_name;
 	char *payor_street_address;
 	char *payment_date_time;
@@ -64,8 +66,7 @@ typedef struct
 	/* Process */
 	/* ------- */
 	double net_payment_amount;
-	double tuition_payment_total;
-	double tuition_payment_overpayment_donation;
+	double overpayment_donation;
 	double tuition_payment_receivable_credit_amount;
 	double tuition_payment_cash_debit_amount;
 
@@ -105,16 +106,11 @@ TUITION_PAYMENT *tuition_payment_parse(
 			boolean fetch_enrollment,
 			boolean fetch_paypal );
 
-TUITION_PAYMENT *tuition_payment_steady_state(
-			TUITION_PAYMENT *tuition_payment,
-			double payment_amount,
-			double merchant_transaction_fee );
-
 TUITION_PAYMENT *tuition_payment_seek(
 			LIST *paypal_tuition_payment_list,
 			char *payment_date_time );
 
-TUITION_PAYMENT *tuition_payment(
+TUITION_PAYMENT *tuition_payment_paypal(
 			char *season_name,
 			int year,
 			ENTITY *benefit_entity,
@@ -122,29 +118,17 @@ TUITION_PAYMENT *tuition_payment(
 			double item_fee,
 			double item_gain,
 			OFFERING *offering,
-			PAYPAL_DEPOSIT *paypal_deposit );
+			char *paypal_date_time );
 
 boolean tuition_payment_structure(
 			TUITION_PAYMENT *tuition_payment );
 
-LIST *tuition_payment_list(
+LIST *tuition_payment_paypal_list(
 			char *season_name,
 			int year,
 			LIST *paypal_item_steady_state_list,
 			LIST *semester_offering_list,
-			PAYPAL_DEPOSIT *paypal_deposit );
-
-/* ----------------------------------------------------- */
-/* Sets tuition_payment->tuition_payment_transaction and
-	tuition_payment->transaction_date_time		 */
-/* ----------------------------------------------------- */
-void tuition_payment_set_transaction(
-			int *transaction_seconds_to_add,
-			TUITION_PAYMENT *tuition_payment,
-			char *cash_account_name,
-			char *account_revenue,
-			char *account_fees_expense,
-			char *account_overpayment_donation );
+			char *paypal_date_time );
 
 /* Returns true transaction_date_time */
 /* ---------------------------------- */
@@ -159,7 +143,6 @@ char *tuition_payment_transaction_refresh(
 
 void tuition_payment_update(
 			double net_payment_amount,
-			double overpayment_donation,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
@@ -176,17 +159,6 @@ char *tuition_payment_sys_string(
 FILE *tuition_payment_update_open(
 			void );
 
-double tuition_payment_fees_expense(
-			double paypal_transaction_fee,
-			int paypal_tuition_payment_list_length );
-
-double tution_payment_overpayment_donation(
-			double payment_amount,
-			LIST *enrollment_registration_list );
-
-double tuition_payment_total(
-			LIST *tuition_payment_list );
-
 char *tuition_payment_primary_where(
 			char *student_full_name,
 			char *street_address,
@@ -202,13 +174,9 @@ LIST *tuition_payment_system_list(
 			boolean fetch_enrollment,
 			boolean fetch_paypal );
 
-double tuition_payment_cash_debit_amount(
-			double deposit_amount,
-			double tuition_payment_fees_expense,
-			int paypal_registration_list_length );
-
 void tuition_payment_list_insert(
-			LIST *tuition_payment_list );
+			LIST *tuition_payment_list,
+			char *paypal_date_time );
 
 FILE *tuition_payment_insert_open(
 			char *error_filename );
@@ -225,7 +193,7 @@ void tuition_payment_insert_pipe(
 			char *payment_date_time,
 			double payment_amount,
 			double merchant_fees_expense,
-			double overpayment_donation,
+			double net_payment_amount,
 			char *transaction_date_time );
 
 void tuition_payment_list_enrollment_insert(
@@ -261,7 +229,7 @@ void tuition_payment_list_trigger(
 			LIST *paypal_tuition_payment_list );
 
 double tuition_payment_receivable_credit_amount(
-			double tuition_payment_amount );
+			double payment_amount );
 
 double tuition_payment_total(
 			LIST *tuition_payment_list );
@@ -283,18 +251,33 @@ void tuition_payment_list_enrollment_trigger(
 LIST *tuition_payment_transaction_list(
 			LIST *tution_payment_list );
 
+TUITION_PAYMENT *tuition_payment_steady_state(
+			TUITION_PAYMENT *tuition_payment,
+			double payment_amount,
+			double merchant_transaction_fee );
+
 LIST *tuition_payment_list_steady_state(
-			int *transaction_seconds_to_add,
-			LIST *paypal_tuition_payment_list,
-			LIST *paypal_registration_list,
-			LIST *semester_offering_list,
-			double deposit_amount,
-			double transaction_fee );
+			LIST *tuition_payment_list );
 
 /* Returns static memory */
 /* --------------------- */
 char *tuition_payment_memo(
 			char *program_name );
+
+void tuition_payment_list_set_transaction(
+			int *seconds_to_add,
+			LIST *tuition_payment_list );
+
+/* ----------------------------------------------------- */
+/* Sets tuition_payment->tuition_payment_transaction and
+	tuition_payment->transaction_date_time		 */
+/* ----------------------------------------------------- */
+void tuition_payment_set_transaction(
+			int *seconds_to_add,
+			TUITION_PAYMENT *tuition_payment,
+			char *cash_account_name,
+			char *account_revenue,
+			char *account_fees_expense );
 
 TRANSACTION *tuition_payment_transaction(
 			int *seconds_to_add,
@@ -303,21 +286,19 @@ TRANSACTION *tuition_payment_transaction(
 			char *payment_date_time,
 			char *program_name,
 			double payment_amount,
-			double fees_expense,
-			double gain_donation,
+			double merchant_fees_expense,
 			double receivable_credit_amount,
 			double cash_debit_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_receivable,
-			char *account_fees_expense,
-			char *account_overpayment_donation );
+			char *account_fees_expense );
 
 boolean tuition_payment_is_tuition(
 			char *item_title_block );
 
-void tuition_payment_list_set_transaction(
-			int *transaction_seconds_to_add,
-			LIST *tuition_payment_list );
+double tuition_payment_cash_debit_amount(
+			double payment_amount,
+			double merchant_fees_expense );
 
 #endif
 

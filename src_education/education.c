@@ -26,7 +26,6 @@
 #include "tuition_refund.h"
 #include "tuition_refund_fns.h"
 #include "tuition_payment.h"
-#include "tuition_payment_fns.h"
 #include "program_payment.h"
 #include "program_payment_fns.h"
 #include "product_payment.h"
@@ -598,5 +597,21 @@ LIST *education_paypal_allowed_list(
 	list_append_list( allowed_list, product_name_list );
 
 	return allowed_list;
+}
+
+double education_net_payment_amount(
+			double payment_amount,
+			double merchant_fees_expense )
+{
+	return	payment_amount -
+		merchant_fees_expense;
+}
+
+double education_net_refund_amount(
+			double refund_amount,
+			double merchant_fees_expense )
+{
+	return	refund_amount +
+		merchant_fees_expense;
 }
 
