@@ -328,9 +328,7 @@ TRANSACTION *tuition_payment_transaction(
 			/* Returns static memory */
 			/* --------------------- */
 			strdup( tuition_payment_memo( program_name ) ),
-			*seconds_to_add );
-
-	(*seconds_to_add)++;
+			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
 

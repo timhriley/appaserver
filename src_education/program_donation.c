@@ -357,9 +357,7 @@ TRANSACTION *program_donation_transaction(
 			/* Returns static memory */
 			/* --------------------- */
 			strdup( program_donation_memo( program_name ) ),
-			*seconds_to_add );
-
-	(*seconds_to_add)++;
+			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
 
