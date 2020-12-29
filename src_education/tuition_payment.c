@@ -18,7 +18,6 @@
 #include "entity_self.h"
 #include "paypal_upload.h"
 #include "paypal_item.h"
-#include "tuition_payment_fns.h"
 #include "registration.h"
 #include "registration_fns.h"
 #include "journal.h"
@@ -58,7 +57,7 @@ TUITION_PAYMENT *tuition_payment_new(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time )
+			char *payment_date_time )
 {
 	TUITION_PAYMENT *payment = tuition_payment_calloc();
 
@@ -70,13 +69,8 @@ TUITION_PAYMENT *tuition_payment_new(
 			season_name,
 			year );
 
-	payment->paypal_deposit =
-		paypal_deposit_new(
-			payor_full_name,
-			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time );
+	payment->payment_date_time = payment_date_time;
+
 	return payment;
 }
 
@@ -88,7 +82,7 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time,
+			char *payment_date_time,
 			boolean fetch_enrollment,
 			boolean fetch_paypal )
 {
@@ -108,28 +102,11 @@ TUITION_PAYMENT *tuition_payment_fetch(
 						year,
 						payor_full_name,
 						payor_street_address,
-						deposit_date_time ) ) ),
-			fetch_paypal,
-			fetch_enrollment );
+						payment_date_time ) ) ),
+			fetch_enrollment,
+			fetch_paypal );
 
 	return payment;
-}
-
-double tuition_payment_amount(
-			double deposit_amount,
-			double registration_invoice_amount_due,
-			int paypal_registration_list_length )
-{
-	double payment_amount;
-
-	payment_amount =
-		deposit_amount /
-		(double)paypal_registration_list_length;
-
-	if ( payment_amount <= registration_invoice_amount_due )
-		return payment_amount;
-	else
-		return registration_invoice_amount_due;
 }
 
 FILE *tuition_payment_update_open( void )
@@ -147,9 +124,8 @@ FILE *tuition_payment_update_open( void )
 }
 
 void tuition_payment_update(
-			double payment_amount,
-			double fees_expense,
-			double gain_donation,
+			double net_payment_amount,
+			double overpayment_donation,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *street_address,
@@ -158,12 +134,12 @@ void tuition_payment_update(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time )
+			char *payment_date_time )
 {
 	FILE *update_pipe = tuition_payment_update_open();
 
 	fprintf( update_pipe,
-		 "%s^%s^%s^%s^%d^%s^%s^%s^payment_amount^%.2lf\n",
+		 "%s^%s^%s^%s^%d^%s^%s^%s^net_payment_amount^%.2lf\n",
 		 student_full_name,
 		 street_address,
 		 course_name,
@@ -171,11 +147,11 @@ void tuition_payment_update(
 		 year,
 		 payor_full_name,
 		 payor_street_address,
-		 deposit_date_time,
-		 payment_amount );
+		 payment_date_time,
+		 net_payment_amount );
 
 	fprintf( update_pipe,
-		 "%s^%s^%s^%s^%d^%s^%s^%s^fees_expense^%.2lf\n",
+		 "%s^%s^%s^%s^%d^%s^%s^%s^overpayment_donation^%.2lf\n",
 		 student_full_name,
 		 street_address,
 		 course_name,
@@ -183,20 +159,8 @@ void tuition_payment_update(
 		 year,
 		 payor_full_name,
 		 payor_street_address,
-		 deposit_date_time,
-		 fees_expense );
-
-	fprintf( update_pipe,
-		 "%s^%s^%s^%s^%d^%s^%s^%s^gain_donation^%.2lf\n",
-		 student_full_name,
-		 street_address,
-		 course_name,
-		 season_name,
-		 year,
-		 payor_full_name,
-		 payor_street_address,
-		 deposit_date_time,
-		 gain_donation );
+		 payment_date_time,
+		 overpayment_donation );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%d^%s^%s^%s^transaction_date_time^%s\n",
@@ -207,7 +171,7 @@ void tuition_payment_update(
 		 year,
 		 payor_full_name,
 		 payor_street_address,
-		 deposit_date_time,
+		 payment_date_time,
 		 (transaction_date_time) ? transaction_date_time : "" );
 
 	pclose( update_pipe );
@@ -215,8 +179,8 @@ void tuition_payment_update(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_paypal,
-			boolean fetch_enrollment )
+			boolean fetch_enrollment,
+			boolean fetch_paypal )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -230,8 +194,8 @@ LIST *tuition_payment_system_list(
 			payment_list,
 			tuition_payment_parse(
 				input,
-				fetch_paypal,
-				fetch_enrollment ) );
+				fetch_enrollment,
+				fetch_paypal ) );
 	}
 
 	pclose( input_pipe );
@@ -252,8 +216,8 @@ char *tuition_payment_sys_string( char *where )
 
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
-			boolean fetch_paypal,
-			boolean fetch_enrollment )
+			boolean fetch_enrollment,
+			boolean fetch_paypal )
 {
 	TUITION_PAYMENT *payment;
 	char student_full_name[ 128 ];
@@ -263,11 +227,13 @@ TUITION_PAYMENT *tuition_payment_parse(
 	char year[ 128 ];
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
-	char deposit_date_time[ 128 ];
+	char payment_date_time[ 128 ];
 	char payment_amount[ 128 ];
-	char fees_expense[ 128 ];
-	char gain_donation[ 128 ];
+	char net_payment_amount[ 128 ];
+	char overpayment_donation[ 128 ];
 	char transaction_date_time[ 128 ];
+	char merchant_fees_expense[ 128 ];
+	char paypal_date_time[ 128 ];
 
 	if ( !input || !*input ) return (TUITION_PAYMENT *)0;
 
@@ -280,7 +246,7 @@ TUITION_PAYMENT *tuition_payment_parse(
 	piece( year, SQL_DELIMITER, input, 4 );
 	piece( payor_full_name, SQL_DELIMITER, input, 5 );
 	piece( payor_street_address, SQL_DELIMITER, input, 6 );
-	piece( deposit_date_time, SQL_DELIMITER, input, 7 );
+	piece( payment_date_time, SQL_DELIMITER, input, 7 );
 
 	payment =
 		tuition_payment_new(
@@ -291,34 +257,20 @@ TUITION_PAYMENT *tuition_payment_parse(
 			atoi( year ),
 			strdup( payor_full_name ),
 			strdup( payor_street_address ),
-			strdup( deposit_date_time ) );
+			strdup( payment_date_time ) );
 
 	piece( payment_amount, SQL_DELIMITER, input, 8 );
-	payment->tuition_payment_amount = atof( payment_amount );
+	payment->payment_amount = atof( payment_amount );
 
-	piece( fees_expense, SQL_DELIMITER, input, 9 );
-	payment->tuition_payment_fees_expense = atof( fees_expense );
+	piece( overpayment_donation, SQL_DELIMITER, input, 9 );
+	payment->tuition_payment_overpaymentdonation =
+		atof( overpayment_donation );
 
-	piece( gain_donation, SQL_DELIMITER, input, 10 );
-	payment->tuition_payment_gain_donation = atof( gain_donation );
-
-	piece( transaction_date_time, SQL_DELIMITER, input, 11 );
+	piece( transaction_date_time, SQL_DELIMITER, input, 10 );
 	payment->transaction_date_time = strdup( transaction_date_time );
 
-	if ( fetch_paypal )
-	{
-		payment->paypal_deposit =
-			paypal_deposit_fetch(
-				payor_full_name,
-				payor_street_address,
-				season_name,
-				atoi( year ),
-				deposit_date_time,
-				0 /* not fetch_tuition_payment_list */,
-				0 /* not fetch_program_payment_list */,
-				0 /* not fetch_product_payment_list */,
-				0 /* not fetch_tuition_refund_list */ );
-	}
+	piece( merchant_fees_expense, SQL_DELIMITER, input, 11 );
+	payment->merchant_fees_expense = atof( merchant_fees_expense );
 
 	if ( fetch_enrollment )
 	{
@@ -334,24 +286,34 @@ TUITION_PAYMENT *tuition_payment_parse(
 				1 /* fetch_offering */,
 				1 /* fetch_registration */ );
 	}
+
+	if ( fetch_paypal )
+	{
+		payment->paypal_deposit =
+			paypal_deposit_fetch(
+				payor_full_name,
+				payor_street_address,
+				paypal_date_time );
+	}
+
 	return payment;
 }
 
 TRANSACTION *tuition_payment_transaction(
+			int *seconds_to_add,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time,
+			char *payment_date_time,
 			char *program_name,
 			double payment_amount,
 			double fees_expense,
-			double gain_donation,
+			double overpayment_donation,
 			double receivable_credit_amount,
 			double cash_debit_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense,
-			char *account_gain,
-			int seconds_to_add )
+			char *account_overpayment_donation )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
@@ -359,10 +321,10 @@ TRANSACTION *tuition_payment_transaction(
 	if ( dollar_virtually_same( payment_amount, 0.0 ) )
 		return (TRANSACTION *)0;
 
-	if ( !deposit_date_time )
+	if ( !payment_date_time )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty deposit_date_time\n",
+			"ERROR in %s/%s()/%d: empty payment_date_time\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -373,7 +335,7 @@ TRANSACTION *tuition_payment_transaction(
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			deposit_date_time
+			payment_date_time
 				/* transaction_date_time */,
 			payment_amount
 				/* transaction_amount */,
@@ -381,7 +343,9 @@ TRANSACTION *tuition_payment_transaction(
 			/* Returns static memory */
 			/* --------------------- */
 			strdup( tuition_payment_memo( program_name ) ),
-			seconds_to_add );
+			*seconds_to_add );
+
+	(*seconds_to_add)++;
 
 	transaction->program_name = program_name;
 
@@ -429,7 +393,7 @@ TRANSACTION *tuition_payment_transaction(
 
 	journal->credit_amount = receivable_credit_amount;
 
-	if ( gain_donation )
+	if ( overpayment_donation )
 	{
 		list_set(
 			transaction->journal_list,
@@ -438,9 +402,9 @@ TRANSACTION *tuition_payment_transaction(
 					transaction->full_name,
 					transaction->street_address,
 					transaction->transaction_date_time,
-					account_gain ) ) );
+					account_overpayment_donation ) ) );
 
-		journal->credit_amount = gain_donation;
+		journal->credit_amount = overpayment_donation;
 	}
 	return transaction;
 }
@@ -464,54 +428,61 @@ double tuition_payment_total( LIST *payment_list )
 	return total;
 }
 
-double tuition_payment_gain_donation(
-			double paypal_gain_donation,
-			int paypal_registration_list_length )
+double tuition_payment_overpayment_donation(
+			double payment_amount,
+			LIST *enrollment_registration_list )
 {
-	if ( !paypal_registration_list_length )
-		return 0.0;
+	double amount_due;
+	double overpayment_donation;
+
+	if (	payment_amount >
+		( amount_due = registration_amount_due(
+			enrollment_registration_list ) ) )
+	{
+		overpayment_donation = payment_amount - amount_due;
+	}
 	else
-		return	paypal_gain_donation /
-			(double)paypal_registration_list_length;
-}
-
-double tuition_payment_fees_expense(
-			double paypal_transaction_fee,
-			int paypal_tuition_payment_list_length )
-{
-	if ( !paypal_tuition_payment_list_length ) return 0.0;
-
-	return	paypal_transaction_fee /
-		(double)paypal_tuition_payment_list_length;
+	{
+		overpayment_donation = 0.0;
+	}
+	return overpayment_donation;
 }
 
 TUITION_PAYMENT *tuition_payment_steady_state(
-			int *transaction_seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
-			LIST *paypal_tuition_payment_list,
-			LIST *paypal_registration_list,
-			LIST *registration_enrollment_list,
-			LIST *semester_offering_list,
-			double deposit_amount,
-			double paypal_transaction_fee )
+			double payment_amount,
+			double merchant_fees_expense )
 {
-	if ( !tuition_payment->enrollment->offering )
+	if ( !tuition_payment->enrollment )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: missing offfering.\n",
+			"ERROR in %s/%s()/%d: missing enrollment.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-
-		return tuition_payment;
+		exit( 1 );
 	}
+
+	if ( !tuition_payment->enrollment->offering )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: missing offering.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	tuition_payment->enrollment_registration_list =
+		enrollment_registration_list(
+			tuition_payment->enrollment );
 
 	tuition_payment->
 		enrollment->
 		registration->
 		tuition_payment_total =
 			registration_tuition_payment_total(
-				paypal_registration_list );
+				enrollment_registration_list );
 
 	tuition_payment->
 		enrollment->
@@ -574,6 +545,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 		tuition_payment_receivable_credit_amount(
 			tuition_payment->tuition_payment_amount );
 
+#ifdef NOT_DEFINED
 	if ( !tuition_payment->transaction_date_time
 	||  !*tuition_payment->transaction_date_time )
 	{
@@ -622,6 +594,7 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 	{
 		tuition_payment->transaction_date_time = (char *)0;
 	}
+#endif
 
 	return tuition_payment;
 }
@@ -1715,73 +1688,70 @@ void tuition_payment_list_set_transaction(
 	char *cash_account_name;
 	char *receivable;
 	char *fees_expense;
-	char *gain;
+	char *overpayment_donation;
 
 	if ( !list_rewind( tuition_payment_list ) ) return;
 
 	cash_account_name = entity_self_paypal_cash_account_name();
 	receivable = account_receivable( (char *)0 );
 	fees_expense = account_fees_expense( (char *)0 );
-	gain = account_gain( (char *)0 );
+	overpayment_donation = account_overpayment_donation( (char *)0 );
 
 	do {
 		tuition_payment = list_get( tuition_payment_list );
 
+		/* ----------------------------------------------------- */
+		/* Sets tuition_payment->tuition_payment_transaction and
+			tuition_payment->transaction_date_time		 */
+		/* ----------------------------------------------------- */
 		tuition_payment_set_transaction(
 			transaction_seconds_to_add,
 			tuition_payment,
 			cash_account_name,
 			receivable,
 			fees_expense,
-			gain );
+			overpayment_donation );
 
 	} while ( list_next( tuition_payment_list ) );
 }
 
-void tuition_payment_set_transaction(
+boolean tuition_payment_set_transaction(
 			int *transaction_seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
 			char *cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense,
-			char *account_gain )
+			char *account_overpayment_donation )
 {
 	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
+			transaction_seconds_to_add,
 			tuition_payment->
-				paypal_deposit->
-				payor_entity->
-				full_name,
+				payor_full_name,
 			tuition_payment->
-				paypal_deposit->
-				payor_entity->
-				street_address,
+				payor_street_address,
 			tuition_payment->
-				paypal_deposit->
-				deposit_date_time,
+				payment_date_time,
 			tuition_payment->
 				enrollment->
 				offering->
 				course->
 				program->
 				program_name,
-			tuition_payment->tuition_payment_amount,
-			tuition_payment->tuition_payment_fees_expense,
-			tuition_payment->tuition_payment_gain_donation,
+			tuition_payment->payment_amount,
+			tuition_payment->merchant_fees_expense,
+			tuition_payment->tuition_payment_overpayment_donation,
 			tuition_payment->
 				tuition_payment_receivable_credit_amount,
 			tuition_payment->tuition_payment_cash_debit_amount,
 			cash_account_name,
 			account_receivable,
 			account_fees_expense,
-			account_gain,
-			*transaction_seconds_to_add ) ) )
+			account_overpayment_donation ) ) )
 	{
 		tuition_payment->transaction_date_time =
 			tuition_payment->tuition_payment_transaction->
 				transaction_date_time;
-
-		(*transaction_seconds_to_add)++;
 	}
 	else
 	{
