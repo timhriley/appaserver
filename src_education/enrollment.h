@@ -37,13 +37,19 @@
 /* ---------- */
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	OFFERING *offering;
 	REGISTRATION *registration;
-	TRANSACTION *enrollment_transaction;
-	char *transaction_date_time;
+
+	/* Process */
+	/* ------- */
 	LIST *enrollment_tuition_payment_list;
 	LIST *enrollment_tuition_refund_list;
 	char *enrollment_cancelled_date;
+
+	TRANSACTION *enrollment_transaction;
+	char *transaction_date_time;
 } ENROLLMENT;
 
 ENROLLMENT *enrollment_new(

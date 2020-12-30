@@ -55,8 +55,8 @@ typedef struct
 	/* ------- */
 	double net_payment_amount;
 
-	char *transaction_date_time;
 	TRANSACTION *program_donation_transaction;
+	char *transaction_date_time;
 } PROGRAM_DONATION;
 
 PROGRAM_DONATION *program_donation_calloc(

@@ -65,8 +65,8 @@ typedef struct
 	double tuition_refund_revenue_debit_amount;
 	double tuition_refund_cash_credit_amount;
 
-	char *transaction_date_time;
 	TRANSACTION *tuition_refund_transaction;
+	char *transaction_date_time;
 } TUITION_REFUND;
 
 /* Prototypes */

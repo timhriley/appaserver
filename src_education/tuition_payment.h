@@ -70,8 +70,8 @@ typedef struct
 	double tuition_payment_receivable_credit_amount;
 	double tuition_payment_cash_debit_amount;
 
-	char *transaction_date_time;
 	TRANSACTION *tuition_payment_transaction;
+	char *transaction_date_time;
 } TUITION_PAYMENT;
 
 /* Prototypes */

@@ -42,6 +42,23 @@ PRODUCT_SALE *product_sale_calloc( void )
 	return product_sale;
 }
 
+PRODUCT_SALE *product_sale_new(
+			char *product_name,
+			char *sale_date_time,
+			char *payor_full_name,
+			char *payor_street_address )
+{
+	PRODUCT_SALE *product_sale = product_sale_calloc();
+
+	product_sale->product = product_new( product_name );
+	product_sale->sale_date_time = sale_date_time;
+	product_sale->payor_full_name = payor_full_name;
+	product_sale->payor_street_address = payor_street_address;
+
+	return product_sale;
+}
+
+
 PRODUCT_SALE *product_sale_fetch(
 			char *product_name,
 			char *sale_date_time,
@@ -123,6 +140,29 @@ void product_sale_list_insert( LIST *product_sale_list )
 
 	do {
 		product_sale = list_get( product_sale_list );
+
+		if ( !product_sale->product
+		||   !product_sale->sale_date_time
+		||   !product_sale->payor_full_name
+		||   !product_sale->payor_street_address )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: empty product or contact.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		if ( !product_sale->quantity )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: empty quantity.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
 
 		product_sale_insert_pipe(
 			insert_pipe,

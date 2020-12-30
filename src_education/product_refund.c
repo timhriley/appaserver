@@ -23,7 +23,8 @@
 #include "account.h"
 #include "paypal_deposit.h"
 #include "paypal_item.h"
-#include "product_refund_fns.h"
+#include "product_sale.h"
+#include "education.h"
 #include "product_refund.h"
 
 PRODUCT_REFUND *product_refund_calloc( void )
@@ -44,12 +45,11 @@ PRODUCT_REFUND *product_refund_calloc( void )
 
 PRODUCT_REFUND *product_refund_fetch(
 			char *product_name,
+			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			boolean fetch_product,
+			char *refund_date_time,
+			boolean fetch_sale,
 			boolean fetch_paypal )
 {
 	PRODUCT_REFUND *product_refund;
@@ -63,12 +63,11 @@ PRODUCT_REFUND *product_refund_fetch(
 					/* --------------------- */
 					product_refund_primary_where(
 						product_name,
+						sale_date_time,
 						payor_full_name,
 						payor_street_address,
-						season_name,
-						year,
-						deposit_date_time ) ) ),
-			fetch_product,
+						refund_date_time ) ) ),
+			fetch_sale,
 			fetch_paypal );
 
 	return product_refund;
@@ -76,7 +75,7 @@ PRODUCT_REFUND *product_refund_fetch(
 
 LIST *product_refund_system_list(
 			char *sys_string,
-			boolean fetch_product,
+			boolean fetch_sale,
 			boolean fetch_paypal )
 {
 	char input[ 1024 ];
@@ -91,7 +90,7 @@ LIST *product_refund_system_list(
 			product_refund_list,
 			product_refund_parse(
 				input,
-				fetch_product,
+				fetch_sale,
 				fetch_paypal ) );
 	}
 
@@ -117,7 +116,6 @@ void product_refund_list_insert( LIST *product_refund_list )
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
-	char *transaction_date_time;
 
 	if ( !list_rewind( product_refund_list ) ) return;
 
@@ -129,39 +127,18 @@ void product_refund_list_insert( LIST *product_refund_list )
 	do {
 		product_refund = list_get( product_refund_list );
 
-		transaction_date_time =
-			(product_refund->product_refund_transaction)
-				? product_refund->
-					product_refund_transaction->
-					transaction_date_time
-				: (char *)0;
-
 		product_refund_insert_pipe(
 			insert_pipe,
-			product_refund->product->product_name,
-			product_refund->
-				paypal_deposit->
-				payor_entity->
-				full_name,
-			product_refund->
-				paypal_deposit->
-				payor_entity->
-				street_address,
-			product_refund->
-				paypal_deposit->
-				semester->
-				season_name,
-			product_refund->
-				paypal_deposit->
-				semester->
-				year,
-			product_refund->
-				paypal_deposit->
-				deposit_date_time,
-			product_refund->product_refund_amount,
-			product_refund->fees_expense,
-			product_refund->net_payment_amount,
-			transaction_date_time );
+			product_refund->product_sale->product->product_name,
+			product_refund->sale_date_time,
+			product_refund->payor_full_name,
+			product_refund->payor_street_address,
+			product_refund->refund_date_time,
+			product_refund->refund_amount,
+			product_refund->net_refund_amount,
+			product_refund->transaction_date_time,
+			product_refund->merchant_fees_expense,
+			product_refund->paypal_date_time );
 
 	} while ( list_next( product_refund_list ) );
 
@@ -169,7 +146,7 @@ void product_refund_list_insert( LIST *product_refund_list )
 
 	if ( timlib_file_populated( error_filename ) )
 	{
-		char *title = "Insert Product Payment Errors";
+		char *title = "Insert Product Refund Errors";
 
 		sprintf(sys_string,
 			"cat %s						|"
@@ -206,53 +183,55 @@ FILE *product_refund_insert_open( char *error_filename )
 void product_refund_insert_pipe(
 			FILE *insert_pipe,
 			char *product_name,
+			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			double payment_amount,
-			double fees_expense,
-			double net_payment_amount,
-			char *transaction_date_time )
+			char *refund_date_time,
+			double refund_amount,
+			double net_refund_amount,
+			char *transaction_date_time,
+			double merchant_fees_expense,
+			char *paypal_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%d^%s^%.2lf^%.2lf^%.2lf^%s\n",
+		"%s^%s^%s^%s^%s^%.2lf^%.2lf^%s^%.2lf^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		product_name_escape( product_name ),
+		sale_date_time,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		entity_escape_full_name( payor_full_name ),
 		payor_street_address,
-		season_name,
-		year,
-		deposit_date_time,
-		payment_amount,
-		fees_expense,
-		net_payment_amount,
+		refund_date_time,
+		refund_amount,
+		net_refund_amount,
 		(transaction_date_time)
 			? transaction_date_time
+			: "",
+		merchant_fees_expense,
+		(paypal_date_time)
+			? paypal_date_time
 			: "" );
 }
 
 PRODUCT_REFUND *product_refund_parse(
 			char *input,
-			boolean fetch_product,
+			boolean fetch_sale,
 			boolean fetch_paypal )
 {
 	char product_name[ 128 ];
+	char sale_date_time[ 128 ];
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
-	char season_name[ 128 ];
-	char year[ 128 ];
-	char deposit_date_time[ 128 ];
-	char payment_amount[ 128 ];
-	char fees_expense[ 128 ];
-	char net_payment_amount[ 128 ];
+	char refund_date_time[ 128 ];
+	char refund_amount[ 128 ];
+	char net_refund_amount[ 128 ];
 	char transaction_date_time[ 128 ];
+	char merchant_fees_expense[ 128 ];
+	char paypal_date_time[ 128 ];
 	PRODUCT_REFUND *product_refund;
 
 	if ( !input || !*input ) return (PRODUCT_REFUND *)0;
@@ -262,72 +241,58 @@ PRODUCT_REFUND *product_refund_parse(
 	/* See: attribute_list product_refund */
 	/* ----------------------------------- */
 	piece( product_name, SQL_DELIMITER, input, 0 );
-	product_refund->product = product_new( strdup( product_name ) );
+	piece( sale_date_time, SQL_DELIMITER, input, 1 );
+	piece( payor_full_name, SQL_DELIMITER, input, 2 );
+	piece( payor_street_address, SQL_DELIMITER, input, 3 );
 
-	piece( payor_full_name, SQL_DELIMITER, input, 1 );
-	piece( payor_street_address, SQL_DELIMITER, input, 2 );
-	piece( season_name, SQL_DELIMITER, input, 3 );
-	piece( year, SQL_DELIMITER, input, 4 );
-	piece( deposit_date_time, SQL_DELIMITER, input, 5 );
-
-	product_refund->paypal_deposit =
-		paypal_deposit_new(
+	product_refund->product_sale =
+		product_sale_new(
+			strdup( product_name ),
+			strdup( sale_date_time ),
 			strdup( payor_full_name ),
-			strdup( payor_street_address ),
-			strdup( season_name ),
-			atoi( year ),
-			strdup( deposit_date_time ) );
+			strdup( payor_street_address ) );
 
-	piece( payment_amount, SQL_DELIMITER, input, 6 );
-	product_refund->product_refund_amount =
-		atof( payment_amount );
+	piece( refund_date_time, SQL_DELIMITER, input, 4 );
+	product_refund->refund_date_time = strdup( refund_date_time );
 
-	piece( fees_expense, SQL_DELIMITER, input, 7 );
-	product_refund->fees_expense = atof( fees_expense );
+	piece( refund_amount, SQL_DELIMITER, input, 5 );
+	product_refund->refund_amount = atof( refund_amount );
 
-	piece( net_payment_amount, SQL_DELIMITER, input, 8 );
-	product_refund->net_payment_amount = atof( net_payment_amount );
+	piece( net_refund_amount, SQL_DELIMITER, input, 6 );
+	product_refund->net_refund_amount = atof( net_refund_amount );
 
-	piece( transaction_date_time, SQL_DELIMITER, input, 9 );
-	product_refund->transaction_date_time =
-		strdup( transaction_date_time );
+	piece( transaction_date_time, SQL_DELIMITER, input, 7 );
+	product_refund->transaction_date_time = strdup( transaction_date_time );
 
-	if ( fetch_product )
+	piece( merchant_fees_expense, SQL_DELIMITER, input, 8 );
+	product_refund->merchant_fees_expense = atof( merchant_fees_expense );
+
+	piece( paypal_date_time, SQL_DELIMITER, input, 9 );
+	product_refund->paypal_date_time = strdup( paypal_date_time );
+
+
+	if ( fetch_sale )
 	{
-		product_refund->product =
-			product_fetch(
+		product_refund->product_sale =
+			product_sale_fetch(
 				product_refund->
+					product_sale->
 					product->
-					product_name );
+					product_name,
+				product_refund->sale_date_time,
+				product_refund->payor_full_name,
+				product_refund->payor_street_address,
+				1 /* fetch_product */,
+				0 /* not fetch_paypal */ );
 	}
 
 	if ( fetch_paypal )
 	{
 		product_refund->paypal_deposit =
 		    paypal_deposit_fetch(
-			 product_refund->
-				paypal_deposit->
-				payor_entity->
-				full_name,
-			 product_refund->
-				paypal_deposit->
-				payor_entity->
-				street_address,
-			 product_refund->
-				paypal_deposit->
-				semester->
-				season_name,
-			 product_refund->
-				paypal_deposit->
-				semester->
-				year,
-			 product_refund->
-				paypal_deposit->
-				deposit_date_time,
-			 0 /* not fetch_tuition_refund_list */,
-			 0 /* not fetch_program_refund_list */,
-			 0 /* not fetch_product_refund_list */,
-			 0 /* not fetch_tuition_refund_list */ );
+			 product_refund->payor_full_name,
+			 product_refund->payor_street_address,
+			 product_refund->paypal_date_time );
 	}
 
 	return product_refund;
@@ -335,50 +300,47 @@ PRODUCT_REFUND *product_refund_parse(
 
 char *product_refund_primary_where(
 			char *product_name,
+			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time )
+			char *refund_date_time )
 {
 	char static where[ 1024 ];
 
 	sprintf(where,
 		"product_name = '%s' and		"
+		"sale_date_time = '%s' and		"
 		"payor_full_name = '%s' and		"
 		"payor_street_address = '%s' and	"
-		"season_name = '%s' and			"
-		"year = %d and				"
-		"deposit_date_time = '%s'		",
+		"refund_date_time = '%s'		",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
 		 product_name_escape( product_name ),
 		 /* --------------------- */
+		 sale_date_time,
 		 /* Returns static memory */
 		 /* --------------------- */
 		 entity_escape_full_name( payor_full_name ),
 		 payor_street_address,
-		 season_name,
-		 year,
-		 deposit_date_time );
+		 refund_date_time );
 
 	return where;
 }
 
 TRANSACTION *product_refund_transaction(
+			int *seconds_to_add,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time,
+			char *refund_date_time,
 			char *product_name,
 			char *program_name,
 			double refund_amount,
-			double fees_expense,
-			double net_payment_amount,
+			double merchant_fees_expense,
+			double net_refund_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
-			char *product_revenue_account,
-			int seconds_to_add )
+			char *product_revenue_account )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
@@ -401,7 +363,7 @@ TRANSACTION *product_refund_transaction(
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			deposit_date_time
+			refund_date_time
 				/* transaction_date_time */,
 			refund_amount
 				/* transaction_amount */,
@@ -409,7 +371,7 @@ TRANSACTION *product_refund_transaction(
 			/* Returns static memory */
 			/* --------------------- */
 			strdup( product_refund_memo( product_name ) ),
-			seconds_to_add );
+			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
 
@@ -442,7 +404,7 @@ TRANSACTION *product_refund_transaction(
 				transaction->transaction_date_time,
 				entity_self_paypal_cash_account_name ) ) );
 
-	journal->credit_amount = 0.0 - net_payment_amount;
+	journal->credit_amount = 0.0 - net_refund_amount;
 
 	/* Credit fees_expense */
 	/* ------------------- */
@@ -455,7 +417,7 @@ TRANSACTION *product_refund_transaction(
 				transaction->transaction_date_time,
 				account_fees_expense ) ) );
 
-	journal->credit_amount = fees_expense;
+	journal->credit_amount = merchant_fees_expense;
 
 	return transaction;
 }
@@ -475,24 +437,32 @@ FILE *product_refund_update_open( void )
 }
 
 void product_refund_update(
+			double net_refund_amount,
 			char *transaction_date_time,
 			char *product_name,
+			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time )
+			char *refund_date_time )
 {
 	FILE *update_pipe = product_refund_update_open();
 
 	fprintf( update_pipe,
-		 "%s^%s^%s^%s^%d^%s^transaction_date_time^%s\n",
+		 "%s^%s^%s^%s^%s^net_refund_amount^%.2lf\n",
 		 product_name,
+		 sale_date_time,
 		 payor_full_name,
 		 payor_street_address,
-		 season_name,
-		 year,
-		 deposit_date_time,
+		 refund_date_time,
+		 net_refund_amount );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%s^%s^transaction_date_time^%s\n",
+		 product_name,
+		 sale_date_time,
+		 payor_full_name,
+		 payor_street_address,
+		 refund_date_time,
 		 (transaction_date_time)
 			? transaction_date_time
 			: "" );
@@ -504,7 +474,7 @@ char *product_refund_list_display( LIST *refund_list )
 {
 	char display[ 65536 ];
 	char *ptr = display;
-	PRODUCT_REFUND *payment;
+	PRODUCT_REFUND *refund;
 
 	*ptr = '\0';
 
@@ -516,7 +486,7 @@ char *product_refund_list_display( LIST *refund_list )
 	ptr += sprintf( ptr, "Product refund: " );
 
 	do {
-		payment =
+		refund =
 			list_get(
 				refund_list );
 
@@ -525,11 +495,19 @@ char *product_refund_list_display( LIST *refund_list )
 			ptr += sprintf( ptr, ", " );
 		}
 
-		if ( payment && payment->product )
+		if (	refund
+		&&	refund->
+				product_sale
+		&&	refund->
+				product_sale->
+				product )
 		{
 			ptr += sprintf(	ptr,
 					"%s",
-					payment->product->product_name );
+					refund->
+						product_sale->
+						product->
+						product_name );
 		}
 		else
 		{
@@ -549,37 +527,24 @@ double product_refund_amount(
 	return 0.0 - deposit_amount;
 }
 
-double product_refund_fees_expense(
-			double paypal_fees_expense )
-{
-	return paypal_fees_expense;
-}
-
-double product_refund_net_payment_amount(
-			double deposit_amount,
-			double transaction_fee )
-{
-	return deposit_amount + transaction_fee;
-}
-
 PRODUCT_REFUND *product_refund_steady_state(
-			int *transaction_seconds_to_add,
 			PRODUCT_REFUND *product_refund,
-			double deposit_amount,
-			double paypal_transaction_fee )
+			double refund_amount,
+			double merchant_fees_expense )
 {
-	if ( !product_refund->product )
+	if ( !product_refund->product_sale
+	||   !product_refund->product_sale->product )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty product.\n",
+			"ERROR in %s/%s()/%d: empty product_sale or product.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( !product_refund->product->revenue_account
-	||   !*product_refund->product->revenue_account )
+	if ( !product_refund->product_sale->product->revenue_account
+	||   !*product_refund->product_sale->product->revenue_account )
 	{
 		fprintf(stderr,
 			"Warning in %s/%s()/%d: empty revenue_account.\n",
@@ -589,69 +554,20 @@ PRODUCT_REFUND *product_refund_steady_state(
 		return (PRODUCT_REFUND *)0;
 	}
 
-	product_refund->product_refund_amount =
-		product_refund_amount(
-			deposit_amount );
-
-	product_refund->fees_expense =
-		product_refund_fees_expense(
-			paypal_transaction_fee );
-
-	product_refund->net_payment_amount =
-		product_refund_net_payment_amount(
-			deposit_amount,
-			paypal_transaction_fee );
-
-	if ( !product_refund->transaction_date_time
-	||   !*product_refund->transaction_date_time )
-	{
-		product_refund->transaction_date_time =
-			product_refund->
-				paypal_deposit->
-				deposit_date_time;
-	}
-
-	if ( ( product_refund->product_refund_transaction =
-	       product_refund_transaction(
-			product_refund->
-				paypal_deposit->
-				payor_entity->
-				full_name,
-			product_refund->
-				paypal_deposit->
-				payor_entity->
-				street_address,
-			product_refund->transaction_date_time,
-			product_refund->product->product_name,
-			product_refund->product->program_name,
-			product_refund->product_refund_amount,
-			product_refund->fees_expense,
-			product_refund->net_payment_amount,
-			entity_self_paypal_cash_account_name(),
-			account_fees_expense( (char *)0 ),
-			product_refund->product->revenue_account,
-			*transaction_seconds_to_add ) ) )
-	{
-		product_refund->transaction_date_time =
-			product_refund->product_refund_transaction->
-				transaction_date_time;
-
-		(*transaction_seconds_to_add)++;
-	}
-	else
-	{
-		product_refund->transaction_date_time = (char *)0;
-	}
+	product_refund->net_refund_amount =
+		education_net_refund_amount(
+			refund_amount,
+			merchant_fees_expense );
 
 	return product_refund;
 }
 
-PRODUCT_REFUND *product_refund(
+PRODUCT_REFUND *product_refund_paypal(
 			LIST *product_list,
 			char *item_data,
 			double item_value,
 			double item_fee,
-			PAYPAL_DEPOSIT *paypal_deposit )
+			char *paypal_date_time )
 {
 	PRODUCT_REFUND *product_refund;
 	PRODUCT *product;
@@ -668,25 +584,33 @@ PRODUCT_REFUND *product_refund(
 	/* ---------- */
 	product_refund = product_refund_calloc();
 
-	product_refund->product_refund_amount = item_value;
-	product_refund->fees_expense = item_fee;
+	product_refund->paypal_date_time = paypal_date_time;
+	product_refund->refund_amount = item_value;
+	product_refund->merchant_fees_expense = item_fee;
 
-	product_refund->net_payment_amount =
-		item_value + item_fee;
+	product_refund->net_refund_amount =
+		education_net_refund_amount(
+			item_value,
+			item_fee );
 
-	product_refund->product = product;
-	product_refund->paypal_deposit = paypal_deposit;
+	product_refund->product_sale =
+		product_sale_new(
+			product->product_name,
+			(char *)0 /* sale_date_time */,
+			(char *)0 /* payor_full_name */,
+			(char *)0 /* payor_street_address */ );
+
+	product_refund->product_sale->product = product;
 
 	return product_refund;
 }
 
-LIST *product_refund_list(
+LIST *product_refund_list_paypal(
 			LIST *paypal_item_list,
 			LIST *product_list,
-			PAYPAL_DEPOSIT *paypal_deposit )
+			char *paypal_date_time )
 {
 	LIST *refund_list = list_new();
-	PRODUCT_REFUND *refund;
 	PAYPAL_ITEM *paypal_item;
 
 	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
@@ -696,16 +620,15 @@ LIST *product_refund_list(
 
 		if ( paypal_item->benefit_entity ) continue;
 
-		if ( ( refund =
-			product_refund(
+		list_set(
+			refund_list,
+			product_refund_paypal(
 				product_list,
 				paypal_item->item_data,
 				paypal_item->item_value,
 				paypal_item->item_fee,
-				paypal_deposit ) ) )
-		{
-			list_set( refund_list, refund );
-		}
+				paypal_date_time ) );
+
 	} while ( list_next( paypal_item_list ) );
 
 	return refund_list;
@@ -713,23 +636,21 @@ LIST *product_refund_list(
 
 void product_refund_trigger(
 			char *product_name,
+			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
+			char *refund_date_time,
 			char *state )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"product_refund_trigger \"%s\" \"%s\" '%s' '%s' %d '%s' '%s'",
+"product_refund_trigger \"%s\" '%s' \"%s\" '%s' '%s' '%s'",
 		product_name,
+		sale_date_time,
 		payor_full_name,
 		payor_street_address,
-		season_name,
-		year,
-		deposit_date_time,
+		refund_date_time,
 		state );
 
 	if ( system( sys_string ) ){}
@@ -737,7 +658,7 @@ void product_refund_trigger(
 
 double product_refund_total( LIST *refund_list )
 {
-	PRODUCT_REFUND *payment;
+	PRODUCT_REFUND *refund;
 	double total;
 
 	if ( !list_rewind( refund_list ) ) return 0.0;
@@ -745,9 +666,9 @@ double product_refund_total( LIST *refund_list )
 	total = 0.0;
 
 	do {
-		payment = list_get( refund_list );
+		refund = list_get( refund_list );
 
-		total += payment->product_refund_amount;
+		total += refund->refund_amount;
 
 	} while ( list_next( refund_list ) );
 
@@ -764,27 +685,23 @@ void product_refund_list_trigger(
 	do {
 		product_refund = list_get( product_refund_list );
 
+		if ( !product_refund->product_sale
+		||   !product_refund->product_sale->product )
+		{
+			fprintf(stderr,
+		"Warning in %s/%s()/%d: empty product_sale or product.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
 		product_refund_trigger(
-			product_refund->product->product_name,
-			product_refund->
-				paypal_deposit->
-				payor_entity->
-				full_name,
-			product_refund->
-				paypal_deposit->
-				payor_entity->
-				street_address,
-			product_refund->
-				paypal_deposit->
-				semester->
-				season_name,
-			product_refund->
-				paypal_deposit->
-				semester->
-				year,
-			product_refund->
-				paypal_deposit->
-				deposit_date_time,
+			product_refund->product_sale->product->product_name,
+			product_refund->sale_date_time,
+			product_refund->payor_full_name,
+			product_refund->payor_street_address,
+			product_refund->refund_date_time,
 			"insert" /* state */ );
 
 	} while ( list_next( product_refund_list ) );
@@ -818,28 +735,26 @@ LIST *product_refund_transaction_list(
 }
 
 LIST *product_refund_list_steady_state(
-			int *transaction_seconds_to_add,
-			LIST *paypal_product_refund_list,
-			double deposit_amount,
-			double transaction_fee )
+			LIST *product_refund_list,
+			double refund_amount,
+			double merchant_fees_expense )
 {
 	PRODUCT_REFUND *product_refund;
 
-	if ( !list_rewind( paypal_product_refund_list ) ) return (LIST *)0;
+	if ( !list_rewind( product_refund_list ) ) return (LIST *)0;
 
 	do {
-		product_refund = list_get( paypal_product_refund_list );
+		product_refund = list_get( product_refund_list );
 
 		product_refund =
 			product_refund_steady_state(
-				transaction_seconds_to_add,
 				product_refund,
-				deposit_amount,
-				transaction_fee );
+				refund_amount,
+				merchant_fees_expense );
 
-	} while( list_next( paypal_product_refund_list ) );
+	} while( list_next( product_refund_list ) );
 
-	return paypal_product_refund_list;
+	return product_refund_list;
 }
 
 char *product_refund_memo( char *product_name )
@@ -856,7 +771,7 @@ char *product_refund_memo( char *product_name )
 	else
 	{
 		sprintf(payment_memo,
-			"%s Payment",
+			"%s",
 			PRODUCT_REFUND_MEMO );
 	}
 	return payment_memo;
@@ -880,16 +795,21 @@ void product_refund_list_payor_entity_insert(
 	do {
 		product_refund = list_get( product_refund_list );
 
+		if ( !product_refund->paypal_deposit
+		||   !product_refund->paypal_deposit->payor_entity )
+		{
+			fprintf(stderr,
+	"Warning in %s/%s()/%d: empty paypal_deposit or empty payor_entity.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			return;
+		}
+
 		entity_insert_pipe(
 			insert_pipe,
-			product_refund->
-				paypal_deposit->
-				payor_entity->
-				full_name,
-			product_refund->
-				paypal_deposit->
-				payor_entity->
-				street_address,
+			product_refund->payor_full_name,
+			product_refund->payor_street_address,
 			product_refund->
 				paypal_deposit->
 				payor_entity->
@@ -934,6 +854,7 @@ void product_refund_list_set_transaction(
 
 		revenue_account =
 			product_refund->
+				product_sale->
 				product->
 				revenue_account;
 
@@ -955,33 +876,23 @@ void product_refund_set_transaction(
 			char *revenue_account )
 {
 	if ( ( product_refund->product_refund_transaction =
-	       product_refund_transaction(
-			product_refund->
-				paypal_deposit->
-				payor_entity->
-				full_name,
-			product_refund->
-				paypal_deposit->
-				payor_entity->
-				street_address,
-			product_refund->
-				paypal_deposit->
-				deposit_date_time,
-			product_refund->product->product_name,
-			product_refund->product->program_name,
-			product_refund->product_refund_amount,
-			product_refund->fees_expense,
-			product_refund->net_payment_amount,
+		product_refund_transaction(
+			transaction_seconds_to_add,
+			product_refund->payor_full_name,
+			product_refund->payor_street_address,
+			product_refund->refund_date_time,
+			product_refund->product_sale->product->product_name,
+			product_refund->product_sale->product->program_name,
+			product_refund->refund_amount,
+			product_refund->merchant_fees_expense,
+			product_refund->net_refund_amount,
 			cash_account_name,
 			account_fees_expense,
-			revenue_account,
-			*transaction_seconds_to_add ) ) )
+			revenue_account ) ) )
 	{
 		product_refund->transaction_date_time =
 			product_refund->product_refund_transaction->
 				transaction_date_time;
-
-		(*transaction_seconds_to_add)++;
 	}
 	else
 	{

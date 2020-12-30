@@ -62,12 +62,18 @@ typedef struct
 	double extended_price;
 	double net_payment_amount;
 
-	char *transaction_date_time;
 	TRANSACTION *product_sale_transaction;
+	char *transaction_date_time;
 } PRODUCT_SALE;
 
 PRODUCT_SALE *product_sale_calloc(
 			void );
+
+PRODUCT_SALE *product_sale_new(
+			char *product_name,
+			char *sale_date_time,
+			char *payor_full_name,
+			char *payor_street_address );
 
 PRODUCT_SALE *product_sale_fetch(
 			char *product_name,
