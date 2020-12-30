@@ -200,7 +200,7 @@ LIST *product_sale_transaction_list(
 			LIST *product_sale_list );
 
 LIST *product_sale_list_steady_state(
-			LIST *paypal_product_sale_list );
+			LIST *product_sale_list );
 
 /* Returns static memory */
 /* --------------------- */

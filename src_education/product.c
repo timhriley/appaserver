@@ -1,5 +1,5 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_product/product.c		*/
+/* $APPASERVER_HOME/src_education/product.c		*/
 /* ---------------------------------------------------- */
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -93,7 +93,7 @@ PRODUCT *product_parse( char *input )
 	char product_name[ 128 ];
 	char program_name[ 128 ];
 	char revenue_account[ 128 ];
-	char price[ 128 ];
+	char retail_price[ 128 ];
 	PRODUCT *product;
 
 	if ( !input || !*input ) return (PRODUCT *)0;
@@ -112,8 +112,8 @@ PRODUCT *product_parse( char *input )
 	piece( revenue_account, SQL_DELIMITER, input, 2 );
 	product->revenue_account = strdup( revenue_account );
 
-	piece( price, SQL_DELIMITER, input, 3 );
-	product->price = atof( revenue_account );
+	piece( retail_price, SQL_DELIMITER, input, 3 );
+	product->retail_price = atof( retail_price );
 
 	return product;
 }

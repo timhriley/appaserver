@@ -17,14 +17,17 @@ EDUCATION_CORE=								\
 		tuition_payment.o					\
 		tuition_refund.o					\
 		program_donation.o					\
-		product_sale.o					\
+		product_sale.o						\
 		product_refund.o					\
+		ticket_sale.o						\
 		education.o						\
 		paypal_deposit.o					\
 		semester.o						\
 		student.o						\
 		program.o						\
-		product.o
+		product.o						\
+		venue.o							\
+		event.o
 
 STANDARD_LIBRARY=							\
 		${LIBRARY}/date.o 					\
@@ -291,6 +294,16 @@ product.o: product.c product.h
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c product.c
 
+venue.o: venue.c venue.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c venue.c
+
+event.o: event.c event.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c event.c
+
 tuition_payment.o: tuition_payment.c tuition_payment.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
@@ -315,6 +328,11 @@ product_refund.o: product_refund.c product_refund.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c product_refund.c
+
+ticket_sale.o: ticket_sale.c ticket_sale.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c ticket_sale.c
 
 student.o: student.c student.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\

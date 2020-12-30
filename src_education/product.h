@@ -1,5 +1,5 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_product/product.h		*/
+/* $APPASERVER_HOME/src_education/product.h		*/
 /* ---------------------------------------------------- */
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -10,7 +10,6 @@
 
 #include "boolean.h"
 #include "list.h"
-#include "transaction.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -24,7 +23,7 @@
 typedef struct
 {
 	char *product_name;
-	double price;
+	double retail_price;
 	char *program_name;
 	char *revenue_account;
 } PRODUCT;

@@ -334,15 +334,15 @@ TRANSACTION *product_sale_transaction(
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
-			char *product_revenue_account )
+			char *revenue_account )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
 
-	if ( !product_revenue_account )
+	if ( !revenue_account )
 	{
 		fprintf(stderr,
-		"Warning in %s/%s()/%d: empty product_revenue_account.\n",
+		"Warning in %s/%s()/%d: empty revenue_account.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -409,7 +409,7 @@ TRANSACTION *product_sale_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				product_revenue_account ) ) );
+				revenue_account ) ) );
 
 	journal->credit_amount = extended_price;
 
@@ -483,7 +483,7 @@ char *product_sale_list_display( LIST *payment_list )
 		return "";
 	}
 
-	ptr += sprintf( ptr, "Product payment: " );
+	ptr += sprintf( ptr, "Product sale: " );
 
 	do {
 		payment =

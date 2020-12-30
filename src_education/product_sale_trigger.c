@@ -1,5 +1,5 @@
 /* --------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_education/product_payment_trigger.c	*/
+/* $APPASERVER_HOME/src_education/product_sale_trigger.c	*/
 /* --------------------------------------------------------	*/
 /* 								*/
 /* Freely available software: see Appaserver.org		*/
@@ -19,15 +19,14 @@
 #include "account.h"
 #include "product.h"
 #include "journal.h"
-#include "product_payment_fns.h"
-#include "product_payment.h"
+#include "product_sale.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void product_payment_trigger_predelete(
+void product_sale_trigger_predelete(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -35,7 +34,7 @@ void product_payment_trigger_predelete(
 			int year,
 			char *deposit_date_time );
 
-void product_payment_trigger_insert_update(
+void product_sale_trigger_insert_update(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -85,7 +84,7 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		product_payment_trigger_predelete(
+		product_sale_trigger_predelete(
 			product_name,
 			payor_full_name,
 			payor_street_address,
@@ -98,7 +97,7 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) ==  0
 	||   strcmp( state, "deposit" ) ==  0 )
 	{
-		product_payment_trigger_insert_update(
+		product_sale_trigger_insert_update(
 			product_name,
 			payor_full_name,
 			payor_street_address,
@@ -116,13 +115,13 @@ int main( int argc, char **argv )
 			season_name,
 			year,
 			deposit_date_time,
-			"product_payment" /* state */ );
+			"product_sale" /* state */ );
 	}
 
 	return 0;
 }
 
-void product_payment_trigger_insert_update(
+void product_sale_trigger_insert_update(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -130,11 +129,11 @@ void product_payment_trigger_insert_update(
 			int year,
 			char *deposit_date_time )
 {
-	PRODUCT_PAYMENT *product_payment;
+	PRODUCT_SALE *product_sale;
 	int transaction_seconds_to_add = 0;
 
-	if ( ! ( product_payment =
-			product_payment_fetch(
+	if ( ! ( product_sale =
+			product_sale_fetch(
 				product_name,
 				payor_full_name,
 				payor_street_address,
@@ -147,26 +146,26 @@ void product_payment_trigger_insert_update(
 		return;
 	}
 
-	if ( ! ( product_payment =
-			product_payment_steady_state(
+	if ( ! ( product_sale =
+			product_sale_steady_state(
 				&transaction_seconds_to_add,
-				product_payment,
-				product_payment->
+				product_sale,
+				product_sale->
 					paypal_deposit->
 					deposit_amount,
-				product_payment->
+				product_sale->
 					paypal_deposit->
 					transaction_fee ) ) )
 	{
 		return;
 	}
 
-	if ( product_payment->transaction_date_time
-	&&  *product_payment->transaction_date_time )
+	if ( product_sale->transaction_date_time
+	&&  *product_sale->transaction_date_time )
 	{
-		TRANSACTION *t = product_payment->product_payment_transaction;
+		TRANSACTION *t = product_sale->product_sale_transaction;
 
-		product_payment->transaction_date_time =
+		product_sale->transaction_date_time =
 			transaction_program_refresh(
 				t->full_name,
 				t->street_address,
@@ -178,8 +177,8 @@ void product_payment_trigger_insert_update(
 				t->journal_list );
 	}
 
-	product_payment_update(
-		product_payment->
+	product_sale_update(
+		product_sale->
 			transaction_date_time,
 		product_name,
 		payor_full_name,
@@ -189,7 +188,7 @@ void product_payment_trigger_insert_update(
 		deposit_date_time );
 }
 
-void product_payment_trigger_predelete(
+void product_sale_trigger_predelete(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -197,10 +196,10 @@ void product_payment_trigger_predelete(
 			int year,
 			char *deposit_date_time )
 {
-	PRODUCT_PAYMENT *product_payment;
+	PRODUCT_SALE *product_sale;
 
-	if ( ! ( product_payment =
-			product_payment_fetch(
+	if ( ! ( product_sale =
+			product_sale_fetch(
 				product_name,
 				payor_full_name,
 				payor_street_address,
@@ -213,34 +212,34 @@ void product_payment_trigger_predelete(
 		return;
 	}
 
-	if ( product_payment->transaction_date_time
-	&&   *product_payment->transaction_date_time )
+	if ( product_sale->transaction_date_time
+	&&   *product_sale->transaction_date_time )
 	{
 		transaction_delete(
-			product_payment->
+			product_sale->
 				paypal_deposit->
 				payor_entity->
 				full_name,
-			product_payment->
+			product_sale->
 				paypal_deposit->
 				payor_entity->
 				street_address,
-			product_payment->transaction_date_time );
+			product_sale->transaction_date_time );
 
 		journal_account_name_list_propagate(
-			product_payment->transaction_date_time,
+			product_sale->transaction_date_time,
 			/* ------------------------- */
 			/* Returns account_name_list */
 			/* ------------------------- */
 			journal_delete(
-				product_payment->
+				product_sale->
 					paypal_deposit->
 					payor_entity->
 					full_name,
-				product_payment->
+				product_sale->
 					paypal_deposit->
 					payor_entity->
 					street_address,
-				product_payment->transaction_date_time ) );
+				product_sale->transaction_date_time ) );
 	}
 }
