@@ -224,5 +224,13 @@ char *ticket_sale_memo(
 void ticket_sale_list_payor_entity_insert(
 			LIST *ticket_sale_list );
 
+TICKET_SALE *ticket_sale_new(
+			char *event_name,
+			char *event_date,
+			char *event_time,
+			char *sale_date_time,
+			char *payor_full_name,
+			char *payor_street_address );
+
 #endif
 

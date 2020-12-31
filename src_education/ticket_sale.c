@@ -42,6 +42,29 @@ TICKET_SALE *ticket_sale_calloc( void )
 	return ticket_sale;
 }
 
+TICKET_SALE *ticket_sale_new(
+			char *event_name,
+			char *event_date,
+			char *event_time,
+			char *sale_date_time,
+			char *payor_full_name,
+			char *payor_street_address )
+{
+	TICKET_SALE *ticket_sale = ticket_sale_calloc();
+
+	ticket_sale->event =
+		event_new(
+			event_name,
+			event_date,
+			event_time );
+
+	ticket_sale->sale_date_time = sale_date_time;
+	ticket_sale->payor_full_name = payor_full_name;
+	ticket_sale->payor_street_address = payor_street_address;
+
+	return ticket_sale;
+}
+
 TICKET_SALE *ticket_sale_fetch(
 			char *event_name,
 			char *event_date,

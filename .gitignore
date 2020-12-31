@@ -20,8 +20,10 @@ enrollment_trigger
 offering_trigger
 registration_trigger
 program_donation_trigger
-product_payment_trigger
+product_sale_trigger
 product_refund_trigger
+ticket_sale_trigger
+ticket_refund_trigger
 paypal_upload
 # ---------------
 # src_coronavirus

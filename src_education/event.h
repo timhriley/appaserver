@@ -94,7 +94,10 @@ char *event_primary_where(
 			char *event_date,
 			char *envent_time );
 
-EVENT *event_list_seek(
+EVENT *event_list_seek(	char *event_name,
+			LIST *event_list );
+
+EVENT *event_seek(
 			char *event_name,
 			LIST *event_list );
 

@@ -269,8 +269,15 @@ char *event_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-EVENT *event_list_seek(
-			char *event_name,
+EVENT *event_list_seek(	char *event_name,
+			LIST *event_list )
+{
+	return event_seek(
+			event_name,
+			event_list );
+}
+
+EVENT *event_seek(	char *event_name,
 			LIST *event_list )
 {
 	EVENT *event;

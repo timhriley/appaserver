@@ -317,8 +317,8 @@ char *product_refund_primary_where(
 		 /* Returns static memory */
 		 /* --------------------- */
 		 product_name_escape( product_name ),
-		 /* --------------------- */
 		 sale_date_time,
+		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
 		 entity_escape_full_name( payor_full_name ),
@@ -519,12 +519,6 @@ char *product_refund_list_display( LIST *refund_list )
 	} while ( list_next( refund_list ) );
 
 	return strdup( display );
-}
-
-double product_refund_amount(
-			double deposit_amount )
-{
-	return 0.0 - deposit_amount;
 }
 
 PRODUCT_REFUND *product_refund_steady_state(
