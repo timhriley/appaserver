@@ -21,7 +21,6 @@
 #include "journal.h"
 #include "entity.h"
 #include "account.h"
-#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "product_sale.h"
 #include "education.h"
@@ -131,8 +130,8 @@ void product_refund_list_insert( LIST *product_refund_list )
 			insert_pipe,
 			product_refund->product_sale->product->product_name,
 			product_refund->sale_date_time,
-			product_refund->payor_full_name,
-			product_refund->payor_street_address,
+			product_refund->payor_entity->full_name,
+			product_refund->payor_entity->street_address,
 			product_refund->refund_date_time,
 			product_refund->refund_amount,
 			product_refund->net_refund_amount,
@@ -280,19 +279,21 @@ PRODUCT_REFUND *product_refund_parse(
 					product->
 					product_name,
 				product_refund->sale_date_time,
-				product_refund->payor_full_name,
-				product_refund->payor_street_address,
+				product_refund->payor_entity->full_name,
+				product_refund->payor_entity->street_address,
 				1 /* fetch_product */,
 				0 /* not fetch_paypal */ );
 	}
 
 	if ( fetch_paypal )
 	{
+/*
 		product_refund->paypal_deposit =
 		    paypal_deposit_fetch(
-			 product_refund->payor_full_name,
-			 product_refund->payor_street_address,
+			 product_refund->payor_entity->full_name,
+			 product_refund->payor_entity->street_address,
 			 product_refund->paypal_date_time );
+*/
 	}
 
 	return product_refund;
@@ -693,8 +694,8 @@ void product_refund_list_trigger(
 		product_refund_trigger(
 			product_refund->product_sale->product->product_name,
 			product_refund->sale_date_time,
-			product_refund->payor_full_name,
-			product_refund->payor_street_address,
+			product_refund->payor_entity->full_name,
+			product_refund->payor_entity->street_address,
 			product_refund->refund_date_time,
 			"insert" /* state */ );
 
@@ -789,25 +790,11 @@ void product_refund_list_payor_entity_insert(
 	do {
 		product_refund = list_get( product_refund_list );
 
-		if ( !product_refund->paypal_deposit
-		||   !product_refund->paypal_deposit->payor_entity )
-		{
-			fprintf(stderr,
-	"Warning in %s/%s()/%d: empty paypal_deposit or empty payor_entity.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			return;
-		}
-
 		entity_insert_pipe(
 			insert_pipe,
-			product_refund->payor_full_name,
-			product_refund->payor_street_address,
-			product_refund->
-				paypal_deposit->
-				payor_entity->
-				email_address );
+			product_refund->payor_entity->full_name,
+			product_refund->payor_entity->street_address,
+			product_refund->payor_entity->email_address );
 
 	} while ( list_next( product_refund_list ) );
 
@@ -872,8 +859,8 @@ void product_refund_set_transaction(
 	if ( ( product_refund->product_refund_transaction =
 		product_refund_transaction(
 			transaction_seconds_to_add,
-			product_refund->payor_full_name,
-			product_refund->payor_street_address,
+			product_refund->payor_entity->full_name,
+			product_refund->payor_entity->street_address,
 			product_refund->refund_date_time,
 			product_refund->product_sale->product->product_name,
 			product_refund->product_sale->product->program_name,

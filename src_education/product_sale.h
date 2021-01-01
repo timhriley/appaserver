@@ -11,7 +11,6 @@
 #include "boolean.h"
 #include "list.h"
 #include "product.h"
-#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "transaction.h"
 
@@ -48,10 +47,9 @@ typedef struct
 	/* Input */
 	/* ----- */
 	PRODUCT *product;
-	PAYPAL_DEPOSIT *paypal_deposit;
+	/* PAYPAL_DEPOSIT *paypal_deposit; */
+	ENTITY *payor_entity;
 	char *sale_date_time;
-	char *payor_full_name;
-	char *payor_street_address;
 	int quantity;
 	double retail_price;
 	double merchant_fees_expense;
@@ -80,13 +78,11 @@ PRODUCT_SALE *product_sale_fetch(
 			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			boolean fetch_product,
-			boolean fetch_paypal );
+			boolean fetch_product );
 
 PRODUCT_SALE *product_sale_parse(
 			char *input,
-			boolean fetch_product,
-			boolean fetch_paypal );
+			boolean fetch_product );
 
 PRODUCT_SALE *product_sale_steady_state(
 			PRODUCT_SALE *product_sale,
@@ -134,8 +130,7 @@ void product_sale_insert_pipe(
 
 LIST *product_sale_system_list(
 			char *sys_string,
-			boolean fetch_product,
-			boolean fetch_paypal );
+			boolean fetch_product );
 
 char *product_sale_sys_string(
 			char *where );

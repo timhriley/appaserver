@@ -19,8 +19,8 @@
 #include "transaction.h"
 #include "semester.h"
 #include "offering.h"
-#include "offering_fns.h"
-#include "enrollment_fns.h"
+#include "offering.h"
+#include "enrollment.h"
 
 OFFERING *offering_new(	char *course_name,
 			char *season_name,

@@ -11,7 +11,6 @@
 #include "boolean.h"
 #include "list.h"
 #include "event.h"
-#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "transaction.h"
 
@@ -52,10 +51,9 @@ typedef struct
 	/* Input */
 	/* ----- */
 	EVENT *event;
-	PAYPAL_DEPOSIT *paypal_deposit;
+	/* PAYPAL_DEPOSIT *paypal_deposit; */
+	ENTITY *payor_entity;
 	char *sale_date_time;
-	char *payor_full_name;
-	char *payor_street_address;
 	int quantity;
 	double ticket_price;
 	double merchant_fees_expense;

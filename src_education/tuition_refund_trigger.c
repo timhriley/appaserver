@@ -15,7 +15,6 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "tuition_refund.h"
-#include "tuition_refund_fns.h"
 #include "transaction.h"
 #include "journal.h"
 
@@ -152,7 +151,8 @@ void tuition_refund_trigger_insert_update(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time )
+			char *payment_date_time,
+			char *refund_date_time )
 {
 	TUITION_REFUND *tuition_refund;
 	int transaction_seconds_to_add = 0;
@@ -166,7 +166,8 @@ void tuition_refund_trigger_insert_update(
 				year,
 				payor_full_name,
 				payor_street_address,
-				deposit_date_time,
+				payment_date_time,
+				refund_date_time,
 				1 /* fetch_deposit */,
 				1 /* fetch_enrollment */ ) ) )
 	{

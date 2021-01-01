@@ -22,7 +22,6 @@
 #include "entity.h"
 #include "account.h"
 #include "education.h"
-#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "program_donation.h"
 
@@ -108,8 +107,7 @@ char *program_donation_sys_string( char *where )
 }
 
 void program_donation_list_insert(
-			LIST *program_donation_list,
-			char *paypal_date_time )
+			LIST *program_donation_list )
 {
 	PROGRAM_DONATION *program_donation;
 	FILE *insert_pipe;
@@ -131,14 +129,16 @@ void program_donation_list_insert(
 			program_donation->program->program_name,
 			program_donation->payment_date_time,
 			program_donation->
-				payor_full_name,
+				payor_entity->
+				full_name,
 			program_donation->
-				payor_street_address,
+				payor_entity->
+				street_address,
 			program_donation->donation_amount,
 			program_donation->net_payment_amount,
 			program_donation->transaction_date_time,
 			program_donation->merchant_fees_expense,
-			paypal_date_time );
+			program_donation->paypal_date_time );
 
 	} while ( list_next( program_donation_list ) );
 
@@ -244,10 +244,12 @@ PROGRAM_DONATION *program_donation_parse(
 	program_donation->payment_date_time = strdup( payment_date_time );
 
 	piece( payor_full_name, SQL_DELIMITER, input, 2 );
-	program_donation->payor_full_name = strdup( payor_full_name );
-
 	piece( payor_street_address, SQL_DELIMITER, input, 3 );
-	program_donation->payor_street_address = strdup( payor_street_address );
+
+	program_donation->payor_entity =
+		entity_new(
+			strdup( payor_full_name ),
+			strdup( payor_street_address ) );
 
 	piece( donation_amount, SQL_DELIMITER, input, 4 );
 	program_donation->donation_amount = atof( donation_amount );
@@ -275,14 +277,18 @@ PROGRAM_DONATION *program_donation_parse(
 
 	if ( fetch_paypal )
 	{
+/*
 		program_donation->paypal_deposit =
 		    paypal_deposit_fetch(
 			 program_donation->
-				payor_full_name,
+				payor_entity->
+				full_name,
 			 program_donation->
-				payor_street_address,
+				payor_entity->
+				street_address,
 			 program_donation->
 				paypal_date_time );
+*/
 	}
 
 	return program_donation;
@@ -646,9 +652,11 @@ void program_donation_list_trigger(
 			program_donation->
 				payment_date_time,
 			program_donation->
-				payor_full_name,
+				payor_entity->
+				full_name,
 			program_donation->
-				payor_street_address,
+				payor_entity->
+				street_address,
 			"insert" /* state */ );
 
 	} while ( list_next( program_donation_list ) );
@@ -744,15 +752,12 @@ void program_donation_list_payor_entity_insert(
 		entity_insert_pipe(
 			insert_pipe,
 			program_donation->
-				paypal_deposit->
 				payor_entity->
 				full_name,
 			program_donation->
-				paypal_deposit->
 				payor_entity->
 				street_address,
 			program_donation->
-				paypal_deposit->
 				payor_entity->
 				email_address );
 
@@ -819,9 +824,11 @@ void program_donation_set_transaction(
 	       program_donation_transaction(
 			seconds_to_add,
 			program_donation->
-				payor_full_name,
+				payor_entity->
+				full_name,
 			program_donation->
-				payor_street_address,
+				payor_entity->
+				street_address,
 			program_donation->
 				payment_date_time,
 			program_donation->program->program_name,

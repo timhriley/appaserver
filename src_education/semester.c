@@ -14,8 +14,8 @@
 #include "boolean.h"
 #include "list.h"
 #include "semester.h"
-#include "offering_fns.h"
-#include "registration_fns.h"
+#include "offering.h"
+#include "registration.h"
 
 SEMESTER *semester_calloc( void )
 {

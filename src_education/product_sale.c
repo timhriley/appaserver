@@ -22,7 +22,6 @@
 #include "journal.h"
 #include "entity.h"
 #include "account.h"
-#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "product_sale.h"
 
@@ -52,8 +51,11 @@ PRODUCT_SALE *product_sale_new(
 
 	product_sale->product = product_new( product_name );
 	product_sale->sale_date_time = sale_date_time;
-	product_sale->payor_full_name = payor_full_name;
-	product_sale->payor_street_address = payor_street_address;
+
+	product_sale->payor_entity =
+		entity_new(
+			payor_full_name,
+			payor_street_address );
 
 	return product_sale;
 }
@@ -64,8 +66,7 @@ PRODUCT_SALE *product_sale_fetch(
 			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			boolean fetch_product,
-			boolean fetch_paypal )
+			boolean fetch_product )
 {
 	PRODUCT_SALE *product_sale;
 
@@ -81,16 +82,14 @@ PRODUCT_SALE *product_sale_fetch(
 						sale_date_time,
 						payor_full_name,
 						payor_street_address ) ) ),
-			fetch_product,
-			fetch_paypal );
+			fetch_product );
 
 	return product_sale;
 }
 
 LIST *product_sale_system_list(
 			char *sys_string,
-			boolean fetch_product,
-			boolean fetch_paypal )
+			boolean fetch_product )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -104,8 +103,7 @@ LIST *product_sale_system_list(
 			product_sale_list,
 			product_sale_parse(
 				input,
-				fetch_product,
-				fetch_paypal ) );
+				fetch_product ) );
 	}
 
 	pclose( input_pipe );
@@ -124,7 +122,8 @@ char *product_sale_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-void product_sale_list_insert( LIST *product_sale_list )
+void product_sale_list_insert(
+			LIST *product_sale_list )
 {
 	PRODUCT_SALE *product_sale;
 	FILE *insert_pipe;
@@ -143,11 +142,10 @@ void product_sale_list_insert( LIST *product_sale_list )
 
 		if ( !product_sale->product
 		||   !product_sale->sale_date_time
-		||   !product_sale->payor_full_name
-		||   !product_sale->payor_street_address )
+		||   !product_sale->payor_entity )
 		{
 			fprintf(stderr,
-			"Warning in %s/%s()/%d: empty product or contact.\n",
+"Warning in %s/%s()/%d: empty product, sale_date_time or payor_entity.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -168,8 +166,8 @@ void product_sale_list_insert( LIST *product_sale_list )
 			insert_pipe,
 			product_sale->product->product_name,
 			product_sale->sale_date_time,
-			product_sale->payor_full_name,
-			product_sale->payor_street_address,
+			product_sale->payor_entity->full_name,
+			product_sale->payor_entity->street_address,
 			product_sale->quantity,
 			product_sale->retail_price,
 			product_sale->extended_price,
@@ -259,8 +257,7 @@ void product_sale_insert_pipe(
 
 PRODUCT_SALE *product_sale_parse(
 			char *input,
-			boolean fetch_product,
-			boolean fetch_paypal )
+			boolean fetch_product )
 {
 	char product_name[ 128 ];
 	char sale_date_time[ 128 ];
@@ -288,10 +285,12 @@ PRODUCT_SALE *product_sale_parse(
 	product_sale->sale_date_time = strdup( sale_date_time );
 
 	piece( payor_full_name, SQL_DELIMITER, input, 2 );
-	product_sale->payor_full_name = strdup( payor_full_name );
-
 	piece( payor_street_address, SQL_DELIMITER, input, 3 );
-	product_sale->payor_street_address = strdup( payor_street_address );
+
+	product_sale->payor_entity =
+		entity_new(
+			strdup( payor_full_name ),
+			strdup( payor_street_address ) );
 
 	piece( quantity, SQL_DELIMITER, input, 4 );
 	product_sale->quantity = atoi( quantity );
@@ -321,15 +320,6 @@ PRODUCT_SALE *product_sale_parse(
 				product_sale->
 					product->
 					product_name );
-	}
-
-	if ( fetch_paypal )
-	{
-		product_sale->paypal_deposit =
-		    paypal_deposit_fetch(
-			 product_sale->payor_full_name,
-			 product_sale->payor_street_address,
-			 product_sale->paypal_date_time );
 	}
 
 	return product_sale;
@@ -704,8 +694,8 @@ void product_sale_list_trigger(
 		product_sale_trigger(
 			product_sale->product->product_name,
 			product_sale->sale_date_time,
-			product_sale->payor_full_name,
-			product_sale->payor_street_address,
+			product_sale->payor_entity->full_name,
+			product_sale->payor_entity->street_address,
 			"insert" /* state */ );
 
 	} while ( list_next( product_sale_list ) );
@@ -798,24 +788,11 @@ void product_sale_list_payor_entity_insert(
 	do {
 		product_sale = list_get( product_sale_list );
 
-		if ( !product_sale->paypal_deposit )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty paypal_deposit.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
 		entity_insert_pipe(
 			insert_pipe,
-			product_sale->payor_full_name,
-			product_sale->payor_street_address,
-			product_sale->
-				paypal_deposit->
-				payor_entity->
-				email_address );
+			product_sale->payor_entity->full_name,
+			product_sale->payor_entity->street_address,
+			product_sale->payor_entity->email_address );
 
 	} while ( list_next( product_sale_list ) );
 
@@ -883,8 +860,8 @@ void product_sale_set_transaction(
 	if ( ( product_sale->product_sale_transaction =
 	       product_sale_transaction(
 			transaction_seconds_to_add,
-			product_sale->payor_full_name,
-			product_sale->payor_street_address,
+			product_sale->payor_entity->full_name,
+			product_sale->payor_entity->street_address,
 			product_sale->sale_date_time,
 			product_sale->product->product_name,
 			product_sale->product->program_name,

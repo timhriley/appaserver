@@ -53,9 +53,8 @@ typedef struct
 	/* ----- */
 	TICKET_SALE *ticket_sale;
 	PAYPAL_DEPOSIT *paypal_deposit;
+	ENTITY *payor_entity;
 	char *sale_date_time;
-	char *payor_full_name;
-	char *payor_street_address;
 	char *refund_date_time;
 	double refund_amount;
 	double merchant_fees_expense;

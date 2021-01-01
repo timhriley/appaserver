@@ -27,7 +27,6 @@
 #include "entity_self.h"
 #include "enrollment.h"
 #include "registration.h"
-#include "registration_fns.h"
 #include "email.h"
 #include "appaserver_link_file.h"
 #include "table.h"

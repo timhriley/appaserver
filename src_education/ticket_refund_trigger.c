@@ -19,7 +19,6 @@
 #include "account.h"
 #include "product.h"
 #include "journal.h"
-#include "product_refund_fns.h"
 #include "product_refund.h"
 
 /* Constants */

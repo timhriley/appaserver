@@ -54,6 +54,10 @@ char *product_name_escape(
 char *product_primary_where(
 			char *product_name );
 
+PRODUCT *product_name_seek(
+			char *product_name,
+			LIST *product_list );
+
 PRODUCT *product_seek(
 			char *product_name,
 			LIST *product_list );

@@ -11,7 +11,6 @@
 #include "boolean.h"
 #include "list.h"
 #include "program.h"
-#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "transaction.h"
 
@@ -43,10 +42,9 @@ typedef struct
 	/* Input */
 	/* ----- */
 	PROGRAM *program;
-	PAYPAL_DEPOSIT *paypal_deposit;
+	/* PAYPAL_DEPOSIT *paypal_deposit; */
+	ENTITY *payor_entity;
 	char *payment_date_time;
-	char *payor_full_name;
-	char *payor_street_address;
 	double donation_amount;
 	double merchant_fees_expense;
 	char *paypal_date_time;
@@ -170,8 +168,7 @@ void program_donation_trigger(
 			char *state );
 
 void program_donation_list_insert(
-			LIST *program_donation_list,
-			char *paypal_date_time );
+			LIST *program_donation_list );
 
 double program_donation_total(
 			LIST *program_donation_list );

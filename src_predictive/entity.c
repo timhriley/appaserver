@@ -358,6 +358,11 @@ ENTITY *entity_parse( char *input )
 	return entity;
 }
 
+char *entity_name_escape( char *full_name )
+{
+	return entity_escape_full_name( full_name );
+}
+
 char *entity_escape_name( char *full_name )
 {
 	return entity_escape_full_name( full_name );

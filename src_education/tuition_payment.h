@@ -11,7 +11,6 @@
 #include "boolean.h"
 #include "list.h"
 #include "enrollment.h"
-#include "paypal_deposit.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -55,9 +54,8 @@ typedef struct
 	/* Input */
 	/* ----- */
 	ENROLLMENT *enrollment;
-	PAYPAL_DEPOSIT *paypal_deposit;
-	char *payor_full_name;
-	char *payor_street_address;
+	/* PAYPAL_DEPOSIT *paypal_deposit; */
+	ENTITY *payor_entity;
 	char *payment_date_time;
 	double payment_amount;
 	double merchant_fees_expense;
@@ -105,10 +103,6 @@ TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
 			boolean fetch_enrollment,
 			boolean fetch_paypal );
-
-TUITION_PAYMENT *tuition_payment_seek(
-			LIST *paypal_tuition_payment_list,
-			char *payment_date_time );
 
 TUITION_PAYMENT *tuition_payment_paypal(
 			char *season_name,
@@ -175,8 +169,7 @@ LIST *tuition_payment_system_list(
 			boolean fetch_paypal );
 
 void tuition_payment_list_insert(
-			LIST *tuition_payment_list,
-			char *paypal_date_time );
+			LIST *tuition_payment_list );
 
 FILE *tuition_payment_insert_open(
 			char *error_filename );
@@ -192,9 +185,10 @@ void tuition_payment_insert_pipe(
 			char *payor_street_address,
 			char *payment_date_time,
 			double payment_amount,
-			double merchant_fees_expense,
 			double net_payment_amount,
-			char *transaction_date_time );
+			char *transaction_date_time,
+			double merchant_fees_expense,
+			char *paypal_date_time );
 
 void tuition_payment_list_enrollment_insert(
 			LIST *paypal_tuition_payment_list );

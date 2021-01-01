@@ -157,6 +157,15 @@ char *product_sys_string( char *where )
 	return strdup( sys_string );
 }
 
+PRODUCT *product_name_seek(
+			char *product_name,
+			LIST *product_list )
+{
+	return product_list_seek(
+			product_name,
+			product_list );
+}
+
 PRODUCT *product_seek(
 			char *product_name,
 			LIST *product_list )

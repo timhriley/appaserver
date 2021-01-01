@@ -11,8 +11,6 @@
 #include "boolean.h"
 #include "list.h"
 #include "tuition_payment.h"
-#include "paypal_deposit.h"
-#include "paypal_item.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -55,7 +53,8 @@ typedef struct
 	/* Input */
 	/* ----- */
 	TUITION_PAYMENT *tuition_payment;
-	PAYPAL_DEPOSIT *paypal_deposit;
+	/* PAYPAL_DEPOSIT *paypal_deposit; */
+	ENTITY *payor_entity;
 	char *refund_date_time;
 	double refund_amount;
 	double merchant_fees_expense;
@@ -96,7 +95,7 @@ TUITION_REFUND *tuition_refund_steady_state(
 			double merchant_fees_expense );
 
 TUITION_REFUND *tuition_refund_paypal(
-			LIST *course_list,
+			LIST *offering_list,
 			char *item_data,
 			double item_value,
 			double item_fee,
@@ -110,6 +109,7 @@ void tuition_refund_insert_pipe(
 			char *student_full_name,
 			char *student_street_address,
 			char *course_name,
+			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -133,6 +133,7 @@ char *tuition_refund_primary_where(
 			char *student_full_name,
 			char *student_street_address,
 			char *course_name,
+			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -192,6 +193,7 @@ void tuition_refund_trigger(
 			char *student_full_name,
 			char *student_street_address,
 			char *course_name,
+			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -227,6 +229,12 @@ char *tuition_refund_memo(
 			char *refund_name );
 
 void tuition_refund_list_payor_entity_insert(
+			LIST *tuition_refund_list );
+
+LIST *tuition_refund_registration_list(
+			LIST *tuition_refund_list );
+
+LIST *tuition_refund_enrollment_list(
 			LIST *tuition_refund_list );
 
 #endif

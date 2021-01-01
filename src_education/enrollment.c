@@ -21,12 +21,12 @@
 #include "enrollment.h"
 #include "registration.h"
 #include "offering.h"
-#include "offering_fns.h"
+#include "offering.h"
 #include "course.h"
-#include "enrollment_fns.h"
-#include "registration_fns.h"
-#include "tuition_payment_fns.h"
-#include "tuition_refund_fns.h"
+#include "enrollment.h"
+#include "registration.h"
+#include "tuition_payment.h"
+#include "tuition_refund.h"
 
 char *enrollment_sys_string( char *where )
 {
@@ -113,14 +113,14 @@ ENROLLMENT *enrollment_parse(
 
 	if ( fetch_tuition_payment_list )
 	{
-		enrollment->enrollment_tuition_payment_list =
+		enrollment->tuition_payment_list =
 			enrollment_tuition_payment_list(
 				enrollment->
 					registration->
 					student_full_name,
 				enrollment->
 					registration->
-					street_address,
+					student_street_address,
 				enrollment->
 					offering->
 					course->
@@ -137,14 +137,14 @@ ENROLLMENT *enrollment_parse(
 
 	if ( fetch_tuition_refund_list )
 	{
-		enrollment->enrollment_tuition_refund_list =
+		enrollment->tuition_refund_list =
 			enrollment_tuition_refund_list(
 				enrollment->
 					registration->
 					student_full_name,
 				enrollment->
 					registration->
-					street_address,
+					student_street_address,
 				enrollment->
 					offering->
 					course->
@@ -358,9 +358,7 @@ LIST *enrollment_tuition_payment_list(
 			char *season_name,
 			int year )
 {
-	LIST *payment_list;
-
-	payment_list =
+	return
 		tuition_payment_system_list(
 			tuition_payment_sys_string(
 				enrollment_primary_where(
@@ -371,8 +369,6 @@ LIST *enrollment_tuition_payment_list(
 					year ) ),
 		1 /* fetch_deposit */,
 		0 /* fetch_enrollment */ );
-
-	return payment_list;
 }
 
 LIST *enrollment_tuition_refund_list(
@@ -573,8 +569,12 @@ ENROLLMENT *enrollment_steady_state(
 
 		if ( ( enrollment->enrollment_transaction =
 			enrollment_transaction(
-				enrollment->registration->student_full_name,
-				enrollment->registration->street_address,
+				enrollment->
+					registration->
+					student_full_name,
+				enrollment->
+					registration->
+					student_street_address,
 				enrollment->
 					registration->
 					registration_date_time,
@@ -642,8 +642,12 @@ void enrollment_list_cancelled_update(
 
 		enrollment_cancelled_date_update(
 			update_pipe,
-			enrollment->registration->student_full_name,
-			enrollment->registration->street_address,
+			enrollment->
+				registration->
+				student_full_name,
+			enrollment->
+				registration->
+				student_street_address,
 			enrollment->offering->course->course_name,
 			season_name,
 			year,
@@ -689,8 +693,12 @@ void enrollment_set_transaction(
 {
 	if ( ( enrollment->enrollment_transaction =
 		enrollment_transaction(
-			enrollment->registration->student_full_name,
-			enrollment->registration->street_address,
+			enrollment->
+				registration->
+				student_full_name,
+			enrollment->
+				registration->
+				student_street_address,
 			enrollment->
 				registration->
 				registration_date_time,

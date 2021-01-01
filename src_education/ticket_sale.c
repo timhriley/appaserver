@@ -22,7 +22,6 @@
 #include "journal.h"
 #include "entity.h"
 #include "account.h"
-#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "ticket_sale.h"
 
@@ -59,8 +58,11 @@ TICKET_SALE *ticket_sale_new(
 			event_time );
 
 	ticket_sale->sale_date_time = sale_date_time;
-	ticket_sale->payor_full_name = payor_full_name;
-	ticket_sale->payor_street_address = payor_street_address;
+
+	ticket_sale->payor_entity =
+		entity_new(
+			payor_full_name,
+			payor_street_address );
 
 	return ticket_sale;
 }
@@ -157,8 +159,8 @@ void ticket_sale_list_insert( LIST *ticket_sale_list )
 			ticket_sale->event->event_date,
 			ticket_sale->event->event_time,
 			ticket_sale->sale_date_time,
-			ticket_sale->payor_full_name,
-			ticket_sale->payor_street_address,
+			ticket_sale->payor_entity->full_name,
+			ticket_sale->payor_entity->street_address,
 			ticket_sale->quantity,
 			ticket_sale->ticket_price,
 			ticket_sale->extended_price,
@@ -289,10 +291,12 @@ TICKET_SALE *ticket_sale_parse(
 	ticket_sale->sale_date_time = strdup( sale_date_time );
 
 	piece( payor_full_name, SQL_DELIMITER, input, 4 );
-	ticket_sale->payor_full_name = strdup( payor_full_name );
-
 	piece( payor_street_address, SQL_DELIMITER, input, 5 );
-	ticket_sale->payor_street_address = strdup( payor_street_address );
+
+	ticket_sale->payor_entity =
+		entity_new(
+			strdup( payor_full_name ),
+			strdup( payor_street_address ) );
 
 	piece( quantity, SQL_DELIMITER, input, 6 );
 	ticket_sale->quantity = atoi( quantity );
@@ -336,11 +340,13 @@ TICKET_SALE *ticket_sale_parse(
 
 	if ( fetch_paypal )
 	{
+/*
 		ticket_sale->paypal_deposit =
 		    paypal_deposit_fetch(
-			 ticket_sale->payor_full_name,
-			 ticket_sale->payor_street_address,
+			 ticket_sale->payor_entity->full_name,
+			 ticket_sale->payor_entity->street_address,
 			 ticket_sale->paypal_date_time );
+*/
 	}
 
 	return ticket_sale;
@@ -735,8 +741,8 @@ void ticket_sale_list_trigger(
 			ticket_sale->event->event_date,
 			ticket_sale->event->event_time,
 			ticket_sale->sale_date_time,
-			ticket_sale->payor_full_name,
-			ticket_sale->payor_street_address,
+			ticket_sale->payor_entity->full_name,
+			ticket_sale->payor_entity->street_address,
 			"insert" /* state */ );
 
 	} while ( list_next( ticket_sale_list ) );
@@ -829,24 +835,11 @@ void ticket_sale_list_payor_entity_insert(
 	do {
 		ticket_sale = list_get( ticket_sale_list );
 
-		if ( !ticket_sale->paypal_deposit )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty paypal_deposit.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
 		entity_insert_pipe(
 			insert_pipe,
-			ticket_sale->payor_full_name,
-			ticket_sale->payor_street_address,
-			ticket_sale->
-				paypal_deposit->
-				payor_entity->
-				email_address );
+			ticket_sale->payor_entity->full_name,
+			ticket_sale->payor_entity->street_address,
+			ticket_sale->payor_entity->email_address );
 
 	} while ( list_next( ticket_sale_list ) );
 
@@ -915,8 +908,8 @@ void ticket_sale_set_transaction(
 	if ( ( ticket_sale->ticket_sale_transaction =
 	       ticket_sale_transaction(
 			seconds_to_add,
-			ticket_sale->payor_full_name,
-			ticket_sale->payor_street_address,
+			ticket_sale->payor_entity->full_name,
+			ticket_sale->payor_entity->street_address,
 			ticket_sale->sale_date_time,
 			ticket_sale->event->event_name,
 			ticket_sale->event->program->program_name,

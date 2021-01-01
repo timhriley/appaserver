@@ -72,7 +72,6 @@ LIST *paypal_nonentity_item_list(
 }
 
 LIST *paypal_entity_item_list(
-			LIST *not_exists_revenue_item_list,
 			/* ------------------- */
 			/* Expect stack memory */
 			/* ------------------- */
@@ -105,12 +104,6 @@ The Class (Child: Atticus Weaver^Andy Madrigal Villalobos)
 
 	if ( !list_string_exists( item_data, allowed_item_list ) )
 	{
-		if ( not_exists_revenue_item_list )
-		{
-			list_set(
-				not_exists_revenue_item_list,
-				strdup( item_data ) );
-		}
 		return (LIST *)0;
 	}
 
@@ -172,7 +165,6 @@ PAYPAL_ITEM *paypal_item_calloc( void )
 }
 
 LIST *paypal_item_list(
-			LIST *not_exists_revenue_item_list,
 			char *item_title_P,
 			char *transaction_type_E,
 			LIST *allowed_item_list )
@@ -193,7 +185,6 @@ LIST *paypal_item_list(
 		list_append_list(
 			item_list,
 			paypal_entity_item_list(
-				not_exists_revenue_item_list,
 				item_title_P_piece,
 				allowed_item_list ) );
 
@@ -216,7 +207,7 @@ LIST *paypal_item_list(
 }
 
 double paypal_item_value(
-			double deposit_amount,
+			double paypal_amount,
 			double expected_revenue,
 			double expected_revenue_total,
 			int nonexpected_revenue_length )
@@ -225,24 +216,24 @@ double paypal_item_value(
 
 	/* Case 1: this is a refund of an enrollment */
 	/* ----------------------------------------- */
-	if ( expected_revenue && deposit_amount < 0.0 )
+	if ( expected_revenue && paypal_amount < 0.0 )
 	{
 		item_value = expected_revenue;
 	}
 	else
 	/* Case 2: this is a refund */
 	/* ------------------------ */
-	if ( deposit_amount < 0.0 )
+	if ( paypal_amount < 0.0 )
 	{
-		item_value = 0.0 - deposit_amount;
+		item_value = 0.0 - paypal_amount;
 	}
 	else
 	/* Case 3: this is an enrollment */
 	/* ----------------------------- */
 	if ( expected_revenue )
 	{
-		if ( deposit_amount < expected_revenue )
-			item_value = deposit_amount;
+		if ( paypal_amount < expected_revenue )
+			item_value = paypal_amount;
 		else
 			item_value = expected_revenue;
 	}
@@ -252,7 +243,7 @@ double paypal_item_value(
 	{
 		double remaining_cost;
 
-		remaining_cost = deposit_amount - expected_revenue_total;
+		remaining_cost = paypal_amount - expected_revenue_total;
 
 		item_value =	remaining_cost /
 				(double)nonexpected_revenue_length;
@@ -261,7 +252,7 @@ double paypal_item_value(
 	return item_value;
 }
 
-double paypal_item_fee(	double deposit_amount,
+double paypal_item_fee(	double paypal_amount,
 			double expected_revenue,
 			double transaction_fee,
 			double item_value )
@@ -271,28 +262,28 @@ double paypal_item_fee(	double deposit_amount,
 
 	/* Case 1: this is a refund of an enrollment */
 	/* ----------------------------------------- */
-	if ( expected_revenue && deposit_amount < 0.0 )
+	if ( expected_revenue && paypal_amount < 0.0 )
 	{
-		item_percent = item_value / ( 0.0 - deposit_amount );
+		item_percent = item_value / ( 0.0 - paypal_amount );
 		item_fee = transaction_fee * item_percent;
 	}
 	else
 	/* Case 2: this is a refund */
 	/* ------------------------ */
-	if ( deposit_amount < 0.0 )
+	if ( paypal_amount < 0.0 )
 	{
 		item_fee = transaction_fee;
 	}
 	else
 	{
-		item_percent = item_value / deposit_amount;
+		item_percent = item_value / paypal_amount;
 		item_fee = transaction_fee * item_percent;
 	}
 	return item_fee;
 }
 
 double paypal_item_gain(
-			double deposit_amount,
+			double paypal_amount,
 			double expected_revenue_total,
 			int nonexpected_revenue_length,
 			int expected_revenue_length )
@@ -304,14 +295,14 @@ double paypal_item_gain(
 		item_gain = 0.0;
 	}
 	else
-	if ( deposit_amount < expected_revenue_total )
+	if ( paypal_amount < expected_revenue_total )
 	{
 		item_gain = 0.0;
 	}
 	else
 	{
 		item_gain =
-			( deposit_amount - expected_revenue_total ) /
+			( paypal_amount - expected_revenue_total ) /
 			(double)expected_revenue_length;
 	}
 	return item_gain;
@@ -333,7 +324,7 @@ boolean paypal_item_is_entity( char *entity_piece )
 
 LIST *paypal_item_steady_state_list(
 			LIST *paypal_item_list,
-			double deposit_amount,
+			double paypal_amount,
 			double transaction_fee,
 			double expected_revenue_total,
 			int nonexpected_revenue_length,
@@ -349,7 +340,7 @@ LIST *paypal_item_steady_state_list(
 		paypal_item_steady_state(
 			paypal_item,
 			paypal_item->expected_revenue,
-			deposit_amount,
+			paypal_amount,
 			transaction_fee,
 			expected_revenue_total,
 			nonexpected_revenue_length,
@@ -363,7 +354,7 @@ LIST *paypal_item_steady_state_list(
 PAYPAL_ITEM *paypal_item_steady_state(
 			PAYPAL_ITEM *paypal_item,
 			double expected_revenue,
-			double deposit_amount,
+			double paypal_amount,
 			double transaction_fee,
 			double expected_revenue_total,
 			int nonexpected_revenue_length,
@@ -371,23 +362,23 @@ PAYPAL_ITEM *paypal_item_steady_state(
 {
 	paypal_item->item_value =
 		paypal_item_value(
-			deposit_amount,
+			paypal_amount,
 			expected_revenue,
 			expected_revenue_total,
 			nonexpected_revenue_length );
 
 	paypal_item->item_fee =
 		paypal_item_fee(
-			deposit_amount,
+			paypal_amount,
 			expected_revenue,
 			transaction_fee,
 			paypal_item->item_value );
 
-	if ( deposit_amount > 0.0 )
+	if ( paypal_amount > 0.0 )
 	{
 		paypal_item->item_gain =
 			paypal_item_gain(
-				deposit_amount,
+				paypal_amount,
 				expected_revenue_total,
 				nonexpected_revenue_length,
 				expected_revenue_length );

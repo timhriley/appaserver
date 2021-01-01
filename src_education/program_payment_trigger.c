@@ -19,7 +19,6 @@
 #include "account.h"
 #include "program.h"
 #include "journal.h"
-#include "program_payment_fns.h"
 #include "program_payment.h"
 
 /* Constants */

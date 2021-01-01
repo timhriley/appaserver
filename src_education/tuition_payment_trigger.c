@@ -15,7 +15,6 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "tuition_payment.h"
-#include "tuition_payment_fns.h"
 #include "transaction.h"
 #include "journal.h"
 

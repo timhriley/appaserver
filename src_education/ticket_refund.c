@@ -137,8 +137,8 @@ void ticket_refund_list_insert( LIST *ticket_refund_list )
 			ticket_refund->ticket_sale->event->event_date,
 			ticket_refund->ticket_sale->event->event_time,
 			ticket_refund->sale_date_time,
-			ticket_refund->payor_full_name,
-			ticket_refund->payor_street_address,
+			ticket_refund->payor_entity->full_name,
+			ticket_refund->payor_entity->street_address,
 			ticket_refund->refund_date_time,
 			ticket_refund->refund_amount,
 			ticket_refund->net_refund_amount,
@@ -303,8 +303,8 @@ TICKET_REFUND *ticket_refund_parse(
 					event->
 					event_time,
 				ticket_refund->sale_date_time,
-				ticket_refund->payor_full_name,
-				ticket_refund->payor_street_address,
+				ticket_refund->payor_entity->full_name,
+				ticket_refund->payor_entity->street_address,
 				1 /* fetch_event */,
 				0 /* not fetch_paypal */ );
 	}
@@ -313,8 +313,8 @@ TICKET_REFUND *ticket_refund_parse(
 	{
 		ticket_refund->paypal_deposit =
 		    paypal_deposit_fetch(
-			 ticket_refund->payor_full_name,
-			 ticket_refund->payor_street_address,
+			 ticket_refund->payor_entity->full_name,
+			 ticket_refund->payor_entity->street_address,
 			 ticket_refund->paypal_date_time );
 	}
 
@@ -736,8 +736,8 @@ void ticket_refund_list_trigger(
 			ticket_refund->ticket_sale->event->event_date,
 			ticket_refund->ticket_sale->event->event_time,
 			ticket_refund->sale_date_time,
-			ticket_refund->payor_full_name,
-			ticket_refund->payor_street_address,
+			ticket_refund->payor_entity->full_name,
+			ticket_refund->payor_entity->street_address,
 			ticket_refund->refund_date_time,
 			"insert" /* state */ );
 
@@ -845,8 +845,8 @@ void ticket_refund_list_payor_entity_insert(
 
 		entity_insert_pipe(
 			insert_pipe,
-			ticket_refund->payor_full_name,
-			ticket_refund->payor_street_address,
+			ticket_refund->payor_entity->full_name,
+			ticket_refund->payor_entity->street_address,
 			ticket_refund->
 				paypal_deposit->
 				payor_entity->
@@ -915,8 +915,8 @@ void ticket_refund_set_transaction(
 	if ( ( ticket_refund->ticket_refund_transaction =
 		ticket_refund_transaction(
 			transaction_seconds_to_add,
-			ticket_refund->payor_full_name,
-			ticket_refund->payor_street_address,
+			ticket_refund->payor_entity->full_name,
+			ticket_refund->payor_entity->street_address,
 			ticket_refund->refund_date_time,
 			ticket_refund->ticket_sale->event->event_name,
 			ticket_refund->ticket_sale->event->program_name,

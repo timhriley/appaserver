@@ -57,7 +57,6 @@ ENTITY *paypal_benefit_entity(
 			char *full_name );
 
 LIST *paypal_entity_item_list(
-			LIST *not_exists_item_list,
 			/* ------------------- */
 			/* Expect stack memory */
 			/* ------------------- */
@@ -77,14 +76,13 @@ boolean paypal_item_is_entity(
 			char *entity_piece );
 
 LIST *paypal_item_list(
-			LIST *not_exists_revenue_item_list,
 			char *entity_delimited_item_title_P,
 			char *transaction_type_E,
 			LIST *allowed_item_list );
 
 LIST *paypal_item_steady_state_list(
 			LIST *paypal_item_list,
-			double deposit_amount,
+			double paypal_amount,
 			double transaction_fee,
 			double expected_revenue_total,
 			int nonexpected_revenue_length,
@@ -93,25 +91,25 @@ LIST *paypal_item_steady_state_list(
 PAYPAL_ITEM *paypal_item_steady_state(
 			PAYPAL_ITEM *paypal_item,
 			double expected_revenue,
-			double deposit_amount,
+			double paypal_amount,
 			double transaction_fee,
 			double expected_revenue_total,
 			int nonexpected_revenue_length,
 			int expected_revenue_length );
 
 double paypal_item_value(
-			double deposit_amount,
+			double paypal_amount,
 			double expected_revenue,
 			double expected_revenue_total,
 			int nonexpected_revenue_length );
 
-double paypal_item_fee(	double deposit_amount,
+double paypal_item_fee(	double paypal_amount,
 			double expected_revenue,
 			double transaction_fee,
 			double item_value );
 
 double paypal_item_gain(
-			double deposit_amount,
+			double paypal_amount,
 			double expected_revenue_total,
 			int nonexpected_revenue_length,
 			int expected_revenue_length );

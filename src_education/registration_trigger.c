@@ -17,7 +17,6 @@
 #include "enrollment.h"
 #include "semester.h"
 #include "registration.h"
-#include "registration_fns.h"
 
 /* Constants */
 /* --------- */

@@ -16,7 +16,6 @@
 #include "appaserver_error.h"
 #include "enrollment.h"
 #include "semester.h"
-#include "offering_fns.h"
 #include "offering.h"
 
 /* Constants */

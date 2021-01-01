@@ -13,7 +13,6 @@
 #include "entity.h"
 #include "semester.h"
 #include "paypal.h"
-#include "paypal_deposit.h"
 #include "paypal_dataset.h"
 
 /* Enumerated types */
@@ -42,31 +41,21 @@ EDUCATION *education_fetch(
 			char *spreadsheet_filename,
 			char *date_label );
 
-LIST *education_paypal_deposit_list(
-			char *season_name,
-			int year,
+LIST *education_paypal_list(
 			char *spreadsheet_filename,
 			SPREADSHEET *spreadsheet,
 			PAYPAL_DATASET *paypal_dataset,
 			LIST *semester_offering_list,
-			LIST *education_program_list,
-			LIST *education_product_list );
-
-PAYPAL_DEPOSIT *education_paypal_deposit(
-			LIST *not_exists_course_name_list,
-			char *season_name,
-			int year,
-			LIST *semester_offering_list,
-			LIST *education_program_list,
-			LIST *education_product_list,
-			PAYPAL_DATASET *paypal_dataset,
-			int row_number );
+			LIST *program_list,
+			LIST *product_list,
+			LIST *event_list );
 
 PAYPAL_DATASET *education_dataset_parse(
-			char *input,
+			char *input_string,
 			LIST *spreadsheet_column_list,
-			/* Return only */
 			/* ----------- */
+			/* Returns paypal_dataset */
+			/* ---------------------- */
 			PAYPAL_DATASET *paypal_dataset );
 
 PAYPAL_DATASET *education_paypal_dataset(
@@ -120,7 +109,8 @@ LIST *education_paypal_allowed_list(
 			LIST *offering_name_list,
 			LIST *program_name_list,
 			LIST *program_alias_name_list,
-			LIST *product_name_list );
+			LIST *product_name_list,
+			LIST *event_name_list );
 
 double education_net_payment_amount(
 			double payment_amount,
