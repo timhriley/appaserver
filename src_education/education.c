@@ -146,7 +146,7 @@ LIST *education_paypal_deposit_list(
 
 		list_set(
 			paypal_list,
-			education_paypal_deposit(
+			paypal_deposit_education(
 				season_name,
 				year,
 				semester_offering_list,
@@ -160,27 +160,6 @@ LIST *education_paypal_deposit_list(
 
 	fclose( spreadsheet_file );
 	return paypal_list;
-}
-
-LIST *education_paypal_deposit_list_insert(
-			LIST *education_paypal_list )
-{
-	education_paypal_insert( education_paypal_list );
-	education_registration_insert( education_paypal_list );
-	education_enrollment_insert( education_paypal_list );
-	education_tuition_payment_insert( education_paypal_list );
-	education_program_donation_insert( education_paypal_list );
-	education_product_sale_insert( education_paypal_list );
-	education_ticket_sale_insert( education_paypal_list );
-	education_product_refund_insert( education_paypal_list );
-	education_ticket_refund_insert( education_paypal_list );
-	education_tuition_refund_insert( education_paypal_list );
-
-	education_student_insert( education_paypal_list );
-	education_student_entity_insert( education_paypal_list );
-	education_payor_entity_insert( education_paypal_list );
-
-	return education_paypal_list;
 }
 
 PAYPAL_DATASET *education_paypal_dataset(
@@ -404,5 +383,24 @@ double education_net_refund_amount(
 {
 	return	refund_amount +
 		merchant_fees_expense;
+}
+
+void education_paypal_list_insert(
+			LIST *education_paypal_list )
+{
+	paypal_deposit_paypal_insert( education_paypal_list );
+	paypal_deposit_registration_insert( education_paypal_list );
+	paypal_deposit_enrollment_insert( education_paypal_list );
+	paypal_deposit_tuition_payment_insert( education_paypal_list );
+	paypal_deposit_program_donation_insert( education_paypal_list );
+	paypal_deposit_product_sale_insert( education_paypal_list );
+	paypal_deposit_ticket_sale_insert( education_paypal_list );
+	paypal_deposit_product_refund_insert( education_paypal_list );
+	paypal_deposit_ticket_refund_insert( education_paypal_list );
+	paypal_deposit_tuition_refund_insert( education_paypal_list );
+
+	paypal_deposit_student_insert( education_paypal_list );
+	paypal_deposit_student_entity_insert( education_paypal_list );
+	paypal_deposit_payor_entity_insert( education_paypal_list );
 }
 
