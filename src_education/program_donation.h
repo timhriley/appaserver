@@ -78,12 +78,6 @@ PROGRAM_DONATION *program_donation_steady_state(
 			double donation_amount,
 			double merchant_fees_expense );
 
-PROGRAM_DONATION *program_donation_paypal(
-			PROGRAM *program,
-			double item_value,
-			double item_fee,
-			char *paypal_date_time );
-
 FILE *program_donation_insert_open(
 			char *error_filename );
 
@@ -155,11 +149,6 @@ void program_donation_update(
 FILE *program_donation_update_open(
 			void );
 
-LIST *program_donation_list_paypal(
-			LIST *paypal_item_list,
-			LIST *program_list,
-			char *paypal_date_time );
-
 void program_donation_trigger(
 			char *program_name,
 			char *payment_date_time,
@@ -191,6 +180,19 @@ char *program_donation_memo(
 
 void program_donation_list_payor_entity_insert(
 			LIST *program_donation_list );
+
+LIST *program_donation_list_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *program_list );
+
+PROGRAM_DONATION *program_donation_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			PROGRAM *program );
 
 #endif
 

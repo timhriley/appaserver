@@ -71,25 +71,16 @@ PRODUCT_REFUND *product_refund_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *refund_date_time,
-			boolean fetch_sale,
-			boolean fetch_paypal );
+			boolean fetch_sale );
 
 PRODUCT_REFUND *product_refund_parse(
 			char *input,
-			boolean fetch_sale,
-			boolean fetch_paypal );
+			boolean fetch_sale );
 
 PRODUCT_REFUND *product_refund_steady_state(
 			PRODUCT_REFUND *product_refund,
 			double refund_amount,
 			double merchant_fees_expense );
-
-PRODUCT_REFUND *product_refund_paypal(
-			LIST *product_list,
-			char *item_data,
-			double item_value,
-			double item_fee,
-			char *paypal_date_time );
 
 FILE *product_refund_insert_open(
 			char *error_filename );
@@ -109,8 +100,7 @@ void product_refund_insert_pipe(
 
 LIST *product_refund_system_list(
 			char *sys_string,
-			boolean fetch_sale,
-			boolean fetch_paypal );
+			boolean fetch_sale );
 
 char *product_refund_sys_string(
 			char *where );
@@ -163,11 +153,6 @@ void product_refund_update(
 FILE *product_refund_update_open(
 			void );
 
-LIST *product_refund_list_paypal(
-			LIST *paypal_item_steady_state_list,
-			LIST *product_list,
-			char *paypal_date_time );
-
 void product_refund_trigger(
 			char *product_name,
 			char *sale_date_time,
@@ -205,6 +190,19 @@ char *product_refund_memo(
 
 void product_refund_list_payor_entity_insert(
 			LIST *product_refund_list );
+
+LIST *product_refund_list_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *product_list );
+
+PRODUCT_REFUND *product_refund_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			PRODUCT *product );
 
 #endif
 

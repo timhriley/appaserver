@@ -77,18 +77,14 @@ typedef struct
 	double paypal_item_expected_revenue_total;
 	int paypal_item_nonexpected_revenue_length;
 	int paypal_item_expected_revenue_length;
-	LIST *tuition_payment_list;
-	LIST *program_donation_list;
-	LIST *product_sale_list;
-	LIST *ticket_sale_list;
-	LIST *tuition_refund_list;
-	LIST *product_refund_list;
-	LIST *ticket_refund_list;
-	LIST *enrollment_list;
-	LIST *registration_list;
-	LIST *course_list;
+	LIST *tuition_payment_list_paypal;
+	LIST *program_donation_list_paypal;
+	LIST *product_sale_list_paypal;
+	LIST *ticket_sale_list_paypal;
+	LIST *tuition_refund_list_paypal;
+	LIST *product_refund_list_paypal;
+	LIST *ticket_refund_list_paypal;
 	double overpayment_donation;
-	double registration_tuition;
 	int row_number;
 } PAYPAL_DEPOSIT;
 

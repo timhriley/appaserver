@@ -81,25 +81,16 @@ TUITION_REFUND *tuition_refund_fetch(
 			char *payor_street_address,
 			char *payment_date_time,
 			char *refund_date_time,
-			boolean fetch_payment,
-			boolean fetch_paypal );
+			boolean fetch_payment );
 
 TUITION_REFUND *tuition_refund_parse(
 			char *input,
-			boolean fetch_payment,
-			boolean fetch_paypal );
+			boolean fetch_payment );
 
 TUITION_REFUND *tuition_refund_steady_state(
 			TUITION_REFUND *tuition_refund,
 			double refund_amount,
 			double merchant_fees_expense );
-
-TUITION_REFUND *tuition_refund_paypal(
-			LIST *offering_list,
-			char *item_data,
-			double item_value,
-			double item_fee,
-			char *paypal_date_time );
 
 FILE *tuition_refund_insert_open(
 			char *error_filename );
@@ -123,8 +114,7 @@ void tuition_refund_insert_pipe(
 
 LIST *tuition_refund_system_list(
 			char *sys_string,
-			boolean fetch_payment,
-			boolean fetch_paypal );
+			boolean fetch_payment );
 
 char *tuition_refund_sys_string(
 			char *where );
@@ -184,11 +174,6 @@ void tuition_refund_update(
 FILE *tuition_refund_update_open(
 			void );
 
-LIST *tuition_refund_list_paypal(
-			LIST *paypal_item_steady_state_list,
-			LIST *tuition_refund_list,
-			char *paypal_date_time );
-
 void tuition_refund_trigger(
 			char *student_full_name,
 			char *student_street_address,
@@ -236,6 +221,24 @@ LIST *tuition_refund_registration_list(
 
 LIST *tuition_refund_enrollment_list(
 			LIST *tuition_refund_list );
+
+LIST *tuition_refund_list_paypal(
+			char *season_name,
+			int year,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *semester_offering_list );
+
+TUITION_REFUND *tuition_refund_paypal(
+			char *season_name,
+			int year,
+			ENTITY *student_entity,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			OFFERING *offering );
 
 #endif
 

@@ -72,7 +72,6 @@ int main( int argc, char **argv )
 	char buffer[ 128 ];
 	char *maximum_date = {0};
 	LIST *paypal_deposit_list;
-	LIST *not_exists_course_name_list = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -151,17 +150,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( list_length( not_exists_course_name_list ) )
-	{
-		printf(
-		"<h3>Can't execute with non-existing offerings:</h3>\n" );
-
-		fflush( stdout );
-		list_html_display( not_exists_course_name_list );
-
-		execute = 0;
-	}
-
 	if ( execute )
 	{
 		LIST *account_name_list;
@@ -182,21 +170,18 @@ int main( int argc, char **argv )
 				first_transaction_date_time,
 				account_name_list );
 
-			paypal_deposit_list =
-				education_paypal_deposit_list_insert(
-					paypal_deposit_list );
+			education_paypal_deposit_list_insert(
+				paypal_deposit_list );
 
-			paypal_deposit_list =
-				paypal_deposit_list_registration_fetch_update(
-					paypal_deposit_list,
-					season_name,
-					year );
+			paypal_deposit_list_registration_fetch_update(
+				paypal_deposit_list,
+				season_name,
+				year );
 
-			paypal_deposit_list =
-				paypal_deposit_list_offering_fetch_update(
-					paypal_deposit_list,
-					season_name,
-					year );
+			paypal_deposit_list_offering_fetch_update(
+				paypal_deposit_list,
+				season_name,
+				year );
 
 			if ( session && role_name )
 			{
@@ -251,7 +236,6 @@ LIST *paypal_upload_deposit_list(
 {
 	EDUCATION *education;
 	char *minimum_date;
-	LIST *paypal_deposit_list;
 
 	/* Only a stub. Doesn't work yet. */
 	/* ------------------------------ */
@@ -293,7 +277,7 @@ LIST *paypal_upload_deposit_list(
 		exit( 1 );
 	}
 
-	paypal_deposit_list =
+	return
 		education_paypal_deposit_list(
 			season_name,
 			year,
@@ -305,8 +289,6 @@ LIST *paypal_upload_deposit_list(
 				program_list( 1 /* fetch_alias_list */ ) ),
 			( education->education_product_list =
 				product_list() ) );
-
-	return paypal_deposit_list;
 }
 
 void paypal_upload_display(

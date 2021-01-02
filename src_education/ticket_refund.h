@@ -92,13 +92,6 @@ TICKET_REFUND *ticket_refund_steady_state(
 			double refund_amount,
 			double merchant_fees_expense );
 
-TICKET_REFUND *ticket_refund_paypal(
-			LIST *event_list,
-			char *item_data,
-			double item_value,
-			double item_fee,
-			char *paypal_date_time );
-
 FILE *ticket_refund_insert_open(
 			char *error_filename );
 
@@ -177,11 +170,6 @@ void ticket_refund_update(
 FILE *ticket_refund_update_open(
 			void );
 
-LIST *ticket_refund_list_paypal(
-			LIST *paypal_item_steady_state_list,
-			LIST *ticket_refund_list,
-			char *paypal_date_time );
-
 void ticket_refund_trigger(
 			char *event_name,
 			char *event_date,
@@ -221,6 +209,19 @@ char *ticket_refund_memo(
 
 void ticket_refund_list_payor_entity_insert(
 			LIST *ticket_refund_list );
+
+LIST *ticket_refund_list_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *semester_event_list );
+
+TICKET_REFUND *ticket_refund_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			EVENT *event );
 
 #endif
 

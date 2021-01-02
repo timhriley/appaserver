@@ -46,8 +46,7 @@ TICKET_SALE *ticket_sale_new(
 			char *event_date,
 			char *event_time,
 			char *sale_date_time,
-			char *payor_full_name,
-			char *payor_street_address )
+			ENTITY *payor_entity )
 {
 	TICKET_SALE *ticket_sale = ticket_sale_calloc();
 
@@ -58,11 +57,7 @@ TICKET_SALE *ticket_sale_new(
 			event_time );
 
 	ticket_sale->sale_date_time = sale_date_time;
-
-	ticket_sale->payor_entity =
-		entity_new(
-			payor_full_name,
-			payor_street_address );
+	ticket_sale->payor_entity = payor_entity;
 
 	return ticket_sale;
 }
@@ -622,67 +617,6 @@ TICKET_SALE *ticket_sale_steady_state(
 	return ticket_sale;
 }
 
-TICKET_SALE *ticket_sale_paypal(
-			EVENT *event,
-			double item_value,
-			double item_fee,
-			char *paypal_date_time )
-{
-	TICKET_SALE *ticket_sale;
-
-	ticket_sale = ticket_sale_calloc();
-
-	ticket_sale->extended_price = item_value;
-	ticket_sale->merchant_fees_expense = item_fee;
-
-	ticket_sale->net_payment_amount =
-		education_net_payment_amount(
-			item_value,
-			item_fee );
-
-	ticket_sale->event = event;
-	ticket_sale->paypal_date_time = paypal_date_time;
-
-	return ticket_sale;
-}
-
-LIST *ticket_sale_list_paypal(
-			LIST *paypal_item_list,
-			LIST *event_list,
-			char *paypal_date_time )
-{
-	LIST *sale_list;
-	PAYPAL_ITEM *paypal_item;
-	EVENT *event;
-
-	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
-
-	sale_list = list_new();
-
-	do {
-		paypal_item = list_get( paypal_item_list );
-
-		if ( paypal_item->benefit_entity ) continue;
-
-		if ( ( event =
-			event_list_seek(
-				paypal_item->item_data,
-				event_list ) ) )
-		{
-			list_set(
-				sale_list,
-				ticket_sale_paypal(
-					event,
-					paypal_item->item_value,
-					paypal_item->item_fee,
-					paypal_date_time ) );
-
-		}
-	} while ( list_next( paypal_item_list ) );
-
-	return sale_list;
-}
-
 void ticket_sale_trigger(
 			char *event_name,
 			char *event_date,
@@ -928,5 +862,70 @@ void ticket_sale_set_transaction(
 	{
 		ticket_sale->transaction_date_time = (char *)0;
 	}
+}
+
+LIST *ticket_sale_list_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *event_list )
+{
+	LIST *ticket_sale_list = {0};
+	PAYPAL_ITEM *paypal_item;
+	EVENT *event;
+
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( paypal_item->benefit_entity ) continue;
+
+		if ( ( event =
+			event_list_seek(
+				paypal_item->item_data,
+				event_list ) ) )
+		{
+			if ( !ticket_sale_list )
+				ticket_sale_list =
+					list_new();
+
+			list_set(
+				ticket_sale_list,
+				ticket_sale_paypal(
+					payor_entity,
+					paypal_date_time,
+					paypal_item->item_value,
+					paypal_item->item_fee,
+					event ) );
+		}
+	} while ( list_next( paypal_item_list ) );
+
+	return ticket_sale_list;
+}
+
+TICKET_SALE *ticket_sale_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			EVENT *event )
+{
+	TICKET_SALE *ticket_sale;
+
+	ticket_sale = ticket_sale_calloc();
+
+	ticket_sale->payor_entity = payor_entity;
+	ticket_sale->paypal_date_time = paypal_date_time;
+	ticket_sale->extended_price = item_value;
+	ticket_sale->merchant_fees_expense = item_fee;
+
+	ticket_sale->net_payment_amount =
+		education_net_payment_amount(
+			ticket_sale->extended_price,
+			ticket_sale->merchant_fees_expense );
+
+	ticket_sale->event = event;
+	return ticket_sale;
 }
 

@@ -82,7 +82,7 @@ LIST *paypal_entity_item_list(
 	LIST *item_list;
 	char item_data[ 256 ];
 	char entity_piece[ 256 ];
-	char full_name[ 128 ];
+	char item_title_P_full_name[ 128 ];
 	int p;
 
 /* Sample item_title_P_piece:
@@ -119,7 +119,10 @@ The Class (Child: Atticus Weaver^Andy Madrigal Villalobos)
 	string_trim_right( entity_piece, 1 );
 
 	for(	p = 0;
-		piece( full_name, PAYPAL_ENTITY_DELIMITER, entity_piece, p );
+		piece(	item_title_P_full_name,
+			PAYPAL_ENTITY_DELIMITER,
+			entity_piece,
+			p );
 		p++ )
 	{
 		paypal_item = paypal_item_calloc();
@@ -127,24 +130,15 @@ The Class (Child: Atticus Weaver^Andy Madrigal Villalobos)
 		paypal_item->item_data = strdup( item_data );
 
 		paypal_item->benefit_entity =
-			paypal_benefit_entity(
+			entity_full_name_entity(
 				/* ------------------- */
 				/* Expect stack memory */
 				/* ------------------- */
-				full_name );
+				item_title_P_full_name );
 
 		list_set( item_list, paypal_item );
 	}
 	return item_list;
-}
-
-ENTITY *paypal_benefit_entity( char *full_name )
-{
-	return entity_full_name_entity(
-			/* ------------------- */
-			/* Expect stack memory */
-			/* ------------------- */
-			full_name );
 }
 
 PAYPAL_ITEM *paypal_item_calloc( void )

@@ -41,8 +41,7 @@ char *enrollment_sys_string( char *where )
 }
 
 ENROLLMENT *enrollment_new(
-			char *student_full_name,
-			char *street_address,
+			ENTITY *student_entity,
 			char *course_name,
 			char *season_name,
 			int year )
@@ -67,8 +66,7 @@ ENROLLMENT *enrollment_new(
 
 	enrollment->registration =
 		registration_new(
-			student_full_name,
-			street_address,
+			student_entity,
 			season_name,
 			year );
 
@@ -102,8 +100,9 @@ ENROLLMENT *enrollment_parse(
 
 	enrollment =
 		enrollment_new(
-			strdup( full_name ),
-			strdup( street_address ),
+			entity_new(
+				strdup( full_name ),
+				strdup( street_address ) ),
 			strdup( course_name ),
 			strdup( season_name ),
 			atoi( year ) );
@@ -117,10 +116,12 @@ ENROLLMENT *enrollment_parse(
 			enrollment_tuition_payment_list(
 				enrollment->
 					registration->
-					student_full_name,
+					student_entity->
+					full_name,
 				enrollment->
 					registration->
-					student_street_address,
+					student_entity->
+					street_address,
 				enrollment->
 					offering->
 					course->
@@ -141,10 +142,12 @@ ENROLLMENT *enrollment_parse(
 			enrollment_tuition_refund_list(
 				enrollment->
 					registration->
-					student_full_name,
+					student_entity->
+					full_name,
 				enrollment->
 					registration->
-					student_street_address,
+					student_entity->
+					street_address,
 				enrollment->
 					offering->
 					course->
@@ -367,7 +370,6 @@ LIST *enrollment_tuition_payment_list(
 					course_name,
 					season_name,
 					year ) ),
-		1 /* fetch_deposit */,
 		0 /* fetch_enrollment */ );
 }
 
@@ -571,10 +573,12 @@ ENROLLMENT *enrollment_steady_state(
 			enrollment_transaction(
 				enrollment->
 					registration->
-					student_full_name,
+					student_entity->
+					full_name,
 				enrollment->
 					registration->
-					student_street_address,
+					student_entity->
+					street_address,
 				enrollment->
 					registration->
 					registration_date_time,
@@ -644,10 +648,12 @@ void enrollment_list_cancelled_update(
 			update_pipe,
 			enrollment->
 				registration->
-				student_full_name,
+				student_entity->
+				full_name,
 			enrollment->
 				registration->
-				student_street_address,
+				student_entity->
+				street_address,
 			enrollment->offering->course->course_name,
 			season_name,
 			year,
@@ -695,10 +701,12 @@ void enrollment_set_transaction(
 		enrollment_transaction(
 			enrollment->
 				registration->
-				student_full_name,
+				student_entity->
+				full_name,
 			enrollment->
 				registration->
-				student_street_address,
+				student_entity->
+				street_address,
 			enrollment->
 				registration->
 				registration_date_time,

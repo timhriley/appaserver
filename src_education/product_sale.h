@@ -90,12 +90,6 @@ PRODUCT_SALE *product_sale_steady_state(
 			double retail_price,
 			double merchant_fees_expense );
 
-PRODUCT_SALE *product_sale_paypal(
-			PRODUCT *product,
-			double item_value,
-			double item_fee,
-			char *paypal_date_time );
-
 void product_sale_list_set_transaction(
 			int *seconds_to_add,
 			LIST *product_sale_list );
@@ -171,11 +165,6 @@ void product_sale_update(
 FILE *product_sale_update_open(
 			void );
 
-LIST *product_sale_list_paypal(
-			LIST *paypal_item_list,
-			LIST *product_list,
-			char *paypal_date_time );
-
 void product_sale_trigger(
 			char *product_name,
 			char *sale_date_time,
@@ -210,6 +199,19 @@ char *product_sale_memo(
 
 void product_sale_list_payor_entity_insert(
 			LIST *product_sale_list );
+
+LIST *product_sale_list_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *product_list );
+
+PRODUCT_SALE *product_sale_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			PRODUCT *product );
 
 #endif
 

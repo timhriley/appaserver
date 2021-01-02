@@ -165,16 +165,20 @@ LIST *education_paypal_deposit_list(
 LIST *education_paypal_deposit_list_insert(
 			LIST *education_paypal_list )
 {
-	paypal_deposit_list_insert( education_paypal_list );
-	paypal_list_registration_insert( education_paypal_list );
-	paypal_list_enrollment_insert( education_paypal_list );
-	paypal_list_tuition_payment_insert( education_paypal_list );
-	paypal_list_program_payment_insert( education_paypal_list );
-	paypal_list_product_payment_insert( education_paypal_list );
-	paypal_list_tuition_refund_insert( education_paypal_list );
-	paypal_list_student_insert( education_paypal_list );
-	paypal_list_student_entity_insert( education_paypal_list );
-	paypal_list_payor_entity_insert( education_paypal_list );
+	education_paypal_insert( education_paypal_list );
+	education_registration_insert( education_paypal_list );
+	education_enrollment_insert( education_paypal_list );
+	education_tuition_payment_insert( education_paypal_list );
+	education_program_donation_insert( education_paypal_list );
+	education_product_sale_insert( education_paypal_list );
+	education_ticket_sale_insert( education_paypal_list );
+	education_product_refund_insert( education_paypal_list );
+	education_ticket_refund_insert( education_paypal_list );
+	education_tuition_refund_insert( education_paypal_list );
+
+	education_student_insert( education_paypal_list );
+	education_student_entity_insert( education_paypal_list );
+	education_payor_entity_insert( education_paypal_list );
 
 	return education_paypal_list;
 }

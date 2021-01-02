@@ -92,12 +92,6 @@ TICKET_SALE *ticket_sale_steady_state(
 			double ticket_price,
 			double merchant_fees_expense );
 
-TICKET_SALE *ticket_sale_paypal(
-			EVENT *event,
-			double item_value,
-			double item_fee,
-			char *paypal_date_time );
-
 void ticket_sale_list_set_transaction(
 			int *seconds_to_add,
 			LIST *ticket_sale_list );
@@ -180,11 +174,6 @@ void ticket_sale_update(
 FILE *ticket_sale_update_open(
 			void );
 
-LIST *ticket_sale_list_paypal(
-			LIST *paypal_item_list,
-			LIST *event_list,
-			char *paypal_date_time );
-
 void ticket_sale_trigger(
 			char *event_name,
 			char *event_date,
@@ -227,8 +216,20 @@ TICKET_SALE *ticket_sale_new(
 			char *event_date,
 			char *event_time,
 			char *sale_date_time,
-			char *payor_full_name,
-			char *payor_street_address );
+			ENTITY *payor_entity );
+
+LIST *ticket_sale_list_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *event_list );
+
+TICKET_SALE *ticket_sale_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			EVENT *event );
 
 #endif
 

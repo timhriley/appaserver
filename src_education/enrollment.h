@@ -52,9 +52,10 @@ typedef struct
 	char *transaction_date_time;
 } ENROLLMENT;
 
+/* Builds enrollment and registration */
+/* ---------------------------------- */
 ENROLLMENT *enrollment_new(
-			char *full_name,
-			char *street_address,
+			ENTITY *student_entity,
 			char *course_name,
 			char *season_name,
 			int year );

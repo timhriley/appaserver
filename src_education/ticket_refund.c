@@ -265,8 +265,9 @@ TICKET_REFUND *ticket_refund_parse(
 			strdup( event_date ),
 			strdup( event_time ),
 			strdup( sale_date_time ),
-			strdup( payor_full_name ),
-			strdup( payor_street_address ) );
+			entity_new(
+				strdup( payor_full_name ),
+				strdup( payor_street_address ) ) );
 
 	piece( refund_date_time, SQL_DELIMITER, input, 6 );
 	ticket_refund->refund_date_time = strdup( refund_date_time );
@@ -591,80 +592,6 @@ TICKET_REFUND *ticket_refund_steady_state(
 	return ticket_refund;
 }
 
-TICKET_REFUND *ticket_refund_paypal(
-			LIST *event_list,
-			char *item_data,
-			double item_value,
-			double item_fee,
-			char *paypal_date_time )
-{
-	TICKET_REFUND *ticket_refund;
-	EVENT *event;
-
-	if ( ! ( event =
-			event_seek(
-				item_data,
-				event_list ) ) )
-	{
-		return (TICKET_REFUND *)0;
-	}
-
-	/* New refund */
-	/* ---------- */
-	ticket_refund = ticket_refund_calloc();
-
-	ticket_refund->paypal_date_time = paypal_date_time;
-	ticket_refund->refund_amount = item_value;
-	ticket_refund->merchant_fees_expense = item_fee;
-
-	ticket_refund->net_refund_amount =
-		education_net_refund_amount(
-			item_value,
-			item_fee );
-
-	ticket_refund->ticket_sale =
-		ticket_sale_new(
-			event->event_name,
-			event->event_date,
-			event->event_date,
-			(char *)0 /* sale_date_time */,
-			(char *)0 /* payor_full_name */,
-			(char *)0 /* payor_street_address */ );
-
-	ticket_refund->ticket_sale->event = event;
-
-	return ticket_refund;
-}
-
-LIST *ticket_refund_list_paypal(
-			LIST *paypal_item_list,
-			LIST *event_list,
-			char *paypal_date_time )
-{
-	LIST *refund_list = list_new();
-	PAYPAL_ITEM *paypal_item;
-
-	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
-
-	do {
-		paypal_item = list_get( paypal_item_list );
-
-		if ( paypal_item->benefit_entity ) continue;
-
-		list_set(
-			refund_list,
-			ticket_refund_paypal(
-				event_list,
-				paypal_item->item_data,
-				paypal_item->item_value,
-				paypal_item->item_fee,
-				paypal_date_time ) );
-
-	} while ( list_next( paypal_item_list ) );
-
-	return refund_list;
-}
-
 void ticket_refund_trigger(
 			char *event_name,
 			char *event_date,
@@ -935,5 +862,80 @@ void ticket_refund_set_transaction(
 	{
 		ticket_refund->transaction_date_time = (char *)0;
 	}
+}
+
+LIST *ticket_refund_list_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *semester_event_list )
+{
+	LIST *ticket_refund_list = {0};
+	PAYPAL_ITEM *paypal_item;
+	EVENT *event;
+	TICKET_REFUND *ticket_refund;
+
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( paypal_item->benefit_entity ) continue;
+
+		if ( ( event =
+			event_seek(
+				paypal_item->item_data,
+				semester_event_list ) ) )
+		{
+			if ( !ticket_refund_list )
+				ticket_refund_list =
+					list_new();
+
+			list_set(
+				ticket_refund_list,
+				ticket_refund_paypal(
+					payor_entity,
+					paypal_date_time,
+					paypal_item->item_value,
+					paypal_item->item_fee,
+					event ) );
+		}
+
+	} while ( list_next( paypal_item_list ) );
+
+	return ticket_refund_list;
+}
+
+TICKET_REFUND *ticket_refund_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			EVENT *event )
+{
+	TICKET_REFUND *ticket_refund;
+
+	ticket_refund = ticket_refund_calloc();
+
+	ticket_refund->payor_entity = payor_entity;
+	ticket_refund->paypal_date_time = paypal_date_time;
+	ticket_refund->refund_amount = item_value;
+	ticket_refund->merchant_fees_expense = item_fee;
+
+	ticket_refund->net_refund_amount =
+		education_net_refund_amount(
+			ticket_refund->refund_amount,
+			ticket_refund->merchant_fees_expense );
+
+	ticket_refund->ticket_sale =
+		ticket_sale_new(
+			event->event_name,
+			event->event_date,
+			event->event_date,
+			paypal_date_time /* sale_date_time */,
+			payor_entity );
+
+	ticket_refund->ticket_sale->event = event;
+	return ticket_refund;
 }
 

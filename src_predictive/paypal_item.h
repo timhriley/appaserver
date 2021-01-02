@@ -53,9 +53,6 @@ int paypal_item_expected_revenue_length(
 int paypal_item_nonexpected_revenue_length(
 			LIST *paypal_item_list );
 
-ENTITY *paypal_benefit_entity(
-			char *full_name );
-
 LIST *paypal_entity_item_list(
 			/* ------------------- */
 			/* Expect stack memory */

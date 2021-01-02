@@ -78,13 +78,11 @@ TUITION_PAYMENT *tuition_payment_calloc(
 			void );
 
 TUITION_PAYMENT *tuition_payment_new(
-			char *student_full_name,
-			char *street_address,
+			ENTITY *student_entity,
 			char *course_name,
 			char *season_name,
 			int year,
-			char *payor_full_name,
-			char *payor_street_address,
+			ENTITY *payor_entity,
 			char *payment_date_time );
 
 TUITION_PAYMENT *tuition_payment_fetch(
@@ -96,33 +94,14 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time,
-			boolean fetch_enrollment,
-			boolean fetch_paypal );
+			boolean fetch_enrollment );
 
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
-			boolean fetch_enrollment,
-			boolean fetch_paypal );
-
-TUITION_PAYMENT *tuition_payment_paypal(
-			char *season_name,
-			int year,
-			ENTITY *benefit_entity,
-			double item_value,
-			double item_fee,
-			double item_gain,
-			OFFERING *offering,
-			char *paypal_date_time );
+			boolean fetch_enrollment );
 
 boolean tuition_payment_structure(
 			TUITION_PAYMENT *tuition_payment );
-
-LIST *tuition_payment_paypal_list(
-			char *season_name,
-			int year,
-			LIST *paypal_item_steady_state_list,
-			LIST *semester_offering_list,
-			char *paypal_date_time );
 
 /* Returns true transaction_date_time */
 /* ---------------------------------- */
@@ -165,8 +144,7 @@ char *tuition_payment_primary_where(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_enrollment,
-			boolean fetch_paypal );
+			boolean fetch_enrollment );
 
 void tuition_payment_list_insert(
 			LIST *tuition_payment_list );
@@ -293,6 +271,24 @@ boolean tuition_payment_is_tuition(
 double tuition_payment_cash_debit_amount(
 			double payment_amount,
 			double merchant_fees_expense );
+
+LIST *tuition_payment_list_paypal(
+			char *season_name,
+			int year,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *semester_offering_list );
+
+TUITION_PAYMENT *tuition_payment_paypal(
+			char *season_name,
+			int year,
+			ENTITY *student_entity,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			OFFERING *offering );
 
 #endif
 

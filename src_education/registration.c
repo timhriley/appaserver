@@ -44,8 +44,11 @@ REGISTRATION *registration_getset(
 			registration_list,
 			( registration =
 				registration_new(
-					strdup( student_full_name ),
-					strdup( student_street_address ),
+					entity_new(
+						strdup(
+						   student_full_name ),
+						strdup(
+						   student_street_address ) ),
 					strdup( season_name ),
 					year ) ) );
 	}
@@ -162,8 +165,9 @@ REGISTRATION *registration_parse(
 
 	registration =
 		registration_new(
-			strdup( student_full_name ),
-			strdup( student_street_address ),
+			entity_new(
+				strdup( student_full_name ),
+				strdup( student_street_address ) ),
 			strdup( season_name ),
 			year );
 
@@ -183,8 +187,8 @@ REGISTRATION *registration_parse(
 	{
 		registration->enrollment_list =
 			registration_enrollment_list(
-				registration->student_full_name,
-				registration->student_street_address,
+				registration->student_entity->full_name,
+				registration->student_entity->street_address,
 				registration->season_name,
 				registration->year );
 	}
@@ -263,9 +267,9 @@ REGISTRATION *registration_seek(
 	do {
 		registration = list_get( semester_registration_list );
 
-		if ( strcmp(	registration->student_full_name,
+		if ( strcmp(	registration->student_entity->full_name,
 				student_full_name ) == 0
-		&&   strcmp(	registration->student_street_address,
+		&&   strcmp(	registration->student_entity->street_address,
 				student_street_address ) == 0
 		&&   strcmp(	registration->season_name,
 				season_name ) == 0
@@ -300,8 +304,7 @@ char *registration_escape_full_name(
 }
 
 REGISTRATION *registration_new(
-			char *student_full_name,
-			char *student_street_address,
+			ENTITY *student_entity,
 			char *season_name,
 			int year )
 {
@@ -317,8 +320,7 @@ REGISTRATION *registration_new(
 		exit( 1 );
 	}
 
-	registration->student_full_name = student_full_name;
-	registration->student_street_address = student_street_address;
+	registration->student_entity = student_entity;
 	registration->season_name = season_name;
 	registration->year = year;
 	return registration;
@@ -428,7 +430,7 @@ double registration_tuition_refund_total(
 
 REGISTRATION *registration_steady_state(
 			REGISTRATION *registration,
-			LIST *enrollment_list,
+			LIST *registration_enrollment_list,
 			LIST *semester_offering_list )
 {
 	if ( !registration )
@@ -612,8 +614,8 @@ void registration_list_fetch_update(
 		registration = list_get( registration_list );
 
 		registration_fetch_update(
-			registration->student_full_name,
-			registration->student_street_address,
+			registration->student_entity->full_name,
+			registration->student_entity->street_address,
 			season_name,
 			year );
 

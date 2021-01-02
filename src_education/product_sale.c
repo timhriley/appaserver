@@ -581,67 +581,6 @@ PRODUCT_SALE *product_sale_steady_state(
 	return product_sale;
 }
 
-PRODUCT_SALE *product_sale_paypal(
-			PRODUCT *product,
-			double item_value,
-			double item_fee,
-			char *paypal_date_time )
-{
-	PRODUCT_SALE *product_sale;
-
-	product_sale = product_sale_calloc();
-
-	product_sale->extended_price = item_value;
-	product_sale->merchant_fees_expense = item_fee;
-
-	product_sale->net_payment_amount =
-		education_net_payment_amount(
-			item_value,
-			item_fee );
-
-	product_sale->product = product;
-	product_sale->paypal_date_time = paypal_date_time;
-
-	return product_sale;
-}
-
-LIST *product_sale_list_paypal(
-			LIST *paypal_item_list,
-			LIST *product_list,
-			char *paypal_date_time )
-{
-	LIST *sale_list;
-	PAYPAL_ITEM *paypal_item;
-	PRODUCT *product;
-
-	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
-
-	sale_list = list_new();
-
-	do {
-		paypal_item = list_get( paypal_item_list );
-
-		if ( paypal_item->benefit_entity ) continue;
-
-		if ( ( product =
-			product_seek(
-				paypal_item->item_data,
-				product_list ) ) )
-		{
-			list_set(
-				sale_list,
-				product_sale_paypal(
-					product,
-					paypal_item->item_value,
-					paypal_item->item_fee,
-					paypal_date_time ) );
-
-		}
-	} while ( list_next( paypal_item_list ) );
-
-	return sale_list;
-}
-
 void product_sale_trigger(
 			char *product_name,
 			char *sale_date_time,
@@ -880,5 +819,72 @@ void product_sale_set_transaction(
 	{
 		product_sale->transaction_date_time = (char *)0;
 	}
+}
+
+LIST *product_sale_list_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *product_list )
+{
+	LIST *product_sale_list = {0};
+	PAYPAL_ITEM *paypal_item;
+	PRODUCT *product;
+
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( paypal_item->benefit_entity ) continue;
+
+		if ( ( product =
+			product_seek(
+				paypal_item->item_data,
+				product_list ) ) )
+		{
+			if ( !product_sale_list )
+				product_sale_list =
+					list_new();
+
+			list_set(
+				product_sale_list,
+				product_sale_paypal(
+					payor_entity,
+					paypal_date_time,
+					paypal_item->item_value,
+					paypal_item->item_fee,
+					product ) );
+
+		}
+	} while ( list_next( paypal_item_list ) );
+
+	return product_sale_list;
+}
+
+PRODUCT_SALE *product_sale_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			PRODUCT *product )
+{
+	PRODUCT_SALE *product_sale;
+
+	product_sale = product_sale_calloc();
+
+	product_sale->payor_entity = payor_entity;
+	product_sale->paypal_date_time = paypal_date_time;
+	product_sale->extended_price = item_value;
+	product_sale->merchant_fees_expense = item_fee;
+
+	product_sale->net_payment_amount =
+		education_net_payment_amount(
+			product_sale->extended_price,
+			product_sale->merchant_fees_expense );
+
+	product_sale->product = product;
+
+	return product_sale;
 }
 

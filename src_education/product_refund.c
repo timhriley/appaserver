@@ -48,8 +48,7 @@ PRODUCT_REFUND *product_refund_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *refund_date_time,
-			boolean fetch_sale,
-			boolean fetch_paypal )
+			boolean fetch_sale )
 {
 	PRODUCT_REFUND *product_refund;
 
@@ -66,16 +65,14 @@ PRODUCT_REFUND *product_refund_fetch(
 						payor_full_name,
 						payor_street_address,
 						refund_date_time ) ) ),
-			fetch_sale,
-			fetch_paypal );
+			fetch_sale );
 
 	return product_refund;
 }
 
 LIST *product_refund_system_list(
 			char *sys_string,
-			boolean fetch_sale,
-			boolean fetch_paypal )
+			boolean fetch_sale )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -89,8 +86,7 @@ LIST *product_refund_system_list(
 			product_refund_list,
 			product_refund_parse(
 				input,
-				fetch_sale,
-				fetch_paypal ) );
+				fetch_sale ) );
 	}
 
 	pclose( input_pipe );
@@ -218,8 +214,7 @@ void product_refund_insert_pipe(
 
 PRODUCT_REFUND *product_refund_parse(
 			char *input,
-			boolean fetch_sale,
-			boolean fetch_paypal )
+			boolean fetch_sale )
 {
 	char product_name[ 128 ];
 	char sale_date_time[ 128 ];
@@ -281,19 +276,7 @@ PRODUCT_REFUND *product_refund_parse(
 				product_refund->sale_date_time,
 				product_refund->payor_entity->full_name,
 				product_refund->payor_entity->street_address,
-				1 /* fetch_product */,
-				0 /* not fetch_paypal */ );
-	}
-
-	if ( fetch_paypal )
-	{
-/*
-		product_refund->paypal_deposit =
-		    paypal_deposit_fetch(
-			 product_refund->payor_entity->full_name,
-			 product_refund->payor_entity->street_address,
-			 product_refund->paypal_date_time );
-*/
+				1 /* fetch_product */ );
 	}
 
 	return product_refund;
@@ -557,78 +540,6 @@ PRODUCT_REFUND *product_refund_steady_state(
 	return product_refund;
 }
 
-PRODUCT_REFUND *product_refund_paypal(
-			LIST *product_list,
-			char *item_data,
-			double item_value,
-			double item_fee,
-			char *paypal_date_time )
-{
-	PRODUCT_REFUND *product_refund;
-	PRODUCT *product;
-
-	if ( ! ( product =
-			product_seek(
-				item_data,
-				product_list ) ) )
-	{
-		return (PRODUCT_REFUND *)0;
-	}
-
-	/* New refund */
-	/* ---------- */
-	product_refund = product_refund_calloc();
-
-	product_refund->paypal_date_time = paypal_date_time;
-	product_refund->refund_amount = item_value;
-	product_refund->merchant_fees_expense = item_fee;
-
-	product_refund->net_refund_amount =
-		education_net_refund_amount(
-			item_value,
-			item_fee );
-
-	product_refund->product_sale =
-		product_sale_new(
-			product->product_name,
-			(char *)0 /* sale_date_time */,
-			(char *)0 /* payor_full_name */,
-			(char *)0 /* payor_street_address */ );
-
-	product_refund->product_sale->product = product;
-
-	return product_refund;
-}
-
-LIST *product_refund_list_paypal(
-			LIST *paypal_item_list,
-			LIST *product_list,
-			char *paypal_date_time )
-{
-	LIST *refund_list = list_new();
-	PAYPAL_ITEM *paypal_item;
-
-	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
-
-	do {
-		paypal_item = list_get( paypal_item_list );
-
-		if ( paypal_item->benefit_entity ) continue;
-
-		list_set(
-			refund_list,
-			product_refund_paypal(
-				product_list,
-				paypal_item->item_data,
-				paypal_item->item_value,
-				paypal_item->item_fee,
-				paypal_date_time ) );
-
-	} while ( list_next( paypal_item_list ) );
-
-	return refund_list;
-}
-
 void product_refund_trigger(
 			char *product_name,
 			char *sale_date_time,
@@ -879,5 +790,80 @@ void product_refund_set_transaction(
 	{
 		product_refund->transaction_date_time = (char *)0;
 	}
+}
+
+LIST *product_refund_list_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *product_list )
+{
+	LIST *product_refund_list = {0};
+	PAYPAL_ITEM *paypal_item;
+	PRODUCT *product;
+
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( paypal_item->benefit_entity ) continue;
+
+		if ( ( product =
+			product_seek(
+				paypal_item->item_data,
+				product_list ) ) )
+		{
+			if ( !product_refund_list )
+				product_refund_list =
+					list_new();
+
+			list_set(
+				product_refund_list,
+				product_refund_paypal(
+					payor_entity,
+					paypal_date_time,
+					paypal_item->item_value,
+					paypal_item->item_fee,
+					product ) );
+		}
+	} while ( list_next( paypal_item_list ) );
+
+	return product_refund_list;
+}
+
+PRODUCT_REFUND *product_refund_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			PRODUCT *product )
+{
+	PRODUCT_REFUND *product_refund;
+
+	/* New refund */
+	/* ---------- */
+	product_refund = product_refund_calloc();
+
+	product_refund->payor_entity = payor_entity;
+	product_refund->paypal_date_time = paypal_date_time;
+	product_refund->refund_amount = item_value;
+	product_refund->merchant_fees_expense = item_fee;
+
+	product_refund->net_refund_amount =
+		education_net_refund_amount(
+			item_value,
+			item_fee );
+
+	product_refund->product_sale =
+		product_sale_new(
+			product->product_name,
+			(char *)0 /* sale_date_time */,
+			(char *)0 /* payor_full_name */,
+			(char *)0 /* payor_street_address */ );
+
+	product_refund->product_sale->product = product;
+
+	return product_refund;
 }
 

@@ -536,68 +536,6 @@ PROGRAM_DONATION *program_donation_steady_state(
 	return program_donation;
 }
 
-PROGRAM_DONATION *program_donation_paypal(
-			PROGRAM *program,
-			double item_value,
-			double item_fee,
-			char *paypal_date_time )
-{
-	PROGRAM_DONATION *program_donation;
-
-	program_donation = program_donation_calloc();
-
-	program_donation->donation_amount = item_value;
-	program_donation->merchant_fees_expense = item_fee;
-	program_donation->paypal_date_time = paypal_date_time;
-
-	program_donation->net_payment_amount =
-		education_net_payment_amount(
-			item_value,
-			item_fee );
-
-	program_donation->program = program;
-
-	return program_donation;
-}
-
-LIST *program_donation_list_paypal(
-			LIST *paypal_item_list,
-			LIST *program_list,
-			char *paypal_date_time )
-{
-	LIST *payment_list;
-	PROGRAM_DONATION *payment;
-	PAYPAL_ITEM *paypal_item;
-	PROGRAM *program;
-
-	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
-
-	payment_list = list_new();
-
-	do {
-		paypal_item = list_get( paypal_item_list );
-
-		if ( paypal_item->benefit_entity ) continue;
-
-		if ( ( program =
-			program_seek(
-				paypal_item->item_data,
-				program_list ) ) )
-		{
-			payment =
-				program_donation_paypal(
-					program,
-					paypal_item->item_value,
-					paypal_item->item_fee,
-					paypal_date_time );
-
-			list_set( payment_list, payment );
-		}
-	} while ( list_next( paypal_item_list ) );
-
-	return payment_list;
-}
-
 void program_donation_trigger(
 			char *program_name,
 			char *payment_date_time,
@@ -847,5 +785,72 @@ void program_donation_set_transaction(
 	{
 		program_donation->transaction_date_time = (char *)0;
 	}
+}
+
+LIST *program_donation_list_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *program_list )
+{
+	LIST *program_donation_list = {0};
+	PAYPAL_ITEM *paypal_item;
+	PROGRAM *program;
+
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( paypal_item->benefit_entity ) continue;
+
+		if ( ( program =
+			program_seek( 
+				paypal_item->item_data,
+				program_list ) ) )
+		{
+			if ( !program_donation_list )
+				program_donation_list =
+					list_new();
+
+			list_set(
+				program_donation_list,
+				program_donation_paypal(
+					payor_entity,
+					paypal_date_time,
+					paypal_item->item_value,
+					paypal_item->item_fee,
+					program ) );
+		}
+
+	} while ( list_next( paypal_item_list ) );
+
+	return program_donation_list;
+}
+
+PROGRAM_DONATION *program_donation_paypal(
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			PROGRAM *program )
+{
+	PROGRAM_DONATION *program_donation;
+
+	program_donation = program_donation_calloc();
+
+	program_donation->payor_entity = payor_entity;
+	program_donation->paypal_date_time = paypal_date_time;
+	program_donation->donation_amount = item_value;
+	program_donation->merchant_fees_expense = item_fee;
+
+	program_donation->net_payment_amount =
+		education_net_payment_amount(
+			program_donation->donation_amount,
+			program_donation->merchant_fees_expense );
+
+	program_donation->program = program;
+
+	return program_donation;
 }
 

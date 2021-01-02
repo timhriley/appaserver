@@ -10,6 +10,7 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "entity.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -33,8 +34,7 @@
 /* ---------- */
 typedef struct
 {
-	char *student_full_name;
-	char *student_street_address;
+	ENTITY *student_entity;
 	char *season_name;
 	int year;
 	double tuition;
@@ -72,8 +72,7 @@ REGISTRATION *registration_seek(
 			int year );
 
 REGISTRATION *registration_new(
-			char *student_full_name,
-			char *street_address,
+			ENTITY *student_entity,
 			char *season_name,
 			int year );
 

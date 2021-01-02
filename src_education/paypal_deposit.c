@@ -68,8 +68,7 @@ LIST *paypal_fetch_tuition_payment_list(
 					payor_full_name,
 					payor_street_address,
 					paypal_date_time ) ),
-			fetch_enrollment,
-			0 /* not fetch_paypal */ );
+			fetch_enrollment );
 }
 
 LIST *paypal_fetch_tuition_refund_list(
@@ -88,8 +87,7 @@ LIST *paypal_fetch_tuition_refund_list(
 					payor_full_name,
 					payor_street_address,
 					paypal_date_time ) ),
-			fetch_enrollment,
-			0 /* not fetch_paypal */ );
+			fetch_enrollment );
 }
 
 double paypal_net_revenue(
@@ -659,7 +657,7 @@ void paypal_deposit_list_insert( LIST *paypal_deposit_list )
 		sprintf(sys_string,
 			"cat %s						|"
 			"queue_top_bottom_lines.e 300			|"
-			"html_table.e 'Insert Deposit Errors' '' '^'",
+			"html_table.e 'Insert Paypal Errors' '' '^'",
 			 error_filename );
 
 		if ( system( sys_string ) ){}
@@ -1206,7 +1204,7 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 			LIST *semester_offering_list,
 			LIST *program_list,
 			LIST *product_list,
-			LIST *event_list,
+			LIST *semester_event_list,
 			PAYPAL_DATASET *paypal_dataset,
 			int row_number )
 {
@@ -1309,7 +1307,7 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 				product_name_list(
 					product_list ),
 				event_name_list(
-					event_list ) ) );
+					semester_event_list ) ) );
 
 	if ( !list_length( paypal_deposit->paypal_item_list ) )
 	{
@@ -1320,7 +1318,7 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 		paypal_deposit->paypal_item_list,
 		semester_offering_list,
 		product_list,
-		event_list );
+		semester_event_list );
 
 	paypal_deposit->paypal_item_expected_revenue_total =
 		paypal_item_expected_revenue_total(
@@ -1348,52 +1346,59 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 	if ( paypal_deposit->paypal_amount > 0.0 )
 	{
 		paypal_deposit->tuition_payment_list =
-			tuition_payment_paypal_list(
+			tuition_payment_list_paypal(
 				season_name,
 				year,
+				paypal_deposit->payor_entity,
+				paypal_deposit->paypal_date_time,
 				paypal_deposit->paypal_item_steady_state_list,
-				semester_offering_list,
-				paypal_deposit->paypal_date_time );
+				semester_offering_list );
 	
 		paypal_deposit->program_donation_list =
-			program_donation_paypal_list(
+			program_donation_list_paypal(
+				paypal_deposit->payor_entity,
+				paypal_deposit->paypal_date_time,
 				paypal_deposit->paypal_item_steady_state_list,
-				program_list,
-				paypal_deposit->paypal_date_time );
+				program_list );
 
 		paypal_deposit->product_sale_list =
-			product_sale_paypal_list(
+			product_sale_list_paypal(
+				paypal_deposit->payor_entity,
+				paypal_deposit->paypal_date_time,
 				paypal_deposit->paypal_item_steady_state_list,
-				product_list,
-				paypal_deposit->paypal_date_time );
+				product_list );
 
 		paypal_deposit->ticket_sale_list =
-			ticket_sale_paypal_list(
+			ticket_sale_list_paypal(
+				paypal_deposit->payor_entity,
+				paypal_deposit->paypal_date_time,
 				paypal_deposit->paypal_item_steady_state_list,
-				event_list,
-				paypal_deposit->paypal_date_time );
+				semester_event_list );
 	}
 	else
 	{
 		paypal_deposit->tuition_refund_list =
-			tuition_refund_paypal_list(
+			tuition_refund_list_paypal(
 				season_name,
 				year,
+				paypal_deposit->payor_entity,
+				paypal_deposit->paypal_date_time,
 				paypal_deposit->paypal_item_steady_state_list,
-				semester_offering_list,
-				paypal_deposit->paypal_date_time );
+				semester_offering_list );
 
 		paypal_deposit->product_refund_list =
-			product_refund_paypal_list(
+			product_refund_list_paypal(
+				paypal_deposit->payor_entity,
+				paypal_deposit->paypal_date_time,
 				paypal_deposit->paypal_item_steady_state_list,
-				product_list,
-				paypal_deposit->paypal_date_time );
+				product_list );
 
 		paypal_deposit->ticket_refund_list =
-			ticket_refund_paypal_list(
+			ticket_refund_list_paypal(
+				paypal_deposit->payor_entity,
+				paypal_deposit->paypal_date_time,
 				paypal_deposit->paypal_item_steady_state_list,
-				event_list,
-				paypal_deposit->paypal_date_time );
+				semester_event_list );
 	}
 
 	if ( list_length( paypal_deposit->tuition_payment_list )
