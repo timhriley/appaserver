@@ -48,8 +48,7 @@ LIST *paypal_fetch_program_donation_list(
 					payor_full_name,
 					payor_street_address,
 					paypal_date_time ) ),
-			fetch_program,
-			0 /* not fetch_paypal */ );
+			fetch_program );
 }
 
 LIST *paypal_fetch_tuition_payment_list(

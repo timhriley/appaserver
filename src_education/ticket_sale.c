@@ -69,8 +69,7 @@ TICKET_SALE *ticket_sale_fetch(
 			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			boolean fetch_event,
-			boolean fetch_paypal )
+			boolean fetch_event )
 {
 	TICKET_SALE *ticket_sale;
 
@@ -88,16 +87,14 @@ TICKET_SALE *ticket_sale_fetch(
 						sale_date_time,
 						payor_full_name,
 						payor_street_address ) ) ),
-			fetch_event,
-			fetch_paypal );
+			fetch_event );
 
 	return ticket_sale;
 }
 
 LIST *ticket_sale_system_list(
 			char *sys_string,
-			boolean fetch_event,
-			boolean fetch_paypal )
+			boolean fetch_event )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -111,8 +108,7 @@ LIST *ticket_sale_system_list(
 			ticket_sale_list,
 			ticket_sale_parse(
 				input,
-				fetch_event,
-				fetch_paypal ) );
+				fetch_event ) );
 	}
 
 	pclose( input_pipe );
@@ -249,8 +245,7 @@ void ticket_sale_insert_pipe(
 
 TICKET_SALE *ticket_sale_parse(
 			char *input,
-			boolean fetch_event,
-			boolean fetch_paypal )
+			boolean fetch_event )
 {
 	char event_name[ 128 ];
 	char event_date[ 128 ];
@@ -331,17 +326,6 @@ TICKET_SALE *ticket_sale_parse(
 				0 /* not fetch_venue */,
 				0 /* not fetch_sale_list */,
 				0 /* not fetch_refund_list */ );
-	}
-
-	if ( fetch_paypal )
-	{
-/*
-		ticket_sale->paypal_deposit =
-		    paypal_deposit_fetch(
-			 ticket_sale->payor_entity->full_name,
-			 ticket_sale->payor_entity->street_address,
-			 ticket_sale->paypal_date_time );
-*/
 	}
 
 	return ticket_sale;

@@ -79,13 +79,11 @@ TICKET_REFUND *ticket_refund_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *refund_date_time,
-			boolean fetch_sale,
-			boolean fetch_paypal );
+			boolean fetch_sale );
 
 TICKET_REFUND *ticket_refund_parse(
 			char *input,
-			boolean fetch_sale,
-			boolean fetch_paypal );
+			boolean fetch_sale );
 
 TICKET_REFUND *ticket_refund_steady_state(
 			TICKET_REFUND *ticket_refund,
@@ -112,8 +110,7 @@ void ticket_refund_insert_pipe(
 
 LIST *ticket_refund_system_list(
 			char *sys_string,
-			boolean fetch_sale,
-			boolean fetch_paypal );
+			boolean fetch_sale );
 
 char *ticket_refund_sys_string(
 			char *where );

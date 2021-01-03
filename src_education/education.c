@@ -87,7 +87,7 @@ LIST *education_paypal_deposit_list(
 			LIST *product_list,
 			LIST *event_list )
 {
-	LIST *paypal_list = list_new();
+	LIST *paypal_deposit_list = list_new();
 	char input_string[ 65536 ];
 	FILE *spreadsheet_file;
 
@@ -145,7 +145,7 @@ LIST *education_paypal_deposit_list(
 		}
 
 		list_set(
-			paypal_list,
+			paypal_deposit_list,
 			paypal_deposit_education(
 				season_name,
 				year,
@@ -159,7 +159,7 @@ LIST *education_paypal_deposit_list(
 	}
 
 	fclose( spreadsheet_file );
-	return paypal_list;
+	return paypal_deposit_list;
 }
 
 PAYPAL_DATASET *education_paypal_dataset(
@@ -385,7 +385,7 @@ double education_net_refund_amount(
 		merchant_fees_expense;
 }
 
-void education_paypal_list_insert(
+void education_paypal_deposit_list_insert(
 			LIST *education_paypal_list )
 {
 	paypal_deposit_paypal_insert( education_paypal_list );

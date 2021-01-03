@@ -14,7 +14,7 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "entity.h"
+#include "entity_self.h"
 #include "transaction.h"
 #include "account.h"
 #include "product.h"
@@ -30,17 +30,13 @@ void product_sale_trigger_predelete(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time );
+			char *sale_date_time );
 
 void product_sale_trigger_insert_update(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time );
+			char *sale_date_time );
 
 int main( int argc, char **argv )
 {
@@ -48,9 +44,7 @@ int main( int argc, char **argv )
 	char *product_name;
 	char *payor_full_name;
 	char *payor_street_address;
-	char *season_name;
-	int year;
-	char *deposit_date_time;
+	char *sale_date_time;
 	char *state;
 
 	/* Exits if fails. */
@@ -62,25 +56,21 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s product_name payor_full_name payor_street_address season_name year deposit_date_time state\n",
+"Usage: %s product_name payor_full_name payor_street_address sale_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
-			"state in {insert,update,predelete,delete,deposit}\n" );
+			"state in {insert,update,predelete,delete}\n" );
 		exit ( 1 );
 	}
 
 	product_name = argv[ 1 ];
 	payor_full_name = argv[ 2 ];
 	payor_street_address = argv[ 3 ];
-	season_name = argv[ 4 ];
-	year = atoi( argv[ 5 ] );
-	deposit_date_time = argv[ 8 ];
-	state = argv[ 9 ];
-
-	if ( !year ) exit( 0 );
+	sale_date_time = argv[ 4 ];
+	state = argv[ 5 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -88,34 +78,17 @@ int main( int argc, char **argv )
 			product_name,
 			payor_full_name,
 			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time );
+			sale_date_time );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0
-	||   strcmp( state, "deposit" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0 )
 	{
 		product_sale_trigger_insert_update(
 			product_name,
 			payor_full_name,
 			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time );
-
-		/* ------------------------------------ */
-		/* Even if called from deposit_trigger,	*/
-		/* need to set payment_total.		*/
-		/* ------------------------------------ */
-		paypal_deposit_trigger(
-			payor_full_name,
-			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time,
-			"product_sale" /* state */ );
+			sale_date_time );
 	}
 
 	return 0;
@@ -125,9 +98,7 @@ void product_sale_trigger_insert_update(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time )
+			char *sale_date_time )
 {
 	PRODUCT_SALE *product_sale;
 	int transaction_seconds_to_add = 0;
@@ -137,27 +108,55 @@ void product_sale_trigger_insert_update(
 				product_name,
 				payor_full_name,
 				payor_street_address,
-				season_name,
-				year,
-				deposit_date_time,
-				1 /* fetch_product */,
-				1 /* fetch_deposit */ ) ) )
+				sale_date_time,
+				1 /* fetch_product */ ) ) )
 	{
 		return;
 	}
 
 	if ( ! ( product_sale =
 			product_sale_steady_state(
-				&transaction_seconds_to_add,
 				product_sale,
-				product_sale->
-					paypal_deposit->
-					deposit_amount,
-				product_sale->
-					paypal_deposit->
-					transaction_fee ) ) )
+				product_sale->quantity,
+				product_sale->retail_price,
+				product_sale->merchant_fees_expense ) ) )
 	{
 		return;
+	}
+
+	if ( ( product_sale->product_sale_transaction =
+		product_sale_transaction(
+			&transaction_seconds_to_add,
+			product_sale->
+				payor_entity->
+				full_name,
+			product_sale->
+				payor_entity->
+				street_address,
+			product_sale->
+				sale_date_time,
+			product_sale->
+				product->
+				product_name,
+			product_sale->
+				product->
+				program_name,
+			product_sale->extended_price,
+			product_sale->merchant_fees_expense,
+			product_sale->net_payment_amount,
+			entity_self_paypal_cash_account_name(),
+			account_fees_expense( (char *)0 ),
+			product_sale->
+				product->
+				revenue_account ) ) )
+	{
+		product_sale->transaction_date_time =
+			product_sale->product_sale_transaction->
+				transaction_date_time;
+	}
+	else
+	{
+		product_sale->transaction_date_time = (char *)0;
 	}
 
 	if ( product_sale->transaction_date_time
@@ -179,22 +178,22 @@ void product_sale_trigger_insert_update(
 
 	product_sale_update(
 		product_sale->
+			extended_price,
+		product_sale->
+			net_payment_amount,
+		product_sale->
 			transaction_date_time,
 		product_name,
+		sale_date_time,
 		payor_full_name,
-		payor_street_address,
-		season_name,
-		year,
-		deposit_date_time );
+		payor_street_address );
 }
 
 void product_sale_trigger_predelete(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time )
+			char *sale_date_time )
 {
 	PRODUCT_SALE *product_sale;
 
@@ -203,11 +202,8 @@ void product_sale_trigger_predelete(
 				product_name,
 				payor_full_name,
 				payor_street_address,
-				season_name,
-				year,
-				deposit_date_time,
-				0 /* not fetch_product */,
-				0 /* not fetch_paypal */ ) ) )
+				sale_date_time,
+				0 /* not fetch_product */ ) ) )
 	{
 		return;
 	}
@@ -217,11 +213,9 @@ void product_sale_trigger_predelete(
 	{
 		transaction_delete(
 			product_sale->
-				paypal_deposit->
 				payor_entity->
 				full_name,
 			product_sale->
-				paypal_deposit->
 				payor_entity->
 				street_address,
 			product_sale->transaction_date_time );
@@ -233,11 +227,9 @@ void product_sale_trigger_predelete(
 			/* ------------------------- */
 			journal_delete(
 				product_sale->
-					paypal_deposit->
 					payor_entity->
 					full_name,
 				product_sale->
-					paypal_deposit->
 					payor_entity->
 					street_address,
 				product_sale->transaction_date_time ) );

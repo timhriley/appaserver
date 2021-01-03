@@ -1,5 +1,5 @@
 /* --------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_education/product_refund_trigger.c	*/
+/* $APPASERVER_HOME/src_education/ticket_refund_trigger.c	*/
 /* --------------------------------------------------------	*/
 /* 								*/
 /* Freely available software: see Appaserver.org		*/
@@ -14,48 +14,49 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "entity.h"
+#include "entity_self.h"
 #include "transaction.h"
 #include "account.h"
-#include "product.h"
+#include "event.h"
 #include "journal.h"
-#include "product_refund.h"
+#include "ticket_refund.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void product_refund_trigger_predelete(
-			char *product_name,
+void ticket_refund_trigger_predelete(
+			char *event_name,
+			char *event_date,
+			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time );
+			char *sale_date_time,
+			char *refund_date_time );
 
-void product_refund_trigger_insert_update(
-			char *product_name,
+void ticket_refund_trigger_insert_update(
+			char *event_name,
+			char *event_date,
+			char *event_time,
 			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time );
+			char *sale_date_time,
+			char *refund_date_time );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *product_name;
+	char *event_name;
+	char *event_date;
+	char *event_time;
 	char *payor_full_name;
 	char *payor_street_address;
-	char *season_name;
-	int year;
-	char *deposit_date_time;
+	char *sale_date_time;
+	char *refund_date_time;
 	char *state;
 
-	/* Exits if fails. */
-	/* --------------- */
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
@@ -63,114 +64,142 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 9 )
 	{
 		fprintf(stderr,
-"Usage: %s product_name payor_full_name payor_street_address season_name year deposit_date_time state\n",
+"Usage: %s event_name event_date event_time payor_full_name payor_street_address sale_date_time refund_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
-			"state in {insert,update,predelete,delete,deposit}\n" );
+			"state in {insert,update,predelete,delete}\n" );
 		exit ( 1 );
 	}
 
-	product_name = argv[ 1 ];
-	payor_full_name = argv[ 2 ];
-	payor_street_address = argv[ 3 ];
-	season_name = argv[ 4 ];
-	year = atoi( argv[ 5 ] );
-	deposit_date_time = argv[ 8 ];
-	state = argv[ 9 ];
-
-	if ( !year ) exit( 0 );
+	event_name = argv[ 1 ];
+	event_date = argv[ 2 ];
+	event_time = argv[ 3 ];
+	payor_full_name = argv[ 4 ];
+	payor_street_address = argv[ 5 ];
+	sale_date_time = argv[ 6 ];
+	refund_date_time = argv[ 7 ];
+	state = argv[ 8 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		product_refund_trigger_predelete(
-			product_name,
+		ticket_refund_trigger_predelete(
+			event_name,
+			event_date,
+			event_time,
 			payor_full_name,
 			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time );
+			sale_date_time,
+			refund_date_time );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0
-	||   strcmp( state, "deposit" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0 )
 	{
-		product_refund_trigger_insert_update(
-			product_name,
-			product_fetch_program_name( product_name ),
+		ticket_refund_trigger_insert_update(
+			event_name,
+			event_date,
+			event_time,
+			event_fetch_program_name(
+				event_name,
+				event_date,
+				event_time ),
 			payor_full_name,
 			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time );
-
-		/* ------------------------------------ */
-		/* Even if called from deposit_trigger,	*/
-		/* need to set payment_total.		*/
-		/* ------------------------------------ */
-		paypal_deposit_trigger(
-			payor_full_name,
-			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time,
-			"product_refund" /* state */ );
+			sale_date_time,
+			refund_date_time );
 	}
 
 	return 0;
 }
 
-void product_refund_trigger_insert_update(
-			char *product_name,
+void ticket_refund_trigger_insert_update(
+			char *event_name,
+			char *event_date,
+			char *event_time,
 			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time )
+			char *sale_date_time,
+			char *refund_date_time )
 {
-	PRODUCT_REFUND *product_refund;
+	TICKET_REFUND *ticket_refund;
 	int transaction_seconds_to_add = 0;
 
-	if ( ! ( product_refund =
-			product_refund_fetch(
-				product_name,
+	if ( ! ( ticket_refund =
+			ticket_refund_fetch(
+				event_name,
+				event_date,
+				event_time,
 				payor_full_name,
 				payor_street_address,
-				season_name,
-				year,
-				deposit_date_time,
-				1 /* fetch_product */,
-				1 /* fetch_deposit */ ) ) )
+				sale_date_time,
+				refund_date_time,
+				1 /* fetch_event */ ) ) )
 	{
 		return;
 	}
 
-	if ( ! ( product_refund =
-			product_refund_steady_state(
-				&transaction_seconds_to_add,
-				product_refund,
-				product_refund->
-					paypal_deposit->
-					deposit_amount,
-				product_refund->
-					paypal_deposit->
-					transaction_fee ) ) )
+	if ( ! ( ticket_refund =
+			ticket_refund_steady_state(
+				ticket_refund,
+				ticket_refund->
+					refund_amount,
+				ticket_refund->
+					merchant_fees_expense ) ) )
 	{
 		return;
 	}
 
-	if ( product_refund->transaction_date_time
-	&&  *product_refund->transaction_date_time )
+	if ( ( ticket_refund->ticket_refund_transaction =
+		ticket_refund_transaction(
+			&transaction_seconds_to_add,
+			ticket_refund->
+				payor_entity->
+				full_name,
+			ticket_refund->
+				payor_entity->
+				street_address,
+			ticket_refund->
+				ticket_sale->
+				sale_date_time,
+			ticket_refund->
+				ticket_sale->
+				event->
+				event_name,
+			ticket_refund->
+				ticket_sale->
+				event->
+				program_name,
+			ticket_refund->refund_amount,
+			ticket_refund->merchant_fees_expense,
+			ticket_refund->net_refund_amount,
+			entity_self_paypal_cash_account_name(),
+			account_fees_expense( (char *)0 ),
+			ticket_refund->
+				ticket_sale->
+				event->
+				revenue_account ) ) )
 	{
-		TRANSACTION *t = product_refund->product_refund_transaction;
+		ticket_refund->transaction_date_time =
+			ticket_refund->ticket_refund_transaction->
+				transaction_date_time;
+	}
+	else
+	{
+		ticket_refund->transaction_date_time = (char *)0;
+	}
+
+	if ( ticket_refund->transaction_date_time
+	&&  *ticket_refund->transaction_date_time )
+	{
+		TRANSACTION *t = ticket_refund->ticket_refund_transaction;
 
 		t->program_name = program_name;
 
-		product_refund->transaction_date_time =
+		ticket_refund->transaction_date_time =
 			transaction_program_refresh(
 				t->full_name,
 				t->street_address,
@@ -182,69 +211,69 @@ void product_refund_trigger_insert_update(
 				t->journal_list );
 	}
 
-	product_refund_update(
-		product_refund->
+	ticket_refund_update(
+		ticket_refund->
+			net_refund_amount,
+		ticket_refund->
 			transaction_date_time,
-		product_name,
+		event_name,
+		event_date,
+		event_time,
 		payor_full_name,
 		payor_street_address,
-		season_name,
-		year,
-		deposit_date_time );
+		sale_date_time,
+		refund_date_time );
 }
 
-void product_refund_trigger_predelete(
-			char *product_name,
+void ticket_refund_trigger_predelete(
+			char *event_name,
+			char *event_date,
+			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time )
+			char *sale_date_time,
+			char *refund_date_time )
 {
-	PRODUCT_REFUND *product_refund;
+	TICKET_REFUND *ticket_refund;
 
-	if ( ! ( product_refund =
-			product_refund_fetch(
-				product_name,
+	if ( ! ( ticket_refund =
+			ticket_refund_fetch(
+				event_name,
+				event_date,
+				event_time,
 				payor_full_name,
 				payor_street_address,
-				season_name,
-				year,
-				deposit_date_time,
-				0 /* not fetch_product */,
-				1 /* fetch_paypal */ ) ) )
+				sale_date_time,
+				refund_date_time,
+				0 /* not fetch_event */ ) ) )
 	{
 		return;
 	}
 
-	if ( product_refund->transaction_date_time
-	&&   *product_refund->transaction_date_time )
+	if ( ticket_refund->transaction_date_time
+	&&   *ticket_refund->transaction_date_time )
 	{
 		transaction_delete(
-			product_refund->
-				paypal_deposit->
+			ticket_refund->
 				payor_entity->
 				full_name,
-			product_refund->
-				paypal_deposit->
+			ticket_refund->
 				payor_entity->
 				street_address,
-			product_refund->transaction_date_time );
+			ticket_refund->transaction_date_time );
 
 		journal_account_name_list_propagate(
-			product_refund->transaction_date_time,
+			ticket_refund->transaction_date_time,
 			/* ------------------------- */
 			/* Returns account_name_list */
 			/* ------------------------- */
 			journal_delete(
-				product_refund->
-					paypal_deposit->
+				ticket_refund->
 					payor_entity->
 					full_name,
-				product_refund->
-					paypal_deposit->
+				ticket_refund->
 					payor_entity->
 					street_address,
-				product_refund->transaction_date_time ) );
+				ticket_refund->transaction_date_time ) );
 	}
 }

@@ -239,8 +239,12 @@ void generate_invoice_amount_due(
 		generate_invoice(
 			application_name,
 			document_root_directory,
-			registration->student_full_name,
-			registration->street_address,
+			registration->
+				student_entity->
+				full_name,
+			registration->
+				student_entity->
+				street_address,
 			season_name,
 			year,
 			output_option,
@@ -289,24 +293,28 @@ LATEX_INVOICE_CUSTOMER *generate_invoice_customer(
 
 	sprintf(invoice_key,
 		"%s %s %s",
-		registration->student_full_name,
-		registration->street_address,
+		registration->student_entity->full_name,
+		registration->student_entity->street_address,
 		column( registration_date,
 			0,
 			registration->registration_date_time ) );
 
 	if ( ! ( student_entity =
 			entity_fetch( 
-				registration->student_full_name,
-				registration->street_address ) ) )
+				registration->
+					student_entity->
+					full_name,
+				registration->
+					student_entity->
+					street_address ) ) )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: entity_fetch(%s/%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			registration->student_full_name,
-			registration->street_address );
+			registration->student_entity->full_name,
+			registration->student_entity->street_address );
 		exit( 1 );
 	}
 

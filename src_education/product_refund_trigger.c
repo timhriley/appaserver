@@ -14,7 +14,7 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "entity.h"
+#include "entity_self.h"
 #include "transaction.h"
 #include "account.h"
 #include "product.h"
@@ -30,18 +30,16 @@ void product_refund_trigger_predelete(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time );
+			char *sale_date_time,
+			char *refund_date_time );
 
 void product_refund_trigger_insert_update(
 			char *product_name,
 			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time );
+			char *sale_date_time,
+			char *refund_date_time );
 
 int main( int argc, char **argv )
 {
@@ -49,13 +47,10 @@ int main( int argc, char **argv )
 	char *product_name;
 	char *payor_full_name;
 	char *payor_street_address;
-	char *season_name;
-	int year;
-	char *deposit_date_time;
+	char *sale_date_time;
+	char *refund_date_time;
 	char *state;
 
-	/* Exits if fails. */
-	/* --------------- */
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
@@ -63,25 +58,22 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s product_name payor_full_name payor_street_address season_name year deposit_date_time state\n",
+"Usage: %s product_name payor_full_name payor_street_address sale_date_time refund_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
-			"state in {insert,update,predelete,delete,deposit}\n" );
+			"state in {insert,update,predelete,delete}\n" );
 		exit ( 1 );
 	}
 
 	product_name = argv[ 1 ];
 	payor_full_name = argv[ 2 ];
 	payor_street_address = argv[ 3 ];
-	season_name = argv[ 4 ];
-	year = atoi( argv[ 5 ] );
-	deposit_date_time = argv[ 8 ];
-	state = argv[ 9 ];
-
-	if ( !year ) exit( 0 );
+	sale_date_time = argv[ 4 ];
+	refund_date_time = argv[ 5 ];
+	state = argv[ 6 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -89,35 +81,20 @@ int main( int argc, char **argv )
 			product_name,
 			payor_full_name,
 			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time );
+			sale_date_time,
+			refund_date_time );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0
-	||   strcmp( state, "deposit" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0 )
 	{
 		product_refund_trigger_insert_update(
 			product_name,
 			product_fetch_program_name( product_name ),
 			payor_full_name,
 			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time );
-
-		/* ------------------------------------ */
-		/* Even if called from deposit_trigger,	*/
-		/* need to set payment_total.		*/
-		/* ------------------------------------ */
-		paypal_deposit_trigger(
-			payor_full_name,
-			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time,
-			"product_refund" /* state */ );
+			sale_date_time,
+			refund_date_time );
 	}
 
 	return 0;
@@ -128,9 +105,8 @@ void product_refund_trigger_insert_update(
 			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time )
+			char *sale_date_time,
+			char *refund_date_time )
 {
 	PRODUCT_REFUND *product_refund;
 	int transaction_seconds_to_add = 0;
@@ -140,27 +116,61 @@ void product_refund_trigger_insert_update(
 				product_name,
 				payor_full_name,
 				payor_street_address,
-				season_name,
-				year,
-				deposit_date_time,
-				1 /* fetch_product */,
-				1 /* fetch_deposit */ ) ) )
+				sale_date_time,
+				refund_date_time,
+				1 /* fetch_product */ ) ) )
 	{
 		return;
 	}
 
 	if ( ! ( product_refund =
 			product_refund_steady_state(
-				&transaction_seconds_to_add,
 				product_refund,
 				product_refund->
-					paypal_deposit->
-					deposit_amount,
+					refund_amount,
 				product_refund->
-					paypal_deposit->
-					transaction_fee ) ) )
+					merchant_fees_expense ) ) )
 	{
 		return;
+	}
+
+	if ( ( product_refund->product_refund_transaction =
+		product_refund_transaction(
+			&transaction_seconds_to_add,
+			product_refund->
+				payor_entity->
+				full_name,
+			product_refund->
+				payor_entity->
+				street_address,
+			product_refund->
+				product_sale->
+				sale_date_time,
+			product_refund->
+				product_sale->
+				product->
+				product_name,
+			product_refund->
+				product_sale->
+				product->
+				program_name,
+			product_refund->refund_amount,
+			product_refund->merchant_fees_expense,
+			product_refund->net_refund_amount,
+			entity_self_paypal_cash_account_name(),
+			account_fees_expense( (char *)0 ),
+			product_refund->
+				product_sale->
+				product->
+				revenue_account ) ) )
+	{
+		product_refund->transaction_date_time =
+			product_refund->product_refund_transaction->
+				transaction_date_time;
+	}
+	else
+	{
+		product_refund->transaction_date_time = (char *)0;
 	}
 
 	if ( product_refund->transaction_date_time
@@ -184,22 +194,22 @@ void product_refund_trigger_insert_update(
 
 	product_refund_update(
 		product_refund->
+			net_refund_amount,
+		product_refund->
 			transaction_date_time,
 		product_name,
 		payor_full_name,
 		payor_street_address,
-		season_name,
-		year,
-		deposit_date_time );
+		sale_date_time,
+		refund_date_time );
 }
 
 void product_refund_trigger_predelete(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time )
+			char *sale_date_time,
+			char *refund_date_time )
 {
 	PRODUCT_REFUND *product_refund;
 
@@ -208,11 +218,9 @@ void product_refund_trigger_predelete(
 				product_name,
 				payor_full_name,
 				payor_street_address,
-				season_name,
-				year,
-				deposit_date_time,
-				0 /* not fetch_product */,
-				1 /* fetch_paypal */ ) ) )
+				sale_date_time,
+				refund_date_time,
+				0 /* not fetch_product */ ) ) )
 	{
 		return;
 	}
@@ -222,11 +230,9 @@ void product_refund_trigger_predelete(
 	{
 		transaction_delete(
 			product_refund->
-				paypal_deposit->
 				payor_entity->
 				full_name,
 			product_refund->
-				paypal_deposit->
 				payor_entity->
 				street_address,
 			product_refund->transaction_date_time );
@@ -238,11 +244,9 @@ void product_refund_trigger_predelete(
 			/* ------------------------- */
 			journal_delete(
 				product_refund->
-					paypal_deposit->
 					payor_entity->
 					full_name,
 				product_refund->
-					paypal_deposit->
 					payor_entity->
 					street_address,
 				product_refund->transaction_date_time ) );

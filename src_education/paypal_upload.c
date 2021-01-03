@@ -24,10 +24,13 @@
 #include "journal.h"
 #include "tuition_payment.h"
 #include "tuition_refund.h"
-#include "program_payment.h"
-#include "product_payment.h"
+#include "program_donation.h"
+#include "product_sale.h"
 #include "product_refund.h"
+#include "ticket_sale.h"
+#include "ticket_refund.h"
 #include "product.h"
+#include "event.h"
 #include "paypal.h"
 #include "paypal_deposit.h"
 #include "education.h"
@@ -286,10 +289,12 @@ LIST *paypal_upload_deposit_list(
 			education->paypal->spreadsheet,
 			paypal_dataset_calloc(),
 			education->semester->semester_offering_list,
-			( education->education_program_list =
+			( education->program_list =
 				program_list( 1 /* fetch_alias_list */ ) ),
-			( education->education_product_list =
-				product_list() ) );
+			( education->product_list =
+				product_list() ),
+			( education->event_list =
+				event_list() ) );
 }
 
 void paypal_upload_display(
@@ -312,8 +317,8 @@ void paypal_upload_display(
 
 	heading =	"row_number,"		\
 			"payor,"		\
-			"deposit_date_time,"	\
-			"deposit_amount,"	\
+			"paypal_date_time,"	\
+			"paypal_amount,"	\
 			"transaction_fee,"	\
 			"net_revenue,"		\
 			"account_balance,"	\
@@ -349,34 +354,38 @@ void paypal_upload_display(
 		output_pipe = popen( sys_string, "w" );
 
 		fprintf(output_pipe,
-			"%d^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s %s\n",
+		"%d^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s %s %s %s\n",
 			paypal_deposit->row_number,
 			entity_name_display(
 				paypal_deposit->payor_entity->full_name,
 				paypal_deposit->payor_entity->street_address ),
-			paypal_deposit->deposit_date_time,
-			paypal_deposit->deposit_amount,
+			paypal_deposit->paypal_date_time,
+			paypal_deposit->paypal_amount,
 			paypal_deposit->transaction_fee,
 			paypal_deposit->net_revenue,
 			paypal_deposit->account_balance,
 			tuition_payment_list_display(
 				paypal_deposit->tuition_payment_list ),
-			program_payment_list_display(
-				paypal_deposit->program_payment_list ),
-			product_payment_list_display(
-				paypal_deposit->product_payment_list ),
+			program_donation_list_display(
+				paypal_deposit->program_donation_list ),
+			product_sale_list_display(
+				paypal_deposit->product_sale_list ),
 			tuition_refund_list_display(
 				paypal_deposit->tuition_refund_list ),
 			product_refund_list_display(
-				paypal_deposit->product_refund_list ) );
+				paypal_deposit->product_refund_list ),
+			ticket_sale_list_display(
+				paypal_deposit->ticket_sale_list ),
+			ticket_refund_list_display(
+				paypal_deposit->ticket_refund_list ) );
 
 		pclose( output_pipe );
 
 		transaction_list_html_display(
 			paypal_deposit_transaction_list(
 				paypal_deposit->tuition_payment_list,
-				paypal_deposit->program_payment_list,
-				paypal_deposit->product_payment_list,
+				paypal_deposit->program_donation_list,
+				paypal_deposit->product_sale_list,
 				paypal_deposit->tuition_refund_list,
 				paypal_deposit->product_refund_list ) );
 

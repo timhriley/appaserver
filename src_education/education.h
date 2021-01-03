@@ -27,9 +27,10 @@ typedef struct
 {
 	SEMESTER *semester;
 	PAYPAL *paypal;
-	LIST *education_program_list;
-	LIST *education_product_list;
-	LIST *education_deposit_list;
+	LIST *program_list;
+	LIST *product_list;
+	LIST *event_list;
+	LIST *education_paypal_deposit_list;
 } EDUCATION;
 
 EDUCATION *education_calloc(
@@ -41,7 +42,9 @@ EDUCATION *education_fetch(
 			char *spreadsheet_filename,
 			char *date_label );
 
-LIST *education_paypal_list(
+LIST *education_paypal_deposit_list(
+			char *season_name,
+			int year,
 			char *spreadsheet_filename,
 			SPREADSHEET *spreadsheet,
 			PAYPAL_DATASET *paypal_dataset,
@@ -66,17 +69,11 @@ PAYPAL_DATASET *education_paypal_dataset(
 			/* ---------------------- */
 			PAYPAL_DATASET *paypal_dataset );
 
-void education_paypal_list_insert(
-			LIST *education_paypal_list );
-
-LIST *education_program_list(
-			void );
-
-LIST *education_product_list(
-			void );
+void education_paypal_deposit_list_insert(
+			LIST *education_paypal_deposit_list );
 
 void education_product_payment_insert(
-			LIST *deposit_list );
+			LIST *education_paypal_deposit_list );
 
 LIST *education_paypal_allowed_list(
 			LIST *offering_name_list,
