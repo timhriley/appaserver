@@ -78,13 +78,13 @@ typedef struct
 	int paypal_item_nonexpected_revenue_length;
 	int paypal_item_expected_revenue_length;
 
-	LIST *tuition_payment_list_paypal;
-	LIST *program_donation_list_paypal;
-	LIST *product_sale_list_paypal;
-	LIST *ticket_sale_list_paypal;
-	LIST *tuition_refund_list_paypal;
-	LIST *product_refund_list_paypal;
-	LIST *ticket_refund_list_paypal;
+	LIST *tuition_payment_list;
+	LIST *program_donation_list;
+	LIST *product_sale_list;
+	LIST *ticket_sale_list;
+	LIST *tuition_refund_list;
+	LIST *product_refund_list;
+	LIST *ticket_refund_list;
 
 	double overpayment_donation;
 	int row_number;
@@ -213,11 +213,6 @@ LIST *paypal_deposit_list_steady_state(
 			LIST *paypal_deposit_list );
 
 void paypal_deposit_list_registration_fetch_update(
-			LIST *paypal_deposit_list,
-			char *season_name,
-			int year );
-
-void paypal_deposit_list_offering_fetch_update(
 			LIST *paypal_deposit_list,
 			char *season_name,
 			int year );

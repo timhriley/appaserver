@@ -14,6 +14,9 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "semester.h"
+#include "entity_self.h"
+#include "account.h"
 #include "tuition_payment.h"
 #include "transaction.h"
 #include "journal.h"
@@ -104,7 +107,6 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) ==  0
 	||   strcmp( state, "paypal" ) ==  0 )
 	{
-		char sys_string[ 1024 ];
 
 		tuition_payment_trigger_insert_update(
 			student_full_name,
@@ -116,9 +118,11 @@ int main( int argc, char **argv )
 			payor_street_address,
 			payment_date_time );
 
+#ifdef NOT_DEFINED
+		char sys_string[ 1024 ];
 		/* ------------------------------------ */
 		/* Even if called from paypal_trigger,	*/
-		/* need to set tuition_payment_total.		*/
+		/* need to set tuition_payment_total.	*/
 		/* ------------------------------------ */
 		sprintf(sys_string,
 	 "paypal_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" tuition_payment",
@@ -138,7 +142,9 @@ int main( int argc, char **argv )
 			year );
 
 		if ( system( sys_string ) ){}
+#endif
 	}
+
 
 	return 0;
 }
@@ -166,8 +172,7 @@ void tuition_payment_trigger_insert_update(
 				payor_full_name,
 				payor_street_address,
 				payment_date_time,
-				1 /* fetch_enrollment */,
-				0 /* not fetch_paypal */ ) ) )
+				1 /* fetch_enrollment */ ) ) )
 	{
 		return;
 	}
@@ -175,33 +180,18 @@ void tuition_payment_trigger_insert_update(
 	tuition_payment =
 		tuition_payment_steady_state(
 			tuition_payment,
-			tuition_payment->
-				paypal_deposit->
-				tuition_payment_list,
-			tuition_payment->
-				paypal_deposit->
-				registration_list,
-			tuition_payment->
-				enrollment->
-				registration->
-				enrollment_list,
-			semester_offering_list(
-				season_name,
-				year ),
-			tuition_payment->
-				paypal_deposit->
-				deposit_amount,
-			tuition_payment->
-				paypal_deposit->
-				transaction_fee );
+			tuition_payment->payment_amount,
+			tuition_payment->merchant_fees_expense );
 
 	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
 			&transaction_seconds_to_add,
 			tuition_payment->
-				payor_full_name,
+				payor_entity->
+				full_name,
 			tuition_payment->
-				payor_street_address,
+				payor_entity->
+				street_address,
 			tuition_payment->
 				payment_date_time,
 			tuition_payment->
@@ -210,31 +200,25 @@ void tuition_payment_trigger_insert_update(
 				course->
 				program->
 				program_name,
-			tuition_payment->tuition_payment_amount,
-			tuition_payment->tuition_payment_fees_expense,
-			tuition_payment->tuition_payment_gain_donation,
+			tuition_payment->payment_amount,
+			tuition_payment->merchant_fees_expense,
 			tuition_payment->
 				tuition_payment_receivable_credit_amount,
 			tuition_payment->tuition_payment_cash_debit_amount,
 			entity_self_paypal_cash_account_name(),
 			account_receivable( (char *)0 ),
-			account_fees_expense( (char *)0 ),
-			account_overpayment_donation( (char *)0 ),
-			*transaction_seconds_to_add ) ) )
+			account_fees_expense( (char *)0 ) ) ) )
 	{
 		tuition_payment->transaction_date_time =
 			tuition_payment->tuition_payment_transaction->
 				transaction_date_time;
-
-		(*transaction_seconds_to_add)++;
 	}
 	else
 	{
 		tuition_payment->transaction_date_time = (char *)0;
 	}
-)
-	&&  *tuition_payment->transaction_date_time
-	&&   tuition_payment->tuition_payment_transaction->transaction_amount )
+
+	if ( tuition_payment->transaction_date_time )
 	{
 		TRANSACTION *t = tuition_payment->tuition_payment_transaction;
 
@@ -251,9 +235,7 @@ void tuition_payment_trigger_insert_update(
 	}
 
 	tuition_payment_update(
-		tuition_payment->tuition_payment_amount,
-		tuition_payment->tuition_payment_fees_expense,
-		tuition_payment->tuition_payment_gain_donation,
+		tuition_payment->net_payment_amount,
 		tuition_payment->transaction_date_time,
 		student_full_name,
 		street_address,
@@ -287,8 +269,7 @@ void tuition_payment_trigger_predelete(
 				payor_full_name,
 				payor_street_address,
 				payment_date_time,
-				0 /* not fetch_enrollment */,
-				0 /* not fetch_paypal */ ) ) )
+				0 /* not fetch_enrollment */ ) ) )
 	{
 		return;
 	}
@@ -298,11 +279,9 @@ void tuition_payment_trigger_predelete(
 	{
 		transaction_delete(
 			tuition_payment->
-				paypal_deposit->
 				payor_entity->
 				full_name,
 			tuition_payment->
-				paypal_deposit->
 				payor_entity->
 				street_address,
 			tuition_payment->transaction_date_time );
@@ -314,11 +293,9 @@ void tuition_payment_trigger_predelete(
 			/* ------------------------- */
 			journal_delete(
 				tuition_payment->
-					paypal_deposit->
 					payor_entity->
 					full_name,
 				tuition_payment->
-					paypal_deposit->
 					payor_entity->
 					street_address,
 				tuition_payment->transaction_date_time ) );

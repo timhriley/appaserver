@@ -247,8 +247,14 @@ void enrollment_trigger_predelete(
 	&&   *enrollment->transaction_date_time )
 	{
 		transaction_delete(
-			enrollment->registration->student_full_name,
-			enrollment->registration->street_address,
+			enrollment->
+				registration->
+				student_entity->
+				full_name,
+			enrollment->
+				registration->
+				student_entity->
+				street_address,
 			enrollment->transaction_date_time );
 
 		journal_account_name_list_propagate(
@@ -257,8 +263,14 @@ void enrollment_trigger_predelete(
 			/* Returns account_name_list */
 			/* ------------------------- */
 			journal_delete(
-				enrollment->registration->student_full_name,
-				enrollment->registration->street_address,
+				enrollment->
+					registration->
+					student_entity->
+					full_name,
+				enrollment->
+					registration->
+					student_entity->
+					street_address,
 				enrollment->transaction_date_time ) );
 	}
 }

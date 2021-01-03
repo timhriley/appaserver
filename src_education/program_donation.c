@@ -46,8 +46,7 @@ PROGRAM_DONATION *program_donation_fetch(
 			char *payment_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			boolean fetch_program,
-			boolean fetch_paypal )
+			boolean fetch_program )
 {
 	PROGRAM_DONATION *program_donation;
 
@@ -63,16 +62,14 @@ PROGRAM_DONATION *program_donation_fetch(
 						payment_date_time,
 						payor_full_name,
 						payor_street_address ) ) ),
-			fetch_program,
-			fetch_paypal );
+			fetch_program );
 
 	return program_donation;
 }
 
 LIST *program_donation_system_list(
 			char *sys_string,
-			boolean fetch_program,
-			boolean fetch_deposit )
+			boolean fetch_program )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -86,8 +83,7 @@ LIST *program_donation_system_list(
 			program_donation_list,
 			program_donation_parse(
 				input,
-				fetch_program,
-				fetch_deposit ) );
+				fetch_program ) );
 	}
 
 	pclose( input_pipe );
@@ -217,8 +213,7 @@ void program_donation_insert_pipe(
 
 PROGRAM_DONATION *program_donation_parse(
 			char *input,
-			boolean fetch_program,
-			boolean fetch_paypal )
+			boolean fetch_program )
 {
 	char program_name[ 128 ];
 	char payment_date_time[ 128 ];
@@ -273,22 +268,6 @@ PROGRAM_DONATION *program_donation_parse(
 			program_fetch(
 				program_donation->program->program_name,
 				1 /* fetch_alias_list */ );
-	}
-
-	if ( fetch_paypal )
-	{
-/*
-		program_donation->paypal_deposit =
-		    paypal_deposit_fetch(
-			 program_donation->
-				payor_entity->
-				full_name,
-			 program_donation->
-				payor_entity->
-				street_address,
-			 program_donation->
-				paypal_date_time );
-*/
 	}
 
 	return program_donation;

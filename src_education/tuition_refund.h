@@ -157,7 +157,7 @@ TRANSACTION *tuition_refund_transaction(
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_fees_expense,
-			char *offering_revenue_account );
+			char *revenue_account );
 
 void tuition_refund_update(
 			double net_refund_amount,
@@ -165,6 +165,7 @@ void tuition_refund_update(
 			char *student_full_name,
 			char *student_street_address,
 			char *course_name,
+			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,

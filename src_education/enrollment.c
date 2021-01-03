@@ -391,7 +391,6 @@ LIST *enrollment_tuition_refund_list(
 					course_name,
 					season_name,
 					year ) ),
-		1 /* fetch_deposit */,
 		0 /* fetch_enrollment */ );
 
 	return refund_list;

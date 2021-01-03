@@ -14,6 +14,8 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "entity_self.h"
+#include "account.h"
 #include "tuition_refund.h"
 #include "transaction.h"
 #include "journal.h"
@@ -31,7 +33,8 @@ void tuition_refund_trigger_predelete(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time );
+			char *payment_date_time,
+			char *refund_date_time );
 
 void tuition_refund_trigger_insert_update(
 			char *student_full_name,
@@ -41,7 +44,8 @@ void tuition_refund_trigger_insert_update(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time );
+			char *payment_date_time,
+			char *refund_date_time );
 
 int main( int argc, char **argv )
 {
@@ -53,7 +57,8 @@ int main( int argc, char **argv )
 	int year;
 	char *payor_full_name;
 	char *payor_street_address;
-	char *deposit_date_time;
+	char *payment_date_time;
+	char *refund_date_time;
 	char *state;
 
 	/* Exits if fails. */
@@ -65,10 +70,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 10 )
+	if ( argc != 11 )
 	{
 		fprintf(stderr,
-"Usage: %s student_full_name street_address course_name season_name year payor_full_name payor_street_address deposit_date_time state\n",
+"Usage: %s student_full_name street_address course_name season_name year payor_full_name payor_street_address payment_date_time refund_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete,deposit}\n" );
@@ -82,8 +87,9 @@ int main( int argc, char **argv )
 	year = atoi( argv[ 5 ] );
 	payor_full_name = argv[ 6 ];
 	payor_street_address = argv[ 7 ];
-	deposit_date_time = argv[ 8 ];
-	state = argv[ 9 ];
+	payment_date_time = argv[ 8 ];
+	refund_date_time = argv[ 9 ];
+	state = argv[ 10 ];
 
 	if ( !year ) exit( 0 );
 
@@ -97,14 +103,14 @@ int main( int argc, char **argv )
 			year,
 			payor_full_name,
 			payor_street_address,
-			deposit_date_time );
+			payment_date_time,
+			refund_date_time );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0
 	||   strcmp( state, "deposit" ) ==  0 )
 	{
-		char sys_string[ 1024 ];
 
 		tuition_refund_trigger_insert_update(
 			student_full_name,
@@ -114,11 +120,14 @@ int main( int argc, char **argv )
 			year,
 			payor_full_name,
 			payor_street_address,
-			deposit_date_time );
+			payment_date_time,
+			refund_date_time );
 
+#ifdef NOT_DEFINED
+		char sys_string[ 1024 ];
 		/* ------------------------------------ */
 		/* Even if called from deposit_trigger,	*/
-		/* need to set tuition_refund_total.		*/
+		/* need to set tuition_refund_total.	*/
 		/* ------------------------------------ */
 		sprintf(sys_string,
 	 "deposit_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" tuition_refund",
@@ -138,6 +147,7 @@ int main( int argc, char **argv )
 			year );
 
 		if ( system( sys_string ) ){}
+#endif
 	}
 
 	return 0;
@@ -168,49 +178,63 @@ void tuition_refund_trigger_insert_update(
 				payor_street_address,
 				payment_date_time,
 				refund_date_time,
-				1 /* fetch_deposit */,
-				1 /* fetch_enrollment */ ) ) )
+				1 /* fetch_payment */ ) ) )
 	{
-		return;
-	}
-
-	if ( !tuition_refund->paypal_deposit )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty paypal_deposit.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
 		return;
 	}
 
 	tuition_refund =
 		tuition_refund_steady_state(
-			&transaction_seconds_to_add,
 			tuition_refund,
+			tuition_refund->refund_amount,
+			tuition_refund->merchant_fees_expense );
+
+	if ( ( tuition_refund->tuition_refund_transaction =
+		tuition_refund_transaction(
+			&transaction_seconds_to_add,
 			tuition_refund->
-				paypal_deposit->
-				tuition_refund_list,
+				payor_entity->
+				full_name,
 			tuition_refund->
-				paypal_deposit->
-				registration_list,
+				payor_entity->
+				street_address,
 			tuition_refund->
+				refund_date_time,
+			tuition_refund->
+				tuition_payment->
 				enrollment->
-				registration->
-				enrollment_list,
-			semester_offering_list(
-				season_name,
-				year ),
+				offering->
+				course->
+				course_name,
 			tuition_refund->
-				paypal_deposit->
-				deposit_amount,
+				tuition_payment->
+				enrollment->
+				offering->
+				course->
+				program->
+				program_name,
+			tuition_refund->refund_amount,
+			tuition_refund->merchant_fees_expense,
+			tuition_refund->net_refund_amount,
+			entity_self_paypal_cash_account_name(),
+			account_fees_expense( (char *)0 ),
 			tuition_refund->
-				paypal_deposit->
-				transaction_fee );
+				tuition_payment->
+				enrollment->
+				offering->
+				revenue_account ) ) )
+	{
+		tuition_refund->transaction_date_time =
+			tuition_refund->tuition_refund_transaction->
+				transaction_date_time;
+	}
+	else
+	{
+		tuition_refund->transaction_date_time = (char *)0;
+	}
 
 	if ( tuition_refund->transaction_date_time
-	&&  *tuition_refund->transaction_date_time
-	&&   tuition_refund->tuition_refund_transaction->transaction_amount )
+	&&   *tuition_refund->transaction_date_time )
 	{
 		TRANSACTION *t = tuition_refund->tuition_refund_transaction;
 
@@ -227,9 +251,7 @@ void tuition_refund_trigger_insert_update(
 	}
 
 	tuition_refund_update(
-		tuition_refund->tuition_refund_amount,
-		tuition_refund->tuition_refund_fees_expense,
-		tuition_refund->tuition_refund_overpayment_loss,
+		tuition_refund->net_refund_amount,
 		tuition_refund->transaction_date_time,
 		student_full_name,
 		street_address,
@@ -238,7 +260,8 @@ void tuition_refund_trigger_insert_update(
 		year,
 		payor_full_name,
 		payor_street_address,
-		deposit_date_time );
+		payment_date_time,
+		refund_date_time );
 }
 
 void tuition_refund_trigger_predelete(
@@ -249,7 +272,8 @@ void tuition_refund_trigger_predelete(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time )
+			char *payment_date_time,
+			char *refund_date_time )
 {
 	TUITION_REFUND *tuition_refund;
 
@@ -262,9 +286,9 @@ void tuition_refund_trigger_predelete(
 				year,
 				payor_full_name,
 				payor_street_address,
-				deposit_date_time,
-				0 /* not fetch_paypal */,
-				0 /* not fetch_enrollment */ ) ) )
+				payment_date_time,
+				refund_date_time,
+				0 /* not fetch_payment */ ) ) )
 	{
 		return;
 	}
@@ -274,10 +298,8 @@ void tuition_refund_trigger_predelete(
 	{
 		transaction_delete(
 			tuition_refund->
-				paypal_deposit->
 				payor_entity->full_name,
 			tuition_refund->
-				paypal_deposit->
 				payor_entity->
 				street_address,
 			tuition_refund->transaction_date_time );
@@ -289,11 +311,9 @@ void tuition_refund_trigger_predelete(
 			/* ------------------------- */
 			journal_delete(
 				tuition_refund->
-					paypal_deposit->
 					payor_entity->
 					full_name,
 				tuition_refund->
-					paypal_deposit->
 					payor_entity->
 					street_address,
 				tuition_refund->transaction_date_time ) );

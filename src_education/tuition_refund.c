@@ -423,23 +423,12 @@ TRANSACTION *tuition_refund_transaction(
 			double refund_amount,
 			double merchant_fees_expense,
 			double net_refund_amount,
-			char *entity_self_paypal_cash_account_name,
+			char *cash_account_name,
 			char *account_fees_expense,
-			char *offering_revenue_account )
+			char *revenue_account )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
-
-	if ( !offering_revenue_account )
-	{
-		fprintf(stderr,
-		"Warning in %s/%s()/%d: empty offering_revenue_account.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-
-		return (TRANSACTION *)0;
-	}
 
 	if ( dollar_virtually_same( refund_amount, 0.0 ) )
 		return (TRANSACTION *)0;
@@ -474,12 +463,12 @@ TRANSACTION *tuition_refund_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				offering_revenue_account ) ) );
+				revenue_account ) ) );
 
 	journal->debit_amount = refund_amount;
 
-	/* Credit account_cash */
-	/* ------------------- */
+	/* Credit cash */
+	/* ----------- */
 	list_set(
 		transaction->journal_list,
 		( journal =
@@ -487,7 +476,7 @@ TRANSACTION *tuition_refund_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				entity_self_paypal_cash_account_name ) ) );
+				cash_account_name ) ) );
 
 	journal->credit_amount = 0.0 - net_refund_amount;
 
@@ -527,6 +516,7 @@ void tuition_refund_update(
 			char *student_full_name,
 			char *student_street_address,
 			char *course_name,
+			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -536,10 +526,11 @@ void tuition_refund_update(
 	FILE *update_pipe = tuition_refund_update_open();
 
 	fprintf( update_pipe,
-		 "%s^%s^%s^%d^%s^%s^%s^%s^net_refund_amount^%.2lf\n",
+		 "%s^%s^%s^%s^%d^%s^%s^%s^%s^net_refund_amount^%.2lf\n",
 		 student_full_name,
 		 student_street_address,
 		 course_name,
+		 season_name,
 		 year,
 		 payor_full_name,
 		 payor_street_address,
@@ -548,10 +539,11 @@ void tuition_refund_update(
 		 net_refund_amount );
 
 	fprintf( update_pipe,
-		 "%s^%s^%s^%d^%s^%s^%s^%s^transaction_date_time^%s\n",
+		 "%s^%s^%s^%s^%d^%s^%s^%s^%s^transaction_date_time^%s\n",
 		 student_full_name,
 		 student_street_address,
 		 course_name,
+		 season_name,
 		 year,
 		 payor_full_name,
 		 payor_street_address,
