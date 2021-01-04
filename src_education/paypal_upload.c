@@ -420,7 +420,7 @@ void paypal_upload_not_found_display(
 	boolean first_time = 1;
 	int last_row = 2;
 
-	heading = "sequence";
+	heading = "Row Number";
 
 	justification = "left";
 
