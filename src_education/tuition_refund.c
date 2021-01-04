@@ -1119,7 +1119,10 @@ TUITION_REFUND *tuition_refund_paypal(
 	tuition_refund = tuition_refund_calloc();
 
 	tuition_refund->payor_entity = payor_entity;
+
+	tuition_refund->refund_date_time =
 	tuition_refund->paypal_date_time = paypal_date_time;
+
 	tuition_refund->refund_amount = item_value;
 	tuition_refund->merchant_fees_expense = item_fee;
 

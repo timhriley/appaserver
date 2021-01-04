@@ -874,7 +874,10 @@ PRODUCT_SALE *product_sale_paypal(
 	product_sale = product_sale_calloc();
 
 	product_sale->payor_entity = payor_entity;
+
+	product_sale->sale_date_time =
 	product_sale->paypal_date_time = paypal_date_time;
+
 	product_sale->extended_price = item_value;
 	product_sale->merchant_fees_expense = item_fee;
 

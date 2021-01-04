@@ -900,7 +900,10 @@ TICKET_SALE *ticket_sale_paypal(
 	ticket_sale = ticket_sale_calloc();
 
 	ticket_sale->payor_entity = payor_entity;
+
+	ticket_sale->sale_date_time =
 	ticket_sale->paypal_date_time = paypal_date_time;
+
 	ticket_sale->extended_price = item_value;
 	ticket_sale->merchant_fees_expense = item_fee;
 

@@ -902,7 +902,10 @@ TICKET_REFUND *ticket_refund_paypal(
 	ticket_refund = ticket_refund_calloc();
 
 	ticket_refund->payor_entity = payor_entity;
+
+	ticket_refund->refund_date_time =
 	ticket_refund->paypal_date_time = paypal_date_time;
+
 	ticket_refund->refund_amount = item_value;
 	ticket_refund->merchant_fees_expense = item_fee;
 

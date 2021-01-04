@@ -1436,6 +1436,9 @@ TUITION_PAYMENT *tuition_payment_paypal(
 
 	tuition_payment->payor_entity = payor_entity;
 
+	tuition_payment->payment_date_time =
+	tuition_payment->paypal_date_time = paypal_date_time;
+
 	tuition_payment->enrollment =
 		/* ---------------------------------- */
 		/* Builds enrollment and registration */

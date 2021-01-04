@@ -846,7 +846,10 @@ PRODUCT_REFUND *product_refund_paypal(
 	product_refund = product_refund_calloc();
 
 	product_refund->payor_entity = payor_entity;
+
+	product_refund->refund_date_time =
 	product_refund->paypal_date_time = paypal_date_time;
+
 	product_refund->refund_amount = item_value;
 	product_refund->merchant_fees_expense = item_fee;
 

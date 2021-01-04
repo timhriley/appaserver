@@ -819,7 +819,10 @@ PROGRAM_DONATION *program_donation_paypal(
 	program_donation = program_donation_calloc();
 
 	program_donation->payor_entity = payor_entity;
+
+	program_donation->payment_date_time =
 	program_donation->paypal_date_time = paypal_date_time;
+
 	program_donation->donation_amount = item_value;
 	program_donation->merchant_fees_expense = item_fee;
 
