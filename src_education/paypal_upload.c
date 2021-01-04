@@ -41,6 +41,9 @@
 
 /* Prototypes */
 /* ---------- */
+void paypal_upload_not_found_display(
+			LIST *paypal_deposit_list );
+
 void paypal_upload_event_insert(
 			char *spreadsheet_filename,
 			char *login_name,
@@ -222,6 +225,8 @@ int main( int argc, char **argv )
 			season_name,
 			year );
 
+		paypal_upload_not_found_display(
+			paypal_deposit_list );
 		printf(
 		"<p>Process did not execute with PAYPAL count %d.\n",
 				list_length( paypal_deposit_list ) );
@@ -402,3 +407,63 @@ if ( login_name ){}
 if ( maximum_date ){}
 }
 
+void paypal_upload_not_found_display(
+			LIST *paypal_deposit_list )
+{
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+	PAYPAL_DEPOSIT *paypal_deposit;
+	char *heading;
+	char *justification;
+	int last_row = 1;
+	int missing_rows;
+	int i;
+	boolean first_time = 1;
+
+	heading = "count";
+
+	justification = "left";
+
+	sprintf(sys_string,
+		"html_table '^%s' '%s' '^' '%s'",
+		"Missing Rows",
+		heading,
+		justification );
+
+	output_pipe = popen( sys_string, "w" );
+
+	if ( !list_rewind( paypal_deposit_list ) )
+	{
+		pclose( output_pipe );
+		return;
+	}
+
+	do {
+		paypal_deposit =
+			list_get(
+				paypal_deposit_list );
+
+		missing_rows = paypal_deposit->row_number - last_row;
+
+		if ( missing_rows > 1 )
+		{
+			for(	i = last_row;
+				i < paypal_deposit->row_number;
+				i++ )
+			{
+				if ( first_time )
+					first_time = 0;
+				else
+					fprintf( output_pipe, " ," );
+
+				fprintf( output_pipe, "%d", i );
+			}
+		}
+
+		last_row = paypal_deposit->row_number;
+
+	} while ( list_next( paypal_deposit_list ) );
+
+	fprintf( output_pipe, "\n" );
+	pclose( output_pipe );
+}
