@@ -1154,11 +1154,8 @@ void paypal_deposit_insert_pipe(
 			char *invoice_number,
 			char *from_email_address )
 {
-	char *format =
-"%s^%s^%s^%d^%s^%d^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%s^%s^%s\n";
-
 	fprintf(insert_pipe,
-		format,
+"%s^%s^%s^%d^%s^%d^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%s^%.2lf^%s^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -1206,6 +1203,26 @@ void paypal_deposit_paypal_insert( LIST *paypal_deposit_list )
 		{
 			fprintf(stderr,
 				"ERROR in %s/%s()/%d: empty semester.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !paypal_deposit->payor_entity )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty payor_entity.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !paypal_deposit->paypal_date_time )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty paypal_date_time.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );

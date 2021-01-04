@@ -142,7 +142,7 @@ void program_donation_list_insert(
 
 	if ( timlib_file_populated( error_filename ) )
 	{
-		char *title = "Insert Program Payment Errors";
+		char *title = "Insert Program Donation Errors";
 
 		sprintf(sys_string,
 			"cat %s						|"

@@ -30,10 +30,9 @@ Play Theory in  Improv for High Schoolers (Spring 2020) (Child: Atticus Weaver,A
 
 Joseph Cast - Principles (Child: Henry Thomas,Ian Thomas), Chitty Chitty Bang Bang October 18th: 7pm, Chitty Chitty Bang Bang October 19th: 7pm, Chitty Chitty Bang Bang October 21st: 7pm
 
-Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James (EJ) Crans)
-
-Can't handle this:
 Mary Poppins Junior Tickets: Saturday, March 28, 7:00pm, Mary Poppins Junior Tickets: Monday, March 30, 7:00pm
+
+Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James (EJ) Crans)
 
 */
 
@@ -81,12 +80,22 @@ LIST *paypal_entity_item_list(
 	PAYPAL_ITEM *paypal_item;
 	LIST *item_list;
 	char item_data[ 256 ];
-	char entity_piece[ 256 ];
+	char entity_data[ 256 ];
 	char item_title_P_full_name[ 128 ];
 	int p;
 
+fprintf(stderr,
+	"%s/%s()/%d: item_title_P_piece = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+item_title_P_piece );
+
 /* Sample item_title_P_piece:
 The Class (Child: Atticus Weaver^Andy Madrigal Villalobos)
+
+Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James (EJ) Crans)
+
 */
 	if ( !paypal_item_is_entity( item_title_P_piece ) )
 	{
@@ -95,33 +104,28 @@ The Class (Child: Atticus Weaver^Andy Madrigal Villalobos)
 
 	item_list = list_new();
 
-	string_rtrim( piece( item_data, '(', item_title_P_piece, 0 ) );
+	string_rtrim(
+		piece_string(
+			item_data,
+			"(Child: ",
+			item_title_P_piece,
+			0 ) );
 
-	string_strcpy(
-		entity_piece,
-		item_title_P_piece + strlen( item_data ) + 1,
-		0 );
+	piece_string( entity_data, "(Child: ", item_title_P_piece, 1 );
+
+	/* Trim closing paren */
+	/* ------------------ */
+	string_trim_right( entity_data, 1 );
 
 	if ( !list_string_exists( item_data, allowed_item_list ) )
 	{
 		return (LIST *)0;
 	}
 
-/* Sample entity_piece:
-(Child: Atticus Weaver^Andy Madrigal Villalobos)
-*/
-	/* Zap (Child:<sp> */
-	/* --------------- */
-	string_strcpy( entity_piece, entity_piece + 8, 0 );
-
-	/* Zap closing paren */
-	/* ----------------- */
-	string_trim_right( entity_piece, 1 );
-
 	for(	p = 0;
 		piece(	item_title_P_full_name,
 			PAYPAL_ENTITY_DELIMITER,
-			entity_piece,
+			entity_data,
 			p );
 		p++ )
 	{

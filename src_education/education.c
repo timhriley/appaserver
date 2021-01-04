@@ -90,16 +90,12 @@ LIST *education_paypal_deposit_list(
 	LIST *paypal_deposit_list = list_new();
 	char input_string[ 65536 ];
 	FILE *spreadsheet_file;
+	int row_number = 0;
 
 	/* ------------------------------------------ */
 	/* Don't want to loose paypal_dataset pointer */
 	/* ------------------------------------------ */
 	PAYPAL_DATASET *dataset_return;
-
-	/* -------------------------------------------- */
-	/* The first line, the header, is already read. */
-	/* -------------------------------------------- */
-	int row_number = 1;
 
 	if ( !spreadsheet )
 	{
@@ -125,6 +121,8 @@ LIST *education_paypal_deposit_list(
 
 	while ( string_input( input_string, spreadsheet_file, 65536 ) )
 	{
+		row_number++;
+
 		if ( ! ( dataset_return =
 				/* ---------------------- */
 				/* Returns paypal_dataset */
@@ -155,7 +153,7 @@ LIST *education_paypal_deposit_list(
 				event_list,
 				dataset_return
 					/* paypal_dataset */,
-				++row_number ) );
+				row_number ) );
 	}
 
 	fclose( spreadsheet_file );

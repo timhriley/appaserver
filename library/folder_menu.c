@@ -123,6 +123,7 @@ long int folder_menu_fetch_folder_count(
 {
 	char *table_name;
 	char sys_string[ 256 ];
+	char *results;
 
 	table_name = get_table_name( application_name, folder_name );
 
@@ -130,7 +131,10 @@ long int folder_menu_fetch_folder_count(
 		 "echo \"select count(*) from %s;\" | sql_timeout.sh 1",
 		 table_name );
 
-	return atol( pipe2string( sys_string ) );
+	if ( ( results = pipe2string( sys_string ) ) )
+		return atol( pipe2string( sys_string ) );
+	else
+		return 0;
 
 }
 

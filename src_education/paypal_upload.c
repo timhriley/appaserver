@@ -197,6 +197,7 @@ int main( int argc, char **argv )
 					session,
 					role_name );
 			}
+
 /*
 			paypal_upload_event_insert(
 				spreadsheet_filename,
