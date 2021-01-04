@@ -415,17 +415,17 @@ void paypal_upload_not_found_display(
 	PAYPAL_DEPOSIT *paypal_deposit;
 	char *heading;
 	char *justification;
-	int last_row = 1;
 	int missing_rows;
 	int i;
 	boolean first_time = 1;
+	int last_row = 2;
 
-	heading = "count";
+	heading = "sequence";
 
 	justification = "left";
 
 	sprintf(sys_string,
-		"html_table '^%s' '%s' '^' '%s'",
+		"html_table '^^%s' '%s' '^' '%s'",
 		"Missing Rows",
 		heading,
 		justification );
@@ -447,7 +447,7 @@ void paypal_upload_not_found_display(
 
 		if ( missing_rows > 1 )
 		{
-			for(	i = last_row;
+			for(	i = last_row + 1;
 				i < paypal_deposit->row_number;
 				i++ )
 			{
