@@ -465,7 +465,7 @@ TRANSACTION *tuition_refund_transaction(
 				transaction->transaction_date_time,
 				revenue_account ) ) );
 
-	journal->debit_amount = refund_amount;
+	journal->debit_amount = 0.0 - refund_amount;
 
 	/* Credit cash */
 	/* ----------- */

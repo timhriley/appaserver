@@ -77,7 +77,12 @@ LIST *paypal_item_list(
 			char *transaction_type_E,
 			LIST *allowed_item_list );
 
-LIST *paypal_item_steady_state_list(
+/* Returns item_title_P */
+/* -------------------- */
+char *paypal_item_entity_delimit(
+			char *item_title_P );
+
+LIST *paypal_item_list_steady_state(
 			LIST *paypal_item_list,
 			double paypal_amount,
 			double transaction_fee,
@@ -94,16 +99,34 @@ PAYPAL_ITEM *paypal_item_steady_state(
 			int nonexpected_revenue_length,
 			int expected_revenue_length );
 
-double paypal_item_value(
+PAYPAL_ITEM *paypal_item_payment_steady_state(
+			PAYPAL_ITEM *paypal_item,
+			double expected_revenue,
+			double paypal_amount,
+			double transaction_fee,
+			double expected_revenue_total,
+			int nonexpected_revenue_length,
+			int expected_revenue_length );
+
+PAYPAL_ITEM *paypal_item_refund_steady_state(
+			PAYPAL_ITEM *paypal_item,
+			double expected_revenue,
+			double paypal_amount,
+			double transaction_fee,
+			double expected_revenue_total,
+			int nonexpected_revenue_length );
+
+double paypal_payment_item_value(
 			double paypal_amount,
 			double expected_revenue,
 			double expected_revenue_total,
 			int nonexpected_revenue_length );
 
-double paypal_item_fee(	double paypal_amount,
+double paypal_refund_item_value(
+			double paypal_amount,
 			double expected_revenue,
-			double transaction_fee,
-			double item_value );
+			double expected_revenue_total,
+			int nonexpected_revenue_length );
 
 double paypal_item_gain(
 			double paypal_amount,
@@ -111,9 +134,15 @@ double paypal_item_gain(
 			int nonexpected_revenue_length,
 			int expected_revenue_length );
 
-/* Returns item_title_P */
-/* -------------------- */
-char *paypal_item_entity_delimit(
-			char *item_title_P );
+double paypal_payment_item_fee(
+			double paypal_amount,
+			double expected_revenue,
+			double transaction_fee,
+			double item_value );
+
+double paypal_refund_item_fee(
+			double paypal_amount,
+			double transaction_fee,
+			double item_value );
 
 #endif

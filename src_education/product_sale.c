@@ -152,16 +152,6 @@ void product_sale_list_insert(
 			continue;
 		}
 
-		if ( !product_sale->quantity )
-		{
-			fprintf(stderr,
-			"Warning in %s/%s()/%d: empty quantity.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			continue;
-		}
-
 		product_sale_insert_pipe(
 			insert_pipe,
 			product_sale->product->product_name,
@@ -567,6 +557,11 @@ PRODUCT_SALE *product_sale_steady_state(
 			__LINE__ );
 		return (PRODUCT_SALE *)0;
 	}
+
+	product_sale->quantity = quantity;
+
+	if ( !product_sale->quantity )
+		product_sale->quantity = 1;
 
 	product_sale->extended_price =
 		(double)quantity * retail_price;

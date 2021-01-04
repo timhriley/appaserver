@@ -140,14 +140,15 @@ int main( int argc, char **argv )
 
 	paypal_deposit_list =
 		paypal_deposit_list_set_transaction(
-			/* --------------------------------------- */
-			/* Returns education_paypal_deposit_list() */
-			/* --------------------------------------- */
-			paypal_upload_deposit_list(
-				&maximum_date,
-				spreadsheet_filename,
-				season_name,
-				year ) );
+			paypal_deposit_list_steady_state(
+				/* --------------------------------------- */
+				/* Returns education_paypal_deposit_list() */
+				/* --------------------------------------- */
+				paypal_upload_deposit_list(
+					&maximum_date,
+					spreadsheet_filename,
+					season_name,
+					year ) ) );
 
 	if ( !maximum_date )
 	{
@@ -455,7 +456,7 @@ void paypal_upload_not_found_display(
 				if ( first_time )
 					first_time = 0;
 				else
-					fprintf( output_pipe, " ," );
+					fprintf( output_pipe, ", " );
 
 				fprintf( output_pipe, "%d", i );
 			}

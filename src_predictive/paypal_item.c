@@ -84,13 +84,6 @@ LIST *paypal_entity_item_list(
 	char item_title_P_full_name[ 128 ];
 	int p;
 
-fprintf(stderr,
-	"%s/%s()/%d: item_title_P_piece = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-item_title_P_piece );
-
 /* Sample item_title_P_piece:
 The Class (Child: Atticus Weaver^Andy Madrigal Villalobos)
 
@@ -204,7 +197,7 @@ LIST *paypal_item_list(
 	return item_list;
 }
 
-double paypal_item_value(
+double paypal_payment_item_value(
 			double paypal_amount,
 			double expected_revenue,
 			double expected_revenue_total,
@@ -212,22 +205,6 @@ double paypal_item_value(
 {
 	double item_value = 0.0;
 
-	/* Case 1: this is a refund of an enrollment */
-	/* ----------------------------------------- */
-	if ( expected_revenue && paypal_amount < 0.0 )
-	{
-		item_value = expected_revenue;
-	}
-	else
-	/* Case 2: this is a refund */
-	/* ------------------------ */
-	if ( paypal_amount < 0.0 )
-	{
-		item_value = 0.0 - paypal_amount;
-	}
-	else
-	/* Case 3: this is an enrollment */
-	/* ----------------------------- */
 	if ( expected_revenue )
 	{
 		if ( paypal_amount < expected_revenue )
@@ -236,8 +213,6 @@ double paypal_item_value(
 			item_value = expected_revenue;
 	}
 	else
-	/* Case 4: this isn't an enrollment */
-	/* -------------------------------- */
 	{
 		double remaining_cost;
 
@@ -250,7 +225,39 @@ double paypal_item_value(
 	return item_value;
 }
 
-double paypal_item_fee(	double paypal_amount,
+double paypal_refund_item_value(
+			double paypal_amount,
+			double expected_revenue,
+			double expected_revenue_total,
+			int nonexpected_revenue_length )
+{
+	double item_value = 0.0;
+
+	if ( expected_revenue )
+	{
+		if ( float_abs( paypal_amount ) < expected_revenue )
+			item_value = paypal_amount;
+		else
+			item_value = 0.0 - expected_revenue;
+	}
+	else
+	{
+		double remaining_cost;
+
+		remaining_cost =
+			float_abs( paypal_amount ) -
+			expected_revenue_total;
+
+		item_value =	0.0 -
+				( remaining_cost /
+				(double)nonexpected_revenue_length );
+	}
+
+	return item_value;
+}
+
+double paypal_payment_item_fee(
+			double paypal_amount,
 			double expected_revenue,
 			double transaction_fee,
 			double item_value )
@@ -277,6 +284,22 @@ double paypal_item_fee(	double paypal_amount,
 		item_percent = item_value / paypal_amount;
 		item_fee = transaction_fee * item_percent;
 	}
+	return item_fee;
+}
+
+double paypal_refund_item_fee(
+			double paypal_amount,
+			double transaction_fee,
+			double item_value )
+{
+	double item_percent;
+	double item_fee;
+
+	item_percent =
+		item_value /
+		paypal_amount;
+
+	item_fee = transaction_fee * item_percent;
 	return item_fee;
 }
 
@@ -320,7 +343,7 @@ boolean paypal_item_is_entity( char *entity_piece )
 	}
 }
 
-LIST *paypal_item_steady_state_list(
+LIST *paypal_item_list_steady_state(
 			LIST *paypal_item_list,
 			double paypal_amount,
 			double transaction_fee,
@@ -335,54 +358,19 @@ LIST *paypal_item_steady_state_list(
 	do {
 		paypal_item = list_get( paypal_item_list );
 
-		paypal_item_steady_state(
-			paypal_item,
-			paypal_item->expected_revenue,
-			paypal_amount,
-			transaction_fee,
-			expected_revenue_total,
-			nonexpected_revenue_length,
-			expected_revenue_length );
+		paypal_item =
+			paypal_item_steady_state(
+				paypal_item,
+				paypal_item->expected_revenue,
+				paypal_amount,
+				transaction_fee,
+				expected_revenue_total,
+				nonexpected_revenue_length,
+				expected_revenue_length );
 
 	} while ( list_next( paypal_item_list ) );
 
 	return paypal_item_list;
-}
-
-PAYPAL_ITEM *paypal_item_steady_state(
-			PAYPAL_ITEM *paypal_item,
-			double expected_revenue,
-			double paypal_amount,
-			double transaction_fee,
-			double expected_revenue_total,
-			int nonexpected_revenue_length,
-			int expected_revenue_length )
-{
-	paypal_item->item_value =
-		paypal_item_value(
-			paypal_amount,
-			expected_revenue,
-			expected_revenue_total,
-			nonexpected_revenue_length );
-
-	paypal_item->item_fee =
-		paypal_item_fee(
-			paypal_amount,
-			expected_revenue,
-			transaction_fee,
-			paypal_item->item_value );
-
-	if ( paypal_amount > 0.0 )
-	{
-		paypal_item->item_gain =
-			paypal_item_gain(
-				paypal_amount,
-				expected_revenue_total,
-				nonexpected_revenue_length,
-				expected_revenue_length );
-	}
-
-	return paypal_item;
 }
 
 double paypal_item_expected_revenue_total(
@@ -470,5 +458,98 @@ char *paypal_item_entity_delimit( char *item_title_P )
 		ptr++;
 	}
 	return item_title_P;
+}
+
+PAYPAL_ITEM *paypal_item_steady_state(
+			PAYPAL_ITEM *paypal_item,
+			double expected_revenue,
+			double paypal_amount,
+			double transaction_fee,
+			double expected_revenue_total,
+			int nonexpected_revenue_length,
+			int expected_revenue_length )
+{
+	if ( !paypal_amount ) return paypal_item;
+
+	if ( paypal_amount > 0.0 )
+	{
+		return 
+			paypal_item_payment_steady_state(
+				paypal_item,
+				expected_revenue,
+				paypal_amount,
+				transaction_fee,
+				expected_revenue_total,
+				nonexpected_revenue_length,
+				expected_revenue_length );
+	}
+	else
+	{
+		return
+			paypal_item_refund_steady_state(
+				paypal_item,
+				expected_revenue,
+				paypal_amount,
+				transaction_fee,
+				expected_revenue_total,
+				nonexpected_revenue_length );
+	}
+}
+
+PAYPAL_ITEM *paypal_item_payment_steady_state(
+			PAYPAL_ITEM *paypal_item,
+			double expected_revenue,
+			double paypal_amount,
+			double transaction_fee,
+			double expected_revenue_total,
+			int nonexpected_revenue_length,
+			int expected_revenue_length )
+{
+	paypal_item->item_value =
+		paypal_payment_item_value(
+			paypal_amount,
+			expected_revenue,
+			expected_revenue_total,
+			nonexpected_revenue_length );
+
+	paypal_item->item_fee =
+		paypal_payment_item_fee(
+			paypal_amount,
+			expected_revenue,
+			transaction_fee,
+			paypal_item->item_value );
+
+	paypal_item->item_gain =
+		paypal_item_gain(
+			paypal_amount,
+			expected_revenue_total,
+			nonexpected_revenue_length,
+			expected_revenue_length );
+
+	return paypal_item;
+}
+
+PAYPAL_ITEM *paypal_item_refund_steady_state(
+			PAYPAL_ITEM *paypal_item,
+			double expected_revenue,
+			double paypal_amount,
+			double transaction_fee,
+			double expected_revenue_total,
+			int nonexpected_revenue_length )
+{
+	paypal_item->item_value =
+		paypal_refund_item_value(
+			paypal_amount,
+			expected_revenue,
+			expected_revenue_total,
+			nonexpected_revenue_length );
+
+	paypal_item->item_fee =
+		paypal_refund_item_fee(
+			paypal_amount,
+			transaction_fee,
+			paypal_item->item_value );
+
+	return paypal_item;
 }
 

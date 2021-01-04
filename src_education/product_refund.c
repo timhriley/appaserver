@@ -375,7 +375,7 @@ TRANSACTION *product_refund_transaction(
 				transaction->transaction_date_time,
 				product_revenue_account ) ) );
 
-	journal->debit_amount = refund_amount;
+	journal->debit_amount = 0.0 - refund_amount;
 
 	/* Credit account_cash */
 	/* ------------------- */
@@ -855,8 +855,8 @@ PRODUCT_REFUND *product_refund_paypal(
 
 	product_refund->net_refund_amount =
 		education_net_refund_amount(
-			item_value,
-			item_fee );
+			product_refund->refund_amount,
+			product_refund->merchant_fees_expense );
 
 	product_refund->product_sale =
 		product_sale_new(

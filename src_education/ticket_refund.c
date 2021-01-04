@@ -406,7 +406,7 @@ TRANSACTION *ticket_refund_transaction(
 				transaction->transaction_date_time,
 				event_revenue_account ) ) );
 
-	journal->debit_amount = refund_amount;
+	journal->debit_amount = 0.0 - refund_amount;
 
 	/* Credit account_cash */
 	/* ------------------- */

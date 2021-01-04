@@ -72,7 +72,7 @@ typedef struct
 	double ticket_refund_total;
 	double product_refund_total;
 	LIST *paypal_item_list;
-	LIST *paypal_item_steady_state_list;
+	LIST *paypal_item_list_steady_state;
 	double paypal_item_expected_revenue;
 	double paypal_item_expected_revenue_total;
 	int paypal_item_nonexpected_revenue_length;

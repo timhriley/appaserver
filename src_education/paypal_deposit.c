@@ -93,7 +93,7 @@ double paypal_net_revenue(
 			double paypal_amount,
 			double transaction_fee )
 {
-	return paypal_amount - transaction_fee;
+	return paypal_amount + transaction_fee;
 }
 
 
@@ -1028,8 +1028,8 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 		paypal_item_expected_revenue_length(
 			paypal_deposit->paypal_item_list );
 
-	paypal_deposit->paypal_item_steady_state_list =
-		paypal_item_steady_state_list(
+	paypal_deposit->paypal_item_list_steady_state =
+		paypal_item_list_steady_state(
 			paypal_deposit->paypal_item_list,
 			paypal_deposit->paypal_amount,
 			paypal_deposit->transaction_fee,
@@ -1047,28 +1047,28 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 				year,
 				paypal_deposit->payor_entity,
 				paypal_deposit->paypal_date_time,
-				paypal_deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_list_steady_state,
 				semester_offering_list );
 	
 		paypal_deposit->program_donation_list =
 			program_donation_list_paypal(
 				paypal_deposit->payor_entity,
 				paypal_deposit->paypal_date_time,
-				paypal_deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_list_steady_state,
 				program_list );
 
 		paypal_deposit->product_sale_list =
 			product_sale_list_paypal(
 				paypal_deposit->payor_entity,
 				paypal_deposit->paypal_date_time,
-				paypal_deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_list_steady_state,
 				product_list );
 
 		paypal_deposit->ticket_sale_list =
 			ticket_sale_list_paypal(
 				paypal_deposit->payor_entity,
 				paypal_deposit->paypal_date_time,
-				paypal_deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_list_steady_state,
 				semester_event_list );
 	}
 	else
@@ -1079,21 +1079,21 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 				year,
 				paypal_deposit->payor_entity,
 				paypal_deposit->paypal_date_time,
-				paypal_deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_list_steady_state,
 				semester_offering_list );
 
 		paypal_deposit->product_refund_list =
 			product_refund_list_paypal(
 				paypal_deposit->payor_entity,
 				paypal_deposit->paypal_date_time,
-				paypal_deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_list_steady_state,
 				product_list );
 
 		paypal_deposit->ticket_refund_list =
 			ticket_refund_list_paypal(
 				paypal_deposit->payor_entity,
 				paypal_deposit->paypal_date_time,
-				paypal_deposit->paypal_item_steady_state_list,
+				paypal_deposit->paypal_item_list_steady_state,
 				semester_event_list );
 	}
 
