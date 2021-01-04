@@ -433,14 +433,12 @@ TRANSACTION *ticket_sale_transaction(
 	/* ------------------ */
 	list_set(
 		transaction->journal_list,
-		( journal =
-			journal_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				account_fees_expense ) ) );
-
-	journal->debit_amount = merchant_fees_expense;
+		journal_merchant_fees_expense(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			merchant_fees_expense,
+			account_fees_expense ) );
 
 	/* Credit revenue */
 	/* -------------- */

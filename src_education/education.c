@@ -373,7 +373,7 @@ double education_net_payment_amount(
 			double payment_amount,
 			double merchant_fees_expense )
 {
-	return	payment_amount -
+	return	payment_amount +
 		merchant_fees_expense;
 }
 

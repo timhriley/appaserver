@@ -259,4 +259,11 @@ LIST *journal_account_name_list(
 			char *street_address,
 			char *transaction_date_time );
 
+JOURNAL *journal_merchant_fees_expense(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double merchant_fees_expense,
+			char *account_fees_expense );
+
 #endif

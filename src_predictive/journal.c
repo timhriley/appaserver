@@ -1626,3 +1626,28 @@ LIST *journal_list_insert_pipe(
 	return account_name_list;
 }
 
+JOURNAL *journal_merchant_fees_expense(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double merchant_fees_expense,
+			char *account_fees_expense )
+{
+	JOURNAL *journal =
+			journal_new(
+				full_name,
+				street_address,
+				transaction_date_time,
+				account_fees_expense );
+
+	if ( merchant_fees_expense < 0 )
+	{
+		journal->debit_amount = 0.0 - merchant_fees_expense;
+	}
+	else
+	{
+		journal->credit_amount = merchant_fees_expense;
+	}
+
+	return journal;
+}
