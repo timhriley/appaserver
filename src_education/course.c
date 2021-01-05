@@ -36,7 +36,10 @@ COURSE *course_parse( char *input )
 
 	if ( *piece_buffer )
 	{
-		course->program = program_new( strdup( piece_buffer ) );
+		course->program =
+			program_fetch(
+				piece_buffer,
+				0 /* not fetch_alias_list */ );
 	}
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );

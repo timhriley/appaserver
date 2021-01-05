@@ -295,13 +295,12 @@ LIST *paypal_upload_deposit_list(
 			spreadsheet_filename,
 			education->paypal->spreadsheet,
 			paypal_dataset_calloc(),
-			education->semester->semester_offering_list,
+			education->semester->offering_list,
 			( education->program_list =
 				program_list( 1 /* fetch_alias_list */ ) ),
 			( education->product_list =
 				product_list() ),
-			( education->event_list =
-				event_list() ) );
+			education->semester->offering_list );
 }
 
 void paypal_upload_display(

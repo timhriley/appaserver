@@ -24,7 +24,8 @@ typedef struct
 {
 	char *season_name;
 	int year;
-	LIST *semester_offering_list;
+	LIST *offering_list;
+	LIST *event_list;
 } SEMESTER;
 
 SEMESTER *semester_calloc(
@@ -37,7 +38,8 @@ SEMESTER *semester_new(
 SEMESTER *semester_fetch(
 			char *season_name,
 			int year,
-			boolean fetch_offering_list );
+			boolean fetch_offering_list,
+			boolean fetch_event_list );
 
 /* Returns static memory */
 /* --------------------- */
@@ -50,11 +52,8 @@ char *semester_sys_string(
 
 SEMESTER *semester_parse(
 			char *input,
-			boolean fetch_offering_list );
-
-LIST *semester_offering_list(
-			char *season_name,
-			int year );
+			boolean fetch_offering_list,
+			boolean fetch_event_list );
 
 #endif
 

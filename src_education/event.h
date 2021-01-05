@@ -66,7 +66,7 @@ EVENT *event_fetch(	char *event_name,
 			boolean fetch_sale_list,
 			boolean fetch_refund_list );
 
-LIST *event_list(	void );
+LIST *event_list(	char *where );
 
 EVENT *event_calloc(
 			void );

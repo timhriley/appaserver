@@ -178,6 +178,9 @@ void product_sale_list_insert(
 double product_sale_total(
 			LIST *product_sale_list );
 
+double product_sale_fee_total(
+			LIST *product_sale_list );
+
 void product_sale_list_trigger(
 			LIST *product_sale_list );
 

@@ -153,6 +153,7 @@ void product_refund_trigger_insert_update(
 			product_refund->
 				product_sale->
 				product->
+				program->
 				program_name,
 			product_refund->refund_amount,
 			product_refund->merchant_fees_expense,

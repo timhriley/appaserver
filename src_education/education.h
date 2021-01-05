@@ -29,7 +29,6 @@ typedef struct
 	PAYPAL *paypal;
 	LIST *program_list;
 	LIST *product_list;
-	LIST *event_list;
 	LIST *education_paypal_deposit_list;
 } EDUCATION;
 
@@ -51,15 +50,7 @@ LIST *education_paypal_deposit_list(
 			LIST *semester_offering_list,
 			LIST *program_list,
 			LIST *product_list,
-			LIST *event_list );
-
-PAYPAL_DATASET *education_dataset_parse(
-			char *input_string,
-			LIST *spreadsheet_column_list,
-			/* ----------- */
-			/* Returns paypal_dataset */
-			/* ---------------------- */
-			PAYPAL_DATASET *paypal_dataset );
+			LIST *semester_event_list );
 
 PAYPAL_DATASET *education_paypal_dataset(
 			char *input_string,

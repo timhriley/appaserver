@@ -107,7 +107,10 @@ PRODUCT *product_parse( char *input )
 			strdup( product_name ) );
 
 	piece( program_name, SQL_DELIMITER, input, 1 );
-	product->program_name = strdup( program_name );
+	product->program =
+		program_fetch(
+			program_name,
+			0 /* not fetch_alias_list */ );
 
 	piece( revenue_account, SQL_DELIMITER, input, 2 );
 	product->revenue_account = strdup( revenue_account );
@@ -218,7 +221,7 @@ char *product_fetch_program_name(
 	if ( !product )
 		return (char *)0;
 	else
-		return product->program_name;
+		return product->program->program_name;
 }
 
 LIST *product_name_list( LIST *product_list )

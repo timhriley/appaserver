@@ -140,6 +140,7 @@ void product_sale_trigger_insert_update(
 				product_name,
 			product_sale->
 				product->
+				program->
 				program_name,
 			product_sale->extended_price,
 			product_sale->merchant_fees_expense,

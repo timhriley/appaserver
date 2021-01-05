@@ -508,22 +508,6 @@ double paypal_registration_tuition(
 	return tuition;
 }
 
-double paypal_overpayment_donation(
-			double paypal_amount,
-			double registration_tuition )
-{
-	double overpayment_donation;
-
-	overpayment_donation =
-		paypal_amount -
-		registration_tuition;
-
-	if ( overpayment_donation <= 0.0 )
-		overpayment_donation = 0.0;
-
-	return overpayment_donation;
-}
-
 void paypal_list_program_donation_trigger(
 			LIST *paypal_deposit_list )
 {
@@ -1041,6 +1025,9 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 	/* --------------- */
 	if ( paypal_deposit->paypal_amount > 0.0 )
 	{
+		double consumed_item_value;
+		double consumed_item_fee;
+
 		paypal_deposit->tuition_payment_list =
 			tuition_payment_list_paypal(
 				season_name,
@@ -1050,13 +1037,6 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 				paypal_deposit->paypal_item_list_steady_state,
 				semester_offering_list );
 	
-		paypal_deposit->program_donation_list =
-			program_donation_list_paypal(
-				paypal_deposit->payor_entity,
-				paypal_deposit->paypal_date_time,
-				paypal_deposit->paypal_item_list_steady_state,
-				program_list );
-
 		paypal_deposit->product_sale_list =
 			product_sale_list_paypal(
 				paypal_deposit->payor_entity,
@@ -1070,6 +1050,68 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 				paypal_deposit->paypal_date_time,
 				paypal_deposit->paypal_item_list_steady_state,
 				semester_event_list );
+
+		paypal_deposit->program_donation_list =
+			program_donation_list_paypal(
+				paypal_deposit->payor_entity,
+				paypal_deposit->paypal_date_time,
+				paypal_deposit->paypal_item_list_steady_state,
+				program_list );
+
+		/* --------------------------------- */
+		/* Overpayment is a program donation */
+		/* --------------------------------- */
+		if ( !list_length( paypal_deposit->program_donation_list ) )
+		{
+			consumed_item_value =
+				tuition_payment_total(
+					paypal_deposit->
+						tuition_payment_list ) +
+				product_sale_total(
+					paypal_deposit->
+						product_sale_list ) +
+				ticket_sale_total(
+					paypal_deposit->
+						ticket_sale_list );
+
+			consumed_item_fee =
+				tuition_payment_fee_total(
+					paypal_deposit->
+						tuition_payment_list ) +
+				product_sale_fee_total(
+					paypal_deposit->
+						product_sale_list ) +
+				ticket_sale_fee_total(
+					paypal_deposit->
+						ticket_sale_list );
+
+			if (	consumed_item_value <
+				paypal_deposit->paypal_amount )
+			{
+				paypal_deposit->program_donation_list =
+					program_donation_list_overpayment(
+						paypal_deposit->paypal_amount -
+						consumed_item_value
+							/* item_value */,
+						paypal_deposit->
+							transaction_fee -
+						consumed_item_fee
+							/* item_fee */,
+						paypal_deposit->
+							payor_entity,
+						paypal_deposit->
+							paypal_date_time,
+						list_first(
+							paypal_deposit->
+							 tuition_payment_list ),
+						list_first(
+							paypal_deposit->
+							 ticket_sale_list ),
+						list_first(
+							paypal_deposit->
+							 product_sale_list ) );
+			}
+		}
 	}
 	else
 	{

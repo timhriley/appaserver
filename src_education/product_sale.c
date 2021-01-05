@@ -594,23 +594,42 @@ void product_sale_trigger(
 	if ( system( sys_string ) ){}
 }
 
-double product_sale_total( LIST *sale_list )
+double product_sale_total( LIST *product_sale_list )
 {
-	PRODUCT_SALE *sale;
+	PRODUCT_SALE *product_sale;
 	double total;
 
-	if ( !list_rewind( sale_list ) ) return 0.0;
+	if ( !list_rewind( product_sale_list ) ) return 0.0;
 
 	total = 0.0;
 
 	do {
-		sale = list_get( sale_list );
+		product_sale = list_get( product_sale_list );
 
-		total += sale->extended_price;
+		total += product_sale->extended_price;
 
-	} while ( list_next( sale_list ) );
+	} while ( list_next( product_sale_list ) );
 
 	return total;
+}
+
+double product_sale_fee_total( LIST *product_sale_list )
+{
+	PRODUCT_SALE *product_sale;
+	double fee_total;
+
+	if ( !list_rewind( product_sale_list ) ) return 0.0;
+
+	fee_total = 0.0;
+
+	do {
+		product_sale = list_get( product_sale_list );
+
+		fee_total += product_sale->merchant_fees_expense;
+
+	} while ( list_next( product_sale_list ) );
+
+	return fee_total;
 }
 
 void product_sale_list_trigger(
@@ -796,7 +815,7 @@ void product_sale_set_transaction(
 			product_sale->payor_entity->street_address,
 			product_sale->sale_date_time,
 			product_sale->product->product_name,
-			product_sale->product->program_name,
+			product_sale->product->program->program_name,
 			product_sale->extended_price,
 			product_sale->merchant_fees_expense,
 			product_sale->net_payment_amount,

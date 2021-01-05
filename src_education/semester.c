@@ -15,6 +15,7 @@
 #include "list.h"
 #include "semester.h"
 #include "offering.h"
+#include "event.h"
 #include "registration.h"
 
 SEMESTER *semester_calloc( void )
@@ -46,7 +47,8 @@ SEMESTER *semester_new(	char *season_name,
 SEMESTER *semester_fetch(
 			char *season_name,
 			int year,
-			boolean fetch_offering_list )
+			boolean fetch_offering_list,
+			boolean fetch_event_list )
 {
 	if ( !season_name || !season_name || !year )
 	{
@@ -62,7 +64,8 @@ SEMESTER *semester_fetch(
 		 			semester_primary_where(
 						season_name,
 						year ) ) ),
-			fetch_offering_list );
+			fetch_offering_list,
+			fetch_event_list );
 }
 
 /* Safely returns heap memory */
@@ -95,7 +98,8 @@ char *semester_sys_string( char *where )
 
 SEMESTER *semester_parse(
 			char *input,
-			boolean fetch_offering_list )
+			boolean fetch_offering_list,
+			boolean fetch_event_list )
 {
 	char season_name[ 128 ];
 	char year[ 128 ];
@@ -115,23 +119,22 @@ SEMESTER *semester_parse(
 
 	if ( fetch_offering_list )
 	{
-		semester->semester_offering_list =
+		semester->offering_list =
 			offering_list(
 				semester_primary_where(
 					semester->season_name,
 					semester->year ) );
 	}
 
-	return semester;
-}
+	if ( fetch_event_list )
+	{
+		semester->event_list =
+			event_list(
+				semester_primary_where(
+					semester->season_name,
+					semester->year ) );
+	}
 
-LIST *semester_offering_list(
-			char *season_name,
-			int year )
-{
-	return offering_list(
-			semester_primary_where(
-				season_name,
-				year ) );
+	return semester;
 }
 

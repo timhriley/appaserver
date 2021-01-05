@@ -54,7 +54,6 @@ typedef struct
 	/* Input */
 	/* ----- */
 	ENROLLMENT *enrollment;
-	/* PAYPAL_DEPOSIT *paypal_deposit; */
 	ENTITY *payor_entity;
 	char *payment_date_time;
 	double payment_amount;
@@ -204,6 +203,9 @@ double tuition_payment_receivable_credit_amount(
 			double payment_amount );
 
 double tuition_payment_total(
+			LIST *tuition_payment_list );
+
+double tuition_payment_fee_total(
 			LIST *tuition_payment_list );
 
 void tuition_payment_trigger(

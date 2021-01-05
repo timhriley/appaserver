@@ -98,6 +98,22 @@ LIST *ticket_refund_system_list(
 	return ticket_refund_list;
 }
 
+LIST *ticket_refund_list_fetch(
+			char *where,
+			boolean fetch_sale )
+{
+	return ticket_refund_list( where, fetch_sale );
+}
+
+LIST *ticket_refund_list(
+			char *where,
+			boolean fetch_sale )
+{
+	return ticket_refund_system_list(
+			ticket_refund_sys_string( where ),
+			fetch_sale );
+}
+
 char *ticket_refund_sys_string( char *where )
 {
 	char sys_string[ 1024 ];

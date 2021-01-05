@@ -834,3 +834,71 @@ PROGRAM_DONATION *program_donation_paypal(
 	return program_donation;
 }
 
+LIST *program_donation_list_overpayment(
+			double item_value,
+			double item_fee,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			TUITION_PAYMENT *tuition_payment,
+			TICKET_SALE *ticket_sale,
+			PRODUCT_SALE *product_sale )
+{
+	/* Return list of one */
+	/* ------------------ */
+	LIST *program_donation_list = {0};
+
+	if ( !item_value ) return (LIST *)0;
+
+	if ( tuition_payment )
+	{
+		program_donation_list = list_new();
+
+		list_set(
+			program_donation_list,
+			program_donation_paypal(
+				payor_entity,
+				paypal_date_time,
+				item_value,
+				item_fee,
+				tuition_payment->
+					enrollment->
+					offering->
+					course->
+					program ) );
+	}
+	else
+	if ( ticket_sale )
+	{
+		program_donation_list = list_new();
+
+		list_set(
+			program_donation_list,
+			program_donation_paypal(
+				payor_entity,
+				paypal_date_time,
+				item_value,
+				item_fee,
+				ticket_sale->
+					event->
+					program ) );
+	}
+	else
+	if ( product_sale )
+	{
+		program_donation_list = list_new();
+
+		list_set(
+			program_donation_list,
+			program_donation_paypal(
+				payor_entity,
+				paypal_date_time,
+				item_value,
+				item_fee,
+				product_sale->
+					product->
+					program ) );
+	}
+
+	return program_donation_list;
+}
+

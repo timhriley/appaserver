@@ -11,6 +11,9 @@
 #include "boolean.h"
 #include "list.h"
 #include "program.h"
+#include "tuition_payment.h"
+#include "ticket_sale.h"
+#include "product_sale.h"
 #include "paypal_item.h"
 #include "transaction.h"
 
@@ -189,6 +192,15 @@ PROGRAM_DONATION *program_donation_paypal(
 			double item_value,
 			double item_fee,
 			PROGRAM *program );
+
+LIST *program_donation_list_overpayment(
+			double item_value,
+			double item_fee,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			TUITION_PAYMENT *tuition_payment,
+			TICKET_SALE *ticket_sale,
+			PRODUCT_SALE *product_sale );
 
 #endif
 

@@ -128,6 +128,13 @@ LIST *ticket_sale_system_list(
 			char *sys_string,
 			boolean fetch_event );
 
+LIST *ticket_sale_list_fetch(
+			char *where,
+			boolean fetch_event );
+
+LIST *ticket_sale_list(	char *where,
+			boolean fetch_event );
+
 char *ticket_sale_sys_string(
 			char *where );
 
@@ -186,6 +193,9 @@ void ticket_sale_list_insert(
 double ticket_sale_total(
 			LIST *ticket_sale_list );
 
+double ticket_sale_fee_total(
+			LIST *ticket_sale_list );
+
 void ticket_sale_list_trigger(
 			LIST *ticket_sale_list );
 
@@ -219,7 +229,7 @@ LIST *ticket_sale_list_paypal(
 			ENTITY *payor_entity,
 			char *paypal_date_time,
 			LIST *paypal_item_list,
-			LIST *event_list );
+			LIST *semester_event_list );
 
 TICKET_SALE *ticket_sale_paypal(
 			ENTITY *payor_entity,

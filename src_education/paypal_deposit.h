@@ -92,8 +92,6 @@ typedef struct
 	LIST *tuition_refund_list;
 	LIST *product_refund_list;
 	LIST *ticket_refund_list;
-
-	double overpayment_donation;
 	int row_number;
 } PAYPAL_DEPOSIT;
 
@@ -124,10 +122,6 @@ LIST *paypal_fetch_product_sale_list(
 			char *payor_street_address,
 			char *paypal_date_time,
 			boolean fetch_product );
-
-double paypal_overpayment_donation(
-			double paypal_amount,
-			double paypal_registration_tuition );
 
 double paypal_net_revenue(
 			double paypal_amount,

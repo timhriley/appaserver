@@ -14,6 +14,8 @@
 #include "sql.h"
 #include "boolean.h"
 #include "list.h"
+#include "ticket_refund.h"
+#include "ticket_sale.h"
 #include "event.h"
 
 char *event_primary_where(
@@ -194,38 +196,37 @@ EVENT *event_parse(	char *input,
 
 	if ( fetch_sale_list )
 	{
-/*
 		event->ticket_sale_list =
 			ticket_sale_list_fetch(
-				event->event_name,
-				event->event_date,
-				event->event_time );
-*/
+				event_primary_where(
+					event->event_name,
+					event->event_date,
+					event->event_time ),
+				0 /* not fetch_event */ );
 	}
 
 	if ( fetch_refund_list )
 	{
-/*
 		event->ticket_refund_list =
 			ticket_refund_list_fetch(
-				event->event_name,
-				event->event_date,
-				event->event_time );
-*/
+				event_primary_where(
+					event->event_name,
+					event->event_date,
+					event->event_time ),
+				1 /* fetch_sale */ );
 	}
 
 	return event;
 }
 
-LIST *event_list( void )
+LIST *event_list( char *where )
 {
 	return event_system_list(
-			event_sys_string(
-				"1 = 1" /* where */ ),
-			0 /* not fetch_program */,
-			0 /* not fetch_venue */,
-			0 /* not fetch_sale_list */,
-			0 /* not fetch_refund_list */ );
+			event_sys_string( where ),
+			1 /* fetch_program */,
+			1 /* fetch_venue */,
+			1 /* fetch_sale_list */,
+			1 /* fetch_refund_list */ );
 }
 
 LIST *event_system_list(

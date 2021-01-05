@@ -115,6 +115,22 @@ LIST *ticket_sale_system_list(
 	return ticket_sale_list;
 }
 
+LIST *ticket_sale_list_fetch(
+			char *where,
+			boolean fetch_event )
+{
+	return ticket_sale_list( where, fetch_event );
+}
+
+LIST *ticket_sale_list(
+			char *where,
+			boolean fetch_event )
+{
+	return ticket_sale_system_list(
+			ticket_sale_sys_string( where ),
+			fetch_event );
+}
+
 char *ticket_sale_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
@@ -642,6 +658,25 @@ double ticket_sale_total( LIST *sale_list )
 	return total;
 }
 
+double ticket_sale_fee_total( LIST *ticket_sale_list )
+{
+	TICKET_SALE *ticket_sale;
+	double fee_total;
+
+	if ( !list_rewind( ticket_sale_list ) ) return 0.0;
+
+	fee_total = 0.0;
+
+	do {
+		ticket_sale = list_get( ticket_sale_list );
+
+		fee_total += ticket_sale->merchant_fees_expense;
+
+	} while ( list_next( ticket_sale_list ) );
+
+	return fee_total;
+}
+
 void ticket_sale_list_trigger(
 			LIST *ticket_sale_list )
 {
@@ -850,7 +885,7 @@ LIST *ticket_sale_list_paypal(
 			ENTITY *payor_entity,
 			char *paypal_date_time,
 			LIST *paypal_item_list,
-			LIST *event_list )
+			LIST *semester_event_list )
 {
 	LIST *ticket_sale_list = {0};
 	PAYPAL_ITEM *paypal_item;
@@ -866,7 +901,7 @@ LIST *ticket_sale_list_paypal(
 		if ( ( event =
 			event_list_seek(
 				paypal_item->item_data,
-				event_list ) ) )
+				semester_event_list ) ) )
 		{
 			if ( !ticket_sale_list )
 				ticket_sale_list =

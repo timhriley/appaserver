@@ -10,6 +10,7 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "program.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -24,7 +25,7 @@ typedef struct
 {
 	char *product_name;
 	double retail_price;
-	char *program_name;
+	PROGRAM *program;
 	char *revenue_account;
 } PRODUCT;
 

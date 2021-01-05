@@ -366,23 +366,42 @@ TRANSACTION *tuition_payment_transaction(
 	return transaction;
 }
 
-double tuition_payment_total( LIST *payment_list )
+double tuition_payment_total( LIST *tuition_payment_list )
 {
-	TUITION_PAYMENT *payment;
+	TUITION_PAYMENT *tuition_payment;
 	double total;
 
-	if ( !list_rewind( payment_list ) ) return 0.0;
+	if ( !list_rewind( tuition_payment_list ) ) return 0.0;
 
 	total = 0.0;
 
 	do {
-		payment = list_get( payment_list );
+		tuition_payment = list_get( tuition_payment_list );
 
-		total += payment->payment_amount;
+		total += tuition_payment->payment_amount;
 
-	} while ( list_next( payment_list ) );
+	} while ( list_next( tuition_payment_list ) );
 
 	return total;
+}
+
+double tuition_payment_fee_total( LIST *tuition_payment_list )
+{
+	TUITION_PAYMENT *tuition_payment;
+	double fee_total;
+
+	if ( !list_rewind( tuition_payment_list ) ) return 0.0;
+
+	fee_total = 0.0;
+
+	do {
+		tuition_payment = list_get( tuition_payment_list );
+
+		fee_total += tuition_payment->merchant_fees_expense;
+
+	} while ( list_next( tuition_payment_list ) );
+
+	return fee_total;
 }
 
 TUITION_PAYMENT *tuition_payment_steady_state(

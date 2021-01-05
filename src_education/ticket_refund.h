@@ -112,6 +112,14 @@ LIST *ticket_refund_system_list(
 			char *sys_string,
 			boolean fetch_sale );
 
+LIST *ticket_refund_list_fetch(
+			char *where,
+			boolean fetch_sale );
+
+LIST *ticket_refund_list(
+			char *where,
+			boolean fetch_sale );
+
 char *ticket_refund_sys_string(
 			char *where );
 
