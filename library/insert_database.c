@@ -741,8 +741,8 @@ void build_insert_data_string( 	DICTIONARY *row_dictionary,
 
 		attribute =
 			attribute_seek_attribute(
-				attribute_list,
-				attribute_name );
+				attribute_name,
+				attribute_list );
 
 		if ( attribute
 		&&   *data

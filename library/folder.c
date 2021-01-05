@@ -2108,8 +2108,8 @@ boolean folder_exists_attribute(	char *application_name,
 			folder_name );
 
 	return (boolean) ( attribute_seek_attribute(
-				attribute_list,
-				attribute_name ) != (void *)0 );
+				attribute_name,
+				attribute_list ) != (void *)0 );
 }
 
 char *folder_display( FOLDER *folder )

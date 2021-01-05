@@ -1101,9 +1101,10 @@ drop-down needing SWEEP.sweep_number in the where clause.
 			ATTRIBUTE *attribute;
 			RELATED_FOLDER **only_one_ajax_fill_drop_down;
 
-			attribute = attribute_seek_attribute( 
-						attribute_list,
-						attribute_name );
+			attribute =
+				attribute_seek_attribute( 
+					attribute_name,
+					attribute_list );
 
 			if ( !attribute )
 			{

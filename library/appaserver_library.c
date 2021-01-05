@@ -825,8 +825,8 @@ LIST *appaserver_library_get_insert_attribute_element_list(
 	char *post_change_javascript;
 
 	attribute = attribute_seek_attribute( 
-					attribute_list,
-					attribute_name );
+			attribute_name,
+			attribute_list );
 	
 	if ( !attribute )
 	{
@@ -2461,9 +2461,10 @@ void appaserver_library_automatically_set_login_name(
 		{
 			ATTRIBUTE *attribute;
 
-			attribute = attribute_seek_attribute(
-					attribute_list,
-					appaserver_user_foreign_login_name );
+			attribute =
+				attribute_seek_attribute(
+					appaserver_user_foreign_login_name,
+					attribute_list );
 
 			if ( attribute )
 			{

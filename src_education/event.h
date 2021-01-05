@@ -21,6 +21,10 @@
 /* --------- */
 #define EVENT_TABLE			"event"
 
+#define EVENT_INSERT_COLUMNS		"event_name,"			\
+					"event_date,"			\
+					"event_time"
+
 /* Structures */
 /* ---------- */
 typedef struct
@@ -111,6 +115,14 @@ char *event_fetch_program_name(
 
 LIST *event_name_list(
 			LIST *event_list );
+
+FILE *event_insert_open(
+			char *error_filename );
+
+void event_insert_pipe(	FILE *insert_pipe,
+			char *event_name,
+			char *event_date,
+			char *event_time );
 
 #endif
 

@@ -28,6 +28,7 @@
 #define PAYPAL_INSERT_COLUMNS	"payor_full_name,"		\
 				"payor_street_address,"		\
 				"paypal_date_time,"		\
+				"row_number,"			\
 				"season_name,"			\
 				"year,"				\
 				"paypal_amount,"		\
@@ -35,10 +36,16 @@
 				"net_revenue,"			\
 				"tuition_payment_total,"	\
 				"program_donation_total,"	\
+				"ticket_sale_total,"		\
+				"product_sale_total,"		\
+				"sweep_amount,"			\
+				"tuition_refund_total,"		\
+				"ticket_refund_total,"		\
+				"product_refund_total,"		\
+				"from_email_address,"		\
 				"account_balance,"		\
 				"transaction_ID,"		\
-				"invoice_number,"		\
-				"from_email_address"
+				"invoice_number"
 
 /* Structures */
 /* ---------- */

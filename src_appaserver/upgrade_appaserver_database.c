@@ -85,7 +85,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 void do_upgrade(	char *application_name,
 			APPASERVER_PARAMETER_FILE *appaserver_parameter_file )
@@ -178,7 +178,7 @@ void do_upgrade(	char *application_name,
 				application_name );
 
 			printf( "%s\n", sys_string );
-			system( sys_string );
+			if ( system( sys_string ) ){};
 
 			fprintf(output_pipe,
 				"%s|%s\n",
@@ -202,9 +202,9 @@ void do_upgrade(	char *application_name,
 		latest_version,
 		application_name );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
-} /* void do_upgrade() */
+}
 
 DICTIONARY *get_upgrade_scripts_dictionary( char *application_name )
 {
@@ -220,7 +220,7 @@ DICTIONARY *get_upgrade_scripts_dictionary( char *application_name )
 
 	return pipe2dictionary( sys_string, '\0' /* delimiter */ );
 
-} /* get_upgrade_scripts_dictionary() */
+}
 
 char *get_next_version(	LIST *version_list,
 			char *original_this_version )
@@ -240,7 +240,7 @@ char *get_next_version(	LIST *version_list,
 
 	return (char *)0;
 
-} /* get_next_version() */
+}
 
 LIST *get_version_list( char *appaserver_mount_point )
 {
@@ -267,5 +267,5 @@ LIST *get_version_list( char *appaserver_mount_point )
 	}
 	pclose( input_pipe );
 	return version_list;
-} /* get_version_list() */
+}
 

@@ -134,10 +134,10 @@ ROW_SECURITY *row_security_new(
 		/* ---------------------------------- */
 		if ( ! ( attribute =
 				attribute_seek_attribute(
-				related_folder->
-					folder->
-					attribute_list,
-				appaserver_user_foreign_login_name ) ) )
+					appaserver_user_foreign_login_name,
+					related_folder->
+						folder->
+						attribute_list ) ) )
 		{
 			fprintf( stderr,
 			"ERROR in %s/%s()/%d: cannot find attribute = (%s)\n",
@@ -194,12 +194,12 @@ non_owner_view_only_dont_append:
 			LIST *exclude_permission_list;
 
 			if ( ! ( attribute =
-					attribute_seek_attribute(
+				    attribute_seek_attribute(
+					row_security->
+						attribute_not_null_string,
 					row_security->
 						attribute_not_null_folder->
-						attribute_list,
-					row_security->
-						attribute_not_null_string ) ) )
+						attribute_list ) ) )
 			{
 				fprintf( stderr,
 			"ERROR in %s/%s()/%d: cannot find attribute = (%s)\n",
@@ -254,6 +254,9 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 }
 
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
+		/* ------------------ */
+		/* Never returns null */
+		/* ------------------ */
 		row_security_detail_element_list_structure(
 			char *application_name,
 			enum row_security_state row_security_state,
@@ -652,7 +655,8 @@ LIST *row_security_detail_dictionary_list(
 			select_folder_name,
 			login_role,
 			where_clause_attribute_name_list,
-			where_clause_data_list );
+			where_clause_data_list,
+			append_isa_attribute_list );
 
 	if ( !query->query_output )
 	{
@@ -909,8 +913,8 @@ LIST *row_security_get_update_element_list(
 
 		attribute =
 			attribute_seek_attribute( 
-				append_isa_attribute_list,
-				attribute_name );
+				attribute_name,
+				append_isa_attribute_list );
 
 		if ( !attribute )
 		{

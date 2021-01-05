@@ -1288,7 +1288,7 @@ DICTIONARY *output_folder_detail(
 	ROLE_FOLDER *role_folder;
 	ROLE *role;
 	int output_submit_reset_buttons_in_trailer;
-	char action_string[ 512 ];
+	char action_string[ 1024 ];
 	char caption_string[ 512 ];
 	ROW_SECURITY *row_security;
 	char update_yn;
@@ -1379,6 +1379,9 @@ DICTIONARY *output_folder_detail(
 	}
 
 	row_security->row_security_element_list_structure =
+		/* ------------------ */
+		/* Never returns null */
+		/* ------------------ */
 		row_security_detail_element_list_structure(
 			application_name,
 			row_security->row_security_state,

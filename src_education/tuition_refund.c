@@ -1155,3 +1155,74 @@ TUITION_REFUND *tuition_refund_paypal(
 	return tuition_refund;
 }
 
+void tuition_refund_list_registration_insert(
+			LIST *tuition_refund_list )
+{
+	TUITION_REFUND *tuition_refund;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( tuition_refund_list ) ) return;
+
+	insert_pipe =
+		registration_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		tuition_refund = list_get( tuition_refund_list );
+
+		registration_insert_pipe(
+			insert_pipe,
+			tuition_refund->
+				tuition_payment->
+				enrollment->
+				registration->
+				student_entity->
+				full_name,
+			tuition_refund->
+				tuition_payment->
+				enrollment->
+				registration->
+				student_entity->
+				street_address,
+			tuition_refund->
+				tuition_payment->
+				enrollment->
+				registration->
+				season_name,
+			tuition_refund->
+				tuition_payment->
+				enrollment->
+				registration->
+				year,
+			tuition_refund->
+				tuition_payment->
+				enrollment->
+				registration->
+				registration_date_time );
+
+	} while ( list_next( tuition_refund_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		char *title = "Insert Refund Registration Errors";
+
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e '%s' '' '^'			 ",
+			 error_filename,
+			 title );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+

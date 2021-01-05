@@ -1460,9 +1460,10 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 	LIST *return_list;
 	char ignore_element_name[ 256 ];
 
-	attribute = attribute_seek_attribute( 
-				attribute_list,
-				attribute_name );
+	attribute =
+		attribute_seek_attribute( 
+			attribute_name,
+			attribute_list );
 
 	if ( !attribute )
 	{
@@ -1742,7 +1743,10 @@ void build_related_folder_element_list(
 		role_folder_insert_list = list_new();
 	}
 
-	attribute = attribute_seek_attribute( attribute_list, attribute_name );
+	attribute =
+		attribute_seek_attribute(
+			attribute_name,
+			attribute_list );
 
 	if ( !attribute )
 	{

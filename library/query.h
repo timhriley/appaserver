@@ -181,7 +181,8 @@ QUERY_OUTPUT *query_output_new(	QUERY *query,
 				LIST *where_attribute_data_list,
 				FOLDER *folder,
 				LIST *subquery_one2m_related_folder_list,
-				PROMPT_RECURSIVE *prompt_recursive );
+				PROMPT_RECURSIVE *prompt_recursive,
+				LIST *append_isa_attribute_list );
 
 LIST *query_row_dictionary_list(
 				char *application_name,
@@ -754,20 +755,23 @@ char *query_simple_where(
 			char *application_name,
 			char *folder_name,
 			LIST *where_attribute_name_list,
-			LIST *where_attribute_data_list );
+			LIST *where_attribute_data_list,
+			LIST *append_isa_attribute_list );
 
 QUERY *query_simple_new(
 			char *application_name,
 			char *folder_name,
 			ROLE *role,
 			LIST *where_attribute_name_list,
-			LIST *where_attribute_data_list );
+			LIST *where_attribute_data_list,
+			LIST *append_isa_attribute_list );
 
 QUERY_OUTPUT *query_simple_output_new(
 			FOLDER *folder,
 			LIST *mto1_isa_related_folder_list,
 			LIST *where_attribute_name_list,
-			LIST *where_attribute_data_list );
+			LIST *where_attribute_data_list,
+			LIST *append_isa_attribute_list );
 
 char *query_output_one2m_isa_where(
 			char **from_clause,
@@ -790,7 +794,8 @@ char *query_output_mto1_isa_where(
 char *query_simple_where_clause(
 			FOLDER *folder,
 			LIST *where_attribute_name_list,
-			LIST *where_attribute_data_list );
+			LIST *where_attribute_data_list,
+			LIST *append_isa_attribute_list );
 
 char *query_related_join_where(
 			char *application_name,

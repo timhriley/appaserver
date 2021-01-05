@@ -903,6 +903,7 @@ TICKET_REFUND *ticket_refund_paypal(
 
 	ticket_refund->payor_entity = payor_entity;
 
+	ticket_refund->sale_date_time =
 	ticket_refund->refund_date_time =
 	ticket_refund->paypal_date_time = paypal_date_time;
 

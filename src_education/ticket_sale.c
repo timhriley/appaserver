@@ -902,7 +902,11 @@ TICKET_SALE *ticket_sale_paypal(
 	ticket_sale->sale_date_time =
 	ticket_sale->paypal_date_time = paypal_date_time;
 
+	ticket_sale->quantity = 1;
+
+	ticket_sale->ticket_price =
 	ticket_sale->extended_price = item_value;
+
 	ticket_sale->merchant_fees_expense = item_fee;
 
 	ticket_sale->net_payment_amount =
@@ -912,5 +916,55 @@ TICKET_SALE *ticket_sale_paypal(
 
 	ticket_sale->event = event;
 	return ticket_sale;
+}
+
+void ticket_sale_list_event_insert(
+			LIST *ticket_sale_list )
+{
+	TICKET_SALE *ticket_sale;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( ticket_sale_list ) ) return;
+
+	insert_pipe =
+		event_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		ticket_sale = list_get( ticket_sale_list );
+
+		event_insert_pipe(
+			insert_pipe,
+			ticket_sale->
+				event->
+				event_name,
+			ticket_sale->
+				event->
+				event_date,
+			ticket_sale->
+				event->
+				event_time );
+
+	} while ( list_next( ticket_sale_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						|"
+			"queue_top_bottom_lines.e 300			|"
+			"html_table.e 'Insert Event Errors' '' '^'	 ",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
 }
 

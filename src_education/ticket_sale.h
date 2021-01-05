@@ -228,5 +228,8 @@ TICKET_SALE *ticket_sale_paypal(
 			double item_fee,
 			EVENT *event );
 
+void ticket_sale_list_event_insert(
+			LIST *ticket_sale_list );
+
 #endif
 

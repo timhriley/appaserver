@@ -42,7 +42,7 @@
 					"payor_street_address,"		\
 					"payment_date_time,"		\
 					"payment_amount,"		\
-					"merchant_fees_expense,"	\
+					"net_payment_amount,"		\
 					"transaction_date_time,"	\
 					"merchant_fees_expense,"	\
 					"paypal_date_time"
@@ -169,36 +169,36 @@ void tuition_payment_insert_pipe(
 			char *paypal_date_time );
 
 void tuition_payment_list_enrollment_insert(
-			LIST *paypal_tuition_payment_list );
+			LIST *tuition_payment_list );
 
 void tuition_payment_list_registration_insert(
-			LIST *paypal_tuition_payment_list );
+			LIST *tuition_payment_list );
 
 void tuition_payment_list_student_entity_insert(
-			LIST *paypal_tuition_payment_list );
+			LIST *tuition_payment_list );
 
 void tuition_payment_list_student_insert(
-			LIST *paypal_tuition_payment_list );
+			LIST *tuition_payment_list );
 
 void tuition_payment_list_payor_entity_insert(
-			LIST *paypal_tuition_payment_list );
+			LIST *tuition_payment_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */
 char *tuition_payment_list_display(
-			LIST *paypal_tuition_payment_list );
+			LIST *tuition_payment_list );
 
 LIST *tuition_payment_registration_list(
-			LIST *paypal_tuition_payment_list );
+			LIST *tuition_payment_list );
 
 LIST *tuition_payment_list_enrollment_list(
-			LIST *paypal_tuition_payment_list );
+			LIST *tuition_payment_list );
 
 LIST *tuition_payment_enrollment_list(
-			LIST *paypal_tuition_payment_list );
+			LIST *tuition_payment_list );
 
 void tuition_payment_list_trigger(
-			LIST *paypal_tuition_payment_list );
+			LIST *tuition_payment_list );
 
 double tuition_payment_receivable_credit_amount(
 			double payment_amount );

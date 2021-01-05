@@ -46,7 +46,7 @@ function fetch_tuition_refund_total()
 	year=$4
 
 	tuition_refund_total=`						\
-		echo "	select sum(tuition_refund_amount)		\
+		echo "	select sum(refund_amount)			\
 			from tuition_refund				\
 			where full_name = '$full_name_escaped'		\
 	  		and street_address = '$street_address'		\

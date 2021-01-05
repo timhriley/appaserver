@@ -663,8 +663,8 @@ void output_columns_different_from_attributes(
 
 			attribute =
 				attribute_seek_attribute(
-					folder->attribute_list,
-					column->column_name );
+					column->column_name,
+					folder->attribute_list );
 
 			if ( !attribute ||
 			      attributes_the_same(

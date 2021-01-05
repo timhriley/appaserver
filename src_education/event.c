@@ -342,3 +342,36 @@ LIST *event_name_list( LIST *event_list )
 	return name_list;
 }
 
+FILE *event_insert_open( char *error_filename )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"insert_statement t=%s f=\"%s\" replace=%c delimiter='%c'|"
+		"sql 2>&1						 |"
+		"cat >%s 						  ",
+		EVENT_TABLE,
+		EVENT_INSERT_COLUMNS,
+		'y',
+		SQL_DELIMITER,
+		error_filename );
+
+	return popen( sys_string, "w" );
+}
+
+void event_insert_pipe(
+			FILE *insert_pipe,
+			char *event_name,
+			char *event_date,
+			char *event_time )
+{
+	fprintf(insert_pipe,
+		"%s^%s^%s\n",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		event_name_escape( event_name ),
+		event_date,
+		event_time );
+}
+

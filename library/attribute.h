@@ -110,15 +110,19 @@ ATTRIBUTE *attribute_load_folder_attribute(
 					char *folder_attribute,
 					char *attribute_name );
 
-ATTRIBUTE *attribute_seek(		LIST *attribute_list,
-					char *attribute_name );
+ATTRIBUTE *attribute_seek(
+			char *attribute_name,
+			LIST *attribute_list );
 
-ATTRIBUTE *attribute_seek_attribute(	LIST *attribute_list,
-					char *attribute_name );
+ATTRIBUTE *attribute_seek_attribute(
+			char *attribute_name,
+			LIST *attribute_list );
 
-char *attribute_list_display(		LIST *attribute_list );
+char *attribute_list_display(
+			LIST *attribute_list );
 
-char *attribute_display(		ATTRIBUTE *attribute );
+char *attribute_display(
+			ATTRIBUTE *attribute );
 
 char *attribute_get_database_datatype(	char *datatype,
 					int width,

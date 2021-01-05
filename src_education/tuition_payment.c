@@ -655,14 +655,14 @@ void tuition_payment_list_enrollment_insert( LIST *payment_list )
 }
 
 void tuition_payment_list_registration_insert(
-			LIST *payment_list )
+			LIST *tuition_payment_list )
 {
-	TUITION_PAYMENT *payment;
+	TUITION_PAYMENT *tuition_payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
 
-	if ( !list_rewind( payment_list ) ) return;
+	if ( !list_rewind( tuition_payment_list ) ) return;
 
 	insert_pipe =
 		registration_insert_open(
@@ -670,34 +670,40 @@ void tuition_payment_list_registration_insert(
 				timlib_tmpfile() ) );
 
 	do {
-		payment = list_get( payment_list );
+		tuition_payment = list_get( tuition_payment_list );
 
 		registration_insert_pipe(
 			insert_pipe,
-			payment->
+			tuition_payment->
 				enrollment->
 				registration->
 				student_entity->
 				full_name,
-			payment->
+			tuition_payment->
 				enrollment->
 				registration->
 				student_entity->
 				street_address,
-			payment->enrollment->registration->season_name,
-			payment->enrollment->registration->year,
-			payment->
+			tuition_payment->
+				enrollment->
+				registration->
+				season_name,
+			tuition_payment->
+				enrollment->
+				registration->
+				year,
+			tuition_payment->
 				enrollment->
 				registration->
 				registration_date_time );
 
-	} while ( list_next( payment_list ) );
+	} while ( list_next( tuition_payment_list ) );
 
 	pclose( insert_pipe );
 
 	if ( timlib_file_populated( error_filename ) )
 	{
-		char *title = "Insert Registration Errors";
+		char *title = "Insert Tuition Registration Errors";
 
 		sprintf(sys_string,
 			"cat %s						|"
@@ -715,14 +721,14 @@ void tuition_payment_list_registration_insert(
 }
 
 void tuition_payment_list_student_insert(
-			LIST *payment_list )
+			LIST *tuition_payment_list )
 {
-	TUITION_PAYMENT *payment;
+	TUITION_PAYMENT *tuition_payment;
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
 
-	if ( !list_rewind( payment_list ) ) return;
+	if ( !list_rewind( tuition_payment_list ) ) return;
 
 	insert_pipe =
 		student_insert_open(
@@ -730,22 +736,22 @@ void tuition_payment_list_student_insert(
 				timlib_tmpfile() ) );
 
 	do {
-		payment = list_get( payment_list );
+		tuition_payment = list_get( tuition_payment_list );
 
 		student_insert_pipe(
 			insert_pipe,
-			payment->
+			tuition_payment->
 				enrollment->
 				registration->
 				student_entity->
 				full_name,
-			payment->
+			tuition_payment->
 				enrollment->
 				registration->
 				student_entity->
 				street_address );
 
-	} while ( list_next( payment_list ) );
+	} while ( list_next( tuition_payment_list ) );
 
 	pclose( insert_pipe );
 

@@ -1244,7 +1244,7 @@ void paypal_deposit_paypal_insert( LIST *paypal_deposit_list )
 			paypal_deposit->program_donation_total,
 			paypal_deposit->ticket_sale_total,
 			paypal_deposit->product_sale_total,
-			paypal_deposit->paypal_amount,
+			paypal_deposit->sweep_amount,
 			paypal_deposit->tuition_refund_total,
 			paypal_deposit->ticket_refund_total,
 			paypal_deposit->product_refund_total,
@@ -1413,6 +1413,9 @@ void paypal_deposit_registration_insert(
 
 		tuition_payment_list_registration_insert(
 			paypal_deposit->tuition_payment_list );
+
+		tuition_refund_list_registration_insert(
+			paypal_deposit->tuition_refund_list );
 
 	} while ( list_next( paypal_deposit_list ) );
 }

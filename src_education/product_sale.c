@@ -871,7 +871,11 @@ PRODUCT_SALE *product_sale_paypal(
 	product_sale->sale_date_time =
 	product_sale->paypal_date_time = paypal_date_time;
 
+	product_sale->quantity = 1;
+
+	product_sale->retail_price =
 	product_sale->extended_price = item_value;
+
 	product_sale->merchant_fees_expense = item_fee;
 
 	product_sale->net_payment_amount =

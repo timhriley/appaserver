@@ -189,7 +189,7 @@ void program_donation_insert_pipe(
 			char *paypal_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%.2lf^%.2lf^%s^.%.2lf^%s\n",
+		"%s^%s^%s^%s^%.2lf^%.2lf^%s^%.2lf^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */

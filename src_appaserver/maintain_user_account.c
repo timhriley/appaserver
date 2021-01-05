@@ -594,9 +594,10 @@ LIST *get_attribute_element_list(	int *objects_outputted,
 	LIST *element_list;
 	LIST *return_list;
 	
-	attribute = attribute_seek_attribute( 
-					attribute_list,
-					attribute_name );
+	attribute =
+		attribute_seek_attribute( 
+			attribute_name,
+			attribute_list );
 	
 	if ( !attribute )
 	{

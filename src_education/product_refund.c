@@ -522,7 +522,7 @@ PRODUCT_REFUND *product_refund_steady_state(
 	}
 
 	if ( !product_refund->product_sale->product->revenue_account
-	||   !*product_refund->product_sale->product->revenue_account )
+	||  !*product_refund->product_sale->product->revenue_account )
 	{
 		fprintf(stderr,
 			"Warning in %s/%s()/%d: empty revenue_account.\n",
@@ -530,6 +530,17 @@ PRODUCT_REFUND *product_refund_steady_state(
 			__FUNCTION__,
 			__LINE__ );
 		return (PRODUCT_REFUND *)0;
+	}
+
+	if ( !product_refund->sale_date_time
+	||  !*product_refund->sale_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty sale_date_time.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	product_refund->net_refund_amount =
@@ -847,6 +858,7 @@ PRODUCT_REFUND *product_refund_paypal(
 
 	product_refund->payor_entity = payor_entity;
 
+	product_refund->sale_date_time =
 	product_refund->refund_date_time =
 	product_refund->paypal_date_time = paypal_date_time;
 

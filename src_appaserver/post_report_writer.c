@@ -1976,8 +1976,8 @@ LIST *state_four_get_element_list(
 				include_attribute_name_list );
 
 		attribute = attribute_seek_attribute( 
-				append_isa_attribute_list,
-				attribute_name );
+				attribute_name,
+				append_isa_attribute_list );
 
 		if ( !attribute )
 		{

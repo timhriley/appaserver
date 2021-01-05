@@ -452,9 +452,10 @@ LIST *get_element_list(		LIST *attribute_list,
 				continue;
 			}
 
-			attribute = attribute_seek_attribute( 
-							attribute_list,
-							attribute_name );
+			attribute =
+				attribute_seek_attribute( 
+					attribute_name,
+					attribute_list );
 
 			if ( !attribute )
 			{

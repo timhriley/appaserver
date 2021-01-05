@@ -3964,8 +3964,8 @@ boolean related_folder_is_one2one_firewall(
 
 		if ( ! ( attribute =
 				attribute_seek(
-					attribute_list,
-					attribute_name ) ) )
+					attribute_name,
+					attribute_list ) ) )
 		{
 /* Not participating.
 			fprintf( stderr,

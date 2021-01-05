@@ -241,5 +241,8 @@ TUITION_REFUND *tuition_refund_paypal(
 			double item_fee,
 			OFFERING *offering );
 
+void tuition_refund_list_registration_insert(
+			LIST *tuition_refund_list );
+
 #endif
 

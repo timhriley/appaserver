@@ -3,7 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_education
-	make paypal_upload
+	cd ../src_appaserver
+	make detail
 fi
 
