@@ -23,6 +23,7 @@
 #include "semester.h"
 #include "offering.h"
 #include "tuition_refund.h"
+#include "paypal_sweep.h"
 #include "tuition_payment.h"
 #include "program_donation.h"
 #include "product_sale.h"
@@ -143,18 +144,32 @@ LIST *education_paypal_deposit_list(
 			continue;
 		}
 
-		list_set(
-			paypal_deposit_list,
-			paypal_deposit_education(
-				season_name,
-				year,
-				semester_offering_list,
-				program_list,
-				product_list,
-				semester_event_list,
-				dataset_return
-					/* paypal_dataset */,
-				row_number ) );
+		if ( string_strcmp(
+			dataset_return->transaction_type_E,
+			"General Withdrawal" ) == 0 )
+		{
+			list_set(
+				paypal_deposit_list,
+				paypal_deposit_sweep(
+					dataset_return
+						/* paypal_dataset */,
+					row_number ) );
+		}
+		else
+		{
+			list_set(
+				paypal_deposit_list,
+				paypal_deposit_education(
+					season_name,
+					year,
+					semester_offering_list,
+					program_list,
+					product_list,
+					semester_event_list,
+					dataset_return
+						/* paypal_dataset */,
+					row_number ) );
+		}
 	}
 
 	fclose( spreadsheet_file );
@@ -397,6 +412,7 @@ void education_paypal_deposit_list_insert(
 	paypal_deposit_product_refund_insert( education_paypal_list );
 	paypal_deposit_ticket_refund_insert( education_paypal_list );
 	paypal_deposit_tuition_refund_insert( education_paypal_list );
+	paypal_deposit_paypal_sweep_insert( education_paypal_list );
 
 	paypal_deposit_student_insert( education_paypal_list );
 	paypal_deposit_student_entity_insert( education_paypal_list );

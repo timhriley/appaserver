@@ -28,6 +28,7 @@
 #include "product_refund.h"
 #include "tuition_refund.h"
 #include "ticket_refund.h"
+#include "paypal_sweep.h"
 #include "enrollment.h"
 #include "offering.h"
 #include "paypal_deposit.h"
@@ -369,6 +370,13 @@ void paypal_deposit_set_transaction( PAYPAL_DEPOSIT *paypal_deposit )
 		product_refund_list_set_transaction(
 			&transaction_seconds_to_add,
 			paypal_deposit->product_refund_list );
+	}
+
+	if ( paypal_deposit->paypal_sweep )
+	{
+		paypal_sweep_set_transaction(
+			&transaction_seconds_to_add,
+			paypal_deposit->paypal_sweep );
 	}
 }
 
@@ -878,6 +886,71 @@ void paypal_deposit_set_paypal_item_expected_revenue(
 	} while( list_next( paypal_item_list ) );
 }
 
+PAYPAL_DEPOSIT *paypal_deposit_sweep(
+			PAYPAL_DATASET *paypal_dataset,
+			int row_number )
+{
+	PAYPAL_DEPOSIT *paypal_deposit;
+
+	if ( !paypal_dataset )
+	{
+		fprintf(stderr,
+			"%s/%s()/%d\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	paypal_deposit = paypal_deposit_calloc();
+
+	paypal_deposit->row_number = row_number;
+
+	/* Columns A and B */
+	/* --------------- */
+	paypal_deposit->paypal_date_time =
+		paypal_deposit_date_time(
+			paypal_dataset->date_A,
+			paypal_dataset->time_B );
+
+	paypal_deposit->payor_entity = entity_self_fetch();
+
+	/* Column H */
+	/* -------- */
+	if ( ! ( paypal_deposit->paypal_amount =
+			atof( paypal_dataset->gross_revenue_H ) ) )
+	{
+		return (PAYPAL_DEPOSIT *)0;
+	}
+
+	/* Column K */
+	/* -------- */
+	paypal_deposit->from_email_address =
+	paypal_deposit->payor_entity->email_address =
+		strdup( paypal_dataset->from_email_address_K );
+
+	/* Column M */
+	/* -------- */
+	paypal_deposit->transaction_ID = paypal_dataset->transaction_ID_M;
+
+	/* Column Z */
+	/* -------- */
+	paypal_deposit->invoice_number = paypal_dataset->invoice_number_Z;
+
+	/* Column AD */
+	/* --------- */
+	paypal_deposit->account_balance =
+		atof( paypal_dataset->account_balance_AD );
+
+	paypal_deposit->paypal_sweep =
+		paypal_sweep_paypal(
+				paypal_deposit->payor_entity,
+				paypal_deposit->paypal_date_time,
+				paypal_deposit->paypal_amount );
+
+	return paypal_deposit;
+}
+
 PAYPAL_DEPOSIT *paypal_deposit_education(
 			char *season_name,
 			int year,
@@ -889,7 +962,6 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 			int row_number )
 {
 	PAYPAL_DEPOSIT *paypal_deposit;
-	char paypal_date_time[ 128 ];
 
 	if ( !paypal_dataset )
 	{
@@ -912,16 +984,10 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 
 	/* Columns A and B */
 	/* --------------- */
-	sprintf(paypal_date_time,
-		"%s %s",
-		/* --------------------------------- */
-		/* Looks like: 1/2/2020 and 12:28:39 */
-		/* --------------------------------- */
-		date_convert_international_string(
-			paypal_dataset->date_A ),
-		paypal_dataset->time_B );
-	
-	paypal_deposit->paypal_date_time = strdup( paypal_date_time );
+	paypal_deposit->paypal_date_time =
+		paypal_deposit_date_time(
+			paypal_dataset->date_A,
+			paypal_dataset->time_B );
 
 	/* Column D */
 	/* -------- */
@@ -1315,6 +1381,25 @@ void paypal_deposit_paypal_insert( LIST *paypal_deposit_list )
 	if ( system( sys_string ) ){};
 }
 
+void paypal_deposit_paypal_sweep_insert(
+			LIST *paypal_deposit_list )
+{
+	PAYPAL_DEPOSIT *paypal_deposit;
+
+	if ( !list_rewind( paypal_deposit_list ) ) return;
+
+	do {
+		paypal_deposit = list_get( paypal_deposit_list );
+
+		if ( paypal_deposit->paypal_sweep )
+		{
+			paypal_sweep_insert(
+				paypal_deposit->paypal_sweep );
+		}
+
+	} while ( list_next( paypal_deposit_list ) );
+}
+
 void paypal_deposit_tuition_payment_insert(
 			LIST *paypal_deposit_list )
 {
@@ -1528,3 +1613,20 @@ void paypal_deposit_payor_entity_insert(
 	} while ( list_next( paypal_deposit_list ) );
 }
 
+char *paypal_deposit_date_time(
+			char *date_A,
+			char *time_B )
+{
+	char paypal_date_time[ 128 ];
+
+	sprintf(paypal_date_time,
+		"%s %s",
+		/* --------------------------------- */
+		/* Looks like: 1/2/2020 and 12:28:39 */
+		/* --------------------------------- */
+		date_convert_international_string(
+			date_A ),
+		time_B );
+
+	return strdup( paypal_date_time );
+}

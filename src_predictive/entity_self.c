@@ -64,6 +64,11 @@ char *entity_self_select( void )
 
 ENTITY_SELF *entity_self_load( void )
 {
+	return entity_self_fetch();
+}
+
+ENTITY_SELF *entity_self_fetch( void )
+{
 	ENTITY_SELF *self;
 	char full_name[ 128 ];
 	char street_address[ 128 ];

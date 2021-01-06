@@ -13,6 +13,7 @@
 #include "semester.h"
 #include "entity.h"
 #include "paypal_dataset.h"
+#include "paypal_sweep.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -92,6 +93,7 @@ typedef struct
 	LIST *tuition_refund_list;
 	LIST *product_refund_list;
 	LIST *ticket_refund_list;
+	PAYPAL_SWEEP *paypal_sweep;
 	int row_number;
 } PAYPAL_DEPOSIT;
 
@@ -276,6 +278,10 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 			PAYPAL_DATASET *paypal_dataset,
 			int row_number );
 
+PAYPAL_DEPOSIT *paypal_deposit_sweep(
+			PAYPAL_DATASET *paypal_dataset,
+			int row_number );
+
 void paypal_deposit_paypal_insert(
 			LIST *paypal_deposit_list );
 
@@ -287,6 +293,9 @@ void paypal_deposit_program_donation_insert(
 
 void paypal_deposit_tuition_refund_insert(
 			LIST *paypal_deposit_list );
+
+void paypal_deposit_paypal_sweep_insert(
+			LIST *education_paypal_list );
 
 void paypal_deposit_enrollment_insert(
 			LIST *paypal_deposit_list );
@@ -326,6 +335,10 @@ void paypal_deposit_ticket_refund_insert(
 
 void paypal_deposit_product_refund_insert(
 			LIST *paypal_deposit_list );
+
+char *paypal_deposit_date_time(
+			char *date_A,
+			char *time_B );
 
 #endif
 

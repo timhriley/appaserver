@@ -72,6 +72,8 @@ char *program_alias_sys_string(
 char *program_name_escape(
 			char *program_name );
 
+/* Returns static memory */
+/* --------------------- */
 char *program_primary_where(
 			char *program_name );
 

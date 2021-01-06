@@ -14,6 +14,7 @@
 # src_education
 # ---------------
 generate_invoice
+paypal_sweep_trigger
 tuition_payment_trigger
 tuition_refund_trigger
 enrollment_trigger

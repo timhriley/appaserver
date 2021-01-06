@@ -11,6 +11,7 @@ PREDICTIVEBOOKS_LIBRARY=${APPASERVER_HOME}/src_predictive
 
 EDUCATION_CORE=								\
 		offering.o						\
+		paypal_sweep.o						\
 		registration.o						\
 		enrollment.o						\
 		course.o						\
@@ -116,6 +117,7 @@ EXECUTABLES=	offering_trigger					\
 		program_donation_trigger				\
 		product_sale_trigger					\
 		product_refund_trigger					\
+		paypal_sweep_trigger					\
 		ticket_refund_trigger					\
 		paypal_upload						\
 		generate_invoice
@@ -237,6 +239,19 @@ product_refund_trigger: product_refund_trigger.c			\
 		${EDUCATION_CORE}					\
 		product_refund_trigger.c				\
 		-o product_refund_trigger
+
+paypal_sweep_trigger: paypal_sweep_trigger.c				\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${EDUCATION_CORE}
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${EDUCATION_CORE}					\
+		paypal_sweep_trigger.c					\
+		-o paypal_sweep_trigger
 
 ticket_refund_trigger: ticket_refund_trigger.c				\
 	${EXTERNAL_LIBRARY} 						\
@@ -373,4 +388,9 @@ paypal_deposit.o: paypal_deposit.c paypal_deposit.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c paypal_deposit.c
+
+paypal_sweep.o: paypal_sweep.c paypal_sweep.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c paypal_sweep.c
 

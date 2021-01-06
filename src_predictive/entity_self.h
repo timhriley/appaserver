@@ -85,7 +85,10 @@ boolean entity_load(			char **city,
 					char *full_name,
 					char *street_address );
 
-ENTITY_SELF *entity_self_load(		void );
+ENTITY_SELF *entity_self_fetch(
+			void );
+ENTITY_SELF *entity_self_load(
+			void );
 
 ENTITY_SELF *entity_self_new(		char *full_name,
 					char *street_address );
