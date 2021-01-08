@@ -15,7 +15,7 @@
 #include "environ.h"
 #include "date_convert.h"
 #include "list.h"
-#include "entity.h"
+#include "entity_self.h"
 #include "transaction.h"
 #include "paypal_upload.h"
 #include "paypal_item.h"
@@ -667,8 +667,10 @@ LIST *paypal_deposit_list_transaction_list(
 				paypal_deposit->tuition_payment_list,
 				paypal_deposit->program_donation_list,
 				paypal_deposit->product_sale_list,
+				paypal_deposit->ticket_sale_list,
 				paypal_deposit->tuition_refund_list,
-				paypal_deposit->product_refund_list ) );
+				paypal_deposit->product_refund_list,
+				paypal_deposit->ticket_refund_list ) );
 
 	} while ( list_next( paypal_deposit_list ) );
 	return transaction_list;
@@ -749,8 +751,10 @@ LIST *paypal_deposit_transaction_list(
 			LIST *tuition_payment_list,
 			LIST *program_donation_list,
 			LIST *product_sale_list,
+			LIST *ticket_sale_list,
 			LIST *tuition_refund_list,
-			LIST *product_refund_list )
+			LIST *product_refund_list,
+			LIST *ticket_refund_list )
 {
 	LIST *transaction_list;
 
@@ -773,6 +777,11 @@ LIST *paypal_deposit_transaction_list(
 
 	list_append_list(
 		transaction_list,
+		ticket_sale_transaction_list(
+			ticket_sale_list ) );
+
+	list_append_list(
+		transaction_list,
 		tuition_refund_transaction_list(
 			tuition_refund_list ) );
 
@@ -780,6 +789,11 @@ LIST *paypal_deposit_transaction_list(
 		transaction_list,
 		product_refund_transaction_list(
 			product_refund_list ) );
+
+	list_append_list(
+		transaction_list,
+		ticket_refund_transaction_list(
+			ticket_refund_list ) );
 
 	return transaction_list;
 }
@@ -882,6 +896,14 @@ void paypal_deposit_set_paypal_item_expected_revenue(
 		{
 			paypal_item->expected_revenue = event->ticket_price;
 		}
+		else
+		if ( ( event =
+			event_paypal_label_seek(
+				paypal_item->item_data,
+				event_list ) ) )
+		{
+			paypal_item->expected_revenue = event->ticket_price;
+		}
 
 	} while( list_next( paypal_item_list ) );
 }
@@ -891,6 +913,7 @@ PAYPAL_DEPOSIT *paypal_deposit_sweep(
 			int row_number )
 {
 	PAYPAL_DEPOSIT *paypal_deposit;
+	ENTITY_SELF *entity_self;
 
 	if ( !paypal_dataset )
 	{
@@ -913,7 +936,8 @@ PAYPAL_DEPOSIT *paypal_deposit_sweep(
 			paypal_dataset->date_A,
 			paypal_dataset->time_B );
 
-	paypal_deposit->payor_entity = entity_self_fetch();
+ 	entity_self = entity_self_fetch();
+	paypal_deposit->payor_entity = entity_self->entity;
 
 	/* Column H */
 	/* -------- */
@@ -972,6 +996,7 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 			__LINE__ );
 		exit( 1 );
 	}
+
 
 	paypal_deposit = paypal_deposit_calloc();
 
@@ -1053,7 +1078,9 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 				product_name_list(
 					product_list ),
 				event_name_list(
-					semester_event_list ) ) );
+					semester_event_list ) ),
+			event_label_list(
+				semester_event_list ) );
 
 	if ( !list_length( paypal_deposit->paypal_item_list ) )
 	{

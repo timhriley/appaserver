@@ -1260,7 +1260,6 @@ int instr( char *substr, char *string, int occurrence )
 
 }
 
-
 char *delete_str( char *string, int start, int num_chars )
 {
         int far_str;

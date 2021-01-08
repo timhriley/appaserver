@@ -38,7 +38,7 @@ Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James 
 
 /* Returns list of 1 */
 /* ----------------- */
-LIST *paypal_nonentity_item_list(
+LIST *paypal_item_list_no_entity(
 			/* ------------------- */
 			/* Expect stack memory */
 			/* ------------------- */
@@ -70,7 +70,7 @@ LIST *paypal_nonentity_item_list(
 	return item_list;
 }
 
-LIST *paypal_entity_item_list(
+LIST *paypal_item_list_benefit_entity(
 			/* ------------------- */
 			/* Expect stack memory */
 			/* ------------------- */
@@ -138,6 +138,14 @@ Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James 
 	return item_list;
 }
 
+PAYPAL_ITEM *paypal_item_new( char *item_data )
+{
+	PAYPAL_ITEM *paypal_item = paypal_item_calloc();
+
+	paypal_item->item_data = item_data;
+	return paypal_item;
+}
+
 PAYPAL_ITEM *paypal_item_calloc( void )
 {
 	PAYPAL_ITEM *paypal_item;
@@ -158,11 +166,22 @@ PAYPAL_ITEM *paypal_item_calloc( void )
 LIST *paypal_item_list(
 			char *item_title_P,
 			char *transaction_type_E,
-			LIST *allowed_item_list )
+			LIST *allowed_item_list,
+			LIST *event_label_list )
 {
-	LIST *item_list = list_new();
+	LIST *item_list;
 	char item_title_P_piece[ 1024 ];
 	int p;
+
+	if ( ( item_list =
+		paypal_item_list_event(
+			item_title_P,
+			event_label_list ) ) )
+	{
+		return item_list;
+	}
+
+	item_list = list_new();
 
 	for(	p = 0;
 		piece(	item_title_P_piece,
@@ -175,13 +194,13 @@ LIST *paypal_item_list(
 
 		list_append_list(
 			item_list,
-			paypal_entity_item_list(
+			paypal_item_list_benefit_entity(
 				item_title_P_piece,
 				allowed_item_list ) );
 
 		list_append_list(
 			item_list,
-			paypal_nonentity_item_list(
+			paypal_item_list_no_entity(
 				item_title_P_piece,
 				allowed_item_list ) );
 	}
@@ -190,11 +209,43 @@ LIST *paypal_item_list(
 	{
 		list_append_list(
 			item_list,
-			paypal_nonentity_item_list(
+			paypal_item_list_no_entity(
 				transaction_type_E,
 				allowed_item_list ) );
 	}
 	return item_list;
+}
+
+LIST *paypal_item_list_event(
+			char *item_title_P,
+			LIST *event_label_list )
+{
+	char *event_label;
+	LIST *paypal_item_list = {0};
+
+	if ( !list_rewind( event_label_list ) ) return (LIST *)0;
+
+	do {
+		event_label = list_get( event_label_list );
+
+		if ( string_exists_substr(
+			item_title_P,
+			event_label ) )
+		{
+			if ( !paypal_item_list )
+				paypal_item_list =
+					list_new();
+
+			list_set(
+				paypal_item_list,
+				paypal_item_new(
+					event_label
+						/* item_data */ ) );
+		}
+
+	} while ( list_next( event_label_list ) );
+
+	return paypal_item_list;
 }
 
 double paypal_payment_item_value(

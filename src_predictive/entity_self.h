@@ -87,6 +87,7 @@ boolean entity_load(			char **city,
 
 ENTITY_SELF *entity_self_fetch(
 			void );
+
 ENTITY_SELF *entity_self_load(
 			void );
 

@@ -93,6 +93,8 @@ void date_add_minutes(		DATE *d,
 
 int date_month_integer(		DATE *d );
 
+int date_day_offset(		DATE *d );
+
 int get_month( DATE *d );
 
 int get_year( DATE *d );
@@ -382,7 +384,9 @@ int get_hour(			DATE *d );
 int date_get_hour(		DATE *d );
 int date_get_minutes(		DATE *d );
 int date_get_seconds(		DATE *d );
+
 int get_day_of_month(		DATE *d );
+int date_day_of_month(		DATE *d );
 int date_get_day_of_month(	DATE *d );
 int date_get_month(		DATE *d );
 
@@ -549,6 +553,9 @@ char *date_time_now(		int utc_offset );
 char *date_now16(		int utc_offset );
 char *date_get_now16(		int utc_offset );
 
+char *date_time_display(
+			DATE *date );
+
 char *date_display_yyyy_mm_dd_hh_colon_mm(
 			DATE *date );
 
@@ -612,5 +619,37 @@ int date_month(		DATE *d );
 char *date_time_now19(	int utc_offset );
 char *date_now19(	int utc_offset );
 char *date_get_now19(	int utc_offset );
+
+char *date_display_day_name(
+			DATE *date );
+
+char *date_display_month_name(
+			DATE *date );
+
+char *date_display_day(
+			DATE *date );
+
+/* Returns static memory */
+/* --------------------- */
+char *date_display_time_ampm(
+			DATE *date );
+
+int date_month_name_integer(
+			char *month_name );
+
+char *date_month_military(
+			int month_offset );
+
+char *date_month_string(
+			int month_offset );
+
+int date_day_of_week(	DATE *date );
+
+int date_month_offset(	DATE *date );
+
+int date_day_integer(	DATE *date );
+
+char *date_time_display(
+			DATE *date );
 
 #endif

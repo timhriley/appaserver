@@ -300,7 +300,7 @@ LIST *paypal_upload_deposit_list(
 				program_list( 1 /* fetch_alias_list */ ) ),
 			( education->product_list =
 				product_list() ),
-			education->semester->offering_list );
+			education->semester->event_list );
 }
 
 void paypal_upload_display(
@@ -392,8 +392,10 @@ void paypal_upload_display(
 				paypal_deposit->tuition_payment_list,
 				paypal_deposit->program_donation_list,
 				paypal_deposit->product_sale_list,
+				paypal_deposit->ticket_sale_list,
 				paypal_deposit->tuition_refund_list,
-				paypal_deposit->product_refund_list ) );
+				paypal_deposit->product_refund_list,
+				paypal_deposit->ticket_refund_list ) );
 
 	} while ( list_next( paypal_deposit_list ) );
 }

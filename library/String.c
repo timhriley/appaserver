@@ -708,3 +708,36 @@ char *string_rtrim( char *buffer )
         return buffer;
 }
 
+boolean string_exists_substr(
+			char *string,
+			char *substring )
+{
+	return ( string_instr( substring, string, 1 ) > -1 );
+
+}
+
+int string_instr(	char *substr,
+			char *string,
+			int occurrence )
+{
+        int x,found;
+        int str_len_str;
+        int str_len_sub;
+
+	if ( !substr || !*substr ) return -1;
+	if ( !string || !*string ) return -1;
+
+        str_len_str = strlen( string );
+        str_len_sub = strlen( substr );
+
+        for(	x = 0, found = 0;
+		x < str_len_str;
+		x++ )
+	{
+                if ( strncasecmp( &string[x], substr, str_len_sub ) == 0 )
+                        if ( ++found == occurrence )
+                                return x;
+	}
+        return -1;
+}
+

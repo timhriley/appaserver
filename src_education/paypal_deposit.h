@@ -224,8 +224,10 @@ LIST *paypal_deposit_transaction_list(
 			LIST *paypal_deposit_tuition_payment_list,
 			LIST *paypal_deposit_program_donation_list,
 			LIST *paypal_deposit_product_sale_list,
+			LIST *paypal_deposit_ticket_sale_list,
 			LIST *paypal_deposit_tuition_refund_list,
-			LIST *paypal_deposit_product_refund_list );
+			LIST *paypal_deposit_product_refund_list,
+			LIST *paypal_deposit_ticket_refund_list );
 
 LIST *paypal_deposit_list_enrollment_update(
 			LIST *paypal_deposit_list,

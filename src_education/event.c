@@ -225,8 +225,8 @@ LIST *event_list( char *where )
 			event_sys_string( where ),
 			1 /* fetch_program */,
 			1 /* fetch_venue */,
-			1 /* fetch_sale_list */,
-			1 /* fetch_refund_list */ );
+			0 /* not fetch_sale_list */,
+			0 /* not fetch_refund_list */ );
 }
 
 LIST *event_system_list(
@@ -268,6 +268,30 @@ char *event_sys_string( char *where )
 		 where );
 
 	return strdup( sys_string );
+}
+
+EVENT *event_paypal_label_seek(
+			char *event_label,
+			LIST *event_list )
+{
+	EVENT *event;
+
+	if ( !list_rewind( event_list ) ) return (EVENT *)0;
+
+	do {
+		event = list_get( event_list );
+
+		if ( timlib_strcmp(
+			event_paypal_display(
+				event->event_name,
+				event->event_date,
+				event->event_time ),
+			event_label ) == 0 )
+		{
+			return event;
+		}
+	} while ( list_next( event_list ) );
+	return (EVENT *)0;
 }
 
 EVENT *event_name_seek(	char *event_name,
@@ -375,4 +399,72 @@ void event_insert_pipe(
 		event_date,
 		event_time );
 }
+
+LIST *event_label_list( LIST *event_list )
+{
+	EVENT *event;
+	LIST *label_list;
+
+	if ( !list_rewind( event_list ) ) return (LIST *)0;
+
+	label_list = list_new();
+
+	do {
+		event = list_get( event_list );
+
+		list_set(
+			label_list,
+			event_paypal_display(
+				event->event_name,
+				event->event_date,
+				event->event_time ) );
+
+	} while ( list_next( event_list ) );
+
+	return label_list;
+}
+
+char *event_paypal_display(
+			char *event_name,
+			char *event_date,
+			char *event_time )
+{
+	char paypal_display[ 1024 ];
+	DATE *date;
+
+	date = date_yyyy_mm_dd_new( event_date );
+
+	if ( !date )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: invalid event_date = [%s]\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			event_date );
+		return (char *)0;
+	}
+
+	date_set_time_hhmm( date, event_time );
+
+	sprintf(paypal_display,
+		"%s Tickets: %s, %s %d, %s",
+		event_name,
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		date_display_day_name( date ),
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		date_display_month_name( date ),
+		date_day_integer( date ),
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		date_display_time_ampm( date ) );
+
+	return strdup( paypal_display );
+}
+
 

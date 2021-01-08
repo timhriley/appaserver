@@ -397,6 +397,17 @@ TRANSACTION *ticket_sale_transaction(
 	TRANSACTION *transaction;
 	JOURNAL *journal;
 
+	if ( !sale_date_time || !*sale_date_time )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: empty sale_date_time.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return (TRANSACTION *)0;
+	}
+
 	if ( !revenue_account )
 	{
 		fprintf(stderr,
@@ -832,7 +843,6 @@ void ticket_sale_list_set_transaction(
 		revenue_account =
 			ticket_sale->
 				event->
-				program->
 				revenue_account;
 
 		/* ------------------------------------------------------- */
@@ -916,6 +926,26 @@ LIST *ticket_sale_list_paypal(
 					paypal_item->item_fee,
 					event ) );
 		}
+		else
+		if ( ( event =
+			event_paypal_label_seek(
+				paypal_item->item_data,
+				semester_event_list ) ) )
+		{
+			if ( !ticket_sale_list )
+				ticket_sale_list =
+					list_new();
+
+			list_set(
+				ticket_sale_list,
+				ticket_sale_paypal(
+					payor_entity,
+					paypal_date_time,
+					paypal_item->item_value,
+					paypal_item->item_fee,
+					event ) );
+		}
+
 	} while ( list_next( paypal_item_list ) );
 
 	return ticket_sale_list;

@@ -10,6 +10,7 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "String.h"
 #include "entity.h"
 
 /* Enumerated types */
@@ -44,6 +45,9 @@ typedef struct
 PAYPAL_ITEM *paypal_item_calloc(
 			void );
 
+PAYPAL_ITEM *paypal_item_new(
+			char *item_data );
+
 double paypal_item_expected_revenue_total(
 			LIST *paypal_item_list );
 
@@ -53,7 +57,7 @@ int paypal_item_expected_revenue_length(
 int paypal_item_nonexpected_revenue_length(
 			LIST *paypal_item_list );
 
-LIST *paypal_entity_item_list(
+LIST *paypal_item_list_benefit_entity(
 			/* ------------------- */
 			/* Expect stack memory */
 			/* ------------------- */
@@ -62,7 +66,7 @@ LIST *paypal_entity_item_list(
 
 /* Returns list of 1 */
 /* ----------------- */
-LIST *paypal_nonentity_item_list(
+LIST *paypal_item_list_no_entity(
 			/* ------------------- */
 			/* Expect stack memory */
 			/* ------------------- */
@@ -75,7 +79,8 @@ boolean paypal_item_is_entity(
 LIST *paypal_item_list(
 			char *entity_delimited_item_title_P,
 			char *transaction_type_E,
-			LIST *allowed_item_list );
+			LIST *allowed_item_list,
+			LIST *event_label_list );
 
 /* Returns item_title_P */
 /* -------------------- */
@@ -144,5 +149,9 @@ double paypal_refund_item_fee(
 			double paypal_amount,
 			double transaction_fee,
 			double item_value );
+
+LIST *paypal_item_list_event(
+			char *item_title_P,
+			LIST *event_label_list );
 
 #endif
