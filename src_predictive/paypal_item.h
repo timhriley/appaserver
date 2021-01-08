@@ -38,6 +38,7 @@ typedef struct
 	double item_value;
 	double item_fee;
 	double item_gain;
+	boolean taken;
 } PAYPAL_ITEM;
 
 /* Prototypes */

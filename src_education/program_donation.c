@@ -476,6 +476,8 @@ char *program_donation_list_display( LIST *payment_list )
 
 	} while ( list_next( payment_list ) );
 
+	ptr += sprintf( ptr, "; " );
+
 	return strdup( display );
 }
 
@@ -779,6 +781,8 @@ LIST *program_donation_list_paypal(
 	do {
 		paypal_item = list_get( paypal_item_list );
 
+		if ( paypal_item->taken ) continue;
+
 		if ( paypal_item->benefit_entity ) continue;
 
 		if ( ( program =
@@ -798,6 +802,8 @@ LIST *program_donation_list_paypal(
 					paypal_item->item_value,
 					paypal_item->item_fee,
 					program ) );
+
+			paypal_item->taken = 1;
 		}
 
 	} while ( list_next( paypal_item_list ) );

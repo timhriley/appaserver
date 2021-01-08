@@ -886,16 +886,16 @@ void tuition_payment_list_payor_entity_insert(
 	if ( system( sys_string ) ){};
 }
 
-char *tuition_payment_list_display( LIST *payment_list )
+char *tuition_payment_list_display( LIST *tuition_payment_list )
 {
 	char display[ 65536 ];
 	char *ptr = display;
-	TUITION_PAYMENT *payment;
+	TUITION_PAYMENT *tuition_payment;
 	char *course_name;
 
 	*ptr = '\0';
 
-	if ( !list_rewind( payment_list ) )
+	if ( !list_rewind( tuition_payment_list ) )
 	{
 		return "";
 	}
@@ -903,19 +903,19 @@ char *tuition_payment_list_display( LIST *payment_list )
 	ptr += sprintf( ptr, "Tuition payment: " );
 
 	do {
-		payment =
+		tuition_payment =
 			list_get(
-				payment_list );
+				tuition_payment_list );
 
-		if ( !list_at_head( payment_list ) )
+		if ( !list_at_head( tuition_payment_list ) )
 		{
 			ptr += sprintf( ptr, ", " );
 		}
 
-		if ( payment->enrollment->offering )
+		if ( tuition_payment->enrollment->offering )
 		{
 			course_name =
-				payment->
+				tuition_payment->
 					enrollment->
 					offering->
 					course->
@@ -927,21 +927,21 @@ char *tuition_payment_list_display( LIST *payment_list )
 		}
 
 		ptr += sprintf(	ptr,
-				"%s will enroll in %s",
+				"%s will enroll in %s; ",
 				entity_name_display(
-					payment->
+					tuition_payment->
 						enrollment->
 						registration->
 						student_entity->
 						full_name,
-					payment->
+					tuition_payment->
 						enrollment->
 						registration->
 						student_entity->
 						street_address ),
 				course_name );
 
-	} while ( list_next( payment_list ) );
+	} while ( list_next( tuition_payment_list ) );
 
 	return strdup( display );
 }
@@ -1412,6 +1412,8 @@ LIST *tuition_payment_list_paypal(
 	do {
 		paypal_item = list_get( paypal_item_list );
 
+		if ( paypal_item->taken ) continue;
+
 		if ( !paypal_item->benefit_entity ) continue;
 
 		if ( ( offering =
@@ -1434,6 +1436,8 @@ LIST *tuition_payment_list_paypal(
 					paypal_item->item_value,
 					paypal_item->item_fee,
 					offering ) );
+
+			paypal_item->taken = 1;
 		}
 
 	} while ( list_next( paypal_item_list ) );

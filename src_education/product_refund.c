@@ -502,6 +502,8 @@ char *product_refund_list_display( LIST *refund_list )
 
 	} while ( list_next( refund_list ) );
 
+	ptr += sprintf( ptr, "; " );
+
 	return strdup( display );
 }
 
@@ -784,8 +786,15 @@ void product_refund_set_transaction(
 			product_refund->payor_entity->full_name,
 			product_refund->payor_entity->street_address,
 			product_refund->refund_date_time,
-			product_refund->product_sale->product->product_name,
-			product_refund->product_sale->product->program_name,
+			product_refund->
+				product_sale->
+				product->
+				product_name,
+			product_refund->
+				product_sale->
+				product->
+				program->
+				program_name,
 			product_refund->refund_amount,
 			product_refund->merchant_fees_expense,
 			product_refund->net_refund_amount,
@@ -818,6 +827,8 @@ LIST *product_refund_list_paypal(
 	do {
 		paypal_item = list_get( paypal_item_list );
 
+		if ( paypal_item->taken ) continue;
+
 		if ( paypal_item->benefit_entity ) continue;
 
 		if ( ( product =
@@ -837,6 +848,8 @@ LIST *product_refund_list_paypal(
 					paypal_item->item_value,
 					paypal_item->item_fee,
 					product ) );
+
+			paypal_item->taken = 1;
 		}
 	} while ( list_next( paypal_item_list ) );
 

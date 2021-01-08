@@ -389,7 +389,11 @@ PAYPAL_SWEEP *paypal_sweep_paypal(
 			char *paypal_date_time,
 			double paypal_amount )
 {
-	PAYPAL_SWEEP *paypal_sweep =
+	PAYPAL_SWEEP *paypal_sweep;
+
+	if ( !paypal_amount ) return (PAYPAL_SWEEP *)0;
+
+	paypal_sweep =
 		paypal_sweep_new(
 			payor_entity->full_name,
 			payor_entity->street_address,
@@ -397,5 +401,23 @@ PAYPAL_SWEEP *paypal_sweep_paypal(
 
 	paypal_sweep->sweep_amount = paypal_amount;
 	return paypal_sweep;
+}
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *paypal_sweep_display(
+			PAYPAL_SWEEP *paypal_sweep )
+{
+	char display[ 128 ];
+
+	*display = '\0';
+
+	if ( paypal_sweep )
+	{
+		sprintf(	display,
+				"Sweep: %.2lf; ",
+				paypal_sweep->sweep_amount );
+	}
+	return strdup( display );
 }
 

@@ -555,6 +555,8 @@ char *ticket_refund_list_display( LIST *refund_list )
 
 	} while ( list_next( refund_list ) );
 
+	ptr += sprintf( ptr, "; " );
+
 	return strdup( display );
 }
 
@@ -880,6 +882,8 @@ LIST *ticket_refund_list_paypal(
 	do {
 		paypal_item = list_get( paypal_item_list );
 
+		if ( paypal_item->taken ) continue;
+
 		if ( paypal_item->benefit_entity ) continue;
 
 		if ( ( event =
@@ -899,6 +903,8 @@ LIST *ticket_refund_list_paypal(
 					paypal_item->item_value,
 					paypal_item->item_fee,
 					event ) );
+
+			paypal_item->taken = 1;
 		}
 
 	} while ( list_next( paypal_item_list ) );

@@ -122,5 +122,10 @@ PAYPAL_SWEEP *paypal_sweep_paypal(
 			char *paypal_date_time,
 			double paypal_amount );
 
+/* Safely returns heap memory */
+/* -------------------------- */
+char *paypal_sweep_display(
+			PAYPAL_SWEEP *paypal_sweep );
+
 #endif
 

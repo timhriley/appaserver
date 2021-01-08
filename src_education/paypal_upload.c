@@ -33,6 +33,7 @@
 #include "event.h"
 #include "paypal.h"
 #include "paypal_deposit.h"
+#include "paypal_sweep.h"
 #include "education.h"
 #include "paypal_upload.h"
 
@@ -360,7 +361,7 @@ void paypal_upload_display(
 		output_pipe = popen( sys_string, "w" );
 
 		fprintf(output_pipe,
-		"%d^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s %s %s %s\n",
+		"%d^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s %s %s %s %s\n",
 			paypal_deposit->row_number,
 			entity_name_display(
 				paypal_deposit->payor_entity->full_name,
@@ -382,6 +383,8 @@ void paypal_upload_display(
 				paypal_deposit->ticket_sale_list ),
 			ticket_refund_list_display(
 				paypal_deposit->ticket_refund_list ),
+			paypal_sweep_display(
+				paypal_deposit->paypal_sweep ),
 			program_donation_list_display(
 				paypal_deposit->program_donation_list ) );
 

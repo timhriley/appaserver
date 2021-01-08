@@ -330,13 +330,6 @@ void paypal_deposit_set_transaction( PAYPAL_DEPOSIT *paypal_deposit )
 			paypal_deposit->tuition_payment_list );
 	}
 
-	if ( list_length( paypal_deposit->program_donation_list ) )
-	{
-		program_donation_list_set_transaction(
-			&transaction_seconds_to_add,
-			paypal_deposit->program_donation_list );
-	}
-
 	if ( list_length( paypal_deposit->ticket_sale_list ) )
 	{
 		ticket_sale_list_set_transaction(
@@ -370,6 +363,13 @@ void paypal_deposit_set_transaction( PAYPAL_DEPOSIT *paypal_deposit )
 		product_refund_list_set_transaction(
 			&transaction_seconds_to_add,
 			paypal_deposit->product_refund_list );
+	}
+
+	if ( list_length( paypal_deposit->program_donation_list ) )
+	{
+		program_donation_list_set_transaction(
+			&transaction_seconds_to_add,
+			paypal_deposit->program_donation_list );
 	}
 
 	if ( paypal_deposit->paypal_sweep )
