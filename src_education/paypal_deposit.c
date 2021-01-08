@@ -665,12 +665,12 @@ LIST *paypal_deposit_list_transaction_list(
 			transaction_list,
 			paypal_deposit_transaction_list(
 				paypal_deposit->tuition_payment_list,
-				paypal_deposit->program_donation_list,
 				paypal_deposit->product_sale_list,
 				paypal_deposit->ticket_sale_list,
 				paypal_deposit->tuition_refund_list,
 				paypal_deposit->product_refund_list,
-				paypal_deposit->ticket_refund_list ) );
+				paypal_deposit->ticket_refund_list,
+				paypal_deposit->program_donation_list ) );
 
 	} while ( list_next( paypal_deposit_list ) );
 	return transaction_list;
@@ -749,12 +749,12 @@ void paypal_deposit_list_registration_fetch_update(
 
 LIST *paypal_deposit_transaction_list(
 			LIST *tuition_payment_list,
-			LIST *program_donation_list,
 			LIST *product_sale_list,
 			LIST *ticket_sale_list,
 			LIST *tuition_refund_list,
 			LIST *product_refund_list,
-			LIST *ticket_refund_list )
+			LIST *ticket_refund_list,
+			LIST *program_donation_list )
 {
 	LIST *transaction_list;
 
@@ -764,11 +764,6 @@ LIST *paypal_deposit_transaction_list(
 		transaction_list,
 		tuition_payment_transaction_list(
 			tuition_payment_list ) );
-
-	list_append_list(
-		transaction_list,
-		program_donation_transaction_list(
-			program_donation_list ) );
 
 	list_append_list(
 		transaction_list,
@@ -794,6 +789,11 @@ LIST *paypal_deposit_transaction_list(
 		transaction_list,
 		ticket_refund_transaction_list(
 			ticket_refund_list ) );
+
+	list_append_list(
+		transaction_list,
+		program_donation_transaction_list(
+			program_donation_list ) );
 
 	return transaction_list;
 }

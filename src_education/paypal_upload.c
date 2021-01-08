@@ -372,8 +372,6 @@ void paypal_upload_display(
 			paypal_deposit->account_balance,
 			tuition_payment_list_display(
 				paypal_deposit->tuition_payment_list ),
-			program_donation_list_display(
-				paypal_deposit->program_donation_list ),
 			product_sale_list_display(
 				paypal_deposit->product_sale_list ),
 			tuition_refund_list_display(
@@ -383,19 +381,21 @@ void paypal_upload_display(
 			ticket_sale_list_display(
 				paypal_deposit->ticket_sale_list ),
 			ticket_refund_list_display(
-				paypal_deposit->ticket_refund_list ) );
+				paypal_deposit->ticket_refund_list ),
+			program_donation_list_display(
+				paypal_deposit->program_donation_list ) );
 
 		pclose( output_pipe );
 
 		transaction_list_html_display(
 			paypal_deposit_transaction_list(
 				paypal_deposit->tuition_payment_list,
-				paypal_deposit->program_donation_list,
 				paypal_deposit->product_sale_list,
 				paypal_deposit->ticket_sale_list,
 				paypal_deposit->tuition_refund_list,
 				paypal_deposit->product_refund_list,
-				paypal_deposit->ticket_refund_list ) );
+				paypal_deposit->ticket_refund_list,
+				paypal_deposit->program_donation_list ) );
 
 	} while ( list_next( paypal_deposit_list ) );
 }
