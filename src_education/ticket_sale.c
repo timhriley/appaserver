@@ -928,7 +928,8 @@ LIST *ticket_sale_list_paypal(
 					paypal_date_time,
 					paypal_item->item_value,
 					paypal_item->item_fee,
-					event ) );
+					event,
+					list_length( paypal_item_list ) ) );
 
 			paypal_item->taken = 1;
 		}
@@ -949,7 +950,8 @@ LIST *ticket_sale_list_paypal(
 					paypal_date_time,
 					paypal_item->item_value,
 					paypal_item->item_fee,
-					event ) );
+					event,
+					list_length( paypal_item_list ) ) );
 
 			paypal_item->taken = 1;
 		}
@@ -964,7 +966,8 @@ TICKET_SALE *ticket_sale_paypal(
 			char *paypal_date_time,
 			double item_value,
 			double item_fee,
-			EVENT *event )
+			EVENT *event,
+			int paypal_item_list_length )
 {
 	TICKET_SALE *ticket_sale;
 
@@ -975,11 +978,20 @@ TICKET_SALE *ticket_sale_paypal(
 	ticket_sale->sale_date_time =
 	ticket_sale->paypal_date_time = paypal_date_time;
 
-	ticket_sale->quantity = 1;
+	if ( paypal_item_list_length == 1 )
+	{
+		ticket_sale->quantity =
+			(int)( item_value / event->ticket_price );
+	}
+	else
+	{
+		ticket_sale->quantity = 1;
 
-	ticket_sale->ticket_price =
+	}
+
+	ticket_sale->ticket_price = event->ticket_price;
+
 	ticket_sale->extended_price = item_value;
-
 	ticket_sale->merchant_fees_expense = item_fee;
 
 	ticket_sale->net_payment_amount =

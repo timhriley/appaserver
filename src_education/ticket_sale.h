@@ -236,7 +236,8 @@ TICKET_SALE *ticket_sale_paypal(
 			char *paypal_date_time,
 			double item_value,
 			double item_fee,
-			EVENT *event );
+			EVENT *event,
+			int paypal_item_list_length );
 
 void ticket_sale_list_event_insert(
 			LIST *ticket_sale_list );
