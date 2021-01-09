@@ -60,7 +60,7 @@ PROCESS_SET *process_new_process_set(
 		return (PROCESS_SET *)0;
 	}
 	return p;
-} /* process_new_process_set() */
+}
 
 PROCESS *process_new(		char *application_name,
 				char *process_name )
@@ -97,7 +97,7 @@ PROCESS *process_new(		char *application_name,
 
 	return p;
 
-} /* process_new() */
+}
 
 PROCESS *process_new_process(	char *application_name,
 				char *session,
@@ -166,7 +166,7 @@ PROCESS *process_new_process(	char *application_name,
 	
 	return p;
 
-} /* process_new_process() */
+}
 
 void process_free( PROCESS *process )
 {
@@ -177,7 +177,7 @@ void process_free( PROCESS *process )
 	free( process->process_set_display );
 	free( process );
 
-} /* process_free() */
+}
 
 
 LIST *process2list( char *executable )
@@ -452,8 +452,7 @@ void process_convert_parameters(
 	remove_character( local_executable, '`' );
 
 	*executable = strdup( local_executable );
-
-} /* process_convert_parameters() */
+}
 
 char *process_get_process_member_from_dictionary(
 				char *process_set,
@@ -477,7 +476,7 @@ char *process_get_process_member_from_dictionary(
 		return process_member;
 	else
 		return (char *)0;
-} /* process_get_process_member_from_dictionary() */
+}
 
 void process_for_folder_or_attribute_parameters_populate_attribute_list(
 				LIST *attribute_list,
@@ -560,7 +559,7 @@ void process_for_folder_or_attribute_parameters_populate_attribute_list(
 		}
 	} while( list_next( process_parameter_list ) );
 
-} /* process_for_folder_or_attribute_parameters_populate_attribute_list() */
+}
 
 LIST *process_get_prompt_list( 	LIST *process_parameter_list )
 {
@@ -607,7 +606,7 @@ LIST *process_get_prompt_list( 	LIST *process_parameter_list )
 
 	list_separate( prompt_list, MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
 	return prompt_list;
-} /* process_get_prompt_list() */
+}
 
 ATTRIBUTE *process_get_attribute( 	char *application_name, 
 					char *attribute_name )
@@ -675,7 +674,7 @@ int process_set_load(	char **notepad,
 
 	free( record );
 	return 1;
-} /* process_set_load() */
+}
 
 void process_load_executable(	char **executable,
 				char *process_name,
@@ -714,7 +713,7 @@ sys_string  );
 
 	*executable = pipe2string( sys_string );
 
-} /* process_get_executable() */
+}
 
 boolean process_load(	char **executable,
 			char **notepad,
@@ -800,7 +799,7 @@ boolean process_load(	char **executable,
 	} while( list_next( process_record_list ) );
 
 	return 0;
-} /* process_load() */
+}
 
 LIST *process_load_record_list( char *application_name )
 {
@@ -813,7 +812,7 @@ LIST *process_load_record_list( char *application_name )
 				application_name ) );
 
 	return pipe2list( sys_string );
-} /* process_load_record_list() */
+}
 
 void process_replace_parameter_variables(	
 				char *executable,
@@ -1013,7 +1012,7 @@ void process_replace_parameter_variables(
 			buffer );
 	}
 
-} /* process_replace_parameter_variables() */
+}
 
 void process_execution_count_increment(
 			char *process_name )
@@ -1083,7 +1082,7 @@ boolean process_exists_appaserver_process(
 		if ( is_appaserver_process ) return 1;
 	} while( list_next( process_name_list ) );
 	return 0;
-} /* process_exists_appaserver_process() */
+}
 
 boolean process_executable_ok(	char *executable )
 {
@@ -1153,7 +1152,7 @@ boolean process_executable_ok(	char *executable )
 
 	return 1;
 
-} /* process_executable_ok() */
+}
 
 void process_set_one2m_folder_name_for_process(
 				DICTIONARY *dictionary,
@@ -1172,7 +1171,7 @@ void process_set_one2m_folder_name_for_process(
 		dictionary,
 		strdup( key ),
 		one2m_folder_name );
-} /* process_set_one2m_folder_name_for_process() */
+}
 
 void process_search_replace_executable_where(
 			char *local_executable,
@@ -1231,7 +1230,7 @@ void process_search_replace_executable_where(
 		}
 	}
 
-} /* process_search_replace_executable_where() */
+}
 
 boolean process_interpreted_executable_ok( char *which_string )
 {
@@ -1246,7 +1245,7 @@ boolean process_interpreted_executable_ok( char *which_string )
 
 	return (boolean)atoi( pipe2string( sys_string ) );
 
-} /* process_interpreted_executable_ok() */
+}
 
 void process_operation_convert(
 			char **executable,
@@ -1478,5 +1477,216 @@ void process_operation_convert(
 
 	*executable = strdup( local_executable );
 
-} /* process_operation_convert() */
+}
+
+void process_prompt_convert_parameters(
+			char **executable,
+			char *application_name,
+			char *session,
+			char *state,
+			char *person,
+			char *folder_name,
+			char *role_name,
+			DICTIONARY *preprompt_dictionary,
+			LIST *attribute_list,
+			int row,
+			char *process_name,
+			char *one2m_folder_name_for_process )
+{
+	char buffer[ 65536 ];
+	char local_executable[ 65536 ];
+	LIST *attribute_name_list = {0};
+	DICTIONARY *local_preprompt_dictionary = {0};
+	char *process_set_name = {0};
+	char process_id_string[ 16 ];
+
+	timlib_strcpy( local_executable, *executable, 65536 );
+
+	/* This memory is always strdup(). */
+	/* ------------------------------- */
+	free( *executable );
+
+	sprintf( process_id_string, "%d", getpid() );
+
+	if ( dictionary_length( preprompt_dictionary ) )
+	{
+		char *data;
+
+		local_preprompt_dictionary =
+			dictionary_copy_dictionary(
+				preprompt_dictionary );
+
+		dictionary_parse_multi_attribute_relation_operator_keys(
+			local_preprompt_dictionary, 
+			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
+
+		dictionary_set_pointer(
+			local_preprompt_dictionary,
+			PROCESS_ID_LABEL,
+			strdup( process_id_string ) );
+
+		if ( list_length( attribute_list ) )
+		{
+			attribute_set_dictionary_date_international(
+				local_preprompt_dictionary,
+				attribute_list );
+		}
+
+		if ( !dictionary_exists_key_index(
+				local_preprompt_dictionary,
+				"login_name",
+				0 ) )
+		{
+			dictionary_set_pointer(	local_preprompt_dictionary,
+						"login_name_0",
+						person );
+		}
+
+		if ( one2m_folder_name_for_process )
+		{
+			process_set_one2m_folder_name_for_process(
+				local_preprompt_dictionary,
+				one2m_folder_name_for_process );
+		}
+
+		if ( process_name && *process_name )
+		{
+			dictionary_set_pointer(	local_preprompt_dictionary,
+						"process",
+						process_name );
+		}
+
+		if ( ( data = dictionary_get_pointer(
+						local_preprompt_dictionary,
+						"execute_yn" ) )
+		||   ( data = dictionary_get_pointer(
+						local_preprompt_dictionary,
+						"from_execute_yn" ) )
+		||   ( data = dictionary_get_pointer(
+						local_preprompt_dictionary,
+						"execute_yn_0" ) ) )
+		{
+			dictionary_set_pointer(	local_preprompt_dictionary,
+						"really_yn_0",
+						data );
+
+			dictionary_set_pointer(	local_preprompt_dictionary,
+						"from_really_yn",
+						data );
+
+			dictionary_set_pointer(	local_preprompt_dictionary,
+						"really_yn",
+						data );
+		}
+		else
+		if ( ( data = dictionary_get_pointer(
+						local_preprompt_dictionary,
+						"really_yn" ) )
+		||   ( data = dictionary_get_pointer(
+						local_preprompt_dictionary,
+						"from_really_yn" ) )
+		||   ( data = dictionary_get_pointer(
+						local_preprompt_dictionary,
+						"really_yn_0" ) ) )
+		{
+			dictionary_set_pointer(	local_preprompt_dictionary,
+						"execute_yn_0",
+						data );
+
+			dictionary_set_pointer(	local_preprompt_dictionary,
+						"from_execute_yn",
+						data );
+
+			dictionary_set_pointer(	local_preprompt_dictionary,
+						"execute_yn",
+						data );
+		}
+
+		dictionary_search_replace_command_arguments(
+			local_executable,
+			local_preprompt_dictionary, 
+			row );
+
+	} /* if preprompt_dictionary */
+
+	if ( attribute_name_list )
+	{
+		search_replace_list_index_prepend_double_quoted(
+			local_executable, 
+			attribute_name_list,
+			local_preprompt_dictionary,
+			0, 	                  /* dictionary_key_offset */
+			QUERY_FROM_STARTING_LABEL,/* dictionary_key_prepend */
+			' '	                  /* replace_char_prepend */
+			);
+
+		search_replace_list_index_prepend_double_quoted(
+			local_executable, 
+			attribute_name_list,
+			local_preprompt_dictionary,
+			0, 	             /* dictionary_key_offset */
+			"",		    /* dictionary_key_prepend */
+			' '	              /* replace_char_prepend */
+			);
+	}
+
+	process_replace_parameter_variables(
+				local_executable,
+				application_name,
+				session,
+				state,
+				person,
+				folder_name,
+				role_name,
+				(char *)0 /* target_frame */,
+				process_name,
+				process_set_name,
+				(char *)0 /* operation_row_count_string */,
+				one2m_folder_name_for_process,
+				(char *)0 /* prompt */,
+				process_id_string );
+
+	if ( state && *state )
+	{
+		dictionary_set_pointer(
+			local_preprompt_dictionary,
+			"state",
+			state );
+	}
+
+	if ( timlib_exists_string( local_executable, "$dictionary" )
+	&&   dictionary_length( local_preprompt_dictionary ) )
+	{
+		search_replace_word(
+			local_executable,
+			"$dictionary",
+			double_quotes_around(
+				buffer, 
+				dictionary_display_delimited(
+					local_preprompt_dictionary, '&' ) 
+				) );
+	}
+
+	if ( timlib_exists_string( local_executable, "$where" ) )
+	{
+		process_search_replace_executable_where(
+			local_executable,
+			application_name,
+			folder_name,
+			attribute_list,
+			local_preprompt_dictionary );
+	}
+
+	sprintf(	local_executable + strlen( local_executable ),
+			" 2>>%s",
+			appaserver_error_get_filename(
+				application_name ) );
+
+	strcpy( buffer, local_executable );
+	escape_character( local_executable, buffer, '$' );
+
+	remove_character( local_executable, '`' );
+
+	*executable = strdup( local_executable );
+}
 

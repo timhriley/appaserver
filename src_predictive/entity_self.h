@@ -21,7 +21,10 @@
 /* ---------- */
 typedef struct
 {
+	/* ENTITY * must stay on top. */
+	/* -------------------------- */
 	ENTITY *entity;
+
 	char *payroll_beginning_day;
 	double social_security_combined_tax_rate;
 	int social_security_payroll_ceiling;

@@ -1853,7 +1853,7 @@ ELEMENT_APPASERVER *process_parameter_get_folder_process_element(
 	}
 
 	element->drop_down->option_data_list =
-		folder_get_drop_down_process_list(	
+		folder_drop_down_process_list(	
 			application_name,
 			session,
 			(char *)0 /* folder_name */,

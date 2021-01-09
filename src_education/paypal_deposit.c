@@ -913,7 +913,6 @@ PAYPAL_DEPOSIT *paypal_deposit_sweep(
 			int row_number )
 {
 	PAYPAL_DEPOSIT *paypal_deposit;
-	ENTITY_SELF *entity_self;
 
 	if ( !paypal_dataset )
 	{
@@ -936,8 +935,7 @@ PAYPAL_DEPOSIT *paypal_deposit_sweep(
 			paypal_dataset->date_A,
 			paypal_dataset->time_B );
 
- 	entity_self = entity_self_fetch();
-	paypal_deposit->payor_entity = entity_self->entity;
+	paypal_deposit->payor_entity = (ENTITY *)entity_self_fetch();
 
 	/* Column H */
 	/* -------- */

@@ -270,7 +270,7 @@ void output_process_results(
 		value );
 
 	results_list =
-		    folder_get_drop_down_process_list(
+		    folder_drop_down_process_list(
 			application_name,
 			BOGUS_SESSION,
 			folder_name,

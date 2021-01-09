@@ -224,5 +224,18 @@ void process_operation_convert(
 			char *process_name,
 			char *operation_row_count_string );
 
+void process_prompt_convert_parameters(char **executable,
+			char *application_name,
+			char *session,
+			char *state,
+			char *person,
+			char *folder_name,
+			char *role_name,
+			DICTIONARY *preprompt_dictionary,
+			LIST *attribute_list,
+			int row,
+			char *process_name,
+			char *one2m_folder_name_for_process );
+
 #endif
 

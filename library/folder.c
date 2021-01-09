@@ -415,7 +415,7 @@ LIST *folder_get_process_primary_data_list(
 				populate_drop_down_process->role_name;
 
 		drop_down_process_list =
-		     folder_get_drop_down_process_list(
+		     folder_drop_down_process_list(
 			application_name,
 			BOGUS_SESSION,
 			folder_name,
@@ -539,7 +539,7 @@ LIST *folder_primary_data_process_list(
 			populate_drop_down_process->role_name;
 
 	drop_down_process_list =
-	     folder_get_drop_down_process_list(
+	     folder_drop_down_process_list(
 		application_name,
 		session,
 		folder_name,
@@ -827,7 +827,7 @@ LIST *folder_get_process_dictionary_list(
 	LIST *primary_data_list;
 
 	primary_data_list =
-		folder_get_drop_down_process_list(
+		folder_drop_down_process_list(
 			application_name,
 			session,
 			folder_name,
@@ -849,7 +849,7 @@ LIST *folder_get_process_dictionary_list(
 			FOLDER_DATA_DELIMITER );
 }
 
-LIST *folder_get_drop_down_process_list(
+LIST *folder_drop_down_process_list(
 			char *application_name,
 			char *session,
 			char *folder_name,
@@ -930,8 +930,7 @@ populate_drop_down_process->executable );
 	}
 
 	return return_list;
-
-} /* folder_get_drop_down_process_list() */
+}
 
 boolean folder_get_pair_one2m_related_folder_boolean(
 					char *folder_name,
@@ -2448,13 +2447,12 @@ LIST *folder_prompt_primary_data_list(
 
 	if ( populate_drop_down_process )
 	{
-		return folder_primary_data_process_list(
+		return folder_prompt_primary_data_process_list(
 			application_name,
 			session,
 			folder_name,
 			login_name,
 			preprompt_dictionary,
-			(DICTIONARY *)0 /* where_clause_dictionary */,
 			populate_drop_down_process,
 			attribute_list,
 			role_name,
@@ -2558,3 +2556,108 @@ LIST *folder_lookup_update_folder_name_list(
 
 	return pipe2list( sys_string );
 }
+
+LIST *folder_prompt_primary_data_process_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *preprompt_dictionary,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes )
+{
+	LIST *drop_down_process_list;
+	char *local_role_name;
+
+	if ( role_name )
+		local_role_name = role_name;
+	else
+		local_role_name = 
+			populate_drop_down_process->role_name;
+
+	drop_down_process_list =
+	     folder_prompt_drop_down_process_list(
+		application_name,
+		session,
+		folder_name,
+		login_name,
+		populate_drop_down_process,
+		local_role_name,
+		preprompt_dictionary,
+		state,
+		one2m_folder_name_for_processes,
+		attribute_list,
+		0
+		/* piece_multi_attribute_data_label_delimiter */ );
+
+	return drop_down_process_list;
+}
+
+LIST *folder_prompt_drop_down_process_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			PROCESS *populate_drop_down_process,
+			char *role_name,
+			DICTIONARY *preprompt_dictionary,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			LIST *attribute_list,
+			char piece_multi_attribute_data_label_delimiter )
+{
+	LIST *return_list;
+	char *parameter_process_name;
+
+	parameter_process_name =
+		populate_drop_down_process->process_name;
+
+	if ( !populate_drop_down_process )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: null pointer for populate_drop_down_process\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	process_prompt_convert_parameters(
+			&populate_drop_down_process->executable,
+			application_name,
+			session,
+			state,
+			login_name,
+			folder_name,
+			role_name,
+			preprompt_dictionary,
+			attribute_list,
+			0 /* row */,
+			parameter_process_name,
+			one2m_folder_name_for_processes );
+
+/*
+fprintf( stderr, "%s/%s()/%d: executable = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+populate_drop_down_process->executable );
+*/
+
+	return_list = process2list( populate_drop_down_process->executable );
+
+	if ( piece_multi_attribute_data_label_delimiter )
+	{
+		return_list =
+			list_usage_piece_list(
+				return_list,
+				piece_multi_attribute_data_label_delimiter,
+				0 /* offset */ );
+	}
+
+	return return_list;
+}
+

@@ -233,7 +233,7 @@ LIST *folder_get_attribute_list(	char *application_name,
 LIST *folder_get_non_primary_attribute_name_list(
 					LIST *attribute_list );
 
-LIST *folder_get_drop_down_process_list(
+LIST *folder_drop_down_process_list(
 			char *application_name,
 			char *session,
 			char *folder_name,
@@ -504,5 +504,30 @@ LIST *folder_prompt_primary_data_table_list(
 LIST *folder_lookup_update_folder_name_list(
 			char *application_name,
 			char *role_name );
+
+LIST *folder_prompt_primary_data_process_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *preprompt_dictionary,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes );
+
+LIST *folder_prompt_drop_down_process_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			PROCESS *populate_drop_down_process,
+			char *role_name,
+			DICTIONARY *preprompt_dictionary,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			LIST *attribute_list,
+			char piece_multi_attribute_data_label_delimiter );
 
 #endif
