@@ -197,18 +197,18 @@ char *bank_upload_description_embedded(
 		bank_upload->bank_running_balance
 */
 LIST *bank_upload_file_list(
-					LIST *error_line_list,
-					char **file_sha256sum,
-					char **minimum_bank_date,
-					char *input_filename,
-					boolean reverse_order,
-					int date_piece_offset,
-					int description_piece_offset,
-					int debit_piece_offset,
-					int credit_piece_offset,
-					int balance_piece_offset,
-					int starting_sequence_number,
-					char *fund_name );
+			LIST *error_line_list,
+			char **file_sha256sum,
+			char *minimum_bank_date,
+			char *input_filename,
+			boolean reverse_order,
+			int date_piece_offset,
+			int description_piece_offset,
+			int debit_piece_offset,
+			int credit_piece_offset,
+			int balance_piece_offset,
+			int starting_sequence_number,
+			char *fund_name );
 
 /* Returns static memory */
 /* --------------------- */
@@ -397,6 +397,10 @@ BANK_UPLOAD *bank_upload_parse(
 
 LIST *bank_upload_transaction_list(
 			LIST *bank_upload_list );
+
+char *bank_upload_file_minimum_bank_date(
+			char *input_filename,
+			int date_piece_offset );
 
 #endif
 

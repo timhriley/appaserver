@@ -303,7 +303,9 @@ int load_bank_spreadsheet(
 		else
 			msg = "<h3>Warning: duplicated file.</h3>";
 
+		fflush( stdout );
 		printf( "%s\n", msg );
+		fflush( stdout );
 
 		bank_upload_exception = duplicated_spreadsheet_file;
 

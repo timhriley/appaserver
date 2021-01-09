@@ -136,6 +136,11 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 
 	p->file.error_line_list = list_new();
 
+	p->file.minimum_bank_date =
+		bank_upload_file_minimum_bank_date(
+			p->file.input_filename,
+			p->file.date_piece_offset );
+
 /* Sets:
 		bank_upload->bank_date
 		bank_upload->bank_description
@@ -148,7 +153,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 		bank_upload_file_list(
 			p->file.error_line_list,
 			&p->file.file_sha256sum,
-			&p->file.minimum_bank_date,
+			p->file.minimum_bank_date,
 			p->file.input_filename,
 			reverse_order,
 			p->file.date_piece_offset,
@@ -232,7 +237,7 @@ BANK_UPLOAD *bank_upload_new(	char *bank_date,
 LIST *bank_upload_file_list(
 				LIST *error_line_list,
 				char **file_sha256sum,
-				char **minimum_bank_date,
+				char *minimum_bank_date,
 				char *input_filename,
 				boolean reverse_order,
 				int date_piece_offset,
@@ -250,7 +255,6 @@ LIST *bank_upload_file_list(
 	char bank_description[ 1024 ];
 	char bank_amount[ 128 ];
 	char bank_balance[ 128 ];
-	static char local_minimum_bank_date[ 16 ] = {0};
 	FILE *input_pipe;
 	BANK_UPLOAD *bank_upload;
 	LIST *bank_upload_list;
@@ -275,11 +279,6 @@ LIST *bank_upload_file_list(
 	}
 
 	input_pipe = popen( sys_string, "r" );
-
-	if ( minimum_bank_date )
-	{
-		*minimum_bank_date = local_minimum_bank_date;
-	}
 
 	bank_upload_list = list_new();
 	*bank_balance = '\0';
@@ -327,12 +326,6 @@ LIST *bank_upload_file_list(
 			list_append_pointer( error_line_list, strdup( msg ) );
 
 			continue;
-		}
-
-		if ( !*local_minimum_bank_date )
-		{
-			strcpy(	local_minimum_bank_date,
-				bank_date_international );
 		}
 
 		/* =============== */
@@ -459,7 +452,7 @@ LIST *bank_upload_file_list(
 		if ( bank_upload_exists(
 			bank_upload->bank_date,
 			bank_upload->bank_description_embedded,
-			local_minimum_bank_date ) )
+			minimum_bank_date ) )
 		{
 			bank_upload->existing_bank_upload = 1;
 		}
@@ -2670,5 +2663,80 @@ void bank_upload_table_display(
 	} while( list_next( bank_upload_list ) );
 
 	if ( output_pipe ) pclose( output_pipe );
+}
+
+char *bank_upload_file_minimum_bank_date(
+			char *input_filename,
+			int date_piece_offset )
+{
+	char input_string[ 4096 ];
+	char bank_date[ 128 ];
+	char bank_date_international[ 128 ];
+	char minimum_bank_date[ 128 ];
+	FILE *input_file;
+
+	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			input_filename );
+		exit( 1 );
+	}
+
+	*minimum_bank_date = '\0';
+
+	while( timlib_get_line( input_string, input_file, 4096 ) )
+	{
+		trim( input_string );
+		if ( !*input_string ) continue;
+
+		/* Why is BofA escaping the closing double-quote? */
+		/* ---------------------------------------------- */
+		timlib_remove_character( input_string, '\\' );
+
+		/* Get bank_date */
+		/* ------------- */
+		if ( !piece_quote_comma(
+				bank_date,
+				input_string,
+				date_piece_offset ) )
+		{
+			continue;
+		}
+
+		if ( timlib_exists_string( bank_date, "date" )
+		||   timlib_exists_string( bank_date, "description" )
+		||   timlib_exists_string( bank_date, "balance" )
+		||   timlib_exists_string( bank_date, "total" ) )
+		{
+			continue;
+		}
+
+		if ( !bank_upload_bank_date_international(
+				bank_date_international,
+				bank_date ) )
+		{
+			continue;
+		}
+
+		if ( !*minimum_bank_date )
+		{
+			strcpy( minimum_bank_date, bank_date_international );
+			continue;
+		}
+
+		if ( strcmp(	bank_date_international,
+				minimum_bank_date ) < 0 )
+		{
+			strcpy( minimum_bank_date, bank_date_international );
+		}
+	}
+
+	fclose( input_file );
+
+	return strdup( minimum_bank_date );
 }
 
