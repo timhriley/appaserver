@@ -23,13 +23,6 @@
 
 /* Prototypes */
 /* ---------- */
-/*
-void registration_trigger(
-				char *student_full_name,
-				char *street_address,
-				char *season_name,
-				int year );
-*/
 
 int main( int argc, char **argv )
 {
@@ -53,7 +46,7 @@ int main( int argc, char **argv )
 	"Usage: %s student_full_name street_address season_name year state\n",
 			 argv[ 0 ] );
 		fprintf( stderr,
-			"state in {insert,update,delete,enrollment,payment\n" );
+			"state in {insert,update}\n" );
 		exit ( 1 );
 	}
 
@@ -72,9 +65,7 @@ int main( int argc, char **argv )
 	if ( !year ) exit( 0 );
 
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0
-	||   strcmp( state, "enrollment" ) ==  0
-	||   strcmp( state, "payment" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0 )
 	{
 		registration_fetch_update(
 			student_full_name,

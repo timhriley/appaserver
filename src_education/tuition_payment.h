@@ -216,8 +216,7 @@ void tuition_payment_trigger(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time,
-			char *state );
+			char *payment_date_time );
 
 void tuition_payment_list_enrollment_trigger(
 			LIST *tuition_payment_list );

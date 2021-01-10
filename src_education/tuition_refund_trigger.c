@@ -108,8 +108,7 @@ int main( int argc, char **argv )
 	}
 
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0
-	||   strcmp( state, "deposit" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0 )
 	{
 
 		tuition_refund_trigger_insert_update(
@@ -123,31 +122,28 @@ int main( int argc, char **argv )
 			payment_date_time,
 			refund_date_time );
 
-#ifdef NOT_DEFINED
-		char sys_string[ 1024 ];
-		/* ------------------------------------ */
-		/* Even if called from deposit_trigger,	*/
-		/* need to set tuition_refund_total.	*/
-		/* ------------------------------------ */
-		sprintf(sys_string,
-	 "deposit_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" tuition_refund",
-				entity_escape_full_name( payor_full_name ),
-				payor_street_address,
-				season_name,
-				year,
-				deposit_date_time );
-
-		if ( system( sys_string ) ){}
-
-		sprintf(sys_string,
-		 "registration_trigger \"%s\" \"%s\" \"%s\" %d tuition_refund",
-			entity_escape_full_name( student_full_name ),
+		tuition_payment_trigger(
+			student_full_name,
 			street_address,
+			course_name,
 			season_name,
-			year );
+			year,
+			payor_full_name,
+			payor_street_address,
+			payment_date_time );
+	}
 
-		if ( system( sys_string ) ){}
-#endif
+	if ( strcmp( state, "delete" ) == 0 )
+	{
+		tuition_payment_trigger(
+			student_full_name,
+			street_address,
+			course_name,
+			season_name,
+			year,
+			payor_full_name,
+			payor_street_address,
+			payment_date_time );
 	}
 
 	return 0;

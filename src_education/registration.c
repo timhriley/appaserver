@@ -622,3 +622,21 @@ void registration_list_fetch_update(
 	} while ( list_next( registration_list ) );
 }
 
+void registration_trigger(
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"registration_trigger \"%s\" '%s' '%s' %d update",
+		student_full_name,
+		street_address,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+}
+

@@ -317,6 +317,7 @@ TRANSACTION *tuition_payment_transaction(
 			/* Returns static memory */
 			/* --------------------- */
 			strdup( tuition_payment_memo( program_name ) ),
+			1 /* lock_transaction */,
 			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
@@ -1079,8 +1080,7 @@ void tuition_payment_list_trigger(
 				payor_entity->
 				street_address,
 			tuition_payment->
-				payment_date_time,
-			"insert" /* state */ );
+				payment_date_time );
 
 	} while ( list_next( paypal_tuition_payment_list ) );
 }
@@ -1099,13 +1099,12 @@ void tuition_payment_trigger(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time,
-			char *state )
+			char *payment_date_time )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"tuition_payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s' '%s'",
+"tuition_payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s' update",
 		student_full_name,
 		street_address,
 		course_name,
@@ -1113,8 +1112,7 @@ void tuition_payment_trigger(
 		year,
 		payor_full_name,
 		payor_street_address,
-		payment_date_time,
-		state );
+		payment_date_time );
 
 	if ( system( sys_string ) ){}
 }

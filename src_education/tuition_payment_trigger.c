@@ -104,10 +104,8 @@ int main( int argc, char **argv )
 	}
 
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0
-	||   strcmp( state, "paypal" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0 )
 	{
-
 		tuition_payment_trigger_insert_update(
 			student_full_name,
 			street_address,
@@ -118,31 +116,22 @@ int main( int argc, char **argv )
 			payor_street_address,
 			payment_date_time );
 
-#ifdef NOT_DEFINED
-		char sys_string[ 1024 ];
-		/* ------------------------------------ */
-		/* Even if called from paypal_trigger,	*/
-		/* need to set tuition_payment_total.	*/
-		/* ------------------------------------ */
-		sprintf(sys_string,
-	 "paypal_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" tuition_payment",
-				entity_escape_full_name( payor_full_name ),
-				payor_street_address,
-				season_name,
-				year,
-				payment_date_time );
-
-		if ( system( sys_string ) ){}
-
-		sprintf(sys_string,
-		 "registration_trigger \"%s\" \"%s\" \"%s\" %d tuition_payment",
-			entity_escape_full_name( student_full_name ),
+		enrollment_trigger(
+			student_full_name,
 			street_address,
+			course_name,
 			season_name,
 			year );
+	}
 
-		if ( system( sys_string ) ){}
-#endif
+	if ( strcmp( state, "delete" ) == 0 )
+	{
+		enrollment_trigger(
+			student_full_name,
+			street_address,
+			course_name,
+			season_name,
+			year );
 	}
 
 

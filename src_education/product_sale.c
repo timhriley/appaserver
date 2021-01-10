@@ -385,6 +385,7 @@ TRANSACTION *product_sale_transaction(
 			/* Returns static memory */
 			/* --------------------- */
 			strdup( product_sale_memo( product_name ) ),
+			1 /* lock_transaction */,
 			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;

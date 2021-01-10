@@ -182,5 +182,11 @@ double registration_fetch_invoice_amount_due(
 			char *season_name,
 			int year );
 
+void registration_trigger(
+			char *student_full_name,
+			char *street_address,
+			char *season_name,
+			int year );
+
 #endif
 

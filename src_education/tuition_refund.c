@@ -445,6 +445,7 @@ TRANSACTION *tuition_refund_transaction(
 			/* Returns static memory */
 			/* --------------------- */
 			strdup( tuition_refund_memo( course_name ) ),
+			1 /* lock_transaction */,
 			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;

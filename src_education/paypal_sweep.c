@@ -310,10 +310,8 @@ TRANSACTION *paypal_sweep_transaction(
 				/* transaction_date_time */,
 			sweep_amount
 				/* transaction_amount */,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
 			"Sweep" /* memo */,
+			1 /* lock_transaction */,
 			(*seconds_to_add)++ );
 
 	if ( !transaction->journal_list )

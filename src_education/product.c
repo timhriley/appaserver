@@ -244,3 +244,13 @@ LIST *product_name_list( LIST *product_list )
 }
 
 
+void product_trigger( char *product_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"product_trigger \"%s\" update",
+		product_name );
+
+	if ( system( sys_string ) ){}
+}

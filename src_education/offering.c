@@ -451,3 +451,19 @@ LIST *offering_name_list( LIST *offering_list )
 	return name_list;
 }
 
+void offering_trigger(
+			char *course_name,
+			char *season_name,
+			int year )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"offering_trigger \"%s\" '%s' %d update",
+		course_name,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+}
+

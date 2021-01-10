@@ -47,6 +47,7 @@ TRANSACTION *transaction_full(
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
+			boolean lock_transaction,
 			int seconds_to_add )
 {
 	TRANSACTION *transaction;
@@ -84,6 +85,7 @@ TRANSACTION *transaction_full(
 
 	transaction->transaction_amount = transaction_amount;
 	transaction->memo = memo;
+	transaction->lock_transaction = lock_transaction;
 	return transaction;
 }
 

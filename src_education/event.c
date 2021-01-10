@@ -468,3 +468,17 @@ char *event_paypal_display(
 }
 
 
+void event_trigger(	char *event_name,
+			char *event_date,
+			char *event_time )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"event_trigger \"%s\" '%s' '%s' update",
+		event_name,
+		event_date,
+		event_time );
+
+	if ( system( sys_string ) ){}
+}

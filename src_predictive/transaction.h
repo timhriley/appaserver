@@ -233,6 +233,7 @@ TRANSACTION *transaction_full(
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
+			boolean lock_transaction,
 			int seconds_to_add );
 
 TRANSACTION *transaction_binary(

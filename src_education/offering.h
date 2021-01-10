@@ -138,5 +138,10 @@ void offering_list_fetch_update(
 LIST *offering_name_list(
 			LIST *offering_list );
 
+void offering_trigger(
+			char *course_name,
+			char *season_name,
+			int year );
+
 #endif
 

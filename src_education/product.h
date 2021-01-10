@@ -77,5 +77,7 @@ char *product_fetch_program_name(
 LIST *product_name_list(
 			LIST *product_list );
 
+void product_trigger(	char *product_name );
+
 #endif
 

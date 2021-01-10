@@ -475,7 +475,7 @@ void enrollment_trigger(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"enrollment_trigger \"%s\" '%s' \"%s\" '%s' %d insert",
+	"enrollment_trigger \"%s\" '%s' \"%s\" '%s' %d update",
 		student_full_name,
 		street_address,
 		course_name,

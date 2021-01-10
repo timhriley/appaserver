@@ -229,7 +229,8 @@ LIST *ticket_sale_list_paypal(
 			ENTITY *payor_entity,
 			char *paypal_date_time,
 			LIST *paypal_item_list,
-			LIST *semester_event_list );
+			LIST *semester_event_list,
+			double paypal_amount );
 
 TICKET_SALE *ticket_sale_paypal(
 			ENTITY *payor_entity,
@@ -237,6 +238,7 @@ TICKET_SALE *ticket_sale_paypal(
 			double item_value,
 			double item_fee,
 			EVENT *event,
+			double paypal_amount,
 			int paypal_item_list_length );
 
 void ticket_sale_list_event_insert(

@@ -118,6 +118,7 @@ EXECUTABLES=	offering_trigger					\
 		product_sale_trigger					\
 		product_refund_trigger					\
 		paypal_sweep_trigger					\
+		ticket_sale_trigger					\
 		ticket_refund_trigger					\
 		paypal_upload						\
 		generate_invoice
@@ -226,6 +227,19 @@ product_sale_trigger: product_sale_trigger.c				\
 		${EDUCATION_CORE}					\
 		product_sale_trigger.c					\
 		-o product_sale_trigger
+
+ticket_sale_trigger: ticket_sale_trigger.c				\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${EDUCATION_CORE}
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${EDUCATION_CORE}					\
+		ticket_sale_trigger.c					\
+		-o ticket_sale_trigger
 
 product_refund_trigger: product_refund_trigger.c			\
 	${EXTERNAL_LIBRARY} 						\

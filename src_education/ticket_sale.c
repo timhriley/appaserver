@@ -434,6 +434,7 @@ TRANSACTION *ticket_sale_transaction(
 			/* Returns static memory */
 			/* --------------------- */
 			strdup( ticket_sale_memo( event_name ) ),
+			1 /* lock_transaction */,
 			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
@@ -897,7 +898,8 @@ LIST *ticket_sale_list_paypal(
 			ENTITY *payor_entity,
 			char *paypal_date_time,
 			LIST *paypal_item_list,
-			LIST *semester_event_list )
+			LIST *semester_event_list,
+			double paypal_amount )
 {
 	LIST *ticket_sale_list = {0};
 	PAYPAL_ITEM *paypal_item;
@@ -929,6 +931,7 @@ LIST *ticket_sale_list_paypal(
 					paypal_item->item_value,
 					paypal_item->item_fee,
 					event,
+					paypal_amount,
 					list_length( paypal_item_list ) ) );
 
 			paypal_item->taken = 1;
@@ -951,6 +954,7 @@ LIST *ticket_sale_list_paypal(
 					paypal_item->item_value,
 					paypal_item->item_fee,
 					event,
+					paypal_amount,
 					list_length( paypal_item_list ) ) );
 
 			paypal_item->taken = 1;
@@ -967,6 +971,7 @@ TICKET_SALE *ticket_sale_paypal(
 			double item_value,
 			double item_fee,
 			EVENT *event,
+			double paypal_amount,
 			int paypal_item_list_length )
 {
 	TICKET_SALE *ticket_sale;
@@ -974,32 +979,32 @@ TICKET_SALE *ticket_sale_paypal(
 	ticket_sale = ticket_sale_calloc();
 
 	ticket_sale->payor_entity = payor_entity;
-
 	ticket_sale->sale_date_time =
 	ticket_sale->paypal_date_time = paypal_date_time;
+	ticket_sale->ticket_price = event->ticket_price;
+	ticket_sale->merchant_fees_expense = item_fee;
+	ticket_sale->event = event;
 
 	if ( paypal_item_list_length == 1 )
 	{
 		ticket_sale->quantity =
-			(int)( item_value / event->ticket_price );
+			(int)( paypal_amount / event->ticket_price );
+
+		ticket_sale->extended_price =
+			ticket_sale->ticket_price *
+			(double)ticket_sale->quantity;
 	}
 	else
 	{
 		ticket_sale->quantity = 1;
-
+		ticket_sale->extended_price = item_value;
 	}
-
-	ticket_sale->ticket_price = event->ticket_price;
-
-	ticket_sale->extended_price = item_value;
-	ticket_sale->merchant_fees_expense = item_fee;
 
 	ticket_sale->net_payment_amount =
 		education_net_payment_amount(
 			ticket_sale->extended_price,
 			ticket_sale->merchant_fees_expense );
 
-	ticket_sale->event = event;
 	return ticket_sale;
 }
 

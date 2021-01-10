@@ -89,8 +89,6 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		char sys_string[ 1024 ];
-
 		enrollment_trigger_insert_update(
 			student_full_name,
 			street_address,
@@ -98,44 +96,30 @@ int main( int argc, char **argv )
 			season_name,
 			year );
 
-		sprintf(sys_string,
-		"registration_trigger \"%s\" \"%s\" \"%s\" %d enrollment",
-			student_full_name,
-			street_address,
-			season_name,
-			year );
-
-		if ( system( sys_string ) ){}
-
-		sprintf(sys_string,
-			"offering_trigger \"%s\" \"%s\" %d enrollment",
+		offering_trigger(
 			course_name,
 			season_name,
 			year );
 
-		if ( system( sys_string ) ){}
+		registration_trigger(
+			student_full_name,
+			street_address,
+			season_name,
+			year );
 	}
 	else
 	if ( strcmp( state, "delete" ) ==  0 )
 	{
-		char sys_string[ 1024 ];
-
-		sprintf(sys_string,
-		"registration_trigger \"%s\" \"%s\" \"%s\" %d enrollment",
-			student_full_name,
-			street_address,
-			season_name,
-			year );
-
-		if ( system( sys_string ) ){}
-
-		sprintf(sys_string,
-			"offering_trigger \"%s\" \"%s\" %d enrollment",
+		offering_trigger(
 			course_name,
 			season_name,
 			year );
 
-		if ( system( sys_string ) ){}
+		registration_trigger(
+			student_full_name,
+			street_address,
+			season_name,
+			year );
 	}
 
 	return 0;

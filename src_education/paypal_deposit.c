@@ -1140,7 +1140,8 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 				paypal_deposit->payor_entity,
 				paypal_deposit->paypal_date_time,
 				paypal_deposit->paypal_item_list_steady_state,
-				semester_event_list );
+				semester_event_list,
+				paypal_deposit->paypal_amount );
 
 		paypal_deposit->program_donation_list =
 			program_donation_list_paypal(

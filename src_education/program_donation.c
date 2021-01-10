@@ -342,6 +342,7 @@ TRANSACTION *program_donation_transaction(
 			/* Returns static memory */
 			/* --------------------- */
 			strdup( program_donation_memo( program_name ) ),
+			1 /* lock_transaction */,
 			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
@@ -449,7 +450,7 @@ char *program_donation_list_display( LIST *payment_list )
 		return "";
 	}
 
-	ptr += sprintf( ptr, "Program payment: " );
+	ptr += sprintf( ptr, "Program donation: " );
 
 	do {
 		payment =

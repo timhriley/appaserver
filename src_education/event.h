@@ -136,5 +136,9 @@ EVENT *event_paypal_label_seek(
 			char *event_label,
 			LIST *event_list );
 
+void event_trigger(	char *event_name,
+			char *event_date,
+			char *event_time );
+
 #endif
 

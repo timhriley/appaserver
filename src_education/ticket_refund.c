@@ -402,6 +402,7 @@ TRANSACTION *ticket_refund_transaction(
 			/* Returns static memory */
 			/* --------------------- */
 			strdup( ticket_refund_memo( event_name ) ),
+			1 /* lock_transaction */,
 			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;

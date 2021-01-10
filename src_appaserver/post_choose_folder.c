@@ -403,15 +403,6 @@ char *prompt_insert_form_sys_string(
 			lookup_before_drop_down_dictionary,
 			state );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: boolean = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-lookup_before_drop_down->omit_lookup_before_drop_down );
-m2( application_name, msg );
-}
 	if ( !lookup_before_drop_down->omit_lookup_before_drop_down
 	&&   ( lookup_before_drop_down->insert_pair_base_folder_name =
 		lookup_before_drop_down_get_insert_pair_base_folder_name(

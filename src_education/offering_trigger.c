@@ -23,12 +23,6 @@
 
 /* Prototypes */
 /* ---------- */
-/*
-void offering_trigger(
-				char *course_name,
-				char *season_name,
-				int year );
-*/
 
 int main( int argc, char **argv )
 {
@@ -51,7 +45,7 @@ int main( int argc, char **argv )
 			 "Usage: %s course_name season_name year state\n",
 			 argv[ 0 ] );
 		fprintf( stderr,
-			 "state in {insert,update,delete,enrollment}\n" );
+			 "state in {insert,update}\n" );
 		exit ( 1 );
 	}
 
@@ -69,8 +63,7 @@ int main( int argc, char **argv )
 	if ( !year ) exit( 0 );
 
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0
-	||   strcmp( state, "enrollment" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0 )
 	{
 		offering_fetch_update(
 			course_name,
@@ -79,45 +72,4 @@ int main( int argc, char **argv )
 	}
 	return 0;
 }
-
-#ifdef NOT_DEFINED
-void offering_trigger(
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	OFFERING *offering;
-
-	if ( ! ( offering =
-			offering_fetch(
-				course_name,
-				season_name,
-				year,
-				1 /* fetch_course */,
-				1 /* fetch_enrollment_list */ ) ) )
-	{
-		return;
-	}
-
-	if ( ! ( offering =
-			offering_steady_state(
-				offering,
-				offering->offering_enrollment_list ) ) )
-	{
-		fprintf(stderr,
-			"%s/%s()/%d: offering_steady_state() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	offering_update(
-		offering->offering_enrollment_count,
-		offering->offering_capacity_available,
-		offering->course->course_name,
-		offering->semester->season_name,
-		offering->semester->year );
-}
-#endif
 
