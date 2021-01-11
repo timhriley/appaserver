@@ -212,7 +212,7 @@ int main( int argc, char **argv )
 */
 
 			printf(
-		"<p>Process complete with PAYPAL count %d.\n",
+		"<p>Process complete with PAYPAL row count %d.\n",
 				list_length( paypal_deposit_list ) );
 
 			process_execution_count_increment(
@@ -221,7 +221,7 @@ int main( int argc, char **argv )
 		else
 		{
 			printf(
-"<p>Process not executed because no generated transactions; PAYPAL count %d.\n",
+"<p>Process not executed because no generated transactions; PAYPAL row count %d.\n",
 				list_length( paypal_deposit_list ) );
 		}
 	}
@@ -237,7 +237,7 @@ int main( int argc, char **argv )
 			row_count );
 
 		printf(
-	"<p>Process did not execute with PAYPAL count of %d up to date %s.\n",
+"<p>Process did not execute with PAYPAL row count of %d up to date %s.\n",
 			list_length( paypal_deposit_list ),
 			date_convert_international2american(
 				maximum_date ) );
