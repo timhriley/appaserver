@@ -155,7 +155,7 @@ int main( int argc, char **argv )
 					season_name,
 					year ) ) );
 
-	if ( !maximum_date )
+	if ( !row_count )
 	{
 		printf( "<h3>Invalid spreadsheet.</h3>\n" );
 		document_close();
@@ -237,8 +237,10 @@ int main( int argc, char **argv )
 			row_count );
 
 		printf(
-		"<p>Process did not execute with PAYPAL count %d.\n",
-				list_length( paypal_deposit_list ) );
+	"<p>Process did not execute with PAYPAL count of %d up to date %s.\n",
+			list_length( paypal_deposit_list ),
+			date_convert_international2american(
+				maximum_date ) );
 	}
 
 	if ( !nohtml ) document_close();

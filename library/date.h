@@ -292,19 +292,23 @@ void date_increment_minute(	DATE *d );
 char *date_get_current_yyyy_mm_dd(
 				int utc_offset );
 
-char *date_get_current_hhmm(	int utc_offset );
+char *date_get_current_hhmm(
+			int utc_offset );
 
-void date_increment_days(	DATE *d,
-				double days,
-				int utc_offset );
+void date_increment_days(
+			DATE *d,
+			double days,
+			int utc_offset );
 
-void date_decrement_days(	DATE *d,
-				double days,
-				int utc_offset );
+void date_decrement_days(
+			DATE *d,
+			double days,
+			int utc_offset );
 
-char *date_hhmm(		DATE *d );
+char *date_hhmm(	DATE *d );
 
-char *date_get_hhmm_string( DATE *d );
+char *date_get_hhmm_string(
+			DATE *d );
 
 DATE *date_calloc( void );
 
@@ -397,23 +401,23 @@ time_t date_tm_to_current_pre_1970(
 				struct tm *tm,
 				int utc_offset );
 
-time_t date_mktime(		struct tm *tm,
-				int utc_offset );
+time_t date_mktime(	struct tm *tm,
+			int utc_offset );
 
 char *date_get_day_of_week_string(
-				DATE *d );
+			DATE *d );
 
-char *date_display_mdy(		DATE *date );
+char *date_display_mdy(	DATE *date );
 
 int date_get_month_day_number(	DATE *date );
 
-int date_days_in_month(		int month,
-				int year );
+int date_days_in_month(	int month,
+			int year );
 
 char *date_prior_day_of_week_yyyy_mm_dd_string(
-				DATE *d,
-				int day_of_week,
-				int utc_offset );
+			DATE *d,
+			int day_of_week,
+			int utc_offset );
 
 char *date_yyyy_mm_dd_display(
 			DATE *date );
@@ -491,57 +495,65 @@ void date_increment_years(
 			int utc_offset );
 
 DATE *date_forward_to_first_month(
-				DATE *d,
-				int utc_offset );
+			DATE *d,
+			int utc_offset );
 
 char *date_get_colon_now_time(
-				void );
+			void );
 
-void date_place_colon_in_time(	char *time_string );
+void date_place_colon_in_time(
+			char *time_string );
 
-void date_remove_colon_in_time(	char *time_string );
+void date_remove_colon_in_time(
+			char *time_string );
 
-DATE *date_get_prior_day(	DATE *date,
-				int wday_parameter,
-				int utc_offset );
+DATE *date_get_prior_day(
+			DATE *date,
+			int wday_parameter,
+			int utc_offset );
 
-DATE *date_get_prior_saturday(	DATE *date,
-				int utc_offset );
+DATE *date_get_prior_saturday(
+			DATE *date,
+			int utc_offset );
 
-char *date_append_hhmmss(	char *date_string );
+char *date_append_hhmmss(
+			char *date_string );
 
-char *date_get_now_time_second(	int utc_offset );
+char *date_get_now_time_second(
+			int utc_offset );
 
 char *date_remove_colon_from_time(
-				char *time_string );
+			char *time_string );
 
-DATE *date_now_new(		int utc_offset );
+DATE *date_now_new(	int utc_offset );
 
 void date_set_date_time_integers(
-				DATE *date,
-				int year,
-				int month,
-				int day,
-				int hours,
-				int minutes,
-				int seconds,
-				int utc_offset );
+			DATE *date,
+			int year,
+			int month,
+			int day,
+			int hours,
+			int minutes,
+			int seconds,
+			int utc_offset );
 
 boolean date_set_yyyy_mm_dd_hhmm(
-				DATE *date,
-				char *yyyy_mm_dd,
-				char *hhmm,
-				int utc_offset );
+			DATE *date,
+			char *yyyy_mm_dd,
+			char *hhmm,
+			int utc_offset );
 
-int date_get_last_month_day(	int month,
-				int year );
+int date_get_last_month_day(
+			int month,
+			int year );
 
 DATE *date_yyyy_mm_dd_colon_hm_new(
-				char *date_time_string );
+			char *date_time_string );
 
-int date_utc_offset(		void );
+int date_utc_offset(	void );
 
-int date_get_utc_offset(	void );
+int date_get_utc_offset(
+			void );
 
 boolean date_name_to_value(	char *variable_value,
 				char *variable_name );
