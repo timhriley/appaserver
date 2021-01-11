@@ -553,7 +553,9 @@ void registration_insert_pipe(
 		student_street_address,
 		season_name,
 		year,
-		registration_date_time );
+		(registration_date_time)
+			? registration_date_time
+ 			: "" );
 }
 
 void registration_fetch_update(

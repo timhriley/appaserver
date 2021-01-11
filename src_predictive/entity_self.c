@@ -30,7 +30,7 @@ ENTITY_SELF *entity_self_new(	char *full_name,
 		exit( 1 );
 	}
 
-	s->entity = entity_fetch( full_name, street_address );
+	s->entity = entity_new( full_name, street_address );
 
 	return s;
 }

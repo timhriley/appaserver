@@ -1478,7 +1478,7 @@ TUITION_PAYMENT *tuition_payment_paypal(
 
 	tuition_payment->enrollment->registration->registration_date_time =
 		paypal_date_time;
-	
+
 	tuition_payment->
 		enrollment->
 		registration->

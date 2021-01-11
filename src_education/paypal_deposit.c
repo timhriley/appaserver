@@ -670,7 +670,8 @@ LIST *paypal_deposit_list_transaction_list(
 				paypal_deposit->tuition_refund_list,
 				paypal_deposit->product_refund_list,
 				paypal_deposit->ticket_refund_list,
-				paypal_deposit->program_donation_list ) );
+				paypal_deposit->program_donation_list,
+				paypal_deposit->paypal_sweep ) );
 
 	} while ( list_next( paypal_deposit_list ) );
 	return transaction_list;
@@ -754,7 +755,8 @@ LIST *paypal_deposit_transaction_list(
 			LIST *tuition_refund_list,
 			LIST *product_refund_list,
 			LIST *ticket_refund_list,
-			LIST *program_donation_list )
+			LIST *program_donation_list,
+			PAYPAL_SWEEP *paypal_sweep )
 {
 	LIST *transaction_list;
 
@@ -794,6 +796,11 @@ LIST *paypal_deposit_transaction_list(
 		transaction_list,
 		program_donation_transaction_list(
 			program_donation_list ) );
+
+	list_append_list(
+		transaction_list,
+		paypal_sweep_transaction_list(
+			paypal_sweep ) );
 
 	return transaction_list;
 }
@@ -913,6 +920,7 @@ PAYPAL_DEPOSIT *paypal_deposit_sweep(
 			int row_number )
 {
 	PAYPAL_DEPOSIT *paypal_deposit;
+	ENTITY_SELF *entity_self;
 
 	if ( !paypal_dataset )
 	{
@@ -935,7 +943,8 @@ PAYPAL_DEPOSIT *paypal_deposit_sweep(
 			paypal_dataset->date_A,
 			paypal_dataset->time_B );
 
-	paypal_deposit->payor_entity = (ENTITY *)entity_self_fetch();
+	entity_self = entity_self_fetch();
+	paypal_deposit->payor_entity = entity_self->entity;
 
 	/* Column H */
 	/* -------- */
@@ -1322,6 +1331,8 @@ void paypal_deposit_paypal_insert( LIST *paypal_deposit_list )
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
+	char *season_name;
+	int year;
 
 	if ( !list_rewind( paypal_deposit_list ) ) return;
 
@@ -1335,12 +1346,13 @@ void paypal_deposit_paypal_insert( LIST *paypal_deposit_list )
 
 		if ( !paypal_deposit->semester )
 		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty semester.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
+			season_name = "";
+			year = 0;
+		}
+		else
+		{
+			season_name = paypal_deposit->semester->season_name;
+			year = paypal_deposit->semester->year;
 		}
 
 		if ( !paypal_deposit->payor_entity )
@@ -1369,8 +1381,8 @@ void paypal_deposit_paypal_insert( LIST *paypal_deposit_list )
 			paypal_deposit->payor_entity->street_address,
 			paypal_deposit->paypal_date_time,
 			paypal_deposit->row_number,
-			paypal_deposit->semester->season_name,
-			paypal_deposit->semester->year,
+			season_name,
+			year,
 			paypal_deposit->paypal_amount,
 			paypal_deposit->transaction_fee,
 			paypal_deposit->net_revenue,

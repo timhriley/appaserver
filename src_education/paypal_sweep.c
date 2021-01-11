@@ -330,7 +330,7 @@ TRANSACTION *paypal_sweep_transaction(
 				transaction->transaction_date_time,
 				account_cash ) ) );
 
-	journal->debit_amount = sweep_amount;
+	journal->debit_amount = 0.0 - sweep_amount;
 
 	/* Debit paypal cash account */
 	/* ------------------------- */
@@ -343,7 +343,7 @@ TRANSACTION *paypal_sweep_transaction(
 				transaction->transaction_date_time,
 				paypal_cash_account_name ) ) );
 
-	journal->credit_amount = sweep_amount;
+	journal->credit_amount = 0.0 - sweep_amount;
 
 	return transaction;
 }
@@ -417,5 +417,21 @@ char *paypal_sweep_display(
 				paypal_sweep->sweep_amount );
 	}
 	return strdup( display );
+}
+
+LIST *paypal_sweep_transaction_list(
+			PAYPAL_SWEEP *paypal_sweep )
+{
+	LIST *transaction_list;
+
+	if ( !paypal_sweep ) return (LIST *)0;
+
+	transaction_list = list_new();
+
+	list_set(
+		transaction_list,
+		paypal_sweep->paypal_sweep_transaction );
+
+	return transaction_list;
 }
 

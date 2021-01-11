@@ -398,7 +398,8 @@ void paypal_upload_display(
 				paypal_deposit->tuition_refund_list,
 				paypal_deposit->product_refund_list,
 				paypal_deposit->ticket_refund_list,
-				paypal_deposit->program_donation_list ) );
+				paypal_deposit->program_donation_list,
+				paypal_deposit->paypal_sweep ) );
 
 	} while ( list_next( paypal_deposit_list ) );
 }

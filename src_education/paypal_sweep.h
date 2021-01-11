@@ -127,5 +127,8 @@ PAYPAL_SWEEP *paypal_sweep_paypal(
 char *paypal_sweep_display(
 			PAYPAL_SWEEP *paypal_sweep );
 
+LIST *paypal_sweep_transaction_list(
+			PAYPAL_SWEEP *paypal_sweep );
+
 #endif
 

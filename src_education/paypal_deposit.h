@@ -227,7 +227,8 @@ LIST *paypal_deposit_transaction_list(
 			LIST *tuition_refund_list,
 			LIST *product_refund_list,
 			LIST *ticket_refund_list,
-			LIST *program_donation_list );
+			LIST *program_donation_list,
+			PAYPAL_SWEEP *paypal_sweep );
 
 LIST *paypal_deposit_list_enrollment_update(
 			LIST *paypal_deposit_list,
