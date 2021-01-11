@@ -43,7 +43,8 @@
 /* Prototypes */
 /* ---------- */
 void paypal_upload_not_found_display(
-			LIST *paypal_deposit_list );
+			LIST *paypal_deposit_list,
+			int row_count );
 
 void paypal_upload_event_insert(
 			char *spreadsheet_filename,
@@ -59,6 +60,7 @@ void paypal_upload_display(
 /* -------------------------------- */
 LIST *paypal_upload_deposit_list(
 			char **maximum_date,
+			int *row_count,
 			char *spreadsheet_filename,
 			char *season_name,
 			int year );
@@ -78,6 +80,7 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 128 ];
 	char *maximum_date = {0};
+	int row_count = 0;
 	LIST *paypal_deposit_list;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -147,6 +150,7 @@ int main( int argc, char **argv )
 				/* --------------------------------------- */
 				paypal_upload_deposit_list(
 					&maximum_date,
+					&row_count,
 					spreadsheet_filename,
 					season_name,
 					year ) ) );
@@ -229,7 +233,9 @@ int main( int argc, char **argv )
 			year );
 
 		paypal_upload_not_found_display(
-			paypal_deposit_list );
+			paypal_deposit_list,
+			row_count );
+
 		printf(
 		"<p>Process did not execute with PAYPAL count %d.\n",
 				list_length( paypal_deposit_list ) );
@@ -242,6 +248,7 @@ int main( int argc, char **argv )
 
 LIST *paypal_upload_deposit_list(
 			char **maximum_date,
+			int *row_count,
 			char *spreadsheet_filename,
 			char *season_name,
 			int year )
@@ -249,11 +256,10 @@ LIST *paypal_upload_deposit_list(
 	EDUCATION *education;
 	char *minimum_date;
 
-	/* Only a stub. Doesn't work yet. */
-	/* ------------------------------ */
 	if ( ! ( minimum_date =
 			spreadsheet_minimum_date(
 				maximum_date,
+				row_count,
 				spreadsheet_filename ) ) )
 	{
 		return (LIST *)0;
@@ -415,7 +421,8 @@ if ( maximum_date ){}
 }
 
 void paypal_upload_not_found_display(
-			LIST *paypal_deposit_list )
+			LIST *paypal_deposit_list,
+			int row_count )
 {
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
@@ -425,7 +432,7 @@ void paypal_upload_not_found_display(
 	int missing_rows;
 	int i;
 	boolean first_time = 1;
-	int last_row = 2;
+	int previous_row = 1;
 
 	heading = "Row Number";
 
@@ -450,11 +457,11 @@ void paypal_upload_not_found_display(
 			list_get(
 				paypal_deposit_list );
 
-		missing_rows = paypal_deposit->row_number - last_row;
+		missing_rows = paypal_deposit->row_number - previous_row;
 
 		if ( missing_rows > 1 )
 		{
-			for(	i = last_row + 1;
+			for(	i = previous_row + 1;
 				i < paypal_deposit->row_number;
 				i++ )
 			{
@@ -467,9 +474,24 @@ void paypal_upload_not_found_display(
 			}
 		}
 
-		last_row = paypal_deposit->row_number;
+		previous_row = paypal_deposit->row_number;
 
 	} while ( list_next( paypal_deposit_list ) );
+
+	if ( paypal_deposit->row_number < row_count )
+	{
+		for(	i = paypal_deposit->row_number + 1;
+			i <= row_count;
+			i++ )
+		{
+			if ( first_time )
+				first_time = 0;
+			else
+				fprintf( output_pipe, ", " );
+
+			fprintf( output_pipe, "%d", i );
+		}
+	}
 
 	fprintf( output_pipe, "\n" );
 	pclose( output_pipe );

@@ -1391,7 +1391,6 @@ char *date_display_yyyy_mm_dd_colon_hms( DATE *date )
 		 buffer + strlen( buffer ), date );
 
 	return strdup( buffer );
-
 }
 
 char *date_display_yyyy_mm_dd( DATE *date )

@@ -11,7 +11,7 @@
 #include "String.h"
 #include "timlib.h"
 #include "piece.h"
-#include "date.h"
+#include "date_convert.h"
 #include "sql.h"
 #include "list.h"
 #include "boolean.h"
@@ -93,18 +93,81 @@ LIST *spreadsheet_column_list(
 	return column_list;
 }
 
-
 /* Returns heap memory or null */
 /* --------------------------- */
 char *spreadsheet_minimum_date(
 			char **maximum_date,
-			char *spreadsheet_filename )
+			int *row_count,
+			char *filename )
 {
-if ( spreadsheet_filename ){}
+	FILE *input_file;
+	char input_buffer[ 65536 ];
+	char input_date[ 128 ];
+	char minimum_date[ 128 ];
+	char compare_date[ 16 ];
+	char local_maximum_date[ 128 ];
 
-*maximum_date = "2020-09-30";
+	if ( ! ( input_file = fopen( filename, "r" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			filename );
+		return (char *)0;
+	}
 
-	return "2020-09-01";
+	*minimum_date = '\0';
+	*local_maximum_date = '\0';
+	*row_count = 0;
+
+	while( string_input( input_buffer, input_file, 65536 ) )
+	{
+		(*row_count)++;
+
+		piece_quote(
+			input_date,
+			input_buffer,
+			0 );
+
+		if ( !date_convert_source_american(
+			compare_date,
+			international,
+			input_date ) )
+		{
+			continue;
+		}
+
+		if ( !*minimum_date )
+		{
+			strcpy( minimum_date, compare_date );
+		}
+
+		if ( !*local_maximum_date )
+		{
+			strcpy( local_maximum_date, compare_date );
+		}
+
+		if ( strcmp( compare_date, minimum_date ) < 0 )
+		{
+			strcpy( minimum_date, compare_date );
+		}
+
+		if ( strcmp( compare_date, local_maximum_date ) > 0 )
+		{
+			strcpy( local_maximum_date, compare_date );
+		}
+	}
+
+	fclose( input_file );
+
+	*maximum_date = strdup( local_maximum_date );
+
+	if ( !*minimum_date )
+		return (char *)0;
+	else
+		return strdup( minimum_date );
 }
 
 char *spreadsheet_heading_data(

@@ -50,6 +50,7 @@ LIST *spreadsheet_column_list(
 /* --------------------------- */
 char *spreadsheet_minimum_date(
 			char **maximum_date,
+			int *row_count,
 			char *spreadsheet_filename );
 
 /* Returns heap memory or null */
