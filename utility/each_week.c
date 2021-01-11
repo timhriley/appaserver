@@ -47,7 +47,7 @@ int main( int argc, char **argv )
 	}
 	return 0;
 
-} /* main() */
+}
 
 
 void display_start_time_to_stdout( char *key, time_t now )
@@ -61,5 +61,5 @@ void display_start_time_to_stdout( char *key, time_t now )
 		 struct_tm->tm_hour,
 		 struct_tm->tm_min );
 
-} /* display_start_time_to_stdout() */
+}
 

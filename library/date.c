@@ -681,7 +681,7 @@ int date_day_offset( DATE *date )
 	return date_day_of_week( date );
 }
 
-int get_get_day_of_month( DATE *d )
+int get_day_of_month( DATE *d )
 {
 	return date_day_of_month( d );
 }
@@ -694,6 +694,21 @@ int date_get_day_of_month( DATE *d )
 int date_day_integer( DATE *date )
 {
 	return date_day_of_month( date );
+}
+
+int date_hour_time( DATE *date )
+{
+	int hour_integer = date_hour_integer( date );
+
+	if ( hour_integer <= 12 )
+		return hour_integer;
+	else
+		return hour_integer - 12;
+}
+
+int date_hour_integer( DATE *date )
+{
+	return date->tm->tm_hour;
 }
 
 int date_day_of_month( DATE *d )
@@ -768,7 +783,7 @@ int get_hour( DATE *d )
 
 int date_get_hour( DATE *d )
 {
-	return d->tm->tm_hour;
+	return date_hour_integer( d );
 }
 
 int date_minutes( DATE *d )
@@ -2112,7 +2127,7 @@ int date_get_year_number( DATE *date )
 
 int date_get_hour_number( DATE *date )
 {
-	return date->tm->tm_hour;
+	return date_hour_integer( date );
 }
 
 int date_get_minutes_number( DATE *date )
@@ -2839,7 +2854,56 @@ char *date_display_time_ampm( DATE *date )
 			date->tm->tm_hour - 12,
 			date->tm->tm_min );
 	}
-
 	return buffer;
+}
+
+char *date_display_ampm( DATE *date )
+{
+	if ( date->tm->tm_hour == 0
+	&&   date->tm->tm_min == 0 )
+	{
+		return "am";
+	}
+	else
+	if ( date->tm->tm_hour <= 11 )
+	{
+		return "am";
+	}
+	else
+	{
+		return "pm";
+	}
+}
+
+char *date_display_th_st_rd_nd( DATE *date )
+{
+	char day_of_month_string[ 16 ];
+	int day_of_month;
+	int last_digit;
+
+	if ( ! ( day_of_month = date_day_of_month( date ) ) )
+	{
+		return "";
+	}
+
+	sprintf(day_of_month_string,
+		"%.2d",
+		day_of_month );
+
+	last_digit = atoi( day_of_month_string + 1 );
+
+	if ( last_digit == 0 )
+		return "th";
+	else
+	if ( last_digit == 1 )
+		return "st";
+	else
+	if ( last_digit == 2 )
+		return "nd";
+	else
+	if ( last_digit == 3 )
+		return "rd";
+	else
+		return "th";
 }
 

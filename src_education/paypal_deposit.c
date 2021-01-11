@@ -905,7 +905,15 @@ void paypal_deposit_set_paypal_item_expected_revenue(
 		}
 		else
 		if ( ( event =
-			event_paypal_label_seek(
+			event_paypal_long_label_seek(
+				paypal_item->item_data,
+				event_list ) ) )
+		{
+			paypal_item->expected_revenue = event->ticket_price;
+		}
+		else
+		if ( ( event =
+			event_paypal_short_label_seek(
 				paypal_item->item_data,
 				event_list ) ) )
 		{

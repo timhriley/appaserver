@@ -646,6 +646,11 @@ char *date_display_day(
 char *date_display_time_ampm(
 			DATE *date );
 
+/* Returns program memory */
+/* ---------------------- */
+char *date_display_ampm(
+			DATE *date );
+
 int date_month_name_integer(
 			char *month_name );
 
@@ -661,7 +666,18 @@ int date_month_offset(	DATE *date );
 
 int date_day_integer(	DATE *date );
 
+int date_hour_integer(	DATE *date );
+
+/* Used when followed by am or pm */
+/* ------------------------------ */
+int date_hour_time(	DATE *date );
+
 char *date_time_display(
+			DATE *date );
+
+/* Returns program memory */
+/* ---------------------- */
+char *date_display_th_st_rd_nd(
 			DATE *date );
 
 #endif

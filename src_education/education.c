@@ -125,13 +125,6 @@ LIST *education_paypal_deposit_list(
 	{
 		row_number++;
 
-fprintf(stderr,
-	"%s/%s()/%d: input_string = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-input_string );
-
 		if ( ! ( dataset_return =
 				/* ---------------------- */
 				/* Returns paypal_dataset */

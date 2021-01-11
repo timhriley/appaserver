@@ -480,7 +480,7 @@ fprintf( stderr, "got old_date = %s\n", julian_display( old_date->current ) );
 	}
 
 	return 0;
-} /* main() */
+}
 
 int get_month_integer( char *month_string )
 {
@@ -536,7 +536,7 @@ int get_daily_month_integer( char *containing_date_string )
 	month_integer = julian_get_month_number( date->current );
 	julian_free( date );
 	return month_integer;
-} /* get_dayly_month_integer() */
+}
 
 int get_day_of_month_integer( char *containing_date_string )
 {
@@ -550,7 +550,7 @@ int get_day_of_month_integer( char *containing_date_string )
 	day_of_month_integer = julian_get_day_of_month_number( date->current );
 	julian_free( date );
 	return day_of_month_integer;
-} /* get_day_of_month_integer() */
+}
 
 int get_day_integer( char *containing_date_string )
 {

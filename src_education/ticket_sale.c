@@ -938,7 +938,11 @@ LIST *ticket_sale_list_paypal(
 		}
 		else
 		if ( ( event =
-			event_paypal_label_seek(
+			event_paypal_long_label_seek(
+				paypal_item->item_data,
+				semester_event_list ) ) 
+		||   ( event =
+			event_paypal_short_label_seek(
 				paypal_item->item_data,
 				semester_event_list ) ) )
 		{

@@ -270,7 +270,7 @@ char *event_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-EVENT *event_paypal_label_seek(
+EVENT *event_paypal_long_label_seek(
 			char *event_label,
 			LIST *event_list )
 {
@@ -282,7 +282,35 @@ EVENT *event_paypal_label_seek(
 		event = list_get( event_list );
 
 		if ( timlib_strcmp(
-			event_paypal_display(
+			/* Returns static memory */
+			/* --------------------- */
+			event_paypal_long_display(
+				event->event_name,
+				event->event_date,
+				event->event_time ),
+			event_label ) == 0 )
+		{
+			return event;
+		}
+	} while ( list_next( event_list ) );
+	return (EVENT *)0;
+}
+
+EVENT *event_paypal_short_label_seek(
+			char *event_label,
+			LIST *event_list )
+{
+	EVENT *event;
+
+	if ( !list_rewind( event_list ) ) return (EVENT *)0;
+
+	do {
+		event = list_get( event_list );
+
+		if ( timlib_strcmp(
+			/* Returns static memory */
+			/* --------------------- */
+			event_paypal_short_display(
 				event->event_name,
 				event->event_date,
 				event->event_time ),
@@ -414,22 +442,35 @@ LIST *event_label_list( LIST *event_list )
 
 		list_set(
 			label_list,
-			event_paypal_display(
-				event->event_name,
-				event->event_date,
-				event->event_time ) );
+			strdup( 
+				/* Returns static memory */
+				/* --------------------- */
+				event_paypal_long_display(
+					event->event_name,
+					event->event_date,
+					event->event_time ) ) );
+
+		list_set(
+			label_list,
+			strdup(
+				/* Returns static memory */
+				/* --------------------- */
+				event_paypal_short_display(
+					event->event_name,
+					event->event_date,
+					event->event_time ) ) );
 
 	} while ( list_next( event_list ) );
 
 	return label_list;
 }
 
-char *event_paypal_display(
+char *event_paypal_long_display(
 			char *event_name,
 			char *event_date,
 			char *event_time )
 {
-	char paypal_display[ 1024 ];
+	static char paypal_display[ 512 ];
 	DATE *date;
 
 	date = date_yyyy_mm_dd_new( event_date );
@@ -459,14 +500,57 @@ char *event_paypal_display(
 		/* ---------------------- */
 		date_display_month_name( date ),
 		date_day_integer( date ),
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		date_display_time_ampm( date ) );
+
+	return paypal_display;
+}
+
+char *event_paypal_short_display(
+			char *event_name,
+			char *event_date,
+			char *event_time )
+{
+	static char paypal_display[ 256 ];
+	DATE *date;
+
+	date = date_yyyy_mm_dd_new( event_date );
+
+	if ( !date )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: invalid event_date = [%s]\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			event_date );
+		return (char *)0;
+	}
+
+	date_set_time_hhmm( date, event_time );
+
+	sprintf(paypal_display,
+		"%s %s %d%s: %d%s",
+		event_name,
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		date_display_month_name( date ),
+		date_day_integer( date ),
+		/* --------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		date_display_th_st_rd_nd( date ),
+		date_hour_time( date ),
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		date_display_time_ampm( date ) );
+		date_display_ampm( date ) );
 
-	return strdup( paypal_display );
+	return paypal_display;
 }
-
 
 void event_trigger(	char *event_name,
 			char *event_date,

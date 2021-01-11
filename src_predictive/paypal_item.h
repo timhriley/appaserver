@@ -27,7 +27,6 @@ typedef struct
 	/* ----- */
 	char *entity_delimited_item_title_P;
 	char *transaction_type_E;
-	int position_number;
 	LIST *allowed_item_list;
 	double expected_revenue;
 
@@ -65,8 +64,6 @@ LIST *paypal_item_list_benefit_entity(
 			char *item_title_P_piece,
 			LIST *allowed_item_list );
 
-/* Returns list of 1 */
-/* ----------------- */
 LIST *paypal_item_list_no_entity(
 			/* ------------------- */
 			/* Expect stack memory */

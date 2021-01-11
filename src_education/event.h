@@ -124,7 +124,12 @@ void event_insert_pipe(	FILE *insert_pipe,
 			char *event_date,
 			char *event_time );
 
-char *event_paypal_display(
+char *event_paypal_long_display(
+			char *event_name,
+			char *event_date,
+			char *event_time );
+
+char *event_paypal_short_display(
 			char *event_name,
 			char *event_date,
 			char *event_time );
@@ -132,7 +137,11 @@ char *event_paypal_display(
 LIST *event_label_list(
 			LIST *event_list );
 
-EVENT *event_paypal_label_seek(
+EVENT *event_paypal_long_label_seek(
+			char *event_label,
+			LIST *event_list );
+
+EVENT *event_paypal_short_label_seek(
 			char *event_label,
 			LIST *event_list );
 

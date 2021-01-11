@@ -32,7 +32,7 @@ JULIAN *julian_new_julian( double current )
 	}
 	j->current = current;
 	return j;
-} /* julian_new_julian() */
+}
 
 double julian_yyyy_mm_dd_to_julian( char *yyyy_mm_dd )
 {
@@ -90,7 +90,7 @@ JULIAN *julian_date_time_new(	int year,
 
 	return julian_yyyy_mm_dd_hhmm_new( yyyy_mm_dd, hhmm );
 
-} /* julian_date_time_new() */
+}
 
 JULIAN *julian_yyyy_mm_dd_hhmm_new( char *yyyy_mm_dd, char *hhmm )
 {
@@ -111,7 +111,7 @@ JULIAN *julian_yyyy_mm_dd_hhmm_new( char *yyyy_mm_dd, char *hhmm )
 	/* if ( !julian->current ) return (JULIAN *)0; */
 
 	return julian;
-} /* julian_yyyy_mm_dd_hhmm_new() */
+}
 
 JULIAN *julian_yyyy_mm_dd_new( char *yyyy_mm_dd )
 {
@@ -151,7 +151,7 @@ JULIAN *julian_yyyy_mm_dd_new( char *yyyy_mm_dd )
 */
 
 	return julian;
-} /* julian_yyyy_mm_dd_new() */
+}
 
 void julian_free( JULIAN *julian )
 {
@@ -226,7 +226,7 @@ yyyy_mm_dd );
 	free( hhmm );
 	return strdup( buffer );
 
-} /* julian_display_yyyy_mm_dd_hhmm() */
+}
 
 char *julian_display_hhmm( double current )
 {
@@ -292,7 +292,7 @@ double julian_yyyymmdd_time_hhmm_to_julian( char *yyyymmdd, char *hhmm )
 	julian_get_hour_minute( &hour, &minute, hhmm );
 
 	return greg2jul( month, day, year, hour, minute, 0.0 /* seconds */ );
-} /* julian_yyyymmdd_time_hhmm_to_julian() */
+}
 
 void julian_set_year_month_day( JULIAN *julian, int year, int month, int day )
 {
@@ -317,7 +317,7 @@ void julian_get_hour_minute( int *hour, int *minute, char *hhmm )
 	*hour = atoi( buffer );
 	*minute = atoi( hhmm + 2 );
 
-} /* julian_get_hour_minute() */
+}
 
 double julian_yyyy_mm_dd_time_hhmm_to_julian( char *yyyy_mm_dd, char *hhmm )
 {
@@ -367,7 +367,7 @@ current );
 */
 
 	return current;
-} /* julian_yyyy_mm_dd_time_hhmm_to_julian() */
+}
 
 char *julian_to_yyyy_mm_dd( double julian )
 {
@@ -400,7 +400,7 @@ buffer );
 
 	return strdup( buffer );
 
-} /* julian_to_yyyy_mm_dd() */
+}
 
 int julian_get_year_number( double current )
 {
@@ -408,7 +408,7 @@ int julian_get_year_number( double current )
 	double seconds;
 	jul2greg( current, &month, &day, &year, &hour, &minute, &seconds );
 	return year;
-} /* julian_get_year_number() */
+}
 
 char *julian_to_yyyymmdd( double julian )
 {
@@ -432,7 +432,7 @@ printf( "2) got minute = %d\n", minute );
 */
 	sprintf( buffer, "%.2d%.2d", hour, minute );
 	return strdup( buffer );
-} /* julian_to_hhmm() */
+}
 
 double greg2jul( int mon, int day, int year, int h, int mi, double se )
 {
@@ -537,7 +537,7 @@ void jul2greg( double jd, int *m, int *d, int *y, int *h, int *mi, double *sec )
     tmp = tmp - *h * 3600.0;
     *mi = (int) (tmp / 60.0);
     *sec = tmp - *mi * 60.0;
-} /* jul2greg() */
+}
 
 
 void julian_decrement_days( JULIAN *julian, double number_of_days )
@@ -566,7 +566,7 @@ double julian_increment_month( double current )
 
 	return current;
 
-} /* julian_increment_month() */
+}
 
 double julian_increment_year( double current )
 {
@@ -579,7 +579,7 @@ double julian_increment_year( double current )
 
 	return current;
 
-} /* julian_increment_year() */
+}
 
 double julian_increment_seconds( double julian, int seconds )
 {
@@ -666,7 +666,7 @@ char *julian_make_y2k_year( char *two_digit_year_buffer )
 	*ptr = '\0';
 	return year_buffer;
 
-} /* julian_make_y2k_year() */
+}
 
 char *julian_get_clean_hhmm( char *hhmm )
 {
@@ -676,7 +676,7 @@ char *julian_get_clean_hhmm( char *hhmm )
 	}
 	return hhmm;
 
-} /* julian_get_clean_hhmm() */
+}
 
 void julian_copy( JULIAN *destination_julian, JULIAN *source_julian )
 {
@@ -748,7 +748,7 @@ int julian_get_week_number( double current )
 	week = ( ( current - tmp_julian->current ) / 7.0 ) + 1;
 	julian_free( tmp_julian );
 	return week;
-} /* julian_get_week_number() */
+}
 
 int julian_get_day_of_month_number( double current )
 {
@@ -758,7 +758,7 @@ int julian_get_day_of_month_number( double current )
 	jul2greg( current, &month, &day, &year, &hour, &minute, &seconds );
 	return day;
 
-} /* julian_get_day_of_month_number() */
+}
 
 int julian_get_day_number( double current )
 {
@@ -780,7 +780,7 @@ int julian_get_day_number( double current )
 	day_number = ( (int)( current - tmp_julian->current ) % divide_by ) + 1;
 	julian_free( tmp_julian );
 	return day_number;
-} /* julian_get_day_number() */
+}
 
 double julian_get_consistent_date_aggregation(
 			double current,
@@ -859,7 +859,7 @@ double julian_get_consistent_date_aggregation(
 		}
 	}
 	return current;
-} /* julian_get_consistent_date_aggregation() */
+}
 
 void julian_get_current_century(
 		char *current_century,
@@ -879,5 +879,5 @@ void julian_get_current_century(
 	*current_two_digit_year = atoi( current_year + 2 );
 	free( current_year );
 
-} /* julian_get_current_century() */
+}
 
