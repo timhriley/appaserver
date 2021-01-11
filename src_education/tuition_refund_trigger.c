@@ -243,6 +243,7 @@ void tuition_refund_trigger_insert_update(
 				t->transaction_amount,
 				t->memo,
 				0 /* check_number */,
+				t->lock_transaction,
 				t->journal_list );
 	}
 

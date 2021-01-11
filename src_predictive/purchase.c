@@ -350,6 +350,7 @@ char *purchase_transaction_refresh(
 		transaction_amount,
 		purchase_transaction_memo,
 		0 /* check_number */,
+		1 /* lock_transaction */,
 		journal_list );
 }
 

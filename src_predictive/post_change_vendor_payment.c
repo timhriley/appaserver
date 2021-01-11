@@ -189,6 +189,7 @@ void post_change_vendor_payment_insert_update(
 			transaction->transaction_amount,
 			transaction->memo,
 			transaction->check_number,
+			transaction->lock_transaction,
 			transaction->journal_list );
 
 	vendor_payment_update(

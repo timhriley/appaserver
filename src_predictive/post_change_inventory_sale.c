@@ -297,6 +297,7 @@ void post_change_inventory_sale_insert(
 				customer_sale->transaction->transaction_amount,
 				customer_sale->transaction->memo,
 				0 /* check_number */,
+				customer_sale->transaction->lock_transaction,
 				customer_sale->
 					transaction->
 					journal_ledger_list );
@@ -528,6 +529,7 @@ void post_change_inventory_sale_quantity_update(
 				customer_sale->transaction->transaction_amount,
 				customer_sale->transaction->memo,
 				0 /* check_number */,
+				customer_sale->transaction->lock_transaction,
 				customer_sale->
 					transaction->
 					journal_ledger_list );
@@ -643,6 +645,7 @@ void post_change_inventory_sale_retail_price_update(
 				customer_sale->transaction->transaction_amount,
 				customer_sale->transaction->memo,
 				0 /* check_number */,
+				customer_sale->transaction->lock_transaction,
 				customer_sale->
 					transaction->
 					journal_ledger_list );
@@ -758,6 +761,7 @@ void post_change_inventory_sale_discount_amount_update(
 				customer_sale->transaction->transaction_amount,
 				customer_sale->transaction->memo,
 				0 /* check_number */,
+				customer_sale->transaction->lock_transaction,
 				customer_sale->
 					transaction->
 					journal_ledger_list );
@@ -899,6 +903,7 @@ void post_change_inventory_sale_delete(
 				customer_sale->transaction->transaction_amount,
 				customer_sale->transaction->memo,
 				0 /* check_number */,
+				customer_sale->transaction->lock_transaction,
 				customer_sale->
 					transaction->
 					journal_ledger_list );

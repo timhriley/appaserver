@@ -657,6 +657,7 @@ char *transaction_journal_refresh(
 			double transaction_amount,
 			char *memo,
 			int check_number,
+			boolean lock_transaction,
 			LIST *journal_list )
 {
 	return transaction_refresh(
@@ -666,6 +667,7 @@ char *transaction_journal_refresh(
 			transaction_amount,
 			memo,
 			check_number,
+			lock_transaction,
 			journal_list );
 }
 
@@ -676,6 +678,7 @@ char *transaction_refresh(
 			double transaction_amount,
 			char *memo,
 			int check_number,
+			boolean lock_transaction,
 			LIST *journal_list )
 {
 	/* Note: transaction_date_time shouldn't change. */
@@ -688,7 +691,7 @@ char *transaction_refresh(
 			transaction_amount,
 			memo,
 			check_number,
-			1 /* lock_transaction */,
+			lock_transaction,
 			1 /* replace */ );
 
 	journal_account_name_list_propagate(
@@ -1674,6 +1677,7 @@ char *transaction_program_refresh(
 			double transaction_amount,
 			char *memo,
 			int check_number,
+			boolean lock_transaction,
 			LIST *journal_list )
 {
 	transaction_date_time =
@@ -1685,7 +1689,7 @@ char *transaction_program_refresh(
 			transaction_amount,
 			memo,
 			check_number,
-			1 /* lock_transaction */,
+			lock_transaction,
 			1 /* replace */ );
 
 	journal_account_name_list_propagate(

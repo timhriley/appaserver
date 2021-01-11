@@ -168,6 +168,7 @@ void update_sale_completed( SALE *sale )
 			sale->sale_transaction->transaction_amount,
 			sale->sale_transaction->memo,
 			0 /* check_number */,
+			sale->sale_transaction->lock_transaction,
 			sale->sale_transaction->journal_list );
 
 	sale_update(

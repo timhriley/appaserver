@@ -51,7 +51,7 @@ LEDGER_ELEMENT *ledger_new_element( char *element_name )
 	element->element_name = element_name;
 	return element;
 
-} /* ledger_new_element() */
+}
 
 LEDGER_ELEMENT *ledger_account_fetch_element(
 					char *application_name,
@@ -126,7 +126,7 @@ LEDGER_ELEMENT *ledger_account_fetch_element(
 
 	return element;
 
-} /* ledger_account_fetch_element() */
+}
 
 ACCOUNT *ledger_account_calloc( void )
 {
@@ -144,7 +144,7 @@ ACCOUNT *ledger_account_calloc( void )
 
 	return account;
 
-} /* ledger_account_calloc() */
+}
 
 ACCOUNT *ledger_account_new( char *account_name )
 {
@@ -154,7 +154,7 @@ ACCOUNT *ledger_account_new( char *account_name )
 	account->account_name = account_name;
 	return account;
 
-} /* ledger_account_new() */
+}
 
 ACCOUNT *ledger_account_fetch(	char *application_name,
 				char *account_name )
@@ -172,7 +172,7 @@ ACCOUNT *ledger_account_fetch(	char *application_name,
 
 	return account;
 
-} /* ledger_account_fetch() */
+}
 
 char *ledger_account_get_select( char *application_name )
 {
@@ -192,7 +192,7 @@ char *ledger_account_get_select( char *application_name )
 
 	return select;
 
-} /* ledger_account_get_select() */
+}
 
 ACCOUNT *ledger_subclassification_fund_seek_account(
 				LIST *account_list,
@@ -245,7 +245,7 @@ ACCOUNT *ledger_seek_hard_coded_account_key_account(
 
 	return (ACCOUNT *)0;
 
-} /* ledger_seek_hard_coded_account_key_account() */
+}
 
 LIST *ledger_fetch_account_list(	char *application_name,
 					char *as_of_date )
@@ -301,7 +301,7 @@ LIST *ledger_fetch_account_list(	char *application_name,
 	pclose( input_pipe );
 	return account_list;
 
-} /* ledger_fetch_account_list() */
+}
 
 void ledger_account_parse(	char **account_name,
 				char **fund_name,
@@ -330,7 +330,7 @@ void ledger_account_parse(	char **account_name,
 	if ( *buffer )
 		*hard_coded_account_key = strdup( buffer );
 
-} /* ledger_account_parse() */
+}
 
 void ledger_account_load(	char **fund_name,
 				char **subclassification_name,
@@ -383,7 +383,7 @@ void ledger_account_load(	char **fund_name,
 		ledger_account_get_accumulate_debit(
 			application_name, account_name );
 
-} /* ledger_account_load() */
+}
 
 SUBCLASSIFICATION *ledger_new_subclassification( char *subclassification_name )
 {
@@ -403,7 +403,7 @@ SUBCLASSIFICATION *ledger_new_subclassification( char *subclassification_name )
 	subclassification->subclassification_name = subclassification_name;
 	return subclassification;
 
-} /* ledger_new_subclassification() */
+}
 
 JOURNAL_LEDGER *ledger_journal_ledger_calloc( void )
 {
@@ -437,7 +437,7 @@ JOURNAL_LEDGER *journal_ledger_new(	char *full_name,
 	ledger->account_name = account_name;
 	return ledger;
 
-} /* journal_ledger_new() */
+}
 
 JOURNAL_LEDGER *ledger_get_latest_ledger(
 					char *application_name,
@@ -536,7 +536,7 @@ JOURNAL_LEDGER *ledger_get_latest_ledger(
 
 	return ledger;
 
-} /* ledger_get_latest_ledger() */
+}
 
 JOURNAL_LEDGER *ledger_get_prior_ledger(
 					char *application_name,
@@ -596,7 +596,7 @@ JOURNAL_LEDGER *ledger_get_prior_ledger(
 
 	return ledger;
 
-} /* ledger_get_prior_ledger() */
+}
 
 void ledger_load(		char **full_name,
 				char **street_address,
@@ -695,7 +695,7 @@ void ledger_load(		char **full_name,
 
 	free( results );
 
-} /* ledger_load() */
+}
 
 void ledger_account_list_propagate(
 				LIST *propagate_account_list,
@@ -714,7 +714,7 @@ void ledger_account_list_propagate(
 
 	} while( list_next( propagate_account_list ) );
 
-} /* ledger_account_list_propagate() */
+}
 
 void ledger_journal_ledger_list_propagate(
 				LIST *journal_ledger_list,
@@ -799,7 +799,7 @@ void ledger_journal_ledger_list_propagate(
 
 	pclose( output_pipe );
 
-} /* ledger_journal_ledger_list_propagate() */
+}
 
 LIST *ledger_subclassification_quickly_get_account_list(
 					char *application_name,
@@ -848,7 +848,7 @@ LIST *ledger_subclassification_quickly_get_account_list(
 	pclose( input_pipe );
 	return account_list;
 
-} /* ledger_subclassification_quickly_get_account_list() */
+}
 
 LIST *ledger_subclassification_get_account_list(
 					double *subclassification_total,
@@ -930,7 +930,7 @@ LIST *ledger_subclassification_get_account_list(
 	pclose( input_pipe );
 	return account_list;
 
-} /* ledger_subclassification_get_account_list() */
+}
 
 LIST *ledger_element_get_account_list(
 					double *element_total,
@@ -1016,7 +1016,7 @@ LIST *ledger_element_get_account_list(
 	pclose( input_pipe );
 	return account_list;
 
-} /* ledger_element_get_account_list() */
+}
 
 LIST *ledger_element_get_subclassification_list(
 					double *element_total,
@@ -1071,7 +1071,7 @@ LIST *ledger_element_get_subclassification_list(
 	pclose( input_pipe );
 	return subclassification_list;
 
-} /* ledger_element_get_subclassification_list() */
+}
 
 LEDGER_ELEMENT *ledger_element_list_seek(
 				LIST *element_list,
@@ -1100,7 +1100,7 @@ LEDGER_ELEMENT *ledger_element_seek(
 
 	return (LEDGER_ELEMENT *)0;
 
-} /* ledger_element_seek() */
+}
 
 LIST *ledger_get_element_list(	char *application_name,
 				LIST *filter_element_name_list,
@@ -1177,7 +1177,7 @@ LIST *ledger_get_element_list(	char *application_name,
 
 	return ledger_sort_element_list( element_list );
 
-} /* ledger_get_element_list() */
+}
 
 /* So we don't need ELEMENT.sort_order */
 /* ----------------------------------- */
@@ -1239,7 +1239,7 @@ LIST *ledger_sort_element_list( LIST *element_list )
 
 	return return_element_list;
 
-} /* ledger_sort_element_list() */
+}
 
 LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 				double liabilities_plus_equity,
@@ -1270,7 +1270,7 @@ LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 
 	return latex_row;
 
-} /* ledger_get_latex_liabilities_plus_equity_row() */
+}
 
 LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 				double net_income,
@@ -1324,7 +1324,7 @@ LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 
 	return latex_row;
 
-} /* ledger_get_subclassification_latex_net_income_row() */
+}
 
 LATEX_ROW *ledger_get_latex_net_income_row(
 				double net_income,
@@ -1392,7 +1392,7 @@ LATEX_ROW *ledger_get_latex_net_income_row(
 
 	return latex_row;
 
-} /* ledger_get_latex_net_income_row() */
+}
 
 LIST *ledger_get_subclassification_aggregate_beginning_row_list(
 				double *total_element,
@@ -1469,7 +1469,7 @@ LIST *ledger_get_subclassification_aggregate_beginning_row_list(
 
 	return row_list;
 
-} /* ledger_get_subclassification_aggregate_beginning_row_list() */
+}
 
 LIST *ledger_get_subclassification_aggregate_latex_row_list(
 					double *total_element,
@@ -1669,7 +1669,7 @@ equity_all_done:
 
 	return row_list;
 
-} /* ledger_get_subclassification_aggregate_latex_row_list() */
+}
 
 LIST *ledger_get_subclassification_display_latex_row_list(
 					double *total_element,
@@ -2020,7 +2020,7 @@ LIST *ledger_get_subclassification_display_latex_row_list(
 
 	return row_list;
 
-} /* ledger_get_subclassification_display_latex_row_list() */
+}
 
 LIST *ledger_get_beginning_latex_row_list(
 				double *total_element,
@@ -2151,7 +2151,7 @@ LIST *ledger_get_beginning_latex_row_list(
 
 	return (LIST *)0;
 
-} /* ledger_get_beginning_latex_row_list() */
+}
 
 double ledger_get_element_value(	LIST *subclassification_list,
 					boolean element_accumulate_debit )
@@ -2198,7 +2198,7 @@ double ledger_get_element_value(	LIST *subclassification_list,
 
 	return total_element;
 
-} /* ledger_get_element_value() */
+}
 
 double ledger_get_net_income(	double total_revenues,
 				double total_expenses,
@@ -2210,7 +2210,7 @@ double ledger_get_net_income(	double total_revenues,
 			total_gains -
 			total_losses );
 
-} /* ledger_get_net_income() */
+}
 
 char *ledger_account_list_display( LIST *account_list )
 {
@@ -2238,7 +2238,7 @@ char *ledger_account_list_display( LIST *account_list )
 
 	return strdup( buffer );
 
-} /* ledger_account_list_display() */
+}
 
 void ledger_list_text_display(	char *transaction_memo,
 				LIST *ledger_list )
@@ -2359,7 +2359,7 @@ void ledger_list_text_display(	char *transaction_memo,
 	pclose( output_pipe );
 	fflush( stdout );
 
-} /* ledger_list_text_display() */
+}
 
 void ledger_list_html_display(	char *transaction_memo,
 				LIST *ledger_list )
@@ -2478,7 +2478,7 @@ void ledger_list_html_display(	char *transaction_memo,
 	pclose( output_pipe );
 	fflush( stdout );
 
-} /* ledger_list_html_display() */
+}
 
 char *ledger_journal_ledger_list_display(
 					LIST *journal_ledger_list )
@@ -2601,7 +2601,7 @@ LIST *ledger_get_check_number_journal_ledger_list(
 
 	return journal_ledger_list;
 
-} /* ledger_get_check_number_journal_ledger_list() */
+}
 
 void ledger_journal_ledger_partial_parse(
 			int *transaction_count,
@@ -2652,7 +2652,7 @@ void ledger_journal_ledger_partial_parse(
 	*database_balance =
 			atof( piece_buffer );
 
-} /* ledger_journal_ledger_partial_parse() */
+}
 
 
 LIST *ledger_get_year_journal_ledger_list(
@@ -2749,7 +2749,7 @@ LIST *ledger_get_year_journal_ledger_list(
 
 	return journal_ledger_list;
 
-} /* ledger_get_year_journal_ledger_list() */
+}
 
 boolean ledger_transaction_load(	double *transaction_amount,
 					double *database_transaction_amount,
@@ -2798,7 +2798,7 @@ boolean ledger_transaction_load(	double *transaction_amount,
 
 	return 1;
 
-} /* ledger_transaction_load() */
+}
 
 char *ledger_fetch_unique_transaction_date_time(
 					char *application_name,
@@ -2840,7 +2840,7 @@ char *ledger_fetch_unique_transaction_date_time(
 
 	return transaction_date_time;
 
-} /* ledger_fetch_unique_transaction_date_time() */
+}
 
 void ledger_journal_ledger_insert(	char *application_name,
 					char *full_name,
@@ -2899,7 +2899,7 @@ void ledger_journal_ledger_insert(	char *application_name,
 
 	pclose( output_pipe );
 
-} /* ledger_journal_ledger_insert() */
+}
 
 void ledger_entity_update(		char *application_name,
 					char *full_name,
@@ -2995,7 +2995,7 @@ void ledger_entity_update(		char *application_name,
 
 	pclose( output_pipe );
 
-} /* ledger_entity_update() */
+}
 
 void ledger_transaction_amount_update(	char *application_name,
 					char *full_name,
@@ -3025,7 +3025,7 @@ void ledger_transaction_amount_update(	char *application_name,
 		"transaction_amount" /* attribute */,
 		transaction_amount_string /* data */ );
 
-} /* ledger_transaction_amount_update() */
+}
 
 void ledger_transaction_generic_update(	char *application_name,
 					char *full_name,
@@ -3081,7 +3081,7 @@ void ledger_transaction_generic_update(	char *application_name,
 
 	pclose( output_pipe );
 
-} /* ledger_transaction_generic_update() */
+}
 
 void ledger_journal_generic_update(	char *application_name,
 					char *full_name,
@@ -3125,7 +3125,7 @@ void ledger_journal_generic_update(	char *application_name,
 
 	pclose( output_pipe );
 
-} /* ledger_journal_generic_update() */
+}
 
 DICTIONARY *ledger_get_hard_coded_dictionary(
 				char *application_name )
@@ -3150,7 +3150,7 @@ DICTIONARY *ledger_get_hard_coded_dictionary(
 
 	return return_dictionary;
 
-} /* ledger_get_hard_coded_dictionary() */
+}
 
 DICTIONARY *ledger_get_non_fund_hard_coded_dictionary(
 				char *application_name )
@@ -3185,7 +3185,7 @@ DICTIONARY *ledger_get_non_fund_hard_coded_dictionary(
 
 	return return_dictionary;
 
-} /* ledger_get_non_fund_hard_coded_dictionary() */
+}
 
 DICTIONARY *ledger_get_fund_hard_coded_dictionary(
 				char *application_name )
@@ -3247,7 +3247,7 @@ DICTIONARY *ledger_get_fund_hard_coded_dictionary(
 
 	return return_dictionary;
 
-} /* ledger_get_fund_hard_coded_dictionary() */
+}
 
 char *ledger_get_hard_coded_account_name(
 				char *application_name,
@@ -3289,7 +3289,7 @@ char *ledger_get_hard_coded_account_name(
 
 	return account_name;
 
-} /* ledger_get_hard_coded_account_name() */
+}
 
 char *ledger_get_hard_coded_dictionary_key(
 					char *fund_name,
@@ -3311,7 +3311,7 @@ char *ledger_get_hard_coded_dictionary_key(
 
 	return key;
 
-} /* ledger_get_hard_coded_dictionary_key() */
+}
 
 void ledger_order_entry_account_names(
 				char **checking_account,
@@ -3349,7 +3349,7 @@ void ledger_order_entry_account_names(
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
-} /* ledger_order_entry_account_names() */
+}
 
 void ledger_get_depreciation_account_names(
 				char **depreciation_expense_account,
@@ -3377,7 +3377,7 @@ void ledger_get_depreciation_account_names(
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
-} /* ledger_get_depreciation_account_names() */
+}
 
 void ledger_get_vendor_payment_account_names(
 				char **checking_account,
@@ -3417,7 +3417,7 @@ void ledger_get_vendor_payment_account_names(
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
-} /* ledger_get_vendor_payment_account_names() */
+}
 
 void ledger_get_customer_sale_account_names(
 				char **sales_tax_payable_account,
@@ -3455,7 +3455,7 @@ void ledger_get_customer_sale_account_names(
 			1 /* warning_only */,
 			__FUNCTION__ );
 
-} /* ledger_get_customer_sale_account_names() */
+}
 
 void ledger_get_account_payable_account_name(
 				char **account_payable_account,
@@ -3476,7 +3476,7 @@ void ledger_get_account_payable_account_name(
 			__FUNCTION__ );
 	}
 
-} /* ledger_get_account_payable_account_name() */
+}
 
 void ledger_get_purchase_order_account_names(
 				char **sales_tax_expense_account,
@@ -3523,7 +3523,7 @@ void ledger_get_purchase_order_account_names(
 			__FUNCTION__ );
 	}
 
-} /* ledger_get_purchase_order_account_names() */
+}
 
 void ledger_journal_delete(		char *application_name,
 					char *full_name,
@@ -3576,7 +3576,7 @@ void ledger_journal_delete(		char *application_name,
 
 	pclose( output_pipe );
 
-} /* ledger_journal_delete() */
+}
 
 void ledger_delete(			char *application_name,
 					char *folder_name,
@@ -3610,7 +3610,7 @@ void ledger_delete(			char *application_name,
 
 	pclose( output_pipe );
 
-} /* ledger_delete() */
+}
 
 boolean ledger_propagate_journal_ledger_list(
 			char *application_name,
@@ -3633,7 +3633,7 @@ boolean ledger_propagate_journal_ledger_list(
 
 	return 1;
 
-} /* ledger_propagate_journal_ledger_list() */
+}
 
 void ledger_propagate_account_name_list(
 			char *application_name,
@@ -3654,7 +3654,7 @@ void ledger_propagate_account_name_list(
 
 	} while( list_next( account_name_list ) );
 
-} /* void ledger_propagate_account_name_list() */
+}
 
 char *ledger_get_transaction_where(	char *full_name,
 					char *street_address,
@@ -3718,7 +3718,7 @@ char *ledger_get_transaction_where(	char *full_name,
 
 	return where;
 
-} /* ledger_get_transaction_where() */
+}
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -3733,7 +3733,7 @@ char *ledger_max_transaction_date(
 
 	return r;
 
-} /* ledger_max_transaction_date() */
+}
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -3755,7 +3755,7 @@ char *ledger_fetch_max_transaction_date_time(
 
 	return pipe2string( sys_string );
 
-} /* ledger_fetch_max_transaction_date_time() */
+}
 
 boolean ledger_transaction_exists(	char *application_name,
 					char *transaction_date_time )
@@ -3791,7 +3791,7 @@ boolean ledger_transaction_exists(	char *application_name,
 
 	return return_value;
 
-} /* ledger_transaction_exists() */
+}
 
 LIST *ledger_fetch_transaction_list(	char *application_name,
 					char *where_clause )
@@ -3977,7 +3977,7 @@ char *ledger_get_transaction_date_time( char *transaction_date )
 
 	return strdup( transaction_date_time );
 
-} /* ledger_get_transaction_date_time() */
+}
 
 LIST *ledger_transaction_date_time_account_name_list(
 				char *application_name,
@@ -4000,7 +4000,7 @@ LIST *ledger_transaction_date_time_account_name_list(
 
 	return pipe2list( sys_string );
 
-} /* ledger_transaction_date_time_account_name_list() */
+}
 
 double ledger_get_account_debit_amount(	LIST *journal_ledger_list,
 					char *account_name )
@@ -4019,7 +4019,7 @@ double ledger_get_account_debit_amount(	LIST *journal_ledger_list,
 		return journal_ledger->debit_amount;
 	}
 
-} /* ledger_get_account_debit_amount() */
+}
 
 double ledger_get_account_credit_amount(LIST *journal_ledger_list,
 					char *account_name )
@@ -4038,7 +4038,7 @@ double ledger_get_account_credit_amount(LIST *journal_ledger_list,
 		return journal_ledger->credit_amount;
 	}
 
-} /* ledger_get_account_credit_amount() */
+}
 
 JOURNAL_LEDGER *ledger_seek_journal_ledger(
 				LIST *journal_ledger_list,
@@ -4075,7 +4075,7 @@ JOURNAL_LEDGER *ledger_seek_journal_ledger(
 
 	return (JOURNAL_LEDGER *)0;
 
-} /* ledger_seek_journal_ledger() */
+}
 
 JOURNAL_LEDGER *ledger_check_number_seek_journal_ledger(
 				LIST *cash_journal_ledger_list,
@@ -4098,7 +4098,7 @@ JOURNAL_LEDGER *ledger_check_number_seek_journal_ledger(
 
 	return (JOURNAL_LEDGER *)0;
 
-} /* ledger_check_number_seek_journal_ledger() */
+}
 
 JOURNAL_LEDGER *ledger_journal_ledger_seek(
 					LIST *journal_ledger_list,
@@ -4166,7 +4166,7 @@ void ledger_debit_credit_update(	char *application_name,
 
 	pclose( update_pipe );
 
-} /* ledger_debit_credit_update() */
+}
 
 void ledger_journal_ledger_transaction_date_time_update(
 			FILE *update_pipe,
@@ -4206,7 +4206,7 @@ void ledger_journal_ledger_transaction_date_time_update(
 
 	fflush( update_pipe );
 
-} /* ledger_journal_ledger_transaction_date_time_update() */
+}
 
 void ledger_journal_ledger_update(	FILE *update_pipe,
 					char *full_name,
@@ -4284,7 +4284,7 @@ void ledger_journal_ledger_update(	FILE *update_pipe,
 
 	fflush( update_pipe );
 
-} /* ledger_journal_ledger_update() */
+}
 
 FILE *ledger_open_update_pipe( char *application_name )
 {
@@ -4305,7 +4305,7 @@ FILE *ledger_open_update_pipe( char *application_name )
 
 	return popen( sys_string, "w" );
 
-} /* ledger_open_update_pipe() */
+}
 
 void ledger_update_transaction_date_time(
 				char *application_name,
@@ -4366,7 +4366,7 @@ void ledger_update_transaction_date_time(
 
 	pclose( update_pipe );
 
-} /* ledger_update_transaction_date_time() */
+}
 
 char *ledger_transaction_get_select( void )
 {
@@ -4375,7 +4375,7 @@ char *ledger_transaction_get_select( void )
 
 	return select;
 
-} /* ledger_transaction_get_select() */
+}
 
 void ledger_transaction_parse(
 				char **full_name,
@@ -4398,7 +4398,7 @@ void ledger_transaction_parse(
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 	*memo = strdup( piece_buffer );
 
-} /* ledger_transaction_parse() */
+}
 
 HASH_TABLE *ledger_get_transaction_hash_table(
 				char *application_name,
@@ -4534,7 +4534,7 @@ char *ledger_get_transaction_hash_table_key(
 
 	return key;
 
-} /* ledger_get_transaction_hash_table_key() */
+}
 
 char *ledger_journal_ledger_get_select( void )
 {
@@ -4543,7 +4543,7 @@ char *ledger_journal_ledger_get_select( void )
 
 	return select;
 
-} /* ledger_journal_ledger_get_select() */
+}
 
 char *ledger_get_transaction_purchase_order_join_where( void )
 {
@@ -4558,7 +4558,7 @@ char *ledger_get_transaction_purchase_order_join_where( void )
 
 	return join_where;
 
-} /* ledger_get_transaction_purchase_order_join_where() */
+}
 
 char *ledger_get_transaction_customer_sale_join_where( void )
 {
@@ -4573,7 +4573,7 @@ char *ledger_get_transaction_customer_sale_join_where( void )
 
 	return join_where;
 
-} /* ledger_get_transaction_purchase_order_join_where() */
+}
 
 char *ledger_get_journal_ledger_purchase_order_join_where( void )
 {
@@ -4664,7 +4664,7 @@ void ledger_journal_ledger_parse(
 	*balance =
 	*database_balance = atof( piece_buffer );
 
-} /* ledger_journal_ledger_parse() */
+}
 
 HASH_TABLE *ledger_get_journal_ledger_hash_table(
 				char *application_name,
@@ -4827,7 +4827,7 @@ char *ledger_get_shipped_date_transaction_date_time(
 
 	return strdup( transaction_date_time );
 
-} /* ledger_get_shipped_date_transaction_date_time() */
+}
 
 char *ledger_get_account_subclassification_name(
 				char *application_name,
@@ -4852,7 +4852,7 @@ char *ledger_get_account_subclassification_name(
 
 	return pipe2string( sys_string );
 
-} /* ledger_get_account_subclassification_name() */
+}
 
 char *ledger_get_supply_expense_account(
 				char *application_name,
@@ -4872,7 +4872,7 @@ char *ledger_get_supply_expense_account(
 
 	return pipe2string( sys_string );
 
-} /* ledger_get_supply_expense_account() */
+}
 
 LEDGER *ledger_new( void )
 {
@@ -4892,7 +4892,7 @@ LEDGER *ledger_new( void )
 
 	return ledger;
 
-} /* ledger_new() */
+}
 
 CONTRA_ACCOUNT *ledger_contra_account_new(	char *account_name,
 						char *contra_to_account_name )
@@ -4914,7 +4914,7 @@ CONTRA_ACCOUNT *ledger_contra_account_new(	char *account_name,
 
 	return contra_account;
 
-} /* ledger_contra_account_new() */
+}
 
 LIST *ledger_get_contra_account_list( char *application_name )
 {
@@ -4962,7 +4962,7 @@ LIST *ledger_get_contra_account_list( char *application_name )
 	pclose( input_pipe );
 	return contra_account_list;
 
-} /* ledger_get_contra_account_list() */
+}
 
 CONTRA_ACCOUNT *ledger_seek_contra_account(
 				LIST *contra_account_list,
@@ -4985,7 +4985,7 @@ CONTRA_ACCOUNT *ledger_seek_contra_account(
 
 	return (CONTRA_ACCOUNT *)0;
 
-} /* ledger_seek_contra_account() */
+}
 
 boolean ledger_account_get_accumulate_debit(
 					char *application_name,
@@ -5009,7 +5009,7 @@ boolean ledger_account_get_accumulate_debit(
 
 	return element->accumulate_debit;
 
-} /* ledger_account_get_accumulate_debit() */
+}
 
 int ledger_balance_match_function(
 				ACCOUNT *account_from_list,
@@ -5039,7 +5039,7 @@ int ledger_balance_match_function(
 		return -1;
 	}
 
-} /* ledger_balance_match_function() */
+}
 
 void ledger_propagate_element_list(
 				char *application_name,
@@ -5087,7 +5087,7 @@ void ledger_propagate_element_list(
 
 	} while( list_next( element_list ) );
 
-} /* ledger_propagate_element_list() */
+}
 
 boolean ledger_transaction_date_time_exists(
 				char *application_name,
@@ -5116,7 +5116,7 @@ boolean ledger_transaction_date_time_exists(
 	else
 		return 0;
 
-} /* ledger_transaction_date_time_exists() */
+}
 
 char *ledger_get_existing_closing_transaction_date_time(
 				char *application_name,
@@ -5152,7 +5152,7 @@ char *ledger_get_existing_closing_transaction_date_time(
 	else
 		return (char *)0;
 
-} /* ledger_get_existing_closing_transaction_date_time() */
+}
 
 char *ledger_get_closing_transaction_date_time(
 				char *as_of_date )
@@ -5223,7 +5223,7 @@ DATE *ledger_prior_closing_transaction_date(
 
 	return prior_closing_transaction_date;
 
-} /* ledger_prior_closing_transaction_date() */
+}
 
 char *ledger_beginning_transaction_date(
 				char *application_name,
@@ -5311,7 +5311,7 @@ char *ledger_beginning_transaction_date(
 
 	return strdup( column( transaction_date_string, 0, results )  );
 
-} /* ledger_beginning_transaction_date() */
+}
 
 LIST *ledger_get_fund_name_list( char *application_name )
 {
@@ -5336,7 +5336,7 @@ LIST *ledger_fetch_fund_name_list( char *application_name )
 
 	return pipe2list( sys_string );
 
-} /* ledger_fetch_fund_name_list() */
+}
 
 /* Returns begin_date_string */
 /* ------------------------- */
@@ -5431,7 +5431,7 @@ char *ledger_get_report_title_sub_title(
 
 	return begin_date_string;
 
-} /* ledger_get_report_title_sub_title() */
+}
 
 /* Reset debit_amount and credit_amount without having to refresh. */
 /* --------------------------------------------------------------- */
@@ -5479,7 +5479,7 @@ boolean ledger_journal_ledger_list_reset_amount(
 
 	return 1;
 
-} /* ledger_journal_ledger_list_reset_amount() */
+}
 
 boolean ledger_journal_ledger_list_amount_update(
 			char *application_name,
@@ -5509,7 +5509,7 @@ boolean ledger_journal_ledger_list_amount_update(
 	pclose( update_pipe );
 	return 1;
 
-} /* ledger_journal_ledger_list_amount_update() */
+}
 
 LIST *ledger_get_inventory_account_name_list(
 			char *application_name )
@@ -5522,7 +5522,7 @@ LIST *ledger_get_inventory_account_name_list(
 
 	return pipe2list( sys_string );
 
-} /* ledger_get_inventory_account_name_list() */
+}
 
 LIST *ledger_get_service_account_name_list(
 			char *application_name )
@@ -5535,7 +5535,7 @@ LIST *ledger_get_service_account_name_list(
 
 	return pipe2list( sys_string );
 
-} /* ledger_get_service_account_name_list() */
+}
 
 ACCOUNT *ledger_element_list_account_seek(
 			LIST *element_list,
@@ -5584,7 +5584,7 @@ ACCOUNT *ledger_element_list_account_seek(
 
 	return (ACCOUNT *)0;
 
-} /* ledger_element_list_account_seek() */
+}
 
 boolean ledger_is_period_element( char *element_name )
 {
@@ -5616,7 +5616,7 @@ boolean ledger_is_period_element( char *element_name )
 	else
 		return 0;
 
-} /* ledger_is_period_element() */
+}
 
 double ledger_get_fraction_of_year(
 				char *prior_date_string,
@@ -5657,7 +5657,7 @@ double ledger_get_fraction_of_year(
 				date_get_year(
 					prior_date ) );
 
-} /* ledger_get_fraction_of_year() */
+}
 
 boolean ledger_propagate_account_list_exists(
 		LIST *propagate_account_list,
@@ -5677,7 +5677,7 @@ boolean ledger_propagate_account_list_exists(
 
 	return 0;
 
-} /* ledger_propagate_account_list_exists() */
+}
 
 void ledger_append_propagate_account_list(
 			LIST *propagate_account_list,
@@ -5710,7 +5710,7 @@ void ledger_append_propagate_account_list(
 
 	list_append_pointer( propagate_account_list, account );
 
-} /* ledger_append_propagate_account_list() */
+}
 
 char *ledger_get_latest_zero_balance_transaction_date_time(
 					char *application_name,
@@ -5744,7 +5744,7 @@ char *ledger_get_latest_zero_balance_transaction_date_time(
 	else
 		return (char *)0;
 
-} /* ledger_get_latest_zero_balance_transaction_date_time() */
+}
 
 ACCOUNT *ledger_account_list_seek(	LIST *account_list,
 					char *account_name )
@@ -5812,7 +5812,7 @@ int ledger_get_non_empty_subclassification_list_length(
 
 	return list_length;
 
-} /* ledger_get_non_empty_subclassification_list_length() */
+}
 
 boolean ledger_folder_exists(	char *application_name,
 				char *folder_name )
@@ -5821,7 +5821,7 @@ boolean ledger_folder_exists(	char *application_name,
 			application_name,
 			folder_name );
 
-} /* ledger_folder_exists() */
+}
 
 boolean ledger_title_passage_rule_attribute_exists(
 				char *application_name,
@@ -5836,7 +5836,7 @@ boolean ledger_title_passage_rule_attribute_exists(
 
 	return ( system( sys_string ) == 0 );
 
-} /* ledger_title_passage_rule_attribute_exists() */
+}
 
 boolean ledger_fund_attribute_exists( char *application_name )
 {
@@ -5848,7 +5848,7 @@ boolean ledger_fund_attribute_exists( char *application_name )
 
 	return ( system( sys_string ) == 0 );
 
-} /* ledger_fund_attribute_exists() */
+}
 
 char *ledger_get_fund_where(	char *application_name,
 				char *fund_name )
@@ -5876,7 +5876,7 @@ char *ledger_get_fund_where(	char *application_name,
 
 	return strdup( where );
 
-} /* ledger_get_fund_where() */
+}
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
@@ -5935,8 +5935,7 @@ char *ledger_transaction_refresh(
 				check_number,
 				lock_transaction,
 				journal_ledger_list );
-
-} /* ledger_transaction_refresh() */
+}
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
@@ -6061,8 +6060,7 @@ char *ledger_transaction_journal_ledger_insert(
 	}
 
 	return transaction_date_time;
-
-} /* ledger_transaction_journal_ledger_insert() */
+}
 
 LIST *ledger_get_credit_journal_ledger_list(
 				double *sales_revenue_amount,
@@ -6163,7 +6161,7 @@ LIST *ledger_get_credit_journal_ledger_list(
 
 	return journal_ledger_list;
 
-} /* ledger_get_credit_journal_ledger_list() */
+}
 
 void ledger_get_payroll_account_names(
 				char **salary_wage_expense_account,
@@ -6327,7 +6325,7 @@ void ledger_get_payroll_account_names(
 			__FUNCTION__ );
 	}
 
-} /* ledger_get_payroll_account_names() */
+}
 
 void ledger_get_investment_account_names(
 				char **unrealized_investment,
@@ -6385,7 +6383,7 @@ void ledger_get_investment_account_names(
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
-} /* ledger_get_investment_account_names() */
+}
 
 double ledger_output_html_subclassification_list(
 					HTML_TABLE *html_table,
@@ -6731,7 +6729,7 @@ double ledger_output_html_subclassification_list(
 	}
 	return total_element;
 
-} /* ledger_output_html_subclassification_list() */
+}
 
 double ledger_output_net_assets_html_subclassification_list(
 				HTML_TABLE *html_table,
@@ -6878,7 +6876,7 @@ double ledger_output_net_assets_html_subclassification_list(
 
 	return 0.0;
 
-} /* ledger_output_net_assets_html_subclassification_list() */
+}
 
 double ledger_output_html_account_list(
 					HTML_TABLE *html_table,
@@ -7055,7 +7053,7 @@ double ledger_output_html_account_list(
 
 	return total_element;
 
-} /* ledger_output_html_account_list() */
+}
 
 double ledger_output_subclassification_aggregate_html_element(
 					HTML_TABLE *html_table,
@@ -7275,7 +7273,7 @@ equity_all_done:
 
 	return total_element;
 
-} /* ledger_output_subclassification_aggregate_html_element() */
+}
 
 void ledger_output_net_income(		HTML_TABLE *html_table,
 					double net_income,
@@ -7333,7 +7331,7 @@ void ledger_output_net_income(		HTML_TABLE *html_table,
 				html_table->justify_list );
 	html_table->data_list = list_new();
 
-} /* ledger_output_net_income() */
+}
 
 void ledger_output_subclassification_aggregate_net_income(
 					HTML_TABLE *html_table,
@@ -7398,7 +7396,7 @@ void ledger_output_subclassification_aggregate_net_income(
 
 	html_table->data_list = list_new();
 
-} /* ledger_output_subclassification_aggregate_net_income() */
+}
 
 LIST *ledger_get_subclassification_omit_latex_row_list(
 					double *total_element,
@@ -7562,7 +7560,7 @@ LIST *ledger_get_subclassification_omit_latex_row_list(
 
 	return row_list;
 
-} /* ledger_get_subclassification_omit_latex_row_list() */
+}
 
 boolean ledger_exists_net_assets_equity_subclassification(
 					LIST *subclassification_list )
@@ -7585,7 +7583,7 @@ boolean ledger_exists_net_assets_equity_subclassification(
 
 	return 0;
 
-} /* ledger_exists_net_assets_equity_subclassification() */
+}
 
 boolean ledger_exists_journal_ledger(
 				LIST *journal_ledger_list,
@@ -7634,7 +7632,7 @@ boolean ledger_exists_journal_ledger(
 
 	return 0;
 
-} /* ledger_exists_journal_ledger() */
+}
 
 /* Returns transaction_date_time */
 /* ----------------------------- */
@@ -7695,7 +7693,7 @@ char *ledger_transaction_date_time_update(
 
 	return transaction_date_time;
 
-} /* ledger_transaction_date_time_update() */
+}
 
 DICTIONARY *ledger_account_pipe2dictionary( char *sys_string, char delimiter )
 {
@@ -7748,7 +7746,7 @@ DICTIONARY *ledger_account_pipe2dictionary( char *sys_string, char delimiter )
 	pclose( p );
 	return d;
 
-} /* ledger_account_pipe2dictionary() */
+}
 
 LIST *ledger_get_binary_ledger_list(
 				double transaction_amount,
@@ -7807,7 +7805,7 @@ LIST *ledger_get_binary_ledger_list(
 
 	return journal_ledger_list;
 
-} /* ledger_get_binary_ledger_list() */
+}
 
 LIST *ledger_consolidate_journal_ledger_list(
 			char *application_name,
@@ -7888,7 +7886,7 @@ LIST *ledger_consolidate_journal_ledger_list(
 
 	return new_journal_ledger_list;
 
-} /* ledger_consolidate_journal_ledger_list() */
+}
 
 LIST *ledger_get_unique_account_name_list(
 			LIST *journal_ledger_list )
@@ -7913,7 +7911,7 @@ LIST *ledger_get_unique_account_name_list(
 
 	return account_name_list;
 
-} /* ledger_get_unique_account_name_list() */
+}
 
 double ledger_debit_credit_get_amount(
 				double debit_amount,
@@ -7949,7 +7947,7 @@ double ledger_debit_credit_get_amount(
 
 	return return_amount;
 
-} /* ledger_debit_credit_get_amount() */
+}
 
 double ledger_get_amount(	JOURNAL_LEDGER *ledger,
 				boolean accumulate_debit )
@@ -7961,7 +7959,7 @@ double ledger_get_amount(	JOURNAL_LEDGER *ledger,
 				ledger->credit_amount,
 				accumulate_debit );
 
-} /* ledger_get_amount() */
+}
 
 char *ledger_earlier_of_two_date( char *date1, char *date2 )
 {
@@ -7974,7 +7972,7 @@ char *ledger_earlier_of_two_date( char *date1, char *date2 )
 
 	return return_date;
 
-} /* ledger_earlier_of_two_date() */
+}
 
 boolean ledger_property_street_address_attribute_exists(
 				char *application_name )
@@ -7991,7 +7989,7 @@ boolean ledger_property_street_address_attribute_exists(
 
 	return (boolean)results;
 
-} /* ledger_property_street_address_attribute_exists() */
+}
 
 boolean ledger_tax_recovery_period_attribute_exists(
 				char *application_name )
@@ -8008,7 +8006,7 @@ boolean ledger_tax_recovery_period_attribute_exists(
 
 	return (boolean)results;
 
-} /* ledger_property_street_address_attribute_exists() */
+}
 
 void ledger_transaction_delete_propagate(
 				char *application_name,
@@ -8033,7 +8031,7 @@ void ledger_transaction_delete_propagate(
 			journal_ledger_list,
 			application_name );
 
-} /* ledger_transaction_delete_propagate() */
+}
 
 void ledger_transaction_output_pipe_display(
 				FILE *output_pipe,
@@ -8095,7 +8093,7 @@ void ledger_transaction_output_pipe_display(
 			journal_ledger->account_name ),
 		 journal_ledger->credit_amount );
 
-} /* ledger_transaction_output_pipe_display() */
+}
 
 char *ledger_get_minimum_transaction_date(
 					char *application_name )
@@ -8138,7 +8136,7 @@ double ledger_get_sales_tax(
 
 	return atof( results );
 
-} /* ledger_get_sales_tax() */
+}
 
 double ledger_get_total_payment(
 				char *application_name,
@@ -8175,7 +8173,7 @@ double ledger_get_total_payment(
 	else
 		return atof( results_string );
 
-} /* ledger_get_total_payment() */
+}
 
 JOURNAL_LEDGER *ledger_account_seek_journal_ledger(
 					LIST *journal_ledger_list,
@@ -8198,7 +8196,7 @@ JOURNAL_LEDGER *ledger_account_seek_journal_ledger(
 
 	return (JOURNAL_LEDGER *)0;
 
-} /* ledger_account_seek_journal_ledger() */
+}
 
 JOURNAL_LEDGER *ledger_seek_uncleared_journal_ledger(
 					char *application_name,
@@ -8238,7 +8236,7 @@ JOURNAL_LEDGER *ledger_seek_uncleared_journal_ledger(
 
 	return (JOURNAL_LEDGER *)0;
 
-} /* ledger_seek_uncleared_journal_ledger() */
+}
 
 boolean ledger_exists_closing_entry(
 				char *application_name,
@@ -8276,5 +8274,5 @@ boolean ledger_exists_closing_entry(
 
 	return exists_closing_entry;
 
-} /* ledger_exists_closing_entry() */
+}
 

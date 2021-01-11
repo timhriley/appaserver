@@ -272,6 +272,7 @@ char *transaction_journal_refresh(
 			double transaction_amount,
 			char *memo,
 			int check_number,
+			boolean lock_transaction,
 			LIST *journal_list );
 
 char *transaction_refresh(
@@ -281,6 +282,7 @@ char *transaction_refresh(
 			double transaction_amount,
 			char *memo,
 			int check_number,
+			boolean lock_transaction,
 			LIST *journal_list );
 
 char *transaction_program_refresh(
@@ -291,6 +293,7 @@ char *transaction_program_refresh(
 			double transaction_amount,
 			char *memo,
 			int check_number,
+			boolean lock_transaction,
 			LIST *journal_list );
 
 /* Returns begin_date_string */

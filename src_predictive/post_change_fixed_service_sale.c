@@ -134,6 +134,7 @@ void post_change_fixed_service_sale_insert_update_delete(
 				sale->sale_transaction->transaction_amount,
 				sale->sale_transaction->memo,
 				0 /* check_number */,
+				sale->sale_transaction->lock_transaction,
 				sale->sale_transaction->journal_list );
 	}
 	else
