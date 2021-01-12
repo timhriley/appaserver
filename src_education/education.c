@@ -372,13 +372,17 @@ LIST *education_paypal_allowed_list(
 			LIST *product_name_list,
 			LIST *event_name_list )
 {
-	LIST *allowed_list = list_new();
+	static LIST *allowed_list = {0};
 
-	list_append_list( allowed_list, offering_name_list );
-	list_append_list( allowed_list, program_name_list );
-	list_append_list( allowed_list, program_alias_name_list );
-	list_append_list( allowed_list, product_name_list );
-	list_append_list( allowed_list, event_name_list );
+	if ( allowed_list ) return allowed_list;
+
+	allowed_list = list_new();
+
+	list_unique_list( allowed_list, offering_name_list );
+	list_unique_list( allowed_list, program_name_list );
+	list_unique_list( allowed_list, program_alias_name_list );
+	list_unique_list( allowed_list, product_name_list );
+	list_unique_list( allowed_list, event_name_list );
 
 	return allowed_list;
 }
