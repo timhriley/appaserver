@@ -935,8 +935,40 @@ void product_sale_fetch_update(
 	if ( system( sys_string ) ){};
 }
 
-LIST *product_sale_name_list( LIST *sale_list )
+LIST *product_sale_product_name_list( LIST *sale_list )
 {
-	return (LIST *)0;
+	PRODUCT_SALE *product_sale;
+	LIST *product_name_list;
+
+	if ( !list_rewind( sale_list ) ) return (LIST *)0;
+
+	product_name_list = list_new();
+
+	do {
+
+		product_sale = list_get( sale_list );
+
+		list_set(
+			product_name_list,
+			product_sale->product->product_name );
+
+	} while ( list_next( sale_list ) );
+
+	return product_name_list;
+}
+
+void product_sale_list_fetch_update(
+			LIST *product_name_list )
+{
+	char *product_name;
+
+	if ( !list_rewind( product_name_list ) ) return;
+
+	do {
+		product_name = list_get( product_name_list );
+
+		product_sale_fetch_update( product_name );
+
+	} while ( list_next( product_name_list ) );
 }
 

@@ -916,8 +916,39 @@ void product_refund_fetch_update(
 	if ( system( sys_string ) ){};
 }
 
-LIST *product_refund_name_list( LIST *refund_list )
+LIST *product_refund_product_name_list( LIST *refund_list )
 {
-	return (LIST *)0;
+	PRODUCT_REFUND *product_refund;
+	LIST *product_name_list;
+
+	if ( !list_rewind( refund_list ) ) return (LIST *)0;
+
+	product_name_list = list_new();
+
+	do {
+		product_refund = list_get( refund_list );
+
+		list_set(
+			product_name_list,
+			product_refund->product_sale->product->product_name );
+
+	} while ( list_next( refund_list ) );
+
+	return product_name_list;
+}
+
+void product_refund_list_fetch_update(
+			LIST *product_name_list )
+{
+	char *product_name;
+
+	if ( !list_rewind( product_name_list ) ) return;
+
+	do {
+		product_name = list_get( product_name_list );
+
+		product_refund_fetch_update( product_name );
+
+	} while ( list_next( product_name_list ) );
 }
 

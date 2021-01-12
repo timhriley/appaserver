@@ -1678,26 +1678,49 @@ char *paypal_deposit_date_time(
 	return strdup( paypal_date_time );
 }
 
-LIST *paypal_deposit_product_sale_name_list(
+LIST *paypal_deposit_sale_product_name_list(
 			LIST *paypal_deposit_list )
 {
 	PAYPAL_DEPOSIT *paypal_deposit;
-	LIST *sale_name_list;
+	LIST *product_name_list;
 
 	if ( !list_rewind( paypal_deposit_list ) ) return (LIST *)0;
 
-	sale_name_list = list_new();
+	product_name_list = list_new();
 
 	do {
 		paypal_deposit = list_get( paypal_deposit_list );
 
 		list_unique_list(
-			sale_name_list,
-			product_sale_name_list(
+			product_name_list,
+			product_sale_product_name_list(
 				paypal_deposit->product_sale_list ) );
 
 	} while ( list_next( paypal_deposit_list ) );
 
-	return sale_name_list;
+	return product_name_list;
+}
+
+LIST *paypal_deposit_refund_product_name_list(
+			LIST *paypal_deposit_list )
+{
+	PAYPAL_DEPOSIT *paypal_deposit;
+	LIST *product_name_list;
+
+	if ( !list_rewind( paypal_deposit_list ) ) return (LIST *)0;
+
+	product_name_list = list_new();
+
+	do {
+		paypal_deposit = list_get( paypal_deposit_list );
+
+		list_unique_list(
+			product_name_list,
+			product_refund_product_name_list(
+				paypal_deposit->product_refund_list ) );
+
+	} while ( list_next( paypal_deposit_list ) );
+
+	return product_name_list;
 }
 

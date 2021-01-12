@@ -343,5 +343,10 @@ char *paypal_deposit_date_time(
 			char *date_A,
 			char *time_B );
 
+LIST *paypal_deposit_sale_product_name_list(
+			LIST *paypal_deposit_list );
+
+LIST *paypal_deposit_refund_product_name_list(
+			LIST *paypal_deposit_list );
 #endif
 

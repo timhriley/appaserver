@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo $0 $* 1>&2
+
 if [ "$#" -lt 2 ]
 then
 	echo "Usage: $0 product_name [set_yn]" 1>&2

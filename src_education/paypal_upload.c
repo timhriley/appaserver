@@ -197,11 +197,11 @@ int main( int argc, char **argv )
 				year );
 
 			product_sale_list_fetch_update(
-				paypal_deposit_product_sale_name_list(
+				paypal_deposit_sale_product_name_list(
 					paypal_deposit_list ) );
 
 			product_refund_list_fetch_update(
-				paypal_deposit_product_refund_name_list(
+				paypal_deposit_refund_product_name_list(
 					paypal_deposit_list ) );
 
 			if ( session && role_name )

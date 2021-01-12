@@ -47,7 +47,6 @@ typedef struct
 	/* Input */
 	/* ----- */
 	PRODUCT *product;
-	/* PAYPAL_DEPOSIT *paypal_deposit; */
 	ENTITY *payor_entity;
 	char *sale_date_time;
 	int quantity;
@@ -225,8 +224,11 @@ void product_sale_fetch_update(
 void product_sale_list_fetch_update(
 			LIST *product_sale_list );
 
-LIST *product_sale_name_list(
+LIST *product_sale_product_name_list(
 			LIST *sale_list );
+
+void product_sale_list_fetch_update(
+			LIST *product_name_list );
 
 #endif
 

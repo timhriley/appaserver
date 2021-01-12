@@ -210,8 +210,11 @@ LIST *product_refund_list(
 void product_refund_fetch_update(
 			char *product_name );
 
-LIST *product_refund_name_list(
+LIST *product_refund_product_name_list(
 			LIST *refund_list );
+
+void product_refund_list_fetch_update(
+			LIST *product_name_list );
 
 #endif
 
