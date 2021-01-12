@@ -63,7 +63,7 @@ then
 		fi
 
 		directory="$APPASERVER_HOME/src_${application}"
-	
+
 		if [ -f $directory/makefile ]
 		then
 			cd $directory && pwd && make

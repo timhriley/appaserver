@@ -16,15 +16,21 @@ cd $APPASERVER_HOME/utility; make clean
 cd $APPASERVER_HOME/src_appaserver; make clean
 cd $APPASERVER_HOME/src_predictive; make clean
 
-for application in `application_list.sh`
-do
-	directory="$APPASERVER_HOME/src_${application}"
+cd $APPASERVER_HOME
 
-echo "$directory" 1>&2
+for application in $(ls -1 -d src_* | sed 's/src_//')
+do
+	if [ "$application" = "appaserver" -o	\
+	     "$application" = "predictive" ]
+	then
+		continue
+	fi
+
+	directory="$APPASERVER_HOME/src_${application}"
 
 	if [ -f $directory/makefile ]
 	then
-		cd $directory; make clean
+		cd $directory; pwd; make clean
 	fi
 done
 
