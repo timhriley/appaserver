@@ -439,7 +439,7 @@ void paypal_upload_not_found_display(
 	PAYPAL_DEPOSIT *paypal_deposit;
 	char *heading;
 	char *justification;
-	int missing_rows;
+	int delta;
 	int i;
 	boolean first_time = 1;
 	int previous_row = 1;
@@ -456,41 +456,38 @@ void paypal_upload_not_found_display(
 
 	output_pipe = popen( sys_string, "w" );
 
-	if ( !list_rewind( paypal_deposit_list ) )
+	if ( list_rewind( paypal_deposit_list ) )
 	{
-		pclose( output_pipe );
-		return;
+		do {
+			paypal_deposit =
+				list_get(
+					paypal_deposit_list );
+
+			delta = paypal_deposit->row_number - previous_row;
+
+			if ( delta > 1 )
+			{
+				for(	i = previous_row + 1;
+					i < paypal_deposit->row_number;
+					i++ )
+				{
+					if ( first_time )
+						first_time = 0;
+					else
+						fprintf( output_pipe, ", " );
+
+					fprintf( output_pipe, "%d", i );
+				}
+			}
+
+			previous_row = paypal_deposit->row_number;
+
+		} while ( list_next( paypal_deposit_list ) );
 	}
 
-	do {
-		paypal_deposit =
-			list_get(
-				paypal_deposit_list );
-
-		missing_rows = paypal_deposit->row_number - previous_row;
-
-		if ( missing_rows > 1 )
-		{
-			for(	i = previous_row + 1;
-				i < paypal_deposit->row_number;
-				i++ )
-			{
-				if ( first_time )
-					first_time = 0;
-				else
-					fprintf( output_pipe, ", " );
-
-				fprintf( output_pipe, "%d", i );
-			}
-		}
-
-		previous_row = paypal_deposit->row_number;
-
-	} while ( list_next( paypal_deposit_list ) );
-
-	if ( paypal_deposit->row_number < row_count )
+	if ( previous_row < row_count )
 	{
-		for(	i = paypal_deposit->row_number + 1;
+		for(	i = previous_row + 1;
 			i <= row_count;
 			i++ )
 		{

@@ -36,8 +36,6 @@ Play Theory in Improv for Junior High Schoolers (Spring 2020) (Child: Eli James 
 
 */
 
-/* Returns list of 1 */
-/* ----------------- */
 LIST *paypal_item_list_no_entity(
 			/* ------------------- */
 			/* Expect stack memory */
@@ -48,9 +46,6 @@ LIST *paypal_item_list_no_entity(
 	PAYPAL_ITEM *paypal_item;
 	LIST *item_list;
 
-/* Sample entity item_data:
-(Child: Atticus Weaver,Andy Madrigal Villalobos)
-*/
 	if ( paypal_item_is_entity( item_data ) )
 	{
 		return (LIST *)0;

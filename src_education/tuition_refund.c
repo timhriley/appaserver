@@ -1108,6 +1108,7 @@ LIST *tuition_refund_list_paypal(
 			paypal_item->taken = 1;
 		}
 	} while ( list_next( paypal_item_list ) );
+
 	return tuition_refund_list;
 }
 
