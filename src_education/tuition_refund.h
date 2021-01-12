@@ -10,7 +10,7 @@
 
 #include "boolean.h"
 #include "list.h"
-#include "tuition_payment.h"
+#include "enrollment.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -26,7 +26,6 @@
 					"season_name,"			\
 					"year,"				\
 					"payor_street_address,"		\
-					"payment_date_time,"		\
 					"refund_date_time"
 
 #define TUITION_REFUND_INSERT_COLUMNS	"full_name,"			\
@@ -36,7 +35,6 @@
 					"year,"				\
 					"payor_full_name,"		\
 					"payor_street_address,"		\
-					"payment_date_time,"		\
 					"refund_date_time,"		\
 					"refund_amount,"		\
 					"net_payment_amount,"		\
@@ -52,8 +50,7 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	TUITION_PAYMENT *tuition_payment;
-	/* PAYPAL_DEPOSIT *paypal_deposit; */
+	ENROLLMENT *enrollment;
 	ENTITY *payor_entity;
 	char *refund_date_time;
 	double refund_amount;
@@ -79,13 +76,16 @@ TUITION_REFUND *tuition_refund_fetch(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time,
 			char *refund_date_time,
-			boolean fetch_payment );
+			boolean fetch_enrollment,
+			boolean fetch_registration,
+			boolean fetch_offering );
 
 TUITION_REFUND *tuition_refund_parse(
 			char *input,
-			boolean fetch_payment );
+			boolean fetch_enrollment,
+			boolean fetch_registration,
+			boolean fetch_offering );
 
 TUITION_REFUND *tuition_refund_steady_state(
 			TUITION_REFUND *tuition_refund,
@@ -104,7 +104,6 @@ void tuition_refund_insert_pipe(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time,
 			char *refund_date_time,
 			double refund_amount,
 			double net_payment_amount,
@@ -114,7 +113,9 @@ void tuition_refund_insert_pipe(
 
 LIST *tuition_refund_system_list(
 			char *sys_string,
-			boolean fetch_payment );
+			boolean fetch_enrollment,
+			boolean fetch_registration,
+			boolean fetch_offering  );
 
 char *tuition_refund_sys_string(
 			char *where );
@@ -127,7 +128,6 @@ char *tuition_refund_primary_where(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time,
 			char *refund_date_time );
 
 void tuition_refund_list_set_transaction(
@@ -169,7 +169,6 @@ void tuition_refund_update(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time,
 			char *refund_date_time );
 
 FILE *tuition_refund_update_open(
@@ -183,7 +182,6 @@ void tuition_refund_trigger(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time,
 			char *refund_date_time,
 			char *state );
 
@@ -242,6 +240,15 @@ TUITION_REFUND *tuition_refund_paypal(
 			OFFERING *offering );
 
 void tuition_refund_list_registration_insert(
+			LIST *tuition_refund_list );
+
+void tuition_refund_list_student_insert(
+			LIST *tuition_refund_list );
+
+void tuition_refund_list_student_entity_insert(
+			LIST *refund_list );
+
+void tuition_refund_list_enrollment_insert(
 			LIST *tuition_refund_list );
 
 #endif

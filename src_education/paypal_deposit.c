@@ -57,7 +57,9 @@ LIST *paypal_fetch_tuition_payment_list(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *paypal_date_time,
-			boolean fetch_enrollment )
+			boolean fetch_enrollment,
+			boolean fetch_registration,
+			boolean fetch_offering )
 {
 	return
 		tuition_payment_system_list(
@@ -69,14 +71,18 @@ LIST *paypal_fetch_tuition_payment_list(
 					payor_full_name,
 					payor_street_address,
 					paypal_date_time ) ),
-			fetch_enrollment );
+			fetch_enrollment,
+			fetch_registration,
+			fetch_offering );
 }
 
 LIST *paypal_fetch_tuition_refund_list(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *paypal_date_time,
-			boolean fetch_enrollment )
+			boolean fetch_enrollment,
+			boolean fetch_registration,
+			boolean fetch_offering )
 {
 	return
 		tuition_refund_system_list(
@@ -88,7 +94,9 @@ LIST *paypal_fetch_tuition_refund_list(
 					payor_full_name,
 					payor_street_address,
 					paypal_date_time ) ),
-			fetch_enrollment );
+			fetch_enrollment,
+			fetch_registration,
+			fetch_offering );
 }
 
 double paypal_net_revenue(
@@ -1298,6 +1306,9 @@ void paypal_deposit_enrollment_insert(
 		tuition_payment_list_enrollment_insert(
 			paypal_deposit->tuition_payment_list );
 
+		tuition_refund_list_enrollment_insert(
+			paypal_deposit->tuition_refund_list );
+
 	} while ( list_next( paypal_deposit_list ) );
 }
 
@@ -1333,6 +1344,9 @@ void paypal_deposit_student_insert(
 		tuition_payment_list_student_insert(
 			paypal_deposit->tuition_payment_list );
 
+		tuition_refund_list_student_insert(
+			paypal_deposit->tuition_refund_list );
+
 	} while ( list_next( paypal_deposit_list ) );
 }
 
@@ -1348,6 +1362,9 @@ void paypal_deposit_student_entity_insert(
 
 		tuition_payment_list_student_entity_insert(
 			paypal_deposit->tuition_payment_list );
+
+		tuition_refund_list_student_entity_insert(
+			paypal_deposit->tuition_refund_list );
 
 	} while ( list_next( paypal_deposit_list ) );
 }
@@ -1722,5 +1739,69 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 	{
 		return (PAYPAL_DEPOSIT *)0;
 	}
+}
+
+void paypal_deposit_list_insert(
+			LIST *paypal_deposit_list )
+{
+	/* ------ */
+	/* Paypal */
+	/* ------ */
+	paypal_deposit_paypal_insert( paypal_deposit_list );
+
+	/* ---------- */
+	/* Enrollment */
+	/* ---------- */
+
+	/* -------------------------------------------- */
+	/* Executes:					*/
+	/* tuition_payment_list_registration_insert()	*/
+	/* tuition_refund_list_registration_insert()	*/
+	/* -------------------------------------------- */
+	paypal_deposit_registration_insert( paypal_deposit_list );
+
+	/* -------------------------------------------- */
+	/* Executes:					*/
+	/* tuition_payment_list_enrollment_insert()	*/
+	/* tuition_refund_list_enrollment_insert()	*/
+	/* -------------------------------------------- */
+	paypal_deposit_enrollment_insert( paypal_deposit_list );
+
+	paypal_deposit_tuition_payment_insert( paypal_deposit_list );
+	paypal_deposit_tuition_refund_insert( paypal_deposit_list );
+
+	/* -------------- */
+	/* Other deposits */
+	/* -------------- */
+	paypal_deposit_program_donation_insert( paypal_deposit_list );
+	paypal_deposit_product_sale_insert( paypal_deposit_list );
+	paypal_deposit_ticket_sale_insert( paypal_deposit_list );
+
+	/* ----- */
+	/* Sweep */
+	/* ----- */
+	paypal_deposit_paypal_sweep_insert( paypal_deposit_list );
+
+	/* ------------- */
+	/* Other refunds */
+	/* ------------- */
+	paypal_deposit_product_refund_insert( paypal_deposit_list );
+	paypal_deposit_ticket_refund_insert( paypal_deposit_list );
+
+	/* Student (tuition_payment and tuition_refund) */
+	/* -------------------------------------------- */
+	paypal_deposit_student_insert( paypal_deposit_list );
+
+	/* Student entity (tuition_payment and tuition_refund) */
+	/* --------------------------------------------------- */
+	paypal_deposit_student_entity_insert( paypal_deposit_list );
+
+	/* -------------------------------------------- */
+	/* Payor entity (tuition payment and refund),	*/
+	/* ticket sale and refund,			*/
+	/* product sale and refund,			*/
+	/* program donation.				*/
+	/* -------------------------------------------- */
+	paypal_deposit_payor_entity_insert( paypal_deposit_list );
 }
 

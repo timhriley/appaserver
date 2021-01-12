@@ -40,6 +40,40 @@ char *enrollment_sys_string( char *where )
 	return strdup( sys_string );
 }
 
+ENROLLMENT *enrollment_fetch_set(
+			ENTITY *student_entity,
+			char *course_name,
+			char *season_name,
+			int year,
+			boolean fetch_registration,
+			boolean fetch_offering )
+{
+	ENROLLMENT *enrollment;
+
+	if ( ( enrollment =
+		enrollment_fetch(
+			student_entity->full_name,
+			student_entity->street_address,
+			course_name,
+			season_name,
+			year,
+			0 /* not fetch_tuition_payment_list */,
+			0 /* not fetch_tuition_refund_list */,
+			fetch_registration,
+			fetch_offering ) ) )
+	{
+		return enrollment;
+	}
+	else
+	{
+		return enrollment_new(
+			student_entity,
+			course_name,
+			season_name,
+			year );
+	}
+}
+
 ENROLLMENT *enrollment_new(
 			ENTITY *student_entity,
 			char *course_name,
@@ -195,8 +229,8 @@ ENROLLMENT *enrollment_fetch(
 			int year,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_tuition_refund_list,
-			boolean fetch_offering,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_offering )
 {
 	ENROLLMENT *enrollment;
 
@@ -370,7 +404,9 @@ LIST *enrollment_tuition_payment_list(
 					course_name,
 					season_name,
 					year ) ),
-		0 /* fetch_enrollment */ );
+		0 /* not fetch_enrollment */,
+		0 /* not fetch_registration */,
+		0 /* not fetch_offering */ );
 }
 
 LIST *enrollment_tuition_refund_list(
@@ -391,7 +427,9 @@ LIST *enrollment_tuition_refund_list(
 					course_name,
 					season_name,
 					year ) ),
-		0 /* fetch_enrollment */ );
+		0 /* not fetch_enrollment */,
+		0 /* not fetch_registration */,
+		0 /* not fetch_offering */ );
 
 	return refund_list;
 }

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo $0 $* 1>&2
+
 if [ "$#" -lt 4 ]
 then
 	echo "Usage: $0 full_name street_address season_name year [set_yn]" 1>&2

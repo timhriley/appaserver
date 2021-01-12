@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo $0 $* 1>&2
+
 if [ "$#" -lt 3 ]
 then
 	echo "Usage: $0 course_name season_name year [set_yn]" 1>&2

@@ -182,7 +182,7 @@ int main( int argc, char **argv )
 				first_transaction_date_time,
 				account_name_list );
 
-			education_paypal_deposit_list_insert(
+			paypal_deposit_list_insert(
 				paypal_deposit_list );
 
 			paypal_deposit_list_registration_fetch_update(

@@ -60,9 +60,6 @@ PAYPAL_DATASET *education_paypal_dataset(
 			/* ---------------------- */
 			PAYPAL_DATASET *paypal_dataset );
 
-void education_paypal_deposit_list_insert(
-			LIST *education_paypal_deposit_list );
-
 void education_product_payment_insert(
 			LIST *education_paypal_deposit_list );
 

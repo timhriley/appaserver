@@ -111,13 +111,17 @@ LIST *paypal_fetch_tuition_payment_list(
 			char *payor_full_name,
 			char *street_address,
 			char *paypal_date_time,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_registration,
+			boolean fetch_offering );
 
 LIST *paypal_fetch_tuition_refund_list(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *paypal_date_time,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_registration,
+			boolean fetch_offering );
 
 LIST *paypal_fetch_product_sale_list(
 			char *payor_full_name,
@@ -238,18 +242,6 @@ LIST *paypal_deposit_list_enrollment_update(
 LIST *paypal_list_refund_enrollment_list(
 			LIST *paypal_deposit_list );
 
-LIST *paypal_tuition_refund_list(
-			char *season_name,
-			int year,
-			char *item_title_P,
-			LIST *semester_offering_list,
-			PAYPAL_DEPOSIT *paypal_deposit );
-
-LIST *paypal_product_payment_list(
-			char *item_title_P,
-			LIST *education_product_list,
-			PAYPAL_DEPOSIT *paypal_deposit );
-
 LIST *paypal_deposit_steady_state_paypal_item_list(
 			LIST *paypal_item_list,
 			double paypal_amount,
@@ -348,5 +340,9 @@ LIST *paypal_deposit_sale_product_name_list(
 
 LIST *paypal_deposit_refund_product_name_list(
 			LIST *paypal_deposit_list );
+
+void paypal_deposit_list_insert(
+			LIST *paypal_deposit_list );
+
 #endif
 

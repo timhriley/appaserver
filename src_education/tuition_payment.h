@@ -93,11 +93,15 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_registration,
+			boolean fetch_offering );
 
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_registrtion,
+			boolean fetch_offering );
 
 boolean tuition_payment_structure(
 			TUITION_PAYMENT *tuition_payment );
@@ -143,7 +147,9 @@ char *tuition_payment_primary_where(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_enrollment );
+			boolean fetch_enrollment,
+			boolean fetch_registration,
+			boolean fetch_offering );
 
 void tuition_payment_list_insert(
 			LIST *tuition_payment_list );
@@ -290,6 +296,14 @@ TUITION_PAYMENT *tuition_payment_paypal(
 			double item_value,
 			double item_fee,
 			OFFERING *offering );
+
+TUITION_PAYMENT *tuition_payment_fetch_set(
+			ENTITY *student_entity,
+			char *course_name,
+			char *season_name,
+			int year,
+			ENTITY *payor_entity,
+			char *payment_date_time );
 
 #endif
 

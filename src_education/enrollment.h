@@ -68,8 +68,8 @@ ENROLLMENT *enrollment_fetch(
 			int year,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_tuition_refund_list,
-			boolean fetch_offering,
-			boolean fetch_registration );
+			boolean fetch_registration,
+			boolean fetch_offering );
 
 ENROLLMENT *enrollment_parse(
 			char *input,
@@ -182,6 +182,14 @@ void enrollment_list_cancelled_update(
 void enrollment_list_set_transaction(
 			int *transaction_seconds_to_add,
 			LIST *enrollment_list );
+
+ENROLLMENT *enrollment_fetch_set(
+			ENTITY *student_entity,
+			char *course_name,
+			char *season_name,
+			int year,
+			boolean fetch_registration,
+			boolean fetch_offering );
 
 #endif
 

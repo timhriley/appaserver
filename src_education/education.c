@@ -403,23 +403,3 @@ double education_net_refund_amount(
 		merchant_fees_expense;
 }
 
-void education_paypal_deposit_list_insert(
-			LIST *education_paypal_list )
-{
-	paypal_deposit_paypal_insert( education_paypal_list );
-	paypal_deposit_registration_insert( education_paypal_list );
-	paypal_deposit_enrollment_insert( education_paypal_list );
-	paypal_deposit_tuition_payment_insert( education_paypal_list );
-	paypal_deposit_program_donation_insert( education_paypal_list );
-	paypal_deposit_product_sale_insert( education_paypal_list );
-	paypal_deposit_ticket_sale_insert( education_paypal_list );
-	paypal_deposit_product_refund_insert( education_paypal_list );
-	paypal_deposit_ticket_refund_insert( education_paypal_list );
-	paypal_deposit_tuition_refund_insert( education_paypal_list );
-	paypal_deposit_paypal_sweep_insert( education_paypal_list );
-
-	paypal_deposit_student_insert( education_paypal_list );
-	paypal_deposit_student_entity_insert( education_paypal_list );
-	paypal_deposit_payor_entity_insert( education_paypal_list );
-}
-

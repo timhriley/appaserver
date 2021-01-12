@@ -161,7 +161,9 @@ void tuition_payment_trigger_insert_update(
 				payor_full_name,
 				payor_street_address,
 				payment_date_time,
-				1 /* fetch_enrollment */ ) ) )
+				1 /* fetch_enrollment */,
+				0 /* not fetch_registration */,
+				1 /* fetch_offering */ ) ) )
 	{
 		return;
 	}
@@ -259,7 +261,9 @@ void tuition_payment_trigger_predelete(
 				payor_full_name,
 				payor_street_address,
 				payment_date_time,
-				0 /* not fetch_enrollment */ ) ) )
+				0 /* not fetch_enrollment */,
+				0 /* not fetch_registration */,
+				0 /* not fetch_offering */ ) ) )
 	{
 		return;
 	}
