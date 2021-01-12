@@ -1436,6 +1436,15 @@ int add_in_order( 	LIST *list,
         return 1;
 }
 
+LIST *list_unique_list(
+			LIST *destination_list,
+			LIST *source_list )
+{
+	return list_append_unique_string_list(
+			destination_list,
+			source_list );
+}
+
 LIST *list_append_unique_string_list(
 			LIST *destination_list,
 			LIST *source_list )

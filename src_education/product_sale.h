@@ -216,5 +216,17 @@ PRODUCT_SALE *product_sale_paypal(
 			double item_fee,
 			PRODUCT *product );
 
+LIST *product_sale_list(
+			char *where );
+
+void product_sale_fetch_update(
+			char *product_name );
+
+void product_sale_list_fetch_update(
+			LIST *product_sale_list );
+
+LIST *product_sale_name_list(
+			LIST *sale_list );
+
 #endif
 

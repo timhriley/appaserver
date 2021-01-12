@@ -896,3 +896,28 @@ PRODUCT_REFUND *product_refund_paypal(
 	return product_refund;
 }
 
+LIST *product_refund_list( char *where )
+{
+	return product_refund_system_list(
+		product_refund_sys_string(
+			where ),
+		0 /* not fetch_sale */ );
+}
+
+void product_refund_fetch_update(
+			char *product_name )
+{
+	char sys_string[ 256 ];
+
+	sprintf(sys_string,
+		"product_refund_fetch_update.sh \"%s\" y",
+		product_name );
+
+	if ( system( sys_string ) ){};
+}
+
+LIST *product_refund_name_list( LIST *refund_list )
+{
+	return (LIST *)0;
+}
+

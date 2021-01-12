@@ -27,11 +27,15 @@ typedef struct
 	double retail_price;
 	PROGRAM *program;
 	char *revenue_account;
+	LIST *sale_list;
+	LIST *refund_list;
 } PRODUCT;
 
 PRODUCT *product_new(	char *product_name );
 
-PRODUCT *product_fetch(	char *product_name );
+PRODUCT *product_fetch(	char *product_name,
+			boolean fetch_sale_list,
+			boolean fetch_refund_list );
 
 LIST *product_list(	void );
 
@@ -39,10 +43,14 @@ PRODUCT *product_calloc(
 			void );
 
 LIST *product_system_list(
-			char *sys_string );
+			char *sys_string,
+			boolean fetch_sale_list,
+			boolean fetch_refund_list );
 
 PRODUCT *product_parse(
-			char *input );
+			char *input,
+			boolean fetch_sale_list,
+			boolean fetch_refund_list );
 
 char *product_sys_string(
 			char *where );

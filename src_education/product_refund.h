@@ -204,5 +204,14 @@ PRODUCT_REFUND *product_refund_paypal(
 			double item_fee,
 			PRODUCT *product );
 
+LIST *product_refund_list(
+			char *where );
+
+void product_refund_fetch_update(
+			char *product_name );
+
+LIST *product_refund_name_list(
+			LIST *refund_list );
+
 #endif
 

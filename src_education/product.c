@@ -14,6 +14,8 @@
 #include "sql.h"
 #include "boolean.h"
 #include "list.h"
+#include "product_sale.h"
+#include "product_refund.h"
 #include "product.h"
 
 char *product_primary_where( char *product_name )
@@ -61,7 +63,9 @@ PRODUCT *product_new( char *product_name )
 	return product;
 }
 
-PRODUCT *product_fetch( char *product_name )
+PRODUCT *product_fetch(	char *product_name,
+			boolean fetch_sale_list,
+			boolean fetch_refund_list )
 {
 	char sys_string[ 1024 ];
 
@@ -85,10 +89,14 @@ PRODUCT *product_fetch( char *product_name )
 
 	return
 		product_parse(
-			pipe2string( sys_string ) );
+			pipe2string( sys_string ),
+			fetch_sale_list,
+			fetch_refund_list );
 }
 
-PRODUCT *product_parse( char *input )
+PRODUCT *product_parse( char *input,
+			boolean fetch_sale_list,
+			boolean fetch_refund_list )
 {
 	char product_name[ 128 ];
 	char program_name[ 128 ];
@@ -118,6 +126,22 @@ PRODUCT *product_parse( char *input )
 	piece( retail_price, SQL_DELIMITER, input, 3 );
 	product->retail_price = atof( retail_price );
 
+	if ( fetch_sale_list )
+	{
+		product->sale_list =
+			product_sale_list(
+				product_primary_where(
+					product->product_name ) );
+	}
+
+	if ( fetch_refund_list )
+	{
+		product->refund_list =
+			product_refund_list(
+				product_primary_where(
+					product->product_name ) );
+	}
+
 	return product;
 }
 
@@ -125,10 +149,15 @@ LIST *product_list( void )
 {
 	return product_system_list(
 			product_sys_string(
-				"1 = 1" /* where */ ) );
+				"1 = 1" /* where */ ),
+			0 /* not fetch_sale_list */,
+			0 /* not fetch_refund_list */ );
 }
 
-LIST *product_system_list( char *sys_string )
+LIST *product_system_list(
+			char *sys_string,
+			boolean fetch_sale_list,
+			boolean fetch_refund_list )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -141,7 +170,9 @@ LIST *product_system_list( char *sys_string )
 		list_set(
 			product_list,
 			product_parse(
-				input ) );
+				input,
+				fetch_sale_list,
+				fetch_refund_list ) );
 	}
 
 	pclose( input_pipe );
@@ -216,7 +247,7 @@ char *product_seek_name(
 char *product_fetch_program_name(
 			char *product_name )
 {
-	PRODUCT *product = product_fetch( product_name );
+	PRODUCT *product = product_fetch( product_name, 0, 0 );
 
 	if ( !product )
 		return (char *)0;
@@ -243,7 +274,6 @@ LIST *product_name_list( LIST *product_list )
 	return name_list;
 }
 
-
 void product_trigger( char *product_name )
 {
 	char sys_string[ 1024 ];
@@ -254,3 +284,4 @@ void product_trigger( char *product_name )
 
 	if ( system( sys_string ) ){}
 }
+

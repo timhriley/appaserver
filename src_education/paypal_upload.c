@@ -196,6 +196,14 @@ int main( int argc, char **argv )
 				season_name,
 				year );
 
+			product_sale_list_fetch_update(
+				paypal_deposit_product_sale_name_list(
+					paypal_deposit_list ) );
+
+			product_refund_list_fetch_update(
+				paypal_deposit_product_refund_name_list(
+					paypal_deposit_list ) );
+
 			if ( session && role_name )
 			{
 				folder_menu_refresh_role(

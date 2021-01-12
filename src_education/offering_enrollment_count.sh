@@ -6,8 +6,8 @@ then
 	exit 1
 fi
 
-course_name=$1
-season_name=$2
+course_name="$1"
+season_name="$2"
 year=$3
 
 if [ "$#" -eq 4 -a "$4" = 'y' ]
@@ -19,8 +19,8 @@ fi
 
 function offering_set()
 {
-	course_name=$1
-	season_name=$2
+	course_name="$1"
+	season_name="$2"
 	year=$3
 	enrollment_count=$4
 
@@ -36,8 +36,8 @@ function offering_set()
 
 function fetch_enrollment_count()
 {
-	course_name=$1
-	season_name=$2
+	course_name="$1"
+	season_name="$2"
 	year=$3
 
 	course_name_escaped=`echo "$course_name" | escape_character.e "'"`

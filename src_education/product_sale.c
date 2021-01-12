@@ -309,7 +309,9 @@ PRODUCT_SALE *product_sale_parse(
 			product_fetch(
 				product_sale->
 					product->
-					product_name );
+					product_name,
+				0 /* not fetch_sale_list */,
+				0 /* not fetch_refund_list */ );
 	}
 
 	return product_sale;
@@ -911,5 +913,30 @@ PRODUCT_SALE *product_sale_paypal(
 	product_sale->product = product;
 
 	return product_sale;
+}
+
+LIST *product_sale_list( char *where )
+{
+	return product_sale_system_list(
+		product_sale_sys_string(
+			where ),
+		0 /* not fetch_product */ );
+}
+
+void product_sale_fetch_update(
+			char *product_name )
+{
+	char sys_string[ 256 ];
+
+	sprintf(sys_string,
+		"product_sale_fetch_update.sh \"%s\" y",
+		product_name );
+
+	if ( system( sys_string ) ){};
+}
+
+LIST *product_sale_name_list( LIST *sale_list )
+{
+	return (LIST *)0;
 }
 

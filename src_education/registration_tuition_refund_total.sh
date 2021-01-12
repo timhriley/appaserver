@@ -6,9 +6,9 @@ then
 	exit 1
 fi
 
-full_name=$1
-street_address=$2
-season_name=$3
+full_name="$1"
+street_address="$2"
+season_name="$3"
 year=$4
 
 if [ "$#" -eq 5 -a "$5" = 'y' ]
@@ -22,9 +22,9 @@ full_name_escaped=`echo "$full_name" | escape_character.e "'"`
 
 function registration_set()
 {
-	full_name=$1
-	street_address=$2
-	season_name=$3
+	full_name="$1"
+	street_address="$2"
+	season_name="$3"
 	year=$4
 	tuition_refund_total=$5
 
@@ -40,9 +40,9 @@ function registration_set()
 
 function fetch_tuition_refund_total()
 {
-	full_name_escaped=$1
-	street_address=$2
-	season_name=$3
+	full_name_escaped="$1"
+	street_address="$2"
+	season_name="$3"
 	year=$4
 
 	tuition_refund_total=`						\
