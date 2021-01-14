@@ -347,7 +347,14 @@ LIST *paypal_deposit_refund_product_name_list(
 			LIST *paypal_deposit_list );
 
 void paypal_deposit_list_insert(
-			LIST *paypal_deposit_list );
+			LIST *paypal_deposit_list,
+			char *season_name,
+			int year );
+
+void paypal_deposit_ticket_sale_event_insert(
+			LIST *paypal_deposit_list,
+			char *season_name,
+			int year );
 
 #endif
 

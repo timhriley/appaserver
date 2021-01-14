@@ -42,38 +42,36 @@ TICKET_SALE *ticket_sale_calloc( void )
 }
 
 TICKET_SALE *ticket_sale_new(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
-			char *sale_date_time,
-			ENTITY *payor_entity )
+			ENTITY *payor_entity,
+			char *sale_date_time )
 {
 	TICKET_SALE *ticket_sale = ticket_sale_calloc();
 
 	ticket_sale->event =
 		event_new(
-			event_name,
+			program_name,
 			event_date,
 			event_time );
 
-	ticket_sale->sale_date_time = sale_date_time;
 	ticket_sale->payor_entity = payor_entity;
+	ticket_sale->sale_date_time = sale_date_time;
 
 	return ticket_sale;
 }
 
 TICKET_SALE *ticket_sale_fetch(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			boolean fetch_event )
 {
-	TICKET_SALE *ticket_sale;
-
-	ticket_sale =
+	return
 		ticket_sale_parse(
 			pipe2string(
 				ticket_sale_sys_string(
@@ -81,15 +79,13 @@ TICKET_SALE *ticket_sale_fetch(
 					/* Returns static memory */
 					/* --------------------- */
 					ticket_sale_primary_where(
-						event_name,
+						program_name,
 						event_date,
 						event_time,
-						sale_date_time,
 						payor_full_name,
-						payor_street_address ) ) ),
-			fetch_event );
-
-	return ticket_sale;
+						payor_street_address,
+						sale_date_time ) ) ),
+		fetch_event );
 }
 
 LIST *ticket_sale_system_list(
@@ -99,6 +95,8 @@ LIST *ticket_sale_system_list(
 	char input[ 1024 ];
 	FILE *input_pipe;
 	LIST *ticket_sale_list = list_new();
+
+	if ( !sys_string ) return (LIST *)0;
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -162,12 +160,12 @@ void ticket_sale_list_insert( LIST *ticket_sale_list )
 
 		ticket_sale_insert_pipe(
 			insert_pipe,
-			ticket_sale->event->event_name,
+			ticket_sale->event->program_name,
 			ticket_sale->event->event_date,
 			ticket_sale->event->event_time,
-			ticket_sale->sale_date_time,
 			ticket_sale->payor_entity->full_name,
 			ticket_sale->payor_entity->street_address,
+			ticket_sale->sale_date_time,
 			ticket_sale->quantity,
 			ticket_sale->ticket_price,
 			ticket_sale->extended_price,
@@ -218,12 +216,12 @@ FILE *ticket_sale_insert_open( char *error_filename )
 
 void ticket_sale_insert_pipe(
 			FILE *insert_pipe,
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			int quantity,
 			double ticket_price,
 			double extended_price,
@@ -237,15 +235,15 @@ void ticket_sale_insert_pipe(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		event_name_escape( event_name ),
+		program_name_escape( program_name ),
 		event_date,
 		event_time,
-		sale_date_time,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		entity_escape_full_name( payor_full_name ),
 		payor_street_address,
+		sale_date_time,
 		quantity,
 		ticket_price,
 		extended_price,
@@ -263,12 +261,12 @@ TICKET_SALE *ticket_sale_parse(
 			char *input,
 			boolean fetch_event )
 {
-	char event_name[ 128 ];
+	char program_name[ 128 ];
 	char event_date[ 128 ];
 	char event_time[ 128 ];
-	char sale_date_time[ 128 ];
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
+	char sale_date_time[ 128 ];
 	char quantity[ 128 ];
 	char ticket_price[ 128 ];
 	char extended_price[ 128 ];
@@ -284,25 +282,25 @@ TICKET_SALE *ticket_sale_parse(
 
 	/* See: attribute_list ticket_sale */
 	/* ----------------------------------- */
-	piece( event_name, SQL_DELIMITER, input, 0 );
+	piece( program_name, SQL_DELIMITER, input, 0 );
 	piece( event_date, SQL_DELIMITER, input, 1 );
 	piece( event_time, SQL_DELIMITER, input, 2 );
 
 	ticket_sale->event =
-		event_new(	strdup( event_name ),
+		event_new(	strdup( program_name ),
 				strdup( event_date ),
 				strdup( event_time ) );
 
-	piece( sale_date_time, SQL_DELIMITER, input, 3 );
-	ticket_sale->sale_date_time = strdup( sale_date_time );
-
-	piece( payor_full_name, SQL_DELIMITER, input, 4 );
-	piece( payor_street_address, SQL_DELIMITER, input, 5 );
+	piece( payor_full_name, SQL_DELIMITER, input, 3 );
+	piece( payor_street_address, SQL_DELIMITER, input, 4 );
 
 	ticket_sale->payor_entity =
 		entity_new(
 			strdup( payor_full_name ),
 			strdup( payor_street_address ) );
+
+	piece( sale_date_time, SQL_DELIMITER, input, 5 );
+	ticket_sale->sale_date_time = strdup( sale_date_time );
 
 	piece( quantity, SQL_DELIMITER, input, 6 );
 	ticket_sale->quantity = atoi( quantity );
@@ -331,7 +329,7 @@ TICKET_SALE *ticket_sale_parse(
 			event_fetch(
 				ticket_sale->
 					event->
-					event_name,
+					program_name,
 				ticket_sale->
 					event->
 					event_date,
@@ -348,29 +346,59 @@ TICKET_SALE *ticket_sale_parse(
 }
 
 char *ticket_sale_primary_where(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
-			char *sale_date_time,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *sale_date_time )
+{
+	char static where[ 1024 ];
+
+	sprintf(where,
+		"program_name = '%s' and		"
+		"event_date = '%s' and			"
+		"event_time = '%s' and			"
+		"payor_full_name = '%s' and		"
+		"payor_street_address = '%s' and	"
+		"sale_date_time = '%s' 			",
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 program_name_escape( program_name ),
+		 event_date,
+		 event_time,
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 entity_escape_full_name( payor_full_name ),
+		 payor_street_address,
+		 sale_date_time );
+
+	return where;
+}
+
+char *ticket_sale_integrity_where(
+			char *program_name,
+			char *event_date,
+			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address )
 {
 	char static where[ 1024 ];
 
 	sprintf(where,
-		"event_name = '%s' and			"
+		"program_name = '%s' and		"
 		"event_date = '%s' and			"
 		"event_time = '%s' and			"
-		"sale_date_time = '%s' and		"
 		"payor_full_name = '%s' and		"
 		"payor_street_address = '%s'		",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
-		 event_name_escape( event_name ),
+		 program_name_escape( program_name ),
 		 event_date,
 		 event_time,
-		 sale_date_time,
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
@@ -385,7 +413,6 @@ TRANSACTION *ticket_sale_transaction(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time,
-			char *event_name,
 			char *program_name,
 			double extended_price,
 			double merchant_fees_expense,
@@ -433,7 +460,7 @@ TRANSACTION *ticket_sale_transaction(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			strdup( ticket_sale_memo( event_name ) ),
+			strdup( ticket_sale_memo( program_name ) ),
 			1 /* lock_transaction */,
 			(*seconds_to_add)++ );
 
@@ -502,43 +529,43 @@ void ticket_sale_update(
 			double extended_price,
 			double net_payment_amount,
 			char *transaction_date_time,
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address )
+			char *payor_street_address,
+			char *sale_date_time )
 {
 	FILE *update_pipe = ticket_sale_update_open();
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%s^%s^extended_price^%.2lf\n",
-		 event_name,
+		 program_name,
 		 event_date,
 		 event_time,
-		 sale_date_time,
 		 payor_full_name,
 		 payor_street_address,
+		 sale_date_time,
 		 extended_price );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%s^%s^net_payment_amount^%.2lf\n",
-		 event_name,
+		 program_name,
 		 event_date,
 		 event_time,
-		 sale_date_time,
 		 payor_full_name,
 		 payor_street_address,
+		 sale_date_time,
 		 net_payment_amount );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%s^%s^transaction_date_time^%s\n",
-		 event_name,
+		 program_name,
 		 event_date,
 		 event_time,
-		 sale_date_time,
 		 payor_full_name,
 		 payor_street_address,
+		 sale_date_time,
 		 (transaction_date_time)
 			? transaction_date_time
 			: "" );
@@ -575,7 +602,7 @@ char *ticket_sale_list_display( LIST *sale_list )
 		{
 			ptr += sprintf(	ptr,
 					"%s",
-					sale->event->event_name );
+					sale->event->program_name );
 		}
 		else
 		{
@@ -630,24 +657,24 @@ TICKET_SALE *ticket_sale_steady_state(
 }
 
 void ticket_sale_trigger(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			char *state )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"ticket_sale_trigger \"%s\" '%s' '%s' '%s' \"%s\" '%s' '%s'",
-		event_name,
+"ticket_sale_trigger \"%s\" '%s' '%s' \"%s\" '%s' '%s' '%s'",
+		program_name,
 		event_date,
 		event_time,
-		sale_date_time,
 		payor_full_name,
 		payor_street_address,
+		sale_date_time,
 		state );
 
 	if ( system( sys_string ) ){}
@@ -702,12 +729,12 @@ void ticket_sale_list_trigger(
 		ticket_sale = list_get( ticket_sale_list );
 
 		ticket_sale_trigger(
-			ticket_sale->event->event_name,
+			ticket_sale->event->program_name,
 			ticket_sale->event->event_date,
 			ticket_sale->event->event_time,
-			ticket_sale->sale_date_time,
 			ticket_sale->payor_entity->full_name,
 			ticket_sale->payor_entity->street_address,
+			ticket_sale->sale_date_time,
 			"insert" /* state */ );
 
 	} while ( list_next( ticket_sale_list ) );
@@ -762,16 +789,16 @@ LIST *ticket_sale_list_steady_state(
 	return ticket_sale_list;
 }
 
-char *ticket_sale_memo( char *event_name )
+char *ticket_sale_memo( char *program_name )
 {
 	static char payment_memo[ 128 ];
 
-	if ( event_name && *event_name )
+	if ( program_name && *program_name )
 	{
 		sprintf(payment_memo,
 			"%s/%s",
 			TICKET_SALE_MEMO,
-			event_name );
+			program_name );
 	}
 	else
 	{
@@ -875,8 +902,7 @@ void ticket_sale_set_transaction(
 			ticket_sale->payor_entity->full_name,
 			ticket_sale->payor_entity->street_address,
 			ticket_sale->sale_date_time,
-			ticket_sale->event->event_name,
-			ticket_sale->event->program->program_name,
+			ticket_sale->event->program_name,
 			ticket_sale->extended_price,
 			ticket_sale->merchant_fees_expense,
 			ticket_sale->net_payment_amount,
@@ -983,8 +1009,10 @@ TICKET_SALE *ticket_sale_paypal(
 	ticket_sale = ticket_sale_calloc();
 
 	ticket_sale->payor_entity = payor_entity;
+
 	ticket_sale->sale_date_time =
 	ticket_sale->paypal_date_time = paypal_date_time;
+
 	ticket_sale->ticket_price = event->ticket_price;
 	ticket_sale->merchant_fees_expense = item_fee;
 	ticket_sale->event = event;
@@ -1013,7 +1041,9 @@ TICKET_SALE *ticket_sale_paypal(
 }
 
 void ticket_sale_list_event_insert(
-			LIST *ticket_sale_list )
+			LIST *ticket_sale_list,
+			char *season_name,
+			int year )
 {
 	TICKET_SALE *ticket_sale;
 	FILE *insert_pipe;
@@ -1034,13 +1064,15 @@ void ticket_sale_list_event_insert(
 			insert_pipe,
 			ticket_sale->
 				event->
-				event_name,
+				program_name,
 			ticket_sale->
 				event->
 				event_date,
 			ticket_sale->
 				event->
-				event_time );
+				event_time,
+				season_name,
+				year );
 
 	} while ( list_next( ticket_sale_list ) );
 
@@ -1060,5 +1092,32 @@ void ticket_sale_list_event_insert(
 	sprintf( sys_string, "rm %s", error_filename );
 
 	if ( system( sys_string ) ){};
+}
+
+TICKET_SALE *ticket_sale_integrity_fetch(
+			char *program_name,
+			char *event_date,
+			char *event_time,
+			char *payor_full_name,
+			char *payor_street_address )
+{
+	TICKET_SALE *ticket_sale;
+
+	ticket_sale =
+		ticket_sale_parse(
+			pipe2string(
+				ticket_sale_sys_string(
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					ticket_sale_integrity_where(
+						program_name,
+						event_date,
+						event_time,
+						payor_full_name,
+						payor_street_address ) ) ),
+		0 /* not fetch_event */ );
+
+	return ticket_sale;
 }
 

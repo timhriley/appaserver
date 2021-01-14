@@ -947,7 +947,7 @@ void paypal_deposit_set_paypal_item_expected_revenue(
 		}
 		else
 		if ( ( event =
-			event_name_seek(
+			event_program_name_seek(
 				paypal_item->item_data,
 				event_list ) ) )
 		{
@@ -1270,6 +1270,26 @@ void paypal_deposit_ticket_sale_insert(
 	} while ( list_next( paypal_deposit_list ) );
 }
 
+void paypal_deposit_ticket_sale_event_insert(
+			LIST *paypal_deposit_list,
+			char *season_name,
+			int year )
+{
+	PAYPAL_DEPOSIT *paypal_deposit;
+
+	if ( !list_rewind( paypal_deposit_list ) ) return;
+
+	do {
+		paypal_deposit = list_get( paypal_deposit_list );
+
+		ticket_sale_list_event_insert(
+			paypal_deposit->ticket_sale_list,
+			season_name,
+			year );
+
+	} while ( list_next( paypal_deposit_list ) );
+}
+
 void paypal_deposit_product_sale_insert(
 			LIST *paypal_deposit_list )
 {
@@ -1347,9 +1367,6 @@ void paypal_deposit_enrollment_insert(
 		tuition_payment_list_enrollment_insert(
 			paypal_deposit->tuition_payment_list );
 
-		tuition_refund_list_enrollment_insert(
-			paypal_deposit->tuition_refund_list );
-
 	} while ( list_next( paypal_deposit_list ) );
 }
 
@@ -1365,9 +1382,6 @@ void paypal_deposit_registration_insert(
 
 		tuition_payment_list_registration_insert(
 			paypal_deposit->tuition_payment_list );
-
-		tuition_refund_list_registration_insert(
-			paypal_deposit->tuition_refund_list );
 
 	} while ( list_next( paypal_deposit_list ) );
 }
@@ -1385,9 +1399,6 @@ void paypal_deposit_student_insert(
 		tuition_payment_list_student_insert(
 			paypal_deposit->tuition_payment_list );
 
-		tuition_refund_list_student_insert(
-			paypal_deposit->tuition_refund_list );
-
 	} while ( list_next( paypal_deposit_list ) );
 }
 
@@ -1403,9 +1414,6 @@ void paypal_deposit_student_entity_insert(
 
 		tuition_payment_list_student_entity_insert(
 			paypal_deposit->tuition_payment_list );
-
-		tuition_refund_list_student_entity_insert(
-			paypal_deposit->tuition_refund_list );
 
 	} while ( list_next( paypal_deposit_list ) );
 }
@@ -1431,15 +1439,6 @@ void paypal_deposit_payor_entity_insert(
 
 		ticket_sale_list_payor_entity_insert(
 			paypal_deposit->ticket_sale_list );
-
-		tuition_refund_list_payor_entity_insert(
-			paypal_deposit->tuition_refund_list );
-
-		product_refund_list_payor_entity_insert(
-			paypal_deposit->product_refund_list );
-
-		ticket_refund_list_payor_entity_insert(
-			paypal_deposit->ticket_refund_list );
 
 	} while ( list_next( paypal_deposit_list ) );
 }
@@ -1609,9 +1608,7 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 				program_alias_name_list(
 					program_list ),
 				product_name_list(
-					product_list ),
-				event_name_list(
-					semester_event_list ) ),
+					product_list ) ),
 			event_label_list(
 				semester_event_list ) );
 
@@ -1783,7 +1780,9 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 }
 
 void paypal_deposit_list_insert(
-			LIST *paypal_deposit_list )
+			LIST *paypal_deposit_list,
+			char *season_name,
+			int year )
 {
 	/* ------ */
 	/* Paypal */
@@ -1793,23 +1792,9 @@ void paypal_deposit_list_insert(
 	/* ---------- */
 	/* Enrollment */
 	/* ---------- */
-
-	/* -------------------------------------------- */
-	/* Executes:					*/
-	/* tuition_payment_list_registration_insert()	*/
-	/* tuition_refund_list_registration_insert()	*/
-	/* -------------------------------------------- */
 	paypal_deposit_registration_insert( paypal_deposit_list );
-
-	/* -------------------------------------------- */
-	/* Executes:					*/
-	/* tuition_payment_list_enrollment_insert()	*/
-	/* tuition_refund_list_enrollment_insert()	*/
-	/* -------------------------------------------- */
 	paypal_deposit_enrollment_insert( paypal_deposit_list );
-
 	paypal_deposit_tuition_payment_insert( paypal_deposit_list );
-	paypal_deposit_tuition_refund_insert( paypal_deposit_list );
 
 	/* -------------- */
 	/* Other deposits */
@@ -1818,31 +1803,35 @@ void paypal_deposit_list_insert(
 	paypal_deposit_product_sale_insert( paypal_deposit_list );
 	paypal_deposit_ticket_sale_insert( paypal_deposit_list );
 
+	paypal_deposit_ticket_sale_event_insert(
+			paypal_deposit_list,
+			season_name,
+			year );
+
 	/* ----- */
 	/* Sweep */
 	/* ----- */
 	paypal_deposit_paypal_sweep_insert( paypal_deposit_list );
 
-	/* ------------- */
-	/* Other refunds */
-	/* ------------- */
+	/* ------- */
+	/* Refunds */
+	/* ------- */
+	paypal_deposit_tuition_refund_insert( paypal_deposit_list );
 	paypal_deposit_product_refund_insert( paypal_deposit_list );
-	paypal_deposit_ticket_refund_insert( paypal_deposit_list );
 
-	/* Student (tuition_payment and tuition_refund) */
-	/* -------------------------------------------- */
+	/* ---------- */
+	/* Dependents */
+	/* ---------- */
 	paypal_deposit_student_insert( paypal_deposit_list );
-
-	/* Student entity (tuition_payment and tuition_refund) */
-	/* --------------------------------------------------- */
 	paypal_deposit_student_entity_insert( paypal_deposit_list );
 
-	/* -------------------------------------------- */
-	/* Payor entity (tuition payment and refund),	*/
-	/* ticket sale and refund,			*/
-	/* product sale and refund,			*/
-	/* program donation.				*/
-	/* -------------------------------------------- */
+	/* -------------------- */
+	/* Payor entity for:	*/
+	/* tuition payment,	*/
+	/* ticket sale,		*/
+	/* product sale,	*/
+	/* program donation.	*/
+	/* -------------------- */
 	paypal_deposit_payor_entity_insert( paypal_deposit_list );
 }
 

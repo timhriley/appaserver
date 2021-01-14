@@ -43,34 +43,32 @@ PRODUCT_SALE *product_sale_calloc( void )
 
 PRODUCT_SALE *product_sale_new(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address )
+			char *payor_street_address,
+			char *sale_date_time )
 {
 	PRODUCT_SALE *product_sale = product_sale_calloc();
 
 	product_sale->product = product_new( product_name );
-	product_sale->sale_date_time = sale_date_time;
 
 	product_sale->payor_entity =
 		entity_new(
 			payor_full_name,
 			payor_street_address );
 
+	product_sale->sale_date_time = sale_date_time;
 	return product_sale;
 }
 
 
 PRODUCT_SALE *product_sale_fetch(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			boolean fetch_product )
 {
-	PRODUCT_SALE *product_sale;
-
-	product_sale =
+	return
 		product_sale_parse(
 			pipe2string(
 				product_sale_sys_string(
@@ -79,12 +77,10 @@ PRODUCT_SALE *product_sale_fetch(
 					/* --------------------- */
 					product_sale_primary_where(
 						product_name,
-						sale_date_time,
 						payor_full_name,
-						payor_street_address ) ) ),
-			fetch_product );
-
-	return product_sale;
+						payor_street_address,
+						sale_date_time ) ) ),
+		fetch_product );
 }
 
 LIST *product_sale_system_list(
@@ -141,11 +137,11 @@ void product_sale_list_insert(
 		product_sale = list_get( product_sale_list );
 
 		if ( !product_sale->product
-		||   !product_sale->sale_date_time
-		||   !product_sale->payor_entity )
+		||   !product_sale->payor_entity
+		||   !product_sale->sale_date_time )
 		{
 			fprintf(stderr,
-"Warning in %s/%s()/%d: empty product, sale_date_time or payor_entity.\n",
+"Warning in %s/%s()/%d: empty product, payor_entity, or sale_date_time.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -155,9 +151,9 @@ void product_sale_list_insert(
 		product_sale_insert_pipe(
 			insert_pipe,
 			product_sale->product->product_name,
-			product_sale->sale_date_time,
 			product_sale->payor_entity->full_name,
 			product_sale->payor_entity->street_address,
+			product_sale->sale_date_time,
 			product_sale->quantity,
 			product_sale->retail_price,
 			product_sale->extended_price,
@@ -209,9 +205,9 @@ FILE *product_sale_insert_open( char *error_filename )
 void product_sale_insert_pipe(
 			FILE *insert_pipe,
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			int quantity,
 			double retail_price,
 			double extended_price,
@@ -226,12 +222,12 @@ void product_sale_insert_pipe(
 		/* Returns static memory */
 		/* --------------------- */
 		product_name_escape( product_name ),
-		sale_date_time,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		entity_escape_full_name( payor_full_name ),
 		payor_street_address,
+		sale_date_time,
 		quantity,
 		retail_price,
 		extended_price,
@@ -250,9 +246,9 @@ PRODUCT_SALE *product_sale_parse(
 			boolean fetch_product )
 {
 	char product_name[ 128 ];
-	char sale_date_time[ 128 ];
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
+	char sale_date_time[ 128 ];
 	char quantity[ 128 ];
 	char retail_price[ 128 ];
 	char extended_price[ 128 ];
@@ -271,16 +267,16 @@ PRODUCT_SALE *product_sale_parse(
 	piece( product_name, SQL_DELIMITER, input, 0 );
 	product_sale->product = product_new( strdup( product_name ) );
 
-	piece( sale_date_time, SQL_DELIMITER, input, 1 );
-	product_sale->sale_date_time = strdup( sale_date_time );
-
-	piece( payor_full_name, SQL_DELIMITER, input, 2 );
-	piece( payor_street_address, SQL_DELIMITER, input, 3 );
+	piece( payor_full_name, SQL_DELIMITER, input, 1 );
+	piece( payor_street_address, SQL_DELIMITER, input, 2 );
 
 	product_sale->payor_entity =
 		entity_new(
 			strdup( payor_full_name ),
 			strdup( payor_street_address ) );
+
+	piece( sale_date_time, SQL_DELIMITER, input, 3 );
+	product_sale->sale_date_time = strdup( sale_date_time );
 
 	piece( quantity, SQL_DELIMITER, input, 4 );
 	product_sale->quantity = atoi( quantity );
@@ -319,27 +315,27 @@ PRODUCT_SALE *product_sale_parse(
 
 char *product_sale_primary_where(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address )
+			char *payor_street_address,
+			char *sale_date_time )
 {
 	char static where[ 1024 ];
 
 	sprintf(where,
 		"product_name = '%s' and		"
-		"sale_date_time = '%s' and		"
 		"payor_full_name = '%s' and		"
-		"payor_street_address = '%s'		",
+		"payor_street_address = '%s' and	"
+		"sale_date_time = '%s' 			",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
 		 product_name_escape( product_name ),
-		 sale_date_time,
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
 		 entity_escape_full_name( payor_full_name ),
-		 payor_street_address );
+		 payor_street_address,
+		 sale_date_time );
 
 	return where;
 }
@@ -456,34 +452,34 @@ void product_sale_update(
 			double net_payment_amount,
 			char *transaction_date_time,
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address )
+			char *payor_street_address,
+			char *sale_date_time )
 {
 	FILE *update_pipe = product_sale_update_open();
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^extended_price^%.2lf\n",
 		 product_name,
-		 sale_date_time,
 		 payor_full_name,
 		 payor_street_address,
+		 sale_date_time,
 		 extended_price );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^net_payment_amount^%.2lf\n",
 		 product_name,
-		 sale_date_time,
 		 payor_full_name,
 		 payor_street_address,
+		 sale_date_time,
 		 net_payment_amount );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^transaction_date_time^%s\n",
 		 product_name,
-		 sale_date_time,
 		 payor_full_name,
 		 payor_street_address,
+		 sale_date_time,
 		 (transaction_date_time)
 			? transaction_date_time
 			: "" );
@@ -581,19 +577,19 @@ PRODUCT_SALE *product_sale_steady_state(
 
 void product_sale_trigger(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			char *state )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"product_sale_trigger \"%s\" '%s' \"%s\" '%s' '%s'",
+"product_sale_trigger \"%s\" \"%s\" '%s' '%s' '%s'",
 		product_name,
-		sale_date_time,
 		payor_full_name,
 		payor_street_address,
+		sale_date_time,
 		state );
 
 	if ( system( sys_string ) ){}
@@ -649,9 +645,9 @@ void product_sale_list_trigger(
 
 		product_sale_trigger(
 			product_sale->product->product_name,
-			product_sale->sale_date_time,
 			product_sale->payor_entity->full_name,
 			product_sale->payor_entity->street_address,
+			product_sale->sale_date_time,
 			"insert" /* state */ );
 
 	} while ( list_next( product_sale_list ) );
@@ -970,5 +966,48 @@ void product_sale_list_fetch_update(
 		product_sale_fetch_update( product_name );
 
 	} while ( list_next( product_name_list ) );
+}
+
+PRODUCT_SALE *product_sale_integrity_fetch(
+			char *product_name,
+			char *payor_full_name,
+			char *payor_street_address )
+{
+	return
+		product_sale_parse(
+			pipe2string(
+				product_sale_sys_string(
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					product_sale_integrity_where(
+						product_name,
+						payor_full_name,
+						payor_street_address ) ) ),
+		0 /* not fetch_product */ );
+}
+
+char *product_sale_integrity_where(
+			char *product_name,
+			char *payor_full_name,
+			char *payor_street_address )
+{
+	char static where[ 1024 ];
+
+	sprintf(where,
+		"product_name = '%s' and		"
+		"payor_full_name = '%s' and		"
+		"payor_street_address = '%s' 		",
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 product_name_escape( product_name ),
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 entity_escape_full_name( payor_full_name ),
+		 payor_street_address );
+
+	return where;
 }
 

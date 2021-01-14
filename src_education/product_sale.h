@@ -22,14 +22,14 @@
 #define PRODUCT_SALE_TABLE		"product_sale"
 
 #define PRODUCT_SALE_PRIMARY_KEY	"product_name,"			\
-					"sale_date_time,"		\
-					"payor_full_name,"		\
-					"payor_street_address"
-
-#define PRODUCT_SALE_INSERT_COLUMNS	"product_name,"			\
-					"sale_date_time,"		\
 					"payor_full_name,"		\
 					"payor_street_address,"		\
+					"sale_date_time"
+
+#define PRODUCT_SALE_INSERT_COLUMNS	"product_name,"			\
+					"payor_full_name,"		\
+					"payor_street_address,"		\
+					"sale_date_time,"		\
 					"quantity,"			\
 					"retail_price,"			\
 					"extended_price,"		\
@@ -68,15 +68,15 @@ PRODUCT_SALE *product_sale_calloc(
 
 PRODUCT_SALE *product_sale_new(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address );
+			char *payor_street_address,
+			char *sale_date_time );
 
 PRODUCT_SALE *product_sale_fetch(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			boolean fetch_product );
 
 PRODUCT_SALE *product_sale_parse(
@@ -110,9 +110,9 @@ FILE *product_sale_insert_open(
 void product_sale_insert_pipe(
 			FILE *insert_pipe,
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			int quantity,
 			double retail_price,
 			double extended_price,
@@ -130,9 +130,9 @@ char *product_sale_sys_string(
 
 char *product_sale_primary_where(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address );
+			char *payor_street_address,
+			char *sale_date_time );
 
 void product_sale_list_set_transaction(
 			int *transaction_seconds_to_add,
@@ -157,18 +157,18 @@ void product_sale_update(
 			double net_payment_amount,
 			char *transaction_date_time,
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address );
+			char *payor_street_address,
+			char *sale_date_time );
 
 FILE *product_sale_update_open(
 			void );
 
 void product_sale_trigger(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			char *state );
 
 void product_sale_list_insert(
@@ -229,6 +229,16 @@ LIST *product_sale_product_name_list(
 
 void product_sale_list_fetch_update(
 			LIST *product_name_list );
+
+PRODUCT_SALE *product_sale_integrity_fetch(
+			char *product_name,
+			char *payor_full_name,
+			char *payor_street_address );
+
+char *product_sale_integrity_where(
+			char *product_name,
+			char *payor_full_name,
+			char *payor_street_address );
 
 #endif
 

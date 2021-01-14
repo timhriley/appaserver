@@ -519,6 +519,8 @@ char *pipe2string( char *sys_string )
 	FILE *p;
 	int null_input = 0;
 
+	if ( !sys_string ) return (char *)0;
+
 	*buffer = '\0';
 	p = popen( sys_string, "r" );
 

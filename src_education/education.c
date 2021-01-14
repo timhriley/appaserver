@@ -369,8 +369,7 @@ LIST *education_paypal_allowed_list(
 			LIST *offering_name_list,
 			LIST *program_name_list,
 			LIST *program_alias_name_list,
-			LIST *product_name_list,
-			LIST *event_name_list )
+			LIST *product_name_list )
 {
 	static LIST *allowed_list = {0};
 
@@ -382,7 +381,6 @@ LIST *education_paypal_allowed_list(
 	list_unique_list( allowed_list, program_name_list );
 	list_unique_list( allowed_list, program_alias_name_list );
 	list_unique_list( allowed_list, product_name_list );
-	list_unique_list( allowed_list, event_name_list );
 
 	return allowed_list;
 }

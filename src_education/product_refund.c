@@ -865,6 +865,16 @@ PRODUCT_REFUND *product_refund_paypal(
 			PRODUCT *product )
 {
 	PRODUCT_REFUND *product_refund;
+	PRODUCT_SALE *product_sale;
+
+	if ( ! ( product_sale =
+			product_sale_integrity_fetch(
+				product->product_name,
+				payor_entity->full_name,
+				payor_entity->street_address ) ) )
+	{
+		return (PRODUCT_REFUND *)0;
+	}
 
 	/* New refund */
 	/* ---------- */
@@ -872,7 +882,8 @@ PRODUCT_REFUND *product_refund_paypal(
 
 	product_refund->payor_entity = payor_entity;
 
-	product_refund->sale_date_time =
+	product_refund->sale_date_time = product_sale->sale_date_time;
+
 	product_refund->refund_date_time =
 	product_refund->paypal_date_time = paypal_date_time;
 
@@ -884,13 +895,7 @@ PRODUCT_REFUND *product_refund_paypal(
 			product_refund->refund_amount,
 			product_refund->merchant_fees_expense );
 
-	product_refund->product_sale =
-		product_sale_new(
-			product->product_name,
-			(char *)0 /* sale_date_time */,
-			(char *)0 /* payor_full_name */,
-			(char *)0 /* payor_street_address */ );
-
+	product_refund->product_sale = product_sale;
 	product_refund->product_sale->product = product;
 
 	return product_refund;

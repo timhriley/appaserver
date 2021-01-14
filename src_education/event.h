@@ -21,7 +21,7 @@
 /* --------- */
 #define EVENT_TABLE			"event"
 
-#define EVENT_INSERT_COLUMNS		"event_name,"			\
+#define EVENT_INSERT_COLUMNS		"program_name,"			\
 					"event_date,"			\
 					"event_time"
 
@@ -31,14 +31,13 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	char *event_name;
+	char *program_name;
 	char *event_date;
 	char *event_time;
 	char *venue_name;
 	double ticket_price;
 	char *season_name;
 	int year;
-	char *program_name;
 	char *revenue_account;
 	PROGRAM *program;
 	VENUE *venue;
@@ -54,11 +53,11 @@ typedef struct
 	int capacity_available;
 } EVENT;
 
-EVENT *event_new(	char *event_name,
+EVENT *event_new(	char *program_name,
 			char *event_date,
 			char *event_time );
 
-EVENT *event_fetch(	char *event_name,
+EVENT *event_fetch(	char *program_name,
 			char *event_date,
 			char *event_time,
 			boolean fetch_program,
@@ -88,49 +87,42 @@ EVENT *event_parse(
 char *event_sys_string(
 			char *where );
 
-/* Returns static memory */
-/* --------------------- */
-char *event_name_escape(
-			char *event_name );
-
 char *event_primary_where(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *envent_time );
 
-EVENT *event_name_seek(	char *event_name,
+EVENT *event_program_name_seek(
+			char *program_name,
 			LIST *event_list );
 
-EVENT *event_list_seek(	char *event_name,
+EVENT *event_list_seek(	char *program_name,
 			LIST *event_list );
 
 EVENT *event_seek(
-			char *event_name,
+			char *program_name,
 			LIST *event_list );
 
-char *event_fetch_program_name(
-			char *event_name,
-			char *event_date,
-			char *event_time );
-
-LIST *event_name_list(
+LIST *event_program_name_list(
 			LIST *event_list );
 
 FILE *event_insert_open(
 			char *error_filename );
 
 void event_insert_pipe(	FILE *insert_pipe,
-			char *event_name,
+			char *program_name,
 			char *event_date,
-			char *event_time );
+			char *event_time,
+			char *season_name,
+			int year );
 
 char *event_paypal_long_display(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time );
 
 char *event_paypal_short_display(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time );
 
@@ -145,7 +137,7 @@ EVENT *event_paypal_short_label_seek(
 			char *event_label,
 			LIST *event_list );
 
-void event_trigger(	char *event_name,
+void event_trigger(	char *program_name,
 			char *event_date,
 			char *event_time );
 

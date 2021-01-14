@@ -27,7 +27,7 @@
 /* Prototypes */
 /* ---------- */
 void ticket_sale_trigger_predelete(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
 			char *sale_date_time,
@@ -35,7 +35,7 @@ void ticket_sale_trigger_predelete(
 			char *payor_street_address );
 
 void ticket_sale_trigger_insert_update(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
 			char *sale_date_time,
@@ -45,7 +45,7 @@ void ticket_sale_trigger_insert_update(
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *event_name;
+	char *program_name;
 	char *event_date;
 	char *event_time;
 	char *sale_date_time;
@@ -63,14 +63,14 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf(stderr,
-"Usage: %s event_name evet_date event_time sale_date_time payor_full_name payor_street_address state\n",
+"Usage: %s program_name evet_date event_time sale_date_time payor_full_name payor_street_address state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete}\n" );
 		exit ( 1 );
 	}
 
-	event_name = argv[ 1 ];
+	program_name = argv[ 1 ];
 	event_date = argv[ 2 ];
 	event_time = argv[ 3 ];
 	sale_date_time = argv[ 4 ];
@@ -81,7 +81,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
 		ticket_sale_trigger_predelete(
-			event_name,
+			program_name,
 			event_date,
 			event_time,
 			sale_date_time,
@@ -93,7 +93,7 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) ==  0 )
 	{
 		ticket_sale_trigger_insert_update(
-			event_name,
+			program_name,
 			event_date,
 			event_time,
 			sale_date_time,
@@ -101,7 +101,7 @@ int main( int argc, char **argv )
 			payor_street_address );
 
 		event_trigger(
-			event_name,
+			program_name,
 			event_date,
 			event_time );
 	}
@@ -109,7 +109,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "delete" ) == 0 )
 	{
 		event_trigger(
-			event_name,
+			program_name,
 			event_date,
 			event_time );
 	}
@@ -118,7 +118,7 @@ int main( int argc, char **argv )
 }
 
 void ticket_sale_trigger_insert_update(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
 			char *sale_date_time,
@@ -130,7 +130,7 @@ void ticket_sale_trigger_insert_update(
 
 	if ( ! ( ticket_sale =
 			ticket_sale_fetch(
-				event_name,
+				program_name,
 				event_date,
 				event_time,
 				sale_date_time,
@@ -164,10 +164,6 @@ void ticket_sale_trigger_insert_update(
 				sale_date_time,
 			ticket_sale->
 				event->
-				event_name,
-			ticket_sale->
-				event->
-				program->
 				program_name,
 			ticket_sale->extended_price,
 			ticket_sale->merchant_fees_expense,
@@ -212,7 +208,7 @@ void ticket_sale_trigger_insert_update(
 			net_payment_amount,
 		ticket_sale->
 			transaction_date_time,
-		event_name,
+		program_name,
 		event_date,
 		event_time,
 		sale_date_time,
@@ -221,7 +217,7 @@ void ticket_sale_trigger_insert_update(
 }
 
 void ticket_sale_trigger_predelete(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
 			char *sale_date_time,
@@ -232,7 +228,7 @@ void ticket_sale_trigger_predelete(
 
 	if ( ! ( ticket_sale =
 			ticket_sale_fetch(
-				event_name,
+				program_name,
 				event_date,
 				event_time,
 				sale_date_time,

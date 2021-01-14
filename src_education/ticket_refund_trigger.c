@@ -19,6 +19,7 @@
 #include "account.h"
 #include "event.h"
 #include "journal.h"
+#include "program.h"
 #include "ticket_refund.h"
 
 /* Constants */
@@ -27,7 +28,7 @@
 /* Prototypes */
 /* ---------- */
 void ticket_refund_trigger_predelete(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
@@ -36,10 +37,9 @@ void ticket_refund_trigger_predelete(
 			char *refund_date_time );
 
 void ticket_refund_trigger_insert_update(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
-			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time,
@@ -48,7 +48,7 @@ void ticket_refund_trigger_insert_update(
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *event_name;
+	char *program_name;
 	char *event_date;
 	char *event_time;
 	char *payor_full_name;
@@ -67,14 +67,14 @@ int main( int argc, char **argv )
 	if ( argc != 9 )
 	{
 		fprintf(stderr,
-"Usage: %s event_name event_date event_time payor_full_name payor_street_address sale_date_time refund_date_time state\n",
+"Usage: %s program_name event_date event_time payor_full_name payor_street_address sale_date_time refund_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete}\n" );
 		exit ( 1 );
 	}
 
-	event_name = argv[ 1 ];
+	program_name = argv[ 1 ];
 	event_date = argv[ 2 ];
 	event_time = argv[ 3 ];
 	payor_full_name = argv[ 4 ];
@@ -86,7 +86,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
 		ticket_refund_trigger_predelete(
-			event_name,
+			program_name,
 			event_date,
 			event_time,
 			payor_full_name,
@@ -99,13 +99,9 @@ int main( int argc, char **argv )
 	||   strcmp( state, "update" ) ==  0 )
 	{
 		ticket_refund_trigger_insert_update(
-			event_name,
+			program_name,
 			event_date,
 			event_time,
-			event_fetch_program_name(
-				event_name,
-				event_date,
-				event_time ),
 			payor_full_name,
 			payor_street_address,
 			sale_date_time,
@@ -116,10 +112,9 @@ int main( int argc, char **argv )
 }
 
 void ticket_refund_trigger_insert_update(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
-			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time,
@@ -130,7 +125,7 @@ void ticket_refund_trigger_insert_update(
 
 	if ( ! ( ticket_refund =
 			ticket_refund_fetch(
-				event_name,
+				program_name,
 				event_date,
 				event_time,
 				payor_full_name,
@@ -165,10 +160,6 @@ void ticket_refund_trigger_insert_update(
 			ticket_refund->
 				ticket_sale->
 				sale_date_time,
-			ticket_refund->
-				ticket_sale->
-				event->
-				event_name,
 			ticket_refund->
 				ticket_sale->
 				event->
@@ -217,7 +208,7 @@ void ticket_refund_trigger_insert_update(
 			net_refund_amount,
 		ticket_refund->
 			transaction_date_time,
-		event_name,
+		program_name,
 		event_date,
 		event_time,
 		payor_full_name,
@@ -227,7 +218,7 @@ void ticket_refund_trigger_insert_update(
 }
 
 void ticket_refund_trigger_predelete(
-			char *event_name,
+			char *program_name,
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
@@ -239,7 +230,7 @@ void ticket_refund_trigger_predelete(
 
 	if ( ! ( ticket_refund =
 			ticket_refund_fetch(
-				event_name,
+				program_name,
 				event_date,
 				event_time,
 				payor_full_name,

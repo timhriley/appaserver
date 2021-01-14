@@ -183,7 +183,9 @@ int main( int argc, char **argv )
 				account_name_list );
 
 			paypal_deposit_list_insert(
-				paypal_deposit_list );
+				paypal_deposit_list,
+				season_name,
+				year );
 
 			paypal_deposit_list_registration_fetch_update(
 				paypal_deposit_list,
