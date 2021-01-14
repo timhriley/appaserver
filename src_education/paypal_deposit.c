@@ -757,6 +757,47 @@ void paypal_deposit_list_registration_fetch_update(
 	} while ( list_next( paypal_deposit_list ) );
 }
 
+void paypal_deposit_list_enrollment_fetch_update(
+			LIST *paypal_deposit_list,
+			char *season_name,
+			int year )
+{
+	PAYPAL_DEPOSIT *paypal_deposit;
+
+	if ( !list_rewind( paypal_deposit_list ) ) return;
+
+	do {
+		paypal_deposit = list_get( paypal_deposit_list );
+
+		if ( list_length( paypal_deposit->
+			tuition_payment_list ) )
+		{
+			enrollment_list_update(
+				tuition_payment_enrollment_list(
+					paypal_deposit->tuition_payment_list ),
+				season_name,
+				year );
+
+			enrollment_list_fetch_update(
+				tuition_payment_enrollment_list(
+					paypal_deposit->tuition_payment_list ),
+				season_name,
+				year );
+		}
+
+		if ( list_length( paypal_deposit->
+			tuition_refund_list ) )
+		{
+			registration_list_fetch_update(
+				tuition_refund_registration_list(
+					paypal_deposit->tuition_refund_list ),
+				season_name,
+				year );
+		}
+
+	} while ( list_next( paypal_deposit_list ) );
+}
+
 LIST *paypal_deposit_transaction_list(
 			LIST *tuition_payment_list,
 			LIST *product_sale_list,
@@ -819,7 +860,7 @@ LIST *paypal_deposit_list_enrollment_update(
 			char *season_name,
 			int year )
 {
-	enrollment_list_cancelled_update(
+	enrollment_list_fetch_update(
 		paypal_list_refund_enrollment_list(
 			paypal_deposit_list ),
 		season_name,

@@ -49,7 +49,8 @@ function fetch_enrollment_count()
 		from enrollment						\
 		where course_name = '$course_name_escaped'		\
 	  	and season_name = '$season_name'			\
-	  	and year = $year;"					|
+	  	and year = $year					\
+		and ifnull(tuition_refund_total,0) = 0;"		|
 	sql`
 }
 

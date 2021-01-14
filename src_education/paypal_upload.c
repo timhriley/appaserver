@@ -190,6 +190,11 @@ int main( int argc, char **argv )
 				season_name,
 				year );
 
+			paypal_deposit_list_enrollment_fetch_update(
+				paypal_deposit_list,
+				season_name,
+				year );
+
 			offering_list_fetch_update(
 				paypal_deposit_course_name_list(
 					paypal_deposit_list ),

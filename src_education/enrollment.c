@@ -295,23 +295,30 @@ FILE *enrollment_update_open( void )
 	return popen( sys_string, "w" );
 }
 
-void enrollment_cancelled_date_update(
-			FILE *update_pipe,
+void enrollment_update(
+			char *transaction_date_time,
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *course_name,
 			char *season_name,
-			int year,
-			char *cancelled_date )
+			int year )
 {
-	fprintf(update_pipe,
-		"%s^%s^%s^%s^%d^enrollment_cancelled_date^%s\n",
-		student_full_name,
-		street_address,
-		course_name,
-		season_name,
-		year,
-		cancelled_date );
+	FILE *update_pipe;
+
+	update_pipe = enrollment_update_open();
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%s^%d^transaction_date_time^%s\n",
+		 student_full_name,
+		 student_street_address,
+		 course_name,
+		 season_name,
+		 year,
+		 (transaction_date_time)
+			? transaction_date_time
+			: "" );
+
+	pclose( update_pipe );
 }
 
 char *enrollment_primary_where(
@@ -657,50 +664,6 @@ char *enrollment_memo( char *program_name )
 	return payment_memo;
 }
 
-void enrollment_list_cancelled_update(
-			LIST *enrollment_list,
-			char *season_name,
-			int year )
-{
-	ENROLLMENT *enrollment;
-	FILE *update_pipe = enrollment_update_open();
-
-	if ( !list_rewind( enrollment_list ) ) return;
-
-	do {
-		enrollment = list_get( enrollment_list );
-
-		if ( !enrollment->enrollment_cancelled_date )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty cancelled_date.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			pclose( update_pipe );
-			exit( 1 );
-		}
-
-		enrollment_cancelled_date_update(
-			update_pipe,
-			enrollment->
-				registration->
-				student_entity->
-				full_name,
-			enrollment->
-				registration->
-				student_entity->
-				street_address,
-			enrollment->offering->course->course_name,
-			season_name,
-			year,
-			enrollment->enrollment_cancelled_date );
-
-	} while ( list_next( enrollment_list ) );
-
-	pclose( update_pipe );
-}
-
 void enrollment_list_set_transaction(
 			int *transaction_seconds_to_add,
 			LIST *enrollment_list )
@@ -767,5 +730,92 @@ void enrollment_set_transaction(
 	{
 		enrollment->transaction_date_time = (char *)0;
 	}
+}
+
+void enrollment_fetch_update(
+			char *student_full_name,
+			char *student_street_address,
+			char *course_name,
+			char *season_name,
+			int year )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	"enrollment_tuition_payment_total.sh \"%s\" '%s' '%s' '%s' %d y",
+		student_full_name,
+		student_street_address,
+		course_name,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+
+	sprintf(sys_string,
+	"enrollment_tuition_refund_total.sh \"%s\" '%s' '%s' '%s' %d y",
+		student_full_name,
+		student_street_address,
+		course_name,
+		season_name,
+		year );
+
+	if ( system( sys_string ) ){}
+}
+
+void enrollment_list_update(
+			LIST *enrollment_list,
+			char *season_name,
+			int year )
+{
+	ENROLLMENT *enrollment;
+
+	if ( !list_rewind( enrollment_list ) ) return;
+
+	do {
+		enrollment = list_get( enrollment_list );
+
+		enrollment_update(
+			enrollment->transaction_date_time,
+			enrollment->
+				registration->
+				student_entity->
+				full_name,
+			enrollment->
+				registration->
+				student_entity->
+				street_address,
+			enrollment->offering->course->course_name,
+			season_name,
+			year );
+
+	} while ( list_next( enrollment_list ) );
+}
+
+void enrollment_list_fetch_update(
+			LIST *enrollment_list,
+			char *season_name,
+			int year )
+{
+	ENROLLMENT *enrollment;
+
+	if ( !list_rewind( enrollment_list ) ) return;
+
+	do {
+		enrollment = list_get( enrollment_list );
+
+		enrollment_fetch_update(
+			enrollment->
+				registration->
+				student_entity->
+				full_name,
+			enrollment->
+				registration->
+				student_entity->
+				street_address,
+			enrollment->offering->course->course_name,
+			season_name,
+			year );
+
+	} while ( list_next( enrollment_list ) );
 }
 

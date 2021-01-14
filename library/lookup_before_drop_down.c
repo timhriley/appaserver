@@ -147,26 +147,10 @@ LIST *lookup_before_drop_down_folder_list(
 		return (LIST *)0;
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "tnt", msg );
-}
 	if ( ( *omit_lookup_before_drop_down =
 			lookup_before_drop_down_omit(
 			  mto1_lookup_before_drop_down_related_folder_list ) ) )
 	{
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "tnt", msg );
-}
 		return (LIST *)0;
 	}
 
@@ -287,16 +271,6 @@ boolean lookup_before_drop_down_omit(
 			list_get_pointer( 
 			     mto1_lookup_before_drop_down_related_folder_list );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: related_folder = %s, omit boolean = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-related_folder->folder->folder_name,
-related_folder->omit_lookup_before_drop_down );
-m2( "tnt", msg );
-}
 		if ( related_folder->recursive_level == 0
 		&&   !related_folder->omit_lookup_before_drop_down )
 		{

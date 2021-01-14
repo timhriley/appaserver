@@ -224,6 +224,11 @@ void paypal_deposit_list_registration_fetch_update(
 			char *season_name,
 			int year );
 
+void paypal_deposit_list_enrollment_fetch_update(
+			LIST *paypal_deposit_list,
+			char *season_name,
+			int year );
+
 LIST *paypal_deposit_transaction_list(
 			LIST *tuition_payment_list,
 			LIST *product_sale_list,

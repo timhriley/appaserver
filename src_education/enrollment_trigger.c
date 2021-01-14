@@ -202,6 +202,33 @@ void enrollment_trigger_insert_update(
 				t->lock_transaction,
 				t->journal_list );
 	}
+
+	enrollment_update(
+		enrollment->transaction_date_time,
+		enrollment->
+			registration->
+			student_entity->
+			full_name,
+		enrollment->
+			registration->
+			student_entity->
+			street_address,
+		enrollment->offering->course->course_name,
+		season_name,
+		year );
+
+	enrollment_fetch_update(
+		enrollment->
+			registration->
+			student_entity->
+			full_name,
+		enrollment->
+			registration->
+			student_entity->
+			street_address,
+		enrollment->offering->course->course_name,
+		season_name,
+		year );
 }
 
 void enrollment_trigger_predelete(

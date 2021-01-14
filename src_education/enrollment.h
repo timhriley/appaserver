@@ -46,7 +46,8 @@ typedef struct
 	/* ------- */
 	LIST *tuition_payment_list;
 	LIST *tuition_refund_list;
-	char *enrollment_cancelled_date;
+	double tuition_payment_total;
+	double tuition_refund_total;
 
 	TRANSACTION *enrollment_transaction;
 	char *transaction_date_time;
@@ -115,14 +116,13 @@ char *enrollment_sys_string(
 FILE *enrollment_update_open(
 			void );
 
-void enrollment_cancelled_date_update(
-			FILE *update_pipe,
+void enrollment_update(
+			char *transaction_date_time,
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *course_name,
 			char *season_name,
-			int year,
-			char *cancelled_date );
+			int year );
 
 LIST *enrollment_system_list(
 			char *sys_string,
@@ -174,11 +174,6 @@ void enrollment_list_steady_state(
 			LIST *registration_enrollment_list,
 			double deposit_amount );
 
-void enrollment_list_cancelled_update(
-			LIST *enrollment_list,
-			char *season_name,
-			int year );
-
 void enrollment_list_set_transaction(
 			int *transaction_seconds_to_add,
 			LIST *enrollment_list );
@@ -190,6 +185,23 @@ ENROLLMENT *enrollment_fetch_set(
 			int year,
 			boolean fetch_registration,
 			boolean fetch_offering );
+
+void enrollment_list_fetch_update(
+			LIST *enrollment_list,
+			char *season_name,
+			int year );
+
+void enrollment_fetch_update(
+			char *student_full_name,
+			char *student_street_address,
+			char *course_name,
+			char *season_name,
+			int year );
+
+void enrollment_list_update(
+			LIST *enrollment_list,
+			char *season_name,
+			int year );
 
 #endif
 
