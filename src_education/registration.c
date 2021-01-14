@@ -529,7 +529,7 @@ FILE *registration_insert_open( char *error_filename )
 		"cat >%s						  ",
 		REGISTRATION_TABLE,
 		REGISTRATION_INSERT_COLUMNS,
-		'y',
+		'n',
 		SQL_DELIMITER,
 		error_filename );
 
@@ -567,7 +567,7 @@ void registration_fetch_update(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"registration_tuition.sh \"%s\" '%s' '%s' %d y",
+		"registration_tuition.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,
@@ -576,7 +576,7 @@ void registration_fetch_update(
 	if ( system( sys_string ) ){}
 
 	sprintf(sys_string,
-		"registration_tuition_payment_total.sh \"%s\" '%s' '%s' %d y",
+		"registration_tuition_payment_total.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,
@@ -585,7 +585,7 @@ void registration_fetch_update(
 	if ( system( sys_string ) ){}
 
 	sprintf(sys_string,
-		"registration_tuition_refund_total.sh \"%s\" '%s' '%s' %d y",
+		"registration_tuition_refund_total.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,
@@ -594,7 +594,7 @@ void registration_fetch_update(
 	if ( system( sys_string ) ){}
 
 	sprintf(sys_string,
-		"registration_invoice_amount_due.sh \"%s\" '%s' '%s' %d y",
+		"registration_invoice_amount_due.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,

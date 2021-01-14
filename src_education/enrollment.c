@@ -742,7 +742,7 @@ void enrollment_fetch_update(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	"enrollment_tuition_payment_total.sh \"%s\" '%s' '%s' '%s' %d y",
+	"enrollment_tuition_payment_total.sh \"%s\" '%s' \"%s\" '%s' %d",
 		student_full_name,
 		student_street_address,
 		course_name,
@@ -752,7 +752,7 @@ void enrollment_fetch_update(
 	if ( system( sys_string ) ){}
 
 	sprintf(sys_string,
-	"enrollment_tuition_refund_total.sh \"%s\" '%s' '%s' '%s' %d y",
+	"enrollment_tuition_refund_total.sh \"%s\" '%s' \"%s\" '%s' %d",
 		student_full_name,
 		student_street_address,
 		course_name,

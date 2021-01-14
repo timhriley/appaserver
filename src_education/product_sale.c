@@ -929,7 +929,7 @@ void product_sale_fetch_update(
 	char sys_string[ 256 ];
 
 	sprintf(sys_string,
-		"product_sale_fetch_update.sh \"%s\" y",
+		"product_sale_total.sh \"%s\"",
 		product_name );
 
 	if ( system( sys_string ) ){};

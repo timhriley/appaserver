@@ -345,7 +345,7 @@ void offering_fetch_update(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"offering_enrollment_count.sh \"%s\" '%s' %d y",
+		"offering_enrollment_count.sh \"%s\" '%s' %d",
 		course_name,
 		season_name,
 		year );
@@ -353,7 +353,7 @@ void offering_fetch_update(
 	if ( system( sys_string ) ){}
 
 	sprintf(sys_string,
-		"offering_capacity_available.sh \"%s\" '%s' %d y",
+		"offering_capacity_available.sh \"%s\" '%s' %d",
 		course_name,
 		season_name,
 		year );

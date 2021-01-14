@@ -910,7 +910,7 @@ void product_refund_fetch_update(
 	char sys_string[ 256 ];
 
 	sprintf(sys_string,
-		"product_refund_fetch_update.sh \"%s\" y",
+		"product_refund_total.sh \"%s\"",
 		product_name );
 
 	if ( system( sys_string ) ){};

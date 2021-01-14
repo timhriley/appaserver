@@ -196,18 +196,21 @@ int main( int argc, char **argv )
 				year );
 
 			offering_list_fetch_update(
-				paypal_deposit_course_name_list(
-					paypal_deposit_list ),
+				list_unique(
+					paypal_deposit_course_name_list(
+						paypal_deposit_list ) ),
 				season_name,
 				year );
 
 			product_sale_list_fetch_update(
-				paypal_deposit_sale_product_name_list(
-					paypal_deposit_list ) );
+				list_unique(
+					paypal_deposit_sale_product_name_list(
+						paypal_deposit_list ) ) );
 
 			product_refund_list_fetch_update(
-				paypal_deposit_refund_product_name_list(
-					paypal_deposit_list ) );
+				list_unique(
+					paypal_deposit_refund_product_name_list(
+						paypal_deposit_list ) ) );
 
 			if ( session && role_name )
 			{
