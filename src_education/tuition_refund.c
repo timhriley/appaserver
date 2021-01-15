@@ -15,7 +15,6 @@
 #include "boolean.h"
 #include "list.h"
 #include "entity_self.h"
-#include "paypal_upload.h"
 #include "product.h"
 #include "transaction.h"
 #include "journal.h"
@@ -23,7 +22,6 @@
 #include "course.h"
 #include "account.h"
 #include "student.h"
-#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "enrollment.h"
 #include "registration.h"
@@ -1102,7 +1100,46 @@ TUITION_REFUND *tuition_refund_paypal(
 {
 	TUITION_REFUND *tuition_refund;
 
+	if ( !student_entity
+	||   !payor_entity
+	||   !offering )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: missing student_entity or payor_entity or offering.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !offering->course
+	||   !offering->semester )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: missing course or semester.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	tuition_refund = tuition_refund_calloc();
+
+	if ( ! ( tuition_refund->enrollment =
+			enrollment_fetch(
+				student_entity->full_name,
+				student_entity->street_address,
+				offering->course->course_name,
+				season_name,
+				year,
+				0 /* not fetch_tuition_payment_list */,
+				0 /* not boolean fetch_tuition_refund_list */,
+				0 /* not boolean fetch_registration */,
+				0 /* not boolean fetch_offering */ ) ) )
+	{
+		free( tuition_refund );
+		return (TUITION_REFUND *)0;
+	}
 
 	tuition_refund->payor_entity = payor_entity;
 
@@ -1116,15 +1153,6 @@ TUITION_REFUND *tuition_refund_paypal(
 		education_net_refund_amount(
 			tuition_refund->refund_amount,
 			tuition_refund->merchant_fees_expense );
-
-	tuition_refund->enrollment =
-		enrollment_fetch_set(
-			student_entity,
-			offering->course->course_name,
-			season_name,
-			year,
-			1 /* fetch_registration */,
-			0 /* not fetch_offering */ );
 
 	tuition_refund->enrollment->offering = offering;
 

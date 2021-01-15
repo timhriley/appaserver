@@ -28,15 +28,15 @@
 /* ---------- */
 void product_sale_trigger_predelete(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address );
+			char *payor_street_address,
+			char *sale_date_time );
 
 void product_sale_trigger_insert_update(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address );
+			char *payor_street_address,
+			char *sale_date_time );
 
 int main( int argc, char **argv )
 {
@@ -59,7 +59,7 @@ int main( int argc, char **argv )
 	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s product_name sale_date_time payor_full_name payor_street_address state\n",
+"Usage: %s product_name payor_full_name payor_street_address sale_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete}\n" );
@@ -67,18 +67,18 @@ int main( int argc, char **argv )
 	}
 
 	product_name = argv[ 1 ];
-	sale_date_time = argv[ 2 ];
-	payor_full_name = argv[ 3 ];
-	payor_street_address = argv[ 4 ];
+	payor_full_name = argv[ 2 ];
+	payor_street_address = argv[ 3 ];
+	sale_date_time = argv[ 4 ];
 	state = argv[ 5 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
 		product_sale_trigger_predelete(
 			product_name,
-			sale_date_time,
 			payor_full_name,
-			payor_street_address );
+			payor_street_address,
+			sale_date_time );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
@@ -86,9 +86,9 @@ int main( int argc, char **argv )
 	{
 		product_sale_trigger_insert_update(
 			product_name,
-			sale_date_time,
 			payor_full_name,
-			payor_street_address );
+			payor_street_address,
+			sale_date_time );
 
 		product_trigger( product_name );
 	}
@@ -103,9 +103,9 @@ int main( int argc, char **argv )
 
 void product_sale_trigger_insert_update(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address )
+			char *payor_street_address,
+			char *sale_date_time )
 {
 	PRODUCT_SALE *product_sale;
 	int transaction_seconds_to_add = 0;
@@ -113,9 +113,9 @@ void product_sale_trigger_insert_update(
 	if ( ! ( product_sale =
 			product_sale_fetch(
 				product_name,
-				sale_date_time,
 				payor_full_name,
 				payor_street_address,
+				sale_date_time,
 				1 /* fetch_product */ ) ) )
 	{
 		return;
@@ -193,9 +193,9 @@ void product_sale_trigger_insert_update(
 		product_sale->
 			transaction_date_time,
 		product_name,
-		sale_date_time,
 		payor_full_name,
-		payor_street_address );
+		payor_street_address,
+		sale_date_time );
 }
 
 void product_sale_trigger_predelete(
@@ -209,9 +209,9 @@ void product_sale_trigger_predelete(
 	if ( ! ( product_sale =
 			product_sale_fetch(
 				product_name,
-				sale_date_time,
 				payor_full_name,
 				payor_street_address,
+				sale_date_time,
 				0 /* not fetch_product */ ) ) )
 	{
 		return;

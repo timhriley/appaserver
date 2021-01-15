@@ -106,9 +106,7 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			boolean fetch_registration,
 			boolean fetch_offering )
 {
-	TUITION_PAYMENT *tuition_payment;
-
-	tuition_payment =
+	return
 		tuition_payment_parse(
 			pipe2string(
 				tuition_payment_sys_string(
@@ -127,8 +125,6 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			fetch_enrollment,
 			fetch_registration,
 			fetch_offering );
-
-	return tuition_payment;
 }
 
 FILE *tuition_payment_update_open( void )
@@ -468,7 +464,7 @@ char *tuition_payment_primary_where(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *deposit_date_time )
+			char *payment_date_time )
 {
 	char static where[ 1024 ];
 
@@ -480,7 +476,7 @@ char *tuition_payment_primary_where(
 		"year = %d and				"
 		"payor_full_name = '%s' and		"
 		"payor_street_address = '%s' and	"
-		"deposit_date_time = '%s'		",
+		"payment_date_time = '%s'		",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
@@ -497,7 +493,7 @@ char *tuition_payment_primary_where(
 		 /* --------------------- */
 		 entity_escape_full_name( payor_full_name ),
 		 payor_street_address,
-		 deposit_date_time );
+		 payment_date_time );
 
 	return where;
 }
@@ -1550,5 +1546,73 @@ TUITION_PAYMENT *tuition_payment_paypal(
 			tuition_payment->merchant_fees_expense );
 
 	return tuition_payment;
+}
+
+TUITION_PAYMENT *tuition_payment_integrity_fetch(
+			char *student_full_name,
+			char *student_street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address )
+{
+	return
+		tuition_payment_parse(
+			pipe2string(
+				tuition_payment_sys_string(
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					tuition_payment_integrity_where(
+						student_full_name,
+						student_street_address,
+						course_name,
+						season_name,
+						year,
+						payor_full_name,
+						payor_street_address ) ) ),
+			0 /* not fetch_enrollment */,
+			0 /* not fetch_registration */,
+			0 /* not fetch_offering */ );
+}
+
+char *tuition_payment_integrity_where(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address )
+{
+	char static where[ 1024 ];
+
+	sprintf(where,
+		"full_name = '%s' and			"
+		"street_address = '%s' and		"
+		"course_name = '%s' and			"
+		"season_name = '%s' and			"
+		"year = %d and				"
+		"payor_full_name = '%s' and		"
+		"payor_street_address = '%s'		",
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 registration_escape_full_name( student_full_name ),
+		 street_address,
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 course_name_escape( course_name ),
+		 season_name,
+		 year,
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 entity_escape_full_name( payor_full_name ),
+		 payor_street_address );
+
+	return where;
 }
 

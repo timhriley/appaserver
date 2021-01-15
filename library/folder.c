@@ -798,7 +798,8 @@ LIST *folder_primary_data_list(
 			application_name,
 			folder_name,
 			login_name,
-			where_clause_dictionary,
+			parameter_dictionary
+				/* where_clause_dictionary */,
 			delimiter,
 			attribute_list,
 			common_non_primary_attribute_name_list,

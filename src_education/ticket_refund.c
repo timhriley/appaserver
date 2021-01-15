@@ -861,9 +861,10 @@ TICKET_REFUND *ticket_refund_paypal(
 			EVENT *event )
 {
 	TICKET_REFUND *ticket_refund;
-	TICKET_SALE *ticket_sale;
 
-	if ( ! ( ticket_sale =
+	ticket_refund = ticket_refund_calloc();
+
+	if ( ! ( ticket_refund->ticket_sale =
 			ticket_sale_integrity_fetch(
 				event->program_name,
 				event->event_date,
@@ -871,13 +872,11 @@ TICKET_REFUND *ticket_refund_paypal(
 				payor_entity->full_name,
 				payor_entity->street_address ) ) )
 	{
+		free( ticket_refund );
 		return (TICKET_REFUND *)0;
 	}
 
-	ticket_refund = ticket_refund_calloc();
-
 	ticket_refund->payor_entity = payor_entity;
-	ticket_refund->sale_date_time = ticket_sale->sale_date_time;
 
 	ticket_refund->refund_date_time =
 	ticket_refund->paypal_date_time = paypal_date_time;
@@ -890,7 +889,6 @@ TICKET_REFUND *ticket_refund_paypal(
 			ticket_refund->refund_amount,
 			ticket_refund->merchant_fees_expense );
 
-	ticket_refund->ticket_sale = ticket_sale;
 	ticket_refund->ticket_sale->event = event;
 
 	return ticket_refund;

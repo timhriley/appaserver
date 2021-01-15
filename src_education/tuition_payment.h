@@ -305,5 +305,23 @@ TUITION_PAYMENT *tuition_payment_fetch_set(
 			ENTITY *payor_entity,
 			char *payment_date_time );
 
+TUITION_PAYMENT *tuition_payment_integrity_fetch(
+			char *student_full_name,
+			char *student_street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address );
+
+char *tuition_payment_integrity_where(
+			char *student_full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
+			char *payor_full_name,
+			char *payor_street_address );
+
 #endif
 
