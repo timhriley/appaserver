@@ -10,7 +10,7 @@
 
 #include "boolean.h"
 #include "list.h"
-#include "enrollment.h"
+#include "registration.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -23,7 +23,6 @@
 #define TUITION_PAYMENT_PRIMARY_KEY					\
 					"full_name,"			\
 					"street_address,"		\
-					"course_name,"			\
 					"season_name,"			\
 					"year,"				\
 					"payor_full_name,"		\
@@ -35,16 +34,15 @@
 #define TUITION_PAYMENT_INSERT_COLUMNS					\
 					"full_name,"			\
 					"street_address,"		\
-					"course_name,"			\
 					"season_name,"			\
 					"year,"				\
 					"payor_full_name,"		\
 					"payor_street_address,"		\
 					"payment_date_time,"		\
 					"payment_amount,"		\
+					"merchant_fees_expense,"	\
 					"net_payment_amount,"		\
 					"transaction_date_time,"	\
-					"merchant_fees_expense,"	\
 					"paypal_date_time"
 
 /* Structures */
@@ -53,8 +51,9 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	ENROLLMENT *enrollment;
+	REGISTRATION *registration;
 	ENTITY *payor_entity;
+	char *course_name;
 	char *payment_date_time;
 	double payment_amount;
 	double merchant_fees_expense;
@@ -78,7 +77,6 @@ TUITION_PAYMENT *tuition_payment_calloc(
 
 TUITION_PAYMENT *tuition_payment_new(
 			ENTITY *student_entity,
-			char *course_name,
 			char *season_name,
 			int year,
 			ENTITY *payor_entity,
@@ -87,24 +85,16 @@ TUITION_PAYMENT *tuition_payment_new(
 TUITION_PAYMENT *tuition_payment_fetch(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering );
+			boolean fetch_registration );
 
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
-			boolean fetch_enrollment,
-			boolean fetch_registrtion,
-			boolean fetch_offering );
-
-boolean tuition_payment_structure(
-			TUITION_PAYMENT *tuition_payment );
+			boolean fetch_registration );
 
 /* Returns true transaction_date_time */
 /* ---------------------------------- */
@@ -122,7 +112,6 @@ void tuition_payment_update(
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -138,7 +127,6 @@ FILE *tuition_payment_update_open(
 char *tuition_payment_primary_where(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -147,9 +135,7 @@ char *tuition_payment_primary_where(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering );
+			boolean fetch_registration );
 
 void tuition_payment_list_insert(
 			LIST *tuition_payment_list );
@@ -161,22 +147,21 @@ void tuition_payment_insert_pipe(
 			FILE *insert_pipe,
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time,
 			double payment_amount,
+			double merchant_fees_expense,
 			double net_payment_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time );
 
-void tuition_payment_list_enrollment_insert(
+void tuition_payment_list_registration_insert(
 			LIST *tuition_payment_list );
 
-void tuition_payment_list_registration_insert(
+void tuition_payment_list_enrollment_insert(
 			LIST *tuition_payment_list );
 
 void tuition_payment_list_student_entity_insert(
@@ -199,12 +184,6 @@ LIST *tuition_payment_registration_list(
 LIST *tuition_payment_list_enrollment_list(
 			LIST *tuition_payment_list );
 
-LIST *tuition_payment_enrollment_list(
-			LIST *tuition_payment_list );
-
-void tuition_payment_list_trigger(
-			LIST *tuition_payment_list );
-
 double tuition_payment_receivable_credit_amount(
 			double payment_amount );
 
@@ -217,15 +196,11 @@ double tuition_payment_fee_total(
 void tuition_payment_trigger(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time );
-
-void tuition_payment_list_enrollment_trigger(
-			LIST *tuition_payment_list );
 
 LIST *tuition_payment_transaction_list(
 			LIST *tution_payment_list );
@@ -238,14 +213,10 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 LIST *tuition_payment_list_steady_state(
 			LIST *tuition_payment_list );
 
-/* Returns static memory */
-/* --------------------- */
-char *tuition_payment_memo(
-			char *program_name );
-
 void tuition_payment_list_set_transaction(
 			int *seconds_to_add,
-			LIST *tuition_payment_list );
+			LIST *tuition_payment_list,
+			LIST *semester_offering_list );
 
 /* ----------------------------------------------------- */
 /* Sets tuition_payment->tuition_payment_transaction and
@@ -256,7 +227,8 @@ void tuition_payment_set_transaction(
 			TUITION_PAYMENT *tuition_payment,
 			char *cash_account_name,
 			char *account_revenue,
-			char *account_fees_expense );
+			char *account_fees_expense,
+			LIST *semester_offering_list );
 
 TRANSACTION *tuition_payment_transaction(
 			int *seconds_to_add,
@@ -295,20 +267,11 @@ TUITION_PAYMENT *tuition_payment_paypal(
 			char *paypal_date_time,
 			double item_value,
 			double item_fee,
-			OFFERING *offering );
-
-TUITION_PAYMENT *tuition_payment_fetch_set(
-			ENTITY *student_entity,
-			char *course_name,
-			char *season_name,
-			int year,
-			ENTITY *payor_entity,
-			char *payment_date_time );
+			char *course_name );
 
 TUITION_PAYMENT *tuition_payment_integrity_fetch(
 			char *student_full_name,
 			char *student_street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -317,7 +280,6 @@ TUITION_PAYMENT *tuition_payment_integrity_fetch(
 char *tuition_payment_integrity_where(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,

@@ -67,22 +67,15 @@ ENROLLMENT *enrollment_fetch(
 			char *course_name,
 			char *season_name,
 			int year,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_tuition_refund_list,
-			boolean fetch_registration,
-			boolean fetch_offering );
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_registration );
 
 ENROLLMENT *enrollment_parse(
 			char *input,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_tuition_refund_list,
 			boolean fetch_offering,
+			boolean fetch_course,
 			boolean fetch_registration );
-
-ENROLLMENT *enrollment_steady_state(
-			int *transaction_seconds_to_add,
-			ENROLLMENT *enrollment,
-			double deposit_amount );
 
 void enrollment_set_transaction(
 			int *transaction_seconds_to_add,
@@ -126,24 +119,27 @@ void enrollment_update(
 
 LIST *enrollment_system_list(
 			char *sys_string,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_tuition_refund_list,
 			boolean fetch_offering,
+			boolean fetch_course,
 			boolean fetch_registration );
 
-LIST *enrollment_tuition_payment_list(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year );
+FILE *enrollment_insert_open(
+			char *error_filename );
 
-LIST *enrollment_tuition_refund_list(
+void enrollment_insert_pipe(
+			FILE *insert_pipe,
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
-			int year );
+			int year,
+			char *transaction_date_time );
+
+LIST *enrollment_system_list(
+			char *sys_string,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_registration );
 
 FILE *enrollment_insert_open(
 			char *error_filename );

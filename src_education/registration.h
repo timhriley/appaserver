@@ -42,8 +42,9 @@ typedef struct
 	double tuition_refund_total;
 	double invoice_amount_due;
 	char *registration_date_time;
-	LIST *enrollment_list;
-	LIST *tuition_payment_list;
+	LIST *registration_enrollment_list;
+	LIST *registration_tuition_payment_list;
+	LIST *registration_tuition_refund_list;
 } REGISTRATION;
 
 REGISTRATION *registration_getset(
@@ -53,23 +54,31 @@ REGISTRATION *registration_getset(
 			char *season_name,
 			int year );
 
+REGISTRATION *registration_seek(
+			char *student_full_name,
+			char *student_street_address,
+			char *season_name,
+			int year,
+			LIST *semester_registration_list );
+
 REGISTRATION *registration_parse(
 			char *input,
-			boolean fetch_enrollment_list );
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_tuition_payment_list,
+			boolean fetch_tuition_refund_list );
 
 REGISTRATION *registration_fetch(
 			char *student_full_name,
 			char *street_address,
 			char *season_name,
 			int year,
-			boolean fetch_enrollment_list );
-
-REGISTRATION *registration_seek(
-			LIST *semester_registration_list,
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year );
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_tuition_payment_list,
+			boolean fetch_tuition_refund_list );
 
 REGISTRATION *registration_new(
 			ENTITY *student_entity,
@@ -120,21 +129,16 @@ char *registration_escape_name(
 char *registration_escape_full_name(
 			char *full_name );
 
-LIST *registration_enrollment_list(
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year );
-
-LIST *registration_tuition_payment_list(
-			LIST *registration_enrollment_list );
-
 double registration_tuition_total(
 			LIST *registration_list );
 
 LIST *registration_system_list(
 			char *sys_string,
-			boolean fetch_enrollment_list );
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_tuition_payment_list,
+			boolean fetch_tuition_refund_list );
 
 char *registration_sys_string(
 			char *where );
@@ -142,6 +146,7 @@ char *registration_sys_string(
 void registration_update(
 			double registration_tuition,
 			double registration_tuition_payment_total,
+			double registration_tuition_refund_total,
 			double registration_invoice_amount_due,
 			char *student_full_name,
 			char *street_address,
@@ -152,7 +157,7 @@ FILE *registration_update_open(
 			void );
 
 double registration_tuition_total(
-			LIST *deposit_registration_list );
+			LIST *registration_list );
 
 FILE *registration_insert_open(
 			char *error_filename );
@@ -165,20 +170,8 @@ void registration_insert_pipe(
 			int year,
 			char *registration_date_time );
 
-void registration_fetch_update(
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year );
-
-void registration_list_fetch_update(
+void registration_list_update(
 			LIST *registration_list,
-			char *season_name,
-			int year );
-
-double registration_fetch_invoice_amount_due(
-			char *student_full_name,
-			char *street_address,
 			char *season_name,
 			int year );
 
@@ -187,6 +180,36 @@ void registration_trigger(
 			char *street_address,
 			char *season_name,
 			int year );
+
+LIST *registration_enrollment_list(
+			char *student_full_name,
+			char *student_street_address,
+			char *season_name,
+			int year,
+			boolean fetch_offering,
+			boolean fetch_course );
+
+LIST *registration_tuition_payment_list(
+			char *student_full_name,
+			char *student_street_address,
+			char *season_name,
+			int year );
+
+LIST *registration_tuition_refund_list(
+			char *student_full_name,
+			char *student_street_address,
+			char *season_name,
+			int year );
+
+FILE *registration_enrollment_insert_open(
+			char *error_filename );
+
+void registration_enrollment_list_insert(
+			FILE *insert_pipe,
+			LIST *enrollment_list );
+
+TRANSACTION *registration_enrollment_seek_transaction(
+			LIST *enrollment_list );
 
 #endif
 

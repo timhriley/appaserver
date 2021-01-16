@@ -10,7 +10,7 @@
 
 #include "boolean.h"
 #include "list.h"
-#include "enrollment.h"
+#include "registration.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -22,7 +22,6 @@
 
 #define TUITION_REFUND_PRIMARY_KEY	"full_name,"			\
 					"street_address,"		\
-					"course_name,"			\
 					"season_name,"			\
 					"year,"				\
 					"payor_street_address,"		\
@@ -30,7 +29,6 @@
 
 #define TUITION_REFUND_INSERT_COLUMNS	"full_name,"			\
 					"street_address,"		\
-					"course_name,"			\
 					"season_name,"			\
 					"year,"				\
 					"payor_full_name,"		\
@@ -50,8 +48,9 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	ENROLLMENT *enrollment;
+	REGISTRATION *registration;
 	ENTITY *payor_entity;
+	char *course_name;
 	char *refund_date_time;
 	double refund_amount;
 	double merchant_fees_expense;
@@ -71,21 +70,16 @@ TUITION_REFUND *tuition_refund_calloc(
 TUITION_REFUND *tuition_refund_fetch(
 			char *student_full_name,
 			char *student_street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *refund_date_time,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering );
+			boolean fetch_registration );
 
 TUITION_REFUND *tuition_refund_parse(
 			char *input,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering );
+			boolean fetch_registration );
 
 TUITION_REFUND *tuition_refund_steady_state(
 			TUITION_REFUND *tuition_refund,
@@ -99,23 +93,20 @@ void tuition_refund_insert_pipe(
 			FILE *insert_pipe,
 			char *student_full_name,
 			char *student_street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *refund_date_time,
 			double refund_amount,
+			double merchant_fees_expense,
 			double net_payment_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time );
 
 LIST *tuition_refund_system_list(
 			char *sys_string,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering  );
+			boolean fetch_registration );
 
 char *tuition_refund_sys_string(
 			char *where );
@@ -123,7 +114,6 @@ char *tuition_refund_sys_string(
 char *tuition_refund_primary_where(
 			char *student_full_name,
 			char *student_street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -132,7 +122,8 @@ char *tuition_refund_primary_where(
 
 void tuition_refund_list_set_transaction(
 			int *transaction_seconds_to_add,
-			LIST *tuition_refund_list );
+			LIST *tuition_refund_list,
+			LIST *semester_offering_list );
 
 /* ------------------------------------------------------- */
 /* Sets tuition_refund->tuition_refund_transaction and
@@ -141,6 +132,7 @@ void tuition_refund_list_set_transaction(
 void tuition_refund_set_transaction(
 			int *transaction_seconds_to_add,
 			TUITION_REFUND *tuition_refund,
+			char *program_name,
 			char *cash_account_name,
 			char *account_fees_expense,
 			char *revenue_account );
@@ -150,7 +142,6 @@ TRANSACTION *tuition_refund_transaction(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *refund_date_time,
-			char *course_name,
 			char *program_name,
 			double refund_amount,
 			double merchant_fees_expense,
@@ -164,7 +155,6 @@ void tuition_refund_update(
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -177,7 +167,6 @@ FILE *tuition_refund_update_open(
 void tuition_refund_trigger(
 			char *student_full_name,
 			char *student_street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -237,7 +226,7 @@ TUITION_REFUND *tuition_refund_paypal(
 			char *paypal_date_time,
 			double item_value,
 			double item_fee,
-			OFFERING *offering );
+			char *course_name );
 
 void tuition_refund_list_registration_insert(
 			LIST *tuition_refund_list );

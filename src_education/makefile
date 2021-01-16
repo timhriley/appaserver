@@ -121,7 +121,9 @@ EXECUTABLES=	offering_trigger					\
 		ticket_sale_trigger					\
 		ticket_refund_trigger					\
 		paypal_upload						\
-		generate_invoice
+		generate_invoice					\
+		product_trigger						\
+		program_trigger
 
 all: 	${EXECUTABLES}
 
@@ -162,6 +164,32 @@ offering_trigger: offering_trigger.c					\
 		${EDUCATION_CORE}					\
 		offering_trigger.c					\
 		-o offering_trigger
+
+product_trigger: product_trigger.c					\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${EDUCATION_CORE}
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${EDUCATION_CORE}					\
+		product_trigger.c					\
+		-o product_trigger
+
+program_trigger: program_trigger.c					\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${EDUCATION_CORE}
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${EDUCATION_CORE}					\
+		program_trigger.c					\
+		-o program_trigger
 
 enrollment_trigger: enrollment_trigger.c				\
 	${EXTERNAL_LIBRARY} 						\

@@ -112,7 +112,8 @@ FILE *offering_update_open(
 LIST *offering_enrollment_list(
 			char *course_name,
 			char *season_name,
-			int year );
+			int year,
+			boolean fetch_course );
 
 void offering_update(	int enrollment_count,
 			int capacity_available,

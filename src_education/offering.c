@@ -129,7 +129,8 @@ OFFERING *offering_parse(	char *input,
 			offering_enrollment_list(
 				offering->course->course_name,
 				offering->semester->season_name,
-				offering->semester->year );
+				offering->semester->year,
+				fetch_course );
 	}
 
 	return offering;
@@ -287,7 +288,8 @@ char *offering_sys_string( char *where )
 LIST *offering_enrollment_list(
 			char *course_name,
 			char *season_name,
-			int year )
+			int year,
+			boolean fetch_course )
 {
 	return	enrollment_system_list(
 			enrollment_sys_string(
@@ -295,9 +297,8 @@ LIST *offering_enrollment_list(
 					course_name,
 					season_name,
 					year ) ),
-			0 /* not fetch_tuition_payment_list */,
-			0 /* not fetch_tuition_refund_list */,
 			0 /* not fetch_offering */,
+			fetch_course,
 			0 /* not fetch_registration */ );
 }
 

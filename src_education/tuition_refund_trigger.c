@@ -17,6 +17,7 @@
 #include "entity_self.h"
 #include "account.h"
 #include "tuition_refund.h"
+#include "registration.h"
 #include "transaction.h"
 #include "journal.h"
 
@@ -28,17 +29,15 @@
 void tuition_refund_trigger_predelete(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *refund_date_time );
 
-void tuition_refund_trigger_insert_update(
+TUITION_REFUND *tuition_refund_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -50,7 +49,6 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *student_full_name;
 	char *street_address;
-	char *course_name;
 	char *season_name;
 	int year;
 	char *payor_full_name;
@@ -67,10 +65,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 10 )
+	if ( argc != 9 )
 	{
 		fprintf(stderr,
-"Usage: %s student_full_name street_address course_name season_name year payor_full_name payor_street_address refund_date_time state\n",
+"Usage: %s student_full_name street_address season_name year payor_full_name payor_street_address refund_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete,deposit}\n" );
@@ -79,13 +77,12 @@ int main( int argc, char **argv )
 
 	student_full_name = argv[ 1 ];
 	street_address = argv[ 2 ];
-	course_name = argv[ 3 ];
-	season_name = argv[ 4 ];
-	year = atoi( argv[ 5 ] );
-	payor_full_name = argv[ 6 ];
-	payor_street_address = argv[ 7 ];
-	refund_date_time = argv[ 8 ];
-	state = argv[ 9 ];
+	season_name = argv[ 3 ];
+	year = atoi( argv[ 4 ] );
+	payor_full_name = argv[ 5 ];
+	payor_street_address = argv[ 6 ];
+	refund_date_time = argv[ 7 ];
+	state = argv[ 8 ];
 
 	if ( !year ) exit( 0 );
 
@@ -94,7 +91,6 @@ int main( int argc, char **argv )
 		tuition_refund_trigger_predelete(
 			student_full_name,
 			street_address,
-			course_name,
 			season_name,
 			year,
 			payor_full_name,
@@ -105,23 +101,24 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
+		TUITION_REFUND *tuition_refund;
 
-		tuition_refund_trigger_insert_update(
-			student_full_name,
-			street_address,
-			course_name,
-			season_name,
-			year,
-			payor_full_name,
-			payor_street_address,
-			refund_date_time );
+		if ( ( tuition_refund =
+			tuition_refund_trigger_insert_update(
+				student_full_name,
+				street_address,
+				season_name,
+				year,
+				payor_full_name,
+				payor_street_address,
+				refund_date_time ) ) )
+		{
 
-		enrollment_trigger(
-			student_full_name,
-			street_address,
-			course_name,
-			season_name,
-			year );
+			registration_update( tuition_refund->registration );
+
+			tuition_refund_offering_fetch_update(
+				tuition_refund->registration );
+		}
 	}
 
 	if ( strcmp( state, "delete" ) == 0 )
@@ -137,10 +134,9 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void tuition_refund_trigger_insert_update(
+TUITION_REFUND *tuition_refund_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -154,15 +150,15 @@ void tuition_refund_trigger_insert_update(
 			tuition_refund_fetch(
 				student_full_name,
 				street_address,
-				course_name,
 				season_name,
 				year,
 				payor_full_name,
 				payor_street_address,
 				refund_date_time,
-				1 /* fetch_enrollment */,
-				0 /* not fetch_registration */,
-				1 /* fetch_offering */ ) ) )
+				1 /* fetch_registration */,
+				1 /* fetch_enrollment_list */,
+				1 /* fetch_tuition_payment_list */,
+				1 /* fetch_tuition_refund_list */ ) ) )
 	{
 		return;
 	}
@@ -184,17 +180,10 @@ void tuition_refund_trigger_insert_update(
 				street_address,
 			tuition_refund->
 				refund_date_time,
-			tuition_refund->
-				enrollment->
-				offering->
-				course->
-				course_name,
-			tuition_refund->
-				enrollment->
-				offering->
-				course->
-				program->
-				program_name,
+			registration_offering_program_name(
+				tuition_refund->
+					registration->
+					enrollment_list ),
 			tuition_refund->refund_amount,
 			tuition_refund->merchant_fees_expense,
 			tuition_refund->net_refund_amount,

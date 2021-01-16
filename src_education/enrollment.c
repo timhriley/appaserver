@@ -40,40 +40,6 @@ char *enrollment_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-ENROLLMENT *enrollment_fetch_set(
-			ENTITY *student_entity,
-			char *course_name,
-			char *season_name,
-			int year,
-			boolean fetch_registration,
-			boolean fetch_offering )
-{
-	ENROLLMENT *enrollment;
-
-	if ( ( enrollment =
-		enrollment_fetch(
-			student_entity->full_name,
-			student_entity->street_address,
-			course_name,
-			season_name,
-			year,
-			0 /* not fetch_tuition_payment_list */,
-			0 /* not fetch_tuition_refund_list */,
-			fetch_registration,
-			fetch_offering ) ) )
-	{
-		return enrollment;
-	}
-	else
-	{
-		return enrollment_new(
-			student_entity,
-			course_name,
-			season_name,
-			year );
-	}
-}
-
 ENROLLMENT *enrollment_new(
 			ENTITY *student_entity,
 			char *course_name,
@@ -109,9 +75,8 @@ ENROLLMENT *enrollment_new(
 
 ENROLLMENT *enrollment_parse(
 			char *input,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_tuition_refund_list,
 			boolean fetch_offering,
+			boolean fetch_course,
 			boolean fetch_registration )
 {
 	char full_name[ 128 ];
@@ -144,66 +109,14 @@ ENROLLMENT *enrollment_parse(
 	piece( transaction_date_time, SQL_DELIMITER, input, 5 );
 	enrollment->transaction_date_time = transaction_date_time;
 
-	if ( fetch_tuition_payment_list )
-	{
-		enrollment->tuition_payment_list =
-			enrollment_tuition_payment_list(
-				enrollment->
-					registration->
-					student_entity->
-					full_name,
-				enrollment->
-					registration->
-					student_entity->
-					street_address,
-				enrollment->
-					offering->
-					course->
-					course_name,
-				enrollment->
-					offering->
-					semester->
-					season_name,
-				enrollment->
-					offering->
-					semester->
-					year );
-	}
-
-	if ( fetch_tuition_refund_list )
-	{
-		enrollment->tuition_refund_list =
-			enrollment_tuition_refund_list(
-				enrollment->
-					registration->
-					student_entity->
-					full_name,
-				enrollment->
-					registration->
-					student_entity->
-					street_address,
-				enrollment->
-					offering->
-					course->
-					course_name,
-				enrollment->
-					offering->
-					semester->
-					season_name,
-				enrollment->
-					offering->
-					semester->
-					year );
-	}
-
 	if ( fetch_offering )
 	{
 		enrollment->offering =
 			offering_fetch(
-				course_name,
-				season_name,
+				enrollment->offering->course->course_name,
+				enrollment->offering->semester->season_name,
 				enrollment->offering->semester->year,
-				1 /* fetch_course */,
+				fetch_course,
 				0 /* not fetch_enrollment_list */ );
 	}
 
@@ -215,7 +128,11 @@ ENROLLMENT *enrollment_parse(
 				street_address,
 				enrollment->offering->semester->season_name,
 				enrollment->offering->semester->year,
-				0 /* not fetch_enrollment_list */ );
+				0 /* not fetch_enrollment_list */,
+				fetch_offering,
+				fetch_course,
+				0 /* not fetch_tuition_payment_list */,
+				0 /* notfetch_tuition_refund_list */ );
 	}
 
 	return enrollment;
@@ -227,10 +144,9 @@ ENROLLMENT *enrollment_fetch(
 			char *season_name,
 			char *course_name,
 			int year,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_tuition_refund_list,
-			boolean fetch_registration,
-			boolean fetch_offering )
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_registration )
 {
 	ENROLLMENT *enrollment;
 
@@ -247,9 +163,8 @@ ENROLLMENT *enrollment_fetch(
 						season_name,
 						course_name,
 						year ) ) ),
-			fetch_tuition_payment_list,
-			fetch_tuition_refund_list,
 			fetch_offering,
+			fetch_course,
 			fetch_registration );
 
 	return enrollment;
@@ -257,9 +172,8 @@ ENROLLMENT *enrollment_fetch(
 
 LIST *enrollment_system_list(
 			char *sys_string,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_tuition_refund_list,
 			boolean fetch_offering,
+			boolean fetch_course,
 			boolean fetch_registration )
 {
 	char input[ 1024 ];
@@ -272,9 +186,8 @@ LIST *enrollment_system_list(
 			enrollment_list,
 			enrollment_parse(
 				input,
-				fetch_tuition_payment_list,
-				fetch_tuition_refund_list,
 				fetch_offering,
+				fetch_course,
 				fetch_registration ) );
 	}
 	pclose( input_pipe );
@@ -411,9 +324,7 @@ LIST *enrollment_tuition_payment_list(
 					course_name,
 					season_name,
 					year ) ),
-		0 /* not fetch_enrollment */,
-		0 /* not fetch_registration */,
-		0 /* not fetch_offering */ );
+			0 /* not fetch_registration */ );
 }
 
 LIST *enrollment_tuition_refund_list(
@@ -423,9 +334,7 @@ LIST *enrollment_tuition_refund_list(
 			char *season_name,
 			int year )
 {
-	LIST *refund_list;
-
-	refund_list =
+	return
 		tuition_refund_system_list(
 			tuition_refund_sys_string(
 				enrollment_primary_where(
@@ -434,11 +343,7 @@ LIST *enrollment_tuition_refund_list(
 					course_name,
 					season_name,
 					year ) ),
-		0 /* not fetch_enrollment */,
-		0 /* not fetch_registration */,
-		0 /* not fetch_offering */ );
-
-	return refund_list;
+			0 /* not fetch_registration */ );
 }
 
 FILE *enrollment_insert_open( char *error_filename )
@@ -448,10 +353,11 @@ FILE *enrollment_insert_open( char *error_filename )
 	sprintf(sys_string,
 		"insert_statement t=%s f=\"%s\" replace=%c delimiter='%c'|"
 		"sql 2>&1						 |"
+		"grep -vi duplicate					 |"
 		"cat >%s						  ",
 		ENROLLMENT_TABLE,
 		ENROLLMENT_INSERT_COLUMNS,
-		'y',
+		'n',
 		SQL_DELIMITER,
 		error_filename );
 
@@ -530,6 +436,7 @@ void enrollment_trigger(
 	if ( system( sys_string ) ){}
 }
 
+#ifdef NOT_DEFINED
 void enrollment_list_steady_state(
 			int *transaction_seconds_to_add,
 			LIST *enrollment_list,
@@ -645,6 +552,7 @@ ENROLLMENT *enrollment_steady_state(
 	}
 	return enrollment;
 }
+#endif
 
 char *enrollment_memo( char *program_name )
 {

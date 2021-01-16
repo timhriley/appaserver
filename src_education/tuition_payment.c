@@ -18,15 +18,13 @@
 #include "entity_self.h"
 #include "paypal_upload.h"
 #include "paypal_item.h"
-#include "registration.h"
 #include "journal.h"
+#include "student.h"
 #include "education.h"
-#include "offering.h"
-#include "enrollment.h"
 #include "semester.h"
 #include "account.h"
-#include "student.h"
-#include "program.h"
+#include "offering.h"
+#include "registration.h"
 #include "tuition_payment.h"
 
 TUITION_PAYMENT *tuition_payment_calloc( void )
@@ -45,34 +43,8 @@ TUITION_PAYMENT *tuition_payment_calloc( void )
 	return payment;
 }
 
-TUITION_PAYMENT *tuition_payment_fetch_set(
-			ENTITY *student_entity,
-			char *course_name,
-			char *season_name,
-			int year,
-			ENTITY *payor_entity,
-			char *payment_date_time )
-{
-	TUITION_PAYMENT *tuition_payment = tuition_payment_calloc();
-
-	tuition_payment->enrollment =
-		enrollment_fetch_set(
-			student_entity,
-			course_name,
-			season_name,
-			year,
-			1 /* fetch_registration */,
-			0 /* not fetch_offering */ );
-
-	tuition_payment->payor_entity = payor_entity;
-	tuition_payment->payment_date_time = payment_date_time;
-
-	return tuition_payment;
-}
-
 TUITION_PAYMENT *tuition_payment_new(
 			ENTITY *student_entity,
-			char *course_name,
 			char *season_name,
 			int year,
 			ENTITY *payor_entity,
@@ -80,10 +52,9 @@ TUITION_PAYMENT *tuition_payment_new(
 {
 	TUITION_PAYMENT *tuition_payment = tuition_payment_calloc();
 
-	tuition_payment->enrollment =
-		enrollment_new(
+	tuition_payment->registration =
+		registration_new(
 			student_entity,
-			course_name,
 			season_name,
 			year );
 
@@ -96,15 +67,12 @@ TUITION_PAYMENT *tuition_payment_new(
 TUITION_PAYMENT *tuition_payment_fetch(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering )
+			boolean fetch_registration )
 {
 	return
 		tuition_payment_parse(
@@ -116,15 +84,12 @@ TUITION_PAYMENT *tuition_payment_fetch(
 					tuition_payment_primary_where(
 						student_full_name,
 						street_address,
-						course_name,
 						season_name,
 						year,
 						payor_full_name,
 						payor_street_address,
 						payment_date_time ) ) ),
-			fetch_enrollment,
-			fetch_registration,
-			fetch_offering );
+			fetch_registration );
 }
 
 FILE *tuition_payment_update_open( void )
@@ -146,7 +111,6 @@ void tuition_payment_update(
 			char *transaction_date_time,
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -156,10 +120,9 @@ void tuition_payment_update(
 	FILE *update_pipe = tuition_payment_update_open();
 
 	fprintf( update_pipe,
-		 "%s^%s^%s^%s^%d^%s^%s^%s^net_payment_amount^%.2lf\n",
+		 "%s^%s^%s^%d^%s^%s^%s^net_payment_amount^%.2lf\n",
 		 student_full_name,
 		 street_address,
-		 course_name,
 		 season_name,
 		 year,
 		 payor_full_name,
@@ -168,10 +131,9 @@ void tuition_payment_update(
 		 net_payment_amount );
 
 	fprintf( update_pipe,
-		 "%s^%s^%s^%s^%d^%s^%s^%s^transaction_date_time^%s\n",
+		 "%s^%s^%s^%d^%s^%s^%s^transaction_date_time^%s\n",
 		 student_full_name,
 		 street_address,
-		 course_name,
 		 season_name,
 		 year,
 		 payor_full_name,
@@ -184,9 +146,7 @@ void tuition_payment_update(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering )
+			boolean fetch_registration )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -200,9 +160,7 @@ LIST *tuition_payment_system_list(
 			payment_list,
 			tuition_payment_parse(
 				input,
-				fetch_enrollment,
-				fetch_registration,
-				fetch_offering ) );
+				fetch_registration ) );
 	}
 
 	pclose( input_pipe );
@@ -219,89 +177,6 @@ char *tuition_payment_sys_string( char *where )
 		where );
 
 	return strdup( sys_string );
-}
-
-TUITION_PAYMENT *tuition_payment_parse(
-			char *input,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering )
-{
-	TUITION_PAYMENT *tuition_payment;
-	char student_full_name[ 128 ];
-	char street_address[ 128 ];
-	char course_name[ 128 ];
-	char season_name[ 128 ];
-	char year[ 128 ];
-	char payor_full_name[ 128 ];
-	char payor_street_address[ 128 ];
-	char payment_date_time[ 128 ];
-	char payment_amount[ 128 ];
-	char net_payment_amount[ 128 ];
-	char transaction_date_time[ 128 ];
-	char merchant_fees_expense[ 128 ];
-	char paypal_date_time[ 128 ];
-
-	if ( !input || !*input ) return (TUITION_PAYMENT *)0;
-
-	/* See: attribute_list tuition_payment */
-	/* ----------------------------------- */
-	piece( student_full_name, SQL_DELIMITER, input, 0 );
-	piece( street_address, SQL_DELIMITER, input, 1 );
-	piece( course_name, SQL_DELIMITER, input, 2 );
-	piece( season_name, SQL_DELIMITER, input, 3 );
-	piece( year, SQL_DELIMITER, input, 4 );
-	piece( payor_full_name, SQL_DELIMITER, input, 5 );
-	piece( payor_street_address, SQL_DELIMITER, input, 6 );
-	piece( payment_date_time, SQL_DELIMITER, input, 7 );
-
-	tuition_payment =
-		tuition_payment_new(
-			entity_new(
-				strdup( student_full_name ),
-				strdup( street_address ) ),
-			strdup( course_name ),
-			strdup( season_name ),
-			atoi( year ),
-			entity_new(
-				strdup( payor_full_name ),
-				strdup( payor_street_address ) ),
-			strdup( payment_date_time ) );
-
-	piece( payment_amount, SQL_DELIMITER, input, 8 );
-	tuition_payment->payment_amount = atof( payment_amount );
-
-	piece( merchant_fees_expense, SQL_DELIMITER, input, 9 );
-	tuition_payment->merchant_fees_expense = atof( merchant_fees_expense );
-
-	piece( net_payment_amount, SQL_DELIMITER, input, 10 );
-	tuition_payment->net_payment_amount = atof( net_payment_amount );
-
-	piece( transaction_date_time, SQL_DELIMITER, input, 11 );
-	tuition_payment->transaction_date_time =
-		strdup( transaction_date_time );
-
-	piece( merchant_fees_expense, SQL_DELIMITER, input, 12 );
-	tuition_payment->merchant_fees_expense = atof( merchant_fees_expense );
-
-	piece( paypal_date_time, SQL_DELIMITER, input, 13 );
-	tuition_payment->paypal_date_time = strdup( paypal_date_time );
-
-	if ( fetch_enrollment )
-	{
-		tuition_payment->enrollment =
-			enrollment_fetch(
-				student_full_name,
-				street_address,
-				course_name,
-				season_name,
-				atoi( year ),
-				0 /* not fetch_tuition_payment_list */,
-				0 /* not fetch_tuition_refund_list */,
-				fetch_registration,
-				fetch_offering );
-	}
-	return tuition_payment;
 }
 
 TRANSACTION *tuition_payment_transaction(
@@ -342,10 +217,7 @@ TRANSACTION *tuition_payment_transaction(
 				/* transaction_date_time */,
 			payment_amount
 				/* transaction_amount */,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			strdup( tuition_payment_memo( program_name ) ),
+			TUITION_PAYMENT_MEMO,
 			1 /* lock_transaction */,
 			(*seconds_to_add)++ );
 
@@ -459,7 +331,6 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 char *tuition_payment_primary_where(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -471,7 +342,6 @@ char *tuition_payment_primary_where(
 	sprintf(where,
 		"full_name = '%s' and			"
 		"street_address = '%s' and		"
-		"course_name = '%s' and			"
 		"season_name = '%s' and			"
 		"year = %d and				"
 		"payor_full_name = '%s' and		"
@@ -482,10 +352,6 @@ char *tuition_payment_primary_where(
 		 /* --------------------- */
 		 registration_escape_full_name( student_full_name ),
 		 street_address,
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 course_name_escape( course_name ),
 		 season_name,
 		 year,
 		 /* --------------------- */
@@ -527,37 +393,26 @@ void tuition_payment_list_insert(
 		tuition_payment_insert_pipe(
 			insert_pipe,
 			tuition_payment->
-				enrollment->
 				registration->
 				student_entity->
 				full_name,
 			tuition_payment->
-				enrollment->
 				registration->
 				student_entity->
 				street_address,
 			tuition_payment->
-				enrollment->
-				offering->
-				course->
-				course_name,
-			tuition_payment->
-				enrollment->
-				offering->
-				semester->
+				registration->
 				season_name,
 			tuition_payment->
-				enrollment->
-				offering->
-				semester->
+				registration->
 				year,
 			tuition_payment->payor_entity->full_name,
 			tuition_payment->payor_entity->street_address,
 			tuition_payment->payment_date_time,
 			tuition_payment->payment_amount,
+			tuition_payment->merchant_fees_expense,
 			tuition_payment->net_payment_amount,
 			tuition_payment->transaction_date_time,
-			tuition_payment->merchant_fees_expense,
 			tuition_payment->paypal_date_time );
 
 	} while ( list_next( tuition_payment_list ) );
@@ -601,26 +456,24 @@ void tuition_payment_insert_pipe(
 			FILE *insert_pipe,
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time,
 			double payment_amount,
+			double merchant_fees_expense,
 			double net_payment_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%d^%s^%s^%s^%.2lf^%.2lf^%s^%.2lf^%s\n",
+		"%s^%s^%s^%d^%s^%s^%s^%.2lf^%.2lf^%.2lf^%s^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		registration_escape_full_name( student_full_name ),
 		street_address,
-		course_name,
 		season_name,
 		year,
 		/* --------------------- */
@@ -630,11 +483,11 @@ void tuition_payment_insert_pipe(
 		payor_street_address,
 		payment_date_time,
 		payment_amount,
+		merchant_fees_expense,
 		net_payment_amount,
 		(transaction_date_time)
 			? transaction_date_time
 			: "",
-		merchant_fees_expense,
 		(paypal_date_time)
 			? paypal_date_time
 			: "" );
@@ -647,54 +500,31 @@ void tuition_payment_list_enrollment_insert(
 	FILE *insert_pipe;
 	char *error_filename;
 	char sys_string[ 1024 ];
-	char *transaction_date_time;
 
 	if ( !list_rewind( tuition_payment_list ) ) return;
 
 	insert_pipe =
-		enrollment_insert_open(
+		registration_enrollment_insert_open(
 			( error_filename =
 				timlib_tmpfile() ) );
 
 	do {
 		tuition_payment = list_get( tuition_payment_list );
 
-		transaction_date_time =
-			(tuition_payment->enrollment->enrollment_transaction)
-				? tuition_payment->
-					enrollment->
-					enrollment_transaction->
-					transaction_date_time
-				: (char *)0;
+		if ( !tuition_payment->registration )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty registration.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			pclose( insert_pipe );
+			exit( 1 );
+		}
 
-		enrollment_insert_pipe(
+		registration_enrollment_list_insert(
 			insert_pipe,
-			tuition_payment->
-				enrollment->
-				registration->
-				student_entity->
-				full_name,
-			tuition_payment->
-				enrollment->
-				registration->
-				student_entity->
-				street_address,
-			tuition_payment->
-				enrollment->
-				offering->
-				course->
-				course_name,
-			tuition_payment->
-				enrollment->
-				offering->
-				semester->
-				season_name,
-			tuition_payment->
-				enrollment->
-				offering->
-				semester->
-				year,
-			transaction_date_time );
+			tuition_payment->registration->enrollment_list );
 
 	} while ( list_next( tuition_payment_list ) );
 
@@ -737,25 +567,20 @@ void tuition_payment_list_registration_insert(
 		registration_insert_pipe(
 			insert_pipe,
 			tuition_payment->
-				enrollment->
 				registration->
 				student_entity->
 				full_name,
 			tuition_payment->
-				enrollment->
 				registration->
 				student_entity->
 				street_address,
 			tuition_payment->
-				enrollment->
 				registration->
 				season_name,
 			tuition_payment->
-				enrollment->
 				registration->
 				year,
 			tuition_payment->
-				enrollment->
 				registration->
 				registration_date_time );
 
@@ -803,12 +628,10 @@ void tuition_payment_list_student_insert(
 		student_insert_pipe(
 			insert_pipe,
 			tuition_payment->
-				enrollment->
 				registration->
 				student_entity->
 				full_name,
 			tuition_payment->
-				enrollment->
 				registration->
 				student_entity->
 				street_address );
@@ -854,12 +677,10 @@ void tuition_payment_list_student_entity_insert(
 		entity_insert_pipe(
 			insert_pipe,
 			payment->
-				enrollment->
 				registration->
 				student_entity->
 				full_name,
 			payment->
-				enrollment->
 				registration->
 				student_entity->
 				street_address,
@@ -955,14 +776,9 @@ char *tuition_payment_list_display( LIST *tuition_payment_list )
 			ptr += sprintf( ptr, ", " );
 		}
 
-		if ( tuition_payment->enrollment->offering )
+		if ( tuition_payment->course_name )
 		{
-			course_name =
-				tuition_payment->
-					enrollment->
-					offering->
-					course->
-					course_name;
+			course_name = tuition_payment->course_name;
 		}
 		else
 		{
@@ -973,12 +789,10 @@ char *tuition_payment_list_display( LIST *tuition_payment_list )
 				"%s will enroll in %s; ",
 				entity_name_display(
 					tuition_payment->
-						enrollment->
 						registration->
 						student_entity->
 						full_name,
 					tuition_payment->
-						enrollment->
 						registration->
 						student_entity->
 						street_address ),
@@ -990,32 +804,21 @@ char *tuition_payment_list_display( LIST *tuition_payment_list )
 }
 
 LIST *tuition_payment_registration_list(
-			LIST *paypal_tuition_payment_list )
+			LIST *tuition_payment_list )
 {
-	TUITION_PAYMENT *payment;
-	REGISTRATION *registration;
+	TUITION_PAYMENT *tuition_payment;
 	LIST *registration_list;
 
-	if ( !list_rewind( paypal_tuition_payment_list ) ) return (LIST *)0;
+	if ( !list_rewind( tuition_payment_list ) ) return (LIST *)0;
 
 	registration_list = list_new();
 
 	do {
-		payment =
+		tuition_payment =
 			list_get(
-				paypal_tuition_payment_list );
+				tuition_payment_list );
 
-		if ( !payment->enrollment )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: empty enrollment.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
-		if ( !payment->enrollment->registration )
+		if ( !tuition_payment->registration )
 		{
 			fprintf( stderr,
 			"ERROR in %s/%s()/%d: empty registration.\n",
@@ -1025,106 +828,13 @@ LIST *tuition_payment_registration_list(
 			exit( 1 );
 		}
 
-		registration = payment->enrollment->registration;
-
 		list_set(
 			registration_list,
-			registration );
-
-	} while ( list_next( paypal_tuition_payment_list ) );
-
-	return registration_list;
-}
-
-LIST *tuition_payment_list_enrollment_list(
-			LIST *tuition_payment_list )
-{
-	return tuition_payment_enrollment_list(
-			tuition_payment_list );
-}
-
-LIST *tuition_payment_enrollment_list(
-			LIST *tuition_payment_list )
-{
-	TUITION_PAYMENT *tuition_payment;
-	LIST *enrollment_list;
-
-	if ( !list_rewind( tuition_payment_list ) ) return (LIST *)0;
-
-	enrollment_list = list_new();
-
-	do {
-		tuition_payment =
-			list_get(
-				tuition_payment_list );
-
-		if ( !tuition_payment->enrollment )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: empty enrollment.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
-		list_set(
-			enrollment_list,
-			tuition_payment->enrollment );
+			tuition_payment->registration );
 
 	} while ( list_next( tuition_payment_list ) );
 
-	return enrollment_list;
-}
-
-void tuition_payment_list_trigger(
-			LIST *paypal_tuition_payment_list )
-{
-	TUITION_PAYMENT *tuition_payment;
-
-	if ( !list_rewind( paypal_tuition_payment_list ) ) return;
-
-	do {
-		tuition_payment =
-			list_get(
-				paypal_tuition_payment_list );
-
-		tuition_payment_trigger(
-			tuition_payment->
-				enrollment->
-				registration->
-				student_entity->
-				full_name,
-			tuition_payment->
-				enrollment->
-				registration->
-				student_entity->
-				street_address,
-			tuition_payment->
-				enrollment->
-				offering->
-				course->
-				course_name,
-			tuition_payment->
-				enrollment->
-				offering->
-				semester->
-				season_name,
-			tuition_payment->
-				enrollment->
-				offering->
-				semester->
-				year,
-			tuition_payment->
-				payor_entity->
-				full_name,
-			tuition_payment->
-				payor_entity->
-				street_address,
-			tuition_payment->
-				payment_date_time );
-
-	} while ( list_next( paypal_tuition_payment_list ) );
+	return registration_list;
 }
 
 double tuition_payment_receivable_credit_amount(
@@ -1136,7 +846,6 @@ double tuition_payment_receivable_credit_amount(
 void tuition_payment_trigger(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -1146,10 +855,9 @@ void tuition_payment_trigger(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"tuition_payment_trigger \"%s\" '%s' \"%s\" '%s' %d \"%s\" '%s' '%s' update",
+"tuition_payment_trigger \"%s\" '%s' \"%s\" %d \"%s\" '%s' '%s' update",
 		student_full_name,
 		street_address,
-		course_name,
 		season_name,
 		year,
 		payor_full_name,
@@ -1157,48 +865,6 @@ void tuition_payment_trigger(
 		payment_date_time );
 
 	if ( system( sys_string ) ){}
-}
-
-void tuition_payment_list_enrollment_trigger(
-			LIST *tuition_payment_list )
-{
-	TUITION_PAYMENT *payment;
-
-	if ( !list_rewind( tuition_payment_list ) ) return;
-
-	do {
-		payment =
-			list_get(
-				tuition_payment_list );
-
-		enrollment_trigger(
-			payment->
-				enrollment->
-				registration->
-				student_entity->
-				full_name,
-			payment->
-				enrollment->
-				registration->
-				student_entity->
-				street_address,
-			payment->
-				enrollment->
-				offering->
-				course->
-				course_name,
-			payment->
-				enrollment->
-				offering->
-				semester->
-				season_name,
-			payment->
-				enrollment->
-				offering->
-				semester->
-				year );
-
-	} while ( list_next( tuition_payment_list ) );
 }
 
 LIST *tuition_payment_transaction_list(
@@ -1216,96 +882,31 @@ LIST *tuition_payment_transaction_list(
 			list_get(
 				tuition_payment_list );
 
-		if ( !tuition_payment->enrollment )
+		if ( !tuition_payment->registration )
 		{
 			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: empty enrollment.\n",
+				 "ERROR in %s/%s()/%d: empty registration.\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__ );
 			exit( 1 );
 		}
 
-		if ( tuition_payment->enrollment->enrollment_transaction )
-		{
-			list_set(
-				transaction_list,
+		list_set(
+			transaction_list,
+			registration_enrollment_seek_transaction(
 				tuition_payment->
-					enrollment->
-					enrollment_transaction );
-		}
+					registration->
+					enrollment_list ) );
 
-		if ( tuition_payment->tuition_payment_transaction )
-		{
-			list_set(
-				transaction_list,
-				tuition_payment->
-					tuition_payment_transaction );
-		}
+		list_set(
+			transaction_list,
+			tuition_payment->
+				tuition_payment_transaction );
 
 	} while ( list_next( tuition_payment_list ) );
 
 	return transaction_list;
-}
-
-boolean tuition_payment_structure(
-			TUITION_PAYMENT *tuition_payment )
-{
-	if ( !tuition_payment )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty tuition_payment\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return 0;
-	}
-
-	if ( !tuition_payment->enrollment )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty enrollment\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return 0;
-	}
-
-	if ( !tuition_payment->enrollment->registration )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty registration\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return 0;
-	}
-
-	/* Offering can remain null */
-	/* ------------------------ */
-	return 1;
-
-	if ( !tuition_payment->enrollment->offering )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty offering\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return 0;
-	}
-
-	if ( !tuition_payment->enrollment->offering->course )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty course\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return 0;
-	}
-
-	return 1;
 }
 
 LIST *tuition_payment_list_steady_state(
@@ -1367,7 +968,8 @@ boolean tuition_payment_is_tuition(
 
 void tuition_payment_list_set_transaction(
 			int *transaction_seconds_to_add,
-			LIST *tuition_payment_list )
+			LIST *tuition_payment_list,
+			LIST *semester_offering_list )
 {
 	TUITION_PAYMENT *tuition_payment;
 	char *cash_account_name;
@@ -1392,7 +994,8 @@ void tuition_payment_list_set_transaction(
 			tuition_payment,
 			cash_account_name,
 			receivable,
-			fees_expense );
+			fees_expense,
+			semester_offering_list );
 
 	} while ( list_next( tuition_payment_list ) );
 }
@@ -1402,17 +1005,32 @@ void tuition_payment_set_transaction(
 			TUITION_PAYMENT *tuition_payment,
 			char *cash_account_name,
 			char *account_receivable,
-			char *account_fees_expense )
+			char *account_fees_expense,
+			LIST *semester_offering_list )
 {
+	OFFERING *offering;
+
+	if ( ! ( offering =
+			offering_seek(
+				tuition_payment->course_name,
+				semester_offering_list ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: offering_seek(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			tuition_payment->course_name );
+		exit( 1 );
+	}
+
 	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
 			transaction_seconds_to_add,
 			tuition_payment->payor_entity->full_name,
 			tuition_payment->payor_entity->street_address,
 			tuition_payment->payment_date_time,
-			tuition_payment->
-				enrollment->
-				offering->
+			offering->
 				course->
 				program->
 				program_name,
@@ -1475,7 +1093,7 @@ LIST *tuition_payment_list_paypal(
 					paypal_date_time,
 					paypal_item->item_value,
 					paypal_item->item_fee,
-					offering ) );
+					offering->course->course_name ) );
 
 			paypal_item->taken = 1;
 		}
@@ -1493,12 +1111,20 @@ TUITION_PAYMENT *tuition_payment_paypal(
 			char *paypal_date_time,
 			double item_value,
 			double item_fee,
-			OFFERING *offering )
+			char *course_name )
 {
 	TUITION_PAYMENT *tuition_payment;
 
-	/* New TUTION_PAYMENT */
-	/* ------------------ */
+	if ( !student_entity || !payor_entity )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: missing student_entity or payor_entity.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	tuition_payment = tuition_payment_calloc();
 
 	tuition_payment->payor_entity = payor_entity;
@@ -1506,33 +1132,22 @@ TUITION_PAYMENT *tuition_payment_paypal(
 	tuition_payment->payment_date_time =
 	tuition_payment->paypal_date_time = paypal_date_time;
 
-	tuition_payment->enrollment =
-		/* ---------------------------------- */
-		/* Builds enrollment and registration */
-		/* ---------------------------------- */
-		enrollment_new(
+	tuition_payment->registration =
+		registration_new(
 			student_entity,
-			offering->course->course_name,
 			season_name,
 			year );
 
-	tuition_payment->enrollment->offering = offering;
 
-	tuition_payment->enrollment->registration->registration_date_time =
+	tuition_payment->registration->registration_date_time =
 		paypal_date_time;
 
 	tuition_payment->
-		enrollment->
 		registration->
 		enrollment_list =
 			list_new();
 
-	list_set(
-		tuition_payment->
-			enrollment->
-			registration->
-			enrollment_list,
-		tuition_payment->enrollment );
+	tuition_payment->course_name = course_name;
 
 	tuition_payment->payment_amount =
 	tuition_payment->tuition_payment_receivable_credit_amount = item_value;
@@ -1551,7 +1166,6 @@ TUITION_PAYMENT *tuition_payment_paypal(
 TUITION_PAYMENT *tuition_payment_integrity_fetch(
 			char *student_full_name,
 			char *student_street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -1567,20 +1181,16 @@ TUITION_PAYMENT *tuition_payment_integrity_fetch(
 					tuition_payment_integrity_where(
 						student_full_name,
 						student_street_address,
-						course_name,
 						season_name,
 						year,
 						payor_full_name,
 						payor_street_address ) ) ),
-			0 /* not fetch_enrollment */,
-			0 /* not fetch_registration */,
-			0 /* not fetch_offering */ );
+			0 /* not fetch_registration */ );
 }
 
 char *tuition_payment_integrity_where(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -1591,7 +1201,6 @@ char *tuition_payment_integrity_where(
 	sprintf(where,
 		"full_name = '%s' and			"
 		"street_address = '%s' and		"
-		"course_name = '%s' and			"
 		"season_name = '%s' and			"
 		"year = %d and				"
 		"payor_full_name = '%s' and		"
@@ -1601,10 +1210,6 @@ char *tuition_payment_integrity_where(
 		 /* --------------------- */
 		 registration_escape_full_name( student_full_name ),
 		 street_address,
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 course_name_escape( course_name ),
 		 season_name,
 		 year,
 		 /* --------------------- */
@@ -1614,5 +1219,90 @@ char *tuition_payment_integrity_where(
 		 payor_street_address );
 
 	return where;
+}
+
+TUITION_PAYMENT *tuition_payment_parse(
+			char *input,
+			boolean fetch_registration )
+{
+	char student_full_name[ 128 ];
+	char student_street_address[ 128 ];
+	char season_name[ 128 ];
+	char year[ 128 ];
+	char payor_full_name[ 128 ];
+	char payor_street_address[ 128 ];
+	char payment_date_time[ 128 ];
+	char payment_amount[ 128 ];
+	char merchant_fees_expense[ 128 ];
+	char net_payment_amount[ 128 ];
+	char transaction_date_time[ 128 ];
+	char paypal_date_time[ 128 ];
+	TUITION_PAYMENT *tuition_payment;
+
+	if ( !input || !*input ) return (TUITION_PAYMENT *)0;
+
+	tuition_payment = tuition_payment_calloc();
+
+	/* See: attribute_list tuition_payment */
+	/* ----------------------------------- */
+	piece( student_full_name, SQL_DELIMITER, input, 0 );
+	piece( student_street_address, SQL_DELIMITER, input, 1 );
+	piece( season_name, SQL_DELIMITER, input, 2 );
+	piece( year, SQL_DELIMITER, input, 3 );
+
+	tuition_payment->registration =
+		registration_new(
+			entity_new(
+				strdup( student_full_name ),
+				strdup( student_street_address ) ),
+			strdup( season_name ),
+			atoi( year ) );
+
+	piece( payor_full_name, SQL_DELIMITER, input, 4 );
+	piece( payor_street_address, SQL_DELIMITER, input, 5 );
+
+	tuition_payment->payor_entity =
+		entity_new(
+			strdup( payor_full_name ),
+			strdup( payor_street_address ) ),
+
+	piece( payment_date_time, SQL_DELIMITER, input, 6 );
+	tuition_payment->payment_date_time = strdup( payment_date_time );
+
+	piece( payment_amount, SQL_DELIMITER, input, 7 );
+	tuition_payment->payment_amount = atof( payment_amount );
+
+	piece( merchant_fees_expense, SQL_DELIMITER, input, 8 );
+	tuition_payment->merchant_fees_expense = atof( merchant_fees_expense );
+
+	piece( net_payment_amount, SQL_DELIMITER, input, 9 );
+	tuition_payment->net_payment_amount = atof( net_payment_amount );
+
+	piece( transaction_date_time, SQL_DELIMITER, input, 10 );
+	tuition_payment->transaction_date_time =
+		strdup( transaction_date_time );
+
+	piece( paypal_date_time, SQL_DELIMITER, input, 11 );
+	tuition_payment->paypal_date_time = strdup( paypal_date_time );
+
+	if ( fetch_registration )
+	{
+		tuition_payment->registration =
+			registration_fetch(
+				student_full_name,
+				student_street_address,
+				tuition_payment->
+					registration->
+					season_name,
+				tuition_payment->
+					registration->
+					year,
+				1 /* fetch_enrollment_list */,
+				1 /* fetch_offering */,
+				1 /* fetch_course */,
+				1 /* fetch_tuition_payment_list */,
+				1 /* fetch_tuition_refund_list */ );
+	}
+	return tuition_payment;
 }
 
