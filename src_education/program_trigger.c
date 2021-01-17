@@ -16,6 +16,7 @@
 #include "appaserver_error.h"
 #include "enrollment.h"
 #include "semester.h"
+#include "program_donation.h"
 #include "program.h"
 
 /* Constants */
@@ -59,7 +60,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		program_donation_total( program_name );
+		program_donation_fetch_total( program_name );
 	}
 	return 0;
 }

@@ -388,14 +388,3 @@ LIST *program_alias_name_list(
 	return name_list;
 }
 
-void program_donation_total(
-			char *program_name )
-{
-	char sys_string[ 1024 ];
-
-	printf(	sys_string,
-		"program_donation_total.sh \"%s\"",
-		program_name_escape( program_name ) );
-
-	if ( system( sys_string ) ){};
-}

@@ -196,5 +196,11 @@ LIST *program_donation_list_overpayment(
 			TICKET_SALE *ticket_sale,
 			PRODUCT_SALE *product_sale );
 
+double program_donation_total(
+			LIST *program_donation_list );
+
+void program_donation_fetch_total(
+			char *program_name );
+
 #endif
 

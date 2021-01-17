@@ -883,3 +883,32 @@ LIST *program_donation_list_overpayment(
 	return program_donation_list;
 }
 
+double program_donation_total( LIST *program_donation_list )
+{
+	PROGRAM_DONATION *program_donation;
+	double total;
+
+	if ( !list_rewind( program_donation_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		program_donation = list_get( program_donation_list );
+		total += program_donation->donation_amount;
+
+	} while ( list_next( program_donation_list ) );
+	return total;
+}
+
+void program_donation_fetch_total(
+			char *program_name )
+{
+	char sys_string[ 1024 ];
+
+	printf(	sys_string,
+		"program_donation_total.sh \"%s\"",
+		program_name_escape( program_name ) );
+
+	if ( system( sys_string ) ){};
+}
+
