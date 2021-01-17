@@ -285,3 +285,20 @@ void product_trigger( char *product_name )
 	if ( system( sys_string ) ){}
 }
 
+void product_fetch_update( char *product_name )
+{
+	char sys_string[ 1024 ];
+
+	printf(	sys_string,
+		"product_sale_total.sh \"%s\"",
+		product_name_escape( product_name ) );
+
+	if ( system( sys_string ) ){};
+
+	printf(	sys_string,
+		"product_refund_total.sh \"%s\"",
+		product_name_escape( product_name ) );
+
+	if ( system( sys_string ) ){};
+}
+

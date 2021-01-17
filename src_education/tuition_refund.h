@@ -251,5 +251,12 @@ void tuition_refund_list_student_entity_insert(
 void tuition_refund_list_enrollment_insert(
 			LIST *tuition_refund_list );
 
+TUITION_REFUND *tuition_refund_new(
+			ENTITY *student_entity,
+			char *season_name,
+			int year,
+			ENTITY *payor_entity,
+			char *refund_date_time );
+
 #endif
 

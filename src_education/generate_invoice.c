@@ -771,7 +771,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 
 	if ( !generate_invoice_line_item_list(
 			latex_invoice->invoice_line_item_list,
-			registration->enrollment_list ) )
+			registration->registration_enrollment_list ) )
 	{
 		printf( "<H3>Error: Registration has no enrollments.</h3>\n" );
 		document_close();

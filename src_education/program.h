@@ -106,5 +106,8 @@ LIST *program_name_list(
 LIST *program_alias_name_list(
 			LIST *program_list );
 
+void program_donation_total(
+			char *program_name );
+
 #endif
 

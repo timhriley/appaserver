@@ -87,5 +87,8 @@ LIST *product_name_list(
 
 void product_trigger(	char *product_name );
 
+void product_fetch_update(
+			char *product_name );
+
 #endif
 

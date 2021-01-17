@@ -17,6 +17,7 @@
 #include "entity_self.h"
 #include "account.h"
 #include "tuition_refund.h"
+#include "enrollment.h"
 #include "registration.h"
 #include "transaction.h"
 #include "journal.h"
@@ -35,7 +36,9 @@ void tuition_refund_trigger_predelete(
 			char *payor_street_address,
 			char *refund_date_time );
 
-TUITION_REFUND *tuition_refund_trigger_insert_update(
+/* Returns list of one (TUITION_REFUND *) */
+/* -------------------------------------- */
+LIST *tuition_refund_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
 			char *season_name,
@@ -101,9 +104,9 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		TUITION_REFUND *tuition_refund;
+		LIST *tuition_refund_list;
 
-		if ( ( tuition_refund =
+		tuition_refund_list =
 			tuition_refund_trigger_insert_update(
 				student_full_name,
 				street_address,
@@ -111,22 +114,46 @@ int main( int argc, char **argv )
 				year,
 				payor_full_name,
 				payor_street_address,
-				refund_date_time ) ) )
+				refund_date_time );
+
+		if ( list_length( tuition_refund_list ) )
 		{
-
-			registration_update( tuition_refund->registration );
-
-			tuition_refund_offering_fetch_update(
-				tuition_refund->registration );
+			registration_list_fetch_update(
+				/* ------ */
+				/* Caches */
+				/* ------ */
+				tuition_refund_registration_list(
+					tuition_refund_list ),
+				season_name,
+				year );
 		}
 	}
 
 	if ( strcmp( state, "delete" ) == 0 )
 	{
-		enrollment_trigger(
-			student_full_name,
-			street_address,
-			course_name,
+		LIST *tuition_refund_list = list_new();
+		TUITION_REFUND *tuition_refund;
+
+		tuition_refund =
+			tuition_refund_new(
+			entity_new(
+				student_full_name,
+				street_address ),
+			season_name,
+			year,
+			entity_new(
+				payor_full_name,
+				payor_street_address ),
+			refund_date_time );
+
+		list_set( tuition_refund_list, tuition_refund );
+
+		registration_list_fetch_update(
+			/* ------ */
+			/* Caches */
+			/* ------ */
+			tuition_refund_registration_list(
+				tuition_refund_list ),
 			season_name,
 			year );
 	}
@@ -134,7 +161,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-TUITION_REFUND *tuition_refund_trigger_insert_update(
+LIST *tuition_refund_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
 			char *season_name,
@@ -144,6 +171,8 @@ TUITION_REFUND *tuition_refund_trigger_insert_update(
 			char *refund_date_time )
 {
 	TUITION_REFUND *tuition_refund;
+	ENROLLMENT *enrollment;
+	LIST *tuition_refund_list;
 	int transaction_seconds_to_add = 0;
 
 	if ( ! ( tuition_refund =
@@ -161,8 +190,14 @@ TUITION_REFUND *tuition_refund_trigger_insert_update(
 				1 /* fetch_course */,
 				0 /* fetch_program */ ) ) )
 	{
-		return;
+		return (LIST *)0;
 	}
+
+	enrollment =
+		list_first(
+			tuition_refund->
+				registration->
+				registration_enrollment_list );
 
 	tuition_refund =
 		tuition_refund_steady_state(
@@ -181,17 +216,16 @@ TUITION_REFUND *tuition_refund_trigger_insert_update(
 				street_address,
 			tuition_refund->
 				refund_date_time,
-			enrollment_offering_program_name(
-				tuition_refund->
-					registration->
-					enrollment_list ),
+			enrollment->
+				offering->
+				course->
+				program_name,
 			tuition_refund->refund_amount,
 			tuition_refund->merchant_fees_expense,
 			tuition_refund->net_refund_amount,
 			entity_self_paypal_cash_account_name(),
 			account_fees_expense( (char *)0 ),
-			tuition_refund->
-				enrollment->
+			enrollment->
 				offering->
 				revenue_account ) ) )
 	{
@@ -227,18 +261,20 @@ TUITION_REFUND *tuition_refund_trigger_insert_update(
 		tuition_refund->transaction_date_time,
 		student_full_name,
 		street_address,
-		course_name,
 		season_name,
 		year,
 		payor_full_name,
 		payor_street_address,
 		refund_date_time );
+
+	tuition_refund_list = list_new();
+	list_set( tuition_refund_list, tuition_refund );
+	return tuition_refund_list;
 }
 
 void tuition_refund_trigger_predelete(
 			char *student_full_name,
 			char *street_address,
-			char *course_name,
 			char *season_name,
 			int year,
 			char *payor_full_name,
@@ -251,15 +287,16 @@ void tuition_refund_trigger_predelete(
 			tuition_refund_fetch(
 				student_full_name,
 				street_address,
-				course_name,
 				season_name,
 				year,
 				payor_full_name,
 				payor_street_address,
 				refund_date_time,
-				0 /* not fetch_enrollment */,
 				0 /* not fetch_registration */,
-				0 /* not fetch_offering */ ) ) )
+				0 /* not fetch_enrollment_list */,
+				0 /* not fetch_offering */,
+				0 /* not fetch_course */,
+				0 /* not fetch_program */ ) ) )
 	{
 		return;
 	}
@@ -290,3 +327,25 @@ void tuition_refund_trigger_predelete(
 				tuition_refund->transaction_date_time ) );
 	}
 }
+
+TUITION_REFUND *tuition_refund_new(
+			ENTITY *student_entity,
+			char *season_name,
+			int year,
+			ENTITY *payor_entity,
+			char *refund_date_time )
+{
+	TUITION_REFUND *tuition_refund = tuition_refund_calloc();
+
+	tuition_refund->registration =
+		registration_new(
+			student_entity,
+			season_name,
+			year );
+
+	tuition_refund->payor_entity = payor_entity;
+	tuition_refund->refund_date_time = refund_date_time;
+
+	return tuition_refund;
+}
+

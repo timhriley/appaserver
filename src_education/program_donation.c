@@ -22,6 +22,7 @@
 #include "entity.h"
 #include "account.h"
 #include "education.h"
+#include "enrollment.h"
 #include "paypal_item.h"
 #include "program_donation.h"
 
@@ -536,50 +537,6 @@ void program_donation_trigger(
 	if ( system( sys_string ) ){}
 }
 
-double program_donation_total( LIST *payment_list )
-{
-	PROGRAM_DONATION *payment;
-	double total;
-
-	if ( !list_rewind( payment_list ) ) return 0.0;
-
-	total = 0.0;
-
-	do {
-		payment = list_get( payment_list );
-
-		total += payment->donation_amount;
-
-	} while ( list_next( payment_list ) );
-
-	return total;
-}
-
-void program_donation_list_trigger(
-			LIST *program_donation_list )
-{
-	PROGRAM_DONATION *program_donation;
-
-	if ( !list_rewind( program_donation_list ) ) return;
-
-	do {
-		program_donation = list_get( program_donation_list );
-
-		program_donation_trigger(
-			program_donation->program->program_name,
-			program_donation->
-				payment_date_time,
-			program_donation->
-				payor_entity->
-				full_name,
-			program_donation->
-				payor_entity->
-				street_address,
-			"insert" /* state */ );
-
-	} while ( list_next( program_donation_list ) );
-}
-
 LIST *program_donation_transaction_list(
 			LIST *program_donation_list )
 {
@@ -858,7 +815,25 @@ LIST *program_donation_list_overpayment(
 
 	if ( tuition_payment )
 	{
+		ENROLLMENT *enrollment;
+
 		program_donation_list = list_new();
+
+		enrollment =
+			list_first(
+				tuition_payment->
+					registration->
+					registration_enrollment_list );
+
+		if ( !enrollment )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty enrollment.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		list_set(
 			program_donation_list,
@@ -867,8 +842,7 @@ LIST *program_donation_list_overpayment(
 				paypal_date_time,
 				item_value,
 				item_fee,
-				tuition_payment->
-					enrollment->
+				enrollment->
 					offering->
 					course->
 					program ) );

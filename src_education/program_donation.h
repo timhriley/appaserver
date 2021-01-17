@@ -158,12 +158,6 @@ void program_donation_trigger(
 void program_donation_list_insert(
 			LIST *program_donation_list );
 
-double program_donation_total(
-			LIST *program_donation_list );
-
-void program_donation_list_trigger(
-			LIST *program_donation_list );
-
 /* Safely returns heap memory */
 /* -------------------------- */
 char *program_donation_list_display(

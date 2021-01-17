@@ -31,6 +31,7 @@
 #include "ticket_refund.h"
 #include "product.h"
 #include "event.h"
+#include "offering.h"
 #include "paypal.h"
 #include "paypal_deposit.h"
 #include "paypal_sweep.h"
@@ -155,7 +156,14 @@ int main( int argc, char **argv )
 					&row_count,
 					spreadsheet_filename,
 					season_name,
-					year ) ) );
+					year ) ),
+			/* ------------------------------------ */
+			/* To set program_name for 		*/
+			/* tuition payment and tuition refund	*/
+			/* ------------------------------------ */
+			semester_offering_list(
+				season_name,
+				year ) );
 
 	if ( !row_count )
 	{
@@ -351,12 +359,12 @@ LIST *paypal_upload_deposit_list(
 			spreadsheet_filename,
 			education->paypal->spreadsheet,
 			paypal_dataset_calloc(),
-			education->semester->offering_list,
+			education->semester->semester_offering_list,
 			( education->program_list =
 				program_list( 1 /* fetch_alias_list */ ) ),
 			( education->product_list =
 				product_list() ),
-			education->semester->event_list );
+			education->semester->semester_event_list );
 }
 
 void paypal_upload_display(

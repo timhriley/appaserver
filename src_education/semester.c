@@ -140,7 +140,11 @@ LIST *semester_offering_list(
 			char *season_name,
 			int year )
 {
-	return
+	static LIST *offering_list = {0};
+
+	if ( offering_list ) return offering_list;
+
+	offering_list =
 		offering_system_list(
 			offering_sys_string(
 				semester_primary_where(
@@ -149,13 +153,19 @@ LIST *semester_offering_list(
 			1 /* fetch_course */,
 			1 /* fetch_program */,
 			0 /* not fetch_enrollment_list */ );
+
+	return offering_list;
 }
 
 LIST *semester_event_list(
 			char *season_name,
 			int year )
 {
-	return
+	static LIST *event_list = {0};
+
+	if ( event_list ) return event_list;
+
+	event_list =
 		event_system_list(
 			event_sys_string(
 				semester_primary_where(
@@ -165,5 +175,7 @@ LIST *semester_event_list(
 			0 /* not fetch_venue */,
 			0 /* not fetch_sale_list */,
 			0 /* not fetch_refund_list */ );
+
+	return event_list;
 }
 
