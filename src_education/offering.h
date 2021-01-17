@@ -57,11 +57,13 @@ OFFERING *offering_fetch(
 			char *season_name,
 			int year,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_enrollment_list );
 
 OFFERING *offering_parse(
 			char *input,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_enrollment_list );
 
 OFFERING *offering_seek(
@@ -94,11 +96,10 @@ char *offering_primary_where(
 			char *season_name,
 			int year );
 
-LIST *offering_list(	char *where );
-
 LIST *offering_system_list(
 			char *sys_string,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_enrollment_list );
 
 /* Safely returns heap memory */
@@ -112,8 +113,7 @@ FILE *offering_update_open(
 LIST *offering_enrollment_list(
 			char *course_name,
 			char *season_name,
-			int year,
-			boolean fetch_course );
+			int year );
 
 void offering_update(	int enrollment_count,
 			int capacity_available,

@@ -50,9 +50,11 @@ OFFERING *offering_new(	char *course_name,
 	return offering;
 }
 
-OFFERING *offering_parse(	char *input,
-				boolean fetch_course,
-				boolean fetch_enrollment_list )
+OFFERING *offering_parse(
+			char *input,
+			boolean fetch_course,
+			boolean fetch_program,
+			boolean fetch_enrollment_list )
 {
 	char course_name[ 128 ];
 	char season_name[ 128 ];
@@ -111,7 +113,9 @@ OFFERING *offering_parse(	char *input,
 				course_fetch(
 					offering->
 						course->
-						course_name ) ) )
+						course_name,
+					fetch_program,
+					0 /* not fetch_alias_list */ ) ) )
 		{
 			fprintf(stderr,
 		"ERROR in %s/%s()/%d: fetch_course(%s) returned empty.\n",
@@ -129,8 +133,7 @@ OFFERING *offering_parse(	char *input,
 			offering_enrollment_list(
 				offering->course->course_name,
 				offering->semester->season_name,
-				offering->semester->year,
-				fetch_course );
+				offering->semester->year );
 	}
 
 	return offering;
@@ -141,6 +144,7 @@ OFFERING *offering_fetch(
 			char *season_name,
 			int year,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_enrollment_list )
 {
 	if ( !course_name || !season_name || !year )
@@ -159,6 +163,7 @@ OFFERING *offering_fetch(
 						season_name,
 						year ) ) ),
 			fetch_course,
+			fetch_program,
 			fetch_enrollment_list );
 }
 
@@ -253,6 +258,7 @@ void offering_update(	int enrollment_count,
 LIST *offering_system_list(
 			char *sys_string,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_enrollment_list )
 {
 	char input[ 1024 ];
@@ -266,6 +272,7 @@ LIST *offering_system_list(
 			offering_parse(
 				input,
 				fetch_course,
+				fetch_program,
 				fetch_enrollment_list ) );
 	}
 	pclose( input_pipe );
@@ -288,8 +295,7 @@ char *offering_sys_string( char *where )
 LIST *offering_enrollment_list(
 			char *course_name,
 			char *season_name,
-			int year,
-			boolean fetch_course )
+			int year )
 {
 	return	enrollment_system_list(
 			enrollment_sys_string(
@@ -297,8 +303,9 @@ LIST *offering_enrollment_list(
 					course_name,
 					season_name,
 					year ) ),
-			0 /* not fetch_offering */,
-			fetch_course,
+			1 /* fetch_offering */,
+			1 /* fetch_course */,
+			1 /* fetch_program */,
 			0 /* not fetch_registration */ );
 }
 
@@ -328,6 +335,7 @@ boolean offering_exists(
 			season_name,
 			year,
 			0 /* not fetch_course */,
+			0 /* not fetch_program */,
 			0 /* not fetch_enrollment_list */ ) )
 	{
 		return 1;
@@ -422,15 +430,6 @@ OFFERING *offering_seek(
 	} while ( list_next( offering_list ) );
 
 	return (OFFERING *)0;
-}
-
-LIST *offering_list( char *where )
-{
-	return offering_system_list(
-			offering_sys_string(
-			    	where ),
-			1 /* fetch_course */,
-			0 /* not fetch_enrollment_list */ );
 }
 
 LIST *offering_name_list( LIST *offering_list )

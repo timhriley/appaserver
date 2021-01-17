@@ -18,10 +18,13 @@
 #include "program.h"
 #include "course.h"
 
-COURSE *course_parse( char *input )
+COURSE *course_parse(	char *input,
+			boolean fetch_program,
+			boolean fetch_alias_list )
 {
 	char course_name[ 128 ];
-	char piece_buffer[ 1024 ];
+	char program_name[ 128 ];
+	char description[ 1024 ];
 	COURSE *course;
 
 	if ( !input || !*input ) return (COURSE *)0;
@@ -32,18 +35,19 @@ COURSE *course_parse( char *input )
 
 	course = course_new( strdup( course_name ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	piece( program_name, SQL_DELIMITER, input, 1 );
+	course->program_name = strdup( program_name );
 
-	if ( *piece_buffer )
+	if ( fetch_program )
 	{
 		course->program =
 			program_fetch(
-				piece_buffer,
-				0 /* not fetch_alias_list */ );
+				program_name,
+				fetch_alias_list );
 	}
 
-	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	course->description = strdup( piece_buffer );
+	piece( description, SQL_DELIMITER, input, 2 );
+	course->description = strdup( description );
 
 	return course;
 }
@@ -66,7 +70,9 @@ COURSE *course_new( char *course_name )
 	return course;
 }
 
-COURSE *course_fetch( char *course_name )
+COURSE *course_fetch(	char *course_name,
+			boolean fetch_program,
+			boolean fetch_alias_list )
 {
 	char sys_string[ 1024 ];
 	COURSE *course;
@@ -89,7 +95,11 @@ COURSE *course_fetch( char *course_name )
 		 /* --------------------- */
 		 course_primary_where( course_name ) );
 
-	course = course_parse( pipe2string( sys_string ) );
+	course =
+		course_parse(
+			pipe2string( sys_string ),
+			fetch_program,
+			fetch_alias_list );
 
 	return course;
 }

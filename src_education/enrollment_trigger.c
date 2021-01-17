@@ -17,6 +17,7 @@
 #include "enrollment.h"
 #include "registration.h"
 #include "offering.h"
+#include "account.h"
 #include "transaction.h"
 #include "journal.h"
 #include "course.h"
@@ -33,7 +34,9 @@ void enrollment_trigger_predelete(
 			char *season_name,
 			int year );
 
-void enrollment_trigger_insert_update(
+/* Returns list of one (ENROLLMENT *) */
+/* ---------------------------------- */
+LIST *enrollment_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -89,35 +92,60 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		enrollment_trigger_insert_update(
-			student_full_name,
-			street_address,
-			course_name,
-			season_name,
-			year );
+		LIST *enrollment_list =
+			/* ---------------------------------- */
+			/* Returns list of one (ENROLLMENT *) */
+			/* ---------------------------------- */
+			enrollment_trigger_insert_update(
+				student_full_name,
+				street_address,
+				course_name,
+				season_name,
+				year );
 
-		offering_trigger(
-			course_name,
-			season_name,
-			year );
+		if ( list_length( enrollment_list ) )
+		{
+			registration_list_fetch_update(
+				enrollment_registration_list(
+					enrollment_list ),
+				season_name,
+				year );
 
-		registration_trigger(
-			student_full_name,
-			street_address,
-			season_name,
-			year );
+			offering_list_fetch_update(
+				registration_course_name_list(
+					enrollment_registration_list(
+						enrollment_list ) ),
+				season_name,
+				year );
+		}
 	}
 	else
 	if ( strcmp( state, "delete" ) ==  0 )
 	{
-		offering_trigger(
-			course_name,
+		LIST *enrollment_list = list_new();
+		ENROLLMENT *enrollment;
+
+		enrollment =
+			enrollment_new(
+				entity_new(
+					student_full_name,
+					street_address ),
+				course_name,
+				season_name,
+				year );
+	
+		list_set( enrollment_list, enrollment );
+
+		registration_list_fetch_update(
+			enrollment_registration_list(
+				enrollment_list ),
 			season_name,
 			year );
 
-		registration_trigger(
-			student_full_name,
-			street_address,
+		offering_list_fetch_update(
+			registration_course_name_list(
+				enrollment_registration_list(
+					enrollment_list ) ),
 			season_name,
 			year );
 	}
@@ -125,7 +153,9 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void enrollment_trigger_insert_update(
+/* Returns list of one (ENROLLMENT *) */
+/* ---------------------------------- */
+LIST *enrollment_trigger_insert_update(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
@@ -133,6 +163,7 @@ void enrollment_trigger_insert_update(
 			int year )
 {
 	ENROLLMENT *enrollment;
+	LIST *enrollment_list;
 	int transaction_seconds_to_add = 0;
 
 	if ( ! ( enrollment =
@@ -142,51 +173,20 @@ void enrollment_trigger_insert_update(
 				course_name,
 				season_name,
 				year,
-				1 /* fetch_tuition_payment_list */,
-				1 /* fetch_tuition_refund_list */,
 				1 /* fetch_offering */,
+				1 /* fetch_course */,
+				0 /* fetch_program */,
 				1 /* fetch_registration */ ) ) )
 	{
-		return;
+		return (LIST *)0;
 	}
 
-	if ( !enrollment->registration )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: registration is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !enrollment->offering )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: offering is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !enrollment->offering->course )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: course is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	enrollment =
-		enrollment_steady_state(
+	if ( enrollment_set_transaction(
 			&transaction_seconds_to_add,
 			enrollment,
-			0.0 /* zero deposit_amount shows not a refund */ );
-
-	if ( enrollment->enrollment_transaction )
+			account_receivable( (char *)0 ),
+			enrollment->offering->revenue_account,
+			enrollment->offering->course->program_name ) )
 	{
 		TRANSACTION *t = enrollment->enrollment_transaction;
 
@@ -217,18 +217,9 @@ void enrollment_trigger_insert_update(
 		season_name,
 		year );
 
-	enrollment_fetch_update(
-		enrollment->
-			registration->
-			student_entity->
-			full_name,
-		enrollment->
-			registration->
-			student_entity->
-			street_address,
-		enrollment->offering->course->course_name,
-		season_name,
-		year );
+	enrollment_list = list_new();
+	list_set( enrollment_list, enrollment );
+	return enrollment_list;
 }
 
 void enrollment_trigger_predelete(
@@ -247,9 +238,9 @@ void enrollment_trigger_predelete(
 				course_name,
 				season_name,
 				year,
-				0 /* not fetch_tution_payment_list */,
-				0 /* not fetch_tution_refund_list */,
 				0 /* not fetch_offering */,
+				0 /* not fetch_course */,
+				0 /* not fetch_program */,
 				0 /* not fetch_registration */ ) ) )
 	{
 		return;

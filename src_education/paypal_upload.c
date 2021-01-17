@@ -56,8 +56,10 @@ void paypal_upload_display(
 			char *season_name,
 			int year );
 
-/* Returns education_deposit_list() */
-/* -------------------------------- */
+/* ---------------------------------------------------- */
+/* Returns education_deposit_list()			*/
+/* See: PAYPAL_DEPOSIT *paypal_deposit_education()	*/
+/* ---------------------------------------------------- */
 LIST *paypal_upload_deposit_list(
 			char **maximum_date,
 			int *row_count,
@@ -187,32 +189,59 @@ int main( int argc, char **argv )
 				season_name,
 				year );
 
-			paypal_deposit_list_registration_fetch_update(
-				paypal_deposit_list,
-				season_name,
-				year );
-
-			paypal_deposit_list_enrollment_fetch_update(
-				paypal_deposit_list,
-				season_name,
-				year );
-
-			offering_list_fetch_update(
-				list_unique(
-					paypal_deposit_course_name_list(
+			registration_list_fetch_update(
+				/* ------ */
+				/* Caches */
+				/* ------ */
+				tuition_payment_registration_list(
+					/* ------ */
+					/* Caches */
+					/* ------ */
+					paypal_deposit_tuition_payment_list(
 						paypal_deposit_list ) ),
 				season_name,
 				year );
 
-			product_sale_list_fetch_update(
-				list_unique(
-					paypal_deposit_sale_product_name_list(
-						paypal_deposit_list ) ) );
+			registration_list_fetch_update(
+				/* ------ */
+				/* Caches */
+				/* ------ */
+				tuition_refund_registration_list(
+					/* ------ */
+					/* Caches */
+					/* ------ */
+					paypal_deposit_tuition_refund_list(
+						paypal_deposit_list ) ),
+				season_name,
+				year );
 
-			product_refund_list_fetch_update(
-				list_unique(
-					paypal_deposit_refund_product_name_list(
-						paypal_deposit_list ) ) );
+			offering_list_fetch_update(
+				registration_course_name_list(
+					/* ------ */
+					/* Caches */
+					/* ------ */
+					tuition_payment_registration_list(
+					    /* ------ */
+					    /* Caches */
+					    /* ------ */
+					    paypal_deposit_tuition_payment_list(
+						paypal_deposit_list ) ) ),
+				season_name,
+				year );
+
+			offering_list_fetch_update(
+				registration_course_name_list(
+					/* ------ */
+					/* Caches */
+					/* ------ */
+					tuition_refund_registration_list(
+					    /* ------ */
+					    /* Caches */
+					    /* ------ */
+					    paypal_deposit_tuition_refund_list(
+						paypal_deposit_list ) ) ),
+				season_name,
+				year );
 
 			if ( session && role_name )
 			{

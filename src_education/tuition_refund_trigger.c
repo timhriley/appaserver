@@ -157,8 +157,9 @@ TUITION_REFUND *tuition_refund_trigger_insert_update(
 				refund_date_time,
 				1 /* fetch_registration */,
 				1 /* fetch_enrollment_list */,
-				1 /* fetch_tuition_payment_list */,
-				1 /* fetch_tuition_refund_list */ ) ) )
+				1 /* fetch_offering */,
+				1 /* fetch_course */,
+				0 /* fetch_program */ ) ) )
 	{
 		return;
 	}
@@ -180,7 +181,7 @@ TUITION_REFUND *tuition_refund_trigger_insert_update(
 				street_address,
 			tuition_refund->
 				refund_date_time,
-			registration_offering_program_name(
+			enrollment_offering_program_name(
 				tuition_refund->
 					registration->
 					enrollment_list ),

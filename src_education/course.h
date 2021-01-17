@@ -25,14 +25,19 @@ typedef struct
 {
 	char *course_name;
 	char *description;
+	char *program_name;
 	PROGRAM *program;
 } COURSE;
 
-COURSE *course_fetch(	char *course_name );
+COURSE *course_fetch(	char *course_name,
+			boolean fetch_program,
+			boolean fetch_alias_list );
 
 COURSE *course_new(	char *course_name );
 
-COURSE *course_parse(	char *input );
+COURSE *course_parse(	char *input,
+			boolean fetch_program,
+			boolean fetch_alias_list );
 
 /* Returns static memory */
 /* --------------------- */

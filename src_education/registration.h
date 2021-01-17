@@ -66,6 +66,7 @@ REGISTRATION *registration_parse(
 			boolean fetch_enrollment_list,
 			boolean fetch_offering,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_tuition_refund_list );
 
@@ -77,6 +78,7 @@ REGISTRATION *registration_fetch(
 			boolean fetch_enrollment_list,
 			boolean fetch_offering,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_tuition_refund_list );
 
@@ -137,6 +139,7 @@ LIST *registration_system_list(
 			boolean fetch_enrollment_list,
 			boolean fetch_offering,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_tuition_payment_list,
 			boolean fetch_tuition_refund_list );
 
@@ -187,7 +190,8 @@ LIST *registration_enrollment_list(
 			char *season_name,
 			int year,
 			boolean fetch_offering,
-			boolean fetch_course );
+			boolean fetch_course,
+			boolean fetch_program );
 
 LIST *registration_tuition_payment_list(
 			char *student_full_name,
@@ -210,6 +214,14 @@ void registration_enrollment_list_insert(
 
 TRANSACTION *registration_enrollment_seek_transaction(
 			LIST *enrollment_list );
+
+void registration_list_fetch_update(
+			LIST *registration_list,
+			char *season_name,
+			int year );
+
+LIST *registration_course_name_list(
+			LIST *registration_list );
 
 #endif
 

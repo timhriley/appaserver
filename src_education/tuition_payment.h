@@ -90,11 +90,19 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time,
-			boolean fetch_registration );
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program );
 
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
-			boolean fetch_registration );
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program );
 
 /* Returns true transaction_date_time */
 /* ---------------------------------- */
@@ -135,7 +143,11 @@ char *tuition_payment_primary_where(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_registration );
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program );
 
 void tuition_payment_list_insert(
 			LIST *tuition_payment_list );
@@ -178,10 +190,14 @@ void tuition_payment_list_payor_entity_insert(
 char *tuition_payment_list_display(
 			LIST *tuition_payment_list );
 
-LIST *tuition_payment_registration_list(
+/* To build the revenue transaction */
+/* -------------------------------- */
+LIST *tuition_payment_enrollment_list(
 			LIST *tuition_payment_list );
 
-LIST *tuition_payment_list_enrollment_list(
+/* Caches */
+/* ------ */
+LIST *tuition_payment_registration_list(
 			LIST *tuition_payment_list );
 
 double tuition_payment_receivable_credit_amount(
@@ -205,6 +221,8 @@ void tuition_payment_trigger(
 LIST *tuition_payment_transaction_list(
 			LIST *tution_payment_list );
 
+/* Returns tuition_payment */
+/* ----------------------- */
 TUITION_PAYMENT *tuition_payment_steady_state(
 			TUITION_PAYMENT *tuition_payment,
 			double payment_amount,

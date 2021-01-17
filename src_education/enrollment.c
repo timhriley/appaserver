@@ -21,7 +21,6 @@
 #include "enrollment.h"
 #include "registration.h"
 #include "offering.h"
-#include "offering.h"
 #include "course.h"
 #include "enrollment.h"
 #include "registration.h"
@@ -77,6 +76,7 @@ ENROLLMENT *enrollment_parse(
 			char *input,
 			boolean fetch_offering,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_registration )
 {
 	char full_name[ 128 ];
@@ -117,6 +117,7 @@ ENROLLMENT *enrollment_parse(
 				enrollment->offering->semester->season_name,
 				enrollment->offering->semester->year,
 				fetch_course,
+				fetch_program,
 				0 /* not fetch_enrollment_list */ );
 	}
 
@@ -129,12 +130,12 @@ ENROLLMENT *enrollment_parse(
 				enrollment->offering->semester->season_name,
 				enrollment->offering->semester->year,
 				0 /* not fetch_enrollment_list */,
-				fetch_offering,
-				fetch_course,
+				0 /* not fetch_offering */,
+				0 /* not fetch_course */,
+				0 /* not fetch_program */,
 				0 /* not fetch_tuition_payment_list */,
 				0 /* notfetch_tuition_refund_list */ );
 	}
-
 	return enrollment;
 }
 
@@ -146,6 +147,7 @@ ENROLLMENT *enrollment_fetch(
 			int year,
 			boolean fetch_offering,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_registration )
 {
 	ENROLLMENT *enrollment;
@@ -165,6 +167,7 @@ ENROLLMENT *enrollment_fetch(
 						year ) ) ),
 			fetch_offering,
 			fetch_course,
+			fetch_program,
 			fetch_registration );
 
 	return enrollment;
@@ -174,6 +177,7 @@ LIST *enrollment_system_list(
 			char *sys_string,
 			boolean fetch_offering,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_registration )
 {
 	char input[ 1024 ];
@@ -188,6 +192,7 @@ LIST *enrollment_system_list(
 				input,
 				fetch_offering,
 				fetch_course,
+				fetch_program,
 				fetch_registration ) );
 	}
 	pclose( input_pipe );
@@ -324,7 +329,11 @@ LIST *enrollment_tuition_payment_list(
 					course_name,
 					season_name,
 					year ) ),
-			0 /* not fetch_registration */ );
+			0 /* not fetch_registration */,
+			1 /* fetch_enrollment_list */,
+			1 /* fetch_offering */,
+			1 /* fetch_course */,
+			0 /* not fetch_program */ );
 }
 
 LIST *enrollment_tuition_refund_list(
@@ -343,7 +352,11 @@ LIST *enrollment_tuition_refund_list(
 					course_name,
 					season_name,
 					year ) ),
-			0 /* not fetch_registration */ );
+			0 /* not fetch_registration */,
+			0 /* not fetch_enrollment_list */,
+			0 /* not fetch_offering */,
+			0 /* not fetch_course */,
+			0 /* not fetch_program */ );
 }
 
 FILE *enrollment_insert_open( char *error_filename )
@@ -416,144 +429,6 @@ LIST *enrollment_course_name_list(
 	return course_name_list;
 }
 
-void enrollment_trigger(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-	"enrollment_trigger \"%s\" '%s' \"%s\" '%s' %d update",
-		student_full_name,
-		street_address,
-		course_name,
-		season_name,
-		year );
-
-	if ( system( sys_string ) ){}
-}
-
-#ifdef NOT_DEFINED
-void enrollment_list_steady_state(
-			int *transaction_seconds_to_add,
-			LIST *enrollment_list,
-			double deposit_amount )
-{
-	if ( !list_rewind( enrollment_list ) ) return;
-
-	do {
-		enrollment_steady_state(
-			transaction_seconds_to_add,
-			list_get(
-				enrollment_list ),
-			deposit_amount );
-
-	} while ( list_next( enrollment_list ) );
-}
-
-ENROLLMENT *enrollment_steady_state(
-			int *transaction_seconds_to_add,
-			ENROLLMENT *enrollment,
-			double deposit_amount )
-{
-	if ( !enrollment )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty enrollment.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !enrollment->registration )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty registration.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !enrollment->offering )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty offering.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !enrollment->offering->course )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty course.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	/* Build the transaction, if know it's not a refund */
-	/* ------------------------------------------------ */
-	if ( deposit_amount >= 0.0
-	&&   enrollment->offering->course_price )
-	{
-		char *program_name;
-
-		if ( enrollment->offering->course->program )
-		{
-			program_name =
-				enrollment->
-					offering->
-					course->
-					program->
-					program_name;
-		}
-		else
-		{
-			program_name = (char *)0;
-		}
-
-		if ( ( enrollment->enrollment_transaction =
-			enrollment_transaction(
-				enrollment->
-					registration->
-					student_entity->
-					full_name,
-				enrollment->
-					registration->
-					student_entity->
-					street_address,
-				enrollment->
-					registration->
-					registration_date_time,
-				program_name,
-				enrollment->offering->course_price,
-				account_receivable( (char *)0 ),
-				enrollment->offering->revenue_account,
-				*transaction_seconds_to_add ) ) )
-		{
-			enrollment->transaction_date_time =
-				enrollment->enrollment_transaction->
-					transaction_date_time;
-
-			(*transaction_seconds_to_add)++;
-		}
-		else
-		{
-			enrollment->transaction_date_time = (char *)0;
-		}
-	}
-	return enrollment;
-}
-#endif
-
 char *enrollment_memo( char *program_name )
 {
 	static char payment_memo[ 128 ];
@@ -578,32 +453,30 @@ void enrollment_list_set_transaction(
 {
 	ENROLLMENT *enrollment;
 	char *receivable;
-	char *revenue_account;
 
-	if ( !list_rewind( enrollment_list ) ) return;
+	if ( !list_rewind( enrollment_list ) );
 
 	receivable = account_receivable( (char *)0 );
 
 	do {
 		enrollment = list_get( enrollment_list );
 
-		revenue_account =
-			enrollment->offering->revenue_account;
-
 		enrollment_set_transaction(
 			transaction_seconds_to_add,
 			enrollment,
 			receivable,
-			revenue_account );
+			enrollment->offering->revenue_account,
+			enrollment->offering->course->program->program_name );
 
 	} while ( list_next( enrollment_list ) );
 }
 
-void enrollment_set_transaction(
+boolean enrollment_set_transaction(
 			int *transaction_seconds_to_add,
 			ENROLLMENT *enrollment,
 			char *account_receivable,
-			char *revenue_account )
+			char *revenue_account,
+			char *program_name )
 {
 	if ( ( enrollment->enrollment_transaction =
 		enrollment_transaction(
@@ -618,11 +491,7 @@ void enrollment_set_transaction(
 			enrollment->
 				registration->
 				registration_date_time,
-			enrollment->
-				offering->
-				course->
-				program->
-				program_name,
+			program_name,
 			enrollment->offering->course_price,
 			account_receivable,
 			revenue_account,
@@ -633,10 +502,12 @@ void enrollment_set_transaction(
 				transaction_date_time;
 
 		(*transaction_seconds_to_add)++;
+		return 1;
 	}
 	else
 	{
 		enrollment->transaction_date_time = (char *)0;
+		return 0;
 	}
 }
 
@@ -725,5 +596,105 @@ void enrollment_list_fetch_update(
 			year );
 
 	} while ( list_next( enrollment_list ) );
+}
+
+LIST *enrollment_registration_list(
+			LIST *enrollment_list )
+{
+	LIST *registration_list;
+	ENROLLMENT *enrollment;
+
+	if ( !list_rewind( enrollment_list ) ) return (LIST *)0;
+
+	registration_list = list_new();
+
+	do {
+		enrollment =
+			list_get(
+				enrollment_list );
+
+		if ( !enrollment->registration )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty registration.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			registration_list,
+			enrollment->registration );
+
+	} while ( list_next( enrollment_list ) );
+
+	return registration_list;
+}
+
+char *enrollment_offering_program_name(
+			LIST *enrollment_list )
+{
+	ENROLLMENT *enrollment;
+
+	if ( !list_rewind( enrollment_list ) ) return (char *)0;
+
+	do {
+		enrollment =
+			list_get(
+				enrollment_list );
+
+		if ( !enrollment->offering
+		||   !enrollment->offering->course )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty offering or course.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		return enrollment->offering->course->program_name;
+
+	} while ( list_next( enrollment_list ) );
+
+	return (char *)0;
+}
+
+OFFERING *enrollment_offering_seek(
+			char *course_name,
+			LIST *enrollment_list )
+{
+	ENROLLMENT *enrollment;
+
+	if ( !list_rewind( enrollment_list ) ) return (OFFERING *)0;
+
+	do {
+		enrollment =
+			list_get(
+				enrollment_list );
+
+		if ( !enrollment->offering
+		||   !enrollment->offering->course )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty offering or course.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( strcmp(
+			enrollment->offering->course->course_name,
+			course_name ) == 0 )
+		{
+			return enrollment->offering;
+		}
+
+	} while ( list_next( enrollment_list ) );
+
+	return (OFFERING *)0;
 }
 

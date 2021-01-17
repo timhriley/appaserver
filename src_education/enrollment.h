@@ -69,19 +69,22 @@ ENROLLMENT *enrollment_fetch(
 			int year,
 			boolean fetch_offering,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_registration );
 
 ENROLLMENT *enrollment_parse(
 			char *input,
 			boolean fetch_offering,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_registration );
 
-void enrollment_set_transaction(
+boolean enrollment_set_transaction(
 			int *transaction_seconds_to_add,
 			ENROLLMENT *enrollment,
 			char *account_receivable,
-			char *revenue_account );
+			char *revenue_account,
+			char *program_name );
 
 /* Returns static memory */
 /* --------------------- */
@@ -121,6 +124,7 @@ LIST *enrollment_system_list(
 			char *sys_string,
 			boolean fetch_offering,
 			boolean fetch_course,
+			boolean fetch_program,
 			boolean fetch_registration );
 
 FILE *enrollment_insert_open(
@@ -134,12 +138,6 @@ void enrollment_insert_pipe(
 			char *season_name,
 			int year,
 			char *transaction_date_time );
-
-LIST *enrollment_system_list(
-			char *sys_string,
-			boolean fetch_offering,
-			boolean fetch_course,
-			boolean fetch_registration );
 
 FILE *enrollment_insert_open(
 			char *error_filename );
@@ -155,13 +153,6 @@ void enrollment_insert_pipe(
 
 LIST *enrollment_course_name_list(
 			LIST *enrollment_list );
-
-void enrollment_trigger(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year );
 
 char *enrollment_memo(	char *program_name );
 
@@ -198,6 +189,16 @@ void enrollment_list_update(
 			LIST *enrollment_list,
 			char *season_name,
 			int year );
+
+LIST *enrollment_registration_list(
+			LIST *enrollment_list );
+
+char *enrollment_offering_program_name(
+			LIST *enrollment_list );
+
+OFFERING *enrollment_offering_seek(
+			char *course_name,
+			LIST *enrollment_list );
 
 #endif
 

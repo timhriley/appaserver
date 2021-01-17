@@ -72,7 +72,11 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program )
 {
 	return
 		tuition_payment_parse(
@@ -89,7 +93,11 @@ TUITION_PAYMENT *tuition_payment_fetch(
 						payor_full_name,
 						payor_street_address,
 						payment_date_time ) ) ),
-			fetch_registration );
+			fetch_registration,
+			fetch_enrollment_list,
+			fetch_offering,
+			fetch_course,
+			fetch_program );
 }
 
 FILE *tuition_payment_update_open( void )
@@ -146,7 +154,11 @@ void tuition_payment_update(
 
 LIST *tuition_payment_system_list(
 			char *sys_string,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -160,7 +172,11 @@ LIST *tuition_payment_system_list(
 			payment_list,
 			tuition_payment_parse(
 				input,
-				fetch_registration ) );
+				fetch_registration,
+				fetch_enrollment_list,
+				fetch_offering,
+				fetch_course,
+				fetch_program ) );
 	}
 
 	pclose( input_pipe );
@@ -524,7 +540,9 @@ void tuition_payment_list_enrollment_insert(
 
 		registration_enrollment_list_insert(
 			insert_pipe,
-			tuition_payment->registration->enrollment_list );
+			tuition_payment->
+				registration->
+				registration_enrollment_list );
 
 	} while ( list_next( tuition_payment_list ) );
 
@@ -803,15 +821,15 @@ char *tuition_payment_list_display( LIST *tuition_payment_list )
 	return strdup( display );
 }
 
-LIST *tuition_payment_registration_list(
+LIST *tuition_payment_enrollment_list(
 			LIST *tuition_payment_list )
 {
 	TUITION_PAYMENT *tuition_payment;
-	LIST *registration_list;
+	LIST *enrollment_list;
 
 	if ( !list_rewind( tuition_payment_list ) ) return (LIST *)0;
 
-	registration_list = list_new();
+	enrollment_list = list_new();
 
 	do {
 		tuition_payment =
@@ -829,12 +847,15 @@ LIST *tuition_payment_registration_list(
 		}
 
 		list_set(
-			registration_list,
-			tuition_payment->registration );
+			enrollment_list,
+				list_last(
+					tuition_payment->
+					     registration->
+					     registration_enrollment_list ) );
 
 	} while ( list_next( tuition_payment_list ) );
 
-	return registration_list;
+	return enrollment_list;
 }
 
 double tuition_payment_receivable_credit_amount(
@@ -897,7 +918,7 @@ LIST *tuition_payment_transaction_list(
 			registration_enrollment_seek_transaction(
 				tuition_payment->
 					registration->
-					enrollment_list ) );
+					registration_enrollment_list ) );
 
 		list_set(
 			transaction_list,
@@ -1142,11 +1163,6 @@ TUITION_PAYMENT *tuition_payment_paypal(
 	tuition_payment->registration->registration_date_time =
 		paypal_date_time;
 
-	tuition_payment->
-		registration->
-		enrollment_list =
-			list_new();
-
 	tuition_payment->course_name = course_name;
 
 	tuition_payment->payment_amount =
@@ -1185,7 +1201,11 @@ TUITION_PAYMENT *tuition_payment_integrity_fetch(
 						year,
 						payor_full_name,
 						payor_street_address ) ) ),
-			0 /* not fetch_registration */ );
+			0 /* not fetch_registration */,
+			0 /*  fetch_enrollment_list */,
+			0 /*  fetch_offering */,
+			0 /*  fetch_course */,
+			0 /*  fetch_program */ );
 }
 
 char *tuition_payment_integrity_where(
@@ -1223,7 +1243,11 @@ char *tuition_payment_integrity_where(
 
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program )
 {
 	char student_full_name[ 128 ];
 	char student_street_address[ 128 ];
@@ -1297,12 +1321,49 @@ TUITION_PAYMENT *tuition_payment_parse(
 				tuition_payment->
 					registration->
 					year,
-				1 /* fetch_enrollment_list */,
-				1 /* fetch_offering */,
-				1 /* fetch_course */,
-				1 /* fetch_tuition_payment_list */,
-				1 /* fetch_tuition_refund_list */ );
+				fetch_enrollment_list,
+				fetch_offering,
+				fetch_course,
+				fetch_program,
+				0 /* not fetch_tuition_payment_list */,
+				0 /* not fetch_tuition_refund_list */ );
 	}
 	return tuition_payment;
+}
+
+LIST *tuition_payment_registration_list(
+			LIST *tuition_payment_list )
+{
+	TUITION_PAYMENT *tuition_payment;
+	static LIST *registration_list = {0};
+
+	if ( !list_rewind( tuition_payment_list ) ) return (LIST *)0;
+
+	if ( registration_list ) return registration_list;
+
+	registration_list = list_new();
+
+	do {
+		tuition_payment =
+			list_get(
+				tuition_payment_list );
+
+		if ( !tuition_payment->registration )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: empty registration.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			registration_list,
+			tuition_payment->registration );
+
+	} while ( list_next( tuition_payment_list ) );
+
+	return registration_list;
 }
 

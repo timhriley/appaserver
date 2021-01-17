@@ -97,38 +97,6 @@ typedef struct
 	int row_number;
 } PAYPAL_DEPOSIT;
 
-LIST *paypal_deposit_registration_list(
-			LIST *paypal_deposit_tuition_payment_list,
-			LIST *paypal_deposit_tuition_refund_list );
-
-LIST *paypal_fetch_program_donation_list(
-			char *payor_full_name,
-			char *street_address,
-			char *paypal_date_time,
-			boolean fetch_program );
-
-LIST *paypal_fetch_tuition_payment_list(
-			char *payor_full_name,
-			char *street_address,
-			char *paypal_date_time,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering );
-
-LIST *paypal_fetch_tuition_refund_list(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *paypal_date_time,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering );
-
-LIST *paypal_fetch_product_sale_list(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *paypal_date_time,
-			boolean fetch_product );
-
 double paypal_net_revenue(
 			double paypal_amount,
 			double transaction_fee );
@@ -201,15 +169,6 @@ void paypal_deposit_insert_pipe(
 			char *invoice_number,
 			char *from_email_address );
 
-void paypal_list_enrollment_trigger(
-			LIST *paypal_deposit_list );
-
-void paypal_list_tuition_payment_trigger(
-			LIST *paypal_deposit_list );
-
-void paypal_list_program_donation_trigger(
-			LIST *paypal_deposit_list );
-
 LIST *paypal_deposit_course_name_list(
 			LIST *paypal_deposit_list );
 
@@ -218,16 +177,6 @@ LIST *paypal_deposit_list_transaction_list(
 
 LIST *paypal_deposit_list_steady_state(
 			LIST *paypal_deposit_list );
-
-void paypal_deposit_list_registration_fetch_update(
-			LIST *paypal_deposit_list,
-			char *season_name,
-			int year );
-
-void paypal_deposit_list_enrollment_fetch_update(
-			LIST *paypal_deposit_list,
-			char *season_name,
-			int year );
 
 LIST *paypal_deposit_transaction_list(
 			LIST *tuition_payment_list,
@@ -238,14 +187,6 @@ LIST *paypal_deposit_transaction_list(
 			LIST *ticket_refund_list,
 			LIST *program_donation_list,
 			PAYPAL_SWEEP *paypal_sweep );
-
-LIST *paypal_deposit_list_enrollment_update(
-			LIST *paypal_deposit_list,
-			char *season_name,
-			int year );
-
-LIST *paypal_list_refund_enrollment_list(
-			LIST *paypal_deposit_list );
 
 LIST *paypal_deposit_steady_state_paypal_item_list(
 			LIST *paypal_item_list,
@@ -263,10 +204,20 @@ void paypal_deposit_set_paypal_item_expected_revenue(
 /* Returns paypal_deposit_list */
 /* --------------------------- */
 LIST *paypal_deposit_list_set_transaction(
-			LIST *paypal_deposit_list );
+			LIST *paypal_deposit_list,
+			/* ------------------------------------ */
+			/* To set program_name for 		*/
+			/* tuition payment and tuition refund	*/
+			/* ------------------------------------ */
+			LIST *semester_offering_list );
 
 void paypal_deposit_set_transaction(
-			PAYPAL_DEPOSIT *paypal_deposit );
+			PAYPAL_DEPOSIT *paypal_deposit,
+			/* ------------------------------------ */
+			/* To set program_name for 		*/
+			/* tuition payment and tuition refund	*/
+			/* ------------------------------------ */
+			LIST *semester_offering_list );
 
 PAYPAL_DEPOSIT *paypal_deposit_education(
 			char *season_name,
@@ -355,6 +306,16 @@ void paypal_deposit_ticket_sale_event_insert(
 			LIST *paypal_deposit_list,
 			char *season_name,
 			int year );
+
+/* Caches */
+/* ------ */
+LIST *paypal_deposit_tuition_payment_list(
+			LIST *paypal_deposit_list );
+
+/* Caches */
+/* ------ */
+LIST *paypal_deposit_tuition_refund_list(
+			LIST *paypal_deposit_list );
 
 #endif
 

@@ -49,7 +49,11 @@ TUITION_REFUND *tuition_refund_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *refund_date_time,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program )
 {
 	return
 		tuition_refund_parse(
@@ -66,12 +70,20 @@ TUITION_REFUND *tuition_refund_fetch(
 						payor_full_name,
 						payor_street_address,
 						refund_date_time ) ) ),
-			fetch_registration );
+			fetch_registration,
+			fetch_enrollment_list,
+			fetch_offering,
+			fetch_course,
+			fetch_program );
 }
 
 LIST *tuition_refund_system_list(
 			char *sys_string,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -85,7 +97,11 @@ LIST *tuition_refund_system_list(
 			tuition_refund_list,
 			tuition_refund_parse(
 				input,
-				fetch_registration ) );
+				fetch_registration,
+				fetch_enrollment_list,
+				fetch_offering,
+				fetch_course,
+				fetch_program ) );
 	}
 
 	pclose( input_pipe );
@@ -229,7 +245,11 @@ void tuition_refund_insert_pipe(
 
 TUITION_REFUND *tuition_refund_parse(
 			char *input,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program )
 {
 	char student_full_name[ 128 ];
 	char student_street_address[ 128 ];
@@ -302,11 +322,12 @@ TUITION_REFUND *tuition_refund_parse(
 				tuition_refund->
 					registration->
 					year,
-				1 /* fetch_enrollment_list */,
-				1 /* fetch_offering */,
-				1 /* fetch_course */,
-				1 /* fetch_tuition_payment_list */,
-				1 /* fetch_tuition_refund_list */ );
+				fetch_enrollment_list,
+				fetch_offering,
+				fetch_course,
+				fetch_program,
+				0 /* not fetch_tuition_payment_list */,
+				0 /* not fetch_tuition_refund_list */ );
 	}
 	return tuition_refund;
 }
@@ -730,40 +751,6 @@ void tuition_refund_set_transaction(
 	}
 }
 
-LIST *tuition_refund_registration_list(
-			LIST *tuition_refund_list )
-{
-	TUITION_REFUND *tuition_refund;
-	LIST *registration_list;
-
-	if ( !list_rewind( tuition_refund_list ) ) return (LIST *)0;
-
-	registration_list = list_new();
-
-	do {
-		tuition_refund =
-			list_get(
-				tuition_refund_list );
-
-		if ( !tuition_refund->registration )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: empty registration.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
-		list_set(
-			registration_list,
-			tuition_refund->registration );
-
-	} while ( list_next( tuition_refund_list ) );
-
-	return registration_list;
-}
-
 LIST *tuition_refund_list_paypal(
 			char *season_name,
 			int year,
@@ -847,6 +834,7 @@ TUITION_REFUND *tuition_refund_paypal(
 				0 /* not fetch_enrollment_list */,
 				0 /* not fetch_offering */,
 				0 /* not fetch_course */,
+				0 /* not fetch_program */,
 				0 /* not fetch_tuition_payment_list */,
 				0 /* not fetch_tuition_refund_list */ ) ) )
 	{
@@ -871,3 +859,40 @@ TUITION_REFUND *tuition_refund_paypal(
 
 	return tuition_refund;
 }
+
+LIST *tuition_refund_registration_list(
+			LIST *tuition_refund_list )
+{
+	TUITION_REFUND *tuition_refund;
+	static LIST *registration_list = {0};
+
+	if ( !list_rewind( tuition_refund_list ) ) return (LIST *)0;
+
+	if ( registration_list ) return registration_list;
+
+	registration_list = list_new();
+
+	do {
+		tuition_refund =
+			list_get(
+				tuition_refund_list );
+
+		if ( !tuition_refund->registration )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: empty registration.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			registration_list,
+			tuition_refund->registration );
+
+	} while ( list_next( tuition_refund_list ) );
+
+	return registration_list;
+}
+

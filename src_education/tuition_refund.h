@@ -75,11 +75,19 @@ TUITION_REFUND *tuition_refund_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *refund_date_time,
-			boolean fetch_registration );
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program );
 
 TUITION_REFUND *tuition_refund_parse(
 			char *input,
-			boolean fetch_registration );
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program );
 
 TUITION_REFUND *tuition_refund_steady_state(
 			TUITION_REFUND *tuition_refund,
@@ -106,7 +114,11 @@ void tuition_refund_insert_pipe(
 
 LIST *tuition_refund_system_list(
 			char *sys_string,
-			boolean fetch_registration );
+			boolean fetch_registration,
+			boolean fetch_enrollment_list,
+			boolean fetch_offering,
+			boolean fetch_course,
+			boolean fetch_program );
 
 char *tuition_refund_sys_string(
 			char *where );
@@ -180,9 +192,6 @@ void tuition_refund_list_insert(
 double tuition_refund_total(
 			LIST *tuition_refund_list );
 
-void tuition_refund_list_trigger(
-			LIST *tuition_refund_list );
-
 /* Safely returns heap memory */
 /* -------------------------- */
 char *tuition_refund_list_display(
@@ -204,6 +213,8 @@ char *tuition_refund_memo(
 void tuition_refund_list_payor_entity_insert(
 			LIST *tuition_refund_list );
 
+/* Caches */
+/* ------ */
 LIST *tuition_refund_registration_list(
 			LIST *tuition_refund_list );
 

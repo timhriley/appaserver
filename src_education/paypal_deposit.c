@@ -34,71 +34,6 @@
 #include "offering.h"
 #include "paypal_deposit.h"
 
-LIST *paypal_fetch_program_donation_list(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *paypal_date_time,
-			boolean fetch_program )
-{
-	return
-		program_donation_system_list(
-			program_donation_sys_string(
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				paypal_deposit_primary_where(
-					payor_full_name,
-					payor_street_address,
-					paypal_date_time ) ),
-			fetch_program );
-}
-
-LIST *paypal_fetch_tuition_payment_list(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *paypal_date_time,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering )
-{
-	return
-		tuition_payment_system_list(
-			tuition_payment_sys_string(
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				paypal_deposit_primary_where(
-					payor_full_name,
-					payor_street_address,
-					paypal_date_time ) ),
-			fetch_enrollment,
-			fetch_registration,
-			fetch_offering );
-}
-
-LIST *paypal_fetch_tuition_refund_list(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *paypal_date_time,
-			boolean fetch_enrollment,
-			boolean fetch_registration,
-			boolean fetch_offering )
-{
-	return
-		tuition_refund_system_list(
-			tuition_refund_sys_string(
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				paypal_deposit_primary_where(
-					payor_full_name,
-					payor_street_address,
-					paypal_date_time ) ),
-			fetch_enrollment,
-			fetch_registration,
-			fetch_offering );
-}
-
 double paypal_net_revenue(
 			double paypal_amount,
 			double transaction_fee )
@@ -112,7 +47,7 @@ char *paypal_deposit_primary_where(
 			char *payor_street_address,
 			char *paypal_date_time )
 {
-	static char where[ 1024 ];
+	static char where[ 512 ];
 
 	sprintf( where,
 		 "payor_full_name = '%s' and		"
@@ -323,7 +258,9 @@ PAYPAL_DEPOSIT *paypal_deposit_fetch(
 	return paypal_deposit;
 }
 
-void paypal_deposit_set_transaction( PAYPAL_DEPOSIT *paypal_deposit )
+void paypal_deposit_set_transaction(
+			PAYPAL_DEPOSIT *paypal_deposit,
+			LIST *semester_offering_list )
 {
 	int transaction_seconds_to_add = 0;
 
@@ -331,12 +268,16 @@ void paypal_deposit_set_transaction( PAYPAL_DEPOSIT *paypal_deposit )
 	{
 		enrollment_list_set_transaction(
 			&transaction_seconds_to_add,
-			tuition_payment_list_enrollment_list(
+			tuition_payment_enrollment_list(
 				paypal_deposit->tuition_payment_list ) );
 
 		tuition_payment_list_set_transaction(
 			&transaction_seconds_to_add,
-			paypal_deposit->tuition_payment_list );
+			paypal_deposit->tuition_payment_list,
+			/* ------------------- */
+			/* To get program_name */
+			/* ------------------- */
+			semester_offering_list );
 	}
 
 	if ( list_length( paypal_deposit->ticket_sale_list ) )
@@ -357,7 +298,11 @@ void paypal_deposit_set_transaction( PAYPAL_DEPOSIT *paypal_deposit )
 	{
 		tuition_refund_list_set_transaction(
 			&transaction_seconds_to_add,
-			paypal_deposit->tuition_refund_list );
+			paypal_deposit->tuition_refund_list,
+			/* ------------------- */
+			/* To get program_name */
+			/* ------------------- */
+			semester_offering_list );
 	}
 
 	if ( list_length( paypal_deposit->ticket_refund_list ) )
@@ -517,74 +462,12 @@ double paypal_registration_tuition(
 			( registration->tuition =
 				registration_tuition(
 					registration->
-					     enrollment_list,
+					     registration_enrollment_list,
 					semester_offering_list ) );
 
 	} while ( list_next( paypal_registration_list ) );
 
 	return tuition;
-}
-
-void paypal_list_program_donation_trigger(
-			LIST *paypal_deposit_list )
-{
-	PAYPAL_DEPOSIT *paypal_deposit;
-
-	if ( !list_rewind( paypal_deposit_list ) ) return;
-
-	do {
-		paypal_deposit = list_get( paypal_deposit_list );
-
-		if ( list_rewind( paypal_deposit->
-			program_donation_list ) )
-		{
-			program_donation_list_trigger(
-				paypal_deposit->
-					program_donation_list );
-		}
-	} while ( list_next( paypal_deposit_list ) );
-}
-
-void paypal_list_tuition_payment_trigger(
-			LIST *paypal_deposit_list )
-{
-	PAYPAL_DEPOSIT *paypal_deposit;
-
-	if ( !list_rewind( paypal_deposit_list ) ) return;
-
-	do {
-		paypal_deposit = list_get( paypal_deposit_list );
-
-		if ( list_length( paypal_deposit->
-					tuition_payment_list ) )
-		{
-			tuition_payment_list_trigger(
-				paypal_deposit->
-					tuition_payment_list );
-		}
-	} while ( list_next( paypal_deposit_list ) );
-}
-
-void paypal_list_enrollment_trigger(
-			LIST *paypal_deposit_list )
-{
-	PAYPAL_DEPOSIT *paypal_deposit;
-
-	if ( !list_rewind( paypal_deposit_list ) ) return;
-
-	do {
-		paypal_deposit = list_get( paypal_deposit_list );
-
-		if ( !list_rewind( paypal_deposit->
-					tuition_payment_list ) )
-		{
-			continue;
-		}
-
-		tuition_payment_list_enrollment_trigger(
-			paypal_deposit->tuition_payment_list );
-
-	} while ( list_next( paypal_deposit_list ) );
 }
 
 LIST *paypal_deposit_course_name_list(
@@ -600,61 +483,16 @@ LIST *paypal_deposit_course_name_list(
 	do {
 		paypal_deposit = list_get( paypal_deposit_list );
 
-		list_append_list(
+		list_unique_list(
 			course_name_list,
-			enrollment_course_name_list(
-				paypal_enrollment_list(
+			registration_course_name_list(
+				tuition_payment_registration_list(
 					paypal_deposit->
 					     tuition_payment_list ) ) );
 
 	} while ( list_next( paypal_deposit_list ) );
 
 	return course_name_list;
-}
-
-LIST *paypal_deposit_registration_list(
-			LIST *paypal_deposit_tuition_payment_list,
-			LIST *paypal_deposit_tuition_refund_list )
-{
-	if ( list_length( paypal_deposit_tuition_payment_list ) )
-	{
-		return tuition_payment_registration_list(
-			paypal_deposit_tuition_payment_list );
-	}
-	else
-	{
-		return tuition_refund_registration_list(
-			paypal_deposit_tuition_refund_list );
-	}
-}
-
-LIST *paypal_enrollment_list(
-			LIST *paypal_deposit_tuition_payment_list )
-{
-	return tuition_payment_enrollment_list(
-			paypal_deposit_tuition_payment_list );
-}
-
-void paypal_deposit_trigger(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *season_name,
-			int year,
-			char *deposit_date_time,
-			char *state )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-	"paypal_trigger \"%s\" \"%s\" \"%s\" %d \"%s\" %s",
-		entity_escape_full_name( payor_full_name ),
-		payor_street_address,
-		season_name,
-		year,
-		deposit_date_time,
-		state );
-
-	if ( system( sys_string ) ){}
 }
 
 LIST *paypal_deposit_list_transaction_list(
@@ -687,7 +525,12 @@ LIST *paypal_deposit_list_transaction_list(
 }
 
 LIST *paypal_deposit_list_set_transaction(
-			LIST *paypal_deposit_list )
+			LIST *paypal_deposit_list,
+			/* ------------------------------------ */
+			/* To set program_name for 		*/
+			/* tuition payment and tuition refund	*/
+			/* ------------------------------------ */
+			LIST *semester_offering_list )
 {
 	PAYPAL_DEPOSIT *paypal_deposit;
 
@@ -696,7 +539,9 @@ LIST *paypal_deposit_list_set_transaction(
 	do {
 		paypal_deposit = list_get( paypal_deposit_list );
 
-		paypal_deposit_set_transaction( paypal_deposit );
+		paypal_deposit_set_transaction(
+			paypal_deposit,
+			semester_offering_list );
 
 	} while ( list_next( paypal_deposit_list ) );
 
@@ -720,82 +565,6 @@ LIST *paypal_deposit_list_steady_state(
 	} while ( list_next( paypal_deposit_list ) );
 
 	return paypal_deposit_list;
-}
-
-void paypal_deposit_list_registration_fetch_update(
-			LIST *paypal_deposit_list,
-			char *season_name,
-			int year )
-{
-	PAYPAL_DEPOSIT *paypal_deposit;
-
-	if ( !list_rewind( paypal_deposit_list ) ) return;
-
-	do {
-		paypal_deposit = list_get( paypal_deposit_list );
-
-		if ( list_length( paypal_deposit->
-			tuition_payment_list ) )
-		{
-			registration_list_fetch_update(
-				tuition_payment_registration_list(
-					paypal_deposit->tuition_payment_list ),
-				season_name,
-				year );
-		}
-
-		if ( list_length( paypal_deposit->
-			tuition_refund_list ) )
-		{
-			registration_list_fetch_update(
-				tuition_refund_registration_list(
-					paypal_deposit->tuition_refund_list ),
-				season_name,
-				year );
-		}
-
-	} while ( list_next( paypal_deposit_list ) );
-}
-
-void paypal_deposit_list_enrollment_fetch_update(
-			LIST *paypal_deposit_list,
-			char *season_name,
-			int year )
-{
-	PAYPAL_DEPOSIT *paypal_deposit;
-
-	if ( !list_rewind( paypal_deposit_list ) ) return;
-
-	do {
-		paypal_deposit = list_get( paypal_deposit_list );
-
-		if ( list_length( paypal_deposit->
-			tuition_payment_list ) )
-		{
-			enrollment_list_update(
-				tuition_payment_enrollment_list(
-					paypal_deposit->tuition_payment_list ),
-				season_name,
-				year );
-
-			enrollment_list_fetch_update(
-				tuition_payment_enrollment_list(
-					paypal_deposit->tuition_payment_list ),
-				season_name,
-				year );
-		}
-
-		if ( list_length( paypal_deposit->
-			tuition_refund_list ) )
-		{
-			registration_list_fetch_update(
-				tuition_refund_registration_list(
-					paypal_deposit->tuition_refund_list ),
-				season_name,
-				year );
-		}
-
-	} while ( list_next( paypal_deposit_list ) );
 }
 
 LIST *paypal_deposit_transaction_list(
@@ -853,65 +622,6 @@ LIST *paypal_deposit_transaction_list(
 			paypal_sweep ) );
 
 	return transaction_list;
-}
-
-LIST *paypal_deposit_list_enrollment_update(
-			LIST *paypal_deposit_list,
-			char *season_name,
-			int year )
-{
-	enrollment_list_fetch_update(
-		paypal_list_refund_enrollment_list(
-			paypal_deposit_list ),
-		season_name,
-		year );
-
-	return paypal_deposit_list;
-}
-
-LIST *paypal_list_refund_enrollment_list(
-			LIST *paypal_deposit_list )
-{
-	PAYPAL_DEPOSIT *paypal_deposit;
-	LIST *enrollment_list;
-
-	if ( !list_rewind( paypal_deposit_list ) ) return (LIST *)0;
-
-	enrollment_list = list_new();
-
-	do {
-		paypal_deposit = list_get( paypal_deposit_list );
-
-		if ( list_length( paypal_deposit->tuition_refund_list ) )
-		{
-			list_append_list(
-				enrollment_list,
-				tuition_refund_enrollment_list(
-					paypal_deposit->tuition_refund_list ) );
-		}
-
-	} while ( list_next( paypal_deposit_list ) );
-
-	return enrollment_list;
-}
-
-LIST *paypal_product_sale_list(
-			char *payor_full_name,
-			char *payor_street_address,
-			char *paypal_date_time,
-			boolean fetch_product )
-{
-	return
-		product_sale_system_list(
-			product_sale_sys_string(
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				paypal_deposit_primary_where(
-					payor_full_name,
-					payor_street_address,
-					paypal_date_time ) ),
-			fetch_product );
 }
 
 void paypal_deposit_set_paypal_item_expected_revenue(
@@ -1833,5 +1543,59 @@ void paypal_deposit_list_insert(
 	/* program donation.	*/
 	/* -------------------- */
 	paypal_deposit_payor_entity_insert( paypal_deposit_list );
+}
+
+LIST *paypal_deposit_tuition_payment_list(
+			LIST *paypal_deposit_list )
+{
+	static LIST *tuition_payment_list = {0};
+	PAYPAL_DEPOSIT *paypal_deposit;
+
+	if ( !list_rewind( paypal_deposit_list ) ) return (LIST *)0;
+
+	if ( tuition_payment_list ) return tuition_payment_list;
+
+	tuition_payment_list = list_new();
+
+	do {
+		paypal_deposit = list_get( paypal_deposit_list );
+
+		if ( list_length( paypal_deposit->tuition_payment_list ) )
+		{
+			list_set_list(
+				tuition_payment_list,
+				paypal_deposit->tuition_payment_list );
+		}
+
+	} while ( list_next( paypal_deposit_list ) );
+
+	return tuition_payment_list;
+}
+
+LIST *paypal_deposit_tuition_refund_list(
+			LIST *paypal_deposit_list )
+{
+	static LIST *tuition_refund_list = {0};
+	PAYPAL_DEPOSIT *paypal_deposit;
+
+	if ( !list_rewind( paypal_deposit_list ) ) return (LIST *)0;
+
+	if ( tuition_refund_list ) return tuition_refund_list;
+
+	tuition_refund_list = list_new();
+
+	do {
+		paypal_deposit = list_get( paypal_deposit_list );
+
+		if ( list_length( paypal_deposit->tuition_refund_list ) )
+		{
+			list_set_list(
+				tuition_refund_list,
+				paypal_deposit->tuition_refund_list );
+		}
+
+	} while ( list_next( paypal_deposit_list ) );
+
+	return tuition_refund_list;
 }
 
