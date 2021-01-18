@@ -132,7 +132,9 @@ int main( int argc, char **argv )
 					street_address ),
 				course_name,
 				season_name,
-				year );
+				year,
+				(REGISTRATION *)0,
+				(OFFERING *)0 );
 	
 		list_set( enrollment_list, enrollment );
 
@@ -219,6 +221,7 @@ LIST *enrollment_trigger_insert_update(
 
 	enrollment_list = list_new();
 	list_set( enrollment_list, enrollment );
+
 	return enrollment_list;
 }
 

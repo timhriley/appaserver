@@ -53,13 +53,13 @@ typedef struct
 	char *transaction_date_time;
 } ENROLLMENT;
 
-/* Builds enrollment and registration */
-/* ---------------------------------- */
 ENROLLMENT *enrollment_new(
 			ENTITY *student_entity,
 			char *course_name,
 			char *season_name,
-			int year );
+			int year,
+			REGISTRATION *registration,
+			OFFERING *offering );
 
 ENROLLMENT *enrollment_fetch(
 			char *student_full_name,
@@ -96,6 +96,7 @@ char *enrollment_primary_where(
 			int year );
 
 TRANSACTION *enrollment_transaction(
+			int *seconds_to_add,
 			char *student_full_name,
 			char *street_address,
 			char *registration_date_time
@@ -103,8 +104,7 @@ TRANSACTION *enrollment_transaction(
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
-			char *offering_revenue_account,
-			int seconds_to_add );
+			char *offering_revenue_account );
 
 char *enrollment_sys_string(
 			char *where );

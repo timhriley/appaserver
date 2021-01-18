@@ -530,4 +530,21 @@ LIST *folder_prompt_drop_down_process_list(
 			LIST *attribute_list,
 			char piece_multi_attribute_data_label_delimiter );
 
+LIST *folder_edit_table_drop_down_data_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			LIST *exclude_attribute_name_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			boolean include_root_folder );
+
 #endif

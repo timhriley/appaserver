@@ -220,6 +220,12 @@ void registration_list_fetch_update(
 			char *season_name,
 			int year );
 
+void registration_fetch_update(
+			char *student_full_name,
+			char *student_street_address,
+			char *season_name,
+			int year );
+
 LIST *registration_course_name_list(
 			LIST *registration_list );
 

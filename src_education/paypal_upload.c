@@ -43,6 +43,18 @@
 
 /* Prototypes */
 /* ---------- */
+
+/* ---------------------------------------------------- */
+/* Returns education_deposit_list()			*/
+/* See: PAYPAL_DEPOSIT *paypal_deposit_education()	*/
+/* ---------------------------------------------------- */
+LIST *paypal_upload_deposit_list(
+			char **maximum_date,
+			int *row_count,
+			char *spreadsheet_filename,
+			char *season_name,
+			int year );
+
 void paypal_upload_not_found_display(
 			LIST *paypal_deposit_list,
 			int row_count );
@@ -54,17 +66,6 @@ void paypal_upload_event_insert(
 
 void paypal_upload_display(
 			LIST *education_deposit_list,
-			char *season_name,
-			int year );
-
-/* ---------------------------------------------------- */
-/* Returns education_deposit_list()			*/
-/* See: PAYPAL_DEPOSIT *paypal_deposit_education()	*/
-/* ---------------------------------------------------- */
-LIST *paypal_upload_deposit_list(
-			char **maximum_date,
-			int *row_count,
-			char *spreadsheet_filename,
 			char *season_name,
 			int year );
 

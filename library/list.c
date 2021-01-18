@@ -188,7 +188,10 @@ void *list_get_last( LIST *list )
 
 void *list_get_last_pointer( LIST *list )
 {
+	if ( !list ) return (char *)0;
+
 	if ( !go_tail( list ) ) return (char *)0;
+
 	return list_get_pointer( list );
 }
 

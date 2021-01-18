@@ -25,6 +25,7 @@
 #include "account.h"
 #include "offering.h"
 #include "registration.h"
+#include "enrollment.h"
 #include "tuition_payment.h"
 
 TUITION_PAYMENT *tuition_payment_calloc( void )
@@ -846,12 +847,26 @@ LIST *tuition_payment_enrollment_list(
 			exit( 1 );
 		}
 
+		if ( !list_length( 
+			tuition_payment->
+			     registration->
+			     registration_enrollment_list ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty registration_enrollment_list.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+
+		}
+
 		list_set(
 			enrollment_list,
-				list_last(
-					tuition_payment->
-					     registration->
-					     registration_enrollment_list ) );
+			list_last(
+				tuition_payment->
+				       registration->
+				       registration_enrollment_list ) );
 
 	} while ( list_next( tuition_payment_list ) );
 
@@ -1114,7 +1129,7 @@ LIST *tuition_payment_list_paypal(
 					paypal_date_time,
 					paypal_item->item_value,
 					paypal_item->item_fee,
-					offering->course->course_name ) );
+					offering ) );
 
 			paypal_item->taken = 1;
 		}
@@ -1132,9 +1147,10 @@ TUITION_PAYMENT *tuition_payment_paypal(
 			char *paypal_date_time,
 			double item_value,
 			double item_fee,
-			char *course_name )
+			OFFERING *offering )
 {
 	TUITION_PAYMENT *tuition_payment;
+	ENROLLMENT *enrollment;
 
 	if ( !student_entity || !payor_entity )
 	{
@@ -1159,11 +1175,29 @@ TUITION_PAYMENT *tuition_payment_paypal(
 			season_name,
 			year );
 
+	tuition_payment->registration->registration_date_time =
+		tuition_payment->payment_date_time;
+
+	enrollment =
+		enrollment_new(
+			student_entity,
+			offering->course->course_name,
+			season_name,
+			year,
+			tuition_payment->registration,
+			offering );
+
+	tuition_payment->registration->registration_enrollment_list =
+		list_new();
+
+	list_set( 
+		tuition_payment->registration->registration_enrollment_list,
+		enrollment );
 
 	tuition_payment->registration->registration_date_time =
 		paypal_date_time;
 
-	tuition_payment->course_name = course_name;
+	tuition_payment->course_name = offering->course->course_name;
 
 	tuition_payment->payment_amount =
 	tuition_payment->tuition_payment_receivable_credit_amount = item_value;

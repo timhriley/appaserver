@@ -11,6 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "registration.h"
+#include "offering.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -285,7 +286,7 @@ TUITION_PAYMENT *tuition_payment_paypal(
 			char *paypal_date_time,
 			double item_value,
 			double item_fee,
-			char *course_name );
+			OFFERING *offering );
 
 TUITION_PAYMENT *tuition_payment_integrity_fetch(
 			char *student_full_name,

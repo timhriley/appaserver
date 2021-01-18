@@ -43,7 +43,9 @@ ENROLLMENT *enrollment_new(
 			ENTITY *student_entity,
 			char *course_name,
 			char *season_name,
-			int year )
+			int year,
+			REGISTRATION *registration,
+			OFFERING *offering )
 {
 	ENROLLMENT *enrollment;
 
@@ -57,17 +59,31 @@ ENROLLMENT *enrollment_new(
 		exit( 1 );
 	}
 
-	enrollment->offering =
-		offering_new(
-			course_name,
-			season_name,
-			year );
+	if ( registration )
+	{
+		enrollment->registration = registration;
+	}
+	else
+	{
+		enrollment->registration =
+			registration_new(
+				student_entity,
+				season_name,
+				year );
+	}
 
-	enrollment->registration =
-		registration_new(
-			student_entity,
-			season_name,
-			year );
+	if ( offering )
+	{
+		enrollment->offering = offering;
+	}
+	else
+	{
+		enrollment->offering =
+			offering_new(
+				course_name,
+				season_name,
+				year );
+	}
 
 	return enrollment;
 }
@@ -104,7 +120,9 @@ ENROLLMENT *enrollment_parse(
 				strdup( street_address ) ),
 			strdup( course_name ),
 			strdup( season_name ),
-			atoi( year ) );
+			atoi( year ),
+			(REGISTRATION *)0,
+			(OFFERING *)0 );
 
 	piece( transaction_date_time, SQL_DELIMITER, input, 5 );
 	enrollment->transaction_date_time = transaction_date_time;
@@ -270,6 +288,7 @@ char *enrollment_primary_where(
 }
 
 TRANSACTION *enrollment_transaction(
+			int *seconds_to_add,
 			char *student_full_name,
 			char *street_address,
 			char *registration_date_time
@@ -277,29 +296,36 @@ TRANSACTION *enrollment_transaction(
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
-			char *offering_revenue_account,
-			int seconds_to_add )
+			char *offering_revenue_account )
 {
 	TRANSACTION *transaction;
-	DATE *transaction_date;
 
-	if ( !offering_course_price ) return (TRANSACTION *)0;
+	if ( dollar_virtually_same( offering_course_price, 0.0 ) )
+		return (TRANSACTION *)0;
 
-	transaction_date =
-		date_yyyy_mm_dd_hms_new(
-			registration_date_time );
-
-	date_add_seconds( transaction_date, seconds_to_add );
+	if ( !registration_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty registration_date_time\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	transaction =
-		transaction_new(
+		transaction_full(
 			student_full_name,
 			street_address,
-			date_display_19( transaction_date ) );
+			registration_date_time
+				/* transaction_date_time */,
+			offering_course_price
+				/* transaction_amount */,
+			enrollment_memo( program_name ),
+			1 /* lock_transaction */,
+			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
-	transaction->transaction_amount = offering_course_price;
-	transaction->memo = enrollment_memo( program_name );
 
 	transaction->journal_list =
 		journal_binary_list(
@@ -454,7 +480,7 @@ void enrollment_list_set_transaction(
 	ENROLLMENT *enrollment;
 	char *receivable;
 
-	if ( !list_rewind( enrollment_list ) );
+	if ( !list_rewind( enrollment_list ) ) return;
 
 	receivable = account_receivable( (char *)0 );
 
@@ -478,8 +504,21 @@ boolean enrollment_set_transaction(
 			char *revenue_account,
 			char *program_name )
 {
+	if ( !enrollment
+	||   !enrollment->registration
+	||   !enrollment->offering )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: empty enrollment, registration or offering.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( ( enrollment->enrollment_transaction =
 		enrollment_transaction(
+			transaction_seconds_to_add,
 			enrollment->
 				registration->
 				student_entity->
@@ -494,8 +533,7 @@ boolean enrollment_set_transaction(
 			program_name,
 			enrollment->offering->course_price,
 			account_receivable,
-			revenue_account,
-			*transaction_seconds_to_add ) ) )
+			revenue_account ) ) )
 	{
 		enrollment->transaction_date_time =
 			enrollment->enrollment_transaction->

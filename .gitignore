@@ -13,6 +13,8 @@
 # ---------------
 # src_education
 # ---------------
+product_trigger
+program_trigger
 generate_invoice
 paypal_sweep_trigger
 tuition_payment_trigger
