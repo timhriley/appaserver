@@ -35,6 +35,7 @@ typedef struct
 	char *event_date;
 	char *event_time;
 	char *venue_name;
+	char *street_address;
 	double ticket_price;
 	char *season_name;
 	int year;

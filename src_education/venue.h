@@ -23,12 +23,15 @@
 typedef struct
 {
 	char *venue_name;
+	char *street_address;
 	int capacity;
 } VENUE;
 
-VENUE *venue_new(	char *venue_name );
+VENUE *venue_new(	char *venue_name,
+			char *street_address );
 
-VENUE *venue_fetch(	char *venue_name );
+VENUE *venue_fetch(	char *venue_name,
+			char *street_address );
 
 VENUE *venue_calloc(
 			void );
@@ -48,7 +51,8 @@ char *venue_name_escape(
 			char *venue_name );
 
 char *venue_primary_where(
-			char *venue_name );
+			char *venue_name,
+			char *street_address );
 
 #endif
 

@@ -16,16 +16,20 @@
 #include "list.h"
 #include "venue.h"
 
-char *venue_primary_where( char *venue_name )
+char *venue_primary_where(
+			char *venue_name,
+			char *street_address )
 {
 	char static where[ 128 ];
 
-	sprintf( where,
-		 "venue_name = '%s'",
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 venue_name_escape( venue_name ) );
+	sprintf(where,
+		"venue_name = '%s' and	"
+		"street_address = '%s'	",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		venue_name_escape( venue_name ),
+		street_address );
 
 	return where;
 }
@@ -53,15 +57,18 @@ VENUE *venue_calloc( void )
 	return venue;
 }
 
-VENUE *venue_new( char *venue_name )
+VENUE *venue_new(	char *venue_name,
+			char *street_address )
 {
 	VENUE *venue = venue_calloc();
 
 	venue->venue_name = venue_name;
+	venue->street_address = street_address;
 	return venue;
 }
 
-VENUE *venue_fetch( char *venue_name )
+VENUE *venue_fetch(	char *venue_name,
+			char *street_address )
 {
 	char sys_string[ 1024 ];
 
@@ -81,7 +88,9 @@ VENUE *venue_fetch( char *venue_name )
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
-		 venue_primary_where( venue_name ) );
+		 venue_primary_where(
+			venue_name,
+			street_address ) );
 
 	return
 		venue_parse(
@@ -91,6 +100,7 @@ VENUE *venue_fetch( char *venue_name )
 VENUE *venue_parse( char *input )
 {
 	char venue_name[ 128 ];
+	char street_address[ 128 ];
 	char capacity[ 128 ];
 	VENUE *venue;
 
@@ -99,12 +109,14 @@ VENUE *venue_parse( char *input )
 	/* See: attribute_list */
 	/* ------------------- */
 	piece( venue_name, SQL_DELIMITER, input, 0 );
+	piece( street_address, SQL_DELIMITER, input, 1 );
 
 	venue =
 		venue_new(
-			strdup( venue_name ) );
+			strdup( venue_name ),
+			strdup( street_address ) );
 
-	piece( capacity, SQL_DELIMITER, input, 1 );
+	piece( capacity, SQL_DELIMITER, input, 2 );
 	venue->capacity = atoi( capacity );
 
 	return venue;

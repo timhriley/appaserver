@@ -96,6 +96,7 @@ PROGRAM *program_parse(
 {
 	char program_name[ 128 ];
 	char revenue_account[ 128 ];
+	char program_donation_total[ 128 ];
 	PROGRAM *program;
 
 	if ( !input || !*input ) return (PROGRAM *)0;
@@ -110,6 +111,9 @@ PROGRAM *program_parse(
 
 	piece( revenue_account, SQL_DELIMITER, input, 1 );
 	program->revenue_account = strdup( revenue_account );
+
+	piece( program_donation_total, SQL_DELIMITER, input, 2 );
+	program->program_donation_total = atof( program_donation_total );
 
 	if ( fetch_alias_list )
 	{

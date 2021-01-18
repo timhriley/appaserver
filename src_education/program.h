@@ -33,6 +33,7 @@ typedef struct
 {
 	char *program_name;
 	char *revenue_account;
+	double program_donation_total;
 	LIST *program_alias_list;
 } PROGRAM;
 

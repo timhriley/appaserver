@@ -217,9 +217,9 @@ PROGRAM_DONATION *program_donation_parse(
 			boolean fetch_program )
 {
 	char program_name[ 128 ];
-	char payment_date_time[ 128 ];
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
+	char payment_date_time[ 128 ];
 	char donation_amount[ 128 ];
 	char net_payment_amount[ 128 ];
 	char transaction_date_time[ 128 ];
@@ -236,16 +236,16 @@ PROGRAM_DONATION *program_donation_parse(
 	piece( program_name, SQL_DELIMITER, input, 0 );
 	program_donation->program = program_new( strdup( program_name ) );
 
-	piece( payment_date_time, SQL_DELIMITER, input, 1 );
-	program_donation->payment_date_time = strdup( payment_date_time );
-
-	piece( payor_full_name, SQL_DELIMITER, input, 2 );
-	piece( payor_street_address, SQL_DELIMITER, input, 3 );
+	piece( payor_full_name, SQL_DELIMITER, input, 1 );
+	piece( payor_street_address, SQL_DELIMITER, input, 2 );
 
 	program_donation->payor_entity =
 		entity_new(
 			strdup( payor_full_name ),
 			strdup( payor_street_address ) );
+
+	piece( payment_date_time, SQL_DELIMITER, input, 3 );
+	program_donation->payment_date_time = strdup( payment_date_time );
 
 	piece( donation_amount, SQL_DELIMITER, input, 4 );
 	program_donation->donation_amount = atof( donation_amount );

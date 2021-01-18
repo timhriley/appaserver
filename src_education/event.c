@@ -118,6 +118,7 @@ EVENT *event_parse(	char *input,
 	char event_date[ 128 ];
 	char event_time[ 128 ];
 	char venue_name[ 128 ];
+	char street_address[ 128 ];
 	char ticket_price[ 128 ];
 	char season_name[ 128 ];
 	char year[ 128 ];
@@ -145,28 +146,31 @@ EVENT *event_parse(	char *input,
 	piece( venue_name, SQL_DELIMITER, input, 3 );
 	event->venue_name = strdup( venue_name );
 
-	piece( ticket_price, SQL_DELIMITER, input, 4 );
+	piece( street_address, SQL_DELIMITER, input, 4 );
+	event->street_address = strdup( street_address );
+
+	piece( ticket_price, SQL_DELIMITER, input, 5 );
 	event->ticket_price = atof( ticket_price );
 
-	piece( season_name, SQL_DELIMITER, input, 5 );
+	piece( season_name, SQL_DELIMITER, input, 6 );
 	event->season_name = strdup( season_name );
 
-	piece( year, SQL_DELIMITER, input, 6 );
+	piece( year, SQL_DELIMITER, input, 7 );
 	event->year = atoi( year );
 
-	piece( revenue_account, SQL_DELIMITER, input, 7 );
+	piece( revenue_account, SQL_DELIMITER, input, 8 );
 	event->revenue_account = strdup( revenue_account );
 
-	piece( ticket_sale_count, SQL_DELIMITER, input, 8 );
+	piece( ticket_sale_count, SQL_DELIMITER, input, 9 );
 	event->ticket_sale_count = atoi( ticket_sale_count );
 
-	piece( ticket_sale_total, SQL_DELIMITER, input, 9 );
+	piece( ticket_sale_total, SQL_DELIMITER, input, 10 );
 	event->ticket_sale_total = atof( ticket_sale_total );
 
-	piece( ticket_refund_total, SQL_DELIMITER, input, 10 );
+	piece( ticket_refund_total, SQL_DELIMITER, input, 11 );
 	event->ticket_refund_total = atof( ticket_refund_total );
 
-	piece( capacity_available, SQL_DELIMITER, input, 11 );
+	piece( capacity_available, SQL_DELIMITER, input, 12 );
 	event->capacity_available = atoi( capacity_available );
 
 	if ( fetch_program )
@@ -181,7 +185,8 @@ EVENT *event_parse(	char *input,
 	{
 		event->venue =
 			venue_fetch(
-				event->venue_name );
+				event->venue_name,
+				event->street_address );
 	}
 
 	if ( fetch_sale_list )
