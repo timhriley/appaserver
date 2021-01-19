@@ -37,9 +37,10 @@ void midnight_measurements_gracechart(
 
 void midnight_measurements_spreadsheet(
 			char *application_name,
-			char *station;
+			char *station,
 			char *begin_date,
 			char *end_date,
+			char *document_root_directory,
 			LIST *measurement_list );
 
 /* Returns static memory */
@@ -59,33 +60,8 @@ int main( int argc, char **argv )
 	char *end_date;
 	char *process;
 	char *output_medium;
+	char buffer[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-
-/*
-	char grace_begin_date_string[ 16 ] = {0};
-	char grace_end_date_string[ 16 ] = {0};
-	char sys_string[ 4096 ];
-	char aggregate_process[ 1024 ];
-	char input_buffer[ 1024 ];
-	FILE *input_pipe;
-	FILE *histogram_pipe;
-	FILE *input_file;
-	char where_clause[ 4096 ];
-	char *validated_where_clause;
-	char grace_histogram_filename[ 128 ];
-	char ftp_output_filename[ 128 ];
-	char ftp_agr_filename[ 128 ];
-	char output_filename[ 128 ];
-	char initial_capital_buffer[ 128 ];
-	char title[ 128 ];
-	char sub_title[ 128 ];
-	char *select_list;
-	char legend[ 128 ];
-	boolean bar_chart;
-	char *units_display;
-	int measurement_value_piece;
-	int station_piece;
-*/
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -122,6 +98,18 @@ int main( int argc, char **argv )
 			application_name,
 			appaserver_parameter_file->
 				appaserver_mount_point );
+
+		printf( "<h1>%s<br></h1>\n",
+			format_initial_capital(
+				buffer,
+				process ) );
+
+		printf( "<h2>\n" );
+		fflush( stdout );
+		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
+		fflush( stdout );
+		printf( "</h2>\n" );
+
 	}
 
 	hydrology_library_get_clean_begin_end_date(
@@ -164,6 +152,8 @@ int main( int argc, char **argv )
 			station,
 			begin_date,
 			end_date,
+			appaserver_parameter_file->
+				document_root,
 			measurement_system_list(
 				measurement_sys_string(
 					midnight_measurements_where(
@@ -172,8 +162,10 @@ int main( int argc, char **argv )
 						begin_date,
 						end_date ) ) ) );
 	}
+	else
 	if ( strcmp( output_medium, "chart" ) == 0 )
 	{
+		printf( "<h3>Still in progress.</h3>\n" );
 /*
 		midnight_measurements_gracechart(
 			station,
@@ -182,6 +174,7 @@ int main( int argc, char **argv )
 			end_date );
 */
 	}
+	else
 	if ( strcmp( output_medium, "stdout" ) == 0 )
 	{
 		hydrology_library_output_station_text_filename(
@@ -224,6 +217,7 @@ void midnight_measurements_spreadsheet(
 			char *station,
 			char *begin_date,
 			char *end_date,
+			char *document_root_directory,
 			LIST *measurement_list )
 {
 	char *output_pipename;
@@ -239,8 +233,7 @@ void midnight_measurements_spreadsheet(
 			appaserver_library_get_server_address(),
 			( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
-	 		appaserver_parameter_file->
-				document_root,
+			document_root_directory,
 			FILENAME_STEM,
 			application_name,
 			process_id,
@@ -311,13 +304,6 @@ void midnight_measurements_spreadsheet(
 
 	pclose( output_pipe );
 
-	printf( "<h1>%s<br></h1>\n", REPORT_TITLE );
-	printf( "<h1>\n" );
-	fflush( stdout );
-	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
-	fflush( stdout );
-	printf( "</h1>\n" );
-	
 	appaserver_library_output_ftp_prompt(
 		ftp_filename,
 		TRANSMIT_PROMPT,

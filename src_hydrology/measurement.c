@@ -1091,6 +1091,15 @@ void measurement_list_table_display(
 	pclose( output_pipe );
 }
 
+void measurement_list_output_pipe(
+			FILE *output_pipe,
+			LIST *measurement_list )
+{
+	measurement_list_pipe_output(
+			output_pipe,
+			measurement_list );
+}
+
 void measurement_list_pipe_output(
 			FILE *output_pipe,
 			LIST *measurement_list )

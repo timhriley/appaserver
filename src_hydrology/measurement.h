@@ -227,6 +227,10 @@ void measurement_list_pipe_output(
 			FILE *output_pipe,
 			LIST *measurement_list );
 
+void measurement_list_output_pipe(
+			FILE *output_pipe,
+			LIST *measurement_list );
+
 MEASUREMENT_STRUCTURE *measurement_structure_calloc(
 			void );
 
