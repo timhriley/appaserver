@@ -89,6 +89,9 @@ int main( int argc, char **argv )
 	end_date = argv[ 5 ];
 	output_medium = argv[ 6 ];
 
+	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
+		output_medium = "table";
+
 	appaserver_parameter_file =
 		appaserver_parameter_file_new();
 
@@ -225,6 +228,7 @@ void midnight_measurements_spreadsheet(
 	pid_t process_id = getpid();
 	FILE *output_pipe;
 	char sys_string[ 1024 ];
+	char buffer[ 256 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	appaserver_link_file =
@@ -297,6 +301,12 @@ void midnight_measurements_spreadsheet(
 		 output_pipename );
 
 	output_pipe = popen( sys_string, "w" );
+
+	fprintf(output_pipe,
+		"%s\n",
+		format_initial_capital(
+			buffer,
+			MEASUREMENT_SELECT_LIST ) );
 
 	measurement_list_output_pipe(
 		output_pipe,
