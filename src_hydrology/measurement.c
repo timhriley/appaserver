@@ -405,7 +405,7 @@ FILE *measurement_open_html_table_pipe( void )
 	char *heading_comma_string;
 	char *justify_string;
 
-	heading_comma_string = "station,datatype,date,time,value";
+	heading_comma_string = MEASUREMENT_SELECT_LIST;
 	justify_string = "left,left,left,left,right";
 
 	sprintf( sys_string,
