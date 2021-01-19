@@ -1,9 +1,9 @@
-/* ---------------------------------------------------	*/
-/* $APPASERVER_HOME/src_hydrology/hydrology_histogram.c	*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/midnight_measurements.c	*/
+/* ------------------------------------------------------	*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,49 +20,58 @@
 #include "date.h"
 #include "grace.h"
 #include "column.h"
-#include "validation_level.h"
-#include "hydrology_library.h"
+#include "measurement.h"
 #include "process.h"
-#include "session.h"
+#include "hydrology_library.h"
 #include "boolean.h"
-#include "aggregate_level.h"
-#include "aggregate_statistic.h"
 #include "application.h"
 
 /* Constants */
 /* --------- */
-#define PROCESS_NAME					"histogram"
-#define FOLDER_NAME					"measurement"
-#define REAL_TIME_SELECT_LIST "measurement_value,station"
-#define AGGREGATION_SELECT_LIST "measurement_date,measurement_time,measurement_value,station"
+#define FILENAME_STEM		"midnight"
 
 /* Prototypes */
 /* ---------- */
+void midnight_measurements_gracechart(
+			LIST *measurement_list );
+
+void midnight_measurements_spreadsheet(
+			char *application_name,
+			char *station;
+			char *begin_date,
+			char *end_date,
+			LIST *measurement_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *midnight_measurements_where(
+			char *station,
+			char *datatype,
+			char *begin_date,
+			char *end_date );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *station, *datatype, *begin_date, *end_date;
+	char *station;
+	char *datatype;
+	char *begin_date;
+	char *end_date;
+	char *process;
+	char *output_medium;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+
+/*
 	char grace_begin_date_string[ 16 ] = {0};
 	char grace_end_date_string[ 16 ] = {0};
-	char *validation_level_string;
-	enum validation_level validation_level;
 	char sys_string[ 4096 ];
 	char aggregate_process[ 1024 ];
 	char input_buffer[ 1024 ];
-	char *measurement_table_name;
 	FILE *input_pipe;
 	FILE *histogram_pipe;
 	FILE *input_file;
-	DOCUMENT *document;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char where_clause[ 4096 ];
 	char *validated_where_clause;
-	char *session;
-	char *aggregate_level_string;
-	char *aggregate_statistic_string;
-	enum aggregate_level aggregate_level;
-	enum aggregate_statistic aggregate_statistic;
 	char grace_histogram_filename[ 128 ];
 	char ftp_output_filename[ 128 ];
 	char ftp_agr_filename[ 128 ];
@@ -72,15 +81,11 @@ int main( int argc, char **argv )
 	char sub_title[ 128 ];
 	char *select_list;
 	char legend[ 128 ];
-	char *email_address;
-	char *chart_email_command_line;
-	char *units_converted;
-	char *units;
-	char units_converted_process[ 1024 ];
 	boolean bar_chart;
 	char *units_display;
 	int measurement_value_piece;
 	int station_piece;
+*/
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -89,66 +94,259 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 12 )
+	if ( argc != 7 )
 	{
-		fprintf( stderr, 
-"Usage: %s application session station datatype begin_date end_date aggregate_level aggregate_statistic validation_level email_address units_converted\n",
-			 argv[ 0 ] );
+		fprintf(stderr, 
+"Usage: %s process station datatype begin_date end_date output_medium\n",
+			argv[ 0 ] );
+
+		fprintf(stderr,
+"\nNote: Output medium in {table,spreadsheet,chart,stdout}\n" );
+
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
-	session = argv[ 2 ];
-	station = argv[ 3 ];
-	datatype = argv[ 4 ];
-	begin_date = argv[ 5 ];
-	end_date = argv[ 6 ];
-	aggregate_level_string = argv[ 7 ];
-	aggregate_statistic_string = argv[ 8 ];
-	validation_level_string = argv[ 9 ];
-	email_address = argv[ 10 ];
-	units_converted = argv[ 11 ];
+	process = argv[ 1 ];
+	station = argv[ 2 ];
+	datatype = argv[ 3 ];
+	begin_date = argv[ 4 ];
+	end_date = argv[ 5 ];
+	output_medium = argv[ 6 ];
 
-	appaserver_parameter_file = appaserver_parameter_file_new();
+	appaserver_parameter_file =
+		appaserver_parameter_file_new();
+
+	if ( strcmp( output_medium, "stdout" ) != 0 )
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+	}
 
 	hydrology_library_get_clean_begin_end_date(
-			&begin_date,
-			&end_date,
-			application_name,
-			station,
-			datatype );
+		&begin_date,
+		&end_date,
+		application_name,
+		station,
+		datatype );
 
 	if ( !appaserver_library_validate_begin_end_date(
-					&begin_date,
-					&end_date,
-					(DICTIONARY *)0 /* post_dictionary */) )
+			&begin_date,
+			&end_date,
+			(DICTIONARY *)0 /* post_dictionary */) )
 	{
-		document_quick_output_body(	application_name,
-						appaserver_parameter_file->
-						appaserver_mount_point );
-
 		printf( "<p>ERROR: no data available for these dates.\n" );
 		document_close();
 		exit( 0 );
 	}
 
-	validation_level =
-		validation_level_get_validation_level( validation_level_string);
+	if ( strcmp( output_medium, "table" ) == 0 )
+	{
+		hydrology_library_output_station_table(
+			application_name,
+			station );
 
-	measurement_table_name =
-		get_table_name( application_name, FOLDER_NAME );
+		measurement_list_table_display(
+			measurement_system_list(
+				measurement_sys_string(
+					midnight_measurements_where(
+						station,
+						datatype,
+						begin_date,
+						end_date ) ) ) );
+	}
+	else
+	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
+	{
+		midnight_measurements_spreadsheet(
+			application_name,
+			station,
+			begin_date,
+			end_date,
+			measurement_system_list(
+				measurement_sys_string(
+					midnight_measurements_where(
+						station,
+						datatype,
+						begin_date,
+						end_date ) ) ) );
+	}
+	if ( strcmp( output_medium, "chart" ) == 0 )
+	{
+/*
+		midnight_measurements_gracechart(
+			station,
+			datatype,
+			begin_date,
+			end_date );
+*/
+	}
+	if ( strcmp( output_medium, "stdout" ) == 0 )
+	{
+		hydrology_library_output_station_text_filename(
+			"stdout"
+				/* output_filename */,
+			application_name,
+			station,
+			0 /* not with_zap_file */ );
 
-	sprintf( where_clause, 
-		 "    %s.station = '%s'				"
-		 "and %s.datatype = '%s' 			"
-		 "and measurement_date between '%s' and '%s'	",
-		 measurement_table_name,
-		 station,
-		 measurement_table_name,
-		 datatype,
-		 begin_date,
-		 end_date );
+		measurement_list_stdout(
+			measurement_system_list(
+				measurement_sys_string(
+					midnight_measurements_where(
+						station,
+						datatype,
+						begin_date,
+						end_date ) ) ) );
+	}
+	else
+	{
+		fprintf(stderr,
+			"Error in %s: invalid output_medium.\n",
+			argv[ 0 ] );
+		exit( 1 );
+	}
 
+	process_increment_execution_count(
+		application_name,
+		process,
+		(char *)0 );
+
+	if ( strcmp( output_medium, "stdout" ) != 0 )
+		document_close();
+
+	return 0;
+}
+
+void midnight_measurements_spreadsheet(
+			char *application_name,
+			char *station,
+			char *begin_date,
+			char *end_date,
+			LIST *measurement_list )
+{
+	char *output_pipename;
+	char *ftp_filename;
+	pid_t process_id = getpid();
+	FILE *output_pipe;
+	char sys_string[ 1024 ];
+	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+	 		appaserver_parameter_file->
+				document_root,
+			FILENAME_STEM,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			"csv" );
+
+	appaserver_link_file->begin_date_string = begin_date;
+	appaserver_link_file->end_date_string = end_date;
+
+	output_pipename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
+	{
+		printf( "<H2>ERROR: Cannot open output file %s\n",
+			output_pipename );
+		document_close();
+		exit( 1 );
+	}
+	else
+	{
+		fclose( output_pipe );
+	}
+
+	hydrology_library_output_station_text_filename(
+		output_pipename,
+		application_name,
+		station,
+		0 /* not with_zap_file */ );
+
+	sprintf( sys_string,
+		 "tr '|' ',' >> %s",
+		 output_pipename );
+
+	output_pipe = popen( sys_string, "w" );
+
+	measurement_list_output_pipe(
+		output_pipe,
+		measurement_list );
+
+	pclose( output_pipe );
+
+	printf( "<h1>%s<br></h1>\n", REPORT_TITLE );
+	printf( "<h1>\n" );
+	fflush( stdout );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
+	fflush( stdout );
+	printf( "</h1>\n" );
+	
+	appaserver_library_output_ftp_prompt(
+		ftp_filename,
+		TRANSMIT_PROMPT,
+		(char *)0 /* target */,
+		(char *)0 /* application_type */ );
+}
+
+char *midnight_measurements_where(
+			char *station,
+			char *datatype,
+			char *begin_date,
+			char *end_date )
+{
+	static char where[ 512 ];
+
+	sprintf(where, 
+		"station = '%s'					"
+		"and datatype = '%s' 				"
+		"and measurement_date between '%s' and '%s' and	"
+		"measurement_time = '0000' 			",
+		station,
+		datatype,
+		begin_date,
+		end_date );
+
+	return where;
+}
+
+#ifdef NOT_DEFINED
 	validated_where_clause =
 		hydrology_library_provisional_where(
 			validation_level );
@@ -376,7 +574,7 @@ int main( int argc, char **argv )
 
 	fclose( input_file );
 	sprintf( sys_string, "rm -f %s", grace_histogram_filename );
-	if ( system( sys_string ) ){};
+	results = system( sys_string );
 
 	chart_email_command_line =
 			application_get_chart_email_command_line(
@@ -415,4 +613,4 @@ int main( int argc, char **argv )
 				appaserver_parameter_file_get_dbms() );
 	exit( 0 );
 } /* main() */
-
+#endif

@@ -36,6 +36,7 @@ post_change_patient_count
 # -------------
 # src_hydrology
 # -------------
+midnight_measurements
 measurement_value_manipulation_history
 output_merged_waterquality
 cr10_parse

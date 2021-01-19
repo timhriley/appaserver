@@ -855,7 +855,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	exit( 0 );
-} /* main() */
+}
 
 void water_budget_flow_output_transmit(
 					FILE *output_pipe,
@@ -970,7 +970,7 @@ void water_budget_flow_output_transmit(
 		fprintf( output_pipe, "\n" );
 	} while( list_next( date_colon_time_key_list ) );	
 
-} /* water_budget_flow_output_transmit() */
+}
 
 void water_budget_flow_output_table(
 					HASH_TABLE *inflow_outflow_hash_table,
@@ -1177,7 +1177,7 @@ void water_budget_flow_output_table(
 
 	html_table_close();
 
-} /* water_budget_flow_output_table() */
+}
 
 void build_sys_string(
 		char *sys_string,
@@ -1290,7 +1290,7 @@ void build_sys_string(
 		intermediate_process,
 		round_down_hourly_process );
 
-} /* build_sys_string() */
+}
 
 WATER_BUDGET_FLOW_MEASUREMENT *new_measurement( void )
 {
@@ -1306,7 +1306,7 @@ WATER_BUDGET_FLOW_MEASUREMENT *new_measurement( void )
 		exit( 1 );
 	}
 	return m;
-} /* new_measurement() */
+}
 
 WATER_BUDGET_FLOW *water_budget_flow_new(
 					char *application_name,
@@ -1400,7 +1400,7 @@ WATER_BUDGET_FLOW *water_budget_flow_new(
 
 	return water_budget_flow;
 
-} /* water_budget_flow_new() */
+}
 
 WATER_BUDGET_INFLOW_OUTFLOW *water_budget_flow_hash_table_get_inflow_outflow(
 				HASH_TABLE *inflow_outflow_hash_table,
@@ -1422,7 +1422,7 @@ WATER_BUDGET_INFLOW_OUTFLOW *water_budget_flow_hash_table_get_inflow_outflow(
 			inflow_outflow );
 	}
 	return inflow_outflow;
-} /* water_budget_flow_hash_table_get_inflow_outflow() */
+}
 
 WATER_BUDGET_INFLOW_OUTFLOW *water_budget_flow_inflow_outflow_new(
 					char *date_colon_time )
@@ -1447,7 +1447,7 @@ WATER_BUDGET_INFLOW_OUTFLOW *water_budget_flow_inflow_outflow_new(
 	water_budget_inflow_outflow->outflow_measurement_list = list_new_list();
 
 	return water_budget_inflow_outflow;
-} /* water_budget_flow_inflow_outflow_new() */
+}
 
 boolean populate_inflow_outflow_hash_table(
 					HASH_TABLE *inflow_outflow_hash_table,
@@ -1505,7 +1505,7 @@ boolean populate_inflow_outflow_hash_table(
 	} while( list_next( station_name_list ) );
 
 	return 1;
-} /* populate_inflow_outflow_hash_table() */
+}
 
 void with_sys_string_populate_inflow_outfile_hash_table(
 				HASH_TABLE *inflow_outflow_hash_table,
@@ -1605,7 +1605,7 @@ void with_sys_string_populate_inflow_outfile_hash_table(
 
 	pclose( input_pipe );
 
-} /* with_sys_string_populate_inflow_outfile_hash_table() */
+}
 
 void water_budget_flow_populate_budget_and_cumulative(
 				HASH_TABLE *inflow_outflow_hash_table )
@@ -1660,7 +1660,7 @@ void water_budget_flow_populate_budget_and_cumulative(
 
 	list_free_container( date_colon_time_key_list );
 
-} /* water_budget_flow_populate_budget_and_cumulative() */
+}
 
 double water_budget_flow_get_flow_sum( LIST *measurement_list )
 {
@@ -1678,7 +1678,7 @@ double water_budget_flow_get_flow_sum( LIST *measurement_list )
 		} while( list_next( measurement_list ) );
 	}
 	return flow_sum;
-} /* water_budget_flow_get_flow_sum() */
+}
 
 void water_budget_flow_pad_missing_data(
 		HASH_TABLE *inflow_outflow_hash_table,
@@ -1746,7 +1746,7 @@ void water_budget_flow_pad_missing_data(
 
 	list_free_container( date_colon_time_key_list );
 
-} /* water_budget_flow_pad_missing_data() */
+}
 
 void water_budget_flow_output_transmit_heading_list(
 				FILE *output_pipe,
@@ -1775,7 +1775,7 @@ void water_budget_flow_output_transmit_heading_list(
 		} while( list_next( station_name_list ) );
 	}
 
-} /* water_budget_flow_output_transmit_heading_list() */
+}
 
 void water_budget_flow_append_table_heading_list(
 				LIST *heading_list,
@@ -1807,7 +1807,7 @@ void water_budget_flow_append_table_heading_list(
 		} while( list_next( station_name_list ) );
 	}
 
-} /* water_budget_flow_append_table_heading_list() */
+}
 
 void water_budget_flow_output_transmit_measurement_list(
 					FILE *output_pipe,
@@ -1856,7 +1856,7 @@ void water_budget_flow_output_transmit_measurement_list(
 
 	} while( list_next( measurement_list ) );
 
-} /* water_budget_flow_output_transmit_measurement_list() */
+}
 
 void water_budget_flow_append_table_measurement_list(
 					LIST *data_list,
@@ -1911,7 +1911,7 @@ void water_budget_flow_append_table_measurement_list(
 
 	} while( list_next( measurement_list ) );
 
-} /* water_budget_flow_append_table_measurement_list() */
+}
 
 boolean water_budget_flow_output_gracechart(
 				char *application_name,
@@ -2184,7 +2184,7 @@ boolean water_budget_flow_output_gracechart(
 				(char *)0 /* where_clause */ );
 		return 1;
 	}
-} /* water_budget_flow_output_gracechart() */
+}
 
 void get_report_title(	char *title,
 			enum aggregate_level aggregate_level,
@@ -2312,7 +2312,7 @@ boolean water_budget_flow_populate_easycharts_input_chart_list_data(
 
 	} while( list_next( date_colon_time_key_list ) );
 	return 1;
-} /* water_budget_flow_populate_easycharts_input_chart_list_data() */
+}
 
 void water_budget_flow_populate_easycharts_input_chart_list_datatypes(
 					LIST *input_chart_list )
@@ -2344,7 +2344,7 @@ void water_budget_flow_populate_easycharts_input_chart_list_datatypes(
 	input_chart->applet_library_code =
 		EASYCHARTS_APPLET_LIBRARY_LINE_CHART;
 
-} /* water_budget_flow_populate_easycharts_input_chart_list_datatypes() */
+}
 
 void get_first_inflow_names(	char **first_inflow_station_name,
 				char **first_inflow_datatype_name,
@@ -2361,5 +2361,5 @@ void get_first_inflow_names(	char **first_inflow_station_name,
 			parameter_dictionary,
 			"inflow_datatype",
 			1 );
-} /* get_first_inflow_names() */
+}
 

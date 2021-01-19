@@ -1139,3 +1139,23 @@ MEASUREMENT_BACKUP *measurement_convert_measurement_backup(
 	return measurement_backup;
 }
 
+void measurement_list_stdout( LIST *measurement_list )
+{
+	MEASUREMENT *measurement;
+
+	if ( !list_rewind( measurement_list ) )
+	{
+		return;
+	}
+
+	do {
+		measurement = list_get( measurement_list );
+
+		measurement_pipe_output(
+			stdout,
+			measurement,
+			1 /* insert_null_values */ );
+
+	} while ( list_next( measurement_list ) );
+}
+

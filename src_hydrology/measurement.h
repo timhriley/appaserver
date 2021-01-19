@@ -233,4 +233,7 @@ MEASUREMENT_STRUCTURE *measurement_structure_calloc(
 MEASUREMENT_BACKUP *measurement_convert_measurement_backup(
 			MEASUREMENT *measurement );
 
+void measurement_list_stdout(
+			LIST *measurement_list );
+
 #endif

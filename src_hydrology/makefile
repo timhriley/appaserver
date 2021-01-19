@@ -81,6 +81,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		conductivity2salinity					\
 		hydrology_statistics_report				\
 		hydrology_histogram					\
+		midnight_measurements					\
 		adjust_measurement_time					\
 		delete_measurements_day					\
 		measurement_insert					\
@@ -1514,6 +1515,19 @@ hydrology_histogram: hydrology_histogram.c				\
 		hydrology_histogram.c					\
 		${LIBRARY}/grace.o	 				\
 		-o hydrology_histogram
+
+midnight_measurements: midnight_measurements.c				\
+		${EXTERNAL_LIBS}					\
+		${LIBRARY}/grace.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-I${SOURCE_EVERGLADES}					\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		midnight_measurements.c					\
+		${LIBRARY}/grace.o	 				\
+		-o midnight_measurements
 
 adjust_measurement_time: adjust_measurement_time.c
 	${CC}	${CFLAGS} -I${LIBRARY}					\

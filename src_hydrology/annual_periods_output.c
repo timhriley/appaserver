@@ -1191,12 +1191,14 @@ sys_string );
 	{
 		document_close();
 	}
+
 	process_increment_execution_count(
-				application_name,
-				PROCESS_NAME,
-				appaserver_parameter_file_get_dbms() );
-	exit( 0 );
-} /* main() */
+		application_name,
+		PROCESS_NAME,
+		appaserver_parameter_file_get_dbms() );
+
+	return 0;
+}
 
 void annual_periods_output_spreadsheet(
 				FILE *output_pipe,
