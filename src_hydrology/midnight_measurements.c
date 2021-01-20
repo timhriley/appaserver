@@ -333,7 +333,7 @@ char *midnight_measurements_where(
 		"station = '%s'					"
 		"and datatype = '%s' 				"
 		"and measurement_date between '%s' and '%s' and	"
-		"measurement_time = '0000' 			",
+		"measurement_time like '%00' 			",
 		station,
 		datatype,
 		begin_date,
