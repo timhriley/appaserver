@@ -392,3 +392,27 @@ LIST *program_alias_name_list(
 	return name_list;
 }
 
+void program_fetch_update( char *program_name )
+{
+	char sys_string[ 1024 ];
+
+	printf(	sys_string,
+		"program_donaton_total.sh \"%s\"",
+		program_name_escape( program_name ) );
+
+	if ( system( sys_string ) ){};
+}
+
+void program_list_fetch_update(
+			LIST *program_name_list )
+{
+	if ( !list_rewind( program_name_list ) ) return;
+
+	do {
+		program_fetch_update(
+			list_get(
+				program_name_list ) );
+
+	} while ( list_next( program_name_list ) );
+}
+

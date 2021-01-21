@@ -123,9 +123,9 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "delete" ) ==  0 )
 	{
 		LIST *enrollment_list = list_new();
-		ENROLLMENT *enrollment;
 
-		enrollment =
+		list_set(
+			enrollment_list,
 			enrollment_new(
 				entity_new(
 					student_full_name,
@@ -134,9 +134,8 @@ int main( int argc, char **argv )
 				season_name,
 				year,
 				(REGISTRATION *)0,
-				(OFFERING *)0 );
+				(OFFERING *)0 ) );
 	
-		list_set( enrollment_list, enrollment );
 
 		registration_list_fetch_update(
 			enrollment_registration_list(
@@ -151,7 +150,6 @@ int main( int argc, char **argv )
 			season_name,
 			year );
 	}
-
 	return 0;
 }
 

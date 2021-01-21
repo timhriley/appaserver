@@ -118,7 +118,6 @@ int main( int argc, char **argv )
 			product_sale_product_name_list(
 				product_sale_list ) );
 	}
-
 	return 0;
 }
 

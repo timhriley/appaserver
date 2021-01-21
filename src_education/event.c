@@ -546,3 +546,61 @@ void event_trigger(	char *program_name,
 
 	if ( system( sys_string ) ){}
 }
+
+void event_fetch_update(
+			char *program_name,
+			char *event_date,
+			char *event_time )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"ticket_sale_count.sh \"%s\" '%s' '%s'",
+		program_name,
+		event_date,
+		event_time );
+
+	if ( system( sys_string ) ){}
+
+	sprintf(sys_string,
+		"ticket_sale_total.sh \"%s\" '%s' '%s'",
+		program_name,
+		event_date,
+		event_time );
+
+	if ( system( sys_string ) ){}
+
+	sprintf(sys_string,
+		"ticket_refund_total.sh \"%s\" '%s' '%s'",
+		program_name,
+		event_date,
+		event_time );
+
+	if ( system( sys_string ) ){}
+
+	sprintf(sys_string,
+		"event_capacity_available.sh \"%s\" '%s' '%s'",
+		program_name,
+		event_date,
+		event_time );
+
+	if ( system( sys_string ) ){}
+}
+
+void event_list_fetch_update(
+			LIST *event_list )
+{
+	EVENT *event;
+
+	if ( !list_rewind( event_list ) ) return;
+
+	do {
+		event = list_get( event_list );
+
+		event_fetch_update(
+			event->program_name,
+			event->event_date,
+			event->event_time );
+
+	} while ( list_next( event_list ) );
+}

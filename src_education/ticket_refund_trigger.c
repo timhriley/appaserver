@@ -36,7 +36,9 @@ void ticket_refund_trigger_predelete(
 			char *sale_date_time,
 			char *refund_date_time );
 
-void ticket_refund_trigger_insert_update(
+/* Returns list of one (TICKET_REFUND *) */
+/* ------------------------------------- */
+LIST *ticket_refund_trigger_insert_update(
 			char *program_name,
 			char *event_date,
 			char *event_time,
@@ -98,20 +100,48 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		ticket_refund_trigger_insert_update(
-			program_name,
-			event_date,
-			event_time,
-			payor_full_name,
-			payor_street_address,
-			sale_date_time,
-			refund_date_time );
+		LIST *ticket_refund_list;
+
+		ticket_refund_list =
+			ticket_refund_trigger_insert_update(
+				program_name,
+				event_date,
+				event_time,
+				payor_full_name,
+				payor_street_address,
+				sale_date_time,
+				refund_date_time );
+
+		event_list_fetch_update(
+			ticket_refund_event_list(
+				ticket_refund_list ) );
+	}
+
+	if ( strcmp( state, "delete" ) == 0 )
+	{
+		LIST *ticket_refund_list = list_new();
+
+		list_set(
+			ticket_refund_list,
+			ticket_refund_new(
+				program_name,
+				event_date,
+				event_time,
+				entity_new(
+					payor_full_name,
+					payor_street_address ),
+				sale_date_time,
+				refund_date_time ) );
+
+		event_list_fetch_update(
+			ticket_refund_event_list(
+				ticket_refund_list ) );
 	}
 
 	return 0;
 }
 
-void ticket_refund_trigger_insert_update(
+LIST *ticket_refund_trigger_insert_update(
 			char *program_name,
 			char *event_date,
 			char *event_time,
@@ -121,6 +151,7 @@ void ticket_refund_trigger_insert_update(
 			char *refund_date_time )
 {
 	TICKET_REFUND *ticket_refund;
+	LIST *ticket_refund_list;
 	int transaction_seconds_to_add = 0;
 
 	if ( ! ( ticket_refund =
@@ -134,7 +165,7 @@ void ticket_refund_trigger_insert_update(
 				refund_date_time,
 				1 /* fetch_event */ ) ) )
 	{
-		return;
+		return (LIST *)0;
 	}
 
 	if ( ! ( ticket_refund =
@@ -145,7 +176,7 @@ void ticket_refund_trigger_insert_update(
 				ticket_refund->
 					merchant_fees_expense ) ) )
 	{
-		return;
+		return (LIST *)0;
 	}
 
 	if ( ( ticket_refund->ticket_refund_transaction =
@@ -215,6 +246,11 @@ void ticket_refund_trigger_insert_update(
 		payor_street_address,
 		sale_date_time,
 		refund_date_time );
+
+	ticket_refund_list = list_new();
+	list_set( ticket_refund_list, ticket_refund );
+
+	return ticket_refund_list;
 }
 
 void ticket_refund_trigger_predelete(

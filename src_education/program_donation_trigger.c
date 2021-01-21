@@ -33,7 +33,9 @@ void program_donation_trigger_predelete(
 			char *payor_street_address,
 			char *payment_date_time );
 
-void program_donation_trigger_insert_update(
+/* Returns list of one (PROGRAM_DONATION *) */
+/* ---------------------------------------- */
+LIST *program_donation_trigger_insert_update(
 			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -48,8 +50,6 @@ int main( int argc, char **argv )
 	char *payment_date_time;
 	char *state;
 
-	/* Exits if fails. */
-	/* --------------- */
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
@@ -85,37 +85,48 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		program_donation_trigger_insert_update(
-			program_name,
-			payor_full_name,
-			payor_street_address,
-			payment_date_time );
+		LIST *program_donation_list;
 
-#ifdef NOT_DEFINED
-		/* ------------------------------------ */
-		/* Even if called from deposit_trigger,	*/
-		/* need to set payment_total.		*/
-		/* ------------------------------------ */
-		paypal_deposit_trigger(
-			payor_full_name,
-			payor_street_address,
-			season_name,
-			year,
-			deposit_date_time,
-			"program_donation" /* state */ );
-#endif
+		program_donation_list =
+			program_donation_trigger_insert_update(
+				program_name,
+				payor_full_name,
+					payor_street_address,
+				payment_date_time );
+
+		program_list_fetch_update(
+			program_donation_program_name_list(
+				program_donation_list ) );
+	}
+
+	if ( strcmp( state, "delete" ) ==  0 )
+	{
+		LIST *program_donation_list = list_new();
+
+		list_set(
+			program_donation_list,
+			program_donation_new(
+				program_name,
+				payor_full_name,
+				payor_street_address,
+				payment_date_time ) );
+
+		program_list_fetch_update(
+			program_donation_program_name_list(
+				program_donation_list ) );
 	}
 
 	return 0;
 }
 
-void program_donation_trigger_insert_update(
+LIST *program_donation_trigger_insert_update(
 			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time )
 {
 	PROGRAM_DONATION *program_donation;
+	LIST *program_donation_list;
 	int transaction_seconds_to_add = 0;
 
 	if ( ! ( program_donation =
@@ -195,6 +206,11 @@ void program_donation_trigger_insert_update(
 		payor_full_name,
 		payor_street_address,
 		payment_date_time );
+
+	program_donation_list = list_new();
+	list_set( program_donation_list, program_donation );
+
+	return program_donation_list;
 }
 
 void program_donation_trigger_predelete(

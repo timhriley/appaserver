@@ -42,6 +42,25 @@ PROGRAM_DONATION *program_donation_calloc( void )
 	return program_donation;
 }
 
+PROGRAM_DONATION *program_donation_new(
+			char *program_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *payment_date_time )
+{
+	PROGRAM_DONATION *program_donation = program_donation_calloc();
+
+	program_donation->program =
+		program_new(
+			program_name = program_name );
+
+	program_donation->payor_entity->full_name = payor_full_name;
+	program_donation->payor_entity->street_address = payor_street_address;
+	program_donation->payment_date_time = payment_date_time;
+
+	return program_donation;
+}
+
 PROGRAM_DONATION *program_donation_fetch(
 			char *program_name,
 			char *payment_date_time,
@@ -910,5 +929,26 @@ void program_donation_fetch_total(
 		program_name_escape( program_name ) );
 
 	if ( system( sys_string ) ){};
+}
+
+LIST *program_donation_program_name_list(
+			LIST *program_donation_list )
+{
+	PROGRAM_DONATION *program_donation;
+	LIST *program_name_list;
+
+	if ( !list_rewind( program_donation_list ) ) return (LIST *)0;
+
+	program_name_list = list_new();
+
+	do {
+		program_donation = list_get( program_donation_list );
+
+		list_set(
+			program_name_list,
+			program_donation->program->program_name );
+
+	} while ( list_next( program_donation_list ) );
+	return program_name_list;
 }
 

@@ -65,14 +65,11 @@ int main( int argc, char **argv )
 	if ( !year ) exit( 0 );
 
 	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) ==  0 )
+	||   strcmp( state, "update" ) ==  0
+	||   strcmp( state, "delete" ) ==  0 )
 	{
-		registration_fetch_update(
-			student_full_name,
-			street_address,
-			season_name,
-			year );
 	}
+
 	return 0;
 }
 

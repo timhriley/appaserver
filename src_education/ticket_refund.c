@@ -894,3 +894,55 @@ TICKET_REFUND *ticket_refund_paypal(
 	return ticket_refund;
 }
 
+LIST *ticket_refund_event_list(
+			LIST *ticket_refund_list )
+{
+	TICKET_REFUND *ticket_refund;
+	LIST *event_list;
+
+	if ( !list_rewind( ticket_refund_list ) ) return (LIST *)0;
+
+	event_list = list_new();
+
+	do {
+		ticket_refund =
+			list_get(
+				ticket_refund_list );
+
+		if ( ticket_refund->ticket_sale
+		&&   ticket_refund->ticket_sale->event )
+		{
+			list_set(
+				event_list,
+				ticket_refund->ticket_sale->event );
+		}
+
+	} while ( list_next( ticket_refund_list ) );
+
+	return event_list;
+}
+
+TICKET_REFUND *ticket_refund_new(
+			char *program_name,
+			char *event_date,
+			char *event_time,
+			ENTITY *payor_entity,
+			char *sale_date_time,
+			char *refund_date_time )
+{
+	TICKET_REFUND *ticket_refund = ticket_refund_calloc();
+
+	ticket_refund->ticket_sale =
+		ticket_sale_new(
+			program_name,
+			event_date,
+			event_time,
+			payor_entity,
+			sale_date_time );
+
+	ticket_refund->payor_entity = payor_entity;
+	ticket_refund->refund_date_time = refund_date_time;
+
+	return ticket_refund;
+}
+

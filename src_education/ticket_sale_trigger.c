@@ -30,17 +30,19 @@ void ticket_sale_trigger_predelete(
 			char *program_name,
 			char *event_date,
 			char *event_time,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address );
+			char *payor_street_address,
+			char *sale_date_time );
 
-void ticket_sale_trigger_insert_update(
+/* Returns list of one (TICKET_SALE *) */
+/* ----------------------------------- */
+LIST *ticket_sale_trigger_insert_update(
 			char *program_name,
 			char *event_date,
 			char *event_time,
-			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address );
+			char *payor_street_address,
+			char *sale_date_time );
 
 int main( int argc, char **argv )
 {
@@ -48,9 +50,9 @@ int main( int argc, char **argv )
 	char *program_name;
 	char *event_date;
 	char *event_time;
-	char *sale_date_time;
 	char *payor_full_name;
 	char *payor_street_address;
+	char *sale_date_time;
 	char *state;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -63,7 +65,7 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf(stderr,
-"Usage: %s program_name evet_date event_time sale_date_time payor_full_name payor_street_address state\n",
+"Usage: %s program_name evet_date event_time payor_full_name payor_street_address sale_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete}\n" );
@@ -73,9 +75,9 @@ int main( int argc, char **argv )
 	program_name = argv[ 1 ];
 	event_date = argv[ 2 ];
 	event_time = argv[ 3 ];
-	sale_date_time = argv[ 4 ];
-	payor_full_name = argv[ 5 ];
-	payor_street_address = argv[ 6 ];
+	payor_full_name = argv[ 4 ];
+	payor_street_address = argv[ 5 ];
+	sale_date_time = argv[ 6 ];
 	state = argv[ 7 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
@@ -84,40 +86,51 @@ int main( int argc, char **argv )
 			program_name,
 			event_date,
 			event_time,
-			sale_date_time,
 			payor_full_name,
-			payor_street_address );
+			payor_street_address,
+			sale_date_time );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		ticket_sale_trigger_insert_update(
-			program_name,
-			event_date,
-			event_time,
-			sale_date_time,
-			payor_full_name,
-			payor_street_address );
+		LIST *ticket_sale_list =
+			ticket_sale_trigger_insert_update(
+				program_name,
+				event_date,
+				event_time,
+				payor_full_name,
+				payor_street_address,
+				sale_date_time );
 
-		event_trigger(
-			program_name,
-			event_date,
-			event_time );
+		event_list_fetch_update(
+			ticket_sale_event_list(
+				ticket_sale_list ) );
 	}
 
 	if ( strcmp( state, "delete" ) == 0 )
 	{
-		event_trigger(
-			program_name,
-			event_date,
-			event_time );
-	}
+		LIST *ticket_sale_list = list_new();
 
+		list_set(
+			ticket_sale_list,
+			ticket_sale_new(
+				program_name,
+				event_date,
+				event_time,
+				entity_new(
+					payor_full_name,
+					payor_street_address ),
+				sale_date_time ) );
+
+		event_list_fetch_update(
+			ticket_sale_event_list(
+				ticket_sale_list ) );
+	}
 	return 0;
 }
 
-void ticket_sale_trigger_insert_update(
+LIST *ticket_sale_trigger_insert_update(
 			char *program_name,
 			char *event_date,
 			char *event_time,
@@ -126,6 +139,7 @@ void ticket_sale_trigger_insert_update(
 			char *payor_street_address )
 {
 	TICKET_SALE *ticket_sale;
+	LIST *ticket_sale_list;
 	int transaction_seconds_to_add = 0;
 
 	if ( ! ( ticket_sale =
@@ -138,7 +152,7 @@ void ticket_sale_trigger_insert_update(
 				payor_street_address,
 				1 /* fetch_event */ ) ) )
 	{
-		return;
+		return (LIST *)0;
 	}
 
 	if ( ! ( ticket_sale =
@@ -148,7 +162,7 @@ void ticket_sale_trigger_insert_update(
 				ticket_sale->ticket_price,
 				ticket_sale->merchant_fees_expense ) ) )
 	{
-		return;
+		return (LIST *)0;
 	}
 
 	if ( ( ticket_sale->ticket_sale_transaction =
@@ -214,6 +228,11 @@ void ticket_sale_trigger_insert_update(
 		sale_date_time,
 		payor_full_name,
 		payor_street_address );
+
+	ticket_sale_list = list_new();
+	list_set( ticket_sale_list, ticket_sale );
+
+	return ticket_sale_list;
 }
 
 void ticket_sale_trigger_predelete(

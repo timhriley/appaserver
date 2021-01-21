@@ -254,5 +254,8 @@ char *ticket_sale_integrity_where(
 			char *payor_full_name,
 			char *payor_street_address );
 
+LIST *ticket_sale_event_list(
+			LIST *ticket_sale_list );
+
 #endif
 

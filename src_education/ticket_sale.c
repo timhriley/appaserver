@@ -1121,3 +1121,30 @@ TICKET_SALE *ticket_sale_integrity_fetch(
 	return ticket_sale;
 }
 
+LIST *ticket_sale_event_list(
+			LIST *ticket_sale_list )
+{
+	TICKET_SALE *ticket_sale;
+	LIST *event_list;
+
+	if ( !list_rewind( ticket_sale_list ) ) return (LIST *)0;
+
+	event_list = list_new();
+
+	do {
+		ticket_sale =
+			list_get(
+				ticket_sale_list );
+
+		if ( ticket_sale->event )
+		{
+			list_set(
+				event_list,
+				ticket_sale->event );
+		}
+
+	} while ( list_next( ticket_sale_list ) );
+
+	return event_list;
+}
+

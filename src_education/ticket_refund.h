@@ -222,5 +222,16 @@ TICKET_REFUND *ticket_refund_paypal(
 			double item_fee,
 			EVENT *event );
 
+LIST *ticket_refund_event_list(
+			LIST *ticket_refund_list );
+
+TICKET_REFUND *ticket_refund_new(
+			char *program_name,
+			char *event_date,
+			char *event_time,
+			ENTITY *payor_entity,
+			char *sale_date_time,
+			char *refund_date_time );
+
 #endif
 

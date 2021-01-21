@@ -142,5 +142,13 @@ void event_trigger(	char *program_name,
 			char *event_date,
 			char *event_time );
 
+void event_fetch_update(
+			char *program_name,
+			char *event_date,
+			char *event_time );
+
+void event_list_fetch_update(
+			LIST *event_list );
+
 #endif
 

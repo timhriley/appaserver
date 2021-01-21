@@ -62,6 +62,12 @@ typedef struct
 PROGRAM_DONATION *program_donation_calloc(
 			void );
 
+PROGRAM_DONATION *program_donation_new(
+			char *program_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *payment_date_time );
+
 PROGRAM_DONATION *program_donation_fetch(
 			char *program_name,
 			char *payment_date_time,
@@ -201,6 +207,9 @@ double program_donation_total(
 
 void program_donation_fetch_total(
 			char *program_name );
+
+LIST *program_donation_program_name_list(
+			LIST *program_donation_list );
 
 #endif
 
