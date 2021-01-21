@@ -216,5 +216,12 @@ LIST *product_refund_product_name_list(
 void product_refund_list_fetch_update(
 			LIST *product_name_list );
 
+PRODUCT_REFUND *product_refund_new(
+			char *product_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *sale_date_time,
+			char *refund_date_time );
+
 #endif
 

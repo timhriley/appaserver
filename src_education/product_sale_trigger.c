@@ -32,7 +32,9 @@ void product_sale_trigger_predelete(
 			char *payor_street_address,
 			char *sale_date_time );
 
-void product_sale_trigger_insert_update(
+/* Returns list of one */
+/* ------------------- */
+LIST *product_sale_trigger_insert_update(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -84,30 +86,50 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		product_sale_trigger_insert_update(
-			product_name,
-			payor_full_name,
-			payor_street_address,
-			sale_date_time );
+		LIST *product_sale_list;
 
-		product_trigger( product_name );
+		product_sale_list =
+			product_sale_trigger_insert_update(
+				product_name,
+				payor_full_name,
+				payor_street_address,
+				sale_date_time );
+
+		product_list_fetch_update(
+			product_sale_product_name_list(
+				product_sale_list ) );
 	}
 
 	if ( strcmp( state, "delete" ) == 0 )
 	{
-		product_trigger( product_name );
+		LIST *product_sale_list = list_new();
+		PRODUCT_SALE *product_sale;
+
+		product_sale =
+			product_sale_new(
+				product_name,
+				payor_full_name,
+				payor_street_address,
+				sale_date_time );
+
+		list_set( product_sale_list, product_sale );
+
+		product_list_fetch_update(
+			product_sale_product_name_list(
+				product_sale_list ) );
 	}
 
 	return 0;
 }
 
-void product_sale_trigger_insert_update(
+LIST *product_sale_trigger_insert_update(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time )
 {
 	PRODUCT_SALE *product_sale;
+	LIST *product_sale_list;
 	int transaction_seconds_to_add = 0;
 
 	if ( ! ( product_sale =
@@ -118,7 +140,7 @@ void product_sale_trigger_insert_update(
 				sale_date_time,
 				1 /* fetch_product */ ) ) )
 	{
-		return;
+		return (PRODUCT_SALE *)0;
 	}
 
 	if ( ! ( product_sale =
@@ -196,6 +218,11 @@ void product_sale_trigger_insert_update(
 		payor_full_name,
 		payor_street_address,
 		sale_date_time );
+
+	product_sale_list = list_new();
+	list_set( product_sale_list, product_sale );
+
+	return product_sale_list;
 }
 
 void product_sale_trigger_predelete(

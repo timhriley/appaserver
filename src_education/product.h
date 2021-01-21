@@ -90,5 +90,8 @@ void product_trigger(	char *product_name );
 void product_fetch_update(
 			char *product_name );
 
+void product_list_fetch_update(
+			LIST *product_name_list );
+
 #endif
 

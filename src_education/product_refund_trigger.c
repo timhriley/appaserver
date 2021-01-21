@@ -33,7 +33,9 @@ void product_refund_trigger_predelete(
 			char *sale_date_time,
 			char *refund_date_time );
 
-void product_refund_trigger_insert_update(
+/* Returns list of one */
+/* ------------------- */
+LIST *product_refund_trigger_insert_update(
 			char *product_name,
 			char *program_name,
 			char *payor_full_name,
@@ -88,19 +90,47 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		product_refund_trigger_insert_update(
-			product_name,
-			product_fetch_program_name( product_name ),
-			payor_full_name,
-			payor_street_address,
-			sale_date_time,
-			refund_date_time );
+		LIST *product_refund_list;
+
+		product_refund_list =
+			product_refund_trigger_insert_update(
+				product_name,
+				product_fetch_program_name(
+					product_name ),
+				payor_full_name,
+				payor_street_address,
+				sale_date_time,
+				refund_date_time );
+
+		product_list_fetch_update(
+			product_refund_product_name_list(
+				product_refund_list ) );
+	}
+
+	if ( strcmp( state, "delete" ) == 0 )
+	{
+		LIST *product_refund_list = list_new();
+		PRODUCT_REFUND *product_refund;
+
+		product_refund =
+			product_refund_new(
+				product_name,
+				payor_full_name,
+				payor_street_address,
+				sale_date_time,
+				refund_date_time );
+
+		list_set( product_refund_list, product_refund );
+
+		product_list_fetch_update(
+			product_refund_product_name_list(
+				product_refund_list ) );
 	}
 
 	return 0;
 }
 
-void product_refund_trigger_insert_update(
+LIST *product_refund_trigger_insert_update(
 			char *product_name,
 			char *program_name,
 			char *payor_full_name,
@@ -109,6 +139,7 @@ void product_refund_trigger_insert_update(
 			char *refund_date_time )
 {
 	PRODUCT_REFUND *product_refund;
+	LIST *product_refund_list;
 	int transaction_seconds_to_add = 0;
 
 	if ( ! ( product_refund =
@@ -204,6 +235,11 @@ void product_refund_trigger_insert_update(
 		payor_street_address,
 		sale_date_time,
 		refund_date_time );
+
+	product_refund_list = list_new();
+	list_set( product_refund_list, product_refund );
+
+	return product_refund_list;
 }
 
 void product_refund_trigger_predelete(

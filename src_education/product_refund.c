@@ -70,6 +70,26 @@ PRODUCT_REFUND *product_refund_fetch(
 	return product_refund;
 }
 
+PRODUCT_REFUND *product_refund_new(
+			char *product_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *sale_date_time,
+			char *refund_date_time )
+{
+	PRODUCT_REFUND *product_refund = product_refund_calloc();
+
+	product_refund->product_sale =
+		product_sale_new(
+			product_name,
+			payor_full_name,
+			payor_street_address,
+			sale_date_time );
+
+	product_refund->refund_date_time = refund_date_time;
+	return product_refund;
+}
+
 LIST *product_refund_system_list(
 			char *sys_string,
 			boolean fetch_sale )

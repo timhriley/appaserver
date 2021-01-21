@@ -60,7 +60,6 @@ PRODUCT_SALE *product_sale_new(
 	return product_sale;
 }
 
-
 PRODUCT_SALE *product_sale_fetch(
 			char *product_name,
 			char *payor_full_name,

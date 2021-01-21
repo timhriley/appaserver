@@ -302,3 +302,16 @@ void product_fetch_update( char *product_name )
 	if ( system( sys_string ) ){};
 }
 
+void product_list_fetch_update(
+			LIST *product_name_list )
+{
+	if ( !list_rewind( product_name_list ) ) return;
+
+	do {
+		product_fetch_update(
+			list_get(
+				product_name_list ) );
+
+	} while ( list_next( product_name_list ) );
+}
+
