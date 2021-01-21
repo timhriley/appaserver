@@ -181,12 +181,20 @@ LIST *enrollment_trigger_insert_update(
 		return (LIST *)0;
 	}
 
+fprintf(stderr,
+	"%s/%s()/%d: registration_date_time = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+enrollment->registration->registration_date_time );
+
 	if ( enrollment_set_transaction(
 			&transaction_seconds_to_add,
 			enrollment,
 			account_receivable( (char *)0 ),
 			enrollment->offering->revenue_account,
-			enrollment->offering->course->program_name ) )
+			enrollment->offering->course->program_name,
+			enrollment->registration->registration_date_time ) )
 	{
 		TRANSACTION *t = enrollment->enrollment_transaction;
 

@@ -23,8 +23,7 @@ echo "	update offering							\
 				enrollment.season_name =		\
 				offering.season_name and		\
 				enrollment.year =			\
-				offering.year and 			\
-			ifnull( tuition_refund_total, 0 ) = 0 )		\
+				offering.year )	 			\
 	where	course_name = '$course_name_escaped' and		\
  		season_name = '$season_name' and			\
  		year = $year;"						|

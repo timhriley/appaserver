@@ -84,7 +84,8 @@ boolean enrollment_set_transaction(
 			ENROLLMENT *enrollment,
 			char *account_receivable,
 			char *revenue_account,
-			char *program_name );
+			char *program_name,
+			char *registration_date_time );
 
 /* Returns static memory */
 /* --------------------- */

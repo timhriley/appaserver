@@ -109,11 +109,6 @@ double registration_invoice_amount_due(
 void registration_enrollment_list_refresh(
 			LIST *registration_enrollment_list );
 
-/* Returns program memory */
-/* ---------------------- */
-char *registration_select(
-			void );
-
 /* Returns static memory */
 /* --------------------- */
 char *registration_primary_where(

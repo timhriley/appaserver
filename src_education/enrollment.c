@@ -147,8 +147,8 @@ ENROLLMENT *enrollment_parse(
 				street_address,
 				enrollment->offering->semester->season_name,
 				enrollment->offering->semester->year,
-				0 /* not fetch_enrollment_list */,
-				0 /* not fetch_offering */,
+				1 /* fetch_enrollment_list */,
+				1 /* fetch_offering */,
 				0 /* not fetch_course */,
 				0 /* not fetch_program */,
 				0 /* not fetch_tuition_payment_list */,
@@ -492,7 +492,8 @@ void enrollment_list_set_transaction(
 			enrollment,
 			receivable,
 			enrollment->offering->revenue_account,
-			enrollment->offering->course->program->program_name );
+			enrollment->offering->course->program->program_name,
+			enrollment->registration->registration_date_time );
 
 	} while ( list_next( enrollment_list ) );
 }
@@ -502,7 +503,8 @@ boolean enrollment_set_transaction(
 			ENROLLMENT *enrollment,
 			char *account_receivable,
 			char *revenue_account,
-			char *program_name )
+			char *program_name,
+			char *registration_date_time )
 {
 	if ( !enrollment
 	||   !enrollment->registration
@@ -527,9 +529,7 @@ boolean enrollment_set_transaction(
 				registration->
 				student_entity->
 				street_address,
-			enrollment->
-				registration->
-				registration_date_time,
+			registration_date_time,
 			program_name,
 			enrollment->offering->course_price,
 			account_receivable,

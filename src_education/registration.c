@@ -131,18 +131,6 @@ char *registration_primary_where(
 	return where;
 }
 
-char *registration_select( void )
-{
-	return	"full_name,"
-		"street_address,"
-		"season_name,"
-		"year,"
-		"tuition,"
-		"tuition_payment_total,"
-		"invoice_amount_due,"
-		"registration_date_time";
-}
-
 REGISTRATION *registration_parse(
 			char *input,
 			boolean fetch_enrollment_list,
@@ -161,6 +149,8 @@ REGISTRATION *registration_parse(
 
 	if ( !input || !*input ) return (REGISTRATION *)0;
 
+	/* See: attribute_list registration */
+	/* -------------------------------- */
 	piece( student_full_name, SQL_DELIMITER, input, 0 );
 	piece( student_street_address, SQL_DELIMITER, input, 1 );
 	piece( season_name, SQL_DELIMITER, input, 2 );
@@ -177,15 +167,18 @@ REGISTRATION *registration_parse(
 			year );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	registration->tuition = atof( piece_buffer );
+	registration->registration_date_time = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	registration->tuition_payment_total = atof( piece_buffer );
+	registration->tuition = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 6 );
-	registration->tuition_refund_total = atof( piece_buffer );
+	registration->tuition_payment_total = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 7 );
+	registration->tuition_refund_total = atof( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 8 );
 	registration->invoice_amount_due = atof( piece_buffer );
 
 	if ( fetch_enrollment_list )
@@ -259,11 +252,7 @@ char *registration_sys_string( char *where )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "select.sh '%s' %s \"%s\" select",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 registration_select(),
+		 "select.sh '*' %s \"%s\" select",
 		 "registration",
 		 where );
 
