@@ -16,6 +16,7 @@
 #include "environ.h"
 #include "appaserver_parameter_file.h"
 #include "dictionary.h"
+#include "document.h"
 #include "appaserver_error.h"
 
 int main( int argc, char **argv )
@@ -43,7 +44,7 @@ int main( int argc, char **argv )
 	if ( argc < 10 )
 	{
 		fprintf( stderr, 
-"Usage: %s ignored folder session login_name role inserted message vertical_new_button_base_folder_name [dictionary]\n",
+"Usage: %s ignored folder session login_name role inserted message vertical_new_button_base_folder_name content_type_yn [dictionary]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}

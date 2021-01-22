@@ -289,13 +289,13 @@ void product_fetch_update( char *product_name )
 {
 	char sys_string[ 1024 ];
 
-	printf(	sys_string,
+	sprintf(sys_string,
 		"product_sale_total.sh \"%s\"",
 		product_name_escape( product_name ) );
 
 	if ( system( sys_string ) ){};
 
-	printf(	sys_string,
+	sprintf(sys_string,
 		"product_refund_total.sh \"%s\"",
 		product_name_escape( product_name ) );
 
@@ -308,9 +308,7 @@ void product_list_fetch_update(
 	if ( !list_rewind( product_name_list ) ) return;
 
 	do {
-		product_fetch_update(
-			list_get(
-				product_name_list ) );
+		product_fetch_update( list_get( product_name_list ) );
 
 	} while ( list_next( product_name_list ) );
 }

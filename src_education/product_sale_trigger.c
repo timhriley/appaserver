@@ -139,7 +139,7 @@ LIST *product_sale_trigger_insert_update(
 				sale_date_time,
 				1 /* fetch_product */ ) ) )
 	{
-		return (PRODUCT_SALE *)0;
+		return (LIST *)0;
 	}
 
 	if ( ! ( product_sale =
@@ -149,7 +149,7 @@ LIST *product_sale_trigger_insert_update(
 				product_sale->retail_price,
 				product_sale->merchant_fees_expense ) ) )
 	{
-		return;
+		return (LIST *)0;
 	}
 
 	if ( ( product_sale->product_sale_transaction =

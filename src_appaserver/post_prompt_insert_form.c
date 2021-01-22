@@ -558,8 +558,7 @@ int main( int argc, char **argv )
 			}
 
 			sprintf( sys_string,
-	 		"output_results %s %s %s %s %s %d \"%s\" '' y 2>>%s",
-			 	application_name,
+	 		"output_results '' %s %s %s %s %d \"%s\" '' y 2>>%s",
 	 			folder_name,
 				session,
 				login_name,
@@ -880,8 +879,7 @@ void insert_one2m_pair_sequence(
 	&&   !got_duplicate_message )
 	{
 		sprintf( sys_string,
- 			"output_results %s %s %s %s %s 0 \"%s\" '' y 2>>%s",
-		 	application_name,
+ 			"output_results '' %s %s %s %s 0 \"%s\" '' y 2>>%s",
  			folder->folder_name,
 			session,
 			login_name,
