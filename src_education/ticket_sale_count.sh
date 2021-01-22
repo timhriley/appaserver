@@ -18,8 +18,8 @@ echo "	update event							\
 	set ticket_sale_count =						\
 		( select count(1)					\
 			from ticket_sale				\
-			where ticket_sale.program_name_name =		\
-				event.program_name_name and		\
+			where ticket_sale.program_name =		\
+				event.program_name and			\
 			      ticket_sale.event_date =			\
 				event.event_date and			\
 			      ticket_sale.event_time =			\

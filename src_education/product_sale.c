@@ -251,9 +251,9 @@ PRODUCT_SALE *product_sale_parse(
 	char quantity[ 128 ];
 	char retail_price[ 128 ];
 	char extended_price[ 128 ];
+	char merchant_fees_expense[ 128 ];
 	char net_payment_amount[ 128 ];
 	char transaction_date_time[ 128 ];
-	char merchant_fees_expense[ 128 ];
 	char paypal_date_time[ 128 ];
 	PRODUCT_SALE *product_sale;
 
@@ -286,14 +286,14 @@ PRODUCT_SALE *product_sale_parse(
 	piece( extended_price, SQL_DELIMITER, input, 6 );
 	product_sale->extended_price = atof( extended_price );
 
-	piece( net_payment_amount, SQL_DELIMITER, input, 7 );
+	piece( merchant_fees_expense, SQL_DELIMITER, input, 7 );
+	product_sale->merchant_fees_expense = atof( merchant_fees_expense );
+
+	piece( net_payment_amount, SQL_DELIMITER, input, 8 );
 	product_sale->net_payment_amount = atof( net_payment_amount );
 
-	piece( transaction_date_time, SQL_DELIMITER, input, 8 );
+	piece( transaction_date_time, SQL_DELIMITER, input, 9 );
 	product_sale->transaction_date_time = strdup( transaction_date_time );
-
-	piece( merchant_fees_expense, SQL_DELIMITER, input, 9 );
-	product_sale->merchant_fees_expense = atof( merchant_fees_expense );
 
 	piece( paypal_date_time, SQL_DELIMITER, input, 10 );
 	product_sale->paypal_date_time = strdup( paypal_date_time );
@@ -559,17 +559,20 @@ PRODUCT_SALE *product_sale_steady_state(
 	}
 
 	product_sale->quantity = quantity;
+	product_sale->retail_price = retail_price;
+	product_sale->merchant_fees_expense = merchant_fees_expense;
 
 	if ( !product_sale->quantity )
 		product_sale->quantity = 1;
 
 	product_sale->extended_price =
-		(double)quantity * retail_price;
+		(double)product_sale->quantity *
+		product_sale->retail_price;
 
 	product_sale->net_payment_amount =
 		education_net_payment_amount(
 			product_sale->extended_price,
-			merchant_fees_expense );
+			product_sale->merchant_fees_expense );
 
 	return product_sale;
 }
@@ -776,7 +779,7 @@ void product_sale_list_set_transaction(
 
 	if ( !list_rewind( product_sale_list ) ) return;
 
-	cash_account_name = entity_self_paypal_cash_account_name();
+	cash_account_name = account_cash( (char *)0 );
 	fees_expense = account_fees_expense( (char *)0 );
 
 	do {

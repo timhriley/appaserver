@@ -1685,6 +1685,11 @@ char *transaction_program_refresh(
 		street_address,
 		transaction_date_time );
 
+	journal_ledger_delete(
+		full_name,
+		street_address,
+		transaction_date_time );
+
 	transaction_date_time =
 		transaction_program_insert(
 			full_name,
@@ -1695,7 +1700,7 @@ char *transaction_program_refresh(
 			memo,
 			check_number,
 			lock_transaction,
-			1 /* replace */ );
+			0 /* not replace */ );
 
 	journal_account_name_list_propagate(
 		transaction_date_time,
@@ -1707,7 +1712,7 @@ char *transaction_program_refresh(
 			street_address,
 			transaction_date_time,
 			journal_list,
-			1 /* replace */ ) );
+			0 /* not replace */ ) );
 
 	return transaction_date_time;
 }

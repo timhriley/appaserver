@@ -111,6 +111,10 @@ LIST *journal_list_account(
 LIST *journal_delete(	char *full_name,
 			char *street_address,
 			char *transaction_date_time );
+LIST *journal_ledger_delete(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
 
 void journal_account_name_list_propagate(
 			char *transaction_date_time,

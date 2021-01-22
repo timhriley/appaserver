@@ -251,9 +251,9 @@ TICKET_REFUND *ticket_refund_parse(
 	char sale_date_time[ 128 ];
 	char refund_date_time[ 128 ];
 	char refund_amount[ 128 ];
+	char merchant_fees_expense[ 128 ];
 	char net_refund_amount[ 128 ];
 	char transaction_date_time[ 128 ];
-	char merchant_fees_expense[ 128 ];
 	char paypal_date_time[ 128 ];
 	TICKET_REFUND *ticket_refund;
 
@@ -286,14 +286,14 @@ TICKET_REFUND *ticket_refund_parse(
 	piece( refund_amount, SQL_DELIMITER, input, 7 );
 	ticket_refund->refund_amount = atof( refund_amount );
 
-	piece( net_refund_amount, SQL_DELIMITER, input, 8 );
+	piece( merchant_fees_expense, SQL_DELIMITER, input, 8 );
+	ticket_refund->merchant_fees_expense = atof( merchant_fees_expense );
+
+	piece( net_refund_amount, SQL_DELIMITER, input, 9 );
 	ticket_refund->net_refund_amount = atof( net_refund_amount );
 
-	piece( transaction_date_time, SQL_DELIMITER, input, 9 );
+	piece( transaction_date_time, SQL_DELIMITER, input, 10 );
 	ticket_refund->transaction_date_time = strdup( transaction_date_time );
-
-	piece( merchant_fees_expense, SQL_DELIMITER, input, 10 );
-	ticket_refund->merchant_fees_expense = atof( merchant_fees_expense );
 
 	piece( paypal_date_time, SQL_DELIMITER, input, 11 );
 	ticket_refund->paypal_date_time = strdup( paypal_date_time );

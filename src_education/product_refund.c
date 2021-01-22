@@ -242,9 +242,9 @@ PRODUCT_REFUND *product_refund_parse(
 	char payor_street_address[ 128 ];
 	char refund_date_time[ 128 ];
 	char refund_amount[ 128 ];
+	char merchant_fees_expense[ 128 ];
 	char net_refund_amount[ 128 ];
 	char transaction_date_time[ 128 ];
-	char merchant_fees_expense[ 128 ];
 	char paypal_date_time[ 128 ];
 	PRODUCT_REFUND *product_refund;
 
@@ -272,18 +272,17 @@ PRODUCT_REFUND *product_refund_parse(
 	piece( refund_amount, SQL_DELIMITER, input, 5 );
 	product_refund->refund_amount = atof( refund_amount );
 
-	piece( net_refund_amount, SQL_DELIMITER, input, 6 );
+	piece( merchant_fees_expense, SQL_DELIMITER, input, 6 );
+	product_refund->merchant_fees_expense = atof( merchant_fees_expense );
+
+	piece( net_refund_amount, SQL_DELIMITER, input, 7 );
 	product_refund->net_refund_amount = atof( net_refund_amount );
 
-	piece( transaction_date_time, SQL_DELIMITER, input, 7 );
+	piece( transaction_date_time, SQL_DELIMITER, input, 8 );
 	product_refund->transaction_date_time = strdup( transaction_date_time );
-
-	piece( merchant_fees_expense, SQL_DELIMITER, input, 8 );
-	product_refund->merchant_fees_expense = atof( merchant_fees_expense );
 
 	piece( paypal_date_time, SQL_DELIMITER, input, 9 );
 	product_refund->paypal_date_time = strdup( paypal_date_time );
-
 
 	if ( fetch_sale )
 	{
@@ -342,7 +341,7 @@ TRANSACTION *product_refund_transaction(
 			double refund_amount,
 			double merchant_fees_expense,
 			double net_refund_amount,
-			char *entity_self_paypal_cash_account_name,
+			char *account_cash,
 			char *account_fees_expense,
 			char *product_revenue_account )
 {
@@ -407,7 +406,7 @@ TRANSACTION *product_refund_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				entity_self_paypal_cash_account_name ) ) );
+				account_cash ) ) );
 
 	journal->credit_amount = 0.0 - net_refund_amount;
 
@@ -772,7 +771,7 @@ void product_refund_list_set_transaction(
 
 	if ( !list_rewind( product_refund_list ) ) return;
 
-	cash_account_name = entity_self_paypal_cash_account_name();
+	cash_account_name = account_cash( (char *)0 );
 	fees_expense = account_fees_expense( (char *)0 );
 
 	do {

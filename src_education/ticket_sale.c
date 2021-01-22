@@ -270,9 +270,9 @@ TICKET_SALE *ticket_sale_parse(
 	char quantity[ 128 ];
 	char ticket_price[ 128 ];
 	char extended_price[ 128 ];
+	char merchant_fees_expense[ 128 ];
 	char net_payment_amount[ 128 ];
 	char transaction_date_time[ 128 ];
-	char merchant_fees_expense[ 128 ];
 	char paypal_date_time[ 128 ];
 	TICKET_SALE *ticket_sale;
 
@@ -311,14 +311,14 @@ TICKET_SALE *ticket_sale_parse(
 	piece( extended_price, SQL_DELIMITER, input, 8 );
 	ticket_sale->extended_price = atof( extended_price );
 
-	piece( net_payment_amount, SQL_DELIMITER, input, 9 );
+	piece( merchant_fees_expense, SQL_DELIMITER, input, 9 );
+	ticket_sale->merchant_fees_expense = atof( merchant_fees_expense );
+
+	piece( net_payment_amount, SQL_DELIMITER, input, 10 );
 	ticket_sale->net_payment_amount = atof( net_payment_amount );
 
-	piece( transaction_date_time, SQL_DELIMITER, input, 10 );
+	piece( transaction_date_time, SQL_DELIMITER, input, 11 );
 	ticket_sale->transaction_date_time = strdup( transaction_date_time );
-
-	piece( merchant_fees_expense, SQL_DELIMITER, input, 11 );
-	ticket_sale->merchant_fees_expense = atof( merchant_fees_expense );
 
 	piece( paypal_date_time, SQL_DELIMITER, input, 12 );
 	ticket_sale->paypal_date_time = strdup( paypal_date_time );

@@ -18,8 +18,8 @@ echo "	update event							\
 	set ticket_refund_total =					\
 		( select sum( refund_amount )				\
 			from ticket_refund				\
-			where ticket_refund.program_name_name =		\
-				event.program_name_name and		\
+			where ticket_refund.program_name =		\
+				event.program_name and			\
 			      ticket_refund.event_date =		\
 				event.event_date and			\
 			      ticket_refund.event_time =		\

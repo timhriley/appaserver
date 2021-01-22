@@ -531,6 +531,17 @@ char *journal_sys_string( char *where )
 	return strdup( sys_string );
 }
 
+LIST *journal_ledger_delete(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	return journal_delete(
+			full_name,
+			street_address,
+			transaction_date_time );
+}
+
 LIST *journal_delete(	char *full_name,
 			char *street_address,
 			char *transaction_date_time )
