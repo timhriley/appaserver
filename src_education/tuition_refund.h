@@ -24,6 +24,7 @@
 					"street_address,"		\
 					"season_name,"			\
 					"year,"				\
+					"payor_full_name,"		\
 					"payor_street_address,"		\
 					"refund_date_time"
 

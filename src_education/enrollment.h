@@ -204,5 +204,8 @@ OFFERING *enrollment_offering_seek(
 char *enrollment_list_program_name(
 			LIST *enrollment_list );
 
+char *enrollment_list_revenue_account(
+			LIST *enrollment_list );
+
 #endif
 

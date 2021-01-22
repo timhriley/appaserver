@@ -171,9 +171,10 @@ LIST *tuition_refund_trigger_insert_update(
 			char *refund_date_time )
 {
 	TUITION_REFUND *tuition_refund;
-	ENROLLMENT *enrollment;
 	LIST *tuition_refund_list;
 	int transaction_seconds_to_add = 0;
+	char *program_name = {0};
+	char *revenue_account = {0};
 
 	if ( ! ( tuition_refund =
 			tuition_refund_fetch(
@@ -193,11 +194,30 @@ LIST *tuition_refund_trigger_insert_update(
 		return (LIST *)0;
 	}
 
-	enrollment =
-		list_first(
-			tuition_refund->
+	/* If no enrollment */
+	/* ---------------- */
+	if ( !list_length( tuition_refund->
 				registration->
-				enrollment_list );
+				enrollment_list ) )
+	{
+		printf(
+"<h3>Warning: No enrollments for this registration. Therefore, no refund transaction was inserted. Best to delete this tuition refund and first insert the enrollment and tuition payment.</h3>\n" );
+
+	}
+	else
+	{
+		program_name =
+			enrollment_list_program_name(
+				tuition_refund->
+					registration->
+					enrollment_list );
+
+		revenue_account =
+			enrollment_list_revenue_account(
+				tuition_refund->
+					registration->
+					enrollment_list );
+	}
 
 	tuition_refund =
 		tuition_refund_steady_state(
@@ -216,18 +236,13 @@ LIST *tuition_refund_trigger_insert_update(
 				street_address,
 			tuition_refund->
 				refund_date_time,
-			enrollment->
-				offering->
-				course->
-				program_name,
+			program_name,
 			tuition_refund->refund_amount,
 			tuition_refund->merchant_fees_expense,
 			tuition_refund->net_refund_amount,
 			account_cash( (char *)0 ),
 			account_fees_expense( (char *)0 ),
-			enrollment->
-				offering->
-				revenue_account ) ) )
+			revenue_account ) ) )
 	{
 		tuition_refund->transaction_date_time =
 			tuition_refund->tuition_refund_transaction->

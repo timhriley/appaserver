@@ -547,4 +547,29 @@ LIST *folder_edit_table_drop_down_data_list(
 			char *one2m_folder_name_for_processes,
 			boolean include_root_folder );
 
+LIST *folder_prompt_insert_primary_data_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *preprompt_dictionary,
+			char delimiter,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes );
+
+LIST *folder_prompt_insert_primary_data_table_list(
+			char *application_name,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *preprompt_dictionary,
+			char delimiter,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			LIST *exclude_attribute_name_list,
+			char *role_name );
+
 #endif

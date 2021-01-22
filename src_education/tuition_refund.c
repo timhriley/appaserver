@@ -384,8 +384,11 @@ TRANSACTION *tuition_refund_transaction(
 	TRANSACTION *transaction;
 	JOURNAL *journal;
 
-	if ( dollar_virtually_same( refund_amount, 0.0 ) )
+	if ( dollar_virtually_same( refund_amount, 0.0 )
+	||   !revenue_account )
+	{
 		return (TRANSACTION *)0;
+	}
 
 	transaction =
 		transaction_full(

@@ -171,8 +171,8 @@ LIST *tuition_payment_trigger_insert_update(
 {
 	TUITION_PAYMENT *tuition_payment;
 	LIST *tuition_payment_list;
-	char *program_name;
 	int transaction_seconds_to_add = 0;
+	char *program_name = {0};
 
 	if ( ! ( tuition_payment =
 			tuition_payment_fetch(
@@ -199,9 +199,7 @@ LIST *tuition_payment_trigger_insert_update(
 				enrollment_list ) )
 	{
 		printf(
-"<h3>Warning: No enrollments for registration. Therefore, A/R will be off and the transaction will have no program name.</h3>\n" );
-
-		program_name = (char *)0;
+"<h3>Warning: No enrollments for this registration. Therefore, A/R will be off and the transaction will have no program name. Best to delete this tuition payment and first insert the enrollment.</h3>\n" );
 	}
 	else
 	{

@@ -744,7 +744,50 @@ char *enrollment_list_program_name(
 	enrollment = list_first( enrollment_list );
 
 	if ( enrollment )
+	{
+		if ( !enrollment->offering
+		||   !enrollment->offering->course )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty offering or course.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		return enrollment->offering->course->program_name;
+	}
 	else
+	{
 		return (char *)0;
+	}
 }
+
+char *enrollment_list_revenue_account(
+			LIST *enrollment_list )
+{
+	ENROLLMENT *enrollment = {0};
+
+	enrollment = list_first( enrollment_list );
+
+	if ( enrollment )
+	{
+		if ( !enrollment->offering )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty offering.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		return enrollment->offering->revenue_account;
+	}
+	else
+	{
+		return (char *)0;
+	}
+}
+

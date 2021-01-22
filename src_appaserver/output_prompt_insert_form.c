@@ -62,12 +62,9 @@ void build_related_folder_element_list(
 			LIST *role_folder_insert_list,
 			char *form_name,
 			boolean is_primary_attribute,
-			boolean row_level_non_owner_view_only,
-			boolean row_level_non_owner_forbid,
 			char *state,
 			LOOKUP_BEFORE_DROP_DOWN *
 				lookup_before_drop_down,
-			char *appaserver_user_foreign_login_name,
 			LIST *foreign_attribute_name_list );
 
 LIST *get_attribute_element_list(	int *current_reference_number,
@@ -153,13 +150,10 @@ LIST *get_element_list(
 			/* LIST *mto1_isa_related_folder_list, */
 			LIST *isa_folder_list,
 			char *form_name,
-			boolean row_level_non_owner_view_only,
-			boolean row_level_non_owner_forbid,
 			DICTIONARY *preprompt_dictionary,
 			char *post_change_javascript,
 			char *state,
-			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
-			char *appaserver_user_foreign_login_name );
+			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down );
 
 int main( int argc, char **argv )
 {
@@ -193,7 +187,6 @@ int main( int argc, char **argv )
 	boolean with_dynarch_menu = 0;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	LIST *isa_folder_list = {0};
-	char *appaserver_user_foreign_login_name;
 	PAIR_ONE2M *pair_one2m;
 	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
 
@@ -382,10 +375,6 @@ int main( int argc, char **argv )
 
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
-
-	appaserver_user_foreign_login_name =
-		related_folder_get_appaserver_user_foreign_login_name(
-			folder->mto1_related_folder_list );
 
 	/* If came from output_choose_isa_drop_down */
 	/* ---------------------------------------- */
@@ -622,14 +611,11 @@ int main( int argc, char **argv )
 			/* mto1_isa_related_folder_list, */
 			isa_folder_list,
 			form->form_name,
-			folder->row_level_non_owner_view_only,
-			folder->row_level_non_owner_forbid,
 			dictionary_appaserver->
 				preprompt_dictionary,
 			folder->post_change_javascript,
 			state,
-			lookup_before_drop_down,
-			appaserver_user_foreign_login_name );
+			lookup_before_drop_down );
 
 	if ( ajax_fill_drop_down_related_folder )
 	{
@@ -770,7 +756,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 LIST *get_element_list(
 			int *current_reference_number,
@@ -790,13 +776,10 @@ LIST *get_element_list(
 			char *isa_multi_attribute_data,
 			LIST *isa_folder_list,
 			char *form_name,
-			boolean row_level_non_owner_view_only,
-			boolean row_level_non_owner_forbid,
 			DICTIONARY *preprompt_dictionary,
 			char *post_change_javascript,
 			char *state,
-			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
-			char *appaserver_user_foreign_login_name )
+			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down )
 {
 	LIST *return_list;
 	LIST *done_attribute_name_list;
@@ -836,13 +819,6 @@ LIST *get_element_list(
 
 	return_list = list_new();
 	done_attribute_name_list = list_new();
-
-	if ( row_level_non_owner_forbid )
-	{
-		list_append_pointer(
-			done_attribute_name_list,
-			"login_name" );
-	}
 
 	allowed_attribute_name_list =
 	    list_subtract_string_list(
@@ -914,11 +890,8 @@ LIST *get_element_list(
 				role_folder_insert_list,
 				form_name,
 				is_primary_attribute,
-				row_level_non_owner_view_only,
-				row_level_non_owner_forbid,
 				state,
 				lookup_before_drop_down,
-				appaserver_user_foreign_login_name,
 				foreign_attribute_name_list );
 
 			continue;
@@ -1005,7 +978,7 @@ LIST *get_element_list(
 
 	return return_list;
 
-} /* get_element_list() */
+}
 
 void get_without_isa_variables(	LIST **mto1_related_folder_list,
 				LIST **attribute_list,
@@ -1089,7 +1062,7 @@ void get_without_isa_variables(	LIST **mto1_related_folder_list,
 	*folder_notepad = appaserver->folder->notepad;
 	*html_help_file_anchor = appaserver->folder->html_help_file_anchor;
 
-} /* get_without_isa_variables() */
+}
 
 void get_with_isa_variables(	LIST **mto1_related_folder_list,
 				LIST **attribute_list,
@@ -1163,7 +1136,7 @@ void get_with_isa_variables(	LIST **mto1_related_folder_list,
 				override_row_restrictions );
 	}
 
-} /* get_with_isa_variables() */
+}
 
 void get_selected_choose_isa_drop_down_with_isa_variables(
 				LIST **mto1_related_folder_list,
@@ -1273,7 +1246,7 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 
 	*html_help_file_anchor = appaserver->folder->html_help_file_anchor;
 
-} /* get_selected_choose_isa_drop_down_with_isa_variables() */
+}
 
 void get_not_selected_choose_isa_drop_down_with_isa_variables(
 				LIST **mto1_related_folder_list,
@@ -1441,7 +1414,7 @@ m2( application_name, msg );
 		appaserver_get_isa_folder_list(
 					application_name );
 
-} /* get_not_selected_choose_isa_drop_down_with_isa_variables() */
+}
 
 LIST *get_attribute_element_list(	int *current_reference_number,
 					char *application_name,
@@ -1684,7 +1657,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 
 	return return_list;
 
-} /* get_attribute_element_list() */
+}
 
 void build_related_folder_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
@@ -1708,19 +1681,15 @@ void build_related_folder_element_list(
 			LIST *role_folder_insert_list,
 			char *form_name,
 			boolean is_primary_attribute,
-			boolean row_level_non_owner_view_only,
-			boolean row_level_non_owner_forbid,
 			char *state,
 			LOOKUP_BEFORE_DROP_DOWN
 				*lookup_before_drop_down,
-			char *appaserver_user_foreign_login_name,
 			LIST *foreign_attribute_name_list )
 {
 	char *hint_message;
 	ATTRIBUTE *attribute;
 	LIST *common_non_primary_attribute_name_list;
 	boolean set_first_initial_data;
-	DICTIONARY *send_preprompt_dictionary;
 
 	if ( !related_folder )
 	{
@@ -1814,10 +1783,12 @@ void build_related_folder_element_list(
 		set_first_initial_data = 0;
 	}
 
+/*
 	if ( related_folder->folder->lookup_before_drop_down )
 		send_preprompt_dictionary = preprompt_dictionary;
 	else
 		send_preprompt_dictionary = (DICTIONARY *)0;
+*/
 
 /* ---------------------------------------------------- */
 /* This broke <Insert> <Reoccurring Transaction> 	*/
@@ -1839,9 +1810,10 @@ void build_related_folder_element_list(
 		ajax_fill_drop_down_related_folder;
 */
 
+
 	list_append_list(
 		element_list,
-		related_folder_prompt_element_list(
+		related_folder_prompt_insert_element_list(
 			ajax_fill_drop_down_related_folder,
 			application_name,
 			session,
@@ -1855,7 +1827,7 @@ void build_related_folder_element_list(
 			foreign_attribute_name_list,
 			omit_drop_down_new_push_button,
 			omit_ignore_push_buttons,
-			send_preprompt_dictionary,
+			preprompt_dictionary,
 			ignore_push_button_prefix,
 			ignore_push_button_heading,
 			post_change_javascript,
@@ -1865,8 +1837,6 @@ void build_related_folder_element_list(
 			0 /* max_drop_down_size */,
 			common_non_primary_attribute_name_list,
 			is_primary_attribute,
-			row_level_non_owner_view_only,
-			row_level_non_owner_forbid,
 			related_folder->
 				related_attribute_name,
 			0 /* drop_down_multi_select */,
@@ -1881,7 +1851,6 @@ void build_related_folder_element_list(
 			0 /* no output_null_option */,
 			0 /* no output_not_null_option */,
 			1 /* output_select_option */,
-			appaserver_user_foreign_login_name,
 			related_folder->omit_lookup_before_drop_down
 	 ) );
 

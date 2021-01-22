@@ -433,6 +433,9 @@ int main( int argc, char **argv )
 					appaserver_parameter_file->
 						appaserver_mount_point );
 
+			if ( message && *message )
+				printf( "%s\n", message );
+
 			printf( "<h1>Insert Complete</h1>\n" );
 			fflush( stdout );
 

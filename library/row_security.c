@@ -560,11 +560,13 @@ LIST *row_security_get_element_list(
 	OPERATION_LIST_STRUCTURE *operation_list_structure = {0};
 	LIST *operation_list = {0};
 
+/*
 	if ( omit_delete_operation == dont_omit_delete
 	&&   update_yn != 'y' )
 	{
 		omit_delete_operation = omit_delete;
 	}
+*/
 
 	if ( !omit_operation_buttons )
 	{
