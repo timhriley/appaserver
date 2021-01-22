@@ -199,7 +199,7 @@ LIST *tuition_payment_trigger_insert_update(
 				enrollment_list ) )
 	{
 		printf(
-"<h3>Warning: No enrollments for this registration. Therefore, A/R will be off and the transaction will have no program name. Best to delete this tuition payment and first insert the enrollment.</h3>\n" );
+"<h3>Warning: No enrollments for this registration. Therefore, the tuition payment transaction has no program name. Best to delete this tuition payment and first insert the enrollment.</h3>\n" );
 	}
 	else
 	{
