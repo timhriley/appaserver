@@ -9,14 +9,9 @@ echo "delete from ticket_refund;" | sql
 echo "delete from transaction;" | sql
 echo "delete from journal_ledger;" | sql
 echo "delete from paypal;" | sql
-
 echo "delete from registration;" | sql
-
-#echo "delete from student;" | sql
-echo "delete from student where full_name not like 'New %';" | sql
-
-#echo "delete from entity where full_name <> 'TNT';" | sql
-echo "delete from entity where full_name <> 'TNT' and full_name not like 'New %';" | sql
+echo "delete from student;" | sql
+echo "delete from entity where full_name <> 'TNT';" | sql
 
 echo "	update offering					\
 	set	enrollment_count = 0,			\
