@@ -465,7 +465,7 @@ LIST *journal_list_set_balances(
 			journal->balance,
 			0.0 ) )
 		{
-			journal->transaction_count = 1;
+			journal->transaction_count = 0;
 			transaction_count = 1;
 		}
 		else

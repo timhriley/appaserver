@@ -464,6 +464,7 @@ FILE *tuition_refund_update_open( void )
 }
 
 void tuition_refund_update(
+			double refund_amount,
 			double net_refund_amount,
 			char *transaction_date_time,
 			char *student_full_name,
@@ -475,6 +476,17 @@ void tuition_refund_update(
 			char *refund_date_time )
 {
 	FILE *update_pipe = tuition_refund_update_open();
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%d^%s^%s^%s^refund_amount^%.2lf\n",
+		 student_full_name,
+		 student_street_address,
+		 season_name,
+		 year,
+		 payor_full_name,
+		 payor_street_address,
+		 refund_date_time,
+		 refund_amount );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%d^%s^%s^%s^net_refund_amount^%.2lf\n",
@@ -563,9 +575,21 @@ TUITION_REFUND *tuition_refund_steady_state(
 		exit( 1 );
 	}
 
+	/* Refund amount is always negative */
+	/* -------------------------------- */
+	if ( refund_amount > 0.0 )
+	{
+		tuition_refund->refund_amount =
+			0.0 - refund_amount;
+	}
+	else
+	{
+		tuition_refund->refund_amount = refund_amount;
+	}
+
 	tuition_refund->net_refund_amount =
 		education_net_refund_amount(
-			refund_amount,
+			tuition_refund->refund_amount,
 			merchant_fees_expense );
 
 	return tuition_refund;

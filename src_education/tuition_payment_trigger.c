@@ -219,6 +219,13 @@ LIST *tuition_payment_trigger_insert_update(
 			tuition_payment->payment_amount,
 			tuition_payment->merchant_fees_expense );
 
+fprintf(stderr,
+	"%s/%s()/%d: setting transaction_date_timem = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+tuition_payment->payment_date_time );
+
 	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
 			&transaction_seconds_to_add,
@@ -253,6 +260,13 @@ LIST *tuition_payment_trigger_insert_update(
 	{
 		TRANSACTION *t = tuition_payment->tuition_payment_transaction;
 
+fprintf(stderr,
+	"%s/%s()/%d: transaction_date_time = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+t->transaction_date_time );
+
 		tuition_payment->transaction_date_time =
 			transaction_program_refresh(
 				t->full_name,
@@ -264,6 +278,13 @@ LIST *tuition_payment_trigger_insert_update(
 				0 /* check_number */,
 				t->lock_transaction,
 				t->journal_list );
+fprintf(stderr,
+	"%s/%s()/%d: received transaction_date_time = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+tuition_payment->transaction_date_time );
+
 	}
 
 	tuition_payment_update(

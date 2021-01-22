@@ -1680,6 +1680,11 @@ char *transaction_program_refresh(
 			boolean lock_transaction,
 			LIST *journal_list )
 {
+	transaction_delete(
+		full_name,
+		street_address,
+		transaction_date_time );
+
 	transaction_date_time =
 		transaction_program_insert(
 			full_name,

@@ -272,6 +272,7 @@ LIST *tuition_refund_trigger_insert_update(
 	}
 
 	tuition_refund_update(
+		tuition_refund->refund_amount,
 		tuition_refund->net_refund_amount,
 		tuition_refund->transaction_date_time,
 		student_full_name,

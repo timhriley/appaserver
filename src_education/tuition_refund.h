@@ -164,6 +164,7 @@ TRANSACTION *tuition_refund_transaction(
 			char *revenue_account );
 
 void tuition_refund_update(
+			double refund_amount,
 			double net_refund_amount,
 			char *transaction_date_time,
 			char *student_full_name,
