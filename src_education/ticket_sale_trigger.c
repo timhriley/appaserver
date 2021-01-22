@@ -182,7 +182,7 @@ LIST *ticket_sale_trigger_insert_update(
 			ticket_sale->extended_price,
 			ticket_sale->merchant_fees_expense,
 			ticket_sale->net_payment_amount,
-			entity_self_paypal_cash_account_name(),
+			account_cash( (char *)0 ),
 			account_fees_expense( (char *)0 ),
 			ticket_sale->
 				event->

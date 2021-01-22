@@ -198,7 +198,7 @@ LIST *ticket_refund_trigger_insert_update(
 			ticket_refund->refund_amount,
 			ticket_refund->merchant_fees_expense,
 			ticket_refund->net_refund_amount,
-			entity_self_paypal_cash_account_name(),
+			account_cash( (char *)0 ),
 			account_fees_expense( (char *)0 ),
 			ticket_refund->
 				ticket_sale->

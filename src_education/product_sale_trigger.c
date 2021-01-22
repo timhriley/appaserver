@@ -173,7 +173,7 @@ LIST *product_sale_trigger_insert_update(
 			product_sale->extended_price,
 			product_sale->merchant_fees_expense,
 			product_sale->net_payment_amount,
-			entity_self_paypal_cash_account_name(),
+			account_cash( (char *)0 ),
 			account_fees_expense( (char *)0 ),
 			product_sale->
 				product->

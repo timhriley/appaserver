@@ -151,7 +151,7 @@ LIST *product_refund_trigger_insert_update(
 				refund_date_time,
 				1 /* fetch_product */ ) ) )
 	{
-		return;
+		return (LIST *)0;
 	}
 
 	if ( ! ( product_refund =
@@ -162,7 +162,7 @@ LIST *product_refund_trigger_insert_update(
 				product_refund->
 					merchant_fees_expense ) ) )
 	{
-		return;
+		return (LIST *)0;
 	}
 
 	if ( ( product_refund->product_refund_transaction =
@@ -189,7 +189,7 @@ LIST *product_refund_trigger_insert_update(
 			product_refund->refund_amount,
 			product_refund->merchant_fees_expense,
 			product_refund->net_refund_amount,
-			entity_self_paypal_cash_account_name(),
+			account_cash( (char *)0 ),
 			account_fees_expense( (char *)0 ),
 			product_refund->
 				product_sale->

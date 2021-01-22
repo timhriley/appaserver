@@ -166,7 +166,7 @@ LIST *program_donation_trigger_insert_update(
 			program_donation->donation_amount,
 			program_donation->merchant_fees_expense,
 			program_donation->net_payment_amount,
-			entity_self_paypal_cash_account_name(),
+			account_cash( (char *)0 ),
 			account_fees_expense( (char *)0 ),
 			program_donation->
 				program->

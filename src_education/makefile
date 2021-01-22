@@ -110,7 +110,6 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/paypal_dataset.o
 
 EXECUTABLES=	offering_trigger					\
-		registration_trigger					\
 		enrollment_trigger					\
 		tuition_payment_trigger					\
 		tuition_refund_trigger					\
