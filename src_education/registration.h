@@ -42,7 +42,7 @@ typedef struct
 	double tuition_refund_total;
 	double invoice_amount_due;
 	char *registration_date_time;
-	LIST *registration_enrollment_list;
+	LIST *enrollment_list;
 	LIST *registration_tuition_payment_list;
 	LIST *registration_tuition_refund_list;
 } REGISTRATION;
@@ -89,7 +89,7 @@ REGISTRATION *registration_new(
 
 REGISTRATION *registration_steady_state(
 			REGISTRATION *registration,
-			LIST *registration_enrollment_list,
+			LIST *enrollment_list,
 			LIST *semester_offering_list );
 
 double registration_tuition(
@@ -107,7 +107,7 @@ double registration_invoice_amount_due(
 			double tution_payment_total );
 
 void registration_enrollment_list_refresh(
-			LIST *registration_enrollment_list );
+			LIST *enrollment_list );
 
 /* Returns static memory */
 /* --------------------- */

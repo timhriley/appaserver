@@ -171,7 +171,7 @@ LIST *tuition_payment_trigger_insert_update(
 {
 	TUITION_PAYMENT *tuition_payment;
 	LIST *tuition_payment_list;
-	ENROLLMENT *enrollment;
+	char *program_name;
 	int transaction_seconds_to_add = 0;
 
 	if ( ! ( tuition_payment =
@@ -192,11 +192,25 @@ LIST *tuition_payment_trigger_insert_update(
 		return (LIST *)0;
 	}
 
-	enrollment =
-		list_first(
-			tuition_payment->
+	/* If no enrollment */
+	/* ---------------- */
+	if ( !list_length( tuition_payment->
 				registration->
-				registration_enrollment_list );
+				enrollment_list ) )
+	{
+		printf(
+"<h3>Warning: No enrollments for registration. Therefore, A/R will be off and the transaction will have no program name.</h3>\n" );
+
+		program_name = (char *)0;
+	}
+	else
+	{
+		program_name =
+			enrollment_list_program_name(
+				tuition_payment->
+					registration->
+					enrollment_list );
+	}
 
 	tuition_payment =
 		/* ----------------------- */
@@ -218,16 +232,13 @@ LIST *tuition_payment_trigger_insert_update(
 				street_address,
 			tuition_payment->
 				payment_date_time,
-			enrollment->
-				offering->
-				course->
-				program_name,
+			program_name,
 			tuition_payment->payment_amount,
 			tuition_payment->merchant_fees_expense,
 			tuition_payment->
 				tuition_payment_receivable_credit_amount,
 			tuition_payment->tuition_payment_cash_debit_amount,
-			entity_self_paypal_cash_account_name(),
+			account_cash( (char *)0 ),
 			account_receivable( (char *)0 ),
 			account_fees_expense( (char *)0 ) ) ) )
 	{

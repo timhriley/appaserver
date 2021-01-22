@@ -444,6 +444,7 @@ void paypal_deposit_update(
 	pclose( update_pipe );
 }
 
+/*
 double paypal_registration_tuition(
 			LIST *paypal_registration_list,
 			LIST *semester_offering_list )
@@ -462,13 +463,14 @@ double paypal_registration_tuition(
 			( registration->tuition =
 				registration_tuition(
 					registration->
-					     registration_enrollment_list,
+					     enrollment_list,
 					semester_offering_list ) );
 
 	} while ( list_next( paypal_registration_list ) );
 
 	return tuition;
 }
+*/
 
 LIST *paypal_deposit_course_name_list(
 			LIST *paypal_deposit_list )

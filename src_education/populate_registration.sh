@@ -28,9 +28,7 @@ echo $0 $* 1>&2
 
 where="$1"
 
-select="anchor_date,anchor_time,location,concat( site_number,'|', anchor_date ), anchor_time,project,collection_name,location,site_number"
-
-select="full_name,street_address,season_name,concat( year, ' [', invoice_amount_due, ']' )"
+select="full_name,street_address,season_name,concat( year, ' [', ifnull(invoice_amount_due,0), ']' )"
 
 table="registration"
 

@@ -842,7 +842,7 @@ LIST *program_donation_list_overpayment(
 			list_first(
 				tuition_payment->
 					registration->
-					registration_enrollment_list );
+					enrollment_list );
 
 		if ( !enrollment )
 		{

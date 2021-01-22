@@ -461,11 +461,11 @@ LIST *journal_list_set_balances(
 			}
 		}
 
-		if ( timlib_dollar_virtually_same(
+		if ( dollar_virtually_same(
 			journal->balance,
 			0.0 ) )
 		{
-			journal->transaction_count = 0;
+			journal->transaction_count = 1;
 			transaction_count = 1;
 		}
 		else
@@ -494,7 +494,8 @@ LIST *journal_list_minimum(
 		account_name_escape( account_name ) );
 
 	return	journal_system_list(
-			journal_sys_string( where ) );
+			journal_sys_string(
+				where ) );
 }
 
 LIST *journal_list_account( char *account_name )
@@ -856,50 +857,30 @@ void journal_list_update( LIST *journal_list )
 	do {
 		journal = list_get( journal_list );
 
-		if (	journal->transaction_count !=
-			journal->transaction_count_database )
-		{
-			fprintf(update_pipe,
-			 	"%s^%s^%s^%s^transaction_count^%d\n",
-			 	transaction_escape_full_name(
-					journal->full_name ),
-			 	journal->street_address,
-			 	journal->transaction_date_time,
-			 	journal->account_name,
-			 	journal->transaction_count );
+		fprintf(update_pipe,
+		 	"%s^%s^%s^%s^transaction_count^%d\n",
+		 	transaction_escape_full_name(
+				journal->full_name ),
+		 	journal->street_address,
+		 	journal->transaction_date_time,
+		 	journal->account_name,
+		 	journal->transaction_count );
 
-			journal->transaction_count_database =
-				journal->transaction_count;
-		}
+		fprintf(update_pipe,
+		 	"%s^%s^%s^%s^previous_balance^%.2lf\n",
+		 	journal->full_name,
+		 	journal->street_address,
+		 	journal->transaction_date_time,
+		 	journal->account_name,
+		 	journal->previous_balance );
 
-		if ( !timlib_dollar_virtually_same(
-			journal->previous_balance,
-			journal->previous_balance_database ) )
-		{
-			fprintf(update_pipe,
-			 	"%s^%s^%s^%s^previous_balance^%.2lf\n",
-			 	journal->full_name,
-			 	journal->street_address,
-			 	journal->transaction_date_time,
-			 	journal->account_name,
-			 	journal->previous_balance );
-
-			journal->previous_balance_database =
-				journal->previous_balance;
-		}
-
-		if ( !timlib_dollar_virtually_same(
-			journal->balance,
-			journal->balance_database ) )
-		{
-			fprintf(update_pipe,
-			 	"%s^%s^%s^%s^balance^%.2lf\n",
-			 	journal->full_name,
-			 	journal->street_address,
-			 	journal->transaction_date_time,
-			 	journal->account_name,
-			 	journal->balance );
-		}
+		fprintf(update_pipe,
+		 	"%s^%s^%s^%s^balance^%.2lf\n",
+		 	journal->full_name,
+		 	journal->street_address,
+		 	journal->transaction_date_time,
+		 	journal->account_name,
+		 	journal->balance );
 
 	} while( list_next( journal_list ) );
 
@@ -984,7 +965,8 @@ LIST *journal_year_list(	int year,
 		'%' );
 
 	return	journal_system_list(
-			journal_sys_string( where ) );
+			journal_sys_string(
+				where ) );
 }
 
 double journal_amount(
@@ -1328,7 +1310,8 @@ LIST *journal_minimum_account_journal_list(
 	 	account_name_escape( account_name ) );
 
 	return	journal_system_list(
-			journal_sys_string( where ) );
+			journal_sys_string(
+				where ) );
 }
 
 LIST *journal_binary_journal_list(
@@ -1633,7 +1616,16 @@ JOURNAL *journal_merchant_fees_expense(
 			double merchant_fees_expense,
 			char *account_fees_expense )
 {
-	JOURNAL *journal =
+	JOURNAL *journal;
+
+	if ( double_virtually_same(
+		merchant_fees_expense,
+		0.0 ) )
+	{
+		return (JOURNAL *)0;
+	}
+
+	journal =
 			journal_new(
 				full_name,
 				street_address,

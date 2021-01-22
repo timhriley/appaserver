@@ -206,7 +206,7 @@ TRANSACTION *tuition_payment_transaction(
 			double merchant_fees_expense,
 			double receivable_credit_amount,
 			double cash_debit_amount,
-			char *entity_self_paypal_cash_account_name,
+			char *cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense )
 {
@@ -254,7 +254,7 @@ TRANSACTION *tuition_payment_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				entity_self_paypal_cash_account_name ) ) );
+				cash_account_name ) ) );
 
 	journal->debit_amount = cash_debit_amount;
 
@@ -328,6 +328,16 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 			double payment_amount,
 			double merchant_fees_expense )
 {
+	if ( !tuition_payment->registration )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: registration is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	tuition_payment->net_payment_amount =
 		education_net_payment_amount(
 			payment_amount,
@@ -543,7 +553,7 @@ void tuition_payment_list_enrollment_insert(
 			insert_pipe,
 			tuition_payment->
 				registration->
-				registration_enrollment_list );
+				enrollment_list );
 
 	} while ( list_next( tuition_payment_list ) );
 
@@ -850,10 +860,10 @@ LIST *tuition_payment_enrollment_list(
 		if ( !list_length( 
 			tuition_payment->
 			     registration->
-			     registration_enrollment_list ) )
+			     enrollment_list ) )
 		{
 			fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty registration_enrollment_list.\n",
+		"ERROR in %s/%s()/%d: empty enrollment_list.\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__ );
@@ -866,7 +876,7 @@ LIST *tuition_payment_enrollment_list(
 			list_last(
 				tuition_payment->
 				       registration->
-				       registration_enrollment_list ) );
+				       enrollment_list ) );
 
 	} while ( list_next( tuition_payment_list ) );
 
@@ -933,7 +943,7 @@ LIST *tuition_payment_transaction_list(
 			registration_enrollment_seek_transaction(
 				tuition_payment->
 					registration->
-					registration_enrollment_list ) );
+					enrollment_list ) );
 
 		list_set(
 			transaction_list,
@@ -1187,11 +1197,11 @@ TUITION_PAYMENT *tuition_payment_paypal(
 			tuition_payment->registration,
 			offering );
 
-	tuition_payment->registration->registration_enrollment_list =
+	tuition_payment->registration->enrollment_list =
 		list_new();
 
 	list_set( 
-		tuition_payment->registration->registration_enrollment_list,
+		tuition_payment->registration->enrollment_list,
 		enrollment );
 
 	tuition_payment->registration->registration_date_time =

@@ -183,7 +183,7 @@ REGISTRATION *registration_parse(
 
 	if ( fetch_enrollment_list )
 	{
-		registration->registration_enrollment_list =
+		registration->enrollment_list =
 			registration_enrollment_list(
 				registration->student_entity->full_name,
 				registration->student_entity->street_address,
@@ -400,7 +400,7 @@ double registration_tuition_refund_total(
 
 REGISTRATION *registration_steady_state(
 			REGISTRATION *registration,
-			LIST *registration_enrollment_list,
+			LIST *enrollment_list,
 			LIST *semester_offering_list )
 {
 	if ( !registration )
@@ -415,7 +415,7 @@ REGISTRATION *registration_steady_state(
 
 	registration->tuition =
 		registration_tuition(
-			registration_enrollment_list,
+			enrollment_list,
 			semester_offering_list );
 
 	registration->tuition_payment_total =
@@ -760,7 +760,7 @@ LIST *registration_course_name_list(
 			course_name_list,
 			enrollment_course_name_list(
 				registration->
-					registration_enrollment_list ) );
+					enrollment_list ) );
 
 	} while ( list_next( registration_list ) );
 

@@ -35,8 +35,8 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *transaction_date_time;
-	char *preupdate_transaction_date_time;
-	char *propagate_transaction_date_time;
+	char *preupdate_transaction_date_time = "";
+	char *propagate_transaction_date_time = {0};
 	char propagate_transaction_date[ 16 ];
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -46,37 +46,34 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 3 )
+	if ( argc < 2 )
 	{
 		fprintf( stderr, 
-"Usage: %s transaction_date_time preupdate_transaction_date_time [account ...]\n",
+"Usage: %s transaction_date_time [preupdate_transaction_date_time] [account ...]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	transaction_date_time = argv[ 1 ];
-	preupdate_transaction_date_time = argv[ 2 ];
 
-	/* transaction_date_time not set */
-	/* ----------------------------- */
-	if ( strcmp( transaction_date_time, "transaction_date_time" ) == 0 )
-	{
-		transaction_date_time = "";
-	}
-
-	/* preupdate_transaction_date_time not set */
-	/* --------------------------------------- */
-	if ( strcmp(	preupdate_transaction_date_time,
-			"preupdate_transaction_date_time" ) == 0 )
-	{
-		preupdate_transaction_date_time = "";
-	}
-
-	if ( !*transaction_date_time )
+	if ( !*transaction_date_time
+	||   strcmp( transaction_date_time, "transaction_date_time" ) == 0 )
 	{
 		transaction_date_time =
 			pipe2string(
 				"transaction_date_time_minimum.sh" );
+	}
+
+	if ( argc >= 3 )
+	{
+		preupdate_transaction_date_time = argv[ 2 ];
+
+		if ( strcmp( 
+			preupdate_transaction_date_time,
+			"preupdate_transaction_date_time" ) == 0 )
+		{
+			preupdate_transaction_date_time = "";
+		}
 	}
 
 	/* Take the earlier of the two */
@@ -103,16 +100,16 @@ int main( int argc, char **argv )
 			/* bank_date */,
 		propagate_transaction_date_time );
 
-	if ( argc > 3
-	&&   strcmp( argv[ 3 ], "account" ) == 0
-	&&   strcmp( argv[ 4 ], "preupdate_account" ) == 0 )
+	/* If every account */
+	/* ---------------- */
+	if ( argc < 4 )
 	{
 		LIST *account_name_list;
 		char *account_name;
 
 		account_name_list =
 			transaction_date_time_account_name_list(
-				transaction_date_time );
+				propagate_transaction_date_time );
 
 		if ( list_rewind( account_name_list ) )
 		{
@@ -129,34 +126,25 @@ int main( int argc, char **argv )
 		}
 	}
 	else
-	if ( argc > 3 )
+	/* ---------------------- */
+	/* If listed the accounts */
+	/* ---------------------- */
+	if ( argc >= 4 )
 	{
-		int i = 3;
+		int i;
 		char *account_name;
 
-		while( i < argc )
+		for(	i = 3;
+			i < argc;
+			i++ )
 		{
 			account_name = argv[ i ];
 
-			if ( strcmp(	account_name,
-					"preupdate_account" ) != 0
-			&&   strcmp(	account_name,
-					"account" ) != 0 )
-			{
-				journal_propagate(
-					propagate_transaction_date_time,
-					account_name );
-			}
+			journal_propagate(
+				propagate_transaction_date_time,
+				account_name );
 			i++;
 		}
-	}
-	else
-	/* ----------------- */
-	/* Must be argc <= 3 */
-	/* ----------------- */
-	{
-		account_transaction_propagate(
-			propagate_transaction_date_time );
 	}
 	return 0;
 }

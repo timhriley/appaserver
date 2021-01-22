@@ -197,7 +197,7 @@ LIST *tuition_refund_trigger_insert_update(
 		list_first(
 			tuition_refund->
 				registration->
-				registration_enrollment_list );
+				enrollment_list );
 
 	tuition_refund =
 		tuition_refund_steady_state(
@@ -223,7 +223,7 @@ LIST *tuition_refund_trigger_insert_update(
 			tuition_refund->refund_amount,
 			tuition_refund->merchant_fees_expense,
 			tuition_refund->net_refund_amount,
-			entity_self_paypal_cash_account_name(),
+			account_cash( (char *)0 ),
 			account_fees_expense( (char *)0 ),
 			enrollment->
 				offering->

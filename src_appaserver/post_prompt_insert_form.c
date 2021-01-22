@@ -574,14 +574,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( application_name, msg );
-}
 	sprintf( sys_string,
 "echo \"%s\" 								|"
 "output_insert_table_form %s %s %s %s '%s' '%s' '%s' '%s' 2>>%s		 ",
@@ -601,8 +593,7 @@ m2( application_name, msg );
 
 	if ( system( sys_string ) ){};
 
-	exit( 0 );
-
+	return 0;
 }
 
 int post_prompt_insert_database(

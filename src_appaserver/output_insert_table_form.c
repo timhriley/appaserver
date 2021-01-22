@@ -109,6 +109,7 @@ int main( int argc, char **argv )
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *primary_data_list_string;
 	PAIR_ONE2M *pair_one2m;
+	char *message = {0};
 
 	/* This needs to be made into a list. */
 	/* ---------------------------------- */
@@ -121,10 +122,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 9 )
+	if ( argc < 9 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name ignored session folder role state insert_update_key target_frame\n",
+"Usage: %s login_name ignored session folder role state insert_update_key target_frame [message]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -136,6 +137,8 @@ int main( int argc, char **argv )
 	state = argv[ 6 ];
 	insert_update_key = argv[ 7 ];
 	target_frame = argv[ 8 ];
+
+	if ( argc == 10 ) message = argv[ 9 ];
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
@@ -722,6 +725,11 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
+	if ( message && *message )
+	{
+		printf( "%s\n", message );
+	}
+
 	if ( ( automatic_preselection_dictionary_list =
 		related_folder_list_get_preselection_dictionary_list(
 			application_name,
@@ -941,8 +949,8 @@ int main( int argc, char **argv )
 
 	document_close();
 
-	exit( 0 );
-} /* main() */
+	return 0;
+}
 
 void primary_data_list_string_build_dictionaries(
 			DICTIONARY *non_prefixed_dictionary,
@@ -999,7 +1007,7 @@ void primary_data_list_string_build_dictionaries(
 
 	} while( list_next( primary_data_list ) );
 
-} /* primary_data_list_string_build_dictionaries() */
+}
 
 LIST *get_insert_table_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
@@ -1074,7 +1082,8 @@ drop-down needing SWEEP.sweep_number in the where clause.
 	/* ------------------ */
 	do {
 		attribute_name = 
-			list_get_pointer( include_attribute_name_list );
+			list_get_pointer(
+				include_attribute_name_list );
 
 		/* If the attribute is accounted for already */
 		/* ----------------------------------------- */
@@ -1239,5 +1248,5 @@ drop-down needing SWEEP.sweep_number in the where clause.
 
 	return return_list;
 
-} /* get_insert_table_element_list() */
+}
 

@@ -736,3 +736,15 @@ OFFERING *enrollment_offering_seek(
 	return (OFFERING *)0;
 }
 
+char *enrollment_list_program_name(
+			LIST *enrollment_list )
+{
+	ENROLLMENT *enrollment = {0};
+
+	enrollment = list_first( enrollment_list );
+
+	if ( enrollment )
+		return enrollment->offering->course->program_name;
+	else
+		return (char *)0;
+}

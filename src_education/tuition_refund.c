@@ -436,14 +436,12 @@ TRANSACTION *tuition_refund_transaction(
 	/* ------------------- */
 	list_set(
 		transaction->journal_list,
-		( journal =
-			journal_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				account_fees_expense ) ) );
-
-	journal->credit_amount = merchant_fees_expense;
+		journal_merchant_fees_expense(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			0.0 - merchant_fees_expense,
+			account_fees_expense ) );
 
 	return transaction;
 }

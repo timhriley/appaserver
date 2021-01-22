@@ -426,20 +426,20 @@ int main( int argc, char **argv )
 } /* main() */
 
 void post_state_insert(
-				DICTIONARY_APPASERVER *dictionary_appaserver,
-				char *application_name,
-				char *session,
-				FOLDER *folder,
-				char *login_name,
-				char *role_name,
-				char *insert_update_key,
-				char *target_frame,
-				char *state,
-				char *detail_base_folder_name,
-				int insert_flag,
-				boolean role_override_row_restrictions,
-				char *vertical_new_button_base_folder_name,
-				char *primary_data_list_string )
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *session,
+			FOLDER *folder,
+			char *login_name,
+			char *role_name,
+			char *insert_update_key,
+			char *target_frame,
+			char *state,
+			char *detail_base_folder_name,
+			int insert_flag,
+			boolean role_override_row_restrictions,
+			char *vertical_new_button_base_folder_name,
+			char *primary_data_list_string )
 {
 	LIST *mto1_related_folder_list;
 	int rows_inserted = 0;
@@ -1297,7 +1297,7 @@ void execute_output_process(
 	{
 		sprintf( sys_string, 
 "echo \"%s\" 								|"
-"output_insert_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
+"output_insert_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
 			 dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
@@ -1309,6 +1309,7 @@ void execute_output_process(
 		 	 state,
 		 	 insert_update_key,
 		 	 target_frame,
+			 (message) ? message : "",
 		 	 appaserver_error_get_filename( application_name ) );
 	}
 	else

@@ -843,7 +843,6 @@ void account_transaction_propagate(
 			propagate_transaction_date_time,
 			account );
 	}
-
 	pclose( input_pipe );
 }
 

@@ -159,7 +159,7 @@ char *enrollment_memo(	char *program_name );
 
 void enrollment_list_steady_state(
 			int *transaction_seconds_to_add,
-			LIST *registration_enrollment_list,
+			LIST *enrollment_list,
 			double deposit_amount );
 
 void enrollment_list_set_transaction(
@@ -199,6 +199,9 @@ char *enrollment_offering_program_name(
 
 OFFERING *enrollment_offering_seek(
 			char *course_name,
+			LIST *enrollment_list );
+
+char *enrollment_list_program_name(
 			LIST *enrollment_list );
 
 #endif

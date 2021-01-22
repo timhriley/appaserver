@@ -181,13 +181,6 @@ LIST *enrollment_trigger_insert_update(
 		return (LIST *)0;
 	}
 
-fprintf(stderr,
-	"%s/%s()/%d: registration_date_time = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-enrollment->registration->registration_date_time );
-
 	if ( enrollment_set_transaction(
 			&transaction_seconds_to_add,
 			enrollment,
