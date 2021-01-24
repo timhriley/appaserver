@@ -572,4 +572,9 @@ LIST *folder_prompt_insert_primary_data_table_list(
 			LIST *exclude_attribute_name_list,
 			char *role_name );
 
+/* Returns static memory */
+/* --------------------- */
+char *folder_primary_where(
+			char *folder_name );
+
 #endif

@@ -2822,3 +2822,15 @@ LIST *folder_prompt_insert_primary_data_table_list(
 	return data_list;
 }
 
+char *folder_primary_where(
+			char *folder_name )
+{
+	static char where[ 256 ];
+
+	sprintf(where,
+		"folder = '%s'",
+		folder_name );
+
+	return where;
+}
+

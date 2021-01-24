@@ -696,6 +696,11 @@ int dictionary_all_null_data( DICTIONARY *d )
 	return hash_table_all_null_data( d->hash_table );
 }
 
+DICTIONARY *dictionary_small()
+{
+	return dictionary_small_dictionary_new();
+}
+
 DICTIONARY *dictionary_small_new()
 {
 	return dictionary_small_dictionary_new();

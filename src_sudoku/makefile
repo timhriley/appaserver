@@ -57,6 +57,7 @@ EXTERNAL_LIBRARYS=							\
 		${LIBRARY}/form.o					\
 		${LIBRARY}/query.o					\
 		${LIBRARY}/session.o					\
+		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/frameset.o					\
 		${LIBRARY}/related_folder.o				\
 		${LIBRARY}/operation_list.o				\

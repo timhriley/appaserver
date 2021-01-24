@@ -85,6 +85,7 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/operation.o					\
 		${LIBRARY}/role_folder.o				\
 		${LIBRARY}/session.o					\
+		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/frameset.o					\
 		${LIBRARY}/insert_database.o				\
 		${LIBRARY}/update_database.o				\

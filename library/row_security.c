@@ -735,7 +735,7 @@ void row_security_append_join_1tom_related_folder_list(
 				list_get_pointer(
 					join_1tom_related_folder_list );
 
-		     related_folder_populate_one2m_foreign_attribute_dictionary(
+		     related_folder_one2m_foreign_attribute_dictionary(
 				row_dictionary,
 				list_get_last_pointer(
 					related_folder->

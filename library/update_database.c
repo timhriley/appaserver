@@ -26,6 +26,7 @@
 #include "appaserver_user.h"
 #include "document.h"
 #include "appaserver_parameter_file.h"
+#include "foreign_attribute.h"
 
 UPDATE_DATABASE *update_database_new(
 			char *application_name,
@@ -57,7 +58,7 @@ UPDATE_DATABASE *update_database_new(
 	update_database->row_dictionary = dictionary_copy( row_dictionary );
 	update_database->file_dictionary = file_dictionary;
 
-	update_database->foreign_attribute_dictionary = dictionary_small_new();
+	update_database->foreign_attribute_dictionary = dictionary_small();
 
 	update_database->folder =
 		folder_with_load_new( 	application_name,
@@ -99,7 +100,7 @@ UPDATE_DATABASE *update_database_new(
 				folder->
 				one2m_recursive_related_folder_list ) )
 	{
-		related_folder_list_populate_one2m_foreign_attribute_dictionary(
+		related_folder_list_one2m_foreign_attribute_dictionary(
 				update_database->
 					foreign_attribute_dictionary,
 				list_get_last_pointer(
@@ -115,7 +116,7 @@ UPDATE_DATABASE *update_database_new(
 				folder->
 				mto1_isa_related_folder_list ) )
 	{
-	     related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
+	     related_folder_list_mto1_isa_foreign_attribute_dictionary(
 			update_database->
 				foreign_attribute_dictionary,
 			list_get_last_pointer(
@@ -127,6 +128,10 @@ UPDATE_DATABASE *update_database_new(
 				mto1_isa_related_folder_list,
 			application_name );
 	}
+
+	update_database->foreign_attribute_list =
+		foreign_attribute_list(
+			folder_name /* one_folder */ );
 
 	return update_database;
 }
@@ -316,7 +321,8 @@ LIST *update_database_update_row_list(
 			DICTIONARY *file_dictionary,
 			FOLDER *folder,
 			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary )
+			DICTIONARY *foreign_attribute_dictionary,
+			LIST *foreign_attribute_list )
 {
 	LIST *update_row_list = list_new_list();
 	int row;
@@ -335,13 +341,14 @@ LIST *update_database_update_row_list(
 	for( row = 1; row <= highest_index; row++ )
 	{
 		update_row =
-			update_database_get_update_row(
+			update_database_update_row(
 				row,
 				row_dictionary,
 				file_dictionary,
 				folder,
 				exclude_attribute_name_list,
-				foreign_attribute_dictionary );
+				foreign_attribute_dictionary,
+				foreign_attribute_list );
 
 		if ( update_row )
 		{
@@ -356,13 +363,14 @@ LIST *update_database_update_row_list(
 						mto1_isa_related_folder_list );
 
 				update_row =
-					update_database_get_update_row(
+					update_database_update_row(
 					row,
 					row_dictionary,
 					file_dictionary,
 					related_folder->folder,
 					exclude_attribute_name_list,
-					foreign_attribute_dictionary );
+					foreign_attribute_dictionary,
+					foreign_attribute_list );
 
 				if ( update_row )
 				{
@@ -379,13 +387,14 @@ LIST *update_database_update_row_list(
 
 }
 
-UPDATE_ROW *update_database_get_update_row(
+UPDATE_ROW *update_database_update_row(
 			int row,
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
 			FOLDER *folder,
 			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary )
+			DICTIONARY *foreign_attribute_dictionary,
+			LIST *foreign_attribute_list )
 {
 	UPDATE_ROW *update_row;
 	UPDATE_FOLDER *update_folder;
@@ -402,7 +411,7 @@ UPDATE_ROW *update_database_get_update_row(
 			folder->attribute_list );
 
 	update_folder =
-		update_database_get_update_folder(
+		update_database_update_folder(
 			&changed_key,
 			row,
 			row_dictionary,
@@ -431,14 +440,15 @@ UPDATE_ROW *update_database_get_update_row(
 			row_dictionary,
 			file_dictionary,
 			exclude_attribute_name_list,
-			foreign_attribute_dictionary );
+			foreign_attribute_dictionary,
+			foreign_attribute_list );
 	}
 
 	return update_row;
 
 }
 
-UPDATE_FOLDER *update_database_get_folder_foreign_update_folder(
+UPDATE_FOLDER *update_database_folder_foreign_update_folder(
 			int row,
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
@@ -450,7 +460,7 @@ UPDATE_FOLDER *update_database_get_folder_foreign_update_folder(
 	LIST *changed_attribute_list;
 
 	changed_attribute_list =
-		update_database_get_folder_foreign_changed_attribute_list(
+		update_database_folder_foreign_changed_attribute_list(
 			row_dictionary,
 			file_dictionary,
 			row,
@@ -473,7 +483,7 @@ UPDATE_FOLDER *update_database_get_folder_foreign_update_folder(
 		folder->primary_attribute_name_list;
 
 	update_folder->where_attribute_list =
-		update_database_get_folder_foreign_where_attribute_list(
+		update_database_folder_foreign_where_attribute_list(
 			file_dictionary,
 			primary_attribute_name_list,
 			row,
@@ -482,10 +492,9 @@ UPDATE_FOLDER *update_database_get_folder_foreign_update_folder(
 			folder_foreign_attribute_name_list );
 
 	return update_folder;
-
 }
 
-UPDATE_FOLDER *update_database_get_update_folder(
+UPDATE_FOLDER *update_database_update_folder(
 			boolean *changed_key,
 			int row,
 			DICTIONARY *row_dictionary,
@@ -495,14 +504,15 @@ UPDATE_FOLDER *update_database_get_update_folder(
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
 			DICTIONARY *foreign_attribute_dictionary,
-			LIST *additional_unique_index_attribute_name_list )
+			LIST *additional_unique_index_attribute_name_list,
+			LIST *foreign_attribute_list )
 {
 	UPDATE_FOLDER *update_folder;
 	LIST *changed_attribute_list;
 	LIST *where_attribute_name_list;
 
 	changed_attribute_list =
-		update_database_get_changed_attribute_list(
+		update_database_changed_attribute_list(
 			changed_key,
 			row_dictionary,
 			file_dictionary,
@@ -512,7 +522,8 @@ UPDATE_FOLDER *update_database_get_update_folder(
 			foreign_attribute_dictionary,
 			include_attribute_name_list,
 			exclude_attribute_name_list,
-			additional_unique_index_attribute_name_list );
+			additional_unique_index_attribute_name_list,
+			foreign_attribute_list );
 
 	if ( !changed_attribute_list ) return (UPDATE_FOLDER *)0;
 
@@ -566,7 +577,7 @@ LIST *update_database_get_changed_attribute_name_list(
 	return changed_attribute_name_list;
 }
 
-LIST *update_database_get_folder_foreign_where_attribute_list(
+LIST *update_database_folder_foreign_where_attribute_list(
 			DICTIONARY *file_dictionary,
 			LIST *primary_attribute_name_list,
 			int row,
@@ -766,7 +777,7 @@ LIST *update_database_where_attribute_list(
 	return where_attribute_list;
 }
 
-LIST *update_database_get_folder_foreign_changed_attribute_list(
+LIST *update_database_folder_foreign_changed_attribute_list(
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
 			int row,
@@ -850,7 +861,7 @@ LIST *update_database_get_folder_foreign_changed_attribute_list(
 	return changed_attribute_list;
 }
 
-LIST *update_database_get_changed_attribute_list(
+LIST *update_database_changed_attribute_list(
 			boolean *changed_key,
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
@@ -860,7 +871,8 @@ LIST *update_database_get_changed_attribute_list(
 			DICTIONARY *foreign_attribute_dictionary,
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
-			LIST *additional_unique_index_attribute_name_list )
+			LIST *additional_unique_index_attribute_name_list,
+			LIST *foreign_attribute_list )
 {
 	ATTRIBUTE *attribute;
 	LIST *changed_attribute_list = {0};
@@ -1429,7 +1441,8 @@ void update_database_set_one2m_related_folder_list(
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
 			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary )
+			DICTIONARY *foreign_attribute_dictionary,
+			LIST *foreign_attribute_list )
 {
 	RELATED_FOLDER *related_folder;
 	LIST *include_attribute_name_list;
@@ -1450,7 +1463,7 @@ void update_database_set_one2m_related_folder_list(
 					folder_foreign_attribute_name_list ) )
 		{
 			update_folder =
-			update_database_get_folder_foreign_update_folder(
+			update_database_folder_foreign_update_folder(
 				row,
 				row_dictionary,
 				file_dictionary,
@@ -1469,7 +1482,7 @@ void update_database_set_one2m_related_folder_list(
 						foreign_attribute_name_list );
 
 			update_folder =
-			update_database_get_update_folder(
+			update_database_update_folder(
 				&changed_key,
 				row,
 				row_dictionary,
@@ -1480,7 +1493,8 @@ void update_database_set_one2m_related_folder_list(
 				exclude_attribute_name_list,
 				foreign_attribute_dictionary,
 				(LIST *)0
-				/* additional_unique_attribute_name_list */ );
+				/* additional_unique_attribute_name_list */,
+				foreign_attribute_list );
 		}
 
 		if ( update_folder )

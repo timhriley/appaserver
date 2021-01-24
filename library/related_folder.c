@@ -19,6 +19,7 @@
 #include "list.h"
 #include "piece.h"
 #include "list_usage.h"
+#include "dictionary.h"
 #include "application.h"
 #include "document.h"
 #include "form.h"
@@ -3777,11 +3778,21 @@ RELATED_FOLDER *related_folder_get_view_only_related_folder(
 
 }
 
-void related_folder_populate_one2m_foreign_attribute_dictionary(
+void related_folder_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
 			char *last_primary_attribute_name,
 			char *related_attribute_name )
 {
+	if ( !foreign_attribute_dictionary )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: empty foreign_attribute_dictionary.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( related_attribute_name
 	&&   *related_attribute_name
 	&&   strcmp( related_attribute_name, "null" ) != 0 )
@@ -3816,7 +3827,7 @@ void related_folder_populate_one2m_foreign_attribute_dictionary(
 
 }
 
-void related_folder_list_populate_one2m_foreign_attribute_dictionary(
+void related_folder_list_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
 			char *last_primary_attribute_name,
 			LIST *one2m_recursive_related_folder_list )
@@ -3824,6 +3835,10 @@ void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 	RELATED_FOLDER *related_folder;
 
 	if ( !list_rewind( one2m_recursive_related_folder_list ) ) return;
+
+	if ( !foreign_attribute_dictionary )
+		foreign_attribute_dictionary =
+			dictionary_small();
 
 	do {
 		related_folder =
@@ -3845,16 +3860,15 @@ void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 		}
 */
 
-		related_folder_populate_one2m_foreign_attribute_dictionary(
+		related_folder_one2m_foreign_attribute_dictionary(
 			foreign_attribute_dictionary,
 			last_primary_attribute_name,
 			related_folder->related_attribute_name );
 
 	} while( list_next( one2m_recursive_related_folder_list ) );
-
 }
 
-void related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
+void related_folder_list_mto1_isa_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
 			char *last_primary_attribute_name,
 			LIST *mto1_isa_related_folder_list,
@@ -5303,5 +5317,17 @@ LIST *related_folder_prompt_insert_element_list(
 		element );
 
 	return return_list;
+}
+
+char *related_folder_primary_where(
+			char *related_folder_name )
+{
+	static char where[ 256 ];
+
+	sprintf(where,
+		"related_folder = '%s'",
+		related_folder_name );
+
+	return where;
 }
 

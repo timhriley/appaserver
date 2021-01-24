@@ -24,6 +24,7 @@ typedef struct
 /* ------------------- */
 DICTIONARY *dictionary_calloc();
 DICTIONARY *dictionary_new();
+DICTIONARY *dictionary_small();
 DICTIONARY *dictionary_small_new();
 DICTIONARY *dictionary_small_dictionary_new();
 DICTIONARY *dictionary_medium_dictionary_new();

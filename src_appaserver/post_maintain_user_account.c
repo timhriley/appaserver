@@ -338,7 +338,9 @@ boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
 			update_database->folder,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			update_database->
-				foreign_attribute_dictionary );
+				foreign_attribute_dictionary,
+			update_database->
+				foreign_attribute_list );
 
 	results_string =
 		update_database_execute(

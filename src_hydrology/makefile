@@ -188,6 +188,7 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/expected_count.o				\
 		${LIBRARY}/post2dictionary.o				\
 		${LIBRARY}/dictionary2file.o				\
+		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/session.o
 
 SOURCE_LIBS= 	${SOURCE_EVERGLADES}/measurement_update_parameter.o	\

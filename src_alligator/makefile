@@ -84,6 +84,7 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/expected_count.o				\
 		${LIBRARY}/post2dictionary.o				\
 		${LIBRARY}/dictionary2file.o				\
+		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/session.o
 
 all: 	${EXECUTABLES}

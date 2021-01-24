@@ -31,6 +31,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/appaserver.o					\
 		${LIBRARY}/basename.o					\
 		${LIBRARY}/session.o					\
+		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/environ.o					\
 		${LIBRARY}/prompt_recursive.o				\
 		${LIBRARY}/process_parameter_list.o			\

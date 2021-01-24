@@ -934,9 +934,10 @@ int post_state_update_for_folder(
 			update_database->folder,
 			update_database->exclude_attribute_name_list,
 			update_database->
-				foreign_attribute_dictionary );
+				foreign_attribute_dictionary,
+			update_database->
+				foreign_attribute_list );
 
-/*
 {
 char msg[ 65536 ];
 sprintf( msg, "%s/%s()/%d: got update_row_list = (%s)\n",
@@ -946,7 +947,6 @@ __LINE__,
 update_database_update_row_list_display( update_database->update_row_list ) );
 m2( application_name, msg );
 }
-*/
 
 	columns_updated =
 		update_database_get_columns_updated(

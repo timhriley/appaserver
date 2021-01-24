@@ -101,6 +101,7 @@ APPASERVER_LIBRARY=						\
 		dollar.o					\
 		array.o						\
 		session.o					\
+		foreign_attribute.o				\
 		mysqldump.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
@@ -994,6 +995,10 @@ array.o: array.c array.h
 mysqldump.o: mysqldump.c mysqldump.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c mysqldump.c
+
+foreign_attribute.o: foreign_attribute.c foreign_attribute.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		-c foreign_attribute.c
 
 keys_match_sum.o: keys_match_sum.c keys_match_sum.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\

@@ -154,6 +154,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/operation.o					\
 		${LIB}/role_folder.o					\
 		${LIB}/session.o					\
+		${LIB}/foreign_attribute.o				\
 		${LIB}/frameset.o					\
 		${LIB}/insert_database.o				\
 		${LIB}/update_database.o				\
