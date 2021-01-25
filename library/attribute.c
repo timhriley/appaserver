@@ -1912,9 +1912,9 @@ void attribute_set_dictionary_date_international(
 
 }
 
-char *attribute_get_select_clause(	char *application_name,
-					char *folder_name,
-					LIST *attribute_name_list )
+char *attribute_select(	char *application_name,
+			char *folder_name,
+			LIST *attribute_name_list )
 {
 	char *attribute_name;
 	char select_clause[ 4096 ];
@@ -1947,8 +1947,8 @@ char *attribute_get_select_clause(	char *application_name,
 	return strdup( select_clause );
 }
 
-LIST *attribute_get_additional_unique_index_attribute_name_list(
-					LIST *attribute_list )
+LIST *attribute_additional_unique_index_attribute_name_list(
+			LIST *attribute_list )
 {
 	LIST *attribute_name_list = {0};
 	ATTRIBUTE *attribute;
@@ -2042,8 +2042,8 @@ LIST *attribute_get_omit_update_attribute_name_list(
 	return attribute_name_list;
 }
 
-int attribute_get_width(	char *application_name,
-				char *attribute_name )
+int attribute_width(	char *application_name,
+			char *attribute_name )
 {
 	char where[ 256 ];
 	char sys_string[ 1024 ];

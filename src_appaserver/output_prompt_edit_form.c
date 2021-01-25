@@ -1154,33 +1154,35 @@ LIST *get_element_list(
 				omit_update_attribute_name_list,
 				mto1_related_folder_list,
 				attribute->attribute_name,
-			        (LIST *)0 /* include_attribute_name_list */) ) )
+			        (LIST *)0 /* include_attribute_name_list */) )
+		&&   !related_folder->omit_lookup_before_drop_down )
 		{
 			build_related_folder_element_list(
-			   ajax_fill_drop_down_related_folder,
-			   return_list,
-			   related_folder,
-			   done_folder_name_list,
-			   isa_folder_list,
-			   attribute,
-			   lookup_before_drop_down,
-			   application_name,
-			   session,
-			   role_name,
-			   login_name,
-			   omit_drop_down_new_push_button,
-			   preprompt_dictionary,
-		  	   no_display_push_button_prefix,
-		  	   no_display_push_button_heading,
-			   role_folder_insert_list,
-			   form_name,
-			   row_level_non_owner_forbid,
-			   folder_name /* one2m_folder_name_for_processes */,
-			   attribute_exists_in_preprompt_dictionary,
-			   state,
-			   foreign_attribute_name_list );
+			   	ajax_fill_drop_down_related_folder,
+			   	return_list,
+			   	related_folder,
+			   	done_folder_name_list,
+			   	isa_folder_list,
+			   	attribute,
+			   	lookup_before_drop_down,
+			   	application_name,
+			   	session,
+			   	role_name,
+			   	login_name,
+			   	omit_drop_down_new_push_button,
+			   	preprompt_dictionary,
+		  	   	no_display_push_button_prefix,
+		  	   	no_display_push_button_heading,
+			   	role_folder_insert_list,
+			   	form_name,
+			   	row_level_non_owner_forbid,
+			   	folder_name
+					/* one2m_folder_name_for_processes */,
+			 	  attribute_exists_in_preprompt_dictionary,
+			   	state,
+			   	foreign_attribute_name_list );
 
-			continue;
+				continue;
 		}
 
 		if ( strcmp( attribute->datatype, "hidden_text" ) == 0 )

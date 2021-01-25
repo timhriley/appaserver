@@ -89,7 +89,8 @@ UPDATE_FOLDER *update_database_update_folder(
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
 			DICTIONARY *foreign_attribute_dictionary,
-			LIST *additional_unique_index_attribute_name_list );
+			LIST *additional_unique_index_attribute_name_list,
+			LIST *foreign_attribute_list );
 
 UPDATE_FOLDER *update_database_folder_foreign_update_folder(
 			int row,
@@ -251,8 +252,7 @@ LIST *update_database_changed_attribute_list(
 			DICTIONARY *foreign_attribute_dictionary,
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
-			LIST *additional_unique_index_attribute_name_list,
-			LIST *foreign_attribute_list );
+			LIST *additional_unique_index_attribute_name_list );
 
 char *update_database_execute(
 			char *application_name,

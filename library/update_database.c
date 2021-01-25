@@ -403,7 +403,7 @@ UPDATE_ROW *update_database_update_row(
 	LIST *additional_unique_index_attribute_name_list;
 
 	additional_unique_index_attribute_name_list =
-		attribute_get_additional_unique_index_attribute_name_list(
+		attribute_additional_unique_index_attribute_name_list(
 			folder->attribute_list );
 
 	include_attribute_name_list =
@@ -421,7 +421,8 @@ UPDATE_ROW *update_database_update_row(
 			include_attribute_name_list,
 			exclude_attribute_name_list,
 			foreign_attribute_dictionary,
-			additional_unique_index_attribute_name_list );
+			additional_unique_index_attribute_name_list,
+			foreign_attribute_list );
 
 	if ( !update_folder ) return (UPDATE_ROW *)0;
 
@@ -522,8 +523,7 @@ UPDATE_FOLDER *update_database_update_folder(
 			foreign_attribute_dictionary,
 			include_attribute_name_list,
 			exclude_attribute_name_list,
-			additional_unique_index_attribute_name_list,
-			foreign_attribute_list );
+			additional_unique_index_attribute_name_list );
 
 	if ( !changed_attribute_list ) return (UPDATE_FOLDER *)0;
 
@@ -695,6 +695,16 @@ LIST *update_database_where_attribute_list(
 	LIST *where_attribute_list;
 	WHERE_ATTRIBUTE *where_attribute;
 	char *alternative_attribute_name;
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: where_attribute_name_list = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_display( where_attribute_name_list ) );
+m2( "tnt", msg );
+}
 
 	if ( !file_dictionary )
 	{
@@ -871,8 +881,7 @@ LIST *update_database_changed_attribute_list(
 			DICTIONARY *foreign_attribute_dictionary,
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
-			LIST *additional_unique_index_attribute_name_list,
-			LIST *foreign_attribute_list )
+			LIST *additional_unique_index_attribute_name_list )
 {
 	ATTRIBUTE *attribute;
 	LIST *changed_attribute_list = {0};

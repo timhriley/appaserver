@@ -133,9 +133,9 @@ LIST *foreign_attribute_name_list(
 	return name_list;
 }
 
-LIST *foreign_attribute_list( char *one_folder )
+LIST *foreign_attribute_list( char *one_folder_name )
 {
 	return foreign_attribute_system_list(
 		related_folder_primary_where(
-			one_folder /* related_folder_name */ ) );
+			one_folder_name /* related_folder_name */ ) );
 }

@@ -65,7 +65,7 @@ LIST *foreign_attribute_name_list(
 			LIST *foreign_attribute_list );
 
 LIST *foreign_attribute_list(
-			char *one_folder );
+			char *one_folder_name );
 
 #endif
 

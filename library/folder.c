@@ -1001,7 +1001,7 @@ LIST *folder_data_list(
 	strcpy( common_non_primary_process, "cat" );
 
 	strcpy(	select,
-		attribute_get_select_clause(
+		attribute_select(
 			application_name,
 			piece( first_folder_name, ',', folder_name, 0 ),
 			attribute_name_list ) );

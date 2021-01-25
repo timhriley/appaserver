@@ -290,18 +290,19 @@ void attribute_set_dictionary_date_international(
 					DICTIONARY *dictionary,
 					LIST *attribute_list );
 
-char *attribute_get_select_clause(	char *application_name,
-					char *folder_name,
-					LIST *attribute_name_list );
+char *attribute_select(
+			char *application_name,
+			char *folder_name,
+			LIST *attribute_name_list );
 
-LIST *attribute_get_additional_unique_index_attribute_name_list(
-					LIST *attribute_list );
+LIST *attribute_additional_unique_index_attribute_name_list(
+			LIST *attribute_list );
 
 void attribute_list_remove_exclude_permission_list(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
-int attribute_get_width(		char *application_name,
-					char *attribute_name );
+int attribute_width(	char *application_name,
+			char *attribute_name );
 
 boolean attribute_exists(
 			char *application_name,
