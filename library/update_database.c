@@ -181,7 +181,8 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute_new(
 	if ( timlib_strcmp( attribute_datatype, "float" ) == 0 )
 	{
 		strcpy(	new_data,
-			timlib_trim_money_characters( new_data ) );
+			timlib_trim_money_characters(
+				new_data ) );
 	}
 
 	if ( strcmp( new_data, FORBIDDEN_NULL ) == 0 )
@@ -193,12 +194,12 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute_new(
 }
 
 boolean update_database_get_index_data_if_changed(
-					char **old_data,
-					char **new_data,
-					DICTIONARY *row_dictionary,
-					DICTIONARY *file_dictionary,
-					char *attribute_name,
-					int row )
+			char **old_data,
+			char **new_data,
+			DICTIONARY *row_dictionary,
+			DICTIONARY *file_dictionary,
+			char *attribute_name,
+			int row )
 {
 	char preupdate_attribute_name[ 128 ];
 
@@ -226,19 +227,19 @@ boolean update_database_get_index_data_if_changed(
 	*new_data = (char *)0;
 
 	if ( !update_database_get_dictionary_index_data(
-						new_data,
-						row_dictionary,
-						attribute_name,
-						row ) )
+				new_data,
+				row_dictionary,
+				attribute_name,
+				row ) )
 	{
 		return 0;
 	}
 
 	if ( !update_database_get_dictionary_index_data(
-					old_data,
-					file_dictionary,
-					attribute_name,
-					row ) )
+			old_data,
+			file_dictionary,
+			attribute_name,
+			row ) )
 	{
 		return 0;
 	}
@@ -313,7 +314,6 @@ UPDATE_FOLDER *update_database_update_folder_new(
 
 	update_folder->folder_name = folder_name;
 	return update_folder;
-
 }
 
 LIST *update_database_update_row_list(
@@ -327,14 +327,9 @@ LIST *update_database_update_row_list(
 	LIST *update_row_list = list_new_list();
 	int row;
 	int highest_index;
-	LIST *mto1_isa_related_folder_list;
-	RELATED_FOLDER *related_folder;
 	UPDATE_ROW *update_row = {0};
 
 	if ( !row_dictionary ) return update_row_list;
-
-	mto1_isa_related_folder_list =
-		folder->mto1_isa_related_folder_list;
 
 	highest_index = dictionary_get_key_highest_index( row_dictionary );
 
@@ -354,37 +349,9 @@ LIST *update_database_update_row_list(
 		{
 			list_append_pointer( update_row_list, update_row );
 		}
-
-		if ( list_rewind( mto1_isa_related_folder_list ) )
-		{
-			do {
-				related_folder =
-					list_get(
-						mto1_isa_related_folder_list );
-
-				update_row =
-					update_database_update_row(
-					row,
-					row_dictionary,
-					file_dictionary,
-					related_folder->folder,
-					exclude_attribute_name_list,
-					foreign_attribute_dictionary,
-					foreign_attribute_list );
-
-				if ( update_row )
-				{
-					list_append_pointer(
-						update_row_list,
-						update_row );
-				}
-
-			} while( list_next( mto1_isa_related_folder_list ) );
-		}
 	}
 
 	return update_row_list;
-
 }
 
 UPDATE_ROW *update_database_update_row(
@@ -421,32 +388,64 @@ UPDATE_ROW *update_database_update_row(
 			include_attribute_name_list,
 			exclude_attribute_name_list,
 			foreign_attribute_dictionary,
-			additional_unique_index_attribute_name_list,
-			foreign_attribute_list );
+			additional_unique_index_attribute_name_list );
 
 	if ( !update_folder ) return (UPDATE_ROW *)0;
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: update_folder = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+update_database_folder_display( update_folder ) );
+m2( "tnt", msg );
+}
 	update_row = update_database_update_row_new( row );
 	update_row->update_folder_list = list_new();
 	list_append_pointer( update_row->update_folder_list, update_folder );
 	update_row->changed_key = changed_key;
 
-	if ( update_row->changed_key
-	&&   list_length( folder->one2m_recursive_related_folder_list ) )
+	if ( update_row->changed_key )
 	{
-		update_database_set_one2m_related_folder_list(
-			update_row->update_folder_list,
-			folder->one2m_recursive_related_folder_list,
-			row,
-			row_dictionary,
-			file_dictionary,
-			exclude_attribute_name_list,
-			foreign_attribute_dictionary,
-			foreign_attribute_list );
+		if ( list_length( foreign_attribute_list ) )
+		{
+			update_folder->one2m_related_folder_list =
+				related_folder_one2m_related_folder_list(
+				(LIST *)0 /* related_folder_list */,
+				folder->folder_name,
+				( update_folder->foreign_attribute_data_list =
+				      update_folder_foreign_attribute_data_list(
+						update_folder->
+						   where_attribute_list ) ) );
+
+			list_set_list(
+				update_folder_list,
+				update_folder_foreign_update_folder_list(
+					update_folder->
+					     one2m_update_related_folder_list );
+		}
+		else
+		/* ----------------------------------------------------- */
+		/* The updated foreign_attribute_list() will retire this.*/
+		/* ----------------------------------------------------- */
+		if ( list_length( folder->
+				one2m_recursive_related_folder_list ) )
+		{
+			list_set_list(
+				update_row->update_folder_list,
+				update_database_set_one2m_related_folder_list(
+					folder->
+					   one2m_recursive_related_folder_list,
+					row,
+					row_dictionary,
+					file_dictionary,
+					exclude_attribute_name_list,
+					foreign_attribute_dictionary ) );
+		}
 	}
 
 	return update_row;
-
 }
 
 UPDATE_FOLDER *update_database_folder_foreign_update_folder(
@@ -505,8 +504,7 @@ UPDATE_FOLDER *update_database_update_folder(
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
 			DICTIONARY *foreign_attribute_dictionary,
-			LIST *additional_unique_index_attribute_name_list,
-			LIST *foreign_attribute_list )
+			LIST *additional_unique_index_attribute_name_list )
 {
 	UPDATE_FOLDER *update_folder;
 	LIST *changed_attribute_list;
@@ -695,16 +693,6 @@ LIST *update_database_where_attribute_list(
 	LIST *where_attribute_list;
 	WHERE_ATTRIBUTE *where_attribute;
 	char *alternative_attribute_name;
-
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: where_attribute_name_list = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-list_display( where_attribute_name_list ) );
-m2( "tnt", msg );
-}
 
 	if ( !file_dictionary )
 	{
@@ -1443,16 +1431,15 @@ boolean update_database_get_dictionary_index_data(
 
 }
 
-void update_database_set_one2m_related_folder_list(
-			LIST *update_folder_list,
+LIST *update_database_set_one2m_related_folder_list(
 			LIST *one2m_recursive_related_folder_list,
 			int row,
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
 			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary,
-			LIST *foreign_attribute_list )
+			DICTIONARY *foreign_attribute_dictionary )
 {
+	LIST *update_folder_list = {0};
 	RELATED_FOLDER *related_folder;
 	LIST *include_attribute_name_list;
 	UPDATE_FOLDER *update_folder;
@@ -1461,7 +1448,8 @@ void update_database_set_one2m_related_folder_list(
 	/* ------- */
 	boolean changed_key = 0;
 
-	if ( !list_rewind( one2m_recursive_related_folder_list ) ) return;
+	if ( !list_rewind( one2m_recursive_related_folder_list ) )
+		return (LIST *)0;
 
 	do {
 		related_folder =
@@ -1502,12 +1490,15 @@ void update_database_set_one2m_related_folder_list(
 				exclude_attribute_name_list,
 				foreign_attribute_dictionary,
 				(LIST *)0
-				/* additional_unique_attribute_name_list */,
-				foreign_attribute_list );
+				/* additional_unique_attribute_name_list */ );
 		}
 
 		if ( update_folder )
 		{
+			if ( !update_folder_list )
+				update_folder_list =
+					list_new();
+
 			list_append_pointer(
 				update_folder_list,
 				update_folder );
@@ -1515,6 +1506,7 @@ void update_database_set_one2m_related_folder_list(
 
 	} while( list_next( one2m_recursive_related_folder_list ) );
 
+	return update_folder_list;
 }
 
 void update_row_free( UPDATE_ROW *update_row )
@@ -1641,7 +1633,7 @@ char *update_database_folder_list_display(
 }
 
 char *update_database_folder_display(
-				UPDATE_FOLDER *update_folder )
+			UPDATE_FOLDER *update_folder )
 {
 	static char buffer[ 2048 ];
 	char *buffer_pointer = buffer;

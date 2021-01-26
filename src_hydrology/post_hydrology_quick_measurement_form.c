@@ -273,8 +273,7 @@ int main( int argc, char **argv )
 			update_database->exclude_attribute_name_list,
 			update_database->
 				foreign_attribute_dictionary,
-			update_database->
-				foreign_attribute_list );
+			foreign_attribute_list( folder_name ) );
 
 	additional_update_attribute_name_list = list_new();
 	additional_update_data_list = list_new();

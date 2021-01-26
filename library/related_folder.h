@@ -660,4 +660,12 @@ LIST *related_folder_prompt_insert_element_list(
 char *related_folder_primary_where(
 			char *related_folder_name );
 
+LIST *related_folder_one2m_update_related_folder_list(
+			char *folder_name,
+			LIST *foreign_attribute_data_list );
+
+LIST *related_folder_one2m_related_folder_list(
+			LIST *related_folder_list,
+			char *folder_name );
+
 #endif

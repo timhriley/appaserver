@@ -2042,7 +2042,8 @@ LIST *attribute_get_omit_update_attribute_name_list(
 	return attribute_name_list;
 }
 
-int attribute_width(	char *application_name,
+int attribute_fetch_width(
+			char *application_name,
 			char *attribute_name )
 {
 	char where[ 256 ];

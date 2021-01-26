@@ -658,7 +658,7 @@ boolean extract_station_collection_attributes(
 	if ( !station_attribute_width )
 	{
 		if ( ! ( station_attribute_width =
-				attribute_get_width(
+				attribute_fetch_width(
 					application_name,
 					"station" /* attribute_name */ ) ) )
 		{

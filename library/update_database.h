@@ -44,6 +44,8 @@ typedef struct
 	PROCESS *post_change_process;
 	LIST *primary_attribute_name_list;
 	boolean update_failed;
+	LIST *one2m_related_folder_list;
+	LIST *foreign_attribute_data_list;
 } UPDATE_FOLDER;
 
 typedef struct
@@ -89,8 +91,7 @@ UPDATE_FOLDER *update_database_update_folder(
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
 			DICTIONARY *foreign_attribute_dictionary,
-			LIST *additional_unique_index_attribute_name_list,
-			LIST *foreign_attribute_list );
+			LIST *additional_unique_index_attribute_name_list );
 
 UPDATE_FOLDER *update_database_folder_foreign_update_folder(
 			int row,
@@ -277,15 +278,13 @@ void update_database_set_each_mto1_isa_one2m_related_folder_list(
 			char *session,
 			char *role_name );
 
-void update_database_set_one2m_related_folder_list(
-			LIST *update_folder_list,
+LIST *update_database_set_one2m_related_folder_list(
 			LIST *one2m_related_folder_list,
 			int row,
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
 			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary,
-			LIST *foreign_attribute_list );
+			DICTIONARY *foreign_attribute_dictionary );
 
 void update_row_free(	UPDATE_ROW *update_row );
 

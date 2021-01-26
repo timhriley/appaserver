@@ -301,7 +301,8 @@ LIST *attribute_additional_unique_index_attribute_name_list(
 void attribute_list_remove_exclude_permission_list(
 			LIST *attribute_list );
 
-int attribute_width(	char *application_name,
+int attribute_fetch_width(
+			char *application_name,
 			char *attribute_name );
 
 boolean attribute_exists(
