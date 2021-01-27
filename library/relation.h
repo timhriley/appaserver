@@ -62,6 +62,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	boolean is_primary_key_subset;
 	LIST *foreign_attribute_list;
 	boolean ignore;
 	LIST *join_where_clause;
@@ -79,13 +80,17 @@ RELATION *relation_parse(
 			char *input,
 			/* ---------------------------- */
 			/* Setting both will set	*/
-			/* foreign_attribute_list	*/
+			/* foreign_attribute_name_list	*/
 			/* ---------------------------- */
 			boolean fetch_folder,
 			boolean fetch_attribute_list );
 
 LIST *relation_system_list(
 			char *sys_string,
+			/* ---------------------------- */
+			/* Setting both will set	*/
+			/* foreign_attribute_name_list	*/
+			/* ---------------------------- */
 			boolean fetch_folder,
 			boolean fetch_attribute_list );
 
@@ -95,15 +100,6 @@ char *relation_sys_string(
 /* Safely returns heap memory */
 /* -------------------------- */
 char *relation_display(	RELATION *relation );
-
-
-LIST *relation_one2m_update_relation_list(
-			char *folder_name,
-			LIST *foreign_attribute_data_list );
-
-LIST *relation_one2m_relation_list(
-			LIST *relation_list,
-			char *folder_name );
 
 boolean relation_list_exists(
 			LIST *relation_list,
@@ -118,6 +114,20 @@ LIST *relation_foreign_attribute_name_list(
 			LIST *primary_foreign_attribute_name_list,
 			char *related_attribute_name,
 			LIST *foreign_attribute_list );
+
+LIST *relation_one2m_relation_list(
+			LIST *relation_list,
+			char *one2m_folder_name );
+
+/* ---------------------------------- */
+/* foreign_attribute_name_list is set */
+/* ---------------------------------- */
+LIST *relation_one2m_fetch_relation_list(
+			char *one2m_folder_name );
+
+boolean relation_is_primary_key_subset(
+			LIST *foreign_attribute_name_list,
+			LIST *mto1_primary_attribute_name_list );
 
 #endif
 

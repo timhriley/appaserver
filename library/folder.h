@@ -19,6 +19,24 @@
 
 /* Constants */
 /* --------- */
+#define FOLDER_SELECT_COLUMNS		"folder,"			\
+					"form,"				\
+					"insert_rows_number,"		\
+					"lookup_email_output_yn,"	\
+					"notepad,"			\
+					"populate_drop_down_process,"	\
+					"post_change_process,"		\
+					"html_help_file_anchor,"	\
+					"post_change_javascript,"	\
+					"subschema,"			\
+					"exclude_application_export_yn,"\
+					"lookup_before_drop_down_yn,"	\
+					"no_initial_capital_yn,"	\
+					"index_directory,"		\
+					"data_directory,"		\
+					"create_view_statement,"	\
+					"appaserver_yn"
+
 #define FOLDER_MAXROWS					10000
 #define FOLDER_FOLDER_NAME_PIECE			0
 #define FOLDER_INSERT_ROWS_NUMBER_PIECE			1
@@ -577,5 +595,14 @@ LIST *folder_prompt_insert_primary_data_table_list(
 char *folder_primary_where(
 			char *folder_name );
 
-FOLDER *folder_fetch(	char *
+FOLDER *folder_fetch(	char *folder_name,
+			boolean fetch_attribute_list,
+			boolean fetch_one2m_relation_list,
+			boolean fetch_mto1_isa_relation_list );
+
+FOLDER *folder_parse(	char *input,
+			boolean fetch_attribute_list,
+			boolean fetch_one2m_relation_list,
+			boolean fetch_mto1_isa_relation_list );
+
 #endif

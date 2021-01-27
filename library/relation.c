@@ -194,8 +194,56 @@ LIST *relation_one2m_update_relation_list(
 
 LIST *relation_one2m_relation_list(
 			LIST *relation_list,
-			char *folder_name )
+			char *one2m_folder_name )
 {
+	LIST *local_relation_list;
+	RELATION *relation;
+
+	if ( !relation_list ) relation_list = list_new();
+
+	local_relation_list =
+		/* ---------------------------------- */
+		/* foreign_attribute_name_list is set */
+		/* ---------------------------------- */
+		relation_one2m_fetch_relation_list(
+			one2m_folder_name );
+
+	if ( !list_rewind( local_relation_list ) )
+		return relation_list;
+
+	do {
+		relation = list_get( local_relation_list );
+
+		if ( relation_list_exists(
+			relation_list,
+			relation->mto1_folder->folder_name,
+			relation->one2m_folder->folder_name ) )
+		{
+			continue;
+		}
+
+		list_set( relation_list, relation );
+
+		if ( ( relation->is_primary_key_subset =
+			relation_is_primary_key_subset(
+				relation->
+					mto1_folder->
+					foreign_attribute_name_list,
+				relation->
+				    mto1_folder->
+				    primary_attribute_name_list
+				    /* mto1_primary_attribute_name_list */ ) ) )
+		{
+			relation_list =
+				relation_one2m_relation_list(
+					relation_list,
+					relation->
+						mto1_folder->
+						folder_name
+						/* one2m_folder_name */ );
+		}
+	}
+	return relation_list;
 }
 
 boolean relation_list_exists(
@@ -272,3 +320,33 @@ LIST *relation_foreign_attribute_name_list(
 	return return_list;
 }
 
+LIST *relation_one2m_fetch_relation_list(
+			char *one2m_folder_name )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"related_folder = '%s'",
+		one2m_folder_name );
+
+	return
+		relation_system_list(
+			relation_sys_string(
+				where ),
+			/* ---------------------------- */
+			/* Setting both will set	*/
+			/* foreign_attribute_name_list	*/
+			/* ---------------------------- */
+			1 /* fetch_folder */,
+			1 /* fetch_attribute_list */ );
+
+}
+
+boolean relation_is_primary_key_subset(
+			LIST *foreign_attribute_name_list,
+			LIST *mto1_primary_attribute_name_list )
+{
+	return list_is_subset_of(
+			foreign_attribute_name_list,
+			mto1_primary_attribute_name_list );
+}
