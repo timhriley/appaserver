@@ -61,7 +61,7 @@ char *foreign_attribute_sys_string(
 			char *where );
 
 LIST *foreign_attribute_name_list(
-			char *many_folder,
+			char *many_folder_name,
 			LIST *foreign_attribute_list );
 
 LIST *foreign_attribute_list(

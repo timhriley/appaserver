@@ -234,9 +234,6 @@ LIST *attribute_get_name_list(
 LIST *attribute_get_attribute_name_list(
 			LIST *attribute_list );
 
-LIST *attribute_get_primary_attribute_name_list(
-			LIST *attribute_list );
-
 LIST *attribute_get_lookup_required_attribute_name_list(
 			LIST *attribute_list );
 
@@ -358,7 +355,11 @@ char *attribute_list_sys_string(
 LIST *attribute_folder_attribute_name_list(
 			LIST *attribute_list );
 
+LIST *attribute_primary_name_list(
+			LIST *attribute_list );
 LIST *attribute_primary_attribute_name_list(
+			LIST *attribute_list );
+LIST *attribute_get_primary_attribute_name_list(
 			LIST *attribute_list );
 
 #endif

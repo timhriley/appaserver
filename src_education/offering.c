@@ -22,9 +22,7 @@
 #include "offering.h"
 #include "enrollment.h"
 
-OFFERING *offering_new(	char *course_name,
-			char *season_name,
-			int year )
+OFFERING *offering_calloc( void )
 {
 	OFFERING *offering;
 
@@ -37,6 +35,14 @@ OFFERING *offering_new(	char *course_name,
 			 __LINE__ );
 		exit( 1 );
 	}
+	return offering;
+}
+
+OFFERING *offering_new(	char *course_name,
+			char *season_name,
+			int year )
+{
+	OFFERING *offering = offering_calloc();
 
 	offering->course =
 		course_new(

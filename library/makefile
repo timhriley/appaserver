@@ -66,6 +66,7 @@ APPASERVER_LIBRARY=						\
 		grace.o 					\
 		frameset.o					\
 		validation_level.o				\
+		relation.o					\
 		related_folder.o				\
 		operation_list.o				\
 		operation.o					\
@@ -1016,4 +1017,7 @@ String.o: String.c String.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c String.c
 
+relation.o: relation.c relation.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		-c relation.c
 

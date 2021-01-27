@@ -2364,3 +2364,27 @@ ATTRIBUTE *attribute_parse( char *input )
 				(boolean) (*appaserver_yn == 'y') );
 }
 
+LIST *attribute_primary_name_list(
+			LIST *attribute_list )
+{
+	ATTRIBUTE *attribute;
+	LIST *primary_attribute_name_list;
+
+	if ( !attribute_list || !list_rewind( attribute_list ) )
+		return (LIST *)0;
+
+	primary_attribute_name_list = list_new_list();
+
+	do {
+		attribute = list_get( attribute_list );
+
+		if ( attribute->primary_key_index )
+		{
+			list_append_string(
+					primary_attribute_name_list,
+					attribute->attribute_name );
+		}
+	} while( list_next( attribute_list ) );
+
+	return primary_attribute_name_list;
+}

@@ -107,7 +107,7 @@ char *foreign_attribute_sys_string(
 }
 
 LIST *foreign_attribute_name_list(
-			char *many_folder,
+			char *many_folder_name,
 			LIST *foreign_attribute_list )
 {
 	LIST *name_list = {0};
@@ -119,7 +119,7 @@ LIST *foreign_attribute_name_list(
 
 		foreign_attribute = list_get( foreign_attribute_list );
 
-		if ( strcmp(	many_folder,
+		if ( strcmp(	many_folder_name,
 				foreign_attribute->folder ) == 0 )
 		{
 			if ( !name_list ) name_list = list_new();

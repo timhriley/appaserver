@@ -144,5 +144,8 @@ void offering_trigger(
 			char *season_name,
 			int year );
 
+OFFERING *offering_calloc(
+			void );
+
 #endif
 
