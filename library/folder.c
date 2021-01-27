@@ -11,6 +11,7 @@
 #include "folder.h"
 #include "query.h"
 #include "related_folder.h"
+#include "relation.h"
 #include "dictionary.h"
 #include "appaserver_error.h"
 #include "list.h"
@@ -114,7 +115,7 @@ FOLDER *folder_with_load_new(	char *application_name,
 	     related_folder_get_mto1_related_folder_list(
 		list_new(),
 		application_name,
-		BOGUS_SESSION,
+		session,
 		folder_name,
 		role_name,
 		0 /* isa_flag */,
@@ -127,7 +128,7 @@ FOLDER *folder_with_load_new(	char *application_name,
 	     related_folder_get_mto1_related_folder_list(
 		list_new(),
 		application_name,
-		BOGUS_SESSION,
+		session,
 		folder_name,
 		role_name,
 		0 /* isa_flag */,
@@ -203,7 +204,7 @@ FOLDER *folder_with_load_new(	char *application_name,
 	if ( ! ( folder->mto1_append_isa_related_folder_list = 
 		folder_append_isa_mto1_related_folder_list(
 			application_name,
-			BOGUS_SESSION,
+			session,
 			role_name,
 			role_get_override_row_restrictions(
 				override_row_restrictions_yn ),
@@ -237,7 +238,7 @@ FOLDER *folder_with_load_new(	char *application_name,
 	folder->one2m_related_folder_list =
 		related_folder_1tom_related_folder_list(
 			application_name,
-			BOGUS_SESSION,
+			session,
 			folder->folder_name,
 			role_name,
 			update,
@@ -252,7 +253,7 @@ FOLDER *folder_with_load_new(	char *application_name,
 	folder->one2m_recursive_related_folder_list =
 		related_folder_1tom_related_folder_list(
 			application_name,
-			BOGUS_SESSION,
+			session,
 			folder->folder_name,
 			role_name,
 			update,

@@ -97,7 +97,7 @@ char *relation_sys_string(
 char *relation_display(	RELATION *relation );
 
 
-LIST relation_one2m_update_relation_list(
+LIST *relation_one2m_update_relation_list(
 			char *folder_name,
 			LIST *foreign_attribute_data_list );
 
@@ -110,12 +110,12 @@ boolean relation_list_exists(
 			char *mto1_folder_name,
 			char *one2m_folder_name );
 
-LIST *relation_foreign_attribute_list(
+LIST *relation_foreign_attribute_name_list(
 			char *many_folder_name,
 			/* ----------------------------------- */
 			/* Send in primary_attribute_name_list */
 			/* ----------------------------------- */
-			LIST *foreign_attribute_name_list,
+			LIST *primary_foreign_attribute_name_list,
 			char *related_attribute_name,
 			LIST *foreign_attribute_list );
 

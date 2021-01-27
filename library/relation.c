@@ -125,10 +125,10 @@ RELATION *relation_parse(
 		relation->foreign_attribute_list =
 			relation_foreign_attribute_list(
 				attribute_primary_name_list(
-					relation->
+				     relation->
 						one2m_folder->
 						attribute_list )
-					/* foreign_attribute_name_list */,
+				     /* primary_foreign_attribute_name_list */,
 				relation->related_attribute_name,
 				foreign_attribute_list(
 					mto1_folder->
@@ -174,10 +174,19 @@ char *relation_sys_string( char *where )
 
 char *relation_display(	RELATION *relation )
 {
-	return "";
+	char display[ 65536 ];
+
+	sprintf(display,
+		"\nRelation: %s -> %s, foreign_attribute_name_list = [%s];\n",
+		relation->mto1_folder->folder_name,
+		relation->one2m_folder->folder_name,
+		list_display(
+			relation->foreign_attribute_name_list ) );
+
+	return strdup( display );
 }
 
-LIST relation_one2m_update_relation_list(
+LIST *relation_one2m_update_relation_list(
 			char *folder_name,
 			LIST *foreign_attribute_data_list )
 {
@@ -218,12 +227,12 @@ boolean relation_list_exists(
 	return 0;
 }
 
-LIST *relation_foreign_attribute_list(
+LIST *relation_foreign_attribute_name_list(
 			char *many_folder_name,
 			/* ----------------------------------- */
 			/* Send in primary_attribute_name_list */
 			/* ----------------------------------- */
-			LIST *foreign_attribute_name_list,
+			LIST *primary_foreign_attribute_name_list,
 			char *related_attribute_name,
 			LIST *foreign_attribute_list )
 {
@@ -236,35 +245,30 @@ LIST *relation_foreign_attribute_list(
 	&&   *related_attribute_name
 	&&   string_strcmp( related_attribute_name, "null" ) != 0 )
 	{
-		related_attribute_name_list =
+		primary_foreign_attribute_name_list =
 			string_list_duplicate(
-				related_attribute_name_list );
+				primary_foreign_attribute_name_list );
 
 		list_replace_last_string( 
-			related_attribute_name_list,
+			primary_foreign_attribute_name_list,
 			related_attribute_name );
 
-		return_list = related_attribute_name_list;
-	}
-	else
-	/* ---------------------------- */
-	/* If exact one-to-one matching */
-	/* ---------------------------- */
-	if ( list_length( foreign_attribute_name_list ) )
-	{
-		return_list = foreign_attribute_name_list;
+		return_list = primary_foreign_attribute_name_list;
 	}
 	else
 	/* -------------------------- */
 	/* If using FOREIGN_ATTRIBUTE */
 	/* -------------------------- */
-	{
-		return_list =
+	if ( ! ( return_list =
 			foreign_attribute_name_list(
 				many_folder_name,
-				foreign_attribute_list );
+				foreign_attribute_list ) ) )
+	{
+		/* ---------------------------- */
+		/* If exact one-to-one matching */
+		/* ---------------------------- */
+		return_list = primary_foreign_attribute_name_list;
 	}
-
 	return return_list;
 }
 

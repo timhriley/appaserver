@@ -577,4 +577,5 @@ LIST *folder_prompt_insert_primary_data_table_list(
 char *folder_primary_where(
 			char *folder_name );
 
+FOLDER *folder_fetch(	char *
 #endif

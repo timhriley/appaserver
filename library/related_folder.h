@@ -503,17 +503,17 @@ char *related_folder_get_appaserver_user_foreign_login_name(
 RELATED_FOLDER *related_folder_get_view_only_related_folder(
 			LIST *mto1_related_folder_list );
 
-void related_folder_one2m_foreign_attribute_dictionary(
+void related_folder_populate_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
 			char *last_primary_attribute_name,
 			char *related_attribute_name );
 
-void related_folder_list_one2m_foreign_attribute_dictionary(
+void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
 			char *last_primary_attribute_name,
 			LIST *one2m_recursive_related_folder_list );
 
-void related_folder_list_mto1_isa_foreign_attribute_dictionary(
+void related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
 			char *last_primary_attribute_name,
 			LIST *mto1_isa_related_folder_list,
@@ -656,16 +656,5 @@ LIST *related_folder_prompt_insert_element_list(
 			boolean output_not_null_option,
 			boolean output_select_option,
 			boolean omit_lookup_before_drop_down );
-
-char *related_folder_primary_where(
-			char *related_folder_name );
-
-LIST *related_folder_one2m_update_related_folder_list(
-			char *folder_name,
-			LIST *foreign_attribute_data_list );
-
-LIST *related_folder_one2m_related_folder_list(
-			LIST *related_folder_list,
-			char *folder_name );
 
 #endif

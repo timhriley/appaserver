@@ -30,7 +30,6 @@ typedef struct
 
 typedef struct
 {
-	char *folder_name;
 	char *attribute_name;
 	char *old_data;
 	char *new_data;
@@ -38,14 +37,20 @@ typedef struct
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	char *folder_name;
-	LIST *where_attribute_list;
-	LIST *changed_attribute_list;
+	LIST *attribute_list;
+	int row;
 	PROCESS *post_change_process;
-	LIST *primary_attribute_name_list;
+
+	/* Process */
+	/* ------- */
+	LIST *changed_attribute_list;
+	LIST *primary_data_list;
+	LIST *where_attribute_list;
+	boolean changed_key;
 	boolean update_failed;
-	LIST *one2m_related_folder_list;
-	LIST *foreign_attribute_data_list;
 } UPDATE_FOLDER;
 
 typedef struct
@@ -68,7 +73,6 @@ typedef struct
 	FOLDER *folder;
 	LIST *mto1_isa_related_folder_list;
 	DICTIONARY *foreign_attribute_dictionary;
-	LIST *foreign_attribute_list;
 	/* LIST *mto1_common_non_primary_attribute_related_folder_list; */
 } UPDATE_DATABASE;
 
@@ -81,7 +85,7 @@ UPDATE_DATABASE *update_database_new(
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary );
 
-UPDATE_FOLDER *update_database_update_folder(
+UPDATE_FOLDER *update_database_get_update_folder(
 			boolean *changed_key,
 			int row,
 			DICTIONARY *row_dictionary,
@@ -90,10 +94,9 @@ UPDATE_FOLDER *update_database_update_folder(
 			LIST *foreign_attribute_name_list,
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary,
-			LIST *additional_unique_index_attribute_name_list );
+			DICTIONARY *foreign_attribute_dictionary );
 
-UPDATE_FOLDER *update_database_folder_foreign_update_folder(
+UPDATE_FOLDER *update_database_get_folder_foreign_update_folder(
 			int row,
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
@@ -106,8 +109,7 @@ LIST *update_database_update_row_list(
 			DICTIONARY *file_dictionary,
 			FOLDER *folder,
 			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary,
-			LIST *foreign_attribute_list );
+			DICTIONARY *foreign_attribute_dictionary );
 
 UPDATE_ROW *update_database_update_row_new(
 			int row );
@@ -120,7 +122,6 @@ WHERE_ATTRIBUTE *update_database_where_attribute_new(
 			char *data );
 
 CHANGED_ATTRIBUTE *update_database_changed_attribute_new(
-			char *folder_name,
 			char *attribute_name,
 			char *attribute_datatype,
 			char *old_data,
@@ -133,17 +134,6 @@ boolean update_database_exists_changed_key(
 void update_database_build_where_clause(
 			char *destination,
 			LIST *where_attribute_list );
-
-boolean update_database_get_dictionary_index_data(
-			char **destination,
-			DICTIONARY *dictionary,
-			char *key,
-			int index );
-
-boolean update_database_get_dictionary_data(
-			char **destination,
-			DICTIONARY *dictionary,
-			char *key );
 
 void update_database_populate_common_non_primary_attributes(
 			DICTIONARY *row_dictionary,
@@ -179,7 +169,7 @@ void update_database_populate_common_non_primary_data(
 UPDATE_FOLDER *update_database_update_folder_new(
 			char *folder_name );
 
-boolean update_database_get_index_data_if_changed(
+boolean update_database_index_data_if_changed(
 			char **old_data,
 			char **new_data,
 			DICTIONARY *row_dictionary,
@@ -226,16 +216,15 @@ void update_database_build_where_clause(
 			char *destination,
 			LIST *where_attribute_list );
 
-UPDATE_ROW *update_database_update_row(
+UPDATE_ROW *update_database_get_update_row(
 			int row,
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
 			FOLDER *folder,
 			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary,
-			LIST *foreign_attribute_list );
+			DICTIONARY *foreign_attribute_dictionary );
 
-LIST *update_database_folder_foreign_changed_attribute_list(
+LIST *update_database_get_folder_foreign_changed_attribute_list(
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
 			int row,
@@ -243,7 +232,7 @@ LIST *update_database_folder_foreign_changed_attribute_list(
 			LIST *primary_attribute_name_list,
 			LIST *folder_foreign_attribute_name_list );
 
-LIST *update_database_changed_attribute_list(
+LIST *update_database_get_changed_attribute_list(
 			boolean *changed_key,
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary,
@@ -252,8 +241,7 @@ LIST *update_database_changed_attribute_list(
 			int row,
 			DICTIONARY *foreign_attribute_dictionary,
 			LIST *include_attribute_name_list,
-			LIST *exclude_attribute_name_list,
-			LIST *additional_unique_index_attribute_name_list );
+			LIST *exclude_attribute_name_list );
 
 char *update_database_execute(
 			char *application_name,
@@ -266,7 +254,7 @@ char *update_database_execute(
 			LIST *additional_update_data_list,
 			boolean abort_if_first_update_failed );
 
-boolean update_database_get_dictionary_index_data(
+boolean update_database_dictionary_index_data(
 			char **destination,
 			DICTIONARY *dictionary,
 			char *key,
@@ -278,7 +266,8 @@ void update_database_set_each_mto1_isa_one2m_related_folder_list(
 			char *session,
 			char *role_name );
 
-LIST *update_database_set_one2m_related_folder_list(
+void update_database_set_one2m_related_folder_list(
+			LIST *update_folder_list,
 			LIST *one2m_related_folder_list,
 			int row,
 			DICTIONARY *row_dictionary,
@@ -287,10 +276,6 @@ LIST *update_database_set_one2m_related_folder_list(
 			DICTIONARY *foreign_attribute_dictionary );
 
 void update_row_free(	UPDATE_ROW *update_row );
-
-boolean update_database_changed_attribute(
-			char *attribute_name,
-			LIST *update_row_list );
 
 char *update_database_update_row_list_display(
 			LIST *update_row_list );
@@ -330,15 +315,55 @@ CHANGED_ATTRIBUTE *update_database_get_folder_foreign(
 			char *old_data,
 			char *new_data,
 			LIST *folder_foreign_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary,
-			LIST *foreign_attribute_list );
+			DICTIONARY *foreign_attribute_dictionary );
 
-LIST *update_database_folder_foreign_where_attribute_list(
+LIST *update_database_get_folder_foreign_where_attribute_list(
 			DICTIONARY *file_dictionary,
 			LIST *primary_attribute_name_list,
 			int row,
 			char *application_name,
 			char *folder_name,
 			LIST *folder_foreign_attribute_name_list );
+
+LIST *update_database_changed_attribute_list(
+			boolean *changed_key,
+			/* ------------------------------------------ */
+			/* Sets preupdate_$attribute_name for trigger */
+			/* ------------------------------------------ */
+			DICTIONARY *row_dictionary,
+			DICTIONARY *file_dictionary,
+			LIST *attribute_list,
+			int row );
+
+CHANGED_ATTRIBUTE *update_database_changed_attribute(
+			/* ------------------------------------------ */
+			/* Sets preupdate_$attribute_name for trigger */
+			/* ------------------------------------------ */
+			DICTIONARY *row_dictionary,
+			DICTIONARY *file_dictionary,
+			ATTRIBUTE *attribute,
+			int row );
+
+UPDATE_FOLDER *update_database_update_folder(
+			/* ------------------------------------------ */
+			/* Sets preupdate_$attribute_name for trigger */
+			/* ------------------------------------------ */
+			DICTIONARY *row_dictionary,
+			DICTIONARY *file_dictionary,
+			char *folder_name,
+			LIST *attribute_list,
+			int row,
+			PROCESS *post_change_process );
+
+UPDATE_DATABASE *update_database_calloc(
+			void );
+
+UPDATE_FOLDER *update_database_calloc(
+			void );
+
+LIST *update_folder_primary_data_list(
+			DICTIONARY *file_dictionary,
+			LIST *primary_attribute_name_list,
+			int row );
 
 #endif
