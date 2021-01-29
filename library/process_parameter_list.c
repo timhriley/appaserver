@@ -2410,15 +2410,17 @@ char *process_parameter_command_line(
 	process = process_new(
 			application_name,
 			populate_drop_down_process_string
-				/* process_name */ );
+				/* process_name */,
+			1 /* with_check_executable_ok */ );
 
 	if ( !process )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: process_new() failed\n",
+			 "ERROR in %s/%s()/%d: process_new() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
+		exit( 1 );
 	}
 
 	process_convert_parameters(

@@ -18,7 +18,7 @@ POPULATE_HELPER_PROCESS *populate_helper_process_new( char *key )
 			calloc( 1, sizeof( POPULATE_HELPER_PROCESS ) );
 	populate_helper_process->key = key;
 	return populate_helper_process;
-} /* populate_helper_process_new() */
+}
 
 char *populate_helper_process_get_output_filename(
 				char *key,
@@ -66,7 +66,7 @@ char *populate_helper_process_get_output_filename(
 
 	return output_filename;
 
-} /* populate_helper_process_get_output_filename() */
+}
 
 char *populate_helper_process_get_ftp_file_prompt(
 				char *key,
@@ -105,5 +105,5 @@ char *populate_helper_process_get_ftp_file_prompt(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-} /* populate_helper_process_get_ftp_file_prompt() */
+}
 

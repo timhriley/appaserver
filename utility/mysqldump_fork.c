@@ -346,7 +346,7 @@ LIST *get_process_list(	LIST *process_list,
 
 	return process_list;
 
-} /* get_process_list() */
+}
 
 LIST *get_filename_list(	LIST *table_name_list,
 				char *now_yyyymmdd,
@@ -392,7 +392,7 @@ LIST *get_filename_list(	LIST *table_name_list,
 
 	return filename_list;
 
-} /* get_filename_list() */
+}
 
 char *get_filename(	char *table_name,
 			char *now_yyyymmdd )
@@ -406,7 +406,7 @@ char *get_filename(	char *table_name,
 
 	return filename;
 
-} /* get_filename() */
+}
 
 boolean tar_small_files(
 		LIST *table_name_list,
@@ -463,7 +463,7 @@ boolean tar_small_files(
 
 	return 1;
 
-} /* tar_small_files() */
+}
 
 char *get_mysqldump_filename(		char *database,
 					char *date_yyyymmdd,
@@ -481,7 +481,7 @@ char *get_mysqldump_filename(		char *database,
 
 	return strdup( filename );
 
-} /* get_mysqldump_filename() */
+}
 
 boolean output_database_count(		char *mysqldump_database_count_file,
 					LIST *table_name_list )
@@ -525,7 +525,7 @@ boolean output_database_count(		char *mysqldump_database_count_file,
 	fclose( output_file );
 	return 1;
 
-} /* output_database_count() */
+}
 
 void build_datafile_count_file(		char *mysqldump_datafile_count_file,
 					char *output_directory,
@@ -602,7 +602,7 @@ void build_datafile_count_file(		char *mysqldump_datafile_count_file,
 
 	fclose( output_file );
 
-} /* build_datafile_count_file() */
+}
 
 void output_count_results(	char *mysqldump_database_count_file,
 				char *mysqldump_datafile_count_file,
@@ -663,7 +663,7 @@ void output_count_results(	char *mysqldump_database_count_file,
 			drop_results );
 	}
 
-} /* output_count_results() */
+}
 
 long int get_needed_megabytes(	char *output_directory,
 				char *latest_date )
@@ -690,7 +690,7 @@ long int get_needed_megabytes(	char *output_directory,
 	pclose( input_pipe );
 	return needed_megabytes;
 
-} /* get_needed_megabytes() */
+}
 
 boolean filesystem_enough_space( char *output_directory )
 {
@@ -722,5 +722,5 @@ boolean filesystem_enough_space( char *output_directory )
 	else
 		return 0;
 
-} /* filesystem_enough_space() */
+}
 

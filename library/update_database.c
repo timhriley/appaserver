@@ -45,7 +45,7 @@ UPDATE_DATABASE *update_database_calloc( void )
 	return update_database;
 }
 
-UPDATE_FOLDER *update_database_calloc( void )
+UPDATE_FOLDER *update_folder_calloc( void )
 {
 	UPDATE_FOLDER *update_folder;
 
@@ -69,7 +69,7 @@ UPDATE_DATABASE *update_database_new(
 			char *login_name,
 			char *role_name,
 			char *folder_name,
-			DICTIONARY *row_dictionary,
+			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary )
 {
 	UPDATE_DATABASE *update_database =
@@ -79,36 +79,31 @@ UPDATE_DATABASE *update_database_new(
 	update_database->session = session;
 	update_database->login_name = login_name;
 	update_database->role_name = role_name;
-	update_database->row_dictionary = dictionary_copy( row_dictionary );
+	update_database->post_dictionary = dictionary_copy( post_dictionary );
 	update_database->file_dictionary = file_dictionary;
-
-	update_database->foreign_attribute_dictionary = dictionary_small_new();
 
 	update_database->folder =
 		folder_fetch(
 			folder_name,
 			1 /* fetch_attribute_list */,
-			1 /* fetch_one2m_related_folder_list */,
-			1 /* fetch_mto1_isa_related_folder_list */ );
+			1 /* fetch_one2m_recursive_relation_list */,
+			0 /* not fetch_mto1_relation_list */,
+			1 /* fetch_mto1_isa_relation_list */ );
 
 	dictionary_set_indexed_date_time_to_current(
-		update_database->row_dictionary,
+		update_database->post_dictionary,
 		update_database->folder->attribute_list );
 
 	if ( update_database->folder->row_level_non_owner_forbid )
 	{
 		update_database_set_login_name_each_row(
-				row_dictionary,
+				post_dictionary,
 				login_name );
 
 		update_database_set_login_name_each_row(
 				file_dictionary,
 				login_name );
 	}
-
-	update_database->exclude_attribute_name_list =
-		attribute_get_update_lookup_exclude_attribute_name_list(
-			update_database->folder->attribute_list );
 
 	appaserver_library_post_dictionary_database_convert_dates(
 			file_dictionary,
@@ -118,39 +113,6 @@ UPDATE_DATABASE *update_database_new(
 	dictionary_remove_symbols_in_numbers(
 			file_dictionary,
 			update_database->folder->attribute_list );
-
-	if ( list_length( update_database->
-				folder->
-				one2m_recursive_related_folder_list ) )
-	{
-		related_folder_list_populate_one2m_foreign_attribute_dictionary(
-				update_database->
-					foreign_attribute_dictionary,
-				list_get_last_pointer(
-					update_database->
-						folder->
-						primary_attribute_name_list ),
-				update_database->
-					folder->
-					one2m_recursive_related_folder_list );
-	}
-
-	if ( list_length( update_database->
-				folder->
-				mto1_isa_related_folder_list ) )
-	{
-	     related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
-			update_database->
-				foreign_attribute_dictionary,
-			list_get_last_pointer(
-				update_database->
-					folder->
-					primary_attribute_name_list ),
-			update_database->
-				folder->
-				mto1_isa_related_folder_list,
-			application_name );
-	}
 
 	return update_database;
 }
@@ -180,20 +142,23 @@ WHERE_ATTRIBUTE *update_database_where_attribute_new(
 
 }
 
-boolean update_database_index_data_if_changed(
+boolean update_database_data_if_changed(
 			char **old_data,
 			char **new_data,
-			DICTIONARY *row_dictionary,
+			/* ------------------------------------------------- */
+			/* Set the preupdate_$attribute_name for the trigger */
+			/* ------------------------------------------------- */
+			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			char *attribute_name,
 			int row )
 {
 	char preupdate_attribute_name[ 128 ];
 
-	if ( !row_dictionary )
+	if ( !post_dictionary )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: no row_dictionary\n",
+			 "ERROR in %s/%s()/%d: post_dictionary is empty./\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -203,7 +168,7 @@ boolean update_database_index_data_if_changed(
 	if ( !file_dictionary )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: no file_dictionary\n",
+			 "ERROR in %s/%s()/%d: file_dictionary is empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -215,7 +180,7 @@ boolean update_database_index_data_if_changed(
 
 	if ( !update_database_dictionary_index_data(
 		new_data,
-		row_dictionary,
+		post_dictionary,
 		attribute_name,
 		row ) )
 	{
@@ -252,7 +217,7 @@ boolean update_database_index_data_if_changed(
 				row );
 
 		dictionary_set_pointer(
-			row_dictionary,
+			post_dictionary,
 			strdup( preupdate_attribute_name ),
 			*old_data );
 
@@ -260,7 +225,7 @@ boolean update_database_index_data_if_changed(
 	}
 }
 
-UPDATE_ROW *update_database_update_row_new( int row )
+UPDATE_ROW *update_database_update_row_calloc( void )
 {
 	UPDATE_ROW *update_row;
 
@@ -277,6 +242,13 @@ UPDATE_ROW *update_database_update_row_new( int row )
 			 __LINE__ );
 		exit( 1 );
 	}
+	return update_row;
+}
+
+UPDATE_ROW *update_database_update_row_new( int row )
+{
+	UPDATE_ROW *update_row =
+		update_database_update_row_calloc();
 
 	update_row->row = row;
 	update_row->update_folder_list = list_new_list();
@@ -307,658 +279,10 @@ UPDATE_FOLDER *update_database_update_folder_new(
 
 }
 
-LIST *update_database_update_row_list(
-			DICTIONARY *row_dictionary,
-			DICTIONARY *file_dictionary,
-			FOLDER *folder,
-			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary )
-{
-	LIST *update_row_list = list_new_list();
-	int row;
-	int highest_index;
-	LIST *mto1_isa_related_folder_list;
-	RELATED_FOLDER *related_folder;
-	UPDATE_ROW *update_row = {0};
-
-	if ( !row_dictionary ) return update_row_list;
-
-	mto1_isa_related_folder_list =
-		folder->mto1_isa_related_folder_list;
-
-	highest_index = dictionary_get_key_highest_index( row_dictionary );
-
-	for( row = 1; row <= highest_index; row++ )
-	{
-		update_row =
-			update_database_get_update_row(
-				row,
-				row_dictionary,
-				file_dictionary,
-				folder,
-				exclude_attribute_name_list,
-				foreign_attribute_dictionary );
-
-		if ( update_row )
-		{
-			list_append_pointer( update_row_list, update_row );
-		}
-
-		if ( list_rewind( mto1_isa_related_folder_list ) )
-		{
-			do {
-				related_folder =
-					list_get(
-						mto1_isa_related_folder_list );
-
-				update_row =
-					update_database_get_update_row(
-					row,
-					row_dictionary,
-					file_dictionary,
-					related_folder->folder,
-					exclude_attribute_name_list,
-					foreign_attribute_dictionary );
-
-				if ( update_row )
-				{
-					list_append_pointer(
-						update_row_list,
-						update_row );
-				}
-
-			} while( list_next( mto1_isa_related_folder_list ) );
-		}
-	}
-
-	return update_row_list;
-
-}
-
-UPDATE_ROW *update_database_get_update_row(
-			int row,
-			DICTIONARY *row_dictionary,
-			DICTIONARY *file_dictionary,
-			FOLDER *folder,
-			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary )
-{
-	UPDATE_ROW *update_row;
-	UPDATE_FOLDER *update_folder;
-	boolean changed_key = 0;
-	LIST *include_attribute_name_list;
-
-	include_attribute_name_list =
-		attribute_get_attribute_name_list(
-			folder->attribute_list );
-
-	update_folder =
-		update_database_get_update_folder(
-			&changed_key,
-			row,
-			row_dictionary,
-			file_dictionary,
-			folder,
-			(LIST *)0 /* foreign_attribute_name_list */,
-			include_attribute_name_list,
-			exclude_attribute_name_list,
-			foreign_attribute_dictionary );
-
-	if ( !update_folder ) return (UPDATE_ROW *)0;
-
-	update_row = update_database_update_row_new( row );
-	update_row->update_folder_list = list_new();
-	list_append_pointer( update_row->update_folder_list, update_folder );
-	update_row->changed_key = changed_key;
-
-	if ( update_row->changed_key
-	&&   list_length( folder->one2m_recursive_related_folder_list ) )
-	{
-		update_database_set_one2m_related_folder_list(
-			update_row->update_folder_list,
-			folder->one2m_recursive_related_folder_list,
-			row,
-			row_dictionary,
-			file_dictionary,
-			exclude_attribute_name_list,
-			foreign_attribute_dictionary );
-	}
-
-	return update_row;
-
-}
-
-UPDATE_FOLDER *update_database_get_folder_foreign_update_folder(
-			int row,
-			DICTIONARY *row_dictionary,
-			DICTIONARY *file_dictionary,
-			FOLDER *folder,
-			LIST *primary_attribute_name_list,
-			LIST *folder_foreign_attribute_name_list )
-{
-	UPDATE_FOLDER *update_folder;
-	LIST *changed_attribute_list;
-
-	changed_attribute_list =
-		update_database_get_folder_foreign_changed_attribute_list(
-			row_dictionary,
-			file_dictionary,
-			row,
-			folder->folder_name,
-			primary_attribute_name_list,
-			folder_foreign_attribute_name_list );
-
-	if ( !changed_attribute_list ) return (UPDATE_FOLDER *)0;
-
-	update_folder =
-		update_database_update_folder_new(
-			folder->folder_name );
-
-	update_folder->changed_attribute_list =
-		changed_attribute_list;
-
-	update_folder->post_change_process = folder->post_change_process;
-
-	update_folder->primary_attribute_name_list =
-		folder->primary_attribute_name_list;
-
-	update_folder->where_attribute_list =
-		update_database_get_folder_foreign_where_attribute_list(
-			file_dictionary,
-			primary_attribute_name_list,
-			row,
-			folder->application_name,
-			folder->folder_name,
-			folder_foreign_attribute_name_list );
-
-	return update_folder;
-
-}
-
-UPDATE_FOLDER *update_database_get_update_folder(
-			boolean *changed_key,
-			int row,
-			DICTIONARY *row_dictionary,
-			DICTIONARY *file_dictionary,
-			FOLDER *folder,
-			LIST *foreign_attribute_name_list,
-			LIST *include_attribute_name_list,
-			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary )
-{
-	UPDATE_FOLDER *update_folder;
-	LIST *changed_attribute_list;
-	LIST *where_attribute_name_list;
-
-	changed_attribute_list =
-		update_database_get_changed_attribute_list(
-			changed_key,
-			row_dictionary,
-			file_dictionary,
-			folder->folder_name,
-			folder->attribute_list,
-			row,
-			foreign_attribute_dictionary,
-			include_attribute_name_list,
-			exclude_attribute_name_list );
-
-	if ( !changed_attribute_list ) return (UPDATE_FOLDER *)0;
-
-	update_folder =
-		update_database_update_folder_new(
-			folder->folder_name );
-
-	update_folder->changed_attribute_list =
-		changed_attribute_list;
-
-	update_folder->post_change_process = folder->post_change_process;
-
-	update_folder->primary_attribute_name_list =
-		folder->primary_attribute_name_list;
-
-	if ( list_length( foreign_attribute_name_list ) )
-		where_attribute_name_list =
-			foreign_attribute_name_list;
-	else
-		where_attribute_name_list =
-			update_folder->primary_attribute_name_list;
-
-	update_folder->where_attribute_list =
-		update_database_where_attribute_list(
-			file_dictionary,
-			where_attribute_name_list,
-			row,
-			foreign_attribute_dictionary );
-
-	return update_folder;
-}
-
-LIST *update_database_get_changed_attribute_name_list(
-			LIST *changed_attribute_list )
-{
-	LIST *changed_attribute_name_list;
-	CHANGED_ATTRIBUTE *changed_attribute;
-
-	if ( !list_rewind( changed_attribute_list ) ) return (LIST *)0;
-
-	changed_attribute_name_list = list_new();
-
-	do {
-		changed_attribute = list_get( changed_attribute_list );
-
-		list_append_pointer(	changed_attribute_name_list,
-					changed_attribute->attribute_name );
-
-	} while( list_next( changed_attribute_list ) );
-
-	return changed_attribute_name_list;
-}
-
-LIST *update_database_get_folder_foreign_where_attribute_list(
-			DICTIONARY *file_dictionary,
-			LIST *primary_attribute_name_list,
-			int row,
-			char *application_name,
-			char *folder_name,
-			LIST *folder_foreign_attribute_name_list )
-{
-	char *where_attribute_name;
-	char *file_attribute_name;
-	char *data;
-	LIST *where_attribute_list;
-	WHERE_ATTRIBUTE *where_attribute;
-
-	if ( !file_dictionary )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: no file_dictionary\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( list_length( primary_attribute_name_list ) !=
-	     list_length( folder_foreign_attribute_name_list ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: lists are not the same: %d vs. %d\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 list_length( primary_attribute_name_list ),
-			 list_length( folder_foreign_attribute_name_list ) );
-
-		exit( 1 );
-	}
-
-	if ( !list_rewind( primary_attribute_name_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: no primary_attribute_name_list\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	list_rewind( folder_foreign_attribute_name_list );
-
-	where_attribute_list = list_new_list();
-
-	do {
-		file_attribute_name =
-			list_get_pointer(
-				primary_attribute_name_list );
-
-		where_attribute_name =
-			list_get_pointer(
-				folder_foreign_attribute_name_list );
-
-		data = (char *)0;
-
-		dictionary_get_index_data(
-			&data,
-			file_dictionary,
-			file_attribute_name,
-			row );
-
-		if ( !data || !*data )
-		{
-			char message[ 1024 ];
-
-			sprintf( message,
-"ERROR in %s/%s()/%d: with folder_name = (%s), cannot find data for file_attribute_name = (%s) in file_dictionary = (%s).",
-				 	__FILE__,
-			 	__FUNCTION__,
-			 	__LINE__,
-				folder_name,
-				file_attribute_name,
-				dictionary_display(
-				       file_dictionary ) );
-
-			appaserver_output_error_message(
-				application_name,
-				message,
-				(char *)0 /* login_name */ );
-
-			exit( 0 );
-		}
-
-		where_attribute =
-			update_database_where_attribute_new(
-				where_attribute_name,
-				data );
-
-		list_append_pointer(
-			where_attribute_list,
-			where_attribute );
-
-		list_next( primary_attribute_name_list );
-
-	} while( list_next( folder_foreign_attribute_name_list ) );
-
-	return where_attribute_list;
-}
-
-LIST *update_database_where_attribute_list(
-			DICTIONARY *file_dictionary,
-			LIST *where_attribute_name_list,
-			int row,
-			DICTIONARY *foreign_attribute_dictionary )
-{
-	char *where_attribute_name;
-	char *data;
-	LIST *where_attribute_list;
-	WHERE_ATTRIBUTE *where_attribute;
-	char *alternative_attribute_name;
-
-	if ( !file_dictionary )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: no file_dictionary\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_rewind( where_attribute_name_list ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: no where_attribute_name_list\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	where_attribute_list = list_new_list();
-
-	do {
-		where_attribute_name =
-			list_get_pointer(
-				where_attribute_name_list );
-
-		if ( !*where_attribute_name )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: empty where_attribute_name.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
-		data = (char *)0;
-
-		/* First, check for the last foreign_attribute_name */
-		/* ------------------------------------------------ */
-		if ( ( alternative_attribute_name =
-			dictionary_get_data(
-				foreign_attribute_dictionary,
-				where_attribute_name ) )
-		&&     *alternative_attribute_name
-		&&     strcmp(	alternative_attribute_name,
-				NULL_STRING ) != 0 )
-		{
-			dictionary_get_index_data(
-				&data,
-				file_dictionary,
-				alternative_attribute_name,
-				row );
-		}
-
-		if ( !data || !*data )
-		{
-			dictionary_get_index_data(
-					&data,
-					file_dictionary,
-					where_attribute_name,
-					row );
-		}
-
-		if ( !data || !*data ) continue;
-
-		where_attribute =
-			update_database_where_attribute_new(
-				where_attribute_name,
-				data );
-
-		list_append_pointer(
-			where_attribute_list,
-			where_attribute );
-
-	} while( list_next( where_attribute_name_list ) );
-
-	return where_attribute_list;
-}
-
-LIST *update_database_get_folder_foreign_changed_attribute_list(
-			DICTIONARY *row_dictionary,
-			DICTIONARY *file_dictionary,
-			int row,
-			char *folder_name,
-			LIST *primary_attribute_name_list,
-			LIST *folder_foreign_attribute_name_list )
-{
-	LIST *changed_attribute_list = {0};
-	CHANGED_ATTRIBUTE *changed_attribute;
-	char *primary_attribute_name;
-	char *folder_foreign_attribute_name;
-	char *old_data;
-	char *new_data;
-
-	if ( !row_dictionary ) return (LIST *)0;
-
-	if ( list_length( primary_attribute_name_list ) !=
-	     list_length( folder_foreign_attribute_name_list ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: lists are not the same: %d vs. %d\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 list_length( primary_attribute_name_list ),
-			 list_length( folder_foreign_attribute_name_list ) );
-
-		exit( 1 );
-	}
-
-	if ( !list_rewind( primary_attribute_name_list ) ) return (LIST *)0;
-
-	list_rewind( folder_foreign_attribute_name_list );
-
-	do {
-		primary_attribute_name =
-			list_get_pointer(
-				primary_attribute_name_list );
-
-		folder_foreign_attribute_name =
-			list_get_pointer(
-				folder_foreign_attribute_name_list );
-
-		old_data = (char *)0;
-		new_data = (char *)0;
-
-		if ( update_database_index_data_if_changed(
-					&old_data,
-					&new_data,
-					row_dictionary,
-					file_dictionary,
-					primary_attribute_name,
-					row ) )
-		{
-			if ( !changed_attribute_list )
-			{
-				changed_attribute_list = list_new_list();
-			}
-
-			changed_attribute =
-				update_database_changed_attribute_new(
-					folder_name,
-					folder_foreign_attribute_name,
-					(char *)0 /* datatype */,
-					old_data,
-					new_data );
-
-			if ( changed_attribute )
-			{
-				list_append_pointer(
-					changed_attribute_list,
-					changed_attribute );
-			}
-
-		}
-
-		list_next( folder_foreign_attribute_name_list );
-
-	} while( list_next( primary_attribute_name_list ) );
-
-	return changed_attribute_list;
-}
-
-LIST *update_database_get_changed_attribute_list(
-			boolean *changed_key,
-			DICTIONARY *row_dictionary,
-			DICTIONARY *file_dictionary,
-			char *folder_name,
-			LIST *attribute_list,
-			int row,
-			DICTIONARY *foreign_attribute_dictionary,
-			LIST *include_attribute_name_list,
-			LIST *exclude_attribute_name_list )
-{
-	ATTRIBUTE *attribute;
-	LIST *changed_attribute_list = {0};
-	CHANGED_ATTRIBUTE *changed_attribute;
-	char *old_data;
-	char *new_data;
-	char *alternative_attribute_name;
-
-	if ( !row_dictionary ) return (LIST *)0;
-
-	if ( !list_rewind( attribute_list ) ) return (LIST *)0;
-
-	do {
-		attribute = list_get_pointer( attribute_list );
-
-		if ( !list_exists_string(	include_attribute_name_list,
-						attribute->attribute_name ) )
-		{
-			continue;
-		}
-
-		if ( list_exists_string(	exclude_attribute_name_list,
-						attribute->attribute_name ) )
-		{
-			continue;
-		}
-
-		old_data = (char *)0;
-		new_data = (char *)0;
-
-		if ( update_database_index_data_if_changed(
-					&old_data,
-					&new_data,
-					row_dictionary,
-					file_dictionary,
-					attribute->attribute_name,
-					row ) )
-		{
-			if ( !changed_attribute_list )
-			{
-				changed_attribute_list = list_new_list();
-			}
-
-			changed_attribute =
-				update_database_changed_attribute_new(
-					folder_name,
-					attribute->attribute_name,
-					attribute->datatype,
-					old_data,
-					new_data );
-
-			if ( changed_attribute )
-			{
-				list_append_pointer(
-					changed_attribute_list,
-					changed_attribute );
-			}
-
-			if ( attribute->primary_key_index ) *changed_key = 1;
-		}
-		else
-		if ( foreign_attribute_dictionary )
-		{
-			if ( ( alternative_attribute_name =
-				dictionary_get_data(
-					foreign_attribute_dictionary,
-					attribute->attribute_name ) ) )
-			{
-				old_data = (char *)0;
-				new_data = (char *)0;
-
-				if ( update_database_index_data_if_changed(
-					&old_data,
-					&new_data,
-					row_dictionary,
-					file_dictionary,
-					alternative_attribute_name,
-					row ) )
-				{
-					if ( !changed_attribute_list )
-					{
-						changed_attribute_list =
-							list_new_list();
-					}
-
-					changed_attribute =
-					update_database_changed_attribute_new(
-						attribute->folder_name,
-						attribute->attribute_name,
-						attribute->datatype,
-						old_data,
-						new_data );
-
-					list_append_pointer(
-						changed_attribute_list,
-						changed_attribute );
-
-					if ( attribute->primary_key_index )
-						*changed_key = 1;
-				}
-			}
-		}
-	} while( list_next( attribute_list ) );
-
-	return changed_attribute_list;
-}
-
 char *update_database_execute(	char *application_name,
 				char *session,
 				LIST *update_row_list,
-				DICTIONARY *row_dictionary,
+				DICTIONARY *post_dictionary,
 				char *login_name,
 				char *role_name,
 				LIST *additional_update_attribute_name_list,
@@ -979,7 +303,7 @@ char *update_database_execute(	char *application_name,
 				error_messages,
 			   	application_name,
 				session,
-				row_dictionary,
+				post_dictionary,
 				login_name,
 			   	update_row->update_folder_list,
 				update_row->row,
@@ -997,7 +321,7 @@ void update_database_execute_for_row(
 			char *error_messages,
 			char *application_name,
 			char *session,
-			DICTIONARY *row_dictionary,
+			DICTIONARY *post_dictionary,
 			char *login_name,
 			LIST *update_folder_list,
 			int row,
@@ -1081,8 +405,8 @@ void update_database_execute_for_row(
 				update_folder->folder_name,
 				role_name,
 				(char *)0 /* target_frame */,
-				row_dictionary /* parameter_dictionary */,
-				row_dictionary /* where_clause_dictionary */,
+				post_dictionary /* parameter_dictionary */,
+				post_dictionary /* where_clause_dictionary */,
 				update_folder->
 					post_change_process->attribute_list,
 				(LIST *)0 /* prompt_list */,
@@ -1251,8 +575,8 @@ char *update_database_execute_for_folder(
 }
 
 void update_database_build_where_clause(
-				char *destination,
-				LIST *where_attribute_list )
+			char *destination,
+			LIST *where_attribute_list )
 {
 	WHERE_ATTRIBUTE *where_attribute;
 	char data_buffer[ 4096 ];
@@ -1288,14 +612,13 @@ void update_database_build_where_clause(
 		}
 
 	} while( list_next( where_attribute_list ) );
-
 }
 
 void update_database_build_update_clause(
-				char *destination,
-				char *application_name,
-				LIST *changed_attribute_list,
-				LIST *primary_attribute_name_list )
+			char *destination,
+			char *application_name,
+			LIST *changed_attribute_list,
+			LIST *primary_attribute_name_list )
 {
 	CHANGED_ATTRIBUTE *changed_attribute;
 	int first_time = 1;
@@ -1398,82 +721,6 @@ boolean update_database_dictionary_index_data(
 	*destination  = data;
 
 	return 1;
-}
-
-void update_database_set_one2m_related_folder_list(
-			LIST *update_folder_list,
-			LIST *one2m_recursive_related_folder_list,
-			int row,
-			DICTIONARY *row_dictionary,
-			DICTIONARY *file_dictionary,
-			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary )
-{
-	RELATED_FOLDER *related_folder;
-	LIST *include_attribute_name_list;
-	UPDATE_FOLDER *update_folder;
-	/* ------- */
-	/* Ignored */
-	/* ------- */
-	boolean changed_key = 0;
-
-	if ( !list_rewind( one2m_recursive_related_folder_list ) ) return;
-
-	do {
-		related_folder =
-			list_get_pointer(
-				one2m_recursive_related_folder_list );
-
-		if ( list_length( related_folder->
-					folder_foreign_attribute_name_list ) )
-		{
-			update_folder =
-			update_database_get_folder_foreign_update_folder(
-				row,
-				row_dictionary,
-				file_dictionary,
-				related_folder->one2m_folder,
-				related_folder->
-					folder->
-					primary_attribute_name_list,
-				related_folder->
-					folder_foreign_attribute_name_list );
-		}
-		else
-		{
-			include_attribute_name_list =
-				list_copy_string_list(
-					related_folder->
-						foreign_attribute_name_list );
-
-			update_folder =
-			update_database_get_update_folder(
-				&changed_key,
-				row,
-				row_dictionary,
-				file_dictionary,
-				related_folder->one2m_folder,
-				related_folder->foreign_attribute_name_list,
-				include_attribute_name_list,
-				exclude_attribute_name_list,
-				foreign_attribute_dictionary );
-		}
-
-		if ( update_folder )
-		{
-			list_append_pointer(
-				update_folder_list,
-				update_folder );
-		}
-
-	} while( list_next( one2m_recursive_related_folder_list ) );
-
-}
-
-void update_row_free( UPDATE_ROW *update_row )
-{
-	list_free( update_row->update_folder_list );
-	free( update_row );
 }
 
 char *update_database_update_row_list_display(
@@ -1599,8 +846,7 @@ int update_database_changed_display(	char *buffer_pointer,
 		changed_attribute = list_get_pointer( changed_attribute_list );
 		output_character_count +=
 			sprintf( buffer_pointer,
-			";changed_attribute = %s.%s, old = %s, new = %s",
-				 changed_attribute->folder_name,
+			";changed_attribute = %s, old = %s, new = %s",
 				 changed_attribute->attribute_name,
 				 changed_attribute->old_data,
 				 changed_attribute->new_data );
@@ -1630,14 +876,14 @@ int update_database_where_display(	char *buffer_pointer,
 }
 
 void update_database_set_login_name_each_row(
-				DICTIONARY *dictionary,
-				char *login_name )
+			DICTIONARY *dictionary,
+			char *login_name )
 {
 	int row;
 	int highest_index;
 	char key[ 128 ];
 
-	highest_index = dictionary_get_key_highest_index( dictionary );
+	highest_index = dictionary_key_highest_index( dictionary );
 
 	for( row = 1; row <= highest_index; row++ )
 	{
@@ -1649,190 +895,12 @@ void update_database_set_login_name_each_row(
 
 }
 
-int update_database_get_columns_updated(
-				char *application_name,
-				LIST *update_row_list )
-{
-	int columns_updated = 0;
-	UPDATE_ROW *update_row;
-	UPDATE_FOLDER *update_folder;
-#ifdef UPDATE_DATABASE_DEBUG_MODE
-	CHANGED_ATTRIBUTE *changed_attribute;
-	char message[ 1024 ];
-#endif
-
-	/* Prevent compiler warning. */
-	/* ------------------------- */
-	if ( application_name );
-
-	if ( !list_rewind( update_row_list ) ) return 0;
-
-	do {
-		update_row = list_get_pointer( update_row_list );
-
-		if ( !list_rewind( update_row->update_folder_list ) )
-		{
-			continue;
-		}
-
-		do {
-			update_folder =
-				list_get_pointer(
-					update_row->update_folder_list );
-
-			if ( !list_rewind( update_folder->
-						changed_attribute_list ) )
-			{
-				continue;
-			}
-
-			do {
-#ifdef UPDATE_DATABASE_DEBUG_MODE
-				changed_attribute =
-					list_get_pointer(
-						update_folder->
-						changed_attribute_list );
-
-				sprintf( message,
-"Message: %s/%s()/%d got changed_attribute: %s.%s='%s'; Was='%s'",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__,
-					changed_attribute->folder_name,
-					changed_attribute->attribute_name,
-					changed_attribute->new_data,
-					changed_attribute->old_data );
-
-				appaserver_output_error_message(
-					application_name,
-					message,
-					(char *)0 /* login_name */ );
-
-#endif
-				columns_updated++;
-
-			} while( list_next( update_folder->
-						changed_attribute_list ) );
-
-		} while( list_next( update_row->update_folder_list ) );
-
-	} while( list_next( update_row_list ) );
-
-	return columns_updated;
-}
-
-LIST *update_database_get_changed_folder_name_list(
-				LIST *update_row_list )
-{
-	UPDATE_ROW *update_row;
-	UPDATE_FOLDER *update_folder;
-	CHANGED_ATTRIBUTE *changed_attribute;
-	LIST *changed_folder_name_list;
-
-	if ( !list_rewind( update_row_list ) )
-	{
-		return (LIST *)0;
-	}
-
-	changed_folder_name_list = list_new();
-	do {
-		update_row = list_get_pointer( update_row_list );
-
-		if ( !list_rewind( update_row->update_folder_list ) )
-		{
-			continue;
-		}
-
-		do {
-			update_folder =
-				list_get_pointer(
-					update_row->update_folder_list );
-
-			if ( !list_rewind( update_folder->
-						changed_attribute_list ) )
-			{
-				continue;
-			}
-
-			do {
-				changed_attribute =
-					list_get_pointer(
-						update_folder->
-						changed_attribute_list );
-
-				list_append_unique_string(
-					changed_folder_name_list,
-					changed_attribute->folder_name );
-
-			} while( list_next( update_folder->
-						changed_attribute_list ) );
-
-		} while( list_next( update_row->update_folder_list ) );
-
-	} while( list_next( update_row_list ) );
-
-	return changed_folder_name_list;
-}
-
-UPDATE_ROW *update_database_update_row(
-			int row,
-			DICTIONARY *row_dictionary,
-			DICTIONARY *file_dictionary,
-			FOLDER *folder,
-			LIST *exclude_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary )
-{
-	UPDATE_ROW *update_row;
-	UPDATE_FOLDER *update_folder;
-	boolean changed_key = 0;
-	LIST *include_attribute_name_list;
-
-	include_attribute_name_list =
-		attribute_get_attribute_name_list(
-			folder->attribute_list );
-
-	update_folder =
-		update_database_get_update_folder(
-			&changed_key,
-			row,
-			row_dictionary,
-			file_dictionary,
-			folder,
-			(LIST *)0 /* foreign_attribute_name_list */,
-			include_attribute_name_list,
-			exclude_attribute_name_list,
-			foreign_attribute_dictionary );
-
-	if ( !update_folder ) return (UPDATE_ROW *)0;
-
-	update_row = update_database_update_row_new( row );
-	update_row->update_folder_list = list_new();
-	list_append_pointer( update_row->update_folder_list, update_folder );
-	update_row->changed_key = changed_key;
-
-	if ( update_row->changed_key
-	&&   list_length( folder->one2m_recursive_related_folder_list ) )
-	{
-		update_database_set_one2m_related_folder_list(
-			update_row->update_folder_list,
-			folder->one2m_recursive_related_folder_list,
-			row,
-			row_dictionary,
-			file_dictionary,
-			exclude_attribute_name_list,
-			foreign_attribute_dictionary );
-	}
-
-	return update_row;
-
-}
-
-LIST *update_database_changed_attribute_list(
-			boolean *changed_key,
+LIST *update_changed_attribute_list(
+			boolean *changed_primary_key,
 			/* ------------------------------------------ */
 			/* Sets preupdate_$attribute_name for trigger */
 			/* ------------------------------------------ */
-			DICTIONARY *row_dictionary,
+			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			LIST *attribute_list,
 			int row )
@@ -1843,7 +911,7 @@ LIST *update_database_changed_attribute_list(
 	char *old_data;
 	char *new_data;
 
-	if ( !dictionary_length( row_dictionary )
+	if ( !dictionary_length( post_dictionary )
 	||   !dictionary_length( file_dictionary ) )
 	{
 		fprintf(stderr,
@@ -1863,84 +931,53 @@ LIST *update_database_changed_attribute_list(
 		old_data = (char *)0;
 		new_data = (char *)0;
 
-		if ( update_database_index_data_if_changed(
+		if ( update_database_data_if_changed(
 			&old_data,
 			&new_data,
-			row_dictionary,
+			/* ------------------------------------------------- */
+			/* Set the preupdate_$attribute_name for the trigger */
+			/* ------------------------------------------------- */
+			post_dictionary,
 			file_dictionary,
 			attribute->attribute_name,
 			row ) )
 		{
+			if ( ! ( changed_attribute =
+				    update_changed_attribute_new(
+					attribute->attribute_name,
+					attribute->datatype,
+					old_data,
+					new_data ) ) )
+			{
+				fprintf(stderr,
+"Warning in %s/%s()/%d: update_database_changed_attribute_new() returned empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				continue;
+			}
+
 			if ( !changed_attribute_list )
 			{
 				changed_attribute_list = list_new_list();
 			}
 
-			changed_attribute =
-				update_database_changed_attribute_new(
-					folder_name,
-					attribute->attribute_name,
-					attribute->datatype,
-					old_data,
-					new_data );
+			changed_attribute->primary_key_index =
+				attribute->primary_key_index;
 
-			if ( changed_attribute )
-			{
-				list_append_pointer(
-					changed_attribute_list,
-					changed_attribute );
-			}
+			if ( changed_attribute->primary_key_index )
+				*changed_primary_key = 1;
 
-			if ( attribute->primary_key_index ) *changed_key = 1;
-		}
-		else
-		if ( foreign_attribute_dictionary )
-		{
-			if ( ( alternative_attribute_name =
-				dictionary_get_data(
-					foreign_attribute_dictionary,
-					attribute->attribute_name ) ) )
-			{
-				old_data = (char *)0;
-				new_data = (char *)0;
-
-				if ( update_database_index_data_if_changed(
-					&old_data,
-					&new_data,
-					row_dictionary,
-					file_dictionary,
-					alternative_attribute_name,
-					row ) )
-				{
-					if ( !changed_attribute_list )
-					{
-						changed_attribute_list =
-							list_new_list();
-					}
-
-					changed_attribute =
-					update_database_changed_attribute_new(
-						attribute->folder_name,
-						attribute->attribute_name,
-						attribute->datatype,
-						old_data,
-						new_data );
-
-					list_append_pointer(
-						changed_attribute_list,
-						changed_attribute );
-
-					if ( attribute->primary_key_index )
-						*changed_key = 1;
-				}
-			}
+			list_append_pointer(
+				changed_attribute_list,
+				changed_attribute );
 		}
 	} while( list_next( attribute_list ) );
 
 	return changed_attribute_list;
 }
 
-CHANGED_ATTRIBUTE *update_database_changed_attribute_new(
+CHANGED_ATTRIBUTE *update_changed_attribute_new(
 			char *attribute_name,
 			char *attribute_datatype,
 			char *old_data,
@@ -1953,6 +990,7 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute_new(
 			calloc( 1, sizeof( CHANGED_ATTRIBUTE ) );
 
 	changed_attribute->attribute_name = attribute_name;
+	changed_attribute->attribute_datatype = attribute_datatype;
 	changed_attribute->old_data = old_data;
 
 	if ( timlib_strcmp( attribute_datatype, "float" ) == 0 )
@@ -1971,7 +1009,7 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute_new(
 }
 
 CHANGED_ATTRIBUTE *update_database_changed_attribute(
-			DICTIONARY *row_dictionary,
+			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			ATTRIBUTE *attribute,
 			int row )
@@ -1981,10 +1019,10 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute(
 	char *old_data = {0};
 	char *new_data = {0};
 
-	if ( !row_dictionary )
+	if ( !post_dictionary )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: no row_dictionary\n",
+			 "ERROR in %s/%s()/%d: no post_dictionary\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -2003,7 +1041,7 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute(
 
 	if ( !update_database_dictionary_index_data(
 		&new_data,
-		row_dictionary,
+		post_dictionary,
 		attribute->attribute_name,
 		row ) )
 	{
@@ -2019,12 +1057,12 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute(
 		return (CHANGED_ATTRIBUTE *)0;
 	}
 
-	if ( strcmp( *old_data, *new_data ) == 0 )
+	if ( strcmp( old_data, new_data ) == 0 )
 	{
 		return (CHANGED_ATTRIBUTE *)0;
 	}
 	else
-	if ( strcmp( *old_data, "select" ) == 0 && !**new_data )
+	if ( strcmp( old_data, "select" ) == 0 && !*new_data )
 	{
 		return (CHANGED_ATTRIBUTE *)0;
 	}
@@ -2033,10 +1071,10 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute(
 	/* Got a change */
 	/* ------------ */
 	{
-		change_attribute =
+		changed_attribute =
 			update_database_changed_attribute_new(
 				attribute->attribute_name,
-				attribute->attribute_datatype,
+				attribute->datatype,
 				old_data,
 				new_data );
 
@@ -2046,37 +1084,37 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute(
 		sprintf(	preupdate_attribute_name,
 				"%s%s_%d",
 				UPDATE_DATABASE_PREUPDATE_PREFIX,
-				attribute_name,
+				attribute->attribute_name,
 				row );
 
 		dictionary_set_pointer(
-			row_dictionary,
+			post_dictionary,
 			strdup( preupdate_attribute_name ),
 			old_data );
-
 	}
 	return changed_attribute;
 }
 
-UPDATE_FOLDER *update_database_update_folder(
-			DICTIONARY *row_dictionary,
+UPDATE_FOLDER *update_database_primary_update_folder(
+			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			char *folder_name,
 			LIST *attribute_list,
-			int row,
-			PROCESS *post_change_process )
+			PROCESS *post_change_process,
+			LIST *one2m_recursive_relation_list,
+			int row )
 {
 	UPDATE_FOLDER *update_folder;
 	LIST *changed_attribute_list;
-	boolean changed_key = 0;
+	boolean changed_primary_key = 0;
 
 	changed_attribute_list =
-		update_database_changed_attribute_list(
-			&changed_key,
+		update_changed_attribute_list(
+			&changed_primary_key,
 			/* ------------------------------------------ */
 			/* Sets preupdate_$attribute_name for trigger */
 			/* ------------------------------------------ */
-			row_dictionary,
+			post_dictionary,
 			file_dictionary,
 			attribute_list,
 			row );
@@ -2092,6 +1130,10 @@ UPDATE_FOLDER *update_database_update_folder(
 	update_folder->row = row;
 	update_folder->post_change_process = post_change_process;
 
+	update_folder->primary_attribute_name_list =
+		attribute_primary_name_list(
+			attribute_list );
+
 	/* Process */
 	/* ------- */
 	update_folder->changed_key = changed_key;
@@ -2104,7 +1146,9 @@ UPDATE_FOLDER *update_database_update_folder(
 				attribute_list ),
 			row );
 
-	return update_folder;
+	return
+		update_folder_set_where_attribute_list(
+			update_folder );
 }
 
 LIST *update_folder_primary_data_list(
@@ -2145,4 +1189,197 @@ LIST *update_folder_primary_data_list(
 
 	} while ( list_next( primary_attribute_name_list ) );
 	return data_list;
+}
+
+UPDATE_ROW *update_database_update_row(
+			/* ------------------------------------------ */
+			/* Sets preupdate_$attribute_name for trigger */
+			/* ------------------------------------------ */
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *folder_name,
+			LIST *attribute_list,
+			PROCESS *post_change_process,
+			LIST *one2m_recursive_relation_list,
+			int row )
+{
+	UPDATE_ROW *update_row;
+	UPDATE_FOLDER *update_folder;
+	RELATION *relation;
+
+	if ( ! ( update_folder =
+			update_database_primary_update_folder(
+				post_dictionary,
+				file_dictionary,
+				folder_name,
+				attribute_list,
+				post_change_process,
+				one2m_recursive_relation_list,
+				row ) ) )
+	{
+		return (UPDATE_ROW *)0;
+	}
+
+	update_row = update_database_update_row_calloc();
+	update_row->update_folder_list = list_new();
+	list_set( update_row->update_folder_list, update_folder );
+
+	update_row->row = row;
+
+	update_row->changed_primary_key =
+		update_folder->changed_primary_key;
+
+	if ( !update_row->changed_primary_key
+	||   !list_rewind( one2m_recursive_relation_list ) )
+	{
+		return update_row;
+	}
+
+	do {
+		relation =
+			list_get(
+				one2m_recursive_relation_list );
+
+		update_folder =
+			update_secondary_update_folder(
+				relation->one2m_folder->folder_name,
+				relation->foreign_attribute_name_list,
+				update_folder->primary_data_list,
+				update_folder->changed_attribute_list );
+
+		if ( update_folder )
+		{
+			list_set(
+				update_row->update_folder_list,
+				update_folder );
+		}
+
+	} while ( list_next( one2m_recursive_relation_list ) );
+
+	return update_row;
+}
+
+LIST *update_database_update_row_list(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *folder_name,
+			LIST *attribute_list,
+			PROCESS *post_change_process,
+			LIST *one2m_recursive_relation_list )
+{
+	LIST *update_row_list;
+	int row;
+	int highest_index;
+	RELATED_FOLDER *related_folder;
+	UPDATE_ROW *update_row = {0};
+
+	if ( !post_dictionary ) return (LIST *)0;
+
+	update_row_list = list_new();
+	highest_index = dictionary_key_highest_index( post_dictionary );
+
+	for( row = 1; row <= highest_index; row++ )
+	{
+		list_set(
+			update_row_list,
+			update_database_update_row(
+				post_dictionary,
+				file_dictionary,
+				folder_name,
+				attribute_list,
+				post_change_process.
+				one2m_recursive_relation_list,
+				row ) );
+	}
+	return update_row_list;
+}
+
+UPDATE_FOLDER *update_secondary_update_folder(
+			char *one2m_folder_name,
+			LIST *relation_foreign_attribute_name_list,
+			LIST *primary_data_list,
+			LIST *changed_attribute_list )
+{
+	UPDATE_FOLDER *update_folder;
+	CHANGED_ATTRIBUTE *changed_attribute;
+	char *changed_attribute_name;
+
+	if ( !list_rewind( changed_attribute_list ) )
+		return (UPDATE_FOLDER *)0;
+
+	update_folder = update_folder_calloc();
+
+	update_folder->folder_name = one2m_folder_name;
+	update_folder->primary_data_list = primary_data_list;
+	update_folder->changed_attribute_list = list_new();
+
+	update_folder->relation_foreign_attribute_name_list =
+		relation_foreign_attribute_name_list;
+
+	do {
+		changed_attribute = list_get( changed_attribute_list );
+
+		changed_attribute_name =
+			list_seek_index(
+				update_folder->
+					foreign_attribute_name_list,
+				changed_attribute->
+					primary_key_index );
+
+		if ( !changed_attribute_name )
+		{
+			fprintf(stderr,
+"Warning in %s/%s()/%d: one_folder_name = %s cannot list_seek_index = %d\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				one2m_folder_name,
+				changed_attribute->primary_key_index );
+			continue;
+		}
+
+		list_set(
+			update_folder->changed_attribute_list,
+			update_changed_attribute_new(
+				changed_attribute_name,
+				changed_attribute->attribute_datatype,
+				changed_attribute->old_data,
+				changed_attribute->new_data ) );
+
+	} while ( list_next( changed_attribute_list ) );
+
+	return
+		update_folder_set_where_attribute_list(
+			update_folder );
+}
+
+UPDATE_FOLDER *update_folder_set_where_attribute_list(
+			UPDATE_FOLDER *update_folder )
+{
+	if ( list_length( update_folder->primary_attribute_name_list ) )
+	{
+		update_folder->where_attribute_list =
+			update_folder_where_attribute_list(
+				update_folder->
+					primary_attribute_name_list,
+				update_folder->
+					primary_data_list );
+	}
+	else
+	{
+		update_folder->where_attribute_list =
+			update_folder_where_attribute_list(
+				update_folder->
+					relation_foreign_attribute_name_list,
+				update_folder->
+					primary_data_list );
+	}
+
+	return update_folder;
+}
+
+LIST *update_folder_where_attribute_list(
+			LIST *relation_foreign_attribute_name_list,
+			LIST *primary_data_list )
+{
 }

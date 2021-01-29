@@ -758,9 +758,7 @@ appaserver.o: appaserver.c appaserver.h					\
 		element.o
 	${CC} ${CFLAGS} -c appaserver.c
 
-folder.o: folder.c folder.h process.h attribute.h date_convert.h	\
-		related_folder.o process_generic_output.h		\
-		element.o
+folder.o: folder.c folder.h process.h attribute.h date_convert.h
 	${CC} ${CFLAGS} -c folder.c
 
 process.o: process.c process.h query.h

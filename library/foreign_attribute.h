@@ -60,12 +60,15 @@ LIST *foreign_attribute_system_list(
 char *foreign_attribute_sys_string(
 			char *where );
 
-LIST *foreign_attribute_name_list(
+LIST *foreign_attribute_list_folder(
 			char *many_folder_name,
 			LIST *foreign_attribute_list );
 
 LIST *foreign_attribute_list(
 			char *one_folder_name );
+
+LIST *foreign_attribute_name_list(
+			LIST *foreign_attribute_list );
 
 #endif
 

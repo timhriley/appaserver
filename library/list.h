@@ -155,6 +155,11 @@ char *list_get_offset(	LIST *list,
 char *list_seek_offset(	LIST *list,
 			int offset );
 
+/* index is one based */
+/* ------------------ */
+char *list_seek_index(	LIST *list,
+			int index );
+
 LIST *list_subtract( LIST *big_list, LIST *subtract_this );
 LIST *subtract_list( LIST *big_list, LIST *subtract_this );
 LIST *list_subtract_list( LIST *big_list, LIST *subtract_this );
@@ -299,7 +304,9 @@ int list_search_string( 	LIST *list, char *string );
 void list_toupper(		LIST *list );
 char *list_get_first_string(	LIST *list );
 int list_strcmp(		char *s1, char *s2 );
+
 int list_string_index_compare(	char *s1, char *s2 );
+
 void free_string_list( 		LIST *string_list );
 void list_free_string_list( 	LIST *string_list );
 LIST *list_double_quotes_around_string_list(
@@ -389,6 +396,7 @@ boolean list_string_list_match( LIST *list1,
 boolean list_exists_any_index_string(
 				LIST *list,
 				char *string );
+
 boolean list_exists_index_string(
 				LIST *list,
 				char *string,

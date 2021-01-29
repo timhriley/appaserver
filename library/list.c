@@ -707,7 +707,18 @@ LIST *list_subtract( LIST *big_list, LIST *subtract_this )
 							item );
 		} while( next_item( big_list ) );
 	return return_list;
-} /* list_subtract() */
+}
+
+/* index is one based */
+/* ------------------ */
+char *list_seek_index(	LIST *list,
+			int index )
+{
+	if ( list_go_offset( list, index - 1 ) )
+		return (char *)retrieve_item_ptr( list );
+	else
+		return (char *)0;
+}
 
 /* offset is zero based */
 /* -------------------- */

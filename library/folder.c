@@ -11,7 +11,7 @@
 #include "folder.h"
 #include "query.h"
 #include "related_folder.h"
-#include "relation.h"
+#include "environ.h"
 #include "dictionary.h"
 #include "appaserver_error.h"
 #include "list.h"
@@ -1188,6 +1188,7 @@ boolean folder_load(	int *insert_rows_number,
 		!override_row_restrictions;
 
 	return 1;
+}
 
 
 void folder_load_row_level_restrictions(
@@ -1238,6 +1239,7 @@ void folder_load_row_level_restrictions(
 		( strcmp(
 			row_level_restriction,
 			"row_level_non_owner_view_only" ) == 0 );
+}
 
 
 DICTIONARY *folder_get_primary_data_dictionary(
@@ -1271,6 +1273,7 @@ DICTIONARY *folder_get_primary_data_dictionary(
 	pclose( input_pipe );
 
 	return primary_data_dictionary;
+}
 
 FOLDER *folder_seek_folder( LIST *folder_list, char *folder_name )
 {
@@ -1307,6 +1310,7 @@ LIST *folder_get_non_primary_attribute_list( LIST *attribute_list )
 			}
 		} while( list_next( attribute_list ) );
 	return non_primary_attribute_list;
+}
 
 char *folder_get_folder_record(
 				char *application_name,
@@ -1347,6 +1351,7 @@ char *folder_get_folder_record(
 	} while( list_next( folder_record_list ) );
 
 	return (char *)0;
+}
 
 
 char *folder_get_folder_row_level_restrictions_record(
@@ -1738,6 +1743,7 @@ LIST *folder_get_primary_text_element_list(
 	} while( list_next( folder->attribute_list ) );
 
 	return return_element_list;
+}
 
 FOLDER *folder_get_unfulfilled_lookup_before_drop_down_folder(
 		LIST *mto1_related_folder_list,
@@ -1785,6 +1791,7 @@ FOLDER *folder_get_unfulfilled_lookup_before_drop_down_folder(
 		}
 	} while( list_next( mto1_related_folder_list ) );
 	return (FOLDER *)0;
+}
 
 char *folder_get_unfulfilled_dictionary_key(
 			char *folder_name )
@@ -1795,6 +1802,7 @@ char *folder_get_unfulfilled_dictionary_key(
 		"%s_%s",
 		LOOKUP_BEFORE_DROP_DOWN_UNFULFILLED_FOLDER_PREFIX,
 		folder_name );
+
 	return strdup( dictionary_key );
 }
 
@@ -2791,8 +2799,9 @@ char *folder_primary_where(
 
 FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_attribute_list,
-			boolean fetch_one2m_relation,
-			boolean fetch_mto1_isa_relation )
+			boolean fetch_one2m_recursive_relation_list,
+			boolean fetch_mto1_relation_list,
+			boolean fetch_mto1_isa_relation_list )
 {
 	return	folder_parse(
 			pipe2string(
@@ -2800,13 +2809,15 @@ FOLDER *folder_fetch(	char *folder_name,
 					folder_primary_where(
 						folder_name ) ) ),
 			fetch_attribute_list,
-			fetch_one2m_relation,
-			fetch_mto1_isa_relation );
+			fetch_one2m_recursive_relation_list,
+			fetch_mto1_relation_list,
+			fetch_mto1_isa_relation_list );
 }
 
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
-			boolean fetch_one2m_relation_list,
+			boolean fetch_one2m_recursive_relation_list,
+			boolean fetch_mto1_relation_list,
 			boolean fetch_mto1_isa_relation_list )
 {
 	char folder_name[ 128 ];
@@ -2837,17 +2848,90 @@ FOLDER *folder_parse(	char *input,
 	piece( folder_name, SQL_DELIMITER, input, 0 );
 	folder->folder_name = strdup( folder_name );
 
+	piece( form, SQL_DELIMITER, input, 1 );
+	folder->folder_form = strdup( form );
+
+	piece( insert_rows_number, SQL_DELIMITER, input, 2 );
+	folder->insert_rows_number = atoi( insert_rows_number );
+
+	piece( lookup_email_output_yn, SQL_DELIMITER, input, 3 );
+	folder->lookup_email_output = ( *lookup_email_output_yn == 'y' );
+
+	piece( notepad, SQL_DELIMITER, input, 4 );
+	folder->notepad = strdup( notepad );
+
+	piece( populate_drop_down_process, SQL_DELIMITER, input, 5 );
+	folder->populate_drop_down_process =
+			process_new(
+				environment_application(),
+				strdup( populate_drop_down_process ),
+				0 /* not with_check_executable_ok */ );
+
+	piece( post_change_process, SQL_DELIMITER, input, 6 );
+	folder->post_change_process =
+			process_new(
+				environment_application(),
+				strdup( post_change_process ),
+				0 /* not with_check_executable_ok */ );
+
+	piece( html_help_file_anchor, SQL_DELIMITER, input, 7 );
+	folder->html_help_file_anchor = strdup( html_help_file_anchor );
+
+	piece( post_change_javascript, SQL_DELIMITER, input, 8 );
+	folder->post_change_javascript = strdup( post_change_javascript );
+
+	piece( subschema, SQL_DELIMITER, input, 9 );
+	folder->subschema_name = strdup( subschema );
+
+	piece( exclude_application_export_yn, SQL_DELIMITER, input, 10 );
+	folder->exclude_application_export =
+		( *exclude_application_export_yn == 'y' );
+
+	piece( lookup_before_drop_down_yn, SQL_DELIMITER, input, 11 );
+	folder->lookup_before_drop_down =
+		( *lookup_before_drop_down_yn == 'y' );
+
+	piece( no_initial_capital_yn, SQL_DELIMITER, input, 12 );
+	folder->no_initial_capital =
+		( *no_initial_capital_yn == 'y' );
+
+	piece( index_directory, SQL_DELIMITER, input, 13 );
+	folder->index_directory = strdup( index_directory );
+
+	piece( data_directory, SQL_DELIMITER, input, 14 );
+	folder->data_directory = strdup( data_directory );
+
+	piece( create_view_statement, SQL_DELIMITER, input, 15 );
+	folder->create_view_statement = strdup( create_view_statement );
+
+	piece( appaserver_yn, SQL_DELIMITER, input, 16 );
+	folder->appaserver =
+		( *appaserver_yn == 'y' );
+
 	if ( fetch_attribute_list )
 	{
 		folder->attribute_list =
-			attribute_list(
+			attribute_fetch_list(
+				folder->folder_name );
+
+		folder->primary_attribute_name_list =
+			attribute_primary_name_list(
+				folder->attribute_list );
+	}
+
+	if ( fetch_one2m_recursive_relation_list )
+	{
+		folder->one2m_recursive_relation_list =
+			relation_one2m_recursive_relation_list(
+				(LIST *)0,
 				folder->folder_name );
 	}
 
-	if ( fetch_one2m_relation_list )
+	if ( fetch_mto1_relation_list )
 	{
-		folder->one2m_relation_list =
-			relation_one2m_relation_list(
+		folder->mto1_relation_list =
+			relation_mto1_relation_list(
+				(LIST *)0,
 				folder->folder_name );
 	}
 
@@ -2855,7 +2939,22 @@ FOLDER *folder_parse(	char *input,
 	{
 		folder->mto1_isa_relation_list =
 			relation_mto1_isa_relation_list(
+				(LIST *)0,
 				folder->folder_name );
 	}
 	return folder;
 }
+
+char *folder_sys_string( char *where )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"select.sh '%s' %s \"%s\"",
+		FOLDER_SELECT_COLUMNS,
+		FOLDER_TABLE_NAME,
+		where );
+
+	return strdup( sys_string );
+}
+

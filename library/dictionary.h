@@ -65,7 +65,10 @@ char *dictionary_display( DICTIONARY *d );
 char *dictionary_list_display( LIST *dictionary_list );
 char *dictionary_display_delimiter( DICTIONARY *d, char delimiter );
 
-int get_dictionary_key_highest_index( DICTIONARY *d );
+int get_dictionary_key_highest_index(
+			DICTIONARY *d );
+int dictionary_get_key_highest_index(
+			DICTIONARY *d );
 
 LIST *dictionary_get_index_data_list( 	DICTIONARY *dictionary,
 					char *key );
@@ -358,8 +361,6 @@ void dictionary_replace_double_quote_with_single(
 					DICTIONARY *dictionary );
 char *dictionary_get_data(		DICTIONARY *d, char *key );
 char *dictionary_get_pointer(		DICTIONARY *d, char *key );
-
-int dictionary_get_key_highest_index(	DICTIONARY *d );
 
 LIST *dictionary_get_indexed_data_list(
 					DICTIONARY *dictionary,

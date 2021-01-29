@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
-#include "row_security.h"
 #include "timlib.h"
 #include "piece.h"
 #include "appaserver_parameter_file.h"
@@ -20,6 +19,8 @@
 #include "application.h"
 #include "list.h"
 #include "query.h"
+#include "related_folder.h"
+#include "row_security.h"
 
 ROW_SECURITY *row_security_new(
 			char *application_name,
@@ -735,7 +736,7 @@ void row_security_append_join_1tom_related_folder_list(
 				list_get_pointer(
 					join_1tom_related_folder_list );
 
-		     related_folder_one2m_foreign_attribute_dictionary(
+		     related_folder_populate_one2m_foreign_attribute_dictionary(
 				row_dictionary,
 				list_get_last_pointer(
 					related_folder->

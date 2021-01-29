@@ -213,7 +213,7 @@ LIST *get_process_list(	LIST *process_list,
 
 	return process_list;
 
-} /* get_process_list() */
+}
 
 LIST *get_table_name_list( char *database )
 {
@@ -225,7 +225,7 @@ LIST *get_table_name_list( char *database )
 
 	return pipe2list( sys_string );
 
-} /* get_table_name_list() */
+}
 
 LIST *get_filename_list(	LIST *table_name_list,
 				char *database,
@@ -251,7 +251,7 @@ LIST *get_filename_list(	LIST *table_name_list,
 
 	return filename_list;
 
-} /* get_filename_list() */
+}
 
 char *get_filename(	char *database,
 			char *table_name,
@@ -267,7 +267,7 @@ char *get_filename(	char *database,
 
 	return filename;
 
-} /* get_filename() */
+}
 
 boolean zip_files(
 		LIST *table_name_list,
@@ -321,7 +321,7 @@ boolean zip_files(
 
 	return 1;
 
-} /* zip_files() */
+}
 
 char *get_audit_database_filename( void )
 {
@@ -333,7 +333,7 @@ char *get_audit_database_filename( void )
 
 	return audit_database_filename;
 
-} /* get_audit_database_filename() */
+}
 
 char *get_audit_datafile_filename( void )
 {

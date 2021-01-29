@@ -37,6 +37,7 @@
 					"create_view_statement,"	\
 					"appaserver_yn"
 
+#define FOLDER_TABLE_NAME				"folder"
 #define FOLDER_MAXROWS					10000
 #define FOLDER_FOLDER_NAME_PIECE			0
 #define FOLDER_INSERT_ROWS_NUMBER_PIECE			1
@@ -76,6 +77,7 @@ typedef struct
 	PROCESS *populate_drop_down_process;
 	PROCESS *post_change_process;
 	boolean lookup_email_output;
+	boolean exclude_application_export;
 	boolean lookup_transmit_output;
 	boolean row_level_non_owner_forbid;
 	boolean row_level_non_owner_view_only;
@@ -108,6 +110,11 @@ typedef struct
 	LIST *mto1_isa_related_folder_list;
 	LIST *append_isa_attribute_list;
 	LIST *append_isa_attribute_name_list;
+	boolean appaserver;
+	LIST *one2m_relation_list;
+	LIST *one2m_recursive_relation_list;
+	LIST *mto1_relation_list;
+	LIST *mto1_isa_relation_list;
 } FOLDER;
 
 /* Operations */
@@ -597,12 +604,31 @@ char *folder_primary_where(
 
 FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_attribute_list,
-			boolean fetch_one2m_relation_list,
+			boolean fetch_one2m_recursive_relation_list,
+			boolean fetch_mto1_relation_list,
 			boolean fetch_mto1_isa_relation_list );
 
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
-			boolean fetch_one2m_relation_list,
+			boolean fetch_one2m_recursive_relation_list,
+			boolean fetch_mto1_relation_list,
 			boolean fetch_mto1_isa_relation_list );
+
+char *folder_sys_string(
+			char *where );
+
+/* Duplicated here so as to not include relation.h */
+/* ----------------------------------------------- */
+LIST *relation_one2m_recursive_relation_list(
+			LIST *relation_list,
+			char *one2m_folder_name );
+
+LIST *relation_mto1_relation_list(
+			LIST *relation_list,
+			char *mto1_folder_name );
+
+LIST *relation_mto1_isa_relation_list(
+			LIST *relation_list,
+			char *mto1_folder_name );
 
 #endif

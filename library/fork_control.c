@@ -25,7 +25,7 @@ FORK_CONTROL *fork_control_new( void )
 	fork_control->process_list = list_new();
 	return fork_control;
 
-} /* fork_control_new() */
+}
 
 FORK_CONTROL_PROCESS *fork_control_process_new( char *command_line )
 {
@@ -45,7 +45,7 @@ FORK_CONTROL_PROCESS *fork_control_process_new( char *command_line )
 	fork_process->state = fork_control_initial;
 	return fork_process;
 
-} /* fork_control_process_new() */
+}
 
 void fork_control_append_process(
 		LIST *process_list,
@@ -56,7 +56,7 @@ void fork_control_append_process(
 	fork_control_process = fork_control_process_new( command_line );
 	list_append_pointer( process_list, fork_control_process );
 
-} /* fork_control_append_process() */
+}
 
 void fork_control_execute(
 		LIST *process_list,
@@ -111,7 +111,7 @@ void fork_control_execute(
 			processes_executing--;
 		}
 	}
-} /* fork_control_execute() */
+}
 
 FORK_CONTROL_PROCESS *fork_control_get_next_process(
 			LIST *process_list )
@@ -131,7 +131,7 @@ FORK_CONTROL_PROCESS *fork_control_get_next_process(
 
 	return (FORK_CONTROL_PROCESS *)0;
 
-} /* fork_control_get_next_process() */
+}
 
 void fork_control_execute_process(
 				enum fork_control_state *state,
@@ -153,7 +153,7 @@ void fork_control_execute_process(
 	{
 		*state = fork_control_executing;
 	}
-} /* fork_control_execute_process() */
+}
 
 FORK_CONTROL_PROCESS *fork_control_process_seek(
 			LIST *process_list,
@@ -173,7 +173,7 @@ FORK_CONTROL_PROCESS *fork_control_process_seek(
 
 	return (FORK_CONTROL_PROCESS *)0;
 
-} /* fork_control_process_seek() */
+}
 
 boolean fork_control_get_any_processes_pending(
 				LIST *process_list )
@@ -192,7 +192,7 @@ boolean fork_control_get_any_processes_pending(
 
 	return 0;
 
-} /* fork_control_get_any_processes_pending() */
+}
 
 void fork_control_process_list_display(
 				LIST *process_list )
@@ -216,5 +216,5 @@ void fork_control_process_list_display(
 
 	} while( list_next( process_list ) );
 
-} /* fork_control_process_list_display() */
+}
 

@@ -48,13 +48,13 @@ typedef struct
 	char *one2m_folder_name;
 	FOLDER *one2m_folder;
 	char *related_attribute_name;
-	int pair_1tom_order,			\
+	int pair_1tom_order;
 	boolean omit_1tom_detail;
 	boolean prompt_mto1_recursive;
 	boolean relation_type_isa;
 	boolean copy_common_attributes;
 	boolean automatic_preselection;
-	boolean drop_down_multi_selet;
+	boolean drop_down_multi_select;
 	boolean join_1tom_each_row;
 	boolean omit_lookup_before_drop_down;
 	boolean ajax_fill_drop_down;
@@ -63,7 +63,7 @@ typedef struct
 	/* Process */
 	/* ------- */
 	boolean is_primary_key_subset;
-	LIST *foreign_attribute_list;
+	LIST *foreign_attribute_name_list;
 	boolean ignore;
 	LIST *join_where_clause;
 } RELATION;
@@ -74,7 +74,8 @@ RELATION *relation_calloc(
 RELATION *relation_new(
 			char *mto1_folder_name,
 			char *one2m_folder_name,
-			boolean fetch_folder );
+			boolean fetch_folder,
+			boolean fetch_attribute_list );
 
 RELATION *relation_parse(
 			char *input,
@@ -107,17 +108,24 @@ boolean relation_list_exists(
 			char *one2m_folder_name );
 
 LIST *relation_foreign_attribute_name_list(
-			char *many_folder_name,
 			/* ----------------------------------- */
 			/* Send in primary_attribute_name_list */
 			/* ----------------------------------- */
 			LIST *primary_foreign_attribute_name_list,
 			char *related_attribute_name,
-			LIST *foreign_attribute_list );
+			LIST *foreign_attribute_list_folder );
 
-LIST *relation_one2m_relation_list(
+LIST *relation_one2m_recursive_relation_list(
 			LIST *relation_list,
 			char *one2m_folder_name );
+
+LIST *relation_mto1_relation_list(
+			LIST *relation_list,
+			char *mto1_folder_name );
+
+LIST *relation_mto1_isa_relation_list(
+			LIST *relation_list,
+			char *mto1_folder_name );
 
 /* ---------------------------------- */
 /* foreign_attribute_name_list is set */

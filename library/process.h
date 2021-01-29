@@ -62,7 +62,8 @@ PROCESS_SET *process_new_process_set(
 				char *process_set_name );
 
 PROCESS *process_new(		char *application_name,
-				char *process_name );
+				char *process_name,
+				boolean with_check_executable_ok );
 
 PROCESS *process_new_process(	char *application_name,
 				char *session, 

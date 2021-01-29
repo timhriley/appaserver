@@ -106,36 +106,65 @@ char *foreign_attribute_sys_string(
 	return strdup( sys_string );
 }
 
-LIST *foreign_attribute_name_list(
+LIST *foreign_attribute_list( char *one_folder_name )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"related_folder = '%s'",
+		one_folder_name );
+
+	return foreign_attribute_system_list(
+		foreign_attribute_sys_string(
+			where ) );
+}
+
+LIST *foreign_attribute_list_folder(
 			char *many_folder_name,
 			LIST *foreign_attribute_list )
 {
-	LIST *name_list = {0};
+	LIST *return_list = {0};
 	FOREIGN_ATTRIBUTE *foreign_attribute;
 
 	if ( !list_rewind( foreign_attribute_list ) ) return (LIST *)0;
 
 	do {
-
 		foreign_attribute = list_get( foreign_attribute_list );
 
-		if ( strcmp(	many_folder_name,
-				foreign_attribute->folder ) == 0 )
+		if ( strcmp(	foreign_attribute->folder,
+				many_folder_name ) == 0 )
 		{
-			if ( !name_list ) name_list = list_new();
+			if ( !return_list ) return_list = list_new();
 
 			list_set(
-				name_list,
-				foreign_attribute->foreign_attribute );
+				return_list,
+				foreign_attribute );
 		}
+
+	} while ( list_next( foreign_attribute_list ) );
+
+	return return_list;
+}
+
+LIST *foreign_attribute_name_list(
+			LIST *foreign_attribute_list )
+{
+	LIST *name_list;
+	FOREIGN_ATTRIBUTE *foreign_attribute;
+
+	if ( !list_rewind( foreign_attribute_list ) ) return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		foreign_attribute = list_get( foreign_attribute_list );
+
+		list_set(
+			name_list,
+			foreign_attribute->foreign_attribute );
+
 	} while ( list_next( foreign_attribute_list ) );
 
 	return name_list;
 }
 
-LIST *foreign_attribute_list( char *one_folder_name )
-{
-	return foreign_attribute_system_list(
-		related_folder_primary_where(
-			one_folder_name /* related_folder_name */ ) );
-}

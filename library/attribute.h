@@ -342,6 +342,8 @@ LIST *attribute_distinct_folder_name_list(
 			LIST *attribute_list );
 
 LIST *attribute_list(	char *folder_name );
+LIST *attribute_fetch_list(
+			char *folder_name );
 
 LIST *attribute_system_list(
 			char *sys_string );

@@ -62,8 +62,9 @@ PROCESS_SET *process_new_process_set(
 	return p;
 }
 
-PROCESS *process_new(		char *application_name,
-				char *process_name )
+PROCESS *process_new(	char *application_name,
+			char *process_name,
+			boolean with_check_executable_ok )
 {
 	PROCESS *p = (PROCESS *)calloc( 1, sizeof( PROCESS ) );
 
@@ -87,7 +88,7 @@ PROCESS *process_new(		char *application_name,
 				&p->is_appaserver_process,
 				application_name,
 				process_name,
-				1 /* with_check_executable_ok */ ) )
+				with_check_executable_ok ) )
 	{
 		return (PROCESS *)0;
 	}
