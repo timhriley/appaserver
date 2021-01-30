@@ -250,9 +250,10 @@ LIST *relation_one2m_recursive_relation_list(
 				relation_one2m_recursive_relation_list(
 					relation_list,
 					relation->
-						one2m_folder->
+						mto1_folder->
 						folder_name
-						/* one2m_folder_name */ );
+						/* translates to	*/
+						/* one2m_folder_name	*/ );
 		}
 	} while ( list_next( local_relation_list ) );
 
