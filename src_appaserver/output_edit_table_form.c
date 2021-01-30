@@ -51,10 +51,10 @@ LIST *subtract_join_1tom_ignore_dictionary_related_folder_list(
 
 int get_rows_inserted(	DICTIONARY *non_prefixed_dictionary );
 
-int get_columns_updated(
+int get_cells_updated(
 			DICTIONARY *non_prefixed_dictionary );
 
-char *get_columns_updated_folder_name_list_string(
+char *get_cells_updated_folder_name_list_string(
 			DICTIONARY *non_prefixed_dictionary );
 
 int main( int argc, char **argv )
@@ -89,7 +89,7 @@ int main( int argc, char **argv )
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char content_type_yn = {0};
 	int rows_inserted;
-	int columns_updated;
+	int cells_updated;
 	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
 	boolean make_primary_keys_non_edit = 0;
 	char *appaserver_user_foreign_login_name;
@@ -293,8 +293,8 @@ int main( int argc, char **argv )
 			dictionary_appaserver->
 				non_prefixed_dictionary );
 
-	columns_updated =
-		get_columns_updated(
+	cells_updated =
+		get_cells_updated(
 			dictionary_appaserver->
 				non_prefixed_dictionary );
 
@@ -343,33 +343,33 @@ int main( int argc, char **argv )
 		form->subtitle_string = strdup( subtitle_string );
 	}
 	else
-	if ( columns_updated )
+	if ( cells_updated )
 	{
-		char *columns_updated_folder_name_list_string;
+		char *cells_updated_folder_name_list_string;
 		char subtitle_string[ 1024 ];
 
-		columns_updated_folder_name_list_string =
-			get_columns_updated_folder_name_list_string(
+		cells_updated_folder_name_list_string =
+			get_cells_updated_folder_name_list_string(
 				dictionary_appaserver->
 					non_prefixed_dictionary );
 
-		if ( !columns_updated_folder_name_list_string
-		&&   !*columns_updated_folder_name_list_string )
+		if ( !cells_updated_folder_name_list_string
+		&&   !*cells_updated_folder_name_list_string )
 		{
 			sprintf(subtitle_string,
-				"Columns updated: %d",
-				columns_updated );
+				"Cells updated: %d",
+				cells_updated );
 		}
 		else
 		{
 			char buffer[ 1024 ];
 
 			sprintf(subtitle_string,
-				"Columns updated: %d in %s",
-				columns_updated,
+				"Cells updated: %d in %s",
+				cells_updated,
 				format_initial_capital(
 				 buffer,
-				 columns_updated_folder_name_list_string ) );
+				 cells_updated_folder_name_list_string ) );
 		}
 
 		form->subtitle_string = strdup( subtitle_string );
@@ -767,7 +767,7 @@ m2( application_name, msg );
 
 	return 0;
 
-} /* main() */
+}
 
 int get_rows_inserted( DICTIONARY *non_prefixed_dictionary )
 {
@@ -787,13 +787,13 @@ int get_rows_inserted( DICTIONARY *non_prefixed_dictionary )
 	{
 		return 0;
 	}
-} /* get_rows_inserted() */
+}
 
-int get_columns_updated( DICTIONARY *non_prefixed_dictionary )
+int get_cells_updated( DICTIONARY *non_prefixed_dictionary )
 {
-	char *columns_updated_string;
+	char *cells_updated_string;
 
-	if ( ( columns_updated_string =
+	if ( ( cells_updated_string =
 		dictionary_get_pointer(
 			non_prefixed_dictionary,
 			COLUMNS_UPDATED_KEY ) ) )
@@ -801,29 +801,32 @@ int get_columns_updated( DICTIONARY *non_prefixed_dictionary )
 		dictionary_set_pointer(	non_prefixed_dictionary,
 					COLUMNS_UPDATED_KEY,
 					"0" );
-		return atoi( columns_updated_string );
+		return atoi( cells_updated_string );
 	}
 	else
 	{
 		return 0;
 	}
-} /* get_columns_updated() */
+}
 
-char *get_columns_updated_folder_name_list_string(
+char *get_cells_updated_folder_name_list_string(
 				DICTIONARY *non_prefixed_dictionary )
 {
-	char *columns_updated_folder_name_list_string;
+	char *cells_updated_folder_name_list_string;
 
-	columns_updated_folder_name_list_string =
+	cells_updated_folder_name_list_string =
 		dictionary_get_pointer(
 			non_prefixed_dictionary,
 			COLUMNS_UPDATED_CHANGED_FOLDER_KEY );
 
-	dictionary_set_pointer(	non_prefixed_dictionary,
-				COLUMNS_UPDATED_CHANGED_FOLDER_KEY,
-				"" );
-	return columns_updated_folder_name_list_string;
-} /* get_columns_updated_folder_name_list_string() */
+	dictionary_set_pointer(
+		non_prefixed_dictionary,
+		COLUMNS_UPDATED_CHANGED_FOLDER_KEY,
+		"" );
+
+	return cells_updated_folder_name_list_string;
+
+}
 
 LIST *subtract_join_1tom_ignore_dictionary_related_folder_list(
 			LIST *join_1tom_related_folder_list,
@@ -867,5 +870,5 @@ LIST *subtract_join_1tom_ignore_dictionary_related_folder_list(
 
 	return return_related_folder_list;
 
-} /* subtract_join_1tom_ignore_dictionary_related_folder_list() */
+}
 

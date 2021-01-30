@@ -1391,16 +1391,22 @@ UPDATE_FOLDER *update_secondary_update_folder(
 UPDATE_FOLDER *update_folder_set_where_clause(
 			UPDATE_FOLDER *update_folder )
 {
+	if ( !update_folder ) return (UPDATE_FOLDER *)0;
+
+	update_folder->where_attribute_name_list =
+		    update_database_where_attribute_name_list(
+			update_folder->
+				primary_attribute_name_list,
+			update_folder->
+			     relation_foreign_attribute_name_list );
+
 	update_folder->where_attribute_list =
 		update_folder_where_attribute_list(
-			( update_folder->where_attribute_name_list =
-			    update_database_where_attribute_name_list(
-				update_folder->
-					primary_attribute_name_list,
-				update_folder->
-				     relation_foreign_attribute_name_list ) ),
-				update_folder->
-					primary_data_list );
+			update_folder->where_attribute_name_list,
+			update_folder->primary_data_list );
+
+	if ( !list_length( update_folder->where_attribute_list ) )
+		return (UPDATE_FOLDER *)0;
 
 	update_folder->where_clause =
 		update_folder_where_clause(
@@ -1418,7 +1424,7 @@ LIST *update_folder_where_attribute_list(
 	char data_buffer[ 1024 ];
 	LIST *where_attribute_list;
 
-	if ( !list_reset( attribute_name_list ) ) return (LIST *)0;
+	if ( !list_rewind( attribute_name_list ) ) return (LIST *)0;
 
 	list_rewind( primary_data_list );
 
@@ -1445,10 +1451,10 @@ LIST *update_folder_where_attribute_list(
 	return where_attribute_list;
 }
 
-int update_database_columns_updated(
+int update_database_cells_updated(
 			LIST *update_row_list )
 {
-	int columns_updated = 0;
+	int cells_updated = 0;
 	UPDATE_ROW *update_row;
 	UPDATE_FOLDER *update_folder;
 
@@ -1467,16 +1473,17 @@ int update_database_columns_updated(
 				list_get(
 					update_row->update_folder_list );
 
-			columns_updated +=
-				update_folder_columns_updated(
+			cells_updated +=
+				( update_folder_columns_updated(
 					update_folder->
-						changed_attribute_list );
+						changed_attribute_list ) *
+					update_folder->count ); 
 
 		} while( list_next( update_row->update_folder_list ) );
 
 	} while( list_next( update_row_list ) );
 
-	return columns_updated;
+	return cells_updated;
 }
 
 int update_folder_columns_updated(

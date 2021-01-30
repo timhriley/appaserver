@@ -80,7 +80,7 @@ void execute_output_process(
 			char *pair_one2m_folder_name,
 			char *primary_data_list_string,
 			char *folder_form,
-			int columns_updated,
+			int cells_updated,
 			char *changed_folder_name_list_string );
 
 void post_state_update(		
@@ -715,7 +715,7 @@ void post_state_insert(
 				pair_one2m_folder_name,
 				primary_data_list_string,
 				folder_form,
-				0 /* columns_updated */,
+				0 /* cells_updated */,
 				(char *)0
 				/* changed_folder_name_list_string */ );
 
@@ -743,7 +743,7 @@ void post_state_update(
 	FOLDER *folder;
 	OPERATION_LIST_STRUCTURE *operation_list_structure = {0};
 	char *changed_folder_name_list_string = (char *)0;
-	int columns_updated = 0;
+	int cells_updated;
 
 	dictionary_appaserver->send_dictionary =
 		dictionary_appaserver_get_send_dictionary(
@@ -815,7 +815,7 @@ void post_state_update(
 			role_name,
 			dont_omit_delete );
 
-	columns_updated =
+	cells_updated =
 		post_state_update_folder(
 				&changed_folder_name_list_string,
 				dictionary_appaserver,
@@ -869,7 +869,7 @@ void post_state_update(
 			(char *)0 /* pair_one2m_folder_name */,
 			primary_data_list_string,
 			(char *)0 /* folder_form */,
-			columns_updated,
+			cells_updated,
 			changed_folder_name_list_string );
 }
 
@@ -891,7 +891,7 @@ int post_state_update_folder(
 	DICTIONARY *file_dictionary;
 	UPDATE_DATABASE *update_database;
 	char *results_string;
-	int columns_updated;
+	int cells_updated;
 
 	file_dictionary =
 		dictionary2file_get_dictionary(
@@ -928,6 +928,8 @@ int post_state_update_folder(
 				/* post_dictionary */,
 			file_dictionary );
 
+	if ( !update_database ) return 0;
+
 	update_database->update_row_list =
 		update_database_update_row_list(
 			update_database->post_dictionary,
@@ -937,6 +939,8 @@ int post_state_update_folder(
 			update_database->folder->one2m_recursive_relation_list,
 			update_database->folder->post_change_process );
 
+	if ( !list_length( update_database->update_row_list ) )
+		return 0;
 /*
 {
 char msg[ 65536 ];
@@ -948,8 +952,8 @@ update_database_update_row_list_display( update_database->update_row_list ) );
 m2( application_name, msg );
 }
 */
-	columns_updated =
-		update_database_columns_updated(
+	cells_updated =
+		update_database_cells_updated(
 			update_database->update_row_list );
 
 	results_string =
@@ -981,7 +985,7 @@ m2( application_name, msg );
 				update_database->update_row_list ),
 			',' );
 
-	return columns_updated;
+	return cells_updated;
 }
 
 void post_state_lookup(
@@ -1125,7 +1129,7 @@ void post_state_lookup(
 			(char *)0 /* pair_one2m_folder_name */,
 			primary_data_list_string,
 			(char *)0 /* folder_form */,
-			0 /* columns_updated */,
+			0 /* cells_updated */,
 			(char *)0
 			/* changed_folder_name_list_string */ );
 
@@ -1149,7 +1153,7 @@ void execute_output_process(
 				char *pair_one2m_folder_name,
 				char *primary_data_list_string,
 				char *folder_form,
-				int columns_updated,
+				int cells_updated,
 				char *changed_folder_name_list_string )
 {
 	char sys_string[ 65536 ];
@@ -1164,13 +1168,13 @@ void execute_output_process(
 		exit( 1 );
 	}
 
-	if ( columns_updated )
+	if ( cells_updated )
 	{
-		char columns_updated_string[ 16 ];
+		char cells_updated_string[ 16 ];
 
-		sprintf( columns_updated_string,
+		sprintf( cells_updated_string,
 			 "%d",
-			 columns_updated );
+			 cells_updated );
 
 		if ( !dictionary_appaserver->non_prefixed_dictionary )
 		{
@@ -1181,12 +1185,13 @@ void execute_output_process(
 		dictionary_set_pointer(
 			dictionary_appaserver->non_prefixed_dictionary,
 			COLUMNS_UPDATED_KEY,
-			strdup( columns_updated_string ) );
+			strdup( cells_updated_string ) );
 
 		if ( changed_folder_name_list_string )
 		{
 			dictionary_set_pointer(
-				dictionary_appaserver->non_prefixed_dictionary,
+				dictionary_appaserver->
+					non_prefixed_dictionary,
 				COLUMNS_UPDATED_CHANGED_FOLDER_KEY,
 				changed_folder_name_list_string );
 		}

@@ -215,13 +215,6 @@ void update_database_set_login_name_each_row(
 			DICTIONARY *dictionary,
 			char *login_name );
 
-int update_database_get_columns_updated(
-			char *application_name,
-			LIST *update_row_list );
-
-LIST *update_database_get_changed_folder_name_list(
-			LIST *update_row_list );
-
 LIST *update_changed_attribute_list(
 			boolean *changed_primary_key,
 			/* ------------------------------------------ */
@@ -316,9 +309,6 @@ UPDATE_DATABASE *update_database_new(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary );
 
-int update_database_columns_updated(
-			LIST *update_row_list );
-
 LIST *update_database_changed_folder_name_list(
 			LIST *update_row_list );
 
@@ -339,6 +329,9 @@ char *update_folder_set_clause(
 int update_folder_count(
 			char *folder_name,
 			char *where_clause );
+
+int update_database_cells_updated(
+			LIST *update_row_list );
 
 int update_folder_columns_updated(
 			LIST *changed_attribute_list );
