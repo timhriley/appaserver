@@ -267,13 +267,12 @@ int main( int argc, char **argv )
 
 	update_database->update_row_list =
 		update_database_update_row_list(
-			update_database->row_dictionary,
+			update_database->post_dictionary,
 			update_database->file_dictionary,
-			update_database->folder,
-			update_database->exclude_attribute_name_list,
-			update_database->
-				foreign_attribute_dictionary,
-			foreign_attribute_list( folder_name ) );
+			update_database->folder->folder_name,
+			update_database->folder->attribute_list,
+			update_database->folder->one2m_recursive_relation_list,
+			update_database->folder->post_change_process );
 
 	additional_update_attribute_name_list = list_new();
 	additional_update_data_list = list_new();
@@ -308,7 +307,7 @@ int main( int argc, char **argv )
 			update_database->application_name,
 			update_database->session,
 			update_database->update_row_list,
-			update_database->row_dictionary,
+			update_database->post_dictionary,
 			update_database->login_name,
 			update_database->role_name,
 			additional_update_attribute_name_list,

@@ -17,10 +17,12 @@
 #include "list.h"
 #include "dictionary.h"
 #include "process.h"
+#include "environ.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "attribute.h"
 #include "folder.h"
+#include "relation.h"
 #include "appaserver_library.h"
 #include "appaserver_user.h"
 #include "document.h"
@@ -79,12 +81,13 @@ UPDATE_DATABASE *update_database_new(
 	update_database->session = session;
 	update_database->login_name = login_name;
 	update_database->role_name = role_name;
+	update_database->folder_name = folder_name;
 	update_database->post_dictionary = dictionary_copy( post_dictionary );
 	update_database->file_dictionary = file_dictionary;
 
 	update_database->folder =
 		folder_fetch(
-			folder_name,
+			update_database->folder_name,
 			1 /* fetch_attribute_list */,
 			1 /* fetch_one2m_recursive_relation_list */,
 			0 /* not fetch_mto1_relation_list */,
@@ -299,7 +302,7 @@ char *update_database_execute(	char *application_name,
 	do {
 		update_row = list_get_pointer( update_row_list );
 
-		update_database_execute_for_row(
+		update_database_execute_row(
 				error_messages,
 			   	application_name,
 				session,
@@ -317,7 +320,7 @@ char *update_database_execute(	char *application_name,
 	return error_messages;
 }
 
-void update_database_execute_for_row(
+void update_database_execute_row(
 			char *error_messages,
 			char *application_name,
 			char *session,
@@ -337,20 +340,18 @@ void update_database_execute_for_row(
 	if ( !list_rewind( update_folder_list ) ) return;
 
 	do {
-		update_folder = list_get_pointer( update_folder_list );
+		update_folder = list_get( update_folder_list );
 
 		if ( ( error_message_string =
-			update_database_execute_for_folder(
+			update_database_execute_folder(
 			   	application_name,
 				login_name,
 			   	update_folder->
 					folder_name,
 				update_folder->
-					where_attribute_list,
+					set_clause,
 				update_folder->
-					changed_attribute_list,
-				update_folder->
-					primary_attribute_name_list,
+					where_clause,
 				additional_update_attribute_name_list,
 				additional_update_data_list ) ) )
 		{
@@ -378,7 +379,7 @@ void update_database_execute_for_row(
 	list_rewind( update_folder_list );
 
 	do {
-		update_folder = list_get_pointer( update_folder_list );
+		update_folder = list_get( update_folder_list );
 
 		if ( update_folder->update_failed ) continue;
 
@@ -435,39 +436,24 @@ void update_database_execute_for_row(
 
 		}
 	} while( list_next( update_folder_list ) );
-
 }
 
-char *update_database_execute_for_folder(
+char *update_database_execute_folder(
 			char *application_name,
 			char *login_name,
 			char *folder_name,
-			LIST *where_attribute_list,
-			LIST *changed_attribute_list,
-			LIST *primary_attribute_name_list,
+			char *set_clause,
+			char *where_clause,
 			LIST *additional_update_attribute_name_list,
 			LIST *additional_update_data_list )
 {
 	char *table_name;
 	char sys_string[ 8192 ];
-	char update_clause[ 8192 ];
-	char where_clause[ 8192 ];
 	char *error_message_string = {0};
-	char sql_executable[ 1024 ];
+	char additional_set_clause[ 1024 ];
+	char sql_executable[ 8192 ];
 
 	table_name = get_table_name( application_name, folder_name );
-
-	update_database_build_update_clause(
-		update_clause,
-		application_name,
-		changed_attribute_list,
-		primary_attribute_name_list );
-
-	*where_clause = '\0';
-
-	update_database_build_where_clause(
-		where_clause,
-		where_attribute_list );
 
 #ifdef UPDATE_DATABASE_DEBUG_MODE
 	sprintf( sql_executable,
@@ -481,7 +467,7 @@ char *update_database_execute_for_folder(
 	sprintf( sys_string,
 		 "echo \"update %s %s %s;\" | %s",
 		 table_name,
-		 update_clause,
+		 set_clause,
 		 where_clause,
 		 sql_executable );
 
@@ -502,132 +488,141 @@ char *update_database_execute_for_folder(
 			login_name );
 		return error_message_string;
 	}
-	else
-	{
-		if ( list_length( additional_update_attribute_name_list ) )
-		{
-			char *additional_update_attribute_name;
-			char *additional_update_data;
 
-			if (	list_length(
-				additional_update_attribute_name_list ) !=
-		     		list_length(
-				additional_update_data_list ) )
-			{
-				fprintf(stderr,
+	if ( list_length( additional_update_attribute_name_list ) )
+	{
+		char *additional_update_attribute_name;
+		char *additional_update_data;
+
+		if (	list_length(
+			additional_update_attribute_name_list ) !=
+	     		list_length(
+			additional_update_data_list ) )
+		{
+			fprintf(stderr,
 "ERROR in %s/%s()/%d: length of additional_update_attribute_name_list does not equal length of additional_update_data_list.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__ );
-				exit( 1 );
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_rewind( additional_update_attribute_name_list );
+		list_rewind( additional_update_data_list );
+
+		do {
+			additional_update_attribute_name =
+				list_get(
+				additional_update_attribute_name_list );
+
+			additional_update_data =
+				list_get(
+				additional_update_data_list );
+
+			if ( strcmp(	additional_update_data,
+					NULL_STRING ) == 0 )
+			{
+				sprintf(additional_set_clause,
+			 		"set %s=null",
+				 	additional_update_attribute_name );
+			}
+			else
+			{
+				sprintf(additional_set_clause,
+			 		"set %s='%s'",
+			 	additional_update_attribute_name,
+			 	additional_update_data );
 			}
 
-			list_rewind( additional_update_attribute_name_list );
-			list_rewind( additional_update_data_list );
+			sprintf( sys_string,
+	 			"echo \"update %s %s %s;\" | %s",
+	 			table_name,
+	 			additional_set_clause,
+	 			where_clause,
+				sql_executable );
 
-			do {
-				additional_update_attribute_name =
-					list_get_pointer(
-					additional_update_attribute_name_list );
+			appaserver_output_error_message(
+				application_name,
+				sys_string,
+				login_name );
 
-				additional_update_data =
-					list_get_pointer(
-					additional_update_data_list );
+			if ( system( sys_string ) ){};
 
-				if ( strcmp(	additional_update_data,
-						NULL_STRING ) == 0 )
-				{
-					sprintf(update_clause,
-				 		"set %s=null",
-				 	additional_update_attribute_name );
-				}
-				else
-				{
-					sprintf(update_clause,
-				 		"set %s='%s'",
-				 	additional_update_attribute_name,
-				 	additional_update_data );
-				}
+			list_next( additional_update_data_list );
 
-				sprintf( sys_string,
-		 			"echo \"update %s %s %s;\" | %s",
-		 			table_name,
-		 			update_clause,
-		 			where_clause,
-					sql_executable );
-
-				appaserver_output_error_message(
-					application_name,
-					sys_string,
-					login_name );
-
-				if ( system( sys_string ) ){};
-
-				list_next( additional_update_data_list );
-
-			} while( list_next(
-				additional_update_attribute_name_list ) );
-		}
+		} while( list_next(
+			additional_update_attribute_name_list ) );
 	}
-
 	return (char *)0;
-
 }
 
-void update_database_build_where_clause(
-			char *destination,
+char *update_folder_where_clause(
 			LIST *where_attribute_list )
 {
 	WHERE_ATTRIBUTE *where_attribute;
-	char data_buffer[ 4096 ];
+	char destination_buffer[ 4096 ];
+	char *destination = destination_buffer;
+	boolean first_time = 1;
 
-	destination += sprintf( destination, "where 1 = 1" );
+	destination += sprintf( destination, "where " );
 
-	if ( !list_reset( where_attribute_list ) ) return;
+	if ( !list_reset( where_attribute_list ) ) return (char *)0;
 
 	do {
-		where_attribute = list_get_pointer( where_attribute_list );
+		where_attribute = list_get( where_attribute_list );
+
+		if ( first_time )
+		{
+			first_time = 0;
+		}
+		else
+		{
+			destination +=
+				sprintf(destination,
+					" and " );
+		}
 
 		if ( !where_attribute->data || !*where_attribute->data )
 		{
 			destination +=
 				sprintf(
 				destination, 
-				" and (%s = 'null' or %s is null)",
+				"(%s = 'null' or %s is null)",
 				where_attribute->attribute_name,
 				where_attribute->attribute_name );
 		}
 		else
 		{
-			strcpy( data_buffer, where_attribute->data );
-
-			search_replace_special_characters( data_buffer );
-			escape_special_characters( data_buffer );
-
-			destination += sprintf( destination, 
-						" and %s = '%s'",
-						where_attribute->
-							attribute_name,
-						data_buffer );
+			destination +=
+				sprintf(
+				destination, 
+				"%s = '%s'",
+				where_attribute->
+					attribute_name,
+				/* ------------------------------------------ */
+				/* Assume search_replace_special_characters() */
+				/* ------------------------------------------ */
+				where_attribute->data );
 		}
 
 	} while( list_next( where_attribute_list ) );
+
+	return strdup( destination_buffer );
 }
 
-void update_database_build_update_clause(
-			char *destination,
-			char *application_name,
-			LIST *changed_attribute_list,
-			LIST *primary_attribute_name_list )
+char *update_folder_set_clause(
+			LIST *changed_attribute_list )
 {
 	CHANGED_ATTRIBUTE *changed_attribute;
 	int first_time = 1;
 	char data[ 4096 ];
 	char buffer[ 4096 ];
+	char destination_buffer[ 65536 ];
+	char *destination = destination_buffer;
 
 	destination += sprintf( destination, "set" );
 
-	if ( !list_reset( changed_attribute_list ) ) return;
+	if ( !list_reset( changed_attribute_list ) ) return (char *)0;
 
 	do {
 		changed_attribute = list_get_pointer( changed_attribute_list );
@@ -652,7 +647,7 @@ void update_database_build_update_clause(
 
 			results =
 				appaserver_user_version_encrypted_password(
-					application_name,
+					environment_application_name(),
 					data /* typed_in_password */,
 					appaserver_user_mysql_version() );
 
@@ -665,14 +660,14 @@ void update_database_build_update_clause(
 		if ( !*data
 		||   strcmp( data, NULL_OPERATOR ) == 0 )
 		{
-			strcpy( data, NULL_STRING );
-
-			if ( list_exists_string(
-					primary_attribute_name_list, 
-					changed_attribute->attribute_name ) )
+			if ( changed_attribute->changed_primary_key_index )
 			{
 				single_quotes_around( buffer, data );
 				strcpy( data, buffer );
+			}
+			else
+			{
+				strcpy( data, NULL_STRING );
 			}
 		}
 		else
@@ -699,6 +694,7 @@ void update_database_build_update_clause(
 
 	} while( list_next( changed_attribute_list ) );
 
+	return strdup( destination_buffer );
 }
 
 boolean update_database_dictionary_index_data(
@@ -744,15 +740,15 @@ char *update_database_update_row_list_display(
 			buffer_pointer += sprintf( buffer_pointer, "," );
 
 		buffer_pointer +=
-			sprintf(	buffer_pointer,
-					"\n\nrow = %d, changed_key = %d",
-					update_row->row,
-					update_row->changed_key );
+			sprintf(buffer_pointer,
+				"\n\nrow = %d, changed_primary_key = %d",
+				update_row->row,
+				update_row->changed_primary_key );
 
 		buffer_pointer +=
-			sprintf( buffer_pointer,
-				 "%s\n",
-				 update_database_folder_list_display(
+			sprintf(buffer_pointer,
+				"%s\n",
+				update_database_folder_list_display(
 					update_row->update_folder_list ) );
 
 	} while( list_next( update_row_list ) );
@@ -789,7 +785,6 @@ char *update_database_folder_list_display(
 	} while( list_next( update_folder_list ) );
 
 	return buffer;
-
 }
 
 char *update_database_folder_display(
@@ -804,11 +799,11 @@ char *update_database_folder_display(
 
 	buffer_pointer +=
 		sprintf(buffer_pointer,
-			"folder = %s, primary = %s",
+			"folder = %s, where_attribute_name_list = %s",
 			update_folder->folder_name,
 			list_display(
 				update_folder->
-					primary_attribute_name_list ) );
+					where_attribute_name_list ) );
 
 	buffer_pointer +=
 		update_database_changed_display(
@@ -854,8 +849,9 @@ int update_database_changed_display(	char *buffer_pointer,
 	return output_character_count;
 }
 
-int update_database_where_display(	char *buffer_pointer,
-					LIST *where_attribute_list )
+int update_database_where_display(
+			char *buffer_pointer,
+			LIST *where_attribute_list )
 {
 	WHERE_ATTRIBUTE *where_attribute;
 	int output_character_count = 0;
@@ -962,10 +958,10 @@ LIST *update_changed_attribute_list(
 				changed_attribute_list = list_new_list();
 			}
 
-			changed_attribute->primary_key_index =
+			changed_attribute->changed_primary_key_index =
 				attribute->primary_key_index;
 
-			if ( changed_attribute->primary_key_index )
+			if ( changed_attribute->changed_primary_key_index )
 				*changed_primary_key = 1;
 
 			list_append_pointer(
@@ -1072,7 +1068,7 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute(
 	/* ------------ */
 	{
 		changed_attribute =
-			update_database_changed_attribute_new(
+			update_changed_attribute_new(
 				attribute->attribute_name,
 				attribute->datatype,
 				old_data,
@@ -1101,7 +1097,6 @@ UPDATE_FOLDER *update_database_primary_update_folder(
 			char *folder_name,
 			LIST *attribute_list,
 			PROCESS *post_change_process,
-			LIST *one2m_recursive_relation_list,
 			int row )
 {
 	UPDATE_FOLDER *update_folder;
@@ -1136,7 +1131,7 @@ UPDATE_FOLDER *update_database_primary_update_folder(
 
 	/* Process */
 	/* ------- */
-	update_folder->changed_key = changed_key;
+	update_folder->changed_primary_key = changed_primary_key;
 	update_folder->changed_attribute_list = changed_attribute_list;
 
 	update_folder->primary_data_list =
@@ -1146,9 +1141,7 @@ UPDATE_FOLDER *update_database_primary_update_folder(
 				attribute_list ),
 			row );
 
-	return
-		update_folder_set_where_attribute_list(
-			update_folder );
+	return update_folder;
 }
 
 LIST *update_folder_primary_data_list(
@@ -1199,40 +1192,72 @@ UPDATE_ROW *update_database_update_row(
 			DICTIONARY *file_dictionary,
 			char *folder_name,
 			LIST *attribute_list,
-			PROCESS *post_change_process,
 			LIST *one2m_recursive_relation_list,
+			PROCESS *post_change_process,
 			int row )
 {
 	UPDATE_ROW *update_row;
-	UPDATE_FOLDER *update_folder;
-	RELATION *relation;
+	UPDATE_FOLDER *primary_update_folder;
 
-	if ( ! ( update_folder =
-			update_database_primary_update_folder(
-				post_dictionary,
-				file_dictionary,
-				folder_name,
-				attribute_list,
-				post_change_process,
-				one2m_recursive_relation_list,
-				row ) ) )
+	if ( ! ( primary_update_folder =
+			update_folder_set_where_clause(
+				update_database_primary_update_folder(
+					post_dictionary,
+					file_dictionary,
+					folder_name,
+					attribute_list,
+					post_change_process,
+					row ) ) ) )
 	{
 		return (UPDATE_ROW *)0;
 	}
 
-	update_row = update_database_update_row_calloc();
-	update_row->update_folder_list = list_new();
-	list_set( update_row->update_folder_list, update_folder );
+	primary_update_folder->count =
+		update_folder_count(
+			primary_update_folder->
+				folder_name,
+			primary_update_folder->
+				where_clause );
 
+	primary_update_folder->set_clause =
+		update_folder_set_clause(
+			primary_update_folder->
+				changed_attribute_list );
+
+	update_row = update_database_update_row_calloc();
 	update_row->row = row;
 
 	update_row->changed_primary_key =
-		update_folder->changed_primary_key;
+		primary_update_folder->changed_primary_key;
 
-	if ( !update_row->changed_primary_key
+	update_row->update_folder_list =
+		update_database_update_folder_list(
+			primary_update_folder->primary_data_list,
+			primary_update_folder->changed_attribute_list,
+			update_row->changed_primary_key,
+			one2m_recursive_relation_list,
+			primary_update_folder );
+
+	return update_row;
+}
+
+LIST *update_database_update_folder_list(
+			LIST *primary_data_list,
+			LIST *primary_changed_attribute_list,
+			boolean changed_primary_key,
+			LIST *one2m_recursive_relation_list,
+			UPDATE_FOLDER *primary_update_folder )
+{
+	LIST *update_folder_list = list_new();
+	RELATION *relation;
+	UPDATE_FOLDER *update_folder;
+
+	list_set( update_folder_list, primary_update_folder );
+
+	if ( !changed_primary_key
 	||   !list_rewind( one2m_recursive_relation_list ) )
 	{
-		return update_row;
+		return update_folder_list;
 	}
 
 	do {
@@ -1241,22 +1266,33 @@ UPDATE_ROW *update_database_update_row(
 				one2m_recursive_relation_list );
 
 		update_folder =
-			update_secondary_update_folder(
-				relation->one2m_folder->folder_name,
-				relation->foreign_attribute_name_list,
-				update_folder->primary_data_list,
-				update_folder->changed_attribute_list );
+			update_folder_set_where_clause(
+				update_secondary_update_folder(
+					relation->mto1_folder->folder_name,
+					relation->foreign_attribute_name_list,
+					primary_data_list,
+					primary_changed_attribute_list ) );
 
-		if ( update_folder )
+		if ( !update_folder ) continue;
+
+		if ( ! ( update_folder->count =
+				update_folder_count(
+					update_folder->folder_name,
+					update_folder->where_clause ) ) )
 		{
-			list_set(
-				update_row->update_folder_list,
-				update_folder );
+			continue;
 		}
+
+		update_folder->set_clause =
+			update_folder_set_clause(
+				update_folder->
+					changed_attribute_list );
+
+		list_set( update_folder_list, update_folder );
 
 	} while ( list_next( one2m_recursive_relation_list ) );
 
-	return update_row;
+	return update_folder_list;
 }
 
 LIST *update_database_update_row_list(
@@ -1264,14 +1300,12 @@ LIST *update_database_update_row_list(
 			DICTIONARY *file_dictionary,
 			char *folder_name,
 			LIST *attribute_list,
-			PROCESS *post_change_process,
-			LIST *one2m_recursive_relation_list )
+			LIST *one2m_recursive_relation_list,
+			PROCESS *post_change_process )
 {
 	LIST *update_row_list;
 	int row;
 	int highest_index;
-	RELATED_FOLDER *related_folder;
-	UPDATE_ROW *update_row = {0};
 
 	if ( !post_dictionary ) return (LIST *)0;
 
@@ -1287,54 +1321,57 @@ LIST *update_database_update_row_list(
 				file_dictionary,
 				folder_name,
 				attribute_list,
-				post_change_process.
 				one2m_recursive_relation_list,
+				post_change_process,
 				row ) );
 	}
 	return update_row_list;
 }
 
 UPDATE_FOLDER *update_secondary_update_folder(
-			char *one2m_folder_name,
+			char *mto1_folder_name,
 			LIST *relation_foreign_attribute_name_list,
 			LIST *primary_data_list,
-			LIST *changed_attribute_list )
+			LIST *primary_changed_attribute_list )
 {
 	UPDATE_FOLDER *update_folder;
-	CHANGED_ATTRIBUTE *changed_attribute;
+	CHANGED_ATTRIBUTE *primary_changed_attribute;
 	char *changed_attribute_name;
 
-	if ( !list_rewind( changed_attribute_list ) )
+	if ( !list_rewind( primary_changed_attribute_list ) )
 		return (UPDATE_FOLDER *)0;
 
 	update_folder = update_folder_calloc();
 
-	update_folder->folder_name = one2m_folder_name;
+	update_folder->folder_name = mto1_folder_name;
 	update_folder->primary_data_list = primary_data_list;
-	update_folder->changed_attribute_list = list_new();
 
 	update_folder->relation_foreign_attribute_name_list =
 		relation_foreign_attribute_name_list;
 
+	update_folder->changed_attribute_list = list_new();
+
 	do {
-		changed_attribute = list_get( changed_attribute_list );
+		primary_changed_attribute =
+			list_get( primary_changed_attribute_list );
 
 		changed_attribute_name =
 			list_seek_index(
 				update_folder->
-					foreign_attribute_name_list,
-				changed_attribute->
-					primary_key_index );
+					relation_foreign_attribute_name_list,
+				primary_changed_attribute->
+					changed_primary_key_index );
 
 		if ( !changed_attribute_name )
 		{
 			fprintf(stderr,
-"Warning in %s/%s()/%d: one_folder_name = %s cannot list_seek_index = %d\n",
+"Warning in %s/%s()/%d: mto1_folder_name = %s cannot list_seek_index = %d\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
-				one2m_folder_name,
-				changed_attribute->primary_key_index );
+				mto1_folder_name,
+				primary_changed_attribute->
+					changed_primary_key_index );
 			continue;
 		}
 
@@ -1342,44 +1379,190 @@ UPDATE_FOLDER *update_secondary_update_folder(
 			update_folder->changed_attribute_list,
 			update_changed_attribute_new(
 				changed_attribute_name,
-				changed_attribute->attribute_datatype,
-				changed_attribute->old_data,
-				changed_attribute->new_data ) );
+				primary_changed_attribute->attribute_datatype,
+				primary_changed_attribute->old_data,
+				primary_changed_attribute->new_data ) );
 
-	} while ( list_next( changed_attribute_list ) );
+	} while ( list_next( primary_changed_attribute_list ) );
 
-	return
-		update_folder_set_where_attribute_list(
-			update_folder );
+	return update_folder;
 }
 
-UPDATE_FOLDER *update_folder_set_where_attribute_list(
+UPDATE_FOLDER *update_folder_set_where_clause(
 			UPDATE_FOLDER *update_folder )
 {
-	if ( list_length( update_folder->primary_attribute_name_list ) )
-	{
-		update_folder->where_attribute_list =
-			update_folder_where_attribute_list(
+	update_folder->where_attribute_list =
+		update_folder_where_attribute_list(
+			( update_folder->where_attribute_name_list =
+			    update_database_where_attribute_name_list(
 				update_folder->
 					primary_attribute_name_list,
 				update_folder->
-					primary_data_list );
-	}
-	else
-	{
-		update_folder->where_attribute_list =
-			update_folder_where_attribute_list(
-				update_folder->
-					relation_foreign_attribute_name_list,
+				     relation_foreign_attribute_name_list ) ),
 				update_folder->
 					primary_data_list );
-	}
+
+	update_folder->where_clause =
+		update_folder_where_clause(
+			update_folder->where_attribute_list );
 
 	return update_folder;
 }
 
 LIST *update_folder_where_attribute_list(
-			LIST *relation_foreign_attribute_name_list,
+			LIST *attribute_name_list,
 			LIST *primary_data_list )
 {
+	WHERE_ATTRIBUTE *where_attribute;
+	char *attribute_name;
+	char data_buffer[ 1024 ];
+	LIST *where_attribute_list;
+
+	if ( !list_reset( attribute_name_list ) ) return (LIST *)0;
+
+	list_rewind( primary_data_list );
+
+	where_attribute_list = list_new();
+
+	do {
+		attribute_name = list_get( attribute_name_list );
+		strcpy( data_buffer, list_get( primary_data_list ) );
+
+		search_replace_special_characters( data_buffer );
+		escape_special_characters( data_buffer );
+
+		where_attribute =
+			update_database_where_attribute_new(
+				attribute_name,
+				strdup( data_buffer ) );
+
+		list_set( where_attribute_list, where_attribute );
+
+		if ( !list_next( primary_data_list ) ) break;
+
+	} while( list_next( attribute_name_list ) );
+
+	return where_attribute_list;
 }
+
+int update_database_columns_updated(
+			LIST *update_row_list )
+{
+	int columns_updated = 0;
+	UPDATE_ROW *update_row;
+	UPDATE_FOLDER *update_folder;
+
+	if ( !list_rewind( update_row_list ) ) return 0;
+
+	do {
+		update_row = list_get_pointer( update_row_list );
+
+		if ( !list_rewind( update_row->update_folder_list ) )
+		{
+			continue;
+		}
+
+		do {
+			update_folder =
+				list_get(
+					update_row->update_folder_list );
+
+			columns_updated +=
+				update_folder_columns_updated(
+					update_folder->
+						changed_attribute_list );
+
+		} while( list_next( update_row->update_folder_list ) );
+
+	} while( list_next( update_row_list ) );
+
+	return columns_updated;
+}
+
+int update_folder_columns_updated(
+			LIST *changed_attribute_list )
+{
+	int columns_updated;
+
+	if ( !list_rewind( changed_attribute_list ) )
+	{
+		return 0;
+	}
+
+	columns_updated = 0;
+
+	do {
+		columns_updated++;
+
+	} while( list_next( changed_attribute_list ) );
+
+	return columns_updated;
+}
+
+LIST *update_database_changed_folder_name_list(
+			LIST *update_row_list )
+{
+	UPDATE_ROW *update_row;
+	UPDATE_FOLDER *update_folder;
+	LIST *changed_folder_name_list;
+
+	if ( !list_rewind( update_row_list ) ) return (LIST *)0;
+
+	changed_folder_name_list = list_new();
+
+	do {
+		update_row = list_get( update_row_list );
+
+		if ( !list_rewind( update_row->update_folder_list ) )
+		{
+			continue;
+		}
+
+		do {
+			update_folder =
+				list_get(
+					update_row->update_folder_list );
+
+			list_set(
+				changed_folder_name_list,
+				update_folder->folder_name );
+
+		} while( list_next( update_row->update_folder_list ) );
+
+	} while( list_next( update_row_list ) );
+
+	return changed_folder_name_list;
+}
+
+LIST *update_database_where_attribute_name_list(
+			LIST *primary_attribute_name_list,
+			LIST *relation_foreign_attribute_name_list )
+{
+	if ( list_length( primary_attribute_name_list ) )
+		return primary_attribute_name_list;
+	else
+		return relation_foreign_attribute_name_list;
+}
+
+int update_folder_count(
+			char *folder_name,
+			char *where_clause )
+{
+	char sys_string[ 1024 ];
+	char *results;
+
+	sprintf(sys_string,
+		"select.sh 'count(1)' %s \"%s\"",
+		folder_name,
+		where_clause );
+
+	if ( ( results = pipe2string( sys_string ) ) )
+	{
+		return atoi( results );
+	}
+	else
+	{
+		return 0;
+	}
+}
+

@@ -451,7 +451,12 @@ LIST *dictionary_get_index_data_list( 	DICTIONARY *dictionary,
 		list_append_pointer( return_list, data );
 	}
 	return return_list;
-} /* dictionary_get_index_data_list() */
+}
+
+int dictionary_key_highest_index( DICTIONARY *d )
+{
+	return get_dictionary_key_highest_index( d );
+}
 
 int dictionary_get_key_highest_index( DICTIONARY *d )
 {

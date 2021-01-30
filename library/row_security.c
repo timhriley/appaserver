@@ -1808,15 +1808,6 @@ LIST *row_security_edit_table_update_element_list(
 			       (LIST *)0 /* include_attribute_name_list */ ) )
 		&&     !related_folder->omit_lookup_before_drop_down )
 		{
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: related_folder = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-related_folder->folder->folder_name );
-m2( "tnt", msg );
-}
 			if ( list_exists_string(
 					 non_edit_folder_name_list,
 					 related_folder->

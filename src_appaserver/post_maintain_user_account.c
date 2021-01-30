@@ -322,7 +322,7 @@ boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
 	/* Set for the where clause generator. */
 	/* ----------------------------------- */
 	dictionary_set_pointer(
-		update_database->row_dictionary,
+		update_database->post_dictionary,
 		"login_name_1",
 		login_name );
 
@@ -333,21 +333,19 @@ boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
 
 	update_database->update_row_list =
 		update_database_update_row_list(
-			update_database->row_dictionary,
+			update_database->post_dictionary,
 			update_database->file_dictionary,
-			update_database->folder,
-			(LIST *)0 /* exclude_attribute_name_list */,
-			update_database->
-				foreign_attribute_dictionary,
-			update_database->
-				foreign_attribute_list );
+			update_database->folder->folder_name,
+			update_database->folder->attribute_list,
+			update_database->folder->one2m_recursive_relation_list,
+			update_database->folder->post_change_process );
 
 	results_string =
 		update_database_execute(
 			update_database->application_name,
 			update_database->session,
 			update_database->update_row_list,
-			update_database->row_dictionary,
+			update_database->post_dictionary,
 			login_name,
 			update_database->role_name,
 			(LIST *)0 /* additional_update_attribute_name_list */,

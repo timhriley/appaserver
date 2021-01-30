@@ -48,6 +48,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/query.o					\
 		${LIBRARY}/attribute.o					\
 		${LIBRARY}/related_folder.o				\
+		${LIBRARY}/relation.o					\
 		${LIBRARY}/appaserver_parameter_file.o			\
 		${LIBRARY}/aggregate_level.o				\
 		${LIBRARY}/appaserver_error.o				\

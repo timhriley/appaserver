@@ -175,7 +175,15 @@ int main( int argc, char **argv )
 
 	/* Set final where clause */
 	/* ---------------------- */
-	strcpy( where_clause_escaped, where_clause );
+	if ( string_strncmp( where_clause, "where " ) == 0 )
+	{
+		strcpy( where_clause_escaped, where_clause + 6);
+	}
+	else
+	{
+		strcpy( where_clause_escaped, where_clause );
+	}
+
 	escape_dollar_sign( where_clause_escaped );
 
 	if ( !*where_clause_escaped )

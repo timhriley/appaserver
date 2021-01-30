@@ -62,11 +62,21 @@ typedef struct
 	/* ------------------------------------------------------------ */
 	LIST *relation_foreign_attribute_name_list;
 
+	/* ---------------------------------------------------- */
+	/* Where_attribute_name_list is either			*/
+	/* primary_attribute_name_list or			*/
+	/* relation_foreign_attribute_name_list			*/
+	/* ---------------------------------------------------- */
+	LIST *where_attribute_name_list;
+
 	LIST *primary_data_list;
 	LIST *where_attribute_list;
 
+	char *where_clause;
+	char *set_clause;
 	boolean changed_primary_key;
 	boolean update_failed;
+	int count;
 } UPDATE_FOLDER;
 
 typedef struct
@@ -82,10 +92,11 @@ typedef struct
 	char *session;
 	char *login_name;
 	char *role_name;
+	char *folder_name;
+	FOLDER *folder;
 	DICTIONARY *post_dictionary;
 	DICTIONARY *file_dictionary;
 	LIST *update_row_list;
-	char *folder_name;
 	LIST *attribute_list;
 	PROCESS *post_change_process;
 	LIST *one2m_recursive_relation_list;
@@ -107,10 +118,6 @@ CHANGED_ATTRIBUTE *update_changed_attribute_new(
 			char *old_data,
 			char *new_data );
 
-void update_database_build_where_clause(
-			char *destination,
-			LIST *where_attribute_list );
-
 UPDATE_FOLDER *update_database_update_folder_new(
 			char *folder_name );
 
@@ -125,7 +132,7 @@ boolean update_database_data_if_changed(
 			char *attribute_name, 
 			int row );
 
-void update_database_execute_for_row(
+void update_database_execute_row(
 			char *error_messages,
 			char *application_name,
 			char *session,
@@ -138,13 +145,12 @@ void update_database_execute_for_row(
 			LIST *additional_update_data_list,
 			boolean abort_if_first_update_failed );
 
-char *update_database_execute_for_folder(
+char *update_database_execute_folder(
 			char *application_name,
 			char *login_name,
 			char *folder_name,
-			LIST *where_attribute_list,
-			LIST *changed_attribute_list,
-			LIST *primary_attribute_name_list,
+			char *set_clause,
+			char *where_clause,
 			LIST *additional_update_attribute_name_list,
 			LIST *additional_update_data_list );
 
@@ -153,10 +159,6 @@ void update_database_build_update_clause(
 			char *application_name,
 			LIST *changed_attribute_list,
 			LIST *primary_attribute_name_list );
-
-void update_database_build_where_clause(
-			char *destination,
-			LIST *where_attribute_list );
 
 char *update_database_execute(
 			char *application_name,
@@ -262,7 +264,6 @@ LIST *update_folder_primary_data_list(
 			int row );
 
 UPDATE_ROW *update_database_update_row(
-			boolean *changed_primary_key,
 			/* ------------------------------------------ */
 			/* Sets preupdate_$attribute_name for trigger */
 			/* ------------------------------------------ */
@@ -271,8 +272,8 @@ UPDATE_ROW *update_database_update_row(
 			char *folder_name,
 			LIST *attribute_list,
 			LIST *one2m_recursive_relation_list,
-			int row,
-			PROCESS *post_change_process );
+			PROCESS *post_change_process,
+			int row );
 
 UPDATE_ROW *update_database_update_row_calloc(
 			void );
@@ -282,15 +283,64 @@ LIST *update_database_update_row_list(
 			DICTIONARY *file_dictionary,
 			char *folder_name,
 			LIST *attribute_list,
+			LIST *one2m_recursive_relation_list,
 			PROCESS *post_change_process );
 
 UPDATE_FOLDER *update_secondary_update_folder(
-			char *one2m_folder_name,
+			char *mto1_folder_name,
 			LIST *foreign_attribute_name_list,
 			LIST *primary_data_list,
+			LIST *primary_changed_attribute_list );
+
+UPDATE_FOLDER *update_folder_set_where_clause(
+			UPDATE_FOLDER *update_folder );
+
+LIST *update_folder_where_attribute_list(
+			LIST *attribute_name_list,
+			LIST *primary_data_list );
+
+UPDATE_FOLDER *update_database_primary_update_folder(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *folder_name,
+			LIST *attribute_list,
+			PROCESS *post_change_process,
+			int row );
+
+UPDATE_DATABASE *update_database_new(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary );
+
+int update_database_columns_updated(
+			LIST *update_row_list );
+
+LIST *update_database_changed_folder_name_list(
+			LIST *update_row_list );
+
+LIST *update_database_where_attribute_name_list(
+			LIST *primary_attribute_name_list,
+			LIST *relation_foreign_attribute_name_list );
+
+LIST *update_database_update_folder_list(
+			LIST *primary_data_list,
+			LIST *primary_changed_attribute_list,
+			boolean changed_primary_key,
+			LIST *one2m_recursive_relation_list,
+			UPDATE_FOLDER *primary_update_folder );
+
+char *update_folder_set_clause(
 			LIST *changed_attribute_list );
 
-UPDATE_FOLDER *update_folder_set_where_attribute_list(
-			UPDATE_FOLDER *update_folder );
+int update_folder_count(
+			char *folder_name,
+			char *where_clause );
+
+int update_folder_columns_updated(
+			LIST *changed_attribute_list );
 
 #endif

@@ -108,6 +108,7 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/populate_helper_process.o			\
 		${LIBRARY}/appaserver_link_file.o			\
 		${LIBRARY}/related_folder.o				\
+		${LIBRARY}/relation.o					\
 		${LIBRARY}/folder.o					\
 		${LIBRARY}/role.o					\
 		${LIBRARY}/appaserver.o					\

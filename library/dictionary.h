@@ -65,6 +65,8 @@ char *dictionary_display( DICTIONARY *d );
 char *dictionary_list_display( LIST *dictionary_list );
 char *dictionary_display_delimiter( DICTIONARY *d, char delimiter );
 
+int dictionary_key_highest_index(
+			DICTIONARY *d );
 int get_dictionary_key_highest_index(
 			DICTIONARY *d );
 int dictionary_get_key_highest_index(

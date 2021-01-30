@@ -36,9 +36,10 @@ FOREIGN_ATTRIBUTE *foreign_attribute_new(
 	}
 
 	foreign_attribute->folder = folder;
-	foreign_attribute->folder = related_folder;
-	foreign_attribute->folder = related_attribute;
-	foreign_attribute->folder = foreign_attribute_name;
+	foreign_attribute->related_folder = related_folder;
+	foreign_attribute->related_attribute = related_attribute;
+	foreign_attribute->foreign_attribute = foreign_attribute_name;
+
 	return foreign_attribute;
 }
 
@@ -75,8 +76,7 @@ FOREIGN_ATTRIBUTE *foreign_attribute_parse(
 	return foreign_attribute;
 }
 
-LIST *foreign_attribute_system_list(
-			char *sys_string )
+LIST *foreign_attribute_system_list( char *sys_string )
 {
 	char input[ 1024 ];
 	FILE *input_pipe = popen( sys_string, "r" );
@@ -93,8 +93,7 @@ LIST *foreign_attribute_system_list(
 	return foreign_attribute_list;
 }
 
-char *foreign_attribute_sys_string(
-			char *where )
+char *foreign_attribute_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
 
@@ -106,13 +105,17 @@ char *foreign_attribute_sys_string(
 	return strdup( sys_string );
 }
 
-LIST *foreign_attribute_list( char *one_folder_name )
+LIST *foreign_attribute_list(
+			char *mto1_folder_name,
+			char *one2m_folder_name )
 {
 	char where[ 128 ];
 
 	sprintf(where,
-		"related_folder = '%s'",
-		one_folder_name );
+		"folder = '%s' and	"
+		"related_folder = '%s'	",
+		mto1_folder_name,
+		one2m_folder_name );
 
 	return foreign_attribute_system_list(
 		foreign_attribute_sys_string(

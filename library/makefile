@@ -68,6 +68,7 @@ APPASERVER_LIBRARY=						\
 		validation_level.o				\
 		relation.o					\
 		related_folder.o				\
+		relation.o					\
 		operation_list.o				\
 		operation.o					\
 		document.o					\

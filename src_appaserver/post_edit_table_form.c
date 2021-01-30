@@ -43,93 +43,93 @@
 
 /* Prototypes */
 /* ---------- */
-boolean get_insert_flag( 	DICTIONARY *non_prefixed_dictionary );
+int post_state_update_folder(
+			char **changed_folder_name_list_string,
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			char *role_name,
+			char *insert_update_key,
+			char *appaserver_data_directory,
+			char *appaserver_mount_point,
+			pid_t dictionary_process_id,
+			char *folder_name_comma_list_string,
+			char *optional_related_attribute_name );
 
-void set_insert_flag(		DICTIONARY *non_prefixed_dictionary );
+boolean get_insert_flag(DICTIONARY *non_prefixed_dictionary );
+
+void set_insert_flag(	DICTIONARY *non_prefixed_dictionary );
 
 void execute_output_process(	
-				DICTIONARY_APPASERVER *dictionary_appaserver,
-				char *application_name,
-				char *login_name,
-				char *session,
-				char *folder_name,
-				char *role_name,
-				char *state,
-				char *insert_update_key,
-				int rows_inserted,
-				char *target_frame,
-				char *message,
-				char *detail_base_folder_name,
-				boolean insert_flag,
-				char *vertical_new_button_base_folder_name,
-				char *pair_one2m_folder_name,
-				char *primary_data_list_string,
-				char *folder_form,
-				int columns_updated,
-				char *changed_folder_name_list_string );
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *login_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			char *state,
+			char *insert_update_key,
+			int rows_inserted,
+			char *target_frame,
+			char *message,
+			char *detail_base_folder_name,
+			boolean insert_flag,
+			char *vertical_new_button_base_folder_name,
+			char *pair_one2m_folder_name,
+			char *primary_data_list_string,
+			char *folder_form,
+			int columns_updated,
+			char *changed_folder_name_list_string );
 
 void post_state_update(		
-				DICTIONARY_APPASERVER *dictionary_appaserver,
-				char *application_name,
-				char *session,
-				char *folder_name_comma_list_string,
-				char *login_name,
-				char *role_name,
-				char *insert_update_key,
-				char *target_frame,
-				char *state,
-				char *appaserver_data_directory,
-				char *appaserver_mount_point,
-				char *detail_base_folder_name,
-				boolean insert_flag,
-				pid_t dictionary_process_id,
-				boolean role_override_row_restrictions,
-				char *optional_related_attribute_name,
-				char *primary_data_list_string );
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *session,
+			char *folder_name_comma_list_string,
+			char *login_name,
+			char *role_name,
+			char *insert_update_key,
+			char *target_frame,
+			char *state,
+			char *appaserver_data_directory,
+			char *appaserver_mount_point,
+			char *detail_base_folder_name,
+			boolean insert_flag,
+			pid_t dictionary_process_id,
+			boolean role_override_row_restrictions,
+			char *optional_related_attribute_name,
+			char *primary_data_list_string );
 
-int post_state_update_for_folder(
-				char **changed_folder_name_list_string,
-				DICTIONARY_APPASERVER *dictionary_appaserver,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *login_name,
-				char *role_name,
-				char *insert_update_key,
-				char *appaserver_data_directory,
-				char *appaserver_mount_point,
-				pid_t dictionary_process_id,
-				char *folder_name_comma_list_string,
-				char *optional_related_attribute_name );
+void post_state_insert(	DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *session,
+			FOLDER *folder,
+			char *login_name,
+			char *role_name,
+			char *insert_update_key,
+			char *target_frame,
+			char *state,
+			char *detail_base_folder_name,
+			boolean insert_flag,
+			boolean role_override_row_restrictions,
+			char *vertical_new_button_base_folder_name,
+			char *primary_data_list_string );
 
-void post_state_insert(		DICTIONARY_APPASERVER *dictionary_appaserver,
-				char *application_name,
-				char *session,
-				FOLDER *folder,
-				char *login_name,
-				char *role_name,
-				char *insert_update_key,
-				char *target_frame,
-				char *state,
-				char *detail_base_folder_name,
-				boolean insert_flag,
-				boolean role_override_row_restrictions,
-				char *vertical_new_button_base_folder_name,
-				char *primary_data_list_string );
-
-void post_state_lookup(		DICTIONARY_APPASERVER *dictionary_appaserver,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *login_name,
-				char *role_name,
-				char *insert_update_key,
-				char *target_frame,
-				char *state,
-				char *detail_base_folder_name,
-				boolean insert_flag,
-				boolean role_override_row_restrictions,
-				char *primary_data_list_string );
+void post_state_lookup(	DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			char *role_name,
+			char *insert_update_key,
+			char *target_frame,
+			char *state,
+			char *detail_base_folder_name,
+			boolean insert_flag,
+			boolean role_override_row_restrictions,
+			char *primary_data_list_string );
 
 int main( int argc, char **argv )
 {
@@ -722,23 +722,23 @@ void post_state_insert(
 }
 
 void post_state_update(
-				DICTIONARY_APPASERVER *dictionary_appaserver,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *login_name,
-				char *role_name,
-				char *insert_update_key,
-				char *target_frame,
-				char *state,
-				char *appaserver_data_directory,
-				char *appaserver_mount_point,
-				char *detail_base_folder_name,
-				int insert_flag,
-				pid_t dictionary_process_id,
-				boolean role_override_row_restrictions,
-				char *optional_related_attribute_name,
-				char *primary_data_list_string )
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			char *role_name,
+			char *insert_update_key,
+			char *target_frame,
+			char *state,
+			char *appaserver_data_directory,
+			char *appaserver_mount_point,
+			char *detail_base_folder_name,
+			int insert_flag,
+			pid_t dictionary_process_id,
+			boolean role_override_row_restrictions,
+			char *optional_related_attribute_name,
+			char *primary_data_list_string )
 {
 	FOLDER *folder;
 	OPERATION_LIST_STRUCTURE *operation_list_structure = {0};
@@ -816,7 +816,7 @@ void post_state_update(
 			dont_omit_delete );
 
 	columns_updated =
-		post_state_update_for_folder(
+		post_state_update_folder(
 				&changed_folder_name_list_string,
 				dictionary_appaserver,
 				application_name,
@@ -871,36 +871,36 @@ void post_state_update(
 			(char *)0 /* folder_form */,
 			columns_updated,
 			changed_folder_name_list_string );
-
 }
 
-int post_state_update_for_folder(
-				char **changed_folder_name_list_string,
-				DICTIONARY_APPASERVER *dictionary_appaserver,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *login_name,
-				char *role_name,
-				char *insert_update_key,
-				char *appaserver_data_directory,
-				char *appaserver_mount_point,
-				pid_t dictionary_process_id,
-				char *folder_name_comma_list_string,
-				char *optional_related_attribute_name )
+int post_state_update_folder(
+			char **changed_folder_name_list_string,
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			char *role_name,
+			char *insert_update_key,
+			char *appaserver_data_directory,
+			char *appaserver_mount_point,
+			pid_t dictionary_process_id,
+			char *folder_name_comma_list_string,
+			char *optional_related_attribute_name )
 {
 	DICTIONARY *file_dictionary;
 	UPDATE_DATABASE *update_database;
 	char *results_string;
 	int columns_updated;
 
-	file_dictionary = dictionary2file_get_dictionary(
-		dictionary_process_id,
-		appaserver_data_directory,
-		insert_update_key,
-		folder_name_comma_list_string,
-		optional_related_attribute_name,
-		ELEMENT_DICTIONARY_DELIMITER );
+	file_dictionary =
+		dictionary2file_get_dictionary(
+			dictionary_process_id,
+			appaserver_data_directory,
+			insert_update_key,
+			folder_name_comma_list_string,
+			optional_related_attribute_name,
+			ELEMENT_DICTIONARY_DELIMITER );
 
 	if ( !file_dictionary )
 	{
@@ -924,20 +924,20 @@ int post_state_update_for_folder(
 			login_name,
 			role_name,
 			folder_name,
-			dictionary_appaserver->row_dictionary,
+			dictionary_appaserver->row_dictionary
+				/* post_dictionary */,
 			file_dictionary );
 
 	update_database->update_row_list =
 		update_database_update_row_list(
-			update_database->row_dictionary,
+			update_database->post_dictionary,
 			update_database->file_dictionary,
-			update_database->folder,
-			update_database->exclude_attribute_name_list,
-			update_database->
-				foreign_attribute_dictionary,
-			update_database->
-				foreign_attribute_list );
+			update_database->folder->folder_name,
+			update_database->folder->attribute_list,
+			update_database->folder->one2m_recursive_relation_list,
+			update_database->folder->post_change_process );
 
+/*
 {
 char msg[ 65536 ];
 sprintf( msg, "%s/%s()/%d: got update_row_list = (%s)\n",
@@ -947,10 +947,9 @@ __LINE__,
 update_database_update_row_list_display( update_database->update_row_list ) );
 m2( application_name, msg );
 }
-
+*/
 	columns_updated =
-		update_database_get_columns_updated(
-			update_database->application_name,
+		update_database_columns_updated(
 			update_database->update_row_list );
 
 	results_string =
@@ -958,7 +957,7 @@ m2( application_name, msg );
 			update_database->application_name,
 			update_database->session,
 			update_database->update_row_list,
-			update_database->row_dictionary,
+			update_database->post_dictionary,
 			login_name,
 			update_database->role_name,
 			(LIST *)0 /* additional_update_attribute_name_list */,
@@ -978,7 +977,7 @@ m2( application_name, msg );
 
 	*changed_folder_name_list_string =
 		list_display_delimited_plus_space(
-			update_database_get_changed_folder_name_list(
+			update_database_changed_folder_name_list(
 				update_database->update_row_list ),
 			',' );
 

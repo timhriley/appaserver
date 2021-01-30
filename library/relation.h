@@ -30,7 +30,7 @@
 				"relation_type_isa_yn,"			\
 				"copy_common_attributes_yn,"		\
 				"automatic_preselection_yn,"		\
-				"drop_down_multi_selet_yn,"		\
+				"drop_down_multi_select_yn,"		\
 				"join_1tom_each_row_yn,"		\
 				"omit_lookup_before_drop_down_yn,"	\
 				"ajax_fill_drop_down_yn,"		\

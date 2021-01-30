@@ -148,6 +148,9 @@ RELATION *relation_parse(
 				foreign_attribute_list(
 					relation->
 						mto1_folder->
+						folder_name,
+					relation->
+						one2m_folder->
 						folder_name )
 					/* foreign_attribute_list_folder */ );
 	}
@@ -247,7 +250,7 @@ LIST *relation_one2m_recursive_relation_list(
 				relation_one2m_recursive_relation_list(
 					relation_list,
 					relation->
-						mto1_folder->
+						one2m_folder->
 						folder_name
 						/* one2m_folder_name */ );
 		}
