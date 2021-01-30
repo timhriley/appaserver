@@ -97,6 +97,7 @@ typedef struct
 	LIST *mto1_related_folder_list;
 	LIST *mto1_append_isa_related_folder_list;
 	LIST *mto1_recursive_related_folder_list;
+	LIST *mto1_isa_recursive_relation_list;
 	LIST *mto1_lookup_before_drop_down_related_folder_list;
 	LIST *primary_attribute_name_list;
 	LIST *primary_data_list;
@@ -107,6 +108,7 @@ typedef struct
 	LIST *attribute_name_list;
 	LIST *join_1tom_related_folder_list;
 	char *create_view_statement;
+	LIST *mto1_isa_recursive_related_folder_list;
 	LIST *mto1_isa_related_folder_list;
 	LIST *append_isa_attribute_list;
 	LIST *append_isa_attribute_name_list;
@@ -605,30 +607,16 @@ char *folder_primary_where(
 FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_attribute_list,
 			boolean fetch_one2m_recursive_relation_list,
-			boolean fetch_mto1_relation_list,
-			boolean fetch_mto1_isa_relation_list );
+			boolean fetch_mto1_isa_recursive_relation_list,
+			boolean fetch_mto1_relation_list );
 
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
 			boolean fetch_one2m_recursive_relation_list,
-			boolean fetch_mto1_relation_list,
-			boolean fetch_mto1_isa_relation_list );
+			boolean fetch_mto1_isa_recursive_relation_list,
+			boolean fetch_mto1_relation_list );
 
 char *folder_sys_string(
 			char *where );
-
-/* Duplicated here so as to not include relation.h */
-/* ----------------------------------------------- */
-LIST *relation_one2m_recursive_relation_list(
-			LIST *relation_list,
-			char *one2m_folder_name );
-
-LIST *relation_mto1_relation_list(
-			LIST *relation_list,
-			char *mto1_folder_name );
-
-LIST *relation_mto1_isa_relation_list(
-			LIST *relation_list,
-			char *mto1_folder_name );
 
 #endif

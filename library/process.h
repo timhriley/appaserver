@@ -63,14 +63,14 @@ PROCESS_SET *process_new_process_set(
 
 PROCESS *process_new(		char *application_name,
 				char *process_name,
-				boolean with_check_executable_ok );
+				boolean check_executable_inside_filesystem );
 
 PROCESS *process_new_process(	char *application_name,
 				char *session, 
 				char *process_name,
 				DICTIONARY *dictionary,
 				char *role_name,
-				boolean with_check_executable_ok );
+				boolean check_executable_inside_filesystem );
 LIST *process2list(		char *executable );
 
 void process_convert_parameters(char **executable,
@@ -151,7 +151,7 @@ boolean process_load(
 				boolean *is_appaserver_process,
 				char *application_name,
 				char *process_name,
-				boolean with_check_executable_ok );
+				boolean check_executable_inside_filesystem );
 
 void process_set_dictionary(	PROCESS *process,
 				DICTIONARY *parsed_decoded_post_dictionary );

@@ -25,6 +25,7 @@
 #include "appaserver_parameter_file.h"
 #include "lookup_before_drop_down.h"
 #include "attribute.h"
+#include "relation.h"
 #include "folder.h"
 
 FOLDER *folder_new(	char *application_name,
@@ -2800,8 +2801,8 @@ char *folder_primary_where(
 FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_attribute_list,
 			boolean fetch_one2m_recursive_relation_list,
-			boolean fetch_mto1_relation_list,
-			boolean fetch_mto1_isa_relation_list )
+			boolean fetch_mto1_isa_recursive_relation_list,
+			boolean fetch_mto1_relation_list )
 {
 	return	folder_parse(
 			pipe2string(
@@ -2810,15 +2811,15 @@ FOLDER *folder_fetch(	char *folder_name,
 						folder_name ) ) ),
 			fetch_attribute_list,
 			fetch_one2m_recursive_relation_list,
-			fetch_mto1_relation_list,
-			fetch_mto1_isa_relation_list );
+			fetch_mto1_isa_recursive_relation_list,
+			fetch_mto1_relation_list );
 }
 
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
 			boolean fetch_one2m_recursive_relation_list,
-			boolean fetch_mto1_relation_list,
-			boolean fetch_mto1_isa_relation_list )
+			boolean fetch_mto1_isa_recursive_relation_list,
+			boolean fetch_mto1_relation_list )
 {
 	char folder_name[ 128 ];
 	char form[ 128 ];
@@ -2872,7 +2873,7 @@ FOLDER *folder_parse(	char *input,
 			process_new(
 				environment_application(),
 				strdup( post_change_process ),
-				0 /* not with_check_executable_ok */ );
+				1 /* check_executable_inside_filesystem */ );
 
 	piece( html_help_file_anchor, SQL_DELIMITER, input, 7 );
 	folder->html_help_file_anchor = strdup( html_help_file_anchor );
@@ -2927,21 +2928,29 @@ FOLDER *folder_parse(	char *input,
 				folder->folder_name );
 	}
 
-	if ( fetch_mto1_relation_list )
+	if ( fetch_mto1_isa_recursive_relation_list )
 	{
-		folder->mto1_relation_list =
-			relation_mto1_relation_list(
+		folder->mto1_isa_recursive_relation_list =
+			relation_mto1_isa_recursive_relation_list(
 				(LIST *)0,
 				folder->folder_name );
 	}
 
-	if ( fetch_mto1_isa_relation_list )
+	if ( fetch_mto1_isa_recursive_relation_list )
 	{
-		folder->mto1_isa_relation_list =
-			relation_mto1_isa_relation_list(
+		folder->mto1_isa_recursive_relation_list =
+			relation_mto1_isa_recursive_relation_list(
 				(LIST *)0,
 				folder->folder_name );
 	}
+
+	if ( fetch_mto1_relation_list )
+	{
+		folder->mto1_relation_list =
+			relation_mto1_relation_list(
+				folder->folder_name );
+	}
+
 	return folder;
 }
 

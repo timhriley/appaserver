@@ -90,8 +90,8 @@ UPDATE_DATABASE *update_database_new(
 			update_database->folder_name,
 			1 /* fetch_attribute_list */,
 			1 /* fetch_one2m_recursive_relation_list */,
-			0 /* not fetch_mto1_relation_list */,
-			1 /* fetch_mto1_isa_relation_list */ );
+			1 /* fetch_mto1_isa_recursive_relation_list */,
+			0 /* not fetch_mto1_relation_list */ );
 
 	dictionary_set_indexed_date_time_to_current(
 		update_database->post_dictionary,
@@ -1268,7 +1268,7 @@ LIST *update_database_update_folder_list(
 		update_folder =
 			update_folder_set_where_clause(
 				update_secondary_update_folder(
-					relation->mto1_folder->folder_name,
+					relation->many_folder->folder_name,
 					relation->foreign_attribute_name_list,
 					primary_data_list,
 					primary_changed_attribute_list ) );
@@ -1301,11 +1301,13 @@ LIST *update_database_update_row_list(
 			char *folder_name,
 			LIST *attribute_list,
 			LIST *one2m_recursive_relation_list,
+			LIST *mto1_isa_recursive_relation_list,
 			PROCESS *post_change_process )
 {
 	LIST *update_row_list;
 	int row;
 	int highest_index;
+	RELATION *relation;
 
 	if ( !post_dictionary ) return (LIST *)0;
 
@@ -1324,12 +1326,41 @@ LIST *update_database_update_row_list(
 				one2m_recursive_relation_list,
 				post_change_process,
 				row ) );
+
+		if ( !list_rewind( mto1_isa_recursive_relation_list ) )
+			continue;
+
+		do {
+			relation =
+				list_get(
+					mto1_isa_recursive_relation_list );
+
+			list_set(
+				update_row_list,
+				update_database_update_row(
+					post_dictionary,
+					file_dictionary,
+					relation->
+						one_folder->
+						folder_name,
+					relation->
+						one_folder->
+						attribute_list,
+					relation->
+						one_folder->
+						one2m_recursive_relation_list,
+					relation->
+						one_folder->
+						post_change_process,
+					row ) );
+
+		} while ( list_next( mto1_isa_recursive_relation_list ) );
 	}
 	return update_row_list;
 }
 
 UPDATE_FOLDER *update_secondary_update_folder(
-			char *mto1_folder_name,
+			char *many_folder_name,
 			LIST *relation_foreign_attribute_name_list,
 			LIST *primary_data_list,
 			LIST *primary_changed_attribute_list )
@@ -1343,7 +1374,7 @@ UPDATE_FOLDER *update_secondary_update_folder(
 
 	update_folder = update_folder_calloc();
 
-	update_folder->folder_name = mto1_folder_name;
+	update_folder->folder_name = many_folder_name;
 	update_folder->primary_data_list = primary_data_list;
 
 	update_folder->relation_foreign_attribute_name_list =
@@ -1365,11 +1396,11 @@ UPDATE_FOLDER *update_secondary_update_folder(
 		if ( !changed_attribute_name )
 		{
 			fprintf(stderr,
-"Warning in %s/%s()/%d: mto1_folder_name = %s cannot list_seek_index = %d\n",
+"Warning in %s/%s()/%d: many_folder_name = %s cannot list_seek_index = %d\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
-				mto1_folder_name,
+				many_folder_name,
 				primary_changed_attribute->
 					changed_primary_key_index );
 			continue;

@@ -277,6 +277,7 @@ LIST *update_database_update_row_list(
 			char *folder_name,
 			LIST *attribute_list,
 			LIST *one2m_recursive_relation_list,
+			LIST *mto1_isa_recursive_relation_list,
 			PROCESS *post_change_process );
 
 UPDATE_FOLDER *update_secondary_update_folder(

@@ -64,7 +64,7 @@ PROCESS_SET *process_new_process_set(
 
 PROCESS *process_new(	char *application_name,
 			char *process_name,
-			boolean with_check_executable_ok )
+			boolean check_executable_inside_filesystem )
 {
 	PROCESS *p = (PROCESS *)calloc( 1, sizeof( PROCESS ) );
 
@@ -88,7 +88,7 @@ PROCESS *process_new(	char *application_name,
 				&p->is_appaserver_process,
 				application_name,
 				process_name,
-				with_check_executable_ok ) )
+				check_executable_inside_filesystem ) )
 	{
 		return (PROCESS *)0;
 	}
@@ -105,7 +105,7 @@ PROCESS *process_new_process(	char *application_name,
 				char *process_name,
 				DICTIONARY *dictionary,
 				char *role_name,
-				boolean with_check_executable_ok )
+				boolean check_executable_inside_filesystem )
 {
 	PROCESS *p = (PROCESS *)calloc( 1, sizeof( PROCESS ) );
 
@@ -130,7 +130,7 @@ PROCESS *process_new_process(	char *application_name,
 				&p->is_appaserver_process,
 				application_name,
 				process_name,
-				with_check_executable_ok ) )
+				check_executable_inside_filesystem ) )
 	{
 		if ( dictionary && dictionary_get_index_data(
 							&process_name,
@@ -142,16 +142,17 @@ PROCESS *process_new_process(	char *application_name,
 		}
 		else
 		{
-			if ( !process_load(	&p->executable,
-						&p->notepad,
-						&p->html_help_file_anchor,
-						&p->post_change_javascript,
-						&p->process_set_display,
-						&p->preprompt_help_text,
-						&p->is_appaserver_process,
-						application_name,
-						process_name,
-						with_check_executable_ok ) )
+			if ( !process_load(
+				&p->executable,
+				&p->notepad,
+				&p->html_help_file_anchor,
+				&p->post_change_javascript,
+				&p->process_set_display,
+				&p->preprompt_help_text,
+				&p->is_appaserver_process,
+				application_name,
+				process_name,
+				check_executable_inside_filesystem ) )
 			{
 				return (PROCESS *)0;
 			}
@@ -725,7 +726,7 @@ boolean process_load(	char **executable,
 			boolean *is_appaserver_process,
 			char *application_name,
 			char *process_name,
-			boolean with_check_executable_ok )
+			boolean check_executable_inside_filesystem )
 {
 	char piece_buffer[ 2048 ];
 	char process_name_search[ 128 ];
@@ -752,7 +753,7 @@ boolean process_load(	char **executable,
 			piece( piece_buffer, '^', record, 1 );
 			*executable = strdup( piece_buffer );
 
-			if ( with_check_executable_ok
+			if ( check_executable_inside_filesystem
 			&&   !process_executable_ok( *executable ) )
 			{
 				char msg[ 1024 ];
@@ -1059,12 +1060,12 @@ boolean process_exists_appaserver_process(
 	do {
 		process =
 			process_new_process(
-				application_name,
-				(char *)0 /* session */,
-				list_get_pointer( process_name_list ),
-				(DICTIONARY *)0 /* dictionary */,
-				(char *)0 /* role_name */,
-				0 /* not with_check_executable_ok */ );
+			     application_name,
+			     (char *)0 /* session */,
+			     list_get_pointer( process_name_list ),
+			     (DICTIONARY *)0 /* dictionary */,
+			     (char *)0 /* role_name */,
+			     0 /* not check_executable_inside_filesystem */ );
 
 		if ( !process )
 		{

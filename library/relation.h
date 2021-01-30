@@ -43,10 +43,10 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	char *mto1_folder_name;
-	FOLDER *mto1_folder;
-	char *one2m_folder_name;
-	FOLDER *one2m_folder;
+	char *many_folder_name;
+	FOLDER *many_folder;
+	char *one_folder_name;
+	FOLDER *one_folder;
 	char *related_attribute_name;
 	int pair_1tom_order;
 	boolean omit_1tom_detail;
@@ -72,8 +72,8 @@ RELATION *relation_calloc(
 			void );
 
 RELATION *relation_new(
-			char *mto1_folder_name,
-			char *one2m_folder_name,
+			char *many_folder_name,
+			char *one_folder_name,
 			boolean fetch_folder,
 			boolean fetch_attribute_list );
 
@@ -104,8 +104,8 @@ char *relation_display(	RELATION *relation );
 
 boolean relation_list_exists(
 			LIST *relation_list,
-			char *mto1_folder_name,
-			char *one2m_folder_name );
+			char *many_folder_name,
+			char *one_folder_name );
 
 LIST *relation_foreign_attribute_name_list(
 			/* ----------------------------------- */
@@ -117,25 +117,30 @@ LIST *relation_foreign_attribute_name_list(
 
 LIST *relation_one2m_recursive_relation_list(
 			LIST *relation_list,
-			char *one2m_folder_name );
+			char *one_folder_name );
+
+LIST *relation_mto1_isa_recursive_relation_list(
+			LIST *relation_list,
+			char *many_folder_name );
 
 LIST *relation_mto1_relation_list(
-			LIST *relation_list,
-			char *mto1_folder_name );
-
-LIST *relation_mto1_isa_relation_list(
-			LIST *relation_list,
-			char *mto1_folder_name );
+			char *many_folder_name );
 
 /* ---------------------------------- */
 /* foreign_attribute_name_list is set */
 /* ---------------------------------- */
 LIST *relation_one2m_fetch_relation_list(
-			char *one2m_folder_name );
+			char *one_folder_name );
+
+/* ---------------------------------- */
+/* foreign_attribute_name_list is set */
+/* ---------------------------------- */
+LIST *relation_mto1_fetch_relation_list(
+			char *many_folder_name );
 
 boolean relation_is_primary_key_subset(
 			LIST *foreign_attribute_name_list,
-			LIST *mto1_primary_attribute_name_list );
+			LIST *many_primary_attribute_name_list );
 
 #endif
 

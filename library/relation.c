@@ -31,33 +31,33 @@ RELATION *relation_calloc( void )
 	return relation;
 }
 
-RELATION *relation_new(	char *mto1_folder_name,
-			char *one2m_folder_name,
+RELATION *relation_new(	char *many_folder_name,
+			char *one_folder_name,
 			boolean fetch_folder,
 			boolean fetch_attribute_list )
 {
 	RELATION *relation = relation_calloc();
 
-	relation->mto1_folder_name = mto1_folder_name;
-	relation->one2m_folder_name = one2m_folder_name;
+	relation->many_folder_name = many_folder_name;
+	relation->one_folder_name = one_folder_name;
 
 	if ( fetch_folder )
 	{
-		relation->mto1_folder =
+		relation->many_folder =
 			folder_fetch(
-				mto1_folder_name,
-				fetch_attribute_list,
-				0 /* not fetch_one2m_recursive_relation_list */,
-				0 /* not fetch_mto1_relation_list */,
-				0 /* not fetch_mto1_isa_relation_list */ );
+			     many_folder_name,
+			     fetch_attribute_list,
+			     0 /* not fetch_one2m_recursive_relation_list */,
+			     0 /* not fetch_mto1_isa_recursive_relation_list */,
+			     0 /* not fetch_mto1_relation_list */ );
 
-		relation->one2m_folder =
+		relation->one_folder =
 			folder_fetch(
-				one2m_folder_name,
-				fetch_attribute_list,
-				0 /* not fetch_one2m_recursive_relation_list */,
-				0 /* not fetch_mto1_relation_list */,
-				0 /* not fetch_mto1_isa_relation_list */ );
+			     one_folder_name,
+			     fetch_attribute_list,
+			     0 /* not fetch_one2m_recursive_relation_list */,
+			     0 /* not fetch_mto1_isa_recursive_relation_list */,
+			     0 /* not fetch_mto1_relation_list */ );
 	}
 
 	return relation;
@@ -68,8 +68,8 @@ RELATION *relation_parse(
 			boolean fetch_folder,
 			boolean fetch_attribute_list )
 {
-	char mto1_folder_name[ 128 ];
-	char one2m_folder_name[ 128 ];
+	char many_folder_name[ 128 ];
+	char one_folder_name[ 128 ];
 	char related_attribute_name[ 128 ];
 	char pair_1tom_order[ 128 ];
 	char omit_1tom_detail[ 128 ];
@@ -88,13 +88,13 @@ RELATION *relation_parse(
 
 	/* See: RELATION_SELECT_COLUMNS */
 	/* ---------------------------- */
-	piece( mto1_folder_name, SQL_DELIMITER, input, 0 );
-	piece( one2m_folder_name, SQL_DELIMITER, input, 1 );
+	piece( many_folder_name, SQL_DELIMITER, input, 0 );
+	piece( one_folder_name, SQL_DELIMITER, input, 1 );
 
 	relation =
 		relation_new(
-			strdup( mto1_folder_name ),
-			strdup( one2m_folder_name ),
+			strdup( many_folder_name ),
+			strdup( one_folder_name ),
 			fetch_folder,
 			fetch_attribute_list );
 
@@ -141,16 +141,16 @@ RELATION *relation_parse(
 			relation_foreign_attribute_name_list(
 				attribute_primary_name_list(
 				     relation->
-						one2m_folder->
+						one_folder->
 						attribute_list )
 				     /* primary_foreign_attribute_name_list */,
 				relation->related_attribute_name,
 				foreign_attribute_list(
 					relation->
-						mto1_folder->
+						many_folder->
 						folder_name,
 					relation->
-						one2m_folder->
+						one_folder->
 						folder_name )
 					/* foreign_attribute_list_folder */ );
 	}
@@ -198,72 +198,18 @@ char *relation_display(	RELATION *relation )
 
 	sprintf(display,
 		"\nRelation: %s -> %s, foreign_attribute_name_list = [%s];\n",
-		relation->mto1_folder->folder_name,
-		relation->one2m_folder->folder_name,
+		relation->many_folder->folder_name,
+		relation->one_folder->folder_name,
 		list_display(
 			relation->foreign_attribute_name_list ) );
 
 	return strdup( display );
 }
 
-LIST *relation_one2m_recursive_relation_list(
-			LIST *relation_list,
-			char *one2m_folder_name )
-{
-	LIST *local_relation_list;
-	RELATION *relation;
-
-	if ( !relation_list ) relation_list = list_new();
-
-	local_relation_list =
-		/* ---------------------------------- */
-		/* foreign_attribute_name_list is set */
-		/* ---------------------------------- */
-		relation_one2m_fetch_relation_list(
-			one2m_folder_name );
-
-	if ( !list_rewind( local_relation_list ) )
-		return relation_list;
-
-	do {
-		relation = list_get( local_relation_list );
-
-		if ( relation_list_exists(
-			relation_list,
-			relation->mto1_folder->folder_name,
-			relation->one2m_folder->folder_name ) )
-		{
-			continue;
-		}
-
-		list_set( relation_list, relation );
-
-		if ( ( relation->is_primary_key_subset =
-			relation_is_primary_key_subset(
-				relation->foreign_attribute_name_list,
-				relation->
-				    mto1_folder->
-				    primary_attribute_name_list
-				    /* mto1_primary_attribute_name_list */ ) ) )
-		{
-			relation_list =
-				relation_one2m_recursive_relation_list(
-					relation_list,
-					relation->
-						mto1_folder->
-						folder_name
-						/* translates to	*/
-						/* one2m_folder_name	*/ );
-		}
-	} while ( list_next( local_relation_list ) );
-
-	return relation_list;
-}
-
 boolean relation_list_exists(
 			LIST *relation_list,
-			char *mto1_folder_name,
-			char *one2m_folder_name )
+			char *many_folder_name,
+			char *one_folder_name )
 {
 	RELATION *relation;
 
@@ -275,11 +221,11 @@ boolean relation_list_exists(
 				relation_list );
 
 		if ( string_strcmp(
-			relation->mto1_folder_name,
-			mto1_folder_name ) == 0
+			relation->many_folder_name,
+			many_folder_name ) == 0
 		&&   string_strcmp(
-			relation->one2m_folder_name,
-			one2m_folder_name ) == 0 )
+			relation->one_folder_name,
+			one_folder_name ) == 0 )
 		{
 			return 1;
 		}
@@ -337,13 +283,13 @@ LIST *relation_foreign_attribute_name_list(
 }
 
 LIST *relation_one2m_fetch_relation_list(
-			char *one2m_folder_name )
+			char *one_folder_name )
 {
 	char where[ 128 ];
 
 	sprintf(where,
 		"related_folder = '%s'",
-		one2m_folder_name );
+		one_folder_name );
 
 	return
 		relation_system_list(
@@ -357,18 +303,130 @@ LIST *relation_one2m_fetch_relation_list(
 			1 /* fetch_attribute_list */ );
 }
 
-LIST *relation_mto1_relation_list(
-			LIST *relation_list,
-			char *mto1_folder_name )
+LIST *relation_mto1_fetch_relation_list(
+			char *many_folder_name )
 {
-	return (LIST *)0;
+	char where[ 128 ];
+
+	sprintf(where,
+		"folder = '%s'",
+		many_folder_name );
+
+	return
+		relation_system_list(
+			relation_sys_string(
+				where ),
+			/* ---------------------------- */
+			/* Setting both will set	*/
+			/* foreign_attribute_name_list	*/
+			/* ---------------------------- */
+			1 /* fetch_folder */,
+			1 /* fetch_attribute_list */ );
 }
 
-LIST *relation_mto1_isa_relation_list(
+LIST *relation_one2m_recursive_relation_list(
 			LIST *relation_list,
-			char *mto1_folder_name )
+			char *one_folder_name )
 {
-	return (LIST *)0;
+	LIST *local_relation_list;
+	RELATION *relation;
+
+	if ( !relation_list ) relation_list = list_new();
+
+	local_relation_list =
+		/* ---------------------------------- */
+		/* foreign_attribute_name_list is set */
+		/* ---------------------------------- */
+		relation_one2m_fetch_relation_list(
+			one_folder_name );
+
+	if ( !list_rewind( local_relation_list ) )
+		return relation_list;
+
+	do {
+		relation = list_get( local_relation_list );
+
+		if ( relation_list_exists(
+			relation_list,
+			relation->many_folder->folder_name,
+			relation->one_folder->folder_name ) )
+		{
+			continue;
+		}
+
+		list_set( relation_list, relation );
+
+		if ( ( relation->is_primary_key_subset =
+			relation_is_primary_key_subset(
+				relation->foreign_attribute_name_list,
+				relation->
+				    many_folder->
+				    primary_attribute_name_list
+				    /* mto1_primary_attribute_name_list */ ) ) )
+		{
+			relation_list =
+				relation_one2m_recursive_relation_list(
+					relation_list,
+					relation->
+						many_folder->
+						folder_name
+						/* translates to	*/
+						/* one_folder_name	*/ );
+		}
+	} while ( list_next( local_relation_list ) );
+
+	return relation_list;
+}
+
+LIST *relation_mto1_isa_recursive_relation_list(
+			LIST *relation_list,
+			char *many_folder_name )
+{
+	LIST *local_relation_list;
+	RELATION *relation;
+
+	if ( !relation_list ) relation_list = list_new();
+
+	local_relation_list =
+		/* ---------------------------------- */
+		/* foreign_attribute_name_list is set */
+		/* ---------------------------------- */
+		relation_mto1_fetch_relation_list(
+			many_folder_name );
+
+	if ( !list_rewind( local_relation_list ) )
+		return relation_list;
+
+	do {
+		relation = list_get( local_relation_list );
+
+		if ( !relation->relation_type_isa ) continue;
+
+		list_set( relation_list, relation );
+
+		relation_list =
+			relation_mto1_isa_recursive_relation_list(
+				relation_list,
+				relation->
+					one_folder->
+					folder_name
+					/* translates to	*/
+					/* many_folder_name	*/ );
+
+	} while ( list_next( local_relation_list ) );
+
+	return relation_list;
+}
+
+LIST *relation_mto1_relation_list(
+			char *many_folder_name )
+{
+	return
+		/* ---------------------------------- */
+		/* foreign_attribute_name_list is set */
+		/* ---------------------------------- */
+		relation_mto1_fetch_relation_list(
+			many_folder_name );
 }
 
 boolean relation_is_primary_key_subset(

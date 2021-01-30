@@ -934,10 +934,21 @@ int post_state_update_folder(
 		update_database_update_row_list(
 			update_database->post_dictionary,
 			update_database->file_dictionary,
-			update_database->folder->folder_name,
-			update_database->folder->attribute_list,
-			update_database->folder->one2m_recursive_relation_list,
-			update_database->folder->post_change_process );
+			update_database->
+				folder->
+				folder_name,
+			update_database->
+				folder->
+				attribute_list,
+			update_database->
+				folder->
+				one2m_recursive_relation_list,
+			update_database->
+				folder->
+				mto1_isa_recursive_relation_list,
+			update_database->
+				folder->
+				post_change_process );
 
 	if ( !list_length( update_database->update_row_list ) )
 		return 0;
