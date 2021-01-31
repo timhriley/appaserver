@@ -271,7 +271,8 @@ int main( int argc, char **argv )
 			update_database->file_dictionary,
 			update_database->folder->folder_name,
 			update_database->folder->attribute_list,
-			update_database->folder->one2m_recursive_relation_list,
+			(LIST *)0 /* one2m_recursive_relation_list */,
+			(LIST *)0 /* mto1_isa_recursive_relation_list */,
 			update_database->folder->post_change_process );
 
 	additional_update_attribute_name_list = list_new();
