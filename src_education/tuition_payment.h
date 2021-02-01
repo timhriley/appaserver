@@ -65,7 +65,6 @@ typedef struct
 	double net_payment_amount;
 	double overpayment_donation;
 	double tuition_payment_receivable_credit_amount;
-	double tuition_payment_cash_debit_amount;
 
 	TRANSACTION *tuition_payment_transaction;
 	char *transaction_date_time;
@@ -258,17 +257,13 @@ TRANSACTION *tuition_payment_transaction(
 			double payment_amount,
 			double merchant_fees_expense,
 			double receivable_credit_amount,
-			double cash_debit_amount,
+			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense );
 
 boolean tuition_payment_is_tuition(
 			char *item_title_block );
-
-double tuition_payment_cash_debit_amount(
-			double payment_amount,
-			double merchant_fees_expense );
 
 LIST *tuition_payment_list_paypal(
 			char *season_name,

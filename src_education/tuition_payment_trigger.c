@@ -220,7 +220,7 @@ LIST *tuition_payment_trigger_insert_update(
 			tuition_payment->merchant_fees_expense );
 
 fprintf(stderr,
-	"%s/%s()/%d: setting transaction_date_timem = [%s]\n",
+	"%s/%s()/%d: setting transaction_date_time = [%s]\n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__,
@@ -242,7 +242,7 @@ tuition_payment->payment_date_time );
 			tuition_payment->merchant_fees_expense,
 			tuition_payment->
 				tuition_payment_receivable_credit_amount,
-			tuition_payment->tuition_payment_cash_debit_amount,
+			tuition_payment->net_payment_amount,
 			account_cash( (char *)0 ),
 			account_receivable( (char *)0 ),
 			account_fees_expense( (char *)0 ) ) ) )

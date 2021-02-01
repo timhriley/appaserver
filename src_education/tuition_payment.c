@@ -205,7 +205,7 @@ TRANSACTION *tuition_payment_transaction(
 			double payment_amount,
 			double merchant_fees_expense,
 			double receivable_credit_amount,
-			double cash_debit_amount,
+			double net_payment_amount,
 			char *cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense )
@@ -256,7 +256,7 @@ TRANSACTION *tuition_payment_transaction(
 				transaction->transaction_date_time,
 				cash_account_name ) ) );
 
-	journal->debit_amount = cash_debit_amount;
+	journal->debit_amount = net_payment_amount;
 
 	/* Debit fees_expense */
 	/* ------------------ */
@@ -347,11 +347,6 @@ TUITION_PAYMENT *tuition_payment_steady_state(
 		tuition_payment_receivable_credit_amount(
 			tuition_payment->payment_amount );
 
-	tuition_payment->tuition_payment_cash_debit_amount =
-		tuition_payment_cash_debit_amount(
-			tuition_payment->payment_amount,
-			tuition_payment->merchant_fees_expense );
-
 	return tuition_payment;
 }
 
@@ -389,14 +384,6 @@ char *tuition_payment_primary_where(
 		 payment_date_time );
 
 	return where;
-}
-
-double tuition_payment_cash_debit_amount(
-			double payment_amount,
-			double merchant_fees_expense )
-{
-	return	payment_amount -
-		merchant_fees_expense;
 }
 
 void tuition_payment_list_insert(
@@ -1084,7 +1071,7 @@ void tuition_payment_set_transaction(
 			tuition_payment->merchant_fees_expense,
 			tuition_payment->
 				tuition_payment_receivable_credit_amount,
-			tuition_payment->tuition_payment_cash_debit_amount,
+			tuition_payment->net_payment_amount,
 			cash_account_name,
 			account_receivable,
 			account_fees_expense ) ) )
@@ -1215,7 +1202,6 @@ TUITION_PAYMENT *tuition_payment_paypal(
 	tuition_payment->merchant_fees_expense = item_fee;
 
 	tuition_payment->net_payment_amount =
-	tuition_payment->tuition_payment_cash_debit_amount =
 		education_net_payment_amount(
 			tuition_payment->payment_amount,
 			tuition_payment->merchant_fees_expense );

@@ -536,7 +536,8 @@ LIST *paypal_deposit_list_set_transaction(
 {
 	PAYPAL_DEPOSIT *paypal_deposit;
 
-	if ( !list_rewind( paypal_deposit_list ) ) return paypal_deposit_list;
+	if ( !list_rewind( paypal_deposit_list ) )
+		return paypal_deposit_list;
 
 	do {
 		paypal_deposit = list_get( paypal_deposit_list );

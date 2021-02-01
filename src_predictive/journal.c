@@ -1637,11 +1637,11 @@ JOURNAL *journal_merchant_fees_expense(
 	}
 
 	journal =
-			journal_new(
-				full_name,
-				street_address,
-				transaction_date_time,
-				account_fees_expense );
+		journal_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			account_fees_expense );
 
 	if ( merchant_fees_expense < 0 )
 	{
