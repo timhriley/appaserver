@@ -127,7 +127,7 @@ int main( int argc, char **argv )
 
 	exit( 0 );
 
-} /* main() */
+}
 
 void output_vertical_frameset_choose_role_drop_down(
 			char *application_name,
@@ -237,7 +237,7 @@ void output_vertical_frameset_choose_role_drop_down(
 		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
-} /* output_vertical_frameset_choose_role_drop_down() */
+}
 
 void output_horizontal_frameset_choose_role_drop_down(
 			char *application_name,
@@ -300,5 +300,5 @@ void output_horizontal_frameset_choose_role_drop_down(
 	printf(
 "	</ul>\n" );
 
-} /* output_horizontal_frameset_choose_role_drop_down() */
+}
 

@@ -1561,7 +1561,7 @@ LIST *update_database_changed_folder_name_list(
 				list_get(
 					update_row->update_folder_list );
 
-			list_set(
+			list_set_unique(
 				changed_folder_name_list,
 				update_folder->folder_name );
 
