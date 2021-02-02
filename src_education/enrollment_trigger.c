@@ -41,7 +41,8 @@ LIST *enrollment_trigger_insert_update(
 			char *street_address,
 			char *course_name,
 			char *season_name,
-			int year );
+			int year,
+			char *preupdate_transaction_date_time );
 
 int main( int argc, char **argv )
 {
@@ -51,6 +52,7 @@ int main( int argc, char **argv )
 	char *course_name;
 	char *season_name;
 	int year;
+	char *preupdate_transaction_date_time;
 	char *state;
 
 	/* Exits if fails. */
@@ -62,10 +64,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s full_name street_address course_name season_name year state\n",
+"Usage: %s full_name street_address course_name season_name year preupdate_transaction_date_time state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -75,7 +77,8 @@ int main( int argc, char **argv )
 	course_name = argv[ 3 ];
 	season_name = argv[ 4 ];
 	year = atoi( argv[ 5 ] );
-	state = argv[ 6 ];
+	preupdate_transaction_date_time = argv[ 6 ];
+	state = argv[ 7 ];
 
 	if ( !year ) exit( 0 );
 
@@ -101,7 +104,8 @@ int main( int argc, char **argv )
 				street_address,
 				course_name,
 				season_name,
-				year );
+				year,
+				preupdate_transaction_date_time );
 
 		if ( list_length( enrollment_list ) )
 		{
@@ -160,7 +164,8 @@ LIST *enrollment_trigger_insert_update(
 			char *street_address,
 			char *course_name,
 			char *season_name,
-			int year )
+			int year,
+			char *preupdate_transaction_date_time )
 {
 	ENROLLMENT *enrollment;
 	LIST *enrollment_list;
@@ -196,6 +201,7 @@ LIST *enrollment_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
+				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,

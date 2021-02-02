@@ -45,7 +45,8 @@ LIST *tuition_refund_trigger_insert_update(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *refund_date_time );
+			char *refund_date_time,
+			char *preupdate_transaction_date_time );
 
 int main( int argc, char **argv )
 {
@@ -57,6 +58,7 @@ int main( int argc, char **argv )
 	char *payor_full_name;
 	char *payor_street_address;
 	char *refund_date_time;
+	char *preupdate_transaction_date_time;
 	char *state;
 
 	/* Exits if fails. */
@@ -68,10 +70,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 9 )
+	if ( argc != 10 )
 	{
 		fprintf(stderr,
-"Usage: %s student_full_name street_address season_name year payor_full_name payor_street_address refund_date_time state\n",
+"Usage: %s student_full_name street_address season_name year payor_full_name payor_street_address refund_date_time preupdate_transaction_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete,deposit}\n" );
@@ -85,7 +87,8 @@ int main( int argc, char **argv )
 	payor_full_name = argv[ 5 ];
 	payor_street_address = argv[ 6 ];
 	refund_date_time = argv[ 7 ];
-	state = argv[ 8 ];
+	preupdate_transaction_date_time = argv[ 8 ];
+	state = argv[ 9 ];
 
 	if ( !year ) exit( 0 );
 
@@ -114,7 +117,8 @@ int main( int argc, char **argv )
 				year,
 				payor_full_name,
 				payor_street_address,
-				refund_date_time );
+				refund_date_time,
+				preupdate_transaction_date_time );
 
 		if ( list_length( tuition_refund_list ) )
 		{
@@ -168,7 +172,8 @@ LIST *tuition_refund_trigger_insert_update(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *refund_date_time )
+			char *refund_date_time,
+			char *preupdate_transaction_date_time )
 {
 	TUITION_REFUND *tuition_refund;
 	LIST *tuition_refund_list;
@@ -271,6 +276,7 @@ LIST *tuition_refund_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
+				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,

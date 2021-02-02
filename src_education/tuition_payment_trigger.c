@@ -45,7 +45,8 @@ LIST *tuition_payment_trigger_insert_update(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time );
+			char *payment_date_time,
+			char *preupdate_transaction_date_time );
 
 int main( int argc, char **argv )
 {
@@ -57,6 +58,7 @@ int main( int argc, char **argv )
 	char *payor_full_name;
 	char *payor_street_address;
 	char *payment_date_time;
+	char *preupdate_transaction_date_time;
 	char *state;
 
 	/* Exits if fails. */
@@ -68,10 +70,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 9 )
+	if ( argc != 10 )
 	{
 		fprintf(stderr,
-"Usage: %s student_full_name street_address season_name year payor_full_name payor_street_address payment_date_time state\n",
+"Usage: %s student_full_name street_address season_name year payor_full_name payor_street_address payment_date_time preupdate_transaction_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete}\n" );
@@ -85,7 +87,8 @@ int main( int argc, char **argv )
 	payor_full_name = argv[ 5 ];
 	payor_street_address = argv[ 6 ];
 	payment_date_time = argv[ 7 ];
-	state = argv[ 8 ];
+	preupdate_transaction_date_time = argv[ 8 ];
+	state = argv[ 9 ];
 
 	if ( !year ) exit( 0 );
 
@@ -114,7 +117,8 @@ int main( int argc, char **argv )
 				year,
 				payor_full_name,
 				payor_street_address,
-				payment_date_time );
+				payment_date_time,
+				preupdate_transaction_date_time );
 
 		if ( list_length( tuition_payment_list ) )
 		{
@@ -167,7 +171,8 @@ LIST *tuition_payment_trigger_insert_update(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time )
+			char *payment_date_time,
+			char *preupdate_transaction_date_time )
 {
 	TUITION_PAYMENT *tuition_payment;
 	LIST *tuition_payment_list;
@@ -261,31 +266,18 @@ LIST *tuition_payment_trigger_insert_update(
 	{
 		TRANSACTION *t = tuition_payment->tuition_payment_transaction;
 
-fprintf(stderr,
-	"%s/%s()/%d: transaction_date_time = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-t->transaction_date_time );
-
 		tuition_payment->transaction_date_time =
 			transaction_program_refresh(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
+				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
 				0 /* check_number */,
 				t->lock_transaction,
 				t->journal_list );
-fprintf(stderr,
-	"%s/%s()/%d: received transaction_date_time = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-tuition_payment->transaction_date_time );
-
 	}
 
 	tuition_payment_update(

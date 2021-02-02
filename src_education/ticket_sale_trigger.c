@@ -42,7 +42,8 @@ LIST *ticket_sale_trigger_insert_update(
 			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time );
+			char *sale_date_time,
+			char *preupdate_transaction_date_time );
 
 int main( int argc, char **argv )
 {
@@ -53,6 +54,7 @@ int main( int argc, char **argv )
 	char *payor_full_name;
 	char *payor_street_address;
 	char *sale_date_time;
+	char *preupdate_transaction_date_time;
 	char *state;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -62,10 +64,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 9 )
 	{
 		fprintf(stderr,
-"Usage: %s program_name evet_date event_time payor_full_name payor_street_address sale_date_time state\n",
+"Usage: %s program_name evet_date event_time payor_full_name payor_street_address sale_date_time preupdate_transaction_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete}\n" );
@@ -78,7 +80,8 @@ int main( int argc, char **argv )
 	payor_full_name = argv[ 4 ];
 	payor_street_address = argv[ 5 ];
 	sale_date_time = argv[ 6 ];
-	state = argv[ 7 ];
+	preupdate_transaction_date_time = argv[ 7 ];
+	state = argv[ 8 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -101,7 +104,8 @@ int main( int argc, char **argv )
 				event_time,
 				payor_full_name,
 				payor_street_address,
-				sale_date_time );
+				sale_date_time,
+				preupdate_transaction_date_time );
 
 		event_list_fetch_update(
 			ticket_sale_event_list(
@@ -136,7 +140,8 @@ LIST *ticket_sale_trigger_insert_update(
 			char *event_time,
 			char *sale_date_time,
 			char *payor_full_name,
-			char *payor_street_address )
+			char *payor_street_address,
+			char *preupdate_transaction_date_time )
 {
 	TICKET_SALE *ticket_sale;
 	LIST *ticket_sale_list;
@@ -215,6 +220,7 @@ LIST *ticket_sale_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
+				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
