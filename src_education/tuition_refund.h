@@ -229,7 +229,8 @@ LIST *tuition_refund_list_paypal(
 			ENTITY *payor_entity,
 			char *paypal_date_time,
 			LIST *paypal_item_list,
-			LIST *semester_offering_list );
+			LIST *semester_offering_list,
+			LIST *paypal_deposit_list );
 
 TUITION_REFUND *tuition_refund_paypal(
 			char *season_name,
@@ -239,7 +240,8 @@ TUITION_REFUND *tuition_refund_paypal(
 			char *paypal_date_time,
 			double item_value,
 			double item_fee,
-			char *course_name );
+			char *course_name,
+			LIST *paypal_deposit_list );
 
 void tuition_refund_list_registration_insert(
 			LIST *tuition_refund_list );

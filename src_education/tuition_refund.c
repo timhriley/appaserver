@@ -782,7 +782,8 @@ LIST *tuition_refund_list_paypal(
 			ENTITY *payor_entity,
 			char *paypal_date_time,
 			LIST *paypal_item_list,
-			LIST *semester_offering_list )
+			LIST *semester_offering_list,
+			LIST *paypal_deposit_list )
 {
 	LIST *tuition_refund_list = {0};
 	PAYPAL_ITEM *paypal_item;
@@ -817,7 +818,8 @@ LIST *tuition_refund_list_paypal(
 					paypal_date_time,
 					paypal_item->item_value,
 					paypal_item->item_fee,
-					offering->course->course_name ) );
+					offering->course->course_name,
+					paypal_deposit_list ) );
 
 			paypal_item->taken = 1;
 		}
@@ -834,7 +836,8 @@ TUITION_REFUND *tuition_refund_paypal(
 			char *paypal_date_time,
 			double item_value,
 			double item_fee,
-			char *course_name )
+			char *course_name,
+			LIST *paypal_deposit_list )
 {
 	TUITION_REFUND *tuition_refund;
 
@@ -863,8 +866,20 @@ TUITION_REFUND *tuition_refund_paypal(
 				0 /* not fetch_tuition_payment_list */,
 				0 /* not fetch_tuition_refund_list */ ) ) )
 	{
-		free( tuition_refund );
-		return (TUITION_REFUND *)0;
+		if ( ! ( tuition_refund->registration =
+				registration_seek(
+					student_entity->
+						full_name,
+					student_entity->
+						street_address,
+					season_name,
+					year,
+					paypal_deposit_registration_list(
+						paypal_deposit_list ) ) ) )
+		{
+			free( tuition_refund );
+			return (TUITION_REFUND *)0;
+		}
 	}
 
 	tuition_refund->payor_entity = payor_entity;

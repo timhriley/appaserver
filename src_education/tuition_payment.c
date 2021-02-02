@@ -1364,11 +1364,9 @@ LIST *tuition_payment_registration_list(
 			LIST *tuition_payment_list )
 {
 	TUITION_PAYMENT *tuition_payment;
-	static LIST *registration_list = {0};
+	LIST *registration_list;
 
 	if ( !list_rewind( tuition_payment_list ) ) return (LIST *)0;
-
-	if ( registration_list ) return registration_list;
 
 	registration_list = list_new();
 

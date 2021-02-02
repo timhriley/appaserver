@@ -195,8 +195,6 @@ char *tuition_payment_list_display(
 LIST *tuition_payment_enrollment_list(
 			LIST *tuition_payment_list );
 
-/* Caches */
-/* ------ */
 LIST *tuition_payment_registration_list(
 			LIST *tuition_payment_list );
 

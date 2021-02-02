@@ -227,7 +227,11 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 			LIST *product_list,
 			LIST *event_list,
 			PAYPAL_DATASET *paypal_dataset,
-			int row_number );
+			int row_number,
+			/* --------------------------------------------- */
+			/* Seek out existing registrations in this file. */
+			/* --------------------------------------------- */
+			LIST *paypal_deposit_list );
 
 PAYPAL_DEPOSIT *paypal_deposit_sweep(
 			PAYPAL_DATASET *paypal_dataset,
@@ -321,6 +325,9 @@ LIST *paypal_deposit_ticket_sale_list(
 			LIST *paypal_deposit_list );
 
 LIST *paypal_deposit_ticket_refund_list(
+			LIST *paypal_deposit_list );
+
+LIST *paypal_deposit_registration_list(
 			LIST *paypal_deposit_list );
 
 #endif
