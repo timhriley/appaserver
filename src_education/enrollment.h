@@ -100,8 +100,7 @@ TRANSACTION *enrollment_transaction(
 			int *seconds_to_add,
 			char *student_full_name,
 			char *street_address,
-			char *registration_date_time
-				/* transaction_date_time */,
+			char *transaction_date_time,
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,

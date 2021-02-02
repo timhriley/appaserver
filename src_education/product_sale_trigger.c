@@ -152,6 +152,14 @@ LIST *product_sale_trigger_insert_update(
 		return (LIST *)0;
 	}
 
+	if ( !product_sale->transaction_date_time )
+	{
+		product_sale->transaction_date_time =
+			transaction_race_free(
+				product_sale->
+					sale_date_time );
+	}
+
 	if ( ( product_sale->product_sale_transaction =
 		product_sale_transaction(
 			&transaction_seconds_to_add,
@@ -162,7 +170,7 @@ LIST *product_sale_trigger_insert_update(
 				payor_entity->
 				street_address,
 			product_sale->
-				sale_date_time,
+				transaction_date_time,
 			product_sale->
 				product->
 				product_name,

@@ -165,6 +165,14 @@ LIST *ticket_sale_trigger_insert_update(
 		return (LIST *)0;
 	}
 
+	if ( !ticket_sale->transaction_date_time )
+	{
+		ticket_sale->transaction_date_time =
+			transaction_race_free(
+				ticket_sale->
+					sale_date_time );
+	}
+
 	if ( ( ticket_sale->ticket_sale_transaction =
 		ticket_sale_transaction(
 			&transaction_seconds_to_add,
@@ -175,7 +183,7 @@ LIST *ticket_sale_trigger_insert_update(
 				payor_entity->
 				street_address,
 			ticket_sale->
-				sale_date_time,
+				transaction_date_time,
 			ticket_sale->
 				event->
 				program_name,

@@ -317,5 +317,11 @@ LIST *paypal_deposit_tuition_payment_list(
 LIST *paypal_deposit_tuition_refund_list(
 			LIST *paypal_deposit_list );
 
+LIST *paypal_deposit_ticket_sale_list(
+			LIST *paypal_deposit_list );
+
+LIST *paypal_deposit_ticket_refund_list(
+			LIST *paypal_deposit_list );
+
 #endif
 

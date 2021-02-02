@@ -165,6 +165,14 @@ LIST *product_refund_trigger_insert_update(
 		return (LIST *)0;
 	}
 
+	if ( !product_refund->transaction_date_time )
+	{
+		product_refund->transaction_date_time =
+			transaction_race_free(
+				product_refund->
+					refund_date_time );
+	}
+
 	if ( ( product_refund->product_refund_transaction =
 		product_refund_transaction(
 			&transaction_seconds_to_add,
@@ -175,8 +183,7 @@ LIST *product_refund_trigger_insert_update(
 				payor_entity->
 				street_address,
 			product_refund->
-				product_sale->
-				sale_date_time,
+				transaction_date_time,
 			product_refund->
 				product_sale->
 				product->

@@ -200,7 +200,7 @@ TRANSACTION *tuition_payment_transaction(
 			int *seconds_to_add,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time,
+			char *transaction_date_time,
 			char *program_name,
 			double payment_amount,
 			double merchant_fees_expense,
@@ -216,10 +216,10 @@ TRANSACTION *tuition_payment_transaction(
 	if ( dollar_virtually_same( payment_amount, 0.0 ) )
 		return (TRANSACTION *)0;
 
-	if ( !payment_date_time )
+	if ( !transaction_date_time )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty payment_date_time\n",
+			"ERROR in %s/%s()/%d: empty transaction_date_time\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -230,8 +230,7 @@ TRANSACTION *tuition_payment_transaction(
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			payment_date_time
-				/* transaction_date_time */,
+			transaction_date_time,
 			payment_amount
 				/* transaction_amount */,
 			TUITION_PAYMENT_MEMO,

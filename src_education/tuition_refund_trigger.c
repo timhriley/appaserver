@@ -225,6 +225,14 @@ LIST *tuition_refund_trigger_insert_update(
 			tuition_refund->refund_amount,
 			tuition_refund->merchant_fees_expense );
 
+	if ( !tuition_refund->transaction_date_time )
+	{
+		tuition_refund->transaction_date_time =
+			transaction_race_free(
+				tuition_refund->
+					refund_date_time );
+	}
+
 	if ( ( tuition_refund->tuition_refund_transaction =
 		tuition_refund_transaction(
 			&transaction_seconds_to_add,
@@ -235,7 +243,7 @@ LIST *tuition_refund_trigger_insert_update(
 				payor_entity->
 				street_address,
 			tuition_refund->
-				refund_date_time,
+				transaction_date_time,
 			program_name,
 			tuition_refund->refund_amount,
 			tuition_refund->merchant_fees_expense,

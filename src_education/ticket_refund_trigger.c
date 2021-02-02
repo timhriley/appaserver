@@ -179,6 +179,14 @@ LIST *ticket_refund_trigger_insert_update(
 		return (LIST *)0;
 	}
 
+	if ( !ticket_refund->transaction_date_time )
+	{
+		ticket_refund->transaction_date_time =
+			transaction_race_free(
+				ticket_refund->
+					refund_date_time );
+	}
+
 	if ( ( ticket_refund->ticket_refund_transaction =
 		ticket_refund_transaction(
 			&transaction_seconds_to_add,
@@ -189,8 +197,7 @@ LIST *ticket_refund_trigger_insert_update(
 				payor_entity->
 				street_address,
 			ticket_refund->
-				ticket_sale->
-				sale_date_time,
+				transaction_date_time,
 			ticket_refund->
 				ticket_sale->
 				event->

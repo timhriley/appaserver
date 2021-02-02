@@ -412,7 +412,7 @@ TRANSACTION *ticket_sale_transaction(
 			int *seconds_to_add,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time,
+			char *transaction_date_time,
 			char *program_name,
 			double extended_price,
 			double merchant_fees_expense,
@@ -424,10 +424,10 @@ TRANSACTION *ticket_sale_transaction(
 	TRANSACTION *transaction;
 	JOURNAL *journal;
 
-	if ( !sale_date_time || !*sale_date_time )
+	if ( !transaction_date_time || !*transaction_date_time )
 	{
 		fprintf(stderr,
-		"Warning in %s/%s()/%d: empty sale_date_time.\n",
+		"Warning in %s/%s()/%d: empty transaction_date_time.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -453,8 +453,7 @@ TRANSACTION *ticket_sale_transaction(
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			sale_date_time
-				/* transaction_date_time */,
+			transaction_date_time,
 			extended_price
 				/* transaction_amount */,
 			/* --------------------- */
@@ -1146,5 +1145,17 @@ LIST *ticket_sale_event_list(
 	} while ( list_next( ticket_sale_list ) );
 
 	return event_list;
+}
+
+void ticket_sale_fetch_update(
+			char *program_name,
+			char *event_date,
+			char *event_time )
+{
+}
+
+void ticket_sale_list_fetch_update(
+			LIST *ticket_sale_list )
+{
 }
 

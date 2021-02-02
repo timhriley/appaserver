@@ -219,12 +219,13 @@ LIST *tuition_payment_trigger_insert_update(
 			tuition_payment->payment_amount,
 			tuition_payment->merchant_fees_expense );
 
-fprintf(stderr,
-	"%s/%s()/%d: setting transaction_date_time = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-tuition_payment->payment_date_time );
+	if ( !tuition_payment->transaction_date_time )
+	{
+		tuition_payment->transaction_date_time =
+			transaction_race_free(
+				tuition_payment->
+					payment_date_time );
+	}
 
 	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
@@ -236,7 +237,7 @@ tuition_payment->payment_date_time );
 				payor_entity->
 				street_address,
 			tuition_payment->
-				payment_date_time,
+				transaction_date_time,
 			program_name,
 			tuition_payment->payment_amount,
 			tuition_payment->merchant_fees_expense,

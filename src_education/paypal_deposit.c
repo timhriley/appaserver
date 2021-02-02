@@ -1602,3 +1602,52 @@ LIST *paypal_deposit_tuition_refund_list(
 	return tuition_refund_list;
 }
 
+LIST *paypal_deposit_ticket_sale_list(
+			LIST *paypal_deposit_list )
+{
+	LIST *ticket_sale_list;
+	PAYPAL_DEPOSIT *paypal_deposit;
+
+	if ( !list_rewind( paypal_deposit_list ) ) return (LIST *)0;
+
+	ticket_sale_list = list_new();
+
+	do {
+		paypal_deposit = list_get( paypal_deposit_list );
+
+		if ( list_length( paypal_deposit->ticket_sale_list ) )
+		{
+			list_set_list(
+				ticket_sale_list,
+				paypal_deposit->ticket_sale_list );
+		}
+
+	} while ( list_next( paypal_deposit_list ) );
+
+	return ticket_sale_list;
+}
+
+LIST *paypal_deposit_ticket_refund_list(
+			LIST *paypal_deposit_list )
+{
+	LIST *ticket_refund_list;
+	PAYPAL_DEPOSIT *paypal_deposit;
+
+	if ( !list_rewind( paypal_deposit_list ) ) return (LIST *)0;
+
+	ticket_refund_list = list_new();
+
+	do {
+		paypal_deposit = list_get( paypal_deposit_list ); 
+		if ( list_length( paypal_deposit->ticket_refund_list ) )
+		{
+			list_set_list(
+				ticket_refund_list,
+				paypal_deposit->ticket_refund_list );
+		}
+
+	} while ( list_next( paypal_deposit_list ) );
+
+	return ticket_refund_list;
+}
+

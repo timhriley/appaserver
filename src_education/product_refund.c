@@ -335,7 +335,7 @@ TRANSACTION *product_refund_transaction(
 			int *seconds_to_add,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *refund_date_time,
+			char *transaction_date_time,
 			char *product_name,
 			char *program_name,
 			double refund_amount,
@@ -366,8 +366,7 @@ TRANSACTION *product_refund_transaction(
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			refund_date_time
-				/* transaction_date_time */,
+			transaction_date_time,
 			refund_amount
 				/* transaction_amount */,
 			/* --------------------- */

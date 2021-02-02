@@ -343,7 +343,7 @@ TRANSACTION *product_sale_transaction(
 			int *seconds_to_add,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time,
+			char *transaction_date_time,
 			char *product_name,
 			char *program_name,
 			double extended_price,
@@ -374,8 +374,7 @@ TRANSACTION *product_sale_transaction(
 		transaction_full(
 			payor_full_name,
 			payor_street_address,
-			sale_date_time
-				/* transaction_date_time */,
+			transaction_date_time,
 			extended_price
 				/* transaction_amount */,
 			/* --------------------- */

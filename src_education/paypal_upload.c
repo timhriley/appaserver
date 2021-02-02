@@ -252,6 +252,16 @@ int main( int argc, char **argv )
 				season_name,
 				year );
 
+			event_list_fetch_update(
+				ticket_sale_event_list(
+					paypal_deposit_ticket_sale_list(
+						paypal_deposit_list ) ) );
+
+			event_list_fetch_update(
+				ticket_refund_event_list(
+					paypal_deposit_ticket_refund_list(
+						paypal_deposit_list ) ) );
+
 			if ( session && role_name )
 			{
 				folder_menu_refresh_role(

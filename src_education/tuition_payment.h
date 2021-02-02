@@ -252,7 +252,7 @@ TRANSACTION *tuition_payment_transaction(
 			int *seconds_to_add,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time,
+			char *transaction_date_time,
 			char *program_name,
 			double payment_amount,
 			double merchant_fees_expense,
