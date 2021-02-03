@@ -3209,7 +3209,7 @@ LIST *related_folder_get_pair_one2m_related_folder_list(
 	{
 		do {
 			related_folder =
-				list_get_pointer(
+				list_get(
 					one2m_related_folder_list );
 
 			if ( related_folder->pair_1tom_order )
@@ -3220,22 +3220,13 @@ LIST *related_folder_get_pair_one2m_related_folder_list(
 						list_new();
 				}
 
-/*
-				list_add_pointer_in_order(
-					pair_1tom_related_folder_list, 
-					related_folder, 
-					related_folder_pair_match_function );
-*/
-
-				list_append_pointer(
+				list_set(
 					pair_one2m_related_folder_list,
 					related_folder );
 			}
 		} while( list_next( one2m_related_folder_list ) );
 	}
-
 	return pair_one2m_related_folder_list;
-
 }
 
 void related_folder_populate_primary_data_dictionary(

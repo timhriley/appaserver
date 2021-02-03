@@ -231,9 +231,9 @@ FOLDER *folder_with_load_new(	char *application_name,
 
 	folder->pair_one2m_related_folder_list =
 		related_folder_get_pair_one2m_related_folder_list(
-				folder->application_name,
-				folder->folder_name,
-				role_name );
+			folder->application_name,
+			folder->folder_name,
+			role_name );
 
 	folder->one2m_related_folder_list =
 		related_folder_1tom_related_folder_list(
@@ -943,8 +943,9 @@ boolean folder_get_pair_one2m_related_folder_boolean(
 	if ( list_rewind( one2m_related_folder_list ) )
 	{
 		do {
-			related_folder = (RELATED_FOLDER *)
-				list_get_pointer( one2m_related_folder_list );
+			related_folder =
+				list_get(
+					one2m_related_folder_list );
 
 			if ( related_folder->pair_1tom_order
 			&&   strcmp( related_folder->

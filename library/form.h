@@ -245,10 +245,11 @@ void form_output_table_heading(		LIST *element_list,
 					int form_number );
 void form_set_output_table_heading(	FORM *form );
 
-void form_output_submit_button( char *submit_control_string,
-				char *button_label,
-				int form_number,
-				LIST *pair_one2m_related_folder_name_list );
+void form_output_submit_button(
+			char *submit_control_string,
+			char *button_label,
+			int form_number,
+			LIST *pair_one2m_related_folder_name_list );
 
 void form_output_submit_reset_buttons(
 			char *submit_control_string,
@@ -428,31 +429,31 @@ void form_output_back_to_top_button(
 				void );
 
 char **form_get_background_color_array(
-				int *background_color_array_length,
-				char *application_name );
+			int *background_color_array_length,
+			char *application_name );
 
 void form_output_prelookup_skip_button(
-				int form_number );
+			int form_number );
 
 void form_output_reset_button(	char *post_change_javascript,
-				int form_number );
+			int form_number );
 
 void form_output_insert_pair_one2m_submit_buttons(
-				char *submit_control_string,
-				LIST *pair_one2m_related_folder_name_list );
+			char *submit_control_string,
+			LIST *pair_one2m_related_folder_name_list );
 
 void form_output_html_help_file_anchor(
-				char *application_name,
-				char *html_help_file_anchor );
+			char *application_name,
+			char *html_help_file_anchor );
 
 void form_output_generic_button(char *onclick_control_string,
-				char *button_label );
+			char *button_label );
 
 char *form_set_post_change_javascript_row_zero(
-				char *post_change_javascript );
+			char *post_change_javascript );
 
 void form_output_back_forward_buttons(
-				void );
+			void );
 
 #endif
 

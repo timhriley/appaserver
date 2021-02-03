@@ -927,9 +927,9 @@ boolean lookup_before_drop_down_first_prelookup(
 }
 
 char *lookup_before_drop_down_get_insert_pair_base_folder_name(
-				char *application_name,
-				char *base_folder_name,
-				LIST *pair_one2m_related_folder_list )
+			char *application_name,
+			char *base_folder_name,
+			LIST *pair_one2m_related_folder_list )
 {
 	RELATED_FOLDER *pair_related_folder;
 	RELATED_FOLDER *related_folder;

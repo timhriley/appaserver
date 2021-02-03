@@ -384,88 +384,67 @@ boolean related_folder_exists_all_key_data_list(
 					char delimiter );
 
 LIST *related_folder_subtract_preselection_existing_dictionary_list(
-				LIST *related_folder_dictionary_list,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				DICTIONARY *query_dictionary,
-				char *login_name,
-				LIST *related_primary_attribute_name_list );
+			LIST *related_folder_dictionary_list,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			DICTIONARY *query_dictionary,
+			char *login_name,
+			LIST *related_primary_attribute_name_list );
 
 boolean related_folder_exists_pair_1tom(
-				LIST *related_folder_list );
+			LIST *related_folder_list );
 
 char *related_folder_get_hint_message(
-				char *attribute_hint_message,
-				char *related_folder_hint_message,
-				char *folder_notepad );
+			char *attribute_hint_message,
+			char *related_folder_hint_message,
+			char *folder_notepad );
 
 LIST *related_folder_get_pair_one2m_related_folder_list(
-				char *application_name,
-				char *folder_name,
-				char *role_name );
+			char *application_name,
+			char *folder_name,
+			char *role_name );
 
 void related_folder_populate_primary_data_dictionary(
-				LIST *mto1_related_folder_list,
-				char *application_name );
+			LIST *mto1_related_folder_list,
+			char *application_name );
 
 boolean related_folder_exists_mto1_folder_name_list(
-				LIST *mto1_related_folder_list,
-				LIST *folder_name_list );
+			LIST *mto1_related_folder_list,
+			LIST *folder_name_list );
 
 boolean related_folder_exists_mto1_folder_name(
-				LIST *mto1_related_folder_list,
-				char *folder_name );
-
-/*
-LIST *related_folder_get_process_dictionary_list(
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *login_name,
-				DICTIONARY *query_dictionary,
-				PROCESS *populate_drop_down_process,
-				LIST *attribute_list,
-				char *role_name,
-				char *state,
-				char *one2m_folder_name_for_processes );
-
-LIST *related_folder_get_one2m_recursive_related_folder_list(
-				char *application_name,
-				char *session,
-				char *role_name,
-				FOLDER *folder,
-				LIST *attribute_list );
-*/
+			LIST *mto1_related_folder_list,
+			char *folder_name );
 
 char *related_folder_append_where_clause_related_join(
-				FOLDER *folder,
-				char *application_name,
-				char *source_where_clause,
-				RELATED_FOLDER *related_folder );
+			FOLDER *folder,
+			char *application_name,
+			char *source_where_clause,
+			RELATED_FOLDER *related_folder );
 
 void related_folder_set_join_where_clause(
-				LIST *one2m_related_folder_list,
-				FOLDER *folder,
-				char *application_name );
+			LIST *one2m_related_folder_list,
+			FOLDER *folder,
+			char *application_name );
 
 LIST *related_folder_lookup_before_drop_down_related_folder_list(
-				LIST *related_folder_list,
-				char *application_name,
-				char *folder_name,
-				LIST *base_folder_attribute_list,
-				int recursive_level );
+			LIST *related_folder_list,
+			char *application_name,
+			char *folder_name,
+			LIST *base_folder_attribute_list,
+			int recursive_level );
 
 void related_folder_set_no_ignore_output(
-				LIST *mto1_related_folder_list );
+			LIST *mto1_related_folder_list );
 
 RELATED_FOLDER *related_folder_mto1_seek(
-				LIST *mto1_related_folder_list,
-				char *folder_name );
+			LIST *mto1_related_folder_list,
+			char *folder_name );
 
 RELATED_FOLDER *related_folder_one2m_seek(
-				LIST *one2m_related_folder_list,
-				char *folder_name );
+			LIST *one2m_related_folder_list,
+			char *folder_name );
 
 LIST *related_folder_get_join_1tom_related_folder_list(
 			LIST *one2m_related_folder_list );

@@ -1928,10 +1928,11 @@ void form_output_submit_reset_buttons(
 	if ( with_table_tags ) printf( "</td>\n" );
 }
 
-void form_output_submit_button(	char *submit_control_string,
-				char *button_label,
-				int form_number,
-				LIST *pair_one2m_related_folder_name_list )
+void form_output_submit_button(
+			char *submit_control_string,
+			char *button_label,
+			int form_number,
+			LIST *pair_one2m_related_folder_name_list )
 {
 	if ( list_length( pair_one2m_related_folder_name_list ) )
 	{
@@ -1978,8 +1979,8 @@ void form_output_generic_button(char *onclick_control_string,
 }
 
 void form_output_insert_pair_one2m_submit_buttons(
-				char *submit_control_string,
-				LIST *pair_one2m_related_folder_name_list )
+			char *submit_control_string,
+			LIST *pair_one2m_related_folder_name_list )
 {
 	char *related_folder_name;
 	char buffer[ 128 ];
