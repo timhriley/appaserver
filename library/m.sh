@@ -3,10 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	touch post_edit_table_form.c
-	touch output_edit_table_form.c
-	make post_edit_table_form
-	make output_edit_table_form
+	cd ../src_hydrology
+	make post_hydrology_quick_measurement_form
 fi
 
