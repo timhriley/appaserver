@@ -289,6 +289,7 @@ char *transaction_program_refresh(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
+			char *preupdate_transaction_date_time,
 			char *program_name,
 			double transaction_amount,
 			char *memo,
@@ -464,5 +465,9 @@ char *transaction_list_minimum_transaction_date_time(
 /* Returns memo or "" */
 /* ------------------ */
 char *transaction_memo( char *memo );
+
+char *transaction_date_time_earlier(
+			char *transaction_date_time,
+			char *preupdate_transaction_date_time );
 
 #endif

@@ -41,7 +41,8 @@ LIST *product_refund_trigger_insert_update(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time,
-			char *refund_date_time );
+			char *refund_date_time,
+			char *preupdate_transaction_date_time );
 
 int main( int argc, char **argv )
 {
@@ -51,6 +52,7 @@ int main( int argc, char **argv )
 	char *payor_street_address;
 	char *sale_date_time;
 	char *refund_date_time;
+	char *preupdate_transaction_date_time;
 	char *state;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -60,10 +62,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 8 )
 	{
 		fprintf(stderr,
-"Usage: %s product_name payor_full_name payor_street_address sale_date_time refund_date_time state\n",
+"Usage: %s product_name payor_full_name payor_street_address sale_date_time refund_date_time preupdate_transaction_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete}\n" );
@@ -75,7 +77,8 @@ int main( int argc, char **argv )
 	payor_street_address = argv[ 3 ];
 	sale_date_time = argv[ 4 ];
 	refund_date_time = argv[ 5 ];
-	state = argv[ 6 ];
+	preupdate_transaction_date_time = argv[ 6 ];
+	state = argv[ 7 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -100,7 +103,8 @@ int main( int argc, char **argv )
 				payor_full_name,
 				payor_street_address,
 				sale_date_time,
-				refund_date_time );
+				refund_date_time,
+				preupdate_transaction_date_time );
 
 		product_list_fetch_update(
 			product_refund_product_name_list(
@@ -136,7 +140,8 @@ LIST *product_refund_trigger_insert_update(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time,
-			char *refund_date_time )
+			char *refund_date_time,
+			char *preupdate_transaction_date_time )
 {
 	PRODUCT_REFUND *product_refund;
 	LIST *product_refund_list;
@@ -224,6 +229,7 @@ LIST *product_refund_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
+				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,

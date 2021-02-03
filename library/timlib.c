@@ -12,6 +12,7 @@
 #include <string.h>
 #include <strings.h>
 #include <time.h>
+#include "String.h"
 #include "timlib.h"
 #include "julian.h"
 #include "column.h"
@@ -519,13 +520,54 @@ char *pipe2string( char *sys_string )
 	FILE *p;
 	int null_input = 0;
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: sys_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+m2( "hydrology", msg );
+}
 	if ( !sys_string ) return (char *)0;
 
 	*buffer = '\0';
+
 	p = popen( sys_string, "r" );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: sys_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+m2( "hydrology", msg );
+}
 	timlib_reset_get_line_check_utf_16();
-	if ( !timlib_get_line( buffer, p, 65536 ) ) null_input = 1;
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: sys_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+m2( "hydrology", msg );
+}
+	/* if ( !timlib_get_line( buffer, p, 65536 ) ) null_input = 1; */
+
+	if ( !string_input( buffer, p, 65536 ) ) null_input = 1;
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: buffer = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+buffer );
+m2( "hydrology", msg );
+}
 	timlib_reset_get_line_check_utf_16();
 
 	pclose( p );

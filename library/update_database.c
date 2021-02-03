@@ -85,6 +85,15 @@ UPDATE_DATABASE *update_database_new(
 	update_database->post_dictionary = dictionary_copy( post_dictionary );
 	update_database->file_dictionary = file_dictionary;
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: folder_name = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+update_database->folder_name );
+m2( "hydrology", msg );
+}
 	update_database->folder =
 		folder_fetch(
 			update_database->folder_name,
@@ -93,10 +102,29 @@ UPDATE_DATABASE *update_database_new(
 			1 /* fetch_mto1_isa_recursive_relation_list */,
 			0 /* not fetch_mto1_relation_list */ );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: length dictionary = %d, length attribute_list = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_length( update_database->post_dictionary ),
+list_length( update_database->folder->attribute_list ) );
+m2( "hydrology", msg );
+}
+
 	dictionary_set_indexed_date_time_to_current(
 		update_database->post_dictionary,
 		update_database->folder->attribute_list );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( "hydrology", msg );
+}
 	if ( update_database->folder->row_level_non_owner_forbid )
 	{
 		update_database_set_login_name_each_row(
@@ -108,6 +136,14 @@ UPDATE_DATABASE *update_database_new(
 				login_name );
 	}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( "hydrology", msg );
+}
 	appaserver_library_post_dictionary_database_convert_dates(
 			file_dictionary,
 			application_name,
@@ -299,6 +335,15 @@ char *update_database_execute(	char *application_name,
 
 	*error_messages = '\0';
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: additional_update_attribute_name_list = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_display( additional_update_attribute_name_list ) );
+m2( "hydrology", msg );
+}
 	do {
 		update_row = list_get_pointer( update_row_list );
 
@@ -1561,7 +1606,7 @@ LIST *update_database_changed_folder_name_list(
 				list_get(
 					update_row->update_folder_list );
 
-			list_set(
+			list_set_unique(
 				changed_folder_name_list,
 				update_folder->folder_name );
 

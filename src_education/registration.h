@@ -47,19 +47,12 @@ typedef struct
 	LIST *registration_tuition_refund_list;
 } REGISTRATION;
 
-REGISTRATION *registration_getset(
-			LIST *registration_list,
-			char *student_full_name,
-			char *student_street_addres,
-			char *season_name,
-			int year );
-
 REGISTRATION *registration_seek(
 			char *student_full_name,
 			char *student_street_address,
 			char *season_name,
 			int year,
-			LIST *semester_registration_list );
+			LIST *registration_list );
 
 REGISTRATION *registration_parse(
 			char *input,

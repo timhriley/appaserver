@@ -23,38 +23,6 @@
 #include "registration.h"
 #include "enrollment.h"
 
-REGISTRATION *registration_getset(
-			LIST *registration_list,
-			char *student_full_name,
-			char *student_street_address,
-			char *season_name,
-			int year )
-{
-	REGISTRATION *registration = {0};
-
-	if ( ! ( registration =
-			registration_seek(
-				student_full_name,
-				student_street_address,
-				season_name,
-				year,
-				registration_list ) ) )
-	{
-		list_set(
-			registration_list,
-			( registration =
-				registration_new(
-					entity_new(
-						strdup(
-						   student_full_name ),
-						strdup(
-						   student_street_address ) ),
-					strdup( season_name ),
-					year ) ) );
-	}
-	return registration;
-}
-
 double registration_tuition(
 			LIST *enrollment_list,
 			LIST *semester_offering_list )
@@ -295,15 +263,15 @@ REGISTRATION *registration_seek(
 			char *student_street_address,
 			char *season_name,
 			int year,
-			LIST *semester_registration_list )
+			LIST *registration_list )
 {
 	REGISTRATION *registration;
 
-	if ( !list_rewind( semester_registration_list ) )
+	if ( !list_rewind( registration_list ) )
 		return (REGISTRATION *)0;
 
 	do {
-		registration = list_get( semester_registration_list );
+		registration = list_get( registration_list );
 
 		if ( strcmp(	registration->student_entity->full_name,
 				student_full_name ) == 0
@@ -315,7 +283,7 @@ REGISTRATION *registration_seek(
 		{
 			return registration;
 		}
-	} while ( list_next( semester_registration_list ) );
+	} while ( list_next( registration_list ) );
 
 	return (REGISTRATION *)0;
 }

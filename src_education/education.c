@@ -168,7 +168,8 @@ LIST *education_paypal_deposit_list(
 					semester_event_list,
 					dataset_return
 						/* paypal_dataset */,
-					row_number ) );
+					row_number,
+					paypal_deposit_list ) );
 		}
 	}
 

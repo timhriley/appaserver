@@ -39,7 +39,8 @@ LIST *program_donation_trigger_insert_update(
 			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time );
+			char *payment_date_time,
+			char *preupdate_transaction_date_time );
 
 int main( int argc, char **argv )
 {
@@ -48,6 +49,7 @@ int main( int argc, char **argv )
 	char *payor_full_name;
 	char *payor_street_address;
 	char *payment_date_time;
+	char *preupdate_transaction_date_time;
 	char *state;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -57,10 +59,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s program_name payor_full_name payor_street_address payment_date_time state\n",
+"Usage: %s program_name payor_full_name payor_street_address payment_date_time preupdate_transaction_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete}\n" );
@@ -71,7 +73,8 @@ int main( int argc, char **argv )
 	payor_full_name = argv[ 2 ];
 	payor_street_address = argv[ 3 ];
 	payment_date_time = argv[ 4 ];
-	state = argv[ 5 ];
+	preupdate_transaction_date_time = argv[ 5 ];
+	state = argv[ 6 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -92,7 +95,8 @@ int main( int argc, char **argv )
 				program_name,
 				payor_full_name,
 					payor_street_address,
-				payment_date_time );
+				payment_date_time,
+				preupdate_transaction_date_time );
 
 		program_list_fetch_update(
 			program_donation_program_name_list(
@@ -123,7 +127,8 @@ LIST *program_donation_trigger_insert_update(
 			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *payment_date_time )
+			char *payment_date_time,
+			char *preupdate_transaction_date_time )
 {
 	PROGRAM_DONATION *program_donation;
 	LIST *program_donation_list;
@@ -191,6 +196,7 @@ LIST *program_donation_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
+				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,

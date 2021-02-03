@@ -38,7 +38,8 @@ LIST *product_sale_trigger_insert_update(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time );
+			char *sale_date_time,
+			char *preupdate_transaction_date_time );
 
 int main( int argc, char **argv )
 {
@@ -47,6 +48,7 @@ int main( int argc, char **argv )
 	char *payor_full_name;
 	char *payor_street_address;
 	char *sale_date_time;
+	char *preupdate_transaction_date_time;
 	char *state;
 
 	/* Exits if fails. */
@@ -58,10 +60,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s product_name payor_full_name payor_street_address sale_date_time state\n",
+"Usage: %s product_name payor_full_name payor_street_address sale_date_time preupdate_transaction_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete}\n" );
@@ -72,7 +74,8 @@ int main( int argc, char **argv )
 	payor_full_name = argv[ 2 ];
 	payor_street_address = argv[ 3 ];
 	sale_date_time = argv[ 4 ];
-	state = argv[ 5 ];
+	preupdate_transaction_date_time = argv[ 5 ];
+	state = argv[ 6 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -93,7 +96,8 @@ int main( int argc, char **argv )
 				product_name,
 				payor_full_name,
 				payor_street_address,
-				sale_date_time );
+				sale_date_time,
+				preupdate_transaction_date_time );
 
 		product_list_fetch_update(
 			product_sale_product_name_list(
@@ -125,7 +129,8 @@ LIST *product_sale_trigger_insert_update(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time )
+			char *sale_date_time,
+			char *preupdate_transaction_date_time )
 {
 	PRODUCT_SALE *product_sale;
 	LIST *product_sale_list;
@@ -206,6 +211,7 @@ LIST *product_sale_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
+				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
