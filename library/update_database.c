@@ -5,11 +5,6 @@
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-/* -------------------------------------------------------------------- */
-/* Note: need to test copy_common_attributes to make sure they don't	*/
-/* update when they're not supposed to.					*/
-/* -------------------------------------------------------------------- */
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -104,29 +99,10 @@ UPDATE_DATABASE *update_database_new(
 		exit( 1 );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: length dictionary = %d, length attribute_list = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_length( update_database->post_dictionary ),
-list_length( update_database->folder->attribute_list ) );
-m2( "hydrology", msg );
-}
-
 	dictionary_set_indexed_date_time_to_current(
 		update_database->post_dictionary,
 		update_database->folder->attribute_list );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	if ( update_database->folder->row_level_non_owner_forbid )
 	{
 		update_database_set_login_name_each_row(
@@ -138,14 +114,6 @@ m2( "hydrology", msg );
 				login_name );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	appaserver_library_post_dictionary_database_convert_dates(
 			file_dictionary,
 			application_name,
@@ -337,15 +305,6 @@ char *update_database_execute(	char *application_name,
 
 	*error_messages = '\0';
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: additional_update_attribute_name_list = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-list_display( additional_update_attribute_name_list ) );
-m2( "hydrology", msg );
-}
 	do {
 		update_row = list_get_pointer( update_row_list );
 
@@ -1329,7 +1288,16 @@ LIST *update_database_update_folder_list(
 					primary_data_list,
 					primary_changed_attribute_list ) );
 
-		if ( !update_folder ) continue;
+		if ( !update_folder )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: update_folder_set_where_clause(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				relation->many_folder->folder_name );
+			exit( 1 );
+		}
 
 		if ( ! ( update_folder->count =
 				update_folder_count(

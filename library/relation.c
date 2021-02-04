@@ -206,6 +206,7 @@ char *relation_display(	RELATION *relation )
 	return strdup( display );
 }
 
+#ifdef NOT_DEFINED
 boolean relation_list_exists(
 			LIST *relation_list,
 			char *many_folder_name,
@@ -234,6 +235,7 @@ boolean relation_list_exists(
 
 	return 0;
 }
+#endif
 
 LIST *relation_foreign_attribute_name_list(
 			/* ----------------------------------- */
@@ -346,6 +348,7 @@ LIST *relation_one2m_recursive_relation_list(
 	do {
 		relation = list_get( local_relation_list );
 
+/*
 		if ( relation_list_exists(
 			relation_list,
 			relation->many_folder->folder_name,
@@ -353,6 +356,7 @@ LIST *relation_one2m_recursive_relation_list(
 		{
 			continue;
 		}
+*/
 
 		list_set( relation_list, relation );
 
@@ -437,3 +441,34 @@ boolean relation_is_primary_key_subset(
 			foreign_attribute_name_list,
 			mto1_primary_attribute_name_list );
 }
+
+char *relation_list_display(
+			LIST *relation_list )
+{
+	char display[ 65536 ];
+	char *ptr = display;
+	RELATION *relation;
+	boolean first_time = 1;
+
+	if ( !list_rewind( relation_list ) ) return "";
+
+	*ptr = '\0';
+
+	do {
+		relation = list_get( relation_list );
+
+		if ( first_time )
+			first_time = 0;
+		else
+			ptr += sprintf( ptr, "; " );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			relation_display( relation ) );
+
+	} while ( list_next( relation_list ) );
+
+	return strdup( display );
+}
+

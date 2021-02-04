@@ -102,11 +102,6 @@ char *relation_sys_string(
 /* -------------------------- */
 char *relation_display(	RELATION *relation );
 
-boolean relation_list_exists(
-			LIST *relation_list,
-			char *many_folder_name,
-			char *one_folder_name );
-
 LIST *relation_foreign_attribute_name_list(
 			/* ----------------------------------- */
 			/* Send in primary_attribute_name_list */
@@ -141,6 +136,9 @@ LIST *relation_mto1_fetch_relation_list(
 boolean relation_is_primary_key_subset(
 			LIST *foreign_attribute_name_list,
 			LIST *many_primary_attribute_name_list );
+
+char *relation_list_display(
+			LIST *one2m_relation_list );
 
 #endif
 
