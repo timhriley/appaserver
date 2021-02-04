@@ -95,65 +95,26 @@ int main( int argc, char **argv )
 		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 		application_name );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+	environ_appaserver_home();
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	if ( session_remote_ip_address_changed(
 		application_name,
 		session ) )
 	{
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 		session_message_ip_address_changed_exit(
 				application_name,
 				person );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	if ( !session_access(	application_name,
 				session,
 				person ) )
@@ -162,39 +123,13 @@ m2( "hydrology", msg );
 			application_name, session, person );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
-	appaserver_parameter_file = new_appaserver_parameter_file();
-
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	post_dictionary =
 		post2dictionary(stdin,
 				(char *)0 /* appaserver_data_directory */,
 				(char *)0 /* session */ );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d: post_dictionary = [%d]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_length( post_dictionary ) );
-m2( "hydrology", msg );
-}
 	attribute_list =
 		attribute_get_attribute_list(
 			application_name,
@@ -203,14 +138,6 @@ m2( "hydrology", msg );
 			(LIST *)0 /* mto1_isa_related_folder_list */,
 			(char *)0 /* role_name */ );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	if ( ! ( dictionary_appaserver =
 			dictionary_appaserver_new(
 				post_dictionary,
@@ -226,14 +153,6 @@ m2( "hydrology", msg );
 		exit( 1 );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	dictionary_appaserver->row_dictionary =
 		dictionary_appaserver_get_row_dictionary_multi_row(
 			dictionary_appaserver->
@@ -242,14 +161,6 @@ m2( "hydrology", msg );
 				attribute_list ),
 			(LIST *)0 /* operation_name_list */ );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	/* Get the file dictionary */
 	/* ----------------------- */
 	file_dictionary =
@@ -261,14 +172,6 @@ m2( "hydrology", msg );
 			(char *)0 /* optional_related_attribute_name */,
 			ELEMENT_DICTIONARY_DELIMITER );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	dictionary_appaserver_parse_multi_attribute_keys(
 		file_dictionary,
 		(char *)0 /* prefix */ );
@@ -283,14 +186,6 @@ m2( "hydrology", msg );
 		exit( 1 );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	if ( dictionary_get_index_data(
 				&station,
 				post_dictionary,
@@ -305,14 +200,6 @@ m2( "hydrology", msg );
 		exit( 1 );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	dictionary_set_string(	file_dictionary,
 				"station_0",
 				station );
@@ -358,14 +245,6 @@ m2( "hydrology", msg );
 		end_date = begin_date;
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	update_database =
 		update_database_new(
 			application_name,
@@ -376,14 +255,6 @@ m2( "hydrology", msg );
 			dictionary_appaserver->row_dictionary,
 			file_dictionary );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	update_database->update_row_list =
 		update_database_update_row_list(
 			update_database->post_dictionary,
@@ -394,14 +265,6 @@ m2( "hydrology", msg );
 			(LIST *)0 /* mto1_isa_recursive_relation_list */,
 			update_database->folder->post_change_process );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "\n%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	additional_update_attribute_name_list = list_new();
 	additional_update_data_list = list_new();
 

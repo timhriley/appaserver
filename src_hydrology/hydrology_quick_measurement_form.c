@@ -1,4 +1,4 @@
-/* hydrology_quick_measurement_form.c					*/
+/* $APPASERVER_HOME/src_hydrology/hydrology_quick_measurement_form.c	*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -52,20 +52,27 @@ LIST *get_filter_manipulate_agency_list(
 				char *login_name );
 
 LIST *get_element_list(
-				LIST *attribute_list,
-				LIST *attribute_name_list );
+			LIST *attribute_list,
+			LIST *attribute_name_list );
 
-char *get_where_clause(		DICTIONARY *dictionary,
-				char *application_name,
-				char *appaserver_mount_point,
-				char *database_management_system );
+char *get_where_clause(	DICTIONARY *dictionary,
+			char *application_name,
+			char *appaserver_mount_point,
+			char *station,
+			char *datatype );
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
-	char *role_name, *target_frame;
+	char *login_name;
+	char *application_name;
+	char *session;
+	char *folder_name;
+	char *role_name;
+	char *target_frame;
 	char *state;
 	char *insert_update_key;
+	char *station;
+	char *datatype;
 	FORM *form;
 	FOLDER *folder;
 	QUERY *query;
@@ -99,14 +106,15 @@ int main( int argc, char **argv )
 		application_name );
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	decode_html_post(	decoded_dictionary_string, 
-				post_dictionary_string );
+	decode_html_post(
+		decoded_dictionary_string, 
+		post_dictionary_string );
 
 	post_dictionary = 
 		dictionary_index_string2dictionary( 
@@ -116,26 +124,44 @@ int main( int argc, char **argv )
 		post_dictionary,
 		(char *)0 /* prefix */ );
 
-	query_dictionary = dictionary_remove_prefix( 	
-						post_dictionary,
-						QUERY_STARTING_LABEL );
-
-	query_dictionary = dictionary_remove_prefix(
-					query_dictionary,
-					QUERY_FROM_STARTING_LABEL );
-
-	query_dictionary = dictionary_remove_index( query_dictionary );
-
-	if ( !dictionary_get_string( query_dictionary, "station" ) )
+	if ( ! ( station =
+			dictionary_get_string(
+				post_dictionary, "station" ) ) )
 	{
-		document_quick_output_body(	application_name,
-						appaserver_parameter_file->
-						appaserver_mount_point );
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
 
 		printf( "<p>ERROR: Please select a station/datatype.\n" );
 		document_close();
 		exit( 0 );
 	}
+
+	if ( ! ( datatype =
+			dictionary_get_string(
+				post_dictionary, "datatype" ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: dictionary_get_string(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			datatype );
+		exit( 1 );
+	}
+
+	query_dictionary =
+		dictionary_remove_prefix( 	
+			post_dictionary,
+			QUERY_STARTING_LABEL );
+
+	query_dictionary =
+		dictionary_remove_prefix(
+			query_dictionary,
+			QUERY_FROM_STARTING_LABEL );
+
+	query_dictionary = dictionary_remove_index( query_dictionary );
 
 	if ( !valid_manipulate_agency( 
 			application_name,
@@ -171,18 +197,19 @@ int main( int argc, char **argv )
 	list_append_string( attribute_name_list, "station" );
 	list_append_string( attribute_name_list, "datatype" );
 
-	folder = folder_new_folder( 	
-				application_name,
-				session,
-				folder_name );
+	folder =
+		folder_new_folder( 	
+			application_name,
+			session,
+			folder_name );
 
 	folder->attribute_list =
-			attribute_get_attribute_list(
-					application_name,
-					folder_name,
-					(char *)0 /* attribute_name */,
-					(LIST *)0 /* related_folder_list */,
-					(char *)0 /* role_name */ );
+		attribute_get_attribute_list(
+			application_name,
+			folder_name,
+			(char *)0 /* attribute_name */,
+			(LIST *)0 /* related_folder_list */,
+			(char *)0 /* role_name */ );
 
 	query = query_edit_table_new(
 			query_dictionary,
@@ -192,12 +219,13 @@ int main( int argc, char **argv )
 			(ROLE *)0 );
 
 	query->query_output->where_clause =
-		get_where_clause(	query->dictionary,
-					application_name,
-					appaserver_parameter_file->
-						appaserver_mount_point,
-					appaserver_parameter_file->
-						database_management_system );
+		get_where_clause(
+			query->dictionary,
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point,
+			station,
+			datatype );
 
 	row_dictionary_list =
 		query_row_dictionary_list(
@@ -213,20 +241,21 @@ int main( int argc, char **argv )
 	form = form_new( FORM_NAME, FORM_TITLE );
 	form->omit_folder_name_in_title = 1;
 
-	form_set_folder_parameters(	form,
-					state,
-					login_name,
-					application_name,
-					session,
-					folder->folder_name,
-					role_name );
+	form_set_folder_parameters(
+		form,
+		state,
+		login_name,
+		application_name,
+		session,
+		folder->folder_name,
+		role_name );
 
 	/* form_set_title( form, FORM_TITLE ); */
 
 	form->regular_element_list = 
 		get_element_list( 	
-					folder->attribute_list,
-					attribute_name_list );
+			folder->attribute_list,
+			attribute_name_list );
 
 	form->post_process = "post_hydrology_quick_measurement_form";
 	form_set_current_row( form, 1 );
@@ -236,7 +265,8 @@ int main( int argc, char **argv )
 	form->target_frame = target_frame;
 	form->process_id = getpid();
 
-	document = document_new(
+	document =
+		document_new(
 			FORM_TITLE,
 			application_name );
 
@@ -246,19 +276,19 @@ int main( int argc, char **argv )
 	document_set_output_content_type( document );
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_get_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+		document->application_name,
+		document->onload_control_string );
 
 	form->table_border = 1;
 
@@ -287,10 +317,12 @@ int main( int argc, char **argv )
 		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
-	form_output_table_heading(	form->regular_element_list,
-					0 /* form_number */ );
+	form_output_table_heading(
+		form->regular_element_list,
+		0 /* form_number */ );
 
-	number_rows_outputted += form_output_body(
+	number_rows_outputted +=
+		form_output_body(
 			&form->current_reference_number,
 			form->hidden_name_dictionary,
 			form->output_row_zero_only,
@@ -303,7 +335,8 @@ int main( int argc, char **argv )
 					appaserver_data_directory,
 				INSERT_UPDATE_KEY,
 				FOLDER_NAME,
-				(char *)0 /* optional_related_attribute... */ ),
+				(char *)0 /* optional_related_attribute... */ )
+					/* spool_filename */,
 			0 /* row_level_non_owner_view_only */,
 			application_name,
 			login_name,
@@ -335,52 +368,32 @@ int main( int argc, char **argv )
 				PROCESS_NAME,
 				appaserver_parameter_file_get_dbms() );
 	exit( 0 );
-} /* main() */
+}
 
 char *get_where_clause(	DICTIONARY *dictionary,
 			char *application_name,
 			char *appaserver_mount_point,
-			char *database_management_system )
+			char *station,
+			char *datatype )
 {
 	char where_clause[ 4096 ];
-	char *station;
-	char *datatype;
 	char *begin_date;
 	char *end_date;
-
-	if ( ! ( station = dictionary_get_string( dictionary, "station" ) ) )
-	{
-		document_quick_output_body(	application_name,
-						appaserver_mount_point );
-
-		printf( "<p>ERROR: Please select a station/datatype.\n" );
-		document_close();
-		exit( 0 );
-	}
-
-	if ( ! ( datatype = dictionary_get_string( dictionary, "datatype" ) ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s(%s): cannot find datatype\n",
-			 __FUNCTION__,
-			 dictionary_display( dictionary ) );
-		exit( 1 );
-	}
 
 	begin_date = dictionary_get_string( dictionary, "begin_date" );
 	end_date = dictionary_get_string( dictionary, "end_date" );
 
 	hydrology_library_get_clean_begin_end_date(
-					&begin_date,
-					&end_date,
-					application_name,
-					station,
-					datatype );
+		&begin_date,
+		&end_date,
+		application_name,
+		station,
+		datatype );
 
 	if ( !appaserver_library_validate_begin_end_date(
-				&begin_date,
-				&end_date,
-				(DICTIONARY *)0 /* post_dictionary */ ) )
+			&begin_date,
+			&end_date,
+			(DICTIONARY *)0 /* post_dictionary */ ) )
 	{
 		document_quick_output_body(	application_name,
 						appaserver_mount_point );
@@ -423,102 +436,115 @@ char *get_where_clause(	DICTIONARY *dictionary,
 	}
 
 	return strdup( where_clause );
-} /* get_where_clause() */
+}
 
-
-LIST *get_element_list(		LIST *attribute_list,
-				LIST *attribute_name_list )
+LIST *get_element_list(
+			LIST *attribute_list,
+			LIST *attribute_name_list )
 {
 	LIST *return_list;
 	ATTRIBUTE *attribute;
 	char *attribute_name;
 	ELEMENT_APPASERVER *element = {0};
 
+	if ( !list_rewind( attribute_name_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty attribute_name_list.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	return_list = list_new();
 
 	/* For each attribute */
 	/* ------------------ */
-	if ( list_reset( attribute_name_list ) )
-		do {
-			attribute_name = list_get( attribute_name_list );
+	do {
+		attribute_name = list_get( attribute_name_list );
 
-			/* Station and datatype get ignored */
-			/* -------------------------------- */
-			if ( strcmp( 	attribute_name,
-					"station" ) == 0 
-			||   strcmp(	attribute_name,
-					"datatype" ) == 0 )
-			{
-				continue;
-			}
+		attribute =
+			attribute_seek_attribute( 
+				attribute_name,
+				attribute_list );
 
-			attribute =
-				attribute_seek_attribute( 
-					attribute_name,
-					attribute_list );
-
-			if ( !attribute )
-			{
-				fprintf(stderr,
+		if ( !attribute )
+		{
+			fprintf(stderr,
 				"%s/%s() cannot find attribute = (%s)\n",
-					__FILE__,
-					__FUNCTION__,
-					attribute_name );
-				exit( 1 );
-			}
+				__FILE__,
+				__FUNCTION__,
+				attribute_name );
+			exit( 1 );
+		}
 
-			/* ----------------------------------------- */
-			/* Measurement value get a text item element */
-			/* ----------------------------------------- */
-			if ( strcmp( 	attribute->attribute_name, 
-					"measurement_value" ) == 0 )
-			{
-				element = element_appaserver_new(
-						text_item,
-						attribute->attribute_name);
+		/* ----------------------------------------- */
+		/* Measurement value get a text item element */
+		/* ----------------------------------------- */
+		if ( strcmp( 	attribute->attribute_name, 
+				"measurement_value" ) == 0 )
+		{
+			element = element_appaserver_new(
+					text_item,
+					attribute->attribute_name);
 
-				element_text_item_set_attribute_width(
-						element->text_item, 
-						attribute->width );
+			element_text_item_set_attribute_width(
+					element->text_item, 
+					attribute->width );
 
-				element->
-					text_item->
-					onchange_null2slash_yn = 'y';
-			}
-			else
-			/* ------------------------------------ */
-			/* Measurement date and time get prompt */
-			/* and hidden elements.		 	*/
-			/* ------------------------------------ */
-			if ( strcmp( 	attribute->attribute_name,
-					"measurement_date" ) == 0 
-			||   strcmp(	attribute->attribute_name,
-					"measurement_time" ) == 0 )
-			{
-				element = element_appaserver_new(
-						prompt_data,
-						attribute->attribute_name);
-
-				element_prompt_data_set_heading(
-						element->prompt_data,
-						element->name );
-
-				list_append( 	return_list,
-						element,
-						sizeof( ELEMENT_APPASERVER ) );
-
-				element = element_appaserver_new(
-						hidden,
-						attribute->attribute_name);
-			}
+			element->
+				text_item->
+				onchange_null2slash_yn = 'y';
 
 			list_append( 	return_list,
 					element,
 					sizeof( ELEMENT_APPASERVER ) );
+		}
+		else
+		/* ------------------------------------ */
+		/* Measurement date and time get prompt */
+		/* ------------------------------------ */
+		if ( strcmp( 	attribute->attribute_name,
+				"measurement_date" ) == 0 
+		||   strcmp(	attribute->attribute_name,
+				"measurement_time" ) == 0 )
+		{
+			element = element_appaserver_new(
+					prompt_data,
+					attribute->attribute_name);
 
-		} while( list_next( attribute_name_list ) );
+			element_prompt_data_set_heading(
+					element->prompt_data,
+					element->name );
+
+			list_append( 	return_list,
+					element,
+					sizeof( ELEMENT_APPASERVER ) );
+		}
+		else
+		/* ------------------------------- */
+		/* Station and datatype get hidden */
+		/* ------------------------------- */
+		if ( strcmp( 	attribute->attribute_name,
+				"station" ) == 0 
+		||   strcmp(	attribute->attribute_name,
+				"datatype" ) == 0 )
+		{
+			element =
+				element_appaserver_new(
+					hidden,
+					attribute->attribute_name);
+
+			list_append( 	return_list,
+					element,
+					sizeof( ELEMENT_APPASERVER ) );
+		}
+
+	} while( list_next( attribute_name_list ) );
+
 	return return_list;
-} /* get_element_list() */
+}
 
 LIST *get_filter_manipulate_agency_list(
 			char *application_name,
@@ -543,7 +569,7 @@ LIST *get_filter_manipulate_agency_list(
 
 	return pipe2list( sys_string );
 
-} /* get_filter_manipulate_agency_list() */
+}
 
 boolean valid_manipulate_agency( 
 			char *application_name,
@@ -588,5 +614,5 @@ boolean valid_manipulate_agency(
 			filter_manipulate_agency_list,
 			manipulate_agency ) );
 
-} /* valid_manipulate_agency() */
+}
 

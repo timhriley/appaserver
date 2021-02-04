@@ -520,55 +520,13 @@ char *pipe2string( char *sys_string )
 	FILE *p;
 	int null_input = 0;
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: sys_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-m2( "hydrology", msg );
-}
 	if ( !sys_string ) return (char *)0;
 
 	*buffer = '\0';
 
 	p = popen( sys_string, "r" );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: sys_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-m2( "hydrology", msg );
-}
-	timlib_reset_get_line_check_utf_16();
-
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: sys_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-m2( "hydrology", msg );
-}
-	/* if ( !timlib_get_line( buffer, p, 65536 ) ) null_input = 1; */
-
 	if ( !string_input( buffer, p, 65536 ) ) null_input = 1;
-
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: buffer = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-buffer );
-m2( "hydrology", msg );
-}
-	timlib_reset_get_line_check_utf_16();
 
 	pclose( p );
 
@@ -593,7 +551,6 @@ char *get_line_system( char *sys_string )
 	else
 		return strdup( buffer );
 }
-
 
 char *trim_after_character(	char *destination,
 				char c,
@@ -3921,3 +3878,4 @@ char *timlib_tmpfile( void )
 {
 	return pipe2string( "tmpfile.py" );
 }
+

@@ -2806,14 +2806,6 @@ FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_mto1_isa_recursive_relation_list,
 			boolean fetch_mto1_relation_list )
 {
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( "hydrology", msg );
-}
 	return	folder_parse(
 			pipe2string(
 				folder_sys_string(
@@ -2850,15 +2842,6 @@ FOLDER *folder_parse(	char *input,
 	char appaserver_yn[ 128 ];
 	FOLDER *folder;
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: input = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-input );
-m2( "hydrology", msg );
-}
 	if ( !input || !*input ) return (FOLDER *)0;
 
 	folder = folder_calloc();
@@ -2983,15 +2966,6 @@ char *folder_sys_string( char *where )
 		FOLDER_TABLE_NAME,
 		where );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: sys_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-m2( "hydrology", msg );
-}
 	return strdup( sys_string );
 }
 

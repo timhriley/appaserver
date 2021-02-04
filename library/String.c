@@ -741,3 +741,117 @@ int string_instr(	char *substr,
         return -1;
 }
 
+char *string_input_tmp(	char *input_buffer,
+			FILE *infile,
+			int buffer_size )
+{
+	int in_char;
+	int size = 0;
+	char *anchor = input_buffer;
+
+	*anchor = '\0';
+
+	/* Exit in middle. */
+	/* --------------- */
+	while ( 1 )
+	{
+		in_char = fgetc( infile );
+
+		if ( string_get_line_check_utf_16 )
+		{
+			string_get_line_check_utf_16 = 0;
+
+			if ( in_char == 255 )
+			{
+				in_char = fgetc( infile );
+
+				if ( in_char == 254 )
+				{
+					string_is_utf_16 = 1;
+					continue;
+				}
+			}
+		}
+
+		if ( string_is_utf_16 )
+		{
+			string_utf_16_toggle = 1 - string_utf_16_toggle;
+
+			if ( string_utf_16_toggle )
+			{
+				continue;
+			}
+		}
+
+		/* Why are there zeros? */
+		/* -------------------- */
+		if ( !in_char ) continue;
+
+		if ( in_char == STRING_CR ) continue;
+
+		if ( in_char == EOF )
+		{
+			/* --------------------------------------- */
+			/* If last line in file doesn't have a CR, */
+			/* then call this function one more time.  */
+			/* --------------------------------------- */
+			/* If you need to tweek this, then test    */
+			/* process=execute_select_statement on a   */
+			/* file without a trailing CR.		   */
+			/* --------------------------------------- */
+			if ( input_buffer != anchor )
+			{
+				*input_buffer = '\0';
+				return anchor;
+			}
+			else
+			{
+				string_reset_get_line_check_utf_16();
+				return (char *)0;
+			}
+		}
+
+		if ( in_char == STRING_LF )
+		{
+			*input_buffer = '\0';
+			return anchor;
+		}
+
+		/* If '\' then get the next character */
+		/* ---------------------------------- */
+		if ( in_char == '\\' )
+		{
+			in_char = fgetc( infile );
+
+			if ( in_char == STRING_CR ) continue;
+
+			/* Can't escape the LF */
+			/* ------------------- */
+			if ( in_char == STRING_LF )
+			{
+				*input_buffer = '\0';
+				return anchor;
+			}
+
+			*input_buffer++ = '\\';
+			size++;
+		}
+
+		if ( buffer_size && ( size++ >= buffer_size ) )
+		{
+			fprintf( stderr,
+		"Warning in %s()/%d: exceeded max line length of %d:\n"
+		"%.75s...\n\n",
+				 __FUNCTION__,
+				 __LINE__,
+				 buffer_size - 1,
+				 anchor );
+			*input_buffer = '\0';
+			return anchor;
+		}
+
+		*input_buffer++ = in_char;
+
+	} /* while( 1 ) */
+}
+

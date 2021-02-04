@@ -85,15 +85,6 @@ UPDATE_DATABASE *update_database_new(
 	update_database->post_dictionary = dictionary_copy( post_dictionary );
 	update_database->file_dictionary = file_dictionary;
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: folder_name = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-update_database->folder_name );
-m2( "hydrology", msg );
-}
 	update_database->folder =
 		folder_fetch(
 			update_database->folder_name,
@@ -101,6 +92,17 @@ m2( "hydrology", msg );
 			1 /* fetch_one2m_recursive_relation_list */,
 			1 /* fetch_mto1_isa_recursive_relation_list */,
 			0 /* not fetch_mto1_relation_list */ );
+
+	if ( !update_database->folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			update_database->folder_name );
+		exit( 1 );
+	}
 
 {
 char msg[ 65536 ];
@@ -1215,12 +1217,21 @@ LIST *update_folder_primary_data_list(
 			row ) )
 		{
 			fprintf(stderr,
-"Warning in %s/%s()/%d: update_database_dictionary_index_data(%s) returned empty.\n",
+"ERROR in %s/%s()/%d: update_database_dictionary_index_data(%s/%d) returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
-				attribute_name );
-			return (LIST *)0;
+				attribute_name,
+				row );
+
+			fprintf(stderr,
+"Message in %s/%s()/%d: file_dictionary = [%s]\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				dictionary_display( file_dictionary ) );
+
+			exit( 1 );
 		}
 
 		list_set( data_list, data );

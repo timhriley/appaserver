@@ -37,7 +37,7 @@
 #define ELEMENT_MULTI_SELECT_ROW_COUNT		10
 #define ELEMENT_NON_EDIT_MULTI_SELECT_ROW_COUNT	3
 
-enum element_type  {	drop_down,
+enum element_type {	drop_down,
 			toggle_button,
 			push_button,
 			radio_button,
@@ -433,21 +433,25 @@ void element_reference_number_output( 		FILE *output_file,
 						int attribute_width,
 						boolean omit_update );
 
-ELEMENT_EMPTY_COLUMN *element_empty_column_new( void );
+ELEMENT_EMPTY_COLUMN *element_empty_column_new(
+			void );
 
-void element_empty_column_output( 		FILE *output_file );
+void element_empty_column_output(
+			FILE *output_file );
 
-ELEMENT_HIDDEN *element_hidden_new( 		void );
+ELEMENT_HIDDEN *element_hidden_new(
+			void );
 
-void element_hidden_set_data(			ELEMENT_HIDDEN *e,
-						char *s );
+void element_hidden_set_data(
+			ELEMENT_HIDDEN *e,
+			char *s );
 
 void element_hidden_name_dictionary_output(
-					FILE *output_file,
-					DICTIONARY *hidden_name_dictionary,
-					int row,
-					char *name,
-					char *data );
+			FILE *output_file,
+			DICTIONARY *hidden_name_dictionary,
+			int row,
+			char *name,
+			char *data );
 
 ELEMENT_PROMPT_DATA *element_prompt_data_new( 	void );
 

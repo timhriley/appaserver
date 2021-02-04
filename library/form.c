@@ -327,6 +327,7 @@ int form_output_body(	int *form_current_reference_number,
 	if ( spool_filename && *spool_filename )
 	{
 		spool_file = fopen( spool_filename, "w" );
+
 		if ( !spool_file )
 		{
 			char msg[ 1024 ];
@@ -499,18 +500,19 @@ void form_output_trailer_post_change_javascript(
 	printf( "</form>\n" );
 }
 
-void form_output_row( 		int *form_current_reference_number,
-				DICTIONARY *hidden_name_dictionary,
-				LIST *element_list,
-				DICTIONARY *dictionary,
-				int row,
-				int with_push_buttons,
-				FILE *spool_file,
-				boolean row_level_non_owner_view_only,
-				char *application_name,
-				char *login_name,
-				char *background_color,
-				char *appaserver_user_foreign_login_name )
+void form_output_row(
+			int *form_current_reference_number,
+			DICTIONARY *hidden_name_dictionary,
+			LIST *element_list,
+			DICTIONARY *dictionary,
+			int row,
+			int with_push_buttons,
+			FILE *spool_file,
+			boolean row_level_non_owner_view_only,
+			char *application_name,
+			char *login_name,
+			char *background_color,
+			char *appaserver_user_foreign_login_name )
 {
 	ELEMENT_APPASERVER *element;
 	ELEMENT_APPASERVER *non_edit_element;
@@ -619,9 +621,9 @@ void form_output_row( 		int *form_current_reference_number,
 		if ( spool_file )
 		{
 			element_output_as_dictionary(
-					spool_file,
-					element,
-					row );
+				spool_file,
+				element,
+				row );
 		}
 	} while( list_next( element_list ) );
 }

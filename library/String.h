@@ -147,4 +147,8 @@ int string_instr(	char *substr,
 			char *string,
 			int occurrence );
 
+char *string_input_tmp(	char *input_buffer,
+			FILE *infile,
+			int buffer_size );
+
 #endif
