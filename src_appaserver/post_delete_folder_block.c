@@ -301,7 +301,7 @@ int main( int argc, char **argv )
 	document_close();
 
 	exit( 0 );
-} /* main() */
+}
 
 void delete_folder_block_state_one(
 				DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -419,7 +419,7 @@ void delete_folder_block_state_one(
 			0 /* form_number */,
 			(LIST *)0 /* pair_one2m_related_folder_name_list */ );
 
-} /* delete_folder_block_state_one() */
+}
 
 void delete_folder_block_state_two(
 				char *application_name,
@@ -460,5 +460,5 @@ void delete_folder_block_state_two(
 
 	if ( system( sys_string ) ){};
 
-} /* delete_folder_block_state_two() */
+}
 

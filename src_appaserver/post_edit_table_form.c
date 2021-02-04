@@ -324,15 +324,6 @@ int main( int argc, char **argv )
 			dictionary_appaserver->non_prefixed_dictionary,
 			VERTICAL_NEW_PUSH_BUTTON_BASE_PREFIX );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: vertical_new_button_base_folder_name = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-vertical_new_button_base_folder_name );
-m2( application_name, msg );
-}
 	primary_data_list_string =
 		dictionary_get_string(
 			dictionary_appaserver->
@@ -432,7 +423,7 @@ m2( application_name, msg );
 
 	exit( 0 );
 
-} /* main() */
+}
 
 void post_state_insert(
 			DICTIONARY_APPASERVER *dictionary_appaserver,

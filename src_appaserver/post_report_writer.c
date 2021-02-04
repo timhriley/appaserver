@@ -377,7 +377,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 void post_state_one(	char *application_name,
 			char *session,
@@ -554,7 +554,7 @@ void post_state_one(	char *application_name,
 
 	document_close();
 
-} /* post_state_one() */
+}
 
 void post_state_two(	char *application_name,
 			char *session,
@@ -792,7 +792,7 @@ void post_state_two(	char *application_name,
 
 	document_close();
 
-} /* post_state_two() */
+}
 
 void state_two_append_one2m_option_data_list(
 			LIST *option_data_list,
@@ -826,7 +826,7 @@ void state_two_append_one2m_option_data_list(
 			folder_name );
 	}
 
-} /* state_two_append_one2m_option_data_list() */
+}
 
 void state_two_append_mto1_one2m_option_data_list(
 			LIST *option_data_list,
@@ -897,7 +897,7 @@ void state_two_append_mto1_one2m_option_data_list(
 
 	} while( list_next( mto1_recursive_related_folder_list ) );
 
-} /* state_two_append_mto1_one2m_option_data_list() */
+}
 
 void state_two_append_mto1_option_data_list(
 			LIST *option_data_list,
@@ -962,7 +962,7 @@ void state_two_append_mto1_option_data_list(
 
 	} while( list_next( mto1_recursive_related_folder_list ) );
 
-} /* state_two_append_mto1_option_data_list() */
+}
 
 void post_state_three(	char *application_name,
 			char *session,
@@ -1170,7 +1170,7 @@ void post_state_three(	char *application_name,
 
 	document_close();
 
-} /* post_state_three() */
+}
 
 LIST *state_three_get_element_list(
 			char *login_name,
@@ -1355,7 +1355,7 @@ LIST *state_three_get_element_list(
 
 	return return_list;
 
-} /* state_three_get_element_list() */
+}
 
 LIST *state_three_get_folder_element_list(
 			LIST *exclude_attribute_name_list,
@@ -1512,7 +1512,7 @@ skip_drop_down:
 
 	return return_list;
 
-} /* state_three_get_folder_element_list() */
+}
 
 LIST *state_four_get_one2m_mto1_folder_name_list(
 			DICTIONARY *post_dictionary )
@@ -1528,7 +1528,7 @@ LIST *state_four_get_one2m_mto1_folder_name_list(
 			one2m_mto1_related_folder_name_dictionary,
 			DROP_DOWN_ELEMENT_NAME );
 
-} /* state_four_get_one2m_mto1_folder_name_list() */
+}
 
 void post_table_state_four(
 			char *application_name,
@@ -1754,7 +1754,7 @@ void post_table_state_four(
 
 	document_close();
 
-} /* post_table_state_four() */
+}
 
 void post_statistics_state_four(
 			char *application_name,
@@ -1899,7 +1899,7 @@ void post_statistics_state_four(
 
 	document_close();
 
-} /* post_statistics_state_four() */
+}
 
 void separate_one2m_mto1_folder_name_list(
 			LIST **one2m_subquery_folder_name_list,
@@ -1944,7 +1944,7 @@ void separate_one2m_mto1_folder_name_list(
 
 	} while( list_next( one2m_mto1_related_folder_name_list ) );
 
-} /* separate_one2m_mto1_folder_name_list() */
+}
 
 LIST *state_four_get_element_list(
 			char *application_name,
@@ -2016,7 +2016,7 @@ LIST *state_four_get_element_list(
 
 	return element_list;
 
-} /* state_four_get_element_list() */
+}
 
 void post_spreadsheet_state_four(
 			char *application_name,
@@ -2217,7 +2217,7 @@ void post_spreadsheet_state_four(
 
 	document_close();
 
-} /* post_spreadsheet_state_four() */
+}
 
 RELATED_FOLDER *state_four_get_root_related_folder(
 			char *application_name,
@@ -2288,5 +2288,5 @@ RELATED_FOLDER *state_four_get_root_related_folder(
 
 	return (RELATED_FOLDER *)0;
 
-} /* state_four_get_root_related_folder() */
+}
 

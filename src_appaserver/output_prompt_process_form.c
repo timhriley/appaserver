@@ -519,7 +519,7 @@ int main( int argc, char **argv )
 	document_close();
 	exit( 0 );
 
-} /* main() */
+}
 
 LIST *get_element_list(	char **preprompt_help_text,
 			char **post_change_javascript,
@@ -745,7 +745,7 @@ LIST *get_element_list(	char **preprompt_help_text,
 
 	return element_list;
 
-} /* get_element_list() */
+}
 
 void populate_process_parameter_list_element_list(
 				boolean *exists_date_element,
@@ -1027,7 +1027,7 @@ void populate_process_parameter_list_element_list(
 				preprompt_dictionary ) );
 	}
 
-} /* populate_process_parameter_list_element_list() */
+}
 
 LIST *get_hidden_preprompt_element_list(
 					DICTIONARY *preprompt_dictionary )
@@ -1084,7 +1084,7 @@ LIST *get_hidden_preprompt_element_list(
 		
 	return element_list;
 
-} /* get_hidden_preprompt_element_list() */
+}
 
 char *get_preprompt_button_control_string(
 				char *application_name,
@@ -1112,5 +1112,5 @@ char *get_preprompt_button_control_string(
 		 process_name,
 		 role_name );
 	return control_string;
-} /* get_preprompt_button_control_string() */
+}
 
