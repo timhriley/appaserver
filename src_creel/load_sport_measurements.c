@@ -103,11 +103,6 @@ int main( int argc, char **argv )
 
 	if ( execute )
 	{
-/*
-		delete_catch_measurements(
-			application_name, input_filename );
-*/
-
 		insert_catches(	application_name,
 				input_filename,
 				replace_existing_data );

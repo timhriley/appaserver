@@ -112,11 +112,6 @@ int main( int argc, char **argv )
 	printf( "</h2>\n" );
 	fflush( stdout );
 
-	if ( execute && !replace_existing_data )
-	{
-		delete_fishing_trips( application_name, input_filename );
-	}
-
 	insert_fishing_trips(	&fishing_trip_count,
 				&catch_count,
 				application_name,

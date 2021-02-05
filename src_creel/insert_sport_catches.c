@@ -21,6 +21,7 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *input_filename;
+	char replace_existing_data_yn;
 	char really_yn;
 	FILE *input_file;
 	FILE *catches_output_pipe;
@@ -44,10 +45,10 @@ int main( int argc, char **argv )
 	FILE *error_file;
 	int line_number = 0;
 
-	if ( argc != 4 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr, 
-"Usage: %s application filename really_yn\n",
+"Usage: %s application filename replace_existing_data_yn really_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -60,7 +61,8 @@ int main( int argc, char **argv )
 				application_name );
 
 	input_filename = argv[ 2 ];
-	really_yn = *argv[ 3 ];
+	replace_existing_data_yn = *argv[ 3 ];
+	really_yn = *argv[ 4 ];
 
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
 	{
@@ -83,21 +85,22 @@ int main( int argc, char **argv )
 
 		sprintf( sys_string,
 			 "sort -u					|"
-			 "insert_statement t=%s f=%s d='|' replace=y	|"
+			 "insert_statement t=%s f=%s d='|' replace=%c	|"
 			 "sql 2>&1					|"
-			 "cat						 ",
+			 "html_paragraph_wrapper.e			 ",
 			 table_name,
-			 CATCHES_FIELD_LIST );
+			 CATCHES_FIELD_LIST,
+			 replace_existing_data_yn );
 
-		catches_output_pipe = popen( sys_string, "w" );
 	}
 	else
 	{
 		sprintf( sys_string,
 "sort -u | queue_top_bottom_lines.e 50 | html_table.e 'Insert into Catches' %s '|'",
 			 CATCHES_FIELD_LIST );
-		catches_output_pipe = popen( sys_string, "w" );
 	}
+
+	catches_output_pipe = popen( sys_string, "w" );
 
 	now_date_international =
 		date_get_now_date_yyyy_mm_dd(
@@ -311,5 +314,5 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-} /* main() */
+}
 

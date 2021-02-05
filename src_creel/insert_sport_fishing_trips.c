@@ -23,6 +23,7 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *input_filename;
 	char really_yn;
+	char replace_existing_data_yn;
 	FILE *input_file;
 	FILE *output_pipe;
 	char input_string[ 1024 ];
@@ -52,10 +53,10 @@ int main( int argc, char **argv )
 	FILE *error_file;
 	int line_number = 0;
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s application login_name filename really_yn\n",
+"Usage: %s application login_name filename replace_existing_data_yn really_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -69,7 +70,8 @@ int main( int argc, char **argv )
 
 	login_name = argv[ 2 ];
 	input_filename = argv[ 3 ];
-	really_yn = *argv[ 4 ];
+	replace_existing_data_yn = *argv[ 4 ];
+	really_yn = *argv[ 5 ];
 
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
 	{
@@ -87,16 +89,14 @@ int main( int argc, char **argv )
 
 	if ( really_yn == 'y' )
 	{
-		char *table_name =
-			get_table_name( application_name, "fishing_trips" );
-
 		sprintf( sys_string,
 			 "sort -u					|"
-			 "insert_statement t=%s f=%s d='|' replace=y	|"
+			 "insert_statement t=%s f=%s d='|' replace=%c	|"
 			 "sql 2>&1					|"
-			 "cat						 ",
-			 table_name,
-			 FISHING_TRIPS_FIELD_LIST );
+			 "html_paragraph_wrapper.e			 ",
+			 "fishing_trips",
+			 FISHING_TRIPS_FIELD_LIST,
+			 replace_existing_data_yn );
 	}
 	else
 	{
@@ -404,16 +404,12 @@ int main( int argc, char **argv )
 
 	if ( timlib_file_populated( error_filename ) )
 	{
-		int results;
-
 		sprintf( sys_string,
 "cat %s | queue_top_bottom_lines.e 50 | html_table.e 'Fishing Trips Errors' '' '|'",
 			 error_filename );
-		results = system( sys_string );
+		if ( system( sys_string ) ){};
 	}
 
-
 	return 0;
-
-} /* main() */
+}
 

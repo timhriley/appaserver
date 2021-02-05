@@ -121,10 +121,12 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+/*
 	if ( execute )
 	{
 		delete_fishing_trips( application_name, input_filename );
 	}
+*/
 
 	fishing_trip_count =
 		insert_fishing_trips(

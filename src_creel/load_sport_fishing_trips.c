@@ -83,6 +83,7 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+/*
 	if ( execute && !replace_existing_data )
 	{
 		sprintf( sys_string,
@@ -93,6 +94,7 @@ int main( int argc, char **argv )
 		if ( system( sys_string ) ){};
 		fflush( stdout );
 	}
+*/
 
 	sprintf( sys_string,
 		 "insert_sport_creel_census %s \"%s\" %c %c",
@@ -141,6 +143,5 @@ int main( int argc, char **argv )
 				appaserver_parameter_file_get_dbms() );
 
 	return 0;
-
-} /* main() */
+}
 

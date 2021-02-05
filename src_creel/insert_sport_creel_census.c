@@ -79,7 +79,7 @@ int main( int argc, char **argv )
 			 "sort -u					|"
 			 "insert_statement t=%s f=%s d='|' replace=%c	|"
 			 "sql 2>&1					|"
-			 "cat						 ",
+			 "html_paragraph_wrapper.e			 ",
 			 "creel_census",
 			 FIELD_LIST,
 			 (replace_existing_data) ? 'y' : 'n' );
