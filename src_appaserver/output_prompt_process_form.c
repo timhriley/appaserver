@@ -502,6 +502,9 @@ int main( int argc, char **argv )
 				role_name );
 	}
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer_post_change_javascript(
 		1 /* output_submit_reset_buttons */,
 		0 /* output_insert_flag */,
@@ -516,9 +519,11 @@ int main( int argc, char **argv )
 		(LIST *)0 /* pair_one2m_related_folder_name_list */,
 		(LIST *)0 /* form_button_list */ );
 
-	document_close();
-	exit( 0 );
+	printf( "</table>\n" );
+	printf( "</form>\n" );
 
+	document_close();
+	return 0;
 }
 
 LIST *get_element_list(	char **preprompt_help_text,

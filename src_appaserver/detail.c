@@ -1564,6 +1564,9 @@ DICTIONARY *output_folder_detail(
 /* -------------- */
 omit_insert_flag = 1;
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,
 		1 - omit_insert_flag /* output_insert_button */,
@@ -1576,6 +1579,9 @@ omit_insert_flag = 1;
 		*form_number,
 		(LIST *)0 /* form_button_list */,
 		(char *)0 /* bugs folder->post_change_javascript */ );
+
+	printf( "</table>\n" );
+	printf( "</form>\n" );
 
 	(*form_number)++;
 

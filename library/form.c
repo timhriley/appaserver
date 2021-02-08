@@ -430,10 +430,6 @@ void form_output_trailer_post_change_javascript(
 			LIST *pair_one2m_related_folder_name_list,
 			LIST *form_button_list )
 {
-	printf( "</table>\n" );
-
-	printf( "<table border=1>\n" );
-
 	if ( output_insert_button )
 	{
 		ELEMENT_APPASERVER *element;
@@ -495,9 +491,6 @@ void form_output_trailer_post_change_javascript(
 			prelookup_button_control_string,
 			with_back_to_top_button );
 	}
-
-	printf( "</table>\n" );
-	printf( "</form>\n" );
 }
 
 void form_output_row(

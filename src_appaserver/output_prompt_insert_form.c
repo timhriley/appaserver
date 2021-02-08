@@ -738,6 +738,8 @@ int main( int argc, char **argv )
 				state );
 	}
 
+	printf( "<table border=1>\n" );
+
 	form_output_trailer_post_change_javascript(
 		1 /* output_submit_reset_buttons */,
 		0 /* not output_insert_button */,
@@ -752,10 +754,12 @@ int main( int argc, char **argv )
 		pair_one2m->pair_one2m_folder_name_list,
 		(LIST *)0 /* form_button_list */ );
 
+	printf( "</table>\n" );
+	printf( "</form>\n" );
+
 	document_close();
 
 	return 0;
-
 }
 
 LIST *get_element_list(

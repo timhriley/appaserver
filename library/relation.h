@@ -111,11 +111,14 @@ LIST *relation_foreign_attribute_name_list(
 			LIST *foreign_attribute_list_folder );
 
 LIST *relation_one2m_recursive_relation_list(
-			LIST *relation_list,
+			LIST *relation_list /* in only */,
+			char *one_folder_name );
+
+LIST *relation_one2m_relation_list(
 			char *one_folder_name );
 
 LIST *relation_mto1_isa_recursive_relation_list(
-			LIST *relation_list,
+			LIST *relation_list /* in only */,
 			char *many_folder_name );
 
 LIST *relation_mto1_relation_list(

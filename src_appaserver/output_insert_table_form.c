@@ -937,6 +937,9 @@ int main( int argc, char **argv )
 		output_submit_reset_buttons_in_trailer = 0;
 	}
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,
 		0 /* output_insert_flag */,
@@ -949,6 +952,9 @@ int main( int argc, char **argv )
 		0 /* form_number */,
 		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
+
+	printf( "</table>\n" );
+	printf( "</form>\n" );
 
 	document_close();
 

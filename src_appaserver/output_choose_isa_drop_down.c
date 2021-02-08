@@ -282,6 +282,9 @@ int main( int argc, char **argv )
 			(char *)0 /* attribute_not_null */,
 			(char *)0 /* appaserver_user_foreign_login_name */ );
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer(
 		1 /* output_submit_reset_buttons */,
 		0 /* output_insert_flag */,
@@ -295,10 +298,13 @@ int main( int argc, char **argv )
 		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
+	printf( "</table>\n" );
+	printf( "</form>\n" );
+
 	document_close();
 
-	exit( 0 );
-} /* main() */
+	return 0;
+}
 
 LIST *get_element_list(		char *login_name,
 				char *application_name,

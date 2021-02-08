@@ -747,6 +747,9 @@ m2( application_name, msg );
 					dictionary_appaserver,
 					0 /* not with_prefixed_dictionary */ );
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,
 		0 /* output_insert_flag */,
@@ -762,6 +765,9 @@ m2( application_name, msg );
 		/* Sets row zero for javascript to loop through each row. */
 		/* ------------------------------------------------------ */
 		folder->post_change_javascript );
+
+	printf( "</table>\n" );
+	printf( "</form>\n" );
 
 	document_close();
 

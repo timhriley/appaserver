@@ -240,7 +240,7 @@ int main( int argc, char **argv )
 				PROCESS_NAME,
 				appaserver_parameter_file_get_dbms() );
 	exit( 0 );
-} /* main() */
+}
 
 LIST *hydrology_validation_get_primary_name_list()
 {
@@ -456,7 +456,7 @@ void chart_hydrology_validation_form(		char *application_name,
 		printf( "</form>\n" );
 	}
 	document_close();
-} /* chart_hydrology_validation_form() */
+}
 
 char *get_infrastructure_process(	char *application_name,
 					char *station,
@@ -544,7 +544,7 @@ char *get_infrastructure_process(	char *application_name,
 		station_datatype_table );
 	return strdup( infrastructure_process );
 
-} /* get_infrastructure_process() */
+}
 
 void get_table_title_string(
 			char **table_title,
@@ -568,7 +568,7 @@ void get_table_title_string(
 		 begin_measurement_date,
 		 end_measurement_date );
 	*table_title = strdup( title );
-} /* get_table_title_string() */
+}
 
 void get_chart_title_string(
 			char **chart_title,
@@ -591,5 +591,5 @@ void get_chart_title_string(
 		 end_measurement_date );
 	*chart_title = strdup( title );
 	*chart_sub_title = strdup( sub_title );
-} /* get_chart_title_string() */
+}
 

@@ -472,3 +472,14 @@ char *relation_list_display(
 	return strdup( display );
 }
 
+LIST *relation_one2m_relation_list(
+			char *one_folder_name )
+{
+	return
+		/* ---------------------------------- */
+		/* foreign_attribute_name_list is set */
+		/* ---------------------------------- */
+		relation_one2m_fetch_relation_list(
+			one_folder_name );
+}
+

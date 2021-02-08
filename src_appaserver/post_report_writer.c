@@ -538,6 +538,9 @@ void post_state_one(	char *application_name,
 			(char *)0 /* cookie_key_prefix */,
 			COOKIE_KEY_PREFIX );
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer_post_change_javascript(
 		1 /* output_submit_reset_buttons */,
 		0 /* output_insert_flag */,
@@ -552,8 +555,10 @@ void post_state_one(	char *application_name,
 		(LIST *)0 /* pair_one2m_related_folder_name_list */,
 		(LIST *)0 /* form_button_list */ );
 
-	document_close();
+	printf( "</table>\n" );
+	printf( "</form>\n" );
 
+	document_close();
 }
 
 void post_state_two(	char *application_name,
@@ -776,6 +781,9 @@ void post_state_two(	char *application_name,
 			(char *)0 /* cookie_key_prefix */,
 			COOKIE_KEY_PREFIX );
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer_post_change_javascript(
 		1 /* output_submit_reset_buttons */,
 		0 /* output_insert_flag */,
@@ -789,6 +797,9 @@ void post_state_two(	char *application_name,
 		(char *)0 /* post_change_javascript */,
 		(LIST *)0 /* pair_one2m_related_folder_name_list */,
 		(LIST *)0 /* form_button_list */ );
+
+	printf( "</table>\n" );
+	printf( "</form>\n" );
 
 	document_close();
 
@@ -1154,6 +1165,9 @@ void post_state_three(	char *application_name,
 
 	form->onload_control_string = document->onload_control_string;
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer_post_change_javascript(
 		1 /* output_submit_reset_buttons */,
 		0 /* output_insert_flag */,
@@ -1168,8 +1182,10 @@ void post_state_three(	char *application_name,
 		(LIST *)0 /* pair_one2m_related_folder_name_list */,
 		(LIST *)0 /* form_button_list */ );
 
-	document_close();
+	printf( "</table>\n" );
+	printf( "</form>\n" );
 
+	document_close();
 }
 
 LIST *state_three_get_element_list(
@@ -1739,6 +1755,9 @@ void post_table_state_four(
 		output_submit_reset_buttons_in_trailer = 1;
 	}
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,
 		0 /* output_insert_flag */,
@@ -1751,6 +1770,9 @@ void post_table_state_four(
 		0 /* form_number */,
 		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
+
+	printf( "</table>\n" );
+	printf( "</form>\n" );
 
 	document_close();
 

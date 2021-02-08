@@ -543,6 +543,9 @@ void change_sort_order_state_one(
 		row_security->attribute_not_null_string,
 		(char *)0 /* appaserver_user_foreign_login_name */ );
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer(
 		1 /* output_submit_reset_buttons_in_trailer */,
 		0 /* output_insert_flag */,
@@ -555,6 +558,9 @@ void change_sort_order_state_one(
 		0 /* form_number */,
 		form_button_list,
 		(char *)0 /* post_change_javascript */ );
+
+	printf( "</table>\n" );
+	printf( "</form>\n" );
 
 } /* change_sort_order_state_one() */
 

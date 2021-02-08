@@ -308,7 +308,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	exit( 0 );
-} /* main() */
+}
 
 void output_benthic_validation_form(
 			char *application_name,
@@ -386,7 +386,7 @@ void output_benthic_validation_form(
 
 	validation_form_output_trailer();
 
-} /* output_benthic_validation_form() */
+}
 
 char *get_title_string(	char *collection_name,
 			char *location,
@@ -403,7 +403,7 @@ char *get_title_string(	char *collection_name,
 	format_initial_capital( title, title );
 
 	return title;
-} /* get_title_string() */
+}
 
 void output_abiotic_measurement(
 			char *application_name,
@@ -444,7 +444,7 @@ void output_abiotic_measurement(
 		}
 	}
 
-} /* output_abiotic_measurement() */
+}
 
 void output_sampling_point_abiotic_measurement(
 			char *application_name,
@@ -509,7 +509,7 @@ void output_sampling_point_abiotic_measurement(
 
 	fflush( stdout );
 	system( sys_string );
-} /* output_sampling_point_abiotic_measurement() */
+}
 
 void output_throwtrap_abiotic_measurement(
 			char *application_name,
@@ -581,7 +581,7 @@ void output_throwtrap_abiotic_measurement(
 
 	fflush( stdout );
 	system( sys_string );
-} /* output_throwtrap_abiotic_measurement() */
+}
 
 void output_sampling_point(
 			SAMPLING_POINT *sampling_point )
@@ -692,7 +692,7 @@ void output_sampling_point(
 
 	pclose( output_pipe );
 
-} /* output_sampling_point() */
+}
 
 void output_attempt_success(
 			char *application_name,
@@ -733,7 +733,7 @@ void output_attempt_success(
 
 	fflush( stdout );
 	system( sys_string );
-} /* output_attempt_success() */
+}
 
 void output_quad(	char *application_name,
 			char *anchor_date,
@@ -782,7 +782,7 @@ void output_quad(	char *application_name,
 
 	fflush( stdout );
 	system( sys_string );
-} /* output_quad() */
+}
 
 void output_quad_substrate(
 			char *application_name,
@@ -835,7 +835,7 @@ void output_quad_substrate(
 
 	fflush( stdout );
 	system( sys_string );
-} /* output_quad_substrate() */
+}
 
 void output_species_count_sweep(
 			char *application_name,
@@ -898,7 +898,7 @@ void output_species_count_sweep(
 
 	fflush( stdout );
 	system( sys_string );
-} /* output_species_count_sweep() */
+}
 
 void output_quad_vegetation(
 			char *application_name,
@@ -953,7 +953,7 @@ void output_quad_vegetation(
 
 	fflush( stdout );
 	system( sys_string );
-} /* output_quad_vegetation() */
+}
 
 void output_quad_vegetation_total(
 			char *application_name,
@@ -1008,7 +1008,7 @@ void output_quad_vegetation_total(
 
 	fflush( stdout );
 	system( sys_string );
-} /* output_quad_vegetation_total() */
+}
 
 void output_sweep(
 			char *application_name,
@@ -1087,7 +1087,7 @@ void output_sweep(
 
 	pclose( output_pipe );
 
-} /* output_sweep() */
+}
 
 void output_species_measurement_sweep(
 			char *application_name,
@@ -1150,7 +1150,7 @@ void output_species_measurement_sweep(
 
 	fflush( stdout );
 	system( sys_string );
-} /* output_species_measurement_sweep() */
+}
 
 void validation_form_output_heading(	char *title,
 					char *action_string,
@@ -1175,7 +1175,7 @@ void validation_form_output_heading(	char *title,
 
 	printf( ">\n" );
 
-} /* validation_form_output_heading() */
+}
 
 void validation_form_output_trailer( void )
 {
@@ -1224,7 +1224,7 @@ boolean exists_throwtrap_replicate(
 
 	return atoi( pipe2string( sys_string ) );
 
-} /* exists_throwtrap_replicate() */
+}
 
 void output_throwtrap_replicate(
 			char *application_name,
@@ -1284,5 +1284,5 @@ void output_throwtrap_replicate(
 		}
 	}
 
-} /* output_throwtrap_replicate() */
+}
 

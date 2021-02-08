@@ -916,6 +916,9 @@ m2( application_name, msg );
 			preprompt_dictionary,
 			PREPROMPT_PREFIX ) );
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer(
 		0 /* output_submit_reset_buttons */,
 		0 /* output_insert_flag */,
@@ -928,6 +931,9 @@ m2( application_name, msg );
 		0 /* form_number */,
 		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
+
+	printf( "</table>\n" );
+	printf( "</form>\n" );
 
 	document_close();
 }

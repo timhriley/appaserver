@@ -196,7 +196,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	exit( 0 );
-} /* main() */
+}
 
 void output_sparrow_validation_form(
 			SITE_VISIT *site_visit,
@@ -224,7 +224,7 @@ void output_sparrow_validation_form(
 
 	validation_form_output_trailer();
 
-} /* output_sparrow_validation_form() */
+}
 
 void validation_form_output_heading(	char *title,
 					char *action_string,
@@ -249,7 +249,7 @@ void validation_form_output_heading(	char *title,
 
 	printf( ">\n" );
 
-} /* validation_form_output_heading() */
+}
 
 void validation_form_output_trailer( void )
 {
@@ -327,7 +327,7 @@ void output_site_visit( SITE_VISIT *site_visit )
 
 	pclose( output_pipe );
 
-} /* output_site_visit() */
+}
 
 void output_sparrow_observation_list( LIST *sparrow_observation_list )
 {
@@ -372,7 +372,7 @@ void output_sparrow_observation_list( LIST *sparrow_observation_list )
 
 	pclose( output_pipe );
 
-} /* output_sparrow_observation_list() */
+}
 
 void output_physical_observation_list( LIST *physical_observation_list )
 {
@@ -421,7 +421,7 @@ void output_physical_observation_list( LIST *physical_observation_list )
 
 	pclose( output_pipe );
 
-} /* output_physical_observation_list() */
+}
 
 void output_vegetation_observation_list( LIST *vegetation_observation_list )
 {
@@ -469,5 +469,5 @@ void output_vegetation_observation_list( LIST *vegetation_observation_list )
 
 	pclose( output_pipe );
 
-} /* output_vegetation_observation_list() */
+}
 

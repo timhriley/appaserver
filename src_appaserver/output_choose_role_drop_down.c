@@ -224,6 +224,9 @@ void output_vertical_frameset_choose_role_drop_down(
 
 	output_dictionary_as_hidden( hidden_dictionary );
 
+	printf( "</table>\n" );
+	printf( "<table border=1>\n" );
+
 	form_output_trailer(
 		0 /* output_submit_reset_buttons */,
 		0 /* output_insert_flag */,
@@ -236,6 +239,9 @@ void output_vertical_frameset_choose_role_drop_down(
 		0 /* form_number */,
 		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
+
+	printf( "</table>\n" );
+	printf( "</form>\n" );
 
 }
 

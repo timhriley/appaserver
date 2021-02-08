@@ -32,7 +32,7 @@ VALIDATION_FORM *validation_form_new( 	char *title,
 	v->primary_column_name_list = primary_column_name_list;
 	v->datatype_name_list = datatype_name_list;
 	return v;
-} /* validation_form_new() */
+}
 
 ROW *validation_form_row_new( char *primary_key )
 {
@@ -115,7 +115,7 @@ LIST *validation_form_get_element_list( LIST *primary_column_name_list,
 	} while( list_next( datatype_name_list ) );
 
 	return element_list;
-} /* validation_form_get_element_list() */
+}
 
 void validation_form_set_action( 	VALIDATION_FORM *validation_form, 
 					char *action_string )
@@ -149,7 +149,7 @@ void validation_form_output_heading(	char *title,
 
 	validation_form_output_table_heading( element_list );
 
-} /* validation_form_output_heading() */
+}
 
 void validation_form_output_table_heading( LIST *element_list )
 {
@@ -174,7 +174,7 @@ void validation_form_output_table_heading( LIST *element_list )
 		} while( next_item( element_list ) );
 		printf( "\n" );
 	}
-} /* validation_form_output_table_heading() */
+}
 
 void validation_form_output_body( VALIDATION_FORM *validation_form )
 {
@@ -287,7 +287,7 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 		row_int++;
 	} while( next_item( validation_form->row_list ) );
 
-} /* validation_form_output_body() */
+}
 
 void validation_form_output_trailer( void )
 {
@@ -330,7 +330,7 @@ void validation_form_set_primary_data_hash_table(
 					strdup( primary_column_name ),
 					strdup( primary_data ) );
 	}
-} /* validation_form_set_primary_data_hash_table() */
+}
 
 VALIDATION_DATATYPE *validation_datatype_new( char *value, int validated )
 {
@@ -340,7 +340,7 @@ VALIDATION_DATATYPE *validation_datatype_new( char *value, int validated )
 	d->value = value;
 	d->validated = validated;
 	return d;
-} /* validation_datatype_new() */
+}
 
 
 int row_compare( ROW *row1, ROW *row2 )
@@ -392,5 +392,5 @@ LIST *validation_form_get_row_list(	LIST *primary_column_name_list,
 	} /* while( get_line() ) */
 	pclose( p );
 	return row_list;
-} /* validation_form_get_row_list() */
+}
 
