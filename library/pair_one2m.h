@@ -40,6 +40,9 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+PAIR_ONE2M *pair_one2m_calloc(
+			void );
+
 char *pair_one2m_get_pair_one2m_submit_element_name(
 				boolean with_suffix_zero );
 

@@ -10,6 +10,23 @@
 #include "timlib.h"
 #include "pair_one2m.h"
 
+PAIR_ONE2M *pair_one2m_calloc( void )
+{
+	PAIR_ONE2M *pair_one2m;
+
+
+	if ( ! ( pair_one2m =
+			(PAIR_ONE2M *)calloc( 1, sizeof( PAIR_ONE2M ) ) ) )
+	{
+		fprintf( stderr, 
+			 "%s/%s(): calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__ );
+		exit( 1 );
+	}
+	return pair_one2m;
+}
+
 PAIR_ONE2M *pair_one2m_new(
 			LIST *ignore_attribute_name_list	/* out only */,
 			DICTIONARY *pair_one2m_dictionary	/* in/out   */,
@@ -19,19 +36,9 @@ PAIR_ONE2M *pair_one2m_new(
 			ROLE *role				/* in only  */,
 			char *session				/* in only  */)
 {
-	PAIR_ONE2M *pair_one2m;
+	PAIR_ONE2M *pair_one2m = pair_one2m_calloc();
 	char *element_name;
 	char *submit_button_pressed;
-
-	pair_one2m = (PAIR_ONE2M *)calloc( 1, sizeof( PAIR_ONE2M ) );
-	if ( !pair_one2m )
-	{
-		fprintf( stderr, 
-			 "%s/%s(): Memory allocation error.\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
 
 	pair_one2m->is_participating =
 		!pair_one2m_omit( pair_one2m_dictionary )

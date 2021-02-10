@@ -51,7 +51,10 @@ void dictionary_set( 	DICTIONARY *d,
 			char *key, 
 			void *other_data, 
 			int sizeof_other_data );
-void *dictionary_get(			DICTIONARY *d, char *key );
+
+void *dictionary_get(	DICTIONARY *d,
+			char *key );
+
 void dictionary_free(			DICTIONARY *d );
 void dictionary_free_data(		DICTIONARY *d, LIST *key_list );
 void dictionary_free_container(		DICTIONARY *d );

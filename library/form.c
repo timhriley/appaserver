@@ -1759,7 +1759,6 @@ void form_output_back_forward_buttons( void )
 
 }
 
-
 void form_output_reset_button(	char *post_change_javascript,
 				int form_number )
 {
@@ -1973,6 +1972,125 @@ void form_output_generic_button(char *onclick_control_string,
 			onclick_control_string );
 }
 
+FORM_BUTTON *form_button_new(		char *button_label,
+					char *onclick_control_string )
+{
+	FORM_BUTTON *f;
+
+	if ( ! ( f = (FORM_BUTTON *)calloc( 1, sizeof( FORM_BUTTON ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	f->button_label = button_label;
+	f->onclick_control_string = onclick_control_string;
+
+	return f;
+}
+
+void form_output_prompt_insert_trailer(
+			char *submit_control_string,
+			char *html_help_file_anchor,
+			char *remember_keystrokes_onload_control_string,
+			char *prelookup_button_control_string,
+			char *application_name,
+			char *post_change_javascript,
+			LIST *pair_one2m_related_folder_name_list )
+{
+	form_output_prompt_insert_submit_buttons(
+		submit_control_string,
+		(char *)0 /* button_label */,
+		html_help_file_anchor,
+		remember_keystrokes_onload_control_string,
+		application_name,
+		post_change_javascript,
+		pair_one2m_related_folder_name_list );
+
+	if ( prelookup_button_control_string )
+	{
+		form_output_prelookup_button(
+			prelookup_button_control_string,
+			0 /* not with_back_to_top_button */ );
+	}
+}
+
+void form_output_prompt_insert_submit_buttons(
+			char *submit_control_string,
+			char *button_label,
+			char *html_help_file_anchor,
+			char *remember_keystrokes_onload_control_string,
+			char *application_name,
+			char *post_change_javascript,
+			LIST *pair_one2m_related_folder_name_list )
+{
+	form_output_prompt_insert_submit_button(
+		submit_control_string,
+		button_label,
+		pair_one2m_related_folder_name_list );
+
+	form_output_reset_button(
+		post_change_javascript,
+		0 /* form_number */ );
+
+	form_output_back_forward_buttons();
+
+	if ( html_help_file_anchor && *html_help_file_anchor )
+	{
+		form_output_html_help_file_anchor(
+			application_name,
+			html_help_file_anchor );
+	}
+
+	if ( remember_keystrokes_onload_control_string )
+	{
+		form_output_remember_keystrokes_button(
+			remember_keystrokes_onload_control_string );
+	}
+
+	form_output_prompt_insert_back_to_top_button();
+}
+
+void form_output_prompt_insert_submit_button(
+			char *submit_control_string,
+			char *button_label,
+			LIST *pair_one2m_related_folder_name_list )
+{
+	if ( !button_label || !*button_label )
+		button_label = SUBMIT_BUTTON_LABEL;
+
+	if ( submit_control_string && *submit_control_string )
+	{
+		/* -------------------------------------------- */
+		/* The submit_control_string is assumed to	*/
+		/* have "&&" appended to it.			*/
+		/* -------------------------------------------- */
+		printf(
+"	<input type=\"button\" value=\"%s\" 			\n"
+"	onClick=\"%s document.forms[0].submit();\">		\n",
+			button_label,
+			submit_control_string );
+	}
+	else
+	{
+		printf(
+"	<input type=\"button\" value=\"%s\" 			\n"
+"	onClick=\"document.forms[0].submit();\">		\n",
+			button_label );
+	}
+
+	if ( list_length( pair_one2m_related_folder_name_list ) )
+	{
+		form_output_insert_pair_one2m_submit_buttons(
+			submit_control_string,
+			pair_one2m_related_folder_name_list );
+	}
+}
+
 void form_output_insert_pair_one2m_submit_buttons(
 			char *submit_control_string,
 			LIST *pair_one2m_related_folder_name_list )
@@ -2001,21 +2119,6 @@ void form_output_insert_pair_one2m_submit_buttons(
 		exit( 1 );	
 	}
 
-	sprintf( pair_one2m_submit_folder_javascript,
-		 "timlib_element_value_set( '%s%s_0', '%s' ); ",
-		 PAIR_ONE2M_PREFIX,
-		 PAIR_ONE2M_SUBMIT_FOLDER,
-		 PAIR_ONE2M_OMIT );
-
-	/* Output the generic <Submit> button. */
-	/* ----------------------------------- */
-	printf(
-"<td valign=bottom><input type=\"button\" value=\"%s\"	  "
-"onClick=\"%s %s document.forms[0].submit();\">		\n",
-		SUBMIT_BUTTON_LABEL,
-		submit_control_string,
-		pair_one2m_submit_folder_javascript );
-
 	do {
 		related_folder_name =
 			list_get( 
@@ -2032,7 +2135,7 @@ void form_output_insert_pair_one2m_submit_buttons(
 		/* have "&&" appended to it.			*/
 		/* -------------------------------------------- */
 		printf(
-"<td valign=bottom><button onClick=\"%s %s document.forms[0].submit();\"> "
+"<button onClick=\"%s %s document.forms[0].submit();\"> "
 "%s</button>							        \n",
 			submit_control_string,
 			pair_one2m_submit_folder_javascript,
@@ -2043,24 +2146,28 @@ void form_output_insert_pair_one2m_submit_buttons(
 	} while( list_next( pair_one2m_related_folder_name_list ) );
 }
 
-FORM_BUTTON *form_button_new(		char *button_label,
-					char *onclick_control_string )
+void form_output_prompt_insert_back_to_top_button( void )
 {
-	FORM_BUTTON *f;
+	printf(
+"<a onClick=\"%s\"><img src=\"/%s/top.png\"></a>\n",
+		"window.scrollTo(0,0)",
+		IMAGE_RELATIVE_DIRECTORY );
+}
 
-	if ( ! ( f = (FORM_BUTTON *)calloc( 1, sizeof( FORM_BUTTON ) ) ) )
+void form_output_prompt_insert_reset_button(
+			char *post_change_javascript )
+{
+	printf(
+"<input type=\"button\" value=\"Reset\" onClick=\"form_reset(document.forms[0], '%c')",
+		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
+
+	if ( post_change_javascript && *post_change_javascript )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
+		printf( ";%s;",
+			form_set_post_change_javascript_row_zero(
+				post_change_javascript ) );
 	}
 
-	f->button_label = button_label;
-	f->onclick_control_string = onclick_control_string;
-
-	return f;
+	printf( "\">\n" );
 }
 

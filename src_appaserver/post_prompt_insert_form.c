@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "String.h"
 #include "timlib.h"
 #include "list.h"
 #include "dictionary.h"
@@ -113,6 +114,7 @@ int main( int argc, char **argv )
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *message = "";
 	char *isa_message = "";
+	boolean pair_one2m_submit = 0;
 
 	if ( argc != 11 )
 	{
@@ -446,9 +448,32 @@ int main( int argc, char **argv )
 			appaserver->folder->primary_attribute_name_list );
 	}
 
-	/* If inserting the one folder in a one2m pair sequence. */
-	/* ----------------------------------------------------- */
-	if ( !pair_one2m_omit( dictionary_appaserver->pair_1tom_dictionary )
+	/* Pressed the <Submit> button when doing pair_one2m */
+	/* ------------------------------------------------- */
+	if ( dictionary_length( dictionary_appaserver->pair_1tom_dictionary ) )
+	{
+		char key[ 128 ];
+		char *data;
+
+		sprintf(key,
+			"%s_0",
+			PAIR_ONE2M_SUBMIT_FOLDER );
+
+		data =
+			dictionary_get(
+				dictionary_appaserver->pair_1tom_dictionary,
+				key );
+
+		if ( string_strcmp( data, folder_name ) == 0 )
+		{
+			pair_one2m_submit = 1;
+		}
+	}
+
+	/* If doing pair_one2m */
+	/* ------------------- */
+	if ( !pair_one2m_submit
+	&&   !pair_one2m_omit( dictionary_appaserver->pair_1tom_dictionary )
 	&&   folder_get_pair_one2m_related_folder_boolean(
 			appaserver->
 				folder->
@@ -488,11 +513,14 @@ int main( int argc, char **argv )
 		list_subtract( 	subtracted_primary_attribute_name_list, 
 				ignore_primary_attribute_name_list );
 
-	/* ------------------------------------------------------------------ */
-	/* If all the needed attributes are populated or has an isa relation. */
-	/* ------------------------------------------------------------------ */
+	/* --------------------------------------------- */
+	/* If all the needed attributes are populated or */
+	/* has an isa relation or			 */
+	/* pressed <Submit> when inserting pair_one2m.   */
+	/* --------------------------------------------- */
 	if ( !list_length( subtracted_primary_attribute_name_list )
-	||   list_length( mto1_isa_related_folder_list ) )
+	||   list_length( mto1_isa_related_folder_list )
+	||   pair_one2m_submit )
 	{
 		LIST *missing_attribute_name_list;
 		LIST *ignore_attribute_name_list;

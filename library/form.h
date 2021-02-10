@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------- */
-/* form.h 								*/
+/* $APPASERVER_HOME/library/form.h					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver form ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -454,6 +453,35 @@ char *form_set_post_change_javascript_row_zero(
 
 void form_output_back_forward_buttons(
 			void );
+
+void form_output_prompt_insert_trailer(
+			char *submit_control_string,
+			char *html_help_file_anchor,
+			char *remember_keystrokes_onload_control_string,
+			char *prelookup_button_control_string,
+			char *application_name,
+			char *post_change_javascript,
+			LIST *pair_one2m_related_folder_name_list );
+
+void form_output_prompt_insert_submit_buttons(
+			char *submit_control_string,
+			char *button_label,
+			char *html_help_file_anchor,
+			char *remember_keystrokes_onload_control_string,
+			char *application_name,
+			char *post_change_javascript,
+			LIST *pair_one2m_related_folder_name_list );
+
+void form_output_prompt_insert_submit_button(
+			char *submit_control_string,
+			char *button_label,
+			LIST *pair_one2m_related_folder_name_list );
+
+void form_output_prompt_insert_back_to_top_button(
+			void );
+
+void form_output_prompt_insert_reset_button(
+			char *post_change_javascript );
 
 #endif
 

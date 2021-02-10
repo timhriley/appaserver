@@ -439,7 +439,8 @@ int main( int argc, char **argv )
 	if ( !omit_push_buttons )
 	{
 		omit_ignore_push_buttons =
-			pair_one2m->is_participating;
+			( list_length( pair_one2m->
+					pair_one2m_folder_name_list ) > 0 );
 	}
 
 	lookup_before_drop_down =
@@ -688,6 +689,8 @@ int main( int argc, char **argv )
 				hidden,
 				strdup( element_name ) );
 
+		element->hidden->data = folder_name;
+
 		list_append_pointer(
 			form->regular_element_list,
 			element );
@@ -738,27 +741,23 @@ int main( int argc, char **argv )
 				state );
 	}
 
+	printf( "</table>\n" );
 	printf( "<table border=1>\n" );
+	printf( "<tr><td align=bottom>\n" );
 
-	form_output_trailer_post_change_javascript(
-		1 /* output_submit_reset_buttons */,
-		0 /* not output_insert_button */,
+	form_output_prompt_insert_trailer(
 		form->submit_control_string,
 		form->html_help_file_anchor,
 		form->onload_control_string,
 		prelookup_button_control_string,
 		application_name,
-		with_dynarch_menu /* with_back_to_top_button */,
-		0 /* form_number */,
 		folder->post_change_javascript,
-		pair_one2m->pair_one2m_folder_name_list,
-		(LIST *)0 /* form_button_list */ );
+		pair_one2m->pair_one2m_folder_name_list );
 
 	printf( "</table>\n" );
 	printf( "</form>\n" );
 
 	document_close();
-
 	return 0;
 }
 
