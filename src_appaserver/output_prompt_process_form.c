@@ -300,7 +300,7 @@ int main( int argc, char **argv )
 			"post_change_multi_select" );
 	}
 
-	form_set_target_frame( form, target_frame );
+	form->target_frame = target_frame;
 	form_set_output_row_zero_only( form );
 
 	document_set_javascript_module( document, "trim" );

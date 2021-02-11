@@ -925,7 +925,7 @@ void insert_one2m_pair_sequence(
 
 	dictionary_set_pointer(	dictionary_appaserver->
 					pair_1tom_dictionary,
-				PAIR_ONE2M_FOLDER,
+				PAIR_ONE2M_FOLDER_NAME,
 				folder->folder_name );
 
 	if ( got_duplicate_message )

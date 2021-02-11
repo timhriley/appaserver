@@ -696,7 +696,7 @@ void post_state_insert(
 	pair_one2m_folder_name =
 		dictionary_get_pointer(
 			dictionary_appaserver->pair_1tom_dictionary,
-			PAIR_ONE2M_FOLDER );
+			PAIR_ONE2M_FOLDER_NAME );
 
 	execute_output_process(	dictionary_appaserver,
 				application_name,

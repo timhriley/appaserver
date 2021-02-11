@@ -445,7 +445,7 @@ int main( int argc, char **argv )
 
 	form_set_post_process( form, "post_edit_table_form" );
 	form_set_current_row( form, 1 );
-	form_set_target_frame( form, target_frame );
+	form->target_frame = target_frame;
 
 	document_set_javascript_module( document, "trim" );
 	document_set_javascript_module( document, "timlib" );

@@ -104,6 +104,7 @@ APPASERVER_LIBRARY=						\
 		array.o						\
 		session.o					\
 		foreign_attribute.o				\
+		pair_one2m.o					\
 		mysqldump.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}

@@ -1430,7 +1430,7 @@ DICTIONARY *output_folder_detail(
 
 	form->table_border = 1;
 	form_set_current_row( form, 1 );
-	form_set_target_frame( form, target_frame );
+	form->target_frame = target_frame;
 	form_set_insert_update_key( form, INSERT_UPDATE_KEY );
 	form->process_id = getpid();
 

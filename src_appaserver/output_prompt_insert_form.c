@@ -31,6 +31,7 @@
 #include "role.h"
 #include "dictionary_appaserver.h"
 #include "lookup_before_drop_down.h"
+#include "relation.h"
 #include "pair_one2m.h"
 
 /* Constants */
@@ -163,7 +164,6 @@ int main( int argc, char **argv )
 	char *session;
 	char *folder_name;
 	char *role_name, *state;
-	char *target_frame;
 	FORM *form;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -423,26 +423,6 @@ int main( int argc, char **argv )
 				role->override_row_restrictions_yn ) );
 	}
 
-	pair_one2m =
-		pair_one2m_new(
-			(LIST *)0 /* ignore_attribute_name_list */,
-			(DICTIONARY *)0 /* pair_one2m_dictionary */,
-			application_name,
-			related_folder_get_pair_one2m_related_folder_list(
-				application_name,
-				folder_name,
-				role_name ),
-			(LIST *)0 /* posted_attribute_name_list	*/,
-			(ROLE *)0 /* role */,
-			(char *)0 /* session */ );
-
-	if ( !omit_push_buttons )
-	{
-		omit_ignore_push_buttons =
-			( list_length( pair_one2m->
-					pair_one2m_folder_name_list ) > 0 );
-	}
-
 	lookup_before_drop_down =
 		lookup_before_drop_down_new(
 			application_name,
@@ -460,25 +440,101 @@ int main( int argc, char **argv )
 				preprompt_dictionary,
 			0 /* folder_lookup_before_drop_down */ );
 
-	form = form_new( INSERT_UPDATE_KEY,
-			 application_get_title_string( application_name ) );
+	form =
+		form_new(
+			INSERT_UPDATE_KEY,
+			application_get_title_string(
+				application_name ) );
 
-	form_set_folder_parameters(	form,
-					state,
-					login_name,
-					application_name,
-					session,
-					folder_name,
-					role_name );
+	/* Setup remember button */
+	/* --------------------- */
+	remember_button_non_multi_element_name_list =
+		element_list2remember_keystrokes_non_multi_element_name_list(
+			form->regular_element_list );
+
+	remember_button_multi_element_name_list =
+		element_list2remember_keystrokes_multi_element_name_list(
+			form->regular_element_list );
+
+	form_set_folder_parameters(
+		form,
+		state,
+		login_name,
+		application_name,
+		session,
+		folder_name,
+		role_name );
 
 	form_set_post_process( form, "post_prompt_insert_form" );
-
-	target_frame = EDIT_FRAME;
-
-	form_set_target_frame( form, target_frame );
+	form->target_frame = EDIT_FRAME;
 	form_set_output_row_zero_only( form );
-
 	form->html_help_file_anchor = html_help_file_anchor;
+
+	form->onload_control_string =
+		form_get_remember_keystrokes_onload_control_string(
+			form->form_name,
+			remember_button_non_multi_element_name_list,
+			remember_button_multi_element_name_list,
+			folder->post_change_javascript,
+			COOKIE_KEY_PREFIX,
+			folder_name );
+
+	/* Appends to form->submit_control_string */
+	/* -------------------------------------- */
+	form_append_remember_keystrokes_submit_control_string(
+		&form->onclick_keystrokes_save_string,
+		form,
+		remember_button_non_multi_element_name_list,
+		remember_button_multi_element_name_list,
+		COOKIE_KEY_PREFIX,
+		folder_name );
+
+	form_set_new_button_onclick_keystrokes_save_string(
+		form->regular_element_list,
+		form->onclick_keystrokes_save_string );
+
+	pair_one2m =
+		pair_one2m_insert_form_new(
+			folder_name
+				/* one_folder_name */,
+			form->onload_control_string
+				/* keystrokes_save_function */ );
+
+	pair_one2m->pair_one2m_insert_form_folder_list =
+		pair_one2m_insert_form_folder_list(
+			pair_one2m->keystrokes_save_function,
+			relation_one2m_relation_list(
+				pair_one2m->one_folder_name ) );
+
+	omit_ignore_push_buttons =
+		( list_length( pair_one2m->
+				pair_one2m_insert_form_folder_list ) > 0 );
+
+	form->regular_element_list =
+		get_element_list(
+			&form->current_reference_number,
+			&ajax_fill_drop_down_related_folder,
+			login_name,
+			application_name,
+			session,
+			folder_name,
+			role_name,
+			attribute_list,
+			allowed_attribute_name_list,
+			mto1_related_folder_list,
+			omit_push_buttons,
+			omit_ignore_push_buttons,
+			folder_notepad,
+			isa_multi_attribute_name,
+			isa_multi_attribute_data,
+			/* mto1_isa_related_folder_list, */
+			isa_folder_list,
+			form->form_name,
+			dictionary_appaserver->
+				preprompt_dictionary,
+			folder->post_change_javascript,
+			state,
+			lookup_before_drop_down );
 
 	document = document_new(
 			application_get_title_string( application_name ),
@@ -592,32 +648,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	form->regular_element_list =
-		get_element_list(
-			&form->current_reference_number,
-			&ajax_fill_drop_down_related_folder,
-			login_name,
-			application_name,
-			session,
-			folder_name,
-			role_name,
-			attribute_list,
-			allowed_attribute_name_list,
-			mto1_related_folder_list,
-			omit_push_buttons,
-			omit_ignore_push_buttons,
-			folder_notepad,
-			isa_multi_attribute_name,
-			isa_multi_attribute_data,
-			/* mto1_isa_related_folder_list, */
-			isa_folder_list,
-			form->form_name,
-			dictionary_appaserver->
-				preprompt_dictionary,
-			folder->post_change_javascript,
-			state,
-			lookup_before_drop_down );
-
 	if ( ajax_fill_drop_down_related_folder )
 	{
 		char sys_string[ 1024 ];
@@ -639,61 +669,6 @@ int main( int argc, char **argv )
 				primary_attribute_name_list ) /* select */ );
 
 		if ( system( sys_string ) ){};
-	}
-
-	/* Setup remember button */
-	/* --------------------- */
-	remember_button_non_multi_element_name_list =
-		element_list2remember_keystrokes_non_multi_element_name_list(
-			form->regular_element_list );
-
-	remember_button_multi_element_name_list =
-		element_list2remember_keystrokes_multi_element_name_list(
-			form->regular_element_list );
-
-	form->onload_control_string =
-		form_get_remember_keystrokes_onload_control_string(
-			form->form_name,
-			remember_button_non_multi_element_name_list,
-			remember_button_multi_element_name_list,
-			folder->post_change_javascript,
-			COOKIE_KEY_PREFIX,
-			folder_name );
-
-	/* Appends to form->submit_control_string */
-	/* -------------------------------------- */
-	form_append_remember_keystrokes_submit_control_string(
-			&form->onclick_keystrokes_save_string,
-			form,
-			remember_button_non_multi_element_name_list,
-			remember_button_multi_element_name_list,
-			COOKIE_KEY_PREFIX,
-			folder_name );
-
-	form_set_new_button_onclick_keystrokes_save_string(
-			form->regular_element_list,
-			form->onclick_keystrokes_save_string );
-
-	/* Create the pair_one2m_submit_folder element */
-	/* ------------------------------------------- */
-	if ( pair_one2m->is_participating )
-	{
-		ELEMENT_APPASERVER *element;
-		char *element_name;
-
-		element_name =
-			pair_one2m_get_pair_one2m_submit_element_name(
-				0 /* not with_suffix_zero */ );
-
-		element = element_appaserver_new(
-				hidden,
-				strdup( element_name ) );
-
-		element->hidden->data = folder_name;
-
-		list_append_pointer(
-			form->regular_element_list,
-			element );
 	}
 
 	form_output_body(
@@ -751,8 +726,9 @@ int main( int argc, char **argv )
 		form->onload_control_string,
 		prelookup_button_control_string,
 		application_name,
-		folder->post_change_javascript,
-		pair_one2m->pair_one2m_folder_name_list );
+		folder->post_change_javascript
+			/* reset_post_change_javascript */,
+		pair_one2m->pair_one2m_insert_form_folder_list );
 
 	printf( "</table>\n" );
 	printf( "</form>\n" );

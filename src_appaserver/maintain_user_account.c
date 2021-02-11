@@ -223,7 +223,7 @@ int main( int argc, char **argv )
 				application_name ) );
 
 	form_set_current_row( form, 1 );
-	form_set_target_frame( form, target_frame );
+	form->target_frame = target_frame;
 
 	document = document_new( insert_update_key, application_name );
 

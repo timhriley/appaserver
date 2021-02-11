@@ -448,7 +448,7 @@ void post_state_one(	char *application_name,
 					process_name,
 					role_name );
 
-	form_set_target_frame( form, PROMPT_FRAME );
+	form->target_frame = PROMPT_FRAME;
 	form_set_output_row_zero_only( form );
 	form->regular_element_list = list_new();
 
@@ -634,7 +634,7 @@ void post_state_two(	char *application_name,
 					process_name,
 					role_name );
 
-	form_set_target_frame( form, PROMPT_FRAME );
+	form->target_frame = PROMPT_FRAME;
 	form_set_output_row_zero_only( form );
 	form->regular_element_list = list_new();
 
@@ -1035,7 +1035,7 @@ void post_state_three(	char *application_name,
 					process_name,
 					role_name );
 
-	form_set_target_frame( form, EDIT_FRAME );
+	form->target_frame = EDIT_FRAME;
 	form_set_output_row_zero_only( form );
 
 	form->regular_element_list =
@@ -1683,7 +1683,7 @@ void post_table_state_four(
 
 	form_set_post_process( form, "post_edit_table_form" );
 	form_set_current_row( form, 1 );
-	form_set_target_frame( form, EDIT_FRAME );
+	form->target_frame = EDIT_FRAME;
 
 	form_set_folder_parameters(	form,
 					"view" /* state_for_heading */,

@@ -182,7 +182,7 @@ target_frame = "";
 
 	fflush( stdout );
 
-} /* form_output_title() */
+}
 
 void form_output_heading(
 			char *login_name,
@@ -304,7 +304,7 @@ void form_output_heading(
 			FORM_CAPTION_HEADING_TAG );
 	}
 
-} /* form_output_heading() */
+}
 
 int form_output_body(	int *form_current_reference_number,
 			DICTIONARY *hidden_name_dictionary,
@@ -1109,11 +1109,6 @@ void form_set_row_dictionary_list( FORM *form, LIST *row_dictionary_list )
 	form->row_dictionary_list = row_dictionary_list;
 }
 
-void form_set_target_frame( FORM *form, char *target_frame )
-{
-	form->target_frame = target_frame;
-}
-
 void form_set_insert_update_key( FORM *form, char *insert_update_key )
 {
 	form->insert_update_key = insert_update_key;
@@ -1236,7 +1231,7 @@ char *form_get_next_reference_number( int *form_current_reference_number )
 		 "%d", 
 		 current_reference_number );
 	return return_reference_number;
-} /* form_get_next_reference_number() */
+}
 
 
 void form_set_dont_output_operations( FORM *form )
@@ -1299,7 +1294,7 @@ char *form_get_remember_keystrokes_onload_control_string(
 
 	return strdup( buffer );
 
-} /* form_get_remember_keystrokes_onload_control_string() */
+}
 
 /* Row zero means for javascript to loop through each row. */
 /* ------------------------------------------------------- */
@@ -1319,7 +1314,7 @@ char *form_set_post_change_javascript_row_zero(
 
 	return strdup( post_change_javascript_row_zero );
 
-} /* form_set_post_change_javascript_row_zero() */
+}
 
 /* Appends to form->submit_control_string */
 /* -------------------------------------- */
@@ -1371,7 +1366,7 @@ void form_append_remember_keystrokes_submit_control_string(
 	form_append_submit_control_string(
 		form->submit_control_string, buffer );
 
-} /* form_append_remember_keystrokes_submit_control_string() */
+}
 
 void form_append_submit_control_string( char *form_submit_control_string,
 					char *control_string )
@@ -1406,7 +1401,7 @@ void form_append_submit_control_string( char *form_submit_control_string,
 		}
 	}
 
-} /* form_append_submit_control_string() */
+}
 
 char *form_get_onload_control_string( FORM *form )
 {
@@ -1458,7 +1453,7 @@ char *form_get_background_color( char *application_name )
 		cycle_count = 0;
 
 	return background_color;
-} /* form_get_background_color() */
+}
 
 void form_build_cookie_key_buffer(	char *cookie_key_buffer,
 					char *cookie_key_prefix,
@@ -1490,7 +1485,7 @@ void form_build_cookie_key_buffer(	char *cookie_key_buffer,
 			 __LINE__ );
 		exit( 1 );
 	}
-} /* form_build_cookie_key_buffer() */
+}
 
 void form_set_new_button_onclick_keystrokes_save_string(
 				LIST *element_list,
@@ -1511,7 +1506,7 @@ void form_set_new_button_onclick_keystrokes_save_string(
 				onclick_keystrokes_save_string;
 		}
 	} while( list_next( element_list ) );
-} /* form_set_new_button_onclick_keystrokes_save_string() */
+}
 
 void form_execute_output_prompt_edit_form(
 			char *application_name,
@@ -1928,14 +1923,6 @@ void form_output_submit_button(
 			int form_number,
 			LIST *pair_one2m_related_folder_name_list )
 {
-	if ( list_length( pair_one2m_related_folder_name_list ) )
-	{
-		form_output_insert_pair_one2m_submit_buttons(
-			submit_control_string,
-			pair_one2m_related_folder_name_list );
-		return;
-	}
-
 	if ( !button_label || !*button_label )
 		button_label = SUBMIT_BUTTON_LABEL;
 
@@ -1972,8 +1959,9 @@ void form_output_generic_button(char *onclick_control_string,
 			onclick_control_string );
 }
 
-FORM_BUTTON *form_button_new(		char *button_label,
-					char *onclick_control_string )
+FORM_BUTTON *form_button_new(
+			char *button_label,
+			char *onclick_control_string )
 {
 	FORM_BUTTON *f;
 
@@ -1999,8 +1987,8 @@ void form_output_prompt_insert_trailer(
 			char *remember_keystrokes_onload_control_string,
 			char *prelookup_button_control_string,
 			char *application_name,
-			char *post_change_javascript,
-			LIST *pair_one2m_related_folder_name_list )
+			char *reset_post_change_javascript,
+			LIST *pair_one2m_insert_form_folder_list )
 {
 	form_output_prompt_insert_submit_buttons(
 		submit_control_string,
@@ -2008,8 +1996,8 @@ void form_output_prompt_insert_trailer(
 		html_help_file_anchor,
 		remember_keystrokes_onload_control_string,
 		application_name,
-		post_change_javascript,
-		pair_one2m_related_folder_name_list );
+		reset_post_change_javascript,
+		pair_one2m_insert_form_folder_list );
 
 	if ( prelookup_button_control_string )
 	{
@@ -2025,16 +2013,16 @@ void form_output_prompt_insert_submit_buttons(
 			char *html_help_file_anchor,
 			char *remember_keystrokes_onload_control_string,
 			char *application_name,
-			char *post_change_javascript,
-			LIST *pair_one2m_related_folder_name_list )
+			char *reset_post_change_javascript,
+			LIST *pair_one2m_insert_form_folder_list )
 {
 	form_output_prompt_insert_submit_button(
 		submit_control_string,
 		button_label,
-		pair_one2m_related_folder_name_list );
+		pair_one2m_insert_form_folder_list );
 
 	form_output_reset_button(
-		post_change_javascript,
+		reset_post_change_javascript,
 		0 /* form_number */ );
 
 	form_output_back_forward_buttons();
@@ -2058,7 +2046,7 @@ void form_output_prompt_insert_submit_buttons(
 void form_output_prompt_insert_submit_button(
 			char *submit_control_string,
 			char *button_label,
-			LIST *pair_one2m_related_folder_name_list )
+			LIST *pair_one2m_insert_form_folder_list )
 {
 	if ( !button_label || !*button_label )
 		button_label = SUBMIT_BUTTON_LABEL;
@@ -2083,21 +2071,19 @@ void form_output_prompt_insert_submit_button(
 			button_label );
 	}
 
-	if ( list_length( pair_one2m_related_folder_name_list ) )
+	if ( list_length( pair_one2m_insert_form_folder_list ) )
 	{
 		form_output_insert_pair_one2m_submit_buttons(
 			submit_control_string,
-			pair_one2m_related_folder_name_list );
+			pair_one2m_insert_form_folder_list );
 	}
 }
 
 void form_output_insert_pair_one2m_submit_buttons(
 			char *submit_control_string,
-			LIST *pair_one2m_related_folder_name_list )
+			LIST *pair_one2m_folder_list )
 {
-	char *related_folder_name;
-	char buffer[ 128 ];
-	char pair_one2m_submit_folder_javascript[ 128 ];
+	PAIR_ONE2M_FOLDER *pair_one2m_folder;
 
 	if ( !submit_control_string )
 	{
@@ -2109,41 +2095,21 @@ void form_output_insert_pair_one2m_submit_buttons(
 		exit( 1 );	
 	}
 
-	if ( !list_rewind( pair_one2m_related_folder_name_list ) )
+	if ( !list_rewind( pair_one2m_folder_list ) )
 	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: empty pair_one2m_related_folder_name_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );	
+		return;
 	}
 
 	do {
-		related_folder_name =
+		pair_one2m_folder =
 			list_get( 
-				pair_one2m_related_folder_name_list );
+				pair_one2m_folder_list );
 
-		sprintf( pair_one2m_submit_folder_javascript,
-			 "timlib_element_value_set( '%s%s_0', '%s' ); ",
-			 PAIR_ONE2M_PREFIX,
-			 PAIR_ONE2M_SUBMIT_FOLDER,
-			 related_folder_name );
+		printf( "%s\n",
+			pair_one2m_folder->
+				folder_button_string );
 
-		/* -------------------------------------------- */
-		/* The submit_control_string is assumed to	*/
-		/* have "&&" appended to it.			*/
-		/* -------------------------------------------- */
-		printf(
-"<button onClick=\"%s %s document.forms[0].submit();\"> "
-"%s</button>							        \n",
-			submit_control_string,
-			pair_one2m_submit_folder_javascript,
-			format_initial_capital_cr(
-				buffer,
-				related_folder_name ) );
-
-	} while( list_next( pair_one2m_related_folder_name_list ) );
+	} while( list_next( pair_one2m_folder_list ) );
 }
 
 void form_output_prompt_insert_back_to_top_button( void )
@@ -2155,17 +2121,17 @@ void form_output_prompt_insert_back_to_top_button( void )
 }
 
 void form_output_prompt_insert_reset_button(
-			char *post_change_javascript )
+			char *reset_post_change_javascript )
 {
 	printf(
 "<input type=\"button\" value=\"Reset\" onClick=\"form_reset(document.forms[0], '%c')",
 		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
 
-	if ( post_change_javascript && *post_change_javascript )
+	if ( reset_post_change_javascript && *reset_post_change_javascript )
 	{
 		printf( ";%s;",
 			form_set_post_change_javascript_row_zero(
-				post_change_javascript ) );
+				reset_post_change_javascript ) );
 	}
 
 	printf( "\">\n" );

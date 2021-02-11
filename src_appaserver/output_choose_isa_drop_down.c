@@ -51,7 +51,6 @@ int main( int argc, char **argv )
 {
 	char *login_name, *application_name, *session, *folder_name;
 	char *role_name, *state;
-	char *target_frame = PROMPT_FRAME;
 	FORM *form;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -157,7 +156,7 @@ int main( int argc, char **argv )
 			folder->populate_drop_down_process );
 
 	form_set_post_process( form, "post_choose_isa_drop_down" );
-	form_set_target_frame( form, target_frame );
+	form->target_frame = PROMPT_FRAME;
 	form_set_output_row_zero_only( form );
 
 	form->html_help_file_anchor = folder->html_help_file_anchor;

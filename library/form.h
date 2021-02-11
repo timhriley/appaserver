@@ -270,8 +270,6 @@ void form_set_insert_rows_number( 	FORM *form,
 void form_set_starting_row(	 	FORM *form, 
 					int starting_row );
 
-void form_set_target_frame(		FORM *form, char *target_frame );
-
 void form_set_insert_update_key(	FORM *form, char *insert_update_key );
 
 void form_fetch_row_dictionary_list( 	FORM *form, 
@@ -460,7 +458,7 @@ void form_output_prompt_insert_trailer(
 			char *remember_keystrokes_onload_control_string,
 			char *prelookup_button_control_string,
 			char *application_name,
-			char *post_change_javascript,
+			char *reset_post_change_javascript,
 			LIST *pair_one2m_related_folder_name_list );
 
 void form_output_prompt_insert_submit_buttons(
@@ -469,7 +467,7 @@ void form_output_prompt_insert_submit_buttons(
 			char *html_help_file_anchor,
 			char *remember_keystrokes_onload_control_string,
 			char *application_name,
-			char *post_change_javascript,
+			char *reset_post_change_javascript,
 			LIST *pair_one2m_related_folder_name_list );
 
 void form_output_prompt_insert_submit_button(
@@ -481,7 +479,7 @@ void form_output_prompt_insert_back_to_top_button(
 			void );
 
 void form_output_prompt_insert_reset_button(
-			char *post_change_javascript );
+			char *reset_post_change_javascript );
 
 #endif
 

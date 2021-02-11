@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "related_folder.h"
+#include "relation.h"
 #include "dictionary_appaserver.h"
 #include "timlib.h"
 #include "pair_one2m.h"
@@ -13,7 +14,6 @@
 PAIR_ONE2M *pair_one2m_calloc( void )
 {
 	PAIR_ONE2M *pair_one2m;
-
 
 	if ( ! ( pair_one2m =
 			(PAIR_ONE2M *)calloc( 1, sizeof( PAIR_ONE2M ) ) ) )
@@ -310,8 +310,9 @@ char *pair_one2m_get_pair_one2m_submit_element_name(
 	return element_name;
 }
 
-char *pair_one2m_get_next_folder_name(	LIST *pair_inserted_folder_name_list,
-					LIST *pair_one2m_related_folder_list )
+char *pair_one2m_get_next_folder_name(
+			LIST *pair_inserted_folder_name_list,
+			LIST *pair_one2m_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
 	/* ---------------- */
@@ -372,5 +373,129 @@ boolean pair_one2m_omit( DICTIONARY *pair_1tom_dictionary )
 	data = dictionary_fetch( pair_1tom_dictionary, key );
 
 	return ( timlib_strcmp( data, PAIR_ONE2M_OMIT ) == 0 );
+}
+
+char *pair_folder_button_string(
+			char *many_folder_name,
+			char *keystrokes_save_function,
+			char *pair_folder_onclick_function )
+{
+	char folder_button_string[ 2048 ];
+	char buffer[ 128 ];
+
+	/* -------------------------------------------- */
+	/* The keystrokes_save_function is assumed to	*/
+	/* have "&&" appended to it.			*/
+	/* -------------------------------------------- */
+	sprintf(folder_button_string,
+"<button onClick=\"%s %s document.forms[0].submit();\">"
+"%s</button>\n",
+		keystrokes_save_function,
+		pair_folder_onclick_function,
+		format_initial_capital_cr(
+			buffer,
+			many_folder_name ) );
+
+	return strdup( folder_button_string );
+}
+
+char *pair_folder_onclick_function(
+			char *many_folder_name )
+{
+	static char folder_onclick_function[ 1024 ];
+
+	sprintf( folder_onclick_function,
+		 "timlib_element_value_set( '%s%s_0', '%s' );",
+		 PAIR_ONE2M_PREFIX,
+		 PAIR_ONE2M_SUBMIT_FOLDER,
+		 many_folder_name );
+
+	return folder_onclick_function;
+}
+
+PAIR_ONE2M_FOLDER *pair_one2m_folder_new(
+			char *many_folder_name )
+{
+	PAIR_ONE2M_FOLDER *pair_one2m_folder;
+
+	if ( ! ( pair_one2m_folder =
+			(PAIR_ONE2M_FOLDER *)
+				calloc( 1, sizeof( PAIR_ONE2M_FOLDER ) ) ) )
+	{
+		fprintf( stderr, 
+			 "%s/%s(): calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__ );
+		exit( 1 );
+	}
+	pair_one2m_folder->many_folder_name = many_folder_name;
+
+	return pair_one2m_folder;
+}
+
+LIST *pair_one2m_insert_form_folder_list(
+			char *keystrokes_save_function,
+			LIST *one2m_relation_list )
+{
+	RELATION *relation;
+	PAIR_ONE2M_FOLDER *pair_one2m_folder;
+	LIST *one2m_folder_list;
+
+	if ( !list_rewind( one2m_relation_list ) )
+	{
+		return (LIST *)0;
+	}
+
+	if ( !keystrokes_save_function )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: keystrokes_save_function is empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );	
+	}
+
+	one2m_folder_list = list_new();
+
+	do {
+		relation =
+			list_get( 
+				one2m_relation_list );
+
+		pair_one2m_folder =
+			pair_one2m_folder_new(
+				relation->many_folder->folder_name );
+
+		pair_one2m_folder->folder_onclick_function =
+			pair_folder_onclick_function(
+				pair_one2m_folder->many_folder_name );
+
+		pair_one2m_folder->folder_button_string =
+			pair_folder_button_string(
+				pair_one2m_folder->many_folder_name,
+				keystrokes_save_function,
+				pair_one2m_folder->
+					folder_onclick_function );
+
+		list_set(
+			one2m_folder_list,
+			pair_one2m_folder );
+			
+	} while( list_next( one2m_relation_list ) );
+
+	return one2m_folder_list;
+}
+
+PAIR_ONE2M *pair_one2m_insert_form_new(
+			char *one_folder_name,
+			char *keystrokes_save_function )
+{
+	PAIR_ONE2M *pair_one2m = pair_one2m_calloc();
+
+	pair_one2m->one_folder_name = one_folder_name;
+	pair_one2m->keystrokes_save_function = keystrokes_save_function;
+
+	return pair_one2m;
 }
 

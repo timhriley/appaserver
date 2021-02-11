@@ -17,7 +17,7 @@
 /* --------- */
 #define PAIR_ONE2M_SUBMIT_FOLDER		"pair_one2m_submit_folder"
 #define PAIR_ONE2M_DUPLICATE_STATE_KEY		"pair_one2m_duplicate_state"
-#define PAIR_ONE2M_FOLDER			"pair_one2m_folder"
+#define PAIR_ONE2M_FOLDER_NAME			"pair_one2m_folder"
 #define PAIR_ONE2M_FOLDER_LIST			"pair_one2m_folder_list"
 #define PAIR_ONE2M_OMIT				"pair_one2m_omit"
 
@@ -25,6 +25,17 @@
 /* ---------- */
 typedef struct
 {
+	char *many_folder_name;
+	char *folder_onclick_function;
+	char *folder_button_string;
+} PAIR_ONE2M_FOLDER;
+
+typedef struct
+{
+	char *one_folder_name;
+	char *keystrokes_save_function;
+	LIST *pair_one2m_insert_form_folder_list;
+
 	boolean is_participating;
 	boolean insert_is_completed;
 	boolean submit_button_on_top_frame;
@@ -74,5 +85,24 @@ char *pair_one2m_get_next_folder_name(
 				LIST *pair_one2m_related_folder_list );
 
 boolean pair_one2m_omit(	DICTIONARY *pair_1tom_dictionary );
+
+PAIR_ONE2M *pair_one2m_insert_form_new(
+			char *one_folder_name,
+			char *keystrokes_save_function );
+
+PAIR_ONE2M_FOLDER *pair_one2m_folder_new(
+			char *many_folder_name );
+
+LIST *pair_one2m_insert_form_folder_list(
+			char *keystrokes_save_function,
+			LIST *one2m_relation_list );
+
+char *pair_folder_onclick_function(
+			char *many_folder_name );
+
+char *pair_folder_button_string(
+			char *many_folder_name,
+			char *keystrokes_save_function,
+			char *pair_folder_onclick_function );
 
 #endif

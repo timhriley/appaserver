@@ -599,7 +599,7 @@ m2( application_name, msg );
 	/* -------------------- */
 	form_set_post_process( form, "post_prompt_edit_form" );
 	form_set_insert_update_key( form, INSERT_UPDATE_KEY );
-	form_set_target_frame( form, target_frame );
+	form->target_frame = target_frame;
 
 	form->html_help_file_anchor =
 		appaserver->folder->html_help_file_anchor;
