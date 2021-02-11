@@ -497,7 +497,7 @@ int main( int argc, char **argv )
 		pair_one2m_insert_form_new(
 			folder_name
 				/* one_folder_name */,
-			form->onload_control_string
+			form->onclick_keystrokes_save_string
 				/* keystrokes_save_function */ );
 
 	pair_one2m->pair_one2m_insert_form_folder_list =
@@ -535,6 +535,29 @@ int main( int argc, char **argv )
 			folder->post_change_javascript,
 			state,
 			lookup_before_drop_down );
+
+	/* Create the pair_one2m_submit_folder element */
+	/* ------------------------------------------- */
+	if ( list_length( pair_one2m->
+				pair_one2m_insert_form_folder_list ) > 0 )
+	{
+		ELEMENT_APPASERVER *element;
+		char *element_name;
+
+		element_name =
+			pair_one2m_get_pair_one2m_submit_element_name(
+				0 /* not with_suffix_zero */ );
+
+		element = element_appaserver_new(
+				hidden,
+				strdup( element_name ) );
+
+		element->hidden->data = folder_name;
+
+		list_set(
+			form->regular_element_list,
+			element );
+	}
 
 	document = document_new(
 			application_get_title_string( application_name ),
