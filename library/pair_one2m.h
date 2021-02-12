@@ -27,7 +27,7 @@
 typedef struct
 {
 	char *many_folder_name;
-	char *folder_onclick_function;
+	char *copy_function;
 	char *folder_button_string;
 } PAIR_ONE2M_FOLDER;
 
@@ -36,10 +36,11 @@ typedef struct
 	char *one_folder_name;
 	char *many_folder_name;
 	char *keystrokes_save_function;
-	LIST *pair_one2m_insert_form_folder_list;
-	LIST *pair_one2m_fulfilled_folder_name_list;
-	char *pair_one2m_one_folder_name;
-	char *pair_one2m_next_folder_name;
+	char *prompt_form_element_name;
+	LIST *one2m_pair_relation_list;
+	LIST *prompt_form_folder_list;
+	LIST *fulfilled_folder_name_list;
+	char *next_folder_name;
 	DICTIONARY *pair_one2m_dictionary;
 	DICTIONARY *pair_one2m_fulfilled_dictionary;
 } PAIR_ONE2M;
@@ -53,7 +54,7 @@ typedef struct
 PAIR_ONE2M *pair_one2m_calloc(
 			void );
 
-PAIR_ONE2M *pair_one2m_insert_form_new(
+PAIR_ONE2M *pair_one2m_prompt_form_new(
 			char *one_folder_name,
 			char *keystrokes_save_function );
 
@@ -66,17 +67,18 @@ PAIR_ONE2M_FOLDER *pair_one2m_folder_new(
 
 /* Insert form */
 /* ----------- */
-LIST *pair_one2m_insert_form_folder_list(
+LIST *pair_one2m_prompt_form_folder_list(
 			char *keystrokes_save_function,
 			LIST *one2m_relation_list );
 
-char *pair_folder_onclick_function(
-			char *many_folder_name );
+char *pair_folder_element_copy_function(
+			char *prompt_form_element_name,
+			char *folder_name );
 
 char *pair_folder_button_string(
 			char *many_folder_name,
 			char *keystrokes_save_function,
-			char *pair_folder_onclick_function );
+			char *copy_function );
 
 /* Post form */
 /* --------- */
@@ -98,6 +100,13 @@ char *pair_one2m_next_folder_name(
 
 char *pair_one2m_one_folder_name(
 			char *pair_one2m_one_folder_label,
+			DICTIONARY *pair_one2m_dictionary );
+
+char *pair_one2m_prompt_form_element_name(
+			char *pair_one2m_prefix,
+			char *pair_one2m_one_folder_label );
+
+PAIR_ONE2M *pair_one2m_insert_form_new(
 			DICTIONARY *pair_one2m_dictionary );
 
 #endif

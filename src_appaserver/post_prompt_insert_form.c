@@ -452,34 +452,43 @@ m2( application_name, msg );
 				dictionary_appaserver->
 					pair_one2m_dictionary );
 
-		pair_one2m->pair_one2m_fulfilled_folder_name_list =
-			pair_one2m_fulfilled_folder_name_list(
-				PAIR_ONE2M_FULFILLED_LIST_LABEL,
-				pair_one2m->pair_one2m_dictionary );
-
-		pair_one2m->pair_one2m_one_folder_name =
+		pair_one2m->one_folder_name =
 			pair_one2m_one_folder_name(
 				PAIR_ONE2M_ONE_FOLDER_LABEL,
 				pair_one2m->pair_one2m_dictionary );
 
-		pair_one2m->pair_one2m_next_folder_name =
+		/* If press first <Submit> */
+		/* ----------------------- */
+		if ( string_strcmp(
+			pair_one2m->one_folder_name,
+			appaserver->folder->folder_name ) == 0 )
+		{
+			goto skip_pair_one2m;
+		}
+
+		pair_one2m->fulfilled_folder_name_list =
+			pair_one2m_fulfilled_folder_name_list(
+				PAIR_ONE2M_FULFILLED_LIST_LABEL,
+				pair_one2m->pair_one2m_dictionary );
+
+		pair_one2m->next_folder_name =
 			pair_one2m_next_folder_name(
 				pair_one2m->
-					pair_one2m_fulfilled_folder_name_list,
+					fulfilled_folder_name_list,
 				relation_one2m_pair_relation_list(
 					relation_one2m_relation_list(
 					   pair_one2m->
-					     pair_one2m_one_folder_name ) ) );
+					   	one_folder_name ) ) );
 
 		list_set(
-			pair_one2m->pair_one2m_fulfilled_folder_name_list,
-			pair_one2m->pair_one2m_next_folder_name );
+			pair_one2m->fulfilled_folder_name_list,
+			pair_one2m->next_folder_name );
 
 		dictionary_appaserver->pair_one2m_dictionary =
 			pair_one2m_fulfilled_dictionary(
 				PAIR_ONE2M_FULFILLED_LIST_LABEL,
 				pair_one2m->
-					pair_one2m_fulfilled_folder_name_list );
+					fulfilled_folder_name_list );
 				
 		insert_one2m_pair_sequence(
 			appaserver->folder,
@@ -499,6 +508,8 @@ m2( application_name, msg );
 		/* Does an exit() */
 		/* -------------- */
 	}
+
+skip_pair_one2m:
 
 	subtracted_primary_attribute_name_list = 
 		list_subtract( 	appaserver->
@@ -520,7 +531,7 @@ m2( application_name, msg );
 	/* pressed <Submit> when inserting pair_one2m.   */
 	/* --------------------------------------------- */
 	if ( !list_length( subtracted_primary_attribute_name_list )
-	||   list_length( mto1_isa_related_folder_list ) )
+	||    list_length( mto1_isa_related_folder_list ) )
 	{
 		LIST *missing_attribute_name_list;
 		LIST *ignore_attribute_name_list;

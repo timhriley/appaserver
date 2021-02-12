@@ -27,6 +27,15 @@ PAIR_ONE2M *pair_one2m_calloc( void )
 	return pair_one2m;
 }
 
+PAIR_ONE2M *pair_one2m_insert_form_new(
+			DICTIONARY *pair_one2m_dictionary )
+{
+	PAIR_ONE2M *pair_one2m = pair_one2m_calloc();
+
+	pair_one2m->pair_one2m_dictionary = pair_one2m_dictionary;
+	return pair_one2m;
+}
+
 char *pair_folder_button_string(
 			char *many_folder_name,
 			char *keystrokes_save_function,
@@ -51,18 +60,18 @@ char *pair_folder_button_string(
 	return strdup( folder_button_string );
 }
 
-char *pair_folder_onclick_function(
-			char *many_folder_name )
+char *pair_folder_element_copy_function(
+			char *prompt_form_element_name,
+			char *folder_name )
 {
-	static char folder_onclick_function[ 1024 ];
+	static char copy_function[ 1024 ];
 
-	sprintf( folder_onclick_function,
-		 "timlib_element_value_set( '%s%s_0', '%s' );",
-		 PAIR_ONE2M_PREFIX,
-		 PAIR_ONE2M_ONE_FOLDER_LABEL,
-		 many_folder_name );
+	sprintf( copy_function,
+		 "timlib_element_value_set( '%s_0', '%s' ) && ",
+		 prompt_form_element_name,
+		 folder_name );
 
-	return folder_onclick_function;
+	return copy_function;
 }
 
 PAIR_ONE2M_FOLDER *pair_one2m_folder_new(
@@ -85,7 +94,7 @@ PAIR_ONE2M_FOLDER *pair_one2m_folder_new(
 	return pair_one2m_folder;
 }
 
-LIST *pair_one2m_insert_form_folder_list(
+LIST *pair_one2m_prompt_form_folder_list(
 			char *keystrokes_save_function,
 			LIST *one2m_pair_relation_list )
 {
@@ -119,8 +128,11 @@ LIST *pair_one2m_insert_form_folder_list(
 			pair_one2m_folder_new(
 				relation->many_folder->folder_name );
 
-		pair_one2m_folder->folder_onclick_function =
-			pair_folder_onclick_function(
+		pair_one2m_folder->copy_function =
+			pair_folder_element_copy_function(
+				pair_one2m_prompt_form_element_name(
+					PAIR_ONE2M_PREFIX,
+					PAIR_ONE2M_ONE_FOLDER_LABEL ),
 				pair_one2m_folder->many_folder_name );
 
 		pair_one2m_folder->folder_button_string =
@@ -128,7 +140,7 @@ LIST *pair_one2m_insert_form_folder_list(
 				pair_one2m_folder->many_folder_name,
 				keystrokes_save_function,
 				pair_one2m_folder->
-					folder_onclick_function );
+					copy_function );
 
 		list_set(
 			one2m_folder_list,
@@ -139,7 +151,7 @@ LIST *pair_one2m_insert_form_folder_list(
 	return one2m_folder_list;
 }
 
-PAIR_ONE2M *pair_one2m_insert_form_new(
+PAIR_ONE2M *pair_one2m_prompt_form_new(
 			char *one_folder_name,
 			char *keystrokes_save_function )
 {
@@ -226,17 +238,33 @@ char *pair_one2m_one_folder_name(
 			char *pair_one2m_one_folder_label,
 			DICTIONARY *pair_one2m_dictionary )
 {
+	char key[ 128 ];
 	char *data;
+
+	sprintf( key, "%s_0", pair_one2m_one_folder_label );
 
 	if ( ! ( data =
 			dictionary_get(
 				pair_one2m_dictionary,
-				pair_one2m_one_folder_label
-					/* key */ ) ) )
+				key ) ) )
 	{
 		return (char *)0;
 	}
 
 	return data;
+}
+
+char *pair_one2m_prompt_form_element_name(
+			char *pair_one2m_prefix,
+			char *pair_one2m_one_folder_label )
+{
+	char element_name[ 128 ];
+
+	sprintf(element_name,
+		"%s%s",
+		pair_one2m_prefix,
+		pair_one2m_one_folder_label );
+
+	return strdup( element_name );
 }
 

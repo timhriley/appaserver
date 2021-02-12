@@ -489,19 +489,15 @@ int main( int argc, char **argv )
 		COOKIE_KEY_PREFIX,
 		folder_name );
 
-	form_set_new_button_onclick_keystrokes_save_string(
-		form->regular_element_list,
-		form->onclick_keystrokes_save_string );
-
 	pair_one2m =
-		pair_one2m_insert_form_new(
+		pair_one2m_prompt_form_new(
 			folder_name
 				/* one_folder_name */,
 			form->onclick_keystrokes_save_string
 				/* keystrokes_save_function */ );
 
-	pair_one2m->pair_one2m_insert_form_folder_list =
-		pair_one2m_insert_form_folder_list(
+	pair_one2m->prompt_form_folder_list =
+		pair_one2m_prompt_form_folder_list(
 			pair_one2m->keystrokes_save_function,
 			relation_one2m_pair_relation_list(
 				relation_one2m_relation_list(
@@ -509,7 +505,7 @@ int main( int argc, char **argv )
 
 	omit_ignore_push_buttons =
 		( list_length( pair_one2m->
-				pair_one2m_insert_form_folder_list ) > 0 );
+				prompt_form_folder_list ) > 0 );
 
 	form->regular_element_list =
 		get_element_list(
@@ -537,23 +533,28 @@ int main( int argc, char **argv )
 			state,
 			lookup_before_drop_down );
 
-	/* Create the pair_one2m_submit_folder element */
-	/* ------------------------------------------- */
+	form_set_new_button_onclick_keystrokes_save_string(
+		form->regular_element_list,
+		form->onclick_keystrokes_save_string );
+
+	/* Create the pair_one2m hidden element */
+	/* ------------------------------------ */
 	if ( list_length( pair_one2m->
-				pair_one2m_insert_form_folder_list ) > 0 )
+				prompt_form_folder_list ) > 0 )
 	{
 		ELEMENT_APPASERVER *element;
-		char *element_name;
 
-		element_name =
-			pair_one2m_get_pair_one2m_submit_element_name(
-				0 /* not with_suffix_zero */ );
+		pair_one2m->prompt_form_element_name =
+			pair_one2m_prompt_form_element_name(
+				PAIR_ONE2M_PREFIX,
+				PAIR_ONE2M_ONE_FOLDER_LABEL );
 
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				hidden,
-				strdup( element_name ) );
-
-		element->hidden->data = folder_name;
+				strdup(
+					pair_one2m->
+						prompt_form_element_name ) );
 
 		list_set(
 			form->regular_element_list,
@@ -743,15 +744,41 @@ int main( int argc, char **argv )
 	printf( "<table border=1>\n" );
 	printf( "<tr><td align=bottom>\n" );
 
-	form_output_prompt_insert_trailer(
-		form->submit_control_string,
-		form->html_help_file_anchor,
-		form->onload_control_string,
-		prelookup_button_control_string,
-		application_name,
-		folder->post_change_javascript
-			/* reset_post_change_javascript */,
-		pair_one2m->pair_one2m_insert_form_folder_list );
+	if ( list_length( pair_one2m->prompt_form_folder_list ) )
+	{
+		char submit_control_string[ 1024 ];
+
+		sprintf(submit_control_string,
+			"%s %s",
+			form->submit_control_string,
+			pair_folder_element_copy_function(
+				pair_one2m_prompt_form_element_name(
+					PAIR_ONE2M_PREFIX,
+					PAIR_ONE2M_ONE_FOLDER_LABEL ),
+				folder->folder_name ) );
+
+		form_output_prompt_insert_trailer(
+			submit_control_string,
+			form->html_help_file_anchor,
+			form->onload_control_string,
+			prelookup_button_control_string,
+			application_name,
+			folder->post_change_javascript
+				/* reset_post_change_javascript */,
+			pair_one2m->prompt_form_folder_list );
+	}
+	else
+	{
+		form_output_prompt_insert_trailer(
+			form->submit_control_string,
+			form->html_help_file_anchor,
+			form->onload_control_string,
+			prelookup_button_control_string,
+			application_name,
+			folder->post_change_javascript
+				/* reset_post_change_javascript */,
+			pair_one2m->prompt_form_folder_list );
+	}
 
 	printf( "</table>\n" );
 	printf( "</form>\n" );
@@ -1296,18 +1323,6 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 			(char *)0 /* attribute_name */,
 			mto1_isa_related_folder_list,
 			role_name );
-
-/*
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: got attribute_list = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-attribute_list_display( appaserver->folder->attribute_list ) );
-m2( application_name, msg );
-}
-*/
 
 	appaserver->folder->mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(

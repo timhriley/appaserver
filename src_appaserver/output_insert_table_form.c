@@ -17,6 +17,7 @@
 #include "form.h"
 #include "folder.h"
 #include "related_folder.h"
+#include "relation.h"
 #include "appaserver.h"
 #include "operation_list.h"
 #include "document.h"
@@ -42,8 +43,11 @@
 /* --------- */
 
 #define ONE_ROW_INSERTED_MESSAGE "<h3>One row inserted.</h3>\n"
+
 #define DUPLICATE_MULTIPLE_ROWS_MESSAGE "<h3>Warning: A duplication occurred. If you are generating more bottom rows for data entry, then ignore this message.</h3>\n"
+
 #define DUPLICATE_NON_INSERTED_MESSAGE "<h3>Warning: A duplication occurred.</h3>\n"
+
 #define INSERT_UPDATE_KEY	"edit"
 #define DEFAULT_TARGET_FRAME	EDIT_FRAME
 
@@ -108,7 +112,7 @@ int main( int argc, char **argv )
 	char *vertical_new_button_base_folder_name;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *primary_data_list_string;
-	PAIR_ONE2M *pair_one2m;
+	PAIR_ONE2M *pair_one2m = {0};
 	char *message = {0};
 
 	/* This needs to be made into a list. */
@@ -403,6 +407,69 @@ int main( int argc, char **argv )
 
 	} /* if query_dictionary */
 
+	/* If pair 1tom and not the vertical new button */
+	/* -------------------------------------------- */
+	if ( !vertical_new_button_folder_name
+	&&    dictionary_length(
+		dictionary_appaserver->
+			pair_one2m_dictionary ) )
+	{
+		pair_one2m =
+			pair_one2m_insert_form_new(
+				dictionary_appaserver->pair_one2m_dictionary );
+
+		pair_one2m->one_folder_name =
+			pair_one2m_one_folder_name(
+				PAIR_ONE2M_ONE_FOLDER_LABEL,
+				pair_one2m->pair_one2m_dictionary );
+
+		pair_one2m->fulfilled_folder_name_list =
+			pair_one2m_fulfilled_folder_name_list(
+				PAIR_ONE2M_FULFILLED_LIST_LABEL,
+				pair_one2m->pair_one2m_dictionary );
+
+		pair_one2m->one2m_pair_relation_list =
+			relation_one2m_pair_relation_list(
+				relation_one2m_relation_list(
+					pair_one2m->one_folder_name ) );
+
+		if ( ! ( pair_one2m->next_folder_name =
+				pair_one2m_next_folder_name(
+					pair_one2m->
+						fulfilled_folder_name_list,
+					pair_one2m->
+						one2m_pair_relation_list ) ) )
+		{
+			document_quick_output_body(
+					application_name,
+					appaserver_parameter_file->
+						appaserver_mount_point );
+
+			if ( message && *message )
+				printf( "%s\n", message );
+
+			printf( "<h1>Insert Complete</h1>\n" );
+			fflush( stdout );
+
+			if ( system(
+			  "echo '<h2>' && date.sh && echo '</h2>'" )
+				) {};
+
+			fflush( stdout );
+
+/*
+			if ( pair_one2m->inserted_duplicate )
+			{
+				fflush( stdout );
+				printf( DUPLICATE_NON_INSERTED_MESSAGE );
+			}
+*/
+			document_close();
+			exit( 0 );
+		}
+	}
+
+#ifdef NOT_DEFINED
 	folder->pair_one2m_related_folder_list =
 		related_folder_get_pair_one2m_related_folder_list(
 				folder->application_name,
@@ -458,6 +525,7 @@ int main( int argc, char **argv )
 		folder = pair_one2m->pair_insert_folder;
 
 	} /* if pair one2m */
+#endif
 
 	list_append_string_list(
 		ignore_attribute_name_list,
@@ -804,6 +872,7 @@ int main( int argc, char **argv )
 
 	fflush( stdout );
 
+/*
 	if ( pair_one2m->is_participating )
 	{
 		if ( pair_one2m->inserted_duplicate )
@@ -812,6 +881,7 @@ int main( int argc, char **argv )
 		if ( !pair_one2m->continuing_series )
 			printf( ONE_ROW_INSERTED_MESSAGE );
 	}
+*/
 
 	include_attribute_name_list =
 		list_subtract(	folder->attribute_name_list,

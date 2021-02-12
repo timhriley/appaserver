@@ -2180,8 +2180,8 @@ void build_related_folder_element_list(
 			related_folder->
 				folder->folder_name,
 			related_folder->
-			related_attribute_name,
-		done_folder_name_list ) ) )
+			related_attribute_name ),
+		done_folder_name_list ) )
 	{
 		return;
 	}

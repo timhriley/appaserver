@@ -2228,7 +2228,7 @@ void appaserver_library_populate_last_foreign_attribute_key(
 
 		if ( ( data =
 			dictionary_get_pointer(
-				post_dictionary, key ) ) );
+				post_dictionary, key ) ) )
 		{
 			last_primary_attribute_name =
 				list_get_last_pointer(

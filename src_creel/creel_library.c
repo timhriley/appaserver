@@ -509,7 +509,7 @@ boolean creel_library_census_date_get_catches_fresh_database_fetch(
 		atoi( catches->released_count );
 
 	return 1;
-} /* creel_library_census_date_get_catches_fresh_database_fetch() */
+}
 
 boolean creel_library_get_fishing_trips_between_dates_preferred_caught(
 				FISHING_TRIPS *fishing_trips,
@@ -548,7 +548,7 @@ boolean creel_library_get_fishing_trips_between_dates_preferred_caught(
 			buffer );
 
 	return 1;
-} /* creel_library_get_fishing_trips_between_dates_preferred_caught() */
+}
 
 boolean creel_library_get_fishing_trips_between_dates(
 				FISHING_TRIPS *fishing_trips,
@@ -584,7 +584,7 @@ boolean creel_library_get_fishing_trips_between_dates(
 			buffer );
 
 	return 1;
-} /* creel_library_get_fishing_trips_between_dates() */
+}
 
 void creel_library_parse_fishing_trips(
 			FISHING_TRIPS *fishing_trips,
@@ -676,7 +676,7 @@ void creel_library_parse_fishing_trips(
 		input_buffer,
 		16 );
 
-} /* creel_library_parse_fishing_trips() */
+}
 
 boolean creel_library_get_fishing_trip(
 				FISHING_TRIPS *fishing_trips,
@@ -1488,7 +1488,7 @@ void creel_library_build_family_list_where_clause(
 			timlib_get_in_clause( species_list_string ) );
 	}
 
-} /* creel_library_build_family_list_where_clause() */
+}
 
 void creel_library_get_fishing_trips_census_date_where_clause(
 			char *where_clause,
@@ -1545,7 +1545,7 @@ void creel_library_get_fishing_trips_census_date_where_clause(
 		fishing_purpose_where,
 		hours_fishing_where );
 
-} /* creel_library_get_fishing_trips_census_date_where_clause() */
+}
 
 char *creel_library_get_recreational_angler_reside(
 				char *application_name,
@@ -1619,7 +1619,7 @@ char *creel_library_get_recreational_angler_reside(
 		return recreational_angler_reside;
 	else
 		return recreational_angler_reside_code;
-} /* creel_library_get_recreational_angler_reside() */
+}
 
 char *creel_library_get_fishing_composition(
 				char *application_name,
@@ -1694,7 +1694,7 @@ char *creel_library_get_fishing_composition(
 	else
 		return fishing_party_composition_code;
 
-} /* creel_library_get_fishing_composition() */
+}
 
 char *creel_library_get_trip_origin(	char *application_name,
 					char *trip_origin_location,
@@ -1768,7 +1768,7 @@ char *creel_library_get_trip_origin(	char *application_name,
 	else
 		return trip_origin_location_code;
 
-} /* creel_library_get_trip_origin() */
+}
 
 char *creel_library_get_interview_location(
 				char *application_name,
@@ -1843,7 +1843,7 @@ char *creel_library_get_interview_location(
 	else
 		return interview_location_code;
 
-} /* creel_library_get_interview_location() */
+}
 
 char *creel_library_get_researcher(
 				char *application_name,
@@ -1918,7 +1918,7 @@ char *creel_library_get_researcher(
 
 	return CREEL_LIBRARY_UNKNOWN_RESEARCHER;
 
-} /* creel_library_get_researcher() */
+}
 
 char *creel_library_get_species(
 				char *application_name,
@@ -2014,81 +2014,7 @@ char *creel_library_get_species(
 
 	return (char *)0;
 
-} /* creel_library_get_species() */
-
-#ifdef NOT_DEFINED
-char *creel_library_get_family(
-				char *application_name,
-				char *family_name,
-				char *family_code )
-{
-	static LIST *family_list = {0};
-	static char local_family_name[ 128 ];
-	static char local_code[ 128 ];
-	char *record;
-	char *select = "family,florida_state_code";
-
-	if ( !family_list )
-	{
-		char sys_string[ 1024 ];
-
-		sprintf(
-		sys_string,
-		"get_folder_data	application=%s			"
-		"			select=%s			"
-		"			folder=fish_families		",
-		application_name,
-		select );
-
-		family_list = pipe2list( sys_string );
-	}
-
-	if ( !list_rewind( family_list ) )
-	{
-		fprintf( stderr,
-		"Error in %s/%s()/%d: empty family_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	do {
-		record = list_get_pointer( family_list );
-
-		piece(	local_family_name,
-			FOLDER_DATA_DELIMITER,
-			record,
-			0 );
-
-		piece(	local_code,
-			FOLDER_DATA_DELIMITER,
-			record,
-			1 );
-
-		if ( family_name )
-		{
-			if ( strcmp(	family_name,
-					local_family_name ) == 0 )
-			{
-				return local_code;
-			}
-		}
-		else
-		{
-			if ( atoi( local_code ) == 
-			     atoi( family_code ) )
-			{
-				return local_family_name;
-			}
-		}
-
-	} while( list_next( family_list ) );
-
-	return (char *)0;
-
-} /* creel_library_get_family() */
-#endif
+}
 
 char *creel_library_get_species_hash_table_key(
 			char *family,
@@ -2127,7 +2053,7 @@ char *creel_library_get_catches_hash_table_key(
 			interview_location,
 			interview_number );
 	return hash_table_key;
-} /* creel_library_get_catches_hash_table_key() */
+}
 
 char *creel_library_get_census_researcher(
 				char *application_name,
@@ -2217,7 +2143,7 @@ char *creel_library_get_census_researcher(
 	}
 
 	return researcher;
-} /* creel_library_get_census_researcher() */
+}
 
 char *creel_library_get_census_researcher_code(
 				char *application_name,
@@ -2301,7 +2227,7 @@ char *creel_library_get_census_researcher_code(
 	}
 
 	return researcher_code;
-} /* creel_library_get_census_researcher_code() */
+}
 
 char *creel_library_get_recreational_angler_reside_code(
 				char *application_name,
@@ -2361,7 +2287,7 @@ char *creel_library_get_recreational_angler_reside_code(
 		}
 	} while( list_next( recreational_angler_record_list ) );
 	return "";
-} /* creel_library_get_recreational_angler_reside_code() */
+}
 
 char *creel_library_get_census_hash_table_key(
 			char *fishing_purpose,
@@ -2375,7 +2301,7 @@ char *creel_library_get_census_hash_table_key(
 			census_date,
 			interview_location );
 	return hash_table_key;
-} /* creel_library_get_census_hash_table_key() */
+}
 
 boolean creel_library_date_range_get_catch_measurements(
 				CATCH_MEASUREMENTS *catch_measurements,
@@ -2559,7 +2485,7 @@ boolean creel_library_date_range_get_catch_measurements(
 
 	return 1;
 
-} /* creel_library_date_range_get_catch_measurements() */
+}
 
 boolean creel_library_get_expired_guide_angler(
 					GUIDE_ANGLER *guide_angler,
@@ -2683,7 +2609,7 @@ boolean creel_library_get_expired_guide_angler(
 
 	return 1;
 
-} /* creel_library_get_expired_guide_angler() */
+}
 
 void creel_library_get_expired_permit_where_clause(
 				char *where_clause,
@@ -2704,7 +2630,7 @@ void creel_library_get_expired_permit_where_clause(
 		 begin_date_string,
 		 end_date_string );
 
-} /* creel_library_get_expired_permit_where_clause() */
+}
 
 void creel_library_get_begin_end_dates(
 				char **begin_date_string,
@@ -2751,7 +2677,7 @@ void creel_library_get_begin_end_dates(
 	date_free( begin_date );
 	date_free( end_date );
 
-} /* creel_library_get_expired_permit_where_clause() */
+}
 
 boolean creel_library_exists_fishing_area(
 				char *application_name,
@@ -2797,7 +2723,7 @@ boolean creel_library_exists_fishing_area(
 	} while( list_next( fishing_area_list ) );
 
 	return 0;
-} /* creel_library_exists_fishing_area() */
+}
 
 CATCH_PER_UNIT_EFFORT *creel_library_catch_per_unit_effort_new(
 				void )
@@ -2821,7 +2747,7 @@ CATCH_PER_UNIT_EFFORT *creel_library_catch_per_unit_effort_new(
 	catch_per_unit_effort->results_per_species_per_area_list = list_new();
 	catch_per_unit_effort->results_per_species_list = list_new();
 	return catch_per_unit_effort;
-} /* creel_library_catch_per_unit_effort_new() */
+}
 
 CATCH_PER_UNIT_EFFORT_FISHING_TRIP *catch_per_unit_effort_fishing_trip_new(
 						char *fishing_purpose,
@@ -2863,7 +2789,7 @@ CATCH_PER_UNIT_EFFORT_FISHING_TRIP *catch_per_unit_effort_fishing_trip_new(
 	fishing_trip->party_count = party_count;
 	fishing_trip->catch_list = list_new();
 	return fishing_trip;
-} /* catch_per_unit_effort_fishing_trip_new() */
+}
 
 CATCH_PER_UNIT_EFFORT_CATCH *creel_library_catch_per_unit_effort_catch_new(
 				char *family,
@@ -2891,7 +2817,7 @@ CATCH_PER_UNIT_EFFORT_CATCH *creel_library_catch_per_unit_effort_catch_new(
 	catch->species = species;
 	catch->caught_or_kept = caught_or_kept;
 	return catch;
-} /* creel_library_catch_per_unit_effort_catch_new() */
+}
 
 CATCH_PER_UNIT_EFFORT_FISHING_TRIP *
 	creel_library_fetch_catch_per_unit_effort_fishing_trip(
@@ -2922,7 +2848,7 @@ CATCH_PER_UNIT_EFFORT_FISHING_TRIP *
 		} while( list_next( fishing_trip_list ) );
 	}
 	return (CATCH_PER_UNIT_EFFORT_FISHING_TRIP *)0;
-} /* creel_library_fetch_catch_per_unit_effort_fishing_trip() */
+}
 
 LIST *creel_library_get_CPUE_fishing_trip_list(
 					char *application_name,
@@ -2982,7 +2908,7 @@ LIST *creel_library_get_CPUE_fishing_trip_list(
 
 	return fishing_trip_list;
 
-} /* creel_library_get_CPUE_fishing_trip_list() */
+}
 
 LIST *creel_library_get_CPUE_preferred_species_fishing_trip_list(
 					char *application_name,
@@ -3094,7 +3020,7 @@ LIST *creel_library_get_CPUE_preferred_species_fishing_trip_list(
 
 	return fishing_trip_list;
 
-} /* creel_library_get_CPUE_preferred_species_fishing_trip_list() */
+}
 
 
 CATCH_PER_UNIT_EFFORT_SPECIES *catch_per_unit_effort_species_new(
@@ -3123,7 +3049,7 @@ CATCH_PER_UNIT_EFFORT_SPECIES *catch_per_unit_effort_species_new(
 	species->species_caught = species_caught;
 	species->fishing_area = fishing_area;
 	return species;
-} /* catch_per_unit_effort_species_new() */
+}
 
 CATCH_PER_UNIT_EFFORT_SPECIES *catch_per_unit_effort_species_seek(
 					LIST *species_list,
@@ -3164,7 +3090,7 @@ CATCH_PER_UNIT_EFFORT_SPECIES *catch_per_unit_effort_species_seek(
 		}
 	} while( list_next( species_list ) );
 	return (CATCH_PER_UNIT_EFFORT_SPECIES *)0;
-} /* catch_per_unit_effort_species_seek() */
+}
 
 CATCH_PER_UNIT_EFFORT_CATCH *catch_per_unit_effort_catch_seek(
 					LIST *catch_list,
@@ -3187,7 +3113,7 @@ CATCH_PER_UNIT_EFFORT_CATCH *catch_per_unit_effort_catch_seek(
 		}
 	} while( list_next( catch_list ) );
 	return (CATCH_PER_UNIT_EFFORT_CATCH *)0;
-} /* catch_per_unit_effort_catch_seek() */
+}
 
 CATCH_PER_UNIT_EFFORT_SPECIES *catch_per_unit_effort_get_per_species(
 					LIST *results_per_species_list,
@@ -3237,7 +3163,7 @@ CATCH_PER_UNIT_EFFORT_SPECIES *catch_per_unit_effort_get_per_species(
 
 	return species;
 
-} /* catch_per_unit_effort_get_per_species() */
+}
 
 void creel_library_get_CPUE_results_list(
 				LIST *results_list,
@@ -3462,7 +3388,7 @@ void creel_library_get_CPUE_results_list(
 		}
 	} while( list_next( fishing_trip_list ) );
 
-} /* creel_library_get_CPUE_results_list() */
+}
 
 void catch_per_unit_effort_set_detail_species(
 				CATCH_PER_UNIT_EFFORT_SPECIES *species,
@@ -3495,7 +3421,7 @@ void catch_per_unit_effort_set_detail_species(
 	species->catches = caught_integer;
 	species->effort = ( hours_fishing * party_count );
 
-} /* catch_per_unit_effort_set_detail_species() */
+}
 
 boolean creel_library_exists_selected_species(
 				char *family,
@@ -3516,7 +3442,7 @@ boolean creel_library_exists_selected_species(
 		species_list = list_string2list( species_list_string, ',' );
 	}
 
-	if ( list_exists_string( familey family_list )
+	if ( list_exists_string( family, family_list )
 	&&   list_exists_string( genus, genus_list )
 	&&   list_exists_string( species, species_list ) )
 	{
@@ -3526,7 +3452,7 @@ boolean creel_library_exists_selected_species(
 	{
 		return 0;
 	}
-} /* creel_library_exists_selected_species() */
+}
 
 char *creel_library_get_effort_species_statistics_filename(
 				char *family,
@@ -3550,7 +3476,7 @@ char *creel_library_get_effort_species_statistics_filename(
 
 	return strdup( filename );
 
-} /* creel_library_get_effort_species_statistics_filename() */
+}
 
 void creel_library_fetch_species_summary_statistics_filename(
 				double *cpue_mean,
@@ -3611,7 +3537,7 @@ void creel_library_fetch_species_summary_statistics_filename(
 		}
 	}
 	fclose( input_file );
-} /* creel_library_fetch_species_summary_statistics_filename() */
+}
 
 void creel_library_close_statistics_pipes(
 				LIST *results_per_species_list )
@@ -3627,7 +3553,7 @@ void creel_library_close_statistics_pipes(
 		/* pclose( species->complete_statistics_pipe ); */
 	} while( list_next( results_per_species_list ) );
 
-} /* creel_library_close_statistics_pipes() */
+}
 
 void creel_library_remove_statistics_files(
 				LIST *results_species_summary_list )
@@ -3644,18 +3570,11 @@ void creel_library_remove_statistics_files(
 		sprintf( sys_string,
 			 "rm -f %s",
 			 species_summary->statistics_filename );
-		system( sys_string );
-
-/*
-		sprintf( sys_string,
-			 "rm -f %s",
-			 species_summary->complete_statistics_filename );
-		system( sys_string );
-*/
+		if ( system( sys_string ) ){};
 
 	} while( list_next( results_species_summary_list ) );
 
-} /* creel_library_remove_statistics_files() */
+}
 
 void creel_library_separate_fishing_area_zone(
 				char **fishing_area,
@@ -3695,7 +3614,7 @@ void creel_library_separate_fishing_area_zone(
 			*fishing_zone = "";
 		}
 	}
-} /* creel_library_separate_fishing_area_zone() */
+}
 
 LIST *creel_library_get_measurements_record_list(
 				char *application_name,
@@ -3767,7 +3686,7 @@ LIST *creel_library_get_measurements_record_list(
 
 	return pipe2list( sys_string );
 
-} /* creel_library_get_measurements_record_list() */
+}
 
 char *creel_library_get_measurements_record_search_string(
 				char *fishing_purpose,
@@ -3791,43 +3710,7 @@ char *creel_library_get_measurements_record_search_string(
 		species);
 
 	return search_string;
-} /* creel_library_get_measurements_record_search_string() */
-
-#ifdef NOT_DEFINED
-int creel_library_get_complete_effort(
-				char *application_name,
-				char *begin_date_string,
-				char *end_date_string,
-				char *fishing_purpose )
-{
-	char where_clause[ 4096 ];
-	char sys_string[ 4096 ];
-	char *select;
-	char *fishing_trips_table_name;
-
-	select = "sum( hours_fishing * number_of_people_fishing )";
-
-	fishing_trips_table_name =
-		get_table_name( application_name, "fishing_trips" );
-
-	creel_library_get_fishing_trips_census_date_where_clause(
-			where_clause,
-			application_name,
-			(char *)0 /* fishing_area_list_string */,
-			begin_date_string,
-			end_date_string,
-			fishing_purpose );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where 1 = 1 %s;\" | sql.e",
-		 select,
-		 fishing_trips_table_name,
-		 where_clause );
-
-	return atoi( pipe2string( sys_string ) );
-
-} /* creel_library_get_complete_effort() */
-#endif
+}
 
 int creel_library_get_complete_sample_size(
 			char *application_name,
@@ -3861,7 +3744,7 @@ int creel_library_get_complete_sample_size(
 
 	return atoi( pipe2string( sys_string ) );
 
-} /* creel_library_get_complete_sample_size() */
+}
 
 CATCHES *creel_library_get_or_set_catches(
 				LIST *catches_list,
@@ -3891,7 +3774,7 @@ CATCHES *creel_library_get_or_set_catches(
 	strcpy( catches->species, species );
 	list_append_pointer( catches_list, catches );
 	return catches;
-} /* creel_library_get_or_set_catches() */
+}
 
 FILE *creel_library_get_fishing_trips_input_pipe(
 				char *application_name,
@@ -4015,7 +3898,7 @@ sys_string );
 
 	return popen( sys_string, "r" );
 
-} /* creel_library_get_fishing_trips_input_pipe() */
+}
 
 char *creel_library_get_where_preferred_caught(
 				char *application_name,
@@ -4118,7 +4001,7 @@ char *creel_library_get_where_preferred_caught(
 
 	return strdup( where_clause );
 
-} /* creel_library_get_where_preferred_caught() */
+}
 
 char *creel_library_get_species_where(
 			char *family,
@@ -4177,7 +4060,7 @@ char *creel_library_get_species_where(
 
 	return strdup( where_clause );
 
-} /* creel_library_get_species_where() */
+}
 
 char *creel_library_get_fishing_area_where(
 				char *fishing_area_list_string )
@@ -4209,7 +4092,7 @@ char *creel_library_get_fishing_area_where(
 
 	return fishing_area_where;
 
-} /* creel_library_get_fishing_area_where() */
+}
 
 char *creel_library_get_interview_location_where(
 				char *interview_location )
@@ -4231,7 +4114,7 @@ char *creel_library_get_interview_location_where(
 
 	return interview_location_where;
 
-} /* creel_library_get_interview_location_where() */
+}
 
 static char *fishing_trips_table = "fishing_trips";
 
@@ -4256,5 +4139,5 @@ char *creel_library_get_fishing_trips_join_where(
 
 	return strdup( where );
 
-} /* creel_library_get_fishing_trips_join_where() */
+}
 
