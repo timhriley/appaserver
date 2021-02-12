@@ -397,7 +397,6 @@ void delete_folder_block_state_one(
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
 	dictionary_appaserver->send_dictionary =
@@ -408,7 +407,7 @@ void delete_folder_block_state_one(
 			dictionary_appaserver->
 				lookup_before_drop_down_dictionary,
 			dictionary_appaserver->ignore_dictionary,
-			dictionary_appaserver->pair_1tom_dictionary,
+			dictionary_appaserver->pair_one2m_dictionary,
 			(DICTIONARY *)0 /* non_prefixed_dictionary */ );
 
 	output_dictionary_as_hidden( dictionary_appaserver->send_dictionary );
@@ -416,8 +415,7 @@ void delete_folder_block_state_one(
 	form_output_submit_button(
 			(char *)0 /* submit_control_string */,
 			"Delete",
-			0 /* form_number */,
-			(LIST *)0 /* pair_one2m_related_folder_name_list */ );
+			0 /* form_number */ );
 
 }
 

@@ -206,7 +206,6 @@ void form_output_heading(
 			char *server_address,
 			char *optional_related_attribute_name,
 			char *remember_keystrokes_onload_control_string,
-			LIST *form_button_list,
 			char *post_change_javascript )
 {
 	char buffer[ 128 ];
@@ -286,9 +285,7 @@ void form_output_heading(
 			0 /* not with_back_to_top_button */,
 			with_prelookup_skip_button,
 			0 /* form_number */,
-			post_change_javascript,
-			(LIST *)0 /* pair_one2m_related_folder_name_list */,
-			form_button_list );
+			post_change_javascript );
 	}
 
 	printf( "<table cellspacing=0 cellpadding=0" );
@@ -303,7 +300,6 @@ void form_output_heading(
 				buffer, caption_string ),
 			FORM_CAPTION_HEADING_TAG );
 	}
-
 }
 
 int form_output_body(	int *form_current_reference_number,
@@ -411,9 +407,22 @@ void form_output_trailer(
 			application_name,
 			with_back_to_top_button,
 			form_number,
-			post_change_javascript,
-			(LIST *)0 /* pair_one2m_related_folder_name_list */,
-			form_button_list );
+			post_change_javascript );
+
+	if ( list_rewind( form_button_list ) )
+	{
+		FORM_BUTTON *form_button;
+
+		do {
+			form_button = list_get_pointer( form_button_list );
+
+			printf(
+"<input type=\"button\" value=\"%s\" onClick=\"%s;\">\n",
+				form_button->button_label,
+				form_button->onclick_control_string );
+
+		} while( list_next( form_button_list ) );
+	}
 }
 
 void form_output_trailer_post_change_javascript(
@@ -426,9 +435,7 @@ void form_output_trailer_post_change_javascript(
 			char *application_name,
 			boolean with_back_to_top_button,
 			int form_number,
-			char *post_change_javascript,
-			LIST *pair_one2m_related_folder_name_list,
-			LIST *form_button_list )
+			char *post_change_javascript )
 {
 	if ( output_insert_button )
 	{
@@ -472,9 +479,7 @@ void form_output_trailer_post_change_javascript(
 			with_back_to_top_button,
 			0 /* not with_prelookup_skip_button */,
 			form_number,
-			post_change_javascript,
-			pair_one2m_related_folder_name_list,
-			form_button_list );
+			post_change_javascript );
 
 		with_back_to_top_button = 0;
 	}
@@ -1859,17 +1864,14 @@ void form_output_submit_reset_buttons(
 			boolean with_back_to_top_button,
 			boolean with_prelookup_skip_button,
 			int form_number,
-			char *post_change_javascript,
-			LIST *pair_one2m_related_folder_name_list,
-			LIST *form_button_list )
+			char *post_change_javascript )
 {
 	if ( with_table_tags ) printf( "<tr><td>\n" );
 
 	form_output_submit_button(
 			submit_control_string,
 			button_label,
-			form_number,
-			pair_one2m_related_folder_name_list );
+			form_number );
 
 	form_output_reset_button(	post_change_javascript,
 					form_number );
@@ -1899,29 +1901,13 @@ void form_output_submit_reset_buttons(
 		form_output_back_to_top_button();
 	}
 
-	if ( list_rewind( form_button_list ) )
-	{
-		FORM_BUTTON *form_button;
-
-		do {
-			form_button = list_get_pointer( form_button_list );
-
-			printf(
-"<input type=\"button\" value=\"%s\" onClick=\"%s;\">\n",
-				form_button->button_label,
-				form_button->onclick_control_string );
-
-		} while( list_next( form_button_list ) );
-	}
-
 	if ( with_table_tags ) printf( "</td>\n" );
 }
 
 void form_output_submit_button(
 			char *submit_control_string,
 			char *button_label,
-			int form_number,
-			LIST *pair_one2m_related_folder_name_list )
+			int form_number )
 {
 	if ( !button_label || !*button_label )
 		button_label = SUBMIT_BUTTON_LABEL;
@@ -1988,7 +1974,7 @@ void form_output_prompt_insert_trailer(
 			char *prelookup_button_control_string,
 			char *application_name,
 			char *reset_post_change_javascript,
-			LIST *pair_one2m_insert_form_folder_list )
+			LIST *pair_one2m_pair_insert_form_folder_list )
 {
 	form_output_prompt_insert_submit_buttons(
 		submit_control_string,
@@ -1997,7 +1983,7 @@ void form_output_prompt_insert_trailer(
 		remember_keystrokes_onload_control_string,
 		application_name,
 		reset_post_change_javascript,
-		pair_one2m_insert_form_folder_list );
+		pair_one2m_pair_insert_form_folder_list );
 
 	if ( prelookup_button_control_string )
 	{
@@ -2014,12 +2000,12 @@ void form_output_prompt_insert_submit_buttons(
 			char *remember_keystrokes_onload_control_string,
 			char *application_name,
 			char *reset_post_change_javascript,
-			LIST *pair_one2m_insert_form_folder_list )
+			LIST *pair_one2m_pair_insert_form_folder_list )
 {
 	form_output_prompt_insert_submit_button(
 		submit_control_string,
 		button_label,
-		pair_one2m_insert_form_folder_list );
+		pair_one2m_pair_insert_form_folder_list );
 
 	form_output_reset_button(
 		reset_post_change_javascript,
@@ -2046,7 +2032,7 @@ void form_output_prompt_insert_submit_buttons(
 void form_output_prompt_insert_submit_button(
 			char *submit_control_string,
 			char *button_label,
-			LIST *pair_one2m_insert_form_folder_list )
+			LIST *pair_one2m_pair_insert_form_folder_list )
 {
 	if ( !button_label || !*button_label )
 		button_label = SUBMIT_BUTTON_LABEL;
@@ -2071,11 +2057,11 @@ void form_output_prompt_insert_submit_button(
 			button_label );
 	}
 
-	if ( list_length( pair_one2m_insert_form_folder_list ) )
+	if ( list_length( pair_one2m_pair_insert_form_folder_list ) )
 	{
 		form_output_insert_pair_one2m_submit_buttons(
 			submit_control_string,
-			pair_one2m_insert_form_folder_list );
+			pair_one2m_pair_insert_form_folder_list );
 	}
 }
 

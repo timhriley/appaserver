@@ -413,7 +413,7 @@ int main( int argc, char **argv )
 		pair_one2m_new(
 			ignore_attribute_name_list		/* out only */,
 			dictionary_appaserver->
-				pair_1tom_dictionary		/* in/out   */,
+				pair_one2m_dictionary		/* in/out   */,
 			application_name			/* in only  */,
 			folder->pair_one2m_related_folder_list	/* in only  */,
 			posted_attribute_name_list		/* in only  */,
@@ -885,7 +885,6 @@ int main( int argc, char **argv )
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
 	form_output_table_heading(	form->regular_element_list,
@@ -1096,16 +1095,17 @@ drop-down needing SWEEP.sweep_number in the where clause.
 
 		/* If the attribute is accounted for already */
 		/* ----------------------------------------- */
-		if ( list_exists_string( ignore_attribute_name_list,
-					 attribute_name ) )
+		if ( list_exists_string(
+			attribute_name,
+			ignore_attribute_name_list ) )
 		{
 			continue;
 		}
 
 		is_primary_attribute =
 			list_exists_string(	
-					primary_attribute_name_list,
-					attribute_name );
+				attribute_name,
+				primary_attribute_name_list );
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
@@ -1208,8 +1208,9 @@ drop-down needing SWEEP.sweep_number in the where clause.
 			objects_outputted++;
 		}
 
-		if ( list_exists_string(	ignore_attribute_name_list,
-						attribute_name ) )
+		if ( list_exists_string(
+			attribute_name,
+			ignore_attribute_name_list ) )
 		{
 			continue;
 		}

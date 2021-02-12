@@ -617,8 +617,7 @@ boolean valid_manipulate_agency(
 		return 1;
 
 	return ( list_exists_string( 
-			filter_manipulate_agency_list,
-			manipulate_agency ) );
-
+			manipulate_agency,
+			filter_manipulate_agency_list ) );
 }
 

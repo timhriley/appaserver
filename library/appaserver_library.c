@@ -904,8 +904,9 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 	return_list = list_new();
 
 	if ( posted_attribute_name_list
-	&&   list_exists_string( posted_attribute_name_list,
-				 attribute_name ) )
+	&&   list_exists_string(
+		attribute_name,
+		posted_attribute_name_list ) )
 	{
 		element = element_appaserver_new(
 				hidden, 
@@ -1372,8 +1373,8 @@ LIST *appaserver_library_get_omit_insert_prompt_attribute_name_list(
 				list_get_pointer( attribute_list );
 
 			if ( list_exists_string(
-				attribute->exclude_permission_list,
-				"insert" )
+				"insert",
+				attribute->exclude_permission_list )
 			||   attribute->omit_insert_prompt
 			||   attribute->omit_insert )
 			{
@@ -2017,8 +2018,9 @@ void appaserver_library_list_database_convert_dates(
 		attribute_name =
 			list_get_pointer( primary_attribute_name_list );
 
-		if ( list_exists_string(	date_attribute_name_list,
-						attribute_name ) )
+		if ( list_exists_string(
+			attribute_name,
+			date_attribute_name_list ) )
 		{
 			data = list_get_pointer( data_list );
 
@@ -2704,8 +2706,8 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 				element );
 
 		if ( list_exists_string(
-			primary_attribute_name_list,
-			attribute_name ) )
+			attribute_name,
+			primary_attribute_name_list ) )
 		{
 			element =
 				element_appaserver_new(

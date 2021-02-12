@@ -856,26 +856,6 @@ void delete_database_execute_update_to_null_row_pipe(
 				list_get_pointer(
 					update_null_attribute_name_list );
 
-/*
-			if ( list_exists_string(
-				primary_attribute_name_list,
-				null_attribute_name ) )
-			{
-				null_data = "null";
-			}
-			else
-			{
-				null_data = "";
-			}
-
-			if ( list_exists_string(
-				primary_attribute_name_list,
-				null_attribute_name ) )
-			{
-				continue;
-			}
-*/
-
 			fprintf(output_pipe,
 				"%s^%s^\n",
 				list_display_delimited(
@@ -1036,8 +1016,8 @@ LIST *delete_database_get_update_null_attribute_name_list(
 				foreign_attribute_name_list );
 
 		if ( !list_exists_string(
-			primary_attribute_name_list,
-			foreign_attribute_name ) )
+			foreign_attribute_name,
+			primary_attribute_name_list ) )
 		{
 			list_append_pointer(
 				update_null_attribute_name_list,

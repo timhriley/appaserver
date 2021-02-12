@@ -84,8 +84,8 @@ LIST *pipe2dictionary_list(	 	char *sys_string,
 			if ( login_name
 			&&   date_attribute_name_list
 			&&   list_exists_string(
-				date_attribute_name_list,
-				attribute_name ) )
+				attribute_name,
+				date_attribute_name_list ) )
 			{
 				if ( !date_convert )
 				{

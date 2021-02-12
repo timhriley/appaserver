@@ -179,15 +179,20 @@ LIST *relation_system_list(
 	return relation_list;
 }
 
-char *relation_sys_string( char *where )
+char *relation_sys_string(
+			char *where,
+			char *order_clause )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"select.sh '%s' %s \"%s\"",
+		"select.sh '%s' %s \"%s\" \"%s\"",
 		RELATION_SELECT_COLUMNS,
 		RELATION_TABLE,
-		where );
+		where,
+		(order_clause )
+			? order_clause
+			: "" );
 
 	return strdup( sys_string );
 }
@@ -285,7 +290,8 @@ LIST *relation_foreign_attribute_name_list(
 }
 
 LIST *relation_one2m_fetch_relation_list(
-			char *one_folder_name )
+			char *one_folder_name,
+			char *order_clause )
 {
 	char where[ 128 ];
 
@@ -296,7 +302,8 @@ LIST *relation_one2m_fetch_relation_list(
 	return
 		relation_system_list(
 			relation_sys_string(
-				where ),
+				where,
+				order_clause ),
 			/* ---------------------------- */
 			/* Setting both will set	*/
 			/* foreign_attribute_name_list	*/
@@ -317,7 +324,8 @@ LIST *relation_mto1_fetch_relation_list(
 	return
 		relation_system_list(
 			relation_sys_string(
-				where ),
+				where,
+				(char *)0 /* order_clause */ ),
 			/* ---------------------------- */
 			/* Setting both will set	*/
 			/* foreign_attribute_name_list	*/
@@ -340,7 +348,8 @@ LIST *relation_one2m_recursive_relation_list(
 		/* foreign_attribute_name_list is set */
 		/* ---------------------------------- */
 		relation_one2m_fetch_relation_list(
-			one_folder_name );
+			one_folder_name,
+			(char *)0 /* order_clause */ );
 
 	if ( !list_rewind( local_relation_list ) )
 		return relation_list;
@@ -480,6 +489,34 @@ LIST *relation_one2m_relation_list(
 		/* foreign_attribute_name_list is set */
 		/* ---------------------------------- */
 		relation_one2m_fetch_relation_list(
-			one_folder_name );
+			one_folder_name,
+			"pair_1tom_order"
+				/* order_clause */ );
 }
 
+LIST *relation_one2m_pair_relation_list(
+			LIST *relation_one2m_relation_list )
+{
+	RELATION *relation;
+	LIST *relation_list = {0};
+
+	if ( !list_rewind( relation_one2m_relation_list ) ) return (LIST *)0;
+
+	do {
+		relation =
+			list_get(
+				relation_one2m_relation_list );
+
+		if ( relation->pair_1tom_order )
+		{
+			if ( !relation_list )
+				relation_list =
+					list_new();
+
+			list_set( relation_list, relation );
+		}
+
+	} while ( list_next( relation_one2m_relation_list ) );
+
+	return relation_list;
+}

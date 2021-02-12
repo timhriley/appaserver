@@ -254,11 +254,12 @@ void validation_form_output_heading(	char *title,
 void validation_form_output_trailer( void )
 {
 	printf( "<tr><td>" );
+
 	form_output_submit_button(
 			(char *)0,
 			"Validate",
-			0 /* form_number */,
-			(LIST *)0 /* pair_one2m_related_folder_name_list */ );
+			0 /* form_number */ );
+
 	printf( "</table></form>\n" );
 }
 

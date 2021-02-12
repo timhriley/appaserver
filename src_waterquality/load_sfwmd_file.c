@@ -828,7 +828,8 @@ char *get_aliased_units(	char *application_name,
 		alias_list = get_units_list( application_name );
 	}
 
-	if ( list_exists_string( alias_list, units ) ) return units;
+	if ( list_exists_string( units, alias_list ) )
+		return units;
 
 	if ( ( alias_units =
 			dictionary_get_pointer(
@@ -859,7 +860,7 @@ char *get_aliased_parameter(	char *application_name,
 		alias_list = get_parameter_list( application_name );
 	}
 
-	if ( list_exists_string( alias_list, parameter_string ) )
+	if ( list_exists_string( parameter_string, alias_list ) )
 		return parameter_string;
 
 	if ( ( alias_parameter =

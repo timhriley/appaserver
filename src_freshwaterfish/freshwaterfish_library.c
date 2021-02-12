@@ -1991,8 +1991,8 @@ LIST *freshwaterfish_get_species_list(
 			0 );
 
 		if ( list_exists_string(
-			scientific_name_comprised_list,
-			piece_buffer ) )
+			piece_buffer,
+			scientific_name_comprised_list ) )
 		{
 			continue;
 		}

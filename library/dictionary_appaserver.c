@@ -47,7 +47,7 @@ DICTIONARY_APPASERVER *dictionary_appaserver_new(
 		dictionary_appaserver->ignore_dictionary =
 			dictionary_small_new();
 
-		dictionary_appaserver->pair_1tom_dictionary =
+		dictionary_appaserver->pair_one2m_dictionary =
 			dictionary_small_new();
 
 		/* ------------------------------------------------------- */
@@ -103,8 +103,8 @@ DICTIONARY_APPASERVER *dictionary_appaserver_new(
 				dictionary_appaserver->
 					working_post_dictionary );
 
-		dictionary_appaserver->pair_1tom_dictionary =
-			dictionary_appaserver_get_pair_1tom_dictionary(
+		dictionary_appaserver->pair_one2m_dictionary =
+			dictionary_appaserver_get_pair_one2m_dictionary(
 				dictionary_appaserver->
 					working_post_dictionary );
 
@@ -126,7 +126,7 @@ DICTIONARY_APPASERVER *dictionary_appaserver_new(
 
 	return dictionary_appaserver;
 
-} /* dictionary_appaserver_new() */
+}
 
 DICTIONARY *dictionary_appaserver_get_send_dictionary(
 			DICTIONARY *sort_dictionary,
@@ -134,7 +134,7 @@ DICTIONARY *dictionary_appaserver_get_send_dictionary(
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *lookup_before_drop_down_dictionary,
 			DICTIONARY *ignore_dictionary,
-			DICTIONARY *pair_1tom_dictionary,
+			DICTIONARY *pair_one2m_dictionary,
 			DICTIONARY *non_prefixed_dictionary )
 {
 	DICTIONARY *send_dictionary;
@@ -145,24 +145,27 @@ DICTIONARY *dictionary_appaserver_get_send_dictionary(
 	{
 		dictionary_append_dictionary(
 			send_dictionary,
-			dictionary_add_prefix(	sort_dictionary,
-						SORT_BUTTON_PREFIX ) );
+			dictionary_add_prefix(
+				sort_dictionary,
+				SORT_BUTTON_PREFIX ) );
 	}
 
 	if ( dictionary_length( query_dictionary ) )
 	{
 		dictionary_append_dictionary(
 			send_dictionary,
-			dictionary_add_prefix(	query_dictionary,
-						QUERY_STARTING_LABEL ) );
+			dictionary_add_prefix(
+				query_dictionary,
+				QUERY_STARTING_LABEL ) );
 	}
 
 	if ( dictionary_length( preprompt_dictionary ) )
 	{
 		dictionary_append_dictionary(
 			send_dictionary,
-			dictionary_add_prefix(	preprompt_dictionary,
-						PREPROMPT_PREFIX ) );
+			dictionary_add_prefix(
+				preprompt_dictionary,
+				PREPROMPT_PREFIX ) );
 	}
 
 	if ( dictionary_length( lookup_before_drop_down_dictionary ) )
@@ -178,16 +181,18 @@ DICTIONARY *dictionary_appaserver_get_send_dictionary(
 	{
 		dictionary_append_dictionary(
 			send_dictionary,
-			dictionary_add_prefix(	ignore_dictionary,
-						IGNORE_PUSH_BUTTON_PREFIX ) );
+			dictionary_add_prefix(
+				ignore_dictionary,
+				IGNORE_PUSH_BUTTON_PREFIX ) );
 	}
 
-	if ( dictionary_length( pair_1tom_dictionary ) )
+	if ( dictionary_length( pair_one2m_dictionary ) )
 	{
 		dictionary_append_dictionary(
 			send_dictionary,
-			dictionary_add_prefix(	pair_1tom_dictionary,
-						PAIR_ONE2M_PREFIX ) );
+			dictionary_add_prefix(
+				pair_one2m_dictionary,
+				PAIR_ONE2M_PREFIX ) );
 	}
 
 	if ( dictionary_length( non_prefixed_dictionary ) )
@@ -203,7 +208,7 @@ DICTIONARY *dictionary_appaserver_get_send_dictionary(
 
 	return send_dictionary;
 
-} /* dictionary_appaserver_get_get_send_dictionary() */
+}
 
 DICTIONARY *dictionary_appaserver_get_working_post_dictionary(
 			DICTIONARY *original_post_dictionary,
@@ -255,7 +260,7 @@ DICTIONARY *dictionary_appaserver_get_working_post_dictionary(
 
 	return working_post_dictionary;
 
-} /* dictionary_appaserver_get_working_post_dictionary() */
+}
 
 DICTIONARY *dictionary_appaserver_get_sort_dictionary(
 			DICTIONARY *working_post_dictionary )
@@ -264,7 +269,7 @@ DICTIONARY *dictionary_appaserver_get_sort_dictionary(
 			working_post_dictionary,
 			SORT_BUTTON_PREFIX );
 
-} /* dictionary_appaserver_get_sort_dictionary() */
+}
 
 DICTIONARY *dictionary_appaserver_get_prefixed_dictionary(
 			DICTIONARY *post_dictionary,
@@ -282,7 +287,7 @@ DICTIONARY *dictionary_appaserver_get_prefixed_dictionary(
 
 	return return_dictionary;
 
-} /* dictionary_appaserver_get_prefixed_dictionary() */
+}
 
 DICTIONARY *dictionary_appaserver_get_preprompt_dictionary(
 			DICTIONARY *working_post_dictionary )
@@ -303,7 +308,7 @@ DICTIONARY *dictionary_appaserver_get_preprompt_dictionary(
 
 	return dictionary;
 
-} /* dictionary_appaserver_get_preprompt_dictionary() */
+}
 
 DICTIONARY *dictionary_appaserver_get_ignore_dictionary(
 			DICTIONARY *working_post_dictionary )
@@ -330,9 +335,9 @@ DICTIONARY *dictionary_appaserver_get_ignore_dictionary(
 
 	return dictionary;
 
-} /* dictionary_appaserver_get_ignore_dictionary() */
+}
 
-DICTIONARY *dictionary_appaserver_get_pair_1tom_dictionary(
+DICTIONARY *dictionary_appaserver_get_pair_one2m_dictionary(
 			DICTIONARY *working_post_dictionary )
 {
 	DICTIONARY *dictionary;
@@ -346,7 +351,7 @@ DICTIONARY *dictionary_appaserver_get_pair_1tom_dictionary(
 	}
 
 	return dictionary;
-} /* dictionary_appaserver_get_pair_1tom_dictionary() */
+}
 
 DICTIONARY *dictionary_appaserver_get_lookup_before_dictionary(
 			DICTIONARY *working_post_dictionary )
@@ -362,7 +367,7 @@ DICTIONARY *dictionary_appaserver_get_lookup_before_dictionary(
 	}
 
 	return dictionary;
-} /* dictionary_appaserver_get_lookup_before_dictionary() */
+}
 
 DICTIONARY *dictionary_appaserver_get_query_dictionary(
 			DICTIONARY *working_post_dictionary )
@@ -383,7 +388,7 @@ DICTIONARY *dictionary_appaserver_get_query_dictionary(
 
 	return dictionary;
 
-} /* dictionary_appaserver_get_query_dictionary() */
+}
 
 void dictionary_appaserver_parse_multi_attribute_keys(
 				DICTIONARY *source_destination,
@@ -408,7 +413,7 @@ void dictionary_appaserver_parse_multi_attribute_keys(
 				prefix,
 				1 /* dont_include_relational_operators */ );
 
-} /* dictionary_appaserver_parse_multi_attribute_keys() */
+}
 
 DICTIONARY *dictionary_appaserver_get_row_dictionary_row_zero(
 			DICTIONARY *working_post_dictionary,
@@ -447,7 +452,7 @@ DICTIONARY *dictionary_appaserver_get_row_dictionary_row_zero(
 	} while( list_next( attribute_name_list ) );
 
 	return row_dictionary;
-} /* dictionary_appaserver_get_row_dictionary_row_zero() */
+}
 
 DICTIONARY *dictionary_appaserver_get_row_dictionary_multi_row(
 			DICTIONARY *non_prefixed_dictionary,
@@ -527,7 +532,7 @@ DICTIONARY *dictionary_appaserver_get_row_dictionary_multi_row(
 
 	return row_dictionary;
 
-} /* dictionary_appaserver_get_row_dictionary_multi_row() */
+}
 
 DICTIONARY *dictionary_appaserver_get_row_dictionary_row(
 					DICTIONARY *row_dictionary,
@@ -561,7 +566,7 @@ DICTIONARY *dictionary_appaserver_get_row_dictionary_row(
 
 	return return_dictionary;
 
-} /* dictionary_appaserver_get_row_dictionary_row() */
+}
 
 char *dictionary_appaserver_get_escaped_dictionary_string(
 			DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -594,7 +599,7 @@ char *dictionary_appaserver_escaped_send_dictionary_string(
 			dictionary_appaserver->
 				lookup_before_drop_down_dictionary,
 			dictionary_appaserver->ignore_dictionary,
-			dictionary_appaserver->pair_1tom_dictionary,
+			dictionary_appaserver->pair_one2m_dictionary,
 			non_prefixed_dictionary );
 
 	escape_character(
@@ -606,7 +611,7 @@ char *dictionary_appaserver_escaped_send_dictionary_string(
 
 	return strdup( escaped_dictionary_string );
 
-} /* dictionary_appaserver_escaped_send_dictionary_string() */
+}
 
 DICTIONARY *dictionary_appaserver_get_non_prefixed_dictionary(
 			DICTIONARY *working_post_dictionary,
@@ -696,7 +701,7 @@ DICTIONARY *dictionary_appaserver_get_non_prefixed_dictionary(
 
 	return dictionary;
 
-} /* dictionary_appaserver_get_non_prefixed_dictionary() */
+}
 
 void dictionary_appaserver_output_as_hidden(
 			DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -738,12 +743,12 @@ void dictionary_appaserver_output_as_hidden(
 				IGNORE_PUSH_BUTTON_PREFIX ) );
 	}
 
-	if ( dictionary_length( dictionary_appaserver->pair_1tom_dictionary ) )
+	if ( dictionary_length( dictionary_appaserver->pair_one2m_dictionary ) )
 	{
 		appaserver_library_output_dictionary_as_hidden(
 			dictionary_prepend_key(
 				dictionary_appaserver->
-					pair_1tom_dictionary,
+					pair_one2m_dictionary,
 				PAIR_ONE2M_PREFIX ) );
 	}
 
@@ -768,7 +773,7 @@ Can't output the sort dictionary.
 					non_prefixed_dictionary );
 	}
 
-} /* dictionary_appaserver_output_as_hidden() */
+}
 
 LIST *dictionary_appaserver_get_posted_attribute_name_list(
 					DICTIONARY *query_dictionary, 
@@ -816,7 +821,7 @@ LIST *dictionary_appaserver_get_posted_attribute_name_list(
 
 	} while( list_next( attribute_name_list ) );
 	return return_list;
-} /* dictionary_appaserver_get_posted_attribute_name_list() */
+}
 
 void dictionary_appaserver_remove_from_starting_label(
 					DICTIONARY *dictionary )
@@ -825,7 +830,7 @@ void dictionary_appaserver_remove_from_starting_label(
 		    	dictionary,
 		    	QUERY_FROM_STARTING_LABEL );
 
-} /* dictionary_appaserver_remove_from_starting_label() */
+}
 
 void dictionary_appaserver_set_primary_data_list_string(
 		DICTIONARY *row_dictionary,
@@ -875,5 +880,5 @@ void dictionary_appaserver_set_primary_data_list_string(
 
 	}
 	
-} /* dictionary_appaserver_set_primary_data_list_string() */
+}
 

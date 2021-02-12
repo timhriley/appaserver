@@ -278,8 +278,8 @@ LIST *get_process_list(	LIST *process_list,
 		table_name = list_get_pointer( table_name_list );
 
 		if ( list_exists_string(
-			exclude_table_name_list,
-			table_name ) )
+			table_name,
+			exclude_table_name_list ) )
 		{
 			continue;
 		}
@@ -292,7 +292,9 @@ LIST *get_process_list(	LIST *process_list,
 		/* --------------------- */
 		filename = get_filename( table_name, now_yyyymmdd );
 
-		if ( list_exists_string( big_table_name_list, table_name ) )
+		if ( list_exists_string(
+			table_name,
+			big_table_name_list ) )
 		{
 			sprintf( path_filename_extension,
 				 "%s/%s.gz",
@@ -364,8 +366,8 @@ LIST *get_filename_list(	LIST *table_name_list,
 		table_name = list_get_pointer( table_name_list );
 
 		if ( list_exists_string(
-			exclude_table_name_list,
-			table_name ) )
+			table_name,
+			exclude_table_name_list ) )
 		{
 			continue;
 		}
@@ -373,8 +375,8 @@ LIST *get_filename_list(	LIST *table_name_list,
 		if ( list_length( big_table_name_list ) )
 		{
 			if ( list_exists_string(
-					big_table_name_list,
-					table_name ) )
+				table_name,
+				big_table_name_list ) )
 			{
 				continue;
 			}
@@ -558,8 +560,8 @@ void build_datafile_count_file(		char *mysqldump_datafile_count_file,
 		table_name = list_get_pointer( table_name_list );
 
 		if ( list_exists_string(
-			exclude_table_name_list,
-			table_name ) )
+			table_name,
+			exclude_table_name_list ) )
 		{
 			continue;
 		}
@@ -568,7 +570,9 @@ void build_datafile_count_file(		char *mysqldump_datafile_count_file,
 		/* --------------------- */
 		filename = get_filename( table_name, now_yyyymmdd );
 
-		if ( list_exists_string( big_table_name_list, table_name ) )
+		if ( list_exists_string(
+			table_name,
+			big_table_name_list ) )
 		{
 			sprintf( full_filename,
 				 "%s/%s.gz",

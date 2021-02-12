@@ -3582,8 +3582,8 @@ HASH_TABLE *inventory_get_arrived_inventory_purchase_hash_table(
 		}
 
 		if ( !list_exists_string(
-			*inventory_purchase_name_list,
-			inventory_purchase->inventory_name ) )
+			inventory_purchase->inventory_name,
+			*inventory_purchase_name_list ) )
 		{
 			list_append_pointer(
 				*inventory_purchase_name_list,
@@ -3700,8 +3700,8 @@ HASH_TABLE *inventory_get_completed_inventory_sale_hash_table(
 		}
 
 		if ( !list_exists_string(
-			*inventory_sale_name_list,
-			inventory_sale->inventory_name ) )
+			inventory_sale->inventory_name,
+			*inventory_sale_name_list ) )
 		{
 			list_append_pointer(
 				*inventory_sale_name_list,

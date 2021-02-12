@@ -811,20 +811,20 @@ void output_1tom_folder_detail(	int *form_number,
 					one2m_related_folder_list );
 
 		if ( !list_exists_string(
-			role_folder_insert_list,
 			related_folder->
 				one2m_folder->
-					folder_name )
+					folder_name,
+			role_folder_insert_list )
 		&&   !list_exists_string(
-			role_folder_update_list,
 			related_folder->
 				one2m_folder->
-					folder_name )
+					folder_name,
+			role_folder_update_list )
 		&&   !list_exists_string(
-			role_folder_lookup_list,
 			related_folder->
 				one2m_folder->
-					folder_name ) )
+					folder_name,
+			role_folder_lookup_list ) )
 		{
 			continue;
 		}
@@ -1090,14 +1090,14 @@ void output_mto1_folder_detail(	int *form_number,
 					mto1_related_folder_list );
 
 		if ( !list_exists_string(
-			role_folder_insert_list,
-			related_folder->folder->folder_name )
+			related_folder->folder->folder_name,
+			role_folder_insert_list )
 		&&   !list_exists_string(
-			role_folder_update_list,
-			related_folder->folder->folder_name )
+			related_folder->folder->folder_name,
+			role_folder_update_list )
 		&&   !list_exists_string(
-			role_folder_lookup_list,
-			related_folder->folder->folder_name ) )
+			related_folder->folder->folder_name,
+			role_folder_lookup_list ) )
 		{
 			continue;
 		}
@@ -1512,7 +1512,6 @@ DICTIONARY *output_folder_detail(
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */,
 		(char *)0 /* bugs folder->post_change_javascript */ );
 
 	form_output_table_heading( form->regular_element_list, *form_number );

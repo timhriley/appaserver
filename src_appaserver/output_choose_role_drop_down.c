@@ -168,7 +168,6 @@ void output_vertical_frameset_choose_role_drop_down(
 		appaserver_library_get_server_address(),
 			form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
 	element =

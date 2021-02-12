@@ -405,8 +405,8 @@ void remove_exclude_attribute_list(
 		attribute = list_get_pointer( attribute_list );
 
 		if ( list_exists_string(
-			exclude_attribute_name_list,
-			attribute->attribute_name ) )
+			attribute->attribute_name,
+			exclude_attribute_name_list ) )
 		{
 			list_delete_current( attribute_list );
 		}

@@ -138,7 +138,7 @@ void dictionary_parse_multi_attribute_keys(
 
 	} while( list_next( multi_attribute_key_list ) );
 
-} /* dictionary_parse_multi_attribute_keys() */
+}
 
 void dictionary_parse_multi_attribute_relation_operator_keys(
 				DICTIONARY *dictionary, 
@@ -217,7 +217,7 @@ void dictionary_parse_multi_attribute_relation_operator_keys(
 
 	} while( list_next( multi_attribute_key_list ) );
 
-} /* dictionary_parse_multi_attribute_relation_operator_keys() */
+}
 
 void dictionary_delete_keys_with_prefix(
 					DICTIONARY *dictionary, 
@@ -246,7 +246,7 @@ void dictionary_delete_keys_with_prefix(
 		}
 
 	} while( list_next( attribute_key_list ) );
-} /* dictionary_delete_keys_with_prefix() */
+}
 
 boolean dictionary_key_exists( 	DICTIONARY *dictionary,
 				char *search_key )
@@ -284,7 +284,7 @@ boolean dictionary_populated_key_exists_index_one(
 	else
 		return 1;
 
-} /* dictionary_populated_key_exists_index_one() */
+}
 
 boolean dictionary_populated_key_exists_index_zero(
 					DICTIONARY *dictionary,
@@ -303,7 +303,7 @@ boolean dictionary_populated_key_exists_index_zero(
 	else
 		return 1;
 
-} /* dictionary_populated_key_exists_index_zero() */
+}
 
 boolean dictionary_non_populated_key_exists_index_zero(
 					DICTIONARY *dictionary,
@@ -323,7 +323,7 @@ boolean dictionary_non_populated_key_exists_index_zero(
 	else
 		return 0;
 
-} /* dictionary_non_populated_key_exists_index_zero() */
+}
 
 boolean dictionary_exists_key_index( 	DICTIONARY *dictionary,
 					char *search_key,
@@ -350,7 +350,7 @@ boolean dictionary_exists_key_index( 	DICTIONARY *dictionary,
 	else
 		return 0;
 
-} /* dictionary_exists_key_index() */
+}
 
 /* --------------------------------------------------------------- */
 /* Returns: 	1 if the data comes from the index 	           */
@@ -402,7 +402,7 @@ int dictionary_get_index_data_if_changed(
 	if ( strcmp( data_1, data_2 ) == 0 ) results = -1;
 
 	return results;
-} /* dictionary_get_index_data_if_changed() */
+}
 
 
 int dictionary_get_index_data_if_populated(
@@ -427,7 +427,7 @@ int dictionary_get_index_data_if_populated(
 
 	*destination = data;
 	return ( *data != '\0' );
-} /* dictionary_get_index_data_if_populated() */
+}
 
 LIST *dictionary_get_index_data_list( 	DICTIONARY *dictionary,
 					char *key  )
@@ -524,7 +524,7 @@ int dictionary_attribute_name_list_get_highest_index(
 
 	return highest_index;
 
-} /* dictionary_attribute_name_list_get_highest_index() */
+}
 
 int dictionary_get_highest_index( DICTIONARY *d )
 {
@@ -549,7 +549,7 @@ int get_dictionary_key_highest_index( DICTIONARY *d )
 		} while( list_next( key_list ) );
 	}
 	return highest_index;
-} /* get_dictionary_key_highest_index() */
+}
 
 LIST *dictionary_get_key_list( DICTIONARY *d )
 {
@@ -689,7 +689,7 @@ DICTIONARY *dictionary_index_string2dictionary( char *dictionary_string )
 {
 	return dictionary_string2dictionary( dictionary_string );
 
-} /* dictionary_index_string2dictionary() */
+}
 
 void dictionary_add( DICTIONARY *d, char *key, char *data, int size )
 {
@@ -738,7 +738,7 @@ DICTIONARY *dictionary_small_dictionary_new()
 	}
 
 	return dictionary;
-} /* dictionary_small_dictionary_new() */
+}
 
 DICTIONARY *dictionary_calloc( void )
 {
@@ -756,7 +756,7 @@ DICTIONARY *dictionary_calloc( void )
 	}
 
 	return dictionary;
-} /* dictionary_calloc() */
+}
 
 DICTIONARY *dictionary_new_huge_dictionary()
 {
@@ -775,7 +775,7 @@ DICTIONARY *dictionary_new_huge_dictionary()
 	}
 
 	return dictionary;
-} /* dictionary_new_huge_dictionary() */
+}
 
 DICTIONARY *dictionary_new_super_dictionary()
 {
@@ -794,7 +794,7 @@ DICTIONARY *dictionary_new_super_dictionary()
 	}
 
 	return dictionary;
-} /* dictionary_new_super_dictionary() */
+}
 
 DICTIONARY *dictionary_new_duper_dictionary()
 {
@@ -813,7 +813,7 @@ DICTIONARY *dictionary_new_duper_dictionary()
 	}
 
 	return dictionary;
-} /* dictionary_new_duper_dictionary() */
+}
 
 DICTIONARY *dictionary_new_large_dictionary()
 {
@@ -853,7 +853,7 @@ DICTIONARY *dictionary_large_dictionary_new()
 	}
 
 	return dictionary;
-} /* dictionary_large_dictionary_new() */
+}
 
 DICTIONARY *dictionary_huge_new()
 {
@@ -923,7 +923,7 @@ DICTIONARY *dictionary_medium_dictionary_new()
 	}
 
 	return dictionary;
-} /* dictionary_medium_dictionary_new() */
+}
 
 DICTIONARY *dictionary_new()
 {
@@ -1008,7 +1008,7 @@ void dictionary_set(	DICTIONARY *d,
 	memcpy( memory, other_data, sizeof_other_data );
 	hash_table_set( d->hash_table, strdup( key ), memory );
 
-} /* dictionary_set() */
+}
 
 void dictionary_add_pointer(	DICTIONARY *d, 
 				char *key, 
@@ -1016,7 +1016,7 @@ void dictionary_add_pointer(	DICTIONARY *d,
 {
 	if ( d && key && data ) hash_table_set( d->hash_table, key, data );
 
-} /* dictionary_add_pointer() */
+}
 
 char *dictionary_get_pointer( DICTIONARY *d, char *key )
 {
@@ -1053,7 +1053,7 @@ void *dictionary_get( DICTIONARY *d, char *key )
 		return (void *)0;
 	else
 		return (void *)memory;
-} /* dictionary_get() */
+}
 
 void dictionary_free_data( DICTIONARY *d, LIST *key_list )
 {
@@ -1071,7 +1071,7 @@ void dictionary_free_data( DICTIONARY *d, LIST *key_list )
 			}
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_free_data() */
+}
 
 void dictionary_free( DICTIONARY *d )
 {
@@ -1094,7 +1094,7 @@ void dictionary_free( DICTIONARY *d )
 	/* core dumps :-( hash_table_free( d->hash_table ); */
 	free( d->hash_table );
 	free( d );
-} /* dictionary_free() */
+}
 
 LIST *dictionary_get_ordered_key_list( DICTIONARY *d )
 {
@@ -1153,7 +1153,7 @@ int dictionary_get_index_data_multi(	char *destination,
 
 	return return_value;
 
-} /* dictionary_get_index_data_multi() */
+}
 
 char *dictionary_fetch_index_zero(	DICTIONARY *dictionary,
 					char *key )
@@ -1185,7 +1185,7 @@ char *dictionary_get_index_zero( DICTIONARY *dictionary, char *key )
 	else
 		return data;
 
-} /* dictionary_get_index_zero() */
+}
 
 /* ----------------------------------------------------------- */
 /* Returns: 	1 if the data comes from the index	       */
@@ -1212,7 +1212,7 @@ boolean dictionary_get_index_data_strict_index(
 	if ( !data ) return 0;
 	*destination  = data;
 	return 1;
-} /* dictionary_get_index_data_strict_index() */
+}
 
 /* ----------------------------------------------------------- */
 /* Returns: 	1 if the data comes from the index	       */
@@ -1295,7 +1295,7 @@ int dictionary_get_index_data(	char **destination,
 	}
 	*destination  = data;
 	return return_value;
-} /* dictionary_get_index_data() */
+}
 
 void dictionary_search_replace_command_arguments( 	
 					char *source_destination,
@@ -1360,7 +1360,7 @@ void dictionary_search_replace_command_arguments(
 		}
 	} while( list_next( column_list ) );
 
-} /* dictionary_search_replace_command_arguments() */
+}
 
 LIST *dictionary_using_list_get_index_data_list(
 					DICTIONARY *dictionary,
@@ -1442,7 +1442,7 @@ void dictionary_set_delimited_string(
 			piece_offset++;
 		}
 	} while( list_next( key_list ) );
-} /* dictionary_set_delimited_string() */
+}
 
 DICTIONARY *copy_dictionary( DICTIONARY *dictionary )
 {
@@ -1471,7 +1471,7 @@ DICTIONARY *copy_dictionary( DICTIONARY *dictionary )
 
 	return destination;
 
-} /* copy_dictionary() */
+}
 
 DICTIONARY *dictionary_prepend_key(	DICTIONARY *dictionary,
 					char *label )
@@ -1619,7 +1619,7 @@ void dictionary_add_elements_by_removing_prefix(
 			}
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_add_elements_by_removing_prefix() */
+}
 
 void dictionary_add_elements_by_removing_index_zero( DICTIONARY *dictionary )
 {
@@ -1654,7 +1654,7 @@ void dictionary_add_elements_by_removing_index_zero( DICTIONARY *dictionary )
 			}
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_add_elements_by_removing_index_zero() */
+}
 
 
 DICTIONARY *dictionary_remove_prefix( 	DICTIONARY *source_dictionary,
@@ -1699,7 +1699,7 @@ DICTIONARY *dictionary_remove_prefix( 	DICTIONARY *source_dictionary,
 		} while( list_next( key_list ) );
 	}
 	return dictionary;
-} /* dictionary_remove_prefix() */
+}
 
 DICTIONARY *dictionary_zap_with_prefix(	DICTIONARY *dictionary,
 				    	char *starting_prefix )
@@ -1727,7 +1727,7 @@ DICTIONARY *dictionary_zap_with_prefix(	DICTIONARY *dictionary,
 		} while( list_next( key_list ) );
 	}
 	return return_dictionary;
-} /* dictionary_zap_with_prefix() */
+}
 
 DICTIONARY *dictionary_get_with_prefix(
 					DICTIONARY *source_dictionary,
@@ -1762,7 +1762,7 @@ DICTIONARY *dictionary_get_with_prefix(
 	}
 	list_free_container( key_list );
 	return dictionary;
-} /* dictionary_get_with_prefix() */
+}
 
 DICTIONARY *dictionary_get_without_prefix(
 					DICTIONARY *source_dictionary,
@@ -1805,7 +1805,7 @@ DICTIONARY *dictionary_get_without_prefix(
 
 	return dictionary;
 
-} /* dictionary_get_without_prefix() */
+}
 
 DICTIONARY *dictionary_remove_index( DICTIONARY *source_dictionary )
 {
@@ -1836,7 +1836,7 @@ DICTIONARY *dictionary_remove_index( DICTIONARY *source_dictionary )
 		} while( list_next( key_list ) );
 	}
 	return dictionary;
-} /* dictionary_remove_index() */
+}
 
 DICTIONARY *dictionary_remove_index_zero( DICTIONARY *source_dictionary )
 {
@@ -1867,7 +1867,7 @@ DICTIONARY *dictionary_remove_index_zero( DICTIONARY *source_dictionary )
 		} while( list_next( key_list ) );
 	}
 	return dictionary;
-} /* dictionary_remove_index_zero() */
+}
 
 DICTIONARY *dictionary_extract_key_prefix( 	DICTIONARY *source_dictionary,
 						char *starting_prefix )
@@ -1900,7 +1900,7 @@ DICTIONARY *dictionary_extract_key_prefix( 	DICTIONARY *source_dictionary,
 		} while( list_next( key_list ) );
 	}
 	return dictionary;
-} /* dictionary_extract_key_prefix() */
+}
 
 LIST *dictionary_extract_and_remove_prefixed_key_list(
 					DICTIONARY *dictionary,
@@ -1915,7 +1915,7 @@ LIST *dictionary_extract_and_remove_prefixed_key_list(
 
 	return list_usage_remove_prefix( prefixed_key_list, starting_prefix );
 
-} /* dictionary_extract_and_remove_prefixed_key_list() */
+}
 
 LIST *dictionary_extract_prefixed_key_list( 	DICTIONARY *dictionary,
 						char *starting_prefix )
@@ -1942,7 +1942,7 @@ LIST *dictionary_extract_prefixed_key_list( 	DICTIONARY *dictionary,
 		} while( list_next( key_list ) );
 	}
 	return return_key_list;
-} /* dictionary_extract_prefixed_key_list() */
+}
 
 char *dictionary_get_with_prefix_at_index_zero(
 					DICTIONARY *dictionary,
@@ -2000,7 +2000,7 @@ void dictionary_append_row_zero(	DICTIONARY *source_destination,
 			}
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_append_row_zero() */
+}
 
 /* --------------------------------------------------------------------------- 
 Two notes:
@@ -2034,8 +2034,8 @@ void dictionary_append_dictionary(	DICTIONARY *source_destination,
 		timlib_trim_index( non_indexed_key, key );
 
 		if ( !list_exists_string(
-			source_destination_non_indexed_key_list,
-			non_indexed_key ) )
+			non_indexed_key,
+			source_destination_non_indexed_key_list ) )
 		{
 			dictionary_set_pointer(
 					source_destination,
@@ -2046,7 +2046,7 @@ void dictionary_append_dictionary(	DICTIONARY *source_destination,
 		}
 	} while( list_next( key_list ) );
 
-} /* dictionary_append_dictionary() */
+}
 
 void dictionary_add_index_zero( DICTIONARY *dictionary )
 {
@@ -2082,7 +2082,7 @@ void dictionary_add_suffix_zero( DICTIONARY *dictionary )
 			}
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_add_suffix_zero() */
+}
 
 int dictionary_exists_key_in_list(
 		LIST *key_list,
@@ -2112,7 +2112,7 @@ int dictionary_exists_key_in_list(
 
 	return 0;
 
-} /* dictionary_exists_key_in_list() */
+}
 
 LIST *dictionary_get_populated_index_zero_key_list(
 					DICTIONARY *dictionary, 
@@ -2135,7 +2135,7 @@ LIST *dictionary_get_populated_index_zero_key_list(
 			}
 		} while( list_next( attribute_name_list ) );
 	return return_list;
-} /* dictionary_get_populated_index_zero_key_list() */
+}
 
 LIST *dictionary_get_non_populated_index_zero_key_list(
 					DICTIONARY *dictionary, 
@@ -2160,7 +2160,7 @@ LIST *dictionary_get_non_populated_index_zero_key_list(
 		}
 	} while( list_next( required_attribute_name_list ) );
 	return return_list;
-} /* dictionary_get_non_populated_index_zero_key_list() */
+}
 
 LIST *dictionary_get_index_zero_key_list(	DICTIONARY *dictionary,
 						LIST *attribute_name_list )
@@ -2182,7 +2182,7 @@ LIST *dictionary_get_index_zero_key_list(	DICTIONARY *dictionary,
 			}
 		} while( list_next( attribute_name_list ) );
 	return return_list;
-} /* dictionary_get_index_zero_key_list() */
+}
 
 char *dictionary_get_delimited_data(		DICTIONARY *dictionary,
 						LIST *attribute_name_list,
@@ -2224,7 +2224,7 @@ char *dictionary_get_delimited_data(		DICTIONARY *dictionary,
 		}
 	} while( list_next( attribute_name_list ) );
 	return strdup( delimited_data );
-} /* dictionary_get_delimited_data() */
+}
 
 LIST *dictionary_get_index_zero_data_list(	DICTIONARY *dictionary,
 						LIST *attribute_name_list )
@@ -2247,7 +2247,7 @@ LIST *dictionary_get_index_zero_data_list(	DICTIONARY *dictionary,
 			}
 		} while( list_next( attribute_name_list ) );
 	return return_list;
-} /* dictionary_get_index_zero_data_list() */
+}
 
 char *dictionary_new_index_key( DICTIONARY *d, char *key )
 {
@@ -2265,7 +2265,7 @@ char *dictionary_new_index_key( DICTIONARY *d, char *key )
 			return strdup( new_key );
 		}
 	}
-} /* dictionary_new_index_key() */
+}
 
 LIST *dictionary_get_index_list(	DICTIONARY *d,
 					char *search_key_without_prefix )
@@ -2292,7 +2292,7 @@ LIST *dictionary_get_index_list(	DICTIONARY *d,
 		/* ------------------------------------ */
 		if ( results == 0 ) return return_list;
 	}
-} /* dictionary_get_index_list() */
+}
 
 LIST *dictionary_get_positive_index_list(
 					DICTIONARY *d,
@@ -2326,7 +2326,7 @@ LIST *dictionary_get_positive_index_list(
 
 		list_append_string( return_list, data );
 	}
-} /* dictionary_get_positive_index_list() */
+}
 
 DICTIONARY *dictionary_new_dictionary( void )
 {
@@ -2372,7 +2372,7 @@ DICTIONARY *pipe2dictionary( char *sys_string, char delimiter )
 	pclose( p );
 	return d;
 
-} /* pipe2dictionary() */
+}
 
 DICTIONARY *dictionary_index_data2dictionary(
 					DICTIONARY *source_dictionary,
@@ -2404,7 +2404,7 @@ DICTIONARY *dictionary_index_data2dictionary(
 	}
 
 	return destination_dictionary;
-} /* dictionary_index_data2dictionary() */
+}
 
 DICTIONARY *dictionary_merge_dictionary(
 					DICTIONARY *dictionary1,
@@ -2433,7 +2433,7 @@ DICTIONARY *dictionary_merge_dictionary(
 		} while( list_next( key_list ) );
 	}
 	return dictionary1;
-} /* dictionary_merge_dictionary() */
+}
 
 DICTIONARY *dictionary_merge_lists2dictionary(
 					LIST *key_list,
@@ -2455,7 +2455,7 @@ DICTIONARY *dictionary_merge_lists2dictionary(
 		} while( list_next( key_list ) );
 	}
 	return dictionary;
-} /* dictionary_merge_lists2dictionary() */
+}
 
 void dictionary_add_constant(	DICTIONARY *dictionary,
 				LIST *data_list,
@@ -2470,7 +2470,7 @@ void dictionary_add_constant(	DICTIONARY *dictionary,
 					constant );
 		} while( list_next( data_list ) );
 	}
-} /* dictionary_add_constant() */
+}
 
 int dictionary_remove_key(	DICTIONARY *d,
 				char *key )
@@ -2519,7 +2519,7 @@ void dictionary_new_index_key_list_for_data_list(
 		}
 		if ( !list_next( new_key_list ) ) return;
 	} while( list_next( old_key_list ) );
-} /* dictionary_new_index_key_list_for_data_list() */
+}
 
 void dictionary_search_replace_special_characters( DICTIONARY *dictionary )
 {
@@ -2542,7 +2542,7 @@ void dictionary_search_replace_special_characters( DICTIONARY *dictionary )
 					data );				
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_search_replace_special_characters() */
+}
 
 DICTIONARY *dictionary_subtract_dictionary(
 					DICTIONARY *d1,
@@ -2560,7 +2560,7 @@ DICTIONARY *dictionary_subtract_dictionary(
 		} while( list_next( d2_key_list ) );
 	}
 	return d1;
-} /* dictionary_subtract_dictionary() */
+}
 
 boolean dictionary_exists_suffix( char *key )
 {
@@ -2578,7 +2578,7 @@ boolean dictionary_exists_index_in_key( char *key )
 		end--;
 	}
 	return 0;
-} /* dictionary_exists_index_in_key() */
+}
 
 void dictionary_replace_double_quote_with_single(
 					DICTIONARY *dictionary )
@@ -2599,7 +2599,7 @@ void dictionary_replace_double_quote_with_single(
 			search_replace_string( data, "\"", "'" );
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_replace_double_quote_with_single() */
+}
 
 void dictionary_escape_single_quotes( DICTIONARY *dictionary )
 {
@@ -2630,7 +2630,7 @@ void dictionary_escape_single_quotes( DICTIONARY *dictionary )
 			}
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_escape_single_quotes() */
+}
 
 
 LIST *dictionary_get_indexed_data_list(
@@ -2660,7 +2660,7 @@ LIST *dictionary_get_indexed_data_list(
 		}
 	}
 	return populated_list;
-} /* dictionary_get_indexed_data_list() */
+}
 
 LIST *dictionary_get_populated_index_list(
 					DICTIONARY *dictionary,
@@ -2692,7 +2692,7 @@ LIST *dictionary_get_populated_index_list(
 		}
 	}
 	return populated_index_list;
-} /* dictionary_get_populated_index_list() */
+}
 
 LIST *dictionary_with_populated_index_list_get_index_data_list(
 					DICTIONARY *dictionary,
@@ -2728,7 +2728,7 @@ LIST *dictionary_with_populated_index_list_get_index_data_list(
 		} while( list_next( populated_index_list ) );
 	}
 	return index_data_list;
-} /* dictionary_with_populated_index_list_get_index_data_list() */
+}
 
 DICTIONARY *dictionary_record_to_dictionary(
 					LIST *key_list,
@@ -2738,7 +2738,7 @@ DICTIONARY *dictionary_record_to_dictionary(
 	return dictionary_merge_lists2dictionary(
 				key_list,
 				list_string_to_list( record, delimiter ) );
-} /* dictionary_record_to_dictionary() */
+}
 
 void dictionary_trim_double_bracked_data( DICTIONARY *dictionary )
 {
@@ -2761,7 +2761,7 @@ void dictionary_trim_double_bracked_data( DICTIONARY *dictionary )
 
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_trim_double_bracked_data() */
+}
 
 char *dictionary_trim_double_bracked_string( char *string )
 {
@@ -2785,7 +2785,7 @@ char *dictionary_trim_double_bracked_string( char *string )
 
 	return string;
 
-} /* dictionary_trim_double_bracked_string() */
+}
 
 int dictionary_delete_key( DICTIONARY *dictionary, char *key )
 {
@@ -2819,7 +2819,7 @@ void dictionary_delete_prefixed_keys(
 			}
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_delete_prefixed_keys() */
+}
 
 DICTIONARY *dictionary_load_record_dictionary(
 			FILE *input_pipe,
@@ -2859,7 +2859,7 @@ DICTIONARY *dictionary_load_record_dictionary(
 		}
 	}
 	return d;
-} /* dictionary_load_record_dictionary() */
+}
 
 char *dictionary_fetch( DICTIONARY *d, char *key )
 {
@@ -2898,7 +2898,7 @@ void dictionary_increment_count(
 					strdup( "1" ) );
 	}
 
-} /* dictionary_increment_count() */
+}
 
 void dictionary_output_with_prefix(
 				DICTIONARY *dictionary,
@@ -3044,7 +3044,7 @@ DICTIONARY *dictionary_add_prefix(	DICTIONARY *dictionary,
 	}
 	list_free_container( key_list );
 	return new_dictionary;
-} /* void dictionary_add_prefix() */
+}
 
 LIST *dictionary_get_key_data_list(	DICTIONARY *dictionary,
 					LIST *key_list,
@@ -3073,7 +3073,7 @@ LIST *dictionary_get_key_data_list(	DICTIONARY *dictionary,
 		} while( list_next( key_list ) );
 	}
 	return list;
-} /* dictionary_get_key_data_list() */
+}
 
 void dictionary_clear_key_list(		DICTIONARY *dictionary,
 					LIST *key_list )
@@ -3095,7 +3095,7 @@ void dictionary_clear_key_list(		DICTIONARY *dictionary,
 
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_clear_key_list() */
+}
 
 void dictionary_clear_key_list_index_zero(
 					DICTIONARY *dictionary,
@@ -3121,7 +3121,7 @@ void dictionary_clear_key_list_index_zero(
 
 		} while( list_next( key_list ) );
 	}
-} /* dictionary_clear_key_list_index_zero() */
+}
 
 void dictionary_trim_multi_drop_down_index(
 			DICTIONARY *dictionary,
@@ -3164,7 +3164,7 @@ void dictionary_trim_multi_drop_down_index(
 			}
 		}
 	} while( list_next( key_list ) );
-} /* dictionary_trim_multi_drop_down_index() */
+}
 
 boolean dictionary_get_index_list_string(
 					char *destination,
@@ -3212,7 +3212,7 @@ boolean dictionary_get_index_list_string(
 
 	return found_any;
 
-} /* dictionary_get_index_list_string() */
+}
 
 /* ------------------------------------------------------------ */
 /* Sample:							*/
@@ -3265,7 +3265,7 @@ LIST *dictionary_get_prefixed_indexed_data_list(
 		return return_list;
 	} while( list_next( key_list ) );
 	return (LIST *)0;
-} /* dictionary_get_prefixed_indexed_data_list() */
+}
 
 void dictionary_remove_keys_with_prefix(
 					DICTIONARY *dictionary,
@@ -3307,7 +3307,7 @@ void dictionary_trim_prefix(		DICTIONARY *dictionary,
 			dictionary_delete( dictionary, key );
 		}
 	} while( list_next( key_list ) );
-} /* dictionary_trim_prefix() */
+}
 
 DICTIONARY *dictionary_zap_index_zero_attribute_name_list(
 					DICTIONARY *dictionary,
@@ -3341,7 +3341,7 @@ DICTIONARY *dictionary_zap_index_zero_attribute_name_list(
 		} while( list_next( attribute_name_list ) );
 	}
 	return dictionary;
-} /* dictionary_zap_index_zero_attribute_name_list() */
+}
 
 void dictionary_zap_where_key_contains_character(
 					DICTIONARY *dictionary,
@@ -3361,7 +3361,7 @@ void dictionary_zap_where_key_contains_character(
 			dictionary_delete( dictionary, key );
 		}
 	} while( list_next( key_list ) );
-} /* dictionary_zap_where_key_contains_character() */
+}
 
 LIST *dictionary_get_data_list(	LIST *attribute_name_list,
 				DICTIONARY *dictionary,
@@ -3391,7 +3391,7 @@ LIST *dictionary_get_data_list(	LIST *attribute_name_list,
 
 	return data_list;
 
-} /* dictionary_get_data_list() */
+}
 
 char *dictionary_get_attribute_where_clause(
 			DICTIONARY *dictionary,
@@ -3415,7 +3415,9 @@ char *dictionary_get_attribute_where_clause(
 	do {
 		key = list_get_pointer( key_list );
 
-		if ( list_exists_string( attribute_name_list, key ) )
+		if ( list_exists_string(
+			key,
+			attribute_name_list ) )
 		{
 			data = dictionary_get_pointer( dictionary, key );
 
@@ -3451,14 +3453,16 @@ char *dictionary_get_attribute_where_clause(
 
 	return strdup( where_clause );
 
-} /* dictionary_get_attribute_where_clause() */
+}
 
 void dictionary_add_login_name_if_necessary(
 				DICTIONARY *dictionary,
 				LIST *attribute_name_list,
 				char *login_name )
 {
-	if ( list_exists_string( attribute_name_list, "login_name" ) )
+	if ( list_exists_string(
+		"login_name",
+		attribute_name_list ) )
 	{
 		char operator_entry[ 128 ];
 
@@ -3657,7 +3661,7 @@ void dictionary_set_indexed_date_time_to_current(
 
 	} /* for( index ) */
 
-} /* dictionary_set_indexed_date_time_to_current() */
+}
 
 void dictionary_remove_symbols_in_numbers(
 				DICTIONARY *dictionary,
@@ -3723,7 +3727,7 @@ void dictionary_remove_symbols_in_numbers(
 
 	} /* for( index ) */
 
-} /* dictionary_remove_symbols_in_numbers() */
+}
 
 void dictionary_set_date_time_to_current(
 					DICTIONARY *dictionary,
@@ -3793,7 +3797,7 @@ void dictionary_set_date_time_to_current(
 
 	} while( list_next( attribute_list ) );
 
-} /* dictionary_set_date_time_to_current() */
+}
 
 /* Same code as attribute_get_attribute_name_list() */
 /* ------------------------------------------------ */
@@ -3812,7 +3816,7 @@ LIST *dictionary_get_attribute_name_list( LIST *attribute_list )
 					attribute->attribute_name );
 		} while( list_next( attribute_list ) );
 	return attribute_name_list;
-} /* dictionary_get_attribute_name_list() */
+}
 
 DICTIONARY *dictionary_get_row_zero_dictionary(
 					DICTIONARY *row_dictionary )
@@ -3847,7 +3851,7 @@ DICTIONARY *dictionary_get_row_zero_dictionary(
 
 	return row_zero_dictionary;
 
-} /* dictionary_get_row_zero_dictionary() */
+}
 
 LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
 			LIST *primary_data_list,
@@ -3922,7 +3926,7 @@ LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
 
 	return dictionary_list;
 
-} /* dictionary_data_list_attribute_name_list_merge_dictionary_list() */
+}
 
 LIST *dictionary_seek_delimited_list(
 				DICTIONARY *dictionary,
@@ -3937,7 +3941,7 @@ LIST *dictionary_seek_delimited_list(
 
 	return list_delimited_string_to_list( delimited_data );
 
-} /* dictionary_seek_delimited_list() */
+}
 
 LIST *dictionary_get_non_indexed_key_list(
 				DICTIONARY *dictionary )
@@ -3959,8 +3963,8 @@ LIST *dictionary_get_non_indexed_key_list(
 		timlib_trim_index( key_without_index, key );
 
 		if ( !list_exists_string(
-			non_indexed_key_list,
-			key_without_index ) )
+			key_without_index,
+			non_indexed_key_list ) )
 		{
 			list_append_pointer(
 				non_indexed_key_list,
@@ -3971,5 +3975,5 @@ LIST *dictionary_get_non_indexed_key_list(
 
 	return non_indexed_key_list;
 
-} /* dictionary_get_non_indexed_key_list() */
+}
 

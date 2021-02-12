@@ -292,11 +292,12 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 void validation_form_output_trailer( void )
 {
 	printf( "<tr><td>" );
+
 	form_output_submit_button(
 			(char *)0,
 			"Validate",
-			0 /* form_number */,
-			(LIST *)0 );
+			0 /* form_number */ );
+
 	printf( "</table></form>\n" );
 }
 

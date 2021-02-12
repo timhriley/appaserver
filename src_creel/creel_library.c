@@ -3516,9 +3516,9 @@ boolean creel_library_exists_selected_species(
 		species_list = list_string2list( species_list_string, ',' );
 	}
 
-	if ( list_exists_string( family_list, family )
-	&&   list_exists_string( genus_list, genus )
-	&&   list_exists_string( species_list, species ) )
+	if ( list_exists_string( familey family_list )
+	&&   list_exists_string( genus, genus_list )
+	&&   list_exists_string( species, species_list ) )
 	{
 		return 1;
 	}

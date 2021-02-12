@@ -589,8 +589,8 @@ int main( int argc, char **argv )
 					compare_station_name_list );
 
 			if ( list_exists_string(
-				done_station_name_list,
-				station_name ) )
+				station_name,
+				done_station_name_list ) )
 			{
 				continue;
 			}
@@ -763,8 +763,8 @@ int main( int argc, char **argv )
 					compare_station_name_list );
 
 				if ( list_exists_string(
-						done_station_name_list,
-						station_name ) )
+					station_name,
+					done_station_name_list ) )
 				{
 					continue;
 				}
@@ -869,8 +869,8 @@ int main( int argc, char **argv )
 					compare_station_name_list );
 
 				if ( list_exists_string(
-						done_station_name_list,
-						station_name ) )
+					station_name,
+					done_station_name_list ) )
 				{
 					continue;
 				}
@@ -915,8 +915,8 @@ int main( int argc, char **argv )
 					compare_station_name_list );
 
 				if ( list_exists_string(
-						done_station_name_list,
-						station_name ) )
+					station_name,
+					done_station_name_list ) )
 				{
 					continue;
 				}

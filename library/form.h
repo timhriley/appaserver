@@ -159,7 +159,6 @@ void form_output_heading(
 			char *server_address,
 			char *optional_related_attribute_name,
 			char *remember_keystrokes_onload_control_string,
-			LIST *form_button_list,
 			char *post_change_javascript );
 
 int form_output_body(	int *form_current_reference_number,
@@ -185,9 +184,7 @@ void form_output_trailer_post_change_javascript(
 			char *application_name,
 			boolean with_back_to_top_button,
 			int form_number,
-			char *post_change_javascript,
-			LIST *pair_one2m_related_folder_name_list,
-			LIST *form_button_list );
+			char *post_change_javascript );
 
 void form_output_trailer(
 			boolean output_submit_reset_buttons,
@@ -247,8 +244,7 @@ void form_set_output_table_heading(	FORM *form );
 void form_output_submit_button(
 			char *submit_control_string,
 			char *button_label,
-			int form_number,
-			LIST *pair_one2m_related_folder_name_list );
+			int form_number );
 
 void form_output_submit_reset_buttons(
 			char *submit_control_string,
@@ -260,9 +256,7 @@ void form_output_submit_reset_buttons(
 			boolean with_back_to_top_button,
 			boolean with_prelookup_skip_button,
 			int form_number,
-			char *post_change_javascript,
-			LIST *pair_one2m_related_folder_name_list,
-			LIST *form_button_list );
+			char *post_change_javascript );
 
 void form_set_insert_rows_number( 	FORM *form, 
 					int insert_rows_number );

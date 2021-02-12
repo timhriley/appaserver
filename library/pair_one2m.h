@@ -1,4 +1,4 @@
-/* library/pair_one2m.h					   */
+/* APPASERVER_HOME/library/pair_one2m.h			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -6,6 +6,7 @@
 #ifndef PAIR_ONE2M_H
 #define PAIR_ONE2M_H
 
+/* -------- */
 /* Includes */
 /* -------- */
 #include "boolean.h"
@@ -13,14 +14,14 @@
 #include "folder.h"
 #include "dictionary.h"
 
+/* --------- */
 /* Constants */
 /* --------- */
-#define PAIR_ONE2M_SUBMIT_FOLDER		"pair_one2m_submit_folder"
-#define PAIR_ONE2M_DUPLICATE_STATE_KEY		"pair_one2m_duplicate_state"
-#define PAIR_ONE2M_FOLDER_NAME			"pair_one2m_folder"
-#define PAIR_ONE2M_FOLDER_LIST			"pair_one2m_folder_list"
-#define PAIR_ONE2M_OMIT				"pair_one2m_omit"
+#define PAIR_ONE2M_ONE_FOLDER_LABEL	"pair_one2m_one_folder"
+#define PAIR_ONE2M_FULFILLED_LIST_LABEL	"pair_one2m_fulfilled_list"
+#define PAIR_ONE2M_DUPLICATE_STATE_KEY	"pair_one2m_duplicate_state"
 
+/* ---------- */
 /* Structures */
 /* ---------- */
 typedef struct
@@ -33,66 +34,38 @@ typedef struct
 typedef struct
 {
 	char *one_folder_name;
+	char *many_folder_name;
 	char *keystrokes_save_function;
 	LIST *pair_one2m_insert_form_folder_list;
-
-	boolean is_participating;
-	boolean insert_is_completed;
-	boolean submit_button_on_top_frame;
-	boolean continuing_series;
-	char *next_folder_name;
-	char *specified_folder_name;
-	FOLDER *pair_insert_folder;
-	boolean inserted_duplicate;
-	LIST *pair_one2m_related_folder_list;
-	LIST *pair_one2m_folder_name_list;
-	LIST *pair_inserted_folder_name_list;
+	LIST *pair_one2m_fulfilled_folder_name_list;
+	char *pair_one2m_one_folder_name;
+	char *pair_one2m_next_folder_name;
+	DICTIONARY *pair_one2m_dictionary;
+	DICTIONARY *pair_one2m_fulfilled_dictionary;
 } PAIR_ONE2M;
 
+/* ---------- */
 /* Prototypes */
 /* ---------- */
+
+/* Usage */
+/*------ */
 PAIR_ONE2M *pair_one2m_calloc(
 			void );
-
-char *pair_one2m_get_pair_one2m_submit_element_name(
-				boolean with_suffix_zero );
-
-PAIR_ONE2M *pair_one2m_new(
-			LIST *ignore_attribute_name_list	/* out only */,
-			DICTIONARY *pair_one2m_dictionary	/* in/out   */,
-			char *application_name			/* in only  */,
-			LIST *pair_one2m_related_folder_list	/* in only  */,
-			LIST *posted_attribute_name_list	/* in only  */,
-			ROLE *role				/* in only  */,
-			char *session				/* in only  */);
-
-LIST *pair_one2m_get_pair_inserted_folder_name_list(
-				DICTIONARY *pair_one2m_dictionary );
-
-boolean pair_one2m_get_inserted_duplicate(
-				DICTIONARY *pair_one2m_dictionary );
-
-char *pair_one2m_get_uninserted_pair_one2m_related_folder_name(
-				LIST *pair_inserted_folder_name_list,
-				LIST *related_folder_list );
-
-char *pair_one2m_get_uninserted_pair_mto1_related_folder_name(
-				LIST *pair_inserted_folder_name_list,
-				LIST *related_folder_list );
-
-char *pair_one2m_get_next_folder_name(
-				LIST *pair_inserted_folder_name_list,
-				LIST *pair_one2m_related_folder_list );
-
-boolean pair_one2m_omit(	DICTIONARY *pair_1tom_dictionary );
 
 PAIR_ONE2M *pair_one2m_insert_form_new(
 			char *one_folder_name,
 			char *keystrokes_save_function );
 
+PAIR_ONE2M *pair_one2m_post_form_new(
+			char *many_folder_name,
+			DICTIONARY *pair_one2m_dictionary );
+
 PAIR_ONE2M_FOLDER *pair_one2m_folder_new(
 			char *many_folder_name );
 
+/* Insert form */
+/* ----------- */
 LIST *pair_one2m_insert_form_folder_list(
 			char *keystrokes_save_function,
 			LIST *one2m_relation_list );
@@ -105,4 +78,27 @@ char *pair_folder_button_string(
 			char *keystrokes_save_function,
 			char *pair_folder_onclick_function );
 
+/* Post form */
+/* --------- */
+LIST *pair_one2m_fulfilled_folder_name_list(
+			char *pair_one2m_fulfilled_list_label,
+			DICTIONARY *pair_one2m_dictionary );
+
+LIST *pair_one2m_fulfilled_folder_name_list(
+			char *pair_one2m_fulfilled_list_label,
+			DICTIONARY *pair_one2m_dictionary );
+
+DICTIONARY *pair_one2m_fulfilled_dictionary(
+			char *pair_one2m_fulfilled_list_label,
+			LIST *pair_one2m_fulfilled_folder_name_list );
+
+char *pair_one2m_next_folder_name(
+			LIST *pair_one2m_fulfilled_folder_name_list,
+			LIST *relation_one2m_pair_relation_list );
+
+char *pair_one2m_one_folder_name(
+			char *pair_one2m_one_folder_label,
+			DICTIONARY *pair_one2m_dictionary );
+
 #endif
+

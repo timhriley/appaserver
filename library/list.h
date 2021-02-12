@@ -85,15 +85,17 @@ boolean item_exists( LIST *list, char *item, int (*match_fn)() );
 
 boolean list_exists( LIST *list, char *item, int (*match_fn)() );
 
-boolean list_exists_string(	LIST *list,
-				char *string );
+boolean list_exists_string(
+			char *string,
+			LIST *list );
 
-boolean list_string_exists(	char *string,
-				LIST *list );
+boolean list_string_exists(
+			char *string,
+			LIST *list );
 
 boolean list_exists_string_beginning(
-				LIST *list,
-				char *string );
+			LIST *list,
+			char *string );
 
 LIST *create_list( void );
 LIST *list_new( void );

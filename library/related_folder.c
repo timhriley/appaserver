@@ -179,8 +179,8 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 					folder_foreign_attribute_name_list;
 
 			if ( !list_exists_string(
-				local_foreign_attribute_name_list,
-				attribute_name ) )
+				attribute_name,
+				local_foreign_attribute_name_list ) )
 			{
 				continue;
 			}
@@ -210,8 +210,8 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 		}
 
 		if ( list_exists_string(
-			local_foreign_attribute_name_list,
-			attribute_name ) )
+			attribute_name,
+			local_foreign_attribute_name_list ) )
 		{
 			if ( list_length( include_attribute_name_list ) )
 			{
@@ -591,8 +591,9 @@ void related_folder_set_ignore_output_for_duplicate(
 				? related_folder->related_attribute_name
 				: "" );
 
-		if ( list_exists_string( folder_attribute_name_list,
-					 folder_attribute_name ) )
+		if ( list_exists_string(
+			folder_attribute_name,
+			folder_attribute_name_list ) )
 		{
 			related_folder->ignore_output = 1;
 		}
@@ -645,8 +646,8 @@ LIST *related_folder_subtract_related_attribute_name_list(
 			list_get_pointer( foreign_attribute_name_list );
 
 		if ( !list_exists_string(
-			primary_attribute_name_list,
-			attribute_name ) )
+			attribute_name,
+			primary_attribute_name_list ) )
 		{
 			list_append_pointer(
 					attribute_name_list,
@@ -827,10 +828,11 @@ LIST *related_folder_remove_duplicate_mto1_related_folder_list(
 				(RELATED_FOLDER *)
 					list_get_pointer(
 						related_folder_list );
+
 			if ( !related_folder->related_attribute_name
 			&&   list_exists_string(
-					folder_name_list,
-					related_folder->folder->folder_name ) )
+					related_folder->folder->folder_name,
+					folder_name_list ) )
 			{
 				continue;
 			}
@@ -2715,7 +2717,9 @@ ELEMENT_APPASERVER *related_folder_get_new_button_element(
 	ELEMENT_APPASERVER *element;
 
 	if ( role_folder_insert_list
-	&&   list_exists_string( role_folder_insert_list, folder_name ) )
+	&&   list_exists_string(
+			folder_name,
+			role_folder_insert_list ) )
 	{
 		sprintf( element_name,
 			 "%s%s",

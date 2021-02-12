@@ -689,9 +689,11 @@ boolean is_selectable_folder(	char *application_name,
 
 	if ( !*folder_name ) return 0;
 
-	return list_exists_string( selectable_folder_name_list, folder_name );
+	return list_exists_string(
+			folder_name,
+			selectable_folder_name_list );
 
-} /* is_selectable_folder() */
+}
 
 LIST *get_selectable_folder_name_list(
 				char *application_name,
@@ -742,9 +744,10 @@ boolean is_non_selectable_attribute(	char *application_name,
 				role_name );
 	}
 
-	return list_exists_string(	non_selectable_attribute_name_list,
-					attribute_name );
-} /* is_non_selectable_attribute() */
+	return list_exists_string(
+			attribute_name,
+			non_selectable_attribute_name_list );
+}
 
 LIST *get_non_selectable_attribute_name_list(
 				char *application_name,

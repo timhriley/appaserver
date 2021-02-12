@@ -908,8 +908,9 @@ LIST *row_security_get_update_element_list(
 			list_get_pointer(
 				include_attribute_name_list );
 
-		if ( list_exists_string( ignore_attribute_name_list,
-					 attribute_name ) )
+		if ( list_exists_string(
+			attribute_name,
+			ignore_attribute_name_list ) )
 		{
 			continue;
 		}
@@ -935,16 +936,17 @@ LIST *row_security_get_update_element_list(
 			exit( 1 );
 		}
 
-		if ( list_exists_string( attribute->exclude_permission_list,
-					 "lookup" ) )
+		if ( list_exists_string(
+			"lookup",
+			attribute->exclude_permission_list ) )
 		{
 			continue;
 		}
 
 		is_primary_attribute =
 			list_exists_string(	
-				primary_attribute_name_list,
-				attribute_name );
+				attribute_name,
+				primary_attribute_name_list );
 
 		if ( is_primary_attribute && make_primary_keys_non_edit )
 			prompt_data_element_only = 1;
@@ -952,11 +954,16 @@ LIST *row_security_get_update_element_list(
 		if ( update_yn != 'y' )
 			prompt_data_element_only = 1;
 		else
-		if ( list_exists_string( attribute->exclude_permission_list,
-					 "update" ) )
+		if ( list_exists_string(
+			"update",
+			attribute->exclude_permission_list ) )
+		{
 			prompt_data_element_only = 1;
+		}
 		else
+		{
 			prompt_data_element_only = 0;
+		}
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
@@ -969,10 +976,10 @@ LIST *row_security_get_update_element_list(
 			       (LIST *)0 /* include_attribute_name_list */ ) ) )
 		{
 			if ( list_exists_string(
-					 non_edit_folder_name_list,
-					 related_folder->
-							folder->
-							folder_name ) )
+				related_folder->
+					folder->
+					folder_name,
+				non_edit_folder_name_list ) )
 			{
 				ignore_attribute_name_list =
 					list_subtract_string_list(
@@ -1066,8 +1073,9 @@ LIST *row_security_get_update_element_list(
 
 skip_checking_drop_down:
 
-		if ( !list_exists_string(	ignore_attribute_name_list,
-						attribute_name ) )
+		if ( !list_exists_string(
+			attribute_name,
+			ignore_attribute_name_list ) )
 		{
 			element_list =
 			appaserver_library_get_update_attribute_element_list(
@@ -1747,8 +1755,9 @@ LIST *row_security_edit_table_update_element_list(
 			list_get_pointer(
 				include_attribute_name_list );
 
-		if ( list_exists_string( ignore_attribute_name_list,
-					 attribute_name ) )
+		if ( list_exists_string(
+			attribute_name,
+			ignore_attribute_name_list ) )
 		{
 			continue;
 		}
@@ -1774,16 +1783,17 @@ LIST *row_security_edit_table_update_element_list(
 			exit( 1 );
 		}
 
-		if ( list_exists_string( attribute->exclude_permission_list,
-					 "lookup" ) )
+		if ( list_exists_string(
+			"lookup",
+			attribute->exclude_permission_list ) )
 		{
 			continue;
 		}
 
 		is_primary_attribute =
 			list_exists_string(	
-				primary_attribute_name_list,
-				attribute_name );
+				attribute_name,
+				primary_attribute_name_list );
 
 		if ( is_primary_attribute && make_primary_keys_non_edit )
 			prompt_data_element_only = 1;
@@ -1791,11 +1801,16 @@ LIST *row_security_edit_table_update_element_list(
 		if ( update_yn != 'y' )
 			prompt_data_element_only = 1;
 		else
-		if ( list_exists_string( attribute->exclude_permission_list,
-					 "update" ) )
+		if ( list_exists_string(
+			"update",
+			attribute->exclude_permission_list ) )
+		{
 			prompt_data_element_only = 1;
+		}
 		else
+		{
 			prompt_data_element_only = 0;
+		}
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
@@ -1809,10 +1824,10 @@ LIST *row_security_edit_table_update_element_list(
 		&&     !related_folder->omit_lookup_before_drop_down )
 		{
 			if ( list_exists_string(
-					 non_edit_folder_name_list,
 					 related_folder->
 							folder->
-							folder_name ) )
+							folder_name,
+					 non_edit_folder_name_list ) )
 			{
 				ignore_attribute_name_list =
 					list_subtract_string_list(
@@ -1905,8 +1920,9 @@ LIST *row_security_edit_table_update_element_list(
 
 skip_checking_drop_down:
 
-		if ( !list_exists_string(	ignore_attribute_name_list,
-						attribute_name ) )
+		if ( !list_exists_string(
+			attribute_name,
+			ignore_attribute_name_list ) )
 		{
 			element_list =
 			appaserver_library_get_update_attribute_element_list(

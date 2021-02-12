@@ -186,9 +186,9 @@ STATION_DATATYPE *station_datatype_seek(
 						datatype_name,
 					datatype_name ) == 0
 				||   list_exists_string(
-					station_datatype->alias_name_list,
 					datatype_name
-						/* datatype_alias_name */ ) )
+						/* datatype_alias_name */,
+					station_datatype->alias_name_list ) )
 				{
 					return station_datatype;
 				}
@@ -207,8 +207,8 @@ STATION_DATATYPE *station_datatype_seek(
 					datatype_name,
 				datatype_name ) == 0
 			||   list_exists_string(
-				station_datatype->alias_name_list,
-				datatype_name /* datatype_alias_name */ ) )
+				datatype_name /* datatype_alias_name */,
+				station_datatype->alias_name_list ) )
 			{
 				return station_datatype;
 			}

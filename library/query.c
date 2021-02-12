@@ -1202,8 +1202,8 @@ char *query_get_select_clause(	char *application_name,
 		if ( !attribute->datatype ) continue;
 
 		if ( !list_exists_string(
-				lookup_allowed_attribute_name_list,
-				attribute->attribute_name ) )
+				attribute->attribute_name,
+				lookup_allowed_attribute_name_list ) )
 		{
 			continue;
 		}
@@ -2922,8 +2922,8 @@ LIST *query_get_attribute_list(
 				append_isa_attribute_list );
 
 		if ( list_exists_string(
-				exclude_attribute_name_list,
-				attribute->attribute_name ) )
+				attribute->attribute_name,
+				exclude_attribute_name_list ) )
 		{
 			continue;
 		}
@@ -3952,8 +3952,8 @@ char *query_get_attribute_where_clause(
 		query_attribute = list_get( query_attribute_list );
 
 		if ( list_exists_string(
-			exclude_attribute_name_list,
-			query_attribute->attribute_name ) )
+			query_attribute->attribute_name,
+			exclude_attribute_name_list ) )
 		{
 			continue;
 		}

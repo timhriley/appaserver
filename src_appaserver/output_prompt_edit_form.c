@@ -889,7 +889,6 @@ m2( application_name, msg );
 				appaserver_library_get_server_address(),
 				form->optional_related_attribute_name,
 				remember_keystrokes_onload_control_string,
-				(LIST *)0 /* form_button_list */,
 				(char *)0 /* post_change_javascript */ );
 
 	form_output_row(
@@ -1142,8 +1141,8 @@ LIST *get_element_list(
 		attribute = list_get_pointer( attribute_list );
 
 		if ( list_exists_string(
-				exclude_attribute_name_list,
-				attribute->attribute_name ) )
+			attribute->attribute_name,
+			exclude_attribute_name_list ) )
 		{
 			continue;
 		}
@@ -2045,8 +2044,8 @@ void mark_ignore_for_prelookup_skipped(
 				mto1_related_folder_list );
 
 		if ( list_exists_string(
-			unfulfilled_folder_name_list,
-			related_folder->folder->folder_name )
+			related_folder->folder->folder_name,
+			unfulfilled_folder_name_list )
 		&&   list_length( related_folder->
 					folder->
 					primary_attribute_name_list ) > 1 )
@@ -2177,12 +2176,12 @@ void build_related_folder_element_list(
 	}
 
 	if ( list_exists_string(
-		done_folder_name_list,
 		get_done_folder_name(
 			related_folder->
 				folder->folder_name,
 			related_folder->
-			related_attribute_name ) ) )
+			related_attribute_name,
+		done_folder_name_list ) ) )
 	{
 		return;
 	}

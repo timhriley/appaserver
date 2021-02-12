@@ -827,8 +827,10 @@ int wadingbird_get_bird_estimation(
 	}
 
 	sprintf( transect_number_string, "%d", transect_number );
-	if ( list_exists_string(transects_with_one_observer_list,
-				transect_number_string ) )
+
+	if ( list_exists_string(
+		transaction_number_string,
+		transects_with_one_observer_list ) )
 	{
 		return (int)( (double)bird_count / 0.075 );
 	}

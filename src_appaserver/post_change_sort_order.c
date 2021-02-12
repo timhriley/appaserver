@@ -380,9 +380,10 @@ void change_sort_order_state_one(
 	/* ------------------------------------------ */
 	sort_dictionary = dictionary_small_new();
 
-	dictionary_set_pointer( sort_dictionary,
-				sort_attribute_name,
-				"yes" );
+	dictionary_set_pointer(
+		sort_dictionary,
+		sort_attribute_name,
+		"yes" );
 
 	form = form_new( SORT_ORDER_ATTRIBUTE_NAME,
 			 application_get_title_string(
@@ -430,7 +431,6 @@ void change_sort_order_state_one(
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		form_button_list,
 		(char *)0 /* post_change_javascript */ );
 
 	row_security =

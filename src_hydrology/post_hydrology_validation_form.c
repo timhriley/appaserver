@@ -192,7 +192,7 @@ int main( int argc, char **argv )
 		get_conductivity_datatype_list(
 			application_name );
 
-	if ( list_exists_string( conductivity_datatype_list, datatype ) )
+	if ( list_exists_string( datatype, conductivity_datatype_list ) )
 	{
 		salinity_datatype =
 			insert_salinity(	application_name,

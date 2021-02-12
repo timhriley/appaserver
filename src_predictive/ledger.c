@@ -1131,8 +1131,8 @@ LIST *ledger_get_element_list(	char *application_name,
 
 		if ( list_length( filter_element_name_list )
 		&&   !list_exists_string(
-			filter_element_name_list,
-			element_name ) )
+			element_name,
+			filter_element_name_list ) )
 		{
 			continue;
 		}

@@ -46,7 +46,9 @@ DICTIONARY *dictionary_string2dictionary(
 			char *dictionary_string );
 
 int dictionary_len(	DICTIONARY *d );
+
 int dictionary_length(	DICTIONARY *d );
+
 void dictionary_set( 	DICTIONARY *d, 
 			char *key, 
 			void *other_data, 

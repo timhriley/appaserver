@@ -485,7 +485,6 @@ void post_state_one(	char *application_name,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
 	if ( !list_length( folder_name_list ) )
@@ -551,9 +550,7 @@ void post_state_one(	char *application_name,
 		application_name,
 		0 /* not with_dynarch_menu */,
 		0 /* form_number */,
-		(char *)0 /* post_change_javascript */,
-		(LIST *)0 /* pair_one2m_related_folder_name_list */,
-		(LIST *)0 /* form_button_list */ );
+		(char *)0 /* post_change_javascript */ );
 
 	printf( "</table>\n" );
 	printf( "</form>\n" );
@@ -736,7 +733,6 @@ void post_state_two(	char *application_name,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
 	form_output_body(
@@ -794,9 +790,7 @@ void post_state_two(	char *application_name,
 		application_name,
 		0 /* not with_dynarch_menu */,
 		0 /* form_number */,
-		(char *)0 /* post_change_javascript */,
-		(LIST *)0 /* pair_one2m_related_folder_name_list */,
-		(LIST *)0 /* form_button_list */ );
+		(char *)0 /* post_change_javascript */ );
 
 	printf( "</table>\n" );
 	printf( "</form>\n" );
@@ -889,10 +883,10 @@ void state_two_append_mto1_one2m_option_data_list(
 			}
 
 			if ( list_exists_string(
-				option_data_list,
 				one2m_related_folder->
 					one2m_folder->
-					folder_name ) )
+					folder_name,
+				option_data_list ) )
 			{
 				continue;
 			}
@@ -960,10 +954,10 @@ void state_two_append_mto1_option_data_list(
 			}
 
 			if ( !list_exists_string(
-				option_data_list,
 				related_folder->
 					folder->
-					folder_name ) )
+					folder_name,
+				option_data_list ) )
 			{
 				list_add_string_in_order(
 					option_data_list,
@@ -1116,7 +1110,6 @@ void post_state_three(	char *application_name,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
 	form_output_body(
@@ -1178,9 +1171,7 @@ void post_state_three(	char *application_name,
 		application_name,
 		1 /* with_back_to_top_button */,
 		0 /* form_number */,
-		(char *)0 /* post_change_javascript */,
-		(LIST *)0 /* pair_one2m_related_folder_name_list */,
-		(LIST *)0 /* form_button_list */ );
+		(char *)0 /* post_change_javascript */ );
 
 	printf( "</table>\n" );
 	printf( "</form>\n" );
@@ -1399,8 +1390,8 @@ LIST *state_three_get_folder_element_list(
 		attribute = list_get_pointer( append_isa_attribute_list );
 
 		if ( list_exists_string(
-				exclude_attribute_name_list,
-				attribute->attribute_name ) )
+			attribute->attribute_name,
+			exclude_attribute_name_list ) )
 		{
 			continue;
 		}
@@ -1729,7 +1720,6 @@ void post_table_state_four(
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
 	form_output_table_heading(	form->viewonly_element_list,
@@ -2017,8 +2007,9 @@ LIST *state_four_get_element_list(
 			exit( 1 );
 		}
 
-		if ( list_exists_string( attribute->exclude_permission_list,
-					 "lookup" ) )
+		if ( list_exists_string(
+			"lookup",
+			attribute->exclude_permission_list ) )
 		{
 			continue;
 		}
@@ -2294,10 +2285,10 @@ RELATED_FOLDER *state_four_get_root_related_folder(
 						one2m_related_folder_list );
 
 			if ( list_exists_string(
-				one2m_subquery_folder_name_list,
 				one2m_related_folder->
 					one2m_folder->
-					folder_name ) )
+					folder_name,
+				one2m_subquery_folder_name_list ) )
 			{
 				return mto1_related_folder;
 			}

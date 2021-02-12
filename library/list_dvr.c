@@ -115,7 +115,7 @@ void test_list_exists()
 	list_append_pointer( list, "three" );
 
 	printf( "Got list_exists_string = %d\n",
-		list_exists_string( list, "one" ) );
+		list_exists_string( "one", list ) );
 }
 
 void test_add_position()

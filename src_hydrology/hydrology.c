@@ -98,8 +98,8 @@ char *hydrology_translate_datatype_name(
 		}
 
 		if ( list_exists_string(
-			station_datatype->alias_name_list,
-			datatype_seek_phrase ) )
+			datatype_seek_phrase,
+			station_datatype->alias_name_list ) )
 		{
 			return station_datatype->datatype->datatype_name;
 		}

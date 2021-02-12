@@ -29,7 +29,7 @@ typedef struct
 	DICTIONARY *lookup_before_drop_down_dictionary;
 	DICTIONARY *row_dictionary;
 	DICTIONARY *ignore_dictionary;
-	DICTIONARY *pair_1tom_dictionary;
+	DICTIONARY *pair_one2m_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
 	DICTIONARY *send_dictionary;
 } DICTIONARY_APPASERVER;
@@ -72,7 +72,7 @@ DICTIONARY *dictionary_appaserver_get_send_dictionary(
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *lookup_before_drop_down_dictionary,
 			DICTIONARY *ignore_dictionary,
-			DICTIONARY *pair_1tom_dictionary,
+			DICTIONARY *pair_one2m_dictionary,
 			DICTIONARY *non_prefixed_dictionary );
 
 void dictionary_appaserver_parse_multi_attribute_keys(
@@ -87,7 +87,7 @@ DICTIONARY *dictionary_appaserver_get_row_dictionary_row(
 DICTIONARY *dictionary_appaserver_get_ignore_dictionary(
 			DICTIONARY *working_post_dictionary );
 
-DICTIONARY *dictionary_appaserver_get_pair_1tom_dictionary(
+DICTIONARY *dictionary_appaserver_get_pair_one2m_dictionary(
 			DICTIONARY *working_post_dictionary );
 
 char *dictionary_appaserver_escaped_send_dictionary_string(

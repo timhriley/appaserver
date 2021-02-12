@@ -381,15 +381,17 @@ void output_related_folder(
 		 	 related_folder->folder->folder_name );
 	}
 
-	if ( list_exists_string(	done_folder_name_list,
-					output_file_unique_key ) )
+	if ( list_exists_string(
+		output_file_unique_key,
+		done_folder_name_list ) )
 	{
 		return;
 	}
 	else
 	{
-		list_append_pointer(	done_folder_name_list,
-					strdup( output_file_unique_key ) );
+		list_append_pointer(
+			done_folder_name_list,
+			strdup( output_file_unique_key ) );
 	}
 
 	format_initial_capital( title, title );

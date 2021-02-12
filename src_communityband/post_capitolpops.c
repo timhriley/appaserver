@@ -1158,8 +1158,8 @@ LIST *get_musician_substitute_email_list(
 	if ( section_leader_email_address
 	&&   *section_leader_email_address
 	&&   !list_exists_string(
-		substitute_email_list,
-		section_leader_email_address ) )
+		section_leader_email_address,
+		substitute_email_list ) )
 	{
 		list_append_pointer(
 			substitute_email_list,

@@ -52,7 +52,7 @@ int list_free_container( LIST *list )
 
 	free( list );
 	return 1;
-} /* list_free_container() */
+}
 
 void list_linktype_free( struct LINKTYPE *linktype )
 {
@@ -131,7 +131,7 @@ boolean list_prepend_pointer( LIST *list, void *this_item )
 
 	return 1;
 
-} /* list_prepend_pointer() */
+}
 
 void list_append_string_list( LIST *list, LIST *string_list )
 {
@@ -147,7 +147,7 @@ void list_append_string_list( LIST *list, LIST *string_list )
 		} while( list_next( string_list ) );
 	}
 
-} /* list_append_string_list() */
+}
 
 
 void list_subtract_string( LIST *list, char *string )
@@ -230,7 +230,7 @@ boolean list_exists_string_beginning( LIST *list, char *string )
 
 	return 0;
 
-} /* list_exists_string_beginning() */
+}
 
 boolean list_item_exists( LIST *list, char *item, int (*match_fn)() )
 {
@@ -250,7 +250,7 @@ boolean list_search_string( LIST *list, char *string )
 	if ( !list ) return 0;
 	if ( !string ) return 0;
 
-	return list_exists_string( list, string );
+	return list_exists_string( string, list );
 }
 
 boolean list_string_exists( char *string, LIST *list )
@@ -261,7 +261,7 @@ boolean list_string_exists( char *string, LIST *list )
 	return item_exists( list, string, list_strcmp );
 }
 
-boolean list_exists_string( LIST *list, char *string )
+boolean list_exists_string( char *string, LIST *list )
 {
 	if ( !list ) return 0;
 	if ( !string ) return 0;
@@ -310,7 +310,7 @@ LIST *list_intersect_string_list( LIST *list1, LIST *list2 )
 	/* Bug: dictionary_free( dictionary ); */
 	return return_list;
 
-} /* list_intersect_string_list() */
+}
 
 boolean is_subset_of( LIST *subset, LIST *set )
 {
@@ -333,7 +333,7 @@ boolean is_subset_of( LIST *subset, LIST *set )
 	list_restore( subset );
 	list_restore( set );
 	return 1;
-} /* is_subset_of() */
+}
 
 void list_delete_string( LIST *list, char *string )
 {
@@ -351,7 +351,7 @@ void list_delete_from_list( LIST *set, LIST *delete_list )
 			if ( item_exists( set, item, list_strcmp ) )
 				delete_current( set );
 		} while ( next_item( delete_list ) );
-} /* list_delete_from_list() */
+}
 
 void list_display_lines( LIST *list )
 {
@@ -410,7 +410,7 @@ char *list_display_quoted( char *destination, LIST *list )
 	return list_display_quoted_delimiter( 	destination, 
 						list,	
 						',' );
-} /* list_display_quoted() */
+}
 
 /* This will generate an in clause */
 /* ------------------------------- */
@@ -437,7 +437,7 @@ char *list_display_quote_comma_delimited(
 		} while( next_item( list ) );
 	*dest_ptr = '\0';
 	return destination;
-} /* list_display_quote_comma_delimited() */
+}
 
 char *list_display_double_quote_comma_delimited(
 					char *destination, 
@@ -462,7 +462,7 @@ char *list_display_double_quote_comma_delimited(
 		} while( next_item( list ) );
 	*dest_ptr = '\0';
 	return destination;
-} /* list_display_double_quote_comma_delimited() */
+}
 
 char *list_display_quoted_delimiter( 	char *destination, 
 					LIST *list,	
@@ -491,7 +491,7 @@ char *list_display_quoted_delimiter( 	char *destination,
 	*dest_ptr++ = '"';
 	*dest_ptr = '\0';
 	return destination;
-} /* list_display_quoted_delimiter() */
+}
 
 LIST *list_double_quotes_around_string_list( LIST *list )
 {
@@ -506,7 +506,7 @@ LIST *list_double_quotes_around_string_list( LIST *list )
 			list_append_string( return_list, buffer );
 		} while( next_item( list ) );
 	return return_list;
-} /* list_double_quotes_around_string_list() */
+}
 
 char *list_display_delimited( LIST *list, char delimiter )
 {
@@ -568,7 +568,7 @@ char *list_buffered_display(	char *destination,
 					    ptr );
 	} while( next_item( list ) );
 	return destination;
-} /* list_buffered_display() */
+}
 
 char *list_display_delimited_plus_space(LIST *list, 
 					char delimiter )
@@ -598,7 +598,7 @@ char *list_display_delimited_plus_space(LIST *list,
 					    ptr );
 	} while( next_item( list ) );
 	return strdup( buffer );
-} /* list_display_delimited_plus_space() */
+}
 
 char *list_double_display(	LIST *double_list, 
 				char delimiter )
@@ -635,7 +635,7 @@ char *list_double_display(	LIST *double_list,
 
 	return strdup( buffer );
 
-} /* list_double_display() */
+}
 
 char *list_display_delimited_prefixed(	LIST *list, 
 					char delimiter, 
@@ -672,7 +672,7 @@ char *list_display_delimited_prefixed(	LIST *list,
 
 	return strdup( buffer );
 
-} /* list_display_delimited_prefixed() */
+}
 
 char *list2comma_string( LIST *list )
 {
@@ -776,7 +776,7 @@ LIST *list_append_current_list(	LIST *destination_list,
 
 	return destination_list;
 
-} /* list_append_current_list() */
+}
 
 LIST *list_append_list(	LIST *destination_list,
 			LIST *source_list )
@@ -801,7 +801,7 @@ LIST *list_set_list(	LIST *destination_list,
 
 	return destination_list;
 
-} /* list_append_list() */
+}
 
 void list_append( LIST *list, void *this_item, int num_bytes )
 {
@@ -865,7 +865,7 @@ int at_head( LIST *list )
 {
         return (list->current == list->head->next);
 
-} /* at_head */
+}
 
 
 int list_at_tail( LIST *list )
@@ -877,7 +877,7 @@ int at_tail( LIST *list )
 {
         return (list->current == list->tail->previous);
 
-} /* at_tail */
+}
 
 
 
@@ -930,7 +930,7 @@ int delete_current( LIST *list )
 
         return 1;
 
-} /* delete_item */
+}
 
 int list_count( LIST *list )
 {
@@ -943,7 +943,7 @@ int num_in_list( LIST *list )
 		return 0;
 	else
         	return list->num_in_list;
-} /* num_in_list */
+}
 
 void *list_fetch( LIST *list, char *string, int (*match_fn)() )
 {
@@ -951,7 +951,7 @@ void *list_fetch( LIST *list, char *string, int (*match_fn)() )
 		return list->current->item;
 	else
 		return (void *)0;
-} /* list_fetch() */
+}
 
 int item_exists( LIST *list, char *item, int (*match_fn)() )
 /* ----------------------------------------------------------- */
@@ -980,7 +980,7 @@ int item_exists( LIST *list, char *item, int (*match_fn)() )
                         return 0;
                 }
 	}
-} /* item_exists */
+}
 
 struct LINKTYPE *create_node()
 /* --------------------------- */
@@ -989,7 +989,7 @@ struct LINKTYPE *create_node()
 {
         return (struct LINKTYPE *)calloc( 1, sizeof( struct LINKTYPE ) );
 
-} /* create_node */
+}
 
 void list_free_string_list( LIST *string_list )
 {
@@ -1008,7 +1008,7 @@ void free_string_list( LIST *string_list )
 void list_free( LIST *list )
 {
 	destroy_list( list );
-} /* list_free() */
+}
 
 int destroy_list( LIST *list )
 /* ---------------------------------------------------- */
@@ -1021,7 +1021,7 @@ int destroy_list( LIST *list )
                         delete_current( list );
         free( list );
 	return 1;
-} /* destroy_list */
+}
 
 LIST *new_list() { return create_list(); }
 LIST *list_new_list() { return create_list(); }
@@ -1064,7 +1064,7 @@ LIST *create_list( void )
 
         return ret_list;
 
-} /* create_list */
+}
 
 
 
@@ -1087,7 +1087,7 @@ boolean go_head( LIST *list )
 
         return 1;
 
-} /* go_head */
+}
 
 void list_insert_head( LIST *list, void *item, int num_bytes )
 {
@@ -1095,7 +1095,7 @@ void list_insert_head( LIST *list, void *item, int num_bytes )
 			item,
 			num_bytes,
 			ADD_HEAD );
-} /* list_insert_head() */
+}
 
 void list_insert_current( LIST *list, void *item )
 {
@@ -1178,13 +1178,13 @@ struct LINKTYPE *get_current_record( LIST *list )
 {
 	return list->current;
 
-} /* get_current_record() */
+}
 
 void go_record( LIST *list, struct LINKTYPE *this_record )
 {
 	list->current = this_record;
 
-} /* go_record */
+}
 
 
 boolean list_still_more( LIST *list )
@@ -1214,7 +1214,7 @@ int list_at_start( LIST *list )
                 return 1;
 	else
                 return 0;
-} /* list_at_start() */
+}
 
 int at_end( LIST *list )
 {
@@ -1222,7 +1222,7 @@ int at_end( LIST *list )
                 return 1;
 	else
                 return 0;
-} /* at_end() */
+}
 
 boolean list_prior( LIST *list )
 {
@@ -1258,7 +1258,7 @@ int next_item( LIST *list )
                 return 1;
         }
 
-} /* next_item */
+}
 
 
 int previous_item( LIST *list )
@@ -1279,7 +1279,7 @@ int previous_item( LIST *list )
                 return 1;
         }
 
-} /* previous_item */
+}
 
 
 void *list_get_current_pointer( LIST *list )
@@ -1311,7 +1311,7 @@ char *retrieve_item_ptr( LIST *list )
                 /* ------------- */
                 return (char *)0;
 
-} /* retrieve_item_ptr */
+}
 
 
 int retrieve_item( char *ret_item, LIST *list )
@@ -1331,7 +1331,7 @@ int retrieve_item( char *ret_item, LIST *list )
                 /* ------------- */
                 return 0;
 
-} /* retrieve_item */
+}
 
 boolean list_add_string_in_order(	LIST *list,
 					char *string )
@@ -1341,7 +1341,7 @@ boolean list_add_string_in_order(	LIST *list,
 			string,
 			strcasecmp );
 
-} /* list_add_string_in_order() */
+}
 
 boolean list_add_pointer_in_order(	LIST *list, 
 					void *this_item, 
@@ -1385,7 +1385,7 @@ boolean list_add_pointer_in_order(	LIST *list,
 
         return 1;
 
-} /* list_add_pointer_in_order() */
+}
 
 int list_add_in_order(	LIST *list, 
 			void *this_item, 
@@ -1509,13 +1509,13 @@ char *list_append_unique(	LIST *list,
 	else
 		return add_item( list, this_item, num_bytes, ADD_TAIL );
 
-} /* list_append_unique() */
+}
 
 char *append( LIST *list, char *this_item, int num_bytes )
 {
 	return add_item( list, this_item, num_bytes, ADD_TAIL );
 
-} /* append() */
+}
 
 char *add_item(	LIST *list,
 		void *this_item,
@@ -1577,7 +1577,7 @@ char *add_item(	LIST *list,
 	/* --------------------------- */
         return newlink->item;
 
-} /* add_item */
+}
 
 
 void moveitem( char *to, char *from, int num_bytes )
@@ -1660,7 +1660,7 @@ LIST *list_delimiter_string_to_integer_list(
 		}
 	}
 	return list;
-} /* list_delimiter_string_to_integer_list() */
+}
 
 LIST *list_delimiter_string_to_list( char *list_string, char delimiter )
 {
@@ -1693,7 +1693,7 @@ LIST *list_quote_comma_string2list( char *list_string )
 		}
 	}
 	return list;
-} /* list_quote_comma_string2list() */
+}
 
 LIST *list_string_list(		char *list_string,
 				char delimiter )
@@ -1717,7 +1717,7 @@ LIST *string2list( char *list_string, char delimiter )
 		}
 	}
 	return list;
-} /* string2list() */
+}
 
 LIST *list_duplicate( LIST *list )
 {
@@ -1742,14 +1742,14 @@ LIST *string_list_duplicate( LIST *list )
 		} while( list_next( list ) );
 	}
 	return return_list;
-} /* string_list_duplicate() */
+}
 
 char *list_get_last_string( LIST *list )
 {
 	if ( !list_length( list ) ) return (char *)0;
 	go_tail( list );
 	return list_get_string( list );
-} /* list_get_last_string() */
+}
 
 void list_replace_last_string( 	LIST *list, char *string )
 {
@@ -1759,13 +1759,13 @@ void list_replace_last_string( 	LIST *list, char *string )
 		delete_current( list );
 		list_append_string( list, string );
 	}
-} /* list_replace_last_string() */
+}
 
 void *list_get_first_item( LIST *list )
 {
 	if ( !list_rewind( list ) ) return "";
 	return list_get_pointer( list );
-} /* list_get_first_item() */
+}
 
 int list_get_max_string_width( LIST *list )
 {
@@ -1780,7 +1780,7 @@ int list_get_max_string_width( LIST *list )
 			if ( str_len > max ) max = str_len;
 		} while( list_next( list ) );
 	return max;
-} /* list_get_max_string_width() */
+}
 
 LIST *list_copy_string_list( LIST *source )
 {
@@ -1793,7 +1793,7 @@ LIST *list_copy_string_list( LIST *source )
 			list_append_string( return_list, data );
 		} while( list_next( source ) );
 	return return_list;
-} /* list_copy_string_list() */
+}
 
 LIST *list_copy( LIST *source )
 {
@@ -1807,7 +1807,7 @@ LIST *list_copy( LIST *source )
 		list_append_pointer( return_list, data );
 	} while( list_next( source ) );
 	return return_list;
-} /* list_copy() */
+}
 
 
 void list_push( LIST *list )
@@ -1887,7 +1887,7 @@ char *list_get_first_string( LIST *list )
 		return list_get_string( list );
 	else
 		return (char *)0;
-} /* list_get_first_string() */
+}
 
 int list_string_index_compare( char *s1, char *s2 )
 {
@@ -1898,7 +1898,7 @@ int list_string_index_compare( char *s1, char *s2 )
 	trim_index( s2_buffer, s2 );
 
 	return list_strcmp( s1_buffer, s2_buffer );
-} /* list_string_index_compare() */
+}
 
 int list_strcmp( char *s1, char *s2 )
 {
@@ -1916,7 +1916,7 @@ int list_strcmp( char *s1, char *s2 )
 		return -1;
 	else
 		return 0;
-} /* list_strcmp() */
+}
 
 char *list_display_quoted_delimited( 	char *destination, 
 					LIST *list,
@@ -1934,7 +1934,7 @@ LIST *list_replicate_string_list( char *string, int how_many )
 
 	while( how_many-- ) list_append_string( list, string );
 	return list;
-} /* list_replicate_string_list() */
+}
 
 LIST *string_array2string_list( char **string_array,
 				int max_array_elements )
@@ -1968,7 +1968,7 @@ void list_replace_string( LIST *list, char *old, char *new )
 			}
 		} while( list_next( list ) );
 	}
-} /* list_replace_string() */
+}
 
 LIST *list_merge_string_list(	LIST *list1,
 				LIST *list2,
@@ -1995,7 +1995,7 @@ LIST *list_merge_string_list(	LIST *list1,
 		} while( list_next( list1 ) );
 	}
 	return return_list;
-} /* list_merge_string_list() */
+}
 
 boolean list_equivalent_string_list(
 				LIST *list1,
@@ -2025,7 +2025,7 @@ boolean list_equivalent_string_list(
 	list_restore( list1 );
 	list_restore( list2 );
 	return 1;
-} /* list_equivalent_string_list() */
+}
 
 boolean list_equals_string_list(LIST *list1,
 				LIST *list2 )
@@ -2053,7 +2053,7 @@ boolean list_equals_string_list(LIST *list1,
 
 	return 1;
 
-} /* list_equals_string_list() */
+}
 
 LIST *list_get_position_list(	LIST *list,
 				LIST *subset_list )
@@ -2067,7 +2067,7 @@ LIST *list_get_position_list(	LIST *list,
 	{
 		do {
 			item = list_get_pointer( subset_list );
-			if ( ( position = list_exists_string( list, item ) ) )
+			if ( ( position = list_exists_string( item, list ) ) )
 			{
 				sprintf( position_string, "%d", position - 1 );
 				list_append_pointer(
@@ -2077,7 +2077,7 @@ LIST *list_get_position_list(	LIST *list,
 		} while( list_next( subset_list ) );
 	}
 	return position_list;
-} /* list_get_position_list() */
+}
 
 void list_format_initial_capital( LIST *list )
 {
@@ -2090,7 +2090,7 @@ void list_format_initial_capital( LIST *list )
 			format_initial_capital( ptr, ptr );
 		} while( list_next( list ) );
 	}
-} /* list_format_initial_capital() */
+}
 
 boolean list_string_list_same(	LIST *list1,
 				LIST *list2 )
@@ -2116,7 +2116,7 @@ boolean list_string_list_match( LIST *list1,
 
 	return 1;
 
-} /* list_string_list_match() */
+}
 
 boolean list_string_list_all_populated( LIST *list )
 {
@@ -2128,7 +2128,7 @@ boolean list_string_list_all_populated( LIST *list )
 		if ( !*item ) return 0;
 	} while( list_next( list ) );
 	return 1;
-} /* list_string_list_all_populated() */
+}
 
 boolean list_string_list_all_empty( LIST *list )
 {
@@ -2140,7 +2140,7 @@ boolean list_string_list_all_empty( LIST *list )
 		if ( *item ) return 0;
 	} while( list_next( list ) );
 	return 1;
-} /* list_string_list_all_populated() */
+}
 
 LIST *list_rotate( LIST *list )
 {
@@ -2153,7 +2153,7 @@ LIST *list_rotate( LIST *list )
 	list_go_head( list );
 	list_set_current( list, last_item );
 	return list;
-} /* list_rotate() */
+}
 
 LIST *list_purge_duplicates( LIST *string_list )
 {
@@ -2167,15 +2167,15 @@ LIST *list_purge_duplicates( LIST *string_list )
 		do {
 			string = list_get_pointer( string_list );
 			if ( !list_exists_string(
-					return_list,
-					string ) )
+					string,
+					return_list ) )
 			{
 				list_append_pointer( return_list, string );
 			}
 		} while( list_next( string_list ) );
 	}
 	return return_list;
-} /* list_purge_duplicates() */
+}
 
 LIST *list_tail_list(		LIST *list,
 				int include_tail_count )
@@ -2200,7 +2200,7 @@ LIST *list_tail_list(		LIST *list,
 
 	return return_list;
 
-} /* list_tail_list() */
+}
 
 LIST *list_copy_count(		LIST *list,
 				int count )
@@ -2224,10 +2224,10 @@ LIST *list_copy_count(		LIST *list,
 
 	return return_list;
 
-} /* list_copy_count() */
+}
 
 LIST *list_delimited_string_to_list(
-				char *delimited_string )
+			char *delimited_string )
 {
 	char delimiter;
 
@@ -2240,7 +2240,7 @@ LIST *list_delimited_string_to_list(
 
 	return list_delimiter_string_to_list( delimited_string, delimiter );
 
-} /* list_delimited_string_to_list() */
+}
 
 LIST *list_delimiter_list_piece_list(
 				LIST *list,
@@ -2274,7 +2274,7 @@ LIST *list_delimiter_list_piece_list(
 
 	return return_list;
 
-} /* list_delimiter_list_piece_list() */
+}
 
 char *list_double_list_display(	char *destination,
 				LIST *double_list )
@@ -2303,7 +2303,7 @@ char *list_double_list_display(	char *destination,
 
 	return anchor;
 
-} /* list_double_list_display() */
+}
 
 LIST *list_string_to_double_list(
 				LIST *string_list )
@@ -2337,7 +2337,7 @@ LIST *list_string_to_double_list(
 
 	return double_list;
 
-} /* list_string_to_double_list() */
+}
 
 /* -------------------------------------------- */
 /* Returns zero-based index of matching double. */
@@ -2365,7 +2365,7 @@ int list_double_list_match(	LIST *double_list,
 
 	return -1;
 
-} /* list_double_list_match() */
+}
 
 LIST *list_cycle_right( LIST *list )
 {
@@ -2381,7 +2381,7 @@ LIST *list_cycle_right( LIST *list )
 
 	return list;
 
-} /* list_cycle_right() */
+}
 
 char *list_integer_display(	LIST *integer_list,
 				char delimiter  )

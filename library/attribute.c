@@ -433,8 +433,8 @@ LIST *attribute_using_name_list_extract_attribute_list(
 					attribute_list );
 
 		if ( list_exists_string(
-					attribute_name_list,
-					attribute->attribute_name ) )
+			attribute->attribute_name,
+			attribute_name_list ) )
 		{
 			list_append_pointer(
 					return_attribute_list,
@@ -1065,14 +1065,16 @@ LIST *attribute_get_lookup_allowed_attribute_name_list( LIST *attribute_list )
 	do {
 		attribute = list_get_pointer( attribute_list );
 
-		if ( list_exists_string( attribute->exclude_permission_list,
-					 "lookup" ) )
+		if ( list_exists_string(
+			"lookup",
+			attribute->exclude_permission_list ) )
 		{
 			continue;
 		}
 
-		if ( list_exists_string( done_attribute_name_list,
-					 attribute->attribute_name ) )
+		if ( list_exists_string(
+			attribute->attribute_name,
+			done_attribute_name_list ) )
 		{
 			continue;
 		}
@@ -1273,14 +1275,16 @@ LIST *attribute_get_update_lookup_exclude_attribute_name_list(
 		      list_get_pointer( attribute_list );
 
 		if ( attribute->exclude_permission_list
-		&& ( list_exists_string( attribute->exclude_permission_list,
-					 "update" )
-		||   list_exists_string( attribute->exclude_permission_list,
-					 "lookup" ) ) )
+		&& ( list_exists_string(
+			"update",
+			attribute->exclude_permission_list )
+		||   list_exists_string(
+			"lookup",
+			attribute->exclude_permission_list ) ) )
 		{
 			list_append_pointer(
-					exclude_attribute_name_list,
-					attribute->attribute_name );
+				exclude_attribute_name_list,
+				attribute->attribute_name );
 		}
 	} while( list_next( attribute_list ) );
 	return exclude_attribute_name_list;
@@ -1298,8 +1302,9 @@ LIST *attribute_list_subtract(		LIST *attribute_list,
 		attribute = (ATTRIBUTE *)
 		      list_get_pointer( attribute_list );
 
-		if ( list_exists_string( subtract_attribute_name_list,
-					 attribute->attribute_name ) )
+		if ( list_exists_string(
+			attribute->attribute_name,
+			subtract_attribute_name_list ) )
 		{
 			list_delete_current( attribute_list );
 		}
@@ -1696,8 +1701,9 @@ int attribute_get_date_piece_offset(	LIST *attribute_list,
 	do {
 		attribute = list_get_pointer( attribute_list );
 
-		if ( list_exists_string(exclude_attribute_name_list,
-					attribute->attribute_name ) )
+		if ( list_exists_string(
+			attribute->attribute_name,
+			exclude_attribute_name_list ) )
 		{
 			continue;
 		}

@@ -96,7 +96,8 @@ LIST *relation_system_list(
 			boolean fetch_attribute_list );
 
 char *relation_sys_string(
-			char *where );
+			char *where,
+			char *order_clause );
 
 /* Safely returns heap memory */
 /* -------------------------- */
@@ -128,7 +129,8 @@ LIST *relation_mto1_relation_list(
 /* foreign_attribute_name_list is set */
 /* ---------------------------------- */
 LIST *relation_one2m_fetch_relation_list(
-			char *one_folder_name );
+			char *one_folder_name,
+			char *order_clause );
 
 /* ---------------------------------- */
 /* foreign_attribute_name_list is set */
@@ -142,6 +144,9 @@ boolean relation_is_primary_key_subset(
 
 char *relation_list_display(
 			LIST *one2m_relation_list );
+
+LIST *relation_one2m_pair_relation_list(
+			LIST *relation_one2m_relation_list );
 
 #endif
 

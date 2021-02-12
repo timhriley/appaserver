@@ -503,8 +503,9 @@ int main( int argc, char **argv )
 	pair_one2m->pair_one2m_insert_form_folder_list =
 		pair_one2m_insert_form_folder_list(
 			pair_one2m->keystrokes_save_function,
-			relation_one2m_relation_list(
-				pair_one2m->one_folder_name ) );
+			relation_one2m_pair_relation_list(
+				relation_one2m_relation_list(
+					pair_one2m->one_folder_name ) ) );
 
 	omit_ignore_push_buttons =
 		( list_length( pair_one2m->
@@ -658,7 +659,6 @@ int main( int argc, char **argv )
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */,
 		folder->post_change_javascript );
 
 	if ( lookup_before_drop_down->
@@ -850,16 +850,16 @@ LIST *get_element_list(
 				allowed_attribute_name_list );
 
 		if ( list_exists_string(
-				done_attribute_name_list,
-				attribute_name ) )
+			attribute_name,
+			done_attribute_name_list ) )
 		{
 			continue;
 		}
 
 		is_primary_attribute =
 			list_exists_string(	
-				primary_attribute_name_list,
-				attribute_name );
+				attribute_name,
+				primary_attribute_name_list );
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
@@ -899,8 +899,9 @@ LIST *get_element_list(
 			continue;
 		}
 
-		if ( !list_exists_string(	done_attribute_name_list,
-						attribute_name ) )
+		if ( !list_exists_string(
+			attribute_name,
+			done_attribute_name_list ) )
 		{
 			element_list =
 				get_attribute_element_list(

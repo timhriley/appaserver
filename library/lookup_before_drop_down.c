@@ -169,10 +169,11 @@ LIST *lookup_before_drop_down_folder_list(
 		if ( related_folder->automatic_preselection )
 			continue;
 
-		if ( list_exists_string(	done_folder_name_list,
-						related_folder->
-							folder->
-							folder_name ) )
+		if ( list_exists_string(
+			related_folder->
+				folder->
+				folder_name,
+			done_folder_name_list ) )
 		{
 			continue;
 		}
@@ -348,13 +349,12 @@ void lookup_before_drop_down_with_folder_name_list_set_fulfilled(
 				lookup_before_drop_down_folder_list );
 
 		if ( list_exists_string(
-				folder_name_list,
-				folder->folder_name ) )
+				folder->folder_name,
+				folder_name_list ) )
 		{
 			folder->fulfilled = 1;
 		}
 	} while( list_next( lookup_before_drop_down_folder_list ) );
-
 }
 
 boolean lookup_before_drop_down_is_fulfilled_folder(
@@ -1004,8 +1004,8 @@ LIST *lookup_before_drop_down_get_non_edit_folder_name_list(
 					folder->
 					primary_attribute_name_list ) > 1
 		&&   list_exists_string(
-			lookup_before_drop_down_folder_name_list,
-			related_folder->folder->folder_name ) )
+			related_folder->folder->folder_name,
+			lookup_before_drop_down_folder_name_list ) )
 		{
 			list_append_pointer(
 				non_edit_folder_name_list,

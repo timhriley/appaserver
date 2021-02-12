@@ -333,7 +333,6 @@ int main( int argc, char **argv )
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
 	query = query_edit_table_new(
@@ -505,8 +504,9 @@ LIST *get_element_list(		char *login_name,
 
 		/* If the attribute is accounted for already */
 		/* ----------------------------------------- */
-		if ( list_exists_string( ignore_attribute_name_list,
-					 attribute_name ) )
+		if ( list_exists_string(
+			attribute_name,
+			ignore_attribute_name_list ) )
 		{
 			continue;
 		}
@@ -542,8 +542,8 @@ LIST *get_element_list(		char *login_name,
 					row_level_non_owner_forbid,
 					override_row_restrictions,
 					list_exists_string(	
-						primary_attribute_name_list,
-						attribute_name ),
+						attribute_name,
+						primary_attribute_name_list ),
 					role_name,
 				application_get_max_query_rows_for_drop_downs(
 						application_name ),
@@ -563,8 +563,9 @@ LIST *get_element_list(		char *login_name,
 
 		}
 
-		if ( !list_exists_string(	ignore_attribute_name_list,
-						attribute_name ) )
+		if ( !list_exists_string(
+			attribute_name,
+			ignore_attribute_name_list ) )
 		{
 			element_list =
 				get_attribute_element_list(
@@ -628,8 +629,8 @@ LIST *get_attribute_element_list(	int *objects_outputted,
 				attribute->post_change_javascript,
 				attribute->on_focus_javascript_function,
 				list_exists_string(	
-						primary_attribute_name_list,
-						attribute->attribute_name ) );
+					attribute->attribute_name,
+					primary_attribute_name_list ) );
 
 
 	if ( element_list && list_length( element_list ) )

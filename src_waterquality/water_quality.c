@@ -1009,7 +1009,9 @@ LIST *water_fetch_turkey_point_heading_column_list(
 			column_piece );
 		column_piece++ )
 	{
-		if ( list_exists_string( station_heading_list, piece_buffer ) )
+		if ( list_exists_string(
+			piece_buffer,
+			station_heading_list ) )
 		{
 			load_column = water_new_load_column();
 			load_column->station_collection_attribute =
@@ -1019,8 +1021,9 @@ LIST *water_fetch_turkey_point_heading_column_list(
 			continue;
 		}
 
-		if ( list_exists_string(collection_date_heading_list,
-					piece_buffer ) )
+		if ( list_exists_string(
+			piece_buffer,
+			collection_date_heading_list ) )
 		{
 			load_column = water_new_load_column();
 			load_column->station_collection_attribute =
@@ -1148,7 +1151,9 @@ LIST *water_fetch_fiu_column_list(
 			column_piece );
 		column_piece++ )
 	{
-		if ( list_exists_string( station_heading_list, piece_buffer ) )
+		if ( list_exists_string(
+			piece_buffer,
+			station_heading_list ) )
 		{
 			load_column = water_new_load_column();
 			load_column->station_collection_attribute =
@@ -1158,8 +1163,9 @@ LIST *water_fetch_fiu_column_list(
 			continue;
 		}
 
-		if ( list_exists_string(collection_date_heading_list,
-					piece_buffer ) )
+		if ( list_exists_string(
+			piece_buffer,
+			collection_date_heading_list ) )
 		{
 			load_column = water_new_load_column();
 			load_column->station_collection_attribute =
@@ -1169,8 +1175,9 @@ LIST *water_fetch_fiu_column_list(
 			continue;
 		}
 
-		if ( list_exists_string(collection_time_heading_list,
-					piece_buffer ) )
+		if ( list_exists_string(
+			piece_buffer,
+			collection_time_heading_list ) )
 		{
 			load_column = water_new_load_column();
 			load_column->station_collection_attribute =
@@ -1180,8 +1187,9 @@ LIST *water_fetch_fiu_column_list(
 			continue;
 		}
 
-		if ( list_exists_string(collection_depth_meters_heading_list,
-					piece_buffer ) )
+		if ( list_exists_string(
+			piece_buffer,
+			collection_depth_meters_heading_list ) )
 		{
 			load_column = water_new_load_column();
 			load_column->station_collection_attribute =
@@ -1191,8 +1199,9 @@ LIST *water_fetch_fiu_column_list(
 			continue;
 		}
 
-		if ( list_exists_string(station_latitude_heading_list,
-					piece_buffer ) )
+		if ( list_exists_string(
+			piece_buffer,
+			station_latitude_heading_list ) )
 		{
 			load_column = water_new_load_column();
 			load_column->station_collection_attribute = "latitude";
@@ -1201,8 +1210,9 @@ LIST *water_fetch_fiu_column_list(
 			continue;
 		}
 
-		if ( list_exists_string(station_longitude_heading_list,
-					piece_buffer ) )
+		if ( list_exists_string(
+			piece_buffer,
+			station_longitude_heading_list ) )
 		{
 			load_column = water_new_load_column();
 			load_column->station_collection_attribute = "longitude";
@@ -1743,8 +1753,9 @@ STATION *water_station_seek(	LIST *station_list,
 		station = list_get_pointer( station_list );
 
 		if ( strcmp( station->station_name, station_name ) == 0
-		||   list_exists_string( station->alias_name_list,
-					 station_name ) ) 
+		||   list_exists_string(
+			station_name,
+			station->alias_name_list ) )
 		{
 			return station;
 		}

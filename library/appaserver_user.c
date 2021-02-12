@@ -236,8 +236,8 @@ boolean appaserver_user_exists_session(	char *application_name,
 	}
 
 	return list_exists_string(
-		global_appaserver_user->session_list,
-		session );
+		session,
+		global_appaserver_user->session_list );
 
 }
 
@@ -261,8 +261,8 @@ boolean appaserver_user_exists_role(	char *application_name,
 	}
 
 	return list_exists_string(
-		global_appaserver_user->role_list,
-		role_name );
+		role_name,
+		global_appaserver_user->role_list );
 
 }
 

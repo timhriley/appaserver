@@ -685,8 +685,8 @@ void build_insert_data_string( 	DICTIONARY *row_dictionary,
 		if ( results == -1 )
 		{
 			if ( list_exists_string(
-				common_non_primary_attribute_name_list,
-				attribute_name ) )
+				attribute_name,
+				common_non_primary_attribute_name_list ) )
 			{
 				if ( ! (data_ptr =
 					insert_database_get_common_data(
@@ -733,8 +733,9 @@ void build_insert_data_string( 	DICTIONARY *row_dictionary,
 		/* then make it "null".				    */
 		/* ------------------------------------------------ */
 		if ( ( !*data )
-		&&   list_exists_string( primary_attribute_name_list,
-					 attribute_name ) )
+		&&   list_exists_string(
+			attribute_name,
+			primary_attribute_name_list ) )
 		{
 			strcpy( data, NULL_STRING );
 		}
@@ -860,8 +861,8 @@ int insert_database_ignore_button_pressed(
 					char *attribute_name )
 {
 	return list_exists_string(
-			ignore_attribute_name_list,
-			attribute_name );
+			attribute_name,
+			ignore_attribute_name_list );
 }
 
 void insert_database_set_post_insert_process(
@@ -937,9 +938,9 @@ RELATED_FOLDER *insert_database_get_common_data_related_folder(
 				mto1_related_folder_list );
 
 		if ( list_exists_string(
+			attribute_name,
 			folder_get_non_primary_attribute_name_list(
-				related_folder->folder->attribute_list ),
-			attribute_name ) )
+				related_folder->folder->attribute_list ) ) )
 		{
 			return related_folder;
 		}
@@ -1096,8 +1097,8 @@ LIST *insert_database_set_ignore_primary_key_to_null(
 						ignore_attribute_name_list );
 
 				if ( list_exists_string(
-					primary_attribute_name_list,
-					attribute_name ) )
+					attribute_name,
+					primary_attribute_name_list ) )
 				{
 					sprintf( key,
 						 "%s_%d",
@@ -1112,8 +1113,8 @@ LIST *insert_database_set_ignore_primary_key_to_null(
 				else
 				{
 					if ( !list_exists_string(
-						new_ignore_attribute_name_list,
-						attribute_name ) )
+					      attribute_name,
+					      new_ignore_attribute_name_list ) )
 					{
 						list_append_pointer(
 						new_ignore_attribute_name_list,
@@ -1131,8 +1132,8 @@ LIST *insert_database_set_ignore_primary_key_to_null(
 					ignore_attribute_name_list );
 
 			if ( list_exists_string(
-				primary_attribute_name_list,
-				attribute_name ) )
+				attribute_name,
+				primary_attribute_name_list ) )
 			{
 				sprintf( key,
 					 "%s_0",

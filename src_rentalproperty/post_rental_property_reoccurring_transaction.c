@@ -115,8 +115,9 @@ int main( int argc, char **argv )
 	if ( ( !property_street_address
 	||     strcmp(	property_street_address,
 			"property_street_address" ) == 0 )
-	&&   ( list_exists_string(	property_street_address_list,
-					street_address ) ) )
+	&&   ( list_exists_string(
+			street_address,
+			property_street_address_list ) ) )
 	{
 		property_street_address = street_address;
 	}

@@ -793,8 +793,8 @@ LIST *datatype_list_get_unique_unit_list(
 		if ( !datatype->units ) continue;
 
 		if ( !list_exists_string(
-			unit_list,
-			datatype->units->units_name ) )
+			datatype->units->units_name,
+			unit_list ) )
 		{
 			list_append_pointer(
 				unit_list,

@@ -28,6 +28,7 @@
 #include "environ.h"
 #include "post2dictionary.h"
 #include "related_folder.h"
+#include "relation.h"
 #include "session.h"
 #include "role.h"
 #include "query.h"
@@ -40,8 +41,6 @@
 
 /* Prototypes */
 /* ---------- */
-boolean pair_one2m_omit(DICTIONARY *pair_1tom_dictionary );
-
 void set_null_operator_data_to_null(
 			DICTIONARY *query_dictionary,
 			LIST *attribute_name_list );
@@ -106,7 +105,6 @@ int main( int argc, char **argv )
 	APPASERVER *appaserver;
 	char *insert_update_key;
 	char *target_frame;
-	LIST *one2m_related_folder_list;
 	LIST *mto1_isa_related_folder_list = {0};
 	char *vertical_new_button_folder_name;
 	ROLE *role;
@@ -114,7 +112,7 @@ int main( int argc, char **argv )
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *message = "";
 	char *isa_message = "";
-	boolean pair_one2m_submit = 0;
+	PAIR_ONE2M *pair_one2m = {0};
 
 	if ( argc != 11 )
 	{
@@ -415,21 +413,6 @@ int main( int argc, char **argv )
 			dictionary_appaserver->query_dictionary, 
 			insert_required_attribute_name_list );
 
-	one2m_related_folder_list = 
-		related_folder_1tom_related_folder_list(
-			appaserver->application_name,
-			appaserver->session,
-			appaserver->folder->folder_name,
-			role_name,
-			other,
-			(LIST *)0 /* primary_data_list */,
-			list_new() /* related_folder_list */,
-			0 /* dont omit_isa_relations */,
-			related_folder_no_recursive,
-			(LIST *)0 /* parent_primary_attribute_name_list */,
-			(LIST *)0 /* original_primary_attribute_name_list */,
-			(char *)0 /* prior_related_attribute_name */ );
-
 	mto1_isa_related_folder_list =
 		related_folder_get_isa_related_folder_list(
 			application_name,
@@ -448,38 +431,56 @@ int main( int argc, char **argv )
 			appaserver->folder->primary_attribute_name_list );
 	}
 
-	/* Pressed the <Submit> button when doing pair_one2m */
-	/* ------------------------------------------------- */
-	if ( dictionary_length( dictionary_appaserver->pair_1tom_dictionary ) )
-	{
-		char key[ 128 ];
-		char *data;
-
-		sprintf(key,
-			"%s_0",
-			PAIR_ONE2M_SUBMIT_FOLDER );
-
-		data =
-			dictionary_get(
-				dictionary_appaserver->pair_1tom_dictionary,
-				key );
-
-		if ( string_strcmp( data, folder_name ) == 0 )
-		{
-			pair_one2m_submit = 1;
-		}
-	}
-
 	/* If doing pair_one2m */
 	/* ------------------- */
-	if ( !pair_one2m_submit
-	&&   !pair_one2m_omit( dictionary_appaserver->pair_1tom_dictionary )
-	&&   folder_get_pair_one2m_related_folder_boolean(
-			appaserver->
-				folder->
-				folder_name,
-			one2m_related_folder_list ) )
+	if ( dictionary_length( dictionary_appaserver->pair_one2m_dictionary ) )
 	{
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: pair_one2m_dictionary = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display( dictionary_appaserver->pair_one2m_dictionary ) );
+m2( application_name, msg );
+}
+
+		pair_one2m =
+			pair_one2m_post_form_new(
+				appaserver->folder->folder_name
+					/* many_folder_name */,
+				dictionary_appaserver->
+					pair_one2m_dictionary );
+
+		pair_one2m->pair_one2m_fulfilled_folder_name_list =
+			pair_one2m_fulfilled_folder_name_list(
+				PAIR_ONE2M_FULFILLED_LIST_LABEL,
+				pair_one2m->pair_one2m_dictionary );
+
+		pair_one2m->pair_one2m_one_folder_name =
+			pair_one2m_one_folder_name(
+				PAIR_ONE2M_ONE_FOLDER_LABEL,
+				pair_one2m->pair_one2m_dictionary );
+
+		pair_one2m->pair_one2m_next_folder_name =
+			pair_one2m_next_folder_name(
+				pair_one2m->
+					pair_one2m_fulfilled_folder_name_list,
+				relation_one2m_pair_relation_list(
+					relation_one2m_relation_list(
+					   pair_one2m->
+					     pair_one2m_one_folder_name ) ) );
+
+		list_set(
+			pair_one2m->pair_one2m_fulfilled_folder_name_list,
+			pair_one2m->pair_one2m_next_folder_name );
+
+		dictionary_appaserver->pair_one2m_dictionary =
+			pair_one2m_fulfilled_dictionary(
+				PAIR_ONE2M_FULFILLED_LIST_LABEL,
+				pair_one2m->
+					pair_one2m_fulfilled_folder_name_list );
+				
 		insert_one2m_pair_sequence(
 			appaserver->folder,
 			dictionary_appaserver,
@@ -519,8 +520,7 @@ int main( int argc, char **argv )
 	/* pressed <Submit> when inserting pair_one2m.   */
 	/* --------------------------------------------- */
 	if ( !list_length( subtracted_primary_attribute_name_list )
-	||   list_length( mto1_isa_related_folder_list )
-	||   pair_one2m_submit )
+	||   list_length( mto1_isa_related_folder_list ) )
 	{
 		LIST *missing_attribute_name_list;
 		LIST *ignore_attribute_name_list;
@@ -923,16 +923,11 @@ void insert_one2m_pair_sequence(
 	/* ------------------------------------------------- */
 	message = "";
 
-	dictionary_set_pointer(	dictionary_appaserver->
-					pair_1tom_dictionary,
-				PAIR_ONE2M_FOLDER_NAME,
-				folder->folder_name );
-
 	if ( got_duplicate_message )
 	{
 		dictionary_set_pointer(
 				dictionary_appaserver->
-					pair_1tom_dictionary,
+					pair_one2m_dictionary,
 				PAIR_ONE2M_DUPLICATE_STATE_KEY,
 				"yes" );
 	}
@@ -940,7 +935,7 @@ void insert_one2m_pair_sequence(
 	{
 		dictionary_set_pointer(
 				dictionary_appaserver->
-					pair_1tom_dictionary,
+					pair_one2m_dictionary,
 				PAIR_ONE2M_DUPLICATE_STATE_KEY,
 				"no" );
 	}

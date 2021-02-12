@@ -1199,8 +1199,8 @@ void output_table(		char *application_name,
 			station = list_get_pointer( station_list );
 
 			if ( !list_exists_string(
-				done_station_name_list,
-				station ) )
+				station,
+				done_station_name_list ) )
 			{
 				hydrology_library_output_station_table(
 					application_name,

@@ -367,8 +367,9 @@ LIST *folder_get_primary_attribute_list( LIST *attribute_list )
 	do {
 		attribute = (ATTRIBUTE *)list_get_pointer( attribute_list );
 
-		if ( list_exists_string( primary_attribute_name_list,
-					 attribute->attribute_name ) )
+		if ( list_exists_string(
+			attribute->attribute_name,
+			primary_attribute_name_list ) )
 		{
 			list_append_pointer(	primary_attribute_list,
 						attribute );
@@ -2151,7 +2152,7 @@ boolean folder_table_exists( char *table_name )
 		table_name_list = folder_fetch_table_name_list();
 	}
 
-	return list_exists_string( table_name_list, table_name );
+	return list_exists_string( table_name, table_name_list );
 
 }
 

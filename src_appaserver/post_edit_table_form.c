@@ -695,7 +695,7 @@ void post_state_insert(
 
 	pair_one2m_folder_name =
 		dictionary_get_pointer(
-			dictionary_appaserver->pair_1tom_dictionary,
+			dictionary_appaserver->pair_one2m_dictionary,
 			PAIR_ONE2M_FOLDER_NAME );
 
 	execute_output_process(	dictionary_appaserver,
@@ -753,7 +753,7 @@ void post_state_update(
 			dictionary_appaserver->
 				lookup_before_drop_down_dictionary,
 			dictionary_appaserver->ignore_dictionary,
-			dictionary_appaserver->pair_1tom_dictionary,
+			dictionary_appaserver->pair_one2m_dictionary,
 			dictionary_appaserver->non_prefixed_dictionary );
 
 	folder = folder_new_folder(
@@ -1025,7 +1025,7 @@ void post_state_lookup(
 			dictionary_appaserver->
 				lookup_before_drop_down_dictionary,
 			dictionary_appaserver->ignore_dictionary,
-			dictionary_appaserver->pair_1tom_dictionary,
+			dictionary_appaserver->pair_one2m_dictionary,
 			dictionary_appaserver->non_prefixed_dictionary );
 
 	operation_list_structure =

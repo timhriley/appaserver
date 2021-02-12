@@ -472,7 +472,6 @@ int main( int argc, char **argv )
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */,
 		(char *)0 /* post_change_javascript */ );
 
 	form_output_body(
@@ -515,9 +514,7 @@ int main( int argc, char **argv )
 		application_name,
 		with_dynarch_menu /* with_back_to_top_button */,
 		0 /* form_number */,
-		post_change_javascript,
-		(LIST *)0 /* pair_one2m_related_folder_name_list */,
-		(LIST *)0 /* form_button_list */ );
+		post_change_javascript );
 
 	printf( "</table>\n" );
 	printf( "</form>\n" );
