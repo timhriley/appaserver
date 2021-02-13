@@ -148,5 +148,8 @@ char *relation_list_display(
 LIST *relation_one2m_pair_relation_list(
 			LIST *relation_one2m_relation_list );
 
+LIST *relation_mto1_related_folder_list(
+			LIST *mto1_relation_list );
+
 #endif
 

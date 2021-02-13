@@ -810,7 +810,8 @@ int form_output_insert_rows(	int *form_current_reference_number,
 	int number_rows_outputted = 0;
 
 	if ( !insert_rows_number )
-		insert_rows_number = FORM_DEFAULT_INSERT_ROWS_NUMBER;
+		insert_rows_number =
+			FORM_DEFAULT_INSERT_ROWS_NUMBER;
 
 	while ( insert_rows_number-- )
 	{

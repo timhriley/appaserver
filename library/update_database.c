@@ -84,6 +84,7 @@ UPDATE_DATABASE *update_database_new(
 		folder_fetch(
 			update_database->folder_name,
 			1 /* fetch_attribute_list */,
+			0 /* not fetch_one2m_relation_list */,
 			1 /* fetch_one2m_recursive_relation_list */,
 			1 /* fetch_mto1_isa_recursive_relation_list */,
 			0 /* not fetch_mto1_relation_list */ );

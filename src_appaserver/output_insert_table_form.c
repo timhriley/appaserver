@@ -249,6 +249,15 @@ int main( int argc, char **argv )
 				(LIST *)0 /* operation_name_list */ );
 	}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got pair_one2m_dictionary = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display( dictionary_appaserver->pair_one2m_dictionary ) );
+m2( application_name, msg );
+}
 	/* Vertical new button */
 	/* ------------------- */ 
 	vertical_new_button_folder_name =
@@ -324,9 +333,6 @@ int main( int argc, char **argv )
 		folder_get_attribute_name_list(
 			folder->attribute_list );
 
-	form = form_new( folder->folder_name,
-			 application_get_title_string( application_name ) );
-
 	folder->mto1_related_folder_list = 
 		related_folder_get_mto1_related_folder_list(
 			list_new_list(),
@@ -340,8 +346,6 @@ int main( int argc, char **argv )
 				role->override_row_restrictions_yn ),
 			(LIST *)0 /* root_primary_attribute_name_list */,
 			0 /* recursive_level */ );
-
-	form->dont_output_operations = 1;
 
 	if ( dictionary_length( dictionary_appaserver->query_dictionary ) )
 	{
@@ -419,7 +423,7 @@ int main( int argc, char **argv )
 				dictionary_appaserver->pair_one2m_dictionary );
 
 		pair_one2m->one_folder_name =
-			pair_one2m_one_folder_name(
+			pair_one2m_folder_name(
 				PAIR_ONE2M_ONE_FOLDER_LABEL,
 				pair_one2m->pair_one2m_dictionary );
 
@@ -438,7 +442,10 @@ int main( int argc, char **argv )
 					pair_one2m->
 						fulfilled_folder_name_list,
 					pair_one2m->
-						one2m_pair_relation_list ) ) )
+						one2m_pair_relation_list,
+					pair_one2m->
+						one_folder_name,
+					(char *)0 /* many_folder_name */ ) ) )
 		{
 			document_quick_output_body(
 					application_name,
@@ -467,7 +474,22 @@ int main( int argc, char **argv )
 			document_close();
 			exit( 0 );
 		}
+
+		folder =
+			folder_fetch(
+			   pair_one2m->next_folder_name,
+			   1 /* fetch_attribute_list */,
+			   0 /* not fetch_one2m_relation_list */,
+			   0 /* not fetch_one2m_recursive_relation_list */,
+			   1 /* fetch_mto1_isa_recursive_relation_list */,
+			   1 /* fetch_mto1_relation_list */ );
 	}
+
+	form = form_new( folder->folder_name,
+			 application_get_title_string(
+				application_name ) );
+
+	form->dont_output_operations = 1;
 
 #ifdef NOT_DEFINED
 	folder->pair_one2m_related_folder_list =
@@ -779,11 +801,6 @@ int main( int argc, char **argv )
 
 		output_submit_reset_buttons_in_trailer = 0;
 	}
-
-	folder->mto1_related_folder_list =
-		appaserver_remove_attribute_name_list_from_related_folder_list(
-				folder->mto1_related_folder_list,
-				ignore_attribute_name_list );
 
 	list_append_string_list(
 		ignore_attribute_name_list,
@@ -1113,7 +1130,6 @@ LIST *get_insert_table_element_list(
 	char *attribute_name;
 	RELATED_FOLDER *related_folder;
 	ELEMENT_APPASERVER *element;
-	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
 	LIST *primary_attribute_name_list;
 	LIST *isa_folder_list;
@@ -1121,17 +1137,14 @@ LIST *get_insert_table_element_list(
 	boolean is_primary_attribute;
 	DICTIONARY *parameter_dictionary;
 	DICTIONARY *where_clause_dictionary;
+	LIST *foreign_attribute_name_list = {0};
 
-	if ( !list_reset( include_attribute_name_list ) )
+	if ( !list_length( include_attribute_name_list ) )
 		return list_new_list();
 
-/*
-Can't do because: benthic SPECIES_MEASUREMENT has BENTHIC_SPECIES
-drop-down needing SWEEP.sweep_number in the where clause.
-	parameter_dictionary = dictionary_copy( preprompt_dictionary );
-*/
-
-	parameter_dictionary = dictionary_copy( query_dictionary );
+	parameter_dictionary =
+		dictionary_copy(
+			query_dictionary );
 
 	dictionary_append_dictionary(
 		parameter_dictionary,
@@ -1156,11 +1169,13 @@ drop-down needing SWEEP.sweep_number in the where clause.
 					"login_name" );
 	}
 
+	list_rewind( include_attribute_name_list );
+
 	/* For each attribute */
 	/* ------------------ */
 	do {
 		attribute_name = 
-			list_get_pointer(
+			list_get(
 				include_attribute_name_list );
 
 		/* If the attribute is accounted for already */
@@ -1178,13 +1193,11 @@ drop-down needing SWEEP.sweep_number in the where clause.
 				primary_attribute_name_list );
 
 		if ( ( related_folder =
-		       related_folder_attribute_consumes_related_folder(
+		       related_folder_insert_table_consumes_related_folder(
 			       &foreign_attribute_name_list,
 			       ignore_attribute_name_list,
-			       (LIST *)0 /* omit_update_attribute_name_list */,
 			       mto1_related_folder_list,
-			       attribute_name,
-			       (LIST *)0 /* include_attribute_name_list */ ) ) )
+			       attribute_name ) ) )
 		{
 			ATTRIBUTE *attribute;
 			RELATED_FOLDER **only_one_ajax_fill_drop_down;
@@ -1254,14 +1267,14 @@ drop-down needing SWEEP.sweep_number in the where clause.
 					 application_name,
 					 session,
 					 login_name,
-					 foreign_attribute_name_list,
+					 related_folder->
+						foreign_attribute_name_list,
 					 row_dictionary_list_length,
 					 parameter_dictionary,
 					 where_clause_dictionary,
 					 0 /* prompt_data_element_only */,
 					 folder_post_change_javascript,
 					 max_drop_down_size,
-					 row_level_non_owner_forbid,
 					 override_row_restrictions,
 					 is_primary_attribute,
 					 role_name,

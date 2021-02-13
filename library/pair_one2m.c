@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "String.h"
 #include "related_folder.h"
 #include "relation.h"
 #include "dictionary_appaserver.h"
@@ -61,14 +62,14 @@ char *pair_folder_button_string(
 }
 
 char *pair_folder_element_copy_function(
-			char *prompt_form_element_name,
+			char *prompt_many_element_name,
 			char *folder_name )
 {
 	static char copy_function[ 1024 ];
 
 	sprintf( copy_function,
 		 "timlib_element_value_set( '%s_0', '%s' ) && ",
-		 prompt_form_element_name,
+		 prompt_many_element_name,
 		 folder_name );
 
 	return copy_function;
@@ -130,9 +131,9 @@ LIST *pair_one2m_prompt_form_folder_list(
 
 		pair_one2m_folder->copy_function =
 			pair_folder_element_copy_function(
-				pair_one2m_prompt_form_element_name(
+				pair_one2m_prompt_element_name(
 					PAIR_ONE2M_PREFIX,
-					PAIR_ONE2M_ONE_FOLDER_LABEL ),
+					PAIR_ONE2M_MANY_FOLDER_LABEL ),
 				pair_one2m_folder->many_folder_name );
 
 		pair_one2m_folder->folder_button_string =
@@ -195,35 +196,57 @@ LIST *pair_one2m_fulfilled_folder_name_list(
 }
 
 DICTIONARY *pair_one2m_fulfilled_dictionary(
+			/* -------------------------------------- */
+			/* Sets and returns pair_one2m_dictionary */
+			/* -------------------------------------- */
+			DICTIONARY *pair_one2m_dictionary,
 			char *pair_one2m_fulfilled_list_label,
 			LIST *pair_one2m_fulfilled_folder_name_list )
 {
-	DICTIONARY *dictionary = dictionary_small();
-
 	dictionary_set_pointer(
-		dictionary,
+		pair_one2m_dictionary,
 		pair_one2m_fulfilled_list_label,
 		list_display_delimited(
 			pair_one2m_fulfilled_folder_name_list,
 			',' ) );
-	return dictionary;
+	return pair_one2m_dictionary;
 }
 
 char *pair_one2m_next_folder_name(
 			LIST *pair_one2m_fulfilled_folder_name_list,
-			LIST *relation_one2m_pair_relation_list )
+			LIST *relation_one2m_pair_relation_list,
+			char *one_folder_name,
+			char *many_folder_name )
 {
 	RELATION *relation;
+	boolean start_checking = 0;
+
+	if ( !list_exists_string(
+		one_folder_name,
+		pair_one2m_fulfilled_folder_name_list ) )
+	{
+		return one_folder_name;
+	}
 
 	if ( !list_rewind( relation_one2m_pair_relation_list ) )
 		return (char *)0;
+
+	if ( !many_folder_name ) start_checking = 1;
 
 	do {
 		relation =
 			list_get(
 				relation_one2m_pair_relation_list );
 
-		if ( !list_exists_string(
+		if ( string_strcmp(
+			relation->many_folder_name,
+			many_folder_name ) == 0 )
+		{
+			start_checking = 1;
+		}
+
+		if ( start_checking
+		&&   !list_exists_string(
 			relation->many_folder_name,
 			pair_one2m_fulfilled_folder_name_list ) )
 		{
@@ -234,14 +257,14 @@ char *pair_one2m_next_folder_name(
 	return (char *)0;
 }
 
-char *pair_one2m_one_folder_name(
-			char *pair_one2m_one_folder_label,
+char *pair_one2m_folder_name(
+			char *folder_label,
 			DICTIONARY *pair_one2m_dictionary )
 {
 	char key[ 128 ];
 	char *data;
 
-	sprintf( key, "%s_0", pair_one2m_one_folder_label );
+	sprintf( key, "%s_0", folder_label );
 
 	if ( ! ( data =
 			dictionary_get(
@@ -254,16 +277,16 @@ char *pair_one2m_one_folder_name(
 	return data;
 }
 
-char *pair_one2m_prompt_form_element_name(
+char *pair_one2m_prompt_element_name(
 			char *pair_one2m_prefix,
-			char *pair_one2m_one_folder_label )
+			char *folder_label )
 {
 	char element_name[ 128 ];
 
 	sprintf(element_name,
 		"%s%s",
 		pair_one2m_prefix,
-		pair_one2m_one_folder_label );
+		folder_label );
 
 	return strdup( element_name );
 }

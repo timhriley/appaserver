@@ -13,6 +13,7 @@
 #include "timlib.h"
 #include "sql.h"
 #include "foreign_attribute.h"
+#include "related_folder.h"
 #include "relation.h"
 
 RELATION *relation_calloc( void )
@@ -47,6 +48,7 @@ RELATION *relation_new(	char *many_folder_name,
 			folder_fetch(
 			     many_folder_name,
 			     fetch_attribute_list,
+			     0 /* not fetch_one2m_relation_list */,
 			     0 /* not fetch_one2m_recursive_relation_list */,
 			     0 /* not fetch_mto1_isa_recursive_relation_list */,
 			     0 /* not fetch_mto1_relation_list */ );
@@ -55,6 +57,7 @@ RELATION *relation_new(	char *many_folder_name,
 			folder_fetch(
 			     one_folder_name,
 			     fetch_attribute_list,
+			     0 /* not fetch_one2m_relation_list */,
 			     0 /* not fetch_one2m_recursive_relation_list */,
 			     0 /* not fetch_mto1_isa_recursive_relation_list */,
 			     0 /* not fetch_mto1_relation_list */ );
@@ -520,3 +523,55 @@ LIST *relation_one2m_pair_relation_list(
 
 	return relation_list;
 }
+
+LIST *relation_mto1_related_folder_list(
+			LIST *mto1_relation_list )
+{
+	RELATION *relation;
+	RELATED_FOLDER *related_folder;
+	LIST *mto1_related_folder_list = {0};
+
+	if ( !list_rewind( mto1_relation_list ) ) return (LIST *)0;
+
+	do {
+		relation = list_get( mto1_relation_list );
+
+		related_folder =
+			related_folder_new(
+				(char *)0 /* application_name */,
+				(char *)0 /* session */,
+				relation->one_folder_name,
+				relation->related_attribute_name );
+
+		related_folder->foreign_attribute_name_list =
+			relation->foreign_attribute_name_list;
+
+		related_folder->relation_type_isa =
+			relation->relation_type_isa;
+
+		related_folder->copy_common_attributes =
+			relation->copy_common_attributes;
+
+		related_folder->prompt_mto1_recursive =
+			relation->prompt_mto1_recursive;
+
+		related_folder->omit_1tom_detail =
+			relation->omit_1tom_detail;
+
+		related_folder->drop_down_multi_select =
+			relation->drop_down_multi_select;
+
+		related_folder->automatic_preselection =
+			relation->automatic_preselection;
+
+		if ( !mto1_related_folder_list )
+			mto1_related_folder_list =
+				list_new();
+
+		list_set( mto1_related_folder_list, related_folder );
+
+	} while ( list_next( mto1_relation_list ) );
+
+	return mto1_related_folder_list;
+}
+

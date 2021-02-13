@@ -149,18 +149,19 @@ FOLDER *folder_new_folder( 		char *application_name,
 					char *session,
 					char *folder_name );
 
-FOLDER *folder_folder_new( 		char *application_name,
-					char *session,
-					char *folder_name );
+FOLDER *folder_folder_new(
+			char *application_name,
+			char *session,
+			char *folder_name );
 
 LIST *folder_get_attribute_name_list( 
-				LIST *attribute_list );
+			LIST *attribute_list );
 
 LIST *folder_attribute_name_list( 
-				LIST *attribute_list );
+			LIST *attribute_list );
 
 LIST *folder_get_primary_attribute_name_list(
-				LIST *attribute_list );
+			LIST *attribute_list );
 
 LIST *folder_primary_attribute_name_list(
 			LIST *attribute_list );
@@ -606,17 +607,35 @@ char *folder_primary_where(
 
 FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_attribute_list,
+			boolean fetch_one2m_relation_list,
 			boolean fetch_one2m_recursive_relation_list,
 			boolean fetch_mto1_isa_recursive_relation_list,
 			boolean fetch_mto1_relation_list );
 
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
+			boolean fetch_one2m_relation_list,
 			boolean fetch_one2m_recursive_relation_list,
 			boolean fetch_mto1_isa_recursive_relation_list,
 			boolean fetch_mto1_relation_list );
 
 char *folder_sys_string(
 			char *where );
+
+LIST *folder_insert_drop_down_data_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			char delimiter,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *common_non_primary_attribute_name_list,
+			char *role_name,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			boolean include_root_folder );
 
 #endif

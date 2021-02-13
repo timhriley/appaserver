@@ -85,10 +85,10 @@ typedef struct
 /* Operations */
 /* ---------- */
 RELATED_FOLDER *related_folder_new(
-					char *application_name,
-					char *session,
-					char *folder_name,
-					char *related_attribute_name );
+				char *application_name,
+				char *session,
+				char *folder_name,
+				char *related_attribute_name );
 
 LIST *related_folder_foreign_attribute_name_list(
 			LIST *primary_attribute_name_list,
@@ -182,7 +182,6 @@ LIST *related_folder_insert_element_list(
 			char *post_change_javascript,
 			int max_drop_down_size,
 			boolean filter_login_name,
-			boolean override_row_restrictions,
 			boolean is_primary_attribute,
 			char *role_name,
 			int max_query_rows_for_drop_downs,
@@ -635,5 +634,11 @@ LIST *related_folder_prompt_insert_element_list(
 			boolean output_not_null_option,
 			boolean output_select_option,
 			boolean omit_lookup_before_drop_down );
+
+RELATED_FOLDER *related_folder_insert_table_consumes_related_folder(
+			LIST **foreign_attribute_name_list,
+			LIST *done_attribute_name_list,
+			LIST *mto1_related_folder_list,
+			char *attribute_name );
 
 #endif

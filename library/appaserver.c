@@ -106,7 +106,8 @@ LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
 	if ( list_reset( related_folder_list ) )
 	{
 		do {
-			related_folder = (RELATED_FOLDER *)
+			related_folder =
+				(RELATED_FOLDER *)
 					 list_get( related_folder_list );
 
 			primary_attribute_name_list =

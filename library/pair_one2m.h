@@ -18,6 +18,7 @@
 /* Constants */
 /* --------- */
 #define PAIR_ONE2M_ONE_FOLDER_LABEL	"pair_one2m_one_folder"
+#define PAIR_ONE2M_MANY_FOLDER_LABEL	"pair_one2m_many_folder"
 #define PAIR_ONE2M_FULFILLED_LIST_LABEL	"pair_one2m_fulfilled_list"
 #define PAIR_ONE2M_DUPLICATE_STATE_KEY	"pair_one2m_duplicate_state"
 
@@ -36,13 +37,13 @@ typedef struct
 	char *one_folder_name;
 	char *many_folder_name;
 	char *keystrokes_save_function;
-	char *prompt_form_element_name;
+	char *prompt_one_element_name;
+	char *prompt_many_element_name;
 	LIST *one2m_pair_relation_list;
 	LIST *prompt_form_folder_list;
 	LIST *fulfilled_folder_name_list;
 	char *next_folder_name;
 	DICTIONARY *pair_one2m_dictionary;
-	DICTIONARY *pair_one2m_fulfilled_dictionary;
 } PAIR_ONE2M;
 
 /* ---------- */
@@ -72,7 +73,7 @@ LIST *pair_one2m_prompt_form_folder_list(
 			LIST *one2m_relation_list );
 
 char *pair_folder_element_copy_function(
-			char *prompt_form_element_name,
+			char *prompt_many_element_name,
 			char *folder_name );
 
 char *pair_folder_button_string(
@@ -91,20 +92,26 @@ LIST *pair_one2m_fulfilled_folder_name_list(
 			DICTIONARY *pair_one2m_dictionary );
 
 DICTIONARY *pair_one2m_fulfilled_dictionary(
+			/* -------------------------------------- */
+			/* Sets and returns pair_one2m_dictionary */
+			/* -------------------------------------- */
+			DICTIONARY *pair_one2m_dictionary,
 			char *pair_one2m_fulfilled_list_label,
 			LIST *pair_one2m_fulfilled_folder_name_list );
 
 char *pair_one2m_next_folder_name(
 			LIST *pair_one2m_fulfilled_folder_name_list,
-			LIST *relation_one2m_pair_relation_list );
+			LIST *relation_one2m_pair_relation_list,
+			char *one_folder_name,
+			char *many_folder_name );
 
-char *pair_one2m_one_folder_name(
-			char *pair_one2m_one_folder_label,
+char *pair_one2m_folder_name(
+			char *folder_label,
 			DICTIONARY *pair_one2m_dictionary );
 
-char *pair_one2m_prompt_form_element_name(
+char *pair_one2m_prompt_element_name(
 			char *pair_one2m_prefix,
-			char *pair_one2m_one_folder_label );
+			char *folder_label );
 
 PAIR_ONE2M *pair_one2m_insert_form_new(
 			DICTIONARY *pair_one2m_dictionary );

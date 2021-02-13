@@ -80,10 +80,11 @@ RELATED_FOLDER *related_folder_new(
 
 	related_folder = related_folder_calloc();
 
-	related_folder->folder = folder_new_folder(
-					application_name,
-					session,
-					related_folder_name );
+	related_folder->folder =
+		folder_new_folder(
+			application_name,
+			session,
+			related_folder_name );
 
 	related_folder->related_attribute_name = related_attribute_name;
 	return related_folder;
@@ -864,7 +865,6 @@ LIST *related_folder_insert_element_list(
 			boolean prompt_data_element_only,
 			char *post_change_javascript,
 			int max_drop_down_size,
-			boolean row_level_non_owner_forbid,
 			boolean override_row_restrictions,
 			boolean is_primary_attribute,
 			char *role_name,
@@ -1046,10 +1046,24 @@ LIST *related_folder_insert_element_list(
 	}
 	else
 	{
+		if ( !related_folder->folder->attribute_list )
+		{
+			fprintf(stderr,
+		"Warning in %s/%s()/%d: %s empty attribute_list; populating\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+			related_folder->folder->folder_name );
+
+			related_folder->folder->attribute_list =
+				attribute_fetch_list(
+					related_folder->folder->folder_name );
+		}
+
 		element_drop_down_set_option_data_option_label_list(
 			&element->drop_down->option_data_list,
 			&element->drop_down->option_label_list,
-			folder_primary_data_list(
+			folder_insert_drop_down_data_list(
 				application_name,
 				session,
 				related_folder->folder->folder_name,
@@ -1065,15 +1079,9 @@ LIST *related_folder_insert_element_list(
 					attribute_list,
 				related_folder->
 					common_non_primary_attribute_name_list,
-				row_level_non_owner_forbid
-					/* filter_only_login_name */,
-				(LIST *)0
-				/* exclude_attribute_name_list */,
 				role_name,
 				"insert" /* state */,
 				one2m_folder_name_for_processes,
-				(char *)0
-				       /* appaserver_user_foreign_login_name */,
 				1 /* include_root_folder */ ) );
 	}
 
@@ -5298,5 +5306,52 @@ LIST *related_folder_prompt_insert_element_list(
 		element );
 
 	return return_list;
+}
+
+RELATED_FOLDER *related_folder_insert_table_consumes_related_folder(
+		LIST **foreign_attribute_name_list,
+		LIST *done_attribute_name_list,
+		LIST *mto1_related_folder_list,
+		char *attribute_name )
+{
+	RELATED_FOLDER *related_folder;
+
+	if ( !list_rewind( mto1_related_folder_list ) )
+	{
+		return (RELATED_FOLDER *)0;
+	}
+
+	do {
+		related_folder =
+			list_get_pointer(
+				mto1_related_folder_list );
+
+		if ( related_folder->ignore_output ) continue;
+
+		if ( list_exists_string(
+			attribute_name,
+			related_folder->foreign_attribute_name_list ) )
+		{
+			if ( done_attribute_name_list )
+			{
+				list_append_string_list(
+					done_attribute_name_list,
+					related_folder->
+						foreign_attribute_name_list );
+			}
+
+			if ( foreign_attribute_name_list )
+			{
+				*foreign_attribute_name_list =
+					related_folder->
+						foreign_attribute_name_list;
+			}
+
+			return related_folder;
+		}
+
+	} while( list_next( mto1_related_folder_list ) );
+
+	return (RELATED_FOLDER *)0;
 }
 

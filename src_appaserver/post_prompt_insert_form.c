@@ -431,86 +431,6 @@ int main( int argc, char **argv )
 			appaserver->folder->primary_attribute_name_list );
 	}
 
-	/* If doing pair_one2m */
-	/* ------------------- */
-	if ( dictionary_length( dictionary_appaserver->pair_one2m_dictionary ) )
-	{
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: pair_one2m_dictionary = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display( dictionary_appaserver->pair_one2m_dictionary ) );
-m2( application_name, msg );
-}
-
-		pair_one2m =
-			pair_one2m_post_form_new(
-				appaserver->folder->folder_name
-					/* many_folder_name */,
-				dictionary_appaserver->
-					pair_one2m_dictionary );
-
-		pair_one2m->one_folder_name =
-			pair_one2m_one_folder_name(
-				PAIR_ONE2M_ONE_FOLDER_LABEL,
-				pair_one2m->pair_one2m_dictionary );
-
-		/* If press first <Submit> */
-		/* ----------------------- */
-		if ( string_strcmp(
-			pair_one2m->one_folder_name,
-			appaserver->folder->folder_name ) == 0 )
-		{
-			goto skip_pair_one2m;
-		}
-
-		pair_one2m->fulfilled_folder_name_list =
-			pair_one2m_fulfilled_folder_name_list(
-				PAIR_ONE2M_FULFILLED_LIST_LABEL,
-				pair_one2m->pair_one2m_dictionary );
-
-		pair_one2m->next_folder_name =
-			pair_one2m_next_folder_name(
-				pair_one2m->
-					fulfilled_folder_name_list,
-				relation_one2m_pair_relation_list(
-					relation_one2m_relation_list(
-					   pair_one2m->
-					   	one_folder_name ) ) );
-
-		list_set(
-			pair_one2m->fulfilled_folder_name_list,
-			pair_one2m->next_folder_name );
-
-		dictionary_appaserver->pair_one2m_dictionary =
-			pair_one2m_fulfilled_dictionary(
-				PAIR_ONE2M_FULFILLED_LIST_LABEL,
-				pair_one2m->
-					fulfilled_folder_name_list );
-				
-		insert_one2m_pair_sequence(
-			appaserver->folder,
-			dictionary_appaserver,
-			appaserver->folder->primary_attribute_name_list,
-			insert_required_attribute_name_list,
-			application_name,
-			appaserver_parameter_file->appaserver_mount_point,
-			session,
-			role_name,
-			insert_update_key,
-			target_frame,
-			login_name,
-			mto1_isa_related_folder_list );
-		/*      ^	  */
-		/*      |	  */
-		/* Does an exit() */
-		/* -------------- */
-	}
-
-skip_pair_one2m:
-
 	subtracted_primary_attribute_name_list = 
 		list_subtract( 	appaserver->
 					folder->
@@ -527,8 +447,7 @@ skip_pair_one2m:
 
 	/* --------------------------------------------- */
 	/* If all the needed attributes are populated or */
-	/* has an isa relation or			 */
-	/* pressed <Submit> when inserting pair_one2m.   */
+	/* has an isa relation. 			 */
 	/* --------------------------------------------- */
 	if ( !list_length( subtracted_primary_attribute_name_list )
 	||    list_length( mto1_isa_related_folder_list ) )
@@ -585,18 +504,159 @@ skip_pair_one2m:
 				appaserver->folder->
 					attribute_list );
 
-			if ( rows_inserted )
-			{
-				folder_menu_refresh_row_count(
-					application_name,
-					folder_name,
-					session,
-					appaserver_parameter_file->
-						appaserver_data_directory,
-					role_name );
-			}
+		if ( rows_inserted )
+		{
+			folder_menu_refresh_row_count(
+				application_name,
+				folder_name,
+				session,
+				appaserver_parameter_file->
+					appaserver_data_directory,
+				role_name );
+		}
 
-			sprintf( sys_string,
+		/* If pair_one2m */
+		/* ------------- */
+		if ( dictionary_length(
+			dictionary_appaserver->
+				pair_one2m_dictionary ) )
+		{
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: pair_one2m_dictionary = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display( dictionary_appaserver->pair_one2m_dictionary ) );
+m2( application_name, msg );
+}
+
+			pair_one2m =
+				pair_one2m_post_form_new(
+					appaserver->folder->folder_name
+						/* many_folder_name */,
+					dictionary_appaserver->
+						pair_one2m_dictionary );
+
+			pair_one2m->one_folder_name =
+				pair_one2m_folder_name(
+					PAIR_ONE2M_ONE_FOLDER_LABEL,
+					pair_one2m->pair_one2m_dictionary );
+
+			pair_one2m->many_folder_name =
+				pair_one2m_folder_name(
+					PAIR_ONE2M_MANY_FOLDER_LABEL,
+					pair_one2m->pair_one2m_dictionary );
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: many_folder_name = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+pair_one2m->many_folder_name );
+m2( application_name, msg );
+}
+			pair_one2m->fulfilled_folder_name_list =
+				pair_one2m_fulfilled_folder_name_list(
+					PAIR_ONE2M_FULFILLED_LIST_LABEL,
+					pair_one2m->pair_one2m_dictionary );
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: one_folder_name = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+pair_one2m->one_folder_name );
+m2( application_name, msg );
+}
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: fulfilled_folder_name_list = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_display( pair_one2m->fulfilled_folder_name_list ) );
+m2( application_name, msg );
+}
+
+			pair_one2m->one2m_pair_relation_list =
+				relation_one2m_pair_relation_list(
+					relation_one2m_relation_list(
+				   	pair_one2m->
+				   		one_folder_name ) );
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: one = %s, length = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+pair_one2m->one_folder_name,
+list_length( pair_one2m->one2m_pair_relation_list ) );
+m2( application_name, msg );
+}
+			pair_one2m->next_folder_name =
+				pair_one2m_next_folder_name(
+					pair_one2m->
+						fulfilled_folder_name_list,
+					pair_one2m->
+						one2m_pair_relation_list,
+					pair_one2m->
+						one_folder_name,
+					pair_one2m->
+						many_folder_name );
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: next_folder_name = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+pair_one2m->next_folder_name );
+m2( application_name, msg );
+}
+			list_set(
+				pair_one2m->fulfilled_folder_name_list,
+				pair_one2m->next_folder_name );
+
+				dictionary_appaserver->pair_one2m_dictionary =
+					pair_one2m_fulfilled_dictionary(
+						/* ---------------- */
+						/* Sets and returns */
+						/* ---------------- */
+						dictionary_appaserver->
+							pair_one2m_dictionary,
+						PAIR_ONE2M_FULFILLED_LIST_LABEL,
+						pair_one2m->
+						   fulfilled_folder_name_list );
+
+#ifdef NOT_DEFINED
+				insert_one2m_pair_sequence(
+					appaserver->folder,
+					dictionary_appaserver,
+					appaserver->
+						folder->
+						primary_attribute_name_list,
+					insert_required_attribute_name_list,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_mount_point,
+					session,
+					role_name,
+					insert_update_key,
+					target_frame,
+					login_name,
+					mto1_isa_related_folder_list );
+				/*      ^	  */
+				/*      |	  */
+				/* Does an exit() */
+				/* -------------- */
+#endif
+		} /* if pair_one2m */
+		else
+		{
+			sprintf(sys_string,
 	 		"output_results '' %s %s %s %s %d \"%s\" '' y 2>>%s",
 	 			folder_name,
 				session,
@@ -607,9 +667,10 @@ skip_pair_one2m:
 				appaserver_error_get_filename(
 					application_name ) );
 
-		if ( system( sys_string ) ){};
+			if ( system( sys_string ) ){};
 
-		exit( 0 );
+			exit( 0 );
+		}
 	}
 
 	sprintf( sys_string,

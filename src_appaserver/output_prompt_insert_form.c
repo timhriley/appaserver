@@ -223,6 +223,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
 	environ_prepend_dot_to_path();
+	environ_appaserver_home();
 	add_utility_to_path();
 	add_local_bin_to_path();
 	add_relative_source_directory_to_path( application_name );
@@ -537,15 +538,15 @@ int main( int argc, char **argv )
 		form->regular_element_list,
 		form->onclick_keystrokes_save_string );
 
-	/* Create the pair_one2m hidden element */
-	/* ------------------------------------ */
+	/* Create the two pair_one2m hidden elements */
+	/* ----------------------------------------- */
 	if ( list_length( pair_one2m->
 				prompt_form_folder_list ) > 0 )
 	{
 		ELEMENT_APPASERVER *element;
 
-		pair_one2m->prompt_form_element_name =
-			pair_one2m_prompt_form_element_name(
+		pair_one2m->prompt_one_element_name =
+			pair_one2m_prompt_element_name(
 				PAIR_ONE2M_PREFIX,
 				PAIR_ONE2M_ONE_FOLDER_LABEL );
 
@@ -554,7 +555,25 @@ int main( int argc, char **argv )
 				hidden,
 				strdup(
 					pair_one2m->
-						prompt_form_element_name ) );
+						prompt_one_element_name ) );
+
+		element->hidden->data = folder_name;
+
+		list_set(
+			form->regular_element_list,
+			element );
+
+		pair_one2m->prompt_many_element_name =
+			pair_one2m_prompt_element_name(
+				PAIR_ONE2M_PREFIX,
+				PAIR_ONE2M_MANY_FOLDER_LABEL );
+
+		element =
+			element_appaserver_new(
+				hidden,
+				strdup(
+					pair_one2m->
+						prompt_many_element_name ) );
 
 		list_set(
 			form->regular_element_list,
@@ -752,9 +771,9 @@ int main( int argc, char **argv )
 			"%s %s",
 			form->submit_control_string,
 			pair_folder_element_copy_function(
-				pair_one2m_prompt_form_element_name(
+				pair_one2m_prompt_element_name(
 					PAIR_ONE2M_PREFIX,
-					PAIR_ONE2M_ONE_FOLDER_LABEL ),
+					PAIR_ONE2M_MANY_FOLDER_LABEL ),
 				folder->folder_name ) );
 
 		form_output_prompt_insert_trailer(

@@ -89,7 +89,7 @@ int main( int argc, char **argv )
 	printf( "<h1>%s</h1>\n", title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	fflush( stdout );
 	printf( "</h2>\n" );
 	fflush( stdout );
@@ -149,7 +149,7 @@ void upload_source_file(	char *application_name,
 		 destination_directory,
 		 filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	sprintf( sys_string,
 		 "chmod g+w %s/%s",
@@ -161,7 +161,7 @@ void upload_source_file(	char *application_name,
 		 destination_directory,
 		 filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 } /* upload_source_file() */
 
