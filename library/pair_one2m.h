@@ -20,7 +20,7 @@
 #define PAIR_ONE2M_ONE_FOLDER_LABEL	"pair_one2m_one_folder"
 #define PAIR_ONE2M_MANY_FOLDER_LABEL	"pair_one2m_many_folder"
 #define PAIR_ONE2M_FULFILLED_LIST_LABEL	"pair_one2m_fulfilled_list"
-#define PAIR_ONE2M_DUPLICATE_STATE_KEY	"pair_one2m_duplicate_state"
+#define PAIR_ONE2M_DUPLICATE_KEY	"pair_one2m_duplicate"
 
 /* ---------- */
 /* Structures */
@@ -44,6 +44,8 @@ typedef struct
 	LIST *fulfilled_folder_name_list;
 	char *next_folder_name;
 	DICTIONARY *pair_one2m_dictionary;
+	boolean participating;
+	boolean duplicate;
 } PAIR_ONE2M;
 
 /* ---------- */
@@ -59,30 +61,25 @@ PAIR_ONE2M *pair_one2m_prompt_form_new(
 			char *one_folder_name,
 			char *keystrokes_save_function );
 
-PAIR_ONE2M *pair_one2m_post_form_new(
-			char *many_folder_name,
+PAIR_ONE2M *pair_one2m_post_new(
 			DICTIONARY *pair_one2m_dictionary );
 
 PAIR_ONE2M_FOLDER *pair_one2m_folder_new(
 			char *many_folder_name );
 
-/* Insert form */
-/* ----------- */
 LIST *pair_one2m_prompt_form_folder_list(
 			char *keystrokes_save_function,
 			LIST *one2m_relation_list );
 
 char *pair_folder_element_copy_function(
 			char *prompt_many_element_name,
-			char *folder_name );
+			char *many_folder_name );
 
 char *pair_folder_button_string(
 			char *many_folder_name,
 			char *keystrokes_save_function,
 			char *copy_function );
 
-/* Post form */
-/* --------- */
 LIST *pair_one2m_fulfilled_folder_name_list(
 			char *pair_one2m_fulfilled_list_label,
 			DICTIONARY *pair_one2m_dictionary );
@@ -113,8 +110,29 @@ char *pair_one2m_prompt_element_name(
 			char *pair_one2m_prefix,
 			char *folder_label );
 
-PAIR_ONE2M *pair_one2m_insert_form_new(
+boolean pair_one2m_participating(
 			DICTIONARY *pair_one2m_dictionary );
+
+boolean pair_one2m_duplicate(
+			char *message_key,
+			char *message );
+
+void pair_one2m_duplicate_set(
+			DICTIONARY *pair_one2m_dictionary,
+			char *pair_one2m_duplicate_key );
+
+void pair_one2m_duplicate_unset(
+			DICTIONARY *pair_one2m_dictionary,
+			char *pair_one2m_duplicate_key );
+
+boolean pair_one2m_inserted_duplicate(
+			char *pair_one2m_duplicate_key,
+			DICTIONARY *pair_one2m_dictionary );
+
+void pair_one2m_folder_set(
+			DICTIONARY *pair_one2m_dictionary,
+			char *folder_label,
+			char *folder_name );
 
 #endif
 

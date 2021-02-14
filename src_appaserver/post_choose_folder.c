@@ -251,13 +251,12 @@ int main( int argc, char **argv )
 		/* Must be form == "table" */
 		{
 			sprintf( sys_string,
-"output_insert_table_form '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s'",
+"output_insert_table_form '%s' '%s' '%s' '%s' '%s' '%s' '%s'",
 			 	login_name,
 				application_name,
 			 	session,
 			 	folder_name,
 			 	role_name,
-			 	state,
 			 	TABLE_TARGET_FRAME /* insert_update_key */,
 			 	TABLE_TARGET_FRAME );
 		}

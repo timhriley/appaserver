@@ -1,7 +1,6 @@
 /* ------------------------------------------------------	*/
 /* $APPASERVER_HOME/src_appaserver/post_edit_table_form.c	*/
 /* ------------------------------------------------------	*/
-/*								*/
 /* This script is attached to the submit button on 		*/
 /* the edit table form.						*/
 /*								*/
@@ -77,7 +76,6 @@ void execute_output_process(
 			char *detail_base_folder_name,
 			boolean insert_flag,
 			char *vertical_new_button_base_folder_name,
-			char *pair_one2m_folder_name,
 			char *primary_data_list_string,
 			char *folder_form,
 			int cells_updated,
@@ -446,11 +444,11 @@ void post_state_insert(
 	INSERT_DATABASE *insert_database;
 	char *message = "";
 	LIST *isa_related_folder_list = {0};
-	char *pair_one2m_folder_name;
 	LIST *insert_required_attribute_name_list = {0};
 	char rows_inserted_string[ 128 ];
 	char *folder_form;
 	DICTIONARY *ignore_dictionary;
+	PAIR_ONE2M *pair_one2m;
 
 	/* If coming from the detail, then don't ignore any attributes. */
 	/* ------------------------------------------------------------ */
@@ -549,8 +547,10 @@ void post_state_insert(
 			ignore_dictionary,
 			folder->append_isa_attribute_list );
 
+/*
 	insert_database->dont_remove_tmp_file =
 		INSERT_DATABASE_DONT_REMOVE_TMP_FILE;
+*/
 
 	rows_inserted =
 	insert_database_execute(
@@ -693,12 +693,50 @@ void post_state_insert(
 		} while( list_next( isa_related_folder_list ) );
 	}
 
-/*
-	pair_one2m_folder_name =
-		dictionary_get_pointer(
-			dictionary_appaserver->pair_one2m_dictionary,
-			PAIR_ONE2M_FOLDER_NAME );
-*/
+	if ( pair_one2m_participating(
+		dictionary_appaserver->
+			pair_one2m_dictionary ) )
+	{
+		pair_one2m =
+			pair_one2m_post_new(
+				dictionary_appaserver->
+					pair_one2m_dictionary );
+
+		pair_one2m->fulfilled_folder_name_list =
+			pair_one2m_fulfilled_folder_name_list(
+				PAIR_ONE2M_FULFILLED_LIST_LABEL,
+				pair_one2m->pair_one2m_dictionary );
+
+		pair_one2m->one_folder_name =
+			pair_one2m_folder_name(
+				PAIR_ONE2M_ONE_FOLDER_LABEL,
+				pair_one2m->pair_one2m_dictionary );
+
+		list_set_unique(
+			pair_one2m->fulfilled_folder_name_list,
+			pair_one2m->one_folder_name );
+
+		list_set_unique(
+			pair_one2m->fulfilled_folder_name_list,
+			folder->folder_name );
+
+		pair_one2m_duplicate_unset(
+			pair_one2m->pair_one2m_dictionary,
+			PAIR_ONE2M_DUPLICATE_KEY );
+
+		/* Make sure auto rotation is on */
+		/* ----------------------------- */
+		pair_one2m_folder_set(
+			pair_one2m->pair_one2m_dictionary,
+			PAIR_ONE2M_MANY_FOLDER_LABEL,
+			pair_one2m->one_folder_name );
+
+		dictionary_appaserver->pair_one2m_dictionary =
+			pair_one2m_fulfilled_dictionary(
+				pair_one2m->pair_one2m_dictionary,
+				PAIR_ONE2M_FULFILLED_LIST_LABEL,
+				pair_one2m->fulfilled_folder_name_list );
+	}
 
 	execute_output_process(	dictionary_appaserver,
 				application_name,
@@ -714,7 +752,6 @@ void post_state_insert(
 				detail_base_folder_name,
 				insert_flag,
 				vertical_new_button_base_folder_name,
-				pair_one2m_folder_name,
 				primary_data_list_string,
 				folder_form,
 				0 /* cells_updated */,
@@ -868,7 +905,6 @@ void post_state_update(
 			detail_base_folder_name,
 			insert_flag,
 			(char *)0 /* vertical_new_button_base_folder_name */,
-			(char *)0 /* pair_one2m_folder_name */,
 			primary_data_list_string,
 			(char *)0 /* folder_form */,
 			cells_updated,
@@ -1139,7 +1175,6 @@ void post_state_lookup(
 			detail_base_folder_name,
 			insert_flag,
 			(char *)0 /* vertical_new_button_base_folder_name */,
-			(char *)0 /* pair_one2m_folder_name */,
 			primary_data_list_string,
 			(char *)0 /* folder_form */,
 			0 /* cells_updated */,
@@ -1163,7 +1198,6 @@ void execute_output_process(
 				char *detail_base_folder_name,
 				int insert_flag,
 				char *vertical_new_button_base_folder_name,
-				char *pair_one2m_folder_name,
 				char *primary_data_list_string,
 				char *folder_form,
 				int cells_updated,
@@ -1251,7 +1285,7 @@ void execute_output_process(
 
 		sprintf( sys_string,
 "echo \"%s\" 								|"
-"output_insert_table_form %s %s %s %s %s %s \"detail!%s\" %s 2>>%s	 ",
+"output_insert_table_form %s %s %s %s '%s' \"detail!%s\" %s 2>>%s	 ",
 			dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
@@ -1260,7 +1294,6 @@ void execute_output_process(
 		 	session,
 		 	folder_name,
 		 	role_name,
-		 	"insert" /* state */,
 		 	detail_base_folder_name,
 		 	target_frame,
 		 	appaserver_error_get_filename( application_name ) );
@@ -1310,20 +1343,19 @@ void execute_output_process(
 		 	appaserver_error_get_filename( application_name ) );
 	}
 	else
-	if ( strcmp( state, "insert" ) == 0 && pair_one2m_folder_name )
+	if ( strcmp( state, "insert" ) == 0 )
 	{
 		sprintf( sys_string, 
 "echo \"%s\" 								|"
-"output_insert_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
+"output_insert_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
 			 dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
 	 	 	 login_name,
 		 	 application_name,
 		 	 session,
-		 	 pair_one2m_folder_name,
+		 	 folder_name,
 		 	 role_name,
-		 	 state,
 		 	 insert_update_key,
 		 	 target_frame,
 			 (message) ? message : "",
@@ -1425,7 +1457,6 @@ void execute_output_process(
 	}
 
 	if ( system( sys_string ) ) {};
-
 }
 
 boolean get_insert_flag( DICTIONARY *non_prefixed_dictionary )

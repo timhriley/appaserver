@@ -45,27 +45,14 @@ void set_null_operator_data_to_null(
 			DICTIONARY *query_dictionary,
 			LIST *attribute_name_list );
 
-void insert_one2m_pair_sequence(
-			FOLDER *folder,
-			DICTIONARY_APPASERVER *dictionary_appaserver,
-			LIST *primary_attribute_name_list,
-			LIST *insert_required_attribute_name_list,
+void remove_primary_key_reference_number(
+			DICTIONARY *query_dictionary,
+			LIST *attribute_list );
+
+void output_missing_information_message(
 			char *application_name,
 			char *appaserver_mount_point,
-			char *session,
-			char *role_name,
-			char *insert_update_key,
-			char *target_frame,
-			char *login_name,
-			LIST *mto1_isa_related_folder_list );
-
-void remove_primary_key_reference_number(
-				DICTIONARY *query_dictionary,
-				LIST *attribute_list );
-
-void output_missing_information_message(char *application_name,
-					char *appaserver_mount_point,
-					LIST *missing_attribute_name_list );
+			LIST *missing_attribute_name_list );
 
 int post_prompt_insert_database(
 				char **message,
@@ -112,7 +99,9 @@ int main( int argc, char **argv )
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *message = "";
 	char *isa_message = "";
-	PAIR_ONE2M *pair_one2m = {0};
+	PAIR_ONE2M *pair_one2m;
+	LIST *missing_attribute_name_list;
+	LIST *ignore_attribute_name_list;
 
 	if ( argc != 11 )
 	{
@@ -266,7 +255,7 @@ int main( int argc, char **argv )
 
 		sprintf( sys_string,
 "echo \"%s\" 								|"
-"output_insert_table_form %s %s %s %s '%s' '%s' '%s' '%s' 2>>%s		 ",
+"output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
 			dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
@@ -275,7 +264,6 @@ int main( int argc, char **argv )
 		 	session,
 		 	vertical_new_button_folder_name,
 			role_name,
-			state,
 			insert_update_key,
 			target_frame,
 			appaserver_error_get_filename(
@@ -445,21 +433,18 @@ int main( int argc, char **argv )
 		list_subtract( 	subtracted_primary_attribute_name_list, 
 				ignore_primary_attribute_name_list );
 
-	/* --------------------------------------------- */
-	/* If all the needed attributes are populated or */
-	/* has an isa relation. 			 */
-	/* --------------------------------------------- */
-	if ( !list_length( subtracted_primary_attribute_name_list )
+	ignore_attribute_name_list =
+		insert_database_get_trim_indices_dictionary_key_list(
+			dictionary_appaserver->
+				ignore_dictionary );
+
+	/* If pair_one2m */
+	/* ------------- */
+	if ( pair_one2m_participating(
+		dictionary_appaserver->
+			pair_one2m_dictionary )
 	||    list_length( mto1_isa_related_folder_list ) )
 	{
-		LIST *missing_attribute_name_list;
-		LIST *ignore_attribute_name_list;
-
-		ignore_attribute_name_list =
-			insert_database_get_trim_indices_dictionary_key_list(
-				dictionary_appaserver->
-					ignore_dictionary );
-
 		if ( ( missing_attribute_name_list =
 			insert_database_get_missing_attribute_name_list(
 				0 /* row */,
@@ -469,13 +454,21 @@ int main( int argc, char **argv )
 				insert_required_attribute_name_list ) ) )
 		{
 			output_missing_information_message(
-						application_name,
-						appaserver_parameter_file->
-						appaserver_mount_point,
-						missing_attribute_name_list );
+				application_name,
+				appaserver_parameter_file->
+					appaserver_mount_point,
+				missing_attribute_name_list );
 			exit( 0 );
 		}
+	}
 
+	/* --------------------------------------------- */
+	/* If all the needed attributes are populated or */
+	/* has an isa relation. 			 */
+	/* --------------------------------------------- */
+	if ( !list_length( subtracted_primary_attribute_name_list )
+	||    list_length( mto1_isa_related_folder_list ) )
+	{
 		rows_inserted =
 			post_prompt_insert_database(
 				&message,
@@ -517,68 +510,62 @@ int main( int argc, char **argv )
 
 		/* If pair_one2m */
 		/* ------------- */
-		if ( dictionary_length(
-			dictionary_appaserver->
-				pair_one2m_dictionary ) )
+		if ( pair_one2m_participating(
+			dictionary_appaserver->pair_one2m_dictionary ) )
 		{
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: pair_one2m_dictionary = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display( dictionary_appaserver->pair_one2m_dictionary ) );
-m2( application_name, msg );
-}
-
 			pair_one2m =
-				pair_one2m_post_form_new(
-					appaserver->folder->folder_name
-						/* many_folder_name */,
+				pair_one2m_post_new(
 					dictionary_appaserver->
 						pair_one2m_dictionary );
+
+			pair_one2m->many_folder_name =
+				pair_one2m_folder_name(
+					PAIR_ONE2M_MANY_FOLDER_LABEL,
+					pair_one2m->pair_one2m_dictionary );
 
 			pair_one2m->one_folder_name =
 				pair_one2m_folder_name(
 					PAIR_ONE2M_ONE_FOLDER_LABEL,
 					pair_one2m->pair_one2m_dictionary );
 
-			pair_one2m->many_folder_name =
-				pair_one2m_folder_name(
-					PAIR_ONE2M_MANY_FOLDER_LABEL,
-					pair_one2m->pair_one2m_dictionary );
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: many_folder_name = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-pair_one2m->many_folder_name );
-m2( application_name, msg );
-}
+			if ( strcmp(
+				pair_one2m->one_folder_name,
+				pair_one2m->many_folder_name ) == 0 )
+			{
+				sprintf(sys_string,
+	 		"output_results '' %s %s %s %s %d \"%s\" '' y 2>>%s",
+	 				pair_one2m->one_folder_name,
+					session,
+					login_name,
+					role_name,
+					rows_inserted,
+					(message) ? message : "",
+						appaserver_error_get_filename(
+						application_name ) );
+
+				goto execute_sys_string;
+			}
+
+			if ( ( pair_one2m->duplicate =
+				pair_one2m_duplicate(
+					MYSQL_DUPLICATE_ERROR_MESSAGE_KEY,
+					message ) ) )
+			{
+				pair_one2m_duplicate_set(
+					pair_one2m->
+						pair_one2m_dictionary,
+					PAIR_ONE2M_DUPLICATE_KEY );
+			}
+
+/*
 			pair_one2m->fulfilled_folder_name_list =
 				pair_one2m_fulfilled_folder_name_list(
 					PAIR_ONE2M_FULFILLED_LIST_LABEL,
 					pair_one2m->pair_one2m_dictionary );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: one_folder_name = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-pair_one2m->one_folder_name );
-m2( application_name, msg );
-}
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: fulfilled_folder_name_list = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-list_display( pair_one2m->fulfilled_folder_name_list ) );
-m2( application_name, msg );
-}
+			list_set(
+				pair_one2m->fulfilled_folder_name_list,
+				pair_one2m->many_folder_name );
 
 			pair_one2m->one2m_pair_relation_list =
 				relation_one2m_pair_relation_list(
@@ -586,16 +573,6 @@ m2( application_name, msg );
 				   	pair_one2m->
 				   		one_folder_name ) );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: one = %s, length = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-pair_one2m->one_folder_name,
-list_length( pair_one2m->one2m_pair_relation_list ) );
-m2( application_name, msg );
-}
 			pair_one2m->next_folder_name =
 				pair_one2m_next_folder_name(
 					pair_one2m->
@@ -606,53 +583,35 @@ m2( application_name, msg );
 						one_folder_name,
 					pair_one2m->
 						many_folder_name );
+*/
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: next_folder_name = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-pair_one2m->next_folder_name );
-m2( application_name, msg );
-}
-			list_set(
-				pair_one2m->fulfilled_folder_name_list,
-				pair_one2m->next_folder_name );
+			dictionary_appaserver->pair_one2m_dictionary =
+				pair_one2m_fulfilled_dictionary(
+					/* ---------------- */
+					/* Sets and returns */
+					/* ---------------- */
+					pair_one2m->
+						pair_one2m_dictionary,
+					PAIR_ONE2M_FULFILLED_LIST_LABEL,
+					pair_one2m->
+					   fulfilled_folder_name_list );
 
-				dictionary_appaserver->pair_one2m_dictionary =
-					pair_one2m_fulfilled_dictionary(
-						/* ---------------- */
-						/* Sets and returns */
-						/* ---------------- */
-						dictionary_appaserver->
-							pair_one2m_dictionary,
-						PAIR_ONE2M_FULFILLED_LIST_LABEL,
-						pair_one2m->
-						   fulfilled_folder_name_list );
+			sprintf( sys_string,
+"echo \"%s\" 								|"
+"output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
+			dictionary_appaserver_escaped_send_dictionary_string(
+				dictionary_appaserver,
+				0 /* not with_non_prefixed_dictionary */ ),
+		 		login_name,
+				application_name,
+		 		session,
+		 		pair_one2m->one_folder_name,
+				role_name,
+				insert_update_key,
+				target_frame,
+				appaserver_error_get_filename(
+						application_name ) );
 
-#ifdef NOT_DEFINED
-				insert_one2m_pair_sequence(
-					appaserver->folder,
-					dictionary_appaserver,
-					appaserver->
-						folder->
-						primary_attribute_name_list,
-					insert_required_attribute_name_list,
-					application_name,
-					appaserver_parameter_file->
-						appaserver_mount_point,
-					session,
-					role_name,
-					insert_update_key,
-					target_frame,
-					login_name,
-					mto1_isa_related_folder_list );
-				/*      ^	  */
-				/*      |	  */
-				/* Does an exit() */
-				/* -------------- */
-#endif
 		} /* if pair_one2m */
 		else
 		{
@@ -666,16 +625,13 @@ m2( application_name, msg );
 				(message) ? message : "",
 				appaserver_error_get_filename(
 					application_name ) );
-
-			if ( system( sys_string ) ){};
-
-			exit( 0 );
 		}
 	}
-
-	sprintf( sys_string,
+	else
+	{
+		sprintf( sys_string,
 "echo \"%s\" 								|"
-"output_insert_table_form %s %s %s %s '%s' '%s' '%s' '%s' 2>>%s		 ",
+"output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
 			dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				0 /* not with_non_prefixed_dictionary */ ),
@@ -684,11 +640,13 @@ m2( application_name, msg );
 		 	session,
 		 	folder_name,
 			role_name,
-			state,
 			insert_update_key,
 			target_frame,
 			appaserver_error_get_filename(
 					application_name ) );
+	}
+
+execute_sys_string:
 
 	if ( system( sys_string ) ){};
 
@@ -908,6 +866,73 @@ void remove_primary_key_reference_number(
 	} while( list_next( attribute_list ) );
 }
 
+void set_null_operator_data_to_null(
+			DICTIONARY *query_dictionary,
+			LIST *attribute_name_list )
+{
+	char *attribute_name;
+	char *data;
+	char key[ 128 ];
+
+	if ( !list_rewind( attribute_name_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty attribute_name_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+	}
+
+	do {
+		attribute_name =
+			list_get(
+				attribute_name_list );
+
+		sprintf( key,
+			 "%s_0",
+			 attribute_name );
+
+		data = dictionary_fetch( query_dictionary, key );
+
+		if ( timlib_strcmp( data, NULL_OPERATOR ) == 0 )
+		{
+			dictionary_delete(
+				query_dictionary,
+				key );
+		}
+		else
+		if ( timlib_strcmp( data, NOT_NULL_OPERATOR ) == 0 )
+		{
+			dictionary_delete(
+				query_dictionary,
+				key );
+		}
+
+		/* Also without the suffix. */
+		/* ------------------------ */
+		data = dictionary_fetch(
+				query_dictionary,
+				attribute_name );
+
+		if ( timlib_strcmp( data, NULL_OPERATOR ) == 0 )
+		{
+			dictionary_delete(
+				query_dictionary,
+				attribute_name );
+		}
+		else
+		if ( timlib_strcmp( data, NOT_NULL_OPERATOR ) == 0 )
+		{
+			dictionary_delete(
+				query_dictionary,
+				attribute_name );
+		}
+
+	} while( list_next( attribute_name_list ) );
+
+}
+
+#ifdef NOT_DEFINED
 void insert_one2m_pair_sequence(
 			FOLDER *folder,
 			DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -1014,7 +1039,7 @@ void insert_one2m_pair_sequence(
 
 	sprintf( sys_string,
 "echo \"%s\" 								|"
-"output_insert_table_form %s %s %s %s '%s' '%s' '%s' '%s' 2>>%s		 ",
+"output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
 		dictionary_appaserver_escaped_send_dictionary_string(
 			dictionary_appaserver,
 			0 /* not with_non_prefixed_dictionary */ ),
@@ -1023,7 +1048,6 @@ void insert_one2m_pair_sequence(
 	 	session,
 	 	folder->folder_name,
 		role_name,
-		"insert" /* state */,
 		insert_update_key,
 		target_frame,
 		appaserver_error_get_filename(
@@ -1034,70 +1058,5 @@ void insert_one2m_pair_sequence(
 	exit( 0 );
 
 }
-
-void set_null_operator_data_to_null(
-			DICTIONARY *query_dictionary,
-			LIST *attribute_name_list )
-{
-	char *attribute_name;
-	char *data;
-	char key[ 128 ];
-
-	if ( !list_rewind( attribute_name_list ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty attribute_name_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-	}
-
-	do {
-		attribute_name =
-			list_get(
-				attribute_name_list );
-
-		sprintf( key,
-			 "%s_0",
-			 attribute_name );
-
-		data = dictionary_fetch( query_dictionary, key );
-
-		if ( timlib_strcmp( data, NULL_OPERATOR ) == 0 )
-		{
-			dictionary_delete(
-				query_dictionary,
-				key );
-		}
-		else
-		if ( timlib_strcmp( data, NOT_NULL_OPERATOR ) == 0 )
-		{
-			dictionary_delete(
-				query_dictionary,
-				key );
-		}
-
-		/* Also without the suffix. */
-		/* ------------------------ */
-		data = dictionary_fetch(
-				query_dictionary,
-				attribute_name );
-
-		if ( timlib_strcmp( data, NULL_OPERATOR ) == 0 )
-		{
-			dictionary_delete(
-				query_dictionary,
-				attribute_name );
-		}
-		else
-		if ( timlib_strcmp( data, NOT_NULL_OPERATOR ) == 0 )
-		{
-			dictionary_delete(
-				query_dictionary,
-				attribute_name );
-		}
-
-	} while( list_next( attribute_name_list ) );
-
-}
+#endif
 

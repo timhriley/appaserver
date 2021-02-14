@@ -1113,12 +1113,14 @@ output_close_html_document: output_close_html_document.c		\
 
 post_edit_table_form: post_edit_table_form.c				\
 			${EXTERNAL_LIBS}				\
-			${LIB}/folder_menu.o
+			${LIB}/folder_menu.o				\
+			${LIB}/pair_one2m.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_edit_table_form.c					\
 		${LIB}/folder_menu.o					\
+		${LIB}/pair_one2m.o					\
 		-o post_edit_table_form
 	touch ${CGI_HOME}/post_edit_table_form
 	/bin/rm -f ${CGI_HOME}/post_edit_table_form

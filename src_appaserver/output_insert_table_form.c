@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/src_appaserver/output_insert_table_form.c		*/
 /* ----------------------------------------------------------------	*/
-/*									*/
 /* Freely available software: see Appaserver.org			*/
 /* ----------------------------------------------------------------	*/
 
@@ -86,7 +85,6 @@ int main( int argc, char **argv )
 	char *session;
 	char *parameter_folder_name;
 	char *role_name;
-	char *state;
 	char *insert_update_key;
 	char *target_frame;
 	DOCUMENT *document;
@@ -112,8 +110,9 @@ int main( int argc, char **argv )
 	char *vertical_new_button_base_folder_name;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *primary_data_list_string;
-	PAIR_ONE2M *pair_one2m = {0};
+	PAIR_ONE2M *pair_one2m;
 	char *message = {0};
+	boolean output_content_type = 1;
 
 	/* This needs to be made into a list. */
 	/* ---------------------------------- */
@@ -126,10 +125,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 9 )
+	if ( argc < 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name ignored session folder role state insert_update_key target_frame [message]\n",
+"Usage: %s login_name ignored session folder role insert_update_key target_frame [message]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -138,11 +137,10 @@ int main( int argc, char **argv )
 	session = argv[ 3 ];
 	parameter_folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
-	state = argv[ 6 ];
-	insert_update_key = argv[ 7 ];
-	target_frame = argv[ 8 ];
+	insert_update_key = argv[ 6 ];
+	target_frame = argv[ 7 ];
 
-	if ( argc == 10 ) message = argv[ 9 ];
+	if ( argc == 9 ) message = argv[ 8 ];
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
@@ -150,17 +148,6 @@ int main( int argc, char **argv )
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
 	add_relative_source_directory_to_path( application_name );
-
-	if ( strcmp( state, "insert" ) != 0 )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: invalid state = (%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 state );
-		exit( 1 );
-	}
 
 	role = role_new_role(	application_name,
 				role_name );
@@ -249,15 +236,6 @@ int main( int argc, char **argv )
 				(LIST *)0 /* operation_name_list */ );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: got pair_one2m_dictionary = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display( dictionary_appaserver->pair_one2m_dictionary ) );
-m2( application_name, msg );
-}
 	/* Vertical new button */
 	/* ------------------- */ 
 	vertical_new_button_folder_name =
@@ -414,17 +392,32 @@ m2( application_name, msg );
 	/* If pair 1tom and not the vertical new button */
 	/* -------------------------------------------- */
 	if ( !vertical_new_button_folder_name
-	&&    dictionary_length(
+	&&    pair_one2m_participating(
 		dictionary_appaserver->
 			pair_one2m_dictionary ) )
 	{
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: pair_one2m_dictionary = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display( dictionary_appaserver->pair_one2m_dictionary ) );
+m2( application_name, msg );
+}
 		pair_one2m =
-			pair_one2m_insert_form_new(
-				dictionary_appaserver->pair_one2m_dictionary );
+			pair_one2m_post_new(
+				dictionary_appaserver->
+					pair_one2m_dictionary );
 
 		pair_one2m->one_folder_name =
 			pair_one2m_folder_name(
 				PAIR_ONE2M_ONE_FOLDER_LABEL,
+				pair_one2m->pair_one2m_dictionary );
+
+		pair_one2m->many_folder_name =
+			pair_one2m_folder_name(
+				PAIR_ONE2M_MANY_FOLDER_LABEL,
 				pair_one2m->pair_one2m_dictionary );
 
 		pair_one2m->fulfilled_folder_name_list =
@@ -437,7 +430,32 @@ m2( application_name, msg );
 				relation_one2m_relation_list(
 					pair_one2m->one_folder_name ) );
 
-		if ( ! ( pair_one2m->next_folder_name =
+		if ( pair_one2m_inserted_duplicate(
+			PAIR_ONE2M_DUPLICATE_KEY,
+			pair_one2m->pair_one2m_dictionary ) )
+		{
+			document_quick_output_body(
+					application_name,
+					appaserver_parameter_file->
+						appaserver_mount_point );
+
+			printf( DUPLICATE_MULTIPLE_ROWS_MESSAGE );
+			output_content_type = 0;
+		}
+
+		/* If pressed a related folder button */
+		/* ---------------------------------- */
+		if ( strcmp(	pair_one2m->one_folder_name,
+				pair_one2m->many_folder_name ) != 0 )
+		{
+			pair_one2m->next_folder_name =
+				pair_one2m->many_folder_name;
+		}
+		else
+		/* If doing a series */
+		/* ----------------- */
+		{
+			pair_one2m->next_folder_name =
 				pair_one2m_next_folder_name(
 					pair_one2m->
 						fulfilled_folder_name_list,
@@ -445,7 +463,10 @@ m2( application_name, msg );
 						one2m_pair_relation_list,
 					pair_one2m->
 						one_folder_name,
-					(char *)0 /* many_folder_name */ ) ) )
+					(char *)0 /* many_folder_name */ );
+		}
+
+		if ( !pair_one2m->next_folder_name )
 		{
 			document_quick_output_body(
 					application_name,
@@ -464,13 +485,6 @@ m2( application_name, msg );
 
 			fflush( stdout );
 
-/*
-			if ( pair_one2m->inserted_duplicate )
-			{
-				fflush( stdout );
-				printf( DUPLICATE_NON_INSERTED_MESSAGE );
-			}
-*/
 			document_close();
 			exit( 0 );
 		}
@@ -634,7 +648,7 @@ m2( application_name, msg );
 	}
 	else
 	{
-		document->output_content_type = 1;
+		document->output_content_type = output_content_type;
 	}
 
 	form_set_post_process( form, "post_edit_table_form" );
@@ -842,7 +856,7 @@ m2( application_name, msg );
 	}
 
 	form_set_folder_parameters(	form,
-					state,
+					"insert" /* state */,
 					login_name,
 					application_name,
 					session,
@@ -871,7 +885,7 @@ m2( application_name, msg );
 				session,
 				folder->folder_name,
 				role_name,
-				state,
+				form->state,
 				detail_base_folder_name,
 				target_frame,
 				getpid() );

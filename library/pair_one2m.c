@@ -28,15 +28,6 @@ PAIR_ONE2M *pair_one2m_calloc( void )
 	return pair_one2m;
 }
 
-PAIR_ONE2M *pair_one2m_insert_form_new(
-			DICTIONARY *pair_one2m_dictionary )
-{
-	PAIR_ONE2M *pair_one2m = pair_one2m_calloc();
-
-	pair_one2m->pair_one2m_dictionary = pair_one2m_dictionary;
-	return pair_one2m;
-}
-
 char *pair_folder_button_string(
 			char *many_folder_name,
 			char *keystrokes_save_function,
@@ -63,14 +54,14 @@ char *pair_folder_button_string(
 
 char *pair_folder_element_copy_function(
 			char *prompt_many_element_name,
-			char *folder_name )
+			char *many_folder_name )
 {
 	static char copy_function[ 1024 ];
 
 	sprintf( copy_function,
 		 "timlib_element_value_set( '%s_0', '%s' ) && ",
 		 prompt_many_element_name,
-		 folder_name );
+		 many_folder_name );
 
 	return copy_function;
 }
@@ -164,15 +155,13 @@ PAIR_ONE2M *pair_one2m_prompt_form_new(
 	return pair_one2m;
 }
 
-PAIR_ONE2M *pair_one2m_post_form_new(
-			char *many_folder_name,
+PAIR_ONE2M *pair_one2m_post_new(
 			DICTIONARY *pair_one2m_dictionary )
 {
 	PAIR_ONE2M *pair_one2m = pair_one2m_calloc();
 
-	pair_one2m->many_folder_name = many_folder_name;
 	pair_one2m->pair_one2m_dictionary = pair_one2m_dictionary;
-
+	pair_one2m->participating = 1;
 	return pair_one2m;
 }
 
@@ -188,7 +177,7 @@ LIST *pair_one2m_fulfilled_folder_name_list(
 				pair_one2m_fulfilled_list_label
 					/* key */ ) ) )
 	{
-		return (LIST *)0;
+		return list_new();
 	}
 
 	return list_delimited_string_to_list(
@@ -291,3 +280,63 @@ char *pair_one2m_prompt_element_name(
 	return strdup( element_name );
 }
 
+boolean pair_one2m_participating(
+			DICTIONARY *pair_one2m_dictionary )
+{
+	return ( dictionary_length( pair_one2m_dictionary ) );
+}
+
+boolean pair_one2m_duplicate(
+			char *message_key,
+			char *message )
+{
+	return ( instr( message_key, message, 1 ) != -1 );
+}
+
+void pair_one2m_duplicate_set(
+			DICTIONARY *pair_one2m_dictionary,
+			char *pair_one2m_duplicate_key )
+{
+	dictionary_set_pointer(
+		pair_one2m_dictionary,
+		pair_one2m_duplicate_key,
+		"yes" );
+}
+
+void pair_one2m_duplicate_unset(
+			DICTIONARY *pair_one2m_dictionary,
+			char *pair_one2m_duplicate_key )
+{
+	dictionary_set_pointer(
+		pair_one2m_dictionary,
+		pair_one2m_duplicate_key,
+		"no" );
+}
+
+boolean pair_one2m_inserted_duplicate(
+			char *pair_one2m_duplicate_key,
+			DICTIONARY *pair_one2m_dictionary )
+{
+	char *data;
+
+	data =
+		dictionary_get(
+			pair_one2m_dictionary, 
+			pair_one2m_duplicate_key );
+
+	if ( string_strcmp( data, "yes" ) == 0 )
+		return 1;
+	else
+		return 0;
+}
+
+void pair_one2m_folder_set(
+			DICTIONARY *pair_one2m_dictionary,
+			char *folder_label,
+			char *folder_name )
+{
+	char key[ 128 ];
+
+	sprintf( key, "%s_0", folder_label );
+	dictionary_set_pointer( pair_one2m_dictionary, key, folder_name );
+}
