@@ -35,6 +35,7 @@
 #include "dictionary_appaserver.h"
 #include "pair_one2m.h"
 #include "folder_menu.h"
+#include "vertical_new_button.h"
 
 /* Constants */
 /* --------- */
@@ -93,7 +94,6 @@ int main( int argc, char **argv )
 	char *insert_update_key;
 	char *target_frame;
 	LIST *mto1_isa_related_folder_list = {0};
-	char *vertical_new_button_folder_name;
 	ROLE *role;
 	char *database_string = {0};
 	DICTIONARY_APPASERVER *dictionary_appaserver;
@@ -102,6 +102,7 @@ int main( int argc, char **argv )
 	PAIR_ONE2M *pair_one2m;
 	LIST *missing_attribute_name_list;
 	LIST *ignore_attribute_name_list;
+	VERTICAL_NEW_BUTTON *vertical_new_button;
 
 	if ( argc != 11 )
 	{
@@ -225,33 +226,25 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	/* =================================== */
-	/* Process the non_prefixed_dictionary */
-	/* =================================== */
-
-	/* Copy to the query dictionary */
-	/* ---------------------------- */
-	dictionary_append_dictionary(
-		dictionary_appaserver->query_dictionary,
-		dictionary_appaserver->non_prefixed_dictionary );
-
-	vertical_new_button_folder_name =
-		appaserver_library_get_vertical_new_button_folder_name(
-			dictionary_appaserver->
-				non_prefixed_dictionary,
-			VERTICAL_NEW_PUSH_BUTTON_PREFIX );
-
-	dictionary_appaserver->non_prefixed_dictionary =
-		dictionary_small_new();
-
 	/* If pressed the new button next to a drop-down. */
 	/* ---------------------------------------------- */
-	if ( vertical_new_button_folder_name )
+	vertical_new_button = vertical_new_button_calloc();
+
+	if ( ( vertical_new_button->one_folder_name =
+		vertical_new_button_dictionary_one_folder_name(
+			VERTICAL_NEW_BUTTON_ONE_PREFIX,
+			dictionary_appaserver->
+				non_prefixed_dictionary ) ) )
 	{
-		appaserver_library_set_vertical_new_button_folder_name(
+		vertical_new_button_dictionary_set(
 			dictionary_appaserver->non_prefixed_dictionary,
-			folder_name,
-			VERTICAL_NEW_PUSH_BUTTON_BASE_PREFIX );
+			VERTICAL_NEW_BUTTON_ONE_HIDDEN_LABEL,
+			vertical_new_button->one_folder_name );
+
+		vertical_new_button_dictionary_set(
+			dictionary_appaserver->non_prefixed_dictionary,
+			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
+			folder_name );
 
 		sprintf( sys_string,
 "echo \"%s\" 								|"
@@ -262,12 +255,12 @@ int main( int argc, char **argv )
 		 	login_name,
 			application_name,
 		 	session,
-		 	vertical_new_button_folder_name,
+		 	vertical_new_button->one_folder_name,
 			role_name,
 			insert_update_key,
 			target_frame,
 			appaserver_error_get_filename(
-					application_name ) );
+				application_name ) );
 
 		if ( system( sys_string ) ){};
 
@@ -275,9 +268,22 @@ int main( int argc, char **argv )
 
 	} /* if vertical_new_button_folder_name */
 
+	/* =================================== */
+	/* Process the non_prefixed_dictionary */
+	/* =================================== */
+
+	/* Copy to the query dictionary */
+	/* ---------------------------- */
+	dictionary_append_dictionary(
+		dictionary_appaserver->query_dictionary,
+		dictionary_appaserver->non_prefixed_dictionary );
+
+	dictionary_appaserver->non_prefixed_dictionary =
+		dictionary_small_new();
+
 	appaserver->folder->attribute_name_list =
-			folder_get_attribute_name_list(
-				appaserver->folder->attribute_list );
+		folder_get_attribute_name_list(
+			appaserver->folder->attribute_list );
 
 	/* Promote source frame */
 	/* -------------------- */

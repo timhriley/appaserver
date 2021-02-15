@@ -142,6 +142,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/populate_helper_process.o			\
 		${LIB}/appaserver_link_file.o				\
 		${LIB}/related_folder.o					\
+		${LIB}/vertical_new_button.o				\
 		${LIB}/relation.o					\
 		${LIB}/folder.o						\
 		${LIB}/role.o						\

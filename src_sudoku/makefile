@@ -60,6 +60,7 @@ EXTERNAL_LIBRARYS=							\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/frameset.o					\
 		${LIBRARY}/related_folder.o				\
+		${LIBRARY}/vertical_new_button.o			\
 		${LIBRARY}/relation.o					\
 		${LIBRARY}/operation_list.o				\
 		${LIBRARY}/operation.o					\

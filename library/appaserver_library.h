@@ -90,9 +90,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define NO_DISPLAY_PUSH_BUTTON_HEADING		"no_display"
 #define INSERT_NEW_TEXT_ITEM_PREFIX		"insert_"
 #define RADIO_NEW_PUSH_BUTTON_NAME		"new_button"
-#define VERTICAL_NEW_PUSH_BUTTON_LABEL		"New"
-#define VERTICAL_NEW_PUSH_BUTTON_PREFIX		"nnew_button_"
-#define VERTICAL_NEW_PUSH_BUTTON_BASE_PREFIX	"nnew_base_button_"
 #define AJAX_FILL_PUSH_BUTTON_PREFIX		"ajax_fill_"
 #define AJAX_FILL_PUSH_BUTTON_LABEL		"Fill"
 #define TRANSMIT_PUSH_BUTTON_NAME		"transmit_button"
@@ -314,15 +311,6 @@ void appaserver_library_output_style_sheet(
 					char *application_name );
 LIST *appaserver_library_trim_carrot_number(
 					LIST *data_list );
-
-char *appaserver_library_get_vertical_new_button_folder_name(
-					DICTIONARY *non_prefixed_dictionary,
-					char *prefix );
-
-void appaserver_library_set_vertical_new_button_folder_name(
-					DICTIONARY *non_prefixed_dictionary,
-					char *vertical_new_button_folder_name,
-					char *prefix );
 
 LIST *appaserver_library_get_attribute_name_list(
 					char *application, 

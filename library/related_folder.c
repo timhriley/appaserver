@@ -23,6 +23,7 @@
 #include "document.h"
 #include "form.h"
 #include "role_folder.h"
+#include "vertical_new_button.h"
 #include "appaserver_parameter_file.h"
 
 LIST *related_folder_get_primary_data_list(
@@ -264,15 +265,12 @@ LIST *related_folder_drop_down_element_list(
 			PROCESS *populate_drop_down_process,
 			LIST *attribute_list,
 			LIST *foreign_attribute_name_list,
-			boolean omit_drop_down_new_push_button,
 			boolean omit_ignore_push_buttons,
 			DICTIONARY *preprompt_dictionary,
 			char *ignore_or_no_display_push_button_prefix,
 			char *ignore_or_no_display_push_button_heading,
 			char *post_change_javascript,
 			char *hint_message,
-			LIST *role_folder_insert_list,
-			char *form_name,
 			int max_drop_down_size,
 			LIST *common_non_primary_attribute_name_list,
 			boolean is_primary_attribute,
@@ -332,29 +330,6 @@ LIST *related_folder_drop_down_element_list(
 		list_set(
 			return_list, 
 			element );
-	}
-
-	if ( role_folder_insert_list
-	&&   !omit_drop_down_new_push_button )
-	{
-		ELEMENT_APPASERVER *new_button_element;
-
-		if ( ( new_button_element =
-			related_folder_get_new_button_element(
-				folder_name,
-				role_folder_insert_list,
-				form_name ) ) )
-		{
-			list_append_pointer(	return_list,
-						new_button_element );
-		}
-		else
-		{
-			list_append_pointer(	return_list,
-						element_appaserver_new(
-							empty_column,
-							"" ) );
-		}
 	}
 
 	/* Create the prompt element */
@@ -2716,40 +2691,6 @@ LIST *related_folder_get_common_non_primary_attribute_name_list(
 	return return_list;
 }
 
-ELEMENT_APPASERVER *related_folder_get_new_button_element(
-				char *folder_name,
-				LIST *role_folder_insert_list,
-				char *form_name )
-{
-	char element_name[ 128 ];
-	ELEMENT_APPASERVER *element;
-
-	if ( role_folder_insert_list
-	&&   list_exists_string(
-			folder_name,
-			role_folder_insert_list ) )
-	{
-		sprintf( element_name,
-			 "%s%s",
-			 VERTICAL_NEW_PUSH_BUTTON_PREFIX,
-			 folder_name );
-	
-		element = element_appaserver_new(
-					toggle_button, 
-					strdup( element_name ) );
-	
-		element_toggle_button_set_heading(
-			element->toggle_button,
-			VERTICAL_NEW_PUSH_BUTTON_LABEL );
-
-		element->toggle_button->form_name = form_name;
-		element->toggle_button->onchange_submit_yn = 'y';
-	
-		return element;
-	}
-	return (ELEMENT_APPASERVER *)0;
-}
-
 LIST *related_folder_get_mto1_common_non_primary_related_folder_list(
 			char *application_name,
 			char *session,
@@ -4442,15 +4383,12 @@ LIST *related_folder_prompt_element_list(
 			PROCESS *populate_drop_down_process,
 			LIST *attribute_list,
 			LIST *foreign_attribute_name_list,
-			boolean omit_drop_down_new_push_button,
 			boolean omit_ignore_push_buttons,
 			DICTIONARY *preprompt_dictionary,
 			char *ignore_or_no_display_push_button_prefix,
 			char *ignore_or_no_display_push_button_heading,
 			char *post_change_javascript,
 			char *hint_message,
-			LIST *role_folder_insert_list,
-			char *form_name,
 			int max_drop_down_size,
 			LIST *common_non_primary_attribute_name_list,
 			boolean is_primary_attribute,
@@ -4509,29 +4447,6 @@ LIST *related_folder_prompt_element_list(
 		list_set(
 			return_list, 
 			element );
-	}
-
-	if ( role_folder_insert_list
-	&&   !omit_drop_down_new_push_button )
-	{
-		ELEMENT_APPASERVER *new_button_element;
-
-		if ( ( new_button_element =
-			related_folder_get_new_button_element(
-				folder_name,
-				role_folder_insert_list,
-				form_name ) ) )
-		{
-			list_append_pointer(	return_list,
-						new_button_element );
-		}
-		else
-		{
-			list_append_pointer(	return_list,
-						element_appaserver_new(
-							empty_column,
-							"" ) );
-		}
 	}
 
 	/* Create the prompt element */
@@ -5095,10 +5010,13 @@ LIST *related_folder_prompt_insert_element_list(
 		ELEMENT_APPASERVER *new_button_element;
 
 		if ( ( new_button_element =
-			related_folder_get_new_button_element(
-				folder_name,
+			vertical_new_button_element(
+				folder_name
+					/* one_folder_name */,
 				role_folder_insert_list,
-				form_name ) ) )
+				form_name,
+				VERTICAL_NEW_BUTTON_ONE_PREFIX,
+				VERTICAL_NEW_BUTTON_DISPLAY ) ) )
 		{
 			list_append_pointer(	return_list,
 						new_button_element );

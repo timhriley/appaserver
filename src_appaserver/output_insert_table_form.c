@@ -37,6 +37,7 @@
 #include "dictionary_appaserver.h"
 #include "pair_one2m.h"
 #include "appaserver_link_file.h"
+#include "vertical_new_button.h"
 
 /* Constants */
 /* --------- */
@@ -106,13 +107,12 @@ int main( int argc, char **argv )
 	ROLE *role;
 	LIST *automatic_preselection_dictionary_list = {0};
 	boolean with_dynarch_menu = 0;
-	char *vertical_new_button_folder_name;
-	char *vertical_new_button_base_folder_name;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *primary_data_list_string;
 	PAIR_ONE2M *pair_one2m;
 	char *message = {0};
 	boolean output_content_type = 1;
+	VERTICAL_NEW_BUTTON *vertical_new_button;
 
 	/* This needs to be made into a list. */
 	/* ---------------------------------- */
@@ -238,6 +238,9 @@ int main( int argc, char **argv )
 
 	/* Vertical new button */
 	/* ------------------- */ 
+	vertical_new_button = vertical_new_button_calloc();
+
+#ifdef NOT_DEFINED
 	vertical_new_button_folder_name =
 		appaserver_library_get_vertical_new_button_folder_name(
 			dictionary_appaserver->query_dictionary,
@@ -249,6 +252,7 @@ int main( int argc, char **argv )
 		appaserver_library_get_vertical_new_button_folder_name(
 			dictionary_appaserver->non_prefixed_dictionary,
 			VERTICAL_NEW_PUSH_BUTTON_BASE_PREFIX );
+#endif
 
 	primary_data_list_string =
 		dictionary_get_string(

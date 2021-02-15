@@ -148,7 +148,6 @@ LIST *get_element_list(
 			char *folder_notepad,
 			char *isa_multi_attribute_name,
 			char *isa_multi_attribute_data,
-			/* LIST *mto1_isa_related_folder_list, */
 			LIST *isa_folder_list,
 			char *form_name,
 			DICTIONARY *preprompt_dictionary,
@@ -525,7 +524,6 @@ int main( int argc, char **argv )
 			folder_notepad,
 			isa_multi_attribute_name,
 			isa_multi_attribute_data,
-			/* mto1_isa_related_folder_list, */
 			isa_folder_list,
 			form->form_name,
 			dictionary_appaserver->
@@ -1819,34 +1817,6 @@ void build_related_folder_element_list(
 	{
 		set_first_initial_data = 0;
 	}
-
-/*
-	if ( related_folder->folder->lookup_before_drop_down )
-		send_preprompt_dictionary = preprompt_dictionary;
-	else
-		send_preprompt_dictionary = (DICTIONARY *)0;
-*/
-
-/* ---------------------------------------------------- */
-/* This broke <Insert> <Reoccurring Transaction> 	*/
-/* Test this: <Lookup> <Project Principle Investigator>	*/
-/* ---------------------------------------------------- */
-/*
-	RELATED_FOLDER **only_one_ajax_fill_drop_down;
-	if ( ajax_fill_drop_down_related_folder
-	&&   *ajax_fill_drop_down_related_folder )
-	{
-		only_one_ajax_fill_drop_down = (RELATED_FOLDER **)0;
-	}
-	else
-	{
-		only_one_ajax_fill_drop_down =
-			ajax_fill_drop_down_related_folder;
-	}
-	only_one_ajax_fill_drop_down =
-		ajax_fill_drop_down_related_folder;
-*/
-
 
 	list_append_list(
 		element_list,

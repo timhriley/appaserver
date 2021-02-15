@@ -120,15 +120,12 @@ LIST *related_folder_drop_down_element_list(
 			PROCESS *populate_drop_down_process,
 			LIST *attribute_list,
 			LIST *foreign_attribute_name_list,
-			boolean omit_drop_down_new_push_button,
 			boolean omit_ignore_push_buttons,
 			DICTIONARY *preprompt_dictionary,
 			char *ignore_or_no_display_push_button_prefix,
 			char *ignore_or_no_display_push_button_heading,
 			char *post_change_javascript,
 			char *hint_message,
-			LIST *role_folder_insert_list,
-			char *form_name,
 			int max_drop_down_size,
 			LIST *common_non_primary_attribute_name_list,
 			boolean is_primary_attribute,
@@ -344,11 +341,6 @@ LIST *related_folder_get_common_non_primary_attribute_name_list(
 				char *folder_name,
 				LIST *mto1_related_folder_list );
 
-ELEMENT_APPASERVER *related_folder_get_new_button_element(
-				char *folder_name,
-				LIST *role_folder_insert_list,
-				char *form_name );
-
 LIST *related_folder_get_mto1_common_non_primary_related_folder_list(
 				char *application_name,
 				char *session,
@@ -550,15 +542,12 @@ LIST *related_folder_prompt_element_list(
 			PROCESS *populate_drop_down_process,
 			LIST *attribute_list,
 			LIST *foreign_attribute_name_list,
-			boolean omit_drop_down_new_push_button,
 			boolean omit_ignore_push_buttons,
 			DICTIONARY *preprompt_dictionary,
 			char *ignore_or_no_display_push_button_prefix,
 			char *ignore_or_no_display_push_button_heading,
 			char *post_change_javascript,
 			char *hint_message,
-			LIST *role_folder_insert_list,
-			char *form_name,
 			int max_drop_down_size,
 			LIST *common_non_primary_attribute_name_list,
 			boolean is_primary_attribute,

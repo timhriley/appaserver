@@ -68,6 +68,7 @@ APPASERVER_LIBRARY=						\
 		validation_level.o				\
 		relation.o					\
 		related_folder.o				\
+		vertical_new_button.o				\
 		relation.o					\
 		operation_list.o				\
 		operation.o					\
@@ -804,11 +805,17 @@ prompt_recursive.o: prompt_recursive.c					\
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c prompt_recursive.c
 
-related_folder.o: related_folder.c related_folder.h folder.h		\
-			attribute.h form.h
+related_folder.o: related_folder.c related_folder.h			\
+			folder.o					\
+			attribute.o					\
+			form.o						\
+			vertical_new_button.o
 	${CC} ${CFLAGS} -c related_folder.c
 
-role_folder.o: role_folder.c role_folder.h folder.h
+vertical_new_button.o: vertical_new_button.c vertical_new_button.h
+	${CC} ${CFLAGS} -c vertical_new_button.c
+
+role_folder.o: role_folder.c role_folder.h folder.o
 	${CC} ${CFLAGS} -c role_folder.c
 
 validation_form.o: validation_form.c validation_form.h element.h

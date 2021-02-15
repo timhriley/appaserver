@@ -51,6 +51,7 @@ EXTERNAL_LIBRARY_OBJECT=						\
 		${LIBRARY}/populate_helper_process.o			\
 		${LIBRARY}/appaserver_link_file.o			\
 		${LIBRARY}/related_folder.o				\
+		${LIBRARY}/vertical_new_button.o			\
 		${LIBRARY}/relation.o					\
 		${LIBRARY}/folder.o					\
 		${LIBRARY}/role.o					\

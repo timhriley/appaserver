@@ -1432,7 +1432,6 @@ LIST *state_three_get_folder_element_list(
 			       related_folder->folder->
 					attribute_list,
 			       foreign_attribute_name_list,
-			       1 /* omit_drop_down_new_push_button */,
 			       1 /* omit_ignore_push_buttons */,
 			       (DICTIONARY *)0
 					/* preprompt_dictionary */,
@@ -1443,8 +1442,6 @@ LIST *state_three_get_folder_element_list(
 			       (char *)0 /* post_change_java... */,
 			       related_folder->
 					hint_message,
-			       (LIST *)0 /* role_folder_insert_list */,
-			       form_name,
 			       0 /* max_drop_down_size */,
 			       (LIST *)0 /* common_non_primary_a... */,
 			       0 /* not is_primary_attribute */,

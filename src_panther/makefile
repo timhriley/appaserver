@@ -58,6 +58,7 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/validation_level.o				\
 		${LIBRARY}/dictionary_appaserver.o			\
 		${LIBRARY}/related_folder.o				\
+		${LIBRARY}/vertical_new_button.o			\
 		${LIBRARY}/relation.o					\
 		${LIBRARY}/operation_list.o				\
 		${LIBRARY}/operation.o					\

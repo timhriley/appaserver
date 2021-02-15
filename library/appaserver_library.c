@@ -1516,56 +1516,6 @@ LIST *appaserver_library_trim_carrot_number( LIST *data_list )
 	return data_list;
 }
 
-void appaserver_library_set_vertical_new_button_folder_name(
-				DICTIONARY *non_prefixed_dictionary,
-				char *vertical_new_button_folder_name,
-				char *prefix )
-{
-	char key[ 128 ];
-
-	sprintf( key,
-		 "%s%s_0",
-		 prefix,
-		 vertical_new_button_folder_name );
-
-	dictionary_set_pointer(
-			non_prefixed_dictionary,
-			strdup( key ),
-			"yes" );
-}
-
-char *appaserver_library_get_vertical_new_button_folder_name(
-				DICTIONARY *non_prefixed_dictionary,
-				char *prefix )
-{
-	LIST *key_list;
-	char *key;
-	char *data;
-	char return_key[ 128 ];
-
-	if ( !non_prefixed_dictionary ) return (char *)0;
-
-	key_list = dictionary_extract_prefixed_key_list(
-					non_prefixed_dictionary,
-					prefix );
-
-	if ( !list_rewind( key_list ) ) return (char *)0;
-
-	do {
-		key = list_get_pointer( key_list );
-		data = dictionary_get_data( non_prefixed_dictionary, key );
-		if ( strcmp( data, "yes" ) == 0 )
-		{
-			return strdup(
-				trim_index(
-				return_key,
-				key +
-				strlen( prefix ) ) );
-		}
-	} while( list_next( key_list ) );
-	return (char *)0;
-}
-
 char *appaserver_library_get_verify_attribute_widths_submit_control_string(
 					LIST *element_list,
 					char *source_form )
