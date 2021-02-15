@@ -1629,3 +1629,54 @@ int update_folder_count(
 	}
 }
 
+boolean update_database_attribute_exists(
+			char *attribute_name,
+			LIST *update_row_list )
+{
+	UPDATE_ROW *update_row;
+	UPDATE_FOLDER *update_folder;
+	CHANGED_ATTRIBUTE *changed_attribute;
+
+	if ( !list_rewind( update_row_list ) ) return 0;
+
+	do {
+		update_row = list_get( update_row_list );
+
+		if ( !list_rewind( update_row->update_folder_list ) )
+			continue;
+
+		do {
+			update_folder =
+				list_get(
+					update_row->update_folder_list );
+
+			if ( !list_rewind(
+				update_folder->
+					changed_attribute_list ) )
+			{
+				continue;
+			}
+
+			do {
+				changed_attribute =
+					list_get(
+						update_folder->
+						     changed_attribute_list );
+
+				if ( strcmp(
+					changed_attribute->attribute_name,
+					attribute_name ) == 0 )
+				{
+					return 1;
+				}
+			} while ( list_next( 
+					update_folder->
+						changed_attribute_list ) );
+
+		} while ( list_next( update_row->update_folder_list ) );
+
+	} while ( list_next( update_row_list ) );
+
+	return 0;
+}
+

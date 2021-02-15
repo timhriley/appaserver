@@ -53,12 +53,12 @@
 
 /* Prototypes */
 /* ---------- */
-RELATED_FOLDER *state_four_get_root_related_folder(
+RELATED_FOLDER *state_four_root_related_folder(
 				char *application_name,
 				LIST *one2m_subquery_folder_name_list,
 				LIST *mto1_recursive_related_folder_list );
 
-LIST *state_four_get_element_list(
+LIST *state_four_element_list(
 				char *application_name,
 				char *folder_name,
 				LIST *include_attribute_name_list,
@@ -71,10 +71,10 @@ void separate_one2m_mto1_folder_name_list(
 				LIST *one2m_mto1_related_folder_name_list,
 				LIST *mto1_recursive_related_folder_list );
 
-LIST *state_four_get_one2m_mto1_folder_name_list(
+LIST *state_four_one2m_mto1_folder_name_list(
 				DICTIONARY *post_dictionary );
 
-LIST *state_three_get_folder_element_list(
+LIST *state_three_folder_element_list(
 			LIST *exclude_attribute_name_list,
 			char *login_name,
 			char *application_name,
@@ -83,10 +83,9 @@ LIST *state_three_get_folder_element_list(
 			char *folder_name,
 			LIST *append_isa_attribute_list,
 			LIST *mto1_append_isa_related_folder_list,
-			char *form_name,
 			boolean with_append_exclude );
 
-LIST *state_three_get_element_list(
+LIST *state_three_element_list(
 				char *login_name,
 				char *application_name,
 				char *session,
@@ -95,7 +94,6 @@ LIST *state_three_get_element_list(
 				LIST *append_isa_attribute_list,
 				LIST *mto1_append_isa_related_folder_list,
 				LIST *exclude_attribute_name_list,
-				char *form_name,
 				LIST *one2m_mto1_related_folder_name_list );
 
 void state_two_append_one2m_option_data_list(
@@ -1033,7 +1031,7 @@ void post_state_three(	char *application_name,
 	form_set_output_row_zero_only( form );
 
 	form->regular_element_list =
-		state_three_get_element_list(
+		state_three_element_list(
 			login_name,
 			application_name,
 			session,
@@ -1042,7 +1040,6 @@ void post_state_three(	char *application_name,
 			folder->append_isa_attribute_list,
 			folder->mto1_append_isa_related_folder_list,
 			exclude_attribute_name_list,
-			FORM_NAME,
 			one2m_mto1_related_folder_name_list );
 
 	remember_keystrokes_non_multi_element_name_list =
@@ -1179,7 +1176,7 @@ void post_state_three(	char *application_name,
 	document_close();
 }
 
-LIST *state_three_get_element_list(
+LIST *state_three_element_list(
 			char *login_name,
 			char *application_name,
 			char *session,
@@ -1188,7 +1185,6 @@ LIST *state_three_get_element_list(
 			LIST *append_isa_attribute_list,
 			LIST *mto1_append_isa_related_folder_list,
 			LIST *exclude_attribute_name_list,
-			char *form_name,
 			LIST *one2m_mto1_related_folder_name_list )
 {
 	LIST *return_list;
@@ -1208,7 +1204,7 @@ LIST *state_three_get_element_list(
 
 	list_append_list(
 		return_list,
-		state_three_get_folder_element_list(
+		state_three_folder_element_list(
 			exclude_attribute_name_list,
 			login_name,
 			application_name,
@@ -1217,7 +1213,6 @@ LIST *state_three_get_element_list(
 			folder_name,
 			append_isa_attribute_list,
 			mto1_append_isa_related_folder_list,
-			form_name,
 			1 /* with_append_exclude */ ) );
 
 	if ( list_rewind( one2m_mto1_related_folder_name_list ) )
@@ -1294,7 +1289,7 @@ LIST *state_three_get_element_list(
 
 			list_append_list(
 				return_list,
-				state_three_get_folder_element_list(
+				state_three_folder_element_list(
 					exclude_attribute_name_list,
 					login_name,
 					application_name,
@@ -1305,7 +1300,6 @@ LIST *state_three_get_element_list(
 					    append_isa_attribute_list,
 					folder->
 					mto1_append_isa_related_folder_list,
-					form_name,
 					0 /* not with_append_exclude */ ) );
 
 		} while( list_next( one2m_mto1_related_folder_name_list ) );
@@ -1364,7 +1358,7 @@ LIST *state_three_get_element_list(
 
 }
 
-LIST *state_three_get_folder_element_list(
+LIST *state_three_folder_element_list(
 			LIST *exclude_attribute_name_list,
 			char *login_name,
 			char *application_name,
@@ -1373,7 +1367,6 @@ LIST *state_three_get_folder_element_list(
 			char *folder_name,
 			LIST *append_isa_attribute_list,
 			LIST *mto1_append_isa_related_folder_list,
-			char *form_name,
 			boolean with_append_exclude )
 {
 	LIST *return_list;
@@ -1518,7 +1511,7 @@ skip_drop_down:
 
 }
 
-LIST *state_four_get_one2m_mto1_folder_name_list(
+LIST *state_four_one2m_mto1_folder_name_list(
 			DICTIONARY *post_dictionary )
 {
 	DICTIONARY *one2m_mto1_related_folder_name_dictionary;
@@ -1593,7 +1586,7 @@ void post_table_state_four(
 					role );
 
 	one2m_mto1_related_folder_name_list =
-		state_four_get_one2m_mto1_folder_name_list(
+		state_four_one2m_mto1_folder_name_list(
 			post_dictionary );
 
 	separate_one2m_mto1_folder_name_list(
@@ -1605,7 +1598,7 @@ void post_table_state_four(
 	if ( list_length( folder->mto1_recursive_related_folder_list ) )
 	{
 		root_related_folder =
-			state_four_get_root_related_folder(
+			state_four_root_related_folder(
 				application_name,
 				one2m_subquery_folder_name_list,
 				folder->mto1_recursive_related_folder_list );
@@ -1661,7 +1654,7 @@ void post_table_state_four(
 				dont_omit_delete );
 
 	form->viewonly_element_list =
-		state_four_get_element_list(
+		state_four_element_list(
 			application_name,
 			folder_name,
 			attribute_get_attribute_name_list(
@@ -1822,7 +1815,7 @@ void post_statistics_state_four(
 					role );
 
 	one2m_mto1_related_folder_name_list =
-		state_four_get_one2m_mto1_folder_name_list(
+		state_four_one2m_mto1_folder_name_list(
 			post_dictionary );
 
 	separate_one2m_mto1_folder_name_list(
@@ -1834,7 +1827,7 @@ void post_statistics_state_four(
 	if ( list_length( folder->mto1_recursive_related_folder_list ) )
 	{
 		root_related_folder =
-			state_four_get_root_related_folder(
+			state_four_root_related_folder(
 				application_name,
 				one2m_subquery_folder_name_list,
 				folder->mto1_recursive_related_folder_list );
@@ -1955,7 +1948,7 @@ void separate_one2m_mto1_folder_name_list(
 
 }
 
-LIST *state_four_get_element_list(
+LIST *state_four_element_list(
 			char *application_name,
 			char *folder_name,
 			LIST *include_attribute_name_list,
@@ -2090,7 +2083,7 @@ void post_spreadsheet_state_four(
 					role );
 
 	one2m_mto1_related_folder_name_list =
-		state_four_get_one2m_mto1_folder_name_list(
+		state_four_one2m_mto1_folder_name_list(
 			post_dictionary );
 
 	separate_one2m_mto1_folder_name_list(
@@ -2102,7 +2095,7 @@ void post_spreadsheet_state_four(
 	if ( list_length( folder->mto1_recursive_related_folder_list ) )
 	{
 		root_related_folder =
-			state_four_get_root_related_folder(
+			state_four_root_related_folder(
 				application_name,
 				one2m_subquery_folder_name_list,
 				folder->mto1_recursive_related_folder_list );
@@ -2229,7 +2222,7 @@ void post_spreadsheet_state_four(
 
 }
 
-RELATED_FOLDER *state_four_get_root_related_folder(
+RELATED_FOLDER *state_four_root_related_folder(
 			char *application_name,
 			LIST *one2m_subquery_folder_name_list,
 			LIST *mto1_recursive_related_folder_list )

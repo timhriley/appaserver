@@ -236,23 +236,40 @@ int main( int argc, char **argv )
 				(LIST *)0 /* operation_name_list */ );
 	}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: working_post_dictionary = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display( dictionary_appaserver->working_post_dictionary ) );
+m2( application_name, msg );
+}
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: non_prefixed_dictionary = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display( dictionary_appaserver->non_prefixed_dictionary ) );
+m2( application_name, msg );
+}
+
 	/* Vertical new button */
 	/* ------------------- */ 
 	vertical_new_button = vertical_new_button_calloc();
 
-#ifdef NOT_DEFINED
-	vertical_new_button_folder_name =
-		appaserver_library_get_vertical_new_button_folder_name(
-			dictionary_appaserver->query_dictionary,
-			VERTICAL_NEW_PUSH_BUTTON_PREFIX ); 
+	vertical_new_button->one_folder_name =
+		vertical_new_button_dictionary_one_folder_name(
+			VERTICAL_NEW_BUTTON_ONE_PREFIX,
+			dictionary_appaserver->
+				non_prefixed_dictionary );
 
-	/* Fetch and then reset the non_prefixed_dictionary. */
-	/* ------------------------------------------------- */
-	vertical_new_button_base_folder_name =
-		appaserver_library_get_vertical_new_button_folder_name(
-			dictionary_appaserver->non_prefixed_dictionary,
-			VERTICAL_NEW_PUSH_BUTTON_BASE_PREFIX );
-#endif
+	vertical_new_button->many_folder_name =
+		vertical_new_button_dictionary_folder_name(
+			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
+			dictionary_appaserver->
+				non_prefixed_dictionary );
 
 	primary_data_list_string =
 		dictionary_get_string(
@@ -286,7 +303,6 @@ int main( int argc, char **argv )
 	{
 		*detail_base_folder_name = '\0';
 	}
-
 
 	ignore_attribute_name_list = list_new_list();
 
@@ -372,7 +388,7 @@ int main( int argc, char **argv )
 		/* So only capture the posted attributes if not		*/
 		/* from the vertical new button.			*/
 		/* ---------------------------------------------------- */
-		if ( !vertical_new_button_folder_name )
+		if ( !vertical_new_button->one_folder_name )
 		{
 			list_append_string_list(	
 				ignore_attribute_name_list,
@@ -395,7 +411,7 @@ int main( int argc, char **argv )
 
 	/* If pair 1tom and not the vertical new button */
 	/* -------------------------------------------- */
-	if ( !vertical_new_button_folder_name
+	if ( !vertical_new_button->one_folder_name
 	&&    pair_one2m_participating(
 		dictionary_appaserver->
 			pair_one2m_dictionary ) )
@@ -409,6 +425,7 @@ __LINE__,
 dictionary_display( dictionary_appaserver->pair_one2m_dictionary ) );
 m2( application_name, msg );
 }
+
 		pair_one2m =
 			pair_one2m_post_new(
 				dictionary_appaserver->
@@ -508,64 +525,6 @@ m2( application_name, msg );
 				application_name ) );
 
 	form->dont_output_operations = 1;
-
-#ifdef NOT_DEFINED
-	folder->pair_one2m_related_folder_list =
-		related_folder_get_pair_one2m_related_folder_list(
-				folder->application_name,
-				folder->folder_name,
-				role_name );
-
-	pair_one2m =
-		pair_one2m_new(
-			ignore_attribute_name_list		/* out only */,
-			dictionary_appaserver->
-				pair_one2m_dictionary		/* in/out   */,
-			application_name			/* in only  */,
-			folder->pair_one2m_related_folder_list	/* in only  */,
-			posted_attribute_name_list		/* in only  */,
-			role					/* in only  */,
-			session					/* in only  */);
-
-	/* If pair 1tom and not the vertical new button */
-	/* -------------------------------------------- */
-	if ( !vertical_new_button_folder_name
-	&&    pair_one2m->is_participating )
-	{
-		if ( pair_one2m->insert_is_completed
-		||   pair_one2m->submit_button_on_top_frame )
-		{
-			document_quick_output_body(
-					application_name,
-					appaserver_parameter_file->
-						appaserver_mount_point );
-
-			if ( message && *message )
-				printf( "%s\n", message );
-
-			printf( "<h1>Insert Complete</h1>\n" );
-			fflush( stdout );
-
-			if ( system(
-			  "echo '<h2>' && date.sh && echo '</h2>'" )
-				) {};
-
-			fflush( stdout );
-
-			if ( pair_one2m->inserted_duplicate )
-			{
-				fflush( stdout );
-				printf( DUPLICATE_NON_INSERTED_MESSAGE );
-			}
-
-			document_close();
-			exit( 0 );
-		}
-
-		folder = pair_one2m->pair_insert_folder;
-
-	} /* if pair one2m */
-#endif
 
 	list_append_string_list(
 		ignore_attribute_name_list,
@@ -710,7 +669,7 @@ m2( application_name, msg );
 
 	/* If any new button (along the left column) is pressed. */
 	/* ----------------------------------------------------- */
-	if ( vertical_new_button_base_folder_name )
+	if ( vertical_new_button->one_folder_name )
 	{
 		char onload_control_string[ 1024 ];
 		char sys_string[ 1024 ];
@@ -802,17 +761,15 @@ m2( application_name, msg );
 				document->onload_control_string,
 				onload_control_string );
 
-		/* Vertical new button */
-		/* ------------------- */ 
-		appaserver_library_set_vertical_new_button_folder_name(
+		vertical_new_button_dictionary_set(
 			dictionary_appaserver->non_prefixed_dictionary,
-			vertical_new_button_folder_name,
-			VERTICAL_NEW_PUSH_BUTTON_PREFIX );
+			VERTICAL_NEW_BUTTON_ONE_HIDDEN_LABEL,
+			vertical_new_button->one_folder_name );
 
-		appaserver_library_set_vertical_new_button_folder_name(
+		vertical_new_button_dictionary_set(
 			dictionary_appaserver->non_prefixed_dictionary,
-			vertical_new_button_base_folder_name,
-			VERTICAL_NEW_PUSH_BUTTON_BASE_PREFIX );
+			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
+			vertical_new_button->many_folder_name );
 
 		dictionary_appaserver->query_dictionary =
 			dictionary_small_new();
@@ -897,7 +854,7 @@ m2( application_name, msg );
 		form->action_string = action_string;
 	}
 
-	if ( vertical_new_button_base_folder_name )
+	if ( vertical_new_button->one_folder_name )
 	{
 		folder->insert_rows_number = 1;
 	}

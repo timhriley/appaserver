@@ -337,4 +337,14 @@ int update_database_cells_updated(
 int update_folder_columns_updated(
 			LIST *changed_attribute_list );
 
+CHANGED_ATTRIBUTE *update_database_changed_attribute(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			ATTRIBUTE *attribute,
+			int row );
+
+boolean update_database_attribute_exists(
+			char *attribute_name,
+			LIST *update_row_list );
+
 #endif

@@ -36,6 +36,7 @@
 #include "dictionary_appaserver.h"
 #include "pair_one2m.h"
 #include "folder_menu.h"
+#include "vertical_new_button.h"
 
 /* Constants */
 /* --------- */
@@ -75,7 +76,8 @@ void execute_output_process(
 			char *message,
 			char *detail_base_folder_name,
 			boolean insert_flag,
-			char *vertical_new_button_base_folder_name,
+			char *vertical_new_button_many_folder_name,
+			char *pair_one2m_folder_name,
 			char *primary_data_list_string,
 			char *folder_form,
 			int cells_updated,
@@ -112,7 +114,7 @@ void post_state_insert(	DICTIONARY_APPASERVER *dictionary_appaserver,
 			char *detail_base_folder_name,
 			boolean insert_flag,
 			boolean role_override_row_restrictions,
-			char *vertical_new_button_base_folder_name,
+			char *vertical_new_button_many_folder_name,
 			char *primary_data_list_string );
 
 void post_state_lookup(	DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -144,9 +146,9 @@ int main( int argc, char **argv )
 	ROLE *role;
 	char *optional_related_attribute_name;
 	FOLDER *folder;
-	char *vertical_new_button_base_folder_name;
 	char *primary_data_list_string;
 	OPERATION_LIST_STRUCTURE *operation_list_structure = {0};
+	VERTICAL_NEW_BUTTON *vertical_new_button;
 
 	if ( argc < 10 )
 	{
@@ -317,10 +319,24 @@ int main( int argc, char **argv )
 			dictionary_appaserver->
 				non_prefixed_dictionary );
 
-	vertical_new_button_base_folder_name =
-		appaserver_library_get_vertical_new_button_folder_name(
-			dictionary_appaserver->non_prefixed_dictionary,
-			VERTICAL_NEW_PUSH_BUTTON_BASE_PREFIX );
+	vertical_new_button = vertical_new_button_calloc();
+
+	vertical_new_button->many_folder_name =
+		vertical_new_button_dictionary_folder_name(
+			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
+			dictionary_appaserver->
+				non_prefixed_dictionary );
+
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: many_folder_name = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+vertical_new_button->many_folder_name );
+m2( application_name, msg );
+}
 
 	primary_data_list_string =
 		dictionary_get_string(
@@ -372,7 +388,8 @@ int main( int argc, char **argv )
 				insert_flag,
 				role_get_override_row_restrictions(
 					role->override_row_restrictions_yn ),
-				vertical_new_button_base_folder_name,
+				vertical_new_button->
+					many_folder_name,
 				primary_data_list_string );
 	}
 	else
@@ -436,7 +453,7 @@ void post_state_insert(
 			char *detail_base_folder_name,
 			int insert_flag,
 			boolean role_override_row_restrictions,
-			char *vertical_new_button_base_folder_name,
+			char *vertical_new_button_many_folder_name,
 			char *primary_data_list_string )
 {
 	LIST *mto1_related_folder_list;
@@ -448,7 +465,7 @@ void post_state_insert(
 	char rows_inserted_string[ 128 ];
 	char *folder_form;
 	DICTIONARY *ignore_dictionary;
-	PAIR_ONE2M *pair_one2m;
+	PAIR_ONE2M *pair_one2m = {0};
 
 	/* If coming from the detail, then don't ignore any attributes. */
 	/* ------------------------------------------------------------ */
@@ -693,7 +710,8 @@ void post_state_insert(
 		} while( list_next( isa_related_folder_list ) );
 	}
 
-	if ( pair_one2m_participating(
+	if ( !vertical_new_button_many_folder_name
+	&&    pair_one2m_participating(
 		dictionary_appaserver->
 			pair_one2m_dictionary ) )
 	{
@@ -751,7 +769,10 @@ void post_state_insert(
 				message,
 				detail_base_folder_name,
 				insert_flag,
-				vertical_new_button_base_folder_name,
+				vertical_new_button_many_folder_name,
+				(pair_one2m)
+					? pair_one2m->one_folder_name
+					: (char *)0,
 				primary_data_list_string,
 				folder_form,
 				0 /* cells_updated */,
@@ -904,7 +925,8 @@ void post_state_update(
 			(char *)0 /* message */,
 			detail_base_folder_name,
 			insert_flag,
-			(char *)0 /* vertical_new_button_base_folder_name */,
+			(char *)0 /* vertical_new_button_many_folder_name */,
+			(char *)0 /* pair_one2m_folder_name */,
 			primary_data_list_string,
 			(char *)0 /* folder_form */,
 			cells_updated,
@@ -1174,13 +1196,13 @@ void post_state_lookup(
 			(char *)0 /* message */,
 			detail_base_folder_name,
 			insert_flag,
-			(char *)0 /* vertical_new_button_base_folder_name */,
+			(char *)0 /* vertical_new_button_many_folder_name */,
+			(char *)0 /* pair_one2m_folder_name */,
 			primary_data_list_string,
 			(char *)0 /* folder_form */,
 			0 /* cells_updated */,
 			(char *)0
 			/* changed_folder_name_list_string */ );
-
 }
 
 void execute_output_process(	
@@ -1197,7 +1219,8 @@ void execute_output_process(
 				char *message,
 				char *detail_base_folder_name,
 				int insert_flag,
-				char *vertical_new_button_base_folder_name,
+				char *vertical_new_button_many_folder_name,
+				char *pair_one2m_folder_name,
 				char *primary_data_list_string,
 				char *folder_form,
 				int cells_updated,
@@ -1285,7 +1308,7 @@ void execute_output_process(
 
 		sprintf( sys_string,
 "echo \"%s\" 								|"
-"output_insert_table_form %s %s %s %s '%s' \"detail!%s\" %s 2>>%s	 ",
+"output_insert_table_form %s %s %s %s %s %s \"detail!%s\" %s 2>>%s	 ",
 			dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
@@ -1294,6 +1317,7 @@ void execute_output_process(
 		 	session,
 		 	folder_name,
 		 	role_name,
+		 	"insert" /* state */,
 		 	detail_base_folder_name,
 		 	target_frame,
 		 	appaserver_error_get_filename( application_name ) );
@@ -1343,19 +1367,20 @@ void execute_output_process(
 		 	appaserver_error_get_filename( application_name ) );
 	}
 	else
-	if ( strcmp( state, "insert" ) == 0 )
+	if ( strcmp( state, "insert" ) == 0 && pair_one2m_folder_name )
 	{
 		sprintf( sys_string, 
 "echo \"%s\" 								|"
-"output_insert_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
+"output_insert_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
 			 dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
 	 	 	 login_name,
 		 	 application_name,
 		 	 session,
-		 	 folder_name,
+		 	 pair_one2m_folder_name,
 		 	 role_name,
+		 	 state,
 		 	 insert_update_key,
 		 	 target_frame,
 			 (message) ? message : "",
@@ -1394,7 +1419,7 @@ void execute_output_process(
 		}
 
 		if ( timlib_strcmp( folder_form, "table" ) == 0
-		&&   !vertical_new_button_base_folder_name )
+		&&   !vertical_new_button_many_folder_name )
 		{
 			content_type_yn = 'n';
 
@@ -1425,8 +1450,8 @@ void execute_output_process(
 			role_name,
 			rows_inserted,
 			(message) ? message : "",
-			(vertical_new_button_base_folder_name)		?
-				vertical_new_button_base_folder_name	:
+			(vertical_new_button_many_folder_name)		?
+				vertical_new_button_many_folder_name	:
 				"",
 			content_type_yn,
 			dictionary_appaserver_escaped_send_dictionary_string(

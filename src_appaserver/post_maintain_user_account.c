@@ -219,7 +219,7 @@ int main( int argc, char **argv )
 	}
 	exit( 0 );
 
-} /* main() */
+}
 
 boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
 				char **message,
@@ -368,11 +368,10 @@ boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
 		*message = "Update complete.";
 	}
 
-	return update_database_changed_attribute(
+	return update_database_attribute_exists(
 			"frameset_menu_horizontal_yn",
 			update_database->update_row_list );
-
-} /* post_state_update() */
+}
 
 void execute_output_process(	char *application_name,
 				char *login_name,
@@ -412,5 +411,5 @@ void execute_output_process(	char *application_name,
 
 	system( sys_string );
 
-} /* execute_output_process() */
+}
 

@@ -1493,27 +1493,6 @@ void form_build_cookie_key_buffer(	char *cookie_key_buffer,
 	}
 }
 
-void form_set_new_button_onclick_keystrokes_save_string(
-				LIST *element_list,
-				char *onclick_keystrokes_save_string )
-{
-	ELEMENT_APPASERVER *element;
-
-	if ( !list_rewind( element_list ) ) return;
-
-	do {
-		element = list_get_pointer( element_list );
-
-		if ( element->element_type == toggle_button
-		&&   timlib_strncmp(element->name,
-				    VERTICAL_NEW_PUSH_BUTTON_PREFIX ) == 0 )
-		{
-			element->toggle_button->onclick_keystrokes_save_string =
-				onclick_keystrokes_save_string;
-		}
-	} while( list_next( element_list ) );
-}
-
 void form_execute_output_prompt_edit_form(
 			char *application_name,
 			char *login_name,
@@ -2124,3 +2103,25 @@ void form_output_prompt_insert_reset_button(
 	printf( "\">\n" );
 }
 
+#ifdef NOT_DEFINED
+void form_set_new_button_onclick_keystrokes_save_string(
+				LIST *element_list,
+				char *onclick_keystrokes_save_string )
+{
+	ELEMENT_APPASERVER *element;
+
+	if ( !list_rewind( element_list ) ) return;
+
+	do {
+		element = list_get_pointer( element_list );
+
+		if ( element->element_type == toggle_button
+		&&   timlib_strncmp(element->name,
+				    VERTICAL_NEW_PUSH_BUTTON_PREFIX ) == 0 )
+		{
+			element->toggle_button->onclick_keystrokes_save_string =
+				onclick_keystrokes_save_string;
+		}
+	} while( list_next( element_list ) );
+}
+#endif

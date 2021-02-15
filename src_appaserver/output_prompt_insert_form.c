@@ -532,9 +532,11 @@ int main( int argc, char **argv )
 			state,
 			lookup_before_drop_down );
 
+/*
 	form_set_new_button_onclick_keystrokes_save_string(
 		form->regular_element_list,
 		form->onclick_keystrokes_save_string );
+*/
 
 	/* Create the two pair_one2m hidden elements */
 	/* ----------------------------------------- */
