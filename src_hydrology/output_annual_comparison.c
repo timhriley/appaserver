@@ -76,8 +76,6 @@ void output_annual_comparison_output_spreadsheet(
 					char *begin_month_day,
 					char *end_month_day,
 					char *year_expression,
-					char *begin_year,
-					char *end_year,
 					char *aggregate_statistic_string );
 
 void output_annual_comparison_output_text_file(
@@ -88,8 +86,6 @@ void output_annual_comparison_output_text_file(
 					char *begin_month_day,
 					char *end_month_day,
 					char *year_expression,
-					char *begin_year,
-					char *end_year,
 					char *aggregate_statistic_string );
 
 void output_annual_comparison_output_table(
@@ -386,8 +382,6 @@ int main( int argc, char **argv )
 					begin_month_day,
 					end_month_day,
 					year_expression,
-					begin_year,
-					end_year,
 					aggregate_statistic_string );
 
 		pclose( output_pipe );
@@ -395,7 +389,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n", title );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 		fflush( stdout );
 		printf( "</h1>\n" );
 	
@@ -498,8 +492,6 @@ int main( int argc, char **argv )
 					begin_month_day,
 					end_month_day,
 					year_expression,
-					begin_year,
-					end_year,
 					aggregate_statistic_string );
 
 		pclose( output_pipe );
@@ -507,7 +499,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n", title );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 		fflush( stdout );
 		printf( "</h1>\n" );
 	
@@ -546,8 +538,6 @@ int main( int argc, char **argv )
 					begin_month_day,
 					end_month_day,
 					year_expression,
-					begin_year,
-					end_year,
 					aggregate_statistic_string );
 
 		pclose( output_pipe );
@@ -584,7 +574,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	return 0;
-} /* main() */
+}
 
 void build_sys_string(
 		char *sys_string,
@@ -606,7 +596,7 @@ void build_sys_string(
 		 year_expression,
 		 aggregate_statistic_string );
 
-} /* build_sys_string() */
+}
 
 boolean output_annual_comparison_output_gracechart(
 				char *application_name,
@@ -907,7 +897,7 @@ boolean output_annual_comparison_output_gracechart(
 
 	return 1;
 
-} /* output_annual_comparison_output_gracechart() */
+}
 
 void get_report_sub_title(
 			char *sub_title,
@@ -984,7 +974,7 @@ double get_ground_surface_elevation(
 
 	*missing_ground_surface_elevation = 0;
 	return atof( results_string );
-} /* get_ground_surface_elevation() */
+}
 
 void output_annual_comparison_output_table(
 					char *application_name,
@@ -1056,7 +1046,7 @@ void output_annual_comparison_output_table(
 	pclose( input_pipe );
 	pclose( output_pipe );
 
-} /* output_annual_comparison_output_table() */
+}
 
 void output_annual_comparison_output_text_file(
 					FILE *output_pipe,
@@ -1066,8 +1056,6 @@ void output_annual_comparison_output_text_file(
 					char *begin_month_day,
 					char *end_month_day,
 					char *year_expression,
-					char *begin_year,
-					char *end_year,
 					char *aggregate_statistic_string )
 {
 
@@ -1103,7 +1091,7 @@ void output_annual_comparison_output_text_file(
 
 	pclose( input_pipe );
 
-} /* output_annual_comparison_output_text_file() */
+}
 
 void output_annual_comparison_output_spreadsheet(
 					FILE *output_pipe,
@@ -1113,8 +1101,6 @@ void output_annual_comparison_output_spreadsheet(
 					char *begin_month_day,
 					char *end_month_day,
 					char *year_expression,
-					char *begin_year,
-					char *end_year,
 					char *aggregate_statistic_string )
 {
 
@@ -1145,7 +1131,7 @@ void output_annual_comparison_output_spreadsheet(
 
 	pclose( input_pipe );
 
-} /* output_annual_comparison_output_spreadsheet() */
+}
 
 boolean begin_before_end(	char *begin_month_day,
 				char *begin_year,
@@ -1170,7 +1156,7 @@ boolean begin_before_end(	char *begin_month_day,
 	julian_free( begin_julian );
 	julian_free( end_julian );
 	return return_value;
-} /* begin_before_end() */
+}
 
 void get_begin_end_date(	char **begin_date_string,
 				char **end_date_string,
@@ -1193,5 +1179,5 @@ void get_begin_end_date(	char **begin_date_string,
 
 	*begin_date_string = local_begin_date_string;
 	*end_date_string = local_end_date_string;
-} /* get_begin_end_date() */
+}
 
