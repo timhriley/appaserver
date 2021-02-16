@@ -140,7 +140,7 @@ int main( int argc, char **argv )
 			buffer,
 			process_name ) );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	printf( "</h2>\n" );
 	fflush( stdout );
 

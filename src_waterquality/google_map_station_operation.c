@@ -277,7 +277,7 @@ int main( int argc, char **argv )
 		printf( "\">\n" );
 		printf( "<h1>Google Map Viewer " );
 		fflush( stdout );
-		system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+		if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 		fflush( stdout );
 		printf( "</h1>\n" );
 
