@@ -405,7 +405,6 @@ void change_sort_order_state_one(
 				"sort" /* state */,
 				form->form_title,
 				folder->folder_name,
-				form->target_frame,
 				form->subtitle_string,
 				0 /* not omit_format_initial_capital */ );
 

@@ -368,7 +368,6 @@ void form_output_title(		char *application_title,
 				char *state,
 				char *form_title,
 				char *folder_name,
-				char *target_frame,
 				char *subtitle_string,
 				boolean omit_format_initial_capital );
 

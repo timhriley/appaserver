@@ -62,7 +62,7 @@ boolean get_insert_flag(DICTIONARY *non_prefixed_dictionary );
 
 void set_insert_flag(	DICTIONARY *non_prefixed_dictionary );
 
-void execute_output_process(	
+void execute_insert_output_process(	
 			DICTIONARY_APPASERVER *dictionary_appaserver,
 			char *application_name,
 			char *login_name,
@@ -74,12 +74,20 @@ void execute_output_process(
 			int rows_inserted,
 			char *target_frame,
 			char *message,
-			char *detail_base_folder_name,
-			boolean insert_flag,
 			char *vertical_new_button_many_folder_name,
-			char *pair_one2m_folder_name,
+			char *pair_one2m_folder_name );
+
+void execute_update_output_process(	
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *login_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			char *insert_update_key,
+			char *target_frame,
+			char *detail_base_folder_name,
 			char *primary_data_list_string,
-			char *folder_form,
 			int cells_updated,
 			char *changed_folder_name_list_string );
 
@@ -92,11 +100,9 @@ void post_state_update(
 			char *role_name,
 			char *insert_update_key,
 			char *target_frame,
-			char *state,
 			char *appaserver_data_directory,
 			char *appaserver_mount_point,
 			char *detail_base_folder_name,
-			boolean insert_flag,
 			pid_t dictionary_process_id,
 			boolean role_override_row_restrictions,
 			char *optional_related_attribute_name,
@@ -112,7 +118,6 @@ void post_state_insert(	DICTIONARY_APPASERVER *dictionary_appaserver,
 			char *target_frame,
 			char *state,
 			char *detail_base_folder_name,
-			boolean insert_flag,
 			boolean role_override_row_restrictions,
 			char *vertical_new_button_many_folder_name,
 			char *primary_data_list_string );
@@ -125,9 +130,7 @@ void post_state_lookup(	DICTIONARY_APPASERVER *dictionary_appaserver,
 			char *role_name,
 			char *insert_update_key,
 			char *target_frame,
-			char *state,
 			char *detail_base_folder_name,
-			boolean insert_flag,
 			boolean role_override_row_restrictions,
 			char *primary_data_list_string );
 
@@ -327,17 +330,6 @@ int main( int argc, char **argv )
 			dictionary_appaserver->
 				non_prefixed_dictionary );
 
-
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: many_folder_name = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-vertical_new_button->many_folder_name );
-m2( application_name, msg );
-}
-
 	primary_data_list_string =
 		dictionary_get_string(
 			dictionary_appaserver->
@@ -385,7 +377,6 @@ m2( application_name, msg );
 				target_frame,
 				state,
 				detail_base_folder_name,
-				insert_flag,
 				role_get_override_row_restrictions(
 					role->override_row_restrictions_yn ),
 				vertical_new_button->
@@ -404,13 +395,11 @@ m2( application_name, msg );
 				role_name,
 				insert_update_key,
 				target_frame,
-				state,
 				appaserver_parameter_file->
 					appaserver_data_directory,
 				appaserver_parameter_file->
 					appaserver_mount_point,
 				detail_base_folder_name,
-				insert_flag,
 				dictionary_process_id,
 				role_get_override_row_restrictions(
 					role->override_row_restrictions_yn ),
@@ -428,9 +417,7 @@ m2( application_name, msg );
 				role_name,
 				insert_update_key,
 				target_frame,
-				state,
 				detail_base_folder_name,
-				insert_flag,
 				role_get_override_row_restrictions(
 					role->override_row_restrictions_yn ),
 				primary_data_list_string );
@@ -451,7 +438,6 @@ void post_state_insert(
 			char *target_frame,
 			char *state,
 			char *detail_base_folder_name,
-			int insert_flag,
 			boolean role_override_row_restrictions,
 			char *vertical_new_button_many_folder_name,
 			char *primary_data_list_string )
@@ -463,7 +449,6 @@ void post_state_insert(
 	LIST *isa_related_folder_list = {0};
 	LIST *insert_required_attribute_name_list = {0};
 	char rows_inserted_string[ 128 ];
-	char *folder_form;
 	DICTIONARY *ignore_dictionary;
 	PAIR_ONE2M *pair_one2m = {0};
 
@@ -508,8 +493,6 @@ void post_state_insert(
 			role_override_row_restrictions,
 			role_name,
 			(LIST *)0 /* mto1_related_folder_list */ );
-
-	folder_form = folder->folder_form;
 
 	/* ---------------------------------------------------------- */
 	/* The query_dictionary contains the row zero attributes that */
@@ -756,29 +739,22 @@ void post_state_insert(
 				pair_one2m->fulfilled_folder_name_list );
 	}
 
-	execute_output_process(	dictionary_appaserver,
-				application_name,
-				login_name,
-				session,
-				folder->folder_name,
-				role_name,
-				state,
-				insert_update_key,
-				rows_inserted,
-				target_frame,
-				message,
-				detail_base_folder_name,
-				insert_flag,
-				vertical_new_button_many_folder_name,
-				(pair_one2m)
-					? pair_one2m->one_folder_name
-					: (char *)0,
-				primary_data_list_string,
-				folder_form,
-				0 /* cells_updated */,
-				(char *)0
-				/* changed_folder_name_list_string */ );
-
+	execute_insert_output_process(
+		dictionary_appaserver,
+		application_name,
+		login_name,
+		session,
+		folder->folder_name,
+		role_name,
+		state,
+		insert_update_key,
+		rows_inserted,
+		target_frame,
+		message,
+		vertical_new_button_many_folder_name,
+		(pair_one2m)
+			? pair_one2m->one_folder_name
+			: (char *)0 );
 }
 
 void post_state_update(
@@ -790,11 +766,9 @@ void post_state_update(
 			char *role_name,
 			char *insert_update_key,
 			char *target_frame,
-			char *state,
 			char *appaserver_data_directory,
 			char *appaserver_mount_point,
 			char *detail_base_folder_name,
-			int insert_flag,
 			pid_t dictionary_process_id,
 			boolean role_override_row_restrictions,
 			char *optional_related_attribute_name,
@@ -911,24 +885,17 @@ void post_state_update(
 		return;
 	}
 
-	execute_output_process(
+	execute_update_output_process(
 			dictionary_appaserver,
 			application_name,
 			login_name,
 			session,
 			folder_name,
 			role_name,
-			state,
 			insert_update_key,
-			0 /* rows_inserted */,
 			target_frame,
-			(char *)0 /* message */,
 			detail_base_folder_name,
-			insert_flag,
-			(char *)0 /* vertical_new_button_many_folder_name */,
-			(char *)0 /* pair_one2m_folder_name */,
 			primary_data_list_string,
-			(char *)0 /* folder_form */,
 			cells_updated,
 			changed_folder_name_list_string );
 }
@@ -1060,19 +1027,17 @@ m2( application_name, msg );
 }
 
 void post_state_lookup(
-				DICTIONARY_APPASERVER *dictionary_appaserver,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *login_name,
-				char *role_name,
-				char *insert_update_key,
-				char *target_frame,
-				char *state,
-				char *detail_base_folder_name,
-				int insert_flag,
-				boolean role_override_row_restrictions,
-				char *primary_data_list_string )
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			char *role_name,
+			char *insert_update_key,
+			char *target_frame,
+			char *detail_base_folder_name,
+			boolean role_override_row_restrictions,
+			char *primary_data_list_string )
 {
 	OPERATION_LIST_STRUCTURE *operation_list_structure;
 	FOLDER *folder;
@@ -1182,47 +1147,60 @@ void post_state_lookup(
 
 	if ( operation_list_structure->performed_any_output ) return;
 
-	execute_output_process(
+	execute_update_output_process(
 			dictionary_appaserver,
 			application_name,
 			login_name,
 			session,
 			folder_name,
 			role_name,
-			state,
 			insert_update_key,
-			0 /* rows_inserted */,
 			target_frame,
-			(char *)0 /* message */,
 			detail_base_folder_name,
-			insert_flag,
-			(char *)0 /* vertical_new_button_many_folder_name */,
-			(char *)0 /* pair_one2m_folder_name */,
 			primary_data_list_string,
-			(char *)0 /* folder_form */,
 			0 /* cells_updated */,
 			(char *)0
 			/* changed_folder_name_list_string */ );
 }
 
-void execute_output_process(	
+boolean get_insert_flag( DICTIONARY *non_prefixed_dictionary )
+{
+	char search_key[ 128 ];
+	char *results_string;
+
+	sprintf( search_key, "%s_0", INSERT_PUSH_BUTTON_NAME );
+	results_string =
+		dictionary_get_string( 	non_prefixed_dictionary,
+					search_key );
+	if ( !results_string )
+		return 0;
+	else
+		return ( strcmp( results_string, "yes" ) == 0 );
+
+}
+
+void set_insert_flag( DICTIONARY *non_prefixed_dictionary )
+{
+	char search_key[ 128 ];
+
+	sprintf( search_key, "%s_0", INSERT_PUSH_BUTTON_NAME );
+
+	dictionary_set_string( 	non_prefixed_dictionary,
+				strdup( search_key ),
+				"yes" );
+}
+
+void execute_update_output_process(	
 				DICTIONARY_APPASERVER *dictionary_appaserver,
 				char *application_name,
 				char *login_name,
 				char *session,
 				char *folder_name,
 				char *role_name,
-				char *state,
 				char *insert_update_key,
-				int rows_inserted,
 				char *target_frame,
-				char *message,
 				char *detail_base_folder_name,
-				int insert_flag,
-				char *vertical_new_button_many_folder_name,
-				char *pair_one2m_folder_name,
 				char *primary_data_list_string,
-				char *folder_form,
 				int cells_updated,
 				char *changed_folder_name_list_string )
 {
@@ -1267,62 +1245,6 @@ void execute_output_process(
 		}
 	}
 
-	if ( strcmp( insert_update_key, "detail" ) == 0 && insert_flag )
-	{
-		LIST *primary_data_list;
-		DICTIONARY *base_primary_data_dictionary;
-		FOLDER *base_folder;
-
-		base_folder = folder_new_folder(
-					application_name, 
-					session,
-					detail_base_folder_name );
-
-		base_folder->attribute_list =
-			attribute_get_attribute_list(
-				application_name,
-				base_folder->folder_name,
-				(char *)0 /* attribute_name */,
-				base_folder->
-					mto1_isa_related_folder_list,
-				role_name );
-
-		base_folder->primary_attribute_name_list =
-			folder_get_primary_attribute_name_list(
-				base_folder->attribute_list );
-
-		primary_data_list =
-			list_string2list(
-				primary_data_list_string,
-				FOLDER_DATA_DELIMITER );
-
-		base_primary_data_dictionary =
-			dictionary_merge_lists2dictionary(
-				base_folder->primary_attribute_name_list,
-				primary_data_list );
-
-		dictionary_append_dictionary(
-			dictionary_appaserver->
-				query_dictionary,
-			base_primary_data_dictionary );
-
-		sprintf( sys_string,
-"echo \"%s\" 								|"
-"output_insert_table_form %s %s %s %s %s %s \"detail!%s\" %s 2>>%s	 ",
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				1 /* with_non_prefixed_dictionary */ ),
-	 	 	login_name,
-		 	application_name,
-		 	session,
-		 	folder_name,
-		 	role_name,
-		 	"insert" /* state */,
-		 	detail_base_folder_name,
-		 	target_frame,
-		 	appaserver_error_get_filename( application_name ) );
-	}
-	else
 	if ( strcmp( insert_update_key, "detail" ) == 0 )
 	{
 		if ( strcmp( target_frame, PROMPT_FRAME ) == 0
@@ -1367,103 +1289,6 @@ void execute_output_process(
 		 	appaserver_error_get_filename( application_name ) );
 	}
 	else
-	if ( strcmp( state, "insert" ) == 0 && pair_one2m_folder_name )
-	{
-		sprintf( sys_string, 
-"echo \"%s\" 								|"
-"output_insert_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
-			 dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				1 /* with_non_prefixed_dictionary */ ),
-	 	 	 login_name,
-		 	 application_name,
-		 	 session,
-		 	 pair_one2m_folder_name,
-		 	 role_name,
-		 	 state,
-		 	 insert_update_key,
-		 	 target_frame,
-			 (message) ? message : "",
-		 	 appaserver_error_get_filename( application_name ) );
-	}
-	else
-	if ( strcmp( state, "insert" ) == 0 )
-	{
-		char content_type_yn;
-
-		if ( strcmp( target_frame, PROMPT_FRAME ) == 0
-		&&   appaserver_frameset_menu_horizontal(
-						application_name,
-						login_name ) )
-		{
-			char sys_string[ 1024 ];
-
-			sprintf(sys_string,
-"output_choose_role_folder_process_form %s %s %s %s '%s' %s 2>>%s",
-				application_name,
-				session,
-				login_name,
-				role_name,
-				"" /* title */,
-				"y" /* content_type_yn */,
-				appaserver_error_get_filename(
-					application_name ) );
-
-			if ( system( sys_string ) ) {};
-			fflush( stdout );
-			content_type_yn = 'n';
-		}
-		else
-		{
-			content_type_yn = 'y';
-		}
-
-		if ( timlib_strcmp( folder_form, "table" ) == 0
-		&&   !vertical_new_button_many_folder_name )
-		{
-			content_type_yn = 'n';
-
-			sprintf( sys_string, 
-"echo \"%s\" 								|"
-"output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" '' \"%s\" \"%s\" \"%c\" 2>>%s	 ",
-			 dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				1 /* with_non_prefixed_dictionary */ ),
-	 	 	 login_name,
-		 	 application_name,
-		 	 session,
-		 	 folder_name,
-		 	 role_name,
-		 	 insert_update_key,
-		 	 target_frame,
-			 content_type_yn,
-		 	 appaserver_error_get_filename( application_name ) );
-		}
-		else
-		{
-			sprintf( sys_string,
-	 "output_results %s %s %s %s %s %d \"%s\" \"%s\" %c \"%s\" 2>>%s",
-			application_name,
-		 	folder_name,
-			session,
-			login_name,
-			role_name,
-			rows_inserted,
-			(message) ? message : "",
-			(vertical_new_button_many_folder_name)		?
-				vertical_new_button_many_folder_name	:
-				"",
-			content_type_yn,
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				1 /* with_non_prefixed_dictionary */ ),
-			appaserver_error_get_filename( application_name ) );
-		}
-	}
-	else
-	/* ------------------------ */
-	/* Must be update or lookup */
-	/* ------------------------ */
 	{
 		sprintf( sys_string,
 "echo \"%s\" 								|"
@@ -1484,30 +1309,118 @@ void execute_output_process(
 	if ( system( sys_string ) ) {};
 }
 
-boolean get_insert_flag( DICTIONARY *non_prefixed_dictionary )
+void execute_insert_output_process(	
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *login_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			char *state,
+			char *insert_update_key,
+			int rows_inserted,
+			char *target_frame,
+			char *message,
+			char *vertical_new_button_many_folder_name,
+			char *pair_one2m_folder_name )
 {
-	char search_key[ 128 ];
-	char *results_string;
+	char sys_string[ 65536 ];
+	char content_type_yn;
 
-	sprintf( search_key, "%s_0", INSERT_PUSH_BUTTON_NAME );
-	results_string =
-		dictionary_get_string( 	non_prefixed_dictionary,
-					search_key );
-	if ( !results_string )
-		return 0;
+	if ( !dictionary_appaserver )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: no dictionary appaserver.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( pair_one2m_folder_name )
+	{
+		sprintf( sys_string, 
+"echo \"%s\" 								|"
+"output_insert_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
+			 dictionary_appaserver_escaped_send_dictionary_string(
+				dictionary_appaserver,
+				1 /* with_non_prefixed_dictionary */ ),
+	 	 	 login_name,
+		 	 application_name,
+		 	 session,
+		 	 pair_one2m_folder_name,
+		 	 role_name,
+		 	 state,
+		 	 insert_update_key,
+		 	 target_frame,
+			 (message) ? message : "",
+		 	 appaserver_error_get_filename( application_name ) );
+	}
 	else
-		return ( strcmp( results_string, "yes" ) == 0 );
+	if ( vertical_new_button_many_folder_name )
+	{
+		sprintf( sys_string,
+	 "output_results %s %s %s %s %s %d \"%s\" \"%s\" %c \"%s\" 2>>%s",
+			application_name,
+		 	folder_name,
+			session,
+			login_name,
+			role_name,
+			rows_inserted,
+			(message) ? message : "",
+			(vertical_new_button_many_folder_name)		?
+				vertical_new_button_many_folder_name	:
+				"",
+			'y' /* content_type_yn */,
+			dictionary_appaserver_escaped_send_dictionary_string(
+				dictionary_appaserver,
+				1 /* with_non_prefixed_dictionary */ ),
+			appaserver_error_get_filename( application_name ) );
+	}
+	else
+	{
+		if ( strcmp( target_frame, PROMPT_FRAME ) == 0
+		&&   appaserver_frameset_menu_horizontal(
+						application_name,
+						login_name ) )
+		{
+			sprintf(sys_string,
+"output_choose_role_folder_process_form %s %s %s %s '%s' %s 2>>%s",
+				application_name,
+				session,
+				login_name,
+				role_name,
+				"" /* title */,
+				"y" /* content_type_yn */,
+				appaserver_error_get_filename(
+					application_name ) );
 
-}
+			if ( system( sys_string ) ) {};
+			fflush( stdout );
+			content_type_yn = 'n';
+		}
+		else
+		{
+			content_type_yn = 'y';
+		}
 
-void set_insert_flag( DICTIONARY *non_prefixed_dictionary )
-{
-	char search_key[ 128 ];
+		sprintf(sys_string, 
+"echo \"%s\" 								|"
+"output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" '' \"%s\" \"%s\" \"%c\" 2>>%s	 ",
+			dictionary_appaserver_escaped_send_dictionary_string(
+			dictionary_appaserver,
+			1 /* with_non_prefixed_dictionary */ ),
+	 		login_name,
+			application_name,
+			session,
+			folder_name,
+			role_name,
+			insert_update_key,
+			target_frame,
+			content_type_yn,
+			appaserver_error_get_filename( application_name ) );
+	}
 
-	sprintf( search_key, "%s_0", INSERT_PUSH_BUTTON_NAME );
-
-	dictionary_set_string( 	non_prefixed_dictionary,
-				strdup( search_key ),
-				"yes" );
+	if ( system( sys_string ) ) {};
 }
 

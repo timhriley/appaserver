@@ -236,25 +236,6 @@ int main( int argc, char **argv )
 				(LIST *)0 /* operation_name_list */ );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: working_post_dictionary = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display( dictionary_appaserver->working_post_dictionary ) );
-m2( application_name, msg );
-}
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: non_prefixed_dictionary = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display( dictionary_appaserver->non_prefixed_dictionary ) );
-m2( application_name, msg );
-}
-
 	/* Vertical new button */
 	/* ------------------- */ 
 	vertical_new_button = vertical_new_button_calloc();
@@ -416,16 +397,6 @@ m2( application_name, msg );
 		dictionary_appaserver->
 			pair_one2m_dictionary ) )
 	{
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: pair_one2m_dictionary = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display( dictionary_appaserver->pair_one2m_dictionary ) );
-m2( application_name, msg );
-}
-
 		pair_one2m =
 			pair_one2m_post_new(
 				dictionary_appaserver->
@@ -828,7 +799,6 @@ m2( application_name, msg );
 				form->state,
 				form->form_title,
 				form->folder_name,
-				form->target_frame,
 				form->subtitle_string,
 				0 /* not omit_format_initial_capital */ );
 

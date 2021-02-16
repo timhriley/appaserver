@@ -89,16 +89,11 @@ void form_output_title( char *application_title,
 			char *state,
 			char *form_title,
 			char *folder_name,
-			char *target_frame,
 			char *subtitle_string,
 			boolean omit_format_initial_capital )
 {
 	char title_buffer[ 512 ], buffer[ 512 ];
 	char state_buffer[ 128 ];
-
-/* stub */
-/* ---- */
-target_frame = "";
 
 	if ( state
 	&&   strcmp( state, "query" ) == 0 )

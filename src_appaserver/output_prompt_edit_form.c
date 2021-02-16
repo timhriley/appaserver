@@ -835,7 +835,6 @@ m2( application_name, msg );
 				"lookup" /* form->state */,
 				form->form_title,
 				form->folder_name,
-				form->target_frame,
 				form->subtitle_string,
 				omit_format_initial_capital );
 

@@ -266,7 +266,6 @@ int main( int argc, char **argv )
 				form->state,
 				form->form_title,
 				form->folder_name,
-				form->target_frame,
 				form->subtitle_string,
 				0 /* not omit_format_initial_capital */ );
 
