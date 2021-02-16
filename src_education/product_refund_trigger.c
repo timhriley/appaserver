@@ -170,7 +170,8 @@ LIST *product_refund_trigger_insert_update(
 		return (LIST *)0;
 	}
 
-	if ( !product_refund->transaction_date_time )
+	if ( !product_refund->transaction_date_time
+	||   !*product_refund->transaction_date_time )
 	{
 		product_refund->transaction_date_time =
 			transaction_race_free(

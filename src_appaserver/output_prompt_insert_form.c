@@ -467,7 +467,7 @@ int main( int argc, char **argv )
 
 	form_set_post_process( form, "post_prompt_insert_form" );
 	form->target_frame = EDIT_FRAME;
-	form_set_output_row_zero_only( form );
+	form->output_row_zero_only = 1;
 	form->html_help_file_anchor = html_help_file_anchor;
 
 	form->onload_control_string =
@@ -532,11 +532,11 @@ int main( int argc, char **argv )
 			state,
 			lookup_before_drop_down );
 
-/*
+#ifdef NOT_DEFINED
 	form_set_new_button_onclick_keystrokes_save_string(
 		form->regular_element_list,
 		form->onclick_keystrokes_save_string );
-*/
+#endif
 
 	/* Create the two pair_one2m hidden elements */
 	/* ----------------------------------------- */
@@ -727,10 +727,6 @@ int main( int argc, char **argv )
 			(char *)0 /* attribute_not_null */,
 			(char *)0 /* appaserver_user_foreign_login_name */ );
 
-	dictionary_appaserver_output_as_hidden(
-		dictionary_appaserver,
-		0 /* not with_prefixed_dictionary */ );
-
 	if ( lookup_before_drop_down->
 		lookup_before_drop_down_state ==
 			lookup_participating_is_root_all_complete )
@@ -799,6 +795,13 @@ int main( int argc, char **argv )
 	}
 
 	printf( "</table>\n" );
+
+#ifdef NOT_DEFINED
+	dictionary_appaserver_output_as_hidden(
+		dictionary_appaserver,
+		0 /* not with_prefixed_dictionary */ );
+#endif
+
 	printf( "</form>\n" );
 
 	document_close();

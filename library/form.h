@@ -126,14 +126,18 @@ void form_set_remember_keystrokes_button_in_trailer(
 					FORM *form );
 void form_set_remember_keystrokes_button_in_heading(
 					FORM *form );
+
 void form_set_output_content_type(	FORM *form );
-void form_set_output_row_zero_only(	FORM *form );
+
 void form_set_operation_list(		FORM *form,
 					LIST *operation_list );
+
 void form_set_drop_down_number_columns(	FORM *form,
 					int drop_down_number_columns );
+
 void form_set_post_process(		FORM *form,
 					char *post_process );
+
 void form_output_html_heading(		FORM *form,
 					char *application_name );
 

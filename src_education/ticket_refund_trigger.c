@@ -184,7 +184,8 @@ LIST *ticket_refund_trigger_insert_update(
 		return (LIST *)0;
 	}
 
-	if ( !ticket_refund->transaction_date_time )
+	if ( !ticket_refund->transaction_date_time
+	||   !*ticket_refund->transaction_date_time )
 	{
 		ticket_refund->transaction_date_time =
 			transaction_race_free(

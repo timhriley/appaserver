@@ -981,11 +981,6 @@ void form_set_output_content_type( FORM *form )
 	form->output_content_type = 1;
 }
 
-void form_set_output_row_zero_only( FORM *form )
-{
-	form->output_row_zero_only = 1;
-}
-
 void form_set_post_process( FORM *form, char *post_process )
 {
 	form->post_process = post_process;

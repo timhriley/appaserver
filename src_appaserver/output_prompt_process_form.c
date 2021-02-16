@@ -301,7 +301,7 @@ int main( int argc, char **argv )
 	}
 
 	form->target_frame = target_frame;
-	form_set_output_row_zero_only( form );
+	form->output_row_zero_only = 1;
 
 	document_set_javascript_module( document, "trim" );
 	document_set_javascript_module( document, "timlib" );

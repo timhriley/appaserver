@@ -19,6 +19,7 @@
 #include "journal.h"
 #include "entity.h"
 #include "account.h"
+#include "paypal_deposit.h"
 #include "paypal_item.h"
 #include "education.h"
 #include "offering.h"

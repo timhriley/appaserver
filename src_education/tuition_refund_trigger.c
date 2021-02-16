@@ -230,7 +230,8 @@ LIST *tuition_refund_trigger_insert_update(
 			tuition_refund->refund_amount,
 			tuition_refund->merchant_fees_expense );
 
-	if ( !tuition_refund->transaction_date_time )
+	if ( !tuition_refund->transaction_date_time
+	||   !*tuition_refund->transaction_date_time )
 	{
 		tuition_refund->transaction_date_time =
 			transaction_race_free(

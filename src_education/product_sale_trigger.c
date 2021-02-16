@@ -157,7 +157,8 @@ LIST *product_sale_trigger_insert_update(
 		return (LIST *)0;
 	}
 
-	if ( !product_sale->transaction_date_time )
+	if ( !product_sale->transaction_date_time
+	||   !*product_sale->transaction_date_time )
 	{
 		product_sale->transaction_date_time =
 			transaction_race_free(

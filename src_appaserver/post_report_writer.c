@@ -447,7 +447,7 @@ void post_state_one(	char *application_name,
 					role_name );
 
 	form->target_frame = PROMPT_FRAME;
-	form_set_output_row_zero_only( form );
+	form->output_row_zero_only = 1;
 	form->regular_element_list = list_new();
 
 	sprintf(action_string,
@@ -630,7 +630,7 @@ void post_state_two(	char *application_name,
 					role_name );
 
 	form->target_frame = PROMPT_FRAME;
-	form_set_output_row_zero_only( form );
+	form->output_row_zero_only = 1;
 	form->regular_element_list = list_new();
 
 	element = element_appaserver_new( prompt, "<big>Join</big>" );
@@ -1028,7 +1028,7 @@ void post_state_three(	char *application_name,
 					role_name );
 
 	form->target_frame = EDIT_FRAME;
-	form_set_output_row_zero_only( form );
+	form->output_row_zero_only = 1;
 
 	form->regular_element_list =
 		state_three_element_list(

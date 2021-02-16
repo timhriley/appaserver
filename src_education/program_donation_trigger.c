@@ -154,6 +154,15 @@ LIST *program_donation_trigger_insert_update(
 		return;
 	}
 
+	if ( !program_donation->transaction_date_time
+	||   !*program_donation->transaction_date_time )
+	{
+		program_donation->transaction_date_time =
+			transaction_race_free(
+				program_donation->
+					payment_date_time );
+	}
+
 	if ( ( program_donation->program_donation_transaction =
 		program_donation_transaction(
 			&transaction_seconds_to_add,

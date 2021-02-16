@@ -1152,10 +1152,66 @@ void ticket_sale_fetch_update(
 			char *event_date,
 			char *event_time )
 {
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"ticket_sale_count.sh \"%s\" %s %s",
+		program_name,
+		event_date,
+		event_time );
+
+	if ( system( sys_string ) ){};
+
+	sprintf(sys_string,
+		"ticket_sale_total.sh \"%s\" %s %s",
+		program_name,
+		event_date,
+		event_time );
+
+	if ( system( sys_string ) ){};
+
+	sprintf(sys_string,
+		"ticket_refund_total.sh \"%s\" %s %s",
+		program_name,
+		event_date,
+		event_time );
+
+	if ( system( sys_string ) ){};
+
+	sprintf(sys_string,
+		"capacity_available.sh \"%s\" %s %s",
+		program_name,
+		event_date,
+		event_time );
+
+	if ( system( sys_string ) ){};
 }
 
 void ticket_sale_list_fetch_update(
 			LIST *ticket_sale_list )
 {
+	TICKET_SALE *ticket_sale;
+
+	if ( !list_rewind( ticket_sale_list ) ) return;
+
+	do {
+		ticket_sale = list_get( ticket_sale_list );
+
+		if ( !ticket_sale->event )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty event.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		ticket_sale_fetch_update(
+			ticket_sale->event->program_name,
+			ticket_sale->event->event_date,
+			ticket_sale->event->event_time );
+
+	} while ( list_next( ticket_sale_list ) );
 }
 

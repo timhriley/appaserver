@@ -186,6 +186,16 @@ LIST *enrollment_trigger_insert_update(
 		return (LIST *)0;
 	}
 
+	if ( !enrollment->transaction_date_time
+	||   !*enrollment->transaction_date_time )
+	{
+		enrollment->transaction_date_time =
+			transaction_race_free(
+				enrollment->
+					registration->
+					registration_date_time );
+	}
+
 	if ( enrollment_set_transaction(
 			&transaction_seconds_to_add,
 			enrollment,

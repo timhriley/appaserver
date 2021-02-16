@@ -224,7 +224,8 @@ LIST *tuition_payment_trigger_insert_update(
 			tuition_payment->payment_amount,
 			tuition_payment->merchant_fees_expense );
 
-	if ( !tuition_payment->transaction_date_time )
+	if ( !tuition_payment->transaction_date_time
+	||   !*tuition_payment->transaction_date_time )
 	{
 		tuition_payment->transaction_date_time =
 			transaction_race_free(

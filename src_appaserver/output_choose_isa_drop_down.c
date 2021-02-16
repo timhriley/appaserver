@@ -157,8 +157,7 @@ int main( int argc, char **argv )
 
 	form_set_post_process( form, "post_choose_isa_drop_down" );
 	form->target_frame = PROMPT_FRAME;
-	form_set_output_row_zero_only( form );
-
+	form->output_row_zero_only = 1;
 	form->html_help_file_anchor = folder->html_help_file_anchor;
 
 	document = document_new(

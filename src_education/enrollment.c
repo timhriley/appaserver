@@ -516,7 +516,8 @@ boolean enrollment_set_transaction(
 		exit( 1 );
 	}
 
-	if ( !enrollment->transaction_date_time )
+	if ( !enrollment->transaction_date_time
+	||   !*enrollment->transaction_date_time )
 	{
 		enrollment->transaction_date_time =
 			transaction_race_free(
