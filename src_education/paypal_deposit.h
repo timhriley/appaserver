@@ -43,6 +43,7 @@
 				"tuition_refund_total,"		\
 				"ticket_refund_total,"		\
 				"product_refund_total,"		\
+				"quantity,"			\
 				"from_email_address,"		\
 				"account_balance,"		\
 				"transaction_ID,"		\
@@ -63,6 +64,7 @@ typedef struct
 	/* ---------- */
 	double paypal_amount;
 	double transaction_fee;
+	int quantity;
 	double account_balance;
 	char *transaction_ID;
 	char *invoice_number;
@@ -95,6 +97,7 @@ typedef struct
 	LIST *ticket_refund_list;
 	PAYPAL_SWEEP *paypal_sweep;
 	int row_number;
+	boolean existing_transaction;
 } PAYPAL_DEPOSIT;
 
 double paypal_net_revenue(
@@ -311,13 +314,9 @@ void paypal_deposit_ticket_sale_event_insert(
 			char *season_name,
 			int year );
 
-/* Caches */
-/* ------ */
 LIST *paypal_deposit_tuition_payment_list(
 			LIST *paypal_deposit_list );
 
-/* Caches */
-/* ------ */
 LIST *paypal_deposit_tuition_refund_list(
 			LIST *paypal_deposit_list );
 
@@ -329,6 +328,18 @@ LIST *paypal_deposit_ticket_refund_list(
 
 LIST *paypal_deposit_registration_list(
 			LIST *paypal_deposit_list );
+
+boolean paypal_deposit_existing_transaction(
+			ENTITY *payor_entity,
+			LIST *paypal_item_list,
+			PAYPAL_SWEEP *paypal_sweep,
+			LIST *existing_registration_list,
+			LIST *existing_program_donation_list,
+			LIST *existing_product_sale_list,
+			LIST *existing_product_refund_list,
+			LIST *existing_ticket_sale_list,
+			LIST *existing_ticket_refund_list,
+			LIST *existing_paypal_sweep_list );
 
 #endif
 

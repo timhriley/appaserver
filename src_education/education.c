@@ -36,6 +36,8 @@
 #include "paypal_item.h"
 #include "program.h"
 #include "product.h"
+#include "ticket_sale.h"
+#include "ticket_refund.h"
 #include "education.h"
 
 EDUCATION *education_calloc( void )
@@ -55,13 +57,16 @@ EDUCATION *education_calloc( void )
 	return education;
 }
 
-EDUCATION *education_fetch(
+EDUCATION *education_spreadsheet_fetch(
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
 			char *date_label )
 {
 	EDUCATION *education = education_calloc();
+
+	education->spreadsheet_filename = spreadsheet_filename;
+	education->date_label = date_label;
 
 	education->semester =
 		semester_fetch(
@@ -75,15 +80,28 @@ EDUCATION *education_fetch(
 			spreadsheet_filename,
 			date_label );
 
+	education->program_list =
+		program_list(
+			1 /* fetch_alias_list */ );
+
+	education->product_list = product_list();
+
+	education->spreadsheet_minimum_date =
+		spreadsheet_minimum_date(
+			&education->spreadsheet_maximum_date,
+			&education->spreadsheet_row_count,
+			education->spreadsheet_filename,
+			education->date_label );
+
 	return education;
 }
 
 LIST *education_paypal_deposit_list(
+			char *spreadsheet_filename,
+			LIST *spreadsheet_column_list,
+			PAYPAL_DATASET *paypal_dataset,
 			char *season_name,
 			int year,
-			char *spreadsheet_filename,
-			SPREADSHEET *spreadsheet,
-			PAYPAL_DATASET *paypal_dataset,
 			LIST *semester_offering_list,
 			LIST *program_list,
 			LIST *product_list,
@@ -93,16 +111,15 @@ LIST *education_paypal_deposit_list(
 	char input_string[ 65536 ];
 	FILE *spreadsheet_file;
 	int row_number = 0;
-
 	/* ------------------------------------------ */
 	/* Don't want to loose paypal_dataset pointer */
 	/* ------------------------------------------ */
 	PAYPAL_DATASET *dataset_return;
 
-	if ( !spreadsheet )
+	if ( !list_length( spreadsheet_column_list ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty spreadsheet.\n",
+			"ERROR in %s/%s()/%d: empty spreadsheet_column_list.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -129,9 +146,9 @@ LIST *education_paypal_deposit_list(
 				/* ---------------------- */
 				/* Returns paypal_dataset */
 				/* ---------------------- */
-				education_paypal_dataset(
+				paypal_dataset_parse(
 					input_string,
-					spreadsheet->spreadsheet_column_list,
+					spreadsheet_column_list,
 					paypal_dataset ) ) )
 		{
 			continue;
@@ -177,195 +194,6 @@ LIST *education_paypal_deposit_list(
 	return paypal_deposit_list;
 }
 
-PAYPAL_DATASET *education_paypal_dataset(
-			char *input_string,
-			LIST *spreadsheet_column_list,
-			PAYPAL_DATASET *paypal_dataset )
-{
-	if ( !paypal_dataset )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty paypal_dataset\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !input_string || !*input_string )
-		return (PAYPAL_DATASET *)0;
-
-	if ( ! ( paypal_dataset->date_A =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"Date" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: can't parse date_A.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	if ( ! ( paypal_dataset->time_B =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"Time" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: can't parse time_B.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	if ( ! ( paypal_dataset->full_name_D =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"Name" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: can't parse full_name_D.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	if ( ! ( paypal_dataset->gross_revenue_H =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"Gross" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: can't parse gross_revenue_H.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	if ( ! ( paypal_dataset->transaction_fee_I =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"Fee" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: can't parse transaction_fee_I.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	if ( ! ( paypal_dataset->net_revenue_J =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"Net" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: can't parse net_revenue_J.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	if ( ! ( paypal_dataset->from_email_address_K =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"From Email Address" ) ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: can't parse from_email_address_K.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	if ( ! ( paypal_dataset->transaction_ID_M =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"Transaction ID" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: can't parse transaction_ID_M.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	if ( ! ( paypal_dataset->item_title_P =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"Item Title" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: can't parse item_title_P.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	if ( ! ( paypal_dataset->transaction_type_E =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"Type" ) ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: can't parse transaction_type_E.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	if ( ! ( paypal_dataset->invoice_number_Z =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"Invoice Number" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: can't parse invoice_number_Z.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	if ( ! ( paypal_dataset->account_balance_AD =
-			spreadsheet_heading_data(
-				spreadsheet_column_list,
-				input_string,
-				"Balance" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: can't parse balance_AD.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (PAYPAL_DATASET *)0;
-	}
-
-	return paypal_dataset;
-}
-
 LIST *education_paypal_allowed_list(
 			LIST *offering_name_list,
 			LIST *program_name_list,
@@ -400,5 +228,93 @@ double education_net_refund_amount(
 {
 	return	refund_amount +
 		merchant_fees_expense;
+}
+
+LIST *education_existing_registration_list(
+			char *spreadsheet_minimum_date )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"registration_date_time >= '%s'",
+		spreadsheet_minimum_date );
+
+	return registration_list( where );
+}
+
+LIST *education_existing_program_donation_list(
+			char *spreadsheet_minimum_date )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"payment_date_time >= '%s'",
+		spreadsheet_minimum_date );
+
+	return program_donation_list( where );
+}
+
+LIST *education_existing_product_sale_list(
+			char *spreadsheet_minimum_date )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"sale_date_time >= '%s'",
+		spreadsheet_minimum_date );
+
+	return product_sale_list( where );
+}
+
+LIST *education_existing_product_refund_list(
+			char *spreadsheet_minimum_date )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"refund_date_time >= '%s'",
+		spreadsheet_minimum_date );
+
+	return product_refund_list( where );
+}
+
+LIST *education_existing_ticket_sale_list(
+			char *spreadsheet_minimum_date )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"sale_date_time >= '%s'",
+		spreadsheet_minimum_date );
+
+	return ticket_sale_list(
+			where,
+			0 /* not fetch_event */ );
+}
+
+LIST *education_existing_ticket_refund_list(
+			char *spreadsheet_minimum_date )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"refund_date_time >= '%s'",
+		spreadsheet_minimum_date );
+
+	return ticket_refund_list(
+			where,
+			0 /* not fetch_sale */ );
+}
+
+LIST *education_existing_paypal_sweep_list(
+			char *spreadsheet_minimum_date )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"paypal_date_time >= '%s'",
+		spreadsheet_minimum_date );
+
+	return paypal_sweep_list( where );
 }
 

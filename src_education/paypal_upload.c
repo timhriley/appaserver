@@ -43,18 +43,6 @@
 
 /* Prototypes */
 /* ---------- */
-
-/* ---------------------------------------------------- */
-/* Returns education_deposit_list()			*/
-/* See: PAYPAL_DEPOSIT *paypal_deposit_education()	*/
-/* ---------------------------------------------------- */
-LIST *paypal_upload_deposit_list(
-			char **maximum_date,
-			int *row_count,
-			char *spreadsheet_filename,
-			char *season_name,
-			int year );
-
 void paypal_upload_not_found_display(
 			LIST *paypal_deposit_list,
 			int row_count );
@@ -83,9 +71,7 @@ int main( int argc, char **argv )
 	boolean nohtml;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 128 ];
-	char *maximum_date = {0};
-	int row_count = 0;
-	LIST *paypal_deposit_list;
+	EDUCATION *education;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -146,18 +132,79 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	paypal_deposit_list =
+	education =
+		education_spreadsheet_fetch(
+			season_name,
+			year,
+			spreadsheet_filename,
+			"date" /* date_label */ );
+
+	education->spreadsheet_minimum_date =
+		spreadsheet_minimum_date(
+			&education->spreadsheet_maximum_date,
+			&education->spreadsheet_row_count,
+			education->spreadsheet_filename,
+			"date" /* date_label */ );
+
+	if ( !education->spreadsheet_row_count )
+	{
+		printf( "<h3>Invalid spreadsheet.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	education->existing_registration_list =
+		education_existing_registration_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_program_donation_list =
+		education_existing_program_donation_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_product_sale_list =
+		education_existing_product_sale_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_product_refund_list =
+		education_existing_product_refund_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_ticket_sale_list =
+		education_existing_ticket_sale_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_ticket_refund_list =
+		education_existing_ticket_refund_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_paypal_sweep_list =
+		education_existing_paypal_sweep_list(
+			education->spreadsheet_minimum_date );
+
+	education->paypal_deposit_list =
 		paypal_deposit_list_set_transaction(
 			paypal_deposit_list_steady_state(
-				/* --------------------------------------- */
-				/* Returns education_paypal_deposit_list() */
-				/* --------------------------------------- */
-				paypal_upload_deposit_list(
-					&maximum_date,
-					&row_count,
-					spreadsheet_filename,
+				education_paypal_deposit_list(
+					education->spreadsheet_filename,
+					education->
+						paypal->
+						spreadsheet->
+						spreadsheet_column_list,
+					education->
+						paypal->
+						paypal_dataset,
 					season_name,
-					year ) ),
+					year,
+					education->
+						semester->
+						offering_list,
+					education->
+						program_list,
+					education->
+						product_list,
+					education->
+						semester->
+						event_list ) ),
 			/* ------------------------------------ */
 			/* To set program_name for 		*/
 			/* tuition payment and tuition refund	*/
@@ -165,13 +212,6 @@ int main( int argc, char **argv )
 			semester_offering_list(
 				season_name,
 				year ) );
-
-	if ( !row_count )
-	{
-		printf( "<h3>Invalid spreadsheet.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
 
 	if ( execute )
 	{
@@ -184,7 +224,7 @@ int main( int argc, char **argv )
 			transaction_list_journal_program_insert(
 				&first_transaction_date_time,
 				paypal_deposit_list_transaction_list(
-					paypal_deposit_list ),
+					education->paypal_deposit_list ),
 				1 /* replace */ );
 
 		if ( list_length( account_name_list ) )
@@ -194,73 +234,55 @@ int main( int argc, char **argv )
 				account_name_list );
 
 			paypal_deposit_list_insert(
-				paypal_deposit_list,
+				education->paypal_deposit_list,
 				season_name,
 				year );
 
 			registration_list_fetch_update(
-				/* ------ */
-				/* Caches */
-				/* ------ */
 				tuition_payment_registration_list(
-					/* ------ */
-					/* Caches */
-					/* ------ */
 					paypal_deposit_tuition_payment_list(
-						paypal_deposit_list ) ),
+						education->
+							paypal_deposit_list ) ),
 				season_name,
 				year );
 
 			registration_list_fetch_update(
-				/* ------ */
-				/* Caches */
-				/* ------ */
 				tuition_refund_registration_list(
-					/* ------ */
-					/* Caches */
-					/* ------ */
 					paypal_deposit_tuition_refund_list(
-						paypal_deposit_list ) ),
+						education->
+							paypal_deposit_list ) ),
 				season_name,
 				year );
 
 			offering_list_fetch_update(
 				registration_course_name_list(
-					/* ------ */
-					/* Caches */
-					/* ------ */
 					tuition_payment_registration_list(
-					    /* ------ */
-					    /* Caches */
-					    /* ------ */
 					    paypal_deposit_tuition_payment_list(
-						paypal_deposit_list ) ) ),
+						education->
+						     paypal_deposit_list ) ) ),
 				season_name,
 				year );
 
 			offering_list_fetch_update(
 				registration_course_name_list(
-					/* ------ */
-					/* Caches */
-					/* ------ */
 					tuition_refund_registration_list(
-					    /* ------ */
-					    /* Caches */
-					    /* ------ */
 					    paypal_deposit_tuition_refund_list(
-						paypal_deposit_list ) ) ),
+						education->
+						     paypal_deposit_list ) ) ),
 				season_name,
 				year );
 
 			event_list_fetch_update(
 				ticket_sale_event_list(
 					paypal_deposit_ticket_sale_list(
-						paypal_deposit_list ) ) );
+						education->
+						     paypal_deposit_list ) ) );
 
 			event_list_fetch_update(
 				ticket_refund_event_list(
 					paypal_deposit_ticket_refund_list(
-						paypal_deposit_list ) ) );
+						education->
+						     paypal_deposit_list ) ) );
 
 			if ( session && role_name )
 			{
@@ -279,7 +301,7 @@ int main( int argc, char **argv )
 
 			printf(
 		"<p>Process complete with PAYPAL row count %d.\n",
-				list_length( paypal_deposit_list ) );
+				list_length( education->paypal_deposit_list ) );
 
 			process_execution_count_increment(
 				process_name );
@@ -288,94 +310,34 @@ int main( int argc, char **argv )
 		{
 			printf(
 "<p>Process not executed because no generated transactions; PAYPAL row count %d.\n",
-				list_length( paypal_deposit_list ) );
+				list_length( education->paypal_deposit_list ) );
 		}
 	}
 	else
 	{
 		paypal_upload_display(
-			paypal_deposit_list,
+			education->paypal_deposit_list,
 			season_name,
 			year );
 
 		paypal_upload_not_found_display(
-			paypal_deposit_list,
-			row_count );
+			education->paypal_deposit_list,
+			education->spreadsheet_row_count );
 
 		printf(
-"<p>Process did not execute with PAYPAL row count of %d up to date %s.\n",
-			list_length( paypal_deposit_list ),
-			date_convert_international2american(
-				maximum_date ) );
+"<p>Process did not execute with PAYPAL row count of %d from %s to %s.\n",
+			list_length( education->paypal_deposit_list ),
+			strdup(
+			    date_convert_international2american(
+				education->spreadsheet_minimum_date ) ),
+			strdup(
+			    date_convert_international2american(
+				education->spreadsheet_maximum_date ) ) );
 	}
 
 	if ( !nohtml ) document_close();
 
 	return 0;
-}
-
-LIST *paypal_upload_deposit_list(
-			char **maximum_date,
-			int *row_count,
-			char *spreadsheet_filename,
-			char *season_name,
-			int year )
-{
-	EDUCATION *education;
-	char *minimum_date;
-
-	if ( ! ( minimum_date =
-			spreadsheet_minimum_date(
-				maximum_date,
-				row_count,
-				spreadsheet_filename ) ) )
-	{
-		return (LIST *)0;
-	}
-
-	if ( ! ( education =
-			education_fetch(
-				season_name,
-				year,
-				spreadsheet_filename,
-				"date" /* heading_label */ ) ) )
-	{
-		return (LIST *)0;
-	}
-
-	if ( !education->semester )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty semester.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !education->paypal )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty paypal.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-		education_paypal_deposit_list(
-			season_name,
-			year,
-			spreadsheet_filename,
-			education->paypal->spreadsheet,
-			paypal_dataset_calloc(),
-			education->semester->semester_offering_list,
-			( education->program_list =
-				program_list( 1 /* fetch_alias_list */ ) ),
-			( education->product_list =
-				product_list() ),
-			education->semester->semester_event_list );
 }
 
 void paypal_upload_display(

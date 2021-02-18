@@ -1418,3 +1418,23 @@ char *piece_quote_comma(	char *destination,
 			offset );
 }
 
+int piece_quote_commma_seek(
+			char *quote_comma_row,
+			char *label )
+{
+	int p;
+	char destination[ 1024 ];
+
+	for(	p = 0;
+		piece_quote_comma(
+			destination,
+			quote_comma_row,
+			p );
+		p++ )
+	{
+		if ( strcmp( destination, label ) == 0 )
+			return p;
+	}
+	return -1;
+}
+

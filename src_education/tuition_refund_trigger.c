@@ -123,9 +123,6 @@ int main( int argc, char **argv )
 		if ( list_length( tuition_refund_list ) )
 		{
 			registration_list_fetch_update(
-				/* ------ */
-				/* Caches */
-				/* ------ */
 				tuition_refund_registration_list(
 					tuition_refund_list ),
 				season_name,
@@ -153,9 +150,6 @@ int main( int argc, char **argv )
 		list_set( tuition_refund_list, tuition_refund );
 
 		registration_list_fetch_update(
-			/* ------ */
-			/* Caches */
-			/* ------ */
 			tuition_refund_registration_list(
 				tuition_refund_list ),
 			season_name,

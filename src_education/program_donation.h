@@ -211,5 +211,8 @@ void program_donation_fetch_total(
 LIST *program_donation_program_name_list(
 			LIST *program_donation_list );
 
+LIST *program_donation_list(
+			char *where );
+
 #endif
 

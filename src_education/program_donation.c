@@ -952,3 +952,10 @@ LIST *program_donation_program_name_list(
 	return program_name_list;
 }
 
+LIST *program_donation_list( char *where )
+{
+	return	program_donation_system_list(
+			program_donation_sys_string( where ),
+			0 /* not fetch_program */ );
+}
+

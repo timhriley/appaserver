@@ -51,7 +51,8 @@ LIST *spreadsheet_column_list(
 char *spreadsheet_minimum_date(
 			char **maximum_date,
 			int *row_count,
-			char *spreadsheet_filename );
+			char *spreadsheet_filename,
+			char *date_label );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -67,5 +68,9 @@ char *spreadsheet_header_row(
 boolean spreadsheet_header_label_success(
 			char *date_label,
 			char *header_buffer );
+
+int spreadsheet_date_piece(
+			char *spreadsheet_filename,
+			char *date_label );
 
 #endif

@@ -217,5 +217,8 @@ void registration_fetch_update(
 LIST *registration_course_name_list(
 			LIST *registration_list );
 
+LIST *registration_list(
+			char *where );
+
 #endif
 

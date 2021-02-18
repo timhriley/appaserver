@@ -24,8 +24,8 @@ typedef struct
 {
 	char *season_name;
 	int year;
-	LIST *semester_offering_list;
-	LIST *semester_event_list;
+	LIST *offering_list;
+	LIST *event_list;
 } SEMESTER;
 
 SEMESTER *semester_calloc(

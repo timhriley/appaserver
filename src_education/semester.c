@@ -119,7 +119,7 @@ SEMESTER *semester_parse(
 
 	if ( fetch_offering_list )
 	{
-		semester->semester_offering_list =
+		semester->offering_list =
 			semester_offering_list(
 				semester->season_name,
 				semester->year );
@@ -127,7 +127,7 @@ SEMESTER *semester_parse(
 
 	if ( fetch_event_list )
 	{
-		semester->semester_event_list =
+		semester->event_list =
 			semester_event_list(
 				semester->season_name,
 				semester->year );

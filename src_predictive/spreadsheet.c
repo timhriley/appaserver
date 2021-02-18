@@ -98,7 +98,8 @@ LIST *spreadsheet_column_list(
 char *spreadsheet_minimum_date(
 			char **maximum_date,
 			int *row_count,
-			char *filename )
+			char *filename,
+			char *date_label )
 {
 	FILE *input_file;
 	char input_buffer[ 65536 ];
@@ -106,6 +107,14 @@ char *spreadsheet_minimum_date(
 	char minimum_date[ 128 ];
 	char compare_date[ 16 ];
 	char local_maximum_date[ 128 ];
+	int date_piece;
+
+	date_piece =
+		spreadsheet_date_piece(
+			filename,
+			date_label );
+
+	if ( date_piece == -1 ) return (char *)0;
 
 	if ( ! ( input_file = fopen( filename, "r" ) ) )
 	{
@@ -129,7 +138,7 @@ char *spreadsheet_minimum_date(
 		piece_quote(
 			input_date,
 			input_buffer,
-			0 );
+			date_piece );
 
 		if ( !date_convert_source_american(
 			compare_date,
@@ -237,5 +246,19 @@ boolean spreadsheet_header_label_success(
 		return 1;
 	else
 		return 0;
+}
+
+int spreadsheet_date_piece(
+			char *spreadsheet_filename,
+			char *date_label )
+{
+	char *header_row =
+		spreadsheet_header_row(
+			spreadsheet_filename,
+			date_label );
+
+	if ( !header_row ) return -1;
+
+	return piece_quote_commma_seek( header_row, date_label );
 }
 

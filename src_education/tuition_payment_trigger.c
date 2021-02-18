@@ -123,9 +123,6 @@ int main( int argc, char **argv )
 		if ( list_length( tuition_payment_list ) )
 		{
 			registration_list_fetch_update(
-				/* ------ */
-				/* Caches */
-				/* ------ */
 				tuition_payment_registration_list(
 					tuition_payment_list ),
 				season_name,
@@ -153,9 +150,6 @@ int main( int argc, char **argv )
 		list_set( tuition_payment_list, tuition_payment );
 
 		registration_list_fetch_update(
-			/* ------ */
-			/* Caches */
-			/* ------ */
 			tuition_payment_registration_list(
 				tuition_payment_list ),
 			season_name,

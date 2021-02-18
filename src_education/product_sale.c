@@ -915,8 +915,7 @@ PRODUCT_SALE *product_sale_paypal(
 LIST *product_sale_list( char *where )
 {
 	return product_sale_system_list(
-		product_sale_sys_string(
-			where ),
+		product_sale_sys_string( where ),
 		0 /* not fetch_product */ );
 }
 

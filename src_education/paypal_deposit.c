@@ -1304,6 +1304,11 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 	/* -------- */
 	paypal_deposit->invoice_number = paypal_dataset->invoice_number_Z;
 
+	/* Column AB */
+	/* --------- */
+	paypal_deposit->quantity =
+		atoi( paypal_dataset->quantity_AB );
+
 	/* Column AD */
 	/* --------- */
 	paypal_deposit->account_balance =
@@ -1558,12 +1563,10 @@ void paypal_deposit_list_insert(
 LIST *paypal_deposit_tuition_payment_list(
 			LIST *paypal_deposit_list )
 {
-	static LIST *tuition_payment_list = {0};
+	LIST *tuition_payment_list;
 	PAYPAL_DEPOSIT *paypal_deposit;
 
 	if ( !list_rewind( paypal_deposit_list ) ) return (LIST *)0;
-
-	if ( tuition_payment_list ) return tuition_payment_list;
 
 	tuition_payment_list = list_new();
 
@@ -1585,12 +1588,10 @@ LIST *paypal_deposit_tuition_payment_list(
 LIST *paypal_deposit_tuition_refund_list(
 			LIST *paypal_deposit_list )
 {
-	static LIST *tuition_refund_list = {0};
+	LIST *tuition_refund_list;
 	PAYPAL_DEPOSIT *paypal_deposit;
 
 	if ( !list_rewind( paypal_deposit_list ) ) return (LIST *)0;
-
-	if ( tuition_refund_list ) return tuition_refund_list;
 
 	tuition_refund_list = list_new();
 
@@ -1683,5 +1684,20 @@ LIST *paypal_deposit_registration_list(
 	} while ( list_next( paypal_deposit_list ) );
 
 	return registration_list;
+}
+
+boolean paypal_deposit_existing_transaction(
+			ENTITY *payor_entity,
+			LIST *paypal_item_list,
+			PAYPAL_SWEEP *paypal_sweep,
+			LIST *existing_registration_list,
+			LIST *existing_program_donation_list,
+			LIST *existing_product_sale_list,
+			LIST *existing_product_refund_list,
+			LIST *existing_ticket_sale_list,
+			LIST *existing_ticket_refund_list,
+			LIST *existing_paypal_sweep_list )
+{
+	return 0;
 }
 

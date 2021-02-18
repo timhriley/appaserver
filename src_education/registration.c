@@ -567,24 +567,6 @@ void registration_list_fetch_update(
 	} while ( list_next( registration_list ) );
 }
 
-void registration_trigger(
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-	"registration_trigger \"%s\" '%s' '%s' %d update",
-		student_full_name,
-		street_address,
-		season_name,
-		year );
-
-	if ( system( sys_string ) ){}
-}
-
 LIST *registration_enrollment_list(
 			char *student_full_name,
 			char *student_street_address,
@@ -734,4 +716,17 @@ LIST *registration_course_name_list(
 
 	return course_name_list;
 }
+
+LIST *registration_list( char *where )
+{
+	return	registration_system_list(
+			registration_sys_string( where ),
+			1 /* fetch_enrollment_list */,
+			0 /* not fetch_offering */,
+			0 /* not fetch_course */,
+			0 /* not fetch_program */,
+			1 /* fetch_tuition_payment_list */,
+			1 /* fetch_tuition_refund_list */ );
+}
+
 

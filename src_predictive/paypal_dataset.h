@@ -68,4 +68,12 @@ typedef struct
 PAYPAL_DATASET *paypal_dataset_calloc(
 			void );
 
+PAYPAL_DATASET *paypal_dataset_parse(
+			char *input_string,
+			LIST *spreadsheet_column_list,
+			/* ---------------------- */
+			/* Returns paypal_dataset */
+			/* ---------------------- */
+			PAYPAL_DATASET *paypal_dataset );
+
 #endif

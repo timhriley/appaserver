@@ -39,12 +39,17 @@ PAYPAL *paypal_fetch(	char *spreadsheet_filename,
 	PAYPAL *paypal = paypal_calloc();
 
 	if ( ! ( paypal->spreadsheet =
+			/* ---------------------------- */
+			/* Sets spreadsheet_column_list */
+			/* ---------------------------- */
 			spreadsheet_fetch(
 				spreadsheet_filename,
 				date_label ) ) )
 	{
 		return (PAYPAL *)0;
 	}
+
+	paypal->paypal_dataset = paypal_dataset_calloc();
 
 	return paypal;
 }
