@@ -207,6 +207,20 @@ PAYPAL_DATASET *paypal_dataset_parse(
 		return (PAYPAL_DATASET *)0;
 	}
 
+	if ( ! ( paypal_dataset->quantity_AB =
+			spreadsheet_heading_data(
+				spreadsheet_column_list,
+				input_string,
+				"Quantity" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't parse quantity_AB.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PAYPAL_DATASET *)0;
+	}
+
 	if ( ! ( paypal_dataset->account_balance_AD =
 			spreadsheet_heading_data(
 				spreadsheet_column_list,

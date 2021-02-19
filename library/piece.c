@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h"
 #include "piece.h"
 #include "column.h"
 #include "timlib.h"
@@ -1418,7 +1419,7 @@ char *piece_quote_comma(	char *destination,
 			offset );
 }
 
-int piece_quote_commma_seek(
+int piece_quote_comma_seek(
 			char *quote_comma_row,
 			char *label )
 {
@@ -1432,7 +1433,7 @@ int piece_quote_commma_seek(
 			p );
 		p++ )
 	{
-		if ( strcmp( destination, label ) == 0 )
+		if ( string_strcmp( destination, label ) == 0 )
 			return p;
 	}
 	return -1;

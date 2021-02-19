@@ -875,6 +875,9 @@ TICKET_REFUND *ticket_refund_paypal(
 		return (TICKET_REFUND *)0;
 	}
 
+	ticket_refund->program_name = event->program_name;
+	ticket_refund->event_date = event->event_date;
+	ticket_refund->event_time = event->event_time;
 	ticket_refund->payor_entity = payor_entity;
 
 	ticket_refund->refund_date_time =

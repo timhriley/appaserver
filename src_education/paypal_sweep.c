@@ -470,6 +470,8 @@ boolean paypal_sweep_exists(
 			PAYPAL_SWEEP *paypal_sweep,
 			LIST *existing_paypal_sweep_list )
 {
+	if ( !paypal_sweep ) return 0;
+
 	if ( paypal_sweep_seek(
 		paypal_sweep->payor_full_name,
 		paypal_sweep->payor_street_address,

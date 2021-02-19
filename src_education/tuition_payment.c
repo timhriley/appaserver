@@ -1423,29 +1423,49 @@ TUITION_PAYMENT *tuition_payment_seek(
 	do {
 		tuition_payment = list_get( tuition_payment_list );
 
-		if ( strcmp(
+		if ( !tuition_payment->registration )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty registration.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !tuition_payment->payor_entity )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty payor_entity.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( string_strcmp(
 			tuition_payment->
 				registration->
 				student_entity->
 				full_name,
 			student_full_name ) == 0
-		&&   strcmp(
+		&&   string_strcmp(
 			tuition_payment->
 				registration->
 				student_entity->
 				street_address,
 			student_street_address ) == 0
-		&&   strcmp(
+		&&   string_strcmp(
 			tuition_payment->payor_entity->full_name,
 			payor_full_name ) == 0
-		&&   strcmp(
+		&&   string_strcmp(
 			tuition_payment->payor_entity->street_address,
 			payor_street_address ) == 0
-		&&   strcmp(
+		&&   string_strcmp(
 			tuition_payment->registration->season_name,
 			season_name ) == 0
 		&&   tuition_payment->registration->year == year
-		&&   strcmp(
+		&&   string_strcmp(
 			tuition_payment->payment_date_time,
 			payment_date_time ) == 0 )
 		{
@@ -1467,6 +1487,26 @@ boolean tuition_payment_list_exists(
 	do {
 		tuition_payment = list_get( tuition_payment_list );
 
+		if ( !tuition_payment->registration )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty registration.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !tuition_payment->payor_entity )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty payor_entity.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		if ( tuition_payment_seek(
 			tuition_payment->
 				registration->
@@ -1486,7 +1526,6 @@ boolean tuition_payment_list_exists(
 			return 1;
 		}
 	} while ( list_next( tuition_payment_list ) );
-
 	return 0;
 }
 

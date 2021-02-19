@@ -888,6 +888,7 @@ PRODUCT_SALE *product_sale_paypal(
 
 	product_sale = product_sale_calloc();
 
+	product_sale->product_name = product->product_name;
 	product_sale->payor_entity = payor_entity;
 
 	product_sale->sale_date_time =
@@ -1024,6 +1025,16 @@ PRODUCT_SALE *product_sale_seek(
 	do {
 		product_sale = list_get( product_sale_list );
 
+		if ( !product_sale->payor_entity )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty payor_entity.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		if ( strcmp(
 			product_sale->product_name,
 			product_name ) == 0
@@ -1054,6 +1065,16 @@ boolean product_sale_list_exists(
 
 	do {
 		product_sale = list_get( product_sale_list );
+
+		if ( !product_sale->payor_entity )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty payor_entity.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		if ( product_sale_seek(
 			product_sale->product_name,

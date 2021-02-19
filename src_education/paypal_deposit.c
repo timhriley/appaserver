@@ -1708,49 +1708,49 @@ boolean paypal_deposit_existing_transaction(
 	{
 		return 1;
 	}
-	else
+
 	if ( tuition_payment_list_exists(
 		paypal_deposit->tuition_payment_list,
 		existing_tuition_payment_list ) )
 	{
 		return 1;
 	}
-	else
+
 	if ( tuition_refund_list_exists(
 		paypal_deposit->tuition_refund_list,
 		existing_tuition_refund_list ) )
 	{
 		return 1;
 	}
-	else
+
 	if ( product_sale_list_exists(
 		paypal_deposit->product_sale_list,
 		existing_product_sale_list ) )
 	{
 		return 1;
 	}
-	else
+
 	if ( product_refund_list_exists(
 		paypal_deposit->product_refund_list,
 		existing_product_refund_list ) )
 	{
 		return 1;
 	}
-	else
+
 	if ( ticket_sale_list_exists(
 		paypal_deposit->ticket_sale_list,
 		existing_ticket_sale_list ) )
 	{
 		return 1;
 	}
-	else
+
 	if ( ticket_refund_list_exists(
 		paypal_deposit->ticket_refund_list,
 		existing_ticket_refund_list ) )
 	{
 		return 1;
 	}
-	else
+
 	if ( paypal_sweep_exists(
 		paypal_deposit->paypal_sweep,
 		existing_paypal_sweep_list ) )

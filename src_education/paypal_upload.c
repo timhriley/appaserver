@@ -415,7 +415,7 @@ void paypal_upload_display(
 		"%d^%s^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s %s %s %s %s\n",
 			paypal_deposit->row_number,
 			(paypal_deposit->existing_transaction)
-				? "yes"
+				? "Yes"
 				: "",
 			entity_name_display(
 				paypal_deposit->payor_entity->full_name,

@@ -966,6 +966,26 @@ TUITION_REFUND *tuition_refund_seek(
 	do {
 		tuition_refund = list_get( tuition_refund_list );
 
+		if ( !tuition_refund->registration )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty registration.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !tuition_refund->payor_entity )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty payor_entity.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		if ( strcmp(
 			tuition_refund->
 				registration->
@@ -1009,6 +1029,26 @@ boolean tuition_refund_list_exists(
 
 	do {
 		tuition_refund = list_get( tuition_refund_list );
+
+		if ( !tuition_refund->registration )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty registration.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !tuition_refund->payor_entity )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty payor_entity.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		if ( tuition_refund_seek(
 			tuition_refund->

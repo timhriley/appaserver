@@ -1001,6 +1001,9 @@ TICKET_SALE *ticket_sale_paypal(
 
 	ticket_sale = ticket_sale_calloc();
 
+	ticket_sale->program_name = event->program_name;
+	ticket_sale->event_date = event->event_date;
+	ticket_sale->event_time = event->event_time;
 	ticket_sale->payor_entity = payor_entity;
 
 	ticket_sale->sale_date_time =

@@ -44,6 +44,7 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
+	char *program_name;
 	PROGRAM *program;
 	ENTITY *payor_entity;
 	char *payment_date_time;

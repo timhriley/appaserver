@@ -818,6 +818,7 @@ PRODUCT_REFUND *product_refund_paypal(
 	PRODUCT_REFUND *product_refund;
 
 	product_refund = product_refund_calloc();
+	product_refund->product_name = product->product_name;
 
 	if ( ! ( product_refund->product_sale =
 			product_sale_integrity_fetch(

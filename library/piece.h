@@ -171,7 +171,7 @@ char *piece_delete_multiple(
 			char delimiter,
 			int columns_to_piece );
 
-int piece_quote_commma_seek(
+int piece_quote_comma_seek(
 			char *quote_comma_row,
 			char *label );
 

@@ -253,7 +253,7 @@ PROGRAM_DONATION *program_donation_parse(
 	/* See: attribute_list program_donation */
 	/* ----------------------------------- */
 	piece( program_name, SQL_DELIMITER, input, 0 );
-	program_donation->program = program_new( strdup( program_name ) );
+	program_donation->program_name = strdup( program_name );
 
 	piece( payor_full_name, SQL_DELIMITER, input, 1 );
 	piece( payor_street_address, SQL_DELIMITER, input, 2 );
@@ -286,7 +286,7 @@ PROGRAM_DONATION *program_donation_parse(
 	{
 		program_donation->program =
 			program_fetch(
-				program_donation->program->program_name,
+				program_donation->program_name,
 				1 /* fetch_alias_list */ );
 	}
 
@@ -799,6 +799,7 @@ PROGRAM_DONATION *program_donation_paypal(
 
 	program_donation = program_donation_calloc();
 
+	program_donation->program_name = program->program_name;
 	program_donation->payor_entity = payor_entity;
 
 	program_donation->payment_date_time =
@@ -975,7 +976,7 @@ PROGRAM_DONATION *program_donation_seek(
 		program_donation = list_get( program_donation_list );
 
 		if ( strcmp(
-			program_donation->program->program_name,
+			program_donation->program_name,
 			program_name ) == 0
 		&&   strcmp(
 			program_donation->payor_entity->full_name,
@@ -1006,7 +1007,7 @@ boolean program_donation_list_exists(
 		program_donation = list_get( program_donation_list );
 
 		if ( program_donation_seek(
-			program_donation->program->program_name,
+			program_donation->program_name,
 			program_donation->payor_entity->full_name,
 			program_donation->payor_entity->street_address,
 			program_donation->payment_date_time,

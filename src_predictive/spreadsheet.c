@@ -259,6 +259,6 @@ int spreadsheet_date_piece(
 
 	if ( !header_row ) return -1;
 
-	return piece_quote_commma_seek( header_row, date_label );
+	return piece_quote_comma_seek( header_row, date_label );
 }
 
