@@ -44,11 +44,12 @@ PRODUCT_REFUND *product_refund_calloc( void )
 
 PRODUCT_REFUND *product_refund_fetch(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			char *refund_date_time,
-			boolean fetch_sale )
+			boolean fetch_sale,
+			boolean fetch_product )
 {
 	PRODUCT_REFUND *product_refund;
 
@@ -65,7 +66,8 @@ PRODUCT_REFUND *product_refund_fetch(
 						payor_full_name,
 						payor_street_address,
 						refund_date_time ) ) ),
-			fetch_sale );
+			fetch_sale,
+			fetch_product );
 
 	return product_refund;
 }
@@ -92,7 +94,8 @@ PRODUCT_REFUND *product_refund_new(
 
 LIST *product_refund_system_list(
 			char *sys_string,
-			boolean fetch_sale )
+			boolean fetch_sale,
+			boolean fetch_product )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -106,7 +109,8 @@ LIST *product_refund_system_list(
 			product_refund_list,
 			product_refund_parse(
 				input,
-				fetch_sale ) );
+				fetch_sale,
+				fetch_product ) );
 	}
 
 	pclose( input_pipe );
@@ -234,12 +238,13 @@ void product_refund_insert_pipe(
 
 PRODUCT_REFUND *product_refund_parse(
 			char *input,
-			boolean fetch_sale )
+			boolean fetch_sale,
+			boolean fetch_product )
 {
 	char product_name[ 128 ];
-	char sale_date_time[ 128 ];
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
+	char sale_date_time[ 128 ];
 	char refund_date_time[ 128 ];
 	char refund_amount[ 128 ];
 	char merchant_fees_expense[ 128 ];
@@ -255,16 +260,18 @@ PRODUCT_REFUND *product_refund_parse(
 	/* See: attribute_list product_refund */
 	/* ----------------------------------- */
 	piece( product_name, SQL_DELIMITER, input, 0 );
-	piece( sale_date_time, SQL_DELIMITER, input, 1 );
-	piece( payor_full_name, SQL_DELIMITER, input, 2 );
-	piece( payor_street_address, SQL_DELIMITER, input, 3 );
+	product_refund->product_name = strdup( product_name );
 
-	product_refund->product_sale =
-		product_sale_new(
-			strdup( product_name ),
-			strdup( sale_date_time ),
+	piece( payor_full_name, SQL_DELIMITER, input, 1 );
+	piece( payor_street_address, SQL_DELIMITER, input, 2 );
+
+	product_refund->payor_entity =
+		entity_new(
 			strdup( payor_full_name ),
 			strdup( payor_street_address ) );
+
+	piece( sale_date_time, SQL_DELIMITER, input, 3 );
+	product_refund->sale_date_time = strdup( sale_date_time );
 
 	piece( refund_date_time, SQL_DELIMITER, input, 4 );
 	product_refund->refund_date_time = strdup( refund_date_time );
@@ -288,14 +295,11 @@ PRODUCT_REFUND *product_refund_parse(
 	{
 		product_refund->product_sale =
 			product_sale_fetch(
-				product_refund->
-					product_sale->
-					product->
-					product_name,
-				product_refund->sale_date_time,
+				product_refund->product_name,
 				product_refund->payor_entity->full_name,
 				product_refund->payor_entity->street_address,
-				1 /* fetch_product */ );
+				product_refund->sale_date_time,
+				fetch_product );
 	}
 
 	return product_refund;
@@ -443,9 +447,9 @@ void product_refund_update(
 			double net_refund_amount,
 			char *transaction_date_time,
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			char *refund_date_time )
 {
 	FILE *update_pipe = product_refund_update_open();
@@ -453,18 +457,18 @@ void product_refund_update(
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%s^net_refund_amount^%.2lf\n",
 		 product_name,
-		 sale_date_time,
 		 payor_full_name,
 		 payor_street_address,
+		 sale_date_time,
 		 refund_date_time,
 		 net_refund_amount );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%s^transaction_date_time^%s\n",
 		 product_name,
-		 sale_date_time,
 		 payor_full_name,
 		 payor_street_address,
+		 sale_date_time,
 		 refund_date_time,
 		 (transaction_date_time)
 			? transaction_date_time
@@ -498,26 +502,9 @@ char *product_refund_list_display( LIST *refund_list )
 			ptr += sprintf( ptr, ", " );
 		}
 
-		if (	refund
-		&&	refund->
-				product_sale
-		&&	refund->
-				product_sale->
-				product )
-		{
-			ptr += sprintf(	ptr,
-					"%s",
-					refund->
-						product_sale->
-						product->
-						product_name );
-		}
-		else
-		{
-			ptr += sprintf(	ptr,
-					"%s",
-					"Non existing product" );
-		}
+		ptr += sprintf(	ptr,
+				"%s",
+				refund->product_name );
 
 	} while ( list_next( refund_list ) );
 
@@ -572,28 +559,6 @@ PRODUCT_REFUND *product_refund_steady_state(
 	return product_refund;
 }
 
-void product_refund_trigger(
-			char *product_name,
-			char *sale_date_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *refund_date_time,
-			char *state )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"product_refund_trigger \"%s\" '%s' \"%s\" '%s' '%s' '%s'",
-		product_name,
-		sale_date_time,
-		payor_full_name,
-		payor_street_address,
-		refund_date_time,
-		state );
-
-	if ( system( sys_string ) ){}
-}
-
 double product_refund_total( LIST *refund_list )
 {
 	PRODUCT_REFUND *refund;
@@ -611,38 +576,6 @@ double product_refund_total( LIST *refund_list )
 	} while ( list_next( refund_list ) );
 
 	return total;
-}
-
-void product_refund_list_trigger(
-			LIST *product_refund_list )
-{
-	PRODUCT_REFUND *product_refund;
-
-	if ( !list_rewind( product_refund_list ) ) return;
-
-	do {
-		product_refund = list_get( product_refund_list );
-
-		if ( !product_refund->product_sale
-		||   !product_refund->product_sale->product )
-		{
-			fprintf(stderr,
-		"Warning in %s/%s()/%d: empty product_sale or product.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			continue;
-		}
-
-		product_refund_trigger(
-			product_refund->product_sale->product->product_name,
-			product_refund->sale_date_time,
-			product_refund->payor_entity->full_name,
-			product_refund->payor_entity->street_address,
-			product_refund->refund_date_time,
-			"insert" /* state */ );
-
-	} while ( list_next( product_refund_list ) );
 }
 
 LIST *product_refund_transaction_list(
@@ -919,7 +852,8 @@ LIST *product_refund_list( char *where )
 	return product_refund_system_list(
 		product_refund_sys_string(
 			where ),
-		0 /* not fetch_sale */ );
+		0 /* not fetch_sale */,
+		0 /* not fetch_product */ );
 }
 
 void product_refund_fetch_update(
@@ -968,5 +902,70 @@ void product_refund_list_fetch_update(
 		product_refund_fetch_update( product_name );
 
 	} while ( list_next( product_name_list ) );
+}
+
+PRODUCT_REFUND *product_refund_seek(
+			char *product_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *sale_date_time,
+			char *refund_date_time,
+			LIST *product_refund_list )
+{
+	PRODUCT_REFUND *product_refund;
+
+	if ( !list_rewind( product_refund_list ) )
+		return (PRODUCT_REFUND *)0;
+
+	do {
+		product_refund = list_get( product_refund_list );
+
+		if ( strcmp(
+			product_refund->product_name,
+			product_name ) == 0
+		&&   strcmp(
+			product_refund->payor_entity->full_name,
+			payor_full_name ) == 0
+		&&   strcmp(
+			product_refund->payor_entity->street_address,
+			payor_street_address ) == 0
+		&&   strcmp(
+			product_refund->sale_date_time,
+			sale_date_time ) == 0
+		&&   strcmp(
+			product_refund->refund_date_time,
+			refund_date_time ) == 0 )
+		{
+			return product_refund;
+		}
+	} while ( list_next( product_refund_list ) );
+
+	return (PRODUCT_REFUND *)0;
+}
+
+boolean product_refund_list_exists(
+			LIST *product_refund_list,
+			LIST *existing_product_refund_list )
+{
+	PRODUCT_REFUND *product_refund;
+
+	if ( !list_rewind( product_refund_list ) ) return 0;
+
+	do {
+		product_refund = list_get( product_refund_list );
+
+		if ( product_refund_seek(
+			product_refund->product_name,
+			product_refund->payor_entity->full_name,
+			product_refund->payor_entity->street_address,
+			product_refund->sale_date_time,
+			product_refund->refund_date_time,
+			existing_product_refund_list ) )
+		{
+			return 1;
+		}
+	} while ( list_next( product_refund_list ) );
+
+	return 0;
 }
 

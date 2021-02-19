@@ -262,5 +262,22 @@ TUITION_REFUND *tuition_refund_new(
 			ENTITY *payor_entity,
 			char *refund_date_time );
 
+LIST *tuition_refund_list(
+			char *where );
+
+TUITION_REFUND *tuition_refund_seek(
+			char *student_full_name,
+			char *student_street_address,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *refund_date_time,
+			LIST *tuition_refund_list );
+
+boolean tuition_refund_list_exists(
+			LIST *tuition_refund_list,
+			LIST *existing_tuition_refund_list );
+
 #endif
 

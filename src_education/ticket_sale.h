@@ -50,9 +50,12 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	EVENT *event;
+	char *program_name;
+	char *event_date;
+	char *event_time;
 	ENTITY *payor_entity;
 	char *sale_date_time;
+	EVENT *event;
 	int quantity;
 	double ticket_price;
 	double merchant_fees_expense;
@@ -256,6 +259,19 @@ char *ticket_sale_integrity_where(
 
 LIST *ticket_sale_event_list(
 			LIST *ticket_sale_list );
+
+TICKET_SALE *ticket_sale_seek(
+			char *program_name,
+			char *event_date,
+			char *event_time,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *sale_date_time,
+			LIST *ticket_sale_list );
+
+boolean ticket_sale_list_exists(
+			LIST *ticket_sale_list,
+			LIST *existing_ticket_sale_list );
 
 #endif
 

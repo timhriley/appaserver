@@ -283,13 +283,13 @@ TICKET_SALE *ticket_sale_parse(
 	/* See: attribute_list ticket_sale */
 	/* ----------------------------------- */
 	piece( program_name, SQL_DELIMITER, input, 0 );
-	piece( event_date, SQL_DELIMITER, input, 1 );
-	piece( event_time, SQL_DELIMITER, input, 2 );
+	ticket_sale->program_name = strdup( program_name );
 
-	ticket_sale->event =
-		event_new(	strdup( program_name ),
-				strdup( event_date ),
-				strdup( event_time ) );
+	piece( event_date, SQL_DELIMITER, input, 1 );
+	ticket_sale->event_date = strdup( event_date );
+
+	piece( event_time, SQL_DELIMITER, input, 2 );
+	ticket_sale->event_time = strdup( event_time );
 
 	piece( payor_full_name, SQL_DELIMITER, input, 3 );
 	piece( payor_street_address, SQL_DELIMITER, input, 4 );
@@ -327,15 +327,9 @@ TICKET_SALE *ticket_sale_parse(
 	{
 		ticket_sale->event =
 			event_fetch(
-				ticket_sale->
-					event->
-					program_name,
-				ticket_sale->
-					event->
-					event_date,
-				ticket_sale->
-					event->
-					event_time,
+				ticket_sale->program_name,
+				ticket_sale->event_date,
+				ticket_sale->event_time,
 				0 /* not fetch_program */,
 				0 /* not fetch_venue */,
 				0 /* not fetch_sale_list */,
@@ -1213,5 +1207,75 @@ void ticket_sale_list_fetch_update(
 			ticket_sale->event->event_time );
 
 	} while ( list_next( ticket_sale_list ) );
+}
+
+TICKET_SALE *ticket_sale_seek(
+			char *program_name,
+			char *event_date,
+			char *event_time,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *sale_date_time,
+			LIST *ticket_sale_list )
+{
+	TICKET_SALE *ticket_sale;
+
+	if ( !list_rewind( ticket_sale_list ) )
+		return (TICKET_SALE *)0;
+
+	do {
+		ticket_sale = list_get( ticket_sale_list );
+
+		if ( strcmp(
+			ticket_sale->program_name,
+			program_name ) == 0
+		&&   strcmp(
+			ticket_sale->event_date,
+			event_date ) == 0
+		&&   strcmp(
+			ticket_sale->event_time,
+			event_time ) == 0
+		&&   strcmp(
+			ticket_sale->payor_entity->full_name,
+			payor_full_name ) == 0
+		&&   strcmp(
+			ticket_sale->payor_entity->street_address,
+			payor_street_address ) == 0
+		&&   strcmp(
+			ticket_sale->sale_date_time,
+			sale_date_time ) == 0 )
+		{
+			return ticket_sale;
+		}
+	} while ( list_next( ticket_sale_list ) );
+
+	return (TICKET_SALE *)0;
+}
+
+boolean ticket_sale_list_exists(
+			LIST *ticket_sale_list,
+			LIST *existing_ticket_sale_list )
+{
+	TICKET_SALE *ticket_sale;
+
+	if ( !list_rewind( ticket_sale_list ) ) return 0;
+
+	do {
+		ticket_sale = list_get( ticket_sale_list );
+
+		if ( ticket_sale_seek(
+			ticket_sale->program_name,
+			ticket_sale->event_date,
+			ticket_sale->event_time,
+			ticket_sale->payor_entity->full_name,
+			ticket_sale->payor_entity->street_address,
+			ticket_sale->sale_date_time,
+			existing_ticket_sale_list ) )
+		{
+			return 1;
+		}
+	} while ( list_next( ticket_sale_list ) );
+
+	return 0;
 }
 

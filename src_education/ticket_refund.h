@@ -50,10 +50,13 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	TICKET_SALE *ticket_sale;
+	char *program_name;
+	char *event_date;
+	char *event_time;
 	ENTITY *payor_entity;
 	char *sale_date_time;
 	char *refund_date_time;
+	TICKET_SALE *ticket_sale;
 	double refund_amount;
 	double merchant_fees_expense;
 	char *paypal_date_time;
@@ -233,5 +236,18 @@ TICKET_REFUND *ticket_refund_new(
 			char *sale_date_time,
 			char *refund_date_time );
 
+boolean ticket_refund_list_exists(
+			LIST *ticket_refund_list,
+			LIST *existing_ticket_refund_list );
+
+TICKET_REFUND *ticket_refund_seek(
+			char *program_name,
+			char *event_date,
+			char *event_time,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *refund_date_time,
+			char *sale_date_time,
+			LIST *ticket_refund_list );
 #endif
 

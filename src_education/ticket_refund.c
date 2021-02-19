@@ -945,3 +945,78 @@ TICKET_REFUND *ticket_refund_new(
 	return ticket_refund;
 }
 
+TICKET_REFUND *ticket_refund_seek(
+			char *program_name,
+			char *event_date,
+			char *event_time,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *refund_date_time,
+			char *sale_date_time,
+			LIST *ticket_refund_list )
+{
+	TICKET_REFUND *ticket_refund;
+
+	if ( !list_rewind( ticket_refund_list ) )
+		return (TICKET_REFUND *)0;
+
+	do {
+		ticket_refund = list_get( ticket_refund_list );
+
+		if ( strcmp(
+			ticket_refund->program_name,
+			program_name ) == 0
+		&&   strcmp(
+			ticket_refund->event_date,
+			event_date ) == 0
+		&&   strcmp(
+			ticket_refund->event_time,
+			event_time ) == 0
+		&&   strcmp(
+			ticket_refund->payor_entity->full_name,
+			payor_full_name ) == 0
+		&&   strcmp(
+			ticket_refund->payor_entity->street_address,
+			payor_street_address ) == 0
+		&&   strcmp(
+			ticket_refund->sale_date_time,
+			sale_date_time ) == 0
+		&&   strcmp(
+			ticket_refund->refund_date_time,
+			refund_date_time ) == 0 )
+		{
+			return ticket_refund;
+		}
+	} while ( list_next( ticket_refund_list ) );
+
+	return (TICKET_REFUND *)0;
+}
+
+boolean ticket_refund_list_exists(
+			LIST *ticket_refund_list,
+			LIST *existing_ticket_refund_list )
+{
+	TICKET_REFUND *ticket_refund;
+
+	if ( !list_rewind( ticket_refund_list ) ) return 0;
+
+	do {
+		ticket_refund = list_get( ticket_refund_list );
+
+		if ( ticket_refund_seek(
+			ticket_refund->program_name,
+			ticket_refund->event_date,
+			ticket_refund->event_time,
+			ticket_refund->payor_entity->full_name,
+			ticket_refund->payor_entity->street_address,
+			ticket_refund->sale_date_time,
+			ticket_refund->refund_date_time,
+			existing_ticket_refund_list ) )
+		{
+			return 1;
+		}
+	} while ( list_next( ticket_refund_list ) );
+
+	return 0;
+}
+

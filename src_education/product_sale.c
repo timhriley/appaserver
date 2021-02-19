@@ -264,7 +264,7 @@ PRODUCT_SALE *product_sale_parse(
 	/* See: attribute_list product_sale */
 	/* ----------------------------------- */
 	piece( product_name, SQL_DELIMITER, input, 0 );
-	product_sale->product = product_new( strdup( product_name ) );
+	product_sale->product_name = strdup( product_name );
 
 	piece( payor_full_name, SQL_DELIMITER, input, 1 );
 	piece( payor_street_address, SQL_DELIMITER, input, 2 );
@@ -302,9 +302,7 @@ PRODUCT_SALE *product_sale_parse(
 	{
 		product_sale->product =
 			product_fetch(
-				product_sale->
-					product->
-					product_name,
+				product_sale->product_name,
 				0 /* not fetch_sale_list */,
 				0 /* not fetch_refund_list */ );
 	}
@@ -1009,5 +1007,65 @@ char *product_sale_integrity_where(
 		 payor_street_address );
 
 	return where;
+}
+
+PRODUCT_SALE *product_sale_seek(
+			char *product_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *sale_date_time,
+			LIST *product_sale_list )
+{
+	PRODUCT_SALE *product_sale;
+
+	if ( !list_rewind( product_sale_list ) )
+		return (PRODUCT_SALE *)0;
+
+	do {
+		product_sale = list_get( product_sale_list );
+
+		if ( strcmp(
+			product_sale->product_name,
+			product_name ) == 0
+		&&   strcmp(
+			product_sale->payor_entity->full_name,
+			payor_full_name ) == 0
+		&&   strcmp(
+			product_sale->payor_entity->street_address,
+			payor_street_address ) == 0
+		&&   strcmp(
+			product_sale->sale_date_time,
+			sale_date_time ) == 0 )
+		{
+			return product_sale;
+		}
+	} while ( list_next( product_sale_list ) );
+
+	return (PRODUCT_SALE *)0;
+}
+
+boolean product_sale_list_exists(
+			LIST *product_sale_list,
+			LIST *existing_product_sale_list )
+{
+	PRODUCT_SALE *product_sale;
+
+	if ( !list_rewind( product_sale_list ) ) return 0;
+
+	do {
+		product_sale = list_get( product_sale_list );
+
+		if ( product_sale_seek(
+			product_sale->product_name,
+			product_sale->payor_entity->full_name,
+			product_sale->payor_entity->street_address,
+			product_sale->sale_date_time,
+			existing_product_sale_list ) )
+		{
+			return 1;
+		}
+	} while ( list_next( product_sale_list ) );
+
+	return 0;
 }
 

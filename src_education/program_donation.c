@@ -959,3 +959,63 @@ LIST *program_donation_list( char *where )
 			0 /* not fetch_program */ );
 }
 
+PROGRAM_DONATION *program_donation_seek(
+			char *program_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *payment_date_time,
+			LIST *program_donation_list )
+{
+	PROGRAM_DONATION *program_donation;
+
+	if ( !list_rewind( program_donation_list ) )
+		return (PROGRAM_DONATION *)0;
+
+	do {
+		program_donation = list_get( program_donation_list );
+
+		if ( strcmp(
+			program_donation->program->program_name,
+			program_name ) == 0
+		&&   strcmp(
+			program_donation->payor_entity->full_name,
+			payor_full_name ) == 0
+		&&   strcmp(
+			program_donation->payor_entity->street_address,
+			payor_street_address ) == 0
+		&&   strcmp(
+			program_donation->payment_date_time,
+			payment_date_time ) == 0 )
+		{
+			return program_donation;
+		}
+	} while ( list_next( program_donation_list ) );
+
+	return (PROGRAM_DONATION *)0;
+}
+
+boolean program_donation_list_exists(
+			LIST *program_donation_list,
+			LIST *existing_program_donation_list )
+{
+	PROGRAM_DONATION *program_donation;
+
+	if ( !list_rewind( program_donation_list ) ) return 0;
+
+	do {
+		program_donation = list_get( program_donation_list );
+
+		if ( program_donation_seek(
+			program_donation->program->program_name,
+			program_donation->payor_entity->full_name,
+			program_donation->payor_entity->street_address,
+			program_donation->payment_date_time,
+			existing_program_donation_list ) )
+		{
+			return 1;
+		}
+	} while ( list_next( program_donation_list ) );
+
+	return 0;
+}
+

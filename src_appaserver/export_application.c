@@ -20,6 +20,7 @@
 #include "appaserver_parameter_file.h"
 #include "create_clone_filename.h"
 #include "environ.h"
+#include "appaserver_error.h"
 #include "session.h"
 
 /* Constants */
@@ -108,7 +109,7 @@ int main( int argc, char **argv )
 			 application_name,
 			 system_folders_yn );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		exit( 0 );
 	}
 
@@ -211,7 +212,7 @@ int main( int argc, char **argv )
 			 export_output );
 
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		list_append_pointer(
 			create_clone_filename->folder_name_list,
@@ -229,7 +230,7 @@ int main( int argc, char **argv )
 			create_clone_filename->folder_name_list,
 			system_folders_yn );
 
-		system( sys_string_ptr );
+		if ( system( sys_string_ptr ) ){};
 
 		sys_string_ptr =
 		get_clone_application_remove_sql_sys_string(
@@ -238,7 +239,7 @@ int main( int argc, char **argv )
 			create_clone_filename->appaserver_data_directory,
 			create_clone_filename->folder_name_list );
 
-		system( sys_string_ptr );
+		if ( system( sys_string_ptr ) ){};
 
 		sys_string_ptr =
 		get_clone_application_remove_shell_script_sys_string(
@@ -247,7 +248,7 @@ int main( int argc, char **argv )
 			create_clone_filename->appaserver_data_directory,
 			create_clone_filename->folder_name_list );
 
-		system( sys_string_ptr );
+		if ( system( sys_string_ptr ) ){};
 	}
 	else
 	{
@@ -259,7 +260,7 @@ int main( int argc, char **argv )
 			create_clone_filename->folder_name_list,
 			system_folders_yn );
 
-		system( sys_string_ptr );
+		if ( system( sys_string_ptr ) ){};
 
 		sys_string_ptr =
 		get_clone_application_remove_sql_sys_string(
@@ -268,7 +269,7 @@ int main( int argc, char **argv )
 			create_clone_filename->appaserver_data_directory,
 			create_clone_filename->folder_name_list );
 
-		system( sys_string_ptr );
+		if ( system( sys_string_ptr ) ){};
 
 	} /* if output ...sql.gz */
 

@@ -937,3 +937,99 @@ LIST *tuition_refund_registration_list(
 	return registration_list;
 }
 
+LIST *tuition_refund_list( char *where )
+{
+	return tuition_refund_system_list(
+		tuition_refund_sys_string( where ),
+		1 /* fetch_registration */,
+		0 /* not fetch_enrollment_list */,
+		0 /* not fetch_offering */,
+		0 /* not fetch_course */,
+		0 /* not fetch_program */ );
+}
+
+TUITION_REFUND *tuition_refund_seek(
+			char *student_full_name,
+			char *student_street_address,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *refund_date_time,
+			LIST *tuition_refund_list )
+{
+	TUITION_REFUND *tuition_refund;
+
+	if ( !list_rewind( tuition_refund_list ) )
+		return (TUITION_REFUND *)0;
+
+	do {
+		tuition_refund = list_get( tuition_refund_list );
+
+		if ( strcmp(
+			tuition_refund->
+				registration->
+				student_entity->
+				full_name,
+			student_full_name ) == 0
+		&&   strcmp(
+			tuition_refund->
+				registration->
+				student_entity->
+				street_address,
+			student_street_address ) == 0
+		&&   strcmp(
+			tuition_refund->payor_entity->full_name,
+			payor_full_name ) == 0
+		&&   strcmp(
+			tuition_refund->payor_entity->street_address,
+			payor_street_address ) == 0
+		&&   strcmp(
+			tuition_refund->registration->season_name,
+			season_name ) == 0
+		&&   tuition_refund->registration->year == year
+		&&   strcmp(
+			tuition_refund->refund_date_time,
+			refund_date_time ) == 0 )
+		{
+			return tuition_refund;
+		}
+	} while ( list_next( tuition_refund_list ) );
+
+	return (TUITION_REFUND *)0;
+}
+
+boolean tuition_refund_list_exists(
+			LIST *tuition_refund_list,
+			LIST *existing_tuition_refund_list )
+{
+	TUITION_REFUND *tuition_refund;
+
+	if ( !list_rewind( tuition_refund_list ) ) return 0;
+
+	do {
+		tuition_refund = list_get( tuition_refund_list );
+
+		if ( tuition_refund_seek(
+			tuition_refund->
+				registration->
+				student_entity->
+				full_name,
+			tuition_refund->
+				registration->
+				student_entity->
+				street_address,
+			tuition_refund->payor_entity->full_name,
+			tuition_refund->payor_entity->street_address,
+			tuition_refund->registration->season_name,
+			tuition_refund->registration->year,
+			tuition_refund->refund_date_time,
+			existing_tuition_refund_list ) )
+		{
+			return 1;
+		}
+	} while ( list_next( tuition_refund_list ) );
+
+	return 0;
+}
+

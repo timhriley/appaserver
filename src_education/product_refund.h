@@ -22,15 +22,15 @@
 #define PRODUCT_REFUND_TABLE		"product_refund"
 
 #define PRODUCT_REFUND_PRIMARY_KEY	"product_name,"			\
-					"sale_date_time,"		\
 					"payor_full_name,"		\
 					"payor_street_address,"		\
+					"sale_date_time,"		\
 					"refund_date_time"
 
 #define PRODUCT_REFUND_INSERT_COLUMNS	"product_name,"			\
-					"sale_date_time,"		\
 					"payor_full_name,"		\
 					"payor_street_address,"		\
+					"sale_date_time,"		\
 					"refund_date_time,"		\
 					"refund_amount,"		\
 					"net_payment_amount,"		\
@@ -46,10 +46,11 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	PRODUCT_SALE *product_sale;
+	char *product_name;
 	ENTITY *payor_entity;
 	char *sale_date_time;
 	char *refund_date_time;
+	PRODUCT_SALE *product_sale;
 	double refund_amount;
 	double merchant_fees_expense;
 	char *paypal_date_time;
@@ -67,15 +68,17 @@ PRODUCT_REFUND *product_refund_calloc(
 
 PRODUCT_REFUND *product_refund_fetch(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			char *refund_date_time,
-			boolean fetch_sale );
+			boolean fetch_sale,
+			boolean fetch_product );
 
 PRODUCT_REFUND *product_refund_parse(
 			char *input,
-			boolean fetch_sale );
+			boolean fetch_saled,
+			boolean fetch_product );
 
 PRODUCT_REFUND *product_refund_steady_state(
 			PRODUCT_REFUND *product_refund,
@@ -100,7 +103,8 @@ void product_refund_insert_pipe(
 
 LIST *product_refund_system_list(
 			char *sys_string,
-			boolean fetch_sale );
+			boolean fetch_sale,
+			boolean fetch_product );
 
 char *product_refund_sys_string(
 			char *where );
@@ -145,29 +149,18 @@ void product_refund_update(
 			double net_refund_amount,
 			char *transaction_date_time,
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			char *refund_date_time );
 
 FILE *product_refund_update_open(
 			void );
 
-void product_refund_trigger(
-			char *product_name,
-			char *sale_date_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *refund_date_time,
-			char *state );
-
 void product_refund_list_insert(
 			LIST *product_refund_list );
 
 double product_refund_total(
-			LIST *product_refund_list );
-
-void product_refund_list_trigger(
 			LIST *product_refund_list );
 
 /* Safely returns heap memory */
@@ -222,6 +215,18 @@ PRODUCT_REFUND *product_refund_new(
 			char *payor_street_address,
 			char *sale_date_time,
 			char *refund_date_time );
+
+PRODUCT_REFUND *product_refund_seek(
+			char *product_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *sale_date_time,
+			char *refund_date_time,
+			LIST *product_refund_list );
+
+boolean product_refund_list_exists(
+			LIST *product_refund_list,
+			LIST *existing_product_refund_list );
 
 #endif
 

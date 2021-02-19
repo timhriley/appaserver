@@ -37,8 +37,9 @@ typedef struct
 	char *spreadsheet_maximum_date;
 	int spreadsheet_row_count;
 	LIST *paypal_deposit_list;
-	LIST *existing_registration_list;
 	LIST *existing_program_donation_list;
+	LIST *existing_tuition_payment_list;
+	LIST *existing_tuition_refund_list;
 	LIST *existing_product_sale_list;
 	LIST *existing_product_refund_list;
 	LIST *existing_ticket_sale_list;
@@ -83,10 +84,13 @@ double education_net_refund_amount(
 			double refund_amount,
 			double merchant_fees_expense );
 
-LIST *education_existing_registration_list(
+LIST *education_existing_program_donation_list(
 			char *spreadsheet_minimum_date );
 
-LIST *education_existing_program_donation_list(
+LIST *education_existing_tuition_payment_list(
+			char *spreadsheet_minimum_date );
+
+LIST *education_existing_tuition_refund_list(
 			char *spreadsheet_minimum_date );
 
 LIST *education_existing_product_sale_list(
@@ -103,6 +107,19 @@ LIST *education_existing_ticket_refund_list(
 
 LIST *education_existing_paypal_sweep_list(
 			char *spreadsheet_minimum_date );
+
+/* Return paypal_deposit_list */
+/* -------------------------- */
+LIST *education_paypal_existing_transaction_set(
+			LIST *paypal_deposit_list,
+			LIST *education_existing_program_donation_list,
+			LIST *education_existing_tuition_payment_list,
+			LIST *education_existing_tuition_refund_list,
+			LIST *education_existing_product_sale_list,
+			LIST *education_existing_product_refund_list,
+			LIST *education_existing_ticket_sale_list,
+			LIST *education_existing_ticket_refund_list,
+			LIST *education_existing_paypal_sweep_list );
 
 #endif
 

@@ -46,9 +46,10 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	PRODUCT *product;
+	char *product_name;
 	ENTITY *payor_entity;
 	char *sale_date_time;
+	PRODUCT *product;
 	int quantity;
 	double retail_price;
 	double merchant_fees_expense;
@@ -239,6 +240,17 @@ char *product_sale_integrity_where(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address );
+
+PRODUCT_SALE *product_sale_seek(
+			char *product_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *sale_date_time,
+			LIST *product_sale_list );
+
+boolean product_sale_list_exists(
+			LIST *product_sale_list,
+			LIST *existing_product_sale_list );
 
 #endif
 

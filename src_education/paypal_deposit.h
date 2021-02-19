@@ -330,11 +330,10 @@ LIST *paypal_deposit_registration_list(
 			LIST *paypal_deposit_list );
 
 boolean paypal_deposit_existing_transaction(
-			ENTITY *payor_entity,
-			LIST *paypal_item_list,
-			PAYPAL_SWEEP *paypal_sweep,
-			LIST *existing_registration_list,
+			PAYPAL_DEPOSIT *paypal_deposit,
 			LIST *existing_program_donation_list,
+			LIST *existing_tuition_payment_list,
+			LIST *existing_tuition_refund_list,
 			LIST *existing_product_sale_list,
 			LIST *existing_product_refund_list,
 			LIST *existing_ticket_sale_list,

@@ -435,3 +435,52 @@ LIST *paypal_sweep_transaction_list(
 	return transaction_list;
 }
 
+PAYPAL_SWEEP *paypal_sweep_seek(
+			char *payor_full_name,
+			char *payor_street_address,
+			char *paypal_date_time,
+			LIST *paypal_sweep_list )
+{
+	PAYPAL_SWEEP *paypal_sweep;
+
+	if ( !list_rewind( paypal_sweep_list ) )
+		return (PAYPAL_SWEEP *)0;
+
+	do {
+		paypal_sweep = list_get( paypal_sweep_list );
+
+		if ( strcmp(
+			paypal_sweep->payor_full_name,
+			payor_full_name ) == 0
+		&&   strcmp(
+			paypal_sweep->payor_street_address,
+			payor_street_address ) == 0
+		&&   strcmp(
+			paypal_sweep->paypal_date_time,
+			paypal_date_time ) == 0 )
+		{
+			return paypal_sweep;
+		}
+	} while ( list_next( paypal_sweep_list ) );
+
+	return (PAYPAL_SWEEP *)0;
+}
+
+boolean paypal_sweep_exists(
+			PAYPAL_SWEEP *paypal_sweep,
+			LIST *existing_paypal_sweep_list )
+{
+	if ( paypal_sweep_seek(
+		paypal_sweep->payor_full_name,
+		paypal_sweep->payor_street_address,
+		paypal_sweep->paypal_date_time,
+		existing_paypal_sweep_list ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+

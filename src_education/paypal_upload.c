@@ -153,12 +153,16 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	education->existing_registration_list =
-		education_existing_registration_list(
-			education->spreadsheet_minimum_date );
-
 	education->existing_program_donation_list =
 		education_existing_program_donation_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_tuition_payment_list =
+		education_existing_tuition_payment_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_tuition_refund_list =
+		education_existing_tuition_refund_list(
 			education->spreadsheet_minimum_date );
 
 	education->existing_product_sale_list =
@@ -183,32 +187,41 @@ int main( int argc, char **argv )
 
 	education->paypal_deposit_list =
 		paypal_deposit_list_set_transaction(
-			paypal_deposit_list_steady_state(
-				education_paypal_deposit_list(
-					education->spreadsheet_filename,
-					education->
-						paypal->
-						spreadsheet->
-						spreadsheet_column_list,
-					education->
-						paypal->
-						paypal_dataset,
-					season_name,
-					year,
-					education->
-						semester->
-						offering_list,
-					education->
-						program_list,
-					education->
-						product_list,
-					education->
-						semester->
-						event_list ) ),
-			/* ------------------------------------ */
-			/* To set program_name for 		*/
-			/* tuition payment and tuition refund	*/
-			/* ------------------------------------ */
+			education_paypal_existing_transaction_set(
+				paypal_deposit_list_steady_state(
+					education_paypal_deposit_list(
+						education->spreadsheet_filename,
+						education->
+							paypal->
+							spreadsheet->
+							spreadsheet_column_list,
+						education->
+							paypal->
+							paypal_dataset,
+						season_name,
+						year,
+						education->
+							semester->
+							offering_list,
+						education->
+							program_list,
+						education->
+							product_list,
+						education->
+							semester->
+							event_list ) ),
+				education->existing_program_donation_list,
+				education->existing_tuition_payment_list,
+				education->existing_tuition_refund_list,
+				education->existing_product_sale_list,
+				education->existing_product_refund_list,
+				education->existing_ticket_sale_list,
+				education->existing_ticket_refund_list,
+				education->existing_paypal_sweep_list ),
+			/* ---------------------------------- */
+			/* To set program_name for 	      */
+			/* tuition payment and tuition refund */
+			/* ---------------------------------- */
 			semester_offering_list(
 				season_name,
 				year ) );
@@ -359,6 +372,7 @@ void paypal_upload_display(
 			year );
 
 	heading =	"row_number,"		\
+			"duplicate,"		\
 			"payor,"		\
 			"paypal_date_time,"	\
 			"paypal_amount,"	\
@@ -368,6 +382,7 @@ void paypal_upload_display(
 			"payments/refunds";
 
 	justification =	"right,"	\
+			"left,"		\
 			"left,"		\
 			"left,"		\
 			"right,"	\
@@ -397,8 +412,11 @@ void paypal_upload_display(
 		output_pipe = popen( sys_string, "w" );
 
 		fprintf(output_pipe,
-		"%d^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s %s %s %s %s\n",
+		"%d^%s^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s %s %s %s %s\n",
 			paypal_deposit->row_number,
+			(paypal_deposit->existing_transaction)
+				? "yes"
+				: "",
 			entity_name_display(
 				paypal_deposit->payor_entity->full_name,
 				paypal_deposit->payor_entity->street_address ),
@@ -426,16 +444,19 @@ void paypal_upload_display(
 
 		pclose( output_pipe );
 
-		transaction_list_html_display(
-			paypal_deposit_transaction_list(
-				paypal_deposit->tuition_payment_list,
-				paypal_deposit->product_sale_list,
-				paypal_deposit->ticket_sale_list,
-				paypal_deposit->tuition_refund_list,
-				paypal_deposit->product_refund_list,
-				paypal_deposit->ticket_refund_list,
-				paypal_deposit->program_donation_list,
-				paypal_deposit->paypal_sweep ) );
+		if ( !paypal_deposit->existing_transaction )
+		{
+			transaction_list_html_display(
+				paypal_deposit_transaction_list(
+					paypal_deposit->tuition_payment_list,
+					paypal_deposit->product_sale_list,
+					paypal_deposit->ticket_sale_list,
+					paypal_deposit->tuition_refund_list,
+					paypal_deposit->product_refund_list,
+					paypal_deposit->ticket_refund_list,
+					paypal_deposit->program_donation_list,
+					paypal_deposit->paypal_sweep ) );
+		}
 
 	} while ( list_next( paypal_deposit_list ) );
 }

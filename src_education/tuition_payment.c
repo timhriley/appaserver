@@ -1394,3 +1394,99 @@ LIST *tuition_payment_registration_list(
 	return registration_list;
 }
 
+LIST *tuition_payment_list( char *where )
+{
+	return tuition_payment_system_list(
+		tuition_payment_sys_string( where ),
+		1 /* fetch_registration */,
+		0 /* not fetch_enrollment_list */,
+		0 /* not fetch_offering */,
+		0 /* not fetch_course */,
+		0 /* not fetch_program */ );
+}
+
+TUITION_PAYMENT *tuition_payment_seek(
+			char *student_full_name,
+			char *student_street_address,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *payment_date_time,
+			LIST *tuition_payment_list )
+{
+	TUITION_PAYMENT *tuition_payment;
+
+	if ( !list_rewind( tuition_payment_list ) )
+		return (TUITION_PAYMENT *)0;
+
+	do {
+		tuition_payment = list_get( tuition_payment_list );
+
+		if ( strcmp(
+			tuition_payment->
+				registration->
+				student_entity->
+				full_name,
+			student_full_name ) == 0
+		&&   strcmp(
+			tuition_payment->
+				registration->
+				student_entity->
+				street_address,
+			student_street_address ) == 0
+		&&   strcmp(
+			tuition_payment->payor_entity->full_name,
+			payor_full_name ) == 0
+		&&   strcmp(
+			tuition_payment->payor_entity->street_address,
+			payor_street_address ) == 0
+		&&   strcmp(
+			tuition_payment->registration->season_name,
+			season_name ) == 0
+		&&   tuition_payment->registration->year == year
+		&&   strcmp(
+			tuition_payment->payment_date_time,
+			payment_date_time ) == 0 )
+		{
+			return tuition_payment;
+		}
+	} while ( list_next( tuition_payment_list ) );
+
+	return (TUITION_PAYMENT *)0;
+}
+
+boolean tuition_payment_list_exists(
+			LIST *tuition_payment_list,
+			LIST *existing_tuition_payment_list )
+{
+	TUITION_PAYMENT *tuition_payment;
+
+	if ( !list_rewind( tuition_payment_list ) ) return 0;
+
+	do {
+		tuition_payment = list_get( tuition_payment_list );
+
+		if ( tuition_payment_seek(
+			tuition_payment->
+				registration->
+				student_entity->
+				full_name,
+			tuition_payment->
+				registration->
+				student_entity->
+				street_address,
+			tuition_payment->payor_entity->full_name,
+			tuition_payment->payor_entity->street_address,
+			tuition_payment->registration->season_name,
+			tuition_payment->registration->year,
+			tuition_payment->payment_date_time,
+			existing_tuition_payment_list ) )
+		{
+			return 1;
+		}
+	} while ( list_next( tuition_payment_list ) );
+
+	return 0;
+}
+

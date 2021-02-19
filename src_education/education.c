@@ -22,12 +22,14 @@
 #include "enrollment.h"
 #include "semester.h"
 #include "offering.h"
-#include "tuition_refund.h"
 #include "paypal_sweep.h"
-#include "tuition_payment.h"
 #include "program_donation.h"
+#include "tuition_payment.h"
+#include "tuition_refund.h"
 #include "product_sale.h"
 #include "product_refund.h"
+#include "ticket_sale.h"
+#include "ticket_refund.h"
 #include "paypal_deposit.h"
 #include "spreadsheet.h"
 #include "paypal.h"
@@ -36,8 +38,6 @@
 #include "paypal_item.h"
 #include "program.h"
 #include "product.h"
-#include "ticket_sale.h"
-#include "ticket_refund.h"
 #include "education.h"
 
 EDUCATION *education_calloc( void )
@@ -230,16 +230,28 @@ double education_net_refund_amount(
 		merchant_fees_expense;
 }
 
-LIST *education_existing_registration_list(
+LIST *education_existing_tuition_payment_list(
 			char *spreadsheet_minimum_date )
 {
 	char where[ 128 ];
 
 	sprintf(where,
-		"registration_date_time >= '%s'",
+		"payment_date_time >= '%s'",
 		spreadsheet_minimum_date );
 
-	return registration_list( where );
+	return tuition_payment_list( where );
+}
+
+LIST *education_existing_tuition_refund_list(
+			char *spreadsheet_minimum_date )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"refund_date_time >= '%s'",
+		spreadsheet_minimum_date );
+
+	return tuition_refund_list( where );
 }
 
 LIST *education_existing_program_donation_list(
@@ -316,5 +328,41 @@ LIST *education_existing_paypal_sweep_list(
 		spreadsheet_minimum_date );
 
 	return paypal_sweep_list( where );
+}
+
+LIST *education_paypal_existing_transaction_set(
+			LIST *paypal_deposit_list,
+			LIST *existing_program_donation_list,
+			LIST *existing_tuition_payment_list,
+			LIST *existing_tuition_refund_list,
+			LIST *existing_product_sale_list,
+			LIST *existing_product_refund_list,
+			LIST *existing_ticket_sale_list,
+			LIST *existing_ticket_refund_list,
+			LIST *existing_paypal_sweep_list )
+{
+	PAYPAL_DEPOSIT *paypal_deposit;
+
+	if ( !list_rewind( paypal_deposit_list ) )
+		return paypal_deposit_list;
+
+	do {
+		paypal_deposit = list_get( paypal_deposit_list );
+
+		paypal_deposit->existing_transaction =
+			paypal_deposit_existing_transaction(
+				paypal_deposit,
+				existing_program_donation_list,
+				existing_tuition_payment_list,
+				existing_tuition_refund_list,
+				existing_product_sale_list,
+				existing_product_refund_list,
+				existing_ticket_sale_list,
+				existing_ticket_refund_list,
+				existing_paypal_sweep_list );
+
+	} while ( list_next( paypal_deposit_list ) );
+
+	return paypal_deposit_list;
 }
 

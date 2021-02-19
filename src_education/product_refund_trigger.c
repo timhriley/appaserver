@@ -154,7 +154,8 @@ LIST *product_refund_trigger_insert_update(
 				payor_street_address,
 				sale_date_time,
 				refund_date_time,
-				1 /* fetch_product */ ) ) )
+				0 /* not fetch_sale */,
+				0 /* not fetch_product */ ) ) )
 	{
 		return (LIST *)0;
 	}
@@ -272,6 +273,7 @@ void product_refund_trigger_predelete(
 				payor_street_address,
 				sale_date_time,
 				refund_date_time,
+				0 /* not fetch_sale */,
 				0 /* not fetch_product */ ) ) )
 	{
 		return;

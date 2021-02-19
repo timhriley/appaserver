@@ -131,17 +131,18 @@ EVENT *event_parse(	char *input,
 
 	if ( !input || !*input ) return (EVENT *)0;
 
+	event = event_calloc();
+
 	/* See: attribute_list */
 	/* ------------------- */
 	piece( program_name, SQL_DELIMITER, input, 0 );
+	event->program_name = strdup( program_name );
+	
 	piece( event_date, SQL_DELIMITER, input, 1 );
-	piece( event_time, SQL_DELIMITER, input, 2 );
+	event->event_date = strdup( event_date );
 
-	event =
-		event_new(
-			strdup( program_name ),
-			strdup( event_date ),
-			strdup( event_time ) );
+	piece( event_time, SQL_DELIMITER, input, 2 );
+	event->event_time = strdup( event_time );
 
 	piece( venue_name, SQL_DELIMITER, input, 3 );
 	event->venue_name = strdup( venue_name );

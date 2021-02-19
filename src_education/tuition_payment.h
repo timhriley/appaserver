@@ -297,5 +297,22 @@ char *tuition_payment_integrity_where(
 			char *payor_full_name,
 			char *payor_street_address );
 
+LIST *tuition_payment_list(
+			char *where );
+
+boolean tuition_payment_list_exists(
+			LIST *tuition_payment_list,
+			LIST *existing_tuition_payment_list );
+
+TUITION_PAYMENT *tuition_payment_seek(
+			char *student_full_name,
+			char *student_street_address,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *season_name,
+			int year,
+			char *payment_date_time,
+			LIST *tuition_payment_list );
+
 #endif
 
