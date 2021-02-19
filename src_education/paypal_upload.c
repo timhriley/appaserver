@@ -473,7 +473,7 @@ EDUCATION *paypal_upload_education(
 			char *spreadsheet_filename )
 {
 	EDUCATION *education =
-		education_spreadsheet_fetch(
+		education_spreadsheet_column_list_fetch(
 			season_name,
 			year,
 			spreadsheet_filename,
@@ -484,7 +484,7 @@ EDUCATION *paypal_upload_education(
 			&education->spreadsheet_maximum_date,
 			&education->spreadsheet_row_count,
 			education->spreadsheet_filename,
-			"date" /* date_label */ );
+			education->date_label );
 
 	if ( !education->spreadsheet_row_count )
 	{

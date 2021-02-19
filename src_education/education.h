@@ -50,7 +50,7 @@ typedef struct
 EDUCATION *education_calloc(
 			void );
 
-EDUCATION *education_spreadsheet_fetch(
+EDUCATION *education_spreadsheet_column_list_fetch(
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
