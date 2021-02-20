@@ -36,11 +36,7 @@ void program_donation_trigger_predelete(
 /* Returns list of one (PROGRAM_DONATION *) */
 /* ---------------------------------------- */
 LIST *program_donation_trigger_insert_update(
-			char *program_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *payment_date_time,
-			char *preupdate_transaction_date_time );
+			PROGRAM_DONATION *program_donation );
 
 int main( int argc, char **argv )
 {
@@ -51,6 +47,7 @@ int main( int argc, char **argv )
 	char *payment_date_time;
 	char *preupdate_transaction_date_time;
 	char *state;
+	PROGRAM_DONATION *program_donation;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -83,6 +80,34 @@ int main( int argc, char **argv )
 			payor_full_name,
 			payor_street_address,
 			payment_date_time );
+		exit( 0 );
+	}
+
+	if ( ! ( program_donation =
+			program_donation_fetch(
+				program_name,
+				payor_full_name,
+				payor_street_address,
+				payment_date_time,
+				1 /* fetch_program */,
+				1 /* fetch_transaction */ ) ) )
+	{
+		exit( 0 );
+	}
+
+	if ( transaction_date_time_changed(
+			preupdate_transaction_date_time )
+	&&   program_donation->program_donation_transaction )
+	{
+		journal_account_name_list_propagate(
+			transaction_date_time_earlier(
+				program_donation->
+					transaction_date_time,
+				preupdate_transaction_date_time ),
+			journal_list_account_name_list(
+				program_donation->
+					program_donation_transaction->
+					journal_list ) );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
@@ -92,11 +117,7 @@ int main( int argc, char **argv )
 
 		program_donation_list =
 			program_donation_trigger_insert_update(
-				program_name,
-				payor_full_name,
-					payor_street_address,
-				payment_date_time,
-				preupdate_transaction_date_time );
+				program_donation );
 
 		program_list_fetch_update(
 			program_donation_program_name_list(
@@ -124,26 +145,10 @@ int main( int argc, char **argv )
 }
 
 LIST *program_donation_trigger_insert_update(
-			char *program_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *payment_date_time,
-			char *preupdate_transaction_date_time )
+			PROGRAM_DONATION *program_donation )
 {
-	PROGRAM_DONATION *program_donation;
 	LIST *program_donation_list;
 	int transaction_seconds_to_add = 0;
-
-	if ( ! ( program_donation =
-			program_donation_fetch(
-				program_name,
-				payor_full_name,
-				payor_street_address,
-				payment_date_time,
-				1 /* fetch_program */ ) ) )
-	{
-		return;
-	}
 
 	if ( ! ( program_donation =
 			program_donation_steady_state(
@@ -151,7 +156,7 @@ LIST *program_donation_trigger_insert_update(
 				program_donation->donation_amount,
 				program_donation->merchant_fees_expense ) ) )
 	{
-		return;
+		return (LIST *)0;
 	}
 
 	if ( !program_donation->transaction_date_time
@@ -205,7 +210,6 @@ LIST *program_donation_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
-				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
@@ -217,10 +221,10 @@ LIST *program_donation_trigger_insert_update(
 	program_donation_update(
 		program_donation->net_payment_amount,
 		program_donation->transaction_date_time,
-		program_name,
-		payor_full_name,
-		payor_street_address,
-		payment_date_time );
+		program_donation->program_name,
+		program_donation->payor_entity->full_name,
+		program_donation->payor_entity->street_address,
+		program_donation->payment_date_time );
 
 	program_donation_list = list_new();
 	list_set( program_donation_list, program_donation );
@@ -242,7 +246,8 @@ void program_donation_trigger_predelete(
 				payor_full_name,
 				payor_street_address,
 				payment_date_time,
-				0 /* not fetch_program */ ) ) )
+				0 /* not fetch_program */,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		return;
 	}

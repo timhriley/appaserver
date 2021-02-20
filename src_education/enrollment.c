@@ -93,7 +93,8 @@ ENROLLMENT *enrollment_parse(
 			boolean fetch_offering,
 			boolean fetch_course,
 			boolean fetch_program,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_transaction )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
@@ -154,6 +155,16 @@ ENROLLMENT *enrollment_parse(
 				0 /* not fetch_tuition_payment_list */,
 				0 /* notfetch_tuition_refund_list */ );
 	}
+
+	if ( fetch_transaction && *enrollment->transaction_date_time )
+	{
+		enrollment->enrollment_transaction =
+			transaction_fetch(
+				full_name,
+				street_address,
+				enrollment->transaction_date_time );
+	}
+
 	return enrollment;
 }
 
@@ -166,7 +177,8 @@ ENROLLMENT *enrollment_fetch(
 			boolean fetch_offering,
 			boolean fetch_course,
 			boolean fetch_program,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_transaction )
 {
 	ENROLLMENT *enrollment;
 
@@ -186,7 +198,8 @@ ENROLLMENT *enrollment_fetch(
 			fetch_offering,
 			fetch_course,
 			fetch_program,
-			fetch_registration );
+			fetch_registration,
+			fetch_transaction );
 
 	return enrollment;
 }
@@ -196,7 +209,8 @@ LIST *enrollment_system_list(
 			boolean fetch_offering,
 			boolean fetch_course,
 			boolean fetch_program,
-			boolean fetch_registration )
+			boolean fetch_registration,
+			boolean fetch_transaction )
 {
 	char input[ 1024 ];
 	FILE *input_pipe = popen( sys_string, "r" );
@@ -211,7 +225,8 @@ LIST *enrollment_system_list(
 				fetch_offering,
 				fetch_course,
 				fetch_program,
-				fetch_registration ) );
+				fetch_registration,
+				fetch_transaction ) );
 	}
 	pclose( input_pipe );
 	return enrollment_list;
@@ -521,9 +536,7 @@ boolean enrollment_set_transaction(
 	{
 		enrollment->transaction_date_time =
 			transaction_race_free(
-				enrollment->
-					registration->
-					registration_date_time );
+				registration_date_time );
 	}
 
 	if ( ( enrollment->enrollment_transaction =

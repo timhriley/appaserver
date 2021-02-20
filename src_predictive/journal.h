@@ -270,4 +270,7 @@ JOURNAL *journal_merchant_fees_expense(
 			double merchant_fees_expense,
 			char *account_fees_expense );
 
+LIST *journal_list_account_name_list(
+			LIST *journal_list );
+
 #endif

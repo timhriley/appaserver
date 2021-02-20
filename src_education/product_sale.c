@@ -65,7 +65,8 @@ PRODUCT_SALE *product_sale_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time,
-			boolean fetch_product )
+			boolean fetch_product,
+			boolean fetch_transaction )
 {
 	return
 		product_sale_parse(
@@ -79,12 +80,14 @@ PRODUCT_SALE *product_sale_fetch(
 						payor_full_name,
 						payor_street_address,
 						sale_date_time ) ) ),
-		fetch_product );
+		fetch_product,
+		fetch_transaction );
 }
 
 LIST *product_sale_system_list(
 			char *sys_string,
-			boolean fetch_product )
+			boolean fetch_product,
+			boolean fetch_transaction )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -98,7 +101,8 @@ LIST *product_sale_system_list(
 			product_sale_list,
 			product_sale_parse(
 				input,
-				fetch_product ) );
+				fetch_product,
+				fetch_transaction ) );
 	}
 
 	pclose( input_pipe );
@@ -242,7 +246,8 @@ void product_sale_insert_pipe(
 
 PRODUCT_SALE *product_sale_parse(
 			char *input,
-			boolean fetch_product )
+			boolean fetch_product,
+			boolean fetch_transaction )
 {
 	char product_name[ 128 ];
 	char payor_full_name[ 128 ];
@@ -305,6 +310,15 @@ PRODUCT_SALE *product_sale_parse(
 				product_sale->product_name,
 				0 /* not fetch_sale_list */,
 				0 /* not fetch_refund_list */ );
+	}
+
+	if ( fetch_transaction && *product_sale->transaction_date_time )
+	{
+		product_sale->product_sale_transaction =
+			transaction_fetch(
+				product_sale->payor_entity->full_name,
+				product_sale->payor_entity->street_address,
+				product_sale->transaction_date_time );
 	}
 
 	return product_sale;
@@ -915,7 +929,8 @@ LIST *product_sale_list( char *where )
 {
 	return product_sale_system_list(
 		product_sale_sys_string( where ),
-		0 /* not fetch_product */ );
+		0 /* not fetch_product */,
+		0 /* not fetch_transaction */ );
 }
 
 void product_sale_fetch_update(
@@ -983,7 +998,8 @@ PRODUCT_SALE *product_sale_integrity_fetch(
 						product_name,
 						payor_full_name,
 						payor_street_address ) ) ),
-		0 /* not fetch_product */ );
+		0 /* not fetch_product */,
+		0 /* not fetch_transaction */ );
 }
 
 char *product_sale_integrity_where(

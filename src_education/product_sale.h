@@ -78,11 +78,13 @@ PRODUCT_SALE *product_sale_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time,
-			boolean fetch_product );
+			boolean fetch_product,
+			boolean fetch_transaction );
 
 PRODUCT_SALE *product_sale_parse(
 			char *input,
-			boolean fetch_product );
+			boolean fetch_product,
+			boolean fetch_transaction );
 
 PRODUCT_SALE *product_sale_steady_state(
 			PRODUCT_SALE *product_sale,
@@ -124,7 +126,8 @@ void product_sale_insert_pipe(
 
 LIST *product_sale_system_list(
 			char *sys_string,
-			boolean fetch_product );
+			boolean fetch_product,
+			boolean fetch_transaction );
 
 char *product_sale_sys_string(
 			char *where );

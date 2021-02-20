@@ -35,11 +35,7 @@ void product_sale_trigger_predelete(
 /* Returns list of one */
 /* ------------------- */
 LIST *product_sale_trigger_insert_update(
-			char *product_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *preupdate_transaction_date_time );
+			PRODUCT_SALE *product_sale );
 
 int main( int argc, char **argv )
 {
@@ -50,6 +46,7 @@ int main( int argc, char **argv )
 	char *sale_date_time;
 	char *preupdate_transaction_date_time;
 	char *state;
+	PRODUCT_SALE *product_sale;
 
 	/* Exits if fails. */
 	/* --------------- */
@@ -84,6 +81,33 @@ int main( int argc, char **argv )
 			payor_full_name,
 			payor_street_address,
 			sale_date_time );
+		exit( 0 );
+	}
+
+	if ( ! ( product_sale =
+			product_sale_fetch(
+				product_name,
+				payor_full_name,
+				payor_street_address,
+				sale_date_time,
+				1 /* fetch_product */,
+				1 /* fetch_transaction */ ) ) )
+	{
+		exit( 0 );
+	}
+
+	if ( transaction_date_time_changed(
+			preupdate_transaction_date_time )
+	&&   product_sale->product_sale_transaction )
+	{
+		journal_account_name_list_propagate(
+			transaction_date_time_earlier(
+				product_sale->transaction_date_time,
+				preupdate_transaction_date_time ),
+			journal_list_account_name_list(
+				product_sale->
+					product_sale_transaction->
+					journal_list ) );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
@@ -93,11 +117,7 @@ int main( int argc, char **argv )
 
 		product_sale_list =
 			product_sale_trigger_insert_update(
-				product_name,
-				payor_full_name,
-				payor_street_address,
-				sale_date_time,
-				preupdate_transaction_date_time );
+				product_sale );
 
 		product_list_fetch_update(
 			product_sale_product_name_list(
@@ -126,26 +146,10 @@ int main( int argc, char **argv )
 }
 
 LIST *product_sale_trigger_insert_update(
-			char *product_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *preupdate_transaction_date_time )
+			PRODUCT_SALE *product_sale )
 {
-	PRODUCT_SALE *product_sale;
 	LIST *product_sale_list;
 	int transaction_seconds_to_add = 0;
-
-	if ( ! ( product_sale =
-			product_sale_fetch(
-				product_name,
-				payor_full_name,
-				payor_street_address,
-				sale_date_time,
-				1 /* fetch_product */ ) ) )
-	{
-		return (LIST *)0;
-	}
 
 	if ( ! ( product_sale =
 			product_sale_steady_state(
@@ -212,7 +216,6 @@ LIST *product_sale_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
-				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
@@ -228,10 +231,10 @@ LIST *product_sale_trigger_insert_update(
 			net_payment_amount,
 		product_sale->
 			transaction_date_time,
-		product_name,
-		payor_full_name,
-		payor_street_address,
-		sale_date_time );
+		product_sale->product_name,
+		product_sale->payor_entity->full_name,
+		product_sale->payor_entity->street_address,
+		product_sale->sale_date_time );
 
 	product_sale_list = list_new();
 	list_set( product_sale_list, product_sale );
@@ -253,7 +256,8 @@ void product_sale_trigger_predelete(
 				payor_full_name,
 				payor_street_address,
 				sale_date_time,
-				0 /* not fetch_product */ ) ) )
+				0 /* not fetch_product */,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		return;
 	}

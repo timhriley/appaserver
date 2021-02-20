@@ -107,5 +107,8 @@ LIST *program_name_list(
 LIST *program_alias_name_list(
 			LIST *program_list );
 
+void program_list_fetch_update(
+			LIST *program_name_list );
+
 #endif
 

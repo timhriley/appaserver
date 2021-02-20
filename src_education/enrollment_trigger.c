@@ -37,12 +37,7 @@ void enrollment_trigger_predelete(
 /* Returns list of one (ENROLLMENT *) */
 /* ---------------------------------- */
 LIST *enrollment_trigger_insert_update(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year,
-			char *preupdate_transaction_date_time );
+			ENROLLMENT *enrollment );
 
 int main( int argc, char **argv )
 {
@@ -54,6 +49,7 @@ int main( int argc, char **argv )
 	int year;
 	char *preupdate_transaction_date_time;
 	char *state;
+	ENROLLMENT *enrollment;
 
 	/* Exits if fails. */
 	/* --------------- */
@@ -90,8 +86,39 @@ int main( int argc, char **argv )
 			course_name,
 			season_name,
 			year );
+		exit( 0 );
 	}
-	else
+
+	if ( ! ( enrollment =
+			enrollment_fetch(
+				student_full_name,
+				street_address,
+				course_name,
+				season_name,
+				year,
+				1 /* fetch_offering */,
+				1 /* fetch_course */,
+				0 /* not fetch_program */,
+				1 /* fetch_registration */,
+				1 /* fetch_transaction */ ) ) )
+	{
+		exit( 0 );
+	}
+
+	if ( transaction_date_time_changed(
+			preupdate_transaction_date_time )
+	&&   enrollment->enrollment_transaction )
+	{
+		journal_account_name_list_propagate(
+			transaction_date_time_earlier(
+				enrollment->transaction_date_time,
+				preupdate_transaction_date_time ),
+			journal_list_account_name_list(
+				enrollment->
+					enrollment_transaction->
+					journal_list ) );
+	}
+
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
@@ -100,12 +127,7 @@ int main( int argc, char **argv )
 			/* Returns list of one (ENROLLMENT *) */
 			/* ---------------------------------- */
 			enrollment_trigger_insert_update(
-				student_full_name,
-				street_address,
-				course_name,
-				season_name,
-				year,
-				preupdate_transaction_date_time );
+				enrollment );
 
 		if ( list_length( enrollment_list ) )
 		{
@@ -123,7 +145,7 @@ int main( int argc, char **argv )
 				year );
 		}
 	}
-	else
+
 	if ( strcmp( state, "delete" ) ==  0 )
 	{
 		LIST *enrollment_list = list_new();
@@ -140,7 +162,6 @@ int main( int argc, char **argv )
 				(REGISTRATION *)0,
 				(OFFERING *)0 ) );
 	
-
 		registration_list_fetch_update(
 			enrollment_registration_list(
 				enrollment_list ),
@@ -160,31 +181,10 @@ int main( int argc, char **argv )
 /* Returns list of one (ENROLLMENT *) */
 /* ---------------------------------- */
 LIST *enrollment_trigger_insert_update(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year,
-			char *preupdate_transaction_date_time )
+			ENROLLMENT *enrollment )
 {
-	ENROLLMENT *enrollment;
 	LIST *enrollment_list;
 	int transaction_seconds_to_add = 0;
-
-	if ( ! ( enrollment =
-			enrollment_fetch(
-				student_full_name,
-				street_address,
-				course_name,
-				season_name,
-				year,
-				1 /* fetch_offering */,
-				1 /* fetch_course */,
-				0 /* fetch_program */,
-				1 /* fetch_registration */ ) ) )
-	{
-		return (LIST *)0;
-	}
 
 	if ( !enrollment->transaction_date_time
 	||   !*enrollment->transaction_date_time )
@@ -211,7 +211,6 @@ LIST *enrollment_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
-				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
@@ -231,8 +230,14 @@ LIST *enrollment_trigger_insert_update(
 			student_entity->
 			street_address,
 		enrollment->offering->course->course_name,
-		season_name,
-		year );
+		enrollment->
+			offering->
+			semester->
+			season_name,
+		enrollment->
+			offering->
+			semester->
+			year );
 
 	enrollment_list = list_new();
 	list_set( enrollment_list, enrollment );
@@ -259,7 +264,8 @@ void enrollment_trigger_predelete(
 				0 /* not fetch_offering */,
 				0 /* not fetch_course */,
 				0 /* not fetch_program */,
-				0 /* not fetch_registration */ ) ) )
+				0 /* not fetch_registration */,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		return;
 	}

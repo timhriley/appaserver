@@ -57,19 +57,23 @@ PAYPAL_SWEEP *paypal_sweep_new(
 PAYPAL_SWEEP *paypal_sweep_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
-			char *paypal_date_time );
+			char *paypal_date_time,
+			boolean fetch_transaction );
 
 LIST *paypal_sweep_list(
-			char *where );
+			char *where,
+			boolean fetch_transaction );
 
 PAYPAL_SWEEP *paypal_sweep_calloc(
 			void );
 
 LIST *paypal_sweep_system_list(
-			char *sys_string );
+			char *sys_string,
+			boolean fetch_transaction );
 
 PAYPAL_SWEEP *paypal_sweep_parse(
-			char *input );
+			char *input,
+			boolean fetch_transaction );
 
 char *paypal_sweep_sys_string(
 			char *where );

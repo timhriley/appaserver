@@ -54,7 +54,6 @@ typedef struct
 	/* ----- */
 	REGISTRATION *registration;
 	ENTITY *payor_entity;
-	char *course_name;
 	char *payment_date_time;
 	double payment_amount;
 	double merchant_fees_expense;
@@ -94,7 +93,8 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			boolean fetch_enrollment_list,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_program );
+			boolean fetch_program,
+			boolean fetch_transaction );
 
 TUITION_PAYMENT *tuition_payment_parse(
 			char *input,
@@ -102,7 +102,8 @@ TUITION_PAYMENT *tuition_payment_parse(
 			boolean fetch_enrollment_list,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_program );
+			boolean fetch_program,
+			boolean fetch_transaction );
 
 /* Returns true transaction_date_time */
 /* ---------------------------------- */
@@ -147,7 +148,8 @@ LIST *tuition_payment_system_list(
 			boolean fetch_enrollment_list,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_program );
+			boolean fetch_program,
+			boolean fetch_transaction );
 
 void tuition_payment_list_insert(
 			LIST *tuition_payment_list );
@@ -313,6 +315,9 @@ TUITION_PAYMENT *tuition_payment_seek(
 			int year,
 			char *payment_date_time,
 			LIST *tuition_payment_list );
+
+char *tuition_payment_memo(
+			char *program_name );
 
 #endif
 

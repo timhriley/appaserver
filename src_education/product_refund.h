@@ -73,12 +73,14 @@ PRODUCT_REFUND *product_refund_fetch(
 			char *sale_date_time,
 			char *refund_date_time,
 			boolean fetch_sale,
-			boolean fetch_product );
+			boolean fetch_product,
+			boolean fetch_transaction );
 
 PRODUCT_REFUND *product_refund_parse(
 			char *input,
-			boolean fetch_saled,
-			boolean fetch_product );
+			boolean fetch_sale,
+			boolean fetch_product,
+			boolean fetch_transaction );
 
 PRODUCT_REFUND *product_refund_steady_state(
 			PRODUCT_REFUND *product_refund,
@@ -104,7 +106,8 @@ void product_refund_insert_pipe(
 LIST *product_refund_system_list(
 			char *sys_string,
 			boolean fetch_sale,
-			boolean fetch_product );
+			boolean fetch_product,
+			boolean fetch_transaction );
 
 char *product_refund_sys_string(
 			char *where );

@@ -77,7 +77,8 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			boolean fetch_enrollment_list,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_program )
+			boolean fetch_program,
+			boolean fetch_transaction )
 {
 	return
 		tuition_payment_parse(
@@ -98,7 +99,8 @@ TUITION_PAYMENT *tuition_payment_fetch(
 			fetch_enrollment_list,
 			fetch_offering,
 			fetch_course,
-			fetch_program );
+			fetch_program,
+			fetch_transaction );
 }
 
 FILE *tuition_payment_update_open( void )
@@ -159,7 +161,8 @@ LIST *tuition_payment_system_list(
 			boolean fetch_enrollment_list,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_program )
+			boolean fetch_program,
+			boolean fetch_transaction )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -177,7 +180,8 @@ LIST *tuition_payment_system_list(
 				fetch_enrollment_list,
 				fetch_offering,
 				fetch_course,
-				fetch_program ) );
+				fetch_program,
+				fetch_transaction ) );
 	}
 
 	pclose( input_pipe );
@@ -233,7 +237,7 @@ TRANSACTION *tuition_payment_transaction(
 			transaction_date_time,
 			payment_amount
 				/* transaction_amount */,
-			TUITION_PAYMENT_MEMO,
+			tuition_payment_memo( program_name ),
 			1 /* lock_transaction */,
 			(*seconds_to_add)++ );
 
@@ -875,30 +879,6 @@ double tuition_payment_receivable_credit_amount(
 	return payment_amount;
 }
 
-void tuition_payment_trigger(
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *payment_date_time )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"tuition_payment_trigger \"%s\" '%s' \"%s\" %d \"%s\" '%s' '%s' update",
-		student_full_name,
-		street_address,
-		season_name,
-		year,
-		payor_full_name,
-		payor_street_address,
-		payment_date_time );
-
-	if ( system( sys_string ) ){}
-}
-
 LIST *tuition_payment_transaction_list(
 			LIST *tuition_payment_list )
 {
@@ -1231,10 +1211,11 @@ TUITION_PAYMENT *tuition_payment_integrity_fetch(
 						payor_full_name,
 						payor_street_address ) ) ),
 			0 /* not fetch_registration */,
-			0 /*  fetch_enrollment_list */,
-			0 /*  fetch_offering */,
-			0 /*  fetch_course */,
-			0 /*  fetch_program */ );
+			0 /* not fetch_enrollment_list */,
+			0 /* not fetch_offering */,
+			0 /* not fetch_course */,
+			0 /* not fetch_program */,
+			0 /* not fetch_transaction */ );
 }
 
 char *tuition_payment_integrity_where(
@@ -1276,7 +1257,8 @@ TUITION_PAYMENT *tuition_payment_parse(
 			boolean fetch_enrollment_list,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_program )
+			boolean fetch_program,
+			boolean fetch_transaction )
 {
 	char student_full_name[ 128 ];
 	char student_street_address[ 128 ];
@@ -1357,6 +1339,16 @@ TUITION_PAYMENT *tuition_payment_parse(
 				0 /* not fetch_tuition_payment_list */,
 				0 /* not fetch_tuition_refund_list */ );
 	}
+
+	if ( fetch_transaction && *tuition_payment->transaction_date_time )
+	{
+		tuition_payment->tuition_payment_transaction =
+			transaction_fetch(
+				tuition_payment->payor_entity->full_name,
+				tuition_payment->payor_entity->street_address,
+				tuition_payment->transaction_date_time );
+	}
+
 	return tuition_payment;
 }
 
@@ -1402,7 +1394,8 @@ LIST *tuition_payment_list( char *where )
 		0 /* not fetch_enrollment_list */,
 		0 /* not fetch_offering */,
 		0 /* not fetch_course */,
-		0 /* not fetch_program */ );
+		0 /* not fetch_program */,
+		0 /* not fetch_transaction */ );
 }
 
 TUITION_PAYMENT *tuition_payment_seek(
