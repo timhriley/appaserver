@@ -51,7 +51,6 @@ typedef struct
 	/* ----- */
 	REGISTRATION *registration;
 	ENTITY *payor_entity;
-	char *course_name;
 	char *refund_date_time;
 	double refund_amount;
 	double merchant_fees_expense;
@@ -136,6 +135,7 @@ char *tuition_refund_primary_where(
 void tuition_refund_list_set_transaction(
 			int *transaction_seconds_to_add,
 			LIST *tuition_refund_list,
+			char *course_name,
 			LIST *semester_offering_list );
 
 /* ------------------------------------------------------- */
@@ -215,8 +215,6 @@ char *tuition_refund_memo(
 void tuition_refund_list_payor_entity_insert(
 			LIST *tuition_refund_list );
 
-/* Caches */
-/* ------ */
 LIST *tuition_refund_registration_list(
 			LIST *tuition_refund_list );
 

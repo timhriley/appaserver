@@ -347,8 +347,10 @@ void paypal_upload_display(
 			paypal_deposit->transaction_fee,
 			paypal_deposit->net_revenue,
 			paypal_deposit->account_balance,
-			tuition_payment_list_display(
-				paypal_deposit->tuition_payment_list ),
+			enrollment_list_display(
+				tuition_payment_enrollment_list(
+					paypal_deposit->
+						tuition_payment_list ) ),
 			product_sale_list_display(
 				paypal_deposit->product_sale_list ),
 			tuition_refund_list_display(
@@ -525,7 +527,7 @@ EDUCATION *paypal_upload_education(
 
 	education->paypal_deposit_list =
 		paypal_deposit_list_set_transaction(
-			education_paypal_existing_transaction_set(
+			education_paypal_exclude_existing_transaction_set(
 				paypal_deposit_list_steady_state(
 					education_paypal_deposit_list(
 						education->spreadsheet_filename,

@@ -372,7 +372,8 @@ LIST *enrollment_tuition_payment_list(
 			1 /* fetch_enrollment_list */,
 			1 /* fetch_offering */,
 			1 /* fetch_course */,
-			0 /* not fetch_program */ );
+			0 /* not fetch_program */,
+			0 /* not fetch_transaction */ );
 }
 
 LIST *enrollment_tuition_refund_list(
@@ -812,3 +813,57 @@ char *enrollment_list_revenue_account(
 	}
 }
 
+char *enrollment_list_display( LIST *enrollment_list )
+{
+	char display[ 65536 ];
+	char *ptr = display;
+	ENROLLMENT *enrollment;
+
+	*ptr = '\0';
+
+	if ( !list_rewind( enrollment_list ) )
+	{
+		return "";
+	}
+
+	ptr += sprintf( ptr, "Enrollment: " );
+
+	do {
+		enrollment =
+			list_get(
+				enrollment_list );
+
+		if ( !list_at_head( enrollment_list ) )
+		{
+			ptr += sprintf( ptr, ", " );
+		}
+
+		if ( !enrollment->registration
+		||   !enrollment->offering
+		||   !enrollment->offering->course )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: empty registration, offering or course.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		ptr += sprintf(	ptr,
+				"%s will enroll in %s; ",
+				entity_name_display(
+					enrollment->
+						registration->
+						student_entity->
+						full_name,
+					enrollment->
+						registration->
+						student_entity->
+						street_address ),
+				enrollment->offering->course->course_name );
+
+	} while ( list_next( enrollment_list ) );
+
+	return strdup( display );
+}

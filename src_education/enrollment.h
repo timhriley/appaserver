@@ -201,5 +201,8 @@ char *enrollment_list_program_name(
 char *enrollment_list_revenue_account(
 			LIST *enrollment_list );
 
+char *enrollment_list_display(
+			LIST *enrollment_list );
+
 #endif
 
