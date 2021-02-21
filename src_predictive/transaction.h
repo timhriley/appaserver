@@ -399,8 +399,6 @@ char *transaction_closing_date_time(
 boolean transaction_date_time_exists(
 			char *transaction_date_time );
 
-/* Returns the existing transaction_date_time */
-/* ------------------------------------------ */
 char *transaction_exists_closing_entry(
 			char *as_of_date );
 
