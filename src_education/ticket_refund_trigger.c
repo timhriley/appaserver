@@ -39,14 +39,7 @@ void ticket_refund_trigger_predelete(
 /* Returns list of one (TICKET_REFUND *) */
 /* ------------------------------------- */
 LIST *ticket_refund_trigger_insert_update(
-			char *program_name,
-			char *event_date,
-			char *event_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time,
-			char *preupdate_transaction_date_time );
+			TICKET_REFUND *ticket_refund );
 
 int main( int argc, char **argv )
 {
@@ -60,6 +53,7 @@ int main( int argc, char **argv )
 	char *refund_date_time;
 	char *preupdate_transaction_date_time;
 	char *state;
+	TICKET_REFUND *ticket_refund;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -98,6 +92,36 @@ int main( int argc, char **argv )
 			payor_street_address,
 			sale_date_time,
 			refund_date_time );
+		exit( 0 );
+	}
+
+	if ( ! ( ticket_refund =
+			ticket_refund_fetch(
+				program_name,
+				event_date,
+				event_time,
+				payor_full_name,
+				payor_street_address,
+				sale_date_time,
+				refund_date_time,
+				1 /* fetch_event */,
+				1 /* fetch_transaction */ ) ) )
+	{
+		exit( 0 );
+	}
+
+	if ( transaction_date_time_changed(
+			preupdate_transaction_date_time )
+	&&   ticket_refund->ticket_refund_transaction )
+	{
+		journal_account_name_list_propagate(
+			transaction_date_time_earlier(
+				ticket_refund->transaction_date_time,
+				preupdate_transaction_date_time ),
+			journal_list_account_name_list(
+				ticket_refund->
+					ticket_refund_transaction->
+					journal_list ) );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
@@ -107,14 +131,7 @@ int main( int argc, char **argv )
 
 		ticket_refund_list =
 			ticket_refund_trigger_insert_update(
-				program_name,
-				event_date,
-				event_time,
-				payor_full_name,
-				payor_street_address,
-				sale_date_time,
-				refund_date_time,
-				preupdate_transaction_date_time );
+				ticket_refund );
 
 		event_list_fetch_update(
 			ticket_refund_event_list(
@@ -146,32 +163,10 @@ int main( int argc, char **argv )
 }
 
 LIST *ticket_refund_trigger_insert_update(
-			char *program_name,
-			char *event_date,
-			char *event_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time,
-			char *preupdate_transaction_date_time )
+			TICKET_REFUND *ticket_refund )
 {
-	TICKET_REFUND *ticket_refund;
 	LIST *ticket_refund_list;
 	int transaction_seconds_to_add = 0;
-
-	if ( ! ( ticket_refund =
-			ticket_refund_fetch(
-				program_name,
-				event_date,
-				event_time,
-				payor_full_name,
-				payor_street_address,
-				sale_date_time,
-				refund_date_time,
-				1 /* fetch_event */ ) ) )
-	{
-		return (LIST *)0;
-	}
 
 	if ( ! ( ticket_refund =
 			ticket_refund_steady_state(
@@ -232,14 +227,11 @@ LIST *ticket_refund_trigger_insert_update(
 	{
 		TRANSACTION *t = ticket_refund->ticket_refund_transaction;
 
-		t->program_name = program_name;
-
 		ticket_refund->transaction_date_time =
 			transaction_program_refresh(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
-				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
@@ -253,13 +245,13 @@ LIST *ticket_refund_trigger_insert_update(
 			net_refund_amount,
 		ticket_refund->
 			transaction_date_time,
-		program_name,
-		event_date,
-		event_time,
-		payor_full_name,
-		payor_street_address,
-		sale_date_time,
-		refund_date_time );
+		ticket_refund->program_name,
+		ticket_refund->event_date,
+		ticket_refund->event_time,
+		ticket_refund->payor_entity->full_name,
+		ticket_refund->payor_entity->street_address,
+		ticket_refund->sale_date_time,
+		ticket_refund->refund_date_time );
 
 	ticket_refund_list = list_new();
 	list_set( ticket_refund_list, ticket_refund );
@@ -287,7 +279,8 @@ void ticket_refund_trigger_predelete(
 				payor_street_address,
 				sale_date_time,
 				refund_date_time,
-				0 /* not fetch_event */ ) ) )
+				0 /* not fetch_sale */,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		return;
 	}

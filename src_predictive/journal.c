@@ -1654,3 +1654,26 @@ JOURNAL *journal_merchant_fees_expense(
 
 	return journal;
 }
+
+LIST *journal_list_account_name_list(
+			LIST *journal_list )
+{
+	LIST *account_name_list;
+	JOURNAL *journal;
+
+	if ( !list_rewind( journal_list ) ) return (LIST *)0;
+
+	account_name_list = list_new();
+
+	do {
+		journal = list_get( journal_list );
+
+		list_set(
+			account_name_list,
+			journal->account_name );
+
+	} while( list_next( journal_list ) );
+
+	return account_name_list;
+}
+

@@ -49,7 +49,8 @@ PRODUCT_REFUND *product_refund_fetch(
 			char *sale_date_time,
 			char *refund_date_time,
 			boolean fetch_sale,
-			boolean fetch_product )
+			boolean fetch_product,
+			boolean fetch_transaction )
 {
 	PRODUCT_REFUND *product_refund;
 
@@ -67,7 +68,8 @@ PRODUCT_REFUND *product_refund_fetch(
 						payor_street_address,
 						refund_date_time ) ) ),
 			fetch_sale,
-			fetch_product );
+			fetch_product,
+			fetch_transaction );
 
 	return product_refund;
 }
@@ -95,7 +97,8 @@ PRODUCT_REFUND *product_refund_new(
 LIST *product_refund_system_list(
 			char *sys_string,
 			boolean fetch_sale,
-			boolean fetch_product )
+			boolean fetch_product,
+			boolean fetch_transaction )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -110,7 +113,8 @@ LIST *product_refund_system_list(
 			product_refund_parse(
 				input,
 				fetch_sale,
-				fetch_product ) );
+				fetch_product,
+				fetch_transaction ) );
 	}
 
 	pclose( input_pipe );
@@ -239,7 +243,8 @@ void product_refund_insert_pipe(
 PRODUCT_REFUND *product_refund_parse(
 			char *input,
 			boolean fetch_sale,
-			boolean fetch_product )
+			boolean fetch_product,
+			boolean fetch_transaction )
 {
 	char product_name[ 128 ];
 	char payor_full_name[ 128 ];
@@ -299,7 +304,17 @@ PRODUCT_REFUND *product_refund_parse(
 				product_refund->payor_entity->full_name,
 				product_refund->payor_entity->street_address,
 				product_refund->sale_date_time,
-				fetch_product );
+				fetch_product,
+				0 /* not fetch_transaction */ );
+	}
+
+	if ( fetch_transaction && *product_refund->transaction_date_time )
+	{
+		product_refund->product_refund_transaction =
+			transaction_fetch(
+				product_refund->payor_entity->full_name,
+				product_refund->payor_entity->street_address,
+				product_refund->transaction_date_time );
 	}
 
 	return product_refund;
@@ -854,7 +869,8 @@ LIST *product_refund_list( char *where )
 		product_refund_sys_string(
 			where ),
 		0 /* not fetch_sale */,
-		0 /* not fetch_product */ );
+		0 /* not fetch_product */,
+		0 /* not fetch_transaction */ );
 }
 
 void product_refund_fetch_update(

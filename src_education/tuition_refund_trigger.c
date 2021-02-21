@@ -45,8 +45,7 @@ LIST *tuition_refund_trigger_insert_update(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *refund_date_time,
-			char *preupdate_transaction_date_time );
+			char *refund_date_time );
 
 int main( int argc, char **argv )
 {
@@ -104,6 +103,17 @@ int main( int argc, char **argv )
 			refund_date_time );
 	}
 
+	if ( transaction_date_time_changed(
+			preupdate_transaction_date_time ) )
+	{
+		journal_account_name_list_propagate(
+			transaction_date_time_earlier(
+				transaction_date_time,
+				preupdate_transaction_date_time ),
+			journal_list_account_name_list(
+				journal_list ) );
+	}
+
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
@@ -117,8 +127,7 @@ int main( int argc, char **argv )
 				year,
 				payor_full_name,
 				payor_street_address,
-				refund_date_time,
-				preupdate_transaction_date_time );
+				refund_date_time );
 
 		if ( list_length( tuition_refund_list ) )
 		{
@@ -166,8 +175,7 @@ LIST *tuition_refund_trigger_insert_update(
 			int year,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *refund_date_time,
-			char *preupdate_transaction_date_time )
+			char *refund_date_time )
 {
 	TUITION_REFUND *tuition_refund;
 	LIST *tuition_refund_list;
@@ -271,7 +279,6 @@ LIST *tuition_refund_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
-				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,

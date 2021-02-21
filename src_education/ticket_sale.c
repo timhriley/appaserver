@@ -69,7 +69,8 @@ TICKET_SALE *ticket_sale_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time,
-			boolean fetch_event )
+			boolean fetch_event,
+			boolean fetch_transaction )
 {
 	return
 		ticket_sale_parse(
@@ -85,12 +86,14 @@ TICKET_SALE *ticket_sale_fetch(
 						payor_full_name,
 						payor_street_address,
 						sale_date_time ) ) ),
-		fetch_event );
+		fetch_event,
+		fetch_transaction );
 }
 
 LIST *ticket_sale_system_list(
 			char *sys_string,
-			boolean fetch_event )
+			boolean fetch_event,
+			boolean fetch_transaction )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -106,7 +109,8 @@ LIST *ticket_sale_system_list(
 			ticket_sale_list,
 			ticket_sale_parse(
 				input,
-				fetch_event ) );
+				fetch_event,
+				fetch_transaction ) );
 	}
 
 	pclose( input_pipe );
@@ -115,18 +119,21 @@ LIST *ticket_sale_system_list(
 
 LIST *ticket_sale_list_fetch(
 			char *where,
-			boolean fetch_event )
+			boolean fetch_event,
+			boolean fetch_transaction )
 {
-	return ticket_sale_list( where, fetch_event );
+	return ticket_sale_list( where, fetch_event, fetch_transaction );
 }
 
 LIST *ticket_sale_list(
 			char *where,
-			boolean fetch_event )
+			boolean fetch_event,
+			boolean fetch_transaction )
 {
 	return ticket_sale_system_list(
 			ticket_sale_sys_string( where ),
-			fetch_event );
+			fetch_event,
+			fetch_transaction );
 }
 
 char *ticket_sale_sys_string( char *where )
@@ -259,7 +266,8 @@ void ticket_sale_insert_pipe(
 
 TICKET_SALE *ticket_sale_parse(
 			char *input,
-			boolean fetch_event )
+			boolean fetch_event,
+			boolean fetch_transaction )
 {
 	char program_name[ 128 ];
 	char event_date[ 128 ];
@@ -334,6 +342,15 @@ TICKET_SALE *ticket_sale_parse(
 				0 /* not fetch_venue */,
 				0 /* not fetch_sale_list */,
 				0 /* not fetch_refund_list */ );
+	}
+
+	if ( fetch_transaction && *ticket_sale->transaction_date_time )
+	{
+		ticket_sale->ticket_sale_transaction =
+			transaction_fetch(
+				ticket_sale->payor_entity->full_name,
+				ticket_sale->payor_entity->street_address,
+				ticket_sale->transaction_date_time );
 	}
 
 	return ticket_sale;
@@ -649,30 +666,6 @@ TICKET_SALE *ticket_sale_steady_state(
 	return ticket_sale;
 }
 
-void ticket_sale_trigger(
-			char *program_name,
-			char *event_date,
-			char *event_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *state )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"ticket_sale_trigger \"%s\" '%s' '%s' \"%s\" '%s' '%s' '%s'",
-		program_name,
-		event_date,
-		event_time,
-		payor_full_name,
-		payor_street_address,
-		sale_date_time,
-		state );
-
-	if ( system( sys_string ) ){}
-}
-
 double ticket_sale_total( LIST *sale_list )
 {
 	TICKET_SALE *sale;
@@ -709,28 +702,6 @@ double ticket_sale_fee_total( LIST *ticket_sale_list )
 	} while ( list_next( ticket_sale_list ) );
 
 	return fee_total;
-}
-
-void ticket_sale_list_trigger(
-			LIST *ticket_sale_list )
-{
-	TICKET_SALE *ticket_sale;
-
-	if ( !list_rewind( ticket_sale_list ) ) return;
-
-	do {
-		ticket_sale = list_get( ticket_sale_list );
-
-		ticket_sale_trigger(
-			ticket_sale->event->program_name,
-			ticket_sale->event->event_date,
-			ticket_sale->event->event_time,
-			ticket_sale->payor_entity->full_name,
-			ticket_sale->payor_entity->street_address,
-			ticket_sale->sale_date_time,
-			"insert" /* state */ );
-
-	} while ( list_next( ticket_sale_list ) );
 }
 
 LIST *ticket_sale_transaction_list(
@@ -1112,7 +1083,8 @@ TICKET_SALE *ticket_sale_integrity_fetch(
 						event_time,
 						payor_full_name,
 						payor_street_address ) ) ),
-		0 /* not fetch_event */ );
+		0 /* not fetch_event */,
+		0 /* not fetch_transaction */ );
 
 	return ticket_sale;
 }

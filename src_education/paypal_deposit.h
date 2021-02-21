@@ -97,7 +97,7 @@ typedef struct
 	LIST *ticket_refund_list;
 	PAYPAL_SWEEP *paypal_sweep;
 	int row_number;
-	boolean existing_transaction;
+	boolean exclude_existing_transaction;
 } PAYPAL_DEPOSIT;
 
 double paypal_net_revenue(
@@ -329,7 +329,7 @@ LIST *paypal_deposit_ticket_refund_list(
 LIST *paypal_deposit_registration_list(
 			LIST *paypal_deposit_list );
 
-boolean paypal_deposit_existing_transaction(
+boolean paypal_deposit_exclude_existing_transaction(
 			PAYPAL_DEPOSIT *paypal_deposit,
 			LIST *existing_program_donation_list,
 			LIST *existing_tuition_payment_list,

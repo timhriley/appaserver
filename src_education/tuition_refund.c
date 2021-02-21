@@ -541,18 +541,9 @@ char *tuition_refund_list_display( LIST *refund_list )
 			ptr += sprintf( ptr, ", " );
 		}
 
-		if ( refund->course_name )
-		{
-			ptr += sprintf(	ptr,
-					"%s",
-					refund->course_name );
-		}
-		else
-		{
-			ptr += sprintf(	ptr,
-					"%s",
-					"Non existing course" );
-		}
+		ptr += sprintf(	ptr,
+				"%.2lf",
+				refund->refund_amount );
 
 	} while ( list_next( refund_list ) );
 
@@ -694,6 +685,7 @@ LIST *tuition_refund_list_steady_state(
 void tuition_refund_list_set_transaction(
 			int *transaction_seconds_to_add,
 			LIST *tuition_refund_list,
+			char *course_name,
 			LIST *semester_offering_list )
 {
 	TUITION_REFUND *tuition_refund;
@@ -711,7 +703,7 @@ void tuition_refund_list_set_transaction(
 
 		if ( ! ( offering =
 				offering_seek(
-					tuition_refund->course_name,
+					course_name,
 					semester_offering_list ) ) )
 		{
 			fprintf(stderr,
@@ -905,11 +897,9 @@ LIST *tuition_refund_registration_list(
 			LIST *tuition_refund_list )
 {
 	TUITION_REFUND *tuition_refund;
-	static LIST *registration_list = {0};
+	LIST *registration_list;
 
 	if ( !list_rewind( tuition_refund_list ) ) return (LIST *)0;
-
-	if ( registration_list ) return registration_list;
 
 	registration_list = list_new();
 

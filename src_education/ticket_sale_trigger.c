@@ -37,13 +37,7 @@ void ticket_sale_trigger_predelete(
 /* Returns list of one (TICKET_SALE *) */
 /* ----------------------------------- */
 LIST *ticket_sale_trigger_insert_update(
-			char *program_name,
-			char *event_date,
-			char *event_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *preupdate_transaction_date_time );
+			TICKET_SALE *ticket_sale );
 
 int main( int argc, char **argv )
 {
@@ -56,6 +50,7 @@ int main( int argc, char **argv )
 	char *sale_date_time;
 	char *preupdate_transaction_date_time;
 	char *state;
+	TICKET_SALE *ticket_sale;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -92,6 +87,35 @@ int main( int argc, char **argv )
 			payor_full_name,
 			payor_street_address,
 			sale_date_time );
+		exit( 0 );
+	}
+
+	if ( ! ( ticket_sale =
+			ticket_sale_fetch(
+				program_name,
+				event_date,
+				event_time,
+				sale_date_time,
+				payor_full_name,
+				payor_street_address,
+				1 /* fetch_event */,
+				1 /* fetch_transaction */ ) ) )
+	{
+		exit( 0 );
+	}
+
+	if ( transaction_date_time_changed(
+			preupdate_transaction_date_time )
+	&&   ticket_sale->ticket_sale_transaction )
+	{
+		journal_account_name_list_propagate(
+			transaction_date_time_earlier(
+				ticket_sale->transaction_date_time,
+				preupdate_transaction_date_time ),
+			journal_list_account_name_list(
+				ticket_sale->
+					ticket_sale_transaction->
+					journal_list ) );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
@@ -99,13 +123,7 @@ int main( int argc, char **argv )
 	{
 		LIST *ticket_sale_list =
 			ticket_sale_trigger_insert_update(
-				program_name,
-				event_date,
-				event_time,
-				payor_full_name,
-				payor_street_address,
-				sale_date_time,
-				preupdate_transaction_date_time );
+				ticket_sale );
 
 		event_list_fetch_update(
 			ticket_sale_event_list(
@@ -135,30 +153,10 @@ int main( int argc, char **argv )
 }
 
 LIST *ticket_sale_trigger_insert_update(
-			char *program_name,
-			char *event_date,
-			char *event_time,
-			char *sale_date_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *preupdate_transaction_date_time )
+			TICKET_SALE *ticket_sale )
 {
-	TICKET_SALE *ticket_sale;
 	LIST *ticket_sale_list;
 	int transaction_seconds_to_add = 0;
-
-	if ( ! ( ticket_sale =
-			ticket_sale_fetch(
-				program_name,
-				event_date,
-				event_time,
-				sale_date_time,
-				payor_full_name,
-				payor_street_address,
-				1 /* fetch_event */ ) ) )
-	{
-		return (LIST *)0;
-	}
 
 	if ( ! ( ticket_sale =
 			ticket_sale_steady_state(
@@ -221,7 +219,6 @@ LIST *ticket_sale_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
-				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
@@ -237,12 +234,12 @@ LIST *ticket_sale_trigger_insert_update(
 			net_payment_amount,
 		ticket_sale->
 			transaction_date_time,
-		program_name,
-		event_date,
-		event_time,
-		sale_date_time,
-		payor_full_name,
-		payor_street_address );
+		ticket_sale->program_name,
+		ticket_sale->event_date,
+		ticket_sale->event_time,
+		ticket_sale->sale_date_time,
+		ticket_sale->payor_entity->full_name,
+		ticket_sale->payor_entity->street_address );
 
 	ticket_sale_list = list_new();
 	list_set( ticket_sale_list, ticket_sale );
@@ -268,7 +265,8 @@ void ticket_sale_trigger_predelete(
 				sale_date_time,
 				payor_full_name,
 				payor_street_address,
-				0 /* not fetch_event */ ) ) )
+				0 /* not fetch_event */,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		return;
 	}

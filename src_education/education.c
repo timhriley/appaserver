@@ -57,7 +57,7 @@ EDUCATION *education_calloc( void )
 	return education;
 }
 
-EDUCATION *education_spreadsheet_fetch(
+EDUCATION *education_spreadsheet_column_list_fetch(
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
@@ -76,7 +76,7 @@ EDUCATION *education_spreadsheet_fetch(
 			1 /* fetch_event_list */ );
 
 	education->paypal =
-		paypal_fetch(
+		paypal_column_list_fetch(
 			spreadsheet_filename,
 			date_label );
 
@@ -85,14 +85,6 @@ EDUCATION *education_spreadsheet_fetch(
 			1 /* fetch_alias_list */ );
 
 	education->product_list = product_list();
-
-	education->spreadsheet_minimum_date =
-		spreadsheet_minimum_date(
-			&education->spreadsheet_maximum_date,
-			&education->spreadsheet_row_count,
-			education->spreadsheet_filename,
-			education->date_label );
-
 	return education;
 }
 
@@ -330,7 +322,7 @@ LIST *education_existing_paypal_sweep_list(
 	return paypal_sweep_list( where );
 }
 
-LIST *education_paypal_existing_transaction_set(
+LIST *education_paypal_exclude_existing_transaction_set(
 			LIST *paypal_deposit_list,
 			LIST *existing_program_donation_list,
 			LIST *existing_tuition_payment_list,
@@ -349,8 +341,8 @@ LIST *education_paypal_existing_transaction_set(
 	do {
 		paypal_deposit = list_get( paypal_deposit_list );
 
-		paypal_deposit->existing_transaction =
-			paypal_deposit_existing_transaction(
+		paypal_deposit->exclude_existing_transaction =
+			paypal_deposit_exclude_existing_transaction(
 				paypal_deposit,
 				existing_program_donation_list,
 				existing_tuition_payment_list,

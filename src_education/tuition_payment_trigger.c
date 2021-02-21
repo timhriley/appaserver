@@ -39,14 +39,7 @@ void tuition_payment_trigger_predelete(
 /* Returns list of one (TUITION_PAYMENT *) */
 /* --------------------------------------- */
 LIST *tuition_payment_trigger_insert_update(
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *payment_date_time,
-			char *preupdate_transaction_date_time );
+			TUITION_PAYMENT *tuition_payment );
 
 int main( int argc, char **argv )
 {
@@ -60,6 +53,7 @@ int main( int argc, char **argv )
 	char *payment_date_time;
 	char *preupdate_transaction_date_time;
 	char *state;
+	TUITION_PAYMENT *tuition_payment;
 
 	/* Exits if fails. */
 	/* --------------- */
@@ -102,6 +96,41 @@ int main( int argc, char **argv )
 			payor_full_name,
 			payor_street_address,
 			payment_date_time );
+		exit( 0 );
+	}
+
+	if ( ! ( tuition_payment =
+			tuition_payment_fetch(
+				student_full_name,
+				street_address,
+				season_name,
+				year,
+				payor_full_name,
+				payor_street_address,
+				payment_date_time,
+				1 /* fetch_registration */,
+				1 /* fetch_enrollment_list */,
+				1 /* fetch_offering */,
+				1 /* fetch_course */,
+				0 /* not fetch_program */,
+				1 /* fetch_transaction */ ) ) )
+	{
+		exit( 0 );
+	}
+
+
+	if ( transaction_date_time_changed(
+			preupdate_transaction_date_time )
+	&&   tuition_payment->tuition_payment_transaction )
+	{
+		journal_account_name_list_propagate(
+			transaction_date_time_earlier(
+				tuition_payment->transaction_date_time,
+				preupdate_transaction_date_time ),
+			journal_list_account_name_list(
+				tuition_payment->
+					tuition_payment_transaction->
+					journal_list ) );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
@@ -111,14 +140,7 @@ int main( int argc, char **argv )
 
 		tuition_payment_list =
 			tuition_payment_trigger_insert_update(
-				student_full_name,
-				street_address,
-				season_name,
-				year,
-				payor_full_name,
-				payor_street_address,
-				payment_date_time,
-				preupdate_transaction_date_time );
+				tuition_payment );
 
 		if ( list_length( tuition_payment_list ) )
 		{
@@ -137,15 +159,15 @@ int main( int argc, char **argv )
 
 		tuition_payment =
 			tuition_payment_new(
-			entity_new(
-				student_full_name,
-				street_address ),
-			season_name,
-			year,
-			entity_new(
-				payor_full_name,
-				payor_street_address ),
-			payment_date_time );
+				entity_new(
+					student_full_name,
+					street_address ),
+				season_name,
+				year,
+				entity_new(
+					payor_full_name,
+					payor_street_address ),
+				payment_date_time );
 
 		list_set( tuition_payment_list, tuition_payment );
 
@@ -159,37 +181,11 @@ int main( int argc, char **argv )
 }
 
 LIST *tuition_payment_trigger_insert_update(
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *payment_date_time,
-			char *preupdate_transaction_date_time )
+			TUITION_PAYMENT *tuition_payment )
 {
-	TUITION_PAYMENT *tuition_payment;
 	LIST *tuition_payment_list;
 	int transaction_seconds_to_add = 0;
 	char *program_name = {0};
-
-	if ( ! ( tuition_payment =
-			tuition_payment_fetch(
-				student_full_name,
-				street_address,
-				season_name,
-				year,
-				payor_full_name,
-				payor_street_address,
-				payment_date_time,
-				1 /* fetch_registration */,
-				1 /* fetch_enrollment_list */,
-				1 /* fetch_offering */,
-				1 /* fetch_course */,
-				0 /* not fetch_program */ ) ) )
-	{
-		return (LIST *)0;
-	}
 
 	/* If no enrollment */
 	/* ---------------- */
@@ -266,7 +262,6 @@ LIST *tuition_payment_trigger_insert_update(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
-				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
@@ -278,13 +273,13 @@ LIST *tuition_payment_trigger_insert_update(
 	tuition_payment_update(
 		tuition_payment->net_payment_amount,
 		tuition_payment->transaction_date_time,
-		student_full_name,
-		street_address,
-		season_name,
-		year,
-		payor_full_name,
-		payor_street_address,
-		payment_date_time );
+		tuition_payment->registration->student_entity->full_name,
+		tuition_payment->registration->student_entity->street_address,
+		tuition_payment->offering->semester->season_name,
+		tuition_payment->offering->semester->year,
+		tuition_payment->payor_entity->full_name,
+		tuition_payment->payor_entity->street_address,
+		tuition_payment->payment_date_time );
 
 	tuition_payment_list = list_new();
 	list_set( tuition_payment_list, tuition_payment );
@@ -316,7 +311,8 @@ void tuition_payment_trigger_predelete(
 				0 /* fetch_enrollment_list */,
 				0 /* fetch_offering */,
 				0 /* fetch_course */,
-				0 /* not fetch_program */ ) ) )
+				0 /* not fetch_program */,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		return;
 	}

@@ -50,7 +50,7 @@ typedef struct
 EDUCATION *education_calloc(
 			void );
 
-EDUCATION *education_spreadsheet_fetch(
+EDUCATION *education_spreadsheet_column_list_fetch(
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
@@ -110,7 +110,7 @@ LIST *education_existing_paypal_sweep_list(
 
 /* Return paypal_deposit_list */
 /* -------------------------- */
-LIST *education_paypal_existing_transaction_set(
+LIST *education_paypal_exclude_existing_transaction_set(
 			LIST *paypal_deposit_list,
 			LIST *education_existing_program_donation_list,
 			LIST *education_existing_tuition_payment_list,

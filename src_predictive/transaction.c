@@ -153,7 +153,10 @@ TRANSACTION *transaction_fetch(
 			char *street_address,
 			char *transaction_date_time )
 {
-	if ( !full_name || !street_address || !transaction_date_time )
+	if ( !full_name
+	||   !street_address
+	||   !transaction_date_time
+	||   !*transaction_date_time )
 	{
 		return (TRANSACTION *)0;
 	}
@@ -1663,7 +1666,6 @@ char *transaction_program_refresh(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			char *preupdate_transaction_date_time,
 			char *program_name,
 			double transaction_amount,
 			char *memo,
@@ -1694,9 +1696,7 @@ char *transaction_program_refresh(
 			0 /* not replace */ );
 
 	journal_account_name_list_propagate(
-		transaction_date_time_earlier(
-			transaction_date_time,
-			preupdate_transaction_date_time ),
+		transaction_date_time,
 		/* ------------------------- */
 		/* Returns account_name_list */
 		/* ------------------------- */
@@ -2006,3 +2006,20 @@ char *transaction_date_time_earlier(
 		return preupdate_transaction_date_time;
 	}
 }
+
+boolean transaction_date_time_changed(
+			char *preupdate_transaction_date_time )
+{
+	if ( !preupdate_transaction_date_time
+	||   !*preupdate_transaction_date_time
+	||   strcmp(	preupdate_transaction_date_time,
+			"preupdate_transaction_date_time" ) == 0 )
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+}
+

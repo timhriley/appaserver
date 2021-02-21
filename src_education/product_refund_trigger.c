@@ -36,13 +36,7 @@ void product_refund_trigger_predelete(
 /* Returns list of one */
 /* ------------------- */
 LIST *product_refund_trigger_insert_update(
-			char *product_name,
-			char *program_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time,
-			char *preupdate_transaction_date_time );
+			PRODUCT_REFUND *product_refund );
 
 int main( int argc, char **argv )
 {
@@ -54,6 +48,7 @@ int main( int argc, char **argv )
 	char *refund_date_time;
 	char *preupdate_transaction_date_time;
 	char *state;
+	PRODUCT_REFUND *product_refund;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -88,6 +83,35 @@ int main( int argc, char **argv )
 			payor_street_address,
 			sale_date_time,
 			refund_date_time );
+		exit( 0 );
+	}
+
+	if ( ! ( product_refund =
+			product_refund_fetch(
+				product_name,
+				payor_full_name,
+				payor_street_address,
+				sale_date_time,
+				refund_date_time,
+				1 /* fetch_sale */,
+				1 /* fetch_product */,
+				1 /* fetch_transaction */ ) ) )
+	{
+		exit( 0 );
+	}
+
+	if ( transaction_date_time_changed(
+			preupdate_transaction_date_time )
+	&&   product_refund->product_refund_transaction )
+	{
+		journal_account_name_list_propagate(
+			transaction_date_time_earlier(
+				product_refund->transaction_date_time,
+				preupdate_transaction_date_time ),
+			journal_list_account_name_list(
+				product_refund->
+					product_refund_transaction->
+					journal_list ) );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
@@ -97,14 +121,7 @@ int main( int argc, char **argv )
 
 		product_refund_list =
 			product_refund_trigger_insert_update(
-				product_name,
-				product_fetch_program_name(
-					product_name ),
-				payor_full_name,
-				payor_street_address,
-				sale_date_time,
-				refund_date_time,
-				preupdate_transaction_date_time );
+				product_refund );
 
 		product_list_fetch_update(
 			product_refund_product_name_list(
@@ -135,30 +152,10 @@ int main( int argc, char **argv )
 }
 
 LIST *product_refund_trigger_insert_update(
-			char *product_name,
-			char *program_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time,
-			char *preupdate_transaction_date_time )
+			PRODUCT_REFUND *product_refund )
 {
-	PRODUCT_REFUND *product_refund;
 	LIST *product_refund_list;
 	int transaction_seconds_to_add = 0;
-
-	if ( ! ( product_refund =
-			product_refund_fetch(
-				product_name,
-				payor_full_name,
-				payor_street_address,
-				sale_date_time,
-				refund_date_time,
-				0 /* not fetch_sale */,
-				0 /* not fetch_product */ ) ) )
-	{
-		return (LIST *)0;
-	}
 
 	if ( ! ( product_refund =
 			product_refund_steady_state(
@@ -192,8 +189,6 @@ LIST *product_refund_trigger_insert_update(
 			product_refund->
 				transaction_date_time,
 			product_refund->
-				product_sale->
-				product->
 				product_name,
 			product_refund->
 				product_sale->
@@ -224,14 +219,11 @@ LIST *product_refund_trigger_insert_update(
 	{
 		TRANSACTION *t = product_refund->product_refund_transaction;
 
-		t->program_name = program_name;
-
 		product_refund->transaction_date_time =
 			transaction_program_refresh(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
-				preupdate_transaction_date_time,
 				t->program_name,
 				t->transaction_amount,
 				t->memo,
@@ -245,11 +237,11 @@ LIST *product_refund_trigger_insert_update(
 			net_refund_amount,
 		product_refund->
 			transaction_date_time,
-		product_name,
-		payor_full_name,
-		payor_street_address,
-		sale_date_time,
-		refund_date_time );
+		product_refund->product_name,
+		product_refund->payor_entity->full_name,
+		product_refund->payor_entity->street_address,
+		product_refund->sale_date_time,
+		product_refund->refund_date_time );
 
 	product_refund_list = list_new();
 	list_set( product_refund_list, product_refund );
@@ -274,7 +266,8 @@ void product_refund_trigger_predelete(
 				sale_date_time,
 				refund_date_time,
 				0 /* not fetch_sale */,
-				0 /* not fetch_product */ ) ) )
+				0 /* not fetch_product */,
+				0 /* not fetch_transaction */ ) ) )
 	{
 		return;
 	}

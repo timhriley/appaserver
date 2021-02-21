@@ -51,7 +51,8 @@ TICKET_REFUND *ticket_refund_fetch(
 			char *payor_street_address,
 			char *sale_date_time,
 			char *refund_date_time,
-			boolean fetch_sale )
+			boolean fetch_sale,
+			boolean fetch_transaction )
 {
 	TICKET_REFUND *ticket_refund;
 
@@ -70,14 +71,16 @@ TICKET_REFUND *ticket_refund_fetch(
 						payor_street_address,
 						sale_date_time,
 						refund_date_time ) ) ),
-			fetch_sale );
+			fetch_sale,
+			fetch_transaction );
 
 	return ticket_refund;
 }
 
 LIST *ticket_refund_system_list(
 			char *sys_string,
-			boolean fetch_sale )
+			boolean fetch_sale,
+			boolean fetch_transaction )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -91,7 +94,8 @@ LIST *ticket_refund_system_list(
 			ticket_refund_list,
 			ticket_refund_parse(
 				input,
-				fetch_sale ) );
+				fetch_sale,
+				fetch_transaction ) );
 	}
 
 	pclose( input_pipe );
@@ -100,18 +104,21 @@ LIST *ticket_refund_system_list(
 
 LIST *ticket_refund_list_fetch(
 			char *where,
-			boolean fetch_sale )
+			boolean fetch_sale,
+			boolean fetch_transaction )
 {
-	return ticket_refund_list( where, fetch_sale );
+	return ticket_refund_list( where, fetch_sale, fetch_transaction  );
 }
 
 LIST *ticket_refund_list(
 			char *where,
-			boolean fetch_sale )
+			boolean fetch_sale,
+			boolean fetch_transaction )
 {
 	return ticket_refund_system_list(
 			ticket_refund_sys_string( where ),
-			fetch_sale );
+			fetch_sale,
+			fetch_transaction );
 }
 
 char *ticket_refund_sys_string( char *where )
@@ -241,7 +248,8 @@ void ticket_refund_insert_pipe(
 
 TICKET_REFUND *ticket_refund_parse(
 			char *input,
-			boolean fetch_sale )
+			boolean fetch_sale,
+			boolean fetch_transaction )
 {
 	char program_name[ 128 ];
 	char event_date[ 128 ];
@@ -317,7 +325,17 @@ TICKET_REFUND *ticket_refund_parse(
 				ticket_refund->payor_entity->full_name,
 				ticket_refund->payor_entity->street_address,
 				ticket_refund->sale_date_time,
-				1 /* fetch_event */ );
+				1 /* fetch_event */,
+				0 /* not fetch_transaction */ );
+	}
+
+	if ( fetch_transaction && *ticket_refund->transaction_date_time )
+	{
+		ticket_refund->ticket_refund_transaction =
+			transaction_fetch(
+				ticket_refund->payor_entity->full_name,
+				ticket_refund->payor_entity->street_address,
+				ticket_refund->transaction_date_time );
 	}
 
 	return ticket_refund;
@@ -594,32 +612,6 @@ TICKET_REFUND *ticket_refund_steady_state(
 	return ticket_refund;
 }
 
-void ticket_refund_trigger(
-			char *program_name,
-			char *event_date,
-			char *event_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time,
-			char *state )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"ticket_refund_trigger \"%s\" '%s' '%s' \"%s\" '%s' '%s' '%s' '%s'",
-		program_name,
-		event_date,
-		event_time,
-		payor_full_name,
-		payor_street_address,
-		sale_date_time,
-		refund_date_time,
-		state );
-
-	if ( system( sys_string ) ){}
-}
-
 double ticket_refund_total( LIST *refund_list )
 {
 	TICKET_REFUND *refund;
@@ -637,40 +629,6 @@ double ticket_refund_total( LIST *refund_list )
 	} while ( list_next( refund_list ) );
 
 	return total;
-}
-
-void ticket_refund_list_trigger(
-			LIST *ticket_refund_list )
-{
-	TICKET_REFUND *ticket_refund;
-
-	if ( !list_rewind( ticket_refund_list ) ) return;
-
-	do {
-		ticket_refund = list_get( ticket_refund_list );
-
-		if ( !ticket_refund->ticket_sale
-		||   !ticket_refund->ticket_sale->event )
-		{
-			fprintf(stderr,
-		"Warning in %s/%s()/%d: empty ticket_sale or event.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			continue;
-		}
-
-		ticket_refund_trigger(
-			ticket_refund->ticket_sale->event->program_name,
-			ticket_refund->ticket_sale->event->event_date,
-			ticket_refund->ticket_sale->event->event_time,
-			ticket_refund->payor_entity->full_name,
-			ticket_refund->payor_entity->street_address,
-			ticket_refund->sale_date_time,
-			ticket_refund->refund_date_time,
-			"insert" /* state */ );
-
-	} while ( list_next( ticket_refund_list ) );
 }
 
 LIST *ticket_refund_transaction_list(

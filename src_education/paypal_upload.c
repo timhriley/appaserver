@@ -43,6 +43,11 @@
 
 /* Prototypes */
 /* ---------- */
+EDUCATION *paypal_upload_education(
+			char *season_name,
+			int year,
+			char *spreadsheet_filename );
+
 void paypal_upload_not_found_display(
 			LIST *paypal_deposit_list,
 			int row_count );
@@ -132,99 +137,16 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	education =
-		education_spreadsheet_fetch(
-			season_name,
-			year,
-			spreadsheet_filename,
-			"date" /* date_label */ );
-
-	education->spreadsheet_minimum_date =
-		spreadsheet_minimum_date(
-			&education->spreadsheet_maximum_date,
-			&education->spreadsheet_row_count,
-			education->spreadsheet_filename,
-			"date" /* date_label */ );
-
-	if ( !education->spreadsheet_row_count )
+	if ( ! ( education =
+			paypal_upload_education(
+				season_name,
+				year,
+				spreadsheet_filename ) ) )
 	{
 		printf( "<h3>Invalid spreadsheet.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
-
-	education->existing_program_donation_list =
-		education_existing_program_donation_list(
-			education->spreadsheet_minimum_date );
-
-	education->existing_tuition_payment_list =
-		education_existing_tuition_payment_list(
-			education->spreadsheet_minimum_date );
-
-	education->existing_tuition_refund_list =
-		education_existing_tuition_refund_list(
-			education->spreadsheet_minimum_date );
-
-	education->existing_product_sale_list =
-		education_existing_product_sale_list(
-			education->spreadsheet_minimum_date );
-
-	education->existing_product_refund_list =
-		education_existing_product_refund_list(
-			education->spreadsheet_minimum_date );
-
-	education->existing_ticket_sale_list =
-		education_existing_ticket_sale_list(
-			education->spreadsheet_minimum_date );
-
-	education->existing_ticket_refund_list =
-		education_existing_ticket_refund_list(
-			education->spreadsheet_minimum_date );
-
-	education->existing_paypal_sweep_list =
-		education_existing_paypal_sweep_list(
-			education->spreadsheet_minimum_date );
-
-	education->paypal_deposit_list =
-		paypal_deposit_list_set_transaction(
-			education_paypal_existing_transaction_set(
-				paypal_deposit_list_steady_state(
-					education_paypal_deposit_list(
-						education->spreadsheet_filename,
-						education->
-							paypal->
-							spreadsheet->
-							spreadsheet_column_list,
-						education->
-							paypal->
-							paypal_dataset,
-						season_name,
-						year,
-						education->
-							semester->
-							offering_list,
-						education->
-							program_list,
-						education->
-							product_list,
-						education->
-							semester->
-							event_list ) ),
-				education->existing_program_donation_list,
-				education->existing_tuition_payment_list,
-				education->existing_tuition_refund_list,
-				education->existing_product_sale_list,
-				education->existing_product_refund_list,
-				education->existing_ticket_sale_list,
-				education->existing_ticket_refund_list,
-				education->existing_paypal_sweep_list ),
-			/* ---------------------------------- */
-			/* To set program_name for 	      */
-			/* tuition payment and tuition refund */
-			/* ---------------------------------- */
-			semester_offering_list(
-				season_name,
-				year ) );
 
 	if ( execute )
 	{
@@ -425,8 +347,10 @@ void paypal_upload_display(
 			paypal_deposit->transaction_fee,
 			paypal_deposit->net_revenue,
 			paypal_deposit->account_balance,
-			tuition_payment_list_display(
-				paypal_deposit->tuition_payment_list ),
+			enrollment_list_display(
+				tuition_payment_enrollment_list(
+					paypal_deposit->
+						tuition_payment_list ) ),
 			product_sale_list_display(
 				paypal_deposit->product_sale_list ),
 			tuition_refund_list_display(
@@ -544,3 +468,103 @@ void paypal_upload_not_found_display(
 	fprintf( output_pipe, "\n" );
 	pclose( output_pipe );
 }
+
+EDUCATION *paypal_upload_education(
+			char *season_name,
+			int year,
+			char *spreadsheet_filename )
+{
+	EDUCATION *education =
+		education_spreadsheet_column_list_fetch(
+			season_name,
+			year,
+			spreadsheet_filename,
+			"date" /* date_label */ );
+
+	education->spreadsheet_minimum_date =
+		spreadsheet_minimum_date(
+			&education->spreadsheet_maximum_date,
+			&education->spreadsheet_row_count,
+			education->spreadsheet_filename,
+			education->date_label );
+
+	if ( !education->spreadsheet_row_count )
+	{
+		return (EDUCATION *)0;
+	}
+
+	education->existing_program_donation_list =
+		education_existing_program_donation_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_tuition_payment_list =
+		education_existing_tuition_payment_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_tuition_refund_list =
+		education_existing_tuition_refund_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_product_sale_list =
+		education_existing_product_sale_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_product_refund_list =
+		education_existing_product_refund_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_ticket_sale_list =
+		education_existing_ticket_sale_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_ticket_refund_list =
+		education_existing_ticket_refund_list(
+			education->spreadsheet_minimum_date );
+
+	education->existing_paypal_sweep_list =
+		education_existing_paypal_sweep_list(
+			education->spreadsheet_minimum_date );
+
+	education->paypal_deposit_list =
+		paypal_deposit_list_set_transaction(
+			education_paypal_exclude_existing_transaction_set(
+				paypal_deposit_list_steady_state(
+					education_paypal_deposit_list(
+						education->spreadsheet_filename,
+						education->
+							paypal->
+							spreadsheet->
+							spreadsheet_column_list,
+						education->
+							paypal->
+							paypal_dataset,
+						season_name,
+						year,
+						education->
+							semester->
+							offering_list,
+						education->
+							program_list,
+						education->
+							product_list,
+						education->
+							semester->
+							event_list ) ),
+				education->existing_program_donation_list,
+				education->existing_tuition_payment_list,
+				education->existing_tuition_refund_list,
+				education->existing_product_sale_list,
+				education->existing_product_refund_list,
+				education->existing_ticket_sale_list,
+				education->existing_ticket_refund_list,
+				education->existing_paypal_sweep_list ),
+			/* ---------------------------------- */
+			/* To set program_name for 	      */
+			/* tuition payment and tuition refund */
+			/* ---------------------------------- */
+			semester_offering_list(
+				season_name,
+				year ) );
+	return education;
+}
+

@@ -274,6 +274,8 @@ void paypal_deposit_set_transaction(
 		tuition_payment_list_set_transaction(
 			&transaction_seconds_to_add,
 			paypal_deposit->tuition_payment_list,
+			tuition_payment_list_course_name(
+				paypal_deposit->tuition_payment_list ),
 			/* ------------------- */
 			/* To get program_name */
 			/* ------------------- */
@@ -299,6 +301,8 @@ void paypal_deposit_set_transaction(
 		tuition_refund_list_set_transaction(
 			&transaction_seconds_to_add,
 			paypal_deposit->tuition_refund_list,
+			tuition_refund_list_course_name(
+				papal_deposit->tuition_refund_list ),
 			/* ------------------- */
 			/* To get program_name */
 			/* ------------------- */
@@ -510,7 +514,7 @@ LIST *paypal_deposit_list_transaction_list(
 	do {
 		paypal_deposit = list_get( paypal_deposit_list );
 
-		if ( !paypal_deposit->existing_transaction )
+		if ( !paypal_deposit->exclude_existing_transaction )
 		{
 			list_append_list(
 				transaction_list,
@@ -544,7 +548,7 @@ LIST *paypal_deposit_list_set_transaction(
 	do {
 		paypal_deposit = list_get( paypal_deposit_list );
 
-		if ( !paypal_deposit->existing_transaction )
+		if ( !paypal_deposit->exclude_existing_transaction )
 		{
 			paypal_deposit_set_transaction(
 				paypal_deposit,
@@ -1691,7 +1695,7 @@ LIST *paypal_deposit_registration_list(
 	return registration_list;
 }
 
-boolean paypal_deposit_existing_transaction(
+boolean paypal_deposit_exclude_existing_transaction(
 			PAYPAL_DEPOSIT *paypal_deposit,
 			LIST *existing_program_donation_list,
 			LIST *existing_tuition_payment_list,

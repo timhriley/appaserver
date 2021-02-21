@@ -80,11 +80,13 @@ TICKET_REFUND *ticket_refund_fetch(
 			char *payor_street_address,
 			char *sale_date_time,
 			char *refund_date_time,
-			boolean fetch_sale );
+			boolean fetch_sale,
+			boolean fetch_transaction );
 
 TICKET_REFUND *ticket_refund_parse(
 			char *input,
-			boolean fetch_sale );
+			boolean fetch_sale,
+			boolean fetch_transaction );
 
 TICKET_REFUND *ticket_refund_steady_state(
 			TICKET_REFUND *ticket_refund,
@@ -111,15 +113,18 @@ void ticket_refund_insert_pipe(
 
 LIST *ticket_refund_system_list(
 			char *sys_string,
-			boolean fetch_sale );
+			boolean fetch_sale,
+			boolean fetch_transaction );
 
 LIST *ticket_refund_list_fetch(
 			char *where,
-			boolean fetch_sale );
+			boolean fetch_sale,
+			boolean fetch_transaction );
 
 LIST *ticket_refund_list(
 			char *where,
-			boolean fetch_sale );
+			boolean fetch_sale,
+			boolean fetch_transaction );
 
 char *ticket_refund_sys_string(
 			char *where );
@@ -174,16 +179,6 @@ void ticket_refund_update(
 
 FILE *ticket_refund_update_open(
 			void );
-
-void ticket_refund_trigger(
-			char *program_name,
-			char *event_date,
-			char *event_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time,
-			char *state );
 
 void ticket_refund_list_insert(
 			LIST *ticket_refund_list );
