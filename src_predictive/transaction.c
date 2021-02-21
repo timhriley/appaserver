@@ -1615,16 +1615,7 @@ char *transaction_exists_closing_entry( char *as_of_date )
 	char where[ 512 ];
 	char sys_string[ 1024 ];
 	char *results;
-
-	/* Can't start with null */
-	/* --------------------- */
-	static char *existing_transaction_date_time = "";
-
-	if ( existing_transaction_date_time
-	&& !*existing_transaction_date_time )
-	{
-		return existing_transaction_date_time;
-	}
+	char *existing_transaction_date_time = "";
 
 	sprintf( where,
 		 "transaction_date_time = '%s %s' and	"
@@ -1643,13 +1634,12 @@ char *transaction_exists_closing_entry( char *as_of_date )
 
 	if ( results && *results )
 	{
-		existing_transaction_date_time = results;
+		return results;
 	}
 	else
 	{
-		existing_transaction_date_time = (char *)0;
+		return (char *)0;
 	}
-	return existing_transaction_date_time;
 }
 
 LIST *transaction_date_time_account_name_list(
