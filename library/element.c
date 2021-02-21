@@ -1231,16 +1231,17 @@ void element_toggle_button_set_checked( ELEMENT_TOGGLE_BUTTON *e )
 	e->checked = 1;
 }
 
-void element_toggle_button_output( 	FILE *output_file,
-					char *element_name,
-					char *heading,
-					boolean checked,
-					int row,
-					char onchange_submit_yn,
-					char *form_name,
-					char *image_source,
-					char *onclick_keystrokes_save_string,
-					char *onclick_function )
+void element_toggle_button_output(
+			FILE *output_file,
+			char *element_name,
+			char *heading,
+			boolean checked,
+			int row,
+			char onchange_submit_yn,
+			char *form_name,
+			char *image_source,
+			char *onclick_keystrokes_save_string,
+			char *onclick_function )
 {
 	char buffer[ 256 ];
 

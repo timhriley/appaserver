@@ -215,11 +215,14 @@ char *tuition_refund_memo(
 void tuition_refund_list_payor_entity_insert(
 			LIST *tuition_refund_list );
 
-LIST *tuition_refund_registration_list(
+LIST *tuition_refund_list_registration_list(
+			LIST *tuition_refund_list );
+
+LIST *tuition_refund_list_enrollment_list(
 			LIST *tuition_refund_list );
 
 LIST *tuition_refund_enrollment_list(
-			LIST *tuition_refund_list );
+			TUITION_REFUND *tuition_refund );
 
 LIST *tuition_refund_list_paypal(
 			char *season_name,

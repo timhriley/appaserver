@@ -51,9 +51,7 @@ int main( int argc, char **argv )
 	char *payor_street_address;
 	char *sale_date_time;
 	char *refund_date_time;
-	char *preupdate_transaction_date_time;
 	char *state;
-	TICKET_REFUND *ticket_refund;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -62,10 +60,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 10 )
+	if ( argc != 9 )
 	{
 		fprintf(stderr,
-"Usage: %s program_name event_date event_time payor_full_name payor_street_address sale_date_time refund_date_time preupdate_transaction_date_time state\n",
+"Usage: %s program_name event_date event_time payor_full_name payor_street_address sale_date_time refund_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete}\n" );
@@ -79,8 +77,7 @@ int main( int argc, char **argv )
 	payor_street_address = argv[ 5 ];
 	sale_date_time = argv[ 6 ];
 	refund_date_time = argv[ 7 ];
-	preupdate_transaction_date_time = argv[ 8 ];
-	state = argv[ 9 ];
+	state = argv[ 8 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -95,39 +92,31 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( ! ( ticket_refund =
-			ticket_refund_fetch(
-				program_name,
-				event_date,
-				event_time,
-				payor_full_name,
-				payor_street_address,
-				sale_date_time,
-				refund_date_time,
-				1 /* fetch_event */,
-				1 /* fetch_transaction */ ) ) )
-	{
-		exit( 0 );
-	}
-
-	if ( transaction_date_time_changed(
-			preupdate_transaction_date_time )
-	&&   ticket_refund->ticket_refund_transaction )
-	{
-		journal_account_name_list_propagate(
-			transaction_date_time_earlier(
-				ticket_refund->transaction_date_time,
-				preupdate_transaction_date_time ),
-			journal_list_account_name_list(
-				ticket_refund->
-					ticket_refund_transaction->
-					journal_list ) );
-	}
-
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
+		TICKET_REFUND *ticket_refund;
 		LIST *ticket_refund_list;
+
+		if ( ! ( ticket_refund =
+				ticket_refund_fetch(
+					program_name,
+					event_date,
+					event_time,
+					payor_full_name,
+					payor_street_address,
+					sale_date_time,
+					refund_date_time,
+					1 /* fetch_event */,
+					0 /* not fetch_transaction */ ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: ticket_refund_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		ticket_refund_list =
 			ticket_refund_trigger_insert_update(

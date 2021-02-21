@@ -348,13 +348,15 @@ void paypal_upload_display(
 			paypal_deposit->net_revenue,
 			paypal_deposit->account_balance,
 			enrollment_list_display(
-				tuition_payment_enrollment_list(
+				tuition_payment_list_enrollment_list(
 					paypal_deposit->
 						tuition_payment_list ) ),
+			enrollment_withdrawal_list_display(
+				tuition_refund_list_enrollment_list(
+						paypal_deposit->
+						tuition_refund_list ) ),
 			product_sale_list_display(
 				paypal_deposit->product_sale_list ),
-			tuition_refund_list_display(
-				paypal_deposit->tuition_refund_list ),
 			product_refund_list_display(
 				paypal_deposit->product_refund_list ),
 			ticket_sale_list_display(

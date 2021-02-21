@@ -769,60 +769,7 @@ void tuition_payment_list_payor_entity_insert(
 	if ( system( sys_string ) ){};
 }
 
-char *tuition_payment_list_display( LIST *tuition_payment_list )
-{
-	char display[ 65536 ];
-	char *ptr = display;
-	TUITION_PAYMENT *tuition_payment;
-	char *course_name;
-
-	*ptr = '\0';
-
-	if ( !list_rewind( tuition_payment_list ) )
-	{
-		return "";
-	}
-
-	ptr += sprintf( ptr, "Tuition payment: " );
-
-	do {
-		tuition_payment =
-			list_get(
-				tuition_payment_list );
-
-		if ( !list_at_head( tuition_payment_list ) )
-		{
-			ptr += sprintf( ptr, ", " );
-		}
-
-		if ( tuition_payment->course_name )
-		{
-			course_name = tuition_payment->course_name;
-		}
-		else
-		{
-			course_name = "Unknown";
-		}
-
-		ptr += sprintf(	ptr,
-				"%s will enroll in %s; ",
-				entity_name_display(
-					tuition_payment->
-						registration->
-						student_entity->
-						full_name,
-					tuition_payment->
-						registration->
-						student_entity->
-						street_address ),
-				course_name );
-
-	} while ( list_next( tuition_payment_list ) );
-
-	return strdup( display );
-}
-
-LIST *tuition_payment_enrollment_list(
+LIST *tuition_payment_list_enrollment_list(
 			LIST *tuition_payment_list )
 {
 	TUITION_PAYMENT *tuition_payment;
@@ -861,16 +808,41 @@ LIST *tuition_payment_enrollment_list(
 
 		}
 
-		list_set(
+		list_set_list(
 			enrollment_list,
-			list_last(
-				tuition_payment->
-				       registration->
-				       enrollment_list ) );
+			tuition_payment->
+			       registration->
+			       enrollment_list );
 
 	} while ( list_next( tuition_payment_list ) );
 
 	return enrollment_list;
+}
+
+LIST *tuition_payment_enrollment_list(
+			TUITION_PAYMENT *tuition_payment )
+{
+	if ( !tuition_payment->registration )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty registration.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( tuition_payment->registration->enrollment_list ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty enrollment_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return tuition_payment->registration->enrollment_list;
 }
 
 double tuition_payment_receivable_credit_amount(
@@ -1004,6 +976,9 @@ void tuition_payment_list_set_transaction(
 		tuition_payment_set_transaction(
 			transaction_seconds_to_add,
 			tuition_payment,
+			enrollment_list_first_program_name(
+				tuition_payment_enrollment_list(
+					tuition_payment ) ),
 			cash_account_name,
 			receivable,
 			fees_expense,
@@ -1015,6 +990,7 @@ void tuition_payment_list_set_transaction(
 void tuition_payment_set_transaction(
 			int *transaction_seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
+			char *course_name,
 			char *cash_account_name,
 			char *account_receivable,
 			char *account_fees_expense,

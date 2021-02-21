@@ -39,13 +39,7 @@ void tuition_refund_trigger_predelete(
 /* Returns list of one (TUITION_REFUND *) */
 /* -------------------------------------- */
 LIST *tuition_refund_trigger_insert_update(
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *refund_date_time );
+			TUITION_REFUND *tuition_refund );
 
 int main( int argc, char **argv )
 {
@@ -57,7 +51,6 @@ int main( int argc, char **argv )
 	char *payor_full_name;
 	char *payor_street_address;
 	char *refund_date_time;
-	char *preupdate_transaction_date_time;
 	char *state;
 
 	/* Exits if fails. */
@@ -69,13 +62,13 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 10 )
+	if ( argc != 9 )
 	{
 		fprintf(stderr,
-"Usage: %s student_full_name street_address season_name year payor_full_name payor_street_address refund_date_time preupdate_transaction_date_time state\n",
+"Usage: %s student_full_name street_address season_name year payor_full_name payor_street_address refund_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
-			"state in {insert,update,predelete,delete,deposit}\n" );
+			"state in {insert,update,predelete}\n" );
 		exit ( 1 );
 	}
 
@@ -86,8 +79,7 @@ int main( int argc, char **argv )
 	payor_full_name = argv[ 5 ];
 	payor_street_address = argv[ 6 ];
 	refund_date_time = argv[ 7 ];
-	preupdate_transaction_date_time = argv[ 8 ];
-	state = argv[ 9 ];
+	state = argv[ 8 ];
 
 	if ( !year ) exit( 0 );
 
@@ -101,42 +93,48 @@ int main( int argc, char **argv )
 			payor_full_name,
 			payor_street_address,
 			refund_date_time );
-	}
-
-	if ( transaction_date_time_changed(
-			preupdate_transaction_date_time ) )
-	{
-		journal_account_name_list_propagate(
-			transaction_date_time_earlier(
-				transaction_date_time,
-				preupdate_transaction_date_time ),
-			journal_list_account_name_list(
-				journal_list ) );
+		exit( 0 );
 	}
 
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
+		TUITION_REFUND *tuition_refund;
 		LIST *tuition_refund_list;
+
+		if ( ! ( tuition_refund =
+				tuition_refund_fetch(
+					student_full_name,
+					street_address,
+					season_name,
+					year,
+					payor_full_name,
+					payor_street_address,
+					refund_date_time,
+					1 /* fetch_registration */,
+					1 /* fetch_enrollment_list */,
+					1 /* fetch_offering */,
+					1 /* fetch_course */,
+					0 /* fetch_program */,
+					0 /* not fetch_transaction */ ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: tuition_refund_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		tuition_refund_list =
 			tuition_refund_trigger_insert_update(
-				student_full_name,
-				street_address,
-				season_name,
-				year,
-				payor_full_name,
-				payor_street_address,
-				refund_date_time );
+				tuition_refund );
 
-		if ( list_length( tuition_refund_list ) )
-		{
-			registration_list_fetch_update(
-				tuition_refund_registration_list(
-					tuition_refund_list ),
-				season_name,
-				year );
-		}
+		registration_list_fetch_update(
+			tuition_refund_registration_list(
+				tuition_refund_list ),
+			season_name,
+			year );
 	}
 
 	if ( strcmp( state, "delete" ) == 0 )
@@ -169,37 +167,13 @@ int main( int argc, char **argv )
 }
 
 LIST *tuition_refund_trigger_insert_update(
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *refund_date_time )
+			TUITION_REFUND *tuition_refund )
 {
 	TUITION_REFUND *tuition_refund;
 	LIST *tuition_refund_list;
 	int transaction_seconds_to_add = 0;
 	char *program_name = {0};
 	char *revenue_account = {0};
-
-	if ( ! ( tuition_refund =
-			tuition_refund_fetch(
-				student_full_name,
-				street_address,
-				season_name,
-				year,
-				payor_full_name,
-				payor_street_address,
-				refund_date_time,
-				1 /* fetch_registration */,
-				1 /* fetch_enrollment_list */,
-				1 /* fetch_offering */,
-				1 /* fetch_course */,
-				0 /* fetch_program */ ) ) )
-	{
-		return (LIST *)0;
-	}
 
 	/* If no enrollment */
 	/* ---------------- */
@@ -214,7 +188,7 @@ LIST *tuition_refund_trigger_insert_update(
 	else
 	{
 		program_name =
-			enrollment_list_program_name(
+			enrollment_list_first_program_name(
 				tuition_refund->
 					registration->
 					enrollment_list );

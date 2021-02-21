@@ -56,12 +56,9 @@ void build_related_folder_element_list(
 			char *session,
 			char *role_name,
 			char *login_name,
-			boolean omit_drop_down_new_push_button,
 			DICTIONARY *preprompt_dictionary,
 		  	char *no_display_push_button_prefix,
 		  	char *no_display_push_button_heading,
-			LIST *role_folder_insert_list,
-			char *form_name,
 			boolean row_level_non_owner_forbid,
 			char *one2m_folder_name_for_processes,
 			boolean attribute_exists_in_preprompt_dictionary,
@@ -153,7 +150,6 @@ LIST *get_element_list(
 			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
 			boolean group_button,
 			boolean sort_order_button,
-			char *form_name,
 			char *state );
 
 int main( int argc, char **argv )
@@ -570,7 +566,6 @@ void output_prompt_edit_form(
 			lookup_before_drop_down,
 			group_button,
 			sort_order_button,
-			form->form_name,
 			state );
 
 	if ( !list_length( form->regular_element_list ) )
@@ -957,7 +952,6 @@ LIST *get_element_list(
 			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
 			boolean group_button,
 			boolean sort_order_button,
-			char *form_name,
 			char *state )
 {
 	LIST *return_list;
@@ -968,12 +962,10 @@ LIST *get_element_list(
 	LIST *radio_button_element_list = {0};
 	LIST *isa_folder_list;
 	char *hint_message;
-	boolean omit_drop_down_new_push_button = 0;
 	boolean omit_push_buttons = 0;
 	LIST *done_folder_name_list = list_new();
 	char *no_display_push_button_prefix = {0};
 	char *no_display_push_button_heading = {0};
-	LIST *role_folder_insert_list = {0};
 	boolean attribute_exists_in_preprompt_dictionary;
 	FOLDER *folder;
 	FOLDER *prompt_folder;
@@ -1173,12 +1165,9 @@ LIST *get_element_list(
 			   	session,
 			   	role_name,
 			   	login_name,
-			   	omit_drop_down_new_push_button,
 			   	preprompt_dictionary,
 		  	   	no_display_push_button_prefix,
 		  	   	no_display_push_button_heading,
-			   	role_folder_insert_list,
-			   	form_name,
 			   	row_level_non_owner_forbid,
 			   	folder_name
 					/* one2m_folder_name_for_processes */,
@@ -1779,7 +1768,6 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 {
 	LIST *recursive_element_list;
 	PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder;
-	boolean omit_drop_down_new_push_button;
 	char *no_display_push_button_prefix = {0};
 	char *no_display_push_button_heading = {0};
 	boolean set_first_initial_data;
@@ -1791,11 +1779,6 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 	{
 		no_display_push_button_prefix = NO_DISPLAY_PUSH_BUTTON_PREFIX;
 		no_display_push_button_heading = NO_DISPLAY_PUSH_BUTTON_HEADING;
-		omit_drop_down_new_push_button = 0;
-	}
-	else
-	{
-		omit_drop_down_new_push_button = 1;
 	}
 
 	recursive_element_list = list_new_list();
@@ -2128,12 +2111,9 @@ void build_related_folder_element_list(
 			char *session,
 			char *role_name,
 			char *login_name,
-			boolean omit_drop_down_new_push_button,
 			DICTIONARY *preprompt_dictionary,
 		  	char *no_display_push_button_prefix,
 		  	char *no_display_push_button_heading,
-			LIST *role_folder_insert_list,
-			char *form_name,
 			boolean row_level_non_owner_forbid,
 			char *one2m_folder_name_for_processes,
 			boolean attribute_exists_in_preprompt_dictionary,

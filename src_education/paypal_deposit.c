@@ -268,7 +268,7 @@ void paypal_deposit_set_transaction(
 	{
 		enrollment_list_set_transaction(
 			&transaction_seconds_to_add,
-			tuition_payment_enrollment_list(
+			tuition_payment_list_enrollment_list(
 				paypal_deposit->tuition_payment_list ) );
 
 		tuition_payment_list_set_transaction(

@@ -45,9 +45,7 @@ int main( int argc, char **argv )
 	char *payor_full_name;
 	char *payor_street_address;
 	char *payment_date_time;
-	char *preupdate_transaction_date_time;
 	char *state;
-	PROGRAM_DONATION *program_donation;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -56,13 +54,13 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s program_name payor_full_name payor_street_address payment_date_time preupdate_transaction_date_time state\n",
+"Usage: %s program_name payor_full_name payor_street_address payment_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
-			"state in {insert,update,predelete,delete}\n" );
+			"state in {insert,update,predelete}\n" );
 		exit ( 1 );
 	}
 
@@ -70,8 +68,7 @@ int main( int argc, char **argv )
 	payor_full_name = argv[ 2 ];
 	payor_street_address = argv[ 3 ];
 	payment_date_time = argv[ 4 ];
-	preupdate_transaction_date_time = argv[ 5 ];
-	state = argv[ 6 ];
+	state = argv[ 5 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -83,37 +80,28 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( ! ( program_donation =
-			program_donation_fetch(
-				program_name,
-				payor_full_name,
-				payor_street_address,
-				payment_date_time,
-				1 /* fetch_program */,
-				1 /* fetch_transaction */ ) ) )
-	{
-		exit( 0 );
-	}
-
-	if ( transaction_date_time_changed(
-			preupdate_transaction_date_time )
-	&&   program_donation->program_donation_transaction )
-	{
-		journal_account_name_list_propagate(
-			transaction_date_time_earlier(
-				program_donation->
-					transaction_date_time,
-				preupdate_transaction_date_time ),
-			journal_list_account_name_list(
-				program_donation->
-					program_donation_transaction->
-					journal_list ) );
-	}
-
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
+		PROGRAM_DONATION *program_donation;
 		LIST *program_donation_list;
+
+		if ( ! ( program_donation =
+				program_donation_fetch(
+					program_name,
+					payor_full_name,
+					payor_street_address,
+					payment_date_time,
+					1 /* fetch_program */,
+					0 /* not fetch_transaction */ ) ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: program_donation_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		program_donation_list =
 			program_donation_trigger_insert_update(

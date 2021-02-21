@@ -446,16 +446,6 @@ int main( int argc, char **argv )
 			application_get_title_string(
 				application_name ) );
 
-	/* Setup remember button */
-	/* --------------------- */
-	remember_button_non_multi_element_name_list =
-		element_list2remember_keystrokes_non_multi_element_name_list(
-			form->regular_element_list );
-
-	remember_button_multi_element_name_list =
-		element_list2remember_keystrokes_multi_element_name_list(
-			form->regular_element_list );
-
 	form_set_folder_parameters(
 		form,
 		state,
@@ -470,38 +460,17 @@ int main( int argc, char **argv )
 	form->output_row_zero_only = 1;
 	form->html_help_file_anchor = html_help_file_anchor;
 
-	form->onload_control_string =
-		form_get_remember_keystrokes_onload_control_string(
-			form->form_name,
-			remember_button_non_multi_element_name_list,
-			remember_button_multi_element_name_list,
-			folder->post_change_javascript,
-			COOKIE_KEY_PREFIX,
-			folder_name );
-
-	/* Appends to form->submit_control_string */
-	/* -------------------------------------- */
-	form_append_remember_keystrokes_submit_control_string(
-		&form->onclick_keystrokes_save_string,
-		form,
-		remember_button_non_multi_element_name_list,
-		remember_button_multi_element_name_list,
-		COOKIE_KEY_PREFIX,
-		folder_name );
-
 	pair_one2m =
 		pair_one2m_prompt_form_new(
 			folder_name
-				/* one_folder_name */,
-			form->onclick_keystrokes_save_string
-				/* keystrokes_save_function */ );
+				/* one_folder_name */ );
 
 	pair_one2m->prompt_form_folder_list =
 		pair_one2m_prompt_form_folder_list(
-			pair_one2m->keystrokes_save_function,
 			relation_one2m_pair_relation_list(
 				relation_one2m_relation_list(
 					pair_one2m->one_folder_name ) ) );
+
 
 	omit_ignore_push_buttons =
 		( list_length( pair_one2m->
@@ -532,11 +501,45 @@ int main( int argc, char **argv )
 			state,
 			lookup_before_drop_down );
 
-#ifdef NOT_DEFINED
+	/* Setup remember button */
+	/* --------------------- */
+	remember_button_non_multi_element_name_list =
+		element_list2remember_keystrokes_non_multi_element_name_list(
+			form->regular_element_list );
+
+	remember_button_multi_element_name_list =
+		element_list2remember_keystrokes_multi_element_name_list(
+			form->regular_element_list );
+
+	form->onload_control_string =
+		form_get_remember_keystrokes_onload_control_string(
+			form->form_name,
+			remember_button_non_multi_element_name_list,
+			remember_button_multi_element_name_list,
+			folder->post_change_javascript,
+			COOKIE_KEY_PREFIX,
+			folder_name );
+
+	/* Appends to form->submit_control_string */
+	/* -------------------------------------- */
+	form_append_remember_keystrokes_submit_control_string(
+		&form->onclick_keystrokes_save_string,
+		form,
+		remember_button_non_multi_element_name_list,
+		remember_button_multi_element_name_list,
+		COOKIE_KEY_PREFIX,
+		folder_name );
+
 	form_set_new_button_onclick_keystrokes_save_string(
 		form->regular_element_list,
 		form->onclick_keystrokes_save_string );
-#endif
+
+	pair_one2m->keystrokes_save_function =
+		form->onclick_keystrokes_save_string;
+
+	pair_one2m_set_folder_button_string(
+		pair_one2m->prompt_form_folder_list,
+		pair_one2m->keystrokes_save_function );
 
 	/* Create the two pair_one2m hidden elements */
 	/* ----------------------------------------- */
