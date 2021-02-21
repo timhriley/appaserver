@@ -397,7 +397,7 @@ ACCOUNT *account_key_seek(
 			if ( timlib_strcmp(
 				account->fund_name,
 				fund_name ) == 0
-			&&   timlib_strcmp(
+			&&   string_exists_substr(
 				account->account_key,
 				account_key ) == 0 )
 			{
@@ -406,7 +406,7 @@ ACCOUNT *account_key_seek(
 		}
 		else
 		{
-			if ( timlib_strcmp(
+			if ( string_exists_substr(
 				account->account_key,
 				account_key ) == 0 )
 			{
