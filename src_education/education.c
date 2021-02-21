@@ -57,7 +57,7 @@ EDUCATION *education_calloc( void )
 	return education;
 }
 
-EDUCATION *education_spreadsheet_fetch(
+EDUCATION *education_spreadsheet_column_list_fetch(
 			char *season_name,
 			int year,
 			char *spreadsheet_filename,
@@ -76,7 +76,7 @@ EDUCATION *education_spreadsheet_fetch(
 			1 /* fetch_event_list */ );
 
 	education->paypal =
-		paypal_fetch(
+		paypal_column_list_fetch(
 			spreadsheet_filename,
 			date_label );
 
@@ -85,14 +85,6 @@ EDUCATION *education_spreadsheet_fetch(
 			1 /* fetch_alias_list */ );
 
 	education->product_list = product_list();
-
-	education->spreadsheet_minimum_date =
-		spreadsheet_minimum_date(
-			&education->spreadsheet_maximum_date,
-			&education->spreadsheet_row_count,
-			education->spreadsheet_filename,
-			education->date_label );
-
 	return education;
 }
 

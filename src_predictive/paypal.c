@@ -33,7 +33,8 @@ PAYPAL *paypal_calloc( void )
 	return p;
 }
 
-PAYPAL *paypal_fetch(	char *spreadsheet_filename,
+PAYPAL *paypal_column_list_fetch(
+			char *spreadsheet_filename,
 			char *date_label )
 {
 	PAYPAL *paypal = paypal_calloc();

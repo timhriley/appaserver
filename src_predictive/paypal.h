@@ -36,7 +36,8 @@ typedef struct
 /* ---------- */
 PAYPAL *paypal_calloc(	void );
 
-PAYPAL *paypal_fetch(	char *spreadsheet_filename,
+PAYPAL *paypal_column_list_fetch(
+			char *spreadsheet_filename,
 			char *date_label );
 
 #endif
