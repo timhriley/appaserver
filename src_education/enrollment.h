@@ -188,14 +188,7 @@ void enrollment_list_update(
 LIST *enrollment_registration_list(
 			LIST *enrollment_list );
 
-char *enrollment_offering_program_name(
-			LIST *enrollment_list );
-
-OFFERING *enrollment_offering_seek(
-			char *course_name,
-			LIST *enrollment_list );
-
-char *enrollment_list_program_name(
+char *enrollment_list_first_program_name(
 			LIST *enrollment_list );
 
 char *enrollment_list_revenue_account(

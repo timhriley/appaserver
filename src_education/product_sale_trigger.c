@@ -44,9 +44,7 @@ int main( int argc, char **argv )
 	char *payor_full_name;
 	char *payor_street_address;
 	char *sale_date_time;
-	char *preupdate_transaction_date_time;
 	char *state;
-	PRODUCT_SALE *product_sale;
 
 	/* Exits if fails. */
 	/* --------------- */
@@ -57,10 +55,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s product_name payor_full_name payor_street_address sale_date_time preupdate_transaction_date_time state\n",
+"Usage: %s product_name payor_full_name payor_street_address sale_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete}\n" );
@@ -71,8 +69,7 @@ int main( int argc, char **argv )
 	payor_full_name = argv[ 2 ];
 	payor_street_address = argv[ 3 ];
 	sale_date_time = argv[ 4 ];
-	preupdate_transaction_date_time = argv[ 5 ];
-	state = argv[ 6 ];
+	state = argv[ 5 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -84,36 +81,28 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( ! ( product_sale =
-			product_sale_fetch(
-				product_name,
-				payor_full_name,
-				payor_street_address,
-				sale_date_time,
-				1 /* fetch_product */,
-				1 /* fetch_transaction */ ) ) )
-	{
-		exit( 0 );
-	}
-
-	if ( transaction_date_time_changed(
-			preupdate_transaction_date_time )
-	&&   product_sale->product_sale_transaction )
-	{
-		journal_account_name_list_propagate(
-			transaction_date_time_earlier(
-				product_sale->transaction_date_time,
-				preupdate_transaction_date_time ),
-			journal_list_account_name_list(
-				product_sale->
-					product_sale_transaction->
-					journal_list ) );
-	}
-
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
+		PRODUCT_SALE *product_sale;
 		LIST *product_sale_list;
+
+		if ( ! ( product_sale =
+				product_sale_fetch(
+					product_name,
+					payor_full_name,
+					payor_street_address,
+					sale_date_time,
+					1 /* fetch_product */,
+					0 /* not fetch_transaction */ ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: product_sale_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		product_sale_list =
 			product_sale_trigger_insert_update(

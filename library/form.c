@@ -25,6 +25,7 @@
 #include "appaserver_library.h"
 #include "appaserver_parameter_file.h"
 #include "application_constants.h"
+#include "vertical_new_button.h"
 #include "pair_one2m.h"
 
 FORM *form_new_form( void )
@@ -2093,10 +2094,9 @@ void form_output_prompt_insert_reset_button(
 	printf( "\">\n" );
 }
 
-#ifdef NOT_DEFINED
 void form_set_new_button_onclick_keystrokes_save_string(
-				LIST *element_list,
-				char *onclick_keystrokes_save_string )
+			LIST *element_list,
+			char *onclick_keystrokes_save_string )
 {
 	ELEMENT_APPASERVER *element;
 
@@ -2107,11 +2107,10 @@ void form_set_new_button_onclick_keystrokes_save_string(
 
 		if ( element->element_type == toggle_button
 		&&   timlib_strncmp(element->name,
-				    VERTICAL_NEW_PUSH_BUTTON_PREFIX ) == 0 )
+				    VERTICAL_NEW_BUTTON_ONE_PREFIX ) == 0 )
 		{
 			element->toggle_button->onclick_keystrokes_save_string =
 				onclick_keystrokes_save_string;
 		}
 	} while( list_next( element_list ) );
 }
-#endif

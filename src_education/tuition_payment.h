@@ -187,15 +187,11 @@ void tuition_payment_list_student_insert(
 void tuition_payment_list_payor_entity_insert(
 			LIST *tuition_payment_list );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *tuition_payment_list_display(
+LIST *tuition_payment_list_enrollment_list(
 			LIST *tuition_payment_list );
 
-/* To build the revenue transaction */
-/* -------------------------------- */
 LIST *tuition_payment_enrollment_list(
-			LIST *tuition_payment_list );
+			TUITION_PAYMENT *tuition_payment );
 
 LIST *tuition_payment_registration_list(
 			LIST *tuition_payment_list );
@@ -243,6 +239,7 @@ void tuition_payment_list_set_transaction(
 void tuition_payment_set_transaction(
 			int *seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
+			char *course_name,
 			char *cash_account_name,
 			char *account_revenue,
 			char *account_fees_expense,

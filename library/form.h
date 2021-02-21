@@ -390,11 +390,9 @@ void form_build_cookie_key_buffer(
 				char *cookie_key_prefix,
 				char *cookie_key );
 
-/*
 void form_set_new_button_onclick_keystrokes_save_string(
-				LIST *element_list,
-				char *onclick_keystrokes_save_string );
-*/
+			LIST *element_list,
+			char *onclick_keystrokes_save_string );
 
 void form_output_prelookup_button(
 				char *control_string,

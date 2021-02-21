@@ -109,7 +109,7 @@ int main( int argc, char **argv )
 	boolean with_dynarch_menu = 0;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *primary_data_list_string;
-	PAIR_ONE2M *pair_one2m;
+	PAIR_ONE2M *pair_one2m = {0};
 	char *message = {0};
 	boolean output_content_type = 1;
 	VERTICAL_NEW_BUTTON *vertical_new_button;
@@ -422,6 +422,7 @@ int main( int argc, char **argv )
 				relation_one2m_relation_list(
 					pair_one2m->one_folder_name ) );
 
+/*
 		if ( pair_one2m_inserted_duplicate(
 			PAIR_ONE2M_DUPLICATE_KEY,
 			pair_one2m->pair_one2m_dictionary ) )
@@ -434,6 +435,7 @@ int main( int argc, char **argv )
 			printf( DUPLICATE_MULTIPLE_ROWS_MESSAGE );
 			output_content_type = 0;
 		}
+*/
 
 		/* If pressed a related folder button */
 		/* ---------------------------------- */
@@ -758,6 +760,13 @@ int main( int argc, char **argv )
 	document_output_body(
 			document->application_name,
 			document->onload_control_string );
+
+	if ( pair_one2m && pair_one2m_inserted_duplicate(
+		PAIR_ONE2M_DUPLICATE_KEY,
+		pair_one2m->pair_one2m_dictionary ) )
+	{
+		message = DUPLICATE_MULTIPLE_ROWS_MESSAGE;
+	}
 
 	if ( message && *message )
 	{

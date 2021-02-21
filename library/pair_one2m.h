@@ -58,8 +58,7 @@ PAIR_ONE2M *pair_one2m_calloc(
 			void );
 
 PAIR_ONE2M *pair_one2m_prompt_form_new(
-			char *one_folder_name,
-			char *keystrokes_save_function );
+			char *one_folder_name );
 
 PAIR_ONE2M *pair_one2m_post_new(
 			DICTIONARY *pair_one2m_dictionary );
@@ -68,7 +67,6 @@ PAIR_ONE2M_FOLDER *pair_one2m_folder_new(
 			char *many_folder_name );
 
 LIST *pair_one2m_prompt_form_folder_list(
-			char *keystrokes_save_function,
 			LIST *one2m_relation_list );
 
 char *pair_folder_element_copy_function(
@@ -133,6 +131,10 @@ void pair_one2m_folder_set(
 			DICTIONARY *pair_one2m_dictionary,
 			char *folder_label,
 			char *folder_name );
+
+void pair_one2m_set_folder_button_string(
+			LIST *prompt_form_folder_list,
+			char *keystrokes_save_function );
 
 #endif
 

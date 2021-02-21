@@ -47,9 +47,7 @@ int main( int argc, char **argv )
 	char *course_name;
 	char *season_name;
 	int year;
-	char *preupdate_transaction_date_time;
 	char *state;
-	ENROLLMENT *enrollment;
 
 	/* Exits if fails. */
 	/* --------------- */
@@ -60,10 +58,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s full_name street_address course_name season_name year preupdate_transaction_date_time state\n",
+"Usage: %s full_name street_address course_name season_name year state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -73,8 +71,7 @@ int main( int argc, char **argv )
 	course_name = argv[ 3 ];
 	season_name = argv[ 4 ];
 	year = atoi( argv[ 5 ] );
-	preupdate_transaction_date_time = argv[ 6 ];
-	state = argv[ 7 ];
+	state = argv[ 6 ];
 
 	if ( !year ) exit( 0 );
 
@@ -89,40 +86,34 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( ! ( enrollment =
-			enrollment_fetch(
-				student_full_name,
-				street_address,
-				course_name,
-				season_name,
-				year,
-				1 /* fetch_offering */,
-				1 /* fetch_course */,
-				0 /* not fetch_program */,
-				1 /* fetch_registration */,
-				1 /* fetch_transaction */ ) ) )
-	{
-		exit( 0 );
-	}
-
-	if ( transaction_date_time_changed(
-			preupdate_transaction_date_time )
-	&&   enrollment->enrollment_transaction )
-	{
-		journal_account_name_list_propagate(
-			transaction_date_time_earlier(
-				enrollment->transaction_date_time,
-				preupdate_transaction_date_time ),
-			journal_list_account_name_list(
-				enrollment->
-					enrollment_transaction->
-					journal_list ) );
-	}
-
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		LIST *enrollment_list =
+		LIST *enrollment_list;
+		ENROLLMENT *enrollment;
+
+		if ( ! ( enrollment =
+				enrollment_fetch(
+					student_full_name,
+					street_address,
+					course_name,
+					season_name,
+					year,
+					1 /* fetch_offering */,
+					1 /* fetch_course */,
+					0 /* not fetch_program */,
+					1 /* fetch_registration */,
+					0 /* not fetch_transaction */ ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: enrollment_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		enrollment_list =
 			/* ---------------------------------- */
 			/* Returns list of one (ENROLLMENT *) */
 			/* ---------------------------------- */
@@ -190,10 +181,7 @@ LIST *enrollment_trigger_insert_update(
 	||   !*enrollment->transaction_date_time )
 	{
 		enrollment->transaction_date_time =
-			transaction_race_free(
-				enrollment->
-					registration->
-					registration_date_time );
+			date_now19( date_utc_offset() );
 	}
 
 	if ( enrollment_set_transaction(

@@ -542,8 +542,17 @@ char *tuition_refund_list_display( LIST *refund_list )
 		}
 
 		ptr += sprintf(	ptr,
-				"%.2lf",
-				refund->refund_amount );
+				"refund of %.2lf for %s",
+				refund->refund_amount,
+				entity_name_display(
+					tuition_refund->
+						registration->
+						student_entity->
+						full_name,
+					tuition_refund->
+						registration->
+						student_entity->
+						street_address ) );
 
 	} while ( list_next( refund_list ) );
 
@@ -1061,5 +1070,81 @@ boolean tuition_refund_list_exists(
 	} while ( list_next( tuition_refund_list ) );
 
 	return 0;
+}
+
+LIST *tuition_refund_list_enrollment_list(
+			LIST *tuition_refund_list )
+{
+	TUITION_REFUND *tuition_refund;
+	LIST *enrollment_list;
+
+	if ( !list_rewind( tuition_refund_list ) ) return (LIST *)0;
+
+	enrollment_list = list_new();
+
+	do {
+		tuition_refund =
+			list_get(
+				tuition_refund_list );
+
+		if ( !tuition_refund->registration )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: empty registration.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		if ( !list_length( 
+			tuition_refund->
+			     registration->
+			     enrollment_list ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty enrollment_list.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+
+		}
+
+		list_set_list(
+			enrollment_list,
+			tuition_refund->
+			       registration->
+			       enrollment_list ) );
+
+	} while ( list_next( tuition_refund_list ) );
+
+	return enrollment_list;
+}
+
+LIST *tuition_refund_enrollment_list(
+			TUITION_REFUND *tuition_refund )
+{
+	if ( !tuition_refund->registration )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty registration.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( tuition_refund->registration->enrollment_list ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty enrollment_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return tuition_refund->registration->enrollment_list;
 }
 

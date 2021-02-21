@@ -46,9 +46,7 @@ int main( int argc, char **argv )
 	char *payor_street_address;
 	char *sale_date_time;
 	char *refund_date_time;
-	char *preupdate_transaction_date_time;
 	char *state;
-	PRODUCT_REFUND *product_refund;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -57,13 +55,13 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s product_name payor_full_name payor_street_address sale_date_time refund_date_time preupdate_transaction_date_time state\n",
+"Usage: %s product_name payor_full_name payor_street_address sale_date_time refund_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
-			"state in {insert,update,predelete,delete}\n" );
+			"state in {insert,update,predelete}\n" );
 		exit ( 1 );
 	}
 
@@ -72,8 +70,7 @@ int main( int argc, char **argv )
 	payor_street_address = argv[ 3 ];
 	sale_date_time = argv[ 4 ];
 	refund_date_time = argv[ 5 ];
-	preupdate_transaction_date_time = argv[ 6 ];
-	state = argv[ 7 ];
+	state = argv[ 6 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -86,38 +83,30 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( ! ( product_refund =
-			product_refund_fetch(
-				product_name,
-				payor_full_name,
-				payor_street_address,
-				sale_date_time,
-				refund_date_time,
-				1 /* fetch_sale */,
-				1 /* fetch_product */,
-				1 /* fetch_transaction */ ) ) )
-	{
-		exit( 0 );
-	}
-
-	if ( transaction_date_time_changed(
-			preupdate_transaction_date_time )
-	&&   product_refund->product_refund_transaction )
-	{
-		journal_account_name_list_propagate(
-			transaction_date_time_earlier(
-				product_refund->transaction_date_time,
-				preupdate_transaction_date_time ),
-			journal_list_account_name_list(
-				product_refund->
-					product_refund_transaction->
-					journal_list ) );
-	}
-
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
+		PRODUCT_REFUND *product_refund;
 		LIST *product_refund_list;
+
+		if ( ! ( product_refund =
+				product_refund_fetch(
+					product_name,
+					payor_full_name,
+					payor_street_address,
+					sale_date_time,
+					refund_date_time,
+					1 /* fetch_sale */,
+					1 /* fetch_product */,
+					0 /* not fetch_transaction */ ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: product_refund_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		product_refund_list =
 			product_refund_trigger_insert_update(
