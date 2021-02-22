@@ -144,39 +144,19 @@ DICTIONARY *pair_one2m_fulfilled_dictionary(
 
 char *pair_one2m_next_folder_name(
 			LIST *pair_one2m_fulfilled_folder_name_list,
-			LIST *relation_one2m_pair_relation_list,
-			char *one_folder_name,
-			char *many_folder_name )
+			LIST *relation_one2m_pair_relation_list )
 {
 	RELATION *relation;
-	boolean start_checking = 0;
-
-	if ( !list_exists_string(
-		one_folder_name,
-		pair_one2m_fulfilled_folder_name_list ) )
-	{
-		return one_folder_name;
-	}
 
 	if ( !list_rewind( relation_one2m_pair_relation_list ) )
 		return (char *)0;
-
-	if ( !many_folder_name ) start_checking = 1;
 
 	do {
 		relation =
 			list_get(
 				relation_one2m_pair_relation_list );
 
-		if ( string_strcmp(
-			relation->many_folder_name,
-			many_folder_name ) == 0 )
-		{
-			start_checking = 1;
-		}
-
-		if ( start_checking
-		&&   !list_exists_string(
+		if ( !list_exists_string(
 			relation->many_folder_name,
 			pair_one2m_fulfilled_folder_name_list ) )
 		{
@@ -312,15 +292,6 @@ LIST *pair_one2m_prompt_form_folder_list(
 					PAIR_ONE2M_MANY_FOLDER_LABEL ),
 				pair_one2m_folder->many_folder_name );
 
-/*
-		pair_one2m_folder->folder_button_string =
-			pair_folder_button_string(
-				pair_one2m_folder->many_folder_name,
-				keystrokes_save_function,
-				pair_one2m_folder->
-					copy_function );
-*/
-
 		list_set(
 			one2m_folder_list,
 			pair_one2m_folder );
@@ -364,4 +335,34 @@ void pair_one2m_set_folder_button_string(
 					copy_function );
 
 	} while( list_next( prompt_form_folder_list ) );
+}
+
+void pair_one2m_set_fulfilled_name_list(
+			LIST *fulfilled_name_list,
+			char *many_folder_name,
+			LIST *one2m_pair_relation_list )
+{
+	RELATION *relation;
+	LIST *one2m_folder_list;
+
+	if ( !list_rewind( one2m_pair_relation_list ) )
+	{
+		return;
+	}
+
+	do {
+		relation =
+			list_get( 
+				one2m_pair_relation_list );
+
+		list_set_unique(
+			fulfilled_name_list,
+			relation->many_folder_name );
+
+		if ( strcmp(	relation->many_folder_name,
+				many_folder_name ) == 0 )
+		{
+			return;
+		}
+	} while( list_next( one2m_pair_relation_list ) );
 }

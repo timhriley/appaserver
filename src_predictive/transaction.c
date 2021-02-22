@@ -1608,14 +1608,11 @@ char *transaction_exists_closing_date_time( char *as_of_date )
 	return transaction_exists_closing_entry( as_of_date );
 }
 
-/* Returns the existing transaction_date_time or NULL */
-/* -------------------------------------------------- */
 char *transaction_exists_closing_entry( char *as_of_date )
 {
 	char where[ 512 ];
 	char sys_string[ 1024 ];
 	char *results;
-	char *existing_transaction_date_time = "";
 
 	sprintf( where,
 		 "transaction_date_time = '%s %s' and	"

@@ -563,34 +563,6 @@ int main( int argc, char **argv )
 					PAIR_ONE2M_DUPLICATE_KEY );
 			}
 
-/*
-			pair_one2m->fulfilled_folder_name_list =
-				pair_one2m_fulfilled_folder_name_list(
-					PAIR_ONE2M_FULFILLED_LIST_LABEL,
-					pair_one2m->pair_one2m_dictionary );
-
-			list_set(
-				pair_one2m->fulfilled_folder_name_list,
-				pair_one2m->many_folder_name );
-
-			pair_one2m->one2m_pair_relation_list =
-				relation_one2m_pair_relation_list(
-					relation_one2m_relation_list(
-				   	pair_one2m->
-				   		one_folder_name ) );
-
-			pair_one2m->next_folder_name =
-				pair_one2m_next_folder_name(
-					pair_one2m->
-						fulfilled_folder_name_list,
-					pair_one2m->
-						one2m_pair_relation_list,
-					pair_one2m->
-						one_folder_name,
-					pair_one2m->
-						many_folder_name );
-*/
-
 			dictionary_appaserver->pair_one2m_dictionary =
 				pair_one2m_fulfilled_dictionary(
 					/* ---------------- */

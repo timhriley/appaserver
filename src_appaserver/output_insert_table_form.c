@@ -422,21 +422,6 @@ int main( int argc, char **argv )
 				relation_one2m_relation_list(
 					pair_one2m->one_folder_name ) );
 
-/*
-		if ( pair_one2m_inserted_duplicate(
-			PAIR_ONE2M_DUPLICATE_KEY,
-			pair_one2m->pair_one2m_dictionary ) )
-		{
-			document_quick_output_body(
-					application_name,
-					appaserver_parameter_file->
-						appaserver_mount_point );
-
-			printf( DUPLICATE_MULTIPLE_ROWS_MESSAGE );
-			output_content_type = 0;
-		}
-*/
-
 		/* If pressed a related folder button */
 		/* ---------------------------------- */
 		if ( strcmp(	pair_one2m->one_folder_name,
@@ -444,6 +429,20 @@ int main( int argc, char **argv )
 		{
 			pair_one2m->next_folder_name =
 				pair_one2m->many_folder_name;
+
+			pair_one2m_set_fulfilled_name_list(
+				pair_one2m->fulfilled_folder_name_list,
+				pair_one2m->many_folder_name,
+				pair_one2m->
+					one2m_pair_relation_list );
+
+			dictionary_appaserver->pair_one2m_dictionary =
+				pair_one2m_fulfilled_dictionary(
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					PAIR_ONE2M_FULFILLED_LIST_LABEL,
+					pair_one2m->
+						fulfilled_folder_name_list );
 		}
 		else
 		/* If doing a series */
@@ -454,10 +453,7 @@ int main( int argc, char **argv )
 					pair_one2m->
 						fulfilled_folder_name_list,
 					pair_one2m->
-						one2m_pair_relation_list,
-					pair_one2m->
-						one_folder_name,
-					(char *)0 /* many_folder_name */ );
+						one2m_pair_relation_list );
 		}
 
 		if ( !pair_one2m->next_folder_name )
@@ -843,17 +839,6 @@ int main( int argc, char **argv )
 
 	fflush( stdout );
 
-/*
-	if ( pair_one2m->is_participating )
-	{
-		if ( pair_one2m->inserted_duplicate )
-			printf( DUPLICATE_MULTIPLE_ROWS_MESSAGE );
-		else
-		if ( !pair_one2m->continuing_series )
-			printf( ONE_ROW_INSERTED_MESSAGE );
-	}
-*/
-
 	include_attribute_name_list =
 		list_subtract(	folder->attribute_name_list,
 				ignore_attribute_name_list );
@@ -969,8 +954,8 @@ int main( int argc, char **argv )
 	}
 
 	dictionary_appaserver_output_as_hidden(
-			dictionary_appaserver,
-			1 /* with non_prefixed_dictionary */ );
+		dictionary_appaserver,
+		1 /* with non_prefixed_dictionary */ );
 
 	if ( number_rows_outputted <= ROWS_FOR_SUBMIT_AT_BOTTOM )
 	{
