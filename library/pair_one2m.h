@@ -96,9 +96,7 @@ DICTIONARY *pair_one2m_fulfilled_dictionary(
 
 char *pair_one2m_next_folder_name(
 			LIST *pair_one2m_fulfilled_folder_name_list,
-			LIST *relation_one2m_pair_relation_list,
-			char *one_folder_name,
-			char *many_folder_name );
+			LIST *relation_one2m_pair_relation_list );
 
 char *pair_one2m_folder_name(
 			char *folder_label,
@@ -135,6 +133,11 @@ void pair_one2m_folder_set(
 void pair_one2m_set_folder_button_string(
 			LIST *prompt_form_folder_list,
 			char *keystrokes_save_function );
+
+void pair_one2m_set_fulfilled_name_list(
+			LIST *fulfilled_name_list,
+			char *many_folder_name,
+			LIST *one2m_pair_relation_list );
 
 #endif
 
