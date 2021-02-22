@@ -953,16 +953,17 @@ int main( int argc, char **argv )
 			login_name );
 	}
 
-	dictionary_appaserver_output_as_hidden(
-		dictionary_appaserver,
-		1 /* with non_prefixed_dictionary */ );
-
 	if ( number_rows_outputted <= ROWS_FOR_SUBMIT_AT_BOTTOM )
 	{
 		output_submit_reset_buttons_in_trailer = 0;
 	}
 
 	printf( "</table>\n" );
+
+	dictionary_appaserver_output_as_hidden(
+		dictionary_appaserver,
+		1 /* with non_prefixed_dictionary */ );
+
 	printf( "<table border=1>\n" );
 
 	form_output_trailer(

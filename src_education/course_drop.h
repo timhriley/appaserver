@@ -1,17 +1,17 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_education/enrollment.h		*/
+/* $APPASERVER_HOME/src_education/course_drop.h		*/
 /* ---------------------------------------------------- */
 /*							*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
 
-#ifndef ENROLLMENT_H
-#define ENROLLMENT_H
+#ifndef COURSE_DROP_H
+#define COURSE_DROP_H
 
 #include "list.h"
 #include "boolean.h"
 #include "offering.h"
-#include "registration.h"
+#include "enrollment.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -19,18 +19,19 @@
 
 /* Constants */
 /* --------- */
-#define ENROLLMENT_TABLE		"enrollment"
+#define COURSE_DROP_TABLE		"course_drop"
 
-#define ENROLLMENT_PRIMARY_KEY		\
+#define COURSE_DROP_PRIMARY_KEY		\
 	"full_name,street_address,course_name,season_name,year"
 
-#define ENROLLMENT_MEMO			"Enrollment"
+#define COURSE_DROP_MEMO		"Course Drop"
 
-#define ENROLLMENT_INSERT_COLUMNS	"full_name,"		\
+#define COURSE_DROP_INSERT_COLUMNS	"full_name,"		\
 					"street_address,"	\
 					"course_name,"		\
 					"season_name,"		\
 					"year,"			\
+					"refund_due_yn,"	\
 					"transaction_date_time"
 
 /* Structures */
@@ -39,82 +40,73 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	OFFERING *offering;
-	REGISTRATION *registration;
+	ENROLLMENT *enrollment;
 
 	/* Process */
 	/* ------- */
-	LIST *tuition_payment_list;
-	LIST *tuition_refund_list;
-	double tuition_payment_total;
-	double tuition_refund_total;
-
-	TRANSACTION *enrollment_transaction;
+	TRANSACTION *course_drop_transaction;
 	char *transaction_date_time;
-} ENROLLMENT;
+} COURSE_DROP;
 
-ENROLLMENT *enrollment_new(
+COURSE_DROP *course_drop_new(
 			ENTITY *student_entity,
 			char *course_name,
-			char *season_name,
-			int year,
-			REGISTRATION *registration,
-			OFFERING *offering );
+			SEMESTER *semester );
 
-ENROLLMENT *enrollment_fetch(
+COURSE_DROP *course_drop_fetch(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
 			int year,
+			boolean fetch_enrollment,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_program,
 			boolean fetch_registration,
 			boolean fetch_transaction );
 
-ENROLLMENT *enrollment_parse(
+COURSE_DROP *course_drop_parse(
 			char *input,
+			boolean fetch_enrollment,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_program,
 			boolean fetch_registration,
 			boolean fetch_transaction );
 
-boolean enrollment_set_transaction(
+boolean course_drop_set_transaction(
 			int *transaction_seconds_to_add,
-			ENROLLMENT *enrollment,
-			char *account_receivable,
+			COURSE_DROP *course_drop,
 			char *revenue_account,
+			char *account_payable,
 			char *program_name,
 			char *registration_date_time );
 
 /* Returns static memory */
 /* --------------------- */
-char *enrollment_primary_where(
+char *course_drop_primary_where(
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
 			int year );
 
-TRANSACTION *enrollment_transaction(
+TRANSACTION *course_drop_transaction(
 			int *seconds_to_add,
 			char *student_full_name,
 			char *street_address,
 			char *transaction_date_time,
 			char *program_name,
 			double offering_course_price,
-			char *account_receivable,
-			char *offering_revenue_account );
+			char *offering_revenue_account,
+			char *account_payable );
 
-char *enrollment_sys_string(
+char *course_drop_sys_string(
 			char *where );
 
-FILE *enrollment_update_open(
+FILE *course_drop_update_open(
 			void );
 
-void enrollment_update(
+void course_drop_update(
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
@@ -122,66 +114,67 @@ void enrollment_update(
 			char *season_name,
 			int year );
 
-LIST *enrollment_system_list(
+LIST *course_drop_system_list(
 			char *sys_string,
+			boolean fetch_enrollment,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_program,
 			boolean fetch_registration,
 			boolean fetch_transaction );
 
-FILE *enrollment_insert_open(
+FILE *course_drop_insert_open(
 			char *error_filename );
 
-void enrollment_insert_pipe(
+void course_drop_insert_pipe(
 			FILE *insert_pipe,
 			char *student_full_name,
 			char *street_address,
 			char *course_name,
 			char *season_name,
 			int year,
+			boolean refund_due,
 			char *transaction_date_time );
 
-FILE *enrollment_insert_open(
+FILE *course_drop_insert_open(
 			char *error_filename );
 
-LIST *enrollment_course_name_list(
-			LIST *enrollment_list );
+LIST *course_drop_course_name_list(
+			LIST *course_drop_list );
 
-char *enrollment_memo(	char *program_name );
+char *course_drop_memo(	char *program_name );
 
-void enrollment_list_set_transaction(
+void course_drop_list_set_transaction(
 			int *transaction_seconds_to_add,
-			LIST *enrollment_list );
+			LIST *course_drop_list );
 
-void enrollment_list_fetch_update(
-			LIST *enrollment_list,
+void course_drop_list_fetch_update(
+			LIST *course_drop_list,
 			char *season_name,
 			int year );
 
-void enrollment_fetch_update(
+void course_drop_fetch_update(
 			char *student_full_name,
 			char *student_street_address,
 			char *course_name,
 			char *season_name,
 			int year );
 
-void enrollment_list_update(
-			LIST *enrollment_list,
+void course_drop_list_update(
+			LIST *course_drop_list,
 			char *season_name,
 			int year );
 
-LIST *enrollment_registration_list(
-			LIST *enrollment_list );
+LIST *course_drop_registration_list(
+			LIST *course_drop_list );
 
-char *enrollment_list_first_program_name(
-			LIST *enrollment_list );
+char *course_drop_list_first_program_name(
+			LIST *course_drop_list );
 
-char *enrollment_list_revenue_account(
-			LIST *enrollment_list );
+char *course_drop_list_revenue_account(
+			LIST *course_drop_list );
 
-char *enrollment_list_display(
-			LIST *enrollment_list );
+char *course_drop_list_display(
+			LIST *course_drop_list );
 
 #endif
 

@@ -14,6 +14,7 @@ EDUCATION_CORE=								\
 		paypal_sweep.o						\
 		registration.o						\
 		enrollment.o						\
+		course_drop.o						\
 		course.o						\
 		tuition_payment.o					\
 		tuition_refund.o					\
@@ -352,6 +353,11 @@ enrollment.o: enrollment.c enrollment.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
 				-I${PREDICTIVEBOOKS_LIBRARY}		\
 		-c enrollment.c
+
+course_drop.o: course_drop.c course_drop.h
+	${CC}	${CFLAGS}	-I${LIBRARY}				\
+				-I${PREDICTIVEBOOKS_LIBRARY}		\
+		-c course_drop.c
 
 course.o: course.c course.h
 	${CC}	${CFLAGS}	-I${LIBRARY}				\
