@@ -351,9 +351,9 @@ void paypal_upload_display(
 				tuition_payment_list_enrollment_list(
 					paypal_deposit->
 						tuition_payment_list ) ),
-			enrollment_withdrawal_list_display(
-				tuition_refund_list_enrollment_list(
-						paypal_deposit->
+			course_drop_list_display(
+				tuition_refund_list_course_drop_list(
+					paypal_deposit->
 						tuition_refund_list ) ),
 			product_sale_list_display(
 				paypal_deposit->product_sale_list ),

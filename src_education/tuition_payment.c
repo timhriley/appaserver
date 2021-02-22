@@ -952,8 +952,7 @@ boolean tuition_payment_is_tuition(
 
 void tuition_payment_list_set_transaction(
 			int *transaction_seconds_to_add,
-			LIST *tuition_payment_list,
-			LIST *semester_offering_list )
+			LIST *tuition_payment_list )
 {
 	TUITION_PAYMENT *tuition_payment;
 	char *cash_account_name;
@@ -977,12 +976,10 @@ void tuition_payment_list_set_transaction(
 			transaction_seconds_to_add,
 			tuition_payment,
 			enrollment_list_first_program_name(
-				tuition_payment_enrollment_list(
-					tuition_payment ) ),
+				tuition_payment->enrollment_list ) ),
 			cash_account_name,
 			receivable,
-			fees_expense,
-			semester_offering_list );
+			fees_expense );
 
 	} while ( list_next( tuition_payment_list ) );
 }
@@ -990,11 +987,10 @@ void tuition_payment_list_set_transaction(
 void tuition_payment_set_transaction(
 			int *transaction_seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
-			char *course_name,
+			char *program_name,
 			char *cash_account_name,
 			char *account_receivable,
-			char *account_fees_expense,
-			LIST *semester_offering_list )
+			char *account_fees_expense )
 {
 	OFFERING *offering;
 

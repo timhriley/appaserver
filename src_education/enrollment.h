@@ -39,8 +39,8 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	OFFERING *offering;
 	REGISTRATION *registration;
+	OFFERING *offering;
 
 	/* Process */
 	/* ------- */

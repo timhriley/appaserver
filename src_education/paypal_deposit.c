@@ -259,8 +259,7 @@ PAYPAL_DEPOSIT *paypal_deposit_fetch(
 }
 
 void paypal_deposit_set_transaction(
-			PAYPAL_DEPOSIT *paypal_deposit,
-			LIST *semester_offering_list )
+			PAYPAL_DEPOSIT *paypal_deposit )
 {
 	int transaction_seconds_to_add = 0;
 
@@ -273,13 +272,19 @@ void paypal_deposit_set_transaction(
 
 		tuition_payment_list_set_transaction(
 			&transaction_seconds_to_add,
-			paypal_deposit->tuition_payment_list,
-			tuition_payment_list_course_name(
-				paypal_deposit->tuition_payment_list ),
-			/* ------------------- */
-			/* To get program_name */
-			/* ------------------- */
-			semester_offering_list );
+			paypal_deposit->tuition_payment_list );
+	}
+
+	if ( list_length( paypal_deposit->tuition_refund_list ) )
+	{
+		course_drop_list_set_transaction(
+			&transaction_seconds_to_add,
+			tuition_refund_list_enrollment_list(
+				paypal_deposit->tuition_refund_list ) );
+
+		tuition_refund_list_set_transaction(
+			&transaction_seconds_to_add,
+			paypal_deposit->tuition_refund_list );
 	}
 
 	if ( list_length( paypal_deposit->ticket_sale_list ) )
@@ -294,19 +299,6 @@ void paypal_deposit_set_transaction(
 		product_sale_list_set_transaction(
 			&transaction_seconds_to_add,
 			paypal_deposit->product_sale_list );
-	}
-
-	if ( list_length( paypal_deposit->tuition_refund_list ) )
-	{
-		tuition_refund_list_set_transaction(
-			&transaction_seconds_to_add,
-			paypal_deposit->tuition_refund_list,
-			tuition_refund_list_course_name(
-				papal_deposit->tuition_refund_list ),
-			/* ------------------- */
-			/* To get program_name */
-			/* ------------------- */
-			semester_offering_list );
 	}
 
 	if ( list_length( paypal_deposit->ticket_refund_list ) )
@@ -551,8 +543,7 @@ LIST *paypal_deposit_list_set_transaction(
 		if ( !paypal_deposit->exclude_existing_transaction )
 		{
 			paypal_deposit_set_transaction(
-				paypal_deposit,
-				semester_offering_list );
+				paypal_deposit );
 		}
 
 	} while ( list_next( paypal_deposit_list ) );

@@ -40,7 +40,11 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
+	ENTITY *student_entity;
+	char *course_name;
+	SEMESTER *semester;
 	ENROLLMENT *enrollment;
+	boolean refund_due;
 
 	/* Process */
 	/* ------- */

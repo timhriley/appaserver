@@ -229,8 +229,7 @@ LIST *tuition_payment_list_steady_state(
 
 void tuition_payment_list_set_transaction(
 			int *seconds_to_add,
-			LIST *tuition_payment_list,
-			LIST *semester_offering_list );
+			LIST *tuition_payment_list );
 
 /* ----------------------------------------------------- */
 /* Sets tuition_payment->tuition_payment_transaction and
@@ -239,11 +238,10 @@ void tuition_payment_list_set_transaction(
 void tuition_payment_set_transaction(
 			int *seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
-			char *course_name,
+			char *program_name,
 			char *cash_account_name,
 			char *account_revenue,
-			char *account_fees_expense,
-			LIST *semester_offering_list );
+			char *account_fees_expense );
 
 TRANSACTION *tuition_payment_transaction(
 			int *seconds_to_add,

@@ -215,12 +215,7 @@ LIST *paypal_deposit_list_set_transaction(
 			LIST *semester_offering_list );
 
 void paypal_deposit_set_transaction(
-			PAYPAL_DEPOSIT *paypal_deposit,
-			/* ------------------------------------ */
-			/* To set program_name for 		*/
-			/* tuition payment and tuition refund	*/
-			/* ------------------------------------ */
-			LIST *semester_offering_list );
+			PAYPAL_DEPOSIT *paypal_deposit );
 
 PAYPAL_DEPOSIT *paypal_deposit_education(
 			char *season_name,

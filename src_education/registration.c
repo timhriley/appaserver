@@ -587,7 +587,8 @@ LIST *registration_enrollment_list(
 			fetch_offering,
 			fetch_course,
 			fetch_program,
-			0 /* not fetch_registration */ );
+			0 /* not fetch_registration */,
+			0 /* not fetch_transaction */ );
 }
 
 LIST *registration_tuition_payment_list(
@@ -608,7 +609,8 @@ LIST *registration_tuition_payment_list(
 			1 /* fetch_enrollment_list */,
 			1 /* fetch_offering */,
 			1 /* fetch_course */,
-			0 /* not fetch_program */ );
+			0 /* not fetch_program */,
+			0 /* not fetch_transaction */ );
 }
 
 LIST *registration_tuition_refund_list(

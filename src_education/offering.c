@@ -312,7 +312,8 @@ LIST *offering_enrollment_list(
 			1 /* fetch_offering */,
 			1 /* fetch_course */,
 			1 /* fetch_program */,
-			0 /* not fetch_registration */ );
+			0 /* not fetch_registration */,
+			0 /* not fetch_transaction */ );
 }
 
 OFFERING *offering_steady_state(

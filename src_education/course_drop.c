@@ -52,6 +52,7 @@ COURSE_DROP *course_drop_new(
 		exit( 1 );
 	}
 
+	course_drop->student_entity = student_entity;
 	course_drop->course_name = course_name;
 	course_drop->semester = semester;
 
@@ -90,10 +91,10 @@ COURSE_DROP *course_drop_parse(
 			entity_new(
 				strdup( full_name ),
 				strdup( street_address ) ),
+			strdup( course_name ),
 			semester_new(
-				strdup( course_name ),
-				strdup( season_name ) ),
-			atoi( year ) );
+				strdup( season_name ),
+				atoi( year ) ) );
 
 	piece( refund_due_yn, SQL_DELIMITER, input, 5 );
 	course_drop->refund_due = ( *refund_due_yn == 'y' );
@@ -107,6 +108,7 @@ COURSE_DROP *course_drop_parse(
 			enrollment_fetch(
 				course_drop->student_entity->full_name,
 				course_drop->student_entity->street_address,
+				course_drop->course_name,
 				course_drop->semester->season_name,
 				course_drop->semester->year,
 				fetch_offering,
@@ -270,7 +272,7 @@ TRANSACTION *course_drop_transaction(
 			char *program_name,
 			double offering_course_price,
 			char *offering_revenue_account,
-			char *account_paypable )
+			char *account_payable )
 {
 	TRANSACTION *transaction;
 
@@ -419,7 +421,7 @@ void course_drop_list_set_transaction(
 			LIST *course_drop_list )
 {
 	COURSE_DROP *course_drop;
-	char *paypable;
+	char *payable;
 
 	if ( !list_rewind( course_drop_list ) ) return;
 
@@ -428,17 +430,18 @@ void course_drop_list_set_transaction(
 	do {
 		course_drop = list_get( course_drop_list );
 
-		if ( !course_drop->offering )
+		if ( !course_drop->enrollment
+		||   !course_drop->enrollment->offering )
 		{
 			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty offering.\n",
+			"ERROR in %s/%s()/%d: empty enrollment or offering.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
 			exit( 1 );
 		}
 
-		if ( !course_drop->registration )
+		if ( !course_drop->enrollment->registration )
 		{
 			fprintf(stderr,
 				"ERROR in %s/%s()/%d: empty registration.\n",
@@ -451,10 +454,20 @@ void course_drop_list_set_transaction(
 		course_drop_set_transaction(
 			transaction_seconds_to_add,
 			course_drop,
-			course_drop->offering->revenue_account,
+			course_drop->
+				enrollment->
+				offering->
+				revenue_account,
 			payable,
-			course_drop->offering->course->program_name,
-			course_drop->registration->registration_date_time );
+			course_drop->
+				enrollment->
+				offering->
+				course->
+				program_name,
+			course_drop->
+				enrollment->
+				registration->
+				registration_date_time );
 
 	} while ( list_next( course_drop_list ) );
 }
@@ -468,11 +481,12 @@ boolean course_drop_set_transaction(
 			char *registration_date_time )
 {
 	if ( !course_drop
-	||   !course_drop->registration
-	||   !course_drop->offering )
+	||   !course_drop->enrollment
+	||   !course_drop->enrollment->registration
+	||   !course_drop->enrollment->offering )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: empty course_drop, registration or offering.\n",
+"ERROR in %s/%s()/%d: empty course_drop, enrollment, registration or offering.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -491,16 +505,14 @@ boolean course_drop_set_transaction(
 		course_drop_transaction(
 			transaction_seconds_to_add,
 			course_drop->
-				registration->
 				student_entity->
 				full_name,
 			course_drop->
-				registration->
 				student_entity->
 				street_address,
 			course_drop->transaction_date_time,
 			program_name,
-			course_drop->offering->course_price,
+			course_drop->enrollment->offering->course_price,
 			account_receivable,
 			revenue_account ) ) )
 	{
@@ -558,17 +570,31 @@ void course_drop_list_update(
 	do {
 		course_drop = list_get( course_drop_list );
 
+		if ( !course_drop->enrollment
+		||   !course_drop->enrollment->offering
+		||   !course_drop->enrollment->offering->course )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: empty enrollment, offering or course.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		course_drop_update(
 			course_drop->transaction_date_time,
 			course_drop->
-				registration->
 				student_entity->
 				full_name,
 			course_drop->
-				registration->
 				student_entity->
 				street_address,
-			course_drop->offering->course->course_name,
+			course_drop->
+				enrollment->
+				offering->
+				course->
+				course_name,
 			season_name,
 			year );
 
@@ -635,18 +661,19 @@ char *course_drop_list_first_program_name(
 
 	if ( course_drop )
 	{
-		if ( !course_drop->offering
-		||   !course_drop->offering->course )
+		if ( !course_drop->enrollment
+		||   !course_drop->enrollment->offering
+		||   !course_drop->enrollment->offering->course )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty offering or course.\n",
+		"ERROR in %s/%s()/%d: empty enrollment, offering or course.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
 			exit( 1 );
 		}
 
-		return course_drop->offering->course->program_name;
+		return course_drop->enrollment->offering->course->program_name;
 	}
 	else
 	{
@@ -663,7 +690,8 @@ char *course_drop_list_revenue_account(
 
 	if ( course_drop )
 	{
-		if ( !course_drop->offering )
+		if ( !course_drop->enrollment
+		||   !course_drop->enrollment->offering )
 		{
 			fprintf(stderr,
 				"ERROR in %s/%s()/%d: empty offering.\n",
@@ -673,7 +701,7 @@ char *course_drop_list_revenue_account(
 			exit( 1 );
 		}
 
-		return course_drop->offering->revenue_account;
+		return course_drop->enrollment->offering->revenue_account;
 	}
 	else
 	{
@@ -707,10 +735,11 @@ char *course_drop_list_display( LIST *course_drop_list )
 		}
 
 		if ( !course_drop->enrollment
-		||   !course_drop->offering )
+		||   !course_drop->enrollment->offering
+		||   !course_drop->enrollment->offering->course )
 		{
 			fprintf(stderr,
-		"ERROR in %s/%s()/%d: empty registration or offering.\n",
+		"ERROR in %s/%s()/%d: empty enrollment, offering or course.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -729,6 +758,7 @@ char *course_drop_list_display( LIST *course_drop_list )
 				course_drop->
 					enrollment->
 					offering->
+					course->
 					course_name );
 
 	} while ( list_next( course_drop_list ) );
