@@ -39,8 +39,7 @@ OFFERING *offering_calloc( void )
 }
 
 OFFERING *offering_new(	char *course_name,
-			char *season_name,
-			int year )
+			SEMESTER *semester )
 {
 	OFFERING *offering = offering_calloc();
 
@@ -48,10 +47,7 @@ OFFERING *offering_new(	char *course_name,
 		course_new(
 			course_name );
 
-	offering->semester =
-		semester_new(
-			season_name,
-			year );
+	offering->semester = semester;
 
 	return offering;
 }

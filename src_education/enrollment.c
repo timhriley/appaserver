@@ -40,10 +40,7 @@ char *enrollment_sys_string( char *where )
 ENROLLMENT *enrollment_new(
 			ENTITY *student_entity,
 			char *course_name,
-			char *season_name,
-			int year,
-			REGISTRATION *registration,
-			OFFERING *offering )
+			SEMESTER *semester )
 {
 	ENROLLMENT *enrollment;
 
@@ -57,31 +54,12 @@ ENROLLMENT *enrollment_new(
 		exit( 1 );
 	}
 
-	if ( registration )
-	{
-		enrollment->registration = registration;
-	}
-	else
-	{
-		enrollment->registration =
-			registration_new(
-				student_entity,
-				season_name,
-				year );
-	}
+	enrollment->student_entity = student_entity;
 
-	if ( offering )
-	{
-		enrollment->offering = offering;
-	}
-	else
-	{
-		enrollment->offering =
-			offering_new(
-				course_name,
-				season_name,
-				year );
-	}
+	enrollment->offering =
+		offering_new(
+			course_name,
+			semester );
 
 	return enrollment;
 }
@@ -674,7 +652,7 @@ void enrollment_list_fetch_update(
 	} while ( list_next( enrollment_list ) );
 }
 
-LIST *enrollment_registration_list(
+LIST *enrollment_list_registration_list(
 			LIST *enrollment_list )
 {
 	LIST *registration_list;
@@ -817,3 +795,4 @@ char *enrollment_list_display( LIST *enrollment_list )
 
 	return strdup( display );
 }
+

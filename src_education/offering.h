@@ -49,8 +49,7 @@ typedef struct
 /* ---------- */
 OFFERING *offering_new(
 			char *course_name,
-			char *season_name,
-			int year );
+			SEMESTER *semester );
 
 OFFERING *offering_fetch(
 			char *course_name,

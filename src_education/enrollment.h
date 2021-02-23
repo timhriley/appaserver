@@ -42,6 +42,10 @@ typedef struct
 	REGISTRATION *registration;
 	OFFERING *offering;
 
+	/* List of one */
+	/* ----------- */
+	LIST *course_drop_list;
+
 	/* Process */
 	/* ------- */
 	LIST *tuition_payment_list;
@@ -56,10 +60,7 @@ typedef struct
 ENROLLMENT *enrollment_new(
 			ENTITY *student_entity,
 			char *course_name,
-			char *season_name,
-			int year,
-			REGISTRATION *registration,
-			OFFERING *offering );
+			SEMESTER *semester );
 
 ENROLLMENT *enrollment_fetch(
 			char *student_full_name,
@@ -171,7 +172,7 @@ void enrollment_list_update(
 			char *season_name,
 			int year );
 
-LIST *enrollment_registration_list(
+LIST *enrollment_list_registration_list(
 			LIST *enrollment_list );
 
 char *enrollment_list_first_program_name(

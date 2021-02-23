@@ -260,24 +260,6 @@ TRANSACTION *tuition_payment_transaction(
 boolean tuition_payment_is_tuition(
 			char *item_title_block );
 
-LIST *tuition_payment_list_paypal(
-			char *season_name,
-			int year,
-			ENTITY *payor_entity,
-			char *paypal_date_time,
-			LIST *paypal_item_list,
-			LIST *semester_offering_list );
-
-TUITION_PAYMENT *tuition_payment_paypal(
-			char *season_name,
-			int year,
-			ENTITY *student_entity,
-			ENTITY *payor_entity,
-			char *paypal_date_time,
-			double item_value,
-			double item_fee,
-			OFFERING *offering );
-
 TUITION_PAYMENT *tuition_payment_integrity_fetch(
 			char *student_full_name,
 			char *student_street_address,

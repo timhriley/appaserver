@@ -731,4 +731,128 @@ LIST *registration_list( char *where )
 			1 /* fetch_tuition_refund_list */ );
 }
 
+LIST *registration_list_paypal(
+			char *season_name,
+			int year,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *semester_offering_list )
+{
+	LIST *registration_list = {0};
+	PAYPAL_ITEM *paypal_item;
+	OFFERING *offering;
+
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( paypal_item->taken ) continue;
+
+		if ( !paypal_item->benefit_entity ) continue;
+
+		if ( ( offering =
+			offering_seek( 
+				paypal_item->item_data,
+				semester_offering_list ) ) )
+		{
+			if ( !registration_list )
+				registration_list =
+					list_new();
+
+			list_set(
+				registration_list,
+				registration_paypal(
+					season_name,
+					year,
+					paypal_item->benefit_entity,
+					payor_entity,
+					paypal_date_time,
+					paypal_item->item_value,
+					paypal_item->item_fee,
+					offering ) );
+
+			paypal_item->taken = 1;
+		}
+
+	} while ( list_next( paypal_item_list ) );
+
+	return registration_list;
+}
+
+REGISTRATION *registration_paypal(
+			char *season_name,
+			int year,
+			ENTITY *student_entity,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			OFFERING *offering )
+{
+	REGISTRATION *registration;
+	ENROLLMENT *enrollment;
+
+	if ( !student_entity || !payor_entity )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: missing student_entity or payor_entity.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	registration =
+		registration_new(
+			student_entity,
+			season_name,
+			year );
+
+	enrollment = enrollment_calloc();
+
+	enrollment->payor_entity = payor_entity;
+
+	enrollment->payment_date_time =
+	enrollment->paypal_date_time = paypal_date_time;
+
+	enrollment->registration->registration_date_time =
+		enrollment->payment_date_time;
+
+	enrollment =
+		enrollment_new(
+			student_entity,
+			offering->course->course_name,
+			semester_new(
+				season_name,
+				year ) );
+
+	enrollment->registration = registration;
+	enrollment->offering = offering;
+
+	enrollment->registration->enrollment_list =
+		list_new();
+
+	list_set( 
+		enrollment->registration->enrollment_list,
+		enrollment );
+
+	enrollment->registration->registration_date_time =
+		paypal_date_time;
+
+	enrollment->course_name = offering->course->course_name;
+
+	enrollment->payment_amount =
+	enrollment->enrollment_receivable_credit_amount = item_value;
+
+	enrollment->merchant_fees_expense = item_fee;
+
+	enrollment->net_payment_amount =
+		education_net_payment_amount(
+			enrollment->payment_amount,
+			enrollment->merchant_fees_expense );
+
+	return enrollment;
+}
 

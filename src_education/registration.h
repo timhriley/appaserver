@@ -220,5 +220,23 @@ LIST *registration_course_name_list(
 LIST *registration_list(
 			char *where );
 
+LIST *registration_list_paypal(
+			char *season_name,
+			int year,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *semester_offering_list );
+
+REGISTRATION *registration_paypal(
+			char *season_name,
+			int year,
+			ENTITY *student_entity,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			OFFERING *offering );
+
 #endif
 
