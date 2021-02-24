@@ -156,5 +156,11 @@ REGISTRATION *registration_paypal(
 LIST *registration_list_enrollment_list(
 			LIST *registration_list );
 
+LIST *registration_list_tuition_payment_list(
+			LIST *registration_list );
+
+LIST *registration_list_tuition_refund_list(
+			LIST *registration_list );
+
 #endif
 

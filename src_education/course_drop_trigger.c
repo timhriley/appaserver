@@ -147,11 +147,10 @@ int main( int argc, char **argv )
 				entity_new(
 					student_full_name,
 					street_address ),
-				course_name,
-				season_name,
-				year,
-				(REGISTRATION *)0,
-				(OFFERING *)0 ) );
+				course_fetch( course_name ),
+				semester_new(
+					season_name,
+					year ) );
 	
 		registration_list_fetch_update(
 			course_drop_registration_list(

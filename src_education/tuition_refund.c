@@ -682,9 +682,7 @@ LIST *tuition_refund_list_steady_state(
 
 void tuition_refund_list_set_transaction(
 			int *transaction_seconds_to_add,
-			LIST *tuition_refund_list,
-			char *course_name,
-			LIST *semester_offering_list )
+			LIST *tuition_refund_list )
 {
 	TUITION_REFUND *tuition_refund;
 	char *cash_account_name;

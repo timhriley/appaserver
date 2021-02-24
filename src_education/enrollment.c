@@ -497,13 +497,16 @@ void enrollment_list_set_transaction(
 			exit( 1 );
 		}
 
-		enrollment_set_transaction(
-			transaction_seconds_to_add,
-			enrollment,
-			receivable,
-			enrollment->offering->revenue_account,
-			enrollment->offering->course->program_name,
-			enrollment->registration->registration_date_time );
+		if ( !list_length( enrollment->course_drop_list ) )
+		{
+			enrollment_set_transaction(
+				transaction_seconds_to_add,
+				enrollment,
+				receivable,
+				enrollment->offering->revenue_account,
+				enrollment->offering->course->program_name,
+				enrollment->enrollment_date_time );
+		}
 
 	} while ( list_next( enrollment_list ) );
 }
@@ -853,5 +856,64 @@ ENROLLMENT *enrollment_list_seek(
 	} while ( list_next( enrollment_list ) );
 
 	return (ENROLLMENT *)0;
+}
+
+LIST *enrollment_list_course_drop_list(
+			LIST *enrollment_list )
+{
+	ENROLLMENT *enrollment;
+	LIST *course_drop_list = {0};
+
+	if ( !list_rewind( enrollment_list ) ) return (LIST *)0;
+
+	do {
+		enrollment = list_get( enrollment_list );
+
+		if ( list_length( enrollment->course_drop_list ) )
+		{
+			if ( !course_drop_list )
+				course_drop_list =
+					list_new();
+
+			list_set_list(
+				course_drop_list,
+				enrollment->course_drop_list );
+		}
+	} while ( list_next( enrollment_list ) );
+
+	return course_drop_list;
+}
+
+char *enrollment_list_first_course_drop_program_name(
+			LIST *enrollment_list )
+{
+	ENROLLMENT *enrollment = {0};
+	COURSE_DROP *course_drop;
+
+	enrollment = list_first( enrollment_list );
+
+	if ( enrollment && list_length( enrollment->course_drop_list ) )
+	{
+		course_drop =
+			list_first(
+				enrollment->
+					course_drop_list );
+
+		if ( !course_drop->course )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty course.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		return enrollment->offering->course->program_name;
+	}
+	else
+	{
+		return (char *)0;
+	}
 }
 

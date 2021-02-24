@@ -15,7 +15,7 @@
 #include "environ.h"
 #include "list.h"
 #include "paypal_upload.h"
-#include "registration.h"
+#include "paypal_deposit.h"
 #include "enrollment.h"
 #include "entity.h"
 #include "paypal_item.h"
@@ -616,5 +616,55 @@ LIST *registration_list_enrollment_list(
 	} while ( list_next( registration_list ) );
 
 	return enrollment_list;
+}
+
+LIST *registration_list_tuition_payment_list(
+			LIST *registration_list )
+{
+	LIST *tuition_payment_list;
+	REGISTRATION *registration;
+
+	if ( !list_rewind( registration_list ) ) return (LIST *)0;
+
+	tuition_payment_list = list_new();
+
+	do {
+		registration = list_get( registration_list );
+
+		if ( list_length( registration->tuition_payment_list ) )
+		{
+			list_set_list(
+				tuition_payment_list,
+				registration->tuition_payment_list );
+		}
+
+	} while ( list_next( registration_list ) );
+
+	return tuition_payment_list;
+}
+
+LIST *registration_list_tuition_refund_list(
+			LIST *registration_list )
+{
+	LIST *tuition_refund_list;
+	REGISTRATION *registration;
+
+	if ( !list_rewind( registration_list ) ) return (LIST *)0;
+
+	tuition_refund_list = list_new();
+
+	do {
+		registration = list_get( registration_list );
+
+		if ( list_length( registration->tuition_refund_list ) )
+		{
+			list_set_list(
+				tuition_refund_list,
+				registration->tuition_refund_list );
+		}
+
+	} while ( list_next( registration_list ) );
+
+	return tuition_refund_list;
 }
 

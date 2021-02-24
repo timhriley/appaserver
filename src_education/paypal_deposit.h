@@ -320,7 +320,7 @@ LIST *paypal_deposit_ticket_sale_list(
 LIST *paypal_deposit_ticket_refund_list(
 			LIST *paypal_deposit_list );
 
-LIST *paypal_deposit_registration_list(
+LIST *paypal_deposit_list_enrollment_list(
 			LIST *paypal_deposit_list );
 
 boolean paypal_deposit_exclude_existing_transaction(
@@ -333,6 +333,9 @@ boolean paypal_deposit_exclude_existing_transaction(
 			LIST *existing_ticket_sale_list,
 			LIST *existing_ticket_refund_list,
 			LIST *existing_paypal_sweep_list );
+
+LIST *paypal_deposit_list_enrollment_list(
+			LIST *paypal_deposit_list );
 
 #endif
 

@@ -197,5 +197,8 @@ ENROLLMENT *enrollment_list_seek(
 			int year,
 			LIST *enrollment_list );
 
+LIST *enrollment_list_course_drop_list(
+			LIST *enrollment_list );
+
 #endif
 

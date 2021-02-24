@@ -138,9 +138,7 @@ char *tuition_refund_primary_where(
 
 void tuition_refund_list_set_transaction(
 			int *transaction_seconds_to_add,
-			LIST *tuition_refund_list,
-			char *course_name,
-			LIST *semester_offering_list );
+			LIST *tuition_refund_list );
 
 /* ------------------------------------------------------- */
 /* Sets tuition_refund->tuition_refund_transaction and

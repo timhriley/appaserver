@@ -37,8 +37,9 @@ char *course_drop_sys_string( char *where )
 
 COURSE_DROP *course_drop_new(
 			ENTITY *student_entity,
-			char *course_name,
-			SEMESTER *semester )
+			COURSE *course,
+			SEMESTER *semester,
+			char *course_drop_date_time )
 {
 	COURSE_DROP *course_drop;
 
@@ -53,8 +54,9 @@ COURSE_DROP *course_drop_new(
 	}
 
 	course_drop->student_entity = student_entity;
-	course_drop->course_name = course_name;
+	course_drop->course = course;
 	course_drop->semester = semester;
+	course_drop->course_drop_date_time = course_drop_date_time;
 
 	return course_drop;
 }
@@ -72,6 +74,7 @@ COURSE_DROP *course_drop_parse(
 	char course_name[ 128 ];
 	char season_name[ 128 ];
 	char year[ 128 ];
+	char course_drop_date_time[ 128 ];
 	char refund_due_yn[ 128 ];
 	char transaction_date_time[ 128 ];
 	COURSE_DROP *course_drop;
@@ -85,21 +88,23 @@ COURSE_DROP *course_drop_parse(
 	piece( course_name, SQL_DELIMITER, input, 2 );
 	piece( season_name, SQL_DELIMITER, input, 3 );
 	piece( year, SQL_DELIMITER, input, 4 );
+	piece( course_drop_date_time, SQL_DELIMITER, input, 5 );
 
 	course_drop =
 		course_drop_new(
 			entity_new(
 				strdup( full_name ),
 				strdup( street_address ) ),
-			strdup( course_name ),
+			course_fetch( course_name ),
 			semester_new(
 				strdup( season_name ),
-				atoi( year ) ) );
+				atoi( year ) ),
+			strdup( course_drop_date_time ) );
 
-	piece( refund_due_yn, SQL_DELIMITER, input, 5 );
+	piece( refund_due_yn, SQL_DELIMITER, input, 6 );
 	course_drop->refund_due = ( *refund_due_yn == 'y' );
 
-	piece( transaction_date_time, SQL_DELIMITER, input, 6 );
+	piece( transaction_date_time, SQL_DELIMITER, input, 7 );
 	course_drop->transaction_date_time = transaction_date_time;
 
 	if ( fetch_enrollment )
@@ -441,16 +446,6 @@ void course_drop_list_set_transaction(
 			exit( 1 );
 		}
 
-		if ( !course_drop->enrollment->registration )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty registration.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
 		course_drop_set_transaction(
 			transaction_seconds_to_add,
 			course_drop,
@@ -464,10 +459,7 @@ void course_drop_list_set_transaction(
 				offering->
 				course->
 				program_name,
-			course_drop->
-				enrollment->
-				registration->
-				registration_date_time );
+			course_drop->course_drop_date_time );
 
 	} while ( list_next( course_drop_list ) );
 }
@@ -765,3 +757,4 @@ char *course_drop_list_display( LIST *course_drop_list )
 
 	return strdup( display );
 }
+

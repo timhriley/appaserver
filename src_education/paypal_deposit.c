@@ -32,6 +32,7 @@
 #include "paypal_sweep.h"
 #include "enrollment.h"
 #include "offering.h"
+#include "course_drop.h"
 #include "paypal_deposit.h"
 
 double paypal_net_revenue(
@@ -270,22 +271,21 @@ void paypal_deposit_set_transaction(
 			registration_list_enrollment_list(
 				paypal_deposit->registration_list ) );
 
+		course_drop_list_set_transaction(
+			&transaction_seconds_to_add,
+			enrollment_list_course_drop_list(
+				registration_list_enrollment_list(
+					paypal_deposit->registration_list ) ) );
+
 		tuition_payment_list_set_transaction(
 			&transaction_seconds_to_add,
 			registration_list_tuition_payment_list(
 				paypal_deposit->registration_list ) );
-	}
-
-	if ( list_length( paypal_deposit->tuition_refund_list ) )
-	{
-		course_drop_list_set_transaction(
-			&transaction_seconds_to_add,
-			tuition_refund_list_enrollment_list(
-				paypal_deposit->tuition_refund_list ) );
 
 		tuition_refund_list_set_transaction(
 			&transaction_seconds_to_add,
-			paypal_deposit->tuition_refund_list );
+			registration_list_tuition_refund_list(
+				paypal_deposit->registration_list ) );
 	}
 
 	if ( list_length( paypal_deposit->ticket_sale_list ) )
@@ -440,34 +440,6 @@ void paypal_deposit_update(
 
 	pclose( update_pipe );
 }
-
-/*
-double paypal_registration_tuition(
-			LIST *paypal_registration_list,
-			LIST *semester_offering_list )
-{
-	REGISTRATION *registration;
-	double tuition;
-
-	if ( !list_rewind( paypal_registration_list ) ) return 0.0;
-
-	tuition = 0.0;
-
-	do {
-		registration = list_get( paypal_registration_list );
-
-		tuition +=
-			( registration->tuition =
-				registration_tuition(
-					registration->
-					     enrollment_list,
-					semester_offering_list ) );
-
-	} while ( list_next( paypal_registration_list ) );
-
-	return tuition;
-}
-*/
 
 LIST *paypal_deposit_course_name_list(
 			LIST *paypal_deposit_list )
@@ -1556,29 +1528,29 @@ void paypal_deposit_list_insert(
 	paypal_deposit_payor_entity_insert( paypal_deposit_list );
 }
 
-LIST *paypal_deposit_tuition_payment_list(
+LIST *paypal_deposit_list_registration_list(
 			LIST *paypal_deposit_list )
 {
-	LIST *tuition_payment_list;
+	LIST *registration_list;
 	PAYPAL_DEPOSIT *paypal_deposit;
 
 	if ( !list_rewind( paypal_deposit_list ) ) return (LIST *)0;
 
-	tuition_payment_list = list_new();
+	registration_list = list_new();
 
 	do {
 		paypal_deposit = list_get( paypal_deposit_list );
 
-		if ( list_length( paypal_deposit->tuition_payment_list ) )
+		if ( list_length( paypal_deposit->registration_list ) )
 		{
 			list_set_list(
-				tuition_payment_list,
-				paypal_deposit->tuition_payment_list );
+				registration_list,
+				paypal_deposit->registration_list );
 		}
 
 	} while ( list_next( paypal_deposit_list ) );
 
-	return tuition_payment_list;
+	return registration_list;
 }
 
 LIST *paypal_deposit_tuition_refund_list(

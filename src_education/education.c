@@ -296,7 +296,8 @@ LIST *education_existing_ticket_sale_list(
 
 	return ticket_sale_list(
 			where,
-			0 /* not fetch_event */ );
+			0 /* not fetch_event */,
+			0 /* not fetch_transaction */ );
 }
 
 LIST *education_existing_ticket_refund_list(
@@ -310,7 +311,8 @@ LIST *education_existing_ticket_refund_list(
 
 	return ticket_refund_list(
 			where,
-			0 /* not fetch_sale */ );
+			0 /* not fetch_sale */,
+			0 /* not fetch_transaction */ );
 }
 
 LIST *education_existing_paypal_sweep_list(
@@ -322,7 +324,9 @@ LIST *education_existing_paypal_sweep_list(
 		"paypal_date_time >= '%s'",
 		spreadsheet_minimum_date );
 
-	return paypal_sweep_list( where );
+	return paypal_sweep_list(
+			where,
+			0 /* not fetch_transaction */ );
 }
 
 LIST *education_paypal_exclude_existing_transaction_set(

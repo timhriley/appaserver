@@ -41,21 +41,23 @@ typedef struct
 	/* Input */
 	/* ----- */
 	ENTITY *student_entity;
-	char *course_name;
+	COURSE *course;
 	SEMESTER *semester;
-	ENROLLMENT *enrollment;
+	char *course_drop_date_time;
 	boolean refund_due;
 
 	/* Process */
 	/* ------- */
+	ENROLLMENT *enrollment;
 	TRANSACTION *course_drop_transaction;
 	char *transaction_date_time;
 } COURSE_DROP;
 
 COURSE_DROP *course_drop_new(
 			ENTITY *student_entity,
-			char *course_name,
-			SEMESTER *semester );
+			COURSE *course,
+			SEMESTER *semester,
+			char *course_drop_date_time );
 
 COURSE_DROP *course_drop_fetch(
 			char *student_full_name,
