@@ -141,18 +141,16 @@ void tuition_refund_list_insert( LIST *tuition_refund_list )
 		tuition_refund_insert_pipe(
 			insert_pipe,
 			tuition_refund->
-				registration->
 				student_entity->
 				full_name,
 			tuition_refund->
-				registration->
 				student_entity->
 				street_address,
 			tuition_refund->
-				registration->
+				semester->
 				season_name,
 			tuition_refund->
-				registration->
+				semester->
 				year,
 			tuition_refund->payor_entity->full_name,
 			tuition_refund->payor_entity->street_address,
@@ -268,33 +266,28 @@ TUITION_REFUND *tuition_refund_parse(
 
 	if ( !input || !*input ) return (TUITION_REFUND *)0;
 
-	tuition_refund = tuition_refund_calloc();
-
 	/* See: attribute_list tuition_refund */
 	/* ----------------------------------- */
 	piece( student_full_name, SQL_DELIMITER, input, 0 );
 	piece( student_street_address, SQL_DELIMITER, input, 1 );
 	piece( season_name, SQL_DELIMITER, input, 2 );
 	piece( year, SQL_DELIMITER, input, 3 );
+	piece( payor_full_name, SQL_DELIMITER, input, 4 );
+	piece( payor_street_address, SQL_DELIMITER, input, 5 );
+	piece( refund_date_time, SQL_DELIMITER, input, 6 );
 
-	tuition_refund->registration =
-		registration_new(
+	tuition_refund =
+		tuition_refund_new(
 			entity_new(
 				strdup( student_full_name ),
 				strdup( student_street_address ) ),
-			strdup( season_name ),
-			atoi( year ) );
-
-	piece( payor_full_name, SQL_DELIMITER, input, 4 );
-	piece( payor_street_address, SQL_DELIMITER, input, 5 );
-
-	tuition_refund->payor_entity =
-		entity_new(
-			strdup( payor_full_name ),
-			strdup( payor_street_address ) ),
-
-	piece( refund_date_time, SQL_DELIMITER, input, 6 );
-	tuition_refund->refund_date_time = strdup( refund_date_time );
+			semester_new(
+				strdup( season_name ),
+				atoi( year ) ),
+			entity_new(
+				strdup( payor_full_name ),
+				strdup( payor_street_address ) ),
+			strdup( refund_date_time ) );
 
 	piece( refund_amount, SQL_DELIMITER, input, 7 );
 	tuition_refund->refund_amount = atof( refund_amount );
@@ -318,17 +311,15 @@ TUITION_REFUND *tuition_refund_parse(
 				student_full_name,
 				student_street_address,
 				tuition_refund->
-					registration->
+					semester->
 					season_name,
 				tuition_refund->
-					registration->
+					semester->
 					year,
 				fetch_enrollment_list,
 				fetch_offering,
 				fetch_course,
-				fetch_program,
-				0 /* not fetch_tuition_payment_list */,
-				0 /* not fetch_tuition_refund_list */ );
+				fetch_program );
 	}
 	return tuition_refund;
 }
@@ -516,15 +507,15 @@ void tuition_refund_update(
 	pclose( update_pipe );
 }
 
-char *tuition_refund_list_display( LIST *refund_list )
+char *tuition_refund_list_display( LIST *tuition_refund_list )
 {
 	char display[ 65536 ];
 	char *ptr = display;
-	TUITION_REFUND *refund;
+	TUITION_REFUND *tuition_refund;
 
 	*ptr = '\0';
 
-	if ( !list_rewind( refund_list ) )
+	if ( !list_rewind( tuition_refund_list ) )
 	{
 		return "";
 	}
@@ -532,29 +523,27 @@ char *tuition_refund_list_display( LIST *refund_list )
 	ptr += sprintf( ptr, "Tuition refund: " );
 
 	do {
-		refund =
+		tuition_refund =
 			list_get(
-				refund_list );
+				tuition_refund_list );
 
-		if ( !list_at_head( refund_list ) )
+		if ( !list_at_head( tuition_refund_list ) )
 		{
 			ptr += sprintf( ptr, ", " );
 		}
 
 		ptr += sprintf(	ptr,
 				"refund of %.2lf for %s",
-				refund->refund_amount,
+				tuition_refund->refund_amount,
 				entity_name_display(
 					tuition_refund->
-						registration->
 						student_entity->
 						full_name,
 					tuition_refund->
-						registration->
 						student_entity->
 						street_address ) );
 
-	} while ( list_next( refund_list ) );
+	} while ( list_next( tuition_refund_list ) );
 
 	ptr += sprintf( ptr, "; " );
 
@@ -778,164 +767,6 @@ void tuition_refund_set_transaction(
 	}
 }
 
-LIST *tuition_refund_list_paypal(
-			char *season_name,
-			int year,
-			ENTITY *payor_entity,
-			char *paypal_date_time,
-			LIST *paypal_item_list,
-			LIST *semester_offering_list,
-			LIST *paypal_deposit_list )
-{
-	LIST *tuition_refund_list = {0};
-	PAYPAL_ITEM *paypal_item;
-	OFFERING *offering;
-
-	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
-
-	do {
-		paypal_item = list_get( paypal_item_list );
-
-		if ( paypal_item->taken ) continue;
-
-		if ( !paypal_item->benefit_entity ) continue;
-
-		if ( ( offering =
-			offering_seek(
-				paypal_item->item_data,
-				semester_offering_list ) ) )
-		{
-			if ( !tuition_refund_list )
-				tuition_refund_list =
-					list_new();
-
-			list_set(
-				tuition_refund_list,
-				tuition_refund_paypal(
-					season_name,
-					year,
-					paypal_item->benefit_entity
-						/* student_entity */,
-					payor_entity,
-					paypal_date_time,
-					paypal_item->item_value,
-					paypal_item->item_fee,
-					offering->course->course_name,
-					paypal_deposit_list ) );
-
-			paypal_item->taken = 1;
-		}
-	} while ( list_next( paypal_item_list ) );
-
-	return tuition_refund_list;
-}
-
-TUITION_REFUND *tuition_refund_paypal(
-			char *season_name,
-			int year,
-			ENTITY *student_entity,
-			ENTITY *payor_entity,
-			char *paypal_date_time,
-			double item_value,
-			double item_fee,
-			char *course_name,
-			LIST *paypal_deposit_list )
-{
-	TUITION_REFUND *tuition_refund;
-
-	if ( !student_entity || !payor_entity )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: missing student_entity or payor_entity.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	tuition_refund = tuition_refund_calloc();
-
-	if ( ! ( tuition_refund->registration =
-			registration_fetch(
-				student_entity->full_name,
-				student_entity->street_address,
-				season_name,
-				year,
-				0 /* not fetch_enrollment_list */,
-				0 /* not fetch_offering */,
-				0 /* not fetch_course */,
-				0 /* not fetch_program */,
-				0 /* not fetch_tuition_payment_list */,
-				0 /* not fetch_tuition_refund_list */ ) ) )
-	{
-		if ( ! ( tuition_refund->registration =
-				registration_seek(
-					student_entity->
-						full_name,
-					student_entity->
-						street_address,
-					season_name,
-					year,
-					paypal_deposit_registration_list(
-						paypal_deposit_list ) ) ) )
-		{
-			free( tuition_refund );
-			return (TUITION_REFUND *)0;
-		}
-	}
-
-	tuition_refund->payor_entity = payor_entity;
-
-	tuition_refund->refund_date_time =
-	tuition_refund->paypal_date_time = paypal_date_time;
-
-	tuition_refund->refund_amount = item_value;
-	tuition_refund->merchant_fees_expense = item_fee;
-
-	tuition_refund->net_refund_amount =
-		education_net_refund_amount(
-			tuition_refund->refund_amount,
-			tuition_refund->merchant_fees_expense );
-
-	tuition_refund->course_name = course_name;
-
-	return tuition_refund;
-}
-
-LIST *tuition_refund_registration_list(
-			LIST *tuition_refund_list )
-{
-	TUITION_REFUND *tuition_refund;
-	LIST *registration_list;
-
-	if ( !list_rewind( tuition_refund_list ) ) return (LIST *)0;
-
-	registration_list = list_new();
-
-	do {
-		tuition_refund =
-			list_get(
-				tuition_refund_list );
-
-		if ( !tuition_refund->registration )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: empty registration.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
-		list_set(
-			registration_list,
-			tuition_refund->registration );
-
-	} while ( list_next( tuition_refund_list ) );
-
-	return registration_list;
-}
-
 LIST *tuition_refund_list( char *where )
 {
 	return tuition_refund_system_list(
@@ -987,13 +818,11 @@ TUITION_REFUND *tuition_refund_seek(
 
 		if ( strcmp(
 			tuition_refund->
-				registration->
 				student_entity->
 				full_name,
 			student_full_name ) == 0
 		&&   strcmp(
 			tuition_refund->
-				registration->
 				student_entity->
 				street_address,
 			student_street_address ) == 0
@@ -1004,9 +833,9 @@ TUITION_REFUND *tuition_refund_seek(
 			tuition_refund->payor_entity->street_address,
 			payor_street_address ) == 0
 		&&   strcmp(
-			tuition_refund->registration->season_name,
+			tuition_refund->semester->season_name,
 			season_name ) == 0
-		&&   tuition_refund->registration->year == year
+		&&   tuition_refund->semester->year == year
 		&&   strcmp(
 			tuition_refund->refund_date_time,
 			refund_date_time ) == 0 )
@@ -1051,17 +880,15 @@ boolean tuition_refund_list_exists(
 
 		if ( tuition_refund_seek(
 			tuition_refund->
-				registration->
 				student_entity->
 				full_name,
 			tuition_refund->
-				registration->
 				student_entity->
 				street_address,
 			tuition_refund->payor_entity->full_name,
 			tuition_refund->payor_entity->street_address,
-			tuition_refund->registration->season_name,
-			tuition_refund->registration->year,
+			tuition_refund->semester->season_name,
+			tuition_refund->semester->year,
 			tuition_refund->refund_date_time,
 			existing_tuition_refund_list ) )
 		{
@@ -1115,7 +942,7 @@ LIST *tuition_refund_list_enrollment_list(
 			enrollment_list,
 			tuition_refund->
 			       registration->
-			       enrollment_list ) );
+			       enrollment_list );
 
 	} while ( list_next( tuition_refund_list ) );
 
@@ -1146,5 +973,21 @@ LIST *tuition_refund_enrollment_list(
 	}
 
 	return tuition_refund->registration->enrollment_list;
+}
+
+TUITION_REFUND *tuition_refund_new(
+			ENTITY *student_entity,
+			SEMESTER *semester,
+			ENTITY *payor_entity,
+			char *refund_date_time )
+{
+	TUITION_REFUND *tuition_refund = tuition_refund_calloc();
+
+	tuition_refund->student_entity = student_entity;
+	tuition_refund->semester = semester;
+	tuition_refund->payor_entity = payor_entity;
+	tuition_refund->refund_date_time = refund_date_time;
+
+	return tuition_refund;
 }
 

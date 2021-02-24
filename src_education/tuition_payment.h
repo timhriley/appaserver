@@ -12,6 +12,7 @@
 #include "list.h"
 #include "registration.h"
 #include "offering.h"
+#include "semester.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -52,7 +53,8 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	REGISTRATION *registration;
+	ENTITY *student_entity;
+	SEMESTER *semester;
 	ENTITY *payor_entity;
 	char *payment_date_time;
 	double payment_amount;
@@ -61,9 +63,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	REGISTRATION *registration;
 	double net_payment_amount;
-	double overpayment_donation;
-	double tuition_payment_receivable_credit_amount;
 
 	TRANSACTION *tuition_payment_transaction;
 	char *transaction_date_time;
@@ -76,8 +77,7 @@ TUITION_PAYMENT *tuition_payment_calloc(
 
 TUITION_PAYMENT *tuition_payment_new(
 			ENTITY *student_entity,
-			char *season_name,
-			int year,
+			SEMESTER *semester,
 			ENTITY *payor_entity,
 			char *payment_date_time );
 
@@ -172,12 +172,6 @@ void tuition_payment_insert_pipe(
 			char *transaction_date_time,
 			char *paypal_date_time );
 
-void tuition_payment_list_registration_insert(
-			LIST *tuition_payment_list );
-
-void tuition_payment_list_enrollment_insert(
-			LIST *tuition_payment_list );
-
 void tuition_payment_list_student_entity_insert(
 			LIST *tuition_payment_list );
 
@@ -186,33 +180,6 @@ void tuition_payment_list_student_insert(
 
 void tuition_payment_list_payor_entity_insert(
 			LIST *tuition_payment_list );
-
-LIST *tuition_payment_list_enrollment_list(
-			LIST *tuition_payment_list );
-
-LIST *tuition_payment_enrollment_list(
-			TUITION_PAYMENT *tuition_payment );
-
-LIST *tuition_payment_registration_list(
-			LIST *tuition_payment_list );
-
-double tuition_payment_receivable_credit_amount(
-			double payment_amount );
-
-double tuition_payment_total(
-			LIST *tuition_payment_list );
-
-double tuition_payment_fee_total(
-			LIST *tuition_payment_list );
-
-void tuition_payment_trigger(
-			char *student_full_name,
-			char *street_address,
-			char *season_name,
-			int year,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *payment_date_time );
 
 LIST *tuition_payment_transaction_list(
 			LIST *tution_payment_list );
@@ -238,7 +205,6 @@ void tuition_payment_list_set_transaction(
 void tuition_payment_set_transaction(
 			int *seconds_to_add,
 			TUITION_PAYMENT *tuition_payment,
-			char *program_name,
 			char *cash_account_name,
 			char *account_revenue,
 			char *account_fees_expense );
@@ -251,7 +217,6 @@ TRANSACTION *tuition_payment_transaction(
 			char *program_name,
 			double payment_amount,
 			double merchant_fees_expense,
-			double receivable_credit_amount,
 			double net_payment_amount,
 			char *entity_self_paypal_cash_account_name,
 			char *account_receivable,

@@ -39,6 +39,13 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
+	ENTITY *student_entity;
+	COURSE *course;
+	SEMESTER *semester;
+	char *enrollment_date_time;
+
+	/* Process */
+	/* ------- */
 	REGISTRATION *registration;
 	OFFERING *offering;
 
@@ -46,21 +53,15 @@ typedef struct
 	/* ----------- */
 	LIST *course_drop_list;
 
-	/* Process */
-	/* ------- */
-	LIST *tuition_payment_list;
-	LIST *tuition_refund_list;
-	double tuition_payment_total;
-	double tuition_refund_total;
-
 	TRANSACTION *enrollment_transaction;
 	char *transaction_date_time;
 } ENROLLMENT;
 
 ENROLLMENT *enrollment_new(
 			ENTITY *student_entity,
-			char *course_name,
-			SEMESTER *semester );
+			COURSE *course,
+			SEMESTER *semester,
+			char *enrollment_date_time );
 
 ENROLLMENT *enrollment_fetch(
 			char *student_full_name,
@@ -172,9 +173,6 @@ void enrollment_list_update(
 			char *season_name,
 			int year );
 
-LIST *enrollment_list_registration_list(
-			LIST *enrollment_list );
-
 char *enrollment_list_first_program_name(
 			LIST *enrollment_list );
 
@@ -182,6 +180,21 @@ char *enrollment_list_revenue_account(
 			LIST *enrollment_list );
 
 char *enrollment_list_display(
+			LIST *enrollment_list );
+
+ENROLLMENT *enrollment_integrity_fetch(
+			char *full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year );
+
+ENROLLMENT *enrollment_list_seek(
+			char *full_name,
+			char *street_address,
+			char *course_name,
+			char *season_name,
+			int year,
 			LIST *enrollment_list );
 
 #endif

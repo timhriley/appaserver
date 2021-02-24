@@ -83,8 +83,9 @@ OFFERING *offering_parse(
 		/* --------------------- */
 		offering_new(
 			strdup( course_name ),
-			strdup( season_name ),
-			atoi( year ) );
+			semester_new(
+				strdup( season_name ),
+				atoi( year ) ) );
 
 	piece( course_price, SQL_DELIMITER, input, 3 );
 	offering->course_price = atof( course_price );

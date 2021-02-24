@@ -88,11 +88,10 @@ typedef struct
 	int paypal_item_nonexpected_revenue_length;
 	int paypal_item_expected_revenue_length;
 
-	LIST *tuition_payment_list;
+	LIST *registration_list;
 	LIST *program_donation_list;
 	LIST *product_sale_list;
 	LIST *ticket_sale_list;
-	LIST *tuition_refund_list;
 	LIST *product_refund_list;
 	LIST *ticket_refund_list;
 	PAYPAL_SWEEP *paypal_sweep;
@@ -198,7 +197,7 @@ LIST *paypal_deposit_steady_state_paypal_item_list(
 			double paypal_deposit_expected_revenue_total,
 			int nonexpected_revenue_list_length );
 
-void paypal_deposit_set_paypal_item_expected_revenue(
+void paypal_deposit_set_expected_revenue(
 			LIST *paypal_item_list,
 			LIST *semester_offering_list,
 			LIST *product_list,
@@ -226,9 +225,9 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 			LIST *event_list,
 			PAYPAL_DATASET *paypal_dataset,
 			int row_number,
-			/* --------------------------------------------- */
-			/* Seek out existing registrations in this file. */
-			/* --------------------------------------------- */
+			/* ------------------------------------------- */
+			/* Seek out existing enrollments in this file. */
+			/* ------------------------------------------- */
 			LIST *paypal_deposit_list );
 
 PAYPAL_DEPOSIT *paypal_deposit_sweep(

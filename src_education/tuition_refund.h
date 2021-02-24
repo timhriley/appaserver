@@ -11,6 +11,8 @@
 #include "boolean.h"
 #include "list.h"
 #include "registration.h"
+#include "semester.h"
+#include "entity.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -49,7 +51,8 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	REGISTRATION *registration;
+	ENTITY *student_entity;
+	SEMESTER *semester;
 	ENTITY *payor_entity;
 	char *refund_date_time;
 	double refund_amount;
@@ -58,6 +61,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	REGISTRATION *registration;
 	double net_refund_amount;
 
 	TRANSACTION *tuition_refund_transaction;
@@ -215,38 +219,6 @@ char *tuition_refund_memo(
 void tuition_refund_list_payor_entity_insert(
 			LIST *tuition_refund_list );
 
-LIST *tuition_refund_list_registration_list(
-			LIST *tuition_refund_list );
-
-LIST *tuition_refund_list_enrollment_list(
-			LIST *tuition_refund_list );
-
-LIST *tuition_refund_enrollment_list(
-			TUITION_REFUND *tuition_refund );
-
-LIST *tuition_refund_list_paypal(
-			char *season_name,
-			int year,
-			ENTITY *payor_entity,
-			char *paypal_date_time,
-			LIST *paypal_item_list,
-			LIST *semester_offering_list,
-			LIST *paypal_deposit_list );
-
-TUITION_REFUND *tuition_refund_paypal(
-			char *season_name,
-			int year,
-			ENTITY *student_entity,
-			ENTITY *payor_entity,
-			char *paypal_date_time,
-			double item_value,
-			double item_fee,
-			char *course_name,
-			LIST *paypal_deposit_list );
-
-void tuition_refund_list_registration_insert(
-			LIST *tuition_refund_list );
-
 void tuition_refund_list_student_insert(
 			LIST *tuition_refund_list );
 
@@ -258,8 +230,7 @@ void tuition_refund_list_enrollment_insert(
 
 TUITION_REFUND *tuition_refund_new(
 			ENTITY *student_entity,
-			char *season_name,
-			int year,
+			SEMESTER *semester,
 			ENTITY *payor_entity,
 			char *refund_date_time );
 
@@ -279,6 +250,12 @@ TUITION_REFUND *tuition_refund_seek(
 boolean tuition_refund_list_exists(
 			LIST *tuition_refund_list,
 			LIST *existing_tuition_refund_list );
+
+TUITION_REFUND *tuition_refund_new(
+			ENTITY *student_entity,
+			SEMESTER *semester,
+			ENTITY *payor_entity,
+			char *refund_date_time );
 
 #endif
 

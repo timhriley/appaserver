@@ -178,6 +178,9 @@ LIST *education_paypal_deposit_list(
 					dataset_return
 						/* paypal_dataset */,
 					row_number,
+					/* ----------------------------- */
+					/* Seek out existing enrollments */
+					/* ----------------------------- */
 					paypal_deposit_list ) );
 		}
 	}
