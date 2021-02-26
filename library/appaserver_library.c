@@ -709,13 +709,6 @@ LIST *appaserver_library_get_attribute_name_list(
 	return pipe2list( sys_string );
 }
 
-/*
-int is_primary_application( char *application_name )
-{
-	return application_get_is_primary_application( application_name );
-}
-*/
-
 char *build_multi_attribute_key( LIST *key_list, char delimiter )
 {
 	char multi_attribute_key[ 1024 ];
@@ -2062,9 +2055,9 @@ char *appaserver_library_prelookup_button_control_string(
 		appaserver_library_get_http_prompt(
 			cgi_directory,
 		 	server_address,
-			application_get_ssl_support_yn(
+			application_ssl_support_yn(
 				application_name ),
-		       application_get_prepend_http_protocol_yn(
+		       application_prepend_http_protocol_yn(
 				application_name ) ),
 		 login_name,
 		 application_name,

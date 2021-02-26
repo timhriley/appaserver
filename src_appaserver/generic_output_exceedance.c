@@ -236,8 +236,7 @@ int main( int argc, char **argv )
 				process_generic_output->
 					value_folder->
 						value_folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
+				1 ) );
 
 		fflush( stdout );
 		system( sys_string );
@@ -392,7 +391,7 @@ void output_exceedance_gracechart(
 	sprintf( graph_identifier, "%d", getpid() );
 
 	grace->grace_output =
-		application_get_grace_output( application_name );
+		application_grace_output( application_name );
 
 	grace_get_filenames(
 			&agr_filename,
@@ -470,7 +469,7 @@ void output_exceedance_gracechart(
 			(char *)0 /* appaserver_mount_point */,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -496,17 +495,17 @@ void output_exceedance_gracechart(
 			grace->x_label_size,
 			page_width_pixels,
 			page_length_pixels,
-			application_get_grace_home_directory(
+			application_grace_home_directory(
 				application_name ),
-			application_get_grace_execution_directory(
+			application_grace_execution_directory(
 				application_name ),
-			application_get_grace_free_option_yn(
+			application_grace_free_option_yn(
 				application_name ),
 			grace->grace_output,
-			application_get_distill_directory(
+			application_distill_directory(
 				application_name ),
 			distill_landscape_flag,
-			application_get_ghost_script_directory(
+			application_ghost_script_directory(
 				application_name ),
 			(LIST *)0 /* quantum_datatype_name_list */,
 			grace->symbols,
@@ -526,7 +525,7 @@ void output_exceedance_gracechart(
 	}
 
 	if ( ! ( chart_email_command_line =
-			application_get_chart_email_command_line(
+			application_chart_email_command_line(
 				application_name ) ) )
 	{
 		chart_email_command_line = "";
@@ -554,8 +553,7 @@ void output_exceedance_gracechart(
 					where_clause,
 					application_name,
 					value_folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
+				1 ) );
 	}
 	else
 	{
@@ -570,8 +568,7 @@ void output_exceedance_gracechart(
 					where_clause,
 					application_name,
 					value_folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
+				1 ) );
 	}
 } /* output_exceedance_gracechart() */
 

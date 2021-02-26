@@ -165,7 +165,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -379,7 +379,7 @@ int main( int argc, char **argv )
 	if ( system( sys_string ) ){};
 
 	chart_email_command_line =
-			application_get_chart_email_command_line(
+			application_chart_email_command_line(
 				application_name );
 
 	if ( !*chart_email_command_line

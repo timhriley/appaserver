@@ -90,7 +90,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			"diagram_list.css",
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -176,7 +176,7 @@ void view_diagrams_custom(
 		sprintf(current_directory,
 		 	"%s/%s", 
 		 	appaserver_mount_point,
-		 	application_get_first_relative_source_directory(
+		 	application_first_relative_source_directory(
 				application_name ) );
 	}
 
@@ -226,7 +226,7 @@ void view_diagrams_custom(
 			printf(
 "<li><a class=diagram target=\"%s\" href=\"/appaserver/%s/%s\">%s</a>\n",
 				base_name,
-		 		application_get_first_relative_source_directory(
+		 		application_first_relative_source_directory(
 					application_name ),
 		 		file_to_process,
 				format_initial_capital(
@@ -256,7 +256,7 @@ void view_diagrams_generic(
 	int p;
 
 	relative_source_directory_list_string =
-		application_get_relative_source_directory(
+		application_relative_source_directory(
 			application_name );
 
 	printf( "<ul>\n" );

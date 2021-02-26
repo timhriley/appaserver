@@ -368,7 +368,7 @@ void output_scatter(	char *everglades_application_name,
 			creel_application_name,
 			appaserver_mount_point,
 			getpid(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				creel_application_name ) == 'y' ) );
 
 	chart_file = fopen( easycharts->chart_filename, "w" );
@@ -712,9 +712,9 @@ void output_text_file(	char *creel_application_name,
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			process_name /* filename_stem */,

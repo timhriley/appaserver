@@ -367,7 +367,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 		        1 /* with_dynarch_menu */ );
 
@@ -405,7 +405,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 		        0 /* not with_dynarch_menu */ );
 	}
@@ -436,9 +436,9 @@ int main( int argc, char **argv )
 			appaserver_library_get_http_prompt(
 				appaserver_parameter_file_get_cgi_directory(),
 				appaserver_library_get_server_address(),
-				application_get_ssl_support_yn(
+				application_ssl_support_yn(
 					application_name ),
-				application_get_prepend_http_protocol_yn(
+				application_prepend_http_protocol_yn(
 					application_name ) ),
 			login_name,
 			application_name,
@@ -501,7 +501,7 @@ int main( int argc, char **argv )
 	}
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer_post_change_javascript(
 		1 /* output_submit_reset_buttons */,
@@ -1103,9 +1103,9 @@ char *get_preprompt_button_control_string(
 		appaserver_library_get_http_prompt(
 			cgi_directory,
 		 	server_address,
-			application_get_ssl_support_yn(
+			application_ssl_support_yn(
 				application_name ),
-		       application_get_prepend_http_protocol_yn(
+		       application_prepend_http_protocol_yn(
 				application_name ) ),
 		 login_name,
 		 application_name,

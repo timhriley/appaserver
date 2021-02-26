@@ -77,7 +77,7 @@ int main( int argc, char **argv )
 					appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ),
 				0 /* not with_dynarch_menu */ );
 	
@@ -140,7 +140,7 @@ void upload_source_file(	char *application_name,
 	sprintf( destination_directory,
 		 DESTINATION_DIRECTORY_TEMPLATE,
 		 appaserver_mount_point,
-		 application_get_first_relative_source_directory(
+		 application_first_relative_source_directory(
 			application_name ) );
 
 	sprintf( sys_string,

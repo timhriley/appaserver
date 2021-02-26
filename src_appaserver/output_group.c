@@ -269,8 +269,7 @@ int main( int argc, char **argv )
 				query->query_output->where_clause,
 				application_name,
 				folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
+				1 ) );
 
 	document = document_new( title, application_name );
 	document_set_output_content_type( document );
@@ -282,7 +281,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -402,9 +401,9 @@ void output_related_folder(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,
 			output_file_unique_key /* filename_stem */,

@@ -54,7 +54,7 @@ typedef struct
 
 	double dialog_box_payment_amount;
 	char *liability_entity_debit_account_name;
-	LIST *liability_entity_journal_list;
+	LIST *liability_after_balance_zero_journal_list;
 	double liability_entity_amount_due;
 	double liability_entity_payment_amount;
 	double liability_entity_loss_amount;

@@ -77,9 +77,9 @@ int main( int argc, char **argv )
 			appaserver_library_get_http_prompt(
 				appaserver_parameter_file_get_cgi_directory(),
 				appaserver_library_get_server_address(),
-				application_get_ssl_support_yn(
+				application_ssl_support_yn(
 					application_name ),
-				application_get_prepend_http_protocol_yn(
+				application_prepend_http_protocol_yn(
 					application_name ) ) );
 
 	role_list = list_string2list( argv[ 6 ], ',' );
@@ -224,7 +224,7 @@ void output_vertical_frameset_choose_role_drop_down(
 	output_dictionary_as_hidden( hidden_dictionary );
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer(
 		0 /* output_submit_reset_buttons */,

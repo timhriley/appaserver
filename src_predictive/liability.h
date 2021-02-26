@@ -1,9 +1,9 @@
-/* ---------------------------------------------*/
-/* $APPASERVER_HOME/src_predictive/liability.h	*/
-/* ---------------------------------------------*/
-/*						*/
-/* Freely available software: see Appaserver.org*/
-/* ---------------------------------------------*/
+/* --------------------------------------------- */
+/* $APPASERVER_HOME/src_predictive/liability.h	 */
+/* --------------------------------------------- */
+/*						 */
+/* Freely available software: see Appaserver.org */
+/* --------------------------------------------- */
 
 #ifndef LIABILITY_H
 #define LIABILITY_H
@@ -27,7 +27,7 @@ typedef struct
 	LIST *liability_current_account_list;
 	LIST *liability_tax_redirect_account_list;
 	LIST *liability_entity_list;
-	LIST *liability_journal_list_entity_list;
+	LIST *liability_after_balance_zero_entity_list;
 	LIST *liability_steady_state_entity_list;
 } LIABILITY;
 
@@ -40,8 +40,8 @@ typedef struct
 /* Operations */
 /* ---------- */
 LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek(
-			LIST *liability_account_entity_list,
-			char *account_name );
+			char *account_name,
+			LIST *liability_account_entity_list );
 
 LIABILITY_ACCOUNT_ENTITY *liability_account_entity_calloc(
 			void );
@@ -75,7 +75,7 @@ LIST *liability_tax_redirect_account_list(
 /* Also sets entity->liability_entity_debit_account_name */
 /* ----------------------------------------------------- */
 LIST *liability_entity_list(
-			LIST *liability_tax_redirect_account_list,
+			LIST *liability_account_list,
 			LIST *input_entity_list,
 			double dialog_box_payment_amount );
 
@@ -107,7 +107,7 @@ void liability_set_entity(
 
 ENTITY *liability_steady_state_entity(
 			ENTITY *entity,
-			LIST *liability_entity_journal_list );
+			LIST *liability_after_balance_zero_journal_list );
 
 double liability_entity_payment_amount(
 			double dialog_box_payment_amount,
@@ -123,7 +123,7 @@ LIST *liability_steady_state_entity_list(
 char *liability_credit_account_name(
 			int starting_check_number );
 
-LIST *liability_entity_journal_list(
+LIST *liability_after_balance_zero_journal_list(
 			LIST *liability_tax_redirect_account_list,
 			char *full_name,
 			char *street_address );
@@ -131,8 +131,8 @@ LIST *liability_entity_journal_list(
 char *liability_entity_debit_account_name(
 			char *account_name );
 
-LIST *liability_journal_list_entity_list(
+LIST *liability_after_balance_zero_entity_list(
 			LIST *liability_entity_list,
-			LIST *liability_tax_redirect_account_list );;
+			LIST *liability_account_list );;
 
 #endif

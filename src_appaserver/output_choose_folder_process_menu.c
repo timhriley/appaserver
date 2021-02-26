@@ -308,9 +308,9 @@ void output_vertical_folders(
 				appaserver_library_get_http_prompt(
 					apache_cgi_directory,
 					server_address,
-					application_get_ssl_support_yn(
+					application_ssl_support_yn(
 						application_name ),
-				       application_get_prepend_http_protocol_yn(
+				       application_prepend_http_protocol_yn(
 						application_name ) ),
 				 login_name,
 				 application_name,
@@ -342,9 +342,9 @@ void output_vertical_folders(
 				appaserver_library_get_http_prompt(
 					apache_cgi_directory,
 				 	server_address,
-					application_get_ssl_support_yn(
+					application_ssl_support_yn(
 						application_name ),
-				       application_get_prepend_http_protocol_yn(
+				       application_prepend_http_protocol_yn(
 					application_name ) ),
 				 login_name,
 				 application_name,
@@ -401,9 +401,9 @@ void output_vertical_processes(
 				appaserver_library_get_http_prompt(
 					apache_cgi_directory,
 				 	server_address,
-					application_get_ssl_support_yn(
+					application_ssl_support_yn(
 						application_name ),
-				       application_get_prepend_http_protocol_yn(
+				       application_prepend_http_protocol_yn(
 						application_name ) ),
 				 login_name,
 				 application_name,
@@ -691,9 +691,9 @@ void output_folder_element(	char *apache_cgi_directory,
 		appaserver_library_get_http_prompt(
 			apache_cgi_directory,
 		 	server_address,
-			application_get_ssl_support_yn(
+			application_ssl_support_yn(
 				application_name ),
-		       application_get_prepend_http_protocol_yn(
+		       application_prepend_http_protocol_yn(
 				application_name ) ),
 		login_name,
 		application_name,
@@ -748,9 +748,9 @@ void output_process_element(	char *apache_cgi_directory,
 		appaserver_library_get_http_prompt(
 		 	apache_cgi_directory,
 		 	server_address,
-			application_get_ssl_support_yn(
+			application_ssl_support_yn(
 				application_name ),
-		application_get_prepend_http_protocol_yn(
+		application_prepend_http_protocol_yn(
 			application_name ) ),
 		login_name,
 		application_name,

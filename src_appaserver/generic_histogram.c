@@ -330,10 +330,8 @@ int main( int argc, char **argv )
 					process_generic_output->
 						value_folder->
 							value_folder_name,
-					application_get_is_primary_application(
-						application_name ) ) );
+					1 ) );
 	document_close();
 	return 0;
-
-} /* main() */
+}
 

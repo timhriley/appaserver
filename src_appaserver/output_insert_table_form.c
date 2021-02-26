@@ -490,7 +490,7 @@ int main( int argc, char **argv )
 	}
 
 	form = form_new( folder->folder_name,
-			 application_get_title_string(
+			 application_title_string(
 				application_name ) );
 
 	form->dont_output_operations = 1;
@@ -606,7 +606,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -650,9 +650,9 @@ int main( int argc, char **argv )
 		/* ----------------------------- */
 		appaserver_link_file =
 			appaserver_link_file_new(
-				application_get_http_prefix( application_name ),
+				application_http_prefix( application_name ),
 				appaserver_library_get_server_address(),
-				( application_get_prepend_http_protocol_yn(
+				( application_prepend_http_protocol_yn(
 					application_name ) == 'y' ),
 	 			appaserver_parameter_file->
 					document_root,
@@ -711,7 +711,7 @@ int main( int argc, char **argv )
 		{
 			sprintf(sys_string,
 		 		"output_blank_screen.sh '%s' '' n > %s 2>>%s",
-		 		application_get_background_color(
+		 		application_background_color(
 					application_name ),
 				output_filename,
 		 		appaserver_error_get_filename(
@@ -964,7 +964,7 @@ int main( int argc, char **argv )
 		dictionary_appaserver,
 		1 /* with non_prefixed_dictionary */ );
 
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,

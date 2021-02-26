@@ -332,7 +332,7 @@ int main( int argc, char **argv )
 	}
 
 	form = form_new( folder_name,
-			 application_get_title_string(
+			 application_title_string(
 				application_name ) );
 
 	if ( rows_inserted )
@@ -466,7 +466,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			with_dynarch_menu,
 			0 /* not with_close_head */ );
@@ -746,7 +746,7 @@ m2( application_name, msg );
 					0 /* not with_prefixed_dictionary */ );
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,

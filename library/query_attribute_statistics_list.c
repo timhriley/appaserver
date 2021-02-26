@@ -598,8 +598,7 @@ void query_attribute_statistics_list_output_table(
 				local_where_clause,
 				application_name,
 				folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
+				1 ) );
 
 	html_table = new_html_table(
 			title,

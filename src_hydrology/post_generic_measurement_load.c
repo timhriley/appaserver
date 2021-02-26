@@ -189,7 +189,7 @@ int main( int argc, char **argv )
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new(
-				application_get_title_string(
+				application_title_string(
 					application_name ),
 				application_name );
 
@@ -203,7 +203,7 @@ int main( int argc, char **argv )
 				appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -213,7 +213,7 @@ int main( int argc, char **argv )
 
 	sprintf( title,
 		 "%s Load %s",
-		 application_get_title_string( application_name ),
+		 application_title_string( application_name ),
 		 format_initial_capital( buffer,
 					 folder_name ) );
 

@@ -452,7 +452,7 @@ void add_relative_source_directory_to_path( char *application_name )
 		appaserver_parameter_file_get_appaserver_mount_point();
 
 	relative_source_directory =
-		application_get_relative_source_directory(
+		application_relative_source_directory(
 			application_name );
 
 	if ( ! ( delimiter =

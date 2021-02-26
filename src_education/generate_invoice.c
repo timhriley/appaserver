@@ -266,15 +266,6 @@ void output_invoice_window(
 
 	sprintf( window_label, "latex_invoice_window_%d", process_id );
 
-/*
-	printf(
-"<body bgcolor=\"%s\" onload=\"window.open('%s','%s','menubar=yes,resizeable=yes,scrollbars=yes,status=no,toolbar=no,location=no', 'false');\">\n",
-			application_get_background_color(
-				application_name ),
-			ftp_output_filename,
-			window_label );
-*/
-
 	printf( "<br><a href='%s' target=%s>Invoice for %s.</a>\n",
 		ftp_output_filename,
 		window_label,

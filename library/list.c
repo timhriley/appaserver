@@ -508,6 +508,44 @@ LIST *list_double_quotes_around_string_list( LIST *list )
 	return return_list;
 }
 
+char *list_length_display(
+			LIST *string_list,
+			int how_many )
+{
+	char buffer[ 65536 ];
+	char *buf_ptr = buffer;
+	char *string;
+	boolean first_time = 1;
+
+	if ( !list_rewind( string_list ) ) return "";
+
+	*buf_ptr = '\0';
+
+	do {
+		string = list_get( string_list );
+
+		if ( first_time )
+		{
+			first_time = 0;
+
+			buf_ptr += sprintf( buf_ptr, 
+					    "%s", 
+					    string );
+		}
+		else
+		{
+			buf_ptr += sprintf( buf_ptr, 
+					    "^%s", 
+					    string );
+		}
+
+		if ( --how_many == 0 ) break;
+
+	} while( list_next( string_list ) );
+
+	return strdup( buffer );
+}
+
 char *list_display_delimited( LIST *list, char delimiter )
 {
 	char buffer[ 65536 ];
@@ -531,10 +569,12 @@ char *list_display_delimited( LIST *list, char delimiter )
 					    ptr );
 		}
 		else
+		{
 			buf_ptr += sprintf( buf_ptr, 
 					    "%c%s", 
 					    delimiter,
 					    ptr );
+		}
 	} while( next_item( list ) );
 
 	return strdup( buffer );

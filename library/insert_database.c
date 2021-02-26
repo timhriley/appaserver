@@ -12,6 +12,7 @@
 #include "insert_database.h"
 #include "appaserver_error.h"
 #include "timlib.h"
+#include "piece.h"
 #include "process.h"
 #include "appaserver_library.h"
 #include "related_folder.h"
@@ -22,12 +23,37 @@ INSERT_DATABASE *insert_database_calloc(
 			char *session,
 			char *folder_name )
 {
-	INSERT_DATABASE *i = (INSERT_DATABASE *)
-				calloc( 1, sizeof( INSERT_DATABASE ) );
+	INSERT_DATABASE *i =
+		(INSERT_DATABASE *)
+			calloc( 1, sizeof( INSERT_DATABASE ) );
+
 	i->application_name = application_name;
 	i->session = session;
 	i->folder_name = folder_name;
 	return i;
+}
+
+INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data_new(
+			char *attribute_name,
+			char *data )
+{
+	INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data;
+
+	if ( ! ( insert_database_attribute_data =
+		     calloc( 1, sizeof( INSERT_DATABASE_ATTRIBUTE_DATA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	insert_database_attribute_data->attribute_name = attribute_name;
+	insert_database_attribute_data->data = data;
+
+	return insert_database_attribute_data;
 }
 
 INSERT_DATABASE *insert_database_new(
@@ -88,7 +114,7 @@ int insert_database_execute(	char **message,
 				DICTIONARY *row_dictionary,
 				LIST *ignore_attribute_name_list,
 				int insert_row_zero_only,
-				int dont_remove_tmp_file,
+				boolean dont_remove_tmp_file,
 				PROCESS *post_change_process,
 				char *login_name,
 				LIST *mto1_related_folder_list,
@@ -100,15 +126,17 @@ int insert_database_execute(	char **message,
 	FILE *tmp_file;
 	int rows_inserted;
 	char *tmp_file_name = {0};
+	LIST *insert_attribute_name_list;
 
 	tmp_file = insert_database_open_tmp_file(
-				&tmp_file_name,
-				tmp_file_directory,
-				session );
+			&tmp_file_name,
+			tmp_file_directory,
+			session );
 
 	if ( !insert_row_zero_only )
 	{
-		build_insert_tmp_file_each_row(
+		insert_attribute_name_list =
+			build_insert_tmp_file_each_row(
 				row_dictionary,
 				application_name,
 				primary_attribute_name_list,
@@ -128,9 +156,8 @@ int insert_database_execute(	char **message,
 				message,
 				application_name,
 				folder_name,
-				attribute_name_list,
 				tmp_file_name,
-				ignore_attribute_name_list );
+				insert_attribute_name_list );
 
 		if ( rows_inserted && post_change_process )
 		{
@@ -153,7 +180,8 @@ int insert_database_execute(	char **message,
 	}
 	else
 	{
-		build_insert_tmp_file_row_zero(
+		insert_attribute_name_list =
+			build_insert_tmp_file_row_zero(
 				row_dictionary,
 				application_name,
 				primary_attribute_name_list,
@@ -172,9 +200,8 @@ int insert_database_execute(	char **message,
 				message,
 				application_name,
 				folder_name,
-				attribute_name_list,
 				tmp_file_name,
-				ignore_attribute_name_list );
+				insert_attribute_name_list );
 
 		if ( rows_inserted && post_change_process )
 		{
@@ -249,7 +276,9 @@ FILE *insert_database_open_tmp_file(	char **tmp_file_name,
 
 }
 
-void build_insert_tmp_file_each_row(
+/* Returns insert_attribute_name_list */
+/* ---------------------------------- */
+LIST *build_insert_tmp_file_each_row(
 			DICTIONARY *row_dictionary,
 			char *application_name,
 			LIST *primary_attribute_name_list,
@@ -266,6 +295,7 @@ void build_insert_tmp_file_each_row(
 	int row, highest_index;
 	boolean must_populate_at_least_one_non_primary_attribute;
 	LIST *non_primary_attribute_name_list;
+	LIST *insert_attribute_name_list = {0};
 
 	must_populate_at_least_one_non_primary_attribute =
 		( related_folder_exists_automatic_preselection(
@@ -300,14 +330,15 @@ void build_insert_tmp_file_each_row(
 			}
 
 			insert_database_set_reference_number(
-					application_name,
-					row_dictionary,
-					attribute_list,
-					row );
+				row_dictionary,
+				application_name,
+				attribute_list,
+				row );
 
-			build_insert_data_string( 	
-					row_dictionary,
+			insert_attribute_name_list =
+				build_insert_data_string( 	
 					data_pipe_string,
+					row_dictionary,
 					row,
 					ignore_attribute_name_list,
 					primary_attribute_name_list,
@@ -322,6 +353,7 @@ void build_insert_tmp_file_each_row(
 				 data_pipe_string );
 		}
 	}
+	return insert_attribute_name_list;
 }
 
 void insert_database_execute_post_change_process_row_zero(
@@ -468,21 +500,24 @@ void insert_database_execute_post_change_process_each_row(
 	}
 }
 
-void build_insert_tmp_file_row_zero(
-				DICTIONARY *row_dictionary,
-				char *application_name,
-				LIST *primary_attribute_name_list,
-				LIST *attribute_name_list,
-				LIST *ignore_attribute_name_list,
-				FILE *insert_tmp_file,
-				LIST *mto1_related_folder_list,
-				LIST *common_non_primary_attribute_name_list,
-				LIST *attribute_list,
-				boolean exists_reference_number )
+/* Returns insert_attribute_name_list */
+/* ---------------------------------- */
+LIST *build_insert_tmp_file_row_zero(
+			DICTIONARY *row_dictionary,
+			char *application_name,
+			LIST *primary_attribute_name_list,
+			LIST *attribute_name_list,
+			LIST *ignore_attribute_name_list,
+			FILE *insert_tmp_file,
+			LIST *mto1_related_folder_list,
+			LIST *common_non_primary_attribute_name_list,
+			LIST *attribute_list,
+			boolean exists_reference_number )
 {
 	char data_pipe_string[ MAX_INPUT_LINE ];
 	boolean must_populate_at_least_one_non_primary_attribute;
 	LIST *non_primary_attribute_name_list;
+	LIST *insert_attribute_name_list;
 
 	if ( !list_length( attribute_name_list ) )
 	{
@@ -499,18 +534,6 @@ void build_insert_tmp_file_row_zero(
 				mto1_related_folder_list ) ||
 		exists_reference_number );
 
-/*
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: got must_populate_at_least_one_non_primary_attribute = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-must_populate_at_least_one_non_primary_attribute );
-m2( application_name, msg );
-}
-*/
-
 	non_primary_attribute_name_list =
 		list_subtract_list(
 			attribute_name_list,
@@ -522,35 +545,38 @@ m2( application_name, msg );
 			row_dictionary,
 			non_primary_attribute_name_list ) )
 	{
-		return;
+		return (LIST *)0;
 	}
 
 	insert_database_set_reference_number(
-			application_name,
-			row_dictionary,
-			attribute_list,
-			0 /* row */ );
-
-	build_insert_data_string( 	
 		row_dictionary,
-		data_pipe_string,
-		0 /* row */,
-		ignore_attribute_name_list,
-		primary_attribute_name_list,
-		attribute_name_list,
-		mto1_related_folder_list,
-		common_non_primary_attribute_name_list,
 		application_name,
-		attribute_list );
+		attribute_list,
+		0 /* row */ );
+
+	insert_attribute_name_list =
+		build_insert_data_string(
+			data_pipe_string,
+			row_dictionary,
+			0 /* row */,
+			ignore_attribute_name_list,
+			primary_attribute_name_list,
+			attribute_name_list,
+			mto1_related_folder_list,
+			common_non_primary_attribute_name_list,
+			application_name,
+			attribute_list );
 
 	fprintf( insert_tmp_file, 
 		 "%s\n", 
 		 data_pipe_string );
+
+	return insert_attribute_name_list;
 }
 
 void insert_database_set_reference_number(
-			char *application_name,
 			DICTIONARY *dictionary,
+			char *application_name,
 			LIST *attribute_list,
 			int row )
 {
@@ -571,6 +597,7 @@ void insert_database_set_reference_number(
 						dictionary,
 						attribute->attribute_name,
 						row );
+
 			if ( results == -1 )
 			{
 				char reference_string[ 16 ];
@@ -585,6 +612,7 @@ void insert_database_set_reference_number(
 					"%s_%d",
 					attribute->attribute_name,
 					row );
+
 				dictionary_set_pointer(
 					dictionary,
 					strdup( key ),
@@ -597,25 +625,18 @@ void insert_database_set_reference_number(
 /* Returns the number of rows inserted */
 /* ----------------------------------- */
 int insert_database_execute_insert_mysql(
-				char **message,
-				char *application_name,
-				char *folder_name,
-				LIST *attribute_name_list,
-				char *tmp_file_name,
-				LIST *ignore_attribute_name_list )
+			char **message,
+			char *application_name,
+			char *folder_name,
+			char *tmp_file_name,
+			LIST *insert_attribute_name_list )
 {
 	char sys_string[ 1024 ];
 	char message_filename[ 128 ];
 	char *results_string;
 	int rows_inserted;
-	LIST *insert_attribute_name_list;
 
 	sprintf( message_filename, "/tmp/insert_mysql_error_%d", getpid() );
-
-	insert_attribute_name_list =
-		list_subtract_list(
-			attribute_name_list,
-			ignore_attribute_name_list );
 
 	sprintf( sys_string, 
 		 "insert_mysql %s %s '%s' %s 2>%s",
@@ -630,9 +651,9 @@ int insert_database_execute_insert_mysql(
 	else
 		rows_inserted = atoi( results_string );
 
-	sprintf(	sys_string,
-			"cat %s | html_paragraph_wrapper",
-			message_filename );
+	sprintf(sys_string,
+		"cat %s | html_paragraph_wrapper",
+		message_filename );
 
 	*message = pipe_multiple_lines2string( sys_string, LF );
 
@@ -640,144 +661,8 @@ int insert_database_execute_insert_mysql(
 
 	sprintf( sys_string, "rm -f %s", message_filename );
 	if ( system( sys_string ) ){};
+
 	return rows_inserted;
-
-}
-
-void build_insert_data_string( 	DICTIONARY *row_dictionary,
-				char *destination,
-		     		int row,
-				LIST *ignore_attribute_name_list,
-				LIST *primary_attribute_name_list,
-				LIST *attribute_name_list,
-				LIST *mto1_related_folder_list,
-				LIST *common_non_primary_attribute_name_list,
-				char *application_name,
-				LIST *attribute_list )
-{
-	char *attribute_name;
-	char *data_ptr;
-	char data[ 65536 ];
-	int results;
-	int first_time = 1;
-	ATTRIBUTE *attribute;
-
-	if ( !list_rewind( attribute_name_list ) ) return;
-
-	do {
-		attribute_name =
-			list_get_pointer(
-				attribute_name_list );
-
-		if ( insert_database_ignore_button_pressed(
-					ignore_attribute_name_list,
-					attribute_name ) )
-		{
-			continue;
-		}
-
-		results = dictionary_get_index_data(
-					&data_ptr,
-					row_dictionary,
-					attribute_name,
-					row );
-
-		if ( results == -1 )
-		{
-			if ( list_exists_string(
-				attribute_name,
-				common_non_primary_attribute_name_list ) )
-			{
-				if ( ! (data_ptr =
-					insert_database_get_common_data(
-					row_dictionary,
-					application_name,
-					mto1_related_folder_list,
-					attribute_name,
-					row ) ) )
-				{
-					fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot get common data in row = %d for attribute = %s.\n",
-						 __FILE__,
-						 __FUNCTION__,
-						 __LINE__,
-						 row,
-						 attribute_name );
-					exit( 1 );
-				}
-			}
-			else
-			{
-				data_ptr = "";
-			}
-		}
-
-		timlib_strcpy( data, data_ptr, 65535 );
-
-		if ( strcmp( data, FORBIDDEN_NULL ) == 0 )
-		{
-			strcpy( data, NULL_STRING );
-		}
-		else
-		if ( *data )
-		{
-			search_replace_special_characters( data );
-			escape_special_characters( data );
-		}
-		else
-		{
-			strcpy( data, "" );
-		}
-
-		/* If there is no data and it's a primary attribute */
-		/* then make it "null".				    */
-		/* ------------------------------------------------ */
-		if ( ( !*data )
-		&&   list_exists_string(
-			attribute_name,
-			primary_attribute_name_list ) )
-		{
-			strcpy( data, NULL_STRING );
-		}
-
-		attribute =
-			attribute_seek_attribute(
-				attribute_name,
-				attribute_list );
-
-		if ( attribute
-		&&   *data
-		&& ( timlib_strcmp(	attribute->datatype,
-					"float" ) == 0
-		||   timlib_strcmp(	attribute->datatype,
-					"integer" ) == 0 ) )
-		{
-			if ( strcmp( data, NULL_STRING ) != 0 )
-			{
-				strcpy(	data,
-					timlib_trim_money_characters(
-					data ) );
-			}
-		}
-
-		/* Build the output string */
-		/* ----------------------- */
-		if ( first_time )
-		{
-			first_time = 0;
-			destination += sprintf(
-				destination,
-				"%s",
-				data );
-		}
-		else
-		{
-			destination += sprintf(
-				destination,
-				"^%s",
-				data );
-		}
-	} while( list_next( attribute_name_list ) );
 }
 
 LIST *insert_database_get_missing_attribute_name_list(
@@ -999,6 +884,7 @@ char *insert_database_get_fetch_common_data_where_clause_string(
 		do {
 			primary_data =
 				list_get_pointer( primary_data_list );
+
 			primary_attribute_name =
 				list_get_pointer( primary_attribute_name_list );
 
@@ -1154,6 +1040,307 @@ LIST *insert_database_set_ignore_primary_key_to_null(
 	}
 
 	return new_ignore_attribute_name_list;
+}
 
+/* Returns insert_attribute_name_list */
+/* ---------------------------------- */
+LIST *build_insert_data_string( 	
+			char *destination,
+			DICTIONARY *row_dictionary,
+		     	int row,
+			LIST *ignore_attribute_name_list,
+			LIST *primary_attribute_name_list,
+			LIST *attribute_name_list,
+			LIST *mto1_related_folder_list,
+			LIST *common_non_primary_attribute_name_list,
+			char *application_name,
+			LIST *attribute_list )
+{
+	LIST *attribute_data_list;
+	LIST *insert_attribute_name_list;
+	INSERT_DATABASE_ATTRIBUTE_DATA *attribute_data;
+
+	attribute_data_list =
+		insert_database_attribute_data_list(
+			row_dictionary,
+		     	row,
+			ignore_attribute_name_list,
+			primary_attribute_name_list,
+			attribute_name_list,
+			mto1_related_folder_list,
+			common_non_primary_attribute_name_list,
+			application_name,
+			attribute_list );
+
+	if ( !list_rewind( attribute_data_list ) ) return (LIST *)0;
+
+	do {
+		attribute_data =
+			list_get(
+				attribute_data_list );
+
+		if ( !list_at_first( attribute_data_list ) )
+		{
+			destination +=
+				sprintf(destination,
+					"^" );
+		}
+
+		destination +=
+			sprintf(destination,
+				"%s",
+				attribute_data->data );
+
+	} while ( list_next( attribute_data_list  ) );
+
+	insert_attribute_name_list =
+		insert_database_attribute_name_list(
+			attribute_data_list );
+
+	return insert_attribute_name_list;
+}
+
+LIST *insert_database_attribute_data_list( 	
+			DICTIONARY *row_dictionary,
+		     	int row,
+			LIST *ignore_attribute_name_list,
+			LIST *primary_attribute_name_list,
+			LIST *attribute_name_list,
+			LIST *mto1_related_folder_list,
+			LIST *common_non_primary_attribute_name_list,
+			char *application_name,
+			LIST *attribute_list )
+{
+	char *attribute_name;
+	char *data_ptr;
+	char data[ 65536 ];
+	int results;
+	ATTRIBUTE *attribute;
+	INSERT_DATABASE_ATTRIBUTE_DATA *attribute_data;
+	LIST *attribute_data_list = list_new();
+	LIST *done_attribute_name_list = list_new();
+
+	if ( !list_length( attribute_name_list ) ) return (LIST *)0;
+
+	insert_database_direct_attribute_data_list(
+		attribute_data_list,
+		done_attribute_name_list,
+		attribute_name_list,
+		row_dictionary,
+		row );
+
+	list_rewind( attribute_name_list );
+
+	do {
+		attribute_name =
+			list_get(
+				attribute_name_list );
+
+		if ( list_string_exists(
+			attribute_name,
+			done_attribute_name_list ) )
+		{
+			continue;
+		}
+
+		if ( insert_database_ignore_button_pressed(
+				ignore_attribute_name_list,
+				attribute_name ) )
+		{
+			continue;
+		}
+
+		results =
+			dictionary_get_index_data(
+				&data_ptr,
+				row_dictionary,
+				attribute_name,
+				row );
+
+		if ( results == -1
+		&&   list_exists_string(
+				attribute_name,
+				common_non_primary_attribute_name_list ) )
+		{
+			if ( ! (data_ptr =
+				   insert_database_get_common_data(
+					row_dictionary,
+					application_name,
+					mto1_related_folder_list,
+					attribute_name,
+					row ) ) )
+			{
+				fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot get common data in row = %d for attribute = %s.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__,
+					 row,
+					 attribute_name );
+				exit( 1 );
+			}
+			else
+			{
+				data_ptr = "";
+			}
+		}
+
+		timlib_strcpy( data, data_ptr, 65535 );
+
+		if ( strcmp( data, FORBIDDEN_NULL ) == 0 )
+		{
+			strcpy( data, NULL_STRING );
+		}
+		else
+		if ( *data )
+		{
+			search_replace_special_characters( data );
+			escape_special_characters( data );
+		}
+		else
+		{
+			strcpy( data, "" );
+		}
+
+		/* If there is no data and it's a primary attribute */
+		/* then make it "null".				    */
+		/* ------------------------------------------------ */
+		if ( ( !*data )
+		&&   list_exists_string(
+			attribute_name,
+			primary_attribute_name_list ) )
+		{
+			strcpy( data, NULL_STRING );
+		}
+
+		attribute =
+			attribute_seek_attribute(
+				attribute_name,
+				attribute_list );
+
+		if ( attribute
+		&&   *data
+		&& ( timlib_strcmp(	attribute->datatype,
+					"float" ) == 0
+		||   timlib_strcmp(	attribute->datatype,
+					"integer" ) == 0 ) )
+		{
+			if ( strcmp( data, NULL_STRING ) != 0 )
+			{
+				strcpy(	data,
+					timlib_trim_money_characters(
+					data ) );
+			}
+		}
+
+		attribute_data =
+			insert_database_attribute_data_new(
+				attribute_name,
+				strdup( data ) );
+
+		list_set( attribute_data_list, attribute_data );
+		list_set( done_attribute_name_list, attribute_name );
+
+	} while( list_next( attribute_name_list ) );
+
+	return attribute_data_list;
+}
+
+LIST *insert_database_attribute_name_list(
+			LIST *attribute_data_list )
+{
+	INSERT_DATABASE_ATTRIBUTE_DATA *attribute_data;
+	LIST *attribute_name_list;
+
+	if ( !list_rewind( attribute_data_list ) ) return (LIST *)0;
+
+	attribute_name_list = list_new();
+
+	do {
+		attribute_data = list_get( attribute_data_list );
+
+		list_set( attribute_name_list, attribute_data->attribute_name );
+
+	} while ( list_next( attribute_data_list ) );
+
+	return attribute_name_list;
+}
+
+void insert_database_set_attribute_data_list(
+			LIST *attribute_data_list,
+			LIST *done_attribute_name_list,
+			char *attribute_name_string,
+			char *data_string,
+			int length )
+{
+	INSERT_DATABASE_ATTRIBUTE_DATA *attribute_data;
+	char attribute_name[ 128 ];
+	char data[ 65536 ];
+	int i;
+
+	for (	i = 0;
+		i < length;
+		i++ )
+	{
+		piece( attribute_name, '^', attribute_name_string, i );
+		piece( data, '^', data_string, i );
+
+		attribute_data =
+			insert_database_attribute_data_new(
+				strdup( attribute_name ),
+				strdup( data ) );
+
+		list_set( attribute_data_list, attribute_data );
+
+		list_set(
+			done_attribute_name_list,
+			attribute_data->attribute_name );
+	}
+}
+
+void insert_database_direct_attribute_data_list(
+			LIST *attribute_data_list,
+			LIST *done_attribute_name_list,
+			LIST *attribute_name_list,
+			DICTIONARY *row_dictionary,
+			int row )
+{
+	char *key;
+	char *data;
+	int results;
+	int length;
+	int i;
+
+	length = list_length( attribute_name_list );
+
+	if ( length < 2 ) return;
+
+	for (	i = length;
+		i > 1;
+		i-- )
+	{
+		key = list_length_display(
+				attribute_name_list,
+				i );
+
+		results = dictionary_get_index_data(
+				&data,
+				row_dictionary,
+				key,
+				row );
+
+		if ( results != -1 )
+		{
+			insert_database_set_attribute_data_list(
+				attribute_data_list,
+				done_attribute_name_list,
+				key /* attribute_name_string */,
+				data,
+				i /* length */ );
+
+			return;
+		}
+
+	}
 }
 

@@ -93,9 +93,9 @@ int main( int argc, char **argv )
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		appaserver_parameter_file->document_root,
 			(char *)0 /* filename_stem */,
@@ -222,7 +222,7 @@ int main( int argc, char **argv )
 			appaserver_link_file->extension );
 
 	strcpy( title, 
-		application_get_application_title(
+		application_title(
 			application_name ) );
 
 	if ( appaserver_frameset_menu_horizontal(
@@ -289,7 +289,7 @@ void output_vertical_frameset(		char *application_name,
 
 	sprintf( sys_string,
 		 "output_blank_screen.sh \"%s\" \"%s\" n > %s 2>>%s",
-		 application_get_background_color( application_name ),
+		 application_background_color( application_name ),
 		 title,
 		 prompt_frame_create_filename,
 		 appaserver_get_error_filename( application_name ) );
@@ -297,7 +297,7 @@ void output_vertical_frameset(		char *application_name,
 
 	sprintf( sys_string,
 		 "output_blank_screen.sh \"%s\" '' n > %s 2>>%s",
-		 application_get_background_color( application_name ),
+		 application_background_color( application_name ),
 		 edit_frame_create_filename,
 		 appaserver_get_error_filename( application_name ) );
 	if ( system( sys_string ) ){};
@@ -359,7 +359,7 @@ void output_horizontal_frameset(	char *application_name,
 
 	sprintf( sys_string,
 		 "output_blank_screen.sh \"%s\" '' n > %s 2>>%s",
-		 application_get_background_color( application_name ),
+		 application_background_color( application_name ),
 		 edit_frame_create_filename,
 		 appaserver_error_get_filename(
 				application_name ) );

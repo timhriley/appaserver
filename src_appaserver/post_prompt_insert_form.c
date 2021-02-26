@@ -802,7 +802,7 @@ void output_missing_information_message(char *application_name,
 		appaserver_mount_point,
 		d->javascript_module_list,
 		d->stylesheet_filename,
-		application_get_relative_source_directory(
+		application_relative_source_directory(
 			application_name ),
 		0 /* not with_dynarch_menu */ );
 

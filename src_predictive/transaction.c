@@ -995,7 +995,7 @@ char *transaction_report_title_sub_title(
 
 	sprintf(title,
 		"%s",
-		application_get_application_title(
+		application_title(
 			environment_application() ) );
 
 	if ( ! ( begin_date_string = 

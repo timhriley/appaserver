@@ -133,7 +133,7 @@ int main( int argc, char **argv )
 			attribute_list );
 
 	form = form_new( INSERT_UPDATE_KEY,
-			 application_get_title_string( application_name ) );
+			 application_title_string( application_name ) );
 
 	form_set_folder_parameters(	form,
 					state,
@@ -161,7 +161,7 @@ int main( int argc, char **argv )
 	form->html_help_file_anchor = folder->html_help_file_anchor;
 
 	document = document_new(
-			application_get_title_string( application_name ),
+			application_title_string( application_name ),
 			application_name );
 
 
@@ -182,7 +182,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			with_dynarch_menu );
 
@@ -279,7 +279,7 @@ int main( int argc, char **argv )
 			(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer(
 		1 /* output_submit_reset_buttons */,

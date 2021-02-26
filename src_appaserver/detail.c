@@ -406,7 +406,7 @@ if ( SECURITY_ON )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -844,7 +844,7 @@ void output_1tom_folder_detail(	int *form_number,
 			application_name,
 			document->javascript_module_list,
 			appaserver_mount_point,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ) );
 
 		if ( related_folder->relation_type_isa )
@@ -1425,7 +1425,7 @@ DICTIONARY *output_folder_detail(
 	}
 
 	form = form_new( INSERT_UPDATE_KEY,
-			 application_get_title_string(
+			 application_title_string(
 				application_name ) );
 
 	form->table_border = 1;
@@ -1564,7 +1564,7 @@ DICTIONARY *output_folder_detail(
 omit_insert_flag = 1;
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,

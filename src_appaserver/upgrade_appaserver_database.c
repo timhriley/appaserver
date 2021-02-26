@@ -129,7 +129,7 @@ void do_upgrade(	char *application_name,
 		get_version_list(
 			appaserver_parameter_file->appaserver_mount_point );
 
-	this_version = application_get_version( application_name );
+	this_version = application_version( application_name );
 
 	if ( strcmp( this_version, "0.0" ) == 0 ) return;
 

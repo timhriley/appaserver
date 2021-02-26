@@ -245,20 +245,23 @@ char *pay_liabilities_process(
 		/* ----------------------------------------------------- */
 		liability_entity_list(
 			liability->
-				liability_tax_redirect_account_list,
+				liability_tax_redirect_account_list
+				/* liability_account_list */,
 			input_entity_list,
 			liability->dialog_box_payment_amount );
 
-	liability->liability_journal_list_entity_list =
-		liability_journal_list_entity_list(
+	liability->liability_after_balance_zero_entity_list =
+		liability_after_balance_zero_entity_list(
 			liability->liability_entity_list,
 			liability->
-				liability_tax_redirect_account_list );
+				liability_tax_redirect_account_list
+				/* liability_account_list */ );
 
 	liability->liability_steady_state_entity_list =
 		liability_steady_state_entity_list(
 			liability->
-				liability_journal_list_entity_list );
+				liability_after_balance_zero_entity_list
+				/* entity_list */ );
 
 	if ( starting_check_number )
 	{
@@ -331,9 +334,9 @@ char *print_checks_create(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			process_name /* filename_stem */,

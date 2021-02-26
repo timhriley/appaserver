@@ -220,7 +220,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -289,7 +289,7 @@ int main( int argc, char **argv )
 	document_close();
 
 	exit( 0 );
-} /* main() */
+}
 
 void change_sort_order_state_one(
 				char *application_name,
@@ -386,7 +386,7 @@ void change_sort_order_state_one(
 		"yes" );
 
 	form = form_new( SORT_ORDER_ATTRIBUTE_NAME,
-			 application_get_title_string(
+			 application_title_string(
 				application_name ) );
 
 	sprintf(	action_string,
@@ -543,7 +543,7 @@ void change_sort_order_state_one(
 		(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer(
 		1 /* output_submit_reset_buttons_in_trailer */,
@@ -561,7 +561,7 @@ void change_sort_order_state_one(
 	printf( "</table>\n" );
 	printf( "</form>\n" );
 
-} /* change_sort_order_state_one() */
+}
 
 void change_sort_order_state_two(
 				char *application_name,
@@ -634,7 +634,7 @@ void change_sort_order_state_two(
 			application_name );
 	}
 
-} /* change_sort_order_state_two() */
+}
 
 void post_change_sort_order_post_change_process_execute(
 			PROCESS *post_change_process,

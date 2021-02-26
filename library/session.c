@@ -368,7 +368,7 @@ void session_access_failed_message_and_exit(	char *application_name,
 		appaserver_parameter_file->appaserver_mount_point,
 		document->javascript_module_list,
 		document->stylesheet_filename,
-		application_get_relative_source_directory(
+		application_relative_source_directory(
 			application_name ),
 		0 /* not with_dynarch_menu */ );
 

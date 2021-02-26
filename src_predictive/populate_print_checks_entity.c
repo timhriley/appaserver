@@ -71,8 +71,8 @@ void populate_print_checks_entity( void )
 			(LIST *)0 /* input_entity_list */,
 			0.0 /* dialog_box_payment_amount */ );
 
-	liability->liability_journal_list_entity_list =
-		liability_journal_list_entity_list(
+	liability->liability_after_balance_zero_entity_list =
+		liability_after_balance_zero_entity_list(
 			liability->liability_entity_list,
 			liability->
 				liability_tax_redirect_account_list );
@@ -82,7 +82,7 @@ void populate_print_checks_entity( void )
 	output_entity_list(
 		output_pipe,
 		liability->
-			liability_journal_list_entity_list,
+			liability_after_balance_zero_entity_list,
 		liability->
 			liability_tax_redirect_account_list );
 
@@ -101,13 +101,18 @@ void output_entity_list(
 	do {
 		entity = list_get( entity_list );
 
-		if ( !list_length( entity->liability_entity_journal_list ) )
+		if ( !list_length(
+			entity->
+				liability_after_balance_zero_journal_list ) )
+		{
 			continue;
+		}
 
 		if ( ( entity->liability_entity_amount_due =
 			liability_entity_amount_due(
-				liability_entity_journal_list(
-					liability_tax_redirect_account_list,
+				liability_after_balance_zero_journal_list(
+					liability_tax_redirect_account_list
+						/* liability_account_list */,
 					entity->full_name,
 					entity->street_address ) ) ) )
 		{

@@ -245,9 +245,9 @@ void form_output_heading(
 			appaserver_library_get_http_prompt(
 				appaserver_parameter_file_get_cgi_directory(),
 				server_address,
-				application_get_ssl_support_yn(
+				application_ssl_support_yn(
 					application_name ),
-				application_get_prepend_http_protocol_yn(
+				application_prepend_http_protocol_yn(
 					application_name ) ),
 			post_process,
 			login_name,
@@ -271,17 +271,20 @@ void form_output_heading(
 
 	if ( output_submit_reset_buttons )
 	{
+		printf( "<table border=0>\n" );
+
 		form_output_submit_reset_buttons(
 			submit_control_string,
 			(char *)0 /* button_label */,
 			html_help_file_anchor,
-			0 /* not with_submit_reset_button_table_tags */,
 			remember_keystrokes_onload_control_string,
 			application_name,
 			0 /* not with_back_to_top_button */,
 			with_prelookup_skip_button,
 			0 /* form_number */,
 			post_change_javascript );
+
+		printf( "</table>\n" );
 	}
 
 	printf( "<table cellspacing=0 cellpadding=0" );
@@ -413,7 +416,7 @@ void form_output_trailer(
 			form_button = list_get_pointer( form_button_list );
 
 			printf(
-"<input type=\"button\" value=\"%s\" onClick=\"%s;\">\n",
+"<td><input type=button value=\"%s\" onClick=\"%s;\">\n",
 				form_button->button_label,
 				form_button->onclick_control_string );
 
@@ -469,7 +472,6 @@ void form_output_trailer_post_change_javascript(
 			submit_control_string,
 			(char *)0 /* button_label */,
 			html_help_file_anchor,
-			1 /* with_submit_reset_button_table_tags */,
 			remember_keystrokes_onload_control_string,
 			application_name,
 			with_back_to_top_button,
@@ -934,20 +936,15 @@ LIST *form_get_hydrology_validation_element_list(
 void form_output_back_to_top_button( void )
 {
 	printf(
-"<td valign=bottom><a onClick=\"%s\"><img src=\"/%s/top.png\"></a>\n",
+"<td><a onClick=\"%s\"><img src=\"/%s/top.png\"></a>\n",
 		"window.scrollTo(0,0)",
 		IMAGE_RELATIVE_DIRECTORY );
 }
 
 void form_output_remember_keystrokes_button( char *control_string )
 {
-/*
 	printf(
-"<td valign=bottom><input type=\"button\" value=\"Recall\" onClick=\"%s\">\n",
-		control_string );
-*/
-	printf(
-"<input type=\"button\" value=\"Recall\" onClick=\"%s\">\n",
+"<td><input type=\"button\" value=\"Recall\" onClick=\"%s\">\n",
 		control_string );
 }
 
@@ -1723,10 +1720,10 @@ char **form_get_background_color_array(
 void form_output_back_forward_buttons( void )
 {
 	printf(
-"<input type=\"button\" value=\"Back\" onClick=\"history.back()\">\n" );
+"<td><input type=\"button\" value=\"Back\" onClick=\"history.back()\">\n" );
 
 	printf(
-"<input type=\"button\" value=\"Forward\" onClick=\"timlib_history_forward()\">\n" );
+"<td><input type=\"button\" value=\"Forward\" onClick=\"timlib_history_forward()\">\n" );
 
 }
 
@@ -1734,7 +1731,7 @@ void form_output_reset_button(	char *post_change_javascript,
 				int form_number )
 {
 	printf(
-"<input type=\"button\" value=\"Reset\" onClick=\"form_reset(document.forms[%d], '%c')",
+"<td><input type=\"button\" value=\"Reset\" onClick=\"form_reset(document.forms[%d], '%c')",
 		form_number,
 		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
 
@@ -1751,7 +1748,7 @@ void form_output_reset_button(	char *post_change_javascript,
 void form_output_prelookup_skip_button(	int form_number )
 {
 	printf(
-"<input type=\"button\" value=\"Skip\" title=\"Skip this form if you don't know exactly what you're looking for.\" onClick=\"form_reset(document.forms[%d], '%c'); document.forms[%d].submit()",
+"<td><input type=\"button\" value=\"Skip\" title=\"Skip this form if you don't know exactly what you're looking for.\" onClick=\"form_reset(document.forms[%d], '%c'); document.forms[%d].submit()",
 		form_number,
 		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER,
 		form_number );
@@ -1777,7 +1774,7 @@ void form_output_html_help_file_anchor(
 		appaserver_parameter_file_get_appaserver_mount_point();
 
 	relative_source_directory =
-		application_get_relative_source_directory(
+		application_relative_source_directory(
 			application_name );
 
 	for(	index = 0;
@@ -1821,7 +1818,7 @@ void form_output_html_help_file_anchor(
 	}
 
 	printf(
-"<input type=button value=Help onclick='window.open(\"%s\",\"help_window\",\"width=600,height=350,resizable=yes,scrollbars=yes\")'>\n",
+"<td><input type=button value=Help onclick='window.open(\"%s\",\"help_window\",\"width=600,height=350,resizable=yes,scrollbars=yes\")'>\n",
 			full_pathname );
 }
 
@@ -1829,7 +1826,6 @@ void form_output_submit_reset_buttons(
 			char *submit_control_string,
 			char *button_label,
 			char *html_help_file_anchor,
-			boolean with_table_tags,
 			char *remember_keystrokes_onload_control_string,
 			char *application_name,
 			boolean with_back_to_top_button,
@@ -1837,15 +1833,16 @@ void form_output_submit_reset_buttons(
 			int form_number,
 			char *post_change_javascript )
 {
-	if ( with_table_tags ) printf( "<tr><td>\n" );
+	printf( "<tr>\n" );
 
 	form_output_submit_button(
-			submit_control_string,
-			button_label,
-			form_number );
+		submit_control_string,
+		button_label,
+		form_number );
 
-	form_output_reset_button(	post_change_javascript,
-					form_number );
+	form_output_reset_button(
+		post_change_javascript,
+		form_number );
 
 	form_output_back_forward_buttons();
 
@@ -1872,7 +1869,6 @@ void form_output_submit_reset_buttons(
 		form_output_back_to_top_button();
 	}
 
-	if ( with_table_tags ) printf( "</td>\n" );
 }
 
 void form_output_submit_button(
@@ -1883,6 +1879,8 @@ void form_output_submit_button(
 	if ( !button_label || !*button_label )
 		button_label = SUBMIT_BUTTON_LABEL;
 
+	printf( "<td>" );
+
 	if ( submit_control_string && *submit_control_string )
 	{
 		/* -------------------------------------------- */
@@ -1890,8 +1888,8 @@ void form_output_submit_button(
 		/* have "&&" appended to it.			*/
 		/* -------------------------------------------- */
 		printf(
-"	<input type=\"button\" value=\"%s\" 			\n"
-"	onClick=\"%s document.forms[%d].submit();\">		\n",
+"<td><input type=button value=\"%s\" "
+"onClick=\"%s document.forms[%d].submit();\">\n",
 			button_label,
 			submit_control_string,
 			form_number );
@@ -1899,8 +1897,8 @@ void form_output_submit_button(
 	else
 	{
 		printf(
-"	<input type=\"button\" value=\"%s\" 			\n"
-"	onClick=\"document.forms[%d].submit();\">		\n",
+"<td><input type=button value=\"%s\" "
+"onClick=\"document.forms[%d].submit();\">\n",
 			button_label,
 		     	form_number );
 	}
@@ -1910,8 +1908,8 @@ void form_output_generic_button(char *onclick_control_string,
 				char *button_label )
 {
 		printf(
-"	<input type=\"button\" value=\"%s\" 	\n"
-"	onClick=\"%s;\">			\n",
+"<td><input type=button value=\"%s\" "
+"onClick=\"%s;\">\n",
 			button_label,
 			onclick_control_string );
 }
@@ -2015,16 +2013,16 @@ void form_output_prompt_insert_submit_button(
 		/* have "&&" appended to it.			*/
 		/* -------------------------------------------- */
 		printf(
-"	<input type=\"button\" value=\"%s\" 			\n"
-"	onClick=\"%s document.forms[0].submit();\">		\n",
+"<td><input type=button value=\"%s\" "
+"onClick=\"%s document.forms[0].submit();\">\n",
 			button_label,
 			submit_control_string );
 	}
 	else
 	{
 		printf(
-"	<input type=\"button\" value=\"%s\" 			\n"
-"	onClick=\"document.forms[0].submit();\">		\n",
+"<td><input type=button value=\"%s\" "
+"onClick=\"document.forms[0].submit();\">\n",
 			button_label );
 	}
 
@@ -2081,7 +2079,8 @@ void form_output_prompt_insert_reset_button(
 			char *reset_post_change_javascript )
 {
 	printf(
-"<input type=\"button\" value=\"Reset\" onClick=\"form_reset(document.forms[0], '%c')",
+"<td><input type=button value=\"Reset\" "
+"onClick=\"form_reset(document.forms[0], '%c')",
 		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
 
 	if ( reset_post_change_javascript && *reset_post_change_javascript )

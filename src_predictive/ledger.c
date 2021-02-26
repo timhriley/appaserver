@@ -5358,7 +5358,7 @@ char *ledger_get_report_title_sub_title(
 
 	sprintf(title,
 		"%s",
-		application_get_application_title(
+		application_title(
 			application_name ) );
 
 	if ( ! ( begin_date_string = 

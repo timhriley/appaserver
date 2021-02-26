@@ -260,7 +260,7 @@ void output_chart(	char *application_name,
 			appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -295,8 +295,7 @@ void output_chart(	char *application_name,
 				query->query_output->where_clause,
 				application_name,
 				folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
+				1 ) );
 
 	if ( strcmp( sub_title, "1 = 1" ) == 0 )
 		*sub_title = '\0';

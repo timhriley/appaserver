@@ -219,7 +219,7 @@ int main( int argc, char **argv )
 			/* role_name: leave blank to select password */ );
 
 	form = form_new( folder_name,
-			 application_get_title_string(
+			 application_title_string(
 				application_name ) );
 
 	form_set_current_row( form, 1 );
@@ -246,7 +246,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -430,7 +430,7 @@ int main( int argc, char **argv )
 	output_dictionary_as_hidden( query_dictionary );
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,
@@ -485,7 +485,7 @@ LIST *get_element_list(		char *login_name,
 		return list_new_list();
 
 	max_drop_down_size =
-		application_get_max_drop_down_size(
+		application_max_drop_down_size(
 			application_name );
 
 	primary_attribute_name_list =
@@ -544,7 +544,7 @@ LIST *get_element_list(		char *login_name,
 						attribute_name,
 						primary_attribute_name_list ),
 					role_name,
-				application_get_max_query_rows_for_drop_downs(
+				application_max_query_rows_for_drop_downs(
 						application_name ),
 					related_folder->
 						drop_down_multi_select,

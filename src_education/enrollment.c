@@ -23,6 +23,7 @@
 #include "registration.h"
 #include "tuition_payment.h"
 #include "tuition_refund.h"
+#include "liability.h"
 #include "enrollment.h"
 
 char *enrollment_sys_string( char *where )
@@ -286,7 +287,9 @@ TRANSACTION *enrollment_transaction(
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
-			char *offering_revenue_account )
+			char *offering_revenue_account,
+			char *account_payable,
+			LIST *liability_entity_list )
 {
 	TRANSACTION *transaction;
 

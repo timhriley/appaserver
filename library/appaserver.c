@@ -341,12 +341,12 @@ boolean appaserver_frameset_menu_horizontal(
 						char *application_name,
 						char *login_name )
 {
-	char application_frameset_menu_horizontal_yn;
+	char frameset_menu_horizontal_yn;
 	boolean frameset_menu_horizontal;
 	boolean return_value = 1;
 
-	application_frameset_menu_horizontal_yn =
-		application_get_frameset_menu_horizontal_yn(
+	frameset_menu_horizontal_yn =
+		application_frameset_menu_horizontal_yn(
 					application_name );
 
 	frameset_menu_horizontal =
@@ -354,7 +354,7 @@ boolean appaserver_frameset_menu_horizontal(
 					application_name,
 					login_name );
 
-	if ( application_frameset_menu_horizontal_yn != 'y'
+	if ( frameset_menu_horizontal_yn != 'y'
 	||   !frameset_menu_horizontal )
 	{
 		return_value = 0;
@@ -543,7 +543,7 @@ char appaserver_get_aggregation_sum_yn(
 	sprintf( sys_string,
 		 "%s/%s/get_aggregation_sum_yn '%s' '%s'",
 		 appaserver_mount_point,
-		 application_get_first_relative_source_directory(
+		 application_first_relative_source_directory(
 			application ),
 		 application,
 		 datatype );

@@ -219,7 +219,7 @@ int main( int argc, char **argv )
 					appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ),
 				0 /* not with_dynarch_menu */ );
 	
@@ -260,7 +260,7 @@ int main( int argc, char **argv )
 
 	sprintf(applet_library_archive,
 		"/appaserver/%s/%s",
-		application_get_relative_source_directory(
+		application_relative_source_directory(
 			application_name ),
 		EASYCHARTS_JAR_FILE );
 

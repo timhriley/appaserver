@@ -108,7 +108,9 @@ TRANSACTION *enrollment_transaction(
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
-			char *offering_revenue_account );
+			char *offering_revenue_account,
+			char *account_payable,
+			LIST *liability_entity_list );
 
 char *enrollment_sys_string(
 			char *where );

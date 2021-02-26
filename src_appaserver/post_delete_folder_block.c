@@ -256,7 +256,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -362,7 +362,7 @@ void delete_folder_block_state_one(
 					query_attribute_statistics_list->list );
 
 	form = form_new( "delete",
-			 application_get_title_string( application_name ) );
+			 application_title_string( application_name ) );
 
 	sprintf(	action_string,
 			"%s/post_delete_folder_block?%s+%s+%s+%s+%s+two",

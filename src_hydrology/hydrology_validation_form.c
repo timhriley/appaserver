@@ -191,7 +191,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -333,7 +333,7 @@ void chart_hydrology_validation_form(		char *application_name,
 				no_cycle_colors_if_multiple_datatypes );
 
 	grace->grace_output =
-		application_get_grace_output( application_name );
+		application_grace_output( application_name );
 
 	sprintf(	graph_identifier,
 			"%s_%s_%d",
@@ -400,17 +400,17 @@ void chart_hydrology_validation_form(		char *application_name,
 				grace->x_label_size,
 				page_width_pixels,
 				page_length_pixels,
-				application_get_grace_home_directory(
+				application_grace_home_directory(
 					application_name ),
-				application_get_grace_execution_directory(
+				application_grace_execution_directory(
 					application_name ),
-				application_get_grace_free_option_yn(
+				application_grace_free_option_yn(
 					application_name ),
 				grace->grace_output,
-				application_get_distill_directory(
+				application_distill_directory(
 					application_name ),
 				distill_landscape_flag,
-				application_get_ghost_script_directory(
+				application_ghost_script_directory(
 					application_name ),
 				(LIST *)0 /* quantum_datatype_name_list */,
 				grace->symbols,

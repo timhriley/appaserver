@@ -175,7 +175,7 @@ int main( int argc, char **argv )
 					appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ),
 				0 /* not with_dynarch_menu */ );
 	}
@@ -191,9 +191,9 @@ int main( int argc, char **argv )
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		appaserver_parameter_file->
 				document_root,
@@ -309,27 +309,6 @@ int main( int argc, char **argv )
 
 	fclose( output_file );
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		server_address = appaserver_library_get_server_address();
-
-		sprintf(	prompt_filename,
-				GOOGLE_MAP_HTTP_PROMPT_TEMPLATE,
-				server_address,
-				application_name,
-				session );
-	}
-	else
-	{
-		sprintf(	prompt_filename,
-				GOOGLE_MAP_PROMPT_TEMPLATE,
-				application_name,
-				session );
-	}
-*/
-
 	if ( group_last_time )
 	{
 		char *prompt_filename;
@@ -353,7 +332,7 @@ int main( int argc, char **argv )
 				appaserver_link_file->extension );
 
 		printf( "<body bgcolor=\"%s\" onload=\"",
-			application_get_background_color( application_name ) );
+			application_background_color( application_name ) );
 
 		sprintf(	window_name,
 				"%s_%s",

@@ -618,7 +618,7 @@ LIST *row_security_get_element_list(
 			role_get_override_row_restrictions(
 				login_role->override_row_restrictions_yn ),
 			select_folder->post_change_javascript,
-			application_get_max_query_rows_for_drop_downs(
+			application_max_query_rows_for_drop_downs(
 				application_name ),
 			select_folder->folder_name
 				/* one2m_folder_name_for_processes */,
@@ -872,7 +872,7 @@ LIST *row_security_get_update_element_list(
 		return list_new_list();
 
 	max_drop_down_size =
-		application_get_max_drop_down_size(
+		application_max_drop_down_size(
 			application_name );
 
 	if ( row_dictionary_list_length <= MAX_QUERY_ROWS_FORCE_DROP_DOWNS )
@@ -1662,7 +1662,7 @@ LIST *row_security_edit_table_element_list(
 			role_get_override_row_restrictions(
 				login_role->override_row_restrictions_yn ),
 			select_folder->post_change_javascript,
-			application_get_max_query_rows_for_drop_downs(
+			application_max_query_rows_for_drop_downs(
 				application_name ),
 			select_folder->folder_name
 				/* one2m_folder_name_for_processes */,
@@ -1719,7 +1719,7 @@ LIST *row_security_edit_table_update_element_list(
 		return list_new_list();
 
 	max_drop_down_size =
-		application_get_max_drop_down_size(
+		application_max_drop_down_size(
 			application_name );
 
 	if ( row_dictionary_list_length <= MAX_QUERY_ROWS_FORCE_DROP_DOWNS )

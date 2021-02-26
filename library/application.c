@@ -126,14 +126,14 @@ APPLICATION *application_new_application( char *application_string )
 
 	return application;
 
-} /* application_new_application() */
-
-char *application_get_application_title( char *application_string )
-{
-	return application_get_title_string( application_string );
 }
 
-char *application_get_title_string( char *application_string )
+char *application_title( char *application_string )
+{
+	return application_title_string( application_string );
+}
+
+char *application_title_string( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -146,9 +146,9 @@ char *application_get_title_string( char *application_string )
 	else
 		return global_application->application_title;
 
-} /* application_get_title_string() */
+}
 
-char *application_get_first_relative_source_directory(
+char *application_first_relative_source_directory(
 			char *application_string )
 {
 	static char first_relative_source_directory[ 128 ];
@@ -156,7 +156,7 @@ char *application_get_first_relative_source_directory(
 	char delimiter;
 
 	relative_source_directory =
-		application_get_relative_source_directory(
+		application_relative_source_directory(
 			application_string );
 
 	if ( ! ( delimiter =
@@ -175,9 +175,9 @@ char *application_get_first_relative_source_directory(
 
 	return first_relative_source_directory;
 
-} /* application_get_first_relative_source_directory() */
+}
 
-char *application_get_relative_source_directory( char *application_string )
+char *application_relative_source_directory( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -190,9 +190,9 @@ char *application_get_relative_source_directory( char *application_string )
 	else
 		return global_application->relative_source_directory;
 
-} /* application_get_relative_source_directory() */
+}
 
-char *application_get_background_color(char *application_string )
+char *application_background_color(char *application_string )
 {
 	if ( !global_application )
 	{
@@ -205,9 +205,9 @@ char *application_get_background_color(char *application_string )
 	else
 		return global_application->background_color;
 
-} /* application_get_background_color() */
+}
 
-char *application_get_distill_directory(char *application_string )
+char *application_distill_directory(char *application_string )
 {
 	if ( !global_application )
 	{
@@ -220,9 +220,9 @@ char *application_get_distill_directory(char *application_string )
 	else
 		return global_application->distill_directory;
 
-} /* application_get_distill_directory() */
+}
 
-char *application_get_ghost_script_directory(char *application_string )
+char *application_ghost_script_directory(char *application_string )
 {
 	if ( !global_application )
 	{
@@ -235,71 +235,17 @@ char *application_get_ghost_script_directory(char *application_string )
 	else
 		return global_application->ghost_script_directory;
 
-} /* application_get_ghost_script_directory() */
-
-boolean application_is_primary_application( char *application_name )
-{
-	return application_get_is_primary_application( application_name );
 }
 
-boolean application_get_is_primary_application( char *application_name )
+boolean application_is_primary_application( char *application_name )
 {
 /* Stub */
 /* ---- */
 application_name = "";
 	return 1;
+}
 
-#ifdef NOT_DEFINED
-	if ( is_primary_application != -1 )
-	{
-		return is_primary_application;
-	}
-	else
-	{
-		if ( global_application )
-		{
-			is_primary_application =
-			( global_application->only_one_primary_yn == 'y' );
-		}
-		else
-		{
-			is_primary_application =
-			application_get_alternative_is_primary_application(
-				application_name );
-		}
-		return is_primary_application;
-	}
-#endif
-
-} /* application_get_is_primary_application() */
-
-#ifdef NOT_DEFINED
-boolean application_get_alternative_is_primary_application(
-					char *application_string )
-{
-	char sys_string[ 1024 ];
-	char table_name[ 128 ];
-	char *results_string;
-
-	sprintf( table_name, "%s_application", application_string );
-	sprintf( sys_string,
-		 "echo \"select only_one_primary_yn		 "
-		 "	 from %s				 "
-		 "	 where application = '%s';\"		|"
-		 "sql.e						 ",
-		 table_name,
-		 application_string );
-
-	results_string = pipe2string( sys_string );
-
-	if ( !results_string )
-		return 1;
-	else
-		return ( *results_string == 'y' );
-} /* application_get_alternative_is_primary_application() */
-#endif
-
-char *application_get_grace_home_directory( char *application_string )
+char *application_grace_home_directory( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -312,9 +258,9 @@ char *application_get_grace_home_directory( char *application_string )
 	else
 		return global_application->grace_home_directory;
 
-} /* application_get_grace_home_directory() */
+}
 
-char *application_get_grace_execution_directory( char *application_string )
+char *application_grace_execution_directory( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -329,7 +275,7 @@ char *application_get_grace_execution_directory( char *application_string )
 
 }
 
-char *application_get_chart_email_command_line( char *application_string )
+char *application_chart_email_command_line( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -343,7 +289,7 @@ char *application_get_chart_email_command_line( char *application_string )
 		return global_application->chart_email_command_line;
 }
 
-char application_get_grace_free_option_yn( char *application_string )
+char application_grace_free_option_yn( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -358,7 +304,7 @@ char application_get_grace_free_option_yn( char *application_string )
 
 }
 
-char *application_get_grace_output( char *application_string )
+char *application_grace_output( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -372,7 +318,7 @@ char *application_get_grace_output( char *application_string )
 		return global_application->grace_output;
 }
 
-char application_get_frameset_menu_horizontal_yn( char *application_string )
+char application_frameset_menu_horizontal_yn( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -405,18 +351,7 @@ char application_ssl_support_yn( char *application_string )
 	}
 }
 
-char application_get_ssl_support_yn( char *application_string )
-{
-	return application_ssl_support_yn( application_string );
-}
-
 char application_prepend_http_protocol_yn( char *application_string )
-{
-	return application_get_prepend_http_protocol_yn(
-			application_string );
-}
-
-char application_get_prepend_http_protocol_yn( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -435,7 +370,7 @@ char application_get_prepend_http_protocol_yn( char *application_string )
 	}
 }
 
-int application_get_max_drop_down_size( char *application_string )
+int application_max_drop_down_size( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -449,9 +384,9 @@ int application_get_max_drop_down_size( char *application_string )
 	{
 		return global_application->max_drop_down_size;
 	}
-} /* application_get_max_drop_down_size() */
+}
 
-int application_get_max_query_rows_for_drop_downs( char *application_string )
+int application_max_query_rows_for_drop_downs( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -465,9 +400,9 @@ int application_get_max_query_rows_for_drop_downs( char *application_string )
 	{
 		return global_application->max_query_rows_for_drop_downs;
 	}
-} /* application_get_max_query_rows_for_drop_downs() */
+}
 
-char *application_get_version( char *application_string )
+char *application_version( char *application_string )
 {
 	if ( !global_application )
 	{
@@ -503,16 +438,11 @@ char *application_http_prefix( char *application_string )
 		exit( 1 );
 	}
 
-	ssl_support_yn = application_get_ssl_support_yn( application_string );
+	ssl_support_yn = application_ssl_support_yn( application_string );
 
 	if ( ssl_support_yn == 'y' )
 		return "https";
 	else
 		return "http";
-}
-
-char *application_get_http_prefix( char *application_string )
-{
-	return application_http_prefix( application_string );
 }
 
