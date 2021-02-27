@@ -281,7 +281,7 @@ if ( SECURITY_ON )
 			0 /* recursive_level */ );
 
 	primary_attribute_name_list =
-		attribute_get_primary_attribute_name_list(
+		attribute_primary_attribute_name_list(
 			appaserver->folder->append_isa_attribute_list );
 
 	if ( ! ( dictionary_appaserver =

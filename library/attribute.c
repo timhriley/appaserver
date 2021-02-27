@@ -220,7 +220,7 @@ char *attribute_list_display( LIST *attribute_list )
 
 }
 
-char *attribute_get_database_datatype(	char *datatype,
+char *attribute_database_datatype(	char *datatype,
 					int width,
 					int float_decimal_places,
 					int primary_key_index )
@@ -322,7 +322,7 @@ char *attribute_get_database_datatype(	char *datatype,
 
 }
 
-LIST *attribute_list_get_datatype_attribute_string_list(
+LIST *attribute_list_datatype_attribute_string_list(
 					LIST *attribute_list,
 					char *datatype_list_string )
 {
@@ -355,7 +355,7 @@ LIST *attribute_list_get_datatype_attribute_string_list(
 	return attribute_name_list;
 }
 
-LIST *attribute_list_get_primary_datatype_attribute_string_list(
+LIST *attribute_list_primary_datatype_attribute_string_list(
 					LIST *attribute_list,
 					char *datatype_list_string )
 {
@@ -394,7 +394,7 @@ LIST *attribute_list_get_primary_datatype_attribute_string_list(
 	return attribute_name_list;
 }
 
-LIST *attribute_get_non_primary_attribute_list( LIST *attribute_list )
+LIST *attribute_non_primary_attribute_list( LIST *attribute_list )
 {
 	LIST *non_primary_attribute_list;
 	ATTRIBUTE *attribute;
@@ -908,7 +908,7 @@ boolean attribute_exists_omit_insert_login_name(
 	return 0;
 }
 
-char *attribute_get_last_primary_attribute_name( LIST *attribute_list )
+char *attribute_last_primary_attribute_name( LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 	ATTRIBUTE *last_primary_attribute = {0};
@@ -945,10 +945,10 @@ char *attribute_get_last_primary_attribute_name( LIST *attribute_list )
 		return (char *)0;
 }
 
-LIST *attribute_get_common_non_primary_attribute_name_list(
-					char *application_name,
-					char *folder_name,
-					char *related_folder_name )
+LIST *attribute_common_non_primary_attribute_name_list(
+			char *application_name,
+			char *folder_name,
+			char *related_folder_name )
 {
 	LIST *return_list = list_new_list();
 
@@ -961,7 +961,7 @@ LIST *attribute_get_common_non_primary_attribute_name_list(
 	return return_list;
 }
 
-LIST *attribute_get_histogram_attribute_name_list( LIST *attribute_list )
+LIST *attribute_histogram_attribute_name_list( LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
     	LIST *histogram_attribute_name_list = {0};
@@ -991,7 +991,7 @@ LIST *attribute_get_histogram_attribute_name_list( LIST *attribute_list )
 	return histogram_attribute_name_list;
 }
 
-LIST *attribute_get_time_chart_attribute_name_list( LIST *attribute_list )
+LIST *attribute_time_chart_attribute_name_list( LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
     	LIST *time_chart_attribute_name_list = {0};
@@ -1021,7 +1021,7 @@ LIST *attribute_get_time_chart_attribute_name_list( LIST *attribute_list )
 	return time_chart_attribute_name_list;
 }
 
-LIST *attribute_get_date_attribute_position_list(
+LIST *attribute_date_attribute_position_list(
 					LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
@@ -1051,7 +1051,7 @@ LIST *attribute_get_date_attribute_position_list(
 	return date_attribute_position_list;
 }
 
-LIST *attribute_get_lookup_allowed_attribute_name_list( LIST *attribute_list )
+LIST *attribute_lookup_allowed_attribute_name_list( LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 	LIST *attribute_name_list;
@@ -1155,17 +1155,12 @@ LIST *attribute_name_list( LIST *attribute_list )
 	return attribute_folder_name_list( attribute_list, (char *)0 );
 }
 
-LIST *attribute_get_name_list( LIST *attribute_list )
-{
-	return attribute_folder_name_list( attribute_list, (char *)0 );
-}
-
 LIST *attribute_get_attribute_name_list( LIST *attribute_list )
 {
 	return attribute_folder_name_list( attribute_list, (char *)0 );
 }
 
-LIST *attribute_get_date_attribute_name_list( LIST *attribute_list )
+LIST *attribute_date_attribute_name_list( LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
     	LIST *attribute_name_list = list_new_list();
@@ -1205,13 +1200,7 @@ LIST *attribute_primary_attribute_name_list(
 	return folder_get_primary_attribute_name_list( attribute_list );
 }
 
-LIST *attribute_get_primary_attribute_name_list(
-			LIST *attribute_list )
-{
-	return folder_get_primary_attribute_name_list( attribute_list );
-}
-
-LIST *attribute_get_lookup_required_attribute_name_list(
+LIST *attribute_lookup_required_attribute_name_list(
 				LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
@@ -1235,7 +1224,7 @@ LIST *attribute_get_lookup_required_attribute_name_list(
 	return lookup_required_attribute_name_list;
 }
 
-LIST *attribute_get_insert_required_attribute_name_list(
+LIST *attribute_insert_required_attribute_name_list(
 				LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
@@ -1259,7 +1248,7 @@ LIST *attribute_get_insert_required_attribute_name_list(
 	return insert_required_attribute_name_list;
 }
 
-LIST *attribute_get_update_lookup_exclude_attribute_name_list(
+LIST *attribute_update_lookup_exclude_attribute_name_list(
 				LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
@@ -1332,15 +1321,17 @@ void attribute_remove_attribute_list(	LIST *attribute_list,
 	} while( list_next( attribute_list ) );
 }
 
-int attribute_get_primary_attribute_list_length( LIST *attribute_list )
+int attribute_primary_attribute_list_length( LIST *attribute_list )
 {
 	LIST *primary_attribute_name_list;
 	int length;
 
 	primary_attribute_name_list =
-		attribute_get_primary_attribute_name_list(
+		attribute_primary_attribute_name_list(
 			attribute_list );
+
 	length = list_length( primary_attribute_name_list );
+
 	list_free_container( primary_attribute_name_list );
 	return length;
 }
@@ -1686,7 +1677,7 @@ LIST *attribute_get_attribute_element_list(
 
 }
 
-int attribute_get_date_piece_offset(	LIST *attribute_list,
+int attribute_date_piece_offset(	LIST *attribute_list,
 					LIST *exclude_attribute_name_list )
 {
 	ATTRIBUTE *attribute;
@@ -1722,7 +1713,7 @@ int attribute_get_date_piece_offset(	LIST *attribute_list,
 
 }
 
-char *attribute_get_reference_number_attribute_name(
+char *attribute_reference_number_attribute_name(
 				LIST *attribute_list,
 				LIST *attribute_name_list )
 {
@@ -1837,7 +1828,7 @@ char *attribute_append_post_change_javascript(
 
 }
 
-LIST *attribute_get_non_primary_float_list(
+LIST *attribute_non_primary_float_list(
 			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
@@ -1993,7 +1984,7 @@ void attribute_list_remove_exclude_permission_list(
 	} while( list_next( attribute_list ) );
 }
 
-LIST *attribute_get_omit_insert_attribute_name_list(
+LIST *attribute_omit_insert_attribute_name_list(
 					LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
@@ -2021,7 +2012,7 @@ LIST *attribute_get_omit_insert_attribute_name_list(
 	return attribute_name_list;
 }
 
-LIST *attribute_get_omit_update_attribute_name_list(
+LIST *attribute_omit_update_attribute_name_list(
 					LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;

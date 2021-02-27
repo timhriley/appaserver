@@ -756,7 +756,7 @@ m2( application_name, msg );
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
-		with_dynarch_menu /* with_back_to_top_button */,
+		1 /* with_back_to_top_button */,
 		0 /* form_number */,
 		(LIST *)0 /* form_button_list */,
 		/* ------------------------------------------------------ */

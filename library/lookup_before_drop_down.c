@@ -183,7 +183,7 @@ LIST *lookup_before_drop_down_folder_list(
 		/* all the foreign key attributes.		  */
 		/* ---------------------------------------------- */
 		omit_insert_attribute_name_list =
-			attribute_get_omit_insert_attribute_name_list(
+			attribute_omit_insert_attribute_name_list(
 				related_folder->
 					one2m_folder->
 					attribute_list );
@@ -209,7 +209,7 @@ LIST *lookup_before_drop_down_folder_list(
 		}
 
 		omit_update_attribute_name_list =
-			attribute_get_omit_update_attribute_name_list(
+			attribute_omit_update_attribute_name_list(
 				related_folder->
 					one2m_folder->
 					attribute_list );

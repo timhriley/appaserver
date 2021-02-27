@@ -110,5 +110,8 @@ LIST *program_alias_name_list(
 void program_list_fetch_update(
 			LIST *program_name_list );
 
+void program_fetch_update(
+			char *program_name );
+
 #endif
 

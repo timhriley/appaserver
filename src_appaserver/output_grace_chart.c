@@ -135,7 +135,7 @@ int main( int argc, char **argv )
 			role_name );
 
 	date_primary_attribute_name_list =
-	    attribute_list_get_primary_datatype_attribute_string_list(
+	    attribute_list_primary_datatype_attribute_string_list(
 		folder->attribute_list,
 		"current_date,current_date_time,date,date_time,current_date" );
 
@@ -147,7 +147,7 @@ int main( int argc, char **argv )
 				date_primary_attribute_name_list );
 
 	time_primary_attribute_name_list =
-		attribute_list_get_primary_datatype_attribute_string_list(
+		attribute_list_primary_datatype_attribute_string_list(
 						folder->attribute_list,
 						"time,current_time" );
 
@@ -159,7 +159,7 @@ int main( int argc, char **argv )
 	}
 
 	float_integer_attribute_name_list =
-		attribute_get_time_chart_attribute_name_list(
+		attribute_time_chart_attribute_name_list(
 			folder->attribute_list );
 
 	if ( !list_length( float_integer_attribute_name_list ) )

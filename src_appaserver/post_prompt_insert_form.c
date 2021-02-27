@@ -399,7 +399,7 @@ int main( int argc, char **argv )
 	}
 
 	insert_required_attribute_name_list =
-		attribute_get_insert_required_attribute_name_list(
+		attribute_insert_required_attribute_name_list(
 			appaserver->folder->attribute_list );
 
 	non_populated_attribute_name_list =

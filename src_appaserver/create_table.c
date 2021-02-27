@@ -409,7 +409,7 @@ char *get_sys_string(	char *folder_name,
 			buffer_ptr,
 			"%s %s",
 			attribute->attribute_name,
-			attribute_get_database_datatype(
+			attribute_database_datatype(
 				attribute->datatype,
 				attribute->width,
 				attribute->float_decimal_places,

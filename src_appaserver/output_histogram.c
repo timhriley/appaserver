@@ -163,7 +163,7 @@ int main( int argc, char **argv )
 	fflush( stdout );
 
 	select_attribute_name_list =
-		attribute_get_histogram_attribute_name_list(
+		attribute_histogram_attribute_name_list(
 			folder->attribute_list );
 
 	if ( list_rewind( select_attribute_name_list ) )
@@ -284,7 +284,7 @@ int main( int argc, char **argv )
 			sprintf( sys_string,
 				 "rm -f %s",
 				 grace_histogram_filename );
-			system( sys_string );
+			if ( system( sys_string ) ){};
 
 			printf(
 		"<p><a href=\"%s\" target=_new>&lt;Left Click&gt; %s</a>\n",

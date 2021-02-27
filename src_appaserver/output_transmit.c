@@ -162,7 +162,7 @@ int main( int argc, char **argv )
 		role_name );
 
 	attribute_name_list =
-		attribute_get_lookup_allowed_attribute_name_list(
+		attribute_lookup_allowed_attribute_name_list(
 			folder->attribute_list );
 
 	role = role_new_role(	application_name,

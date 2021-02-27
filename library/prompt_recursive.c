@@ -257,7 +257,7 @@ char *prompt_recursive_get_gray_drop_downs_javascript(
 		sprintf( ptr,
 			 "%s_%d",
 			 list_display_delimited(
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 			 		prompt_folder->attribute_list ),
 				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ),
 			 element_index );
@@ -284,7 +284,7 @@ char *prompt_recursive_get_gray_drop_downs_javascript(
 			sprintf( ptr,
 			 "%s_%d",
 			 list_display_delimited(
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					prompt_recursive_mto1_folder->
 			 			folder->
 						attribute_list ),

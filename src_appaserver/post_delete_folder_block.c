@@ -433,7 +433,7 @@ void delete_folder_block_state_two(
 	char where_clause_construct[ 1024 ];
 
 	primary_attribute_name_list =
-		attribute_get_primary_attribute_name_list(
+		attribute_primary_attribute_name_list(
 			folder->attribute_list );
 
 	table_name = get_table_name( application_name, folder->folder_name );

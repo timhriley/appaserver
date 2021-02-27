@@ -1793,7 +1793,7 @@ void appaserver_library_post_dictionary_database_convert_dates(
 	int highest_index;
 
 	date_attribute_name_list =
-		attribute_get_date_attribute_name_list(
+		attribute_date_attribute_name_list(
 			attribute_list );
 
 	if ( !list_length( date_attribute_name_list ) ) return;
@@ -1947,11 +1947,11 @@ void appaserver_library_list_database_convert_dates(
 	DATE_CONVERT *date_convert = {0};
 
 	date_attribute_name_list =
-		attribute_get_date_attribute_name_list(
+		attribute_date_attribute_name_list(
 			attribute_list );
 
 	primary_attribute_name_list =
-		attribute_get_primary_attribute_name_list(
+		attribute_primary_attribute_name_list(
 			attribute_list );
 
 	if ( !list_rewind( primary_attribute_name_list ) ) return;

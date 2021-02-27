@@ -872,7 +872,7 @@ void state_two_append_mto1_one2m_option_data_list(
 			}
 
 			if ( !list_length(
-				attribute_get_non_primary_attribute_list(
+				attribute_non_primary_attribute_list(
 				one2m_related_folder->
 					one2m_folder->
 						attribute_list ) ) )
@@ -916,7 +916,7 @@ void state_two_append_mto1_option_data_list(
 				mto1_recursive_related_folder_list );
 
 		if ( list_length(
-			attribute_get_non_primary_attribute_list(
+			attribute_non_primary_attribute_list(
 				related_folder->folder->attribute_list ) ) )
 		{
 /* More work is needed.
@@ -1637,9 +1637,9 @@ void post_table_state_four(
 	form->row_dictionary_list =
 		pipe2dictionary_list(	
 			input_sys_string, 
-	 		attribute_get_lookup_allowed_attribute_name_list(
+	 		attribute_lookup_allowed_attribute_name_list(
 				folder->append_isa_attribute_list ),
-	 		attribute_get_date_attribute_name_list(
+	 		attribute_date_attribute_name_list(
 				folder->append_isa_attribute_list ),
 			FOLDER_DATA_DELIMITER,
 			application_name,
@@ -2173,16 +2173,16 @@ void post_spreadsheet_state_four(
 	row_dictionary_list =
 		pipe2dictionary_list(	
 			input_sys_string, 
-	 		attribute_get_lookup_allowed_attribute_name_list(
+	 		attribute_lookup_allowed_attribute_name_list(
 				folder->append_isa_attribute_list ),
-	 		attribute_get_date_attribute_name_list(
+	 		attribute_date_attribute_name_list(
 				folder->append_isa_attribute_list ),
 			FOLDER_DATA_DELIMITER,
 			application_name,
 			login_name );
 
 	append_isa_attribute_name_list =
-		attribute_get_lookup_allowed_attribute_name_list(
+		attribute_lookup_allowed_attribute_name_list(
 			folder->append_isa_attribute_list );
 
 	dictionary_list_output_to_file(

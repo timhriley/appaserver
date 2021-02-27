@@ -978,7 +978,7 @@ LIST *get_element_list(
 					folder_name );
 
 	omit_update_attribute_name_list =
-		attribute_get_omit_update_attribute_name_list(
+		attribute_omit_update_attribute_name_list(
 			attribute_list );
 
 	folder->one2m_related_folder_list =
@@ -1848,7 +1848,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 				prompt_folder->folder_name,
 				prompt_folder->populate_drop_down_process,
 				prompt_folder->attribute_list,
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					prompt_folder->attribute_list ),
 				0 /* dont omit_ignore_push_buttons */,
 				preprompt_dictionary,
@@ -1878,7 +1878,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 	
 		list_append_string_list(
 			exclude_attribute_name_list,
-			attribute_get_primary_attribute_name_list(
+			attribute_primary_attribute_name_list(
 				prompt_folder->attribute_list ) );
 	}
 
@@ -1914,7 +1914,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 				prompt_recursive_mto1_folder->
 					folder->
 					attribute_list,
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					prompt_recursive_mto1_folder->
 						folder->
 						attribute_list ),
@@ -1954,7 +1954,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 
 			list_append_string_list(
 				exclude_attribute_name_list,
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					prompt_recursive_mto1_folder->
 						folder->
 						attribute_list ) );

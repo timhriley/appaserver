@@ -481,7 +481,7 @@ void form_output_trailer_post_change_javascript(
 
 		with_back_to_top_button = 0;
 	}
-	else
+
 	if ( with_back_to_top_button )
 	{
 		form_output_back_to_top_button();
@@ -1868,7 +1868,6 @@ void form_output_submit_reset_buttons(
 	{
 		form_output_back_to_top_button();
 	}
-
 }
 
 void form_output_submit_button(

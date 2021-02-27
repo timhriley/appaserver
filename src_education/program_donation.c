@@ -50,10 +50,7 @@ PROGRAM_DONATION *program_donation_new(
 {
 	PROGRAM_DONATION *program_donation = program_donation_calloc();
 
-	program_donation->program =
-		program_new(
-			program_name = program_name );
-
+	program_donation->program_name = program_name;
 	program_donation->payor_entity->full_name = payor_full_name;
 	program_donation->payor_entity->street_address = payor_street_address;
 	program_donation->payment_date_time = payment_date_time;
@@ -80,9 +77,9 @@ PROGRAM_DONATION *program_donation_fetch(
 					/* --------------------- */
 					program_donation_primary_where(
 						program_name,
-						payment_date_time,
 						payor_full_name,
-						payor_street_address ) ) ),
+						payor_street_address,
+						payment_date_time ) ) ),
 			fetch_program,
 			fetch_transaction );
 
@@ -146,18 +143,18 @@ void program_donation_list_insert(
 
 		program_donation_insert_pipe(
 			insert_pipe,
-			program_donation->program->program_name,
-			program_donation->payment_date_time,
+			program_donation->program_name,
 			program_donation->
 				payor_entity->
 				full_name,
 			program_donation->
 				payor_entity->
 				street_address,
+			program_donation->payment_date_time,
 			program_donation->donation_amount,
+			program_donation->merchant_fees_expense,
 			program_donation->net_payment_amount,
 			program_donation->transaction_date_time,
-			program_donation->merchant_fees_expense,
 			program_donation->paypal_date_time );
 
 	} while ( list_next( program_donation_list ) );
@@ -193,7 +190,7 @@ FILE *program_donation_insert_open( char *error_filename )
 		"cat >%s 						  ",
 		PROGRAM_DONATION_TABLE,
 		PROGRAM_DONATION_INSERT_COLUMNS,
-		'y',
+		'n',
 		SQL_DELIMITER,
 		error_filename );
 
@@ -203,33 +200,33 @@ FILE *program_donation_insert_open( char *error_filename )
 void program_donation_insert_pipe(
 			FILE *insert_pipe,
 			char *program_name,
-			char *payment_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *payment_date_time,
 			double donation_amount,
+			double merchant_fees_expense,
 			double net_payment_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%.2lf^%.2lf^%s^%.2lf^%s\n",
+		"%s^%s^%s^%s^%.2lf^%.2lf^%.2lf^%s^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		program_name_escape( program_name ),
-		payment_date_time,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		entity_escape_full_name( payor_full_name ),
 		payor_street_address,
+		payment_date_time,
 		donation_amount,
+		merchant_fees_expense,
 		net_payment_amount,
 		(transaction_date_time)
 			? transaction_date_time
 			: "",
-		merchant_fees_expense,
 		(paypal_date_time)
 			? paypal_date_time
 			: "" );
@@ -245,9 +242,9 @@ PROGRAM_DONATION *program_donation_parse(
 	char payor_street_address[ 128 ];
 	char payment_date_time[ 128 ];
 	char donation_amount[ 128 ];
+	char merchant_fees_expense[ 128 ];
 	char net_payment_amount[ 128 ];
 	char transaction_date_time[ 128 ];
-	char merchant_fees_expense[ 128 ];
 	char paypal_date_time[ 128 ];
 	PROGRAM_DONATION *program_donation;
 
@@ -274,15 +271,15 @@ PROGRAM_DONATION *program_donation_parse(
 	piece( donation_amount, SQL_DELIMITER, input, 4 );
 	program_donation->donation_amount = atof( donation_amount );
 
-	piece( net_payment_amount, SQL_DELIMITER, input, 5 );
+	piece( merchant_fees_expense, SQL_DELIMITER, input, 5 );
+	program_donation->merchant_fees_expense = atof( merchant_fees_expense );
+
+	piece( net_payment_amount, SQL_DELIMITER, input, 6 );
 	program_donation->net_payment_amount = atof( net_payment_amount );
 
-	piece( transaction_date_time, SQL_DELIMITER, input, 6 );
+	piece( transaction_date_time, SQL_DELIMITER, input, 7 );
 	program_donation->transaction_date_time =
 		strdup( transaction_date_time );
-
-	piece( merchant_fees_expense, SQL_DELIMITER, input, 7 );
-	program_donation->merchant_fees_expense = atof( merchant_fees_expense );
 
 	piece( paypal_date_time, SQL_DELIMITER, input, 8 );
 	program_donation->paypal_date_time = strdup( paypal_date_time );
@@ -309,27 +306,27 @@ PROGRAM_DONATION *program_donation_parse(
 
 char *program_donation_primary_where(
 			char *program_name,
-			char *payment_date_time,
 			char *payor_full_name,
-			char *payor_street_address )
+			char *payor_street_address,
+			char *payment_date_time )
 {
 	char static where[ 1024 ];
 
 	sprintf(where,
 		"program_name = '%s' and		"
-		"payment_date_time = '%s' and		"
 		"payor_full_name = '%s' and		"
-		"payor_street_address = '%s'		",
+		"payor_street_address = '%s' and	"
+		"payment_date_time = '%s' 		",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
 		 program_name_escape( program_name ),
-		 payment_date_time,
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
 		 entity_escape_full_name( payor_full_name ),
-		 payor_street_address );
+		 payor_street_address,
+		 payment_date_time );
 
 	return where;
 }
@@ -387,7 +384,7 @@ TRANSACTION *program_donation_transaction(
 	}
 
 	/* Debit account_cash */
-	/* ------------------- */
+	/* ------------------ */
 	list_set(
 		transaction->journal_list,
 		( journal =
@@ -444,26 +441,26 @@ void program_donation_update(
 			double net_payment_amount,
 			char *transaction_date_time,
 			char *program_name,
-			char *payment_date_time,
 			char *payor_full_name,
-			char *payor_street_address )
+			char *payor_street_address,
+			char *payment_date_time )
 {
 	FILE *update_pipe = program_donation_update_open();
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^net_payment_amount^%.2lf\n",
 		 program_name,
-		 payment_date_time,
 		 payor_full_name,
 		 payor_street_address,
+		 payment_date_time,
 		 net_payment_amount );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^transaction_date_time^%s\n",
 		 program_name,
-		 payment_date_time,
 		 payor_full_name,
 		 payor_street_address,
+		 payment_date_time,
 		 (transaction_date_time)
 			? transaction_date_time
 			: "" );
@@ -496,18 +493,9 @@ char *program_donation_list_display( LIST *payment_list )
 			ptr += sprintf( ptr, ", " );
 		}
 
-		if ( payment && payment->program )
-		{
-			ptr += sprintf(	ptr,
-					"%s",
-					payment->program->program_name );
-		}
-		else
-		{
-			ptr += sprintf(	ptr,
-					"%s",
-					"Non existing program" );
-		}
+		ptr += sprintf(	ptr,
+				"%s",
+				payment->program_name );
 
 	} while ( list_next( payment_list ) );
 
@@ -548,26 +536,6 @@ PROGRAM_DONATION *program_donation_steady_state(
 			merchant_fees_expense );
 
 	return program_donation;
-}
-
-void program_donation_trigger(
-			char *program_name,
-			char *payment_date_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *state )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"program_donation_trigger \"%s\" '%s' \"%s\" '%s' '%s'",
-		program_name,
-		payment_date_time,
-		payor_full_name,
-		payor_street_address,
-		state );
-
-	if ( system( sys_string ) ){}
 }
 
 LIST *program_donation_transaction_list(
@@ -623,19 +591,11 @@ char *program_donation_memo( char *program_name )
 {
 	static char payment_memo[ 128 ];
 
-	if ( program_name && *program_name )
-	{
-		sprintf(payment_memo,
-			"%s/%s",
-			PROGRAM_DONATION_MEMO,
-			program_name );
-	}
-	else
-	{
-		sprintf(payment_memo,
-			"%s Payment",
-			PROGRAM_DONATION_MEMO );
-	}
+	sprintf(payment_memo,
+		"%s/%s",
+		PROGRAM_DONATION_MEMO,
+		program_name );
+
 	return payment_memo;
 }
 
@@ -706,6 +666,16 @@ void program_donation_list_set_transaction(
 	do {
 		program_donation = list_get( program_donation_list );
 
+		if ( !program_donation->program )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty program.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		revenue_account =
 			program_donation->
 				program->
@@ -739,7 +709,7 @@ void program_donation_set_transaction(
 				street_address,
 			program_donation->
 				payment_date_time,
-			program_donation->program->program_name,
+			program_donation->program_name,
 			program_donation->donation_amount,
 			program_donation->merchant_fees_expense,
 			program_donation->net_payment_amount,
@@ -832,120 +802,6 @@ PROGRAM_DONATION *program_donation_paypal(
 	return program_donation;
 }
 
-LIST *program_donation_list_overpayment(
-			double item_value,
-			double item_fee,
-			ENTITY *payor_entity,
-			char *paypal_date_time,
-			TUITION_PAYMENT *tuition_payment,
-			TICKET_SALE *ticket_sale,
-			PRODUCT_SALE *product_sale )
-{
-	/* Return list of one */
-	/* ------------------ */
-	LIST *program_donation_list = {0};
-
-	if ( !item_value ) return (LIST *)0;
-
-	if ( tuition_payment )
-	{
-		ENROLLMENT *enrollment;
-
-		program_donation_list = list_new();
-
-		enrollment =
-			list_first(
-				tuition_payment->
-					registration->
-					enrollment_list );
-
-		if ( !enrollment )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty enrollment.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		list_set(
-			program_donation_list,
-			program_donation_paypal(
-				payor_entity,
-				paypal_date_time,
-				item_value,
-				item_fee,
-				enrollment->
-					offering->
-					course->
-					program ) );
-	}
-	else
-	if ( ticket_sale )
-	{
-		program_donation_list = list_new();
-
-		list_set(
-			program_donation_list,
-			program_donation_paypal(
-				payor_entity,
-				paypal_date_time,
-				item_value,
-				item_fee,
-				ticket_sale->
-					event->
-					program ) );
-	}
-	else
-	if ( product_sale )
-	{
-		program_donation_list = list_new();
-
-		list_set(
-			program_donation_list,
-			program_donation_paypal(
-				payor_entity,
-				paypal_date_time,
-				item_value,
-				item_fee,
-				product_sale->
-					product->
-					program ) );
-	}
-
-	return program_donation_list;
-}
-
-double program_donation_total( LIST *program_donation_list )
-{
-	PROGRAM_DONATION *program_donation;
-	double total;
-
-	if ( !list_rewind( program_donation_list ) ) return 0.0;
-
-	total = 0.0;
-
-	do {
-		program_donation = list_get( program_donation_list );
-		total += program_donation->donation_amount;
-
-	} while ( list_next( program_donation_list ) );
-	return total;
-}
-
-void program_donation_fetch_total(
-			char *program_name )
-{
-	char sys_string[ 1024 ];
-
-	printf(	sys_string,
-		"program_donation_total.sh \"%s\"",
-		program_name_escape( program_name ) );
-
-	if ( system( sys_string ) ){};
-}
-
 LIST *program_donation_program_name_list(
 			LIST *program_donation_list )
 {
@@ -961,9 +817,10 @@ LIST *program_donation_program_name_list(
 
 		list_set(
 			program_name_list,
-			program_donation->program->program_name );
+			program_donation->program_name );
 
 	} while ( list_next( program_donation_list ) );
+
 	return program_name_list;
 }
 

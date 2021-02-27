@@ -169,7 +169,7 @@ int main( int argc, char **argv )
 			role_name );
 
 	appaserver->folder->attribute_float_list =
-		attribute_get_non_primary_float_list(
+		attribute_non_primary_float_list(
 			appaserver->folder->attribute_list );
 
 	appaserver->folder->mto1_related_folder_list =

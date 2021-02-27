@@ -627,6 +627,7 @@ LIST *related_folder_prompt_insert_element_list(
 RELATED_FOLDER *related_folder_insert_table_consumes_related_folder(
 			LIST **foreign_attribute_name_list,
 			LIST *done_attribute_name_list,
+			LIST *omit_insert_attribute_name_list,
 			LIST *mto1_related_folder_list,
 			char *attribute_name );
 

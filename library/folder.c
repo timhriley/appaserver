@@ -450,7 +450,7 @@ LIST *folder_get_process_primary_data_list(
 			attribute_list );
 
 	date_attribute_name_list =
-		attribute_get_date_attribute_name_list(
+		attribute_date_attribute_name_list(
 			attribute_list );
 
 	if ( list_length( exclude_attribute_name_list ) )
@@ -2234,7 +2234,7 @@ LIST *folder_primary_data_table_list(
 			attribute_list );
 
 	date_attribute_name_list =
-		attribute_get_date_attribute_name_list(
+		attribute_date_attribute_name_list(
 			attribute_list );
 
 	if ( exclude_attribute_name_list
@@ -2305,7 +2305,7 @@ LIST *folder_related_primary_data_table_list(
 			attribute_list );
 
 	date_attribute_name_list =
-		attribute_get_date_attribute_name_list(
+		attribute_date_attribute_name_list(
 			attribute_list );
 
 	if ( exclude_attribute_name_list
@@ -2465,7 +2465,7 @@ LIST *folder_prompt_primary_data_table_list(
 			attribute_list );
 
 	date_attribute_name_list =
-		attribute_get_date_attribute_name_list(
+		attribute_date_attribute_name_list(
 			attribute_list );
 
 	if ( exclude_attribute_name_list
@@ -2743,7 +2743,7 @@ LIST *folder_prompt_insert_primary_data_table_list(
 			attribute_list );
 
 	date_attribute_name_list =
-		attribute_get_date_attribute_name_list(
+		attribute_date_attribute_name_list(
 			attribute_list );
 
 	if ( exclude_attribute_name_list

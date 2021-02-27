@@ -1031,9 +1031,9 @@ LIST *query_row_dictionary_list(
 	row_dictionary_list =
 		list_usage_pipe2dictionary_list(
 			sys_string, 
-	 		attribute_get_lookup_allowed_attribute_name_list(
+	 		attribute_lookup_allowed_attribute_name_list(
 				append_isa_attribute_list ),
-	 		attribute_get_date_attribute_name_list(
+	 		attribute_date_attribute_name_list(
 				append_isa_attribute_list ),
 			FOLDER_DATA_DELIMITER,
 			application_name,
@@ -1191,7 +1191,7 @@ char *query_get_select_clause(	char *application_name,
 		return (char *)0; 
 
 	lookup_allowed_attribute_name_list =
-	 	attribute_get_lookup_allowed_attribute_name_list(
+	 	attribute_lookup_allowed_attribute_name_list(
 			append_isa_attribute_list );
 
 	list_rewind( append_isa_attribute_list );
@@ -7351,9 +7351,9 @@ LIST *query_edit_table_dictionary_list(
 	row_dictionary_list =
 		list_usage_pipe2dictionary_list(
 			sys_string, 
-	 		attribute_get_lookup_allowed_attribute_name_list(
+	 		attribute_lookup_allowed_attribute_name_list(
 				append_isa_attribute_list ),
-	 		attribute_get_date_attribute_name_list(
+	 		attribute_date_attribute_name_list(
 				append_isa_attribute_list ),
 			FOLDER_DATA_DELIMITER,
 			application_name,

@@ -1237,12 +1237,12 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 			0 /* recursive_level */ );
 
 	appaserver->folder->attribute_list =
-	attribute_get_attribute_list(
-		appaserver->application_name,
-		appaserver->folder->folder_name,
-		(char *)0 /* attribute_name */,
-		(LIST *)0 /* mto1_isa_related_folder_list */,
-		role_name );
+		attribute_get_attribute_list(
+			appaserver->application_name,
+			appaserver->folder->folder_name,
+			(char *)0 /* attribute_name */,
+			(LIST *)0 /* mto1_isa_related_folder_list */,
+			role_name );
 
 	primary_attribute_name_list =
 			folder_get_primary_attribute_name_list(
@@ -1379,7 +1379,7 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 
 		list_append_list(
 				appaserver->folder->attribute_list,
-				attribute_get_non_primary_attribute_list(
+				attribute_non_primary_attribute_list(
 					mto1_isa_related_folder->
 						folder->
 							attribute_list ) );
@@ -1800,7 +1800,7 @@ void build_related_folder_element_list(
 	if ( related_folder->copy_common_attributes )
 	{
 		common_non_primary_attribute_name_list =
-			attribute_get_common_non_primary_attribute_name_list(
+			attribute_common_non_primary_attribute_name_list(
 					application_name,
 					folder_name,
 					related_folder->

@@ -292,6 +292,7 @@ TRANSACTION *enrollment_transaction(
 			LIST *liability_entity_list )
 {
 	TRANSACTION *transaction;
+	ENTITY *liability_entity;
 
 	if ( dollar_virtually_same( offering_course_price, 0.0 ) )
 		return (TRANSACTION *)0;
@@ -318,6 +319,9 @@ TRANSACTION *enrollment_transaction(
 			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
+
+	if ( ( liability_entity =
+		entity_seek(
 
 	transaction->journal_list =
 		journal_binary_list(

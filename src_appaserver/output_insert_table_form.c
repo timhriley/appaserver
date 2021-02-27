@@ -295,7 +295,7 @@ int main( int argc, char **argv )
 			dictionary_appaserver->
 				query_dictionary,
 			folder->mto1_isa_related_folder_list,
-			attribute_get_primary_attribute_name_list(
+			attribute_primary_attribute_name_list(
 				folder->attribute_list ) );
 	}
 
@@ -339,7 +339,7 @@ int main( int argc, char **argv )
 		/* Remove any reference number if insert */
 		/* ------------------------------------- */
 		if ( ( reference_number_attribute_name =
-			attribute_get_reference_number_attribute_name(
+			attribute_reference_number_attribute_name(
 				folder->attribute_list,
 				posted_attribute_name_list ) ) )
 		{
@@ -1003,7 +1003,7 @@ void primary_data_list_string_build_dictionaries(
 		return;
 
 	primary_attribute_name_list =
-		attribute_get_primary_attribute_name_list(
+		attribute_primary_attribute_name_list(
 			attribute_list );
 
 	dictionary_set_string(	non_prefixed_dictionary,
@@ -1136,6 +1136,8 @@ LIST *get_insert_table_element_list(
 		       related_folder_insert_table_consumes_related_folder(
 			       &foreign_attribute_name_list,
 			       ignore_attribute_name_list,
+			       attribute_omit_insert_attribute_name_list(
+					attribute_list ),
 			       mto1_related_folder_list,
 			       attribute_name ) ) )
 		{

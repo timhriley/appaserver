@@ -358,7 +358,7 @@ void change_sort_order_state_one(
 	/* These are the attributes that javascript moves up or down. */
 	/* ---------------------------------------------------------- */
 	move_attribute_name_list =
-		attribute_get_attribute_name_list(
+		attribute_name_list(
 			folder->attribute_list );
 
 	ignore_attribute_name_list =
@@ -583,7 +583,7 @@ void change_sort_order_state_two(
 			folder->attribute_list );
 
 	folder->primary_attribute_name_list =
-		attribute_get_primary_attribute_name_list(
+		attribute_primary_attribute_name_list(
 			folder->attribute_list );
 
 	table_name = get_table_name( application_name, folder->folder_name );
