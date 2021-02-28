@@ -30,19 +30,18 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	COURSE *course;
+	char *course_name;
 	SEMESTER *semester;
 	ENTITY *instructor_entity;
-
 	double course_price;
 	int class_capacity;
 	char *revenue_account;
 
 	/* Process */
 	/* ------- */
+	COURSE *course;
 	int enrollment_count;
 	int capacity_available;
-	LIST *enrollment_list;
 } OFFERING;
 
 /* Prototypes */
@@ -56,37 +55,16 @@ OFFERING *offering_fetch(
 			char *season_name,
 			int year,
 			boolean fetch_course,
-			boolean fetch_program,
-			boolean fetch_enrollment_list );
+			boolean fetch_program );
 
 OFFERING *offering_parse(
 			char *input,
 			boolean fetch_course,
-			boolean fetch_program,
-			boolean fetch_enrollment_list );
+			boolean fetch_program );
 
-OFFERING *offering_seek(
+OFFERING *offering_list_seek(
 			char *course_name,
 			LIST *offering_list );
-
-OFFERING *offering_steady_state(
-			OFFERING *offering,
-			LIST *offering_enrollment_list );
-
-OFFERING *offering_course_name_seek(
-			char *course_name,
-			LIST *offering_list );
-
-int offering_enrollment_count(
-			LIST *enrollment_list );
-
-int offering_capacity_available(
-			int class_capacity,
-			int enrollment_count );
-
-/* Returns program memory */
-/* ---------------------- */
-char *offering_select(	void );
 
 /* Safely returns heap memory */
 /* -------------------------- */
@@ -98,32 +76,12 @@ char *offering_primary_where(
 LIST *offering_system_list(
 			char *sys_string,
 			boolean fetch_course,
-			boolean fetch_program,
-			boolean fetch_enrollment_list );
+			boolean fetch_program );
 
 /* Safely returns heap memory */
 /* --------------------------- */
-char *offering_sys_string(
+char *offering_system_string(
 			char *where );
-
-FILE *offering_update_open(
-			void );
-
-LIST *offering_enrollment_list(
-			char *course_name,
-			char *season_name,
-			int year );
-
-void offering_update(	int enrollment_count,
-			int capacity_available,
-			char *course_name,
-			char *season_name,
-			int year );
-
-boolean offering_exists(
-			char *season_name,
-			int year,
-			char *course_name );
 
 void offering_fetch_update(
 			char *course_name,
@@ -131,17 +89,10 @@ void offering_fetch_update(
 			int year );
 
 void offering_list_fetch_update(
-			LIST *course_name_list,
-			char *season_name,
-			int year );
+			LIST *offering_list );
 
 LIST *offering_name_list(
 			LIST *offering_list );
-
-void offering_trigger(
-			char *course_name,
-			char *season_name,
-			int year );
 
 OFFERING *offering_calloc(
 			void );

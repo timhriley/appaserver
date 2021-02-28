@@ -149,7 +149,7 @@ void enrollment_insert_pipe(
 FILE *enrollment_insert_open(
 			char *error_filename );
 
-LIST *enrollment_course_name_list(
+LIST *enrollment_list_course_name_list(
 			LIST *enrollment_list );
 
 char *enrollment_memo(	char *program_name );

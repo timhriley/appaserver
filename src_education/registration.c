@@ -19,62 +19,10 @@
 #include "enrollment.h"
 #include "entity.h"
 #include "paypal_item.h"
+#include "education.h"
 #include "tuition_payment.h"
 #include "tuition_refund.h"
-#include "education.h"
 #include "registration.h"
-
-double registration_tuition(
-			LIST *enrollment_list,
-			LIST *semester_offering_list )
-{
-	ENROLLMENT *enrollment;
-	OFFERING *offering;
-	double tuition;
-
-	if ( !list_rewind( enrollment_list ) ) return 0.0;
-
-	tuition = 0.0;
-
-	do {
-		enrollment = list_get( enrollment_list );
-
-		/* Not found offering will report later. */
-		/* ------------------------------------- */
-		if ( !enrollment->offering ) return 0.0;
-
-		if ( ! ( offering =
-				offering_seek(
-					enrollment->
-						offering->
-						course->
-						course_name,
-					semester_offering_list ) ) )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: offering not exists = [%s].\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				enrollment->offering->course->course_name );
-			exit( 1 );
-		}
-
-		enrollment->offering->course_price = offering->course_price;
-
-		tuition += enrollment->offering->course_price;
-
-	} while ( list_next( enrollment_list ) );
-
-	return tuition;
-}
-
-double registration_invoice_amount_due(
-			double registration_tuition,
-			double registration_tuition_payment_total )
-{
-	return registration_tuition - registration_tuition_payment_total;
-}
 
 char *registration_primary_where(
 			char *student_full_name,
@@ -101,17 +49,15 @@ char *registration_primary_where(
 }
 
 REGISTRATION *registration_parse(
-			char *input,
-			boolean fetch_enrollment_list,
-			boolean fetch_offering,
-			boolean fetch_course,
-			boolean fetch_program )
+			char *input )
 {
-	char full_name[ 128 ];
-	char street_address[ 128 ];
+	char student_full_name[ 128 ];
+	char student_street_address[ 128 ];
 	char season_name[ 128 ];
 	char year[ 128 ];
 	char registration_date_time[ 128 ];
+	char payor_full_name[ 128 ];
+	char payor_street_address[ 128 ];
 	char tuition[ 128 ];
 	char tuition_payment_total[ 128 ];
 	char tuition_refund_total[ 128 ];
@@ -122,107 +68,85 @@ REGISTRATION *registration_parse(
 
 	/* See: attribute_list registration */
 	/* -------------------------------- */
-	piece( full_name, SQL_DELIMITER, input, 0 );
-	piece( street_address, SQL_DELIMITER, input, 1 );
+	piece( student_full_name, SQL_DELIMITER, input, 0 );
+	piece( student_street_address, SQL_DELIMITER, input, 1 );
 	piece( season_name, SQL_DELIMITER, input, 2 );
 	piece( year, SQL_DELIMITER, input, 3 );
-	piece( registration_date_time, SQL_DELIMITER, input, 4 );
 
 	registration =
 		registration_new(
 			entity_new(
-				strdup( full_name ),
-				strdup( street_address ) ),
+				strdup( student_full_name ),
+				strdup( student_street_address ) ),
 			semester_new(
 				strdup( season_name ),
-				atoi( year ) ),
-			strdup( registration_date_time ) );
+				atoi( year ) ) );
 
-	piece( tuition, SQL_DELIMITER, input, 5 );
+	piece( registration_date_time, SQL_DELIMITER, input, 4 );
+	registration->registration_date_time = strdup( registration_date_time );
+
+	piece( payor_full_name, SQL_DELIMITER, input, 5 );
+	piece( payor_street_address, SQL_DELIMITER, input, 6 );
+
+	registration->payor_entity =
+		entity_new(
+			strdup( payor_full_name ),
+			strdup( payor_street_address ) );
+
+	piece( tuition, SQL_DELIMITER, input, 7 );
 	registration->tuition = atof( tuition );
 
-	piece( tuition_payment_total, SQL_DELIMITER, input, 6 );
+	piece( tuition_payment_total, SQL_DELIMITER, input, 8 );
 	registration->tuition_payment_total = atof( tuition_payment_total );
 
-	piece( tuition_refund_total, SQL_DELIMITER, input, 7 );
+	piece( tuition_refund_total, SQL_DELIMITER, input, 9 );
 	registration->tuition_refund_total = atof( tuition_refund_total );
 
-	piece( invoice_amount_due, SQL_DELIMITER, input, 8 );
+	piece( invoice_amount_due, SQL_DELIMITER, input, 10 );
 	registration->invoice_amount_due = atof( invoice_amount_due );
-
-	if ( fetch_enrollment_list )
-	{
-		registration->enrollment_list =
-			enrollment_system_list(
-				enrollment_sys_string(
-					registration_primary_where(
-						full_name,
-						street_address,
-						season_name,
-						registration->
-							semester->
-							year ) ),
-				fetch_offering,
-				fetch_course,
-				fetch_program,
-				0 /* not fetch_registration */,
-				0 /* not fetch_transaction */ );
-	}
 
 	return registration;
 }
 
 LIST *registration_system_list(
-			char *sys_string,
-			boolean fetch_enrollment_list,
-			boolean fetch_offering,
-			boolean fetch_course,
-			boolean fetch_program )
+			char *system_string )
 {
 	LIST *registration_list = list_new();
 	char input[ 1024 ];
-	FILE *input_pipe = popen( sys_string, "r" );
+	FILE *input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
 		list_set(
 			registration_list,
 			registration_parse(
-				input,
-				fetch_enrollment_list,
-				fetch_offering,
-				fetch_course,
-				fetch_program ) );
+				input ) );
 	}
 	pclose( input_pipe );
 	return registration_list;
 }
 
-char *registration_sys_string( char *where )
+char *registration_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '*' %s \"%s\" select",
 		 "registration",
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 REGISTRATION *registration_fetch(
 			char *student_full_name,
 			char *student_street_address,
 			char *season_name,
-			int year,
-			boolean fetch_enrollment_list,
-			boolean fetch_offering,
-			boolean fetch_course,
-			boolean fetch_program )
+			int year )
 {
 	return	registration_parse(
-			pipe2string(
-				registration_sys_string(
+			string_pipe_fetch(
+				registration_system_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -230,23 +154,7 @@ REGISTRATION *registration_fetch(
 						student_full_name,
 						student_street_address,
 						season_name,
-						year ) ) ),
-			fetch_enrollment_list,
-			fetch_offering,
-			fetch_course,
-			fetch_program );
-}
-
-char *registration_name_escape(
-			char *full_name )
-{
-	return registration_escape_full_name( full_name );
-}
-
-char *registration_escape_name(
-			char *full_name )
-{
-	return registration_escape_full_name( full_name );
+						year ) ) ) );
 }
 
 char *registration_escape_full_name(
@@ -260,8 +168,7 @@ char *registration_escape_full_name(
 
 REGISTRATION *registration_new(
 			ENTITY *student_entity,
-			SEMESTER *semester,
-			char *registration_date_time )
+			SEMESTER *semester )
 {
 	REGISTRATION *registration;
 
@@ -277,7 +184,6 @@ REGISTRATION *registration_new(
 
 	registration->student_entity = student_entity;
 	registration->semester = semester;
-	registration->registration_date_time = registration_date_time;
 
 	return registration;
 }
@@ -306,20 +212,22 @@ void registration_insert_pipe(
 			char *student_street_address,
 			char *season_name,
 			int year,
-			char *registration_date_time )
+			char *registration_date_time,
+			char *payor_full_name,
+			char *payor_street_address )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%d^%s\n",
+		"%s^%s^%s^%d^%s^%s^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		entity_escape_full_name( student_full_name ),
+		registration_escape_full_name( student_full_name ),
 		student_street_address,
 		season_name,
 		year,
-		(registration_date_time)
-			? registration_date_time
- 			: "" );
+		registration_date_time,
+		entity_escape_full_name( payor_full_name ),
+		payor_street_address );
 }
 
 void registration_fetch_update(
@@ -328,43 +236,43 @@ void registration_fetch_update(
 			char *season_name,
 			int year )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf(sys_string,
+	sprintf(system_string,
 		"registration_tuition.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,
 		year );
 
-	if ( system( sys_string ) ){}
+	if ( system( system_string ) ){}
 
-	sprintf(sys_string,
+	sprintf(system_string,
 		"registration_tuition_payment_total.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,
 		year );
 
-	if ( system( sys_string ) ){}
+	if ( system( system_string ) ){}
 
-	sprintf(sys_string,
+	sprintf(system_string,
 		"registration_tuition_refund_total.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,
 		year );
 
-	if ( system( sys_string ) ){}
+	if ( system( system_string ) ){}
 
-	sprintf(sys_string,
+	sprintf(system_string,
 		"registration_invoice_amount_due.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,
 		year );
 
-	if ( system( sys_string ) ){}
+	if ( system( system_string ) ){}
 }
 
 void registration_list_fetch_update(
@@ -386,7 +294,7 @@ void registration_list_fetch_update(
 	} while ( list_next( registration_list ) );
 }
 
-LIST *registration_course_name_list(
+LIST *registration_list_course_name_list(
 			LIST *registration_list )
 {
 	LIST *course_name_list;
@@ -401,23 +309,13 @@ LIST *registration_course_name_list(
 
 		list_unique_list(
 			course_name_list,
-			enrollment_course_name_list(
+			enrollment_list_course_name_list(
 				registration->
 					enrollment_list ) );
 
 	} while ( list_next( registration_list ) );
 
 	return course_name_list;
-}
-
-LIST *registration_list( char *where )
-{
-	return	registration_system_list(
-			registration_sys_string( where ),
-			1 /* fetch_enrollment_list */,
-			0 /* not fetch_offering */,
-			0 /* not fetch_course */,
-			0 /* not fetch_program */ );
 }
 
 LIST *registration_list_paypal(
@@ -448,7 +346,7 @@ LIST *registration_list_paypal(
 		if ( !paypal_item->benefit_entity ) continue;
 
 		if ( ( offering =
-			offering_seek( 
+			offering_list_seek( 
 				paypal_item->item_data,
 				semester_offering_list ) ) )
 		{
@@ -504,10 +402,9 @@ REGISTRATION *registration_paypal(
 	registration =
 		registration_new(
 			student_entity,
-			semester,
-			paypal_date_time
-				/* registration_date_time */ );
+			semester );
 
+	registration->registration_date_time = paypal_date_time;
 	registration->enrollment_list = list_new();
 
 	if ( item_value > 0.0 )

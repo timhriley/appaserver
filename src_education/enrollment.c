@@ -424,7 +424,7 @@ void enrollment_insert_pipe(
 			: "" );
 }
 
-LIST *enrollment_course_name_list(
+LIST *enrollment_list_course_name_list(
 			LIST *enrollment_list )
 {
 	LIST *course_name_list;
