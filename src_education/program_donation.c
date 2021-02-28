@@ -396,8 +396,8 @@ TRANSACTION *program_donation_transaction(
 
 	journal->debit_amount = net_payment_amount;
 
-	/* Debit fees_expense */
-	/* ------------------ */
+	/* Debit fees_expense (maybe) */
+	/* -------------------------- */
 	list_set(
 		transaction->journal_list,
 		journal_merchant_fees_expense(
@@ -747,8 +747,9 @@ LIST *program_donation_list_paypal(
 		if ( paypal_item->benefit_entity ) continue;
 
 		if ( ( program =
-			program_seek( 
-				paypal_item->item_data,
+			program_list_seek( 
+				paypal_item->item_data
+					/* program_name */,
 				program_list ) ) )
 		{
 			if ( !program_donation_list )
@@ -867,7 +868,7 @@ PROGRAM_DONATION *program_donation_seek(
 	return (PROGRAM_DONATION *)0;
 }
 
-boolean program_donation_list_exists(
+boolean program_donation_list_any_exists(
 			LIST *program_donation_list,
 			LIST *existing_program_donation_list )
 {

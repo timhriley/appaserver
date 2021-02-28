@@ -196,14 +196,14 @@ void program_donation_fetch_total(
 LIST *program_donation_list(
 			char *where );
 
-PROGRAM_DONATION *program_donation_seek(
+PROGRAM_DONATION *program_donation_list_seek(
 			char *program_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *payment_date_time,
 			LIST *program_donation_list );
 
-boolean program_donation_list_exists(
+boolean program_donation_list_any_exists(
 			LIST *program_donation_list,
 			LIST *existing_program_donation_list );
 

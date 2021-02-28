@@ -38,6 +38,7 @@
 #include "paypal_item.h"
 #include "program.h"
 #include "product.h"
+#include "event.h"
 #include "education.h"
 
 EDUCATION *education_calloc( void )
@@ -363,5 +364,24 @@ LIST *education_paypal_exclude_existing_transaction_set(
 	} while ( list_next( paypal_deposit_list ) );
 
 	return paypal_deposit_list;
+}
+
+LIST *education_event_list( char *minimum_date )
+{
+	static LIST *event_list = {0};
+	char where[ 128 ];
+
+	if ( event_list ) return event_list;
+
+	sprintf( where, "event_date >= '%s'", minimum_date );
+
+	event_list =
+		event_system_list(
+			event_system_string(
+				where ),
+			1 /* fetch_program */,
+			0 /* not fetch_venue */ );
+
+	return event_list;
 }
 

@@ -845,7 +845,7 @@ TUITION_REFUND *tuition_refund_seek(
 	return (TUITION_REFUND *)0;
 }
 
-boolean tuition_refund_list_exists(
+boolean tuition_refund_list_any_exists(
 			LIST *tuition_refund_list,
 			LIST *existing_tuition_refund_list )
 {

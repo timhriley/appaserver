@@ -49,17 +49,14 @@ TICKET_REFUND *ticket_refund_fetch(
 			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time,
 			boolean fetch_sale,
+			boolean fetch_event,
 			boolean fetch_transaction )
 {
-	TICKET_REFUND *ticket_refund;
-
-	ticket_refund =
+	return
 		ticket_refund_parse(
-			pipe2string(
-				ticket_refund_sys_string(
+			string_pipe_fetch(
+				ticket_refund_system_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -68,25 +65,23 @@ TICKET_REFUND *ticket_refund_fetch(
 						event_date,
 						event_time,
 						payor_full_name,
-						payor_street_address,
-						sale_date_time,
-						refund_date_time ) ) ),
+						payor_street_address ) ) ),
 			fetch_sale,
+			fetch_event,
 			fetch_transaction );
-
-	return ticket_refund;
 }
 
 LIST *ticket_refund_system_list(
-			char *sys_string,
+			char *system_string,
 			boolean fetch_sale,
+			boolean fetch_event,
 			boolean fetch_transaction )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
 	LIST *ticket_refund_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -95,6 +90,7 @@ LIST *ticket_refund_system_list(
 			ticket_refund_parse(
 				input,
 				fetch_sale,
+				fetch_event,
 				fetch_transaction ) );
 	}
 
@@ -102,35 +98,16 @@ LIST *ticket_refund_system_list(
 	return ticket_refund_list;
 }
 
-LIST *ticket_refund_list_fetch(
-			char *where,
-			boolean fetch_sale,
-			boolean fetch_transaction )
+char *ticket_refund_system_string( char *where )
 {
-	return ticket_refund_list( where, fetch_sale, fetch_transaction  );
-}
+	char system_string[ 1024 ];
 
-LIST *ticket_refund_list(
-			char *where,
-			boolean fetch_sale,
-			boolean fetch_transaction )
-{
-	return ticket_refund_system_list(
-			ticket_refund_sys_string( where ),
-			fetch_sale,
-			fetch_transaction );
-}
-
-char *ticket_refund_sys_string( char *where )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '*' %s \"%s\" select",
 		 TICKET_REFUND_TABLE,
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 void ticket_refund_list_insert( LIST *ticket_refund_list )
@@ -152,17 +129,17 @@ void ticket_refund_list_insert( LIST *ticket_refund_list )
 
 		ticket_refund_insert_pipe(
 			insert_pipe,
-			ticket_refund->ticket_sale->event->program_name,
-			ticket_refund->ticket_sale->event->event_date,
-			ticket_refund->ticket_sale->event->event_time,
+			ticket_refund->program_name,
+			ticket_refund->event_date,
+			ticket_refund->event_time,
 			ticket_refund->payor_entity->full_name,
 			ticket_refund->payor_entity->street_address,
-			ticket_refund->sale_date_time,
 			ticket_refund->refund_date_time,
+			ticket_refund->extended_price,
 			ticket_refund->refund_amount,
+			ticket_refund->merchant_fees_expense,
 			ticket_refund->net_refund_amount,
 			ticket_refund->transaction_date_time,
-			ticket_refund->merchant_fees_expense,
 			ticket_refund->paypal_date_time );
 
 	} while ( list_next( ticket_refund_list ) );
@@ -198,7 +175,7 @@ FILE *ticket_refund_insert_open( char *error_filename )
 		"cat >%s 						  ",
 		TICKET_REFUND_TABLE,
 		TICKET_REFUND_INSERT_COLUMNS,
-		'y',
+		'n',
 		SQL_DELIMITER,
 		error_filename );
 
@@ -212,16 +189,16 @@ void ticket_refund_insert_pipe(
 			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time,
 			char *refund_date_time,
+			double extended_price,
 			double refund_amount,
+			double merchant_fees_expense,
 			double net_refund_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%s^%s^%s^%.2lf^%.2lf^%s^%.2lf^%s\n",
+		"%s^%s^%s^%s^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -233,14 +210,14 @@ void ticket_refund_insert_pipe(
 		/* --------------------- */
 		entity_escape_full_name( payor_full_name ),
 		payor_street_address,
-		sale_date_time,
 		refund_date_time,
+		extended_price,
 		refund_amount,
+		merchant_fees_expense,
 		net_refund_amount,
 		(transaction_date_time)
 			? transaction_date_time
 			: "",
-		merchant_fees_expense,
 		(paypal_date_time)
 			? paypal_date_time
 			: "" );
@@ -249,6 +226,7 @@ void ticket_refund_insert_pipe(
 TICKET_REFUND *ticket_refund_parse(
 			char *input,
 			boolean fetch_sale,
+			boolean fetch_event,
 			boolean fetch_transaction )
 {
 	char program_name[ 128 ];
@@ -256,8 +234,8 @@ TICKET_REFUND *ticket_refund_parse(
 	char event_time[ 128 ];
 	char payor_full_name[ 128 ];
 	char payor_street_address[ 128 ];
-	char sale_date_time[ 128 ];
 	char refund_date_time[ 128 ];
+	char extended_price[ 128 ];
 	char refund_amount[ 128 ];
 	char merchant_fees_expense[ 128 ];
 	char net_refund_amount[ 128 ];
@@ -267,8 +245,6 @@ TICKET_REFUND *ticket_refund_parse(
 
 	if ( !input || !*input ) return (TICKET_REFUND *)0;
 
-	ticket_refund = ticket_refund_calloc();
-
 	/* See: attribute_list ticket_refund */
 	/* ----------------------------------- */
 	piece( program_name, SQL_DELIMITER, input, 0 );
@@ -276,20 +252,21 @@ TICKET_REFUND *ticket_refund_parse(
 	piece( event_time, SQL_DELIMITER, input, 2 );
 	piece( payor_full_name, SQL_DELIMITER, input, 3 );
 	piece( payor_street_address, SQL_DELIMITER, input, 4 );
-	piece( sale_date_time, SQL_DELIMITER, input, 5 );
 
-	ticket_refund->ticket_sale =
-		ticket_sale_new(
+	ticket_refund =
+		ticket_refund_new(
 			strdup( program_name ),
 			strdup( event_date ),
 			strdup( event_time ),
 			entity_new(
 				strdup( payor_full_name ),
-				strdup( payor_street_address ) ),
-			strdup( sale_date_time ) );
+				strdup( payor_street_address ) ) );
 
-	piece( refund_date_time, SQL_DELIMITER, input, 6 );
+	piece( refund_date_time, SQL_DELIMITER, input, 5 );
 	ticket_refund->refund_date_time = strdup( refund_date_time );
+
+	piece( extended_price, SQL_DELIMITER, input, 6 );
+	ticket_refund->extended_price = atof( extended_price );
 
 	piece( refund_amount, SQL_DELIMITER, input, 7 );
 	ticket_refund->refund_amount = atof( refund_amount );
@@ -310,22 +287,12 @@ TICKET_REFUND *ticket_refund_parse(
 	{
 		ticket_refund->ticket_sale =
 			ticket_sale_fetch(
-				ticket_refund->
-					ticket_sale->
-					event->
-					program_name,
-				ticket_refund->
-					ticket_sale->
-					event->
-					event_date,
-				ticket_refund->
-					ticket_sale->
-					event->
-					event_time,
+				ticket_refund->program_name,
+				ticket_refund->event_date,
+				ticket_refund->event_time,
 				ticket_refund->payor_entity->full_name,
 				ticket_refund->payor_entity->street_address,
-				ticket_refund->sale_date_time,
-				1 /* fetch_event */,
+				fetch_event,
 				0 /* not fetch_transaction */ );
 	}
 
@@ -346,9 +313,7 @@ char *ticket_refund_primary_where(
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time )
+			char *payor_street_address )
 {
 	char static where[ 1024 ];
 
@@ -357,9 +322,7 @@ char *ticket_refund_primary_where(
 		"event_date = '%s' and			"
 		"event_time = '%s' and			"
 		"payor_full_name = '%s' and		"
-		"payor_street_address = '%s' and	"
-		"sale_date_time = '%s' and		"
-		"refund_date_time = '%s'		",
+		"payor_street_address = '%s' 		",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
@@ -370,9 +333,7 @@ char *ticket_refund_primary_where(
 		 /* Returns static memory */
 		 /* --------------------- */
 		 entity_escape_full_name( payor_full_name ),
-		 payor_street_address,
-		 sale_date_time,
-		 refund_date_time );
+		 payor_street_address );
 
 	return where;
 }
@@ -485,38 +446,42 @@ FILE *ticket_refund_update_open( void )
 }
 
 void ticket_refund_update(
+			char *refund_date_time,
 			double net_refund_amount,
 			char *transaction_date_time,
 			char *program_name,
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time )
+			char *payor_street_address )
 {
 	FILE *update_pipe = ticket_refund_update_open();
 
 	fprintf( update_pipe,
-		 "%s^%s^%s^%s^%s^%s^%s^net_refund_amount^%.2lf\n",
+		 "%s^%s^%s^%s^%s^refund_date_time^%s\n",
 		 program_name,
 		 event_date,
 		 event_time,
 		 payor_full_name,
 		 payor_street_address,
-		 sale_date_time,
-		 refund_date_time,
+		 refund_date_time );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%s^%s^net_refund_amount^%.2lf\n",
+		 program_name,
+		 event_date,
+		 event_time,
+		 payor_full_name,
+		 payor_street_address,
 		 net_refund_amount );
 
 	fprintf( update_pipe,
-		 "%s^%s^%s^%s^%s^%s^%s^transaction_date_time^%s\n",
+		 "%s^%s^%s^%s^%s^transaction_date_time^%s\n",
 		 program_name,
 		 event_date,
 		 event_time,
 		 payor_full_name,
 		 payor_street_address,
-		 sale_date_time,
-		 refund_date_time,
 		 (transaction_date_time)
 			? transaction_date_time
 			: "" );
@@ -580,7 +545,8 @@ char *ticket_refund_list_display( LIST *refund_list )
 TICKET_REFUND *ticket_refund_steady_state(
 			TICKET_REFUND *ticket_refund,
 			double refund_amount,
-			double merchant_fees_expense )
+			double merchant_fees_expense,
+			char *refund_date_time )
 {
 	if ( !ticket_refund->ticket_sale
 	||   !ticket_refund->ticket_sale->event )
@@ -593,21 +559,21 @@ TICKET_REFUND *ticket_refund_steady_state(
 		exit( 1 );
 	}
 
-	if ( !ticket_refund->ticket_sale->event->revenue_account
-	||   !*ticket_refund->ticket_sale->event->revenue_account )
+	if ( refund_amount < 0.0 )
 	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty revenue_account.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (TICKET_REFUND *)0;
+		ticket_refund->refund_amount = 0.0 - refund_amount;
 	}
 
 	ticket_refund->net_refund_amount =
 		education_net_refund_amount(
-			refund_amount,
+			ticket_refund->refund_amount,
 			merchant_fees_expense );
+
+	if ( !refund_date_time || !*refund_date_time )
+	{
+		ticket_refund->refund_date_time =
+			date_now19( date_utc_offset() );
+	}
 
 	return ticket_refund;
 }
@@ -674,31 +640,24 @@ LIST *ticket_refund_list_steady_state(
 			ticket_refund_steady_state(
 				ticket_refund,
 				refund_amount,
-				merchant_fees_expense );
+				merchant_fees_expense,
+				ticket_refund->refund_date_time );
 
 	} while( list_next( ticket_refund_list ) );
 
 	return ticket_refund_list;
 }
 
-char *ticket_refund_memo( char *ticket_name )
+char *ticket_refund_memo( char *program_name )
 {
-	static char payment_memo[ 128 ];
+	static char memo[ 128 ];
 
-	if ( ticket_name && *ticket_name )
-	{
-		sprintf(payment_memo,
-			"%s/%s",
-			TICKET_REFUND_MEMO,
-			ticket_name );
-	}
-	else
-	{
-		sprintf(payment_memo,
-			"%s",
-			TICKET_REFUND_MEMO );
-	}
-	return payment_memo;
+	sprintf(memo,
+		"%s/%s",
+		TICKET_REFUND_MEMO,
+		program_name );
+
+	return memo;
 }
 
 void ticket_refund_list_set_transaction(
@@ -717,6 +676,17 @@ void ticket_refund_list_set_transaction(
 
 	do {
 		ticket_refund = list_get( ticket_refund_list );
+
+		if ( !ticket_refund->ticket_sale
+		||   !ticket_refund->ticket_sale->event )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty ticket_sale or event.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+
+		}
 
 		revenue_account =
 			ticket_refund->
@@ -769,7 +739,7 @@ LIST *ticket_refund_list_paypal(
 			ENTITY *payor_entity,
 			char *paypal_date_time,
 			LIST *paypal_item_list,
-			LIST *semester_event_list )
+			LIST *education_event_list )
 {
 	LIST *ticket_refund_list = {0};
 	PAYPAL_ITEM *paypal_item;
@@ -785,9 +755,9 @@ LIST *ticket_refund_list_paypal(
 		if ( paypal_item->benefit_entity ) continue;
 
 		if ( ( event =
-			event_seek(
+			event_list_seek(
 				paypal_item->item_data,
-				semester_event_list ) ) )
+				education_event_list ) ) )
 		{
 			if ( !ticket_refund_list )
 				ticket_refund_list =
@@ -854,66 +824,28 @@ TICKET_REFUND *ticket_refund_paypal(
 	return ticket_refund;
 }
 
-LIST *ticket_refund_event_list(
-			LIST *ticket_refund_list )
-{
-	TICKET_REFUND *ticket_refund;
-	LIST *event_list;
-
-	if ( !list_rewind( ticket_refund_list ) ) return (LIST *)0;
-
-	event_list = list_new();
-
-	do {
-		ticket_refund =
-			list_get(
-				ticket_refund_list );
-
-		if ( ticket_refund->ticket_sale
-		&&   ticket_refund->ticket_sale->event )
-		{
-			list_set(
-				event_list,
-				ticket_refund->ticket_sale->event );
-		}
-
-	} while ( list_next( ticket_refund_list ) );
-
-	return event_list;
-}
-
 TICKET_REFUND *ticket_refund_new(
 			char *program_name,
 			char *event_date,
 			char *event_time,
-			ENTITY *payor_entity,
-			char *sale_date_time,
-			char *refund_date_time )
+			ENTITY *payor_entity )
 {
 	TICKET_REFUND *ticket_refund = ticket_refund_calloc();
 
-	ticket_refund->ticket_sale =
-		ticket_sale_new(
-			program_name,
-			event_date,
-			event_time,
-			payor_entity,
-			sale_date_time );
-
+	ticket_refund->program_name = program_name;
+	ticket_refund->event_date = event_date;
+	ticket_refund->event_time = event_time;
 	ticket_refund->payor_entity = payor_entity;
-	ticket_refund->refund_date_time = refund_date_time;
 
 	return ticket_refund;
 }
 
-TICKET_REFUND *ticket_refund_seek(
+TICKET_REFUND *ticket_refund_list_seek(
 			char *program_name,
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *refund_date_time,
-			char *sale_date_time,
 			LIST *ticket_refund_list )
 {
 	TICKET_REFUND *ticket_refund;
@@ -938,13 +870,7 @@ TICKET_REFUND *ticket_refund_seek(
 			payor_full_name ) == 0
 		&&   strcmp(
 			ticket_refund->payor_entity->street_address,
-			payor_street_address ) == 0
-		&&   strcmp(
-			ticket_refund->sale_date_time,
-			sale_date_time ) == 0
-		&&   strcmp(
-			ticket_refund->refund_date_time,
-			refund_date_time ) == 0 )
+			payor_street_address ) == 0 )
 		{
 			return ticket_refund;
 		}
@@ -953,7 +879,7 @@ TICKET_REFUND *ticket_refund_seek(
 	return (TICKET_REFUND *)0;
 }
 
-boolean ticket_refund_list_exists(
+boolean ticket_refund_list_any_exists(
 			LIST *ticket_refund_list,
 			LIST *existing_ticket_refund_list )
 {
@@ -964,14 +890,12 @@ boolean ticket_refund_list_exists(
 	do {
 		ticket_refund = list_get( ticket_refund_list );
 
-		if ( ticket_refund_seek(
+		if ( ticket_refund_list_seek(
 			ticket_refund->program_name,
 			ticket_refund->event_date,
 			ticket_refund->event_time,
 			ticket_refund->payor_entity->full_name,
 			ticket_refund->payor_entity->street_address,
-			ticket_refund->sale_date_time,
-			ticket_refund->refund_date_time,
 			existing_ticket_refund_list ) )
 		{
 			return 1;

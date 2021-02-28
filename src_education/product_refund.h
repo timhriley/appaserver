@@ -24,8 +24,7 @@
 #define PRODUCT_REFUND_PRIMARY_KEY	"product_name,"			\
 					"payor_full_name,"		\
 					"payor_street_address,"		\
-					"sale_date_time,"		\
-					"refund_date_time"
+					"sale_date_time"
 
 #define PRODUCT_REFUND_INSERT_COLUMNS	"product_name,"			\
 					"payor_full_name,"		\
@@ -33,9 +32,9 @@
 					"sale_date_time,"		\
 					"refund_date_time,"		\
 					"refund_amount,"		\
+					"merchant_fees_expense,"	\
 					"net_payment_amount,"		\
 					"transaction_date_time,"	\
-					"merchant_fees_expense,"	\
 					"paypal_date_time"
 
 #define PRODUCT_REFUND_MEMO		"Product refund"
@@ -49,14 +48,15 @@ typedef struct
 	char *product_name;
 	ENTITY *payor_entity;
 	char *sale_date_time;
-	char *refund_date_time;
-	PRODUCT_SALE *product_sale;
+	double extended_price;
 	double refund_amount;
 	double merchant_fees_expense;
 	char *paypal_date_time;
 
 	/* Process */
 	/* ------- */
+	char *refund_date_time;
+	PRODUCT_SALE *product_sale;
 	double net_refund_amount;
 
 	TRANSACTION *product_refund_transaction;
@@ -71,7 +71,6 @@ PRODUCT_REFUND *product_refund_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time,
-			char *refund_date_time,
 			boolean fetch_sale,
 			boolean fetch_product,
 			boolean fetch_transaction );
@@ -85,7 +84,8 @@ PRODUCT_REFUND *product_refund_parse(
 PRODUCT_REFUND *product_refund_steady_state(
 			PRODUCT_REFUND *product_refund,
 			double refund_amount,
-			double merchant_fees_expense );
+			double merchant_fees_expense,
+			char *refund_date_time );
 
 FILE *product_refund_insert_open(
 			char *error_filename );
@@ -93,14 +93,15 @@ FILE *product_refund_insert_open(
 void product_refund_insert_pipe(
 			FILE *insert_pipe,
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *sale_date_time,
 			char *refund_date_time,
+			double extended_price,
 			double refund_amount,
+			double merchant_fees_expense,
 			double net_payment_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time );
 
 LIST *product_refund_system_list(
@@ -114,13 +115,13 @@ char *product_refund_sys_string(
 
 char *product_refund_primary_where(
 			char *product_name,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *refund_date_time );
 
 void product_refund_list_set_transaction(
 			int *transaction_seconds_to_add,
+			char *cash_account_name,
 			LIST *product_refund_list );
 
 /* ------------------------------------------------------- */
@@ -149,13 +150,14 @@ TRANSACTION *product_refund_transaction(
 			char *product_revenue_account );
 
 void product_refund_update(
+			double refund_amount,
+			char *refund_date_time,
 			double net_refund_amount,
 			char *transaction_date_time,
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time );
+			char *sale_date_time );
 
 FILE *product_refund_update_open(
 			void );
@@ -203,33 +205,27 @@ PRODUCT_REFUND *product_refund_paypal(
 LIST *product_refund_list(
 			char *where );
 
-void product_refund_fetch_update(
-			char *product_name );
-
-LIST *product_refund_product_name_list(
-			LIST *refund_list );
-
-void product_refund_list_fetch_update(
-			LIST *product_name_list );
+LIST *product_refund_list_product_name_list(
+			LIST *product_refund_list );
 
 PRODUCT_REFUND *product_refund_new(
 			char *product_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time );
+			ENTITY *payor_entity,
+			char *sale_date_time );
 
-PRODUCT_REFUND *product_refund_seek(
+PRODUCT_REFUND *product_refund_list_seek(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time,
-			char *refund_date_time,
 			LIST *product_refund_list );
 
-boolean product_refund_list_exists(
+boolean product_refund_list_any_exists(
 			LIST *product_refund_list,
 			LIST *existing_product_refund_list );
+
+double product_refund_amount(
+			double refund_amount );
 
 #endif
 

@@ -1665,49 +1665,49 @@ boolean paypal_deposit_exclude_existing_transaction(
 			LIST *existing_ticket_refund_list,
 			LIST *existing_paypal_sweep_list )
 {
-	if ( program_donation_list_exists(
+	if ( program_donation_list_any_exists(
 		paypal_deposit->program_donation_list,
 		existing_program_donation_list ) )
 	{
 		return 1;
 	}
 
-	if ( tuition_payment_list_exists(
+	if ( tuition_payment_list_any_exists(
 		paypal_deposit->tuition_payment_list,
 		existing_tuition_payment_list ) )
 	{
 		return 1;
 	}
 
-	if ( tuition_refund_list_exists(
+	if ( tuition_refund_list_any_exists(
 		paypal_deposit->tuition_refund_list,
 		existing_tuition_refund_list ) )
 	{
 		return 1;
 	}
 
-	if ( product_sale_list_exists(
+	if ( product_sale_list_any_exists(
 		paypal_deposit->product_sale_list,
 		existing_product_sale_list ) )
 	{
 		return 1;
 	}
 
-	if ( product_refund_list_exists(
+	if ( product_refund_list_any_exists(
 		paypal_deposit->product_refund_list,
 		existing_product_refund_list ) )
 	{
 		return 1;
 	}
 
-	if ( ticket_sale_list_exists(
+	if ( ticket_sale_list_any_exists(
 		paypal_deposit->ticket_sale_list,
 		existing_ticket_sale_list ) )
 	{
 		return 1;
 	}
 
-	if ( ticket_refund_list_exists(
+	if ( ticket_refund_list_any_exists(
 		paypal_deposit->ticket_refund_list,
 		existing_ticket_refund_list ) )
 	{

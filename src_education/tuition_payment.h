@@ -244,7 +244,7 @@ char *tuition_payment_integrity_where(
 LIST *tuition_payment_list(
 			char *where );
 
-boolean tuition_payment_list_exists(
+boolean tuition_payment_list_any_exists(
 			LIST *tuition_payment_list,
 			LIST *existing_tuition_payment_list );
 

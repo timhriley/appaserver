@@ -47,8 +47,7 @@ SEMESTER *semester_new(	char *season_name,
 SEMESTER *semester_fetch(
 			char *season_name,
 			int year,
-			boolean fetch_offering_list,
-			boolean fetch_event_list )
+			boolean fetch_offering_list )
 {
 	if ( !season_name || !season_name || !year )
 	{
@@ -64,8 +63,7 @@ SEMESTER *semester_fetch(
 		 			semester_primary_where(
 						season_name,
 						year ) ) ),
-			fetch_offering_list,
-			fetch_event_list );
+			fetch_offering_list );
 }
 
 /* Safely returns heap memory */
@@ -98,8 +96,7 @@ char *semester_sys_string( char *where )
 
 SEMESTER *semester_parse(
 			char *input,
-			boolean fetch_offering_list,
-			boolean fetch_event_list )
+			boolean fetch_offering_list )
 {
 	char season_name[ 128 ];
 	char year[ 128 ];
@@ -121,14 +118,6 @@ SEMESTER *semester_parse(
 	{
 		semester->offering_list =
 			semester_offering_list(
-				semester->season_name,
-				semester->year );
-	}
-
-	if ( fetch_event_list )
-	{
-		semester->event_list =
-			semester_event_list(
 				semester->season_name,
 				semester->year );
 	}
@@ -155,27 +144,5 @@ LIST *semester_offering_list(
 			0 /* not fetch_enrollment_list */ );
 
 	return offering_list;
-}
-
-LIST *semester_event_list(
-			char *season_name,
-			int year )
-{
-	static LIST *event_list = {0};
-
-	if ( event_list ) return event_list;
-
-	event_list =
-		event_system_list(
-			event_sys_string(
-				semester_primary_where(
-					season_name,
-					year ) ),
-			1 /* fetch_program */,
-			0 /* not fetch_venue */,
-			0 /* not fetch_sale_list */,
-			0 /* not fetch_refund_list */ );
-
-	return event_list;
 }
 

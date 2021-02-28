@@ -59,9 +59,5 @@ LIST *semester_offering_list(
 			char *season_name,
 			int year );
 
-LIST *semester_event_list(
-			char *season_name,
-			int year );
-
 #endif
 

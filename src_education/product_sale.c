@@ -66,6 +66,7 @@ PRODUCT_SALE *product_sale_fetch(
 			char *payor_street_address,
 			char *sale_date_time,
 			boolean fetch_product,
+			boolean fetch_program,
 			boolean fetch_transaction )
 {
 	return
@@ -81,12 +82,14 @@ PRODUCT_SALE *product_sale_fetch(
 						payor_street_address,
 						sale_date_time ) ) ),
 		fetch_product,
+		fetch_program,
 		fetch_transaction );
 }
 
 LIST *product_sale_system_list(
 			char *sys_string,
 			boolean fetch_product,
+			boolean fetch_program,
 			boolean fetch_transaction )
 {
 	char input[ 1024 ];
@@ -102,6 +105,7 @@ LIST *product_sale_system_list(
 			product_sale_parse(
 				input,
 				fetch_product,
+				fetch_program,
 				fetch_transaction ) );
 	}
 
@@ -160,9 +164,9 @@ void product_sale_list_insert(
 			product_sale->quantity,
 			product_sale->retail_price,
 			product_sale->extended_price,
+			product_sale->merchant_fees_expense,
 			product_sale->net_payment_amount,
 			product_sale->transaction_date_time,
-			product_sale->merchant_fees_expense,
 			product_sale->paypal_date_time );
 
 	} while ( list_next( product_sale_list ) );
@@ -214,13 +218,13 @@ void product_sale_insert_pipe(
 			int quantity,
 			double retail_price,
 			double extended_price,
+			double merchant_fees_expense,
 			double net_payment_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%d^%.2lf^%.2lf^%.2lf^%s^%.2lf^%s\n",
+		"%s^%s^%s^%s^%d^%.2lf^%.2lf^%.2lf^%.2lf^%s^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -234,11 +238,11 @@ void product_sale_insert_pipe(
 		quantity,
 		retail_price,
 		extended_price,
+		merchant_fees_expense,
 		net_payment_amount,
 		(transaction_date_time)
 			? transaction_date_time
 			: "",
-		merchant_fees_expense,
 		(paypal_date_time)
 			? paypal_date_time
 			: "" );
@@ -247,6 +251,7 @@ void product_sale_insert_pipe(
 PRODUCT_SALE *product_sale_parse(
 			char *input,
 			boolean fetch_product,
+			boolean fetch_program,
 			boolean fetch_transaction )
 {
 	char product_name[ 128 ];
@@ -308,8 +313,7 @@ PRODUCT_SALE *product_sale_parse(
 		product_sale->product =
 			product_fetch(
 				product_sale->product_name,
-				0 /* not fetch_sale_list */,
-				0 /* not fetch_refund_list */ );
+				fetch_program );
 	}
 
 	if ( fetch_transaction && *product_sale->transaction_date_time )
@@ -416,8 +420,8 @@ TRANSACTION *product_sale_transaction(
 
 	journal->debit_amount = net_payment_amount;
 
-	/* Debit fees_expense */
-	/* ------------------ */
+	/* Debit fees_expense (maybe) */
+	/* -------------------------- */
 	list_set(
 		transaction->journal_list,
 		journal_merchant_fees_expense(
@@ -867,7 +871,7 @@ LIST *product_sale_list_paypal(
 		if ( paypal_item->benefit_entity ) continue;
 
 		if ( ( product =
-			product_seek(
+			product_list_seek(
 				paypal_item->item_data,
 				product_list ) ) )
 		{
@@ -930,19 +934,8 @@ LIST *product_sale_list( char *where )
 	return product_sale_system_list(
 		product_sale_sys_string( where ),
 		0 /* not fetch_product */,
+		0 /* not fetch_program */,
 		0 /* not fetch_transaction */ );
-}
-
-void product_sale_fetch_update(
-			char *product_name )
-{
-	char sys_string[ 256 ];
-
-	sprintf(sys_string,
-		"product_sale_total.sh \"%s\"",
-		product_name );
-
-	if ( system( sys_string ) ){};
 }
 
 LIST *product_sale_product_name_list( LIST *sale_list )
@@ -967,21 +960,6 @@ LIST *product_sale_product_name_list( LIST *sale_list )
 	return product_name_list;
 }
 
-void product_sale_list_fetch_update(
-			LIST *product_name_list )
-{
-	char *product_name;
-
-	if ( !list_rewind( product_name_list ) ) return;
-
-	do {
-		product_name = list_get( product_name_list );
-
-		product_sale_fetch_update( product_name );
-
-	} while ( list_next( product_name_list ) );
-}
-
 PRODUCT_SALE *product_sale_integrity_fetch(
 			char *product_name,
 			char *payor_full_name,
@@ -999,6 +977,7 @@ PRODUCT_SALE *product_sale_integrity_fetch(
 						payor_full_name,
 						payor_street_address ) ) ),
 		0 /* not fetch_product */,
+		0 /* not fetch_program */,
 		0 /* not fetch_transaction */ );
 }
 
@@ -1026,7 +1005,7 @@ char *product_sale_integrity_where(
 	return where;
 }
 
-PRODUCT_SALE *product_sale_seek(
+PRODUCT_SALE *product_sale_list_seek(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -1092,7 +1071,7 @@ boolean product_sale_list_exists(
 			exit( 1 );
 		}
 
-		if ( product_sale_seek(
+		if ( product_sale_list_seek(
 			product_sale->product_name,
 			product_sale->payor_entity->full_name,
 			product_sale->payor_entity->street_address,

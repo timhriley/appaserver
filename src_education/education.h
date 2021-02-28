@@ -121,5 +121,10 @@ LIST *education_paypal_exclude_existing_transaction_set(
 			LIST *education_existing_ticket_refund_list,
 			LIST *education_existing_paypal_sweep_list );
 
+/* Cached */
+/* ------ */
+LIST *education_event_list(
+			char *minimum_date );
+
 #endif
 

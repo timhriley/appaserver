@@ -118,7 +118,7 @@ PROGRAM *program_parse(
 	if ( fetch_alias_list )
 	{
 		program->program_alias_list =
-			program_alias_list(
+			program_alias_fetch_list(
 				program_name );
 	}
 
@@ -146,10 +146,10 @@ PROGRAM_ALIAS *program_alias_parse( char *input )
 	return program_alias;
 }
 
-LIST *program_list( boolean fetch_alias_list )
+LIST *program_list_fetch( boolean fetch_alias_list )
 {
 	return program_system_list(
-			program_sys_string(
+			program_system_string(
 				"1 = 1" /* where */ ),
 				fetch_alias_list );
 }
@@ -176,27 +176,8 @@ PROGRAM_ALIAS *program_alias_new(
 	return program_alias;
 }
 
-PROGRAM *program_seek(
-			char *program_name,
-			LIST *program_list )
-{
-	return
-		program_name_seek(
-			program_name,
-			program_list );
-}
-
-PROGRAM *program_list_seek(
-			char *program_name,
-			LIST *program_list )
-{
-	return
-		program_name_seek(
-			program_name,
-			program_list );
-}
-
-LIST *program_alias_list( char *program_name )
+LIST *program_alias_fetch_list(
+			char *program_name )
 {
 	char where[ 256 ];
 
@@ -205,7 +186,7 @@ LIST *program_alias_list( char *program_name )
 		program_name ); 
 
 	return program_alias_system_list(
-			program_alias_sys_string(
+			program_alias_system_string(
 				where ) );
 }
 
@@ -253,7 +234,7 @@ LIST *program_alias_system_list(
 	return program_alias_list;
 }
 
-char *program_sys_string( char *where )
+char *program_system_string( char *where )
 {
 	char sys_string[ 1024 ];
 
@@ -265,7 +246,7 @@ char *program_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-char *program_alias_sys_string( char *where )
+char *program_alias_system_string( char *where )
 {
 	char sys_string[ 1024 ];
 
@@ -277,7 +258,7 @@ char *program_alias_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-PROGRAM *program_name_seek(
+PROGRAM *program_list_seek(
 			char *program_name,
 			LIST *program_list )
 {
@@ -294,7 +275,7 @@ PROGRAM *program_name_seek(
 			return program;
 		}
 
-		if ( program_alias_seek(
+		if ( program_alias_list_seek(
 			program_name
 				/* program_alias_name */,
 			program->program_alias_list ) )
@@ -306,17 +287,7 @@ PROGRAM *program_name_seek(
 	return (PROGRAM *)0;
 }
 
-PROGRAM *program_seek_name(
-			char *program_name,
-			LIST *program_list )
-{
-	return
-		program_list_seek(
-			program_name,
-			program_list );
-}
-
-PROGRAM_ALIAS *program_alias_seek(
+PROGRAM_ALIAS *program_alias_list_seek(
 			char *program_alias_name,
 			LIST *program_alias_list )
 {

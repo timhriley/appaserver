@@ -51,7 +51,7 @@ QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics_new(
 	query_attribute_statistics->end_date = "";
 
 	return query_attribute_statistics;
-} /* query_attribute_statistics_new() */
+}
 
 LIST *query_attribute_statistics_list_get_list( LIST *attribute_list )
 {
@@ -112,7 +112,7 @@ LIST *query_attribute_statistics_list_get_list( LIST *attribute_list )
 		} while( list_next( attribute_list ) );
 	}
 	return query_attribute_statistics_list;
-} /* query_attribute_statistics_list_get_list() */
+}
 
 LIST *query_attribute_statistics_list_get_primary_list( LIST *attribute_list )
 {
@@ -147,7 +147,7 @@ LIST *query_attribute_statistics_list_get_primary_list( LIST *attribute_list )
 		} while( list_next( attribute_list ) );
 	}
 	return query_attribute_statistics_list;
-} /* query_attribute_statistics_list_get_primary_list() */
+}
 
 char *query_attribute_statistics_get_temp_filename( char *attribute_name )
 {
@@ -157,7 +157,7 @@ char *query_attribute_statistics_get_temp_filename( char *attribute_name )
 			attribute_name,
 			getpid() );
 	return strdup( temp_filename );
-} /* query_attribute_statistics_get_temp_filename() */
+}
 
 void query_attribute_statistics_list_populate_list(
 				LIST *query_attribute_statistics_list )
@@ -326,7 +326,7 @@ void query_attribute_statistics_list_populate_list(
 		} /* while( getline() ) */
 		fclose( file );
 	} while( list_next( query_attribute_statistics_list ) );
-} /* query_attribute_statistics_list_populate_list() */
+}
 
 LIST *query_attribute_statistics_list_get_select_attribute_name_list(
 					char *application_name,
@@ -370,7 +370,7 @@ LIST *query_attribute_statistics_list_get_select_attribute_name_list(
 
 	return select_attribute_name_list;
 
-} /* query_attribute_statistics_list_get_select_attribute_name_list() */
+}
 
 char *query_attribute_statistics_list_get_build_each_temp_file_sys_string(
 				char *application_name,
@@ -464,7 +464,7 @@ char *query_attribute_statistics_list_get_build_each_temp_file_sys_string(
 
 	return strdup( sys_string );
 
-} /* query_attribute_statistics_list_get_build_each_temp_file_sys_string() */
+}
 
 void query_attribute_statistics_list_output_folder_count(
 					char *application_name,
@@ -544,7 +544,7 @@ void query_attribute_statistics_list_output_folder_count(
 
 	html_table_close();
 
-} /* query_statistics_list_output_folder_count() */
+}
 
 void query_attribute_statistics_list_output_table(
 					char *folder_name,
@@ -836,7 +836,7 @@ void query_attribute_statistics_list_output_table(
 
 	html_table_close();
 
-} /* query_statistics_list_output_table() */
+}
 
 void query_attribute_statistics_remove_temp_file(
 					LIST *query_attribute_statistics_list )
@@ -857,10 +857,10 @@ void query_attribute_statistics_remove_temp_file(
 			 query_attribute_statistics->
 				attribute_statistics_temp_filename );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 	} while( list_next( query_attribute_statistics_list ) );
-} /* query_attribute_statistics_remove_temp_file() */
+}
 
 void query_attribute_statistics_list_set_units_string(
 					LIST *query_attribute_statistics_list,
@@ -884,7 +884,7 @@ void query_attribute_statistics_list_set_units_string(
 		}
 
 	} while( list_next( query_attribute_statistics_list ) );
-} /* query_attribute_statistics_list_set_units_string() */
+}
 
 void query_attribute_get_display_where_clause(
 		char *display_where_clause,
@@ -912,7 +912,7 @@ void query_attribute_get_display_where_clause(
 	search_replace_string(	display_where_clause,
 				remove_folder_name_string,
 				"" );
-} /* query_attribute_get_display_where_clause() */
+}
 
 boolean query_attribute_is_valid_non_date_datatype(
 					char *attribute_datatype )
@@ -930,7 +930,7 @@ boolean query_attribute_is_valid_non_date_datatype(
 	{
 		return 0;
 	}
-} /* query_attribute_is_valid_non_date_datatype() */
+}
 
 boolean query_attribute_is_valid_date_datatype(
 					char *attribute_datatype )
@@ -949,7 +949,7 @@ boolean query_attribute_is_valid_date_datatype(
 	{
 		return 0;
 	}
-} /* query_attribute_is_valid_date_datatype() */
+}
 
 boolean query_attribute_is_valid_non_primary_datatype(
 					char *attribute_datatype )
@@ -966,5 +966,5 @@ boolean query_attribute_is_valid_non_primary_datatype(
 	{
 		return 0;
 	}
-} /* query_attribute_is_valid_non_primary_datatype() */
+}
 

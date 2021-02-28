@@ -245,7 +245,7 @@ TUITION_REFUND *tuition_refund_seek(
 			char *refund_date_time,
 			LIST *tuition_refund_list );
 
-boolean tuition_refund_list_exists(
+boolean tuition_refund_list_any_exists(
 			LIST *tuition_refund_list,
 			LIST *existing_tuition_refund_list );
 

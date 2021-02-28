@@ -42,7 +42,8 @@ PROGRAM *program_new(	char *program_name );
 PROGRAM *program_fetch(	char *program_name,
 			boolean fetch_alias_list );
 
-LIST *program_list(	boolean fetch_alias_list );
+LIST *program_list_fetch(
+			boolean fetch_alias_list );
 
 PROGRAM_ALIAS *program_alias_new(
 			char *program_name,
@@ -62,10 +63,10 @@ PROGRAM *program_parse(
 			char *input,
 			boolean fetch_alias_list );
 
-char *program_sys_string(
+char *program_system_string(
 			char *where );
 
-char *program_alias_sys_string(
+char *program_alias_system_string(
 			char *where );
 
 /* Returns static memory */
@@ -78,28 +79,16 @@ char *program_name_escape(
 char *program_primary_where(
 			char *program_name );
 
-LIST *program_alias_list(
+LIST *program_alias_fetch_list(
 			char *program_name );
-
-PROGRAM *program_seek(
-			char *program_name,
-			LIST *program_list );
 
 PROGRAM *program_list_seek(
 			char *program_name,
 			LIST *program_list );
 
-PROGRAM *program_seek_name(
-			char *program_name,
-			LIST *program_list );
-
-PROGRAM_ALIAS *program_alias_seek(
+PROGRAM_ALIAS *program_alias_list_seek(
 			char *program_alias_name,
 			LIST *program_alias_list );
-
-PROGRAM *program_name_seek(
-			char *program_name,
-			LIST *program_list );
 
 LIST *program_name_list(
 			LIST *program_list );
