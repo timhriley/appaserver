@@ -21,8 +21,11 @@
 /* --------- */
 #define ENROLLMENT_TABLE		"enrollment"
 
-#define ENROLLMENT_PRIMARY_KEY		\
-	"full_name,street_address,course_name,season_name,year"
+#define ENROLLMENT_PRIMARY_KEY		"full_name,"		\
+					"street_address,"	\
+					"course_name,"		\
+					"season_name,"		\
+					"year"
 
 #define ENROLLMENT_MEMO			"Enrollment"
 
@@ -31,6 +34,9 @@
 					"course_name,"		\
 					"season_name,"		\
 					"year,"			\
+					"enrollment_date_time,"	\
+					"payor_full_name,"	\
+					"payor_street_address,"	\
 					"transaction_date_time"
 
 /* Structures */
@@ -40,14 +46,15 @@ typedef struct
 	/* Input */
 	/* ----- */
 	ENTITY *student_entity;
-	COURSE *course;
+	char *course_name;
 	SEMESTER *semester;
-	char *enrollment_date_time;
 
 	/* Process */
 	/* ------- */
-	REGISTRATION *registration;
+	char *enrollment_date_time;
+	ENTITY *payor_entity;
 	OFFERING *offering;
+	REGISTRATION *registration;
 
 	/* List of one */
 	/* ----------- */
@@ -59,13 +66,12 @@ typedef struct
 
 ENROLLMENT *enrollment_new(
 			ENTITY *student_entity,
-			COURSE *course,
-			SEMESTER *semester,
-			char *enrollment_date_time );
+			char *course_name,
+			SEMESTER *semester );
 
 ENROLLMENT *enrollment_fetch(
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *course_name,
 			char *season_name,
 			int year,
@@ -73,6 +79,7 @@ ENROLLMENT *enrollment_fetch(
 			boolean fetch_course,
 			boolean fetch_program,
 			boolean fetch_registration,
+			boolean fetch_course_drop_list,
 			boolean fetch_transaction );
 
 ENROLLMENT *enrollment_parse(
@@ -81,6 +88,7 @@ ENROLLMENT *enrollment_parse(
 			boolean fetch_course,
 			boolean fetch_program,
 			boolean fetch_registration,
+			boolean fetch_course_drop_list,
 			boolean fetch_transaction );
 
 boolean enrollment_set_transaction(
@@ -88,8 +96,7 @@ boolean enrollment_set_transaction(
 			ENROLLMENT *enrollment,
 			char *account_receivable,
 			char *revenue_account,
-			char *program_name,
-			char *registration_date_time );
+			LIST *liability_entity_list );
 
 /* Returns static memory */
 /* --------------------- */
@@ -102,23 +109,25 @@ char *enrollment_primary_where(
 
 TRANSACTION *enrollment_transaction(
 			int *seconds_to_add,
-			char *student_full_name,
-			char *street_address,
+			char *payor_full_name,
+			char *payor_address,
 			char *transaction_date_time,
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
 			char *offering_revenue_account,
-			char *account_payable,
 			LIST *liability_entity_list );
 
-char *enrollment_sys_string(
+char *enrollment_system_string(
 			char *where );
 
 FILE *enrollment_update_open(
 			void );
 
 void enrollment_update(
+			char *enrollment_date_time,
+			char *payor_full_name,
+			char *payor_street_address,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
@@ -132,6 +141,7 @@ LIST *enrollment_system_list(
 			boolean fetch_course,
 			boolean fetch_program,
 			boolean fetch_registration,
+			boolean fetch_course_drop_list,
 			boolean fetch_transaction );
 
 FILE *enrollment_insert_open(
@@ -156,44 +166,28 @@ char *enrollment_memo(	char *program_name );
 
 void enrollment_list_set_transaction(
 			int *transaction_seconds_to_add,
-			LIST *enrollment_list );
+			LIST *enrollment_list,
+			LIST *liability_entity_list );
 
 void enrollment_list_fetch_update(
-			LIST *enrollment_list,
-			char *season_name,
-			int year );
-
-void enrollment_fetch_update(
-			char *student_full_name,
-			char *student_street_address,
-			char *course_name,
-			char *season_name,
-			int year );
-
-void enrollment_list_update(
-			LIST *enrollment_list,
-			char *season_name,
-			int year );
-
-char *enrollment_list_first_program_name(
 			LIST *enrollment_list );
 
-char *enrollment_list_revenue_account(
+char *enrollment_list_first_program_name(
 			LIST *enrollment_list );
 
 char *enrollment_list_display(
 			LIST *enrollment_list );
 
 ENROLLMENT *enrollment_integrity_fetch(
-			char *full_name,
-			char *street_address,
+			char *student_full_name,
+			char *student_street_address,
 			char *course_name,
 			char *season_name,
 			int year );
 
 ENROLLMENT *enrollment_list_seek(
-			char *full_name,
-			char *street_address,
+			char *student_full_name,
+			char *student_street_address,
 			char *course_name,
 			char *season_name,
 			int year,
@@ -201,6 +195,11 @@ ENROLLMENT *enrollment_list_seek(
 
 LIST *enrollment_list_course_drop_list(
 			LIST *enrollment_list );
+
+ENROLLMENT *enrollment_steady_state(
+			ENROLLMENT *enrollment,
+			char *enrollment_date_time,
+			ENTITY *payor_entity );
 
 #endif
 

@@ -57,13 +57,16 @@ typedef struct
 } REGISTRATION;
 
 REGISTRATION *registration_parse(
-			char *input );
+			char *input,
+			boolean fetch_enrollment_list );
 
 REGISTRATION *registration_fetch(
 			char *student_full_name,
 			char *student_street_address,
 			char *season_name,
-			int year );
+			int year,
+			boolean fetch_enrollment_list,
+			boolean fetch_course_drop_list );
 
 REGISTRATION *registration_new(
 			ENTITY *student_entity,
@@ -83,7 +86,8 @@ char *registration_escape_full_name(
 			char *full_name );
 
 LIST *registration_system_list(
-			char *system_string );
+			char *system_string,
+			boolean fetch_enrollment_list );
 
 char *registration_system_string(
 			char *where );

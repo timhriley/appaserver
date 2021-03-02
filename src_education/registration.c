@@ -49,7 +49,9 @@ char *registration_primary_where(
 }
 
 REGISTRATION *registration_parse(
-			char *input )
+			char *input,
+			boolean fetch_enrollment_list,
+			boolean fetch_course_drop_list )
 {
 	char student_full_name[ 128 ];
 	char student_street_address[ 128 ];
@@ -105,6 +107,28 @@ REGISTRATION *registration_parse(
 	piece( invoice_amount_due, SQL_DELIMITER, input, 10 );
 	registration->invoice_amount_due = atof( invoice_amount_due );
 
+	if ( fetch_enrollment_list )
+	{
+		registration->enrollment_list =
+			enrollment_system_list(
+				enrollment_system_string(
+					registration_primary_where(
+						student_full_name,
+						student_street_address,
+						registration->
+							semester->
+							season_name,
+						registration->
+							semester->
+							year ) ),
+				0 /* not fetch_offering */,
+				0 /* not fetch_course */,
+				0 /* not fetch_program */,
+				0 /* not fetch_registration */,
+				fetch_course_drop_list,
+				0 /* not fetch_transaction */ );
+	}
+
 	return registration;
 }
 
@@ -142,7 +166,9 @@ REGISTRATION *registration_fetch(
 			char *student_full_name,
 			char *student_street_address,
 			char *season_name,
-			int year )
+			int year,
+			boolean fetch_enrollment_list,
+			boolean fetch_course_drop_list )
 {
 	return	registration_parse(
 			string_pipe_fetch(
@@ -154,7 +180,9 @@ REGISTRATION *registration_fetch(
 						student_full_name,
 						student_street_address,
 						season_name,
-						year ) ) ) );
+						year ) ) ),
+			fetch_enrollment_list,
+			fetch_course_drop_list );
 }
 
 char *registration_escape_full_name(
@@ -414,10 +442,10 @@ REGISTRATION *registration_paypal(
 		enrollment =
 			enrollment_new(
 				student_entity,
-				offering->course,
-				registration->semester,
-				paypal_date_time
-					/* enrollment_date_time */ );
+				offering->course_name,
+				registration->semester );
+
+		enrollment->enrollment_date_time = paypal_date_time;
 
 		list_set( registration->enrollment_list, enrollment );
 

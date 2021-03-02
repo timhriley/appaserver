@@ -20,29 +20,29 @@
 #include "paypal_upload.h"
 #include "offering.h"
 #include "course.h"
+#include "course_drop.h"
 #include "registration.h"
 #include "tuition_payment.h"
 #include "tuition_refund.h"
 #include "liability.h"
 #include "enrollment.h"
 
-char *enrollment_sys_string( char *where )
+char *enrollment_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '*' %s \"%s\" select",
 		 "enrollment",
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 ENROLLMENT *enrollment_new(
 			ENTITY *student_entity,
-			COURSE *course,
-			SEMESTER *semester,
-			char *enrollment_date_time )
+			char *course_name,
+			SEMESTER *semester )
 {
 	ENROLLMENT *enrollment;
 
@@ -57,9 +57,8 @@ ENROLLMENT *enrollment_new(
 	}
 
 	enrollment->student_entity = student_entity;
-	enrollment->course = course;
+	enrollment->course_name = course_name;
 	enrollment->semester = semester;
-	enrollment->enrollment_date_time = enrollment_date_time;
 
 	return enrollment;
 }
@@ -70,6 +69,7 @@ ENROLLMENT *enrollment_parse(
 			boolean fetch_course,
 			boolean fetch_program,
 			boolean fetch_registration,
+			boolean fetch_course_drop_list,
 			boolean fetch_transaction )
 {
 	char full_name[ 128 ];
@@ -90,19 +90,19 @@ ENROLLMENT *enrollment_parse(
 	piece( course_name, SQL_DELIMITER, input, 2 );
 	piece( season_name, SQL_DELIMITER, input, 3 );
 	piece( year, SQL_DELIMITER, input, 4 );
-	piece( enrollment_date_time, SQL_DELIMITER, input, 5 );
 
 	enrollment =
 		enrollment_new(
 			entity_new(
 				strdup( full_name ),
 				strdup( street_address ) ),
-			course_new(
-				strdup( course_name ) ),
+			strdup( course_name ),
 			semester_new(
 				strdup( season_name ),
-				atoi( year ) ),
-			strdup( enrollment_date_time ) );
+				atoi( year ) ) );
+
+	piece( enrollment_date_time, SQL_DELIMITER, input, 5 );
+	enrollment->enrollment_date_time = enrollment_date_time;
 
 	piece( transaction_date_time, SQL_DELIMITER, input, 6 );
 	enrollment->transaction_date_time = transaction_date_time;
@@ -115,8 +115,7 @@ ENROLLMENT *enrollment_parse(
 				enrollment->offering->semester->season_name,
 				enrollment->offering->semester->year,
 				fetch_course,
-				fetch_program,
-				0 /* not fetch_enrollment_list */ );
+				fetch_program );
 	}
 
 	if ( fetch_registration )
@@ -126,11 +125,31 @@ ENROLLMENT *enrollment_parse(
 				full_name,
 				street_address,
 				enrollment->offering->semester->season_name,
-				enrollment->offering->semester->year,
-				1 /* fetch_enrollment_list */,
+				enrollment->offering->semester->year );
+	}
+
+	if ( fetch_course_drop_list )
+	{
+		enrollment->course_drop_list =
+			course_drop_system_list(
+				course_drop_system_string(
+					enrollment_primary_where(
+						full_name,
+						street_address,
+						course_name,
+						enrollment->
+							offering->
+							semester->
+							season_name,
+						enrollment->
+							offering->
+							semester->
+							year ) ),
+				1 /* not fetch_enrollment */,
 				1 /* fetch_offering */,
-				0 /* not fetch_course */,
-				0 /* not fetch_program */ );
+				1 /* fetch_course */,
+				0 /* not fetch_registration */,
+				0 /* not fetch_transaction */ );
 	}
 
 	if ( fetch_transaction && *enrollment->transaction_date_time )
@@ -147,7 +166,7 @@ ENROLLMENT *enrollment_parse(
 
 ENROLLMENT *enrollment_fetch(
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *season_name,
 			char *course_name,
 			int year,
@@ -155,20 +174,21 @@ ENROLLMENT *enrollment_fetch(
 			boolean fetch_course,
 			boolean fetch_program,
 			boolean fetch_registration,
+			boolean fetch_course_drop_list,
 			boolean fetch_transaction )
 {
 	ENROLLMENT *enrollment;
 
 	enrollment =
 		enrollment_parse(
-			pipe2string(
-				enrollment_sys_string(
+			string_pipe_fetch(
+				enrollment_system_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
 					enrollment_primary_where(
 						student_full_name,
-						street_address,
+						student_street_address,
 						season_name,
 						course_name,
 						year ) ) ),
@@ -176,6 +196,7 @@ ENROLLMENT *enrollment_fetch(
 			fetch_course,
 			fetch_program,
 			fetch_registration,
+			fetch_course_drop_list,
 			fetch_transaction );
 
 	return enrollment;
@@ -187,6 +208,7 @@ LIST *enrollment_system_list(
 			boolean fetch_course,
 			boolean fetch_program,
 			boolean fetch_registration,
+			boolean fetch_course_drop_list,
 			boolean fetch_transaction )
 {
 	char input[ 1024 ];
@@ -203,6 +225,7 @@ LIST *enrollment_system_list(
 				fetch_course,
 				fetch_program,
 				fetch_registration,
+				fetch_course_drop_list,
 				fetch_transaction ) );
 	}
 	pclose( input_pipe );
@@ -224,6 +247,9 @@ FILE *enrollment_update_open( void )
 }
 
 void enrollment_update(
+			char *enrollment_date_time,
+			char *payor_full_name,
+			char *payor_street_address,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
@@ -234,6 +260,35 @@ void enrollment_update(
 	FILE *update_pipe;
 
 	update_pipe = enrollment_update_open();
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%s^%d^enrollment_date_time^%s\n",
+		 student_full_name,
+		 student_street_address,
+		 course_name,
+		 season_name,
+		 year,
+		 (enrollment_date_time)
+			? enrollment_date_time
+			: date_now19( date_utc_offset() ) );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%s^%d^payor_full_name^%s\n",
+		 student_full_name,
+		 student_street_address,
+		 course_name,
+		 season_name,
+		 year,
+		 payor_full_name );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%s^%d^payor_street_address^%s\n",
+		 student_full_name,
+		 student_street_address,
+		 course_name,
+		 season_name,
+		 year,
+		 payor_street_address );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%d^transaction_date_time^%s\n",
@@ -251,7 +306,7 @@ void enrollment_update(
 
 char *enrollment_primary_where(
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *course_name,
 			char *season_name,
 			int year )
@@ -259,16 +314,16 @@ char *enrollment_primary_where(
 	char static where[ 512 ];
 
 	sprintf(where,
-		"full_name = '%s' and		"
-		"street_address = '%s' and	"
-		"course_name = '%s' and		"
-		"season_name = '%s' and		"
-		"year = %d			",
+		"student_full_name = '%s' and		"
+		"student_street_address = '%s' and	"
+		"course_name = '%s' and			"
+		"season_name = '%s' and			"
+		"year = %d				",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
 		 registration_escape_full_name( student_full_name ),
-		 street_address,
+		 student_street_address,
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
@@ -281,18 +336,18 @@ char *enrollment_primary_where(
 
 TRANSACTION *enrollment_transaction(
 			int *seconds_to_add,
-			char *student_full_name,
-			char *street_address,
+			char *payor_full_name,
+			char *payor_street_address,
 			char *transaction_date_time,
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
 			char *offering_revenue_account,
-			char *account_payable,
 			LIST *liability_entity_list )
 {
 	TRANSACTION *transaction;
 	ENTITY *liability_entity;
+	double receivable_amount;
 
 	if ( dollar_virtually_same( offering_course_price, 0.0 ) )
 		return (TRANSACTION *)0;
@@ -309,8 +364,8 @@ TRANSACTION *enrollment_transaction(
 
 	transaction =
 		transaction_full(
-			student_full_name,
-			street_address,
+			payor_full_name,
+			payor_street_address,
 			transaction_date_time,
 			offering_course_price
 				/* transaction_amount */,
@@ -319,67 +374,44 @@ TRANSACTION *enrollment_transaction(
 			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
+	receivable_amount = transaction->transaction_amount;
 
 	if ( ( liability_entity =
 		entity_seek(
+			payor_full_name,
+			payor_street_address,
+			liability_entity_list ) ) )
+	{
+		if (	receivable_amount <=
+			liability_entity->liability_entity_amount_due )
+		{
+			transaction->journal_list =
+				journal_binary_list(
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					receivable_amount,
+					liability_entity->
+					    liability_entity_debit_account_name,
+					offering_revenue_account );
 
-	transaction->journal_list =
-		journal_binary_list(
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			transaction->transaction_amount,
-			account_receivable,
-			offering_revenue_account );
+			receivable_amount = 0.0;
+		}
+	}
+
+	if ( receivable_amount )
+	{
+		transaction->journal_list =
+			journal_binary_list(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->transaction_amount,
+				account_receivable,
+				offering_revenue_account );
+	}
 
 	return transaction;
-}
-
-LIST *enrollment_tuition_payment_list(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	return
-		tuition_payment_system_list(
-			tuition_payment_sys_string(
-				enrollment_primary_where(
-					student_full_name,
-					street_address,
-					course_name,
-					season_name,
-					year ) ),
-			0 /* not fetch_registration */,
-			1 /* fetch_enrollment_list */,
-			1 /* fetch_offering */,
-			1 /* fetch_course */,
-			0 /* not fetch_program */,
-			0 /* not fetch_transaction */ );
-}
-
-LIST *enrollment_tuition_refund_list(
-			char *student_full_name,
-			char *street_address,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	return
-		tuition_refund_system_list(
-			tuition_refund_sys_string(
-				enrollment_primary_where(
-					student_full_name,
-					street_address,
-					course_name,
-					season_name,
-					year ) ),
-			0 /* not fetch_registration */,
-			0 /* not fetch_enrollment_list */,
-			0 /* not fetch_offering */,
-			0 /* not fetch_course */,
-			0 /* not fetch_program */ );
 }
 
 FILE *enrollment_insert_open( char *error_filename )
@@ -472,7 +504,8 @@ char *enrollment_memo( char *program_name )
 
 void enrollment_list_set_transaction(
 			int *transaction_seconds_to_add,
-			LIST *enrollment_list )
+			LIST *enrollment_list,
+			LIST *liability_entity_list )
 {
 	ENROLLMENT *enrollment;
 	char *receivable;
@@ -494,26 +527,12 @@ void enrollment_list_set_transaction(
 			exit( 1 );
 		}
 
-		if ( !enrollment->registration )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty offering.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		if ( !list_length( enrollment->course_drop_list ) )
-		{
-			enrollment_set_transaction(
-				transaction_seconds_to_add,
-				enrollment,
-				receivable,
-				enrollment->offering->revenue_account,
-				enrollment->offering->course->program_name,
-				enrollment->enrollment_date_time );
-		}
+		enrollment_set_transaction(
+			transaction_seconds_to_add,
+			enrollment,
+			receivable,
+			enrollment->offering->revenue_account,
+			liability_entity_list );
 
 	} while ( list_next( enrollment_list ) );
 }
@@ -523,15 +542,34 @@ boolean enrollment_set_transaction(
 			ENROLLMENT *enrollment,
 			char *account_receivable,
 			char *revenue_account,
-			char *program_name,
-			char *registration_date_time )
+			LIST *liability_entity_list )
 {
 	if ( !enrollment
-	||   !enrollment->registration
-	||   !enrollment->offering )
+	||   !enrollment->offering
+	||   !enrollment->offering->course )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: empty enrollment, registration or offering.\n",
+	"ERROR in %s/%s()/%d: empty enrollment, offering or course.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !enrollment->enrollment_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty enrollment_date_time\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !enrollment->payor_entity )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty payor_entity\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -543,25 +581,20 @@ boolean enrollment_set_transaction(
 	{
 		enrollment->transaction_date_time =
 			transaction_race_free(
-				registration_date_time );
+				enrollment->enrollment_date_time );
 	}
 
 	if ( ( enrollment->enrollment_transaction =
 		enrollment_transaction(
 			transaction_seconds_to_add,
-			enrollment->
-				registration->
-				student_entity->
-				full_name,
-			enrollment->
-				registration->
-				student_entity->
-				street_address,
+			enrollment->payor_entity->full_name,
+			enrollment->payor_entity->street_address,
 			enrollment->transaction_date_time,
-			program_name,
+			enrollment->offering->course->program_name,
 			enrollment->offering->course_price,
 			account_receivable,
-			revenue_account ) ) )
+			revenue_account,
+			liability_entity_list ) ) )
 	{
 		enrollment->transaction_date_time =
 			enrollment->enrollment_transaction->
@@ -575,69 +608,8 @@ boolean enrollment_set_transaction(
 	}
 }
 
-void enrollment_fetch_update(
-			char *student_full_name,
-			char *student_street_address,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-	"enrollment_tuition_payment_total.sh \"%s\" '%s' \"%s\" '%s' %d",
-		student_full_name,
-		student_street_address,
-		course_name,
-		season_name,
-		year );
-
-	if ( system( sys_string ) ){}
-
-	sprintf(sys_string,
-	"enrollment_tuition_refund_total.sh \"%s\" '%s' \"%s\" '%s' %d",
-		student_full_name,
-		student_street_address,
-		course_name,
-		season_name,
-		year );
-
-	if ( system( sys_string ) ){}
-}
-
-void enrollment_list_update(
-			LIST *enrollment_list,
-			char *season_name,
-			int year )
-{
-	ENROLLMENT *enrollment;
-
-	if ( !list_rewind( enrollment_list ) ) return;
-
-	do {
-		enrollment = list_get( enrollment_list );
-
-		enrollment_update(
-			enrollment->transaction_date_time,
-			enrollment->
-				registration->
-				student_entity->
-				full_name,
-			enrollment->
-				registration->
-				student_entity->
-				street_address,
-			enrollment->offering->course->course_name,
-			season_name,
-			year );
-
-	} while ( list_next( enrollment_list ) );
-}
-
 void enrollment_list_fetch_update(
-			LIST *enrollment_list,
-			char *season_name,
-			int year )
+			LIST *enrollment_list )
 {
 	ENROLLMENT *enrollment;
 
@@ -646,18 +618,21 @@ void enrollment_list_fetch_update(
 	do {
 		enrollment = list_get( enrollment_list );
 
-		enrollment_fetch_update(
-			enrollment->
-				registration->
-				student_entity->
-				full_name,
-			enrollment->
-				registration->
-				student_entity->
-				street_address,
-			enrollment->offering->course->course_name,
-			season_name,
-			year );
+		if ( !enrollment->offering )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty offering.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		registration_fetch_update(
+			enrollment->student_entity->full_name,
+			enrollment->student_entity->street_address,
+			enrollment->offering->semester->season_name,
+			enrollment->offering->semester->year );
 
 	} while ( list_next( enrollment_list ) );
 }
@@ -777,11 +752,10 @@ char *enrollment_list_display( LIST *enrollment_list )
 		}
 
 		if ( !enrollment->registration
-		||   !enrollment->offering
-		||   !enrollment->offering->course )
+		||   !enrollment->offering )
 		{
 			fprintf(stderr,
-	"ERROR in %s/%s()/%d: empty registration, offering or course.\n",
+	"ERROR in %s/%s()/%d: empty registration or offering.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -792,14 +766,12 @@ char *enrollment_list_display( LIST *enrollment_list )
 				"%s will enroll in %s; ",
 				entity_name_display(
 					enrollment->
-						registration->
 						student_entity->
 						full_name,
 					enrollment->
-						registration->
 						student_entity->
 						street_address ),
-				enrollment->offering->course->course_name );
+				enrollment->offering->course_name );
 
 	} while ( list_next( enrollment_list ) );
 
@@ -807,22 +779,22 @@ char *enrollment_list_display( LIST *enrollment_list )
 }
 
 ENROLLMENT *enrollment_integrity_fetch(
-			char *full_name,
-			char *street_address,
+			char *student_full_name,
+			char *student_street_address,
 			char *course_name,
 			char *season_name,
 			int year )
 {
 	return
 		enrollment_parse(
-			pipe2string(
-				enrollment_sys_string(
+			string_pipe_fetch(
+				enrollment_system_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
 					enrollment_primary_where(
-						full_name,
-						street_address,
+						student_full_name,
+						student_street_address,
 						course_name,
 						season_name,
 						year ) ) ),
@@ -830,6 +802,7 @@ ENROLLMENT *enrollment_integrity_fetch(
 			0 /* not fetch_course */,
 			0 /* not fetch_program */,
 			0 /* not fetch_registration */,
+			0 /* not fetch_course_drop_list */,
 			0 /* not fetch_transaction */ );
 }
 
@@ -852,7 +825,7 @@ ENROLLMENT *enrollment_list_seek(
 				full_name ) == 0
 		&&   strcmp(	enrollment->student_entity->street_address,
 				street_address ) == 0
-		&&   strcmp(	enrollment->course->course_name,
+		&&   strcmp(	enrollment->offering->course_name,
 				course_name ) == 0
 		&&   strcmp(	enrollment->semester->season_name,
 				season_name ) == 0
@@ -906,21 +879,61 @@ char *enrollment_list_first_course_drop_program_name(
 				enrollment->
 					course_drop_list );
 
-		if ( !course_drop->course )
+		if ( !course_drop->enrollment
+		||   !course_drop->enrollment->offering
+		||   !course_drop->enrollment->offering->course )
 		{
 			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty course.\n",
+		"ERROR in %s/%s()/%d: empty enrollment, offering or course.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
 			exit( 1 );
 		}
 
-		return enrollment->offering->course->program_name;
+		return course_drop->enrollment->offering->course->program_name;
 	}
 	else
 	{
 		return (char *)0;
 	}
+}
+
+ENROLLMENT *enrollment_steady_state(
+			ENROLLMENT *enrollment,
+			char *enrollment_date_time,
+			ENTITY *payor_entity )
+{
+	if ( !enrollment_date_time || !*enrollment_date_time )
+	{
+		enrollment->enrollment_date_time =
+			date_now19( date_utc_offset() );
+	}
+
+	if ( !payor_entity )
+	{
+		REGISTRATION *registration;
+
+		if ( ! ( registration =
+			     registration_fetch(
+				enrollment->student_entity->full_name,
+				enrollment->student_entity->street_address,
+				enrollment->semester->season_name,
+				enrollment->semester->year,
+				0 /* not fetch_enrollment_list */,
+				0 /* not fetch_course_drop_list */ ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: registration_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		enrollment->payor_entity = registration->payor_entity;
+	}
+
+	return enrollment;
 }
 

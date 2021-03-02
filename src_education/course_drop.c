@@ -37,9 +37,8 @@ char *course_drop_sys_string( char *where )
 
 COURSE_DROP *course_drop_new(
 			ENTITY *student_entity,
-			COURSE *course,
-			SEMESTER *semester,
-			char *course_drop_date_time )
+			char *course_name,
+			SEMESTER *semester )
 {
 	COURSE_DROP *course_drop;
 
@@ -54,9 +53,8 @@ COURSE_DROP *course_drop_new(
 	}
 
 	course_drop->student_entity = student_entity;
-	course_drop->course = course;
+	course_drop->course_name = course_name;
 	course_drop->semester = semester;
-	course_drop->course_drop_date_time = course_drop_date_time;
 
 	return course_drop;
 }
@@ -76,6 +74,8 @@ COURSE_DROP *course_drop_parse(
 	char year[ 128 ];
 	char course_drop_date_time[ 128 ];
 	char refund_due_yn[ 128 ];
+	char payor_full_name[ 128 ];
+	char payor_street_address[ 128 ];
 	char transaction_date_time[ 128 ];
 	COURSE_DROP *course_drop;
 
@@ -88,23 +88,32 @@ COURSE_DROP *course_drop_parse(
 	piece( course_name, SQL_DELIMITER, input, 2 );
 	piece( season_name, SQL_DELIMITER, input, 3 );
 	piece( year, SQL_DELIMITER, input, 4 );
-	piece( course_drop_date_time, SQL_DELIMITER, input, 5 );
 
 	course_drop =
 		course_drop_new(
 			entity_new(
 				strdup( full_name ),
 				strdup( street_address ) ),
-			course_fetch( course_name ),
+			strdup( course_name ),
 			semester_new(
 				strdup( season_name ),
-				atoi( year ) ),
-			strdup( course_drop_date_time ) );
+				atoi( year ) ) );
+
+	piece( course_drop_date_time, SQL_DELIMITER, input, 5 );
+	course_drop->course_drop_date_time = strdup( course_drop_date_time );
 
 	piece( refund_due_yn, SQL_DELIMITER, input, 6 );
 	course_drop->refund_due = ( *refund_due_yn == 'y' );
 
-	piece( transaction_date_time, SQL_DELIMITER, input, 7 );
+	piece( payor_full_name, SQL_DELIMITER, input, 7 );
+	piece( payor_street_address, SQL_DELIMITER, input, 8 );
+
+	course_drop->payor_entity =
+		entity_new(
+			strdup( payor_full_name ),
+			strdup( payor_street_address ) );
+
+	piece( transaction_date_time, SQL_DELIMITER, input, 9 );
 	course_drop->transaction_date_time = transaction_date_time;
 
 	if ( fetch_enrollment )
@@ -214,6 +223,9 @@ FILE *course_drop_update_open( void )
 }
 
 void course_drop_update(
+			char *course_drop_date_time,
+			char *payor_full_name,
+			char *payor_street_address,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
@@ -224,6 +236,33 @@ void course_drop_update(
 	FILE *update_pipe;
 
 	update_pipe = course_drop_update_open();
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%s^%d^course_drop_date_time^%s\n",
+		 student_full_name,
+		 student_street_address,
+		 course_name,
+		 season_name,
+		 year,
+		 course_drop_date_time );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%s^%d^payor_full_name^%s\n",
+		 student_full_name,
+		 student_street_address,
+		 course_name,
+		 season_name,
+		 year,
+		 payor_full_name );
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%s^%d^payor_street_address^%s\n",
+		 student_full_name,
+		 student_street_address,
+		 course_name,
+		 season_name,
+		 year,
+		 payor_street_address );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%d^transaction_date_time^%s\n",
@@ -344,11 +383,14 @@ void course_drop_insert_pipe(
 			char *course_name,
 			char *season_name,
 			int year,
+			char *course_drop_date_time,
 			boolean refund_due,
+			char *payor_full_name,
+			char *payor_street_address,
 			char *transaction_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%d^%c^%s\n",
+		"%s^%s^%s^%s^%d^%s^%c^%s^%s^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -357,7 +399,10 @@ void course_drop_insert_pipe(
 		course_name,
 		season_name,
 		year,
+		course_drop_date_time,
 		(refund_due) ? 'y' : 'n',
+		payor_full_name,
+		payor_street_address,
 		(transaction_date_time)
 			? transaction_date_time
 			: "" );
@@ -520,83 +565,8 @@ boolean course_drop_set_transaction(
 	}
 }
 
-void course_drop_fetch_update(
-			char *student_full_name,
-			char *student_street_address,
-			char *course_name,
-			char *season_name,
-			int year )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-	"enrollment_tuition_payment_total.sh \"%s\" '%s' \"%s\" '%s' %d",
-		student_full_name,
-		student_street_address,
-		course_name,
-		season_name,
-		year );
-
-	if ( system( sys_string ) ){}
-
-	sprintf(sys_string,
-	"enrollment_tuition_refund_total.sh \"%s\" '%s' \"%s\" '%s' %d",
-		student_full_name,
-		student_street_address,
-		course_name,
-		season_name,
-		year );
-
-	if ( system( sys_string ) ){}
-}
-
-void course_drop_list_update(
-			LIST *course_drop_list,
-			char *season_name,
-			int year )
-{
-	COURSE_DROP *course_drop;
-
-	if ( !list_rewind( course_drop_list ) ) return;
-
-	do {
-		course_drop = list_get( course_drop_list );
-
-		if ( !course_drop->enrollment
-		||   !course_drop->enrollment->offering
-		||   !course_drop->enrollment->offering->course )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: empty enrollment, offering or course.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		course_drop_update(
-			course_drop->transaction_date_time,
-			course_drop->
-				student_entity->
-				full_name,
-			course_drop->
-				student_entity->
-				street_address,
-			course_drop->
-				enrollment->
-				offering->
-				course->
-				course_name,
-			season_name,
-			year );
-
-	} while ( list_next( course_drop_list ) );
-}
-
 void course_drop_list_fetch_update(
-			LIST *course_drop_list,
-			char *season_name,
-			int year )
+			LIST *course_drop_list )
 {
 	COURSE_DROP *course_drop;
 
@@ -605,41 +575,21 @@ void course_drop_list_fetch_update(
 	do {
 		course_drop = list_get( course_drop_list );
 
-		if ( !course_drop->enrollment
-		||   !course_drop->enrollment->registration )
+		if ( !course_drop->enrollment )
 		{
 			fprintf(stderr,
-		"ERROR in %s/%s()/%d: empty enrollment or registration.\n",
+				"ERROR in %s/%s()/%d: empty enrollment.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
 			exit( 1 );
 		}
 
-		if ( !course_drop->enrollment->offering )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty offering.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		enrollment_fetch_update(
-			course_drop->
-				enrollment->
-				registration->
-				student_entity->
-				full_name,
-			course_drop->
-				enrollment->
-				registration->
-				student_entity->
-				street_address,
-			course_drop->enrollment->offering->course->course_name,
-			season_name,
-			year );
+		registration_fetch_update(
+			course_drop->student_entity->full_name,
+			course_drop->student_entity->street_address,
+			course_drop->semester->season_name,
+			course_drop->semester->year );
 
 	} while ( list_next( course_drop_list ) );
 }
@@ -673,34 +623,6 @@ char *course_drop_list_first_program_name(
 	}
 }
 
-char *course_drop_list_revenue_account(
-			LIST *course_drop_list )
-{
-	COURSE_DROP *course_drop = {0};
-
-	course_drop = list_first( course_drop_list );
-
-	if ( course_drop )
-	{
-		if ( !course_drop->enrollment
-		||   !course_drop->enrollment->offering )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty offering.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		return course_drop->enrollment->offering->revenue_account;
-	}
-	else
-	{
-		return (char *)0;
-	}
-}
-
 char *course_drop_list_display( LIST *course_drop_list )
 {
 	char display[ 65536 ];
@@ -726,18 +648,6 @@ char *course_drop_list_display( LIST *course_drop_list )
 			ptr += sprintf( ptr, ", " );
 		}
 
-		if ( !course_drop->enrollment
-		||   !course_drop->enrollment->offering
-		||   !course_drop->enrollment->offering->course )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: empty enrollment, offering or course.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
 		ptr += sprintf(	ptr,
 				"%s will drop %s; ",
 				entity_name_display(
@@ -747,14 +657,46 @@ char *course_drop_list_display( LIST *course_drop_list )
 					course_drop->
 						student_entity->
 						street_address ),
-				course_drop->
-					enrollment->
-					offering->
-					course->
-					course_name );
+				course_drop->course_name );
 
 	} while ( list_next( course_drop_list ) );
 
 	return strdup( display );
+}
+
+COURSE_DROP *course_drop_steady_state(
+			COURSE_DROP *course_drop,
+			char *course_drop_date_time,
+			ENTITY *payor_entity )
+{
+	if ( !course_drop_date_time || !*course_drop_date_time )
+	{
+		course_drop->course_drop_date_time =
+			date_now19( date_utc_offset() );
+	}
+
+	if ( !payor_entity )
+	{
+		REGISTRATION *registration;
+
+		if ( ! ( registration =
+			     registration_fetch(
+				course_drop->student_entity->full_name,
+				course_drop->student_entity->street_address,
+				course_drop->semester->season_name,
+				course_drop->semester->year ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: registration_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		course_drop->payor_entity = registration->payor_entity;
+	}
+
+	return course_drop;
 }
 
