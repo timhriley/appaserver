@@ -49,9 +49,7 @@ char *registration_primary_where(
 }
 
 REGISTRATION *registration_parse(
-			char *input,
-			boolean fetch_enrollment_list,
-			boolean fetch_course_drop_list )
+			char *input )
 {
 	char student_full_name[ 128 ];
 	char student_street_address[ 128 ];
@@ -88,6 +86,17 @@ REGISTRATION *registration_parse(
 	registration->registration_date_time = strdup( registration_date_time );
 
 	piece( payor_full_name, SQL_DELIMITER, input, 5 );
+
+	if ( !*payor_full_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty payor_full_name.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (REGISTRATION *)0;
+	}
+
 	piece( payor_street_address, SQL_DELIMITER, input, 6 );
 
 	registration->payor_entity =
@@ -106,28 +115,6 @@ REGISTRATION *registration_parse(
 
 	piece( invoice_amount_due, SQL_DELIMITER, input, 10 );
 	registration->invoice_amount_due = atof( invoice_amount_due );
-
-	if ( fetch_enrollment_list )
-	{
-		registration->enrollment_list =
-			enrollment_system_list(
-				enrollment_system_string(
-					registration_primary_where(
-						student_full_name,
-						student_street_address,
-						registration->
-							semester->
-							season_name,
-						registration->
-							semester->
-							year ) ),
-				0 /* not fetch_offering */,
-				0 /* not fetch_course */,
-				0 /* not fetch_program */,
-				0 /* not fetch_registration */,
-				fetch_course_drop_list,
-				0 /* not fetch_transaction */ );
-	}
 
 	return registration;
 }
@@ -166,9 +153,7 @@ REGISTRATION *registration_fetch(
 			char *student_full_name,
 			char *student_street_address,
 			char *season_name,
-			int year,
-			boolean fetch_enrollment_list,
-			boolean fetch_course_drop_list )
+			int year )
 {
 	return	registration_parse(
 			string_pipe_fetch(
@@ -180,9 +165,7 @@ REGISTRATION *registration_fetch(
 						student_full_name,
 						student_street_address,
 						season_name,
-						year ) ) ),
-			fetch_enrollment_list,
-			fetch_course_drop_list );
+						year ) ) ) );
 }
 
 char *registration_escape_full_name(
@@ -453,10 +436,10 @@ REGISTRATION *registration_paypal(
 			tuition_payment_new(
 				student_entity,
 				registration->semester,
-				payor_entity,
 				paypal_date_time
 					/* payment_date_time */ );
 
+		tuition_payment->payor_entity = payor_entity;
 		tuition_payment->paypal_date_time = paypal_date_time;
 		tuition_payment->payment_amount = item_value;
 		tuition_payment->merchant_fees_expense = item_fee;
@@ -502,10 +485,10 @@ REGISTRATION *registration_paypal(
 			tuition_refund_new(
 				student_entity,
 				registration->semester,
-				payor_entity,
 				paypal_date_time
 					/* refund_date_time */ );
 
+		tuition_refund->payor_entity = payor_entity;
 		tuition_refund->paypal_date_time = paypal_date_time;
 		tuition_refund->refund_amount = item_value;
 		tuition_refund->merchant_fees_expense = item_fee;

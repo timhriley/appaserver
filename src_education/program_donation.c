@@ -63,15 +63,14 @@ PROGRAM_DONATION *program_donation_fetch(
 			char *payment_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			boolean fetch_program,
-			boolean fetch_transaction )
+			boolean fetch_program )
 {
 	PROGRAM_DONATION *program_donation;
 
 	program_donation =
 		program_donation_parse(
-			pipe2string(
-				program_donation_sys_string(
+			string_pipe_fetch(
+				program_donation_system_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -80,22 +79,20 @@ PROGRAM_DONATION *program_donation_fetch(
 						payor_full_name,
 						payor_street_address,
 						payment_date_time ) ) ),
-			fetch_program,
-			fetch_transaction );
+			fetch_program );
 
 	return program_donation;
 }
 
 LIST *program_donation_system_list(
-			char *sys_string,
-			boolean fetch_program,
-			boolean fetch_transaction )
+			char *system_string,
+			boolean fetch_program )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
 	LIST *program_donation_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -103,24 +100,23 @@ LIST *program_donation_system_list(
 			program_donation_list,
 			program_donation_parse(
 				input,
-				fetch_program,
-				fetch_transaction ) );
+				fetch_program ) );
 	}
 
 	pclose( input_pipe );
 	return program_donation_list;
 }
 
-char *program_donation_sys_string( char *where )
+char *program_donation_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '*' %s \"%s\" select",
 		 PROGRAM_DONATION_TABLE,
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 void program_donation_list_insert(
@@ -234,8 +230,7 @@ void program_donation_insert_pipe(
 
 PROGRAM_DONATION *program_donation_parse(
 			char *input,
-			boolean fetch_program,
-			boolean fetch_transaction )
+			boolean fetch_program )
 {
 	char program_name[ 128 ];
 	char payor_full_name[ 128 ];
@@ -290,15 +285,6 @@ PROGRAM_DONATION *program_donation_parse(
 			program_fetch(
 				program_donation->program_name,
 				1 /* fetch_alias_list */ );
-	}
-
-	if ( fetch_transaction && *program_donation->transaction_date_time )
-	{
-		program_donation->program_donation_transaction =
-			transaction_fetch(
-				program_donation->payor_entity->full_name,
-				program_donation->payor_entity->street_address,
-				program_donation->transaction_date_time );
 	}
 
 	return program_donation;
@@ -823,14 +809,6 @@ LIST *program_donation_program_name_list(
 	} while ( list_next( program_donation_list ) );
 
 	return program_name_list;
-}
-
-LIST *program_donation_list( char *where )
-{
-	return	program_donation_system_list(
-			program_donation_sys_string( where ),
-			0 /* not fetch_program */,
-			0 /* not fetch_transaction */ );
 }
 
 PROGRAM_DONATION *program_donation_seek(

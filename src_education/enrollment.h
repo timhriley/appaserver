@@ -78,18 +78,14 @@ ENROLLMENT *enrollment_fetch(
 			boolean fetch_offering,
 			boolean fetch_course,
 			boolean fetch_program,
-			boolean fetch_registration,
-			boolean fetch_course_drop_list,
-			boolean fetch_transaction );
+			boolean fetch_registration );
 
 ENROLLMENT *enrollment_parse(
 			char *input,
 			boolean fetch_offering,
 			boolean fetch_course,
 			boolean fetch_program,
-			boolean fetch_registration,
-			boolean fetch_course_drop_list,
-			boolean fetch_transaction );
+			boolean fetch_registration );
 
 boolean enrollment_set_transaction(
 			int *transaction_seconds_to_add,
@@ -112,6 +108,7 @@ TRANSACTION *enrollment_transaction(
 			char *payor_full_name,
 			char *payor_address,
 			char *transaction_date_time,
+			char *course_name,
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
@@ -140,9 +137,7 @@ LIST *enrollment_system_list(
 			boolean fetch_offering,
 			boolean fetch_course,
 			boolean fetch_program,
-			boolean fetch_registration,
-			boolean fetch_course_drop_list,
-			boolean fetch_transaction );
+			boolean fetch_registration );
 
 FILE *enrollment_insert_open(
 			char *error_filename );
@@ -162,7 +157,7 @@ FILE *enrollment_insert_open(
 LIST *enrollment_list_course_name_list(
 			LIST *enrollment_list );
 
-char *enrollment_memo(	char *program_name );
+char *enrollment_memo(	char *course_name );
 
 void enrollment_list_set_transaction(
 			int *transaction_seconds_to_add,

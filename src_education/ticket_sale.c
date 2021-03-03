@@ -63,12 +63,11 @@ TICKET_SALE *ticket_sale_fetch(
 			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			boolean fetch_event,
-			boolean fetch_transaction )
+			boolean fetch_event )
 {
 	return
 		ticket_sale_parse(
-			pipe2string(
+			string_pipe_fetch(
 				ticket_sale_system_string(
 					/* --------------------- */
 					/* Returns static memory */
@@ -79,14 +78,12 @@ TICKET_SALE *ticket_sale_fetch(
 						event_time,
 						payor_full_name,
 						payor_street_address ) ) ),
-		fetch_event,
-		fetch_transaction );
+		fetch_event );
 }
 
 LIST *ticket_sale_system_list(
 			char *system_string,
-			boolean fetch_event,
-			boolean fetch_transaction )
+			boolean fetch_event )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -102,8 +99,7 @@ LIST *ticket_sale_system_list(
 			ticket_sale_list,
 			ticket_sale_parse(
 				input,
-				fetch_event,
-				fetch_transaction ) );
+				fetch_event ) );
 	}
 
 	pclose( input_pipe );
@@ -240,8 +236,7 @@ void ticket_sale_insert_pipe(
 
 TICKET_SALE *ticket_sale_parse(
 			char *input,
-			boolean fetch_event,
-			boolean fetch_transaction )
+			boolean fetch_event )
 {
 	char program_name[ 128 ];
 	char event_date[ 128 ];
@@ -314,15 +309,6 @@ TICKET_SALE *ticket_sale_parse(
 				ticket_sale->event_time,
 				0 /* not fetch_program */,
 				0 /* not fetch_venue */ );
-	}
-
-	if ( fetch_transaction && *ticket_sale->transaction_date_time )
-	{
-		ticket_sale->ticket_sale_transaction =
-			transaction_fetch(
-				ticket_sale->payor_entity->full_name,
-				ticket_sale->payor_entity->street_address,
-				ticket_sale->transaction_date_time );
 	}
 
 	return ticket_sale;
@@ -919,8 +905,7 @@ TICKET_SALE *ticket_sale_integrity_fetch(
 						event_time,
 						payor_full_name,
 						payor_street_address ) ) ),
-		0 /* not fetch_event */,
-		0 /* not fetch_transaction */ );
+		0 /* not fetch_event */ );
 
 	return ticket_sale;
 }
@@ -988,5 +973,43 @@ boolean ticket_sale_list_any_exists(
 	} while ( list_next( ticket_sale_list ) );
 
 	return 0;
+}
+
+double ticket_sale_total(
+			LIST *ticket_sale_list )
+{
+	TICKET_SALE *ticket_sale;
+	double total;
+
+	if ( !list_rewind( ticket_sale_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		ticket_sale = list_get( ticket_sale_list );
+		total += ticket_sale->extended_price;
+
+	} while ( list_next( ticket_sale_list ) );
+
+	return total;
+}
+
+double ticket_sale_fee_total(
+			LIST *ticket_sale_list )
+{
+	TICKET_SALE *ticket_sale;
+	double total;
+
+	if ( !list_rewind( ticket_sale_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		ticket_sale = list_get( ticket_sale_list );
+		total += ticket_sale->merchant_fees_expense;
+
+	} while ( list_next( ticket_sale_list ) );
+
+	return total;
 }
 

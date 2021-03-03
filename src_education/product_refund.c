@@ -49,15 +49,14 @@ PRODUCT_REFUND *product_refund_fetch(
 			char *payor_street_address,
 			char *sale_date_time,
 			boolean fetch_sale,
-			boolean fetch_product,
-			boolean fetch_transaction )
+			boolean fetch_product )
 {
 	PRODUCT_REFUND *product_refund;
 
 	product_refund =
 		product_refund_parse(
-			pipe2string(
-				product_refund_sys_string(
+			string_pipe_fetch(
+				product_refund_system_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -67,8 +66,7 @@ PRODUCT_REFUND *product_refund_fetch(
 						payor_street_address,
 						sale_date_time ) ) ),
 			fetch_sale,
-			fetch_product,
-			fetch_transaction );
+			fetch_product );
 
 	return product_refund;
 }
@@ -88,16 +86,15 @@ PRODUCT_REFUND *product_refund_new(
 }
 
 LIST *product_refund_system_list(
-			char *sys_string,
+			char *system_string,
 			boolean fetch_sale,
-			boolean fetch_product,
-			boolean fetch_transaction )
+			boolean fetch_product )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
 	LIST *product_refund_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -106,24 +103,23 @@ LIST *product_refund_system_list(
 			product_refund_parse(
 				input,
 				fetch_sale,
-				fetch_product,
-				fetch_transaction ) );
+				fetch_product ) );
 	}
 
 	pclose( input_pipe );
 	return product_refund_list;
 }
 
-char *product_refund_sys_string( char *where )
+char *product_refund_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '*' %s \"%s\" select",
 		 PRODUCT_REFUND_TABLE,
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 void product_refund_list_insert( LIST *product_refund_list )
@@ -239,8 +235,7 @@ void product_refund_insert_pipe(
 PRODUCT_REFUND *product_refund_parse(
 			char *input,
 			boolean fetch_sale,
-			boolean fetch_product,
-			boolean fetch_transaction )
+			boolean fetch_product )
 {
 	char product_name[ 128 ];
 	char payor_full_name[ 128 ];
@@ -305,17 +300,7 @@ PRODUCT_REFUND *product_refund_parse(
 				product_refund->payor_entity->street_address,
 				product_refund->sale_date_time,
 				fetch_product,
-				1 /* fetch_program */,
-				0 /* not fetch_transaction */ );
-	}
-
-	if ( fetch_transaction && *product_refund->transaction_date_time )
-	{
-		product_refund->product_refund_transaction =
-			transaction_fetch(
-				product_refund->payor_entity->full_name,
-				product_refund->payor_entity->street_address,
-				product_refund->transaction_date_time );
+				1 /* fetch_program */ );
 	}
 
 	return product_refund;
@@ -676,14 +661,17 @@ void product_refund_list_payor_entity_insert(
 
 void product_refund_list_set_transaction(
 			int *transaction_seconds_to_add,
-			char *cash_account_name,
 			LIST *product_refund_list )
 {
 	PRODUCT_REFUND *product_refund;
 	char *revenue_account;
 	char *fees_expense;
+	char *cash_account_name;
 
 	if ( !list_rewind( product_refund_list ) ) return;
+
+	cash_account_name =
+		entity_self_paypal_cash_account_name();
 
 	fees_expense = account_fees_expense( (char *)0 );
 
@@ -849,16 +837,6 @@ PRODUCT_REFUND *product_refund_paypal(
 	product_refund->product_sale->product = product;
 
 	return product_refund;
-}
-
-LIST *product_refund_list( char *where )
-{
-	return product_refund_system_list(
-		product_refund_sys_string(
-			where ),
-		0 /* not fetch_sale */,
-		0 /* not fetch_product */,
-		0 /* not fetch_transaction */ );
 }
 
 LIST *product_refund_list_product_name_list(

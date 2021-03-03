@@ -88,10 +88,11 @@ COURSE_DROP *course_drop_parse(
 boolean course_drop_set_transaction(
 			int *transaction_seconds_to_add,
 			COURSE_DROP *course_drop,
-			char *revenue_account,
-			char *account_payable,
+			char *course_drop_date_time,
+			char *course_name,
 			char *program_name,
-			char *registration_date_time );
+			char *revenue_account,
+			char *account_payable );
 
 /* Returns static memory */
 /* --------------------- */
@@ -107,6 +108,7 @@ TRANSACTION *course_drop_transaction(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *transaction_date_time,
+			char *course_name,
 			char *program_name,
 			double offering_course_price,
 			char *offering_revenue_account,
@@ -159,7 +161,7 @@ FILE *course_drop_insert_open(
 LIST *course_drop_course_name_list(
 			LIST *course_drop_list );
 
-char *course_drop_memo(	char *program_name );
+char *course_drop_memo(	char *course_name );
 
 void course_drop_list_set_transaction(
 			int *transaction_seconds_to_add,
@@ -169,9 +171,6 @@ void course_drop_list_fetch_update(
 			LIST *course_drop_list );
 
 LIST *course_drop_registration_list(
-			LIST *course_drop_list );
-
-char *course_drop_list_first_program_name(
 			LIST *course_drop_list );
 
 char *course_drop_list_display(

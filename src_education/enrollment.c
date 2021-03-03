@@ -68,16 +68,16 @@ ENROLLMENT *enrollment_parse(
 			boolean fetch_offering,
 			boolean fetch_course,
 			boolean fetch_program,
-			boolean fetch_registration,
-			boolean fetch_course_drop_list,
-			boolean fetch_transaction )
+			boolean fetch_registration )
 {
-	char full_name[ 128 ];
-	char street_address[ 128 ];
+	char student_full_name[ 128 ];
+	char student_street_address[ 128 ];
 	char course_name[ 128 ];
 	char season_name[ 128 ];
 	char year[ 128 ];
 	char enrollment_date_time[ 128 ];
+	char payor_full_name[ 128 ];
+	char payor_street_address[ 128 ];
 	char transaction_date_time[ 128 ];
 	ENROLLMENT *enrollment;
 
@@ -85,8 +85,8 @@ ENROLLMENT *enrollment_parse(
 
 	/* See: attribute_list enrollment */
 	/* ------------------------------ */
-	piece( full_name, SQL_DELIMITER, input, 0 );
-	piece( street_address, SQL_DELIMITER, input, 1 );
+	piece( student_full_name, SQL_DELIMITER, input, 0 );
+	piece( student_street_address, SQL_DELIMITER, input, 1 );
 	piece( course_name, SQL_DELIMITER, input, 2 );
 	piece( season_name, SQL_DELIMITER, input, 3 );
 	piece( year, SQL_DELIMITER, input, 4 );
@@ -94,8 +94,8 @@ ENROLLMENT *enrollment_parse(
 	enrollment =
 		enrollment_new(
 			entity_new(
-				strdup( full_name ),
-				strdup( street_address ) ),
+				strdup( student_full_name ),
+				strdup( student_street_address ) ),
 			strdup( course_name ),
 			semester_new(
 				strdup( season_name ),
@@ -104,16 +104,28 @@ ENROLLMENT *enrollment_parse(
 	piece( enrollment_date_time, SQL_DELIMITER, input, 5 );
 	enrollment->enrollment_date_time = enrollment_date_time;
 
-	piece( transaction_date_time, SQL_DELIMITER, input, 6 );
+	piece( payor_full_name, SQL_DELIMITER, input, 6 );
+
+	if ( *payor_full_name )
+	{
+		piece( payor_street_address, SQL_DELIMITER, input, 7 );
+
+		enrollment->payor_entity =
+			entity_new(
+				strdup( payor_full_name ),
+				strdup( payor_street_address ) );
+	}
+
+	piece( transaction_date_time, SQL_DELIMITER, input, 8 );
 	enrollment->transaction_date_time = transaction_date_time;
 
 	if ( fetch_offering )
 	{
 		enrollment->offering =
 			offering_fetch(
-				enrollment->offering->course->course_name,
-				enrollment->offering->semester->season_name,
-				enrollment->offering->semester->year,
+				enrollment->course_name,
+				enrollment->semester->season_name,
+				enrollment->semester->year,
 				fetch_course,
 				fetch_program );
 	}
@@ -122,43 +134,10 @@ ENROLLMENT *enrollment_parse(
 	{
 		enrollment->registration =
 			registration_fetch(
-				full_name,
-				street_address,
-				enrollment->offering->semester->season_name,
-				enrollment->offering->semester->year );
-	}
-
-	if ( fetch_course_drop_list )
-	{
-		enrollment->course_drop_list =
-			course_drop_system_list(
-				course_drop_system_string(
-					enrollment_primary_where(
-						full_name,
-						street_address,
-						course_name,
-						enrollment->
-							offering->
-							semester->
-							season_name,
-						enrollment->
-							offering->
-							semester->
-							year ) ),
-				1 /* not fetch_enrollment */,
-				1 /* fetch_offering */,
-				1 /* fetch_course */,
-				0 /* not fetch_registration */,
-				0 /* not fetch_transaction */ );
-	}
-
-	if ( fetch_transaction && *enrollment->transaction_date_time )
-	{
-		enrollment->enrollment_transaction =
-			transaction_fetch(
-				full_name,
-				street_address,
-				enrollment->transaction_date_time );
+				student_full_name,
+				student_street_address,
+				enrollment->semester->season_name,
+				enrollment->semester->year );
 	}
 
 	return enrollment;
@@ -173,9 +152,7 @@ ENROLLMENT *enrollment_fetch(
 			boolean fetch_offering,
 			boolean fetch_course,
 			boolean fetch_program,
-			boolean fetch_registration,
-			boolean fetch_course_drop_list,
-			boolean fetch_transaction )
+			boolean fetch_registration )
 {
 	ENROLLMENT *enrollment;
 
@@ -195,9 +172,7 @@ ENROLLMENT *enrollment_fetch(
 			fetch_offering,
 			fetch_course,
 			fetch_program,
-			fetch_registration,
-			fetch_course_drop_list,
-			fetch_transaction );
+			fetch_registration );
 
 	return enrollment;
 }
@@ -207,9 +182,7 @@ LIST *enrollment_system_list(
 			boolean fetch_offering,
 			boolean fetch_course,
 			boolean fetch_program,
-			boolean fetch_registration,
-			boolean fetch_course_drop_list,
-			boolean fetch_transaction )
+			boolean fetch_registration )
 {
 	char input[ 1024 ];
 	FILE *input_pipe = popen( sys_string, "r" );
@@ -224,9 +197,7 @@ LIST *enrollment_system_list(
 				fetch_offering,
 				fetch_course,
 				fetch_program,
-				fetch_registration,
-				fetch_course_drop_list,
-				fetch_transaction ) );
+				fetch_registration ) );
 	}
 	pclose( input_pipe );
 	return enrollment_list;
@@ -339,6 +310,7 @@ TRANSACTION *enrollment_transaction(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *transaction_date_time,
+			char *course_name,
 			char *program_name,
 			double offering_course_price,
 			char *account_receivable,
@@ -369,7 +341,7 @@ TRANSACTION *enrollment_transaction(
 			transaction_date_time,
 			offering_course_price
 				/* transaction_amount */,
-			enrollment_memo( program_name ),
+			enrollment_memo( course_name ),
 			1 /* lock_transaction */,
 			(*seconds_to_add)++ );
 
@@ -484,22 +456,16 @@ LIST *enrollment_list_course_name_list(
 	return course_name_list;
 }
 
-char *enrollment_memo( char *program_name )
+char *enrollment_memo( char *course_name )
 {
-	static char payment_memo[ 128 ];
+	static char memo[ 128 ];
 
-	if ( program_name && *program_name )
-	{
-		sprintf(payment_memo,
-			"%s/%s",
-			ENROLLMENT_MEMO,
-			program_name );
-	}
-	else
-	{
-		strcpy( payment_memo, ENROLLMENT_MEMO );
-	}
-	return payment_memo;
+	sprintf(memo,
+		"%s/%s",
+		ENROLLMENT_MEMO,
+		course_name );
+
+	return memo;
 }
 
 void enrollment_list_set_transaction(
@@ -590,6 +556,7 @@ boolean enrollment_set_transaction(
 			enrollment->payor_entity->full_name,
 			enrollment->payor_entity->street_address,
 			enrollment->transaction_date_time,
+			enrollment->offering->course_name,
 			enrollment->offering->course->program_name,
 			enrollment->offering->course_price,
 			account_receivable,
@@ -801,9 +768,7 @@ ENROLLMENT *enrollment_integrity_fetch(
 			0 /* not fetch_offering */,
 			0 /* not fetch_course */,
 			0 /* not fetch_program */,
-			0 /* not fetch_registration */,
-			0 /* not fetch_course_drop_list */,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_registration */ );
 }
 
 ENROLLMENT *enrollment_list_seek(
@@ -904,6 +869,16 @@ ENROLLMENT *enrollment_steady_state(
 			char *enrollment_date_time,
 			ENTITY *payor_entity )
 {
+	if ( !enrollment->registration )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty registration.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( !enrollment_date_time || !*enrollment_date_time )
 	{
 		enrollment->enrollment_date_time =
@@ -912,26 +887,8 @@ ENROLLMENT *enrollment_steady_state(
 
 	if ( !payor_entity )
 	{
-		REGISTRATION *registration;
-
-		if ( ! ( registration =
-			     registration_fetch(
-				enrollment->student_entity->full_name,
-				enrollment->student_entity->street_address,
-				enrollment->semester->season_name,
-				enrollment->semester->year,
-				0 /* not fetch_enrollment_list */,
-				0 /* not fetch_course_drop_list */ ) ) )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: registration_fetch() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		enrollment->payor_entity = registration->payor_entity;
+		enrollment->payor_entity =
+			enrollment->registration->payor_entity;
 	}
 
 	return enrollment;

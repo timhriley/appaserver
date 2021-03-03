@@ -269,7 +269,8 @@ void paypal_deposit_set_transaction(
 		enrollment_list_set_transaction(
 			&transaction_seconds_to_add,
 			registration_list_enrollment_list(
-				paypal_deposit->registration_list ) );
+				paypal_deposit->registration_list ),
+			(LIST *)0 /* liability_entity_list */ );
 
 		course_drop_list_set_transaction(
 			&transaction_seconds_to_add,
@@ -1341,7 +1342,7 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 	/* Columns E and P */
 	/* --------------- */
 	paypal_deposit->registration_list =
-		registration_list_list_paypal(
+		registration_list_paypal(
 			season_name,
 			year,
 			paypal_deposit->payor_entity,

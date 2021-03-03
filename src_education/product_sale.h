@@ -79,14 +79,12 @@ PRODUCT_SALE *product_sale_fetch(
 			char *payor_street_address,
 			char *sale_date_time,
 			boolean fetch_product,
-			boolean fetch_program,
-			boolean fetch_transaction );
+			boolean fetch_program );
 
 PRODUCT_SALE *product_sale_parse(
 			char *input,
 			boolean fetch_product,
-			boolean fetch_program,
-			boolean fetch_transaction );
+			boolean fetch_program );
 
 PRODUCT_SALE *product_sale_steady_state(
 			PRODUCT_SALE *product_sale,
@@ -127,12 +125,11 @@ void product_sale_insert_pipe(
 			char *paypal_date_time );
 
 LIST *product_sale_system_list(
-			char *sys_string,
+			char *system_string,
 			boolean fetch_product,
-			boolean fetch_program,
-			boolean fetch_transaction );
+			boolean fetch_program );
 
-char *product_sale_sys_string(
+char *product_sale_system_string(
 			char *where );
 
 char *product_sale_primary_where(
@@ -205,9 +202,6 @@ PRODUCT_SALE *product_sale_paypal(
 			double item_value,
 			double item_fee,
 			PRODUCT *product );
-
-LIST *product_sale_list(
-			char *where );
 
 LIST *product_sale_product_name_list(
 			LIST *sale_list );

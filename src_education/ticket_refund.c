@@ -50,8 +50,7 @@ TICKET_REFUND *ticket_refund_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			boolean fetch_sale,
-			boolean fetch_event,
-			boolean fetch_transaction )
+			boolean fetch_event )
 {
 	return
 		ticket_refund_parse(
@@ -67,15 +66,13 @@ TICKET_REFUND *ticket_refund_fetch(
 						payor_full_name,
 						payor_street_address ) ) ),
 			fetch_sale,
-			fetch_event,
-			fetch_transaction );
+			fetch_event );
 }
 
 LIST *ticket_refund_system_list(
 			char *system_string,
 			boolean fetch_sale,
-			boolean fetch_event,
-			boolean fetch_transaction )
+			boolean fetch_event )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -90,8 +87,7 @@ LIST *ticket_refund_system_list(
 			ticket_refund_parse(
 				input,
 				fetch_sale,
-				fetch_event,
-				fetch_transaction ) );
+				fetch_event ) );
 	}
 
 	pclose( input_pipe );
@@ -226,8 +222,7 @@ void ticket_refund_insert_pipe(
 TICKET_REFUND *ticket_refund_parse(
 			char *input,
 			boolean fetch_sale,
-			boolean fetch_event,
-			boolean fetch_transaction )
+			boolean fetch_event )
 {
 	char program_name[ 128 ];
 	char event_date[ 128 ];
@@ -292,17 +287,7 @@ TICKET_REFUND *ticket_refund_parse(
 				ticket_refund->event_time,
 				ticket_refund->payor_entity->full_name,
 				ticket_refund->payor_entity->street_address,
-				fetch_event,
-				0 /* not fetch_transaction */ );
-	}
-
-	if ( fetch_transaction && *ticket_refund->transaction_date_time )
-	{
-		ticket_refund->ticket_refund_transaction =
-			transaction_fetch(
-				ticket_refund->payor_entity->full_name,
-				ticket_refund->payor_entity->street_address,
-				ticket_refund->transaction_date_time );
+				fetch_event );
 	}
 
 	return ticket_refund;
@@ -903,5 +888,36 @@ boolean ticket_refund_list_any_exists(
 	} while ( list_next( ticket_refund_list ) );
 
 	return 0;
+}
+
+double ticket_refund_amount(
+			double refund_amount )
+{
+	/* Refund amount is always negative */
+	/* -------------------------------- */
+	if ( refund_amount > 0.0 )
+	{
+		refund_amount = 0.0 - refund_amount;
+	}
+	return refund_amount;
+}
+
+double ticket_refund_fee_total(
+			LIST *ticket_refund_list )
+{
+	TICKET_REFUND *ticket_refund;
+	double total;
+
+	if ( !list_rewind( ticket_refund_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		ticket_refund = list_get( ticket_refund_list );
+		total += ticket_refund->merchant_fees_expense;
+
+	} while ( list_next( ticket_refund_list ) );
+
+	return total;
 }
 

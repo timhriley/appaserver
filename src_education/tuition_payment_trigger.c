@@ -173,25 +173,6 @@ LIST *tuition_payment_trigger_insert_update(
 {
 	LIST *tuition_payment_list;
 	int transaction_seconds_to_add = 0;
-	char *program_name = {0};
-
-	/* If no enrollment */
-	/* ---------------- */
-	if ( !list_length( tuition_payment->
-				registration->
-				enrollment_list ) )
-	{
-		printf(
-"<h3>Warning: No enrollments for this registration. Therefore, the tuition payment transaction has no program name. Best to delete this tuition payment and first insert the enrollment.</h3>\n" );
-	}
-	else
-	{
-		program_name =
-			enrollment_list_first_program_name(
-				tuition_payment->
-					registration->
-					enrollment_list );
-	}
 
 	tuition_payment =
 		/* ----------------------- */
@@ -200,7 +181,8 @@ LIST *tuition_payment_trigger_insert_update(
 		tuition_payment_steady_state(
 			tuition_payment,
 			tuition_payment->payment_amount,
-			tuition_payment->merchant_fees_expense );
+			tuition_payment->merchant_fees_expense,
+			tuition_payment->payor_entity );
 
 	if ( !tuition_payment->transaction_date_time
 	||   !*tuition_payment->transaction_date_time )
@@ -214,23 +196,15 @@ LIST *tuition_payment_trigger_insert_update(
 	if ( ( tuition_payment->tuition_payment_transaction =
 		tuition_payment_transaction(
 			&transaction_seconds_to_add,
-			tuition_payment->
-				payor_entity->
-				full_name,
-			tuition_payment->
-				payor_entity->
-				street_address,
-			tuition_payment->
-				transaction_date_time,
-			program_name,
+			tuition_payment->payor_entity->full_name,
+			tuition_payment->payor_entity->street_address,
+			tuition_payment->transaction_date_time,
 			tuition_payment->payment_amount,
 			tuition_payment->merchant_fees_expense,
-			tuition_payment->
-				tuition_payment_receivable_credit_amount,
 			tuition_payment->net_payment_amount,
 			account_cash( (char *)0 ),
-			account_receivable( (char *)0 ),
-			account_fees_expense( (char *)0 ) ) ) )
+			account_fees_expense( (char *)0 ),
+			account_receivable( (char *)0 ) ) ) )
 	{
 		tuition_payment->transaction_date_time =
 			tuition_payment->tuition_payment_transaction->
@@ -246,11 +220,10 @@ LIST *tuition_payment_trigger_insert_update(
 		TRANSACTION *t = tuition_payment->tuition_payment_transaction;
 
 		tuition_payment->transaction_date_time =
-			transaction_program_refresh(
+			transaction_refresh(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
-				t->program_name,
 				t->transaction_amount,
 				t->memo,
 				0 /* check_number */,
@@ -295,12 +268,7 @@ void tuition_payment_trigger_predelete(
 				payor_full_name,
 				payor_street_address,
 				payment_date_time,
-				0 /* not fetch_registration */,
-				0 /* fetch_enrollment_list */,
-				0 /* fetch_offering */,
-				0 /* fetch_course */,
-				0 /* not fetch_program */,
-				0 /* not fetch_transaction */ ) ) )
+				0 /* not fetch_registration */ ) ) )
 	{
 		return;
 	}

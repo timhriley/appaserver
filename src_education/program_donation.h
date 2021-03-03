@@ -71,13 +71,11 @@ PROGRAM_DONATION *program_donation_fetch(
 			char *payment_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			boolean fetch_program,
-			boolean fetch_transaction );
+			boolean fetch_program );
 
 PROGRAM_DONATION *program_donation_parse(
 			char *input,
-			boolean fetch_program,
-			boolean fetch_transaction );
+			boolean fetch_program );
 
 PROGRAM_DONATION *program_donation_steady_state(
 			PROGRAM_DONATION *program_donation,
@@ -100,11 +98,10 @@ void program_donation_insert_pipe(
 			char *paypal_date_time );
 
 LIST *program_donation_system_list(
-			char *sys_string,
-			boolean fetch_program,
-			boolean fetch_transaction );
+			char *system_string,
+			boolean fetch_program );
 
-char *program_donation_sys_string(
+char *program_donation_system_string(
 			char *where );
 
 char *program_donation_primary_where(
@@ -192,9 +189,6 @@ LIST *program_donation_program_name_list(
 
 void program_donation_fetch_total(
 			char *program_name );
-
-LIST *program_donation_list(
-			char *where );
 
 PROGRAM_DONATION *program_donation_list_seek(
 			char *program_name,

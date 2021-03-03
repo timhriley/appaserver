@@ -78,13 +78,11 @@ TICKET_SALE *ticket_sale_fetch(
 			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			boolean fetch_event,
-			boolean fetch_transaction );
+			boolean fetch_event );
 
 TICKET_SALE *ticket_sale_parse(
 			char *input,
-			boolean fetch_event,
-			boolean fetch_transaction );
+			boolean fetch_event );
 
 TICKET_SALE *ticket_sale_steady_state(
 			TICKET_SALE *ticket_sale,
@@ -129,8 +127,7 @@ void ticket_sale_insert_pipe(
 
 LIST *ticket_sale_system_list(
 			char *system_string,
-			boolean fetch_event,
-			boolean fetch_transaction );
+			boolean fetch_event );
 
 char *ticket_sale_system_string(
 			char *where );
@@ -235,6 +232,12 @@ TICKET_SALE *ticket_sale_list_seek(
 boolean ticket_sale_list_any_exists(
 			LIST *ticket_sale_list,
 			LIST *existing_ticket_sale_list );
+
+double ticket_sale_total(
+			LIST *ticket_sale_list );
+
+double ticket_sale_fee_total(
+			LIST *ticket_sale_list );
 
 #endif
 

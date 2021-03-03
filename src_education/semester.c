@@ -55,8 +55,8 @@ SEMESTER *semester_fetch(
 	}
 
 	return semester_parse(
-			pipe2string(
-				semester_sys_string(
+			string_pipe_fetch(
+				semester_system_string(
 		 			/* -------------------------- */
 		 			/* Safely returns heap memory */
 		 			/* -------------------------- */
@@ -82,7 +82,7 @@ char *semester_primary_where(
 	return strdup( where );
 }
 
-char *semester_sys_string( char *where )
+char *semester_system_string( char *where )
 {
 	char sys_string[ 1024 ];
 
@@ -135,13 +135,12 @@ LIST *semester_offering_list(
 
 	offering_list =
 		offering_system_list(
-			offering_sys_string(
+			offering_system_string(
 				semester_primary_where(
 					season_name,
 					year ) ),
 			1 /* fetch_course */,
-			1 /* fetch_program */,
-			0 /* not fetch_enrollment_list */ );
+			1 /* fetch_program */ );
 
 	return offering_list;
 }

@@ -88,6 +88,8 @@ typedef struct
 	int paypal_item_nonexpected_revenue_length;
 	int paypal_item_expected_revenue_length;
 
+	LIST *tuition_payment_list;
+	LIST *tuition_refund_list;
 	LIST *registration_list;
 	LIST *program_donation_list;
 	LIST *product_sale_list;

@@ -66,13 +66,12 @@ PRODUCT_SALE *product_sale_fetch(
 			char *payor_street_address,
 			char *sale_date_time,
 			boolean fetch_product,
-			boolean fetch_program,
-			boolean fetch_transaction )
+			boolean fetch_program )
 {
 	return
 		product_sale_parse(
 			pipe2string(
-				product_sale_sys_string(
+				product_sale_system_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -82,21 +81,19 @@ PRODUCT_SALE *product_sale_fetch(
 						payor_street_address,
 						sale_date_time ) ) ),
 		fetch_product,
-		fetch_program,
-		fetch_transaction );
+		fetch_program );
 }
 
 LIST *product_sale_system_list(
-			char *sys_string,
+			char *system_string,
 			boolean fetch_product,
-			boolean fetch_program,
-			boolean fetch_transaction )
+			boolean fetch_program )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
 	LIST *product_sale_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -105,24 +102,23 @@ LIST *product_sale_system_list(
 			product_sale_parse(
 				input,
 				fetch_product,
-				fetch_program,
-				fetch_transaction ) );
+				fetch_program ) );
 	}
 
 	pclose( input_pipe );
 	return product_sale_list;
 }
 
-char *product_sale_sys_string( char *where )
+char *product_sale_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '*' %s \"%s\" select",
 		 PRODUCT_SALE_TABLE,
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 void product_sale_list_insert(
@@ -251,8 +247,7 @@ void product_sale_insert_pipe(
 PRODUCT_SALE *product_sale_parse(
 			char *input,
 			boolean fetch_product,
-			boolean fetch_program,
-			boolean fetch_transaction )
+			boolean fetch_program )
 {
 	char product_name[ 128 ];
 	char payor_full_name[ 128 ];
@@ -314,15 +309,6 @@ PRODUCT_SALE *product_sale_parse(
 			product_fetch(
 				product_sale->product_name,
 				fetch_program );
-	}
-
-	if ( fetch_transaction && *product_sale->transaction_date_time )
-	{
-		product_sale->product_sale_transaction =
-			transaction_fetch(
-				product_sale->payor_entity->full_name,
-				product_sale->payor_entity->street_address,
-				product_sale->transaction_date_time );
 	}
 
 	return product_sale;
@@ -929,15 +915,6 @@ PRODUCT_SALE *product_sale_paypal(
 	return product_sale;
 }
 
-LIST *product_sale_list( char *where )
-{
-	return product_sale_system_list(
-		product_sale_sys_string( where ),
-		0 /* not fetch_product */,
-		0 /* not fetch_program */,
-		0 /* not fetch_transaction */ );
-}
-
 LIST *product_sale_product_name_list( LIST *sale_list )
 {
 	PRODUCT_SALE *product_sale;
@@ -967,8 +944,8 @@ PRODUCT_SALE *product_sale_integrity_fetch(
 {
 	return
 		product_sale_parse(
-			pipe2string(
-				product_sale_sys_string(
+			string_pipe_fetch(
+				product_sale_system_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -977,8 +954,7 @@ PRODUCT_SALE *product_sale_integrity_fetch(
 						payor_full_name,
 						payor_street_address ) ) ),
 		0 /* not fetch_product */,
-		0 /* not fetch_program */,
-		0 /* not fetch_transaction */ );
+		0 /* not fetch_program */ );
 }
 
 char *product_sale_integrity_where(

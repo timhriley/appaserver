@@ -95,7 +95,7 @@ char *account_payable( char *fund_name )
 	return account_hard_coded_account_name(
 			fund_name,
 			ACCOUNT_PAYABLE_KEY,
-			0 /* not  warning_only */,
+			0 /* not warning_only */,
 			__FUNCTION__ );
 }
 
