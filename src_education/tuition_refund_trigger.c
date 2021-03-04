@@ -27,7 +27,7 @@
 /* ---------- */
 void tuition_refund_trigger_predelete(
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *season_name,
 			int year,
 			char *refund_date_time );
@@ -41,7 +41,7 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *student_full_name;
-	char *street_address;
+	char *student_street_address;
 	char *season_name;
 	int year;
 	char *refund_date_time;
@@ -59,7 +59,7 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s student_full_name street_address season_name year refund_date_time state\n",
+"Usage: %s student_full_name student_street_address season_name year refund_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete}\n" );
@@ -67,7 +67,7 @@ int main( int argc, char **argv )
 	}
 
 	student_full_name = argv[ 1 ];
-	street_address = argv[ 2 ];
+	student_street_address = argv[ 2 ];
 	season_name = argv[ 3 ];
 	year = atoi( argv[ 4 ] );
 	refund_date_time = argv[ 5 ];
@@ -79,7 +79,7 @@ int main( int argc, char **argv )
 	{
 		tuition_refund_trigger_predelete(
 			student_full_name,
-			street_address,
+			student_street_address,
 			season_name,
 			year,
 			refund_date_time );
@@ -95,7 +95,7 @@ int main( int argc, char **argv )
 		if ( ! ( tuition_refund =
 				tuition_refund_fetch(
 					student_full_name,
-					street_address,
+					student_street_address,
 					season_name,
 					year,
 					refund_date_time,
@@ -141,14 +141,9 @@ LIST *tuition_refund_trigger_insert_update(
 	if ( ( tuition_refund->tuition_refund_transaction =
 		tuition_refund_transaction(
 			&transaction_seconds_to_add,
-			tuition_refund->
-				payor_entity->
-				full_name,
-			tuition_refund->
-				payor_entity->
-				street_address,
-			tuition_refund->
-				transaction_date_time,
+			tuition_refund->payor_entity->full_name,
+			tuition_refund->payor_entity->street_address,
+			tuition_refund->transaction_date_time,
 			tuition_refund->refund_amount,
 			tuition_refund->merchant_fees_expense,
 			tuition_refund->net_refund_amount,
@@ -201,7 +196,7 @@ LIST *tuition_refund_trigger_insert_update(
 
 void tuition_refund_trigger_predelete(
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *season_name,
 			int year,
 			char *refund_date_time )
@@ -211,7 +206,7 @@ void tuition_refund_trigger_predelete(
 	if ( ! ( tuition_refund =
 			tuition_refund_fetch(
 				student_full_name,
-				street_address,
+				student_street_address,
 				season_name,
 				year,
 				refund_date_time,
@@ -224,8 +219,7 @@ void tuition_refund_trigger_predelete(
 	&&   *tuition_refund->transaction_date_time )
 	{
 		transaction_delete(
-			tuition_refund->
-				payor_entity->full_name,
+			tuition_refund->payor_entity->full_name,
 			tuition_refund->payor_entity->street_address,
 			tuition_refund->transaction_date_time );
 
@@ -235,12 +229,8 @@ void tuition_refund_trigger_predelete(
 			/* Returns account_name_list */
 			/* ------------------------- */
 			journal_delete(
-				tuition_refund->
-					payor_entity->
-					full_name,
-				tuition_refund->
-					payor_entity->
-					street_address,
+				tuition_refund->payor_entity->full_name,
+				tuition_refund->payor_entity->street_address,
 				tuition_refund->transaction_date_time ) );
 	}
 }

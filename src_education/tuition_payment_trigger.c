@@ -29,7 +29,7 @@
 /* ---------- */
 void tuition_payment_trigger_predelete(
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *season_name,
 			int year,
 			char *payment_date_time );
@@ -43,7 +43,7 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *student_full_name;
-	char *street_address;
+	char *student_street_address;
 	char *season_name;
 	int year;
 	char *payment_date_time;
@@ -61,7 +61,7 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s student_full_name street_address season_name year payment_date_time state\n",
+"Usage: %s student_full_name student_street_address season_name year payment_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete}\n" );
@@ -69,7 +69,7 @@ int main( int argc, char **argv )
 	}
 
 	student_full_name = argv[ 1 ];
-	street_address = argv[ 2 ];
+	student_street_address = argv[ 2 ];
 	season_name = argv[ 3 ];
 	year = atoi( argv[ 4 ] );
 	payment_date_time = argv[ 5 ];
@@ -81,7 +81,7 @@ int main( int argc, char **argv )
 	{
 		tuition_payment_trigger_predelete(
 			student_full_name,
-			street_address,
+			student_street_address,
 			season_name,
 			year,
 			payment_date_time );
@@ -97,7 +97,7 @@ int main( int argc, char **argv )
 		if ( ! ( tuition_payment =
 				tuition_payment_fetch(
 					student_full_name,
-					street_address,
+					student_street_address,
 					season_name,
 					year,
 					payment_date_time,
@@ -127,7 +127,7 @@ int main( int argc, char **argv )
 	{
 		registration_fetch_update(
 			student_full_name,
-			street_address,
+			student_street_address,
 			season_name,
 			year );
 	}
@@ -202,8 +202,8 @@ LIST *tuition_payment_trigger_insert_update(
 		tuition_payment->payor_entity->full_name,
 		tuition_payment->payor_entity->street_address,
 		tuition_payment->transaction_date_time,
-		tuition_payment->registration->student_entity->full_name,
-		tuition_payment->registration->student_entity->street_address,
+		tuition_payment->student_entity->full_name,
+		tuition_payment->student_entity->street_address,
 		tuition_payment->semester->season_name,
 		tuition_payment->semester->year,
 		tuition_payment->payment_date_time );
@@ -216,7 +216,7 @@ LIST *tuition_payment_trigger_insert_update(
 
 void tuition_payment_trigger_predelete(
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *season_name,
 			int year,
 			char *payment_date_time )
@@ -226,7 +226,7 @@ void tuition_payment_trigger_predelete(
 	if ( ! ( tuition_payment =
 			tuition_payment_fetch(
 				student_full_name,
-				street_address,
+				student_street_address,
 				season_name,
 				year,
 				payment_date_time,
@@ -239,12 +239,8 @@ void tuition_payment_trigger_predelete(
 	&&   *tuition_payment->transaction_date_time )
 	{
 		transaction_delete(
-			tuition_payment->
-				payor_entity->
-				full_name,
-			tuition_payment->
-				payor_entity->
-				street_address,
+			tuition_payment->payor_entity->full_name,
+			tuition_payment->payor_entity->street_address,
 			tuition_payment->transaction_date_time );
 
 		journal_account_name_list_propagate(
@@ -253,12 +249,8 @@ void tuition_payment_trigger_predelete(
 			/* Returns account_name_list */
 			/* ------------------------- */
 			journal_delete(
-				tuition_payment->
-					payor_entity->
-					full_name,
-				tuition_payment->
-					payor_entity->
-					street_address,
+				tuition_payment->payor_entity->full_name,
+				tuition_payment->payor_entity->street_address,
 				tuition_payment->transaction_date_time ) );
 	}
 }

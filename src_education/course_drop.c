@@ -64,8 +64,7 @@ COURSE_DROP *course_drop_parse(
 			boolean fetch_enrollment,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_registration,
-			boolean fetch_transaction )
+			boolean fetch_registration )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
@@ -131,15 +130,6 @@ COURSE_DROP *course_drop_parse(
 				fetch_registration );
 	}
 
-	if ( fetch_transaction && *course_drop->transaction_date_time )
-	{
-		course_drop->course_drop_transaction =
-			transaction_fetch(
-				full_name,
-				street_address,
-				course_drop->transaction_date_time );
-	}
-
 	return course_drop;
 }
 
@@ -152,8 +142,7 @@ COURSE_DROP *course_drop_fetch(
 			boolean fetch_enrollment,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_registration,
-			boolean fetch_transaction )
+			boolean fetch_registration )
 {
 	COURSE_DROP *course_drop;
 
@@ -173,8 +162,7 @@ COURSE_DROP *course_drop_fetch(
 			fetch_enrollment,
 			fetch_offering,
 			fetch_course,
-			fetch_registration,
-			fetch_transaction );
+			fetch_registration );
 
 	return course_drop;
 }
@@ -184,8 +172,7 @@ LIST *course_drop_system_list(
 			boolean fetch_enrollment,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_registration,
-			boolean fetch_transaction )
+			boolean fetch_registration )
 {
 	char input[ 1024 ];
 	FILE *input_pipe = popen( sys_string, "r" );
@@ -200,8 +187,7 @@ LIST *course_drop_system_list(
 				fetch_enrollment,
 				fetch_offering,
 				fetch_course,
-				fetch_registration,
-				fetch_transaction ) );
+				fetch_registration ) );
 	}
 	pclose( input_pipe );
 	return course_drop_list;
@@ -553,35 +539,6 @@ boolean course_drop_set_transaction(
 	}
 }
 
-void course_drop_list_fetch_update(
-			LIST *course_drop_list )
-{
-	COURSE_DROP *course_drop;
-
-	if ( !list_rewind( course_drop_list ) ) return;
-
-	do {
-		course_drop = list_get( course_drop_list );
-
-		if ( !course_drop->enrollment )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty enrollment.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		registration_fetch_update(
-			course_drop->student_entity->full_name,
-			course_drop->student_entity->street_address,
-			course_drop->semester->season_name,
-			course_drop->semester->year );
-
-	} while ( list_next( course_drop_list ) );
-}
-
 char *course_drop_list_display( LIST *course_drop_list )
 {
 	char display[ 65536 ];
@@ -628,6 +585,17 @@ COURSE_DROP *course_drop_steady_state(
 			char *course_drop_date_time,
 			ENTITY *payor_entity )
 {
+	if ( !course_drop->enrollment
+	||   !course_drop->enrollment->registration )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: empty enrollment or registration.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( !course_drop_date_time || !*course_drop_date_time )
 	{
 		course_drop->course_drop_date_time =
@@ -636,26 +604,44 @@ COURSE_DROP *course_drop_steady_state(
 
 	if ( !payor_entity )
 	{
-		REGISTRATION *registration;
+		course_drop->payor_entity =
+			course_drop->enrollment->registration->payor_entity;
+	}
 
-		if ( ! ( registration =
-			     registration_fetch(
-				course_drop->student_entity->full_name,
-				course_drop->student_entity->street_address,
-				course_drop->semester->season_name,
-				course_drop->semester->year ) ) )
+	return course_drop;
+}
+
+LIST *course_drop_list_enrollment_list(
+			LIST *course_drop_list )
+{
+	LIST *enrollment_list;
+	COURSE_DROP *course_drop;
+
+	if ( !list_rewind( course_drop_list ) ) return (LIST *)0;
+
+	enrollment_list = list_new();
+
+	do {
+		course_drop =
+			list_get(
+				course_drop_list );
+
+		if ( !course_drop->enrollment )
 		{
 			fprintf(stderr,
-		"ERROR in %s/%s()/%d: registration_fetch() returned empty.\n",
+				"ERROR in %s/%s()/%d: empty enrollment.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
 			exit( 1 );
 		}
 
-		course_drop->payor_entity = registration->payor_entity;
-	}
+		list_set(
+			enrollment_list,
+			course_drop->enrollment );
 
-	return course_drop;
+	} while ( list_next( course_drop_list ) );
+
+	return enrollment_list;
 }
 

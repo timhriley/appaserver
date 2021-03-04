@@ -74,16 +74,14 @@ COURSE_DROP *course_drop_fetch(
 			boolean fetch_enrollment,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_registration,
-			boolean fetch_transaction );
+			boolean fetch_registration );
 
 COURSE_DROP *course_drop_parse(
 			char *input,
 			boolean fetch_enrollment,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_registration,
-			boolean fetch_transaction );
+			boolean fetch_registration );
 
 boolean course_drop_set_transaction(
 			int *transaction_seconds_to_add,
@@ -136,8 +134,7 @@ LIST *course_drop_system_list(
 			boolean fetch_enrollment,
 			boolean fetch_offering,
 			boolean fetch_course,
-			boolean fetch_registration,
-			boolean fetch_transaction );
+			boolean fetch_registration );
 
 FILE *course_drop_insert_open(
 			char *error_filename );
@@ -167,12 +164,6 @@ void course_drop_list_set_transaction(
 			int *transaction_seconds_to_add,
 			LIST *course_drop_list );
 
-void course_drop_list_fetch_update(
-			LIST *course_drop_list );
-
-LIST *course_drop_registration_list(
-			LIST *course_drop_list );
-
 char *course_drop_list_display(
 			LIST *course_drop_list );
 
@@ -180,6 +171,9 @@ COURSE_DROP *course_drop_steady_state(
 			COURSE_DROP *course_drop,
 			char *course_drop_date_time,
 			ENTITY *payor_entity );
+
+LIST *course_drop_list_enrollment_list(
+			LIST *course_drop_list );
 
 #endif
 

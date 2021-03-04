@@ -123,6 +123,7 @@ EXECUTABLES=	offering_trigger					\
 		paypal_sweep_trigger					\
 		ticket_sale_trigger					\
 		ticket_refund_trigger					\
+		course_drop_trigger					\
 		paypal_upload						\
 		generate_invoice					\
 		product_trigger						\
@@ -323,6 +324,19 @@ registration_trigger: registration_trigger.c				\
 		${EDUCATION_CORE}					\
 		registration_trigger.c					\
 		-o registration_trigger
+
+course_drop_trigger: course_drop_trigger.c				\
+	${EXTERNAL_LIBRARY} 						\
+	${PREDICTIVEBOOKS_CORE}						\
+	${EDUCATION_CORE}
+	${CC}	${CFLAGS}						\
+		-I${LIBRARY}						\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
+		${EXTERNAL_LIBRARY}					\
+		${PREDICTIVEBOOKS_CORE}					\
+		${EDUCATION_CORE}					\
+		course_drop_trigger.c					\
+		-o course_drop_trigger
 
 paypal_upload: paypal_upload.c						\
 	${EXTERNAL_LIBRARY} 						\

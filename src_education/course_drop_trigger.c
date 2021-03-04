@@ -14,13 +14,13 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "course_drop.h"
 #include "registration.h"
 #include "offering.h"
 #include "account.h"
 #include "transaction.h"
 #include "journal.h"
 #include "course.h"
+#include "course_drop.h"
 
 /* Constants */
 /* --------- */
@@ -29,7 +29,7 @@
 /* ---------- */
 void course_drop_trigger_predelete(
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *course_name,
 			char *season_name,
 			int year );
@@ -43,7 +43,7 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *student_full_name;
-	char *street_address;
+	char *student_street_address;
 	char *course_name;
 	char *season_name;
 	int year;
@@ -61,13 +61,13 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s full_name street_address course_name season_name year state\n",
+"Usage: %s student_full_name student_street_address course_name season_name year state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	student_full_name = argv[ 1 ];
-	street_address = argv[ 2 ];
+	student_street_address = argv[ 2 ];
 	course_name = argv[ 3 ];
 	season_name = argv[ 4 ];
 	year = atoi( argv[ 5 ] );
@@ -79,7 +79,7 @@ int main( int argc, char **argv )
 	{
 		course_drop_trigger_predelete(
 			student_full_name,
-			street_address,
+			student_street_address,
 			course_name,
 			season_name,
 			year );
@@ -95,22 +95,16 @@ int main( int argc, char **argv )
 		if ( ! ( course_drop =
 				course_drop_fetch(
 					student_full_name,
-					street_address,
+					student_street_address,
 					course_name,
 					season_name,
 					year,
+					1 /* fetch_enrollment */,
 					1 /* fetch_offering */,
 					1 /* fetch_course */,
-					0 /* not fetch_program */,
-					1 /* fetch_registration */,
-					0 /* not fetch_transaction */ ) ) )
+					1 /* fetch_registration */ ) ) )
 		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: course_drop_fetch() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
+			exit( 0 );
 		}
 
 		course_drop_list =
@@ -123,17 +117,14 @@ int main( int argc, char **argv )
 		if ( list_length( course_drop_list ) )
 		{
 			registration_list_fetch_update(
-				course_drop_registration_list(
-					course_drop_list ),
-				season_name,
-				year );
+			    enrollment_list_registration_list(
+				course_drop_list_enrollment_list(
+					course_drop_list ) ) );
 
 			offering_list_fetch_update(
-				registration_course_name_list(
-					course_drop_registration_list(
-						course_drop_list ) ),
-				season_name,
-				year );
+			   enrollment_list_offering_list(
+				course_drop_list_enrollment_list(
+					course_drop_list ) ) );
 		}
 	}
 
@@ -141,7 +132,7 @@ int main( int argc, char **argv )
 	{
 		registration_fetch_update(
 			student_full_name,
-			street_address,
+			student_street_address,
 			season_name,
 			year );
 
@@ -161,6 +152,24 @@ LIST *course_drop_trigger_insert_update(
 	LIST *course_drop_list;
 	int transaction_seconds_to_add = 0;
 
+	if ( !course_drop->enrollment
+	||   !course_drop->enrollment->offering
+	||   !course_drop->enrollment->offering->course )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: empty enrollment, offering or course.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	course_drop =
+		course_drop_steady_state(
+			course_drop,
+			course_drop->course_drop_date_time,
+			course_drop->payor_entity );
+
 	if ( !course_drop->transaction_date_time
 	||   !*course_drop->transaction_date_time )
 	{
@@ -171,10 +180,11 @@ LIST *course_drop_trigger_insert_update(
 	if ( course_drop_set_transaction(
 			&transaction_seconds_to_add,
 			course_drop,
-			account_receivable( (char *)0 ),
-			course_drop->offering->revenue_account,
-			course_drop->offering->course->program_name,
-			course_drop->registration->registration_date_time ) )
+			course_drop->course_drop_date_time,
+			course_drop->course_name,
+			course_drop->enrollment->offering->course->program_name,
+			course_drop->enrollment->offering->revenue_account,
+			account_payable( (char *)0 ) ) )
 	{
 		TRANSACTION *t = course_drop->course_drop_transaction;
 
@@ -192,24 +202,15 @@ LIST *course_drop_trigger_insert_update(
 	}
 
 	course_drop_update(
+		course_drop->course_drop_date_time,
+		course_drop->payor_entity->full_name,
+		course_drop->payor_entity->street_address,
 		course_drop->transaction_date_time,
-		course_drop->
-			registration->
-			student_entity->
-			full_name,
-		course_drop->
-			registration->
-			student_entity->
-			street_address,
-		course_drop->offering->course->course_name,
-		course_drop->
-			offering->
-			semester->
-			season_name,
-		course_drop->
-			offering->
-			semester->
-			year );
+		course_drop->student_entity->full_name,
+		course_drop->student_entity->street_address,
+		course_drop->course_name,
+		course_drop->semester->season_name,
+		course_drop->semester->year );
 
 	course_drop_list = list_new();
 	list_set( course_drop_list, course_drop );
@@ -219,7 +220,7 @@ LIST *course_drop_trigger_insert_update(
 
 void course_drop_trigger_predelete(
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *course_name,
 			char *season_name,
 			int year )
@@ -229,14 +230,14 @@ void course_drop_trigger_predelete(
 	if ( ! ( course_drop =
 			course_drop_fetch(
 				student_full_name,
-				street_address,
+				student_street_address,
 				course_name,
 				season_name,
 				year,
 				0 /* not fetch_enrollment */,
 				0 /* not fetch_offering */,
 				0 /* not fetch_course */,
-				0 /* not fetch_transaction */ ) ) )
+				0 /* not fetch_registration */ ) ) )
 	{
 		return;
 	}
@@ -245,14 +246,8 @@ void course_drop_trigger_predelete(
 	&&   *course_drop->transaction_date_time )
 	{
 		transaction_delete(
-			course_drop->
-				registration->
-				student_entity->
-				full_name,
-			course_drop->
-				registration->
-				student_entity->
-				street_address,
+			course_drop->student_entity->full_name,
+			course_drop->student_entity->street_address,
 			course_drop->transaction_date_time );
 
 		journal_account_name_list_propagate(
@@ -261,14 +256,8 @@ void course_drop_trigger_predelete(
 			/* Returns account_name_list */
 			/* ------------------------- */
 			journal_delete(
-				course_drop->
-					registration->
-					student_entity->
-					full_name,
-				course_drop->
-					registration->
-					student_entity->
-					street_address,
+				course_drop->student_entity->full_name,
+				course_drop->student_entity->street_address,
 				course_drop->transaction_date_time ) );
 	}
 }
