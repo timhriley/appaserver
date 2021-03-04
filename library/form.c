@@ -1994,7 +1994,7 @@ void form_output_prompt_insert_submit_buttons(
 			remember_keystrokes_onload_control_string );
 	}
 
-	form_output_prompt_insert_back_to_top_button();
+	form_output_back_to_top_button();
 }
 
 void form_output_prompt_insert_submit_button(
@@ -2064,14 +2064,6 @@ void form_output_insert_pair_one2m_submit_buttons(
 				folder_button_string );
 
 	} while( list_next( pair_one2m_folder_list ) );
-}
-
-void form_output_prompt_insert_back_to_top_button( void )
-{
-	printf(
-"<a onClick=\"%s\"><img src=\"/%s/top.png\"></a>\n",
-		"window.scrollTo(0,0)",
-		IMAGE_RELATIVE_DIRECTORY );
 }
 
 void form_output_prompt_insert_reset_button(

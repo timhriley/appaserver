@@ -758,7 +758,7 @@ int main( int argc, char **argv )
 	}
 
 	printf( "</table>\n" );
-	printf( "<table border=0>\n" );
+	printf( "<table border=0>\n<tr>\n" );
 
 	if ( list_length( pair_one2m->prompt_form_folder_list ) )
 	{
@@ -797,13 +797,6 @@ int main( int argc, char **argv )
 	}
 
 	printf( "</table>\n" );
-
-#ifdef NOT_DEFINED
-	dictionary_appaserver_output_as_hidden(
-		dictionary_appaserver,
-		0 /* not with_prefixed_dictionary */ );
-#endif
-
 	printf( "</form>\n" );
 
 	document_close();
@@ -848,15 +841,6 @@ LIST *get_element_list(
 	RELATED_FOLDER *related_folder;
 	LIST *foreign_attribute_name_list = {0};
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: mto1_related_folder_list = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-related_folder_list_display( mto1_related_folder_list, mto1, '\n' ) );
-m2( application_name, msg );
-}
 	if ( !omit_push_buttons )
 	{
 		omit_drop_down_new_push_button = 0;

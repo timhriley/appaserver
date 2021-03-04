@@ -471,9 +471,6 @@ void form_output_prompt_insert_submit_button(
 			char *button_label,
 			LIST *pair_one2m_related_folder_name_list );
 
-void form_output_prompt_insert_back_to_top_button(
-			void );
-
 void form_output_prompt_insert_reset_button(
 			char *reset_post_change_javascript );
 

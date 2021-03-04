@@ -17,6 +17,7 @@ product_trigger
 program_trigger
 generate_invoice
 paypal_sweep_trigger
+course_drop_trigger
 tuition_payment_trigger
 tuition_refund_trigger
 enrollment_trigger

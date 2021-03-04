@@ -3351,19 +3351,10 @@ char *query_simple_where(
 			list_get_pointer(
 				where_attribute_name_list );
 
-		if ( ! ( attribute =
-				attribute_seek(
-					attribute_name,
-					append_isa_attribute_list ) ) )
-		{
-			fprintf(stderr,
-"Warning in %s/%s()/%d: attribute_seek(%s) returned empty for folder = %s.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
+		attribute =
+			attribute_seek(
 				attribute_name,
-				folder_name );
-		}
+				append_isa_attribute_list );
 
 		timlib_strcpy(
 			escaped_data,
