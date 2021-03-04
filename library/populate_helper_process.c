@@ -31,9 +31,9 @@ char *populate_helper_process_get_output_filename(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,
 			key /* filename_stem */,
@@ -77,9 +77,9 @@ char *populate_helper_process_get_ftp_file_prompt(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		(char *)0 /* document_root_directory */,
 			key /* filename_stem */,

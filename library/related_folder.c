@@ -1437,7 +1437,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 				role_name );
 
 			related_folder->folder->primary_attribute_name_list =
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					related_folder->
 						folder->
 						attribute_list );
@@ -1498,7 +1498,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 			if ( root_primary_attribute_name_list )
 			{
 				if ( !list_is_subset_of(
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					related_folder->folder->attribute_list),
 				root_primary_attribute_name_list ) )
 				{
@@ -1539,7 +1539,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 			LIST *local_root_primary_attribute_name_list;
 
 			local_root_primary_attribute_name_list =
-			      attribute_get_primary_attribute_name_list(
+			      attribute_primary_attribute_name_list(
 			      related_folder->folder->attribute_list );
 
 			related_folder_list =
@@ -2504,7 +2504,7 @@ boolean related_folder_exists_1tom_relations(
 			related_folder->
 				one2m_folder->
 				primary_attribute_name_list =
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					related_folder->
 						one2m_folder->
 						attribute_list );
@@ -3355,7 +3355,7 @@ LIST *related_folder_lookup_before_drop_down_related_folder_list(
 
 
 			related_folder->folder->primary_attribute_name_list =
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					related_folder->
 						folder->
 						attribute_list );
@@ -3378,7 +3378,7 @@ LIST *related_folder_lookup_before_drop_down_related_folder_list(
 			related_folder->
 				one2m_folder->
 				primary_attribute_name_list =
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					related_folder->
 						one2m_folder->
 						attribute_list );
@@ -3849,7 +3849,7 @@ void related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
 		}
 
 		related_primary_attribute_name_list =
-			attribute_get_primary_attribute_name_list(
+			attribute_primary_attribute_name_list(
 				folder->attribute_list );
 
 		if ( !list_length( related_primary_attribute_name_list ) )
@@ -3911,15 +3911,6 @@ boolean related_folder_is_one2one_firewall(
 					attribute_name,
 					attribute_list ) ) )
 		{
-/* Not participating.
-			fprintf( stderr,
-"Warning in %s/%s()/%d: cannot seek attribute_name = (%s) in attribute_list = (%s)\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 attribute_name,
-				 attribute_list_display( attribute_list ) );
-*/
 			continue;
 		}
 
@@ -4186,7 +4177,7 @@ LIST *related_folder_mto1_isa_related_folder_list(
 				role_name );
 
 		related_folder->folder->primary_attribute_name_list =
-			attribute_get_primary_attribute_name_list(
+			attribute_primary_attribute_name_list(
 				related_folder->
 					folder->
 					attribute_list );
@@ -5229,10 +5220,13 @@ LIST *related_folder_prompt_insert_element_list(
 RELATED_FOLDER *related_folder_insert_table_consumes_related_folder(
 		LIST **foreign_attribute_name_list,
 		LIST *done_attribute_name_list,
+		LIST *omit_insert_attribute_name_list,
 		LIST *mto1_related_folder_list,
 		char *attribute_name )
 {
 	RELATED_FOLDER *related_folder;
+	LIST *local_foreign_attribute_name_list;
+	LIST *subtract_list;
 
 	if ( !list_rewind( mto1_related_folder_list ) )
 	{
@@ -5241,14 +5235,51 @@ RELATED_FOLDER *related_folder_insert_table_consumes_related_folder(
 
 	do {
 		related_folder =
-			list_get_pointer(
+			list_get(
 				mto1_related_folder_list );
 
 		if ( related_folder->ignore_output ) continue;
 
+		if ( related_folder->folder_foreign_attribute_name_list )
+		{
+			local_foreign_attribute_name_list =
+				related_folder->
+					folder_foreign_attribute_name_list;
+
+			if ( !list_exists_string(
+				attribute_name,
+				local_foreign_attribute_name_list ) )
+			{
+				continue;
+			}
+		}
+		else
+		{
+			local_foreign_attribute_name_list =
+				related_folder_foreign_attribute_name_list(
+			   	folder_get_primary_attribute_name_list(
+						related_folder->folder->
+							attribute_list ),
+			   	related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
+		}
+
+		subtract_list =
+			list_subtract(
+				local_foreign_attribute_name_list,
+				omit_insert_attribute_name_list );
+
+		if ( ( list_length( local_foreign_attribute_name_list ) > 1 )
+		&&  	list_length( subtract_list ) !=
+			list_length( local_foreign_attribute_name_list ) )
+		{
+			continue;
+		}
+
 		if ( list_exists_string(
 			attribute_name,
-			related_folder->foreign_attribute_name_list ) )
+			local_foreign_attribute_name_list ) )
 		{
 			if ( done_attribute_name_list )
 			{

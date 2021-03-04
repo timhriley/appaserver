@@ -151,7 +151,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -163,7 +163,7 @@ int main( int argc, char **argv )
 	fflush( stdout );
 
 	select_attribute_name_list =
-		attribute_get_histogram_attribute_name_list(
+		attribute_histogram_attribute_name_list(
 			folder->attribute_list );
 
 	if ( list_rewind( select_attribute_name_list ) )
@@ -211,8 +211,7 @@ int main( int argc, char **argv )
 				query->query_output->where_clause,
 				application_name,
 				folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
+				1 ) );
 
 			if ( strcmp( sub_title, "1 = 1" ) == 0 )
 				*sub_title = '\0';
@@ -285,7 +284,7 @@ int main( int argc, char **argv )
 			sprintf( sys_string,
 				 "rm -f %s",
 				 grace_histogram_filename );
-			system( sys_string );
+			if ( system( sys_string ) ){};
 
 			printf(
 		"<p><a href=\"%s\" target=_new>&lt;Left Click&gt; %s</a>\n",

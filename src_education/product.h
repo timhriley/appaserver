@@ -23,19 +23,24 @@
 /* ---------- */
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	char *product_name;
-	double retail_price;
-	PROGRAM *program;
+	char *program_name;
 	char *revenue_account;
-	LIST *sale_list;
-	LIST *refund_list;
+	double retail_price;
+
+	/* Process */
+	/* ------- */
+	PROGRAM *program;
+	double sale_total;
+	double refund_total;
 } PRODUCT;
 
 PRODUCT *product_new(	char *product_name );
 
 PRODUCT *product_fetch(	char *product_name,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list );
+			boolean fetch_program );
 
 LIST *product_list(	void );
 
@@ -44,13 +49,11 @@ PRODUCT *product_calloc(
 
 LIST *product_system_list(
 			char *sys_string,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list );
+			boolean fetch_program );
 
 PRODUCT *product_parse(
 			char *input,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list );
+			boolean fetch_program );
 
 char *product_sys_string(
 			char *where );
@@ -63,29 +66,12 @@ char *product_name_escape(
 char *product_primary_where(
 			char *product_name );
 
-PRODUCT *product_name_seek(
-			char *product_name,
-			LIST *product_list );
-
-PRODUCT *product_seek(
-			char *product_name,
-			LIST *product_list );
-
 PRODUCT *product_list_seek(
 			char *product_name,
 			LIST *product_list );
 
-char *product_seek_name(
-			char *product_name,
-			LIST *product_list );
-
-char *product_fetch_program_name(
-			char *product_name );
-
 LIST *product_name_list(
 			LIST *product_list );
-
-void product_trigger(	char *product_name );
 
 void product_fetch_update(
 			char *product_name );

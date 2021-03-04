@@ -31,12 +31,10 @@
 /* ---------- */
 boolean output_process_script(
 					char *process_filename,
-					char *application_name,
 					char *folder_name,
 					char *old_attribute_name,
 					char *attribute_name,
-					char *database_datatype,
-					boolean is_system_attribute );
+					char *database_datatype );
 
 char *get_sys_string(			char *table_name,
 					char *old_attribute_name,
@@ -91,7 +89,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -131,7 +129,7 @@ int main( int argc, char **argv )
 	}
 
 	database_datatype =
-		attribute_get_database_datatype(
+		attribute_database_datatype(
 			attribute->datatype,
 			attribute->width,
 			attribute->float_decimal_places,
@@ -147,7 +145,7 @@ int main( int argc, char **argv )
 	if ( toupper( *really_yn ) == 'Y' )
 	{
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		printf( "<BR><h3>Process complete.</h3>\n" );
 		process_increment_execution_count(
 				application_name,
@@ -168,12 +166,10 @@ int main( int argc, char **argv )
 
 		if ( !output_process_script(
 				process_filename,
-				application_name,
 				folder_name,
 				old_attribute_name,
 				attribute->attribute_name,
-				database_datatype,
-				attribute->appaserver ) )
+				database_datatype ) )
 		{
 			printf( "<BR><h2>ERROR: Cannot create %s</h2>\n",
 				process_filename );
@@ -183,14 +179,14 @@ int main( int argc, char **argv )
 			sprintf( sys_string,
 				 "chmod +x,g+w %s",
 				 process_filename );
-			system( sys_string );
+			if ( system( sys_string ) ){};
 			printf( "<BR><p>Created %s</p>\n", process_filename );
 		}
 	}
 
 	document_close();
 	exit( 0 );
-} /* main() */
+}
 
 char *get_sys_string(	char *table_name,
 			char *old_attribute_name,
@@ -207,16 +203,14 @@ char *get_sys_string(	char *table_name,
 		 database_datatype );
 
 	return strdup( buffer );
-} /* get_sys_string() */
+}
 
 boolean output_process_script(
 				char *process_filename,
-				char *application_name,
 				char *folder_name,
 				char *old_attribute_name,
 				char *attribute_name,
-				char *database_datatype,
-				boolean is_system_attribute )
+				char *database_datatype )
 {
 	FILE *output_file;
 
@@ -257,5 +251,5 @@ boolean output_process_script(
 
 	fclose( output_file );
 	return 1;
-} /* output_process_script() */
+}
 

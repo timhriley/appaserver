@@ -13,7 +13,7 @@ int main( int argc, char **argv )
 {
 	char *output;
 
-	argc = 1; /* stub */
+	if ( argc ){};
 
 	if ( strcmp( *argv, "get_appaserver_data_directory" ) == 0
 	||   strcmp( *argv, "get_appaserver_data_directory.e" ) == 0 )

@@ -21,7 +21,7 @@
 /* --------- */
 #define EVENT_TABLE			"event"
 
-#define EVENT_INSERT_COLUMNS		"program_name,"			\
+#define EVENT_PRIMARY_KEY		"program_name,"			\
 					"event_date,"			\
 					"event_time"
 
@@ -62,85 +62,35 @@ EVENT *event_fetch(	char *program_name,
 			char *event_date,
 			char *event_time,
 			boolean fetch_program,
-			boolean fetch_venue,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list );
-
-LIST *event_list(	char *where );
+			boolean fetch_venue );
 
 EVENT *event_calloc(
 			void );
 
 LIST *event_system_list(
-			char *sys_string,
+			char *system_string,
 			boolean fetch_program,
-			boolean fetch_venue,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list );
+			boolean fetch_venue );
 
 EVENT *event_parse(
 			char *input,
 			boolean fetch_program,
-			boolean fetch_venue,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list );
+			boolean fetch_venue );
 
-char *event_sys_string(
+char *event_system_string(
 			char *where );
 
 char *event_primary_where(
 			char *program_name,
 			char *event_date,
-			char *envent_time );
+			char *event_time );
 
 EVENT *event_program_name_seek(
 			char *program_name,
 			LIST *event_list );
 
-EVENT *event_list_seek(	char *program_name,
+LIST *event_list_program_name_list(
 			LIST *event_list );
-
-EVENT *event_seek(
-			char *program_name,
-			LIST *event_list );
-
-LIST *event_program_name_list(
-			LIST *event_list );
-
-FILE *event_insert_open(
-			char *error_filename );
-
-void event_insert_pipe(	FILE *insert_pipe,
-			char *program_name,
-			char *event_date,
-			char *event_time,
-			char *season_name,
-			int year );
-
-char *event_paypal_long_display(
-			char *program_name,
-			char *event_date,
-			char *event_time );
-
-char *event_paypal_short_display(
-			char *program_name,
-			char *event_date,
-			char *event_time );
-
-LIST *event_label_list(
-			LIST *event_list );
-
-EVENT *event_paypal_long_label_seek(
-			char *event_label,
-			LIST *event_list );
-
-EVENT *event_paypal_short_label_seek(
-			char *event_label,
-			LIST *event_list );
-
-void event_trigger(	char *program_name,
-			char *event_date,
-			char *event_time );
 
 void event_fetch_update(
 			char *program_name,
@@ -148,6 +98,33 @@ void event_fetch_update(
 			char *event_time );
 
 void event_list_fetch_update(
+			LIST *event_list );
+
+/* Paypal */
+/* ------ */
+LIST *event_label_list(
+			LIST *event_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *event_label_long_display(
+			char *program_name,
+			char *event_date,
+			char *event_time );
+
+/* Returns static memory */
+/* --------------------- */
+char *event_label_short_display(
+			char *program_name,
+			char *event_date,
+			char *event_time );
+
+EVENT *event_long_label_seek(
+			char *event_label,
+			LIST *event_list );
+
+EVENT *event_short_label_seek(
+			char *event_label,
 			LIST *event_list );
 
 #endif

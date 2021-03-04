@@ -408,7 +408,7 @@ void post_state_one(	char *application_name,
 	}
 
 	document = document_new(
-			application_get_title_string(
+			application_title_string(
 				application_name ),
 			application_name );
 
@@ -428,7 +428,7 @@ void post_state_one(	char *application_name,
 				application_name,
 				document->javascript_module_list,
 				appaserver_mount_point,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ) );
 
 	printf( "</head>\n<body>\n" );
@@ -536,7 +536,7 @@ void post_state_one(	char *application_name,
 			COOKIE_KEY_PREFIX );
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer_post_change_javascript(
 		1 /* output_submit_reset_buttons */,
@@ -776,7 +776,7 @@ void post_state_two(	char *application_name,
 			COOKIE_KEY_PREFIX );
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer_post_change_javascript(
 		1 /* output_submit_reset_buttons */,
@@ -872,7 +872,7 @@ void state_two_append_mto1_one2m_option_data_list(
 			}
 
 			if ( !list_length(
-				attribute_get_non_primary_attribute_list(
+				attribute_non_primary_attribute_list(
 				one2m_related_folder->
 					one2m_folder->
 						attribute_list ) ) )
@@ -916,7 +916,7 @@ void state_two_append_mto1_option_data_list(
 				mto1_recursive_related_folder_list );
 
 		if ( list_length(
-			attribute_get_non_primary_attribute_list(
+			attribute_non_primary_attribute_list(
 				related_folder->folder->attribute_list ) ) )
 		{
 /* More work is needed.
@@ -1156,7 +1156,7 @@ void post_state_three(	char *application_name,
 	form->onload_control_string = document->onload_control_string;
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer_post_change_javascript(
 		1 /* output_submit_reset_buttons */,
@@ -1551,7 +1551,7 @@ void post_table_state_four(
 	RELATED_FOLDER *root_related_folder = {0};
 
 	document = document_new(
-			application_get_title_string(
+			application_title_string(
 				application_name ),
 			application_name );
 
@@ -1570,7 +1570,7 @@ void post_table_state_four(
 			appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -1631,15 +1631,15 @@ void post_table_state_four(
 			query->max_rows );
 
 	form = form_new( folder_name,
-			 application_get_title_string(
+			 application_title_string(
 				application_name ) );
 
 	form->row_dictionary_list =
 		pipe2dictionary_list(	
 			input_sys_string, 
-	 		attribute_get_lookup_allowed_attribute_name_list(
+	 		attribute_lookup_allowed_attribute_name_list(
 				folder->append_isa_attribute_list ),
-	 		attribute_get_date_attribute_name_list(
+	 		attribute_date_attribute_name_list(
 				folder->append_isa_attribute_list ),
 			FOLDER_DATA_DELIMITER,
 			application_name,
@@ -1735,7 +1735,7 @@ void post_table_state_four(
 	}
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,
@@ -1779,7 +1779,7 @@ void post_statistics_state_four(
 	RELATED_FOLDER *root_related_folder = {0};
 
 	document = document_new(
-			application_get_title_string(
+			application_title_string(
 				application_name ),
 			application_name );
 
@@ -1798,7 +1798,7 @@ void post_statistics_state_four(
 			appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -2047,7 +2047,7 @@ void post_spreadsheet_state_four(
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	document = document_new(
-			application_get_title_string(
+			application_title_string(
 				application_name ),
 			application_name );
 
@@ -2066,7 +2066,7 @@ void post_spreadsheet_state_four(
 			appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -2128,9 +2128,9 @@ void post_spreadsheet_state_four(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			folder_name /* filename_stem */,
@@ -2173,16 +2173,16 @@ void post_spreadsheet_state_four(
 	row_dictionary_list =
 		pipe2dictionary_list(	
 			input_sys_string, 
-	 		attribute_get_lookup_allowed_attribute_name_list(
+	 		attribute_lookup_allowed_attribute_name_list(
 				folder->append_isa_attribute_list ),
-	 		attribute_get_date_attribute_name_list(
+	 		attribute_date_attribute_name_list(
 				folder->append_isa_attribute_list ),
 			FOLDER_DATA_DELIMITER,
 			application_name,
 			login_name );
 
 	append_isa_attribute_name_list =
-		attribute_get_lookup_allowed_attribute_name_list(
+		attribute_lookup_allowed_attribute_name_list(
 			folder->append_isa_attribute_list );
 
 	dictionary_list_output_to_file(
@@ -2198,16 +2198,6 @@ void post_spreadsheet_state_four(
 	fflush( stdout );
 	printf( "</h2>\n" );
 	
-/*
-	printf( "<BR><p>Search criteria: %s<hr>\n",
-		query_get_display_where_clause(
-				query->query_output->where_clause,
-				application_name,
-				folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
-*/
-
 	printf( "<p>Selected %d records.</p>\n",
 		list_length( row_dictionary_list ) );
 

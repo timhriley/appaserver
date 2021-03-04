@@ -260,7 +260,7 @@ int main( int argc, char **argv )
 					appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ),
 				0 /* not with_dynarch_menu */ );
 	
@@ -381,9 +381,9 @@ void calculate_species_cpue_group_annually(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			FILENAME_STEM_PER_SPECIES,
@@ -573,9 +573,9 @@ void calculate_species_cpue_group_monthly(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			FILENAME_STEM_PER_SPECIES,
@@ -1425,9 +1425,9 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			(char *)0 /* filename_stem */,
@@ -1953,9 +1953,9 @@ char *get_per_species_output_filename(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			filename_stem,

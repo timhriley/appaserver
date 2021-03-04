@@ -254,7 +254,6 @@ void form_output_submit_reset_buttons(
 			char *submit_control_string,
 			char *button_label,
 			char *html_help_file_anchor,
-			boolean with_table_tags,
 			char *remember_keystrokes_onload_control_string,
 			char *application_name,
 			boolean with_back_to_top_button,

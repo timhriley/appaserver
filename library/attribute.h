@@ -124,102 +124,106 @@ char *attribute_list_display(
 char *attribute_display(
 			ATTRIBUTE *attribute );
 
-char *attribute_get_database_datatype(	char *datatype,
-					int width,
-					int float_decimal_places,
-					int primary_key_index );
+char *attribute_database_datatype(
+			char *datatype,
+			int width,
+			int float_decimal_places,
+			int primary_key_index );
 
-char *attribute_get_last_primary_attribute_name(
-					LIST *attribute_list );
+char *attribute_last_primary_attribute_name(
+			LIST *attribute_list );
 
-LIST *attribute_get_exclude_attribute_name_list(
+LIST *attribute_exclude_attribute_name_list(
 			char *application_name,
 			char *role_name,
 			char *exclude_permission );
 
-LIST *attribute_list_get_datatype_attribute_string_list(
-					LIST *attribute_list,
-					char *datatype_string_list );
+LIST *attribute_list_datatype_attribute_string_list(
+			LIST *attribute_list,
+			char *datatype_string_list );
 
-LIST *attribute_list_get_primary_datatype_attribute_string_list(
-					LIST *attribute_list,
-					char *datatype_string_list );
+LIST *attribute_list_primary_datatype_attribute_string_list(
+			LIST *attribute_list,
+			char *datatype_string_list );
 
-LIST *attribute_get_non_primary_attribute_list(
-					LIST *attribute_list );
+LIST *attribute_non_primary_attribute_list(
+			LIST *attribute_list );
 
 LIST *attribute_using_name_list_extract_attribute_list(
-					LIST *attribute_list,
-					LIST *attribute_name_list );
+			LIST *attribute_list,
+			LIST *attribute_name_list );
 
-LIST *attribute_get_list(		char *application_name,
-					char *folder_name,
-					char *role_name );
+LIST *attribute_get_list(
+			char *application_name,
+			char *folder_name,
+			char *role_name );
 
-LIST *attribute_get_attribute_list(	char *application_name,
-					char *folder_name,
-					char *attribute_name,
-					LIST *mto1_isa_related_folder_list,
-					char *role_name );
+LIST *attribute_get_attribute_list(
+			char *application_name,
+			char *folder_name,
+			char *attribute_name,
+			LIST *mto1_isa_related_folder_list,
+			char *role_name );
 
 LIST *attribute_get_attribute_record_list(
-					char *application_name, 
-					char *folder_name,
-					char *attribute_name );
+			char *application_name, 
+			char *folder_name,
+			char *attribute_name );
 
 void attribute_append_attribute_list(
-				LIST *attribute_list,
-				char *application_name,
-				char *folder_name,
-				char *attribute_name,
-				char *role_name,
-				enum attribute_primary_attribute_fetch );
+			LIST *attribute_list,
+			char *application_name,
+			char *folder_name,
+			char *attribute_name,
+			char *role_name,
+			enum attribute_primary_attribute_fetch );
 
 boolean attribute_exists_omit_insert_login_name(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
-boolean attribute_exists_date_attribute(LIST *attribute_list );
+boolean attribute_exists_date_attribute(
+			LIST *attribute_list );
 
 boolean attribute_exists_omit_insert_prompt(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
-LIST *attribute_get_omit_insert_attribute_name_list(
-					LIST *attribute_list );
+LIST *attribute_omit_insert_attribute_name_list(
+			LIST *attribute_list );
 
-LIST *attribute_get_omit_update_attribute_name_list(
-					LIST *attribute_list );
+LIST *attribute_omit_update_attribute_name_list(
+			LIST *attribute_list );
 
-char *attribute_get_last_primary_attribute_name(
-					LIST *attribute_list );
+char *attribute_last_primary_attribute_name(
+			LIST *attribute_list );
 
-LIST *attribute_get_common_non_primary_attribute_name_list(
-					char *application_name,
-					char *folder_name,
-					char *related_folder_name );
+LIST *attribute_common_non_primary_attribute_name_list(
+			char *application_name,
+			char *folder_name,
+			char *related_folder_name );
 
 boolean attribute_list_exists_lookup_histogram_output(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
 boolean attribute_exists_reference_number(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
 boolean attribute_list_exists_lookup_time_chart_output(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
-LIST *attribute_get_histogram_attribute_name_list(
-					LIST *attribute_list );
+LIST *attribute_histogram_attribute_name_list(
+			LIST *attribute_list );
 
-LIST *attribute_get_time_chart_attribute_name_list(
-					LIST *attribute_list );
+LIST *attribute_time_chart_attribute_name_list(
+			LIST *attribute_list );
 
-LIST *attribute_get_date_attribute_position_list(
-					LIST *attribute_list );
+LIST *attribute_date_attribute_position_list(
+			LIST *attribute_list );
 
-LIST *attribute_get_date_attribute_name_list(
-					LIST *attribute_list );
+LIST *attribute_date_attribute_name_list(
+			LIST *attribute_list );
 
-LIST *attribute_get_lookup_allowed_attribute_name_list(
-					LIST *attribute_list );
+LIST *attribute_lookup_allowed_attribute_name_list(
+			LIST *attribute_list );
 
 LIST *attribute_folder_name_list(
 			LIST *attribute_list,
@@ -234,17 +238,18 @@ LIST *attribute_get_name_list(
 LIST *attribute_get_attribute_name_list(
 			LIST *attribute_list );
 
-LIST *attribute_get_lookup_required_attribute_name_list(
+LIST *attribute_lookup_required_attribute_name_list(
 			LIST *attribute_list );
 
-LIST *attribute_get_insert_required_attribute_name_list(
-					LIST *attribute_list );
+LIST *attribute_insert_required_attribute_name_list(
+			LIST *attribute_list );
 
-LIST *attribute_get_update_lookup_exclude_attribute_name_list(
-					LIST *attribute_list );
+LIST *attribute_update_lookup_exclude_attribute_name_list(
+			LIST *attribute_list );
 
-LIST *attribute_list_subtract(		LIST *attribute_list,
-					LIST *subtract_attribute_name_list );
+LIST *attribute_list_subtract(
+			LIST *attribute_list,
+			LIST *subtract_attribute_name_list );
 
 void attribute_remove_attribute_list(	LIST *attribute_list,
 					char *attribute_name );
@@ -265,7 +270,7 @@ LIST *attribute_get_attribute_element_list(
 int attribute_get_date_piece_offset(	LIST *attribute_list,
 					LIST *exclude_attribute_name_list );
 
-char *attribute_get_reference_number_attribute_name(
+char *attribute_reference_number_attribute_name(
 					LIST *attribute_list,
 					LIST *attribute_name_list );
 
@@ -342,6 +347,7 @@ LIST *attribute_distinct_folder_name_list(
 			LIST *attribute_list );
 
 LIST *attribute_list(	char *folder_name );
+
 LIST *attribute_fetch_list(
 			char *folder_name );
 

@@ -151,4 +151,6 @@ char *string_input_tmp(	char *input_buffer,
 			FILE *infile,
 			int buffer_size );
 
+char *string_pipe_fetch( char *sys_string );
+
 #endif

@@ -313,7 +313,7 @@ int main( int argc, char **argv )
 	appaserver_library_purge_temporary_files( application_name );
 
 	lookup_required_attribute_name_list =
-		attribute_get_lookup_required_attribute_name_list(
+		attribute_lookup_required_attribute_name_list(
 			attribute_list );
 
 	if ( !( lookup_option_radio_button =

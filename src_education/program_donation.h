@@ -11,10 +11,10 @@
 #include "boolean.h"
 #include "list.h"
 #include "program.h"
+#include "paypal_item.h"
 #include "tuition_payment.h"
 #include "ticket_sale.h"
 #include "product_sale.h"
-#include "paypal_item.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -27,13 +27,13 @@
 #define PROGRAM_DONATION_PRIMARY_KEY	"program_name"
 
 #define PROGRAM_DONATION_INSERT_COLUMNS	"program_name,"			\
-					"payment_date_time,"		\
 					"payor_full_name,"		\
 					"payor_street_address,"		\
+					"payment_date_time,"		\
 					"donation_amount,"		\
+					"merchant_fees_expense,"	\
 					"net_payment_amount,"		\
 					"transaction_date_time,"	\
-					"merchant_fees_expense,"	\
 					"paypal_date_time"
 
 #define PROGRAM_DONATION_MEMO		"Program Donation"
@@ -45,7 +45,6 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *program_name;
-	PROGRAM *program;
 	ENTITY *payor_entity;
 	char *payment_date_time;
 	double donation_amount;
@@ -54,6 +53,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	PROGRAM *program;
 	double net_payment_amount;
 
 	TRANSACTION *program_donation_transaction;
@@ -74,13 +74,11 @@ PROGRAM_DONATION *program_donation_fetch(
 			char *payment_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			boolean fetch_program,
-			boolean fetch_transaction );
+			boolean fetch_program );
 
 PROGRAM_DONATION *program_donation_parse(
 			char *input,
-			boolean fetch_program,
-			boolean fetch_transaction );
+			boolean fetch_program );
 
 PROGRAM_DONATION *program_donation_steady_state(
 			PROGRAM_DONATION *program_donation,
@@ -97,24 +95,23 @@ void program_donation_insert_pipe(
 			char *payor_full_name,
 			char *payor_street_address,
 			double donation_amount,
+			double merchant_fees_expense,
 			double net_payment_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time );
 
 LIST *program_donation_system_list(
-			char *sys_string,
-			boolean fetch_program,
-			boolean fetch_transaction );
+			char *system_string,
+			boolean fetch_program );
 
-char *program_donation_sys_string(
+char *program_donation_system_string(
 			char *where );
 
 char *program_donation_primary_where(
 			char *program_name,
-			char *payment_date_time,
 			char *payor_full_name,
-			char *payor_street_address );
+			char *payor_street_address,
+			char *payment_date_time );
 
 void program_donation_list_set_transaction(
 			int *seconds_to_add,
@@ -133,10 +130,10 @@ void program_donation_set_transaction(
 
 TRANSACTION *program_donation_transaction(
 			int *seconds_to_add,
-			char *program_name,
-			char *payment_date_time,
 			char *payor_full_name,
 			char *payor_street_address,
+			char *payment_date_time,
+			char *program_name,
 			double donation_amount,
 			double merchant_fees_expense,
 			double net_payment_amount,
@@ -151,19 +148,12 @@ void program_donation_update(
 			double net_payment_amount,
 			char *transaction_date_time,
 			char *program_name,
-			char *payment_date_time,
 			char *payor_full_name,
-			char *payor_street_address );
+			char *payor_street_address,
+			char *payment_date_time );
 
 FILE *program_donation_update_open(
 			void );
-
-void program_donation_trigger(
-			char *program_name,
-			char *payment_date_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *state );
 
 void program_donation_list_insert(
 			LIST *program_donation_list );
@@ -197,6 +187,29 @@ PROGRAM_DONATION *program_donation_paypal(
 			double item_fee,
 			PROGRAM *program );
 
+LIST *program_donation_program_name_list(
+			LIST *program_donation_list );
+
+void program_donation_fetch_total(
+			char *program_name );
+
+PROGRAM_DONATION *program_donation_list_seek(
+			char *program_name,
+			char *payor_full_name,
+			char *payor_street_address,
+			char *payment_date_time,
+			LIST *program_donation_list );
+
+boolean program_donation_list_any_exists(
+			LIST *program_donation_list,
+			LIST *existing_program_donation_list );
+
+double program_donation_total(
+			LIST *product_donation_list );
+
+double program_donation_fee_total(
+			LIST *product_donation_list );
+
 LIST *program_donation_list_overpayment(
 			double item_value,
 			double item_fee,
@@ -205,29 +218,6 @@ LIST *program_donation_list_overpayment(
 			TUITION_PAYMENT *tuition_payment,
 			TICKET_SALE *ticket_sale,
 			PRODUCT_SALE *product_sale );
-
-double program_donation_total(
-			LIST *program_donation_list );
-
-void program_donation_fetch_total(
-			char *program_name );
-
-LIST *program_donation_program_name_list(
-			LIST *program_donation_list );
-
-LIST *program_donation_list(
-			char *where );
-
-PROGRAM_DONATION *program_donation_seek(
-			char *program_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *payment_date_time,
-			LIST *program_donation_list );
-
-boolean program_donation_list_exists(
-			LIST *program_donation_list,
-			LIST *existing_program_donation_list );
 
 #endif
 

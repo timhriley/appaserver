@@ -282,7 +282,7 @@ int main( int argc, char **argv )
 		appaserver_parameter_file->appaserver_mount_point,
 		document->javascript_module_list,
 		document->stylesheet_filename,
-		application_get_relative_source_directory(
+		application_relative_source_directory(
 			application_name ),
 		0 /* not with_dynarch_menu */ );
 
@@ -348,7 +348,7 @@ int main( int argc, char **argv )
 	output_dictionary_as_hidden( post_dictionary );
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,

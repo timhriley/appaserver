@@ -116,7 +116,7 @@ int main( int argc, char **argv )
 	printf(
 "	<body bgcolor=%s %s>					\n"
 "	<h1>Insert %s results</h1>				\n",
-		application_get_background_color( application_name ),
+		application_background_color( application_name ),
 		onload_function,
 		format_initial_capital( buffer, folder ) );
 

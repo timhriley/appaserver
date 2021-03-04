@@ -36,6 +36,8 @@
 #include "paypal_deposit.h"
 #include "paypal_sweep.h"
 #include "education.h"
+#include "enrollment.h"
+#include "course_drop.h"
 #include "paypal_upload.h"
 
 /* Constants */
@@ -169,52 +171,44 @@ int main( int argc, char **argv )
 				account_name_list );
 
 			paypal_deposit_list_insert(
-				education->paypal_deposit_list,
-				season_name,
-				year );
+				education->paypal_deposit_list );
 
 			registration_list_fetch_update(
-				tuition_payment_registration_list(
+				tuition_payment_list_registration_list(
 					paypal_deposit_tuition_payment_list(
 						education->
-							paypal_deposit_list ) ),
-				season_name,
-				year );
+						  paypal_deposit_list ) ) );
 
 			registration_list_fetch_update(
-				tuition_refund_registration_list(
+				tuition_refund_list_registration_list(
 					paypal_deposit_tuition_refund_list(
 						education->
-							paypal_deposit_list ) ),
-				season_name,
-				year );
+						  paypal_deposit_list ) ) );
 
 			offering_list_fetch_update(
-				registration_course_name_list(
-					tuition_payment_registration_list(
+				enrollment_list_offering_list(
+				    registration_list_enrollment_list(
+					tuition_payment_list_registration_list(
 					    paypal_deposit_tuition_payment_list(
 						education->
-						     paypal_deposit_list ) ) ),
-				season_name,
-				year );
+						  paypal_deposit_list ) ) ) ) );
 
 			offering_list_fetch_update(
-				registration_course_name_list(
-					tuition_refund_registration_list(
+				enrollment_list_offering_list(
+				    registration_list_enrollment_list(
+					tuition_refund_list_registration_list(
 					    paypal_deposit_tuition_refund_list(
 						education->
-						     paypal_deposit_list ) ) ),
-				season_name,
-				year );
+						  paypal_deposit_list ) ) ) ) );
 
 			event_list_fetch_update(
-				ticket_sale_event_list(
+				ticket_sale_list_event_list(
 					paypal_deposit_ticket_sale_list(
 						education->
 						     paypal_deposit_list ) ) );
 
 			event_list_fetch_update(
-				ticket_refund_event_list(
+				ticket_refund_list_event_list(
 					paypal_deposit_ticket_refund_list(
 						education->
 						     paypal_deposit_list ) ) );
@@ -336,7 +330,7 @@ void paypal_upload_display(
 		fprintf(output_pipe,
 		"%d^%s^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%s %s %s %s %s %s %s %s\n",
 			paypal_deposit->row_number,
-			(paypal_deposit->existing_transaction)
+			(paypal_deposit->exclude_existing_transaction)
 				? "Yes"
 				: "",
 			entity_name_display(
@@ -348,13 +342,16 @@ void paypal_upload_display(
 			paypal_deposit->net_revenue,
 			paypal_deposit->account_balance,
 			enrollment_list_display(
-				tuition_payment_list_enrollment_list(
+				registration_list_enrollment_list(
+				   tuition_payment_list_registration_list(
 					paypal_deposit->
-						tuition_payment_list ) ),
-			enrollment_withdrawal_list_display(
-				tuition_refund_list_enrollment_list(
-						paypal_deposit->
-						tuition_refund_list ) ),
+						tuition_payment_list ) ) ),
+			course_drop_list_display(
+			    enrollment_list_course_drop_list(
+				registration_list_enrollment_list(
+				   tuition_refund_list_registration_list(
+					paypal_deposit->
+						tuition_refund_list ) ) ) ),
 			product_sale_list_display(
 				paypal_deposit->product_sale_list ),
 			product_refund_list_display(
@@ -370,7 +367,7 @@ void paypal_upload_display(
 
 		pclose( output_pipe );
 
-		if ( !paypal_deposit->existing_transaction )
+		if ( !paypal_deposit->exclude_existing_transaction )
 		{
 			transaction_list_html_display(
 				paypal_deposit_transaction_list(
@@ -559,14 +556,8 @@ EDUCATION *paypal_upload_education(
 				education->existing_product_refund_list,
 				education->existing_ticket_sale_list,
 				education->existing_ticket_refund_list,
-				education->existing_paypal_sweep_list ),
-			/* ---------------------------------- */
-			/* To set program_name for 	      */
-			/* tuition payment and tuition refund */
-			/* ---------------------------------- */
-			semester_offering_list(
-				season_name,
-				year ) );
+				education->existing_paypal_sweep_list ) );
+
 	return education;
 }
 

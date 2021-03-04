@@ -244,9 +244,9 @@ void google_earth_get_filenames(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			(char *)0 /* filename_stem */,
@@ -337,40 +337,6 @@ void google_earth_get_filenames(
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		server_address = appaserver_library_get_server_address();
-
-		sprintf(	local_prompt_kml_filename,
-				GOOGLE_EARTH_HTTP_PROMPT_KML_TEMPLATE,
-				application_get_http_prefix( application_name ),
-				server_address,
-				application_name,
-				session );
-
-		sprintf(	local_prompt_kmz_filename,
-				GOOGLE_EARTH_HTTP_PROMPT_KMZ_TEMPLATE,
-				application_get_http_prefix( application_name ),
-				server_address,
-				application_name,
-				session );
-	}
-	else
-	{
-		sprintf(	local_prompt_kml_filename,
-				GOOGLE_EARTH_PROMPT_KML_TEMPLATE,
-				application_name,
-				session );
-
-		sprintf(	local_prompt_kmz_filename,
-				GOOGLE_EARTH_PROMPT_KMZ_TEMPLATE,
-				application_name,
-				session );
-	}
-*/
 
 	appaserver_link_file->filename_stem = FILENAME_STEM_KML;
 	appaserver_link_file->extension = "kml";

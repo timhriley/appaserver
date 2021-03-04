@@ -441,7 +441,7 @@ void output_prompt_edit_form(
 	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
 
 	form = form_new( INSERT_UPDATE_KEY,
-			 application_get_title_string( application_name ) );
+			 application_title_string( application_name ) );
 
 	form_set_folder_parameters(	form,
 					state,
@@ -600,7 +600,7 @@ m2( application_name, msg );
 		appaserver->folder->html_help_file_anchor;
 
 	document = document_new(
-			application_get_title_string( application_name ),
+			application_title_string( application_name ),
 			application_name );
 
 	if ( post_change_javascript )
@@ -684,7 +684,7 @@ m2( application_name, msg );
 			appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			with_dynarch_menu,
 			0 /* not with_close_head */ );
@@ -910,7 +910,7 @@ m2( application_name, msg );
 			PREPROMPT_PREFIX ) );
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+	printf( "<table border=0>\n" );
 
 	form_output_trailer(
 		0 /* output_submit_reset_buttons */,
@@ -978,7 +978,7 @@ LIST *get_element_list(
 					folder_name );
 
 	omit_update_attribute_name_list =
-		attribute_get_omit_update_attribute_name_list(
+		attribute_omit_update_attribute_name_list(
 			attribute_list );
 
 	folder->one2m_related_folder_list =
@@ -1848,7 +1848,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 				prompt_folder->folder_name,
 				prompt_folder->populate_drop_down_process,
 				prompt_folder->attribute_list,
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					prompt_folder->attribute_list ),
 				0 /* dont omit_ignore_push_buttons */,
 				preprompt_dictionary,
@@ -1878,7 +1878,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 	
 		list_append_string_list(
 			exclude_attribute_name_list,
-			attribute_get_primary_attribute_name_list(
+			attribute_primary_attribute_name_list(
 				prompt_folder->attribute_list ) );
 	}
 
@@ -1914,7 +1914,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 				prompt_recursive_mto1_folder->
 					folder->
 					attribute_list,
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					prompt_recursive_mto1_folder->
 						folder->
 						attribute_list ),
@@ -1954,7 +1954,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 
 			list_append_string_list(
 				exclude_attribute_name_list,
-				attribute_get_primary_attribute_name_list(
+				attribute_primary_attribute_name_list(
 					prompt_recursive_mto1_folder->
 						folder->
 						attribute_list ) );

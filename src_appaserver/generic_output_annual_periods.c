@@ -476,7 +476,7 @@ int main( int argc, char **argv )
 				appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 	
@@ -614,9 +614,9 @@ int main( int argc, char **argv )
 
 		appaserver_link_file =
 			appaserver_link_file_new(
-				application_get_http_prefix( application_name ),
+				application_http_prefix( application_name ),
 				appaserver_library_get_server_address(),
-				( application_get_prepend_http_protocol_yn(
+				( application_prepend_http_protocol_yn(
 					application_name ) == 'y' ),
 				appaserver_parameter_file->
 	 				document_root,
@@ -731,8 +731,7 @@ int main( int argc, char **argv )
 				application_name,
 				process_generic_output->
 					value_folder->value_folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
+				1 ) );
 
 		appaserver_library_output_ftp_prompt(
 				ftp_filename,
@@ -853,8 +852,7 @@ void annual_periods_output_table(
 			where_clause,
 			application_name,
 			value_folder,
-			application_get_is_primary_application(
-				application_name ) ) );
+			1 ) );
 
 	html_table = new_html_table(
 			format_initial_capital(
@@ -1140,7 +1138,7 @@ int annual_periods_output_chart(
 	list_append_pointer( grace->graph_list, grace_graph );
 
 	grace->grace_output =
-		application_get_grace_output( application_name );
+		application_grace_output( application_name );
 
 	sprintf( graph_identifier, "%d", getpid() );
 
@@ -1216,17 +1214,17 @@ int annual_periods_output_chart(
 				grace->x_label_size,
 				page_width_pixels,
 				page_length_pixels,
-				application_get_grace_home_directory(
+				application_grace_home_directory(
 					application_name ),
-				application_get_grace_execution_directory(
+				application_grace_execution_directory(
 					application_name ),
-				application_get_grace_free_option_yn(
+				application_grace_free_option_yn(
 					application_name ),
 				grace->grace_output,
-				application_get_distill_directory(
+				application_distill_directory(
 					application_name ),
 				distill_landscape_flag,
-				application_get_ghost_script_directory(
+				application_ghost_script_directory(
 					application_name ),
 				(LIST *)0 /* quantum_datatype_name_list */,
 				grace->symbols,
@@ -1252,8 +1250,7 @@ int annual_periods_output_chart(
 					where_clause,
 					application_name,
 					value_folder,
-					application_get_is_primary_application(
-						application_name ) ) );
+					1 ) );
 	}
 	return 1;
 } /* annual_periods_output_chart() */
@@ -1313,8 +1310,7 @@ void annual_periods_output_table_exceedance_format(
 				where_clause,
 				application_name,
 				value_folder,
-				application_get_is_primary_application(
-					application_name ) ) );
+				1 ) );
 
 	html_table = new_html_table(
 			format_initial_capital(
@@ -1513,7 +1509,7 @@ int annual_periods_output_chart_exceedance_format(
 	sprintf( graph_identifier, "%d", getpid() );
 
 	grace->grace_output =
-			application_get_grace_output( application_name );
+			application_grace_output( application_name );
 
 	grace_get_filenames(
 			&agr_filename,
@@ -1585,17 +1581,17 @@ int annual_periods_output_chart_exceedance_format(
 				grace->x_label_size,
 				page_width_pixels,
 				page_length_pixels,
-				application_get_grace_home_directory(
+				application_grace_home_directory(
 					application_name ),
-				application_get_grace_execution_directory(
+				application_grace_execution_directory(
 					application_name ),
-				application_get_grace_free_option_yn(
+				application_grace_free_option_yn(
 					application_name ),
 				grace->grace_output,
-				application_get_distill_directory(
+				application_distill_directory(
 					application_name ),
 				distill_landscape_flag,
-				application_get_ghost_script_directory(
+				application_ghost_script_directory(
 					application_name ),
 				(LIST *)0 /* quantum_datatype_name_list */,
 				grace->symbols,
@@ -1618,8 +1614,7 @@ int annual_periods_output_chart_exceedance_format(
 					where_clause,
 					application_name,
 					value_folder,
-					application_get_is_primary_application(
-						application_name ) ) );
+					1 ) );
 	return 1;
-} /* annual_periods_output_chart_exceedance_format() */
+}
 

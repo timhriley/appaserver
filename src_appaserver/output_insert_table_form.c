@@ -295,7 +295,7 @@ int main( int argc, char **argv )
 			dictionary_appaserver->
 				query_dictionary,
 			folder->mto1_isa_related_folder_list,
-			attribute_get_primary_attribute_name_list(
+			attribute_primary_attribute_name_list(
 				folder->attribute_list ) );
 	}
 
@@ -339,7 +339,7 @@ int main( int argc, char **argv )
 		/* Remove any reference number if insert */
 		/* ------------------------------------- */
 		if ( ( reference_number_attribute_name =
-			attribute_get_reference_number_attribute_name(
+			attribute_reference_number_attribute_name(
 				folder->attribute_list,
 				posted_attribute_name_list ) ) )
 		{
@@ -490,7 +490,7 @@ int main( int argc, char **argv )
 	}
 
 	form = form_new( folder->folder_name,
-			 application_get_title_string(
+			 application_title_string(
 				application_name ) );
 
 	form->dont_output_operations = 1;
@@ -606,7 +606,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -650,9 +650,9 @@ int main( int argc, char **argv )
 		/* ----------------------------- */
 		appaserver_link_file =
 			appaserver_link_file_new(
-				application_get_http_prefix( application_name ),
+				application_http_prefix( application_name ),
 				appaserver_library_get_server_address(),
-				( application_get_prepend_http_protocol_yn(
+				( application_prepend_http_protocol_yn(
 					application_name ) == 'y' ),
 	 			appaserver_parameter_file->
 					document_root,
@@ -711,7 +711,7 @@ int main( int argc, char **argv )
 		{
 			sprintf(sys_string,
 		 		"output_blank_screen.sh '%s' '' n > %s 2>>%s",
-		 		application_get_background_color(
+		 		application_background_color(
 					application_name ),
 				output_filename,
 		 		appaserver_error_get_filename(
@@ -953,17 +953,18 @@ int main( int argc, char **argv )
 			login_name );
 	}
 
-	dictionary_appaserver_output_as_hidden(
-		dictionary_appaserver,
-		1 /* with non_prefixed_dictionary */ );
-
 	if ( number_rows_outputted <= ROWS_FOR_SUBMIT_AT_BOTTOM )
 	{
 		output_submit_reset_buttons_in_trailer = 0;
 	}
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
+
+	dictionary_appaserver_output_as_hidden(
+		dictionary_appaserver,
+		1 /* with non_prefixed_dictionary */ );
+
+	printf( "<table border=0>\n" );
 
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,
@@ -1002,7 +1003,7 @@ void primary_data_list_string_build_dictionaries(
 		return;
 
 	primary_attribute_name_list =
-		attribute_get_primary_attribute_name_list(
+		attribute_primary_attribute_name_list(
 			attribute_list );
 
 	dictionary_set_string(	non_prefixed_dictionary,
@@ -1135,6 +1136,8 @@ LIST *get_insert_table_element_list(
 		       related_folder_insert_table_consumes_related_folder(
 			       &foreign_attribute_name_list,
 			       ignore_attribute_name_list,
+			       attribute_omit_insert_attribute_name_list(
+					attribute_list ),
 			       mto1_related_folder_list,
 			       attribute_name ) ) )
 		{

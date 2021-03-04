@@ -97,7 +97,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			"diagram_list.css",
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -125,7 +125,7 @@ int main( int argc, char **argv )
 		printf(
 	"<li><a class=diagram target=\"%s\" href=\"%s:/%s/%s\">%s</a>\n",
 			base_name,
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			apache_relative_directory,
 		 	file_to_process,
 			format_initial_capital( buffer, file_to_process ) );

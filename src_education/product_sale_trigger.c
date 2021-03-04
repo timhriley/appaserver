@@ -109,27 +109,13 @@ int main( int argc, char **argv )
 				product_sale );
 
 		product_list_fetch_update(
-			product_sale_product_name_list(
+			product_sale_list_product_name_list(
 				product_sale_list ) );
 	}
 
 	if ( strcmp( state, "delete" ) == 0 )
 	{
-		LIST *product_sale_list = list_new();
-		PRODUCT_SALE *product_sale;
-
-		product_sale =
-			product_sale_new(
-				product_name,
-				payor_full_name,
-				payor_street_address,
-				sale_date_time );
-
-		list_set( product_sale_list, product_sale );
-
-		product_list_fetch_update(
-			product_sale_product_name_list(
-				product_sale_list ) );
+		product_fetch_update( product_name );
 	}
 	return 0;
 }

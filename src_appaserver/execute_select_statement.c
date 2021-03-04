@@ -138,7 +138,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -322,9 +322,9 @@ int main( int argc, char **argv )
 
 		appaserver_link_file =
 			appaserver_link_file_new(
-				application_get_http_prefix( application_name ),
+				application_http_prefix( application_name ),
 				appaserver_library_get_server_address(),
-				( application_get_prepend_http_protocol_yn(
+				( application_prepend_http_protocol_yn(
 					application_name ) == 'y' ),
 	 			appaserver_parameter_file->
 					document_root,
@@ -470,7 +470,7 @@ int main( int argc, char **argv )
 
 	exit( 0 );
 
-} /* main() */
+}
 
 #define beginning_state		0
 #define select_state		1
@@ -585,7 +585,7 @@ LIST *get_column_name_list(	char **error_message,
 	else
 		return column_name_list;
 
-} /* get_column_name_list() */
+}
 
 boolean from_clause_valid(	char **table_name,
 				char *application_name,
@@ -658,7 +658,7 @@ boolean from_clause_valid(	char **table_name,
 	}
 	return 0;
 
-} /* from_clause_valid() */
+}
 
 boolean is_selectable_folder(	char *application_name,
 				char *login_name,
@@ -728,7 +728,7 @@ LIST *get_selectable_folder_name_list(
 
 	return pipe2list( sys_string );
 
-} /* get_selectable_folder_name_list() */
+}
 
 boolean is_non_selectable_attribute(	char *application_name,
 					char *role_name,
@@ -774,7 +774,7 @@ LIST *get_non_selectable_attribute_name_list(
 
 	return pipe2list( sys_string );
 
-} /* get_non_selectable_attribute_name_list() */
+}
 
 char *spool_from_table(		char *application_name,
 				char *select_statement_title,
@@ -811,7 +811,7 @@ char *spool_from_table(		char *application_name,
 
 	return input_filename;
 
-} /* spool_from_table() */
+}
 
 char *get_select_statement_title(
 				char *input_filename )
@@ -827,16 +827,15 @@ char *get_select_statement_title(
 
 	return statement_title;
 
-} /* get_select_statement_title() */
+}
 
 LIST *get_asteric_column_name_list(	char *application_name,
 					char *role_name,
 					char *folder_name )
 {
 	LIST *attribute_list;
-	LIST *attribute_name_list;
+	LIST *name_list;
 	LIST *non_selectable_attribute_name_list;
-	char sys_string[ 256 ];
 
 	attribute_list =
 		attribute_get_list(
@@ -844,8 +843,8 @@ LIST *get_asteric_column_name_list(	char *application_name,
 			folder_name,
 			role_name );
 
-	attribute_name_list =
-		attribute_get_name_list(
+	name_list =
+		attribute_name_list(
 			attribute_list );
 
 	non_selectable_attribute_name_list =
@@ -854,10 +853,10 @@ LIST *get_asteric_column_name_list(	char *application_name,
 			role_name );
 
 	return list_subtract_list(
-			attribute_name_list,
+			name_list,
 			non_selectable_attribute_name_list );
 
-} /* get_asteric_column_name_list() */
+}
 
 void output_file( char *filename )
 {
@@ -880,5 +879,5 @@ void output_file( char *filename )
 
 	fclose( file );
 
-} /* output_file() */
+}
 

@@ -112,7 +112,7 @@ int main( int argc, char **argv )
 	}
 
 	database_datatype =
-		attribute_get_database_datatype(
+		attribute_database_datatype(
 			attribute->datatype,
 			attribute->width,
 			attribute->float_decimal_places,
@@ -128,7 +128,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 

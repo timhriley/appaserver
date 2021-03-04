@@ -71,10 +71,15 @@ char *list_append_unique(	LIST *list,
 				int (*match_fn)() );
 
 int delete_item();
+
 int num_items();
+
 int list_count( LIST *list );
+
 int list_length( LIST *list );
+
 int next_item( LIST *list );
+
 int list_next( LIST *list );
 
 int list_item_exists( LIST *list, char *item, int (*match_fn)() );
@@ -163,31 +168,43 @@ char *list_seek_index(	LIST *list,
 			int index );
 
 LIST *list_subtract( LIST *big_list, LIST *subtract_this );
+
 LIST *subtract_list( LIST *big_list, LIST *subtract_this );
+
 LIST *list_subtract_list( LIST *big_list, LIST *subtract_this );
+
 LIST *list_subtract_string_list( LIST *big_list, LIST *subtract_this );
+
 char *list2comma_string( LIST *list );
+
 char *two_lists_to_dictionary_string( LIST *list1, LIST *list2 );
+
 char *list_string_display( LIST *list );
+
 void list_subtract_dictionary_string( LIST *list, char *dictionary_string );
+
 void list_subtract_string( LIST *list, char *string );
+
 int delete_current( LIST *list );
 
 int list_delete_current( LIST *list );
 
 char *list_display_quoted( char *destination, LIST *list );
 
-char *list_display_quoted_delimiter( 	char *destination, 
-					LIST *list,
-					char delimiter );
+char *list_display_quoted_delimiter( 
+			char *destination, 
+			LIST *list,
+			char delimiter );
 
-char *list_display_quoted_delimited( 	char *destination, 
-					LIST *list,
-					char delimiter );
+char *list_display_quoted_delimited(
+			char *destination, 
+			LIST *list,
+			char delimiter );
 
-char *list_display(			LIST *list );
+char *list_display(	LIST *list );
 
-void list_display_lines(		LIST *list );
+void list_display_lines(
+			LIST *list );
 
 char *list_display_delimited( LIST *list, char delimiter );
 
@@ -479,5 +496,9 @@ char *list_integer_display(	LIST *integer_list,
 void list_linktype_free(	struct LINKTYPE *linktype );
 
 LIST *list_string_new(		char *string );
+
+char *list_length_display(
+			LIST *string_list,
+			int how_many );
 
 #endif

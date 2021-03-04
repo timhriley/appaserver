@@ -30,8 +30,7 @@ void product_refund_trigger_predelete(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time );
+			char *sale_date_time );
 
 /* Returns list of one */
 /* ------------------- */
@@ -45,7 +44,6 @@ int main( int argc, char **argv )
 	char *payor_full_name;
 	char *payor_street_address;
 	char *sale_date_time;
-	char *refund_date_time;
 	char *state;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -55,10 +53,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s product_name payor_full_name payor_street_address sale_date_time refund_date_time state\n",
+"Usage: %s product_name payor_full_name payor_street_address sale_date_time state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete}\n" );
@@ -69,8 +67,7 @@ int main( int argc, char **argv )
 	payor_full_name = argv[ 2 ];
 	payor_street_address = argv[ 3 ];
 	sale_date_time = argv[ 4 ];
-	refund_date_time = argv[ 5 ];
-	state = argv[ 6 ];
+	state = argv[ 5 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -78,8 +75,7 @@ int main( int argc, char **argv )
 			product_name,
 			payor_full_name,
 			payor_street_address,
-			sale_date_time,
-			refund_date_time );
+			sale_date_time );
 		exit( 0 );
 	}
 
@@ -95,10 +91,8 @@ int main( int argc, char **argv )
 					payor_full_name,
 					payor_street_address,
 					sale_date_time,
-					refund_date_time,
 					1 /* fetch_sale */,
-					1 /* fetch_product */,
-					0 /* not fetch_transaction */ ) ) )
+					1 /* fetch_product */ ) ) )
 		{
 			fprintf(stderr,
 		"ERROR in %s/%s()/%d: product_refund_fetch() returned empty.\n",
@@ -113,28 +107,13 @@ int main( int argc, char **argv )
 				product_refund );
 
 		product_list_fetch_update(
-			product_refund_product_name_list(
+			product_refund_list_product_name_list(
 				product_refund_list ) );
 	}
 
 	if ( strcmp( state, "delete" ) == 0 )
 	{
-		LIST *product_refund_list = list_new();
-		PRODUCT_REFUND *product_refund;
-
-		product_refund =
-			product_refund_new(
-				product_name,
-				payor_full_name,
-				payor_street_address,
-				sale_date_time,
-				refund_date_time );
-
-		list_set( product_refund_list, product_refund );
-
-		product_list_fetch_update(
-			product_refund_product_name_list(
-				product_refund_list ) );
+		product_fetch_update( product_name );
 	}
 
 	return 0;
@@ -146,16 +125,12 @@ LIST *product_refund_trigger_insert_update(
 	LIST *product_refund_list;
 	int transaction_seconds_to_add = 0;
 
-	if ( ! ( product_refund =
-			product_refund_steady_state(
-				product_refund,
-				product_refund->
-					refund_amount,
-				product_refund->
-					merchant_fees_expense ) ) )
-	{
-		return (LIST *)0;
-	}
+	product_refund =
+		product_refund_steady_state(
+			product_refund,
+			product_refund->refund_amount,
+			product_refund->merchant_fees_expense,
+			product_refund->refund_date_time );
 
 	if ( !product_refund->transaction_date_time
 	||   !*product_refund->transaction_date_time )
@@ -222,15 +197,14 @@ LIST *product_refund_trigger_insert_update(
 	}
 
 	product_refund_update(
-		product_refund->
-			net_refund_amount,
-		product_refund->
-			transaction_date_time,
+		product_refund->refund_amount,
+		product_refund->refund_date_time,
+		product_refund->net_refund_amount,
+		product_refund->transaction_date_time,
 		product_refund->product_name,
 		product_refund->payor_entity->full_name,
 		product_refund->payor_entity->street_address,
-		product_refund->sale_date_time,
-		product_refund->refund_date_time );
+		product_refund->sale_date_time );
 
 	product_refund_list = list_new();
 	list_set( product_refund_list, product_refund );
@@ -242,8 +216,7 @@ void product_refund_trigger_predelete(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time )
+			char *sale_date_time )
 {
 	PRODUCT_REFUND *product_refund;
 
@@ -253,10 +226,8 @@ void product_refund_trigger_predelete(
 				payor_full_name,
 				payor_street_address,
 				sale_date_time,
-				refund_date_time,
 				0 /* not fetch_sale */,
-				0 /* not fetch_product */,
-				0 /* not fetch_transaction */ ) ) )
+				0 /* not fetch_product */ ) ) )
 	{
 		return;
 	}

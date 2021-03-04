@@ -238,7 +238,7 @@ int main( int argc, char **argv )
 				appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 	
@@ -401,9 +401,9 @@ int main( int argc, char **argv )
 
 		appaserver_link_file =
 			appaserver_link_file_new(
-				application_get_http_prefix( application_name ),
+				application_http_prefix( application_name ),
 				appaserver_library_get_server_address(),
-				( application_get_prepend_http_protocol_yn(
+				( application_prepend_http_protocol_yn(
 					application_name ) == 'y' ),
 	 			appaserver_parameter_file->document_root,
 	 			process_generic_output->
@@ -518,9 +518,9 @@ int main( int argc, char **argv )
 
 		appaserver_link_file =
 			appaserver_link_file_new(
-				application_get_http_prefix( application_name ),
+				application_http_prefix( application_name ),
 				appaserver_library_get_server_address(),
-				( application_get_prepend_http_protocol_yn(
+				( application_prepend_http_protocol_yn(
 					application_name ) == 'y' ),
 	 			appaserver_parameter_file->document_root,
 	 			process_generic_output->
@@ -1064,7 +1064,7 @@ boolean merged_datasets_output_gracechart(
 	} while( list_next( key_list ) );	
 
 	grace->grace_output =
-		application_get_grace_output( application_name );
+		application_grace_output( application_name );
 
 	sprintf( graph_identifier, "%d", getpid() );
 
@@ -1125,17 +1125,17 @@ boolean merged_datasets_output_gracechart(
 				grace->x_label_size,
 				page_width_pixels,
 				page_length_pixels,
-				application_get_grace_home_directory(
+				application_grace_home_directory(
 					application_name ),
-				application_get_grace_execution_directory(
+				application_grace_execution_directory(
 					application_name ),
-				application_get_grace_free_option_yn(
+				application_grace_free_option_yn(
 					application_name ),
 				grace->grace_output,
-				application_get_distill_directory(
+				application_distill_directory(
 					application_name ),
 				distill_landscape_flag,
-				application_get_ghost_script_directory(
+				application_ghost_script_directory(
 					application_name ),
 				(LIST *)0 /* quantum_datatype_name_list */,
 				grace->symbols,

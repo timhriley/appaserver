@@ -25,21 +25,19 @@
 					"event_date,"			\
 					"event_time,"			\
 					"payor_full_name,"		\
-					"payor_street_address,"		\
-					"sale_date_time,"		\
-					"refund_date_time"
+					"payor_street_address"
 
 #define TICKET_REFUND_INSERT_COLUMNS	"program_name,"			\
 					"event_date,"			\
 					"event_time,"			\
 					"payor_full_name,"		\
 					"payor_street_address,"		\
-					"sale_date_time,"		\
 					"refund_date_time,"		\
+					"extended_price,"		\
 					"refund_amount,"		\
+					"merchant_fees_expense,"	\
 					"net_payment_amount,"		\
 					"transaction_date_time,"	\
-					"merchant_fees_expense,"	\
 					"paypal_date_time"
 
 #define TICKET_REFUND_MEMO		"Ticket refund"
@@ -54,15 +52,15 @@ typedef struct
 	char *event_date;
 	char *event_time;
 	ENTITY *payor_entity;
-	char *sale_date_time;
-	char *refund_date_time;
-	TICKET_SALE *ticket_sale;
+	double extended_price;
 	double refund_amount;
 	double merchant_fees_expense;
 	char *paypal_date_time;
 
 	/* Process */
 	/* ------- */
+	char *refund_date_time;
+	TICKET_SALE *ticket_sale;
 	double net_refund_amount;
 
 	TRANSACTION *ticket_refund_transaction;
@@ -78,20 +76,19 @@ TICKET_REFUND *ticket_refund_fetch(
 			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time,
 			boolean fetch_sale,
-			boolean fetch_transaction );
+			boolean fetch_event );
 
 TICKET_REFUND *ticket_refund_parse(
 			char *input,
 			boolean fetch_sale,
-			boolean fetch_transaction );
+			boolean fetch_event );
 
 TICKET_REFUND *ticket_refund_steady_state(
 			TICKET_REFUND *ticket_refund,
 			double refund_amount,
-			double merchant_fees_expense );
+			double merchant_fees_expense,
+			char *refund_date_time );
 
 FILE *ticket_refund_insert_open(
 			char *error_filename );
@@ -103,30 +100,20 @@ void ticket_refund_insert_pipe(
 			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time,
 			char *refund_date_time,
+			double extended_price,
 			double refund_amount,
+			double merchant_fees_expense,
 			double net_payment_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time );
 
 LIST *ticket_refund_system_list(
-			char *sys_string,
+			char *system_string,
 			boolean fetch_sale,
-			boolean fetch_transaction );
+			boolean fetch_event );
 
-LIST *ticket_refund_list_fetch(
-			char *where,
-			boolean fetch_sale,
-			boolean fetch_transaction );
-
-LIST *ticket_refund_list(
-			char *where,
-			boolean fetch_sale,
-			boolean fetch_transaction );
-
-char *ticket_refund_sys_string(
+char *ticket_refund_system_string(
 			char *where );
 
 char *ticket_refund_primary_where(
@@ -134,9 +121,7 @@ char *ticket_refund_primary_where(
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time );
+			char *payor_street_address );
 
 void ticket_refund_list_set_transaction(
 			int *transaction_seconds_to_add,
@@ -149,9 +134,9 @@ void ticket_refund_list_set_transaction(
 void ticket_refund_set_transaction(
 			int *transaction_seconds_to_add,
 			TICKET_REFUND *ticket_refund,
-			char *cash_account_name,
+			char *revenue_account,
 			char *account_fees_expense,
-			char *revenue_account );
+			char *cash_account_name );
 
 TRANSACTION *ticket_refund_transaction(
 			int *seconds_to_add,
@@ -162,31 +147,24 @@ TRANSACTION *ticket_refund_transaction(
 			double refund_amount,
 			double merchant_fees_expense,
 			double net_payment_amount,
-			char *entity_self_paypal_cash_account_name,
+			char *revenue_account,
 			char *account_fees_expense,
-			char *purchase_revenue_account );
+			char *cash_account_name );
 
 void ticket_refund_update(
+			char *refund_date_time,
 			double net_refund_amount,
 			char *transaction_date_time,
 			char *program_name,
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *refund_date_time );
+			char *payor_street_address );
 
 FILE *ticket_refund_update_open(
 			void );
 
 void ticket_refund_list_insert(
-			LIST *ticket_refund_list );
-
-double ticket_refund_total(
-			LIST *ticket_refund_list );
-
-void ticket_refund_list_trigger(
 			LIST *ticket_refund_list );
 
 /* Safely returns heap memory */
@@ -197,11 +175,6 @@ char *ticket_refund_list_display(
 LIST *ticket_refund_transaction_list(
 			LIST *ticket_refund_list );
 
-LIST *ticket_refund_list_steady_state(
-			LIST *ticket_refund_list,
-			double refund_amount,
-			double merchant_fees_expense );
-
 /* Returns static memory */
 /* --------------------- */
 char *ticket_refund_memo(
@@ -211,7 +184,7 @@ LIST *ticket_refund_list_paypal(
 			ENTITY *payor_entity,
 			char *paypal_date_time,
 			LIST *paypal_item_list,
-			LIST *semester_event_list );
+			LIST *education_event_list );
 
 TICKET_REFUND *ticket_refund_paypal(
 			ENTITY *payor_entity,
@@ -227,22 +200,28 @@ TICKET_REFUND *ticket_refund_new(
 			char *program_name,
 			char *event_date,
 			char *event_time,
-			ENTITY *payor_entity,
-			char *sale_date_time,
-			char *refund_date_time );
+			ENTITY *payor_entity );
 
-boolean ticket_refund_list_exists(
+boolean ticket_refund_list_any_exists(
 			LIST *ticket_refund_list,
 			LIST *existing_ticket_refund_list );
 
-TICKET_REFUND *ticket_refund_seek(
+TICKET_REFUND *ticket_refund_list_seek(
 			char *program_name,
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *refund_date_time,
-			char *sale_date_time,
 			LIST *ticket_refund_list );
+
+double ticket_refund_total(
+			LIST *ticket_refund_list );
+
+double ticket_refund_fee_total(
+			LIST *ticket_refund_list );
+
+LIST *ticket_refund_list_event_list(
+			LIST *ticket_refund_list );
+
 #endif
 

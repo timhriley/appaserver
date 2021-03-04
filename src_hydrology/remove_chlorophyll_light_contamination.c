@@ -366,7 +366,7 @@ void output_gracechart(	char *application_name,
 	sprintf(infrastructure_process,
 		INFRASTRUCTURE_PROCESS,
 		appaserver_parameter_file->appaserver_mount_point,
-		application_get_relative_source_directory(
+		application_relative_source_directory(
 			application_name ),
 		application_name,
 		station,
@@ -405,7 +405,7 @@ void output_gracechart(	char *application_name,
 					appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ),
 				0 /* not with_dynarch_menu */ );
 
@@ -420,7 +420,7 @@ void output_gracechart(	char *application_name,
 	}
 
 	grace->grace_output =
-		application_get_grace_output( application_name );
+		application_grace_output( application_name );
 
 	sprintf(	graph_identifier,
 			"%s_%s_%d",
@@ -505,17 +505,17 @@ void output_gracechart(	char *application_name,
 				grace->x_label_size,
 				grace->page_width_pixels,
 				grace->page_length_pixels,
-				application_get_grace_home_directory(
+				application_grace_home_directory(
 					application_name ),
-				application_get_grace_execution_directory(
+				application_grace_execution_directory(
 					application_name ),
-				application_get_grace_free_option_yn(
+				application_grace_free_option_yn(
 					application_name ),
 				grace->grace_output,
-				application_get_distill_directory(
+				application_distill_directory(
 					application_name ),
 				grace->distill_landscape_flag,
-				application_get_ghost_script_directory(
+				application_ghost_script_directory(
 					application_name ),
 				(LIST *)0 /* quantum_datatype_name_list */,
 				grace->symbols,
@@ -580,7 +580,7 @@ void output_table(	char *application_name,
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -723,7 +723,7 @@ int perform_execute(	char *application_name,
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 

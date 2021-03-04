@@ -14,8 +14,6 @@
 #include "sql.h"
 #include "boolean.h"
 #include "list.h"
-#include "product_sale.h"
-#include "product_refund.h"
 #include "product.h"
 
 char *product_primary_where( char *product_name )
@@ -63,12 +61,21 @@ PRODUCT *product_new( char *product_name )
 	return product;
 }
 
-PRODUCT *product_fetch(	char *product_name,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list )
+char *product_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
 
+	sprintf(sys_string,
+		"select.sh '*' %s \"%s\" select",
+		PRODUCT_TABLE,
+		where );
+
+	return strdup( sys_string );
+}
+
+PRODUCT *product_fetch(	char *product_name,
+			boolean fetch_program )
+{
 	if ( !product_name || !*product_name )
 	{
 		fprintf(stderr,
@@ -79,29 +86,27 @@ PRODUCT *product_fetch(	char *product_name,
 		exit( 1 );
 	}
 
-	sprintf( sys_string,
-		 "select.sh '*' %s \"%s\" select",
-		 PRODUCT_TABLE,
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 product_primary_where( product_name ) );
-
 	return
 		product_parse(
-			pipe2string( sys_string ),
-			fetch_sale_list,
-			fetch_refund_list );
+			pipe2string(
+				product_sys_string(
+		 			/* --------------------- */
+		 			/* Returns static memory */
+		 			/* --------------------- */
+		 			product_primary_where(
+						product_name ) ) ),
+			fetch_program );
 }
 
 PRODUCT *product_parse( char *input,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list )
+			boolean fetch_program )
 {
 	char product_name[ 128 ];
 	char program_name[ 128 ];
 	char revenue_account[ 128 ];
 	char retail_price[ 128 ];
+	char sale_total[ 128 ];
+	char refund_total[ 128 ];
 	PRODUCT *product;
 
 	if ( !input || !*input ) return (PRODUCT *)0;
@@ -115,10 +120,7 @@ PRODUCT *product_parse( char *input,
 			strdup( product_name ) );
 
 	piece( program_name, SQL_DELIMITER, input, 1 );
-	product->program =
-		program_fetch(
-			program_name,
-			0 /* not fetch_alias_list */ );
+	product->program_name = strdup( program_name );
 
 	piece( revenue_account, SQL_DELIMITER, input, 2 );
 	product->revenue_account = strdup( revenue_account );
@@ -126,20 +128,18 @@ PRODUCT *product_parse( char *input,
 	piece( retail_price, SQL_DELIMITER, input, 3 );
 	product->retail_price = atof( retail_price );
 
-	if ( fetch_sale_list )
-	{
-		product->sale_list =
-			product_sale_list(
-				product_primary_where(
-					product->product_name ) );
-	}
+	piece( sale_total, SQL_DELIMITER, input, 3 );
+	product->sale_total = atof( sale_total );
 
-	if ( fetch_refund_list )
+	piece( refund_total, SQL_DELIMITER, input, 3 );
+	product->refund_total = atof( refund_total );
+
+	if ( fetch_program )
 	{
-		product->refund_list =
-			product_refund_list(
-				product_primary_where(
-					product->product_name ) );
+		product->program =
+			program_fetch(
+				product->program_name,
+				0 /* not fetch_alias_list */ );
 	}
 
 	return product;
@@ -150,14 +150,12 @@ LIST *product_list( void )
 	return product_system_list(
 			product_sys_string(
 				"1 = 1" /* where */ ),
-			0 /* not fetch_sale_list */,
-			0 /* not fetch_refund_list */ );
+			0 /* not fetch_program */ );
 }
 
 LIST *product_system_list(
 			char *sys_string,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list )
+			boolean fetch_program )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -171,42 +169,11 @@ LIST *product_system_list(
 			product_list,
 			product_parse(
 				input,
-				fetch_sale_list,
-				fetch_refund_list ) );
+				fetch_program ) );
 	}
 
 	pclose( input_pipe );
 	return product_list;
-}
-
-char *product_sys_string( char *where )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "select.sh '*' %s \"%s\" select",
-		 PRODUCT_TABLE,
-		 where );
-
-	return strdup( sys_string );
-}
-
-PRODUCT *product_name_seek(
-			char *product_name,
-			LIST *product_list )
-{
-	return product_list_seek(
-			product_name,
-			product_list );
-}
-
-PRODUCT *product_seek(
-			char *product_name,
-			LIST *product_list )
-{
-	return product_list_seek(
-			product_name,
-			product_list );
 }
 
 PRODUCT *product_list_seek(
@@ -232,29 +199,6 @@ PRODUCT *product_list_seek(
 	return (PRODUCT *)0;
 }
 
-char *product_seek_name(
-			char *product_name,
-			LIST *product_list )
-{
-	PRODUCT *product = product_list_seek( product_name, product_list );
-
-	if ( !product )
-		return (char *)0;
-	else
-		return product->product_name;
-}
-
-char *product_fetch_program_name(
-			char *product_name )
-{
-	PRODUCT *product = product_fetch( product_name, 0, 0 );
-
-	if ( !product )
-		return (char *)0;
-	else
-		return product->program->program_name;
-}
-
 LIST *product_name_list( LIST *product_list )
 {
 	LIST *name_list;
@@ -272,17 +216,6 @@ LIST *product_name_list( LIST *product_list )
 	} while ( list_next( product_list ) );
 
 	return name_list;
-}
-
-void product_trigger( char *product_name )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-	"product_trigger \"%s\" update",
-		product_name );
-
-	if ( system( sys_string ) ){}
 }
 
 void product_fetch_update( char *product_name )

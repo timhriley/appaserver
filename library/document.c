@@ -53,7 +53,7 @@ void document_output_body_stream(
 
 	fprintf( output_stream,
 		 " bgcolor=%s",
-		application_get_background_color( application_name ) );
+		application_background_color( application_name ) );
 
 	if ( onload_control_string
 	&&   *onload_control_string )
@@ -720,7 +720,7 @@ DOCUMENT *document_output_menu_new(
 	boolean with_dynarch_menu;
 
 	document = document_new(
-			application_get_title_string(
+			application_title_string(
 				application_name ),
 			application_name );
 
@@ -751,7 +751,7 @@ DOCUMENT *document_output_menu_new(
 				appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ),
 				with_dynarch_menu );
 
@@ -792,7 +792,7 @@ DOCUMENT *document_output_menu_new(
 				appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ),
 				with_dynarch_menu );
 

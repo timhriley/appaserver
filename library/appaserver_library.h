@@ -66,7 +66,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define SUBMIT_BUTTON_LABEL			"|    Submit    |"
 #define TRANSMIT_PROMPT				"Link to file."
 #define SYNCHRONIZE_CURRENT_LOGFILE_NAME	"synchronize_current.txt"
-#define MAX_QUERY_ROWS_FOR_PRIMARY_KEY_DROP_DOWNS 	5
 #define FROM_PREPROMPT				"ffrom_preprompt"
 #define ONE2M_FOLDER_NAME_FOR_PROCESS		"one2m_folder_name_for_process"
 #define CHOOSE_FOLDER_MENU_NAME			"choose_folder_menu"

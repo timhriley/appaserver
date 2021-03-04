@@ -85,9 +85,9 @@ int main( int argc, char **argv )
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		appaserver_parameter_file->document_root,
 			(char *)0 /* filename_stem */,
@@ -107,7 +107,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -189,7 +189,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 void remove_files(	LIST *folder_name_list,
 			char *document_root_directory,
@@ -205,9 +205,9 @@ void remove_files(	LIST *folder_name_list,
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,
 			application_name /* filename_stem */,
@@ -247,11 +247,11 @@ void remove_files(	LIST *folder_name_list,
 				appaserver_link_file->extension );
 
 		sprintf( sys_string, "rm %s", output_filename );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 	} while( list_next( folder_name_list ) );
 
-} /* remove_files() */
+}
 
 /* Returns link_prompt */
 /* ------------------- */
@@ -270,9 +270,9 @@ char *output_zip_file(	LIST *folder_name_list,
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,
 			application_name /* filename_stem */,
@@ -359,11 +359,11 @@ char *output_zip_file(	LIST *folder_name_list,
 
 	} while( list_next( folder_name_list ) );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	return link_prompt;
 
-} /* output_zip_file() */
+}
 
 LIST *subtract_exclude_application_export(
 			char *application_name,
@@ -384,7 +384,7 @@ LIST *subtract_exclude_application_export(
 
 	return list_subtract_list( folder_name_list, pipe2list( sys_string ) );
 
-} /* subtract_exclude_application_export() */
+}
 
 void export_output_spreadsheet_folder(	char *output_filename,
 					char *application_name,
@@ -423,7 +423,7 @@ void export_output_spreadsheet_folder(	char *output_filename,
 		(char *)0 /* role_name */ );
 
 	attribute_name_list =
-		attribute_get_lookup_allowed_attribute_name_list(
+		attribute_lookup_allowed_attribute_name_list(
 			folder->attribute_list );
 
 	folder_load(	&folder->insert_rows_number,
@@ -473,4 +473,4 @@ void export_output_spreadsheet_folder(	char *output_filename,
 					attribute_name_list,
 					(char *)0 /* heading_display */ );
 
-} /* export_output_spreadsheet_folder() */
+}

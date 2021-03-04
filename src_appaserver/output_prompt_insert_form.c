@@ -443,7 +443,7 @@ int main( int argc, char **argv )
 	form =
 		form_new(
 			INSERT_UPDATE_KEY,
-			application_get_title_string(
+			application_title_string(
 				application_name ) );
 
 	form_set_folder_parameters(
@@ -584,7 +584,7 @@ int main( int argc, char **argv )
 	}
 
 	document = document_new(
-			application_get_title_string( application_name ),
+			application_title_string( application_name ),
 			application_name );
 
 	document_set_javascript_module( document, "trim" );
@@ -637,7 +637,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -758,8 +758,7 @@ int main( int argc, char **argv )
 	}
 
 	printf( "</table>\n" );
-	printf( "<table border=1>\n" );
-	printf( "<tr><td align=bottom>\n" );
+	printf( "<table border=0>\n" );
 
 	if ( list_length( pair_one2m->prompt_form_folder_list ) )
 	{
@@ -849,6 +848,15 @@ LIST *get_element_list(
 	RELATED_FOLDER *related_folder;
 	LIST *foreign_attribute_name_list = {0};
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: mto1_related_folder_list = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+related_folder_list_display( mto1_related_folder_list, mto1, '\n' ) );
+m2( application_name, msg );
+}
 	if ( !omit_push_buttons )
 	{
 		omit_drop_down_new_push_button = 0;
@@ -1229,12 +1237,12 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 			0 /* recursive_level */ );
 
 	appaserver->folder->attribute_list =
-	attribute_get_attribute_list(
-		appaserver->application_name,
-		appaserver->folder->folder_name,
-		(char *)0 /* attribute_name */,
-		(LIST *)0 /* mto1_isa_related_folder_list */,
-		role_name );
+		attribute_get_attribute_list(
+			appaserver->application_name,
+			appaserver->folder->folder_name,
+			(char *)0 /* attribute_name */,
+			(LIST *)0 /* mto1_isa_related_folder_list */,
+			role_name );
 
 	primary_attribute_name_list =
 			folder_get_primary_attribute_name_list(
@@ -1371,7 +1379,7 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 
 		list_append_list(
 				appaserver->folder->attribute_list,
-				attribute_get_non_primary_attribute_list(
+				attribute_non_primary_attribute_list(
 					mto1_isa_related_folder->
 						folder->
 							attribute_list ) );
@@ -1792,7 +1800,7 @@ void build_related_folder_element_list(
 	if ( related_folder->copy_common_attributes )
 	{
 		common_non_primary_attribute_name_list =
-			attribute_get_common_non_primary_attribute_name_list(
+			attribute_common_non_primary_attribute_name_list(
 					application_name,
 					folder_name,
 					related_folder->

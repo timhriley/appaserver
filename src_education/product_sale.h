@@ -33,9 +33,9 @@
 					"quantity,"			\
 					"retail_price,"			\
 					"extended_price,"		\
+					"merchant_fees_expense,"	\
 					"net_payment_amount,"		\
 					"transaction_date_time,"	\
-					"merchant_fees_expense,"	\
 					"paypal_date_time"
 
 #define PRODUCT_SALE_MEMO		"Product Sale"
@@ -49,7 +49,6 @@ typedef struct
 	char *product_name;
 	ENTITY *payor_entity;
 	char *sale_date_time;
-	PRODUCT *product;
 	int quantity;
 	double retail_price;
 	double merchant_fees_expense;
@@ -57,6 +56,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	PRODUCT *product;
 	double extended_price;
 	double net_payment_amount;
 
@@ -79,12 +79,12 @@ PRODUCT_SALE *product_sale_fetch(
 			char *payor_street_address,
 			char *sale_date_time,
 			boolean fetch_product,
-			boolean fetch_transaction );
+			boolean fetch_program );
 
 PRODUCT_SALE *product_sale_parse(
 			char *input,
 			boolean fetch_product,
-			boolean fetch_transaction );
+			boolean fetch_program );
 
 PRODUCT_SALE *product_sale_steady_state(
 			PRODUCT_SALE *product_sale,
@@ -119,17 +119,17 @@ void product_sale_insert_pipe(
 			int quantity,
 			double retail_price,
 			double extended_price,
+			double merchant_fees_expense,
 			double net_payment_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time );
 
 LIST *product_sale_system_list(
-			char *sys_string,
+			char *system_string,
 			boolean fetch_product,
-			boolean fetch_transaction );
+			boolean fetch_program );
 
-char *product_sale_sys_string(
+char *product_sale_system_string(
 			char *where );
 
 char *product_sale_primary_where(
@@ -152,7 +152,7 @@ TRANSACTION *product_sale_transaction(
 			double extended_price,
 			double merchant_fees_expense,
 			double net_payment_amount,
-			char *entity_self_paypal_cash_account_name,
+			char *cash_account_name,
 			char *account_fees_expense,
 			char *product_revenue_account );
 
@@ -168,23 +168,7 @@ void product_sale_update(
 FILE *product_sale_update_open(
 			void );
 
-void product_sale_trigger(
-			char *product_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *state );
-
 void product_sale_list_insert(
-			LIST *product_sale_list );
-
-double product_sale_total(
-			LIST *product_sale_list );
-
-double product_sale_fee_total(
-			LIST *product_sale_list );
-
-void product_sale_list_trigger(
 			LIST *product_sale_list );
 
 /* Safely returns heap memory */
@@ -219,20 +203,8 @@ PRODUCT_SALE *product_sale_paypal(
 			double item_fee,
 			PRODUCT *product );
 
-LIST *product_sale_list(
-			char *where );
-
-void product_sale_fetch_update(
-			char *product_name );
-
-void product_sale_list_fetch_update(
-			LIST *product_sale_list );
-
-LIST *product_sale_product_name_list(
+LIST *product_sale_list_product_name_list(
 			LIST *sale_list );
-
-void product_sale_list_fetch_update(
-			LIST *product_name_list );
 
 PRODUCT_SALE *product_sale_integrity_fetch(
 			char *product_name,
@@ -244,16 +216,22 @@ char *product_sale_integrity_where(
 			char *payor_full_name,
 			char *payor_street_address );
 
-PRODUCT_SALE *product_sale_seek(
+PRODUCT_SALE *product_sale_list_seek(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
 			char *sale_date_time,
 			LIST *product_sale_list );
 
-boolean product_sale_list_exists(
+boolean product_sale_list_any_exists(
 			LIST *product_sale_list,
 			LIST *existing_product_sale_list );
+
+double product_sale_total(
+			LIST *product_sale_list );
+
+double product_sale_fee_total(
+			LIST *product_sale_list );
 
 #endif
 

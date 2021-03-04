@@ -259,7 +259,7 @@ int main( int argc, char **argv )
 					appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ),
 				0 /* not with_dynarch_menu */ );
 	
@@ -484,8 +484,7 @@ int main( int argc, char **argv )
 					process_generic_output->
 						value_folder->
 							value_folder_name,
-					application_get_is_primary_application(
-						application_name ) ) );
+					1 ) );
 
 	document_close();
 	process_increment_execution_count(

@@ -25,8 +25,7 @@
 					"event_date,"			\
 					"event_time,"			\
 					"payor_full_name,"		\
-					"payor_street_address,"		\
-					"sale_date_time"
+					"payor_street_address"
 
 #define TICKET_SALE_INSERT_COLUMNS	"program_name,"			\
 					"event_date,"			\
@@ -37,9 +36,9 @@
 					"quantity,"			\
 					"ticket_price,"			\
 					"extended_price,"		\
+					"merchant_fees_expense,"	\
 					"net_payment_amount,"		\
 					"transaction_date_time,"	\
-					"merchant_fees_expense,"	\
 					"paypal_date_time"
 
 #define TICKET_SALE_MEMO		"Ticket Sale"
@@ -54,8 +53,6 @@ typedef struct
 	char *event_date;
 	char *event_time;
 	ENTITY *payor_entity;
-	char *sale_date_time;
-	EVENT *event;
 	int quantity;
 	double ticket_price;
 	double merchant_fees_expense;
@@ -63,6 +60,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	char *sale_date_time;
+	EVENT *event;
 	double extended_price;
 	double net_payment_amount;
 
@@ -79,20 +78,18 @@ TICKET_SALE *ticket_sale_fetch(
 			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time,
-			boolean fetch_event,
-			boolean fetch_transaction );
+			boolean fetch_event );
 
 TICKET_SALE *ticket_sale_parse(
 			char *input,
-			boolean fetch_event,
-			boolean fetch_transaction );
+			boolean fetch_event );
 
 TICKET_SALE *ticket_sale_steady_state(
 			TICKET_SALE *ticket_sale,
 			int quantity,
 			double ticket_price,
-			double merchant_fees_expense );
+			double merchant_fees_expense,
+			char *sale_date_time );
 
 void ticket_sale_list_set_transaction(
 			int *seconds_to_add,
@@ -123,26 +120,16 @@ void ticket_sale_insert_pipe(
 			int quantity,
 			double ticket_price,
 			double extended_price,
+			double merchant_fees_expense,
 			double net_payment_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time );
 
 LIST *ticket_sale_system_list(
-			char *sys_string,
-			boolean fetch_event,
-			boolean fetch_transaction );
+			char *system_string,
+			boolean fetch_event );
 
-LIST *ticket_sale_list_fetch(
-			char *where,
-			boolean fetch_event,
-			boolean fetch_transaction );
-
-LIST *ticket_sale_list(	char *where,
-			boolean fetch_event,
-			boolean fetch_transaction );
-
-char *ticket_sale_sys_string(
+char *ticket_sale_system_string(
 			char *where );
 
 char *ticket_sale_primary_where(
@@ -150,8 +137,7 @@ char *ticket_sale_primary_where(
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time );
+			char *payor_street_address );
 
 TRANSACTION *ticket_sale_transaction(
 			int *seconds_to_add,
@@ -162,11 +148,12 @@ TRANSACTION *ticket_sale_transaction(
 			double extended_price,
 			double merchant_fees_expense,
 			double net_payment_amount,
-			char *entity_self_paypal_cash_account_name,
+			char *cash_account_name,
 			char *account_fees_expense,
 			char *revenue_account );
 
 void ticket_sale_update(
+			char *sale_date_time,
 			double extended_price,
 			double net_payment_amount,
 			char *transaction_date_time,
@@ -174,31 +161,12 @@ void ticket_sale_update(
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time );
+			char *payor_street_address );
 
 FILE *ticket_sale_update_open(
 			void );
 
-void ticket_sale_trigger(
-			char *program_name,
-			char *event_date,
-			char *event_time,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *state );
-
 void ticket_sale_list_insert(
-			LIST *ticket_sale_list );
-
-double ticket_sale_total(
-			LIST *ticket_sale_list );
-
-double ticket_sale_fee_total(
-			LIST *ticket_sale_list );
-
-void ticket_sale_list_trigger(
 			LIST *ticket_sale_list );
 
 /* Safely returns heap memory */
@@ -207,9 +175,6 @@ char *ticket_sale_list_display(
 			LIST *ticket_sale_list );
 
 LIST *ticket_sale_transaction_list(
-			LIST *ticket_sale_list );
-
-LIST *ticket_sale_list_steady_state(
 			LIST *ticket_sale_list );
 
 /* Returns static memory */
@@ -224,8 +189,7 @@ TICKET_SALE *ticket_sale_new(
 			char *program_name,
 			char *event_date,
 			char *event_time,
-			ENTITY *payor_entity,
-			char *sale_date_time );
+			ENTITY *payor_entity );
 
 LIST *ticket_sale_list_paypal(
 			ENTITY *payor_entity,
@@ -243,11 +207,6 @@ TICKET_SALE *ticket_sale_paypal(
 			double paypal_amount,
 			int paypal_item_list_length );
 
-void ticket_sale_list_event_insert(
-			LIST *ticket_sale_list,
-			char *season_name,
-			int year );
-
 TICKET_SALE *ticket_sale_integrity_fetch(
 			char *program_name,
 			char *event_date,
@@ -262,21 +221,26 @@ char *ticket_sale_integrity_where(
 			char *payor_full_name,
 			char *payor_street_address );
 
-LIST *ticket_sale_event_list(
-			LIST *ticket_sale_list );
-
-TICKET_SALE *ticket_sale_seek(
+TICKET_SALE *ticket_sale_list_seek(
 			char *program_name,
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
 			char *payor_street_address,
-			char *sale_date_time,
 			LIST *ticket_sale_list );
 
-boolean ticket_sale_list_exists(
+boolean ticket_sale_list_any_exists(
 			LIST *ticket_sale_list,
 			LIST *existing_ticket_sale_list );
+
+double ticket_sale_total(
+			LIST *ticket_sale_list );
+
+double ticket_sale_fee_total(
+			LIST *ticket_sale_list );
+
+LIST *ticket_sale_list_event_list(
+			LIST *ticket_sale_list );
 
 #endif
 

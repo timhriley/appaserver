@@ -206,7 +206,7 @@ int main( int argc, char **argv )
 			appaserver_error_get_filename(
 				application_name ) );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		exit( 0 );
 	}
 
@@ -343,7 +343,7 @@ int main( int argc, char **argv )
 					"y" /* content_type_yn */,
 					appaserver_error_get_filename(
 						application_name ) );
-				system( sys_string );
+				if ( system( sys_string ) ){};
 				fflush( stdout );
 			}
 
@@ -358,7 +358,7 @@ int main( int argc, char **argv )
 				(message) ? message : "",
 				appaserver_error_get_filename(
 					application_name ) );
-			system( sys_string );
+			if ( system( sys_string ) ){};
 			exit( 0 );
 		}
 	}
@@ -377,9 +377,9 @@ int main( int argc, char **argv )
 	 	appaserver_error_get_filename(
 			application_name ) );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
-	exit( 0 );
+	return 0;
 
-} /* main() */
+}
 

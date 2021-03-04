@@ -343,7 +343,6 @@ void pair_one2m_set_fulfilled_name_list(
 			LIST *one2m_pair_relation_list )
 {
 	RELATION *relation;
-	LIST *one2m_folder_list;
 
 	if ( !list_rewind( one2m_pair_relation_list ) )
 	{

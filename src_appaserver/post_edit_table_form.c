@@ -516,7 +516,7 @@ void post_state_insert(
 	}
 
 	insert_required_attribute_name_list =
-		attribute_get_insert_required_attribute_name_list(
+		attribute_insert_required_attribute_name_list(
 			folder->append_isa_attribute_list );
 
 	mto1_related_folder_list =

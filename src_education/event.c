@@ -1,5 +1,5 @@
 /* ---------------------------------------------------- */
-/* $APPASERVER_HOME/src_event/event.c			*/
+/* $APPASERVER_HOME/src_education/event.c		*/
 /* ---------------------------------------------------- */
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -10,13 +10,11 @@
 #include <string.h>
 #include "String.h"
 #include "piece.h"
-#include "timlib.h"
+#include "date.h"
 #include "sql.h"
 #include "boolean.h"
 #include "list.h"
 #include "program.h"
-#include "ticket_refund.h"
-#include "ticket_sale.h"
 #include "event.h"
 
 char *event_primary_where(
@@ -68,51 +66,50 @@ EVENT *event_new(	char *program_name,
 	return event;
 }
 
+char *event_system_string(
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh '*' %s \"%s\" select",
+		EVENT_TABLE,
+		where );
+
+	return strdup( system_string );
+}
+
 EVENT *event_fetch(	char *program_name,
 			char *event_date,
 			char *event_time,
 			boolean fetch_program,
-			boolean fetch_venue,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list )
+			boolean fetch_venue )
 {
-	char sys_string[ 1024 ];
-
-	if ( !program_name || !*program_name )
+	if ( !program_name || !event_date || !event_time )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty program_name.\n",
+	"ERROR in %s/%s()/%d: empty program_name, event_date or event_time.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	sprintf( sys_string,
-		 "select.sh '*' %s \"%s\" select",
-		 EVENT_TABLE,
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 event_primary_where(
-			program_name,
-			event_date,
-			event_time ) );
-
 	return
 		event_parse(
-			pipe2string( sys_string ),
+			string_pipe_fetch(
+				event_system_string(
+					event_primary_where(
+						program_name,
+						event_date,
+						event_time ) ) ),
 			fetch_program,
-			fetch_venue,
-			fetch_sale_list,
-			fetch_refund_list );
+			fetch_venue );
 }
 
 EVENT *event_parse(	char *input,
 			boolean fetch_program,
-			boolean fetch_venue,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list )
+			boolean fetch_venue )
 {
 	char program_name[ 128 ];
 	char event_date[ 128 ];
@@ -120,8 +117,6 @@ EVENT *event_parse(	char *input,
 	char venue_name[ 128 ];
 	char street_address[ 128 ];
 	char ticket_price[ 128 ];
-	char season_name[ 128 ];
-	char year[ 128 ];
 	char revenue_account[ 128 ];
 	char ticket_sale_count[ 128 ];
 	char ticket_sale_total[ 128 ];
@@ -153,25 +148,19 @@ EVENT *event_parse(	char *input,
 	piece( ticket_price, SQL_DELIMITER, input, 5 );
 	event->ticket_price = atof( ticket_price );
 
-	piece( season_name, SQL_DELIMITER, input, 6 );
-	event->season_name = strdup( season_name );
-
-	piece( year, SQL_DELIMITER, input, 7 );
-	event->year = atoi( year );
-
-	piece( revenue_account, SQL_DELIMITER, input, 8 );
+	piece( revenue_account, SQL_DELIMITER, input, 6 );
 	event->revenue_account = strdup( revenue_account );
 
-	piece( ticket_sale_count, SQL_DELIMITER, input, 9 );
+	piece( ticket_sale_count, SQL_DELIMITER, input, 7 );
 	event->ticket_sale_count = atoi( ticket_sale_count );
 
-	piece( ticket_sale_total, SQL_DELIMITER, input, 10 );
+	piece( ticket_sale_total, SQL_DELIMITER, input, 8 );
 	event->ticket_sale_total = atof( ticket_sale_total );
 
-	piece( ticket_refund_total, SQL_DELIMITER, input, 11 );
+	piece( ticket_refund_total, SQL_DELIMITER, input, 9 );
 	event->ticket_refund_total = atof( ticket_refund_total );
 
-	piece( capacity_available, SQL_DELIMITER, input, 12 );
+	piece( capacity_available, SQL_DELIMITER, input, 10 );
 	event->capacity_available = atoi( capacity_available );
 
 	if ( fetch_program )
@@ -190,53 +179,19 @@ EVENT *event_parse(	char *input,
 				event->street_address );
 	}
 
-	if ( fetch_sale_list )
-	{
-		event->ticket_sale_list =
-			ticket_sale_list_fetch(
-				event_primary_where(
-					event->program_name,
-					event->event_date,
-					event->event_time ),
-				0 /* not fetch_event */ );
-	}
-
-	if ( fetch_refund_list )
-	{
-		event->ticket_refund_list =
-			ticket_refund_list_fetch(
-				event_primary_where(
-					event->program_name,
-					event->event_date,
-					event->event_time ),
-				1 /* fetch_sale */ );
-	}
-
 	return event;
 }
 
-LIST *event_list( char *where )
-{
-	return event_system_list(
-			event_sys_string( where ),
-			1 /* fetch_program */,
-			1 /* fetch_venue */,
-			0 /* not fetch_sale_list */,
-			0 /* not fetch_refund_list */ );
-}
-
 LIST *event_system_list(
-			char *sys_string,
+			char *system_string,
 			boolean fetch_program,
-			boolean fetch_venue,
-			boolean fetch_sale_list,
-			boolean fetch_refund_list )
+			boolean fetch_venue )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
 	LIST *event_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -245,28 +200,14 @@ LIST *event_system_list(
 			event_parse(
 				input,
 				fetch_program,
-				fetch_venue,
-				fetch_sale_list,
-				fetch_refund_list ) );
+				fetch_venue ) );
 	}
 
 	pclose( input_pipe );
 	return event_list;
 }
 
-char *event_sys_string( char *where )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "select.sh '*' %s \"%s\" select",
-		 EVENT_TABLE,
-		 where );
-
-	return strdup( sys_string );
-}
-
-EVENT *event_paypal_long_label_seek(
+EVENT *event_long_label_seek(
 			char *event_label,
 			LIST *event_list )
 {
@@ -277,10 +218,10 @@ EVENT *event_paypal_long_label_seek(
 	do {
 		event = list_get( event_list );
 
-		if ( timlib_strcmp(
+		if ( string_strcmp(
 			/* Returns static memory */
 			/* --------------------- */
-			event_paypal_long_display(
+			event_label_long_display(
 				event->program_name,
 				event->event_date,
 				event->event_time ),
@@ -292,7 +233,7 @@ EVENT *event_paypal_long_label_seek(
 	return (EVENT *)0;
 }
 
-EVENT *event_paypal_short_label_seek(
+EVENT *event_short_label_seek(
 			char *event_label,
 			LIST *event_list )
 {
@@ -303,10 +244,11 @@ EVENT *event_paypal_short_label_seek(
 	do {
 		event = list_get( event_list );
 
-		if ( timlib_strcmp(
+		if ( string_strcmp(
+			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			event_paypal_short_display(
+			event_label_short_display(
 				event->program_name,
 				event->event_date,
 				event->event_time ),
@@ -320,18 +262,6 @@ EVENT *event_paypal_short_label_seek(
 
 EVENT *event_program_name_seek(
 			char *program_name,
-			LIST *event_list )
-{
-	return event_seek( program_name, event_list );
-}
-
-EVENT *event_list_seek(	char *program_name,
-			LIST *event_list )
-{
-	return event_seek( program_name, event_list );
-}
-
-EVENT *event_seek(	char *program_name,
 			LIST *event_list )
 {
 	EVENT *event;
@@ -372,43 +302,6 @@ LIST *event_program_name_list( LIST *event_list )
 	return name_list;
 }
 
-FILE *event_insert_open( char *error_filename )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-		"insert_statement t=%s f=\"%s\" replace=%c delimiter='%c'|"
-		"sql 2>&1						 |"
-		"cat >%s 						  ",
-		EVENT_TABLE,
-		EVENT_INSERT_COLUMNS,
-		'y',
-		SQL_DELIMITER,
-		error_filename );
-
-	return popen( sys_string, "w" );
-}
-
-void event_insert_pipe(
-			FILE *insert_pipe,
-			char *program_name,
-			char *event_date,
-			char *event_time,
-			char *season_name,
-			int year )
-{
-	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%d\n",
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		program_name_escape( program_name ),
-		event_date,
-		event_time,
-		season_name,
-		year );
-}
-
 LIST *event_label_list( LIST *event_list )
 {
 	EVENT *event;
@@ -426,7 +319,7 @@ LIST *event_label_list( LIST *event_list )
 			strdup( 
 				/* Returns static memory */
 				/* --------------------- */
-				event_paypal_long_display(
+				event_label_long_display(
 					event->program_name,
 					event->event_date,
 					event->event_time ) ) );
@@ -436,7 +329,7 @@ LIST *event_label_list( LIST *event_list )
 			strdup(
 				/* Returns static memory */
 				/* --------------------- */
-				event_paypal_short_display(
+				event_label_short_display(
 					event->program_name,
 					event->event_date,
 					event->event_time ) ) );
@@ -446,7 +339,7 @@ LIST *event_label_list( LIST *event_list )
 	return label_list;
 }
 
-char *event_paypal_long_display(
+char *event_label_long_display(
 			char *program_name,
 			char *event_date,
 			char *event_time )
@@ -489,7 +382,7 @@ char *event_paypal_long_display(
 	return paypal_display;
 }
 
-char *event_paypal_short_display(
+char *event_label_short_display(
 			char *program_name,
 			char *event_date,
 			char *event_time )
@@ -531,21 +424,6 @@ char *event_paypal_short_display(
 		date_display_ampm( date ) );
 
 	return paypal_display;
-}
-
-void event_trigger(	char *program_name,
-			char *event_date,
-			char *event_time )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-	"event_trigger \"%s\" '%s' '%s' update",
-		program_name,
-		event_date,
-		event_time );
-
-	if ( system( sys_string ) ){}
 }
 
 void event_fetch_update(

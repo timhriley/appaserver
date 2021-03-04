@@ -154,7 +154,7 @@ histogram_segment_list_display( histogram->segment_list );
 	}
 
 	grace->grace_output =
-		application_get_grace_output( application_name );
+		application_grace_output( application_name );
 
 	grace_get_filenames(
 			&agr_filename,
@@ -259,17 +259,17 @@ histogram_segment_list_display( histogram->segment_list );
 				grace->x_label_size,
 				page_width_pixels,
 				page_length_pixels,
-				application_get_grace_home_directory(
+				application_grace_home_directory(
 					application_name ),
-				application_get_grace_execution_directory(
+				application_grace_execution_directory(
 					application_name ),
-				application_get_grace_free_option_yn(
+				application_grace_free_option_yn(
 					application_name ),
 				grace->grace_output,
-				application_get_distill_directory(
+				application_distill_directory(
 					application_name ),
 				distill_landscape_flag,
-				application_get_ghost_script_directory(
+				application_ghost_script_directory(
 					application_name ),
 				grace_get_optional_label_list(
 					grace->graph_list ),

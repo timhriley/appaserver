@@ -112,7 +112,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-} /* main() */
+}
 
 boolean output_logfile_list(	LIST *logfile_list,
 				char *consume_directory,
@@ -148,7 +148,7 @@ boolean output_logfile_list(	LIST *logfile_list,
 			 date_convert_process,
 			 destination_dbms );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		if ( !remove_logfile( consume_directory,
 				logfile_name ) )
@@ -159,7 +159,7 @@ boolean output_logfile_list(	LIST *logfile_list,
 	} while( list_next( logfile_list ) );
 
 	return 1;
-} /* output_logfile_list() */
+}
 
 LIST *get_logfile_list(	char *synchronize_current_logfile_name,
 			char *synchronize_consume_directory,
@@ -199,7 +199,7 @@ LIST *get_logfile_list(	char *synchronize_current_logfile_name,
 	}
 
 	return logfile_list;
-} /* get_logfile_list() */
+}
 
 boolean remove_logfile( char *mysql_logfiles_directory,
 			char *logfile_name )
@@ -222,5 +222,5 @@ boolean remove_logfile( char *mysql_logfiles_directory,
 		return 0;
 	}
 	return 1;
-} /* remove_logfile() */
+}
 

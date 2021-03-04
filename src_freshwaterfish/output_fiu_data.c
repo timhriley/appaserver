@@ -170,7 +170,7 @@ int main( int argc, char **argv )
 					appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ),
 				0 /* not with_dynarch_menu */ );
 	
@@ -290,9 +290,9 @@ void output_fish_data(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			FILENAME_STEM_FISH,
@@ -540,9 +540,9 @@ void output_crayfish_data(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			FILENAME_STEM_CRAYFISH,
@@ -746,9 +746,9 @@ void output_vegetation_data(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			FILENAME_STEM_VEGETATION,
@@ -1015,9 +1015,9 @@ void output_periphyton_data(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			FILENAME_STEM_PERIPHYTON,
@@ -1162,9 +1162,9 @@ void output_inverts_verts_data(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			FILENAME_STEM_NONFISH,
@@ -1452,9 +1452,9 @@ void output_wet_weights_data(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
 			FILENAME_STEM_NONFISH,

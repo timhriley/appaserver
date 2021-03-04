@@ -207,7 +207,7 @@ void post_login_output_frameset(	char *application_name,
 		sprintf(
 		 email_http_filename,
 		 EMAIL_HTTP_FILE_TEMPLATE,
-		 application_get_http_prefix( application_name ),
+		 application_http_prefix( application_name ),
 		 appaserver_library_get_server_address(),
 		 application_name,
 		 session );

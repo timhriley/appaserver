@@ -60,7 +60,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0
 	||   strcmp( state, "update" ) ==  0 )
 	{
-		program_donation_fetch_total( program_name );
+		program_fetch_update( program_name );
 	}
 	return 0;
 }

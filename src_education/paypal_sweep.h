@@ -68,14 +68,14 @@ PAYPAL_SWEEP *paypal_sweep_calloc(
 			void );
 
 LIST *paypal_sweep_system_list(
-			char *sys_string,
+			char *system_string,
 			boolean fetch_transaction );
 
 PAYPAL_SWEEP *paypal_sweep_parse(
 			char *input,
 			boolean fetch_transaction );
 
-char *paypal_sweep_sys_string(
+char *paypal_sweep_system_string(
 			char *where );
 
 /* Returns static memory */
@@ -134,7 +134,7 @@ char *paypal_sweep_display(
 LIST *paypal_sweep_transaction_list(
 			PAYPAL_SWEEP *paypal_sweep );
 
-PAYPAL_SWEEP *paypal_sweep_seek(
+PAYPAL_SWEEP *paypal_sweep_list_seek(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *paypal_date_time,

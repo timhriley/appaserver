@@ -742,9 +742,9 @@ void income_statement_subclassification_aggregate_PDF(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,
 			process_name /* filename_stem */,
@@ -897,9 +897,9 @@ void income_statement_subclassification_display_PDF(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,
 			process_name /* filename_stem */,
@@ -1325,7 +1325,7 @@ double get_shares_outstanding(	char *appaserver_mount_point,
 	sprintf(sys_string,
 		"%s/%s/shares_outstanding \"%s\" \"%s\" 2>>%s",
 		appaserver_mount_point,
-		application_get_relative_source_directory(
+		application_relative_source_directory(
 			application_name ),
 		application_name,
 		as_of_date,
@@ -1613,9 +1613,9 @@ void income_statement_subclassification_omit_PDF(
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,
 			process_name /* filename_stem */,

@@ -111,9 +111,9 @@ int main( int argc, char **argv )
 
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		appaserver_parameter_file->
 				document_root,
@@ -238,7 +238,7 @@ void output_invoice_window(
 
 	printf(
 "<body bgcolor=\"%s\" onload=\"window.open('%s','%s','menubar=yes,resizeable=yes,scrollbars=yes,status=no,toolbar=no,location=no', 'false');\">\n",
-			application_get_background_color(
+			application_background_color(
 				application_name ),
 			ftp_output_filename,
 			window_label );

@@ -38,6 +38,7 @@
 #include "paypal_item.h"
 #include "program.h"
 #include "product.h"
+#include "event.h"
 #include "education.h"
 
 EDUCATION *education_calloc( void )
@@ -72,8 +73,7 @@ EDUCATION *education_spreadsheet_column_list_fetch(
 		semester_fetch(
 			strdup( season_name ),
 			year,
-			1 /* fetch_offering_list */,
-			1 /* fetch_event_list */ );
+			1 /* fetch_offering_list */ );
 
 	education->paypal =
 		paypal_column_list_fetch(
@@ -81,7 +81,9 @@ EDUCATION *education_spreadsheet_column_list_fetch(
 			date_label );
 
 	education->program_list =
-		program_list(
+		program_system_list(
+			program_system_string(
+				"1 = 1" ),
 			1 /* fetch_alias_list */ );
 
 	education->product_list = product_list();
@@ -178,6 +180,9 @@ LIST *education_paypal_deposit_list(
 					dataset_return
 						/* paypal_dataset */,
 					row_number,
+					/* ----------------------------- */
+					/* Seek out existing enrollments */
+					/* ----------------------------- */
 					paypal_deposit_list ) );
 		}
 	}
@@ -231,7 +236,10 @@ LIST *education_existing_tuition_payment_list(
 		"payment_date_time >= '%s'",
 		spreadsheet_minimum_date );
 
-	return tuition_payment_list( where );
+	return tuition_payment_system_list(
+			tuition_payment_system_string(
+				where ),
+			0 /* not fetch_registration */ );
 }
 
 LIST *education_existing_tuition_refund_list(
@@ -243,7 +251,10 @@ LIST *education_existing_tuition_refund_list(
 		"refund_date_time >= '%s'",
 		spreadsheet_minimum_date );
 
-	return tuition_refund_list( where );
+	return tuition_refund_system_list(
+			tuition_refund_system_string(
+				where ),
+			0 /* not fetch_registration */ );
 }
 
 LIST *education_existing_program_donation_list(
@@ -255,7 +266,10 @@ LIST *education_existing_program_donation_list(
 		"payment_date_time >= '%s'",
 		spreadsheet_minimum_date );
 
-	return program_donation_list( where );
+	return program_donation_system_list(
+			program_donation_system_string(
+				where ),
+			0 /* not fetch_program */ );
 }
 
 LIST *education_existing_product_sale_list(
@@ -267,7 +281,11 @@ LIST *education_existing_product_sale_list(
 		"sale_date_time >= '%s'",
 		spreadsheet_minimum_date );
 
-	return product_sale_list( where );
+	return product_sale_system_list(
+			product_sale_system_string(
+				where ),
+			0 /* not fetch_product */,
+			0 /* not fetch_program */ );
 }
 
 LIST *education_existing_product_refund_list(
@@ -279,7 +297,11 @@ LIST *education_existing_product_refund_list(
 		"refund_date_time >= '%s'",
 		spreadsheet_minimum_date );
 
-	return product_refund_list( where );
+	return product_refund_system_list(
+			product_refund_system_string(
+				where ),
+			0 /* not fetch_sale */,
+			0 /* not fetch_product */ );
 }
 
 LIST *education_existing_ticket_sale_list(
@@ -291,8 +313,9 @@ LIST *education_existing_ticket_sale_list(
 		"sale_date_time >= '%s'",
 		spreadsheet_minimum_date );
 
-	return ticket_sale_list(
-			where,
+	return ticket_sale_system_list(
+			ticket_sale_system_string(
+				where ),
 			0 /* not fetch_event */ );
 }
 
@@ -305,9 +328,11 @@ LIST *education_existing_ticket_refund_list(
 		"refund_date_time >= '%s'",
 		spreadsheet_minimum_date );
 
-	return ticket_refund_list(
-			where,
-			0 /* not fetch_sale */ );
+	return ticket_refund_system_list(
+			ticket_refund_system_string(
+				where ),
+			0 /* not fetch_sale */,
+			0 /* not fetch_event */ );
 }
 
 LIST *education_existing_paypal_sweep_list(
@@ -319,7 +344,9 @@ LIST *education_existing_paypal_sweep_list(
 		"paypal_date_time >= '%s'",
 		spreadsheet_minimum_date );
 
-	return paypal_sweep_list( where );
+	return paypal_sweep_list(
+			where,
+			0 /* not fetch_transaction */ );
 }
 
 LIST *education_paypal_exclude_existing_transaction_set(
@@ -356,5 +383,24 @@ LIST *education_paypal_exclude_existing_transaction_set(
 	} while ( list_next( paypal_deposit_list ) );
 
 	return paypal_deposit_list;
+}
+
+LIST *education_event_list( char *minimum_date )
+{
+	static LIST *event_list = {0};
+	char where[ 128 ];
+
+	if ( event_list ) return event_list;
+
+	sprintf( where, "event_date >= '%s'", minimum_date );
+
+	event_list =
+		event_system_list(
+			event_system_string(
+				where ),
+			1 /* fetch_program */,
+			0 /* not fetch_venue */ );
+
+	return event_list;
 }
 

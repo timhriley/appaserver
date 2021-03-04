@@ -95,7 +95,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -105,7 +105,7 @@ int main( int argc, char **argv )
 
 	printf( "<h2>%s\n", format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	printf( "</h2>\n" );
 	fflush( stdout );
 
@@ -128,9 +128,7 @@ int main( int argc, char **argv )
 						really_yn );
 	}
 
-/* fprintf( stderr, "%s\n", sys_string ); */
-
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	if ( really_yn == 'y' )
 	{
@@ -161,8 +159,8 @@ int main( int argc, char **argv )
 				application_name,
 				process_name,
 				appaserver_parameter_file_get_dbms() );
-	exit( 0 );
-} /* main() */
+	return 0;
+}
 
 char *get_sys_string(	char **generated_password,
 			char *application_name,
@@ -257,7 +255,7 @@ char *get_sys_string(	char **generated_password,
 
 	return sys_string;
 
-} /* get_sys_string() */
+}
 
 char *get_revoke_only_sys_string(
 			char *login_host_name,
@@ -286,4 +284,4 @@ char *get_revoke_only_sys_string(
 
 	return sys_string;
 
-} /* get_revoke_only_sys_string() */
+}

@@ -47,8 +47,7 @@ SEMESTER *semester_new(	char *season_name,
 SEMESTER *semester_fetch(
 			char *season_name,
 			int year,
-			boolean fetch_offering_list,
-			boolean fetch_event_list )
+			boolean fetch_offering_list )
 {
 	if ( !season_name || !season_name || !year )
 	{
@@ -56,16 +55,15 @@ SEMESTER *semester_fetch(
 	}
 
 	return semester_parse(
-			pipe2string(
-				semester_sys_string(
+			string_pipe_fetch(
+				semester_system_string(
 		 			/* -------------------------- */
 		 			/* Safely returns heap memory */
 		 			/* -------------------------- */
 		 			semester_primary_where(
 						season_name,
 						year ) ) ),
-			fetch_offering_list,
-			fetch_event_list );
+			fetch_offering_list );
 }
 
 /* Safely returns heap memory */
@@ -84,7 +82,7 @@ char *semester_primary_where(
 	return strdup( where );
 }
 
-char *semester_sys_string( char *where )
+char *semester_system_string( char *where )
 {
 	char sys_string[ 1024 ];
 
@@ -98,8 +96,7 @@ char *semester_sys_string( char *where )
 
 SEMESTER *semester_parse(
 			char *input,
-			boolean fetch_offering_list,
-			boolean fetch_event_list )
+			boolean fetch_offering_list )
 {
 	char season_name[ 128 ];
 	char year[ 128 ];
@@ -125,14 +122,6 @@ SEMESTER *semester_parse(
 				semester->year );
 	}
 
-	if ( fetch_event_list )
-	{
-		semester->event_list =
-			semester_event_list(
-				semester->season_name,
-				semester->year );
-	}
-
 	return semester;
 }
 
@@ -146,36 +135,13 @@ LIST *semester_offering_list(
 
 	offering_list =
 		offering_system_list(
-			offering_sys_string(
+			offering_system_string(
 				semester_primary_where(
 					season_name,
 					year ) ),
 			1 /* fetch_course */,
-			1 /* fetch_program */,
-			0 /* not fetch_enrollment_list */ );
+			1 /* fetch_program */ );
 
 	return offering_list;
-}
-
-LIST *semester_event_list(
-			char *season_name,
-			int year )
-{
-	static LIST *event_list = {0};
-
-	if ( event_list ) return event_list;
-
-	event_list =
-		event_system_list(
-			event_sys_string(
-				semester_primary_where(
-					season_name,
-					year ) ),
-			1 /* fetch_program */,
-			0 /* not fetch_venue */,
-			0 /* not fetch_sale_list */,
-			0 /* not fetch_refund_list */ );
-
-	return event_list;
 }
 

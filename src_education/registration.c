@@ -15,65 +15,14 @@
 #include "environ.h"
 #include "list.h"
 #include "paypal_upload.h"
-#include "registration.h"
+#include "paypal_deposit.h"
 #include "enrollment.h"
 #include "entity.h"
+#include "paypal_item.h"
+#include "education.h"
 #include "tuition_payment.h"
 #include "tuition_refund.h"
 #include "registration.h"
-#include "enrollment.h"
-
-double registration_tuition(
-			LIST *enrollment_list,
-			LIST *semester_offering_list )
-{
-	ENROLLMENT *enrollment;
-	OFFERING *offering;
-	double tuition;
-
-	if ( !list_rewind( enrollment_list ) ) return 0.0;
-
-	tuition = 0.0;
-
-	do {
-		enrollment = list_get( enrollment_list );
-
-		/* Not found offering will report later. */
-		/* ------------------------------------- */
-		if ( !enrollment->offering ) return 0.0;
-
-		if ( ! ( offering =
-				offering_seek(
-					enrollment->
-						offering->
-						course->
-						course_name,
-					semester_offering_list ) ) )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: offering not exists = [%s].\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				enrollment->offering->course->course_name );
-			exit( 1 );
-		}
-
-		enrollment->offering->course_price = offering->course_price;
-
-		tuition += enrollment->offering->course_price;
-
-	} while ( list_next( enrollment_list ) );
-
-	return tuition;
-}
-
-double registration_invoice_amount_due(
-			double registration_tuition,
-			double registration_tuition_payment_total )
-{
-	return registration_tuition - registration_tuition_payment_total;
-}
 
 char *registration_primary_where(
 			char *student_full_name,
@@ -100,19 +49,19 @@ char *registration_primary_where(
 }
 
 REGISTRATION *registration_parse(
-			char *input,
-			boolean fetch_enrollment_list,
-			boolean fetch_offering,
-			boolean fetch_course,
-			boolean fetch_program,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_tuition_refund_list )
+			char *input )
 {
 	char student_full_name[ 128 ];
 	char student_street_address[ 128 ];
 	char season_name[ 128 ];
-	int year;
-	char piece_buffer[ 128 ];
+	char year[ 128 ];
+	char registration_date_time[ 128 ];
+	char payor_full_name[ 128 ];
+	char payor_street_address[ 128 ];
+	char tuition[ 128 ];
+	char tuition_payment_total[ 128 ];
+	char tuition_refund_total[ 128 ];
+	char invoice_amount_due[ 128 ];
 	REGISTRATION *registration;
 
 	if ( !input || !*input ) return (REGISTRATION *)0;
@@ -122,126 +71,93 @@ REGISTRATION *registration_parse(
 	piece( student_full_name, SQL_DELIMITER, input, 0 );
 	piece( student_street_address, SQL_DELIMITER, input, 1 );
 	piece( season_name, SQL_DELIMITER, input, 2 );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	year = atoi( piece_buffer );
+	piece( year, SQL_DELIMITER, input, 3 );
 
 	registration =
 		registration_new(
 			entity_new(
 				strdup( student_full_name ),
 				strdup( student_street_address ) ),
-			strdup( season_name ),
-			year );
+			semester_new(
+				strdup( season_name ),
+				atoi( year ) ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	registration->registration_date_time = strdup( piece_buffer );
+	piece( registration_date_time, SQL_DELIMITER, input, 4 );
+	registration->registration_date_time = strdup( registration_date_time );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	registration->tuition = atof( piece_buffer );
+	piece( payor_full_name, SQL_DELIMITER, input, 5 );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 6 );
-	registration->tuition_payment_total = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 7 );
-	registration->tuition_refund_total = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 8 );
-	registration->invoice_amount_due = atof( piece_buffer );
-
-	if ( fetch_enrollment_list )
+	if ( !*payor_full_name )
 	{
-		registration->enrollment_list =
-			registration_enrollment_list(
-				registration->student_entity->full_name,
-				registration->student_entity->street_address,
-				registration->season_name,
-				registration->year,
-				fetch_offering,
-				fetch_course,
-				fetch_program );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty payor_full_name.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (REGISTRATION *)0;
 	}
 
-	if ( fetch_tuition_payment_list )
-	{
-		registration->registration_tuition_payment_list =
-			registration_tuition_payment_list(
-				registration->student_entity->full_name,
-				registration->student_entity->street_address,
-				registration->season_name,
-				registration->year );
-	}
+	piece( payor_street_address, SQL_DELIMITER, input, 6 );
 
-	if ( fetch_tuition_refund_list )
-	{
-		registration->registration_tuition_refund_list =
-			registration_tuition_refund_list(
-				registration->student_entity->full_name,
-				registration->student_entity->street_address,
-				registration->season_name,
-				registration->year );
-	}
+	registration->payor_entity =
+		entity_new(
+			strdup( payor_full_name ),
+			strdup( payor_street_address ) );
+
+	piece( tuition, SQL_DELIMITER, input, 7 );
+	registration->tuition = atof( tuition );
+
+	piece( tuition_payment_total, SQL_DELIMITER, input, 8 );
+	registration->tuition_payment_total = atof( tuition_payment_total );
+
+	piece( tuition_refund_total, SQL_DELIMITER, input, 9 );
+	registration->tuition_refund_total = atof( tuition_refund_total );
+
+	piece( invoice_amount_due, SQL_DELIMITER, input, 10 );
+	registration->invoice_amount_due = atof( invoice_amount_due );
 
 	return registration;
 }
 
 LIST *registration_system_list(
-			char *sys_string,
-			boolean fetch_enrollment_list,
-			boolean fetch_offering,
-			boolean fetch_course,
-			boolean fetch_program,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_tuition_refund_list )
+			char *system_string )
 {
 	LIST *registration_list = list_new();
 	char input[ 1024 ];
-	FILE *input_pipe = popen( sys_string, "r" );
+	FILE *input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
 		list_set(
 			registration_list,
 			registration_parse(
-				input,
-				fetch_enrollment_list,
-				fetch_offering,
-				fetch_course,
-				fetch_program,
-				fetch_tuition_payment_list,
-				fetch_tuition_refund_list ) );
+				input ) );
 	}
 	pclose( input_pipe );
 	return registration_list;
 }
 
-char *registration_sys_string( char *where )
+char *registration_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '*' %s \"%s\" select",
 		 "registration",
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 REGISTRATION *registration_fetch(
 			char *student_full_name,
 			char *student_street_address,
 			char *season_name,
-			int year,
-			boolean fetch_enrollment_list,
-			boolean fetch_offering,
-			boolean fetch_course,
-			boolean fetch_program,
-			boolean fetch_tuition_payment_list,
-			boolean fetch_tuition_refund_list )
+			int year )
 {
 	return	registration_parse(
-			pipe2string(
-				registration_sys_string(
+			string_pipe_fetch(
+				registration_system_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -249,55 +165,7 @@ REGISTRATION *registration_fetch(
 						student_full_name,
 						student_street_address,
 						season_name,
-						year ) ) ),
-			fetch_enrollment_list,
-			fetch_offering,
-			fetch_course,
-			fetch_program,
-			fetch_tuition_payment_list,
-			fetch_tuition_refund_list );
-}
-
-REGISTRATION *registration_seek(
-			char *student_full_name,
-			char *student_street_address,
-			char *season_name,
-			int year,
-			LIST *registration_list )
-{
-	REGISTRATION *registration;
-
-	if ( !list_rewind( registration_list ) )
-		return (REGISTRATION *)0;
-
-	do {
-		registration = list_get( registration_list );
-
-		if ( strcmp(	registration->student_entity->full_name,
-				student_full_name ) == 0
-		&&   strcmp(	registration->student_entity->street_address,
-				student_street_address ) == 0
-		&&   strcmp(	registration->season_name,
-				season_name ) == 0
-		&&   registration->year == year )
-		{
-			return registration;
-		}
-	} while ( list_next( registration_list ) );
-
-	return (REGISTRATION *)0;
-}
-
-char *registration_name_escape(
-			char *full_name )
-{
-	return registration_escape_full_name( full_name );
-}
-
-char *registration_escape_name(
-			char *full_name )
-{
-	return registration_escape_full_name( full_name );
+						year ) ) ) );
 }
 
 char *registration_escape_full_name(
@@ -311,8 +179,7 @@ char *registration_escape_full_name(
 
 REGISTRATION *registration_new(
 			ENTITY *student_entity,
-			char *season_name,
-			int year )
+			SEMESTER *semester )
 {
 	REGISTRATION *registration;
 
@@ -327,138 +194,57 @@ REGISTRATION *registration_new(
 	}
 
 	registration->student_entity = student_entity;
-	registration->season_name = season_name;
-	registration->year = year;
+	registration->semester = semester;
+
 	return registration;
 }
 
-double registration_tuition_total(
+void registration_list_insert(
 			LIST *registration_list )
 {
 	REGISTRATION *registration;
-	double tuition_total;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
 
-	if ( !list_rewind( registration_list ) ) return 0.0;
+	if ( !list_rewind( registration_list ) ) return;
 
-	tuition_total = 0.0;
+	insert_pipe =
+		registration_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
 
 	do {
-		registration =
-			list_get(
-				registration_list );
+		registration = list_get( registration_list );
 
-		tuition_total += registration->tuition;
+		registration_insert_pipe(
+			insert_pipe,
+			registration->student_entity->full_name,
+			registration->student_entity->street_address,
+			registration->semester->season_name,
+			registration->semester->year,
+			registration->registration_date_time,
+			registration->payor_entity->full_name,
+			registration->payor_entity->street_address );
 
 	} while ( list_next( registration_list ) );
 
-	return tuition_total;
-}
+	pclose( insert_pipe );
 
-double registration_tuition_payment_total(
-			LIST *tuition_payment_list )
-{
-	return tuition_payment_total( tuition_payment_list );
-}
-
-double registration_tuition_refund_total(
-			LIST *tuition_refund_list )
-{
-	return tuition_refund_total( tuition_refund_list );
-}
-
-REGISTRATION *registration_steady_state(
-			REGISTRATION *registration,
-			LIST *enrollment_list,
-			LIST *semester_offering_list )
-{
-	if ( !registration )
+	if ( timlib_file_populated( error_filename ) )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty registration\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		sprintf(sys_string,
+			"cat %s						   |"
+			"queue_top_bottom_lines.e 300			   |"
+			"html_table.e 'Insert Registration Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
 	}
 
-	registration->tuition =
-		registration_tuition(
-			enrollment_list,
-			semester_offering_list );
+	sprintf( sys_string, "rm %s", error_filename );
 
-	registration->tuition_payment_total =
-		registration_tuition_payment_total(
-			registration->registration_tuition_payment_list );
-
-	registration->invoice_amount_due =
-		registration_invoice_amount_due(
-			registration->tuition,
-			registration->tuition_payment_total );
-
-	return registration;
-}
-
-FILE *registration_update_open( void )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "update_statement table=%s key=%s carrot=y	|"
-		 "tee_appaserver_error.sh			|"
-		 "sql						 ",
-		 REGISTRATION_TABLE,
-		 REGISTRATION_PRIMARY_KEY );
-
-	return popen( sys_string, "w" );
-}
-
-void registration_update(
-			double tuition,
-			double tuition_payment_total,
-			double tuition_refund_total,
-			double invoice_amount_due,
-			char *student_full_name,
-			char *student_street_address,
-			char *season_name,
-			int year )
-{
-	FILE *update_pipe;
-
-	update_pipe = registration_update_open();
-
-	fprintf( update_pipe,
-		 "%s^%s^%s^%d^tuition^%.2lf\n",
-		 student_full_name,
-		 student_street_address,
-		 season_name,
-		 year,
-		 tuition );
-
-	fprintf( update_pipe,
-		 "%s^%s^%s^%d^tuition_payment_total^%.2lf\n",
-		 student_full_name,
-		 student_street_address,
-		 season_name,
-		 year,
-		 tuition_payment_total );
-
-	fprintf( update_pipe,
-		 "%s^%s^%s^%d^tuition_refund_total^%.2lf\n",
-		 student_full_name,
-		 student_street_address,
-		 season_name,
-		 year,
-		 tuition_refund_total );
-
-	fprintf( update_pipe,
-		 "%s^%s^%s^%d^invoice_amount_due^%.2lf\n",
-		 student_full_name,
-		 student_street_address,
-		 season_name,
-		 year,
-		 invoice_amount_due );
-
-	pclose( update_pipe );
+	if ( system( sys_string ) ){};
 }
 
 FILE *registration_insert_open( char *error_filename )
@@ -485,20 +271,22 @@ void registration_insert_pipe(
 			char *student_street_address,
 			char *season_name,
 			int year,
-			char *registration_date_time )
+			char *registration_date_time,
+			char *payor_full_name,
+			char *payor_street_address )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%d^%s\n",
+		"%s^%s^%s^%d^%s^%s^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		entity_escape_full_name( student_full_name ),
+		registration_escape_full_name( student_full_name ),
 		student_street_address,
 		season_name,
 		year,
-		(registration_date_time)
-			? registration_date_time
- 			: "" );
+		registration_date_time,
+		entity_escape_full_name( payor_full_name ),
+		payor_street_address );
 }
 
 void registration_fetch_update(
@@ -507,49 +295,47 @@ void registration_fetch_update(
 			char *season_name,
 			int year )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf(sys_string,
+	sprintf(system_string,
 		"registration_tuition.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,
 		year );
 
-	if ( system( sys_string ) ){}
+	if ( system( system_string ) ){}
 
-	sprintf(sys_string,
+	sprintf(system_string,
 		"registration_tuition_payment_total.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,
 		year );
 
-	if ( system( sys_string ) ){}
+	if ( system( system_string ) ){}
 
-	sprintf(sys_string,
+	sprintf(system_string,
 		"registration_tuition_refund_total.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,
 		year );
 
-	if ( system( sys_string ) ){}
+	if ( system( system_string ) ){}
 
-	sprintf(sys_string,
+	sprintf(system_string,
 		"registration_invoice_amount_due.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,
 		year );
 
-	if ( system( sys_string ) ){}
+	if ( system( system_string ) ){}
 }
 
 void registration_list_fetch_update(
-			LIST *registration_list,
-			char *season_name,
-			int year )
+			LIST *registration_list )
 {
 	REGISTRATION *registration;
 
@@ -561,172 +347,279 @@ void registration_list_fetch_update(
 		registration_fetch_update(
 			registration->student_entity->full_name,
 			registration->student_entity->street_address,
-			season_name,
-			year );
+			registration->semester->season_name,
+			registration->semester->year );
 
 	} while ( list_next( registration_list ) );
 }
 
-LIST *registration_enrollment_list(
-			char *student_full_name,
-			char *student_street_address,
-			char *season_name,
-			int year,
-			boolean fetch_offering,
-			boolean fetch_course,
-			boolean fetch_program )
-{
-	return
-		enrollment_system_list(
-			enrollment_sys_string(
-				registration_primary_where(
-					student_full_name,
-					student_street_address,
-					season_name,
-					year ) ),
-			fetch_offering,
-			fetch_course,
-			fetch_program,
-			0 /* not fetch_registration */ );
-}
-
-LIST *registration_tuition_payment_list(
-			char *student_full_name,
-			char *student_street_address,
-			char *season_name,
-			int year )
-{
-	return
-		tuition_payment_system_list(
-			tuition_payment_sys_string(
-				registration_primary_where(
-					student_full_name,
-					student_street_address,
-					season_name,
-					year ) ),
-			0 /* not fetch_registration */,
-			1 /* fetch_enrollment_list */,
-			1 /* fetch_offering */,
-			1 /* fetch_course */,
-			0 /* not fetch_program */ );
-}
-
-LIST *registration_tuition_refund_list(
-			char *student_full_name,
-			char *student_street_address,
-			char *season_name,
-			int year )
-{
-	return
-		tuition_refund_system_list(
-			tuition_refund_sys_string(
-				registration_primary_where(
-					student_full_name,
-					student_street_address,
-					season_name,
-					year ) ),
-			0 /* not fetch_registration */,
-			1 /* fetch_enrollment_list */,
-			1 /* fetch_offering */,
-			1 /* fetch_course */,
-			1 /* fetch_program */ );
-}
-
-FILE *registration_enrollment_insert_open(
-			char *error_filename )
-{
-	return enrollment_insert_open( error_filename );
-}
-
-void registration_enrollment_list_insert(
-			FILE *insert_pipe,
-			LIST *enrollment_list )
-{
-	ENROLLMENT *enrollment;
-
-	if ( !list_rewind( enrollment_list ) ) return;
-
-	do {
-		enrollment = list_get( enrollment_list );
-
-		enrollment_insert_pipe(
-			insert_pipe,
-			enrollment->
-				registration->
-				student_entity->
-				full_name,
-			enrollment->
-				registration->
-				student_entity->
-				street_address,
-			enrollment->
-				offering->
-				course->
-				course_name,
-			enrollment->
-				offering->
-				semester->
-				season_name,
-			enrollment->
-				offering->
-				semester->
-				year,
-			enrollment->transaction_date_time );
-
-	} while ( list_next( enrollment_list ) );
-}
-
-TRANSACTION *registration_enrollment_seek_transaction(
-			LIST *enrollment_list )
-{
-	ENROLLMENT *enrollment;
-
-	if ( !list_rewind( enrollment_list ) ) return (TRANSACTION *)0;
-
-	do {
-		enrollment = list_get( enrollment_list );
-
-		if ( enrollment->enrollment_transaction )
-			return enrollment->enrollment_transaction;
-
-	} while ( list_next( enrollment_list ) );
-	return (TRANSACTION *)0;
-}
-
-LIST *registration_course_name_list(
+LIST *registration_list_offering_list(
 			LIST *registration_list )
 {
-	LIST *course_name_list;
+	LIST *offering_list;
 	REGISTRATION *registration;
 
 	if ( !list_rewind( registration_list ) ) return (LIST *)0;
 
-	course_name_list = list_new();
+	offering_list = list_new();
 
 	do {
 		registration = list_get( registration_list );
 
-		list_unique_list(
-			course_name_list,
-			enrollment_course_name_list(
-				registration->
-					enrollment_list ) );
+		list_set_list(
+			offering_list,
+			enrollment_list_offering_list(
+				registration->enrollment_list ) );
 
 	} while ( list_next( registration_list ) );
 
-	return course_name_list;
+	return offering_list;
 }
 
-LIST *registration_list( char *where )
+LIST *registration_list_paypal(
+			char *season_name,
+			int year,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			LIST *paypal_item_list,
+			LIST *semester_offering_list,
+			LIST *paypal_deposit_list )
 {
-	return	registration_system_list(
-			registration_sys_string( where ),
-			1 /* fetch_enrollment_list */,
-			0 /* not fetch_offering */,
-			0 /* not fetch_course */,
-			0 /* not fetch_program */,
-			1 /* fetch_tuition_payment_list */,
-			1 /* fetch_tuition_refund_list */ );
+	LIST *registration_list = {0};
+	PAYPAL_ITEM *paypal_item;
+	OFFERING *offering;
+	SEMESTER *semester;
+
+	if ( !list_rewind( paypal_item_list ) ) return (LIST *)0;
+
+	semester =
+		semester_new(
+			season_name,
+			year );
+	do {
+		paypal_item = list_get( paypal_item_list );
+
+		if ( paypal_item->taken ) continue;
+
+		if ( !paypal_item->benefit_entity ) continue;
+
+		if ( ( offering =
+			offering_list_seek( 
+				paypal_item->item_data,
+				semester_offering_list ) ) )
+		{
+			if ( !registration_list )
+				registration_list =
+					list_new();
+
+			list_set(
+				registration_list,
+				registration_paypal(
+					semester,
+					paypal_item->benefit_entity,
+					payor_entity,
+					paypal_date_time,
+					paypal_item->item_value,
+					paypal_item->item_fee,
+					offering,
+					paypal_deposit_list ) );
+
+			paypal_item->taken = 1;
+		}
+
+	} while ( list_next( paypal_item_list ) );
+
+	return registration_list;
 }
 
+REGISTRATION *registration_paypal(
+			SEMESTER *semester,
+			ENTITY *student_entity,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			double item_value,
+			double item_fee,
+			OFFERING *offering,
+			LIST *paypal_deposit_list )
+{
+	REGISTRATION *registration;
+	ENROLLMENT *enrollment;
+	TUITION_PAYMENT *tuition_payment;
+	TUITION_REFUND *tuition_refund;
+
+	if ( !student_entity || !payor_entity )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: missing student_entity or payor_entity.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	registration =
+		registration_new(
+			student_entity,
+			semester );
+
+	registration->registration_date_time = paypal_date_time;
+	registration->enrollment_list = list_new();
+
+	if ( item_value > 0.0 )
+	{
+		registration->tuition_payment_list = list_new();
+
+		enrollment =
+			enrollment_new(
+				student_entity,
+				offering->course_name,
+				registration->semester );
+
+		enrollment->enrollment_date_time = paypal_date_time;
+
+		list_set( registration->enrollment_list, enrollment );
+
+		tuition_payment =
+			tuition_payment_new(
+				student_entity,
+				registration->semester,
+				paypal_date_time
+					/* payment_date_time */ );
+
+		tuition_payment->payor_entity = payor_entity;
+		tuition_payment->paypal_date_time = paypal_date_time;
+		tuition_payment->payment_amount = item_value;
+		tuition_payment->merchant_fees_expense = item_fee;
+		tuition_payment->registration = registration;
+
+		tuition_payment->net_payment_amount =
+			education_net_payment_amount(
+				tuition_payment->payment_amount,
+				tuition_payment->merchant_fees_expense );
+
+		list_set( registration->tuition_payment_list, tuition_payment );
+	}
+	else
+	if ( item_value < 0.0 )
+	{
+		registration->tuition_refund_list = list_new();
+
+		if ( ! ( enrollment =
+			     enrollment_integrity_fetch(
+				student_entity->full_name,
+				student_entity->street_address,
+				offering->course->course_name,
+				registration->semester->season_name,
+				registration->semester->year ) ) )
+		{
+			if ( ! ( enrollment =
+				     enrollment_list_seek(
+					student_entity->full_name,
+					student_entity->street_address,
+					offering->course->course_name,
+					registration->semester->season_name,
+					registration->semester->year,
+					paypal_deposit_list_enrollment_list(
+						paypal_deposit_list ) ) ) )
+			{
+				return (REGISTRATION *)0;
+			}
+		}
+
+		list_set( registration->enrollment_list, enrollment );
+
+		tuition_refund =
+			tuition_refund_new(
+				student_entity,
+				registration->semester,
+				paypal_date_time
+					/* refund_date_time */ );
+
+		tuition_refund->payor_entity = payor_entity;
+		tuition_refund->paypal_date_time = paypal_date_time;
+		tuition_refund->refund_amount = item_value;
+		tuition_refund->merchant_fees_expense = item_fee;
+		tuition_refund->registration = registration;
+
+		tuition_refund->net_refund_amount =
+			education_net_refund_amount(
+				tuition_refund->refund_amount,
+				tuition_refund->merchant_fees_expense );
+
+		list_set( registration->tuition_refund_list, tuition_refund );
+	}
+	return registration;
+}
+
+LIST *registration_list_enrollment_list(
+			LIST *registration_list )
+{
+	LIST *enrollment_list;
+	REGISTRATION *registration;
+
+	if ( !list_rewind( registration_list ) ) return (LIST *)0;
+
+	enrollment_list = list_new();
+
+	do {
+		registration = list_get( registration_list );
+
+		list_set_list(
+			enrollment_list,
+			registration->enrollment_list );
+
+	} while ( list_next( registration_list ) );
+
+	return enrollment_list;
+}
+
+LIST *registration_list_tuition_payment_list(
+			LIST *registration_list )
+{
+	LIST *tuition_payment_list;
+	REGISTRATION *registration;
+
+	if ( !list_rewind( registration_list ) ) return (LIST *)0;
+
+	tuition_payment_list = list_new();
+
+	do {
+		registration = list_get( registration_list );
+
+		if ( list_length( registration->tuition_payment_list ) )
+		{
+			list_set_list(
+				tuition_payment_list,
+				registration->tuition_payment_list );
+		}
+
+	} while ( list_next( registration_list ) );
+
+	return tuition_payment_list;
+}
+
+LIST *registration_list_tuition_refund_list(
+			LIST *registration_list )
+{
+	LIST *tuition_refund_list;
+	REGISTRATION *registration;
+
+	if ( !list_rewind( registration_list ) ) return (LIST *)0;
+
+	tuition_refund_list = list_new();
+
+	do {
+		registration = list_get( registration_list );
+
+		if ( list_length( registration->tuition_refund_list ) )
+		{
+			list_set_list(
+				tuition_refund_list,
+				registration->tuition_refund_list );
+		}
+
+	} while ( list_next( registration_list ) );
+
+	return tuition_refund_list;
+}
 

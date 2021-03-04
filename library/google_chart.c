@@ -1210,7 +1210,7 @@ void google_chart_output_prompt(
 	{
 		printf(
 "<body bgcolor=\"%s\" onload=\"window.open('%s','%s');\">\n",
-			application_get_background_color( application_name ),
+			application_background_color( application_name ),
 			prompt_filename,
 			target_window );
 	}
@@ -1971,7 +1971,7 @@ void google_chart_output_graph_window(
 				appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ),
 				0 /* not with_dynarch_menu */ );
 	}
@@ -1979,7 +1979,7 @@ void google_chart_output_graph_window(
 
 	printf(
 "<body bgcolor=\"%s\" onload=\"window.open('%s','%s');\">\n",
-		application_get_background_color( application_name ),
+		application_background_color( application_name ),
 		prompt_filename,
 		window_name );
 

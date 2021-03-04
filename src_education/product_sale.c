@@ -66,12 +66,12 @@ PRODUCT_SALE *product_sale_fetch(
 			char *payor_street_address,
 			char *sale_date_time,
 			boolean fetch_product,
-			boolean fetch_transaction )
+			boolean fetch_program )
 {
 	return
 		product_sale_parse(
 			pipe2string(
-				product_sale_sys_string(
+				product_sale_system_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -81,19 +81,19 @@ PRODUCT_SALE *product_sale_fetch(
 						payor_street_address,
 						sale_date_time ) ) ),
 		fetch_product,
-		fetch_transaction );
+		fetch_program );
 }
 
 LIST *product_sale_system_list(
-			char *sys_string,
+			char *system_string,
 			boolean fetch_product,
-			boolean fetch_transaction )
+			boolean fetch_program )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
 	LIST *product_sale_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -102,23 +102,23 @@ LIST *product_sale_system_list(
 			product_sale_parse(
 				input,
 				fetch_product,
-				fetch_transaction ) );
+				fetch_program ) );
 	}
 
 	pclose( input_pipe );
 	return product_sale_list;
 }
 
-char *product_sale_sys_string( char *where )
+char *product_sale_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '*' %s \"%s\" select",
 		 PRODUCT_SALE_TABLE,
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 void product_sale_list_insert(
@@ -160,9 +160,9 @@ void product_sale_list_insert(
 			product_sale->quantity,
 			product_sale->retail_price,
 			product_sale->extended_price,
+			product_sale->merchant_fees_expense,
 			product_sale->net_payment_amount,
 			product_sale->transaction_date_time,
-			product_sale->merchant_fees_expense,
 			product_sale->paypal_date_time );
 
 	} while ( list_next( product_sale_list ) );
@@ -214,13 +214,13 @@ void product_sale_insert_pipe(
 			int quantity,
 			double retail_price,
 			double extended_price,
+			double merchant_fees_expense,
 			double net_payment_amount,
 			char *transaction_date_time,
-			double merchant_fees_expense,
 			char *paypal_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%d^%.2lf^%.2lf^%.2lf^%s^%.2lf^%s\n",
+		"%s^%s^%s^%s^%d^%.2lf^%.2lf^%.2lf^%.2lf^%s^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -234,11 +234,11 @@ void product_sale_insert_pipe(
 		quantity,
 		retail_price,
 		extended_price,
+		merchant_fees_expense,
 		net_payment_amount,
 		(transaction_date_time)
 			? transaction_date_time
 			: "",
-		merchant_fees_expense,
 		(paypal_date_time)
 			? paypal_date_time
 			: "" );
@@ -247,7 +247,7 @@ void product_sale_insert_pipe(
 PRODUCT_SALE *product_sale_parse(
 			char *input,
 			boolean fetch_product,
-			boolean fetch_transaction )
+			boolean fetch_program )
 {
 	char product_name[ 128 ];
 	char payor_full_name[ 128 ];
@@ -308,17 +308,7 @@ PRODUCT_SALE *product_sale_parse(
 		product_sale->product =
 			product_fetch(
 				product_sale->product_name,
-				0 /* not fetch_sale_list */,
-				0 /* not fetch_refund_list */ );
-	}
-
-	if ( fetch_transaction && *product_sale->transaction_date_time )
-	{
-		product_sale->product_sale_transaction =
-			transaction_fetch(
-				product_sale->payor_entity->full_name,
-				product_sale->payor_entity->street_address,
-				product_sale->transaction_date_time );
+				fetch_program );
 	}
 
 	return product_sale;
@@ -416,8 +406,8 @@ TRANSACTION *product_sale_transaction(
 
 	journal->debit_amount = net_payment_amount;
 
-	/* Debit fees_expense */
-	/* ------------------ */
+	/* Debit fees_expense (maybe) */
+	/* -------------------------- */
 	list_set(
 		transaction->journal_list,
 		journal_merchant_fees_expense(
@@ -586,84 +576,6 @@ PRODUCT_SALE *product_sale_steady_state(
 			product_sale->merchant_fees_expense );
 
 	return product_sale;
-}
-
-void product_sale_trigger(
-			char *product_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *state )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"product_sale_trigger \"%s\" \"%s\" '%s' '%s' '%s'",
-		product_name,
-		payor_full_name,
-		payor_street_address,
-		sale_date_time,
-		state );
-
-	if ( system( sys_string ) ){}
-}
-
-double product_sale_total( LIST *product_sale_list )
-{
-	PRODUCT_SALE *product_sale;
-	double total;
-
-	if ( !list_rewind( product_sale_list ) ) return 0.0;
-
-	total = 0.0;
-
-	do {
-		product_sale = list_get( product_sale_list );
-
-		total += product_sale->extended_price;
-
-	} while ( list_next( product_sale_list ) );
-
-	return total;
-}
-
-double product_sale_fee_total( LIST *product_sale_list )
-{
-	PRODUCT_SALE *product_sale;
-	double fee_total;
-
-	if ( !list_rewind( product_sale_list ) ) return 0.0;
-
-	fee_total = 0.0;
-
-	do {
-		product_sale = list_get( product_sale_list );
-
-		fee_total += product_sale->merchant_fees_expense;
-
-	} while ( list_next( product_sale_list ) );
-
-	return fee_total;
-}
-
-void product_sale_list_trigger(
-			LIST *product_sale_list )
-{
-	PRODUCT_SALE *product_sale;
-
-	if ( !list_rewind( product_sale_list ) ) return;
-
-	do {
-		product_sale = list_get( product_sale_list );
-
-		product_sale_trigger(
-			product_sale->product->product_name,
-			product_sale->payor_entity->full_name,
-			product_sale->payor_entity->street_address,
-			product_sale->sale_date_time,
-			"insert" /* state */ );
-
-	} while ( list_next( product_sale_list ) );
 }
 
 LIST *product_sale_transaction_list(
@@ -867,7 +779,7 @@ LIST *product_sale_list_paypal(
 		if ( paypal_item->benefit_entity ) continue;
 
 		if ( ( product =
-			product_seek(
+			product_list_seek(
 				paypal_item->item_data,
 				product_list ) ) )
 		{
@@ -925,27 +837,7 @@ PRODUCT_SALE *product_sale_paypal(
 	return product_sale;
 }
 
-LIST *product_sale_list( char *where )
-{
-	return product_sale_system_list(
-		product_sale_sys_string( where ),
-		0 /* not fetch_product */,
-		0 /* not fetch_transaction */ );
-}
-
-void product_sale_fetch_update(
-			char *product_name )
-{
-	char sys_string[ 256 ];
-
-	sprintf(sys_string,
-		"product_sale_total.sh \"%s\"",
-		product_name );
-
-	if ( system( sys_string ) ){};
-}
-
-LIST *product_sale_product_name_list( LIST *sale_list )
+LIST *product_sale_list_product_name_list( LIST *sale_list )
 {
 	PRODUCT_SALE *product_sale;
 	LIST *product_name_list;
@@ -967,21 +859,6 @@ LIST *product_sale_product_name_list( LIST *sale_list )
 	return product_name_list;
 }
 
-void product_sale_list_fetch_update(
-			LIST *product_name_list )
-{
-	char *product_name;
-
-	if ( !list_rewind( product_name_list ) ) return;
-
-	do {
-		product_name = list_get( product_name_list );
-
-		product_sale_fetch_update( product_name );
-
-	} while ( list_next( product_name_list ) );
-}
-
 PRODUCT_SALE *product_sale_integrity_fetch(
 			char *product_name,
 			char *payor_full_name,
@@ -989,8 +866,8 @@ PRODUCT_SALE *product_sale_integrity_fetch(
 {
 	return
 		product_sale_parse(
-			pipe2string(
-				product_sale_sys_string(
+			string_pipe_fetch(
+				product_sale_system_string(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -999,7 +876,7 @@ PRODUCT_SALE *product_sale_integrity_fetch(
 						payor_full_name,
 						payor_street_address ) ) ),
 		0 /* not fetch_product */,
-		0 /* not fetch_transaction */ );
+		0 /* not fetch_program */ );
 }
 
 char *product_sale_integrity_where(
@@ -1026,7 +903,7 @@ char *product_sale_integrity_where(
 	return where;
 }
 
-PRODUCT_SALE *product_sale_seek(
+PRODUCT_SALE *product_sale_list_seek(
 			char *product_name,
 			char *payor_full_name,
 			char *payor_street_address,
@@ -1071,7 +948,7 @@ PRODUCT_SALE *product_sale_seek(
 	return (PRODUCT_SALE *)0;
 }
 
-boolean product_sale_list_exists(
+boolean product_sale_list_any_exists(
 			LIST *product_sale_list,
 			LIST *existing_product_sale_list )
 {
@@ -1092,7 +969,7 @@ boolean product_sale_list_exists(
 			exit( 1 );
 		}
 
-		if ( product_sale_seek(
+		if ( product_sale_list_seek(
 			product_sale->product_name,
 			product_sale->payor_entity->full_name,
 			product_sale->payor_entity->street_address,
@@ -1104,5 +981,43 @@ boolean product_sale_list_exists(
 	} while ( list_next( product_sale_list ) );
 
 	return 0;
+}
+
+double product_sale_total(
+			LIST *product_sale_list )
+{
+	PRODUCT_SALE *product_sale;
+	double total;
+
+	if ( !list_rewind( product_sale_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		product_sale = list_get( product_sale_list );
+		total += product_sale->retail_price;
+
+	} while ( list_next( product_sale_list ) );
+
+	return total;
+}
+
+double product_sale_fee_total(
+			LIST *product_sale_list )
+{
+	PRODUCT_SALE *product_sale;
+	double total;
+
+	if ( !list_rewind( product_sale_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		product_sale = list_get( product_sale_list );
+		total += product_sale->merchant_fees_expense;
+
+	} while ( list_next( product_sale_list ) );
+
+	return total;
 }
 

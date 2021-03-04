@@ -34,14 +34,24 @@ PAYPAL_SWEEP *paypal_sweep_new(
 	return paypal_sweep;
 }
 
+char *paypal_sweep_system_string( char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf( system_string,
+		 "select.sh '*' %s \"%s\" select",
+		 PAYPAL_SWEEP_TABLE,
+		 where );
+
+	return strdup( system_string );
+}
+
 PAYPAL_SWEEP *paypal_sweep_fetch(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *paypal_date_time,
 			boolean fetch_transaction )
 {
-	char sys_string[ 1024 ];
-
 	if ( !payor_full_name || !*payor_full_name
 	||   !payor_street_address || !*payor_street_address
 	||   !paypal_date_time || !*paypal_date_time )
@@ -54,20 +64,17 @@ PAYPAL_SWEEP *paypal_sweep_fetch(
 		exit( 1 );
 	}
 
-	sprintf( sys_string,
-		 "select.sh '*' %s \"%s\" select",
-		 PAYPAL_SWEEP_TABLE,
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 paypal_sweep_primary_where(
-			payor_full_name,
-			payor_street_address,
-			paypal_date_time ) );
-
 	return
 		paypal_sweep_parse(
-			pipe2string( sys_string ),
+			string_pipe_fetch(
+				paypal_sweep_system_string(
+		 		/* --------------------- */
+		 		/* Returns static memory */
+		 		/* --------------------- */
+		 		paypal_sweep_primary_where(
+					payor_full_name,
+					payor_street_address,
+					paypal_date_time ) ) ),
 			fetch_transaction );
 }
 
@@ -76,7 +83,7 @@ LIST *paypal_sweep_list(
 			boolean fetch_transaction )
 {
 	return paypal_sweep_system_list(
-			paypal_sweep_sys_string(
+			paypal_sweep_system_string(
 				where ),
 			fetch_transaction );
 }
@@ -98,14 +105,14 @@ PAYPAL_SWEEP *paypal_sweep_calloc( void )
 }
 
 LIST *paypal_sweep_system_list(
-			char *sys_string,
+			char *system_string,
 			boolean fetch_transaction )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
 	LIST *sweep_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -161,18 +168,6 @@ PAYPAL_SWEEP *paypal_sweep_parse(
 	}
 
 	return paypal_sweep;
-}
-
-char *paypal_sweep_sys_string( char *where )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "select.sh '*' %s \"%s\" select",
-		 PAYPAL_SWEEP_TABLE,
-		 where );
-
-	return strdup( sys_string );
 }
 
 char *paypal_sweep_primary_where(
@@ -234,19 +229,19 @@ void paypal_sweep_insert( PAYPAL_SWEEP *paypal_sweep )
 
 FILE *paypal_sweep_insert_open( char *error_filename )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf(sys_string,
+	sprintf(system_string,
 		"insert_statement t=%s f=\"%s\" replace=%c delimiter='%c'|"
 		"sql 2>&1						 |"
 		"cat >%s 						  ",
 		PAYPAL_SWEEP_TABLE,
 		PAYPAL_SWEEP_INSERT_COLUMNS,
-		'y',
+		'n',
 		SQL_DELIMITER,
 		error_filename );
 
-	return popen( sys_string, "w" );
+	return popen( system_string, "w" );
 }
 
 void paypal_sweep_insert_pipe(
@@ -453,7 +448,7 @@ LIST *paypal_sweep_transaction_list(
 	return transaction_list;
 }
 
-PAYPAL_SWEEP *paypal_sweep_seek(
+PAYPAL_SWEEP *paypal_sweep_list_seek(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *paypal_date_time,
@@ -490,7 +485,7 @@ boolean paypal_sweep_exists(
 {
 	if ( !paypal_sweep ) return 0;
 
-	if ( paypal_sweep_seek(
+	if ( paypal_sweep_list_seek(
 		paypal_sweep->payor_full_name,
 		paypal_sweep->payor_street_address,
 		paypal_sweep->paypal_date_time,

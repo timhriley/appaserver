@@ -112,7 +112,7 @@ int main( int argc, char **argv )
 					appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
-				application_get_relative_source_directory(
+				application_relative_source_directory(
 					application_name ),
 				0 /* not with_dynarch_menu */ );
 	
@@ -197,25 +197,11 @@ void output_srf_spreadsheet(	char *application_name,
 		exit( 0 );
 	}
 
-/*
-	sprintf(output_codes_filename, 
-	 	OUTPUT_CODES,
-	 	appaserver_mount_point,
-	 	application_name,
-	 	process_id );
-
-	sprintf(output_no_codes_filename, 
-		OUTPUT_NO_CODES,
-		appaserver_mount_point,
-		application_name, 
-		process_id );
-*/
-
 	appaserver_link_file =
 		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
+			application_http_prefix( application_name ),
 			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
+			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,
 			(char *)0 /* filename_stem */,

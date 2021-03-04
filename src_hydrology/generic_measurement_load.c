@@ -114,7 +114,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_relative_source_directory(
+			application_relative_source_directory(
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
@@ -124,7 +124,7 @@ int main( int argc, char **argv )
 
 	sprintf( title,
 		 "%s %s",
-		 application_get_title_string( application_name ),
+		 application_title_string( application_name ),
 		 process_title_initial_capital );
 
 	printf( "<h1>%s</h1>\n", title );

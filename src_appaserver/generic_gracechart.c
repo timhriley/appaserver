@@ -469,7 +469,7 @@ boolean output_gracechart(
 	list_append_pointer( grace->graph_list, grace_graph );
 
 	grace->grace_output =
-		application_get_grace_output( application_name );
+		application_grace_output( application_name );
 
 	sprintf( graph_identifier, "%d", getpid() );
 
@@ -536,17 +536,17 @@ boolean output_gracechart(
 				grace->x_label_size,
 				page_width_pixels,
 				page_length_pixels,
-				application_get_grace_home_directory(
+				application_grace_home_directory(
 					application_name ),
-				application_get_grace_execution_directory(
+				application_grace_execution_directory(
 					application_name ),
-				application_get_grace_free_option_yn(
+				application_grace_free_option_yn(
 					application_name ),
 				grace->grace_output,
-				application_get_distill_directory(
+				application_distill_directory(
 					application_name ),
 				distill_landscape_flag,
-				application_get_ghost_script_directory(
+				application_ghost_script_directory(
 					application_name ),
 				(LIST *)0 /* quantum_datatype_name_list */,
 				grace->symbols,
@@ -563,7 +563,7 @@ boolean output_gracechart(
 
 
 	if ( ! ( chart_email_command_line =
-			application_get_chart_email_command_line(
+			application_chart_email_command_line(
 				application_name ) ) )
 	{
 		chart_email_command_line = "";
@@ -593,7 +593,7 @@ boolean output_gracechart(
 					process_generic_output->
 						value_folder->
 						value_folder_name,
-				application_get_is_primary_application(
+				application_is_primary_application(
 					application_name ) ) );
 	}
 	else
@@ -611,8 +611,7 @@ boolean output_gracechart(
 				process_generic_output->
 					value_folder->
 					value_folder_name,
-				application_get_is_primary_application(
-					application_name ) ) );
+				1 ) );
 	}
 
 	return 1;
