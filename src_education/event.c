@@ -260,7 +260,8 @@ EVENT *event_short_label_seek(
 	return (EVENT *)0;
 }
 
-EVENT *event_list_seek(	char *program_name,
+EVENT *event_program_name_seek(
+			char *program_name,
 			LIST *event_list )
 {
 	EVENT *event;

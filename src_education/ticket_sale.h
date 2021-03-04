@@ -239,5 +239,8 @@ double ticket_sale_total(
 double ticket_sale_fee_total(
 			LIST *ticket_sale_list );
 
+LIST *ticket_sale_list_event_list(
+			LIST *ticket_sale_list );
+
 #endif
 

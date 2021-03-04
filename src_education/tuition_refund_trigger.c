@@ -30,8 +30,6 @@ void tuition_refund_trigger_predelete(
 			char *street_address,
 			char *season_name,
 			int year,
-			char *payor_full_name,
-			char *payor_street_address,
 			char *refund_date_time );
 
 /* Returns list of one (TUITION_REFUND *) */
@@ -111,7 +109,7 @@ int main( int argc, char **argv )
 				tuition_refund );
 
 		registration_list_fetch_update(
-			tuition_refund_registration_list(
+			tuition_refund_list_registration_list(
 				tuition_refund_list ) );
 	}
 
@@ -121,7 +119,6 @@ int main( int argc, char **argv )
 LIST *tuition_refund_trigger_insert_update(
 			TUITION_REFUND *tuition_refund )
 {
-	TUITION_REFUND *tuition_refund;
 	LIST *tuition_refund_list;
 	int transaction_seconds_to_add = 0;
 
@@ -157,7 +154,7 @@ LIST *tuition_refund_trigger_insert_update(
 			tuition_refund->net_refund_amount,
 			account_payable( (char *)0 ),
 			account_cash( (char *)0 ),
-			account_fees_expense( (char *)0 ) );
+			account_fees_expense( (char *)0 ) ) ) )
 	{
 		tuition_refund->transaction_date_time =
 			tuition_refund->tuition_refund_transaction->
@@ -174,11 +171,10 @@ LIST *tuition_refund_trigger_insert_update(
 		TRANSACTION *t = tuition_refund->tuition_refund_transaction;
 
 		tuition_refund->transaction_date_time =
-			transaction_program_refresh(
+			transaction_refresh(
 				t->full_name,
 				t->street_address,
 				t->transaction_date_time,
-				t->program_name,
 				t->transaction_amount,
 				t->memo,
 				0 /* check_number */,
@@ -192,11 +188,11 @@ LIST *tuition_refund_trigger_insert_update(
 		tuition_refund->payor_entity->full_name,
 		tuition_refund->payor_entity->street_address,
 		tuition_refund->transaction_date_time,
-		student_full_name,
-		street_address,
-		season_name,
-		year,
-		refund_date_time );
+		tuition_refund->student_entity->full_name,
+		tuition_refund->student_entity->street_address,
+		tuition_refund->semester->season_name,
+		tuition_refund->semester->year,
+		tuition_refund->refund_date_time );
 
 	tuition_refund_list = list_new();
 	list_set( tuition_refund_list, tuition_refund );

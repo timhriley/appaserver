@@ -223,13 +223,8 @@ void generate_invoice_amount_due(
 
 	registration_list =
 		registration_system_list(
-			registration_sys_string( where ),
-			0 /* not fetch_enrollment_list */,
-			0 /* not fetch_offering */,
-			0 /* not fetch_course */,
-			0 /* not fetch_program */,
-			0 /* not fetch_tuition_payment_list */,
-			0 /* not fetch_tuition_refund_list */ );
+			registration_system_string(
+				where ) );
 
 	if ( !list_rewind( registration_list ) )
 	{
@@ -727,13 +722,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 				full_name,
 				street_address,
 				season_name,
-				year,
-				1 /* fetch_enrollment_list */,
-				1 /* fetch_offering */,
-				1 /* fetch_course */,
-				0 /* not fetch_program */,
-				0 /* not fetch_tuition_payment_list */,
-				0 /* not fetch_tuition_refund_list */ ) ) )
+				year ) ) )
 	{
 		return 0;
 	}

@@ -102,8 +102,7 @@ int main( int argc, char **argv )
 					1 /* fetch_offering */,
 					1 /* fetch_course */,
 					0 /* not fetch_program */,
-					1 /* fetch_registration */,
-					0 /* not fetch_transaction */ ) ) )
+					1 /* fetch_registration */ ) ) )
 		{
 			fprintf(stderr,
 		"ERROR in %s/%s()/%d: enrollment_fetch() returned empty.\n",
@@ -123,46 +122,26 @@ int main( int argc, char **argv )
 		if ( list_length( enrollment_list ) )
 		{
 			registration_list_fetch_update(
-				enrollment_registration_list(
-					enrollment_list ),
-				season_name,
-				year );
+				enrollment_list_registration_list(
+					enrollment_list ) );
 
 			offering_list_fetch_update(
-				registration_course_name_list(
-					enrollment_registration_list(
-						enrollment_list ) ),
-				season_name,
-				year );
+				registration_list_offering_list(
+					enrollment_list_registration_list(
+						enrollment_list ) ) );
 		}
 	}
 
 	if ( strcmp( state, "delete" ) ==  0 )
 	{
-		LIST *enrollment_list = list_new();
-
-		list_set(
-			enrollment_list,
-			enrollment_new(
-				entity_new(
-					student_full_name,
-					street_address ),
-				course_name,
-				season_name,
-				year,
-				(REGISTRATION *)0,
-				(OFFERING *)0 ) );
-	
-		registration_list_fetch_update(
-			enrollment_registration_list(
-				enrollment_list ),
+		registration_fetch_update(
+			student_full_name,
+			street_address,
 			season_name,
 			year );
 
-		offering_list_fetch_update(
-			registration_course_name_list(
-				enrollment_registration_list(
-					enrollment_list ) ),
+		offering_fetch_update(
+			course_name,
 			season_name,
 			year );
 	}
@@ -177,11 +156,27 @@ LIST *enrollment_trigger_insert_update(
 	LIST *enrollment_list;
 	int transaction_seconds_to_add = 0;
 
+	enrollment =
+		enrollment_steady_state(
+			enrollment,
+			enrollment->enrollment_date_time,
+			enrollment->payor_entity );
+
+	if ( !enrollment->offering )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty offering.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( !enrollment->transaction_date_time
 	||   !*enrollment->transaction_date_time )
 	{
 		enrollment->transaction_date_time =
-			date_now19( date_utc_offset() );
+			enrollment->enrollment_date_time;
 	}
 
 	if ( enrollment_set_transaction(
@@ -189,8 +184,7 @@ LIST *enrollment_trigger_insert_update(
 			enrollment,
 			account_receivable( (char *)0 ),
 			enrollment->offering->revenue_account,
-			enrollment->offering->course->program_name,
-			enrollment->registration->registration_date_time ) )
+			(LIST *)0 /* liability_entity_list */ ) )
 	{
 		TRANSACTION *t = enrollment->enrollment_transaction;
 
@@ -208,24 +202,15 @@ LIST *enrollment_trigger_insert_update(
 	}
 
 	enrollment_update(
+		enrollment->enrollment_date_time,
+		enrollment->payor_entity->full_name,
+		enrollment->payor_entity->street_address,
 		enrollment->transaction_date_time,
-		enrollment->
-			registration->
-			student_entity->
-			full_name,
-		enrollment->
-			registration->
-			student_entity->
-			street_address,
+		enrollment->student_entity->full_name,
+		enrollment->student_entity->street_address,
 		enrollment->offering->course->course_name,
-		enrollment->
-			offering->
-			semester->
-			season_name,
-		enrollment->
-			offering->
-			semester->
-			year );
+		enrollment->semester->season_name,
+		enrollment->semester->year );
 
 	enrollment_list = list_new();
 	list_set( enrollment_list, enrollment );
@@ -252,8 +237,7 @@ void enrollment_trigger_predelete(
 				0 /* not fetch_offering */,
 				0 /* not fetch_course */,
 				0 /* not fetch_program */,
-				0 /* not fetch_registration */,
-				0 /* not fetch_transaction */ ) ) )
+				0 /* not fetch_registration */ ) ) )
 	{
 		return;
 	}

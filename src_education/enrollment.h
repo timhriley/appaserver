@@ -139,30 +139,35 @@ LIST *enrollment_system_list(
 			boolean fetch_program,
 			boolean fetch_registration );
 
+void enrollment_list_insert(
+			LIST *enrollment_list );
+
 FILE *enrollment_insert_open(
 			char *error_filename );
 
 void enrollment_insert_pipe(
 			FILE *insert_pipe,
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *course_name,
 			char *season_name,
 			int year,
+			char *enrollment_date_time,
+			char *payor_full_name,
+			char *payor_street_address,
 			char *transaction_date_time );
 
 FILE *enrollment_insert_open(
 			char *error_filename );
 
-LIST *enrollment_list_course_name_list(
+LIST *enrollment_list_offering_list(
 			LIST *enrollment_list );
 
 char *enrollment_memo(	char *course_name );
 
 void enrollment_list_set_transaction(
 			int *transaction_seconds_to_add,
-			LIST *enrollment_list,
-			LIST *liability_entity_list );
+			LIST *enrollment_list );
 
 void enrollment_list_fetch_update(
 			LIST *enrollment_list );
@@ -195,6 +200,9 @@ ENROLLMENT *enrollment_steady_state(
 			ENROLLMENT *enrollment,
 			char *enrollment_date_time,
 			ENTITY *payor_entity );
+
+LIST *enrollment_list_registration_list(
+			LIST *enrollment_list );
 
 #endif
 

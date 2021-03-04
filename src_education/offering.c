@@ -265,7 +265,7 @@ OFFERING *offering_list_seek(
 	return (OFFERING *)0;
 }
 
-LIST *offering_name_list( LIST *offering_list )
+LIST *offering_list_course_name_list( LIST *offering_list )
 {
 	LIST *name_list;
 	OFFERING *offering;

@@ -128,8 +128,7 @@ COURSE_DROP *course_drop_parse(
 				fetch_offering,
 				fetch_course,
 				0 /* not fetch_program */,
-				fetch_registration,
-				0 /* not fetch_transaction */ );
+				fetch_registration );
 	}
 
 	if ( fetch_transaction && *course_drop->transaction_date_time )

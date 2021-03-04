@@ -199,6 +199,54 @@ REGISTRATION *registration_new(
 	return registration;
 }
 
+void registration_list_insert(
+			LIST *registration_list )
+{
+	REGISTRATION *registration;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( registration_list ) ) return;
+
+	insert_pipe =
+		registration_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		registration = list_get( registration_list );
+
+		registration_insert_pipe(
+			insert_pipe,
+			registration->student_entity->full_name,
+			registration->student_entity->street_address,
+			registration->semester->season_name,
+			registration->semester->year,
+			registration->registration_date_time,
+			registration->payor_entity->full_name,
+			registration->payor_entity->street_address );
+
+	} while ( list_next( registration_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						   |"
+			"queue_top_bottom_lines.e 300			   |"
+			"html_table.e 'Insert Registration Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+
 FILE *registration_insert_open( char *error_filename )
 {
 	char sys_string[ 1024 ];
@@ -305,28 +353,27 @@ void registration_list_fetch_update(
 	} while ( list_next( registration_list ) );
 }
 
-LIST *registration_list_course_name_list(
+LIST *registration_list_offering_list(
 			LIST *registration_list )
 {
-	LIST *course_name_list;
+	LIST *offering_list;
 	REGISTRATION *registration;
 
 	if ( !list_rewind( registration_list ) ) return (LIST *)0;
 
-	course_name_list = list_new();
+	offering_list = list_new();
 
 	do {
 		registration = list_get( registration_list );
 
-		list_unique_list(
-			course_name_list,
-			enrollment_list_course_name_list(
-				registration->
-					enrollment_list ) );
+		list_set_list(
+			offering_list,
+			enrollment_list_offering_list(
+				registration->enrollment_list ) );
 
 	} while ( list_next( registration_list ) );
 
-	return course_name_list;
+	return offering_list;
 }
 
 LIST *registration_list_paypal(

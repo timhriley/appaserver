@@ -31,8 +31,7 @@ void ticket_sale_trigger_predelete(
 			char *event_date,
 			char *event_time,
 			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time );
+			char *payor_street_address );
 
 /* Returns list of one (TICKET_SALE *) */
 /* ----------------------------------- */
@@ -47,7 +46,6 @@ int main( int argc, char **argv )
 	char *event_time;
 	char *payor_full_name;
 	char *payor_street_address;
-	char *sale_date_time;
 	char *state;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -57,10 +55,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s program_name evet_date event_time payor_full_name payor_street_address sale_date_time state\n",
+"Usage: %s program_name evet_date event_time payor_full_name payor_street_address state\n",
 			 argv[ 0 ] );
 		fprintf(stderr,
 			"state in {insert,update,predelete,delete}\n" );
@@ -72,8 +70,7 @@ int main( int argc, char **argv )
 	event_time = argv[ 3 ];
 	payor_full_name = argv[ 4 ];
 	payor_street_address = argv[ 5 ];
-	sale_date_time = argv[ 6 ];
-	state = argv[ 7 ];
+	state = argv[ 6 ];
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -82,8 +79,7 @@ int main( int argc, char **argv )
 			event_date,
 			event_time,
 			payor_full_name,
-			payor_street_address,
-			sale_date_time );
+			payor_street_address );
 		exit( 0 );
 	}
 
@@ -98,18 +94,11 @@ int main( int argc, char **argv )
 					program_name,
 					event_date,
 					event_time,
-					sale_date_time,
 					payor_full_name,
 					payor_street_address,
-					1 /* fetch_event */,
-					0 /* fetch_transaction */ ) ) )
+					1 /* fetch_event */ ) ) )
 		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: ticket_sale_fetch() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
+			exit( 0 );
 		}
 
 		ticket_sale_list =
@@ -117,28 +106,16 @@ int main( int argc, char **argv )
 				ticket_sale );
 
 		event_list_fetch_update(
-			ticket_sale_event_list(
+			ticket_sale_list_event_list(
 				ticket_sale_list ) );
 	}
 
 	if ( strcmp( state, "delete" ) == 0 )
 	{
-		LIST *ticket_sale_list = list_new();
-
-		list_set(
-			ticket_sale_list,
-			ticket_sale_new(
-				program_name,
-				event_date,
-				event_time,
-				entity_new(
-					payor_full_name,
-					payor_street_address ),
-				sale_date_time ) );
-
-		event_list_fetch_update(
-			ticket_sale_event_list(
-				ticket_sale_list ) );
+		event_fetch_update(
+			program_name,
+			event_date,
+			event_time );
 	}
 	return 0;
 }
@@ -154,7 +131,8 @@ LIST *ticket_sale_trigger_insert_update(
 				ticket_sale,
 				ticket_sale->quantity,
 				ticket_sale->ticket_price,
-				ticket_sale->merchant_fees_expense ) ) )
+				ticket_sale->merchant_fees_expense,
+				ticket_sale->sale_date_time ) ) )
 	{
 		return (LIST *)0;
 	}
@@ -219,16 +197,13 @@ LIST *ticket_sale_trigger_insert_update(
 	}
 
 	ticket_sale_update(
-		ticket_sale->
-			extended_price,
-		ticket_sale->
-			net_payment_amount,
-		ticket_sale->
-			transaction_date_time,
+		ticket_sale->sale_date_time,
+		ticket_sale->extended_price,
+		ticket_sale->net_payment_amount,
+		ticket_sale->transaction_date_time,
 		ticket_sale->program_name,
 		ticket_sale->event_date,
 		ticket_sale->event_time,
-		ticket_sale->sale_date_time,
 		ticket_sale->payor_entity->full_name,
 		ticket_sale->payor_entity->street_address );
 
@@ -242,7 +217,6 @@ void ticket_sale_trigger_predelete(
 			char *program_name,
 			char *event_date,
 			char *event_time,
-			char *sale_date_time,
 			char *payor_full_name,
 			char *payor_street_address )
 {
@@ -253,11 +227,9 @@ void ticket_sale_trigger_predelete(
 				program_name,
 				event_date,
 				event_time,
-				sale_date_time,
 				payor_full_name,
 				payor_street_address,
-				0 /* not fetch_event */,
-				0 /* not fetch_transaction */ ) ) )
+				0 /* not fetch_event */ ) ) )
 	{
 		return;
 	}
@@ -266,12 +238,8 @@ void ticket_sale_trigger_predelete(
 	&&   *ticket_sale->transaction_date_time )
 	{
 		transaction_delete(
-			ticket_sale->
-				payor_entity->
-				full_name,
-			ticket_sale->
-				payor_entity->
-				street_address,
+			ticket_sale->payor_entity->full_name,
+			ticket_sale->payor_entity->street_address,
 			ticket_sale->transaction_date_time );
 
 		journal_account_name_list_propagate(
@@ -280,12 +248,8 @@ void ticket_sale_trigger_predelete(
 			/* Returns account_name_list */
 			/* ------------------------- */
 			journal_delete(
-				ticket_sale->
-					payor_entity->
-					full_name,
-				ticket_sale->
-					payor_entity->
-					street_address,
+				ticket_sale->payor_entity->full_name,
+				ticket_sale->payor_entity->street_address,
 				ticket_sale->transaction_date_time ) );
 	}
 }

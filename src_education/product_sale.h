@@ -203,7 +203,7 @@ PRODUCT_SALE *product_sale_paypal(
 			double item_fee,
 			PRODUCT *product );
 
-LIST *product_sale_product_name_list(
+LIST *product_sale_list_product_name_list(
 			LIST *sale_list );
 
 PRODUCT_SALE *product_sale_integrity_fetch(
@@ -226,6 +226,12 @@ PRODUCT_SALE *product_sale_list_seek(
 boolean product_sale_list_any_exists(
 			LIST *product_sale_list,
 			LIST *existing_product_sale_list );
+
+double product_sale_total(
+			LIST *product_sale_list );
+
+double product_sale_fee_total(
+			LIST *product_sale_list );
 
 #endif
 

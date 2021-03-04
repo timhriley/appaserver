@@ -220,5 +220,10 @@ boolean product_refund_list_any_exists(
 double product_refund_amount(
 			double refund_amount );
 
+double product_refund_total(
+			LIST *product_refund_list );
+
+double product_refund_fee_total(
+			LIST *product_refund_list );
 #endif
 

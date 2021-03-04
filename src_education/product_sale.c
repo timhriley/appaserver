@@ -578,84 +578,6 @@ PRODUCT_SALE *product_sale_steady_state(
 	return product_sale;
 }
 
-void product_sale_trigger(
-			char *product_name,
-			char *payor_full_name,
-			char *payor_street_address,
-			char *sale_date_time,
-			char *state )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"product_sale_trigger \"%s\" \"%s\" '%s' '%s' '%s'",
-		product_name,
-		payor_full_name,
-		payor_street_address,
-		sale_date_time,
-		state );
-
-	if ( system( sys_string ) ){}
-}
-
-double product_sale_total( LIST *product_sale_list )
-{
-	PRODUCT_SALE *product_sale;
-	double total;
-
-	if ( !list_rewind( product_sale_list ) ) return 0.0;
-
-	total = 0.0;
-
-	do {
-		product_sale = list_get( product_sale_list );
-
-		total += product_sale->extended_price;
-
-	} while ( list_next( product_sale_list ) );
-
-	return total;
-}
-
-double product_sale_fee_total( LIST *product_sale_list )
-{
-	PRODUCT_SALE *product_sale;
-	double fee_total;
-
-	if ( !list_rewind( product_sale_list ) ) return 0.0;
-
-	fee_total = 0.0;
-
-	do {
-		product_sale = list_get( product_sale_list );
-
-		fee_total += product_sale->merchant_fees_expense;
-
-	} while ( list_next( product_sale_list ) );
-
-	return fee_total;
-}
-
-void product_sale_list_trigger(
-			LIST *product_sale_list )
-{
-	PRODUCT_SALE *product_sale;
-
-	if ( !list_rewind( product_sale_list ) ) return;
-
-	do {
-		product_sale = list_get( product_sale_list );
-
-		product_sale_trigger(
-			product_sale->product->product_name,
-			product_sale->payor_entity->full_name,
-			product_sale->payor_entity->street_address,
-			product_sale->sale_date_time,
-			"insert" /* state */ );
-
-	} while ( list_next( product_sale_list ) );
-}
-
 LIST *product_sale_transaction_list(
 			LIST *product_sale_list )
 {
@@ -915,7 +837,7 @@ PRODUCT_SALE *product_sale_paypal(
 	return product_sale;
 }
 
-LIST *product_sale_product_name_list( LIST *sale_list )
+LIST *product_sale_list_product_name_list( LIST *sale_list )
 {
 	PRODUCT_SALE *product_sale;
 	LIST *product_name_list;
@@ -1026,7 +948,7 @@ PRODUCT_SALE *product_sale_list_seek(
 	return (PRODUCT_SALE *)0;
 }
 
-boolean product_sale_list_exists(
+boolean product_sale_list_any_exists(
 			LIST *product_sale_list,
 			LIST *existing_product_sale_list )
 {
@@ -1059,5 +981,43 @@ boolean product_sale_list_exists(
 	} while ( list_next( product_sale_list ) );
 
 	return 0;
+}
+
+double product_sale_total(
+			LIST *product_sale_list )
+{
+	PRODUCT_SALE *product_sale;
+	double total;
+
+	if ( !list_rewind( product_sale_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		product_sale = list_get( product_sale_list );
+		total += product_sale->retail_price;
+
+	} while ( list_next( product_sale_list ) );
+
+	return total;
+}
+
+double product_sale_fee_total(
+			LIST *product_sale_list )
+{
+	PRODUCT_SALE *product_sale;
+	double total;
+
+	if ( !list_rewind( product_sale_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		product_sale = list_get( product_sale_list );
+		total += product_sale->merchant_fees_expense;
+
+	} while ( list_next( product_sale_list ) );
+
+	return total;
 }
 

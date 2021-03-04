@@ -884,3 +884,35 @@ double tuition_refund_fee_total(
 	return total;
 }
 
+LIST *tuition_refund_list_registration_list(
+			LIST *tuition_refund_list )
+{
+	TUITION_REFUND *tuition_refund;
+	LIST *registration_list;
+
+	if ( !list_rewind( tuition_refund_list ) ) return (LIST *)0;
+
+	registration_list = list_new();
+
+	do {
+		tuition_refund = list_get( tuition_refund_list );
+
+		if ( !tuition_refund->registration )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty registration.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			registration_list,
+			tuition_refund->registration );
+
+	} while ( list_next( tuition_refund_list ) );
+
+	return registration_list;
+}
+

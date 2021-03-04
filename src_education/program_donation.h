@@ -12,6 +12,9 @@
 #include "list.h"
 #include "program.h"
 #include "paypal_item.h"
+#include "tuition_payment.h"
+#include "ticket_sale.h"
+#include "product_sale.h"
 #include "transaction.h"
 
 /* Enumerated types */
@@ -200,6 +203,21 @@ PROGRAM_DONATION *program_donation_list_seek(
 boolean program_donation_list_any_exists(
 			LIST *program_donation_list,
 			LIST *existing_program_donation_list );
+
+double program_donation_total(
+			LIST *product_donation_list );
+
+double program_donation_fee_total(
+			LIST *product_donation_list );
+
+LIST *program_donation_list_overpayment(
+			double item_value,
+			double item_fee,
+			ENTITY *payor_entity,
+			char *paypal_date_time,
+			TUITION_PAYMENT *tuition_payment,
+			TICKET_SALE *ticket_sale,
+			PRODUCT_SALE *product_sale );
 
 #endif
 

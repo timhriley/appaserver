@@ -332,17 +332,17 @@ TRANSACTION *ticket_refund_transaction(
 			double refund_amount,
 			double merchant_fees_expense,
 			double net_refund_amount,
-			char *entity_self_paypal_cash_account_name,
+			char *revenue_account,
 			char *account_fees_expense,
-			char *event_revenue_account )
+			char *cash_account_name )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
 
-	if ( !event_revenue_account )
+	if ( !revenue_account )
 	{
 		fprintf(stderr,
-		"Warning in %s/%s()/%d: empty event_revenue_account.\n",
+			"Warning in %s/%s()/%d: empty revenue_account.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -368,11 +368,7 @@ TRANSACTION *ticket_refund_transaction(
 			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
-
-	if ( !transaction->journal_list )
-	{
-		transaction->journal_list = list_new();
-	}
+	transaction->journal_list = list_new();
 
 	/* Debit revenue */
 	/* ------------- */
@@ -383,7 +379,7 @@ TRANSACTION *ticket_refund_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				event_revenue_account ) ) );
+				revenue_account ) ) );
 
 	journal->debit_amount = 0.0 - refund_amount;
 
@@ -396,22 +392,20 @@ TRANSACTION *ticket_refund_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				entity_self_paypal_cash_account_name ) ) );
+				cash_account_name ) ) );
 
 	journal->credit_amount = 0.0 - net_refund_amount;
 
-	/* Credit fees_expense */
-	/* ------------------- */
+	/* Credit fees_expense (maybe) */
+	/* --------------------------- */
 	list_set(
 		transaction->journal_list,
-		( journal =
-			journal_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				account_fees_expense ) ) );
-
-	journal->credit_amount = merchant_fees_expense;
+		journal_merchant_fees_expense(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			merchant_fees_expense,
+			account_fees_expense ) );
 
 	return transaction;
 }
@@ -650,14 +644,14 @@ void ticket_refund_list_set_transaction(
 			LIST *ticket_refund_list )
 {
 	TICKET_REFUND *ticket_refund;
-	char *cash_account_name;
 	char *revenue_account;
 	char *fees_expense;
+	char *cash_account_name;
 
 	if ( !list_rewind( ticket_refund_list ) ) return;
 
-	cash_account_name = entity_self_paypal_cash_account_name();
 	fees_expense = account_fees_expense( (char *)0 );
+	cash_account_name = entity_self_paypal_cash_account_name();
 
 	do {
 		ticket_refund = list_get( ticket_refund_list );
@@ -682,9 +676,9 @@ void ticket_refund_list_set_transaction(
 		ticket_refund_set_transaction(
 			transaction_seconds_to_add,
 			ticket_refund,
-			cash_account_name,
+			revenue_account,
 			fees_expense,
-			revenue_account );
+			cash_account_name );
 
 	} while ( list_next( ticket_refund_list ) );
 }
@@ -692,9 +686,9 @@ void ticket_refund_list_set_transaction(
 void ticket_refund_set_transaction(
 			int *transaction_seconds_to_add,
 			TICKET_REFUND *ticket_refund,
-			char *cash_account_name,
+			char *revenue_account,
 			char *account_fees_expense,
-			char *revenue_account )
+			char *cash_account_name )
 {
 	if ( ( ticket_refund->ticket_refund_transaction =
 		ticket_refund_transaction(
@@ -706,9 +700,9 @@ void ticket_refund_set_transaction(
 			ticket_refund->refund_amount,
 			ticket_refund->merchant_fees_expense,
 			ticket_refund->net_refund_amount,
-			cash_account_name,
+			revenue_account,
 			account_fees_expense,
-			revenue_account ) ) )
+			cash_account_name ) ) )
 	{
 		ticket_refund->transaction_date_time =
 			ticket_refund->ticket_refund_transaction->
@@ -740,7 +734,7 @@ LIST *ticket_refund_list_paypal(
 		if ( paypal_item->benefit_entity ) continue;
 
 		if ( ( event =
-			event_list_seek(
+			event_program_name_seek(
 				paypal_item->item_data,
 				education_event_list ) ) )
 		{
@@ -919,5 +913,36 @@ double ticket_refund_fee_total(
 	} while ( list_next( ticket_refund_list ) );
 
 	return total;
+}
+
+LIST *ticket_refund_list_event_list(
+			LIST *ticket_refund_list )
+{
+	TICKET_REFUND *ticket_refund;
+	LIST *event_list;
+
+	if ( !list_rewind( ticket_refund_list ) ) return (LIST *)0;
+
+	event_list = list_new();
+
+	do {
+		ticket_refund = list_get( ticket_refund_list );
+
+		if ( !ticket_refund->ticket_sale
+		||   !ticket_refund->ticket_sale->event )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty ticket_sale or event.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set( event_list, ticket_refund->ticket_sale->event );
+
+	} while ( list_next( ticket_refund_list ) );
+
+	return event_list;
 }
 

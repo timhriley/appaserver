@@ -91,7 +91,7 @@ void offering_fetch_update(
 void offering_list_fetch_update(
 			LIST *offering_list );
 
-LIST *offering_name_list(
+LIST *offering_list_course_name_list(
 			LIST *offering_list );
 
 OFFERING *offering_calloc(

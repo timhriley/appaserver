@@ -219,5 +219,8 @@ double tuition_payment_total(
 double tuition_payment_fee_total(
 			LIST *tuition_payment_list );
 
+LIST *tuition_payment_list_registration_list(
+			LIST *tuition_payment_list );
+
 #endif
 

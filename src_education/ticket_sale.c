@@ -742,7 +742,7 @@ void ticket_sale_set_transaction(
 			ticket_sale->payor_entity->full_name,
 			ticket_sale->payor_entity->street_address,
 			ticket_sale->sale_date_time,
-			ticket_sale->event->program_name,
+			ticket_sale->program_name,
 			ticket_sale->extended_price,
 			ticket_sale->merchant_fees_expense,
 			ticket_sale->net_payment_amount,
@@ -781,7 +781,7 @@ LIST *ticket_sale_list_paypal(
 		if ( paypal_item->benefit_entity ) continue;
 
 		if ( ( event =
-			event_list_seek(
+			event_program_name_seek(
 				paypal_item->item_data,
 				education_event_list ) ) )
 		{
@@ -1011,5 +1011,35 @@ double ticket_sale_fee_total(
 	} while ( list_next( ticket_sale_list ) );
 
 	return total;
+}
+
+LIST *ticket_sale_list_event_list(
+			LIST *ticket_sale_list )
+{
+	TICKET_SALE *ticket_sale;
+	LIST *event_list;
+
+	if ( !list_rewind( ticket_sale_list ) ) return (LIST *)0;
+
+	event_list = list_new();
+
+	do {
+		ticket_sale = list_get( ticket_sale_list );
+
+		if ( !ticket_sale->event )
+		{
+			fprintf(stderr,
+				"%s/%s()/%d\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set( event_list, ticket_sale->event );
+
+	} while ( list_next( ticket_sale_list ) );
+
+	return event_list;
 }
 

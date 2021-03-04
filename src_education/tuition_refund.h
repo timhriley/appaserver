@@ -213,5 +213,8 @@ double tuition_refund_total(
 double tuition_refund_fee_total(
 			LIST *tuition_refund_list );
 
+LIST *tuition_refund_list_registration_list(
+			LIST *tuition_refund_list );
+
 #endif
 

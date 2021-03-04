@@ -85,7 +85,8 @@ char *event_primary_where(
 			char *event_date,
 			char *event_time );
 
-EVENT *event_list_seek(	char *program_name,
+EVENT *event_program_name_seek(
+			char *program_name,
 			LIST *event_list );
 
 LIST *event_list_program_name_list(

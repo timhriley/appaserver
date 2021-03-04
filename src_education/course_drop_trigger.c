@@ -139,29 +139,14 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "delete" ) ==  0 )
 	{
-		LIST *course_drop_list = list_new();
-
-		list_set(
-			course_drop_list,
-			course_drop_new(
-				entity_new(
-					student_full_name,
-					street_address ),
-				course_fetch( course_name ),
-				semester_new(
-					season_name,
-					year ) );
-	
-		registration_list_fetch_update(
-			course_drop_registration_list(
-				course_drop_list ),
+		registration_fetch_update(
+			student_full_name,
+			street_address,
 			season_name,
 			year );
 
-		offering_list_fetch_update(
-			registration_course_name_list(
-				course_drop_registration_list(
-					course_drop_list ) ),
+		offering_fetch_update(
+			course_name,
 			season_name,
 			year );
 	}

@@ -92,8 +92,7 @@ int main( int argc, char **argv )
 					payor_full_name,
 					payor_street_address,
 					payment_date_time,
-					1 /* fetch_program */,
-					0 /* not fetch_transaction */ ) ) )
+					1 /* fetch_program */ ) ) )
 		{
 			fprintf(stderr,
 	"ERROR in %s/%s()/%d: program_donation_fetch() returned empty.\n",
@@ -234,8 +233,7 @@ void program_donation_trigger_predelete(
 				payor_full_name,
 				payor_street_address,
 				payment_date_time,
-				0 /* not fetch_program */,
-				0 /* not fetch_transaction */ ) ) )
+				0 /* not fetch_program */ ) ) )
 	{
 		return;
 	}

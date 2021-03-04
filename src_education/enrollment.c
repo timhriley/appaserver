@@ -386,6 +386,56 @@ TRANSACTION *enrollment_transaction(
 	return transaction;
 }
 
+void enrollment_list_insert(
+			LIST *enrollment_list )
+{
+	ENROLLMENT *enrollment;
+	FILE *insert_pipe;
+	char *error_filename;
+	char sys_string[ 1024 ];
+
+	if ( !list_rewind( enrollment_list ) ) return;
+
+	insert_pipe =
+		enrollment_insert_open(
+			( error_filename =
+				timlib_tmpfile() ) );
+
+	do {
+		enrollment = list_get( enrollment_list );
+
+		enrollment_insert_pipe(
+			insert_pipe,
+			enrollment->student_entity->full_name,
+			enrollment->student_entity->street_address,
+			enrollment->course_name,
+			enrollment->semester->season_name,
+			enrollment->semester->year,
+			enrollment->enrollment_date_time,
+			enrollment->payor_entity->full_name,
+			enrollment->payor_entity->street_address,
+			enrollment->transaction_date_time );
+
+	} while ( list_next( enrollment_list ) );
+
+	pclose( insert_pipe );
+
+	if ( timlib_file_populated( error_filename ) )
+	{
+		sprintf(sys_string,
+			"cat %s						   |"
+			"queue_top_bottom_lines.e 300			   |"
+			"html_table.e 'Insert Enrollment Errors' '' '^'",
+			 error_filename );
+
+		if ( system( sys_string ) ){}
+	}
+
+	sprintf( sys_string, "rm %s", error_filename );
+
+	if ( system( sys_string ) ){};
+}
+
 FILE *enrollment_insert_open( char *error_filename )
 {
 	char sys_string[ 1024 ];
@@ -407,53 +457,65 @@ FILE *enrollment_insert_open( char *error_filename )
 void enrollment_insert_pipe(
 			FILE *insert_pipe,
 			char *student_full_name,
-			char *street_address,
+			char *student_street_address,
 			char *course_name,
 			char *season_name,
 			int year,
+			char *enrollment_date_time,
+			char *payor_full_name,
+			char *payor_street_address,
 			char *transaction_date_time )
 {
 	fprintf(insert_pipe,
-		"%s^%s^%s^%s^%d^%s\n",
+		"%s^%s^%s^%s^%d^%s^%s^%s^%s\n",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		entity_escape_full_name( student_full_name ),
-		street_address,
+		registration_escape_full_name( student_full_name ),
+		student_street_address,
 		course_name,
 		season_name,
 		year,
+		enrollment_date_time,
+		registration_escape_full_name( payor_full_name ),
+		payor_street_address,
 		(transaction_date_time)
 			? transaction_date_time
 			: "" );
 }
 
-LIST *enrollment_list_course_name_list(
+LIST *enrollment_list_offering_list(
 			LIST *enrollment_list )
 {
-	LIST *course_name_list;
+	LIST *offering_list;
 	ENROLLMENT *enrollment;
 
 	if ( !list_rewind( enrollment_list ) ) return (LIST *)0;
 
-	course_name_list = list_new();
+	offering_list = list_new();
 
 	do {
 		enrollment =
 			list_get(
 				enrollment_list );
 
-		if ( enrollment->offering
-		&&   enrollment->offering->course )
+		if ( !enrollment->offering )
 		{
-			list_set(
-				course_name_list,
-				enrollment->offering->course->course_name );
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty offering.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
 		}
+
+		list_set(
+			offering_list,
+			enrollment->offering );
 
 	} while ( list_next( enrollment_list ) );
 
-	return course_name_list;
+	return offering_list;
 }
 
 char *enrollment_memo( char *course_name )
@@ -470,8 +532,7 @@ char *enrollment_memo( char *course_name )
 
 void enrollment_list_set_transaction(
 			int *transaction_seconds_to_add,
-			LIST *enrollment_list,
-			LIST *liability_entity_list )
+			LIST *enrollment_list )
 {
 	ENROLLMENT *enrollment;
 	char *receivable;
@@ -498,7 +559,7 @@ void enrollment_list_set_transaction(
 			enrollment,
 			receivable,
 			enrollment->offering->revenue_account,
-			liability_entity_list );
+			(LIST *)0 /* liability_entity_list */ );
 
 	} while ( list_next( enrollment_list ) );
 }
@@ -873,6 +934,16 @@ ENROLLMENT *enrollment_steady_state(
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: empty registration.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !enrollment->offering )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty offering.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );

@@ -208,12 +208,7 @@ void paypal_deposit_set_expected_revenue(
 /* Returns paypal_deposit_list */
 /* --------------------------- */
 LIST *paypal_deposit_list_set_transaction(
-			LIST *paypal_deposit_list,
-			/* ------------------------------------ */
-			/* To set program_name for 		*/
-			/* tuition payment and tuition refund	*/
-			/* ------------------------------------ */
-			LIST *semester_offering_list );
+			LIST *paypal_deposit_list );
 
 void paypal_deposit_set_transaction(
 			PAYPAL_DEPOSIT *paypal_deposit );
@@ -301,9 +296,7 @@ LIST *paypal_deposit_refund_product_name_list(
 			LIST *paypal_deposit_list );
 
 void paypal_deposit_list_insert(
-			LIST *paypal_deposit_list,
-			char *season_name,
-			int year );
+			LIST *paypal_deposit_list );
 
 void paypal_deposit_ticket_sale_event_insert(
 			LIST *paypal_deposit_list,

@@ -566,7 +566,8 @@ PRODUCT_REFUND *product_refund_steady_state(
 	}
 
 	product_refund->refund_amount =
-		product_refund_amount( refund_amount );
+		product_refund_amount(
+			refund_amount );
 
 	product_refund->net_refund_amount =
 		education_net_refund_amount(
@@ -927,3 +928,42 @@ double product_refund_amount( double refund_amount )
 
 	return refund_amount;
 }
+
+double product_refund_total(
+			LIST *product_refund_list )
+{
+	PRODUCT_REFUND *product_refund;
+	double total;
+
+	if ( !list_rewind( product_refund_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		product_refund = list_get( product_refund_list );
+		total += product_refund->refund_amount;
+
+	} while ( list_next( product_refund_list ) );
+
+	return total;
+}
+
+double product_refund_fee_total(
+			LIST *product_refund_list )
+{
+	PRODUCT_REFUND *product_refund;
+	double total;
+
+	if ( !list_rewind( product_refund_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		product_refund = list_get( product_refund_list );
+		total += product_refund->merchant_fees_expense;
+
+	} while ( list_next( product_refund_list ) );
+
+	return total;
+}
+

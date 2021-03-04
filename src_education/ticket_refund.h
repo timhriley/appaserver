@@ -134,9 +134,9 @@ void ticket_refund_list_set_transaction(
 void ticket_refund_set_transaction(
 			int *transaction_seconds_to_add,
 			TICKET_REFUND *ticket_refund,
-			char *cash_account_name,
+			char *revenue_account,
 			char *account_fees_expense,
-			char *revenue_account );
+			char *cash_account_name );
 
 TRANSACTION *ticket_refund_transaction(
 			int *seconds_to_add,
@@ -147,9 +147,9 @@ TRANSACTION *ticket_refund_transaction(
 			double refund_amount,
 			double merchant_fees_expense,
 			double net_payment_amount,
-			char *cash_account_name,
+			char *revenue_account,
 			char *account_fees_expense,
-			char *purchase_revenue_account );
+			char *cash_account_name );
 
 void ticket_refund_update(
 			char *refund_date_time,
@@ -218,6 +218,9 @@ double ticket_refund_total(
 			LIST *ticket_refund_list );
 
 double ticket_refund_fee_total(
+			LIST *ticket_refund_list );
+
+LIST *ticket_refund_list_event_list(
 			LIST *ticket_refund_list );
 
 #endif

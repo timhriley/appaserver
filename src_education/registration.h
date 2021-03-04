@@ -88,6 +88,9 @@ LIST *registration_system_list(
 char *registration_system_string(
 			char *where );
 
+void registration_list_insert(
+			LIST *registration_list );
+
 FILE *registration_insert_open(
 			char *error_filename );
 
@@ -142,7 +145,7 @@ REGISTRATION *registration_paypal(
 			/* ----------------------------------------- */
 			LIST *paypal_deposit_list );
 
-LIST *registration_list_course_name_list(
+LIST *registration_list_offering_list(
 			LIST *registration_list );
 
 LIST *registration_list_enrollment_list(

@@ -921,3 +921,35 @@ double tuition_payment_fee_total(
 	return total;
 }
 
+LIST *tuition_payment_list_registration_list(
+			LIST *tuition_payment_list )
+{
+	TUITION_PAYMENT *tuition_payment;
+	LIST *registration_list;
+
+	if ( !list_rewind( tuition_payment_list ) ) return (LIST *)0;
+
+	registration_list = list_new();
+
+	do {
+		tuition_payment = list_get( tuition_payment_list );
+
+		if ( !tuition_payment->registration )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty registration.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			registration_list,
+			tuition_payment->registration );
+
+	} while ( list_next( tuition_payment_list ) );
+
+	return registration_list;
+}
+

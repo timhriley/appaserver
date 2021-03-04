@@ -269,8 +269,7 @@ void paypal_deposit_set_transaction(
 		enrollment_list_set_transaction(
 			&transaction_seconds_to_add,
 			registration_list_enrollment_list(
-				paypal_deposit->registration_list ),
-			(LIST *)0 /* liability_entity_list */ );
+				paypal_deposit->registration_list ) );
 
 		course_drop_list_set_transaction(
 			&transaction_seconds_to_add,
@@ -457,10 +456,12 @@ LIST *paypal_deposit_course_name_list(
 
 		list_unique_list(
 			course_name_list,
-			registration_course_name_list(
-				tuition_payment_registration_list(
-					paypal_deposit->
-					     tuition_payment_list ) ) );
+			offering_list_course_name_list(
+			     enrollment_list_offering_list(
+				   registration_list_enrollment_list(
+					tuition_payment_list_registration_list(
+						paypal_deposit->
+					     	 tuition_payment_list ) ) ) ) );
 
 	} while ( list_next( paypal_deposit_list ) );
 
@@ -499,12 +500,7 @@ LIST *paypal_deposit_list_transaction_list(
 }
 
 LIST *paypal_deposit_list_set_transaction(
-			LIST *paypal_deposit_list,
-			/* ------------------------------------ */
-			/* To set program_name for 		*/
-			/* tuition payment and tuition refund	*/
-			/* ------------------------------------ */
-			LIST *semester_offering_list )
+			LIST *paypal_deposit_list )
 {
 	PAYPAL_DEPOSIT *paypal_deposit;
 
@@ -618,7 +614,7 @@ void paypal_deposit_set_expected_revenue(
 		paypal_item = list_get( paypal_item_list );
 
 		if ( ( offering =
-			offering_course_name_seek(
+			offering_list_seek(
 				paypal_item->item_data,
 				semester_offering_list ) ) )
 		{
@@ -626,7 +622,7 @@ void paypal_deposit_set_expected_revenue(
 		}
 		else
 		if ( ( product =
-			product_name_seek(
+			product_list_seek(
 				paypal_item->item_data,
 				product_list ) ) )
 		{
@@ -642,7 +638,7 @@ void paypal_deposit_set_expected_revenue(
 		}
 		else
 		if ( ( event =
-			event_paypal_long_label_seek(
+			event_long_label_seek(
 				paypal_item->item_data,
 				event_list ) ) )
 		{
@@ -650,7 +646,7 @@ void paypal_deposit_set_expected_revenue(
 		}
 		else
 		if ( ( event =
-			event_paypal_short_label_seek(
+			event_short_label_seek(
 				paypal_item->item_data,
 				event_list ) ) )
 		{
@@ -957,26 +953,6 @@ void paypal_deposit_ticket_sale_insert(
 	} while ( list_next( paypal_deposit_list ) );
 }
 
-void paypal_deposit_ticket_sale_event_insert(
-			LIST *paypal_deposit_list,
-			char *season_name,
-			int year )
-{
-	PAYPAL_DEPOSIT *paypal_deposit;
-
-	if ( !list_rewind( paypal_deposit_list ) ) return;
-
-	do {
-		paypal_deposit = list_get( paypal_deposit_list );
-
-		ticket_sale_list_event_insert(
-			paypal_deposit->ticket_sale_list,
-			season_name,
-			year );
-
-	} while ( list_next( paypal_deposit_list ) );
-}
-
 void paypal_deposit_product_sale_insert(
 			LIST *paypal_deposit_list )
 {
@@ -1051,8 +1027,10 @@ void paypal_deposit_enrollment_insert(
 	do {
 		paypal_deposit = list_get( paypal_deposit_list );
 
-		tuition_payment_list_enrollment_insert(
-			paypal_deposit->tuition_payment_list );
+		enrollment_list_insert(
+			registration_list_enrollment_list(
+				tuition_payment_list_registration_list(
+				     paypal_deposit->tuition_payment_list ) ) );
 
 	} while ( list_next( paypal_deposit_list ) );
 }
@@ -1067,8 +1045,9 @@ void paypal_deposit_registration_insert(
 	do {
 		paypal_deposit = list_get( paypal_deposit_list );
 
-		tuition_payment_list_registration_insert(
-			paypal_deposit->tuition_payment_list );
+		registration_list_insert(
+			tuition_payment_list_registration_list(
+				paypal_deposit->tuition_payment_list ) );
 
 	} while ( list_next( paypal_deposit_list ) );
 }
@@ -1163,7 +1142,7 @@ LIST *paypal_deposit_sale_product_name_list(
 
 		list_unique_list(
 			product_name_list,
-			product_sale_product_name_list(
+			product_sale_list_product_name_list(
 				paypal_deposit->product_sale_list ) );
 
 	} while ( list_next( paypal_deposit_list ) );
@@ -1186,7 +1165,7 @@ LIST *paypal_deposit_refund_product_name_list(
 
 		list_unique_list(
 			product_name_list,
-			product_refund_product_name_list(
+			product_refund_list_product_name_list(
 				paypal_deposit->product_refund_list ) );
 
 	} while ( list_next( paypal_deposit_list ) );
@@ -1296,7 +1275,7 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 				paypal_dataset->item_title_P ),
 			paypal_dataset->transaction_type_E,
 			education_paypal_allowed_list(
-				offering_name_list(
+				offering_list_course_name_list(
 					semester_offering_list ),
 				program_name_list(
 					program_list ),
@@ -1474,9 +1453,7 @@ PAYPAL_DEPOSIT *paypal_deposit_education(
 }
 
 void paypal_deposit_list_insert(
-			LIST *paypal_deposit_list,
-			char *season_name,
-			int year )
+			LIST *paypal_deposit_list )
 {
 	/* ------ */
 	/* Paypal */
@@ -1496,11 +1473,6 @@ void paypal_deposit_list_insert(
 	paypal_deposit_program_donation_insert( paypal_deposit_list );
 	paypal_deposit_product_sale_insert( paypal_deposit_list );
 	paypal_deposit_ticket_sale_insert( paypal_deposit_list );
-
-	paypal_deposit_ticket_sale_event_insert(
-			paypal_deposit_list,
-			season_name,
-			year );
 
 	/* ----- */
 	/* Sweep */
@@ -1723,5 +1695,30 @@ boolean paypal_deposit_exclude_existing_transaction(
 	}
 
 	return 0;
+}
+
+LIST *paypal_deposit_tuition_payment_list(
+			LIST *paypal_deposit_list )
+{
+	LIST *tuition_payment_list;
+	PAYPAL_DEPOSIT *paypal_deposit;
+
+	if ( !list_rewind( paypal_deposit_list ) ) return (LIST *)0;
+
+	tuition_payment_list = list_new();
+
+	do {
+		paypal_deposit = list_get( paypal_deposit_list );
+
+		if ( list_length( paypal_deposit->tuition_payment_list ) )
+		{
+			list_set_list(
+				tuition_payment_list,
+				paypal_deposit->tuition_payment_list );
+		}
+
+	} while ( list_next( paypal_deposit_list ) );
+
+	return tuition_payment_list;
 }
 
