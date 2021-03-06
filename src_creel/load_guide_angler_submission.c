@@ -64,7 +64,6 @@ int insert_fishing_trips(
 			char *application_name,
 			char *login_name,
 			char *input_filename,
-			boolean replace_existing_data,
 			boolean execute );
 
 int main( int argc, char **argv )
@@ -121,19 +120,16 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-/*
 	if ( execute )
 	{
 		delete_fishing_trips( application_name, input_filename );
 	}
-*/
 
 	fishing_trip_count =
 		insert_fishing_trips(
 			application_name,
 			login_name,
 			input_filename,
-			replace_existing_data,
 			execute );
 
 	if ( execute )
@@ -201,7 +197,6 @@ int main( int argc, char **argv )
 int insert_fishing_trips(	char *application_name,
 				char *login_name,
 				char *input_filename,
-				boolean replace_existing_data,
 				boolean execute )
 {
 	FILE *input_file;
@@ -262,38 +257,36 @@ int insert_fishing_trips(	char *application_name,
 	if ( execute )
 	{
 		sprintf(sys_string,
-			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"insert_statement t=%s f=%s d='|' replace=n	|"
 			"tee_appaserver_error.sh creel			|"
 			"sql 2>&1					|"
+			"grep -vi duplicate				|"
 			"html_paragraph_wrapper				|"
 			"cat						 ",
 			"creel_census",
-			INSERT_CREEL_CENSUS_FIELD_LIST,
-			(replace_existing_data) ? 'y' : 'n' );
+			INSERT_CREEL_CENSUS_FIELD_LIST );
 
 		creel_census_output_pipe = popen( sys_string, "w" );
 
 		sprintf(sys_string,
-			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"insert_statement t=%s f=%s d='|' replace=n	|"
 			"tee_appaserver_error.sh creel			|"
 			"sql 2>&1					|"
 			"html_paragraph_wrapper				|"
 			"cat						 ",
 			"fishing_trips",
-			INSERT_FISHING_TRIPS_FIELD_LIST,
-			(replace_existing_data) ? 'y' : 'n' );
+			INSERT_FISHING_TRIPS_FIELD_LIST );
 
 		fishing_trips_output_pipe = popen( sys_string, "w" );
 
 		sprintf(sys_string,
-			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"insert_statement t=%s f=%s d='|' replace=n	|"
 			"tee_appaserver_error.sh creel			|"
 			"sql 2>&1					|"
 			"html_paragraph_wrapper				|"
 			"cat						 ",
 			"catches",
-			INSERT_CATCHES_FIELD_LIST,
-			(replace_existing_data) ? 'y' : 'n' );
+			INSERT_CATCHES_FIELD_LIST );
 
 		catches_output_pipe = popen( sys_string, "w" );
 
@@ -777,7 +770,9 @@ void delete_fishing_trips(	char *application_name,
 			application_name, "fishing_trips" );
 
 	sprintf( sys_string,
-"delete_statement.e t=%s f=%s d='|' | sql.e 2>&1",
+		 "delete_statement.e t=%s f=%s d='|'	|"
+		 "tee_appaserver_error.sh creel		|"
+		 "sql.e 2>&1				 ",
 		 table_name,
 		 DELETE_FISHING_TRIPS );
 
@@ -788,7 +783,9 @@ void delete_fishing_trips(	char *application_name,
 			application_name, "catches" );
 
 	sprintf( sys_string,
-"delete_statement.e t=%s f=%s d='|' | sql.e 2>&1",
+		 "delete_statement.e t=%s f=%s d='|' 	|"
+		 "tee_appaserver_error.sh creel		|"
+		 "sql.e 2>&1				 ",
 		 table_name,
 		 DELETE_CATCHES );
 
