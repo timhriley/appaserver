@@ -752,7 +752,6 @@ char *query_drop_down_where(
 			char *folder_name );
 
 char *query_simple_where(
-			char *application_name,
 			char *folder_name,
 			LIST *where_attribute_name_list,
 			LIST *where_attribute_data_list,

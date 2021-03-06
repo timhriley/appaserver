@@ -1,4 +1,4 @@
-/* process_generic_output.h 						*/
+/* $APPASERVER_HOME/library/process_generic_output.h 			*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver process_generic_output ADT.			*/
 /*									*/
@@ -32,12 +32,14 @@ typedef struct
 
 typedef struct
 {
+	char *datatype_name;
+	char *unit_name;
 	LIST *primary_attribute_data_list;
 	LIST *foreign_attribute_data_list;
-	char *units;
 	boolean aggregation_sum;
 	boolean bar_graph;
 	boolean scale_graph_zero;
+	LIST *values_key_list;
 	HASH_TABLE *values_hash_table;
 } PROCESS_GENERIC_DATATYPE;
 
@@ -74,31 +76,22 @@ typedef struct
 {
 	char *process_name;
 	char *process_set_name;
-	PROCESS_GENERIC_VALUE_FOLDER *value_folder;
 	boolean accumulate;
+	PROCESS_GENERIC_VALUE_FOLDER *value_folder;
 } PROCESS_GENERIC_OUTPUT;
 
 /* Prototypes */
 /* ---------- */
-PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
-				char *application_name,
-				char *datatype_folder_name );
 
-PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_new(
-				char *application_name,
-				char *foreign_folder_name );
-
-PROCESS_GENERIC_OUTPUT *process_generic_output_new(
-		 			char *application_name,
-					char *process_name,
-					char *process_set_name,
-					boolean accumulate );
-
+/* PROCESS_GENERIC_VALUE_FOLDER */
+/* ---------------------------- */
 PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_new(
-					char *application_name,
-					char *process_name,
-					char *process_set_name );
+			char *value_folder_name );
 
+PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_fetch(
+			char *value_folder_name );
+
+/*
 void process_generic_value_folder_load(
 					char **value_folder_name,
 					char **date_attribute_name,
@@ -110,7 +103,23 @@ void process_generic_value_folder_load(
 					char *application_name,
 					char *process_name,
 					char *process_set_name );
+*/
 
+/* PROCESS_GENERIC_FOREIGN_FOLDER */
+/* ------------------------------ */
+PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_new(
+			char *foreign_folder_name );
+
+
+/* PROCESS_GENERIC_DATATYPE_FOLDER */
+/* ------------------------------- */
+PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_fetch(
+			char *datatype_folder_name );
+
+PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
+			char *datatype_folder_name );
+
+/*
 void process_generic_datatype_folder_load(
 				LIST **primary_attribute_name_list,
 				boolean *datatype_exists_aggregation_sum,
@@ -118,7 +127,58 @@ void process_generic_datatype_folder_load(
 				boolean *datatype_exists_scale_graph_zero,
 				char *application_name,
 				char *datatype_folder_name );
+*/
 
+/* PROCESS_GENERIC_DATATYPE */
+/* ------------------------ */
+PROCESS_GENERIC_DATATYPE *process_generic_datatype_calloc(
+			void );
+
+PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
+			char *datatype_folder_name,
+			char *datatype_select,
+			char *datatype_where,
+			boolean exists_aggregation_sum,
+			boolean exists_bar_graph,
+			boolean exists_graph_zero,
+			boolean unit_datatype_folder );
+
+char *process_generic_datatype_select(
+			boolean exists_aggregation_sum,
+			boolean exists_bar_graph,
+			boolean exists_graph_zero,
+			boolean unit_datatype_folder );
+
+char *process_generic_datatype_date_where(
+			char *date_attribute,
+			char *begin_date_string,
+			char *end_date_string );
+
+char *process_generic_datatype_where(
+			LIST *datatype_primary_attribute_name_list,
+			LIST *datatype_primary_attribute_data_list );
+
+char *process_generic_datatype_measurement_where(
+			LIST *foreign_attribute_name_list,
+			LIST *foreign_attribute_data_list,
+			char *process_generic_datatype_date_where );
+
+PROCESS_GENERIC_DATATYPE *process_generic_datatype_parse(
+			char *system_string,
+			boolean exists_aggregation_sum,
+			boolean exists_bar_graph,
+			boolean exists_graph_zero,
+			boolean unit_datatype_folder );
+
+HASH_TABLE *process_generic_datatype_hash_table(
+			char *date_attribute,
+			char *time_attribute,
+			char *value_attribute,
+			boolean unit_value_folder,
+			char *value_folder,
+			char *where );
+
+/*
 void process_generic_datatype_load(
 				boolean *datatype_aggregation_sum,
 				boolean *datatype_bar_graph,
@@ -132,31 +192,37 @@ void process_generic_datatype_load(
 				LIST *primary_attribute_name_list,
 				LIST *primary_attribute_data_list,
 				char *units_folder_name );
+*/
 
-char *process_generic_output_get_text_file_sys_string(
-				char **begin_date,
-				char **end_date,
-				char **where_clause,
-				char **units_label,
-				int *datatype_entity_piece,
-				int *datatype_piece,
-				int *date_piece,
-				int *time_piece,
-				int *value_piece,
-				int *length_select_list,
-				char *application_name,
-				PROCESS_GENERIC_OUTPUT *
-					process_generic_output,
-				DICTIONARY *post_dictionary,
-				char delimiter,
-				enum aggregate_level,
-				enum aggregate_statistic,
-				boolean append_low_high,
-				boolean concat_datatype_entity,
-				boolean concat_datatype,
-				boolean accumulate_flag );
+/* PROCESS_GENERIC_OUTPUT */
+/* ---------------------- */
+PROCESS_GENERIC_OUTPUT *process_generic_output_new(
+			char *process_name,
+			char *process_set_name );
 
-char *process_generic_output_get_begin_end_date_where(
+char *process_generic_output_text_file_sys_string(
+			char **begin_date,
+			char **end_date,
+			char **where_clause,
+			char **units_label,
+			int *datatype_entity_piece,
+			int *datatype_piece,
+			int *date_piece,
+			int *time_piece,
+			int *value_piece,
+			int *length_select_list,
+			char *application_name,
+			PROCESS_GENERIC_OUTPUT *process_generic_output,
+			DICTIONARY *post_dictionary,
+			char delimiter,
+			enum aggregate_level,
+			enum aggregate_statistic,
+			boolean append_low_high,
+			boolean concat_datatype_entity,
+			boolean concat_datatype,
+			boolean accumulate_flag );
+
+char *process_generic_output_begin_end_date_where(
 			char **begin_date,
 			char **end_date,
 			DICTIONARY *dictionary,
@@ -167,9 +233,9 @@ char *process_generic_output_get_begin_end_date_where(
 			PROCESS_GENERIC_OUTPUT *process_generic_output );
 
 LIST *process_generic_output_append_select_list(
-					LIST *select_list,
-					LIST *attribute_list,
-					DICTIONARY *dictionary );
+			LIST *select_list,
+			LIST *attribute_list,
+			DICTIONARY *dictionary );
 
 char *process_generic_output_get_process_name(
 					char *process_set_name,

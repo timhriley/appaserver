@@ -23,7 +23,12 @@ enum aggregate_statistic aggregate_statistic_get_aggregate_statistic(
 				char *aggregate_statistic_string,
 				enum aggregate_level );
 
-char *aggregate_statistic_get_string( enum aggregate_statistic );
+char *aggregate_statistic_string(
+			enum aggregate_statistic );
+
+char *aggregate_statistic_get_string(
+			 enum aggregate_statistic );
+
 char *aggregate_statistic_display(
 			enum aggregate_statistic aggregate_statistic );
 

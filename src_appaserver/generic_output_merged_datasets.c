@@ -142,7 +142,7 @@ int main( int argc, char **argv )
 	if ( argc != 6 )
 	{
 		fprintf( stderr,
-	"Usage: %s ignored role process filler dictionary\n",
+	"Usage: %s ignored role process ignored dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -151,17 +151,18 @@ int main( int argc, char **argv )
 	process_name = argv[ 3 ];
 
 	post_dictionary =
-		dictionary_string2dictionary( argv[ 5 ] );
+		dictionary_string2dictionary(
+			argv[ 5 ] );
 
 	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_FROM_STARTING_LABEL );
+		post_dictionary,
+		QUERY_FROM_STARTING_LABEL );
 
 	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_STARTING_LABEL );
+		post_dictionary,
+		QUERY_STARTING_LABEL );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	results_string = dictionary_get_index_zero(
 				post_dictionary,

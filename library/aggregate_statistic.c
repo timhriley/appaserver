@@ -49,15 +49,22 @@ enum aggregate_statistic aggregate_statistic_get_aggregate_statistic(
 		aggregate_statistic = aggregate_statistic_none;
 
 	return aggregate_statistic;
-} /* aggregate_statistic_get_aggregate_statistic() */
+}
 
-char *aggregate_statistic_display( enum aggregate_statistic aggregate_statistic )
+char *aggregate_statistic_display(
+			enum aggregate_statistic aggregate_statistic )
 {
-	return aggregate_statistic_get_string( aggregate_statistic );
+	return aggregate_statistic_string( aggregate_statistic );
 }
 
 char *aggregate_statistic_get_string(
-				enum aggregate_statistic aggregate_statistic )
+			enum aggregate_statistic aggregate_statistic )
+{
+	return aggregate_statistic_string( aggregate_statistic );
+}
+
+char *aggregate_statistic_string(
+			enum aggregate_statistic aggregate_statistic )
 {
 	if ( aggregate_statistic == average )
 		return "average";
@@ -84,7 +91,7 @@ char *aggregate_statistic_get_string(
 		return "non_zero_percent";
 	else
 		return "value";
-} /* aggregate_statistic_get_string() */
+}
 
 enum aggregate_statistic *aggregate_statistic_new_aggregate_statistic( void )
 {
@@ -94,5 +101,5 @@ enum aggregate_statistic *aggregate_statistic_new_aggregate_statistic( void )
 		(enum aggregate_statistic *)
 			calloc( 1, sizeof( enum aggregate_statistic ) );
 	return aggregate_statistic_pointer;
-} /* aggregate_statistic_new_aggregate_statistic() */
+}
 

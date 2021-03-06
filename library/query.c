@@ -735,7 +735,6 @@ QUERY_OUTPUT *query_output_new(	QUERY *query,
 
 		query_output->where_clause =
 			query_simple_where(
-				folder->application_name,
 				folder->folder_name,
 				where_attribute_name_list,
 				where_attribute_data_list,
@@ -3303,17 +3302,14 @@ char *query_simple_where_clause(
 			LIST *where_attribute_data_list,
 			LIST *append_isa_attribute_list )
 {
-	char *application_name = {0};
 	char *folder_name = {0};
 
 	if ( folder )
 	{
-		application_name = folder->application_name;
 		folder_name = folder->folder_name;
 	}
 
 	return query_simple_where(
-			application_name,
 			folder_name,
 			where_attribute_name_list,
 			where_attribute_data_list,
@@ -3321,7 +3317,6 @@ char *query_simple_where_clause(
 }
 
 char *query_simple_where(
-			char *application_name,
 			char *folder_name,
 			LIST *where_attribute_name_list,
 			LIST *where_attribute_data_list,
@@ -3332,14 +3327,11 @@ char *query_simple_where(
 	char *attribute_name;
 	char escaped_data[ 1024 ];
 	char *table_name = {0};
-	ATTRIBUTE *attribute;
+	ATTRIBUTE *attribute = {0};
 
-	if ( application_name && folder_name )
+	if ( folder_name )
 	{
-		table_name =
-			get_table_name(
-				application_name,
-				folder_name );
+		table_name = folder_name;
 	}
 
 	list_rewind( where_attribute_name_list );
@@ -3351,10 +3343,13 @@ char *query_simple_where(
 			list_get_pointer(
 				where_attribute_name_list );
 
-		attribute =
-			attribute_seek(
-				attribute_name,
-				append_isa_attribute_list );
+		if ( list_length( append_isa_attribute_list ) )
+		{
+			attribute =
+				attribute_seek(
+					attribute_name,
+					append_isa_attribute_list );
+		}
 
 		timlib_strcpy(
 			escaped_data,
@@ -8269,7 +8264,6 @@ QUERY_OUTPUT *query_simple_output_new(
 
 	query_output->where_clause =
 		query_simple_where(
-			folder->application_name,
 			folder->folder_name,
 			where_attribute_name_list,
 			where_attribute_data_list,

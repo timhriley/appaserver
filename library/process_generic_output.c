@@ -8,8 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h>
 #include "timlib.h"
 #include "piece.h"
+#include "sql.h"
 #include "query.h"
 #include "dictionary.h"
 #include "attribute.h"
@@ -22,6 +24,7 @@
 #include "list_usage.h"
 #include "appaserver.h"
 #include "query.h"
+#include "environ.h"
 #include "appaserver_library.h"
 #include "process_generic_output.h"
 
@@ -49,7 +52,7 @@ PROCESS_GENERIC_OUTPUT *process_generic_output_new(
 
 	return process_generic_output;
 
-} /* process_generic_output_new() */
+}
 
 PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_new(
 				char *application_name,
@@ -100,7 +103,7 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_new(
 			folder->attribute_list );
 
 	return value_folder;
-} /* process_generic_output_value_folder_new() */
+}
 
 PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_new(
 			char *application_name,
@@ -128,7 +131,7 @@ PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_new(
 	foreign_folder->foreign_folder_name = foreign_folder_name;
 
 	return foreign_folder;
-} /* process_generic_foreign_folder_new() */
+}
 
 void process_generic_value_folder_load(	char **value_folder_name,
 					char **date_attribute_name,
@@ -251,7 +254,7 @@ void process_generic_value_folder_load(	char **value_folder_name,
 	*foreign_folder_name = strdup( piece_string );
 
 	free( results );
-} /* process_generic_value_folder_load() */
+}
 
 PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
 					char *application_name,
@@ -275,7 +278,7 @@ PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
 		process_generic_datatype_folder->datatype_folder_name );
 
 	return process_generic_datatype_folder;
-} /* process_generic_datatype_folder_new() */
+}
 
 void process_generic_datatype_folder_load(
 				LIST **primary_attribute_name_list,
@@ -354,7 +357,7 @@ void process_generic_datatype_folder_load(
 
 	*primary_attribute_name_list = pipe2list( sys_string );
 
-} /* process_generic_datatype_folder_load() */
+}
 
 LIST *process_generic_get_compare_datatype_list(
 			char *application_name,
@@ -470,112 +473,7 @@ LIST *process_generic_get_compare_datatype_list(
 
 	return compare_datatype_list;
 
-} /* process_generic_get_compare_datatype_list() */
-
-HASH_TABLE *process_generic_get_values_hash_table(
-			char *application_name,
-			char *values_select_string,
-			enum aggregate_level aggregate_level,
-			LIST *foreign_attribute_name_list,
-			LIST *foreign_attribute_data_list,
-			char *begin_date_string,
-			char *end_date_string,
-			char *value_folder_name,
-			char *date_attribute_name,
-			boolean accumulate )
-{
-	char sys_string[ 1024 ];
-	char real_time_process[ 512 ];
-	char input_buffer[ 1024 ];
-	FILE *input_pipe;
-	char date_string[ 16 ];
-	char value_string[ 128 ];
-	double accumulate_so_far = 0.0;
-	PROCESS_GENERIC_VALUE *value;
-	HASH_TABLE *values_hash_table = hash_table_new( hash_table_medium );
-	char *where_clause;
-
-	where_clause =
-		process_generic_output_get_foreign_folder_where_clause(
-			&begin_date_string,
-			&end_date_string,
-			foreign_attribute_name_list,
-			foreign_attribute_data_list,
-			/* ------------------------------------------------ */
-			/* Need to assume both dates are already populated. */
-			/* ------------------------------------------------ */
-			(DICTIONARY *)0 /* dictionary */,
-	       		(char *)0 /* application_name */,
-			(char *)0 /* value_folder_name */,
-			date_attribute_name );
-
-	if ( aggregate_level == aggregate_level_none
-	||   aggregate_level == real_time )
-	{
-		strcpy( real_time_process, "cat" );
-	}
-	else
-	{
-		sprintf( real_time_process, 
-	 "real_time2aggregate_value.e %s %d %d %d '%c' %s n %s",
-	 		aggregate_statistic_get_string(
-				aggregate_statistic_none ),
-	 		 0 /* date_piece */,
-	 		-1 /* time_piece */,
-	 		 1 /* value_piece */,
-			FOLDER_DATA_DELIMITER,
-	 		aggregate_level_get_string(
-				aggregate_level ),
-			end_date_string );
-	}
-
-	sprintf(sys_string,
-		"get_folder_data	application=%s		    "
-		"			folder=%s		    "
-		"			select=\"%s\"		    "
-		"			where=\"%s\"		   |"
-		"%s						   |"
-		"cat						    ",
-		application_name,
-		value_folder_name,
-		values_select_string,
-		where_clause,
-		real_time_process );
-
-	input_pipe = popen( sys_string, "r" );
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		piece( date_string, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-		piece( value_string, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-
-		value = process_generic_value_new();
-
-		if ( *value_string && strncmp( value_string, "null", 4 ) != 0 )
-		{
-			value->value = atof( value_string );
-
-			if ( accumulate )
-			{
-				accumulate_so_far += value->value;
-				value->accumulate = accumulate_so_far;
-			}
-		}
-		else
-		{
-			value->is_null = 1;
-		}
-
-		hash_table_add_pointer(
-			values_hash_table,
-			strdup( date_string ),
-			value );
-	}
-
-	pclose( input_pipe );
-
-	return values_hash_table;
-
-} /* process_generic_get_values_hash_table() */
+}
 
 
 PROCESS_GENERIC_DATATYPE *process_generic_datatype_new(
@@ -628,7 +526,7 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_new(
 
 	return process_generic_datatype;
 
-} /* process_generic_datatype_new() */
+}
 
 void process_generic_datatype_load(
 				boolean *aggregation_sum,
@@ -649,41 +547,9 @@ void process_generic_datatype_load(
 	char piece_buffer[ 16 ];
 	char *results;
 	int piece_int = 0;
-	char select_string[ 1024 ];
-	char *select_ptr = select_string;
-
-	if ( exists_aggregation_sum )
-	{
-		select_ptr += sprintf( select_ptr, "aggregation_sum_yn" );
-	}
-
-	if ( exists_bar_graph )
-	{
-		if ( select_ptr != select_string )
-			select_ptr += sprintf( select_ptr, "," );
-
-		select_ptr += sprintf( select_ptr, "bar_graph_yn" );
-	}
-
-	if ( exists_scale_graph_zero )
-	{
-		if ( select_ptr != select_string )
-			select_ptr += sprintf( select_ptr, "," );
-
-		select_ptr += sprintf( select_ptr, "scale_graph_to_zero_yn" );
-	}
-
-	if ( units_folder_name
-	&&   strcmp( units_folder_name, "datatype_folder" ) == 0 )
-	{
-		if ( select_ptr != select_string )
-			select_ptr += sprintf( select_ptr, "," );
-
-		select_ptr += sprintf( select_ptr, "units" );
-	}
 
 	if ( ! ( where_clause =
-		process_generic_get_datatype_where_clause(
+		process_generic_datatype_where_clause(
 			datatype_primary_attribute_name_list,
 			datatype_primary_attribute_data_list ) ) )
 	{
@@ -796,8 +662,7 @@ char *process_generic_get_datatype_where_clause(
 					/* root_related_folder */ );
 
 	return query->query_output->where_clause;
-	
-} /* process_generic_get_datatype_where_clause() */
+}
 
 LIST *process_generic_get_datatype_primary_attribute_data_list(
 			DICTIONARY *post_dictionary,
@@ -870,7 +735,7 @@ LIST *process_generic_get_datatype_primary_attribute_data_list(
 					primary_attribute_data );
 	} while( list_next( datatype_primary_attribute_name_list ) );
 	return primary_attribute_data_list;
-} /* process_generic_get_datatype_primary_attribute_data_list() */
+}
 
 char *process_generic_output_get_begin_end_date_where(
 			char **begin_date,
@@ -988,7 +853,7 @@ process_generic_output = (PROCESS_GENERIC_OUTPUT *)0;
 	}
 
 	return where_clause;
-} /* process_generic_output_get_begin_end_date_where() */
+}
 
 LIST *process_generic_output_get_concat_heading_list(
 				PROCESS_GENERIC_VALUE_FOLDER *value_folder,
@@ -1073,7 +938,7 @@ LIST *process_generic_output_get_concat_heading_list(
 
 	return heading_list;
 
-} /* process_generic_output_get_concat_heading_list() */
+}
 
 char *process_generic_output_get_heading_string(
 				PROCESS_GENERIC_VALUE_FOLDER *value_folder,
@@ -1135,7 +1000,7 @@ char *process_generic_output_get_heading_string(
 	*ptr = '\0';
 	return heading_string;
 
-} /* process_generic_output_get_heading_string() */
+}
 
 char *process_generic_output_get_text_file_sys_string(
 				char **begin_date,
@@ -1357,7 +1222,7 @@ char *process_generic_output_get_text_file_sys_string(
 	*where_clause = local_where_clause;
 
 	return sys_string;
-} /* process_generic_output_get_text_file_sys_string() */
+}
 
 LIST *process_generic_output_get_select_list(
 				int *datatype_entity_piece,
@@ -1498,7 +1363,7 @@ LIST *process_generic_output_get_select_list(
 
 	return select_list;
 
-} /* process_generic_output_get_select_list() */
+}
 
 LIST *process_generic_output_append_select_list(
 					LIST *select_list,
@@ -1525,7 +1390,7 @@ LIST *process_generic_output_append_select_list(
 		}
 	} while( list_next( attribute_list ) );
 	return select_list;
-} /* process_generic_output_append_select_list() */
+}
 
 char *process_generic_output_get_process_name(
 			char *process_set_name,
@@ -1535,7 +1400,7 @@ char *process_generic_output_get_process_name(
 
 	sprintf( key, "%s_0", process_set_name );
 	return dictionary_get_pointer( post_dictionary, key );
-} /* process_generic_output_get_process_name() */
+}
 
 char *process_generic_output_get_datatype_entity_data(
 			DICTIONARY *post_dictionary,
@@ -1589,7 +1454,7 @@ char *process_generic_output_get_units(
 		 datatype_folder_name,
 		 where_clause );
 	return pipe2string( sys_string );
-} /* process_generic_output_get_units() */
+}
 
 char *process_generic_output_get_units_label(
 				char *units,
@@ -1625,7 +1490,7 @@ char *process_generic_output_get_units_label(
 
 	return units_label;
 
-} /* process_generic_output_get_units_label() */
+}
 
 char *process_generic_output_get_exceedance_html_table_justify_string(
 					int list_length,
@@ -1658,7 +1523,7 @@ char *process_generic_output_get_exceedance_html_table_justify_string(
 
 	sprintf( ptr, ",right,right" );
 	return strdup( justify_string );
-} /* process_generic_output_get_exceedance_html_table_justify_string() */
+}
 
 LIST *process_generic_output_get_exceedance_heading_list(
 				LIST *select_list,
@@ -1702,7 +1567,7 @@ LIST *process_generic_output_get_exceedance_heading_list(
 
 	return heading_list;
 
-} /* process_generic_output_get_exceedance_heading_list() */
+}
 
 char *process_generic_output_get_row_exceedance_stdout_sys_string(
 				char **begin_date,
@@ -1877,7 +1742,7 @@ char *process_generic_output_get_row_exceedance_stdout_sys_string(
 
 	return strdup( sys_string );
 
-} /* process_generic_output_get_row_exceedance_stdout_sys_string() */
+}
 
 char *process_generic_output_get_exceedance_stdout_sys_string(
 				char **begin_date,
@@ -2155,7 +2020,7 @@ char *process_generic_output_get_exceedance_stdout_sys_string(
 
 	return strdup( sys_string );
 
-} /* process_generic_output_get_exceedance_stdout_sys_string() */
+}
 
 LIST *process_generic_output_get_primary_attribute_data_list(
 				LIST *primary_attribute_name_list,
@@ -2192,7 +2057,7 @@ LIST *process_generic_output_get_primary_attribute_data_list(
 	}
 
 	return primary_attribute_data_list;
-} /* process_generic_output_get_primary_attribute_data_list() */
+}
 
 void process_generic_output_get_period_of_record_date(
 				char **date_string,
@@ -2222,7 +2087,7 @@ void process_generic_output_get_period_of_record_date(
 	if ( ! ( return_pointer = pipe2string( sys_string ) ) )
 		return;
 	*date_string = return_pointer;
-} /* process_generic_output_get_period_of_record_date() */
+}
 
 enum aggregate_statistic process_generic_output_get_aggregate_statistic(
 				boolean datatype_aggregation_sum )
@@ -2270,7 +2135,7 @@ char *process_generic_output_get_highest_delimiter_compare_key(
 
 	} while( list_next( key_list ) );
 	return highest_compare_key;
-} /* process_generic_output_get_highest_delimiter_compare_key() */
+}
 
 LIST *process_generic_output_get_compare_data_list(
 				DICTIONARY *post_dictionary,
@@ -2306,7 +2171,7 @@ LIST *process_generic_output_get_compare_data_list(
 	}
 
 	return compare_data_list;
-} /* process_generic_output_get_compare_data_list() */
+}
 
 boolean process_generic_output_exists_compare_multi_select(
 				DICTIONARY *post_dictionary )
@@ -2396,7 +2261,7 @@ char *process_generic_output_get_row_dictionary_where_clause(
 
 	return where_clause;
 
-} /* process_generic_output_get_row_dictionary_where_clause() */
+}
 
 char *process_generic_output_get_drop_down_where_clause(
 			char *application_name,
@@ -2415,7 +2280,7 @@ char *process_generic_output_get_drop_down_where_clause(
 	else
 		return query->query_output->drop_down_where_clause;
 
-} /* process_generic_output_get_drop_down_where_clause() */
+}
 
 char *process_generic_output_get_dictionary_where_clause(
 			char **begin_date,
@@ -2457,7 +2322,7 @@ char *process_generic_output_get_dictionary_where_clause(
 
 	return where_clause;
 
-} /* process_generic_output_get_dictionary_where_clause() */
+}
 
 char *process_generic_compare_datatype_list_display(
 					LIST *compare_datatype_list )
@@ -2486,7 +2351,7 @@ char *process_generic_compare_datatype_list_display(
 
 	} while( list_next( compare_datatype_list ) );
 	return strdup( buffer );
-} /* process_generic_compare_datatype_list_display() */
+}
 
 char *process_generic_datatype_display(
 		PROCESS_GENERIC_DATATYPE *process_generic_datatype )
@@ -2517,7 +2382,7 @@ char *process_generic_datatype_display(
 		hash_table_length(	process_generic_datatype->
 					values_hash_table ) );
 	return buffer;
-} /* process_generic_datatype_display() */
+}
 
 char *process_generic_output_get_foreign_folder_where_clause(
 			char **begin_date,
@@ -2580,7 +2445,7 @@ char *process_generic_output_get_foreign_folder_where_clause(
 				(PROCESS_GENERIC_OUTPUT *)0 ) );
 
 	return where_clause;
-} /* process_generic_output_get_foreign_folder_where_clause() */
+}
 
 PROCESS_GENERIC_VALUE *process_generic_value_new( void )
 {
@@ -2599,7 +2464,7 @@ PROCESS_GENERIC_VALUE *process_generic_value_new( void )
 	}
 
 	return process_generic_value;
-} /* process_generic_output_value_new() */
+}
 
 char *process_generic_get_datatype_name(
 				LIST *datatype_primary_attribute_data_list,
@@ -2639,7 +2504,7 @@ LIST *process_generic_get_prefixed_primary_attribute_data_list(
 		}
 	} while( list_next( full_primary_attribute_data_list ) );
 	return primary_attribute_data_list;
-} /* process_generic_get_prefixed_primary_attribute_data_list() */
+}
 
 char *process_generic_get_datatype_entity(
 				LIST *foreign_attribute_data_list,
@@ -2691,7 +2556,7 @@ char *process_generic_get_datatype_entity(
 
 	} while( list_next( foreign_attribute_data_list ) );
 	return strdup( datatype_entity );
-} /* process_generic_get_datatype_entity() */
+}
 
 LIST *process_generic_output_get_compare_datatype_name_list(
 				LIST *compare_datatype_list )
@@ -2721,7 +2586,7 @@ LIST *process_generic_output_get_compare_datatype_name_list(
 
 	return compare_datatype_name_list;
 	
-} /* process_generic_output_get_compare_datatype_name_list() */
+}
 
 LIST *process_generic_output_get_compare_entity_name_list(
 				LIST *compare_datatype_list,
@@ -2753,7 +2618,7 @@ LIST *process_generic_output_get_compare_entity_name_list(
 
 	return compare_entity_name_list;
 	
-} /* process_generic_output_get_compare_entity_name_list() */
+}
 
 LIST *process_generic_output_get_compare_datatype_units_list(
 				LIST *compare_datatype_list )
@@ -2780,7 +2645,7 @@ LIST *process_generic_output_get_compare_datatype_units_list(
 
 	return compare_datatype_units_list;
 	
-} /* process_generic_output_get_compare_datatype_units_list() */
+}
 
 enum aggregate_statistic
 		process_generic_output_get_database_aggregate_statistic(
@@ -2817,7 +2682,7 @@ enum aggregate_statistic
 
 	return aggregate_statistic;
 
-} /* process_generic_output_get_database_aggregate_statistic() */
+}
 
 char *process_generic_output_get_datatype_heading_string(
 			PROCESS_GENERIC_FOREIGN_FOLDER *foreign_folder,
@@ -2884,7 +2749,7 @@ char *process_generic_output_get_datatype_heading_string(
 
 	return heading_string;
 
-} /* process_generic_output_get_datatype_heading_string() */
+}
 
 #ifdef NOT_DEFINED
 boolean process_generic_output_validate_begin_end_date(
@@ -3114,7 +2979,7 @@ QUERY_OUTPUT *process_generic_query_output(
 
 	return query_output;
 
-} /* process_generic_query_output() */
+}
 
 /* ------------------------------- */
 /* Returns static (program) memory */
@@ -3159,7 +3024,7 @@ char *process_generic_output_begin_end_date_where_clause(
 
 	return where_clause;
 
-} /* process_generic_output_begin_end_date_where_clause() */
+}
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -3202,7 +3067,7 @@ char *process_generic_output_drop_down_where(
 	else
 		return query->query_output->where_clause;
 
-} /* process_generic_output_drop_down_where() */
+}
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -3246,7 +3111,7 @@ char *process_generic_output_where(
 
 	return strdup( where_clause );
 
-} /* process_generic_output_where() */
+}
 
 boolean process_generic_output_validate_begin_end_date(
 				char **begin_date_string /* in/out */,
@@ -3390,5 +3255,418 @@ boolean process_generic_output_validate_begin_end_date(
 	else
 		return 1;
 
-} /* process_generic_output_validate_begin_end_date() */
+}
 
+/* PROCESS_GENERIC_DATATYPE */
+/* ------------------------ */
+PROCESS_GENERIC_DATATYPE *process_generic_datatype_calloc(
+			void )
+{
+	PROCESS_GENERIC_DATATYPE *process_generic_datatype;
+
+	if ( ! ( process_generic_datatype =
+			calloc( 1,
+				sizeof( PROCESS_GENERIC_DATATYPE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return process_generic_datatype;
+}
+
+PROCESS_GENERIC_DATATYPE *process_generic_datatype_parse(
+			char *system_string,
+			boolean exists_aggregation_sum,
+			boolean exists_bar_graph,
+			boolean exists_graph_zero,
+			boolean unit_datatype_folder )
+{
+	char *results;
+	char piece_buffer[ 128 ];
+
+	PROCESS_GENERIC_DATATYPE *
+		process_generic_datatype =
+			process_generic_datatype_calloc();
+
+	if ( ! ( results = string_pipe_fetch( system_string ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: string_pipe_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			system_string );
+		exit( 1 );
+	}
+
+	if ( exists_aggregation_sum )
+	{
+		piece( piece_buffer, SQL_DELIMITER, results, 0 );
+		process_generic_datatype->aggregation_sum =
+			*piece_buffer == 'y';
+	}
+
+	if ( exists_bar_graph )
+	{
+		piece( piece_buffer, SQL_DELIMITER, results, 1 );
+		process_generic_datatype->bar_graph =
+			*piece_buffer == 'y';
+	}
+
+	if ( exists_scale_graph_zero )
+	{
+		piece( piece_buffer, SQL_DELIMITER, results, 2 );
+		process_generic_datatype->scale_graph_zero =
+			*piece_buffer == 'y';
+	}
+
+	if ( unit_datatype_folder )
+	{
+		piece( piece_buffer, SQL_DELIMITER, results, 3 );
+		process_generic_datatype->unit_name =
+			strdup( piece_buffer );
+	}
+	return process_generic_output;
+}
+
+PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
+			char *datatype_folder_name,
+			char *datatype_select,
+			char *datatype_where,
+			boolean exists_aggregation_sum,
+			boolean exists_bar_graph,
+			boolean exists_graph_zero,
+			boolean unit_datatype_folder )
+{
+	char system_string[ 1024 ];
+
+	if ( !datatype_select
+	||   !datatype_folder_name
+	||   !datatype_where )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: empty datatype_select, datatype_folder_name or datatype_where.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		datatype_select,
+		datatype_folder_name,
+		datatype_where );
+
+	return process_generic_datatype_parse(
+			system_string,
+			exists_aggregation_sum,
+			exists_bar_graph,
+			exists_graph_zero,
+			unit_datatype_folder );
+}
+
+char *process_generic_datatype_select(
+			boolean exists_aggregation_sum,
+			boolean exists_bar_graph,
+			boolean exists_graph_zero,
+			boolean unit_datatype_folder )
+{
+	char select[ 1024 ];
+	char *select_ptr = select;
+
+	if ( exists_aggregation_sum )
+	{
+		select_ptr += sprintf( select_ptr, "aggregation_sum_yn" );
+	}
+	else
+	{
+		select_ptr += sprintf( select_ptr, "''" );
+	}
+
+	if ( exists_bar_graph )
+	{
+		select_ptr += sprintf( select_ptr, ",bar_graph_yn" );
+	}
+	else
+	{
+		select_ptr += sprintf( select_ptr, ",''" );
+	}
+
+	if ( exists_scale_graph_zero )
+	{
+		select_ptr += sprintf( select_ptr, ",scale_graph_to_zero_yn" );
+	}
+	else
+	{
+		select_ptr += sprintf( select_ptr, ",''" );
+	}
+
+	if ( unit_datatype_folder )
+	{
+		select_ptr += sprintf( select_ptr, "units" );
+	}
+	else
+	{
+		select_ptr += sprintf( select_ptr, ",''" );
+	}
+
+	return strdup( select );
+}
+
+char *process_generic_datatype_where(
+			LIST *datatype_primary_attribute_name_list,
+			LIST *datatype_primary_attribute_data_list )
+{
+	return query_simple_where(
+			(char *)0 /* folder_name */,
+			datatype_primary_attribute_name_list
+				/* where_attribute_name_list */,
+			datatype_primary_attribute_data_list
+				/* where_attribute_data_list */,
+			(LIST *)0 /* append_isa_attribute_list */ );
+}
+
+char *process_generic_datatype_measurement_where(
+			LIST *foreign_attribute_name_list,
+			LIST *foreign_attribute_data_list,
+			char *date_where )
+{
+	char *query_where;
+	char where[ 1024 ];
+
+	query_where =
+		query_simple_where(
+			(char *)0 /* folder_name */,
+			foreign_attribute_name_list
+				/* where_attribute_name_list */,
+			foreign_attribute_data_list
+				/* where_attribute_data_list */,
+			(LIST *)0 /* append_isa_attribute_list */ );
+
+	if ( !query_where )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_where() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !date_where )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: empty date_where.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"%s and %s",
+		query_where,
+		date_where );
+
+	return where;
+}
+
+char *process_generic_datatype_measurement_select(
+			char *date_attribute,
+			char *time_attribute,
+			char *value_attribute,
+			char *unit_attribute,
+			enum aggregate_level aggregate_level )
+{
+		if ( time_attribute_name
+		&&   *time_attribute_name
+		&&   ( aggregate_level == aggregate_level_none
+		||     aggregate_level == real_time ) )
+		{
+			sprintf(	values_select_string,
+					"concat(%s,':',%s),%s",
+					date_attribute_name,
+					time_attribute_name,
+					value_attribute_name );
+		}
+		else
+		{
+			sprintf(	values_select_string,
+					"%s,%s",
+					date_attribute_name,
+					value_attribute_name );
+		}
+HASH_TABLE *process_generic_datatype_hash_table(
+			char *date_attribute,
+			char *time_attribute,
+			char *value_attribute,
+			boolean unit_value_folder,
+			char *value_folder,
+			char *where,
+			enum aggregate_level aggregate_level,
+			char *begin_date_string,
+			char *end_date_string,
+			boolean accumulate )
+{
+	char sys_string[ 1024 ];
+	char real_time_process[ 512 ];
+	char input_buffer[ 1024 ];
+	FILE *input_pipe;
+	char date_string[ 16 ];
+	char value_string[ 128 ];
+	double accumulate_so_far = 0.0;
+	PROCESS_GENERIC_VALUE *value;
+	int time_piece;
+	int value_piece;
+
+	HASH_TABLE *values_hash_table =
+		hash_table_new(
+			hash_table_duper );
+
+	if ( time_attribute && *time_attribute )
+	{
+		time_piece = 1;
+		value_piece = 2;
+	}
+	else
+	{
+		time_piece = -1;
+		value_piece = 1;
+	}
+
+	if ( aggregate_level == aggregate_level_none
+	||   aggregate_level == real_time )
+	{
+		strcpy( real_time_process, "cat" );
+	}
+	else
+	{
+		sprintf( real_time_process, 
+	 "real_time2aggregate_value.e %s %d %d %d '%c' %s n %s",
+	 		aggregate_statistic_get_string(
+				aggregate_statistic_none ),
+	 		 0 /* date_piece */,
+	 		time_piece,
+	 		value_piece,
+			FOLDER_DATA_DELIMITER,
+	 		aggregate_level_string( aggregate_level ),
+			(end_date_string) ? end_date_string : "" );
+	}
+
+	sprintf(sys_string,
+		"get_folder_data	application=%s		    "
+		"			folder=%s		    "
+		"			select=\"%s\"		    "
+		"			where=\"%s\"		   |"
+		"%s						   |"
+		"cat						    ",
+		environment_application_name(),
+		value_folder,
+		values_select_string,
+		where_clause,
+		real_time_process );
+
+	input_pipe = popen( sys_string, "r" );
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece( date_string, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		piece( value_string, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+
+		value = process_generic_value_new();
+
+		if ( *value_string && strncmp( value_string, "null", 4 ) != 0 )
+		{
+			value->value = atof( value_string );
+
+			if ( accumulate )
+			{
+				accumulate_so_far += value->value;
+				value->accumulate = accumulate_so_far;
+			}
+		}
+		else
+		{
+			value->is_null = 1;
+		}
+
+		hash_table_add_pointer(
+			values_hash_table,
+			strdup( date_string ),
+			value );
+	}
+
+	pclose( input_pipe );
+
+	return values_hash_table;
+
+}
+
+char *process_generic_datatype_date_where(
+			char *date_attribute,
+			char *begin_date_string,
+			char *end_date_string )
+{
+	static char where[ 256 ] = {0};
+
+	if ( !date_attribute )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty date_attribute.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+/*
+	begin_date_string =
+		dictionary_fetch_index_zero(
+			dictionary,
+			"begin_date" );
+
+	end_date_string =
+		dictionary_fetch_index_zero(
+			dictionary,
+			"end_date" );
+
+*/
+	if ( begin_date_string
+	&&  *begin_date_string
+	&&   end_date_string
+	&&  *end_date_string )
+	{
+		sprintf(	where,
+				"%s >= '%s' and %s <= '%s'",
+				date_attribute,
+				begin_date_string,
+				date_attribute,
+				end_date_string );
+	}
+	else
+	if ( end_date_string && *end_date_string )
+	{
+		sprintf(	where,
+				"%s <= '%s'",
+				date_attribute,
+				end_date_string );
+	}
+	else
+	if ( begin_date_string && *begin_date_string )
+	{
+		sprintf(	where,
+				"%s >= '%s'",
+				date_attribute,
+				begin_date_string );
+	}
+	else
+	{
+		strcpy( where, "1 = 1" );
+	}
+
+	return where;
+}
