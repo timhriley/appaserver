@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "String.h>
+#include "String.h"
 #include "timlib.h"
 #include "piece.h"
 #include "sql.h"
@@ -453,7 +453,7 @@ LIST *process_generic_get_compare_datatype_list(
 		if ( with_select_data )
 		{
 			process_generic_datatype->values_hash_table =
-				process_generic_get_values_hash_table(
+				process_generic_values_hash_table(
 					application_name,
 					values_select_string,
 					aggregate_level,
@@ -547,9 +547,41 @@ void process_generic_datatype_load(
 	char piece_buffer[ 16 ];
 	char *results;
 	int piece_int = 0;
+	char select_string[ 1024 ];
+	char *select_ptr = select_string;
+
+	if ( exists_aggregation_sum )
+	{
+		select_ptr += sprintf( select_ptr, "aggregation_sum_yn" );
+	}
+
+	if ( exists_bar_graph )
+	{
+		if ( select_ptr != select_string )
+			select_ptr += sprintf( select_ptr, "," );
+
+		select_ptr += sprintf( select_ptr, "bar_graph_yn" );
+	}
+
+	if ( exists_scale_graph_zero )
+	{
+		if ( select_ptr != select_string )
+			select_ptr += sprintf( select_ptr, "," );
+
+		select_ptr += sprintf( select_ptr, "scale_graph_to_zero_yn" );
+	}
+
+	if ( units_folder_name
+	&&   strcmp( units_folder_name, "datatype_folder" ) == 0 )
+	{
+		if ( select_ptr != select_string )
+			select_ptr += sprintf( select_ptr, "," );
+
+		select_ptr += sprintf( select_ptr, "units" );
+	}
 
 	if ( ! ( where_clause =
-		process_generic_datatype_where_clause(
+		process_generic_get_datatype_where_clause(
 			datatype_primary_attribute_name_list,
 			datatype_primary_attribute_data_list ) ) )
 	{
@@ -3283,7 +3315,7 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_parse(
 			char *system_string,
 			boolean exists_aggregation_sum,
 			boolean exists_bar_graph,
-			boolean exists_graph_zero,
+			boolean exists_scale_graph_zero,
 			boolean unit_datatype_folder )
 {
 	char *results;
@@ -3328,10 +3360,10 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_parse(
 	if ( unit_datatype_folder )
 	{
 		piece( piece_buffer, SQL_DELIMITER, results, 3 );
-		process_generic_datatype->unit_name =
+		process_generic_datatype->units =
 			strdup( piece_buffer );
 	}
-	return process_generic_output;
+	return process_generic_datatype;
 }
 
 PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
@@ -3340,7 +3372,7 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
 			char *datatype_where,
 			boolean exists_aggregation_sum,
 			boolean exists_bar_graph,
-			boolean exists_graph_zero,
+			boolean exists_scale_graph_zero,
 			boolean unit_datatype_folder )
 {
 	char system_string[ 1024 ];
@@ -3367,14 +3399,14 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
 			system_string,
 			exists_aggregation_sum,
 			exists_bar_graph,
-			exists_graph_zero,
+			exists_scale_graph_zero,
 			unit_datatype_folder );
 }
 
 char *process_generic_datatype_select(
 			boolean exists_aggregation_sum,
 			boolean exists_bar_graph,
-			boolean exists_graph_zero,
+			boolean exists_scale_graph_zero,
 			boolean unit_datatype_folder )
 {
 	char select[ 1024 ];
@@ -3438,7 +3470,7 @@ char *process_generic_datatype_measurement_where(
 			char *date_where )
 {
 	char *query_where;
-	char where[ 1024 ];
+	static char where[ 1024 ];
 
 	query_where =
 		query_simple_where(
@@ -3475,136 +3507,6 @@ char *process_generic_datatype_measurement_where(
 		date_where );
 
 	return where;
-}
-
-char *process_generic_datatype_measurement_select(
-			char *date_attribute,
-			char *time_attribute,
-			char *value_attribute,
-			char *unit_attribute,
-			enum aggregate_level aggregate_level )
-{
-		if ( time_attribute_name
-		&&   *time_attribute_name
-		&&   ( aggregate_level == aggregate_level_none
-		||     aggregate_level == real_time ) )
-		{
-			sprintf(	values_select_string,
-					"concat(%s,':',%s),%s",
-					date_attribute_name,
-					time_attribute_name,
-					value_attribute_name );
-		}
-		else
-		{
-			sprintf(	values_select_string,
-					"%s,%s",
-					date_attribute_name,
-					value_attribute_name );
-		}
-HASH_TABLE *process_generic_datatype_hash_table(
-			char *date_attribute,
-			char *time_attribute,
-			char *value_attribute,
-			boolean unit_value_folder,
-			char *value_folder,
-			char *where,
-			enum aggregate_level aggregate_level,
-			char *begin_date_string,
-			char *end_date_string,
-			boolean accumulate )
-{
-	char sys_string[ 1024 ];
-	char real_time_process[ 512 ];
-	char input_buffer[ 1024 ];
-	FILE *input_pipe;
-	char date_string[ 16 ];
-	char value_string[ 128 ];
-	double accumulate_so_far = 0.0;
-	PROCESS_GENERIC_VALUE *value;
-	int time_piece;
-	int value_piece;
-
-	HASH_TABLE *values_hash_table =
-		hash_table_new(
-			hash_table_duper );
-
-	if ( time_attribute && *time_attribute )
-	{
-		time_piece = 1;
-		value_piece = 2;
-	}
-	else
-	{
-		time_piece = -1;
-		value_piece = 1;
-	}
-
-	if ( aggregate_level == aggregate_level_none
-	||   aggregate_level == real_time )
-	{
-		strcpy( real_time_process, "cat" );
-	}
-	else
-	{
-		sprintf( real_time_process, 
-	 "real_time2aggregate_value.e %s %d %d %d '%c' %s n %s",
-	 		aggregate_statistic_get_string(
-				aggregate_statistic_none ),
-	 		 0 /* date_piece */,
-	 		time_piece,
-	 		value_piece,
-			FOLDER_DATA_DELIMITER,
-	 		aggregate_level_string( aggregate_level ),
-			(end_date_string) ? end_date_string : "" );
-	}
-
-	sprintf(sys_string,
-		"get_folder_data	application=%s		    "
-		"			folder=%s		    "
-		"			select=\"%s\"		    "
-		"			where=\"%s\"		   |"
-		"%s						   |"
-		"cat						    ",
-		environment_application_name(),
-		value_folder,
-		values_select_string,
-		where_clause,
-		real_time_process );
-
-	input_pipe = popen( sys_string, "r" );
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		piece( date_string, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-		piece( value_string, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-
-		value = process_generic_value_new();
-
-		if ( *value_string && strncmp( value_string, "null", 4 ) != 0 )
-		{
-			value->value = atof( value_string );
-
-			if ( accumulate )
-			{
-				accumulate_so_far += value->value;
-				value->accumulate = accumulate_so_far;
-			}
-		}
-		else
-		{
-			value->is_null = 1;
-		}
-
-		hash_table_add_pointer(
-			values_hash_table,
-			strdup( date_string ),
-			value );
-	}
-
-	pclose( input_pipe );
-
-	return values_hash_table;
-
 }
 
 char *process_generic_datatype_date_where(
@@ -3670,3 +3572,252 @@ char *process_generic_datatype_date_where(
 
 	return where;
 }
+
+char *process_generic_datatype_measurement_select(
+			LIST *foreign_attribute_name_list,
+			char *date_attribute,
+			char *time_attribute,
+			char *value_attribute,
+			boolean unit_value_folder )
+{
+	static char measurement_select[ 128 ];
+	char *ptr = measurement_select;
+
+	if ( !date_attribute )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty date_attribute.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf( ptr,
+			"%s",
+			list_display_delimited(
+				foreign_attribute_name_list, ',' ) );
+
+	ptr += sprintf( ptr, ",%s", date_attribute );
+
+	if ( time_attribute && *time_attribute )
+	{
+		ptr += sprintf( ptr, ",%s", time_attribute );
+	}
+
+	ptr += sprintf( ptr, ",%s", value_attribute );
+
+	if ( unit_value_folder )
+	{
+		ptr += sprintf( ptr, ",units" );
+	}
+
+	return measurement_select;
+}
+
+char *process_generic_datatype_system_string(
+			char *select,
+			char *value_folder,
+			char *where,
+			enum aggregate_level aggregate_level,
+			enum aggregate_statistic aggregate_statistic,
+			int length_foreign_attribute_name_list,
+			char *time_attribute,
+			char *end_date_string )
+{
+	char system_string[ 1024 ];
+	char real_time_process[ 512 ];
+	int date_piece;
+	int time_piece;
+	int value_piece;
+
+	date_piece = length_foreign_attribute_name_list;
+
+	if ( time_attribute && *time_attribute )
+	{
+		time_piece = length_foreign_attribute_name_list + 1;
+		value_piece = length_foreign_attribute_name_list + 2;
+	}
+	else
+	{
+		time_piece = -1;
+		value_piece = length_foreign_attribute_name_list + 1;
+	}
+
+	if ( aggregate_level == aggregate_level_none
+	||   aggregate_level == real_time )
+	{
+		strcpy( real_time_process, "cat" );
+	}
+	else
+	{
+		sprintf( real_time_process, 
+	 "real_time2aggregate_value.e %s %d %d %d '%c' %s n %s",
+	 		aggregate_statistic_get_string(
+				aggregate_statistic ),
+	 		date_piece,
+	 		time_piece,
+	 		value_piece,
+			FOLDER_DATA_DELIMITER,
+	 		aggregate_level_string( aggregate_level ),
+			(end_date_string) ? end_date_string : "" );
+	}
+
+	sprintf(system_string,
+		"get_folder_data	application=%s		    "
+		"			folder=%s		    "
+		"			select=\"%s\"		    "
+		"			where=\"%s\"		   |"
+		"%s						   |"
+		"cat						    ",
+		environment_application_name(),
+		value_folder,
+		select,
+		where,
+		real_time_process );
+
+	return strdup( system_string );
+}
+
+/* PROCESS_GENERIC_VALUE */
+/* --------------------- */
+PROCESS_GENERIC_VALUE *process_generic_value_calloc(
+			void )
+{
+	PROCESS_GENERIC_VALUE *process_generic_value;
+
+	if ( ! ( process_generic_value =
+			calloc( 1,
+				sizeof( PROCESS_GENERIC_VALUE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return process_generic_value;
+}
+
+/*
+PROCESS_GENERIC_VALUE *process_generic_value_parse(
+			double *accumulate_value,
+			char *input,
+			char *time_attribute,
+			boolean unit_value_folder,
+			boolean accumulate,
+			enum aggregate_level aggregate_level )
+{
+	PROCESS_GENERIC_VALUE *process_generic_value;
+
+	if ( !input || !*input ) return (PROCESS_GENERIC_VALUE *)0;
+}
+*/
+
+HASH_TABLE *process_generic_values_hash_table(
+			char *application_name,
+			char *values_select_string,
+			enum aggregate_level aggregate_level,
+			LIST *foreign_attribute_name_list,
+			LIST *foreign_attribute_data_list,
+			char *begin_date_string,
+			char *end_date_string,
+			char *value_folder_name,
+			char *date_attribute_name,
+			boolean accumulate )
+{
+	char sys_string[ 1024 ];
+	char real_time_process[ 512 ];
+	char input_buffer[ 1024 ];
+	FILE *input_pipe;
+	char date_string[ 16 ];
+	char value_string[ 128 ];
+	double accumulate_so_far = 0.0;
+	PROCESS_GENERIC_VALUE *value;
+	HASH_TABLE *values_hash_table = hash_table_new( hash_table_medium );
+	char *where_clause;
+
+	where_clause =
+		process_generic_output_get_foreign_folder_where_clause(
+			&begin_date_string,
+			&end_date_string,
+			foreign_attribute_name_list,
+			foreign_attribute_data_list,
+			/* ------------------------------------------------ */
+			/* Need to assume both dates are already populated. */
+			/* ------------------------------------------------ */
+			(DICTIONARY *)0 /* dictionary */,
+	       		(char *)0 /* application_name */,
+			(char *)0 /* value_folder_name */,
+			date_attribute_name );
+
+	if ( aggregate_level == aggregate_level_none
+	||   aggregate_level == real_time )
+	{
+		strcpy( real_time_process, "cat" );
+	}
+	else
+	{
+		sprintf( real_time_process, 
+	 "real_time2aggregate_value.e %s %d %d %d '%c' %s n %s",
+	 		aggregate_statistic_get_string(
+				aggregate_statistic_none ),
+	 		 0 /* date_piece */,
+	 		-1 /* time_piece */,
+	 		 1 /* value_piece */,
+			FOLDER_DATA_DELIMITER,
+	 		aggregate_level_get_string(
+				aggregate_level ),
+			end_date_string );
+	}
+
+	sprintf(sys_string,
+		"get_folder_data	application=%s		    "
+		"			folder=%s		    "
+		"			select=\"%s\"		    "
+		"			where=\"%s\"		   |"
+		"%s						   |"
+		"cat						    ",
+		application_name,
+		value_folder_name,
+		values_select_string,
+		where_clause,
+		real_time_process );
+
+	input_pipe = popen( sys_string, "r" );
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece( date_string, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		piece( value_string, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+
+		value = process_generic_value_new();
+
+		if ( *value_string && strncmp( value_string, "null", 4 ) != 0 )
+		{
+			value->value = atof( value_string );
+
+			if ( accumulate )
+			{
+				accumulate_so_far += value->value;
+				value->accumulate = accumulate_so_far;
+			}
+		}
+		else
+		{
+			value->is_null = 1;
+		}
+
+		hash_table_add_pointer(
+			values_hash_table,
+			strdup( date_string ),
+			value );
+	}
+
+	pclose( input_pipe );
+
+	return values_hash_table;
+
+} /* process_generic_get_values_hash_table() */
+

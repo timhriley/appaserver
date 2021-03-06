@@ -1796,13 +1796,13 @@ void form_output_html_help_file_anchor(
 	if ( !*source_directory )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot html_help_file_anchor = [%s] in any of (%s)\n",
+"Warning in %s/%s()/%d: cannot html_help_file_anchor = [%s] in any of (%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
 			 html_help_file_anchor,
 			 relative_source_directory );
-		exit( 1 );
+		return;
 	}
 
 	if ( *html_help_file_anchor == '/' )

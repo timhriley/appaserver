@@ -45,9 +45,14 @@ enum aggregate_level aggregate_level_get_aggregate_level(
 	else
 		aggregate_level = real_time;
 	return aggregate_level;
-} /* aggregate_level_get_aggregate_level() */
+}
 
 char *aggregate_level_get_string( enum aggregate_level aggregate_level )
+{
+	return aggregate_level_string( aggregate_level );
+}
+
+char *aggregate_level_string( enum aggregate_level aggregate_level )
 {
 	if ( aggregate_level == real_time )
 		return "real_time";
@@ -111,5 +116,5 @@ char *aggregate_level_get_summation_heading(
 
 	return return_string;
 
-} /* aggregate_level_get_summation_heading() */
+}
 

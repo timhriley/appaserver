@@ -263,6 +263,7 @@ int insert_fishing_trips(	char *application_name,
 	{
 		sprintf(sys_string,
 			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"tee_appaserver_error.sh creel			|"
 			"sql 2>&1					|"
 			"html_paragraph_wrapper				|"
 			"cat						 ",
@@ -274,6 +275,7 @@ int insert_fishing_trips(	char *application_name,
 
 		sprintf(sys_string,
 			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"tee_appaserver_error.sh creel			|"
 			"sql 2>&1					|"
 			"html_paragraph_wrapper				|"
 			"cat						 ",
@@ -285,44 +287,51 @@ int insert_fishing_trips(	char *application_name,
 
 		sprintf(sys_string,
 			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"tee_appaserver_error.sh creel			|"
 			"sql 2>&1					|"
 			"html_paragraph_wrapper				|"
 			"cat						 ",
-			 "catches",
-			 INSERT_CATCHES_FIELD_LIST,
+			"catches",
+			INSERT_CATCHES_FIELD_LIST,
 			(replace_existing_data) ? 'y' : 'n' );
 
 		catches_output_pipe = popen( sys_string, "w" );
 
 		sprintf(sys_string,
-			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"sort -u					|"
+			"insert_statement t=%s f=%s d='|' replace=n	|"
+			"tee_appaserver_error.sh creel			|"
 			"sql 2>&1					|"
+			"grep -vi duplicate				|"
 			"html_paragraph_wrapper				|"
 			"cat						 ",
-			 "guide_anglers",
-			 INSERT_GUIDE_ANGLERS_FIELD_LIST,
-			(replace_existing_data) ? 'y' : 'n' );
+			"guide_anglers",
+			INSERT_GUIDE_ANGLERS_FIELD_LIST );
 
 		guide_anglers_output_pipe = popen( sys_string, "w" );
 
 		sprintf(sys_string,
-			"insert_statement t=%s f=%s d='|' replace=%c	|"
+			"sort -u					|"
+			"insert_statement t=%s f=%s d='|' replace=n	|"
+			"tee_appaserver_error.sh creel			|"
 			"sql 2>&1					|"
+			"grep -vi duplicate				|"
 			"html_paragraph_wrapper				|"
 			"cat						 ",
-			 "permits",
-			 INSERT_PERMITS_FIELD_LIST,
-			(replace_existing_data) ? 'y' : 'n' );
+			"permits",
+			INSERT_PERMITS_FIELD_LIST );
 
 		permits_insert_pipe = popen( sys_string, "w" );
 
 		sprintf(sys_string,
+			"sort -u					|"
 			"update_statement t=%s k=%s carrot=y		|"
 			"sql 2>&1					|"
+			"grep -vi duplicate				|"
 			"html_paragraph_wrapper				|"
 			"cat						 ",
-			 "permits",
-			 PERMITS_PRIMARY_KEY );
+			"permits",
+			PERMITS_PRIMARY_KEY );
 
 		permits_update_pipe = popen( sys_string, "w" );
 	}

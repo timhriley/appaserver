@@ -25,6 +25,9 @@
 /* ---------- */
 typedef struct
 {
+	char *date;
+	char *time;
+	char *unit;
 	double value;
 	boolean is_null;
 	double accumulate;
@@ -33,7 +36,7 @@ typedef struct
 typedef struct
 {
 	char *datatype_name;
-	char *unit_name;
+	char *units;
 	LIST *primary_attribute_data_list;
 	LIST *foreign_attribute_data_list;
 	boolean aggregation_sum;
@@ -41,6 +44,7 @@ typedef struct
 	boolean scale_graph_zero;
 	LIST *values_key_list;
 	HASH_TABLE *values_hash_table;
+
 } PROCESS_GENERIC_DATATYPE;
 
 typedef struct
@@ -86,12 +90,18 @@ typedef struct
 /* PROCESS_GENERIC_VALUE_FOLDER */
 /* ---------------------------- */
 PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_new(
+				char *application_name,
+				char *process_name,
+				char *process_set_name );
+
+/*
+PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_new(
 			char *value_folder_name );
+*/
 
 PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_fetch(
 			char *value_folder_name );
 
-/*
 void process_generic_value_folder_load(
 					char **value_folder_name,
 					char **date_attribute_name,
@@ -103,12 +113,17 @@ void process_generic_value_folder_load(
 					char *application_name,
 					char *process_name,
 					char *process_set_name );
-*/
 
 /* PROCESS_GENERIC_FOREIGN_FOLDER */
 /* ------------------------------ */
 PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_new(
+			char *application_name,
 			char *foreign_folder_name );
+
+/*
+PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_new(
+			char *foreign_folder_name );
+*/
 
 
 /* PROCESS_GENERIC_DATATYPE_FOLDER */
@@ -117,9 +132,14 @@ PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_fetch(
 			char *datatype_folder_name );
 
 PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
-			char *datatype_folder_name );
+					char *application_name,
+					char *datatype_folder_name );
 
 /*
+PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
+			char *datatype_folder_name );
+*/
+
 void process_generic_datatype_folder_load(
 				LIST **primary_attribute_name_list,
 				boolean *datatype_exists_aggregation_sum,
@@ -127,58 +147,7 @@ void process_generic_datatype_folder_load(
 				boolean *datatype_exists_scale_graph_zero,
 				char *application_name,
 				char *datatype_folder_name );
-*/
 
-/* PROCESS_GENERIC_DATATYPE */
-/* ------------------------ */
-PROCESS_GENERIC_DATATYPE *process_generic_datatype_calloc(
-			void );
-
-PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
-			char *datatype_folder_name,
-			char *datatype_select,
-			char *datatype_where,
-			boolean exists_aggregation_sum,
-			boolean exists_bar_graph,
-			boolean exists_graph_zero,
-			boolean unit_datatype_folder );
-
-char *process_generic_datatype_select(
-			boolean exists_aggregation_sum,
-			boolean exists_bar_graph,
-			boolean exists_graph_zero,
-			boolean unit_datatype_folder );
-
-char *process_generic_datatype_date_where(
-			char *date_attribute,
-			char *begin_date_string,
-			char *end_date_string );
-
-char *process_generic_datatype_where(
-			LIST *datatype_primary_attribute_name_list,
-			LIST *datatype_primary_attribute_data_list );
-
-char *process_generic_datatype_measurement_where(
-			LIST *foreign_attribute_name_list,
-			LIST *foreign_attribute_data_list,
-			char *process_generic_datatype_date_where );
-
-PROCESS_GENERIC_DATATYPE *process_generic_datatype_parse(
-			char *system_string,
-			boolean exists_aggregation_sum,
-			boolean exists_bar_graph,
-			boolean exists_graph_zero,
-			boolean unit_datatype_folder );
-
-HASH_TABLE *process_generic_datatype_hash_table(
-			char *date_attribute,
-			char *time_attribute,
-			char *value_attribute,
-			boolean unit_value_folder,
-			char *value_folder,
-			char *where );
-
-/*
 void process_generic_datatype_load(
 				boolean *datatype_aggregation_sum,
 				boolean *datatype_bar_graph,
@@ -192,13 +161,20 @@ void process_generic_datatype_load(
 				LIST *primary_attribute_name_list,
 				LIST *primary_attribute_data_list,
 				char *units_folder_name );
-*/
 
 /* PROCESS_GENERIC_OUTPUT */
 /* ---------------------- */
 PROCESS_GENERIC_OUTPUT *process_generic_output_new(
+		 			char *application_name,
+					char *process_name,
+					char *process_set_name,
+					boolean accumulate );
+
+/*
+PROCESS_GENERIC_OUTPUT *process_generic_output_new(
 			char *process_name,
 			char *process_set_name );
+*/
 
 char *process_generic_output_text_file_sys_string(
 			char **begin_date,
@@ -386,7 +362,7 @@ char *process_generic_output_get_foreign_folder_where_clause(
 			char *value_folder_name,
 			char *date_attribute_name );
 
-HASH_TABLE *process_generic_get_values_hash_table(
+HASH_TABLE *process_generic_values_hash_table(
 			char *application_name,
 			char *values_select_string,
 			enum aggregate_level aggregate_level,
@@ -505,5 +481,76 @@ QUERY_OUTPUT *process_generic_query_output(
 			char *value_folder_name,
 			LIST *mto1_related_folder_list,
 			DICTIONARY *query_removed_post_dictionary );
+
+/* PROCESS_GENERIC_DATATYPE */
+/* ------------------------ */
+PROCESS_GENERIC_DATATYPE *process_generic_datatype_calloc(
+			void );
+
+PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
+			char *datatype_folder_name,
+			char *datatype_select,
+			char *datatype_where,
+			boolean exists_aggregation_sum,
+			boolean exists_bar_graph,
+			boolean exists_scale_graph_zero,
+			boolean unit_datatype_folder );
+
+char *process_generic_datatype_select(
+			boolean exists_aggregation_sum,
+			boolean exists_bar_graph,
+			boolean exists_scale_graph_zero,
+			boolean unit_datatype_folder );
+
+char *process_generic_datatype_date_where(
+			char *date_attribute,
+			char *begin_date_string,
+			char *end_date_string );
+
+char *process_generic_datatype_where(
+			LIST *datatype_primary_attribute_name_list,
+			LIST *datatype_primary_attribute_data_list );
+
+char *process_generic_datatype_measurement_select(
+			LIST *foreign_attribute_name_list,
+			char *date_attribute,
+			char *time_attribute,
+			char *value_attribute,
+			boolean unit_value_folder );
+
+char *process_generic_datatype_measurement_where(
+			LIST *foreign_attribute_name_list,
+			LIST *foreign_attribute_data_list,
+			char *process_generic_datatype_date_where );
+
+PROCESS_GENERIC_DATATYPE *process_generic_datatype_parse(
+			char *system_string,
+			boolean exists_aggregation_sum,
+			boolean exists_bar_graph,
+			boolean exists_scale_graph_zero,
+			boolean unit_datatype_folder );
+
+char *process_generic_datatype_system_string(
+			char *select,
+			char *value_folder,
+			char *where,
+			enum aggregate_level,
+			enum aggregate_statistic,
+			int length_foreign_attribute_name_list,
+			char *time_attribute,
+			char *end_date_string );
+
+/* PROCESS_GENERIC_VALUE */
+/* --------------------- */
+PROCESS_GENERIC_VALUE *process_generic_value_calloc(
+			void );
+
+PROCESS_GENERIC_VALUE *process_generic_value_parse(
+			double *accumulate_value,
+			char *input,
+			char *time_attribute,
+			boolean unit_value_folder,
+			boolean accumulate,
+			enum aggregate_level aggregate_level );
 
 #endif
