@@ -4,9 +4,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "boolean.h"
 #include "aggregate_statistic.h"
 
 enum aggregate_statistic aggregate_statistic_get_aggregate_statistic(
+				char *aggregate_statistic_string,
+				enum aggregate_level aggregate_level )
+{
+	return aggregate_statistic_extract(
+				aggregate_statistic_string,
+				aggregate_level );
+}
+
+enum aggregate_statistic aggregate_statistic_extract(
 				char *aggregate_statistic_string,
 				enum aggregate_level aggregate_level )
 {
@@ -103,3 +113,25 @@ enum aggregate_statistic *aggregate_statistic_new_aggregate_statistic( void )
 	return aggregate_statistic_pointer;
 }
 
+enum aggregate_statistic aggregate_statistic_infer(
+			boolean aggregation_sum )
+{
+	enum aggregate_statistic aggregate_statistic;
+
+	if ( aggregation_sum )
+	{
+		aggregate_statistic =
+			aggregate_statistic_extract(
+				"sum",
+				daily );
+	}
+	else
+	{
+		aggregate_statistic =
+			aggregate_statistic_extract(
+				"average",
+				daily );
+	}
+
+	return aggregate_statistic;
+}

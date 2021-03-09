@@ -529,7 +529,6 @@ enum aggregate_statistic appaserver_based_on_datatype_get_aggregate_statistic(
 	}
 
 	return aggregate_statistic;
-
 }
 
 char appaserver_get_aggregation_sum_yn(

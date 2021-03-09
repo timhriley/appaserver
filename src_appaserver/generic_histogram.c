@@ -157,12 +157,10 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-/*
 	process_name =
 		process_generic_output_get_process_name(
 			process_set_name,
 			post_dictionary );
-*/
 
 	document_quick_output_body(	application_name,
 					appaserver_parameter_file->

@@ -12,7 +12,7 @@ execute=$1
 
 if [ "$execute" != "execute" ]
 then
-	echo "Exiting."
+	less $0
 	exit 0
 fi
 

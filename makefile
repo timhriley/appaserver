@@ -1,6 +1,12 @@
 all:
 	./make_appaserver.sh
 
+system:
+	./make_system.sh
+
+hydrology:
+	./make_hydrology.sh
+
 force:
 	./make_appaserver.sh force
 

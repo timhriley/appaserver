@@ -26,7 +26,6 @@
 
 /* Enumerated Types */
 /* ---------------- */
-enum output_medium { text_file, output_medium_stdout, table, spreadsheet };
 
 /* Constants */
 /* --------- */
@@ -38,31 +37,16 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_set_name;
-	char end_date_suffix[ 128 ];
-	char *begin_date = {0};
-	char *end_date = {0};
 	DOCUMENT *document;
-	int process_id = getpid();
 	char *process_name;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *output_medium_string;
 	DICTIONARY *post_dictionary;
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
-	char *sys_string = {0};
-	char *email_address = {0};
-	char *where_clause = {0};
-	int length_select_list = 0;
-	enum aggregate_level aggregate_level;
-	enum aggregate_statistic aggregate_statistic;
-	enum output_medium output_medium;
-	char *units_label;
-	char delimiter;
-	char *accumulate_yn;
-	boolean accumulate;
-	int time_piece = -1;
 	APPASERVER_LINK_FILE *appaserver_link_file;
+	char delimiter;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -85,168 +69,84 @@ int main( int argc, char **argv )
 	process_set_name = argv[ 2 ];
 	output_medium_string = argv[ 3 ];
 
-	/* Note: 'n' used to mean no-output-to-stdout */
-	/* ------------------------------------------ */
-	if ( strcmp( output_medium_string, "text_file" ) == 0
-	||   strcmp( output_medium_string, "n" ) == 0 )
-	{
-		output_medium = text_file;
-	}
-	else
-	/* ------------------------------------------- */
-	/* Note: 'y' used to mean yes-output-to-stdout */
-	/* ------------------------------------------- */
-	if ( strcmp( output_medium_string, "stdout" ) == 0
-	||   strcmp( output_medium_string, "y" ) == 0 )
-	{
-		output_medium = output_medium_stdout;
-	}
-	else
-	if ( strcmp( output_medium_string, "spreadsheet" ) == 0 )
-	{
-		output_medium = spreadsheet;
-	}
-	else
-	if ( strcmp( output_medium_string, "table" ) == 0 )
-	{
-		output_medium = table;
-	}
-	else
+	post_dictionary =
+		dictionary_string2dictionary(
+			argv[ 4 ] );
+
+	dictionary_add_elements_by_removing_prefix(
+		post_dictionary,
+		QUERY_FROM_STARTING_LABEL );
+
+	dictionary_add_elements_by_removing_prefix(
+		post_dictionary,
+		QUERY_STARTING_LABEL );
+
+	process_generic_output = process_generic_output_calloc();
+	process_generic_output->process_set_name = process_set_name;
+	process_generic_output->output_medium_string = output_medium_string;
+	process_generic_output->post_dictionary = post_dictionary;
+
+	if ( ! ( process_generic_output->process_name =
+			process_generic_output_process_name(
+				process_generic_output->process_set_name,
+				process_generic_output->post_dictionary ) ) )
 	{
 		fprintf(stderr,
-"ERROR in %s: output_medium must be either 'stdout','text_file','spreadsheet',or 'table'.\n",
-			argv[ 0 ] );
+"ERROR in %s/%s()/%d: process_generic_output_process_name() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
 
-	post_dictionary =
-		dictionary_string2dictionary( argv[ 4 ] );
-
-	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_FROM_STARTING_LABEL );
-
-	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_STARTING_LABEL );
-
-	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	accumulate_yn =
-		dictionary_fetch_index_zero(
-			post_dictionary,
-			"accumulate_yn" );
-
-	accumulate = (accumulate_yn && *accumulate_yn == 'y' );
-
-	process_generic_output =
-		process_generic_output_new(
-			application_name,
-			(char *)0 /* process_name */,
-			process_set_name,
-			accumulate );
-
-	process_generic_output->value_folder->datatype =
-		process_generic_datatype_new(
-			application_name,
-			process_generic_output->
-				value_folder->
-					foreign_folder->
-						foreign_attribute_name_list,
-			process_generic_output->
-				value_folder->
-					datatype_folder->
-						datatype_folder_name,
-			process_generic_output->
-				value_folder->
-					datatype_folder->
-						primary_attribute_name_list,
-			process_generic_output->
-				value_folder->
-					datatype_folder->
-						exists_aggregation_sum,
-			process_generic_output->
-				value_folder->
-					datatype_folder->
-						exists_bar_graph,
-			process_generic_output->
-				value_folder->
-					datatype_folder->
-						exists_scale_graph_zero,
-			process_generic_output->
-				value_folder->
-					units_folder_name,
-			post_dictionary,
-			0 /* dictionary_index */ );
-
-	if ( !process_generic_output->value_folder->datatype )
+	if ( ! ( process_generic_output->value_folder =
+			process_generic_value_folder_fetch(
+				process_generic_output->value_folder_name ) ) )
 	{
-		char buffer[ 1024 ];
-
-		format_initial_capital( buffer, process_set_name );
-
-		document_quick_output_body(
-					application_name,
-					appaserver_parameter_file->
-						appaserver_mount_point );
-
-		printf( "<h1>%s</h1><h3>ERROR: insufficient input.</h3>\n",
-			buffer );
-		document_close();
-		exit( 0 );
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: process_generic_value_folder_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	process_name =
-		process_generic_output_get_process_name(
-			process_set_name,
-			post_dictionary );
-
-	aggregate_level =
-		aggregate_level_get_aggregate_level(
-			dictionary_get_index_zero(
-				post_dictionary,
-				"aggregate_level" ) );
-
-	aggregate_statistic =
-		aggregate_statistic_get_aggregate_statistic(
-			dictionary_get_index_zero(
-				post_dictionary,
-				"aggregate_statistic" ),
-			aggregate_level );
-
-	if ( aggregate_statistic == aggregate_statistic_none
-	&&   aggregate_level != aggregate_level_none
-	&&   aggregate_level != real_time )
-	{
-		aggregate_statistic =
-			process_generic_output_get_database_aggregate_statistic(
-				application_name,
-				appaserver_parameter_file->
-					appaserver_mount_point,
+	if ( ! ( process_generic_output->value_folder->datatype_folder =
+			/* --------------------------- */
+			/* Also fetches this->datatype */
+			/* --------------------------- */
+			process_generic_datatype_folder_fetch(
 				process_generic_output->
 					value_folder->
-					datatype->
-					primary_attribute_data_list,
+					datatype_folder_name,
 				process_generic_output->
-					value_folder->
-					datatype_folder->
-					exists_aggregation_sum );
+					post_dictionary ) ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: process_generic_datatype_folder_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	if ( output_medium == table
-	||   output_medium == text_file
-	||   output_medium == output_medium_stdout )
-	{
-		delimiter = FOLDER_DATA_DELIMITER;
-	}
-	else
-	/* Pipe to double_quote_comma_delimited.e */
-	/* -------------------------------------- */
-	{
-		delimiter = '\0';
-	}
+	process_generic_output->parameter =
+		/* ----------- */
+		/* Never fails */
+		/* ----------- */
+		process_generic_parameter_parse(
+			output_medium_string,
+			post_dictionary,
+			process_generic_output->
+				value_folder->
+				datatype_folder->
+				datatype->
+				aggregation_sum,
+				argv[ 0 ] );
 
-	sys_string = process_generic_output_get_text_file_sys_string(
+#ifdef NOT_DEFINED
+	sys_string =
+		process_generic_output_get_text_file_sys_string(
 			&begin_date,
 			&end_date,
 			&where_clause,
@@ -267,11 +167,51 @@ int main( int argc, char **argv )
 			0 /* not concat_datatype_entity */,
 			0 /* not concat_datatype */,
 			process_generic_output->accumulate );
+#endif
 
-	if ( end_date && *end_date )
-		sprintf( end_date_suffix, "_%s", end_date );
-	else
-		*end_date_suffix = '\0';
+	process_generic_output->process_generic_output_system_string =
+		process_generic_output_system_string(
+			process_generic_output->
+				value_folder->
+				foreign_folder->
+				foreign_attribute_name_list,
+			process_generic_output->
+				value_folder->
+				date_attribute,
+			process_generic_output->
+				value_folder->
+				time_attribute,
+			process_generic_output->
+				value_folder->
+				value_attribute,
+			process_generic_output->
+				value_folder->
+				datatype_folder->
+				where,
+			process_generic_output->
+				parameter->
+				aggregate_level,
+			process_generic_output->
+				parameter->
+				aggregate_statistic,
+			process_generic_output->
+				value_folder->
+				foreign_folder->
+				foreign_attribute_name_list_length,
+			process_generic_output->
+				parameter->
+				end_date_string,
+			process_generic_output->
+				parameter->
+				accumulate );
+
+	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	if (	process_generic_output->parameter->output_medium ==
+		text_file )
+	{
+		generic_output_text_file(
+	}
 
 	appaserver_link_file =
 		appaserver_link_file_new(

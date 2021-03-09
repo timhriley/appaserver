@@ -36,9 +36,7 @@ PROCESS_GENERIC_OUTPUT *process_generic_output_new(
 {
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 
-	process_generic_output =
-		(PROCESS_GENERIC_OUTPUT *)
-			calloc( 1, sizeof( PROCESS_GENERIC_OUTPUT ) );
+	process_generic_output = process_generic_output_calloc();
 
 	process_generic_output->process_name = process_name;
 	process_generic_output->process_set_name = process_set_name;
@@ -64,16 +62,13 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_new(
 	char *datatype_folder_name;
 	char *foreign_folder_name;
 
-	value_folder =
-		(PROCESS_GENERIC_VALUE_FOLDER *)
-			calloc( 1, sizeof( PROCESS_GENERIC_VALUE_FOLDER ) );
+	value_folder = process_generic_value_folder_calloc();
 
 	process_generic_value_folder_load(
 		&value_folder->value_folder_name,
 		&value_folder->date_attribute_name,
 		&value_folder->time_attribute_name,
 		&value_folder->value_attribute_name,
-		&value_folder->units_folder_name,
 		&datatype_folder_name,
 		&foreign_folder_name,
 		application_name,
@@ -137,7 +132,6 @@ void process_generic_value_folder_load(	char **value_folder_name,
 					char **date_attribute_name,
 					char **time_attribute_name,
 					char **value_attribute_name,
-					char **units_folder_name,
 					char **datatype_folder_name,
 					char **foreign_folder_name,
 					char *application_name,
@@ -152,7 +146,7 @@ void process_generic_value_folder_load(	char **value_folder_name,
 	char *process_generic_value_folder_table_name;
 	char select[ 1024 ];
 	char *select_template =
-"%s.value_folder,date_attribute,time_attribute,value_attribute,process_generic_unit,datatype_folder,foreign_folder";
+"%s.value_folder,date_attribute,time_attribute,value_attribute,datatype_folder,foreign_folder";
 
 	process_generic_output_table_name =
 		get_table_name(
@@ -245,12 +239,9 @@ void process_generic_value_folder_load(	char **value_folder_name,
 	*value_attribute_name = strdup( piece_string );
 
 	piece( piece_string, FOLDER_DATA_DELIMITER, results, 4 );
-	*units_folder_name = strdup( piece_string );
-
-	piece( piece_string, FOLDER_DATA_DELIMITER, results, 5 );
 	*datatype_folder_name = strdup( piece_string );
 
-	piece( piece_string, FOLDER_DATA_DELIMITER, results, 6 );
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 5 );
 	*foreign_folder_name = strdup( piece_string );
 
 	free( results );
@@ -263,8 +254,7 @@ PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
 	PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder;
 
 	process_generic_datatype_folder =
-		(PROCESS_GENERIC_DATATYPE_FOLDER *)
-			calloc( 1, sizeof( PROCESS_GENERIC_DATATYPE_FOLDER ) );
+		process_generic_datatype_folder_calloc();
 
 	process_generic_datatype_folder->datatype_folder_name =
 		datatype_folder_name;
@@ -475,7 +465,6 @@ LIST *process_generic_get_compare_datatype_list(
 
 }
 
-
 PROCESS_GENERIC_DATATYPE *process_generic_datatype_new(
 			char *application_name,
 			LIST *foreign_attribute_name_list,
@@ -490,10 +479,8 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_new(
 {
 	PROCESS_GENERIC_DATATYPE *process_generic_datatype;
 
-	process_generic_datatype =
-		(PROCESS_GENERIC_DATATYPE *)
-			calloc( 1, sizeof( PROCESS_GENERIC_DATATYPE ) );
-	
+	process_generic_datatype = process_generic_datatype_calloc();
+
 	if ( ! ( process_generic_datatype->primary_attribute_data_list =
 		process_generic_get_datatype_primary_attribute_data_list(
 				post_dictionary,
@@ -1425,6 +1412,15 @@ LIST *process_generic_output_append_select_list(
 }
 
 char *process_generic_output_get_process_name(
+			char *process_set_name,
+			DICTIONARY *post_dictionary )
+{
+	return process_generic_output_process_name(
+			process_set_name,
+			post_dictionary );
+}
+
+char *process_generic_output_process_name(
 			char *process_set_name,
 			DICTIONARY *post_dictionary )
 {
@@ -3313,10 +3309,7 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_calloc(
 
 PROCESS_GENERIC_DATATYPE *process_generic_datatype_parse(
 			char *system_string,
-			boolean exists_aggregation_sum,
-			boolean exists_bar_graph,
-			boolean exists_scale_graph_zero,
-			boolean unit_datatype_folder )
+			char *datatype_name )
 {
 	char *results;
 	char piece_buffer[ 128 ];
@@ -3336,53 +3329,36 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_parse(
 		exit( 1 );
 	}
 
-	if ( exists_aggregation_sum )
-	{
-		piece( piece_buffer, SQL_DELIMITER, results, 0 );
-		process_generic_datatype->aggregation_sum =
-			*piece_buffer == 'y';
-	}
+	process_generic_datatype->datatype_name = datatype_name;
 
-	if ( exists_bar_graph )
-	{
-		piece( piece_buffer, SQL_DELIMITER, results, 1 );
-		process_generic_datatype->bar_graph =
-			*piece_buffer == 'y';
-	}
+	piece( piece_buffer, SQL_DELIMITER, results, 0 );
+	process_generic_datatype->aggregation_sum = *piece_buffer == 'y';
 
-	if ( exists_scale_graph_zero )
-	{
-		piece( piece_buffer, SQL_DELIMITER, results, 2 );
-		process_generic_datatype->scale_graph_zero =
-			*piece_buffer == 'y';
-	}
+	piece( piece_buffer, SQL_DELIMITER, results, 1 );
+	process_generic_datatype->bar_graph = *piece_buffer == 'y';
 
-	if ( unit_datatype_folder )
-	{
-		piece( piece_buffer, SQL_DELIMITER, results, 3 );
-		process_generic_datatype->units =
-			strdup( piece_buffer );
-	}
+	piece( piece_buffer, SQL_DELIMITER, results, 2 );
+	process_generic_datatype->scale_graph_zero = *piece_buffer == 'y';
+
+	piece( piece_buffer, SQL_DELIMITER, results, 3 );
+	process_generic_datatype->unit = strdup( piece_buffer );
+
 	return process_generic_datatype;
 }
 
 PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
-			char *datatype_folder_name,
+			char *datatype_name,
 			char *datatype_select,
-			char *datatype_where,
-			boolean exists_aggregation_sum,
-			boolean exists_bar_graph,
-			boolean exists_scale_graph_zero,
-			boolean unit_datatype_folder )
+			char *datatype_where )
 {
 	char system_string[ 1024 ];
 
 	if ( !datatype_select
-	||   !datatype_folder_name
+	||   !datatype_name
 	||   !datatype_where )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: empty datatype_select, datatype_folder_name or datatype_where.\n",
+"ERROR in %s/%s()/%d: empty datatype_select, datatype_name or datatype_where.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -3392,15 +3368,12 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
 		datatype_select,
-		datatype_folder_name,
+		datatype_name,
 		datatype_where );
 
 	return process_generic_datatype_parse(
 			system_string,
-			exists_aggregation_sum,
-			exists_bar_graph,
-			exists_scale_graph_zero,
-			unit_datatype_folder );
+			datatype_name );
 }
 
 char *process_generic_datatype_select(
@@ -3577,8 +3550,7 @@ char *process_generic_datatype_measurement_select(
 			LIST *foreign_attribute_name_list,
 			char *date_attribute,
 			char *time_attribute,
-			char *value_attribute,
-			boolean unit_value_folder )
+			char *value_attribute )
 {
 	static char measurement_select[ 128 ];
 	char *ptr = measurement_select;
@@ -3607,11 +3579,6 @@ char *process_generic_datatype_measurement_select(
 
 	ptr += sprintf( ptr, ",%s", value_attribute );
 
-	if ( unit_value_folder )
-	{
-		ptr += sprintf( ptr, ",units" );
-	}
-
 	return measurement_select;
 }
 
@@ -3623,13 +3590,16 @@ char *process_generic_datatype_system_string(
 			enum aggregate_statistic aggregate_statistic,
 			int length_foreign_attribute_name_list,
 			char *time_attribute,
-			char *end_date_string )
+			char *end_date_string,
+			boolean accumulate_boolean )
 {
 	char system_string[ 1024 ];
 	char real_time_process[ 512 ];
+	char accumulation_process[ 512 ];
 	int date_piece;
 	int time_piece;
 	int value_piece;
+	int accumulate_piece;
 
 	date_piece = length_foreign_attribute_name_list;
 
@@ -3643,6 +3613,11 @@ char *process_generic_datatype_system_string(
 		time_piece = -1;
 		value_piece = length_foreign_attribute_name_list + 1;
 	}
+
+	if ( time_piece != -1 )
+		accumulate_piece = date_piece + 2;
+	else
+		accumulate_piece = date_piece + 1;
 
 	if ( aggregate_level == aggregate_level_none
 	||   aggregate_level == real_time )
@@ -3663,17 +3638,31 @@ char *process_generic_datatype_system_string(
 			(end_date_string) ? end_date_string : "" );
 	}
 
+	if ( accumulate_boolean )
+	{
+		sprintf( accumulation_process, 
+			 "sort | accumulate.e %d '%c' append",
+			 accumulate_piece,
+			 PROCESS_GENERIC_OUTPUT_DELIMITER );
+	}
+	else
+	{
+		strcpy( accumulation_process, "cat" );
+	}
+
 	sprintf(system_string,
 		"get_folder_data	application=%s		    "
 		"			folder=%s		    "
 		"			select=\"%s\"		    "
 		"			where=\"%s\"		   |"
 		"%s						   |"
+		"%s						   |"
 		"cat						    ",
 		environment_application_name(),
 		value_folder,
 		select,
 		where,
+		accumulation_process,
 		real_time_process );
 
 	return strdup( system_string );
@@ -3681,8 +3670,7 @@ char *process_generic_datatype_system_string(
 
 /* PROCESS_GENERIC_VALUE */
 /* --------------------- */
-PROCESS_GENERIC_VALUE *process_generic_value_calloc(
-			void )
+PROCESS_GENERIC_VALUE *process_generic_value_calloc( void )
 {
 	PROCESS_GENERIC_VALUE *process_generic_value;
 
@@ -3818,6 +3806,587 @@ HASH_TABLE *process_generic_values_hash_table(
 	pclose( input_pipe );
 
 	return values_hash_table;
+}
 
-} /* process_generic_get_values_hash_table() */
+/* PROCESS_GENERIC_PARAMETER */
+/* ------------------------- */
+PROCESS_GENERIC_PARAMETER *process_generic_parameter_calloc( void )
+{
+	PROCESS_GENERIC_PARAMETER *process_generic_parameter;
 
+	if ( ! ( process_generic_parameter =
+			calloc( 1,
+				sizeof( PROCESS_GENERIC_PARAMETER ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return process_generic_parameter;
+}
+
+PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_calloc( void )
+{
+	PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder;
+
+	if ( ! ( process_generic_value_folder =
+			calloc( 1,
+				sizeof( PROCESS_GENERIC_VALUE_FOLDER ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return process_generic_value_folder;
+}
+
+PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_fetch(
+			char *value_folder_name )
+{
+	char system_string[ 1024 ];
+	char piece_string[ 128 ];
+	char where[ 256 ];
+	char *order;
+	char *results;
+
+	PROCESS_GENERIC_VALUE_FOLDER *value_folder =
+		process_generic_value_folder_calloc();
+
+	char *select =
+		"value_folder,"
+		"date_attribute,"
+		"time_attribute,"
+		"value_attribute,"
+		"datatype_folder,"
+		"foreign_folder";
+
+	sprintf(where,
+		"value_folder = '%s'",
+		value_folder_name );
+
+	sprintf(system_string,
+		"select.sh \"%s\" process_generic_value_folder \"%s\"",
+		select,
+		where );
+
+	if ( ! ( results = string_pipe_fetch( system_string ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: string_pipe_fetch(%s) returned empty.",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			system_string );
+		exit( 1 );
+	}
+
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 0 );
+	value_folder->value_folder_name = strdup( piece_string );
+
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 1 );
+	value_folder->date_attribute_name = strdup( piece_string );
+
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 2 );
+	value_folder->time_attribute_name = strdup( piece_string );
+
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 3 );
+	value_folder->value_attribute_name = strdup( piece_string );
+
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 4 );
+	value_folder->datatype_folder_name = strdup( piece_string );
+
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 5 );
+	value_folder->foreign_folder_name = strdup( piece_string );
+
+	free( results );
+
+	select = "attribute";
+
+	sprintf(where,
+		"folder = '%s' and primary_key_index >= 1",
+		value_folder_name );
+
+	order = "primary_key_index";
+
+	sprintf(system_string,
+		"select.sh %s folder_attribute \"%s\" %s",
+		 select,
+		 where,
+		 order );
+
+	value_folder->
+		primary_attribute_name_list =
+			string_pipe_list(
+				system_string );
+
+	return value_folder;
+}
+
+char *process_generic_output_value_folder_name(
+			char *process_name,
+			char *process_set_name )
+{
+	char system_string[ 1024 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"process = '%s' and process_set = '%s'",
+		process_name,
+		process_set_name );
+
+	sprintf(system_string,
+		"select.sh value_folder process_generic_output \"%s\"",
+		where );
+
+	return string_pipe_fetch( system_string );
+}
+
+PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_calloc(
+			void )
+{
+	PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder;
+
+	if ( ! ( process_generic_datatype_folder =
+			calloc( 1,
+				sizeof( PROCESS_GENERIC_DATATYPE_FOLDER ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return process_generic_datatype_folder;
+}
+
+LIST *process_generic_datatype_folder_primary_attribute_name_list(
+			char *datatype_folder_name )
+{
+	char sys_string[ 1024 ];
+	char where[ 256 ];
+	char *order;
+
+	char *select = "attribute";
+
+	sprintf(where,
+		"folder = '%s' and primary_key_index >= 1",
+		datatype_folder_name );
+
+	order = "primary_key_index";
+
+	sprintf(sys_string,
+		"select.sh %s folder_attribute \"%s\" %s",
+		 select,
+		 where,
+		 order );
+
+	return string_pipe_list( sys_string );
+}
+
+LIST *process_generic_datatype_folder_primary_attribute_data_list(
+			LIST *primary_attribute_name_list,
+			DICTIONARY *post_dictionary )
+{
+	char key[ 128 ];
+	LIST *primary_attribute_data_list;
+	char *primary_attribute_name;
+	char *primary_attribute_data;
+
+	if ( !list_rewind( primary_attribute_name_list ) )
+		return (LIST *)0;
+
+	primary_attribute_data_list = list_new();
+
+	do {
+		primary_attribute_name =
+			list_get(
+				primary_attribute_name_list );
+
+		sprintf(	key,
+				"%s_0",
+				primary_attribute_name );
+
+		if ( ! ( primary_attribute_data =
+				dictionary_get(
+					post_dictionary,
+					key ) ) )
+		{
+			primary_attribute_data =
+				dictionary_get(
+					post_dictionary,
+					primary_attribute_name );
+		}
+
+		if ( !primary_attribute_data )
+		{
+			return (LIST *)0;
+		}
+
+		list_set(
+			primary_attribute_data_list,
+			primary_attribute_data );
+
+	} while( list_next( primary_attribute_name_list ) );
+
+	return primary_attribute_data_list;
+}
+
+char *process_generic_datatype_folder_select(
+			boolean exists_aggregation_sum,
+			boolean exists_bar_graph,
+			boolean exists_scale_graph_zero,
+			boolean datatype_exists_unit )
+{
+	char select[ 1024 ];
+	char *ptr = select;
+
+	*ptr = '\0';
+
+	if ( exists_aggregation_sum )
+	{
+		ptr += sprintf( ptr, "aggregation_sum_yn" );
+	}
+	else
+	{
+		ptr += sprintf( ptr, "''" );
+	}
+
+	if ( exists_bar_graph )
+	{
+		ptr += sprintf( ptr, ",bar_graph_yn" );
+	}
+	else
+	{
+		ptr += sprintf( ptr, ",''" );
+	}
+
+	if ( exists_scale_graph_zero )
+	{
+		ptr += sprintf( ptr, "scale_graph_to_zero_yn" );
+	}
+	else
+	{
+		ptr += sprintf( ptr, ",''" );
+	}
+
+	if ( datatype_exists_unit )
+	{
+		ptr += sprintf( ptr, "units" );
+	}
+	else
+	{
+		ptr += sprintf( ptr, ",''" );
+	}
+
+	if ( !*select )
+		return (char *)0;
+	else
+		return strdup( select );
+}
+
+
+char *process_generic_datatype_folder_where(
+			LIST *primary_attribute_name_list,
+			LIST *primary_attribute_data_list )
+{
+	return query_simple_where(
+			(char *)0 /* folder_name */,
+			primary_attribute_name_list
+				/* where_attribute_name_list */,
+			primary_attribute_data_list
+				/* where_attribute_data_list */,
+			(LIST *)0 /* append_isa_attribute_list */ );
+}
+
+
+PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_fetch(
+			char *datatype_folder_name,
+			DICTIONARY *post_dictionary )
+{
+	char sys_string[ 1024 ];
+	char piece_string[ 128 ];
+	char where[ 256 ];
+	char *results;
+	PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder;
+
+	sprintf( where, "datatype_folder = '%s'", datatype_folder_name );
+
+	sprintf(sys_string,
+		"select.sh '*' process_generic_datatype_folder \"%s\"",
+		 where );
+
+	if ( ! ( results = string_pipe_fetch( sys_string ) ) )
+	{
+		fprintf( stderr, 
+		"ERROR in %s/%s()/%d: string_pipe_fetch(%s) returned empty.",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			sys_string );
+		exit( 1 );
+	}
+
+	process_generic_datatype_folder =
+		process_generic_datatype_folder_calloc();
+
+	/* See attribute_list process_generic_datatype_folder */
+	/* -------------------------------------------------- */
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 0 );
+	process_generic_datatype_folder->datatype_folder_name =
+		strdup( piece_string );
+
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 1 );
+	process_generic_datatype_folder->exists_aggregation_sum =
+		(*piece_string == 'y');
+
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 2 );
+	process_generic_datatype_folder->exists_bar_graph =
+		(*piece_string == 'y');
+
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 3 );
+	process_generic_datatype_folder->exists_scale_graph_zero =
+		(*piece_string == 'y');
+
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 4 );
+	process_generic_datatype_folder->datatype_exists_unit =
+		(*piece_string == 'y');
+
+	piece( piece_string, FOLDER_DATA_DELIMITER, results, 5 );
+	process_generic_datatype_folder->foreign_exists_unit =
+		(*piece_string == 'y');
+
+	free( results );
+
+	if ( ! ( process_generic_datatype_folder->select =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			process_generic_datatype_folder_select(
+				process_generic_datatype_folder->
+					exists_aggregation_sum,
+				process_generic_datatype_folder->
+					exists_bar_graph,
+				process_generic_datatype_folder->
+					exists_scale_graph_zero,
+				process_generic_datatype_folder->
+					datatype_exists_unit ) ) )
+	{
+		process_generic_datatype_folder->datatype =
+			process_generic_datatype_calloc();
+
+		process_generic_datatype_folder->
+			datatype->
+			datatype_name =
+				process_generic_datatype_folder->
+					datatype_folder_name;
+
+		return process_generic_datatype_folder;
+	}
+
+	process_generic_datatype_folder->primary_attribute_name_list =
+		process_generic_datatype_folder_primary_attribute_name_list(
+			datatype_folder_name );
+
+	process_generic_datatype_folder->primary_attribute_data_list =
+		process_generic_datatype_folder_primary_attribute_data_list(
+			process_generic_datatype_folder->
+				primary_attribute_name_list,
+				post_dictionary );
+
+	process_generic_datatype_folder->where =
+		process_generic_datatype_folder_where(
+			process_generic_datatype_folder->
+				primary_attribute_name_list,
+			process_generic_datatype_folder->
+				primary_attribute_data_list );
+
+	if ( !process_generic_datatype_folder->where )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty where.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( process_generic_datatype_folder->
+		     datatype =
+			process_generic_datatype_fetch(
+				process_generic_datatype_folder->
+					datatype_folder_name
+					/* datatype_name */,
+				process_generic_datatype_folder->
+					select
+					/* datatype_select */,
+				process_generic_datatype_folder->
+					where
+					/* datatype_where */ ) ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: process_generic_datatype_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return process_generic_datatype_folder;
+}
+
+PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
+			char *output_medium_string,
+			DICTIONARY *post_dictionary,
+			boolean aggregation_sum,
+			char *argv_0 )
+{
+	char *accumulate_yn;
+
+	PROCESS_GENERIC_PARAMETER *process_generic_parameter =
+		process_generic_parameter_calloc();
+
+	process_generic_parameter->output_medium_string = output_medium_string;
+
+	/* Note: 'n' used to mean no-output-to-stdout */
+	/* ------------------------------------------ */
+	if ( strcmp( output_medium_string, "text_file" ) == 0
+	||   strcmp( output_medium_string, "n" ) == 0 )
+	{
+		process_generic_parameter->output_medium =
+			text_file;
+	}
+	else
+	/* ------------------------------------------- */
+	/* Note: 'y' used to mean yes-output-to-stdout */
+	/* ------------------------------------------- */
+	if ( strcmp( output_medium_string, "stdout" ) == 0
+	||   strcmp( output_medium_string, "y" ) == 0 )
+	{
+		process_generic_parameter->output_medium =
+			output_medium_stdout;
+	}
+	else
+	if ( strcmp( output_medium_string, "spreadsheet" ) == 0 )
+	{
+		process_generic_parameter->output_medium =
+			spreadsheet;
+	}
+	else
+	if ( strcmp( output_medium_string, "table" ) == 0 )
+	{
+		process_generic_parameter->output_medium =
+			table;
+	}
+	else
+	{
+		fprintf(stderr,
+"ERROR in %s: output_medium must be either 'stdout','text_file','spreadsheet',or 'table'.\n",
+			argv_0 );
+		exit( 1 );
+	}
+
+	if ( process_generic_parameter->output_medium == table
+	||   process_generic_parameter->output_medium == text_file
+	||   process_generic_parameter->output_medium == output_medium_stdout )
+	{
+		process_generic_parameter->delimiter = FOLDER_DATA_DELIMITER;
+	}
+	else
+	/* Pipe to double_quote_comma_delimited.e */
+	/* -------------------------------------- */
+	{
+		process_generic_parameter->delimiter = '\0';
+	}
+
+	process_generic_parameter->begin_date =
+		dictionary_fetch_index_zero(
+			post_dictionary,
+			"begin_date" );
+
+	process_generic_parameter->end_date =
+		dictionary_fetch_index_zero(
+			post_dictionary,
+			"end_date" );
+
+	process_generic_parameter->aggregate_level =
+		aggregate_level_extract(
+			dictionary_fetch_index_zero(
+				post_dictionary,
+				"aggregate_level" ) );
+
+	process_generic_parameter->aggregate_statistic =
+		aggregate_statistic_extract(
+			dictionary_fetch_index_zero(
+				post_dictionary,
+				"aggregate_statistic" ),
+			process_generic_parameter->aggregate_level );
+
+	if ( process_generic_parameter->aggregate_statistic ==
+		aggregate_statistic_none
+	&&   process_generic_parameter->aggregate_level != aggregate_level_none
+	&&   process_generic_parameter->aggregate_level != real_time )
+	{
+		process_generic_parameter->aggregate_statistic =
+			aggregate_statistic_infer(
+				aggregation_sum );
+	}
+
+	accumulate_yn =
+		dictionary_fetch_index_zero(
+			post_dictionary,
+			"accumulate_yn" );
+
+	process_generic_parameter->accumulate =
+		(accumulate_yn && *accumulate_yn == 'y' );
+
+	process_generic_parameter->email_address =
+			dictionary_fetch_index_zero(
+				post_dictionary,
+				"email_address" );
+
+	process_generic_parameter->units_converted =
+			dictionary_fetch_index_zero(
+				post_dictionary,
+				"units_converted" );
+
+	if ( process_generic_parameter->end_date
+	&&  *process_generic_parameter->end_date )
+	{
+		char buffer[ 128 ];
+
+		sprintf( buffer, "_%s", process_generic_parameter->end_date );
+		process_generic_parameter->end_date_suffix =
+			strdup( buffer );
+	}
+
+	process_generic_parameter->process_id = getpid();
+
+	return process_generic_parameter;
+}
+
+PROCESS_GENERIC_OUTPUT *process_generic_output_calloc( void )
+{
+	PROCESS_GENERIC_OUTPUT *process_generic_output;
+
+	if ( ! ( process_generic_output =
+			calloc( 1, sizeof( PROCESS_GENERIC_OUTPUT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+	return process_generic_output;
+}

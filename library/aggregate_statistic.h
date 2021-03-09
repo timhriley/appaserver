@@ -19,6 +19,10 @@ enum aggregate_statistic {	average,
 enum aggregate_statistic *aggregate_statistic_new_aggregate_statistic(
 				void );
 
+enum aggregate_statistic aggregate_statistic_extract(
+				char *aggregate_statistic_string,
+				enum aggregate_level );
+
 enum aggregate_statistic aggregate_statistic_get_aggregate_statistic(
 				char *aggregate_statistic_string,
 				enum aggregate_level );
@@ -31,6 +35,9 @@ char *aggregate_statistic_get_string(
 
 char *aggregate_statistic_display(
 			enum aggregate_statistic aggregate_statistic );
+
+enum aggregate_statistic aggregate_statistic_infer(
+			boolean aggregation_sum );
 
 #endif
 

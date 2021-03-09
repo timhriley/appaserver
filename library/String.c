@@ -878,3 +878,20 @@ char *string_pipe_fetch( char *sys_string )
 
 }
 
+LIST *string_pipe_list(	char *system_string )
+{
+	char buffer[ 65536 ];
+	FILE *p;
+	LIST *list = {0};
+
+	p = popen( system_string, "r" );
+
+	while( string_input( buffer, p, 65536 ) )
+	{
+		if ( !list ) list = list_new();
+		list_set( list, strdup( buffer ) );
+	}
+
+	pclose( p );
+	return list;
+}

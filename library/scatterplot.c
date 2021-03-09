@@ -568,7 +568,7 @@ void scatterplot_output_scatter_plot(
 			sprintf( sys_string,
 				 "rm -f %s",
 				 grace_scatterplot_filename );
-			system( sys_string );
+			if ( system( sys_string ) ){};
 			continue;
 		}
 	
@@ -580,7 +580,7 @@ void scatterplot_output_scatter_plot(
 
 		fclose( input_file );
 		sprintf( sys_string, "rm -f %s", grace_scatterplot_filename );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 
 		sprintf( prompt,
 	"<br>&lt;Left Click&gt; for %s chart or &lt;Right Click&gt; to save.",

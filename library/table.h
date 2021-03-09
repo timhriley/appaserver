@@ -73,11 +73,6 @@ TABLE_CELL *table_cell_double_new(
 			double data_double,
 			TABLE_COLUMN *table_column );
 
-void table_cell_latex_output(
-			FILE *output_stream,
-			TABLE_CELL *table_cell,
-			TABLE_COLUMN *table_column );
-
 TABLE_ROW *table_row_new(
 			int row_number );
 

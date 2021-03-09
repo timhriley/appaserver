@@ -14,6 +14,9 @@ enum aggregate_level {	aggregate_level_none,
 			annually,
 			delta };
 
+enum aggregate_level aggregate_level_extract(
+				char *aggregate_level_string );
+
 enum aggregate_level aggregate_level_get_aggregate_level(
 				char *aggregate_level_string );
 

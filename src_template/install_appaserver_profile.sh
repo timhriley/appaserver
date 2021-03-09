@@ -41,6 +41,7 @@ append_etc_profile_display ()
 	echo "# See group_centric.txt"
 	echo "umask 0002"
 	echo ""
+	echo "set -o vi"
 	echo "export APPASERVER_HOME=${appaserver_home}"
 	echo "export CGI_HOME=/usr/lib/cgi-bin"
 	echo "export APPASERVER_UNUSED_PARAMETER_FLAG=-Wunused-parameter"
@@ -48,6 +49,7 @@ append_etc_profile_display ()
 	echo 'export PATH=$PATH:$APPASERVER_HOME/utility:$APPASERVER_HOME/src_appaserver:.'
 	echo "export UTC_OFFSET=-8"
 	echo "export DATABASE=template"
+	echo "export EDITOR=/usr/bin/vim.tiny"
 	echo "# Uncomment if APPASERVER_HOME and CGI_HOME are on different filesystems"
 	echo "#export APPASERVER_LINK_FLAGS=-s"
 }
@@ -63,13 +65,15 @@ append_etc_profile_execute ()
 	echo "# See group_centric.txt" >> ${profile_file}
 	echo "umask 0002" >> ${profile_file}
 	echo "" >> ${profile_file}
+	echo "set -o vi" >> ${profile_file}
 	echo "export APPASERVER_HOME=${appaserver_home}" >> ${profile_file}
 	echo "export CGI_HOME=/usr/lib/cgi-bin" >> ${profile_file}
 	echo "export APPASERVER_UNUSED_PARAMETER_FLAG=-Wunused-parameter" >> ${profile_file}
 	echo "export DOCUMENT_ROOT=${document_root}" >> ${profile_file}
 	echo 'export PATH=$PATH:$APPASERVER_HOME/utility:$APPASERVER_HOME/src_appaserver:.' >> ${profile_file}
-	echo 'export UTC_OFFSET=-8' >> ${profile_file}
-	echo 'export DATABASE=template' >> ${profile_file}
+	echo "export UTC_OFFSET=-8" >> ${profile_file}
+	echo "export DATABASE=template" >> ${profile_file}
+	echo "export EDITOR=/usr/bin/vim.tiny" >> ${profile_file}
 	echo "# Uncomment if APPASERVER_HOME and CGI_HOME are on different filesystems" >> ${profile_file}
 	echo "#export APPASERVER_LINK_FLAGS=-s" >> ${profile_file}
 }

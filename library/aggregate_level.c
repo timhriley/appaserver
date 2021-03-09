@@ -9,6 +9,12 @@
 enum aggregate_level aggregate_level_get_aggregate_level(
 				char *aggregate_level_string )
 {
+	return aggregate_level_extract( aggregate_level_string );
+}
+
+enum aggregate_level aggregate_level_extract(
+				char *aggregate_level_string )
+{
 	enum aggregate_level aggregate_level;
 
 	if ( ( !aggregate_level_string || !*aggregate_level_string ) )
