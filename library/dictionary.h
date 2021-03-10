@@ -509,61 +509,69 @@ DICTIONARY *dictionary_large_new(	void );
 
 DICTIONARY *dictionary_huge_new(	void );
 
-LIST *dictionary_get_data_list(		LIST *attribute_name_list,
-					DICTIONARY *dictionary,
-					int row );
+LIST *dictionary_get_data_list(
+			LIST *attribute_name_list,
+			DICTIONARY *dictionary,
+			int row );
+
+LIST *dictionary_key_list_fetch(
+			LIST *key_list,
+			DICTIONARY *dictionary );
 
 char *dictionary_get_attribute_where_clause(
-					DICTIONARY *dictionary,
-					LIST *attribute_name_list );
+			DICTIONARY *dictionary,
+			LIST *attribute_name_list );
 
 void dictionary_add_login_name_if_necessary(
-					DICTIONARY *dictionary,
-					LIST *attribute_name_list,
-					char *login_name );
+			DICTIONARY *dictionary,
+			LIST *attribute_name_list,
+			char *login_name );
 
-void dictionary_list_output_to_file(	char *output_filename, 
-					LIST *row_dictionary_list,
-					LIST *attribute_name_list,
-					char *heading_display );
+void dictionary_list_output_to_file(
+			char *output_filename, 
+			LIST *row_dictionary_list,
+			LIST *attribute_name_list,
+			char *heading_display );
 
-void dictionary_row_output_to_file( 	FILE *output_file, 
-					DICTIONARY *row_dictionary,
-					LIST *attribute_name_list );
+void dictionary_row_output_to_file(
+			FILE *output_file, 
+			DICTIONARY *row_dictionary,
+			LIST *attribute_name_list );
 
-void dictionary_output_heading_to_file(	FILE *output_file, 
-					LIST *attribute_name_list );
+void dictionary_output_heading_to_file(
+			FILE *output_file,
+			LIST *attribute_name_list );
 
 /* Set the current time, if expected but not there. */
 /* ------------------------------------------------ */
 void dictionary_set_indexed_date_time_to_current(
-					DICTIONARY *dictionary,
-					LIST *attribute_list );
+			DICTIONARY *dictionary,
+			LIST *attribute_list );
 
 void dictionary_set_date_time_to_current(
-					DICTIONARY *dictionary,
-					LIST *attribute_list );
+			DICTIONARY *dictionary,
+			LIST *attribute_list );
 
 LIST *dictionary_get_attribute_name_list(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
 DICTIONARY *dictionary_get_row_zero_dictionary(
-					DICTIONARY *row_dictionary );
+			DICTIONARY *row_dictionary );
 
 LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
-					LIST *primary_data_list,
-					LIST *primary_attribute_name_list,
-					char delimiter );
+			LIST *primary_data_list,
+			LIST *primary_attribute_name_list,
+			char delimiter );
 
 LIST *dictionary_seek_delimited_list(
-					DICTIONARY *dictionary,
-					char *key );
+			DICTIONARY *dictionary,
+			char *key );
 
 LIST *dictionary_get_non_indexed_key_list(
-					DICTIONARY *dictionary );
+			DICTIONARY *dictionary );
 
 void dictionary_remove_symbols_in_numbers(
-					DICTIONARY *dictionary,
-					LIST *attribute_list );
+			DICTIONARY *dictionary,
+			LIST *attribute_list );
 
 #endif

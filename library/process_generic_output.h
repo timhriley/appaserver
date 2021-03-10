@@ -80,11 +80,11 @@ typedef struct
 typedef struct
 {
 	char *foreign_folder_name;
+	DICTIONARY *post_dictionary;
 	FOLDER *foreign_folder;
-
-	/* To retire */
-	/* --------- */
 	LIST *foreign_attribute_name_list;
+	LIST *foreign_attribute_data_list;
+	int foreign_attribute_name_list_length;
 } PROCESS_GENERIC_FOREIGN_FOLDER;
 
 typedef struct
@@ -481,20 +481,26 @@ boolean process_generic_output_validate_begin_end_date(
 			char *date_attribute_name,
 			DICTIONARY *query_removed_post_dictionary );
 
-/* ------------------------------- */
-/* Returns static (program) memory */
-/* ------------------------------- */
-char *process_generic_output_begin_end_date_where_clause(
+/* Returns heap memory */
+/* ------------------- */
+char *process_generic_where(
+			LIST *foreign_attribute_name_list,
+			LIST *foreign_attribute_data_list,
+			char *date_where );
+
+/* Returns static memory */
+/* --------------------- */
+char *process_generic_date_where(
 			char *date_attribute_name,
-			char *begin_date_string,
-			char *end_date_string );
+			char *begin_date,
+			char *end_date );
 
 char *process_generic_output_drop_down_where(
 			char *application_name,
 			char *value_folder_name,
 			DICTIONARY *query_removed_post_dictionary );
 
-char *process_generic_output_where(
+char *process_generic_output_where_clause(
 			char *application_name,
 			char *value_folder_name,
 			char *date_attribute_name,
@@ -517,13 +523,32 @@ char *process_generic_output_value_folder_name(
 			char *process_name,
 			char *process_set_name );
 
+/* Returns static memory */
+/* --------------------- */
+char *process_generic_output_date_where(
+			char *date_attribute_name,
+			char *begin_date,
+			char *end_date );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *process_generic_output_where(
+			LIST *foreign_attribute_name_list,
+			LIST *foreign_attribute_data_list,
+			char *process_generic_output_date_where );
+
+char *process_generic_output_select(
+			LIST *foreign_attribute_name_list,
+			int foreign_attribute_name_list_length );
+
 /* PROCESS_GENERIC_VALUE_FOLDER */
 /* ---------------------------- */
 PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_calloc(
 			void );
 
 PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_fetch(
-			char *value_folder_name );
+			char *value_folder_name,
+			DICTIONARY *post_dictionary );
 
 /* PROCESS_GENERIC_DATATYPE */
 /* ------------------------ */
@@ -541,11 +566,6 @@ char *process_generic_datatype_select(
 			boolean exists_scale_graph_zero,
 			boolean unit_datatype_folder );
 
-char *process_generic_datatype_date_where(
-			char *date_attribute,
-			char *begin_date_string,
-			char *end_date_string );
-
 char *process_generic_datatype_where(
 			LIST *datatype_primary_attribute_name_list,
 			LIST *datatype_primary_attribute_data_list );
@@ -556,25 +576,20 @@ char *process_generic_datatype_measurement_select(
 			char *time_attribute,
 			char *value_attribute );
 
-char *process_generic_datatype_measurement_where(
-			LIST *foreign_attribute_name_list,
-			LIST *foreign_attribute_data_list,
-			char *process_generic_datatype_date_where );
-
 PROCESS_GENERIC_DATATYPE *process_generic_datatype_parse(
-			char *system_string,
-			char *datatype_name );
+			char *input_buffer );
 
-char *process_generic_datatype_system_string(
+/* Returns heap memory or null */
+/* --------------------------- */
+char *process_generic_system_string(
 			char *select,
-			char *value_folder,
+			char *value_folder_name,
 			char *where,
 			enum aggregate_level,
 			enum aggregate_statistic,
-			int length_foreign_attribute_name_list,
-			char *time_attribute,
-			char *end_date_string,
-			boolean accumulate_boolean );
+			char *end_date,
+			boolean accumulate,
+			int foreign_attribute_name_list_length );
 
 /* PROCESS_GENERIC_DATATYPE_FOLDER */
 /* ------------------------------- */
@@ -632,5 +647,11 @@ PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 			DICTIONARY *post_dictionary,
 			boolean aggregation_sum,
 			char *argv_0 );
+
+/* PROCESS_GENERIC_FOREIGN_FOLDER */
+/* ------------------------------ */
+PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_fetch(
+			char *foreign_folder_name,
+			DICTIONARY *post_dictionary );
 
 #endif

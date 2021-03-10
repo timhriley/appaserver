@@ -2593,10 +2593,13 @@ void dictionary_replace_double_quote_with_single(
 	{
 		do {
 			key = list_get_pointer( key_list );
+
 			data = dictionary_get_data(
 					dictionary,
 					key );
+
 			search_replace_string( data, "\"", "'" );
+
 		} while( list_next( key_list ) );
 	}
 }
@@ -2861,9 +2864,34 @@ DICTIONARY *dictionary_load_record_dictionary(
 	return d;
 }
 
+LIST *dictionary_key_list_fetch(
+			LIST *key_list,
+			DICTIONARY *dictionary )
+{
+	LIST *data_list;
+	char *data;
+	char *key;
+
+	if ( !list_rewind( key_list ) ) return (LIST *)0;
+
+	data_list = list_new();
+
+	do {
+		key = list_get( key_list );
+
+		if ( ( data = dictionary_get( dictionary, key ) ) )
+		{
+			list_set( data_list, data );
+		}
+
+	} while( list_next( key_list ) );
+
+	return data_list;
+}
+
 char *dictionary_fetch( DICTIONARY *d, char *key )
 {
-	return dictionary_get_pointer( d, key );
+	return dictionary_get( d, key );
 }
 
 char *dictionary_safe_fetch( DICTIONARY *d, char *key )
@@ -3390,7 +3418,6 @@ LIST *dictionary_get_data_list(	LIST *attribute_name_list,
 	} while( list_next( attribute_name_list ) );
 
 	return data_list;
-
 }
 
 char *dictionary_get_attribute_where_clause(

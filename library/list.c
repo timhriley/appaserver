@@ -546,6 +546,41 @@ char *list_length_display(
 	return strdup( buffer );
 }
 
+char *list_display_limited(
+			LIST *list,
+			char delimiter,
+			int length )
+{
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+	char *item;
+	boolean first_time = 1;
+
+	if ( !list_rewind( list ) || !length ) return "";
+
+	do {
+		item = list_get( list );
+
+		if ( first_time )
+		{
+			first_time = 0;
+		}
+		else
+		{
+			ptr += sprintf( ptr, "%c", delimiter );
+		}
+
+		ptr += sprintf(	ptr, 
+				"%s", 
+				item );
+
+		if ( --length == 0 ) break;
+
+	} while( next_item( list ) );
+
+	return strdup( buffer );
+}
+
 char *list_display_delimited( LIST *list, char delimiter )
 {
 	char buffer[ 65536 ];

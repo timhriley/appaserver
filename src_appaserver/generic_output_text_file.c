@@ -82,6 +82,7 @@ int main( int argc, char **argv )
 		QUERY_STARTING_LABEL );
 
 	process_generic_output = process_generic_output_calloc();
+
 	process_generic_output->process_set_name = process_set_name;
 	process_generic_output->output_medium_string = output_medium_string;
 	process_generic_output->post_dictionary = post_dictionary;
@@ -93,6 +94,19 @@ int main( int argc, char **argv )
 	{
 		fprintf(stderr,
 "ERROR in %s/%s()/%d: process_generic_output_process_name() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( process_generic_output->value_folder_name =
+			process_generic_output_value_folder_name(
+				process_generic_output->process_name,
+				process_generic_output->process_set_name ) ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: process_generic_output_value_folder_name() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -111,25 +125,6 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( ! ( process_generic_output->value_folder->datatype_folder =
-			/* --------------------------- */
-			/* Also fetches this->datatype */
-			/* --------------------------- */
-			process_generic_datatype_folder_fetch(
-				process_generic_output->
-					value_folder->
-					datatype_folder_name,
-				process_generic_output->
-					post_dictionary ) ) )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: process_generic_datatype_folder_fetch() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	process_generic_output->parameter =
 		/* ----------- */
 		/* Never fails */
@@ -139,52 +134,84 @@ int main( int argc, char **argv )
 			post_dictionary,
 			process_generic_output->
 				value_folder->
-				datatype_folder->
 				datatype->
 				aggregation_sum,
 				argv[ 0 ] );
 
-#ifdef NOT_DEFINED
-	sys_string =
-		process_generic_output_get_text_file_sys_string(
-			&begin_date,
-			&end_date,
-			&where_clause,
-			&units_label,
-			(int *)0 /* datatype_entity_piece */,
-			(int *)0 /* datatype_piece */,
-			(int *)0 /* date_piece */,
-			&time_piece,
-			(int *)0 /* value_piece */,
-			&length_select_list,
-			application_name,
-			process_generic_output,
-			post_dictionary,
-			delimiter,
-			aggregate_level,
-			aggregate_statistic,
-			0 /* append_low_high */,
-			0 /* not concat_datatype_entity */,
-			0 /* not concat_datatype */,
-			process_generic_output->accumulate );
-#endif
+	process_generic_output->foreign_folder =
+		process_generic_foreign_folder_fetch(
+			process_generic_output->
+				value_folder->
+				foreign_folder_name,
+			process_generic_output->
+				post_dictionary );
 
-	process_generic_output->process_generic_output_system_string =
-		process_generic_output_system_string(
+	if ( process_generic_output->foreign_folder )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: process_generic_foreign_folder_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	process_generic_output->process_generic_output_date_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		process_generic_output_date_where(
+			process_generic_output->
+				value_folder->
+				date_attribute_name,
+			process_generic_output->
+				parameter->
+				begin_date,
+			process_generic_output->
+				parameter->
+				end_date );
+
+	process_generic_output->process_generic_output_where =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		process_generic_output_where(
 			process_generic_output->
 				value_folder->
 				foreign_folder->
 				foreign_attribute_name_list,
 			process_generic_output->
 				value_folder->
-				date_attribute,
+				foreign_folder->
+				foreign_attribute_data_list,
 			process_generic_output->
-				value_folder->
-				time_attribute,
-			process_generic_output->
-				value_folder->
-				value_attribute,
-			process_generic_output->
+				process_generic_output_date_where );
+
+	if ( !process_generic_output->process_generic_output_where )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: process_generic_output_where() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	process_generic_output->process_generic_output_system_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		process_generic_output_system_string(
+			process_generic_output_select(
+				process_generic_output->
+					value_folder->
+					foreign_folder->
+					foreign_attribute_name_list,
+				process_generic_output->
+					value_folder->
+					foreign_folder->
+					foreign_attribute_name_list_length ),
+			process_generic_output->value_folder_name,
 				value_folder->
 				datatype_folder->
 				where,
@@ -204,6 +231,33 @@ int main( int argc, char **argv )
 			process_generic_output->
 				parameter->
 				accumulate );
+
+	if ( !process_generic_output->process_generic_output_system_string )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: process_generic_output_system_string() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	process_generic_output->
+		process_generic_output_heading =
+			process_generic_output_heading(
+				process_generic_output->
+					value_folder->
+					foreign_folder->
+					foreign_attribute_name_list,
+				process_generic_output->
+					parameter->
+					aggregate_level,
+				process_generic_output->
+					parameter->
+					aggregate_statistic,
+				process_generic_output->
+					parameter->
+					accumulate );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

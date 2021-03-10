@@ -206,7 +206,16 @@ char *list_display(	LIST *list );
 void list_display_lines(
 			LIST *list );
 
-char *list_display_delimited( LIST *list, char delimiter );
+char *list_display_delimited(
+			LIST *list,
+			char delimiter );
+
+/* Returns heap memory or empty string */
+/* ----------------------------------- */
+char *list_display_limited(
+			LIST *list,
+			char delimiter,
+			int length );
 
 char *list_display_delimited_plus_space( LIST *list, char delimiter );
 
