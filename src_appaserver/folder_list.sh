@@ -16,7 +16,6 @@ then
 fi
 
 get_folder_data application=$application folder=folder select=folder	|
-grep -v '^null$'							|
 sort									|
 cat
 
