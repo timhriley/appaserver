@@ -2820,6 +2820,27 @@ FOLDER *folder_fetch(	char *folder_name,
 			fetch_mto1_relation_list );
 }
 
+LIST *folder_primary_attribute_name_list_fetch(
+			char *folder_name )
+{
+	FOLDER *folder;
+
+	if ( ! ( folder = folder_fetch(
+			folder_name,
+			1 /* fetch_attribute_list */,
+			0 /* not fetch_one2m_relation_list */,
+			0 /* not fetch_one2m_recursive_relation_list */,
+			0 /* not fetch_mto1_isa_recursive_relation_list */,
+			0 /* not fetch_mto1_relation_list */ ) ) )
+	{
+		return (LIST *)0;
+	}
+	else
+	{
+		return folder->primary_attribute_name_list;
+	}
+}
+
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
 			boolean fetch_one2m_relation_list,

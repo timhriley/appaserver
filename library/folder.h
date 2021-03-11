@@ -622,6 +622,9 @@ FOLDER *folder_parse(	char *input,
 char *folder_sys_string(
 			char *where );
 
+LIST *folder_primary_attribute_name_list_fetch(
+			char *folder_name );
+
 LIST *folder_insert_drop_down_data_list(
 			char *application_name,
 			char *session,

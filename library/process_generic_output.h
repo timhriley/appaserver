@@ -62,18 +62,26 @@ typedef struct
 
 typedef struct
 {
+	char *datatype_folder_name;
+	char *datatype_attribute_name;
+	boolean exists_aggregation_sum;
+	boolean exists_bar_graph;
+	boolean exists_scale_graph_zero;
+	boolean datatype_exists_units;
+	DICTIONARY *post_dictionary;
+
+	/* Process */
+	/* ------- */
 	char *datatype_name;
-	LIST *primary_attribute_data_list;
-	LIST *foreign_attribute_data_list;
 	boolean aggregation_sum;
 	boolean bar_graph;
 	boolean scale_graph_zero;
 	char *unit;
+	char *process_generic_datatype_select;
+	char *process_generic_datatype_where;
+	char *process_generic_datatype_system_string;
 	HASH_TABLE *values_hash_table;
 
-	/* To retire */
-	/* --------- */
-	char *units;
 } PROCESS_GENERIC_DATATYPE;
 
 typedef struct
@@ -88,8 +96,13 @@ typedef struct
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	char *value_folder_name;
 	DICTIONARY *post_dictionary;
+
+	/* Process */
+	/* ------- */
 	char *datatype_folder_name;
 	char *foreign_folder_name;
 	char *datatype_attribute_name;
@@ -101,8 +114,9 @@ typedef struct
 	boolean exists_scale_graph_zero;
 	boolean datatype_exists_unit;
 	boolean foreign_exists_unit;
+
+	LIST *primary_attribute_name_list;
 	PROCESS_GENERIC_DATATYPE *datatype;
-	PROCESS_GENERIC_FOREIGN_FOLDER *foreign_folder;
 	LIST *compare_datatype_list;
 } PROCESS_GENERIC_VALUE_FOLDER;
 
@@ -120,7 +134,7 @@ typedef struct
 	char *value_folder_name;
 	PROCESS_GENERIC_VALUE_FOLDER *value_folder;
 	PROCESS_GENERIC_PARAMETER *parameter;
-	PROCESS_GENERIC_OUTPUT_FOREIGN_FOLDER *foreign_folder;
+	PROCESS_GENERIC_FOREIGN_FOLDER *foreign_folder;
 	char *process_generic_output_date_where;
 	char *process_generic_output_where;
 	char *process_generic_output_system_string;
@@ -150,10 +164,6 @@ void process_generic_value_folder_load(
 					char *application_name,
 					char *process_name,
 					char *process_set_name );
-
-PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
-			char *application_name,
-			char *datatype_folder_name );
 
 void process_generic_datatype_folder_load(
 			LIST **primary_attribute_name_list,
@@ -534,6 +544,18 @@ char *process_generic_output_select(
 			LIST *foreign_attribute_name_list,
 			int foreign_attribute_name_list_length );
 
+/* Returns heap memory or null */
+/* --------------------------- */
+char *process_generic_output_system_string(
+			char *select,
+			char *value_folder_name,
+			char *where,
+			enum aggregate_level,
+			enum aggregate_statistic,
+			char *end_date,
+			boolean accumulate,
+			int foreign_attribute_name_list_length );
+
 /* Returns static memory */
 /* --------------------- */
 char *process_generic_output_heading(
@@ -568,71 +590,32 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_calloc(
 			void );
 
 PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
-			char *datatype_name,
-			char *datatype_select,
-			char *datatype_where );
+			char *datatype_folder_name,
+			char *datatype_attribute_name,
+			boolean exists_aggregation_sum,
+			boolean exists_bar_graph,
+			boolean exists_scale_graph_zero,
+			boolean datatype_exists_units,
+			DICTIONARY *post_dictionary );
 
 char *process_generic_datatype_select(
+			char *datatype_attribute_name,
 			boolean exists_aggregation_sum,
 			boolean exists_bar_graph,
 			boolean exists_scale_graph_zero,
 			boolean unit_datatype_folder );
 
 char *process_generic_datatype_where(
-			LIST *datatype_primary_attribute_name_list,
-			LIST *datatype_primary_attribute_data_list );
+			char *datatype_attribute_name,
+			char *datatype_name );
 
-char *process_generic_datatype_measurement_select(
-			LIST *foreign_attribute_name_list,
-			char *date_attribute,
-			char *time_attribute,
-			char *value_attribute );
+char *process_generic_datatype_system_string(
+			char *select,
+			char *datatype_folder_name,
+			char *where );
 
 PROCESS_GENERIC_DATATYPE *process_generic_datatype_parse(
 			char *input_buffer );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *process_generic_system_string(
-			char *select,
-			char *value_folder_name,
-			char *where,
-			enum aggregate_level,
-			enum aggregate_statistic,
-			char *end_date,
-			boolean accumulate,
-			int foreign_attribute_name_list_length );
-
-/* PROCESS_GENERIC_DATATYPE_FOLDER */
-/* ------------------------------- */
-PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_calloc(
-			void );
-
-/* --------------------------- */
-/* Also fetches this->datatype */
-/* --------------------------- */
-PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_fetch(
-			char *datatype_folder_name,
-			DICTIONARY *post_dictionary );
-
-LIST *process_generic_datatype_folder_primary_attribute_name_list(
-			char *datatype_folder_name );
-
-LIST *process_generic_datatype_folder_primary_attribute_data_list(
-			LIST *primary_attribute_name_list,
-			DICTIONARY *post_dictionary );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *process_generic_datatype_folder_select(
-			boolean exists_aggregation_sum,
-			boolean exists_bar_graph,
-			boolean exists_scale_graph_zero,
-			boolean datatype_exists_unit );
-
-char *process_generic_datatype_folder_where(
-			LIST *primary_attribute_name_list,
-			LIST *primary_attribute_data_list );
 
 /* PROCESS_GENERIC_VALUE */
 /* --------------------- */

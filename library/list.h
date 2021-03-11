@@ -167,6 +167,11 @@ char *list_seek_offset(	LIST *list,
 char *list_seek_index(	LIST *list,
 			int index );
 
+/* Returns -1 if not found */
+/* ----------------------- */
+int list_seek(		char *item,
+			LIST *list );
+
 LIST *list_subtract( LIST *big_list, LIST *subtract_this );
 
 LIST *subtract_list( LIST *big_list, LIST *subtract_this );

@@ -11,6 +11,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <malloc.h>
+#include "String.h"
 #include "dictionary.h"
 #include "list.h"
 #include "timlib.h"
@@ -2498,5 +2499,30 @@ LIST *list_string_new( char *string )
 
 	list_set( l, string );
 	return l;
+}
+
+/* Returns -1 if not found */
+/* ----------------------- */
+int list_seek(		char *item,
+			LIST *list )
+{
+	char *a;
+	int offset;
+
+	if ( !list_rewind( list ) ) return -1;
+	if ( !item ) return -1;
+
+	offset = 0;
+
+	do {
+		a = list_get( list );
+
+		if ( string_strcmp( a, item ) == 0 )
+			return offset;
+
+		offset++;
+	} while ( list_next( list ) );
+
+	return -1;
 }
 
