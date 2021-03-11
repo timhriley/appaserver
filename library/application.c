@@ -446,3 +446,8 @@ char *application_http_prefix( char *application_string )
 		return "http";
 }
 
+boolean application_get_is_primary_application( char *stub )
+{
+	if ( stub ){};
+	return 1;
+}

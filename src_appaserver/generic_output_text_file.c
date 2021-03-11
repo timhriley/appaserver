@@ -22,7 +22,7 @@
 #include "environ.h"
 #include "document.h"
 #include "appaserver_parameter_file.h"
-#include "process_generic_output.h"
+#include "process_generic.h"
 #include "appaserver.h"
 #include "appaserver_link_file.h"
 
@@ -47,7 +47,7 @@ int main( int argc, char **argv )
 	char *output_medium_string;
 	DICTIONARY *post_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	PROCESS_GENERIC_OUTPUT *process_generic_output;
+	PROCESS_GENERIC *process_generic;
 	char title[ 128 ];
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -64,7 +64,8 @@ int main( int argc, char **argv )
 			 argv[ 0 ] );
 
 		fprintf( stderr,
-	"Note: output_medium = {text_file,stdout,table,spreadsheet}\n"
+	"Note: output_medium = {text_file,stdout,table,spreadsheet}\n" );
+
 		exit ( 1 );
 	}
 
@@ -84,41 +85,42 @@ int main( int argc, char **argv )
 		post_dictionary,
 		QUERY_STARTING_LABEL );
 
-	process_generic_output = process_generic_output_calloc();
+	process_generic = process_generic_calloc();
 
-	process_generic_output->process_set_name = process_set_name;
-	process_generic_output->output_medium_string = output_medium_string;
-	process_generic_output->post_dictionary = post_dictionary;
+	process_generic->process_set_name = process_set_name;
+	process_generic->output_medium_string = output_medium_string;
+	process_generic->post_dictionary = post_dictionary;
 
-	if ( ! ( process_generic_output->process_name =
-			process_generic_output_process_name(
-				process_generic_output->process_set_name,
-				process_generic_output->post_dictionary ) ) )
+	if ( ! ( process_generic->process_name =
+			process_generic_process_name(
+				process_generic->process_set_name,
+				process_generic->post_dictionary ) ) )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: process_generic_output_process_name() returned empty.\n",
+"ERROR in %s/%s()/%d: process_generic_process_name() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( process_generic_output->value_folder_name =
-			process_generic_output_value_folder_name(
-				process_generic_output->process_name,
-				process_generic_output->process_set_name ) ) )
+	if ( ! ( process_generic->value_folder_name =
+			process_generic_value_folder_name(
+				process_generic->process_name,
+				process_generic->process_set_name ) ) )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: process_generic_output_value_folder_name() returned empty.\n",
+"ERROR in %s/%s()/%d: process_generic_value_folder_name() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( process_generic_output->value_folder =
+	if ( ! ( process_generic->value_folder =
 			process_generic_value_folder_fetch(
-				process_generic_output->value_folder_name ) ) )
+				process_generic->value_folder_name,
+				process_generic->post_dictionary ) ) )
 	{
 		fprintf(stderr,
 "ERROR in %s/%s()/%d: process_generic_value_folder_fetch() returned empty.\n",
@@ -128,174 +130,157 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	process_generic_output->parameter =
+	process_generic->parameter =
 		/* ----------- */
 		/* Never fails */
 		/* ----------- */
 		process_generic_parameter_parse(
 			output_medium_string,
 			post_dictionary,
-			process_generic_output->
+			process_generic->
 				value_folder->
 				datatype->
 				aggregation_sum,
 				argv[ 0 ] );
 
-	process_generic_output->foreign_folder =
-		process_generic_foreign_folder_fetch(
-			process_generic_output->
-				value_folder->
-				foreign_folder_name,
-			process_generic_output->
-				post_dictionary );
-
-	if ( process_generic_output->foreign_folder )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: process_generic_foreign_folder_fetch() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	process_generic_output->process_generic_output_date_where =
+	process_generic->process_generic_date_where =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		process_generic_output_date_where(
-			process_generic_output->
+		process_generic_date_where(
+			process_generic->
 				value_folder->
 				date_attribute_name,
-			process_generic_output->
+			process_generic->
 				parameter->
 				begin_date,
-			process_generic_output->
+			process_generic->
 				parameter->
 				end_date );
 
-	process_generic_output->process_generic_output_where =
+	process_generic->process_generic_where =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		process_generic_output_where(
-			process_generic_output->
+		process_generic_where(
+			process_generic->
 				value_folder->
 				foreign_folder->
 				foreign_attribute_name_list,
-			process_generic_output->
+			process_generic->
 				value_folder->
 				foreign_folder->
 				foreign_attribute_data_list,
-			process_generic_output->
-				process_generic_output_date_where );
+			process_generic->
+				process_generic_date_where );
 
-	if ( !process_generic_output->process_generic_output_where )
+	if ( !process_generic->process_generic_where )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: process_generic_output_where() returned empty.\n",
+	"ERROR in %s/%s()/%d: process_generic_where() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	process_generic_output->process_generic_output_system_string =
+	process_generic->process_generic_system_string =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		process_generic_output_system_string(
-			process_generic_output_select(
-				process_generic_output->
+		process_generic_system_string(
+			process_generic_select(
+				process_generic->
 					value_folder->
-					foreign_folder->
-					foreign_attribute_name_list,
-				process_generic_output->
+					primary_attribute_name_list,
+				process_generic->
 					value_folder->
-					foreign_folder->
-					foreign_attribute_name_list_length ),
-			process_generic_output->value_folder_name,
-				value_folder->
-				datatype_folder->
-				where,
-			process_generic_output->
+					value_attribute_name ),
+			process_generic->value_folder_name,
+			process_generic->process_generic_where,
+			process_generic->
 				parameter->
 				aggregate_level,
-			process_generic_output->
+			process_generic->
 				parameter->
 				aggregate_statistic,
-			process_generic_output->
+			process_generic->
+				parameter->
+				accumulate,
+			process_generic->
 				value_folder->
-				foreign_folder->
-				foreign_attribute_name_list_length,
-			process_generic_output->
+				date_attribute_name,
+			process_generic->
+				value_folder->
+				time_attribute_name,
+			process_generic->
 				parameter->
-				end_date_string,
-			process_generic_output->
-				parameter->
-				accumulate );
+				end_date,
+			process_generic->
+				value_folder->
+				primary_attribute_name_list );
 
-	if ( !process_generic_output->process_generic_output_system_string )
+	if ( !process_generic->process_generic_system_string )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: process_generic_output_system_string() returned empty.\n",
+"ERROR in %s/%s()/%d: process_generic_system_string() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	process_generic_output->
-		process_generic_output_heading =
+	process_generic->
+		process_generic_heading =
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			process_generic_output_heading(
-				process_generic_output->
+			process_generic_heading(
+				process_generic->
 					value_folder->
-					foreign_folder->
-					foreign_attribute_name_list,
-				processs_generic_output->
+					primary_attribute_name_list,
+				process_generic->
 					value_folder->
-					datatype_folder->
+					value_attribute_name,
+				process_generic->
+					value_folder->
+					time_attribute_name,
+				process_generic->
+					value_folder->
+					datatype->
 					unit,
-				process_generic_output->
-					value_folder->
-					foreign_folder->
-					unit,
-				process_generic_output->
+				process_generic->
 					parameter->
 					aggregate_level,
-				processs_generic_output->
-					value_folder->
-					datatype_folder->
-					time_attribute_name,
-				process_generic_output->
+				process_generic->
+					parameter->
+					aggregate_statistic,
+				process_generic->
 					parameter->
 					accumulate );
 
-	process_generic_output->
-		process_generic_output_subtitle =
+	process_generic->
+		process_generic_subtitle =
 			/* Returns static memory */
 			/* --------------------- */
-			process_generic_output_subtitle(
-				process_generic_output->value_folder_name,
-				process_generic_output->
+			process_generic_subtitle(
+				process_generic->value_folder_name,
+				process_generic->
 					parameter->
 					begin_date,
-				process_generic_output->
+				process_generic->
 					parameter->
 					end_date,
-				process_generic_output->
+				process_generic->
 					parameter->
 					aggregate_level,
-				process_generic_output->
+				process_generic->
 					parameter->
 					aggregate_statistic );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	if (	process_generic_output->parameter->output_medium !=
+	if (	process_generic->parameter->output_medium !=
 		output_medium_stdout )
 	{
 		document_quick_output_body(
@@ -305,29 +290,29 @@ int main( int argc, char **argv )
 		printf(	"<h1>%s</h1>\n",
 			format_initial_capital(
 				title,
-				process_generic_output->process_name );
+				process_generic->process_name ) );
 	}
 	else
 	{
 		printf(	"%s\n",
 			format_initial_capital(
 				title,
-				process_generic_output->process_name );
+				process_generic->process_name ) );
 	}
 
-	if (	process_generic_output->parameter->output_medium ==
+	if (	process_generic->parameter->output_medium ==
 		text_file )
 	{
 		generic_output_text_file(
-			process_generic_output->
-				process_generic_output_system_string,
-			process_generic_output->
-				process_generic_output_heading,
-			process_generic_output->
-				process_generic_output_subtitle );
+			process_generic->
+				process_generic_system_string,
+			process_generic->
+				process_generic_heading,
+			process_generic->
+				process_generic_subtitle );
 	}
 
-	if (	process_generic_output->parameter->output_medium !=
+	if (	process_generic->parameter->output_medium !=
 		output_medium_stdout )
 	{
 		document_close();
@@ -345,7 +330,7 @@ int main( int argc, char **argv )
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		appaserver_parameter_file->document_root,
-	 		process_generic_output->
+	 		process_generic->
 				value_folder->
 				value_folder_name /* filename_stem */,
 			application_name,
@@ -426,7 +411,7 @@ int main( int argc, char **argv )
 
 		sprintf(title,
 			"%s: %s",
-			process_generic_output->
+			process_generic->
 				value_folder->value_folder_name,
 			where_clause );
 
@@ -444,10 +429,10 @@ int main( int argc, char **argv )
 
 		while( get_line( input_buffer, input_pipe ) )
 		{
-			if ( process_generic_output->
+			if ( process_generic->
 				value_folder->
 				time_attribute_name
-			&&   *process_generic_output->
+			&&   *process_generic->
 				value_folder->
 				time_attribute_name
 			&&   aggregate_level != aggregate_level_none
@@ -550,10 +535,10 @@ int main( int argc, char **argv )
 				continue;
 			}
 
-			if ( process_generic_output->
+			if ( process_generic->
 				value_folder->
 				time_attribute_name
-			&&   *process_generic_output->
+			&&   *process_generic->
 				value_folder->
 				time_attribute_name
 			&&   aggregate_level != aggregate_level_none
@@ -588,13 +573,13 @@ int main( int argc, char **argv )
 				 "mailx -s \"%s %s\" %s	 		 ",
 				 output_filename,
 				 where_clause,
-				 process_generic_output->
+				 process_generic->
 					value_folder->value_folder_name,
 				 email_address );
 			system( sys_string );
 
 			printf( "<h1>%s Transmission<br></h1>\n",
-				process_generic_output->
+				process_generic->
 					value_folder->value_folder_name );
 			printf( "<BR><p>Search criteria: %s<hr>\n",
 				where_clause );
@@ -613,7 +598,7 @@ int main( int argc, char **argv )
 			printf( "<h1>%s Transmission<br></h1>\n",
 				format_initial_capital(
 					buffer,
-					process_generic_output->
+					process_generic->
 					value_folder->value_folder_name ) );
 			printf( "<h2>\n" );
 			fflush( stdout );
@@ -699,10 +684,10 @@ int main( int argc, char **argv )
 				continue;
 			}
 
-			if ( process_generic_output->
+			if ( process_generic->
 				value_folder->
 				time_attribute_name
-			&&   *process_generic_output->
+			&&   *process_generic->
 				value_folder->
 				time_attribute_name
 			&&   aggregate_level != aggregate_level_none
@@ -756,13 +741,13 @@ int main( int argc, char **argv )
 				 "mailx -s \"%s %s\" %s	 		 ",
 				 output_filename,
 				 where_clause,
-				 process_generic_output->
+				 process_generic->
 					value_folder->value_folder_name,
 				 email_address );
 			system( sys_string );
 
 			printf( "<h1>%s Transmission<br></h1>\n",
-				process_generic_output->
+				process_generic->
 					value_folder->value_folder_name );
 			printf( "<BR><p>Search criteria: %s<hr>\n",
 				where_clause );
@@ -781,7 +766,7 @@ int main( int argc, char **argv )
 			printf( "<h1>%s Transmission<br></h1>\n",
 				format_initial_capital(
 					buffer,
-					process_generic_output->
+					process_generic->
 					value_folder->value_folder_name ) );
 			printf( "<h2>\n" );
 			fflush( stdout );

@@ -157,10 +157,12 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+/*
 	process_name =
 		process_generic_output_get_process_name(
 			process_set_name,
 			post_dictionary );
+*/
 
 	document_quick_output_body(	application_name,
 					appaserver_parameter_file->
@@ -328,8 +330,10 @@ int main( int argc, char **argv )
 					process_generic_output->
 						value_folder->
 							value_folder_name,
-					1 ) );
+					application_get_is_primary_application(
+						application_name ) ) );
 	document_close();
 	return 0;
-}
+
+} /* main() */
 

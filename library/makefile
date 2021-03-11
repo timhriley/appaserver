@@ -53,6 +53,7 @@ APPASERVER_LIBRARY=						\
 		attribute.o					\
 		date_aggregate.o				\
 		process_generic_output.o			\
+		process_generic.o				\
 		horizontal_menu.o				\
 		folder_menu.o					\
 		application.o					\
@@ -887,9 +888,7 @@ validation_level.o: validation_level.c validation_level.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c validation_level.c
 
-appaserver_library.o: appaserver_library.c appaserver_library.h		\
-	element.h related_folder.h application.h date_convert.h		\
-	process_generic_output.h appaserver.h
+appaserver_library.o: appaserver_library.c appaserver_library.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c appaserver_library.c
 
@@ -919,10 +918,14 @@ lookup_before_drop_down.o: lookup_before_drop_down.c 			\
 		-c lookup_before_drop_down.c
 
 process_generic_output.o: process_generic_output.c 			\
-	process_generic_output.h query.h				\
-	attribute.h
+	process_generic_output.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c process_generic_output.c
+
+process_generic.o: process_generic.c					\
+	horizontal_menu.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		-c process_generic.c
 
 horizontal_menu.o: horizontal_menu.c					\
 	horizontal_menu.h

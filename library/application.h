@@ -82,4 +82,7 @@ char *application_first_relative_source_directory(
 char application_ssl_support_yn(
 			char *application_string );
 
+boolean application_get_is_primary_application(
+			char *stub );
+
 #endif

@@ -622,7 +622,7 @@ FOLDER *folder_parse(	char *input,
 char *folder_sys_string(
 			char *where );
 
-LIST *folder_primary_attribute_name_list_fetch(
+LIST *folder_fetch_primary_attribute_name_list(
 			char *folder_name );
 
 LIST *folder_insert_drop_down_data_list(
