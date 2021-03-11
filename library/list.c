@@ -149,8 +149,9 @@ void list_append_string_list( LIST *list, LIST *string_list )
 
 }
 
-
-void list_subtract_string( LIST *list, char *string )
+void list_subtract_string(
+			LIST *list,
+			char *string )
 {
 	if ( item_exists( list, string, list_strcmp ) ) delete_current( list );
 }
@@ -1859,13 +1860,13 @@ int list_get_max_string_width( LIST *list )
 
 LIST *list_copy_string_list( LIST *source )
 {
-	LIST *return_list = list_new_list();
+	LIST *return_list = list_new();
 	char *data;
 
 	if ( list_rewind( source ) )
 		do {
 			data = list_get_string( source );
-			list_append_string( return_list, data );
+			list_set( return_list, data );
 		} while( list_next( source ) );
 	return return_list;
 }

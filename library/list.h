@@ -350,8 +350,10 @@ void list_bye(			char *s );
 int num_in_list(		LIST *list );
 int previous_item(		LIST *list );
 void moveitem(			char *to, char *from, int num_bytes );
+
 void list_remove_string(	LIST *string_list,
 				char *remove_string );
+
 void list_insert_current(	LIST *list, void *item );
 void list_set_current(		LIST *list, void *item );
 void list_set_current_pointer(	LIST *list, void *item );

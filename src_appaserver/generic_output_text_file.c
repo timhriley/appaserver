@@ -8,6 +8,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "String.h"
+#include "sql.h"
 #include "timlib.h"
 #include "piece.h"
 #include "application.h"
@@ -32,19 +34,21 @@
 
 /* Prototypes */
 /* ---------- */
+void generic_output_text_file(
+			char *system_string,
+			char *heading,
+			char *subtitle );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_set_name;
-	DOCUMENT *document;
 	char *process_name;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *output_medium_string;
 	DICTIONARY *post_dictionary;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
-	APPASERVER_LINK_FILE *appaserver_link_file;
-	char delimiter;
+	char title[ 128 ];
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -56,17 +60,16 @@ int main( int argc, char **argv )
 	if ( argc != 5 )
 	{
 		fprintf( stderr,
-	"Usage: %s ignored process_set output_medium dictionary\n",
+	"Usage: %s process_set process_name output_medium dictionary\n",
 			 argv[ 0 ] );
+
 		fprintf( stderr,
-	"Note: output_medium = {text_file,stdout,table,spreadsheet}.\n"
-	"      output_medium used to be 'n'o, don't output to stdout or\n"
-	"                               'y'es, do output to stdout.\n"
-	"      These options are still preserved.\n" );
+	"Note: output_medium = {text_file,stdout,table,spreadsheet}\n"
 		exit ( 1 );
 	}
 
-	process_set_name = argv[ 2 ];
+	process_set_name = argv[ 1 ];
+	process_name = argv[ 2 ];
 	output_medium_string = argv[ 3 ];
 
 	post_dictionary =
@@ -244,28 +247,96 @@ int main( int argc, char **argv )
 
 	process_generic_output->
 		process_generic_output_heading =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			process_generic_output_heading(
 				process_generic_output->
 					value_folder->
 					foreign_folder->
 					foreign_attribute_name_list,
+				processs_generic_output->
+					value_folder->
+					datatype_folder->
+					unit,
+				process_generic_output->
+					value_folder->
+					foreign_folder->
+					unit,
+				process_generic_output->
+					parameter->
+					aggregate_level,
+				processs_generic_output->
+					value_folder->
+					datatype_folder->
+					time_attribute_name,
+				process_generic_output->
+					parameter->
+					accumulate );
+
+	process_generic_output->
+		process_generic_output_subtitle =
+			/* Returns static memory */
+			/* --------------------- */
+			process_generic_output_subtitle(
+				process_generic_output->value_folder_name,
+				process_generic_output->
+					parameter->
+					begin_date,
+				process_generic_output->
+					parameter->
+					end_date,
 				process_generic_output->
 					parameter->
 					aggregate_level,
 				process_generic_output->
 					parameter->
-					aggregate_statistic,
-				process_generic_output->
-					parameter->
-					accumulate );
+					aggregate_statistic );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	if (	process_generic_output->parameter->output_medium !=
+		output_medium_stdout )
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->appaserver_mount_point );
+
+		printf(	"<h1>%s</h1>\n",
+			format_initial_capital(
+				title,
+				process_generic_output->process_name );
+	}
+	else
+	{
+		printf(	"%s\n",
+			format_initial_capital(
+				title,
+				process_generic_output->process_name );
+	}
 
 	if (	process_generic_output->parameter->output_medium ==
 		text_file )
 	{
 		generic_output_text_file(
+			process_generic_output->
+				process_generic_output_system_string,
+			process_generic_output->
+				process_generic_output_heading,
+			process_generic_output->
+				process_generic_output_subtitle );
 	}
+
+	if (	process_generic_output->parameter->output_medium !=
+		output_medium_stdout )
+	{
+		document_close();
+	}
+
+#ifdef NOT_DEFINED
+	APPASERVER_LINK_FILE *appaserver_link_file;
+	char delimiter;
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -767,11 +838,39 @@ int main( int argc, char **argv )
 		pclose( input_pipe );
 		pclose( output_pipe );
 	}
+#endif
 
 	process_increment_execution_count(
-				application_name,
-				process_name,
-				appaserver_parameter_file_get_dbms() );
+		application_name,
+		process_name,
+		appaserver_parameter_file_get_dbms() );
+
 	return 0;
-} /* main() */
+}
+
+void generic_output_text_file(
+			char *system_string,
+			char *heading,
+			char *subtitle )
+{
+	FILE *input_pipe;
+	FILE *output_pipe;
+	char input_buffer[ 2048 ];
+
+	input_pipe = popen( system_string, "r" );
+	output_pipe = popen( "html_paragraph_wrapper", "w" );
+
+	fprintf(output_pipe,
+		"%s\n%s\n",
+		subtitle,
+		heading );
+
+	while ( string_input( input_buffer, input_pipe, 2048 ) )
+	{
+		search_replace_character( input_buffer, SQL_DELIMITER, ',' );
+		fprintf(output_pipe, "%s\n", input_buffer );
+	}
+	pclose( input_pipe );
+	pclose( output_pipe );
+}
 

@@ -63,13 +63,12 @@ typedef struct
 typedef struct
 {
 	char *datatype_name;
-	char *unit;
 	LIST *primary_attribute_data_list;
 	LIST *foreign_attribute_data_list;
 	boolean aggregation_sum;
 	boolean bar_graph;
 	boolean scale_graph_zero;
-	LIST *values_key_list;
+	char *unit;
 	HASH_TABLE *values_hash_table;
 
 	/* To retire */
@@ -89,53 +88,47 @@ typedef struct
 
 typedef struct
 {
+	char *value_folder_name;
+	DICTIONARY *post_dictionary;
 	char *datatype_folder_name;
+	char *foreign_folder_name;
+	char *datatype_attribute_name;
+	char *date_attribute_name;
+	char *time_attribute_name;
+	char *value_attribute_name;
 	boolean exists_aggregation_sum;
 	boolean exists_bar_graph;
 	boolean exists_scale_graph_zero;
 	boolean datatype_exists_unit;
 	boolean foreign_exists_unit;
-
-	/* Process */
-	/* ------- */
-	LIST *primary_attribute_name_list;
-	LIST *primary_attribute_data_list;
-	char *select;
-	char *where;
 	PROCESS_GENERIC_DATATYPE *datatype;
-	LIST *process_generic_datatype_compare_list;
-} PROCESS_GENERIC_DATATYPE_FOLDER;
-
-typedef struct
-{
-	char *value_folder_name;
-	char *date_attribute_name;
-	char *time_attribute_name;
-	char *value_attribute_name;
-	char *datatype_folder_name;
-	char *foreign_folder_name;
-	LIST *primary_attribute_name_list;
 	PROCESS_GENERIC_FOREIGN_FOLDER *foreign_folder;
-	PROCESS_GENERIC_DATATYPE_FOLDER *datatype_folder;
-
-	/* To retire */
-	/* --------- */
-	PROCESS_GENERIC_DATATYPE *datatype;
 	LIST *compare_datatype_list;
 } PROCESS_GENERIC_VALUE_FOLDER;
 
 typedef struct
 {
-	char *process_name;
+	/* Input */
+	/* ----- */
 	char *process_set_name;
 	char *output_medium_string;
 	DICTIONARY *post_dictionary;
+
+	/* Process */
+	/* ------- */
+	char *process_name;
+	char *value_folder_name;
 	PROCESS_GENERIC_VALUE_FOLDER *value_folder;
 	PROCESS_GENERIC_PARAMETER *parameter;
+	PROCESS_GENERIC_OUTPUT_FOREIGN_FOLDER *foreign_folder;
+	char *process_generic_output_date_where;
+	char *process_generic_output_where;
+	char *process_generic_output_system_string;
+	char *process_generic_output_heading;
+	char *process_generic_output_subtitle;
 
 	/* To retire */
 	/* --------- */
-	char *value_folder_name;
 	boolean accumulate;
 } PROCESS_GENERIC_OUTPUT;
 
@@ -540,6 +533,25 @@ char *process_generic_output_where(
 char *process_generic_output_select(
 			LIST *foreign_attribute_name_list,
 			int foreign_attribute_name_list_length );
+
+/* Returns static memory */
+/* --------------------- */
+char *process_generic_output_heading(
+			LIST *foreign_attribute_name_list,
+			char *datatype_unit,
+			char *foreign_folder_unit,
+			enum aggregate_level aggregate_level,
+			char *time_attribute_name,
+			boolean accumulate );
+
+/* Returns static memory */
+/* --------------------- */
+char *process_generic_output_subtitle(
+			char *value_folder_name,
+			char *begin_date,
+			char *end_date,
+			enum aggregate_level aggregate_level,
+			enum aggregate_statistic aggregate_statistic );
 
 /* PROCESS_GENERIC_VALUE_FOLDER */
 /* ---------------------------- */

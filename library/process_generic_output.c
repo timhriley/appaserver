@@ -4114,3 +4114,127 @@ PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_fetch(
 
 	return process_generic_foreign_folder;
 }
+
+char *process_generic_output_heading(
+			LIST *foreign_attribute_name_list,
+			char *datatype_unit,
+			char *foreign_folder_unit,
+			enum aggregate_level aggregate_level,
+			char *time_attribute_name,
+			boolean accumulate )
+{
+	static char heading_line[ 1024 ];
+	char *ptr = heading_line;
+	char *attribute_name;
+	char heading[ 128 ];
+	LIST *local_foreign_attribute_name_list;
+	char *unit;
+
+	if ( datatype_unit )
+		unit = datatype_unit;
+	else
+		unit = foreign_folder_unit;
+
+	if ( time_attribute_name
+	&&   *time_attribute_name
+	&&   aggregate_level >= daily )
+	{
+		local_foreign_attribute_name_list =
+			list_copy_string_list(
+				foreign_attribute_name_list );
+
+		list_subtract_string(
+			local_foreign_attribute_name_list,
+			time_attribute_name );
+
+		foreign_attribute_name_list =
+			local_foreign_attribute_name_list;
+	}
+
+	*ptr = '\0';
+
+	if ( !list_rewind( foreign_attribute_name_list ) )
+		return heading_line;
+
+	do {
+		attribute_name =
+			list_get(
+				foreign_attribute_name_list );
+
+		if ( !list_at_head( foreign_attribute_name_list ) )
+			ptr += sprintf( ptr, "," );
+
+		format_initial_capital( heading, attribute_name );
+
+		if ( unit && list_at_end( foreign_attribute_name_list ) )
+		{
+			sprintf(heading + strlen( heading ),
+				" (%s)",
+				unit );
+		}
+
+		ptr += sprintf( ptr, "%s", heading );
+
+	} while( list_next( foreign_attribute_name_list ) );
+
+	if ( accumulate )
+	{
+		sprintf( heading_line + strlen( heading_line ) )
+			 ",Accumulate" );
+	}
+
+	return heading_line;
+}
+
+char *process_generic_output_subtitle(
+			char *value_folder_name,
+			char *begin_date,
+			char *end_date,
+			enum aggregate_level aggregate_level,
+			enum aggregate_statistic aggregate_statistic )
+{
+	static char subtitle[ 256 ];
+	char title_aggregate_statistic[ 128 ];
+	char title_aggregate_level[ 128 ];
+	char buffer[ 128 ];
+
+	format_initial_capital( subtitle, value_folder_name );
+
+	if ( aggregate_statistic != aggregate_statistic_none )
+	{
+		sprintf(title_aggregate_statistic,
+			" %s",
+			format_initial_capital(
+				buffer,
+				aggregate_statistic_string(
+					aggregate_statistic ) ) );
+	}
+	else
+	{
+		*title_aggregate_statistic = '\0';
+	}
+
+	if ( aggregate_level != aggregate_level_none )
+	{
+		sprintf(title_aggregate_level,
+			" %s",
+			format_initial_capital(
+				buffer,
+				aggregate_level_string(
+					aggregate_level ) ) );
+	}
+	else
+	{
+		*title_aggregate_level = '\0';
+	}
+
+	sprintf(subtitle,
+		"Beginning: %s Ending: %s%s%s",
+		(begin_date) ? begin_date : "",
+		(end_date) ? end_date : "",
+		title_aggregate_statistic,
+		title_aggregate_level );
+
+	return subtitle;
+}
+

@@ -8,11 +8,11 @@ enum aggregate_level {	aggregate_level_none,
 			real_time,
 			half_hour,
 			hourly,
+			delta,
 			daily,
 			weekly,
 			monthly,
-			annually,
-			delta };
+			annually };
 
 enum aggregate_level aggregate_level_extract(
 				char *aggregate_level_string );
