@@ -791,11 +791,13 @@ double julian_get_consistent_date_aggregation(
 	||   aggregate_level == real_time
 	||   aggregate_level == half_hour
 	||   aggregate_level == hourly
-	||   aggregate_level == daily )
+	||   aggregate_level == daily
+	||   aggregate_level == weekly  )
 	{
 		return current;
 	}
 
+/*
 	if ( aggregate_level == weekly )
 	{
 		int current_week_number;
@@ -806,6 +808,7 @@ double julian_get_consistent_date_aggregation(
 			current++ )
 		{
 			next_week_number = julian_get_week_number( current );
+
 			if ( next_week_number != current_week_number )
 				return current - 1.0;
 
@@ -817,6 +820,7 @@ double julian_get_consistent_date_aggregation(
 		}
 	}
 	else
+*/
 	if ( aggregate_level == monthly )
 	{
 		int current_month_number;

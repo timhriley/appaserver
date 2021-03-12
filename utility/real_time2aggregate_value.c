@@ -36,7 +36,9 @@ int main( int argc, char **argv )
 	char input_buffer[ 1024 ];
 	char last_input_buffer[ 1024 ];
 	char *aggregate_statistic;
-	char date_string[ 128 ], time_string[ 128 ], value_string[ 128 ];
+	char date_string[ 128 ];
+	char time_string[ 128 ];
+	char value_string[ 128 ];
 	JULIAN *new_date_julian;
 	JULIAN *old_date_julian;
 	int date_piece_offset;
@@ -48,8 +50,7 @@ int main( int argc, char **argv )
 	enum aggregate_level aggregate_level;
 	boolean append_low_high;
 	int new_aggregate = 0;
-	STATISTICS_WEIGHTED *statistics_weighted =
-				statistics_weighted_new_statistics_weighted();
+	STATISTICS_WEIGHTED *statistics_weighted;
 	char *end_date_string = {0};
 	JULIAN *end_date_julian = {0};
 
@@ -90,6 +91,8 @@ int main( int argc, char **argv )
 	aggregate_level =
 		aggregate_level_get_aggregate_level(
 			aggregate_level_string );
+
+	statistics_weighted = statistics_weighted_new_statistics_weighted();
 
 	while( get_line( input_buffer, stdin ) )
 	{
@@ -391,8 +394,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}
 
 
 void output(	char *input_buffer,
@@ -418,42 +420,42 @@ void output(	char *input_buffer,
 	else
 	if ( strcmp( aggregate_statistic, "sum" ) == 0 )
 		sprintf(results_string,
-			"%10.3lf",
+			"%12.4lf",
 			statistics_weighted->sum );
 	else
 	if ( strcmp( aggregate_statistic, "total" ) == 0 )
 		sprintf(results_string,
-			"%10.3lf",
+			"%12.4lf",
 			statistics_weighted->sum );
 	else
 	if ( strcmp( aggregate_statistic, "average" ) == 0 )
 		sprintf(results_string,
-			"%10.3lf",
+			"%12.4lf",
 			statistics_weighted->average );
 	else
 	if ( strcmp( aggregate_statistic, "minimum" ) == 0 )
 		sprintf(results_string,
-			"%10.3lf",
+			"%12.4lf",
 			statistics_weighted->minimum );
 	else
 	if ( strcmp( aggregate_statistic, "median" ) == 0 )
 		sprintf(results_string,
-			"%10.3lf",
+			"%12.4lf",
 			statistics_weighted->median );
 	else
 	if ( strcmp( aggregate_statistic, "maximum" ) == 0 )
 		sprintf(results_string,
-			"%10.3lf",
+			"%12.4lf",
 			statistics_weighted->maximum );
 	else
 	if ( strcmp( aggregate_statistic, "range" ) == 0 )
 		sprintf(results_string,
-			"%10.3lf",
+			"%12.4lf",
 			statistics_weighted->range );
 	else
 	if ( strcmp( aggregate_statistic, "standard_deviation" ) == 0 )
 		sprintf(results_string,
-			"%10.3lf",
+			"%12.4lf",
 			statistics_weighted->standard_deviation );
 	else
 	if ( strcmp( aggregate_statistic, "non_zero_percent" ) == 0 )
@@ -461,19 +463,19 @@ void output(	char *input_buffer,
 		if ( statistics_weighted->count )
 		{
 			sprintf(results_string,
-				"%10.2lf",
+				"%12.4lf",
 				(double)statistics_weighted->count_non_zero /
 				(double)statistics_weighted->count * 100.0 );
 		}
 		else
 		{
-			strcpy( results_string, "0.00" );
+			strcpy( results_string, "0.0000" );
 		}
 	}
 	else
 	{
 		sprintf(results_string,
-			"%10.3lf",
+			"%12.4lf",
 			statistics_weighted->average );
 	}
 
@@ -488,7 +490,8 @@ void output(	char *input_buffer,
 
 	replace_piece(	input_buffer,
 			delimiter, 
-			julian_get_yyyy_mm_dd_string( date_julian->current ),
+			julian_get_yyyy_mm_dd_string(
+				date_julian->current ),
 			date_piece_offset );
 
 	if ( time_piece_offset != -1 )
@@ -548,15 +551,14 @@ void output(	char *input_buffer,
 
 	if ( append_low_high )
 	{
-		printf( "%c%10.3lf",
+		printf( "%c%12.4lf",
 			delimiter,
 			statistics_weighted->minimum );
-		printf( "%c%10.3lf",
+		printf( "%c%12.4lf",
 			delimiter,
 			statistics_weighted->maximum );
 	}
 
 	printf( "\n" );
-
-} /* output() */
+}
 

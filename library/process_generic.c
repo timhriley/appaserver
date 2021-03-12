@@ -82,7 +82,7 @@ char *process_generic_date_where(
 	&&   end_date && *end_date )
 	{
 		sprintf(where,
-			" and %s >= '%s' and %s <= '%s'",
+			"%s >= '%s' and %s <= '%s'",
 			date_attribute_name,
 			begin_date,
 			date_attribute_name,
@@ -92,7 +92,7 @@ char *process_generic_date_where(
 	if ( begin_date && *begin_date )
 	{
 		sprintf(where,
-			" and %s >= '%s'",
+			"%s >= '%s'",
 			date_attribute_name,
 			begin_date );
 	}
@@ -100,13 +100,13 @@ char *process_generic_date_where(
 	if ( end_date && *end_date )
 	{
 		sprintf(where,
-			" and %s <= '%s'",
+			"%s <= '%s'",
 			date_attribute_name,
 			end_date );
 	}
 	else
 	{
-		strcpy( where, "and 1 = 1" );
+		strcpy( where, "1 = 1" );
 	}
 
 	return where;
@@ -208,7 +208,7 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
 
 	process_generic_datatype->datatype_exists_unit =
 		datatype_exists_unit;
-
+ 
 	process_generic_datatype->post_dictionary =
 		post_dictionary;
 
@@ -385,8 +385,8 @@ char *process_generic_system_string(
 	char accumulation_process[ 512 ];
 	int date_piece;
 	int time_piece;
-	int value_piece;
-	int accumulate_piece;
+	int value_piece = -1;
+	int accumulate_piece = -1;
 	int length;
 
 	if ( !select || !*select ) return (char *)0;
@@ -409,21 +409,13 @@ char *process_generic_system_string(
 			list_seek(	time_attribute_name,
 					primary_attribute_name_list );
 
-		value_piece = length + 1;
 	}
-	else
-	{
-		time_piece = -1;
-		value_piece = length;
-	}
+
+	value_piece = length;
 
 	if ( accumulate )
 	{
-		accumulate_piece = value_piece + 1;
-	}
-	else
-	{
-		accumulate_piece = -1;
+		accumulate_piece = value_piece;
 	}
 
 	if ( aggregate_level == aggregate_level_none
@@ -448,7 +440,7 @@ char *process_generic_system_string(
 	if ( accumulate )
 	{
 		sprintf( accumulation_process, 
-			 "sort | accumulate.e %d '%c' append",
+			 "accumulate.e %d '%c' append",
 			 accumulate_piece,
 			 SQL_DELIMITER );
 	}
@@ -469,8 +461,8 @@ char *process_generic_system_string(
 		value_folder_name,
 		select,
 		where,
-		accumulation_process,
-		real_time_process );
+		real_time_process,
+		accumulation_process );
 
 	return strdup( system_string );
 }
@@ -591,7 +583,7 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_fetch(
 		value_folder_name );
 
 	sprintf(system_string,
-		"select.sh '*' process_generic_value_folder \"%s\"",
+		"select.sh '*' process_generic_value \"%s\"",
 		where );
 
 	if ( ! ( results = string_pipe_fetch( system_string ) ) )
@@ -615,6 +607,8 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_fetch(
 		folder_fetch_primary_attribute_name_list(
 			value_folder->value_folder_name );
 
+	value_folder->post_dictionary = post_dictionary;
+
 	value_folder->datatype =
 		process_generic_datatype_fetch(
 			value_folder->datatype_folder_name,
@@ -624,8 +618,6 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_fetch(
 			value_folder->exists_scale_graph_zero,
 			value_folder->datatype_exists_unit,
 			value_folder->post_dictionary );
-
-	value_folder->post_dictionary = post_dictionary;
 
 	value_folder->foreign_folder =
 		process_generic_foreign_folder_fetch(
@@ -644,7 +636,7 @@ char *process_generic_value_folder_name(
 	char where[ 128 ];
 
 	sprintf(where,
-		"process = '%s' and process_set = '%s'",
+		"process = '%s' or process_set = '%s'",
 		process_name,
 		process_set_name );
 
@@ -933,7 +925,6 @@ PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_fetch(
 char *process_generic_heading(
 			LIST *primary_attribute_name_list,
 			char *value_attribute_name,
-			char *time_attribute_name,
 			char *datatype_unit,
 			enum aggregate_level aggregate_level,
 			enum aggregate_statistic aggregate_statistic,
@@ -943,23 +934,6 @@ char *process_generic_heading(
 	char *ptr = heading_line;
 	char *attribute_name;
 	char heading[ 128 ];
-	LIST *local_primary_attribute_name_list;
-
-	if ( time_attribute_name
-	&&   *time_attribute_name
-	&&   aggregate_level >= daily )
-	{
-		local_primary_attribute_name_list =
-			list_copy_string_list(
-				primary_attribute_name_list );
-
-		list_subtract_string(
-			local_primary_attribute_name_list,
-			time_attribute_name );
-
-		primary_attribute_name_list =
-			local_primary_attribute_name_list;
-	}
 
 	*ptr = '\0';
 
@@ -1007,6 +981,12 @@ char *process_generic_heading(
 	{
 		sprintf( heading_line + strlen( heading_line ),
 			 ",Accumulate" );
+	}
+
+	if ( aggregate_level >= half_hour )
+	{
+		sprintf(heading_line + strlen( heading_line ),
+			",Count" );
 	}
 
 	return heading_line;

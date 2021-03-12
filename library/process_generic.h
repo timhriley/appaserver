@@ -211,7 +211,6 @@ char *process_generic_system_string(
 char *process_generic_heading(
 			LIST *primary_attribute_name_list,
 			char *value_attribute_name,
-			char *time_attribute_name,
 			char *datatype_unit,
 			enum aggregate_level aggregate_level,
 			enum aggregate_statistic aggregate_statistic,

@@ -23,7 +23,7 @@ int main( int argc, char **argv )
 	char input_buffer[ 1024 ];
 	char piece_buffer[ 1024 ];
 	char delimiter = DEFAULT_DELIMITER;
-	int piece_offset = 0;
+	int piece_offset = -1;
 	boolean append = 0;
 	boolean running = 0;
 
@@ -40,7 +40,7 @@ int main( int argc, char **argv )
 
 	if ( strcmp( argv[ 3 ], "replace" ) == 0 )
 	{
-		/* placeholder */
+		append = 0;
 	}
 	else
 	if ( strcmp( argv[ 3 ], "append" ) == 0 )
@@ -60,6 +60,12 @@ int main( int argc, char **argv )
 	{
 		if ( !*input_buffer ) continue;
 		if ( *input_buffer == '#' ) continue;
+
+		if ( piece_offset < 0 )
+		{
+			printf( "%s\n", input_buffer );
+			continue;
+		}
 
 		*piece_buffer = '\0';
 

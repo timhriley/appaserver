@@ -155,4 +155,7 @@ char *string_pipe_fetch( char *sys_string );
 
 LIST *string_pipe_list(	char *system_string );
 
+char *string_repeat(	char *string,
+			int number_times );
+
 #endif

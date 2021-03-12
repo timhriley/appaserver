@@ -34,7 +34,29 @@
 
 /* Prototypes */
 /* ---------- */
+void generic_output_table(
+			char *input_system_string,
+			char *heading,
+			char *subtitle,
+			int primary_attribute_name_list_length );
+
+void generic_output_spreadsheet(
+			char *application_name,
+			char *input_system_string,
+			char *heading,
+			char *subtitle,
+			char *document_root_directory,
+			char *value_folder_name,
+			char *begin_date,
+			char *end_date_suffix,
+			pid_t process_id );
+
 void generic_output_text_file(
+			char *system_string,
+			char *heading,
+			char *subtitle );
+
+void generic_output_stdout(
 			char *system_string,
 			char *heading,
 			char *subtitle );
@@ -91,17 +113,24 @@ int main( int argc, char **argv )
 	process_generic->output_medium_string = output_medium_string;
 	process_generic->post_dictionary = post_dictionary;
 
-	if ( ! ( process_generic->process_name =
-			process_generic_process_name(
-				process_generic->process_set_name,
-				process_generic->post_dictionary ) ) )
+	if ( strcmp( process_set_name, "null" ) != 0 )
 	{
-		fprintf(stderr,
+		if ( ! ( process_generic->process_name =
+				process_generic_process_name(
+					process_generic->process_set_name,
+					process_generic->post_dictionary ) ) )
+		{
+			fprintf(stderr,
 "ERROR in %s/%s()/%d: process_generic_process_name() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
+	else
+	{
+		process_generic->process_name = process_name;
 	}
 
 	if ( ! ( process_generic->value_folder_name =
@@ -110,10 +139,12 @@ int main( int argc, char **argv )
 				process_generic->process_set_name ) ) )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: process_generic_value_folder_name() returned empty.\n",
+"ERROR in %s/%s()/%d: process_generic_value_folder_name(%s/%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
+			__LINE__,
+			process_generic->process_name,
+			process_generic->process_set_name );
 		exit( 1 );
 	}
 
@@ -230,6 +261,13 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+fprintf(stderr,
+	"%s/%s()/%d: system_string = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+process_generic->process_generic_system_string );
+
 	process_generic->
 		process_generic_heading =
 			/* --------------------- */
@@ -242,9 +280,6 @@ int main( int argc, char **argv )
 				process_generic->
 					value_folder->
 					value_attribute_name,
-				process_generic->
-					value_folder->
-					time_attribute_name,
 				process_generic->
 					value_folder->
 					datatype->
@@ -300,6 +335,47 @@ int main( int argc, char **argv )
 				process_generic->process_name ) );
 	}
 
+	fflush( stdout );
+
+	if (	process_generic->parameter->output_medium ==
+		output_medium_stdout )
+	{
+		generic_output_stdout(
+			process_generic->
+				process_generic_system_string,
+			process_generic->
+				process_generic_heading,
+			process_generic->
+				process_generic_subtitle );
+	}
+	else
+	if (	process_generic->parameter->output_medium ==
+		spreadsheet )
+	{
+		generic_output_spreadsheet(
+			environment_application(),
+			process_generic->
+				process_generic_system_string
+				/* input_system_string */,
+			process_generic->
+				process_generic_heading,
+			process_generic->
+				process_generic_subtitle,
+			appaserver_parameter_file->document_root,
+			process_generic->
+				value_folder->
+				value_folder_name,
+			process_generic->
+				parameter->
+				begin_date,
+			process_generic->
+				parameter->
+				end_date_suffix,
+			process_generic->
+				parameter->
+				process_id );
+	}
+	else
 	if (	process_generic->parameter->output_medium ==
 		text_file )
 	{
@@ -310,6 +386,23 @@ int main( int argc, char **argv )
 				process_generic_heading,
 			process_generic->
 				process_generic_subtitle );
+	}
+	else
+	if (	process_generic->parameter->output_medium ==
+		table )
+	{
+		generic_output_table(
+			process_generic->
+				process_generic_system_string
+				/* input_system_string */,
+			process_generic->
+				process_generic_heading,
+			process_generic->
+				process_generic_subtitle,
+			list_length(
+				process_generic->
+					value_folder->
+					primary_attribute_name_list ) );
 	}
 
 	if (	process_generic->parameter->output_medium !=
@@ -833,6 +926,28 @@ int main( int argc, char **argv )
 	return 0;
 }
 
+void generic_output_stdout(
+			char *system_string,
+			char *heading,
+			char *subtitle )
+{
+	FILE *input_pipe;
+	char input_buffer[ 2048 ];
+
+	input_pipe = popen( system_string, "r" );
+
+	printf( "%s\n%s\n",
+		subtitle,
+		heading );
+
+	while ( string_input( input_buffer, input_pipe, 2048 ) )
+	{
+		search_replace_character( input_buffer, SQL_DELIMITER, ',' );
+		printf( "%s\n", input_buffer );
+	}
+	pclose( input_pipe );
+}
+
 void generic_output_text_file(
 			char *system_string,
 			char *heading,
@@ -857,5 +972,135 @@ void generic_output_text_file(
 	}
 	pclose( input_pipe );
 	pclose( output_pipe );
+}
+
+void generic_output_table(
+			char *input_system_string,
+			char *heading,
+			char *subtitle,
+			int primary_attribute_name_list_length )
+{
+	FILE *input_pipe;
+	FILE *output_pipe;
+	char input_buffer[ 2048 ];
+	char output_system_string[ 1024 ];
+
+	sprintf(output_system_string,
+		"html_table \"^%s\" \"%s\" '%c' %sright",
+		subtitle,
+		heading,
+		SQL_DELIMITER,
+		string_repeat(
+			"left,",
+			primary_attribute_name_list_length
+				/* number_times */ ) );
+
+	input_pipe = popen( input_system_string, "r" );
+	output_pipe = popen( output_system_string, "w" );
+
+	while ( string_input( input_buffer, input_pipe, 2048 ) )
+	{
+		fprintf(output_pipe, "%s\n", input_buffer );
+	}
+	pclose( input_pipe );
+	pclose( output_pipe );
+}
+
+void generic_output_spreadsheet(
+			char *application_name,
+			char *input_system_string,
+			char *heading,
+			char *subtitle,
+			char *document_root_directory,
+			char *value_folder_name,
+			char *begin_date,
+			char *end_date_suffix,
+			pid_t process_id )
+{
+	FILE *input_pipe;
+	FILE *output_pipe;
+	char input_buffer[ 2048 ];
+	APPASERVER_LINK_FILE *appaserver_link_file;
+	char output_system_string[ 1024 ];
+	char *output_filename;
+	char *link_prompt;
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+	 		document_root_directory,
+			value_folder_name /* filename_stem */,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			(char *)0 /* extension */ );
+
+	appaserver_link_file->application_name = application_name;
+	appaserver_link_file->begin_date_string = begin_date;
+	appaserver_link_file->end_date_string = end_date_suffix;
+
+	appaserver_link_file->extension = "csv";
+
+	output_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	link_prompt =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	input_pipe = popen( input_system_string, "r" );
+
+	sprintf(output_system_string,
+		"cat > %s",
+		output_filename );
+
+	output_pipe = popen( output_system_string, "w" );
+
+	printf( "<h2>%s</h2>\n", subtitle );
+
+	fprintf(output_pipe,
+		"%s\n",
+		heading );
+
+	while ( string_input( input_buffer, input_pipe, 2048 ) )
+	{
+		search_replace_character( input_buffer, SQL_DELIMITER, ',' );
+		fprintf(output_pipe, "%s\n", input_buffer );
+	}
+	pclose( input_pipe );
+	pclose( output_pipe );
+
+	appaserver_library_output_ftp_prompt(
+		link_prompt, 
+		TRANSMIT_PROMPT,
+		(char *)0 /* target */,
+		(char *)0 /* application_type */ );
 }
 
