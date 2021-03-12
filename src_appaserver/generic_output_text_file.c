@@ -34,6 +34,25 @@
 
 /* Prototypes */
 /* ---------- */
+void generic_output_spreadsheet_create(
+			char *output_filename,
+			char *input_system_string,
+			char *output_system_string,
+			char *heading,
+			char *subtitle );
+
+PROCESS_GENERIC *generic_output_process_generic(
+			char *process_set_name,
+			char *process_name,
+			char *output_medium_string,
+			char *argv_0,
+			DICTIONARY *post_dictionary );
+
+void generic_output_text_file(
+			char *system_string,
+			char *heading,
+			char *subtitle );
+
 void generic_output_table(
 			char *input_system_string,
 			char *heading,
@@ -48,13 +67,9 @@ void generic_output_spreadsheet(
 			char *document_root_directory,
 			char *value_folder_name,
 			char *begin_date,
-			char *end_date_suffix,
-			pid_t process_id );
-
-void generic_output_text_file(
-			char *system_string,
-			char *heading,
-			char *subtitle );
+			char *end_date,
+			pid_t process_id,
+			char *email_address );
 
 void generic_output_stdout(
 			char *system_string,
@@ -107,221 +122,32 @@ int main( int argc, char **argv )
 		post_dictionary,
 		QUERY_STARTING_LABEL );
 
-	process_generic = process_generic_calloc();
-
-	process_generic->process_set_name = process_set_name;
-	process_generic->output_medium_string = output_medium_string;
-	process_generic->post_dictionary = post_dictionary;
-
-	if ( strcmp( process_set_name, "null" ) != 0 )
-	{
-		if ( ! ( process_generic->process_name =
-				process_generic_process_name(
-					process_generic->process_set_name,
-					process_generic->post_dictionary ) ) )
-		{
-			fprintf(stderr,
-"ERROR in %s/%s()/%d: process_generic_process_name() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-	}
-	else
-	{
-		process_generic->process_name = process_name;
-	}
-
-	if ( ! ( process_generic->value_folder_name =
-			process_generic_value_folder_name(
-				process_generic->process_name,
-				process_generic->process_set_name ) ) )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: process_generic_value_folder_name(%s/%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			process_generic->process_name,
-			process_generic->process_set_name );
-		exit( 1 );
-	}
-
-	if ( ! ( process_generic->value_folder =
-			process_generic_value_folder_fetch(
-				process_generic->value_folder_name,
-				process_generic->post_dictionary ) ) )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: process_generic_value_folder_fetch() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	process_generic->parameter =
-		/* ----------- */
-		/* Never fails */
-		/* ----------- */
-		process_generic_parameter_parse(
-			output_medium_string,
-			post_dictionary,
-			process_generic->
-				value_folder->
-				datatype->
-				aggregation_sum,
-				argv[ 0 ] );
-
-	process_generic->process_generic_date_where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		process_generic_date_where(
-			process_generic->
-				value_folder->
-				date_attribute_name,
-			process_generic->
-				parameter->
-				begin_date,
-			process_generic->
-				parameter->
-				end_date );
-
-	process_generic->process_generic_where =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		process_generic_where(
-			process_generic->
-				value_folder->
-				foreign_folder->
-				foreign_attribute_name_list,
-			process_generic->
-				value_folder->
-				foreign_folder->
-				foreign_attribute_data_list,
-			process_generic->
-				process_generic_date_where );
-
-	if ( !process_generic->process_generic_where )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: process_generic_where() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	process_generic->process_generic_system_string =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		process_generic_system_string(
-			process_generic_select(
-				process_generic->
-					value_folder->
-					primary_attribute_name_list,
-				process_generic->
-					value_folder->
-					value_attribute_name ),
-			process_generic->value_folder_name,
-			process_generic->process_generic_where,
-			process_generic->
-				parameter->
-				aggregate_level,
-			process_generic->
-				parameter->
-				aggregate_statistic,
-			process_generic->
-				parameter->
-				accumulate,
-			process_generic->
-				value_folder->
-				date_attribute_name,
-			process_generic->
-				value_folder->
-				time_attribute_name,
-			process_generic->
-				parameter->
-				end_date,
-			process_generic->
-				value_folder->
-				primary_attribute_name_list );
-
-	if ( !process_generic->process_generic_system_string )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: process_generic_system_string() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-fprintf(stderr,
-	"%s/%s()/%d: system_string = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-process_generic->process_generic_system_string );
-
-	process_generic->
-		process_generic_heading =
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			process_generic_heading(
-				process_generic->
-					value_folder->
-					primary_attribute_name_list,
-				process_generic->
-					value_folder->
-					value_attribute_name,
-				process_generic->
-					value_folder->
-					datatype->
-					unit,
-				process_generic->
-					parameter->
-					aggregate_level,
-				process_generic->
-					parameter->
-					aggregate_statistic,
-				process_generic->
-					parameter->
-					accumulate );
-
-	process_generic->
-		process_generic_subtitle =
-			/* Returns static memory */
-			/* --------------------- */
-			process_generic_subtitle(
-				process_generic->value_folder_name,
-				process_generic->
-					parameter->
-					begin_date,
-				process_generic->
-					parameter->
-					end_date,
-				process_generic->
-					parameter->
-					aggregate_level,
-				process_generic->
-					parameter->
-					aggregate_statistic );
-
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	if (	process_generic->parameter->output_medium !=
-		output_medium_stdout )
+	if ( strcmp( output_medium_string, "stdout" ) != 0 )
 	{
 		document_quick_output_body(
 			application_name,
 			appaserver_parameter_file->appaserver_mount_point );
+	}
 
+	process_generic =
+		generic_output_process_generic(
+			process_set_name,
+			process_name,
+			output_medium_string,
+			argv[ 0 ],
+			post_dictionary );
+
+	if ( !process_generic )
+	{
+		printf( "<h3>Insufficient input</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	if ( process_generic->parameter->output_medium != output_medium_stdout )
+	{
 		printf(	"<h1>%s</h1>\n",
 			format_initial_capital(
 				title,
@@ -370,10 +196,13 @@ process_generic->process_generic_system_string );
 				begin_date,
 			process_generic->
 				parameter->
-				end_date_suffix,
+				end_date,
 			process_generic->
 				parameter->
-				process_id );
+				process_id,
+			process_generic->
+				parameter->
+				email_address );
 	}
 	else
 	if (	process_generic->parameter->output_medium ==
@@ -433,7 +262,7 @@ process_generic->process_generic_system_string );
 
 	appaserver_link_file->application_name = application_name;
 	appaserver_link_file->begin_date_string = begin_date;
-	appaserver_link_file->end_date_string = end_date_suffix;
+	appaserver_link_file->end_date_string = end_date;
 
 	if ( output_medium == table )
 	{
@@ -1014,16 +843,14 @@ void generic_output_spreadsheet(
 			char *document_root_directory,
 			char *value_folder_name,
 			char *begin_date,
-			char *end_date_suffix,
-			pid_t process_id )
+			char *end_date,
+			pid_t process_id,
+			char *email_address )
 {
-	FILE *input_pipe;
-	FILE *output_pipe;
-	char input_buffer[ 2048 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
-	char output_system_string[ 1024 ];
 	char *output_filename;
 	char *link_prompt;
+	char output_system_string[ 1024 ];
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -1040,7 +867,7 @@ void generic_output_spreadsheet(
 
 	appaserver_link_file->application_name = application_name;
 	appaserver_link_file->begin_date_string = begin_date;
-	appaserver_link_file->end_date_string = end_date_suffix;
+	appaserver_link_file->end_date_string = end_date;
 
 	appaserver_link_file->extension = "csv";
 
@@ -1075,6 +902,49 @@ void generic_output_spreadsheet(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
+	generic_output_spreadsheet_create(
+		output_filename,
+		input_system_string,
+		output_system_string,
+		heading,
+		subtitle );
+
+	if ( email_address && *email_address )
+	{
+		char sys_string[ 1024 ];
+	
+		sprintf( sys_string,
+			 "cat %s				|"
+			 "mailx -s \"%s\" %s	 		 ",
+			 output_filename,
+			 subtitle,
+			 email_address );
+
+		if ( system( sys_string ) ){};
+
+		printf( "<h3>Sent to %s<hr></h3>\n", email_address );
+	}
+	else
+	{
+		appaserver_library_output_ftp_prompt(
+			link_prompt, 
+			TRANSMIT_PROMPT,
+			(char *)0 /* target */,
+			(char *)0 /* application_type */ );
+	}
+}
+
+void generic_output_spreadsheet_create(
+			char *output_filename,
+			char *input_system_string,
+			char *output_system_string,
+			char *heading,
+			char *subtitle )
+{
+	FILE *input_pipe;
+	FILE *output_pipe;
+	char input_buffer[ 2048 ];
+
 	input_pipe = popen( input_system_string, "r" );
 
 	sprintf(output_system_string,
@@ -1096,11 +966,217 @@ void generic_output_spreadsheet(
 	}
 	pclose( input_pipe );
 	pclose( output_pipe );
-
-	appaserver_library_output_ftp_prompt(
-		link_prompt, 
-		TRANSMIT_PROMPT,
-		(char *)0 /* target */,
-		(char *)0 /* application_type */ );
 }
 
+PROCESS_GENERIC *generic_output_process_generic(
+			char *process_set_name,
+			char *process_name,
+			char *output_medium_string,
+			char *argv_0,
+			DICTIONARY *post_dictionary )
+{
+	PROCESS_GENERIC *process_generic;
+
+	process_generic = process_generic_calloc();
+
+	process_generic->process_set_name = process_set_name;
+	process_generic->output_medium_string = output_medium_string;
+	process_generic->post_dictionary = post_dictionary;
+
+	if ( strcmp( process_set_name, "null" ) != 0 )
+	{
+		if ( ! ( process_generic->process_name =
+				process_generic_process_name(
+					process_generic->process_set_name,
+					process_generic->post_dictionary ) ) )
+		{
+			fprintf(stderr,
+"Warning in %s/%s()/%d: process_generic_process_name() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			return (PROCESS_GENERIC *)0;
+		}
+	}
+	else
+	{
+		process_generic->process_name = process_name;
+	}
+
+	if ( ! ( process_generic->value_folder_name =
+			process_generic_value_folder_name(
+				process_generic->process_name,
+				process_generic->process_set_name ) ) )
+	{
+		fprintf(stderr,
+"Warning in %s/%s()/%d: process_generic_value_folder_name(%s/%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			process_generic->process_name,
+			process_generic->process_set_name );
+		return (PROCESS_GENERIC *)0;
+	}
+
+	if ( ! ( process_generic->value_folder =
+			process_generic_value_folder_fetch(
+				process_generic->value_folder_name,
+				process_generic->post_dictionary ) ) )
+	{
+		fprintf(stderr,
+"Warning in %s/%s()/%d: process_generic_value_folder_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PROCESS_GENERIC *)0;
+	}
+
+	process_generic->parameter =
+		process_generic_parameter_parse(
+			output_medium_string,
+			post_dictionary,
+			process_generic->
+				value_folder->
+				datatype->
+				aggregation_sum,
+				argv_0 );
+
+	if ( !process_generic->parameter )
+	{
+		return (PROCESS_GENERIC *)0;
+	}
+
+	process_generic->process_generic_date_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		process_generic_date_where(
+			process_generic->
+				value_folder->
+				date_attribute_name,
+			process_generic->
+				parameter->
+				begin_date,
+			process_generic->
+				parameter->
+				end_date );
+
+	process_generic->process_generic_where =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		process_generic_where(
+			process_generic->
+				value_folder->
+				foreign_folder->
+				foreign_attribute_name_list,
+			process_generic->
+				value_folder->
+				foreign_folder->
+				foreign_attribute_data_list,
+			process_generic->
+				process_generic_date_where );
+
+	if ( !process_generic->process_generic_where )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: process_generic_where() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PROCESS_GENERIC *)0;
+	}
+
+	process_generic->process_generic_system_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		process_generic_system_string(
+			process_generic_select(
+				process_generic->
+					value_folder->
+					primary_attribute_name_list,
+				process_generic->
+					value_folder->
+					value_attribute_name ),
+			process_generic->value_folder_name,
+			process_generic->process_generic_where,
+			process_generic->
+				parameter->
+				aggregate_level,
+			process_generic->
+				parameter->
+				aggregate_statistic,
+			process_generic->
+				parameter->
+				accumulate,
+			process_generic->
+				value_folder->
+				date_attribute_name,
+			process_generic->
+				value_folder->
+				time_attribute_name,
+			process_generic->
+				parameter->
+				end_date,
+			process_generic->
+				value_folder->
+				primary_attribute_name_list );
+
+	if ( !process_generic->process_generic_system_string )
+	{
+		fprintf(stderr,
+"Warning in %s/%s()/%d: process_generic_system_string() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PROCESS_GENERIC *)0;
+	}
+
+	process_generic->
+		process_generic_heading =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			process_generic_heading(
+				process_generic->
+					value_folder->
+					primary_attribute_name_list,
+				process_generic->
+					value_folder->
+					value_attribute_name,
+				process_generic->
+					value_folder->
+					datatype->
+					unit,
+				process_generic->
+					parameter->
+					aggregate_level,
+				process_generic->
+					parameter->
+					aggregate_statistic,
+				process_generic->
+					parameter->
+					accumulate );
+
+	process_generic->
+		process_generic_subtitle =
+			/* Returns static memory */
+			/* --------------------- */
+			process_generic_subtitle(
+				process_generic->value_folder_name,
+				process_generic->
+					parameter->
+					begin_date,
+				process_generic->
+					parameter->
+					end_date,
+				process_generic->
+					parameter->
+					aggregate_level,
+				process_generic->
+					parameter->
+					aggregate_statistic );
+
+	return process_generic;
+}

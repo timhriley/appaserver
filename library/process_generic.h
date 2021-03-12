@@ -34,7 +34,6 @@ typedef struct
 	char *process_set;
 	char *output_medium_string;
 	enum process_generic_medium output_medium;
-	char delimiter;
 	char *begin_date;
 	char *end_date;
 	enum aggregate_level aggregate_level;
@@ -43,7 +42,6 @@ typedef struct
 	char *email_address;
 	char *units_converted;
 	int days_to_average;
-	char *end_date_suffix;
 	pid_t process_id;
 	char *process_name;
 } PROCESS_GENERIC_PARAMETER;

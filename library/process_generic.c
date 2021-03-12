@@ -227,14 +227,7 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
 
 	if ( !process_generic_datatype->datatype_name )
 	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: dictionary_fetch(%s) of %s returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			dictionary_display( post_dictionary ),
-			process_generic_datatype->datatype_attribute_name );
-		exit( 1 );
+		return (PROCESS_GENERIC_DATATYPE *)0;
 	}
 
 	process_generic_datatype->process_generic_datatype_where =
@@ -619,11 +612,19 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_fetch(
 			value_folder->datatype_exists_unit,
 			value_folder->post_dictionary );
 
-	value_folder->foreign_folder =
-		process_generic_foreign_folder_fetch(
-			value_folder->foreign_folder_name,
-			value_folder->post_dictionary,
-			value_folder->foreign_exists_unit );
+	if ( !value_folder->datatype )
+	{
+		return (PROCESS_GENERIC_VALUE_FOLDER *)0;
+	}
+
+	if ( ! ( value_folder->foreign_folder =
+			process_generic_foreign_folder_fetch(
+				value_folder->foreign_folder_name,
+				value_folder->post_dictionary,
+				value_folder->foreign_exists_unit ) ) )
+	{
+		return (PROCESS_GENERIC_VALUE_FOLDER *)0;
+	}
 
 	return value_folder;
 }
@@ -763,19 +764,6 @@ PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 		exit( 1 );
 	}
 
-	if ( process_generic_parameter->output_medium == table
-	||   process_generic_parameter->output_medium == text_file
-	||   process_generic_parameter->output_medium == output_medium_stdout )
-	{
-		process_generic_parameter->delimiter = FOLDER_DATA_DELIMITER;
-	}
-	else
-	/* Pipe to double_quote_comma_delimited.e */
-	/* -------------------------------------- */
-	{
-		process_generic_parameter->delimiter = '\0';
-	}
-
 	process_generic_parameter->begin_date =
 		dictionary_fetch_index_zero(
 			post_dictionary,
@@ -826,16 +814,6 @@ PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 			dictionary_fetch_index_zero(
 				post_dictionary,
 				"units_converted" );
-
-	if ( process_generic_parameter->end_date
-	&&  *process_generic_parameter->end_date )
-	{
-		char buffer[ 128 ];
-
-		sprintf( buffer, "_%s", process_generic_parameter->end_date );
-		process_generic_parameter->end_date_suffix =
-			strdup( buffer );
-	}
 
 	process_generic_parameter->process_id = getpid();
 
@@ -899,18 +877,7 @@ PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_fetch(
 	if ( !list_length( process_generic_foreign_folder->
 				foreign_attribute_data_list ) )
 	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: dictionary_key_list_fetch(%s) for [%s] returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			dictionary_display(
-				process_generic_foreign_folder->
-					post_dictionary ),
-			list_display(
-				process_generic_foreign_folder->
-					foreign_attribute_name_list ) );
-		exit( 1 );
+		return (PROCESS_GENERIC_FOREIGN_FOLDER *)0;
 	}
 
 	process_generic_foreign_folder->unit =
@@ -1002,6 +969,8 @@ char *process_generic_subtitle(
 	static char subtitle[ 256 ];
 	char title_aggregate_statistic[ 128 ];
 	char title_aggregate_level[ 128 ];
+	char begin_date_buffer[ 128 ];
+	char end_date_buffer[ 128 ];
 	char buffer[ 128 ];
 
 	format_initial_capital( subtitle, value_folder_name );
@@ -1034,10 +1003,32 @@ char *process_generic_subtitle(
 		*title_aggregate_level = '\0';
 	}
 
+	if ( begin_date && *begin_date )
+	{
+		sprintf(begin_date_buffer,
+			"Beginning: %s",
+			begin_date );
+	}
+	else
+	{
+		*begin_date_buffer = '\0';
+	}
+
+	if ( end_date && *end_date )
+	{
+		sprintf(end_date_buffer,
+			"Ending: %s",
+			end_date );
+	}
+	else
+	{
+		*end_date_buffer = '\0';
+	}
+
 	sprintf(subtitle,
-		"Beginning: %s Ending: %s%s%s",
-		(begin_date) ? begin_date : "",
-		(end_date) ? end_date : "",
+		"%s %s%s%s",
+		begin_date_buffer,
+		end_date_buffer,
 		title_aggregate_statistic,
 		title_aggregate_level );
 

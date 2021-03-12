@@ -124,6 +124,10 @@ function post_change_output_model_results( current_element )
 			timlib_get_element(
 				"from_accumulate_yn_0" );
 		element.disabled = 0;
+		element =
+			timlib_get_element(
+				"from_email_address_0" );
+		element.disabled = 1;
 	}
 	else
 	if ( process_value == 'output_model_results_table' )
@@ -132,6 +136,11 @@ function post_change_output_model_results( current_element )
 			timlib_get_element(
 				"from_accumulate_yn_0" );
 		element.disabled = 0;
+
+		element =
+			timlib_get_element(
+				"from_email_address_0" );
+		element.disabled = 1;
 	}
 
 	element =
@@ -155,5 +164,5 @@ function post_change_output_model_results( current_element )
 	}
 
 	return true;
-} // post_change_output_model_results()
+}
 
