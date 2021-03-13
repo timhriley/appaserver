@@ -17,7 +17,7 @@
 
 /* Constants */
 /* --------- */
-#define DEFAULT_MULTIPLY_BY		1.0
+#define DEFAULT_MULTIPLY_BY		0.0
 
 /* Prototypes */
 /* ---------- */
@@ -40,7 +40,6 @@ boolean is_navd88(		char *units_converted );
 boolean is_temperature(		char *units );
 
 double get_multiply_by(
-			char *application_name,
 			char *units,
 			char *units_converted );
 
@@ -63,26 +62,25 @@ int main( int argc, char **argv )
 
 	/* Exits if failure. */
 	/* ----------------- */
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	output_starting_argv_stderr( argc, argv );
 
-	if ( argc < 6 )
+	if ( argc < 5 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored units units_converted value_piece delimiter [station_piece]\n",
+"Usage: %s units units_converted value_piece delimiter [station_piece]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	/* application_name = argv[ 1 ]; */
-	units = argv[ 2 ];
-	units_converted = argv[ 3 ];
-	value_piece = atoi( argv[ 4 ] );
-	delimiter_string = argv[ 5 ];
+	units = argv[ 1 ];
+	units_converted = argv[ 2 ];
+	value_piece = atoi( argv[ 3 ] );
+	delimiter_string = argv[ 4 ];
 
-	if ( argc == 7 )
-		station_piece = atoi( argv[ 6 ] );
+	if ( argc == 6 )
+		station_piece = atoi( argv[ 5 ] );
 	else
 		station_piece = -1;
 
@@ -106,7 +104,6 @@ int main( int argc, char **argv )
 	{
 		multiply_by =
 			get_multiply_by(
-				application_name,
 				units,
 				units_converted );
 	}
@@ -164,18 +161,14 @@ int main( int argc, char **argv )
 	}
 
 	exit( 0 );
-} /* main() */
+}
 
 double get_multiply_by(
-			char *application_name,
 			char *units,
 			char *units_converted )
 {
 	char sys_string[ 1024 ];
-	char *table_name;
 	char *results;
-
-	table_name = get_table_name( application_name, "units_converted" );
 
 	sprintf( sys_string,
 		 "echo \"	select multiply_by		 "
@@ -183,7 +176,7 @@ double get_multiply_by(
 		 "		where units = '%s'		 "
 		 "		  and units_converted = '%s';\"	|"
 		 "sql						 ",
-		 table_name,
+		 "units_converted",
 		 units,
 		 units_converted );
 
@@ -192,7 +185,7 @@ double get_multiply_by(
 		return DEFAULT_MULTIPLY_BY;
 	else
 		return atof( results );
-} /* get_multiply_by() */
+}
 
 boolean is_navd88( char *units_converted )
 {
@@ -214,7 +207,7 @@ boolean is_temperature( char *units )
 		return 1;
 	else
 		return 0;
-} /* is_temperature() */
+}
 
 char *get_constant_units_spelling( char *units )
 {
@@ -238,7 +231,7 @@ char *get_constant_units_spelling( char *units )
 	{
 		return units;
 	}
-} /* get_constant_units_spelling() */
+}
 
 double get_navd88_value(	char *application_name,
 				double value,
@@ -258,7 +251,7 @@ double get_navd88_value(	char *application_name,
 		return value + atof( value_offset_string );
 	}
 	return value;
-} /* get_navd88_value() */
+}
 
 DICTIONARY *get_station_dictionary( char *application_name )
 {
@@ -280,7 +273,7 @@ DICTIONARY *get_station_dictionary( char *application_name )
 
 	return pipe2dictionary( sys_string, FOLDER_DATA_DELIMITER );
 
-} /* get_station_dictionary() */
+}
 
 double get_temperature_value(	double value,
 				char *units,
@@ -358,5 +351,5 @@ double get_temperature_value(	double value,
 		}
 	}
 	return 0.0;
-} /* get_temperature_value() */
+}
 

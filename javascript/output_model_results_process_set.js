@@ -17,6 +17,10 @@ function post_change_output_model_results( current_element )
 	element.disabled = 1;
 	element =
 		timlib_get_element(
+			"from_email_address_0" );
+	element.disabled = 1;
+	element =
+		timlib_get_element(
 			"aggregate_level_0" );
 	element.disabled = 0;
 	element =
@@ -26,10 +30,6 @@ function post_change_output_model_results( current_element )
 	element =
 		timlib_get_element(
 			"units|units_converted_0" );
-	element.disabled = 0;
-	element =
-		timlib_get_element(
-			"from_email_address_0" );
 	element.disabled = 0;
 	element =
 		timlib_get_element(
@@ -68,26 +68,14 @@ function post_change_output_model_results( current_element )
 	else
 	if ( process_value == 'output_model_results_exceedance' )
 	{
-		element =
-			timlib_get_element(
-				"from_email_address_0" );
-		element.disabled = 1;
 	}
 	else
 	if ( process_value == 'output_model_results_exceedance_table' )
 	{
-		element =
-			timlib_get_element(
-				"from_email_address_0" );
-		element.disabled = 1;
 	}
 	else
 	if ( process_value == 'output_model_results_easychart' )
 	{
-		element =
-			timlib_get_element(
-				"from_email_address_0" );
-		element.disabled = 1;
 		element =
 			timlib_get_element(
 				"from_accumulate_yn_0" );
@@ -112,10 +100,6 @@ function post_change_output_model_results( current_element )
 			timlib_get_element(
 				"aggregate_statistic_0" );
 		element.disabled = 1;
-		element =
-			timlib_get_element(
-				"from_email_address_0" );
-		element.disabled = 1;
 	}
 	else
 	if ( process_value == 'output_model_results_text_file' )
@@ -124,10 +108,6 @@ function post_change_output_model_results( current_element )
 			timlib_get_element(
 				"from_accumulate_yn_0" );
 		element.disabled = 0;
-		element =
-			timlib_get_element(
-				"from_email_address_0" );
-		element.disabled = 1;
 	}
 	else
 	if ( process_value == 'output_model_results_table' )
@@ -136,11 +116,18 @@ function post_change_output_model_results( current_element )
 			timlib_get_element(
 				"from_accumulate_yn_0" );
 		element.disabled = 0;
-
+	}
+	else
+	if ( process_value == 'output_model_results_spreadsheet' )
+	{
+		element =
+			timlib_get_element(
+				"from_accumulate_yn_0" );
+		element.disabled = 0;
 		element =
 			timlib_get_element(
 				"from_email_address_0" );
-		element.disabled = 1;
+		element.disabled = 0;
 	}
 
 	element =

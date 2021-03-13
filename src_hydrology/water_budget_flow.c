@@ -1214,8 +1214,7 @@ void build_sys_string(
 	&&   strcmp( flow_units_converted, "units_converted" ) != 0 )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s '%s' %d '%c'",
-			 application_name,
+			 "measurement_convert_units.e %s '%s' %d '%c'",
 			 flow_units,
 			 flow_units_converted,
 			 VALUE_PIECE,

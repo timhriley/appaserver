@@ -1,6 +1,6 @@
 /* $APPASERVER_HOME/library/process_generic_output.c			*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver process_generic_output ADT.			*/
+/* This is being replace with process_generic.c				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -1287,9 +1287,10 @@ char *process_generic_output_get_text_file_sys_string(
 		strcpy( sort_process, "sort -r" );
 	}
 
-	units_converted = dictionary_get_index_zero(
-				post_dictionary,
-				"units_converted" );
+	units_converted =
+		dictionary_get_index_zero(
+			post_dictionary,
+			"units_converted" );
 
 	if ( units_converted
 	&&   *units_converted
@@ -1300,8 +1301,7 @@ char *process_generic_output_get_text_file_sys_string(
 		value_folder->datatype->units )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e '%s' '%s' '%s' %d '%c'",
-			 application_name,
+			 "measurement_convert_units.e '%s' '%s' %d '%c'",
 			 process_generic_output->
 				value_folder->
 					datatype->units,
@@ -1778,8 +1778,7 @@ char *process_generic_output_get_row_exceedance_stdout_sys_string(
 		value_folder->datatype->units )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s %s %d '%c'",
-			 application_name,
+			 "measurement_convert_units.e %s %s %d '%c'",
 			 process_generic_output->
 				value_folder->datatype->units,
 			 units_converted,
@@ -2020,8 +2019,7 @@ char *process_generic_output_get_exceedance_stdout_sys_string(
 		value_folder->datatype->units )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s %s %d '%c'",
-			 application_name,
+			 "measurement_convert_units.e %s %s %d '%c'",
 			 process_generic_output->
 				value_folder->datatype->units,
 			 units_converted,

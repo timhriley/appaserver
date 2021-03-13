@@ -104,8 +104,7 @@ int main( int argc, char **argv )
 	&&   strcmp( units_converted, "units_converted" ) != 0 )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s %s 0 '^' %d",
-			 application_name,
+			 "measurement_convert_units.e %s %s 0 '^' %d",
 			 units,
 			 units_converted,
 			 station_piece );

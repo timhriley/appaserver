@@ -32,7 +32,7 @@ void test_average( void )
 	LIST *value_list;
 
 	moving_average =
-		moving_average_new_moving_average(
+		moving_average_new(
 			5, '^', average, "1999-06-05");
 
 	value_list = moving_average->value_list;
@@ -63,7 +63,7 @@ void test_is_null( void )
 	LIST *value_list;
 
 	moving_average =
-		moving_average_new_moving_average(
+		moving_average_new(
 			5, '^', average, "1999-06-05" );
 
 	value_list = moving_average->value_list;
@@ -94,7 +94,7 @@ void test_maximum( void )
 	LIST *value_list;
 
 	moving_average =
-		moving_average_new_moving_average(
+		moving_average_new(
 			5, '^', maximum, "1999-06-05" );
 
 	value_list = moving_average->value_list;
@@ -125,7 +125,7 @@ void test_minimum( void )
 	LIST *value_list;
 
 	moving_average =
-		moving_average_new_moving_average(
+		moving_average_new(
 			5, '^', minimum, "1999-06-05" );
 
 	value_list = moving_average->value_list;

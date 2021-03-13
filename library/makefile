@@ -106,6 +106,7 @@ APPASERVER_LIBRARY=						\
 		array.o						\
 		session.o					\
 		foreign_attribute.o				\
+		moving_average.o				\
 		pair_one2m.o					\
 		mysqldump.o
 
@@ -519,7 +520,7 @@ expected_count_dvr.e: expected_count_dvr.c expected_count.o
 		hashtbl.o						\
 	   -o expected_count_dvr.e
 
-moving_average.o: moving_average.c moving_average.h queue.o
+moving_average.o: moving_average.c moving_average.h
 	${CC} ${CFLAGS} ${CFLAGS} -c moving_average.c
 
 queue_dvr.e: queue_dvr.c queue.o

@@ -514,8 +514,7 @@ char *get_sys_string(	char *application_name,
 	&&   strcmp( units_converted, "units_converted" ) != 0 )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s %s 2 '^' 3",
-			 application_name,
+			 "measurement_convert_units.e %s %s 2 '^' 3",
 			 units,
 			 units_converted );
 	}

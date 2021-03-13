@@ -709,8 +709,7 @@ char *get_sys_string(	char *application_name,
 	&&   strcmp( units_converted, "units_converted" ) != 0 )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s %s %d ',' %d",
-			 application_name,
+			 "measurement_convert_units.e %s %s %d ',' %d",
 			 units,
 			 units_converted,
 			 value_piece,

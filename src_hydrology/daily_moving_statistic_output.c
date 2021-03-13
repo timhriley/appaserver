@@ -794,8 +794,7 @@ void build_sys_string(	char *sys_string,
 	&&   strcmp( units_converted, "units_converted" ) != 0 )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s %s 1 '%c' 2",
-			 application_name,
+			 "measurement_convert_units.e %s %s 1 '%c' 2",
 			 units,
 			 units_converted,
 			 INPUT_DELIMITER );

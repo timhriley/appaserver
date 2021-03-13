@@ -97,7 +97,7 @@ int main( int argc, char **argv )
 		}
 	
 		sum += atof( piece_buffer );
-		sprintf( piece_buffer, "%.3lf", sum );
+		sprintf( piece_buffer, "%.4lf", sum );
 
 		if ( append )
 		{
@@ -121,7 +121,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 /* Returns new sum */
 /* --------------- */
@@ -177,5 +177,5 @@ double accumulate_running(		double sum,
 
 	return running_balance;
 
-} /* accumulate_running() */
+}
 

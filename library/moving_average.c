@@ -1,4 +1,4 @@
-/* library/moving_average.c				   */
+/* $APPASERVER_HOME/library/moving_average.c		   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -9,13 +9,14 @@
 #include <unistd.h>
 #include <float.h>
 #include "timlib.h"
+#include "piece.h"
 #include "moving_average.h"
 
-MOVING_AVERAGE *moving_average_new_moving_average(
-				int number_of_days,
-				char delimiter,
-				enum aggregate_statistic aggregate_statistic,
-				char *begin_date_string )
+MOVING_AVERAGE *moving_average_new(
+			int number_of_days,
+			char delimiter,
+			enum aggregate_statistic aggregate_statistic,
+			char *begin_date_string )
 {
 	MOVING_AVERAGE *moving_average;
 
@@ -28,14 +29,22 @@ MOVING_AVERAGE *moving_average_new_moving_average(
 	moving_average->delimiter = delimiter;
 	moving_average->aggregate_statistic = aggregate_statistic;
 	moving_average->begin_date_string = begin_date_string;
-	return moving_average;
-} /* moving_average_new_moving_average() */
 
-void moving_average_display(	LIST *value_list,
-				int number_of_days,
-				char delimiter,
-				enum aggregate_statistic aggregate_statistic,
-				char *begin_date_string )
+	if ( !moving_average->number_of_days )
+	{
+		moving_average->number_of_days =
+			MOVING_AVERAGE_DEFAULT;
+	}
+
+	return moving_average;
+}
+
+void moving_average_display(
+			LIST *value_list,
+			int number_of_days,
+			char delimiter,
+			enum aggregate_statistic aggregate_statistic,
+			char *begin_date_string )
 {
 	MOVING_AVERAGE_VALUE *value;
 
@@ -126,25 +135,26 @@ void moving_average_display(	LIST *value_list,
 		}
 	} while( list_previous( value_list ) );
 
-} /* moving_average_display() */
+}
 
-void moving_average_set(	LIST *value_list,
-				double value,
-				char *date_label,
-				boolean is_null )
+void moving_average_set(LIST *value_list,
+			double value,
+			char *date_label,
+			boolean is_null )
 {
 	MOVING_AVERAGE_VALUE *moving_average_value;
 
 	moving_average_value = 
 		moving_average_new_value(
-				value,
-				date_label,
-				is_null );
+			value,
+			date_label,
+			is_null );
 
-	list_append_pointer(	value_list,
-				moving_average_value );
+	list_set(
+		value_list,
+		moving_average_value );
 
-} /* moving_average_set() */
+}
 
 void moving_average_free( MOVING_AVERAGE *moving_average )
 {
@@ -153,9 +163,9 @@ void moving_average_free( MOVING_AVERAGE *moving_average )
 }
 
 MOVING_AVERAGE_VALUE *moving_average_new_value(
-				double value,
-				char *date_label,
-				boolean is_null )
+			double value,
+			char *date_label,
+			boolean is_null )
 {
 	MOVING_AVERAGE_VALUE *moving_average_value;
 
@@ -177,11 +187,12 @@ MOVING_AVERAGE_VALUE *moving_average_new_value(
 	moving_average_value->is_null = is_null;
 
 	return moving_average_value;
-} /* moving_average_new_value() */
+}
 
-void moving_average_display_average(	LIST *value_list,
-					int number_of_days,
-					char delimiter )
+void moving_average_display_average(
+			LIST *value_list,
+			int number_of_days,
+			char delimiter )
 {
 	MOVING_AVERAGE_VALUE *value;
 	double total = 0.0;
@@ -220,12 +231,12 @@ void moving_average_display_average(	LIST *value_list,
 			value->date_label,
 			delimiter );
 	}
-} /* moving_average_display_average() */
+}
 
 void moving_average_display_sum(
-				LIST *value_list,
-				int number_of_days,
-				char delimiter )
+			LIST *value_list,
+			int number_of_days,
+			char delimiter )
 {
 	MOVING_AVERAGE_VALUE *value;
 	double sum = 0.0;
@@ -263,13 +274,13 @@ void moving_average_display_sum(
 			delimiter );
 	}
 
-} /* moving_average_display_sum() */
+}
 
 void moving_average_display_statistics_weighted(
-				LIST *value_list,
-				int number_of_days,
-				char delimiter,
-				char *statistics_weighted_label )
+			LIST *value_list,
+			int number_of_days,
+			char delimiter,
+			char *statistics_weighted_label )
 {
 	MOVING_AVERAGE_VALUE *value;
 	char temporary_filename[ 128 ];
@@ -337,13 +348,13 @@ void moving_average_display_statistics_weighted(
 			delimiter );
 	}
 
-} /* moving_average_display_statistics_weighted() */
+}
 
 void moving_average_display_non_zero_percent(
-				LIST *value_list,
-				int number_of_days,
-				char delimiter,
-				char *statistics_weighted_label )
+			LIST *value_list,
+			int number_of_days,
+			char delimiter,
+			char *statistics_weighted_label )
 {
 	MOVING_AVERAGE_VALUE *value;
 	char temporary_filename[ 128 ];
@@ -409,12 +420,12 @@ void moving_average_display_non_zero_percent(
 			delimiter );
 	}
 
-} /* moving_average_display_non_zero_percent() */
+}
 
 void moving_average_display_minimum(
-				LIST *value_list,
-				int number_of_days,
-				char delimiter )
+			LIST *value_list,
+			int number_of_days,
+			char delimiter )
 {
 	MOVING_AVERAGE_VALUE *value;
 	double minimum = DOUBLE_MAXIMUM;
@@ -453,12 +464,12 @@ void moving_average_display_minimum(
 			delimiter );
 	}
 
-} /* moving_average_display_sum() */
+}
 
 void moving_average_display_maximum(
-				LIST *value_list,
-				int number_of_days,
-				char delimiter )
+			LIST *value_list,
+			int number_of_days,
+			char delimiter )
 {
 	MOVING_AVERAGE_VALUE *value;
 	double maximum = DOUBLE_MINIMUM;
@@ -497,5 +508,95 @@ void moving_average_display_maximum(
 			delimiter );
 	}
 
-} /* moving_average_display_maximum() */
+}
+
+void moving_average_piece_set(
+			LIST *value_list,
+			double value,
+			char *date_label,
+			char *input )
+{
+	MOVING_AVERAGE_VALUE *moving_average_value;
+
+	moving_average_value = 
+		moving_average_new_value(
+			value,
+			date_label,
+			0 /* not is_null */ );
+
+	moving_average_value->input = input;
+
+	list_set(
+		value_list,
+		moving_average_value );
+
+}
+
+void moving_average_piece_display(
+			FILE *output_pipe,
+			LIST *value_list,
+			int number_of_days,
+			char delimiter,
+			int value_piece )
+{
+	if ( !list_go_tail( value_list ) ) return;
+
+	do {
+		moving_average_piece_display_average(
+				output_pipe,
+				value_list,
+				number_of_days,
+				delimiter,
+				value_piece );
+
+	} while( list_previous( value_list ) );
+}
+
+void moving_average_piece_display_average(
+			FILE *output_pipe,
+			LIST *value_list,
+			int number_of_days,
+			char delimiter,
+			int value_piece )
+{
+	MOVING_AVERAGE_VALUE *value;
+	char value_string[ 128 ];
+	double total = 0.0;
+	int count = 0;
+
+	list_push( value_list );
+
+	do {
+		if ( !number_of_days-- ) break;
+
+		value = list_get( value_list );
+
+		if ( !value->is_null )
+		{
+			count++;
+			total += value->value;
+		}
+	} while( list_previous( value_list ) );
+
+	list_pop( value_list );
+
+	if ( count )
+	{
+		sprintf( value_string, "%.4lf", total / (double )count );
+	}
+	else
+	{
+		strcpy( value_string, "null" );
+	}
+
+	value = list_get( value_list );
+
+	piece_replace(
+		value->input /* source_destination */, 
+		delimiter, 
+		value_string /* new_data */, 
+		value_piece );
+
+	fprintf( output_pipe, "%s\n", value->input );
+}
 

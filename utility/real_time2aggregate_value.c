@@ -420,42 +420,42 @@ void output(	char *input_buffer,
 	else
 	if ( strcmp( aggregate_statistic, "sum" ) == 0 )
 		sprintf(results_string,
-			"%12.4lf",
+			"%.4lf",
 			statistics_weighted->sum );
 	else
 	if ( strcmp( aggregate_statistic, "total" ) == 0 )
 		sprintf(results_string,
-			"%12.4lf",
+			"%.4lf",
 			statistics_weighted->sum );
 	else
 	if ( strcmp( aggregate_statistic, "average" ) == 0 )
 		sprintf(results_string,
-			"%12.4lf",
+			"%.4lf",
 			statistics_weighted->average );
 	else
 	if ( strcmp( aggregate_statistic, "minimum" ) == 0 )
 		sprintf(results_string,
-			"%12.4lf",
+			"%.4lf",
 			statistics_weighted->minimum );
 	else
 	if ( strcmp( aggregate_statistic, "median" ) == 0 )
 		sprintf(results_string,
-			"%12.4lf",
+			"%.4lf",
 			statistics_weighted->median );
 	else
 	if ( strcmp( aggregate_statistic, "maximum" ) == 0 )
 		sprintf(results_string,
-			"%12.4lf",
+			"%.4lf",
 			statistics_weighted->maximum );
 	else
 	if ( strcmp( aggregate_statistic, "range" ) == 0 )
 		sprintf(results_string,
-			"%12.4lf",
+			"%.4lf",
 			statistics_weighted->range );
 	else
 	if ( strcmp( aggregate_statistic, "standard_deviation" ) == 0 )
 		sprintf(results_string,
-			"%12.4lf",
+			"%.4lf",
 			statistics_weighted->standard_deviation );
 	else
 	if ( strcmp( aggregate_statistic, "non_zero_percent" ) == 0 )
@@ -463,7 +463,7 @@ void output(	char *input_buffer,
 		if ( statistics_weighted->count )
 		{
 			sprintf(results_string,
-				"%12.4lf",
+				"%.4lf",
 				(double)statistics_weighted->count_non_zero /
 				(double)statistics_weighted->count * 100.0 );
 		}
@@ -475,7 +475,7 @@ void output(	char *input_buffer,
 	else
 	{
 		sprintf(results_string,
-			"%12.4lf",
+			"%.4lf",
 			statistics_weighted->average );
 	}
 
@@ -551,10 +551,10 @@ void output(	char *input_buffer,
 
 	if ( append_low_high )
 	{
-		printf( "%c%12.4lf",
+		printf( "%c%.4lf",
 			delimiter,
 			statistics_weighted->minimum );
-		printf( "%c%12.4lf",
+		printf( "%c%.4lf",
 			delimiter,
 			statistics_weighted->maximum );
 	}

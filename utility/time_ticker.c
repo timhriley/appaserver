@@ -130,7 +130,7 @@ int main( int argc, char **argv )
 
 	expected_count_list_string = argv[ 5 ];
 
-	if ( ! *expected_count_list_string )
+	if ( !*expected_count_list_string )
 	{
 		expected_count_list_string = "0000-00-00^0000^24";
 	}
@@ -144,6 +144,7 @@ int main( int argc, char **argv )
 		sprintf(buffer,
 			"0000-00-00^0000^%s",
 			expected_count_list_string );
+
 		expected_count_list_string = strdup( buffer );
 	}
 

@@ -1460,8 +1460,7 @@ void build_sys_string(
 	&&   strcmp( units_converted_string, "units_converted" ) != 0 )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s %s %d ',' %d",
-			 application_name,
+			 "measurement_convert_units.e %s %s %d ',' %d",
 			 units,
 			 units_converted_string,
 			 VALUE_PIECE,
@@ -2737,8 +2736,7 @@ void period_wo_date_populate_year_value_list(
 	&&   strcmp( units_converted_string, "units_converted" ) != 0 )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s %s %d ',' %d",
-			 application_name,
+			 "measurement_convert_units.e %s %s %d ',' %d",
 			 units,
 			 units_converted_string,
 			 VALUE_PIECE,

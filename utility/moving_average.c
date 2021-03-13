@@ -1,4 +1,4 @@
-/* moving_average.c						*/
+/* $APPASERVER_HOME/utility/moving_average.c			*/
 /* ------------------------------------------------------------ */
 /* Freely available software: see Appaserver.org		*/
 /* ------------------------------------------------------------ */
@@ -45,7 +45,7 @@ int main( int argc, char **argv )
 	}
 
 	moving_average =
-		moving_average_new_moving_average(
+		moving_average_new(
 			number_of_days,
 			delimiter,
 			aggregate_statistic_get_aggregate_statistic(
@@ -94,6 +94,5 @@ int main( int argc, char **argv )
 				moving_average->begin_date_string );
 
 	return 0;
-
-} /* main() */
+}
 

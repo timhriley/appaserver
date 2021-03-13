@@ -23,6 +23,9 @@ enum aggregate_level aggregate_level_extract(
 	if ( strcmp( aggregate_level_string, "real_time" ) == 0 )
 		aggregate_level = real_time;
 	else
+	if ( strcmp( aggregate_level_string, "moving" ) == 0 )
+		aggregate_level = moving;
+	else
 	if ( strcmp( aggregate_level_string, "half_hour" ) == 0 )
 		aggregate_level = half_hour;
 	else
@@ -65,6 +68,9 @@ char *aggregate_level_string( enum aggregate_level aggregate_level )
 	else
 	if ( aggregate_level == half_hour )
 		return "half_hour";
+	else
+	if ( aggregate_level == moving )
+		return "moving";
 	else
 	if ( aggregate_level == hourly )
 		return "hourly";

@@ -25,13 +25,15 @@ enum process_generic_medium {
 			text_file,
 			output_medium_stdout,
 			table,
-			spreadsheet };
+			spreadsheet,
+			output_medium_unknown };
 
 /* Structures */
 /* ---------- */
 typedef struct
 {
 	char *process_set;
+	char *process_name;
 	char *output_medium_string;
 	enum process_generic_medium output_medium;
 	char *begin_date;
@@ -43,7 +45,9 @@ typedef struct
 	char *units_converted;
 	int days_to_average;
 	pid_t process_id;
-	char *process_name;
+	int date_piece;
+	int time_piece;
+	int value_piece;
 } PROCESS_GENERIC_PARAMETER;
 
 typedef struct
@@ -141,6 +145,11 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+PROCESS_GENERIC *process_generic_fetch(
+			char *process_set_name,
+			char *process_name,
+			char *output_medium_string,
+			DICTIONARY *post_dictionary );
 
 char *process_generic_process_name(
 			char *process_set_name,
@@ -199,10 +208,13 @@ char *process_generic_system_string(
 			enum aggregate_level,
 			enum aggregate_statistic,
 			boolean accumulate,
-			char *date_attribute_name,
-			char *time_attribute_name,
+			int date_piece,
+			int time_piece,
+			int value_piece,
 			char *end_date,
-			LIST *primary_attribute_name_list );
+			char *datatype_unit,
+			char *foreign_folder_unit,
+			char *units_converted );
 
 /* Returns static memory */
 /* --------------------- */
@@ -210,6 +222,8 @@ char *process_generic_heading(
 			LIST *primary_attribute_name_list,
 			char *value_attribute_name,
 			char *datatype_unit,
+			char *foreign_folder_unit,
+			char *units_converted,
 			enum aggregate_level aggregate_level,
 			enum aggregate_statistic aggregate_statistic,
 			boolean accumulate );
@@ -221,7 +235,8 @@ char *process_generic_subtitle(
 			char *begin_date,
 			char *end_date,
 			enum aggregate_level aggregate_level,
-			enum aggregate_statistic aggregate_statistic );
+			enum aggregate_statistic aggregate_statistic,
+			char *additional_message );
 
 /* PROCESS_GENERIC_VALUE_FOLDER */
 /* ---------------------------- */
@@ -286,13 +301,13 @@ PROCESS_GENERIC_VALUE *process_generic_value_parse(
 PROCESS_GENERIC_PARAMETER *process_generic_parameter_calloc(
 			void );
 
-/* Never fails */
-/* ----------- */
 PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 			char *output_medium_string,
 			DICTIONARY *post_dictionary,
 			boolean aggregation_sum,
-			char *argv_0 );
+			LIST *value_folder_primary_attribute_name_list,
+			char *value_folder_date_attribute_name,
+			char *value_folder_time_attribute_name );
 
 /* PROCESS_GENERIC_FOREIGN_FOLDER */
 /* ------------------------------ */

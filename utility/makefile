@@ -102,6 +102,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	statistics.e toupper.e tolower.e extension.e			\
 	statistics_weighted.e						\
 	moving_average.e						\
+	moving_average_piece.e						\
 	average.e							\
 	complete_arrangement.e						\
 	colapse_repeating.e						\
@@ -198,6 +199,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	time_hhmm2hhcolonmm.e						\
 	subtract_list.e							\
 	label_dictionary.e						\
+	measurement_convert_units.e					\
 	bracket_line.e
 
 touch:
@@ -819,6 +821,18 @@ moving_average.e: moving_average.c					\
 		${LIBRARY}/aggregate_statistic.o 			\
 		${LIBRARY}/moving_average.o 				\
 		-o moving_average.e
+
+moving_average_piece.e: moving_average_piece.c				\
+		${LIBRARY}/moving_average.o				\
+		${LIBRARY}/aggregate_statistic.o
+	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		moving_average_piece.c					\
+		${STANDARD_LIBRARY}					\
+		${LIBRARY}/start_stop_time.o 				\
+		${LIBRARY}/aggregate_statistic.o 			\
+		${LIBRARY}/moving_average.o 				\
+		-o moving_average_piece.e
 
 average.e: average.c							\
 		${STANDARD_LIBRARY}
@@ -1798,6 +1812,14 @@ label_dictionary.e: label_dictionary.c					\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o label_dictionary.e
+
+measurement_convert_units.e: measurement_convert_units.c		\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
+	$(CC)	${CFLAGS} -I${LIBRARY} measurement_convert_units.c	\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		-o measurement_convert_units.e
 
 payroll_period.e: payroll_period.c ${APPASERVER_LIBRARY}		\
 		${STANDARD_LIBRARY}					\

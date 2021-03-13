@@ -137,7 +137,6 @@ EXECUTABLES=	hydrology_verification_process				\
 		calculate_oxygen_solubility				\
 		merged_datasets_remove_all_but_first_heading.e		\
 		get_date_time_slot_list					\
-		measurement_convert_units.e				\
 		hydrology_library_dvr.e					\
 		annual_periods_output					\
 		generate_data_collection_frequency			\
@@ -883,27 +882,6 @@ get_date_time_slot_list: get_date_time_slot_list.c			\
 		${LIBRARY}/date_aggregate.o				\
 		get_date_time_slot_list.c				\
 		-o get_date_time_slot_list
-
-measurement_convert_units.e: measurement_convert_units.c		\
-		${EXTERNAL_LIBS} ${SOURCE_LIBS}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		${SOURCE_LIBS}						\
-		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/date_aggregate.o				\
-		measurement_convert_units.c				\
-		-o measurement_convert_units.e
-
-hydrology_library_dvr.e: hydrology_library_dvr.c			\
-		${EXTERNAL_LIBS} ${SOURCE_LIBS}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		${SOURCE_LIBS}						\
-		${STANDARD_LIBRARY} 					\
-		hydrology_library_dvr.c					\
-		-o hydrology_library_dvr.e
 
 datatype_overlay: datatype_overlay.c					\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}

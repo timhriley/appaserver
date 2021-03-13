@@ -6,6 +6,7 @@
 
 enum aggregate_level {	aggregate_level_none,
 			real_time,
+			moving,
 			half_hour,
 			hourly,
 			delta,

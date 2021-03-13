@@ -1,8 +1,8 @@
-/* --------------------------------------------------- 	*/
-/* src_appaserver/generic_daily_moving_average.c      	*/
-/* --------------------------------------------------- 	*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* -------------------------------------------------------------- 	*/
+/* $APPASERVER_HOME/src_appaserver/generic_daily_moving_average.c      	*/
+/* -------------------------------------------------------------- 	*/
+/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------- 	*/
 
 /* Includes */
 /* -------- */
@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "String.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "environ.h"
@@ -27,14 +28,14 @@
 #include "grace.h"
 #include "julian.h"
 #include "session.h"
-#include "process_generic_output.h"
+#include "process_generic.h"
+#include "moving_average.h"
 #include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
 #define EXCEEDANCE_DELIMITER		'|'
 #define DEFAULT_DAYS_TO_AVERAGE		30
-#define DEFAULT_OUTPUT_MEDIUM		"chart"
 #define GRACE_DATATYPE_ENTITY_PIECE	0
 #define GRACE_DATATYPE_PIECE		1
 #define GRACE_DATE_PIECE		2
@@ -42,310 +43,262 @@
 #define GRACE_VALUE_PIECE		3
 #define KEY_DELIMITER			'/'
 
-#define ROWS_BETWEEN_HEADING			20
-
-#define DATE_PIECE		 		0
-#define TIME_PIECE		 		-1
-#define VALUE_PIECE		 		1
-#define INPUT_DELIMITER				','
-#define PIECE_DELIMITER				'|'
-
 /* Structures */
 /* ---------- */
 
 /* Prototypes */
 /* ---------- */
-void daily_moving_average_output_transmit_exceedance_format(
-					FILE *output_pipe,
-					char *sys_string,
-					int days_to_average,
-					char *units );
+char *moving_average_system_string(
+			char *begin_date,
+			char *end_date,
+			int date_piece,
+			int value_piece,
+			int days_to_average );
 
-int daily_moving_average_output_chart_exceedance_format(
-					char *application_name,
-					char *datatype_name,
-					char *begin_date_string,
-					char *end_date_string,
-					char *sys_string,
-					char *document_root_directory,
-					char *appaserver_mount_point,
-					int days_to_average,
-					char *units,
-					char *where_clause,
-					char *value_folder_name );
+void generic_output_spreadsheet_create(
+			char *output_filename,
+			char *input_system_string,
+			char *output_system_string,
+			char *heading,
+			char *subtitle );
 
-void daily_moving_average_output_table_exceedance_format(
-					char *application_name,
-					char *sys_string,
-					int days_to_average,
-					char *units,
-					char *where_clause,
-					char *value_folder_name );
+void generic_output_text_file(
+			char *input_system_string,
+			char *heading,
+			char *subtitle );
 
-void piece_exceedance_variables(
-					char **value_string,
-					char **date_string,
-					char **count_below_string,
-					char **percent_below_string,
-					char *input_buffer );
+void generic_output_table(
+			char *input_system_string,
+			char *heading,
+			char *subtitle,
+			int primary_attribute_name_list_length );
 
-void daily_moving_average_output_table(
-					char *application_name,
-					char *sys_string,
-					int days_to_average,
-					char *units,
-					char *where_clause,
-					char *value_folder_name );
-
-int daily_moving_average_output_chart(
-					char *application_name,
-					char *role_name,
-					char *datatype_name,
-					char *begin_date_string,
-					char *end_date_string,
-					char *sys_string,
-					char *document_root_directory,
-					char *appaserver_mount_point,
-					char *argv_0,
-					int days_to_average,
-					char *units,
-					char *where_clause,
-					char *value_folder_name,
-					LIST *primary_attribute_data_list );
-
-void daily_moving_average_output_transmit(
-					FILE *output_pipe,
-					char *sys_string,
-					int days_to_average,
-					char *units );
-
-void build_sys_string(
-			char *sys_string,
+void generic_output_spreadsheet(
 			char *application_name,
-			enum aggregate_statistic,
-			char *exceedance_format_yn,
-			int days_to_average,
-			char *units,
-			char *units_converted,
-			PROCESS_GENERIC_OUTPUT *process_generic_output,
-			char *where_clause,
-			char *begin_date_string,
-			char *end_date_string );
+			char *input_system_string,
+			char *heading,
+			char *subtitle,
+			char *document_root_directory,
+			char *value_folder_name,
+			char *begin_date,
+			char *end_date,
+			pid_t process_id,
+			char *email_address );
+
+void generic_output_stdout(
+			char *input_system_string,
+			char *heading,
+			char *subtitle );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *role_name;
-	char *end_date_string = {0};
-	char *exceedance_format_yn = {0};
-	char *days_to_average_string = {0};
-	int days_to_average;
-	char *output_medium = {0};
-	DOCUMENT *document = {0};
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char sys_string[ 1024 ];
-	enum aggregate_statistic aggregate_statistic;
-	char *units_converted = {0};
-	char *units;
-	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	char *process_set_name;
 	char *process_name;
+	int days_to_average;
+	boolean exceedance_format;
+	char *output_medium_string;
+	char title[ 128 ];
 	DICTIONARY *post_dictionary;
-	char *where_clause;
-	JULIAN *moving_begin_date;
-	char *moving_begin_date_string;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	PROCESS_GENERIC *process_generic;
+	char input_system_string[ 1024 ];
+	char additional_message[ 128 ];
 
-	/* ------------------------------------------------------------- */
-	/* Since process_generic_output_get_dictionary_where_clause() is */
-	/* called with "set dates" set, the moving_begin_date_string is  */
-	/* begin set to the same address as begin_date_string. Therefore,*/
-	/* additional memory is needed to store begin_date_string. :-(   */
-	/* ------------------------------------------------------------- */
-	char *begin_date_string_pointer = {0};
-	char begin_date_string[ 16 ];
-
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc != 5 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
-	"Usage: %s ignored role process_set dictionary\n",
+"Usage: %s process_set process days_to_average exceedance_format_yn output_medium dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	role_name = argv[ 2 ];
-	process_set_name = argv[ 3 ];
+	process_set_name = argv[ 1 ];
+	process_name = argv[ 2 ];
+	days_to_average = atoi( argv[ 3 ] );
+	exceedance_format = ( *argv[ 4 ] == 'y' );
+	output_medium_string = argv[ 5 ];
 
 	post_dictionary =
-		dictionary_string2dictionary( argv[ 4 ] );
+		dictionary_string2dictionary(
+			argv[ 6 ] );
 
 	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_FROM_STARTING_LABEL );
+		post_dictionary,
+		QUERY_FROM_STARTING_LABEL );
 
 	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_STARTING_LABEL );
+		post_dictionary,
+		QUERY_STARTING_LABEL );
 
-	if ( !*process_set_name
-	||   strcmp( process_set_name, "process_set" ) == 0
-	||   strcmp( process_set_name, "$process_set" ) == 0 )
+	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	if ( strcmp( output_medium_string, "stdout" ) != 0 )
 	{
-		dictionary_get_index_data(
-					&process_name,
-					post_dictionary,
-					"process",
-					0 );
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->appaserver_mount_point );
+	}
 
-		process_generic_output =
-			process_generic_output_new(
-				application_name,
-				process_name,
-				(char *)0 /* process_set_name */,
-				0 /* accumulate_flag */ );
+	/* Have process_generic_system_string() set real_time2aggregate_value */
+	/* ------------------------------------------------------------------ */
+	dictionary_set_pointer(
+		post_dictionary,
+		"aggregate_level_0",
+		"daily" );
+
+	dictionary_set_pointer(
+		post_dictionary,
+		"aggregate_statistic_0",
+		"average" );
+
+	process_generic =
+		process_generic_fetch(
+			process_set_name,
+			process_name,
+			output_medium_string,
+			post_dictionary );
+
+	if ( !process_generic )
+	{
+		printf( "<h3>Insufficient input</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	/* Reset the subtitle */
+	/* ------------------ */
+	process_generic->parameter->aggregate_level = moving;
+
+	sprintf(additional_message,
+		"(%d days)",
+		(days_to_average)
+			? days_to_average
+			: MOVING_AVERAGE_DEFAULT );
+
+	process_generic->process_generic_subtitle =
+		process_generic_subtitle(
+			process_generic->value_folder_name,
+			process_generic->parameter->begin_date,
+			process_generic->parameter->end_date,
+			process_generic->parameter->aggregate_level,
+			process_generic->parameter->aggregate_statistic,
+			additional_message );
+
+	if ( process_generic->parameter->output_medium != output_medium_stdout )
+	{
+		printf(	"<h1>%s</h1>\n",
+			format_initial_capital(
+				title,
+				process_generic->process_name ) );
 	}
 	else
 	{
-		process_generic_output =
-			process_generic_output_new(
-				application_name,
-				(char *)0 /* process_name */,
-				process_set_name,
-				0 /* accumulate_flag */ );
+		printf(	"%s\n",
+			format_initial_capital(
+				title,
+				process_generic->process_name ) );
 	}
 
-	process_generic_output->value_folder->datatype =
-		process_generic_datatype_new(
-			application_name,
-			process_generic_output->
-				value_folder->
-					foreign_folder->
-						foreign_attribute_name_list,
-			process_generic_output->
-				value_folder->
-					datatype_folder->
-						datatype_folder_name,
-			process_generic_output->
-				value_folder->
-					datatype_folder->
-						primary_attribute_name_list,
-			process_generic_output->
-				value_folder->
-					datatype_folder->
-						exists_aggregation_sum,
-			process_generic_output->
-				value_folder->
-					datatype_folder->
-						exists_bar_graph,
-			process_generic_output->
-				value_folder->
-					datatype_folder->
-						exists_scale_graph_zero,
-			process_generic_output->
-				value_folder->
-					units_folder_name,
-			post_dictionary,
-			0 /* dictionary_index */ );
+	fflush( stdout );
 
-	if ( !process_generic_output->value_folder->datatype )
+	sprintf(input_system_string,
+		"%s | %s",
+		process_generic->process_generic_system_string,
+		moving_average_system_string(
+			process_generic->
+				parameter->
+				begin_date,
+			process_generic->
+				parameter->
+				end_date,
+			process_generic->
+				parameter->
+				date_piece,
+			process_generic->
+				parameter->
+				value_piece,
+			days_to_average ) );
+
+	if (	process_generic->parameter->output_medium ==
+		output_medium_stdout )
 	{
-		document_quick_output_body(
-					application_name,
-					appaserver_parameter_file->
-						appaserver_mount_point );
-
-		printf( "<h3>ERROR: insufficient input.</h3>\n" );
-		document_close();
-		exit( 0 );
+		generic_output_stdout(
+			input_system_string,
+			process_generic->
+				process_generic_heading,
+			process_generic->
+				process_generic_subtitle );
 	}
-
-	if ( !	process_generic_output->
-		value_folder->
-		datatype->
-		foreign_attribute_data_list )
+	else
+	if (	process_generic->parameter->output_medium ==
+		spreadsheet )
 	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: cannot get foreign_attribute_data_list.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !process_generic_output_validate_begin_end_date(
-			&begin_date_string /* in/out */,
-			&end_date_string /* in/out */,
-			application_name,
-			process_generic_output->
+		generic_output_spreadsheet(
+			environment_application(),
+			process_generic->
+				process_generic_system_string
+				/* input_system_string */,
+			process_generic->
+				process_generic_heading,
+			process_generic->
+				process_generic_subtitle,
+			appaserver_parameter_file->document_root,
+			process_generic->
 				value_folder->
 				value_folder_name,
-			process_generic_output->
-				value_folder->
-				date_attribute_name,
-			post_dictionary
-				/* query_removed_post_dictionary */ ) )
+			process_generic->
+				parameter->
+				begin_date,
+			process_generic->
+				parameter->
+				end_date,
+			process_generic->
+				parameter->
+				process_id,
+			process_generic->
+				parameter->
+				email_address );
+	}
+	else
+	if (	process_generic->parameter->output_medium ==
+		text_file )
 	{
-		printf( "<p>ERROR: no data available for these dates.\n" );
-		document_close();
-		exit( 0 );
+		generic_output_text_file(
+			process_generic->
+				process_generic_system_string,
+			process_generic->
+				process_generic_heading,
+			process_generic->
+				process_generic_subtitle );
+	}
+	else
+	if (	process_generic->parameter->output_medium ==
+		table
+	||      process_generic->parameter->output_medium ==
+		output_medium_unknown )
+	{
+		generic_output_table(
+			input_system_string,
+			process_generic->
+				process_generic_heading,
+			process_generic->
+				process_generic_subtitle,
+			list_length(
+				process_generic->
+					value_folder->
+					primary_attribute_name_list ) );
 	}
 
-	strcpy( begin_date_string, begin_date_string_pointer );
-
-	dictionary_get_index_data( 	&exceedance_format_yn,
-					post_dictionary,
-					"exceedance_format_yn",
-					0 );
-
-	dictionary_get_index_data( 	&days_to_average_string,
-					post_dictionary,
-					"days_to_average",
-					0 );
-
-	days_to_average = atoi( days_to_average_string );
-
-	dictionary_get_index_data( 	&output_medium,
-					post_dictionary,
-					"output_medium",
-					0 );
-
-	if (	!output_medium
-	|| 	!*output_medium
-	|| 	strcmp( output_medium, "select" ) == 0 )
-	{
-		output_medium = DEFAULT_OUTPUT_MEDIUM;
-	}
-
-	units_converted =
-		dictionary_get_index_zero(
-			post_dictionary,
-			"units_converted" );
-
-	if ( !days_to_average ) days_to_average = DEFAULT_DAYS_TO_AVERAGE;
-
-	if (	!output_medium
-	|| 	!*output_medium
-	|| 	strcmp( output_medium, "select" ) == 0
-	|| 	strcmp( output_medium, "output_medium" ) == 0 )
-	{
-		output_medium = DEFAULT_OUTPUT_MEDIUM;
-	}
-
-	aggregate_statistic =
-		aggregate_statistic_get_aggregate_statistic(
-			dictionary_get_index_zero(
-				post_dictionary,
-				"aggregate_statistic" ),
-			daily );
-
+#ifdef NOT_DEFINED
+	JULIAN *moving_begin_date;
 	moving_begin_date = julian_new_yyyy_mm_dd( begin_date_string );
 	julian_decrement_days( moving_begin_date, days_to_average - 1 );
 	moving_begin_date_string =
@@ -666,8 +619,10 @@ int main( int argc, char **argv )
 		}
 		pclose( output_pipe );
 	}
+#endif
 
-	if ( strcmp( output_medium, "stdout" ) != 0 )
+	if (	process_generic->parameter->output_medium !=
+		output_medium_stdout )
 	{
 		document_close();
 	}
@@ -677,10 +632,11 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 
-	exit( 0 );
+	return 0;
 
-} /* main() */
+}
 
+#ifdef NOT_DEFINED
 void build_sys_string(
 				char *sys_string,
 				char *application_name,
@@ -703,8 +659,7 @@ void build_sys_string(
 	&&   strcmp( units_converted, "units_converted" ) != 0 )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s %s 1 '%c'",
-			 application_name,
+			 "measurement_convert_units.e %s %s 1 '%c'",
 			 units,
 			 units_converted,
 			 INPUT_DELIMITER );
@@ -769,7 +724,7 @@ void build_sys_string(
 		aggregation_process,
 		exceedance_process );
 
-} /* build_sys_string() */
+}
 
 int daily_moving_average_output_chart(
 				char *application_name,
@@ -1011,7 +966,7 @@ int daily_moving_average_output_chart(
 					1 ) );
 	}
 	return 1;
-} /* daily_moving_average_output_chart() */
+}
 
 void daily_moving_average_output_transmit(
 				FILE *output_pipe,
@@ -1043,7 +998,7 @@ void daily_moving_average_output_transmit(
 
 	pclose( input_pipe );
 
-} /* daily_moving_average_output_transmit() */
+}
 
 void daily_moving_average_output_table(
 					char *application_name,
@@ -1137,7 +1092,7 @@ void daily_moving_average_output_table(
 	pclose( input_pipe );
 	html_table_close();
 
-} /* daily_moving_average_output_table() */
+}
 
 void daily_moving_average_output_table_exceedance_format(
 				char *application_name,
@@ -1245,7 +1200,7 @@ void daily_moving_average_output_table_exceedance_format(
 	pclose( input_pipe );
 	html_table_close();
 
-} /* daily_moving_average_output_table_exceedance_format() */
+}
 
 void piece_exceedance_variables(
 				char **value_string,
@@ -1279,7 +1234,7 @@ void piece_exceedance_variables(
 	*date_string = local_date_string;
 	*count_below_string = local_count_below_string;
 	*percent_below_string = local_percent_below_string;
-} /* piece_exceedance_variables() */
+}
 
 int daily_moving_average_output_chart_exceedance_format(
 				char *application_name,
@@ -1471,4 +1426,244 @@ void daily_moving_average_output_transmit_exceedance_format(
 
 	pclose( input_pipe );
 
-} /* daily_moving_average_output_transmit_exceedance_format() */
+}
+#endif
+
+void generic_output_stdout(
+			char *input_system_string,
+			char *heading,
+			char *subtitle )
+{
+	FILE *input_pipe;
+	char input_buffer[ 2048 ];
+
+	input_pipe = popen( input_system_string, "r" );
+
+	printf( "%s\n%s\n",
+		subtitle,
+		heading );
+
+	while ( string_input( input_buffer, input_pipe, 2048 ) )
+	{
+		search_replace_character( input_buffer, SQL_DELIMITER, ',' );
+		printf( "%s\n", input_buffer );
+	}
+	pclose( input_pipe );
+}
+
+void generic_output_text_file(
+			char *system_string,
+			char *heading,
+			char *subtitle )
+{
+	FILE *input_pipe;
+	FILE *output_pipe;
+	char input_buffer[ 2048 ];
+
+	input_pipe = popen( system_string, "r" );
+	output_pipe = popen( "html_paragraph_wrapper", "w" );
+
+	fprintf(output_pipe,
+		"%s\n%s\n",
+		subtitle,
+		heading );
+
+	while ( string_input( input_buffer, input_pipe, 2048 ) )
+	{
+		search_replace_character( input_buffer, SQL_DELIMITER, ',' );
+		fprintf(output_pipe, "%s\n", input_buffer );
+	}
+	pclose( input_pipe );
+	pclose( output_pipe );
+}
+
+void generic_output_table(
+			char *input_system_string,
+			char *heading,
+			char *subtitle,
+			int primary_attribute_name_list_length )
+{
+	FILE *input_pipe;
+	FILE *output_pipe;
+	char input_buffer[ 2048 ];
+	char output_system_string[ 1024 ];
+
+	sprintf(output_system_string,
+		"html_table \"^%s\" \"%s\" '%c' %sright",
+		subtitle,
+		heading,
+		SQL_DELIMITER,
+		string_repeat(
+			"left,",
+			primary_attribute_name_list_length
+				/* number_times */ ) );
+
+	input_pipe = popen( input_system_string, "r" );
+	output_pipe = popen( output_system_string, "w" );
+
+	while ( string_input( input_buffer, input_pipe, 2048 ) )
+	{
+		fprintf(output_pipe, "%s\n", input_buffer );
+	}
+	pclose( input_pipe );
+	pclose( output_pipe );
+}
+
+void generic_output_spreadsheet(
+			char *application_name,
+			char *input_system_string,
+			char *heading,
+			char *subtitle,
+			char *document_root_directory,
+			char *value_folder_name,
+			char *begin_date,
+			char *end_date,
+			pid_t process_id,
+			char *email_address )
+{
+	APPASERVER_LINK_FILE *appaserver_link_file;
+	char *output_filename;
+	char *link_prompt;
+	char output_system_string[ 1024 ];
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+	 		document_root_directory,
+			value_folder_name /* filename_stem */,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			(char *)0 /* extension */ );
+
+	appaserver_link_file->application_name = application_name;
+	appaserver_link_file->begin_date_string = begin_date;
+	appaserver_link_file->end_date_string = end_date;
+
+	appaserver_link_file->extension = "csv";
+
+	output_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	link_prompt =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	generic_output_spreadsheet_create(
+		output_filename,
+		input_system_string,
+		output_system_string,
+		heading,
+		subtitle );
+
+	if ( email_address && *email_address )
+	{
+		char sys_string[ 1024 ];
+	
+		sprintf( sys_string,
+			 "cat %s				|"
+			 "mailx -s \"%s\" %s	 		 ",
+			 output_filename,
+			 subtitle,
+			 email_address );
+
+		if ( system( sys_string ) ){};
+
+		printf( "<h3>Sent to %s<hr></h3>\n", email_address );
+	}
+	else
+	{
+		appaserver_library_output_ftp_prompt(
+			link_prompt, 
+			TRANSMIT_PROMPT,
+			(char *)0 /* target */,
+			(char *)0 /* application_type */ );
+	}
+}
+
+void generic_output_spreadsheet_create(
+			char *output_filename,
+			char *input_system_string,
+			char *output_system_string,
+			char *heading,
+			char *subtitle )
+{
+	FILE *input_pipe;
+	FILE *output_pipe;
+	char input_buffer[ 2048 ];
+
+	input_pipe = popen( input_system_string, "r" );
+
+	sprintf(output_system_string,
+		"cat > %s",
+		output_filename );
+
+	output_pipe = popen( output_system_string, "w" );
+
+	printf( "<h2>%s</h2>\n", subtitle );
+
+	fprintf(output_pipe,
+		"%s\n",
+		heading );
+
+	while ( string_input( input_buffer, input_pipe, 2048 ) )
+	{
+		search_replace_character( input_buffer, SQL_DELIMITER, ',' );
+		fprintf(output_pipe, "%s\n", input_buffer );
+	}
+	pclose( input_pipe );
+	pclose( output_pipe );
+}
+
+char *moving_average_system_string(
+			char *begin_date,
+			char *end_date,
+			int date_piece,
+			int value_piece,
+			int days_to_average )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+	"pad_missing_times.e '%c' %d,-1,%d daily %s 0000 %s 2359 0 1 	|"
+	"moving_average_piece.e %d %d %d '%c'				 ",
+		SQL_DELIMITER,
+		date_piece,
+		value_piece,
+		begin_date,
+		end_date,
+		days_to_average,
+		date_piece,
+		value_piece,
+		SQL_DELIMITER );
+
+	return strdup( system_string );
+}
+
