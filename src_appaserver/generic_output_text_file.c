@@ -234,7 +234,7 @@ int main( int argc, char **argv )
 
 	process_increment_execution_count(
 		application_name,
-		process_name,
+		process_generic->process_name,
 		appaserver_parameter_file_get_dbms() );
 
 	return 0;

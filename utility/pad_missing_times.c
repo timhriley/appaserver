@@ -221,7 +221,7 @@ int main( int argc, char **argv )
 	pclose( ticker_date_time_pipe );
 	return 0;
 
-} /* main() */
+}
 
 void output_null_value(		char delimiter,
 				char *ticker_date_string,
@@ -294,5 +294,5 @@ void output_null_value(		char delimiter,
 
 	printf( "%s\n", append_string );
 
-} /* output_null_value() */
+}
 

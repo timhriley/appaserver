@@ -738,19 +738,19 @@ PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 	process_generic_parameter->output_medium_string =
 		output_medium_string;
 
-	if ( strcmp( output_medium_string, "text_file" ) == 0 )
+	if ( string_strcmp( output_medium_string, "text_file" ) == 0 )
 	{
 		process_generic_parameter->output_medium =
 			text_file;
 	}
 	else
-	if ( strcmp( output_medium_string, "spreadsheet" ) == 0 )
+	if ( string_strcmp( output_medium_string, "spreadsheet" ) == 0 )
 	{
 		process_generic_parameter->output_medium =
 			spreadsheet;
 	}
 	else
-	if ( strcmp( output_medium_string, "table" ) == 0 )
+	if ( string_strcmp( output_medium_string, "table" ) == 0 )
 	{
 		process_generic_parameter->output_medium =
 			table;

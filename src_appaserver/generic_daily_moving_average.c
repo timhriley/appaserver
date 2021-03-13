@@ -49,8 +49,6 @@
 /* Prototypes */
 /* ---------- */
 char *moving_average_system_string(
-			char *begin_date,
-			char *end_date,
 			int date_piece,
 			int value_piece,
 			int days_to_average );
@@ -166,7 +164,9 @@ int main( int argc, char **argv )
 			output_medium_string,
 			post_dictionary );
 
-	if ( !process_generic )
+	if ( !process_generic
+	||   !process_generic->parameter->begin_date
+	||   !process_generic->parameter->end_date )
 	{
 		printf( "<h3>Insufficient input</h3>\n" );
 		document_close();
@@ -213,12 +213,6 @@ int main( int argc, char **argv )
 		"%s | %s",
 		process_generic->process_generic_system_string,
 		moving_average_system_string(
-			process_generic->
-				parameter->
-				begin_date,
-			process_generic->
-				parameter->
-				end_date,
 			process_generic->
 				parameter->
 				date_piece,
@@ -628,9 +622,9 @@ int main( int argc, char **argv )
 	}
 
 	process_increment_execution_count(
-				application_name,
-				process_name,
-				appaserver_parameter_file_get_dbms() );
+		application_name,
+		process_generic->process_name,
+		appaserver_parameter_file_get_dbms() );
 
 	return 0;
 
@@ -1643,14 +1637,13 @@ void generic_output_spreadsheet_create(
 }
 
 char *moving_average_system_string(
-			char *begin_date,
-			char *end_date,
 			int date_piece,
 			int value_piece,
 			int days_to_average )
 {
 	char system_string[ 1024 ];
 
+/*
 	sprintf(system_string,
 	"pad_missing_times.e '%c' %d,-1,%d daily %s 0000 %s 2359 0 1 	|"
 	"moving_average_piece.e %d %d %d '%c'				 ",
@@ -1659,6 +1652,14 @@ char *moving_average_system_string(
 		value_piece,
 		begin_date,
 		end_date,
+		days_to_average,
+		date_piece,
+		value_piece,
+		SQL_DELIMITER );
+*/
+
+	sprintf(system_string,
+	"moving_average_piece.e %d %d %d '%c'				 ",
 		days_to_average,
 		date_piece,
 		value_piece,
