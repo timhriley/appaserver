@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "timlib.h"
+#include "String.h"
 #include "list.h"
 #include "piece.h"
 #include "folder.h"

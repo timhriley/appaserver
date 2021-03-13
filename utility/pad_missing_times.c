@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include "timlib.h"
+#include "String.h"
 #include "piece.h"
 #include "date.h"
 #include "aggregate_level.h"
@@ -22,7 +23,7 @@ void output_null_value(		char delimiter,
 				int date_offset,
 				int time_offset,
 				int value_offset,
-				char *append_string );
+				char *append_delimiter );
 
 int main( int argc, char **argv )
 {
@@ -50,7 +51,7 @@ int main( int argc, char **argv )
 	char time_offset_buffer[ 16 ];
 	char value_offset_buffer[ 16 ];
 	int number_delimiters2append;
-	char append_string[ 256 ];
+	char append_delimiter[ 256 ];
 	char *ptr;
 
 	output_starting_argv_stderr( argc, argv );
@@ -84,7 +85,7 @@ int main( int argc, char **argv )
 	ending_time_string = argv[ 7 ];
 	number_delimiters2append = atoi( argv[ 8 ] );
 
-	ptr = append_string;
+	ptr = append_delimiter;
 	while( number_delimiters2append-- )
 		*ptr++ = delimiter;
 	*ptr = '\0';
@@ -211,7 +212,7 @@ int main( int argc, char **argv )
 					date_offset,
 					time_offset,
 				        value_offset,
-					append_string );
+					append_delimiter );
 			}
 		}
 
@@ -230,16 +231,70 @@ void output_null_value(		char delimiter,
 				int date_offset,
 				int time_offset,
 				int value_offset,
-				char *append_string )
+				char *append_delimiter )
 {
-	if ( aggregate_level != real_time
-	&&   aggregate_level != half_hour
-	&&   aggregate_level != hourly
-	&&   aggregate_level != aggregate_level_none )
+	static char *before_date_buffer = {0};
+	static char *before_time_buffer = {0};
+	static char *before_value_buffer = {0};
+	char delimiter_string[ 2 ];
+
+	if ( !before_date_buffer )
+	{
+		sprintf(delimiter_string, "%c", delimiter );
+
+		before_date_buffer =
+			string_repeat(
+				delimiter_string,
+				date_offset );
+
+		if ( time_offset > 0 )
+		{
+			if ( date_offset > time_offset
+			||   time_offset > value_offset )
+			{
+				fprintf(stderr,
+				"Warning in %s/%s()/%d: invalid order.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				return;
+			}
+
+			before_time_buffer =
+				string_repeat(
+					delimiter_string,
+					time_offset - date_offset );
+
+			before_value_buffer =
+				string_repeat(
+					delimiter_string,
+					value_offset - time_offset );
+		}
+		else
+		{
+			if ( date_offset > value_offset )
+			{
+				fprintf(stderr,
+				"Warning in %s/%s()/%d: invalid order.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				return;
+			}
+
+			before_value_buffer =
+				string_repeat(
+					delimiter_string,
+					value_offset - date_offset );
+		}
+	}
+
+	if ( aggregate_level < daily )
 	{
 		ticker_time_string = "null";
 	}
 
+/*
 	if ( date_offset == 0
 	&&   time_offset == 1
 	&&   value_offset == 2 )
@@ -291,8 +346,25 @@ void output_null_value(		char delimiter,
 			 value_offset );
 		exit( 1 );
 	}
+*/
 
-	printf( "%s\n", append_string );
+	if ( before_time_buffer )
+	{
+		printf( "%s%s%s%s%s",
+			before_date_buffer,
+			ticker_date_string,
+			before_time_buffer,
+			ticker_time_string,
+			before_value_buffer );
+	}
+	else
+	{
+		printf( "%s%s%s",
+			before_date_buffer,
+			ticker_date_string,
+			before_value_buffer );
+	}
 
+	printf( "%s\n", append_delimiter );
 }
 

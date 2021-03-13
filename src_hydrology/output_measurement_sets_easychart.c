@@ -412,32 +412,6 @@ char *get_sys_string(	char *application_name,
 		}
 	}
 
-/*
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			  "
-		 "			folder=%s			  "
-		 "			select='%s'			  "
-		 "			where=\"%s\"			 |"
-		 "%s							 |"
-		 "piece_shift_left.e '^'				 |"
-		 "piece_shift_left.e '^'				 |"
-		 "pad_missing_times.e '^' 0,1,2 %s %s 0000 %s 2359 0 '%s'|"
-		 "piece_shift_right.e '^'				 |"
-		 "piece_shift_right.e '^'				 |"
-		 "sed 's/\\^/:/1'					 |"
-		 "cat							  ",
-		 application_name,
-		 SOURCE_FOLDER,
-		 select_list_string,
-		 where_clause,
-		 intermediate_process,
-		 aggregate_level_get_string( aggregate_level ),
-		 begin_date_string,
-		 end_date_string,
-		 hydrology_library_get_expected_count_list_string(
-			application_name, station_name, datatype_name, '|' ) );
-*/
-
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			  "
 		 "			folder=%s			  "
