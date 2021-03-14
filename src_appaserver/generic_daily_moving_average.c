@@ -95,6 +95,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_set_name;
 	char *process_name;
+	char *login_name;
 	int days_to_average;
 	boolean exceedance_format;
 	char *output_medium_string;
@@ -112,23 +113,24 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s process_set process days_to_average exceedance_format_yn output_medium dictionary\n",
+"Usage: %s process_set process login_name days_to_average exceedance_format_yn output_medium dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	process_set_name = argv[ 1 ];
 	process_name = argv[ 2 ];
-	days_to_average = atoi( argv[ 3 ] );
-	exceedance_format = ( *argv[ 4 ] == 'y' );
-	output_medium_string = argv[ 5 ];
+	login_name = argv[ 3 ];
+	days_to_average = atoi( argv[ 4 ] );
+	exceedance_format = ( *argv[ 5 ] == 'y' );
+	output_medium_string = argv[ 6 ];
 
 	post_dictionary =
 		dictionary_string2dictionary(
-			argv[ 6 ] );
+			argv[ 7 ] );
 
 	dictionary_add_elements_by_removing_prefix(
 		post_dictionary,
@@ -163,6 +165,7 @@ int main( int argc, char **argv )
 		process_generic_fetch(
 			process_set_name,
 			process_name,
+			login_name,
 			output_medium_string,
 			post_dictionary );
 

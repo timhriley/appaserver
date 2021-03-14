@@ -74,6 +74,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_set_name;
 	char *process_name;
+	char *login_name;
 	char *output_medium_string;
 	DICTIONARY *post_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -87,10 +88,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr,
-	"Usage: %s process_set process_name output_medium dictionary\n",
+"Usage: %s process_set process_name login_name output_medium dictionary\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
@@ -101,11 +102,12 @@ int main( int argc, char **argv )
 
 	process_set_name = argv[ 1 ];
 	process_name = argv[ 2 ];
-	output_medium_string = argv[ 3 ];
+	login_name = argv[ 3 ];
+	output_medium_string = argv[ 4 ];
 
 	post_dictionary =
 		dictionary_string2dictionary(
-			argv[ 4 ] );
+			argv[ 5 ] );
 
 	dictionary_add_elements_by_removing_prefix(
 		post_dictionary,
@@ -128,6 +130,7 @@ int main( int argc, char **argv )
 		process_generic_fetch(
 			process_set_name,
 			process_name,
+			login_name,
 			output_medium_string,
 			post_dictionary );
 

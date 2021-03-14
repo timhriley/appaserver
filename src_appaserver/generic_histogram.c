@@ -1,4 +1,4 @@
-/* src_appaserver/generic_histogram.c				*/
+/* $APPASERVER_HOME/src_appaserver/generic_histogram.c		*/
 /* ------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org		*/
 /* -----------------------------------------------------------	*/
@@ -37,13 +37,14 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *process_set_name;
+	char *process_name;
 	char *begin_date_string = {0};
 	char *end_date_string = {0};
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DICTIONARY *post_dictionary;
 	char *sys_string;
 	char histogram_sys_string[ 1024 ];
-	char *process_set_name;
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	char *where_clause = {0};
 	enum aggregate_level aggregate_level;
@@ -73,29 +74,29 @@ int main( int argc, char **argv )
 	if ( argc != 4 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored process_set parameter_dictionary\n",
+"Usage: %s process_set process parameter_dictionary\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	process_set_name = argv[ 2 ];
-	post_dictionary =
-		dictionary_string2dictionary( argv[ 3 ] );
+	process_set_name = argv[ 1 ];
+	process_name = argv[ 2 ];
+	post_dictionary = dictionary_string2dictionary( argv[ 3 ] );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_FROM_STARTING_LABEL );
+		post_dictionary,
+		QUERY_FROM_STARTING_LABEL );
 
 	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_STARTING_LABEL );
+		post_dictionary,
+		QUERY_STARTING_LABEL );
 
 	process_generic_output =
 		process_generic_output_new(
 			application_name,
-			(char *)0 /* process_name */,
+			process_name,
 			process_set_name,
 			0 /* accumulate_flag */ );
 

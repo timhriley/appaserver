@@ -50,6 +50,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_set_name;
 	char *process_name;
+	char *login_name;
 	DICTIONARY *post_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	PROCESS_GENERIC *process_generic;
@@ -62,20 +63,21 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 4 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr,
-	"Usage: %s process_set process dictionary\n",
+	"Usage: %s process_set process login_name dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	process_set_name = argv[ 1 ];
 	process_name = argv[ 2 ];
+	login_name = argv[ 3 ];
 
 	post_dictionary =
 		dictionary_string2dictionary(
-			argv[ 3 ] );
+			argv[ 4 ] );
 
 	dictionary_add_elements_by_removing_prefix(
 		post_dictionary,
@@ -95,6 +97,7 @@ int main( int argc, char **argv )
 		process_generic_fetch(
 			process_set_name,
 			process_name,
+			login_name,
 			(char *)0 /* output_medium_string */,
 			post_dictionary );
 

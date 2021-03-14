@@ -69,7 +69,6 @@ boolean merged_datasets_output_gracechart(
 			enum aggregate_level,
 			char *value_folder_name,
 			char *application_name,
-			char *role_name,
 			char *begin_date_string,
 			char *end_date_string,
 			char *argv_0,
@@ -119,40 +118,38 @@ boolean merged_datasets_output_transmit(
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *role_name;
+	char *process_name;
+	char *login_name;
+	char *output_medium;
+	DICTIONARY *post_dictionary;
 	char *begin_date_string = {0};
 	char *end_date_string = {0};
-	char *merged_output = {0};
 	char *results_string;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DICTIONARY *post_dictionary;
-	char *process_name;
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	enum aggregate_level aggregate_level;
 	char *prompt_prefix;
 	boolean accumulate_flag;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr,
-	"Usage: %s ignored role process ignored dictionary\n",
+	"Usage: %s process login_name output_medium dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	role_name = argv[ 2 ];
-	process_name = argv[ 3 ];
-
-	post_dictionary =
-		dictionary_string2dictionary(
-			argv[ 5 ] );
+	process_name = argv[ 1 ];
+	if ( ( login_name = argv[ 2 ] ) ){};
+	output_medium = argv[ 3 ];
+	post_dictionary = dictionary_string2dictionary( argv[ 4 ] );
 
 	dictionary_add_elements_by_removing_prefix(
 		post_dictionary,
@@ -186,15 +183,10 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	dictionary_get_index_data( 	&merged_output, 
-					post_dictionary, 
-					"merged_output", 
-					0 );
-
-	if ( !*merged_output
-	||   strcmp( merged_output, "merged_output" ) == 0 )
+	if ( !*output_medium
+	||   strcmp( output_medium, "output_medium" ) == 0 )
 	{
-		merged_output = "text_file";
+		output_medium = "text_file";
 	}
 
 	aggregate_level =
@@ -226,7 +218,7 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( strcmp( merged_output, "stdout" ) != 0 )
+	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
 		DOCUMENT *document = document_new( "", application_name );
 		document_set_output_content_type( document );
@@ -313,8 +305,8 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( strcmp( merged_output, "googlechart" ) == 0
-	||   strcmp( merged_output, "easychart" ) == 0 )
+	if ( strcmp( output_medium, "googlechart" ) == 0
+	||   strcmp( output_medium, "easychart" ) == 0 )
 	{
 		if ( !merged_datasets_output_googlechart(
 			application_name,
@@ -342,7 +334,7 @@ int main( int argc, char **argv )
 		}
 	}
 	else
-	if ( strcmp( merged_output, "gracechart" ) == 0 )
+	if ( strcmp( output_medium, "gracechart" ) == 0 )
 	{
 		if ( !merged_datasets_output_gracechart(
 					process_generic_output->
@@ -356,7 +348,6 @@ int main( int argc, char **argv )
 						value_folder->
 							value_folder_name,
 					application_name,
-					role_name,
 					begin_date_string,
 					end_date_string,
 					argv[ 0 ],
@@ -371,7 +362,7 @@ int main( int argc, char **argv )
 		}
 	}
 	else
-	if ( strcmp( merged_output, "table" ) == 0 )
+	if ( strcmp( output_medium, "table" ) == 0 )
 	{
 		if ( !merged_datasets_output_table(
 					process_generic_output->
@@ -390,7 +381,7 @@ int main( int argc, char **argv )
 		}
 	}
 	else
-	if ( strcmp( merged_output, "spreadsheet" ) == 0 )
+	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
 	{
 		char *ftp_filename;
 		char *output_filename;
@@ -505,8 +496,8 @@ int main( int argc, char **argv )
 				(char *)0 /* application_type */ );
 	}
 	else
-	if ( strcmp( merged_output, "transmit" ) == 0
-	||   strcmp( merged_output, "text_file" ) == 0 )
+	if ( strcmp( output_medium, "transmit" ) == 0
+	||   strcmp( output_medium, "text_file" ) == 0 )
 	{
 		char *ftp_filename;
 		char *output_filename;
@@ -628,7 +619,7 @@ int main( int argc, char **argv )
 				(char *)0 /* application_type */ );
 	}
 	else
-	if ( strcmp( merged_output, "stdout" ) == 0 )
+	if ( strcmp( output_medium, "stdout" ) == 0 )
 	{
 		FILE *output_pipe;
 		char sys_string[ 512 ];
@@ -667,11 +658,11 @@ int main( int argc, char **argv )
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			merged_output );
+			output_medium );
 		exit( 0 );
 	}
 
-	if ( strcmp( merged_output, "stdout" ) != 0 )
+	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
 		document_close();
 	}
@@ -850,7 +841,6 @@ boolean merged_datasets_output_gracechart(
 			enum aggregate_level aggregate_level,
 			char *value_folder_name,
 			char *application_name,
-			char *role_name,
 			char *begin_date_string,
 			char *end_date_string,
 			char *argv_0,
@@ -901,7 +891,7 @@ boolean merged_datasets_output_gracechart(
 
 	grace = grace_new_unit_graph_grace(
 				application_name,
-				role_name,
+				(char *)0 /* role_name */,
 				(char *)0 /* infrastructure_process */,
 				(char *)0 /* data_process */,
 				argv_0,

@@ -126,6 +126,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *process_set_name;
+	char *login_name;
 	char *output_medium_string;
 	DICTIONARY *post_dictionary;
 
@@ -148,6 +149,7 @@ typedef struct
 PROCESS_GENERIC *process_generic_fetch(
 			char *process_set_name,
 			char *process_name,
+			char *login_name,
 			char *output_medium_string,
 			DICTIONARY *post_dictionary );
 

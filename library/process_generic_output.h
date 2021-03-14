@@ -163,8 +163,7 @@ char *process_generic_output_get_begin_end_date_where(
 			char *application_name,
 			char *value_folder_name,
 			char *date_attribute_name,
-			char *where_clause,
-			PROCESS_GENERIC_OUTPUT *process_generic_output );
+			char *where_clause );
 
 LIST *process_generic_output_append_select_list(
 					LIST *select_list,

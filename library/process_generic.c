@@ -1094,6 +1094,7 @@ char *process_generic_datatype_where(
 PROCESS_GENERIC *process_generic_fetch(
 			char *process_set_name,
 			char *process_name,
+			char *login_name,
 			char *output_medium_string,
 			DICTIONARY *post_dictionary )
 {
@@ -1102,6 +1103,7 @@ PROCESS_GENERIC *process_generic_fetch(
 	process_generic = process_generic_calloc();
 
 	process_generic->process_set_name = process_set_name;
+	process_generic->login_name = login_name;
 	process_generic->output_medium_string = output_medium_string;
 	process_generic->post_dictionary = post_dictionary;
 

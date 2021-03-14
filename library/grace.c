@@ -66,7 +66,7 @@ void grace_output_optional_label_list(
 		 length + 1,
 		 length );
 
-} /* grace_output_optional_label_list() */
+}
 
 void grace_output_data(
 			FILE *output_pipe,
@@ -225,7 +225,7 @@ void grace_output_data(
 
 	} while( list_next( graph_list ) );
 
-} /* grace_output_data() */
+}
 
 void grace_output_datatype(
 				FILE *output_pipe,
@@ -281,7 +281,7 @@ void grace_output_datatype(
 
 	} while( list_next( datatype->dataset_list ) );
 
-} /* grace_output_datatype() */
+}
 
 /*
 "@timestamp def \"Thu Aug 16 17:20:38 2001\"\n"
@@ -380,7 +380,7 @@ void grace_output_top_heading(	FILE *output_pipe,
 		page_width_pixels,
 		page_length_pixels,
 		'%', '%', '%' );
-} /* grace_output_top_heading() */
+}
 
 void grace_output_graph_heading( FILE *output_pipe,
 				 GRACE_GRAPH *graph,
@@ -662,7 +662,7 @@ void grace_output_graph_heading( FILE *output_pipe,
 
 	fflush( output_pipe );
 
-} /* grace_output_graph_heading() */
+}
 
 void grace_output_full_dataset_heading(	FILE *output_pipe,
 				   	int line_color,
@@ -801,7 +801,7 @@ void grace_output_full_dataset_heading(	FILE *output_pipe,
 	dataset_number,
 	legend );
 
-} /* grace_output_full_dataset_heading() */
+}
 
 float grace_get_symbol_size(	float symbol_size,
 				boolean symbols,
@@ -820,7 +820,7 @@ float grace_get_symbol_size(	float symbol_size,
 	}
 	return symbol_size;
 
-} /* grace_get_symbol_size() */
+}
 
 void grace_output_abbreviated_dataset_heading(
 					FILE *output_pipe,
@@ -861,7 +861,7 @@ void grace_output_abbreviated_dataset_heading(
 		dataset_number,
 		legend );
 
-} /* grace_output_abbreviated_dataset_heading() */
+}
 
 #ifdef NOT_DEFINED
 void grace_output_abbreviated_dataset_heading(
@@ -872,7 +872,7 @@ void grace_output_abbreviated_dataset_heading(
 		"@S_ line color %d\n",
 		GRACE_LINE_COLOR_EXPRESSION,
 
-} /* grace_output_abbreviated_dataset_heading() */
+}
 #endif
 
 GRACE *grace_new_datatype_overlay_grace(char *application_name,
@@ -888,7 +888,7 @@ GRACE *grace_new_datatype_overlay_grace(char *application_name,
 	grace->graph_list = list_new();
 	grace->anchor_graph_list = list_new_list();
 	return grace;
-} /* grace_new_datatype_overlay_grace() */
+}
 
 GRACE *grace_new_quantum_grace(
 				char *application_name,
@@ -925,7 +925,7 @@ GRACE *grace_new_quantum_grace(
 	list_append_pointer( grace_graph->datatype_list, grace_datatype );
 
 	return grace;
-} /* grace_new_quantum_grace() */
+}
 
 GRACE *grace_new_date_time_grace(
 				char *application_name,
@@ -945,7 +945,7 @@ GRACE *grace_new_date_time_grace(
 	grace->x_label_size = DEFAULT_X_LABEL_SIZE;
 	grace->grace_graph_type = date_time_graph;
 	return grace;
-} /* grace_new_date_time_grace() */
+}
 
 void grace_date_time_set_attribute_name(
 					LIST *graph_list,
@@ -977,7 +977,7 @@ void grace_date_time_set_attribute_name(
 	list_append_pointer(	graph_list,
 				grace_graph );
 
-} /* grace_date_time_set_attribute_name() */
+}
 
 void grace_date_time_set_data(	LIST *graph_list,
 				char *date_data,
@@ -1043,7 +1043,7 @@ void grace_date_time_set_data(	LIST *graph_list,
 
 	list_append_pointer( grace_dataset->point_list, grace_point );
 
-} /* grace_date_time_set_data() */
+}
 
 GRACE *grace_new_unit_graph_grace(
 			char *application_name,
@@ -1127,7 +1127,7 @@ GRACE *grace_new_unit_graph_grace(
 	grace->time_piece = time_piece;
 	grace->value_piece = value_piece;
 	return grace;
-} /* grace_new_unit_graph_grace() */
+}
 
 boolean grace_output_point_list(
 				FILE *output_pipe,
@@ -1206,7 +1206,7 @@ boolean grace_output_point_list(
 
 	return output_any;
 
-} /* grace_output_point_list() */
+}
 
 void grace_set_point(		boolean *inside_null,
 				LIST *dataset_list,
@@ -1266,7 +1266,7 @@ void grace_set_point(		boolean *inside_null,
 	point = grace_new_grace_point(x, y_string, optional_label );
 	list_append_pointer( grace_dataset->point_list, point );
 
-} /* grace_set_point() */
+}
 
 void grace_get_world_minimum_x(
 				double *world_min_x,
@@ -1309,7 +1309,7 @@ void grace_get_world_minimum_x(
 				julian_display_hhmm(
 					x_axis_begin_date_julian->current ) );
 	}
-} /* grace_get_world_minimum_x() */
+}
 
 void grace_get_world_minimum_y(
 				double *world_min_y,
@@ -1339,7 +1339,7 @@ void grace_get_world_maximum_x(
 				julian_display_yyyy_mm_dd(
 					x_axis_end_date_julian->current ) );
 	}
-} /* grace_get_world_maximum_x() */
+}
 
 void grace_get_world_maximum_y(
 				double *world_max_y,
@@ -1355,7 +1355,7 @@ void grace_get_world_maximum_y(
 		*world_max_y = (y) ? y : 0.5;
 	}
 
-} /* grace_get_world_maximum_y() */
+}
 
 void grace_set_x_tick_major( GRACE_GRAPH *graph, double x_tick_major )
 {
@@ -1376,7 +1376,7 @@ GRACE_POINT *grace_new_grace_point(	double x,
 				(char *)0 /* low_string */,
 				(char *)0 /* high_string */,
 				optional_label );
-} /* grace_new_grace_point() */
+}
 
 GRACE_POINT *grace_point_new(	double x,
 				char *y_string,
@@ -1403,7 +1403,7 @@ GRACE_POINT *grace_point_new(	double x,
 	g->optional_label = optional_label;
 
 	return g;
-} /* grace_point_new() */
+}
 
 boolean grace_get_is_null( char *value_string )
 {
@@ -1422,7 +1422,7 @@ boolean grace_get_is_null( char *value_string )
 	}
 	else
 		return 0;
-} /* grace_get_is_null() */
+}
 
 boolean grace_output_to_file(
 				char *output_filename,
@@ -1501,7 +1501,7 @@ boolean grace_output_to_file(
 	pclose( output_pipe );
 	return 1;
 
-} /* grace_output_to_file() */
+}
 
 boolean grace_convert_postscript_to_pdf(
 					char *pdf_filename, 
@@ -1540,7 +1540,7 @@ boolean grace_convert_postscript_to_pdf(
 		return 1;
 	}
 
-} /* grace_convert_postscript_to_pdf() */
+}
 
 FILE *grace_open_output_pipe(
 				char *output_filename,
@@ -1640,7 +1640,7 @@ FILE *grace_open_output_pipe(
 
 	return p;
 
-} /* grace_open_output_pipe() */
+}
 
 void grace_get_filenames(		char **agr_filename,
 					char **ftp_agr_filename,
@@ -1810,7 +1810,7 @@ void grace_get_filenames(		char **agr_filename,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-} /* grace_get_filenames() */
+}
 
 int grace_set_structures(	int *page_width_pixels,
 				int *page_length_pixels,
@@ -1959,7 +1959,7 @@ int grace_set_structures(	int *page_width_pixels,
 
 	return 1;
 
-} /* grace_set_structures() */
+}
 
 void grace_overlay_graph_remove_same_datatype(
 					LIST *graph_list,
@@ -2007,7 +2007,7 @@ void grace_overlay_graph_remove_same_datatype(
 		list_next( anchor_graph_list );
 	} while( list_next( graph_list ) );
 	return;
-} /* grace_overlay_graph_remove_same_datatype() */
+}
 
 int grace_remove_empty_graphs(	LIST *graph_list,
 				LIST *anchor_graph_list,
@@ -2062,7 +2062,7 @@ int grace_remove_empty_graphs(	LIST *graph_list,
 
 	} while( list_next( graph_list ) );
 	return 1;
-} /* grace_remove_empty_graphs() */
+}
 
 int grace_graph_datatype_populated( LIST *datatype_list )
 {
@@ -2092,7 +2092,7 @@ int grace_graph_datatype_populated( LIST *datatype_list )
 		} while( list_next( datatype->dataset_list ) );
 	} while( list_next( datatype_list ) );
 	return 0;
-} /* grace_graph_datatype_populated() */
+}
 
 double grace_get_maximum_y_double( LIST *datatype_list )
 {
@@ -2140,7 +2140,7 @@ double grace_get_maximum_y_double( LIST *datatype_list )
 		} while( list_next( datatype->dataset_list ) );
 	} while( list_next( datatype_list ) );
 	return maximum;
-} /* grace_get_maximum_y_double() */
+}
 
 double grace_get_minimum_y_double( LIST *datatype_list )
 {
@@ -2186,7 +2186,7 @@ double grace_get_minimum_y_double( LIST *datatype_list )
 		} while( list_next( datatype->dataset_list ) );
 	} while( list_next( datatype_list ) );
 	return minimum;
-} /* grace_get_minimum_y_double() */
+}
 
 double grace_get_lowest_first_x_double( LIST *datatype_list )
 {
@@ -2224,7 +2224,7 @@ double grace_get_lowest_first_x_double( LIST *datatype_list )
 		} while( list_next( datatype->dataset_list ) );
 	} while( list_next( datatype_list ) );
 	return lowest_first_x_double;
-} /* grace_get_lowest_first_x_double() */
+}
 
 double grace_get_highest_last_x_double(	LIST *datatype_list )
 {
@@ -2265,7 +2265,7 @@ double grace_get_highest_last_x_double(	LIST *datatype_list )
 		} while( list_next( datatype->dataset_list ) );
 	} while( list_next( datatype_list ) );
 	return highest_last_x_double;
-} /* grace_get_highest_last_x_double() */
+}
 
 void grace_set_x_tick_minor( GRACE_GRAPH *graph, int x_tick_minor )
 {
@@ -2317,7 +2317,7 @@ GRACE_GRAPH *grace_new_grace_graph( void )
 		GRACE_DEFAULT_YAXIS_TICKLABEL_PRECISION;
 	g->yaxis_grid_lines = 1;
 	return g;
-} /* grace_new_grace_graph() */
+}
 
 GRACE_DATATYPE *grace_new_grace_datatype( 
 				char *datatype_entity,
@@ -2345,7 +2345,7 @@ GRACE_DATATYPE *grace_new_grace_datatype(
 	datatype->datatype_number = datatype_number++;
 	datatype->line_linestyle = 1;
 	return datatype;
-} /* grace_new_grace_datatype() */
+}
 
 void grace_append_graph( LIST *graph_list, GRACE_GRAPH *graph )
 {
@@ -2485,7 +2485,7 @@ int grace_populate_unit_graph_list(
 	}
 	pclose( p );
 	return 1;
-} /* grace_populate_unit_graph_list() */
+}
 
 double grace_get_number_x_ticks_between_labels(
 				LIST *datatype_list,
@@ -2538,7 +2538,7 @@ double grace_get_number_x_ticks_between_labels(
 
 	return get_average_difference_double( label_point_double_list );
 
-} /* grace_get_number_x_ticks_between_labels() */
+}
 
 double get_average_difference_double( LIST *double_list )
 {
@@ -2563,7 +2563,7 @@ double get_average_difference_double( LIST *double_list )
 
 	} while( list_next( double_list ) );
 	return sum_difference / (double)count;
-} /* get_average_difference_double() */
+}
 
 void grace_populate_point_list( LIST *graph_list, 
 				char *data_process,
@@ -2608,7 +2608,7 @@ void grace_populate_point_list( LIST *graph_list,
 				(char *)0 /* optional_label */ );
 	}
 	pclose( p );
-} /* grace_populate_point_list() */
+}
 
 GRACE_DATATYPE *grace_get_grace_datatype(
 				GRACE_GRAPH **return_graph,
@@ -2645,7 +2645,7 @@ GRACE_DATATYPE *grace_get_grace_datatype(
 	} while( list_next( graph_list ) );
 	*return_graph = (GRACE_GRAPH *)0;
 	return( GRACE_DATATYPE *)0;
-} /* grace_get_grace_datatype() */
+}
 
 GRACE_DATATYPE *grace_graph_get_grace_datatype(
 				LIST *grace_datatype_list,
@@ -2706,7 +2706,7 @@ GRACE_DATATYPE *grace_graph_get_grace_datatype(
 		}
 	} while( list_next( grace_datatype_list ) );
 	return (GRACE_DATATYPE *)0;
-} /* grace_graph_get_grace_datatype() */
+}
 
 
 void grace_set_aggregate_variables(	GRACE *grace,
@@ -2934,7 +2934,7 @@ void grace_set_aggregate_variables(	GRACE *grace,
 
 	} while( list_next( graph_list ) );
 
-} /* grace_set_aggregate_variables() */
+}
 
 void grace_get_portrait_view_y_minimum_offset_and_increment(
 					double *view_min_y,
@@ -3033,7 +3033,7 @@ void grace_get_portrait_view_y_minimum_offset_and_increment(
 		*view_y_increment = 0.90 / (double)graph_list_length;
 		*view_y_offset = 0.75 / (double)graph_list_length;
 	}
-} /* grace_get_portrait_view_y_minimum_offset_and_increment() */
+}
 
 void grace_get_landscape_view_y_minimum_offset_and_increment(
 					double *view_min_y,
@@ -3083,7 +3083,7 @@ void grace_get_landscape_view_y_minimum_offset_and_increment(
 		*view_y_increment = 0.75 / (double)graph_list_length;
 		*view_y_offset = 0.60 / (double)graph_list_length;
 	}
-} /* grace_get_portrait_view_y_minimum_offset_and_increment() */
+}
 
 void grace_graph_set_scale_to_zero( 	GRACE_GRAPH *grace_graph,
 				    	int scale_to_zero )
@@ -3110,7 +3110,7 @@ boolean grace_parse_time_hhmm( 	int *hour,
 	*( buffer + 1 ) = *( time + 3 );
 	*minute = atoi( buffer );
 	return 1;
-} /* grace_parse_time_hhmm() */
+}
 
 boolean grace_parse_time_hh_colon_mm(
 				int *hour,
@@ -3131,7 +3131,7 @@ boolean grace_parse_time_hh_colon_mm(
 	*( buffer + 1 ) = *( time + 4 );
 	*minute = atoi( buffer );
 	return 1;
-} /* grace_parse_time_hh_colon_mm() */
+}
 
 
 boolean grace_parse_date_hh_colon_mm(
@@ -3149,7 +3149,7 @@ boolean grace_parse_date_hh_colon_mm(
 			 	hour,
 				minute,
 				time );
-} /* grace_parse_date_hh_colon_mm() */
+}
 
 boolean grace_parse_date_hhmm(	int *hour,
 				int *minute,
@@ -3165,7 +3165,7 @@ boolean grace_parse_date_hhmm(	int *hour,
 			 	hour,
 				minute,
 				time );
-} /* grace_parse_date_hhmm() */
+}
 
 boolean grace_parse_date_yyyy_mm_dd(	int *year,
 		    			int *month,
@@ -3197,7 +3197,7 @@ boolean grace_parse_date_yyyy_mm_dd(	int *year,
 	*month = atoi( piece( buffer, '-', date, 1 ) );
 	*day = atoi( piece( buffer, '-', date, 2 ) );
 	return 1;
-} /* grace_parse_date_yyyy_mm_dd() */
+}
 
 void grace_get_y_tick_major_minor(	
 				double *y_tick_major,
@@ -3272,7 +3272,7 @@ void grace_get_y_tick_major_minor(
 	if ( *y_tick_major >= world_max_y )
 		*y_tick_major = world_max_y / 2.0;
 
-} /* grace_get_y_tick_major_minor() */
+}
 
 void grace_get_x_tick_major_minor(
 				double *x_tick_major,
@@ -3367,7 +3367,7 @@ void grace_get_x_tick_major_minor(
 		*x_tick_major = ( 365 * 4 ) ;
 		*x_tick_minor = 3 ;
 	}
-} /* grace_get_x_tick_major_minor() */
+}
 
 boolean grace_set_string_to_point_list(
 				LIST *graph_list, 
@@ -3580,7 +3580,7 @@ boolean grace_set_string_to_point_list(
 
 	return 1;
 
-} /* grace_set_string_to_point_list() */
+}
 
 int grace_set_begin_end_date(	GRACE *grace,
 				char *begin_date_string,
@@ -3622,7 +3622,7 @@ int grace_set_begin_end_date(	GRACE *grace,
 		grace->xaxis_ticklabel_format = "yymmdd";
 	}
 	return 1;
-} /* grace_set_begin_end_date() */
+}
 
 void grace_increase_legend_char_size(
 				GRACE_GRAPH *grace_graph,
@@ -3677,7 +3677,7 @@ float grace_get_legend_char_size(
 		legend_char_size = GRACE_DEFAULT_LEGEND_CHAR_SIZE - 0.15;
 
 	return legend_char_size;
-} /* grace_get_legend_char_size() */
+}
 
 GRACE_DATATYPE_OVERLAY_INPUT_GROUP *
 			grace_new_grace_datatype_overlay_input_group(
@@ -3742,7 +3742,7 @@ GRACE_DATATYPE_OVERLAY_INPUT *grace_new_grace_datatype_overlay_input(
 	a->bar_graph = bar_graph;
 	a->scale_graph_zero = scale_graph_zero;
 	return a;
-} /* grace_new_grace_datatype_overlay_input() */
+}
 
 void grace_set_compare_datatype_overlay_input(
 				LIST *compare_datatype_overlay_input_list,
@@ -3763,7 +3763,7 @@ void grace_set_compare_datatype_overlay_input(
 
 	list_append_pointer( compare_datatype_overlay_input_list,
 			     d );
-} /* grace_set_compare_datatype_overlay_input() */
+}
 
 void grace_populate_datatype_overlay_graph_list(
 				LIST *graph_list,
@@ -3907,7 +3907,7 @@ void grace_populate_datatype_overlay_graph_list(
 				sizeof( GRACE_GRAPH ) );
 
 	} while( list_next( compare_datatype_overlay_input_list ) );
-} /* grace_populate_datatype_overlay_graph_list() */
+}
 
 #ifdef NOT_DEFINED
 char *grace_datatype_list_get_datatype_type_bar_xy_xyhilo( LIST *datatype_list )
@@ -3919,7 +3919,7 @@ char *grace_datatype_list_get_datatype_type_bar_xy_xyhilo( LIST *datatype_list )
 	return (grace_datatype->datatype_type_bar_xy_xyhilo) ?
 			grace_datatype->datatype_type_bar_xy_xyhilo :
 			"";
-} /* grace_datatype_list_get_datatype_type_bar_xy_xyhilo() */
+}
 #endif
 
 float grace_get_x_label_size( 	int number_of_days,
@@ -4016,7 +4016,7 @@ void grace_make_same_units_have_same_y_tick_marks(
 
 		list_next( anchor_graph_list );
 	} while( list_next( graph_list ) );
-} /* grace_make_same_units_have_same_y_tick_marks() */
+}
 
 void grace_get_widest_world_y(	double *new_world_min_y,
 				double *new_world_max_y,
@@ -4035,7 +4035,7 @@ void grace_get_widest_world_y(	double *new_world_min_y,
 	else
 		*new_world_max_y = anchor_graph_world_max_y;
 
-} /* grace_get_widest_world_y() */
+}
 
 void grace_set_landscape(	int *page_width_pixels,
 				int *page_length_pixels,
@@ -4051,7 +4051,7 @@ void grace_set_landscape(	int *page_width_pixels,
 	*distill_landscape_flag = GRACE_DISTILL_LANDSCAPE_FLAG;
 	*starting_single_view_min_y -= 0.3;
 	*view_x_range = LANDSCAPE_VIEW_X_RANGE;
-} /* grace_set_landscape() */
+}
 
 GRACE *grace_new_grace( 	char *application_name,
 				char *role_name )
@@ -4087,7 +4087,7 @@ GRACE *grace_new_grace( 	char *application_name,
 
 	return grace;
 
-} /* grace_new_grace() */
+}
 
 GRACE *grace_new_xy_grace(	char *application_name,
 				char *role_name,
@@ -4125,7 +4125,7 @@ GRACE *grace_new_xy_grace(	char *application_name,
 	grace_datatype->dataset_list = list_new();
 	list_append_pointer( grace_graph->datatype_list, grace_datatype );
 	return grace;
-} /* grace_new_xy_grace() */
+}
 
 void grace_set_xy_to_point_list(
 				LIST *graph_list, 
@@ -4149,7 +4149,7 @@ void grace_set_xy_to_point_list(
 				y_string,
 				optional_label,
 				dataset_no_cycle_color );
-} /* grace_set_xy_to_point_list() */
+}
 
 void grace_set_to_point_list(
 				GRACE_DATATYPE *grace_datatype, 
@@ -4186,7 +4186,7 @@ void grace_set_to_point_list(
 
 	list_append_pointer( dataset->point_list, grace_point );
 
-} /* grace_set_to_point_list() */
+}
 
 double grace_get_x_range( double world_min_x,
 			  double world_max_x )
@@ -4212,7 +4212,7 @@ int grace_graph_list_empty( LIST *graph_list )
 	} while( list_next( graph_list ) );
 
 	return 1;
-} /* grace_graph_list_empty() */
+}
 
 void grace_adjust_for_negative_y_max(
 					double *world_min_y,
@@ -4224,7 +4224,7 @@ void grace_adjust_for_negative_y_max(
 		*world_min_y = *world_max_y;
 		*world_max_y = tmp;
 	}
-} /* grace_adjust_for_negative_y_max() */
+}
 
 
 boolean grace_output_charts(	char *output_filename, 
@@ -4290,7 +4290,7 @@ boolean grace_output_charts(	char *output_filename,
 		}
 	}
 	return 1;
-} /* grace_output_charts() */
+}
 
 void grace_graph_set_global_world_max_y(LIST *graph_list,
 					double ymax )
@@ -4304,7 +4304,7 @@ void grace_graph_set_global_world_max_y(LIST *graph_list,
 			grace_graph->world_max_y = ymax;
 		} while( list_next( graph_list ) );
 	}
-} /* grace_graph_set_global_world_max_y() */
+}
 
 void grace_graph_set_global_world_min_y(LIST *graph_list,
 					double world_min_y )
@@ -4318,7 +4318,7 @@ void grace_graph_set_global_world_min_y(LIST *graph_list,
 			grace_graph->world_min_y = world_min_y;
 		} while( list_next( graph_list ) );
 	}
-} /* grace_graph_set_global_world_min_y() */
+}
 
 void grace_graph_set_global_y_tick_major(
 				LIST *graph_list,
@@ -4333,7 +4333,7 @@ void grace_graph_set_global_y_tick_major(
 			grace_graph->y_tick_major = y_tick_major;
 		} while( list_next( graph_list ) );
 	}
-} /* grace_graph_set_global_y_tick_major() */
+}
 
 void grace_graph_set_global_y_tick_minor(
 				LIST *graph_list,
@@ -4348,7 +4348,7 @@ void grace_graph_set_global_y_tick_minor(
 			grace_graph->y_tick_minor = y_tick_minor;
 		} while( list_next( graph_list ) );
 	}
-} /* grace_graph_set_global_y_tick_minor() */
+}
 
 char *grace_get_agr_prompt( void )
 {
@@ -4423,7 +4423,7 @@ LIST *grace_get_optional_label_list( LIST *graph_list )
 		} while( list_next( grace_graph->datatype_list ) );
 	} while( list_next( graph_list ) );
 	return optional_label_list;
-} /* grace_get_optional_label_list() */
+}
 
 void grace_output_graph_window(
 			char *application_name,
@@ -4481,7 +4481,7 @@ void grace_output_graph_window(
 	grace_output_grace_home_link();
 	if ( with_document_output ) document_close();
 	fflush( stdout );
-} /* grace_output_graph_window() */
+}
 
 void grace_email_graph(	char *application_name,
 			char *email_address,
@@ -4538,7 +4538,7 @@ void grace_email_graph(	char *application_name,
 
 	if ( system( sys_string ) ) {};
 	if ( with_document_output ) document_close();
-} /* grace_email_graph() */
+}
 
 void grace_error_exit( char *function_name, int line_number )
 {
@@ -4563,7 +4563,7 @@ void grace_set_world_min_y_based_on_grace_point_low(
 				grace_get_minimum_y_from_point_low(
 					grace_graph->datatype_list ) );
 	} while( list_next( graph_list ) );
-} /* grace_set_world_min_y_based_on_grace_point_low() */
+}
 
 void grace_set_world_max_y_based_on_grace_point_high(
 				LIST *graph_list )
@@ -4579,7 +4579,7 @@ void grace_set_world_max_y_based_on_grace_point_high(
 					grace_graph->datatype_list ) );
 
 	} while( list_next( graph_list ) );
-} /* grace_set_world_max_y_based_on_grace_point_high() */
+}
 
 void grace_set_world_min_x_based_on_grace_point_low(
 				double *world_min_x,
@@ -4596,7 +4596,7 @@ void grace_set_world_min_x_based_on_grace_point_low(
 					grace_graph->datatype_list ) );
 
 	} while( list_next( graph_list ) );
-} /* grace_set_world_min_x_based_on_grace_point_high() */
+}
 
 void grace_set_world_max_x_based_on_grace_point_high(
 				double *world_max_x,
@@ -4613,7 +4613,7 @@ void grace_set_world_max_x_based_on_grace_point_high(
 					grace_graph->datatype_list ) );
 
 	} while( list_next( graph_list ) );
-} /* grace_set_world_max_x_based_on_grace_point_high() */
+}
 
 double grace_get_minimum_x_from_point_low(
 					LIST *datatype_list )
@@ -4656,7 +4656,7 @@ double grace_get_minimum_x_from_point_low(
 		} while( list_next( datatype->dataset_list ) );
 	} while( list_next( datatype_list ) );
 	return minimum;
-} /* grace_get_minimum_x_from_point_low() */
+}
 
 double grace_get_minimum_y_from_point_low(
 				LIST *datatype_list )
@@ -4708,7 +4708,7 @@ double grace_get_minimum_y_from_point_low(
 		} while( list_next( datatype->dataset_list ) );
 	} while( list_next( datatype_list ) );
 	return minimum;
-} /* grace_get_minimum_y_from_point_low() */
+}
 
 double grace_get_maximum_x_from_point_high(
 				LIST *datatype_list )
@@ -4750,7 +4750,7 @@ double grace_get_maximum_x_from_point_high(
 		} while( list_next( datatype->dataset_list ) );
 	} while( list_next( datatype_list ) );
 	return maximum;
-} /* grace_get_maximum_x_from_point_high() */
+}
 
 double grace_get_maximum_y_from_point_high(
 				LIST *datatype_list )
@@ -4801,7 +4801,7 @@ double grace_get_maximum_y_from_point_high(
 		} while( list_next( datatype->dataset_list ) );
 	} while( list_next( datatype_list ) );
 	return maximum;
-} /* grace_get_maximum_y_from_point_high() */
+}
 
 void grace_set_bar_graph( LIST *graph_list )
 {
@@ -4826,7 +4826,7 @@ void grace_set_bar_graph( LIST *graph_list )
 			} while( list_next( grace_graph->datatype_list ) );
 		}
 	} while( list_next( graph_list ) );
-} /* grace_set_bar_graph() */
+}
 
 void grace_set_symbol_size( LIST *graph_list, float symbol_size )
 {
@@ -4849,7 +4849,7 @@ void grace_set_symbol_size( LIST *graph_list, float symbol_size )
 			} while( list_next( grace_graph->datatype_list ) );
 		}
 	} while( list_next( graph_list ) );
-} /* grace_set_symbol_size() */
+}
 
 void grace_set_xaxis_ticklabel_angle(	LIST *graph_list,
 					int xaxis_ticklabel_angle )
@@ -4862,7 +4862,7 @@ void grace_set_xaxis_ticklabel_angle(	LIST *graph_list,
 		grace_graph = list_get_pointer( graph_list );
 		grace_graph->xaxis_ticklabel_angle = xaxis_ticklabel_angle;
 	} while( list_next( graph_list ) );
-} /* grace_set_xaxis_ticklabel_angle() */
+}
 
 void grace_set_yaxis_ticklabel_precision(
 					LIST *graph_list,
@@ -4877,7 +4877,7 @@ void grace_set_yaxis_ticklabel_precision(
 		grace_graph->yaxis_ticklabel_precision =
 			yaxis_ticklabel_precision;
 	} while( list_next( graph_list ) );
-} /* grace_set_yaxis_ticklabel_precision() */
+}
 
 void grace_set_scale_to_zero( LIST *graph_list )
 {
@@ -4889,7 +4889,7 @@ void grace_set_scale_to_zero( LIST *graph_list )
 		grace_graph = list_get_pointer( graph_list );
 		grace_graph->scale_to_zero = 1;
 	} while( list_next( graph_list ) );
-} /* grace_set_scale_to_zero() */
+}
 
 void grace_set_x_minor_tickmarks_to_zero( LIST *graph_list )
 {
@@ -4901,7 +4901,7 @@ void grace_set_x_minor_tickmarks_to_zero( LIST *graph_list )
 		grace_graph = list_get_pointer( graph_list );
 		grace_graph->x_tick_minor = 0;
 	} while( list_next( graph_list ) );
-} /* grace_set_x_minor_tickmarks_to_zero() */
+}
 
 void grace_set_y_minor_tickmarks_to_zero( LIST *graph_list )
 {
@@ -4913,7 +4913,7 @@ void grace_set_y_minor_tickmarks_to_zero( LIST *graph_list )
 		grace_graph = list_get_pointer( graph_list );
 		grace_graph->y_tick_minor = 0;
 	} while( list_next( graph_list ) );
-} /* grace_set_y_minor_tickmarks_to_zero() */
+}
 
 GRACE_OPTIONAL_LABEL *grace_new_optional_label(
 						double grace_point_x,
@@ -4938,7 +4938,7 @@ GRACE_OPTIONAL_LABEL *grace_new_optional_label(
 	grace_optional_label->x = grace_point_x;
 	grace_optional_label->optional_label = optional_label;
 	return grace_optional_label;
-} /* grace_new_optional_label() */
+}
 
 void grace_set_xaxis_tickmarks_off( LIST *graph_list )
 {
@@ -4950,7 +4950,7 @@ void grace_set_xaxis_tickmarks_off( LIST *graph_list )
 		grace_graph = list_get_pointer( graph_list );
 		grace_graph->xaxis_tickmarks_on_off = "off";
 	} while( list_next( graph_list ) );
-} /* grace_set_xaxis_tickmarks_off() */
+}
 
 boolean grace_no_legend_set( LIST *graph_list )
 {
@@ -4980,7 +4980,7 @@ boolean grace_no_legend_set( LIST *graph_list )
 		}
 	} while( list_next( graph_list ) );
 	return 1;
-} /* grace_no_legend_set() */
+}
 
 void grace_lower_legend(	LIST *graph_list,
 				float pixels )
@@ -4993,7 +4993,7 @@ void grace_lower_legend(	LIST *graph_list,
 		grace_graph = list_get_pointer( graph_list );
 		grace_graph->legend_view_y -= pixels;
 	} while( list_next( graph_list ) );
-} /* grace_lower_legend() */
+}
 
 void grace_graph_make_yaxis_opposite( GRACE_GRAPH *grace_graph )
 {
@@ -5004,7 +5004,7 @@ void grace_graph_make_yaxis_opposite( GRACE_GRAPH *grace_graph )
 		OPPOSITE_YAXIS_TICKLABEL_PLACE;
 	grace_graph->xaxis_ticklabel_on_off = "off";
 	grace_graph->xaxis_tickmarks_on_off = "off";
-} /* grace_graph_make_yaxis_opposite() */
+}
 
 void grace_set_first_graph_top_of_second( LIST *graph_list )
 {
@@ -5023,7 +5023,7 @@ void grace_set_first_graph_top_of_second( LIST *graph_list )
 	first_grace_graph->view_min_y = second_grace_graph->view_min_y;
 	first_grace_graph->view_max_y = second_grace_graph->view_max_y;
 
-} /* grace_set_first_graph_top_of_second() */
+}
 
 void grace_move_legend_bottom_left(
 			GRACE_GRAPH *grace_graph,
@@ -5071,7 +5071,7 @@ void grace_graph_increment_line_color( LIST *datatype_list )
 			grace_dataset->line_color++;
 		} while( list_next( grace_datatype->dataset_list ) );
 	} while( list_next( datatype_list ) );
-} /* grace_graph_increment_line_color() */
+}
 
 void grace_graph_set_no_yaxis_grid_lines_offset(
 					LIST *graph_list,
@@ -5091,7 +5091,7 @@ void grace_graph_set_no_yaxis_grid_lines_offset(
 		}
 		this_graph++;
 	} while( list_next( graph_list ) );
-} /* grace_graph_set_no_yaxis_grid_lines_offset() */
+}
 
 boolean grace_all_datatype_nodisplay_legend( LIST *datatype_list )
 {
@@ -5107,7 +5107,7 @@ boolean grace_all_datatype_nodisplay_legend( LIST *datatype_list )
 		if ( !datatype->nodisplay_legend ) return 0;
 	} while( list_next( datatype_list ) );
 	return 1;
-} /* grace_all_datatype_nodisplay_legend() */
+}
 
 void grace_set_line_linestyle( LIST *datatype_list, int line_linestyle )
 {
@@ -5122,7 +5122,7 @@ void grace_set_line_linestyle( LIST *datatype_list, int line_linestyle )
 		datatype = list_get_pointer( datatype_list );
 		datatype->line_linestyle = line_linestyle;
 	} while( list_next( datatype_list ) );
-} /* grace_set_line_linestyle() */
+}
 
 void grace_set_yaxis_tickmajor_integer_ceiling( LIST *graph_list )
 {
@@ -5135,7 +5135,7 @@ void grace_set_yaxis_tickmajor_integer_ceiling( LIST *graph_list )
 		grace_graph->y_tick_major =
 			(double)(int)grace_graph->y_tick_major + 0.9999999;
 	} while( list_next( graph_list ) );
-} /* grace_set_yaxis_tickmajor_integer_ceiling() */
+}
 
 void grace_graph_set_no_yaxis_grid_lines(
 				LIST *graph_list )
@@ -5148,7 +5148,7 @@ void grace_graph_set_no_yaxis_grid_lines(
 		grace_graph = list_get_pointer( graph_list );
 		grace_graph->yaxis_grid_lines = 0;
 	} while( list_next( graph_list ) );
-} /* grace_graph_set_no_yaxis_grid_lines() */
+}
 
 boolean grace_is_null( char *y_string )
 {
@@ -5157,7 +5157,7 @@ boolean grace_is_null( char *y_string )
 	if ( strcmp( y_string, "null" ) == 0 ) return 1;
 	if ( strcmp( y_string, "NULL" ) == 0 ) return 1;
 	return 0;
-} /* grace_is_null() */
+}
 
 boolean grace_contains_multiple_datatypes(
 					LIST *graph_list )
@@ -5184,7 +5184,7 @@ boolean grace_contains_multiple_datatypes(
 	else
 		return 0;
 
-} /* grace_contains_multiple_datatypes() */
+}
 
 GRACE_DATASET *grace_new_grace_dataset(
 			int datatype_number,
@@ -5215,14 +5215,14 @@ GRACE_DATASET *grace_new_grace_dataset(
 	grace_dataset->point_list = list_new();
 	return grace_dataset;
 
-} /* grace_new_grace_dataset() */
+}
 
 void grace_move_legend_up(	double *legend_view_y,
 				double up_increment )
 {
 	*legend_view_y = *legend_view_y + up_increment;
 
-} /* grace_move_legend_up() */
+}
 
 void grace_move_legend_bottom_center(
 				double *legend_view_x,
@@ -5238,7 +5238,7 @@ void grace_move_legend_bottom_center(
 	{
 		*legend_view_x += 0.30;
 	}
-} /* grace_move_legend_bottom_center() */
+}
 
 void grace_output_screen_title( void )
 {
@@ -5249,7 +5249,7 @@ void grace_output_screen_title( void )
 
 	printf( "</h1>\n" );
 
-} /* grace_output_screen_title() */
+}
 
 void grace_output_horizontal_line_at_point(
 				FILE *output_pipe,
@@ -5271,7 +5271,7 @@ void grace_output_horizontal_line_at_point(
 		 "@line def\n",
 		 horizontal_line_at_point,
 		 horizontal_line_at_point );
-} /* grace_output_horizontal_line_at_point() */
+}
 
 GRACE_DATATYPE *grace_datatype_seek(	LIST *datatype_list,
 					int datatype_number )
@@ -5290,7 +5290,7 @@ GRACE_DATATYPE *grace_datatype_seek(	LIST *datatype_list,
 
 	return (GRACE_DATATYPE *)0;
 
-} /* grace_datatype_seek() */
+}
 
 GRACE_DATATYPE *grace_get_or_set_datatype(
 					LIST *datatype_list,
@@ -5312,7 +5312,7 @@ GRACE_DATATYPE *grace_get_or_set_datatype(
 
 	return grace_datatype;
 
-} /* grace_get_or_set_datatype() */
+}
 
 void grace_datatype_set_legend(		LIST *datatype_list,
 					int datatype_number,
@@ -5326,7 +5326,7 @@ void grace_datatype_set_legend(		LIST *datatype_list,
 
 	grace_datatype->legend = legend;
 
-} /* grace_datatype_set_legend() */
+}
 
 void grace_set_datatype_number_point(
 				GRACE_GRAPH *grace_graph,
@@ -5366,7 +5366,7 @@ void grace_set_datatype_number_point(
 
 	list_append_pointer( grace_dataset->point_list, point );
 
-} /* grace_set_datatype_number_point() */
+}
 
 void grace_datatype_list_set_datatype_type_bar_xy_xyhilo(
 				LIST *graph_list,
@@ -5395,5 +5395,5 @@ void grace_datatype_list_set_datatype_type_bar_xy_xyhilo(
 
 	} while( list_next( graph_list ) );
 
-} /* grace_datatype_list_set_datatype_type_bar_xy_xyhilo() */
+}
 

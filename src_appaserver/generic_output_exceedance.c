@@ -51,12 +51,12 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_set_name;
+	char *process_name;
+	char *login_name;
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	DICTIONARY *original_post_dictionary;
 	char *output_medium;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *process_name;
-	char *login_name;
 	char *sys_string;
 	char *where_clause = {0};
 	int percent_below_piece;
@@ -64,7 +64,7 @@ int main( int argc, char **argv )
 	char *end_date = {0};
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -74,17 +74,16 @@ int main( int argc, char **argv )
 	if ( argc != 6 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored login_name process_set output_medium dictionary\n",
+"Usage: %s process_set process login_name output_medium dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	login_name = argv[ 2 ];
-	process_set_name = argv[ 3 ];
+	process_set_name = argv[ 1 ];
+	process_name = argv[ 2 ];
+	login_name = argv[ 3 ];
 	output_medium = argv[ 4 ];
-
-	original_post_dictionary =
-		dictionary_string2dictionary( argv[ 5 ] );
+	original_post_dictionary = dictionary_string2dictionary( argv[ 5 ] );
 
 	if ( ! ( dictionary_appaserver =
 			dictionary_appaserver_new(
@@ -106,7 +105,7 @@ int main( int argc, char **argv )
 	process_generic_output =
 		process_generic_output_new(
 			application_name,
-			(char *)0 /* process_name */,
+			process_name,
 			process_set_name,
 			0 /* accumulate_flag */ );
 
@@ -207,7 +206,7 @@ int main( int argc, char **argv )
 			0 /* not with_html_table */,
 			login_name );
 
-		system( sys_string );
+		if ( system( sys_string ) ){};
 	}
 	else
 	if ( strcmp( output_medium, "table" ) == 0 )
@@ -239,7 +238,7 @@ int main( int argc, char **argv )
 				1 ) );
 
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		fflush( stdout );
 
 		document_close();

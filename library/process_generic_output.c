@@ -26,10 +26,10 @@
 #include "process_generic_output.h"
 
 PROCESS_GENERIC_OUTPUT *process_generic_output_new(
-		 			char *application_name,
-					char *process_name,
-					char *process_set_name,
-					boolean accumulate )
+			char *application_name,
+			char *process_name,
+			char *process_set_name,
+			boolean accumulate )
 {
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 
@@ -49,7 +49,7 @@ PROCESS_GENERIC_OUTPUT *process_generic_output_new(
 
 	return process_generic_output;
 
-} /* process_generic_output_new() */
+}
 
 PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_new(
 				char *application_name,
@@ -100,7 +100,7 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_new(
 			folder->attribute_list );
 
 	return value_folder;
-} /* process_generic_output_value_folder_new() */
+}
 
 PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_new(
 			char *application_name,
@@ -128,7 +128,7 @@ PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_new(
 	foreign_folder->foreign_folder_name = foreign_folder_name;
 
 	return foreign_folder;
-} /* process_generic_foreign_folder_new() */
+}
 
 void process_generic_value_folder_load(	char **value_folder_name,
 					char **date_attribute_name,
@@ -165,22 +165,24 @@ void process_generic_value_folder_load(	char **value_folder_name,
 			select_template,
 			process_generic_value_folder_table_name );
 
-	if ( process_name
-	&&   *process_name
-	&&   strcmp( process_name, "null" ) != 0 )
-	{
-		sprintf( where_clause,
-		 	 "process = '%s'",
-			 process_name );
-	}
-	else
 	if ( process_set_name
 	&&   *process_set_name
-	&&   strcmp( process_set_name, "null" ) != 0 )
+	&&   strcmp( process_set_name, "null" ) != 0
+	&&   strcmp( process_set_name, "process_set" ) != 0 )
 	{
 		sprintf( where_clause,
 		 	 "process_set = '%s'",
 			 process_set_name );
+	}
+	else
+	if ( process_name
+	&&   *process_name
+	&&   strcmp( process_name, "null" ) != 0
+	&&   strcmp( process_name, "process" ) != 0 )
+	{
+		sprintf( where_clause,
+		 	 "process = '%s'",
+			 process_name );
 	}
 	else
 	{
@@ -208,23 +210,11 @@ void process_generic_value_folder_load(	char **value_folder_name,
 	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: ",
+			"ERROR in %s/%s()/%d: where clause failed [%s]\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
-
-		if ( process_set_name )
-		{
-			fprintf(stderr,
-				"Process set not found: (%s)\n",
-				process_set_name );
-		}
-		else
-		{
-			fprintf(stderr,
-				"Process not found: (%s)\n",
-				process_name );
-		}
+			__LINE__,
+			where_clause );
 
 		exit( 1 );
 	}
@@ -251,7 +241,7 @@ void process_generic_value_folder_load(	char **value_folder_name,
 	*foreign_folder_name = strdup( piece_string );
 
 	free( results );
-} /* process_generic_value_folder_load() */
+}
 
 PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
 					char *application_name,
@@ -275,7 +265,7 @@ PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
 		process_generic_datatype_folder->datatype_folder_name );
 
 	return process_generic_datatype_folder;
-} /* process_generic_datatype_folder_new() */
+}
 
 void process_generic_datatype_folder_load(
 				LIST **primary_attribute_name_list,
@@ -354,7 +344,7 @@ void process_generic_datatype_folder_load(
 
 	*primary_attribute_name_list = pipe2list( sys_string );
 
-} /* process_generic_datatype_folder_load() */
+}
 
 LIST *process_generic_get_compare_datatype_list(
 			char *application_name,
@@ -470,7 +460,7 @@ LIST *process_generic_get_compare_datatype_list(
 
 	return compare_datatype_list;
 
-} /* process_generic_get_compare_datatype_list() */
+}
 
 HASH_TABLE *process_generic_get_values_hash_table(
 			char *application_name,
@@ -575,7 +565,7 @@ HASH_TABLE *process_generic_get_values_hash_table(
 
 	return values_hash_table;
 
-} /* process_generic_get_values_hash_table() */
+}
 
 
 PROCESS_GENERIC_DATATYPE *process_generic_datatype_new(
@@ -628,7 +618,7 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_new(
 
 	return process_generic_datatype;
 
-} /* process_generic_datatype_new() */
+}
 
 void process_generic_datatype_load(
 				boolean *aggregation_sum,
@@ -797,7 +787,7 @@ char *process_generic_get_datatype_where_clause(
 
 	return query->query_output->where_clause;
 	
-} /* process_generic_get_datatype_where_clause() */
+}
 
 LIST *process_generic_get_datatype_primary_attribute_data_list(
 			DICTIONARY *post_dictionary,
@@ -870,7 +860,7 @@ LIST *process_generic_get_datatype_primary_attribute_data_list(
 					primary_attribute_data );
 	} while( list_next( datatype_primary_attribute_name_list ) );
 	return primary_attribute_data_list;
-} /* process_generic_get_datatype_primary_attribute_data_list() */
+}
 
 char *process_generic_output_get_begin_end_date_where(
 			char **begin_date,
@@ -879,14 +869,9 @@ char *process_generic_output_get_begin_end_date_where(
 			char *application_name,
 			char *value_folder_name,
 			char *date_attribute_name,
-			char *original_where_clause,
-			PROCESS_GENERIC_OUTPUT *process_generic_output )
+			char *original_where_clause )
 {
 	static char where_clause[ 256 ];
-
-/* stub */
-/* ---- */
-process_generic_output = (PROCESS_GENERIC_OUTPUT *)0;
 
 	if ( !*begin_date )
 	{
@@ -988,7 +973,7 @@ process_generic_output = (PROCESS_GENERIC_OUTPUT *)0;
 	}
 
 	return where_clause;
-} /* process_generic_output_get_begin_end_date_where() */
+}
 
 LIST *process_generic_output_get_concat_heading_list(
 				PROCESS_GENERIC_VALUE_FOLDER *value_folder,
@@ -1073,7 +1058,7 @@ LIST *process_generic_output_get_concat_heading_list(
 
 	return heading_list;
 
-} /* process_generic_output_get_concat_heading_list() */
+}
 
 char *process_generic_output_get_heading_string(
 				PROCESS_GENERIC_VALUE_FOLDER *value_folder,
@@ -1135,7 +1120,7 @@ char *process_generic_output_get_heading_string(
 	*ptr = '\0';
 	return heading_string;
 
-} /* process_generic_output_get_heading_string() */
+}
 
 char *process_generic_output_get_text_file_sys_string(
 				char **begin_date,
@@ -1357,7 +1342,7 @@ char *process_generic_output_get_text_file_sys_string(
 	*where_clause = local_where_clause;
 
 	return sys_string;
-} /* process_generic_output_get_text_file_sys_string() */
+}
 
 LIST *process_generic_output_get_select_list(
 				int *datatype_entity_piece,
@@ -1498,7 +1483,7 @@ LIST *process_generic_output_get_select_list(
 
 	return select_list;
 
-} /* process_generic_output_get_select_list() */
+}
 
 LIST *process_generic_output_append_select_list(
 					LIST *select_list,
@@ -1525,7 +1510,7 @@ LIST *process_generic_output_append_select_list(
 		}
 	} while( list_next( attribute_list ) );
 	return select_list;
-} /* process_generic_output_append_select_list() */
+}
 
 char *process_generic_output_get_process_name(
 			char *process_set_name,
@@ -1535,7 +1520,7 @@ char *process_generic_output_get_process_name(
 
 	sprintf( key, "%s_0", process_set_name );
 	return dictionary_get_pointer( post_dictionary, key );
-} /* process_generic_output_get_process_name() */
+}
 
 char *process_generic_output_get_datatype_entity_data(
 			DICTIONARY *post_dictionary,
@@ -1589,7 +1574,7 @@ char *process_generic_output_get_units(
 		 datatype_folder_name,
 		 where_clause );
 	return pipe2string( sys_string );
-} /* process_generic_output_get_units() */
+}
 
 char *process_generic_output_get_units_label(
 				char *units,
@@ -1625,7 +1610,7 @@ char *process_generic_output_get_units_label(
 
 	return units_label;
 
-} /* process_generic_output_get_units_label() */
+}
 
 char *process_generic_output_get_exceedance_html_table_justify_string(
 					int list_length,
@@ -1658,7 +1643,7 @@ char *process_generic_output_get_exceedance_html_table_justify_string(
 
 	sprintf( ptr, ",right,right" );
 	return strdup( justify_string );
-} /* process_generic_output_get_exceedance_html_table_justify_string() */
+}
 
 LIST *process_generic_output_get_exceedance_heading_list(
 				LIST *select_list,
@@ -1702,7 +1687,7 @@ LIST *process_generic_output_get_exceedance_heading_list(
 
 	return heading_list;
 
-} /* process_generic_output_get_exceedance_heading_list() */
+}
 
 char *process_generic_output_get_row_exceedance_stdout_sys_string(
 				char **begin_date,
@@ -1876,7 +1861,7 @@ char *process_generic_output_get_row_exceedance_stdout_sys_string(
 
 	return strdup( sys_string );
 
-} /* process_generic_output_get_row_exceedance_stdout_sys_string() */
+}
 
 char *process_generic_output_get_exceedance_stdout_sys_string(
 				char **begin_date,
@@ -2153,7 +2138,7 @@ char *process_generic_output_get_exceedance_stdout_sys_string(
 
 	return strdup( sys_string );
 
-} /* process_generic_output_get_exceedance_stdout_sys_string() */
+}
 
 LIST *process_generic_output_get_primary_attribute_data_list(
 				LIST *primary_attribute_name_list,
@@ -2190,7 +2175,7 @@ LIST *process_generic_output_get_primary_attribute_data_list(
 	}
 
 	return primary_attribute_data_list;
-} /* process_generic_output_get_primary_attribute_data_list() */
+}
 
 void process_generic_output_get_period_of_record_date(
 				char **date_string,
@@ -2220,7 +2205,7 @@ void process_generic_output_get_period_of_record_date(
 	if ( ! ( return_pointer = pipe2string( sys_string ) ) )
 		return;
 	*date_string = return_pointer;
-} /* process_generic_output_get_period_of_record_date() */
+}
 
 enum aggregate_statistic process_generic_output_get_aggregate_statistic(
 				boolean datatype_aggregation_sum )
@@ -2268,7 +2253,7 @@ char *process_generic_output_get_highest_delimiter_compare_key(
 
 	} while( list_next( key_list ) );
 	return highest_compare_key;
-} /* process_generic_output_get_highest_delimiter_compare_key() */
+}
 
 LIST *process_generic_output_get_compare_data_list(
 				DICTIONARY *post_dictionary,
@@ -2304,7 +2289,7 @@ LIST *process_generic_output_get_compare_data_list(
 	}
 
 	return compare_data_list;
-} /* process_generic_output_get_compare_data_list() */
+}
 
 boolean process_generic_output_exists_compare_multi_select(
 				DICTIONARY *post_dictionary )
@@ -2388,13 +2373,12 @@ char *process_generic_output_get_row_dictionary_where_clause(
 					value_folder->value_folder_name,
 				process_generic_output->
 					value_folder->date_attribute_name,
-				where_clause,
-				process_generic_output ) );
+				where_clause ) );
 	}
 
 	return where_clause;
 
-} /* process_generic_output_get_row_dictionary_where_clause() */
+}
 
 char *process_generic_output_get_drop_down_where_clause(
 			char *application_name,
@@ -2413,7 +2397,7 @@ char *process_generic_output_get_drop_down_where_clause(
 	else
 		return query->query_output->drop_down_where_clause;
 
-} /* process_generic_output_get_drop_down_where_clause() */
+}
 
 char *process_generic_output_get_dictionary_where_clause(
 			char **begin_date,
@@ -2449,13 +2433,12 @@ char *process_generic_output_get_dictionary_where_clause(
 				value_folder_name,
 				process_generic_output->
 					value_folder->date_attribute_name,
-				where_clause,
-				process_generic_output ) );
+				where_clause ) );
 	}
 
 	return where_clause;
 
-} /* process_generic_output_get_dictionary_where_clause() */
+}
 
 char *process_generic_compare_datatype_list_display(
 					LIST *compare_datatype_list )
@@ -2484,7 +2467,7 @@ char *process_generic_compare_datatype_list_display(
 
 	} while( list_next( compare_datatype_list ) );
 	return strdup( buffer );
-} /* process_generic_compare_datatype_list_display() */
+}
 
 char *process_generic_datatype_display(
 		PROCESS_GENERIC_DATATYPE *process_generic_datatype )
@@ -2515,7 +2498,7 @@ char *process_generic_datatype_display(
 		hash_table_length(	process_generic_datatype->
 					values_hash_table ) );
 	return buffer;
-} /* process_generic_datatype_display() */
+}
 
 char *process_generic_output_get_foreign_folder_where_clause(
 			char **begin_date,
@@ -2574,11 +2557,10 @@ char *process_generic_output_get_foreign_folder_where_clause(
 				application_name,
 				value_folder_name,
 				date_attribute_name,
-				where_clause,
-				(PROCESS_GENERIC_OUTPUT *)0 ) );
+				where_clause ) );
 
 	return where_clause;
-} /* process_generic_output_get_foreign_folder_where_clause() */
+}
 
 PROCESS_GENERIC_VALUE *process_generic_value_new( void )
 {
@@ -2597,7 +2579,7 @@ PROCESS_GENERIC_VALUE *process_generic_value_new( void )
 	}
 
 	return process_generic_value;
-} /* process_generic_output_value_new() */
+}
 
 char *process_generic_get_datatype_name(
 				LIST *datatype_primary_attribute_data_list,
@@ -2637,7 +2619,7 @@ LIST *process_generic_get_prefixed_primary_attribute_data_list(
 		}
 	} while( list_next( full_primary_attribute_data_list ) );
 	return primary_attribute_data_list;
-} /* process_generic_get_prefixed_primary_attribute_data_list() */
+}
 
 char *process_generic_get_datatype_entity(
 				LIST *foreign_attribute_data_list,
@@ -2689,7 +2671,7 @@ char *process_generic_get_datatype_entity(
 
 	} while( list_next( foreign_attribute_data_list ) );
 	return strdup( datatype_entity );
-} /* process_generic_get_datatype_entity() */
+}
 
 LIST *process_generic_output_get_compare_datatype_name_list(
 				LIST *compare_datatype_list )
@@ -2719,7 +2701,7 @@ LIST *process_generic_output_get_compare_datatype_name_list(
 
 	return compare_datatype_name_list;
 	
-} /* process_generic_output_get_compare_datatype_name_list() */
+}
 
 LIST *process_generic_output_get_compare_entity_name_list(
 				LIST *compare_datatype_list,
@@ -2751,7 +2733,7 @@ LIST *process_generic_output_get_compare_entity_name_list(
 
 	return compare_entity_name_list;
 	
-} /* process_generic_output_get_compare_entity_name_list() */
+}
 
 LIST *process_generic_output_get_compare_datatype_units_list(
 				LIST *compare_datatype_list )
@@ -2778,7 +2760,7 @@ LIST *process_generic_output_get_compare_datatype_units_list(
 
 	return compare_datatype_units_list;
 	
-} /* process_generic_output_get_compare_datatype_units_list() */
+}
 
 enum aggregate_statistic
 		process_generic_output_get_database_aggregate_statistic(
@@ -2815,7 +2797,7 @@ enum aggregate_statistic
 
 	return aggregate_statistic;
 
-} /* process_generic_output_get_database_aggregate_statistic() */
+}
 
 char *process_generic_output_get_datatype_heading_string(
 			PROCESS_GENERIC_FOREIGN_FOLDER *foreign_folder,
@@ -2882,206 +2864,7 @@ char *process_generic_output_get_datatype_heading_string(
 
 	return heading_string;
 
-} /* process_generic_output_get_datatype_heading_string() */
-
-#ifdef NOT_DEFINED
-boolean process_generic_output_validate_begin_end_date(
-					char **begin_date,
-					char **end_date,
-					char *application_name,
-					PROCESS_GENERIC_OUTPUT *
-						process_generic_output,
-					DICTIONARY *post_dictionary )
-{
-	char buffer[ 128 ];
-	int i;
-	static char new_begin_date[ 16 ];
-	static char new_end_date[ 16 ];
-
-	if ( character_exists( *begin_date, '/' ) ) return 1;
-	if ( character_exists( *end_date, '/' ) ) return 1;
-
-	if ( !*begin_date && dictionary_length( post_dictionary ) )
-	{
-		dictionary_get_index_data(	begin_date,
-						post_dictionary,
-						"begin_date",
-						0 );
-	}
-
-	if ( !*end_date && dictionary_length( post_dictionary ) )
-	{
-		dictionary_get_index_data(	end_date,
-						post_dictionary,
-						"end_date",
-						0 );
-	}
-
-	if ( !process_generic_output )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: process_generic_output is null.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( ( !*begin_date || !**begin_date )
-	&&   ( !*end_date || !**end_date ) )
-	{
-		char *where_clause;
-
-		where_clause =
-		process_generic_output_get_drop_down_where_clause(
-				application_name,
-				process_generic_output->
-					value_folder->
-					value_folder_name,
-				post_dictionary );
-
-		if ( !*where_clause ) return 0;
-
-		process_generic_output_get_period_of_record_date(
-				begin_date,
-				application_name,
-				process_generic_output->
-					value_folder->
-						value_folder_name,
-				"min",
-				process_generic_output->
-					value_folder->
-						date_attribute_name,
-				where_clause );
-		if ( !**begin_date ) return 0;
-
-		process_generic_output_get_period_of_record_date(
-				end_date,
-				application_name,
-				process_generic_output->
-					value_folder->value_folder_name,
-				"max",
-				process_generic_output->
-					value_folder->
-						date_attribute_name,
-				where_clause );
-		return 1;
-	}
-
-	if ( ( !*begin_date || !**begin_date ) )
-	{
-		char *where_clause;
-
-		where_clause =
-		process_generic_output_get_drop_down_where_clause(
-				application_name,
-				process_generic_output->
-					value_folder->
-					value_folder_name,
-				post_dictionary );
-
-		process_generic_output_get_period_of_record_date(
-				begin_date,
-				application_name,
-				process_generic_output->
-					value_folder->value_folder_name,
-				"min",
-				process_generic_output->
-					value_folder->
-						date_attribute_name,
-				where_clause );
-		if ( !**begin_date ) return 0;
-	}
-
-	if ( !*begin_date || strcmp( *begin_date, "begin_date" ) == 0 )
-	{
-		*begin_date = "1901-01-01";
-	}
-
-	if ( !*end_date || strcmp( *end_date, "end_date" ) == 0 )
-	{
-		if ( strcmp( *begin_date, "1901-01-01" ) == 0 )
-		{
-			char sys_string[ 128 ];
-
-			strcpy( sys_string, "date.e 0 | piece.e ':' 0" );
-			*end_date = pipe2string( sys_string );
-		}
-		else
-		{
-			*end_date = *begin_date;
-		}
-	}
-
-	strcpy( new_begin_date, *begin_date );
-	strcpy( new_end_date, *end_date );
-
-	piece( buffer, '-', new_begin_date, 0 );
-	if ( strlen( buffer ) != 4 ) return 0;
-
-	/* Don't allow for 0000-00-00 */
-	/* -------------------------- */
-	if ( !atoi( buffer ) ) return 0;
-
-	if ( !piece( buffer, '-', new_begin_date, 1 ) )
-	{
-		strcat( new_begin_date, "-01-01" );
-	}
-	else
-	{
-		i = atoi( buffer );
-		if ( i < 1 || i > 12 ) return 0;
-	}
-
-	if ( !piece( buffer, '-', new_begin_date, 2 ) )
-	{
-		strcat( new_begin_date, "-01" );
-	}
-	else
-	{
-		i = atoi( buffer );
-		if ( i < 1 || i > 31 ) return 0;
-	}
-
-	if ( !*new_end_date || strcmp( new_end_date, "end_date" ) == 0 )
-	{
-		strcpy( new_end_date, new_begin_date );
-	}
-
-	piece( buffer, '-', new_end_date, 0 );
-	if ( strlen( buffer ) != 4 ) return 0;
-	if ( !atoi( buffer ) ) return 0;
-
-	if ( !piece( buffer, '-', new_end_date, 1 ) )
-	{
-		strcat( new_end_date, "-12-31" );
-	}
-	else
-	{
-		i = atoi( buffer );
-		if ( i < 1 || i > 12 ) return 0;
-	}
-
-	if ( !piece( buffer, '-', new_end_date, 2 ) )
-	{
-		strcat( new_end_date, "-31" );
-	}
-	else
-	{
-		i = atoi( buffer );
-		if ( i < 1 || i > 31 ) return 0;
-	}
-
-	*begin_date = new_begin_date;
-	*end_date = new_end_date;
-
-	if ( strcmp( new_begin_date, new_end_date ) > 0 )
-		return 0;
-	else
-		return 1;
-
-} /* process_generic_output_validate_begin_end_date() */
-#endif
+}
 
 QUERY_OUTPUT *process_generic_query_output(
 				char *application_name,
@@ -3112,7 +2895,7 @@ QUERY_OUTPUT *process_generic_query_output(
 
 	return query_output;
 
-} /* process_generic_query_output() */
+}
 
 /* ------------------------------- */
 /* Returns static (program) memory */
@@ -3157,7 +2940,7 @@ char *process_generic_output_begin_end_date_where_clause(
 
 	return where_clause;
 
-} /* process_generic_output_begin_end_date_where_clause() */
+}
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -3200,7 +2983,7 @@ char *process_generic_output_drop_down_where(
 	else
 		return query->query_output->where_clause;
 
-} /* process_generic_output_drop_down_where() */
+}
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -3244,7 +3027,7 @@ char *process_generic_output_where(
 
 	return strdup( where_clause );
 
-} /* process_generic_output_where() */
+}
 
 boolean process_generic_output_validate_begin_end_date(
 				char **begin_date_string /* in/out */,
@@ -3380,13 +3163,13 @@ boolean process_generic_output_validate_begin_end_date(
 		if ( i < 1 || i > 31 ) return 0;
 	}
 
-	*begin_date_string = new_begin_date;
-	*end_date_string = new_end_date;
+	*begin_date_string = strdup( new_begin_date );
+	*end_date_string = strdup( new_end_date );
 
 	if ( strcmp( new_begin_date, new_end_date ) > 0 )
 		return 0;
 	else
 		return 1;
 
-} /* process_generic_output_validate_begin_end_date() */
+}
 
