@@ -75,7 +75,7 @@ void document_output_body_stream(
 
 	fprintf( output_stream, ">\n" );
 
-} /* document_output_body_stream() */
+}
 
 void document_output_content_type( void )
 {
@@ -152,7 +152,18 @@ void document_output_html_stream( FILE *output_stream )
 
 	fflush( output_stream );
 
-} /* document_output_html_stream() */
+}
+
+void document_output_stylesheet(
+			FILE *output_stream,
+			char *application_name,
+			char *stylesheet_filename )
+{
+	fprintf( output_stream,
+"<link rel=stylesheet type=\"text/css\" href=\"/appaserver/%s/%s\">\n",
+	application_name,
+	stylesheet_filename );
+}
 
 void document_output_head_stream(
 				FILE *output_stream,
@@ -187,10 +198,10 @@ void document_output_head_stream(
 	}
 	else
 	{
-		fprintf( output_stream,
-"<link rel=stylesheet type=\"text/css\" href=\"/appaserver/%s/%s\">\n",
-		application_name,
-		stylesheet_filename );
+		document_output_stylesheet(
+			output_stream,
+			application_name,
+			stylesheet_filename );
 	}
 
 	fprintf( output_stream,
@@ -213,7 +224,7 @@ void document_output_head_stream(
 
 	if ( with_close_head )  document_output_close_head( output_stream );
 
-} /* document_output_head_stream() */
+}
 
 void document_output_close_head( FILE *output_stream )
 {
@@ -243,7 +254,7 @@ void document_output_each_javascript_source(
 
 	} while( list_next( javascript_module_list ) );
 
-} /* document_output_each_javascript_source() */
+}
 
 void document_output_javascript_source(
 				char *application_name,
@@ -324,7 +335,7 @@ void document_output_javascript_source(
 			source_filename );
 	}
 
-} /* document_output_javascript_source() */
+}
 
 void document_close( void )
 {
@@ -381,7 +392,7 @@ void document_set_javascript_module(
 
 	list_append_pointer(
 		d->javascript_module_list, javascript_module );
-} /* document_set_javascript_module() */
+}
 
 char *document_set_onload_control_string(
 					char *document_onload_control_string,
@@ -407,7 +418,7 @@ char *document_set_onload_control_string(
 
 	return document_onload_control_string;
 
-} /* document_set_onload_control_string() */
+}
 
 void document_output_quick_body(	char *application_name,
 					char *appaserver_mount_point )
@@ -457,7 +468,7 @@ void document_quick_output_body(	char *application_name,
 		document->application_name,
 		document->onload_control_string );
 
-} /* document_quick_output_body() */
+}
 
 void document_set_folder_javascript_files(
 					DOCUMENT *document,
@@ -513,7 +524,7 @@ void document_set_folder_javascript_files(
 				filename );
 		} while( list_next( filename_list ) );
 	}
-} /* document_set_folder_javascript_files() */
+}
 
 void document_set_process_javascript_files(
 					DOCUMENT *document,
@@ -607,7 +618,7 @@ void document_set_process_javascript_files(
 				filename );
 		} while( list_next( filename_list ) );
 	}
-} /* document_set_process_javascript_files() */
+}
 
 DOCUMENT_JAVASCRIPT_MODULE *document_javascript_module_new(
 					LIST *javascript_module_list,
@@ -642,7 +653,7 @@ DOCUMENT_JAVASCRIPT_MODULE *document_javascript_module_new(
 
 	javascript_module->javascript_filename = javascript_filename;
 	return javascript_module;
-} /* document_javascript_module_new() */
+}
 
 void document_output_dynarch_non_frame_html_head_body(
 				char *application_name,
@@ -663,7 +674,7 @@ void document_output_dynarch_non_frame_html_head_body(
 				dynarch_menu_onload_control_string,
 				additional_control_string );
 
-} /* document_output_dynarch_non_frame_html_head_body() */
+}
 
 
 void document_output_dynarch_html_body(
@@ -696,7 +707,7 @@ void document_output_dynarch_html_body(
 
 	document_output_dynarch_hide_ul_contents();
 
-} /* document_output_dynarch_html_body() */
+}
 
 void document_output_dynarch_hide_ul_contents( void )
 {
@@ -705,7 +716,7 @@ void document_output_dynarch_hide_ul_contents( void )
 "<script type=\"text/javascript\">//<![CDATA[ \ndocument.writeln(\"<style type='text/css'>#menu { display: none; }</style>\");\n"
 "     //]]></script>\n" );
 
-} /* document_output_dynarch_hide_ul_contents() */
+}
 
 DOCUMENT *document_output_menu_new(
 			char *application_name,

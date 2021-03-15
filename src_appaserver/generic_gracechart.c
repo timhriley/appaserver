@@ -1,8 +1,8 @@
-/* --------------------------------------------------- 	*/
-/* generic_gracechart.c				      	*/
-/* --------------------------------------------------- 	*/
+/* ----------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/generic_gracechart.c	*/
+/* ----------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* ----------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -40,7 +40,6 @@
 /* ---------- */
 boolean output_gracechart(
 			char *application_name,
-			char *role_name,
 			char *begin_date_string,
 			char *end_date_string,
 			char *sys_string,
@@ -61,14 +60,14 @@ boolean output_gracechart(
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *role_name;
+	char *process_set_name;
+	char *process_name;
+	char *login_name;
+	DICTIONARY *post_dictionary;
 	char *begin_date_string = {0};
 	char *end_date_string = {0};
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DICTIONARY *post_dictionary;
 	char *sys_string;
-	char *process_set_name;
-	char *process_name;
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	char *where_clause = {0};
 	enum aggregate_level aggregate_level;
@@ -77,10 +76,10 @@ int main( int argc, char **argv )
 	int datatype_entity_piece = 0;
 	int datatype_piece = 0;
 	int date_piece = 0;
-	int time_piece = 0;
+	int time_piece = -1;
 	int value_piece = 0;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -90,30 +89,30 @@ int main( int argc, char **argv )
 	if ( argc != 5 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored role process_set parameter_dictionary\n",
+"Usage: %s process_set process login_name parameter_dictionary\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	role_name = argv[ 2 ];
-	process_set_name = argv[ 3 ];
-	post_dictionary =
-		dictionary_string2dictionary( argv[ 4 ] );
+	process_set_name = argv[ 1 ];
+	process_name = argv[ 2 ];
+	if ( ( login_name = argv[ 3 ] ) ){};
+	post_dictionary = dictionary_string2dictionary( argv[ 4 ] );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_FROM_STARTING_LABEL );
+		post_dictionary,
+		QUERY_FROM_STARTING_LABEL );
 
 	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_STARTING_LABEL );
+		post_dictionary,
+		QUERY_STARTING_LABEL );
 
 	process_generic_output =
 		process_generic_output_new(
 			application_name,
-			(char *)0 /* process_name */,
+			process_name,
 			process_set_name,
 			0 /* accumulate_flag */ );
 
@@ -221,7 +220,6 @@ int main( int argc, char **argv )
 
 	if ( output_gracechart(
 				application_name,
-				role_name,
 				begin_date_string,
 				end_date_string,
 				sys_string,
@@ -254,11 +252,10 @@ int main( int argc, char **argv )
 
 	document_close();
 	exit( 0 );
-} /* main() */
+}
 
 boolean output_gracechart(
 			char *application_name,
-			char *role_name,
 			char *begin_date_string,
 			char *end_date_string,
 			char *sys_string,
@@ -395,7 +392,7 @@ boolean output_gracechart(
 
 	grace = grace_new_unit_graph_grace(
 		application_name,
-		role_name,
+		(char *)0 /* role_name */,
 		(char *)0 /* infrastructure_process */,
 		(char *)0 /* data_process */,
 		argv_0,
@@ -485,6 +482,7 @@ boolean output_gracechart(
 			grace->grace_output );
 
 	input_pipe = popen( sys_string, "r" );
+
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		if ( *input_buffer == '#' ) continue;
@@ -616,5 +614,5 @@ boolean output_gracechart(
 
 	return 1;
 
-} /* output_gracechart() */
+}
 

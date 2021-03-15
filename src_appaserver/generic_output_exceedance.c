@@ -282,7 +282,7 @@ int main( int argc, char **argv )
 				appaserver_parameter_file_get_dbms() );
 
 	exit( 0 );
-} /* main() */
+}
 
 void output_exceedance_gracechart(
 			char *application_name,
@@ -404,6 +404,7 @@ void output_exceedance_gracechart(
 			grace->grace_output );
 
 	input_pipe = popen( sys_string, "r" );
+
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		piece(	value,
@@ -417,7 +418,7 @@ void output_exceedance_gracechart(
 				percent_below_piece ) )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot piece (%c) (%d) in (%s)\n",
+			"ERROR in %s/%s()/%d: cannot piece (%c) (%d) in (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
@@ -438,8 +439,9 @@ void output_exceedance_gracechart(
 
 	grace_graph =
 		(GRACE_GRAPH *)
-			list_get_first_pointer(
+			list_first(
 				grace->graph_list );
+
 	grace_graph->xaxis_label = "Percent Below";
 
 	if ( !grace_set_structures(
@@ -569,5 +571,5 @@ void output_exceedance_gracechart(
 					value_folder_name,
 				1 ) );
 	}
-} /* output_exceedance_gracechart() */
+}
 

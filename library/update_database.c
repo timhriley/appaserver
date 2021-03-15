@@ -898,7 +898,7 @@ void update_database_set_login_name_each_row(
 
 }
 
-LIST *update_changed_attribute_list(
+LIST *update_folder_changed_attribute_list(
 			boolean *changed_primary_key,
 			/* ------------------------------------------ */
 			/* Sets preupdate_$attribute_name for trigger */
@@ -1111,7 +1111,7 @@ UPDATE_FOLDER *update_database_primary_update_folder(
 	boolean changed_primary_key = 0;
 
 	changed_attribute_list =
-		update_changed_attribute_list(
+		update_folder_changed_attribute_list(
 			&changed_primary_key,
 			/* ------------------------------------------ */
 			/* Sets preupdate_$attribute_name for trigger */
@@ -1228,6 +1228,16 @@ UPDATE_ROW *update_database_update_row(
 		return (UPDATE_ROW *)0;
 	}
 
+	if ( !list_length( primary_update_folder->changed_attribute_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: changed_attribute_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	primary_update_folder->count =
 		update_folder_count(
 			primary_update_folder->
@@ -1235,10 +1245,18 @@ UPDATE_ROW *update_database_update_row(
 			primary_update_folder->
 				where_clause );
 
-	primary_update_folder->set_clause =
-		update_folder_set_clause(
-			primary_update_folder->
-				changed_attribute_list );
+	if ( ! ( primary_update_folder->set_clause =
+			update_folder_set_clause(
+				primary_update_folder->
+					changed_attribute_list ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: update_folder_set_clause() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	update_row = update_database_update_row_calloc();
 	update_row->row = row;
@@ -1308,10 +1326,18 @@ LIST *update_database_update_folder_list(
 			continue;
 		}
 
-		update_folder->set_clause =
-			update_folder_set_clause(
-				update_folder->
-					changed_attribute_list );
+		if ( ! ( update_folder->set_clause =
+				update_folder_set_clause(
+					update_folder->
+						changed_attribute_list ) ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: update_folder_set_clause() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		list_set( update_folder_list, update_folder );
 
@@ -1409,7 +1435,8 @@ UPDATE_FOLDER *update_secondary_update_folder(
 
 	do {
 		primary_changed_attribute =
-			list_get( primary_changed_attribute_list );
+			list_get(
+				primary_changed_attribute_list );
 
 		changed_attribute_name =
 			list_seek_index(
@@ -1420,15 +1447,21 @@ UPDATE_FOLDER *update_secondary_update_folder(
 
 		if ( !changed_attribute_name )
 		{
-			fprintf(stderr,
-"Warning in %s/%s()/%d: many_folder_name = %s cannot list_seek_index = %d\n",
+			char msg[ 65536 ];
+
+			sprintf(msg,
+"ERROR in %s/%s()/%d: many_folder_name = %s cannot list_seek_index = %d in (%s)\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
 				many_folder_name,
 				primary_changed_attribute->
-					changed_primary_key_index );
-			continue;
+					changed_primary_key_index,
+				list_display(
+					update_folder->
+					relation_foreign_attribute_name_list ));
+			m2( environment_application_name(), msg );
+			exit( 1 );
 		}
 
 		list_set(

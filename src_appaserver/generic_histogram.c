@@ -39,10 +39,11 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_set_name;
 	char *process_name;
+	char *login_name;
+	DICTIONARY *post_dictionary;
 	char *begin_date_string = {0};
 	char *end_date_string = {0};
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DICTIONARY *post_dictionary;
 	char *sys_string;
 	char histogram_sys_string[ 1024 ];
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
@@ -71,17 +72,18 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 4 )
+	if ( argc != 5 )
 	{
 		fprintf(stderr,
-"Usage: %s process_set process parameter_dictionary\n",
+"Usage: %s process_set process login_name parameter_dictionary\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	process_set_name = argv[ 1 ];
 	process_name = argv[ 2 ];
-	post_dictionary = dictionary_string2dictionary( argv[ 3 ] );
+	if ( ( login_name = argv[ 3 ] ) ){};
+	post_dictionary = dictionary_string2dictionary( argv[ 4 ] );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

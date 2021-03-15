@@ -174,4 +174,9 @@ void document_output_dynarch_heading(
 void document_output_html_stream(
 					FILE *output_stream );
 
+void document_output_stylesheet(
+			FILE *output_stream,
+			char *application_name,
+			char *stylesheet_filename );
+
 #endif

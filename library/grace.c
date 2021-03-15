@@ -863,18 +863,6 @@ void grace_output_abbreviated_dataset_heading(
 
 }
 
-#ifdef NOT_DEFINED
-void grace_output_abbreviated_dataset_heading(
-					FILE *output_pipe,
-				   	int line_color )
-{
-	fprintf(output_pipe,
-		"@S_ line color %d\n",
-		GRACE_LINE_COLOR_EXPRESSION,
-
-}
-#endif
-
 GRACE *grace_new_datatype_overlay_grace(char *application_name,
 					char *role_name )
 {
@@ -2611,23 +2599,34 @@ void grace_populate_point_list( LIST *graph_list,
 }
 
 GRACE_DATATYPE *grace_get_grace_datatype(
-				GRACE_GRAPH **return_graph,
-				LIST *graph_list,
-				char *datatype_entity,
-				char *datatype_name,
-				enum grace_graph_type grace_graph_type )
+			GRACE_GRAPH **return_graph,
+			LIST *graph_list,
+			char *datatype_entity,
+			char *datatype_name,
+			enum grace_graph_type grace_graph_type )
 {
 	GRACE_GRAPH *grace_graph;
 	GRACE_DATATYPE *grace_datatype;
 
+	if ( !return_graph )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: return_graph is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return (GRACE_DATATYPE *)0;
+	}
+
 	if ( !list_rewind( graph_list ) )
 	{
 		*return_graph = (GRACE_GRAPH *)0;
-		return( GRACE_DATATYPE *)0;
+		return (GRACE_DATATYPE *)0;
 	}
 
 	do {
-		grace_graph = (GRACE_GRAPH *)list_get_pointer( graph_list );
+		grace_graph = (GRACE_GRAPH *)list_get( graph_list );
 
 		grace_datatype =
 			grace_graph_get_grace_datatype(
@@ -2643,22 +2642,25 @@ GRACE_DATATYPE *grace_get_grace_datatype(
 		}
 		
 	} while( list_next( graph_list ) );
+
 	*return_graph = (GRACE_GRAPH *)0;
+
 	return( GRACE_DATATYPE *)0;
 }
 
 GRACE_DATATYPE *grace_graph_get_grace_datatype(
-				LIST *grace_datatype_list,
-				char *datatype_entity,
-				char *datatype_name,
-				enum grace_graph_type grace_graph_type )
+			LIST *grace_datatype_list,
+			char *datatype_entity,
+			char *datatype_name,
+			enum grace_graph_type grace_graph_type )
 {
 	GRACE_DATATYPE *grace_datatype;
 
 	if ( !list_rewind( grace_datatype_list ) ) return (GRACE_DATATYPE *)0;
+
 	do {
 		grace_datatype =
-		   	list_get_pointer(
+		   	list_get(
 				grace_datatype_list );
 
 		if ( !grace_datatype->datatype_name )
@@ -2698,13 +2700,16 @@ GRACE_DATATYPE *grace_graph_get_grace_datatype(
 			}
 		}
 		else
-		if ( strcasecmp(
+		{
+			if ( strcasecmp(
 				grace_datatype->datatype_name,
 				datatype_name ) == 0 )
-		{
-			return grace_datatype;
+			{
+				return grace_datatype;
+			}
 		}
 	} while( list_next( grace_datatype_list ) );
+
 	return (GRACE_DATATYPE *)0;
 }
 
@@ -3370,17 +3375,17 @@ void grace_get_x_tick_major_minor(
 }
 
 boolean grace_set_string_to_point_list(
-				LIST *graph_list, 
-				int datatype_entity_piece,
-				int datatype_piece,
-				int date_piece,
-				int time_piece,
-				int value_piece,
-				char *delimited_string,
-				enum grace_graph_type grace_graph_type,
-				boolean datatype_type_xyhilo,
-				boolean dataset_no_cycle_color,
-				char *optional_label )
+			LIST *graph_list, 
+			int datatype_entity_piece,
+			int datatype_piece,
+			int date_piece,
+			int time_piece,
+			int value_piece,
+			char *delimited_string,
+			enum grace_graph_type grace_graph_type,
+			boolean datatype_type_xyhilo,
+			boolean dataset_no_cycle_color,
+			char *optional_label )
 {
 	char datatype_entity_string[ 128 ];
 	char datatype_name[ 128 ];
@@ -3394,7 +3399,8 @@ boolean grace_set_string_to_point_list(
 
 	if ( !delimiter )
 	{
-		if ( ! ( delimiter = timlib_get_delimiter(
+		if ( ! ( delimiter =
+				timlib_get_delimiter(
 					delimited_string ) ) )
 		{
 			fprintf(stderr,
@@ -3424,7 +3430,8 @@ boolean grace_set_string_to_point_list(
 		delimited_string, 
 		datatype_piece );
 
-	if ( ! ( datatype = grace_get_grace_datatype(
+	if ( ! ( datatype =
+			grace_get_grace_datatype(
 				&grace_graph,
 				graph_list,
 				datatype_entity_string,
@@ -3908,19 +3915,6 @@ void grace_populate_datatype_overlay_graph_list(
 
 	} while( list_next( compare_datatype_overlay_input_list ) );
 }
-
-#ifdef NOT_DEFINED
-char *grace_datatype_list_get_datatype_type_bar_xy_xyhilo( LIST *datatype_list )
-{
-	GRACE_DATATYPE *grace_datatype;
-
-	if ( !list_length( datatype_list ) ) return "";
-	grace_datatype = (GRACE_DATATYPE *)list_get_first( datatype_list );
-	return (grace_datatype->datatype_type_bar_xy_xyhilo) ?
-			grace_datatype->datatype_type_bar_xy_xyhilo :
-			"";
-}
-#endif
 
 float grace_get_x_label_size( 	int number_of_days,
 				int length_graph_list )

@@ -26,6 +26,7 @@ enum process_generic_medium {
 			output_medium_stdout,
 			table,
 			spreadsheet,
+			gracechart,
 			output_medium_unknown };
 
 /* Structures */

@@ -215,7 +215,7 @@ void update_database_set_login_name_each_row(
 			DICTIONARY *dictionary,
 			char *login_name );
 
-LIST *update_changed_attribute_list(
+LIST *update_folder_changed_attribute_list(
 			boolean *changed_primary_key,
 			/* ------------------------------------------ */
 			/* Sets preupdate_$attribute_name for trigger */

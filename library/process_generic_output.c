@@ -48,7 +48,6 @@ PROCESS_GENERIC_OUTPUT *process_generic_output_new(
 			process_generic_output->process_set_name );
 
 	return process_generic_output;
-
 }
 
 PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_new(
@@ -593,6 +592,24 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_new(
 				(char *)0 /* compare_datatype_prefix */,
 				dictionary_index /* dictionary_index */ ) ) )
 	{
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: datatype_primary_attribute_name_list = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_display( datatype_primary_attribute_name_list ) );
+m2( "modeland", msg );
+}
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: post_dictionary = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display( post_dictionary ) );
+m2( "modeland", msg );
+}
 		return (PROCESS_GENERIC_DATATYPE *)0;
 	}
 

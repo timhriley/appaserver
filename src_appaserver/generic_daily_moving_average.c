@@ -48,6 +48,25 @@
 
 /* Prototypes */
 /* ---------- */
+boolean generic_output_chart_create(
+			char **ftp_output_filename,
+			char **ftp_agr_filename,
+			char *application_name,
+			char *input_system_string,
+			char *subtitle,
+			char *unit,
+			char *argv_0,
+			char *value_folder_name,
+			int days_to_average,
+			char *datatype_name,
+			boolean bar_graph,
+			pid_t process_id,
+			char *document_root_directory,
+			char *begin_date,
+			char *end_date,
+			int date_piece,
+			int value_piece );
+
 char *moving_average_system_string(
 			char *begin_date,
 			char *end_date,
@@ -66,6 +85,24 @@ void generic_output_text_file(
 			char *input_system_string,
 			char *heading,
 			char *subtitle );
+
+boolean generic_output_gracechart(
+			char *application_name,
+			char *input_system_string,
+			char *subtitle,
+			char *unit,
+			char *value_folder_name,
+			pid_t process_id,
+			char *document_root_directory,
+			char *begin_date,
+			char *end_date,
+			char *argv_0,
+			int days_to_average,
+			char *datatype_name,
+			boolean bar_graph,
+			int date_piece,
+			int value_piece,
+			char *appaserver_mount_point );
 
 void generic_output_table(
 			char *input_system_string,
@@ -125,7 +162,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 2 ];
 	login_name = argv[ 3 ];
 	days_to_average = atoi( argv[ 4 ] );
-	exceedance_format = ( *argv[ 5 ] == 'y' );
+	if ( ( exceedance_format = ( *argv[ 5 ] == 'y' ) ) ){};
 	output_medium_string = argv[ 6 ];
 
 	post_dictionary =
@@ -141,6 +178,11 @@ int main( int argc, char **argv )
 		QUERY_STARTING_LABEL );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	days_to_average =
+		(days_to_average)
+			? days_to_average
+			: MOVING_AVERAGE_DEFAULT;
 
 	if ( strcmp( output_medium_string, "stdout" ) != 0 )
 	{
@@ -184,9 +226,7 @@ int main( int argc, char **argv )
 
 	sprintf(additional_message,
 		"(%d days)",
-		(days_to_average)
-			? days_to_average
-			: MOVING_AVERAGE_DEFAULT );
+		days_to_average );
 
 	process_generic->process_generic_subtitle =
 		process_generic_subtitle(
@@ -286,6 +326,66 @@ int main( int argc, char **argv )
 	}
 	else
 	if (	process_generic->parameter->output_medium ==
+		gracechart )
+	{
+		if ( !generic_output_gracechart(
+			application_name,
+			process_generic->
+				process_generic_system_string
+					/* input_system_string */,
+			process_generic->
+				process_generic_subtitle,
+			process_generic_units_label(
+				process_generic->
+					value_folder->
+					datatype->
+					unit,
+				process_generic->
+					parameter->
+					units_converted,
+				process_generic->
+					parameter->
+					aggregate_statistic ),
+			process_generic->
+				value_folder->
+				value_folder_name,
+			process_generic->
+				parameter->
+				process_id,
+			appaserver_parameter_file->
+				document_root,
+			process_generic->
+				parameter->
+				begin_date,
+			process_generic->
+				parameter->
+				end_date,
+			argv[ 0 ],
+			days_to_average,
+			process_generic->
+				value_folder->
+				datatype->
+				datatype_name,
+			process_generic->
+				value_folder->
+				datatype->
+				bar_graph,
+			process_generic->
+				parameter->
+				date_piece,
+			process_generic->
+				parameter->
+				value_piece,
+			appaserver_parameter_file->
+				appaserver_mount_point ) )
+		{
+			printf( "<h3>Insufficient input</h3>\n" );
+			document_close();
+			exit( 0 );
+		}
+	}
+	else
+	if (	process_generic->parameter->output_medium ==
 		table
 	||      process_generic->parameter->output_medium ==
 		output_medium_unknown )
@@ -302,330 +402,6 @@ int main( int argc, char **argv )
 					primary_attribute_name_list ) );
 	}
 
-#ifdef NOT_DEFINED
-	JULIAN *moving_begin_date;
-	moving_begin_date = julian_new_yyyy_mm_dd( begin_date_string );
-	julian_decrement_days( moving_begin_date, days_to_average - 1 );
-	moving_begin_date_string =
-		julian_get_yyyy_mm_dd_string( moving_begin_date->current );
-
-	where_clause = process_generic_output_get_dictionary_where_clause(
-			&moving_begin_date_string,
-			&end_date_string,
-			application_name,
-			process_generic_output,
-			post_dictionary,
-			1 /* with_set_dates */,
-			process_generic_output->
-				value_folder->
-				value_folder_name );
-
-	build_sys_string(
-				sys_string,
-				application_name,
-				aggregate_statistic,
-				exceedance_format_yn,
-				days_to_average,
-				process_generic_output->
-					value_folder->
-					datatype->
-					units,
-				units_converted,
-				process_generic_output,
-				where_clause,
-				begin_date_string,
-				end_date_string );
-
-	if ( units_converted
-	&&   *units_converted
-	&&   strcmp( units_converted, "units_converted" ) != 0 )
-	{
-		units = units_converted;
-	}
-	else
-	{
-		units = process_generic_output->value_folder->datatype->units;
-	}
-
-	if ( strcmp( output_medium, "stdout" ) != 0
-	&&   strcmp( output_medium, "chart" ) != 0 )
-	{
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-	
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-	
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-	}
-
-	if ( strcmp( output_medium, "table" ) == 0 )
-	{
-		if ( *exceedance_format_yn == 'y' )
-		{
-			daily_moving_average_output_table_exceedance_format(
-					application_name,
-					sys_string,
-					days_to_average,
-					units,
-					where_clause,
-					process_generic_output->
-						value_folder->
-							value_folder_name );
-		}
-		else
-		{
-			daily_moving_average_output_table(
-					application_name,
-					sys_string,
-					days_to_average,
-					units,
-					where_clause,
-					process_generic_output->
-						value_folder->
-							value_folder_name );
-		}
-	}
-	else
-	if ( strcmp( output_medium, "chart" ) == 0 )
-	{
-		int results;
-
-		if ( *exceedance_format_yn == 'y' )
-		{
-			results =
-			daily_moving_average_output_chart_exceedance_format(
-					application_name,
-					process_generic_get_datatype_name(
-					   process_generic_output->
-					   value_folder->
-					   datatype->
-					   primary_attribute_data_list,
-					   ' ' /* delimiter */ ),
-					begin_date_string,
-					end_date_string,
-					sys_string,
-					appaserver_parameter_file->
-						document_root,
-					appaserver_parameter_file->
-						appaserver_mount_point,
-					days_to_average,
-					units,
-					where_clause,
-					process_generic_output->
-						value_folder->
-							value_folder_name );
-		}
-		else
-		{
-			results = daily_moving_average_output_chart(
-					application_name,
-					role_name,
-					process_generic_get_datatype_name(
-					   process_generic_output->
-					   value_folder->
-					   datatype->
-					   primary_attribute_data_list,
-					   ' ' /* delimiter */ ),
-					begin_date_string,
-					end_date_string,
-					sys_string,
-					appaserver_parameter_file->
-						document_root,
-					appaserver_parameter_file->
-						appaserver_mount_point,
-					argv[ 0 ],
-					days_to_average,
-					units,
-					where_clause,
-					process_generic_output->
-						value_folder->
-							value_folder_name,
-					process_generic_output->
-						value_folder->
-						datatype->
-						foreign_attribute_data_list );
-		}
-
-		if ( !results )
-		{
-			printf( "<p>Warning: nothing selected to output.\n" );
-			document_close();
-			exit( 0 ); 
-		}
-	}
-	else
-	if ( strcmp( output_medium, "transmit" ) == 0
-	||   strcmp( output_medium, "text_file" ) == 0 )
-	{
-		char *output_filename;
-		char *ftp_filename;
-		pid_t process_id = getpid();
-		FILE *output_pipe;
-		FILE *output_file;
-		char output_sys_string[ 512 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
-
-		appaserver_link_file =
-			appaserver_link_file_new(
-				application_http_prefix( application_name ),
-				appaserver_library_get_server_address(),
-				( application_prepend_http_protocol_yn(
-					application_name ) == 'y' ),
-	 			appaserver_parameter_file->document_root,
-				(char *)0 /* filename_stem */,
-				application_name,
-				process_id,
-				(char *)0 /* session */,
-				"txt" );
-
-		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_TEMPLATE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 process_id );
-*/
-	
-		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
-		{
-			printf( "<H2>ERROR: Cannot open output file %s\n",
-				output_filename );
-			document_close();
-			exit( 1 );
-		}
-		else
-		{
-			fclose( output_file );
-		}
-
-/*
-		sprintf( output_sys_string,
-			 "delimiter2padded_columns.e '|' 99 > %s",
-			 output_filename );
-*/
-
-		sprintf(sys_string,
-		 	"tr '|' '%c' > %s",
-			OUTPUT_TEXT_FILE_DELIMITER,
-		 	output_filename );
-
-		output_pipe = popen( output_sys_string, "w" );
-
-		if ( *exceedance_format_yn == 'y' )
-		{
-			daily_moving_average_output_transmit_exceedance_format(
-				output_pipe,
-				sys_string,
-				days_to_average,
-				units );
-		}
-		else
-		{
-			daily_moving_average_output_transmit(
-				output_pipe,
-				sys_string,
-				days_to_average,
-				units );
-		}
-
-		pclose( output_pipe );
-
-		printf( "<h1>%d Day Moving Average Transmission<br></h1>\n",
-			days_to_average );
-		printf( "<h1>\n" );
-		fflush( stdout );
-		system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
-		fflush( stdout );
-		printf( "</h1>\n" );
-	
-		printf( "<br>Search Criteria: %s\n",
-			 query_get_display_where_clause(
-				where_clause,
-				application_name,
-				process_generic_output->
-					value_folder->
-						value_folder_name,
-				1 ) );
-
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		appaserver_library_output_ftp_prompt(
-				ftp_filename,
-				TRANSMIT_PROMPT,
-				(char *)0 /* target */,
-				(char *)0 /* application_type */ );
-	}
-	else
-	if ( strcmp( output_medium, "stdout" ) == 0 )
-	{
-		FILE *output_pipe;
-		char output_sys_string[ 512 ];
-
-		strcpy( output_sys_string, "cat" );
-
-		output_pipe = popen( output_sys_string, "w" );
-
-		if ( *exceedance_format_yn == 'y' )
-		{
-			daily_moving_average_output_transmit_exceedance_format(
-				output_pipe,
-				sys_string,
-				days_to_average,
-				units );
-		}
-		else
-		{
-			daily_moving_average_output_transmit(
-				output_pipe,
-				sys_string,
-				days_to_average,
-				units );
-		}
-		pclose( output_pipe );
-	}
-#endif
-
 	if (	process_generic->parameter->output_medium !=
 		output_medium_stdout )
 	{
@@ -638,7 +414,6 @@ int main( int argc, char **argv )
 		appaserver_parameter_file_get_dbms() );
 
 	return 0;
-
 }
 
 #ifdef NOT_DEFINED
@@ -1002,100 +777,6 @@ void daily_moving_average_output_transmit(
 	}
 
 	pclose( input_pipe );
-
-}
-
-void daily_moving_average_output_table(
-					char *application_name,
-					char *sys_string,
-					int days_to_average,
-					char *units,
-					char *where_clause,
-					char *value_folder_name )
-{
-	LIST *heading_list;
-	HTML_TABLE *html_table = {0};
-	FILE *input_pipe;
-	char input_buffer[ 512 ];
-	char units_buffer[ 128 ];
-	char title[ 512 ];
-	char title_buffer[ 512 ];
-	char date_string[ 128 ];
-	char value_string[ 128 ];
-	int count = 0;
-
-	sprintf(	title,
-	"%d Day Moving Average<br><p>Search Criteria: %s",
-			days_to_average,
-			query_get_display_where_clause(
-				where_clause,
-				application_name,
-				value_folder_name,
-				1 ) );
-
-	html_table = new_html_table(
-			format_initial_capital(
-				title_buffer,
-				title ),
-			(char *)0 /* sub_title */ );
-	heading_list = new_list();
-
-	list_append_pointer( heading_list, "Date" );
-
-	list_append_pointer(
-			heading_list,
-			format_initial_capital(
-				units_buffer,
-				units ) );
-
-	html_table->number_left_justified_columns = 1;
-	html_table->number_right_justified_columns = 1;
-
-	html_table_set_heading_list( html_table, heading_list );
-	html_table_output_table_heading(
-					html_table->title,
-					html_table->sub_title );
-
-	html_table_output_data_heading(
-				html_table->heading_list,
-				html_table->number_left_justified_columns,
-				html_table->number_right_justified_columns,
-				html_table->justify_list );
-
-	input_pipe = popen( sys_string, "r" );
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		piece( date_string, INPUT_DELIMITER, input_buffer, 0 );
-		piece( value_string, INPUT_DELIMITER, input_buffer, 1 );
-
-		html_table_set_data(	html_table->data_list,
-					strdup( date_string ) );
-
-		html_table_set_data(	html_table->data_list,
-					strdup( value_string ) );
-
-		if ( !(++count % ROWS_BETWEEN_HEADING ) )
-		{
-			html_table_output_data_heading(
-				html_table->heading_list,
-				html_table->number_left_justified_columns,
-				html_table->number_right_justified_columns,
-				html_table->justify_list );
-		}
-
-		html_table_output_data(
-				html_table->data_list,
-				html_table->number_left_justified_columns,
-				html_table->number_right_justified_columns,
-				html_table->background_shaded,
-				html_table->justify_list );
-
-		list_free_string_list( html_table->data_list );
-		html_table->data_list = list_new();
-	}
-
-	pclose( input_pipe );
-	html_table_close();
 
 }
 
@@ -1670,5 +1351,296 @@ char *moving_average_system_string(
 		SQL_DELIMITER );
 
 	return strdup( system_string );
+}
+
+boolean generic_output_gracechart(
+			char *application_name,
+			char *input_system_string,
+			char *subtitle,
+			char *unit,
+			char *value_folder_name,
+			pid_t process_id,
+			char *document_root_directory,
+			char *begin_date,
+			char *end_date,
+			char *argv_0,
+			int days_to_average,
+			char *datatype_name,
+			boolean bar_graph,
+			int date_piece,
+			int value_piece,
+			char *appaserver_mount_point )
+{
+	char *ftp_output_filename;
+	char *ftp_agr_filename;
+
+	if ( !generic_output_chart_create(
+		&ftp_output_filename,
+		&ftp_agr_filename,
+		application_name,
+		input_system_string,
+		subtitle,
+		unit,
+		argv_0,
+		value_folder_name,
+		days_to_average,
+		datatype_name,
+		bar_graph,
+		process_id,
+		document_root_directory,
+		begin_date,
+		end_date,
+		date_piece,
+		value_piece ) )
+	{
+		return 0;
+	}
+
+	grace_output_graph_window(
+		application_name,
+		ftp_output_filename,
+		ftp_agr_filename,
+		appaserver_mount_point,
+		0 /* not with_document_output */,
+		(char *)0 /* where_clause */ );
+
+	return 1;
+}
+
+boolean generic_output_chart_create(
+			char **ftp_output_filename,
+			char **ftp_agr_filename,
+			char *application_name,
+			char *input_system_string,
+			char *subtitle,
+			char *unit,
+			char *argv_0,
+			char *value_folder_name,
+			int days_to_average,
+			char *datatype_name,
+			boolean bar_graph,
+			pid_t process_id,
+			char *document_root_directory,
+			char *begin_date,
+			char *end_date,
+			int date_piece,
+			int value_piece )
+{
+	char input_buffer[ 512 ];
+	char title[ 512 ];
+	char buffer1[ 512 ];
+	char date_buffer[ 128 ];
+	char value_buffer[ 128 ];
+	GRACE *grace;
+	char graph_identifier[ 16 ];
+	FILE *input_pipe;
+	int page_width_pixels;
+	int page_length_pixels;
+	char *distill_landscape_flag;
+	GRACE_GRAPH *grace_graph;
+	GRACE_DATATYPE *grace_datatype;
+	char legend[ 128 ];
+	char grace_string[ 128 ];
+	char *agr_filename;
+	char *postscript_filename;
+	char *output_filename;
+
+	sprintf(title,
+		"%s %d Day Moving Average",
+		value_folder_name,
+		days_to_average );
+
+	format_initial_capital( title, title );
+
+	grace =
+		grace_new_unit_graph_grace(
+			application_name,
+			(char *)0 /* role_name */,
+			(char *)0 /* infrastructure_process */,
+			(char *)0 /* data_process */,
+			argv_0,
+			GRACE_DATATYPE_ENTITY_PIECE,
+			GRACE_DATATYPE_PIECE,
+			GRACE_DATE_PIECE,
+			GRACE_TIME_PIECE,
+			GRACE_VALUE_PIECE,
+			title,
+			subtitle,
+			0 /* not datatype_type_xyhilo */,
+			no_cycle_colors_if_multiple_datatypes );
+
+	if ( !grace_set_begin_end_date(
+			grace,
+			begin_date,
+			end_date ) )
+	{
+		return 0;
+	}
+
+	grace_graph = grace_new_grace_graph();
+
+	grace_graph->units = unit;
+
+	grace_datatype =
+		grace_new_grace_datatype(
+			(char *)0 /* datatype_entity_name */,
+			datatype_name );
+
+
+	grace_graph->xaxis_ticklabel_angle = 45;
+
+	strcpy( legend, datatype_name );
+
+	strcpy(	legend,
+		format_initial_capital(
+			buffer1,
+			legend ) );
+
+	grace_datatype->legend = legend;
+
+	if ( bar_graph )
+	{
+		grace_datatype->line_linestyle = 0;
+		grace_datatype->datatype_type_bar_xy_xyhilo = "bar";
+	}
+	else
+	{
+		grace_datatype->datatype_type_bar_xy_xyhilo = "xy";
+	}
+
+	list_set(
+		grace_graph->datatype_list,
+		grace_datatype );
+
+	list_append_pointer( grace->graph_list, grace_graph );
+
+	grace->grace_output =
+		application_grace_output(
+			application_name );
+
+	sprintf( graph_identifier, "%d", process_id );
+
+	grace_get_filenames(
+		&agr_filename,
+		ftp_agr_filename,
+		&postscript_filename,
+		&output_filename,
+		ftp_output_filename,
+		application_name,
+		document_root_directory,
+		graph_identifier,
+		grace->grace_output );
+
+	input_pipe = popen( input_system_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		if ( !piece(
+			date_buffer,
+			SQL_DELIMITER,
+			input_buffer,
+			date_piece ) )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: cannot piece(%d) for date.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				date_piece );
+		}
+
+		if ( !piece(
+			value_buffer,
+			SQL_DELIMITER,
+			input_buffer,
+			value_piece ) )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: cannot piece(%d) for value.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				date_piece );
+		}
+
+		/* -------------------------------------------- */
+		/* Sample grace_string:				*/
+		/* BA|bottom_temperature|2000-06-01|29.334|24	*/
+		/* -------------------------------------------- */
+		sprintf( grace_string,
+			 "|%s|%s|%s|1",
+			 datatype_name,
+			 date_buffer,
+			 value_buffer );
+
+		grace_set_string_to_point_list(
+			grace->graph_list, 
+			GRACE_DATATYPE_ENTITY_PIECE,
+			GRACE_DATATYPE_PIECE,
+			GRACE_DATE_PIECE,
+			GRACE_TIME_PIECE,
+			GRACE_VALUE_PIECE,
+			grace_string,
+			unit_graph,
+			grace->datatype_type_xyhilo,
+			grace->dataset_no_cycle_color,
+			(char *)0 /* optional_label */ );
+	}
+	pclose( input_pipe );
+
+	if ( !grace_set_structures(
+		&page_width_pixels,
+		&page_length_pixels,
+		&distill_landscape_flag,
+		&grace->landscape_mode,
+		grace,
+		grace->graph_list,
+		grace->anchor_graph_list,
+		grace->begin_date_julian,
+		grace->end_date_julian,
+		grace->number_of_days,
+		grace->grace_graph_type,
+		0 /* not force_landscape_mode */ ) )
+	{
+		return 0;
+	}
+
+	/* grace->symbols = 1; */
+
+	if ( !grace_output_charts(
+		output_filename, 
+		postscript_filename,
+		agr_filename,
+		grace->title,
+		grace->sub_title,
+		grace->xaxis_ticklabel_format,
+		grace->grace_graph_type,
+		grace->x_label_size,
+		page_width_pixels,
+		page_length_pixels,
+		application_grace_home_directory(
+			application_name ),
+		application_grace_execution_directory(
+			application_name ),
+		application_grace_free_option_yn(
+			application_name ),
+		grace->grace_output,
+		application_distill_directory(
+			application_name ),
+		distill_landscape_flag,
+		application_ghost_script_directory(
+			application_name ),
+		(LIST *)0 /* quantum_datatype_name_list */,
+		grace->symbols,
+		grace->world_min_x,
+		grace->world_max_x,
+		grace->xaxis_ticklabel_precision,
+		grace->graph_list,
+		grace->anchor_graph_list ) )
+	{
+		return 0;
+	}
+
+	return 1;
 }
 

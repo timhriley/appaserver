@@ -103,12 +103,12 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
+/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-/*
 	if ( zaxis_label )
 	{
 		output_r_scatterplot(
@@ -141,7 +141,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 char *get_statistics_output_filename(
 				char *appaserver_data_directory,
@@ -156,7 +156,7 @@ char *get_statistics_output_filename(
 
 	return strdup( filename );
 		 
-} /* get_statistics_output_filename() */
+}
 
 void output_regression_statistics(
 		char *statistics_output_filename,
@@ -278,7 +278,7 @@ void output_regression_statistics(
 
 	fclose( statistics_file );
 
-} /* output_regression_statistics() */
+}
 
 
 void output_grace_scatterplot(
@@ -422,7 +422,7 @@ void output_grace_scatterplot(
 	fclose( regression_file );
 
 	sprintf( sys_string, "rm -f %s", regression_filename );
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	/* Close new regression ADT file */
 	/* ----------------------------- */
@@ -707,7 +707,7 @@ void output_grace_scatterplot(
 			statistics_output_filename );
 	}
 
-} /* output_grace_scatterplot() */
+}
 
 #ifdef NOT_DEFINED
 void output_r_scatterplot(
@@ -719,6 +719,6 @@ void output_r_scatterplot(
 			char *yaxis_label,
 			char *zaxis_label )
 {
-} /* output_r_scatterplot() */
+}
 #endif
 

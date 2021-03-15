@@ -44,12 +44,13 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_set_name;
+	char *login_name;
+	DICTIONARY *post_dictionary;
 	char *begin_date = {0};
 	char *end_date = {0};
 	DOCUMENT *document;
 	char *process_name;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DICTIONARY *post_dictionary;
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	char *sys_string = {0};
 	char *where_clause = {0};
@@ -68,6 +69,10 @@ int main( int argc, char **argv )
 	char google_chart_output_file[ 128 ];
 	char accumulate_label[ 32 ];
 	char *prompt_filename;
+	int date_piece = 0;
+	int value_piece = 0;
+	char date_buffer[ 128 ];
+	char value_buffer[ 128 ];
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -79,23 +84,22 @@ int main( int argc, char **argv )
 	if ( argc != 4 )
 	{
 		fprintf( stderr,
-			 "Usage: %s ignored process_set dictionary\n",
+			 "Usage: %s process_set login_name dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	process_set_name = argv[ 2 ];
-
-	post_dictionary =
-		dictionary_string2dictionary( argv[ 3 ] );
-
-	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_FROM_STARTING_LABEL );
+	process_set_name = argv[ 1 ];
+	if ( ( login_name = argv[ 2 ] ) ){};
+	post_dictionary = dictionary_string2dictionary( argv[ 3 ] );
 
 	dictionary_add_elements_by_removing_prefix(
-				    	post_dictionary,
-				    	QUERY_STARTING_LABEL );
+		post_dictionary,
+		QUERY_FROM_STARTING_LABEL );
+
+	dictionary_add_elements_by_removing_prefix(
+		post_dictionary,
+		QUERY_STARTING_LABEL );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -216,9 +220,9 @@ int main( int argc, char **argv )
 			&units_label,
 			(int *)0 /* datatype_entity_piece */,
 			(int *)0 /* datatype_piece */,
-			(int *)0 /* date_piece */,
+			&date_piece,
 			&time_piece,
-			(int *)0 /* value_piece */,
+			&value_piece,
 			&length_select_list,
 			application_name,
 			process_generic_output,
@@ -281,6 +285,7 @@ int main( int argc, char **argv )
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
+#ifdef NOT_DEFINED
 		/* If aggregated, remove the time column */
 		/* ------------------------------------- */
 		if ( process_generic_output->
@@ -310,8 +315,46 @@ int main( int argc, char **argv )
 				 input_buffer );
 			continue;
 		}
+#endif
 
-		fprintf( output_pipe, "%s\n", input_buffer );
+		if ( !piece(
+			date_buffer,
+			delimiter,
+			input_buffer,
+			date_piece ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: date_buffer cannot piece(%d) in [%s]\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				date_piece,
+				input_buffer );
+		}
+
+		if ( strcmp( date_buffer, "Date" ) == 0 ) continue;
+
+		if ( !piece(
+			value_buffer,
+			delimiter,
+			input_buffer,
+			value_piece ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: value_buffer cannot piece(%d) in [%s]\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				value_piece,
+				input_buffer );
+		}
+
+		fprintf(
+			output_pipe,
+			"%s%c%s\n",
+			date_buffer,
+			delimiter,
+			value_buffer );
 	}
 
 	pclose( input_pipe );
@@ -343,8 +386,7 @@ int main( int argc, char **argv )
 		appaserver_parameter_file_get_dbms() );
 
 	return 0;
-
-} /* main() */
+}
 
 char *get_title(		char *value_folder_name,
 				LIST *foreign_attribute_data_list,

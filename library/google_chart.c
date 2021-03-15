@@ -35,7 +35,7 @@ GOOGLE_CHART *google_chart_new( void )
 
 	return g;
 
-} /* google_chart_new() */
+}
 
 GOOGLE_OUTPUT_CHART *google_output_chart_new(
 				int left,
@@ -72,7 +72,7 @@ GOOGLE_OUTPUT_CHART *google_output_chart_new(
 
 	return google_output_chart;
 
-} /* google_output_chart_new() */
+}
 
 GOOGLE_INPUT_VALUE *google_chart_input_value_new(
 					char *date_time )
@@ -95,7 +95,7 @@ GOOGLE_INPUT_VALUE *google_chart_input_value_new(
 
 	return g;
 
-} /* google_chart_input_value_new() */
+}
 
 GOOGLE_BARCHART *google_barchart_new(
 				char *stratum_name,
@@ -125,7 +125,7 @@ GOOGLE_BARCHART *google_barchart_new(
 
 	return google_barchart;
 
-} /* google_barchart_new() */
+}
 
 GOOGLE_TIMELINE *google_timeline_new(
 				char *date_string,
@@ -171,7 +171,7 @@ GOOGLE_TIMELINE *google_timeline_new(
 
 	return google_timeline;
 
-} /* google_timeline_new() */
+}
 
 void google_barchart_append_datatype_name_string(
 				LIST *barchart_list,
@@ -195,7 +195,7 @@ void google_barchart_append_datatype_name_string(
 			length_datatype_name_list );
 	}
 
-} /* google_barchart_append_datatype_name_string() */
+}
 
 GOOGLE_BARCHART *google_barchart_append(
 				LIST *barchart_list,
@@ -212,7 +212,7 @@ GOOGLE_BARCHART *google_barchart_append(
 
 	return barchart;
 
-} /* google_barchart_append() */
+}
 
 GOOGLE_TIMELINE *google_timeline_append(
 				LIST *timeline_list,
@@ -231,7 +231,7 @@ GOOGLE_TIMELINE *google_timeline_append(
 
 	return timeline;
 
-} /* google_timeline_append() */
+}
 
 int google_chart_get_datatype_offset(
 				LIST *datatype_name_list,
@@ -253,7 +253,7 @@ int google_chart_get_datatype_offset(
 
 	return -1;
 
-} /* google_chart_get_datatype_offset() */
+}
 
 GOOGLE_BARCHART *google_barchart_get_or_set(
 				LIST *barchart_list,
@@ -282,7 +282,7 @@ GOOGLE_BARCHART *google_barchart_get_or_set(
 			strdup( stratum_name ),
 			length_datatype_name_list );
 
-} /* google_barchart_get_or_set() */
+}
 
 GOOGLE_TIMELINE *google_timeline_get_or_set(
 				LIST *timeline_list,
@@ -321,7 +321,7 @@ GOOGLE_TIMELINE *google_timeline_get_or_set(
 			(time_hhmm) ? strdup( time_hhmm ) : (char *)0,
 			length_datatype_name_list );
 
-} /* google_timeline_get_or_set() */
+}
 
 /* ==============================
    Expecting:
@@ -390,7 +390,7 @@ void google_timeline_set_point_string(	LIST *timeline_list,
 					datatype_name,
 					atof( point_string ) );
 
-} /* google_timeline_set_point_string() */
+}
 
 void google_barchart_set_point(		LIST *barchart_list,
 					char *stratum_name,
@@ -438,7 +438,7 @@ void google_barchart_set_point(		LIST *barchart_list,
 
 	*barchart->point_array[ offset ] = point;
 
-} /* google_barchart_set_point() */
+}
 
 void google_timeline_set_point(	LIST *timeline_list,
 				LIST *datatype_name_list,
@@ -481,7 +481,7 @@ void google_timeline_set_point(	LIST *timeline_list,
 	timeline->point_array[ offset ] = google_point_double_calloc();
 	*timeline->point_array[ offset ] = point;
 
-} /* google_timeline_set_point() */
+}
 
 double *google_point_double_calloc( void )
 {
@@ -499,7 +499,7 @@ double *google_point_double_calloc( void )
 
 	return d;
 
-} /* google_point_double_calloc() */
+}
 
 double **google_point_array_double_calloc( int array_length )
 {
@@ -517,7 +517,7 @@ double **google_point_array_double_calloc( int array_length )
 
 	return d;
 
-} /* google_point_array_double_calloc() */
+}
 
 void google_barchart_display(	LIST *barchart_list,
 				LIST *datatype_name_list )
@@ -561,7 +561,7 @@ void google_barchart_display(	LIST *barchart_list,
 
 	} while( list_next( barchart_list ) );
 
-} /* google_barchart_display() */
+}
 
 void google_timeline_display(	LIST *timeline_list,
 				LIST *datatype_name_list )
@@ -603,7 +603,7 @@ void google_timeline_display(	LIST *timeline_list,
 
 	} while( list_next( timeline_list ) );
 
-} /* google_timeline_display() */
+}
 
 void google_chart_include( FILE *output_file )
 {
@@ -676,7 +676,7 @@ char *google_chart_convert_date(	char *destination,
 
 	return destination;
 
-} /* google_chart_convert_date() */
+}
 
 void google_chart_output_visualization_annotated(
 				FILE *output_file,
@@ -793,7 +793,7 @@ void google_chart_output_visualization_annotated(
 	fprintf( output_file,
 "</script>\n" );
 
-} /* google_chart_output_visualization_annotated() */
+}
 
 void google_chart_output_visualization_non_annotated(
 				FILE *output_file,
@@ -939,7 +939,7 @@ void google_chart_output_visualization_non_annotated(
 	fprintf( output_file,
 "</script>\n" );
 
-} /* google_chart_output_visualization_non_annotated() */
+}
 
 void google_chart_output_chart_instantiation(
 				FILE *output_file,
@@ -957,7 +957,7 @@ void google_chart_output_chart_instantiation(
 "</script>\n",
 		 visualization_function_name );
 
-} /* google_chart_output_chart_instantiation() */
+}
 
 char *google_chart_get_visualization_function_name(
 					int chart_number )
@@ -970,7 +970,7 @@ char *google_chart_get_visualization_function_name(
 
 	return visualization_function_name;
 
-} /* google_chart_get_visualization_function_name() */
+}
 
 void google_chart_output_barchart_list(
 			FILE *output_file,
@@ -1030,7 +1030,7 @@ void google_chart_output_barchart_list(
 	fprintf( output_file,
 "	]);\n\n" );
 
-} /* google_chart_output_barchart_list() */
+}
 
 void google_chart_output_timeline_list(
 			FILE *output_file,
@@ -1091,7 +1091,7 @@ void google_chart_output_timeline_list(
 	fprintf( output_file,
 "	]);\n\n" );
 
-} /* google_chart_output_timeline_list() */
+}
 
 void google_chart_output_datatype_column_heading(
 			FILE *output_file,
@@ -1128,7 +1128,7 @@ void google_chart_output_datatype_column_heading(
 
 	} while( list_next( datatype_name_list ) );
 
-} /* google_chart_output_datatype_column_heading() */
+}
 
 void google_chart_float_chart(	FILE *output_file,
 				char *title,
@@ -1149,7 +1149,7 @@ void google_chart_float_chart(	FILE *output_file,
 		 width,
 		 height );
 
-} /* google_chart_float_chart() */
+}
 
 void google_chart_anchor_chart(	FILE *output_file,
 				char *title,
@@ -1198,7 +1198,7 @@ void google_chart_anchor_chart(	FILE *output_file,
 		 width,
 		 height );
 
-} /* google_chart_anchor_chart() */
+}
 
 void google_chart_output_prompt(
 			char *application_name,
@@ -1227,7 +1227,7 @@ void google_chart_output_prompt(
 		prompt_filename,
 		target_window );
 
-} /* google_chart_output_prompt() */
+}
 
 void google_chart_output_options(
 			FILE *output_file,
@@ -1350,7 +1350,7 @@ void google_chart_output_options(
 
 	fprintf( output_file, "\n\t}\n" );
 
-} /* google_chart_output_options() */
+}
 
 GOOGLE_INPUT_VALUE *google_input_value_new( char *date_time )
 {
@@ -1370,7 +1370,7 @@ GOOGLE_INPUT_VALUE *google_input_value_new( char *date_time )
 	g->date_time = date_time;
 	return g;
 
-} /* google_input_value_new() */
+}
 
 GOOGLE_UNIT_CHART *google_unit_chart_new( char *unit )
 {
@@ -1397,7 +1397,7 @@ GOOGLE_UNIT_CHART *google_unit_chart_new( char *unit )
 
 	return g;
 
-} /* google_unit_chart_new() */
+}
 
 GOOGLE_UNIT_DATATYPE *google_unit_datatype_new( char *datatype_name )
 {
@@ -1418,7 +1418,7 @@ GOOGLE_UNIT_DATATYPE *google_unit_datatype_new( char *datatype_name )
 	g->value_hash_table = hash_table_new( hash_table_large );
 	return g;
 
-} /* google_unit_datatype_new() */
+}
 
 boolean google_datatype_chart_input_value_list_set(
 				LIST *input_value_list,
@@ -1491,7 +1491,7 @@ boolean google_datatype_chart_input_value_list_set(
 	pclose( input_pipe );
 	return got_input;
 
-} /* google_datatype_chart_input_value_list_set() */
+}
 
 boolean google_chart_value_hash_table_set(
 				HASH_TABLE *value_hash_table,
@@ -1560,7 +1560,7 @@ boolean google_chart_value_hash_table_set(
 	pclose( input_pipe );
 	return got_input;
 
-} /* google_chart_value_hash_table_set() */
+}
 
 char *google_chart_get_date_time_key(
 			char *date_string,
@@ -1579,7 +1579,7 @@ char *google_chart_get_date_time_key(
 
 	return key;
 
-} /* google_chart_get_date_time_key() */
+}
 
 boolean google_chart_set_input_value(
 				HASH_TABLE *value_hash_table,
@@ -1641,7 +1641,7 @@ boolean google_chart_set_input_value(
 
 	return 1;
 
-} /* google_chart_set_input_value() */
+}
 
 LIST *google_chart_get_unit_datatype_name_list(
 			LIST *unit_datatype_list )
@@ -1664,7 +1664,7 @@ LIST *google_chart_get_unit_datatype_name_list(
 
 	return datatype_name_list;
 
-} /* google_chart_get_unit_datatype_name_list() */
+}
 
 LIST *google_datatype_chart_get_datatype_name_list(
 			LIST *datatype_chart_list )
@@ -1687,7 +1687,7 @@ LIST *google_datatype_chart_get_datatype_name_list(
 
 	return datatype_name_list;
 
-} /* google_datatype_chart_list_get_datatype_name_list() */
+}
 
 LIST *google_chart_datatype_get_output_chart_list(
 			LIST *datatype_chart_list,
@@ -1748,7 +1748,7 @@ LIST *google_chart_datatype_get_output_chart_list(
 
 	return output_chart_list;
 
-} /* google_chart_datatype_get_output_chart_list() */
+}
 
 LIST *google_chart_unit_get_output_chart_list(
 			LIST *unit_chart_list,
@@ -1799,7 +1799,7 @@ LIST *google_chart_unit_get_output_chart_list(
 
 	return output_chart_list;
 
-} /* google_chart_unit_get_output_chart_list() */
+}
 
 GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 				LIST *unit_datatype_list,
@@ -1863,7 +1863,7 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 
 	return output_chart;
 
-} /* google_chart_unit_get_output_chart() */
+}
 
 void google_chart_output_all_charts(
 			FILE *output_file,
@@ -1947,7 +1947,7 @@ void google_chart_output_all_charts(
 	fprintf( output_file, "</body>\n" );
 	fprintf( output_file, "</html>\n" );
 
-} /* google_chart_output_all_charts() */
+}
 
 void google_chart_output_graph_window(
 			char *application_name,
@@ -1997,7 +1997,7 @@ void google_chart_output_graph_window(
 
 	if ( with_document_output ) document_close();
 
-} /* google_chart_output_graph_window() */
+}
 
 GOOGLE_DATATYPE_CHART *google_datatype_chart_get_or_set(
 					LIST *datatype_chart_list,
@@ -2027,7 +2027,7 @@ GOOGLE_DATATYPE_CHART *google_datatype_chart_get_or_set(
 
 	return g;
 
-} /* google_datatype_chart_get_or_set() */
+}
 
 GOOGLE_DATATYPE_CHART *google_datatype_append(
 				LIST *datatype_chart_list,
@@ -2041,7 +2041,7 @@ GOOGLE_DATATYPE_CHART *google_datatype_append(
 
 	return g;
 
-} /* google_datatype_append() */
+}
 
 GOOGLE_DATATYPE_CHART *google_datatype_chart_new(
 					char *datatype_name )
@@ -2062,7 +2062,7 @@ GOOGLE_DATATYPE_CHART *google_datatype_chart_new(
 	g->datatype_name = datatype_name;
 	return g;
 
-} /* google_datatype_chart_new() */
+}
 
 char *google_chart_input_value_list_display(
 			LIST *input_value_list )
@@ -2092,7 +2092,7 @@ char *google_chart_input_value_list_display(
 
 	return strdup( buffer );
 
-} /* google_chart_input_value_list_display() */
+}
 
 char *google_datatype_chart_display( GOOGLE_DATATYPE_CHART *datatype_chart )
 {
@@ -2111,7 +2111,7 @@ char *google_datatype_chart_display( GOOGLE_DATATYPE_CHART *datatype_chart )
 
 	return strdup( buffer );
 
-} /* google_datatype_chart_display() */
+}
 
 char *google_datatype_chart_list_display(
 				LIST *datatype_chart_list )
@@ -2145,7 +2145,7 @@ char *google_datatype_chart_list_display(
 
 	return strdup( buffer );
 
-} /* google_datatype_chart_list_display() */
+}
 
 GOOGLE_COMBO_CHART *google_combo_chart_new( void )
 {
@@ -2165,7 +2165,7 @@ GOOGLE_COMBO_CHART *google_combo_chart_new( void )
 
 	return g;
 
-} /* google_combo_chart_new() */
+}
 
 GOOGLE_HAXIS *google_haxis_new( void )
 {
@@ -2185,7 +2185,7 @@ GOOGLE_HAXIS *google_haxis_new( void )
 
 	return g;
 
-} /* google_haxis_new() */
+}
 
 GOOGLE_VAXIS *google_vaxis_new( void )
 {
@@ -2205,7 +2205,7 @@ GOOGLE_VAXIS *google_vaxis_new( void )
 
 	return g;
 
-} /* google_vaxis_new() */
+}
 
 GOOGLE_DATA *google_data_new( void )
 {
@@ -2225,7 +2225,7 @@ GOOGLE_DATA *google_data_new( void )
 
 	return g;
 
-} /* google_data_new() */
+}
 
 GOOGLE_VAXIS_SERIES *google_vaxis_series_new( void )
 {
@@ -2245,5 +2245,5 @@ GOOGLE_VAXIS_SERIES *google_vaxis_series_new( void )
 
 	return g;
 
-} /* google_vaxis_series() */
+}
 

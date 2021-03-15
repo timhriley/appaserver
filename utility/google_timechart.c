@@ -62,9 +62,9 @@ int main( int argc, char **argv )
 	delimiter = *argv[ 5 ];
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -99,9 +99,9 @@ int main( int argc, char **argv )
 	google_output_chart->datatype_name_list = datatype_name_list;
 
 	if ( !populate_point_array(
-				google_output_chart->timeline_list,
-				google_output_chart->datatype_name_list,
-				delimiter ) )
+			google_output_chart->timeline_list,
+			google_output_chart->datatype_name_list,
+			delimiter ) )
 	{
 		exit( 1 );
 	}
@@ -124,25 +124,45 @@ int main( int argc, char **argv )
 
 	fprintf( output_file, "<head>\n" );
 
+	document_output_stylesheet(
+		output_file,
+		application_name,
+		"style.css" );
+
 	google_chart_include( output_file );
 
+	google_chart_output_visualization_annotated(
+		output_file,
+		google_output_chart->google_chart_type,
+		google_output_chart->timeline_list,
+		google_output_chart->barchart_list,
+		google_output_chart->datatype_name_list,
+		GOOGLE_ANNOTATED_TIMELINE
+			/* google_package_name */,
+		aggregate_level_none,
+		google_output_chart->chart_number,
+		chart_title,
+		(char *)0 /* yaxis_label */ );
+
+#ifdef NOT_DEFINED
 	google_chart_output_visualization_non_annotated(
-				output_file,
-				google_output_chart->google_chart_type,
-				google_output_chart->timeline_list,
-				google_output_chart->barchart_list,
-				google_output_chart->datatype_name_list,
-				chart_title,
-				(char *)0 /* yaxis_label */,
-				google_output_chart->width,
-				google_output_chart->height,
-				google_output_chart->background_color,
-				google_output_chart->legend_position_bottom,
-				0 /* not chart_type_bar */,
-				google_output_chart->google_package_name,
-				0 /* not dont_display_range_selector */,
-				aggregate_level_none,
-				google_output_chart->chart_number );
+		output_file,
+		google_output_chart->google_chart_type,
+		google_output_chart->timeline_list,
+		google_output_chart->barchart_list,
+		google_output_chart->datatype_name_list,
+		chart_title,
+		(char *)0 /* yaxis_label */,
+		google_output_chart->width,
+		google_output_chart->height,
+		google_output_chart->background_color,
+		google_output_chart->legend_position_bottom,
+		0 /* not chart_type_bar */,
+		google_output_chart->google_package_name,
+		0 /* not dont_display_range_selector */,
+		aggregate_level_none,
+		google_output_chart->chart_number );
+#endif
 
 	fprintf( output_file, "</head>\n" );
 	fprintf( output_file, "<body>\n" );
@@ -169,11 +189,12 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
-boolean populate_point_array(	LIST *timeline_list,
-				LIST *datatype_name_list,
-				char delimiter )
+boolean populate_point_array(
+			LIST *timeline_list,
+			LIST *datatype_name_list,
+			char delimiter )
 {
 	char input_buffer[ 1024 ];
 	boolean got_one = 0;
@@ -183,13 +204,13 @@ boolean populate_point_array(	LIST *timeline_list,
 		got_one = 1;
 
 		google_timeline_set_point_string(
-				timeline_list,
-				datatype_name_list,
-				input_buffer,
-				delimiter );
+			timeline_list,
+			datatype_name_list,
+			input_buffer,
+			delimiter );
 	}
 
 	return got_one;
 
-} /* populate_point_array() */
+}
 

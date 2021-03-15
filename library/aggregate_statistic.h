@@ -4,6 +4,7 @@
 #ifndef AGGREGATE_STATISTIC_H
 #define AGGREGATE_STATISTIC_H
 
+#include "boolean.h"
 #include "aggregate_level.h"
 
 enum aggregate_statistic {	average,

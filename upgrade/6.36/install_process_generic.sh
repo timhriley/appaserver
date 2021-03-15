@@ -134,4 +134,18 @@ then
 
 fi
 
+echo "delete from role_process_set_member where process = 'output_model_results_easychart';" | sql
+
+echo "delete from process where process = 'output_model_results_easychart';" | sql
+
+echo "delete from process_set_parameter where process = 'output_model_results_easychart';" | sql
+
+echo "delete from process_parameter where process = 'output_model_results_easychart';" | sql
+
+echo "delete from javascript_process_sets where process = 'output_model_results_easychart';" | sql
+
+echo "delete from javascript_processes where process = 'output_model_results_easychart';" | sql
+
+echo "delete from process_parameter where process = 'output_model_results_easychart';" | sql
+
 exit 0

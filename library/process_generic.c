@@ -756,6 +756,12 @@ PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 			table;
 	}
 	else
+	if ( string_strcmp( output_medium_string, "gracechart" ) == 0 )
+	{
+		process_generic_parameter->output_medium =
+			gracechart;
+	}
+	else
 	{
 		process_generic_parameter->output_medium =
 			output_medium_unknown;

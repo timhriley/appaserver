@@ -50,7 +50,8 @@ function post_change_output_model_results( current_element )
 		element.disabled = 1;
 	}
 	else
-	if ( process_value == 'output_model_moving_average' )
+	if ( process_value == 'output_model_moving_average_chart'
+	||   process_value == 'output_model_moving_average_table' )
 	{
 		element =
 			timlib_get_element(
