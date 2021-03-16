@@ -1480,7 +1480,7 @@ skip_drop_down:
 		}
 
 		element_list =
-			attribute_get_attribute_element_list(
+			attribute_prompt_element_list(
 				attribute->attribute_name,
 				attribute->folder_name
 					/* prepend_folder_name */,
