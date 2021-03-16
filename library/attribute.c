@@ -1336,15 +1336,15 @@ int attribute_primary_attribute_list_length( LIST *attribute_list )
 	return length;
 }
 
-LIST *attribute_get_attribute_element_list(
-					char *attribute_name,
-					char *prepend_folder_name,
-					char *datatype,
-					char *post_change_javascript,
-					int width,
-					char *hint_message,
-					boolean is_primary_attribute,
-					boolean omit_push_buttons )
+LIST *attribute_prompt_element_list(
+			char *attribute_name,
+			char *prepend_folder_name,
+			char *datatype,
+			char *post_change_javascript,
+			int width,
+			char *hint_message,
+			boolean is_primary_attribute,
+			boolean omit_push_buttons )
 {
 	ELEMENT_APPASERVER *element;
 	char element_name[ 256 ];
@@ -1370,16 +1370,17 @@ LIST *attribute_get_attribute_element_list(
 			 NO_DISPLAY_PUSH_BUTTON_PREFIX,
 			 attribute_name );
 	
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				toggle_button,
 				strdup( ignore_element_name ) );
 	
 		element_toggle_button_set_heading(
 			element->toggle_button, "no_display" );
 	
-		list_append_pointer(
-				return_list,
-				element );
+		list_set(
+			return_list,
+			element );
 	}
 
 	/* Create the prompt element */
@@ -1389,19 +1390,20 @@ LIST *attribute_get_attribute_element_list(
 		sprintf( prompt_string,
 			 "*%s",
 			 format_initial_capital( 
-					buffer,
-					attribute_name ) );
+				buffer,
+				attribute_name ) );
 	}
 	else
 	{
 		sprintf( prompt_string,
 			 "%s",
 			 format_initial_capital( 
-					buffer,
-					attribute_name ) );
+				buffer,
+				attribute_name ) );
 	}
 
-	element = element_appaserver_new(
+	element =
+		element_appaserver_new(
 			prompt,
 			strdup( prompt_string ) );
 
@@ -1410,7 +1412,7 @@ LIST *attribute_get_attribute_element_list(
 			element );
 	
 	if ( process_parameter_list_element_name_boolean(
-				attribute_name ) )
+			attribute_name ) )
 	{
 		element =
 			element_get_yes_no_element(
@@ -1444,16 +1446,18 @@ LIST *attribute_get_attribute_element_list(
 			 	attribute_name );
 		}
 	
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				drop_down,
 				strdup( element_name ) );
 	
 		element->drop_down->option_data_list =
-			get_relation_operator_list( datatype );
+			get_relation_operator_list(
+				datatype );
 	
-		list_append_pointer(
-				return_list,
-				element );
+		list_set(
+			return_list,
+			element );
 	
 		/* If without between "and" ... */
 		/* ---------------------------- */
@@ -1480,8 +1484,11 @@ LIST *attribute_get_attribute_element_list(
 					text_item,
 					strdup( element_name ) );
 		
+/*
 			element->text_item->attribute_width =
 					ELEMENT_TEXT_ITEM_LOOKUP_LENGTH;
+*/
+			element->text_item->attribute_width = width;
 
 			element->text_item->widget_size =
 					ELEMENT_TEXT_ITEM_LOOKUP_LENGTH;
@@ -1511,7 +1518,8 @@ LIST *attribute_get_attribute_element_list(
 					attribute_name );
 			}
 	
-			element = element_appaserver_new(
+			element =
+				element_appaserver_new(
 					notepad,
 					strdup( element_name ) );
 		
@@ -1545,14 +1553,16 @@ LIST *attribute_get_attribute_element_list(
 			if ( strcmp( datatype, "date" ) == 0
 			||   strcmp( datatype, "current_date" ) == 0 )
 			{
-				element = element_appaserver_new(
+				element =
+					element_appaserver_new(
 						element_date,
 						strdup( element_name ) );
 			}
 			else
 			if ( strcmp( datatype, "date_time" ) == 0 )
 			{
-				element = element_appaserver_new(
+				element =
+					element_appaserver_new(
 						element_date_time,
 						strdup( element_name ) );
 
@@ -1562,7 +1572,8 @@ LIST *attribute_get_attribute_element_list(
 			else
 			if ( strcmp( datatype, "current_date_time" ) == 0 )
 			{
-				element = element_appaserver_new(
+				element =
+					element_appaserver_new(
 						element_current_date_time,
 						strdup( element_name ) );
 
@@ -1571,19 +1582,24 @@ LIST *attribute_get_attribute_element_list(
 			}
 			else
 			{
-				element = element_appaserver_new(
+				element =
+					element_appaserver_new(
 						text_item,
 						strdup( element_name ) );
 			}
 
+/*
 			element->text_item->attribute_width =
 					ELEMENT_TEXT_ITEM_LOOKUP_LENGTH;
+*/
+			element->text_item->attribute_width = width;
 
 			element->text_item->widget_size =
 					ELEMENT_TEXT_ITEM_LARGE_WIDGET_SIZE;
 
-			list_append_pointer( 	return_list,
-						element );
+			list_set(
+				return_list,
+				element );
 		
 			/* Create the between "and" label */
 			/* ------------------------------ */
@@ -1617,14 +1633,16 @@ LIST *attribute_get_attribute_element_list(
 			if ( strcmp( datatype, "date" ) == 0
 			||   strcmp( datatype, "current_date" ) == 0)
 			{
-				element = element_appaserver_new(
+				element =
+					element_appaserver_new(
 						element_date,
 						strdup( element_name ) );
 			}
 			else
 			if ( strcmp( datatype, "date_time" ) == 0 )
 			{
-				element = element_appaserver_new(
+				element =
+					element_appaserver_new(
 						element_date_time,
 						strdup( element_name ) );
 
@@ -1634,7 +1652,8 @@ LIST *attribute_get_attribute_element_list(
 			else
 			if ( strcmp( datatype, "current_date_time" ) == 0 )
 			{
-				element = element_appaserver_new(
+				element =
+					element_appaserver_new(
 						element_current_date_time,
 						strdup( element_name ) );
 
@@ -1643,7 +1662,8 @@ LIST *attribute_get_attribute_element_list(
 			}
 			else
 			{
-				element = element_appaserver_new(
+				element =
+					element_appaserver_new(
 						text_item,
 						strdup( element_name ) );
 			}
@@ -1654,8 +1674,9 @@ LIST *attribute_get_attribute_element_list(
 			element->text_item->widget_size =
 					ELEMENT_TEXT_ITEM_SMALL_WIDGET_SIZE;
 
-			list_append_pointer( 	return_list,
-						element );
+			list_set(
+				return_list,
+				element );
 		}
 	}
 
@@ -1668,13 +1689,12 @@ LIST *attribute_get_attribute_element_list(
 				non_edit_text,
 				hint_message );
 
-		list_append_pointer(
-				return_list,
-				element );
+		list_set(
+			return_list,
+			element );
 	}
 
 	return return_list;
-
 }
 
 int attribute_date_piece_offset(	LIST *attribute_list,

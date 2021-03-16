@@ -129,7 +129,7 @@ void output_prompt_edit_form(
 			boolean omit_delete_button,
 			char *lookup_insert_folder_name );
 
-LIST *get_element_list(
+LIST *output_prompt_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char **post_change_javascript,
 			char *login_name,
@@ -545,7 +545,7 @@ void output_prompt_edit_form(
 	}
 
 	form->regular_element_list =
-		get_element_list(
+		output_prompt_element_list(
 			&ajax_fill_drop_down_related_folder,
 			&post_change_javascript,
 			login_name,
@@ -931,7 +931,7 @@ m2( application_name, msg );
 	document_close();
 }
 
-LIST *get_element_list(
+LIST *output_prompt_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char **post_change_javascript,
 			char *login_name,
@@ -1026,6 +1026,7 @@ LIST *get_element_list(
 					ELEMENT_TITLE_NOTEPAD_PADDING_EM ) );
 
 		element = element_appaserver_new( table_row, "" );
+
 		list_append_pointer(
 				return_list, 
 				element );
@@ -1140,8 +1141,8 @@ LIST *get_element_list(
 
 		attribute_exists_in_preprompt_dictionary =
 			dictionary_key_exists_index_zero_or_one(
-					preprompt_dictionary,
-					attribute->attribute_name );
+				preprompt_dictionary,
+				attribute->attribute_name );
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
@@ -1185,14 +1186,14 @@ LIST *get_element_list(
 		else
 		{
 			element_list =
-			attribute_get_attribute_element_list(
+			     attribute_prompt_element_list(
 				attribute->attribute_name,
 				(char *)0 /* prepend_folder_name */,
 				attribute->datatype,
 				attribute->post_change_javascript,
 				attribute->width,
 				attribute->hint_message,
-				0 /* not is_primary_attribute */,
+				attribute->primary_key_index,
 				omit_push_buttons );
 		}
 

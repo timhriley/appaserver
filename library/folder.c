@@ -1734,7 +1734,7 @@ LIST *folder_get_primary_text_element_list(
 
 		list_append_list(
 			return_element_list,
-			attribute_get_attribute_element_list(
+			   attribute_prompt_element_list(
 				attribute->attribute_name,
 				(char *)0 /* prepend_folder_name */,
 				attribute->datatype,

@@ -257,15 +257,15 @@ void attribute_remove_attribute_list(	LIST *attribute_list,
 int attribute_get_primary_attribute_list_length(
 					LIST *attribute_list );
 
-LIST *attribute_get_attribute_element_list(
-					char *attribute_name,
-					char *prepend_folder_name,
-					char *datatype,
-					char *post_change_javascript,
-					int width,
-					char *hint_message,
-					boolean is_primary_attribute,
-					boolean omit_push_buttons );
+LIST *attribute_prompt_element_list(
+		char *attribute_name,
+		char *prepend_folder_name,
+		char *datatype,
+		char *post_change_javascript,
+		int width,
+		char *hint_message,
+		boolean is_primary_attribute,
+		boolean omit_push_buttons );
 
 int attribute_get_date_piece_offset(	LIST *attribute_list,
 					LIST *exclude_attribute_name_list );
