@@ -625,8 +625,7 @@ LIST *row_security_get_element_list(
 			join_1tom_related_folder_list,
 			make_primary_keys_non_edit,
 			prompt_data_separate_folder,
-			select_folder->row_level_non_owner_forbid,
-			select_folder->notepad );
+			select_folder->row_level_non_owner_forbid );
 
 	return element_list;
 }
@@ -852,8 +851,7 @@ LIST *row_security_get_update_element_list(
 			LIST *join_1tom_related_folder_list,
 			boolean make_primary_keys_non_edit,
 			boolean prompt_data_separate_folder,
-			boolean row_level_non_owner_forbid,
-			char *folder_notepad )
+			boolean row_level_non_owner_forbid )
 {
 	LIST *return_list;
 	LIST *element_list;
@@ -889,17 +887,6 @@ LIST *row_security_get_update_element_list(
 			attribute_list );
 
 	return_list = list_new_list();
-
-	if ( *folder_notepad )
-	{
-		list_append_pointer(
-			return_list,
-			(char *)element_non_edit_text_new_element(
-					"" /* name */,
-					folder_notepad,
-					99 /* column span */,
-					ELEMENT_TITLE_NOTEPAD_PADDING_EM ) );
-	}
 
 	ignore_attribute_name_list = list_new();
 
