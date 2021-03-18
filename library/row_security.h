@@ -180,7 +180,8 @@ LIST *row_security_get_update_element_list(
 			LIST *join_1tom_related_folder_list,
 			boolean make_primary_keys_non_edit,
 			boolean prompt_data_separate_folder,
-			boolean row_level_non_owner_forbid );
+			boolean row_level_non_owner_forbid,
+			char *folder_notepad );
 
 enum row_security_state row_security_get_row_security_state(
 			FOLDER **attribute_not_null_folder,
