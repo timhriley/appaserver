@@ -128,9 +128,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 			 msg );
 
 		printf( "%s\n", msg );
-
 		bank_upload_exception = sequence_number_not_generated;
-
 		return (BANK_UPLOAD_STRUCTURE *)0;
 	}
 
@@ -140,6 +138,12 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 		bank_upload_file_minimum_bank_date(
 			p->file.input_filename,
 			p->file.date_piece_offset );
+
+	if ( !p->file.minimum_bank_date || !*p->file.minimum_bank_date )
+	{
+		bank_upload_exception = empty_transaction_rows;
+		return (BANK_UPLOAD_STRUCTURE *)0;
+	}
 
 /* Sets:
 		bank_upload->bank_date
@@ -190,7 +194,8 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 
 	p->existing_cash_journal_list =
 		bank_upload_existing_cash_journal_list(
-			p->fund_name );
+			p->fund_name,
+			feeder_account );
 
 	uncleared_checks_back_date =
 		date_yyyy_mm_dd_new(
@@ -457,7 +462,7 @@ LIST *bank_upload_file_list(
 			bank_upload->existing_bank_upload = 1;
 		}
 
-		list_append_pointer( bank_upload_list, bank_upload );
+		list_set( bank_upload_list, bank_upload );
 		starting_sequence_number++;
 	}
 
@@ -974,10 +979,11 @@ BANK_UPLOAD *bank_upload_parse( char *input )
 	return bank_upload;
 }
 
-LIST *bank_upload_existing_cash_journal_list( char *fund_name )
+LIST *bank_upload_existing_cash_journal_list(
+			char *fund_name,
+			char *feeder_account )
 {
 	char sys_string[ 2048 ];
-	char *cash_account_name;
 	char *uncleared_checks_account;
 	char where[ 1024 ];
 	char *join_where;
@@ -986,13 +992,6 @@ LIST *bank_upload_existing_cash_journal_list( char *fund_name )
 	char check_number_select[ 512 ];
 	char folder[ 128 ];
 	char *timriley_where;
-
-	cash_account_name =
-		account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_CASH_KEY,
-			0 /* not warning_only */,
-			__FUNCTION__ );
 
 	uncleared_checks_account =
 		account_hard_coded_account_name(
@@ -1026,7 +1025,7 @@ LIST *bank_upload_existing_cash_journal_list( char *fund_name )
 	sprintf(where,
 		"(account = '%s' or account = '%s') and		"
 		"%s and %s and %s				",
-		cash_account_name,
+		feeder_account,
 		uncleared_checks_account,
 		join_where,
 		subquery_join,
@@ -1037,7 +1036,7 @@ LIST *bank_upload_existing_cash_journal_list( char *fund_name )
 		 check_number_select,
 		 folder,
 		 where,
-		 "transaction_date_time" );
+		 "transaction_date_time desc" );
 
 	return journal_system_list( sys_string );
 }
@@ -2225,19 +2224,19 @@ boolean bank_upload_exists(	char *bank_date,
 				char *bank_description_embedded,
 				char *minimum_bank_date )
 {
-	static LIST *local_bank_upload_key_list = {0};
+	static LIST *key_list = {0};
 	char key[ 1024 ];
 
-	if ( !local_bank_upload_key_list )
+	if ( !key_list )
 	{
-		local_bank_upload_key_list =
+		key_list =
 			bank_upload_key_list(
 				minimum_bank_date );
 	}
 
 	sprintf( key, "%s^%s", bank_date, bank_description_embedded );
 
-	return list_string_exists( key, local_bank_upload_key_list );
+	return list_string_exists( key, key_list );
 }
 
 LIST *bank_upload_key_list(
@@ -2454,13 +2453,6 @@ char *bank_upload_minimum_bank_date(
 	static char return_date[ 16 ];
 	BANK_UPLOAD *bank_upload;
 	char *transaction_date;
-
-fprintf(stderr,
-	"%s/%s()/%d: minimum_bank_date = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-minimum_bank_date );
 
 	if ( !minimum_bank_date || !*minimum_bank_date )
 		return (char *)0;
