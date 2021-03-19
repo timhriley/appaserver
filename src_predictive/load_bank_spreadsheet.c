@@ -36,6 +36,7 @@ int load_bank_spreadsheet(	int *transaction_count,
 				char *fund_name,
 				char *feeder_account,
 				char *input_filename,
+				boolean omit_bank_upload_transaction,
 				boolean reverse_order,
 				int date_piece_offset,
 				int description_piece_offset,
@@ -66,6 +67,7 @@ int main( int argc, char **argv )
 	int debit_piece_offset;
 	int credit_piece_offset;
 	int balance_piece_offset;
+	boolean omit_bank_upload_transaction;
 	boolean reverse_order;
 	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -86,7 +88,7 @@ int main( int argc, char **argv )
 	if ( argc != 14 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name fund feeder_account filename date_column description_column debit_column credit_column balance_column ignored reverse_order_yn execute_yn\n",
+"Usage: %s process_name login_name fund feeder_account filename date_column description_column debit_column credit_column balance_column omit_bank_upload_transaction_yn reverse_order_yn execute_yn\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
@@ -105,7 +107,7 @@ int main( int argc, char **argv )
 	debit_column_string = argv[ 8 ];
 	credit_column_string = argv[ 9 ];
 	balance_column_string = argv[ 10 ];
-	/* transactions_only = (*argv[ 11 ] == 'y'); */
+	omit_bank_upload_transaction = (*argv[ 11 ] == 'y');
 	reverse_order = (*argv[ 12 ] == 'y' );
 	execute = (*argv[ 13 ] == 'y');
 
@@ -170,7 +172,9 @@ int main( int argc, char **argv )
 			appaserver_mount_point );
 
 	printf( "<h1>%s\n",
-		format_initial_capital( buffer, process_name ) );
+		format_initial_capital(
+			buffer,
+			process_name ) );
 	fflush( stdout );
 	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
 	printf( "</h1>\n" );
@@ -199,6 +203,7 @@ int main( int argc, char **argv )
 			fund_name,
 			feeder_account,
 			input_filename,
+			omit_bank_upload_transaction,
 			reverse_order,
 			date_piece_offset,
 			description_piece_offset,
@@ -251,6 +256,7 @@ int load_bank_spreadsheet(
 			char *fund_name,
 			char *feeder_account,
 			char *input_filename,
+			boolean omit_bank_upload_transaction,
 			boolean reverse_order,
 			int date_piece_offset,
 			int description_piece_offset,
@@ -334,17 +340,22 @@ int load_bank_spreadsheet(
 	{
 		LIST *transaction_list;
 
-		if ( ! ( bank_upload_structure->file.table_insert_count =
-				bank_upload_insert(
-					fund_name,
-					bank_upload_structure->
-						file.
-						bank_upload_list
-						   /* bank_upload_list */,
-					bank_upload_structure->
-						bank_upload_date_time ) ) )
+		if ( !omit_bank_upload_transaction )
 		{
-			return 0;
+			if ( ! ( bank_upload_structure->
+					file.
+					table_insert_count =
+					   bank_upload_insert(
+						fund_name,
+						bank_upload_structure->
+							file.
+							bank_upload_list
+						   	/* bank_upload_list */,
+						bank_upload_structure->
+						   bank_upload_date_time ) ) )
+			{
+				return 0;
+			}
 		}
 
 		bank_upload_event_insert(

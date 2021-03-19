@@ -298,7 +298,16 @@ void registration_fetch_update(
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
-		"registration_tuition.sh \"%s\" '%s' '%s' %d",
+		"registration_enrollment_tuition_total.sh \"%s\" '%s' '%s' %d",
+		student_full_name,
+		student_street_address,
+		season_name,
+		year );
+
+	if ( system( system_string ) ){}
+
+	sprintf(system_string,
+		"registration_course_drop_total.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
 		season_name,

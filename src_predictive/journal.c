@@ -203,12 +203,12 @@ boolean journal_accumulate_debit( char *account_name )
 	if ( ! ( account = account_fetch( account_name ) ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: account_fetch(%s) returned empty.\n",
+		"Warning in %s/%s()/%d: account_fetch(%s) returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
 			 account_name );
-		exit( 1 );
+		return 0;
 	}
 
 	return account->accumulate_debit;
@@ -337,15 +337,17 @@ void journal_propagate(
 			char *transaction_date_time,
 			char *account_name )
 {
-	if ( !account_name || !*account_name )
+	if (	!account_name
+	||	!*account_name
+	||      strcmp( account_name, "account" ) == 0 )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: empty account_name for transaction_date_time: %s.\n",
+"Warning in %s/%s()/%d: empty account_name for transaction_date_time: %s.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
 			 transaction_date_time );
-		exit( 1 );
+		return;
 	}
 
 	journal_list_update(
