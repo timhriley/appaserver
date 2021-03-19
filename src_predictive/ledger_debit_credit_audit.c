@@ -63,11 +63,12 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
+	if ( system( "ledger_propagate ''" ) ){};
+
 	ledger_debit_credit_audit( argv[ 1 ] );
 
 	return 0;
-
-} /* main() */
+}
 
 void ledger_debit_credit_audit( char *begin_date )
 {
@@ -93,7 +94,8 @@ void ledger_debit_credit_audit( char *begin_date )
 
 	transaction_list =
 		transaction_list_fetch(
-			where_clause );
+			where_clause,
+			1 /* fetch_journal_list */ );
 
 	if ( !list_rewind( transaction_list ) ) return;
 

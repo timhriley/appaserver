@@ -105,7 +105,9 @@ TRANSACTION *transaction_new(
 	return transaction;
 }
 
-LIST *transaction_system_list( char *sys_string )
+LIST *transaction_system_list(
+			char *sys_string,
+			boolean fetch_journal_list )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
@@ -115,13 +117,11 @@ LIST *transaction_system_list( char *sys_string )
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
-		/* Also executes journal_list() */
-		/* ---------------------------- */
 		list_set(
 			transaction_list,
 			transaction_parse(
 				input,
-				1 /* fetch_journal_list */ ) );
+				fetch_journal_list ) );
 	}
 
 	pclose( input_pipe );
@@ -141,11 +141,14 @@ char *transaction_sys_string( char *where )
 	return strdup( sys_string );
 }
 
-LIST *transaction_list_fetch( char *where )
+LIST *transaction_list_fetch(
+			char *where,
+			boolean fetch_journal_list )
 {
 	return transaction_system_list(
 			transaction_sys_string(
-				where ) );
+				where ),
+			fetch_journal_list );
 }
 
 TRANSACTION *transaction_fetch(
@@ -222,10 +225,12 @@ TRANSACTION *transaction_parse(
 	if ( fetch_journal_list )
 	{
 		transaction->journal_list =
-			transaction_journal_list(
-				full_name,
-				street_address,
-				transaction_date_time );
+			journal_system_list(
+				journal_sys_string(
+					transaction_primary_where(
+						full_name,
+						street_address,
+						transaction_date_time ) ) );
 	}
 
 	return transaction;
@@ -1733,20 +1738,6 @@ void transaction_list_journal_insert(
 
 	} while ( list_next( transaction_list ) );
 }
-
-LIST *transaction_journal_list(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time )
-{
-	return journal_system_list(
-			journal_sys_string(
-				transaction_primary_where(
-					full_name,
-					street_address,
-					transaction_date_time ) ) );
-}
-
 
 void transaction_list_html_display(
 			LIST *transaction_list )

@@ -2539,14 +2539,12 @@ void bank_upload_transaction_balance_propagate(
 	char *minimum_date;
 	DATE *yesterday;
 
-	if ( !bank_date )
+	if (	!bank_date
+	||	!*bank_date
+	||	strcmp( bank_date, "begin_date" ) == 0
+	||	strcmp( bank_date, "bank_date" ) == 0 )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty bank_date\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		bank_date = "1960-01-01";
 	}
 
 	if ( transaction_date_time )

@@ -102,7 +102,8 @@ int main( int argc, char **argv )
 
 	/* If every account */
 	/* ---------------- */
-	if ( argc < 4 )
+	if (	argc < 4
+	|| 	( argc >= 4 && strcmp( argv[ 3 ], "account" ) == 0 ) )
 	{
 		LIST *account_name_list;
 		char *account_name;
