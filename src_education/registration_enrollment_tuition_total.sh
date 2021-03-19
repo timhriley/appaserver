@@ -22,7 +22,7 @@ offering_join="								\
 	offering.course_name = course.course_name"
 
 echo "	update registration						\
-	set tuition =							\
+	set enrollment_tuition_total =					\
 	( select sum( course_price )					\
 		from enrollment, offering, course			\
 		where	enrollment.full_name =				\

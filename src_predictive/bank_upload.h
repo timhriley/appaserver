@@ -146,7 +146,8 @@ BANK_UPLOAD *bank_upload_fetch(
 			char *bank_description );
 
 LIST *bank_upload_existing_cash_journal_list(
-			char *fund_name );
+			char *fund_name,
+			char *feeder_account );
 
 LIST *bank_upload_uncleared_checks_transaction_list(
 			char *minimum_transaction_date,

@@ -887,6 +887,7 @@ LIST *row_security_get_update_element_list(
 			attribute_list );
 
 	return_list = list_new_list();
+
 	ignore_attribute_name_list = list_new();
 
 	objects_outputted =
