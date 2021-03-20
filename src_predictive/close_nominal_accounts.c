@@ -39,7 +39,6 @@
 double insert_drawing(
 			FILE *output_pipe,
 			LIST *subclassification_list,
-			boolean accumulate_debit,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time_string,
@@ -48,7 +47,7 @@ double insert_drawing(
 double output_drawing_subclassification_list(
 			HTML_TABLE *html_table,
 			LIST *subclassification_list,
-			boolean accumulate_debit );
+			char *drawing_account );
 
 boolean close_nominal_accounts_execute(
 			char *as_of_date );
@@ -147,8 +146,7 @@ int main( int argc, char **argv )
 	document_close();
 
 	return 0;
-
-} /* main() */
+}
 
 boolean close_nominal_accounts_execute( char *as_of_date )
 {
@@ -211,26 +209,27 @@ boolean close_nominal_accounts_execute( char *as_of_date )
 }
 
 boolean close_nominal_accounts_fund_execute(
-				char *fund_name,
-				char *transaction_date_time_string,
-				char *as_of_date )
+			char *fund_name,
+			char *transaction_date_time_string,
+			char *as_of_date )
 {
 	FILE *output_pipe;
 	char sys_string[ 1024 ];
 	LIST *filter_element_name_list;
 	LIST *list;
-	double retained_earnings;
 	char *field_list;
 	ELEMENT *element;
 	ENTITY_SELF *self;
 	TRANSACTION *transaction;
 	char *closing_entry_account;
 	char *drawing_account;
+	double element_total;
+	double retained_earnings;
 
 	closing_entry_account =
 		account_hard_coded_account_name(
 				fund_name,
-				"closing_key",
+				ACCOUNT_CLOSING_KEY,
 				0 /* not warning_only */,
 				__FUNCTION__ );
 
@@ -291,6 +290,7 @@ boolean close_nominal_accounts_fund_execute(
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^' 	|"
+"tee -a /var/log/appaserver/appaserver_appahost.err |"
 		 "sql							 ",
 		 JOURNAL_TABLE,
 		 field_list );
@@ -313,7 +313,7 @@ boolean close_nominal_accounts_fund_execute(
 		exit( 1 );
 	}
 
-	retained_earnings =
+	element_total =
 		insert_journal(
 			output_pipe,
 			element->subclassification_list,
@@ -321,6 +321,8 @@ boolean close_nominal_accounts_fund_execute(
 			self->entity->full_name,
 			self->entity->street_address,
 			transaction_date_time_string );
+
+	retained_earnings = element_total;
 
 	/* Expenses */
 	/* -------- */
@@ -338,7 +340,7 @@ boolean close_nominal_accounts_fund_execute(
 		exit( 1 );
 	}
 
-	retained_earnings -=
+	element_total =
 		insert_journal(
 			output_pipe,
 			element->subclassification_list,
@@ -346,6 +348,8 @@ boolean close_nominal_accounts_fund_execute(
 			self->entity->full_name,
 			self->entity->street_address,
 			transaction_date_time_string );
+
+	retained_earnings -= element_total;
 
 	/* Gains */
 	/* ----- */
@@ -363,7 +367,7 @@ boolean close_nominal_accounts_fund_execute(
 		exit( 1 );
 	}
 
-	retained_earnings +=
+	element_total =
 		insert_journal(
 			output_pipe,
 			element->subclassification_list,
@@ -371,6 +375,8 @@ boolean close_nominal_accounts_fund_execute(
 			self->entity->full_name,
 			self->entity->street_address,
 			transaction_date_time_string );
+
+	retained_earnings += element_total;
 
 	/* Losses */
 	/* ------ */
@@ -388,7 +394,7 @@ boolean close_nominal_accounts_fund_execute(
 		exit( 1 );
 	}
 
-	retained_earnings -=
+	element_total =
 		insert_journal(
 			output_pipe,
 			element->subclassification_list,
@@ -396,6 +402,8 @@ boolean close_nominal_accounts_fund_execute(
 			self->entity->full_name,
 			self->entity->street_address,
 			transaction_date_time_string );
+
+	retained_earnings -= element_total;
 
 	/* Drawing */
 	/* ------- */
@@ -415,20 +423,21 @@ boolean close_nominal_accounts_fund_execute(
 			exit( 1 );
 		}
 
-		retained_earnings -=
+		element_total =
 			insert_drawing(
 				output_pipe,
 				element->subclassification_list,
-				element->accumulate_debit,
 				self->entity->full_name,
 				self->entity->street_address,
 				transaction_date_time_string,
 				drawing_account );
+
+		retained_earnings -= element_total;
 	}
 				
 	/* Insert retained_earnings */
 	/* ------------------------ */
-	if ( retained_earnings >= 0.0 )
+	if ( retained_earnings > 0.0 )
 	{
 		fprintf( output_pipe,
 		 	"%s^%s^%s^%s^^%.2lf\n",
@@ -439,6 +448,7 @@ boolean close_nominal_accounts_fund_execute(
 		 	retained_earnings );
 	}
 	else
+	if ( retained_earnings < 0.0 )
 	{
 		fprintf( output_pipe,
 		 	"%s^%s^%s^%s^%.2lf^\n",
@@ -459,17 +469,16 @@ boolean close_nominal_accounts_fund_execute(
 		closing_entry_account,
 		transaction_date_time_string );
 
-	/* transaction_date_time_string = */
-		transaction_insert(
-			transaction->full_name,
-			transaction->street_address,
-			transaction_date_time_string,
-			timlib_abs_double( retained_earnings )
-				/* transaction_amount */,
-			transaction->memo,
-			0 /* check_number */,
-			0 /* not lock_transaction */,
-			0 /* not replace */ );
+	transaction_insert(
+		transaction->full_name,
+		transaction->street_address,
+		transaction_date_time_string,
+		timlib_abs_double( retained_earnings )
+			/* transaction_amount */,
+		transaction->memo,
+		0 /* check_number */,
+		0 /* not lock_transaction */,
+		0 /* not replace */ );
 
 	return 1;
 }
@@ -576,9 +585,9 @@ void close_nominal_accounts_fund_display(
 	char buffer[ 128 ];
 	ENTITY_SELF *self;
 	char *closing_entry_account;
-	double retained_earnings;
-	double debit_sum;
-	double credit_sum;
+	double retained_earnings = 0.0;
+	double debit_sum = 0.0;
+	double credit_sum = 0.0;
 	double element_total;
 
 	closing_entry_account =
@@ -638,13 +647,15 @@ void close_nominal_accounts_fund_display(
 		*title = '\0';
 	}
 
-	sprintf(	sub_title,
-			"Transaction Date Time: %s",
-			transaction_date_time );
+	sprintf(sub_title,
+		"Transaction Date Time: %s",
+		transaction_date_time );
 
-	html_table = new_html_table(
+	html_table =
+		html_table_new(
 			title,
-			sub_title ); 
+			sub_title,
+			(char *)0 /* subsub_title */ ); 
 
 	html_table->number_left_justified_columns = 1;
 	html_table->number_right_justified_columns = 2;
@@ -779,7 +790,7 @@ void close_nominal_accounts_fund_display(
 			output_drawing_subclassification_list(
 				html_table,
 				element->subclassification_list,
-				element->accumulate_debit );
+				drawing_account );
 
 		retained_earnings -= element_total;
 		credit_sum += element_total;
@@ -787,8 +798,6 @@ void close_nominal_accounts_fund_display(
 
 	/* Retained Earnings */
 	/* ----------------- */
-	credit_sum += retained_earnings;
-
 	html_table_set_data(
 		html_table->data_list,
 		strdup( format_initial_capital(
@@ -798,13 +807,15 @@ void close_nominal_accounts_fund_display(
 	if ( retained_earnings > 0.0  )
 	{
 		html_table_set_data(
-				html_table->data_list,
-				strdup( "" ) );
+			html_table->data_list,
+			strdup( "" ) );
 
 		html_table_set_data(
-				html_table->data_list,
-				strdup( place_commas_in_money(
-					retained_earnings ) ) );
+			html_table->data_list,
+			strdup( place_commas_in_money(
+				retained_earnings ) ) );
+
+		credit_sum += retained_earnings;
 	}
 	else
 	{
@@ -816,6 +827,8 @@ void close_nominal_accounts_fund_display(
 		html_table_set_data(
 				html_table->data_list,
 				strdup( "" ) );
+
+		debit_sum += -retained_earnings;
 	}
 
 	/* Output retained earnings */
@@ -862,9 +875,81 @@ void close_nominal_accounts_fund_display(
 double output_drawing_subclassification_list(
 			HTML_TABLE *html_table,
 			LIST *subclassification_list,
-			boolean accumulate_debit )
+			char *drawing_account )
 {
-	return 0.0;
+	double balance_total = 0.0;
+	SUBCLASSIFICATION *subclassification;
+	ACCOUNT *account;
+	char buffer[ 128 ];
+
+	if ( !list_rewind( subclassification_list ) ) return 0.0;
+
+	do {
+		subclassification =
+			list_get_pointer(
+				subclassification_list );
+
+		if ( !list_rewind( subclassification->account_list ) )
+			continue;
+
+		do {
+			account =
+				list_get_pointer(
+					subclassification->account_list );
+
+			if ( strcmp(	account->account_name,
+					drawing_account ) != 0 )
+			{
+				continue;
+			}
+
+			if ( !account->latest_journal
+			||   !account->latest_journal->balance )
+				continue;
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( format_initial_capital(
+					buffer,
+					account->account_name ) ) );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( "" ) );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( place_commas_in_money(
+					/* ------------------------------ */
+					/* Drawing has a negative balance */
+					/* ------------------------------ */
+					-account->
+						latest_journal->
+						balance ) ) );
+	
+			html_table_output_data(
+				html_table->data_list,
+				html_table->
+					number_left_justified_columns,
+				html_table->
+					number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+	
+			list_free_string_list( html_table->data_list );
+			html_table->data_list = list_new();
+
+			balance_total +=
+				account->latest_journal->balance;
+
+		} while( list_next( subclassification->account_list ) );
+
+	} while( list_next( subclassification_list ) );
+
+	/* ------------------------------ */
+	/* Drawing has a negative balance */
+	/* ------------------------------ */
+	return -balance_total;
 }
 
 double output_subclassification_list(
@@ -1035,20 +1120,61 @@ double insert_journal(
 double insert_drawing(
 			FILE *output_pipe,
 			LIST *subclassification_list,
-			boolean accumulate_debit,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time_string,
 			char *drawing_account )
 {
-if ( output_pipe ) {}
-if ( subclassification_list ) {}
-if ( accumulate_debit ) {}
-if ( full_name ) {}
-if ( street_address ) {}
-if ( transaction_date_time_string ) {}
-if ( drawing_account ) {}
+	double balance_total = 0.0;
+	SUBCLASSIFICATION *subclassification;
+	ACCOUNT *account;
 
-	return 0.0;
+	if ( !list_rewind( subclassification_list ) ) return 0.0;
+
+	do {
+		subclassification =
+			list_get_pointer(
+				subclassification_list );
+
+		if ( !list_rewind( subclassification->account_list ) )
+			continue;
+
+		do {
+			account =
+				list_get_pointer(
+					subclassification->account_list );
+
+			if ( strcmp(	account->account_name,
+					drawing_account ) != 0 )
+			{
+				continue;
+			}
+
+			if ( !account->latest_journal
+			||   !account->latest_journal->balance )
+				continue;
+
+			fprintf( output_pipe,
+				 "%s^%s^%s^%s^^%.2lf\n",
+				 full_name,
+				 street_address,
+				 transaction_date_time_string,
+				 account->account_name,
+				/* ------------------------------ */
+				/* Drawing has a negative balance */
+				/* ------------------------------ */
+				 0.0 - account->latest_journal->balance );
+
+			balance_total +=
+				account->latest_journal->balance;
+
+		} while( list_next( subclassification->account_list ) );
+
+	} while( list_next( subclassification_list ) );
+
+	/* ------------------------------ */
+	/* Drawing has a negative balance */
+	/* ------------------------------ */
+	return 0.0 - balance_total;
 }
 
