@@ -400,7 +400,7 @@ LIST *tax_fetch_account_transaction_list(
 		 end_date_string,
 		 account_name );
 
-	return transaction_list_fetch( where );
+	return transaction_list_fetch( where, 1 /* fetch_journal_list */ );
 }
 
 TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
