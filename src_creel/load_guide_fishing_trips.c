@@ -22,6 +22,7 @@
 #include "date_convert.h"
 #include "application.h"
 #include "process.h"
+#include "creel.h"
 
 /* Structures */
 /* ---------- */
@@ -321,6 +322,8 @@ void insert_fishing_trips(	int *fishing_trip_count,
 	char error_filename[ 128 ];
 	FILE *error_file;
 	int line_number = 0;
+	HASH_TABLE *permit_code_hash_table;
+	char *return_permit_code;
 	char *now_string = pipe2string( "now.sh ymd" );
 
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
@@ -337,6 +340,10 @@ void insert_fishing_trips(	int *fishing_trip_count,
 		fclose( input_file );
 		exit( 1 );
 	}
+
+	permit_code_hash_table =
+		creel_permits_hash_table_fetch(
+			"guide_angler_name is not null" );
 
 	if ( execute )
 	{
@@ -428,6 +435,24 @@ void insert_fishing_trips(	int *fishing_trip_count,
 			"Warning: Cannot piece permit code in (%s)\n",
 				input_string );
 			fflush( error_file );
+			continue;
+		}
+
+		return_permit_code =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			creel_hash_table_permit_code(
+				permit_code,
+				permit_code_hash_table,
+				execute );
+
+		if ( !*return_permit_code )
+		{
+			fprintf(error_file,
+		"Warning in line %d: permit_code not found (%s). Skipping...\n",
+				line_number,
+				permit_code );
 			continue;
 		}
 
@@ -565,7 +590,7 @@ void insert_fishing_trips(	int *fishing_trip_count,
 			census_date_international,
 			GUIDE_CATCHES_INTERVIEW_LOCATION,
 			interview_number,
-			permit_code,
+			return_permit_code,
 			hours_fishing,
 			number_of_people_fishing,
 			family,

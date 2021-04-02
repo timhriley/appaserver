@@ -1072,14 +1072,6 @@ char *creel_permits_hash_table_key(
 	static char key[ 128 ];
 
 	strcpy( key, string_right( permit_code, 4 ) );
-
-fprintf(stderr,
-	"%s/%s()/%d: permit_code = %s, key = %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-permit_code,
-key );
 	return key;
 }
 
@@ -1091,5 +1083,38 @@ CREEL_PERMITS *creel_permits_hash_table_seek(
 			permit_hash_table,
 			creel_permits_hash_table_key(
 				permit_code ) );
+}
+
+char *creel_hash_table_permit_code(
+			char *permit_code,
+			HASH_TABLE *permit_code_hash_table,
+			boolean execute )
+{
+	CREEL_PERMITS *permits;
+	static char return_permit_code[ 128 ];
+
+	if ( ( permits =
+		creel_permits_hash_table_seek(
+			permit_code,
+			permit_code_hash_table ) ) )
+	{
+		if ( !execute )
+		{
+			sprintf(return_permit_code,
+				"%s (%s)",
+				permits->permit_code,
+				permits->guide_angler_name );
+		}
+		else
+		{
+			strcpy( return_permit_code, permits->permit_code );
+		}
+	}
+	else
+	{
+		*return_permit_code = '\0';
+	}
+
+	return return_permit_code;
 }
 

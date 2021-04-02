@@ -17,8 +17,6 @@
 
 /* Constants */
 /* --------- */
-#define CREEL_PERMIT_NOT_FOUND	"NOT FOUND"
-
 #define PERMITS_SELECT		"permit_code,"			\
 				"guide_angler_name,"		\
 				"issued_date,"			\
@@ -257,5 +255,12 @@ char *creel_permits_hash_table_key(
 CREEL_PERMITS *creel_permits_hash_table_seek(
 			char *permit_code,
 			HASH_TABLE *permit_hash_table );
+
+/* Returns static memory */
+/* --------------------- */
+char *creel_hash_table_permit_code(
+			char *permit_code,
+			HASH_TABLE *permit_code_hash_table,
+			boolean execute );
 
 #endif

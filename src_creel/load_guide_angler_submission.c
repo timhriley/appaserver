@@ -40,10 +40,6 @@
 
 /* Prototypes */
 /* ---------- */
-char *load_guide_angler_submission_permit_code(
-			char *permit_code,
-			HASH_TABLE *permit_code_hash_table,
-			boolean execute );
 
 DICTIONARY *get_interview_number_dictionary(
 			char *application_name,
@@ -233,6 +229,7 @@ int insert_fishing_trips(	char *application_name,
 	CATCHES *catches;
 	int fishing_trip_count;
 	HASH_TABLE *permit_code_hash_table;
+	char *return_permit_code;
 	char *now_string = pipe2string( "now.sh ymd" );
 
 	input_record_count = get_input_record_count( input_filename );
@@ -373,14 +370,32 @@ int insert_fishing_trips(	char *application_name,
 			continue;
 
 		if ( !piece_double_quoted(
-					permit_code,
-					',',
-					input_string,
-					GUIDE_SUBMISSION_PERMIT_CODE_PIECE ) )
+				permit_code,
+				',',
+				input_string,
+				GUIDE_SUBMISSION_PERMIT_CODE_PIECE ) )
 		{
 			fprintf(error_file,
 			"Warning: Cannot extract permit code in (%s)\n",
 				input_string );
+			continue;
+		}
+
+		return_permit_code =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			creel_hash_table_permit_code(
+				permit_code,
+				permit_code_hash_table,
+				execute );
+
+		if ( !*return_permit_code )
+		{
+			fprintf(error_file,
+		"Warning in line %d: permit_code not found (%s). Skipping...\n",
+				line_number,
+				permit_code );
 			continue;
 		}
 
@@ -474,10 +489,9 @@ int insert_fishing_trips(	char *application_name,
 				fishing_area ) )
 		{
 			fprintf(error_file,
-"Warning in line %d: invalid fishing area of (%s) in (%s). Skipping...\n",
+"Warning in line %d: invalid fishing area of (%s). Skipping...\n",
 				line_number,
-				fishing_area,
-				input_string );
+				fishing_area );
 			continue;
 		}
 
@@ -509,10 +523,9 @@ int insert_fishing_trips(	char *application_name,
 					application_name ) )
 			{
 				fprintf(error_file,
-"Ignoring in line %d: Cannot get common name (%s) in (%s). Ignoring species preferred.\n",
+"Ignoring in line %d: Cannot get common name (%s). Ignoring species preferred.\n",
 					line_number,
-					common_name_string,
-					input_string );
+					common_name_string );
 
 				*family = '\0';
 				*genus = '\0';
@@ -546,10 +559,7 @@ int insert_fishing_trips(	char *application_name,
 			(execute)
 				? next_reference_number
 				: -1,
-			load_guide_angler_submission_permit_code(
-				permit_code,
-				permit_code_hash_table,
-				execute ),
+			return_permit_code,
 			hours_fishing,
 			number_of_people_fishing,
 			family,
@@ -922,10 +932,9 @@ LIST *get_catches_list(		FILE *error_file,
 					application_name ) )
 		{
 			fprintf(error_file,
-"Warning in line %d: Cannot get common name (%s) in (%s). Skipping...\n",
+"Warning in line %d: Cannot get common name (%s). Skipping...\n",
 				line_number,
-				common_name_string,
-				input_string );
+				common_name_string );
 
 			catch_offset += CATCHES_INCREMENT;
 			continue;
@@ -1092,38 +1101,5 @@ DICTIONARY *get_interview_number_dictionary(
 	free( census_date_in_clause );
 	
 	return pipe2dictionary( sys_string, FOLDER_DATA_DELIMITER );
-}
-
-char *load_guide_angler_submission_permit_code(
-			char *permit_code,
-			HASH_TABLE *permit_code_hash_table,
-			boolean execute )
-{
-	CREEL_PERMITS *permits;
-	static char return_permit_code[ 128 ];
-
-	if ( ( permits =
-		creel_permits_hash_table_seek(
-			permit_code,
-			permit_code_hash_table ) ) )
-	{
-		if ( !execute )
-		{
-			sprintf(return_permit_code,
-				"%s (%s)",
-				permits->permit_code,
-				permits->guide_angler_name );
-		}
-		else
-		{
-			strcpy( return_permit_code, permits->permit_code );
-		}
-	}
-	else
-	{
-		strcpy( return_permit_code, CREEL_PERMIT_NOT_FOUND );
-	}
-
-	return return_permit_code;
 }
 

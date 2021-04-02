@@ -152,13 +152,17 @@ guide_compliance_mail_merge: guide_compliance_mail_merge.c		\
 		-o guide_compliance_mail_merge
 
 load_guide_fishing_trips: load_guide_fishing_trips.c			\
-	${EXTERNAL_LIBS} creel_library.o creel_load_library.o
+	${EXTERNAL_LIBS}						\
+	creel_library.o							\
+	creel_load_library.o						\
+	creel.o
 	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
 		creel_library.o						\
 		creel_load_library.o					\
+		creel.o							\
 		load_guide_fishing_trips.c				\
 		-o load_guide_fishing_trips
 
