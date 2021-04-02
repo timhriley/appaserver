@@ -487,6 +487,7 @@ update_transect_basin
 # ---------
 # src_creel
 # ---------
+permits_merge
 additional_species
 creel_dvr
 calculate_species_cpue

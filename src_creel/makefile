@@ -51,7 +51,8 @@ EXECUTABLES=								\
 		view_maps_figs						\
 		species_list						\
 		guide_compliance_mail_merge				\
-		families_list
+		families_list						\
+		permits_merge
 
 EXTERNAL_LIBS=								\
 		${LIBRARY}/aggregate_level.o 				\
@@ -391,6 +392,16 @@ families_list:								\
 		families_list.c						\
 		${LIBRARY}/additional_drop_down_attribute.o		\
 		-o families_list
+
+permits_merge:								\
+	permits_merge.c creel.o
+	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY} 					\
+		${EXTERNAL_LIBS}					\
+		permits_merge.c						\
+		creel.o							\
+		-o permits_merge
 
 creel_catches2minutes_between_fish:					\
 		creel_catches2minutes_between_fish.c			\
