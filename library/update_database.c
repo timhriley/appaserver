@@ -206,7 +206,7 @@ boolean update_database_data_if_changed(
 		return 0;
 	}
 
-	if ( strcmp( *old_data, *new_data ) == 0 )
+	if ( strcasecmp( *old_data, *new_data ) == 0 )
 	{
 		return 0;
 	}

@@ -146,15 +146,18 @@ int main( int argc, char **argv )
 		sprintf(sys_string,
 		"sort | html_table.e '%s' 'Folder,Attribute,New Data' '|'",
 			format_initial_capital( title, title ) );
+
 		table_output_pipe = popen( sys_string, "w" );
 	
 		sprintf( text_output_filename,
 			 TEXT_OUTPUT_TEMPLATE,
 			 appaserver_parameter_file->appaserver_data_directory,
 			 getpid() );
+
 		sprintf( sys_string,
 			 "sort | cat > %s",
 			 text_output_filename );
+
 		text_output_pipe = popen( sys_string, "w" );
 	}
 	else
@@ -172,7 +175,8 @@ int main( int argc, char **argv )
 		insert_delete_pipe = popen( sys_string, "w" );
 	}
 
-	folder = folder_with_load_new(
+	folder =
+		folder_with_load_new(
 			application_name,
 			BOGUS_SESSION,
 			folder_name,

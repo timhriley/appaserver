@@ -807,6 +807,11 @@ int main( int argc, char **argv )
 				form->subtitle_string,
 				0 /* not omit_format_initial_capital */ );
 
+	if ( folder->notepad && *folder->notepad )
+	{
+		printf( "%s\n", folder->notepad );
+	}
+
 	form->table_border = 1;
 	form->insert_update_key = insert_update_key;
 	form->target_frame = target_frame;
@@ -1101,6 +1106,7 @@ LIST *get_insert_table_element_list(
 			attribute_list );
 
 	return_list = list_new_list();
+
 	ignore_attribute_name_list = list_new();
 
 	if ( row_level_non_owner_forbid )

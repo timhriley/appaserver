@@ -331,10 +331,12 @@ LIST *transaction_fund_name_list(
 			void );
 
 LIST *transaction_list_fetch(
-			char *where );
+			char *where,
+			boolean fetch_journal_list );
 
 LIST *transaction_system_list(
-			char *sys_string );
+			char *sys_string,
+			boolean fetch_journal_list );
 
 char *transaction_journal_join(
 			void );
@@ -425,11 +427,6 @@ void transaction_list_journal_insert(
 
 char *transaction_sys_string(
 			char *where );
-
-LIST *transaction_journal_list(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time );
 
 char *transaction_generate_date_time(
 			char *transaction_date );

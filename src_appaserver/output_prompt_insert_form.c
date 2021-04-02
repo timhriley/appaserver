@@ -880,7 +880,7 @@ LIST *get_element_list(
 			(char *)element_non_edit_text_new_element(
 					"" /* name */,
 					folder_notepad,
-					6 /* column span */,
+					99 /* column span */,
 					ELEMENT_TITLE_NOTEPAD_PADDING_EM ) );
 	}
 

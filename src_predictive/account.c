@@ -408,7 +408,7 @@ ACCOUNT *account_key_seek(
 		{
 			if ( string_exists_substr(
 				account->account_key,
-				account_key ) == 0 )
+				account_key ) )
 			{
 				return account;
 			}
