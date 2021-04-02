@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "variable.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 
 VARIABLE *variable_init()
 {

@@ -20,7 +20,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/date_convert.o 				\
-		${LIBRARY}/hashtbl.o
+		${LIBRARY}/hash_table.o
 
 EXECUTABLES=	update_cell_stage					\
 		upload_photo

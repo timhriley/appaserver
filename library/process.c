@@ -14,7 +14,7 @@
 #include "timlib.h"
 #include "appaserver_error.h"
 #include "dictionary.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "list.h"
 #include "list_usage.h"
 #include "piece.h"

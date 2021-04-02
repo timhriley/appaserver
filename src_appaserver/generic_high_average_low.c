@@ -12,7 +12,7 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "environ.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "dictionary.h"
 #include "timlib.h"
 #include "piece.h"

@@ -21,7 +21,7 @@ STANDARD_LIBRARY_OBJECT=						\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/date_convert.o 				\
-		${LIBRARY}/hashtbl.o
+		${LIBRARY}/hash_table.o
 
 EXECUTABLES=	post_change_hospital					\
 		post_change_patient_count

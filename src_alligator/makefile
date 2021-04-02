@@ -21,7 +21,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/date_convert.o 				\
-		${LIBRARY}/hashtbl.o
+		${LIBRARY}/hash_table.o
 
 EXECUTABLES=	load_srf_spreadsheet					\
 		load_visit_spreadsheet					\

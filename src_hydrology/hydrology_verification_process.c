@@ -17,7 +17,7 @@
 #include "list.h"
 #include "piece.h"
 #include "application.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "document.h"
 #include "appaserver_parameter_file.h"
 #include "environ.h"

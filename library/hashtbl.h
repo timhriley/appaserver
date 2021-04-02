@@ -1,3 +1,4 @@
+/* Retired 4/1/2021 */
 /* library/hashtbl.h					   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */

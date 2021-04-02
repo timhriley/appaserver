@@ -28,7 +28,7 @@
 #include "station_datatype.h"
 #include "grace.h"
 #include "julian.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "session.h"
 #include "appaserver_link_file.h"
 

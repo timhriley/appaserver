@@ -22,7 +22,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/date_convert.o 				\
-		${LIBRARY}/hashtbl.o
+		${LIBRARY}/hash_table.o
 
 EXECUTABLES=	output_bird_count					\
 		bird_count_group_by					\

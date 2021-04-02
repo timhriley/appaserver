@@ -15,7 +15,7 @@
 #include "column.h"
 #include "list.h"
 #include "dictionary.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "appaserver_library.h"
 #include "water_quality.h"
 

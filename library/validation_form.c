@@ -13,7 +13,7 @@
 #include "list.h"
 #include "element.h"
 #include "piece.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "validation_form.h"

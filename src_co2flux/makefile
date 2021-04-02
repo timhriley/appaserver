@@ -23,7 +23,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/date_convert.o 				\
-		${LIBRARY}/hashtbl.o
+		${LIBRARY}/hash_table.o
 
 EXECUTABLES=	parse_datatype_spreadsheet				\
 		parse_data_spreadsheet

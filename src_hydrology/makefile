@@ -23,7 +23,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/date_convert.o 				\
-		${LIBRARY}/hashtbl.o
+		${LIBRARY}/hash_table.o
 
 EXECUTABLES=	hydrology_verification_process				\
 		interpolation_spike_calculate				\

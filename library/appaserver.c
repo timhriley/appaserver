@@ -19,7 +19,7 @@
 #include "process_parameter_list.h"
 #include "environ.h"
 #include "appaserver_parameter_file.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "String.h"
 
 APPASERVER *appaserver_new_appaserver(

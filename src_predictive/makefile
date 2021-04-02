@@ -21,7 +21,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/String.o 					\
 		${LIBRARY}/date_convert.o 				\
-		${LIBRARY}/hashtbl.o
+		${LIBRARY}/hash_table.o
 
 #EXECUTABLES=	
 #		inventory_balance_detail				\

@@ -16,6 +16,7 @@
 #include "piece.h"
 #include "date.h"
 #include "boolean.h"
+#include "creel.h"
 #include "creel_library.h"
 #include "creel_load_library.h"
 #include "environ.h"
@@ -39,9 +40,14 @@
 
 /* Prototypes */
 /* ---------- */
+char *load_guide_angler_submission_permit_code(
+			char *permit_code,
+			HASH_TABLE *permit_code_hash_table,
+			boolean execute );
+
 DICTIONARY *get_interview_number_dictionary(
-				char *application_name,
-				char *input_filename );
+			char *application_name,
+			char *input_filename );
 
 LIST *get_catches_list(	FILE *error_file,
 			char *input_string,
@@ -72,13 +78,10 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *login_name;
 	char *input_filename;
-	boolean replace_existing_data;
 	boolean execute;
 	int fishing_trip_count;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-	/* Exits if failure. */
-	/* ----------------- */
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
@@ -86,10 +89,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr, 
-"Usage: %s process login_name filename replace_existing_data_yn execute_yn\n",
+"Usage: %s process login_name filename execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -97,8 +100,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 1 ];
 	login_name = argv[ 2 ];
 	input_filename = argv[ 3 ];
-	replace_existing_data = (*argv[ 4 ] == 'y');
-	execute = (*argv[ 5 ] == 'y');
+	execute = (*argv[ 4 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -230,6 +232,7 @@ int insert_fishing_trips(	char *application_name,
 	LIST *catches_list;
 	CATCHES *catches;
 	int fishing_trip_count;
+	HASH_TABLE *permit_code_hash_table;
 	char *now_string = pipe2string( "now.sh ymd" );
 
 	input_record_count = get_input_record_count( input_filename );
@@ -247,12 +250,17 @@ int insert_fishing_trips(	char *application_name,
 	}
 
 	sprintf( error_filename, "/tmp/fishing_trip_error_%d.txt", getpid() );
+
 	if ( ! ( error_file = fopen( error_filename, "w" ) ) )
 	{
 		fprintf( stderr, "File open error: %s\n", error_filename );
 		fclose( input_file );
 		exit( 1 );
 	}
+
+	permit_code_hash_table =
+		creel_permits_hash_table_fetch(
+			"guide_angler_name is not null" );
 
 	if ( execute )
 	{
@@ -331,8 +339,7 @@ int insert_fishing_trips(	char *application_name,
 	else
 	{
 		sprintf( sys_string,
-"queue_top_bottom_lines.e %d | html_table.e 'Insert into Fishing Trips' %s,family,genus,species,kept,released '|'",
-			 QUEUE_TOP_BOTTOM_LINES,
+"html_table.e 'Insert into Fishing Trips' %s,family,genus,species,kept,released '|'",
 			 INSERT_FISHING_TRIPS_FIELD_LIST );
 
 		fishing_trips_output_pipe = popen( sys_string, "w" );
@@ -539,7 +546,10 @@ int insert_fishing_trips(	char *application_name,
 			(execute)
 				? next_reference_number
 				: -1,
-			permit_code,
+			load_guide_angler_submission_permit_code(
+				permit_code,
+				permit_code_hash_table,
+				execute ),
 			hours_fishing,
 			number_of_people_fishing,
 			family,
@@ -1082,5 +1092,38 @@ DICTIONARY *get_interview_number_dictionary(
 	free( census_date_in_clause );
 	
 	return pipe2dictionary( sys_string, FOLDER_DATA_DELIMITER );
+}
+
+char *load_guide_angler_submission_permit_code(
+			char *permit_code,
+			HASH_TABLE *permit_code_hash_table,
+			boolean execute )
+{
+	CREEL_PERMITS *permits;
+	static char return_permit_code[ 128 ];
+
+	if ( ( permits =
+		creel_permits_hash_table_seek(
+			permit_code,
+			permit_code_hash_table ) ) )
+	{
+		if ( !execute )
+		{
+			sprintf(return_permit_code,
+				"%s (%s)",
+				permits->permit_code,
+				permits->guide_angler_name );
+		}
+		else
+		{
+			strcpy( return_permit_code, permits->permit_code );
+		}
+	}
+	else
+	{
+		strcpy( return_permit_code, CREEL_PERMIT_NOT_FOUND );
+	}
+
+	return return_permit_code;
 }
 

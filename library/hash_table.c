@@ -1,4 +1,4 @@
-/* library/hashtbl.c					   */
+/* library/hash_table.c					   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -8,7 +8,7 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "timlib.h"
 
 int hash_table_free_container( HASH_TABLE *h )
@@ -22,7 +22,7 @@ int hash_table_free_container( HASH_TABLE *h )
 	free( h );
 	return 1;
 
-} /* hash_table_free_container() */
+}
 
 char *hash_table_get_string( HASH_TABLE *h, char *key )
 {
@@ -89,7 +89,7 @@ int hash_table_len( HASH_TABLE *h )
 		}
 	}
 	return length;
-} /* hash_table_len() */
+}
 
 HASH_TABLE *hash_table_new_hash_table( enum hash_table_size hash_table_size )
 {
@@ -149,7 +149,7 @@ HASH_TABLE *hash_table_init( enum hash_table_size hash_table_size )
 
 	return h;
 
-} /* hash_table_init() */
+}
 
 int hash_table_all_null_data( HASH_TABLE *h )
 {
@@ -169,7 +169,7 @@ int hash_table_all_null_data( HASH_TABLE *h )
 			} while( next_item( list ) );
 		}
 	return 1;
-} /* hash_table_all_null_data() */
+}
 
 
 int hash_table_set_pointer( HASH_TABLE *h, char *key, void *other_data )
@@ -213,7 +213,7 @@ int hash_table_insert_back( HASH_TABLE *h, char *key, void *other_data )
 
 	return 1;
 
-} /* hash_table_insert_back() */
+}
 
 int hash_table_set_string( HASH_TABLE *h, char *key, char *s )
 {
@@ -250,7 +250,7 @@ int hash_table_set( HASH_TABLE *h, char *key, void *other_data )
 
 	return 1;
 
-} /* hash_table_set() */
+}
 
 int hash_table_set_unique_key( HASH_TABLE *h, char *key, void *other_data )
 {
@@ -293,7 +293,7 @@ int hash_table_set_unique_key( HASH_TABLE *h, char *key, void *other_data )
 
 	return 1;
 
-} /* hash_table_set_unique_key() */
+}
 
 int hash_table_insert( HASH_TABLE *h, char *key, void *other_data )
 {
@@ -355,7 +355,7 @@ int hash_table_insert( HASH_TABLE *h, char *key, void *other_data )
 
 	return 1;
 
-} /* hash_table_insert() */
+}
 
 unsigned int hash_table_get_hash_value( char *key, int cell_array_size )
 {
@@ -366,7 +366,7 @@ unsigned int hash_table_get_hash_value( char *key, int cell_array_size )
 
 	return hash_value % cell_array_size;
 
-} /* hash_table_get_hash_value() */
+}
 
 
 int compare_key( HASH_TABLE_CELL *cell_ptr, char *key )
@@ -419,7 +419,7 @@ void *hash_table_retrieve_other_data(	HASH_TABLE *h,
 
 	} while ( next_item( list ) );
 	return (void *)0;
-} /* hash_table_retrieve_other_data() */
+}
 
 int hash_table_free( HASH_TABLE *h )
 {
@@ -433,7 +433,7 @@ int hash_table_free( HASH_TABLE *h )
 
 	return 1;
 
-} /* hash_table_free() */
+}
 
 
 char *hash_table_index_zero_display_delimiter(
@@ -501,7 +501,7 @@ char *hash_table_index_zero_display_delimiter(
 		}
 	}
 	return destination;
-} /* hash_table_index_zero_display_delimiter() */
+}
 
 char *hash_table_display_delimiter( 	char *destination, 
 					HASH_TABLE *h,
@@ -568,7 +568,7 @@ char *hash_table_display_delimiter( 	char *destination,
 
 	return destination;
 
-} /* hash_table_display_delimiter() */
+}
 
 char *hash_table_display( char *destination, HASH_TABLE *h )
 {
@@ -616,7 +616,7 @@ void hash_table_display_key_list( HASH_TABLE *h )
 	}
 	fprintf( stderr, "\n" );
 
-} /* hash_table_display_key_list() */
+}
 
 void display_hash_table( HASH_TABLE *h, char *output_file )
 {
@@ -670,14 +670,9 @@ void display_hash_table( HASH_TABLE *h, char *output_file )
 		fclose( output_fp );
 	}
 
-} /* display_hash_table() */
-
-LIST *hash_table_get_key_list( HASH_TABLE *h )
-{
-	return get_hashtbl_key_list( h );
 }
 
-LIST *get_hashtbl_key_list( HASH_TABLE *h )
+LIST *hash_table_key_list( HASH_TABLE *h )
 {
 	LIST *list;
 	LIST *return_list = list_new();
@@ -703,9 +698,24 @@ LIST *get_hashtbl_key_list( HASH_TABLE *h )
 		}
 	}
 	return return_list;
-} /* get_hashtbl_key_list() */
+}
+
+LIST *hash_table_get_key_list( HASH_TABLE *h )
+{
+	return hash_table_key_list( h );
+}
+
+LIST *get_hashtbl_key_list( HASH_TABLE *h )
+{
+	return hash_table_key_list( h );
+}
 
 LIST *hash_table_get_ordered_key_list( HASH_TABLE *h )
+{
+	return hash_table_ordered_key_list( h );
+}
+
+LIST *hash_table_ordered_key_list( HASH_TABLE *h )
 {
 	LIST *list;
 	LIST *return_list = list_new();
@@ -733,7 +743,7 @@ LIST *hash_table_get_ordered_key_list( HASH_TABLE *h )
 		}
 	}
 	return return_list;
-} /* hash_table_get_ordered_key_list() */
+}
 
 boolean hash_table_exists_key( HASH_TABLE *h, char *key )
 {
@@ -782,5 +792,5 @@ int hash_table_remove(	HASH_TABLE *h, char *key )
 
 	} while ( next_item( list ) );
 	return 0;
-} /* hash_table_remove() */
+}
 

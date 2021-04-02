@@ -23,7 +23,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/sed.o 					\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/date_convert.o 				\
-		${LIBRARY}/hashtbl.o
+		${LIBRARY}/hash_table.o
 
 EXECUTABLES=	load_observation_file					\
 		extract_compare_date_columns				\

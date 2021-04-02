@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include "list.h"
 #include "timlib.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "dictionary.h"
 #include "environ.h"
 #include "document.h"

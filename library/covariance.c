@@ -10,7 +10,7 @@
 #include "covariance.h"
 #include "list.h"
 #include "piece.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 
 COVARIANCE_RECORD *covariance_new_covariance_record(
 					char *date_time_key,

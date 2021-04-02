@@ -14,7 +14,7 @@
 #include "list.h"
 #include "query.h"
 #include "dictionary.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "date.h"
 #include "appaserver_library.h"
 #include "statistics_weighted.h"

@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "dictionary.h"
 #include "timlib.h"
 #include "piece.h"

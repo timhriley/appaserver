@@ -1104,7 +1104,7 @@ LIST *dictionary_get_ordered_key_list( DICTIONARY *d )
 LIST *get_dictionary_key_list( DICTIONARY *d )
 {
 	if ( !d ) return (LIST *)0;
-	return get_hashtbl_key_list( d->hash_table );
+	return hash_table_key_list( d->hash_table );
 }
 
 /* ----------------------------------------------------------- */

@@ -15,7 +15,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "environ.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "piece.h"
 #include "timlib.h"
 

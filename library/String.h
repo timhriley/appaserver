@@ -133,6 +133,12 @@ char *string_trim_right(
 			char *buffer,
 			int length );
 
+/* Returns input */
+/* ------------- */
+char *string_right(
+			char *input,
+			int length );
+
 int string_character_count(
 			char ch,
 			char *source );

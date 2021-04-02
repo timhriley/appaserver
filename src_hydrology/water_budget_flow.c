@@ -13,7 +13,7 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "measurement_update_parameter.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "dictionary.h"
 #include "timlib.h"
 #include "piece.h"

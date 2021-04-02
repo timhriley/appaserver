@@ -17,7 +17,7 @@
 #include "document.h"
 #include "process.h"
 #include "html_table.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "appaserver_parameter_file.h"
 #include "application_constants.h"
 #include "environ.h"

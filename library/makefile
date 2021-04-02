@@ -23,7 +23,7 @@ STANDARD_LIBRARY=						\
 		float.o 					\
 		date_convert.o 					\
 		String.o 					\
-		hashtbl.o
+		hash_table.o
 
 APPASERVER_LIBRARY=						\
 		aggregate_level.o 				\
@@ -202,10 +202,10 @@ histogram_dvr.e: histogram_dvr.c histogram.o
 		list_usage.o 						\
 		date_convert.o 						\
 		column.o 						\
-		hashtbl.o						\
+		hash_table.o						\
 	   -o histogram_dvr.e
 
-time2day_percentage_dvr.e: time2day_percentage_dvr.c hashtbl.o
+time2day_percentage_dvr.e: time2day_percentage_dvr.c hash_table.o
 	${CC} ${CFLAGS} -I${LIBRARY} time2day_percentage_dvr.c		\
 		timlib.o 						\
 		float.o 						\
@@ -217,10 +217,10 @@ time2day_percentage_dvr.e: time2day_percentage_dvr.c hashtbl.o
 		date_convert.o 						\
 		column.o 						\
 		dictionary.o 						\
-		hashtbl.o 						\
+		hash_table.o 						\
 	   -o time2day_percentage_dvr.e
 
-julian_dvr.e: julian_dvr.c julian.o hashtbl.o
+julian_dvr.e: julian_dvr.c julian.o hash_table.o
 	${CC} ${CFLAGS} -I${LIBRARY} julian_dvr.c			\
 		column.o 						\
 		date.o 							\
@@ -231,7 +231,7 @@ julian_dvr.e: julian_dvr.c julian.o hashtbl.o
 		list_usage.o 						\
 		date_convert.o 						\
 		dictionary.o 						\
-		hashtbl.o 						\
+		hash_table.o 						\
 		julian.o						\
 	   -o julian_dvr.e
 
@@ -246,13 +246,16 @@ sed_dvr.e: sed_dvr.c sed.o
 		list_usage.o 						\
 		date_convert.o 						\
 		dictionary.o 						\
-		hashtbl.o 						\
+		hash_table.o 						\
 		julian.o						\
 		sed.o							\
 	   -o sed_dvr.e
 
-linear_interpolate_dvr.e: linear_interpolate_dvr.c timlib.o hashtbl.o	\
-	float.o
+linear_interpolate_dvr.e:
+		linear_interpolate_dvr.c				\
+		timlib.o						\
+		hash_table.o						\
+		float.o
 	${CC} ${CFLAGS} linear_interpolate_dvr.c 			\
 		column.o						\
 		date.o							\
@@ -263,7 +266,7 @@ linear_interpolate_dvr.e: linear_interpolate_dvr.c timlib.o hashtbl.o	\
 		list_usage.o						\
 		date_convert.o 						\
 		dictionary.o						\
-		hashtbl.o						\
+		hash_table.o						\
 		piece.o							\
 	   -o linear_interpolate_dvr.e
 
@@ -302,7 +305,7 @@ date_convert_dvr.e: date_convert_dvr.c date_convert.o
 		${APPASERVER_LIBRARY}					\
 	   -o date_convert_dvr.e
 
-parse_report_dvr.e: parse_report_dvr.c parse_report.o hashtbl.o
+parse_report_dvr.e: parse_report_dvr.c parse_report.o hash_table.o
 	${CC} ${CFLAGS} -I${LIBRARY} parse_report_dvr.c			\
 		list.o 							\
 		date.o 							\
@@ -318,7 +321,7 @@ parse_report_dvr.e: parse_report_dvr.c parse_report.o hashtbl.o
 		fopen_path.o						\
 		decode_html_post.o					\
 		column.o						\
-		hashtbl.o						\
+		hash_table.o						\
 		piece.o							\
 		appaserver_parameter_file.o				\
 		parse_report.o						\
@@ -367,15 +370,25 @@ token_dvr.e: token_dvr.c token.o
 token.o: token.c token.h
 	${CC} ${CFLAGS} -c token.c
 
-environ_dvr.e: environ_dvr.c environ.o piece.o fopen_path.o hashtbl.o	\
-	environ.o
+environ_dvr.e:	environ_dvr.c						\
+		environ.o						\
+		piece.o							\
+		fopen_path.o						\
+		hash_table.o						\
+		environ.o
 	${CC} ${CFLAGS} -I${LIBRARY} environ_dvr.c 			\
 		environ.o timlib.o 					\
 		float.o							\
-		piece.o list.o fopen_path.o				\
-		dictionary.o list_usage.o column.o hashtbl.o		\
+		piece.o							\
+		list.o							\
+		fopen_path.o						\
+		dictionary.o						\
+		list_usage.o						\
+		column.o						\
+		hash_table.o						\
 		date_convert.o 						\
-		date.o julian.o						\
+		date.o							\
+		julian.o						\
 	   -o environ_dvr.e
 
 environ.o: environ.c environ.h timlib.o
@@ -387,7 +400,7 @@ maskdvr.e: maskdvr.c mask.o list.o piece.o basename.o
 mask.o: mask.c mask.h
 	${CC} ${CFLAGS} -c mask.c
 
-reportdvr.e: reportdvr.c report.o hashtbl.o
+reportdvr.e: reportdvr.c report.o hash_table.o
 	${CC} ${CFLAGS} reportdvr.c 		\
 			piece.o 		\
 			date.o 			\
@@ -396,7 +409,7 @@ reportdvr.e: reportdvr.c report.o hashtbl.o
 			report.o 		\
 			using.o 		\
 			dictionary.o 		\
-			hashtbl.o 		\
+			hash_table.o 		\
 			list_usage.o 		\
 			date_convert.o 		\
 			column.o 		\
@@ -405,7 +418,7 @@ reportdvr.e: reportdvr.c report.o hashtbl.o
 			-o reportdvr.e
 
 
-name_dvr.e: name_dvr.c name_arg.o list.o piece.o basename.o hashtbl.o
+name_dvr.e: name_dvr.c name_arg.o list.o piece.o basename.o hash_table.o
 	${CC} ${CFLAGS} name_dvr.c 		\
 			piece.o 		\
 			date.o 			\
@@ -413,7 +426,7 @@ name_dvr.e: name_dvr.c name_arg.o list.o piece.o basename.o hashtbl.o
 			basename.o 		\
 			name_arg.o 		\
 			dictionary.o 		\
-			hashtbl.o 		\
+			hash_table.o 		\
 			list_usage.o 		\
 			date_convert.o 		\
 			column.o 		\
@@ -463,7 +476,7 @@ column.o: column.c column.h
 
 zip_code_dist_dvr.e: zip_code_dist_dvr.c		\
 	zip_code_distance.o bsrch.o timlib.o rnd_io.o	\
-	piece.o hashtbl.o
+	piece.o hash_table.o
 	${CC} ${CFLAGS} dist_dvr.c 			\
 		piece.o 				\
 		zip_code_distance.o			\
@@ -474,7 +487,7 @@ zip_code_dist_dvr.e: zip_code_dist_dvr.c		\
 		list_usage.o 				\
 		date_convert.o				\
 		dictionary.o 				\
-		hashtbl.o 				\
+		hash_table.o 				\
 		column.o 				\
 		timlib.o 				\
 		float.o 				\
@@ -500,7 +513,7 @@ moving_average_dvr.e: moving_average_dvr.c moving_average.o
 		list_usage.o 						\
 		date_convert.o 						\
 		column.o 						\
-		hashtbl.o						\
+		hash_table.o						\
 	   -o moving_average_dvr.e
 
 expected_count_dvr.e: expected_count_dvr.c expected_count.o
@@ -517,7 +530,7 @@ expected_count_dvr.e: expected_count_dvr.c expected_count.o
 		list_usage.o 						\
 		date_convert.o 						\
 		column.o 						\
-		hashtbl.o						\
+		hash_table.o						\
 	   -o expected_count_dvr.e
 
 moving_average.o: moving_average.c moving_average.h
@@ -531,7 +544,7 @@ queue.o: queue.c queue.h
 	${CC} ${CFLAGS} ${CFLAGS} -c queue.c
 
 list_dvr.e: list_dvr.c list.o dictionary.o list_usage.o	\
-		column.o hashtbl.o decode_html_post.o
+		column.o hash_table.o decode_html_post.o
 	${CC} ${CFLAGS} list_dvr.c 			\
 			piece.o 			\
 			timlib.o 			\
@@ -543,7 +556,7 @@ list_dvr.e: list_dvr.c list.o dictionary.o list_usage.o	\
 			date_convert.o 			\
 			decode_html_post.o 		\
 			column.o 			\
-			hashtbl.o 			\
+			hash_table.o 			\
 			list.o 				\
 			-o list_dvr.e
 
@@ -556,7 +569,7 @@ decode_html_post.o: decode_html_post.c decode_html_post.h
 list_usage.o: list_usage.c list.h dictionary.o date_convert.o
 	${CC} ${CFLAGS} -c list_usage.c
 
-dictionary_dvr.e: dictionary_dvr.c dictionary.o hashtbl.o
+dictionary_dvr.e: dictionary_dvr.c dictionary.o hash_table.o
 	${CC} ${CFLAGS} dictionary_dvr.c 		\
 			dictionary.o 			\
 			list_usage.o 			\
@@ -564,7 +577,7 @@ dictionary_dvr.e: dictionary_dvr.c dictionary.o hashtbl.o
 			column.o 			\
 			date.o	 			\
 			julian.o 			\
-			hashtbl.o 			\
+			hash_table.o 			\
 			piece.o 			\
 			decode_html_post.o 		\
 			timlib.o 			\
@@ -572,13 +585,13 @@ dictionary_dvr.e: dictionary_dvr.c dictionary.o hashtbl.o
 			list.o 				\
 			-o dictionary_dvr.e
 
-hashdvr.e: hashdvr.c hashtbl.o
+hashdvr.e: hashdvr.c hash_table.o
 	${CC} ${CFLAGS} hashdvr.c 			\
 			piece.o 			\
 			date.o 				\
 			julian.o 			\
 			timlib.o 			\
-			hashtbl.o 			\
+			hash_table.o 			\
 			dictionary.o 			\
 			list_usage.o 			\
 			date_convert.o 			\
@@ -586,11 +599,11 @@ hashdvr.e: hashdvr.c hashtbl.o
 			list.o 				\
 			-o hashdvr.e
 
-dictionary.o: dictionary.c dictionary.h hashtbl.o
+dictionary.o: dictionary.c dictionary.h hash_table.o
 	${CC} ${CFLAGS} -c dictionary.c
 
-hashtbl.o: hashtbl.c hashtbl.h
-	${CC} ${CFLAGS} -c hashtbl.c
+hash_table.o: hash_table.c hash_table.h
+	${CC} ${CFLAGS} -c hash_table.c
 
 cc_dvr.e: cc_dvr.c cc_chk.o
 	${CC} ${CFLAGS} cc_dvr.c cc_chk.o -o cc_dvr.e
@@ -613,10 +626,10 @@ std_addr.o: std_addr.c std_addr.h
 using.o: using.c
 	${CC} ${CFLAGS} -c using.c
 
-bsrchdvr.e: bsrchdvr.c bsrch.o rnd_io.o hashtbl.o
+bsrchdvr.e: bsrchdvr.c bsrch.o rnd_io.o hash_table.o
 	${CC} ${CFLAGS} bsrchdvr.c 					\
 		bsrch.o rnd_io.o timlib.o piece.o list.o		\
-		list_usage.o dictionary.o hashtbl.o column.o		\
+		list_usage.o dictionary.o hash_table.o column.o		\
 		date_convert.o 						\
 		date.o julian.o						\
 	-o bsrchdvr.e
@@ -633,7 +646,7 @@ rnd_io.o: rnd_io.c rnd_io.h
 julian_time_double_list.o: julian_time_double_list.c julian_time_double_list.h
 	${CC} ${CFLAGS} -c julian_time_double_list.c
 
-timlib_dvr.e: timlib_dvr.c timlib.o list.o piece.o hashtbl.o	\
+timlib_dvr.e: timlib_dvr.c timlib.o list.o piece.o hash_table.o	\
 		date.o julian.o dictionary.o list_usage.o	\
 		column.o
 	${CC} ${CFLAGS} timlib_dvr.c 				\
@@ -644,12 +657,12 @@ timlib_dvr.e: timlib_dvr.c timlib.o list.o piece.o hashtbl.o	\
 			dictionary.o 				\
 			list_usage.o 				\
 			column.o 				\
-			hashtbl.o 				\
+			hash_table.o 				\
 			timlib.o 				\
 			date_convert.o 				\
 			-o timlib_dvr.e
 
-fopen_path_dvr.e: fopen_path_dvr.c fopen_path.o hashtbl.o	\
+fopen_path_dvr.e: fopen_path_dvr.c fopen_path.o hash_table.o	\
 	environ.o
 	${CC} ${CFLAGS} fopen_path_dvr.c 			\
 			environ.o 				\
@@ -661,7 +674,7 @@ fopen_path_dvr.e: fopen_path_dvr.c fopen_path.o hashtbl.o	\
 			list_usage.o 				\
 			date_convert.o 				\
 			dictionary.o 				\
-			hashtbl.o 				\
+			hash_table.o 				\
 			column.o 				\
 			fopen_path.o 				\
 			-o fopen_path_dvr.e
@@ -670,7 +683,7 @@ fopen_path.o: fopen_path.c fopen_path.h
 	${CC} ${CFLAGS} -c fopen_path.c
 
 update_statement_dvr.e: update_statement_dvr.c 			\
-	update_statement.o hashtbl.o
+	update_statement.o hash_table.o
 	${CC} ${CFLAGS} update_statement_dvr.c 			\
 			piece.o 				\
 			date.o 					\
@@ -679,7 +692,7 @@ update_statement_dvr.e: update_statement_dvr.c 			\
 			list_usage.o 				\
 			date_convert.o 				\
 			dictionary.o 				\
-			hashtbl.o 				\
+			hash_table.o 				\
 			column.o 				\
 			list.o 					\
 			update_statement.o 			\
@@ -690,7 +703,7 @@ update_statement.o: update_statement.c update_statement.h
 
 appaserver_parameter_file_dvr.e:				\
 	appaserver_parameter_file_dvr.c 			\
-	appaserver_parameter_file.o hashtbl.o
+	appaserver_parameter_file.o hash_table.o
 	${CC} ${CFLAGS} appaserver_parameter_file_dvr.c		\
 			piece.o 				\
 			date.o 					\
@@ -699,7 +712,7 @@ appaserver_parameter_file_dvr.e:				\
 			list_usage.o 				\
 			date_convert.o 				\
 			dictionary.o 				\
-			hashtbl.o 				\
+			hash_table.o 				\
 			column.o 				\
 			list.o 					\
 			appaserver_parameter_file.o 		\
@@ -722,7 +735,7 @@ two_way_pipe_dvr.e: two_way_pipe_dvr.c two_way_pipe.o
 			list_usage.o 				\
 			date_convert.o 				\
 			dictionary.o 				\
-			hashtbl.o 				\
+			hash_table.o 				\
 			column.o 				\
 			list.o 					\
 			two_way_pipe.o 				\
@@ -794,7 +807,7 @@ query_dvr.e: query_dvr.c query.o
 			list_usage.o 				\
 			date_convert.o 				\
 			dictionary.o 				\
-			hashtbl.o 				\
+			hash_table.o 				\
 			column.o 				\
 			list.o 					\
 			-o query_dvr.e
@@ -950,7 +963,7 @@ google_chart.o: google_chart.c google_chart.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c google_chart.c
 
-covariance.o: covariance.c covariance.h list.h hashtbl.h
+covariance.o: covariance.c covariance.h list.h hash_table.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c covariance.c
 

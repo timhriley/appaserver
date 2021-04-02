@@ -10,7 +10,7 @@
 #include "date_convert.h"
 #include "date.h"
 #include "folder.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "list_usage.h"
 #include "freshwaterfish_library.h"
 

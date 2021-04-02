@@ -630,6 +630,30 @@ int string_character_position(
 	return 0;
 }
 
+char *string_right(	char *input,
+			int length )
+{
+	int str_len;
+
+	if ( length > 127 )
+	{
+		fprintf(stderr,
+			"Error in %s/%s()/%d: length > 127\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !input || !*input ) return input;
+
+	str_len = strlen( input );
+
+	if ( str_len <= length ) return input;
+
+	return input + (str_len - length);
+}
+
 char *string_trim_right(
 			char *buffer,
 			int length )

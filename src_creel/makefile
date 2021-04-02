@@ -23,7 +23,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/piece.o 					\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/date_convert.o 				\
-		${LIBRARY}/hashtbl.o
+		${LIBRARY}/hash_table.o
 
 EXECUTABLES=								\
 		creel_census_report					\
@@ -175,7 +175,10 @@ load_trailer_count: load_trailer_count.c				\
 		-o load_trailer_count
 
 load_guide_angler_submission: load_guide_angler_submission.c		\
-	${EXTERNAL_LIBS} creel_library.o creel_load_library.o		\
+	${EXTERNAL_LIBS}						\
+	creel_library.o							\
+	creel_load_library.o						\
+	creel.o								\
 	${STANDARD_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
@@ -183,6 +186,7 @@ load_guide_angler_submission: load_guide_angler_submission.c		\
 		${STANDARD_LIBRARY} 					\
 		creel_library.o						\
 		creel_load_library.o					\
+		creel.o							\
 		load_guide_angler_submission.c				\
 		-o load_guide_angler_submission
 

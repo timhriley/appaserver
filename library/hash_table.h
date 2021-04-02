@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/hashtbl.h			   */
+/* $APPASERVER_HOME/library/hash_table.h		   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -17,6 +17,13 @@
 #define HASH_TABLE_SUPER		610639
 #define HASH_TABLE_DUPER		1019071
 
+enum hash_table_size	{		hash_table_small,
+					hash_table_medium,
+					hash_table_large,
+					hash_table_huge,
+					hash_table_super,
+					hash_table_duper };
+
 typedef struct
 {
 	char *key;
@@ -31,71 +38,133 @@ typedef struct
 	int cell_array_size;
 } HASH_TABLE;
 
-enum hash_table_size	{	hash_table_small,
-				hash_table_medium,
-				hash_table_large,
-				hash_table_huge,
-				hash_table_super,
-				hash_table_duper };
+/* Operations */
+/* ---------- */
+int hash_table_free_container(
+			HASH_TABLE *h );
 
-/* Function prototypes */
-/* ------------------- */
-int hash_table_free_container(		HASH_TABLE *h );
-LIST *hash_table_get_key_list(		HASH_TABLE *h );
-LIST *hash_table_get_ordered_key_list(	HASH_TABLE *h );
-HASH_TABLE *hash_table_init(		enum hash_table_size );
-HASH_TABLE *hash_table_new(		enum hash_table_size );
-int hash_table_len(			HASH_TABLE *h );
-int hash_table_length(			HASH_TABLE *h );
+LIST *hash_table_key_list(
+			HASH_TABLE *h );
 
-int hash_table_insert( HASH_TABLE *h, char *key, void *other_data );
+LIST *hash_table_get_key_list(
+			HASH_TABLE *h );
 
-int hash_table_set_pointer( HASH_TABLE *h, char *key, void *other_data );
+LIST *hash_table_ordered_key_list(
+			HASH_TABLE *h );
 
-int hash_table_add_pointer( HASH_TABLE *h, char *key, void *other_data );
+LIST *hash_table_get_ordered_key_list(
+			HASH_TABLE *h );
 
-int hash_table_insert_back( HASH_TABLE *h, char *key, void *other_data );
-void display_hash_table( HASH_TABLE *h, char *output_file );
-void *hash_table_get( HASH_TABLE *h, char *key );
-void *hash_table_get_pointer( HASH_TABLE *h, char *key );
+HASH_TABLE *hash_table_init(
+			enum hash_table_size );
 
-void *hash_table_seek( HASH_TABLE *h, char *key );
+HASH_TABLE *hash_table_new(
+			enum hash_table_size );
 
-void *hash_table_fetch( HASH_TABLE *h, char *key );
+int hash_table_len(	HASH_TABLE *h );
 
-void *hash_table_fetch_pointer( HASH_TABLE *h, char *key );
+int hash_table_length(	HASH_TABLE *h );
 
-void *hash_table_retrieve_other_data(	HASH_TABLE *h, 
-					char *key, 
-					int *duplicate_indicator );
+int hash_table_insert(
+			HASH_TABLE *h,
+			char *key,
+			void *other_data );
 
-int hash_table_free(			HASH_TABLE *h);
+int hash_table_set_pointer(
+			HASH_TABLE *h,
+			char *key,
+			void *other_data );
+
+int hash_table_add_pointer(
+			HASH_TABLE *h,char *key,
+			void *other_data );
+
+int hash_table_insert_back(
+			HASH_TABLE *h,
+			char *key,
+			void *other_data );
+
+void display_hash_table(
+			HASH_TABLE *h,
+			char *output_file );
+
+void *hash_table_get(	HASH_TABLE *h,
+			char *key );
+
+void *hash_table_get_pointer(
+			HASH_TABLE *h,
+			char *key );
+
+void *hash_table_seek(	HASH_TABLE *h,
+			char *key );
+
+void *hash_table_fetch(	HASH_TABLE *h,
+			char *key );
+
+void *hash_table_fetch_pointer(
+			HASH_TABLE *h,
+			char *key );
+
+void *hash_table_retrieve_other_data(
+			HASH_TABLE *h, 
+			char *key, 
+			int *duplicate_indicator );
+
+int hash_table_free(	HASH_TABLE *h);
+
 int hash_table_all_null_data( HASH_TABLE *h );
-LIST *get_hashtbl_key_list( HASH_TABLE *h );
-char *hash_table_display( char *destination, HASH_TABLE *h );
-void hash_table_display_key_list( HASH_TABLE *h );
-char *hash_table_display_delimiter( 	char *destination, 
-					HASH_TABLE *h,
-					int delimiter );
-char *hash_table_index_zero_display_delimiter(
-					char *destination, 
-					HASH_TABLE *h,
-					int delimiter );
-boolean hash_table_exists_key(		HASH_TABLE *h,
-					char *key );
-boolean hash_table_exists(		HASH_TABLE *h,
-					char *key );
 
-char *hash_table_get_string( 		HASH_TABLE *h, char *key );
-int hash_table_set_string( 		HASH_TABLE *h, char *key, char *s );
-int hash_table_set( 			HASH_TABLE *h, 
-					char *key, 
-					void *other_data );
-int compare_key(			HASH_TABLE_CELL *cell_ptr, char *key );
-int hash_table_remove(			HASH_TABLE *h, char *key );
-unsigned int hash_table_get_hash_value(	char *key,
-					int cell_array_size );
-int hash_table_remove_data(		HASH_TABLE *h, char *key );
-HASH_TABLE *hash_table_new_hash_table(	enum hash_table_size );
-int hash_table_set_unique_key( HASH_TABLE *h, char *key, void *other_data );
+LIST *get_hashtbl_key_list( HASH_TABLE *h );
+
+char *hash_table_display( char *destination, HASH_TABLE *h );
+
+void hash_table_display_key_list( HASH_TABLE *h );
+
+char *hash_table_display_delimiter( 
+			char *destination, 
+			HASH_TABLE *h,
+			int delimiter );
+
+char *hash_table_index_zero_display_delimiter(
+			char *destination, 
+			HASH_TABLE *h,
+			int delimiter );
+
+boolean hash_table_exists_key(
+			HASH_TABLE *h,
+			char *key );
+
+boolean hash_table_exists(
+			HASH_TABLE *h,
+			char *key );
+
+char *hash_table_get_string(
+			HASH_TABLE *h, char *key );
+
+int hash_table_set_string(
+			HASH_TABLE *h, char *key, char *s );
+
+int hash_table_set( 	HASH_TABLE *h, 
+			char *key, 
+			void *other_data );
+
+int compare_key(	HASH_TABLE_CELL *cell_ptr, char *key );
+
+int hash_table_remove(	HASH_TABLE *h, char *key );
+
+unsigned int hash_table_get_hash_value(
+			char *key,
+			int cell_array_size );
+
+int hash_table_remove_data(
+			HASH_TABLE *h, char *key );
+
+HASH_TABLE *hash_table_new_hash_table(
+			enum hash_table_size );
+
+int hash_table_set_unique_key(
+			HASH_TABLE *h,
+			char *key,
+			void *other_data );
+
 #endif

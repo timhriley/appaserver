@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_creel/creel.c					*/
+/* $APPASERVER_HOME/src_creel/creel.c			*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -9,15 +9,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "creel.h"
+#include "String.h"
 #include "piece.h"
 #include "timlib.h"
 #include "appaserver_library.h"
+#include "creel.h"
 
-CREEL *creel_new(			char *application_name,
-					char *begin_census_date,
-					char *end_census_date,
-					char *fishing_purpose )
+CREEL *creel_new(	char *application_name,
+			char *begin_census_date,
+			char *end_census_date,
+			char *fishing_purpose )
 {
 	CREEL *creel;
 
@@ -32,7 +33,7 @@ CREEL *creel_new(			char *application_name,
 	}
 
 	creel->creel_census_hash_table =
-		creel_get_census_hash_table(
+		creel_census_hash_table(
 			&creel->creel_census_list,
 			application_name,
 			begin_census_date,
@@ -40,14 +41,14 @@ CREEL *creel_new(			char *application_name,
 			fishing_purpose );
 
 	creel->fishing_trips_hash_table =
-		creel_get_fishing_trips_hash_table(
+		creel_fishing_trips_hash_table(
 			application_name,
 			begin_census_date,
 			end_census_date,
 			fishing_purpose );
 
 	creel->catches_hash_table =
-		creel_get_catches_hash_table(
+		creel_catches_hash_table(
 			application_name,
 			begin_census_date,
 			end_census_date,
@@ -63,13 +64,14 @@ CREEL *creel_new(			char *application_name,
 
 	return creel;
 
-} /* creel_new() */
+}
 
-HASH_TABLE *creel_get_census_hash_table(LIST **creel_census_list,
-					char *application_name,
-					char *begin_census_date,
-					char *end_census_date,
-					char *fishing_purpose )
+HASH_TABLE *creel_census_hash_table(
+			LIST **creel_census_list,
+			char *application_name,
+			char *begin_census_date,
+			char *end_census_date,
+			char *fishing_purpose )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
@@ -165,7 +167,7 @@ HASH_TABLE *creel_get_census_hash_table(LIST **creel_census_list,
 
 		creel_census->researcher = strdup( researcher );
 
-		key = creel_census_get_key(
+		key = creel_census_key(
 				creel_census->fishing_purpose,
 				creel_census->census_date,
 				creel_census->interview_location );
@@ -182,13 +184,13 @@ HASH_TABLE *creel_get_census_hash_table(LIST **creel_census_list,
 
 	return creel_census_hash_table;
 
-} /* creel_get_census_hash_table() */
+}
 
-HASH_TABLE *creel_get_fishing_trips_hash_table(
-					char *application_name,
-					char *begin_census_date,
-					char *end_census_date,
-					char *fishing_purpose )
+HASH_TABLE *creel_fishing_trips_hash_table(
+			char *application_name,
+			char *begin_census_date,
+			char *end_census_date,
+			char *fishing_purpose )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
@@ -266,7 +268,7 @@ HASH_TABLE *creel_get_fishing_trips_hash_table(
 		&&      *fishing_purpose
 		&&      strcmp( fishing_purpose, "fishing_purpose" ) != 0 )
 		{
-			key = creel_fishing_trips_get_key(
+			key = creel_fishing_trips_key(
 					fishing_purpose,
 					census_date,
 					interview_location,
@@ -279,7 +281,7 @@ HASH_TABLE *creel_get_fishing_trips_hash_table(
 				input_buffer,
 				0 );
 
-			key = creel_fishing_trips_get_key(
+			key = creel_fishing_trips_key(
 					local_fishing_purpose,
 					census_date,
 					interview_location,
@@ -371,13 +373,13 @@ HASH_TABLE *creel_get_fishing_trips_hash_table(
 
 	return fishing_trips_hash_table;
 
-} /* creel_get_fishing_trips_hash_table() */
+}
 
-HASH_TABLE *creel_get_catches_hash_table(
-					char *application_name,
-					char *begin_census_date,
-					char *end_census_date,
-					char *fishing_purpose )
+HASH_TABLE *creel_catches_hash_table(
+			char *application_name,
+			char *begin_census_date,
+			char *end_census_date,
+			char *fishing_purpose )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
@@ -474,7 +476,7 @@ HASH_TABLE *creel_get_catches_hash_table(
 		&&      *fishing_purpose
 		&&      strcmp( fishing_purpose, "fishing_purpose" ) != 0 )
 		{
-			key = creel_catches_get_key(
+			key = creel_catches_key(
 					fishing_purpose,
 					census_date,
 					interview_location,
@@ -490,7 +492,7 @@ HASH_TABLE *creel_get_catches_hash_table(
 				input_buffer,
 				0 );
 
-			key = creel_catches_get_key(
+			key = creel_catches_key(
 					local_fishing_purpose,
 					census_date,
 					interview_location,
@@ -522,7 +524,7 @@ HASH_TABLE *creel_get_catches_hash_table(
 
 	return catches_hash_table;
 
-} /* creel_get_catches_hash_table() */
+}
 
 CREEL_CENSUS *creel_census_new(		char *fishing_purpose,
 					char *census_date,
@@ -550,32 +552,41 @@ CREEL_CENSUS *creel_census_new(		char *fishing_purpose,
 
 	return creel_census;
 
-} /* creel_census_new() */
+}
 
-CREEL_FISHING_TRIPS *creel_fishing_trips_new(
-					int interview_number )
+CREEL_FISHING_TRIPS *creel_fishing_trips_calloc( void )
 {
 	CREEL_FISHING_TRIPS *fishing_trips;
 
 	if ( ! ( fishing_trips =
-			(CREEL_FISHING_TRIPS *) calloc(
+			calloc(
 				1,
 				sizeof( CREEL_FISHING_TRIPS ) ) ) )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: cannot allocate memory.\n",
+		"ERROR in %s/%s()/%d: calloc() returned empty..\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
+	return fishing_trips;
+}
+
+CREEL_FISHING_TRIPS *creel_fishing_trips_new(
+					int interview_number )
+{
+	CREEL_FISHING_TRIPS *fishing_trips;
+
+	fishing_trips = creel_fishing_trips_calloc();
+
 	fishing_trips->interview_number = interview_number;
 	fishing_trips->catches_list = list_new();
 
 	return fishing_trips;
 
-} /* creel_fishing_trips_new() */
+}
 
 CREEL_CATCHES *creel_catches_new(	char *family,
 					char *genus,
@@ -602,11 +613,12 @@ CREEL_CATCHES *creel_catches_new(	char *family,
 
 	return catches;
 
-} /* creel_catches_new() */
+}
 
-char *creel_census_get_key(		char *fishing_purpose,
-					char *census_date,
-					char *interview_location )
+char *creel_census_key(
+			char *fishing_purpose,
+			char *census_date,
+			char *interview_location )
 {
 	static char key[ 256 ];
 
@@ -618,12 +630,13 @@ char *creel_census_get_key(		char *fishing_purpose,
 
 	return key;
 
-} /* creel_census_get_key() */
+}
 
-char *creel_fishing_trips_get_key(	char *fishing_purpose,
-					char *census_date,
-					char *interview_location,
-					int interview_number )
+char *creel_fishing_trips_key(
+			char *fishing_purpose,
+			char *census_date,
+			char *interview_location,
+			int interview_number )
 {
 	static char key[ 256 ];
 
@@ -636,15 +649,16 @@ char *creel_fishing_trips_get_key(	char *fishing_purpose,
 
 	return key;
 
-} /* creel_fishing_trips_get_key() */
+}
 
-char *creel_catches_get_key(		char *fishing_purpose,
-					char *census_date,
-					char *interview_location,
-					int interview_number,
-					char *family,
-					char *genus,
-					char *species )
+char *creel_catches_key(
+			char *fishing_purpose,
+			char *census_date,
+			char *interview_location,
+			int interview_number,
+			char *family,
+			char *genus,
+			char *species )
 {
 	static char key[ 512 ];
 
@@ -660,17 +674,18 @@ char *creel_catches_get_key(		char *fishing_purpose,
 
 	return key;
 
-} /* creel_catches_get_key() */
+}
 
-CREEL_CENSUS *creel_census_fetch(	HASH_TABLE *creel_census_hash_table,
-					char *fishing_purpose,
-					char *census_date,
-					char *interview_location )
+CREEL_CENSUS *creel_census_hash_table_fetch(
+			HASH_TABLE *creel_census_hash_table,
+			char *fishing_purpose,
+			char *census_date,
+			char *interview_location )
 {
 	char *key;
 	CREEL_CENSUS *creel_census;
 
-	key = creel_census_get_key(
+	key = creel_census_key(
 			fishing_purpose,
 			census_date,
 			interview_location );
@@ -691,17 +706,17 @@ CREEL_CENSUS *creel_census_fetch(	HASH_TABLE *creel_census_hash_table,
 
 }
 
-CREEL_FISHING_TRIPS *creel_fishing_trips_fetch(
-					HASH_TABLE *fishing_trips_hash_table,
-					char *fishing_purpose,
-					char *census_date,
-					char *interview_location,
-					int interview_number )
+CREEL_FISHING_TRIPS *creel_fishing_trips_hash_table_fetch(
+			HASH_TABLE *fishing_trips_hash_table,
+			char *fishing_purpose,
+			char *census_date,
+			char *interview_location,
+			int interview_number )
 {
 	char *key;
 	CREEL_FISHING_TRIPS *fishing_trips;
 
-	key = creel_fishing_trips_get_key(
+	key = creel_fishing_trips_key(
 			fishing_purpose,
 			census_date,
 			interview_location,
@@ -734,7 +749,7 @@ CREEL_CATCHES *creel_catches_fetch(	HASH_TABLE *catches_hash_table,
 	char *key;
 	CREEL_CATCHES *catches;
 
-	key = creel_catches_get_key(
+	key = creel_catches_key(
 			fishing_purpose,
 			census_date,
 			interview_location,
@@ -757,8 +772,13 @@ CREEL_CATCHES *creel_catches_fetch(	HASH_TABLE *catches_hash_table,
 	return catches;
 }
 
-void creel_append_fishing_trips(	HASH_TABLE *creel_census_hash_table,
-					HASH_TABLE *fishing_trips_hash_table )
+/* Why is it generating a warning? */
+/* ------------------------------- */
+LIST *hash_table_key_list( HASH_TABLE * );
+
+void creel_append_fishing_trips(
+			HASH_TABLE *creel_census_hash_table,
+			HASH_TABLE *fishing_trips_hash_table )
 {
 	LIST *key_list;
 	CREEL_FISHING_TRIPS *fishing_trips;
@@ -769,7 +789,7 @@ void creel_append_fishing_trips(	HASH_TABLE *creel_census_hash_table,
 	char interview_location[ 64 ];
 	char interview_number[ 64 ];
 
-	key_list = hash_table_get_key_list( fishing_trips_hash_table );
+	key_list = hash_table_key_list( fishing_trips_hash_table );
 
 	if ( !list_rewind( key_list ) ) return;
 
@@ -781,7 +801,7 @@ void creel_append_fishing_trips(	HASH_TABLE *creel_census_hash_table,
 		piece( interview_location, '^', key, 2 );
 		piece( interview_number, '^', key, 3 );
 
-		key = creel_census_get_key(
+		key = creel_census_key(
 			fishing_purpose,
 			census_date,
 			interview_location );
@@ -799,7 +819,7 @@ void creel_append_fishing_trips(	HASH_TABLE *creel_census_hash_table,
 			exit( 1 );
 		}
 
-		key = creel_fishing_trips_get_key(
+		key = creel_fishing_trips_key(
 			fishing_purpose,
 			census_date,
 			interview_location,
@@ -839,7 +859,7 @@ void creel_append_catches(		HASH_TABLE *fishing_trips_hash_table,
 	char genus[ 64 ];
 	char species[ 64 ];
 
-	key_list = hash_table_get_key_list( catches_hash_table );
+	key_list = hash_table_key_list( catches_hash_table );
 
 	if ( !list_rewind( key_list ) ) return;
 
@@ -854,7 +874,7 @@ void creel_append_catches(		HASH_TABLE *fishing_trips_hash_table,
 		piece( genus, '^', key, 5 );
 		piece( species, '^', key, 6 );
 
-		key = creel_fishing_trips_get_key(
+		key = creel_fishing_trips_key(
 			fishing_purpose,
 			census_date,
 			interview_location,
@@ -873,7 +893,7 @@ void creel_append_catches(		HASH_TABLE *fishing_trips_hash_table,
 			exit( 1 );
 		}
 
-		key = creel_catches_get_key(
+		key = creel_catches_key(
 			fishing_purpose,
 			census_date,
 			interview_location,
@@ -899,5 +919,177 @@ void creel_append_catches(		HASH_TABLE *fishing_trips_hash_table,
 					catches );
 
 	} while( list_next( key_list ) );
+}
+
+char *creel_fishing_trips_primary_where(
+			char *fishing_purpose,
+			char *census_date,
+			char *interview_location,
+			int interview_number )
+{
+	static char where[ 256 ];
+
+	sprintf(where,
+		"fishing_purpose = '%s' and	"
+		"census_date = '%s' and		"
+		"interview_location = '%s' and	"
+		"interview_number = %d		",
+		fishing_purpose,
+		census_date,
+		interview_location,
+		interview_number );
+
+	return where;
+}
+
+char *creel_fishing_trips_system_string(
+			char *where )
+{
+	char system_string[ 1024 ];
+	char *order;
+
+	order = "census_date,interview_number";
+
+	sprintf(system_string,
+		"select.sh '%s' fishing_trips \"%s\" %s",
+		FISHING_TRIPS_SELECT,
+		where,
+		order );
+
+	return strdup( system_string );
+}
+
+CREEL_PERMITS *creel_permits_parse(
+			char *input )
+{
+	CREEL_PERMITS *permits = creel_permits_calloc();
+	char piece_buffer[ 128 ];
+
+	piece( piece_buffer, SQL_DELIMITER, input, 0 );
+	permits->permit_code = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	permits->guide_angler_name = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	permits->issued_date = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
+	permits->expiration_date = strdup( piece_buffer );
+
+	return permits;
+}
+
+char *creel_permits_system_string(
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh '%s' permits \"%s\"",
+		PERMITS_SELECT,
+		where );
+
+	return strdup( system_string );
+}
+
+LIST *creel_permits_list_fetch( char *where )
+{
+	return creel_permits_system_list(
+			creel_permits_system_string(
+				where ) );
+}
+
+LIST *creel_permits_system_list( char *system_string )
+{
+	FILE *input_pipe;
+	char input[ 1024 ];
+	LIST *list;
+	CREEL_PERMITS *permits;
+
+	input_pipe = popen( system_string, "r" );
+	list = list_new();
+
+	while( string_input( input, input_pipe, 1024 ) )
+	{
+		permits = creel_permits_parse( input );
+		list_set( list, permits );
+	}
+
+	pclose( input_pipe );
+	return list;
+}
+
+CREEL_PERMITS *creel_permits_calloc( void )
+{
+	CREEL_PERMITS *permits;
+
+	if ( ! ( permits = calloc( 1, sizeof( CREEL_PERMITS ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() return empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+	return permits;
+}
+
+HASH_TABLE *creel_permits_hash_table_fetch(
+			char *where )
+{
+	char input[ 1024 ];
+	FILE *input_pipe;
+	CREEL_PERMITS *permits;
+	HASH_TABLE *hash_table;
+
+	input_pipe =
+		popen(
+			creel_permits_system_string( where ),
+			"r" );
+
+	hash_table = hash_table_new( hash_table_medium );
+
+	while ( string_input( input, input_pipe, 1024 ) )
+	{
+		permits = creel_permits_parse( input );
+
+		hash_table_set(
+			hash_table,
+			creel_permits_hash_table_key(
+				permits->permit_code ),
+			permits );
+	}
+
+	pclose( input_pipe );
+	return hash_table;
+}
+
+char *creel_permits_hash_table_key(
+			char *permit_code )
+{
+	static char key[ 128 ];
+
+	strcpy( key, string_right( permit_code, 4 ) );
+
+fprintf(stderr,
+	"%s/%s()/%d: permit_code = %s, key = %s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+permit_code,
+key );
+	return key;
+}
+
+CREEL_PERMITS *creel_permits_hash_table_seek(
+			char *permit_code,
+			HASH_TABLE *permit_hash_table )
+{
+	return hash_table_seek(
+			permit_hash_table,
+			creel_permits_hash_table_key(
+				permit_code ) );
 }
 

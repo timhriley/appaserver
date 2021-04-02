@@ -72,8 +72,8 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *login_name;
 	char *input_filename;
-	boolean replace_existing_data;
 	boolean execute;
+	char buffer[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	int fishing_trip_count = 0;
 	int catch_count = 0;
@@ -85,10 +85,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr, 
-"Usage: %s process login_name filename replace_existing_data_yn execute_yn\n",
+"Usage: %s process login_name filename execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -96,8 +96,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 1 ];
 	login_name = argv[ 2 ];
 	input_filename = argv[ 3 ];
-	replace_existing_data = (*argv[ 4 ] == 'y');
-	execute = (*argv[ 5 ] == 'y');
+	execute = (*argv[ 4 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -106,7 +105,10 @@ int main( int argc, char **argv )
 		appaserver_parameter_file->
 			appaserver_mount_point );
 
-	printf( "<h2>Load Guide Fishing Trips\n" );
+	printf( "<h2>%s\n",
+		format_initial_capital(
+			buffer,
+			process_name ) );
 	fflush( stdout );
 	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) );
 	printf( "</h2>\n" );
@@ -117,7 +119,7 @@ int main( int argc, char **argv )
 				application_name,
 				login_name,
 				input_filename,
-				replace_existing_data,
+				1 /* replace_existing_data*/ ,
 				execute );
 
 	if ( execute )
