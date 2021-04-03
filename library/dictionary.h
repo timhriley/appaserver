@@ -8,7 +8,7 @@
 #ifndef DICTIONARY_H
 #define DICTIONARY_H
 
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "list.h"
 
 /* Constants */

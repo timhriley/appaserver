@@ -4,7 +4,7 @@
 #ifndef FRESHWATERFISH_LIBRARY_H
 #define FRESHWATERFISH_LIBRARY_H
 
-#include "hashtbl.h"
+#include "hash_table.h"
 
 #define AGENCY_NPS			"national_park_service"
 #define AGENCY_FIU			"florida_international_university"

@@ -11,7 +11,7 @@
 #define VALIDATION_FORM_H
 
 #include "list.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 
 /* Constants */
 /* --------- */

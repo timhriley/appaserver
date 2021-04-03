@@ -301,7 +301,6 @@ void insert_fishing_trips(	int *fishing_trip_count,
 	FILE *creel_census_output_pipe = {0};
 	FILE *fishing_trips_output_pipe;
 	FILE *catches_output_pipe = {0};
-	FILE *permits_output_pipe = {0};
 	char input_string[ 1024 ];
 	char census_date_international[ 256 ];
 	char *now_date_international;
@@ -379,17 +378,6 @@ void insert_fishing_trips(	int *fishing_trip_count,
 			 (replace_existing_data) ? 'y' : 'n' );
 
 		catches_output_pipe = popen( sys_string, "w" );
-
-		sprintf(sys_string,
-			"insert_statement.e t=%s f=%s d='|' replace=%c	|"
-			"sql 2>&1					|"
-			"html_paragraph_wrapper				|"
-			"cat						 ",
-			 "permits",
-			 INSERT_PERMITS_FIELD_LIST,
-			 (replace_existing_data) ? 'y' : 'n' );
-
-		permits_output_pipe = popen( sys_string, "w" );
 	}
 	else
 	{
@@ -605,10 +593,6 @@ void insert_fishing_trips(	int *fishing_trip_count,
 		if ( execute )
 		{
 			fprintf( fishing_trips_output_pipe, "\n" );
-
-			fprintf( permits_output_pipe,
-				 "%s\n",
-				 permit_code );
 		}
 
 		output_catches(	catches_output_pipe,
@@ -633,9 +617,6 @@ void insert_fishing_trips(	int *fishing_trip_count,
 
 	if ( catches_output_pipe )
 		pclose( catches_output_pipe );
-
-	if ( permits_output_pipe )
-		pclose( permits_output_pipe );
 
 	if ( timlib_file_populated( error_filename ) )
 	{

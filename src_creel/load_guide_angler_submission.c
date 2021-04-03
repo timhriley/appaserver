@@ -188,10 +188,6 @@ int main( int argc, char **argv )
 #define INSERT_GUIDE_ANGLERS_FIELD_LIST		\
 		"guide_angler_name"
 
-#define INSERT_PERMITS_FIELD_LIST		\
-		"permit_code,"			\
-		"guide_angler_name"
-
 int insert_fishing_trips(	char *application_name,
 				char *login_name,
 				char *input_filename,
@@ -202,7 +198,6 @@ int insert_fishing_trips(	char *application_name,
 	FILE *fishing_trips_output_pipe = {0};
 	FILE *catches_output_pipe = {0};
 	FILE *guide_anglers_output_pipe = {0};
-	FILE *permits_insert_pipe = {0};
 	FILE *permits_update_pipe = {0};
 	char input_string[ 4096 ];
 	char census_date_international[ 256 ];
@@ -307,19 +302,6 @@ int insert_fishing_trips(	char *application_name,
 			INSERT_GUIDE_ANGLERS_FIELD_LIST );
 
 		guide_anglers_output_pipe = popen( sys_string, "w" );
-
-		sprintf(sys_string,
-			"sort -u					|"
-			"insert_statement t=%s f=%s d='|' replace=n	|"
-			"tee_appaserver_error.sh creel			|"
-			"sql 2>&1					|"
-			"grep -vi duplicate				|"
-			"html_paragraph_wrapper				|"
-			"cat						 ",
-			"permits",
-			INSERT_PERMITS_FIELD_LIST );
-
-		permits_insert_pipe = popen( sys_string, "w" );
 
 		sprintf(sys_string,
 			"sort -u					|"
@@ -577,11 +559,6 @@ int insert_fishing_trips(	char *application_name,
 				 "%s\n",
 				 guide_angler_name );
 
-			fprintf( permits_insert_pipe,
-				 "%s|%s\n",
-				 permit_code,
-				 guide_angler_name );
-
 			fprintf( permits_update_pipe,
 				 "%s^guide_angler_name^%s\n",
 				 permit_code,
@@ -672,9 +649,6 @@ int insert_fishing_trips(	char *application_name,
 
 	if ( guide_anglers_output_pipe )
 		pclose( guide_anglers_output_pipe );
-
-	if ( permits_insert_pipe )
-		pclose( permits_insert_pipe );
 
 	if ( permits_update_pipe )
 		pclose( permits_update_pipe );
