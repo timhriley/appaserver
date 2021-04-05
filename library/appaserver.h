@@ -14,7 +14,7 @@
 #include "folder.h"
 #include "related_folder.h"
 #include "form.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "boolean.h"
 #include "aggregate_statistic.h"
 #include "prompt_recursive.h"

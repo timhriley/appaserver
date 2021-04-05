@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "piece.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "date.h"
 
 /* Constants */

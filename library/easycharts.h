@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "list.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "dictionary.h"
 #include "boolean.h"
 

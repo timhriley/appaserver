@@ -11,7 +11,7 @@
 /* Includes */
 /* -------- */
 #include "list.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 #include "aggregate_level.h"
 #include "aggregate_statistic.h"
 
