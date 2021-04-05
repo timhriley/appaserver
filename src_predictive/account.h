@@ -183,4 +183,7 @@ char *account_sys_string(
 ACCOUNT *account_key_fetch(
 			char *account_key );
 
+boolean account_name_changed(
+			char *preupdate_account_name );
+
 #endif

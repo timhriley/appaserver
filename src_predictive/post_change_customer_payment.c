@@ -144,8 +144,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}
 
 void post_change_customer_payment_insert(
 				char *application_name,
@@ -309,7 +308,7 @@ void post_change_customer_payment_insert(
 		customer_sale->sale_date_time,
 		application_name );
 
-} /* post_change_customer_payment_insert() */
+}
 
 void post_change_customer_payment_delete(
 			char *application_name,
@@ -596,7 +595,7 @@ void post_change_customer_payment_update(
 			check_number_string /* data */ );
 	}
 
-} /* post_change_customer_payment_update() */
+}
 
 void post_change_customer_payment_amount_update(
 				char *application_name,
@@ -732,7 +731,7 @@ void post_change_customer_payment_date_time_update(
 		preupdate_payment_date_time
 			/* database_transaction_date_time */ );
 
-} /* post_change_customer_payment_date_time_update() */
+}
 
 LIST *post_change_customer_payment_get_primary_data_list(
 				char *full_name,
@@ -748,4 +747,4 @@ LIST *post_change_customer_payment_get_primary_data_list(
 
 	return primary_data_list;
 
-} /* post_change_customer_payment_get_primary_data_list() */
+}

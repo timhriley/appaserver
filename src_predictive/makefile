@@ -23,33 +23,6 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/hash_table.o
 
-#EXECUTABLES=	
-#		inventory_balance_detail				\
-#		propagate_inventory_purchase_layers			\
-#		propagate_inventory_sale_layers				\
-#		tax_recover_fixed_assets				\
-#		post_change_supply_purchase				\
-#		post_change_service_purchase				\
-#		post_change_inventory_purchase				\
-#		post_change_inventory_purchase_return			\
-#		post_change_inventory_sale_return			\
-#		post_change_fixed_asset					\
-#		post_change_inventory_sale				\
-#		post_change_fixed_service_work				\
-#		post_change_hourly_service_work				\
-#		post_change_activity_work				\
-#		post_change_customer_payment				\
-#		post_change_prior_fixed_asset				\
-#		post_change_prepaid_asset_purchase			\
-#		post_change_prepaid_asset_accrual			\
-#		post_payroll						\
-#		collect_customer_payment				\
-#		post_change_employee_work_day				\
-#		inventory_cost_method_propagate				\
-#		load_receipt_scan					\
-#		shortcut_service_work					\
-#		tax_dvr							\
-
 EXECUTABLES=	trial_balance						\
 		tax_form_report						\
 		transaction_balance_report				\
@@ -81,7 +54,8 @@ EXECUTABLES=	trial_balance						\
 		update_sale_completed					\
 		post_change_account_balance				\
 		ledger_propagate					\
-		feeder_upload_missing
+		feeder_upload_missing					\
+		journal_ledger_trigger
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -380,6 +354,14 @@ close_nominal_accounts: close_nominal_accounts.c			\
 		${SOURCE_LIBRARY}					\
 		close_nominal_accounts.c				\
 		-o close_nominal_accounts
+
+journal_ledger_trigger: journal_ledger_trigger.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		journal_ledger_trigger.c				\
+		-o journal_ledger_trigger
 
 pay_liabilities_process: pay_liabilities_process.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} liability.o

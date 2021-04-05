@@ -61,6 +61,8 @@ PROCESS_SET *process_new_process_set(
 				char *session, 
 				char *process_set_name );
 
+/* Does a PROCESS fetch */
+/* -------------------- */
 PROCESS *process_new(		char *application_name,
 				char *process_name,
 				boolean check_executable_inside_filesystem );

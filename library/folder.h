@@ -641,4 +641,7 @@ LIST *folder_insert_drop_down_data_list(
 			char *one2m_folder_name_for_processes,
 			boolean include_root_folder );
 
+PROCESS *folder_post_change_process_fetch(
+			char *folder_name );
+
 #endif

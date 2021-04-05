@@ -47,6 +47,8 @@ TRANSACTION *transaction_new(
 			char *street_address,
 			char *transaction_date_time );
 
+/* Also fetches journal_list */
+/* ------------------------- */
 TRANSACTION *transaction_fetch(
 			char *full_name,
 			char *street_address,

@@ -2878,13 +2878,18 @@ FOLDER *folder_parse(	char *input,
 	folder->notepad = strdup( notepad );
 
 	piece( populate_drop_down_process, SQL_DELIMITER, input, 5 );
+
 	folder->populate_drop_down_process =
+			/* -------------------- */
+			/* Does a PROCESS fetch */
+			/* -------------------- */
 			process_new(
 				environment_application(),
 				strdup( populate_drop_down_process ),
 				0 /* not with_check_executable_ok */ );
 
 	piece( post_change_process, SQL_DELIMITER, input, 6 );
+
 	folder->post_change_process =
 			process_new(
 				environment_application(),
@@ -3048,5 +3053,24 @@ LIST *folder_insert_drop_down_data_list(
 			role_name,
 			include_root_folder );
 	}
+}
+
+PROCESS *folder_post_change_process_fetch(
+			char *folder_name )
+{
+	FOLDER *folder;
+
+	folder = folder_fetch(
+			folder_name,
+			0 /* not fetch_attribute_list */,
+			0 /* not fetch_one2m_relation_list */,
+			0 /* not fetch_one2m_recursive_relation_list */,
+			0 /* not fetch_mto1_isa_recursive_relation_list */,
+			0 /* not fetch_mto1_relation_list */ );
+
+	if ( folder )
+		return folder->post_change_process;
+	else
+		return (PROCESS *)0;
 }
 

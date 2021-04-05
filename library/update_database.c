@@ -1431,6 +1431,10 @@ UPDATE_FOLDER *update_secondary_update_folder(
 	update_folder->relation_foreign_attribute_name_list =
 		relation_foreign_attribute_name_list;
 
+	update_folder->post_change_process =
+		folder_post_change_process_fetch(
+			update_folder->folder_name );
+
 	update_folder->changed_attribute_list = list_new();
 
 	do {

@@ -913,3 +913,19 @@ LIST *account_system_list( char *sys_string )
 	return account_list;
 }
 
+boolean account_name_changed(
+			char *preupdate_account_name )
+{
+	if ( !preupdate_account_name
+	||   !*preupdate_account_name
+	||   strcmp(	preupdate_account_name,
+			"preupdate_account" ) == 0 )
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
