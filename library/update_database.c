@@ -1440,18 +1440,7 @@ UPDATE_FOLDER *update_secondary_update_folder(
 
 		if ( !primary_changed_attribute->changed_primary_key_index )
 		{
-			char msg[ 65536 ];
-
-			sprintf(msg,
-"ERROR in %s/%s()/%d: for many_folder_name = [%s], changed_attribute_name = [%s], index cannot be zero.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				many_folder_name,
-				primary_changed_attribute->attribute_name );
-
-			m2( environment_application_name(), msg );
-			exit( 1 );
+			continue;
 		}
 
 		changed_attribute_name =
@@ -1460,11 +1449,11 @@ UPDATE_FOLDER *update_secondary_update_folder(
 					relation_foreign_attribute_name_list,
 				primary_changed_attribute->
 					changed_primary_key_index );
-
+	
 		if ( !changed_attribute_name )
 		{
 			char msg[ 65536 ];
-
+	
 			sprintf(msg,
 "ERROR in %s/%s()/%d: many_folder_name = %s cannot list_seek_index = %d in (%s)\n",
 				__FILE__,
@@ -1474,10 +1463,10 @@ UPDATE_FOLDER *update_secondary_update_folder(
 				primary_changed_attribute->
 					changed_primary_key_index,
 				list_display_delimited(
-					update_folder->
-					relation_foreign_attribute_name_list,
+				  update_folder->
+				   relation_foreign_attribute_name_list,
 					';' ) );
-
+	
 			m2( environment_application_name(), msg );
 			exit( 1 );
 		}
