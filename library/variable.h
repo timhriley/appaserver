@@ -3,7 +3,7 @@
 #ifndef VARIABLE_H
 #define VARIABLE_H
 
-#include "hashtbl.h"
+#include "hash_table.h"
 
 typedef struct
 {

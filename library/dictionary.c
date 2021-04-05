@@ -17,6 +17,7 @@
 #include "timlib.h"
 #include "date_convert.h"
 #include "query.h"
+#include "hash_table.h"
 #include "date.h"
 
 /* ------------------------------------------------------------ */

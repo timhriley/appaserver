@@ -6,7 +6,7 @@
 #ifndef COVARIANCE_H
 #define COVARIANCE_H
 #include "list.h"
-#include "hashtbl.h"
+#include "hash_table.h"
 
 typedef struct
 {
