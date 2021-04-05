@@ -68,16 +68,17 @@ void build_related_folder_element_list(
 				lookup_before_drop_down,
 			LIST *foreign_attribute_name_list );
 
-LIST *get_attribute_element_list(	int *current_reference_number,
-					char *application_name,
-					LIST *attribute_list,
-					char *attribute_name,
-					boolean omit_push_buttons,
-					boolean omit_ignore_push_buttons,
-					LIST *role_folder_insert_list,
-					boolean is_primary_attribute,
-					int tab_index,
-					char *folder_post_change_javascript );
+LIST *output_prompt_insert_attribute_element_list(
+			int *current_reference_number,
+			char *application_name,
+			LIST *attribute_list,
+			char *attribute_name,
+			boolean omit_push_buttons,
+			boolean omit_ignore_push_buttons,
+			LIST *role_folder_insert_list,
+			boolean is_primary_attribute,
+			int tab_index,
+			char *folder_post_change_javascript );
 
 void get_with_isa_variables(	LIST **mto1_related_folder_list,
 				LIST **attribute_list,
@@ -132,7 +133,7 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 				LIST *mto1_isa_related_folder_list,
 				boolean override_row_restrictions );
 
-LIST *get_element_list(	
+LIST *output_prompt_insert_element_list(	
 			int *current_reference_number,
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char *login_name,
@@ -477,7 +478,7 @@ int main( int argc, char **argv )
 				prompt_form_folder_list ) > 0 );
 
 	form->regular_element_list =
-		get_element_list(
+		output_prompt_insert_element_list(
 			&form->current_reference_number,
 			&ajax_fill_drop_down_related_folder,
 			login_name,
@@ -803,7 +804,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-LIST *get_element_list(
+LIST *output_prompt_insert_element_list(
 			int *current_reference_number,
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char *login_name,
@@ -947,17 +948,17 @@ LIST *get_element_list(
 			done_attribute_name_list ) )
 		{
 			element_list =
-				get_attribute_element_list(
-						current_reference_number,
-						application_name,
-						attribute_list,
-						attribute_name,
-						omit_push_buttons,
-						omit_ignore_push_buttons,
-						role_folder_insert_list,
-						is_primary_attribute,
-						++tab_index,
-						post_change_javascript );
+				output_prompt_insert_attribute_element_list(
+					current_reference_number,
+					application_name,
+					attribute_list,
+					attribute_name,
+					omit_push_buttons,
+					omit_ignore_push_buttons,
+					role_folder_insert_list,
+					is_primary_attribute,
+					++tab_index,
+					post_change_javascript );
 	
 			if ( element_list )
 			{
@@ -1450,22 +1451,24 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 
 }
 
-LIST *get_attribute_element_list(	int *current_reference_number,
-					char *application_name,
-					LIST *attribute_list,
-					char *attribute_name,
-					boolean omit_push_buttons,
-					boolean omit_ignore_push_buttons,
-					LIST *role_folder_insert_list,
-					boolean is_primary_attribute,
-					int tab_index,
-					char *folder_post_change_javascript )
+LIST *output_prompt_insert_attribute_element_list(
+			int *current_reference_number,
+			char *application_name,
+			LIST *attribute_list,
+			char *attribute_name,
+			boolean omit_push_buttons,
+			boolean omit_ignore_push_buttons,
+			LIST *role_folder_insert_list,
+			boolean is_primary_attribute,
+			int tab_index,
+			char *folder_post_change_javascript )
 {
 	ATTRIBUTE *attribute;
 	ELEMENT_APPASERVER *element;
 	char element_name[ 256 ];
 	LIST *return_list;
 	char ignore_element_name[ 256 ];
+	int width;
 
 	attribute =
 		attribute_seek_attribute( 
@@ -1562,15 +1565,18 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 			return_list, 
 			element );
 
+	width = attribute->width;
+
 	if ( strcmp( attribute->datatype, "notepad" ) == 0 )
 	{
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				notepad,
 				attribute->attribute_name );
 
 		element_notepad_set_attribute_width(
-				element->notepad,
-				attribute->width );
+			element->notepad,
+			width );
 
 		element->notepad->heading = element->name;
 	}
@@ -1583,17 +1589,18 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 					application_name,
 					1 );
 
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				reference_number,
 				attribute->attribute_name );
 
 		element_reference_number_set_attribute_width(
-				element->reference_number, 
-				attribute->width );
+			element->reference_number, 
+			width );
 	}
 	else
 	if ( process_parameter_list_element_name_boolean(
-						attribute->attribute_name ) )
+			attribute->attribute_name ) )
 	{
 		element =
 			element_get_yes_no_element(
@@ -1606,10 +1613,14 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 	else
 	if ( strcmp( attribute->datatype, "password" ) == 0 )
 	{
-		element = element_appaserver_new( password, attribute_name );
+		element =
+			element_appaserver_new(
+				password,
+				attribute_name );
+
 		element_password_set_attribute_width(
-						element->password,
-						attribute->width );
+			element->password,
+			width );
 	}
 	else
 	{
@@ -1642,11 +1653,17 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 					0 /* not place_first */ );
 		}
 
+		if ( strcmp( attribute->datatype, "current_date_time" ) == 0
+		&&   width == 19 )
+		{
+			width = 10;
+		}
+
 		element =
 			element_get_text_item_variant_element(
 				attribute->attribute_name,
 				attribute->datatype,
-				attribute->width,
+				width,
 				attribute->post_change_javascript,
 				attribute->on_focus_javascript_function );
 	}
@@ -1690,7 +1707,6 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 			element );
 
 	return return_list;
-
 }
 
 void build_related_folder_element_list(

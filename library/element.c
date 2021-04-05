@@ -348,7 +348,6 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 		||     !*element->text_item->data ) )
 		{
 			DATE_CONVERT *date_convert;
-			char *time_string;
 			char data[ 64 ];
 
 			date_convert =
@@ -358,6 +357,9 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				date_get_now_yyyy_mm_dd(
 					date_get_utc_offset() ) );
 
+			strcpy( data, date_convert->return_date );
+#ifdef NOT_DEFINED
+			char *time_string;
 			if ( element->element_type == element_current_date )
 			{
 				strcpy( data, date_convert->return_date );
@@ -381,6 +383,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				 	date_convert->return_date,
 				 	time_string );
 			}
+#endif
 
 			element->text_item->data = strdup( data );
 			with_calendar_popup = 0;

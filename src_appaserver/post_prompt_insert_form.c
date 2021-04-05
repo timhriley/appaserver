@@ -56,22 +56,22 @@ void output_missing_information_message(
 			LIST *missing_attribute_name_list );
 
 int post_prompt_insert_database(
-				char **message,
-				char **isa_message,
-				DICTIONARY *row_dictionary,
-				DICTIONARY *ignore_dictionary,
-				char *application_name,
-				char *session,
-				char *login_name,
-				char *folder_name,
-				char *role_name,
-				LIST *primary_attribute_name_list,
-				LIST *insert_required_attribute_name_list,
-				LIST *attribute_name_list,
-				LIST *mto1_isa_related_folder_list,
-				PROCESS *post_change_process,
-				LIST *mto1_related_folder_list,
-				LIST *attribute_list );
+			char **message,
+			char **isa_message,
+			DICTIONARY *row_dictionary,
+			DICTIONARY *ignore_dictionary,
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *folder_name,
+			char *role_name,
+			LIST *primary_attribute_name_list,
+			LIST *insert_required_attribute_name_list,
+			LIST *attribute_name_list,
+			LIST *mto1_isa_related_folder_list,
+			PROCESS *post_change_process,
+			LIST *mto1_related_folder_list,
+			LIST *attribute_list );
 
 int main( int argc, char **argv )
 {
@@ -139,9 +139,9 @@ int main( int argc, char **argv )
 	environ_set_utc_offset( application_name );
 
 	appaserver_output_starting_argv_append_file(
-			argc,
-			argv,
-			application_name );
+		argc,
+		argv,
+		application_name );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
@@ -359,11 +359,11 @@ int main( int argc, char **argv )
 			0 /* recursive_level */ );
 
 	appaserver_library_automatically_set_login_name(
-			dictionary_appaserver->query_dictionary,
-			login_name,
-			appaserver->folder->mto1_related_folder_list,
-			appaserver->folder->attribute_list,
-			role->attribute_exclude_list );
+		dictionary_appaserver->query_dictionary,
+		login_name,
+		appaserver->folder->mto1_related_folder_list,
+		appaserver->folder->attribute_list,
+		role->attribute_exclude_list );
 
 	appaserver->folder->primary_attribute_name_list =
 		folder_get_primary_attribute_name_list(
@@ -632,22 +632,22 @@ execute_sys_string:
 }
 
 int post_prompt_insert_database(
-				char **message,
-				char **isa_message,
-				DICTIONARY *row_dictionary,
-				DICTIONARY *ignore_dictionary,
-				char *application_name,
-				char *session,
-				char *login_name,
-				char *folder_name,
-				char *role_name,
-				LIST *primary_attribute_name_list,
-				LIST *insert_required_attribute_name_list,
-				LIST *attribute_name_list,
-				LIST *mto1_isa_related_folder_list,
-				PROCESS *post_change_process,
-				LIST *mto1_related_folder_list,
-				LIST *attribute_list )
+			char **message,
+			char **isa_message,
+			DICTIONARY *row_dictionary,
+			DICTIONARY *ignore_dictionary,
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *folder_name,
+			char *role_name,
+			LIST *primary_attribute_name_list,
+			LIST *insert_required_attribute_name_list,
+			LIST *attribute_name_list,
+			LIST *mto1_isa_related_folder_list,
+			PROCESS *post_change_process,
+			LIST *mto1_related_folder_list,
+			LIST *attribute_list )
 {
 	int results;
 	INSERT_DATABASE *insert_database;
@@ -955,23 +955,23 @@ void insert_one2m_pair_sequence(
 
 	rows_inserted =
 		post_prompt_insert_database(
-				&message,
-				&isa_message,
-				dictionary_appaserver->query_dictionary
-					/* row_dictionary */,
-				dictionary_appaserver->ignore_dictionary,
-				application_name,
-				session,
-				login_name,
-				folder->folder_name,
-				role_name,
-				folder->primary_attribute_name_list,
-				insert_required_attribute_name_list,
-				folder->attribute_name_list,
-				isa_related_folder_list,
-				folder->post_change_process,
-				folder->mto1_related_folder_list,
-				folder->attribute_list );
+			&message,
+			&isa_message,
+			dictionary_appaserver->query_dictionary
+				/* row_dictionary */,
+			dictionary_appaserver->ignore_dictionary,
+			application_name,
+			session,
+			login_name,
+			folder->folder_name,
+			role_name,
+			folder->primary_attribute_name_list,
+			insert_required_attribute_name_list,
+			folder->attribute_name_list,
+			isa_related_folder_list,
+			folder->post_change_process,
+			folder->mto1_related_folder_list,
+			folder->attribute_list );
 
 	got_duplicate_message =
 		( instr(	MYSQL_DUPLICATE_ERROR_MESSAGE_KEY,

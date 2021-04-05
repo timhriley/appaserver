@@ -3758,8 +3758,8 @@ void dictionary_remove_symbols_in_numbers(
 }
 
 void dictionary_set_date_time_to_current(
-					DICTIONARY *dictionary,
-					LIST *attribute_list )
+			DICTIONARY *dictionary,
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 	char date_time_string[ 32 ];
@@ -3824,7 +3824,6 @@ void dictionary_set_date_time_to_current(
 		}
 
 	} while( list_next( attribute_list ) );
-
 }
 
 /* Same code as attribute_get_attribute_name_list() */
