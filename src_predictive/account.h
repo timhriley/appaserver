@@ -74,6 +74,7 @@ char *account_name_escape(
 char *account_name_format(
 			char *account_name );
 
+/* Sets account->
 ACCOUNT *account_fetch(	char *account_name );
 
 ACCOUNT *account_new(	char *account_name );
@@ -125,6 +126,8 @@ int account_balance_match_function(
 			ACCOUNT *account_from_list,
 			ACCOUNT *account_compare );
 
+/* Sets account->accumulate_debit */
+/* ------------------------------ */
 ACCOUNT *account_parse(	char *input );
 
 /* Safely returns heap memory */
@@ -177,7 +180,7 @@ boolean account_accumulate_debit(
 void account_transaction_propagate(
 			char *propagate_transaction_date_time );
 
-char *account_sys_string(
+char *account_system_string(
 			char *where );
 
 ACCOUNT *account_key_fetch(

@@ -69,8 +69,8 @@ SUBCLASSIFICATION *subclassification_fetch(
 
 	if ( ! ( subclassification =
 			subclassification_seek(
-				list,
-				subclassification_name ) ) )
+				subclassification_name,
+				list ) ) )
 	{
 		fprintf(stderr,
 	"ERROR in %s/%s()/%d: subclassification_seek(%s) returned empty.\n",
@@ -1877,8 +1877,8 @@ char *subclassification_sys_string( char *where )
 }
 
 SUBCLASSIFICATION *subclassification_seek(
-			LIST *subclassification_list,
-			char *subclassification_name )
+			char *subclassification_name,
+			LIST *subclassification_list )
 {
 	SUBCLASSIFICATION *subclassification;
 
@@ -1900,5 +1900,13 @@ SUBCLASSIFICATION *subclassification_seek(
 	} while ( list_next( subclassification_list ) );
 
 	return (SUBCLASSIFICATION *)0;
+}
+
+boolean subclassification_current_liability(
+			char *subclassification_name )
+{
+	return ( strcmp(
+			subclassification_name,
+			SUBCLASSIFICATION_CURRENT_LIABILITY ) == 0 );
 }
 

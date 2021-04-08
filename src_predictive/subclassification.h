@@ -21,6 +21,7 @@
 #define SUBCLASSIFICATION_CONTRIBUTED_CAPITAL	"contributed_capital"
 #define SUBCLASSIFICATION_RETAINED_EARNINGS	"retained_earnings"
 #define SUBCLASSIFICATION_DRAWING		"drawing"
+#define SUBCLASSIFICATION_CURRENT_LIABILITY	"current_liability"
 
 #define SUBCLASSIFICATION_NOTANUMBER	"NAN"
 
@@ -145,7 +146,10 @@ char *subclassification_sys_string(
 			char *where );
 
 SUBCLASSIFICATION *subclassification_seek(
-			LIST *subclassification_list,
+			char *subclassification_name,
+			LIST *subclassification_list );
+
+boolean subclassification_current_liability(
 			char *subclassification_name );
 
 #endif

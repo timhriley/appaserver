@@ -18,26 +18,20 @@
 
 /* Constants */
 /* --------- */
-#define TAX_DEPRECIATION_DESCRIPTION	"depreciation"
-#define TAX_FORM_LINE_KEY		".tax_form_line "
-#define TAX_FORM_LINE_ACCOUNT_KEY	".account "
 
 /* Enumerated types */
 /* ---------------- */
-enum tax_form_line_category {
-	revenue,
-	mortgage_interest_paid,
-	depreciation_expense,
-	operating_expense,
-	loss };
 
 /* Structures */
 /* ---------- */
 typedef struct
 {
-	char *property_street_address;
-	double recovery_amount;
-} TAX_INPUT_RENTAL_PROPERTY;
+	char *tax_form_line;
+	char *tax_form_description;
+	LIST *tax_form_line_account_list;
+	LIST *rental_property_list;
+	double tax_form_line_rental_property_total;
+} TAX_FORM_LINE_RENTAL;
 
 typedef struct
 {
@@ -46,7 +40,7 @@ typedef struct
 	double property_recovery_amount;
 	double prior_property_recovery_amount;
 	double total_recovery_amount;
-} TAX_INPUT_RECOVERY;
+} TAX_RECOVERY;
 
 typedef struct
 {
@@ -56,15 +50,17 @@ typedef struct
 
 typedef struct
 {
-	char *tax_form_line;
+	char *tax_form_line_string;
 	char *tax_form_description;
-	enum tax_form_line_category tax_form_line_category;
 	LIST *tax_form_line_account_list;
 	LIST *rental_property_list;
+	double tax_form_line_rental_property_total;
 } TAX_FORM_LINE_RENTAL;
 	
 typedef struct
 {
+	char *property_street_address;
+	double recovery_amount;
 	LIST *tax_form_line_rental_list;
 	double revenue_total;
 	double mortgage_interest_total;
@@ -72,169 +68,221 @@ typedef struct
 	double expense_total;
 	double positive_net_income;
 	double loss_total;
-} TAX_OUTPUT_RENTAL;
+	double tax_rental_property_total;
+} TAX_RENTAL_PROPERTY;
 
 typedef struct
 {
+	/* Attributes */
+	/* ---------- */
+	char *tax_form_string;
+	char *tax_form_line;
 	char *account_name;
-	char *hard_coded_account_key;
-	char *subclassification;
-	char *element;
-	boolean accumulate_debit;
+
+	/* Process */
+	/* ------- */
+	ACCOUNT *account;
+	boolean current_liability;
+
 	LIST *journal_list;
-	double tax_form_account_total;
+	double tax_form_line_account_total;
 } TAX_FORM_LINE_ACCOUNT;
 
 typedef struct
 {
-	char *tax_form_line;
+	/* Attributes */
+	/* ---------- */
+	char *tax_form_string;
+	char *tax_form_line_string;
 	char *tax_form_description;
 	boolean itemize_accounts;
-	double tax_form_line_total;
+
+	/* Input */
+	/* ----- */
+	int tax_year;
+
+	/* Operations */
+	/* ---------- */
 	LIST *tax_form_line_account_list;
+	double tax_form_line_total;
 } TAX_FORM_LINE;
 
 typedef struct
 {
-	char *tax_form;
+	/* Attributes */
+	/* ---------- */
+	char *tax_form_string;
+
+	/* Input */
+	/* ----- */
+	int tax_year;
+
+	/* Operations */
+	/* ---------- */
 	LIST *tax_form_line_list;
 } TAX_FORM;
 
 typedef struct
 {
-	char *tax_form;
-	LIST *tax_form_line_list;
-	LIST *unaccounted_journal_list;
-} TAX_PROCESS;
-
-typedef struct
-{
-	TAX_FORM *tax_form;
+	/* Input */
+	/* ----- */
+	char *tax_form_string;
 	int tax_year;
-	char *begin_date_string;
-	char *end_date_string;
-	TAX_INPUT_RECOVERY *tax_input_recovery;
-	LIST *rental_property_list;
-} TAX_INPUT;
-
-typedef struct
-{
-	TAX_INPUT tax_input;
-	TAX_PROCESS tax_process;
-	TAX_OUTPUT_RENTAL tax_output_rental;
+	TAX_FORM *tax_form;
+	TAX_RECOVERY *tax_recovery;
+	LIST *tax_rental_property_list;
 } TAX;
 
 /* Operations */
 /* ---------- */
-TAX_INPUT_RECOVERY *tax_input_recovery_new(
-					char *application_name,
-					int tax_year );
 
-TAX *tax_new(				char *application_name,
-					char *tax_form,
-					int tax_year );
+/* TAX */
+/* --- */
+TAX *tax_calloc(	void );
 
-TAX_FORM *tax_form_new(			char *application_name,
-					char *tax_form,
-					int tax_year );
+/* TAX_RECOVERY */
+/* ------------ */
+TAX_RECOVERY *tax_recovery_new(
+			char *tax_form_string,
+			int tax_year );
 
-TAX_FORM_LINE *tax_form_line_new(	char *tax_form_line,
-					char *tax_form_description,
-					boolean itemize_accounts );
+/* TAX_FORM */
+/* -------- */
+TAX_FORM *tax_form_new(
+			char *tax_form_string );
 
+TAX_FORM *tax_form_fetch(
+			char *tax_form_string,
+			int tax_year,
+			boolean fetch_line_list,
+			boolean fetch_account_list,
+			boolean fetch_journal_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *tax_form_primary_where(
+			char *tax_form_string );
+
+/* TAX_FORM_LINE */
+/* ------------- */
+TAX_FORM_LINE *tax_form_line_calloc(
+			void );
+
+TAX_FORM_LINE *tax_form_line_new(
+			char *tax_form_string,
+			char *tax_form_line_sting );
+
+LIST *tax_form_line_list(
+			char *tax_form_string,
+			int tax_year,
+			boolean fetch_account_list,
+			boolean fetch_journal_list );
+
+char *tax_form_line_system_string(
+			char *where );
+
+TAX_FORM_LINE *tax_form_line_parse(
+			char *input,
+			int tax_year,
+			boolean fetch_account_list,
+			boolean fetch_journal_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *tax_form_line_primary_where(
+			char *tax_form_string,
+			char *tax_form_line_string );
+
+double tax_form_line_total(
+			LIST *tax_form_line_account_list );
+
+/* TAX_FORM_LINE_ACCOUNT */
+/* --------------------- */
 TAX_FORM_LINE_ACCOUNT *tax_form_line_account_new(
-					char *account_name );
-	
-LIST *tax_form_fetch_line_list(		char *application_name,
-					char *tax_form,
-					int tax_year );
+			char *tax_form_string,
+			char *tax_form_line,
+			char *account_name );
 
-LIST *tax_fetch_account_list(		char *application_name,
-					char *tax_form_line );
+char *tax_form_line_account_system_string(
+			char *where );
 
-LIST *tax_fetch_account_transaction_list(
-					char *begin_date_string,
-					char *end_date_string,
-					char *account_name );
+LIST *tax_form_line_account_list(
+			char *tax_form_string,
+			char *tax_form_line_string,
+			int tax_year,
+			boolean fetch_journa_list );
 
-/* ------------------------------------ */
-/* Returns process.tax_form_line_list. 	*/
-/* tax_form_account_total is set.	*/
-/* tax_form_line_total is set.		*/
-/* ------------------------------------ */
-LIST *tax_process_set_totals(		LIST *input_tax_form_line_list,
-					int tax_year );
+double tax_form_line_account_total(
+			LIST *journal_list,
+			boolean accumulate_debit,
+			double current_liability );
 
-TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
-					LIST *tax_form_line_list,
-					char *account_name );
+#ifdef NOT_DEFINED
+/* TAX_RENTAL_PROPERTY */
+/* ------------------- */
+LIST *tax_rental_property_list_fetch(
+			int tax_year );
 
-LIST *tax_fetch_rental_property_list(	char *application_name,
-					char *end_date_string,
-					int tax_year );
+/* TAX_FORM_LINE_RENTAL */
+/* -------------------- */
+TAX_RENTAL_PROPERTY *tax_input_rental_property_new(
+			char *property_street_address );
 
-LIST *tax_get_tax_form_line_rental_list(
-					LIST *tax_form_line_list,
-					LIST *rental_property_list );
+LIST *tax_form_line_rental_list(
+			LIST *tax_form_line_list,
+			LIST *rental_property_list );
 
-LIST *tax_form_line_rental_get_empty_property_list(
-					LIST *rental_property_list );
+LIST *tax_form_line_rental_empty_property_list(
+			LIST *rental_property_list );
 
 TAX_FORM_LINE_RENTAL *tax_form_line_rental_new(
-					char *tax_form_line,
-					char *tax_form_description,
-					LIST *tax_form_line_account_list );
+			char *tax_form_line,
+			char *tax_form_description,
+			LIST *tax_form_line_account_list );
 
-TAX_INPUT_RENTAL_PROPERTY *tax_input_rental_property_new(
-					char *input_buffer );
+void tax_form_line_address_rental_list_set(
+			LIST *rental_property_list,
+			double debit_amount,
+			double credit_amount,
+			char *property_street_address,
+			boolean accumulate_debit );
 
-TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property_new(
-					char *property_street_address );
-
-void tax_form_line_address_rental_property_list_set(
-				LIST *rental_property_list,
-				double debit_amount,
-				double credit_amount,
-				char *property_street_address,
-				boolean accumulate_debit );
-
-void tax_form_line_distribute_rental_property_list_set(
-				LIST *rental_property_list,
-				double debit_amount,
-				double credit_amount,
-				boolean accumulate_debit,
-				double denominator );
+void tax_form_line_distribute_rental_list_set(
+			LIST *rental_property_list,
+			double debit_amount,
+			double credit_amount,
+			boolean accumulate_debit,
+			double denominator );
 
 void tax_line_rental_list_accumulate_line_total(
-				LIST *tax_form_line_rental_list,
-				LIST *tax_input_rental_property_list );
+			LIST *tax_form_line_rental_list,
+			LIST *tax_input_rental_property_list );
 
-void tax_rental_property_list_accumulate_line_total(
-				LIST *rental_property_list,
-				LIST *tax_form_line_account_list );
+void tax_rental_list_accumulate_line_total(
+			LIST *rental_property_list,
+			LIST *tax_form_line_account_list );
 
 void tax_rental_journal_list_accumulate_line_total(
-				LIST *rental_property_list,
-				LIST *journal_list,
-				boolean accumulate_debit );
+			LIST *rental_property_list,
+			LIST *journal_list,
+			boolean accumulate_debit );
 
 double tax_fetch_recovery_amount(
-				char *application_name,
-				char *folder_name,
-				int tax_year );
+			char *folder_name,
+			int tax_year );
 
 void tax_form_line_set_depreciation(
-				LIST *tax_form_line_list,
-				double total_recovery_amount );
+			LIST *tax_form_line_list,
+			double total_recovery_amount );
 
-TAX_INPUT_RENTAL_PROPERTY *tax_rental_property_seek(
-				LIST *tax_input_rental_property_list,
-				char *property_street_address );
+TAX_RENTAL_PROPERTY *tax_rental_property_seek(
+			LIST *tax_rental_property_list,
+			char *property_street_address );
 
-LIST *tax_fetch_property_street_address_list(
-				char *application_name,
-				char *begin_date_string,
-				char *end_date_string );
+LIST *tax_rental_street_address_list(
+			char *application_name,
+			char *begin_date_string,
+			char *end_date_string );
 
 void tax_rental_property_list_accumulate_depreciation(
 				LIST *tax_output_rental_property_list,
@@ -247,5 +295,6 @@ double tax_form_line_account_get_total(
 
 double tax_form_line_get_total(	LIST *tax_form_line_account_list,
 				int tax_year );
+#endif
 
 #endif

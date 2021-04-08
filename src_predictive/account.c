@@ -319,7 +319,7 @@ ACCOUNT *account_fetch(	char *account_name )
 
 	return	account_parse(
 			pipe2string(
-				account_sys_string(
+				account_system_string(
 		 			/* -------------------------- */
 		 			/* Safely returns heap memory */
 		 			/* -------------------------- */
@@ -856,7 +856,7 @@ ACCOUNT *account_key_fetch( char *account_key )
 
 	return account_parse(
 			pipe2string(
-				account_sys_string(
+				account_system_string(
 					where ) ) );
 }
 
@@ -875,16 +875,16 @@ LIST *account_list_fetch( char *where )
 		 "account" );
 */
 
-	sys_string = account_sys_string( where );
+	sys_string = account_system_string( where );
 
 	return account_system_list( sys_string );
 }
 
-char *account_sys_string( char *where )
+char *account_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '%s' %s \"%s\" select",
 		 /* ---------------------- */
 		 /* Returns program memory */
@@ -893,7 +893,7 @@ char *account_sys_string( char *where )
 		 ACCOUNT_TABLE_NAME,
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 LIST *account_system_list( char *sys_string )
