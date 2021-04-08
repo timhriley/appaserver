@@ -656,7 +656,7 @@ void element_hidden_output(
 				char *data,
 				int row );
 
-ELEMENT_APPASERVER *element_get_text_item_variant_element(
+ELEMENT_APPASERVER *element_text_item_variant_element(
 				char *attribute_name,
 				char *datatype,
 				int width,

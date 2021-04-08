@@ -1557,7 +1557,8 @@ LIST *output_prompt_insert_attribute_element_list(
 	else
 		sprintf( element_name, "%s", attribute->attribute_name );
 
-	element = element_appaserver_new(
+	element =
+		element_appaserver_new(
 			prompt,
 			strdup( element_name ) );
 
@@ -1653,14 +1654,8 @@ LIST *output_prompt_insert_attribute_element_list(
 					0 /* not place_first */ );
 		}
 
-		if ( strcmp( attribute->datatype, "current_date_time" ) == 0
-		&&   width == 19 )
-		{
-			width = 10;
-		}
-
 		element =
-			element_get_text_item_variant_element(
+			element_text_item_variant_element(
 				attribute->attribute_name,
 				attribute->datatype,
 				width,
@@ -1696,15 +1691,16 @@ LIST *output_prompt_insert_attribute_element_list(
 		 QUERY_RELATION_OPERATOR_STARTING_LABEL,
 		 attribute->attribute_name );
 
-	element = element_appaserver_new(
+	element =
+		element_appaserver_new(
 			hidden,
 			strdup( element_name ) );
 
-	element_hidden_set_data(	element->hidden,
-					EQUAL_OPERATOR );
-	list_append_pointer(
-			return_list, 
-			element );
+	element_hidden_set_data(
+		element->hidden,
+			EQUAL_OPERATOR );
+
+	list_set( return_list, element );
 
 	return return_list;
 }

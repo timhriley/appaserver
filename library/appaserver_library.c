@@ -2592,7 +2592,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 			ELEMENT_APPASERVER *temp_element;
 
 			temp_element =
-				element_get_text_item_variant_element(
+				element_text_item_variant_element(
 					attribute_name,
 					element_get_type_string( text_item ),
 					width,
