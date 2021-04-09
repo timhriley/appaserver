@@ -58,7 +58,8 @@ void tax_form_report_account_detail(
 			LIST *tax_form_line_list );
 
 void tax_form_report_journal_detail(
-			LIST *tax_form_line_list );
+			LIST *tax_form_line_list,
+			boolean liability_accounts_only );
 
 void tax_form_detail_report_html_table(
 			LIST *tax_form_line_list );
@@ -197,7 +198,8 @@ int main( int argc, char **argv )
 			tax->tax_form->tax_form_line_list );
 
 		tax_form_report_journal_detail(
-			tax->tax_form->tax_form_line_list );
+			tax->tax_form->tax_form_line_list,
+			0 /* not liability_accounts_only */ );
 	}
 	else
 	if ( strcmp( output_medium, "table" ) == 0 )
@@ -210,6 +212,10 @@ int main( int argc, char **argv )
 
 		tax_form_detail_report_html_table(
 			tax->tax_form->tax_form_line_list );
+
+		tax_form_report_journal_detail(
+			tax->tax_form->tax_form_line_list,
+			1 /* liability_accounts_only */ );
 	}
 	else
 	{
@@ -238,7 +244,7 @@ void tax_form_detail_report_html_table(
 	TAX_FORM_LINE *tax_form_line;
 	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
 	char buffer[ 128 ];
-	char sub_title[ 128 ];
+	char sub_sub_title[ 128 ];
 	int count;
 
 	heading_list = list_new();
@@ -255,7 +261,7 @@ void tax_form_detail_report_html_table(
 		if ( !list_rewind( tax_form_line->tax_form_line_account_list ) )
 			continue;
 
-		sprintf( sub_title,
+		sprintf( sub_sub_title,
 			 "Line: %s, Description: %s, Total: $%s",
 			 tax_form_line->tax_form_line_string,
 			 tax_form_line->tax_form_description,
@@ -265,16 +271,17 @@ void tax_form_detail_report_html_table(
 		html_table =
 			html_table_new(
 				(char *)0 /* title */,
-				sub_title,
-				(char *)0 /* sub_sub_title */ );
+				(char *)0 /* sub_title */,
+				sub_sub_title );
 
 		html_table->number_left_justified_columns = 1;
 		html_table->number_right_justified_columns = 1;
 		html_table_set_heading_list( html_table, heading_list );
 
-		html_table_output_table_heading(
-					html_table->title,
-					html_table->sub_title );
+		html_table_heading(
+			html_table->title,
+			html_table->sub_title,
+			html_table->sub_sub_title );
 
 		html_table_output_data_heading(
 			html_table->heading_list,
@@ -898,7 +905,9 @@ void tax_form_report_account_detail( LIST *tax_form_line_list )
 	html_table_close();
 }
 
-void tax_form_report_journal_detail( LIST *tax_form_line_list )
+void tax_form_report_journal_detail(
+			LIST *tax_form_line_list,
+			boolean liability_accounts_only )
 {
 	HTML_TABLE *html_table = {0};
 	LIST *heading_list;
@@ -932,6 +941,12 @@ void tax_form_report_journal_detail( LIST *tax_form_line_list )
 			tax_form_line_account =
 				list_get(
 				   tax_form_line->tax_form_line_account_list );
+
+			if ( liability_accounts_only
+			&&   !tax_form_line_account->current_liability )
+			{
+				continue;
+			}
 
 			if ( timlib_double_virtually_same(
 				tax_form_line_account->

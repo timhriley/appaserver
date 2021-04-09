@@ -71,17 +71,6 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			char *credit_account,
 			double accrued_daily_amount );
 
-/*
-TRANSACTION *post_reoccurring_get_recent_transaction(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *debit_account,
-			char *credit_account,
-			double transaction_amount,
-			char *memo );
-*/
-
 char *post_reoccurring_transaction(
 			char *full_name,
 			char *street_address,
