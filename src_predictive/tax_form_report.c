@@ -37,10 +37,16 @@
 
 /* Prototypes */
 /* ---------- */
-LIST *build_detail_PDF_row_list(
+LIST *tax_report_journal_PDF_row_list(
+			LIST *journal_list );
+
+LIST *tax_report_account_PDF_row_list(
 			TAX_FORM_LINE *tax_form_line );
 
-LIST *tax_form_report_detail_PDF_table_list(
+LIST *tax_form_report_account_PDF_table_list(
+			LIST *tax_form_line_list );
+
+LIST *tax_form_report_journal_PDF_table_list(
 			LIST *tax_form_line_list );
 
 LATEX_TABLE *tax_form_report_PDF_table(
@@ -64,13 +70,16 @@ void tax_form_report_journal_detail(
 void tax_form_detail_report_html_table(
 			LIST *tax_form_line_list );
 
-LIST *build_PDF_row_list(
+LIST *tax_form_PDF_row_list(
 			LIST *tax_form_line_list );
 
-LIST *build_detail_PDF_heading_list(
+LIST *tax_report_account_PDF_heading_list(
 			void );
 
-LIST *build_PDF_heading_list(
+LIST *tax_report_journal_PDF_heading_list(
+			void );
+
+LIST *tax_report_PDF_heading_list(
 			void );
 
 void tax_form_report_PDF(
@@ -81,7 +90,8 @@ void tax_form_report_PDF(
 			char *process_name,
 			char *tax_form_string,
 			LIST *tax_form_line_list,
-			char *logo_filename );
+			char *logo_filename,
+			char *output_medium );
 
 int main( int argc, char **argv )
 {
@@ -227,7 +237,8 @@ int main( int argc, char **argv )
 			process_name,
 			tax->tax_form_string,
 			tax->tax_form->tax_form_line_list,
-			logo_filename );
+			logo_filename,
+			output_medium );
 	}
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
@@ -445,7 +456,6 @@ void tax_form_report_html_table(
 	} while( list_next( tax_form_line_list ) );
 
 	html_table_close();
-
 }
 
 void tax_form_report_PDF(
@@ -456,7 +466,8 @@ void tax_form_report_PDF(
 			char *process_name,
 			char *tax_form,
 			LIST *tax_form_line_list,
-			char *logo_filename )
+			char *logo_filename,
+			char *output_medium )
 {
 	LATEX *latex;
 	char *latex_filename;
@@ -496,13 +507,13 @@ void tax_form_report_PDF(
 
 	dvi_filename =
 		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
+			(char *)0 /* application_name */,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension ) );
 
 	working_directory =
 		appaserver_link_source_directory(
@@ -512,7 +523,8 @@ void tax_form_report_PDF(
 	printf( "<h1>%s</h1>\n", title );
 	printf( "<h2>%s</h2>\n", sub_title );
 
-	latex = latex_new_latex(
+	latex =
+		latex_new_latex(
 			latex_filename,
 			dvi_filename,
 			working_directory,
@@ -528,8 +540,16 @@ void tax_form_report_PDF(
 
 	list_append_list(
 		latex->table_list,
-		tax_form_report_detail_PDF_table_list(
+		tax_form_report_account_PDF_table_list(
 			tax_form_line_list ) );
+
+	if ( strcmp( output_medium, "PDF" ) == 0 )
+	{
+		list_append_list(
+			latex->table_list,
+			tax_form_report_journal_PDF_table_list(
+				tax_form_line_list ) );
+	}
 
 	latex_longtable_output(
 		latex->output_stream,
@@ -571,10 +591,9 @@ void tax_form_report_PDF(
 		PROMPT,
 		process_name /* target */,
 		(char *)0 /* mime_type */ );
-
 }
 
-LIST *build_PDF_row_list( LIST *tax_form_line_list )
+LIST *tax_form_PDF_row_list( LIST *tax_form_line_list )
 {
 	LATEX_ROW *latex_row;
 	LIST *row_list;
@@ -623,10 +642,9 @@ LIST *build_PDF_row_list( LIST *tax_form_line_list )
 	} while( list_next( tax_form_line_list ) );
 
 	return row_list;
-
 }
 
-LIST *build_detail_PDF_heading_list( void )
+LIST *tax_report_account_PDF_heading_list( void )
 {
 	LATEX_TABLE_HEADING *table_heading;
 	LIST *heading_list;
@@ -647,7 +665,38 @@ LIST *build_detail_PDF_heading_list( void )
 
 }
 
-LIST *build_PDF_heading_list( void )
+LIST *tax_report_journal_PDF_heading_list( void )
+{
+	LATEX_TABLE_HEADING *table_heading;
+	LIST *heading_list;
+
+	heading_list = list_new();
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "account";
+	table_heading->right_justified_flag = 0;
+	list_append_pointer( heading_list, table_heading );
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "transaction_date_time";
+	table_heading->right_justified_flag = 0;
+	list_append_pointer( heading_list, table_heading );
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "full_name";
+	table_heading->right_justified_flag = 0;
+	list_append_pointer( heading_list, table_heading );
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "balance";
+	table_heading->right_justified_flag = 1;
+	list_append_pointer( heading_list, table_heading );
+
+	return heading_list;
+
+}
+
+LIST *tax_report_PDF_heading_list( void )
 {
 	LATEX_TABLE_HEADING *table_heading;
 	LIST *heading_list;
@@ -687,17 +736,17 @@ LATEX_TABLE *tax_form_report_PDF_table(
 		latex_new_latex_table(
 			strdup( caption ) );
 
-	latex_table->heading_list = build_PDF_heading_list();
+	latex_table->heading_list =
+		tax_report_PDF_heading_list();
 
 	latex_table->row_list =
-		build_PDF_row_list(
+		tax_form_PDF_row_list(
 			tax_form_line_list );
 
 	return latex_table;
-
 }
 
-LIST *tax_form_report_detail_PDF_table_list(
+LIST *tax_form_report_account_PDF_table_list(
 			LIST *tax_form_line_list )
 {
 	LATEX_TABLE *latex_table;
@@ -728,10 +777,11 @@ LIST *tax_form_report_detail_PDF_table_list(
 			latex_new_latex_table(
 				strdup( sub_title ) /* caption */ );
 
-		latex_table->heading_list = build_detail_PDF_heading_list();
+		latex_table->heading_list =
+			tax_report_account_PDF_heading_list();
 
 		latex_table->row_list =
-			build_detail_PDF_row_list(
+			tax_report_account_PDF_row_list(
 				tax_form_line );
 
 		list_append_pointer( table_list, latex_table );
@@ -739,10 +789,9 @@ LIST *tax_form_report_detail_PDF_table_list(
 	} while( list_next( tax_form_line_list ) );
 
 	return table_list;
-
 }
 
-LIST *build_detail_PDF_row_list( TAX_FORM_LINE *tax_form_line )
+LIST *tax_report_account_PDF_row_list( TAX_FORM_LINE *tax_form_line )
 {
 	LIST *row_list;
 	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
@@ -1070,5 +1119,123 @@ void tax_form_report_journal_detail(
 					tax_form_line_account_list ) );
 
 	} while( list_next( tax_form_line_list ) );
+}
+
+LIST *tax_form_report_journal_PDF_table_list(
+			LIST *tax_form_line_list )
+{
+	LATEX_TABLE *latex_table;
+	TAX_FORM_LINE *tax_form_line;
+	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
+	LIST *table_list;
+	char sub_title[ 128 ];
+
+	if ( !list_rewind( tax_form_line_list ) ) return (LIST *)0;
+
+	table_list = list_new();
+
+	do {
+		tax_form_line = list_get( tax_form_line_list );
+
+		if ( !tax_form_line->itemize_accounts ) continue;
+
+		if ( !list_rewind( tax_form_line->tax_form_line_account_list ) )
+			continue;
+
+		do {
+			tax_form_line_account =
+				list_get(
+					tax_form_line->
+						tax_form_line_account_list );
+
+			if ( timlib_double_virtually_same(
+				tax_form_line_account->
+					tax_form_line_account_total,
+				0.0 ) )
+			{
+				continue;
+			}
+
+			sprintf(sub_title,
+			 	"Account: %s, Total: \\$%s",
+			 	tax_form_line_account->account_name,
+			 	timlib_dollar_string(
+			 		tax_form_line_account->
+						tax_form_line_account_total ) );
+
+			latex_table =
+				latex_new_latex_table(
+					strdup( sub_title ) /* caption */ );
+
+			latex_table->heading_list =
+				tax_report_journal_PDF_heading_list();
+
+			latex_table->row_list =
+				tax_report_journal_PDF_row_list(
+					tax_form_line_account->journal_list );
+
+			list_append_pointer( table_list, latex_table );
+
+		} while ( list_next( tax_form_line->
+					tax_form_line_account_list ) );
+
+	} while( list_next( tax_form_line_list ) );
+
+	return table_list;
+}
+
+LIST *tax_report_journal_PDF_row_list(
+			LIST *journal_list )
+{
+	LIST *row_list;
+	JOURNAL *journal;
+	char buffer[ 128 ];
+	LATEX_ROW *latex_row;
+
+	if ( !list_rewind( journal_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		journal = list_get( journal_list );
+
+		if ( timlib_double_virtually_same(
+			journal->journal_amount,
+			0.0 ) )
+		{
+			continue;
+		}
+
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+		format_initial_capital(
+			buffer,
+			journal->account_name );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			journal->transaction_date_time,
+			0 /* not large_bold */ );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			journal->full_name,
+			0 /* not large_bold */ );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( timlib_dollar_string(
+					journal->journal_amount ) ),
+			0 /* not large_bold */ );
+
+	} while( list_next( journal_list ) );
+
+	return row_list;
 }
 
