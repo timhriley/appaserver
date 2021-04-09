@@ -290,7 +290,6 @@ boolean close_nominal_accounts_fund_execute(
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^' 	|"
-"tee -a /var/log/appaserver/appaserver_appahost.err |"
 		 "sql							 ",
 		 JOURNAL_TABLE,
 		 field_list );
@@ -461,14 +460,6 @@ boolean close_nominal_accounts_fund_execute(
 
 	pclose( output_pipe );
 
-	element_list_propagate(
-		list,
-		transaction_date_time_string );
-
-	account_propagate(
-		closing_entry_account,
-		transaction_date_time_string );
-
 	transaction_insert(
 		transaction->full_name,
 		transaction->street_address,
@@ -479,6 +470,16 @@ boolean close_nominal_accounts_fund_execute(
 		0 /* check_number */,
 		0 /* not lock_transaction */,
 		0 /* not replace */ );
+
+	element_list_propagate(
+		list,
+		transaction_date_time_string );
+
+/*
+	account_propagate(
+		closing_entry_account,
+		transaction_date_time_string );
+*/
 
 	return 1;
 }

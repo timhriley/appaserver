@@ -988,13 +988,10 @@ void element_list_propagate(
 						subclassification->
 							account_list );
 
-				if ( account->latest_journal
-				&&   account->latest_journal->balance )
-				{
-					account_propagate(
-						account->account_name,
-						transaction_date_time_string );
-				}
+				account_propagate(
+					account->account_name,
+					transaction_date_time_string );
+
 			} while( list_next( subclassification->account_list ) );
 		} while( list_next( element->subclassification_list ) );
 	} while( list_next( element_list ) );

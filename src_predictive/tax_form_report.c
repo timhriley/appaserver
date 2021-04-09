@@ -90,8 +90,7 @@ void tax_form_report_PDF(
 			char *process_name,
 			char *tax_form_string,
 			LIST *tax_form_line_list,
-			char *logo_filename,
-			char *output_medium );
+			char *logo_filename );
 
 int main( int argc, char **argv )
 {
@@ -237,8 +236,7 @@ int main( int argc, char **argv )
 			process_name,
 			tax->tax_form_string,
 			tax->tax_form->tax_form_line_list,
-			logo_filename,
-			output_medium );
+			logo_filename );
 	}
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
@@ -466,8 +464,7 @@ void tax_form_report_PDF(
 			char *process_name,
 			char *tax_form,
 			LIST *tax_form_line_list,
-			char *logo_filename,
-			char *output_medium )
+			char *logo_filename )
 {
 	LATEX *latex;
 	char *latex_filename;
@@ -543,13 +540,10 @@ void tax_form_report_PDF(
 		tax_form_report_account_PDF_table_list(
 			tax_form_line_list ) );
 
-	if ( strcmp( output_medium, "PDF" ) == 0 )
-	{
-		list_append_list(
-			latex->table_list,
-			tax_form_report_journal_PDF_table_list(
-				tax_form_line_list ) );
-	}
+	list_append_list(
+		latex->table_list,
+		tax_form_report_journal_PDF_table_list(
+			tax_form_line_list ) );
 
 	latex_longtable_output(
 		latex->output_stream,
@@ -673,11 +667,6 @@ LIST *tax_report_journal_PDF_heading_list( void )
 	heading_list = list_new();
 
 	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "account";
-	table_heading->right_justified_flag = 0;
-	list_append_pointer( heading_list, table_heading );
-
-	table_heading = latex_new_latex_table_heading();
 	table_heading->heading = "transaction_date_time";
 	table_heading->right_justified_flag = 0;
 	list_append_pointer( heading_list, table_heading );
@@ -688,7 +677,12 @@ LIST *tax_report_journal_PDF_heading_list( void )
 	list_append_pointer( heading_list, table_heading );
 
 	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "balance";
+	table_heading->heading = "memo";
+	table_heading->right_justified_flag = 0;
+	list_append_pointer( heading_list, table_heading );
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "amount";
 	table_heading->right_justified_flag = 1;
 	list_append_pointer( heading_list, table_heading );
 
@@ -1129,6 +1123,7 @@ LIST *tax_form_report_journal_PDF_table_list(
 	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
 	LIST *table_list;
 	char sub_title[ 128 ];
+	char buffer[ 128 ];
 
 	if ( !list_rewind( tax_form_line_list ) ) return (LIST *)0;
 
@@ -1158,7 +1153,9 @@ LIST *tax_form_report_journal_PDF_table_list(
 
 			sprintf(sub_title,
 			 	"Account: %s, Total: \\$%s",
-			 	tax_form_line_account->account_name,
+				format_initial_capital(
+					buffer,
+			 		tax_form_line_account->account_name ),
 			 	timlib_dollar_string(
 			 		tax_form_line_account->
 						tax_form_line_account_total ) );
@@ -1189,7 +1186,6 @@ LIST *tax_report_journal_PDF_row_list(
 {
 	LIST *row_list;
 	JOURNAL *journal;
-	char buffer[ 128 ];
 	LATEX_ROW *latex_row;
 
 	if ( !list_rewind( journal_list ) ) return (LIST *)0;
@@ -1209,15 +1205,6 @@ LIST *tax_report_journal_PDF_row_list(
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
-		format_initial_capital(
-			buffer,
-			journal->account_name );
-
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			strdup( buffer ),
-			0 /* not large_bold */ );
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			journal->transaction_date_time,
@@ -1226,6 +1213,11 @@ LIST *tax_report_journal_PDF_row_list(
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			journal->full_name,
+			0 /* not large_bold */ );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			journal->memo,
 			0 /* not large_bold */ );
 
 		latex_append_column_data_list(
