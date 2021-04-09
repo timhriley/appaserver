@@ -193,6 +193,9 @@ char *tax_form_line_primary_where(
 void tax_form_line_list_steady_state(
 			LIST *tax_form_line_list );
 
+void tax_form_line_account_list_steady_state(
+			LIST *tax_form_line_account_list );
+
 double tax_form_line_total(
 			LIST *tax_form_line_account_list );
 

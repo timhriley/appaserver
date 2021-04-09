@@ -296,6 +296,9 @@ void tax_form_line_list_steady_state(
 	do {
 		tax_form_line = list_get( tax_form_line_list );
 
+		tax_form_line_account_list_steady_state(
+			tax_form_line->tax_form_line_account_list );
+
 		tax_form_line->tax_form_line_total =
 			tax_form_line_total(
 				tax_form_line->

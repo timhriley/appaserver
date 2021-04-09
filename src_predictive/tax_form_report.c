@@ -65,7 +65,7 @@ void tax_form_report_account_detail(
 
 void tax_form_report_journal_detail(
 			LIST *tax_form_line_list,
-			boolean liability_accounts_only );
+			boolean liability_receivable_accounts_only );
 
 void tax_form_detail_report_html_table(
 			LIST *tax_form_line_list );
@@ -171,8 +171,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	tax_form_line_list_steady_state( tax->tax_form->tax_form_line_list );
-
 	sprintf(end_date_string,
 		"%d-12-31",
 		tax->tax_year );
@@ -192,6 +190,8 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	tax_form_line_list_steady_state( tax->tax_form->tax_form_line_list );
+
 	if ( strcmp( output_medium, "detail" ) == 0 )
 	{
 		tax_form_report_html_table(
@@ -208,7 +208,7 @@ int main( int argc, char **argv )
 
 		tax_form_report_journal_detail(
 			tax->tax_form->tax_form_line_list,
-			0 /* not liability_accounts_only */ );
+			0 /* not liability_receivable_accounts_only */ );
 	}
 	else
 	if ( strcmp( output_medium, "table" ) == 0 )
@@ -224,7 +224,7 @@ int main( int argc, char **argv )
 
 		tax_form_report_journal_detail(
 			tax->tax_form->tax_form_line_list,
-			1 /* liability_accounts_only */ );
+			1 /* liability_receivable_accounts_only */ );
 	}
 	else
 	{
@@ -950,7 +950,7 @@ void tax_form_report_account_detail( LIST *tax_form_line_list )
 
 void tax_form_report_journal_detail(
 			LIST *tax_form_line_list,
-			boolean liability_accounts_only )
+			boolean liability_receivable_accounts_only )
 {
 	HTML_TABLE *html_table = {0};
 	LIST *heading_list;
@@ -985,8 +985,9 @@ void tax_form_report_journal_detail(
 				list_get(
 				   tax_form_line->tax_form_line_account_list );
 
-			if ( liability_accounts_only
-			&&   !tax_form_line_account->current_liability )
+			if ( liability_receivable_accounts_only
+			&&   !tax_form_line_account->current_liability
+			&&   !tax_form_line_account->receivable )
 			{
 				continue;
 			}
@@ -1009,7 +1010,7 @@ void tax_form_report_journal_detail(
 			/* New html table */
 			/* -------------- */
 			sprintf(journal_buffer,
-				"Account %s: $%s",
+				"%s: $%s",
 				tax_form_line_account->account_name,
 				timlib_dollar_string(
 				    tax_form_line_account->
@@ -1152,7 +1153,7 @@ LIST *tax_form_report_journal_PDF_table_list(
 			}
 
 			sprintf(sub_title,
-			 	"Account: %s, Total: \\$%s",
+			 	"%s, Total: \\$%s",
 				format_initial_capital(
 					buffer,
 			 		tax_form_line_account->account_name ),
