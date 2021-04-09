@@ -69,6 +69,7 @@ typedef struct
 	/* ------- */
 	ACCOUNT *account;
 	boolean current_liability;
+	boolean receivable;
 
 	LIST *journal_list;
 	double tax_form_line_account_total;
@@ -222,6 +223,7 @@ TAX_FORM_LINE_ACCOUNT *tax_form_line_account_parse(
 double tax_form_line_account_total(
 			LIST *journal_list,
 			boolean accumulate_debit,
-			double current_liability );
+			boolean current_liability,
+			boolean receivable );
 
 #endif

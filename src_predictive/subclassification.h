@@ -22,6 +22,7 @@
 #define SUBCLASSIFICATION_RETAINED_EARNINGS	"retained_earnings"
 #define SUBCLASSIFICATION_DRAWING		"drawing"
 #define SUBCLASSIFICATION_CURRENT_LIABILITY	"current_liability"
+#define SUBCLASSIFICATION_RECEIVABLE		"receivabl"
 
 #define SUBCLASSIFICATION_NOTANUMBER	"NAN"
 
@@ -150,6 +151,9 @@ SUBCLASSIFICATION *subclassification_seek(
 			LIST *subclassification_list );
 
 boolean subclassification_current_liability(
+			char *subclassification_name );
+
+boolean subclassification_receivable(
 			char *subclassification_name );
 
 #endif

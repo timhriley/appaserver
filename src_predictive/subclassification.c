@@ -1910,3 +1910,11 @@ boolean subclassification_current_liability(
 			SUBCLASSIFICATION_CURRENT_LIABILITY ) == 0 );
 }
 
+boolean subclassification_receivable(
+			char *subclassification_name )
+{
+	return ( strcmp(
+			subclassification_name,
+			SUBCLASSIFICATION_RECEIVABLE ) == 0 );
+}
+

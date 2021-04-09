@@ -315,21 +315,6 @@ double tax_form_line_total(
 	do {
 		tax_form_line_account = list_get( tax_form_line_account_list );
 
-		tax_form_line_account->current_liability =
-			subclassification_current_liability(
-				tax_form_line_account->
-					account->
-					subclassification_name );
-
-		tax_form_line_account->tax_form_line_account_total =
-			tax_form_line_account_total(
-				tax_form_line_account->journal_list,
-				tax_form_line_account->
-					account->
-					accumulate_debit,
-				tax_form_line_account->
-					current_liability );
-
 		total += tax_form_line_account->tax_form_line_account_total;
 
 	} while ( list_next( tax_form_line_account_list ) );
@@ -340,7 +325,8 @@ double tax_form_line_total(
 double tax_form_line_account_total(
 			LIST *journal_list,
 			boolean accumulate_debit,
-			double current_liability )
+			boolean current_liability,
+			boolean receivable )
 {
 	JOURNAL *journal;
 	double total;
@@ -359,6 +345,13 @@ double tax_form_line_account_total(
 					journal->debit_amount);
 		}
 		else
+		if ( receivable )
+		{
+			total +=
+				(journal->journal_amount =
+					journal->credit_amount);
+		}
+		else
 		{
 			total +=
 				(journal->journal_amount =
@@ -367,7 +360,6 @@ double tax_form_line_account_total(
 						journal->credit_amount,
 						accumulate_debit ) );
 		}
-
 
 	} while( list_next( journal_list ) );
 
@@ -395,6 +387,12 @@ void tax_form_line_account_list_steady_state(
 					account->
 					subclassification_name );
 
+		tax_form_line_account->receivable =
+			subclassification_receivable(
+				tax_form_line_account->
+					account->
+					subclassification_name );
+
 		tax_form_line_account->tax_form_line_account_total =
 			tax_form_line_account_total(
 				tax_form_line_account->journal_list,
@@ -402,7 +400,9 @@ void tax_form_line_account_list_steady_state(
 					account->
 					accumulate_debit,
 				tax_form_line_account->
-					current_liability );
+					current_liability,
+				tax_form_line_account->
+					receivable );
 
 	} while ( list_next( tax_form_line_account_list ) );
 }
