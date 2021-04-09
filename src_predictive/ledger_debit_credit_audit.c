@@ -63,8 +63,6 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
-	if ( system( "ledger_propagate ''" ) ){};
-
 	ledger_debit_credit_audit( argv[ 1 ] );
 
 	return 0;
