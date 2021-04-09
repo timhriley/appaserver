@@ -114,7 +114,72 @@ JOURNAL *journal_account_fetch(
 		 JOURNAL_TABLE,
 		 where );
 
-	return journal_parse( pipe2string( sys_string ) );
+	return journal_parse(
+			pipe2string( sys_string ),
+			0 /* not fetch_check_number */,
+			0 /* not fetch_memo */ );
+}
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *journal_check_number_select( void )
+{
+	char select[ 512 ];
+
+	sprintf(select,
+		"%s.full_name,"
+		"%s.street_address,"
+		"%s.transaction_date_time,"
+		"%s.account,"
+		"%s.previous_balance,"
+		"%s.debit_amount,"
+		"%s.credit_amount,"
+		"%s.balance,"
+		"%s.transaction_count,"
+		"%s.check_number",
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		TRANSACTION_TABLE );
+
+	return strdup( select );
+}
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *journal_memo_select( void )
+{
+	char select[ 512 ];
+
+	sprintf(select,
+		"%s.full_name,"
+		"%s.street_address,"
+		"%s.transaction_date_time,"
+		"%s.account,"
+		"%s.previous_balance,"
+		"%s.debit_amount,"
+		"%s.credit_amount,"
+		"%s.balance,"
+		"%s.transaction_count,"
+		"%s.memo",
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		JOURNAL_TABLE,
+		TRANSACTION_TABLE );
+
+	return strdup( select );
 }
 
 /* Safely returns heap memory */
@@ -146,7 +211,10 @@ char *journal_select( void )
 	return strdup( select );
 }
 
-JOURNAL *journal_parse( char *input )
+JOURNAL *journal_parse(
+			char *input,
+			boolean fetch_check_number,
+			boolean fetch_memo )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
@@ -157,14 +225,17 @@ JOURNAL *journal_parse( char *input )
 
 	if ( !input ) return (JOURNAL *)0;
 
-	/* See: journal_select() */
-	/* --------------------- */
+	/* See:	journal_select() or			*/
+	/*      journal_check_number_select() or	*/
+	/*	journal_memo_select()			*/
+	/* -------------------------------------------- */
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( transaction_date_time, SQL_DELIMITER, input, 2 );
 	piece( account_name, SQL_DELIMITER, input, 3 );
 
-	journal = journal_new(
+	journal =
+		journal_new(
 			strdup( full_name ),
 			strdup( street_address ),
 			strdup( transaction_date_time ),
@@ -188,9 +259,16 @@ JOURNAL *journal_parse( char *input )
 	journal->transaction_count =
 	journal->transaction_count_database = atoi( piece_buffer );
 
-	if ( piece( piece_buffer, SQL_DELIMITER, input, 9 ) )
+	if ( fetch_check_number )
 	{
+		piece( piece_buffer, SQL_DELIMITER, input, 9 );
 		journal->check_number = atoi( piece_buffer );
+	}
+	else
+	if ( fetch_memo )
+	{
+		piece( piece_buffer, SQL_DELIMITER, input, 9 );
+		journal->memo = strdup( piece_buffer );
 	}
 
 	return journal;
@@ -214,25 +292,33 @@ boolean journal_accumulate_debit( char *account_name )
 	return account->accumulate_debit;
 }
 
-LIST *journal_system_list( char *sys_string )
+LIST *journal_system_list(
+			char *system_string,
+			boolean fetch_check_number,
+			boolean fetch_memo )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
-	LIST *journal_list;
+	LIST *system_list;
 
-	if ( !sys_string ) return (LIST *)0;
+	if ( !system_string ) return (LIST *)0;
 
-	journal_list = list_new();
+	system_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
-		list_set( journal_list, journal_parse( input ) );
+		list_set(
+			system_list,
+			journal_parse(
+				input,
+				fetch_check_number,
+				fetch_memo ) );
 	}
 
 	pclose( input_pipe );
-	return journal_list;
+	return system_list;
 }
 
 FILE *journal_insert_open(
@@ -496,8 +582,12 @@ LIST *journal_list_minimum(
 		account_name_escape( account_name ) );
 
 	return	journal_system_list(
-			journal_sys_string(
-				where ) );
+			journal_system_string(
+				where,
+				0 /* not fetch_check_number */,
+				0 /* not fetch_memo */ ),
+			0 /* not fetch_check_number */,
+			0 /* not fetch_memo */ );
 }
 
 LIST *journal_list_account( char *account_name )
@@ -510,27 +600,80 @@ LIST *journal_list_account( char *account_name )
 			account_name ) );
 
 	return	journal_system_list(
-			journal_sys_string(
-				where ) );
+			journal_system_string(
+				where,
+				0 /* not fetch_check_number */,
+				0 /* not fetch_memo */ ),
+			0 /* not fetch_check_number */,
+			0 /* not fetch_memo */ );
 }
 
-char *journal_sys_string( char *where )
+char *journal_system_string(
+			char *where,
+			boolean fetch_check_number,
+			boolean fetch_memo )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	if ( !where ) return (char *)0;
+	if ( !where ) where = "1 = 1";
 
-	sprintf( sys_string,
-		 "select.sh '%s' %s \"%s\" %s",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 journal_select(),
-		 JOURNAL_TABLE,
-		 where,
-		 "transaction_date_time" );
+	if ( fetch_check_number )
+	{
+		char full_where[ 512 ];
 
-	return strdup( sys_string );
+		sprintf(full_where,
+			"%s and %s",
+			where,
+			transaction_journal_join() );
+
+		sprintf(system_string,
+		 	"select.sh '%s' %s,%s \"%s\" %s.%s",
+		 	/* ---------------------- */
+		 	/* Returns program memory */
+		 	/* ---------------------- */
+		 	journal_check_number_select(),
+		 	JOURNAL_TABLE,
+			TRANSACTION_TABLE,
+		 	full_where,
+		 	JOURNAL_TABLE,
+		 	"transaction_date_time" );
+	}
+	else
+	if ( fetch_memo )
+	{
+		char full_where[ 512 ];
+
+		sprintf(full_where,
+			"%s and %s",
+			where,
+			transaction_journal_join() );
+
+		sprintf(system_string,
+		 	"select.sh '%s' %s,%s \"%s\" %s.%s",
+		 	/* ---------------------- */
+		 	/* Returns program memory */
+		 	/* ---------------------- */
+		 	journal_memo_select(),
+		 	JOURNAL_TABLE,
+			TRANSACTION_TABLE,
+		 	full_where,
+		 	JOURNAL_TABLE,
+		 	"transaction_date_time" );
+	}
+	else
+	{
+		sprintf(system_string,
+		 	"select.sh '%s' %s \"%s\" %s",
+		 	/* ---------------------- */
+		 	/* Returns program memory */
+		 	/* ---------------------- */
+		 	journal_select(),
+		 	JOURNAL_TABLE,
+		 	where,
+		 	"transaction_date_time" );
+	}
+
+	return strdup( system_string );
 }
 
 LIST *journal_ledger_delete(
@@ -913,7 +1056,7 @@ JOURNAL *journal_latest(
 	if ( transaction_exists_closing_entry(
 		as_of_date ) )
 	{
-		latest_transaction_time = TRANSACTION_PRIOR_TRANSACTION_TIME;
+		latest_transaction_time = TRANSACTION_PRECLOSE_TRANSACTION_TIME;
 	}
 	else
 	{
@@ -965,21 +1108,41 @@ JOURNAL *journal_latest(
 			/* transaction_date_time */ );
 }
 
-LIST *journal_year_list(	int year,
-				char *account_name )
+LIST *journal_year_list(
+			int year,
+			char *account_name,
+			boolean fetch_memo )
 {
 	char where[ 512 ];
+	char begin_date[ 32 ];
+	char end_date[ 32 ];
+
+	sprintf(begin_date,
+		"%d-01-01 00:00:00",
+		year );
+
+	sprintf(end_date,
+		"%d-12-31 %s",
+		year,
+		TRANSACTION_PRECLOSE_TRANSACTION_TIME );
 
 	sprintf(where,
-		"account = '%s' and		 "
-		"transaction_date_time like '%d-%c'",
+		"account = '%s' and		 	"
+		"%s.transaction_date_time >= '%s' and	"
+		"%s.transaction_date_time <= '%s'	",
 		account_name_escape( account_name ),
-		year,
-		'%' );
+		JOURNAL_TABLE,
+		begin_date,
+		JOURNAL_TABLE,
+		end_date );
 
 	return	journal_system_list(
-			journal_sys_string(
-				where ) );
+			journal_system_string(
+				where,
+				0 /* not fetch_check_number */,
+				fetch_memo ),
+			0 /* not fetch_check_number */,
+			fetch_memo );
 }
 
 double journal_amount(
@@ -1255,7 +1418,7 @@ JOURNAL *journal_account_latest(
 
 	if ( transaction_exists_closing_entry( as_of_date ) )
 	{
-		latest_transaction_time = TRANSACTION_PRIOR_TRANSACTION_TIME;
+		latest_transaction_time = TRANSACTION_PRECLOSE_TRANSACTION_TIME;
 	}
 	else
 	{
@@ -1323,8 +1486,12 @@ LIST *journal_minimum_account_journal_list(
 	 	account_name_escape( account_name ) );
 
 	return	journal_system_list(
-			journal_sys_string(
-				where ) );
+			journal_system_string(
+				where,
+				0 /* not fetch_check_number */,
+				0 /* not fetch_memo */ ),
+			0 /* not fetch_check_number */,
+			0 /* not fetch_memo */ );
 }
 
 LIST *journal_binary_journal_list(

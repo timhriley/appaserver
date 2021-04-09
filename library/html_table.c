@@ -45,9 +45,10 @@ void html_table_output_table_heading(	char *title,
 	printf( "<table border>\n" );
 }
 
-void html_table_output_table_heading2(	char *title,
-					char *sub_title,
-					char *sub_sub_title )
+void html_table_heading(
+			char *title,
+			char *sub_title,
+			char *sub_sub_title )
 {
 	if ( title && *title )
 		printf( "<h1>%s</h1>\n", title );
@@ -59,6 +60,16 @@ void html_table_output_table_heading2(	char *title,
 		printf( "<h3>%s</h3>\n", sub_sub_title );
 
 	printf( "<table border>\n" );
+}
+
+void html_table_output_table_heading2(	char *title,
+					char *sub_title,
+					char *sub_sub_title )
+{
+	html_table_heading(
+			title,
+			sub_title,
+			sub_sub_title );
 }
 
 void html_table_output_data_heading( 	LIST *heading_list,

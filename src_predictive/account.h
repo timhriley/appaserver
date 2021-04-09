@@ -74,7 +74,8 @@ char *account_name_escape(
 char *account_name_format(
 			char *account_name );
 
-/* Sets account->
+/* Sets account->accumulate_debit */
+/* ------------------------------ */
 ACCOUNT *account_fetch(	char *account_name );
 
 ACCOUNT *account_new(	char *account_name );

@@ -58,11 +58,20 @@ void html_table_set_background_unshaded(HTML_TABLE *d );
 char *html_table_get_alignment(		int column_number,
 					int number_left_justified_columns,
 					int number_right_justified_columns );
-void html_table_output_table_heading(	char *title,
-					char *sub_title );
-void html_table_output_table_heading2(	char *title,
-					char *sub_title,
-					char *sub_sub_title );
+
+void html_table_output_table_heading(
+			char *title,
+			char *sub_title );
+
+void html_table_output_table_heading2(
+			char *title,
+			char *sub_title,
+			char *sub_sub_title );
+
+void html_table_heading(
+			char *title,
+			char *sub_title,
+			char *sub_sub_title );
 
 void html_table_output_data_heading( 	LIST *heading_list,
 					int number_left_justified_columns,

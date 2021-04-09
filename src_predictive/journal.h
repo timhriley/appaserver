@@ -35,6 +35,7 @@ typedef struct
 	char *memo;
 	int check_number;
 	char *property_street_address;
+	double journal_amount;
 } JOURNAL;
 
 /* Operations */
@@ -55,13 +56,28 @@ JOURNAL *journal_account_fetch(
 /* -------------------------- */
 char *journal_select(	void );
 
-JOURNAL	*journal_parse(	char *input );
+/* Safely returns heap memory */
+/* -------------------------- */
+char *journal_check_number_select(
+			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *journal_memo_select(
+			void );
+
+JOURNAL	*journal_parse(
+			char *input,
+			boolean fetch_check_number,
+			boolean fetch_memo );
 
 boolean journal_accumulate_debit(
 			char *account_name );
 
 LIST *journal_system_list(
-			char *sys_string );
+			char *system_string,
+			boolean fetch_check_number,
+			boolean fetch_memo );
 
 FILE *journal_insert_open(
 			boolean replace );
@@ -157,7 +173,8 @@ JOURNAL *journal_latest(
 
 LIST *journal_year_list(
 			int year,
-			char *account_name );
+			char *account_name,
+			boolean fetch_transaction_memo );
 
 double journal_amount(
 			double debit_amount,
@@ -248,8 +265,10 @@ char *journal_display(
 			double credit_amount,
 			double balance );
 
-char *journal_sys_string(
-			char *where );
+char *journal_system_string(
+			char *where,
+			boolean fetch_check_number,
+			boolean fetch_memo );
 
 LIST *journal_list_insert_pipe(
 			FILE *insert_pipe,

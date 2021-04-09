@@ -15,7 +15,6 @@
 #include "latex.h"
 #include "hash_table.h"
 #include "dictionary.h"
-#include "account.h"
 
 /* Constants */
 /* --------- */
@@ -27,12 +26,27 @@
 /* ---------- */
 typedef struct
 {
+	char *tax_form_line;
+	char *tax_form_description;
+	LIST *tax_form_line_account_list;
+	LIST *rental_property_list;
+	double tax_form_line_rental_property_total;
+} TAX_FORM_LINE_RENTAL;
+
+typedef struct
+{
 	double fixed_asset_recovery_amount;
 	double prior_fixed_asset_recovery_amount;
 	double property_recovery_amount;
 	double prior_property_recovery_amount;
 	double total_recovery_amount;
 } TAX_RECOVERY;
+
+typedef struct
+{
+	char *property_street_address;
+	double tax_form_line_total;
+} TAX_OUTPUT_RENTAL_PROPERTY;
 
 typedef struct
 {
@@ -126,9 +140,6 @@ typedef struct
 /* --- */
 TAX *tax_calloc(	void );
 
-TAX *tax_new(		char *tax_form_string,
-			int tax_year );
-
 /* TAX_RECOVERY */
 /* ------------ */
 TAX_RECOVERY *tax_recovery_new(
@@ -138,8 +149,7 @@ TAX_RECOVERY *tax_recovery_new(
 /* TAX_FORM */
 /* -------- */
 TAX_FORM *tax_form_new(
-			char *tax_form_string,
-			int tax_year );
+			char *tax_form_string );
 
 TAX_FORM *tax_form_fetch(
 			char *tax_form_string,
@@ -164,12 +174,6 @@ TAX_FORM_LINE *tax_form_line_new(
 
 LIST *tax_form_line_list(
 			char *tax_form_string,
-			int tax_year,
-			boolean fetch_account_list,
-			boolean fetch_journal_list );
-
-LIST *tax_form_line_system_list(
-			char *system_string,
 			int tax_year,
 			boolean fetch_account_list,
 			boolean fetch_journal_list );
@@ -216,12 +220,14 @@ LIST *tax_form_line_account_list(
 /* ------------------------------ */
 TAX_FORM_LINE_ACCOUNT *tax_form_line_account_parse(
 			char *input,
-			int tax_year,
 			boolean fetch_journal_list );
 
 double tax_form_line_account_total(
 			LIST *journal_list,
 			boolean accumulate_debit,
 			double current_liability );
+
+void tax_form_line_account_list_steady_state(
+			LIST *tax_form_line_account_list );
 
 #endif

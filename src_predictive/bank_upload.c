@@ -988,8 +988,6 @@ LIST *bank_upload_existing_cash_journal_list(
 	char where[ 1024 ];
 	char *join_where;
 	char *subquery_join;
-	char *select;
-	char check_number_select[ 512 ];
 	char folder[ 128 ];
 	char *timriley_where;
 
@@ -1000,12 +998,10 @@ LIST *bank_upload_existing_cash_journal_list(
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
-	select = journal_select();
-	sprintf( check_number_select, "%s,check_number", select );
-
 	sprintf( folder,
-		 "%s,transaction",
-		 JOURNAL_TABLE );
+		 "%s,%s",
+		 JOURNAL_TABLE,
+		 TRANSACTION_TABLE );
 
 	join_where = transaction_journal_join();
 
@@ -1033,12 +1029,15 @@ LIST *bank_upload_existing_cash_journal_list(
 
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 check_number_select,
+		 journal_check_number_select(),
 		 folder,
 		 where,
 		 "transaction_date_time desc" );
 
-	return journal_system_list( sys_string );
+	return journal_system_list(
+			sys_string,
+			1 /* fetch_check_number */,
+			0 /* not fetch_memo */ );
 }
 
 /* ---------------------------------------------------------------------*/

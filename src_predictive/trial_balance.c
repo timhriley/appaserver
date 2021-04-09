@@ -355,7 +355,7 @@ int main( int argc, char **argv )
 			sprintf( prior_transaction_date_time,
 				 "%s %s",
 				 as_of_date,
-				 TRANSACTION_PRIOR_TRANSACTION_TIME );
+				 TRANSACTION_PRECLOSE_TRANSACTION_TIME );
 
 			trial_balance_html_table(
 				application_name,

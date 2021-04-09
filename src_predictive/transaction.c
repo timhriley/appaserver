@@ -226,11 +226,15 @@ TRANSACTION *transaction_parse(
 	{
 		transaction->journal_list =
 			journal_system_list(
-				journal_sys_string(
+				journal_system_string(
 					transaction_primary_where(
 						full_name,
 						street_address,
-						transaction_date_time ) ) );
+						transaction_date_time ),
+					0 /* not fetch_check_number */,
+					0 /* not fetch_memo */ ),
+				0 /* not fetch_check_number */,
+				0 /* not fetch_memo */ );
 	}
 
 	return transaction;
