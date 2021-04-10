@@ -1,6 +1,6 @@
 :
-# src_predictive/ledger_debit_credit_audit.sh
-# -------------------------------------------
+# $APPASERVER_HOME/src_predictive/ledger_debit_credit_audit.sh
+# ------------------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then
