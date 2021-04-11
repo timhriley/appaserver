@@ -24,14 +24,7 @@ typedef struct
 	char *element_name;
 	boolean accumulate_debit;
 
-	/* -------------------------- */
-	/* if !omit_subclassification */
-	/* -------------------------- */
 	LIST *subclassification_list;
-
-	/* ------------------------- */
-	/* if omit_subclassification */
-	/* ------------------------- */
 	LIST *account_list;
 
 	double element_total;
@@ -77,7 +70,8 @@ LIST *element_list_sort(
 LIST *element_list(	LIST *filter_element_name_list,
 			char *fund_name,
 			char *as_of_date,
-			boolean omit_subclassification );
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list );
 
 boolean element_is_period(
 			char *element_name );
@@ -104,7 +98,7 @@ LATEX_ROW *element_latex_net_income_row(
 			double net_income,
 			boolean is_statement_of_activities,
 			double percent_denominator,
-			boolean omit_subclassification );
+			boolean fetch_subclassification_list );
 
 LATEX_ROW *element_latex_liabilities_plus_equity_row(
 			double liabilities_plus_equity,
@@ -129,7 +123,8 @@ LIST *element_system_list(
 			LIST *filter_element_name_list,
 			char *fund_name,
 			char *as_of_date,
-			boolean omit_subclassification );
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list );
 
 boolean element_account_accumulate_debit(
 			char *account_name );

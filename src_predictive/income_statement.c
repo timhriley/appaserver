@@ -364,7 +364,8 @@ void income_statement_net_income_only(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			0 /* not omit_subclassification */ );
+			1 /* fetch_subclassifiction_list */,
+			0 /* not fetch_account_list */ );
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
@@ -479,7 +480,8 @@ void income_statement_subclassification_aggregate_html_table(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			0 /* not omit_subclassification */ );
+			1 /* fetch_subclassifiction_list */,
+			0 /* not fetch_account_list */ );
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
@@ -613,7 +615,8 @@ void income_statement_subclassification_display_html_table(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			0 /* not omit_subclassification */ );
+			1 /* fetch_subclassifiction_list */,
+			0 /* not fetch_account_list */ );
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
@@ -813,7 +816,8 @@ void income_statement_subclassification_aggregate_PDF(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			0 /* not omit_subclassification */ );
+			1 /* fetch_subclassifiction_list */,
+			0 /* not fetch_account_list */ );
 
 	latex_table->row_list =
 		build_subclassification_aggregate_PDF_row_list(
@@ -968,7 +972,8 @@ void income_statement_subclassification_display_PDF(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			0 /* not omit_subclassification */ );
+			1 /* fetch_subclassifiction_list */,
+			0 /* not fetch_account_list */ );
 
 	latex_table->row_list =
 		build_subclassification_display_PDF_row_list(
@@ -1483,7 +1488,8 @@ void income_statement_subclassification_omit_html_table(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			1 /* omit_subclassification */ );
+			0 /* not fetch_subclassifiction_list */,
+			1 /* fetch_account_list */ );
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
@@ -1684,7 +1690,8 @@ void income_statement_subclassification_omit_PDF(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			1 /* omit_subclassification */ );
+			0 /* not fetch_subclassifiction_list */,
+			1 /* fetch_account_list */ );
 
 	latex_table->row_list =
 		build_subclassification_omit_PDF_row_list(

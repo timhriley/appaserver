@@ -221,7 +221,8 @@ LIST *element_system_list(
 			LIST *filter_element_name_list,
 			char *fund_name,
 			char *as_of_date,
-			boolean omit_subclassification )
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list )
 {
 	LIST *element_list;
 	ELEMENT *element;
@@ -256,7 +257,7 @@ LIST *element_system_list(
 
 		element->accumulate_debit = ( *accumulate_debit_yn == 'y' );
 
-		if ( omit_subclassification )
+		if ( fetch_account_list )
 		{
 			element->account_list =
 				element_account_list(
@@ -265,7 +266,8 @@ LIST *element_system_list(
 					fund_name,
 					as_of_date );
 		}
-		else
+
+		if ( fetch_subclassification_list )
 		{
 			element->subclassification_list =
 				element_subclassification_list(
@@ -286,21 +288,22 @@ LIST *element_system_list(
 LIST *element_list(	LIST *filter_element_name_list,
 			char *fund_name,
 			char *as_of_date,
-			boolean omit_subclassification )
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list )
 {
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s;\" | sql",
-		 element_select(),
-		 "element" );
+		 "select.sh \"%s\" element",
+		 element_select() );
 
 	return element_system_list(
 			sys_string,
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			omit_subclassification );
+			fetch_subclassification_list,
+			fetch_account_list );
 }
 
 LIST *element_subclassification_list(
@@ -814,7 +817,7 @@ LATEX_ROW *element_latex_net_income_row(
 			double net_income,
 			boolean is_statement_of_activities,
 			double percent_denominator,
-			boolean omit_subclassification )
+			boolean fetch_subclassification_list )
 {
 	LATEX_ROW *latex_row;
 
@@ -835,7 +838,7 @@ LATEX_ROW *element_latex_net_income_row(
 			1 /* not large_bold */ );
 	}
 
-	if ( !omit_subclassification )
+	if ( fetch_subclassification_list )
 	{
 		latex_append_column_data_list(
 			latex_row->column_data_list,

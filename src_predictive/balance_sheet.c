@@ -399,7 +399,8 @@ void balance_sheet_subclassification_aggregate_PDF(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			0 /* not omit_subclassification */ );
+			1 /* fetch_subclassifiction_list */,
+			0 /* not fetch_account_list */ );
 
 	latex_table->row_list =
 		build_subclassification_aggregate_PDF_row_list(
@@ -555,7 +556,8 @@ void balance_sheet_subclassification_display_PDF(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			0 /* not omit_subclassification */ );
+			1 /* fetch_subclassifiction_list */,
+			0 /* not fetch_account_list */ );
 
 	latex_table->row_list =
 		build_subclassification_display_PDF_row_list(
@@ -668,7 +670,8 @@ void balance_sheet_subclassification_aggregate_html(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			0 /* not omit_subclassification */ );
+			1 /* fetch_subclassifiction_list */,
+			0 /* not fetch_account_list */ );
 
 	/* Output total_assets */
 	/* ------------------- */
@@ -824,7 +827,8 @@ void balance_sheet_subclassification_display_html(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			0 /* not omit_subclassification */ );
+			1 /* fetch_subclassifiction_list */,
+			0 /* not fetch_account_list */ );
 
 	/* Output total_assets */
 	/* ------------------- */
@@ -1363,7 +1367,8 @@ void balance_sheet_account_omit_html(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			1 /* omit_subclassification */ );
+			0 /* not fetch_subclassifiction_list */,
+			1 /* fetch_account_list */ );
 
 	/* Output total_assets */
 	/* ------------------- */
@@ -1564,7 +1569,8 @@ void balance_sheet_account_omit_PDF(
 			filter_element_name_list,
 			fund_name,
 			as_of_date,
-			1 /* omit_subclassification */ );
+			0 /* not fetch_subclassifiction_list */,
+			1 /* fetch_account_list */ );
 
 	latex_table->row_list =
 		build_account_omit_PDF_row_list(

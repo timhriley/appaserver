@@ -161,33 +161,36 @@ LIST *ledger_element_get_account_list(
 					char *as_of_date );
 
 LIST *ledger_element_get_subclassification_list(
-					double *element_total,
-					char *application_name,
-					char *element_name,
-					char *fund_name,
-					char *as_of_date );
+			double *element_total,
+			char *application_name,
+			char *element_name,
+			char *fund_name,
+			char *as_of_date );
 
-LIST *ledger_get_element_list(		char *application_name,
-					LIST *filter_element_name_list,
-					char *fund_name,
-					char *as_of_date,
-					boolean omit_subclassification );
+LIST *ledger_get_element_list(
+			char *application_name,
+			LIST *filter_element_name_list,
+			char *fund_name,
+			char *as_of_date,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list );
 
-JOURNAL_LEDGER *ledger_get_prior_ledger(char *application_name,
-					char *transaction_date_time,
-					char *account_name );
+JOURNAL_LEDGER *ledger_get_prior_ledger(
+			char *application_name,
+			char *transaction_date_time,
+			char *account_name );
 
-void ledger_load(			char **full_name,
-					char **street_address,
-					int *transaction_count,
-					double *previous_balance,
-					double *debit_amount,
-					double *credit_amount,
-					double *balance,
-					char **memo,
-					char *transaction_date_time,
-					char *account_name,
-					char *application_name );
+void ledger_load(	char **full_name,
+			char **street_address,
+			int *transaction_count,
+			double *previous_balance,
+			double *debit_amount,
+			double *credit_amount,
+			double *balance,
+			char **memo,
+			char *transaction_date_time,
+			char *account_name,
+			char *application_name );
 
 boolean ledger_account_get_accumulate_debit(
 					char *application_name,
@@ -658,9 +661,9 @@ char *ledger_get_closing_transaction_date_time(
 				char *as_of_date );
 
 void ledger_propagate_element_list(
-				char *application_name,
-				char *transaction_date_time_string,
-				LIST *element_list );
+			char *application_name,
+			char *transaction_date_time_string,
+			LIST *element_list );
 
 char *ledger_beginning_transaction_date(
 				char *application_name,
@@ -832,16 +835,17 @@ void ledger_journal_ledger_batch_insert(
 				char *application_name,
 				LIST *transaction_list );
 
-LIST *ledger_sort_element_list(	LIST *element_list );
+LIST *ledger_sort_element_list(
+			LIST *element_list );
 
 void ledger_get_investment_account_names(
-				char **unrealized_investment,
-				char **realized_gain,
-				char **realized_loss,
-				char **checking_account,
-				char **contributed_capital_account,
-				char *application_name,
-				char *fund_name );
+			char **unrealized_investment,
+			char **realized_gain,
+			char **realized_loss,
+			char **checking_account,
+			char **contributed_capital_account,
+			char *application_name,
+			char *fund_name );
 
 char *ledger_transaction_binary_insert(
 				char *application_name,

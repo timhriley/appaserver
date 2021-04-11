@@ -38,6 +38,8 @@
 
 /* Constants */
 /* --------- */
+#define NEW_HTML_TABLE			1
+
 #define DAYS_FOR_EMPHASIS		35
 #define ROWS_BETWEEN_HEADING		10
 #define PROMPT				"Press here to view statement."
@@ -76,26 +78,26 @@ int trial_balance_html_table_account_list(
 				char *login_name,
 				char *role_name,
 				int count,
-				boolean omit_subclassification );
+				boolean fetch_subclassification_list );
 
 /* Returns count */
 /* ------------- */
 int trial_balance_html_table_subclassification_list(
-					double *debit_sum,
-					double *credit_sum,
-					HTML_TABLE *html_table,
-					char *application_name,
-					LIST *prior_element_list,
-					char *element_name,
-					boolean is_period_element,
-					LIST *subclassification_list,
-					char *beginning_date,
-					char *as_of_date,
-					char *session,
-					char *login_name,
-					char *role_name,
-					int count,
-					boolean omit_subclassification );
+			double *debit_sum,
+			double *credit_sum,
+			HTML_TABLE *html_table,
+			char *application_name,
+			LIST *prior_element_list,
+			char *element_name,
+			boolean is_period_element,
+			LIST *subclassification_list,
+			char *beginning_date,
+			char *as_of_date,
+			char *session,
+			char *login_name,
+			char *role_name,
+			int count,
+			boolean fetch_subclassification_list );
 
 char *get_action_string(
 					char *application_name,
@@ -122,7 +124,8 @@ void output_stdout(			char *element_name,
 
 void trial_balance_stdout(		char *fund_name,
 					char *as_of_date,
-					boolean omit_subclassification );
+					boolean fetch_subclassification_list,
+					boolean fetch_account_list );
 
 void build_PDF_account_row(		LIST *column_data_list,
 					boolean *accumulate_debit,
@@ -151,7 +154,7 @@ void trial_balance_account_html_table(
 					char *session,
 					char *login_name,
 					char *role_name,
-					boolean omit_subclassification );
+					boolean fetch_subclassification_list );
 
 void trial_balance_account_stdout(
 					double *balance,
@@ -185,13 +188,14 @@ void trial_balance_html_table(
 					char *session,
 					char *login_name,
 					char *role_name,
-					boolean omit_subclassification );
+					boolean fetch_subclassification_list,
+					boolean fetch_account_list );
 
 LIST *build_PDF_row_list(		LIST *current_element_list,
 					LIST *prior_element_list,
-					boolean omit_subclassification );
+					boolean fetch_subclassification_list );
 
-LIST *build_PDF_heading_list(		boolean omit_subclassification );
+LIST *build_PDF_heading_list(		boolean fetch_subclassification_list );
 
 void trial_balance_PDF(			char *application_name,
 					char *fund_name,
@@ -200,14 +204,16 @@ void trial_balance_PDF(			char *application_name,
 					char *process_name,
 					char *aggregation,
 					char *logo_filename,
-					boolean omit_subclassification );
+					boolean fetch_subclassification_list,
+					boolean fetch_account_list );
 
 void trial_balance_PDF_fund(		
 					LATEX *latex,
 					char *sub_title,
 					char *fund_name,
 					char *as_of_date,
-					boolean omit_subclassification );
+					boolean fetch_subclassification_list,
+					boolean fetch_account_list );
 
 void output_html_table(			LIST *data_list,
 					char *element_name,
@@ -233,7 +239,7 @@ void output_html_table(			LIST *data_list,
 					char *session,
 					char *login_name,
 					char *role_name,
-					boolean omit_subclassification );
+					boolean fetch_subclassification_list );
 
 int main( int argc, char **argv )
 {
@@ -251,7 +257,8 @@ int main( int argc, char **argv )
 	char *output_medium;
 	char *logo_filename;
 	char *subclassification_option;
-	boolean omit_subclassification = 0;
+	boolean fetch_subclassification_list;
+	boolean fetch_account_list;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -282,7 +289,10 @@ int main( int argc, char **argv )
 	output_medium = argv[ 8 ];
 	subclassification_option = argv[ 9 ];
 
-	omit_subclassification =
+	fetch_subclassification_list =
+		( strcmp( subclassification_option, "omit" ) != 0 );
+
+	fetch_account_list =
 		( strcmp( subclassification_option, "omit" ) == 0 );
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
@@ -366,7 +376,8 @@ int main( int argc, char **argv )
 				session,
 				login_name,
 				role_name,
-				omit_subclassification );
+				fetch_subclassification_list,
+				fetch_account_list );
 		}
 
 		trial_balance_html_table(
@@ -378,7 +389,8 @@ int main( int argc, char **argv )
 			session,
 			login_name,
 			role_name,
-			omit_subclassification );
+			fetch_subclassification_list,
+			fetch_account_list );
 	}
 	else
 	if ( strcmp( output_medium, "PDF" ) == 0 )
@@ -392,274 +404,22 @@ int main( int argc, char **argv )
 			process_name,
 			aggregation,
 			logo_filename,
-			omit_subclassification );
+			fetch_subclassification_list,
+			fetch_account_list );
 	}
 	else
 	{
 		trial_balance_stdout(
 			fund_name,
 			as_of_date,
-			omit_subclassification );
+			fetch_subclassification_list,
+			fetch_account_list );
 	}
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 		document_close();
 
 	return 0;
-}
-
-void trial_balance_html_table(
-			char *application_name,
-			char *title,
-			char *sub_title,
-			char *fund_name,
-			char *as_of_date,
-			char *session,
-			char *login_name,
-			char *role_name,
-			boolean omit_subclassification )
-{
-	HTML_TABLE *html_table;
-	LIST *heading_list;
-	char *debit_string;
-	char *credit_string;
-	double debit_sum = 0.0;
-	double credit_sum = 0.0;
-	ELEMENT *element;
-	LIST *current_element_list;
-	LIST *prior_element_list;
-	LIST *prior_filter_element_name_list;
-	DATE *prior_closing_transaction_date;
-	char *prior_closing_transaction_date_string = {0};
-	int count = 0;
-	char *element_name = {0};
-	char *beginning_date;
-	int number_left_justified_columns = 3;
-	double element_total;
-
-	if ( timlib_strlen( as_of_date ) == 10 )
-	{
-		char buffer[ 32 ];
-
-		sprintf( buffer,
-			 "%s %s",
-			 as_of_date,
-			 TRANSACTION_CLOSING_TRANSACTION_TIME );
-
-		as_of_date = strdup( buffer );
-	}
-
-	if ( ! ( beginning_date = 
-			transaction_date_prior_closing_beginning(
-				fund_name,
-				as_of_date ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot get beginning_date.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	/* Populate the current_element_list */
-	/* --------------------------------- */
-	current_element_list =
-		element_list(
-			(LIST *)0 /* filter_element_name_list */,
-			fund_name,
-			as_of_date,
-			omit_subclassification );
-
-	/* Populate the prior_element_list */
-	/* ------------------------------- */
-	prior_closing_transaction_date =
-		transaction_prior_closing_transaction_date(
-			fund_name,
-			as_of_date /* ending_transaction_date */ );
-
-	if ( prior_closing_transaction_date )
-	{
-		prior_closing_transaction_date_string =
-			date_get_yyyy_mm_dd_string(
-				prior_closing_transaction_date );
-	}
-	else
-	{
-		prior_closing_transaction_date_string =
-			transaction_date_prior_closing_beginning(
-				fund_name,
-				as_of_date );
-	}
-
-	prior_filter_element_name_list = list_new();
-
-	list_append_pointer(
-		prior_filter_element_name_list, 
-		PREDICTIVE_ELEMENT_ASSET );
-
-	list_append_pointer(
-		prior_filter_element_name_list, 
-		PREDICTIVE_ELEMENT_LIABILITY );
-
-	prior_element_list =
-		element_list(
-			prior_filter_element_name_list,
-			fund_name,
-			prior_closing_transaction_date_string,
-			omit_subclassification );
-
-	/* Create the table heading */
-	/* ------------------------ */
-	heading_list = list_new();
-
-	list_append_string( heading_list, "Element" );
-
-	if ( !omit_subclassification )
-	{
-		list_append_string(
-			heading_list,
-			"Subclassification" );
-	}
-	else
-	{
-		number_left_justified_columns--;
-	}
-	
-	list_append_string( heading_list, "Account" );
-	list_append_string( heading_list, "Count" );
-	list_append_string( heading_list, "Debit" );
-	list_append_string( heading_list, "Credit" );
-
-	if ( !omit_subclassification )
-	{
-		list_append_string(
-			heading_list,
-			"change_or_percent_of_subclassification" );
-	}
-	else
-	{
-		list_append_string(
-			heading_list,
-			"change_or_percent_of_element" );
-	}
-
-	html_table = new_html_table(
-			title,
-			sub_title );
-
-	html_table->number_left_justified_columns =
-		number_left_justified_columns;
-
-	html_table->number_right_justified_columns = 4;
-	html_table_set_heading_list( html_table, heading_list );
-
-	html_table_output_table_heading(
-		html_table->title,
-		html_table->sub_title );
-
-	html_table_output_data_heading(
-		html_table->heading_list,
-		html_table->number_left_justified_columns,
-		html_table->number_right_justified_columns,
-		html_table->justify_list );
-
-	if ( !list_rewind( current_element_list ) )
-	{
-		printf(
-	"<h3>ERROR: there are no elements for this statement.</h3>\n" );
-		document_close();
-		exit( 1 );
-	}
-
-	do {
-		element = list_get_pointer( current_element_list );
-
-		element_name = element->element_name;
-
-		if ( omit_subclassification )
-		{
-			if ( !list_length( element->account_list ) )
-				continue;
-
-			if ( element_is_period(
-					element->element_name ) )
-			{
-				element_total = element->element_total;
-			}
-			else
-			{
-				element_total = 0.0;
-			}
-
-			count =
-			   trial_balance_html_table_account_list(
-				&debit_sum,
-				&credit_sum,
-				html_table,
-				application_name,
-				prior_element_list,
-				element_name,
-				element->account_list,
-				element_total,
-				beginning_date,
-				as_of_date,
-				session,
-				login_name,
-				role_name,
-				count,
-				omit_subclassification );
-		}
-		else
-		{
-			if ( !list_length( element->subclassification_list ) )
-				continue;
-
-			count =
-			   trial_balance_html_table_subclassification_list(
-				&debit_sum,
-				&credit_sum,
-				html_table,
-				application_name,
-				prior_element_list,
-				element_name,
-				element_is_period(
-					element_name ),
-				element->subclassification_list,
-				beginning_date,
-				as_of_date,
-				session,
-				login_name,
-				role_name,
-				count,
-				omit_subclassification );
-		}
-
-	} while( list_next( current_element_list ) );
-
-	html_table_set_data( html_table->data_list, "Total" );
-	html_table_set_data( html_table->data_list, "" );
-
-	if ( !omit_subclassification )
-		html_table_set_data( html_table->data_list, "" );
-
-	html_table_set_data( html_table->data_list, "" );
-
-	debit_string = timlib_place_commas_in_money( debit_sum );
-	html_table_set_data( html_table->data_list, strdup( debit_string ) );
-
-	credit_string = timlib_place_commas_in_money( credit_sum );
-	html_table_set_data( html_table->data_list, strdup( credit_string ) );
-
-	html_table_output_data(
-		html_table->data_list,
-		html_table->number_left_justified_columns,
-		html_table->number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-	html_table_close();
-
 }
 
 /* Returns count */
@@ -679,7 +439,7 @@ int trial_balance_html_table_account_list(
 				char *login_name,
 				char *role_name,
 				int count,
-				boolean omit_subclassification )
+				boolean fetch_subclassification_list )
 {
 	ACCOUNT *account;
 	double balance;
@@ -721,7 +481,7 @@ int trial_balance_html_table_account_list(
 			session,
 			login_name,
 			role_name,
-			omit_subclassification );
+			fetch_subclassification_list );
 
 		list_free( html_table->data_list );
 		html_table->data_list = list_new();
@@ -760,7 +520,7 @@ int trial_balance_html_table_subclassification_list(
 				char *login_name,
 				char *role_name,
 				int count,
-				boolean omit_subclassification )
+				boolean fetch_subclassification_list )
 {
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *account;
@@ -828,7 +588,7 @@ int trial_balance_html_table_subclassification_list(
 				session,
 				login_name,
 				role_name,
-				omit_subclassification );
+				fetch_subclassification_list );
 
 			list_free( html_table->data_list );
 			html_table->data_list = list_new();
@@ -871,7 +631,7 @@ void trial_balance_account_html_table(
 					char *session,
 					char *login_name,
 					char *role_name,
-					boolean omit_subclassification )
+					boolean fetch_subclassification_list )
 {
 	double prior_balance_change;
 
@@ -934,7 +694,7 @@ void trial_balance_account_html_table(
 		session,
 		login_name,
 		role_name,
-		omit_subclassification );
+		fetch_subclassification_list );
 }
 
 void trial_balance_PDF(
@@ -945,7 +705,8 @@ void trial_balance_PDF(
 			char *process_name,
 			char *aggregation,
 			char *logo_filename,
-			boolean omit_subclassification )
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list )
 {
 	LATEX *latex;
 	char *latex_filename;
@@ -1040,7 +801,8 @@ void trial_balance_PDF(
 					sub_title,
 					fund_name,
 					as_of_date,
-					omit_subclassification );
+					fetch_subclassification_list,
+					fetch_account_list );
 
 		} while( list_next( fund_name_list ) );
 	}
@@ -1053,7 +815,8 @@ void trial_balance_PDF(
 				sub_title,
 				fund_name,
 				as_of_date,
-				omit_subclassification );
+				fetch_subclassification_list,
+				fetch_account_list );
 	}
 
 	latex_longtable_output(
@@ -1104,7 +867,8 @@ void trial_balance_PDF_fund(
 			char *sub_title,
 			char *fund_name,
 			char *as_of_date,
-			boolean omit_subclassification )
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list )
 {
 	LATEX_TABLE *latex_table;
 	LIST *current_element_list;
@@ -1123,7 +887,7 @@ void trial_balance_PDF_fund(
 
 	latex_table->heading_list =
 		build_PDF_heading_list(
-			omit_subclassification );
+			fetch_subclassification_list );
 
 	/* Populate the current_element_list */
 	/* --------------------------------- */
@@ -1132,7 +896,8 @@ void trial_balance_PDF_fund(
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
 			as_of_date,
-			omit_subclassification );
+			fetch_subclassification_list,
+			fetch_account_list );
 
 	/* Populate the prior_element_list */
 	/* ------------------------------- */
@@ -1170,18 +935,19 @@ void trial_balance_PDF_fund(
 			prior_filter_element_name_list,
 			fund_name,
 			prior_closing_transaction_date_string,
-			omit_subclassification );
+			fetch_subclassification_list,
+			fetch_account_list );
 
 	latex_table->row_list =
 		build_PDF_row_list(
 			current_element_list,
 			prior_element_list,
-			omit_subclassification );
+			fetch_subclassification_list );
 }
 
 LIST *build_PDF_row_list(	LIST *current_element_list,
 				LIST *prior_element_list,
-				boolean omit_subclassification )
+				boolean fetch_subclassification_list )
 {
 	LATEX_ROW *latex_row;
 	LIST *row_list;
@@ -1232,7 +998,7 @@ LIST *build_PDF_row_list(	LIST *current_element_list,
 		"Total",
 		0 /* not large_bold */ );
 
-	if ( !omit_subclassification )
+	if ( fetch_subclassification_list )
 	{
 		latex_append_column_data_list(
 			latex_row->column_data_list,
@@ -1467,7 +1233,8 @@ LIST *build_subclassification_PDF_row_list(
 	return row_list;
 }
 
-LIST *build_PDF_heading_list( boolean omit_subclassification )
+LIST *build_PDF_heading_list(
+			boolean fetch_subclassification_list )
 {
 	LATEX_TABLE_HEADING *table_heading;
 	LIST *heading_list;
@@ -1479,7 +1246,7 @@ LIST *build_PDF_heading_list( boolean omit_subclassification )
 	table_heading->right_justified_flag = 0;
 	list_append_pointer( heading_list, table_heading );
 
-	if ( !omit_subclassification )
+	if ( fetch_subclassification_list )
 	{
 		table_heading = latex_new_latex_table_heading();
 		table_heading->right_justified_flag = 0;
@@ -1540,7 +1307,7 @@ void output_html_table(	LIST *data_list,
 			char *session,
 			char *login_name,
 			char *role_name,
-			boolean omit_subclassification )
+			boolean fetch_subclassification_list )
 {
 	char element_title[ 128 ];
 	char subclassification_title[ 128 ];
@@ -1588,7 +1355,7 @@ void output_html_table(	LIST *data_list,
 	}
 	else
 	{
-		if ( !omit_subclassification )
+		if ( fetch_subclassification_list )
 		{
 			html_table_set_data( data_list, strdup( "" ) );
 		}
@@ -1986,7 +1753,8 @@ void build_PDF_account_row(	LIST *column_data_list,
 void trial_balance_stdout(
 			char *fund_name,
 			char *as_of_date,
-			boolean omit_subclassification )
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list )
 {
 	LIST *heading_list;
 	char *debit_string;
@@ -2014,7 +1782,8 @@ void trial_balance_stdout(
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
 			as_of_date,
-			omit_subclassification );
+			fetch_subclassification_list,
+			fetch_account_list );
 
 	/* Populate the prior_element_list */
 	/* ------------------------------- */
@@ -2052,7 +1821,8 @@ void trial_balance_stdout(
 			prior_filter_element_name_list,
 			fund_name,
 			prior_closing_transaction_date_string,
-			omit_subclassification );
+			fetch_subclassification_list,
+			fetch_account_list );
 
 	/* Create the table heading */
 	/* ------------------------ */
@@ -2374,4 +2144,522 @@ char *get_action_string(
 
 	return strdup( action_string );
 }
+
+#ifndef NEW_HTML_TABLE
+
+void trial_balance_html_table(
+			char *application_name,
+			char *title,
+			char *sub_title,
+			char *fund_name,
+			char *as_of_date,
+			char *session,
+			char *login_name,
+			char *role_name,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list )
+{
+	HTML_TABLE *html_table;
+	LIST *heading_list;
+	char *debit_string;
+	char *credit_string;
+	double debit_sum = 0.0;
+	double credit_sum = 0.0;
+	ELEMENT *element;
+	LIST *current_element_list;
+	LIST *prior_element_list;
+	LIST *prior_filter_element_name_list;
+	DATE *prior_closing_transaction_date;
+	char *prior_closing_transaction_date_string = {0};
+	int count = 0;
+	char *element_name = {0};
+	char *beginning_date;
+	int number_left_justified_columns = 3;
+	double element_total;
+
+	if ( timlib_strlen( as_of_date ) == 10 )
+	{
+		char buffer[ 32 ];
+
+		sprintf( buffer,
+			 "%s %s",
+			 as_of_date,
+			 TRANSACTION_CLOSING_TRANSACTION_TIME );
+
+		as_of_date = strdup( buffer );
+	}
+
+	if ( ! ( beginning_date = 
+			transaction_date_prior_closing_beginning(
+				fund_name,
+				as_of_date ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot get beginning_date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	/* Populate the current_element_list */
+	/* --------------------------------- */
+	current_element_list =
+		element_list(
+			(LIST *)0 /* filter_element_name_list */,
+			fund_name,
+			as_of_date,
+			fetch_subclassification_list,
+			fetch_account_list );
+
+	/* Populate the prior_element_list */
+	/* ------------------------------- */
+	prior_closing_transaction_date =
+		transaction_prior_closing_transaction_date(
+			fund_name,
+			as_of_date /* ending_transaction_date */ );
+
+	if ( prior_closing_transaction_date )
+	{
+		prior_closing_transaction_date_string =
+			date_get_yyyy_mm_dd_string(
+				prior_closing_transaction_date );
+	}
+	else
+	{
+		prior_closing_transaction_date_string =
+			transaction_date_prior_closing_beginning(
+				fund_name,
+				as_of_date );
+	}
+
+	prior_filter_element_name_list = list_new();
+
+	list_append_pointer(
+		prior_filter_element_name_list, 
+		PREDICTIVE_ELEMENT_ASSET );
+
+	list_append_pointer(
+		prior_filter_element_name_list, 
+		PREDICTIVE_ELEMENT_LIABILITY );
+
+	prior_element_list =
+		element_list(
+			prior_filter_element_name_list,
+			fund_name,
+			prior_closing_transaction_date_string,
+			fetch_subclassification_list,
+			fetch_account_list );
+
+	/* Create the table heading */
+	/* ------------------------ */
+	heading_list = list_new();
+
+	list_append_string( heading_list, "Element" );
+
+	if ( fetch_subclassification_list )
+	{
+		list_append_string(
+			heading_list,
+			"Subclassification" );
+	}
+	else
+	{
+		number_left_justified_columns--;
+	}
+	
+	list_append_string( heading_list, "Account" );
+	list_append_string( heading_list, "Count" );
+	list_append_string( heading_list, "Debit" );
+	list_append_string( heading_list, "Credit" );
+
+	if ( fetch_subclassification_list )
+	{
+		list_append_string(
+			heading_list,
+			"change_or_percent_of_subclassification" );
+	}
+	else
+	{
+		list_append_string(
+			heading_list,
+			"change_or_percent_of_element" );
+	}
+
+	html_table = new_html_table(
+			title,
+			sub_title );
+
+	html_table->number_left_justified_columns =
+		number_left_justified_columns;
+
+	html_table->number_right_justified_columns = 4;
+	html_table_set_heading_list( html_table, heading_list );
+
+	html_table_output_table_heading(
+		html_table->title,
+		html_table->sub_title );
+
+	html_table_output_data_heading(
+		html_table->heading_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		html_table->justify_list );
+
+	if ( !list_rewind( current_element_list ) )
+	{
+		printf(
+	"<h3>ERROR: there are no elements for this statement.</h3>\n" );
+		document_close();
+		exit( 1 );
+	}
+
+	do {
+		element = list_get_pointer( current_element_list );
+
+		element_name = element->element_name;
+
+		if ( fetch_account_list )
+		{
+			if ( !list_length( element->account_list ) )
+				continue;
+
+			if ( element_is_period(
+					element->element_name ) )
+			{
+				element_total = element->element_total;
+			}
+			else
+			{
+				element_total = 0.0;
+			}
+
+			count =
+			   trial_balance_html_table_account_list(
+				&debit_sum,
+				&credit_sum,
+				html_table,
+				application_name,
+				prior_element_list,
+				element_name,
+				element->account_list,
+				element_total,
+				beginning_date,
+				as_of_date,
+				session,
+				login_name,
+				role_name,
+				count,
+				fetch_subclassification_list );
+		}
+		else
+		{
+			if ( !list_length( element->subclassification_list ) )
+				continue;
+
+			count =
+			   trial_balance_html_table_subclassification_list(
+				&debit_sum,
+				&credit_sum,
+				html_table,
+				application_name,
+				prior_element_list,
+				element_name,
+				element_is_period(
+					element_name ),
+				element->subclassification_list,
+				beginning_date,
+				as_of_date,
+				session,
+				login_name,
+				role_name,
+				count,
+				fetch_subclassification_list );
+		}
+
+	} while( list_next( current_element_list ) );
+
+	html_table_set_data( html_table->data_list, "Total" );
+	html_table_set_data( html_table->data_list, "" );
+
+	if ( fetch_subclassification_list )
+		html_table_set_data( html_table->data_list, "" );
+
+	html_table_set_data( html_table->data_list, "" );
+
+	debit_string = timlib_place_commas_in_money( debit_sum );
+	html_table_set_data( html_table->data_list, strdup( debit_string ) );
+
+	credit_string = timlib_place_commas_in_money( credit_sum );
+	html_table_set_data( html_table->data_list, strdup( credit_string ) );
+
+	html_table_output_data(
+		html_table->data_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
+
+	html_table_close();
+
+}
+#else
+
+void trial_balance_html_table(
+			char *application_name,
+			char *title,
+			char *sub_title,
+			char *fund_name,
+			char *as_of_date,
+			char *session,
+			char *login_name,
+			char *role_name,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list )
+{
+	HTML_TABLE *html_table;
+	LIST *heading_list;
+	char *debit_string;
+	char *credit_string;
+	double debit_sum = 0.0;
+	double credit_sum = 0.0;
+	ELEMENT *element;
+	LIST *current_element_list;
+	LIST *prior_element_list;
+	LIST *prior_filter_element_name_list;
+	DATE *prior_closing_transaction_date;
+	char *prior_closing_transaction_date_string = {0};
+	int count = 0;
+	char *element_name = {0};
+	char *beginning_date;
+	int number_left_justified_columns = 3;
+	double element_total;
+
+	if ( timlib_strlen( as_of_date ) == 10 )
+	{
+		char buffer[ 32 ];
+
+		sprintf( buffer,
+			 "%s %s",
+			 as_of_date,
+			 TRANSACTION_CLOSING_TRANSACTION_TIME );
+
+		as_of_date = strdup( buffer );
+	}
+
+	if ( ! ( beginning_date = 
+			transaction_date_prior_closing_beginning(
+				fund_name,
+				as_of_date ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot get beginning_date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	/* Populate the current_element_list */
+	/* --------------------------------- */
+	current_element_list =
+		element_list(
+			(LIST *)0 /* filter_element_name_list */,
+			fund_name,
+			as_of_date,
+			fetch_subclassification_list,
+			fetch_account_list );
+
+	/* Populate the prior_element_list */
+	/* ------------------------------- */
+	prior_closing_transaction_date =
+		transaction_prior_closing_transaction_date(
+			fund_name,
+			as_of_date /* ending_transaction_date */ );
+
+	if ( prior_closing_transaction_date )
+	{
+		prior_closing_transaction_date_string =
+			date_get_yyyy_mm_dd_string(
+				prior_closing_transaction_date );
+	}
+	else
+	{
+		prior_closing_transaction_date_string =
+			transaction_date_prior_closing_beginning(
+				fund_name,
+				as_of_date );
+	}
+
+	prior_filter_element_name_list = list_new();
+
+	list_append_pointer(
+		prior_filter_element_name_list, 
+		PREDICTIVE_ELEMENT_ASSET );
+
+	list_append_pointer(
+		prior_filter_element_name_list, 
+		PREDICTIVE_ELEMENT_LIABILITY );
+
+	prior_element_list =
+		element_list(
+			prior_filter_element_name_list,
+			fund_name,
+			prior_closing_transaction_date_string,
+			fetch_subclassification_list,
+			fetch_account_list );
+
+	/* Create the table heading */
+	/* ------------------------ */
+	heading_list = list_new();
+
+	list_append_string( heading_list, "Element" );
+
+	if ( fetch_subclassification_list )
+	{
+		list_append_string(
+			heading_list,
+			"Subclassification" );
+	}
+	else
+	{
+		number_left_justified_columns--;
+	}
+	
+	list_append_string( heading_list, "Account" );
+	list_append_string( heading_list, "Count" );
+	list_append_string( heading_list, "Debit" );
+	list_append_string( heading_list, "Credit" );
+
+	if ( fetch_subclassification_list )
+	{
+		list_append_string(
+			heading_list,
+			"change_or_percent_of_subclassification" );
+	}
+	else
+	{
+		list_append_string(
+			heading_list,
+			"change_or_percent_of_element" );
+	}
+
+	html_table = new_html_table(
+			title,
+			sub_title );
+
+	html_table->number_left_justified_columns =
+		number_left_justified_columns;
+
+	html_table->number_right_justified_columns = 4;
+	html_table_set_heading_list( html_table, heading_list );
+
+	html_table_output_table_heading(
+		html_table->title,
+		html_table->sub_title );
+
+	html_table_output_data_heading(
+		html_table->heading_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		html_table->justify_list );
+
+	if ( !list_rewind( current_element_list ) )
+	{
+		printf(
+	"<h3>ERROR: there are no elements for this statement.</h3>\n" );
+		document_close();
+		exit( 1 );
+	}
+
+	do {
+		element = list_get_pointer( current_element_list );
+
+		element_name = element->element_name;
+
+		if ( fetch_account_list )
+		{
+			if ( !list_length( element->account_list ) )
+				continue;
+
+			if ( element_is_period(
+					element->element_name ) )
+			{
+				element_total = element->element_total;
+			}
+			else
+			{
+				element_total = 0.0;
+			}
+
+			count =
+			   trial_balance_html_table_account_list(
+				&debit_sum,
+				&credit_sum,
+				html_table,
+				application_name,
+				prior_element_list,
+				element_name,
+				element->account_list,
+				element_total,
+				beginning_date,
+				as_of_date,
+				session,
+				login_name,
+				role_name,
+				count,
+				fetch_subclassification_list );
+		}
+		else
+		{
+			if ( !list_length( element->subclassification_list ) )
+				continue;
+
+			count =
+			   trial_balance_html_table_subclassification_list(
+				&debit_sum,
+				&credit_sum,
+				html_table,
+				application_name,
+				prior_element_list,
+				element_name,
+				element_is_period(
+					element_name ),
+				element->subclassification_list,
+				beginning_date,
+				as_of_date,
+				session,
+				login_name,
+				role_name,
+				count,
+				fetch_subclassification_list );
+		}
+
+	} while( list_next( current_element_list ) );
+
+	html_table_set_data( html_table->data_list, "Total" );
+	html_table_set_data( html_table->data_list, "" );
+
+	if ( fetch_subclassification_list )
+		html_table_set_data( html_table->data_list, "" );
+
+	html_table_set_data( html_table->data_list, "" );
+
+	debit_string = timlib_place_commas_in_money( debit_sum );
+	html_table_set_data( html_table->data_list, strdup( debit_string ) );
+
+	credit_string = timlib_place_commas_in_money( credit_sum );
+	html_table_set_data( html_table->data_list, strdup( credit_string ) );
+
+	html_table_output_data(
+		html_table->data_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
+
+	html_table_close();
+
+}
+#endif
 
