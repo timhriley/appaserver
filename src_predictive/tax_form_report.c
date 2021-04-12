@@ -1010,8 +1010,10 @@ void tax_form_report_journal_detail(
 			/* New html table */
 			/* -------------- */
 			sprintf(journal_buffer,
-				"%s: $%s",
+				"Account: %s; Tax: %s/%s; Amount: $%s",
 				tax_form_line_account->account_name,
+				tax_form_line->tax_form_description,
+				tax_form_line_account->tax_form_line,
 				timlib_dollar_string(
 				    tax_form_line_account->
 					tax_form_line_account_total ) );
