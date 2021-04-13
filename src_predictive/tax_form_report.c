@@ -67,7 +67,7 @@ void tax_form_report_journal_detail(
 			LIST *tax_form_line_list,
 			boolean liability_receivable_accounts_only );
 
-void tax_form_detail_report_html_table(
+void tax_form_html_table_account_itemize(
 			LIST *tax_form_line_list );
 
 LIST *tax_form_PDF_row_list(
@@ -200,10 +200,7 @@ int main( int argc, char **argv )
 			tax->tax_form_string,
 			tax->tax_form->tax_form_line_list );
 
-		tax_form_detail_report_html_table(
-			tax->tax_form->tax_form_line_list );
-
-		tax_form_report_account_detail(
+		tax_form_html_table_account_itemize(
 			tax->tax_form->tax_form_line_list );
 
 		tax_form_report_journal_detail(
@@ -219,7 +216,7 @@ int main( int argc, char **argv )
 			tax->tax_form_string,
 			tax->tax_form->tax_form_line_list );
 
-		tax_form_detail_report_html_table(
+		tax_form_html_table_account_itemize(
 			tax->tax_form->tax_form_line_list );
 
 		tax_form_report_journal_detail(
@@ -245,7 +242,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void tax_form_detail_report_html_table(
+void tax_form_html_table_account_itemize(
 			LIST *tax_form_line_list )
 {
 	HTML_TABLE *html_table;
@@ -1010,10 +1007,10 @@ void tax_form_report_journal_detail(
 			/* New html table */
 			/* -------------- */
 			sprintf(journal_buffer,
-				"Account: %s; Tax: %s/%s; Amount: $%s",
-				tax_form_line_account->account_name,
-				tax_form_line->tax_form_description,
+				"Tax: %s/%s; Account: %s; Amount: $%s",
 				tax_form_line_account->tax_form_line,
+				tax_form_line->tax_form_description,
+				tax_form_line_account->account_name,
 				timlib_dollar_string(
 				    tax_form_line_account->
 					tax_form_line_account_total ) );
