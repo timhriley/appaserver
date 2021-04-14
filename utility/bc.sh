@@ -13,6 +13,11 @@ operand1=$1
 operation=$2
 operand2=$3
 
-echo "scale=4; $1 $2 $3" | bc -l
+if [ "$operation" = 'x' -o "$operation" = 'X' ]
+then
+	operation='*'
+fi
+
+echo "scale=4; $operand1 $operation $operand2" | bc -l
 
 exit $?

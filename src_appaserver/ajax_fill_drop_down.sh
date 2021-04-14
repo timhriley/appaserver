@@ -11,7 +11,7 @@ fi
 
 application=$APPASERVER_DATABASE
 
-# echo "$0 $*" 1>&2
+echo "$0 $*" 1>&2
 
 if [ "$#" -ne 6 ]
 then
@@ -117,7 +117,7 @@ html_string += '<select name="${one2m_folder}" id="${one2m_folder}">\n';
 all_done
 
 }
-# end function output_script_header()
+
 
 function output_one2m_folder()
 {
@@ -137,7 +137,7 @@ done
 	echo "html_string += '</select>\n';"
 
 }
-# end function output_one2m_folder()
+
 
 function output_script_footer()
 {
@@ -165,7 +165,7 @@ html_string += '</HTML>';
 all_done
 
 }
-# function output_script_footer()
+
 
 output_script_header	$application		\
 			"$login_name"		\
