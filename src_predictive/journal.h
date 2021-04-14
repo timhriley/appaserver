@@ -292,4 +292,13 @@ JOURNAL *journal_merchant_fees_expense(
 LIST *journal_list_account_name_list(
 			LIST *journal_list );
 
+double journal_transaction_amount(
+			LIST *journal_list );
+
+double journal_list_debit_sum(
+			LIST *journal_list );
+
+double journal_list_credit_sum(
+			LIST *journal_list );
+
 #endif

@@ -904,10 +904,40 @@ LIST *transaction_list_insert(
 	return transaction_list;
 }
 
-void transaction_update(	double transaction_amount,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time )
+void transaction_amount_fetch_update(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	TRANSACTION *transaction;
+
+	if ( ! ( transaction =
+			/* Also fetches journal_list */
+			/* ------------------------- */
+			transaction_fetch(
+				full_name,
+				street_address,
+				transaction_date_time ) ) )
+	{
+		return;
+	}
+
+	transaction->transaction_amount =
+		journal_transaction_amount(
+			transaction->journal_list );
+
+	transaction_update(
+			transaction->transaction_amount,
+			full_name,
+			street_address,
+			transaction_date_time );
+}
+
+void transaction_update(
+			double transaction_amount,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
 {
 	char sys_string[ 1024 ];
 	FILE *update_pipe;

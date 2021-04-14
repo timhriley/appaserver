@@ -229,6 +229,11 @@ void transaction_update(
 			char *street_address,
 			char *transaction_date_time );
 
+void transaction_amount_fetch_update(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
+
 TRANSACTION *transaction_full(
 			char *full_name,
 			char *street_address,

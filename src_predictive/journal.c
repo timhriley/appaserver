@@ -1846,3 +1846,56 @@ LIST *journal_list_account_name_list(
 	return account_name_list;
 }
 
+double journal_list_debit_sum(
+			LIST *journal_list )
+{
+	JOURNAL *journal;
+	double sum;
+
+	if ( !list_rewind( journal_list ) ) return 0.0;
+
+	sum = 0.0;
+
+	do {
+		journal = list_get( journal_list );
+		sum += journal->debit_amount;
+
+	} while ( list_next( journal_list ) );
+
+	return sum;
+}
+
+double journal_list_credit_sum(
+			LIST *journal_list )
+{
+	JOURNAL *journal;
+	double sum;
+
+	if ( !list_rewind( journal_list ) ) return 0.0;
+
+	sum = 0.0;
+
+	do {
+		journal = list_get( journal_list );
+		sum += journal->credit_amount;
+
+	} while ( list_next( journal_list ) );
+
+	return sum;
+}
+
+double journal_transaction_amount(
+			LIST *journal_list )
+{
+	double debit_sum;
+	double credit_sum;
+
+	debit_sum = journal_list_debit_sum( journal_list );
+	credit_sum = journal_list_credit_sum( journal_list );
+
+	if ( debit_sum > credit_sum )
+		return debit_sum;
+	else
+		return credit_sum;
+}
+

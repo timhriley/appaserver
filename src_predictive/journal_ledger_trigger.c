@@ -24,6 +24,8 @@
 /* Prototypes */
 /* ---------- */
 void journal_ledger_trigger_insert(
+			char *full_name,
+			char *street_address,
 			char *transaction_date_time,
 			char *account );
 
@@ -34,6 +36,11 @@ void journal_ledger_trigger_update(
 			char *account,
 			char *preupdate_transaction_date_time,
 			char *preupdate_account );
+
+void journal_ledger_trigger_delete(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
 
 void journal_ledger_trigger_predelete(
 			char *transaction_date_time,
@@ -76,11 +83,11 @@ int main( int argc, char **argv )
 	if ( strcmp( transaction_date_time, "transaction_date_time" ) == 0 )
 		exit( 0 );
 
-	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
-
 	if ( strcmp( state, "insert" ) == 0 )
 	{
 		journal_ledger_trigger_insert(
+			full_name,
+			street_address,
 			transaction_date_time,
 			account );
 	}
@@ -94,6 +101,14 @@ int main( int argc, char **argv )
 			account,
 			preupdate_transaction_date_time,
 			preupdate_account );
+	}
+	else
+	if ( strcmp( state, "delete" ) == 0 )
+	{
+		journal_ledger_trigger_delete(
+			full_name,
+			street_address,
+			transaction_date_time );
 	}
 	else
 	if ( strcmp( state, "predelete" ) == 0 )
@@ -159,6 +174,11 @@ void journal_ledger_trigger_update(
 				 /* account_name */ );
 
 	} while ( list_next( account_name_list ) );
+
+	transaction_amount_fetch_update(
+			full_name,
+			street_address,
+			transaction_date_time );
 }
 
 void journal_ledger_trigger_predelete(
@@ -173,6 +193,8 @@ void journal_ledger_trigger_predelete(
 }
 
 void journal_ledger_trigger_insert(
+			char *full_name,
+			char *street_address,
 			char *transaction_date_time,
 			char *account )
 {
@@ -181,5 +203,21 @@ void journal_ledger_trigger_insert(
 	journal_propagate(
 		transaction_date_time,
 		account /* account_name */ );
+
+	transaction_amount_fetch_update(
+			full_name,
+			street_address,
+			transaction_date_time );
+}
+
+void journal_ledger_trigger_delete(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	transaction_amount_fetch_update(
+			full_name,
+			street_address,
+			transaction_date_time );
 }
 
