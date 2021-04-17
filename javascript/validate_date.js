@@ -35,7 +35,7 @@ function validate_time( element )
 		element.value = element.defaultValue;
 	}
 	return true;
-} // validate_time()
+}
 
 function validate_date( element )
 {
@@ -57,7 +57,7 @@ function validate_date( element )
 	}
 
 	return true;
-} // validate_date()
+}
 
 function validate_date_with_dashes( value )
 {
@@ -88,7 +88,7 @@ function validate_date_with_dashes( value )
 	if ( !validate_date_day( day, month, year ) ) return false;
 
 	return true;
-} // validate_date_with_dashes()
+}
 
 function validate_date_with_slashes( value )
 {
@@ -114,7 +114,7 @@ function validate_date_with_slashes( value )
 	if ( !validate_date_day( day, month, year ) ) return false;
 
 	return true;
-} // validate_date_with_slashes()
+}
 
 function validate_date_military( value )
 {
@@ -140,7 +140,7 @@ function validate_date_military( value )
 	if ( !validate_date_day( day, month, year ) ) return false;
 
 	return true;
-} // validate_date_military()
+}
 
 function validate_date_year( year )
 {
@@ -171,7 +171,7 @@ function validate_date_year( year )
 
 	return true;
 
-} // validate_date_year()
+}
 
 function validate_military_month( month )
 {
@@ -195,7 +195,7 @@ function validate_military_month( month )
 	alert( 'Invalid military month.' );
 	return false;
 
-} // validate_military_month()
+}
 
 function validate_date_month( month )
 {
@@ -213,7 +213,7 @@ function validate_date_month( month )
 
 	return true;
 
-} // validate_date_month()
+}
 
 function validate_date_day( day, month, year )
 {
@@ -262,5 +262,5 @@ function validate_date_day( day, month, year )
 
 	return true;
 
-} // validate_date_day()
+}
 
