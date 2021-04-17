@@ -356,6 +356,13 @@ int load_bank_spreadsheet(
 			{
 				return 0;
 			}
+
+			/* Insert into BANK_UPLOAD_TRANSACTION */
+			/* ----------------------------------- */
+			bank_upload_direct_bank_upload_transaction_insert(
+				bank_upload_structure->
+					file.
+					bank_upload_list );
 		}
 
 		bank_upload_event_insert(
@@ -401,16 +408,6 @@ int load_bank_spreadsheet(
 				bank_upload_structure->
 					file.
 					bank_upload_list );
-
-		/* Insert into BANK_UPLOAD_TRANSACTION */
-		/* ----------------------------------- */
-		if ( !omit_bank_upload_transaction )
-		{
-			bank_upload_direct_bank_upload_transaction_insert(
-				bank_upload_structure->
-					file.
-					bank_upload_list );
-		}
 
 		/* ------------------------ */
 		/* Update JOURNAL.account   */
