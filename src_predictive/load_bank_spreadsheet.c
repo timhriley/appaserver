@@ -404,10 +404,13 @@ int load_bank_spreadsheet(
 
 		/* Insert into BANK_UPLOAD_TRANSACTION */
 		/* ----------------------------------- */
-		bank_upload_direct_bank_upload_transaction_insert(
-			bank_upload_structure->
-				file.
-				bank_upload_list );
+		if ( !omit_bank_upload_transaction )
+		{
+			bank_upload_direct_bank_upload_transaction_insert(
+				bank_upload_structure->
+					file.
+					bank_upload_list );
+		}
 
 		/* ------------------------ */
 		/* Update JOURNAL.account   */
