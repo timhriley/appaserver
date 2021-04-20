@@ -217,9 +217,6 @@ char *transaction_full_name_escape(
 char *transaction_race_free(
 			char *transaction_date_time );
 
-boolean transaction_exists(
-			char *transaction_date_time );
-
 char *transaction_audit(
 			TRANSACTION *transaction );
 
@@ -382,9 +379,6 @@ double transaction_net_income_fetch(
 			char *fund_name,
 			char *as_of_date );
 
-char *transaction_closing_transaction_date_time(
-			char *as_of_date );
-
 void transaction_journal_list_pipe_display(
 			FILE *output_pipe,
 			char *full_name,
@@ -399,23 +393,14 @@ LIST *transaction_after_balance_zero_journal_list(
 char *transaction_latest_zero_balance_transaction_date_time(
 			char *account_name );
 
-char *transaction_date_time_closing(
-			char *as_of_date );
-
-char *transaction_closing_date_time(
-			char *as_of_date );
-
 boolean transaction_date_time_exists(
 			char *transaction_date_time );
 
-char *transaction_exists_closing_entry(
-			char *as_of_date );
+boolean transaction_existing_closing_date_time(
+			char *transaction_date );
 
-char *transaction_existing_closing_date_time(
-			char *as_of_date );
-
-char *transaction_exists_closing_date_time(
-			char *as_of_date );
+boolean transaction_exists_closing_date_time(
+			char *transaction_date );
 
 LIST *transaction_date_time_account_name_list(
 			char *transaction_date_time );
@@ -473,5 +458,39 @@ char *transaction_date_time_earlier(
 
 boolean transaction_date_time_changed(
 			char *preupdate_transaction_date_time );
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_closing_transaction_date_time(
+			char *transaction_date );
+
+char *transaction_closing_date_time(
+			char *transaction_date );
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_date_time_closing(
+			char *transaction_date,
+			boolean preclose_time_boolean );
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_date_time_where(
+			char *transaction_date,
+			char *transaction_time );
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_closing_memo_where(
+			void );
+
+boolean transaction_closing_entry_exists(
+			char *transaction_date );
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_date_time(
+			char *transaction_date,
+			char *transaction_time );
 
 #endif

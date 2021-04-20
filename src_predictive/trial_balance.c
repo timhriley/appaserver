@@ -35,6 +35,7 @@
 #include "account.h"
 #include "element.h"
 #include "predictive.h"
+#include "trial_balance.h"
 
 /* Constants */
 /* --------- */
@@ -274,7 +275,7 @@ int main( int argc, char **argv )
 			 argv[ 0 ] );
 
 		fprintf( stderr,
-"Note: subclassification_option={omit}\n" );
+"Note: subclassification_option={display,omit}\n" );
 
 		exit ( 1 );
 	}
@@ -354,8 +355,9 @@ int main( int argc, char **argv )
 		char prior_transaction_date_time[ 32 ];
 
 		closing_transaction_date_time =
-			transaction_date_time_closing(
-				as_of_date );
+			transaction_date_time(
+				as_of_date,
+				TRANSACTION_CLOSING_TRANSACTION_TIME );
 
 		/* If run on the closing date, then run it twice. */
 		/* ---------------------------------------------- */
@@ -895,7 +897,9 @@ void trial_balance_PDF_fund(
 		element_list(
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				0 /* not prior_closing_time_boolean */ ),
 			fetch_subclassification_list,
 			fetch_account_list );
 
@@ -1781,7 +1785,9 @@ void trial_balance_stdout(
 		element_list(
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				0 /* not prior_closing_time_boolean */ ),
 			fetch_subclassification_list,
 			fetch_account_list );
 
@@ -2208,7 +2214,9 @@ void trial_balance_html_table(
 		element_list(
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				0 /* not prior_closing_time_boolean */ ),
 			fetch_subclassification_list,
 			fetch_account_list );
 
@@ -2466,7 +2474,9 @@ void trial_balance_html_table(
 		element_list(
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				0 /* not prior_closing_time_boolean */ ),
 			fetch_subclassification_list,
 			fetch_account_list );
 
@@ -2662,4 +2672,201 @@ void trial_balance_html_table(
 
 }
 #endif
+
+TRIAL_BALANCE *trial_balance_new(
+			char *as_of_date,
+			char *fund_name,
+			char *subclassification_option_string,
+			char *output_medium_string )
+{
+	TRIAL_BALANCE *trial_balance;
+
+	if ( ! ( trial_balance =
+			calloc( 1, sizeof( TRIAL_BALANCE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	trial_balance->as_of_date = as_of_date;
+	trial_balance->fund_name = fund_name;
+
+	trial_balance->subclassification_option_string =
+		subclassification_option_string;
+
+	trial_balance->output_medium_string =
+		output_medium_string;
+
+	return trial_balance;
+}
+
+enum subclassification_option trial_balance_subclassification_option(
+			char *subclassification_option_string )
+{
+	if ( strcmp(
+		subclassification_option_string,
+		"display" ) == 0 )
+	{
+		return subclassification_display;
+	}
+	else
+	if ( strcmp(
+		subclassification_option_string,
+		"omit" ) == 0 )
+	{
+		return subclassification_omit;
+	}
+	else
+	{
+		return subclassification_display;
+	}
+}
+
+enum output_medium trial_balance_output_medium(
+			char *output_medium_string )
+{
+	if ( strcmp(
+		output_medium_string,
+		"table" ) == 0 )
+	{
+		return output_table;
+	}
+	else
+	if ( strcmp(
+		output_medium_string,
+		"PDF" ) == 0 )
+	{
+		return output_PDF;
+	}
+	else
+	{
+		return output_table;
+	}
+}
+
+LIST *trial_balance_element_list(
+			char *transaction_date_time,
+			char *fund_name,
+			enum subclassification_option subclassification_option )
+{
+	boolean fetch_subclassification_list = 0;
+	boolean fetch_account_list = 0;
+
+	if ( subclassification_option == subclassification_display )
+	{
+		fetch_subclassification_list = 1;
+	}
+	else
+	/* ------------------------------ */
+	/* Must be subclassification_omit */
+	/* ------------------------------ */
+	{
+		fetch_account_list = 1;
+	}
+
+	return
+		element_list(
+			(LIST *)0 /* filter_element_name_list */,
+			fund_name,
+			transaction_date_time,
+			fetch_subclassification_list,
+			fetch_account_list );
+}
+
+TRIAL_BALANCE *trial_balance_steady_state(
+			char *as_of_date,
+			char *fund_name,
+			char *subclassification_option_string,
+			char *output_medium_string,
+			TRIAL_BALANCE *trial_balance )
+{
+	DATE *current_date;
+
+	current_date =
+		date_yyyy_mm_dd_new(
+			as_of_date );
+
+	trial_balance->trial_balance_subclassification_option =
+		trial_balance_subclassification_option(
+			subclassification_option_string );
+
+	trial_balance->trial_balance_output_medium =
+		trial_balance_output_medium(
+			output_medium_string );
+
+	trial_balance->preclose_element_list =
+		trial_balance_element_list(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_date_time_closing(
+				as_of_date,
+				1 /* preclose_time_boolean */ ),
+			fund_name,
+			trial_balance->
+				trial_balance_subclassification_option );
+
+	trial_balance->current_element_list =
+		trial_balance_element_list(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_date_time_closing(
+				as_of_date,
+				0 /* not preclose_time_boolean */ ),
+			fund_name,
+			trial_balance->
+				trial_balance_subclassification_option );
+
+	date_subtract_year( current_date, 1 );
+
+	trial_balance->prior_year_element_list =
+		trial_balance_element_list(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_date_time_closing(
+				date_yyyy_mm_dd_display(
+					current_date ),
+				0 /* not preclose_time_boolean */ ),
+			fund_name,
+			trial_balance->
+				trial_balance_subclassification_option );
+
+	date_subtract_year( current_date, 1 );
+
+	trial_balance->prior_prior_year_element_list =
+		trial_balance_element_list(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_date_time_closing(
+				date_yyyy_mm_dd_display(
+					current_date ),
+				0 /* not preclose_time_boolean */ ),
+			fund_name,
+			trial_balance->
+				trial_balance_subclassification_option );
+
+	date_subtract_year( current_date, 1 );
+
+	trial_balance->prior_prior_prior_year_element_list =
+		trial_balance_element_list(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_date_time_closing(
+				date_yyyy_mm_dd_display(
+					current_date ),
+				0 /* not preclose_time_boolean */ ),
+			fund_name,
+			trial_balance->
+				trial_balance_subclassification_option );
+
+	return trial_balance;
+}
 

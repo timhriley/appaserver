@@ -1045,67 +1045,11 @@ void journal_list_update( LIST *journal_list )
 
 JOURNAL *journal_latest(
 			char *account_name,
-			char *as_of_date )
+			char *transaction_date_time_closing )
 {
-	char where[ 512 ];
-	char select[ 128 ];
-	char buffer[ 128 ];
-	char sys_string[ 1024 ];
-	char *latest_transaction_time;
-
-	if ( transaction_exists_closing_entry(
-		as_of_date ) )
-	{
-		latest_transaction_time = TRANSACTION_PRECLOSE_TRANSACTION_TIME;
-	}
-	else
-	{
-		latest_transaction_time = TRANSACTION_CLOSING_TRANSACTION_TIME;
-	}
-
-	if ( !as_of_date
-	||   !*as_of_date
-	||   strcmp(	as_of_date,
-			"as_of_date" ) == 0 )
-	{
-		sprintf( where,
-		"%s.transaction_date_time = %s.transaction_date_time and "
-		"%s.account = '%s'					 ",
-			JOURNAL_TABLE,
-			"transaction",
-			JOURNAL_TABLE,
-		 	timlib_escape_single_quotes( buffer, account_name ) );
-	}
-	else
-	{
-		sprintf( where,
-		"%s.transaction_date_time = %s.transaction_date_time and "
-		"%s.account = '%s' and					 "
-		"%s.transaction_date_time <= '%s %s'			 ",
-			JOURNAL_TABLE,
-			"transaction",
-			JOURNAL_TABLE,
-		 	timlib_escape_single_quotes( buffer, account_name ),
-			"transaction",
-		 	as_of_date,
-			latest_transaction_time );
-	}
-
-	sprintf(	select,
-			"max( %s.transaction_date_time )",
-			"transaction" );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s,%s where %s;\" | sql.e",
-		 select,
-		 JOURNAL_TABLE,
-		 TRANSACTION_TABLE,
-		 where );
-
-	return journal_account_fetch(
-		account_name,
-		pipe2string( sys_string )
-			/* transaction_date_time */ );
+	return journal_account_latest(
+			account_name,
+			transaction_date_time_closing );
 }
 
 LIST *journal_year_list(
@@ -1408,50 +1352,23 @@ void journal_list_html_display(
 
 JOURNAL *journal_account_latest(
 			char *account_name,
-			char *as_of_date )
+			char *transaction_date_time_closing )
 {
 	char where[ 512 ];
 	char select[ 128 ];
 	char sys_string[ 1024 ];
 	char *results;
-	char *latest_transaction_time;
 
-	if ( transaction_exists_closing_entry( as_of_date ) )
-	{
-		latest_transaction_time = TRANSACTION_PRECLOSE_TRANSACTION_TIME;
-	}
-	else
-	{
-		latest_transaction_time = TRANSACTION_CLOSING_TRANSACTION_TIME;
-	}
-
-	if ( !as_of_date
-	||   !*as_of_date
-	||   strcmp(	as_of_date,
-			"as_of_date" ) == 0 )
-	{
-		sprintf( where,
-		"%s.transaction_date_time = %s.transaction_date_time and "
-		"%s.account = '%s'					 ",
-			JOURNAL_TABLE,
-			TRANSACTION_TABLE,
-			JOURNAL_TABLE,
-		 	account_name_escape( account_name ) );
-	}
-	else
-	{
-		sprintf( where,
+	sprintf(where,
 		"%s.transaction_date_time = %s.transaction_date_time and "
 		"%s.account = '%s' and					 "
-		"%s.transaction_date_time <= '%s %s'			 ",
+		"%s.transaction_date_time <= '%s'			 ",
 			JOURNAL_TABLE,
 			TRANSACTION_TABLE,
 			JOURNAL_TABLE,
 		 	account_name_escape( account_name ),
 			TRANSACTION_TABLE,
-		 	as_of_date,
-			latest_transaction_time );
-	}
+			transaction_date_time_closing );
 
 	sprintf(	select,
 			"max( %s.transaction_date_time )",

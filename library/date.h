@@ -489,8 +489,12 @@ void date_increment_months(
 			int months,
 			int utc_offset );
 
+void date_subtract_year(
+			DATE *date,
+			int years );
+
 void date_increment_years(
-			DATE *d,
+			DATE *date,
 			int years,
 			int utc_offset );
 

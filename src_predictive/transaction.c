@@ -618,7 +618,7 @@ char *transaction_race_free( char *transaction_date_time )
 
 	semaphore_wait( semid );
 
-	while ( transaction_exists( transaction_date_time ) )
+	while ( transaction_date_time_exists( transaction_date_time ) )
 	{
 		if ( !next_transaction_date_time )
 		{
@@ -641,14 +641,91 @@ char *transaction_race_free( char *transaction_date_time )
 	return transaction_date_time;
 }
 
-boolean transaction_exists( char *transaction_date_time )
+char *transaction_date_time(
+			char *transaction_date,
+			char *transaction_time )
+{
+	char static date_time[ 128 ];
+
+	sprintf(date_time,
+		"%s %s",
+		transaction_date,
+		transaction_time );
+
+	return date_time;
+}
+
+char *transaction_date_time_where(
+			char *transaction_date,
+			char *transaction_time )
+{
+	char static where[ 128 ];
+
+	sprintf(where,
+		"transaction_date_time = '%s'",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_date_time(
+			transaction_date,
+			transaction_time ) );
+
+	return where;
+}
+
+char *transaction_closing_memo_where( void )
+{
+	char static where[ 128 ];
+
+	sprintf(where,
+		"memo = '%s'",
+		TRANSACTION_CLOSING_ENTRY_MEMO );
+
+	return where;
+}
+
+boolean transaction_date_time_exists( char *transaction_date_time )
 {
 	char sys_string[ 1024 ];
-	char where[ 128 ];
 	char *results;
 	boolean return_value;
 
-	sprintf( where, "transaction_date_time = '%s'", transaction_date_time );
+	sprintf( sys_string,
+		 "select.sh \"%s\" %s \"%s\" none",
+		 "count(1)",
+		 TRANSACTION_TABLE,
+		 transaction_date_time );
+
+	results = pipe2string( sys_string );
+	return_value = ( atoi( results ) == 1 );
+	free( results );
+	return return_value;
+}
+
+boolean transaction_existing_closing_date_time(
+			char *transaction_date )
+{
+	return transaction_closing_entry_exists(
+			transaction_date );
+}
+
+boolean transaction_closing_entry_exists(
+			char *transaction_date )
+{
+	char sys_string[ 1024 ];
+	char *results;
+	boolean return_value;
+	char where[ 256 ];
+
+	sprintf(where,
+		"%s and %s",
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
+		 transaction_date_time_where(
+			transaction_date,
+			TRANSACTION_CLOSING_TRANSACTION_TIME ),
+		 transaction_closing_memo_where() );
 
 	sprintf( sys_string,
 		 "select.sh \"%s\" %s \"%s\" none",
@@ -660,6 +737,54 @@ boolean transaction_exists( char *transaction_date_time )
 	return_value = ( atoi( results ) == 1 );
 	free( results );
 	return return_value;
+}
+
+char *transaction_closing_date_time(
+			char *transaction_date )
+{
+	return transaction_date_time_closing(
+			transaction_date,
+			0 /* not preclose_time_boolean */ );
+}
+
+char *transaction_closing_transaction_date_time(
+			char *transaction_date )
+{
+	return transaction_date_time_closing(
+			transaction_date,
+			0 /* not preclose_time_boolean */ );
+}
+
+char *transaction_date_time_closing(
+			char *transaction_date,
+			boolean preclose_time_boolean )
+{
+	static char date_time[ 128 ];
+
+	if ( preclose_time_boolean )
+	{
+		sprintf(date_time,
+			"%s %s",
+			transaction_date,
+			TRANSACTION_PRECLOSE_TRANSACTION_TIME );
+	}
+	else
+	if ( transaction_closing_entry_exists( transaction_date ) )
+	{
+		sprintf(date_time,
+			"%s %s",
+			transaction_date,
+			TRANSACTION_PRECLOSE_TRANSACTION_TIME );
+	}
+	else
+	{
+		sprintf(date_time,
+			"%s %s",
+			transaction_date,
+			TRANSACTION_CLOSING_TRANSACTION_TIME );
+	}
+
+	return date_time;
 }
 
 char *transaction_journal_refresh(
@@ -1186,54 +1311,6 @@ char *transaction_date_time_max( void )
 	return pipe2string( sys_string );
 }
 
-char *transaction_closing_date_time( char *as_of_date )
-{
-	return transaction_date_time_closing( as_of_date );
-}
-
-char *transaction_closing_transaction_date_time( char *as_of_date )
-{
-	return transaction_date_time_closing( as_of_date );
-}
-
-char *transaction_date_time_closing(
-			char *as_of_date )
-{
-	char transaction_date_time[ 32 ];
-
-	sprintf(	transaction_date_time,
-			"%s %s",
-			as_of_date,
-			TRANSACTION_CLOSING_TRANSACTION_TIME );
-
-	return strdup( transaction_date_time );
-}
-
-boolean transaction_date_time_exists(
-			char *transaction_date_time )
-{
-	char sys_string[ 1024 ];
-	char where[ 128 ];
-	char *results;
-
-	sprintf( where,
-		 "transaction_date_time = '%s'",
-		 transaction_date_time );
-
-	sprintf( sys_string,
-		 "select.sh \"%s\" %s \"%s\" none",
-		 "count(1)",
-		 TRANSACTION_TABLE,
-		 where );
-
-	results = pipe2string( sys_string );
-
-	if ( results && ( atoi( results ) == 1 ) )
-		return 1;
-	else
-		return 0;
-}
-
 LIST *transaction_fund_name_list( void )
 {
 	char sys_string[ 512 ];
@@ -1630,52 +1707,6 @@ char *transaction_latest_zero_balance_transaction_date_time(
 		return results;
 	else
 		return (char *)0;
-}
-
-char *transaction_existing_closing_date_time( char *as_of_date )
-{
-	return transaction_exists_closing_entry( as_of_date );
-}
-
-char *transaction_existing_closing_entry( char *as_of_date )
-{
-	return transaction_exists_closing_entry( as_of_date );
-}
-
-char *transaction_exists_closing_date_time( char *as_of_date )
-{
-	return transaction_exists_closing_entry( as_of_date );
-}
-
-char *transaction_exists_closing_entry( char *as_of_date )
-{
-	char where[ 512 ];
-	char sys_string[ 1024 ];
-	char *results;
-
-	sprintf( where,
-		 "transaction_date_time = '%s %s' and	"
-		 "memo = '%s'				",
-		 as_of_date,
-		 TRANSACTION_CLOSING_TRANSACTION_TIME,
-		 TRANSACTION_CLOSING_ENTRY_MEMO );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 "transaction_date_time",
-		 TRANSACTION_TABLE,
-		 where );
-
-	results = pipe2string( sys_string );
-
-	if ( results && *results )
-	{
-		return results;
-	}
-	else
-	{
-		return (char *)0;
-	}
 }
 
 LIST *transaction_date_time_account_name_list(

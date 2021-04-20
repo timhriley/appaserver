@@ -220,7 +220,7 @@ LIST *element_system_list(
 			char *sys_string,
 			LIST *filter_element_name_list,
 			char *fund_name,
-			char *as_of_date,
+			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list )
 {
@@ -264,7 +264,7 @@ LIST *element_system_list(
 					&element->element_total,
 					element->element_name,
 					fund_name,
-					as_of_date );
+					transaction_date_time_closing );
 		}
 
 		if ( fetch_subclassification_list )
@@ -274,7 +274,7 @@ LIST *element_system_list(
 					&element->element_total,
 					element->element_name,
 					fund_name,
-					as_of_date );
+					transaction_date_time_closing );
 		}
 
 		list_set( element_list, element );
@@ -287,7 +287,7 @@ LIST *element_system_list(
 
 LIST *element_list(	LIST *filter_element_name_list,
 			char *fund_name,
-			char *as_of_date,
+			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list )
 {
@@ -301,7 +301,7 @@ LIST *element_list(	LIST *filter_element_name_list,
 			sys_string,
 			filter_element_name_list,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing,
 			fetch_subclassification_list,
 			fetch_account_list );
 }
@@ -310,7 +310,7 @@ LIST *element_subclassification_list(
 			double *element_total,
 			char *element_name,
 			char *fund_name,
-			char *as_of_date )
+			char *transaction_date_time_closing )
 {
 	LIST *subclassification_list;
 	SUBCLASSIFICATION *subclassification;
@@ -344,7 +344,7 @@ LIST *element_subclassification_list(
 				&subclassification->subclassification_total,
 				subclassification->subclassification_name,
 				fund_name,
-				as_of_date );
+				transaction_date_time_closing );
 
 		*element_total += subclassification->subclassification_total;
 
@@ -445,7 +445,7 @@ LIST *element_account_list(
 			double *element_total,
 			char *element_name,
 			char *fund_name,
-			char *as_of_date )
+			char *transaction_date_time_closing )
 {
 	ACCOUNT *account;
 	char sys_string[ 1024 ];
@@ -487,7 +487,7 @@ LIST *element_account_list(
 		latest_journal =
 			journal_latest(
 				account_name,
-				as_of_date );
+				transaction_date_time_closing );
 
 		if ( !latest_journal
 		||   timlib_double_virtually_same(

@@ -169,7 +169,7 @@ void journal_list_propagate_update(
 
 JOURNAL *journal_latest(
 			char *account_name,
-			char *as_of_date );
+			char *date_time );
 
 LIST *journal_year_list(
 			int year,
@@ -224,7 +224,7 @@ char *journal_update_sys_string(
 
 JOURNAL *journal_account_latest(
 			char *account_name,
-			char *as_of_date );
+			char *transaction_date_time_closing );
 
 LIST *journal_minimum_account_journal_list(
 			char *minimum_transaction_date_time,

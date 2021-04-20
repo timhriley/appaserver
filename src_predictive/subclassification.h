@@ -57,7 +57,7 @@ SUBCLASSIFICATION *subclassification_total_fetch(
 			double *subclassification_total,
 			char *subclassification_name,
 			char *fund_name,
-			char *as_of_date );
+			char *date_time );
 
 SUBCLASSIFICATION *subclassification_fetch(
 			char *subclassification_name );
@@ -135,7 +135,7 @@ LIST *subclassification_total_account_list(
 			double *subclassification_total,
 			char *subclassification_name,
 			char *fund_name,
-			char *as_of_date );
+			char *transaction_date_time_closing );
 
 LIST *subclassification_list(
 			void );

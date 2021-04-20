@@ -387,6 +387,7 @@ void balance_sheet_subclassification_aggregate_PDF(
 		build_subclassification_aggregate_PDF_heading_list();
 
 	filter_element_name_list = list_new();
+
 	list_append_pointer(	filter_element_name_list,
 				PREDICTIVE_ELEMENT_ASSET );
 	list_append_pointer(	filter_element_name_list,
@@ -398,7 +399,9 @@ void balance_sheet_subclassification_aggregate_PDF(
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				1 /* prior_closing_time_boolean */ ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -555,7 +558,9 @@ void balance_sheet_subclassification_display_PDF(
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				1 /* prior_closing_time_boolean */ ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -669,7 +674,9 @@ void balance_sheet_subclassification_aggregate_html(
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				1 /* prior_closing_time_boolean */ ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -826,7 +833,9 @@ void balance_sheet_subclassification_display_html(
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				1 /* prior_closing_time_boolean */ ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -1366,7 +1375,9 @@ void balance_sheet_account_omit_html(
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				1 /* prior_closing_time_boolean */ ),
 			0 /* not fetch_subclassifiction_list */,
 			1 /* fetch_account_list */ );
 
@@ -1568,7 +1579,9 @@ void balance_sheet_account_omit_PDF(
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				1 /* prior_closing_time_boolean */ ),
 			0 /* not fetch_subclassifiction_list */,
 			1 /* fetch_account_list */ );
 

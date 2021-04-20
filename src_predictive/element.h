@@ -56,20 +56,20 @@ LIST *element_subclassification_list(
 			double *element_total,
 			char *element_name,
 			char *fund_name,
-			char *as_of_date );
+			char *date_time );
 
 LIST *element_account_list(
 			double *element_total,
 			char *element_name,
 			char *fund_name,
-			char *as_of_date );
+			char *date_time );
 
 LIST *element_list_sort(
 			LIST *element_list );
 
 LIST *element_list(	LIST *filter_element_name_list,
 			char *fund_name,
-			char *as_of_date,
+			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list );
 

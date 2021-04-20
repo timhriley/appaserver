@@ -155,9 +155,7 @@ boolean close_nominal_accounts_execute( char *as_of_date )
 	LIST *fund_name_list;
 	char sys_string[ 1024 ];
 
-	if ( ( transaction_date_time =
-			transaction_existing_closing_date_time(
-				as_of_date ) ) )
+	if ( transaction_existing_closing_date_time( as_of_date ) )
 	{
 		return 0;
 	}
@@ -285,7 +283,9 @@ boolean close_nominal_accounts_fund_execute(
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				1 /* prior_closing_time_boolean */ ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -628,7 +628,9 @@ void close_nominal_accounts_fund_display(
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			as_of_date,
+			transaction_date_time_closing(
+				as_of_date,
+				1 /* prior_closing_time_boolean */ ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 

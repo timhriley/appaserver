@@ -618,6 +618,17 @@ void date_increment_years(	DATE *d,
 	date_decrement_years(d, -years, utc_offset );
 }
 
+void date_subtract_year(
+			DATE *date,
+			int years )
+{
+	return
+		date_decrement_years(
+				date,
+				years,
+				date_utc_offset() );
+}
+
 void date_decrement_years(	DATE *d,
 				int years,
 				int utc_offset )

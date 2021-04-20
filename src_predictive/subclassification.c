@@ -88,7 +88,7 @@ SUBCLASSIFICATION *subclassification_total_fetch(
 			double *subclassification_total,
 			char *subclassification_name,
 			char *fund_name,
-			char *as_of_date )
+			char *transaction_date_time_closing )
 {
 	SUBCLASSIFICATION *subclassification;
 	char sys_string[ 1024 ];
@@ -113,7 +113,7 @@ SUBCLASSIFICATION *subclassification_total_fetch(
 			subclassification_total,
 			subclassification->subclassification_name,
 			fund_name,
-			as_of_date );
+			transaction_date_time_closing );
 
 	return subclassification;
 }
@@ -1766,7 +1766,7 @@ LIST *subclassification_total_account_list(
 			double *subclassification_total,
 			char *subclassification_name,
 			char *fund_name,
-			char *as_of_date )
+			char *transaction_date_time_closing )
 {
 	LIST *account_list;
 	ACCOUNT *account;
@@ -1806,7 +1806,7 @@ LIST *subclassification_total_account_list(
 		latest_journal =
 			journal_latest(
 				account_name,
-				as_of_date );
+				transaction_date_time_closing );
 
 		if ( !latest_journal
 		||   timlib_double_virtually_same(
