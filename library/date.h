@@ -62,8 +62,7 @@ void increment_week(		DATE *d );
 
 void date_increment_day(	DATE *d );
 
-void date_decrement_day(	DATE *d,
-				int utc_offset );
+void date_decrement_day(	DATE *d );
 
 void date_increment(		DATE *d );
 
@@ -297,13 +296,11 @@ char *date_get_current_hhmm(
 
 void date_increment_days(
 			DATE *d,
-			double days,
-			int utc_offset );
+			double days );
 
 void date_decrement_days(
 			DATE *d,
-			double days,
-			int utc_offset );
+			double days );
 
 char *date_hhmm(	DATE *d );
 

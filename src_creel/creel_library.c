@@ -2647,17 +2647,15 @@ void creel_library_get_begin_end_dates(
 	if ( strcmp( mail_merge_letter, "recently_expired" ) == 0 )
 	{
 		date_decrement_days(
-				begin_date,
-				atof( days_offset ),
-				0 /* utc_offset */ );
+			begin_date,
+			atof( days_offset ) );
 	}
 	else
 	if ( strcmp( mail_merge_letter, "about_to_expire" ) == 0 )
 	{
 		date_increment_days(
 				end_date,
-				atof( days_offset ),
-				0 /* utc_offset */ );
+				atof( days_offset ) );
 	}
 	else
 	{

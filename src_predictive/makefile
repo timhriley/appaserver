@@ -127,7 +127,8 @@ SOURCE_LIBRARY= 							\
 		transaction.o						\
 		account.o						\
 		element.o						\
-		journal.o
+		journal.o						\
+		statement.o
 
 SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\
@@ -883,6 +884,10 @@ account_balance.o: account_balance.c account_balance.h
 spreadsheet.o: spreadsheet.c spreadsheet.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c spreadsheet.c
+
+statement.o: statement.c statement.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c statement.c
 
 paypal.o: paypal.c paypal.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

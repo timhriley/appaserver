@@ -203,8 +203,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 
 	date_increment_days(
 		uncleared_checks_back_date,
-		-15.0,
-		0 /* utc_offset */ );
+		-15.0 );
 
 	p->reoccurring_structure = reoccurring_structure_calloc();
 
@@ -2566,7 +2565,7 @@ void bank_upload_transaction_balance_propagate(
 	}
 
 	yesterday = date_yyyy_mm_dd_new( minimum_date );
-	date_increment_days( yesterday, -1.0, date_utc_offset() );
+	date_increment_days( yesterday, -1.0 );
 
 	sprintf( sys_string,
 		 "bank_upload_sequence_propagate.sh \"%s\" 		|"

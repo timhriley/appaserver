@@ -140,14 +140,14 @@ void test2()
 	d = date_yyyy_mm_dd_new( "1999-12-31" );
 	printf( "should be 1999-12-31 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
-	date_increment_days( d, 1.0, date_utc_offset() );
+	date_increment_days( d, 1.0 );
 	printf( "should be 2000-01-01 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
 
 	d = date_yyyy_mm_dd_new( "2000-1-1" );
 	printf( "should be 2000-01-01 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
-	date_increment_days( d, 1.0, date_utc_offset() );
+	date_increment_days( d, 1.0 );
 	printf( "should be 2000-01-02 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
 
@@ -179,7 +179,7 @@ void test5()
 {
 	DATE *d = date_get_today_new( date_get_utc_offset() );
 
-	date_increment_days( d, -1.0, date_utc_offset() );
+	date_increment_days( d, -1.0 );
 	printf( "yesterday: %s\n", date_get_yyyy_mm_dd_hhmm( d ) );
 }
 

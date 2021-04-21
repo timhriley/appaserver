@@ -104,8 +104,7 @@ void current_vs_historical_dates(
 
 	date_increment_days(
 		por_historical_begin_date,
-		1.0,
-		0 /* utc_offset */ );
+		1.0 );
 
 	/* Set POR Historical End Date */
 	/* --------------------------- */
@@ -129,8 +128,7 @@ void current_vs_historical_dates(
 
 	date_increment_days(
 		current_begin_date,
-		1.0,
-		0 /* utc_offset */ );
+		1.0 );
 
 	*por_historical_begin_date_string =
 		date_display_yyyy_mm_dd(

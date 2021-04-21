@@ -209,8 +209,7 @@ int main( int argc, char **argv )
 
 		date_decrement_days(
 			expanded_date,
-			DATE_EXPAND_PLUS_MINUS,
-			0 /* utc_offset */ );
+			DATE_EXPAND_PLUS_MINUS );
 
 		expanded_from_date_string =
 			date_get_yyyy_mm_dd_string(
@@ -224,8 +223,7 @@ int main( int argc, char **argv )
 
 		date_increment_days(
 			expanded_date,
-			DATE_EXPAND_PLUS_MINUS,
-			0 /* utc_offset */ );
+			DATE_EXPAND_PLUS_MINUS );
 
 		expanded_to_date_string =
 			date_get_yyyy_mm_dd_string(

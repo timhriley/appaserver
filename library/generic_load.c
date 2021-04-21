@@ -387,7 +387,7 @@ void generic_load_replace_time_2400_with_0000(
 		date_set_yyyy_mm_dd( date, date_string );
 	}
 
-	date_increment_days( date, 1.0, 0 /* utc_offset */ );
+	date_increment_days( date, 1.0 );
 
 	piece_replace(	input_buffer,
 			delimiter, 

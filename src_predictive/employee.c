@@ -2557,8 +2557,7 @@ void employee_close_employee_work_list_insert(
 
 	date_increment_days(
 		end_work_date,
-		1.0,
-		0 /* utc_offset */ );
+		1.0 );
 
 	table = get_table_name( application_name, "employee_work_day" );
 

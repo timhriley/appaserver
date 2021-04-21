@@ -18,7 +18,7 @@ int main( int argc, char **argv )
 	}
 
 	d = date_get_today_new( date_get_utc_offset() );
-	date_increment_days( d, days_to_minus, 0 /* utc_offset */ );
+	date_increment_days( d, days_to_minus );
 	printf( "%s\n", date_display_yyyy_mm_dd( d ) );
 	return 0;
 }
