@@ -132,5 +132,23 @@ boolean element_account_accumulate_debit(
 LIST *element_fetch_list(
 			char *sys_string );
 
+void element_set_account_action_string(
+			ELEMENT *element,
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date );
+
+void element_list_set_account_action_string(
+			LIST *element_list,
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date );
+
 #endif
 

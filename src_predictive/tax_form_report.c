@@ -175,20 +175,16 @@ int main( int argc, char **argv )
 		"%d-12-31",
 		tax->tax_year );
 
-	if ( ! ( begin_date_string =
-			transaction_report_title_sub_title(
-				title,
-				sub_title,
-				process_name,
-				(char *)0 /* fund_name */,
-				end_date_string,
-				0 /* length_fund_name_list */,
-				logo_filename ) ) )
-	{
-		printf( "<h3>Internal error occurred. See log.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
+	transaction_report_title_sub_title(
+		title,
+		sub_title,
+		process_name,
+		(LIST *)0 /* fund_name_list */,
+		transaction_beginning_date_string(
+			(char *)0 /* fund_name */,
+			as_of_date ),
+		as_of_date,
+		logo_filename );
 
 	tax_form_line_list_steady_state( tax->tax_form->tax_form_line_list );
 

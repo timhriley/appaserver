@@ -1918,3 +1918,34 @@ boolean subclassification_receivable(
 			SUBCLASSIFICATION_RECEIVABLE ) == 0 );
 }
 
+void subclassification_list_set_account_action_string(
+			LIST *subclassification_list,
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date )
+{
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !list_rewind( subclassification_list ) ) return;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		if ( list_length( subclassification->account_list ) )
+		{
+			account_list_set_action_string(
+				subclassification->account_list,
+				application_name,
+				session,
+				login_name,
+				role_name,
+				beginning_date,
+				as_of_date );
+		}
+
+	} while ( list_next( subclassification_list ) );
+}
+

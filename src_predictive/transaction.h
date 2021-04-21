@@ -300,15 +300,13 @@ char *transaction_program_refresh(
 			boolean lock_transaction,
 			LIST *journal_list );
 
-/* Returns begin_date_string */
-/* ------------------------- */
-char *transaction_report_title_sub_title(
+void transaction_report_title_sub_title(
 			char *title,
 			char *sub_title,
 			char *process_name,
-			char *fund_name,
+			LIST *fund_name_list,
+			char *begin_date_string,
 			char *as_of_date,
-			int fund_name_list_length,
 			char *logo_filename );
 
 DATE *transaction_prior_closing_transaction_date(
@@ -362,6 +360,10 @@ char *transaction_beginning_date_string(
 			char *ending_transaction_date );
 
 char *transaction_date_prior_closing_beginning(
+			char *fund_name,
+			char *as_of_date );
+
+char *transaction_prior_close_beginning_date(
 			char *fund_name,
 			char *as_of_date );
 

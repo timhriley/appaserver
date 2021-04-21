@@ -57,6 +57,7 @@ typedef struct
 	boolean accumulate_debit;
 	double payment_amount;
 	LIST *transaction_after_balance_zero_journal_list;
+	char *account_action_string;
 } ACCOUNT;
 
 /* Operations */
@@ -189,5 +190,23 @@ ACCOUNT *account_key_fetch(
 
 boolean account_name_changed(
 			char *preupdate_account_name );
+
+char *account_action_string(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date,
+			char *account_name );
+
+void account_list_set_action_string(
+			LIST *account_list,
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date );
 
 #endif

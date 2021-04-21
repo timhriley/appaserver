@@ -100,147 +100,144 @@ int trial_balance_html_table_subclassification_list(
 			int count,
 			boolean fetch_subclassification_list );
 
-char *get_action_string(
-					char *application_name,
-					char *session,
-					char *login_name,
-					char *role_name,
-					char *beginning_date,
-					char *as_of_date,
-					char *account_name );
+void output_stdout(	char *element_name,
+			char *subclassification_name,
+			char *account_name,
+			char *full_name,
+			int transaction_count,
+			double balance,
+			char *transaction_date_time,
+			char *memo,
+			boolean accumulate_debit,
+			double debit_amount,
+			double credit_amount,
+			double prior_balance_change,
+			double ratio_denominator );
 
-void output_stdout(			char *element_name,
-					char *subclassification_name,
-					char *account_name,
-					char *full_name,
-					int transaction_count,
-					double balance,
-					char *transaction_date_time,
-					char *memo,
-					boolean accumulate_debit,
-					double debit_amount,
-					double credit_amount,
-					double prior_balance_change,
-					double ratio_denominator );
+void trial_balance_stdout(
+			char *fund_name,
+			char *as_of_date,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list );
 
-void trial_balance_stdout(		char *fund_name,
-					char *as_of_date,
-					boolean fetch_subclassification_list,
-					boolean fetch_account_list );
-
-void build_PDF_account_row(		LIST *column_data_list,
-					boolean *accumulate_debit,
-					double *balance,
-					ACCOUNT *account,
-					LIST *prior_element_list,
-					double ratio_denominator );
+void build_PDF_account_row(
+			LIST *column_data_list,
+			boolean *accumulate_debit,
+			double *balance,
+			ACCOUNT *account,
+			LIST *prior_element_list,
+			double ratio_denominator );
 
 double trial_balance_get_prior_balance_change(
-					LIST *prior_element_list,
-					char *account_name,
-					double current_balance );
+			LIST *prior_element_list,
+			char *account_name,
+			double current_balance );
 
 void trial_balance_account_html_table(
-					double *balance,
-					boolean *accumulate_debit,
-					HTML_TABLE *html_table,
-					char *application_name,
-					ACCOUNT *account,
-					LIST *prior_element_list,
-					char *element_name,
-					char *subclassification_name,
-					double ratio_denominator,
-					char *beginning_date,
-					char *as_of_date,
-					char *session,
-					char *login_name,
-					char *role_name,
-					boolean fetch_subclassification_list );
+			double *balance,
+			boolean *accumulate_debit,
+			HTML_TABLE *html_table,
+			char *application_name,
+			ACCOUNT *account,
+			LIST *prior_element_list,
+			char *element_name,
+			char *subclassification_name,
+			double ratio_denominator,
+			char *beginning_date,
+			char *as_of_date,
+			char *session,
+			char *login_name,
+			char *role_name,
+			boolean fetch_subclassification_list );
 
 void trial_balance_account_stdout(
-					double *balance,
-					boolean *accumulate_debit,
-					ACCOUNT *account,
-					LIST *prior_element_list,
-					char *element_name,
-					char *subclassification_name,
-					double ratio_denominator );
+			double *balance,
+			boolean *accumulate_debit,
+			ACCOUNT *account,
+			LIST *prior_element_list,
+			char *element_name,
+			char *subclassification_name,
+			double ratio_denominator );
 
-char *get_html_table_account_title(	char *account_name,
-					char *full_name,
-					double debit_amount,
-					double credit_amount,
-					char *transaction_date,
-					char *memo );
+char *get_html_table_account_title(
+			char *account_name,
+			char *full_name,
+			double debit_amount,
+			double credit_amount,
+			char *transaction_date,
+			char *memo );
 
-char *get_latex_account_title(		char *account_name,
-					char *full_name,
-					double debit_amount,
-					double credit_amount,
-					char *transaction_date,
-					char *memo );
+char *get_latex_account_title(
+			char *account_name,
+			char *full_name,
+			double debit_amount,
+			double credit_amount,
+			char *transaction_date,
+			char *memo );
 
 void trial_balance_html_table(
-					char *application_name,
-					char *title,
-					char *sub_title,
-					char *fund_name,
-					char *as_of_date,
-					char *session,
-					char *login_name,
-					char *role_name,
-					boolean fetch_subclassification_list,
-					boolean fetch_account_list );
+			char *application_name,
+			char *title,
+			char *sub_title,
+			char *fund_name,
+			char *as_of_date,
+			char *session,
+			char *login_name,
+			char *role_name,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list );
 
-LIST *build_PDF_row_list(		LIST *current_element_list,
-					LIST *prior_element_list,
-					boolean fetch_subclassification_list );
+LIST *build_PDF_row_list(
+			LIST *current_element_list,
+			LIST *prior_element_list,
+			boolean fetch_subclassification_list );
 
-LIST *build_PDF_heading_list(		boolean fetch_subclassification_list );
+LIST *build_PDF_heading_list(
+			boolean fetch_subclassification_list );
 
-void trial_balance_PDF(			char *application_name,
-					char *fund_name,
-					char *as_of_date,
-					char *document_root_directory,
-					char *process_name,
-					char *aggregation,
-					char *logo_filename,
-					boolean fetch_subclassification_list,
-					boolean fetch_account_list );
+void trial_balance_PDF(	char *application_name,
+			char *fund_name,
+			char *as_of_date,
+			char *document_root_directory,
+			char *process_name,
+			char *fund_aggregation,
+			char *logo_filename,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list );
 
 void trial_balance_PDF_fund(		
-					LATEX *latex,
-					char *sub_title,
-					char *fund_name,
-					char *as_of_date,
-					boolean fetch_subclassification_list,
-					boolean fetch_account_list );
+			LATEX *latex,
+			char *sub_title,
+			char *fund_name,
+			char *as_of_date,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list );
 
-void output_html_table(			LIST *data_list,
-					char *element_name,
-					char *subclassification_name,
-					char *account_name,
-					char *full_name,
-					int transaction_count,
-					double balance,
-					char *transaction_date_time,
-					char *memo,
-					int number_left_justified_columns,
-					int number_right_justified_columns,
-					boolean background_shaded,
-					LIST *justify_list,
-					boolean accumulate_debit,
-					double debit_amount,
-					double credit_amount,
-					double prior_balance_change,
-					double ratio_denominator,
-					char *application_name,
-					char *beginning_date,
-					char *as_of_date,
-					char *session,
-					char *login_name,
-					char *role_name,
-					boolean fetch_subclassification_list );
+void output_html_table(	LIST *data_list,
+			char *element_name,
+			char *subclassification_name,
+			char *account_name,
+			char *full_name,
+			int transaction_count,
+			double balance,
+			char *transaction_date_time,
+			char *memo,
+			int number_left_justified_columns,
+			int number_right_justified_columns,
+			boolean background_shaded,
+			LIST *justify_list,
+			boolean accumulate_debit,
+			double debit_amount,
+			double credit_amount,
+			double prior_balance_change,
+			double ratio_denominator,
+			char *application_name,
+			char *beginning_date,
+			char *as_of_date,
+			char *session,
+			char *login_name,
+			char *role_name,
+			boolean fetch_subclassification_list );
 
 int main( int argc, char **argv )
 {
@@ -253,29 +250,33 @@ int main( int argc, char **argv )
 	char title[ 256 ];
 	char sub_title[ 256 ];
 	char *fund_name;
-	char *aggregation;
+	LIST *fund_name_list;
+	char *subclassification_option_string;
+	char *fund_aggregation_string;
+	char *output_medium_string;
 	char *as_of_date;
-	char *output_medium;
+	int prior_year_count;
 	char *logo_filename;
-	char *subclassification_option;
-	boolean fetch_subclassification_list;
-	boolean fetch_account_list;
+	TRIAL_BALANCE *trial_balance;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc != 10 )
+	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s session login_name role process fund as_of_date aggregation output_medium subclassification_option\n",
+"Usage: %s session login_name role process fund as_of_date prior_year_count aggregation output_medium subclassification_option\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
 "Note: subclassification_option={display,omit}\n" );
+
+		fprintf( stderr,
+"Note: aggregation={single_fund,sequential,consolidated}\n" );
 
 		exit ( 1 );
 	}
@@ -284,20 +285,23 @@ int main( int argc, char **argv )
 	login_name = argv[ 2 ];
 	role_name = argv[ 3 ];
 	process_name = argv[ 4 ];
+
 	fund_name = argv[ 5 ];
+
+	if ( *fund_name && strcmp( fund_name, "fund" ) != 0 )
+	{
+		fund_name_list = list_delimited_string_to_list( fund_name );
+	}
+	else
+	{
+		fund_name_list = (LIST *)0;
+	}
+
 	as_of_date = argv[ 6 ];
-	aggregation = argv[ 7 ];
-	output_medium = argv[ 8 ];
-	subclassification_option = argv[ 9 ];
-
-	fetch_subclassification_list =
-		( strcmp( subclassification_option, "omit" ) != 0 );
-
-	fetch_account_list =
-		( strcmp( subclassification_option, "omit" ) == 0 );
-
-	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
-		output_medium = "table";
+	prior_year_count = atoi( argv[ 7 ] );
+	fund_aggregation_string = argv[ 8 ];
+	output_medium_string = argv[ 9 ];
+	subclassification_option_string = argv[ 10 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -322,6 +326,33 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	trial_balance =
+		trial_balance_new(
+			application_name,
+			session,
+			login_name,
+			role_name,
+			as_of_date,
+			prior_year_count,
+			fund_name,
+			subclassification_option_string,
+			fund_aggregation_string,
+			output_medium_string );
+
+	trial_balance =
+		trial_balance_steady_state(
+			trial_balance->application_name,
+			trial_balance->session,
+			trial_balance->login_name,
+			trial_balance->role_name,
+			trial_balance->as_of_date,
+			trial_balance->prior_year_count,
+			trial_balance->fund_name,
+			trial_balance->subclassification_option_string,
+			trial_balance->fund_aggregation_string,
+			trial_balance->output_medium_string,
+			trial_balance );
+
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
 		document_quick_output_body(
@@ -335,19 +366,16 @@ int main( int argc, char **argv )
 			application_name,
 			"logo_filename" /* key */ );
 
-	if ( !transaction_report_title_sub_title(
+	transaction_report_title_sub_title(
 		title,
 		sub_title,
 		process_name,
-		fund_name,
+		fund_name_list,
+		transaction_beginning_date_string(
+			list_first( fund_name_list ),
+			as_of_date ),
 		as_of_date,
-		0 /* fund_name_list_length */,
-		logo_filename ) )
-	{
-		printf( "<h3>Error. No transactions.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
+		logo_filename );
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
@@ -404,7 +432,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->
 				document_root,
 			process_name,
-			aggregation,
+			fund_aggregation,
 			logo_filename,
 			fetch_subclassification_list,
 			fetch_account_list );
@@ -705,7 +733,7 @@ void trial_balance_PDF(
 			char *as_of_date,
 			char *document_root_directory,
 			char *process_name,
-			char *aggregation,
+			char *fund_aggregation,
 			char *logo_filename,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list )
@@ -769,9 +797,11 @@ void trial_balance_PDF(
 		title,
 		sub_title,
 		process_name,
-		fund_name,
+		fund_name_list,
+		transaction_beginning_date_string(
+			list_first( fund_name_list ),
+			as_of_date ),
 		as_of_date,
-		list_length( fund_name_list ),
 		logo_filename );
 
 	printf( "<h1>%s</h1>\n", title );
@@ -784,7 +814,7 @@ void trial_balance_PDF(
 			logo_filename );
 
 	if ( list_rewind( fund_name_list )
-	&&   strcmp( aggregation, "sequential" ) == 0 )
+	&&   strcmp( fund_aggregation, "sequential" ) == 0 )
 	{
 		do {
 			fund_name = list_get_pointer( fund_name_list );
@@ -793,9 +823,11 @@ void trial_balance_PDF(
 				title,
 				sub_title,
 				process_name,
-				fund_name,
+				(LIST *)0 /* fund_name_list */,
+				transaction_beginning_date_string(
+					fund_name,
+				    	as_of_date ),
 				as_of_date,
-				0 /* fund_name_list_length */,
 				logo_filename );
 
 			trial_balance_PDF_fund(
@@ -1325,7 +1357,7 @@ void output_html_table(	LIST *data_list,
 	char *action_string;
 
 	action_string =
-		get_action_string(
+		account_action_string(
 			application_name,
 			session,
 			login_name,
@@ -2127,30 +2159,6 @@ void output_stdout(	char *element_name,
 
 }
 
-char *get_action_string(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			char *beginning_date,
-			char *as_of_date,
-			char *account_name )
-{
-	char action_string[ 4096 ];
-
-	sprintf( action_string,
-"/cgi-bin/post_prompt_edit_form?%s^%s^%s^journal_ledger^%s^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup@llookup_before_drop_down_state~skipped@relation_operator_account_0~equals@account_1~%s@llookup_before_drop_down_base_folder~journal_ledger@relation_operator_transaction_date_time_0~between@from_transaction_date_time_0~%s 00:00:00@to_transaction_date_time_0~%s",
-		 login_name,
-		 application_name,
-		 session,
-		 role_name,
-		 account_name,
-		 beginning_date,
-		 as_of_date );
-
-	return strdup( action_string );
-}
-
 #ifndef NEW_HTML_TABLE
 
 void trial_balance_html_table(
@@ -2675,6 +2683,7 @@ void trial_balance_html_table(
 
 TRIAL_BALANCE *trial_balance_new(
 			char *as_of_date,
+			int prior_year_count,
 			char *fund_name,
 			char *subclassification_option_string,
 			char *output_medium_string )
@@ -2693,6 +2702,7 @@ TRIAL_BALANCE *trial_balance_new(
 	}
 
 	trial_balance->as_of_date = as_of_date;
+	trial_balance->prior_year_count = prior_year_count;
 	trial_balance->fund_name = fund_name;
 
 	trial_balance->subclassification_option_string =
@@ -2726,6 +2736,35 @@ enum subclassification_option trial_balance_subclassification_option(
 	}
 }
 
+enum fund_aggregation trial_balance_fund_aggregation(
+			char *fund_aggregation_string )
+{
+	if ( strcmp(
+		fund_aggregation_string,
+		"single_fund" ) == 0 )
+	{
+		return single_fund;
+	}
+	else
+	if ( strcmp(
+		fund_aggregation_string,
+		"sequential" ) == 0 )
+	{
+		return sequential;
+	}
+	else
+	if ( strcmp(
+		fund_aggregation_string,
+		"consolidated" ) == 0 )
+	{
+		return consolidated;
+	}
+	else
+	{
+		return sequential;
+	}
+}
+
 enum output_medium trial_balance_output_medium(
 			char *output_medium_string )
 {
@@ -2743,18 +2782,32 @@ enum output_medium trial_balance_output_medium(
 		return output_PDF;
 	}
 	else
+	if ( strcmp(
+		output_medium_string,
+		"stdout" ) == 0 )
+	{
+		return output_stdout;
+	}
+	else
 	{
 		return output_table;
 	}
 }
 
 LIST *trial_balance_element_list(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
 			char *transaction_date_time,
 			char *fund_name,
-			enum subclassification_option subclassification_option )
+			enum subclassification_option subclassification_option,
+			enum fund_aggregation fund_aggregation )
 {
 	boolean fetch_subclassification_list = 0;
 	boolean fetch_account_list = 0;
+	char transaction_date[ 16 ];
+	LIST *list;
 
 	if ( subclassification_option == subclassification_display )
 	{
@@ -2768,38 +2821,72 @@ LIST *trial_balance_element_list(
 		fetch_account_list = 1;
 	}
 
-	return
+	list =
 		element_list(
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
 			transaction_date_time,
 			fetch_subclassification_list,
 			fetch_account_list );
+
+	element_list_set_account_action_string(
+		list,
+		application_name,
+		session,
+		login_name,
+		role_name,
+		beginning_date,
+		transaction_date_time );
+
+	return list;
 }
 
 TRIAL_BALANCE *trial_balance_steady_state(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
 			char *as_of_date,
+			int prior_year_count,
 			char *fund_name,
 			char *subclassification_option_string,
+			char *fund_aggregation_string,
 			char *output_medium_string,
 			TRIAL_BALANCE *trial_balance )
 {
-	DATE *current_date;
-
-	current_date =
-		date_yyyy_mm_dd_new(
-			as_of_date );
+	int years_ago;
 
 	trial_balance->trial_balance_subclassification_option =
 		trial_balance_subclassification_option(
 			subclassification_option_string );
 
+	trial_balance->trial_balance_fund_aggregation =
+		trial_balance_fund_aggregation(
+			fund_aggregation_string );
+
 	trial_balance->trial_balance_output_medium =
 		trial_balance_output_medium(
 			output_medium_string );
 
+	if ( ! ( trial_balance->beginning_date = 
+			transaction_prior_close_beginning_date(
+				fund_name,
+				as_of_date ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: transaction_prior_close_beginning_date() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	trial_balance->preclose_element_list =
 		trial_balance_element_list(
+			application_name,
+			session,
+			login_name,
+			role_name,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -2808,10 +2895,16 @@ TRIAL_BALANCE *trial_balance_steady_state(
 				1 /* preclose_time_boolean */ ),
 			fund_name,
 			trial_balance->
-				trial_balance_subclassification_option );
+				trial_balance_subclassification_option,
+			trial_balance->
+				trial_balance_fund_aggregation );
 
 	trial_balance->current_element_list =
 		trial_balance_element_list(
+			application_name,
+			session,
+			login_name,
+			role_name,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -2820,53 +2913,130 @@ TRIAL_BALANCE *trial_balance_steady_state(
 				0 /* not preclose_time_boolean */ ),
 			fund_name,
 			trial_balance->
-				trial_balance_subclassification_option );
-
-	date_subtract_year( current_date, 1 );
-
-	trial_balance->prior_year_element_list =
-		trial_balance_element_list(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			transaction_date_time_closing(
-				date_yyyy_mm_dd_display(
-					current_date ),
-				0 /* not preclose_time_boolean */ ),
-			fund_name,
+				trial_balance_subclassification_option,
 			trial_balance->
-				trial_balance_subclassification_option );
+				trial_balance_fund_aggregation );
 
-	date_subtract_year( current_date, 1 );
+	if ( !prior_year_count )
+	{
+		return trial_balance;
+	}
 
-	trial_balance->prior_prior_year_element_list =
-		trial_balance_element_list(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			transaction_date_time_closing(
-				date_yyyy_mm_dd_display(
-					current_date ),
-				0 /* not preclose_time_boolean */ ),
-			fund_name,
-			trial_balance->
-				trial_balance_subclassification_option );
+	trial_balance->prior_year_list = list_new();
 
-	date_subtract_year( current_date, 1 );
-
-	trial_balance->prior_prior_prior_year_element_list =
-		trial_balance_element_list(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			transaction_date_time_closing(
-				date_yyyy_mm_dd_display(
-					current_date ),
-				0 /* not preclose_time_boolean */ ),
-			fund_name,
-			trial_balance->
-				trial_balance_subclassification_option );
+	for(	years_ago = 1;
+		years_ago < prior_year_count;
+		years_ago++ )
+	{
+		list_set(
+			trial_balance->prior_year_list,
+			trial_balance_prior_year_fetch(
+				application_name,
+				session,
+				login_name,
+				role_name,
+				as_of_date,
+				years_ago,
+				fund_name,
+				trial_balance->
+					trial_balance_subclassification_option,
+				trial_balance->
+					trial_balance_fund_aggregation ) );
+	}
 
 	return trial_balance;
+}
+
+TRIAL_BALANCE_PRIOR_YEAR *trial_balance_prior_year_new(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *as_of_date,
+			int years_ago,
+			char *fund_name,
+			enum subclassification_option subclassification_option )
+			enum fund_aggregation fund_aggregation )
+{
+	TRIAL_BALANCE_PRIOR_YEAR *trial_balance_prior_year;
+
+	if ( ! ( trial_balance_prior_year =
+			calloc( 1, sizeof( TRIAL_BALANCE_PRIOR_YEAR ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	trial_balance_prior_year->application_name = application_name;
+	trial_balance_prior_year->session = session;
+	trial_balance_prior_year->login_name = login_name;
+	trial_balance_prior_year->role_name = role_name;
+	trial_balance_prior_year->as_of_date = as_of_date;
+	trial_balance_prior_year->fund_name = fund_name;
+	trial_balance_prior_year->years_ago = years_ago;
+
+	trial_balance_prior_year->subclassification_option =
+		subclassification_option;
+
+	trial_balance_prior_year->fund_aggregation =
+		fund_aggregation;
+
+	return trial_balance_prior_year;
+}
+
+TRIAL_BALANCE_PRIOR_YEAR *trial_balance_prior_year_fetch(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *as_of_date,
+			int years_ago,
+			char *fund_name,
+			enum subclassification_option subclassification_option,
+			enum fund_aggregation fund_aggregation )
+{
+	TRIAL_BALANCE_PRIOR_YEAR *trial_balance_prior_year;
+	DATE *current_date;
+
+	trial_balance_prior_year =
+		trial_balance_prior_year_new(
+			application_name,
+			session,
+			login_name,
+			role_name,
+			as_of_date,
+			years_ago,
+			fund_name,
+			subclassification_option,
+			fund_aggregation );
+
+	current_date =
+		date_yyyy_mm_dd_new(
+			as_of_date );
+
+	date_subtract_year( current_date, years_ago );
+
+	trial_balance_prior_year->prior_year_element_list =
+		trial_balance_element_list(
+			application_name,
+			session,
+			login_name,
+			role_name,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_date_time_closing(
+				date_yyyy_mm_dd_display(
+					current_date ),
+				0 /* not preclose_time_boolean */ ),
+			fund_name,
+			subclassification_option,
+			fund_aggregation );
+
+	return trial_balance_prior_year;
 }
 

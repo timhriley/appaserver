@@ -929,3 +929,55 @@ boolean account_name_changed(
 	}
 }
 
+char *account_action_string(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date,
+			char *account_name )
+{
+	char action_string[ 4096 ];
+
+	sprintf( action_string,
+"/cgi-bin/post_prompt_edit_form?%s^%s^%s^journal_ledger^%s^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup@llookup_before_drop_down_state~skipped@relation_operator_account_0~equals@account_1~%s@llookup_before_drop_down_base_folder~journal_ledger@relation_operator_transaction_date_time_0~between@from_transaction_date_time_0~%s 00:00:00@to_transaction_date_time_0~%s",
+		 login_name,
+		 application_name,
+		 session,
+		 role_name,
+		 account_name,
+		 beginning_date,
+		 as_of_date );
+
+	return strdup( action_string );
+}
+
+void account_list_set_action_string(
+			LIST *account_list,
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date )
+{
+	ACCOUNT *account;
+
+	if ( !list_rewind( account_list ) ) return;
+
+	do {
+		account = list_get( account_list );
+
+		account->account_action_string =
+			account_action_string(
+				application_name,
+				session,
+				login_name,
+				role_name,
+				beginning_date,
+				as_of_date,
+				account->account_name );
+
+	} while ( list_next( account_list ) );
+}

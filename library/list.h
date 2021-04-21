@@ -344,10 +344,13 @@ void free_string_list( 		LIST *string_list );
 void list_free_string_list( 	LIST *string_list );
 LIST *list_double_quotes_around_string_list(
 				LIST *list );
+
 LIST *list_replicate_string_list(
 				char *string, int how_many );
+
 LIST *string_array2string_list( char **string_array,
 				int max_array_elements );
+
 char *list_get_first_element( 	LIST *list );
 int list_at_tail(		LIST *list );
 int at_tail(			LIST *list );
@@ -364,6 +367,7 @@ void list_set_current(		LIST *list, void *item );
 void list_set_current_pointer(	LIST *list, void *item );
 void list_pop(			LIST *list );
 void list_push(			LIST *list );
+
 LIST *list_intersect_string_list(
 				LIST *list1, LIST *list2 );
 
@@ -390,6 +394,7 @@ void list_append_unique_string(
 char *list_buffered_display(	char *destination,
 				LIST *list, 
 				char delimiter );
+
 LIST *list_merge_string_list(	LIST *list1,
 				LIST *list2,
 				char delimiter );
@@ -438,45 +443,47 @@ boolean list_exists_index_string(
 				int index );
 
 boolean list_string_list_all_populated(
-				LIST *list );
+			LIST *list );
 
 boolean list_string_list_all_empty(
-				LIST *list );
+			LIST *list );
 
-LIST *list_rotate(		LIST *list );
+LIST *list_rotate(	LIST *list );
 
-LIST *list_purge_duplicates(	LIST *string_list );
+LIST *list_purge_duplicates(
+			LIST *string_list );
 
-void list_set_position_string(	LIST *list,
-				char *string,
-				int position );
+void list_set_position_string(
+			LIST *list,
+			char *string,
+			int position );
 
-void list_free_data(		LIST *list );
+void list_free_data(	LIST *list );
 
 LIST *list_delimiter_string_to_integer_list(
-				char *list_string,
-				char delimiter );
+			char *list_string,
+			char delimiter );
 
-void list_insert_head(		LIST *list,
-				void *item,
-				int num_bytes );
+void list_insert_head(	LIST *list,
+			void *item,
+			int num_bytes );
 
-LIST *list_tail_list(		LIST *list,
-				int include_tail_count );
+LIST *list_tail_list(	LIST *list,
+			int include_tail_count );
 
-LIST *list_copy_count(		LIST *list,
-				int count );
+LIST *list_copy_count(	LIST *list,
+			int count );
 
 LIST *list_delimited_string_to_list(
-				char *delimited_string );
+			char *delimited_string );
 
 LIST *list_delimiter_list_piece_list(
-				LIST *list,
-				char delimiter,
-				int piece_offset );
+			LIST *list,
+			char delimiter,
+			int piece_offset );
 
 LIST *list_string_to_double_list(
-				LIST *string_list );
+			LIST *string_list );
 
 char *list_double_list_display(	char *destination,
 				LIST *double_list );

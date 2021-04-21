@@ -1067,3 +1067,65 @@ boolean element_account_accumulate_debit(
 	return element->accumulate_debit;
 }
 
+void element_set_account_action_string(
+			ELEMENT *element,
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date )
+{
+	if ( list_length( element->subclassification_list ) )
+	{
+		subclassification_list_set_account_action_string(
+			element->subclassification_list,
+			application_name,
+			session,
+			login_name,
+			role_name,
+			beginning_date,
+			as_of_date );
+	}
+	else
+	if ( list_length( element->account_list ) )
+	{
+		account_list_set_action_string(
+			element->account_list,
+			application_name,
+			session,
+			login_name,
+			role_name,
+			beginning_date,
+			as_of_date );
+	}
+}
+
+void element_list_set_account_action_string(
+			LIST *element_list,
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date )
+{
+	ELEMENT *element;
+
+	if ( !list_rewind( element_list ) ) return;
+
+	do {
+		element = list_get( element_list );
+
+		element_set_account_action_string(
+			element,
+			application_name,
+			session,
+			login_name,
+			role_name,
+			beginning_date,
+			as_of_date );
+
+	} while ( list_next( element_list ) );
+}
+

@@ -127,6 +127,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *fund_name;
+	LIST *fund_name_list;
 	char *subclassification_option;
 	char *as_of_date;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -161,7 +162,18 @@ int main( int argc, char **argv )
 		( strcmp( argv[ 0 ], "financial_position" ) == 0 );
 
 	process_name = argv[ 1 ];
+
 	fund_name = argv[ 2 ];
+
+	if ( *fund_name && strcmp( fund_name, "fund" ) != 0 )
+	{
+		fund_name_list = list_delimited_string_to_list( fund_name );
+	}
+	else
+	{
+		fund_name_list = (LIST *)0;
+	}
+
 	as_of_date = argv[ 3 ];
 	subclassification_option = argv[ 4 ];
 
@@ -200,20 +212,21 @@ int main( int argc, char **argv )
 			application_name,
 			"logo_filename" /* key */ );
 
-	if ( !transaction_report_title_sub_title(
+	begin_date_string = 
+		transaction_beginning_date_string(
+			list_first( fund_name_list ),
+			as_of_date );
+
+	transaction_report_title_sub_title(
 		title,
 		sub_title,
 		process_name,
-		fund_name,
+		fund_name_list,
+		transaction_beginning_date_string(
+			list_first( fund_name_list ),
+			as_of_date ),
 		as_of_date,
-		list_length(
-			transaction_fund_name_list() ),
-		logo_filename ) )
-	{
-		printf( "<h3>Error. No transactions.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
+		logo_filename );
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{

@@ -156,4 +156,13 @@ boolean subclassification_current_liability(
 boolean subclassification_receivable(
 			char *subclassification_name );
 
+void subclassification_list_set_account_action_string(
+			LIST *subclassification_list,
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date );
+
 #endif

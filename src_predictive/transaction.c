@@ -1140,20 +1140,18 @@ TRANSACTION *transaction_check_seek(
 	return (TRANSACTION *)0;
 }
 
-/* Returns begin_date_string */
-/* ------------------------- */
-char *transaction_report_title_sub_title(
+void transaction_report_title_sub_title(
 		char *title,
 		char *sub_title,
 		char *process_name,
-		char *fund_name,
+		LIST *fund_name_list,
+		char *begin_date_string,
 		char *as_of_date,
-		int fund_list_length,
 		char *logo_filename )
 {
-	char *begin_date_string;
 	char begin_date_american[ 32 ];
 	char end_date_american[ 32 ];
+	char *fund_name = {0};
 
 	*begin_date_american = '\0';
 
@@ -1161,14 +1159,6 @@ char *transaction_report_title_sub_title(
 		"%s",
 		application_title(
 			environment_application() ) );
-
-	if ( ! ( begin_date_string = 
-			transaction_beginning_date_string(
-				fund_name,
-				as_of_date ) ) )
-	{
-		return 0;
-	}
 
 	date_convert_source_international(
 		begin_date_american,
@@ -1179,6 +1169,11 @@ char *transaction_report_title_sub_title(
 		end_date_american,
 		american,
 		as_of_date );
+
+	if ( list_length( fund_name_list ) ==  1 )
+	{
+		fund_name = list_first( fund_name_list );
+	}
 
 	if ( fund_name
 	&&   *fund_name
@@ -1192,7 +1187,7 @@ char *transaction_report_title_sub_title(
 	 		end_date_american );
 	}
 	else
-	if ( fund_list_length > 1 )
+	if ( list_length( fund_name_list ) > 1 )
 	{
 		sprintf(sub_title,
 	 		"%s, Consolidated Funds, Beginning: %s, Ending: %s",
@@ -1228,8 +1223,6 @@ char *transaction_report_title_sub_title(
 	}
 
 	format_initial_capital( sub_title, sub_title );
-
-	return begin_date_string;
 }
 
 DATE *transaction_prior_closing_transaction_date(
@@ -1313,18 +1306,14 @@ char *transaction_date_time_max( void )
 
 LIST *transaction_fund_name_list( void )
 {
-	char sys_string[ 512 ];
+	char *sys_string;
 
 	if ( !predictive_fund_attribute_exists() )
 	{
 		return (LIST *)0;
 	}
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s order by %s;\" | sql",
-		 "select.sh \"%s\" %s where %s",
-		 "fund",
-		 "fund" );
+	sys_string = "select.sh fund fund where fund";
 
 	return pipe2list( sys_string );
 }
@@ -1445,6 +1434,16 @@ char *transaction_date_minimum( void )
 }
 
 char *transaction_date_prior_closing_beginning(
+			char *fund_name,
+			char *as_of_date )
+{
+	return transaction_beginning_date_string(
+			fund_name,
+			as_of_date
+				/* ending_transaction_date */ );
+}
+
+char *transaction_prior_close_beginning_date(
 			char *fund_name,
 			char *as_of_date )
 {
