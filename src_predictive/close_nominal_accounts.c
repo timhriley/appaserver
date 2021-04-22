@@ -269,15 +269,15 @@ boolean close_nominal_accounts_fund_execute(
 	filter_element_name_list = list_new();
 
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_REVENUE );
+				ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_EXPENSE );
+				ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_GAIN );
+				ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_LOSS );
+				ELEMENT_LOSS );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_EQUITY );
+				ELEMENT_EQUITY );
 
 	list =
 		element_list(
@@ -301,15 +301,15 @@ boolean close_nominal_accounts_fund_execute(
 	/* -------- */
 	if ( ! ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_REVENUE ) ) )
+				ELEMENT_REVENUE,
+				list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_REVENUE );
+			 ELEMENT_REVENUE );
 		exit( 1 );
 	}
 
@@ -328,15 +328,15 @@ boolean close_nominal_accounts_fund_execute(
 	/* -------- */
 	if ( ! ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_EXPENSE ) ) )
+				ELEMENT_EXPENSE,
+				list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_EXPENSE );
+			 ELEMENT_EXPENSE );
 		exit( 1 );
 	}
 
@@ -355,15 +355,15 @@ boolean close_nominal_accounts_fund_execute(
 	/* ----- */
 	if ( ! ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_GAIN ) ) )
+				ELEMENT_GAIN,
+				list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_GAIN );
+			 ELEMENT_GAIN );
 		exit( 1 );
 	}
 
@@ -382,15 +382,15 @@ boolean close_nominal_accounts_fund_execute(
 	/* ------ */
 	if ( ! ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_LOSS ) ) )
+				ELEMENT_LOSS,
+				list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_LOSS );
+			 ELEMENT_LOSS );
 		exit( 1 );
 	}
 
@@ -411,15 +411,15 @@ boolean close_nominal_accounts_fund_execute(
 	{
 		if ( ! ( element =
 				element_seek(
-					list,
-					PREDICTIVE_ELEMENT_EQUITY ) ) )
+					ELEMENT_EQUITY,
+					list ) ) )
 		{
 			fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 	__FILE__,
 			 	__FUNCTION__,
 			 	__LINE__,
-			 	PREDICTIVE_ELEMENT_EQUITY );
+			 	ELEMENT_EQUITY );
 			exit( 1 );
 		}
 
@@ -614,15 +614,15 @@ void close_nominal_accounts_fund_display(
 	filter_element_name_list = list_new();
 
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_REVENUE );
+				ELEMENT_REVENUE );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_EXPENSE );
+				ELEMENT_EXPENSE );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_GAIN );
+				ELEMENT_GAIN );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_LOSS );
+				ELEMENT_LOSS );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_EQUITY );
+				ELEMENT_EQUITY );
 
 	list =
 		element_list(
@@ -677,15 +677,15 @@ void close_nominal_accounts_fund_display(
 	/* -------- */
 	if ( ! ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_REVENUE ) ) )
+				ELEMENT_REVENUE,
+				list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_REVENUE );
+			 ELEMENT_REVENUE );
 		exit( 1 );
 	}
 
@@ -702,15 +702,15 @@ void close_nominal_accounts_fund_display(
 	/* -------- */
 	if ( ! ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_EXPENSE ) ) )
+				ELEMENT_EXPENSE,
+				list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_EXPENSE );
+			 ELEMENT_EXPENSE );
 		exit( 1 );
 	}
 
@@ -727,15 +727,15 @@ void close_nominal_accounts_fund_display(
 	/* ----- */
 	if ( ! ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_GAIN ) ) )
+				ELEMENT_GAIN,
+				list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_GAIN );
+			 ELEMENT_GAIN );
 		exit( 1 );
 	}
 
@@ -752,15 +752,15 @@ void close_nominal_accounts_fund_display(
 	/* ------ */
 	if ( ! ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_LOSS ) ) )
+				ELEMENT_LOSS,
+				list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_LOSS );
+			 ELEMENT_LOSS );
 		exit( 1 );
 	}
 
@@ -779,15 +779,15 @@ void close_nominal_accounts_fund_display(
 		/* ------- */
 		if ( ! ( element =
 				element_seek(
-					list,
-					PREDICTIVE_ELEMENT_EQUITY ) ) )
+					ELEMENT_EQUITY,
+					list ) ) )
 		{
 			fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
 			 	__FILE__,
 			 	__FUNCTION__,
 			 	__LINE__,
-			 	PREDICTIVE_ELEMENT_EQUITY );
+			 	ELEMENT_EQUITY );
 			exit( 1 );
 		}
 

@@ -17,6 +17,13 @@
 
 /* Constants */
 /* --------- */
+#define ELEMENT_ASSET			"asset"
+#define ELEMENT_LIABILITY		"liability"
+#define ELEMENT_EQUITY			"equity"
+#define ELEMENT_REVENUE			"revenue"
+#define ELEMENT_EXPENSE			"expense"
+#define ELEMENT_GAIN			"gain"
+#define ELEMENT_LOSS			"loss"
 
 /* Structures */
 /* ---------- */
@@ -29,10 +36,12 @@ typedef struct
 	LIST *account_list;
 
 	double element_total;
+	double delta_prior;
+	int percent_of_total;
 } ELEMENT;
 
 /* Operations */
-/* ---------- */
+/* ========== */
 
 /* Returns static memory */
 /* --------------------- */
@@ -50,8 +59,9 @@ boolean element_accumulate_debit(
 
 ELEMENT *element_fetch(	char *element_name );
 
-ELEMENT *element_seek(	LIST *element_list,
-			char *element_name );
+ELEMENT *element_seek(	
+			char *element_name,
+			LIST *element_list );
 
 LIST *element_subclassification_list(
 			double *element_total,
@@ -151,9 +161,19 @@ void element_list_set_account_action_string(
 			char *beginning_date,
 			char *as_of_date );
 
+void element_list_set_total(
+			LIST *element_list );
+
 void element_list_set_percent_of_total(
+			LIST *element_list );
+
+void element_denominator_set_percent_of_total(
 			LIST *element_list,
-			enum subclassification_option );
+			double denominator );
+
+void element_list_set_delta_prior(
+			LIST *prior_year_element_list,
+			LIST *preclose_element_list );
 
 #endif
 

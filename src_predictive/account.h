@@ -58,7 +58,8 @@ typedef struct
 	double payment_amount;
 	LIST *transaction_after_balance_zero_journal_list;
 	char *account_action_string;
-	double percent_of_total;
+	double account_total;
+	int percent_of_total;
 	double delta_prior;
 } ACCOUNT;
 
@@ -210,5 +211,12 @@ void account_list_set_action_string(
 			char *role_name,
 			char *beginning_date,
 			char *as_of_date );
+
+double account_list_total(
+			LIST *account_list );
+
+void account_denominator_set_percent_of_total(
+			LIST *account_list,
+			double denominator );
 
 #endif

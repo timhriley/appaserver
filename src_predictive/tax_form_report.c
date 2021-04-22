@@ -181,7 +181,6 @@ int main( int argc, char **argv )
 		process_name,
 		(LIST *)0 /* fund_name_list */,
 		transaction_beginning_date_string(
-			(char *)0 /* fund_name */,
 			as_of_date ),
 		as_of_date,
 		logo_filename );

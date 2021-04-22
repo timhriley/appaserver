@@ -1240,7 +1240,7 @@ DATE *transaction_prior_closing_transaction_date(
 
 	sprintf( ending_transaction_date_time,
 		 "%s %s",
-		 ending_transaction_date,
+		 as_of_date,
 		 TRANSACTION_CLOSING_TRANSACTION_TIME );
 
 	sprintf( where,
@@ -1443,22 +1443,13 @@ char *transaction_prior_close_beginning_date(
 }
 
 char *transaction_beginning_date_string(
-			char *fund_name,
 			char *ending_transaction_date )
 {
-	char where[ 512 ];
 	char sys_string[ 1024 ];
 	char *select;
-	char folder[ 128 ];
 	char *results;
 	char transaction_date_string[ 16 ];
 	DATE *prior_closing_transaction_date = {0};
-
-	if ( fund_name && !*fund_name )
-		fund_name = (char *)0;
-	else
-	if ( fund_name && strcmp( fund_name, "fund" ) == 0 )
-		fund_name = (char *)0;
 
 	/* Get the prior closing entry then return its tomorrow. */
 	/* ----------------------------------------------------- */

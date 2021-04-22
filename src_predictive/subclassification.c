@@ -17,6 +17,7 @@
 #include "html_table.h"
 #include "account.h"
 #include "predictive.h"
+#include "element.h"
 #include "subclassification.h"
 
 char *subclassification_primary_where(
@@ -168,7 +169,7 @@ double subclassification_html_display(
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
 	if ( strcmp(	element_name,
-			PREDICTIVE_ELEMENT_EQUITY ) ==  0 )
+			ELEMENT_EQUITY ) ==  0 )
 	{
 		sprintf(	element_title,
 				"<h2>%s</h2>",
@@ -645,7 +646,7 @@ double subclassification_aggregate_html(
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
 	if ( strcmp(	element_name,
-			PREDICTIVE_ELEMENT_EQUITY ) ==  0 )
+			ELEMENT_EQUITY ) ==  0 )
 	{
 		sprintf(	element_title,
 				"<h2>%s</h2>",
@@ -1003,7 +1004,7 @@ LIST *subclassification_aggregate_latex_row_list(
 
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
-	if ( strcmp( element_name, PREDICTIVE_ELEMENT_EQUITY ) ==  0 )
+	if ( strcmp( element_name, ELEMENT_EQUITY ) ==  0 )
 	{
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
@@ -1220,7 +1221,7 @@ LIST *subclassification_display_latex_row_list(
 
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
-	if ( strcmp( element_name, PREDICTIVE_ELEMENT_EQUITY ) ==  0 )
+	if ( strcmp( element_name, ELEMENT_EQUITY ) ==  0 )
 	{
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
@@ -1944,6 +1945,58 @@ void subclassification_list_set_account_action_string(
 				role_name,
 				beginning_date,
 				as_of_date );
+		}
+
+	} while ( list_next( subclassification_list ) );
+}
+
+double subclassification_list_total(
+			LIST *subclassification_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	double total;
+
+	if ( !list_rewind( subclassification_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		total += subclassification->subclassification_total;
+
+	} while ( list_next( subclassification_list ) );
+
+	return total;
+}
+
+void subclassification_denominator_set_percent_of_total(
+			LIST *subclassification_list,
+			double denominator )
+{
+	SUBCLASSIFICATION *subclassification;
+	double percent_of_total;
+
+	if ( !denominator ) return;
+	if ( !list_rewind( element_list ) ) return;
+
+	if ( !list_rewind( subclassification_list ) ) return;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		percent_of_total =
+			(subclassification->subclassification_total /
+			 denominator) * 100.0;
+
+		subclassification->percent_of_total =
+			float_round_int( percent_of_total );
+
+		if ( list_length( subclassification->account_list ) )
+		{
+			account_denominator_set_percent_of_total(
+				subclassification->account_list,
+				denominator );
 		}
 
 	} while ( list_next( subclassification_list ) );

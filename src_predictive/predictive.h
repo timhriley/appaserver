@@ -13,13 +13,6 @@
 
 /* Constants */
 /* --------- */
-#define PREDICTIVE_ELEMENT_ASSET		"asset"
-#define PREDICTIVE_ELEMENT_LIABILITY		"liability"
-#define PREDICTIVE_ELEMENT_EQUITY		"equity"
-#define PREDICTIVE_ELEMENT_REVENUE		"revenue"
-#define PREDICTIVE_ELEMENT_EXPENSE		"expense"
-#define PREDICTIVE_ELEMENT_GAIN			"gain"
-#define PREDICTIVE_ELEMENT_LOSS			"loss"
 
 /* Structures */
 /* ---------- */

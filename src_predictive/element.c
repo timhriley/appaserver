@@ -10,6 +10,7 @@
 #include "timlib.h"
 #include "String.h"
 #include "list.h"
+#include "float.h"
 #include "sql.h"
 #include "piece.h"
 #include "environ.h"
@@ -84,7 +85,7 @@ ELEMENT *element_fetch( char *element_name )
 					"1 = 1" ) );
 	}
 
-	if ( ! ( element = element_seek( list, element_name ) ) )
+	if ( ! ( element = element_seek( element_name, list ) ) )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: element_seek(%s) returned empty.\n",
@@ -364,50 +365,50 @@ LIST *element_list_sort( LIST *element_list )
 	return_element_list = list_new();
 
 	if ( ( element = element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_ASSET ) ) )
+				ELEMENT_ASSET,
+				element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_LIABILITY ) ) )
+				ELEMENT_LIABILITY,
+				element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_REVENUE ) ) )
+				ELEMENT_REVENUE,
+				element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_EXPENSE ) ) )
+				ELEMENT_EXPENSE,
+				element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_GAIN ) ) )
+				ELEMENT_GAIN,
+				element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_LOSS ) ) )
+				ELEMENT_LOSS,
+				element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
 	if ( ( element = element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_EQUITY ) ) )
+				ELEMENT_EQUITY,
+				element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
@@ -418,11 +419,12 @@ ELEMENT *element_list_seek(
 			LIST *element_list,
 			char *element_name )
 {
-	return element_seek( element_list, element_name );
+	return element_seek( element_name, element_list );
 }
 
-ELEMENT *element_seek(	LIST *element_list,
-			char *element_name )
+ELEMENT *element_seek(	
+			char *element_name,
+			LIST *element_list )
 {
 	ELEMENT *element;
 
@@ -530,19 +532,19 @@ boolean element_is_period( char *element_name )
 	}
 
 	if ( strcmp(	element_name,
-			PREDICTIVE_ELEMENT_REVENUE ) == 0 )
+			ELEMENT_REVENUE ) == 0 )
 		return 1;
 	else
 	if ( strcmp(	element_name,
-			PREDICTIVE_ELEMENT_EXPENSE ) == 0 )
+			ELEMENT_EXPENSE ) == 0 )
 		return 1;
 	else
 	if ( strcmp(	element_name,
-			PREDICTIVE_ELEMENT_GAIN ) == 0 )
+			ELEMENT_GAIN ) == 0 )
 		return 1;
 	else
 	if ( strcmp(	element_name,
-			PREDICTIVE_ELEMENT_LOSS ) == 0 )
+			ELEMENT_LOSS ) == 0 )
 		return 1;
 	else
 		return 0;
@@ -611,7 +613,7 @@ double element_subclassification_aggregate_html_output(
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
 	if ( strcmp(	element_name,
-			PREDICTIVE_ELEMENT_EQUITY ) ==  0 )
+			ELEMENT_EQUITY ) ==  0 )
 	{
 		sprintf(	element_title,
 				"<h2>%s</h2>",
@@ -1130,8 +1132,124 @@ void element_list_set_account_action_string(
 }
 
 void element_list_set_percent_of_total(
+			LIST *element_list )
+{
+	ELEMENT *denominator_element;
+	double denominator;
+
+	if ( ( denominator_element =
+			element_seek(
+				ELEMENT_ASSET,
+				element_list ) ) )
+	{
+		denominator = denominator_element->element_total;
+	}
+	else
+	if ( ( denominator_element =
+			element_seek(
+				ELEMENT_REVENUE,
+				element_list ) ) )
+	{
+		denominator = denominator_element->element_total;
+	}
+
+	if ( !denominator )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot seek %s or %s\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			ELEMENT_ASSET,
+			ELEMENT_REVENUE );
+		exit( 1 );
+	}
+
+	element_denominator_set_percent_of_total(
+		element_list,
+		denominator );
+}
+
+double element_total(	LIST *subclassification_list,
+			LIST *account_list )
+{
+	if ( list_rewind( subclassification_list ) )
+	{
+		return
+			subclassification_list_total(
+				subclassification_list );
+	}
+	else
+	if ( list_rewind( account_list ) )
+	{
+		return
+			account_list_total(
+				account_list );
+	}
+	else
+	{
+		return 0.0;
+	}
+}
+
+void element_list_set_total(
+			LIST *element_list )
+{
+	ELEMENT *element;
+
+	if ( !list_rewind( element_list ) ) return;
+
+	do {
+		element = list_get( element_list );
+
+		element->element_total =
+			element_total(
+				element->subclassification_list,
+				element->account_list );
+
+	} while ( list_next( element_list ) );
+}
+
+void element_denominator_set_percent_of_total(
 			LIST *element_list,
-			enum subclassification_option subclassification_option )
+			double denominator )
+{
+	ELEMENT *element;
+	double percent_of_total;
+
+	if ( !denominator ) return;
+	if ( !list_rewind( element_list ) ) return;
+
+	do {
+		element = list_get( element_list );
+
+		percent_of_total =
+			(element->element_total /
+			 denominator) * 100.0;
+
+		element->percent_of_total =
+			float_round_int( percent_of_total );
+
+		if ( list_length( element->subclassification_list ) )
+		{
+			subclassification_denominator_set_percent_of_total(
+				element->subclassification_list,
+				denominator );
+		}
+		else
+		if ( list_length( element->account_list ) )
+		{
+			account_denominator_set_percent_of_total(
+				element->account_list,
+				denominator );
+		}
+
+	} while ( list_next( element_list ) );
+}
+
+void element_list_set_delta_prior(
+			LIST *prior_year_element_list,
+			LIST *preclose_element_list )
 {
 }
 

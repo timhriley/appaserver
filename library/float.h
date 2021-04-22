@@ -39,6 +39,8 @@ double round_money(	double d );
 
 int round_int(		double d );
 
+int float_round_int(	double d );
+
 double ceiling_double(	double d );
 
 double floor_double(	double d );

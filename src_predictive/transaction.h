@@ -349,15 +349,12 @@ char *transaction_date_maximum(
 			void );
 
 char *transaction_beginning_date_string(
-			char *fund_name,
 			char *ending_transaction_date );
 
 char *transaction_date_prior_closing_beginning(
-			char *fund_name,
 			char *as_of_date );
 
 char *transaction_prior_close_beginning_date(
-			char *fund_name,
 			char *as_of_date );
 
 double transaction_net_income_fetch(

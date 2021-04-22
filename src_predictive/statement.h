@@ -238,5 +238,11 @@ char *statement_subtitle(
 			char *as_of_date,
 			enum fund_aggregation fund_aggregation );
 
+void statement_fund_list_steady_state(
+			LIST *statement_fund_list );
+
+STATEMENT_FUND *statement_fund_steady_state(
+			STATEMENT_FUND *statement_fund );
+
 #endif
 

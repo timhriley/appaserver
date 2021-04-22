@@ -20,7 +20,6 @@ STANDARD_LIBRARY=						\
 		float.o 					\
 		piece.o 					\
 		column.o 					\
-		float.o 					\
 		date_convert.o 					\
 		String.o 					\
 		hash_table.o
@@ -1022,26 +1021,20 @@ mysqldump.o: mysqldump.c mysqldump.h
 		-c mysqldump.c
 
 foreign_attribute.o: foreign_attribute.c foreign_attribute.h
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c foreign_attribute.c
+	${CC} ${CFLAGS} -c foreign_attribute.c
 
 keys_match_sum.o: keys_match_sum.c keys_match_sum.h
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c keys_match_sum.c
+	${CC} ${CFLAGS} -c keys_match_sum.c
 
 email.o: email.c email.h
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c email.c
+	${CC} ${CFLAGS} -c email.c
 
 float.o: float.c float.h
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c float.c
+	${CC} ${CFLAGS} -c float.c
 
 String.o: String.c String.h
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c String.c
+	${CC} ${CFLAGS} -c String.c
 
 relation.o: relation.c relation.h
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c relation.c
+	${CC} ${CFLAGS} -c relation.c
 

@@ -138,7 +138,6 @@ int main( int argc, char **argv )
 	{
 		begin_date_string =
 			transaction_beginning_date_string(
-			(char *)0 /* fund_name */,
 			(char *)0 /* ending_transaction_date */ );
 	}
 

@@ -209,7 +209,7 @@ LIST *statement_element_list(
 		session,
 		login_name,
 		role_name,
-		beginning_date_string,
+		begin_date_string,
 		column(
 			transaction_date,
 			transaction_date_time,
@@ -289,6 +289,9 @@ STATEMENT *statement_steady_state(
 			statement->fund_name_list,
 			statement->statement_subclassification_option,
 			statement->statement_fund_aggregation );
+
+	statement_fund_list_steady_state(
+		statement->statement_fund_list );
 
 	return statement;
 }
@@ -747,3 +750,49 @@ char *statement_subtitle(
 
 	return subtitle );
 }
+
+STATEMENT_FUND *statement_fund_steady_state(
+			STATEMENT_FUND *statement_fund )
+{
+	element_list_set_total(
+		statement_fund->preclose_element_list );
+
+	element_list_set_percent_of_total(
+		statement_fund->preclose_element_list );
+
+	if ( list_rewind( statement_fund->prior_year_list ) )
+	{
+		STATEMENT_PRIOR_YEAR *statement_prior_year;
+
+		do {
+			statement_prior_year =
+				list_get(
+					statement_fund->prior_year_list );
+
+			element_list_set_delta_prior(
+				statement_prior_year->prior_year_element_list,
+				statement_fund->preclose_element_list );
+
+		} while ( list_next( statement_fund->prior_year_list ) );
+	}
+
+	return statement_fund;
+}
+
+void statement_fund_list_steady_state(
+			LIST *statement_fund_list )
+{
+	STATEMENT_FUND *statement_fund;
+
+	if ( !list_rewind( statement_fund_list ) ) return;
+
+	do {
+		statement_fund = list_get( statement_fund_list );
+
+		statment_fund =
+			statement_fund_steady_state(
+				statement_fund );
+
+	} while ( list_next( statement_fund_list ) );
+}
+

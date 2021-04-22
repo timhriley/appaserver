@@ -214,7 +214,6 @@ int main( int argc, char **argv )
 
 	begin_date_string = 
 		transaction_beginning_date_string(
-			list_first( fund_name_list ),
 			as_of_date );
 
 	transaction_report_title_sub_title(
@@ -223,7 +222,6 @@ int main( int argc, char **argv )
 		process_name,
 		fund_name_list,
 		transaction_beginning_date_string(
-			list_first( fund_name_list ),
 			as_of_date ),
 		as_of_date,
 		logo_filename );
@@ -402,11 +400,11 @@ void balance_sheet_subclassification_aggregate_PDF(
 	filter_element_name_list = list_new();
 
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_ASSET );
+				ELEMENT_ASSET );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_LIABILITY );
+				ELEMENT_LIABILITY );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_EQUITY );
+				ELEMENT_EQUITY );
 
 	list =
 		element_list(
@@ -561,11 +559,11 @@ void balance_sheet_subclassification_display_PDF(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_ASSET );
+				ELEMENT_ASSET );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_LIABILITY );
+				ELEMENT_LIABILITY );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_EQUITY );
+				ELEMENT_EQUITY );
 
 	list =
 		element_list(
@@ -677,11 +675,11 @@ void balance_sheet_subclassification_aggregate_html(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_ASSET );
+				ELEMENT_ASSET );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_LIABILITY );
+				ELEMENT_LIABILITY );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_EQUITY );
+				ELEMENT_EQUITY );
 
 	list =
 		element_list(
@@ -697,8 +695,8 @@ void balance_sheet_subclassification_aggregate_html(
 	/* ------------------- */
 	if ( ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_ASSET ) ) )
+				ELEMENT_ASSET,
+				list ) ) )
 	{
 		total_assets =
 			subclassification_aggregate_html(
@@ -713,8 +711,8 @@ void balance_sheet_subclassification_aggregate_html(
 	/* --------------------------- */
 	if ( ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_LIABILITY ) ) )
+				ELEMENT_LIABILITY,
+				list ) ) )
 	{
 		total_liabilities =
 			subclassification_aggregate_html(
@@ -728,15 +726,15 @@ void balance_sheet_subclassification_aggregate_html(
 	/* ----------------------- */
 	if ( ! ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_EQUITY ) ) )
+				ELEMENT_EQUITY,
+				list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot element_seek(%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_EQUITY );
+			 ELEMENT_EQUITY );
 		exit( 1 );
 	}
 
@@ -836,11 +834,11 @@ void balance_sheet_subclassification_display_html(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_ASSET );
+				ELEMENT_ASSET );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_LIABILITY );
+				ELEMENT_LIABILITY );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_EQUITY );
+				ELEMENT_EQUITY );
 
 	list =
 		element_list(
@@ -856,8 +854,8 @@ void balance_sheet_subclassification_display_html(
 	/* ------------------- */
 	if ( ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_ASSET ) ) )
+				ELEMENT_ASSET,
+				list ) ) )
 	{
 		total_assets = element->element_total;
 
@@ -873,8 +871,8 @@ void balance_sheet_subclassification_display_html(
 	/* --------------------------- */
 	if ( ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_LIABILITY ) ) )
+				ELEMENT_LIABILITY,
+				list ) ) )
 	{
 		total_liabilities =
 			subclassification_html_display(
@@ -889,15 +887,15 @@ void balance_sheet_subclassification_display_html(
 	/* ----------------------- */
 	if ( ! ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_EQUITY ) ) )
+				ELEMENT_EQUITY,
+				list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_EQUITY );
+			 ELEMENT_EQUITY );
 	}
 
 	/* Add net income to equity */
@@ -1103,8 +1101,8 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 	/* -------------------- */
 	if ( ( element =
 			element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_ASSET ) ) )
+				ELEMENT_ASSET,
+				element_list ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1120,8 +1118,8 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 	/* ------------------------- */
 	if ( ( element =
 			element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_LIABILITY ) ) )
+				ELEMENT_LIABILITY,
+				element_list ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1137,15 +1135,15 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 	/* ----------------------- */
 	if ( ! ( element =
 			element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_EQUITY ) ) )
+				ELEMENT_EQUITY,
+				element_list ) ) )
 	{
 		fprintf( stderr,
 		"ERROR in %s/%s()/%d: element_seek(%s) returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_EQUITY );
+			 ELEMENT_EQUITY );
 		exit( 1 );
 	}
 
@@ -1232,8 +1230,8 @@ LIST *build_subclassification_display_PDF_row_list(
 	/* -------------------- */
 	if ( ( element =
 			element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_ASSET ) ) )
+				ELEMENT_ASSET,
+				element_list ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1250,8 +1248,8 @@ LIST *build_subclassification_display_PDF_row_list(
 	/* ------------------------- */
 	if ( ( element =
 			element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_LIABILITY ) ) )
+				ELEMENT_LIABILITY,
+				element_list ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1267,15 +1265,15 @@ LIST *build_subclassification_display_PDF_row_list(
 	/* ----------------------- */
 	if ( ! ( element =
 			element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_EQUITY ) ) )
+				ELEMENT_EQUITY,
+				element_list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_EQUITY );
+			 ELEMENT_EQUITY );
 		exit( 1 );
 	}
 
@@ -1378,11 +1376,11 @@ void balance_sheet_account_omit_html(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_ASSET );
+				ELEMENT_ASSET );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_LIABILITY );
+				ELEMENT_LIABILITY );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_EQUITY );
+				ELEMENT_EQUITY );
 
 	list =
 		element_list(
@@ -1398,8 +1396,8 @@ void balance_sheet_account_omit_html(
 	/* ------------------- */
 	if ( ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_ASSET ) ) )
+				ELEMENT_ASSET,
+				list ) ) )
 	{
 		/* Ignore total_assets */
 		/* ------------------- */
@@ -1416,8 +1414,8 @@ void balance_sheet_account_omit_html(
 	/* --------------------------- */
 	if ( ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_LIABILITY ) ) )
+				ELEMENT_LIABILITY,
+				list ) ) )
 	{
 		total_liabilities =
 			account_list_html_output(
@@ -1433,15 +1431,15 @@ void balance_sheet_account_omit_html(
 	/* ----------------------- */
 	if ( ! ( element =
 			element_seek(
-				list,
-				PREDICTIVE_ELEMENT_EQUITY ) ) )
+				ELEMENT_EQUITY,
+				list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_EQUITY );
+			 ELEMENT_EQUITY );
 	}
 
 	/* Add net income to equity */
@@ -1582,11 +1580,11 @@ void balance_sheet_account_omit_PDF(
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_ASSET );
+				ELEMENT_ASSET );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_LIABILITY );
+				ELEMENT_LIABILITY );
 	list_append_pointer(	filter_element_name_list,
-				PREDICTIVE_ELEMENT_EQUITY );
+				ELEMENT_EQUITY );
 
 	list =
 		element_list(
@@ -1678,8 +1676,8 @@ LIST *build_account_omit_PDF_row_list(
 	/* -------------------- */
 	if ( ( element =
 			element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_ASSET ) ) )
+				ELEMENT_ASSET,
+				element_list ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1696,8 +1694,8 @@ LIST *build_account_omit_PDF_row_list(
 	/* ------------------------- */
 	if ( ( element =
 			element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_LIABILITY ) ) )
+				ELEMENT_LIABILITY,
+				element_list ) ) )
 	{
 		list_append_list(
 			row_list,
@@ -1714,15 +1712,15 @@ LIST *build_account_omit_PDF_row_list(
 	/* ----------------------- */
 	if ( ! ( element =
 			element_seek(
-				element_list,
-				PREDICTIVE_ELEMENT_EQUITY ) ) )
+				ELEMENT_EQUITY,
+				element_list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 PREDICTIVE_ELEMENT_EQUITY );
+			 ELEMENT_EQUITY );
 	}
 
 	/* Build net income account. */

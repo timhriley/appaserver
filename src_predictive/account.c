@@ -981,3 +981,56 @@ void account_list_set_action_string(
 
 	} while ( list_next( account_list ) );
 }
+
+double account_list_total(
+			LIST *account_list )
+{
+	ACCOUNT *account;
+	double total;
+
+	if ( !list_rewind( account_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		account = list_get( account_list );
+
+		if ( !account->latest_journal )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty latest_journal.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		total += account->latest_journal->balance;
+
+	} while ( list_next( account_list ) );
+
+	return total;
+}
+
+void account_denominator_set_percent_of_total(
+			LIST *account_list,
+			double denominator )
+{
+	ACCOUNT *account;
+	double percent_of_total;
+
+	if ( !denominator ) return;
+	if ( !list_rewind( account_list ) ) return;
+
+	do {
+		account = list_get( account_list );
+
+		percent_of_total =
+			(account->account_total /
+			 denominator) * 100.0;
+
+		account->percent_of_total =
+			float_round_int( percent_of_total );
+
+	} while ( list_next( account_list ) );
+}

@@ -372,7 +372,6 @@ int main( int argc, char **argv )
 		process_name,
 		fund_name_list,
 		transaction_beginning_date_string(
-			list_first( fund_name_list ),
 			as_of_date ),
 		as_of_date,
 		logo_filename );
@@ -799,7 +798,6 @@ void trial_balance_PDF(
 		process_name,
 		fund_name_list,
 		transaction_beginning_date_string(
-			list_first( fund_name_list ),
 			as_of_date ),
 		as_of_date,
 		logo_filename );
@@ -825,7 +823,6 @@ void trial_balance_PDF(
 				process_name,
 				(LIST *)0 /* fund_name_list */,
 				transaction_beginning_date_string(
-					fund_name,
 				    	as_of_date ),
 				as_of_date,
 				logo_filename );
@@ -951,7 +948,6 @@ void trial_balance_PDF_fund(
 	{
 		prior_closing_transaction_date_string =
 			transaction_date_prior_closing_beginning(
-				fund_name,
 				as_of_date );
 	}
 
@@ -959,11 +955,11 @@ void trial_balance_PDF_fund(
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		PREDICTIVE_ELEMENT_ASSET );
+		ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		PREDICTIVE_ELEMENT_LIABILITY );
+		ELEMENT_LIABILITY );
 
 	prior_element_list =
 		element_list(
@@ -1838,7 +1834,6 @@ void trial_balance_stdout(
 	{
 		prior_closing_transaction_date_string =
 			transaction_date_prior_closing_beginning(
-				fund_name,
 				as_of_date );
 	}
 
@@ -1846,11 +1841,11 @@ void trial_balance_stdout(
 
 	list_append_pointer(
 		prior_filter_element_name_list,
-		PREDICTIVE_ELEMENT_ASSET );
+		ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list,
-		PREDICTIVE_ELEMENT_LIABILITY );
+		ELEMENT_LIABILITY );
 
 	prior_element_list =
 		element_list(
@@ -2203,7 +2198,6 @@ void trial_balance_html_table(
 
 	if ( ! ( beginning_date = 
 			transaction_date_prior_closing_beginning(
-				fund_name,
 				as_of_date ) ) )
 	{
 		fprintf( stderr,
@@ -2242,7 +2236,6 @@ void trial_balance_html_table(
 	{
 		prior_closing_transaction_date_string =
 			transaction_date_prior_closing_beginning(
-				fund_name,
 				as_of_date );
 	}
 
@@ -2250,11 +2243,11 @@ void trial_balance_html_table(
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		PREDICTIVE_ELEMENT_ASSET );
+		ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		PREDICTIVE_ELEMENT_LIABILITY );
+		ELEMENT_LIABILITY );
 
 	prior_element_list =
 		element_list(
@@ -2462,7 +2455,6 @@ void trial_balance_html_table(
 
 	if ( ! ( beginning_date = 
 			transaction_date_prior_closing_beginning(
-				fund_name,
 				as_of_date ) ) )
 	{
 		fprintf( stderr,
@@ -2501,7 +2493,6 @@ void trial_balance_html_table(
 	{
 		prior_closing_transaction_date_string =
 			transaction_date_prior_closing_beginning(
-				fund_name,
 				as_of_date );
 	}
 
@@ -2509,11 +2500,11 @@ void trial_balance_html_table(
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		PREDICTIVE_ELEMENT_ASSET );
+		ELEMENT_ASSET );
 
 	list_append_pointer(
 		prior_filter_element_name_list, 
-		PREDICTIVE_ELEMENT_LIABILITY );
+		ELEMENT_LIABILITY );
 
 	prior_element_list =
 		element_list(

@@ -42,8 +42,8 @@ typedef struct
 	char *element_name;
 	int display_order;
 	LIST *account_list;
-	double total;
-	double percent_of_total;
+	double subclassification_total;
+	int percent_of_total;
 	double delta_prior;
 } SUBCLASSIFICATION;
 
@@ -166,5 +166,12 @@ void subclassification_list_set_account_action_string(
 			char *role_name,
 			char *beginning_date,
 			char *as_of_date );
+
+double subclassification_list_total(
+			LIST *subclassification_list );
+
+void subclassification_denominator_set_percent_of_total(
+			LIST *subclassification_list,
+			double denominator );
 
 #endif
