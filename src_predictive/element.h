@@ -12,6 +12,7 @@
 #include "boolean.h"
 #include "latex.h"
 #include "html_table.h"
+#include "statement.h"
 #include "account.h"
 
 /* Constants */
@@ -149,6 +150,10 @@ void element_list_set_account_action_string(
 			char *role_name,
 			char *beginning_date,
 			char *as_of_date );
+
+void element_list_set_percent_of_total(
+			LIST *element_list,
+			enum subclassification_option );
 
 #endif
 

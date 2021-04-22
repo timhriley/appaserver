@@ -939,7 +939,6 @@ void trial_balance_PDF_fund(
 	/* ------------------------------- */
 	prior_closing_transaction_date =
 		transaction_prior_closing_transaction_date(
-			fund_name,
 			as_of_date /* ending_transaction_date */ );
 
 	if ( prior_closing_transaction_date )
@@ -1827,7 +1826,6 @@ void trial_balance_stdout(
 	/* ------------------------------- */
 	prior_closing_transaction_date =
 		transaction_prior_closing_transaction_date(
-			fund_name,
 			as_of_date /* ending_transaction_date */ );
 
 	if ( prior_closing_transaction_date )
@@ -2232,7 +2230,6 @@ void trial_balance_html_table(
 	/* ------------------------------- */
 	prior_closing_transaction_date =
 		transaction_prior_closing_transaction_date(
-			fund_name,
 			as_of_date /* ending_transaction_date */ );
 
 	if ( prior_closing_transaction_date )
@@ -2492,7 +2489,6 @@ void trial_balance_html_table(
 	/* ------------------------------- */
 	prior_closing_transaction_date =
 		transaction_prior_closing_transaction_date(
-			fund_name,
 			as_of_date /* ending_transaction_date */ );
 
 	if ( prior_closing_transaction_date )

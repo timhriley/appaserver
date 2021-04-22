@@ -310,7 +310,6 @@ void transaction_report_title_sub_title(
 			char *logo_filename );
 
 DATE *transaction_prior_closing_transaction_date(
-			char *fund_name,
 			char *ending_transaction_date );
 
 /* Returns heap memory. */
@@ -325,12 +324,6 @@ char *transaction_date_max(
 
 char *transaction_fund_where(
 			char *fund_name );
-
-boolean transaction_fund_attribute_exists(
-			void );
-
-LIST *transaction_fund_name_list(
-			void );
 
 LIST *transaction_list_fetch(
 			char *where,

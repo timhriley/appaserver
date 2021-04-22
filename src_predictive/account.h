@@ -50,14 +50,16 @@ typedef struct
 	char *subclassification_name;
 	char *account_key;
 	double chart_account_number;
-	JOURNAL *latest_journal;
 	LIST *journal_list;
+	JOURNAL *latest_journal;
 	double balance;
 	double annual_budget;
 	boolean accumulate_debit;
 	double payment_amount;
 	LIST *transaction_after_balance_zero_journal_list;
 	char *account_action_string;
+	double percent_of_total;
+	double delta_prior;
 } ACCOUNT;
 
 /* Operations */

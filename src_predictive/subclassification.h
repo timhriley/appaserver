@@ -42,7 +42,9 @@ typedef struct
 	char *element_name;
 	int display_order;
 	LIST *account_list;
-	double subclassification_total;
+	double total;
+	double percent_of_total;
+	double delta_prior;
 } SUBCLASSIFICATION;
 
 /* Operations */

@@ -1129,3 +1129,9 @@ void element_list_set_account_action_string(
 	} while ( list_next( element_list ) );
 }
 
+void element_list_set_percent_of_total(
+			LIST *element_list,
+			enum subclassification_option subclassification_option )
+{
+}
+

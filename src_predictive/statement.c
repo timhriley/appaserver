@@ -19,16 +19,19 @@
 #include "boolean.h"
 #include "statement.h"
 
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
 STATEMENT *statement_new(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *process_name,
+			boolean exists_logo_filename,
+			LIST *filter_element_name_list,
 			char *as_of_date,
 			int prior_year_count,
-			char *fund_name,
+			LIST *fund_name_list,
 			char *subclassification_option_string,
+			char *fund_aggregation_string,
 			char *output_medium_string )
 {
 	STATEMENT *statement;
@@ -44,15 +47,22 @@ STATEMENT *statement_new(
 		exit( 1 );
 	}
 
+	statement->application_name = application_name;
+	statement->session = session;
+	statement->login_name = login_name;
+	statement->role_name = role_name;
+	statement->process_name = process_name;
+	statement->exists_logo_filename = exists_logo_filename;
+	statement->filter_element_name_list = filter_element_name_list;
 	statement->as_of_date = as_of_date;
 	statement->prior_year_count = prior_year_count;
-	statement->fund_name = fund_name;
+	statement->fund_name_list = fund_name_list;
 
 	statement->subclassification_option_string =
 		subclassification_option_string;
 
-	statement->output_medium_string =
-		output_medium_string;
+	statement->fund_aggregation_string = fund_aggregation_string;
+	statement->output_medium_string = output_medium_string;
 
 	return statement;
 }
@@ -60,6 +70,13 @@ STATEMENT *statement_new(
 enum subclassification_option statement_subclassification_option(
 			char *subclassification_option_string )
 {
+	if ( strcmp(
+		subclassification_option_string,
+		"aggregate" ) == 0 )
+	{
+		return subclassification_aggregate;
+	}
+	else
 	if ( strcmp(
 		subclassification_option_string,
 		"display" ) == 0 )
@@ -155,10 +172,11 @@ LIST *statement_element_list(
 			char *session,
 			char *login_name,
 			char *role_name,
+			LIST *filter_element_name_list,
+			char *begin_date_string,
 			char *transaction_date_time,
 			char *fund_name,
-			enum subclassification_option subclassification_option,
-			enum fund_aggregation fund_aggregation )
+			enum subclassification_option subclassification_option )
 {
 	boolean fetch_subclassification_list = 0;
 	boolean fetch_account_list = 0;
@@ -179,7 +197,7 @@ LIST *statement_element_list(
 
 	list =
 		element_list(
-			(LIST *)0 /* filter_element_name_list */,
+			filter_element_name_list,
 			fund_name,
 			transaction_date_time,
 			fetch_subclassification_list,
@@ -191,8 +209,11 @@ LIST *statement_element_list(
 		session,
 		login_name,
 		role_name,
-		beginning_date,
-		transaction_date_time );
+		beginning_date_string,
+		column(
+			transaction_date,
+			transaction_date_time,
+			0 ) );
 
 	return list;
 }
@@ -202,9 +223,12 @@ STATEMENT *statement_steady_state(
 			char *session,
 			char *login_name,
 			char *role_name,
+			char *process_name,
+			boolean exists_logo_filename,
+			LIST *filter_element_name_list,
 			char *as_of_date,
 			int prior_year_count,
-			char *fund_name,
+			LIST *fund_name_list,
 			char *subclassification_option_string,
 			char *fund_aggregation_string,
 			char *output_medium_string,
@@ -216,11 +240,55 @@ STATEMENT *statement_steady_state(
 
 	statement->statement_fund_aggregation =
 		statement_fund_aggregation(
+			fund_name_list,
 			fund_aggregation_string );
+
+	/* Set all the funds if nothing is selected */
+	/* ---------------------------------------- */
+	if ( statement->statement_fund_aggregation == no_fund )
+	{
+		statement->fund_name_list =
+			statement_fund_name_list();
+
+		statement->statement_fund_aggregation =
+			statement_fund_aggregation(
+				statement->fund_name_list,
+				fund_aggregation_string );
+	}
 
 	statement->statement_output_medium =
 		statement_output_medium(
 			output_medium_string );
+
+	statement->begin_date_string =
+		statement_begin_date_string(
+			as_of_date );
+
+	statement->title =
+		statement_title(
+			application_name,
+			exists_logo_filename,
+			process_name );
+
+	statement->subtitle =
+		statement_subtitle(
+			statement->begin_date_string,
+			as_of_date,
+			fund_aggregation );
+
+	statement->statement_fund_list =
+		statement_fund_list(
+			application_name,
+			session,
+			login_name,
+			role_name,
+			filter_element_name_list,
+			statement->begin_date_string,
+			as_of_date,
+			prior_year_count,
+			statement->fund_name_list,
+			statement->statement_subclassification_option,
+			statement->statement_fund_aggregation );
 
 	return statement;
 }
@@ -230,11 +298,11 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_new(
 			char *session,
 			char *login_name,
 			char *role_name,
+			LIST *filter_element_name_list,
 			char *as_of_date,
 			int years_ago,
 			char *fund_name,
 			enum subclassification_option subclassification_option )
-			enum fund_aggregation fund_aggregation )
 {
 	STATEMENT_PRIOR_YEAR *statement_prior_year;
 
@@ -253,15 +321,16 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_new(
 	statement_prior_year->session = session;
 	statement_prior_year->login_name = login_name;
 	statement_prior_year->role_name = role_name;
+
+	statement_prior_year->filter_element_name_list =
+		filter_element_name_list;
+
 	statement_prior_year->as_of_date = as_of_date;
-	statement_prior_year->fund_name = fund_name;
 	statement_prior_year->years_ago = years_ago;
+	statement_prior_year->fund_name = fund_name;
 
 	statement_prior_year->subclassification_option =
 		subclassification_option;
-
-	statement_prior_year->fund_aggregation =
-		fund_aggregation;
 
 	return statement_prior_year;
 }
@@ -271,11 +340,11 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			char *session,
 			char *login_name,
 			char *role_name,
+			LIST *filter_element_name_list,
 			char *as_of_date,
 			int years_ago,
 			char *fund_name,
-			enum subclassification_option subclassification_option,
-			enum fund_aggregation fund_aggregation )
+			enum subclassification_option subclassification_option )
 {
 	STATEMENT_PRIOR_YEAR *statement_prior_year;
 	DATE *current_date;
@@ -286,11 +355,11 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			session,
 			login_name,
 			role_name,
+			filter_element_name_list,
 			as_of_date,
 			years_ago,
 			fund_name,
-			subclassification_option,
-			fund_aggregation );
+			subclassification_option );
 
 	current_date =
 		date_yyyy_mm_dd_new(
@@ -304,6 +373,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			session,
 			login_name,
 			role_name,
+			filter_element_name_list,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -312,8 +382,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 					current_date ),
 				0 /* not preclose_time_boolean */ ),
 			fund_name,
-			subclassification_option,
-			fund_aggregation );
+			subclassification_option );
 
 	return statement_prior_year;
 }
@@ -323,11 +392,12 @@ STATEMENT_FUND *statement_fund_new(
 			char *session,
 			char *login_name,
 			char *role_name,
+			LIST *filter_element_name_list,
+			char *begin_date_string,
 			char *as_of_date,
 			int prior_year_count,
 			char *fund_name,
 			enum subclassification_option subclassification_option )
-			enum fund_aggregation fund_aggregation )
 {
 	STATEMENT_FUND *statement_fund;
 
@@ -346,11 +416,12 @@ STATEMENT_FUND *statement_fund_new(
 	statement_fund->session = session;
 	statement_fund->login_name = login_name;
 	statement_fund->role_name = role_name;
+	statement_fund->filter_element_name_list = filter_element_name_list;
+	statement_fund->begin_date_string = begin_date_string;
 	statement_fund->as_of_date = as_of_date;
 	statement_fund->fund_name = fund_name;
-	statement_fund->years_ago = years_ago;
+	statement_fund->prior_year_count = prior_year_count;
 	statement_fund->subclassification_option = subclassification_option;
-	statement_fund->fund_aggregation = fund_aggregation;
 
 	return statement_fund;
 }
@@ -360,10 +431,11 @@ STATEMENT_FUND *statement_fund_fetch(
 			char *session,
 			char *login_name,
 			char *role_name,
+			LIST *filter_element_name_list,
+			char *begin_date_string,
 			char *as_of_date,
 			int prior_year_count,
 			char *fund_name,
-			LIST *fund_name_list,
 			enum subclassification_option subclassification_option )
 {
 	STATEMENT_FUND *statement_fund;
@@ -375,16 +447,12 @@ STATEMENT_FUND *statement_fund_fetch(
 			session,
 			login_name,
 			role_name,
+			filter_element_name_list,
+			begin_date_string,
 			as_of_date,
 			prior_year_count,
 			fund_name,
-			subclassification_option,
-			fund_aggregation );
-
-	statement_fund->begin_date_string =
-		statement_begin_date_string(
-			fund_name,
-			as_of_date );
+			subclassification_option );
 
 	statement_fund->preclose_element_list =
 		statement_element_list(
@@ -392,6 +460,8 @@ STATEMENT_FUND *statement_fund_fetch(
 			session,
 			login_name,
 			role_name,
+			filter_element_name_list,
+			begin_date_string,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -407,6 +477,8 @@ STATEMENT_FUND *statement_fund_fetch(
 			session,
 			login_name,
 			role_name,
+			filter_element_name_list,
+			begin_date_string,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -416,7 +488,7 @@ STATEMENT_FUND *statement_fund_fetch(
 			fund_name,
 			subclassification_option );
 
-	if ( !prior_year_count )
+	if ( prior_year_count <= 0 )
 	{
 		return statement_fund;
 	}
@@ -424,7 +496,7 @@ STATEMENT_FUND *statement_fund_fetch(
 	statement_fund->prior_year_list = list_new();
 
 	for(	years_ago = 1;
-		years_ago < prior_year_count;
+		years_ago <= prior_year_count;
 		years_ago++ )
 	{
 		list_set(
@@ -434,13 +506,13 @@ STATEMENT_FUND *statement_fund_fetch(
 				session,
 				login_name,
 				role_name,
+				filter_element_name_list,
+				begin_date_string,
 				as_of_date,
 				years_ago,
 				fund_name,
 				statement->
-					statement_subclassification_option,
-				statement->
-					statement_fund_aggregation ) );
+					statement_subclassification_option ) );
 	}
 
 	return statement_fund;
@@ -451,11 +523,13 @@ LIST *statement_fund_list(
 			char *session,
 			char *login_name,
 			char *role_name,
+			LIST *filter_element_name_list,
+			char *begin_date_string,
 			char *as_of_date,
 			int prior_year_count,
 			LIST *fund_name_list,
-			enum subclassification_option,
-			enum fund_aggregation )
+			enum subclassification_option subclassification_option,
+			enum fund_aggregation fund_aggregation )
 {
 	LIST *statement_fund_list = list_new();
 
@@ -468,10 +542,11 @@ LIST *statement_fund_list(
 				session,
 				login_name,
 				role_name,
+				filter_element_name_list,
+				begin_date_string,
 				as_of_date,
 				prior_year_count,
 				(char *)0 /* fund_name */,
-				(LIST *)0 /* fund_name_list */,
 				subclassification_option ) );
 	}
 	else
@@ -484,10 +559,11 @@ LIST *statement_fund_list(
 				session,
 				login_name,
 				role_name,
+				filter_element_name_list,
+				begin_date_string,
 				as_of_date,
 				prior_year_count,
 				list_first( fund_name_list ) /* fund_name */,
-				(LIST *)0 /* fund_name_list */,
 				subclassification_option ) );
 	}
 	else
@@ -500,12 +576,12 @@ LIST *statement_fund_list(
 				session,
 				login_name,
 				role_name,
+				filter_element_name_list,
+				begin_date_string,
 				as_of_date,
 				prior_year_count,
 				(char *)0 /* fund_name */,
-				fund_name_list,
-				subclassification_option,
-				fund_aggregation ) );
+				subclassification_option ) );
 	}
 	else
 	if ( fund_aggregation == sequential )
@@ -533,10 +609,11 @@ LIST *statement_fund_list(
 					session,
 					login_name,
 					role_name,
+					filter_element_name_list,
+					begin_date_string,
 					as_of_date,
 					prior_year_count,
 					fund_name,
-					(LIST *)0 /* fund_name_list */,
 					subclassification_option ) );
 
 		} while ( list_next( fund_name_list ) );
@@ -546,81 +623,39 @@ LIST *statement_fund_list(
 }
 
 char *statement_begin_date_string(
-			char *fund_name,
 			char *as_of_date )
 {
-	char where[ 512 ];
 	char sys_string[ 1024 ];
 	char *select;
-	char folder[ 128 ];
 	char *results;
 	char transaction_date_string[ 16 ];
 	DATE *prior_closing_transaction_date = {0};
 
-	if ( fund_name && !*fund_name )
-		fund_name = (char *)0;
-	else
-	if ( fund_name && strcmp( fund_name, "fund" ) == 0 )
-		fund_name = (char *)0;
-
-	/* Get the prior closing entry then return its tomorrow. */
-	/* ----------------------------------------------------- */
-	if ( as_of_date )
+	prior_closing_transaction_date =
+		transaction_prior_closing_transaction_date(
+			as_of_date );
+	
+	if ( prior_closing_transaction_date )
 	{
-		prior_closing_transaction_date =
-			transaction_prior_closing_transaction_date(
-				fund_name,
-				as_of_date );
+		date_increment_days(
+			prior_closing_transaction_date,
+			1.0 );
 	
-		if ( prior_closing_transaction_date )
-		{
-			date_increment_days(
-				prior_closing_transaction_date,
-				1.0 );
-	
-			return date_get_yyyy_mm_dd_string(
-					prior_closing_transaction_date );
-		}
+		return date_get_yyyy_mm_dd_string(
+				prior_closing_transaction_date );
 	}
 
 	/* No closing entries */
 	/* ------------------ */
 	select = "min( transaction_date_time )";
 
-	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
-	{
-		/* Get the first entry for the fund. */
-		/* --------------------------------- */
-		sprintf(folder,
-		 	"%s,%s",
-		 	JOURNAL_TABLE,
-		 	ACCOUNT_TABLE_NAME );
-
-		sprintf(where,
-		 	"fund = '%s' and				"
-			"%s.account = %s.account			",
-		 	fund_name,
-			JOURNAL_TABLE,
-			ACCOUNT_TABLE_NAME );
-	}
-	else
-	{
-		/* Get the first entry. */
-		/* -------------------- */
-		strcpy( folder, JOURNAL_TABLE );
-
-		strcpy( where, "1 = 1" );
-	}
-
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
 		 "			select=\"%s\"		"
-		 "			folder=%s		"
-		 "			where=\"%s\"		",
+		 "			folder=%s		",
 		 environment_application_name(),
 		 select,
-		 folder,
-		 where );
+		 JOURNAL_TABLE );
 
 	results = pipe2string( sys_string );
 
@@ -629,3 +664,86 @@ char *statement_begin_date_string(
 	return strdup( column( transaction_date_string, 0, results )  );
 }
 
+LIST *statement_fund_name_list( void )
+{
+	char *sys_string;
+
+	if ( !predictive_fund_attribute_exists() )
+	{
+		return (LIST *)0;
+	}
+
+	sys_string = "select.sh fund fund where fund";
+
+	return pipe2list( sys_string );
+}
+
+char *statement_title(
+			char *application_name,
+			boolean exists_logo_filename,
+			char *process_name )
+{
+	static char title[ 256 ];
+	char buffer[ 128 ];
+
+	if ( !exists_logo_filename )
+	{
+		sprintf(title,
+			"%s %s",
+			application_title_string(
+				application_name ),
+			format_initial_capital(
+				buffer,
+				process_name ) );
+	}
+	else
+	{
+		strcpy( title,
+			format_initial_capital(
+				buffer,
+				process_name ) );
+	}
+
+	return title;
+}
+
+char *statement_subtitle(
+			char *begin_date_string,
+			char *as_of_date,
+			enum fund_aggregation fund_aggregation )
+{
+	static char subtitle[ 128 ];
+
+	char begin_date_american[ 32 ];
+	char end_date_american[ 32 ];
+	char *fund_name = {0};
+
+	*begin_date_american = '\0';
+
+	date_convert_source_international(
+		begin_date_american,
+		american,
+		begin_date_string );
+
+	date_convert_source_international(
+		end_date_american,
+		american,
+		as_of_date );
+
+	if ( fund_aggregation != consolidated )
+	{
+		sprintf(subtitle,
+	 		"Beginning: %s, Ending: %s",
+			begin_date_american,
+	 		end_date_american );
+	}
+	else
+	{
+		sprintf(subtitle,
+	 		"Consolidated Funds, Beginning: %s, Ending: %s",
+			begin_date_american,
+	 		end_date_american );
+	}
+
+	return subtitle );
+}

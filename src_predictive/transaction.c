@@ -1226,8 +1226,7 @@ void transaction_report_title_sub_title(
 }
 
 DATE *transaction_prior_closing_transaction_date(
-			char *fund_name,
-			char *ending_transaction_date )
+			char *as_of_date )
 {
 	char where[ 512 ];
 	char sys_string[ 1024 ];
@@ -1236,12 +1235,6 @@ DATE *transaction_prior_closing_transaction_date(
 	char ending_transaction_date_time[ 32 ];
 	char transaction_date_string[ 16 ];
 	DATE *prior_closing_transaction_date = {0};
-
-	if ( fund_name && !*fund_name )
-		fund_name = (char *)0;
-	else
-	if ( fund_name && strcmp( fund_name, "fund" ) == 0 )
-		fund_name = (char *)0;
 
 	select = "max( transaction_date_time )";
 
@@ -1434,21 +1427,17 @@ char *transaction_date_minimum( void )
 }
 
 char *transaction_date_prior_closing_beginning(
-			char *fund_name,
 			char *as_of_date )
 {
 	return transaction_beginning_date_string(
-			fund_name,
 			as_of_date
 				/* ending_transaction_date */ );
 }
 
 char *transaction_prior_close_beginning_date(
-			char *fund_name,
 			char *as_of_date )
 {
 	return transaction_beginning_date_string(
-			fund_name,
 			as_of_date
 				/* ending_transaction_date */ );
 }
@@ -1477,7 +1466,6 @@ char *transaction_beginning_date_string(
 	{
 		prior_closing_transaction_date =
 			transaction_prior_closing_transaction_date(
-				fund_name,
 				ending_transaction_date );
 	
 		if ( prior_closing_transaction_date )
@@ -1495,40 +1483,13 @@ char *transaction_beginning_date_string(
 	/* ------------------ */
 	select = "min( transaction_date_time )";
 
-	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
-	{
-		/* Get the first entry for the fund. */
-		/* --------------------------------- */
-		sprintf(folder,
-		 	"%s,%s",
-		 	JOURNAL_TABLE,
-		 	ACCOUNT_TABLE_NAME );
-
-		sprintf(where,
-		 	"fund = '%s' and				"
-			"%s.account = %s.account			",
-		 	fund_name,
-			JOURNAL_TABLE,
-			ACCOUNT_TABLE_NAME );
-	}
-	else
-	{
-		/* Get the first entry. */
-		/* -------------------- */
-		strcpy( folder, JOURNAL_TABLE );
-
-		strcpy( where, "1 = 1" );
-	}
-
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
 		 "			select=\"%s\"		"
-		 "			folder=%s		"
-		 "			where=\"%s\"		",
+		 "			folder=%s		",
 		 environment_application_name(),
 		 select,
-		 folder,
-		 where );
+		 JOURNAL_TABLE );
 
 	results = pipe2string( sys_string );
 
