@@ -2002,3 +2002,45 @@ void subclassification_denominator_set_percent_of_total(
 	} while ( list_next( subclassification_list ) );
 }
 
+void subclassification_set_delta_prior(
+			LIST *prior_subclassification_list,
+			SUBCLASSIFICATION *subclassification )
+{
+	SUBCLASSIFICATION *prior_subclassification;
+
+	if ( ! ( prior_subclassification =
+			subclassification_seek(
+				subclassification->subclassification_name,
+				prior_subclassification_list ) ) )
+	{
+		return;
+	}
+
+	prior_subclassification->delta_prior =
+		element_delta_prior(
+			prior_subclassification->subclassification_total,
+			subclassification->subclassification_total );
+
+	account_list_set_delta_prior(
+		prior_subclassification->account_list,
+		subclassification->account_list );
+}
+
+void subclassification_list_set_delta_prior(
+			LIST *prior_subclassification_list,
+			LIST *subclassification_list )
+{
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !list_rewind( subclassification_list ) ) return;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		subclassification_set_delta_prior(
+			prior_subclassification_list,
+			subclassification );
+
+	} while ( list_next( subclassification_list ) );
+}
+

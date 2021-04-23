@@ -1617,8 +1617,8 @@ double trial_balance_get_prior_balance_change(
 
 	if ( ( account =
 		element_account_seek(
-			prior_element_list,
-			account_name ) ) )
+			account_name,
+			prior_element_list ) ) )
 	{
 		balance = account->latest_journal->balance;
 		balance_change = current_balance - balance;

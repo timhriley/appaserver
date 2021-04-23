@@ -174,4 +174,12 @@ void subclassification_denominator_set_percent_of_total(
 			LIST *subclassification_list,
 			double denominator );
 
+void subclassification_list_set_delta_prior(
+			LIST *prior_subclassification_list,
+			LIST *subclassification_list );
+
+void subclassification_set_delta_prior(
+			LIST *prior_subclassification_list,
+			SUBCLASSIFICATION *subclassification );
+
 #endif

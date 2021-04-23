@@ -37,7 +37,7 @@ DONATION_FUND *donation_fund_new( char *fund_name )
 	p->donation_account_list = list_new();
 	return p;
 
-} /* donation_fund_new() */
+}
 
 DONATION_ACCOUNT *donation_account_new( void )
 {
@@ -56,7 +56,7 @@ DONATION_ACCOUNT *donation_account_new( void )
 	}
 
 	return p;
-} /* donation_account_new() */
+}
 
 DONATION *donation_new( void )
 {
@@ -75,7 +75,7 @@ DONATION *donation_new( void )
 	}
 
 	return p;
-} /* donation_new() */
+}
 
 char *donation_get_where(	char *full_name,
 				char *street_address,
@@ -95,7 +95,7 @@ char *donation_get_where(	char *full_name,
 		donation_date );
 
 	return where;
-} /* donation_get_where() */
+}
 
 DONATION *donation_fetch(
 			char *application_name,
@@ -156,7 +156,7 @@ DONATION *donation_fetch(
 
 	return donation;
 
-} /* donation_fetch() */
+}
 
 LIST *donation_fetch_donation_account_list(
 			char *application_name,
@@ -205,7 +205,7 @@ LIST *donation_fetch_donation_account_list(
 	pclose( input_pipe );
 	return donation_account_list;
 
-} /* donation_fetch_donation_account_list() */
+}
 
 void donation_update(
 			char *application_name,
@@ -250,7 +250,7 @@ void donation_update(
 
 	pclose( output_pipe );
 
-} /* donation_update() */
+}
 
 DONATION_ACCOUNT *donation_account_parse(
 			char *input_buffer )
@@ -268,7 +268,7 @@ DONATION_ACCOUNT *donation_account_parse(
 
 	return donation_account;
 
-} /* donation_account_parse() */
+}
 
 DONATION *donation_parse(
 			char *input_buffer )
@@ -302,7 +302,7 @@ DONATION *donation_parse(
 
 	return donation;
 
-} /* donation_parse() */
+}
 
 char *donation_get_select( void )
 {
@@ -334,20 +334,20 @@ char *donation_get_update_sys_string(
 
 	return sys_string;
 
-} /* donation_get_update_sys_string() */
+}
 
 DONATION_ACCOUNT *donation_account_seek(
-			LIST *donation_account_list,
-			char *account_name )
+			char *account_name,
+			LIST *donation_account_list )
 {
 	return donation_seek_donation_account(
-			donation_account_list,
-			account_name );
+			account_name,
+			donation_account_list );
 }
 
 DONATION_ACCOUNT *donation_seek_donation_account(
-			LIST *donation_account_list,
-			char *account_name )
+			char *account_name,
+			LIST *donation_account_list )
 {
 	DONATION_ACCOUNT *donation_account;
 
@@ -367,7 +367,7 @@ DONATION_ACCOUNT *donation_seek_donation_account(
 
 	return (DONATION_ACCOUNT *)0;
 
-} /* donation_seek_donation_account() */
+}
 
 double donation_get_total_donation_amount(
 			LIST *donation_account_list )
@@ -388,7 +388,7 @@ double donation_get_total_donation_amount(
 
 	return total_donation_amount;
 
-} /* donation_get_total_donation_amount() */
+}
 
 void donation_journal_ledger_refresh_and_propagate(
 			char *application_name,
@@ -479,7 +479,7 @@ void donation_journal_ledger_refresh_and_propagate(
 		total_transaction_donation_amount,
 		0.0 /* database_transaction_amount */ );
 
-} /* donation_journal_ledger_refresh_and_propagate() */
+}
 
 LIST *donation_get_fund_list(
 			char *application_name,
@@ -589,7 +589,7 @@ LIST *donation_get_fund_list(
 
 	return donation_fund_list;
 
-} /* donation_get_fund_list() */
+}
 
 DONATION_FUND *donation_get_or_set_fund(
 			LIST *donation_fund_list,
@@ -626,7 +626,7 @@ DONATION_FUND *donation_get_or_set_fund(
 	list_append_pointer( donation_fund_list, donation_fund );
 	return donation_fund;
 
-} /* donation_get_or_set_fund() */
+}
 
 void donation_fund_list_set_total_donation_amount(
 			LIST *donation_fund_list )
@@ -654,5 +654,5 @@ void donation_fund_list_set_total_donation_amount(
 
 	} while( list_next( donation_fund_list ) );
 
-} /* donation_fund_list_set_total_donation_amount() */
+}
 

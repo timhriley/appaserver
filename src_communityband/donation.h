@@ -126,12 +126,12 @@ char *donation_get_where(
 			char *donation_date );
 
 DONATION_ACCOUNT *donation_seek_donation_account(
-			LIST *donation_account_list,
-			char *account_name );
+			char *account_name,
+			LIST *donation_account_list );
 
 DONATION_ACCOUNT *donation_account_seek(
-			LIST *donation_account_list,
-			char *account_name );
+			char *account_name,
+			LIST *donation_account_list );
 
 DONATION_FUND *donation_get_or_set_fund(
 			LIST *donation_fund_list,

@@ -84,8 +84,9 @@ ACCOUNT *account_fetch(	char *account_name );
 
 ACCOUNT *account_new(	char *account_name );
 
-ACCOUNT *account_seek(	LIST *account_list,
-			char *account_name );
+ACCOUNT *account_seek(	
+			char *account_name,
+			LIST *account_list );
 
 char *account_hard_coded_account_name(
 			char *fund_name,
@@ -218,5 +219,9 @@ double account_list_total(
 void account_denominator_set_percent_of_total(
 			LIST *account_list,
 			double denominator );
+
+void account_list_set_delta_prior(
+			LIST *prior_account_list,
+			LIST *account_list );
 
 #endif

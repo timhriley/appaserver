@@ -241,8 +241,10 @@ char *statement_subtitle(
 void statement_fund_list_steady_state(
 			LIST *statement_fund_list );
 
-STATEMENT_FUND *statement_fund_steady_state(
-			STATEMENT_FUND *statement_fund );
+void statement_fund_steady_state(
+			LIST *preclose_element_list,
+			LIST *current_element_list,
+			LIST *prior_year_list );
 
 #endif
 

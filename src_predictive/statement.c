@@ -751,32 +751,38 @@ char *statement_subtitle(
 	return subtitle );
 }
 
-STATEMENT_FUND *statement_fund_steady_state(
-			STATEMENT_FUND *statement_fund )
+void statement_fund_steady_state(
+			LIST *preclose_element_list,
+			LIST *current_element_list,
+			LIST *prior_year_list )
 {
 	element_list_set_total(
-		statement_fund->preclose_element_list );
+		preclose_element_list );
 
 	element_list_set_percent_of_total(
-		statement_fund->preclose_element_list );
+		preclose_element_list );
 
-	if ( list_rewind( statement_fund->prior_year_list ) )
+	element_list_set_total(
+		current_element_list );
+
+	element_list_set_percent_of_total(
+		current_element_list );
+
+	if ( list_rewind( prior_year_list ) )
 	{
 		STATEMENT_PRIOR_YEAR *statement_prior_year;
 
 		do {
 			statement_prior_year =
 				list_get(
-					statement_fund->prior_year_list );
+					prior_year_list );
 
 			element_list_set_delta_prior(
 				statement_prior_year->prior_year_element_list,
-				statement_fund->preclose_element_list );
+				preclose_element_list );
 
-		} while ( list_next( statement_fund->prior_year_list ) );
+		} while ( list_next( prior_year_list ) );
 	}
-
-	return statement_fund;
 }
 
 void statement_fund_list_steady_state(
@@ -789,9 +795,10 @@ void statement_fund_list_steady_state(
 	do {
 		statement_fund = list_get( statement_fund_list );
 
-		statment_fund =
-			statement_fund_steady_state(
-				statement_fund );
+		statement_fund_steady_state(
+			statement_fund->preclose_element_list,
+			statement_fund->current_element_list,
+			statement_fund->prior_year_list );
 
 	} while ( list_next( statement_fund_list ) );
 }

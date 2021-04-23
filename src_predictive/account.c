@@ -224,7 +224,7 @@ ACCOUNT *account_getset(
 {
 	ACCOUNT *account;
 
-	if ( ( account = account_seek( account_list, account_name ) ) )
+	if ( ( account = account_seek( account_name, account_list ) ) )
 	{
 		return account;
 	}
@@ -234,8 +234,9 @@ ACCOUNT *account_getset(
 	return account;
 }
 
-ACCOUNT *account_seek(	LIST *account_list,
-			char *account_name )
+ACCOUNT *account_seek(	
+			char *account_name,
+			LIST *account_list )
 {
 	ACCOUNT *account;
 
@@ -995,15 +996,7 @@ double account_list_total(
 	do {
 		account = list_get( account_list );
 
-		if ( !account->latest_journal )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty latest_journal.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
+		if ( !account->latest_journal ) continue;
 
 		total += account->latest_journal->balance;
 
@@ -1034,3 +1027,46 @@ void account_denominator_set_percent_of_total(
 
 	} while ( list_next( account_list ) );
 }
+
+void account_set_delta_prior(
+			LIST *prior_account_list,
+			ACCOUNT *account )
+{
+	ACCOUNT *prior_account;
+
+	if ( !account->latest_journal ) return;
+
+	if ( ! ( prior_account =
+			account_seek(
+				account->account_name,
+				prior_account_list ) ) )
+	{
+		return;
+	}
+
+	if ( !prior_account->latest_journal ) return;
+
+	prior_account->delta_prior =
+		element_delta_prior(
+			prior_account->latest_journal->balance,
+			account->latest_journal->balance );
+}
+
+void account_list_set_delta_prior(
+			LIST *prior_account_list,
+			LIST *account_list )
+{
+	ACCOUNT *account;
+
+	if ( !list_rewind( account_list ) ) return;
+
+	do {
+		account = list_get( account_list );
+
+		account_set_delta_prior(
+			prior_account_list,
+			account );
+
+	} while ( list_next( account_list ) );
+}
+

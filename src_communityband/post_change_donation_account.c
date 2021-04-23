@@ -191,9 +191,9 @@ void post_change_donation_account_insert(
 			donation->donation_fund_list,
 			0 /* not propagate_only */ );
 
-	if ( (boolean)donation_account_seek(
-			donation->donation_account_list,
-			MEMBER_DUES_ACCOUNT ) )
+	if ( donation_account_seek(
+			MEMBER_DUES_ACCOUNT,
+			donation->donation_account_list ) )
 	{
 		post_change_set_status_active(
 			application_name,
@@ -374,8 +374,8 @@ void post_change_donation_amount_update(
 
 	if ( ! ( donation_account =
 			donation_account_seek(
-				donation->donation_account_list,
-				account_name ) ) )
+				account_name,
+				donation->donation_account_list ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot find donation_account.\n",

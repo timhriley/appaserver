@@ -1003,8 +1003,8 @@ void element_list_propagate(
 }
 
 ACCOUNT *element_account_seek(
-			LIST *element_list,
-			char *account_name )
+			char *account_name,
+			LIST *element_list )
 {
 	ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
@@ -1018,8 +1018,8 @@ ACCOUNT *element_account_seek(
 		if ( list_length( element->account_list ) )
 		{
 			return account_seek(
-					element->account_list,
-					account_name );
+					account_name,
+					element->account_list );
 		}
 
 		if ( !list_rewind( element->subclassification_list ) )
@@ -1037,8 +1037,8 @@ ACCOUNT *element_account_seek(
 
 			if ( ( account =
 				account_seek(
-					subclassification->account_list,
-					account_name ) ) )
+					account_name,
+					subclassification->account_list ) ) )
 			{
 				return account;
 			}
@@ -1247,9 +1247,73 @@ void element_denominator_set_percent_of_total(
 	} while ( list_next( element_list ) );
 }
 
+int element_delta_prior(
+			double prior_total,
+			double total )
+{
+	double difference;
+	double delta;
+
+	if ( !prior_total ) return 0;
+
+	difference = total - prior_total;
+
+	delta = (difference / prior_total) * 100.0;
+
+	return float_round_double( delta );
+}
+
+void element_prior_year_element_list_set_delta_prior(
+			LIST *prior_year_element_list,
+			ELEMENT *preclose_element )
+{
+	ELEMENT *prior_year_element;
+
+	if ( ! ( prior_year_element =
+			element_seek(
+				preclose_element->element_name,
+				prior_year_element_list ) ) )
+	{
+		return;
+	}
+
+	prior_year_element->element_delta_prior
+		element_delta_prior(
+			prior_year_element->element_total
+				/* prior_total */,
+			preclose_element->element_total,
+				/* total */ );
+
+	if ( list_length( prior_year_element->subclassification_list ) )
+	{
+		subclassification_list_set_delta_prior(
+			prior_year_element->subclassification_list,
+			preclose_element->subclassification_list );
+	}
+	else
+	if ( list_length( prior_year_element->account_list ) )
+	{
+		account_list_set_delta_prior(
+			prior_year_element->account_list,
+			preclose_element->account_list );
+	}
+}
+
 void element_list_set_delta_prior(
 			LIST *prior_year_element_list,
 			LIST *preclose_element_list )
 {
+	ELEMENT *preclose_element;
+
+	if ( !list_rewind( preclose_element_list ) ) return;
+
+	do {
+		preclose_element = list_get( preclose_element_list );
+
+		element_prior_year_element_list_set_delta_prior(
+			prior_year_element_list,
+			preclose_element );
+
+	} while ( list_next( preclose_element_list ) );
 }
 

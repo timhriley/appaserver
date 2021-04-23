@@ -36,7 +36,7 @@ typedef struct
 	LIST *account_list;
 
 	double element_total;
-	double delta_prior;
+	int element_delta_prior;
 	int percent_of_total;
 } ELEMENT;
 
@@ -126,8 +126,8 @@ char *element_sys_string(
 			char *where );
 
 ACCOUNT *element_account_seek(
-			LIST *element_list,
-			char *account_name );
+			char *account_name,
+			LIST *element_list );
 
 LIST *element_system_list(
 			char *sys_string,
@@ -174,6 +174,14 @@ void element_denominator_set_percent_of_total(
 void element_list_set_delta_prior(
 			LIST *prior_year_element_list,
 			LIST *preclose_element_list );
+
+void element_prior_year_element_list_set_delta_prior(
+			LIST *prior_year_element_list,
+			ELEMENT *preclose_element );
+
+int element_delta_prior(
+			double element_prior_total,
+			double element_total );
 
 #endif
 
