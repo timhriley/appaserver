@@ -1007,7 +1007,7 @@ void element_list_propagate(
 	} while( list_next( element_list ) );
 }
 
-ACCOUNT *element_account_seek(
+ACCOUNT *element_list_account_seek(
 			char *account_name,
 			LIST *element_list )
 {
@@ -1132,113 +1132,6 @@ void element_list_set_account_action_string(
 			role_name,
 			beginning_date,
 			as_of_date );
-
-	} while ( list_next( element_list ) );
-}
-
-void element_list_set_percent_of_total(
-			LIST *element_list )
-{
-	ELEMENT *denominator_element;
-	double denominator = {0};
-
-	if ( ( denominator_element =
-			element_seek(
-				ELEMENT_ASSET,
-				element_list ) ) )
-	{
-		denominator = denominator_element->element_total;
-	}
-	else
-	if ( ( denominator_element =
-			element_seek(
-				ELEMENT_REVENUE,
-				element_list ) ) )
-	{
-		denominator = denominator_element->element_total;
-	}
-
-	if ( !denominator ) return;
-
-	element_denominator_set_percent_of_total(
-		element_list,
-		denominator );
-}
-
-double element_total(	LIST *subclassification_list,
-			LIST *account_list )
-{
-	if ( list_rewind( subclassification_list ) )
-	{
-		return
-			subclassification_list_total(
-				subclassification_list );
-	}
-	else
-	if ( list_rewind( account_list ) )
-	{
-		return
-			account_list_total(
-				account_list );
-	}
-	else
-	{
-		return 0.0;
-	}
-}
-
-void element_list_set_total(
-			LIST *element_list )
-{
-	ELEMENT *element;
-
-	if ( !list_rewind( element_list ) ) return;
-
-	do {
-		element = list_get( element_list );
-
-		element->element_total =
-			element_total(
-				element->subclassification_list,
-				element->account_list );
-
-	} while ( list_next( element_list ) );
-}
-
-void element_denominator_set_percent_of_total(
-			LIST *element_list,
-			double denominator )
-{
-	ELEMENT *element;
-	double percent_of_total;
-
-	if ( !denominator ) return;
-	if ( !list_rewind( element_list ) ) return;
-
-	do {
-		element = list_get( element_list );
-
-		percent_of_total =
-			(element->element_total /
-			 denominator) * 100.0;
-
-		element->percent_of_total =
-			float_round_int(
-				percent_of_total );
-
-		if ( list_length( element->subclassification_list ) )
-		{
-			subclassification_denominator_set_percent_of_total(
-				element->subclassification_list,
-				denominator );
-		}
-		else
-		if ( list_length( element->account_list ) )
-		{
-			account_denominator_set_percent_of_total(
-				element->account_list,
-				denominator );
-		}
 
 	} while ( list_next( element_list ) );
 }
@@ -1375,5 +1268,163 @@ double element_list_credit_total(
 	} while ( list_next( element_list ) );
 
 	return total;
+}
+
+void element_list_set_total(
+			LIST *element_list )
+{
+	ELEMENT *element;
+
+	if ( !list_rewind( element_list ) ) return;
+
+	do {
+		element = list_get( element_list );
+
+		element->element_total =
+			element_total(
+				element->subclassification_list,
+				element->account_list );
+
+	} while ( list_next( element_list ) );
+}
+
+double element_total(	LIST *subclassification_list,
+			LIST *account_list )
+{
+	if ( list_length( subclassification_list ) )
+	{
+		return
+			subclassification_list_total(
+				subclassification_list );
+	}
+	else
+	if ( list_length( account_list ) )
+	{
+		return
+			account_list_total(
+				account_list );
+	}
+	else
+	{
+		return 0.0;
+	}
+}
+
+void element_list_set_percent_of_assets(
+			LIST *element_list )
+{
+	ELEMENT *denominator_element;
+	double assets_total = {0};
+
+	if ( ( denominator_element =
+			element_seek(
+				ELEMENT_ASSET,
+				element_list ) ) )
+	{
+		assets_total = denominator_element->element_total;
+	}
+
+	if ( !assets_total ) return;
+
+	element_denominator_set_percent_of_assets(
+		element_list,
+		assets_total );
+}
+
+void element_list_set_percent_of_revenues(
+			LIST *element_list )
+{
+	ELEMENT *denominator_element;
+	double revenues_total = {0};
+
+	if ( ( denominator_element =
+			element_seek(
+				ELEMENT_REVENUE,
+				element_list ) ) )
+	{
+		revenues_total = denominator_element->element_total;
+	}
+
+	if ( !revenues_total ) return;
+
+	element_denominator_set_percent_of_revenues(
+		element_list,
+		revenues_total );
+}
+
+void element_denominator_set_percent_of_assets(
+			LIST *element_list,
+			double assets_total )
+{
+	ELEMENT *element;
+	double percent_of_assets;
+
+	if ( !assets_total ) return;
+	if ( !list_rewind( element_list ) ) return;
+
+	do {
+		element = list_get( element_list );
+
+		percent_of_assets =
+			(element->element_total /
+			 assets_total) * 100.0;
+
+		element->percent_of_assets =
+			float_round_int(
+				percent_of_assets );
+
+		if ( list_length( element->subclassification_list ) )
+		{
+			subclassification_list_set_percent_of_assets(
+				element->subclassification_list,
+				assets_total );
+		}
+		else
+		if ( list_length( element->account_list ) )
+		{
+			account_list_set_percent_of_assets(
+				element->account_list,
+				assets_total );
+		}
+
+	} while ( list_next( element_list ) );
+}
+
+void element_denominator_set_percent_of_revenues(
+			LIST *element_list,
+			double revenues_total )
+{
+	ELEMENT *element;
+	double percent_of_revenues;
+
+	if ( !revenues_total ) return;
+	if ( !list_rewind( element_list ) ) return;
+
+	do {
+		element = list_get( element_list );
+
+		percent_of_revenues =
+			(element->element_total /
+			 revenues_total) * 100.0;
+
+		element->percent_of_revenues =
+			float_round_int(
+				percent_of_revenues );
+
+		if ( list_length( element->subclassification_list ) )
+		{
+			subclassification_list_set_percent_of_revenues(
+				element->subclassification_list,
+				revenues_total );
+		}
+		else
+		if ( list_length( element->account_list ) )
+		{
+			account_list_set_percent_of_revenues(
+				element->account_list,
+				revenues_total );
+		}
+
+	} while ( list_next( element_list ) );
 }
 

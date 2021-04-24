@@ -388,10 +388,7 @@ char *transaction_latest_zero_balance_transaction_date_time(
 boolean transaction_date_time_exists(
 			char *transaction_date_time );
 
-boolean transaction_existing_closing_date_time(
-			char *transaction_date );
-
-boolean transaction_exists_closing_date_time(
+boolean transaction_exists_closing_entry(
 			char *transaction_date );
 
 LIST *transaction_date_time_account_name_list(
@@ -453,17 +450,10 @@ boolean transaction_date_time_changed(
 
 /* Returns static memory */
 /* --------------------- */
-char *transaction_closing_transaction_date_time(
-			char *transaction_date );
-
-char *transaction_closing_date_time(
-			char *transaction_date );
-
-/* Returns static memory */
-/* --------------------- */
 char *transaction_date_time_closing(
 			char *transaction_date,
-			boolean preclose_time_boolean );
+			boolean preclose_time,
+			boolean closing_entry_exists );
 
 /* Returns static memory */
 /* --------------------- */
@@ -477,7 +467,10 @@ char *transaction_closing_memo_where(
 			void );
 
 boolean transaction_closing_entry_exists(
-			char *transaction_date );
+			/* -------------- */
+			/* Trims off time */
+			/* -------------- */
+			char *transaction_date_time );
 
 /* Returns static memory */
 /* --------------------- */

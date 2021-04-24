@@ -56,13 +56,13 @@ char *html_table_account_title(
 			char *transaction_date,
 			char *memo );
 
-void trial_balance_html_table(
+void trial_balance_html(
 			LIST *statement_fund_list,
 			char *title,
 			char *subtitle,
 			boolean postclose );
 
-void trial_balance_html_table_subclassification(
+void trial_balance_html_subclassification(
 			LIST *element_list,
 			LIST *prior_year_list,
 			char *title,
@@ -71,13 +71,15 @@ void trial_balance_html_table_subclassification(
 			double debit_total,
 			double credit_total );
 
-void trial_balance_html_table_subclassification_list(
+/* Returns count */
+/* ------------- */
+int trial_balance_html_subclassification_list(
 			HTML_TABLE *html_table,
 			LIST *prior_year_list,
 			char *element_name,
 			LIST *subclassification_list );
 
-void trial_balance_html_table_account(
+void trial_balance_html_account(
 			LIST *element_list,
 			LIST *prior_year_list,
 			char *title,
@@ -86,14 +88,14 @@ void trial_balance_html_table_account(
 			double debit_total,
 			double credit_total );
 
-void trial_balance_html_table_subclassification_account(
+void trial_balance_html_subclassification_account(
 			HTML_TABLE *html_table,
 			ACCOUNT *account,
 			LIST *prior_year_list,
 			char *element_name,
 			char *subclassification_name );
 
-void trial_balance_html_table_subclassification_account_name(
+void trial_balance_html_subclassification_account_name(
 			LIST *data_list,
 			char *element_name,
 			char *subclassification_name,
@@ -110,8 +112,10 @@ void trial_balance_html_table_subclassification_account_name(
 			boolean accumulate_debit,
 			double debit_amount,
 			double credit_amount,
-			int percent_of_total,
-			char *action_string );
+			int percent_of_assets,
+			int percent_of_revenues,
+			char *action_string,
+			LIST *prior_year_list );
 
 int main( int argc, char **argv )
 {
@@ -228,16 +232,16 @@ int main( int argc, char **argv )
 
 	if ( statement->statement_output_medium == output_table )
 	{
-		trial_balance_html_table(
+		trial_balance_html(
 			statement->statement_fund_list,
 			statement->title,
 			statement->subtitle,
 			0 /* not postclose */ );
 
-		if ( statement_exists_postclose(
+		if ( statement_fund_exists_postclose(
 			statement->statement_fund_list ) )
 		{
-			trial_balance_html_table(
+			trial_balance_html(
 				statement->statement_fund_list,
 				statement->title,
 				statement->subtitle,
@@ -278,7 +282,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void trial_balance_html_table(
+void trial_balance_html(
 			LIST *statement_fund_list,
 			char *title,
 			char *subtitle,
@@ -293,10 +297,17 @@ void trial_balance_html_table(
 
 		if ( postclose )
 		{
+			/* ------------------------------------ */
+			/* Warning: altering static memory.	*/
+			/* Must be the last to display.		*/
+			/* ------------------------------------ */
+			sprintf(title + strlen( title ),
+				"(Post Close)" );
+
 			if (	statement_fund->subclassification_option ==
 				subclassification_display )
 			{
-				trial_balance_html_table_subclassification(
+				trial_balance_html_subclassification(
 					statement_fund->postclose_element_list,
 					statement_fund->prior_year_list,
 					title,
@@ -312,7 +323,7 @@ void trial_balance_html_table(
 				subclassification_omit )
 			{
 /*
-				trial_balance_html_table_account(
+				trial_balance_html_account(
 					statement_fund->postclose_element_list,
 					statement_fund->prior_year_list,
 					title,
@@ -330,7 +341,7 @@ void trial_balance_html_table(
 			if (	statement_fund->subclassification_option ==
 				subclassification_display )
 			{
-				trial_balance_html_table_subclassification(
+				trial_balance_html_subclassification(
 					statement_fund->preclose_element_list,
 					statement_fund->prior_year_list,
 					title,
@@ -346,7 +357,7 @@ void trial_balance_html_table(
 				subclassification_omit )
 			{
 /*
-				trial_balance_html_table_account(
+				trial_balance_html_account(
 					statement_fund->preclose_element_list,
 					statement_fund->prior_year_list,
 					title,
@@ -363,7 +374,7 @@ void trial_balance_html_table(
 	} while ( list_next( statement_fund_list ) );
 }
 
-void trial_balance_html_table_subclassification(
+void trial_balance_html_subclassification(
 			LIST *element_list,
 			LIST *prior_year_list,
 			char *title,
@@ -378,6 +389,7 @@ void trial_balance_html_table_subclassification(
 	char *credit_total_string;
 	ELEMENT *element;
 	int number_left_justified_columns = 3;
+	int count;
 
 	/* Create the table heading */
 	/* ------------------------ */
@@ -390,6 +402,12 @@ void trial_balance_html_table_subclassification(
 	list_set( heading_list, "Debit" );
 	list_set( heading_list, "Credit" );
 	list_set( heading_list, "Percent of Assets" );
+	list_set( heading_list, "Percent of Revenues" );
+
+	list_append_list(
+		heading_list,
+		statement_prior_year_heading_list(
+			prior_year_list ) );
 
 	html_table =
 		html_table_new(
@@ -400,7 +418,7 @@ void trial_balance_html_table_subclassification(
 	html_table->number_left_justified_columns =
 		number_left_justified_columns;
 
-	html_table->number_right_justified_columns = 4;
+	html_table->number_right_justified_columns = 99;
 	html_table_set_heading_list( html_table, heading_list );
 
 	html_table_output_table_heading(
@@ -419,17 +437,32 @@ void trial_balance_html_table_subclassification(
 		return;
 	}
 
+	count = 0;
+
 	do {
 		element = list_get( element_list );
 
 		if ( !list_length( element->subclassification_list ) )
 			continue;
 
-		trial_balance_html_table_subclassification_list(
-			html_table,
-			prior_year_list,
-			element->element_name,
-			element->subclassification_list );
+		if ( count > ROWS_BETWEEN_HEADING )
+		{
+			html_table_output_data_heading(
+				html_table->heading_list,
+				html_table->
+				number_left_justified_columns,
+				html_table->
+				number_right_justified_columns,
+				html_table->justify_list );
+			count = 0;
+		}
+
+		count +=
+			trial_balance_html_subclassification_list(
+				html_table,
+				prior_year_list,
+				element->element_name,
+				element->subclassification_list );
 
 	} while( list_next( element_list ) );
 
@@ -464,7 +497,7 @@ void trial_balance_html_table_subclassification(
 	html_table_close();
 }
 
-void trial_balance_html_table_subclassification_list(
+int trial_balance_html_subclassification_list(
 			HTML_TABLE *html_table,
 			LIST *prior_year_list,
 			char *element_name,
@@ -473,8 +506,11 @@ void trial_balance_html_table_subclassification_list(
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *account;
 	char *subclassification_name;
+	int count;
 
-	if ( !list_rewind( subclassification_list ) ) return;
+	if ( !list_rewind( subclassification_list ) ) return 0;
+
+	count = 0;
 
 	do {
 		subclassification =
@@ -494,11 +530,9 @@ void trial_balance_html_table_subclassification_list(
 					subclassification->
 						account_list );
 
-			if ( !account->latest_journal
-			||   !account->latest_journal->balance )
-				continue;
+			if ( !account->account_total ) continue;
 
-			trial_balance_html_table_subclassification_account(
+			trial_balance_html_subclassification_account(
 				html_table,
 				account,
 				prior_year_list,
@@ -510,13 +544,16 @@ void trial_balance_html_table_subclassification_list(
 
 			subclassification_name = (char *)0;
 			element_name = (char *)0;
+			count++;
 
 		} while( list_next( subclassification->account_list ) );
 
 	} while( list_next( subclassification_list ) );
+
+	return count;
 }
 
-void trial_balance_html_table_subclassification_account(
+void trial_balance_html_subclassification_account(
 			HTML_TABLE *html_table,
 			ACCOUNT *account,
 			LIST *prior_year_list,
@@ -526,14 +563,9 @@ void trial_balance_html_table_subclassification_account(
 	double balance;
 	boolean accumulate_debit;
 
-/* Stub */
-/* ---- */
-if ( prior_year_list ) {};
+	if ( !account->account_total ) return;
 
-	if ( !account->latest_journal || !account->latest_journal->balance )
-		return;
-
-	balance = account->latest_journal->balance;
+	balance = account->account_total;
 	accumulate_debit = account->accumulate_debit;
 
 	/* See if negative balance. */
@@ -544,7 +576,7 @@ if ( prior_year_list ) {};
 		accumulate_debit = 1 - accumulate_debit;
 	}
 
-	trial_balance_html_table_subclassification_account_name(
+	trial_balance_html_subclassification_account_name(
 		html_table->data_list,
 		element_name,
 		subclassification_name,
@@ -561,11 +593,13 @@ if ( prior_year_list ) {};
 		accumulate_debit,
 		account->latest_journal->debit_amount,
 		account->latest_journal->credit_amount,
-		account->percent_of_total,
-		account->account_action_string );
+		account->percent_of_assets,
+		account->percent_of_revenues,
+		account->account_action_string,
+		prior_year_list );
 }
 
-void trial_balance_html_table_subclassification_account_name(
+void trial_balance_html_subclassification_account_name(
 			LIST *data_list,
 			char *element_name,
 			char *subclassification_name,
@@ -582,8 +616,10 @@ void trial_balance_html_table_subclassification_account_name(
 			boolean accumulate_debit,
 			double debit_amount,
 			double credit_amount,
-			int percent_of_total,
-			char *action_string )
+			int percent_of_assets,
+			int percent_of_revenues,
+			char *action_string,
+			LIST *prior_year_list )
 {
 	char element_title[ 128 ];
 	char subclassification_title[ 128 ];
@@ -591,7 +627,8 @@ void trial_balance_html_table_subclassification_account_name(
 	char transaction_count_string[ 16 ];
 	char debit_string[ 4096 ];
 	char credit_string[ 4096 ];
-	char percent_of_total_string[ 16 ];
+	char percent_of_assets_string[ 16 ];
+	char percent_of_revenues_string[ 16 ];
 	char transaction_date_string[ 16 ];
 
 	if ( element_name && *element_name )
@@ -605,7 +642,9 @@ void trial_balance_html_table_subclassification_account_name(
 			strdup( element_title ) );
 	}
 	else
+	{
 		html_table_set_data( data_list, strdup( "" ) );
+	}
 
 	if ( subclassification_name && *subclassification_name )
 	{
@@ -616,6 +655,10 @@ void trial_balance_html_table_subclassification_account_name(
 		html_table_set_data(
 			data_list,
 			strdup( subclassification_title )  );
+	}
+	else
+	{
+		html_table_set_data( data_list, strdup( "" ) );
 	}
 
 	account_title =
@@ -684,16 +727,36 @@ void trial_balance_html_table_subclassification_account_name(
 		data_list,
 		strdup( credit_string ) );
 
-	/* Set percent of total */
+	/* Set percent of assets */
 	/* -------------------- */
-	sprintf(percent_of_total_string,
+	sprintf(percent_of_assets_string,
 		"%d%c",
-		percent_of_total,
+		percent_of_assets,
 		'%' );
 
 	html_table_set_data(
 		data_list,
-		strdup( percent_of_total_string ) );
+		strdup( percent_of_assets_string ) );
+
+	/* Set percent of revenues */
+	/* ----------------------- */
+	sprintf(percent_of_revenues_string,
+		"%d%c",
+		percent_of_revenues,
+		'%' );
+
+	html_table_set_data(
+		data_list,
+		strdup( percent_of_revenues_string ) );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			data_list,
+			statement_prior_year_delta_list(
+				account_name,
+				prior_year_list ) );
+	}
 
 	/* Output the row */
 	/* -------------- */
@@ -713,7 +776,7 @@ char *html_table_account_title(
 			char *transaction_date,
 			char *memo )
 {
-	static char account_title[ 128 ];
+	static char account_title[ 1024 ];
 	char *ptr = account_title;
 	char account_name_formatted[ 128 ];
 	char full_name_formatted[ 128 ];
@@ -767,7 +830,6 @@ char *html_table_account_title(
 	ptr += sprintf( ptr, " $%s)", transaction_amount_string );
 
 	return account_title;
-
 }
 
 #ifdef NOT_DEFINED
@@ -1892,7 +1954,7 @@ double trial_balance_get_prior_balance_change(
 	double balance_change;
 
 	if ( ( account =
-		element_account_seek(
+		element_list_account_seek(
 			account_name,
 			prior_element_list ) ) )
 	{

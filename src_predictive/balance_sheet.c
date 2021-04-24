@@ -408,7 +408,9 @@ void balance_sheet_subclassification_aggregate_PDF(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -567,7 +569,9 @@ void balance_sheet_subclassification_display_PDF(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -683,7 +687,9 @@ void balance_sheet_subclassification_aggregate_html(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -842,7 +848,9 @@ void balance_sheet_subclassification_display_html(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -1384,7 +1392,9 @@ void balance_sheet_account_omit_html(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			0 /* not fetch_subclassifiction_list */,
 			1 /* fetch_account_list */ );
 
@@ -1588,7 +1598,9 @@ void balance_sheet_account_omit_PDF(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			0 /* not fetch_subclassifiction_list */,
 			1 /* fetch_account_list */ );
 

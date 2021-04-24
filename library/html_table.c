@@ -122,7 +122,7 @@ void html_table_output_data_heading( 	LIST *heading_list,
 			if ( justify_list ) list_next( justify_list );
 		} while( list_next( heading_list ) );
 	}
-} /* html_table_output_data_heading() */
+}
 
 void html_table_output_data( 	LIST *data_list,
 				int number_left_justified_columns,
@@ -170,7 +170,7 @@ void html_table_output_data( 	LIST *data_list,
 
 	} while( list_next( data_list ) );
 
-} /* html_table_output_data() */
+}
 
 void html_table_set_heading( HTML_TABLE *d, char *heading )
 {
@@ -193,12 +193,11 @@ void html_table_set_record_data(	HTML_TABLE *d,
 	{
 		html_table_set_data( d->data_list, strdup( data ) );
 	}
-
-} /* html_table_set_record_data() */
+}
 
 void html_table_set_data( LIST *data_list, char *data )
 {
-	list_append_pointer( data_list, data );
+	list_set( data_list, data );
 }
 
 void html_table_reset_data_heading( HTML_TABLE *d )
@@ -256,5 +255,5 @@ char *html_table_get_alignment(	int column_number,
 	{
 		return "left";
 	}
-} /* html_table_get_alignment() */
+}
 

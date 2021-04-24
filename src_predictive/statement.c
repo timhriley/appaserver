@@ -277,7 +277,7 @@ STATEMENT *statement_steady_state(
 
 	statement->begin_date_string =
 		statement_begin_date_string(
-			as_of_date );
+			statement->as_of_date );
 
 	statement->title =
 		statement_title(
@@ -288,7 +288,7 @@ STATEMENT *statement_steady_state(
 	statement->subtitle =
 		statement_subtitle(
 			statement->begin_date_string,
-			as_of_date,
+			statement->as_of_date,
 			statement->statement_fund_aggregation );
 
 	statement->statement_fund_list =
@@ -299,7 +299,7 @@ STATEMENT *statement_steady_state(
 			role_name,
 			filter_element_name_list,
 			statement->begin_date_string,
-			as_of_date,
+			statement->as_of_date,
 			prior_year_count,
 			statement->fund_name_list,
 			statement->statement_subclassification_option,
@@ -317,8 +317,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_new(
 			char *login_name,
 			char *role_name,
 			LIST *filter_element_name_list,
-			char *as_of_date,
-			int years_ago,
+			char *prior_date_string,
 			char *fund_name,
 			enum subclassification_option subclassification_option )
 {
@@ -343,8 +342,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_new(
 	statement_prior_year->filter_element_name_list =
 		filter_element_name_list;
 
-	statement_prior_year->as_of_date = as_of_date;
-	statement_prior_year->years_ago = years_ago;
+	statement_prior_year->prior_date_string = prior_date_string;
 	statement_prior_year->fund_name = fund_name;
 
 	statement_prior_year->subclassification_option =
@@ -359,14 +357,19 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			char *login_name,
 			char *role_name,
 			LIST *filter_element_name_list,
-			char *begin_date_string,
 			char *as_of_date,
 			int years_ago,
 			char *fund_name,
 			enum subclassification_option subclassification_option )
 {
 	STATEMENT_PRIOR_YEAR *statement_prior_year;
-	DATE *current_date;
+	DATE *prior_date;
+
+	prior_date =
+		date_yyyy_mm_dd_new(
+			as_of_date );
+
+	date_subtract_year( prior_date, years_ago );
 
 	statement_prior_year =
 		statement_prior_year_new(
@@ -375,16 +378,10 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			login_name,
 			role_name,
 			filter_element_name_list,
-			as_of_date,
-			years_ago,
+			date_yyyy_mm_dd_display( prior_date )
+				/* prior_date_string */,
 			fund_name,
 			subclassification_option );
-
-	current_date =
-		date_yyyy_mm_dd_new(
-			as_of_date );
-
-	date_subtract_year( current_date, years_ago );
 
 	statement_prior_year->prior_year_element_list =
 		statement_fund_element_list(
@@ -393,14 +390,18 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			login_name,
 			role_name,
 			filter_element_name_list,
-			begin_date_string,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			transaction_date_time_closing(
-				date_yyyy_mm_dd_display(
-					current_date ),
-				0 /* not preclose_time_boolean */ ),
+			(char *)0 /* begin_date_string */,
+			strdup( 
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				transaction_date_time_closing(
+					statement_prior_year->
+						prior_date_string,
+					0 /* not preclose_time_boolean */,
+					transaction_closing_entry_exists(
+						statement_prior_year->
+							prior_date_string ) ) ),
 			fund_name,
 			subclassification_option );
 
@@ -459,7 +460,6 @@ STATEMENT_FUND *statement_fund_fetch(
 			enum subclassification_option subclassification_option )
 {
 	STATEMENT_FUND *statement_fund;
-	int years_ago;
 
 	statement_fund =
 		statement_fund_new(
@@ -487,52 +487,31 @@ STATEMENT_FUND *statement_fund_fetch(
 			/* --------------------- */
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* preclose_time_boolean */ ),
+				1 /* preclose_time_boolean */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			fund_name,
 			subclassification_option );
 
-	statement_fund->postclose_element_list =
-		statement_fund_element_list(
-			application_name,
-			session,
-			login_name,
-			role_name,
-			filter_element_name_list,
-			begin_date_string,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			transaction_date_time_closing(
-				as_of_date,
-				0 /* not preclose_time_boolean */ ),
-			fund_name,
-			subclassification_option );
-
-	if ( prior_year_count <= 0 )
+	if ( transaction_closing_entry_exists( as_of_date ) )
 	{
-		return statement_fund;
-	}
-
-	statement_fund->prior_year_list = list_new();
-
-	for(	years_ago = 1;
-		years_ago <= prior_year_count;
-		years_ago++ )
-	{
-		list_set(
-			statement_fund->prior_year_list,
-			statement_prior_year_fetch(
+		statement_fund->postclose_element_list =
+			statement_fund_element_list(
 				application_name,
 				session,
 				login_name,
 				role_name,
 				filter_element_name_list,
 				begin_date_string,
-				as_of_date,
-				years_ago,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				transaction_date_time_closing(
+					as_of_date,
+					0 /* not preclose_time_boolean */,
+					1 /* exists_postclose */ ),
 				fund_name,
-				statement_fund->
-					subclassification_option ) );
+				subclassification_option );
 	}
 
 	return statement_fund;
@@ -769,36 +748,74 @@ char *statement_subtitle(
 STATEMENT_FUND *statement_fund_steady_state(
 			LIST *preclose_element_list,
 			LIST *postclose_element_list,
-			LIST *prior_year_list,
+			int prior_year_count,
 			STATEMENT_FUND *statement_fund )
 {
+	if ( list_length( postclose_element_list ) )
+	{
+		element_list_set_total(
+			postclose_element_list );
+
+		element_list_set_percent_of_assets(
+			postclose_element_list );
+
+		element_list_set_percent_of_revenues(
+			postclose_element_list );
+	}
+
 	element_list_set_total(
 		preclose_element_list );
 
-	element_list_set_percent_of_total(
+	element_list_set_percent_of_assets(
 		preclose_element_list );
 
-	element_list_set_total(
-		postclose_element_list );
+	element_list_set_percent_of_revenues(
+		preclose_element_list );
 
-	element_list_set_percent_of_total(
-		postclose_element_list );
-
-	if ( list_rewind( prior_year_list ) )
+	if ( prior_year_count > 0 )
 	{
 		STATEMENT_PRIOR_YEAR *statement_prior_year;
+		int years_ago;
 
-		do {
-			statement_prior_year =
-				list_get(
-					prior_year_list );
+		statement_fund->prior_year_list = list_new();
 
-			element_list_set_delta_prior(
-				statement_prior_year->prior_year_element_list,
-				preclose_element_list );
+		for(	years_ago = 1;
+			years_ago <= prior_year_count;
+			years_ago++ )
+		{
+			list_set(
+				statement_fund->prior_year_list,
+				statement_prior_year_fetch(
+					statement_fund->application_name,
+					statement_fund->session,
+					statement_fund->login_name,
+					statement_fund->role_name,
+					statement_fund->
+						filter_element_name_list,
+					statement_fund->as_of_date,
+					years_ago,
+					statement_fund->fund_name,
+					statement_fund->
+						subclassification_option ) );
+		}
 
-		} while ( list_next( prior_year_list ) );
-	}
+		if ( list_rewind( statement_fund->prior_year_list ) )
+		{
+			do {
+				statement_prior_year =
+					list_get(
+						statement_fund->
+							prior_year_list );
+
+				element_list_set_delta_prior(
+					statement_prior_year->
+						prior_year_element_list,
+					preclose_element_list );
+
+			} while ( list_next( statement_fund->
+						prior_year_list ) );
+		}
+	} /* if prior_year_count > 0 */
 
 	statement_fund->preclose_debit_total =
 		element_list_debit_total(
@@ -836,21 +853,83 @@ void statement_fund_list_steady_state(
 			statement_fund_steady_state(
 				statement_fund->preclose_element_list,
 				statement_fund->postclose_element_list,
-				statement_fund->prior_year_list,
+				statement_fund->prior_year_count,
 				statement_fund );
 
 	} while ( list_next( statement_fund_list ) );
 }
 
-boolean statement_exists_postclose(
+boolean statement_fund_exists_postclose(
 			LIST *statement_fund_list )
 {
 	STATEMENT_FUND *statement_fund;
 
-	if ( !list_rewind( statement_fund_list ) ) return 0;
+	if ( !list_length( statement_fund_list ) ) return 0;
 
-	statement_fund = list_get( statement_fund_list );
+	statement_fund = list_first( statement_fund_list );
 
 	return (boolean)list_length( statement_fund->postclose_element_list );
+}
+
+LIST *statement_prior_year_heading_list(
+			LIST *prior_year_list )
+{
+	LIST *heading_list;
+	STATEMENT_PRIOR_YEAR *prior_year;
+
+	if ( !list_rewind( prior_year_list ) ) return (LIST *)0;
+
+	heading_list = list_new();
+
+	do {
+		prior_year = list_get( prior_year_list );
+
+		list_set(
+			heading_list,
+			prior_year->prior_date_string );
+
+	} while ( list_next( prior_year_list ) );
+
+	return heading_list;
+}
+
+LIST *statement_prior_year_delta_list(
+			char *account_name,
+			LIST *prior_year_list )
+{
+	LIST *delta_list;
+	STATEMENT_PRIOR_YEAR *prior_year;
+	ACCOUNT *account;
+	char delta_prior[ 16 ];
+
+	if ( !list_rewind( prior_year_list ) ) return (LIST *)0;
+
+	delta_list = list_new();
+
+	do {
+		prior_year = list_get( prior_year_list );
+
+		if ( ( account =
+			element_list_account_seek(
+				account_name,
+				prior_year->prior_year_element_list ) ) )
+		{
+			sprintf(delta_prior,
+				"%d%c",
+				account->delta_prior,
+				'%' );
+
+			list_set(
+				delta_list,
+				strdup( delta_prior ) );
+		}
+		else
+		{
+			list_set( delta_list, strdup( "" ) );
+		}
+
+	} while ( list_next( prior_year_list ) );
+
+	return delta_list;
 }
 

@@ -29,6 +29,7 @@
 #include "element.h"
 #include "journal.h"
 #include "transaction.h"
+#include "statement.h"
 #include "predictive.h"
 
 /* Constants */
@@ -155,14 +156,16 @@ boolean close_nominal_accounts_execute( char *as_of_date )
 	LIST *fund_name_list;
 	char sys_string[ 1024 ];
 
-	if ( transaction_existing_closing_date_time( as_of_date ) )
+	if ( transaction_closing_entry_exists( as_of_date ) )
 	{
 		return 0;
 	}
 
 	transaction_date_time =
-		transaction_closing_date_time(
-			as_of_date );
+		transaction_date_time_closing(
+			as_of_date,
+			0 /* not preclose_time */,
+			0 /* not closing_entry_exists */ );
 
 	sprintf( sys_string,
 		 "folder_attribute_exists.sh %s account fund",
@@ -178,7 +181,7 @@ boolean close_nominal_accounts_execute( char *as_of_date )
 				as_of_date );
 	}
 
-	fund_name_list = transaction_fund_name_list();
+	fund_name_list = statement_fund_name_list();
 
 	if ( !list_rewind( fund_name_list ) )
 	{
@@ -285,7 +288,9 @@ boolean close_nominal_accounts_fund_execute(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -502,10 +507,12 @@ void close_nominal_accounts_display( char *as_of_date )
 	if ( system( sys_string ) != 0 )
 	{
 		transaction_date_time =
-			transaction_closing_transaction_date_time(
-				as_of_date );
+			transaction_date_time_closing(
+				as_of_date,
+				0 /* not preclose_time */,
+				0 /* not closing_entry_exists */ );
 
-		if ( transaction_existing_closing_date_time(
+		if ( transaction_closing_entry_exists(
 				transaction_date_time ) )
 		{
 			printf(
@@ -559,8 +566,10 @@ void close_nominal_accounts_display( char *as_of_date )
 				__FUNCTION__ );
 
 		transaction_date_time =
-			transaction_closing_date_time(
-				as_of_date );
+			transaction_date_time_closing(
+				as_of_date,
+				0 /* not preclose_time */,
+				0 /* not closing_entry_exists */ );
 
 		close_nominal_accounts_fund_display(
 			fund_name,
@@ -630,7 +639,9 @@ void close_nominal_accounts_fund_display(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 

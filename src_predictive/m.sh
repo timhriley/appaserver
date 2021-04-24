@@ -1,10 +1,8 @@
 :
 
-make
+make trial_balance
 
-if [ "$?" -eq 0 ]
-then
-	cd ../src_education
-	touch paypal_upload.c
-	make paypal_upload
-fi
+#if [ "$?" -eq 0 ]
+#then
+	#make trial_balance
+#fi

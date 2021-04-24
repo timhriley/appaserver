@@ -43,7 +43,8 @@ typedef struct
 	int display_order;
 	LIST *account_list;
 	double subclassification_total;
-	int percent_of_total;
+	int percent_of_assets;
+	int percent_of_revenues;
 	double delta_prior;
 } SUBCLASSIFICATION;
 
@@ -167,9 +168,13 @@ void subclassification_list_set_account_action_string(
 double subclassification_list_total(
 			LIST *subclassification_list );
 
-void subclassification_denominator_set_percent_of_total(
+void subclassification_list_set_percent_of_assets(
 			LIST *subclassification_list,
-			double denominator );
+			double assets_total );
+
+void subclassification_list_set_percent_of_revenues(
+			LIST *subclassification_list,
+			double revenues_total );
 
 void subclassification_list_set_delta_prior(
 			LIST *prior_subclassification_list,

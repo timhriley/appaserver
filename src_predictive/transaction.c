@@ -702,20 +702,16 @@ boolean transaction_date_time_exists( char *transaction_date_time )
 	return return_value;
 }
 
-boolean transaction_existing_closing_date_time(
-			char *transaction_date )
-{
-	return transaction_closing_entry_exists(
-			transaction_date );
-}
-
 boolean transaction_closing_entry_exists(
-			char *transaction_date )
+			char *transaction_date_time )
 {
 	char sys_string[ 1024 ];
 	char *results;
 	boolean return_value;
 	char where[ 256 ];
+	char transaction_date[ 16 ];
+
+	column( transaction_date, 0, transaction_date_time );
 
 	sprintf(where,
 		"%s and %s",
@@ -739,37 +735,22 @@ boolean transaction_closing_entry_exists(
 	return return_value;
 }
 
-char *transaction_closing_date_time(
-			char *transaction_date )
-{
-	return transaction_date_time_closing(
-			transaction_date,
-			0 /* not preclose_time_boolean */ );
-}
-
-char *transaction_closing_transaction_date_time(
-			char *transaction_date )
-{
-	return transaction_date_time_closing(
-			transaction_date,
-			0 /* not preclose_time_boolean */ );
-}
-
 char *transaction_date_time_closing(
 			char *transaction_date,
-			boolean preclose_time_boolean )
+			boolean preclose_time,
+			boolean closing_entry_exists )
 {
-	static char date_time[ 128 ];
+	static char date_time[ 32 ];
 
-	if ( preclose_time_boolean )
+	if ( !closing_entry_exists )
 	{
 		sprintf(date_time,
 			"%s %s",
 			transaction_date,
-			TRANSACTION_PRECLOSE_TRANSACTION_TIME );
+			TRANSACTION_CLOSING_TRANSACTION_TIME );
 	}
 	else
-	if ( transaction_closing_entry_exists( transaction_date ) )
+	if ( preclose_time )
 	{
 		sprintf(date_time,
 			"%s %s",

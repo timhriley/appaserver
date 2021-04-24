@@ -41,8 +41,7 @@ typedef struct
 	char *login_name;
 	char *role_name;
 	LIST *filter_element_name_list;
-	char *as_of_date;
-	int years_ago;
+	char *prior_date_string;
 	char *fund_name;
 	enum subclassification_option subclassification_option;
 
@@ -169,8 +168,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_new(
 			char *login_name,
 			char *role_name,
 			LIST *filter_element_name_list,
-			char *as_of_date,
-			int years_ago,
+			char *prior_date_string,
 			char *fund_name,
 			enum subclassification_option );
 
@@ -180,7 +178,6 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			char *login_name,
 			char *role_name,
 			LIST *filter_element_name_list,
-			char *begin_date_string,
 			char *as_of_date,
 			int years_ago,
 			char *fund_name,
@@ -252,11 +249,18 @@ void statement_fund_list_steady_state(
 STATEMENT_FUND *statement_fund_steady_state(
 			LIST *preclose_element_list,
 			LIST *postclose_element_list,
-			LIST *prior_year_list,
+			int prior_year_count,
 			STATEMENT_FUND *statement_fund );
 
-boolean statement_exists_postclose(
+boolean statement_fund_exists_postclose(
 			LIST *statement_fund_list );
+
+LIST *statement_prior_year_heading_list(
+			LIST *prior_year_list );
+
+LIST *statement_prior_year_delta_list(
+			char *account_name,
+			LIST *prior_year_list );
 
 #endif
 

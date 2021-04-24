@@ -983,51 +983,6 @@ void account_list_set_action_string(
 	} while ( list_next( account_list ) );
 }
 
-double account_list_total(
-			LIST *account_list )
-{
-	ACCOUNT *account;
-	double total;
-
-	if ( !list_rewind( account_list ) ) return 0.0;
-
-	total = 0.0;
-
-	do {
-		account = list_get( account_list );
-
-		if ( !account->latest_journal ) continue;
-
-		total += account->latest_journal->balance;
-
-	} while ( list_next( account_list ) );
-
-	return total;
-}
-
-void account_denominator_set_percent_of_total(
-			LIST *account_list,
-			double denominator )
-{
-	ACCOUNT *account;
-	double percent_of_total;
-
-	if ( !denominator ) return;
-	if ( !list_rewind( account_list ) ) return;
-
-	do {
-		account = list_get( account_list );
-
-		percent_of_total =
-			(account->account_total /
-			 denominator) * 100.0;
-
-		account->percent_of_total =
-			float_round_int( percent_of_total );
-
-	} while ( list_next( account_list ) );
-}
-
 void account_set_delta_prior(
 			LIST *prior_account_list,
 			ACCOUNT *account )
@@ -1092,7 +1047,8 @@ double account_list_debit_total(
 			total += -account->latest_journal->balance;
 		}
 		else
-		if ( account->accumulate_debit )
+		if ( account->accumulate_debit
+		&&   account->latest_journal->balance > 0.0 )
 		{
 			total += account->latest_journal->balance;
 		}
@@ -1124,7 +1080,8 @@ double account_list_credit_total(
 			total += -account->latest_journal->balance;
 		}
 		else
-		if ( !account->accumulate_debit )
+		if ( !account->accumulate_debit
+		&&   account->latest_journal->balance > 0.0 )
 		{
 			total += account->latest_journal->balance;
 		}
@@ -1132,5 +1089,77 @@ double account_list_credit_total(
 	} while ( list_next( account_list ) );
 
 	return total;
+}
+
+double account_list_total(
+			LIST *account_list )
+{
+	ACCOUNT *account;
+	double total;
+
+	if ( !list_rewind( account_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		account = list_get( account_list );
+
+		if ( !account->latest_journal ) continue;
+		if ( !account->latest_journal->balance ) continue;
+
+		account->account_total =
+			account->latest_journal->balance;
+
+		total += account->account_total;
+
+	} while ( list_next( account_list ) );
+
+	return total;
+}
+
+void account_list_set_percent_of_assets(
+			LIST *account_list,
+			double assets_total )
+{
+	ACCOUNT *account;
+	double percent_of_assets;
+
+	if ( !assets_total ) return;
+	if ( !list_rewind( account_list ) ) return;
+
+	do {
+		account = list_get( account_list );
+
+		percent_of_assets =
+			(account->account_total /
+			 assets_total) * 100.0;
+
+		account->percent_of_assets =
+			float_round_int( percent_of_assets );
+
+	} while ( list_next( account_list ) );
+}
+
+void account_list_set_percent_of_revenues(
+			LIST *account_list,
+			double revenues_total )
+{
+	ACCOUNT *account;
+	double percent_of_revenues;
+
+	if ( !revenues_total ) return;
+	if ( !list_rewind( account_list ) ) return;
+
+	do {
+		account = list_get( account_list );
+
+		percent_of_revenues =
+			(account->account_total /
+			 revenues_total) * 100.0;
+
+		account->percent_of_revenues =
+			float_round_int( percent_of_revenues );
+
+	} while ( list_next( account_list ) );
 }
 

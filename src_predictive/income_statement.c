@@ -373,7 +373,9 @@ void income_statement_net_income_only(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -491,7 +493,9 @@ void income_statement_subclassification_aggregate_html_table(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -628,7 +632,9 @@ void income_statement_subclassification_display_html_table(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -831,7 +837,9 @@ void income_statement_subclassification_aggregate_PDF(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -989,7 +997,9 @@ void income_statement_subclassification_display_PDF(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -1507,7 +1517,9 @@ void income_statement_subclassification_omit_html_table(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			0 /* not fetch_subclassifiction_list */,
 			1 /* fetch_account_list */ );
 
@@ -1711,7 +1723,9 @@ void income_statement_subclassification_omit_PDF(
 			fund_name,
 			transaction_date_time_closing(
 				as_of_date,
-				1 /* prior_closing_time_boolean */ ),
+				1 /* preclose_time */,
+				transaction_closing_entry_exists(
+					as_of_date ) ),
 			0 /* not fetch_subclassifiction_list */,
 			1 /* fetch_account_list */ );
 

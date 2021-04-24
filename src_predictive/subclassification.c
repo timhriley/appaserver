@@ -1952,57 +1952,6 @@ void subclassification_list_set_account_action_string(
 	} while ( list_next( subclassification_list ) );
 }
 
-double subclassification_list_total(
-			LIST *subclassification_list )
-{
-	SUBCLASSIFICATION *subclassification;
-	double total;
-
-	if ( !list_rewind( subclassification_list ) ) return 0.0;
-
-	total = 0.0;
-
-	do {
-		subclassification = list_get( subclassification_list );
-
-		total += subclassification->subclassification_total;
-
-	} while ( list_next( subclassification_list ) );
-
-	return total;
-}
-
-void subclassification_denominator_set_percent_of_total(
-			LIST *subclassification_list,
-			double denominator )
-{
-	SUBCLASSIFICATION *subclassification;
-	double percent_of_total;
-
-	if ( !denominator ) return;
-
-	if ( !list_rewind( subclassification_list ) ) return;
-
-	do {
-		subclassification = list_get( subclassification_list );
-
-		percent_of_total =
-			(subclassification->subclassification_total /
-			 denominator) * 100.0;
-
-		subclassification->percent_of_total =
-			float_round_int( percent_of_total );
-
-		if ( list_length( subclassification->account_list ) )
-		{
-			account_denominator_set_percent_of_total(
-				subclassification->account_list,
-				denominator );
-		}
-
-	} while ( list_next( subclassification_list ) );
-}
-
 void subclassification_set_delta_prior(
 			LIST *prior_subclassification_list,
 			SUBCLASSIFICATION *subclassification )
@@ -2058,10 +2007,13 @@ double subclassification_list_debit_total(
 	do {
 		subclassification = list_get( subclassification_list );
 
-		total +=
-			account_list_debit_total(
-				subclassification->
-					account_list );
+		if ( list_length( subclassification->account_list ) )
+		{
+			total +=
+				account_list_debit_total(
+					subclassification->
+						account_list );
+		}
 
 	} while ( list_next( subclassification_list ) );
 
@@ -2081,13 +2033,102 @@ double subclassification_list_credit_total(
 	do {
 		subclassification = list_get( subclassification_list );
 
-		total +=
-			account_list_credit_total(
-				subclassification->
-					account_list );
+		if ( list_length( subclassification->account_list ) )
+		{
+			total +=
+				account_list_credit_total(
+					subclassification->
+						account_list );
+		}
 
 	} while ( list_next( subclassification_list ) );
 
 	return total;
+}
+
+double subclassification_list_total(
+			LIST *subclassification_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	double total;
+
+	if ( !list_rewind( subclassification_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		subclassification->subclassification_total =
+			account_list_total(
+				subclassification->account_list );
+
+		total += subclassification->subclassification_total;
+
+	} while ( list_next( subclassification_list ) );
+
+	return total;
+}
+
+void subclassification_list_set_percent_of_assets(
+			LIST *subclassification_list,
+			double assets_total )
+{
+	SUBCLASSIFICATION *subclassification;
+	double percent_of_assets;
+
+	if ( !assets_total ) return;
+
+	if ( !list_rewind( subclassification_list ) ) return;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		percent_of_assets =
+			(subclassification->subclassification_total /
+			 assets_total) * 100.0;
+
+		subclassification->percent_of_assets =
+			float_round_int( percent_of_assets );
+
+		if ( list_length( subclassification->account_list ) )
+		{
+			account_list_set_percent_of_assets(
+				subclassification->account_list,
+				assets_total );
+		}
+
+	} while ( list_next( subclassification_list ) );
+}
+
+void subclassification_list_set_percent_of_revenues(
+			LIST *subclassification_list,
+			double revenues_total )
+{
+	SUBCLASSIFICATION *subclassification;
+	double percent_of_revenues;
+
+	if ( !revenues_total ) return;
+
+	if ( !list_rewind( subclassification_list ) ) return;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		percent_of_revenues =
+			(subclassification->subclassification_total /
+			 revenues_total) * 100.0;
+
+		subclassification->percent_of_revenues =
+			float_round_int( percent_of_revenues );
+
+		if ( list_length( subclassification->account_list ) )
+		{
+			account_list_set_percent_of_revenues(
+				subclassification->account_list,
+				revenues_total );
+		}
+
+	} while ( list_next( subclassification_list ) );
 }
 

@@ -59,8 +59,9 @@ typedef struct
 	LIST *transaction_after_balance_zero_journal_list;
 	char *account_action_string;
 	double account_total;
-	int percent_of_total;
-	double delta_prior;
+	int percent_of_assets;
+	int percent_of_revenues;
+	int delta_prior;
 } ACCOUNT;
 
 /* Operations */
@@ -216,12 +217,19 @@ void account_list_set_action_string(
 double account_list_total(
 			LIST *account_list );
 
-void account_denominator_set_percent_of_total(
+void account_list_set_percent_of_assets(
 			LIST *account_list,
-			double denominator );
+			double assets_total );
+
+void account_list_set_percent_of_revenues(
+			LIST *account_list,
+			double revenues_total );
 
 void account_list_set_delta_prior(
 			LIST *prior_account_list,
+			LIST *account_list );
+
+double account_list_total(
 			LIST *account_list );
 
 double account_list_debit_total(
@@ -229,4 +237,5 @@ double account_list_debit_total(
 
 double account_list_credit_total(
 			LIST *account_list );
+
 #endif

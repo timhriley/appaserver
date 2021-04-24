@@ -37,7 +37,8 @@ typedef struct
 
 	double element_total;
 	int element_delta_prior;
-	int percent_of_total;
+	int percent_of_assets;
+	int percent_of_revenues;
 } ELEMENT;
 
 /* Operations */
@@ -128,7 +129,7 @@ char *element_primary_where(
 char *element_sys_string(
 			char *where );
 
-ACCOUNT *element_account_seek(
+ACCOUNT *element_list_account_seek(
 			char *account_name,
 			LIST *element_list );
 
@@ -167,12 +168,19 @@ void element_list_set_account_action_string(
 void element_list_set_total(
 			LIST *element_list );
 
-void element_list_set_percent_of_total(
+void element_list_set_percent_of_assets(
 			LIST *element_list );
 
-void element_denominator_set_percent_of_total(
+void element_list_set_percent_of_revenues(
+			LIST *element_list );
+
+void element_denominator_set_percent_of_assets(
 			LIST *element_list,
-			double denominator );
+			double assets_total );
+
+void element_denominator_set_percent_of_revenues(
+			LIST *element_list,
+			double revenues_total );
 
 void element_list_set_delta_prior(
 			LIST *prior_year_element_list,
@@ -191,6 +199,9 @@ double element_list_debit_total(
 
 double element_list_credit_total(
 			LIST *element_list );
+
+double element_total(	LIST *subclassification_list,
+			LIST *account_list );
 
 #endif
 
