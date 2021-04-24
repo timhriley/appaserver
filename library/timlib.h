@@ -226,18 +226,22 @@ char *place_commas_in_unsigned_int(
 
 char *place_commas_in_integer(	int n );
 
-char *place_commas_in_long(	long n );
+char *place_commas_in_long(
+			long n );
 
 char *place_commas_in_unsigned_long(
-				unsigned long n );
+			unsigned long n );
 
 char *place_commas_in_unsigned_long_long(
-				unsigned long long n );
+			unsigned long long n );
 
-char *place_commas_in_money(	double d );
+char *place_commas_in_money(
+			double d );
 
+/* Returns static memory */
+/* --------------------- */
 char *timlib_place_commas_in_money(
-				double d );
+			double d );
 
 char *get_date( char *d );
 void extract_delimited( char *destination, char *source );

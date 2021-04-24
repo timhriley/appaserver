@@ -70,8 +70,12 @@ typedef struct
 	/* Process */
 	/* ------- */
 	LIST *preclose_element_list;
-	LIST *current_element_list;
+	LIST *postclose_element_list;
 	LIST *prior_year_list;
+	double preclose_debit_total;
+	double preclose_credit_total;
+	double postclose_debit_total;
+	double postclose_credit_total;
 
 } STATEMENT_FUND;
 
@@ -98,6 +102,9 @@ typedef struct
 	enum subclassification_option statement_subclassification_option;
 	enum fund_aggregation statement_fund_aggregation;
 	enum output_medium statement_output_medium;
+	char *begin_date_string;
+	char *title;
+	char *subtitle;
 	LIST *statement_fund_list;
 
 } STATEMENT;
@@ -119,7 +126,7 @@ STATEMENT *statement_new(
 			char *fund_aggregation_string,
 			char *output_medium_string );
 
-LIST *statement_element_list(
+LIST *statement_fund_element_list(
 			char *application_name,
 			char *session,
 			char *login_name,
@@ -173,6 +180,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			char *login_name,
 			char *role_name,
 			LIST *filter_element_name_list,
+			char *begin_date_string,
 			char *as_of_date,
 			int years_ago,
 			char *fund_name,
@@ -241,10 +249,14 @@ char *statement_subtitle(
 void statement_fund_list_steady_state(
 			LIST *statement_fund_list );
 
-void statement_fund_steady_state(
+STATEMENT_FUND *statement_fund_steady_state(
 			LIST *preclose_element_list,
-			LIST *current_element_list,
-			LIST *prior_year_list );
+			LIST *postclose_element_list,
+			LIST *prior_year_list,
+			STATEMENT_FUND *statement_fund );
+
+boolean statement_exists_postclose(
+			LIST *statement_fund_list );
 
 #endif
 

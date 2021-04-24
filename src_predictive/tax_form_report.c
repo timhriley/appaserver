@@ -105,7 +105,6 @@ int main( int argc, char **argv )
 	char *output_medium;
 	TAX *tax;
 	char *logo_filename;
-	char *begin_date_string;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -181,8 +180,8 @@ int main( int argc, char **argv )
 		process_name,
 		(LIST *)0 /* fund_name_list */,
 		transaction_beginning_date_string(
-			as_of_date ),
-		as_of_date,
+			end_date_string ),
+		end_date_string,
 		logo_filename );
 
 	tax_form_line_list_steady_state( tax->tax_form->tax_form_line_list );

@@ -130,9 +130,6 @@ LIST *subclassification_account_list(
 			char *fund_name,
 			char *as_of_date );
 
-SUBCLASSIFICATION *subclassification_fetch(
-			char *subclassification_name );
-
 LIST *subclassification_total_account_list(
 			double *subclassification_total,
 			char *subclassification_name,
@@ -181,5 +178,11 @@ void subclassification_list_set_delta_prior(
 void subclassification_set_delta_prior(
 			LIST *prior_subclassification_list,
 			SUBCLASSIFICATION *subclassification );
+
+double subclassification_list_debit_total(
+			LIST *subclassification_list );
+
+double subclassification_list_credit_total(
+			LIST *subclassification_list );
 
 #endif

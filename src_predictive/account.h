@@ -224,4 +224,9 @@ void account_list_set_delta_prior(
 			LIST *prior_account_list,
 			LIST *account_list );
 
+double account_list_debit_total(
+			LIST *account_list );
+
+double account_list_credit_total(
+			LIST *account_list );
 #endif

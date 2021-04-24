@@ -87,6 +87,9 @@ LIST *element_list(	LIST *filter_element_name_list,
 boolean element_is_period(
 			char *element_name );
 
+boolean element_is_nominal(
+			char *element_name );
+
 double element_value(	LIST *subclassification_list,
 			boolean element_accumulate_debit );
 
@@ -182,6 +185,12 @@ void element_prior_year_element_list_set_delta_prior(
 int element_delta_prior(
 			double element_prior_total,
 			double element_total );
+
+double element_list_debit_total(
+			LIST *element_list );
+
+double element_list_credit_total(
+			LIST *element_list );
 
 #endif
 

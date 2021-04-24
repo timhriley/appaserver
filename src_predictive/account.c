@@ -1070,3 +1070,67 @@ void account_list_set_delta_prior(
 	} while ( list_next( account_list ) );
 }
 
+double account_list_debit_total(
+			LIST *account_list )
+{
+	ACCOUNT *account;
+	double total;
+
+	if ( !list_rewind( account_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		account = list_get( account_list );
+
+		if ( !account->latest_journal ) continue;
+		if ( !account->latest_journal->balance ) continue;
+
+		if ( !account->accumulate_debit
+		&&   account->latest_journal->balance < 0.0 )
+		{
+			total += -account->latest_journal->balance;
+		}
+		else
+		if ( account->accumulate_debit )
+		{
+			total += account->latest_journal->balance;
+		}
+
+	} while ( list_next( account_list ) );
+
+	return total;
+}
+
+double account_list_credit_total(
+			LIST *account_list )
+{
+	ACCOUNT *account;
+	double total;
+
+	if ( !list_rewind( account_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		account = list_get( account_list );
+
+		if ( !account->latest_journal ) continue;
+		if ( !account->latest_journal->balance ) continue;
+
+		if ( account->accumulate_debit
+		&&   account->latest_journal->balance < 0.0 )
+		{
+			total += -account->latest_journal->balance;
+		}
+		else
+		if ( !account->accumulate_debit )
+		{
+			total += account->latest_journal->balance;
+		}
+
+	} while ( list_next( account_list ) );
+
+	return total;
+}
+

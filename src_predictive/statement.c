@@ -12,7 +12,12 @@
 #include <stdlib.h>
 #include "String.h"
 #include "timlib.h"
+#include "environ.h"
+#include "application.h"
+#include "date_convert.h"
+#include "predictive.h"
 #include "piece.h"
+#include "column.h"
 #include "date.h"
 #include "sql.h"
 #include "list.h"
@@ -167,7 +172,7 @@ enum output_medium statement_output_medium(
 	}
 }
 
-LIST *statement_element_list(
+LIST *statement_fund_element_list(
 			char *application_name,
 			char *session,
 			char *login_name,
@@ -212,8 +217,8 @@ LIST *statement_element_list(
 		begin_date_string,
 		column(
 			transaction_date,
-			transaction_date_time,
-			0 ) );
+			0,
+			transaction_date_time ) );
 
 	return list;
 }
@@ -234,6 +239,16 @@ STATEMENT *statement_steady_state(
 			char *output_medium_string,
 			STATEMENT *statement )
 {
+	if ( !*as_of_date
+	||   strcmp( as_of_date, "as_of_date" ) == 0 )
+	{
+		statement->as_of_date =
+			/* -------------------- */
+			/* Returns heap memory. */
+			/* -------------------- */
+			transaction_date_max();
+	}
+
 	statement->statement_subclassification_option =
 		statement_subclassification_option(
 			subclassification_option_string );
@@ -274,7 +289,7 @@ STATEMENT *statement_steady_state(
 		statement_subtitle(
 			statement->begin_date_string,
 			as_of_date,
-			fund_aggregation );
+			statement->statement_fund_aggregation );
 
 	statement->statement_fund_list =
 		statement_fund_list(
@@ -344,6 +359,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			char *login_name,
 			char *role_name,
 			LIST *filter_element_name_list,
+			char *begin_date_string,
 			char *as_of_date,
 			int years_ago,
 			char *fund_name,
@@ -371,12 +387,13 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 	date_subtract_year( current_date, years_ago );
 
 	statement_prior_year->prior_year_element_list =
-		statement_element_list(
+		statement_fund_element_list(
 			application_name,
 			session,
 			login_name,
 			role_name,
 			filter_element_name_list,
+			begin_date_string,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -458,7 +475,7 @@ STATEMENT_FUND *statement_fund_fetch(
 			subclassification_option );
 
 	statement_fund->preclose_element_list =
-		statement_element_list(
+		statement_fund_element_list(
 			application_name,
 			session,
 			login_name,
@@ -474,8 +491,8 @@ STATEMENT_FUND *statement_fund_fetch(
 			fund_name,
 			subclassification_option );
 
-	statement_fund->current_element_list =
-		statement_element_list(
+	statement_fund->postclose_element_list =
+		statement_fund_element_list(
 			application_name,
 			session,
 			login_name,
@@ -503,7 +520,7 @@ STATEMENT_FUND *statement_fund_fetch(
 		years_ago++ )
 	{
 		list_set(
-			statement->prior_year_list,
+			statement_fund->prior_year_list,
 			statement_prior_year_fetch(
 				application_name,
 				session,
@@ -514,8 +531,8 @@ STATEMENT_FUND *statement_fund_fetch(
 				as_of_date,
 				years_ago,
 				fund_name,
-				statement->
-					statement_subclassification_option ) );
+				statement_fund->
+					subclassification_option ) );
 	}
 
 	return statement_fund;
@@ -589,7 +606,6 @@ LIST *statement_fund_list(
 	else
 	if ( fund_aggregation == sequential )
 	{
-		STATEMENT_FUND *statement_fund;
 		char *fund_name;
 
 		if ( !list_rewind( fund_name_list ) )
@@ -719,7 +735,6 @@ char *statement_subtitle(
 
 	char begin_date_american[ 32 ];
 	char end_date_american[ 32 ];
-	char *fund_name = {0};
 
 	*begin_date_american = '\0';
 
@@ -748,13 +763,14 @@ char *statement_subtitle(
 	 		end_date_american );
 	}
 
-	return subtitle );
+	return subtitle;
 }
 
-void statement_fund_steady_state(
+STATEMENT_FUND *statement_fund_steady_state(
 			LIST *preclose_element_list,
-			LIST *current_element_list,
-			LIST *prior_year_list )
+			LIST *postclose_element_list,
+			LIST *prior_year_list,
+			STATEMENT_FUND *statement_fund )
 {
 	element_list_set_total(
 		preclose_element_list );
@@ -763,10 +779,10 @@ void statement_fund_steady_state(
 		preclose_element_list );
 
 	element_list_set_total(
-		current_element_list );
+		postclose_element_list );
 
 	element_list_set_percent_of_total(
-		current_element_list );
+		postclose_element_list );
 
 	if ( list_rewind( prior_year_list ) )
 	{
@@ -783,6 +799,27 @@ void statement_fund_steady_state(
 
 		} while ( list_next( prior_year_list ) );
 	}
+
+	statement_fund->preclose_debit_total =
+		element_list_debit_total(
+			preclose_element_list );
+
+	statement_fund->preclose_credit_total =
+		element_list_credit_total(
+			preclose_element_list );
+
+	if ( list_length( postclose_element_list ) )
+	{
+		statement_fund->postclose_debit_total =
+			element_list_debit_total(
+				postclose_element_list );
+
+		statement_fund->postclose_credit_total =
+			element_list_credit_total(
+				postclose_element_list );
+	}
+
+	return statement_fund;
 }
 
 void statement_fund_list_steady_state(
@@ -795,11 +832,25 @@ void statement_fund_list_steady_state(
 	do {
 		statement_fund = list_get( statement_fund_list );
 
-		statement_fund_steady_state(
-			statement_fund->preclose_element_list,
-			statement_fund->current_element_list,
-			statement_fund->prior_year_list );
+		statement_fund =
+			statement_fund_steady_state(
+				statement_fund->preclose_element_list,
+				statement_fund->postclose_element_list,
+				statement_fund->prior_year_list,
+				statement_fund );
 
 	} while ( list_next( statement_fund_list ) );
+}
+
+boolean statement_exists_postclose(
+			LIST *statement_fund_list )
+{
+	STATEMENT_FUND *statement_fund;
+
+	if ( !list_rewind( statement_fund_list ) ) return 0;
+
+	statement_fund = list_get( statement_fund_list );
+
+	return (boolean)list_length( statement_fund->postclose_element_list );
 }
 

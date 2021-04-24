@@ -32,7 +32,8 @@ char *subclassification_primary_where(
 	return strdup( where );
 }
 
-SUBCLASSIFICATION *subclassification_parse( char *input )
+SUBCLASSIFICATION *subclassification_parse(
+			char *input )
 {
 	char subclassification_name[ 128 ];
 	char piece_buffer[ 128 ];
@@ -1846,7 +1847,8 @@ LIST *subclassification_list( void )
 				"1 = 1" ) );
 }
 
-LIST *subclassification_system_list( char *sys_string )
+LIST *subclassification_system_list(
+			char *sys_string )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
@@ -1978,7 +1980,6 @@ void subclassification_denominator_set_percent_of_total(
 	double percent_of_total;
 
 	if ( !denominator ) return;
-	if ( !list_rewind( element_list ) ) return;
 
 	if ( !list_rewind( subclassification_list ) ) return;
 
@@ -2042,5 +2043,51 @@ void subclassification_list_set_delta_prior(
 			subclassification );
 
 	} while ( list_next( subclassification_list ) );
+}
+
+double subclassification_list_debit_total(
+			LIST *subclassification_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	double total;
+
+	if ( !list_rewind( subclassification_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		total +=
+			account_list_debit_total(
+				subclassification->
+					account_list );
+
+	} while ( list_next( subclassification_list ) );
+
+	return total;
+}
+
+double subclassification_list_credit_total(
+			LIST *subclassification_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	double total;
+
+	if ( !list_rewind( subclassification_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		total +=
+			account_list_credit_total(
+				subclassification->
+					account_list );
+
+	} while ( list_next( subclassification_list ) );
+
+	return total;
 }
 

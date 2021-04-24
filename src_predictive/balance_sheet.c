@@ -212,10 +212,6 @@ int main( int argc, char **argv )
 			application_name,
 			"logo_filename" /* key */ );
 
-	begin_date_string = 
-		transaction_beginning_date_string(
-			as_of_date );
-
 	transaction_report_title_sub_title(
 		title,
 		sub_title,

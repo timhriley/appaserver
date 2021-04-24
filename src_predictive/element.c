@@ -521,6 +521,11 @@ LIST *element_account_list(
 
 boolean element_is_period( char *element_name )
 {
+	return element_is_nominal( element_name );
+}
+
+boolean element_is_nominal( char *element_name )
+{
 	if ( !element_name )
 	{
 		fprintf( stderr,
@@ -1135,7 +1140,7 @@ void element_list_set_percent_of_total(
 			LIST *element_list )
 {
 	ELEMENT *denominator_element;
-	double denominator;
+	double denominator = {0};
 
 	if ( ( denominator_element =
 			element_seek(
@@ -1153,17 +1158,7 @@ void element_list_set_percent_of_total(
 		denominator = denominator_element->element_total;
 	}
 
-	if ( !denominator )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: cannot seek %s or %s\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			ELEMENT_ASSET,
-			ELEMENT_REVENUE );
-		exit( 1 );
-	}
+	if ( !denominator ) return;
 
 	element_denominator_set_percent_of_total(
 		element_list,
@@ -1228,7 +1223,8 @@ void element_denominator_set_percent_of_total(
 			 denominator) * 100.0;
 
 		element->percent_of_total =
-			float_round_int( percent_of_total );
+			float_round_int(
+				percent_of_total );
 
 		if ( list_length( element->subclassification_list ) )
 		{
@@ -1260,7 +1256,7 @@ int element_delta_prior(
 
 	delta = (difference / prior_total) * 100.0;
 
-	return float_round_double( delta );
+	return float_round_int( delta );
 }
 
 void element_prior_year_element_list_set_delta_prior(
@@ -1277,11 +1273,11 @@ void element_prior_year_element_list_set_delta_prior(
 		return;
 	}
 
-	prior_year_element->element_delta_prior
+	prior_year_element->element_delta_prior =
 		element_delta_prior(
 			prior_year_element->element_total
 				/* prior_total */,
-			preclose_element->element_total,
+			preclose_element->element_total
 				/* total */ );
 
 	if ( list_length( prior_year_element->subclassification_list ) )
@@ -1315,5 +1311,69 @@ void element_list_set_delta_prior(
 			preclose_element );
 
 	} while ( list_next( preclose_element_list ) );
+}
+
+double element_list_debit_total(
+			LIST *element_list )
+{
+	ELEMENT *element;
+	double total;
+
+	if ( !list_rewind( element_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		element = list_get( element_list );
+
+		if ( list_length( element->subclassification_list ) )
+		{
+			total +=
+				subclassification_list_debit_total(
+					element->subclassification_list );
+		}
+		else
+		if ( list_length( element->account_list ) )
+		{
+			total +=
+				account_list_debit_total(
+					element->account_list );
+		}
+
+	} while ( list_next( element_list ) );
+
+	return total;
+}
+
+double element_list_credit_total(
+			LIST *element_list )
+{
+	ELEMENT *element;
+	double total;
+
+	if ( !list_rewind( element_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		element = list_get( element_list );
+
+		if ( list_length( element->subclassification_list ) )
+		{
+			total +=
+				subclassification_list_credit_total(
+					element->subclassification_list );
+		}
+		else
+		if ( list_length( element->account_list ) )
+		{
+			total +=
+				account_list_credit_total(
+					element->account_list );
+		}
+
+	} while ( list_next( element_list ) );
+
+	return total;
 }
 
