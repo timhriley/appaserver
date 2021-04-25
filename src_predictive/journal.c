@@ -223,7 +223,7 @@ JOURNAL *journal_parse(
 	char piece_buffer[ 1024 ];
 	JOURNAL *journal;
 
-	if ( !input ) return (JOURNAL *)0;
+	if ( !input || !*input ) return (JOURNAL *)0;
 
 	/* See:	journal_select() or			*/
 	/*      journal_check_number_select() or	*/

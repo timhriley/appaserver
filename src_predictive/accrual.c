@@ -772,8 +772,7 @@ char *accrual_opening_begin_date_string(
 
 		date_increment_months(
 			begin_date,
-			-1 /* months */,
-			0 /* utc_offset */ );
+			-1 /* months */ );
 
 		date_set_day( begin_date, 1, 0 /* utc_offset */ );
 

@@ -3859,8 +3859,7 @@ enum performed_census_weekend total_caught_get_performed_census_weekend(
 
 		prior_saturday =
 			date_get_prior_saturday(
-				row_date,
-				date_get_utc_offset() );
+				row_date );
 
 		if ( total_caught_exists_census(
 				date_yyyy_mm_dd( prior_saturday ),
@@ -3877,8 +3876,7 @@ enum performed_census_weekend total_caught_get_performed_census_weekend(
 	/* --------------- */
 	prior_saturday =
 		date_get_prior_saturday(
-			row_date,
-			date_get_utc_offset() );
+			row_date );
 
 	prior_sunday = date_new( 0, 0, 0 );
 	date_copy( prior_sunday, prior_saturday );
@@ -4232,16 +4230,14 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 	{
 		*interview_date_saturday =
 			date_get_prior_saturday(
-				row_date,
-				date_get_utc_offset() );
+				row_date );
 	}
 	else
 	if ( performed_census_weekend == day_weekday_census_sunday_only )
 	{
 		*interview_date_sunday =
 			date_get_prior_saturday(
-				row_date,
-				date_get_utc_offset() );
+				row_date );
 
 		date_increment_days(
 			*interview_date_sunday,
@@ -4253,8 +4249,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 	{
 		*interview_date_saturday =
 			date_get_prior_saturday(
-				row_date,
-				date_get_utc_offset() );
+				row_date );
 
 		*interview_date_sunday =
 			date_new( 0, 0, 0 );
@@ -4312,8 +4307,7 @@ DATE *total_caught_get_preceeding_full_census_saturday(
 
 	preceeding_saturday =
 		date_get_prior_saturday(
-			row_date,
-			date_get_utc_offset() );
+			row_date );
 
 	for( i = 0; i < WEEKENDS_TO_GO_BACK; i++ )
 	{

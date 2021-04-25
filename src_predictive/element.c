@@ -1022,9 +1022,13 @@ ACCOUNT *element_list_account_seek(
 
 		if ( list_length( element->account_list ) )
 		{
-			return account_seek(
+			if ( ( account =
+				account_seek(
 					account_name,
-					element->account_list );
+					element->account_list ) ) )
+			{
+				return account;
+			}
 		}
 
 		if ( !list_rewind( element->subclassification_list ) )
@@ -1038,7 +1042,6 @@ ACCOUNT *element_list_account_seek(
 
 			if ( !list_rewind( subclassification->account_list ) )
 				continue;
-
 
 			if ( ( account =
 				account_seek(

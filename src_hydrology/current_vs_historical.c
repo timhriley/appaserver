@@ -99,8 +99,7 @@ void current_vs_historical_dates(
 
 	date_decrement_years(
 		por_historical_begin_date,
-		*historical_range_years + 1,
-		0 /* utc_offset */ );
+		*historical_range_years + 1 );
 
 	date_increment_days(
 		por_historical_begin_date,
@@ -113,8 +112,7 @@ void current_vs_historical_dates(
 
 	date_decrement_years(
 		por_historical_end_date,
-		1,
-		0 /* utc_offset */ );
+		1 );
 
 	/* Set Current Begin Date */
 	/* ---------------------- */
@@ -123,8 +121,7 @@ void current_vs_historical_dates(
 
 	date_decrement_years(
 		current_begin_date,
-		1,
-		0 /* utc_offset */ );
+		1 );
 
 	date_increment_days(
 		current_begin_date,

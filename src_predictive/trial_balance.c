@@ -117,6 +117,20 @@ void trial_balance_html_subclassification_account_name(
 			char *action_string,
 			LIST *prior_year_list );
 
+/* Returns count */
+/* ------------- */
+int trial_balance_html_account_list(
+			HTML_TABLE *html_table,
+			LIST *prior_year_list,
+			char *element_name,
+			LIST *account_list );
+
+void trial_balance_html_account_name(
+			HTML_TABLE *html_table,
+			ACCOUNT *account,
+			LIST *prior_year_list,
+			char *element_name );
+
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -149,7 +163,7 @@ int main( int argc, char **argv )
 			 argv[ 0 ] );
 
 		fprintf( stderr,
-"Note: subclassification_option={aggregate,display,omit}\n" );
+"Note: subclassification_option={display,omit}\n" );
 
 		fprintf( stderr,
 "Note: aggregation={single_fund,sequential,consolidated}\n" );
@@ -322,7 +336,6 @@ void trial_balance_html(
 			if (	statement_fund->subclassification_option ==
 				subclassification_omit )
 			{
-/*
 				trial_balance_html_account(
 					statement_fund->postclose_element_list,
 					statement_fund->prior_year_list,
@@ -333,7 +346,6 @@ void trial_balance_html(
 						postclose_debit_total,
 					statement_fund->
 						postclose_credit_total );
-*/
 			}
 		}
 		else
@@ -356,7 +368,6 @@ void trial_balance_html(
 			if (	statement_fund->subclassification_option ==
 				subclassification_omit )
 			{
-/*
 				trial_balance_html_account(
 					statement_fund->preclose_element_list,
 					statement_fund->prior_year_list,
@@ -367,7 +378,6 @@ void trial_balance_html(
 						preclose_debit_total,
 					statement_fund->
 						preclose_credit_total );
-*/
 			}
 		}
 
@@ -388,7 +398,6 @@ void trial_balance_html_subclassification(
 	char *debit_total_string;
 	char *credit_total_string;
 	ELEMENT *element;
-	int number_left_justified_columns = 3;
 	int count;
 
 	/* Create the table heading */
@@ -404,10 +413,13 @@ void trial_balance_html_subclassification(
 	list_set( heading_list, "Percent of Assets" );
 	list_set( heading_list, "Percent of Revenues" );
 
-	list_append_list(
-		heading_list,
-		statement_prior_year_heading_list(
-			prior_year_list ) );
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			heading_list,
+			statement_prior_year_heading_list(
+				prior_year_list ) );
+	}
 
 	html_table =
 		html_table_new(
@@ -415,9 +427,7 @@ void trial_balance_html_subclassification(
 			subtitle,
 			fund_name );
 
-	html_table->number_left_justified_columns =
-		number_left_justified_columns;
-
+	html_table->number_left_justified_columns = 3;
 	html_table->number_right_justified_columns = 99;
 	html_table_set_heading_list( html_table, heading_list );
 
@@ -445,7 +455,7 @@ void trial_balance_html_subclassification(
 		if ( !list_length( element->subclassification_list ) )
 			continue;
 
-		if ( count > ROWS_BETWEEN_HEADING )
+		if ( count >= ROWS_BETWEEN_HEADING )
 		{
 			html_table_output_data_heading(
 				html_table->heading_list,
@@ -830,6 +840,322 @@ char *html_table_account_title(
 	ptr += sprintf( ptr, " $%s)", transaction_amount_string );
 
 	return account_title;
+}
+
+void trial_balance_html_account(
+			LIST *element_list,
+			LIST *prior_year_list,
+			char *title,
+			char *subtitle,
+			char *fund_name,
+			double debit_total,
+			double credit_total )
+{
+	HTML_TABLE *html_table;
+	LIST *heading_list;
+	char *debit_total_string;
+	char *credit_total_string;
+	ELEMENT *element;
+	int count;
+
+	/* Create the table heading */
+	/* ------------------------ */
+	heading_list = list_new();
+
+	list_set( heading_list, "Element" );
+	list_set( heading_list, "Account" );
+	list_set( heading_list, "Count" );
+	list_set( heading_list, "Debit" );
+	list_set( heading_list, "Credit" );
+	list_set( heading_list, "Percent of Assets" );
+	list_set( heading_list, "Percent of Revenues" );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			heading_list,
+			statement_prior_year_heading_list(
+				prior_year_list ) );
+	}
+
+	html_table =
+		html_table_new(
+			title,
+			subtitle,
+			fund_name );
+
+	html_table->number_left_justified_columns = 2;
+	html_table->number_right_justified_columns = 99;
+	html_table_set_heading_list( html_table, heading_list );
+
+	html_table_output_table_heading(
+		html_table->title,
+		html_table->sub_title );
+
+	html_table_output_data_heading(
+		html_table->heading_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		html_table->justify_list );
+
+	if ( !list_rewind( element_list ) )
+	{
+		html_table_close();
+		return;
+	}
+
+	count = 0;
+
+	do {
+		element = list_get( element_list );
+
+		if ( !list_length( element->account_list ) )
+			continue;
+
+		if ( count >= ROWS_BETWEEN_HEADING )
+		{
+			html_table_output_data_heading(
+				html_table->heading_list,
+				html_table->
+				number_left_justified_columns,
+				html_table->
+				number_right_justified_columns,
+				html_table->justify_list );
+			count = 0;
+		}
+
+		count +=
+			trial_balance_html_account_list(
+				html_table,
+				prior_year_list,
+				element->element_name,
+				element->account_list );
+
+	} while( list_next( element_list ) );
+
+	html_table_set_data( html_table->data_list, "Total" );
+	html_table_set_data( html_table->data_list, "" );
+	html_table_set_data( html_table->data_list, "" );
+
+	/* Returns static memory */
+	/* --------------------- */
+	debit_total_string = timlib_place_commas_in_money( debit_total );
+
+	html_table_set_data(
+		html_table->data_list,
+		strdup( debit_total_string ) );
+
+	/* Returns static memory */
+	/* --------------------- */
+	credit_total_string = timlib_place_commas_in_money( credit_total );
+
+	html_table_set_data(
+		html_table->data_list,
+		strdup( credit_total_string ) );
+
+	html_table_output_data(
+		html_table->data_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
+
+	html_table_close();
+}
+
+int trial_balance_html_account_list(
+			HTML_TABLE *html_table,
+			LIST *prior_year_list,
+			char *element_name,
+			LIST *account_list )
+{
+	ACCOUNT *account;
+	int count;
+
+	if ( !list_rewind( account_list ) ) return 0;
+
+	count = 0;
+
+	do {
+		account =
+			list_get(
+				account_list );
+
+		if ( !account->account_total ) continue;
+
+		trial_balance_html_account_name(
+			html_table,
+			account,
+			prior_year_list,
+			element_name );
+
+		list_free( html_table->data_list );
+		html_table->data_list = list_new();
+
+		element_name = (char *)0;
+		count++;
+
+
+	} while( list_next( account_list ) );
+
+	return count;
+}
+
+void trial_balance_html_account_name(
+			HTML_TABLE *html_table,
+			ACCOUNT *account,
+			LIST *prior_year_list,
+			char *element_name )
+{
+	char element_title[ 128 ];
+	char *account_title;
+	char transaction_count_string[ 16 ];
+	char debit_string[ 4096 ];
+	char credit_string[ 4096 ];
+	char percent_of_assets_string[ 16 ];
+	char percent_of_revenues_string[ 16 ];
+	char transaction_date_string[ 16 ];
+	double balance;
+	boolean accumulate_debit;
+
+	if ( !account->account_total ) return;
+	if ( !account->latest_journal ) return;
+
+	balance = account->account_total;
+	accumulate_debit = account->accumulate_debit;
+
+	/* See if negative balance. */
+	/* ------------------------ */
+	if ( balance < 0.0 )
+	{
+		balance = float_abs( balance );
+		accumulate_debit = 1 - accumulate_debit;
+	}
+
+	if ( element_name && *element_name )
+	{
+		format_initial_capital(
+			element_title,
+			element_name );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( element_title ) );
+	}
+	else
+	{
+		html_table_set_data( html_table->data_list, strdup( "" ) );
+	}
+
+	account_title =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		html_table_account_title(
+			account->account_name,
+			account->latest_journal->full_name,
+			account->latest_journal->debit_amount,
+			account->latest_journal->credit_amount,
+			column( transaction_date_string,
+				0,
+				account->
+					latest_journal->
+					transaction_date_time ),
+			account->latest_journal->memo );
+
+	html_table_set_data(
+		html_table->data_list,
+		strdup( account_title ) );
+
+	sprintf(transaction_count_string,
+		"%d",
+		account->latest_journal->transaction_count );
+
+	html_table_set_data(
+		html_table->data_list,
+		strdup( transaction_count_string ) );
+
+	/* Set the debit account. */
+	/* ---------------------- */
+	if ( accumulate_debit )
+	{
+		sprintf( debit_string,
+			 "<a href=\"%s\">%s</a>",
+			 account->account_action_string,
+			 /* --------------------- */
+			 /* Returns static memory */
+			 /* --------------------- */
+			 timlib_place_commas_in_money( balance ) );
+	}
+	else
+	{
+		*debit_string = '\0';
+	}
+
+	html_table_set_data(
+		html_table->data_list,
+		strdup( debit_string ) );
+
+	/* Set the credit account. */
+	/* ----------------------- */
+	if ( !accumulate_debit )
+	{
+		sprintf( credit_string,
+			 "<a href=\"%s\">%s</a>",
+			 account->account_action_string,
+			 /* --------------------- */
+			 /* Returns static memory */
+			 /* --------------------- */
+			 timlib_place_commas_in_money( balance ) );
+	}
+	else
+	{
+		*credit_string = '\0';
+	}
+
+	html_table_set_data(
+		html_table->data_list,
+		strdup( credit_string ) );
+
+	/* Set percent of assets */
+	/* -------------------- */
+	sprintf(percent_of_assets_string,
+		"%d%c",
+		account->percent_of_assets,
+		'%' );
+
+	html_table_set_data(
+		html_table->data_list,
+		strdup( percent_of_assets_string ) );
+
+	/* Set percent of revenues */
+	/* ----------------------- */
+	sprintf(percent_of_revenues_string,
+		"%d%c",
+		account->percent_of_revenues,
+		'%' );
+
+	html_table_set_data(
+		html_table->data_list,
+		strdup( percent_of_revenues_string ) );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			html_table->data_list,
+			statement_prior_year_delta_list(
+				account->account_name,
+				prior_year_list ) );
+	}
+
+	/* Output the row */
+	/* -------------- */
+	html_table_output_data(
+		html_table->data_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
 }
 
 #ifdef NOT_DEFINED

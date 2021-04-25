@@ -416,6 +416,8 @@ char *date_prior_day_of_week_yyyy_mm_dd_string(
 			int day_of_week,
 			int utc_offset );
 
+/* Returns static memory */
+/* --------------------- */
 char *date_yyyy_mm_dd_display(
 			DATE *date );
 
@@ -478,13 +480,11 @@ DATE *date_current_new(	time_t current,
 
 void date_decrement_years(
 			DATE *d,
-			int years,
-			int utc_offset );
+			int years );
 
 void date_increment_months(
 			DATE *d,
-			int months,
-			int utc_offset );
+			int months );
 
 void date_subtract_year(
 			DATE *date,
@@ -492,8 +492,7 @@ void date_subtract_year(
 
 void date_increment_years(
 			DATE *date,
-			int years,
-			int utc_offset );
+			int years );
 
 DATE *date_forward_to_first_month(
 			DATE *d,
@@ -510,12 +509,10 @@ void date_remove_colon_in_time(
 
 DATE *date_get_prior_day(
 			DATE *date,
-			int wday_parameter,
-			int utc_offset );
+			int wday_parameter );
 
 DATE *date_get_prior_saturday(
-			DATE *date,
-			int utc_offset );
+			DATE *date );
 
 char *date_append_hhmmss(
 			char *date_string );

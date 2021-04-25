@@ -589,8 +589,7 @@ void date_decrement_days(	DATE *d,
 }
 
 void date_increment_months(	DATE *d,
-				int months,
-				int utc_offset )
+				int months )
 {
 	int year;
 	int month;
@@ -606,14 +605,13 @@ void date_increment_months(	DATE *d,
 		year,
 		month,
 		day,
-		utc_offset );
+		0 /* utc_offset */ );
 }
 
 void date_increment_years(	DATE *d,
-				int years,
-				int utc_offset )
+				int years )
 {
-	date_decrement_years(d, -years, utc_offset );
+	date_decrement_years(d, -years );
 }
 
 void date_subtract_year(
@@ -623,13 +621,11 @@ void date_subtract_year(
 	return
 		date_decrement_years(
 				date,
-				years,
-				date_utc_offset() );
+				years );
 }
 
 void date_decrement_years(	DATE *d,
-				int years,
-				int utc_offset )
+				int years )
 {
 	int year;
 	int month;
@@ -645,7 +641,7 @@ void date_decrement_years(	DATE *d,
 		year,
 		month,
 		day,
-		utc_offset );
+		0 /* utc_offset */ );
 }
 
 void date_increment_day( DATE *d )
@@ -1902,7 +1898,7 @@ DATE *date_forward_to_first_month(	DATE *d,
 	DATE *return_date;
 
 	return_date = date_back_to_first_month( d, utc_offset );
-	date_increment_months( return_date, 1, utc_offset );
+	date_increment_months( return_date, 1 );
 
 	return return_date;
 }
@@ -1924,9 +1920,9 @@ DATE *date_back_to_first_month(		DATE *d,
 	return date_current_new( current, utc_offset );
 }
 
-DATE *date_get_prior_day(	DATE *date,
-				int wday_parameter,
-				int utc_offset )
+DATE *date_get_prior_day(
+			DATE *date,
+			int wday_parameter )
 {
 	int wday;
 	time_t current;
@@ -1946,19 +1942,17 @@ DATE *date_get_prior_day(	DATE *date,
 		if ( wday == -1 ) wday = WDAY_SATURDAY;
 	}
 
-	return date_current_new( current, utc_offset );
+	return date_current_new( current, 0 /* utc_offset */ );
 }
 
-DATE *date_get_prior_saturday(	DATE *date,
-				int utc_offset )
+DATE *date_get_prior_saturday(	DATE *date )
 {
-	return date_get_prior_day( date, WDAY_SATURDAY, utc_offset );
+	return date_get_prior_day( date, WDAY_SATURDAY );
 }
 
-DATE *date_get_prior_sunday(	DATE *date,
-				int utc_offset )
+DATE *date_get_prior_sunday(	DATE *date )
 {
-	return date_get_prior_day( date, WDAY_SUNDAY, utc_offset );
+	return date_get_prior_day( date, WDAY_SUNDAY );
 }
 
 DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,

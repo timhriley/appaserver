@@ -95,7 +95,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 void date_ticker_second(int how_many,
 			char *start_date )
@@ -115,7 +115,7 @@ void date_ticker_second(int how_many,
 		date_increment_seconds( d, 1 );
 	}
 
-} /* date_ticker_second() */
+}
 
 void date_ticker_minute(int how_many,
 			char *start_date )
@@ -135,7 +135,7 @@ void date_ticker_minute(int how_many,
 		date_increment_minutes( d, 1 );
 	}
 
-} /* date_ticker_minute() */
+}
 
 void date_ticker_hour(	int how_many,
 			char *start_date )
@@ -155,7 +155,7 @@ void date_ticker_hour(	int how_many,
 		date_increment_hours( d, 1.0 );
 	}
 
-} /* date_ticker_hour() */
+}
 
 void date_ticker_day(	int how_many,
 			char *start_date )
@@ -175,7 +175,7 @@ void date_ticker_day(	int how_many,
 		date_increment_day( d );
 	}
 
-} /* date_ticker_day() */
+}
 
 void date_ticker_week(	int how_many,
 			char *start_date )
@@ -195,7 +195,7 @@ void date_ticker_week(	int how_many,
 		date_increment_week( d );
 	}
 
-} /* date_ticker_week() */
+}
 
 void date_ticker_month(	int how_many,
 			char *start_date )
@@ -212,10 +212,10 @@ void date_ticker_month(	int how_many,
 	{
 		printf( "%s\n", date_display_yyyy_mm_dd_colon_hms( d ) );
 
-		date_increment_months( d, 1, 0 /* utc_offset */ );
+		date_increment_months( d, 1 );
 	}
 
-} /* date_ticker_month() */
+}
 
 void date_ticker_year(	int how_many,
 			char *start_date )
@@ -232,8 +232,8 @@ void date_ticker_year(	int how_many,
 	{
 		printf( "%s\n", date_display_yyyy_mm_dd_colon_hms( d ) );
 
-		date_increment_years( d, 1, 0 /* utc_offset */ );
+		date_increment_years( d, 1 );
 	}
 
-} /* date_ticker_year() */
+}
 
