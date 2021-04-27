@@ -1190,6 +1190,7 @@ void trial_balance_PDF(
 	double credit_total;
 	char prompt[ 128 ];
 	boolean landscape_flag = 0;
+	static boolean first_time = 1;
 
 	if ( postclose ) pid++;
 
@@ -1235,16 +1236,22 @@ void trial_balance_PDF(
 			document_root_directory,
 			application_name );
 
-	if ( !postclose )
+	if ( first_time )
 	{
 		printf( "<h1>%s</h1>\n", title );
 		printf( "<h2>%s</h2>\n", subtitle );
 
-		if ( statement_fund_exists_prior_year(
-			statement_fund_list ) )
-		{
-			landscape_flag = 1;
-		}
+		first_time = 0;
+	}
+	else
+	{
+		printf( "<br>\n" );
+	}
+
+	if ( statement_fund_exists_prior_year(
+		statement_fund_list ) )
+	{
+		landscape_flag = 1;
 	}
 
 	if ( !list_length( statement_fund_list ) ) return;
@@ -1458,7 +1465,7 @@ LATEX_TABLE *PDF_subclassification_latex_table(
 		latex_table->row_list =
 			PDF_subclassification_row_list(
 				statement_fund->postclose_element_list,
-				(LIST *)0 /* prior_year_list */,
+				statement_fund->prior_year_list,
 				debit_total,
 				credit_total,
 				today_date_string );
@@ -1503,7 +1510,7 @@ LATEX_TABLE *PDF_account_latex_table(
 		latex_table->row_list =
 			PDF_account_row_list(
 				statement_fund->postclose_element_list,
-				(LIST *)0 /* prior_year_list */,
+				statement_fund->prior_year_list,
 				debit_total,
 				credit_total,
 				today_date_string );
