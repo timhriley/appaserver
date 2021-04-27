@@ -946,3 +946,14 @@ LIST *statement_prior_year_delta_list(
 	return delta_list;
 }
 
+boolean statement_fund_exists_prior_year(
+			LIST *statement_fund_list )
+{
+	STATEMENT_FUND *statement_fund;
+
+	if ( !list_length( statement_fund_list ) ) return 0;
+
+	statement_fund = list_first( statement_fund_list );
+
+	return (boolean)list_length( statement_fund->prior_year_list );
+}

@@ -260,5 +260,8 @@ LIST *statement_fund_steady_state_prior_year_list(
 			LIST *preclose_element_list,
 			STATEMENT_FUND *statement_fund );
 
+boolean statement_fund_exists_prior_year(
+			LIST *statement_fund_list );
+
 #endif
 

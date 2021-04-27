@@ -10,16 +10,31 @@
 #include "timlib.h"
 #include "latex.h"
 
-LATEX *latex_new_latex(		char *tex_filename,
-				char *dvi_filename,
-				char *working_directory,
-				boolean landscape_flag,
-				char *logo_filename )
+LATEX *latex_new_latex(
+			char *tex_filename,
+			char *dvi_filename,
+			char *working_directory,
+			boolean landscape_flag,
+			char *logo_filename )
+{
+	return latex_new(	tex_filename,
+				dvi_filename,
+				working_directory,
+				landscape_flag,
+				logo_filename );
+}
+
+LATEX *latex_new(	char *tex_filename,
+			char *dvi_filename,
+			char *working_directory,
+			boolean landscape_flag,
+			char *logo_filename )
 {
 	LATEX *latex;
 	char full_path[ 128 ];
 
 	latex = (LATEX *)calloc( 1, sizeof( LATEX ) );
+
 	if ( !latex )
 	{
 		fprintf(	stderr,
@@ -42,6 +57,7 @@ LATEX *latex_new_latex(		char *tex_filename,
 	}
 
 	latex->output_stream = fopen( full_path, "w" );
+
 	if ( !latex->output_stream )
 	{
 		fprintf( stderr,
@@ -52,7 +68,7 @@ LATEX *latex_new_latex(		char *tex_filename,
 		exit( 1 );
 	}
 
-	latex->table_list = list_new_list();
+	latex->table_list = list_new();
 	latex->dvi_filename = dvi_filename;
 	latex->tex_filename = tex_filename;
 	latex->working_directory = working_directory;
@@ -64,9 +80,15 @@ LATEX *latex_new_latex(		char *tex_filename,
 
 LATEX_TABLE *latex_new_latex_table( char *caption )
 {
+	return latex_table_new( caption );
+}
+
+LATEX_TABLE *latex_table_new( char *caption )
+{
 	LATEX_TABLE *latex_table;
 
 	latex_table = (LATEX_TABLE *)calloc( 1, sizeof( LATEX_TABLE ) );
+
 	if ( !latex_table )
 	{
 		fprintf(	stderr,
@@ -81,11 +103,17 @@ LATEX_TABLE *latex_new_latex_table( char *caption )
 
 LATEX_TABLE_HEADING *latex_new_latex_table_heading( void )
 {
+	return latex_table_heading_new();
+}
+
+LATEX_TABLE_HEADING *latex_table_heading_new( void )
+{
 	LATEX_TABLE_HEADING *latex_table_heading;
 
 	latex_table_heading =
 		(LATEX_TABLE_HEADING *)
 			calloc( 1, sizeof( LATEX_TABLE_HEADING ) );
+
 	if ( !latex_table_heading )
 	{
 		fprintf(	stderr,
@@ -399,6 +427,11 @@ void latex_output_table_vertical_padding(
 
 LATEX_ROW *latex_new_latex_row( void )
 {
+	return latex_row_new();
+}
+
+LATEX_ROW *latex_row_new( void )
+{
 	LATEX_ROW *row;
 
 	row = (LATEX_ROW *)calloc( 1, sizeof( LATEX_ROW ) );
@@ -475,22 +508,21 @@ void latex_longtable_output(	FILE *output_stream,
 		table = list_get_pointer( table_list );
 
 		latex_output_longtable_heading(
-					output_stream,
-					table->caption,
-					table->heading_list );
+			output_stream,
+			table->caption,
+			table->heading_list );
 
 		latex_output_table_row_list(
-					output_stream,
-					table->row_list,
-					list_length( table->heading_list ) );
+			output_stream,
+			table->row_list,
+			list_length( table->heading_list ) );
 
 		latex_output_longtable_footer(
-					output_stream );
+			output_stream );
 
 	} while( list_next( table_list ) );
 
 	latex_output_document_footer( output_stream );
-
 }
 
 void latex_output_documentclass_letter(	FILE *output_stream,
@@ -781,5 +813,27 @@ LATEX_COLUMN_DATA *latex_column_data_new(
 
 	return l;
 
+}
+
+LIST *latex_table_right_heading_list(
+			LIST *heading_list )
+{
+	LIST *latex_heading_list;
+	LATEX_TABLE_HEADING *latex_table_heading;
+
+	if ( !list_rewind( heading_list ) ) return (LIST *)0;
+
+	heading_list = list_new();
+
+	do {
+
+		latex_table_heading = latex_table_heading_new();
+		latex_table_heading->heading = (char *)list_get( heading_list );
+		latex_table_heading->right_justified_flag = 1;
+		list_set( heading_list, latex_table_heading );
+
+	} while ( list_next( heading_list ) );
+
+	return heading_list;
 }
 

@@ -3,7 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make output_prompt_insert_form
+	cd ../src_predictive
+	make trial_balance
 fi
 
