@@ -151,21 +151,26 @@ void latex_output_longtable_document_heading(
 			boolean omit_page_numbers,
 			char *footline )
 {
-	fprintf( output_stream,
-"\\documentclass{report}\n"
-"\\usepackage{graphics}\n" );
+	if ( landscape_flag )
+	{
+		fprintf(output_stream,
+			"\\documentclass[a4paper,landscape]{report}\n"
+			"\\usepackage{graphics}\n" );
+		fprintf(output_stream,
+			"\\special{landscape}\n" );
+	}
+	else
+	{
+		fprintf(output_stream,
+			"\\documentclass[a4paper]{report}\n"
+			"\\usepackage{graphics}\n" );
+	}
 
 
 	if ( footline && *footline )
 	{
-		fprintf( output_stream,
-"\\usepackage{fancyhdr}\n" );
-	}
-
-	if ( landscape_flag )
-	{
-		fprintf( output_stream,
-			 "\\special{landscape}\n" );
+		fprintf(output_stream,
+			"\\usepackage{fancyhdr}\n" );
 	}
 
 	if ( table_package_flag )
@@ -781,15 +786,30 @@ char *latex_escape_data(	char *destination,
 
 }
 
-void latex_append_column_data_list(	LIST *column_data_list,
-					char *column_data,
-					boolean large_bold )
+void latex_append_column_data_list_list(
+			LIST *column_data_list,
+			LIST *data_list )
+{
+	if ( !list_rewind( data_list ) ) return;
+
+	do {
+		latex_append_column_data_list(
+			column_data_list,
+			(char *)list_get( data_list ),
+			0 /* not large_bold */ );
+
+	} while ( list_next( data_list ) );
+}
+
+void latex_append_column_data_list(
+			LIST *column_data_list,
+			char *column_data,
+			boolean large_bold )
 {
 	LATEX_COLUMN_DATA *l;
 
 	l = latex_column_data_new( column_data, large_bold );
-	list_append_pointer( column_data_list, l );
-
+	list_set( column_data_list, l );
 }
 
 LATEX_COLUMN_DATA *latex_column_data_new(
@@ -812,7 +832,6 @@ LATEX_COLUMN_DATA *latex_column_data_new(
 	l->large_bold = large_bold;
 
 	return l;
-
 }
 
 LIST *latex_table_right_heading_list(
@@ -823,17 +842,17 @@ LIST *latex_table_right_heading_list(
 
 	if ( !list_rewind( heading_list ) ) return (LIST *)0;
 
-	heading_list = list_new();
+	latex_heading_list = list_new();
 
 	do {
 
 		latex_table_heading = latex_table_heading_new();
 		latex_table_heading->heading = (char *)list_get( heading_list );
 		latex_table_heading->right_justified_flag = 1;
-		list_set( heading_list, latex_table_heading );
+		list_set( latex_heading_list, latex_table_heading );
 
 	} while ( list_next( heading_list ) );
 
-	return heading_list;
+	return latex_heading_list;
 }
 

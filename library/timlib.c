@@ -1638,7 +1638,6 @@ char *place_commas_in_unsigned_long_long( unsigned long long n )
 
         sprintf( s, "%llu", n );
 	return place_commas_in_number_string( s );
-
 }
  
 char *place_commas_in_number_string( char *s )
@@ -1700,7 +1699,6 @@ char *place_commas_in_integer( int n )
 
 	sprintf( s, "%d", n );
 	return place_commas_in_number_string( s );
-
 }
 
 char *place_commas_in_unsigned_int( unsigned int n )
@@ -1709,7 +1707,6 @@ char *place_commas_in_unsigned_int( unsigned int n )
 
 	sprintf( s, "%u", n );
 	return place_commas_in_number_string( s );
-
 }
 
 char *place_commas_in_unsigned_long( unsigned long n )
@@ -1718,7 +1715,6 @@ char *place_commas_in_unsigned_long( unsigned long n )
 
 	sprintf( s, "%lu", n );
 	return place_commas_in_number_string( s );
-
 }
  
 char *place_commas_in_long( long n )
@@ -1727,7 +1723,6 @@ char *place_commas_in_long( long n )
 
 	sprintf( s, "%ld", n );
 	return place_commas_in_number_string( s );
-
 }
 
 char *center( char *string, int screen_len )
@@ -2438,7 +2433,6 @@ char *timlib_place_commas_in_dollars( double d )
 
 	sprintf( s, "%.0lf", round_double( d ) );
 	return place_commas_in_number_string( s );
-
 }
 
 char *timlib_commas_in_dollars( double d )
@@ -3786,22 +3780,18 @@ char *timlib_get_first_line(	char *destination,
 
 char *timlib_dollar_string( double amount )
 {
-	static char return_string[ 64 ];
+	char return_string[ 64 ];
 
 	sprintf( return_string, "%.2lf", amount );
-
 	return place_commas_in_number_string( return_string );
-
 }
 
 char *timlib_dollar_round_string( double amount )
 {
-	static char return_string[ 64 ];
+	char return_string[ 64 ];
 
 	sprintf( return_string, "%.0lf", amount );
-
 	return place_commas_in_number_string( return_string );
-
 }
 
 char *timlib_system_date_string( void )

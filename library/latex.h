@@ -178,4 +178,8 @@ void latex_append_column_data_list(
 LIST *latex_table_right_heading_list(
 			LIST *heading_list );
 
+void latex_append_column_data_list_list(
+			LIST *column_data_list,
+			LIST *data_list );
+
 #endif

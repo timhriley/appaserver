@@ -143,12 +143,14 @@ LATEX_TABLE *PDF_account_latex_table(
 
 LIST *PDF_subclassification_row_list(
 			LIST *element_list,
+			LIST *prior_year_list,
 			double debit_total,
 			double credit_total,
 			char *today_date_string );
 
 LIST *PDF_account_row_list(
 			LIST *element_list,
+			LIST *prior_year_list,
 			double debit_total,
 			double credit_total,
 			char *today_date_string );
@@ -156,27 +158,32 @@ LIST *PDF_account_row_list(
 LIST *PDF_subclassification_element_row_list(
 			char *element_name,
 			LIST *subclassification_list,
+			LIST *prior_year_list,
 			char *today_date_string );
 
 LIST *PDF_account_element_row_list(
 			char *element_name,
 			LIST *account_list,
+			LIST *prior_year_list,
 			char *today_date_string );
 
 LIST *PDF_subclassification_account_list_row_list(
 			char *element_name,
 			char *subclassification_name,
 			LIST *account_list,
+			LIST *prior_year_list,
 			char *today_date_string );
 
 LATEX_ROW *PDF_account_latex_row(
 			char *element_name,
 			char *subclassification_name,
 			ACCOUNT *account,
+			LIST *prior_year_list,
 			char *today_date_string,
 			boolean include_subclassification );
 
-LIST *PDF_heading_list( boolean include_subclassification );
+LIST *PDF_heading_list( LIST *prior_year_list,
+			boolean include_subclassification );
 
 /* Returns static memory */
 /* --------------------- */
@@ -997,7 +1004,6 @@ int html_account_list(
 		element_name = (char *)0;
 		count++;
 
-
 	} while( list_next( account_list ) );
 
 	return count;
@@ -1183,6 +1189,7 @@ void trial_balance_PDF(
 	double debit_total;
 	double credit_total;
 	char prompt[ 128 ];
+	boolean landscape_flag = 0;
 
 	if ( postclose ) pid++;
 
@@ -1236,8 +1243,7 @@ void trial_balance_PDF(
 		if ( statement_fund_exists_prior_year(
 			statement_fund_list ) )
 		{
-			printf(
-			"<h3>Warning: ignoring prior years for now.</h3>\n" );
+			landscape_flag = 1;
 		}
 	}
 
@@ -1248,7 +1254,7 @@ void trial_balance_PDF(
 			latex_filename,
 			dvi_filename,
 			working_directory,
-			0 /* not landscape_flag */,
+			landscape_flag,
 			logo_filename );
 
 	if ( fund_aggregation == sequential )
@@ -1443,6 +1449,7 @@ LATEX_TABLE *PDF_subclassification_latex_table(
 
 	latex_table->heading_list =
 		PDF_heading_list(
+			statement_fund->prior_year_list,
 			1 /* include_subclassification */ );
 
 	if ( postclose
@@ -1451,6 +1458,7 @@ LATEX_TABLE *PDF_subclassification_latex_table(
 		latex_table->row_list =
 			PDF_subclassification_row_list(
 				statement_fund->postclose_element_list,
+				(LIST *)0 /* prior_year_list */,
 				debit_total,
 				credit_total,
 				today_date_string );
@@ -1461,6 +1469,7 @@ LATEX_TABLE *PDF_subclassification_latex_table(
 		latex_table->row_list =
 			PDF_subclassification_row_list(
 				statement_fund->preclose_element_list,
+				statement_fund->prior_year_list,
 				debit_total,
 				credit_total,
 				today_date_string );
@@ -1485,6 +1494,7 @@ LATEX_TABLE *PDF_account_latex_table(
 
 	latex_table->heading_list =
 		PDF_heading_list(
+			statement_fund->prior_year_list,
 			0 /* not include_subclassification */ );
 
 	if ( postclose
@@ -1493,6 +1503,7 @@ LATEX_TABLE *PDF_account_latex_table(
 		latex_table->row_list =
 			PDF_account_row_list(
 				statement_fund->postclose_element_list,
+				(LIST *)0 /* prior_year_list */,
 				debit_total,
 				credit_total,
 				today_date_string );
@@ -1503,10 +1514,12 @@ LATEX_TABLE *PDF_account_latex_table(
 		latex_table->row_list =
 			PDF_account_row_list(
 				statement_fund->preclose_element_list,
+				statement_fund->prior_year_list,
 				debit_total,
 				credit_total,
 				today_date_string );
 	}
+
 	return latex_table;
 }
 
@@ -1543,6 +1556,7 @@ LIST *html_heading_list(
 
 LIST *PDF_subclassification_row_list(
 			LIST *element_list,
+			LIST *prior_year_list,
 			double debit_total,
 			double credit_total,
 			char *today_date_string )
@@ -1568,6 +1582,7 @@ LIST *PDF_subclassification_row_list(
 			PDF_subclassification_element_row_list(
 				element->element_name,
 				element->subclassification_list,
+				prior_year_list,
 				today_date_string ) );
 
 	} while( list_next( element_list ) );
@@ -1614,6 +1629,7 @@ LIST *PDF_subclassification_row_list(
 
 LIST *PDF_account_row_list(
 			LIST *element_list,
+			LIST *prior_year_list,
 			double debit_total,
 			double credit_total,
 			char *today_date_string )
@@ -1639,6 +1655,7 @@ LIST *PDF_account_row_list(
 			PDF_account_element_row_list(
 				element->element_name,
 				element->account_list,
+				prior_year_list,
 				today_date_string ) );
 
 	} while( list_next( element_list ) );
@@ -1681,6 +1698,7 @@ LIST *PDF_account_row_list(
 LIST *PDF_subclassification_element_row_list(
 			char *element_name,
 			LIST *subclassification_list,
+			LIST *prior_year_list,
 			char *today_date_string )
 {
 	SUBCLASSIFICATION *subclassification;
@@ -1704,6 +1722,7 @@ LIST *PDF_subclassification_element_row_list(
 				element_name,
 				subclassification->subclassification_name,
 				subclassification->account_list,
+				prior_year_list,
 				today_date_string ) );
 
 		element_name = (char *)0;
@@ -1716,6 +1735,7 @@ LIST *PDF_subclassification_element_row_list(
 LIST *PDF_account_element_row_list(
 			char *element_name,
 			LIST *account_list,
+			LIST *prior_year_list,
 			char *today_date_string )
 {
 	ACCOUNT *account;
@@ -1738,6 +1758,7 @@ LIST *PDF_account_element_row_list(
 				element_name,
 				(char *)0 /* subclassification_name */,
 				account,
+				prior_year_list,
 				today_date_string,
 				0 /* not include_subclassification */ ) );
 
@@ -1752,6 +1773,7 @@ LIST *PDF_subclassification_account_list_row_list(
 			char *element_name,
 			char *subclassification_name,
 			LIST *account_list,
+			LIST *prior_year_list,
 			char *today_date_string )
 {
 	ACCOUNT *account;
@@ -1774,6 +1796,7 @@ LIST *PDF_subclassification_account_list_row_list(
 				element_name,
 				subclassification_name,
 				account,
+				prior_year_list,
 				today_date_string,
 				1 /* include_subclassification */ ) );
 
@@ -1789,6 +1812,7 @@ LATEX_ROW *PDF_account_latex_row(
 			char *element_name,
 			char *subclassification_name,
 			ACCOUNT *account,
+			LIST *prior_year_list,
 			char *today_date_string,
 			boolean include_subclassification )
 {
@@ -1931,25 +1955,34 @@ LATEX_ROW *PDF_account_latex_row(
 		strdup( credit_string ),
 		(days_between <= DAYS_FOR_EMPHASIS) /* large_bold */ );
 
-	sprintf(percent_string,
-		"%d%c",
-		account->percent_of_assets,
-		'%' );
+	if ( element_is_nominal( account->element_name ) )
+	{
+		sprintf(percent_string,
+			"%d%c",
+			account->percent_of_revenues,
+			'%' );
+	}
+	else
+	{
+		sprintf(percent_string,
+			"%d%c",
+			account->percent_of_assets,
+			'%' );
+	}
 
 	latex_append_column_data_list(
 		latex_row->column_data_list,
 		strdup( percent_string ),
 		0 /* not large_bold */ );
 
-	sprintf(percent_string,
-		"%d%c",
-		account->percent_of_revenues,
-		'%' );
-
-	latex_append_column_data_list(
-		latex_row->column_data_list,
-		strdup( percent_string ),
-		0 /* not large_bold */ );
+	if ( list_length( prior_year_list ) )
+	{
+		latex_append_column_data_list_list(
+			latex_row->column_data_list,
+			statement_PDF_prior_year_delta_list(
+				account->account_name,
+				prior_year_list ) );
+	}
 
 	return latex_row;
 }
@@ -2016,7 +2049,9 @@ char *PDF_account_title(
 
 }
 
-LIST *PDF_heading_list( boolean include_subclassification )
+LIST *PDF_heading_list(
+			LIST *prior_year_list,
+			boolean include_subclassification )
 {
 	LATEX_TABLE_HEADING *table_heading;
 	LIST *heading_list;
@@ -2057,16 +2092,10 @@ LIST *PDF_heading_list( boolean include_subclassification )
 	list_set( heading_list, table_heading );
 
 	table_heading = latex_table_heading_new();
-	table_heading->heading = "Asset";
+	table_heading->heading = "Percent";
 	table_heading->right_justified_flag = 1;
 	list_set( heading_list, table_heading );
 
-	table_heading = latex_table_heading_new();
-	table_heading->heading = "Rev.";
-	table_heading->right_justified_flag = 1;
-	list_set( heading_list, table_heading );
-
-/*
 	if ( list_length( prior_year_list ) )
 	{
 		list_set_list(
@@ -2075,7 +2104,6 @@ LIST *PDF_heading_list( boolean include_subclassification )
 				statement_prior_year_heading_list(
 					prior_year_list ) ) );
 	}
-*/
 
 	return heading_list;
 }

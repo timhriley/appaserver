@@ -307,6 +307,10 @@ ACCOUNT *account_parse( char *input )
 		account->fund_name = strdup( piece_buffer );
 	}
 
+	account->element_name =
+		account_element_name(
+			account->subclassification_name );
+
 	account->accumulate_debit =
 		account_accumulate_debit(
 			account->subclassification_name );
@@ -1161,5 +1165,25 @@ void account_list_set_percent_of_revenues(
 			float_round_int( percent_of_revenues );
 
 	} while ( list_next( account_list ) );
+}
+
+char *account_element_name(
+			char *subclassification_name )
+{
+	SUBCLASSIFICATION *subclassification;
+
+	if ( ! ( subclassification =
+			subclassification_fetch(
+				subclassification_name ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: subclassification_fetch(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 subclassification_name );
+	}
+
+	return subclassification->element_name;
 }
 

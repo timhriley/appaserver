@@ -47,6 +47,7 @@ typedef struct
 {
 	char *account_name;
 	char *fund_name;
+	char *element_name;
 	char *subclassification_name;
 	char *account_key;
 	double chart_account_number;
@@ -237,5 +238,8 @@ double account_list_debit_total(
 
 double account_list_credit_total(
 			LIST *account_list );
+
+char *account_element_name(
+			char *subclassification_name );
 
 #endif
