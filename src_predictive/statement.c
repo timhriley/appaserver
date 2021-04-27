@@ -922,7 +922,7 @@ LIST *statement_prior_year_delta_list(
 				prior_year->prior_year_element_list ) ) )
 		{
 			sprintf(delta_prior,
-				"%d%c<br>(<a href=\"%s\">%s</a>)",
+				"%d%c<br><a href=\"%s\">%s</a>",
 				account->delta_prior,
 				'%',
 			 	account->account_action_string,
