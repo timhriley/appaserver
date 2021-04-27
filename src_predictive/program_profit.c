@@ -799,13 +799,7 @@ void program_profit_aggregate_account_PDF(
 	latex_row = latex_new_latex_row();
 	list_append_pointer( latex_table->row_list, latex_row );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		"\\bf{Total Revenue}" );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"\\bf{Total Revenue}",
 		0 /* not large_bold */ );
@@ -814,13 +808,7 @@ void program_profit_aggregate_account_PDF(
 		 "\\bf{%s}",
 		 place_commas_in_money( total_revenue ) );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		strdup( buffer ) );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
 		0 /* not large_bold */ );
@@ -846,28 +834,16 @@ void program_profit_aggregate_account_PDF(
 	latex_row = latex_new_latex_row();
 	list_append_pointer( latex_table->row_list, latex_row );
 
-/*
-	list_append_pointer(
+	latex_column_data_set(
 		latex_row->column_data_list,
-		"\\bf{Total Expense}" );
-*/
-
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			"\\bf{Total Expense}",
-			0 /* not large_bold */ );
+		"\\bf{Total Expense}",
+		0 /* not large_bold */ );
 
 	sprintf( buffer,
 		 "\\bf{%s}",
 		 place_commas_in_money( total_expense ) );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		strdup( buffer ) );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
 		0 /* not large_bold */ );
@@ -879,13 +855,7 @@ void program_profit_aggregate_account_PDF(
 	latex_row = latex_new_latex_row();
 	list_append_pointer( latex_table->row_list, latex_row );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		"\\bf{Profit}" );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"\\bf{Profit}",
 		0 /* not large_bold */ );
@@ -894,13 +864,7 @@ void program_profit_aggregate_account_PDF(
 		 "\\bf{%s}",
 		 place_commas_in_money( profit ) );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		strdup( buffer ) );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
 		0 /* not large_bold */ );
@@ -1075,28 +1039,17 @@ void program_profit_PDF(	char *application_name,
 	latex_row = latex_new_latex_row();
 	list_append_pointer( latex_table->row_list, latex_row );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		"\\bf{Total Revenue}" );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"\\bf{Total Revenue}",
 		0 /* not large_bold */ );
 
-/*
-	list_append_pointer( latex_row->column_data_list, "" );
-	list_append_pointer( latex_row->column_data_list, "" );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
 		0 /* not large_bold */ );
@@ -1105,13 +1058,7 @@ void program_profit_PDF(	char *application_name,
 		 "\\bf{%s}",
 		 place_commas_in_money( total_revenue ) );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		strdup( buffer ) );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
 		0 /* not large_bold */ );
@@ -1137,28 +1084,17 @@ void program_profit_PDF(	char *application_name,
 	latex_row = latex_new_latex_row();
 	list_append_pointer( latex_table->row_list, latex_row );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		"\\bf{Total Expense}" );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"\\bf{Total Expense}",
 		0 /* not large_bold */ );
 
-/*
-	list_append_pointer( latex_row->column_data_list, "" );
-	list_append_pointer( latex_row->column_data_list, "" );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
 		0 /* not large_bold */ );
@@ -1167,13 +1103,7 @@ void program_profit_PDF(	char *application_name,
 		 "\\bf{%s}",
 		 place_commas_in_money( total_expense ) );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		strdup( buffer ) );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
 		0 /* not large_bold */ );
@@ -1185,26 +1115,17 @@ void program_profit_PDF(	char *application_name,
 	latex_row = latex_new_latex_row();
 	list_append_pointer( latex_table->row_list, latex_row );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		"\\bf{Profit}" );
-
-	list_append_pointer( latex_row->column_data_list, "" );
-	list_append_pointer( latex_row->column_data_list, "" );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"\\bf{Profit}",
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
 		0 /* not large_bold */ );
@@ -1213,13 +1134,7 @@ void program_profit_PDF(	char *application_name,
 		 "\\bf{%s}",
 		 place_commas_in_money( profit ) );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		strdup( buffer ) );
-*/
-
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
 		0 /* not large_bold */ );
@@ -1308,15 +1223,7 @@ double program_profit_aggregate_account_PDF_element(
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( format_initial_capital(
-					buffer,
-					account_name ) ) );
-*/
-
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					buffer,
@@ -1325,13 +1232,7 @@ double program_profit_aggregate_account_PDF_element(
 
 		amount_double = atof( amount_string );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( place_commas_in_money( amount_double ) ) );
-*/
-
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money( amount_double ) ),
 			0 /* not large_bold */ );
@@ -1387,52 +1288,26 @@ double program_profit_PDF_element(
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( format_initial_capital(
-					buffer,
-					account_name ) ) );
-*/
-
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					buffer,
 					account_name ) ),
 			0 /* not large_bold */ );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( entity_name ) );
-*/
-
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( entity_name ),
 			0 /* not large_bold */ );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( transaction_date_time ) );
-*/
-
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( transaction_date_time ),
 			0 /* not large_bold */ );
 
 		amount_double = atof( amount_string );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( place_commas_in_money( amount_double ) ) );
-*/
-
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money( amount_double ) ),
 			0 /* not large_bold */ );

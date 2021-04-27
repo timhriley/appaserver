@@ -832,14 +832,14 @@ LATEX_ROW *element_latex_net_income_row(
 
 	if ( is_statement_of_activities )
 	{
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			"Change in Net Assets",
 			1 /* not large_bold */ );
 	}
 	else
 	{
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			"Net Income",
 			1 /* not large_bold */ );
@@ -847,18 +847,18 @@ LATEX_ROW *element_latex_net_income_row(
 
 	if ( !omit_subclassification )
 	{
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			"",
 			0 /* not large_bold */ );
 	}
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
 			   net_income ) ),
@@ -878,7 +878,7 @@ LATEX_ROW *element_latex_net_income_row(
 	 		percent_of_total,
 	 		'%' );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( buffer ),
 			0 /* not large_bold */ );
@@ -898,20 +898,20 @@ LATEX_ROW *element_latex_subclassification_aggregate_net_income_row(
 
 	if ( is_statement_of_activities )
 	{
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			"Change in Net Assets",
 			1 /* not large_bold */ );
 	}
 	else
 	{
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			"Net Income",
 			1 /* not large_bold */ );
 	}
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
 			   net_income ) ),
@@ -931,7 +931,7 @@ LATEX_ROW *element_latex_subclassification_aggregate_net_income_row(
 	 		percent_of_total,
 	 		'%' );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( buffer ),
 			0 /* not large_bold */ );
@@ -947,20 +947,20 @@ LATEX_ROW *element_latex_liabilities_plus_equity_row(
 
 	latex_row = latex_new_latex_row();
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( "Liabilities Plus Equity" ),
 		1 /* large_bold */ );
 
 	while ( skip_columns-- )
 	{
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( "" ),
 			0 /* not large_bold */ );
 	}
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
 			   liabilities_plus_equity ) ),

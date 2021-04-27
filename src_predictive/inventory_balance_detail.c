@@ -491,19 +491,19 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 
 		if ( inventory_balance->inventory_purchase )
 		{
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				inventory_balance->
 					inventory_purchase->
 					arrived_date_time,
 				0 /* not large_bold */ );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				"Purchase",
 				0 /* not large_bold */ );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				inventory_balance->
 					inventory_purchase->
@@ -516,7 +516,7 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 					inventory_purchase->
 					ordered_quantity );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
 				0 /* not large_bold */ );
@@ -527,14 +527,14 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 					inventory_purchase->
 					capitalized_unit_cost );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
 				0 /* not large_bold */ );
 
 			/* Skip CGS */
 			/* -------- */
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( "" ),
 				0 /* not large_bold */ );
@@ -542,19 +542,19 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 		else
 		if ( inventory_balance->inventory_sale )
 		{
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				inventory_balance->
 					inventory_sale->
 					completed_date_time,
 				0 /* not large_bold */ );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				"Sale",
 				0 /* not large_bold */ );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				inventory_balance->
 					inventory_sale->
@@ -567,14 +567,14 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 					inventory_sale->
 					sold_quantity );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
 				0 /* not large_bold */ );
 
 			/* Skip CostPer */
 			/* ------------ */
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( "" ),
 				0 /* not large_bold */ );
@@ -585,7 +585,7 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 					inventory_sale->
 					cost_of_goods_sold );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
 				0 /* not large_bold */ );
@@ -604,7 +604,7 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 			"%d",
 			inventory_balance->quantity_on_hand );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( buffer ),
 			0 /* not large_bold */ );
@@ -613,7 +613,7 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 			"%.4lf",
 			inventory_balance->average_unit_cost );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( buffer ),
 			0 /* not large_bold */ );
@@ -622,7 +622,7 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 			"%.2lf",
 			inventory_balance->total_cost_balance );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( buffer ),
 			0 /* not large_bold */ );

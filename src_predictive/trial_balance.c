@@ -1597,36 +1597,36 @@ LIST *PDF_subclassification_row_list(
 	latex_row = latex_row_new();
 	list_set( row_list, latex_row );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"Total",
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
 		0 /* not large_bold */ );
 
 	debit_total_string = timlib_place_commas_in_dollars( debit_total );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( debit_total_string ),
 		0 /* not large_bold */ );
 
 	credit_total_string = timlib_place_commas_in_dollars( credit_total );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( credit_total_string ),
 		0 /* not large_bold */ );
@@ -1670,31 +1670,31 @@ LIST *PDF_account_row_list(
 	latex_row = latex_row_new();
 	list_set( row_list, latex_row );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		"Total",
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
 		0 /* not large_bold */ );
 
 	debit_total_string = timlib_place_commas_in_dollars( debit_total );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( debit_total_string ),
 		0 /* not large_bold */ );
 
 	credit_total_string = timlib_place_commas_in_dollars( credit_total );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( credit_total_string ),
 		0 /* not large_bold */ );
@@ -1855,7 +1855,7 @@ LATEX_ROW *PDF_account_latex_row(
 		*element_title = '\0';
 	}
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( element_title ),
 		0 /* not large_bold */ );
@@ -1875,7 +1875,7 @@ LATEX_ROW *PDF_account_latex_row(
 			*subclassification_title = '\0';
 		}
 	
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( subclassification_title ),
 			0 /* not large_bold */ );
@@ -1910,7 +1910,7 @@ LATEX_ROW *PDF_account_latex_row(
 				latest_journal->
 				memo );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( account_title ),
 		0 /* not large_bold */ );
@@ -1921,7 +1921,7 @@ LATEX_ROW *PDF_account_latex_row(
 			latest_journal->
 			transaction_count );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( transaction_count_string ),
 		0 /* not large_bold */ );
@@ -1947,7 +1947,7 @@ LATEX_ROW *PDF_account_latex_row(
 	else
 		debit_string = "";
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( debit_string ),
 		(days_between <= DAYS_FOR_EMPHASIS) /* large_bold */ );
@@ -1957,7 +1957,7 @@ LATEX_ROW *PDF_account_latex_row(
 	else
 		credit_string = "";
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( credit_string ),
 		(days_between <= DAYS_FOR_EMPHASIS) /* large_bold */ );
@@ -1977,14 +1977,14 @@ LATEX_ROW *PDF_account_latex_row(
 			'%' );
 	}
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( percent_string ),
 		0 /* not large_bold */ );
 
 	if ( list_length( prior_year_list ) )
 	{
-		latex_append_column_data_list_list(
+		latex_column_data_set_list(
 			latex_row->column_data_list,
 			statement_PDF_prior_year_delta_list(
 				account->account_name,

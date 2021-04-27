@@ -170,7 +170,7 @@ char *latex_escape_data(char *destination,
 			char *source,
 			int buffer_size );
 
-void latex_append_column_data_list(
+void latex_column_data_set(
 			LIST *column_data_list,
 			char *column_data,
 			boolean large_bold );
@@ -178,7 +178,7 @@ void latex_append_column_data_list(
 LIST *latex_table_right_heading_list(
 			LIST *heading_list );
 
-void latex_append_column_data_list_list(
+void latex_column_data_set_list(
 			LIST *column_data_list,
 			LIST *data_list );
 

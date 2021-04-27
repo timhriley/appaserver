@@ -1150,7 +1150,7 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 	latex_row = latex_new_latex_row();
 	list_set( row_list, latex_row );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( "" ),
 		0 /* not large_bold */ );
@@ -1261,7 +1261,7 @@ LIST *build_subclassification_display_PDF_row_list(
 	latex_row = latex_new_latex_row();
 	list_append_pointer( row_list, latex_row );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( "" ),
 		0 /* not large_bold */ );
@@ -1878,7 +1878,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 	latex_row = latex_new_latex_row();
 	list_append_pointer( row_list, latex_row );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( "" ),
 		0 /* not large_bold */ );

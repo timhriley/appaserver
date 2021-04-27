@@ -514,12 +514,12 @@ LIST *build_PDF_row_list( LIST *tax_form_line_rental_list )
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			tax_form_line_rental->tax_form_line,
 			0 /* not large_bold */ );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( tax_form_line_rental->tax_form_description ),
 			0 /* not large_bold */ );
@@ -530,7 +530,7 @@ LIST *build_PDF_row_list( LIST *tax_form_line_rental_list )
 					tax_form_line_rental->
 						rental_property_list );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( timlib_place_commas_in_money(
 					   tax_output_rental_property->

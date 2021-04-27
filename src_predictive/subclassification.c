@@ -879,20 +879,20 @@ LATEX_ROW *subclassification_latex_liabilities_plus_equity_row(
 
 	latex_row = latex_new_latex_row();
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( "Liabilities Plus Equity" ),
 		1 /* large_bold */ );
 
 	while ( skip_columns-- )
 	{
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( "" ),
 			0 /* not large_bold */ );
 	}
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
 			   liabilities_plus_equity ) ),
@@ -939,12 +939,12 @@ LIST *subclassification_aggregate_beginning_row_list(
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			SUBCLASSIFICATION_BEGINNING_BALANCE_LABEL,
 			0 /* not large_bold */ );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 				   subclassification->
@@ -961,19 +961,12 @@ LIST *subclassification_aggregate_beginning_row_list(
 					subclassification_total /
 	  		  	  percent_denominator ) * 100.0;
 
-fprintf(stderr,
-	"%s/%s()/%d: percent_of_total = %.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-percent_of_total );
-
 			sprintf( buffer,
 	 			"%.1lf%c",
 	 			percent_of_total,
 	 			'%' );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
 				0 /* not large_bold */ );
@@ -1014,7 +1007,7 @@ LIST *subclassification_aggregate_latex_row_list(
 			 "\\large \\bf %s",
 			 element_name );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					format_buffer,
@@ -1070,7 +1063,7 @@ equity_all_done:
 				 "\\large \\bf %s",
 				 element_name );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
@@ -1083,7 +1076,7 @@ equity_all_done:
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					format_buffer,
@@ -1091,7 +1084,7 @@ equity_all_done:
 					    subclassification_name ) ),
 			0 /* not large_bold */ );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 			   	     subclassification->
@@ -1111,14 +1104,14 @@ equity_all_done:
 		 		percent_of_total,
 		 		'%' );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
 				0 /* not large_bold */ );
 		}
 		else
 		{
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( SUBCLASSIFICATION_NOTANUMBER ),
 				0 /* not large_bold */ );
@@ -1147,12 +1140,12 @@ equity_all_done:
 
 	format_initial_capital( format_buffer, format_buffer );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( format_buffer ),
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
 			   *total_element ) ),
@@ -1171,14 +1164,14 @@ equity_all_done:
 	 		percent_of_total,
 	 		'%' );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( buffer ),
 			0 /* not large_bold */ );
 	}
 	else
 	{
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( SUBCLASSIFICATION_NOTANUMBER ),
 			0 /* not large_bold */ );
@@ -1189,7 +1182,7 @@ equity_all_done:
 	latex_row = latex_new_latex_row();
 	list_append_pointer( row_list, latex_row );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( "" ),
 		0 /* not large_bold */ );
@@ -1231,7 +1224,7 @@ LIST *subclassification_display_latex_row_list(
 			 "\\large \\bf %s",
 			 element_name );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					format_buffer,
@@ -1279,7 +1272,7 @@ LIST *subclassification_display_latex_row_list(
 				 "\\large \\bf %s",
 				 element_name );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
@@ -1299,7 +1292,7 @@ LIST *subclassification_display_latex_row_list(
 				 subclassification->
 					subclassification_name );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
@@ -1341,7 +1334,7 @@ LIST *subclassification_display_latex_row_list(
 				latex_row = latex_new_latex_row();
 				list_append_pointer( row_list, latex_row );
 
-				latex_append_column_data_list(
+				latex_column_data_set(
 					latex_row->column_data_list,
 					strdup( format_initial_capital(
 							format_buffer,
@@ -1349,7 +1342,7 @@ LIST *subclassification_display_latex_row_list(
 							    account_name ) ),
 					0 /* not large_bold */ );
 
-				latex_append_column_data_list(
+				latex_column_data_set(
 					latex_row->column_data_list,
 					strdup( place_commas_in_money(
 					   	     latest_journal_balance ) ),
@@ -1359,12 +1352,12 @@ LIST *subclassification_display_latex_row_list(
 				{
 					char buffer[ 128 ];
 
-					latex_append_column_data_list(
+					latex_column_data_set(
 						latex_row->column_data_list,
 						strdup( "" ),
 						0 /* not large_bold */ );
 
-					latex_append_column_data_list(
+					latex_column_data_set(
 						latex_row->column_data_list,
 						strdup( "" ),
 						0 /* not large_bold */ );
@@ -1378,7 +1371,7 @@ LIST *subclassification_display_latex_row_list(
 				 		percent_of_total,
 				 		'%' );
 
-					latex_append_column_data_list(
+					latex_column_data_set(
 						latex_row->column_data_list,
 						strdup( buffer ),
 						0 /* not large_bold */ );
@@ -1426,19 +1419,19 @@ LIST *subclassification_display_latex_row_list(
 						subclassification_name );
 			}
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
 						format_buffer ) ),
 				0 /* not large_bold */ );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( "" ),
 				0 /* not large_bold */ );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( place_commas_in_money(
 					   subclassification_amount ) ),
@@ -1448,7 +1441,7 @@ LIST *subclassification_display_latex_row_list(
 			{
 				char buffer[ 128 ];
 
-				latex_append_column_data_list(
+				latex_column_data_set(
 					latex_row->column_data_list,
 					strdup( "" ),
 					0 /* not large_bold */ );
@@ -1462,7 +1455,7 @@ LIST *subclassification_display_latex_row_list(
 			 		percent_of_total,
 			 		'%' );
 
-				latex_append_column_data_list(
+				latex_column_data_set(
 					latex_row->column_data_list,
 					strdup( buffer ),
 					0 /* not large_bold */ );
@@ -1494,22 +1487,22 @@ LIST *subclassification_display_latex_row_list(
 
 		 format_initial_capital( format_buffer, format_buffer );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( format_buffer ),
 			0 /* not large_bold */ );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( "" ),
 			0 /* not large_bold */ );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( "" ),
 			0 /* not large_bold */ );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 				   *total_element ) ),
@@ -1528,7 +1521,7 @@ LIST *subclassification_display_latex_row_list(
 		 		percent_of_total,
 		 		'%' );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
 				0 /* not large_bold */ );
@@ -1539,7 +1532,7 @@ LIST *subclassification_display_latex_row_list(
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( "" ),
 			0 /* not large_bold */ );
@@ -1591,7 +1584,7 @@ LIST *subclassification_beginning_latex_row_list(
 				 subclassification->
 					subclassification_name );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
@@ -1625,7 +1618,7 @@ LIST *subclassification_beginning_latex_row_list(
 			latex_row = latex_new_latex_row();
 			list_append_pointer( row_list, latex_row );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
@@ -1633,7 +1626,7 @@ LIST *subclassification_beginning_latex_row_list(
 						    account_name ) ),
 				0 /* not large_bold */ );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( place_commas_in_money(
 				   	latest_journal_balance ) ),
@@ -1653,19 +1646,19 @@ LIST *subclassification_beginning_latex_row_list(
 			 "\\bf %s",
 			 SUBCLASSIFICATION_BEGINNING_BALANCE_LABEL );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					format_buffer,
 					format_buffer ) ),
 			0 /* not large_bold */ );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( "" ),
 			0 /* not large_bold */ );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 				   subclassification_amount ) ),

@@ -650,7 +650,7 @@ LIST *account_omit_latex_row_list(
 		 "\\large \\bf %s",
 		 element_name );
 
-	latex_append_column_data_list(
+	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( format_initial_capital(
 				format_buffer,
@@ -686,7 +686,7 @@ LIST *account_omit_latex_row_list(
 				0.0 - account->latest_journal->balance;
 		}
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					format_buffer,
@@ -694,7 +694,7 @@ LIST *account_omit_latex_row_list(
 					    account_name ) ),
 			0 /* not large_bold */ );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 			   	     latest_journal_balance ) ),
@@ -702,7 +702,7 @@ LIST *account_omit_latex_row_list(
 
 		/* Blank space for the element column. */
 		/* ----------------------------------- */
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( "" ),
 			0 /* not large_bold */ );
@@ -720,7 +720,7 @@ LIST *account_omit_latex_row_list(
 		 		percent_of_total,
 		 		'%' );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
 				0 /* not large_bold */ );
@@ -735,17 +735,17 @@ LIST *account_omit_latex_row_list(
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( total_element_label ),
 			0 /* not large_bold */ );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( "" ),
 			0 /* not large_bold */ );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 				   *total_element ) ),
@@ -764,7 +764,7 @@ LIST *account_omit_latex_row_list(
 		 		percent_of_total,
 		 		'%' );
 
-			latex_append_column_data_list(
+			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
 				0 /* not large_bold */ );
@@ -775,7 +775,7 @@ LIST *account_omit_latex_row_list(
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
-		latex_append_column_data_list(
+		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( "" ),
 			0 /* not large_bold */ );
