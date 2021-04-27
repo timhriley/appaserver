@@ -824,7 +824,7 @@ LATEX_ROW *element_latex_net_income_row(
 			double net_income,
 			boolean is_statement_of_activities,
 			double percent_denominator,
-			boolean fetch_subclassification_list )
+			boolean omit_subclassification )
 {
 	LATEX_ROW *latex_row;
 
@@ -845,7 +845,7 @@ LATEX_ROW *element_latex_net_income_row(
 			1 /* not large_bold */ );
 	}
 
-	if ( fetch_subclassification_list )
+	if ( !omit_subclassification )
 	{
 		latex_append_column_data_list(
 			latex_row->column_data_list,
@@ -873,7 +873,7 @@ LATEX_ROW *element_latex_net_income_row(
 			( net_income /
 	  		percent_denominator ) * 100.0;
 
-		sprintf( buffer,
+		sprintf(buffer,
 	 		"%.1lf%c",
 	 		percent_of_total,
 	 		'%' );
@@ -883,6 +883,7 @@ LATEX_ROW *element_latex_net_income_row(
 			strdup( buffer ),
 			0 /* not large_bold */ );
 	}
+
 	return latex_row;
 }
 

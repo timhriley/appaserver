@@ -341,7 +341,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 void income_statement_net_income_only(
 			char *fund_name,
@@ -1344,7 +1344,7 @@ void output_earnings_per_share(	HTML_TABLE *html_table,
 		html_table->background_shaded,
 		html_table->justify_list );
 
-} /* output_earnings_per_share() */
+}
 #endif
 
 #ifdef NOT_DEFINED
@@ -1370,7 +1370,7 @@ double get_shares_outstanding(	char *appaserver_mount_point,
 		return 0.0;
 	else
 		return atof( results_string );
-} /* get_shares_outstanding() */
+}
 #endif
 
 LIST *build_subclassification_omit_PDF_heading_list( void )
@@ -1401,8 +1401,7 @@ LIST *build_subclassification_omit_PDF_heading_list( void )
 	list_append_pointer( heading_list, table_heading );
 
 	return heading_list;
-
-} /* build_subclassification_omit_PDF_heading_list() */
+}
 
 LIST *build_subclassification_display_PDF_heading_list( void )
 {
@@ -1438,7 +1437,7 @@ LIST *build_subclassification_display_PDF_heading_list( void )
 
 	return heading_list;
 
-} /* build_subclassification_display_PDF_heading_list() */
+}
 
 LIST *build_subclassification_aggregate_PDF_heading_list( void )
 {
@@ -1891,6 +1890,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 				total_revenues
 					/* percent_denominator */,
 				1 /* omit_subclassification */ ) );
+
 	return row_list;
 }
 
