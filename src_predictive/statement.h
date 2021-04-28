@@ -251,7 +251,11 @@ boolean statement_fund_exists_postclose(
 LIST *statement_prior_year_heading_list(
 			LIST *prior_year_list );
 
-LIST *statement_prior_year_delta_list(
+LIST *statement_stdout_prior_year_delta_list(
+			char *account_name,
+			LIST *prior_year_list );
+
+LIST *statement_html_prior_year_delta_list(
 			char *account_name,
 			LIST *prior_year_list );
 

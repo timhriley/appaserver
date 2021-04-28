@@ -900,7 +900,52 @@ LIST *statement_prior_year_heading_list(
 	return heading_list;
 }
 
-LIST *statement_prior_year_delta_list(
+LIST *statement_stdout_prior_year_delta_list(
+			char *account_name,
+			LIST *prior_year_list )
+{
+	LIST *delta_list;
+	STATEMENT_PRIOR_YEAR *prior_year;
+	ACCOUNT *account;
+	char delta_prior[ 1024 ];
+
+	if ( !list_rewind( prior_year_list ) ) return (LIST *)0;
+
+	delta_list = list_new();
+
+	do {
+		prior_year = list_get( prior_year_list );
+
+		if ( ( account =
+			element_list_account_seek(
+				account_name,
+				prior_year->prior_year_element_list ) ) )
+		{
+			sprintf(delta_prior,
+				"^%d%c %s",
+				account->delta_prior,
+				'%',
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				timlib_place_commas_in_money(
+					account->account_total ) );
+
+			list_set(
+				delta_list,
+				strdup( delta_prior ) );
+		}
+		else
+		{
+			list_set( delta_list, strdup( "" ) );
+		}
+
+	} while ( list_next( prior_year_list ) );
+
+	return delta_list;
+}
+
+LIST *statement_html_prior_year_delta_list(
 			char *account_name,
 			LIST *prior_year_list )
 {

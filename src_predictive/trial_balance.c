@@ -929,7 +929,7 @@ void html_subclassification_account(
 	{
 		list_append_list(
 			data_list,
-			statement_prior_year_delta_list(
+			statement_html_prior_year_delta_list(
 				account->account_name,
 				prior_year_list ) );
 	}
@@ -1005,7 +1005,7 @@ void stdout_subclassification_account(
 	{
 		printf( "^%s\n",
 			list_display_delimited(
-				statement_prior_year_delta_list(
+				statement_stdout_prior_year_delta_list(
 					account->account_name,
 					prior_year_list ),
 				'^' ) );
@@ -1334,9 +1334,9 @@ void stdout_account_total(
 
 	if ( list_length( prior_year_list ) )
 	{
-		printf( "^%s\n",
+		printf( "%s\n",
 			list_display_delimited(
-				statement_prior_year_delta_list(
+				statement_stdout_prior_year_delta_list(
 					account->account_name,
 					prior_year_list ),
 				'^' ) );
@@ -1489,7 +1489,7 @@ void html_account_total(
 	{
 		list_append_list(
 			html_table->data_list,
-			statement_prior_year_delta_list(
+			statement_html_prior_year_delta_list(
 				account->account_name,
 				prior_year_list ) );
 	}
