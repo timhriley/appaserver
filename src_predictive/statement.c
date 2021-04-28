@@ -1060,3 +1060,95 @@ LIST *statement_PDF_prior_year_delta_list(
 	return delta_list;
 }
 
+double statement_net_income(
+			STATEMENT_FUND *statement_fund )
+{
+	double total_revenues = {0};
+	double total_expenses = {0};
+	double total_gains = {0};
+	double total_losses = {0};
+	ELEMENT *element;
+
+	/* Compute total revenues */
+	/* ---------------------- */ 
+	if ( ( element =
+			element_seek(
+				ELEMENT_REVENUE,
+				statement_fund->preclose_element_list ) ) )
+	{
+		total_revenues =
+			element_value(
+				element->account_list,
+				element->accumulate_debit );
+	}
+
+	/* Compute total expenses */
+	/* ---------------------- */ 
+	if ( ( element =
+			element_seek(
+				ELEMENT_EXPENSE,
+				statement_fund->preclose_element_list ) ) )
+	{
+		total_expenses =
+			element_value(
+				element->account_list,
+				element->accumulate_debit );
+	}
+
+	/* Compute total gains */
+	/* ------------------- */ 
+	if ( ( element =
+			element_seek(
+				ELEMENT_GAIN,
+				statement_fund->preclose_element_list ) ) )
+	{
+		total_gains =
+			element_value(
+				element->account_list,
+				element->accumulate_debit );
+	}
+
+	/* Compute total losses */
+	/* -------------------- */ 
+	if ( ( element =
+			element_seek(
+				ELEMENT_LOSS,
+				statement_fund->preclose_element_list ) ) )
+	{
+		total_losses =
+			element_value(
+				element->account_list,
+				element->accumulate_debit );
+	}
+
+	return transaction_net_income(
+			total_revenues,
+			total_expenses,
+			total_gains,
+			total_losses );
+}
+
+STATEMENT_FUND *statement_fund_seek(
+			char *fund_name,
+			LIST *statement_fund_list )
+{
+	STATEMENT_FUND *statement_fund;
+
+	if ( !list_rewind( statement_fund_list ) ) return (STATEMENT_FUND *)0;
+
+	do {
+		statement_fund = list_get( statement_fund_list );
+
+		if ( !fund_name || !*fund_name ) return statement_fund;
+
+		if ( string_strcmp(	statement_fund->fund_name,
+					fund_name ) == 0 )
+		{
+			return statement_fund;
+		}
+
+	} while ( list_next( statement_fund_list ) );
+
+	return (STATEMENT_FUND *)0;
+}
+

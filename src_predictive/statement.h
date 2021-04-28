@@ -271,5 +271,9 @@ LIST *statement_PDF_prior_year_delta_list(
 			char *account_name,
 			LIST *prior_year_list );
 
+STATEMENT_FUND *statement_fund_seek(
+			char *fund_name,
+			LIST *statement_fund_list );
+
 #endif
 

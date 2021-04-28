@@ -262,7 +262,7 @@ int main( int argc, char **argv )
 "Note: subclassification_option={display,omit}\n" );
 
 		fprintf( stderr,
-"Note: fund_aggregation={single_fund,sequential,consolidated}\n" );
+"Note: fund_aggregation={sequential,consolidated}\n" );
 
 		fprintf( stderr,
 "Note: output_medium={table,PDF,stdout}\n" );

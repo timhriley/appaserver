@@ -36,7 +36,7 @@ drop_down_prompt_data="drop_down_prompt_data"
 (
 cat << all_done
 delete from $process where process = 'income_statement';
-insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,process_set_display,appaserver_yn,process_group,preprompt_help_text) values ('income_statement','income_statement \$session \$login_name \$role \$process fund program as_of_date prior_year_count fund_aggregation subclassification_option output_medium net_income_only_yn',null,null,null,null,null,'output',null);
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,process_set_display,appaserver_yn,process_group,preprompt_help_text) values ('income_statement','income_statement \$session \$login_name \$role \$process fund as_of_date prior_year_count fund_aggregation subclassification_option output_medium net_income_only_yn',null,null,null,null,null,'output',null);
 delete from $process_parameter where process = 'income_statement';
 insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('income_statement','null','null','as_of_date','null','1',null,null,null,null);
 insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('income_statement','null','null','null','finance_output_medium','9',null,null,null,null);

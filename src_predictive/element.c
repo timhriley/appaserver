@@ -416,8 +416,8 @@ LIST *element_list_sort( LIST *element_list )
 }
 
 ELEMENT *element_list_seek(
-			LIST *element_list,
-			char *element_name )
+			char *element_name,
+			LIST *element_list )
 {
 	return element_seek( element_name, element_list );
 }
@@ -555,50 +555,39 @@ boolean element_is_nominal( char *element_name )
 		return 0;
 }
 
-double element_value(	LIST *subclassification_list,
+double element_value(	LIST *account_list,
 			boolean element_accumulate_debit )
 {
-	double total_element = 0.0;
+	double value = 0.0;
 	ACCOUNT *account;
-	SUBCLASSIFICATION *subclassification;
 	double latest_journal_balance;
 
-	if ( !list_rewind( subclassification_list ) ) return 0.0;
+	if ( !list_rewind( account_list ) ) return 0.0;
 	
 	do {
-		subclassification = list_get( subclassification_list );
+		account = list_get( account_list );
 
-		if ( !list_rewind( subclassification->account_list ) )
+		if ( !account->latest_journal
+		||   !account->latest_journal->balance )
 			continue;
 
-		do {
-			account =
-				list_get(
-					subclassification->account_list );
+		if (	element_accumulate_debit ==
+			account->accumulate_debit )
+		{
+			latest_journal_balance =
+				account->latest_journal->balance;
+		}
+		else
+		{
+			latest_journal_balance =
+				0.0 - account->latest_journal->balance;
+		}
 
-			if ( !account->latest_journal
-			||   !account->latest_journal->balance )
-				continue;
+		value += latest_journal_balance;
 
-			if (	element_accumulate_debit ==
-				account->accumulate_debit )
-			{
-				latest_journal_balance =
-					account->latest_journal->balance;
-			}
-			else
-			{
-				latest_journal_balance =
-					0.0 - account->latest_journal->balance;
-			}
+	} while( list_next( account_list ) );
 
-			total_element += latest_journal_balance;
-
-		} while( list_next( subclassification->account_list ) );
-
-	} while( list_next( subclassification_list ) );
-
-	return total_element;
+	return value;
 }
 
 double element_subclassification_aggregate_html_output(

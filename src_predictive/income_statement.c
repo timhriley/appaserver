@@ -54,10 +54,6 @@ void income_statement_subclassification_omit_PDF(
 			char *process_name,
 			char *logo_filename );
 
-void income_statement_net_income_only(
-			char *fund_name,
-			char *as_of_date );
-
 LIST *build_subclassification_display_PDF_heading_list(
 			void );
 
@@ -135,8 +131,7 @@ double get_income_tax_expense(		LIST *account_list );
 int main( int argc, char **argv )
 {
 	boolean is_statement_of_activities;
-	boolean net_income_only = 0;
-	char *program_name;
+	boolean net_income_only;
 	char *application_name;
 	char *session;
 	char *login_name;
@@ -161,17 +156,17 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 13 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s session login_name role process fund program as_of_date prior_year_count fund_aggregation subclassification_option output_medium net_income_only_yn\n",
+"Usage: %s session login_name role process fund as_of_date prior_year_count fund_aggregation subclassification_option output_medium net_income_only_yn\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
 "Note: subclassification_option={display,omit,aggregate}\n" );
 
 		fprintf( stderr,
-"Note: fund_aggregation={single_fund,sequential,consolidated}\n" );
+"Note: fund_aggregation={sequential,consolidated}\n" );
 
 		fprintf( stderr,
 "Note: output_medium={table,PDF,stdout}\n" );
@@ -183,9 +178,8 @@ int main( int argc, char **argv )
 	login_name = argv[ 2 ];
 	role_name = argv[ 3 ];
 	process_name = argv[ 4 ];
-	program_name = argv[ 5 ];
 
-	fund_name = argv[ 6 ];
+	fund_name = argv[ 5 ];
 
 	if ( *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
@@ -196,17 +190,16 @@ int main( int argc, char **argv )
 		fund_name_list = (LIST *)0;
 	}
 
-	as_of_date = argv[ 7 ];
-	prior_year_count = atoi( argv[ 8 ] );
-	fund_aggregation_string = argv[ 9 ];
-	subclassification_option_string = argv[ 10 ];
-	output_medium_string = argv[ 11 ];
-
+	as_of_date = argv[ 6 ];
+	prior_year_count = atoi( argv[ 7 ] );
+	fund_aggregation_string = argv[ 8 ];
+	subclassification_option_string = argv[ 9 ];
+	output_medium_string = argv[ 10 ];
 
 	is_statement_of_activities =
 		( strcmp( argv[ 0 ], "statement_of_activities" ) == 0 );
 
-	net_income_only = (*argv[ 12 ] == 'y');
+	net_income_only = (*argv[ 11 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -219,15 +212,6 @@ int main( int argc, char **argv )
 			/* Returns heap memory. */
 			/* -------------------- */
 			transaction_date_maximum();
-	}
-
-	if ( net_income_only )
-	{
-		income_statement_net_income_only(
-			fund_name,
-			as_of_date );
-
-		exit( 0 );
 	}
 
 	filter_element_name_list = list_new();
@@ -274,6 +258,39 @@ int main( int argc, char **argv )
 			statement->output_medium_string,
 			statement );
 
+	if ( !list_length( statement->statement_fund_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: statement_fund_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		exit( 1 );
+	}
+
+	if ( net_income_only )
+	{
+		if (	statement->subclassification_option !=
+			subclassification_omit )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: must use subclassification_omit.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		printf( "%.2lf\n",
+			statement_net_income(
+				statement_fund_seek(
+					fund_name,
+					statement->statement_fund_list ) ) );
+
+		exit( 0 );
+	}
+
 	if ( statement->statement_output_medium != output_stdout )
 	{
 		document_quick_output_body(
@@ -281,16 +298,6 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->
 				appaserver_mount_point );
 	}
-
-	transaction_report_title_sub_title(
-		title,
-		sub_title,
-		process_name,
-		fund_name_list,
-		transaction_beginning_date_string(
-			as_of_date ),
-		as_of_date,
-		logo_filename );
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
@@ -381,103 +388,6 @@ int main( int argc, char **argv )
 
 	return 0;
 
-}
-
-void income_statement_net_income_only(
-			char *fund_name,
-			char *as_of_date )
-{
-	LIST *list;
-	ELEMENT *element;
-	LIST *filter_element_name_list;
-	double total_revenues = {0};
-	double total_expenses = {0};
-	double total_gains = {0};
-	double total_losses = {0};
-	double net_income = {0};
-
-	filter_element_name_list = list_new();
-
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_REVENUE );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_EXPENSE );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_GAIN );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_LOSS );
-
-	list =
-		element_list(
-			filter_element_name_list,
-			fund_name,
-			transaction_date_time_closing(
-				as_of_date,
-				1 /* preclose_time */,
-				transaction_closing_entry_exists(
-					as_of_date ) ),
-			1 /* fetch_subclassifiction_list */,
-			0 /* not fetch_account_list */ );
-
-	/* Compute total revenues */
-	/* ---------------------- */ 
-	if ( ( element =
-			element_list_seek(
-				list,
-				ELEMENT_REVENUE ) ) )
-	{
-		total_revenues =
-			element_value(
-				element->subclassification_list,
-				element->accumulate_debit );
-	}
-
-	/* Compute total expenses */
-	/* ---------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_EXPENSE,
-				list ) ) )
-	{
-		total_expenses =
-			element_value(
-				element->subclassification_list,
-				element->accumulate_debit );
-	}
-
-	/* Compute total gains */
-	/* ------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_GAIN,
-				list ) ) )
-	{
-		total_gains =
-			element_value(
-				element->subclassification_list,
-				element->accumulate_debit );
-	}
-
-	/* Compute total losses */
-	/* -------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_LOSS,
-				list ) ) )
-	{
-		total_losses =
-			element_value(
-					element->subclassification_list,
-					element->accumulate_debit );
-	}
-
-	net_income = transaction_net_income(
-				total_revenues,
-				total_expenses,
-				total_gains,
-				total_losses );
-
-	printf( "%.2lf\n", net_income );
 }
 
 void income_statement_subclassification_aggregate_html_table(

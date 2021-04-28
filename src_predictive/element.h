@@ -91,12 +91,12 @@ boolean element_is_period(
 boolean element_is_nominal(
 			char *element_name );
 
-double element_value(	LIST *subclassification_list,
+double element_value(	LIST *account_list,
 			boolean element_accumulate_debit );
 
 ELEMENT *element_list_seek(
-			LIST *element_list,
-			char *element_name );
+			char *element_name,
+			LIST *element_list );
 
 double element_subclassification_aggregate_html_output(
 			HTML_TABLE *html_table,
