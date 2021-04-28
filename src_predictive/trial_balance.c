@@ -234,7 +234,6 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 	char *process_name;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *fund_name;
 	LIST *fund_name_list;
 	char *subclassification_option_string;
@@ -243,6 +242,7 @@ int main( int argc, char **argv )
 	char *as_of_date;
 	int prior_year_count;
 	char *logo_filename;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	STATEMENT *statement;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -255,14 +255,14 @@ int main( int argc, char **argv )
 	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s session login_name role process fund as_of_date prior_year_count aggregation subclassification_option output_medium\n",
+"Usage: %s session login_name role process fund as_of_date prior_year_count fund_aggregation subclassification_option output_medium\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
 "Note: subclassification_option={display,omit}\n" );
 
 		fprintf( stderr,
-"Note: aggregation={single_fund,sequential,consolidated}\n" );
+"Note: fund_aggregation={single_fund,sequential,consolidated}\n" );
 
 		fprintf( stderr,
 "Note: output_medium={table,PDF,stdout}\n" );

@@ -28,6 +28,7 @@
 #include "subclassification.h"
 #include "element.h"
 #include "predictive.h"
+#include "statement.h"
 
 /* Constants */
 /* --------- */
@@ -133,49 +134,58 @@ double get_income_tax_expense(		LIST *account_list );
 
 int main( int argc, char **argv )
 {
+	boolean is_statement_of_activities;
+	boolean net_income_only = 0;
+	char *program_name;
 	char *application_name;
+	char *session;
+	char *login_name;
+	char *role_name;
 	char *process_name;
 	char *fund_name;
 	LIST *fund_name_list;
+	char *subclassification_option_string;
+	char *fund_aggregation_string;
+	char *output_medium_string;
 	char *as_of_date;
-	char *subclassification_option;
-	boolean net_income_only = 0;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *output_medium;
-	char title[ 256 ];
-	char sub_title[ 256 ];
-	boolean is_statement_of_activities;
+	int prior_year_count;
 	char *logo_filename;
-	char *program_name = {0};
-/*
-	double shares_outstanding;
-*/
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	STATEMENT *statement;
+	LIST *filter_element_name_list;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc < 6 )
+	if ( argc != 13 )
 	{
 		fprintf( stderr,
-"Usage: %s process fund as_of_date subclassification_option output_medium [net_income_only_yn] [program_name]\n",
+"Usage: %s session login_name role process fund program as_of_date prior_year_count fund_aggregation subclassification_option output_medium net_income_only_yn\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
-"Note: subclassification_option={omit,aggregate,display}\n" );
+"Note: subclassification_option={display,omit,aggregate}\n" );
+
+		fprintf( stderr,
+"Note: fund_aggregation={single_fund,sequential,consolidated}\n" );
+
+		fprintf( stderr,
+"Note: output_medium={table,PDF,stdout}\n" );
 
 		exit ( 1 );
 	}
 
-	is_statement_of_activities =
-		( strcmp( argv[ 0 ], "statement_of_activities" ) == 0 );
+	session = argv[ 1 ];
+	login_name = argv[ 2 ];
+	role_name = argv[ 3 ];
+	process_name = argv[ 4 ];
+	program_name = argv[ 5 ];
 
-	process_name = argv[ 1 ];
-
-	fund_name = argv[ 2 ];
+	fund_name = argv[ 6 ];
 
 	if ( *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
@@ -186,29 +196,17 @@ int main( int argc, char **argv )
 		fund_name_list = (LIST *)0;
 	}
 
-	as_of_date = argv[ 3 ];
-	subclassification_option = argv[ 4 ];
+	as_of_date = argv[ 7 ];
+	prior_year_count = atoi( argv[ 8 ] );
+	fund_aggregation_string = argv[ 9 ];
+	subclassification_option_string = argv[ 10 ];
+	output_medium_string = argv[ 11 ];
 
-	if ( strcmp( subclassification_option, "aggregate" ) != 0
-	&&   strcmp( subclassification_option, "display" ) != 0
-	&&   strcmp( subclassification_option, "omit" ) != 0 )
-	{
-		subclassification_option = "display";
-	}
 
-	output_medium = argv[ 5 ];
+	is_statement_of_activities =
+		( strcmp( argv[ 0 ], "statement_of_activities" ) == 0 );
 
-	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
-		output_medium = "table";
-
-	if ( argc >= 7 )
-	{
-		net_income_only = (*argv[ 6 ] == 'y');
-	}
-
-	if ( argc >= 8 ) program_name = argv[ 7 ];
-
-	if ( program_name ){};
+	net_income_only = (*argv[ 12 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -232,15 +230,57 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	document_quick_output_body(
-		application_name,
-		appaserver_parameter_file->
-			appaserver_mount_point );
+	filter_element_name_list = list_new();
+	list_set( filter_element_name_list, ELEMENT_REVENUE );
+	list_set( filter_element_name_list, ELEMENT_EXPENSE );
+	list_set( filter_element_name_list, ELEMENT_GAIN );
+	list_set( filter_element_name_list, ELEMENT_LOSS );
 
 	logo_filename =
 		application_constants_quick_fetch(
 			application_name,
 			"logo_filename" /* key */ );
+
+	statement =
+		statement_new(
+			application_name,
+			session,
+			login_name,
+			role_name,
+			process_name,
+			(*logo_filename != 0) /* exists_logo_filename */,
+			filter_element_name_list,
+			as_of_date,
+			prior_year_count,
+			fund_name_list,
+			subclassification_option_string,
+			fund_aggregation_string,
+			output_medium_string );
+
+	statement =
+		statement_steady_state(
+			statement->application_name,
+			statement->session,
+			statement->login_name,
+			statement->role_name,
+			statement->process_name,
+			statement->exists_logo_filename,
+			statement->filter_element_name_list,
+			statement->as_of_date,
+			statement->prior_year_count,
+			statement->fund_name_list,
+			statement->subclassification_option_string,
+			statement->fund_aggregation_string,
+			statement->output_medium_string,
+			statement );
+
+	if ( statement->statement_output_medium != output_stdout )
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+	}
 
 	transaction_report_title_sub_title(
 		title,
