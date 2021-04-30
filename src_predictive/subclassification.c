@@ -1932,7 +1932,7 @@ void subclassification_list_set_account_action_string(
 
 		if ( list_length( subclassification->account_list ) )
 		{
-			account_list_set_action_string(
+			account_list_action_string_set(
 				subclassification->account_list,
 				application_name,
 				session,
@@ -1964,12 +1964,12 @@ void subclassification_set_delta_prior(
 			prior_subclassification->subclassification_total,
 			subclassification->subclassification_total );
 
-	account_list_set_delta_prior(
+	account_list_delta_prior_set(
 		prior_subclassification->account_list,
 		subclassification->account_list );
 }
 
-void subclassification_list_set_delta_prior(
+void subclassification_list_delta_prior_set(
 			LIST *prior_subclassification_list,
 			LIST *subclassification_list )
 {
@@ -1980,14 +1980,14 @@ void subclassification_list_set_delta_prior(
 	do {
 		subclassification = list_get( subclassification_list );
 
-		subclassification_set_delta_prior(
+		subclassification_delta_prior_set(
 			prior_subclassification_list,
 			subclassification );
 
 	} while ( list_next( subclassification_list ) );
 }
 
-double subclassification_list_debit_total(
+double subclassification_debit_total(
 			LIST *subclassification_list )
 {
 	SUBCLASSIFICATION *subclassification;
@@ -2003,7 +2003,7 @@ double subclassification_list_debit_total(
 		if ( list_length( subclassification->account_list ) )
 		{
 			total +=
-				account_list_debit_total(
+				account_debit_total(
 					subclassification->
 						account_list );
 		}
@@ -2013,7 +2013,7 @@ double subclassification_list_debit_total(
 	return total;
 }
 
-double subclassification_list_credit_total(
+double subclassification_credit_total(
 			LIST *subclassification_list )
 {
 	SUBCLASSIFICATION *subclassification;
@@ -2029,7 +2029,7 @@ double subclassification_list_credit_total(
 		if ( list_length( subclassification->account_list ) )
 		{
 			total +=
-				account_list_credit_total(
+				account_credit_total(
 					subclassification->
 						account_list );
 		}
@@ -2039,7 +2039,7 @@ double subclassification_list_credit_total(
 	return total;
 }
 
-double subclassification_list_total(
+double subclassification_balance_total(
 			LIST *subclassification_list )
 {
 	SUBCLASSIFICATION *subclassification;
@@ -2053,7 +2053,7 @@ double subclassification_list_total(
 		subclassification = list_get( subclassification_list );
 
 		subclassification->subclassification_total =
-			account_list_total(
+			account_balance_total(
 				subclassification->account_list );
 
 		total += subclassification->subclassification_total;
@@ -2063,65 +2063,87 @@ double subclassification_list_total(
 	return total;
 }
 
-void subclassification_list_set_percent_of_assets(
+void subclassification_list_percent_of_asset_set(
 			LIST *subclassification_list,
-			double assets_total )
+			double asset_total )
 {
 	SUBCLASSIFICATION *subclassification;
-	double percent_of_assets;
+	double percent_of_asset;
 
-	if ( !assets_total ) return;
+	if ( !asset_total ) return;
 
 	if ( !list_rewind( subclassification_list ) ) return;
 
 	do {
 		subclassification = list_get( subclassification_list );
 
-		percent_of_assets =
+		percent_of_asset =
 			(subclassification->subclassification_total /
-			 assets_total) * 100.0;
+			 asset_total) * 100.0;
 
-		subclassification->percent_of_assets =
-			float_round_int( percent_of_assets );
+		subclassification->percent_of_asset =
+			float_round_int( percent_of_asset );
 
 		if ( list_length( subclassification->account_list ) )
 		{
-			account_list_set_percent_of_assets(
+			account_list_percent_of_asset_set(
 				subclassification->account_list,
-				assets_total );
+				asset_total );
 		}
 
 	} while ( list_next( subclassification_list ) );
 }
 
-void subclassification_list_set_percent_of_revenues(
+void subclassification_list_percent_of_revenue_set(
 			LIST *subclassification_list,
-			double revenues_total )
+			double revenue_total )
 {
 	SUBCLASSIFICATION *subclassification;
-	double percent_of_revenues;
+	double percent_of_revenue;
 
-	if ( !revenues_total ) return;
+	if ( !revenue_total ) return;
 
 	if ( !list_rewind( subclassification_list ) ) return;
 
 	do {
 		subclassification = list_get( subclassification_list );
 
-		percent_of_revenues =
+		percent_of_revenue =
 			(subclassification->subclassification_total /
-			 revenues_total) * 100.0;
+			 revenue_total) * 100.0;
 
-		subclassification->percent_of_revenues =
-			float_round_int( percent_of_revenues );
+		subclassification->percent_of_revenue =
+			float_round_int( percent_of_revenue );
 
 		if ( list_length( subclassification->account_list ) )
 		{
-			account_list_set_percent_of_revenues(
+			account_list_percent_of_revenue_set(
 				subclassification->account_list,
-				revenues_total );
+				revenue_total );
 		}
 
 	} while ( list_next( subclassification_list ) );
+}
+
+LIST *subclassification_account_list(
+			LIST *subclassification_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	LIST *account_list;
+
+	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
+
+	account_list = list_new();
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		list_append_list(
+			account_list,
+			subclassification->account_list );
+
+	} while ( list_next( subclassification_list ) );
+
+	return account_list;
 }
 

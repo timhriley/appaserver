@@ -456,172 +456,6 @@ char *account_non_cash_account_name(
 	return ACCOUNT_NOT_SET;
 }
 
-double account_list_html_output(
-			HTML_TABLE *html_table,
-			LIST *account_list,
-			char *element_name,
-			boolean element_accumulate_debit,
-			double percent_denominator )
-{
-	double total_element = 0.0;
-	ACCOUNT *account;
-	char buffer[ 128 ];
-	char format_buffer[ 128 ];
-	char element_title[ 128 ];
-	double latest_journal_balance;
-	double percent_of_total;
-
-	if ( !list_length( account_list ) ) return 0.0;
-
-	if ( !html_table )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty html_table.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(	element_title,
-			"<h2>%s</h2>",
-			format_initial_capital(
-				format_buffer,
-				element_name ) );
-
-	html_table_set_data(
-			html_table->data_list,
-			element_title );
-
-	html_table_output_data(
-		html_table->data_list,
-		html_table->
-			number_left_justified_columns,
-		html_table->
-			number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-	html_table->data_list = list_new();
-
-	list_rewind( account_list );
-	do {
-		account = list_get( account_list );
-
-		if ( !account->latest_journal
-		||   !account->latest_journal->balance )
-			continue;
-
-		if (	element_accumulate_debit ==
-			account->accumulate_debit )
-		{
-			latest_journal_balance =
-				account->latest_journal->balance;
-		}
-		else
-		{
-			latest_journal_balance =
-				0.0 - account->latest_journal->balance;
-		}
-
-		html_table_set_data(
-			html_table->data_list,
-			strdup( format_initial_capital(
-				buffer,
-				account->account_name ) ) );
-	
-		html_table_set_data(
-			html_table->data_list,
-			strdup( place_commas_in_money(
-				   latest_journal_balance ) ) );
-
-		if ( percent_denominator )
-		{
-			char buffer[ 128 ];
-
-			percent_of_total =
-				( latest_journal_balance /
-				  percent_denominator ) * 100.0;
-
-			sprintf( buffer,
-				 "%.1lf%c",
-				 percent_of_total,
-				 '%' );
-
-			html_table_set_data(
-				html_table->data_list,
-				strdup( "" ) );
-
-			html_table_set_data(
-				html_table->data_list,
-				strdup( buffer ) );
-		}
-
-		html_table_output_data(
-			html_table->data_list,
-			html_table->
-				number_left_justified_columns,
-			html_table->
-				number_right_justified_columns,
-			html_table->background_shaded,
-			html_table->justify_list );
-
-		list_free_string_list( html_table->data_list );
-		html_table->data_list = list_new();
-
-		total_element += latest_journal_balance;
-
-	} while( list_next( account_list ) );
-
-	if ( !timlib_double_virtually_same( total_element, 0.0 ) )
-	{
-		sprintf(element_title,
-			"<h2>Total %s</h2>",
-			element_name );
-
-		html_table_set_data(	html_table->data_list,
-					element_title );
-	
-		html_table_set_data( html_table->data_list, strdup( "" ) );
-
-		html_table_set_data(
-			html_table->data_list,
-			strdup( place_commas_in_money(
-				total_element ) ) );
-
-		if ( percent_denominator )
-		{
-			char buffer[ 128 ];
-
-			percent_of_total =
-				( total_element /
-				  percent_denominator ) * 100.0;
-
-			sprintf( buffer,
-				 "%.1lf%c",
-				 percent_of_total,
-				 '%' );
-
-			html_table_set_data(
-				html_table->data_list,
-				strdup( buffer ) );
-		}
-
-		html_table_output_data(
-			html_table->data_list,
-			html_table->
-				number_left_justified_columns,
-			html_table->
-				number_right_justified_columns,
-			html_table->background_shaded,
-			html_table->justify_list );
-
-		html_table->data_list = list_new();
-	}
-
-	return total_element;
-}
-
 LIST *account_omit_latex_row_list(
 			double *total_element,
 			LIST *account_list,
@@ -1029,7 +863,7 @@ void account_list_set_delta_prior(
 	} while ( list_next( account_list ) );
 }
 
-double account_list_debit_total(
+double account_debit_total(
 			LIST *account_list )
 {
 	ACCOUNT *account;
@@ -1062,7 +896,7 @@ double account_list_debit_total(
 	return total;
 }
 
-double account_list_credit_total(
+double account_credit_total(
 			LIST *account_list )
 {
 	ACCOUNT *account;
@@ -1095,7 +929,7 @@ double account_list_credit_total(
 	return total;
 }
 
-double account_list_total(
+double account_balance_total(
 			LIST *account_list )
 {
 	ACCOUNT *account;

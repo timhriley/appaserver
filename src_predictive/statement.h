@@ -78,6 +78,11 @@ typedef struct
 	double preclose_credit_total;
 	double postclose_debit_total;
 	double postclose_credit_total;
+	double revenue_total;
+	double expense_total;
+	double gain_total;
+	double loss_total;
+	double net_income;
 
 } STATEMENT_FUND;
 
@@ -251,7 +256,7 @@ boolean statement_fund_exists_postclose(
 LIST *statement_prior_year_heading_list(
 			LIST *prior_year_list );
 
-LIST *statement_stdout_prior_year_delta_list(
+LIST *statement_prior_year_delta_list(
 			char *account_name,
 			LIST *prior_year_list );
 
@@ -274,6 +279,15 @@ LIST *statement_PDF_prior_year_delta_list(
 STATEMENT_FUND *statement_fund_seek(
 			char *fund_name,
 			LIST *statement_fund_list );
+
+void statement_fund_list_net_income_set(
+			LIST *statement_fund_list );
+
+double statement_fund_net_income(
+			double revenue_total,
+			double expense_total,
+			double gain_total,
+			double loss_total );
 
 #endif
 

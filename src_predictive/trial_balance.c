@@ -45,35 +45,47 @@
 
 /* Prototypes */
 /* ---------- */
-void stdout_account_total(
+void pipe_account_total(
+			FILE *output_pipe,
 			char *element_name,
 			ACCOUNT *account,
-			LIST *prior_year_list );
+			LIST *prior_year_list,
+			char delimiter );
 
-void stdout_account_list(
+void pipe_account_list(
+			FILE *output_pipe,
 			LIST *prior_year_list,
 			char *element_name,
-			LIST *account_list );
+			LIST *account_list,
+			char delimiter );
 
-void stdout_account(	LIST *element_list,
+void pipe_account(	FILE *output_pipe,
+			LIST *element_list,
 			LIST *prior_year_list,
-			char *fund_name );
+			char *fund_name,
+			char delimiter );
 
-void stdout_subclassification_account(
+void pipe_subclassification_account(
+			FILE *output_pipe,
 			char *element_name,
 			char *subclassification_name,
 			ACCOUNT *account,
-			LIST *prior_year_list );
+			LIST *prior_year_list,
+			char delimiter );
 
-void stdout_subclassification_list(
+void pipe_subclassification_list(
+			FILE *output_pipe,
 			LIST *prior_year_list,
 			char *element_name,
-			LIST *subclassification_list );
+			LIST *subclassification_list,
+			char delimiter );
 
-void stdout_subclassification(
+void pipe_subclassification(
+			FILE *output_pipe,
 			LIST *element_list,
 			LIST *prior_year_list,
-			char *fund_name );
+			char *fund_name,
+			char delimiter );
 
 void trial_balance_stdout(
 			LIST *statement_fund_list );
@@ -414,28 +426,34 @@ void trial_balance_stdout(
 		if (	statement_fund->subclassification_option ==
 			subclassification_omit )
 		{
-			stdout_account(
+			pipe_account(
+				stdout,
 				statement_fund->preclose_element_list,
 				statement_fund->prior_year_list,
-				statement_fund->fund_name );
+				statement_fund->fund_name,
+				'^' );
 		}
 		else
 		if (	statement_fund->subclassification_option ==
 			subclassification_display )
 		{
-			stdout_subclassification(
+			pipe_subclassification(
+				stdout,
 				statement_fund->preclose_element_list,
 				statement_fund->prior_year_list,
-				statement_fund->fund_name );
+				statement_fund->fund_name,
+				'^' );
 		}
 		else
 		if (	statement_fund->subclassification_option ==
 			subclassification_omit )
 		{
-			stdout_subclassification(
+			pipe_subclassification(
+				stdout,
 				statement_fund->preclose_element_list,
 				statement_fund->prior_year_list,
-				statement_fund->fund_name );
+				statement_fund->fund_name,
+				'^' );
 		}
 
 	} while ( list_next( statement_fund_list ) );
@@ -529,24 +547,27 @@ void trial_balance_html(
 	} while ( list_next( statement_fund_list ) );
 }
 
-void stdout_subclassification(
+void pipe_subclassification(
+			FILE *output_pipe,
 			LIST *element_list,
 			LIST *prior_year_list,
-			char *fund_name )
+			char *fund_name,
+			char delimiter )
 {
 	ELEMENT *element;
 
 	if ( fund_name && *fund_name )
 	{
-		printf( "%s\n", fund_name );
+		fprintf( output_pipe, "%s\n", fund_name );
 	}
 
-	printf( "%s\n",
+	fprintf(output_pipe,
+		"%s\n",
 		list_display_delimited(
 			html_heading_list(
 				prior_year_list,
 				1 /* include_subclassification */ ),
-			'^' ) );
+			delimiter ) );
 
 	if ( !list_rewind( element_list ) )
 	{
@@ -559,10 +580,12 @@ void stdout_subclassification(
 		if ( !list_length( element->subclassification_list ) )
 			continue;
 
-		stdout_subclassification_list(
+		pipe_subclassification_list(
+			output_pipe,
 			prior_year_list,
 			element->element_name,
-			element->subclassification_list );
+			element->subclassification_list,
+			delimiter );
 
 	} while( list_next( element_list ) );
 }
@@ -674,10 +697,12 @@ void html_subclassification(
 	html_table_close();
 }
 
-void stdout_subclassification_list(
+void pipe_subclassification_list(
+			FILE *output_pipe,
 			LIST *prior_year_list,
 			char *element_name,
-			LIST *subclassification_list )
+			LIST *subclassification_list,
+			char delimiter )
 {
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *account;
@@ -700,11 +725,13 @@ void stdout_subclassification_list(
 
 			if ( !account->account_total ) continue;
 
-			stdout_subclassification_account(
+			pipe_subclassification_account(
+				output_pipe,
 				element_name,
 				subclassification->subclassification_name,
 				account,
-				prior_year_list );
+				prior_year_list,
+				delimiter );
 
 		} while( list_next( subclassification->account_list ) );
 
@@ -944,11 +971,13 @@ void html_subclassification_account(
 		html_table->justify_list );
 }
 
-void stdout_subclassification_account(
+void pipe_subclassification_account(
+			FILE *output_pipe,
 			char *element_name,
 			char *subclassification_name,
 			ACCOUNT *account,
-			LIST *prior_year_list )
+			LIST *prior_year_list,
+			char delimiter )
 {
 	double balance;
 	boolean accumulate_debit;
@@ -997,22 +1026,27 @@ void stdout_subclassification_account(
 		printf( "^" );
 	}
 
-	printf(	"^%d^%d",
+	fprintf(output_pipe,
+		"%c%d%c%d",
+		delimiter,
 		account->percent_of_assets,
+		delimiter,
 		account->percent_of_revenues );
 
 	if ( list_length( prior_year_list ) )
 	{
-		printf( "^%s\n",
+		fprintf(output_pipe,
+			"%c%s\n",
+			delimiter,
 			list_display_delimited(
-				statement_stdout_prior_year_delta_list(
+				statement_prior_year_delta_list(
 					account->account_name,
 					prior_year_list ),
-				'^' ) );
+				delimiter ) );
 	}
 	else
 	{
-		printf( "\n" );
+		fprintf( output_pipe, "\n" );
 	}
 }
 
@@ -1080,23 +1114,26 @@ char *html_table_account_title(
 	return account_title;
 }
 
-void stdout_account(	LIST *element_list,
+void pipe_account(	FILE *output_pipe,
+			LIST *element_list,
 			LIST *prior_year_list,
-			char *fund_name )
+			char *fund_name,
+			char delimiter )
 {
 	ELEMENT *element;
 
 	if ( fund_name && *fund_name )
 	{
-		printf( "%s\n", fund_name );
+		fprintf( output_pipe, "%s\n", fund_name );
 	}
 
-	printf( "%s\n",
+	fprintf(output_pipe,
+		"%s\n",
 		list_display_delimited(
 			html_heading_list(
 				prior_year_list,
 				0 /* not include_subclassification */ ),
-			'^' ) );
+			delimiter ) );
 
 	if ( !list_rewind( element_list ) ) return;
 
@@ -1106,10 +1143,12 @@ void stdout_account(	LIST *element_list,
 		if ( !list_length( element->account_list ) )
 			continue;
 
-		stdout_account_list(
+		pipe_account_list(
+			output_pipe,
 			prior_year_list,
 			element->element_name,
-			element->account_list );
+			element->account_list,
+			delimiter );
 
 	} while( list_next( element_list ) );
 }
@@ -1220,10 +1259,12 @@ void html_account(
 	html_table_close();
 }
 
-void stdout_account_list(
+void pipe_account_list(
+			FILE *output_pipe,
 			LIST *prior_year_list,
 			char *element_name,
-			LIST *account_list )
+			LIST *account_list,
+			char delimiter )
 {
 	ACCOUNT *account;
 
@@ -1236,10 +1277,12 @@ void stdout_account_list(
 
 		if ( !account->account_total ) continue;
 
-		stdout_account_total(
+		pipe_account_total(
+			output_pipe,
 			element_name,
 			account,
-			prior_year_list );
+			prior_year_list,
+			delimiter );
 
 	} while( list_next( account_list ) );
 }
@@ -1281,10 +1324,12 @@ int html_account_list(
 	return count;
 }
 
-void stdout_account_total(
+void pipe_account_total(
+			FILE *output_pipe,
 			char *element_name,
 			ACCOUNT *account,
-			LIST *prior_year_list )
+			LIST *prior_year_list,
+			char delimiter )
 {
 	double balance;
 	boolean accumulate_debit;
@@ -1301,49 +1346,60 @@ void stdout_account_total(
 		accumulate_debit = 1 - accumulate_debit;
 	}
 
-	printf( "%s^%s^%d",
+	fprintf(output_pipe,
+		"%s%c%s%c%d",
 		element_name,
+		delimiter,
 		account->account_name,
+		delimiter,
 		account->latest_journal->transaction_count );
 
 	if ( accumulate_debit )
 	{
-		printf( "^%s",
+		fprintf(output_pipe,
+			"%c%s",
+			delimiter,
 			timlib_place_commas_in_money(
 				balance ) );
 	}
 	else
 	{
-		printf( "^" );
+		fprintf( output_pipe, "%c", delimiter );
 	}
 
 	if ( !accumulate_debit )
 	{
-		printf( "^%s",
+		fprintf(output_pipe,
+			"%c%s",
+			delimiter,
 			timlib_place_commas_in_money(
 				balance ) );
 	}
 	else
 	{
-		printf( "^" );
+		fprintf( output_pipe, "%c", delimiter );
 	}
 
-	printf(	"^%d^%d",
+	fprintf(output_pipe,
+		"%c%d%c%d",
+		delimiter,
 		account->percent_of_assets,
+		delimiter,
 		account->percent_of_revenues );
 
 	if ( list_length( prior_year_list ) )
 	{
-		printf( "%s\n",
+		fprintf(output_pipe,
+			"%s\n",
 			list_display_delimited(
-				statement_stdout_prior_year_delta_list(
+				statement_prior_year_delta_list(
 					account->account_name,
 					prior_year_list ),
-				'^' ) );
+				delimiter ) );
 	}
 	else
 	{
-		printf( "\n" );
+		fprintf( output_pipe, "\n" );
 	}
 }
 
@@ -1885,8 +1941,8 @@ LIST *html_heading_list(
 	list_set( heading_list, "Count" );
 	list_set( heading_list, "Debit" );
 	list_set( heading_list, "Credit" );
-	list_set( heading_list, "Percent of Assets" );
-	list_set( heading_list, "Percent of Revenues" );
+	list_set( heading_list, "Percent of Asset" );
+	list_set( heading_list, "Percent of Revenue" );
 
 	if ( list_length( prior_year_list ) )
 	{

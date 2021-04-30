@@ -262,7 +262,7 @@ LIST *element_system_list(
 		{
 			element->account_list =
 				element_account_list(
-					&element->element_total,
+					&element->element_balance_total,
 					element->element_name,
 					fund_name,
 					transaction_date_time_closing );
@@ -272,7 +272,7 @@ LIST *element_system_list(
 		{
 			element->subclassification_list =
 				element_subclassification_list(
-					&element->element_total,
+					&element->element_balance_total,
 					element->element_name,
 					fund_name,
 					transaction_date_time_closing );
@@ -1067,7 +1067,7 @@ boolean element_account_accumulate_debit(
 	return element->accumulate_debit;
 }
 
-void element_set_account_action_string(
+void element_account_action_string_set(
 			ELEMENT *element,
 			char *application_name,
 			char *session,
@@ -1078,7 +1078,7 @@ void element_set_account_action_string(
 {
 	if ( list_length( element->subclassification_list ) )
 	{
-		subclassification_list_set_account_action_string(
+		subclassification_list_account_action_string_set(
 			element->subclassification_list,
 			application_name,
 			session,
@@ -1090,7 +1090,7 @@ void element_set_account_action_string(
 	else
 	if ( list_length( element->account_list ) )
 	{
-		account_list_set_action_string(
+		account_list_action_string_set(
 			element->account_list,
 			application_name,
 			session,
@@ -1101,7 +1101,7 @@ void element_set_account_action_string(
 	}
 }
 
-void element_list_set_account_action_string(
+void element_list_account_action_string_set(
 			LIST *element_list,
 			char *application_name,
 			char *session,
@@ -1117,7 +1117,7 @@ void element_list_set_account_action_string(
 	do {
 		element = list_get( element_list );
 
-		element_set_account_action_string(
+		element_account_action_string_set(
 			element,
 			application_name,
 			session,
@@ -1145,7 +1145,7 @@ int element_delta_prior(
 	return float_round_int( delta );
 }
 
-void element_prior_year_element_list_set_delta_prior(
+void element_prior_year_element_list_delta_prior_set(
 			LIST *prior_year_element_list,
 			ELEMENT *preclose_element )
 {
@@ -1161,27 +1161,27 @@ void element_prior_year_element_list_set_delta_prior(
 
 	prior_year_element->element_delta_prior =
 		element_delta_prior(
-			prior_year_element->element_total
+			prior_year_element->element_balance_total
 				/* prior_total */,
-			preclose_element->element_total
+			preclose_element->element_balance_total
 				/* total */ );
 
 	if ( list_length( prior_year_element->subclassification_list ) )
 	{
-		subclassification_list_set_delta_prior(
+		subclassification_list_delta_prior_set(
 			prior_year_element->subclassification_list,
 			preclose_element->subclassification_list );
 	}
 	else
 	if ( list_length( prior_year_element->account_list ) )
 	{
-		account_list_set_delta_prior(
+		account_list_delta_prior_set(
 			prior_year_element->account_list,
 			preclose_element->account_list );
 	}
 }
 
-void element_list_set_delta_prior(
+void element_list_delta_prior_set(
 			LIST *prior_year_element_list,
 			LIST *preclose_element_list )
 {
@@ -1192,7 +1192,7 @@ void element_list_set_delta_prior(
 	do {
 		preclose_element = list_get( preclose_element_list );
 
-		element_prior_year_element_list_set_delta_prior(
+		element_prior_year_element_list_delta_prior_set(
 			prior_year_element_list,
 			preclose_element );
 
@@ -1215,14 +1215,14 @@ double element_list_debit_total(
 		if ( list_length( element->subclassification_list ) )
 		{
 			total +=
-				subclassification_list_debit_total(
+				subclassification_debit_total(
 					element->subclassification_list );
 		}
 		else
 		if ( list_length( element->account_list ) )
 		{
 			total +=
-				account_list_debit_total(
+				account_debit_total(
 					element->account_list );
 		}
 
@@ -1247,14 +1247,14 @@ double element_list_credit_total(
 		if ( list_length( element->subclassification_list ) )
 		{
 			total +=
-				subclassification_list_credit_total(
+				subclassification_credit_total(
 					element->subclassification_list );
 		}
 		else
 		if ( list_length( element->account_list ) )
 		{
 			total +=
-				account_list_credit_total(
+				account_credit_total(
 					element->account_list );
 		}
 
@@ -1263,7 +1263,7 @@ double element_list_credit_total(
 	return total;
 }
 
-void element_list_set_total(
+void element_list_balance_total(
 			LIST *element_list )
 {
 	ELEMENT *element;
@@ -1273,28 +1273,29 @@ void element_list_set_total(
 	do {
 		element = list_get( element_list );
 
-		element->element_total =
-			element_total(
+		element->element_balance_total =
+			element_balance_total(
 				element->subclassification_list,
 				element->account_list );
 
 	} while ( list_next( element_list ) );
 }
 
-double element_total(	LIST *subclassification_list,
+double element_balance_total(
+			LIST *subclassification_list,
 			LIST *account_list )
 {
 	if ( list_length( subclassification_list ) )
 	{
 		return
-			subclassification_list_total(
+			subclassification_balance_total(
 				subclassification_list );
 	}
 	else
 	if ( list_length( account_list ) )
 	{
 		return
-			account_list_total(
+			account_balance_total(
 				account_list );
 	}
 	else
@@ -1303,119 +1304,119 @@ double element_total(	LIST *subclassification_list,
 	}
 }
 
-void element_list_set_percent_of_assets(
+void element_list_percent_of_asset_set(
 			LIST *element_list )
 {
 	ELEMENT *denominator_element;
-	double assets_total = {0};
+	double asset_total = {0};
 
 	if ( ( denominator_element =
 			element_seek(
 				ELEMENT_ASSET,
 				element_list ) ) )
 	{
-		assets_total = denominator_element->element_total;
+		asset_total = denominator_element->element_balance_total;
 	}
 
-	if ( !assets_total ) return;
+	if ( !asset_total ) return;
 
-	element_denominator_set_percent_of_assets(
+	element_denominator_percent_of_asset_set(
 		element_list,
-		assets_total );
+		asset_total );
 }
 
-void element_list_set_percent_of_revenues(
+void element_list_percent_of_revenue_set(
 			LIST *element_list )
 {
 	ELEMENT *denominator_element;
-	double revenues_total = {0};
+	double revenue_total = {0};
 
 	if ( ( denominator_element =
 			element_seek(
 				ELEMENT_REVENUE,
 				element_list ) ) )
 	{
-		revenues_total = denominator_element->element_total;
+		revenue_total = denominator_element->element_balance_total;
 	}
 
-	if ( !revenues_total ) return;
+	if ( !revenue_total ) return;
 
-	element_denominator_set_percent_of_revenues(
+	element_denominator_percent_of_revenue_set(
 		element_list,
-		revenues_total );
+		revenue_total );
 }
 
-void element_denominator_set_percent_of_assets(
+void element_denominator_percent_of_asset_set(
 			LIST *element_list,
-			double assets_total )
+			double asset_total )
 {
 	ELEMENT *element;
-	double percent_of_assets;
+	double percent_of_asset;
 
-	if ( !assets_total ) return;
+	if ( !asset_total ) return;
 	if ( !list_rewind( element_list ) ) return;
 
 	do {
 		element = list_get( element_list );
 
-		percent_of_assets =
-			(element->element_total /
-			 assets_total) * 100.0;
+		percent_of_asset =
+			(element->element_balance_total /
+			 asset_total) * 100.0;
 
-		element->percent_of_assets =
+		element->percent_of_asset =
 			float_round_int(
-				percent_of_assets );
+				percent_of_asset );
 
 		if ( list_length( element->subclassification_list ) )
 		{
-			subclassification_list_set_percent_of_assets(
+			subclassification_list_percent_of_asset_set(
 				element->subclassification_list,
-				assets_total );
+				asset_total );
 		}
 		else
 		if ( list_length( element->account_list ) )
 		{
-			account_list_set_percent_of_assets(
+			account_list_percent_of_asset_set(
 				element->account_list,
-				assets_total );
+				asset_total );
 		}
 
 	} while ( list_next( element_list ) );
 }
 
-void element_denominator_set_percent_of_revenues(
+void element_denominator_percent_of_revenue(
 			LIST *element_list,
-			double revenues_total )
+			double revenue_total )
 {
 	ELEMENT *element;
-	double percent_of_revenues;
+	double percent_of_revenue;
 
-	if ( !revenues_total ) return;
+	if ( !revenue_total ) return;
 	if ( !list_rewind( element_list ) ) return;
 
 	do {
 		element = list_get( element_list );
 
-		percent_of_revenues =
-			(element->element_total /
-			 revenues_total) * 100.0;
+		percent_of_revenue =
+			(element->element_balance_total /
+			 revenue_total) * 100.0;
 
-		element->percent_of_revenues =
+		element->percent_of_revenue =
 			float_round_int(
-				percent_of_revenues );
+				percent_of_revenue );
 
 		if ( list_length( element->subclassification_list ) )
 		{
-			subclassification_list_set_percent_of_revenues(
+			subclassification_list_percent_of_revenue_set(
 				element->subclassification_list,
-				revenues_total );
+				revenue_total );
 		}
 		else
 		if ( list_length( element->account_list ) )
 		{
-			account_list_set_percent_of_revenues(
+			account_list_percent_of_revenue_set(
 				element->account_list,
-				revenues_total );
+				revenue_total );
 		}
 
 	} while ( list_next( element_list ) );

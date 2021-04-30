@@ -161,7 +161,7 @@ char *account_select(	void );
 char *account_non_cash_account_name(
 			LIST *journal_list );
 
-double account_list_html_output(
+void account_list_html_output(
 			HTML_TABLE *html_table,
 			LIST *account_list,
 			char *element_name,
@@ -206,7 +206,7 @@ char *account_action_string(
 			char *as_of_date,
 			char *account_name );
 
-void account_list_set_action_string(
+void account_list_action_string_set(
 			LIST *account_list,
 			char *application_name,
 			char *session,
@@ -218,25 +218,25 @@ void account_list_set_action_string(
 double account_list_total(
 			LIST *account_list );
 
-void account_list_set_percent_of_assets(
+void account_list_percent_of_asset_set(
 			LIST *account_list,
-			double assets_total );
+			double asset_total );
 
-void account_list_set_percent_of_revenues(
+void account_list_percent_of_revenue_set(
 			LIST *account_list,
-			double revenues_total );
+			double revenue_total );
 
-void account_list_set_delta_prior(
+void account_list_delta_prior_set(
 			LIST *prior_account_list,
 			LIST *account_list );
 
-double account_list_total(
+double account_balance_total(
 			LIST *account_list );
 
-double account_list_debit_total(
+double account_debit_total(
 			LIST *account_list );
 
-double account_list_credit_total(
+double account_credit_total(
 			LIST *account_list );
 
 char *account_element_name(

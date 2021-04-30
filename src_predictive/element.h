@@ -35,10 +35,10 @@ typedef struct
 	LIST *subclassification_list;
 	LIST *account_list;
 
-	double element_total;
+	double element_balance_total;
 	int element_delta_prior;
-	int percent_of_assets;
-	int percent_of_revenues;
+	int percent_of_asset;
+	int percent_of_revenue;
 } ELEMENT;
 
 /* Operations */
@@ -147,7 +147,7 @@ boolean element_account_accumulate_debit(
 LIST *element_fetch_list(
 			char *sys_string );
 
-void element_set_account_action_string(
+void element_account_action_string_set(
 			ELEMENT *element,
 			char *application_name,
 			char *session,
@@ -156,7 +156,7 @@ void element_set_account_action_string(
 			char *beginning_date,
 			char *as_of_date );
 
-void element_list_set_account_action_string(
+void element_list_account_action_string_set(
 			LIST *element_list,
 			char *application_name,
 			char *session,
@@ -165,28 +165,25 @@ void element_list_set_account_action_string(
 			char *beginning_date,
 			char *as_of_date );
 
-void element_list_set_total(
+void element_list_percent_of_asset_set(
 			LIST *element_list );
 
-void element_list_set_percent_of_assets(
+void element_list_percent_of_revenue_set(
 			LIST *element_list );
 
-void element_list_set_percent_of_revenues(
-			LIST *element_list );
-
-void element_denominator_set_percent_of_assets(
+void element_denominator_percent_of_asset_set(
 			LIST *element_list,
-			double assets_total );
+			double asset_total );
 
-void element_denominator_set_percent_of_revenues(
+void element_denominator_percent_of_revenue_set(
 			LIST *element_list,
-			double revenues_total );
+			double revenue_total );
 
-void element_list_set_delta_prior(
+void element_list_delta_prior_set(
 			LIST *prior_year_element_list,
 			LIST *preclose_element_list );
 
-void element_prior_year_element_list_set_delta_prior(
+void element_prior_year_element_list_delta_prior_set(
 			LIST *prior_year_element_list,
 			ELEMENT *preclose_element );
 
@@ -194,13 +191,17 @@ int element_delta_prior(
 			double element_prior_total,
 			double element_total );
 
-double element_list_debit_total(
+void element_list_balance_total(
 			LIST *element_list );
 
-double element_list_credit_total(
+double element_debit_total(
 			LIST *element_list );
 
-double element_total(	LIST *subclassification_list,
+double element_credit_total(
+			LIST *element_list );
+
+double element_balance_total(
+			LIST *subclassification_list,
 			LIST *account_list );
 
 #endif

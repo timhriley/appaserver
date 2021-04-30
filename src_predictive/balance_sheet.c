@@ -1409,7 +1409,7 @@ void balance_sheet_account_omit_html(
 		/* ------------------- */
 		account_list_html_output(
 			html_table,
-			element->account_list,
+			element->account_list
 			element->element_name,
 			element->accumulate_debit,
 			element->element_total

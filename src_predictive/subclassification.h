@@ -43,8 +43,8 @@ typedef struct
 	int display_order;
 	LIST *account_list;
 	double subclassification_total;
-	int percent_of_assets;
-	int percent_of_revenues;
+	int percent_of_asset;
+	int percent_of_revenue;
 	double delta_prior;
 } SUBCLASSIFICATION;
 
@@ -126,10 +126,7 @@ boolean subclassification_net_assets_exists(
 			LIST *subclassification_list );
 
 LIST *subclassification_account_list(
-			double *subclassification_total,
-			char *subclassification_name,
-			char *fund_name,
-			char *as_of_date );
+			LIST *subclassification_list );
 
 LIST *subclassification_total_account_list(
 			double *subclassification_total,
@@ -156,7 +153,7 @@ boolean subclassification_current_liability(
 boolean subclassification_receivable(
 			char *subclassification_name );
 
-void subclassification_list_set_account_action_string(
+void subclassification_list_account_action_string_set(
 			LIST *subclassification_list,
 			char *application_name,
 			char *session,
@@ -165,29 +162,29 @@ void subclassification_list_set_account_action_string(
 			char *beginning_date,
 			char *as_of_date );
 
-double subclassification_list_total(
+double subclassification_balance_total(
 			LIST *subclassification_list );
 
-void subclassification_list_set_percent_of_assets(
+void subclassification_list_percent_of_asset_set(
 			LIST *subclassification_list,
-			double assets_total );
+			double asset_total );
 
-void subclassification_list_set_percent_of_revenues(
+void subclassification_list_percent_of_revenue_set(
 			LIST *subclassification_list,
-			double revenues_total );
+			double revenue_total );
 
-void subclassification_list_set_delta_prior(
+void subclassification_list_delta_prior_set(
 			LIST *prior_subclassification_list,
 			LIST *subclassification_list );
 
-void subclassification_set_delta_prior(
+void subclassification_delta_prior_set(
 			LIST *prior_subclassification_list,
 			SUBCLASSIFICATION *subclassification );
 
-double subclassification_list_debit_total(
+double subclassification_debit_total(
 			LIST *subclassification_list );
 
-double subclassification_list_credit_total(
+double subclassification_credit_total(
 			LIST *subclassification_list );
 
 #endif

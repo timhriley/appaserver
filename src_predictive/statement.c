@@ -22,6 +22,7 @@
 #include "sql.h"
 #include "list.h"
 #include "boolean.h"
+#include "subclassification.h"
 #include "statement.h"
 
 STATEMENT *statement_new(
@@ -208,7 +209,7 @@ LIST *statement_fund_element_list(
 			fetch_subclassification_list,
 			fetch_account_list );
 
-	element_list_set_account_action_string(
+	element_list_account_action_string_set(
 		list,
 		application_name,
 		session,
@@ -698,23 +699,23 @@ STATEMENT_FUND *statement_fund_steady_state(
 {
 	if ( list_length( postclose_element_list ) )
 	{
-		element_list_set_total(
+		element_list_balance_total(
 			postclose_element_list );
 
-		element_list_set_percent_of_assets(
+		element_list_percent_of_asset_set(
 			postclose_element_list );
 
-		element_list_set_percent_of_revenues(
+		element_list_percent_of_revenue_set(
 			postclose_element_list );
 	}
 
-	element_list_set_total(
+	element_list_balance_total(
 		preclose_element_list );
 
-	element_list_set_percent_of_assets(
+	element_list_percent_of_asset_set(
 		preclose_element_list );
 
-	element_list_set_percent_of_revenues(
+	element_list_percent_of_revenue_set(
 		preclose_element_list );
 
 	if ( prior_year_count > 0 )
@@ -727,21 +728,21 @@ STATEMENT_FUND *statement_fund_steady_state(
 	}
 
 	statement_fund->preclose_debit_total =
-		element_list_debit_total(
+		element_debit_total(
 			preclose_element_list );
 
 	statement_fund->preclose_credit_total =
-		element_list_credit_total(
+		element_credit_total(
 			preclose_element_list );
 
 	if ( list_length( postclose_element_list ) )
 	{
 		statement_fund->postclose_debit_total =
-			element_list_debit_total(
+			element_debit_total(
 				postclose_element_list );
 
 		statement_fund->postclose_credit_total =
-			element_list_credit_total(
+			element_credit_total(
 				postclose_element_list );
 	}
 
@@ -832,11 +833,11 @@ LIST *statement_fund_steady_state_prior_year_list(
 				statement_prior_year->
 				     subclassification_option );
 
-		element_list_set_total(
+		element_list_balance_total(
 			statement_prior_year->
 				prior_year_element_list );
 
-		element_list_set_delta_prior(
+		element_list_delta_prior_set(
 			statement_prior_year->
 				prior_year_element_list,
 			preclose_element_list );
@@ -900,7 +901,7 @@ LIST *statement_prior_year_heading_list(
 	return heading_list;
 }
 
-LIST *statement_stdout_prior_year_delta_list(
+LIST *statement_prior_year_delta_list(
 			char *account_name,
 			LIST *prior_year_list )
 {
@@ -1060,74 +1061,6 @@ LIST *statement_PDF_prior_year_delta_list(
 	return delta_list;
 }
 
-double statement_net_income(
-			STATEMENT_FUND *statement_fund )
-{
-	double total_revenues = {0};
-	double total_expenses = {0};
-	double total_gains = {0};
-	double total_losses = {0};
-	ELEMENT *element;
-
-	/* Compute total revenues */
-	/* ---------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_REVENUE,
-				statement_fund->preclose_element_list ) ) )
-	{
-		total_revenues =
-			element_value(
-				element->account_list,
-				element->accumulate_debit );
-	}
-
-	/* Compute total expenses */
-	/* ---------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_EXPENSE,
-				statement_fund->preclose_element_list ) ) )
-	{
-		total_expenses =
-			element_value(
-				element->account_list,
-				element->accumulate_debit );
-	}
-
-	/* Compute total gains */
-	/* ------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_GAIN,
-				statement_fund->preclose_element_list ) ) )
-	{
-		total_gains =
-			element_value(
-				element->account_list,
-				element->accumulate_debit );
-	}
-
-	/* Compute total losses */
-	/* -------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_LOSS,
-				statement_fund->preclose_element_list ) ) )
-	{
-		total_losses =
-			element_value(
-				element->account_list,
-				element->accumulate_debit );
-	}
-
-	return transaction_net_income(
-			total_revenues,
-			total_expenses,
-			total_gains,
-			total_losses );
-}
-
 STATEMENT_FUND *statement_fund_seek(
 			char *fund_name,
 			LIST *statement_fund_list )
@@ -1139,7 +1072,14 @@ STATEMENT_FUND *statement_fund_seek(
 	do {
 		statement_fund = list_get( statement_fund_list );
 
-		if ( !fund_name || !*fund_name ) return statement_fund;
+		/* If no fund then return the first one. */
+		/* ------------------------------------- */
+		if ( !fund_name
+		||   !*fund_name
+		||   strcmp( fund_name, "fund" ) == 0 )
+		{
+			return statement_fund;
+		}
 
 		if ( string_strcmp(	statement_fund->fund_name,
 					fund_name ) == 0 )
@@ -1150,5 +1090,74 @@ STATEMENT_FUND *statement_fund_seek(
 	} while ( list_next( statement_fund_list ) );
 
 	return (STATEMENT_FUND *)0;
+}
+
+double statement_fund_net_income(
+			double revenue_total,
+			double expense_total,
+			double gain_total,
+			double loss_total )
+{
+	return (	revenue_total -
+			expense_total +
+			gain_total -
+			loss_total );
+}
+
+void statement_fund_list_net_income_set(
+			LIST *statement_fund_list )
+{
+	STATEMENT_FUND *statement_fund;
+	ELEMENT *element;
+
+	if ( !list_rewind( statement_fund_list ) ) return;
+
+	do {
+		statement_fund = list_get( statement_fund_list );
+
+		if ( ( element =
+			element_seek(
+				ELEMENT_REVENUE,
+				statement_fund->preclose_element_list ) ) )
+		{
+			statement_fund->revenue_total =
+				element->element_balance_total;
+		}
+
+		if ( ( element =
+			element_seek(
+				ELEMENT_EXPENSE,
+				statement_fund->preclose_element_list ) ) )
+		{
+			statement_fund->expense_total =
+				element->element_balance_total;
+		}
+
+		if ( ( element =
+			element_seek(
+				ELEMENT_GAIN,
+				statement_fund->preclose_element_list ) ) )
+		{
+			statement_fund->gain_total =
+				element->element_balance_total;
+		}
+
+		if ( ( element =
+			element_seek(
+				ELEMENT_LOSS,
+				statement_fund->preclose_element_list ) ) )
+		{
+			statement_fund->loss_total =
+				element->element_balance_total;
+		}
+
+		statement_fund->net_income =
+			statement_fund_net_income(
+				statement_fund->revenue_total,
+				statement_fund->expense_total,
+				statement_fund->gain_total,
+				statement_fund->loss_total );
+
+	} while ( list_next( statement_fund_list ) );
 }
 
