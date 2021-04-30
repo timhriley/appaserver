@@ -216,7 +216,10 @@ char *remove_quotes(	char *d, char *s );
 char *timlib_place_commas_in_dollars(
 				double d );
 
-char *place_commas_in_double(	double d );
+/* Returns static memory */
+/* --------------------- */
+char *place_commas_in_double(
+			double d );
 
 char *place_commas_in_number_string(
 				char *s );

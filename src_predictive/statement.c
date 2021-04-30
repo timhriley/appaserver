@@ -22,6 +22,7 @@
 #include "sql.h"
 #include "list.h"
 #include "boolean.h"
+#include "account.h"
 #include "subclassification.h"
 #include "statement.h"
 
@@ -1158,6 +1159,24 @@ void statement_fund_list_net_income_set(
 				statement_fund->gain_total,
 				statement_fund->loss_total );
 
+		statement_fund->net_income_percent =
+			statement_fund_net_income_percent(
+				statement_fund->net_income,
+				statement_fund->revenue_total );
+
 	} while ( list_next( statement_fund_list ) );
+}
+
+int statement_fund_net_income_percent(
+			double net_income,
+			double revenue_total )
+{
+	double percent_of_revenue;
+
+	percent_of_revenue =
+		( net_income /
+  		revenue_total ) * 100.0;
+
+	return float_round_int( percent_of_revenue );
 }
 

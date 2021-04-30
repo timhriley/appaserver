@@ -11,7 +11,6 @@
 #include "String.h"
 #include "list.h"
 #include "piece.h"
-#include "html_table.h"
 #include "sql.h"
 #include "boolean.h"
 #include "entity.h"
@@ -792,7 +791,7 @@ char *account_action_string(
 	return strdup( action_string );
 }
 
-void account_list_set_action_string(
+void account_list_action_string_set(
 			LIST *account_list,
 			char *application_name,
 			char *session,
@@ -821,7 +820,7 @@ void account_list_set_action_string(
 	} while ( list_next( account_list ) );
 }
 
-void account_set_delta_prior(
+void account_delta_prior_set(
 			LIST *prior_account_list,
 			ACCOUNT *account )
 {
@@ -845,7 +844,7 @@ void account_set_delta_prior(
 			account->latest_journal->balance );
 }
 
-void account_list_set_delta_prior(
+void account_list_delta_prior_set(
 			LIST *prior_account_list,
 			LIST *account_list )
 {
@@ -856,7 +855,7 @@ void account_list_set_delta_prior(
 	do {
 		account = list_get( account_list );
 
-		account_set_delta_prior(
+		account_delta_prior_set(
 			prior_account_list,
 			account );
 
@@ -955,48 +954,48 @@ double account_balance_total(
 	return total;
 }
 
-void account_list_set_percent_of_assets(
+void account_list_percent_of_asset_set(
 			LIST *account_list,
-			double assets_total )
+			double asset_total )
 {
 	ACCOUNT *account;
-	double percent_of_assets;
+	double percent_of_asset;
 
-	if ( !assets_total ) return;
+	if ( !asset_total ) return;
 	if ( !list_rewind( account_list ) ) return;
 
 	do {
 		account = list_get( account_list );
 
-		percent_of_assets =
+		percent_of_asset =
 			(account->account_total /
-			 assets_total) * 100.0;
+			 asset_total) * 100.0;
 
-		account->percent_of_assets =
-			float_round_int( percent_of_assets );
+		account->percent_of_asset =
+			float_round_int( percent_of_asset );
 
 	} while ( list_next( account_list ) );
 }
 
-void account_list_set_percent_of_revenues(
+void account_list_percent_of_revenue_set(
 			LIST *account_list,
-			double revenues_total )
+			double revenue_total )
 {
 	ACCOUNT *account;
-	double percent_of_revenues;
+	double percent_of_revenue;
 
-	if ( !revenues_total ) return;
+	if ( !revenue_total ) return;
 	if ( !list_rewind( account_list ) ) return;
 
 	do {
 		account = list_get( account_list );
 
-		percent_of_revenues =
+		percent_of_revenue =
 			(account->account_total /
-			 revenues_total) * 100.0;
+			 revenue_total) * 100.0;
 
-		account->percent_of_revenues =
-			float_round_int( percent_of_revenues );
+		account->percent_of_revenue =
+			float_round_int( percent_of_revenue );
 
 	} while ( list_next( account_list ) );
 }

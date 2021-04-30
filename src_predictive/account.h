@@ -60,8 +60,8 @@ typedef struct
 	LIST *transaction_after_balance_zero_journal_list;
 	char *account_action_string;
 	double account_total;
-	int percent_of_assets;
-	int percent_of_revenues;
+	int percent_of_asset;
+	int percent_of_revenue;
 	int delta_prior;
 } ACCOUNT;
 

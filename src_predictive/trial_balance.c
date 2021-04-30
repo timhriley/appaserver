@@ -807,8 +807,8 @@ void html_subclassification_account(
 	char transaction_count_string[ 16 ];
 	char debit_string[ 4096 ];
 	char credit_string[ 4096 ];
-	char percent_of_assets_string[ 16 ];
-	char percent_of_revenues_string[ 16 ];
+	char percent_of_asset_string[ 16 ];
+	char percent_of_revenue_string[ 16 ];
 	char transaction_date_string[ 16 ];
 	double balance;
 	boolean accumulate_debit;
@@ -930,27 +930,27 @@ void html_subclassification_account(
 		data_list,
 		strdup( credit_string ) );
 
-	/* Set percent of assets */
+	/* Set percent of asset */
 	/* -------------------- */
-	sprintf(percent_of_assets_string,
+	sprintf(percent_of_asset_string,
 		"%d%c",
-		account->percent_of_assets,
+		account->percent_of_asset,
 		'%' );
 
 	html_table_set_data(
 		data_list,
-		strdup( percent_of_assets_string ) );
+		strdup( percent_of_asset_string ) );
 
-	/* Set percent of revenues */
-	/* ----------------------- */
-	sprintf(percent_of_revenues_string,
+	/* Set percent of revenue */
+	/* ---------------------- */
+	sprintf(percent_of_revenue_string,
 		"%d%c",
-		account->percent_of_revenues,
+		account->percent_of_revenue,
 		'%' );
 
 	html_table_set_data(
 		data_list,
-		strdup( percent_of_revenues_string ) );
+		strdup( percent_of_revenue_string ) );
 
 	if ( list_length( prior_year_list ) )
 	{
@@ -1029,9 +1029,9 @@ void pipe_subclassification_account(
 	fprintf(output_pipe,
 		"%c%d%c%d",
 		delimiter,
-		account->percent_of_assets,
+		account->percent_of_asset,
 		delimiter,
-		account->percent_of_revenues );
+		account->percent_of_revenue );
 
 	if ( list_length( prior_year_list ) )
 	{
@@ -1383,9 +1383,9 @@ void pipe_account_total(
 	fprintf(output_pipe,
 		"%c%d%c%d",
 		delimiter,
-		account->percent_of_assets,
+		account->percent_of_asset,
 		delimiter,
-		account->percent_of_revenues );
+		account->percent_of_revenue );
 
 	if ( list_length( prior_year_list ) )
 	{
@@ -1414,8 +1414,8 @@ void html_account_total(
 	char transaction_count_string[ 16 ];
 	char debit_string[ 4096 ];
 	char credit_string[ 4096 ];
-	char percent_of_assets_string[ 16 ];
-	char percent_of_revenues_string[ 16 ];
+	char percent_of_asset_string[ 16 ];
+	char percent_of_revenue_string[ 16 ];
 	char transaction_date_string[ 16 ];
 	double balance;
 	boolean accumulate_debit;
@@ -1519,27 +1519,27 @@ void html_account_total(
 		html_table->data_list,
 		strdup( credit_string ) );
 
-	/* Set percent of assets */
+	/* Set percent of asset */
 	/* -------------------- */
-	sprintf(percent_of_assets_string,
+	sprintf(percent_of_asset_string,
 		"%d%c",
-		account->percent_of_assets,
+		account->percent_of_asset,
 		'%' );
 
 	html_table_set_data(
 		html_table->data_list,
-		strdup( percent_of_assets_string ) );
+		strdup( percent_of_asset_string ) );
 
-	/* Set percent of revenues */
-	/* ----------------------- */
-	sprintf(percent_of_revenues_string,
+	/* Set percent of revenue */
+	/* ---------------------- */
+	sprintf(percent_of_revenue_string,
 		"%d%c",
-		account->percent_of_revenues,
+		account->percent_of_revenue,
 		'%' );
 
 	html_table_set_data(
 		html_table->data_list,
-		strdup( percent_of_revenues_string ) );
+		strdup( percent_of_revenue_string ) );
 
 	if ( list_length( prior_year_list ) )
 	{
@@ -2360,14 +2360,14 @@ LATEX_ROW *PDF_account_latex_row(
 	{
 		sprintf(percent_string,
 			"%d%c",
-			account->percent_of_revenues,
+			account->percent_of_revenue,
 			'%' );
 	}
 	else
 	{
 		sprintf(percent_string,
 			"%d%c",
-			account->percent_of_assets,
+			account->percent_of_asset,
 			'%' );
 	}
 

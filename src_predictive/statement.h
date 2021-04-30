@@ -83,6 +83,7 @@ typedef struct
 	double gain_total;
 	double loss_total;
 	double net_income;
+	int net_income_percent;
 
 } STATEMENT_FUND;
 
@@ -288,6 +289,10 @@ double statement_fund_net_income(
 			double expense_total,
 			double gain_total,
 			double loss_total );
+
+int statement_fund_net_income_percent(
+			double net_income,
+			double revenue_total );
 
 #endif
 

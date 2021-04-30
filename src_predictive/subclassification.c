@@ -1914,7 +1914,7 @@ boolean subclassification_receivable(
 			SUBCLASSIFICATION_RECEIVABLE ) == 0 );
 }
 
-void subclassification_list_set_account_action_string(
+void subclassification_list_account_action_string_set(
 			LIST *subclassification_list,
 			char *application_name,
 			char *session,
@@ -1945,7 +1945,7 @@ void subclassification_list_set_account_action_string(
 	} while ( list_next( subclassification_list ) );
 }
 
-void subclassification_set_delta_prior(
+void subclassification_delta_prior_set(
 			LIST *prior_subclassification_list,
 			SUBCLASSIFICATION *subclassification )
 {
