@@ -621,9 +621,10 @@ void html_subclassification(
 	html_table->number_right_justified_columns = 99;
 	html_table_set_heading_list( html_table, heading_list );
 
-	html_table_output_table_heading(
+	html_table_heading(
 		html_table->title,
-		html_table->sub_title );
+		html_table->sub_title,
+		html_table->sub_sub_title );
 
 	html_table_output_data_heading(
 		html_table->heading_list,
@@ -956,7 +957,7 @@ void html_subclassification_account(
 	{
 		list_append_list(
 			data_list,
-			statement_html_prior_year_delta_list(
+			statement_html_account_delta_list(
 				account->account_name,
 				prior_year_list ) );
 	}
@@ -1039,7 +1040,7 @@ void pipe_subclassification_account(
 			"%c%s\n",
 			delimiter,
 			list_display_delimited(
-				statement_prior_year_delta_list(
+				statement_account_delta_list(
 					account->account_name,
 					prior_year_list ),
 				delimiter ) );
@@ -1184,9 +1185,10 @@ void html_account(
 	html_table->number_right_justified_columns = 99;
 	html_table_set_heading_list( html_table, heading_list );
 
-	html_table_output_table_heading(
+	html_table_heading(
 		html_table->title,
-		html_table->sub_title );
+		html_table->sub_title,
+		html_table->sub_sub_title );
 
 	html_table_output_data_heading(
 		html_table->heading_list,
@@ -1392,7 +1394,7 @@ void pipe_account_total(
 		fprintf(output_pipe,
 			"%s\n",
 			list_display_delimited(
-				statement_prior_year_delta_list(
+				statement_account_delta_list(
 					account->account_name,
 					prior_year_list ),
 				delimiter ) );
@@ -1545,7 +1547,7 @@ void html_account_total(
 	{
 		list_append_list(
 			html_table->data_list,
-			statement_html_prior_year_delta_list(
+			statement_html_account_delta_list(
 				account->account_name,
 				prior_year_list ) );
 	}
@@ -2380,7 +2382,7 @@ LATEX_ROW *PDF_account_latex_row(
 	{
 		latex_column_data_set_list(
 			latex_row->column_data_list,
-			statement_PDF_prior_year_delta_list(
+			statement_PDF_account_delta_list(
 				account->account_name,
 				prior_year_list ) );
 	}

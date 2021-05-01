@@ -33,8 +33,9 @@ HTML_TABLE *html_table_new( char *title, char *sub_title, char *sub_sub_title )
 	return h;
 }
 
-void html_table_output_table_heading(	char *title,
-					char *sub_title )
+void html_table_output_table_heading(
+			char *title,
+			char *sub_title )
 {
 	if ( title && *title )
 		printf( "<h1>%s</h1>\n", title );
@@ -220,7 +221,9 @@ void html_table_set_number_right_justified_columns( HTML_TABLE *d, int i )
 	d->number_right_justified_columns = i;
 }
 
-void html_table_set_heading_list( HTML_TABLE *html_table, LIST *heading_list )
+void html_table_set_heading_list(
+			HTML_TABLE *html_table,
+			LIST *heading_list )
 {
 	html_table->heading_list = heading_list;
 }

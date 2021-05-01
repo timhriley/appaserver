@@ -45,7 +45,7 @@ typedef struct
 	double subclassification_total;
 	int percent_of_asset;
 	int percent_of_revenue;
-	double delta_prior;
+	int delta_prior;
 } SUBCLASSIFICATION;
 
 /* Operations */

@@ -778,7 +778,7 @@ void element_list_propagate(
 	} while( list_next( element_list ) );
 }
 
-ACCOUNT *element_list_account_seek(
+ACCOUNT *element_account_seek(
 			char *account_name,
 			LIST *element_list )
 {
@@ -824,7 +824,42 @@ ACCOUNT *element_list_account_seek(
 
 		} while( list_next( element->subclassification_list ) );
 	} while( list_next( element_list ) );
+
 	return (ACCOUNT *)0;
+}
+
+SUBCLASSIFICATION *element_subclassification_seek(
+			char *subclassification_name,
+			LIST *element_list )
+{
+	ELEMENT *element;
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !list_rewind( element_list ) ) return (SUBCLASSIFICATION *)0;
+
+	do {
+		element = list_get( element_list );
+
+		if ( !list_rewind( element->subclassification_list ) )
+			continue;
+
+		do {
+			subclassification =
+				list_get(
+					element->
+						subclassification_list );
+
+			if ( strcmp(
+				subclassification->subclassification_name,
+				subclassification_name ) == 0 )
+			{
+				return subclassification;
+			}
+
+		} while( list_next( element->subclassification_list ) );
+	} while ( list_next( element_list ) );
+
+	return (SUBCLASSIFICATION *)0;
 }
 
 boolean element_account_accumulate_debit(

@@ -12,7 +12,7 @@
 #include "boolean.h"
 #include "latex.h"
 #include "html_table.h"
-#include "statement.h"
+#include "subclassification.h"
 #include "account.h"
 
 /* Constants */
@@ -129,8 +129,12 @@ char *element_primary_where(
 char *element_sys_string(
 			char *where );
 
-ACCOUNT *element_list_account_seek(
+ACCOUNT *element_account_seek(
 			char *account_name,
+			LIST *element_list );
+
+SUBCLASSIFICATION *element_subclassification_seek(
+			char *subclassification_name,
 			LIST *element_list );
 
 LIST *element_system_list(
