@@ -390,6 +390,7 @@ void statement_html_omit_subclassification_net_income(
 			HTML_TABLE *html_table,
 			double net_income,
 			int net_income_percent,
+			LIST *prior_year_list,
 			boolean is_statement_of_activities );
 
 void statement_html_aggregate_subclassification(
@@ -418,6 +419,7 @@ void statement_html_aggregate_subclassification_net_income(
 			HTML_TABLE *html_table,
 			double net_income,
 			int net_income_percent,
+			LIST *prior_year_list,
 			boolean is_statement_of_activities );
 
 void statement_prior_year_list_net_income_set(

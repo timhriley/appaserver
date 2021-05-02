@@ -2026,6 +2026,7 @@ void statement_html_omit_subclassification_fund(
 			html_table,
 			statement_fund->net_income,
 			statement_fund->net_income_percent,
+			statement_fund->prior_year_list,
 			is_statement_of_activities );
 	}
 
@@ -2225,6 +2226,7 @@ void statement_html_omit_subclassification_net_income(
 			HTML_TABLE *html_table,
 			double net_income,
 			int net_income_percent,
+			LIST *prior_year_list,
 			boolean is_statement_of_activities )
 {
 	char buffer[ 128 ];
@@ -2259,6 +2261,14 @@ void statement_html_omit_subclassification_net_income(
 	html_table_set_data(
 		html_table->data_list,
 		strdup( buffer ) );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			html_table->data_list,
+			statement_html_net_income_delta_list(
+				prior_year_list ) );
+	}
 
 	/* Output the net income row */
 	/* ------------------------- */
@@ -2339,6 +2349,7 @@ void statement_html_aggregate_subclassification_fund(
 			html_table,
 			statement_fund->net_income,
 			statement_fund->net_income_percent,
+			statement_fund->prior_year_list,
 			is_statement_of_activities );
 	}
 
@@ -2540,6 +2551,7 @@ void statement_html_aggregate_subclassification_net_income(
 			HTML_TABLE *html_table,
 			double net_income,
 			int net_income_percent,
+			LIST *prior_year_list,
 			boolean is_statement_of_activities )
 {
 	char buffer[ 128 ];
@@ -2574,6 +2586,14 @@ void statement_html_aggregate_subclassification_net_income(
 	html_table_set_data(
 		html_table->data_list,
 		strdup( buffer ) );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			html_table->data_list,
+			statement_html_net_income_delta_list(
+				prior_year_list ) );
+	}
 
 	/* Output the net income row */
 	/* ------------------------- */
