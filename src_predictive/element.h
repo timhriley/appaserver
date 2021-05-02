@@ -191,10 +191,6 @@ void element_prior_year_element_list_delta_prior_set(
 			LIST *prior_year_element_list,
 			ELEMENT *preclose_element );
 
-int element_delta_prior(
-			double element_prior_total,
-			double element_total );
-
 void element_list_balance_total(
 			LIST *element_list );
 

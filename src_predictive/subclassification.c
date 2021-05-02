@@ -1960,7 +1960,7 @@ void subclassification_delta_prior_set(
 	}
 
 	prior_subclassification->delta_prior =
-		element_delta_prior(
+		statement_delta_prior(
 			prior_subclassification->subclassification_total,
 			subclassification->subclassification_total );
 

@@ -51,6 +51,12 @@ typedef struct
 	char *prior_date_string;
 	char *begin_date_string;
 	LIST *prior_year_element_list;
+	double revenue_total;
+	double expense_total;
+	double gain_total;
+	double loss_total;
+	double statement_prior_year_net_income;
+	int delta_prior;
 
 } STATEMENT_PRIOR_YEAR;
 
@@ -340,6 +346,7 @@ void statement_html_display_subclassification_net_income(
 			HTML_TABLE *html_table,
 			double net_income,
 			int net_income_percent,
+			LIST *prior_year_list,
 			boolean is_statement_of_activities );
 
 LIST *statement_html_heading_list(
@@ -412,6 +419,21 @@ void statement_html_aggregate_subclassification_net_income(
 			double net_income,
 			int net_income_percent,
 			boolean is_statement_of_activities );
+
+void statement_prior_year_list_net_income_set(
+			LIST *prior_year_list,
+			double statement_fund_net_income );
+
+void statement_prior_year_net_income_set(
+			STATEMENT_PRIOR_YEAR *statement_prior_year,
+			double statement_fund_net_income );
+
+int statement_delta_prior(
+			double element_prior_total,
+			double element_total );
+
+LIST *statement_html_net_income_delta_list(
+			LIST *prior_year_list );
 
 #endif
 

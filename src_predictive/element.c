@@ -19,6 +19,7 @@
 #include "account.h"
 #include "subclassification.h"
 #include "predictive.h"
+#include "statement.h"
 #include "element.h"
 
 char *element_select( void )
@@ -945,22 +946,6 @@ void element_list_account_action_string_set(
 	} while ( list_next( element_list ) );
 }
 
-int element_delta_prior(
-			double prior_total,
-			double total )
-{
-	double difference;
-	double delta;
-
-	if ( !prior_total ) return 0;
-
-	difference = total - prior_total;
-
-	delta = (difference / prior_total) * 100.0;
-
-	return float_round_int( delta );
-}
-
 void element_prior_year_element_list_delta_prior_set(
 			LIST *prior_year_element_list,
 			ELEMENT *preclose_element )
@@ -976,7 +961,7 @@ void element_prior_year_element_list_delta_prior_set(
 	}
 
 	prior_year_element->element_delta_prior =
-		element_delta_prior(
+		statement_delta_prior(
 			prior_year_element->element_balance_total
 				/* prior_total */,
 			preclose_element->element_balance_total

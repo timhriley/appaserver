@@ -183,7 +183,8 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	statement_fund_list_net_income_set( statement->statement_fund_list );
+	statement_fund_list_net_income_set(
+		statement->statement_fund_list );
 
 	/* Output */
 	/* ------ */

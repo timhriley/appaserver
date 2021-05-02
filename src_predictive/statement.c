@@ -903,6 +903,40 @@ LIST *statement_prior_year_heading_list(
 	return heading_list;
 }
 
+LIST *statement_html_net_income_delta_list(
+			LIST *prior_year_list )
+{
+	LIST *delta_list;
+	STATEMENT_PRIOR_YEAR *prior_year;
+	char delta_prior[ 1024 ];
+
+	if ( !list_rewind( prior_year_list ) ) return (LIST *)0;
+
+	delta_list = list_new();
+
+	do {
+		prior_year = list_get( prior_year_list );
+
+		sprintf(delta_prior,
+			"%d%c<br>%s",
+			prior_year->delta_prior,
+			'%',
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_place_commas_in_money(
+				prior_year->
+				statement_prior_year_net_income ) );
+
+		list_set(
+			delta_list,
+			strdup( delta_prior ) );
+
+	} while ( list_next( prior_year_list ) );
+
+	return delta_list;
+}
+
 LIST *statement_account_delta_list(
 			char *account_name,
 			LIST *prior_year_list )
@@ -1398,6 +1432,13 @@ void statement_fund_list_net_income_set(
 				statement_fund->net_income,
 				statement_fund->revenue_total );
 
+		if ( list_length( statement_fund->prior_year_list ) )
+		{
+			statement_prior_year_list_net_income_set(
+				statement_fund->prior_year_list,
+				statement_fund->net_income );
+		}
+
 	} while ( list_next( statement_fund_list ) );
 }
 
@@ -1478,6 +1519,7 @@ void statement_html_display_subclassification_fund(
 			html_table,
 			statement_fund->net_income,
 			statement_fund->net_income_percent,
+			statement_fund->prior_year_list,
 			is_statement_of_activities );
 	}
 
@@ -1789,6 +1831,7 @@ void statement_html_display_subclassification_net_income(
 			HTML_TABLE *html_table,
 			double net_income,
 			int net_income_percent,
+			LIST *prior_year_list,
 			boolean is_statement_of_activities )
 {
 	char buffer[ 128 ];
@@ -1825,6 +1868,14 @@ void statement_html_display_subclassification_net_income(
 	html_table_set_data(
 		html_table->data_list,
 		strdup( buffer ) );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			html_table->data_list,
+			statement_html_net_income_delta_list(
+				prior_year_list ) );
+	}
 
 	/* Output the net income row */
 	/* ------------------------- */
@@ -2537,5 +2588,100 @@ void statement_html_aggregate_subclassification_net_income(
 
 	list_free_string_list( html_table->data_list );
 	html_table->data_list = list_new();
+}
+
+void statement_prior_year_list_net_income_set(
+			LIST *prior_year_list,
+			double statement_fund_net_income )
+{
+	STATEMENT_PRIOR_YEAR *statement_prior_year;
+
+	if ( !list_rewind( prior_year_list ) ) return;
+
+	do {
+		statement_prior_year = list_get( prior_year_list );
+
+		statement_prior_year_net_income_set(
+			statement_prior_year,
+			statement_fund_net_income );
+
+	} while ( list_next( prior_year_list ) );
+}
+
+void statement_prior_year_net_income_set(
+			STATEMENT_PRIOR_YEAR *statement_prior_year,
+			double net_income )
+{
+	ELEMENT *element;
+
+	if ( ( element =
+		element_seek(
+			ELEMENT_REVENUE,
+			statement_prior_year->
+				prior_year_element_list ) ) )
+	{
+		statement_prior_year->revenue_total =
+			element->element_balance_total;
+	}
+
+	if ( ( element =
+		element_seek(
+			ELEMENT_EXPENSE,
+			statement_prior_year->
+				prior_year_element_list ) ) )
+	{
+		statement_prior_year->expense_total =
+			element->element_balance_total;
+	}
+
+	if ( ( element =
+		element_seek(
+			ELEMENT_GAIN,
+			statement_prior_year->
+				prior_year_element_list ) ) )
+	{
+		statement_prior_year->gain_total =
+			element->element_balance_total;
+	}
+
+	if ( ( element =
+		element_seek(
+			ELEMENT_LOSS,
+			statement_prior_year->
+				prior_year_element_list ) ) )
+	{
+		statement_prior_year->loss_total =
+			element->element_balance_total;
+	}
+
+	statement_prior_year->statement_prior_year_net_income =
+		statement_fund_net_income(
+			statement_prior_year->revenue_total,
+			statement_prior_year->expense_total,
+			statement_prior_year->gain_total,
+			statement_prior_year->loss_total );
+
+	statement_prior_year->delta_prior =
+		statement_delta_prior(
+			statement_prior_year->
+				statement_prior_year_net_income,
+			net_income
+				/* statement_fund_net_income */ );
+}
+
+int statement_delta_prior(
+			double prior_total,
+			double total )
+{
+	double difference;
+	double delta;
+
+	if ( !prior_total ) return 0;
+
+	difference = total - prior_total;
+
+	delta = (difference / prior_total) * 100.0;
+
+	return float_round_int( delta );
 }
 

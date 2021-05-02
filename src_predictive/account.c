@@ -839,7 +839,7 @@ void account_delta_prior_set(
 	if ( !prior_account->latest_journal ) return;
 
 	prior_account->delta_prior =
-		element_delta_prior(
+		statement_delta_prior(
 			prior_account->latest_journal->balance,
 			account->latest_journal->balance );
 }
