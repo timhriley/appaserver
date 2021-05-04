@@ -170,20 +170,20 @@ void trial_balance_PDF(
 			enum fund_aggregation );
 
 LATEX_TABLE *PDF_subclassification_latex_table(
-			char *subtitle,
 			STATEMENT_FUND *statement_fund,
 			boolean postclose,
 			double debit_total,
 			double credit_total,
-			char *today_date_string );
+			char *today_date_string,
+			char *caption );
 
 LATEX_TABLE *PDF_account_latex_table(
-			char *subtitle,
 			STATEMENT_FUND *statement_fund,
 			boolean postclose,
 			double debit_total,
 			double credit_total,
-			char *today_date_string );
+			char *today_date_string,
+			char *caption );
 
 LIST *PDF_subclassification_row_list(
 			LIST *element_list,
@@ -1587,6 +1587,8 @@ void trial_balance_PDF(
 	char prompt[ 128 ];
 	boolean landscape_flag = 0;
 	static boolean first_time = 1;
+	char buffer[ 128 ];
+	char caption[ 128 ];
 
 	if ( postclose ) pid++;
 
@@ -1660,6 +1662,13 @@ void trial_balance_PDF(
 			landscape_flag,
 			logo_filename );
 
+	sprintf(caption,
+		"%s %s",
+		format_initial_capital(
+			buffer,
+			process_name ),
+		subtitle );
+
 	if ( fund_aggregation == sequential )
 	{
 		list_rewind( statement_fund_list );
@@ -1696,28 +1705,28 @@ void trial_balance_PDF(
 				list_set(
 					latex->table_list,
 					PDF_subclassification_latex_table(
-						subtitle,
 						statement_fund,
 						postclose,
 						debit_total,
 						credit_total,
 						date_get_now_yyyy_mm_dd(
 						    date_utc_offset() )
-						    /* today_date_string */ ) );
+						    /* today_date_string */,
+						caption ) );
 			}
 			else
 			{
 				list_set(
 					latex->table_list,
 					PDF_account_latex_table(
-						subtitle,
 						statement_fund,
 						postclose,
 						debit_total,
 						credit_total,
 						date_get_now_yyyy_mm_dd(
 						    date_utc_offset() )
-						    /* today_date_string */ ) );
+						    /* today_date_string */,
+						caption ) );
 			}
 
 		} while( list_next( statement_fund_list ) );
@@ -1757,28 +1766,28 @@ void trial_balance_PDF(
 			list_set(
 				latex->table_list,
 				PDF_subclassification_latex_table(
-					subtitle,
 					statement_fund,
 					postclose,
 					debit_total,
 					credit_total,
 					date_get_now_yyyy_mm_dd(
 						date_utc_offset() )
-						/* today_date_string */ ) );
+						/* today_date_string */,
+					caption ) );
 		}
 		else
 		{
 			list_set(
 				latex->table_list,
 				PDF_account_latex_table(
-					subtitle,
 					statement_fund,
 					postclose,
 					debit_total,
 					credit_total,
 					date_get_now_yyyy_mm_dd(
 						date_utc_offset() )
-						/* today_date_string */ ) );
+						/* today_date_string */,
+					caption ) );
 		}
 	}
 
@@ -1836,19 +1845,16 @@ void trial_balance_PDF(
 }
 
 LATEX_TABLE *PDF_subclassification_latex_table(
-			char *subtitle,
 			STATEMENT_FUND *statement_fund,
 			boolean postclose,
 			double debit_total,
 			double credit_total,
-			char *today_date_string )
+			char *today_date_string,
+			char *caption )
 {
 	LATEX_TABLE *latex_table;
 
-	latex_table =
-		latex_table_new(
-			strdup( subtitle )
-				/* caption */ );
+	latex_table = latex_table_new( caption );
 
 	latex_table->heading_list =
 		PDF_heading_list(
@@ -1881,19 +1887,16 @@ LATEX_TABLE *PDF_subclassification_latex_table(
 }
 
 LATEX_TABLE *PDF_account_latex_table(
-			char *subtitle,
 			STATEMENT_FUND *statement_fund,
 			boolean postclose,
 			double debit_total,
 			double credit_total,
-			char *today_date_string )
+			char *today_date_string,
+			char *caption )
 {
 	LATEX_TABLE *latex_table;
 
-	latex_table =
-		latex_table_new(
-			strdup( subtitle )
-				/* caption */ );
+	latex_table = latex_table_new( caption );
 
 	latex_table->heading_list =
 		PDF_heading_list(

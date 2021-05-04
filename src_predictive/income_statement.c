@@ -27,7 +27,9 @@
 #include "transaction.h"
 #include "subclassification.h"
 #include "element.h"
+#include "account.h"
 #include "predictive.h"
+#include "latex.h"
 #include "statement.h"
 
 /* Constants */
@@ -36,6 +38,118 @@
 
 /* Prototypes */
 /* ---------- */
+void html_output(	LIST *statement_fund_list,
+			char *title,
+			char *subtitle,
+			boolean is_statement_of_activities,
+			enum subclassification_option );
+
+void html_output_fund(
+			STATEMENT_FUND *statement_fund,
+			char *title,
+			char *subtitle,
+			boolean is_statement_of_activities,
+			enum subclassification_option );
+
+void html_display_subclassification_element_list(
+			HTML_TABLE *html_table,
+			LIST *preclose_element_list,
+			LIST *prior_year_list );
+
+void html_display_subclassification_element(
+			HTML_TABLE *html_table,
+			ELEMENT *element,
+			LIST *prior_year_list );
+
+void html_display_subclassification_net_income(
+			HTML_TABLE *html_table,
+			double net_income,
+			int net_income_percent,
+			LIST *prior_year_list,
+			boolean is_statement_of_activities );
+
+void html_omit_subclassification_element_list(
+			HTML_TABLE *html_table,
+			LIST *preclose_element_list,
+			LIST *prior_year_list );
+
+void html_omit_subclassification_element(
+			HTML_TABLE *html_table,
+			ELEMENT *element,
+			LIST *prior_year_list );
+
+void html_omit_subclassification_net_income(
+			HTML_TABLE *html_table,
+			double net_income,
+			int net_income_percent,
+			LIST *prior_year_list,
+			boolean is_statement_of_activities );
+
+void html_aggregate_subclassification_element_list(
+			HTML_TABLE *html_table,
+			LIST *preclose_element_list,
+			LIST *prior_year_list );
+
+void html_aggregate_subclassification_element(
+			HTML_TABLE *html_table,
+			ELEMENT *element,
+			LIST *prior_year_list );
+
+void html_aggregate_subclassification_net_income(
+			HTML_TABLE *html_table,
+			double net_income,
+			int net_income_percent,
+			LIST *prior_year_list,
+			boolean is_statement_of_activities );
+
+void PDF_output(	char *application_name,
+			char *process_name,
+			char *logo_filename,
+			LIST *statement_fund_list,
+			char *title,
+			char *subtitle,
+			boolean is_statement_of_activities,
+			char *document_root_directory,
+			enum subclassification_option );
+
+void PDF_output_fund(	char *application_name,
+			char *process_name,
+			char *logo_filename,
+			char *subtitle,
+			STATEMENT_FUND *statement_fund,
+			boolean is_statement_of_activities,
+			char *document_root_directory,
+			enum subclassification_option );
+
+LIST *PDF_row_list(
+			LIST *preclose_element_list,
+			LIST *prior_year_list,
+			enum subclassification_option );
+
+LIST *PDF_display_subclassification_row_list(
+			ELEMENT *element,
+			LIST *prior_year_list );
+
+LIST *PDF_omit_subclassification_row_list(
+			ELEMENT *element,
+			LIST *prior_year_list );
+
+LIST *PDF_aggregate_subclassification_row_list(
+			ELEMENT *element,
+			LIST *prior_year_list );
+
+LIST *PDF_account_row_list(
+			LIST *account_list,
+			LIST *prior_year_list,
+			boolean include_subclassification );
+
+LATEX_ROW *PDF_net_income_latex_row(
+			double net_income,
+			int net_income_percent,
+			LIST *prior_year_list,
+			boolean is_statement_of_activities,
+			boolean include_account,
+			boolean include_subclassification );
 
 int main( int argc, char **argv )
 {
@@ -220,75 +334,28 @@ int main( int argc, char **argv )
 
 	if ( statement->statement_output_medium == output_table )
 	{
-		if ( 	statement->statement_subclassification_option ==
-			subclassification_display )
-		{
-			statement_html_display_subclassification(
-				statement->statement_fund_list,
-				statement->title,
-				statement->subtitle,
-				is_statement_of_activities );
-		}
-		else
-		if (	statement->statement_subclassification_option ==
-			subclassification_omit )
-		{
-			statement_html_omit_subclassification(
-				statement->statement_fund_list,
-				statement->title,
-				statement->subtitle,
-				is_statement_of_activities );
-		}
-		else
-		if (	statement->statement_subclassification_option ==
-			subclassification_aggregate )
-		{
-			statement_html_aggregate_subclassification(
-				statement->statement_fund_list,
-				statement->title,
-				statement->subtitle,
-				is_statement_of_activities );
-		}
+		html_output(
+			statement->statement_fund_list,
+			statement->title,
+			statement->subtitle,
+			is_statement_of_activities,
+			statement->statement_subclassification_option );
 	}
-/*
 	else
 	if ( statement->statement_output_medium == output_PDF )
 	{
-		if (	statement->statement_fund_aggregation ==
-			subclassification_aggregate )
-		{
-			PDF_subclassification_aggregate(
-				statement->statement_fund_list,
-				statement->statement_title,
-				statement->statement_subtitle,
-				appaserver_parameter_file->
-					document_root,
-				is_statement_of_activities );
-		}
-		else
-		if (	statement->statement_fund_aggregation ==
-			subclassification_display )
-		{
-			PDF_subclassification_display(
-				statement->statement_fund_list,
-				statement->statement_title,
-				statement->statement_subtitle,
-				appaserver_parameter_file->
-					document_root,
-				is_statement_of_activities );
-		}
-		else
-		{
-			PDF_subclassification_omit(
-				statement->statement_fund_list,
-				statement->statement_title,
-				statement->statement_subtitle,
-				appaserver_parameter_file->
-					document_root,
-				is_statement_of_activities );
-		}
+		PDF_output(
+			application_name,
+			process_name,
+			logo_filename,
+			statement->statement_fund_list,
+			statement->title,
+			statement->subtitle,
+			is_statement_of_activities,
+			appaserver_parameter_file->
+				document_root,
+			statement->statement_subclassification_option );
 	}
-*/
 
 	if ( statement->statement_output_medium != output_stdout )
 		document_close();
@@ -296,738 +363,828 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-#ifdef NOT_DEFINED
-void income_statement_subclassification_aggregate_PDF(
+void PDF_output(
 			char *application_name,
-			char *title,
-			char *sub_title,
-			char *fund_name,
-			char *as_of_date,
-			char *document_root_directory,
-			boolean is_statement_of_activities,
 			char *process_name,
-			char *logo_filename )
-{
-	LATEX *latex;
-	LATEX_TABLE *latex_table;
-	LIST *list;
-	LIST *filter_element_name_list;
-	char *latex_filename;
-	char *dvi_filename;
-	char *working_directory;
-	char *ftp_output_filename;
-	int pid = getpid();
-	APPASERVER_LINK_FILE *appaserver_link_file;
-
-	printf( "<h1>%s</h1>\n", title );
-	printf( "<h2>%s</h2>\n", sub_title );
-
-	appaserver_link_file =
-		appaserver_link_file_new(
-			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			( application_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-	 		document_root_directory,
-			process_name /* filename_stem */,
-			application_name,
-			pid /* process_id */,
-			(char *)0 /* session */,
-			(char *)0 /* extension */ );
-
-	appaserver_link_file->extension = "tex";
-
-	latex_filename =
-		strdup( appaserver_link_get_tail_half(
-			(char *)0 /* application_name */,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension ) );
-
-	appaserver_link_file->extension = "dvi";
-
-	dvi_filename =
-		strdup( appaserver_link_get_tail_half(
-			(char *)0 /* application_name */,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension ) );
-
-	working_directory =
-		appaserver_link_source_directory(
-			document_root_directory,
-			application_name );
-
-	latex = latex_new_latex(
-			latex_filename,
-			dvi_filename,
-			working_directory,
-			0 /* not landscape_flag */,
-			logo_filename );
-
-	latex_table =
-		latex_new_latex_table(
-			sub_title /* caption */ );
-
-	list_append_pointer( latex->table_list, latex_table );
-
-	latex_table->heading_list =
-		build_subclassification_aggregate_PDF_heading_list();
-
-	filter_element_name_list = list_new();
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_REVENUE );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_EXPENSE );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_GAIN );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_LOSS );
-
-	list =
-		element_list(
-			filter_element_name_list,
-			fund_name,
-			transaction_date_time_closing(
-				as_of_date,
-				1 /* preclose_time */,
-				transaction_closing_entry_exists(
-					as_of_date ) ),
-			1 /* fetch_subclassifiction_list */,
-			0 /* not fetch_account_list */ );
-
-	latex_table->row_list =
-		build_subclassification_aggregate_PDF_row_list(
-			list /* element_list */,
-			is_statement_of_activities );
-
-	if ( !list_length( latex_table->row_list ) )
-	{
-		printf(
-		"<p>ERROR: there are no elements for this statement.\n" );
-		document_close();
-		exit( 1 );
-	}
-
-	latex_longtable_output(
-		latex->output_stream,
-		latex->landscape_flag,
-		latex->table_list,
-		latex->logo_filename,
-		0 /* not omit_page_numbers */,
-		date_get_now_yyyy_mm_dd_hh_mm(
-			date_get_utc_offset() )
-				/* footline */ );
-
-	fclose( latex->output_stream );
-
-	latex_tex2pdf(	latex->tex_filename,
-			latex->working_directory );
-
-	appaserver_link_file->extension = "pdf";
-
-	ftp_output_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	appaserver_library_output_ftp_prompt(
-		ftp_output_filename, 
-		PROMPT,
-		process_name /* target */,
-		(char *)0 /* mime_type */ );
-}
-
-void income_statement_subclassification_display_PDF(
-			char *application_name,
-			char *title,
-			char *sub_title,
-			char *fund_name,
-			char *as_of_date,
-			char *document_root_directory,
-			boolean is_statement_of_activities,
-			char *process_name,
-			char *logo_filename )
-{
-	LATEX *latex;
-	LATEX_TABLE *latex_table;
-	LIST *list;
-	LIST *filter_element_name_list;
-	char *latex_filename;
-	char *dvi_filename;
-	char *working_directory;
-	char *ftp_output_filename;
-	int pid = getpid();
-	APPASERVER_LINK_FILE *appaserver_link_file;
-
-	printf( "<h1>%s</h1>\n", title );
-	printf( "<h2>%s</h2>\n", sub_title );
-
-	appaserver_link_file =
-		appaserver_link_file_new(
-			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			( application_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-	 		document_root_directory,
-			process_name /* filename_stem */,
-			application_name,
-			pid /* process_id */,
-			(char *)0 /* session */,
-			(char *)0 /* extension */ );
-
-	appaserver_link_file->extension = "tex";
-
-	latex_filename =
-		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
-
-	appaserver_link_file->extension = "dvi";
-
-	dvi_filename =
-		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
-
-	working_directory =
-		appaserver_link_source_directory(
-			document_root_directory,
-			application_name );
-
-	latex = latex_new_latex(
-			latex_filename,
-			dvi_filename,
-			working_directory,
-			0 /* not landscape_flag */,
-			logo_filename );
-
-	latex_table =
-		latex_new_latex_table(
-			sub_title /* caption */ );
-
-	list_append_pointer( latex->table_list, latex_table );
-
-	latex_table->heading_list =
-		build_subclassification_display_PDF_heading_list();
-
-	filter_element_name_list = list_new();
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_REVENUE );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_EXPENSE );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_GAIN );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_LOSS );
-
-	list =
-		element_list(
-			filter_element_name_list,
-			fund_name,
-			transaction_date_time_closing(
-				as_of_date,
-				1 /* preclose_time */,
-				transaction_closing_entry_exists(
-					as_of_date ) ),
-			1 /* fetch_subclassifiction_list */,
-			0 /* not fetch_account_list */ );
-
-	latex_table->row_list =
-		build_subclassification_display_PDF_row_list(
-			list,
-			is_statement_of_activities );
-
-	if ( !list_length( latex_table->row_list ) )
-	{
-		printf(
-		"<p>ERROR: there are no elements for this statement.\n" );
-		document_close();
-		exit( 1 );
-	}
-
-	latex_longtable_output(
-		latex->output_stream,
-		latex->landscape_flag,
-		latex->table_list,
-		latex->logo_filename,
-		0 /* not omit_page_numbers */,
-		date_get_now_yyyy_mm_dd_hh_mm(
-			date_get_utc_offset() )
-				/* footline */ );
-
-	fclose( latex->output_stream );
-
-	latex_tex2pdf(	latex->tex_filename,
-			latex->working_directory );
-
-	appaserver_link_file->extension = "pdf";
-
-	ftp_output_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	appaserver_library_output_ftp_prompt(
-		ftp_output_filename, 
-		PROMPT,
-		process_name /* target */,
-		(char *)0 /* mime_type */ );
-}
-
-LIST *build_subclassification_aggregate_PDF_row_list(
-			LIST *element_list,
-			boolean is_statement_of_activities )
-{
-	ELEMENT *element;
-	double total_revenues = 0.0;
-	double total_expenses = 0.0;
-	double total_gains = 0.0;
-	double total_losses = 0.0;
-	double net_income = 0.0;
-	LIST *row_list;
-	LATEX_ROW *latex_row;
-
-	row_list = list_new();
-
-	/* Compute total revenues */
-	/* ---------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_REVENUE,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			subclassification_aggregate_latex_row_list(
-				&total_revenues,
-				element->subclassification_list,
-				element->element_name,
-				element->element_total
-					 /* percent_denominator */ ) );
-	}
-
-	/* Compute total expenses */
-	/* ---------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_EXPENSE,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			subclassification_aggregate_latex_row_list(
-				&total_expenses,
-				element->subclassification_list,
-				element->element_name,
-				total_revenues /* percent_denominator */ ) );
-	}
-
-	/* Compute total gains */
-	/* ------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_GAIN,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			subclassification_aggregate_latex_row_list(
-				&total_gains,
-				element->subclassification_list,
-				element->element_name,
-				total_revenues /* percent_denominator */ ) );
-	}
-
-	/* Compute total losses */
-	/* -------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_LOSS,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			subclassification_aggregate_latex_row_list(
-				&total_losses,
-				element->subclassification_list,
-				element->element_name,
-				total_revenues /* percent_denominator */ ) );
-	}
-
-	net_income =
-		transaction_net_income(
-			total_revenues,
-			total_expenses,
-			total_gains,
-			total_losses );
-
-	/* Blank line */
-	/* ---------- */
-	latex_row = latex_new_latex_row();
-	list_set( row_list, latex_row );
-
-	latex_column_data_set(
-		latex_row->column_data_list,
-		strdup( "" ),
-		0 /* not large_bold */ );
-
-	list_set(
-		row_list,
-		element_latex_subclassification_aggregate_net_income_row(
-			net_income,
-			is_statement_of_activities,
-			total_revenues
-				/* percent_denominator */ ) );
-	return row_list;
-}
-
-LIST *build_subclassification_display_PDF_row_list(
-			LIST *element_list,
-			boolean is_statement_of_activities )
-{
-	ELEMENT *element;
-	double total_revenues = 0.0;
-	double total_expenses = 0.0;
-	double total_gains = 0.0;
-	double total_losses = 0.0;
-	double net_income = 0.0;
-	LIST *row_list;
-	LATEX_ROW *latex_row;
-
-	row_list = list_new();
-
-	/* Compute total revenues */
-	/* ---------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_REVENUE,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			subclassification_display_latex_row_list(
-				&total_revenues,
-				element->subclassification_list,
-				element->element_name,
-				element->accumulate_debit,
-				element->
-					element_total
-						/* percent_denominator */ ) );
-	}
-	
-	/* Compute total expenses */
-	/* ---------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_EXPENSE,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			subclassification_display_latex_row_list(
-				&total_expenses,
-				element->subclassification_list,
-				element->element_name,
-				element->accumulate_debit,
-				total_revenues /* percent_denominator */ ) );
-	}
-
-	/* Compute total gains */
-	/* ------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_GAIN,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			subclassification_display_latex_row_list(
-				&total_gains,
-				element->subclassification_list,
-				element->element_name,
-				element->accumulate_debit,
-				total_revenues /* percent_denominator */ ) );
-	}
-
-	/* Compute total losses */
-	/* -------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_LOSS,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			subclassification_display_latex_row_list(
-				&total_losses,
-				element->subclassification_list,
-				element->element_name,
-				element->accumulate_debit,
-				total_revenues /* percent_denominator */ ) );
-	}
-
-	net_income = transaction_net_income(
-				total_revenues,
-				total_expenses,
-				total_gains,
-				total_losses );
-
-	/* Blank line */
-	/* ---------- */
-	latex_row = latex_new_latex_row();
-	list_append_pointer( row_list, latex_row );
-
-	latex_column_data_set(
-		latex_row->column_data_list,
-		strdup( "" ),
-		0 /* not large_bold */ );
-
-	list_set(	row_list,
-			element_latex_net_income_row(
-				net_income,
-				is_statement_of_activities,
-				total_revenues
-					/* percent_denominator */,
-				0 /* not omit_subclassification */ ) );
-
-	return row_list;
-}
-
-#ifdef NOT_DEFINED
-void output_earnings_per_share(	HTML_TABLE *html_table,
-				double net_income,
-				double shares_outstanding )
-{
-	char buffer[ 128 ];
-
-	html_table_set_data( html_table->data_list,
-			     "<h2>Earnings Per Share</h2>" );
-
-	html_table_set_data(
-			html_table->data_list,
-			"Net Income" );
-
-	html_table_set_data(
-			html_table->data_list,
-			"Shares Outstanding" );
-
-	html_table_set_data(
-			html_table->data_list,
-			"Earnings Per Share" );
-
-	html_table_output_data(
-			html_table->data_list,
-			html_table->number_left_justified_columns,
-			html_table->number_right_justified_columns,
-			html_table->background_shaded,
-			html_table->justify_list );
-	html_table->data_list = list_new();
-
-	html_table_set_data( html_table->data_list, "" );
-
-	sprintf(	buffer, 
-			"%.2lf",
-			net_income );
-
-	html_table_set_data(	html_table->data_list,
-				strdup( buffer ) );
-
-	sprintf(	buffer, 
-			"%.2lf",
-			shares_outstanding );
-
-	html_table_set_data(	html_table->data_list,
-				strdup( buffer ) );
-
-	if ( shares_outstanding )
-	{
-		sprintf(	buffer, 
-				"%.2lf",
-				net_income / shares_outstanding );
-	}
-	else
-	{
-		strcpy( buffer, "0.0" );
-	}
-
-	html_table_set_data(	html_table->data_list,
-				strdup( buffer ) );
-
-	html_table_output_data(
-		html_table->data_list,
-		html_table->number_left_justified_columns,
-		html_table->number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-}
-#endif
-
-#ifdef NOT_DEFINED
-double get_shares_outstanding(	char *appaserver_mount_point,
-				char *application_name,
-				char *as_of_date )
-{
-	char sys_string[ 1024 ];
-	char *results_string;
-
-	sprintf(sys_string,
-		"%s/%s/shares_outstanding \"%s\" \"%s\" 2>>%s",
-		appaserver_mount_point,
-		application_relative_source_directory(
-			application_name ),
-		application_name,
-		as_of_date,
-		appaserver_error_get_filename(
-			application_name ) );
-
-	results_string = pipe2string( sys_string );
-	if ( !results_string )
-		return 0.0;
-	else
-		return atof( results_string );
-}
-#endif
-
-LIST *build_subclassification_omit_PDF_heading_list( void )
-{
-	LATEX_TABLE_HEADING *table_heading;
-	LIST *heading_list;
-
-	heading_list = list_new();
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "";
-	table_heading->right_justified_flag = 0;
-	list_append_pointer( heading_list, table_heading );
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "Account";
-	table_heading->right_justified_flag = 1;
-	list_append_pointer( heading_list, table_heading );
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "Element";
-	table_heading->right_justified_flag = 1;
-	list_append_pointer( heading_list, table_heading );
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "Percent";
-	table_heading->right_justified_flag = 1;
-	list_append_pointer( heading_list, table_heading );
-
-	return heading_list;
-}
-
-LIST *build_subclassification_display_PDF_heading_list( void )
-{
-	LATEX_TABLE_HEADING *table_heading;
-	LIST *heading_list;
-
-	heading_list = list_new();
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "";
-	table_heading->right_justified_flag = 0;
-	list_append_pointer( heading_list, table_heading );
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "Account";
-	table_heading->right_justified_flag = 1;
-	list_append_pointer( heading_list, table_heading );
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "Subclassification";
-	table_heading->right_justified_flag = 1;
-	list_append_pointer( heading_list, table_heading );
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "Element";
-	table_heading->right_justified_flag = 1;
-	list_append_pointer( heading_list, table_heading );
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "Percent";
-	table_heading->right_justified_flag = 1;
-	list_append_pointer( heading_list, table_heading );
-
-	return heading_list;
-
-}
-
-LIST *build_subclassification_aggregate_PDF_heading_list( void )
-{
-	LATEX_TABLE_HEADING *table_heading;
-	LIST *heading_list;
-
-	heading_list = list_new();
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "";
-	table_heading->right_justified_flag = 0;
-	list_append_pointer( heading_list, table_heading );
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "";
-	table_heading->right_justified_flag = 1;
-	list_append_pointer( heading_list, table_heading );
-
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "";
-	table_heading->right_justified_flag = 1;
-	list_append_pointer( heading_list, table_heading );
-
-	return heading_list;
-}
-
-void html_subclassification_omit(
+			char *logo_filename,
 			LIST *statement_fund_list,
 			char *title,
 			char *subtitle,
-			boolean is_statement_of_activities )
+			boolean is_statement_of_activities,
+			char *document_root_directory,
+			enum subclassification_option subclassification_option )
+{
+	STATEMENT_FUND *statement_fund;
+
+	printf( "<h1>%s</h1>\n", title );
+	printf( "<h2>%s</h2>\n", subtitle );
+
+	if ( !list_rewind( statement_fund_list ) ) return;
+
+	do {
+		statement_fund = list_get( statement_fund_list );
+
+		PDF_output_fund(
+			application_name,
+			process_name,
+			logo_filename,
+			subtitle,
+			statement_fund,
+			is_statement_of_activities,
+			document_root_directory,
+			subclassification_option );
+
+	} while ( list_next( statement_fund_list ) );
+}
+
+void PDF_output_fund(
+			char *application_name,
+			char *process_name,
+			char *logo_filename,
+			char *subtitle,
+			STATEMENT_FUND *statement_fund,
+			boolean is_statement_of_activities,
+			char *document_root_directory,
+			enum subclassification_option subclassification_option )
+{
+	LATEX *latex;
+	LATEX_TABLE *latex_table;
+	char *latex_filename;
+	char *dvi_filename;
+	char *working_directory;
+	char *ftp_output_filename;
+	int pid = getpid();
+	APPASERVER_LINK_FILE *appaserver_link_file;
+	boolean include_account = 0;
+	boolean include_subclassification = 0;
+	char buffer[ 128 ];
+	char caption[ 256 ];
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+	 		document_root_directory,
+			process_name /* filename_stem */,
+			application_name,
+			pid /* process_id */,
+			(char *)0 /* session */,
+			(char *)0 /* extension */ );
+
+	appaserver_link_file->extension = "tex";
+
+	latex_filename =
+		strdup( appaserver_link_get_tail_half(
+				(char *)0 /* application_name */,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension ) );
+
+	appaserver_link_file->extension = "dvi";
+
+	dvi_filename =
+		strdup( appaserver_link_get_tail_half(
+				(char *)0 /* application_name */,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension ) );
+
+	working_directory =
+		appaserver_link_source_directory(
+			document_root_directory,
+			application_name );
+
+	latex =
+		latex_new(
+			latex_filename,
+			dvi_filename,
+			working_directory,
+			0 /* not landscape_flag */,
+			logo_filename );
+
+	sprintf(caption,
+		"%s %s",
+		format_initial_capital(
+			buffer,
+			process_name ),
+		subtitle );
+
+	latex_table = latex_new_latex_table( caption );
+
+	list_set( latex->table_list, latex_table );
+
+	latex_table->row_list =
+		PDF_row_list(
+			statement_fund->preclose_element_list,
+			statement_fund->prior_year_list,
+			subclassification_option );
+
+	if ( !list_length( latex_table->row_list ) )
+	{
+		printf(
+		"<p>ERROR: there are no elements for this statement.\n" );
+		document_close();
+		exit( 1 );
+	}
+
+	if ( subclassification_option == subclassification_display )
+	{
+		include_account = 1;
+		include_subclassification = 1;
+
+		list_set(
+			latex_table->row_list,
+			PDF_net_income_latex_row(
+				statement_fund->net_income,
+				statement_fund->net_income_percent,
+				statement_fund->prior_year_list,
+				is_statement_of_activities,
+				include_account,
+				include_subclassification ) );
+	}
+	else
+	if ( subclassification_option == subclassification_omit )
+	{
+		include_account = 1;
+
+		list_set(
+			latex_table->row_list,
+			PDF_net_income_latex_row(
+				statement_fund->net_income,
+				statement_fund->net_income_percent,
+				statement_fund->prior_year_list,
+				is_statement_of_activities,
+				include_account,
+				include_subclassification ) );
+	}
+	else
+	if ( subclassification_option == subclassification_aggregate )
+	{
+		include_subclassification = 1;
+
+		list_set(
+			latex_table->row_list,
+			PDF_net_income_latex_row(
+				statement_fund->net_income,
+				statement_fund->net_income_percent,
+				statement_fund->prior_year_list,
+				is_statement_of_activities,
+				include_account,
+				include_subclassification ) );
+	}
+
+	latex_table->heading_list =
+		statement_PDF_heading_list(
+			statement_fund->prior_year_list,
+			include_account,
+			include_subclassification );
+
+	latex_longtable_output(
+		latex->output_stream,
+		latex->landscape_flag,
+		latex->table_list,
+		latex->logo_filename,
+		0 /* not omit_page_numbers */,
+		date_get_now_yyyy_mm_dd_hh_mm(
+			date_get_utc_offset() )
+				/* footline */ );
+
+	fclose( latex->output_stream );
+
+	latex_tex2pdf(
+		latex->tex_filename,
+		latex->working_directory );
+
+	appaserver_link_file->extension = "pdf";
+
+	ftp_output_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	appaserver_library_output_ftp_prompt(
+		ftp_output_filename, 
+		PROMPT,
+		process_name /* target */,
+		(char *)0 /* mime_type */ );
+}
+
+LIST *PDF_row_list(
+			LIST *element_list,
+			LIST *prior_year_list,
+			enum subclassification_option subclassification_option )
+{
+	ELEMENT *element;
+	LIST *row_list;
+
+	if ( !list_rewind( element_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		element = list_get( element_list );
+
+		if ( !element->element_balance_total ) continue;
+
+		if ( subclassification_option == subclassification_display )
+		{
+			list_append_list(
+				row_list,
+				PDF_display_subclassification_row_list(
+					element,
+					prior_year_list ) );
+		}
+		else
+		if ( subclassification_option == subclassification_omit )
+		{
+			list_append_list(
+				row_list,
+				PDF_omit_subclassification_row_list(
+					element,
+					prior_year_list ) );
+		}
+		else
+		if ( subclassification_option == subclassification_aggregate )
+		{
+			list_append_list(
+				row_list,
+				PDF_aggregate_subclassification_row_list(
+					element,
+					prior_year_list ) );
+		}
+
+	} while ( list_next( element_list ) );
+
+	return row_list;
+}
+
+LIST *PDF_display_subclassification_row_list(
+			ELEMENT *element,
+			LIST *prior_year_list )
+{
+	LIST *row_list;
+	char buffer[ 128 ];
+	char format_buffer[ 128 ];
+	SUBCLASSIFICATION *subclassification;
+	LATEX_ROW *latex_row;
+	LIST *subclassification_list;
+
+	subclassification_list = element->subclassification_list;
+
+	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	latex_row = latex_row_new();
+	list_set( row_list, latex_row );
+
+	/* Large/bold */
+	/* ---------- */
+	sprintf(buffer,
+		"\\large \\bf %s",
+		format_initial_capital(
+			format_buffer,
+			element->element_name ) );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( buffer ),
+		0 /* not large_bold */ );
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		if ( !subclassification->subclassification_total ) continue;
+
+		/* Subclassification name, if more than one account. */
+		/* ------------------------------------------------- */
+		if ( list_length( subclassification->account_list ) > 1 )
+		{
+			latex_row = latex_row_new();
+			list_set( row_list, latex_row );
+
+			/* Bold */
+			/* ---- */
+			sprintf(buffer,
+				"\\bf %s",
+				format_initial_capital(
+					format_buffer,
+					subclassification->
+						subclassification_name ) );
+
+			latex_column_data_set(
+				latex_row->column_data_list,
+				strdup( buffer ),
+				0 /* not large_bold */ );
+		}
+
+		list_append_list(
+			row_list,
+			PDF_account_row_list(
+				subclassification->account_list,
+				prior_year_list,
+				1 /* include_subclassification */ ) );
+
+		/* Display subclassification total, if more than one account */
+		/* --------------------------------------------------------- */
+		if ( list_length( subclassification->account_list ) > 1 )
+		{
+			latex_row = latex_row_new();
+			list_set( row_list, latex_row );
+
+			sprintf(buffer,
+			 	"\\bf Total %s",
+			 	format_initial_capital(
+					format_buffer,
+					subclassification->
+						subclassification_name ) );
+
+			latex_column_data_set(
+				latex_row->column_data_list,
+				strdup( buffer ),
+				0 /* not large_bold */ );
+
+			/* Blank cell for account */
+			/* ---------------------- */
+			latex_column_data_set(
+				latex_row->column_data_list,
+				strdup( "" ),
+				0 /* not large_bold */ );
+
+			latex_column_data_set(
+				latex_row->column_data_list,
+				strdup(
+					place_commas_in_money(
+						subclassification->
+						   subclassification_total ) ),
+				0 /* not large_bold */ );
+
+			/* Blank cell for element */
+			/* ---------------------- */
+			latex_column_data_set(
+				latex_row->column_data_list,
+				strdup( "" ),
+				0 /* not large_bold */ );
+
+			sprintf(buffer,
+				"%d%c",
+			 	subclassification->percent_of_revenue,
+			 	'%' );
+
+			latex_column_data_set(
+				latex_row->column_data_list,
+				strdup( buffer ),
+				0 /* not large_bold */ );
+
+			if ( list_length( prior_year_list ) )
+			{
+				latex_column_data_set_list(
+				     latex_row->column_data_list,
+				     statement_PDF_subclassification_delta_list(
+					subclassification->
+						subclassification_name,
+					prior_year_list ) );
+			}
+		}
+
+	} while( list_next( subclassification_list ) );
+
+	/* Element total */
+	/* ------------- */
+	latex_row = latex_new_latex_row();
+	list_set( row_list, latex_row );
+
+	sprintf(buffer,
+	 	"\\large \\bf Total %s",
+	 	format_initial_capital(
+			format_buffer,
+			element->element_name ) );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( buffer ),
+		0 /* not large_bold */ );
+
+	/* Blank cell for account */
+	/* ---------------------- */
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( "" ),
+		0 /* not large_bold */ );
+
+	/* Blank cell for subclassification */
+	/* -------------------------------- */
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( "" ),
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup(
+			place_commas_in_money(
+				element->element_balance_total ) ),
+		0 /* not large_bold */ );
+
+	sprintf(buffer,
+		"%d%c",
+		element->percent_of_revenue,
+		'%' );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( buffer ),
+		0 /* not large_bold */ );
+
+	if ( list_length( prior_year_list ) )
+	{
+		latex_column_data_set_list(
+			latex_row->column_data_list,
+			statement_PDF_element_delta_list(
+				element->element_name,
+				prior_year_list ) );
+	}
+	return row_list;
+}
+
+LIST *PDF_omit_subclassification_row_list(
+			ELEMENT *element,
+			LIST *prior_year_list )
+{
+	LIST *row_list;
+	ACCOUNT *account;
+	char buffer[ 128 ];
+	char format_buffer[ 128 ];
+	LATEX_ROW *latex_row;
+
+	if ( !list_rewind( element->account_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	latex_row = latex_new_latex_row();
+
+	list_set( row_list, latex_row );
+
+	sprintf(buffer,
+		"\\large \\bf %s",
+		format_initial_capital(
+			format_buffer,
+			element->element_name ) );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( buffer ),
+		0 /* not large_bold */ );
+
+	do {
+		account = list_get( element->account_list ); 
+
+		if ( !account->account_total ) continue;
+
+		latex_row = latex_row_new();
+
+		list_set( row_list, latex_row );
+
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup(
+				format_initial_capital(
+					format_buffer,
+					account->account_name ) ),
+			0 /* not large_bold */ );
+
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup(
+				place_commas_in_money(
+					account->account_total ) ),
+			0 /* not large_bold */ );
+
+		/* Blank space for the element column. */
+		/* ----------------------------------- */
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup( "" ),
+			0 /* not large_bold */ );
+
+		sprintf(buffer,
+		 	"%d%c",
+		 	account->percent_of_revenue,
+		 	'%' );
+
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+
+		if ( list_length( prior_year_list ) )
+		{
+			latex_column_data_set_list(
+				latex_row->column_data_list,
+				statement_PDF_account_delta_list(
+					account->account_name,
+					prior_year_list ) );
+		}
+
+	} while( list_next( element->account_list ) );
+
+	latex_row = latex_row_new();
+	list_set( row_list, latex_row );
+
+	sprintf(buffer,
+	 	"\\large \\bf Total %s",
+		format_initial_capital(
+			format_buffer,
+	 		element->element_name ) );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( buffer ),
+		0 /* not large_bold */ );
+
+	/* Skip column for account */
+	/* ----------------------- */
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( "" ),
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup(
+			place_commas_in_money(
+				element->element_balance_total ) ),
+		0 /* not large_bold */ );
+
+	sprintf(buffer,
+		"%d%c",
+		element->percent_of_revenue,
+		'%' );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( buffer ),
+		0 /* not large_bold */ );
+
+	if ( list_length( prior_year_list ) )
+	{
+		latex_column_data_set_list(
+			latex_row->column_data_list,
+			statement_PDF_element_delta_list(
+				element->element_name,
+				prior_year_list ) );
+	}
+
+	return row_list;
+}
+
+LIST *PDF_aggregate_subclassification_row_list(
+			ELEMENT *element,
+			LIST *prior_year_list )
+{
+	LIST *row_list;
+	char buffer[ 128 ];
+	char format_buffer[ 128 ];
+	SUBCLASSIFICATION *subclassification;
+	LATEX_ROW *latex_row;
+	LIST *subclassification_list;
+
+	subclassification_list = element->subclassification_list;
+
+	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	if ( list_length( subclassification_list ) > 1 )
+	{
+		latex_row = latex_row_new();
+		list_set( row_list, latex_row );
+
+		/* Large/bold */
+		/* ---------- */
+		sprintf(buffer,
+			"\\large \\bf %s",
+			format_initial_capital(
+				format_buffer,
+				element->element_name ) );
+
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+
+	}
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		if ( !subclassification->subclassification_total ) continue;
+
+		latex_row = latex_row_new();
+		list_set( row_list, latex_row );
+
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup(
+		 		format_initial_capital(
+					format_buffer,
+					subclassification->
+						subclassification_name ) ),
+			0 /* not large_bold */ );
+
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup(
+				place_commas_in_money(
+					subclassification->
+					   subclassification_total ) ),
+			0 /* not large_bold */ );
+
+		/* Blank cell for element */
+		/* ---------------------- */
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup( "" ),
+			0 /* not large_bold */ );
+
+		sprintf(buffer,
+			"%d%c",
+		 	subclassification->percent_of_revenue,
+		 	'%' );
+
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+
+		if ( list_length( prior_year_list ) )
+		{
+			latex_column_data_set_list(
+			     latex_row->column_data_list,
+			     statement_PDF_subclassification_delta_list(
+				subclassification->
+					subclassification_name,
+				prior_year_list ) );
+		}
+
+	} while( list_next( subclassification_list ) );
+
+	/* Element total */
+	/* ------------- */
+	latex_row = latex_new_latex_row();
+	list_set( row_list, latex_row );
+
+	sprintf(buffer,
+	 	"\\large \\bf Total %s",
+	 	format_initial_capital(
+			format_buffer,
+			element->element_name ) );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( buffer ),
+		0 /* not large_bold */ );
+
+	/* Blank cell for subclassification */
+	/* -------------------------------- */
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( "" ),
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup(
+			place_commas_in_money(
+				element->element_balance_total ) ),
+		0 /* not large_bold */ );
+
+	sprintf(buffer,
+		"%d%c",
+		element->percent_of_revenue,
+		'%' );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( buffer ),
+		0 /* not large_bold */ );
+
+	if ( list_length( prior_year_list ) )
+	{
+		latex_column_data_set_list(
+			latex_row->column_data_list,
+			statement_PDF_element_delta_list(
+				element->element_name,
+				prior_year_list ) );
+	}
+	return row_list;
+}
+
+LIST *PDF_account_row_list(
+			LIST *account_list,
+			LIST *prior_year_list,
+			boolean include_subclassification )
+{
+	LIST *row_list;
+	LATEX_ROW *latex_row;
+	char buffer[ 128 ];
+	char format_buffer[ 128 ];
+	ACCOUNT *account;
+
+	if ( !list_rewind( account_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		account = list_get( account_list );
+
+		if ( !account->account_total ) continue;
+
+		latex_row = latex_new_latex_row();
+		list_set( row_list, latex_row );
+
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup(
+				format_initial_capital(
+					format_buffer,
+					account->account_name ) ),
+			0 /* not large_bold */ );
+
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup(
+				place_commas_in_money(
+			   		account->account_total ) ),
+			0 /* not large_bold */ );
+
+		if ( include_subclassification )
+		{
+			/* Blank cell for subclassification */
+			/* -------------------------------- */
+			latex_column_data_set(
+				latex_row->column_data_list,
+				strdup( "" ),
+				0 /* not large_bold */ );
+		}
+
+		/* Blank cell for element */
+		/* ---------------------- */
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup( "" ),
+			0 /* not large_bold */ );
+
+		sprintf(buffer,
+			"%d%c",
+			account->percent_of_revenue,
+			'%' );
+
+		latex_column_data_set(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+
+		if ( list_length( prior_year_list ) )
+		{
+			latex_column_data_set_list(
+				latex_row->column_data_list,
+				statement_PDF_account_delta_list(
+					account->account_name,
+					prior_year_list ) );
+		}
+
+	} while ( list_next ( account_list ) );
+
+	return row_list;
+}
+
+void html_output(	LIST *statement_fund_list,
+			char *title,
+			char *subtitle,
+			boolean is_statement_of_activities,
+			enum subclassification_option subclassification_option )
 {
 	STATEMENT_FUND *statement_fund;
 
@@ -1036,415 +1193,1044 @@ void html_subclassification_omit(
 	do {
 		statement_fund = list_get( statement_fund_list );
 
-		html_subclassification_omit_fund(
+		html_output_fund(
 			statement_fund,
 			title,
-			subtitle );
+			subtitle,
+			is_statement_of_activities,
+			subclassification_option );
 
 	} while ( list_next( statement_fund_list ) );
 }
 
-void html_subclassification_omit_fund(
+void html_output_fund(
 			STATEMENT_FUND *statement_fund,
 			char *title,
-			char *subtitle )
+			char *subtitle,
+			boolean is_statement_of_activities,
+			enum subclassification_option subclassification_option )
 {
 	HTML_TABLE *html_table;
-
-	if ( !statement_fund )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: statement_fund is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	boolean include_account = 0;
+	boolean include_subclassification = 0;
 
 	html_table =
 		html_table_new(
 			title,
-			sub_title,
+			subtitle,
 			statement_fund->fund_name );
 
-	html_table_set_heading( html_table, "" );
-	html_table_set_heading( html_table, "Account" );
-	html_table_set_heading( html_table, "Element" );
-	html_table_set_heading( html_table, "Percent" );
-
 	html_table->number_left_justified_columns = 1;
-	html_table->number_right_justified_columns = 3;
+	html_table->number_right_justified_columns = 99;
 
 	html_table_heading(
 		html_table->title,
 		html_table->sub_title,
 		html_table->sub_sub_title );
 
+	if ( subclassification_option == subclassification_display )
+	{
+		include_account = 1;
+		include_subclassification = 1;
+	}
+	if ( subclassification_option == subclassification_omit )
+	{
+		include_account = 1;
+	}
+	if ( subclassification_option == subclassification_aggregate )
+	{
+		include_subclassification = 1;
+	}
+
 	html_table_output_data_heading(
-		html_table->heading_list,
+		statement_html_heading_list(
+			statement_fund->prior_year_list,
+			include_account,
+			include_subclassification ),
 		html_table->number_left_justified_columns,
 		html_table->number_right_justified_columns,
 		(LIST *)0 /* justify_list */ );
 
-	/* Revenues */
-	/* -------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_REVENUE,
-				list ) ) )
+	if ( subclassification_option == subclassification_display )
 	{
-		if ( list_length( element->account_list ) )
-		{
-			html_account_list_output(
-				html_table,
-				element->account_list,
-				0 /* not subclassification_exists */ );
-	}
+		html_display_subclassification_element_list(
+			html_table,
+			statement_fund->preclose_element_list,
+			statement_fund->prior_year_list );
 
-	/* Expenses */
-	/* -------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_EXPENSE,
-				list ) ) )
+		html_display_subclassification_net_income(
+			html_table,
+			statement_fund->net_income,
+			statement_fund->net_income_percent,
+			statement_fund->prior_year_list,
+			is_statement_of_activities );
+	}
+	else
+	if ( subclassification_option == subclassification_omit )
 	{
-		if ( list_length( element->account_list ) )
-		{
-			html_account_list_output(
-				html_table,
-				element->account_list,
-				0 /* not subclassification_exists */ );
-	}
+		html_omit_subclassification_element_list(
+			html_table,
+			statement_fund->preclose_element_list,
+			statement_fund->prior_year_list );
 
-	/* Gains */
-	/* ----- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_GAIN,
-				list ) ) )
+		html_omit_subclassification_net_income(
+			html_table,
+			statement_fund->net_income,
+			statement_fund->net_income_percent,
+			statement_fund->prior_year_list,
+			is_statement_of_activities );
+	}
+	else
+	if ( subclassification_option == subclassification_aggregate )
 	{
-		if ( list_length( element->account_list ) )
-		{
-			html_account_list_output(
-				html_table,
-				element->account_list,
-				0 /* not subclassification_exists */ );
+		html_aggregate_subclassification_element_list(
+			html_table,
+			statement_fund->preclose_element_list,
+			statement_fund->prior_year_list );
+
+		html_aggregate_subclassification_net_income(
+			html_table,
+			statement_fund->net_income,
+			statement_fund->net_income_percent,
+			statement_fund->prior_year_list,
+			is_statement_of_activities );
 	}
-
-	/* Losses */
-	/* ------ */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_LOSS,
-				list ) ) )
-	{
-		if ( list_length( element->account_list ) )
-		{
-			html_account_list_output(
-				html_table,
-				element->account_list,
-				0 /* not subclassification_exists */ );
-	}
-
-	html_net_income_output(
-		html_table,
-	income_statement_net_income_html(
-		html_table,
-		net_income,
-		is_statement_of_activities,
-		total_revenues,
-		1 /* skip_columns */ );
-
-/*
-		shares_outstanding = get_shares_outstanding(
-					appaserver_parameter_file->
-						appaserver_mount_point,
-					application_name,
-					as_of_date );
-		if( shares_outstanding )
-		{
-			output_earnings_per_share(
-						html_table,
-						net_income,
-						shares_outstanding );
-		}
-*/
 
 	html_table_close();
-	document_close();
-
 }
 
-void income_statement_subclassification_omit_PDF(
-			char *application_name,
-			char *title,
-			char *sub_title,
-			char *fund_name,
-			char *as_of_date,
-			char *document_root_directory,
-			boolean is_statement_of_activities,
-			char *process_name,
-			char *logo_filename )
+void html_display_subclassification_element_list(
+			HTML_TABLE *html_table,
+			LIST *preclose_element_list,
+			LIST *prior_year_list )
 {
-	LATEX *latex;
-	LATEX_TABLE *latex_table;
-	LIST *list;
-	LIST *filter_element_name_list;
-	char *latex_filename;
-	char *dvi_filename;
-	char *working_directory;
-	char *ftp_output_filename;
-	int pid = getpid();
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	ELEMENT *element;
 
-	printf( "<h1>%s</h1>\n", title );
-	printf( "<h2>%s</h2>\n", sub_title );
+	if ( !list_rewind( preclose_element_list ) ) return;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
-			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			( application_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-	 		document_root_directory,
-			process_name /* filename_stem */,
-			application_name,
-			pid /* process_id */,
-			(char *)0 /* session */,
-			(char *)0 /* extension */ );
+	do {
+		element = list_get( preclose_element_list );
 
-	appaserver_link_file->extension = "tex";
+		if ( !element->element_balance_total ) continue;
 
-	latex_filename =
-		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
+		html_display_subclassification_element(
+			html_table,
+			element,
+			prior_year_list );
 
-	appaserver_link_file->extension = "dvi";
+	} while ( list_next( preclose_element_list ) );
+}
 
-	dvi_filename =
-		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
+void html_display_subclassification_element(
+			HTML_TABLE *html_table,
+			ELEMENT *element,
+			LIST *prior_year_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	ACCOUNT *account;
+	char buffer[ 128 ];
+	char format_buffer[ 128 ];
+	char element_title[ 128 ];
 
-	working_directory =
-		appaserver_link_source_directory(
-			document_root_directory,
-			application_name );
-
-	latex = latex_new_latex(
-			latex_filename,
-			dvi_filename,
-			working_directory,
-			0 /* not landscape_flag */,
-			logo_filename );
-
-	latex_table =
-		latex_new_latex_table(
-			sub_title /* caption */ );
-
-	list_set( latex->table_list, latex_table );
-
-	latex_table->heading_list =
-		build_subclassification_omit_PDF_heading_list();
-
-	filter_element_name_list = list_new();
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_REVENUE );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_EXPENSE );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_GAIN );
-	list_append_pointer(	filter_element_name_list,
-				ELEMENT_LOSS );
-
-	list =
-		element_list(
-			filter_element_name_list,
-			fund_name,
-			transaction_date_time_closing(
-				as_of_date,
-				1 /* preclose_time */,
-				transaction_closing_entry_exists(
-					as_of_date ) ),
-			0 /* not fetch_subclassifiction_list */,
-			1 /* fetch_account_list */ );
-
-	latex_table->row_list =
-		build_subclassification_omit_PDF_row_list(
-			list /* element_list */,
-			is_statement_of_activities );
-
-	if ( !list_length( latex_table->row_list ) )
+	if ( !html_table )
 	{
-		printf(
-		"<p>ERROR: there are no elements for this statement.\n" );
-		document_close();
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty html_table.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
 		exit( 1 );
 	}
 
-	latex_longtable_output(
-		latex->output_stream,
-		latex->landscape_flag,
-		latex->table_list,
-		latex->logo_filename,
-		0 /* not omit_page_numbers */,
-		date_get_now_yyyy_mm_dd_hh_mm(
-			date_get_utc_offset() )
-				/* footline */ );
+	if ( !list_rewind( element->subclassification_list ) ) return;
 
-	fclose( latex->output_stream );
+	/* Set the element as centered */
+	/* --------------------------- */
+	sprintf(element_title,
+		"<h2>%s</h2>",
+		format_initial_capital(
+			format_buffer,
+			element->element_name ) );
 
-	latex_tex2pdf(	latex->tex_filename,
-			latex->working_directory );
+	html_table_set_data(
+		html_table->data_list,
+		strdup( element_title ) );
 
-	appaserver_link_file->extension = "pdf";
+	html_table_output_data(
+		html_table->data_list,
+		html_table->
+			number_left_justified_columns,
+		html_table->
+			number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
 
-	ftp_output_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	list_free_string_list( html_table->data_list );
+	html_table->data_list = list_new();
 
-	appaserver_library_output_ftp_prompt(
-		ftp_output_filename, 
-		PROMPT,
-		process_name /* target */,
-		(char *)0 /* mime_type */ );
+	do {
+		subclassification = list_get( element->subclassification_list );
+
+		if ( !list_length( subclassification->account_list ) )
+			continue;
+
+		/* ------------------------------------ */
+		/* If more than one account,		*/
+		/* then set the subclassification name.	*/
+		/* ------------------------------------ */
+		if ( list_length( subclassification->account_list ) > 1 )
+		{
+			sprintf(buffer,
+				"<h3>%s</h3>",
+				format_initial_capital(
+					format_buffer,
+					subclassification->
+						subclassification_name ) );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( buffer ) );
+	
+			/* Output the subclassification name */
+			/* --------------------------------- */
+			html_table_output_data(
+				html_table->data_list,
+				html_table->number_left_justified_columns,
+				html_table->number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+
+			list_free_string_list( html_table->data_list );
+			html_table->data_list = list_new();
+		}
+
+		list_rewind( subclassification->account_list );
+
+		do {
+			account =
+				list_get(
+					subclassification->account_list );
+
+			if ( !account->account_total ) continue;
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup(
+					format_initial_capital(
+						format_buffer,
+						account->account_name ) ) );
+	
+			html_table_set_data(
+				html_table->data_list,
+				strdup(
+					place_commas_in_money(
+						account->account_total ) ) );
+
+			/* Skip the subclassification column */
+			/* --------------------------------- */
+			html_table_set_data(
+				html_table->data_list,
+				strdup( "" ) );
+
+			/* Skip the element column */
+			/* ----------------------- */
+			html_table_set_data(
+				html_table->data_list,
+				strdup( "" ) );
+
+			/* Set the account percent of revenue */
+			/* ---------------------------------- */
+			sprintf( buffer,
+				 "%d%c",
+				 account->percent_of_revenue,
+				 '%' );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( buffer ) );
+
+			if ( list_length( prior_year_list ) )
+			{
+				list_append_list(
+					html_table->data_list,
+					statement_html_account_delta_list(
+						account->account_name,
+						prior_year_list ) );
+			}
+
+			html_table_output_data(
+				html_table->data_list,
+				html_table->
+					number_left_justified_columns,
+				html_table->
+					number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+	
+			list_free_string_list( html_table->data_list );
+			html_table->data_list = list_new();
+
+		} while( list_next( subclassification->account_list ) );
+
+		/* Set the subclassification label */
+		/* ------------------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup(
+				statement_html_subclassification_label(
+					subclassification->
+						subclassification_name ) ) );
+
+		/* Skip the account column */
+		/* ----------------------- */
+		html_table_set_data( html_table->data_list, strdup( "" ) );
+
+		/* Set the subclassification total */
+		/* ------------------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup(
+				place_commas_in_money(
+					subclassification->
+						subclassification_total ) ) );
+
+		/* Skip the element column */
+		/* ----------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup( "" ) );
+
+		sprintf( buffer,
+			 "%d%c",
+			 subclassification->percent_of_revenue,
+			 '%' );
+
+		/* Set the subclassification percent of revenue */
+		/* -------------------------------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup( buffer ) );
+
+		if ( list_length( prior_year_list ) )
+		{
+			list_append_list(
+				html_table->data_list,
+				statement_html_subclassification_delta_list(
+					subclassification->
+						subclassification_name,
+					prior_year_list ) );
+		}
+
+		/* Output the row */
+		/* -------------- */
+		html_table_output_data(
+			html_table->data_list,
+			html_table->
+				number_left_justified_columns,
+			html_table->
+				number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
+
+		list_free_string_list( html_table->data_list );
+		html_table->data_list = list_new();
+
+	} while( list_next( element->subclassification_list ) );
+
+	sprintf(element_title,
+		"<h2>Total %s</h2>",
+		format_initial_capital(
+			format_buffer,
+			element->element_name ) );
+
+	/* Set the element total title */
+	/* --------------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( element_title ) );
+	
+	/* Skip the account column */
+	/* ----------------------- */
+	html_table_set_data( html_table->data_list, strdup( "" ) );
+
+	/* Skip the subclassification column */
+	/* --------------------------------- */
+	html_table_set_data( html_table->data_list, strdup( "" ) );
+
+	/* Set the element total column */
+	/* ---------------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup(
+			place_commas_in_money(
+				element->element_balance_total ) ) );
+
+	sprintf( buffer,
+		 "%d%c",
+		 element->percent_of_revenue,
+		 '%' );
+
+	/* Set the percent of revenue column */
+	/* --------------------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( buffer ) );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			html_table->data_list,
+			statement_html_element_delta_list(
+				element->element_name,
+				prior_year_list ) );
+	}
+
+	/* Output the element row */
+	/* ---------------------- */
+	html_table_output_data(
+		html_table->data_list,
+		html_table->
+			number_left_justified_columns,
+		html_table->
+			number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
+
+	list_free_string_list( html_table->data_list );
+	html_table->data_list = list_new();
 }
 
-LIST *build_subclassification_omit_PDF_row_list(
-			LIST *element_list,
+void html_display_subclassification_net_income(
+			HTML_TABLE *html_table,
+			double net_income,
+			int net_income_percent,
+			LIST *prior_year_list,
 			boolean is_statement_of_activities )
 {
+	char buffer[ 128 ];
+
+	html_table_set_data(
+		html_table->data_list,
+		strdup(
+			statement_html_net_income_label(
+				is_statement_of_activities ) ) );
+
+	/* Skip the account */
+	/* ---------------- */
+	html_table_set_data( html_table->data_list, strdup( "" ) );
+
+	/* Skip the subclassification */
+	/* -------------------------- */
+	html_table_set_data( html_table->data_list, strdup( "" ) );
+
+	/* Set the net income */
+	/* ------------------ */
+	html_table_set_data(
+		html_table->data_list,
+		strdup(
+			place_commas_in_money(
+				net_income ) ) );
+
+	sprintf( buffer,
+		 "%d%c",
+		 net_income_percent,
+		 '%' );
+
+	/* Set the percent of revenue */
+	/* --------------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( buffer ) );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			html_table->data_list,
+			statement_html_net_income_delta_list(
+				prior_year_list ) );
+	}
+
+	/* Output the net income row */
+	/* ------------------------- */
+	html_table_output_data(
+		html_table->data_list,
+		html_table->
+			number_left_justified_columns,
+		html_table->
+			number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
+
+	list_free_string_list( html_table->data_list );
+	html_table->data_list = list_new();
+}
+
+void html_omit_subclassification_element_list(
+			HTML_TABLE *html_table,
+			LIST *preclose_element_list,
+			LIST *prior_year_list )
+{
 	ELEMENT *element;
-	double total_revenues = 0.0;
-	double total_expenses = 0.0;
-	double total_gains = 0.0;
-	double total_losses = 0.0;
-	double net_income = 0.0;
-	LIST *row_list;
+
+	if ( !list_rewind( preclose_element_list ) ) return;
+
+	do {
+		element = list_get( preclose_element_list );
+
+		if ( !element->element_balance_total ) continue;
+
+		html_omit_subclassification_element(
+			html_table,
+			element,
+			prior_year_list );
+
+	} while ( list_next( preclose_element_list ) );
+}
+
+void html_omit_subclassification_element(
+			HTML_TABLE *html_table,
+			ELEMENT *element,
+			LIST *prior_year_list )
+{
+	ACCOUNT *account;
+	char buffer[ 128 ];
+	char format_buffer[ 128 ];
+	char element_title[ 128 ];
+
+	if ( !html_table )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty html_table.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( element->account_list ) ) return;
+
+	sprintf(element_title,
+		"<h2>%s</h2>",
+		format_initial_capital(
+			format_buffer,
+			element->element_name ) );
+
+	/* Set the element title */
+	/* --------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( element_title ) );
+
+	/* Output the element title */
+	/* ------------------------ */
+	html_table_output_data(
+		html_table->data_list,
+		html_table->
+			number_left_justified_columns,
+		html_table->
+			number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
+
+	list_free_string_list( html_table->data_list );
+	html_table->data_list = list_new();
+
+	do {
+		account = list_get( element->account_list );
+
+		if ( !account->account_total ) continue;
+
+		/* Set the account name */
+		/* -------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup(
+				format_initial_capital(
+					format_buffer,
+					account->account_name ) ) );
+	
+		/* Set the account total */
+		/* --------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup(
+				place_commas_in_money(
+					account->account_total ) ) );
+
+		/* Skip the element column */
+		/* ----------------------- */
+		html_table_set_data( html_table->data_list, strdup( "" ) );
+
+		sprintf( buffer,
+			 "%d%c",
+			 account->percent_of_revenue,
+			 '%' );
+
+		/* Set the account percent of revenue */
+		/* ---------------------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup( buffer ) );
+
+		if ( list_length( prior_year_list ) )
+		{
+			list_append_list(
+				html_table->data_list,
+				statement_html_account_delta_list(
+					account->account_name,
+					prior_year_list ) );
+		}
+
+		/* Output the row */
+		/* -------------- */
+		html_table_output_data(
+			html_table->data_list,
+			html_table->
+				number_left_justified_columns,
+			html_table->
+				number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
+	
+		list_free_string_list( html_table->data_list );
+		html_table->data_list = list_new();
+
+	} while( list_next( element->account_list ) );
+
+	sprintf(element_title,
+		"<h2>Total %s</h2>",
+		element->element_name );
+
+	/* Set the element total title */
+	/* --------------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( element_title ) );
+	
+	/* Skip the account column */
+	/* ----------------------- */
+	html_table_set_data( html_table->data_list, strdup( "" ) );
+
+	/* Set the element total */
+	/* --------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup(
+			place_commas_in_money(
+				element->element_balance_total ) ) );
+
+	sprintf( buffer,
+		 "%d%c",
+		 element->percent_of_revenue,
+		 '%' );
+
+	/* Set the percent of revenue */
+	/* -------------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( buffer ) );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			html_table->data_list,
+			statement_html_element_delta_list(
+				element->element_name,
+				prior_year_list ) );
+	}
+
+	/* Output the element total row */
+	/* ---------------------------- */
+	html_table_output_data(
+		html_table->data_list,
+		html_table->
+			number_left_justified_columns,
+		html_table->
+			number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
+
+	list_free_string_list( html_table->data_list );
+	html_table->data_list = list_new();
+}
+
+void html_omit_subclassification_net_income(
+			HTML_TABLE *html_table,
+			double net_income,
+			int net_income_percent,
+			LIST *prior_year_list,
+			boolean is_statement_of_activities )
+{
+	char buffer[ 128 ];
+
+	/* Set the element as centered */
+	/* --------------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup(
+			statement_html_net_income_label(
+				is_statement_of_activities )  ) );
+
+	/* Skip the account */
+	/* ---------------- */
+	html_table_set_data( html_table->data_list, strdup( "" ) );
+
+	/* Set the net income */
+	/* ------------------ */
+	html_table_set_data(
+		html_table->data_list,
+		strdup(
+			place_commas_in_money(
+				net_income ) ) );
+
+	sprintf( buffer,
+		 "%d%c",
+		 net_income_percent,
+		 '%' );
+
+	/* Percent of revenue */
+	/* ------------------ */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( buffer ) );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			html_table->data_list,
+			statement_html_net_income_delta_list(
+				prior_year_list ) );
+	}
+
+	/* Output the net income row */
+	/* ------------------------- */
+	html_table_output_data(
+		html_table->data_list,
+		html_table->
+			number_left_justified_columns,
+		html_table->
+			number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
+
+	list_free_string_list( html_table->data_list );
+	html_table->data_list = list_new();
+}
+
+void html_aggregate_subclassification_element_list(
+			HTML_TABLE *html_table,
+			LIST *preclose_element_list,
+			LIST *prior_year_list )
+{
+	ELEMENT *element;
+
+	if ( !list_rewind( preclose_element_list ) ) return;
+
+	do {
+		element = list_get( preclose_element_list );
+
+		if ( !element->element_balance_total ) continue;
+
+		html_aggregate_subclassification_element(
+			html_table,
+			element,
+			prior_year_list );
+
+	} while ( list_next( preclose_element_list ) );
+}
+
+void html_aggregate_subclassification_element(
+			HTML_TABLE *html_table,
+			ELEMENT *element,
+			LIST *prior_year_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	char buffer[ 128 ];
+	char format_buffer[ 128 ];
+	char element_title[ 128 ];
+
+	if ( !html_table )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty html_table.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( element->subclassification_list ) ) return;
+
+	sprintf(element_title,
+		"<h2>%s</h2>",
+		format_initial_capital(
+			format_buffer,
+			element->element_name ) );
+
+	/* Set the element title */
+	/* --------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( element_title ) );
+
+	/* Output the element title */
+	/* ------------------------ */
+	html_table_output_data(
+		html_table->data_list,
+		html_table->
+			number_left_justified_columns,
+		html_table->
+			number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
+
+	list_free_string_list( html_table->data_list );
+	html_table->data_list = list_new();
+
+	do {
+		subclassification = list_get( element->subclassification_list );
+
+		if ( !subclassification->subclassification_total ) continue;
+
+		/* Set the subclassification label */
+		/* ------------------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup(
+				statement_html_subclassification_label(
+					subclassification->
+						subclassification_name ) ) );
+	
+		/* Set the subclassification total */
+		/* ------------------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup(
+				place_commas_in_money(
+					subclassification->
+						subclassification_total ) ) );
+
+		/* Skip the element column */
+		/* ----------------------- */
+		html_table_set_data( html_table->data_list, strdup( "" ) );
+
+		sprintf( buffer,
+			 "%d%c",
+			 subclassification->percent_of_revenue,
+			 '%' );
+
+		/* Set the subclassification percent of revenue */
+		/* -------------------------------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup( buffer ) );
+
+		if ( list_length( prior_year_list ) )
+		{
+			list_append_list(
+				html_table->data_list,
+				statement_html_subclassification_delta_list(
+					subclassification->
+						subclassification_name,
+					prior_year_list ) );
+		}
+
+		/* Output the row */
+		/* -------------- */
+		html_table_output_data(
+			html_table->data_list,
+			html_table->
+				number_left_justified_columns,
+			html_table->
+				number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
+	
+		list_free_string_list( html_table->data_list );
+		html_table->data_list = list_new();
+
+	} while( list_next( element->subclassification_list ) );
+
+	sprintf(element_title,
+		"<h2>Total %s</h2>",
+		element->element_name );
+
+	/* Set the element total title */
+	/* --------------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( element_title ) );
+	
+	/* Skip the subclassification column */
+	/* --------------------------------- */
+	html_table_set_data( html_table->data_list, strdup( "" ) );
+
+	/* Set the element total */
+	/* --------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup(
+			place_commas_in_money(
+				element->element_balance_total ) ) );
+
+	sprintf( buffer,
+		 "%d%c",
+		 element->percent_of_revenue,
+		 '%' );
+
+	/* Set the percent of revenue */
+	/* -------------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( buffer ) );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			html_table->data_list,
+			statement_html_element_delta_list(
+				element->element_name,
+				prior_year_list ) );
+	}
+
+	/* Output the element total row */
+	/* ---------------------------- */
+	html_table_output_data(
+		html_table->data_list,
+		html_table->
+			number_left_justified_columns,
+		html_table->
+			number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
+
+	list_free_string_list( html_table->data_list );
+	html_table->data_list = list_new();
+}
+
+void html_aggregate_subclassification_net_income(
+			HTML_TABLE *html_table,
+			double net_income,
+			int net_income_percent,
+			LIST *prior_year_list,
+			boolean is_statement_of_activities )
+{
+	char buffer[ 128 ];
+
+	/* Set the element as centered */
+	/* --------------------------- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup(
+			statement_html_net_income_label(
+				is_statement_of_activities )  ) );
+
+	/* Skip the subclassification */
+	/* -------------------------- */
+	html_table_set_data( html_table->data_list, strdup( "" ) );
+
+	/* Set the net income */
+	/* ------------------ */
+	html_table_set_data(
+		html_table->data_list,
+		strdup(
+			place_commas_in_money(
+				net_income ) ) );
+
+	sprintf( buffer,
+		 "%d%c",
+		 net_income_percent,
+		 '%' );
+
+	/* Percent of revenue */
+	/* ------------------ */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( buffer ) );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_append_list(
+			html_table->data_list,
+			statement_html_net_income_delta_list(
+				prior_year_list ) );
+	}
+
+	/* Output the net income row */
+	/* ------------------------- */
+	html_table_output_data(
+		html_table->data_list,
+		html_table->
+			number_left_justified_columns,
+		html_table->
+			number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
+
+	list_free_string_list( html_table->data_list );
+	html_table->data_list = list_new();
+}
+
+LATEX_ROW *PDF_net_income_latex_row(
+			double net_income,
+			int net_income_percent,
+			LIST *prior_year_list,
+			boolean is_statement_of_activities,
+			boolean include_account,
+			boolean include_subclassification )
+{
 	LATEX_ROW *latex_row;
+	char buffer[ 128 ];
 
-	row_list = list_new();
-
-	/* Compute total revenues */
-	/* ---------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_REVENUE,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			account_omit_latex_row_list(
-				&total_revenues,
-				element->account_list,
-				element->element_name,
-				element->accumulate_debit,
-				element->element_total
-					/* percent_denominator */ ) );
-	}
-
-	/* Compute total expenses */
-	/* ---------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_EXPENSE,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			account_omit_latex_row_list(
-				&total_expenses,
-				element->account_list,
-				element->element_name,
-				element->accumulate_debit,
-				total_revenues /* percent_denominator */ ) );
-	}
-
-	/* Compute total gains */
-	/* ------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_GAIN,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			account_omit_latex_row_list(
-				&total_gains,
-				element->account_list,
-				element->element_name,
-				element->accumulate_debit,
-				total_revenues /* percent_denominator */ ) );
-	}
-
-	/* Compute total losses */
-	/* -------------------- */ 
-	if ( ( element =
-			element_seek(
-				ELEMENT_LOSS,
-				element_list ) ) )
-	{
-		list_append_list(
-			row_list,
-			account_omit_latex_row_list(
-				&total_losses,
-				element->account_list,
-				element->element_name,
-				element->accumulate_debit,
-				total_revenues /* percent_denominator */ ) );
-	}
-
-	net_income = transaction_net_income(
-				total_revenues,
-				total_expenses,
-				total_gains,
-				total_losses );
-
-	/* Blank line */
-	/* ---------- */
 	latex_row = latex_new_latex_row();
-	list_append_pointer( row_list, latex_row );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( "" ),
+		statement_PDF_net_income_label(
+			is_statement_of_activities ),
+		1 /* large_bold */ );
+
+	if ( include_account )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
+	}
+
+	if ( include_subclassification )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
+	}
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup(
+			place_commas_in_money(
+				net_income ) ),
 		0 /* not large_bold */ );
 
-	list_set(	row_list,
-			element_latex_net_income_row(
-				net_income,
-				is_statement_of_activities,
-				total_revenues
-					/* percent_denominator */,
-				1 /* omit_subclassification */ ) );
+	sprintf(buffer,
+		"%d%c",
+	 	net_income_percent,
+	 	'%' );
 
-	return row_list;
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( buffer ),
+		0 /* not large_bold */ );
+
+	if ( list_length( prior_year_list ) )
+	{
+		latex_column_data_set_list(
+			latex_row->column_data_list,
+			statement_PDF_net_income_delta_list(
+					prior_year_list ) );
+	}
+
+	return latex_row;
 }
-
-#endif
 

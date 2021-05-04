@@ -320,35 +320,6 @@ int statement_fund_net_income_percent(
 			double net_income,
 			double revenue_total );
 
-void statement_html_display_subclassification(
-			LIST *statement_fund_list,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities );
-
-void statement_html_display_subclassification_fund(
-			STATEMENT_FUND *statement_fund,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities );
-
-void statement_html_display_subclassification_element_list(
-			HTML_TABLE *html_table,
-			LIST *element_list,
-			LIST *prior_year_list );
-
-void statement_html_display_subclassification_element(
-			HTML_TABLE *html_table,
-			ELEMENT *element,
-			LIST *prior_year_list );
-
-void statement_html_display_subclassification_net_income(
-			HTML_TABLE *html_table,
-			double net_income,
-			int net_income_percent,
-			LIST *prior_year_list,
-			boolean is_statement_of_activities );
-
 LIST *statement_html_heading_list(
 			LIST *prior_year_list,
 			boolean include_account,
@@ -359,68 +330,15 @@ LIST *statement_html_heading_list(
 char *statement_html_net_income_label(
 			boolean is_statement_of_activities );
 
+/* Returns program memory */
+/* ---------------------- */
+char *statement_PDF_net_income_label(
+			boolean is_statement_of_activities );
+
 /* Returns static memory */
 /* --------------------- */
 char *statement_html_subclassification_label(
 			char *subclassification_name );
-
-void statement_html_omit_subclassification(
-			LIST *statement_fund_list,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities );
-
-void statement_html_omit_subclassification_fund(
-			STATEMENT_FUND *statement_fund,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities );
-
-void statement_html_omit_subclassification_element_list(
-			HTML_TABLE *html_table,
-			LIST *element_list,
-			LIST *prior_year_list );
-
-void statement_html_omit_subclassification_element(
-			HTML_TABLE *html_table,
-			ELEMENT *element,
-			LIST *prior_year_list );
-
-void statement_html_omit_subclassification_net_income(
-			HTML_TABLE *html_table,
-			double net_income,
-			int net_income_percent,
-			LIST *prior_year_list,
-			boolean is_statement_of_activities );
-
-void statement_html_aggregate_subclassification(
-			LIST *statement_fund_list,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities );
-
-void statement_html_aggregate_subclassification_fund(
-			STATEMENT_FUND *statement_fund,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities );
-
-void statement_html_aggregate_subclassification_element_list(
-			HTML_TABLE *html_table,
-			LIST *element_list,
-			LIST *prior_year_list );
-
-void statement_html_aggregate_subclassification_element(
-			HTML_TABLE *html_table,
-			ELEMENT *element,
-			LIST *prior_year_list );
-
-void statement_html_aggregate_subclassification_net_income(
-			HTML_TABLE *html_table,
-			double net_income,
-			int net_income_percent,
-			LIST *prior_year_list,
-			boolean is_statement_of_activities );
 
 void statement_prior_year_list_net_income_set(
 			LIST *prior_year_list,
@@ -436,6 +354,14 @@ int statement_delta_prior(
 
 LIST *statement_html_net_income_delta_list(
 			LIST *prior_year_list );
+
+LIST *statement_PDF_net_income_delta_list(
+			LIST *prior_year_list );
+
+LIST *statement_PDF_heading_list(
+			LIST *prior_year_list,
+			boolean include_account,
+			boolean include_subclassification );
 
 #endif
 

@@ -926,7 +926,7 @@ LIST *statement_html_net_income_delta_list(
 			/* --------------------- */
 			timlib_place_commas_in_money(
 				prior_year->
-				statement_prior_year_net_income ) );
+					statement_prior_year_net_income ) );
 
 		list_set(
 			delta_list,
@@ -1455,443 +1455,6 @@ int statement_fund_net_income_percent(
 	return float_round_int( percent_of_revenue );
 }
 
-void statement_html_display_subclassification(
-			LIST *statement_fund_list,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities )
-{
-	STATEMENT_FUND *statement_fund;
-
-	if ( !list_rewind( statement_fund_list ) ) return;
-
-	do {
-		statement_fund = list_get( statement_fund_list );
-
-		statement_html_display_subclassification_fund(
-			statement_fund,
-			title,
-			subtitle,
-			is_statement_of_activities );
-
-	} while ( list_next( statement_fund_list ) );
-}
-
-void statement_html_display_subclassification_fund(
-			STATEMENT_FUND *statement_fund,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities )
-{
-	HTML_TABLE *html_table;
-
-	html_table =
-		html_table_new(
-			title,
-			subtitle,
-			statement_fund->fund_name );
-
-	html_table->number_left_justified_columns = 1;
-	html_table->number_right_justified_columns = 99;
-
-	html_table_heading(
-		html_table->title,
-		html_table->sub_title,
-		html_table->sub_sub_title );
-
-	html_table_output_data_heading(
-		statement_html_heading_list(
-			statement_fund->prior_year_list,
-			1 /* include_account */,
-			1 /* include_subclassification */ ),
-		html_table->number_left_justified_columns,
-		html_table->number_right_justified_columns,
-		(LIST *)0 /* justify_list */ );
-
-	statement_html_display_subclassification_element_list(
-		html_table,
-		statement_fund->preclose_element_list,
-		statement_fund->prior_year_list );
-
-	if ( statement_fund->net_income )
-	{
-		statement_html_display_subclassification_net_income(
-			html_table,
-			statement_fund->net_income,
-			statement_fund->net_income_percent,
-			statement_fund->prior_year_list,
-			is_statement_of_activities );
-	}
-
-	html_table_close();
-}
-
-void statement_html_display_subclassification_element_list(
-			HTML_TABLE *html_table,
-			LIST *preclose_element_list,
-			LIST *prior_year_list )
-{
-	ELEMENT *element;
-
-	if ( !list_rewind( preclose_element_list ) ) return;
-
-	do {
-		element = list_get( preclose_element_list );
-
-		if ( !element->element_balance_total ) continue;
-
-		statement_html_display_subclassification_element(
-			html_table,
-			element,
-			prior_year_list );
-
-	} while ( list_next( preclose_element_list ) );
-}
-
-void statement_html_display_subclassification_element(
-			HTML_TABLE *html_table,
-			ELEMENT *element,
-			LIST *prior_year_list )
-{
-	SUBCLASSIFICATION *subclassification;
-	ACCOUNT *account;
-	char buffer[ 128 ];
-	char format_buffer[ 128 ];
-	char element_title[ 128 ];
-
-	if ( !html_table )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty html_table.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_rewind( element->subclassification_list ) ) return;
-
-	/* Set the element as centered */
-	/* --------------------------- */
-	sprintf(element_title,
-		"<h2>%s</h2>",
-		format_initial_capital(
-			format_buffer,
-			element->element_name ) );
-
-	html_table_set_data(
-		html_table->data_list,
-		strdup( element_title ) );
-
-	html_table_output_data(
-		html_table->data_list,
-		html_table->
-			number_left_justified_columns,
-		html_table->
-			number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-	list_free_string_list( html_table->data_list );
-	html_table->data_list = list_new();
-
-	do {
-		subclassification = list_get( element->subclassification_list );
-
-		if ( !list_length( subclassification->account_list ) )
-			continue;
-
-		/* ------------------------------------ */
-		/* If more than one account,		*/
-		/* then set the subclassification name.	*/
-		/* ------------------------------------ */
-		if ( list_length( subclassification->account_list ) > 1 )
-		{
-			sprintf(buffer,
-				"<h3>%s</h3>",
-				format_initial_capital(
-					format_buffer,
-					subclassification->
-						subclassification_name ) );
-
-			html_table_set_data(
-				html_table->data_list,
-				strdup( buffer ) );
-	
-			/* Output the subclassification name */
-			/* --------------------------------- */
-			html_table_output_data(
-				html_table->data_list,
-				html_table->number_left_justified_columns,
-				html_table->number_right_justified_columns,
-				html_table->background_shaded,
-				html_table->justify_list );
-
-			list_free_string_list( html_table->data_list );
-			html_table->data_list = list_new();
-		}
-
-		list_rewind( subclassification->account_list );
-
-		do {
-			account =
-				list_get(
-					subclassification->account_list );
-
-			if ( !account->account_total ) continue;
-
-			html_table_set_data(
-				html_table->data_list,
-				strdup(
-					format_initial_capital(
-						format_buffer,
-						account->account_name ) ) );
-	
-			html_table_set_data(
-				html_table->data_list,
-				strdup(
-					place_commas_in_money(
-						account->account_total ) ) );
-
-			/* Skip the subclassification column */
-			/* --------------------------------- */
-			html_table_set_data(
-				html_table->data_list,
-				strdup( "" ) );
-
-			/* Skip the element column */
-			/* ----------------------- */
-			html_table_set_data(
-				html_table->data_list,
-				strdup( "" ) );
-
-			/* Set the account percent of revenue */
-			/* ---------------------------------- */
-			sprintf( buffer,
-				 "%d%c",
-				 account->percent_of_revenue,
-				 '%' );
-
-			html_table_set_data(
-				html_table->data_list,
-				strdup( buffer ) );
-
-			if ( list_length( prior_year_list ) )
-			{
-				list_append_list(
-					html_table->data_list,
-					statement_html_account_delta_list(
-						account->account_name,
-						prior_year_list ) );
-			}
-
-			html_table_output_data(
-				html_table->data_list,
-				html_table->
-					number_left_justified_columns,
-				html_table->
-					number_right_justified_columns,
-				html_table->background_shaded,
-				html_table->justify_list );
-	
-			list_free_string_list( html_table->data_list );
-			html_table->data_list = list_new();
-
-		} while( list_next( subclassification->account_list ) );
-
-		/* Set the subclassification label */
-		/* ------------------------------- */
-		html_table_set_data(
-			html_table->data_list,
-			strdup(
-				statement_html_subclassification_label(
-					subclassification->
-						subclassification_name ) ) );
-
-		/* Skip the account column */
-		/* ----------------------- */
-		html_table_set_data( html_table->data_list, strdup( "" ) );
-
-		/* Set the subclassification total */
-		/* ------------------------------- */
-		html_table_set_data(
-			html_table->data_list,
-			strdup(
-				place_commas_in_money(
-					subclassification->
-						subclassification_total ) ) );
-
-		/* Skip the element column */
-		/* ----------------------- */
-		html_table_set_data(
-			html_table->data_list,
-			strdup( "" ) );
-
-		sprintf( buffer,
-			 "%d%c",
-			 subclassification->percent_of_revenue,
-			 '%' );
-
-		/* Set the subclassification percent of revenue */
-		/* -------------------------------------------- */
-		html_table_set_data(
-			html_table->data_list,
-			strdup( buffer ) );
-
-		if ( list_length( prior_year_list ) )
-		{
-			list_append_list(
-				html_table->data_list,
-				statement_html_subclassification_delta_list(
-					subclassification->
-						subclassification_name,
-					prior_year_list ) );
-		}
-
-		/* Output the row */
-		/* -------------- */
-		html_table_output_data(
-			html_table->data_list,
-			html_table->
-				number_left_justified_columns,
-			html_table->
-				number_right_justified_columns,
-			html_table->background_shaded,
-			html_table->justify_list );
-
-		list_free_string_list( html_table->data_list );
-		html_table->data_list = list_new();
-
-	} while( list_next( element->subclassification_list ) );
-
-	sprintf(element_title,
-		"<h2>Total %s</h2>",
-		format_initial_capital(
-			format_buffer,
-			element->element_name ) );
-
-	/* Set the element total title */
-	/* --------------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup( element_title ) );
-	
-	/* Skip the account column */
-	/* ----------------------- */
-	html_table_set_data( html_table->data_list, strdup( "" ) );
-
-	/* Skip the subclassification column */
-	/* --------------------------------- */
-	html_table_set_data( html_table->data_list, strdup( "" ) );
-
-	/* Set the element total column */
-	/* ---------------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup(
-			place_commas_in_money(
-				element->element_balance_total ) ) );
-
-	sprintf( buffer,
-		 "%d%c",
-		 element->percent_of_revenue,
-		 '%' );
-
-	/* Set the percent of revenue column */
-	/* --------------------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup( buffer ) );
-
-	if ( list_length( prior_year_list ) )
-	{
-		list_append_list(
-			html_table->data_list,
-			statement_html_element_delta_list(
-				element->element_name,
-				prior_year_list ) );
-	}
-
-	/* Output the element row */
-	/* ---------------------- */
-	html_table_output_data(
-		html_table->data_list,
-		html_table->
-			number_left_justified_columns,
-		html_table->
-			number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-	list_free_string_list( html_table->data_list );
-	html_table->data_list = list_new();
-}
-
-void statement_html_display_subclassification_net_income(
-			HTML_TABLE *html_table,
-			double net_income,
-			int net_income_percent,
-			LIST *prior_year_list,
-			boolean is_statement_of_activities )
-{
-	char buffer[ 128 ];
-
-	html_table_set_data(
-		html_table->data_list,
-		strdup(
-			statement_html_net_income_label(
-				is_statement_of_activities ) ) );
-
-	/* Skip the account */
-	/* ---------------- */
-	html_table_set_data( html_table->data_list, strdup( "" ) );
-
-	/* Skip the subclassification */
-	/* -------------------------- */
-	html_table_set_data( html_table->data_list, strdup( "" ) );
-
-	/* Set the net income */
-	/* ------------------ */
-	html_table_set_data(
-		html_table->data_list,
-		strdup(
-			place_commas_in_money(
-				net_income ) ) );
-
-	sprintf( buffer,
-		 "%d%c",
-		 net_income_percent,
-		 '%' );
-
-	/* Set the percent of revenue */
-	/* --------------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup( buffer ) );
-
-	if ( list_length( prior_year_list ) )
-	{
-		list_append_list(
-			html_table->data_list,
-			statement_html_net_income_delta_list(
-				prior_year_list ) );
-	}
-
-	/* Output the net income row */
-	/* ------------------------- */
-	html_table_output_data(
-		html_table->data_list,
-		html_table->
-			number_left_justified_columns,
-		html_table->
-			number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-	list_free_string_list( html_table->data_list );
-	html_table->data_list = list_new();
-}
-
 LIST *statement_html_heading_list(
 			LIST *prior_year_list,
 			boolean include_account,
@@ -1938,6 +1501,19 @@ char *statement_html_net_income_label(
 	}
 }
 
+char *statement_PDF_net_income_label(
+			boolean is_statement_of_activities )
+{
+	if ( is_statement_of_activities )
+	{
+		return "Change in Net Assets";
+	}
+	else
+	{
+		return "Net Income";
+	}
+}
+
 char *statement_html_subclassification_label(
 			char *subclassification_name )
 {
@@ -1960,654 +1536,6 @@ char *statement_html_subclassification_label(
 	}
 
 	return subclassification_label;
-}
-
-void statement_html_omit_subclassification(
-			LIST *statement_fund_list,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities )
-{
-	STATEMENT_FUND *statement_fund;
-
-	if ( !list_rewind( statement_fund_list ) ) return;
-
-	do {
-		statement_fund = list_get( statement_fund_list );
-
-		statement_html_omit_subclassification_fund(
-			statement_fund,
-			title,
-			subtitle,
-			is_statement_of_activities );
-
-	} while ( list_next( statement_fund_list ) );
-}
-
-void statement_html_omit_subclassification_fund(
-			STATEMENT_FUND *statement_fund,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities )
-{
-	HTML_TABLE *html_table;
-
-	html_table =
-		html_table_new(
-			title,
-			subtitle,
-			statement_fund->fund_name );
-
-	html_table->number_left_justified_columns = 1;
-	html_table->number_right_justified_columns = 99;
-
-	html_table_heading(
-		html_table->title,
-		html_table->sub_title,
-		html_table->sub_sub_title );
-
-	html_table_output_data_heading(
-		statement_html_heading_list(
-			statement_fund->prior_year_list,
-			1 /* include_account */,
-			0 /* not include_subclassification */ ),
-		html_table->number_left_justified_columns,
-		html_table->number_right_justified_columns,
-		(LIST *)0 /* justify_list */ );
-
-	statement_html_omit_subclassification_element_list(
-		html_table,
-		statement_fund->preclose_element_list,
-		statement_fund->prior_year_list );
-
-	if ( statement_fund->net_income )
-	{
-		statement_html_omit_subclassification_net_income(
-			html_table,
-			statement_fund->net_income,
-			statement_fund->net_income_percent,
-			statement_fund->prior_year_list,
-			is_statement_of_activities );
-	}
-
-	html_table_close();
-}
-
-void statement_html_omit_subclassification_element_list(
-			HTML_TABLE *html_table,
-			LIST *preclose_element_list,
-			LIST *prior_year_list )
-{
-	ELEMENT *element;
-
-	if ( !list_rewind( preclose_element_list ) ) return;
-
-	do {
-		element = list_get( preclose_element_list );
-
-		if ( !element->element_balance_total ) continue;
-
-		statement_html_omit_subclassification_element(
-			html_table,
-			element,
-			prior_year_list );
-
-	} while ( list_next( preclose_element_list ) );
-}
-
-void statement_html_omit_subclassification_element(
-			HTML_TABLE *html_table,
-			ELEMENT *element,
-			LIST *prior_year_list )
-{
-	ACCOUNT *account;
-	char buffer[ 128 ];
-	char format_buffer[ 128 ];
-	char element_title[ 128 ];
-
-	if ( !html_table )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty html_table.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_rewind( element->account_list ) ) return;
-
-	sprintf(element_title,
-		"<h2>%s</h2>",
-		format_initial_capital(
-			format_buffer,
-			element->element_name ) );
-
-	/* Set the element title */
-	/* --------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup( element_title ) );
-
-	/* Output the element title */
-	/* ------------------------ */
-	html_table_output_data(
-		html_table->data_list,
-		html_table->
-			number_left_justified_columns,
-		html_table->
-			number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-	list_free_string_list( html_table->data_list );
-	html_table->data_list = list_new();
-
-	do {
-		account = list_get( element->account_list );
-
-		if ( !account->account_total ) continue;
-
-		/* Set the account name */
-		/* -------------------- */
-		html_table_set_data(
-			html_table->data_list,
-			strdup(
-				format_initial_capital(
-					format_buffer,
-					account->account_name ) ) );
-	
-		/* Set the account total */
-		/* --------------------- */
-		html_table_set_data(
-			html_table->data_list,
-			strdup(
-				place_commas_in_money(
-					account->account_total ) ) );
-
-		/* Skip the element column */
-		/* ----------------------- */
-		html_table_set_data( html_table->data_list, strdup( "" ) );
-
-		sprintf( buffer,
-			 "%d%c",
-			 account->percent_of_revenue,
-			 '%' );
-
-		/* Set the account percent of revenue */
-		/* ---------------------------------- */
-		html_table_set_data(
-			html_table->data_list,
-			strdup( buffer ) );
-
-		if ( list_length( prior_year_list ) )
-		{
-			list_append_list(
-				html_table->data_list,
-				statement_html_account_delta_list(
-					account->account_name,
-					prior_year_list ) );
-		}
-
-		/* Output the row */
-		/* -------------- */
-		html_table_output_data(
-			html_table->data_list,
-			html_table->
-				number_left_justified_columns,
-			html_table->
-				number_right_justified_columns,
-			html_table->background_shaded,
-			html_table->justify_list );
-	
-		list_free_string_list( html_table->data_list );
-		html_table->data_list = list_new();
-
-	} while( list_next( element->account_list ) );
-
-	sprintf(element_title,
-		"<h2>Total %s</h2>",
-		element->element_name );
-
-	/* Set the element total title */
-	/* --------------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup( element_title ) );
-	
-	/* Skip the account column */
-	/* ----------------------- */
-	html_table_set_data( html_table->data_list, strdup( "" ) );
-
-	/* Set the element total */
-	/* --------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup(
-			place_commas_in_money(
-				element->element_balance_total ) ) );
-
-	sprintf( buffer,
-		 "%d%c",
-		 element->percent_of_revenue,
-		 '%' );
-
-	/* Set the percent of revenue */
-	/* -------------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup( buffer ) );
-
-	if ( list_length( prior_year_list ) )
-	{
-		list_append_list(
-			html_table->data_list,
-			statement_html_element_delta_list(
-				element->element_name,
-				prior_year_list ) );
-	}
-
-	/* Output the element total row */
-	/* ---------------------------- */
-	html_table_output_data(
-		html_table->data_list,
-		html_table->
-			number_left_justified_columns,
-		html_table->
-			number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-	list_free_string_list( html_table->data_list );
-	html_table->data_list = list_new();
-}
-
-void statement_html_omit_subclassification_net_income(
-			HTML_TABLE *html_table,
-			double net_income,
-			int net_income_percent,
-			LIST *prior_year_list,
-			boolean is_statement_of_activities )
-{
-	char buffer[ 128 ];
-
-	/* Set the element as centered */
-	/* --------------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup(
-			statement_html_net_income_label(
-				is_statement_of_activities )  ) );
-
-	/* Skip the account */
-	/* ---------------- */
-	html_table_set_data( html_table->data_list, strdup( "" ) );
-
-	/* Set the net income */
-	/* ------------------ */
-	html_table_set_data(
-		html_table->data_list,
-		strdup(
-			place_commas_in_money(
-				net_income ) ) );
-
-	sprintf( buffer,
-		 "%d%c",
-		 net_income_percent,
-		 '%' );
-
-	/* Percent of revenue */
-	/* ------------------ */
-	html_table_set_data(
-		html_table->data_list,
-		strdup( buffer ) );
-
-	if ( list_length( prior_year_list ) )
-	{
-		list_append_list(
-			html_table->data_list,
-			statement_html_net_income_delta_list(
-				prior_year_list ) );
-	}
-
-	/* Output the net income row */
-	/* ------------------------- */
-	html_table_output_data(
-		html_table->data_list,
-		html_table->
-			number_left_justified_columns,
-		html_table->
-			number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-	list_free_string_list( html_table->data_list );
-	html_table->data_list = list_new();
-}
-
-void statement_html_aggregate_subclassification(
-			LIST *statement_fund_list,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities )
-{
-	STATEMENT_FUND *statement_fund;
-
-	if ( !list_rewind( statement_fund_list ) ) return;
-
-	do {
-		statement_fund = list_get( statement_fund_list );
-
-		statement_html_aggregate_subclassification_fund(
-			statement_fund,
-			title,
-			subtitle,
-			is_statement_of_activities );
-
-	} while ( list_next( statement_fund_list ) );
-}
-
-void statement_html_aggregate_subclassification_fund(
-			STATEMENT_FUND *statement_fund,
-			char *title,
-			char *subtitle,
-			boolean is_statement_of_activities )
-{
-	HTML_TABLE *html_table;
-
-	html_table =
-		html_table_new(
-			title,
-			subtitle,
-			statement_fund->fund_name );
-
-	html_table->number_left_justified_columns = 1;
-	html_table->number_right_justified_columns = 99;
-
-	html_table_heading(
-		html_table->title,
-		html_table->sub_title,
-		html_table->sub_sub_title );
-
-	html_table_output_data_heading(
-		statement_html_heading_list(
-			statement_fund->prior_year_list,
-			0 /* not include_account */,
-			1 /* include_subclassification */ ),
-		html_table->number_left_justified_columns,
-		html_table->number_right_justified_columns,
-		(LIST *)0 /* justify_list */ );
-
-	statement_html_aggregate_subclassification_element_list(
-		html_table,
-		statement_fund->preclose_element_list,
-		statement_fund->prior_year_list );
-
-	if ( statement_fund->net_income )
-	{
-		statement_html_aggregate_subclassification_net_income(
-			html_table,
-			statement_fund->net_income,
-			statement_fund->net_income_percent,
-			statement_fund->prior_year_list,
-			is_statement_of_activities );
-	}
-
-	html_table_close();
-}
-
-void statement_html_aggregate_subclassification_element_list(
-			HTML_TABLE *html_table,
-			LIST *preclose_element_list,
-			LIST *prior_year_list )
-{
-	ELEMENT *element;
-
-	if ( !list_rewind( preclose_element_list ) ) return;
-
-	do {
-		element = list_get( preclose_element_list );
-
-		if ( !element->element_balance_total ) continue;
-
-		statement_html_aggregate_subclassification_element(
-			html_table,
-			element,
-			prior_year_list );
-
-	} while ( list_next( preclose_element_list ) );
-}
-
-void statement_html_aggregate_subclassification_element(
-			HTML_TABLE *html_table,
-			ELEMENT *element,
-			LIST *prior_year_list )
-{
-	SUBCLASSIFICATION *subclassification;
-	char buffer[ 128 ];
-	char format_buffer[ 128 ];
-	char element_title[ 128 ];
-
-	if ( !html_table )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty html_table.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_rewind( element->subclassification_list ) ) return;
-
-	sprintf(element_title,
-		"<h2>%s</h2>",
-		format_initial_capital(
-			format_buffer,
-			element->element_name ) );
-
-	/* Set the element title */
-	/* --------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup( element_title ) );
-
-	/* Output the element title */
-	/* ------------------------ */
-	html_table_output_data(
-		html_table->data_list,
-		html_table->
-			number_left_justified_columns,
-		html_table->
-			number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-	list_free_string_list( html_table->data_list );
-	html_table->data_list = list_new();
-
-	do {
-		subclassification = list_get( element->subclassification_list );
-
-		if ( !subclassification->subclassification_total ) continue;
-
-		/* Set the subclassification label */
-		/* ------------------------------- */
-		html_table_set_data(
-			html_table->data_list,
-			strdup(
-				statement_html_subclassification_label(
-					subclassification->
-						subclassification_name ) ) );
-	
-		/* Set the subclassification total */
-		/* ------------------------------- */
-		html_table_set_data(
-			html_table->data_list,
-			strdup(
-				place_commas_in_money(
-					subclassification->
-						subclassification_total ) ) );
-
-		/* Skip the element column */
-		/* ----------------------- */
-		html_table_set_data( html_table->data_list, strdup( "" ) );
-
-		sprintf( buffer,
-			 "%d%c",
-			 subclassification->percent_of_revenue,
-			 '%' );
-
-		/* Set the subclassification percent of revenue */
-		/* -------------------------------------------- */
-		html_table_set_data(
-			html_table->data_list,
-			strdup( buffer ) );
-
-		if ( list_length( prior_year_list ) )
-		{
-			list_append_list(
-				html_table->data_list,
-				statement_html_subclassification_delta_list(
-					subclassification->
-						subclassification_name,
-					prior_year_list ) );
-		}
-
-		/* Output the row */
-		/* -------------- */
-		html_table_output_data(
-			html_table->data_list,
-			html_table->
-				number_left_justified_columns,
-			html_table->
-				number_right_justified_columns,
-			html_table->background_shaded,
-			html_table->justify_list );
-	
-		list_free_string_list( html_table->data_list );
-		html_table->data_list = list_new();
-
-	} while( list_next( element->subclassification_list ) );
-
-	sprintf(element_title,
-		"<h2>Total %s</h2>",
-		element->element_name );
-
-	/* Set the element total title */
-	/* --------------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup( element_title ) );
-	
-	/* Skip the subclassification column */
-	/* --------------------------------- */
-	html_table_set_data( html_table->data_list, strdup( "" ) );
-
-	/* Set the element total */
-	/* --------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup(
-			place_commas_in_money(
-				element->element_balance_total ) ) );
-
-	sprintf( buffer,
-		 "%d%c",
-		 element->percent_of_revenue,
-		 '%' );
-
-	/* Set the percent of revenue */
-	/* -------------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup( buffer ) );
-
-	if ( list_length( prior_year_list ) )
-	{
-		list_append_list(
-			html_table->data_list,
-			statement_html_element_delta_list(
-				element->element_name,
-				prior_year_list ) );
-	}
-
-	/* Output the element total row */
-	/* ---------------------------- */
-	html_table_output_data(
-		html_table->data_list,
-		html_table->
-			number_left_justified_columns,
-		html_table->
-			number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-	list_free_string_list( html_table->data_list );
-	html_table->data_list = list_new();
-}
-
-void statement_html_aggregate_subclassification_net_income(
-			HTML_TABLE *html_table,
-			double net_income,
-			int net_income_percent,
-			LIST *prior_year_list,
-			boolean is_statement_of_activities )
-{
-	char buffer[ 128 ];
-
-	/* Set the element as centered */
-	/* --------------------------- */
-	html_table_set_data(
-		html_table->data_list,
-		strdup(
-			statement_html_net_income_label(
-				is_statement_of_activities )  ) );
-
-	/* Skip the subclassification */
-	/* -------------------------- */
-	html_table_set_data( html_table->data_list, strdup( "" ) );
-
-	/* Set the net income */
-	/* ------------------ */
-	html_table_set_data(
-		html_table->data_list,
-		strdup(
-			place_commas_in_money(
-				net_income ) ) );
-
-	sprintf( buffer,
-		 "%d%c",
-		 net_income_percent,
-		 '%' );
-
-	/* Percent of revenue */
-	/* ------------------ */
-	html_table_set_data(
-		html_table->data_list,
-		strdup( buffer ) );
-
-	if ( list_length( prior_year_list ) )
-	{
-		list_append_list(
-			html_table->data_list,
-			statement_html_net_income_delta_list(
-				prior_year_list ) );
-	}
-
-	/* Output the net income row */
-	/* ------------------------- */
-	html_table_output_data(
-		html_table->data_list,
-		html_table->
-			number_left_justified_columns,
-		html_table->
-			number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
-
-	list_free_string_list( html_table->data_list );
-	html_table->data_list = list_new();
 }
 
 void statement_prior_year_list_net_income_set(
@@ -2703,5 +1631,92 @@ int statement_delta_prior(
 	delta = (difference / prior_total) * 100.0;
 
 	return float_round_int( delta );
+}
+
+LIST *statement_PDF_heading_list(
+			LIST *prior_year_list,
+			boolean include_account,
+			boolean include_subclassification )
+{
+	LATEX_TABLE_HEADING *table_heading;
+	LIST *heading_list;
+
+	heading_list = list_new();
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "";
+	table_heading->right_justified_flag = 0;
+	list_set( heading_list, table_heading );
+
+	if ( include_account )
+	{
+		table_heading = latex_new_latex_table_heading();
+		table_heading->heading = "Account";
+		table_heading->right_justified_flag = 1;
+		list_set( heading_list, table_heading );
+	}
+
+	if ( include_subclassification )
+	{
+		table_heading = latex_new_latex_table_heading();
+		table_heading->heading = "Subclassification";
+		table_heading->right_justified_flag = 1;
+		list_set( heading_list, table_heading );
+	}
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "Element";
+	table_heading->right_justified_flag = 1;
+	list_set( heading_list, table_heading );
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "Percent";
+	table_heading->right_justified_flag = 1;
+	list_set( heading_list, table_heading );
+
+	if ( list_length( prior_year_list ) )
+	{
+		list_set_list(
+			heading_list,
+			latex_table_right_heading_list(
+				statement_prior_year_heading_list(
+					prior_year_list ) ) );
+	}
+
+	return heading_list;
+}
+
+LIST *statement_PDF_net_income_delta_list(
+			LIST *prior_year_list )
+{
+	LIST *delta_list;
+	STATEMENT_PRIOR_YEAR *prior_year;
+	char delta_prior[ 1024 ];
+
+	if ( !list_rewind( prior_year_list ) ) return (LIST *)0;
+
+	delta_list = list_new();
+
+	do {
+		prior_year = list_get( prior_year_list );
+
+		sprintf(delta_prior,
+			"%d%c %s",
+			prior_year->delta_prior,
+			'%',
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_place_commas_in_dollars(
+				prior_year->
+					statement_prior_year_net_income ) );
+
+		list_set(
+			delta_list,
+			strdup( delta_prior ) );
+
+	} while ( list_next( prior_year_list ) );
+
+	return delta_list;
 }
 
