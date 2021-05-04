@@ -29,6 +29,7 @@
 #include "transaction.h"
 #include "subclassification.h"
 #include "predictive.h"
+#include "statement.h"
 
 /* Constants */
 /* --------- */
@@ -36,134 +37,56 @@
 
 /* Prototypes */
 /* ---------- */
-LIST *build_subclassification_aggregate_PDF_row_list(
-					LIST *element_list,
-					char *fund_name,
-					char *as_of_date,
-					boolean is_financial_position );
-
-LIST *build_account_omit_PDF_row_list(
-			LIST *element_list,
-			char *fund_name,
-			char *as_of_date,
-			boolean is_financial_position );
-
-LIST *build_subclassification_display_PDF_row_list(
-					LIST *element_list,
-					char *fund_name,
-					char *as_of_date,
-					boolean is_financial_position );
-
-LIST *build_subclassification_aggregate_PDF_heading_list(
-					void );
-
-LIST *build_subclassification_display_PDF_heading_list(
-					void );
-
-LIST *build_account_omit_PDF_heading_list(
-			void );
-
-void balance_sheet_subclassification_aggregate_PDF(
-					char *application_name,
-					char *title,
-					char *sub_title,
-					char *fund_name,
-					char *as_of_date,
-					char *document_root_directory,
-					char *process_name,
-					boolean is_financial_position,
-					char *logo_filename );
-
-void balance_sheet_subclassification_display_PDF(
-					char *application_name,
-					char *title,
-					char *sub_title,
-					char *fund_name,
-					char *as_of_date,
-					char *document_root_directory,
-					char *process_name,
-					boolean is_financial_position,
-					char *logo_filename );
-
-void balance_sheet_account_omit_PDF(
-					char *application_name,
-					char *title,
-					char *sub_title,
-					char *fund_name,
-					char *as_of_date,
-					char *document_root_directory,
-					char *process_name,
-					boolean is_financial_position,
-					char *logo_filename );
-
-void balance_sheet_subclassification_aggregate_html(
-			char *title,
-			char *sub_title,
-			char *fund_name,
-			char *as_of_date,
-			boolean is_financial_position );
-
-void balance_sheet_subclassification_display_html(
-			char *title,
-			char *sub_title,
-			char *fund_name,
-			char *as_of_date,
-			boolean is_financial_position );
-
-void balance_sheet_account_omit_html(
-			char *title,
-			char *sub_title,
-			char *fund_name,
-			char *as_of_date,
-			boolean is_financial_position );
-
-void liabilities_plus_equity_html(
-			HTML_TABLE *html_table,
-			double liabilities_plus_equity,
-			boolean aggregate_subclassification );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *session;
+	char *login_name;
+	char *role_name;
 	char *process_name;
 	char *fund_name;
 	LIST *fund_name_list;
-	char *subclassification_option;
+	char *subclassification_option_string;
+	char *fund_aggregation_string;
+	char *output_medium_string;
 	char *as_of_date;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char title[ 256 ];
-	char sub_title[ 256 ];
-	char *output_medium;
-	boolean is_financial_position;
+	int prior_year_count;
 	char *logo_filename;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	STATEMENT *statement;
 
-	/* Exits if failure. */
-	/* ----------------- */
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s process fund as_of_date subclassification_option output_medium\n",
+"Usage: %s session login_name role process fund as_of_date prior_year_count fund_aggregation subclassification_option output_medium\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
-"Note: subclassification_option={omit,aggregate,display}\n" );
+"Note: subclassification_option={display,omit,aggregate}\n" );
+
+		fprintf( stderr,
+"Note: fund_aggregation={sequential,consolidated}\n" );
+
+		fprintf( stderr,
+"Note: output_medium={table,PDF,stdout}\n" );
 
 		exit ( 1 );
 	}
 
-	is_financial_position =
-		( strcmp( argv[ 0 ], "financial_position" ) == 0 );
+	session = argv[ 1 ];
+	login_name = argv[ 2 ];
+	role_name = argv[ 3 ];
+	process_name = argv[ 4 ];
 
-	process_name = argv[ 1 ];
-
-	fund_name = argv[ 2 ];
+	fund_name = argv[ 5 ];
 
 	if ( *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
@@ -174,144 +97,96 @@ int main( int argc, char **argv )
 		fund_name_list = (LIST *)0;
 	}
 
-	as_of_date = argv[ 3 ];
-	subclassification_option = argv[ 4 ];
-
-	if ( strcmp( subclassification_option, "aggregate" ) != 0
-	&&   strcmp( subclassification_option, "display" ) != 0
-	&&   strcmp( subclassification_option, "omit" ) != 0 )
-	{
-		subclassification_option = "display";
-	}
-
-	output_medium = argv[ 5 ];
-
-	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
-		output_medium = "table";
+	as_of_date = argv[ 6 ];
+	prior_year_count = atoi( argv[ 7 ] );
+	fund_aggregation_string = argv[ 8 ];
+	subclassification_option_string = argv[ 9 ];
+	output_medium_string = argv[ 10 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	if ( !*as_of_date
-	||   strcmp(	as_of_date,
-			"as_of_date" ) == 0 )
-	{
-		as_of_date =
-			/* -------------------- */
-			/* Returns heap memory. */
-			/* -------------------- */
-			transaction_date_maximum();
-	}
-
-	document_quick_output_body(
-		application_name,
-		appaserver_parameter_file->
-			appaserver_mount_point );
 
 	logo_filename =
 		application_constants_quick_fetch(
 			application_name,
 			"logo_filename" /* key */ );
 
-	transaction_report_title_sub_title(
-		title,
-		sub_title,
-		process_name,
-		fund_name_list,
-		transaction_beginning_date_string(
-			as_of_date ),
-		as_of_date,
-		logo_filename );
+	statement =
+		statement_new(
+			application_name,
+			session,
+			login_name,
+			role_name,
+			process_name,
+			(*logo_filename != 0) /* exists_logo_filename */,
+			(LIST *)0 /* filter_element_name_list */,
+			as_of_date,
+			prior_year_count,
+			fund_name_list,
+			subclassification_option_string,
+			fund_aggregation_string,
+			output_medium_string );
 
-	if ( strcmp( output_medium, "table" ) == 0 )
+	statement =
+		statement_steady_state(
+			statement->application_name,
+			statement->session,
+			statement->login_name,
+			statement->role_name,
+			statement->process_name,
+			statement->exists_logo_filename,
+			statement->filter_element_name_list,
+			statement->as_of_date,
+			statement->prior_year_count,
+			statement->fund_name_list,
+			statement->subclassification_option_string,
+			statement->fund_aggregation_string,
+			statement->output_medium_string,
+			statement );
+
+	if ( statement->statement_output_medium != output_stdout )
 	{
-		if ( strcmp( subclassification_option, "aggregate" ) == 0 )
-		{
-			balance_sheet_subclassification_aggregate_html(
-				title,
-				sub_title,
-				fund_name,
-				as_of_date,
-				is_financial_position );
-		}
-		else
-		if ( strcmp( subclassification_option, "display" ) == 0 )
-		{
-			balance_sheet_subclassification_display_html(
-				title,
-				sub_title,
-				fund_name,
-				as_of_date,
-				is_financial_position );
-		}
-		else
-		/* ------------ */
-		/* Must be omit */
-		/* ------------ */
-		{
-			balance_sheet_account_omit_html(
-				title,
-				sub_title,
-				fund_name,
-				as_of_date,
-				is_financial_position );
-		}
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+	}
+
+	if ( statement->statement_output_medium == output_table )
+	{
+		html_output(
+			statement->statement_fund_list,
+			statement->title,
+			statement->subtitle,
+			0 /* not postclose */ );
 	}
 	else
-	/* ----------- */
-	/* Must be PDF */
-	/* ----------- */
+	if ( statement->statement_output_medium == output_PDF )
 	{
-		if ( strcmp( subclassification_option, "aggregate" ) == 0 )
-		{
-			balance_sheet_subclassification_aggregate_PDF(
-				application_name,
-				title,
-				sub_title,
-				fund_name,
-				as_of_date,
-				appaserver_parameter_file->document_root,
-				process_name,
-				is_financial_position,
-				logo_filename );
-		}
-		else
-		if ( strcmp( subclassification_option, "display" ) == 0 )
-		{
-			balance_sheet_subclassification_display_PDF(
-				application_name,
-				title,
-				sub_title,
-				fund_name,
-				as_of_date,
-				appaserver_parameter_file->document_root,
-				process_name,
-				is_financial_position,
-				logo_filename );
-		}
-		else
-		/* ------------ */
-		/* Must be omit */
-		/* ------------ */
-		{
-			balance_sheet_account_omit_PDF(
-				application_name,
-				title,
-				sub_title,
-				fund_name,
-				as_of_date,
-				appaserver_parameter_file->document_root,
-				process_name,
-				is_financial_position,
-				logo_filename );
-		}
+		PDF_output(
+			application_name,
+			appaserver_parameter_file->document_root,
+			process_name,
+			logo_filename,
+			statement->statement_fund_list,
+			statement->title,
+			statement->subtitle,
+			0 /* not postclose */,
+			statement->statement_subclassification_option,
+			statement->statement_fund_aggregation );
+	}
+	else
+	{
+		stdout_output(
+			statement->statement_fund_list );
 	}
 
-	document_close();
+	if ( statement->statement_output_medium != output_stdout )
+		document_close();
 
 	return 0;
+}
 
-} /* main() */
-
+#ifdef NOT_DEFINED
 void balance_sheet_subclassification_aggregate_PDF(
 				char *application_name,
 				char *title,
@@ -1785,4 +1660,4 @@ LIST *build_account_omit_PDF_row_list(
 
 	return row_list;
 }
-
+#endif
