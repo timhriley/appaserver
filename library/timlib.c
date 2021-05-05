@@ -3055,6 +3055,7 @@ char *timlib_in_clause(	LIST *data_list )
 	if ( !list_rewind( data_list ) ) strdup( "" );
 
 	*in_clause = '\0';
+
 	do {
 		data = list_get_pointer( data_list );
 

@@ -27,7 +27,12 @@ char *element_select( void )
 	return "element.element,accumulate_debit_yn";
 }
 
-ELEMENT *element_parse(	char *input )
+ELEMENT *element_parse(
+			char *input,
+			char *fund_name,
+			char *transaction_date_time_closing,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list )
 {
 	char element_name[ 128 ];
 	char piece_buffer[ 16 ];
@@ -40,6 +45,26 @@ ELEMENT *element_parse(	char *input )
 
 	piece( piece_buffer, SQL_DELIMITER, input, 1 );
 	element->accumulate_debit = ( *piece_buffer == 'y' );
+
+	if ( fetch_account_list )
+	{
+		element->account_list =
+			element_account_list(
+				&element->element_balance_total,
+				element->element_name,
+				fund_name,
+				transaction_date_time_closing );
+	}
+
+	if ( fetch_subclassification_list )
+	{
+		element->subclassification_list =
+			element_subclassification_list(
+				&element->element_balance_total,
+				element->element_name,
+				fund_name,
+				transaction_date_time_closing );
+	}
 
 	return element;
 }
@@ -97,38 +122,6 @@ ELEMENT *element_fetch( char *element_name )
 	}
 
 	return element;
-}
-
-ELEMENT *element_account_name_fetch(
-			char *account_name )
-{
-	char sys_string[ 1024 ];
-	char *from;
-	char join[ 256 ];
-	char where[ 256 ];
-
-	from = "account,subclassification,element";
-
-	sprintf(join,
-	"account.subclassification = subclassification.subclassification and "
-	"subclassification.element = element.element " );
-
-	sprintf(where,
-		"account = '%s' and			"
-		"%s					",
-		account_escape_name( account_name ),
-		join );
-
-	sprintf(sys_string,
-		"echo \"select %s from %s where %s;\" | sql.e",
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		element_select(),
-		from,
-		where );
-
-	return element_parse( pipe2string( sys_string ) );
 }
 
 ELEMENT *element_new( char *element_name )
@@ -219,8 +212,7 @@ LIST *element_fetch_list( char *sys_string )
 }
 
 LIST *element_system_list(
-			char *sys_string,
-			LIST *filter_element_name_list,
+			char *system_string,
 			char *fund_name,
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
@@ -238,53 +230,53 @@ LIST *element_system_list(
 
 	while( string_input( input_buffer, input_pipe, 256 ) )
 	{
-		piece( element_name, SQL_DELIMITER, input_buffer, 0 );
-
-		if ( list_length( filter_element_name_list )
-		&&   !list_exists_string(
-			element_name,
-			filter_element_name_list ) )
-		{
-			continue;
-		}
-
-		element =
-			element_new(
-				strdup( element_name ) );
-
-		piece(	accumulate_debit_yn,
-			SQL_DELIMITER,
-			input_buffer,
-			1 );
-
-		element->accumulate_debit = ( *accumulate_debit_yn == 'y' );
-
-		if ( fetch_account_list )
-		{
-			element->account_list =
-				element_account_list(
-					&element->element_balance_total,
-					element->element_name,
-					fund_name,
-					transaction_date_time_closing );
-		}
-
-		if ( fetch_subclassification_list )
-		{
-			element->subclassification_list =
-				element_subclassification_list(
-					&element->element_balance_total,
-					element->element_name,
-					fund_name,
-					transaction_date_time_closing );
-		}
-
-		list_set( element_list, element );
+		list_set(
+			element_list,
+			element_parse(
+				input,
+				fund_name,
+				transaction_date_time_closing,
+				fetch_subclassification_list,
+				fetch_account_list ) );
 	}
 
 	pclose( input_pipe );
 
 	return element_list_sort( element_list );
+}
+
+char *element_system_string( char *where )
+{
+	char system_string[ 1024 ];
+
+	if ( !where || !*where ) where = "1 = 1";
+
+	sprintf(system_string,
+		"select.sh \"%s\" element \"%s\"",
+		element_select(),
+		where );
+
+	return strdup( system_string );
+}
+
+char *element_filter_where(
+			LIST *filter_element_name_list )
+{
+	char where[ 1024 ];
+
+	if ( !list_length( filter_element_name_list ) )
+	{
+		strcpy( where, "1 = 1" );
+	}
+	else
+	{
+		char *ptr = timlib_in_clause( filter_element_name_list );
+
+		string_strcpy( where, ptr, 1024 );
+		free( ptr );
+	}
+
+	return strdup( where );
 }
 
 LIST *element_list(	LIST *filter_element_name_list,
@@ -293,15 +285,10 @@ LIST *element_list(	LIST *filter_element_name_list,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list )
 {
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "select.sh \"%s\" element",
-		 element_select() );
-
 	return element_system_list(
-			sys_string,
-			filter_element_name_list,
+			element_system_string(
+				element_filter_where(
+					filter_element_name_list ) ),
 			fund_name,
 			transaction_date_time_closing,
 			fetch_subclassification_list,
@@ -365,62 +352,63 @@ LIST *element_list_sort( LIST *element_list )
 
 	return_element_list = list_new();
 
-	if ( ( element = element_seek(
-				ELEMENT_ASSET,
-				element_list ) ) )
+	if ( ( element =
+		element_seek(
+			ELEMENT_ASSET,
+			element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
-	if ( ( element = element_seek(
-				ELEMENT_LIABILITY,
-				element_list ) ) )
+	if ( ( element =
+		element_seek(
+			ELEMENT_LIABILITY,
+			element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
-	if ( ( element = element_seek(
-				ELEMENT_REVENUE,
-				element_list ) ) )
+	if ( ( element =
+		element_seek(
+			ELEMENT_REVENUE,
+			element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
-	if ( ( element = element_seek(
-				ELEMENT_EXPENSE,
-				element_list ) ) )
+	if ( ( element =
+		element_seek(
+			ELEMENT_EXPENSE,
+			element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
-	if ( ( element = element_seek(
-				ELEMENT_GAIN,
-				element_list ) ) )
+	if ( ( element =
+		element_seek(
+			ELEMENT_GAIN,
+			element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
-	if ( ( element = element_seek(
-				ELEMENT_LOSS,
-				element_list ) ) )
+	if ( ( element =
+		element_seek(
+			ELEMENT_LOSS,
+			element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
 
-	if ( ( element = element_seek(
-				ELEMENT_EQUITY,
-				element_list ) ) )
+	if ( ( element =
+		element_seek(
+			ELEMENT_EQUITY,
+			element_list ) ) )
 	{
 		list_set( return_element_list, element );
 	}
+
 	return return_element_list;
-}
-
-ELEMENT *element_list_seek(
-			char *element_name,
-			LIST *element_list )
-{
-	return element_seek( element_name, element_list );
 }
 
 ELEMENT *element_seek(	

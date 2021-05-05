@@ -44,9 +44,12 @@ typedef struct
 /* Operations */
 /* ========== */
 
-/* Returns static memory */
-/* --------------------- */
-ELEMENT *element_parse(	char *input );
+ELEMENT *element_parse(
+			char *input,
+			char *fund_name,
+			char *transaction_date_time_closing,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list );
 
 ELEMENT *element_new(	char *element_name ); 
 
@@ -94,10 +97,6 @@ boolean element_is_nominal(
 double element_value(	LIST *account_list,
 			boolean element_accumulate_debit );
 
-ELEMENT *element_list_seek(
-			char *element_name,
-			LIST *element_list );
-
 double element_subclassification_aggregate_html_output(
 			HTML_TABLE *html_table,
 			LIST *subclassification_list,
@@ -138,8 +137,7 @@ SUBCLASSIFICATION *element_subclassification_seek(
 			LIST *element_list );
 
 LIST *element_system_list(
-			char *sys_string,
-			LIST *filter_element_name_list,
+			char *system_string,
 			char *fund_name,
 			char *as_of_date,
 			boolean fetch_subclassification_list,
@@ -203,6 +201,12 @@ double element_credit_total(
 double element_balance_total(
 			LIST *subclassification_list,
 			LIST *account_list );
+
+char *element_system_string(
+			char *where );
+
+char *element_filter_where(
+			LIST *filter_element_name_list );
 
 #endif
 

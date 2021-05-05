@@ -201,7 +201,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 void inventory_balance_average_stdout(	char *application_name,
 					INVENTORY *inventory )
@@ -239,7 +239,7 @@ void inventory_balance_average_stdout(	char *application_name,
 
 	pclose( output_pipe );
 
-} /* inventory_balance_average_stdout() */
+}
 
 void inventory_balance_average_table(	char *application_name,
 					INVENTORY *inventory,
@@ -288,7 +288,7 @@ void inventory_balance_average_table(	char *application_name,
 
 	pclose( output_pipe );
 
-} /* inventory_balance_average_table() */
+}
 
 void inventory_balance_average_PDF(	char *application_name,
 					INVENTORY *inventory,
@@ -431,7 +431,7 @@ void inventory_balance_average_PDF(	char *application_name,
 		process_name /* target */,
 		(char *)0 /* mime_type */ );
 
-} /* inventory_balance_average_PDF() */
+}
 
 LIST *get_average_PDF_heading_list( void )
 {
@@ -470,7 +470,7 @@ LIST *get_average_PDF_heading_list( void )
 
 	return heading_list;
 
-} /* get_average_PDF_heading_list() */
+}
 
 LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 {
@@ -631,7 +631,7 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 
 	return row_list;
 
-} /* get_average_PDF_row_list() */
+}
 
 void inventory_balance_fifo_stdout(	char *application_name,
 					char *inventory_name )
@@ -712,7 +712,7 @@ void inventory_balance_fifo_stdout(	char *application_name,
 
 	pclose( output_pipe );
 
-} /* inventory_balance_fifo_stdout() */
+}
 
 void inventory_balance_lifo_stdout(	char *application_name,
 					char *inventory_name )
@@ -793,5 +793,5 @@ void inventory_balance_lifo_stdout(	char *application_name,
 
 	pclose( output_pipe );
 
-} /* inventory_balance_lifo_stdout() */
+}
 

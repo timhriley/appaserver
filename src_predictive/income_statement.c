@@ -115,7 +115,6 @@ void PDF_output(	char *application_name,
 void PDF_output_fund(	char *application_name,
 			char *process_name,
 			char *logo_filename,
-			char *subtitle,
 			STATEMENT_FUND *statement_fund,
 			boolean is_statement_of_activities,
 			char *document_root_directory,
@@ -199,6 +198,9 @@ int main( int argc, char **argv )
 
 	/* Input */
 	/* ----- */
+	is_statement_of_activities =
+		( strcmp( argv[ 0 ], "statement_of_activities" ) == 0 );
+
 	session = argv[ 1 ];
 	login_name = argv[ 2 ];
 	role_name = argv[ 3 ];
@@ -220,9 +222,6 @@ int main( int argc, char **argv )
 	fund_aggregation_string = argv[ 8 ];
 	subclassification_option_string = argv[ 9 ];
 	output_medium_string = argv[ 10 ];
-
-	is_statement_of_activities =
-		( strcmp( argv[ 0 ], "statement_of_activities" ) == 0 );
 
 	net_income_only = (*argv[ 11 ] == 'y');
 
@@ -388,7 +387,6 @@ void PDF_output(
 			application_name,
 			process_name,
 			logo_filename,
-			subtitle,
 			statement_fund,
 			is_statement_of_activities,
 			document_root_directory,
@@ -401,7 +399,6 @@ void PDF_output_fund(
 			char *application_name,
 			char *process_name,
 			char *logo_filename,
-			char *subtitle,
 			STATEMENT_FUND *statement_fund,
 			boolean is_statement_of_activities,
 			char *document_root_directory,
@@ -417,8 +414,6 @@ void PDF_output_fund(
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	boolean include_account = 0;
 	boolean include_subclassification = 0;
-	char buffer[ 128 ];
-	char caption[ 256 ];
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -470,14 +465,10 @@ void PDF_output_fund(
 			0 /* not landscape_flag */,
 			logo_filename );
 
-	sprintf(caption,
-		"%s %s",
-		format_initial_capital(
-			buffer,
-			process_name ),
-		subtitle );
-
-	latex_table = latex_new_latex_table( caption );
+	latex_table =
+		latex_new_latex_table(
+			statement_fund->
+				statement_fund_caption );
 
 	list_set( latex->table_list, latex_table );
 

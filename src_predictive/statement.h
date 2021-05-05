@@ -90,6 +90,7 @@ typedef struct
 	double loss_total;
 	double net_income;
 	int net_income_percent;
+	char *statement_fund_caption;
 
 } STATEMENT_FUND;
 
@@ -249,12 +250,18 @@ char *statement_subtitle(
 			enum fund_aggregation fund_aggregation );
 
 void statement_fund_list_steady_state(
-			LIST *statement_fund_list );
+			LIST *statement_fund_list,
+			char *title,
+			char *subtitle,
+			boolean exists_logo_filename );
 
 STATEMENT_FUND *statement_fund_steady_state(
 			LIST *preclose_element_list,
 			LIST *postclose_element_list,
 			int prior_year_count,
+			char *title,
+			char *subtitle,
+			boolean exists_logo_filename,
 			STATEMENT_FUND *statement_fund );
 
 boolean statement_fund_exists_postclose(
@@ -362,6 +369,12 @@ LIST *statement_PDF_heading_list(
 			LIST *prior_year_list,
 			boolean include_account,
 			boolean include_subclassification );
+
+char *statement_fund_caption(
+			char *title,
+			char *subtitle,
+			char *fund_name,
+			boolean exists_logo_filename );
 
 #endif
 

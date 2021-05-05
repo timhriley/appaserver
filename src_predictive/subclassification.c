@@ -2147,3 +2147,26 @@ LIST *subclassification_account_list(
 	return account_list;
 }
 
+char *subclassification_total_label(
+			char *subclassification_name,
+			char *alternate_display_name )
+{
+	char label[ 256 ];
+	char format_buffer[ 128 ];
+
+	if ( alternate_display_name && *alternate_display_name )
+	{
+		strcpy( label, alternate_display_name );
+	}
+	else
+	{
+		sprintf(label,
+			"Total %s",
+			format_initial_capital(
+				format_buffer,
+				subclassification_name ) );
+	}
+
+	return strdup( label );
+}
+

@@ -1490,7 +1490,7 @@ double transaction_net_income_fetch(
 	char *results_string;
 
 	sprintf(sys_string,
-"income_statement process \"%s\" \"%s\" omit output_medium y",
+"income_statement session login_name role process \"%s\" \"%s\" 0 '' '' '' y",
 		(fund_name) ? fund_name : "",
 		as_of_date );
 

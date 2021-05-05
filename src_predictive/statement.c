@@ -309,7 +309,10 @@ STATEMENT *statement_steady_state(
 			statement->statement_fund_aggregation );
 
 	statement_fund_list_steady_state(
-		statement->statement_fund_list );
+		statement->statement_fund_list,
+		statement->title,
+		statement->subtitle,
+		exists_logo_filename );
 
 	return statement;
 }
@@ -697,6 +700,9 @@ STATEMENT_FUND *statement_fund_steady_state(
 			LIST *preclose_element_list,
 			LIST *postclose_element_list,
 			int prior_year_count,
+			char *title,
+			char *subtitle,
+			boolean exists_logo_filename,
 			STATEMENT_FUND *statement_fund )
 {
 	if ( list_length( postclose_element_list ) )
@@ -747,6 +753,16 @@ STATEMENT_FUND *statement_fund_steady_state(
 			element_credit_total(
 				postclose_element_list );
 	}
+
+	statement_fund->statement_fund_caption =
+		statement_fund_caption(
+			title,
+			subtitle,
+			statement_fund->fund_name,
+			exists_logo_filename );
+
+	statement_fund_subclassification_total_label_set(
+		statement_fund->preclose_element_list );
 
 	return statement_fund;
 }
@@ -850,7 +866,10 @@ LIST *statement_fund_steady_state_prior_year_list(
 }
 
 void statement_fund_list_steady_state(
-			LIST *statement_fund_list )
+			LIST *statement_fund_list,
+			char *title,
+			char *subtitle,
+			boolean exists_logo_filename )
 {
 	STATEMENT_FUND *statement_fund;
 
@@ -864,6 +883,9 @@ void statement_fund_list_steady_state(
 				statement_fund->preclose_element_list,
 				statement_fund->postclose_element_list,
 				statement_fund->prior_year_count,
+				title,
+				subtitle,
+				exists_logo_filename,
 				statement_fund );
 
 	} while ( list_next( statement_fund_list ) );
@@ -1718,5 +1740,44 @@ LIST *statement_PDF_net_income_delta_list(
 	} while ( list_next( prior_year_list ) );
 
 	return delta_list;
+}
+
+char *statement_fund_caption(
+			char *title,
+			char *subtitle,
+			char *fund_name,
+			boolean exists_logo_filename )
+{
+	char caption[ 256 ];
+	char fund_string[ 128 ];
+
+	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
+	{
+		sprintf(fund_string,
+			" (%s)",
+			fund_name );
+	}
+	else
+	{
+		*fund_string = '\0';
+	}
+
+	if ( exists_logo_filename )
+	{
+		sprintf(caption,
+			"%s%s",
+			subtitle,
+			fund_string);
+	}
+	else
+	{
+		sprintf(caption,
+			"%s %s%s",
+			title,
+			subtitle,
+			fund_string);
+	}
+
+	return strdup( caption );
 }
 

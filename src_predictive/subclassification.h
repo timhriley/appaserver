@@ -46,6 +46,7 @@ typedef struct
 	int percent_of_asset;
 	int percent_of_revenue;
 	int delta_prior;
+	char *subclassification_total_display;
 } SUBCLASSIFICATION;
 
 /* Operations */
@@ -186,5 +187,9 @@ double subclassification_debit_total(
 
 double subclassification_credit_total(
 			LIST *subclassification_list );
+
+char *subclassification_total_label(
+			char *subclassification_name,
+			char *alternate_display_name );
 
 #endif

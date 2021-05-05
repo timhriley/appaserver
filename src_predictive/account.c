@@ -19,6 +19,7 @@
 #include "journal.h"
 #include "subclassification.h"
 #include "element.h"
+#include "statement.h"
 #include "account.h"
 
 LIST *account_list( void )

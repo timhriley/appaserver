@@ -371,7 +371,8 @@ void tax_form_report_html_table(
 	list_append_string( heading_list, "tax_form_description" );
 	list_append_string( heading_list, "balance" );
 
-	html_table = new_html_table(
+	html_table =
+		new_html_table(
 			title,
 			strdup( caption ) );
 
