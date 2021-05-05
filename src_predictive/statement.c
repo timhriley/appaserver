@@ -1887,6 +1887,7 @@ void statement_html_display_subclassification_element(
 	char buffer[ 128 ];
 	char format_buffer[ 128 ];
 	char element_title[ 128 ];
+	char account_total_string[ 1024 ];
 
 	if ( !html_table )
 	{
@@ -1979,11 +1980,25 @@ void statement_html_display_subclassification_element(
 						format_buffer,
 						account->account_name ) ) );
 	
+			if ( account->account_action_string )
+			{
+				sprintf(account_total_string,
+					"<a href=\"%s\">%s</a>",
+			 		account->account_action_string,
+					place_commas_in_money(
+						account->account_total ) );
+			}
+			else
+			{
+				sprintf(account_total_string,
+					"%s",
+					place_commas_in_money(
+						account->account_total ) );
+			}
+
 			html_table_set_data(
 				html_table->data_list,
-				strdup(
-					place_commas_in_money(
-						account->account_total ) ) );
+				strdup( account_total_string ) );
 
 			/* Skip the subclassification column */
 			/* --------------------------------- */
@@ -2676,7 +2691,7 @@ SUBCLASSIFICATION *statement_net_income_subclassification(
 
 	/* Equity change account for new subclassification */
 	/* ----------------------------------------------- */
-	equity_change_account = account_new( "Equity Change" );
+	equity_change_account = account_new( "Equity Transactions" );
 
 	equity_change_account->account_total =
 		equity_element->equity_element_balance_change;
