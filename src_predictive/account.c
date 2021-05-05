@@ -1021,3 +1021,25 @@ char *account_element_name(
 	return subclassification->element_name;
 }
 
+
+boolean account_name_accumulate_debit(
+			char *account_name )
+{
+	ACCOUNT *account;
+
+	if ( ! ( account =
+			account_fetch(
+				account_name ) ) )
+	{
+		fprintf( stderr,
+	"Warning in %s/%s()/%d: account_fetch(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 account_name );
+		return 0;
+	}
+
+	return account->accumulate_debit;
+}
+

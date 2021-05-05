@@ -60,7 +60,12 @@ boolean list_set_pointer( LIST *list, void *this_item );
 
 boolean list_prepend_pointer( LIST *list, void *this_item );
 
-int list_add_head( LIST *list, void *this_item );
+int list_set_first(	LIST *list,
+			void *this_item );
+
+int list_add_head(	LIST *list,
+			void *this_item );
+
 void list_append_string_list( LIST *list, LIST *string_list );
 void list_append( LIST *list, void *this_item, int num_bytes );
 char *append( LIST *list, char *this_item, int num_bytes );

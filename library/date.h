@@ -71,6 +71,7 @@ void date_increment(		DATE *d );
 /* ------------------- */
 DATE *date_yyyy_mm_dd_new(	char *date_string );
 
+DATE *date_19new(		char *date_time_string );
 DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string );
 
 DATE *date_yyyy_mm_dd_hm_new(	char *date_time_string );
@@ -137,6 +138,9 @@ char *date_yyyy_mm_dd_hhmm_display(
 			DATE *date );
 
 char *date_display_19(
+			DATE *date );
+
+char *date_display19(
 			DATE *date );
 
 char *date_display_yyyy_mm_dd_colon_hms(

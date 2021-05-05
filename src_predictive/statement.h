@@ -77,6 +77,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	char *transaction_date_time;
 	LIST *preclose_element_list;
 	LIST *postclose_element_list;
 	LIST *prior_year_list;
@@ -317,6 +318,10 @@ STATEMENT_FUND *statement_fund_seek(
 void statement_fund_list_net_income_set(
 			LIST *statement_fund_list );
 
+void statement_fund_list_equity_set(
+			LIST *statement_fund_list,
+			boolean is_financial_position );
+
 double statement_fund_net_income(
 			double revenue_total,
 			double expense_total,
@@ -375,6 +380,57 @@ char *statement_fund_caption(
 			char *subtitle,
 			char *fund_name,
 			boolean exists_logo_filename );
+
+void statement_html_display_subclassification_element_list(
+			HTML_TABLE *html_table,
+			LIST *preclose_element_list,
+			LIST *prior_year_list,
+			boolean is_percent_of_revenue );
+
+void statement_html_display_subclassification_element(
+			HTML_TABLE *html_table,
+			ELEMENT *element,
+			LIST *prior_year_list,
+			boolean is_percent_of_revenue );
+
+void statement_html_omit_subclassification_element_list(
+			HTML_TABLE *html_table,
+			LIST *preclose_element_list,
+			LIST *prior_year_list,
+			boolean is_percent_of_revenue );
+
+void statement_html_omit_subclassification_element(
+			HTML_TABLE *html_table,
+			ELEMENT *element,
+			LIST *prior_year_list,
+			boolean is_percent_of_revenue );
+
+void statement_html_aggregate_subclassification_element_list(
+			HTML_TABLE *html_table,
+			LIST *preclose_element_list,
+			LIST *prior_year_list,
+			boolean is_percent_of_revenue );
+
+void statement_html_aggregate_subclassification_element(
+			HTML_TABLE *html_table,
+			ELEMENT *element,
+			LIST *prior_year_list,
+			boolean is_percent_of_revenue );
+
+SUBCLASSIFICATION *statement_net_income_subclassification(
+			double *element_balance_total,
+			int *percent_of_asset,
+			SUBCLASSIFICATION *last_subclassification,
+			EQUITY_ELEMENT *equity_element,
+			char *fund_name,
+			char *transaction_date_time,
+			double asset_balance_total,
+			boolean is_financial_position );
+
+ELEMENT *statement_equity_liability_element(
+			double equity_element_balance_total,
+			double asset_element_balance_total,
+			double liability_element_balance_total );
 
 #endif
 

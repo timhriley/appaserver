@@ -18,6 +18,7 @@
 #include "account.h"
 #include "predictive.h"
 #include "element.h"
+#include "statement.h"
 #include "subclassification.h"
 
 char *subclassification_primary_where(

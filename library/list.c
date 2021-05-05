@@ -99,6 +99,11 @@ boolean list_append_pointer( LIST *list, void *this_item )
 	return list_set( list, this_item );
 }
 
+boolean list_set_first( LIST *list, void *this_item )
+{
+	return list_prepend_pointer( list, this_item );
+}
+
 boolean list_add_head( LIST *list, void *this_item )
 {
 	return list_prepend_pointer( list, this_item );

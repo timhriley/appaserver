@@ -242,4 +242,7 @@ double account_credit_total(
 char *account_element_name(
 			char *subclassification_name );
 
+boolean account_name_accumulate_debit(
+			char *account_name );
+
 #endif

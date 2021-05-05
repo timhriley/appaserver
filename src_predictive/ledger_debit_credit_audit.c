@@ -178,7 +178,7 @@ journal->credit_amount,
 journal->balance );
 }
 
-		if ( element_account_accumulate_debit(
+		if ( account_accumulate_debit(
 			journal->account_name ) )
 		{
 			balance =	journal->previous_balance +

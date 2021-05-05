@@ -29,6 +29,23 @@
 /* ---------- */
 typedef struct
 {
+	/* Input */
+	/* ----- */
+	char *equity_element_name;
+	double equity_element_balance_total;
+	char *fund_name;
+	char *transaction_date_time;
+
+	/* Process */
+	/* ------- */
+	char *begin_transaction_date_time;
+	double begin_element_balance_total;
+	LIST *prior_element_account_list;
+	double equity_element_balance_change;
+} EQUITY_ELEMENT;
+
+typedef struct
+{
 	char *element_name;
 	boolean accumulate_debit;
 
@@ -39,11 +56,11 @@ typedef struct
 	int element_delta_prior;
 	int percent_of_asset;
 	int percent_of_revenue;
+	EQUITY_ELEMENT *equity_element;
 } ELEMENT;
 
 /* Operations */
 /* ========== */
-
 ELEMENT *element_parse(
 			char *input,
 			char *fund_name,
@@ -52,9 +69,6 @@ ELEMENT *element_parse(
 			boolean fetch_account_list );
 
 ELEMENT *element_new(	char *element_name ); 
-
-ELEMENT *element_account_name_fetch(
-			char *account_name );
 
 char *element_select(	void );
 
@@ -143,9 +157,6 @@ LIST *element_system_list(
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list );
 
-boolean element_account_accumulate_debit(
-			char *account_name );
-
 LIST *element_fetch_list(
 			char *sys_string );
 
@@ -207,6 +218,27 @@ char *element_system_string(
 
 char *element_filter_where(
 			LIST *filter_element_name_list );
+
+EQUITY_ELEMENT *equity_element_new(
+			char *equity_element_name,
+			double equity_element_balance_total,
+			char *fund_name,
+			char *transaction_date_time );
+
+EQUITY_ELEMENT *equity_element_fetch(
+			char *equity_element_name,
+			double element_balance_total,
+			char *fund_name,
+			char *transaction_date_time );
+
+double equity_element_balance_change(
+			double begin_element_balance_total,
+			double equity_element_balance_total,
+			double net_income );
+
+int element_percent_of_total(
+			double total,
+			double denominator );
 
 #endif
 

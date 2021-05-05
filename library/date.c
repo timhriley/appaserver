@@ -1066,6 +1066,11 @@ void add_slashes_maybe( char *d, char *s )
 
 }
 
+DATE *date_19new( char *date_time_string )
+{
+	return date_yyyy_mm_dd_hms_new(	date_time_string );
+}
+
 DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string )
 {
 	char year_string[ 16 ];
@@ -1391,6 +1396,11 @@ char *date_get_hms( DATE *date )
 	date_get_colon_hhmmss( buffer, date );
 	return strdup( buffer );
 
+}
+
+char *date_display19( DATE *date )
+{
+	return date_display_yyyy_mm_dd_colon_hms( date );
 }
 
 char *date_display_19( DATE *date )

@@ -162,13 +162,7 @@ boolean element_accumulate_debit( char *element_name )
 
 	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: pipe2string(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 element_name );
-		exit( 1 );
+		return 0;
 	}
 
 	if ( *results == 'y' )
@@ -219,16 +213,13 @@ LIST *element_system_list(
 			boolean fetch_account_list )
 {
 	LIST *element_list;
-	ELEMENT *element;
-	char input_buffer[ 256 ];
-	char element_name[ 128 ];
-	char accumulate_debit_yn[ 2 ];
+	char input[ 256 ];
 	FILE *input_pipe;
 
 	element_list = list_new();
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
-	while( string_input( input_buffer, input_pipe, 256 ) )
+	while( string_input( input, input_pipe, 256 ) )
 	{
 		list_set(
 			element_list,
@@ -241,7 +232,6 @@ LIST *element_system_list(
 	}
 
 	pclose( input_pipe );
-
 	return element_list_sort( element_list );
 }
 
@@ -272,7 +262,9 @@ char *element_filter_where(
 	{
 		char *ptr = timlib_in_clause( filter_element_name_list );
 
-		string_strcpy( where, ptr, 1024 );
+		sprintf(where,
+			"element in (%s)",
+			ptr );
 		free( ptr );
 	}
 
@@ -285,7 +277,10 @@ LIST *element_list(	LIST *filter_element_name_list,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list )
 {
-	return element_system_list(
+	LIST *list;
+	ELEMENT *equity_element;
+
+	list = element_system_list(
 			element_system_string(
 				element_filter_where(
 					filter_element_name_list ) ),
@@ -293,6 +288,30 @@ LIST *element_list(	LIST *filter_element_name_list,
 			transaction_date_time_closing,
 			fetch_subclassification_list,
 			fetch_account_list );
+
+	if ( ( equity_element =
+			element_seek(
+				ELEMENT_EQUITY,
+				list ) ) )
+	{
+		equity_element->equity_element =
+			equity_element_fetch(
+				equity_element->element_name,
+				equity_element->element_balance_total,
+				fund_name,
+				transaction_date_time_closing );
+
+		if ( !equity_element->equity_element )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: equity_element_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
+	return list;
 }
 
 LIST *element_subclassification_list(
@@ -851,27 +870,6 @@ SUBCLASSIFICATION *element_subclassification_seek(
 	return (SUBCLASSIFICATION *)0;
 }
 
-boolean element_account_accumulate_debit(
-			char *account_name )
-{
-	ELEMENT *element;
-
-	if ( ! ( element =
-			element_account_name_fetch(
-				account_name ) ) )
-	{
-		fprintf( stderr,
-	"Warning in %s/%s()/%d: cannot fetch element for account = (%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 account_name );
-		return 0;
-	}
-
-	return element->accumulate_debit;
-}
-
 void element_account_action_string_set(
 			ELEMENT *element,
 			char *application_name,
@@ -1140,7 +1138,6 @@ void element_denominator_percent_of_asset_set(
 			double asset_total )
 {
 	ELEMENT *element;
-	double percent_of_asset;
 
 	if ( !asset_total ) return;
 	if ( !list_rewind( element_list ) ) return;
@@ -1148,13 +1145,10 @@ void element_denominator_percent_of_asset_set(
 	do {
 		element = list_get( element_list );
 
-		percent_of_asset =
-			(element->element_balance_total /
-			 asset_total) * 100.0;
-
 		element->percent_of_asset =
-			float_round_int(
-				percent_of_asset );
+			element_percent_of_total(
+				element->element_balance_total,
+				asset_total );
 
 		if ( list_length( element->subclassification_list ) )
 		{
@@ -1178,7 +1172,6 @@ void element_denominator_percent_of_revenue_set(
 			double revenue_total )
 {
 	ELEMENT *element;
-	double percent_of_revenue;
 
 	if ( !revenue_total ) return;
 	if ( !list_rewind( element_list ) ) return;
@@ -1186,13 +1179,10 @@ void element_denominator_percent_of_revenue_set(
 	do {
 		element = list_get( element_list );
 
-		percent_of_revenue =
-			(element->element_balance_total /
-			 revenue_total) * 100.0;
-
 		element->percent_of_revenue =
-			float_round_int(
-				percent_of_revenue );
+			element_percent_of_total(
+				element->element_balance_total,
+				revenue_total );
 
 		if ( list_length( element->subclassification_list ) )
 		{
@@ -1209,5 +1199,92 @@ void element_denominator_percent_of_revenue_set(
 		}
 
 	} while ( list_next( element_list ) );
+}
+
+int element_percent_of_total(
+			double total,
+			double denominator )
+{
+	double percent;
+
+	if ( !denominator ) return 0;
+
+	percent =
+		(total /
+		 denominator) * 100.0;
+
+	return float_round_int( percent );
+}
+
+EQUITY_ELEMENT *equity_element_new(
+			char *equity_element_name,
+			double equity_element_balance_total,
+			char *fund_name,
+			char *transaction_date_time )
+{
+	EQUITY_ELEMENT *equity_element;
+
+	if ( ! ( equity_element =
+			calloc( 1, sizeof( EQUITY_ELEMENT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+	}
+
+	equity_element->equity_element_name = equity_element_name;
+
+	equity_element->equity_element_balance_total =
+		equity_element_balance_total;
+
+	equity_element->fund_name = fund_name;
+	equity_element->transaction_date_time = transaction_date_time;
+
+	return equity_element;
+}
+
+EQUITY_ELEMENT *equity_element_fetch(
+			char *equity_element_name,
+			double element_balance_total,
+			char *fund_name,
+			char *transaction_date_time )
+{
+	EQUITY_ELEMENT *equity_element;
+	DATE *date;
+
+	equity_element =
+		equity_element_new(
+			equity_element_name,
+			element_balance_total,
+			fund_name,
+			transaction_date_time );
+
+
+	date = date_19new( transaction_date_time );
+	date_subtract_year( date, 1 );
+
+	equity_element->begin_transaction_date_time =
+		date_display19( date );
+
+	equity_element->prior_element_account_list =
+		element_account_list(
+			&equity_element->begin_element_balance_total,
+			equity_element->equity_element_name,
+			equity_element->fund_name,
+			equity_element->begin_transaction_date_time );
+
+	return equity_element;
+}
+
+double equity_element_balance_change(
+			double begin_element_balance_total,
+			double equity_element_balance_total,
+			double net_income )
+{
+	return	equity_element_balance_total -
+		begin_element_balance_total +
+		net_income;
 }
 
