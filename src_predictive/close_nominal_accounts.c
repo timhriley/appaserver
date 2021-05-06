@@ -286,6 +286,7 @@ boolean close_nominal_accounts_fund_execute(
 		element_list(
 			filter_element_name_list,
 			fund_name,
+			(char *)0 /* begin_date_string */,
 			transaction_date_time_closing(
 				as_of_date,
 				1 /* preclose_time */,
@@ -637,6 +638,7 @@ void close_nominal_accounts_fund_display(
 		element_list(
 			filter_element_name_list,
 			fund_name,
+			(char *)0 /* begin_date_string */,
 			transaction_date_time_closing(
 				as_of_date,
 				1 /* preclose_time */,

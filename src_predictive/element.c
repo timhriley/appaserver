@@ -273,6 +273,7 @@ char *element_filter_where(
 
 LIST *element_list(	LIST *filter_element_name_list,
 			char *fund_name,
+			char *begin_date_string,
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list )
@@ -292,13 +293,15 @@ LIST *element_list(	LIST *filter_element_name_list,
 	if ( ( equity_element =
 			element_seek(
 				ELEMENT_EQUITY,
-				list ) ) )
+				list ) )
+	&&     begin_date_string )
 	{
 		equity_element->equity_element =
 			equity_element_fetch(
 				equity_element->element_name,
 				equity_element->element_balance_total,
 				fund_name,
+				begin_date_string,
 				transaction_date_time_closing );
 
 		if ( !equity_element->equity_element )
@@ -455,7 +458,7 @@ LIST *element_account_list(
 			double *element_total,
 			char *element_name,
 			char *fund_name,
-			char *transaction_date_time_closing )
+			char *date_time_string )
 {
 	ACCOUNT *account;
 	char sys_string[ 1024 ];
@@ -466,6 +469,19 @@ LIST *element_account_list(
 	LIST *account_list;
 	char *fund_where;
 	JOURNAL *latest_journal;
+	char local_date_time_string[ 32 ];
+
+	if ( character_exists( date_time_string, ' ' ) )
+	{
+		strcpy( local_date_time_string, date_time_string );
+	}
+	else
+	{
+		sprintf(local_date_time_string,
+			"%s %s",
+			date_time_string,
+			TRANSACTION_CLOSING_TRANSACTION_TIME );
+	}
 
 	fund_where =
 		predictive_fund_where(
@@ -497,7 +513,7 @@ LIST *element_account_list(
 		latest_journal =
 			journal_latest(
 				account_name,
-				transaction_date_time_closing );
+				local_date_time_string );
 
 		if ( !latest_journal
 		||   timlib_double_virtually_same(
@@ -1249,10 +1265,19 @@ EQUITY_ELEMENT *equity_element_fetch(
 			char *equity_element_name,
 			double element_balance_total,
 			char *fund_name,
+			char *begin_date_string,
 			char *transaction_date_time )
 {
 	EQUITY_ELEMENT *equity_element;
-	DATE *date;
+	DATE *yesterday;
+
+	yesterday =
+		/* ------------------- */
+		/* Trims trailing time */
+		/* ------------------- */
+		date_yyyy_mm_dd_new( begin_date_string );
+
+	date_decrement_day( yesterday );
 
 	equity_element =
 		equity_element_new(
@@ -1261,12 +1286,8 @@ EQUITY_ELEMENT *equity_element_fetch(
 			fund_name,
 			transaction_date_time );
 
-
-	date = date_19new( transaction_date_time );
-	date_subtract_year( date, 1 );
-
 	equity_element->begin_transaction_date_time =
-		date_display19( date );
+		date_display( yesterday );
 
 	equity_element->prior_element_account_list =
 		element_account_list(
@@ -1274,6 +1295,13 @@ EQUITY_ELEMENT *equity_element_fetch(
 			equity_element->equity_element_name,
 			equity_element->fund_name,
 			equity_element->begin_transaction_date_time );
+
+fprintf(stderr,
+	"%s/%s()/%d: prior balance = %.2lf\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+equity_element->begin_element_balance_total );
 
 	return equity_element;
 }

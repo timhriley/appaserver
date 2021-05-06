@@ -91,13 +91,14 @@ LIST *element_account_list(
 			double *element_total,
 			char *element_name,
 			char *fund_name,
-			char *date_time );
+			char *date_time_string );
 
 LIST *element_list_sort(
 			LIST *element_list );
 
 LIST *element_list(	LIST *filter_element_name_list,
 			char *fund_name,
+			char *begin_date_string,
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list );
@@ -229,6 +230,7 @@ EQUITY_ELEMENT *equity_element_fetch(
 			char *equity_element_name,
 			double element_balance_total,
 			char *fund_name,
+			char *begin_date_string,
 			char *transaction_date_time );
 
 double equity_element_balance_change(

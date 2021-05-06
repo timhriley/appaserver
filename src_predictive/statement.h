@@ -381,37 +381,37 @@ char *statement_fund_caption(
 			char *fund_name,
 			boolean exists_logo_filename );
 
-void statement_html_display_subclassification_element_list(
+void statement_html_display_element_list(
 			HTML_TABLE *html_table,
 			LIST *preclose_element_list,
 			LIST *prior_year_list,
 			boolean is_percent_of_revenue );
 
-void statement_html_display_subclassification_element(
+void statement_html_display_element(
 			HTML_TABLE *html_table,
 			ELEMENT *element,
 			LIST *prior_year_list,
 			boolean is_percent_of_revenue );
 
-void statement_html_omit_subclassification_element_list(
+void statement_html_omit_element_list(
 			HTML_TABLE *html_table,
 			LIST *preclose_element_list,
 			LIST *prior_year_list,
 			boolean is_percent_of_revenue );
 
-void statement_html_omit_subclassification_element(
+void statement_html_omit_element(
 			HTML_TABLE *html_table,
 			ELEMENT *element,
 			LIST *prior_year_list,
 			boolean is_percent_of_revenue );
 
-void statement_html_aggregate_subclassification_element_list(
+void statement_html_aggregate_element_list(
 			HTML_TABLE *html_table,
 			LIST *preclose_element_list,
 			LIST *prior_year_list,
 			boolean is_percent_of_revenue );
 
-void statement_html_aggregate_subclassification_element(
+void statement_html_aggregate_element(
 			HTML_TABLE *html_table,
 			ELEMENT *element,
 			LIST *prior_year_list,
@@ -427,10 +427,47 @@ SUBCLASSIFICATION *statement_net_income_subclassification(
 			double asset_balance_total,
 			boolean is_financial_position );
 
+void statement_net_income_account(
+			double *element_balance_total,
+			int *percent_of_asset,
+			LIST *account_list,
+			EQUITY_ELEMENT *equity_element,
+			char *fund_name,
+			char *transaction_date_time,
+			double asset_balance_total,
+			boolean is_financial_position );
+
 ELEMENT *statement_equity_liability_element(
 			double equity_element_balance_total,
 			double asset_element_balance_total,
 			double liability_element_balance_total );
+
+LIST *statement_PDF_display_row_list(
+			ELEMENT *element,
+			LIST *prior_year_list,
+			boolean is_percent_of_revenue );
+
+LIST *statement_PDF_row_list(
+			LIST *preclose_element_list,
+			LIST *prior_year_list,
+			enum subclassification_option,
+			boolean is_percent_of_revenue );
+
+LIST *statement_PDF_account_row_list(
+			LIST *account_list,
+			LIST *prior_year_list,
+			boolean include_subclassification,
+			boolean is_percent_of_revenue );
+
+LIST *statement_PDF_omit_row_list(
+			ELEMENT *element,
+			LIST *prior_year_list,
+			boolean is_percent_of_revenue );
+
+LIST *statement_PDF_aggregate_row_list(
+			ELEMENT *element,
+			LIST *prior_year_list,
+			boolean is_percent_of_revenue );
 
 #endif
 
