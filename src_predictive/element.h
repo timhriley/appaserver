@@ -31,15 +31,15 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	char *equity_element_name;
-	double equity_element_balance_total;
+	char *element_name;
+	double current_balance;
 	char *fund_name;
-	char *transaction_date_time;
+	char *begin_date_string;
 
 	/* Process */
 	/* ------- */
-	char *begin_transaction_date_time;
-	double begin_element_balance_total;
+	char *prior_transaction_date_time;
+	double prior_balance;
 	LIST *prior_element_account_list;
 	double equity_element_balance_change;
 } EQUITY_ELEMENT;
@@ -52,7 +52,7 @@ typedef struct
 	LIST *subclassification_list;
 	LIST *account_list;
 
-	double element_balance_total;
+	double element_current_balance;
 	int element_delta_prior;
 	int percent_of_asset;
 	int percent_of_revenue;
@@ -98,8 +98,7 @@ LIST *element_list_sort(
 
 LIST *element_list(	LIST *filter_element_name_list,
 			char *fund_name,
-			char *begin_date_string,
-			char *transaction_date_time_closing,
+			char *transaction_date_time,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list );
 
@@ -201,7 +200,7 @@ void element_prior_year_element_list_delta_prior_set(
 			LIST *prior_year_element_list,
 			ELEMENT *preclose_element );
 
-void element_list_balance_total(
+void element_list_current_balance(
 			LIST *element_list );
 
 double element_debit_total(
@@ -210,7 +209,7 @@ double element_debit_total(
 double element_credit_total(
 			LIST *element_list );
 
-double element_balance_total(
+double element_current_balance(
 			LIST *subclassification_list,
 			LIST *account_list );
 
@@ -221,22 +220,20 @@ char *element_filter_where(
 			LIST *filter_element_name_list );
 
 EQUITY_ELEMENT *equity_element_new(
-			char *equity_element_name,
-			double equity_element_balance_total,
+			char *element_name,
+			double current_balance,
 			char *fund_name,
-			char *transaction_date_time );
+			char *begin_date_string );
 
 EQUITY_ELEMENT *equity_element_fetch(
-			char *equity_element_name,
-			double element_balance_total,
+			char *element_name,
+			double current_balance,
 			char *fund_name,
-			char *begin_date_string,
-			char *transaction_date_time );
+			char *begin_date_string );
 
 double equity_element_balance_change(
-			double begin_element_balance_total,
-			double equity_element_balance_total,
-			double net_income );
+			double prior_balance,
+			double current_balance );
 
 int element_percent_of_total(
 			double total,

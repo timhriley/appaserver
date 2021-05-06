@@ -434,6 +434,7 @@ char *transaction_insert(
 			lock_transaction );
 
 	pclose( insert_pipe );
+
 	return transaction_date_time;
 }
 
@@ -687,14 +688,19 @@ char *transaction_closing_memo_where( void )
 boolean transaction_date_time_exists( char *transaction_date_time )
 {
 	char sys_string[ 1024 ];
+	char where[ 128 ];
 	char *results;
 	boolean return_value;
+
+	sprintf(where,
+		"transaction_date_time = '%s'",
+		transaction_date_time );
 
 	sprintf( sys_string,
 		 "select.sh \"%s\" %s \"%s\" none",
 		 "count(1)",
 		 TRANSACTION_TABLE,
-		 transaction_date_time );
+		 where );
 
 	results = pipe2string( sys_string );
 	return_value = ( atoi( results ) == 1 );

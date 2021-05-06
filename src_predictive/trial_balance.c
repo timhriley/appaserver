@@ -722,7 +722,7 @@ void pipe_subclassification_list(
 					subclassification->
 						account_list );
 
-			if ( !account->account_total ) continue;
+			if ( !account->account_balance ) continue;
 
 			pipe_subclassification_account(
 				output_pipe,
@@ -770,7 +770,7 @@ int html_subclassification_list(
 					subclassification->
 						account_list );
 
-			if ( !account->account_total ) continue;
+			if ( !account->account_balance ) continue;
 
 			html_subclassification_account(
 				html_table,
@@ -813,12 +813,12 @@ void html_subclassification_account(
 	boolean accumulate_debit;
 	LIST *data_list;
 
-	if ( !account->account_total ) return;
+	if ( !account->account_balance ) return;
 	if ( !account->latest_journal ) return;
 
 	data_list = list_new();
 
-	balance = account->account_total;
+	balance = account->account_balance;
 	accumulate_debit = account->accumulate_debit;
 
 	/* See if negative balance. */
@@ -981,10 +981,10 @@ void pipe_subclassification_account(
 	double balance;
 	boolean accumulate_debit;
 
-	if ( !account->account_total ) return;
+	if ( !account->account_balance ) return;
 	if ( !account->latest_journal ) return;
 
-	balance = account->account_total;
+	balance = account->account_balance;
 	accumulate_debit = account->accumulate_debit;
 
 	/* See if negative balance. */
@@ -1275,7 +1275,7 @@ void pipe_account_list(
 			list_get(
 				account_list );
 
-		if ( !account->account_total ) continue;
+		if ( !account->account_balance ) continue;
 
 		pipe_account_total(
 			output_pipe,
@@ -1305,7 +1305,7 @@ int html_account_list(
 			list_get(
 				account_list );
 
-		if ( !account->account_total ) continue;
+		if ( !account->account_balance ) continue;
 
 		html_account_total(
 			html_table,
@@ -1334,10 +1334,10 @@ void pipe_account_total(
 	double balance;
 	boolean accumulate_debit;
 
-	if ( !account->account_total ) return;
+	if ( !account->account_balance ) return;
 	if ( !account->latest_journal ) return;
 
-	balance = account->account_total;
+	balance = account->account_balance;
 	accumulate_debit = account->accumulate_debit;
 
 	if ( balance < 0.0 )
@@ -1420,10 +1420,10 @@ void html_account_total(
 	double balance;
 	boolean accumulate_debit;
 
-	if ( !account->account_total ) return;
+	if ( !account->account_balance ) return;
 	if ( !account->latest_journal ) return;
 
-	balance = account->account_total;
+	balance = account->account_balance;
 	accumulate_debit = account->accumulate_debit;
 
 	/* See if negative balance. */
@@ -2145,7 +2145,7 @@ LIST *PDF_account_element_row_list(
 			list_get(
 				account_list );
 
-		if ( !account->account_total ) continue;
+		if ( !account->account_balance ) continue;
 
 		list_set(
 			row_list,
@@ -2183,7 +2183,7 @@ LIST *PDF_subclassification_account_list_row_list(
 			list_get(
 				account_list );
 
-		if ( !account->account_total ) continue;
+		if ( !account->account_balance ) continue;
 
 		list_set(
 			row_list,
@@ -2225,7 +2225,7 @@ LATEX_ROW *PDF_account_latex_row(
 	char percent_string[ 16 ];
 	LATEX_ROW *latex_row;
 
-	if ( !account->account_total ) return (LATEX_ROW *)0;
+	if ( !account->account_balance ) return (LATEX_ROW *)0;
 	if ( !account->latest_journal ) return (LATEX_ROW *)0;
 
 	latex_row = latex_row_new();

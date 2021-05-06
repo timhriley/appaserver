@@ -88,7 +88,7 @@ SUBCLASSIFICATION *subclassification_fetch(
 }
 
 SUBCLASSIFICATION *subclassification_total_fetch(
-			double *subclassification_total,
+			double *subclassification_balance,
 			char *subclassification_name,
 			char *fund_name,
 			char *transaction_date_time_closing )
@@ -113,7 +113,7 @@ SUBCLASSIFICATION *subclassification_total_fetch(
 
 	subclassification->account_list =
 		subclassification_total_account_list(
-			subclassification_total,
+			subclassification_balance,
 			subclassification->subclassification_name,
 			fund_name,
 			transaction_date_time_closing );
@@ -695,7 +695,7 @@ equity_all_done:
 		subclassification = list_get_pointer( subclassification_list );
 
 		if ( timlib_dollar_virtually_same(
-			subclassification->subclassification_total,
+			subclassification->subclassification_balance,
 			0.0 ) )
 		{
 			continue;
@@ -736,7 +736,7 @@ equity_all_done:
 			first_time = 0;
 		}
 
-		total_element += subclassification->subclassification_total;
+		total_element += subclassification->subclassification_balance;
 
 		sprintf(buffer,
 		 	"%s",
@@ -752,7 +752,7 @@ equity_all_done:
 			html_table->data_list,
 			strdup( place_commas_in_money(
 				subclassification->
-					subclassification_total ) ) );
+					subclassification_balance ) ) );
 	
 		if ( percent_denominator )
 		{
@@ -764,7 +764,7 @@ equity_all_done:
 
 			percent_of_total =
 				( subclassification->
-					subclassification_total /
+					subclassification_balance /
 				  percent_denominator ) * 100.0;
 
 			sprintf( buffer,
@@ -929,13 +929,13 @@ LIST *subclassification_aggregate_beginning_row_list(
 		}
 
 		if ( timlib_dollar_virtually_same(
-			subclassification->subclassification_total,
+			subclassification->subclassification_balance,
 			0.0 ) )
 		{
 			continue;
 		}
 
-		*total_element += subclassification->subclassification_total;
+		*total_element += subclassification->subclassification_balance;
 
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
@@ -949,7 +949,7 @@ LIST *subclassification_aggregate_beginning_row_list(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 				   subclassification->
-					subclassification_total ) ),
+					subclassification_balance ) ),
 			0 /* not large_bold */ );
 
 		if ( percent_denominator )
@@ -959,7 +959,7 @@ LIST *subclassification_aggregate_beginning_row_list(
 
 			percent_of_total =
 				( subclassification->
-					subclassification_total /
+					subclassification_balance /
 	  		  	  percent_denominator ) * 100.0;
 
 			sprintf( buffer,
@@ -1039,7 +1039,7 @@ equity_all_done:
 		subclassification = list_get_pointer( subclassification_list );
 
 		if ( timlib_dollar_virtually_same(
-			subclassification->subclassification_total,
+			subclassification->subclassification_balance,
 			0.0 ) )
 		{
 			continue;
@@ -1089,7 +1089,7 @@ equity_all_done:
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 			   	     subclassification->
-					subclassification_total ) ),
+					subclassification_balance ) ),
 			0 /* not large_bold */ );
 
 		if ( percent_denominator )
@@ -1097,7 +1097,7 @@ equity_all_done:
 			char buffer[ 128 ];
 
 			percent_of_total =
-				( subclassification->subclassification_total /
+				( subclassification->subclassification_balance /
 		  		  percent_denominator ) * 100.0;
 
 			sprintf( buffer,
@@ -1118,7 +1118,7 @@ equity_all_done:
 				0 /* not large_bold */ );
 		}
 	
-		*total_element += subclassification->subclassification_total;
+		*total_element += subclassification->subclassification_balance;
 
 	} while( list_next( subclassification_list ) );
 
@@ -1759,7 +1759,7 @@ boolean subclassification_net_assets_exists(
 }
 
 LIST *subclassification_total_account_list(
-			double *subclassification_total,
+			double *subclassification_balance,
 			char *subclassification_name,
 			char *fund_name,
 			char *transaction_date_time_closing )
@@ -1827,7 +1827,7 @@ LIST *subclassification_total_account_list(
 			account,
 			account_balance_match_function );
 
-		*subclassification_total += account->latest_journal->balance;
+		*subclassification_balance += account->latest_journal->balance;
 	}
 
 	pclose( input_pipe );
@@ -1962,8 +1962,8 @@ void subclassification_delta_prior_set(
 
 	prior_subclassification->delta_prior =
 		statement_delta_prior(
-			prior_subclassification->subclassification_total,
-			subclassification->subclassification_total );
+			prior_subclassification->subclassification_balance,
+			subclassification->subclassification_balance );
 
 	account_list_delta_prior_set(
 		prior_subclassification->account_list,
@@ -2040,28 +2040,30 @@ double subclassification_credit_total(
 	return total;
 }
 
-double subclassification_balance_total(
+double subclassification_list_balance(
 			LIST *subclassification_list )
 {
 	SUBCLASSIFICATION *subclassification;
-	double total;
+	double balance;
 
 	if ( !list_rewind( subclassification_list ) ) return 0.0;
 
-	total = 0.0;
+	balance = 0.0;
 
 	do {
 		subclassification = list_get( subclassification_list );
 
-		subclassification->subclassification_total =
-			account_balance_total(
+		subclassification->subclassification_balance =
+			account_list_balance(
 				subclassification->account_list );
 
-		total += subclassification->subclassification_total;
+		balance +=
+			subclassification->
+				subclassification_balance;
 
 	} while ( list_next( subclassification_list ) );
 
-	return total;
+	return balance;
 }
 
 void subclassification_list_percent_of_asset_set(
@@ -2069,7 +2071,6 @@ void subclassification_list_percent_of_asset_set(
 			double asset_total )
 {
 	SUBCLASSIFICATION *subclassification;
-	double percent_of_asset;
 
 	if ( !asset_total ) return;
 
@@ -2078,12 +2079,10 @@ void subclassification_list_percent_of_asset_set(
 	do {
 		subclassification = list_get( subclassification_list );
 
-		percent_of_asset =
-			(subclassification->subclassification_total /
-			 asset_total) * 100.0;
-
 		subclassification->percent_of_asset =
-			float_round_int( percent_of_asset );
+			element_percent_of_total(
+				subclassification->subclassification_balance,
+				asset_total );
 
 		if ( list_length( subclassification->account_list ) )
 		{
@@ -2100,7 +2099,6 @@ void subclassification_list_percent_of_revenue_set(
 			double revenue_total )
 {
 	SUBCLASSIFICATION *subclassification;
-	double percent_of_revenue;
 
 	if ( !revenue_total ) return;
 
@@ -2109,12 +2107,10 @@ void subclassification_list_percent_of_revenue_set(
 	do {
 		subclassification = list_get( subclassification_list );
 
-		percent_of_revenue =
-			(subclassification->subclassification_total /
-			 revenue_total) * 100.0;
-
 		subclassification->percent_of_revenue =
-			float_round_int( percent_of_revenue );
+			element_percent_of_total(
+				subclassification->subclassification_balance,
+				revenue_total );
 
 		if ( list_length( subclassification->account_list ) )
 		{

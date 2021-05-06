@@ -147,7 +147,8 @@ int main( int argc, char **argv )
 	/* Input */
 	/* ----- */
 	is_statement_of_activities =
-		( strcmp( argv[ 0 ], "statement_of_activities" ) == 0 );
+		( strcmp( argv[ 0 ],
+			  "statement_of_activities" ) == 0 );
 
 	session = argv[ 1 ];
 	login_name = argv[ 2 ];

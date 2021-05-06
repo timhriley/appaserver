@@ -42,11 +42,12 @@ typedef struct
 	char *element_name;
 	int display_order;
 	LIST *account_list;
-	double subclassification_total;
+	double subclassification_balance;
 	int percent_of_asset;
 	int percent_of_revenue;
 	int delta_prior;
 	char *subclassification_total_display;
+	boolean display_if_zero;
 } SUBCLASSIFICATION;
 
 /* Operations */
@@ -163,7 +164,7 @@ void subclassification_list_account_action_string_set(
 			char *beginning_date,
 			char *as_of_date );
 
-double subclassification_balance_total(
+double subclassification_list_balance(
 			LIST *subclassification_list );
 
 void subclassification_list_percent_of_asset_set(

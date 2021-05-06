@@ -189,6 +189,7 @@ LIST *statement_fund_element_list(
 	boolean fetch_account_list = 0;
 	char transaction_date[ 16 ];
 	LIST *list;
+	ELEMENT *element;
 
 	if ( subclassification_option == subclassification_display
 	||   subclassification_option == subclassification_aggregate )
@@ -207,10 +208,33 @@ LIST *statement_fund_element_list(
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			begin_date_string,
 			transaction_date_time,
 			fetch_subclassification_list,
 			fetch_account_list );
+
+	if ( ( element =
+			element_seek(
+				ELEMENT_EQUITY,
+				list ) )
+	&&     begin_date_string )
+	{
+		element->equity_element =
+			equity_element_fetch(
+				element->element_name,
+				element->element_current_balance,
+				fund_name,
+				begin_date_string );
+
+		if ( !element->equity_element )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: equity_element_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
 
 	element_list_account_action_string_set(
 		list,
@@ -712,7 +736,7 @@ STATEMENT_FUND *statement_fund_steady_state(
 {
 	if ( list_length( postclose_element_list ) )
 	{
-		element_list_balance_total(
+		element_list_current_balance(
 			postclose_element_list );
 
 		element_list_percent_of_asset_set(
@@ -722,7 +746,7 @@ STATEMENT_FUND *statement_fund_steady_state(
 			postclose_element_list );
 	}
 
-	element_list_balance_total(
+	element_list_current_balance(
 		preclose_element_list );
 
 	element_list_percent_of_asset_set(
@@ -853,7 +877,7 @@ LIST *statement_fund_steady_state_prior_year_list(
 				statement_prior_year->
 				     subclassification_option );
 
-		element_list_balance_total(
+		element_list_current_balance(
 			statement_prior_year->
 				prior_year_element_list );
 
@@ -982,7 +1006,7 @@ LIST *statement_account_delta_list(
 				account_name,
 				prior_year->prior_year_element_list ) ) )
 		{
-			if ( account->account_total )
+			if ( account->account_balance )
 			{
 				sprintf(delta_prior,
 					"^%d%c %s",
@@ -992,7 +1016,7 @@ LIST *statement_account_delta_list(
 					/* Returns static memory */
 					/* --------------------- */
 					timlib_place_commas_in_money(
-						account->account_total ) );
+						account->account_balance ) );
 			}
 			else
 			{
@@ -1034,7 +1058,7 @@ LIST *statement_html_account_delta_list(
 				account_name,
 				prior_year->prior_year_element_list ) ) )
 		{
-			if ( account->account_total )
+			if ( account->account_balance )
 			{
 				sprintf(delta_prior,
 					"%d%c<br><a href=\"%s\">%s</a>",
@@ -1045,7 +1069,7 @@ LIST *statement_html_account_delta_list(
 					/* Returns static memory */
 					/* --------------------- */
 					timlib_place_commas_in_money(
-						account->account_total ) );
+						account->account_balance ) );
 			}
 			else
 			{
@@ -1087,7 +1111,7 @@ LIST *statement_html_element_delta_list(
 				element_name,
 				prior_year->prior_year_element_list ) ) )
 		{
-			if ( element->element_balance_total )
+			if ( element->element_current_balance )
 			{
 				sprintf(delta_prior,
 					"%d%c<br>%s",
@@ -1098,7 +1122,7 @@ LIST *statement_html_element_delta_list(
 					/* --------------------- */
 					timlib_place_commas_in_money(
 					   element->
-						element_balance_total ) );
+						element_current_balance ) );
 			}
 			else
 			{
@@ -1140,7 +1164,7 @@ LIST *statement_html_subclassification_delta_list(
 				subclassification_name,
 				prior_year->prior_year_element_list ) ) )
 		{
-			if ( subclassification->subclassification_total )
+			if ( subclassification->subclassification_balance )
 			{
 				sprintf(delta_prior,
 					"%d%c<br>%s",
@@ -1151,7 +1175,7 @@ LIST *statement_html_subclassification_delta_list(
 					/* --------------------- */
 					timlib_place_commas_in_money(
 					   subclassification->
-						subclassification_total ) );
+						subclassification_balance ) );
 			}
 			else
 			{
@@ -1193,7 +1217,7 @@ LIST *statement_PDF_account_delta_list(
 				account_name,
 				prior_year->prior_year_element_list ) ) )
 		{
-			if ( account->account_total )
+			if ( account->account_balance )
 			{
 				sprintf(delta_prior,
 					"%d%c %s",
@@ -1203,7 +1227,7 @@ LIST *statement_PDF_account_delta_list(
 					/* Returns static memory */
 					/* --------------------- */
 					timlib_place_commas_in_dollars(
-						account->account_total ) );
+						account->account_balance ) );
 			}
 			else
 			{
@@ -1219,7 +1243,7 @@ LIST *statement_PDF_account_delta_list(
 				/* Returns static memory */
 				/* --------------------- */
 				timlib_place_commas_in_dollars(
-					account->account_total ) );
+					account->account_balance ) );
 #endif
 
 			list_set(
@@ -1257,7 +1281,7 @@ LIST *statement_PDF_subclassification_delta_list(
 				subclassification_name,
 				prior_year->prior_year_element_list ) ) )
 		{
-			if ( subclassification->subclassification_total )
+			if ( subclassification->subclassification_balance )
 			{
 				sprintf(delta_prior,
 					"%d%c %s",
@@ -1268,7 +1292,7 @@ LIST *statement_PDF_subclassification_delta_list(
 					/* --------------------- */
 					timlib_place_commas_in_dollars(
 					    subclassification->
-						subclassification_total ) );
+						subclassification_balance ) );
 			}
 			else
 			{
@@ -1310,7 +1334,7 @@ LIST *statement_PDF_element_delta_list(
 				element_name,
 				prior_year->prior_year_element_list ) ) )
 		{
-			if ( element->element_balance_total )
+			if ( element->element_current_balance )
 			{
 				sprintf(delta_prior,
 					"%d%c %s",
@@ -1321,7 +1345,7 @@ LIST *statement_PDF_element_delta_list(
 					/* --------------------- */
 					timlib_place_commas_in_dollars(
 					    element->
-						element_balance_total ) );
+						element_current_balance ) );
 			}
 			else
 			{
@@ -1414,7 +1438,7 @@ void statement_fund_list_net_income_set(
 				statement_fund->preclose_element_list ) ) )
 		{
 			statement_fund->revenue_total =
-				element->element_balance_total;
+				element->element_current_balance;
 		}
 
 		if ( ( element =
@@ -1423,7 +1447,7 @@ void statement_fund_list_net_income_set(
 				statement_fund->preclose_element_list ) ) )
 		{
 			statement_fund->expense_total =
-				element->element_balance_total;
+				element->element_current_balance;
 		}
 
 		if ( ( element =
@@ -1432,7 +1456,7 @@ void statement_fund_list_net_income_set(
 				statement_fund->preclose_element_list ) ) )
 		{
 			statement_fund->gain_total =
-				element->element_balance_total;
+				element->element_current_balance;
 		}
 
 		if ( ( element =
@@ -1441,7 +1465,7 @@ void statement_fund_list_net_income_set(
 				statement_fund->preclose_element_list ) ) )
 		{
 			statement_fund->loss_total =
-				element->element_balance_total;
+				element->element_current_balance;
 		}
 
 		statement_fund->net_income =
@@ -1479,8 +1503,8 @@ void statement_fund_list_equity_set(
 {
 	STATEMENT_FUND *statement_fund;
 	ELEMENT *element;
-	double asset_balance_total;
-	double liability_balance_total;
+	double asset_current_balance;
+	double liability_current_balance;
 
 	if ( !list_rewind( statement_fund_list ) ) return;
 
@@ -1492,12 +1516,12 @@ void statement_fund_list_equity_set(
 				ELEMENT_ASSET,
 				statement_fund->preclose_element_list ) ) )
 		{
-			asset_balance_total =
-				element->element_balance_total;
+			asset_current_balance =
+				element->element_current_balance;
 		}
 		else
 		{
-			asset_balance_total = 0.0;
+			asset_current_balance = 0.0;
 		}
 
 		if ( ( element =
@@ -1505,12 +1529,12 @@ void statement_fund_list_equity_set(
 				ELEMENT_LIABILITY,
 				statement_fund->preclose_element_list ) ) )
 		{
-			liability_balance_total =
-				element->element_balance_total;
+			liability_current_balance =
+				element->element_current_balance;
 		}
 		else
 		{
-			liability_balance_total = 0.0;
+			liability_current_balance = 0.0;
 		}
 
 		if ( ! ( element =
@@ -1533,7 +1557,7 @@ void statement_fund_list_equity_set(
 			list_set_first(
 				element->subclassification_list,
 				statement_net_income_subclassification(
-					&element->element_balance_total,
+					&element->element_current_balance,
 					&element->percent_of_asset,
 					list_last(
 						element->
@@ -1542,36 +1566,29 @@ void statement_fund_list_equity_set(
 					statement_fund->fund_name,
 					statement_fund->
 						transaction_date_time,
-					asset_balance_total,
+					asset_current_balance,
 					is_financial_position ) );
-
-			list_set(
-				statement_fund->preclose_element_list,
-				statement_equity_liability_element(
-					element->element_balance_total,
-					asset_balance_total,
-					liability_balance_total ) );
 		}
 		else
 		{
 			statement_net_income_account(
-				&element->element_balance_total,
+				&element->element_current_balance,
 				&element->percent_of_asset,
 				element->account_list,
 				element->equity_element,
 				statement_fund->fund_name,
 				statement_fund->
 					transaction_date_time,
-				asset_balance_total,
+				asset_current_balance,
 				is_financial_position );
 		}
 
 		list_set(
 			statement_fund->preclose_element_list,
 			statement_equity_liability_element(
-				element->element_balance_total,
-				asset_balance_total,
-				liability_balance_total ) );
+				element->element_current_balance,
+				asset_current_balance,
+				liability_current_balance ) );
 
 	} while ( list_next( statement_fund_list ) );
 }
@@ -1690,7 +1707,7 @@ void statement_prior_year_net_income_set(
 				prior_year_element_list ) ) )
 	{
 		statement_prior_year->revenue_total =
-			element->element_balance_total;
+			element->element_current_balance;
 	}
 
 	if ( ( element =
@@ -1700,7 +1717,7 @@ void statement_prior_year_net_income_set(
 				prior_year_element_list ) ) )
 	{
 		statement_prior_year->expense_total =
-			element->element_balance_total;
+			element->element_current_balance;
 	}
 
 	if ( ( element =
@@ -1710,7 +1727,7 @@ void statement_prior_year_net_income_set(
 				prior_year_element_list ) ) )
 	{
 		statement_prior_year->gain_total =
-			element->element_balance_total;
+			element->element_current_balance;
 	}
 
 	if ( ( element =
@@ -1720,7 +1737,7 @@ void statement_prior_year_net_income_set(
 				prior_year_element_list ) ) )
 	{
 		statement_prior_year->loss_total =
-			element->element_balance_total;
+			element->element_current_balance;
 	}
 
 	statement_prior_year->statement_prior_year_net_income =
@@ -1893,7 +1910,7 @@ void statement_html_display_element_list(
 	do {
 		element = list_get( preclose_element_list );
 
-		if ( !element->element_balance_total ) continue;
+		if ( !element->element_current_balance ) continue;
 
 		statement_html_display_element(
 			html_table,
@@ -1915,7 +1932,7 @@ void statement_html_display_element(
 	char buffer[ 128 ];
 	char format_buffer[ 128 ];
 	char element_title[ 128 ];
-	char account_total_string[ 1024 ];
+	char account_balance_string[ 1024 ];
 
 	if ( !html_table )
 	{
@@ -1927,7 +1944,7 @@ void statement_html_display_element(
 		exit( 1 );
 	}
 
-	if ( !element->element_balance_total ) return;
+	if ( !element->element_current_balance ) return;
 
 	if ( !list_rewind( element->subclassification_list ) )
 		goto skip_subclassification;
@@ -1999,7 +2016,11 @@ void statement_html_display_element(
 				list_get(
 					subclassification->account_list );
 
-			if ( !account->account_total ) continue;
+			if ( !account->account_balance
+			&&   !account->display_if_zero )
+			{
+				continue;
+			}
 
 			html_table_set_data(
 				html_table->data_list,
@@ -2010,23 +2031,23 @@ void statement_html_display_element(
 	
 			if ( account->account_action_string )
 			{
-				sprintf(account_total_string,
+				sprintf(account_balance_string,
 					"<a href=\"%s\">%s</a>",
 			 		account->account_action_string,
 					place_commas_in_money(
-						account->account_total ) );
+						account->account_balance ) );
 			}
 			else
 			{
-				sprintf(account_total_string,
+				sprintf(account_balance_string,
 					"%s",
 					place_commas_in_money(
-						account->account_total ) );
+						account->account_balance ) );
 			}
 
 			html_table_set_data(
 				html_table->data_list,
-				strdup( account_total_string ) );
+				strdup( account_balance_string ) );
 
 			/* Skip the subclassification column */
 			/* --------------------------------- */
@@ -2084,85 +2105,86 @@ void statement_html_display_element(
 
 		} while( list_next( subclassification->account_list ) );
 
-		if ( subclassification->subclassification_total
-		&&   list_length( subclassification->account_list ) > 1 )
-		{
-			/* Set the subclassification label */
-			/* ------------------------------- */
-			html_table_set_data(
-				html_table->data_list,
-				strdup(
-					statement_html_subclassification_label(
-						subclassification->
-						   subclassification_name ) ) );
-	
-			/* Skip the account column */
-			/* ----------------------- */
-			html_table_set_data(
-				html_table->data_list,
-				strdup( "" ) );
-	
-			/* Set the subclassification total */
-			/* ------------------------------- */
-			html_table_set_data(
-				html_table->data_list,
-				strdup(
-					place_commas_in_money(
-					     subclassification->
-						  subclassification_total ) ) );
-	
-			/* Skip the element column */
-			/* ----------------------- */
-			html_table_set_data(
-				html_table->data_list,
-				strdup( "" ) );
-	
-			if ( is_percent_of_revenue )
-			{
-				sprintf(buffer,
-					"%d%c",
-					subclassification->percent_of_revenue,
-					'%' );
-			}
-			else
-			{
-				sprintf(buffer,
-					"%d%c",
-					subclassification->percent_of_asset,
-					'%' );
-			}
-	
-			/* Set the subclassification percent */
-			/* --------------------------------- */
-			html_table_set_data(
-				html_table->data_list,
-				strdup( buffer ) );
-	
-			if ( list_length( prior_year_list ) )
-			{
-				list_append_list(
-				  html_table->data_list,
-				  statement_html_subclassification_delta_list(
-					subclassification->
-						subclassification_name,
-					prior_year_list ) );
-			}
-	
-			/* Output the row */
-			/* -------------- */
-			html_table_output_data(
-				html_table->data_list,
-				html_table->
-					number_left_justified_columns,
-				html_table->
-					number_right_justified_columns,
-				html_table->background_shaded,
-				html_table->justify_list );
-	
-			list_free_string_list( html_table->data_list );
-			html_table->data_list = list_new();
+		if ( !subclassification->subclassification_balance )
+			continue;
 
-		} /* if subclassification_total */
+		if ( !list_length( subclassification->account_list ) )
+			continue;
+
+		/* Set the subclassification label */
+		/* ------------------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup(
+				statement_html_subclassification_label(
+					subclassification->
+					   subclassification_name ) ) );
+	
+		/* Skip the account column */
+		/* ----------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup( "" ) );
+	
+		/* Set the subclassification total */
+		/* ------------------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup(
+				place_commas_in_money(
+				     subclassification->
+					subclassification_balance ) ) );
+	
+		/* Skip the element column */
+		/* ----------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup( "" ) );
+	
+		if ( is_percent_of_revenue )
+		{
+			sprintf(buffer,
+				"%d%c",
+				subclassification->percent_of_revenue,
+				'%' );
+		}
+		else
+		{
+			sprintf(buffer,
+				"%d%c",
+				subclassification->percent_of_asset,
+				'%' );
+		}
+	
+		/* Set the subclassification percent */
+		/* --------------------------------- */
+		html_table_set_data(
+			html_table->data_list,
+			strdup( buffer ) );
+	
+		if ( list_length( prior_year_list ) )
+		{
+			list_append_list(
+			  html_table->data_list,
+			  statement_html_subclassification_delta_list(
+				subclassification->
+					subclassification_name,
+				prior_year_list ) );
+		}
+	
+		/* Output the row */
+		/* -------------- */
+		html_table_output_data(
+			html_table->data_list,
+			html_table->
+				number_left_justified_columns,
+			html_table->
+				number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
+	
+		list_free_string_list( html_table->data_list );
+		html_table->data_list = list_new();
 
 	} while( list_next( element->subclassification_list ) );
 
@@ -2194,7 +2216,7 @@ skip_subclassification:
 		html_table->data_list,
 		strdup(
 			place_commas_in_money(
-				element->element_balance_total ) ) );
+				element->element_current_balance ) ) );
 
 	if ( is_percent_of_revenue )
 	{
@@ -2254,7 +2276,7 @@ void statement_html_omit_element_list(
 	do {
 		element = list_get( preclose_element_list );
 
-		if ( !element->element_balance_total ) continue;
+		if ( !element->element_current_balance ) continue;
 
 		statement_html_omit_element(
 			html_table,
@@ -2318,7 +2340,11 @@ void statement_html_omit_element(
 	do {
 		account = list_get( element->account_list );
 
-		if ( !account->account_total ) continue;
+		if ( !account->account_balance
+		&&   !account->display_if_zero )
+		{
+			continue;
+		}
 
 		/* Set the account name */
 		/* -------------------- */
@@ -2335,7 +2361,7 @@ void statement_html_omit_element(
 			html_table->data_list,
 			strdup(
 				place_commas_in_money(
-					account->account_total ) ) );
+					account->account_balance ) ) );
 
 		/* Skip the element column */
 		/* ----------------------- */
@@ -2411,7 +2437,7 @@ skip_account:
 		html_table->data_list,
 		strdup(
 			place_commas_in_money(
-				element->element_balance_total ) ) );
+				element->element_current_balance ) ) );
 
 	if ( is_percent_of_revenue )
 	{
@@ -2471,8 +2497,6 @@ void statement_html_aggregate_element_list(
 	do {
 		element = list_get( preclose_element_list );
 
-		if ( !element->element_balance_total ) continue;
-
 		statement_html_aggregate_element(
 			html_table,
 			element,
@@ -2503,7 +2527,8 @@ void statement_html_aggregate_element(
 		exit( 1 );
 	}
 
-	if ( !list_rewind( element->subclassification_list ) ) return;
+	if ( !list_rewind( element->subclassification_list ) )
+		goto skip_subclassification;
 
 	sprintf(element_title,
 		"<h2>%s</h2>",
@@ -2534,7 +2559,11 @@ void statement_html_aggregate_element(
 	do {
 		subclassification = list_get( element->subclassification_list );
 
-		if ( !subclassification->subclassification_total ) continue;
+		if ( !subclassification->subclassification_balance
+		&&   !subclassification->display_if_zero )
+		{
+			continue;
+		}
 
 		/* Set the subclassification label */
 		/* ------------------------------- */
@@ -2552,7 +2581,7 @@ void statement_html_aggregate_element(
 			strdup(
 				place_commas_in_money(
 					subclassification->
-						subclassification_total ) ) );
+						subclassification_balance ) ) );
 
 		/* Skip the element column */
 		/* ----------------------- */
@@ -2605,6 +2634,8 @@ void statement_html_aggregate_element(
 
 	} while( list_next( element->subclassification_list ) );
 
+skip_subclassification:
+
 	sprintf(element_title,
 		"<h2>%s Balance</h2>",
 		format_initial_capital(
@@ -2627,7 +2658,7 @@ void statement_html_aggregate_element(
 		html_table->data_list,
 		strdup(
 			place_commas_in_money(
-				element->element_balance_total ) ) );
+				element->element_current_balance ) ) );
 
 	if ( is_percent_of_revenue )
 	{
@@ -2675,22 +2706,22 @@ void statement_html_aggregate_element(
 }
 
 ELEMENT *statement_equity_liability_element(
-			double equity_element_balance_total,
-			double asset_element_balance_total,
-			double liability_element_balance_total )
+			double equity_element_current_balance,
+			double asset_element_current_balance,
+			double liability_element_current_balance )
 {
 	ELEMENT *element;
 
 	element = element_new( "Liability Plus Equity" );
 
-	element->element_balance_total =
-		equity_element_balance_total +
-		liability_element_balance_total;
+	element->element_current_balance =
+		equity_element_current_balance +
+		liability_element_current_balance;
 
 	element->percent_of_asset =
 		element_percent_of_total(
-			element->element_balance_total,
-			asset_element_balance_total );
+			element->element_current_balance,
+			asset_element_current_balance );
 
 	return element;
 }
@@ -2765,7 +2796,7 @@ LIST *statement_PDF_display_row_list(
 		/* Display subclassification total, if more than one account */
 		/* --------------------------------------------------------- */
 		if ( list_length( subclassification->account_list ) > 1
-		&&   subclassification->subclassification_total )
+		&&   subclassification->subclassification_balance )
 		{
 			latex_row = latex_row_new();
 			list_set( row_list, latex_row );
@@ -2794,7 +2825,7 @@ LIST *statement_PDF_display_row_list(
 				strdup(
 					place_commas_in_money(
 						subclassification->
-						   subclassification_total ) ),
+						  subclassification_balance ) ),
 				0 /* not large_bold */ );
 
 			/* Blank cell for element */
@@ -2863,7 +2894,7 @@ skip_subclassification:
 		latex_row->column_data_list,
 		strdup(
 			place_commas_in_money(
-				element->element_balance_total ) ),
+				element->element_current_balance ) ),
 		0 /* not large_bold */ );
 
 	if ( is_percent_of_revenue )
@@ -2912,8 +2943,6 @@ LIST *statement_PDF_row_list(
 
 	do {
 		element = list_get( element_list );
-
-		if ( !element->element_balance_total ) continue;
 
 		if ( subclassification_option == subclassification_display )
 		{
@@ -2969,7 +2998,11 @@ LIST *statement_PDF_account_row_list(
 	do {
 		account = list_get( account_list );
 
-		if ( !account->account_total ) continue;
+		if ( !account->account_balance
+		&&   !account->display_if_zero )
+		{
+			continue;
+		}
 
 		latex_row = latex_new_latex_row();
 		list_set( row_list, latex_row );
@@ -2986,7 +3019,7 @@ LIST *statement_PDF_account_row_list(
 			latex_row->column_data_list,
 			strdup(
 				place_commas_in_money(
-			   		account->account_total ) ),
+			   		account->account_balance ) ),
 			0 /* not large_bold */ );
 
 		if ( include_subclassification )
@@ -3074,7 +3107,11 @@ LIST *statement_PDF_omit_row_list(
 	do {
 		account = list_get( element->account_list ); 
 
-		if ( !account->account_total ) continue;
+		if ( !account->account_balance
+		&&   !account->display_if_zero )
+		{
+			continue;
+		}
 
 		latex_row = latex_row_new();
 
@@ -3092,7 +3129,7 @@ LIST *statement_PDF_omit_row_list(
 			latex_row->column_data_list,
 			strdup(
 				place_commas_in_money(
-					account->account_total ) ),
+					account->account_balance ) ),
 			0 /* not large_bold */ );
 
 		/* Blank space for the element column. */
@@ -3160,7 +3197,7 @@ skip_account:
 		latex_row->column_data_list,
 		strdup(
 			place_commas_in_money(
-				element->element_balance_total ) ),
+				element->element_current_balance ) ),
 		0 /* not large_bold */ );
 
 	if ( is_percent_of_revenue )
@@ -3209,9 +3246,10 @@ LIST *statement_PDF_aggregate_row_list(
 
 	subclassification_list = element->subclassification_list;
 
-	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
-
 	row_list = list_new();
+
+	if ( !list_rewind( subclassification_list ) )
+		goto skip_subclassification;
 
 	if ( list_length( subclassification_list ) > 1 )
 	{
@@ -3236,7 +3274,11 @@ LIST *statement_PDF_aggregate_row_list(
 	do {
 		subclassification = list_get( subclassification_list );
 
-		if ( !subclassification->subclassification_total ) continue;
+		if ( !subclassification->subclassification_balance
+		&&   !subclassification->display_if_zero )
+		{
+			continue;
+		}
 
 		latex_row = latex_row_new();
 		list_set( row_list, latex_row );
@@ -3255,7 +3297,7 @@ LIST *statement_PDF_aggregate_row_list(
 			strdup(
 				place_commas_in_money(
 					subclassification->
-					   subclassification_total ) ),
+					   subclassification_balance ) ),
 			0 /* not large_bold */ );
 
 		/* Blank cell for element */
@@ -3265,10 +3307,20 @@ LIST *statement_PDF_aggregate_row_list(
 			strdup( "" ),
 			0 /* not large_bold */ );
 
-		sprintf(buffer,
-			"%d%c",
-		 	subclassification->percent_of_revenue,
-		 	'%' );
+		if ( is_percent_of_revenue )
+		{
+			sprintf(buffer,
+				"%d%c",
+		 		subclassification->percent_of_revenue,
+		 		'%' );
+		}
+		else
+		{
+			sprintf(buffer,
+				"%d%c",
+		 		subclassification->percent_of_asset,
+		 		'%' );
+		}
 
 		latex_column_data_set(
 			latex_row->column_data_list,
@@ -3286,6 +3338,8 @@ LIST *statement_PDF_aggregate_row_list(
 		}
 
 	} while( list_next( subclassification_list ) );
+
+skip_subclassification:
 
 	/* Element total */
 	/* ------------- */
@@ -3314,7 +3368,7 @@ LIST *statement_PDF_aggregate_row_list(
 		latex_row->column_data_list,
 		strdup(
 			place_commas_in_money(
-				element->element_balance_total ) ),
+				element->element_current_balance ) ),
 		0 /* not large_bold */ );
 
 	if ( is_percent_of_revenue )
@@ -3349,13 +3403,13 @@ LIST *statement_PDF_aggregate_row_list(
 }
 
 SUBCLASSIFICATION *statement_net_income_subclassification(
-			double *element_balance_total,
+			double *element_current_balance,
 			int *percent_of_asset,
 			SUBCLASSIFICATION *last_subclassification,
 			EQUITY_ELEMENT *equity_element,
 			char *fund_name,
 			char *transaction_date_time,
-			double asset_balance_total,
+			double asset_current_balance,
 			boolean is_financial_position )
 {
 	double net_income;
@@ -3382,33 +3436,34 @@ SUBCLASSIFICATION *statement_net_income_subclassification(
 
 	equity_element->equity_element_balance_change =
 		equity_element_balance_change(
-			equity_element->begin_element_balance_total,
-			equity_element->equity_element_balance_total,
-			net_income );
+			equity_element->prior_balance,
+			equity_element->current_balance );
 
 	/* Beginning Balance account for new subclassification */
 	/* --------------------------------------------------- */
 	begin_balance_account = account_new( "Beginning Balance" );
 
-	begin_balance_account->account_total = 
-		equity_element->begin_element_balance_total;
+	begin_balance_account->account_balance = 
+		equity_element->prior_balance;
 
 	begin_balance_account->percent_of_asset =
 		element_percent_of_total(
-			begin_balance_account->account_total,
-			asset_balance_total );
+			begin_balance_account->account_balance,
+			asset_current_balance );
+
+	begin_balance_account->display_if_zero = 1;
 
 	/* Equity change account for new subclassification */
 	/* ----------------------------------------------- */
 	equity_change_account = account_new( "Equity Transactions" );
 
-	equity_change_account->account_total =
+	equity_change_account->account_balance =
 		equity_element->equity_element_balance_change;
 
 	equity_change_account->percent_of_asset =
 		element_percent_of_total(
-			equity_change_account->account_total,
-			asset_balance_total );
+			equity_change_account->account_balance,
+			asset_current_balance );
 
 	/* Net income account for last subclassification */
 	/* --------------------------------------------- */
@@ -3425,12 +3480,12 @@ SUBCLASSIFICATION *statement_net_income_subclassification(
 				ACCOUNT_NET_INCOME );
 	}
 
-	net_income_account->account_total = net_income;
+	net_income_account->account_balance = net_income;
 
 	net_income_account->percent_of_asset =
 		element_percent_of_total(
-			net_income_account->account_total,
-			asset_balance_total );
+			net_income_account->account_balance,
+			asset_current_balance );
 
 	/* New subclassification */
 	/* --------------------- */
@@ -3439,6 +3494,12 @@ SUBCLASSIFICATION *statement_net_income_subclassification(
 			"Beginning Balance" );
 
 	subclassification->account_list = list_new();
+
+/*
+	subclassification->subclassification_balance =
+		equity_element->prior_balance;
+	subclassification->display_if_zero = 1;
+*/
 
 	list_set(
 		subclassification->account_list,
@@ -3454,24 +3515,24 @@ SUBCLASSIFICATION *statement_net_income_subclassification(
 
 	/* New equity element balance and percent of asset */
 	/* ----------------------------------------------- */
-	*element_balance_total = *element_balance_total + net_income;
+	*element_current_balance = *element_current_balance + net_income;
 
 	*percent_of_asset =
 		element_percent_of_total(
-			*element_balance_total,
-			asset_balance_total );
+			*element_current_balance,
+			asset_current_balance );
 
 	return subclassification;
 }
 
 void statement_net_income_account(
-			double *element_balance_total,
+			double *element_current_balance,
 			int *percent_of_asset,
 			LIST *account_list,
 			EQUITY_ELEMENT *equity_element,
 			char *fund_name,
 			char *transaction_date_time,
-			double asset_balance_total,
+			double asset_current_balance,
 			boolean is_financial_position )
 {
 	double net_income;
@@ -3497,33 +3558,34 @@ void statement_net_income_account(
 
 	equity_element->equity_element_balance_change =
 		equity_element_balance_change(
-			equity_element->begin_element_balance_total,
-			equity_element->equity_element_balance_total,
-			net_income );
+			equity_element->prior_balance,
+			equity_element->current_balance );
 
 	/* Beginning Balance account for new subclassification */
 	/* --------------------------------------------------- */
 	begin_balance_account = account_new( "Beginning Balance" );
 
-	begin_balance_account->account_total = 
-		equity_element->begin_element_balance_total;
+	begin_balance_account->account_balance = 
+		equity_element->prior_balance;
 
 	begin_balance_account->percent_of_asset =
 		element_percent_of_total(
-			begin_balance_account->account_total,
-			asset_balance_total );
+			begin_balance_account->account_balance,
+			asset_current_balance );
+
+	begin_balance_account->display_if_zero = 1;
 
 	/* Equity change account */
 	/* --------------------- */
 	equity_change_account = account_new( "Equity Transactions" );
 
-	equity_change_account->account_total =
+	equity_change_account->account_balance =
 		equity_element->equity_element_balance_change;
 
 	equity_change_account->percent_of_asset =
 		element_percent_of_total(
-			equity_change_account->account_total,
-			asset_balance_total );
+			equity_change_account->account_balance,
+			asset_current_balance );
 
 	/* Net income account */
 	/* ------------------ */
@@ -3540,12 +3602,12 @@ void statement_net_income_account(
 				ACCOUNT_NET_INCOME );
 	}
 
-	net_income_account->account_total = net_income;
+	net_income_account->account_balance = net_income;
 
 	net_income_account->percent_of_asset =
 		element_percent_of_total(
-			net_income_account->account_total,
-			asset_balance_total );
+			net_income_account->account_balance,
+			asset_current_balance );
 
 	/* These are stacked */
 	/* ----------------- */
@@ -3565,11 +3627,11 @@ void statement_net_income_account(
 
 	/* New equity element balance and percent of asset */
 	/* ----------------------------------------------- */
-	*element_balance_total = *element_balance_total + net_income;
+	*element_current_balance = *element_current_balance + net_income;
 
 	*percent_of_asset =
 		element_percent_of_total(
-			*element_balance_total,
-			asset_balance_total );
+			*element_current_balance,
+			asset_current_balance );
 }
 

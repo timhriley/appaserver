@@ -50,7 +50,7 @@ ELEMENT *element_parse(
 	{
 		element->account_list =
 			element_account_list(
-				&element->element_balance_total,
+				&element->element_current_balance,
 				element->element_name,
 				fund_name,
 				transaction_date_time_closing );
@@ -60,7 +60,7 @@ ELEMENT *element_parse(
 	{
 		element->subclassification_list =
 			element_subclassification_list(
-				&element->element_balance_total,
+				&element->element_current_balance,
 				element->element_name,
 				fund_name,
 				transaction_date_time_closing );
@@ -273,52 +273,26 @@ char *element_filter_where(
 
 LIST *element_list(	LIST *filter_element_name_list,
 			char *fund_name,
-			char *begin_date_string,
-			char *transaction_date_time_closing,
+			char *transaction_date_time,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list )
 {
 	LIST *list;
-	ELEMENT *equity_element;
 
 	list = element_system_list(
 			element_system_string(
 				element_filter_where(
 					filter_element_name_list ) ),
 			fund_name,
-			transaction_date_time_closing,
+			transaction_date_time,
 			fetch_subclassification_list,
 			fetch_account_list );
 
-	if ( ( equity_element =
-			element_seek(
-				ELEMENT_EQUITY,
-				list ) )
-	&&     begin_date_string )
-	{
-		equity_element->equity_element =
-			equity_element_fetch(
-				equity_element->element_name,
-				equity_element->element_balance_total,
-				fund_name,
-				begin_date_string,
-				transaction_date_time_closing );
-
-		if ( !equity_element->equity_element )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: equity_element_fetch() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-	}
 	return list;
 }
 
 LIST *element_subclassification_list(
-			double *element_total,
+			double *element_current_balance,
 			char *element_name,
 			char *fund_name,
 			char *transaction_date_time_closing )
@@ -330,7 +304,7 @@ LIST *element_subclassification_list(
 	char subclassification_name[ 128 ];
 	FILE *input_pipe;
 
-	*element_total = 0.0;
+	*element_current_balance = 0.0;
 
 	sprintf( where, "element = '%s'", element_name );
 
@@ -352,12 +326,14 @@ LIST *element_subclassification_list(
 
 		subclassification->account_list =
 			subclassification_total_account_list(
-				&subclassification->subclassification_total,
+				&subclassification->subclassification_balance,
 				subclassification->subclassification_name,
 				fund_name,
 				transaction_date_time_closing );
 
-		*element_total += subclassification->subclassification_total;
+		*element_current_balance +=
+			subclassification->
+				subclassification_balance;
 
 		list_set(	subclassification_list,
 				subclassification );
@@ -964,9 +940,9 @@ void element_prior_year_element_list_delta_prior_set(
 
 	prior_year_element->element_delta_prior =
 		statement_delta_prior(
-			prior_year_element->element_balance_total
+			prior_year_element->element_current_balance
 				/* prior_total */,
-			preclose_element->element_balance_total
+			preclose_element->element_current_balance
 				/* total */ );
 
 	if ( list_length( prior_year_element->subclassification_list ) )
@@ -1066,7 +1042,7 @@ double element_credit_total(
 	return total;
 }
 
-void element_list_balance_total(
+void element_list_current_balance(
 			LIST *element_list )
 {
 	ELEMENT *element;
@@ -1076,29 +1052,29 @@ void element_list_balance_total(
 	do {
 		element = list_get( element_list );
 
-		element->element_balance_total =
-			element_balance_total(
+		element->element_current_balance =
+			element_current_balance(
 				element->subclassification_list,
 				element->account_list );
 
 	} while ( list_next( element_list ) );
 }
 
-double element_balance_total(
+double element_current_balance(
 			LIST *subclassification_list,
 			LIST *account_list )
 {
 	if ( list_length( subclassification_list ) )
 	{
 		return
-			subclassification_balance_total(
+			subclassification_list_balance(
 				subclassification_list );
 	}
 	else
 	if ( list_length( account_list ) )
 	{
 		return
-			account_balance_total(
+			account_list_balance(
 				account_list );
 	}
 	else
@@ -1118,7 +1094,7 @@ void element_list_percent_of_asset_set(
 				ELEMENT_ASSET,
 				element_list ) ) )
 	{
-		asset_total = denominator_element->element_balance_total;
+		asset_total = denominator_element->element_current_balance;
 	}
 
 	if ( !asset_total ) return;
@@ -1139,7 +1115,7 @@ void element_list_percent_of_revenue_set(
 				ELEMENT_REVENUE,
 				element_list ) ) )
 	{
-		revenue_total = denominator_element->element_balance_total;
+		revenue_total = denominator_element->element_current_balance;
 	}
 
 	if ( !revenue_total ) return;
@@ -1163,7 +1139,7 @@ void element_denominator_percent_of_asset_set(
 
 		element->percent_of_asset =
 			element_percent_of_total(
-				element->element_balance_total,
+				element->element_current_balance,
 				asset_total );
 
 		if ( list_length( element->subclassification_list ) )
@@ -1197,7 +1173,7 @@ void element_denominator_percent_of_revenue_set(
 
 		element->percent_of_revenue =
 			element_percent_of_total(
-				element->element_balance_total,
+				element->element_current_balance,
 				revenue_total );
 
 		if ( list_length( element->subclassification_list ) )
@@ -1233,10 +1209,10 @@ int element_percent_of_total(
 }
 
 EQUITY_ELEMENT *equity_element_new(
-			char *equity_element_name,
-			double equity_element_balance_total,
+			char *element_name,
+			double current_balance,
 			char *fund_name,
-			char *transaction_date_time )
+			char *begin_date_string )
 {
 	EQUITY_ELEMENT *equity_element;
 
@@ -1250,69 +1226,70 @@ EQUITY_ELEMENT *equity_element_new(
 			__LINE__ );
 	}
 
-	equity_element->equity_element_name = equity_element_name;
-
-	equity_element->equity_element_balance_total =
-		equity_element_balance_total;
-
+	equity_element->element_name = element_name;
+	equity_element->current_balance = current_balance;
 	equity_element->fund_name = fund_name;
-	equity_element->transaction_date_time = transaction_date_time;
+	equity_element->begin_date_string = begin_date_string;
 
 	return equity_element;
 }
 
 EQUITY_ELEMENT *equity_element_fetch(
-			char *equity_element_name,
-			double element_balance_total,
+			char *element_name,
+			double current_balance,
 			char *fund_name,
-			char *begin_date_string,
-			char *transaction_date_time )
+			char *begin_date_string )
 {
 	EQUITY_ELEMENT *equity_element;
-	DATE *yesterday;
+	DATE *prior;
 
-	yesterday =
+	equity_element =
+		equity_element_new(
+			element_name,
+			current_balance,
+			fund_name,
+			begin_date_string );
+
+	prior =
 		/* ------------------- */
 		/* Trims trailing time */
 		/* ------------------- */
 		date_yyyy_mm_dd_new( begin_date_string );
 
-	date_decrement_day( yesterday );
+	if ( !prior )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: date_yyyy_mm_dd_new(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			begin_date_string );
 
-	equity_element =
-		equity_element_new(
-			equity_element_name,
-			element_balance_total,
-			fund_name,
-			transaction_date_time );
+		exit( 1 );
+	}
 
-	equity_element->begin_transaction_date_time =
-		date_display( yesterday );
+	date_decrement_second( prior, 1 );
+
+	equity_element->prior_transaction_date_time =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		date_display19( prior );
 
 	equity_element->prior_element_account_list =
 		element_account_list(
-			&equity_element->begin_element_balance_total,
-			equity_element->equity_element_name,
+			&equity_element->prior_balance,
+			equity_element->element_name,
 			equity_element->fund_name,
-			equity_element->begin_transaction_date_time );
-
-fprintf(stderr,
-	"%s/%s()/%d: prior balance = %.2lf\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-equity_element->begin_element_balance_total );
+			equity_element->prior_transaction_date_time );
 
 	return equity_element;
 }
 
 double equity_element_balance_change(
-			double begin_element_balance_total,
-			double equity_element_balance_total,
-			double net_income )
+			double prior_balance,
+			double current_balance )
 {
-	return	equity_element_balance_total -
-		begin_element_balance_total +
-		net_income;
+	return	current_balance - prior_balance;
 }
 

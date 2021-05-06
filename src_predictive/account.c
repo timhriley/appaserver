@@ -703,19 +703,7 @@ LIST *account_list_fetch( char *where )
 {
 	char *sys_string;
 
-/*
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 account_select(),
-		 ACCOUNT_TABLE_NAME,
-		 where,
-		 "account" );
-*/
-
 	sys_string = account_system_string( where );
-
 	return account_system_list( sys_string );
 }
 
@@ -929,15 +917,15 @@ double account_credit_total(
 	return total;
 }
 
-double account_balance_total(
+double account_list_balance(
 			LIST *account_list )
 {
 	ACCOUNT *account;
-	double total;
+	double balance;
 
 	if ( !list_rewind( account_list ) ) return 0.0;
 
-	total = 0.0;
+	balance = 0.0;
 
 	do {
 		account = list_get( account_list );
@@ -945,14 +933,14 @@ double account_balance_total(
 		if ( !account->latest_journal ) continue;
 		if ( !account->latest_journal->balance ) continue;
 
-		account->account_total =
+		account->account_balance =
 			account->latest_journal->balance;
 
-		total += account->account_total;
+		balance += account->account_balance;
 
 	} while ( list_next( account_list ) );
 
-	return total;
+	return balance;
 }
 
 void account_list_percent_of_asset_set(
@@ -960,7 +948,6 @@ void account_list_percent_of_asset_set(
 			double asset_total )
 {
 	ACCOUNT *account;
-	double percent_of_asset;
 
 	if ( !asset_total ) return;
 	if ( !list_rewind( account_list ) ) return;
@@ -968,12 +955,10 @@ void account_list_percent_of_asset_set(
 	do {
 		account = list_get( account_list );
 
-		percent_of_asset =
-			(account->account_total /
-			 asset_total) * 100.0;
-
 		account->percent_of_asset =
-			float_round_int( percent_of_asset );
+			element_percent_of_total(
+				account->account_balance,
+				asset_total );
 
 	} while ( list_next( account_list ) );
 }
@@ -983,7 +968,6 @@ void account_list_percent_of_revenue_set(
 			double revenue_total )
 {
 	ACCOUNT *account;
-	double percent_of_revenue;
 
 	if ( !revenue_total ) return;
 	if ( !list_rewind( account_list ) ) return;
@@ -991,12 +975,10 @@ void account_list_percent_of_revenue_set(
 	do {
 		account = list_get( account_list );
 
-		percent_of_revenue =
-			(account->account_total /
-			 revenue_total) * 100.0;
-
 		account->percent_of_revenue =
-			float_round_int( percent_of_revenue );
+			element_percent_of_total(
+				account->account_balance,
+				revenue_total );
 
 	} while ( list_next( account_list ) );
 }

@@ -40,11 +40,14 @@ void journal_ledger_trigger_update(
 void journal_ledger_trigger_delete(
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time );
+			char *transaction_date_time,
+			char *account );
 
+/*
 void journal_ledger_trigger_predelete(
 			char *transaction_date_time,
 			char *account );
+*/
 
 int main( int argc, char **argv )
 {
@@ -108,8 +111,10 @@ int main( int argc, char **argv )
 		journal_ledger_trigger_delete(
 			full_name,
 			street_address,
-			transaction_date_time );
+			transaction_date_time,
+			account );
 	}
+/*
 	else
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
@@ -117,6 +122,7 @@ int main( int argc, char **argv )
 			transaction_date_time,
 			account );
 	}
+*/
 
 	return 0;
 }
@@ -181,6 +187,7 @@ void journal_ledger_trigger_update(
 			transaction_date_time );
 }
 
+#ifdef NOT_DEFINED
 void journal_ledger_trigger_predelete(
 			char *transaction_date_time,
 			char *account )
@@ -191,6 +198,7 @@ void journal_ledger_trigger_predelete(
 		transaction_date_time,
 		account /* account_name */ );
 }
+#endif
 
 void journal_ledger_trigger_insert(
 			char *full_name,
@@ -213,8 +221,15 @@ void journal_ledger_trigger_insert(
 void journal_ledger_trigger_delete(
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time )
+			char *transaction_date_time,
+			char *account )
 {
+	/* Executes journal_list_set_balances() */
+	/* ------------------------------------ */
+	journal_propagate(
+		transaction_date_time,
+		account /* account_name */ );
+
 	transaction_amount_fetch_update(
 			full_name,
 			street_address,

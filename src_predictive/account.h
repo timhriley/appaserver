@@ -45,12 +45,17 @@
 /* ---------- */
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	char *account_name;
 	char *fund_name;
 	char *element_name;
 	char *subclassification_name;
 	char *account_key;
 	double chart_account_number;
+
+	/* Process */
+	/* ------- */
 	LIST *journal_list;
 	JOURNAL *latest_journal;
 	double balance;
@@ -59,10 +64,11 @@ typedef struct
 	double payment_amount;
 	LIST *transaction_after_balance_zero_journal_list;
 	char *account_action_string;
-	double account_total;
+	double account_balance;
 	int percent_of_asset;
 	int percent_of_revenue;
 	int delta_prior;
+	boolean display_if_zero;
 } ACCOUNT;
 
 /* Operations */
@@ -215,7 +221,7 @@ void account_list_action_string_set(
 			char *beginning_date,
 			char *as_of_date );
 
-double account_list_total(
+double account_list_balance(
 			LIST *account_list );
 
 void account_list_percent_of_asset_set(
@@ -230,7 +236,7 @@ void account_list_delta_prior_set(
 			LIST *prior_account_list,
 			LIST *account_list );
 
-double account_balance_total(
+double account_list_balance(
 			LIST *account_list );
 
 double account_debit_total(

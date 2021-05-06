@@ -438,9 +438,9 @@ void statement_net_income_account(
 			boolean is_financial_position );
 
 ELEMENT *statement_equity_liability_element(
-			double equity_element_balance_total,
-			double asset_element_balance_total,
-			double liability_element_balance_total );
+			double equity_element_current_balance,
+			double asset_element_current_balance,
+			double liability_element_current_balance );
 
 LIST *statement_PDF_display_row_list(
 			ELEMENT *element,

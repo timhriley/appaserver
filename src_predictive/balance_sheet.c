@@ -109,7 +109,8 @@ int main( int argc, char **argv )
 	}
 
 	is_financial_position =
-		( strcmp( argv[ 0 ], "financial_position" ) == 0 );
+		( strcmp( argv[ 0 ],
+			  "financial_position" ) == 0 );
 
 	session = argv[ 1 ];
 	login_name = argv[ 2 ];

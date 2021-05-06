@@ -85,6 +85,9 @@ void date_add_seconds(		DATE *d,
 void date_increment_seconds(	DATE *d,
 				int seconds );
 
+void date_decrement_second(	DATE *d,
+				int seconds );
+
 void date_increment_minutes(	DATE *d,
 				int minutes );
 
@@ -140,6 +143,8 @@ char *date_yyyy_mm_dd_hhmm_display(
 char *date_display_19(
 			DATE *date );
 
+/* Returns heap memory */
+/* ------------------- */
 char *date_display19(
 			DATE *date );
 

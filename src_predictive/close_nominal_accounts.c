@@ -225,7 +225,7 @@ boolean close_nominal_accounts_fund_execute(
 	char *closing_entry_account;
 	char *drawing_account;
 	double element_total;
-	double retained_earnings;
+	double retained_earnings = {0};
 
 	closing_entry_account =
 		account_hard_coded_account_name(
@@ -286,7 +286,6 @@ boolean close_nominal_accounts_fund_execute(
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			(char *)0 /* begin_date_string */,
 			transaction_date_time_closing(
 				as_of_date,
 				1 /* preclose_time */,
@@ -305,147 +304,113 @@ boolean close_nominal_accounts_fund_execute(
 
 	/* Revenues */
 	/* -------- */
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				ELEMENT_REVENUE,
 				list ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_REVENUE );
-		exit( 1 );
+		element_total =
+			insert_journal(
+				output_pipe,
+				element->subclassification_list,
+				element->accumulate_debit,
+				self->entity->full_name,
+				self->entity->street_address,
+				transaction_date_time_string );
+
+		retained_earnings = element_total;
 	}
-
-	element_total =
-		insert_journal(
-			output_pipe,
-			element->subclassification_list,
-			element->accumulate_debit,
-			self->entity->full_name,
-			self->entity->street_address,
-			transaction_date_time_string );
-
-	retained_earnings = element_total;
 
 	/* Expenses */
 	/* -------- */
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				ELEMENT_EXPENSE,
 				list ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_EXPENSE );
-		exit( 1 );
+		element_total =
+			insert_journal(
+				output_pipe,
+				element->subclassification_list,
+				element->accumulate_debit,
+				self->entity->full_name,
+				self->entity->street_address,
+				transaction_date_time_string );
+
+		retained_earnings -= element_total;
 	}
-
-	element_total =
-		insert_journal(
-			output_pipe,
-			element->subclassification_list,
-			element->accumulate_debit,
-			self->entity->full_name,
-			self->entity->street_address,
-			transaction_date_time_string );
-
-	retained_earnings -= element_total;
 
 	/* Gains */
 	/* ----- */
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				ELEMENT_GAIN,
 				list ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_GAIN );
-		exit( 1 );
+		element_total =
+			insert_journal(
+				output_pipe,
+				element->subclassification_list,
+				element->accumulate_debit,
+				self->entity->full_name,
+				self->entity->street_address,
+				transaction_date_time_string );
+
+		retained_earnings += element_total;
 	}
-
-	element_total =
-		insert_journal(
-			output_pipe,
-			element->subclassification_list,
-			element->accumulate_debit,
-			self->entity->full_name,
-			self->entity->street_address,
-			transaction_date_time_string );
-
-	retained_earnings += element_total;
 
 	/* Losses */
 	/* ------ */
-	if ( ! ( element =
+	if ( ( element =
 			element_seek(
 				ELEMENT_LOSS,
 				list ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 ELEMENT_LOSS );
-		exit( 1 );
+		element_total =
+			insert_journal(
+				output_pipe,
+				element->subclassification_list,
+				element->accumulate_debit,
+				self->entity->full_name,
+				self->entity->street_address,
+				transaction_date_time_string );
+
+		retained_earnings -= element_total;
 	}
-
-	element_total =
-		insert_journal(
-			output_pipe,
-			element->subclassification_list,
-			element->accumulate_debit,
-			self->entity->full_name,
-			self->entity->street_address,
-			transaction_date_time_string );
-
-	retained_earnings -= element_total;
 
 	/* Drawing */
 	/* ------- */
 	if ( drawing_account )
 	{
-		if ( ! ( element =
+		if ( ( element =
 				element_seek(
 					ELEMENT_EQUITY,
 					list ) ) )
 		{
-			fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
-			 	__FILE__,
-			 	__FUNCTION__,
-			 	__LINE__,
-			 	ELEMENT_EQUITY );
-			exit( 1 );
+			element_total =
+				insert_drawing(
+					output_pipe,
+					element->subclassification_list,
+					self->entity->full_name,
+					self->entity->street_address,
+					transaction_date_time_string,
+					drawing_account );
+
+			retained_earnings -= element_total;
 		}
-
-		element_total =
-			insert_drawing(
-				output_pipe,
-				element->subclassification_list,
-				self->entity->full_name,
-				self->entity->street_address,
-				transaction_date_time_string,
-				drawing_account );
-
-		retained_earnings -= element_total;
 	}
-				
+
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
 	/* Insert retained_earnings */
 	/* ------------------------ */
 	if ( retained_earnings > 0.0 )
 	{
-		fprintf( output_pipe,
+		fprintf(output_pipe,
 		 	"%s^%s^%s^%s^^%.2lf\n",
 		 	self->entity->full_name,
 		 	self->entity->street_address,
@@ -456,7 +421,7 @@ boolean close_nominal_accounts_fund_execute(
 	else
 	if ( retained_earnings < 0.0 )
 	{
-		fprintf( output_pipe,
+		fprintf(output_pipe,
 		 	"%s^%s^%s^%s^%.2lf^\n",
 		 	self->entity->full_name,
 		 	self->entity->street_address,
@@ -465,7 +430,27 @@ boolean close_nominal_accounts_fund_execute(
 		 	-retained_earnings );
 	}
 
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
 	pclose( output_pipe );
+
+fprintf(stderr,
+	"%s/%s()/%d: transaction_date_time_string = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+transaction_date_time_string );
+
+fprintf(stderr,
+	"%s/%s()/%d: retained_earnings = [%.2lf]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+timlib_abs_double( retained_earnings ) );
 
 	transaction_insert(
 		transaction->full_name,
@@ -481,12 +466,6 @@ boolean close_nominal_accounts_fund_execute(
 	element_list_propagate(
 		list,
 		transaction_date_time_string );
-
-/*
-	account_propagate(
-		closing_entry_account,
-		transaction_date_time_string );
-*/
 
 	return 1;
 }
@@ -638,7 +617,6 @@ void close_nominal_accounts_fund_display(
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			(char *)0 /* begin_date_string */,
 			transaction_date_time_closing(
 				as_of_date,
 				1 /* preclose_time */,
