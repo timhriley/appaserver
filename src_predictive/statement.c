@@ -3537,20 +3537,10 @@ SUBCLASSIFICATION *statement_fund_display_equity_subclassification(
 			equity_change_account->account_balance,
 			asset_current_balance );
 
-	/* Net income account for last subclassification */
-	/* --------------------------------------------- */
-	if ( is_financial_position )
-	{
-		net_income_account =
-			account_new(
-				ACCOUNT_CHANGE_IN_NET_ASSETS );
-	}
-	else
-	{
-		net_income_account =
-			account_new(
-				ACCOUNT_NET_INCOME );
-	}
+	net_income_account =
+		account_new(
+			statement_PDF_net_income_label(
+				is_financial_position ) );
 
 	net_income_account->account_balance = net_income;
 
@@ -3566,12 +3556,6 @@ SUBCLASSIFICATION *statement_fund_display_equity_subclassification(
 			"Beginning Balance" );
 
 	subclassification->account_list = list_new();
-
-/*
-	subclassification->subclassification_balance =
-		equity_element->prior_balance;
-	subclassification->display_if_zero = 1;
-*/
 
 	list_set(
 		subclassification->account_list,
@@ -3817,18 +3801,45 @@ void statement_fund_aggregate_equity_subclassification(
 char *statement_html_net_income_label(
 			boolean is_statement_of_activities )
 {
+	static char label[ 128 ];
+	char buffer[ 128 ];
+
 	if ( is_statement_of_activities )
-		return "<h3>Change in Net Assets</h3>";
+	{
+		sprintf(label,
+			"<h3>%s</h3>",
+			format_initial_capital(
+				buffer,
+				ACCOUNT_CHANGE_IN_NET_ASSETS ) );
+	}
 	else
-		return "<h3>Net Income</h3>";
+	{
+		sprintf(label,
+			"<h3>%s</h3>",
+			format_initial_capital(
+				buffer,
+				ACCOUNT_NET_INCOME ) );
+	}
+	return label;
 }
 
 char *statement_PDF_net_income_label(
 			boolean is_statement_of_activities )
 {
+	static char label[ 128 ];
+
 	if ( is_statement_of_activities )
-		return "Change in Net Assets";
+	{
+		format_initial_capital(
+			label,
+			ACCOUNT_CHANGE_IN_NET_ASSETS );
+	}
 	else
-		return "Net Income";
+	{
+		format_initial_capital(
+			label,
+			ACCOUNT_NET_INCOME );
+	}
+	return label;
 }
 
