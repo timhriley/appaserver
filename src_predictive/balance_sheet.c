@@ -180,9 +180,12 @@ int main( int argc, char **argv )
 			statement->output_medium_string,
 			statement );
 
+	statement_fund_list_net_income_fetch( statement->statement_fund_list );
+
 	statement_fund_list_equity_set(
 		statement->statement_fund_list,
-		is_financial_position );
+		is_financial_position,
+		statement->statement_subclassification_option );
 
 	if ( statement->statement_output_medium != output_stdout )
 	{

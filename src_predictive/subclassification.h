@@ -47,6 +47,7 @@ typedef struct
 	int percent_of_revenue;
 	int delta_prior;
 	char *subclassification_total_display;
+	char *alternate_display_label;
 	boolean display_if_zero;
 } SUBCLASSIFICATION;
 
@@ -189,8 +190,14 @@ double subclassification_debit_total(
 double subclassification_credit_total(
 			LIST *subclassification_list );
 
-char *subclassification_total_label(
+/* Returns static memory */
+/* --------------------- */
+char *subclassification_label(
 			char *subclassification_name,
-			char *alternate_display_name );
+			char *alternate_display_label,
+			boolean with_total );
+
+boolean subclassification_list_populated(
+			LIST *subclassification_list );
 
 #endif

@@ -257,13 +257,19 @@ double subclassification_html_display(
 
 			sprintf(element_title,
 				"<h3>%s</h3>",
-				format_initial_capital(
-					format_buffer,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				subclassification_label(
 					subclassification->
-						subclassification_name ) );
+						subclassification_name,
+					subclassification->
+						alternate_display_label,
+						0 /* not with_total */ ) );
 
-			html_table_set_data(	html_table->data_list,
-						element_title );
+			html_table_set_data(
+				html_table->data_list,
+				strdup( element_title ) );
 	
 			html_table_output_data(
 				html_table->data_list,
@@ -271,6 +277,7 @@ double subclassification_html_display(
 				html_table->number_right_justified_columns,
 				html_table->background_shaded,
 				html_table->justify_list );
+
 			html_table->data_list = list_new();
 		}
 
@@ -2144,26 +2151,56 @@ LIST *subclassification_account_list(
 	return account_list;
 }
 
-char *subclassification_total_label(
+char *subclassification_label(
 			char *subclassification_name,
-			char *alternate_display_name )
+			char *alternate_display_label,
+			boolean with_total )
 {
-	char label[ 256 ];
+	char static label[ 256 ];
 	char format_buffer[ 128 ];
 
-	if ( alternate_display_name && *alternate_display_name )
+	if ( alternate_display_label && *alternate_display_label )
 	{
-		strcpy( label, alternate_display_name );
+		format_initial_capital( label, alternate_display_label );
 	}
 	else
 	{
-		sprintf(label,
-			"Total %s",
-			format_initial_capital(
-				format_buffer,
-				subclassification_name ) );
+		if ( with_total )
+		{
+			sprintf(label,
+				"%s Total",
+				format_initial_capital(
+					format_buffer,
+					subclassification_name ) );
+		}
+		else
+		{
+			format_initial_capital( label, subclassification_name );
+		}
 	}
 
-	return strdup( label );
+	return label;
 }
+
+boolean subclassification_list_populated(
+			LIST *subclassification_list )
+{
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !list_rewind( subclassification_list ) ) return 0;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		if ( subclassification->display_if_zero
+		||   subclassification->subclassification_balance )
+		{
+			return 1;
+		}
+
+	} while ( list_next( subclassification_list ) );
+
+	return 0;
+}
+
 

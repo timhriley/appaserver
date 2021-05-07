@@ -251,4 +251,7 @@ char *account_element_name(
 boolean account_name_accumulate_debit(
 			char *account_name );
 
+char *account_list_display(
+			LIST *account_list );
+
 #endif

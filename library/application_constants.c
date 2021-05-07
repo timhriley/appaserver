@@ -159,14 +159,12 @@ char *application_constants_quick_fetch(
 				application_constants->dictionary,
 				key );
 
-	if ( !data ) return (char *)0;
+	if ( !data ) return "";
 
 	results = strdup( data );
-
 	application_constants_free( application_constants );
 
 	return results;
-
 }
 
 boolean application_constants_cat_javascript_source( char *application_name )

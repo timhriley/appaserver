@@ -1025,3 +1025,32 @@ boolean account_name_accumulate_debit(
 	return account->accumulate_debit;
 }
 
+char *account_list_display(
+			LIST *account_list )
+{
+	char display[ 65536 ];
+	char *ptr = display;
+	ACCOUNT *account;
+
+	*ptr = '\0';
+
+	if ( list_rewind( account_list ) )
+	{
+		do {
+			account = list_get( account_list );
+
+			if ( !account->latest_journal ) continue;
+
+			ptr += sprintf(
+				ptr,
+				"Account: %s, account_balance = %.2lf\n",
+				account->account_name,
+				account->latest_journal->balance );
+
+		} while ( list_next( account_list ) );
+	}
+
+	return strdup( display );
+}
+
+

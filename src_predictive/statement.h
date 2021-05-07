@@ -318,9 +318,17 @@ STATEMENT_FUND *statement_fund_seek(
 void statement_fund_list_net_income_set(
 			LIST *statement_fund_list );
 
+void statement_fund_list_net_income_fetch(
+			LIST *statement_fund_list );
+
+double statement_fund_net_income_fetch(
+			char *as_of_date,
+			char *fund_name );
+
 void statement_fund_list_equity_set(
 			LIST *statement_fund_list,
-			boolean is_financial_position );
+			boolean is_financial_position,
+			enum subclassification_option );
 
 double statement_fund_net_income(
 			double revenue_total,
@@ -336,21 +344,6 @@ LIST *statement_html_heading_list(
 			LIST *prior_year_list,
 			boolean include_account,
 			boolean include_subclassification );
-
-/* Returns program memory */
-/* ---------------------- */
-char *statement_html_net_income_label(
-			boolean is_statement_of_activities );
-
-/* Returns program memory */
-/* ---------------------- */
-char *statement_PDF_net_income_label(
-			boolean is_statement_of_activities );
-
-/* Returns static memory */
-/* --------------------- */
-char *statement_html_subclassification_label(
-			char *subclassification_name );
 
 void statement_prior_year_list_net_income_set(
 			LIST *prior_year_list,
@@ -417,24 +410,31 @@ void statement_html_aggregate_element(
 			LIST *prior_year_list,
 			boolean is_percent_of_revenue );
 
-SUBCLASSIFICATION *statement_net_income_subclassification(
+SUBCLASSIFICATION *statement_fund_display_equity_subclassification(
+			double *element_current_balance,
+			int *percent_of_asset,
+			SUBCLASSIFICATION *last_subclassification /* out */,
+			EQUITY_ELEMENT *equity_element /* in/out */,
+			double net_income,
+			double asset_current_balance,
+			boolean is_financial_position );
+
+void statement_fund_omit_equity_account(
 			double *element_balance_total,
 			int *percent_of_asset,
-			SUBCLASSIFICATION *last_subclassification,
-			EQUITY_ELEMENT *equity_element,
-			char *fund_name,
-			char *transaction_date_time,
+			LIST *account_list /* out */,
+			EQUITY_ELEMENT *equity_element /* in/out */,
+			double net_income,
 			double asset_balance_total,
 			boolean is_financial_position );
 
-void statement_net_income_account(
-			double *element_balance_total,
+void statement_fund_aggregate_equity_subclassification(
+			double *element_current_balance,
 			int *percent_of_asset,
-			LIST *account_list,
-			EQUITY_ELEMENT *equity_element,
-			char *fund_name,
-			char *transaction_date_time,
-			double asset_balance_total,
+			LIST *subclassification_list /* out */,
+			EQUITY_ELEMENT *equity_element /* in/out */,
+			double net_income,
+			double asset_current_balance,
 			boolean is_financial_position );
 
 ELEMENT *statement_equity_liability_element(
@@ -468,6 +468,12 @@ LIST *statement_PDF_aggregate_row_list(
 			ELEMENT *element,
 			LIST *prior_year_list,
 			boolean is_percent_of_revenue );
+
+char *statement_html_net_income_label(
+			boolean is_statement_of_activities );
+
+char *statement_PDF_net_income_label(
+			boolean is_statement_of_activities );
 
 #endif
 
