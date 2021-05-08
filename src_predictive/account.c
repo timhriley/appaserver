@@ -924,6 +924,32 @@ double account_credit_total(
 	return total;
 }
 
+double account_positive_balance_total(
+			LIST *account_list )
+{
+	ACCOUNT *account;
+	double total;
+
+	if ( !list_rewind( account_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		account = list_get( account_list );
+
+		if ( !account->latest_journal ) continue;
+		if ( !account->latest_journal->balance ) continue;
+
+		if ( account->latest_journal->balance > 0.0 )
+		{
+			total += account->latest_journal->balance;
+		}
+
+	} while ( list_next( account_list ) );
+
+	return total;
+}
+
 double account_list_balance(
 			LIST *account_list )
 {

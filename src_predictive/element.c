@@ -1086,6 +1086,29 @@ void element_list_current_balance(
 	} while ( list_next( element_list ) );
 }
 
+double element_positive_balance_total(
+			LIST *subclassification_list,
+			LIST *account_list )
+{
+	if ( list_length( subclassification_list ) )
+	{
+		return
+			subclassification_positive_balance_total(
+				subclassification_list );
+	}
+	else
+	if ( list_length( account_list ) )
+	{
+		return
+			account_positive_balance_total(
+				account_list );
+	}
+	else
+	{
+		return 0.0;
+	}
+}
+
 double element_current_balance(
 			LIST *subclassification_list,
 			LIST *account_list )
@@ -1120,7 +1143,12 @@ void element_list_percent_of_asset_set(
 				ELEMENT_ASSET,
 				element_list ) ) )
 	{
-		asset_total = denominator_element->element_current_balance;
+		asset_total =
+			element_positive_balance_total(
+				denominator_element->
+					subclassification_list,
+				denominator_element->
+					account_list );
 	}
 
 	if ( !asset_total ) return;
@@ -1141,7 +1169,12 @@ void element_list_percent_of_revenue_set(
 				ELEMENT_REVENUE,
 				element_list ) ) )
 	{
-		revenue_total = denominator_element->element_current_balance;
+		revenue_total =
+			element_positive_balance_total(
+				denominator_element->
+					subclassification_list,
+				denominator_element->
+					account_list );
 	}
 
 	if ( !revenue_total ) return;

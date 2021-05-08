@@ -2047,6 +2047,32 @@ double subclassification_credit_total(
 	return total;
 }
 
+double subclassification_positive_balance_total(
+			LIST *subclassification_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	double total;
+
+	if ( !list_rewind( subclassification_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		subclassification = list_get( subclassification_list );
+
+		if ( list_length( subclassification->account_list ) )
+		{
+			total +=
+				account_positive_balance_total(
+					subclassification->
+						account_list );
+		}
+
+	} while ( list_next( subclassification_list ) );
+
+	return total;
+}
+
 double subclassification_list_balance(
 			LIST *subclassification_list )
 {

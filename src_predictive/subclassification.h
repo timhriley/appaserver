@@ -190,6 +190,9 @@ double subclassification_debit_total(
 double subclassification_credit_total(
 			LIST *subclassification_list );
 
+double subclassification_positive_balance_total(
+			LIST *subclassification_list );
+
 /* Returns static memory */
 /* --------------------- */
 char *subclassification_label(

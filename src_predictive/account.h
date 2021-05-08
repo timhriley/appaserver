@@ -252,6 +252,9 @@ double account_debit_total(
 double account_credit_total(
 			LIST *account_list );
 
+double account_positive_balance_total(
+			LIST *account_list );
+
 char *account_element_name(
 			char *subclassification_name );
 

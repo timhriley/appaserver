@@ -217,6 +217,10 @@ double element_current_balance(
 			LIST *subclassification_list,
 			LIST *account_list );
 
+double element_positive_balance_total(
+			LIST *subclassification_list,
+			LIST *account_list );
+
 char *element_system_string(
 			char *where );
 
