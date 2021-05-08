@@ -3925,18 +3925,45 @@ void statement_fund_aggregate_equity(
 char *statement_html_net_income_label(
 			boolean is_statement_of_activities )
 {
+	static char label[ 128 ];
+	char buffer[ 128 ];
+
 	if ( is_statement_of_activities )
-		return "<h3>Change in Net Assets</h3>";
+	{
+		sprintf(label,
+			"<h3>%s</h3>",
+			format_initial_capital(
+				buffer,
+				ACCOUNT_CHANGE_IN_NET_ASSETS ) );
+	}
 	else
-		return "<h3>Net Income</h3>";
+	{
+		sprintf(label,
+			"<h3>%s</h3>",
+			format_initial_capital(
+				buffer,
+				ACCOUNT_NET_INCOME ) );
+	}
+	return label;
 }
 
 char *statement_PDF_net_income_label(
 			boolean is_statement_of_activities )
 {
+	static char label[ 128 ];
+
 	if ( is_statement_of_activities )
-		return "Change in Net Assets";
+	{
+		format_initial_capital(
+			label,
+			ACCOUNT_CHANGE_IN_NET_ASSETS );
+	}
 	else
-		return "Net Income";
+	{
+		format_initial_capital(
+			label,
+			ACCOUNT_NET_INCOME );
+	}
+	return label;
 }
 
