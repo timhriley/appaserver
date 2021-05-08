@@ -234,7 +234,14 @@ ACCOUNT *account_getset(
 	return account;
 }
 
-ACCOUNT *account_seek(	
+ACCOUNT *account_list_seek(
+			char *account_name,
+			LIST *account_list )
+{
+	return account_seek( account_name, account_list );
+}
+
+ACCOUNT *account_seek(
 			char *account_name,
 			LIST *account_list )
 {
@@ -1003,24 +1010,32 @@ char *account_element_name(
 	return subclassification->element_name;
 }
 
-
 boolean account_name_accumulate_debit(
 			char *account_name )
 {
+	static LIST *account_list = {0};
 	ACCOUNT *account;
 
-	if ( ! ( account =
-			account_fetch(
-				account_name ) ) )
+	if ( !account_list )
 	{
-		fprintf( stderr,
-	"Warning in %s/%s()/%d: account_fetch(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 account_name );
-		return 0;
+		account_list = account_list_fetch( "1 = 1" );
 	}
+
+	if ( ! ( account =
+			account_list_seek(
+				account_name,
+				account_list ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_list_seek(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			account_name );
+		exit( 1 );
+	}
+
+	return account->accumulate_debit;
 
 	return account->accumulate_debit;
 }

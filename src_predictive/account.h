@@ -92,6 +92,10 @@ ACCOUNT *account_fetch(	char *account_name );
 
 ACCOUNT *account_new(	char *account_name );
 
+ACCOUNT *account_list_seek(
+			char *account_name,
+			LIST *account_list );
+
 ACCOUNT *account_seek(	
 			char *account_name,
 			LIST *account_list );
@@ -190,6 +194,9 @@ ACCOUNT *account_getset(
 
 boolean account_accumulate_debit(
 			char *subclassification_name );
+
+boolean account_name_accumulate_debit(
+			char *account_name );
 
 void account_transaction_propagate(
 			char *propagate_transaction_date_time );
