@@ -226,6 +226,7 @@ boolean close_nominal_accounts_fund_execute(
 	char *drawing_account;
 	double element_total;
 	double retained_earnings = {0};
+	char *transaction_date_time_closing_string;
 
 	closing_entry_account =
 		account_hard_coded_account_name(
@@ -282,15 +283,19 @@ boolean close_nominal_accounts_fund_execute(
 	list_append_pointer(	filter_element_name_list,
 				ELEMENT_EQUITY );
 
+	transaction_date_time_closing_string =
+		transaction_date_time_closing(
+			as_of_date,
+			1 /* preclose_time */,
+			transaction_closing_entry_exists(
+				as_of_date ) );
+
 	list =
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			transaction_date_time_closing(
-				as_of_date,
-				1 /* preclose_time */,
-				transaction_closing_entry_exists(
-					as_of_date ) ),
+			transaction_date_time_closing_string,
+			transaction_date_time_closing_string,
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
@@ -580,6 +585,7 @@ void close_nominal_accounts_fund_display(
 	double debit_sum = 0.0;
 	double credit_sum = 0.0;
 	double element_total;
+	char *transaction_date_time_closing_string;
 
 	closing_entry_account =
 		account_hard_coded_account_name(
@@ -613,15 +619,19 @@ void close_nominal_accounts_fund_display(
 	list_append_pointer(	filter_element_name_list,
 				ELEMENT_EQUITY );
 
+	transaction_date_time_closing_string =
+		transaction_date_time_closing(
+			as_of_date,
+			1 /* preclose_time */,
+			transaction_closing_entry_exists(
+				as_of_date ) );
+
 	list =
 		element_list(
 			filter_element_name_list,
 			fund_name,
-			transaction_date_time_closing(
-				as_of_date,
-				1 /* preclose_time */,
-				transaction_closing_entry_exists(
-					as_of_date ) ),
+			transaction_date_time_closing_string,
+			transaction_date_time_closing_string,
 			1 /* fetch_subclassifiction_list */,
 			0 /* not fetch_account_list */ );
 
