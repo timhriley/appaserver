@@ -200,4 +200,7 @@ char *subclassification_label(
 boolean subclassification_list_populated(
 			LIST *subclassification_list );
 
+char *subclassification_list_display(
+			LIST *subclassification_list );
+
 #endif

@@ -48,8 +48,10 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	char *prior_date_string;
 	char *begin_date_string;
+	char *prior_date_string;
+	char *prior_transaction_date_time_nominal;
+	char *prior_transaction_date_time_fixed;
 	LIST *prior_year_element_list;
 	double revenue_total;
 	double expense_total;
@@ -77,7 +79,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	char *transaction_date_time;
+	char *transaction_date_time_nominal;
+	char *transaction_date_time_fixed;
 	LIST *preclose_element_list;
 	LIST *postclose_element_list;
 	LIST *prior_year_list;
@@ -149,7 +152,8 @@ LIST *statement_fund_element_list(
 			char *role_name,
 			LIST *filter_element_name_list,
 			char *begin_date_string,
-			char *transaction_date_time,
+			char *transaction_date_time_nominal,
+			char *transaction_date_time_fixed,
 			char *fund_name,
 			enum subclassification_option );
 
@@ -177,6 +181,7 @@ STATEMENT *statement_steady_state(
 			char *subclassification_option_string,
 			char *fund_aggregation_string,
 			char *output_medium_string,
+			boolean with_postclose,
 			STATEMENT *statement );
 
 STATEMENT_PRIOR_YEAR *statement_prior_year_new(
@@ -200,7 +205,8 @@ STATEMENT_FUND *statement_fund_fetch(
 			char *as_of_date,
 			int prior_year_count,
 			char *fund_name,
-			enum subclassification_option );
+			enum subclassification_option,
+			boolean with_postclose );
 
 STATEMENT_FUND *statement_fund_new(
 			char *application_name,
@@ -225,7 +231,8 @@ LIST *statement_fund_list(
 			int prior_year_count,
 			LIST *fund_name_list,
 			enum subclassification_option,
-			enum fund_aggregation );
+			enum fund_aggregation,
+			boolean with_postclose );
 
 char *statement_begin_date_string(
 			char *as_of_date );
@@ -259,7 +266,6 @@ void statement_fund_list_steady_state(
 STATEMENT_FUND *statement_fund_steady_state(
 			LIST *preclose_element_list,
 			LIST *postclose_element_list,
-			int prior_year_count,
 			char *title,
 			char *subtitle,
 			boolean exists_logo_filename,
@@ -302,6 +308,10 @@ LIST *statement_html_element_delta_list(
 LIST *statement_PDF_element_delta_list(
 			char *element_name,
 			LIST *prior_year_list );
+
+void statement_fund_list_prior_year_list_set(
+			LIST *statement_fund_list,
+			int prior_year_count );
 
 LIST *statement_fund_steady_state_prior_year_list(
 			int prior_year_count,
@@ -410,16 +420,16 @@ void statement_html_aggregate_element(
 			LIST *prior_year_list,
 			boolean is_percent_of_revenue );
 
-SUBCLASSIFICATION *statement_fund_display_equity_subclassification(
+void statement_fund_display_equity(
 			double *element_current_balance,
 			int *percent_of_asset,
-			SUBCLASSIFICATION *last_subclassification /* out */,
+			LIST *subclassification_list /* out */,
 			EQUITY_ELEMENT *equity_element /* in/out */,
 			double net_income,
 			double asset_current_balance,
 			boolean is_financial_position );
 
-void statement_fund_omit_equity_account(
+void statement_fund_omit_equity(
 			double *element_balance_total,
 			int *percent_of_asset,
 			LIST *account_list /* out */,
@@ -428,7 +438,7 @@ void statement_fund_omit_equity_account(
 			double asset_balance_total,
 			boolean is_financial_position );
 
-void statement_fund_aggregate_equity_subclassification(
+void statement_fund_aggregate_equity(
 			double *element_current_balance,
 			int *percent_of_asset,
 			LIST *subclassification_list /* out */,

@@ -1053,4 +1053,3 @@ char *account_list_display(
 	return strdup( display );
 }
 
-

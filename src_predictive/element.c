@@ -30,13 +30,15 @@ char *element_select( void )
 ELEMENT *element_parse(
 			char *input,
 			char *fund_name,
-			char *transaction_date_time_closing,
+			char *transaction_date_time_nominal,
+			char *transaction_date_time_fixed,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list )
 {
 	char element_name[ 128 ];
 	char piece_buffer[ 16 ];
 	ELEMENT *element;
+	char *transaction_date_time;
 
 	if ( !input ) return (ELEMENT *)0;
 
@@ -46,6 +48,17 @@ ELEMENT *element_parse(
 	piece( piece_buffer, SQL_DELIMITER, input, 1 );
 	element->accumulate_debit = ( *piece_buffer == 'y' );
 
+	if ( element_is_nominal( element->element_name ) )
+	{
+		transaction_date_time =
+			transaction_date_time_nominal;
+	}
+	else
+	{
+		transaction_date_time =
+			transaction_date_time_fixed;
+	}
+
 	if ( fetch_account_list )
 	{
 		element->account_list =
@@ -53,7 +66,7 @@ ELEMENT *element_parse(
 				&element->element_current_balance,
 				element->element_name,
 				fund_name,
-				transaction_date_time_closing );
+				transaction_date_time );
 	}
 
 	if ( fetch_subclassification_list )
@@ -63,7 +76,7 @@ ELEMENT *element_parse(
 				&element->element_current_balance,
 				element->element_name,
 				fund_name,
-				transaction_date_time_closing );
+				transaction_date_time );
 	}
 
 	return element;
@@ -208,7 +221,8 @@ LIST *element_fetch_list( char *sys_string )
 LIST *element_system_list(
 			char *system_string,
 			char *fund_name,
-			char *transaction_date_time_closing,
+			char *transaction_date_time_nominal,
+			char *transaction_date_time_fixed,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list )
 {
@@ -226,7 +240,8 @@ LIST *element_system_list(
 			element_parse(
 				input,
 				fund_name,
-				transaction_date_time_closing,
+				transaction_date_time_nominal,
+				transaction_date_time_fixed,
 				fetch_subclassification_list,
 				fetch_account_list ) );
 	}
@@ -273,7 +288,8 @@ char *element_filter_where(
 
 LIST *element_list(	LIST *filter_element_name_list,
 			char *fund_name,
-			char *transaction_date_time,
+			char *transaction_date_time_nominal,
+			char *transaction_date_time_fixed,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list )
 {
@@ -284,7 +300,8 @@ LIST *element_list(	LIST *filter_element_name_list,
 				element_filter_where(
 					filter_element_name_list ) ),
 			fund_name,
-			transaction_date_time,
+			transaction_date_time_nominal,
+			transaction_date_time_fixed,
 			fetch_subclassification_list,
 			fetch_account_list );
 
@@ -1043,7 +1060,8 @@ double element_credit_total(
 }
 
 void element_list_current_balance(
-			LIST *element_list )
+			LIST *element_list,
+			double equity_net_income )
 {
 	ELEMENT *element;
 
@@ -1056,6 +1074,14 @@ void element_list_current_balance(
 			element_current_balance(
 				element->subclassification_list,
 				element->account_list );
+
+		if ( strcmp(	element->element_name,
+				ELEMENT_EQUITY ) == 0
+		&&   equity_net_income )
+		{
+			element->element_current_balance +=
+				equity_net_income;
+		}
 
 	} while ( list_next( element_list ) );
 }
@@ -1291,5 +1317,34 @@ double equity_element_balance_change(
 			double current_balance )
 {
 	return	current_balance - prior_balance;
+}
+
+char *element_list_display(
+			LIST *element_list )
+{
+	char display[ 65536 ];
+	char *ptr = display;
+	ELEMENT *element;
+
+	*ptr = '\0';
+
+	if ( list_rewind( element_list ) )
+	{
+		do {
+			element = list_get( element_list );
+
+			if ( !element->element_current_balance )
+				continue;
+
+			ptr += sprintf(
+				ptr,
+				"Element: %s, balance = %.2lf\n",
+				element->element_name,
+				element->element_current_balance );
+
+		} while ( list_next( element_list ) );
+	}
+
+	return strdup( display );
 }
 

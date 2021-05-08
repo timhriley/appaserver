@@ -673,9 +673,11 @@ ELEMENT_APPASERVER *element_hidden_new_element(
 					char *name,
 					char *data );
 
-char *element_list_display(		LIST *element_list );
+char *element_appaserver_list_display(
+			LIST *element_list );
 
-char *element_display(			ELEMENT_APPASERVER *element );
+char *element_appaserver_display(
+			ELEMENT_APPASERVER *element );
 
 char *element_get_type_string(		enum element_type element_type );
 

@@ -105,13 +105,17 @@ void row_security_dvr(
 			row_security_element_list_structure->
 			regular_element_list;
 
-	printf( "regular = %s\n", element_list_display( element_list ) );
+	printf( "regular = %s\n",
+		element_appaserver_list_display(
+			element_list ) );
 
 	element_list =
 		row_security->
 			row_security_element_list_structure->
 			viewonly_element_list;
 
-	printf( "viewonly = %s\n", element_list_display( element_list ) );
+	printf( "viewonly = %s\n",
+		element_list_appaserver_display(
+			element_list ) );
 
 } /* row_security_dvr() */

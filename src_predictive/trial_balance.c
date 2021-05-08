@@ -340,7 +340,12 @@ int main( int argc, char **argv )
 			statement->subclassification_option_string,
 			statement->fund_aggregation_string,
 			statement->output_medium_string,
+			1 /* with_postclose */,
 			statement );
+
+	statement_fund_list_prior_year_list_set(
+		statement->statement_fund_list,
+		statement->prior_year_count );
 
 	if ( statement->statement_output_medium != output_stdout )
 	{

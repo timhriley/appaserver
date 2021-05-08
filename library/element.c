@@ -3485,7 +3485,7 @@ ELEMENT_APPASERVER *element_text_item_variant_element(
 	return element;
 }
 
-char *element_list_display( LIST *element_list )
+char *element_appaserver_list_display( LIST *element_list )
 {
 	ELEMENT_APPASERVER *element;
 	char buffer[ 65536 ];
@@ -3498,7 +3498,7 @@ char *element_list_display( LIST *element_list )
 			element = list_get_pointer( element_list );
 			ptr += sprintf(	ptr,
 					"%s\n",
-					element_display( element ) );
+					element_appaserver_display( element ) );
 
 		} while( list_next( element_list ) );
 	}
@@ -3507,7 +3507,7 @@ char *element_list_display( LIST *element_list )
 
 }
 
-char *element_display( ELEMENT_APPASERVER *element )
+char *element_appaserver_display( ELEMENT_APPASERVER *element )
 {
 	static char buffer[ 1024 ];
 

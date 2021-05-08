@@ -232,6 +232,7 @@ int main( int argc, char **argv )
 			statement->subclassification_option_string,
 			statement->fund_aggregation_string,
 			statement->output_medium_string,
+			0 /* not with_postclose */,
 			statement );
 
 	if ( !list_length( statement->statement_fund_list ) )
@@ -246,6 +247,10 @@ int main( int argc, char **argv )
 	}
 
 	statement_fund_list_net_income_set( statement->statement_fund_list );
+
+	statement_fund_list_prior_year_list_set(
+		statement->statement_fund_list,
+		statement->prior_year_count );
 
 	/* Output */
 	/* ------ */

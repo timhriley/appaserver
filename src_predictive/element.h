@@ -64,7 +64,8 @@ typedef struct
 ELEMENT *element_parse(
 			char *input,
 			char *fund_name,
-			char *transaction_date_time_closing,
+			char *transaction_date_time_nominal,
+			char *transaction_date_time_fixed,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list );
 
@@ -98,7 +99,8 @@ LIST *element_list_sort(
 
 LIST *element_list(	LIST *filter_element_name_list,
 			char *fund_name,
-			char *transaction_date_time,
+			char *transaction_date_time_nominal,
+			char *transaction_date_time_fixed,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list );
 
@@ -153,7 +155,8 @@ SUBCLASSIFICATION *element_subclassification_seek(
 LIST *element_system_list(
 			char *system_string,
 			char *fund_name,
-			char *as_of_date,
+			char *transaction_date_time_nominal,
+			char *transaction_date_time_fixed,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list );
 
@@ -201,7 +204,8 @@ void element_prior_year_element_list_delta_prior_set(
 			ELEMENT *preclose_element );
 
 void element_list_current_balance(
-			LIST *element_list );
+			LIST *element_list,
+			double equity_net_income );
 
 double element_debit_total(
 			LIST *element_list );
@@ -238,6 +242,9 @@ double equity_element_balance_change(
 int element_percent_of_total(
 			double total,
 			double denominator );
+
+char *element_list_display(
+			LIST *element_list );
 
 #endif
 

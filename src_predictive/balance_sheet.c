@@ -178,6 +178,7 @@ int main( int argc, char **argv )
 			statement->subclassification_option_string,
 			statement->fund_aggregation_string,
 			statement->output_medium_string,
+			0 /* not with_postclose */,
 			statement );
 
 	statement_fund_list_net_income_fetch( statement->statement_fund_list );
@@ -186,6 +187,10 @@ int main( int argc, char **argv )
 		statement->statement_fund_list,
 		is_financial_position,
 		statement->statement_subclassification_option );
+
+	statement_fund_list_prior_year_list_set(
+		statement->statement_fund_list,
+		statement->prior_year_count );
 
 	if ( statement->statement_output_medium != output_stdout )
 	{
@@ -376,6 +381,7 @@ void PDF_output_fund(
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	boolean include_account = 0;
 	boolean include_subclassification = 0;
+	boolean landscape_flag = 0;
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -419,12 +425,17 @@ void PDF_output_fund(
 			document_root_directory,
 			application_name );
 
+	if ( list_length( statement_fund->prior_year_list ) )
+	{
+		landscape_flag = 1;
+	}
+
 	latex =
 		latex_new(
 			latex_filename,
 			dvi_filename,
 			working_directory,
-			0 /* not landscape_flag */,
+			landscape_flag,
 			logo_filename );
 
 	latex_table =

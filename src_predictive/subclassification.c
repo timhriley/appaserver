@@ -2204,3 +2204,32 @@ boolean subclassification_list_populated(
 }
 
 
+char *subclassification_list_display(
+			LIST *subclassification_list )
+{
+	char display[ 65536 ];
+	char *ptr = display;
+	SUBCLASSIFICATION *subclassification;
+
+	*ptr = '\0';
+
+	if ( list_rewind( subclassification_list ) )
+	{
+		do {
+			subclassification = list_get( subclassification_list );
+
+			if ( !subclassification->subclassification_balance )
+				continue;
+
+			ptr += sprintf(
+				ptr,
+		"Subclassification: %s, subclassification_balance = %.2lf\n",
+				subclassification->subclassification_name,
+				subclassification->subclassification_balance );
+
+		} while ( list_next( subclassification_list ) );
+	}
+
+	return strdup( display );
+}
+
