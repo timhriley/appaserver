@@ -51,7 +51,7 @@ then
 	cat
 fi
 
-heading="full_name,street_address,transaction_date_time,check_number,transaction_difference,difference_type"
+heading="full_name,street_address,transaction_date_time,check_number,difference,flaw"
 
 justification="left,left,left,right,right,left"
 
