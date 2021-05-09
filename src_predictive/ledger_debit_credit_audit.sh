@@ -51,9 +51,9 @@ then
 	cat
 fi
 
-heading="full_name,street_address,transaction_date_time,transaction_difference,difference_type"
+heading="full_name,street_address,transaction_date_time,check_number,transaction_difference,difference_type"
 
-justification="left,left,left,right,left"
+justification="left,left,left,right,right,left"
 
 ledger_debit_credit_audit "$begin_date"		|
 html_table.e "" "$heading" "^" "$justification"	|

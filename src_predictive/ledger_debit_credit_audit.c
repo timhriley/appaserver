@@ -6,6 +6,7 @@
 /* 	full_name^						*/
 /*	street_address^						*/
 /*	transaction_date_time^					*/
+/*	check_number^						*/
 /*	transaction_difference^					*/
 /*	difference_type						*/
 /* 								*/
@@ -21,6 +22,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "timlib.h"
+#include "String.h"
 #include "piece.h"
 #include "list.h"
 #include "environ.h"
@@ -133,10 +135,14 @@ void ledger_debit_credit_audit( char *begin_date )
 
 		if ( difference_type )
 		{
-			printf( "%s^%s^%s^%.2lf^%s\n",
+			printf( "%s^%s^%s^%s^%.2lf^%s\n",
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				string_itoa( transaction->check_number ),
 				report_difference,
 				difference_type );
 		}

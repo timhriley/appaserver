@@ -164,4 +164,8 @@ LIST *string_pipe_list(	char *system_string );
 char *string_repeat(	char *string,
 			int number_times );
 
+/* Returns static memory */
+/* --------------------- */
+char *string_itoa(	int i );
+
 #endif

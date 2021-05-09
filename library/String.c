@@ -938,3 +938,14 @@ char *string_repeat(	char *string,
 	return strdup( return_buffer );
 }
 
+char *string_itoa( int i )
+{
+	static char s[ 16 ];
+
+	if ( !i )
+		*s = '\0';
+	else
+		sprintf( s, "%d", i );
+	return s;
+}
+

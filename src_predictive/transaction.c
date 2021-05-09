@@ -205,7 +205,8 @@ TRANSACTION *transaction_parse(
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( transaction_date_time, SQL_DELIMITER, input, 2 );
 
-	transaction = transaction_new(
+	transaction =
+		transaction_new(
 			strdup( full_name ),
 			strdup( street_address ),
 			strdup( transaction_date_time ) );
