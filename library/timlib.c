@@ -1690,7 +1690,6 @@ char *place_commas_in_number_string( char *s )
 	}
 
 	return r_ptr + 1;
-
 }
 
 char *place_commas_in_integer( int n )

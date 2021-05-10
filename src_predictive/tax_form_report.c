@@ -253,7 +253,7 @@ void tax_form_html_table_account_itemize(
 	heading_list = list_new();
 	list_append_string( heading_list, "account" );
 	list_append_string( heading_list, "balance" );
-	list_append_string( heading_list, "integer" );
+	list_append_string( heading_list, "rounded" );
 
 	if ( !list_rewind( tax_form_line_list ) ) return;
 
@@ -347,7 +347,8 @@ void tax_form_html_table_account_itemize(
 
 			html_table_set_data(
 				html_table->data_list,
-				strdup( string_itoa( integer_amount ) ) );
+				strdup( place_commas_in_integer(
+						integer_amount ) ) );
 
 			html_table_output_data(
 				html_table->data_list,
@@ -372,7 +373,15 @@ void tax_form_html_table_account_itemize(
 
 		html_table_set_data(
 			html_table->data_list,
-			strdup( string_itoa( integer_total ) ) );
+			strdup( place_commas_in_integer(
+					integer_total ) ) );
+
+		html_table_output_data(
+			html_table->data_list,
+			html_table->number_left_justified_columns,
+			html_table->number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
 
 		list_free( html_table->data_list );
 		html_table->data_list = list_new();
