@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include "String.h"
 #include "timlib.h"
 #include "piece.h"
 #include "column.h"
@@ -246,10 +247,13 @@ void tax_form_html_table_account_itemize(
 	char buffer[ 128 ];
 	char sub_sub_title[ 128 ];
 	int count;
+	int integer_amount;
+	int integer_total;
 
 	heading_list = list_new();
 	list_append_string( heading_list, "account" );
 	list_append_string( heading_list, "balance" );
+	list_append_string( heading_list, "integer" );
 
 	if ( !list_rewind( tax_form_line_list ) ) return;
 
@@ -275,7 +279,7 @@ void tax_form_html_table_account_itemize(
 				sub_sub_title );
 
 		html_table->number_left_justified_columns = 1;
-		html_table->number_right_justified_columns = 1;
+		html_table->number_right_justified_columns = 2;
 		html_table_set_heading_list( html_table, heading_list );
 
 		html_table_heading(
@@ -290,6 +294,7 @@ void tax_form_html_table_account_itemize(
 			html_table->justify_list );
 
 		count = 0;
+		integer_total = 0;
 
 		do {
 			tax_form_line_account =
@@ -333,6 +338,17 @@ void tax_form_html_table_account_itemize(
 					   tax_form_line_account->
 					     tax_form_line_account_total ) ) );
 
+			integer_amount =
+				float_round_int(
+					tax_form_line_account->
+						tax_form_line_account_total );
+
+			integer_total += integer_amount;
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( string_itoa( integer_amount ) ) );
+
 			html_table_output_data(
 				html_table->data_list,
 				html_table->number_left_justified_columns,
@@ -346,10 +362,24 @@ void tax_form_html_table_account_itemize(
 		} while( list_next( tax_form_line->
 					tax_form_line_account_list ) );
 
+		html_table_set_data(
+			html_table->data_list,
+			strdup( "Total" ) );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( "" ) );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( string_itoa( integer_total ) ) );
+
+		list_free( html_table->data_list );
+		html_table->data_list = list_new();
+
 		html_table_close();
 
 	} while( list_next( tax_form_line_list ) );
-
 }
 
 void tax_form_report_html_table(
