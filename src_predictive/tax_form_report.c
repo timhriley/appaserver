@@ -247,6 +247,7 @@ void tax_form_html_table_account_itemize(
 	char buffer[ 128 ];
 	char sub_sub_title[ 128 ];
 	int count;
+	double float_total;
 	int integer_amount;
 	int integer_total;
 
@@ -295,6 +296,7 @@ void tax_form_html_table_account_itemize(
 
 		count = 0;
 		integer_total = 0;
+		float_total = 0.0;
 
 		do {
 			tax_form_line_account =
@@ -345,6 +347,10 @@ void tax_form_html_table_account_itemize(
 
 			integer_total += integer_amount;
 
+			float_total +=
+				tax_form_line_account->
+					tax_form_line_account_total;
+
 			html_table_set_data(
 				html_table->data_list,
 				strdup( place_commas_in_integer(
@@ -369,7 +375,8 @@ void tax_form_html_table_account_itemize(
 
 		html_table_set_data(
 			html_table->data_list,
-			strdup( "" ) );
+			strdup( timlib_dollar_string(
+					float_total ) ) );
 
 		html_table_set_data(
 			html_table->data_list,
