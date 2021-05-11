@@ -1626,10 +1626,10 @@ char *appaserver_library_get_verify_attribute_widths_submit_control_string(
 }
 
 void appaserver_library_dictionary_convert_date(
-						DICTIONARY *dictionary,
-						char *application_name,
-						char *date_string,
-						char *key )
+			DICTIONARY *dictionary,
+			char *application_name,
+			char *date_string,
+			char *key )
 {
 	DATE_CONVERT *date_convert;
 	char destination[ 1024 ];
@@ -1718,10 +1718,10 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
-				dictionary,
-				application_name,
-				date_string,
-				key );
+			dictionary,
+			application_name,
+			date_string,
+			key );
 	}
 
 	key = "end_date_0";
@@ -1729,10 +1729,10 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
-				dictionary,
-				application_name,
-				date_string,
-				key );
+			dictionary,
+			application_name,
+			date_string,
+			key );
 	}
 
 	key = "query_from_begin_date_0";
@@ -1740,10 +1740,10 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
-				dictionary,
-				application_name,
-				date_string,
-				key );
+			dictionary,
+			application_name,
+			date_string,
+			key );
 	}
 
 	key = "query_from_end_date_0";
@@ -1751,10 +1751,10 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
-				dictionary,
-				application_name,
-				date_string,
-				key );
+			dictionary,
+			application_name,
+			date_string,
+			key );
 	}
 
 	key = "from_begin_date_0";
@@ -1762,10 +1762,10 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
-				dictionary,
-				application_name,
-				date_string,
-				key );
+			dictionary,
+			application_name,
+			date_string,
+			key );
 	}
 
 	key = "from_end_date_0";
@@ -1773,17 +1773,17 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
-				dictionary,
-				application_name,
-				date_string,
-				key );
+			dictionary,
+			application_name,
+			date_string,
+			key );
 	}
 }
 
 void appaserver_library_post_dictionary_database_convert_dates(
-					DICTIONARY *post_dictionary,
-					char *application_name,
-					LIST *attribute_list )
+			DICTIONARY *post_dictionary,
+			char *application_name,
+			LIST *attribute_list )
 {
 	LIST *date_attribute_name_list;
 	char *attribute_name;
@@ -1885,27 +1885,18 @@ void appaserver_library_post_dictionary_database_convert_dates(
 }
 
 void appaserver_library_dictionary_convert_dates(
-					DICTIONARY *dictionary,
-					char *application_name )
+			DICTIONARY *dictionary,
+			char *application_name )
 {
 	LIST *key_list = dictionary_get_key_list( dictionary );
 	char *key;
 	char *date_string;
 	enum date_convert_format date_convert_format;
 	enum date_convert_format database_date_convert_format;
-	char *database_string = {0};
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
 
 	database_date_convert_format =
 		date_convert_get_database_date_format(
-				application_name );
+			application_name );
 
 	if ( !list_reset( key_list ) ) return;
 
@@ -1913,7 +1904,9 @@ void appaserver_library_dictionary_convert_dates(
 		key = list_get_string( key_list );
 
 		if ( ( date_string =
-			(char *)dictionary_get( dictionary, key ) ) )
+			(char *)dictionary_get(
+				dictionary,
+				key ) ) )
 		{
 			date_convert_format =
 				date_convert_date_get_format(

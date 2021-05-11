@@ -38,7 +38,7 @@ enum date_convert_format date_convert_get_database_date_format(
 	
 	date_format = date_convert_get_date_convert_format( results );
 	return date_format;
-} /* date_convert_get_database_date_format() */
+}
 
 enum date_convert_format date_convert_get_user_date_format(
 					char *application_name,
@@ -89,7 +89,7 @@ enum date_convert_format date_convert_get_user_date_format(
 	}
 
 	return user_date_format;
-} /* date_convert_get_user_date_format() */
+}
 
 DATE_CONVERT *date_convert_new_user_format_date_convert(
 				char *application_name,
@@ -106,7 +106,7 @@ DATE_CONVERT *date_convert_new_user_format_date_convert(
 	return date_convert_new_date_convert(
 				user_date_format,
 				date_string );
-} /* date_convert_new_user_format_date_convert() */
+}
 
 DATE_CONVERT *date_convert_calloc( void )
 {
@@ -125,8 +125,8 @@ DATE_CONVERT *date_convert_calloc( void )
 }
 
 DATE_CONVERT *date_convert_new_date_convert(
-				enum date_convert_format destination_format,
-				char *date_string )
+			enum date_convert_format destination_format,
+			char *date_string )
 {
 	DATE_CONVERT *d = date_convert_calloc();
 
@@ -201,15 +201,15 @@ DATE_CONVERT *date_convert_new_date_convert(
 		return d;
 	}
 
-	d->source_format = date_convert_populate_return_date(
-				d->return_date,
-				d->source_format,
-				d->destination_format,
-				date_string );
+	d->source_format =
+		date_convert_populate_return_date(
+			d->return_date,
+			d->source_format,
+			d->destination_format,
+			date_string );
 
 	return d;
-
-} /* date_convert_new_date_convert() */
+}
 
 DATE_CONVERT *date_convert_new_database_format_date_convert(
 				char *application_name,
@@ -219,18 +219,18 @@ DATE_CONVERT *date_convert_new_database_format_date_convert(
 
 	database_date_format =
 		date_convert_get_database_date_format(
-					application_name );
+			application_name );
 
 	return date_convert_new_date_convert(
-				database_date_format,
-				date_string );
-} /* date_convert_new_user_format_date_convert() */
+			database_date_format,
+			date_string );
+}
 
 enum date_convert_format date_convert_populate_return_date(
-		char *return_date,
-		enum date_convert_format source_format,
-		enum date_convert_format destination_format,
-		char *date_string )
+			char *return_date,
+			enum date_convert_format source_format,
+			enum date_convert_format destination_format,
+			char *date_string )
 {
 	if ( source_format == date_convert_unknown )
 	{
@@ -271,7 +271,7 @@ enum date_convert_format date_convert_populate_return_date(
 
 	return source_format;
 
-} /* date_convert_populate_return_date() */
+}
 
 enum date_convert_format date_convert_date_get_format( char *date_string )
 {
@@ -337,7 +337,7 @@ enum date_convert_format date_convert_date_get_format( char *date_string )
 		return date_convert_unknown;
 	}
 
-} /* date_convert_date_get_format() */
+}
 
 void date_convert_free(	DATE_CONVERT *date_convert )
 {
@@ -428,7 +428,7 @@ boolean date_convert_date_time_source_unknown(
 
 	return 1;
 
-} /* date_convert_date_time_source_unknown() */
+}
 
 boolean date_convert_source_unknown(
 		char *return_date,
@@ -483,12 +483,12 @@ boolean date_convert_source_unknown(
 
 	return 1;
 
-} /* date_convert_source_unknown() */
+}
 
 boolean date_convert_source_american(
-				char *return_date,
-				enum date_convert_format destination_format,
-				char *date_string )
+			char *return_date,
+			enum date_convert_format destination_format,
+			char *date_string )
 {
 	if ( !date_string ) return 0;
 	if ( !return_date ) return 0;
@@ -536,7 +536,7 @@ boolean date_convert_source_american(
 
 	return 1;
 
-} /* date_convert_source_american() */
+}
 
 boolean date_convert_source_military(
 			char *return_date,
@@ -570,7 +570,7 @@ boolean date_convert_source_military(
 
 	return 1;
 
-} /* date_convert_source_military() */
+}
 
 boolean date_convert_source_international(
 			char *return_date,
@@ -610,7 +610,7 @@ boolean date_convert_source_international(
 
 	return date_convert_international_correct_format( return_date );
 
-} /* date_convert_source_international() */
+}
 
 char *date_convert_international2american( char *international )
 {
@@ -644,7 +644,7 @@ char *date_convert_american2international( char *american )
 }
 
 enum date_convert_format date_convert_get_date_convert_format(
-					char *format_string )
+			char *format_string )
 {
 	if ( strcmp( format_string, "american" ) == 0 )
 		return american;
@@ -760,8 +760,16 @@ boolean date_convert_valid_american(
 	int year_integer;
 
 	piece( month, '/', date_string, 0 );
+
 	if ( !piece( day, '/', date_string, 1 ) ) return 0;
+
 	if ( !piece( year, '/', date_string, 2 ) ) return 0;
+
+	if ( strlen( year ) == 2 )
+	{
+		strcpy( year, julian_make_y2k_year( year ) );
+	}
+
 	month_integer = atoi( month );
 	day_integer = atoi( day );
 	year_integer = atoi( year );
@@ -802,9 +810,9 @@ boolean date_convert_is_valid_international(
 }
 
 boolean date_convert_is_valid_integers(
-				int year_integer,
-				int month_integer,
-				int day_integer )
+			int year_integer,
+			int month_integer,
+			int day_integer )
 {
 	if ( day_integer < 1 || day_integer > 31 ) return 0;
 
@@ -901,20 +909,19 @@ char *date_convert_international_string(
 	{
 		search_replace_character( american_string, '/', '-' );
 		strcpy( international, american_string );
+		return international;
 	}
-	else
-	{ 
-		if ( strlen( year ) == 2 )
-		{
-			strcpy( year, julian_make_y2k_year( year ) );
-		}
 
-		sprintf(international,
-			"%s-%.2d-%.2d",
-			year,
-			atoi( month ),
-			atoi( day ) );
+	if ( strlen( year ) == 2 )
+	{
+		strcpy( year, julian_make_y2k_year( year ) );
 	}
+
+	sprintf(international,
+		"%s-%.2d-%.2d",
+		year,
+		atoi( month ),
+		atoi( day ) );
 
 	return international;
 }

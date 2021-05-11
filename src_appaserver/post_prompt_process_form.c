@@ -112,15 +112,15 @@ int main( int argc, char **argv )
 		session ) )
 	{
 		session_message_ip_address_changed_exit(
-				application_name,
-				login_name );
+			application_name,
+			login_name );
 	}
 
 	if ( !session_access_process(
-				application_name,
-				session,
-				process_or_process_set_name,
-				login_name,
+		application_name,
+		session,
+		process_or_process_set_name,
+		login_name,
 				role_name ) )
 	{
 		session_access_failed_message_and_exit(
@@ -128,9 +128,9 @@ int main( int argc, char **argv )
 	}
 
 	if ( !appaserver_user_exists_role(
-					application_name,
-					login_name,
-					role_name ) )
+		application_name,
+		login_name,
+		role_name ) )
 	{
 		session_access_failed_message_and_exit(
 				application_name, session, login_name );
