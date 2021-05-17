@@ -59,11 +59,21 @@ justification="left,left,right"
 
 echo "$heading" > $output_file
 
-statement="
+statement1="
+select bank_upload_event.bank_upload_date_time, bank_upload_filename, '', '', '', '' from bank_upload_event where bank_upload_event.bank_upload_date_time not in ( select bank_upload_date_time from bank_upload where bank_upload_date_time is not null );"
+
+statement2="
 select bank_upload_event.bank_upload_date_time, bank_upload_filename, min( bank_date ), max( bank_date ), count(1), sum( bank_amount ) from bank_upload, bank_upload_event where bank_upload.bank_upload_date_time = bank_upload_event.bank_upload_date_time group by bank_upload_event.bank_upload_date_time order by bank_upload_event.bank_upload_date_time desc;"
 
-echo "$statement"			|
+(
+echo "$statement1"			|
 sql.e ','				|
+cat					;
+echo "$statement2"			|
+sql.e ','				|
+cat
+)					|
+sort -r					|
 cat >> $output_file
 
 # Output

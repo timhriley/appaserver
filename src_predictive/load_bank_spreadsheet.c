@@ -301,13 +301,11 @@ int load_bank_spreadsheet(
 	if ( bank_upload_sha256sum_exists(
 			bank_upload_structure->file.file_sha256sum ) )
 	{
-		char *msg;
+		char msg[ 256 ];
 
-		if ( execute )
-			msg =
-			"<h3>Warning: duplicated file; will not execute.</h3>";
-		else
-			msg = "<h3>Warning: duplicated file.</h3>";
+		sprintf(msg,
+			"<h3>Warning: duplicated sha256sum = %s</h3>",
+			bank_upload_structure->file.file_sha256sum );
 
 		fflush( stdout );
 		printf( "%s\n", msg );
