@@ -1986,7 +1986,7 @@ char *bank_upload_account_html(
 	else
 	if ( existing_bank_upload )
 	{
-		return "Existing bank upload";
+		return "Posted bank upload";
 	}
 	else
 	if ( existing_transaction )

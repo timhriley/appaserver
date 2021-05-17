@@ -136,7 +136,7 @@ int main( int argc, char **argv )
 	char *text_output_filename;
 	char ftp_output_sys_string[ 256 ];
 	FILE *text_output_pipe = {0};
-	char *text_ftp_filename;
+	char *text_ftp_filename = {0};
 	char end_date_suffix[ 128 ];
 	char buffer[ 4096 ];
 	char sys_string[ 1024 ];
@@ -1243,10 +1243,10 @@ int main( int argc, char **argv )
 		printf( "</h2>\n" );
 		
 		appaserver_library_output_ftp_prompt(
-				text_ftp_filename, 
-				TRANSMIT_PROMPT,
-				(char *)0 /* target */,
-				(char *)0 /* application_type */ );
+			text_ftp_filename, 
+			TRANSMIT_PROMPT,
+			(char *)0 /* target */,
+			(char *)0 /* application_type */ );
 
 		document_close();
 	}
@@ -1257,7 +1257,7 @@ int main( int argc, char **argv )
 				appaserver_parameter_file_get_dbms() );
 
 	exit( 0 );
-} /* main() */
+}
 
 GRACE_DATATYPE_OVERLAY_INPUT_GROUP *get_grace_datatype_overlay_input_group(
 				char *application_name,
@@ -1343,7 +1343,7 @@ GRACE_DATATYPE_OVERLAY_INPUT_GROUP *get_grace_datatype_overlay_input_group(
 	} while( list_next( station_datatype_list ) );
 
 	return g;
-} /* get_grace_datatype_overlay_input() */
+}
 
 LIST *get_datatype4station_list(char *application_name,
 				char *login_name,
@@ -1375,7 +1375,7 @@ LIST *get_datatype4station_list(char *application_name,
 		 	station );
 	}
 	return pipe2list( sys_string );
-} /* get_datatype4station_list() */
+}
 
 void output_covariance(	char *application_name,
 			char *input_sys_string,
@@ -1557,7 +1557,7 @@ m2( "hydrology", msg );
 	html_table_close();
 	document_close();
 
-} /* output_covariance() */
+}
 
 LIST *get_compare_datatype_name_list(
 				LIST **compare_station_name_list,
@@ -1603,7 +1603,7 @@ LIST *get_compare_datatype_name_list(
 	return appaserver_library_trim_carrot_number(
 			compare_datatype_name_list );
 
-} /* get_compare_datatype_name_list() */
+}
 
 LIST *get_station_datatype_group_members_datatype_name_list(
 				LIST **station_name_list,
@@ -1710,7 +1710,7 @@ LIST *get_station_datatype_group_members_datatype_name_list(
 
 	return datatype_name_list;
 
-} /* get_station_datatype_group_members_datatype_name_list() */
+}
 
 LIST *get_compare_datatype_units_list(
 			char *application_name,
@@ -1773,7 +1773,7 @@ LIST *get_compare_datatype_units_list(
 		}
 	} while( list_next( compare_datatype_name_list ) );
 	return compare_datatype_units_list;
-} /* get_compare_datatype_units_list() */
+}
 
 void piece_input_buffer(
 			char *input_station,
@@ -1830,7 +1830,7 @@ void piece_input_buffer(
 		input_buffer,
 		value_piece );
 
-} /* piece_input_buffer() */
+}
 
 void output_scatter_plot(	char *application_name,
 				char *input_sys_string,
@@ -1900,5 +1900,5 @@ fprintf( stderr, "%s(): got sys_string = (%s)\n", __FUNCTION__, sys_string );
 				',' /* record_delimiter */,
 				'/' /* entity_datatype_delimiter */ );
 
-} /* output_scatter_plot() */
+}
 
