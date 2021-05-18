@@ -29,22 +29,30 @@
 
 /* Prototypes */
 /* ---------- */
-FILE *depreciate_equipment_undo_html_open(
+FILE *depreciate_fixed_asset_undo_html_open(
 			void );
 
 LIST *depreciate_undo_equipment_purchase_list(
+			char *asset_folder_name,
+			char *depreciate_folder_name,
 			char *max_depreciation_date );
 
-boolean depreciate_equipment_undo(
+boolean depreciate_fixed_asset_undo(
+			char *asset_folder_name,
+			char *depreciate_folder_name,
 			boolean execute );
 
 boolean depreciate_fixed_assets(
+			char *asset_folder_name,
+			char *depreciate_folder_name,
 			boolean execute );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
+	char *asset_folder_name;
+	char *depreciate_folder_name;
 	boolean execute;
 	boolean undo;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -57,18 +65,20 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 4 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-			"Usage: %s process undo_yn execute_yn\n",
+"Usage: %s process asset_folder_name depreciate_folder_name undo_yn execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	undo = (*argv[ 2 ]) == 'y';
-	execute = (*argv[ 3 ]) == 'y';
+	asset_folder_name = argv[ 2 ];
+	depreciate_folder_name = argv[ 3 ];
+	undo = (*argv[ 4 ]) == 'y';
+	execute = (*argv[ 5 ]) == 'y';
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -84,7 +94,10 @@ int main( int argc, char **argv )
 
 	if ( undo )
 	{
-		if ( depreciate_equipment_undo( execute ) )
+		if ( depreciate_fixed_asset_undo(
+			asset_folder_name,
+			depreciate_folder_name,
+			execute ) )
 		{
 			if ( execute )
 				printf( "<h3>Undo complete</h3>\n" );
@@ -98,7 +111,10 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		if ( depreciate_fixed_assets( execute ) )
+		if ( depreciate_fixed_assets(
+			asset_folder_name,
+			depreciate_folder_name,
+			execute ) )
 		{
 			if ( execute )
 				printf( "<h3>Posting complete</h3>\n" );
@@ -116,47 +132,55 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-LIST *depreciate_fetch_equipment_purchase_list( void )
+LIST *depreciate_fetch_equipment_purchase_list(
+			char *asset_folder_name,
+			char *depreciate_folder_name )
 {
 	/* -------------------------------------------- */
 	/* Returns equipment_purchase_list with		*/
 	/* equipment_purchase->depreciation_list set.	*/
 	/* -------------------------------------------- */
 	return equipment_purchase_list_fetch(
+		asset_folder_name,
+		depreciate_folder_name,
 		"finance_accumulated_depreciation < purchase_price"
 			/* where */ );
 }
 
 LIST *depreciate_undo_equipment_purchase_list(
+			char *asset_folder_name,
+			char *depreciate_folder_name,
 			char *max_depreciation_date )
 {
 	char where[ 1024 ];
 
 	sprintf( where,
 "exists ( select 1						"
-"	   from depreciation					"
+"	   from %s						"
 "	   where						"
-"		equipment_purchase.asset_name =			"
-"			depreciation.asset_name and		"
-"		equipment_purchase.serial_number =		"
-"			depreciation.serial_number and		"
-"		equipment_purchase.full_name =			"
-"			depreciation.full_name and		"
-"		equipment_purchase.street_address =		"
-"			depreciation.street_address and		"
-"		equipment_purchase.purchase_date_time =		"
-"			depreciation.purchase_date_time and	"
+"		%s.asset_name =					"
+"			%s.asset_name and			"
+"		%s.serial_number =				"
+"			%s.serial_number and			"
 "		depreciation_date = '%s' )			",
-		 max_depreciation_date );
+		depreciate_folder_name,
+		asset_folder_name,
+		depreciate_folder_name,
+		asset_folder_name,
+		depreciate_folder_name,
+		max_depreciation_date );
 
 	/* -------------------------------------------- */
 	/* Returns equipment_purchase_list with		*/
 	/* equipment_purchase->depreciation_list set.	*/
 	/* -------------------------------------------- */
-	return equipment_purchase_list_fetch( where );
+	return equipment_purchase_list_fetch(
+			asset_folder_name,
+			depreciate_folder_name,
+			where );
 }
 
-FILE *depreciate_equipment_undo_html_open( void )
+FILE *depreciate_fixed_asset_undo_html_open( void )
 {
 	char sys_string[ 1024 ];
 	char *heading_list_string;
@@ -181,7 +205,9 @@ FILE *depreciate_equipment_undo_html_open( void )
 	return popen( sys_string, "w" );
 }
 
-boolean depreciate_equipment_undo( boolean execute )
+boolean depreciate_fixed_asset_undo(
+			char *folder_name,
+			boolean execute )
 {
 	EQUIPMENT_PURCHASE *equipment_purchase;
 	LIST *equipment_purchase_list;
@@ -195,10 +221,11 @@ boolean depreciate_equipment_undo( boolean execute )
 		delete_pipe = depreciation_delete_open();
 	}
 
-	html_output = depreciate_equipment_undo_html_open();
+	html_output = depreciate_fixed_asset_undo_html_open();
 
 	equipment_purchase_list =
 		depreciate_undo_equipment_purchase_list(
+			folder_name,
 			( max_depreciation_date =
 				depreciation_max_date() ) );
 
@@ -239,7 +266,7 @@ boolean depreciate_equipment_undo( boolean execute )
 			 equipment_purchase->serial_number,
 			 equipment_purchase->vendor_entity->full_name,
 			 equipment_purchase->vendor_entity->street_address,
-			 equipment_purchase->purchase_date_time,
+			 equipment_purchase->service_placement_date,
 			 depreciation->depreciation_date,
 			 depreciation->depreciation_amount );
 
@@ -268,7 +295,7 @@ boolean depreciate_equipment_undo( boolean execute )
 			 	equipment_purchase->
 					vendor_entity->
 					street_address,
-			 	equipment_purchase->purchase_date_time,
+			 	equipment_purchase->service_placement_date,
 			 	depreciation->depreciation_date );
 
 		}
@@ -282,7 +309,10 @@ boolean depreciate_equipment_undo( boolean execute )
 	return 1;
 }
 
-boolean depreciate_fixed_assets( boolean execute )
+boolean depreciate_fixed_assets(
+			char *asset_folder_name,
+			char *depreciate_folder_name,
+			boolean execute )
 {
 	LIST *equipment_purchase_list;
 
@@ -292,7 +322,9 @@ boolean depreciate_fixed_assets( boolean execute )
 			/* Returns equipment_purchase_list with		*/
 			/* equipment_purchase->depreciation_list set.	*/
 			/* -------------------------------------------- */
-			depreciate_fetch_equipment_purchase_list(),
+			depreciate_fetch_equipment_purchase_list(
+				asset_folder_name,
+				depreciate_folder_name ),
 			pipe2string( "now.sh ymd" )
 				/* depreciation_date */,
 			execute /* set_depreciation_transaction */ );

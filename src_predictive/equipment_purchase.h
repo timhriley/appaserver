@@ -28,7 +28,6 @@ typedef struct
 	char *asset_name;
 	char *serial_number;
 	ENTITY *vendor_entity;
-	char *purchase_date_time;
 	char *service_placement_date;
 	double equipment_cost;
 	int estimated_useful_life_years;
@@ -51,23 +50,21 @@ typedef struct
 /* ---------- */
 EQUIPMENT_PURCHASE *equipment_purchase_new(
 			char *asset_name,
-			char *serial_number,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time );
+			char *serial_number );
 
 /* ------------------------------------------------------- */
 /* Returns with equipment_purchase->depreciation_list set. */
 /* ------------------------------------------------------- */
 EQUIPMENT_PURCHASE *equipment_purchase_parse(
-			char *input );
+			char *input,
+			char *depreciate_folder_name );
 
 EQUIPMENT_PURCHASE *equipment_purchase_fetch(
 			char *asset_name,
 			char *serial_number,
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time );
+			char *service_placement_date );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -79,12 +76,9 @@ char *equipment_purchase_select(
 /* equipment_purchase->depreciation_list set.	*/
 /* -------------------------------------------- */
 LIST *equipment_purchase_list_fetch(
+			char *asset_folder_name,
+			char *depreciate_folder_name,
 			char *where );
-
-LIST *equipment_purchase_list(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time );
 
 FILE *equipment_purchase_update_open(
 			void );
@@ -96,7 +90,7 @@ void equipment_purchase_update(
 			char *serial_number,
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time );
+			char *service_placement_date );
 
  /* --------------------- */
  /* Returns static memory */
@@ -108,10 +102,7 @@ char *equipment_purchase_escape_asset_name(
 /* -------------------------- */
 char *equipment_purchase_primary_where(
 			char *asset_name,
-			char *serial_number,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time );
+			char *serial_number );
 
 double equipment_purchase_total(
 			LIST *equipment_purchase_list );
@@ -143,6 +134,11 @@ LIST *equipment_purchase_list_depreciate(
 
 void equipment_purchase_depreciation_table(
 			LIST *equipment_purchase_list );
+
+char *equipment_purchase_sys_string(
+			char *asset_folder_name,
+			char *where,
+			char *order );
 
 #endif
 

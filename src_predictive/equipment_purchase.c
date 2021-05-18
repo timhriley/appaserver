@@ -16,7 +16,6 @@
 #include "folder.h"
 #include "environ.h"
 #include "boolean.h"
-#include "depreciation.h"
 #include "tax_recovery.h"
 #include "entity.h"
 #include "account.h"
@@ -27,10 +26,7 @@
 
 EQUIPMENT_PURCHASE *equipment_purchase_new(
 			char *asset_name,
-			char *serial_number,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
+			char *serial_number )
 {
 	EQUIPMENT_PURCHASE *equipment_purchase;
 
@@ -48,13 +44,6 @@ EQUIPMENT_PURCHASE *equipment_purchase_new(
 	equipment_purchase->asset_name = asset_name;
 	equipment_purchase->serial_number = serial_number;
 
-	equipment_purchase->vendor_entity =
-		entity_new(
-			full_name,
-			street_address );
-
-	equipment_purchase->purchase_date_time = purchase_date_time;
-
 	return equipment_purchase;
 }
 
@@ -65,9 +54,6 @@ char *equipment_purchase_select( void )
 	return
 	"asset_name,"
 	"serial_number,"
-	"full_name,"
-	"street_address,"
-	"purchase_date_time,"
 	"service_placement_date,"
 	"purchase_price,"
 	"estimated_useful_life_years,"
@@ -88,7 +74,7 @@ EQUIPMENT_PURCHASE *equipment_purchase_parse( char *input )
 	char serial_number[ 128 ];
 	char full_name[ 128 ];
 	char street_address[ 128 ];
-	char purchase_date_time[ 128 ];
+	char service_placement_date[ 128 ];
 	char piece_buffer[ 1024 ];
 	EQUIPMENT_PURCHASE *equipment_purchase;
 
@@ -96,70 +82,51 @@ EQUIPMENT_PURCHASE *equipment_purchase_parse( char *input )
 
 	piece( asset_name, SQL_DELIMITER, input, 0 );
 	piece( serial_number, SQL_DELIMITER, input, 1 );
-	piece( full_name, SQL_DELIMITER, input, 2 );
-	piece( street_address, SQL_DELIMITER, input, 3 );
-	piece( purchase_date_time, SQL_DELIMITER, input, 4 );
 
 	equipment_purchase =
 		equipment_purchase_new(
 			strdup( asset_name ),
-			strdup( serial_number ),
-			strdup( full_name ),
-			strdup( street_address ),
-			strdup( purchase_date_time ) );
+			strdup( serial_number ) );
 
-	if ( ! ( equipment_purchase->vendor_entity =
-			entity_fetch(
-				full_name,
-				street_address ) ) )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s/%d: entity_fetch(%s/%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 full_name,
-			 street_address );
-		exit( 1 );
-	}
+	piece( service_placement_date, SQL_DELIMITER, input, 2 );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 5 );
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	equipment_purchase->service_placement_date = strdup( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 6 );
+	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	equipment_purchase->equipment_cost = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 7 );
+	piece( piece_buffer, SQL_DELIMITER, input, 5 );
 	equipment_purchase->estimated_useful_life_years =
 		atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 8 );
+	piece( piece_buffer, SQL_DELIMITER, input, 6 );
 	equipment_purchase->estimated_useful_life_units =
 		atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 9 );
+	piece( piece_buffer, SQL_DELIMITER, input, 7 );
 	equipment_purchase->estimated_residual_value = atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 10 );
+	piece( piece_buffer, SQL_DELIMITER, input, 8 );
 	equipment_purchase->declining_balance_n = atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 11 );
+	piece( piece_buffer, SQL_DELIMITER, input, 9 );
 	equipment_purchase->depreciation_method = strdup( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 12 );
+	piece( piece_buffer, SQL_DELIMITER, input, 10 );
 	equipment_purchase->tax_cost_basis = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 13 );
+	piece( piece_buffer, SQL_DELIMITER, input, 11 );
 	equipment_purchase->tax_recovery_period = strdup( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 14 );
+	piece( piece_buffer, SQL_DELIMITER, input, 12 );
 	equipment_purchase->disposal_date = strdup( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 15 );
+	piece( piece_buffer, SQL_DELIMITER, input, 13 );
 	equipment_purchase->finance_accumulated_depreciation =
 		atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 16 );
+	piece( piece_buffer, SQL_DELIMITER, input, 14 );
 	equipment_purchase->tax_accumulated_depreciation =
 		atoi( piece_buffer );
 
@@ -167,24 +134,9 @@ EQUIPMENT_PURCHASE *equipment_purchase_parse( char *input )
 		depreciation_list(
 			equipment_purchase->asset_name,
 			equipment_purchase->serial_number,
-			equipment_purchase->vendor_entity->full_name,
-			equipment_purchase->vendor_entity->street_address,
-			equipment_purchase->purchase_date_time );
+			depreciate_folder_name );
 
 	return equipment_purchase;
-}
-
-LIST *equipment_purchase_list(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
-{
-	return
-		equipment_purchase_list_fetch(
-			purchase_primary_where(
-				full_name,
-				street_address,
-				purchase_date_time ) );
 }
 
 LIST *equipment_system_list( char *sys_string )
@@ -205,6 +157,7 @@ LIST *equipment_system_list( char *sys_string )
 }
 
 char *equipment_purchase_sys_string(
+			char *asset_folder_name,
 			char *where,
 			char *order )
 {
@@ -228,19 +181,23 @@ char *equipment_purchase_sys_string(
 		 /* Returns program memory */
 		 /* ---------------------- */
 		 equipment_purchase_select(),
-		 "equipment_purchase",
+		 asset_folder_name,
 		 where,
 		 order_clause );
 
 	return strdup( sys_string );
 }
 
-LIST *equipment_purchase_list_fetch( char *where )
+LIST *equipment_purchase_list_fetch(
+			char *asset_folder_name,
+			char *depreciate_folder_name,
+			char *where )
 {
 	return equipment_system_list(
 		equipment_purchase_sys_string(
+			asset_folder_name,
 			where,
-			"purchase_date_time"
+			"service_placement_date"
 				/* order */ ) );
 }
 
@@ -253,7 +210,7 @@ FILE *equipment_purchase_update_open( void )
 		"serial_number,"
 		"full_name,"
 		"street_address,"
-		"purchase_date_time";
+		"service_placement_date";
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y | sql",
@@ -279,7 +236,7 @@ void equipment_purchase_update(
 			char *serial_number,
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time )
+			char *service_placement_date )
 {
 	FILE *update_pipe = equipment_purchase_update_open();
 
@@ -289,7 +246,7 @@ void equipment_purchase_update(
 		serial_number,
 		entity_escape_full_name( full_name ),
 		street_address,
-		purchase_date_time,
+		service_placement_date,
 		finance_accumulated_depreciation );
 
 	fprintf(update_pipe,
@@ -298,7 +255,7 @@ void equipment_purchase_update(
 		serial_number,
 		entity_escape_full_name( full_name ),
 		street_address,
-		purchase_date_time,
+		service_placement_date,
 		tax_accumulated_depreciation );
 
 	pclose( update_pipe );
@@ -309,7 +266,7 @@ EQUIPMENT_PURCHASE *equipment_purchase_fetch(
 			char *serial_number,
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time )
+			char *service_placement_date )
 {
 	char sys_string[ 1024 ];
 
@@ -325,10 +282,7 @@ EQUIPMENT_PURCHASE *equipment_purchase_fetch(
 		 /* -------------------------- */
 		 equipment_purchase_primary_where(
 			asset_name,
-			serial_number,
-			full_name,
-			street_address,
-			purchase_date_time ) );
+			serial_number ) );
 
 	return equipment_purchase_parse( pipe2string( sys_string ) );
 }
@@ -340,7 +294,7 @@ char *equipment_purchase_primary_where(
 			char *serial_number,
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time )
+			char *service_placement_date )
 {
 	char where[ 1024 ];
 
@@ -349,7 +303,7 @@ char *equipment_purchase_primary_where(
 		 "serial_number = '%s' and	"
 		 "full_name = '%s' and		"
 		 "street_address = '%s' and	"
-		 "purchase_date_time = '%s'	",
+		 "service_placement_date = '%s'	",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
@@ -360,7 +314,7 @@ char *equipment_purchase_primary_where(
 		 /* --------------------- */
 		 entity_escape_full_name( full_name ),
 		 street_address,
-		 purchase_date_time );
+		 service_placement_date );
 
 	return strdup( where );
 }
@@ -398,7 +352,7 @@ DEPRECIATION *equipment_purchase_depreciation(
 			equipment_purchase->serial_number,
 			equipment_purchase->vendor_entity->full_name,
 			equipment_purchase->vendor_entity->street_address,
-			equipment_purchase->purchase_date_time,
+			equipment_purchase->service_placement_date,
 			depreciation_date );
 
 	depreciation->depreciation_amount =
@@ -587,7 +541,7 @@ void equipment_purchase_depreciation_table(
 			 equipment_purchase->serial_number,
 			 equipment_purchase->vendor_entity->full_name,
 			 equipment_purchase->vendor_entity->street_address,
-			 equipment_purchase->purchase_date_time,
+			 equipment_purchase->service_placement_date,
 			 equipment_purchase->
 				equipment_purchase_depreciation->
 				depreciation_date,

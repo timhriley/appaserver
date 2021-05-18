@@ -14,7 +14,6 @@
 #include "date.h"
 #include "sql.h"
 #include "transaction.h"
-#include "equipment_purchase.h"
 #include "journal.h"
 #include "predictive.h"
 #include "transaction.h"
@@ -450,9 +449,6 @@ DEPRECIATION *depreciation_parse( char *input )
 char *depreciation_primary_where(
 			char *asset_name,
 			char *serial_number,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
 			char *depreciation_date_string )
 {
 	char where[ 1024 ];
@@ -460,18 +456,9 @@ char *depreciation_primary_where(
 	sprintf( where,
 		 "asset_name = '%s' and		"
 		 "serial_number = '%s' and	"
-		 "full_name = '%s' and		"
-		 "street_address = '%s' and	"
-		 "purchase_date_time = '%s'	"
 		 "depreciation_date = '%s'	",
 		 asset_name,
 		 serial_number,
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 entity_escape_full_name( full_name ),
-		 street_address,
-		 purchase_date_time,
 		 depreciation_date_string );
 
 	return strdup( where );
@@ -480,17 +467,13 @@ char *depreciation_primary_where(
 DEPRECIATION *depreciation_fetch(
 			char *asset_name,
 			char *serial_number,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *depreciation_date_string )
+			char *depreciation_date_string,
+			char *depreciation_folder_name )
 {
 	char sys_string[ 1024 ];
 
 	if ( !asset_name
-	||   !serial_number
-	||   !full_name
-	||   !street_address )
+	||   !serial_numbe )
 	{
 		return (DEPRECIATION *)0;
 	}
@@ -501,16 +484,13 @@ DEPRECIATION *depreciation_fetch(
 		 /* Returns program memory */
 		 /* ---------------------- */
 		 depreciation_select(),
-		 DEPRECIATION_TABLE_NAME,
+		 depreciation_folder_name,
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
 		 /* -------------------------- */
 		 depreciation_primary_where(
 			asset_name,
 			serial_number,
-			full_name,
-			street_address,
-			purchase_date_time,
 			depreciation_date_string ) );
 
 	return depreciation_parse( pipe2string( sys_string ) );
@@ -535,7 +515,9 @@ LIST *depreciation_system_list( char *sys_string )
 	return depreciation_list;
 }
 
-char *depreciation_sys_string( char *where )
+char *depreciation_sys_string(
+			char *depreciate_folder_name,
+			char *where )
 {
 	char sys_string[ 1024 ];
 
@@ -547,47 +529,44 @@ char *depreciation_sys_string( char *where )
 		 /* Returns program memory */
 		 /* ---------------------- */
 		 depreciation_select(),
-		 DEPRECIATION_TABLE_NAME,
+		 depreciate_folder_name,
 		 where,
 		 "depreciation_date" );
 
 	return strdup( sys_string );
 }
 
-LIST *depreciation_list_fetch( char *where )
+LIST *depreciation_list_fetch(
+			char *depreciate_folder_name,
+			char *where )
 {
 	if ( !where ) return (LIST *)0;
 
 	return depreciation_system_list(
 			depreciation_sys_string(
+				depreciate_folder_name,
 				where ) );
 }
 
 LIST *depreciation_list(
 			char *asset_name,
 			char *serial_number,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
+			char *depreciate_folder_name )
 {
 	if ( !asset_name
-	||   !serial_number
-	||   !full_name
-	||   !street_address )
+	||   !serial_number )
 	{
 		return (LIST *)0;
 	}
 
 	return depreciation_fetch_list(
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 equipment_purchase_primary_where(
+		depreciate_folder_name,
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		equipment_purchase_primary_where(
 			asset_name,
-			serial_number,
-			full_name,
-			street_address,
-			purchase_date_time ) );
+			serial_number ) );
 }
 
 FILE *depreciation_delete_open( void )
@@ -613,61 +592,6 @@ FILE *depreciation_delete_open( void )
 	return popen( sys_string, "w" );
 }
 
-FILE *depreciation_update_open( void )
-{
-	char sys_string[ 1024 ];
-	char *key;
-
-	key =	"asset_name,"
-		"serial_number,"
-		"full_name,"
-		"street_address,"
-		"purchase_date_time,"
-		"depreciation_date";
-
-	sprintf( sys_string,
-		 "update_statement table=%s key=%s carrot=y | sql",
-		 DEPRECIATION_TABLE_NAME,
-		 key );
-
-	return popen( sys_string, "w" );
-}
-
-void depreciation_update(
-			double depreciation_amount,
-			char *transaction_date_time,
-			char *asset_name,
-			char *serial_number,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *depreciation_date )
-{
-	FILE *update_pipe = depreciation_update_open();
-
-	fprintf(update_pipe,
-		"%s^%s^%s^%s^%s^%s^depreciation_amount^%.2lf\n",
-		asset_name,
-		serial_number,
-		entity_escape_full_name( full_name ),
-		street_address,
-		purchase_date_time,
-		depreciation_date,
-		depreciation_amount );
-
-	fprintf(update_pipe,
-		"%s^%s^%s^%s^%s^%s^transaction_date_time^%s\n",
-		asset_name,
-		serial_number,
-		entity_escape_full_name( full_name ),
-		street_address,
-		purchase_date_time,
-		depreciation_date,
-		transaction_date_time );
-
-	pclose( update_pipe );
-}
-
 double depreciation_amount_total(
 			LIST *depreciation_list )
 {
@@ -687,12 +611,15 @@ double depreciation_amount_total(
 	return total;
 }
 
-LIST *depreciation_fetch_list( char *where )
+LIST *depreciation_fetch_list(
+			char *depreciate_folder_name,
+			char *where )
 {
 	if ( !where ) return (LIST *)0;
 
 	return depreciation_system_list(
 			depreciation_sys_string(
+				depreciate_folder_name,
 				where ) );
 }
 
