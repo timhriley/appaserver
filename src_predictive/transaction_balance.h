@@ -139,5 +139,8 @@ boolean transaction_balance_debit_credit_reversed(
 			boolean cash_running_balance_wrong,
 			boolean bank_running_balance_wrong );
 
+TRANSACTION_BALANCE_BLOCK *transaction_balance_last_inbalance_block(
+			LIST *merged_block_list );
+
 #endif
 

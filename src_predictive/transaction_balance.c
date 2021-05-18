@@ -524,7 +524,7 @@ boolean transaction_balance_last_block_inbalance(
 {
 	TRANSACTION_BALANCE_BLOCK *last_block;
 
-	if ( ! list_length( merged_block_list ) ) return 0;
+	if ( !list_length( merged_block_list ) ) return 0;
 
 	last_block = list_get_last_pointer( merged_block_list );
 
@@ -552,7 +552,6 @@ TRANSACTION_BALANCE_ROW *transaction_balance_seek_row(
 	} while( list_next( transaction_balance_row_list ) );
 
 	return (TRANSACTION_BALANCE_ROW *)0;
-
 }
 
 boolean transaction_balance_cash_running_balance_wrong(
@@ -762,4 +761,24 @@ boolean transaction_balance_debit_credit_reversed(
 		 	abs_float( bank_amount ) + transaction_amount ) );
 }
 
+TRANSACTION_BALANCE_BLOCK *transaction_balance_last_inbalance_block(
+			LIST *merged_block_list )
+{
+	TRANSACTION_BALANCE_BLOCK *transaction_balance_block;
+
+	if ( !list_go_tail( merged_block_list ) )
+		return (TRANSACTION_BALANCE_BLOCK *)0;
+
+	do {
+		transaction_balance_block =
+			list_get(
+				merged_block_list );
+
+		if ( transaction_balance_block->is_inbalance )
+			return transaction_balance_block;
+
+	} while ( list_previous( merged_block_list ) );
+
+	return (TRANSACTION_BALANCE_BLOCK *)0;
+}
 

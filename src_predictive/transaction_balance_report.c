@@ -88,7 +88,8 @@ void transaction_balance_summary_inbalance_html(
 
 void transaction_balance_summary_outbalance_html(
 			TRANSACTION_BALANCE_BLOCK *last_outbalance_block,
-			LIST *transaction_balance_row_list );
+			LIST *transaction_balance_row_list,
+			TRANSACTION_BALANCE_BLOCK *last_block_inbalance );
 
 void transaction_balance_summary_inbalance_stdout(
 			TRANSACTION_BALANCE_BLOCK *last_inbalance_block );
@@ -186,12 +187,15 @@ int main( int argc, char **argv )
 						outbalance_block_list ) )
 			{
 				transaction_balance_summary_outbalance_html(
-					list_get_last_pointer( 
+				       list_get_last_pointer( 
 						transaction_balance->
 						     outbalance_block_list ),
-					transaction_balance->
+				       transaction_balance->
 						input.
-						transaction_balance_row_list );
+						transaction_balance_row_list,
+				       transaction_balance_last_inbalance_block(
+						transaction_balance->
+							merged_block_list ) );
 			}
 		}
 	}
@@ -483,13 +487,17 @@ void transaction_balance_report_summary_inbalance_stout(
 
 void transaction_balance_summary_outbalance_html(
 			TRANSACTION_BALANCE_BLOCK *last_outbalance_block,
-			LIST *transaction_balance_row_list )
+			LIST *transaction_balance_row_list,
+			TRANSACTION_BALANCE_BLOCK *last_block_inbalance )
 {
 	TRANSACTION_BALANCE_ROW *first_outbalance_row;
+	TRANSACTION_BALANCE_ROW *last_inbalance_row;
 	char *duplicated_transaction_message = {0};
 	char *deposit_message = {0};
 	char *missing_expense_message = {0};
 	char *internal_recordkeeping_message = {0};
+	char *transaction_date_time;
+	char system_string[ 1024 ];
 
 	if ( !last_outbalance_block ) return;
 
@@ -576,6 +584,27 @@ void transaction_balance_summary_outbalance_html(
 		printf( "<h3>%s</h3>\n", missing_expense_message );
 		return;
 	}
+
+	if ( last_block_inbalance )
+	{
+		last_inbalance_row =
+			last_block_inbalance->
+				end_transaction_balance;
+
+		transaction_date_time =
+			last_inbalance_row->
+				transaction_date_time;
+	}
+	else
+	{
+		transaction_date_time = "";
+	}
+
+	sprintf(system_string,
+"bank_upload_transaction_balance.sh bank_upload_transaction_balance '%s' table",
+		transaction_date_time );
+
+	if ( system( system_string ) ) {};
 }
 
 void transaction_balance_summary_outbalance_stdout(
