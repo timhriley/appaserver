@@ -117,7 +117,8 @@ SOURCE_LIBRARY= 							\
 		inventory_sale.o					\
 		entity_self.o						\
 		entity.o						\
-		equipment_purchase.o					\
+		fixed_asset.o						\
+		fixed_asset_purchase.o					\
 		fixed_service_sale.o					\
 		hourly_service_sale.o					\
 		vendor_payment.o					\
@@ -794,10 +795,15 @@ reoccurring.o: reoccurring.c						\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c reoccurring.c
 
-equipment_purchase.o: equipment_purchase.c				\
-		equipment_purchase.h
+fixed_asset.o: fixed_asset.c						\
+		fixed_asset_purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c equipment_purchase.c
+		-c fixed_asset.c
+
+fixed_asset_purchase.o: fixed_asset_purchase.c				\
+		fixed_asset_purchase.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c fixed_asset_purchase.c
 
 fixed_service_sale.o: fixed_service_sale.c				\
 		fixed_service_sale.h

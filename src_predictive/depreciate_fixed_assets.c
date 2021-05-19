@@ -20,7 +20,7 @@
 #include "appaserver_parameter_file.h"
 #include "account.h"
 #include "predictive.h"
-#include "equipment_purchase.h"
+#include "fixed_asset_purchase.h"
 #include "transaction.h"
 #include "depreciation.h"
 
@@ -32,27 +32,19 @@
 FILE *depreciate_fixed_asset_undo_html_open(
 			void );
 
-LIST *depreciate_undo_equipment_purchase_list(
-			char *asset_folder_name,
-			char *depreciate_folder_name,
+LIST *depreciate_undo_fixed_asset_purchase_list(
 			char *max_depreciation_date );
 
 boolean depreciate_fixed_asset_undo(
-			char *asset_folder_name,
-			char *depreciate_folder_name,
 			boolean execute );
 
 boolean depreciate_fixed_assets(
-			char *asset_folder_name,
-			char *depreciate_folder_name,
 			boolean execute );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	char *asset_folder_name;
-	char *depreciate_folder_name;
 	boolean execute;
 	boolean undo;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -65,20 +57,18 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 4 )
 	{
 		fprintf(stderr,
-"Usage: %s process asset_folder_name depreciate_folder_name undo_yn execute_yn\n",
+			"Usage: %s process undo_yn execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	asset_folder_name = argv[ 2 ];
-	depreciate_folder_name = argv[ 3 ];
-	undo = (*argv[ 4 ]) == 'y';
-	execute = (*argv[ 5 ]) == 'y';
+	undo = (*argv[ 2 ]) == 'y';
+	execute = (*argv[ 3 ]) == 'y';
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -95,8 +85,6 @@ int main( int argc, char **argv )
 	if ( undo )
 	{
 		if ( depreciate_fixed_asset_undo(
-			asset_folder_name,
-			depreciate_folder_name,
 			execute ) )
 		{
 			if ( execute )
@@ -112,8 +100,6 @@ int main( int argc, char **argv )
 	else
 	{
 		if ( depreciate_fixed_assets(
-			asset_folder_name,
-			depreciate_folder_name,
 			execute ) )
 		{
 			if ( execute )
@@ -123,7 +109,7 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			printf( "<h3>No equipment to depreciate</h3>\n" );
+			printf( "<h3>No fixed assets to depreciate</h3>\n" );
 		}
 	}
 
@@ -132,7 +118,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-LIST *depreciate_fetch_equipment_purchase_list(
+LIST *depreciate_fetch_fixed_asset_purchase_list(
 			char *asset_folder_name,
 			char *depreciate_folder_name )
 {

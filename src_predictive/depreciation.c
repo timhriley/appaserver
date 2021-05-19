@@ -799,6 +799,10 @@ void depreciation_list_insert(
 	pclose( insert_pipe );
 }
 
+char *depreciation_prior_period_date(
+			char *asset_name,
+			char *serial_number )
+
 char *depreciation_max_date( void )
 {
 	char sys_string[ 1024 ];

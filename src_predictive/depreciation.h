@@ -15,7 +15,17 @@
 
 /* Constants */
 /* --------- */
-#define DEPRECIATION_MEMO		"Depreciation"
+#define DEPRECIATION_TABLE	"depreciation"
+#define DEPRECIATION_MEMO	"Depreciation"
+
+/* Enumerated types */
+/* ---------------- */
+enum depreciation_method {	straignt_line,
+				double_declining_balance,
+				n_declining_balance,
+				sum_of_years_digits,
+				units_of_production,
+				not_depreciated };
 
 /* Structures */
 /* ---------- */
@@ -23,13 +33,20 @@ typedef struct
 {
 	char *asset_name;
 	char *serial_number;
-	ENTITY *vendor_entity;
-	char *purchase_date_time;
 	char *depreciation_date;
+	char *depreciation_prior_period_date;
+	double fixed_asset_cost;
+	int estimated_residual_value;
+	int estimated_useful_life_years;
+	int estimated_useful_life_units;
+	int declining_balance_n;
+	double prior_accumulated_depreciation;
 	int units_produced;
+	enum depreciation_method depreciation_method;
 	double depreciation_amount;
-	double depreciation_accumulated_depreciation;
-	TRANSACTION *depreciation_transaction;
+	char *transaction_date_time;
+	TRANSACTION *transaction;
+	ENTITY *vendor_entity;
 } DEPRECIATION;
 
 /* Operations */
@@ -37,9 +54,6 @@ typedef struct
 DEPRECIATION *depreciation_new(
 			char *asset_name,
 			char *serial_number,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
 			char *depreciation_date );
 
 DEPRECIATION *depreciation_parse(
@@ -172,8 +186,9 @@ void depreciation_insert(
 			double depreciation_amount,
 			char *transaction_date_time );
 
-char *depreciation_max_date(
-			void );
+char *depreciation_prior_period_date(
+			char *asset_name,
+			char *serial_number );
 
 DEPRECIATION *depreciation_seek(
 			LIST *depreciation_list,
