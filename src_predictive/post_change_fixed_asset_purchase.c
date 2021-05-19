@@ -17,70 +17,107 @@
 #include "appaserver_error.h"
 #include "entity.h"
 #include "purchase.h"
-#include "vendor_payment.h"
 #include "account.h"
-#include "equipment_purchase.h"
 #include "transaction.h"
+#include "fixed_asset_purchase.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void post_change_equipment_purchase(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time );
+void post_change_fixed_asset_purchase_insert(
+			PURCHASE *purchase );
+
+/*
+void post_change_fixed_asset_purchase_update(
+			PURCHASE *purchase,
+			char *preupdate_asset_name,
+			char *preupdate_serial_label );
+
+void post_change_fixed_asset_purchase_delete(
+			char *asset_name,
+			char *serial_label );
+*/
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *full_name;
-	char *street_address;
-	char *purchase_date_time;
 	char *asset_name;
-	char *serial_number;
+	char *serial_label;
 	char *state;
+	char *preupdate_asset_name;
+	char *preupdate_serial_label;
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr,
-"Usage: %s full_name street_address purchase_date_time asset_name serial_number state\n",
+"Usage: %s asset_name serial_label state preupdate_asset_name preupdate_serial_label\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	full_name = argv[ 1 ];
-	street_address = argv[ 2 ];
-	if ( ( purchase_date_time = argv[ 3 ] ) ){};
-	if ( ( asset_name = argv[ 4 ] ) ){};
-	if ( ( serial_number = argv[ 5 ] ) ){};
-	if ( ( state = argv[ 6 ] ) ){};
-
-	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
-		exit( 0 );
+	asset_name = argv[ 1 ];
+	serial_label = argv[ 2 ];
+	state = argv[ 3 ];
+	preupdate_asset_name = argv[ 4 ];
+	preupdate_serial_label = argv[ 5 ];
 
 	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
-	post_change_equipment_purchase(
-		full_name,
-		street_address,
-		purchase_date_time );
+	if ( strcmp( state, "insert" ) == 0 )
+	{
+		if ( ( fixed_asset_purchase =
+			fixed_asset_purchase_fetch(
+				asset_name,
+				serial_label ) ) )
+		{
+			if ( ( purchase =
+				purchase_fetch(
+					fixed_asset_purchase->
+						full_name,
+					fixed_asset_purchase->
+						street_address,
+					fixed_asset_purchase->
+						purchase_date_time ) ) )
+			{
+				post_change_fixed_asset_purchase_insert(
+					purchase );
+			}
+		}
+	}
+/*
+	else
+	if ( strcmp( state, "update" ) == 0 )
+	{
+		post_change_fixed_asset_purchase_update(
+			asset_name,
+			serial_label,
+			preupdate_asset_name,
+			preupdate_serial_label );
+	}
+	else
+	if ( strcmp( state, "delete" ) == 0 )
+	{
+		post_change_fixed_asset_purchase_delete(
+			asset_name,
+			serial_label );
+	}
+*/
 
 	return 0;
 }
 
-void post_change_equipment_purchase(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
+void post_change_fixed_asset_purchase_insert(
+			PURCHASE *purchase )
 {
 	PURCHASE *purchase;
 	TRANSACTION *transaction;
