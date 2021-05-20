@@ -28,7 +28,7 @@
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 			char *asset_name,
-			char *serial_number )
+			char *serial_label )
 {
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 
@@ -46,7 +46,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 	fixed_asset_purchase->fixed_asset =
 		fixed_asset_new(
 			asset_name,
-			serial_number );
+			serial_label );
 
 	return fixed_asset_purchase;
 }
@@ -57,7 +57,7 @@ char *fixed_asset_purchase_select( void )
 {
 	return
 	"asset_name,"
-	"serial_number,"
+	"serial_label,"
 	"service_placement_date,"
 	"purchase_price,"
 	"estimated_useful_life_years,"
@@ -75,7 +75,7 @@ char *fixed_asset_purchase_select( void )
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse( char *input )
 {
 	char asset_name[ 128 ];
-	char serial_number[ 128 ];
+	char serial_label[ 128 ];
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	char service_placement_date[ 128 ];
@@ -85,12 +85,12 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse( char *input )
 	if ( !input ) return (FIXED_ASSET_PURCHASE *)0;
 
 	piece( asset_name, SQL_DELIMITER, input, 0 );
-	piece( serial_number, SQL_DELIMITER, input, 1 );
+	piece( serial_label, SQL_DELIMITER, input, 1 );
 
 	fixed_asset_purchase =
 		fixed_asset_purchase_new(
 			strdup( asset_name ),
-			strdup( serial_number ) );
+			strdup( serial_label ) );
 
 	piece( service_placement_date, SQL_DELIMITER, input, 2 );
 
@@ -137,7 +137,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse( char *input )
 	fixed_asset_purchase->depreciation_list =
 		depreciation_list(
 			fixed_asset_purchase->asset_name,
-			fixed_asset_purchase->serial_number,
+			fixed_asset_purchase->serial_label,
 			depreciate_folder_name );
 
 	return fixed_asset_purchase;
@@ -211,7 +211,7 @@ FILE *fixed_asset_purchase_update_open( void )
 	char *key;
 
 	key =	"asset_name,"
-		"serial_number,"
+		"serial_label,"
 		"full_name,"
 		"street_address,"
 		"service_placement_date";
@@ -228,7 +228,7 @@ void fixed_asset_purchase_update(
 			double finance_accumulated_depreciation,
 			double tax_accumulated_depreciation,
 			char *asset_name,
-			char *serial_number,
+			char *serial_label,
 			char *full_name,
 			char *street_address,
 			char *service_placement_date )
@@ -238,7 +238,7 @@ void fixed_asset_purchase_update(
 	fprintf(update_pipe,
 		"%s^%s^%s^%s^%s^finance_accumulated_depreciation^%.2lf\n",
 		fixed_asset_purchase_escape_asset_name( asset_name ),
-		serial_number,
+		serial_label,
 		entity_escape_full_name( full_name ),
 		street_address,
 		service_placement_date,
@@ -247,7 +247,7 @@ void fixed_asset_purchase_update(
 	fprintf(update_pipe,
 		"%s^%s^%s^%s^%s^tax_accumulated_depreciation^%.2lf\n",
 		fixed_asset_purchase_escape_asset_name( asset_name ),
-		serial_number,
+		serial_label,
 		entity_escape_full_name( full_name ),
 		street_address,
 		service_placement_date,
@@ -258,7 +258,7 @@ void fixed_asset_purchase_update(
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 			char *asset_name,
-			char *serial_number,
+			char *serial_label,
 			char *full_name,
 			char *street_address,
 			char *service_placement_date )
@@ -278,25 +278,25 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 		 /* --------------------- */
 		 fixed_asset_purchase_primary_where(
 			asset_name,
-			serial_number ) );
+			serial_label ) );
 
 	return fixed_asset_purchase_parse( pipe2string( sys_string ) );
 }
 
 char *fixed_asset_purchase_primary_where(
 			char *asset_name,
-			char *serial_number )
+			char *serial_label )
 {
 	static char where[ 256 ];
 
 	sprintf( where,
 		 "asset_name = '%s' and		"
-		 "serial_number = '%s' 		",
+		 "serial_label = '%s' 		",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
 		 fixed_asset_name_escape( asset_name ),
-		 serial_number );
+		 serial_label );
 
 	return strdup( where );
 }
@@ -331,7 +331,7 @@ DEPRECIATION *fixed_asset_purchase_depreciation(
 	depreciation =
 		depreciation_new(
 			fixed_asset_purchase->asset_name,
-			fixed_asset_purchase->serial_number,
+			fixed_asset_purchase->serial_label,
 			fixed_asset_purchase->vendor_entity->full_name,
 			fixed_asset_purchase->vendor_entity->street_address,
 			fixed_asset_purchase->service_placement_date,
@@ -484,7 +484,7 @@ void fixed_asset_purchase_depreciation_table(
 
 	heading_list_string =
 		"asset_name,"
-		"serial_number,"
+		"serial_label,"
 		"vendor,"
 		"purchase,"
 		"depreciation,"
@@ -520,7 +520,7 @@ void fixed_asset_purchase_depreciation_table(
 		fprintf( output_pipe,
 			 "%s^%s^%s/%s^%s^%s^%.2lf\n",
 			 fixed_asset_purchase->asset_name,
-			 fixed_asset_purchase->serial_number,
+			 fixed_asset_purchase->serial_label,
 			 fixed_asset_purchase->vendor_entity->full_name,
 			 fixed_asset_purchase->vendor_entity->street_address,
 			 fixed_asset_purchase->service_placement_date,
