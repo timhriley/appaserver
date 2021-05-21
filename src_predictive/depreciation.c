@@ -23,79 +23,80 @@
 #include "depreciation.h"
 
 double depreciation_amount(
-			char *depreciation_method,
-			double equipment_cost,
+			enum depreciation_method depreciation_method,
+			char *service_placement_date,
+			char *prior_depreciation_date,
+			char *depreciation_date,
+			double cost_basis,
 			int estimated_residual_value,
 			int estimated_useful_life_years,
 			int estimated_useful_life_units,
 			int declining_balance_n,
-			char *prior_depreciation_date,
-			char *depreciation_date,
-			double finance_accumulated_depreciation,
-			char *service_placement_date,
-			int units_produced )
+			int units_produced,
+			double prior_accumulated_depreciation )
 {
-	if ( !depreciation_method || !*depreciation_method )
+	if ( depreciation_method == not_depreciated )
 	{
-		/* Land is not depreciated. */
-		/* ------------------------ */
 		return 0.0;
 	}
 	else
-	if ( strcmp( depreciation_method, "straight_line" ) == 0 )
+	if ( depreciation_method == straight_line )
 	{
 		return depreciation_straight_line(
-			equipment_cost,
-			estimated_residual_value,
-			estimated_useful_life_years,
+			service_placement_date,
 			prior_depreciation_date,
 			depreciation_date,
-			finance_accumulated_depreciation );
+			cost_basis,
+			estimated_residual_value,
+			estimated_useful_life_years,
+			prior_accumulated_depreciation );
 	}
 	else
-	if ( strcmp( depreciation_method, "units_of_production" ) == 0 )
+	if ( depreciation_method == units_of_production )
 	{
 		return depreciation_units_of_production(
-			equipment_cost,
+			cost_basis,
 			estimated_residual_value,
 			estimated_useful_life_units,
 			units_produced,
-			finance_accumulated_depreciation );
+			prior_accumulated_depreciation );
 	}
 	else
-	if ( strcmp( depreciation_method, "double_declining_balance" ) == 0 )
+	if ( depreciation_method == double_declining_balance )
 	{
 		return depreciation_double_declining_balance(
-			equipment_cost,
-			estimated_residual_value,
-			estimated_useful_life_years,
+			service_placement_date,
 			prior_depreciation_date,
 			depreciation_date,
-			finance_accumulated_depreciation );
+			cost_basis,
+			estimated_residual_value,
+			estimated_useful_life_years,
+			prior_accumulated_depreciation );
 	}
 	else
-	if ( strcmp( depreciation_method, "n_declining_balance" ) == 0 )
+	if ( depreciation_method == n_declining_balance )
 	{
 		return depreciation_n_declining_balance(
-			equipment_cost,
-			estimated_residual_value,
-			estimated_useful_life_years,
+			service_placement_date,
 			prior_depreciation_date,
 			depreciation_date,
-			finance_accumulated_depreciation,
-			declining_balance_n );
+			cost_basis,
+			estimated_residual_value,
+			estimated_useful_life_years,
+			declining_balance_n,
+			prior_accumulated_depreciation );
 	}
 	else
-	if ( strcmp( depreciation_method, "sum_of_years_digits" ) == 0 )
+	if ( depreciation_method == sum_of_years_digits)
 	{
 		return depreciation_sum_of_years_digits(
-			equipment_cost,
-			estimated_residual_value,
-			estimated_useful_life_years,
+			service_placement_date,
 			prior_depreciation_date,
 			depreciation_date,
-			finance_accumulated_depreciation,
-			service_placement_date );
+			cost_basis,
+			estimated_residual_value,
+			estimated_useful_life_years,
+			prior_accumulated_depreciation );
 	}
 	else
 	{
@@ -104,17 +105,17 @@ double depreciation_amount(
 }
 
 double depreciation_units_of_production(
-			double equipment_cost,
+			double cost_basis,
 			int estimated_residual_value,
 			int estimated_useful_life_units,
 			int units_produced,
-			double finance_accumulated_depreciation )
+			double prior_accumulated_depreciation )
 {
 	double depreciation_rate_per_unit = 0.0;
 	double depreciation_base;
 	double depreciation_amount;
 
-	depreciation_base = equipment_cost - (double)estimated_residual_value;
+	depreciation_base = cost_basis - (double)estimated_residual_value;
 
 	if ( estimated_useful_life_units )
 	{
@@ -128,40 +129,40 @@ double depreciation_units_of_production(
 		(double)units_produced;
 
 
-	if (	finance_accumulated_depreciation + depreciation_amount >
+	if (	prior_accumulated_depreciation + depreciation_amount >
 		depreciation_base )
 	{
 		depreciation_amount =
 			depreciation_base -
-			finance_accumulated_depreciation;
+			prior_accumulated_depreciation;
 	}
 
 	return depreciation_amount;
 }
 
 double depreciation_straight_line(
-			double equipment_cost,
-			int estimated_residual_value,
-			int estimated_useful_life_years,
+			char *service_placement_date,
 			char *prior_depreciation_date,
 			char *depreciation_date,
-			double finance_accumulated_depreciation )
+			double cost_basis,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			double prior_accumulated_depreciation )
 {
 	double depreciation_base;
 	double annual_depreciation_amount;
-	double fraction_of_year = 0.0;
+	double fraction_of_year;
 	double depreciation_amount;
 
-	if ( prior_depreciation_date
-	&&   *prior_depreciation_date )
-	{
-		fraction_of_year =
-			depreciation_fraction_of_year(
-				prior_depreciation_date,
-				depreciation_date );
-	}
+	if ( !service_placement_date || !*service_placement_date ) return 0.0;
 
-	depreciation_base = equipment_cost - (double)estimated_residual_value;
+	fraction_of_year =
+		depreciation_fraction_of_year(
+			service_placement_date,
+			prior_depreciation_date,
+			depreciation_date );
+
+	depreciation_base = cost_basis - (double)estimated_residual_value;
 
 	if ( estimated_useful_life_years )
 	{
@@ -178,25 +179,25 @@ double depreciation_straight_line(
 
 	/* If depreciation_date is past the useful life. */
 	/* --------------------------------------------- */
-	if (	finance_accumulated_depreciation + depreciation_amount >
+	if (	prior_accumulated_depreciation + depreciation_amount >
 		depreciation_base )
 	{
 		depreciation_amount =
 			depreciation_base -
-			finance_accumulated_depreciation;
+			prior_accumulated_depreciation;
 	}
 
 	return depreciation_amount;
 }
 
 double depreciation_sum_of_years_digits(
-			double equipment_cost,
-			int estimated_residual_value,
-			int estimated_useful_life_years,
+			char *service_placement_date,
 			char *prior_depreciation_date,
 			char *depreciation_date,
-			double finance_accumulated_depreciation,
-			char *service_placement_date )
+			double cost_basis,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			double prior_accumulated_depreciation )
 {
 	double denominator;
 	double depreciation_base;
@@ -207,9 +208,10 @@ double depreciation_sum_of_years_digits(
 	int current_age_years;
 	int remaining_life_years;
 
+	if ( !service_placement_date || !*service_placement_date ) return 0.0;
 	if ( estimated_useful_life_years <= 0 ) return 0.0;
 
-	depreciation_base = equipment_cost - (double)estimated_residual_value;
+	depreciation_base = cost_basis - (double)estimated_residual_value;
 
 	denominator =
 		( (double)( estimated_useful_life_years *
@@ -235,6 +237,7 @@ double depreciation_sum_of_years_digits(
 
 	fraction_of_year =
 		depreciation_fraction_of_year(
+			service_placement_date,
 			prior_depreciation_date,
 			depreciation_date );
 
@@ -242,25 +245,26 @@ double depreciation_sum_of_years_digits(
 
 	/* If depreciation_date is past the useful life. */
 	/* --------------------------------------------- */
-	if (	finance_accumulated_depreciation + depreciation_amount >
+	if (	prior_accumulated_depreciation + depreciation_amount >
 		depreciation_base )
 	{
 		depreciation_amount =
 			depreciation_base -
-			finance_accumulated_depreciation;
+			prior_accumulated_depreciation;
 	}
 
 	return depreciation_amount;
 }
 
 double depreciation_n_declining_balance(
-			double equipment_cost,
-			int estimated_residual_value,
-			int estimated_useful_life_years,
+			char *service_placement_date,
 			char *prior_depreciation_date,
 			char *depreciation_date,
-			double finance_accumulated_depreciation,
-			int n )
+			double cost_basis,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			int declining_balance_n,
+			double prior_accumulated_depreciation )
 {
 	double annual_depreciation_amount;
 	double fraction_of_year;
@@ -268,15 +272,18 @@ double depreciation_n_declining_balance(
 	double book_value;
 	double maximum_depreciation;
 
-	book_value = equipment_cost - finance_accumulated_depreciation;
+	if ( !service_placement_date || !*service_placement_date ) return 0.0;
+
+	book_value = cost_basis - prior_accumulated_depreciation;
 
 	fraction_of_year =
 		depreciation_fraction_of_year(
+			service_placement_date,
 			prior_depreciation_date,
 			depreciation_date );
 
 	annual_depreciation_amount =
-		( book_value * (double)n ) /
+		( book_value * (double)declining_balance_n ) /
 			       (double)estimated_useful_life_years;
 
 	depreciation_amount = annual_depreciation_amount * fraction_of_year;
@@ -289,63 +296,27 @@ double depreciation_n_declining_balance(
 	return depreciation_amount;
 }
 
-double depreciation_fraction_of_year(
-			char *prior_depreciation_date,
-			char *date_string )
-{
-	int days_between;
-	DATE *prior_date;
-	DATE *date;
-
-	if ( !prior_depreciation_date
-	||   !*prior_depreciation_date
-	||   !date_string
-	||   !*date_string )
-	{
-		fprintf( stderr,
-	"Warning in %s/%s()/%d: empty date = [prior=%s or date=%s]\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 prior_depreciation_date,
-			 date_string );
-		return 0.0;
-	}
-
-	prior_date =
-		date_yyyy_mm_dd_new(
-			prior_depreciation_date );
-
-	date = date_yyyy_mm_dd_new( date_string );
-
-	days_between =
-		date_subtract_days(
-			date /* later_date */,
-			prior_date /* earlier_date */ );
-
-	return 	(double)days_between /
-		(double)date_get_days_in_year(
-				date_get_year(
-					prior_date ) );
-}
-
 double depreciation_double_declining_balance(
-			double equipment_cost,
-			int estimated_residual_value,
-			int estimated_useful_life_years,
+			char *service_placement_date,
 			char *prior_depreciation_date,
 			char *depreciation_date,
-			double finance_accumulated_depreciation )
+			double cost_basis,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			double prior_accumulated_depreciation )
 {
+	if ( !service_placement_date || !*service_placement_date ) return 0.0;
+
 	return 
 		depreciation_n_declining_balance(
-			equipment_cost,
-			estimated_residual_value,
-			estimated_useful_life_years,
+			service_placement_date,
 			prior_depreciation_date,
 			depreciation_date,
-			finance_accumulated_depreciation,
-			2 /* n */ );
+			cost_basis,
+			estimated_residual_value,
+			estimated_useful_life_years,
+			2 /* declining_balance_n */,
+			prior_accumulated_depreciation );
 }
 
 DEPRECIATION *depreciation_new(
@@ -372,19 +343,6 @@ DEPRECIATION *depreciation_new(
 	return depreciation;
 }
 
-char *depreciation_select( void )
-{
-	return	"asset_name,"
-		"serial_label,"
-		"full_name,"
-		"street_address,"
-		"purchase_date_time,"
-		"depreciation_date,"
-		"depreciation_amount,"
-		"accumulated_depreciation,"
-		"transaction_date_time";
-}
-
 DEPRECIATION *depreciation_parse( char *input )
 {
 	char asset_name[ 128 ];
@@ -395,7 +353,7 @@ DEPRECIATION *depreciation_parse( char *input )
 	char piece_buffer[ 1024 ];
 	DEPRECIATION *depreciation;
 
-	if ( !input ) return (DEPRECIATION *)0;
+	if ( !input || !*input ) return (DEPRECIATION *)0;
 
 	piece( asset_name, SQL_DELIMITER, input, 0 );
 	piece( serial_label, SQL_DELIMITER, input, 1 );
@@ -429,20 +387,20 @@ DEPRECIATION *depreciation_parse( char *input )
 
 char *depreciation_primary_where(
 			char *asset_name,
-			char *serial_number,
+			char *serial_label,
 			char *depreciation_date )
 {
-	char where[ 1024 ];
+	static char where[ 256 ];
 
 	sprintf(where,
 		"asset_name = '%s' and		"
-		"serial_number = '%s' and	"
+		"serial_label = '%s' and	"
 		"depreciation_date = '%s'	",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		fixed_asset_name_escape( asset_name ),
-		serial_number,
+		serial_label,
 		depreciation_date );
 
 	return strdup( where );
@@ -450,32 +408,27 @@ char *depreciation_primary_where(
 
 DEPRECIATION *depreciation_fetch(
 			char *asset_name,
-			char *serial_number,
-			char *depreciation_date_string,
-			char *depreciation_folder_name )
+			char *serial_label,
+			char *depreciation_date )
 {
 	char sys_string[ 1024 ];
 
 	if ( !asset_name
-	||   !serial_numbe )
+	||   !serial_label )
 	{
 		return (DEPRECIATION *)0;
 	}
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 depreciation_select(),
-		 depreciation_folder_name,
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
+	sprintf(sys_string,
+		"select.sh '*' %s \"%s\" ''",
+		 DEPRECIATION_TABLE,
+		 /* --------------------- */
+		 /* Returns static memory */
+		 /* --------------------- */
 		 depreciation_primary_where(
 			asset_name,
-			serial_number,
-			depreciation_date_string ) );
+			serial_label,
+			depreciation_date ) );
 
 	return depreciation_parse( pipe2string( sys_string ) );
 }
@@ -499,25 +452,19 @@ LIST *depreciation_system_list( char *sys_string )
 	return depreciation_list;
 }
 
-char *depreciation_sys_string(
-			char *depreciate_folder_name,
+char *depreciation_system_string(
 			char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
 	if ( !where ) return (char *)0;
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 depreciation_select(),
-		 depreciate_folder_name,
-		 where,
-		 "depreciation_date" );
+	sprintf(system_string,
+		"select.sh '*' %s \"%s\" depreciation_date",
+		DEPRECIATION_TABLE,
+		where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 LIST *depreciation_list_fetch(
@@ -526,7 +473,10 @@ LIST *depreciation_list_fetch(
 {
 	return depreciation_system_list(
 			depreciation_system_string(
-				purchase_primary_where(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				fixed_asset_primary_where(
 					asset_name,
 					serial_label ) ) );
 }
@@ -537,7 +487,7 @@ FILE *depreciation_delete_open( void )
 	char *key;
 
 	key =	"asset_name,"
-		"serial_number,"
+		"serial_label,"
 		"depreciation_date";
 
 	sprintf( system_string,
@@ -656,10 +606,7 @@ FILE *depreciation_insert_open( void )
 	char *field;
 
 	field =	"asset_name,"
-		"serial_number,"
-		"full_name,"
-		"street_address,"
-		"purchase_date_time,"
+		"serial_label,"
 		"depreciation_date,"
 		"depreciation_amount,"
 		"transaction_date_time";
@@ -676,25 +623,16 @@ FILE *depreciation_insert_open( void )
 void depreciation_insert(
 			FILE *insert_pipe,
 			char *asset_name,
-			char *serial_number,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
+			char *serial_label,
 			char *depreciation_date,
 			double depreciation_amount,
 			char *transaction_date_time )
 {
 
 	fprintf(	insert_pipe,
-			"%s^%s^%s^%s^%s^%s^%.2lf^%s\n",
+			"%s^%s^%s^%.2lf^%s\n",
 			asset_name,
-			serial_number,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-	 		entity_escape_full_name( full_name ),
-			street_address,
-			purchase_date_time,
+			serial_label,
 			depreciation_date,
 			depreciation_amount,
 			(transaction_date_time)
@@ -733,10 +671,7 @@ void depreciation_list_insert(
 		depreciation_insert(
 			insert_pipe,
 			depreciation->asset_name,
-			depreciation->serial_number,
-			depreciation->vendor_entity->full_name,
-			depreciation->vendor_entity->street_address,
-			depreciation->purchase_date_time,
+			depreciation->serial_label,
 			depreciation->depreciation_date,
 			depreciation->depreciation_amount,
 			transaction_date_time );
@@ -746,25 +681,22 @@ void depreciation_list_insert(
 	pclose( insert_pipe );
 }
 
-char *depreciation_prior_period_date(
-			char *asset_name,
-			char *serial_number )
-{
-}
-
-char *depreciation_max_date(
+char *depreciation_prior_depreciation_date(
 			char *asset_name,
 			char *serial_label )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"echo \"select %s from %s where %s;\" | sql",
+		"select.sh \"%s\" %s \"%s\" ''",
 		"max( depreciation_date )",
 		DEPRECIATION_TABLE,
-		depreciation_primary_where(
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		fixed_asset_primary_where(
 			asset_name,
-			serial_label );
+			serial_label ) );
 
 	return pipe2string( sys_string );
 }
@@ -860,5 +792,104 @@ enum depreciation_method depreciation_method_resolve(
 	{
 		return not_depreciated;
 	}
+}
+
+DEPRECIATION *depreciation_evaluate(
+			char *asset_name,
+			char *serial_label,
+			enum depreciation_method depreciation_method,
+			char *service_placement_date,
+			char *prior_depreciation_date,
+			char *depreciation_date,
+			double cost_basis,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			int estimated_useful_life_units,
+			int declining_balance_n,
+			int units_produced,
+			double prior_accumulated_depreciation )
+{
+	DEPRECIATION *depreciation;
+	double amount;
+
+	amount =
+		depreciation_amount(
+			depreciation_method,
+			service_placement_date,
+			prior_depreciation_date,
+			depreciation_date,
+			cost_basis,
+			estimated_residual_value,
+			estimated_useful_life_years,
+			estimated_useful_life_units,
+			declining_balance_n,
+			units_produced,
+			prior_accumulated_depreciation );
+
+	if ( timlib_dollar_virtually_same(
+		amount,
+		0.0 ) )
+	{
+		return (DEPRECIATION *)0;
+	}
+
+	depreciation =
+		depreciation_new(
+			asset_name,
+			serial_label,
+			depreciation_date );
+
+	depreciation->depreciation_amount = amount;
+
+	depreciation->depreciation_accumulated_depreciation =
+		depreciation_accumulated_depreciation(
+			prior_accumulated_depreciation,
+			depreciation->depreciation_amount );
+
+	return depreciation;
+}
+
+double depreciation_fraction_of_year(
+			char *service_placement_date,
+			char *prior_depreciation_date,
+			char *depreciation_date_string )
+{
+	char *earlier_date_string;
+	int days_between;
+	DATE *earlier_date;
+	DATE *depreciation_date;
+
+	if ( !service_placement_date
+	||   !*service_placement_date
+	||   !depreciation_date_string
+	||   !*depreciation_date_string )
+	{
+		return 0.0;
+	}
+
+	if ( !prior_depreciation_date || !*prior_depreciation_date )
+	{
+		earlier_date_string = service_placement_date;
+	}
+	else
+	{
+		earlier_date_string = prior_depreciation_date;
+	}
+
+	earlier_date =
+		date_yyyy_mm_dd_new(
+			earlier_date_string );
+
+	depreciation_date = date_yyyy_mm_dd_new( depreciation_date_string );
+
+	days_between =
+		date_subtract_days(
+			depreciation_date /* later_date */,
+			earlier_date  );
+
+	return 	(double)days_between /
+		(double)date_days_in_year(
+				date_year(
+					earlier_date ) );
 }
 

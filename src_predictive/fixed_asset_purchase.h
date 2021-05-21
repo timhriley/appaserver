@@ -118,24 +118,13 @@ char *fixed_asset_purchase_primary_where(
 double fixed_asset_purchase_total(
 			LIST *fixed_asset_purchase_list );
 
-DEPRECIATION *fixed_asset_purchase_depreciation(
-			FIXED_ASSET_PURCHASE *fixed_asset_purchase,
-			char *depreciation_date,
-			char *prior_depreciation_date,
-			/* ---------------------------- */
-			/* Null value omits transaction */
-			/* ---------------------------- */
-			char *transaction_date_time,
-			int units_produced );
-
 /* -------------------------------------------- */
 /* Returns fixed_asset_purchase_list with	*/
-/* fixed_asset_purchase->depreciation_list set.	*/
+/* fixed_asset_purchase->depreciation set.	*/
 /* -------------------------------------------- */
 LIST *fixed_asset_purchase_list_depreciate(
 			LIST *fixed_asset_purchase_list,
-			char *depreciation_date,
-			boolean set_depreciation_transaction );
+			char *depreciation_date );
 
 void fixed_asset_purchase_depreciation_table(
 			LIST *fixed_asset_purchase_list );

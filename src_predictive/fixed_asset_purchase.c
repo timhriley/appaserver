@@ -17,6 +17,7 @@
 #include "environ.h"
 #include "tax_recovery.h"
 #include "entity.h"
+#include "entity_self.h"
 #include "account.h"
 #include "fixed_asset.h"
 #include "depreciation.h"
@@ -210,10 +211,8 @@ void fixed_asset_purchase_update(
 			char *asset_name,
 			char *serial_label )
 {
-	char *escape;
 	FILE *update_pipe = fixed_asset_purchase_update_open();
-
-	escape = fixed_asset_name_escape( asset_name );
+	char *escape = fixed_asset_name_escape( asset_name );
 
 	fprintf(update_pipe,
 		"%s^%s^cost_basis^%.2lf\n",
@@ -288,71 +287,6 @@ double fixed_asset_purchase_total(
 	return purchase_total;
 }
 
-DEPRECIATION *fixed_asset_purchase_depreciation(
-			FIXED_ASSET_PURCHASE *fixed_asset_purchase,
-			char *depreciation_date,
-			char *prior_depreciation_date,
-			char *transaction_date_time,
-			int units_produced )
-{
-	DEPRECIATION *depreciation;
-
-	depreciation =
-		depreciation_new(
-			fixed_asset_purchase->fixed_asset->asset_name,
-			fixed_asset_purchase->fixed_asset->serial_label,
-			fixed_asset_purchase->vendor_entity->full_name,
-			fixed_asset_purchase->vendor_entity->street_address,
-			fixed_asset_purchase->service_placement_date,
-			depreciation_date );
-
-	depreciation->depreciation_amount =
-		depreciation_amount(
-			fixed_asset_purchase->depreciation_method,
-			fixed_asset_purchase->fixed_asset_cost,
-			fixed_asset_purchase->estimated_residual_value,
-			fixed_asset_purchase->estimated_useful_life_years,
-			fixed_asset_purchase->estimated_useful_life_units,
-			fixed_asset_purchase->declining_balance_n,
-			prior_depreciation_date,
-			depreciation_date,
-			fixed_asset_purchase->finance_accumulated_depreciation,
-			fixed_asset_purchase->service_placement_date,
-			units_produced );
-
-	if ( timlib_dollar_virtually_same(
-		depreciation->depreciation_amount,
-		0.0 ) )
-	{
-		return (DEPRECIATION *)0;
-	}
-
-	depreciation->depreciation_accumulated_depreciation =
-		depreciation_accumulated_depreciation(
-			depreciation->depreciation_accumulated_depreciation
-				/* prior_accumulated_depreciation */,
-			depreciation->depreciation_amount );
-
-	if ( transaction_date_time )
-	{
-		depreciation->depreciation_transaction =
-			depreciation_transaction(
-				fixed_asset_purchase->
-					vendor_entity->
-					full_name,
-				fixed_asset_purchase->
-					vendor_entity->
-					street_address,
-				transaction_date_time,
-				depreciation->depreciation_amount,
-				account_depreciation_expense(
-					(char *)0 /* fund_name */ ),
-				account_accumulated_depreciation(
-					(char *)0 /* fund_name */ ) );
-	}
-	return depreciation;
-}
-
 LIST *fixed_asset_purchase_depreciation_list(
 			LIST *fixed_asset_purchase_list )
 {
@@ -368,12 +302,11 @@ LIST *fixed_asset_purchase_depreciation_list(
 			list_get(
 				fixed_asset_purchase_list );
 
-		if ( fixed_asset_purchase->fixed_asset_purchase_depreciation )
+		if ( fixed_asset_purchase->depreciation )
 		{
 			list_set(
 				depreciation_list,
-				fixed_asset_purchase->
-					fixed_asset_purchase_depreciation );
+				fixed_asset_purchase->depreciation );
 		}
 
 	} while ( list_next( fixed_asset_purchase_list ) );
@@ -382,60 +315,60 @@ LIST *fixed_asset_purchase_depreciation_list(
 
 LIST *fixed_asset_purchase_list_depreciate(
 			LIST *fixed_asset_purchase_list,
-			char *depreciation_date,
-			boolean set_depreciation_transaction )
+			char *depreciation_date )
 {
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 	char *prior_depreciation_date;
 	char *transaction_date_time = {0};
+	ENTITY_SELF *entity_self;
 
 	if ( !list_rewind( fixed_asset_purchase_list ) ) return (LIST *)0;
+
+	entity_self = entity_self_fetch();
 
 	do {
 		fixed_asset_purchase =
 			list_get(
 				fixed_asset_purchase_list );
 
-		if ( list_length( fixed_asset_purchase->depreciation_list ) )
-		{
-			DEPRECIATION *prior_depreciation;
-
-			prior_depreciation =
-				list_last(
+		fixed_asset_purchase->depreciation =
+			depreciation_evaluate(
+				fixed_asset_purchase->fixed_asset->asset_name,
+				fixed_asset_purchase->fixed_asset->serial_label,
+				fixed_asset_purchase->depreciation_method,
+				fixed_asset_purchase->service_placement_date,
+				depreciation_prior_depreciation_date(
 					fixed_asset_purchase->
-						depreciation_list );
+						fixed_asset->
+						asset_name,
+					fixed_asset_purchase->
+						fixed_asset->
+						serial_label ),
+				depreciation_date,
+				fixed_asset_purchase->cost_basis,
+				fixed_asset_purchase->estimated_residual_value,
+				fixed_asset_purchase->
+					estimated_useful_life_years,
+				fixed_asset_purchase->
+					estimated_useful_life_units,
+				fixed_asset_purchase->declining_balance_n,
+				0 /* units_produced */,
+				fixed_asset_purchase->
+					finance_accumulated_depreciation
+					/* prior_accumulated_depreciation */ );
 
-			prior_depreciation_date =
-				prior_depreciation->depreciation_date;
-		}
-		else
-		{
-			prior_depreciation_date = (char *)0;
-		}
+		if ( !fixed_asset_purchase->depreciation ) continue;
 
-		if ( set_depreciation_transaction )
-		{
-			transaction_date_time =
-				/* ---------------------------------- */
-				/* Returns heap memory		      */
-				/* Increments seconds each invocation */
-				/* ---------------------------------- */
-				predictive_transaction_date_time(
-					depreciation_date );
-		}
-
-		list_set(
-			fixed_asset_purchase->depreciation_list,
-			( fixed_asset_purchase->
-				fixed_asset_purchase_depreciation =
-				fixed_asset_purchase_depreciation(
-					fixed_asset_purchase,
-					depreciation_date,
-					prior_depreciation_date,
-					/* Null value omits transaction */
-					/* ---------------------------- */
-					transaction_date_time,
-					0 /* units_produced */ ) ) );
+		depreciation->depreciation_transaction =
+			depreciation_transaction(
+				entity_self->entity->full_name,
+				entity_self->entity->street_address,
+				depreciation_date,
+				depreciation->depreciation_amount,
+				account_depreciation_expense(
+					(char *)0 /* fund_name */ ),
+				account_accumulated_depreciation(
+					(char *)0 /* fund_name */ ) );
 
 	} while ( list_next( fixed_asset_purchase_list ) );
 
@@ -454,16 +387,15 @@ void fixed_asset_purchase_depreciation_table(
 	heading_list_string =
 		"asset_name,"
 		"serial_label,"
-		"vendor,"
-		"purchase,"
-		"depreciation,"
+		"service_placement_date",
+		"depreciation_date",
 		"depreciation_amount";
 
-	justify_list_string = "left,left,left,left,left,right";
+	justify_list_string = "left,left,left,left,right";
 
 	sprintf( sys_string,
 		 "html_table.e '^%s' '%s' '^' '%s'",
-		 "Depreciate Equipment",
+		 "Depreciate Fixed Asset",
 		 heading_list_string,
 		 justify_list_string );
 
@@ -480,24 +412,21 @@ void fixed_asset_purchase_depreciation_table(
 			list_get(
 				fixed_asset_purchase_list );
 
-		if ( !fixed_asset_purchase->
-			fixed_asset_purchase_depreciation )
+		if ( !fixed_asset_purchase->depreciation )
 		{
 			continue;
 		}
 
 		fprintf( output_pipe,
-			 "%s^%s^%s/%s^%s^%s^%.2lf\n",
-			 fixed_asset_purchase->asset_name,
-			 fixed_asset_purchase->serial_label,
-			 fixed_asset_purchase->vendor_entity->full_name,
-			 fixed_asset_purchase->vendor_entity->street_address,
+			 "%s^%s^%s^%s^%.2lf\n",
+			 fixed_asset_purchase->fixed_asset->asset_name,
+			 fixed_asset_purchase->fixed_asset->serial_label,
 			 fixed_asset_purchase->service_placement_date,
 			 fixed_asset_purchase->
-				fixed_asset_purchase_depreciation->
+				depreciation->
 				depreciation_date,
 			 fixed_asset_purchase->
-				fixed_asset_purchase_depreciation->
+				depreciation->
 				depreciation_amount );
 
 	} while( list_next( fixed_asset_purchase_list ) );

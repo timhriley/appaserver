@@ -17,7 +17,9 @@
 /* Constants */
 /* --------- */
 #define DEPRECIATION_TABLE		"depreciation"
+
 #define DEPRECIATION_MEMO		"Depreciation"
+
 #define STRAIGHT_LINE			"straight_line"
 #define DOUBLE_DECLINING_BALANCE	"double_declining_balance"
 #define N_DECLINING_BALANCE		"n_declining_balance"
@@ -27,7 +29,7 @@
 
 /* Enumerated types */
 /* ---------------- */
-enum depreciation_method {	straignt_line,
+enum depreciation_method {	straight_line,
 				double_declining_balance,
 				n_declining_balance,
 				sum_of_years_digits,
@@ -38,8 +40,10 @@ enum depreciation_method {	straignt_line,
 /* ---------- */
 typedef struct
 {
+	/* Input */
 	char *asset_name;
 	char *serial_label;
+	enum depreciation_method depreciation_method;
 	char *depreciation_date;
 	char *depreciation_prior_period_date;
 	double fixed_asset_cost;
@@ -48,11 +52,14 @@ typedef struct
 	int estimated_useful_life_units;
 	int declining_balance_n;
 	double prior_accumulated_depreciation;
-	int units_produced;
-	enum depreciation_method depreciation_method;
+
+	/* Process */
+	/* ------- */
 	double depreciation_amount;
+	double depreciation_accumulated_depreciation;
+	int units_produced;
 	char *transaction_date_time;
-	TRANSACTION *transaction;
+	TRANSACTION *depreciation_transaction;
 	ENTITY *self_entity;
 } DEPRECIATION;
 
@@ -81,63 +88,69 @@ double depreciation_amount_total(
 			LIST *depreciation_list );
 
 double depreciation_amount(
-			char *depreciation_method,
-			double equipment_cost,
+			enum depreciation_method,
+			char *service_placement_date,
+			char *prior_depreciation_date,
+			char *depreciation_date,
+			double cost_basis,
 			int estimated_residual_value,
 			int estimated_useful_life_years,
 			int estimated_useful_life_units,
 			int declining_balance_n,
-			char *prior_depreciation_date,
-			char *depreciation_date,
-			double finance_accumulated_depreciation,
-			char *service_placement_date,
-			int units_produced );
+			int units_produced,
+			double prior_accumulated_depreciation );
 
 double depreciation_sum_of_years_digits(
-			double equipment_cost,
-			int estimated_residual_value,
-			int estimated_useful_life_years,
+			char *service_placement_date,
 			char *prior_depreciation_date,
 			char *depreciation_date,
-			double finance_accumulated_depreciation,
-			char *service_placement_date );
+			double cost_basis,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			double prior_accumulated_depreciation );
 
 double depreciation_straight_line(
-			double equipment_cost,
-			int estimated_residual_value,
-			int estimated_useful_life_years,
+			char *service_placement_date,
 			char *prior_depreciation_date,
 			char *depreciation_date,
-			double finance_accumulated_depreciation );
+			double cost_basis,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			double prior_accumulated_depreciation );
 
 double depreciation_double_declining_balance(
-			double equipment_cost,
-			int estimated_residual_value,
-			int estimated_useful_life_years,
+			char *service_placement_date,
 			char *prior_depreciation_date,
 			char *depreciation_date,
-			double finance_accumulated_depreciation );
+			double cost_basis,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			double prior_accumulated_depreciation );
 
 double depreciation_n_declining_balance(
-			double equipment_cost,
-			int estimated_residual_value,
-			int estimated_useful_life_years,
+			char *service_placement_date,
 			char *prior_depreciation_date,
 			char *depreciation_date,
-			double finance_accumulated_depreciation,
-			int n );
+			double cost_basis,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			int declining_balance_n,
+			double prior_accumulated_depreciation );
 
 double depreciation_units_of_production(
-			double equipment_cost,
+			double cost_basis,
 			int estimated_residual_value,
 			int estimated_useful_life_units,
 			int units_produced,
-			double finance_accumulated_depreciation );
+			double prior_accumulated_depreciation );
 
 double depreciation_fraction_of_year(
+			char *service_placement_date,
 			char *prior_depreciation_date,
-			char *depreciation_date );
+			char *depreciation_date_string );
 
+/* Returns static memory */
+/* --------------------- */
 char *depreciation_primary_where(
 			char *asset_name,
 			char *serial_label,
@@ -146,9 +159,6 @@ char *depreciation_primary_where(
 LIST *depreciation_list_fetch(
 			char *asset_name,
 			char *serial_label );
-
-FILE *depreciation_update_pipe_open(
-			void );
 
 double depreciation_accumulated_depreciation(
 			double prior_accumulated_depreciation,
@@ -172,14 +182,11 @@ void depreciation_insert(
 			FILE *insert_pipe,
 			char *asset_name,
 			char *serial_label,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
 			char *depreciation_date,
 			double depreciation_amount,
 			char *transaction_date_time );
 
-char *depreciation_prior_period_date(
+char *depreciation_prior_depreciation_date(
 			char *asset_name,
 			char *serial_label );
 
@@ -190,14 +197,25 @@ DEPRECIATION *depreciation_seek(
 FILE *depreciation_delete_open(
 			void );
 
-char *depreciation_max_date(
-			char *asset_name,
-			char *serial_label );
-
 char *depreciation_method_string(
 	 		enum depreciation_method depreciation_method );
 
 enum depreciation_method depreciation_method_resolve(
 			char *depreciation_method_string );
+
+DEPRECIATION *depreciation_evaluate(
+			char *asset_name,
+			char *serial_label,
+			enum depreciation_method depreciation_method,
+			char *service_placement_date,
+			char *prior_depreciation_date,
+			char *depreciation_date,
+			double cost_basis,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			int estimated_useful_life_units,
+			int declining_balance_n,
+			int units_produced,
+			double prior_accumulated_depreciation );
 
 #endif
