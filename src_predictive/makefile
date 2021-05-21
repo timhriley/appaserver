@@ -129,7 +129,9 @@ SOURCE_LIBRARY= 							\
 		account.o						\
 		element.o						\
 		journal.o						\
-		statement.o
+		statement.o						\
+		supply.o						\
+		supply_purchase.o
 
 SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\
@@ -916,4 +918,12 @@ spreadsheet_upload_event.o:						\
 		spreadsheet_upload_event.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c spreadsheet_upload_event.c
+
+supply_purchase.o: supply_purchase.c supply_purchase.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c supply_purchase.c
+
+supply.o: supply.c supply.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c supply.c
 

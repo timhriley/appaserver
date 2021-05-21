@@ -36,20 +36,34 @@
 /* ---------- */
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	ENTITY *vendor_entity;
 	char *purchase_date_time;
 	double sales_tax;
 	double freight_in;
+	char *title_passage_rule_string;
+	char *shipped_date;
 	char *arrived_date_time;
-	TRANSACTION *purchase_transaction;
-	double purchase_equipment_total;
+
+	/* Process */
+	/* ------- */
+	LIST *fixed_asset_purchase_list;
+	LIST *inventory_purchase_list;
+	LIST *specific_inventory_purchase_list;
+	LIST *supply_purchase_list;
+	LIST *prepaid_asset_purchase_list;
+	LIST *vendor_payment_list;
+	double fixed_asset_total;
+	double inventory_total;
+	double specific_inventory_total;
+	double supply_total;
+	double prepaid_asset_total;
 	double purchase_invoice_amount;
-	double purchase_vendor_payment_total;
+	double vendor_payment_total;
 	double purchase_amount_due;
-	char *purchase_asset_account_name;
-	LIST *purchase_vendor_payment_list;
-	LIST *purchase_equipment_list;
-	double liability_payment_amount;
+	char *transaction_date_time;
+	TRANSACTION *purchase_transaction;
 	char *program_name;
 	char *property_street_address;
 } PURCHASE;
@@ -160,5 +174,26 @@ LIST *purchase_amount_due_purchase_list(
 
 FILE *purchase_update_open(
 			void );
+
+PURCHASE *purchase_steady_state(
+			double sales_tax,
+			double freight_in,
+			LIST *fixed_asset_purchase_list,
+			LIST *inventory_purchase_list,
+			LIST *specific_inventory_purchase_list,
+			LIST *supply_purchase_list,
+			LIST *prepaid_asset_purchase_list,
+			LIST *vendor_payment_list,
+			PURCHASE *purchase );
+
+double purchase_cost_basis(
+			double purchase_cost,
+			double sales_tax,
+			double freight_in,
+			double fixed_asset_purchase_total,
+			double inventory_purchase_total,
+			double specific_inventory_purchase_total,
+			double supply_purchase_total,
+			double prepaid_asset_purchase_total );
 
 #endif

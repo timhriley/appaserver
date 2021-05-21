@@ -10,6 +10,7 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "entity.h"
 #include "fixed_asset.h"
 #include "tax_recovery.h"
 #include "depreciation.h"
@@ -23,11 +24,12 @@
 
 /* Structures */
 /* ---------- */
-
 typedef struct
 {
 	/* Attributes */
 	/* ---------- */
+	FIXED_ASSET *fixed_asset;
+	ENTITY *vendor_entity;
 	char *purchase_date_time;
 	char *service_placement_date;
 	double fixed_asset_cost;
@@ -35,19 +37,17 @@ typedef struct
 	int estimated_useful_life_units;
 	int estimated_residual_value;
 	int declining_balance_n;
-	char *depreciation_method_string;
-	char *tax_recovery_period;
+	enum depreciation_method depreciation_method;
 	char *disposal_date;
 
 	/* Process */
 	/* ------- */
-	FIXED_ASSET *fixed_asset;
-	double fixed_asset_purchase_cost_basis;
+	double cost_basis;
 	double fixed_asset_purchase_list_total;
-	enum depreciation_method depreciation_method;
 	double finance_accumulated_depreciation;
 	double tax_accumulated_depreciation;
 	TAX_RECOVERY *tax_recovery;
+	LIST *depreciation_list;
 	DEPRECIATION *depreciation;
 } FIXED_ASSET_PURCHASE;
 
@@ -55,12 +55,14 @@ typedef struct
 /* ---------- */
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 			char *asset_name,
-			char *serial_label );
+			char *serial_label,
+			boolean fetch_depreciation_list );
 
 LIST *fixed_asset_purchase_list_fetch(
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time );
+			char *purchase_date_time,
+			boolean fetch_depreciation_list );
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 			char *asset_name,
@@ -71,16 +73,19 @@ char *fixed_asset_purchase_primary_where(
 			char *serial_label );
 
 char *fixed_asset_purchase_system_string(
-			char *where );
+			char *where,
+			char *order );
 
 LIST *fixed_asset_purchase_system_list(
-			char *system_string );
+			char *system_string,
+			boolean fetch_depreciation_list );
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
-			char *input );
+			char *input,
+			boolean fetch_depreciation_list );
 
-double fixed_asset_purchase_list_total(
-			LIST *fixed_asset_purchase_list )
+double fixed_asset_purchase_total(
+			LIST *fixed_asset_purchase_list );
 
 double fixed_asset_purchase_cost_basis(
 			double fixed_asset_cost,
@@ -92,15 +97,11 @@ FILE *fixed_asset_purchase_update_open(
 			void );
 
 void fixed_asset_purchase_update(
-			FILE *update_pipe,
-			double fixed_asset_purchase_cost_basis,
+			double cost_basis,
 			double finance_accumulated_depreciation,
 			double tax_accumulated_depreciation,
 			char *asset_name,
-			char *serial_label,
-			char *full_name,
-			char *street_address,
-			char *service_placement_date );
+			char *serial_label );
 
  /* --------------------- */
  /* Returns static memory */
@@ -117,9 +118,6 @@ char *fixed_asset_purchase_primary_where(
 double fixed_asset_purchase_total(
 			LIST *fixed_asset_purchase_list );
 
-LIST *fixed_asset_system_list(
-			char *system_string );
-
 DEPRECIATION *fixed_asset_purchase_depreciation(
 			FIXED_ASSET_PURCHASE *fixed_asset_purchase,
 			char *depreciation_date,
@@ -130,12 +128,8 @@ DEPRECIATION *fixed_asset_purchase_depreciation(
 			char *transaction_date_time,
 			int units_produced );
 
-LIST *fixed_asset_purchase_list_depreciate(
-			LIST *fixed_asset_purchase_list,
-			char *depreciation_date );
-
 /* -------------------------------------------- */
-/* Returns fixed_asset_purchase_list with		*/
+/* Returns fixed_asset_purchase_list with	*/
 /* fixed_asset_purchase->depreciation_list set.	*/
 /* -------------------------------------------- */
 LIST *fixed_asset_purchase_list_depreciate(
@@ -145,11 +139,6 @@ LIST *fixed_asset_purchase_list_depreciate(
 
 void fixed_asset_purchase_depreciation_table(
 			LIST *fixed_asset_purchase_list );
-
-char *fixed_asset_purchase_sys_string(
-			char *asset_folder_name,
-			char *where,
-			char *order );
 
 #endif
 

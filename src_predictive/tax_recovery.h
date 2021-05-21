@@ -34,52 +34,53 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-TAX_RECOVERY *tax_recovery_new(	char *service_placement_date,
-				double tax_cost_basis,
-				char *tax_recovery_period,
-				char *disposal_date,
-				int tax_year );
+TAX_RECOVERY *tax_recovery_new(
+			char *service_placement_date,
+			double tax_cost_basis,
+			char *tax_recovery_period,
+			char *disposal_date,
+			int tax_year );
 
 double tax_recovery_calculate_recovery_amount(
-				double *recovery_percent,
-				double cost_basis,
-				char *service_placement_date_string,
-				char *sale_date_string,
-				double recovery_period_years,
-				int tax_year );
+			double *recovery_percent,
+			double cost_basis,
+			char *service_placement_date_string,
+			char *sale_date_string,
+			double recovery_period_years,
+			int tax_year );
 
 boolean tax_recovery_parse(
-				int *service_month,
-				int *service_year,
-				int *disposal_month,
-				int *disposal_year,
-				char *service_placement_date_string,
-				char *disposal_date_string );
+			int *service_month,
+			int *service_year,
+			int *disposal_month,
+			int *disposal_year,
+			char *service_placement_date_string,
+			char *disposal_date_string );
 
 int tax_recovery_fetch_max_tax_year(
-				char *application_name,
-				char *folder_name );
+			char *application_name,
+			char *folder_name );
 
 void tax_recovery_fixed_asset_list_set(
-				LIST *fixed_asset_list,
-				int tax_year );
+			LIST *fixed_asset_list,
+			int tax_year );
 
 void tax_recovery_depreciation_fund_list_set(
-				LIST *depreciation_fund_list,
-				int tax_year );
+			LIST *depreciation_fund_list,
+			int tax_year );
 
 boolean tax_recovery_fixed_assets_insert(
-				LIST *deprecation_fund_list );
+			LIST *deprecation_fund_list );
 
 void tax_recovery_fixed_asset_list_insert(
-				char *folder_name,
-				LIST *fixed_asset_list );
+			char *folder_name,
+			LIST *fixed_asset_list );
 
 void tax_recovery_fixed_assets_display(
-				LIST *depreciation_fund_list );
+			LIST *depreciation_fund_list );
 
 void tax_recovery_fixed_asset_list_display(
-				FILE *output_pipe,
-				LIST *fixed_asset_list );
+			FILE *output_pipe,
+			LIST *fixed_asset_list );
 
 #endif

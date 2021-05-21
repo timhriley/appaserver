@@ -18,6 +18,8 @@
 #include "predictive.h"
 #include "transaction.h"
 #include "entity.h"
+#include "fixed_asset.h"
+#include "purchase.h"
 #include "depreciation.h"
 
 double depreciation_amount(
@@ -348,10 +350,7 @@ double depreciation_double_declining_balance(
 
 DEPRECIATION *depreciation_new(
 			char *asset_name,
-			char *serial_number,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
+			char *serial_label,
 			char *depreciation_date )
 {
 	DEPRECIATION *depreciation;
@@ -367,14 +366,7 @@ DEPRECIATION *depreciation_new(
 	}
 
 	depreciation->asset_name = asset_name;
-	depreciation->serial_number = serial_number;
-
-	depreciation->vendor_entity =
-		entity_new(
-			full_name,
-			street_address );
-
-	depreciation->purchase_date_time = purchase_date_time;
+	depreciation->serial_label = serial_label;
 	depreciation->depreciation_date = depreciation_date;
 
 	return depreciation;
@@ -383,7 +375,7 @@ DEPRECIATION *depreciation_new(
 char *depreciation_select( void )
 {
 	return	"asset_name,"
-		"serial_number,"
+		"serial_label,"
 		"full_name,"
 		"street_address,"
 		"purchase_date_time,"
@@ -396,52 +388,41 @@ char *depreciation_select( void )
 DEPRECIATION *depreciation_parse( char *input )
 {
 	char asset_name[ 128 ];
-	char serial_number[ 128 ];
+	char serial_label[ 128 ];
+	char depreciation_date[ 128 ];
 	char full_name[ 128 ];
 	char street_address[ 128 ];
-	char purchase_date_time[ 128 ];
-	char depreciation_date_time[ 128 ];
 	char piece_buffer[ 1024 ];
 	DEPRECIATION *depreciation;
 
 	if ( !input ) return (DEPRECIATION *)0;
 
 	piece( asset_name, SQL_DELIMITER, input, 0 );
-	piece( street_address, SQL_DELIMITER, input, 1 );
-	piece( full_name, SQL_DELIMITER, input, 2 );
-	piece( street_address, SQL_DELIMITER, input, 3 );
-	piece( purchase_date_time, SQL_DELIMITER, input, 4 );
-	piece( depreciation_date_time, SQL_DELIMITER, input, 5 );
+	piece( serial_label, SQL_DELIMITER, input, 1 );
+	piece( depreciation_date, SQL_DELIMITER, input, 2 );
 
 	depreciation =
 		depreciation_new(
 			strdup( asset_name ),
-			strdup( serial_number ),
-			strdup( full_name ),
-			strdup( street_address ),
-			strdup( purchase_date_time ),
-			strdup( depreciation_date_time ) );
+			strdup( serial_label ),
+			strdup( depreciation_date ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 6 );
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
+	depreciation->units_produced = atoi( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	depreciation->depreciation_amount = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 7 );
-	depreciation->depreciation_accumulated_depreciation =
-		atof( piece_buffer );
+	piece( full_name, SQL_DELIMITER, input, 5 );
+	piece( street_address, SQL_DELIMITER, input, 6 );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 8 );
-	if ( *piece_buffer )
-	{
-		depreciation->depreciation_transaction =
-			transaction_fetch(
-				depreciation->
-					vendor_entity->
-					full_name,
-				depreciation->
-					vendor_entity->
-					street_address,
-				piece_buffer /* transaction_date_time */ );
-	}
+	depreciation->self_entity =
+		entity_new(
+			strdup( full_name ),
+			strdup( street_address ) );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 7 );
+	depreciation->transaction_date_time = strdup( piece_buffer );
 
 	return depreciation;
 }
@@ -449,17 +430,20 @@ DEPRECIATION *depreciation_parse( char *input )
 char *depreciation_primary_where(
 			char *asset_name,
 			char *serial_number,
-			char *depreciation_date_string )
+			char *depreciation_date )
 {
 	char where[ 1024 ];
 
-	sprintf( where,
-		 "asset_name = '%s' and		"
-		 "serial_number = '%s' and	"
-		 "depreciation_date = '%s'	",
-		 asset_name,
-		 serial_number,
-		 depreciation_date_string );
+	sprintf(where,
+		"asset_name = '%s' and		"
+		"serial_number = '%s' and	"
+		"depreciation_date = '%s'	",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		fixed_asset_name_escape( asset_name ),
+		serial_number,
+		depreciation_date );
 
 	return strdup( where );
 }
@@ -537,59 +521,34 @@ char *depreciation_sys_string(
 }
 
 LIST *depreciation_list_fetch(
-			char *depreciate_folder_name,
-			char *where )
-{
-	if ( !where ) return (LIST *)0;
-
-	return depreciation_system_list(
-			depreciation_sys_string(
-				depreciate_folder_name,
-				where ) );
-}
-
-LIST *depreciation_list(
 			char *asset_name,
-			char *serial_number,
-			char *depreciate_folder_name )
+			char *serial_label )
 {
-	if ( !asset_name
-	||   !serial_number )
-	{
-		return (LIST *)0;
-	}
-
-	return depreciation_fetch_list(
-		depreciate_folder_name,
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		equipment_purchase_primary_where(
-			asset_name,
-			serial_number ) );
+	return depreciation_system_list(
+			depreciation_system_string(
+				purchase_primary_where(
+					asset_name,
+					serial_label ) ) );
 }
 
 FILE *depreciation_delete_open( void )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 	char *key;
 
 	key =	"asset_name,"
 		"serial_number,"
-		"full_name,"
-		"street_address,"
-		"purchase_date_time,"
 		"depreciation_date";
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "delete_statement table=%s field=%s delimiter='%c'	|"
 		 "tee_appaserver_error.sh				|"
 		 "sql							 ",
-		 DEPRECIATION_TABLE_NAME,
+		 DEPRECIATION_TABLE,
 		 key,
 		 '^' );
 
-	return popen( sys_string, "w" );
+	return popen( system_string, "w" );
 }
 
 double depreciation_amount_total(
@@ -609,18 +568,6 @@ double depreciation_amount_total(
 	} while ( list_next( depreciation_list ) );
 
 	return total;
-}
-
-LIST *depreciation_fetch_list(
-			char *depreciate_folder_name,
-			char *where )
-{
-	if ( !where ) return (LIST *)0;
-
-	return depreciation_system_list(
-			depreciation_sys_string(
-				depreciate_folder_name,
-				where ) );
 }
 
 double depreciation_accumulated_depreciation(
@@ -802,15 +749,22 @@ void depreciation_list_insert(
 char *depreciation_prior_period_date(
 			char *asset_name,
 			char *serial_number )
+{
+}
 
-char *depreciation_max_date( void )
+char *depreciation_max_date(
+			char *asset_name,
+			char *serial_label )
 {
 	char sys_string[ 1024 ];
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s;\" | sql",
-		 "max( depreciation_date )",
-		 "depreciation" );
+	sprintf(sys_string,
+		"echo \"select %s from %s where %s;\" | sql",
+		"max( depreciation_date )",
+		DEPRECIATION_TABLE,
+		depreciation_primary_where(
+			asset_name,
+			serial_label );
 
 	return pipe2string( sys_string );
 }
@@ -838,3 +792,73 @@ DEPRECIATION *depreciation_seek(
 
 	return (DEPRECIATION *)0;
 }
+
+char *depreciation_method_string(
+	 		enum depreciation_method depreciation_method )
+{
+	if ( depreciation_method == straight_line )
+		return STRAIGHT_LINE;
+	else
+	if ( depreciation_method == double_declining_balance )
+		return DOUBLE_DECLINING_BALANCE;
+	else
+	if ( depreciation_method == n_declining_balance )
+		return N_DECLINING_BALANCE;
+	else
+	if ( depreciation_method == sum_of_years_digits )
+		return SUM_OF_YEARS_DIGITS;
+	else
+	if ( depreciation_method == units_of_production )
+		return UNITS_OF_PRODUCTION;
+	else
+		return NOT_DEPRECIATED;
+}
+
+enum depreciation_method depreciation_method_resolve(
+			char *depreciation_method_string )
+{
+	if ( !depreciation_method_string )
+	{
+		return not_depreciated;
+	}
+	else
+	if ( timlib_strcmp(
+			depreciation_method_string,
+			DOUBLE_DECLINING_BALANCE ) == 0 )
+	{
+		return double_declining_balance;
+	}
+	else
+	if ( timlib_strcmp(
+			depreciation_method_string,
+			N_DECLINING_BALANCE ) == 0 )
+	{
+		return n_declining_balance;
+	}
+	else
+	if ( timlib_strcmp(
+			depreciation_method_string,
+			STRAIGHT_LINE ) == 0 )
+	{
+		return straight_line;
+	}
+	else
+	if ( timlib_strcmp(
+			depreciation_method_string,
+			SUM_OF_YEARS_DIGITS ) == 0 )
+	{
+		return sum_of_years_digits;
+	}
+	else
+	if ( timlib_strcmp(
+			depreciation_method_string,
+			UNITS_OF_PRODUCTION ) == 0 )
+	{
+		return units_of_production;
+	}
+	else
+	{
+		return not_depreciated;
+	}
+}
+

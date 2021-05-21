@@ -15,7 +15,6 @@
 #include "sql.h"
 #include "list.h"
 #include "environ.h"
-#include "transaction.h"
 #include "predictive.h"
 
 /* Returns heap memory */
@@ -113,5 +112,47 @@ boolean predictive_fund_exists( void )
 	 	environment_application() );
 
 	return ( system( sys_string ) == 0 );
+}
+
+char *predictive_title_passage_rule_string(
+				enum title_passage_rule title_passage_rule )
+{
+	if ( title_passage_rule == title_passage_rule_null )
+		return TITLE_PASSAGE_RULE_NULL;
+	else
+	if ( title_passage_rule == FOB_shipping )
+		return TITLE_PASSAGE_RULE_SHIPPED_DATE;
+	else
+	if ( title_passage_rule == FOB_destination )
+		return TITLE_PASSAGE_RULE_ARRIVED_DATE;
+	else
+		return TITLE_PASSAGE_RULE_NULL;
+}
+
+enum title_passage_rule predictive_title_passage_rule_resolve(
+				char *title_passage_rule_string )
+{
+	if ( !title_passage_rule_string )
+	{
+		return title_passage_rule_null;
+	}
+	else
+	if ( timlib_strcmp(
+			title_passage_rule_string,
+			TITLE_PASSAGE_RULE_SHIPPED_DATE ) == 0 )
+	{
+		return FOB_shipping;
+	}
+	else
+	if ( timlib_strcmp(
+			title_passage_rule_string,
+			TITLE_PASSAGE_RULE_ARRIVED_DATE ) == 0 )
+	{
+		return FOB_destination;
+	}
+	else
+	{
+		return title_passage_rule_null;
+	}
 }
 

@@ -23,7 +23,7 @@
 typedef struct
 {
 	char *asset_name;
-	char *serial_number;
+	char *serial_label;
 	char *account_name;
 	double activity_energy_kilowatt_draw;
 	double activity_depreciation_per_hour;
@@ -33,20 +33,20 @@ typedef struct
 /* ---------- */
 FIXED_ASSET *fixed_asset_new(
 			char *asset_name,
-			char *serial_number );
+			char *serial_label );
 
 FIXED_ASSET *fixed_asset_parse(
 			char *input );
 
 FIXED_ASSET *fixed_asset_fetch(
 			char *asset_name,
-			char *serial_number );
+			char *serial_label );
 
 /* Returns static memory */
 /* --------------------- */
 char *fixed_asset_primary_where(
 			char *asset_name,
-			char *serial_number );
+			char *serial_label );
 
 /* Returns static memory */
 /* --------------------- */

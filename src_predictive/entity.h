@@ -9,14 +9,9 @@
 #define ENTITY_H
 
 #include "boolean.h"
-#include "transaction.h"
 
 /* Enumerated types */
 /* ---------------- */
-enum title_passage_rule{	title_passage_rule_null,
-				FOB_shipping,
-				FOB_destination };
-
 enum payroll_pay_period{	pay_period_not_set,
 				pay_period_weekly,
 				pay_period_biweekly,
@@ -33,9 +28,6 @@ enum payroll_pay_period{	pay_period_not_set,
 
 /* #define REFRESH_COMPLETELY	1 */
 
-#define TITLE_PASSAGE_RULE_SHIPPED_DATE "FOB_shipping"
-#define TITLE_PASSAGE_RULE_ARRIVED_DATE "FOB_destination"
-#define TITLE_PASSAGE_RULE_NULL		""
 #define ENTITY_STREET_ADDRESS_UNKNOWN	"unknown"
 
 /* Structures */
@@ -67,13 +59,6 @@ ENTITY *entity_calloc(			void );
 
 ENTITY *entity_new(			char *full_name,
 					char *street_address );
-
-enum title_passage_rule
-	entity_get_title_passage_rule_resolve(
-			char *title_passage_rule_string );
-
-char *entity_get_title_passage_rule_string(
-			enum title_passage_rule title_passage_rule );
 
 ENTITY *entity_sales_tax_payable_entity(
 			void );

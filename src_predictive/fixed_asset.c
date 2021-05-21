@@ -18,7 +18,7 @@
 
 FIXED_ASSET *fixed_asset_new(
 			char *asset_name,
-			char *serial_number )
+			char *serial_label )
 {
 	FIXED_ASSET *fixed_asset;
 
@@ -34,7 +34,7 @@ FIXED_ASSET *fixed_asset_new(
 	}
 
 	fixed_asset->asset_name = asset_name;
-	fixed_asset->serial_number = serial_number;
+	fixed_asset->serial_label = serial_label;
 
 	return fixed_asset;
 }
@@ -43,8 +43,8 @@ FIXED_ASSET *fixed_asset_parse(
 			char *input )
 {
 	char asset_name[ 128 ];
-	char serial_number[ 128 ];
-	char piece_buffer[ 1024 ];
+	char serial_label[ 128 ];
+	char piece_buffer[ 128 ];
 	FIXED_ASSET *fixed_asset;
 
 	if ( !input ) return (FIXED_ASSET *)0;
@@ -52,12 +52,12 @@ FIXED_ASSET *fixed_asset_parse(
 	/* See attribute_list fixed_asset */
 	/* ------------------------------ */
 	piece( asset_name, SQL_DELIMITER, input, 0 );
-	piece( serial_number, SQL_DELIMITER, input, 1 );
+	piece( serial_label, SQL_DELIMITER, input, 1 );
 
 	fixed_asset =
 		fixed_asset_new(
 			strdup( asset_name ),
-			strdup( serial_number ) );
+			strdup( serial_label ) );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
 	fixed_asset->account_name = strdup( piece_buffer );
@@ -73,31 +73,31 @@ FIXED_ASSET *fixed_asset_parse(
 
 FIXED_ASSET *fixed_asset_fetch(
 			char *asset_name,
-			char *serial_number )
+			char *serial_label )
 {
 	return fixed_asset_parse(
 		pipe2string(
 			fixed_asset_system_string(
 				fixed_asset_primary_where(
 					asset_name,
-					serial_number ) ) ) );
+					serial_label ) ) ) );
 }
 
 char *fixed_asset_primary_where(
 			char *asset_name,
-			char *serial_number )
+			char *serial_label )
 {
 	static char where[ 256 ];
 
 	sprintf(where,
 		"asset_name = '%s' and "
-		"serial_number = '%s",
+		"serial_label = '%s",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		fixed_asset_name_escape(
 			asset_name ),
-		serial_number );
+		serial_label );
 
 	return where;
 }
@@ -118,10 +118,10 @@ char *fixed_asset_system_string(
 char *fixed_asset_name_escape(
 			char *asset_name )
 {
-	static char asset_name_escape[ 128 ];
+	static char escape[ 128 ];
 
 	return string_escape_quote(
-		asset_name_escape,
+		escape,
 		asset_name );
 }
 

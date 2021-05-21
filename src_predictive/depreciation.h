@@ -9,14 +9,21 @@
 #define DEPRECIATION_H
 
 #include "entity.h"
+#include "transaction.h"
 
 /* Enumerated types */
 /* ---------------- */
 
 /* Constants */
 /* --------- */
-#define DEPRECIATION_TABLE	"depreciation"
-#define DEPRECIATION_MEMO	"Depreciation"
+#define DEPRECIATION_TABLE		"depreciation"
+#define DEPRECIATION_MEMO		"Depreciation"
+#define STRAIGHT_LINE			"straight_line"
+#define DOUBLE_DECLINING_BALANCE	"double_declining_balance"
+#define N_DECLINING_BALANCE		"n_declining_balance"
+#define SUM_OF_YEARS_DIGITS		"sum_of_years_digits"
+#define UNITS_OF_PRODUCTION		"units_of_production"
+#define NOT_DEPRECIATED			"not_depreciated"
 
 /* Enumerated types */
 /* ---------------- */
@@ -32,7 +39,7 @@ enum depreciation_method {	straignt_line,
 typedef struct
 {
 	char *asset_name;
-	char *serial_number;
+	char *serial_label;
 	char *depreciation_date;
 	char *depreciation_prior_period_date;
 	double fixed_asset_cost;
@@ -46,14 +53,14 @@ typedef struct
 	double depreciation_amount;
 	char *transaction_date_time;
 	TRANSACTION *transaction;
-	ENTITY *vendor_entity;
+	ENTITY *self_entity;
 } DEPRECIATION;
 
 /* Operations */
 /* ---------- */
 DEPRECIATION *depreciation_new(
 			char *asset_name,
-			char *serial_number,
+			char *serial_label,
 			char *depreciation_date );
 
 DEPRECIATION *depreciation_parse(
@@ -61,22 +68,14 @@ DEPRECIATION *depreciation_parse(
 
 DEPRECIATION *depreciation_fetch(
 			char *asset_name,
-			char *serial_number,
-			char *depreciation_date,
-			char *depreciation_folder_name );
+			char *serial_label,
+			char *depreciation_date );
 
-/* Returns program memory */
-/* ---------------------- */
-char *depreciation_select(
-			void );
-
-LIST *depreciation_list_fetch(
+char *depreciation_system_string(
 			char *where );
 
-LIST *depreciation_list(
-			char *asset_name,
-			char *serial_number,
-			char *depreciate_folder_name )
+LIST *depreciation_system_list(
+			char *system_string );
 
 double depreciation_amount_total(
 			LIST *depreciation_list );
@@ -139,20 +138,14 @@ double depreciation_fraction_of_year(
 			char *prior_depreciation_date,
 			char *depreciation_date );
 
-char *depreciation_sys_string(
-			char *depreciate_folder_name,
-			char *where );
-
-LIST *depreciation_system_list(
-			char *sys_string );
-
 char *depreciation_primary_where(
 			char *asset_name,
-			char *serial_number,
-			char *depreciation_date_string );
+			char *serial_label,
+			char *depreciation_date );
 
-LIST *depreciation_fetch_list(
-			char *where );
+LIST *depreciation_list_fetch(
+			char *asset_name,
+			char *serial_label );
 
 FILE *depreciation_update_pipe_open(
 			void );
@@ -178,7 +171,7 @@ void depreciation_list_insert(
 void depreciation_insert(
 			FILE *insert_pipe,
 			char *asset_name,
-			char *serial_number,
+			char *serial_label,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
@@ -188,7 +181,7 @@ void depreciation_insert(
 
 char *depreciation_prior_period_date(
 			char *asset_name,
-			char *serial_number );
+			char *serial_label );
 
 DEPRECIATION *depreciation_seek(
 			LIST *depreciation_list,
@@ -196,5 +189,15 @@ DEPRECIATION *depreciation_seek(
 
 FILE *depreciation_delete_open(
 			void );
+
+char *depreciation_max_date(
+			char *asset_name,
+			char *serial_label );
+
+char *depreciation_method_string(
+	 		enum depreciation_method depreciation_method );
+
+enum depreciation_method depreciation_method_resolve(
+			char *depreciation_method_string );
 
 #endif
