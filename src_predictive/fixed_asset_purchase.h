@@ -48,7 +48,6 @@ typedef struct
 	double finance_accumulated_depreciation;
 	double tax_accumulated_depreciation;
 	TAX_RECOVERY *tax_recovery;
-	LIST *depreciation_list;
 	DEPRECIATION *depreciation;
 } FIXED_ASSET_PURCHASE;
 
@@ -60,9 +59,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 			boolean fetch_depreciation_list );
 
 LIST *fixed_asset_purchase_list_fetch(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
+			char *where,
 			boolean fetch_depreciation_list );
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
@@ -127,7 +124,11 @@ LIST *fixed_asset_purchase_list_depreciate(
 			LIST *fixed_asset_purchase_list,
 			char *depreciation_date );
 
-void fixed_asset_purchase_depreciation_table(
+LIST *fixed_asset_purchase_depreciation_list(
+			LIST *fixed_asset_purchase_list );
+
+void fixed_asset_purchase_depreciation_display(
+			char *process_name,
 			LIST *fixed_asset_purchase_list );
 
 #endif

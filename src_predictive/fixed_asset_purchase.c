@@ -51,7 +51,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 			char *input,
-			boolean fetch_depreciation_list )
+			boolean fetch_last_depreciation )
 {
 	char asset_name[ 128 ];
 	char serial_label[ 128 ];
@@ -123,18 +123,24 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 	fixed_asset_purchase->tax_accumulated_depreciation =
 		atof( piece_buffer );
 
-	if ( fetch_depreciation_list )
+	if ( fetch_last_depreciation )
 	{
-		fixed_asset_purchase->depreciation_list =
-			depreciation_list_fetch(
+		fixed_asset_purchase->depreciation =
+			depreciation_fetch(
 				fixed_asset_purchase->
 					fixed_asset->
 					asset_name,
 				fixed_asset_purchase->
 					fixed_asset->
-					serial_label );
+					serial_label,
+				depreciation_prior_depreciation_date(
+					fixed_asset_purchase->
+						fixed_asset->
+						asset_name,
+					fixed_asset_purchase->
+						fixed_asset->
+						serial_label ) );
 	}
-
 	return fixed_asset_purchase;
 }
 
@@ -154,25 +160,19 @@ char *fixed_asset_purchase_system_string(
 }
 
 LIST *fixed_asset_purchase_list_fetch(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			boolean fetch_depreciation_list )
+			char *where,
+			boolean fetch_last_depreciation )
 {
 	return fixed_asset_purchase_system_list(
-		fixed_asset_purchase_system_string(
-			purchase_primary_where(
-				full_name,
-				street_address,
-				purchase_date_time ),
-			"service_placement_date"
-				/* order */ ),
-		fetch_depreciation_list );
+			fixed_asset_purchase_system_string(
+				where,
+				"service_placement_date" /* order */ ),
+		fetch_last_depreciation );
 }
 
 LIST *fixed_asset_purchase_system_list(
 			char *system_string,
-			boolean fetch_depreciation_list )
+			boolean fetch_last_depreciation )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -186,7 +186,7 @@ LIST *fixed_asset_purchase_system_list(
 			list,
 			fixed_asset_purchase_parse(
 				input,
-				fetch_depreciation_list ) );
+				fetch_last_depreciation ) );
 	}
 	pclose( input_pipe );
 	return list;
@@ -242,7 +242,7 @@ void fixed_asset_purchase_update(
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 			char *asset_name,
 			char *serial_label,
-			boolean fetch_depreciation_list )
+			boolean fetch_last_depreciation )
 {
 	return fixed_asset_purchase_parse(
 		string_pipe_fetch(
@@ -251,7 +251,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 					asset_name,
 					serial_label ),
 				(char *)0 /* order */ ) ),
-		fetch_depreciation_list );
+		fetch_last_depreciation );
 }
 
 char *fixed_asset_purchase_primary_where(
@@ -443,6 +443,65 @@ void fixed_asset_purchase_depreciation_table(
 				depreciation_amount );
 
 	} while( list_next( fixed_asset_purchase_list ) );
+	pclose( output_pipe );
+}
+
+LIST *fixed_asset_purchae_depreciation_list(
+			LIST *fixed_asset_purchase_list )
+{
+	LIST *depreciation_list;
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
+
+	if ( !list_rewind( fixed_asset_purchase_list ) ) return (LIST *)0;
+
+	depreciation_list = list_new();
+
+	do {
+		fixed_asset_purchase = list_get( fixed_asset_purchase_list );
+
+		list_set(
+			depreciation_list,
+			fixed_asset_purchase->depreciation );
+
+	} while ( list_next( fixed_asset_purchase_list ) );
+
+	return depreciation_list;
+}
+
+void fixed_asset_purchase_depreciation_display(
+			char *process_name,
+			LIST *fixed_asset_purchase_list )
+{
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
+	FILE *output_pipe;
+	char sys_string[ 1024 ];
+	char *heading;
+	char *justification;
+	char buffer[ 128 ];
+
+	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
+
+	heading =
+"Asset,Serial,Service,Cost,Prior Accumulated,Depreciation,Post Accumulated";
+
+	justification = "left,left,left,right";
+
+	sprintf( sys_string,
+		 "html_table.e '%s' '%s' '^' '%s'",
+		 format_initial_capital( buffer, process_name ),
+		 heading,
+		 justification );
+
+	fflush( stdout );
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		fixed_asset_purchase =
+			list_get(
+				fixed_asset_purchase_list );
+
+	} while( list_next( fixed_asset_purchase_list ) );
+
 	pclose( output_pipe );
 }
 

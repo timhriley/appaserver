@@ -689,17 +689,28 @@ char *depreciation_prior_depreciation_date(
 			char *serial_label )
 {
 	char sys_string[ 1024 ];
+	char *where;
+
+	if ( asset_name && serial_label )
+	{
+		where = 
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			fixed_asset_primary_where(
+				asset_name,
+				serial_label );
+	}
+	else
+	{
+		where = "1 = 1";
+	}
 
 	sprintf(sys_string,
 		"select.sh \"%s\" %s \"%s\" ''",
 		"max( depreciation_date )",
 		DEPRECIATION_TABLE,
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		fixed_asset_primary_where(
-			asset_name,
-			serial_label ) );
+		where );
 
 	return pipe2string( sys_string );
 }
