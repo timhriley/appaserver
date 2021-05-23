@@ -123,8 +123,8 @@ LIST *depreciate_fetch_fixed_asset_purchase_list(
 			char *depreciate_folder_name )
 {
 	/* -------------------------------------------- */
-	/* Returns equipment_purchase_list with		*/
-	/* equipment_purchase->depreciation_list set.	*/
+	/* Returns fixed_asset_purchase_list with	*/
+	/* fixed_asset_purchase->depreciation set.	*/
 	/* -------------------------------------------- */
 	return equipment_purchase_list_fetch(
 		asset_folder_name,
@@ -296,11 +296,9 @@ boolean depreciate_fixed_asset_undo(
 }
 
 boolean depreciate_fixed_assets(
-			char *asset_folder_name,
-			char *depreciate_folder_name,
 			boolean execute )
 {
-	LIST *equipment_purchase_list;
+	LIST *fixed_asset_purchase_list;
 
 	equipment_purchase_list =
 		equipment_purchase_list_depreciate(

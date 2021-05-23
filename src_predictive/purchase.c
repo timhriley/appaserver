@@ -20,11 +20,11 @@
 #include "journal.h"
 #include "entity.h"
 #include "vendor_payment.h"
+#include "inventory_purchase.h"
+#include "specific_inventory_purchase.h"
 #include "fixed_asset_purchase.h"
-#include "inventory.h"
-#include "specific_inventory.h"
-#include "supply.h"
-#include "prepaid_asset.h"
+#include "supply_purchase.h"
+#include "prepaid_asset_purchase.h"
 #include "predictive.h"
 #include "purchase.h"
 
@@ -35,12 +35,8 @@ PURCHASE *purchase_fetch(
 {
 	char system_string[ 1024 ];
 
-	sprintf( system_string,
-		 "echo \"select %s from %s where %s;\" | sql.e",
-		 /* ---------------------- */
-		 /* returns program memory */
-		 /* ---------------------- */
-		 purchase_select(),
+	sprintf(system_string,
+		"select.sh '*' %s \"%s\" ''",
 		 PURCHASE_TABLE_NAME,
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
@@ -70,18 +66,6 @@ PURCHASE *purchase_new(
 	purchase->purchase_date_time = purchase_date_time;
 
 	return purchase;
-}
-
-double purchase_equipment_total(
-			LIST *purchase_equipment_list )
-{
-	return equipment_purchase_total( purchase_equipment_list );
-}
-
-double purchase_vendor_payment_total(
-			LIST *vendor_payment_list )
-{
-	return vendor_payment_total( vendor_payment_list );
 }
 
 PURCHASE *purchase_calloc( void )
@@ -121,30 +105,6 @@ PURCHASE *purchase_seek(
 	return (PURCHASE *)0;
 }
 
-LIST *purchase_vendor_payment_list(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
-{
-	return vendor_payment_system_list(
-			vendor_payment_system_string(
-				purchase_primary_where(
-					full_name,
-					street_address,
-					purchase_date_time ) ) );
-}
-
-LIST *purchase_equipment_list(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time )
-{
-	return equipment_purchase_list(
-			full_name,
-			street_address,
-			purchase_date_time );
-}
-
 FILE *purchase_update_open( void )
 {
 	char *key;
@@ -161,7 +121,7 @@ FILE *purchase_update_open( void )
 }
 
 void purchase_update(
-			double equipment_purchase_total,
+			double fixed_asset_purchase_total,
 			double invoice_amount,
 			double vendor_payment_total,
 			double amount_due,
@@ -173,11 +133,11 @@ void purchase_update(
 	FILE *update_pipe = purchase_update_open();
 
 	fprintf(update_pipe,
-		"%s^%s^%s^equipment_purchase_total^%.2lf\n",
+		"%s^%s^%s^fixed_asset_purchase_total^%.2lf\n",
 		entity_escape_full_name( full_name ),
 		street_address,
 		purchase_date_time,
-		equipment_purchase_total );
+		fixed_asset_purchase_total );
 
 	fprintf(update_pipe,
 		"%s^%s^%s^invoice_amount^%.2lf\n",
@@ -208,24 +168,6 @@ void purchase_update(
 		transaction_date_time );
 
 	pclose( update_pipe );
-}
-
-/* Returns program memory */
-/* ---------------------- */
-char *purchase_select( void )
-{
-	return
-		"full_name,"
-		"street_address,"
-		"purchase_date_time,"
-		"sales_tax,"
-		"freight_in,"
-		"arrived_date_time,"
-		"purchase_equipment_total,"
-		"invoice_amount,"
-		"vendor_payment_total,"
-		"amount_due,"
-		"transaction_date_time";
 }
 
 PURCHASE *purchase_parse( char *input )
@@ -266,19 +208,19 @@ PURCHASE *purchase_parse( char *input )
 	purchase->arrived_date_time = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 8 );
-	purchase->fixed_asset_total = atof( piece_buffer );
+	purchase->fixed_asset_purchase_total = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 9 );
-	purchase->inventory_total = atof( piece_buffer );
+	purchase->inventory_purchase_total = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 10 );
-	purchase->specific_inventory_total = atof( piece_buffer );
+	purchase->specific_inventory_purchase_total = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 11 );
-	purchase->supply_total = atof( piece_buffer );
+	purchase->supply_purchase_total = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 12 );
-	purchase->prepaid_asset_total = atof( piece_buffer );
+	purchase->prepaid_asset_purchase_total = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 13 );
 	purchase->purchase_invoice_amount = atof( piece_buffer );
@@ -293,13 +235,8 @@ PURCHASE *purchase_parse( char *input )
 		fixed_asset_purchase_list_fetch(
 			purchase->vendor_entity->full_name,
 			purchase->vendor_entity->street_address,
-			purchase->purchase_date_time );
-
-	purchase->fixed_asset_purchase_list =
-		fixed_asset_purchase_list_fetch(
-			purchase->vendor_entity->full_name,
-			purchase->vendor_entity->street_address,
-			purchase->purchase_date_time );
+			purchase->purchase_date_time,
+			0 /* not fetch_depreciation_list */ );
 
 	purchase->vendor_payment_list =
 		vendor_payment_list_fetch(
@@ -446,28 +383,29 @@ LIST *purchase_journal_list(
 }
 
 char *purchase_asset_account_name(
-			LIST *purchase_equipment_list )
+			LIST *fixed_asset_purchase_list )
 {
 	double highest_cost = 0.0;
 	char *asset_account_name = {0};
-	EQUIPMENT_PURCHASE *equipment_purchase;
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 
-	if ( !list_rewind( purchase_equipment_list ) ) return (char *)0;
+	if ( !list_rewind( fixed_asset_purchase_list ) ) return (char *)0;
 
 	do {
-		equipment_purchase =
+		fixed_asset_purchase =
 			list_get( 
-				purchase_equipment_list );
+				fixed_asset_purchase_list );
 
-		if ( equipment_purchase->equipment_cost > highest_cost )
+		if ( fixed_asset_purchase->fixed_asset_cost > highest_cost )
 		{
 			asset_account_name =
-				equipment_purchase->
-					asset_account_name;
+				fixed_asset_purchase->
+					fixed_asset->
+					account_name;
 
-			highest_cost = equipment_purchase->equipment_cost;
+			highest_cost = fixed_asset_purchase->fixed_asset_cost;
 		}
-	} while ( list_next( purchase_equipment_list ) );
+	} while ( list_next( fixed_asset_purchase_list ) );
 
 	return asset_account_name;
 }
@@ -539,7 +477,7 @@ PURCHASE *purchase_steady_state(
 
 	purchase->specific_inventory_purchase_total =
 		specific_inventory_purchase_total(
-			inventory_purchase_list );
+			specific_inventory_purchase_list );
 
 	purchase->supply_purchase_total =
 		supply_purchase_total(
@@ -555,6 +493,14 @@ PURCHASE *purchase_steady_state(
 
 	purchase->purchase_invoice_amount =
 		purchase_invoice_amount(
+			purchase->fixed_asset_purchase_total,
+			purchase->inventory_purchase_total,
+			purchase->specific_inventory_purchase_total,
+			purchase->supply_purchase_total,
+			purchase->prepaid_asset_purchase_total,
+			sales_tax,
+			freight_in );
+
 	return purchase;
 }
 
@@ -569,25 +515,66 @@ double purchase_cost_basis(
 			double prepaid_asset_purchase_total )
 {
 	double extra_total;
-	double purchase_total;
+	double total;
 	double percent_of_purchase;
 	double extra_allocated;
+	double cost_basis;
 
 	extra_total = sales_tax + freight_in;
 
-	purchase_total =
+	total =
+		purchase_total(
+			fixed_asset_purchase_total,
+			inventory_purchase_total,
+			specific_inventory_purchase_total,
+			supply_purchase_total,
+			prepaid_asset_purchase_total );
+
+	if ( !total ) return 0.0;
+
+	percent_of_purchase = purchase_cost / total;
+	extra_allocated = extra_total * percent_of_purchase;
+	cost_basis = purchase_cost + extra_allocated;
+
+	return cost_basis;
+}
+
+double purchase_total(
+			double fixed_asset_purchase_total,
+			double inventory_purchase_total,
+			double specific_inventory_purchase_total,
+			double supply_purchase_total,
+			double prepaid_asset_purchase_total )
+{
+	double total =
 		fixed_asset_purchase_total +
 		inventory_purchase_total +
 		specific_inventory_purchase_total +
 		supply_purchase_total +
 		prepaid_asset_purchase_total;
 
-	if ( !purchase_total ) return 0.0;
+	return total;
+}
 
-	percent_of_purchase = purchase_cost / purchase_total;
-	extra_allocated = extra_total * percent_of_purchase;
-	cost_basis = purchase_cost + extra_allocated;
+double purchase_invoice_amount(
+			double fixed_asset_purchase_total,
+			double inventory_purchase_total,
+			double specific_inventory_purchase_total,
+			double supply_purchase_total,
+			double prepaid_asset_purchase_total,
+			double sales_tax,
+			double freight_in )
+{
+	double total =
+		purchase_total(
+			fixed_asset_purchase_total,
+			inventory_purchase_total,
+			specific_inventory_purchase_total,
+			supply_purchase_total,
+			prepaid_asset_purchase_total );
 
-	return cost_basis;
+	if ( !total ) return 0.0;
+
+	return total + sales_tax + freight_in;
 }
 

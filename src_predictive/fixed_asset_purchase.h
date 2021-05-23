@@ -33,6 +33,7 @@ typedef struct
 	char *purchase_date_time;
 	char *service_placement_date;
 	double fixed_asset_cost;
+	int units_produced_so_far;
 	int estimated_useful_life_years;
 	int estimated_useful_life_units;
 	int estimated_residual_value;

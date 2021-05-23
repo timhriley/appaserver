@@ -23,12 +23,6 @@
 			vendor_payment_total )				\
 	( purchase_amount - vendor_payment_total )
 
-#define Purchase_invoice_amount(					\
-			equipment_total,				\
-			sales_tax,					\
-			freight_in )					\
-	( equipment_total + sales + freight_in )
-
 /* Enumerated types */
 /* ---------------- */
 
@@ -54,11 +48,11 @@ typedef struct
 	LIST *supply_purchase_list;
 	LIST *prepaid_asset_purchase_list;
 	LIST *vendor_payment_list;
-	double fixed_asset_total;
-	double inventory_total;
-	double specific_inventory_total;
-	double supply_total;
-	double prepaid_asset_total;
+	double fixed_asset_purchase_total;
+	double inventory_purchase_total;
+	double specific_inventory_purchase_total;
+	double supply_purchase_total;
+	double prepaid_asset_purchase_total;
 	double purchase_invoice_amount;
 	double vendor_payment_total;
 	double purchase_amount_due;
@@ -86,10 +80,7 @@ PURCHASE *purchase_new(
 double purchase_equipment_total(
 			LIST *equipment_purchase_list );
 
-double purchase_vendor_payment_total(
-			LIST *vendor_payment_list );
-
-void purchase_update(	double purchase_equipment_total,
+void purchase_update(	double fixed_asset_purchase_total,
 			double purchase_invoice_amount,
 			double vendor_payment_total,
 			double purchase_amount_due,
@@ -122,7 +113,7 @@ char *purchase_select(	void );
 PURCHASE *purchase_parse(
 			char *input );
 
-char *purchase_sys_string(
+char *purchase_system_string(
 			char *where,
 			char *order );
 
@@ -167,7 +158,7 @@ char *purchase_asset_account_name(
 			LIST *purchase_equipment_list );
 
 LIST *purchase_system_list(
-			char *sys_string );
+			char *system_string );
 
 LIST *purchase_amount_due_purchase_list(
 			void );
@@ -195,5 +186,21 @@ double purchase_cost_basis(
 			double specific_inventory_purchase_total,
 			double supply_purchase_total,
 			double prepaid_asset_purchase_total );
+
+double purchase_total(
+			double fixed_asset_purchase_total,
+			double inventory_purchase_total,
+			double specific_inventory_purchase_total,
+			double supply_purchase_total,
+			double prepaid_asset_purchase_total );
+
+double purchase_invoice_amount(
+			double fixed_asset_purchase_total,
+			double inventory_purchase_total,
+			double specific_inventory_purchase_total,
+			double supply_purchase_total,
+			double prepaid_asset_purchase_total,
+			double sales_tax,
+			double freight_in );
 
 #endif

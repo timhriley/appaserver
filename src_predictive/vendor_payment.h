@@ -48,7 +48,7 @@ VENDOR_PAYMENT *vendor_payment_new(
 			char *purchase_date_time,
 			char *payment_date_time );
 
-LIST *vendor_payment_list(
+LIST *vendor_payment_list_fetch(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time );
@@ -62,7 +62,7 @@ VENDOR_PAYMENT *vendor_payment_parse(
 			char *input );
 
 LIST *vendor_payment_system_list(
-			char *sys_string );
+			char *system_string );
 
 double vendor_payment_total(
 			LIST *vendor_payment_list );
@@ -117,7 +117,7 @@ char *vendor_payment_purchase_where(
 
 /* Returns heap memory */
 /* ------------------- */
-char *vendor_payment_sys_string(
+char *vendor_payment_system_string(
 			char *where );
 
 #endif

@@ -88,24 +88,28 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 	fixed_asset_purchase->fixed_asset_cost = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 7 );
-	fixed_asset_purchase->disposal_date = strdup( piece_buffer );
+	fixed_asset_purchase->units_produced_so_far = atoi( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 8 );
+	fixed_asset_purchase->disposal_date = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 9 );
 	fixed_asset_purchase->depreciation_method =
 		depreciation_method_resolve( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 9 );
+	piece( piece_buffer, SQL_DELIMITER, input, 10 );
 	fixed_asset_purchase->estimated_useful_life_years =
 		atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 10 );
+	piece( piece_buffer, SQL_DELIMITER, input, 11 );
 	fixed_asset_purchase->estimated_useful_life_units =
 		atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 11 );
-	fixed_asset_purchase->estimated_residual_value = atoi( piece_buffer );
-
 	piece( piece_buffer, SQL_DELIMITER, input, 12 );
+	fixed_asset_purchase->estimated_residual_value =
+		atoi( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 13 );
 	fixed_asset_purchase->declining_balance_n = atoi( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 13 );
@@ -113,11 +117,11 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 
 	piece( piece_buffer, SQL_DELIMITER, input, 14 );
 	fixed_asset_purchase->finance_accumulated_depreciation =
-		atoi( piece_buffer );
+		atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 15 );
 	fixed_asset_purchase->tax_accumulated_depreciation =
-		atoi( piece_buffer );
+		atof( piece_buffer );
 
 	if ( fetch_depreciation_list )
 	{
@@ -318,8 +322,6 @@ LIST *fixed_asset_purchase_list_depreciate(
 			char *depreciation_date )
 {
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-	char *prior_depreciation_date;
-	char *transaction_date_time = {0};
 	ENTITY_SELF *entity_self;
 
 	if ( !list_rewind( fixed_asset_purchase_list ) ) return (LIST *)0;
@@ -346,29 +348,40 @@ LIST *fixed_asset_purchase_list_depreciate(
 						serial_label ),
 				depreciation_date,
 				fixed_asset_purchase->cost_basis,
+				fixed_asset_purchase->units_produced_so_far,
 				fixed_asset_purchase->estimated_residual_value,
 				fixed_asset_purchase->
 					estimated_useful_life_years,
 				fixed_asset_purchase->
 					estimated_useful_life_units,
 				fixed_asset_purchase->declining_balance_n,
-				0 /* units_produced */,
 				fixed_asset_purchase->
 					finance_accumulated_depreciation
 					/* prior_accumulated_depreciation */ );
 
 		if ( !fixed_asset_purchase->depreciation ) continue;
 
-		depreciation->depreciation_transaction =
-			depreciation_transaction(
-				entity_self->entity->full_name,
-				entity_self->entity->street_address,
-				depreciation_date,
-				depreciation->depreciation_amount,
-				account_depreciation_expense(
-					(char *)0 /* fund_name */ ),
-				account_accumulated_depreciation(
-					(char *)0 /* fund_name */ ) );
+		fixed_asset_purchase->
+			depreciation->
+			depreciation_transaction =
+				depreciation_transaction(
+					entity_self->entity->full_name,
+					entity_self->entity->street_address,
+					depreciation_date,
+					fixed_asset_purchase->
+						depreciation->
+						depreciation_amount,
+					account_depreciation_expense(
+						(char *)0 /* fund_name */ ),
+					account_accumulated_depreciation(
+						(char *)0 /* fund_name */ ) );
+
+		if ( !fixed_asset_purchase->
+			depreciation->
+			depreciation_transaction )
+		{
+			continue;
+		}
 
 	} while ( list_next( fixed_asset_purchase_list ) );
 

@@ -42,16 +42,10 @@ EXECUTABLES=	trial_balance						\
 		post_change_self					\
 		make_vendor_payment					\
 		generate_invoice					\
-		post_change_purchase_order				\
 		post_change_vendor_payment				\
-		post_change_fixed_asset_purchase			\
 		pay_liabilities_process					\
 		populate_print_checks_entity				\
 		depreciate_fixed_assets					\
-		post_change_customer_sale				\
-		post_change_fixed_service_sale				\
-		post_change_hourly_service_sale				\
-		update_sale_completed					\
 		post_change_account_balance				\
 		ledger_propagate					\
 		feeder_upload_missing					\
@@ -109,20 +103,21 @@ EXTERNAL_LIBRARY=							\
 SOURCE_LIBRARY= 							\
 		program.o						\
 		subclassification.o					\
-		sale.o							\
-		inventory_purchase_return.o				\
-		inventory_sale_return.o					\
 		depreciation.o						\
-		customer_payment.o					\
-		inventory_sale.o					\
 		entity_self.o						\
 		entity.o						\
+		purchase.o						\
+		inventory_purchase.o					\
+		specific_inventory.o					\
+		specific_inventory_purchase.o				\
 		fixed_asset.o						\
 		fixed_asset_purchase.o					\
+		vendor_payment.o					\
+		sale.o							\
+		inventory_sale.o					\
 		fixed_service_sale.o					\
 		hourly_service_sale.o					\
-		vendor_payment.o					\
-		purchase.o						\
+		customer_payment.o					\
 		work.o							\
 		predictive.o						\
 		transaction.o						\
@@ -131,7 +126,9 @@ SOURCE_LIBRARY= 							\
 		journal.o						\
 		statement.o						\
 		supply.o						\
-		supply_purchase.o
+		supply_purchase.o					\
+		prepaid_asset.o						\
+		prepaid_asset_purchase.o
 
 SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\
@@ -461,6 +458,16 @@ post_change_inventory_sale_return:					\
 		post_change_inventory_sale_return.c			\
 		-o post_change_inventory_sale_return
 
+
+post_change_specific_inventory_purchase:				\
+	post_change_specific_inventory_purchase.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_specific_inventory_purchase.c		\
+		-o post_change_specific_inventory_purchase
+
 post_change_supply_purchase: post_change_supply_purchase.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -513,15 +520,6 @@ post_change_hourly_service_work:					\
 		${SOURCE_LIBRARY}					\
 		post_change_hourly_service_work.c			\
 		-o post_change_hourly_service_work
-
-post_change_specific_inventory_purchase:				\
-	post_change_specific_inventory_purchase.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_change_specific_inventory_purchase.c		\
-		-o post_change_specific_inventory_purchase
 
 post_change_service_purchase: post_change_service_purchase.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -919,6 +917,10 @@ spreadsheet_upload_event.o:						\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c spreadsheet_upload_event.c
 
+inventory_purchase.o: inventory_purchase.c inventory_purchase.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c inventory_purchase.c
+
 supply_purchase.o: supply_purchase.c supply_purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c supply_purchase.c
@@ -926,4 +928,23 @@ supply_purchase.o: supply_purchase.c supply_purchase.h
 supply.o: supply.c supply.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c supply.c
+
+specific_inventory.o: specific_inventory.c specific_inventory.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c specific_inventory.c
+
+specific_inventory_purchase.o:						\
+		specific_inventory_purchase.c				\
+		specific_inventory_purchase.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c specific_inventory_purchase.c
+
+prepaid_asset.o: prepaid_asset.c prepaid_asset.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c prepaid_asset.c
+
+prepaid_asset_purchase.o:	prepaid_asset_purchase.c		\
+				prepaid_asset_purchase.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c prepaid_asset_purchase.c
 

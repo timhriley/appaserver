@@ -62,7 +62,7 @@ VENDOR_PAYMENT *vendor_payment_fetch(
 
 	return vendor_payment_parse(
 			pipe2string(
-				vendor_payment_sys_string(
+				vendor_payment_system_string(
 		 			vendor_payment_purchase_where(
 						full_name,
 						street_address,
@@ -70,7 +70,7 @@ VENDOR_PAYMENT *vendor_payment_fetch(
 						payment_date_time ) ) ) );
 }
 
-LIST *vendor_payment_list(
+LIST *vendor_payment_list_fetch(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time )
@@ -83,7 +83,7 @@ LIST *vendor_payment_list(
 	}
 
 	return vendor_payment_system_list(
-			vendor_payment_sys_string(
+			vendor_payment_system_string(
 		 	/* -------------------------- */
 		 	/* Safely returns heap memory */
 		 	/* -------------------------- */
@@ -148,14 +148,14 @@ VENDOR_PAYMENT *vendor_payment_parse( char *input )
 	return vendor_payment;
 }
 
-LIST *vendor_payment_system_list( char *sys_string )
+LIST *vendor_payment_system_list( char *system_string )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
 	LIST *vendor_payment_list;
 
 	vendor_payment_list = list_new();
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -167,13 +167,13 @@ LIST *vendor_payment_system_list( char *sys_string )
 	return vendor_payment_list;
 }
 
-char *vendor_payment_sys_string( char *where )
+char *vendor_payment_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
 	if ( !where ) return (char *)0;
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '%s' %s \"%s\" %s",
 		 /* ---------------------- */
 		 /* Returns program memory */
@@ -183,7 +183,7 @@ char *vendor_payment_sys_string( char *where )
 		 where,
 		 "payment_date_time" );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 double vendor_payment_total( LIST *vendor_payment_list )
@@ -213,19 +213,19 @@ void vendor_payment_insert(
 			int check_number,
 			char *transaction_date_time )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 	char *field_list_string;
 	FILE *output_pipe;
 
 	field_list_string =
 "full_name,street_address,purchase_date_time,payment_date_time,payment_amount,check_number,transaction_date_time";
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "insert_statement.e table=%s field=%s | sql.e",
 		 "vendor_payment",
 		 field_list_string );
 
-	output_pipe = popen( sys_string, "w" );
+	output_pipe = popen( system_string, "w" );
 
 	fprintf( output_pipe,
 		 "%s|%s|%s|%s|%.2lf",
@@ -369,7 +369,7 @@ LIST *vendor_payment_journal_list(
 
 FILE *vendor_payment_update_open( void )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 	char *key;
 
 	key =	"full_name,"
@@ -377,12 +377,12 @@ FILE *vendor_payment_update_open( void )
 		"purchase_date_time,"
 		"payment_date_time";
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "update_statement.e table=%s key=%s carrot=y | sql",
 		 "vendor_payment",
 		 key );
 
-	return popen( sys_string, "w" );
+	return popen( system_string, "w" );
 }
 
 void vendor_payment_update(

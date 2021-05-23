@@ -124,7 +124,7 @@ void post_change_vendor_payment_insert_update(
 
 	if ( ! ( vendor_payment =
 			vendor_payment_seek(
-				purchase->purchase_vendor_payment_list,
+				purchase->vendor_payment_list,
 				payment_date_time ) ) )
 	{
 		fprintf( stderr,
@@ -202,15 +202,15 @@ void post_change_vendor_payment_insert_update(
 	purchase->purchase_amount_due =
 		Purchase_amount_due(
 			purchase->purchase_invoice_amount,
-			( purchase->purchase_vendor_payment_total =
+			( purchase->vendor_payment_total =
 				vendor_payment_total(
 					purchase->
-					     purchase_vendor_payment_list ) ) );
+					     vendor_payment_list ) ) );
 
 	purchase_update(
-		purchase->purchase_equipment_total,
+		purchase->fixed_asset_purchase_total,
 		purchase->purchase_invoice_amount,
-		purchase->purchase_vendor_payment_total,
+		purchase->vendor_payment_total,
 		purchase->purchase_amount_due,
 		transaction_date_time,
 		purchase->vendor_entity->full_name,
@@ -245,7 +245,7 @@ void post_change_vendor_payment_predelete(
 
 	if ( ! ( vendor_payment =
 			vendor_payment_seek(
-				purchase->purchase_vendor_payment_list,
+				purchase->vendor_payment_list,
 				payment_date_time ) ) )
 	{
 		fprintf( stderr,
@@ -257,15 +257,15 @@ void post_change_vendor_payment_predelete(
 		exit( 1 );
 	}
 
-	list_delete_current( purchase->purchase_vendor_payment_list );
+	list_delete_current( purchase->vendor_payment_list );
 
 	purchase->purchase_amount_due =
 		Purchase_amount_due(
 			purchase->purchase_invoice_amount,
-			( purchase->purchase_vendor_payment_total =
+			( purchase->vendor_payment_total =
 				vendor_payment_total(
 					purchase->
-					     purchase_vendor_payment_list ) ) );
+					     vendor_payment_list ) ) );
 
 	if ( purchase->purchase_transaction )
 	{
@@ -280,9 +280,9 @@ void post_change_vendor_payment_predelete(
 	}
 
 	purchase_update(
-		purchase->purchase_equipment_total,
+		purchase->fixed_asset_purchase_total,
 		purchase->purchase_invoice_amount,
-		purchase->purchase_vendor_payment_total,
+		purchase->vendor_payment_total,
 		purchase->purchase_amount_due,
 		transaction_date_time,
 		purchase->vendor_entity->full_name,

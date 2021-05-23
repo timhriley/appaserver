@@ -47,20 +47,6 @@ INVENTORY_SALE *inventory_sale_new(
 	return inventory_sale;
 }
 
-char *inventory_sale_select( void )
-{
-	return
-	"full_name,"
-	"street_address,"
-	"sale_date_time,"
-	"inventory_name,"
-	"quantity,"
-	"retail_price,"
-	"discount_amount,"
-	"extended_price,"
-	"cost_of_goods_sold";
-}
-
 INVENTORY_SALE *inventory_sale_parse( char *input )
 {
 	char full_name[ 128 ];
@@ -73,7 +59,7 @@ INVENTORY_SALE *inventory_sale_parse( char *input )
 	char extended_price[ 128 ];
 	char cost_of_goods_sold[ 128 ];
 
-	if ( !input ) return (INVENTORY_SALE *)0;
+	if ( !input || !*input ) return (INVENTORY_SALE *)0;
 
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
@@ -128,14 +114,14 @@ double inventory_sale_sales_tax(
 	return extended_price_total * entity_state_sales_tax_rate;
 }
 
-LIST *inventory_sale_system_list( char *sys_string )
+LIST *inventory_sale_system_list( char *system_string )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
 	LIST *inventory_sale_list;
 
 	inventory_sale_list = list_new();
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -147,23 +133,18 @@ LIST *inventory_sale_system_list( char *sys_string )
 	return inventory_sale_list;
 }
 
-char *inventory_sale_sys_string( char *where )
+char *inventory_sale_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
 	if ( !where ) return (char *)0;
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 inventory_sale_select(),
-		 "inventory_sale",
-		 where,
-		 "inventory_name" );
+	sprintf(system_string,
+		"select.sh '*' %s \"%s\" inventory_name",
+		 INVENTORY_SALE_TABLE,
+		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 LIST *inventory_sale_list(
@@ -172,7 +153,7 @@ LIST *inventory_sale_list(
 			char *sale_date_time )
 {
 	return inventory_sale_system_list(
-			inventory_sale_sys_string(
+			inventory_sale_system_string(
 				sale_primary_where(
 					full_name,
 					street_address,

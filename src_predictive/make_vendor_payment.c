@@ -127,7 +127,7 @@ int main( int argc, char **argv )
 
 	payment_amount_total =
 		vendor_payment_total(
-			vendor_payment_list(
+			vendor_payment_list_fetch(
 				full_name,
 				street_address,
 				purchase_date_time ) );

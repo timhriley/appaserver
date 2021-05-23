@@ -28,11 +28,11 @@ double depreciation_amount(
 			char *prior_depreciation_date,
 			char *depreciation_date,
 			double cost_basis,
+			int units_produced_current,
 			int estimated_residual_value,
 			int estimated_useful_life_years,
 			int estimated_useful_life_units,
 			int declining_balance_n,
-			int units_produced,
 			double prior_accumulated_depreciation )
 {
 	if ( depreciation_method == not_depreciated )
@@ -58,7 +58,7 @@ double depreciation_amount(
 			cost_basis,
 			estimated_residual_value,
 			estimated_useful_life_units,
-			units_produced,
+			units_produced_current,
 			prior_accumulated_depreciation );
 	}
 	else
@@ -108,7 +108,7 @@ double depreciation_units_of_production(
 			double cost_basis,
 			int estimated_residual_value,
 			int estimated_useful_life_units,
-			int units_produced,
+			int units_produced_current,
 			double prior_accumulated_depreciation )
 {
 	double depreciation_rate_per_unit = 0.0;
@@ -126,7 +126,7 @@ double depreciation_units_of_production(
 
 	depreciation_amount = 
 		depreciation_rate_per_unit *
-		(double)units_produced;
+		(double)units_produced_current;
 
 
 	if (	prior_accumulated_depreciation + depreciation_amount >
@@ -366,7 +366,7 @@ DEPRECIATION *depreciation_parse( char *input )
 			strdup( depreciation_date ) );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	depreciation->units_produced = atoi( piece_buffer );
+	depreciation->units_produced_current = atoi( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	depreciation->depreciation_amount = atof( piece_buffer );
@@ -625,19 +625,27 @@ void depreciation_insert(
 			char *asset_name,
 			char *serial_label,
 			char *depreciation_date,
+			int units_produced_current,
 			double depreciation_amount,
 			char *transaction_date_time )
 {
+	if ( !asset_name
+	||   !serial_label
+	||   !depreciation_date
+	||   !depreciation_amount
+	||   !transaction_date_time )
+	{
+		return;
+	}
 
-	fprintf(	insert_pipe,
-			"%s^%s^%s^%.2lf^%s\n",
-			asset_name,
-			serial_label,
-			depreciation_date,
-			depreciation_amount,
-			(transaction_date_time)
-				? transaction_date_time
-				: "" );
+	fprintf(insert_pipe,
+		"%s^%s^%s^%d^%.2lf^%s\n",
+		asset_name,
+		serial_label,
+		depreciation_date,
+		units_produced_current,
+		depreciation_amount,
+		transaction_date_time );
 }
 
 void depreciation_list_insert(
@@ -645,7 +653,6 @@ void depreciation_list_insert(
 {
 	DEPRECIATION *depreciation;
 	FILE *insert_pipe;
-	char *transaction_date_time;
 
 	if ( !list_rewind( depreciation_list ) ) return;
 
@@ -656,16 +663,9 @@ void depreciation_list_insert(
 			list_get(
 				depreciation_list );
 
-		if ( depreciation->depreciation_transaction )
+		if ( !depreciation->depreciation_transaction )
 		{
-			transaction_date_time =
-				depreciation->
-					depreciation_transaction->
-					transaction_date_time;
-		}
-		else
-		{
-			transaction_date_time = (char *)0;
+			continue;
 		}
 
 		depreciation_insert(
@@ -673,8 +673,11 @@ void depreciation_list_insert(
 			depreciation->asset_name,
 			depreciation->serial_label,
 			depreciation->depreciation_date,
+			depreciation->units_produced_current,
 			depreciation->depreciation_amount,
-			transaction_date_time );
+			depreciation->
+				depreciation_transaction->
+				transaction_date_time );
 
 	} while ( list_next( depreciation_list ) );
 
@@ -802,15 +805,16 @@ DEPRECIATION *depreciation_evaluate(
 			char *prior_depreciation_date,
 			char *depreciation_date,
 			double cost_basis,
+			int units_produced_so_far,
 			int estimated_residual_value,
 			int estimated_useful_life_years,
 			int estimated_useful_life_units,
 			int declining_balance_n,
-			int units_produced,
 			double prior_accumulated_depreciation )
 {
 	DEPRECIATION *depreciation;
 	double amount;
+	int units_produced_current = 0;
 
 	amount =
 		depreciation_amount(
@@ -819,11 +823,18 @@ DEPRECIATION *depreciation_evaluate(
 			prior_depreciation_date,
 			depreciation_date,
 			cost_basis,
+			(depreciation_method == units_of_production)
+			 ? ( units_produced_current =
+				depreciation_units_produced_current(
+					units_produced_so_far,
+					depreciation_units_produced_total(
+						asset_name,
+						serial_label ) ) )
+			 : 0,
 			estimated_residual_value,
 			estimated_useful_life_years,
 			estimated_useful_life_units,
 			declining_balance_n,
-			units_produced,
 			prior_accumulated_depreciation );
 
 	if ( timlib_dollar_virtually_same(
@@ -840,6 +851,7 @@ DEPRECIATION *depreciation_evaluate(
 			depreciation_date );
 
 	depreciation->depreciation_amount = amount;
+	depreciation->units_produced_current = units_produced_current;
 
 	depreciation->depreciation_accumulated_depreciation =
 		depreciation_accumulated_depreciation(
@@ -891,5 +903,36 @@ double depreciation_fraction_of_year(
 		(double)date_days_in_year(
 				date_year(
 					earlier_date ) );
+}
+
+int depreciation_units_produced_total(
+			char *asset_name,
+			char *serial_label )
+{
+	char system_string[ 1024 ];
+	char *results;
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\" ''",
+		"sum( units_produced )",
+		DEPRECIATION_TABLE,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		fixed_asset_primary_where(
+			asset_name,
+			serial_label ) );
+
+	if ( ( results = string_pipe_fetch( system_string ) ) )
+		return atoi( results );
+	else
+		return 0;
+}
+
+int depreciation_units_produced_current(
+			int units_produced_so_far,
+			int units_produced_total )
+{
+	return units_produced_so_far - units_produced_total;
 }
 

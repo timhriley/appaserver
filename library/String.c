@@ -879,17 +879,17 @@ char *string_input_tmp(	char *input_buffer,
 	} /* while( 1 ) */
 }
 
-char *string_pipe_fetch( char *sys_string )
+char *string_pipe_fetch( char *system_string )
 {
 	char buffer[ 65536 ];
 	FILE *p;
 	int null_input = 0;
 
-	if ( !sys_string ) return (char *)0;
+	if ( !system_string ) return (char *)0;
 
 	*buffer = '\0';
 
-	p = popen( sys_string, "r" );
+	p = popen( system_string, "r" );
 
 	if ( !string_input( buffer, p, 65536 ) ) null_input = 1;
 
@@ -899,7 +899,6 @@ char *string_pipe_fetch( char *sys_string )
 		return (char *)0;
 	else
 		return strdup( buffer );
-
 }
 
 LIST *string_pipe_list(	char *system_string )

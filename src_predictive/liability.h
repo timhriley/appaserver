@@ -10,6 +10,7 @@
 
 #include "entity.h"
 #include "list.h"
+#include "transaction.h"
 
 /* Constants */
 /* --------- */

@@ -38,7 +38,7 @@ INVENTORY *inventory_new( char *inventory_name )
 
 	return h;
 
-} /* inventory_new() */
+}
 
 INVENTORY_SALE *inventory_sale_new( void )
 {
@@ -55,7 +55,7 @@ INVENTORY_SALE *inventory_sale_new( void )
 		exit(1 );
 	}
 	return h;
-} /* inventory_sale_new() */
+}
 
 INVENTORY_PURCHASE *inventory_purchase_new( void )
 {
@@ -73,7 +73,7 @@ INVENTORY_PURCHASE *inventory_purchase_new( void )
 	}
 
 	return h;
-} /* inventory_purchase_new() */
+}
 
 void inventory_load(			char **inventory_account_name,
 					char **cost_of_goods_sold_account_name,
@@ -151,7 +151,7 @@ void inventory_load(			char **inventory_account_name,
 
 	free( results );
 
-} /* inventory_load() */
+}
 
 void inventory_sale_list_extension_update(
 				char *application_name,
@@ -197,7 +197,7 @@ void inventory_sale_list_extension_update(
 
 	pclose( output_pipe );
 
-} /* inventory_sale_list_extension_update() */
+}
 
 void inventory_sale_list_cost_of_goods_sold_update(
 				char *application_name,
@@ -229,7 +229,7 @@ void inventory_sale_list_cost_of_goods_sold_update(
 
 	pclose( update_pipe );
 
-} /* inventory_sale_list_cost_of_goods_sold_update() */
+}
 
 void inventory_sale_update(	char *application_name,
 				char *full_name,
@@ -258,7 +258,7 @@ void inventory_sale_update(	char *application_name,
 
 	pclose( update_pipe );
 
-} /* inventory_sale_update() */
+}
 
 FILE *inventory_sale_get_update_pipe(
 				char *application_name )
@@ -282,7 +282,7 @@ FILE *inventory_sale_get_update_pipe(
 
 	return update_pipe;
 
-} /* inventory_sale_get_update_pipe() */
+}
 
 FILE *inventory_purchase_get_update_pipe(
 				char *application_name )
@@ -306,7 +306,7 @@ FILE *inventory_purchase_get_update_pipe(
 
 	return update_pipe;
 
-} /* inventory_purchase_get_update_pipe() */
+}
 
 /* Update everything with a database_ */
 /* ---------------------------------- */
@@ -345,7 +345,7 @@ void inventory_purchase_list_update(
 
 	pclose( update_pipe );
 
-} /* inventory_purchase_list_update() */
+}
 
 void inventory_purchase_arrived_quantity_update(
 				char *application_name,
@@ -379,7 +379,7 @@ void inventory_purchase_arrived_quantity_update(
 
 	pclose( update_pipe );
 
-} /* inventory_purchase_arrived_quantity_update() */
+}
 
 void inventory_purchase_update(
 				char *application_name,
@@ -421,7 +421,7 @@ void inventory_purchase_update(
 
 	pclose( update_pipe );
 
-} /* inventory_purchase_update() */
+}
 
 void inventory_sale_pipe_update(
 				FILE *update_pipe,
@@ -460,7 +460,7 @@ void inventory_sale_pipe_update(
 	 		cost_of_goods_sold );
 	}
 
-} /* inventory_sale_pipe_update() */
+}
 
 void inventory_purchase_pipe_update(
 				FILE *update_pipe,
@@ -556,7 +556,7 @@ void inventory_purchase_pipe_update(
 	 		average_unit_cost );
 	}
 
-} /* inventory_purchase_pipe_update() */
+}
 
 char *inventory_get_inventory_sale_join_where( void )
 {
@@ -573,7 +573,7 @@ char *inventory_get_inventory_sale_join_where( void )
 
 	return join_where;
 
-} /* inventory_get_inventory_sale_join_where() */
+}
 
 char *inventory_get_inventory_purchase_join_where( void )
 {
@@ -588,7 +588,7 @@ char *inventory_get_inventory_purchase_join_where( void )
 
 	return join_where;
 
-} /* inventory_get_inventory_purchase_join_where() */
+}
 
 LIST *inventory_purchase_entity_get_list(
 				char *application_name,
@@ -692,7 +692,7 @@ LIST *inventory_purchase_entity_get_list(
 
 	return inventory_purchase_list;
 
-} /* inventory_purchase_entity_get_list() */
+}
 
 LIST *inventory_purchase_date_get_list(
 				char *application_name,
@@ -778,7 +778,7 @@ LIST *inventory_purchase_date_get_list(
 
 	return purchase_list;
 
-} /* inventory_purchase_date_get_list() */
+}
 
 LIST *inventory_purchase_arrived_date_get_list(
 				char *application_name,
@@ -898,7 +898,7 @@ LIST *inventory_purchase_arrived_date_get_list(
 
 	return purchase_list;
 
-} /* inventory_purchase_arrived_date_get_list() */
+}
 
 LIST *inventory_sale_completed_date_get_list(
 				char *application_name,
@@ -1007,7 +1007,7 @@ LIST *inventory_sale_completed_date_get_list(
 
 	return sale_list;
 
-} /* inventory_sale_completed_date_get_list() */
+}
 
 LIST *inventory_sale_get_list(
 				char *application_name,
@@ -1104,7 +1104,7 @@ LIST *inventory_sale_get_list(
 
 	return sale_list;
 
-} /* inventory_sale_get_list() */
+}
 
 char *inventory_sale_get_latest_date_time(
 				char *application_name,
@@ -1129,7 +1129,7 @@ char *inventory_sale_get_latest_date_time(
 
 	return pipe2string( sys_string );
 
-} /* inventory_sale_get_latest_date_time() */
+}
 
 char *inventory_get_non_zero_quantity_on_hand_arrived_date_time(
 				char *application_name,
@@ -1167,7 +1167,7 @@ char *inventory_get_non_zero_quantity_on_hand_arrived_date_time(
 
 	return pipe2string( sys_string );
 
-} /* inventory_get_non_zero_quantity_on_hand_arrived_date_time() */
+}
 
 char *inventory_get_latest_zero_quantity_on_hand_arrived_date_time(
 				char *application_name,
@@ -1204,7 +1204,7 @@ char *inventory_get_latest_zero_quantity_on_hand_arrived_date_time(
 
 	return pipe2string( sys_string );
 
-} /* inventory_get_latest_zero_quantity_on_hand_arrived_date_time() */
+}
 
 void inventory_purchase_fifo_decrement_quantity_on_hand(
 				LIST *purchase_list,
@@ -1241,7 +1241,7 @@ void inventory_purchase_fifo_decrement_quantity_on_hand(
 
 	} while ( list_next( purchase_list ) );
 
-} /* inventory_purchase_fifo_decrement_quantity_on_hand() */
+}
 
 void inventory_purchase_lifo_decrement_quantity_on_hand(
 				LIST *purchase_list,
@@ -1278,7 +1278,7 @@ void inventory_purchase_lifo_decrement_quantity_on_hand(
 
 	} while ( list_previous( purchase_list ) );
 
-} /* inventory_purchase_lifo_decrement_quantity_on_hand() */
+}
 
 double inventory_sale_get_sum_cost_of_goods_sold(
 			LIST *inventory_sale_list )
@@ -1300,7 +1300,7 @@ double inventory_sale_get_sum_cost_of_goods_sold(
 
 	return sum_cost_of_goods_sold;
 
-} /* inventory_sale_get_sum_cost_of_goods_sold() */
+}
 
 void inventory_purchase_list_reset_quantity_on_hand(
 			LIST *inventory_purchase_list )
@@ -1324,7 +1324,7 @@ void inventory_purchase_list_reset_quantity_on_hand(
 
 	} while( list_next( inventory_purchase_list ) );
 
-} /* inventory_purchase_list_reset_quantity_on_hand() */
+}
 
 void inventory_set_quantity_on_hand_fifo(
 			LIST *inventory_sale_list,
@@ -1346,7 +1346,7 @@ void inventory_set_quantity_on_hand_fifo(
 
 	} while ( list_next( inventory_sale_list ) );
 
-} /* inventory_set_quantity_on_hand_fifo() */
+}
 
 void inventory_set_quantity_on_hand_CGS_fifo(
 			LIST *inventory_sale_list,
@@ -1369,7 +1369,7 @@ void inventory_set_quantity_on_hand_CGS_fifo(
 
 	} while ( list_next( inventory_sale_list ) );
 
-} /* inventory_set_quantity_on_hand_CGS_fifo() */
+}
 
 double inventory_decrement_quantity_on_hand_get_CGS_fifo(
 			LIST *inventory_purchase_list,
@@ -1423,7 +1423,7 @@ double inventory_decrement_quantity_on_hand_get_CGS_fifo(
 
 	return 0.0;
 
-} /* inventory_decrement_quantity_on_hand_get_CGS_fifo() */
+}
 
 void inventory_set_quantity_on_hand_CGS_lifo(
 			LIST *inventory_sale_list,
@@ -1449,7 +1449,7 @@ void inventory_set_quantity_on_hand_CGS_lifo(
 
 	} while ( list_next( inventory_sale_list ) );
 
-} /* inventory_set_quantity_on_hand_CGS_lifo() */
+}
 
 double inventory_decrement_quantity_on_hand_get_CGS_lifo(
 			LIST *inventory_purchase_list,
@@ -1508,7 +1508,7 @@ double inventory_decrement_quantity_on_hand_get_CGS_lifo(
 
 	return 0.0;
 
-} /* inventory_decrement_quantity_on_hand_get_CGS_lifo() */
+}
 
 char *inventory_sale_list_display( LIST *sale_list )
 {
@@ -1547,7 +1547,7 @@ char *inventory_sale_list_display( LIST *sale_list )
 
 	return strdup( buffer );
 
-} /* inventory_sale_list_display() */
+}
 
 char *inventory_purchase_list_display( LIST *purchase_list )
 {
@@ -1588,7 +1588,7 @@ char *inventory_purchase_list_display( LIST *purchase_list )
 
 	return strdup( buffer );
 
-} /* inventory_purchase_list_display() */
+}
 
 void inventory_last_inventory_balance_update(
 				int quantity_on_hand,
@@ -1630,7 +1630,7 @@ void inventory_last_inventory_balance_update(
 
 	pclose( output_pipe );
 
-} /* inventory_last_inventory_balance_update() */
+}
 
 enum inventory_cost_method inventory_get_cost_method(
 					char *application_name )
@@ -1649,7 +1649,7 @@ enum inventory_cost_method inventory_get_cost_method(
 
 	return self->inventory_cost_method;
 
-} /* inventory_get_cost_method() */
+}
 
 INVENTORY_BALANCE *inventory_balance_new( void )
 {
@@ -1668,7 +1668,7 @@ INVENTORY_BALANCE *inventory_balance_new( void )
 
 	return h;
 
-} /* inventory_balance_new() */
+}
 
 LIST *inventory_get_balance_list(
 			LIST *inventory_purchase_list,
@@ -1763,7 +1763,7 @@ LIST *inventory_get_balance_list(
 
 	return balance_list;
 
-} /* inventory_get_balance_list() */
+}
  
 INVENTORY_PURCHASE *inventory_purchase_list_seek(
 				LIST *inventory_purchase_list,
@@ -1787,7 +1787,7 @@ INVENTORY_PURCHASE *inventory_purchase_list_seek(
 
 	return (INVENTORY_PURCHASE *)0;
 
-} /* inventory_purchase_list_seek() */
+}
 
 INVENTORY_SALE *inventory_sale_list_seek(
 				LIST *inventory_sale_list,
@@ -1834,7 +1834,7 @@ INVENTORY *inventory_list_seek(
 
 	return (INVENTORY *)0;
 
-} /* inventory_list_seek() */
+}
 
 void inventory_sale_list_update(
 			LIST *inventory_sale_list,
@@ -1865,7 +1865,7 @@ void inventory_sale_list_update(
 
 	pclose( update_pipe );
 
-} /* inventory_sale_list_update() */
+}
 
 void inventory_list_update(
 			LIST *inventory_list,
@@ -1889,7 +1889,7 @@ void inventory_list_update(
 
 	} while( list_next( inventory_list ) );
 
-} /* inventory_list_update() */
+}
 
 void inventory_list_cost_of_goods_sold_update(
 			LIST *inventory_list,
@@ -1909,7 +1909,7 @@ void inventory_list_cost_of_goods_sold_update(
 
 	} while( list_next( inventory_list ) );
 
-} /* inventory_list_cost_of_goods_sold_update() */
+}
 
 LIST *inventory_get_fifo_inventory_balance_list(
 				LIST *inventory_purchase_list,
@@ -2119,7 +2119,7 @@ LIST *inventory_get_fifo_inventory_balance_list(
 
 	return inventory_balance_list;
 
-} /* inventory_get_fifo_inventory_balance_list() */
+}
 
 LIST *inventory_sort_inventory_balance_list(
 				LIST *inventory_purchase_list,
@@ -2295,7 +2295,7 @@ LIST *inventory_sort_inventory_balance_list(
 
 	return inventory_balance_list;
 
-} /* inventory_sort_inventory_balance_list() */
+}
 
 LIST *inventory_get_average_cost_inventory_balance_list(
 				LIST *inventory_purchase_list,
@@ -2505,7 +2505,7 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 
 	return inventory_balance_list;
 
-} /* inventory_get_average_cost_inventory_balance_list() */
+}
 
 INVENTORY *inventory_load_new(	char *application_name,
 				char *inventory_name )
@@ -2532,7 +2532,7 @@ INVENTORY *inventory_load_new(	char *application_name,
 
 	return inventory;
 
-} /* inventory_load_new() */
+}
 
 int inventory_get_sale_quantity(
 			char *application_name,
@@ -2576,7 +2576,7 @@ int inventory_get_sale_quantity(
 
 	return quantity;
 
-} /* inventory_get_sale_quantity() */
+}
 
 char *inventory_get_max_arrived_purchase_date_time(
 						char *application_name,
@@ -2609,7 +2609,7 @@ char *inventory_get_max_arrived_purchase_date_time(
 
 	return pipe2string( sys_string );
 
-} /* inventory_get_max_arrived_purchase_date_time() */
+}
 
 INVENTORY_PURCHASE *inventory_get_last_inventory_purchase(
 				char *application_name,
@@ -2648,7 +2648,7 @@ INVENTORY_PURCHASE *inventory_get_last_inventory_purchase(
 				purchase_date_time,
 				inventory_name );
 
-} /* inventory_get_last_inventory_purchase() */
+}
 
 INVENTORY_SALE *inventory_get_last_inventory_sale(
 				char *application_name,
@@ -2687,7 +2687,7 @@ INVENTORY_SALE *inventory_get_last_inventory_sale(
 				sale_date_time,
 				inventory_name );
 
-} /* inventory_get_last_inventory_sale() */
+}
 
 INVENTORY_SALE *inventory_sale_fetch(
 				char *application_name,
@@ -2713,7 +2713,7 @@ INVENTORY_SALE *inventory_sale_fetch(
 				list_get_first_pointer(
 					sale_list );
 
-} /* inventory_sale_fetch() */
+}
 
 INVENTORY_PURCHASE *inventory_purchase_fetch(
 				char *application_name,
@@ -2739,7 +2739,7 @@ INVENTORY_PURCHASE *inventory_purchase_fetch(
 				list_get_first_pointer(
 					purchase_list );
 
-} /* inventory_purchase_fetch() */
+}
 
 char *inventory_get_max_arrived_date_time(
 				char *application_name,
@@ -2772,7 +2772,7 @@ char *inventory_get_max_arrived_date_time(
 
 	return pipe2string( sys_string );
 
-} /* inventory_get_max_arrived_date_time() */
+}
 
 char *inventory_get_max_completed_date_time(
 				char *application_name,
@@ -2809,7 +2809,7 @@ char *inventory_get_max_completed_date_time(
 
 	return pipe2string( sys_string );
 
-} /* inventory_get_max_completed_date_time() */
+}
 
 boolean inventory_is_latest_purchase(
 			char *last_inventory_purchase_date_time,
@@ -2847,7 +2847,7 @@ boolean inventory_is_latest_purchase(
 
 	return 1;
 
-} /* inventory_is_latest_purchase() */
+}
 
 boolean inventory_is_latest_sale(
 			char *last_inventory_sale_date_time,
@@ -2871,7 +2871,7 @@ boolean inventory_is_latest_sale(
 
 	return 1;
 
-} /* inventory_get_is_latest_sale() */
+}
 
 double inventory_purchase_get_total_cost_balance(
 			int *quantity_on_hand,
@@ -2910,7 +2910,7 @@ double inventory_purchase_get_total_cost_balance(
 
 	return total_cost_balance;
 
-} /* inventory_purchase_get_total_cost_balance() */
+}
 
 
 double inventory_purchase_get_extension(int ordered_quantity,
@@ -2930,7 +2930,7 @@ double inventory_sale_get_average_cost_of_goods_sold(
 	*total_cost_balance = (double)*quantity_on_hand * average_unit_cost;
 	return (double)quantity_sold * average_unit_cost;
 
-} /* inventory_sale_get_average_cost_of_goods_sold() */
+}
 
 void inventory_purchase_list_delete(
 				LIST *inventory_purchase_list,
@@ -2955,7 +2955,7 @@ void inventory_purchase_list_delete(
 
 	} while( list_next( inventory_purchase_list ) );
 
-} /* inventory_purchase_list_delete() */
+}
 
 void inventory_sale_list_delete(
 			LIST *inventory_sale_list,
@@ -2980,7 +2980,7 @@ void inventory_sale_list_delete(
 
 	} while( list_next( inventory_sale_list ) );
 
-} /* inventory_sale_list_delete() */
+}
 
 char *inventory_get_subquery(	char *inventory_name,
 				char *one2m_folder_name,
@@ -3010,7 +3010,7 @@ char *inventory_get_subquery(	char *inventory_name,
 
 	return strdup( where );
 
-} /* inventory_get_subquery() */
+}
 
 void inventory_list_delete(	LIST *inventory_list,
 				char *inventory_name )
@@ -3025,7 +3025,7 @@ void inventory_list_delete(	LIST *inventory_list,
 		list_delete_current( inventory_list );
 	}
 
-} /* inventory_list_delete() */
+}
 
 char *inventory_sale_get_select( void )
 {
@@ -3034,7 +3034,7 @@ char *inventory_sale_get_select( void )
 
 	return select;
 
-} /* inventory_sale_get_select() */
+}
 
 char *inventory_purchase_get_select( void )
 {
@@ -3043,7 +3043,7 @@ char *inventory_purchase_get_select( void )
 
 	return select;
 
-} /* inventory_purchase_get_select() */
+}
 
 char *inventory_purchase_get_hash_table_key(
 				char *full_name,
@@ -3062,7 +3062,7 @@ char *inventory_purchase_get_hash_table_key(
 
 	return key;
 
-} /* inventory_purchase_get_hash_table_key() */
+}
 
 void inventory_sale_parse(
 				char **full_name,
@@ -3133,7 +3133,7 @@ void inventory_sale_parse(
 	if ( *piece_buffer )
 		*cost_of_goods_sold_account_name = strdup( piece_buffer );
 
-} /* inventory_sale_parse() */
+}
 
 LIST *inventory_get_inventory_sale_list(
 			char *application_name,
@@ -3210,7 +3210,7 @@ LIST *inventory_get_inventory_sale_list(
 	pclose( input_pipe );
 	return inventory_sale_list;
 
-} /* inventory_get_inventory_sale_list() */
+}
 
 LIST *inventory_get_inventory_purchase_list(
 				char *application_name,
@@ -3305,7 +3305,7 @@ LIST *inventory_get_inventory_purchase_list(
 	pclose( input_pipe );
 	return inventory_purchase_list;
 
-} /* inventory_get_inventory_purchase_list() */
+}
 
 LIST *inventory_get_specific_inventory_purchase_list(
 				char *application_name,
@@ -3388,7 +3388,7 @@ LIST *inventory_get_specific_inventory_purchase_list(
 	pclose( input_pipe );
 	return inventory_purchase_list;
 
-} /* inventory_get_specific_inventory_purchase_list() */
+}
 
 void inventory_purchase_parse(
 				char **full_name,
@@ -3471,7 +3471,7 @@ void inventory_purchase_parse(
 	if ( *piece_buffer )
 		*arrived_date_time = strdup( piece_buffer );
 
-} /* inventory_purchase_parse() */
+}
 
 HASH_TABLE *inventory_get_arrived_inventory_purchase_hash_table(
 				LIST **inventory_purchase_list,
@@ -3594,7 +3594,7 @@ HASH_TABLE *inventory_get_arrived_inventory_purchase_hash_table(
 	pclose( input_pipe );
 	return inventory_purchase_hash_table;
 
-} /* inventory_get_arrived_inventory_purchase_hash_table() */
+}
 
 HASH_TABLE *inventory_get_completed_inventory_sale_hash_table(
 				LIST **inventory_sale_list,
@@ -3712,7 +3712,7 @@ HASH_TABLE *inventory_get_completed_inventory_sale_hash_table(
 	pclose( input_pipe );
 	return inventory_sale_hash_table;
 
-} /* inventory_get_completed_inventory_sale_hash_table() */
+}
 
 char *inventory_sale_get_hash_table_key(
 				char *full_name,
@@ -3731,7 +3731,7 @@ char *inventory_sale_get_hash_table_key(
 
 	return key;
 
-} /* inventory_sale_get_hash_table_key() */
+}
 
 double inventory_purchase_list_set_extension(
 			LIST *inventory_purchase_list )
@@ -3757,7 +3757,7 @@ double inventory_purchase_list_set_extension(
 
 	return sum_inventory_extension;
 
-} /* inventory_purchase_list_set_extension() */
+}
 
 void inventory_sale_list_set_extension(
 				LIST *inventory_sale_list )
@@ -3777,7 +3777,7 @@ void inventory_sale_list_set_extension(
 
 	} while( list_next( inventory_sale_list ) );
 
-} /* inventory_sale_list_set_extension() */
+}
 
 double inventory_sale_get_extension(
 				double retail_price,
@@ -3809,7 +3809,7 @@ INVENTORY_PURCHASE *inventory_get_inventory_purchase(
 
 	return (INVENTORY_PURCHASE *)0;
 
-} /* inventory_get_inventory_purchase() */
+}
 
 void inventory_purchase_layers_propagate(
 			char *application_name,
@@ -3853,7 +3853,7 @@ void inventory_purchase_layers_propagate(
 
 	} while( list_next( inventory_purchase_list ) );
 
-} /* inventory_purchase_layers_propagate() */
+}
 
 void inventory_purchase_arrived_quantity_update_with_propagate(
 			LIST *inventory_purchase_list,
@@ -3894,7 +3894,7 @@ void inventory_purchase_arrived_quantity_update_with_propagate(
 		inventory_purchase_list,
 		force_not_latest );
 
-} /* inventory_purchase_arrived_quantity_update_with_propagate() */
+}
 
 /* -------------------------------------------------------------------- */
 /* This function alters:						*/
@@ -3951,7 +3951,7 @@ INVENTORY *inventory_sale_set_cost_of_goods_sold(
 
 	return inventory;
 
-} /* inventory_sale_set_cost_of_goods_sold() */
+}
 
 double inventory_sale_get_cost_of_goods_sold(
 			LIST *inventory_purchase_list,
@@ -3996,7 +3996,7 @@ double inventory_sale_get_cost_of_goods_sold(
 
 	return cost_of_goods_sold;
 
-} /* inventory_sale_get_cost_of_goods_sold() */
+}
 
 void inventory_purchase_list_set_capitalized_unit_cost(
 				LIST *inventory_purchase_list,
@@ -4058,7 +4058,7 @@ void inventory_purchase_list_set_capitalized_unit_cost(
 
 	} while ( list_next( inventory_purchase_list ) );
 
-} /* inventory_purchase_list_set_capitalized_unit_cost() */
+}
 
 char *inventory_balance_list_display(LIST *inventory_balance_list )
 {
@@ -4132,7 +4132,7 @@ char *inventory_balance_list_display(LIST *inventory_balance_list )
 
 	return strdup( buffer );
 
-} /* inventory_balance_list_display() */
+}
 
 LIST *inventory_get_latest_inventory_purchase_list(
 				char *application_name,
@@ -4240,7 +4240,7 @@ LIST *inventory_get_latest_inventory_purchase_list(
 
 	return inventory_purchase_list;
 
-} /* inventory_get_latest_inventory_purchase_list() */
+}
 
 INVENTORY_COST_ACCOUNT *inventory_cost_account_new(
 				char *account_name )
@@ -4263,7 +4263,7 @@ INVENTORY_COST_ACCOUNT *inventory_cost_account_new(
 	h->account_name = account_name;
 	return h;
 
-} /* inventory_cost_account_new() */
+}
 
 INVENTORY_COST_ACCOUNT *inventory_get_or_set_cost_account(
 				LIST *inventory_cost_account_list,
@@ -4311,7 +4311,7 @@ INVENTORY_COST_ACCOUNT *inventory_get_or_set_cost_account(
 
 	return inventory_cost_account;
 
-} /* inventory_get_or_set_cost_account() */
+}
 
 char *inventory_get_inventory_account_name(
 				char *application_name,
@@ -4338,7 +4338,7 @@ char *inventory_get_inventory_account_name(
 
 	return pipe2string( sys_string );
 
-} /* inventory_get_inventory_account_name() */
+}
 
 void inventory_balance_list_average_table_display(
 				FILE *output_pipe,
@@ -4404,7 +4404,7 @@ void inventory_balance_list_average_table_display(
 
 	} while ( list_next( inventory_balance_list ) );
 
-} /* inventory_balance_list_average_table_display() */
+}
 
 void inventory_folder_table_display(
 			FILE *output_pipe,
@@ -4446,7 +4446,7 @@ void inventory_folder_table_display(
 		fprintf( output_pipe, "%s\n", results );
 	}
 
-} /* inventory_folder_table_display() */
+}
 
 char *inventory_get_where( char *inventory_name )
 {
@@ -4462,7 +4462,7 @@ char *inventory_get_where( char *inventory_name )
 
 	return where;
 
-} /* inventory_get_where() */
+}
 
 int inventory_purchase_get_quantity_minus_returned(
 				int quantity,
@@ -4503,7 +4503,7 @@ int inventory_purchase_get_returned_quantity(
 
 	return returned_quantity;
 
-} /* inventory_purchase_get_returned_quantity() */
+}
 
 int inventory_sale_get_returned_quantity(
 				LIST *inventory_sale_return_list )
@@ -4524,7 +4524,7 @@ int inventory_sale_get_returned_quantity(
 
 	return returned_quantity;
 
-} /* inventory_sale_get_returned_quantity() */
+}
 
 /* ---------------------------------------------------- */
 /* Sets inventory_purchase.quantity_on_hand,		*/
@@ -4557,7 +4557,7 @@ void inventory_set_layer_inventory_purchase_list(
 
 	} while( list_next( inventory_sale_list ) );
 
-} /* inventory_set_layer_inventory_purchase_list() */
+}
 
 /* ---------------------------------------------------- */
 /* Sets inventory_purchase.quantity_on_hand,		*/
@@ -4647,7 +4647,7 @@ LIST *inventory_get_layer_inventory_purchase_list(
 	/* ------------------------------------------- */
 	return layer_inventory_purchase_list;
 
-} /* inventory_get_layer_inventory_purchase_list() */
+}
 
 /* Use this for fifo and lifo */
 /* -------------------------- */
@@ -4774,7 +4774,7 @@ void inventory_balance_list_table_display(
 
 	} while ( list_next( inventory_balance_list ) );
 
-} /* inventory_balance_list_table_display() */
+}
 
 enum inventory_cost_method inventory_cost_method_resolve(
 				char *inventory_cost_method_string )

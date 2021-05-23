@@ -14,6 +14,7 @@
 
 /* Constants */
 /* --------- */
+#define INVENTORY_SALE_TABLE		"inventory_sale"
 
 /* Enumerated types */
 /* ---------------- */
@@ -88,10 +89,10 @@ double inventory_sale_cost_of_goods_sold(
 			LIST *inventory_purchase_list,
 			LIST *inventory_sale_list );
 
-char *inventory_sale_sys_string(
+char *inventory_sale_system_string(
 			char *where );
 
 LIST *inventory_sale_system_list(
-			char *sys_string );
+			char *system_string );
 
 #endif

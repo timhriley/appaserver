@@ -57,7 +57,7 @@ typedef struct
 	/* ------- */
 	double depreciation_amount;
 	double depreciation_accumulated_depreciation;
-	int units_produced;
+	int units_produced_current;
 	char *transaction_date_time;
 	TRANSACTION *depreciation_transaction;
 	ENTITY *self_entity;
@@ -93,11 +93,11 @@ double depreciation_amount(
 			char *prior_depreciation_date,
 			char *depreciation_date,
 			double cost_basis,
+			int units_produced_current,
 			int estimated_residual_value,
 			int estimated_useful_life_years,
 			int estimated_useful_life_units,
 			int declining_balance_n,
-			int units_produced,
 			double prior_accumulated_depreciation );
 
 double depreciation_sum_of_years_digits(
@@ -183,6 +183,7 @@ void depreciation_insert(
 			char *asset_name,
 			char *serial_label,
 			char *depreciation_date,
+			int units_produced_current,
 			double depreciation_amount,
 			char *transaction_date_time );
 
@@ -211,11 +212,19 @@ DEPRECIATION *depreciation_evaluate(
 			char *prior_depreciation_date,
 			char *depreciation_date,
 			double cost_basis,
+			int units_produced_so_far,
 			int estimated_residual_value,
 			int estimated_useful_life_years,
 			int estimated_useful_life_units,
 			int declining_balance_n,
-			int units_produced,
 			double prior_accumulated_depreciation );
+
+int depreciation_units_produced_total(
+			char *asset_name,
+			char *serial_label );
+
+int depreciation_units_produced_current(
+			int units_produced_so_far,
+			int units_produced_total );
 
 #endif

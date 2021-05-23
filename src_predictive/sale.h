@@ -12,6 +12,7 @@
 #include "boolean.h"
 #include "transaction.h"
 #include "entity.h"
+#include "predictive.h"
 
 /* Constants */
 /* --------- */
