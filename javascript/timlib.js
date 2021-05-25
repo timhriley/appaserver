@@ -51,7 +51,7 @@ function timlib_count_lines( s )
 		if ( code == 10 ) number_lines++;
 	}
 	return number_lines;
-} // timlib_count_lines()
+}
 
 function timlib_check_notepad_size( element, max_length )
 {
@@ -73,7 +73,7 @@ function timlib_check_notepad_size( element, max_length )
 		' characters.' );
 	}
 	return true;
-} // timlib_check_notepad_size()
+}
 
 function timlib_get_drop_down_element_populated( options )
 {
@@ -93,7 +93,7 @@ function timlib_get_drop_down_element_populated( options )
 	else
 		return false;
 
-} // timlib_get_drop_down_element_populated()
+}
 
 function timlib_get_multi_select_drop_down_element_populated( options )
 {
@@ -115,7 +115,7 @@ function timlib_get_multi_select_drop_down_element_populated( options )
 		}
 	}
 	return false;
-} // timlib_get_multi_select_drop_down_element_populated()
+}
 
 function timlib_exists( element_name, element_name_list )
 {
@@ -191,7 +191,7 @@ function timlib_get_element( search_element_name )
 
 	return "";
 
-} // timlib_get_element()
+}
 
 function timlib_get_form_element( search_element_name, form_number )
 {
@@ -213,7 +213,7 @@ function timlib_get_form_element( search_element_name, form_number )
 
 	return "";
 
-} // timlib_get_form_element()
+}
 
 function timlib_get_radio_selected_value( search_element_name )
 {
@@ -244,7 +244,7 @@ function timlib_get_radio_selected_value( search_element_name )
                 }
         }
         return "";
-} // timlib_get_radio_selected_value()
+}
 
 // Returns 'undefined' if false.
 // -----------------------------
@@ -263,7 +263,7 @@ function timlib_get_drop_down_element_value( options )
                 }
         }
 	return 'undefined';
-} // timlib_get_drop_down_element_value()
+}
 
 function timlib_set_drop_down_element_value( options, value )
 {
@@ -280,7 +280,7 @@ function timlib_set_drop_down_element_value( options, value )
 			options[ i ].selected = true;
         }
 	return true;
-} // timlib_set_drop_down_element_value()
+}
 
 function timlib_gray_mutually_exclusive_drop_downs( element_name_list_string )
 {
@@ -372,7 +372,7 @@ function timlib_gray_mutually_exclusive_drop_downs( element_name_list_string )
 
 	return true;
 
-} // timlib_gray_mutually_exclusive_drop_downs()
+}
 
 function timlib_get_delimiter( string )
 {
@@ -402,7 +402,7 @@ function timlib_get_delimiter( string )
 			return '-';
 	}
 	return '';
-} // timlib_get_delimiter()
+}
 
 function timlib_get_non_minus_delimiter( string )
 {
@@ -429,7 +429,7 @@ function timlib_get_non_minus_delimiter( string )
 			return '.';
 	}
 	return '';
-} // timlib_get_non_minus_delimiter()
+}
 
 function timlib_set_all_push_buttons(	master_element,
 					prefix )
@@ -464,7 +464,7 @@ function timlib_set_all_push_buttons(	master_element,
 		}
 	}
 	return true;
-} // timlib_set_all_push_buttons()
+}
 
 var delete_warned_already = false;
 
@@ -479,7 +479,7 @@ function timlib_delete_button_warning()
 
 	return true;
 
-} // timlib_delete_button_warning()
+}
 
 function timlib_get_index( attribute_name, element_name )
 {
@@ -496,7 +496,7 @@ function timlib_get_index( attribute_name, element_name )
 	index_string = element_name.substr( len + 1 );
 	return index_string;
 
-} // timlib_get_index()
+}
 
 function timlib_remove_character( input_string, remove_character )
 {
@@ -520,7 +520,7 @@ function timlib_remove_character( input_string, remove_character )
 
 	return return_string;
 
-} // timlib_remove_character()
+}
 
 function timlib_remove_index( element_name )
 {
@@ -555,7 +555,7 @@ function timlib_remove_index( element_name )
 
 	return element_name.substr( 0, i );
 
-} // timlib_remove_index()
+}
 
 function timlib_element_value_set(	element_name,
 					element_value  )
@@ -574,7 +574,7 @@ function timlib_element_value_set(	element_name,
 
 	return true;
 
-} // timlib_element_value_set()
+}
 
 function timlib_history_forward()
 {
@@ -587,4 +587,4 @@ function timlib_history_forward()
 
 	return true;
 
-} // timlib_history_forward()
+}

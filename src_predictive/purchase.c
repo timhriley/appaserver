@@ -37,7 +37,7 @@ PURCHASE *purchase_fetch(
 
 	sprintf(system_string,
 		"select.sh '*' %s \"%s\" ''",
-		 PURCHASE_TABLE_NAME,
+		 PURCHASE_TABLE,
 		 /* -------------------------- */
 		 /* Safely returns heap memory */
 		 /* -------------------------- */
@@ -114,7 +114,7 @@ FILE *purchase_update_open( void )
 
 	sprintf( system_string,
 		 "update_statement.e table=%s key=%s carrot=y | sql",
-		 PURCHASE_TABLE_NAME,
+		 PURCHASE_TABLE,
 		 key );
 
 	return popen( system_string, "w" );
@@ -233,10 +233,11 @@ PURCHASE *purchase_parse( char *input )
 
 	purchase->fixed_asset_purchase_list =
 		fixed_asset_purchase_list_fetch(
-			purchase->vendor_entity->full_name,
-			purchase->vendor_entity->street_address,
-			purchase->purchase_date_time,
-			0 /* not fetch_depreciation_list */ );
+			purchase_primary_where(
+				purchase->vendor_entity->full_name,
+				purchase->vendor_entity->street_address,
+				purchase->purchase_date_time ),
+			0 /* not fetch_last_depreciation */ );
 
 	purchase->vendor_payment_list =
 		vendor_payment_list_fetch(
@@ -281,7 +282,7 @@ double purchase_fetch_amount_due(
 	sprintf( system_string,
 		 "echo \"select %s from %s where %s;\" | sql",
 		 "amount_due",
-		 PURCHASE_TABLE_NAME,
+		 PURCHASE_TABLE,
 		 purchase_primary_where(
 			full_name,
 			street_address,
@@ -431,7 +432,7 @@ char *purchase_system_string(
 
 	sprintf(system_string,
 		"select.sh '*' %s \"%s\" \"%s\"",
-		PURCHASE_TABLE_NAME,
+		PURCHASE_TABLE,
 		where,
 		(order) ? order : "" );
 
@@ -576,5 +577,22 @@ double purchase_invoice_amount(
 	if ( !total ) return 0.0;
 
 	return total + sales_tax + freight_in;
+}
+
+boolean purchase_is_participating( void )
+{
+	char system_string[ 1024 ];
+	char where[ 512 ];
+
+	sprintf(where,
+		"folder = '%s'",
+		PURCHASE_TABLE );
+
+	sprintf(system_string,
+		"select.sh \"%s\" role_folder \"%s\" ''",
+		"count(1)",
+		where );
+
+	return atoi( string_pipe_fetch( system_string ) );
 }
 

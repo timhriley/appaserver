@@ -49,7 +49,8 @@ EXECUTABLES=	trial_balance						\
 		post_change_account_balance				\
 		ledger_propagate					\
 		feeder_upload_missing					\
-		journal_ledger_trigger
+		journal_ledger_trigger					\
+		post_change_fixed_asset_purchase
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\

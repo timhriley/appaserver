@@ -91,12 +91,11 @@ char *fixed_asset_primary_where(
 
 	sprintf(where,
 		"asset_name = '%s' and "
-		"serial_label = '%s",
+		"serial_label = '%s'",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		fixed_asset_name_escape(
-			asset_name ),
+		fixed_asset_name_escape( asset_name ),
 		serial_label );
 
 	return where;

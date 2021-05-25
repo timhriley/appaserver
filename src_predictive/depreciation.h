@@ -8,6 +8,7 @@
 #ifndef DEPRECIATION_H
 #define DEPRECIATION_H
 
+#include "entity_self.h"
 #include "entity.h"
 #include "transaction.h"
 
@@ -60,7 +61,7 @@ typedef struct
 	int units_produced_current;
 	char *transaction_date_time;
 	TRANSACTION *depreciation_transaction;
-	ENTITY *self_entity;
+	ENTITY_SELF *entity_self;
 } DEPRECIATION;
 
 /* Operations */
@@ -71,18 +72,21 @@ DEPRECIATION *depreciation_new(
 			char *depreciation_date );
 
 DEPRECIATION *depreciation_parse(
-			char *input );
+			char *input,
+			boolean fetch_transaction );
 
 DEPRECIATION *depreciation_fetch(
 			char *asset_name,
 			char *serial_label,
-			char *depreciation_date );
+			char *depreciation_date,
+			boolean fetch_transaction );
 
 char *depreciation_system_string(
 			char *where );
 
 LIST *depreciation_system_list(
-			char *system_string );
+			char *system_string,
+			boolean fetch_transaction );
 
 double depreciation_amount_total(
 			LIST *depreciation_list );
@@ -158,7 +162,8 @@ char *depreciation_primary_where(
 
 LIST *depreciation_list_fetch(
 			char *asset_name,
-			char *serial_label );
+			char *serial_label,
+			boolean fetch_transaction );
 
 double depreciation_accumulated_depreciation(
 			double prior_accumulated_depreciation,
@@ -185,6 +190,8 @@ void depreciation_insert(
 			char *depreciation_date,
 			int units_produced_current,
 			double depreciation_amount,
+			char *full_name,
+			char *street_address,
 			char *transaction_date_time );
 
 char *depreciation_prior_depreciation_date(
@@ -201,7 +208,7 @@ FILE *depreciation_delete_open(
 char *depreciation_method_string(
 	 		enum depreciation_method depreciation_method );
 
-enum depreciation_method depreciation_method_resolve(
+enum depreciation_method depreciation_method_evaluate(
 			char *depreciation_method_string );
 
 DEPRECIATION *depreciation_evaluate(

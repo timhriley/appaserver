@@ -95,7 +95,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 
 	piece( piece_buffer, SQL_DELIMITER, input, 9 );
 	fixed_asset_purchase->depreciation_method =
-		depreciation_method_resolve( piece_buffer );
+		depreciation_method_evaluate( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 10 );
 	fixed_asset_purchase->estimated_useful_life_years =
@@ -112,14 +112,14 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 	piece( piece_buffer, SQL_DELIMITER, input, 13 );
 	fixed_asset_purchase->declining_balance_n = atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 13 );
+	piece( piece_buffer, SQL_DELIMITER, input, 14 );
 	fixed_asset_purchase->cost_basis = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 14 );
+	piece( piece_buffer, SQL_DELIMITER, input, 15 );
 	fixed_asset_purchase->finance_accumulated_depreciation =
 		atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 15 );
+	piece( piece_buffer, SQL_DELIMITER, input, 16 );
 	fixed_asset_purchase->tax_accumulated_depreciation =
 		atof( piece_buffer );
 
@@ -139,7 +139,8 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 						asset_name,
 					fixed_asset_purchase->
 						fixed_asset->
-						serial_label ) );
+						serial_label ),
+			1 /* fetch_transaction */ );
 	}
 	return fixed_asset_purchase;
 }
@@ -388,64 +389,6 @@ LIST *fixed_asset_purchase_list_depreciate(
 	return fixed_asset_purchase_list;
 }
 
-void fixed_asset_purchase_depreciation_table(
-			LIST *fixed_asset_purchase_list )
-{
-	char sys_string[ 1024 ];
-	FILE *output_pipe;
-	char *heading_list_string;
-	char *justify_list_string;
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-
-	heading_list_string =
-		"asset_name,"
-		"serial_label,"
-		"service_placement_date",
-		"depreciation_date",
-		"depreciation_amount";
-
-	justify_list_string = "left,left,left,left,right";
-
-	sprintf( sys_string,
-		 "html_table.e '^%s' '%s' '^' '%s'",
-		 "Depreciate Fixed Asset",
-		 heading_list_string,
-		 justify_list_string );
-
-	output_pipe = popen( sys_string, "w" );
-
-	if ( !list_rewind( fixed_asset_purchase_list ) )
-	{
-		pclose( output_pipe );
-		return;
-	}
-
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_list );
-
-		if ( !fixed_asset_purchase->depreciation )
-		{
-			continue;
-		}
-
-		fprintf( output_pipe,
-			 "%s^%s^%s^%s^%.2lf\n",
-			 fixed_asset_purchase->fixed_asset->asset_name,
-			 fixed_asset_purchase->fixed_asset->serial_label,
-			 fixed_asset_purchase->service_placement_date,
-			 fixed_asset_purchase->
-				depreciation->
-				depreciation_date,
-			 fixed_asset_purchase->
-				depreciation->
-				depreciation_amount );
-
-	} while( list_next( fixed_asset_purchase_list ) );
-	pclose( output_pipe );
-}
-
 LIST *fixed_asset_purchae_depreciation_list(
 			LIST *fixed_asset_purchase_list )
 {
@@ -469,7 +412,6 @@ LIST *fixed_asset_purchae_depreciation_list(
 }
 
 void fixed_asset_purchase_depreciation_display(
-			char *process_name,
 			LIST *fixed_asset_purchase_list )
 {
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
@@ -487,8 +429,7 @@ void fixed_asset_purchase_depreciation_display(
 	justification = "left,left,left,right";
 
 	sprintf( sys_string,
-		 "html_table.e '%s' '%s' '^' '%s'",
-		 format_initial_capital( buffer, process_name ),
+		 "html_table.e '' '%s' '^' '%s'",
 		 heading,
 		 justification );
 
@@ -499,6 +440,32 @@ void fixed_asset_purchase_depreciation_display(
 		fixed_asset_purchase =
 			list_get(
 				fixed_asset_purchase_list );
+
+		if ( !fixed_asset_purchase->depreciation ) continue;
+
+		fprintf(output_pipe,
+			"%s^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf",
+			format_initial_capital(
+				buffer,
+				fixed_asset_purchase->
+					fixed_asset->
+					asset_name ),
+			fixed_asset_purchase->
+				fixed_asset->
+				serial_label,
+			fixed_asset_purchase->service_placement_date,
+			fixed_asset_purchase->
+				cost_basis,
+			fixed_asset_purchase->
+				finance_accumulated_depreciation,
+			fixed_asset_purchase->
+				depreciation->
+				depreciation_amount,
+			fixed_asset_purchase->
+				finance_accumulated_depreciation +
+			fixed_asset_purchase->
+				depreciation->
+				depreciation_amount );
 
 	} while( list_next( fixed_asset_purchase_list ) );
 

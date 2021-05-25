@@ -128,7 +128,6 @@ LIST *fixed_asset_purchase_depreciation_list(
 			LIST *fixed_asset_purchase_list );
 
 void fixed_asset_purchase_depreciation_display(
-			char *process_name,
 			LIST *fixed_asset_purchase_list );
 
 #endif

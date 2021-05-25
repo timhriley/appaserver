@@ -212,10 +212,10 @@ void document_output_head_stream(
 	&&   list_length( javascript_module_list ) )
 	{
 		document_output_each_javascript_source(
-				application_name,
-				javascript_module_list,
-				appaserver_mount_point,
-				relative_source_directory );
+			application_name,
+			javascript_module_list,
+			appaserver_mount_point,
+			relative_source_directory );
 	}
 
 	/* This is necessary because a fork to "cat" might happen. */
@@ -247,26 +247,32 @@ void document_output_each_javascript_source(
 				javascript_module_list );
 
 		document_output_javascript_source(
-					application_name,
-					javascript_module->javascript_filename,
-					appaserver_mount_point,
-					relative_source_directory );
+			application_name,
+			javascript_module->javascript_filename,
+			appaserver_mount_point,
+			relative_source_directory );
 
 	} while( list_next( javascript_module_list ) );
 
 }
 
 void document_output_javascript_source(
-				char *application_name,
-				char *javascript_filename,
-				char *appaserver_mount_point,
-				char *relative_source_directory )
+			char *application_name,
+			char *javascript_filename,
+			char *appaserver_mount_point,
+			char *relative_source_directory )
 {
 	char source_filename[ 256 ];
 	char source_directory[ 128 ];
 	char relative_source_directory_javascript[ 512 ];
 	char source_directory_filename[ 512 ];
 	int index;
+	boolean cat_javascript_source;
+	boolean found_it;
+
+	cat_javascript_source =
+		application_constants_cat_javascript_source(
+			application_name );
 
 	if ( relative_source_directory && *relative_source_directory )
 	{
@@ -285,7 +291,8 @@ void document_output_javascript_source(
 	if ( instr( ".js", source_filename, 1 ) == -1 )
 		strcat( source_filename, ".js" );
 
-	for(	index = 0;
+	for(	found_it = 0,
+		index = 0;
 		piece(	source_directory,
 			PATH_DELIMITER,
 			relative_source_directory_javascript,
@@ -298,32 +305,42 @@ void document_output_javascript_source(
 		 	source_directory,
 		 	source_filename );
 
-		if ( timlib_file_exists( source_directory_filename ) ) break;
+		if ( timlib_file_exists( source_directory_filename ) )
+		{
+			found_it = 1;
+			break;
+		}
 	}
 
-	if ( !*source_directory )
+	if ( !found_it )
 	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot find javascript filename = %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 source_filename );
+		char msg[ 65536 ];
+
+		sprintf(msg,
+		"ERROR in %s/%s()/%d: timlib_file_exists(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			source_filename );
+		m2( application_name, msg );
 		exit( 1 );
 	}
 
-	if ( application_constants_cat_javascript_source( application_name ) )
+	if ( cat_javascript_source )
 	{
 		char buffer[ 1024 ];
 
 		printf( "<SCRIPT language=\"JavaScript1.2\">\n" );
+
 		sprintf( buffer, 
 		 	"cat %s/%s/%s",
 		 	appaserver_mount_point,
 		 	source_directory,
 		 	source_filename );
 		fflush( stdout );
+
 		if ( system( buffer ) ){};
+
 		fflush( stdout );
 		printf( "</SCRIPT>\n" );
 	}
@@ -334,7 +351,6 @@ void document_output_javascript_source(
 			source_directory,
 			source_filename );
 	}
-
 }
 
 void document_close( void )
@@ -390,13 +406,13 @@ void document_set_javascript_module(
 			d->javascript_module_list,
 			javascript_filename );
 
-	list_append_pointer(
+	list_set(
 		d->javascript_module_list, javascript_module );
 }
 
 char *document_set_onload_control_string(
-					char *document_onload_control_string,
-					char *s )
+			char *document_onload_control_string,
+			char *s )
 {
 	if ( !s ) return document_onload_control_string;
 
@@ -471,9 +487,9 @@ void document_quick_output_body(	char *application_name,
 }
 
 void document_set_folder_javascript_files(
-					DOCUMENT *document,
-					char *application_name,
-					char *folder_name )
+			DOCUMENT *document,
+			char *application_name,
+			char *folder_name )
 {
 	char sys_string[ 2048 ];
 	char where[ 1024 ];
@@ -519,17 +535,19 @@ void document_set_folder_javascript_files(
 	{
 		do {
 			filename = list_get_pointer( filename_list );
+
 			document_set_javascript_module(
 				document,
 				filename );
+
 		} while( list_next( filename_list ) );
 	}
 }
 
 void document_set_process_javascript_files(
-					DOCUMENT *document,
-					char *application_name,
-					char *process_name )
+			DOCUMENT *document,
+			char *application_name,
+			char *process_name )
 {
 	char sys_string[ 2048 ];
 	char where[ 1024 ];
@@ -575,10 +593,12 @@ void document_set_process_javascript_files(
 	if ( list_rewind( filename_list ) )
 	{
 		do {
-			filename = list_get_pointer( filename_list );
+			filename = list_get( filename_list );
+
 			document_set_javascript_module(
 				document,
 				filename );
+
 		} while( list_next( filename_list ) );
 	}
 	else
@@ -611,18 +631,21 @@ void document_set_process_javascript_files(
 		filename_list = pipe2list( sys_string );
 	
 		if ( !list_rewind( filename_list ) ) return;
+
 		do {
 			filename = list_get_pointer( filename_list );
+
 			document_set_javascript_module(
 				document,
 				filename );
+
 		} while( list_next( filename_list ) );
 	}
 }
 
 DOCUMENT_JAVASCRIPT_MODULE *document_javascript_module_new(
-					LIST *javascript_module_list,
-					char *javascript_filename )
+			LIST *javascript_module_list,
+			char *javascript_filename )
 {
 	DOCUMENT_JAVASCRIPT_MODULE *javascript_module;
 
@@ -630,8 +653,9 @@ DOCUMENT_JAVASCRIPT_MODULE *document_javascript_module_new(
 	{
 		do {
 			javascript_module =
-				list_get_pointer(
+				list_get(
 					javascript_module_list );
+
 			if ( strcmp(	javascript_module->javascript_filename,
 					javascript_filename ) == 0 )
 			{
@@ -656,10 +680,10 @@ DOCUMENT_JAVASCRIPT_MODULE *document_javascript_module_new(
 }
 
 void document_output_dynarch_non_frame_html_head_body(
-				char *application_name,
-				boolean content_type,
-				char *dynarch_menu_onload_control_string,
-				char *additional_control_string )
+			char *application_name,
+			boolean content_type,
+			char *dynarch_menu_onload_control_string,
+			char *additional_control_string )
 {
 	document_output_head(	application_name,
 				(char *)0 /* title */,

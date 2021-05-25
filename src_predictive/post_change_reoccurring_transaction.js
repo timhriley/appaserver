@@ -116,8 +116,7 @@ function post_change_reoccurring_transaction( row )
 	}
 
 	return true;
-
-} // post_change_reoccurring_transaction()
+}
 
 function post_change_reoccurring_transaction_each_row()
 {
@@ -133,5 +132,4 @@ function post_change_reoccurring_transaction_each_row()
 	}
 
 	return true;
-
-} // post_change_reoccurring_transaction_each_row()
+}

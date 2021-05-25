@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "related_folder.h"
@@ -4926,6 +4927,7 @@ LIST *related_folder_prompt_insert_element_list(
 			char *role_name,
 			char *login_name,
 			char *folder_name,
+			boolean relation_type_isa,
 			PROCESS *populate_drop_down_process,
 			LIST *attribute_list,
 			LIST *foreign_attribute_name_list,
@@ -5000,7 +5002,8 @@ LIST *related_folder_prompt_insert_element_list(
 	{
 		ELEMENT_APPASERVER *new_button_element;
 
-		if ( ( new_button_element =
+		if ( !relation_type_isa
+		&&   ( new_button_element =
 			vertical_new_button_element(
 				folder_name
 					/* one_folder_name */,
@@ -5302,5 +5305,131 @@ RELATED_FOLDER *related_folder_insert_table_consumes_related_folder(
 	} while( list_next( mto1_related_folder_list ) );
 
 	return (RELATED_FOLDER *)0;
+}
+
+LIST *related_folder_prompt_insert_mto1_related_folder_list(
+		LIST *related_folder_list,
+		char *application_name,
+		char *session,
+		char *folder_name,
+		char *role_name,
+		boolean override_row_restrictions )
+{
+	RELATED_FOLDER *related_folder;
+	LIST *local_related_folder_list;
+
+	if ( !related_folder_list ) related_folder_list = list_new_list();
+
+	local_related_folder_list =
+		related_folder_related_folder_list(
+			application_name,
+			session,
+			folder_name,
+			mto1,
+			related_folder_list
+				/* existing_related_folder_list */ );
+
+	if (!list_rewind( local_related_folder_list ) )
+	{
+		return related_folder_list;
+	}
+
+	do {
+		related_folder = list_get( local_related_folder_list );
+
+		if ( folder_name
+		&&   strcmp(	related_folder->
+					one2m_folder->
+					folder_name,
+				folder_name ) != 0 )
+		{
+			continue;
+		}
+
+		if ( related_folder->relation_type_isa )
+		{
+			continue;
+		}
+
+		related_folder->relation_type_isa =
+			related_folder_mto1_relation_type_isa(
+				related_folder->folder->folder_name );
+
+		if ( !related_folder->folder->attribute_list )
+		{
+			related_folder->folder->attribute_list =
+			attribute_get_attribute_list(
+				related_folder->folder->application_name,
+				related_folder->folder->folder_name,
+				(char *)0 /* attribute_name */,
+				(LIST *)0 /* mto1_isa_related_folder_list */,
+				role_name );
+
+			related_folder->folder->primary_attribute_name_list =
+				attribute_primary_attribute_name_list(
+					related_folder->
+						folder->
+						attribute_list );
+		}
+
+		folder_load(
+			&related_folder->folder->insert_rows_number,
+			&related_folder->folder->lookup_email_output,
+			&related_folder->folder->row_level_non_owner_forbid,
+			&related_folder->folder->row_level_non_owner_view_only,
+			&related_folder->folder->populate_drop_down_process,
+			&related_folder->folder->post_change_process,
+			&related_folder->folder->folder_form,
+			&related_folder->folder->notepad,
+			&related_folder->folder->html_help_file_anchor,
+			&related_folder->folder->
+				post_change_javascript,
+			&related_folder->folder->lookup_before_drop_down,
+			&related_folder->folder->data_directory,
+			&related_folder->folder->index_directory,
+			&related_folder->folder->no_initial_capital,
+			&related_folder->folder->subschema_name,
+			&related_folder->folder->create_view_statement,
+			application_name,
+			session,
+			related_folder->folder->folder_name,
+			override_row_restrictions,
+			role_name,
+			(LIST *)0 /* mto1_related_folder_list */ );
+
+		related_folder->foreign_attribute_name_list =
+			related_folder_foreign_attribute_name_list(
+				related_folder->
+					folder->
+						primary_attribute_name_list,
+				related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
+
+		list_set(
+			related_folder_list,
+			related_folder );
+
+	} while( list_next( local_related_folder_list ) );
+
+	return related_folder_list;
+}
+
+boolean related_folder_mto1_relation_type_isa(
+			char *folder_name )
+{
+	char system_string[ 1024 ];
+	char where[ 512 ];
+
+	sprintf(where,
+		"folder = '%s' and relation_type_isa_yn = 'y'",
+		folder_name );
+
+	sprintf(system_string,
+		"select.sh \"%s\" relation \"%s\" ''",
+		"count(1)",
+		where );
+
+	return atoi( string_pipe_fetch( system_string ) );
 }
 

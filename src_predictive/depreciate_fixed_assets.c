@@ -39,7 +39,6 @@ boolean depreciate_fixed_asset_undo(
 			boolean execute );
 
 boolean depreciate_fixed_assets(
-			char *process_name,
 			boolean execute );
 
 int main( int argc, char **argv )
@@ -94,12 +93,12 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			printf( "<h3>No depreciation to undo</h3>\n" );
+			printf( "<h3>No depreciations to undo</h3>\n" );
 		}
 	}
 	else
 	{
-		if ( depreciate_fixed_assets( process_name, execute ) )
+		if ( depreciate_fixed_assets( execute ) )
 		{
 			if ( execute )
 				printf( "<h3>Posting complete</h3>\n" );
@@ -133,11 +132,12 @@ FILE *depreciate_fixed_asset_undo_html_open( void )
 	justify_list_string = "left,left,left,left,right";
 
 	sprintf( sys_string,
-		 "html_table.e '^%s' '%s' '^' '%s'",
+		 "html_table.e '^^%s' '%s' '^' '%s'",
 		 "UNDO Depreciate Fixed Assets",
 		 heading_list_string,
 		 justify_list_string );
 
+	fflush( stdout );
 	return popen( sys_string, "w" );
 }
 
@@ -187,13 +187,6 @@ boolean depreciate_fixed_asset_undo( boolean execute )
 			continue;
 		}
 
-		if ( !fixed_asset_purchase->
-				depreciation->
-				depreciation_transaction )
-		{
-			continue;
-		}
-
 		fprintf( html_output,
 			 "%s^%s^%s^%s^%.2lf\n",
 			 fixed_asset_purchase->fixed_asset->asset_name,
@@ -226,10 +219,28 @@ boolean depreciate_fixed_asset_undo( boolean execute )
 				continue;
 			}
 
+			fprintf(delete_pipe,
+			 	"%s^%s^%s\n",
+			 	fixed_asset_purchase->
+					fixed_asset->
+					asset_name,
+			 	fixed_asset_purchase->
+					fixed_asset->
+					serial_label,
+			 	fixed_asset_purchase->
+					depreciation->
+					depreciation_date );
+
 			if ( !fixed_asset_purchase->
 					depreciation->
 					depreciation_transaction )
 			{
+				fprintf(stderr,
+		"Warning in %s/%s()/%d: empty depreciation_transaction.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+
 				continue;
 			}
 
@@ -249,18 +260,6 @@ boolean depreciate_fixed_asset_undo( boolean execute )
 					depreciation_transaction->
 					transaction_date_time );
 
-			fprintf(delete_pipe,
-			 	"%s^%s^%s\n",
-			 	fixed_asset_purchase->
-					fixed_asset->
-					asset_name,
-			 	fixed_asset_purchase->
-					fixed_asset->
-					serial_label,
-			 	fixed_asset_purchase->
-					depreciation->
-					depreciation_date );
-
 		} while ( list_next( fixed_asset_purchase_list ) );
 
 		pclose( delete_pipe );
@@ -271,7 +270,6 @@ boolean depreciate_fixed_asset_undo( boolean execute )
 }
 
 boolean depreciate_fixed_assets(
-			char *process_name,
 			boolean execute )
 {
 	LIST *fixed_asset_purchase_list;
@@ -286,7 +284,6 @@ boolean depreciate_fixed_assets(
 	if ( !list_length( fixed_asset_purchase_list ) ) return 0;
 
 	fixed_asset_purchase_depreciation_display(
-		process_name,
 		fixed_asset_purchase_list );
 
 	if ( execute )

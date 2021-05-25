@@ -20,6 +20,7 @@
 #include "subclassification.h"
 #include "predictive.h"
 #include "statement.h"
+#include "transaction.h"
 #include "element.h"
 
 char *element_select( void )

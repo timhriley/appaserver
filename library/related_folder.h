@@ -597,6 +597,7 @@ LIST *related_folder_prompt_insert_element_list(
 			char *role_name,
 			char *login_name,
 			char *folder_name,
+			boolean relation_type_isa,
 			PROCESS *populate_drop_down_process,
 			LIST *attribute_list,
 			LIST *foreign_attribute_name_list,
@@ -630,5 +631,16 @@ RELATED_FOLDER *related_folder_insert_table_consumes_related_folder(
 			LIST *omit_insert_attribute_name_list,
 			LIST *mto1_related_folder_list,
 			char *attribute_name );
+
+LIST *related_folder_prompt_insert_mto1_related_folder_list(
+			LIST *related_folder_list,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			boolean override_row_restrictions );
+
+boolean related_folder_mto1_relation_type_isa(
+			char *folder_name );
 
 #endif

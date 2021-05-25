@@ -217,6 +217,7 @@ double accrual_amount(
 
 	fraction_of_year =
 		depreciation_fraction_of_year(
+			(char *)0 /* service_placement_date */,
 			prior_accrual_date_string,
 			accrual_date_string );
 

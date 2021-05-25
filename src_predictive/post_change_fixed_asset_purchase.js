@@ -13,16 +13,18 @@ function post_change_fixed_asset_purchase( row )
 
 	// Turn on each edit.
 	// ------------------
-	element_name = 'expense_account_' + row;
+	element_name = 'estimated_useful_life_years_' + row;
 	element =
-		timlib_get_form_element(
-			element_name, 0 );
+		timlib_get_element(
+			element_name );
 
-	if ( element = "" ) return false;
+	// All done
+	// --------
+	if ( element == "" ) return false;
 
 	element.disabled = false;
 
-	element_name = 'estimated_useful_life_years_' + row;
+	element_name = 'units_produced_so_far_' + row;
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
@@ -46,75 +48,11 @@ function post_change_fixed_asset_purchase( row )
 			element_name, 0 );
 	element.disabled = false;
 
-	element_name = 'depreciation_method_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
-	element.disabled = false;
-
-	// Check Expense Account element
-	// -----------------------------
-	element_name = 'expense_account_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
-
-	if ( element == "" ) return false;
-
-	if ( element.value == 'select'
-	||   element.value == 'is_empty' )
-	{
-		return post_change_fixed_asset_purchase_depreciation( row )
-	}
-	else
-	{
-		return post_change_fixed_asset_purchase_expense( row )
-	}
+	post_change_fixed_asset_purchase_depreciation( row )
   
 	return true;
 
-} // post_change_fixed_asset_purchase()
-
-function post_change_fixed_asset_purchase_expense( row )
-{
-	var element_name;
-	var element;
-
-	// Turn off each edit.
-	// -------------------
-	element_name = 'estimated_useful_life_years_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
-	element.disabled = true;
-
-	element_name = 'estimated_useful_life_units_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
-	element.disabled = true;
-
-	element_name = 'estimated_residual_value_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
-	element.disabled = true;
-
-	element_name = 'declining_balance_n_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
-	element.disabled = true;
-
-	element_name = 'depreciation_method_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
-	element.disabled = true;
-
-	return true;
-
-} // post_change_fixed_asset_purchase_expense()
+}
 
 function post_change_fixed_asset_purchase_depreciation( row )
 {
@@ -124,24 +62,29 @@ function post_change_fixed_asset_purchase_depreciation( row )
 
 	element_name = 'depreciation_method_' + row;
 	element =
-		timlib_get_form_element(
-			element_name, 0 );
-	depreciation_method_element_value = element.value;
+		timlib_get_element(
+			element_name );
 
-	if ( depreciation_method_element_value == 'select'
-	||   depreciation_method_element_value == 'is_empty' )
+	depreciation_method_element_value =
+		// ---------------------------------
+		// Returns 'undefined' if not found.
+		// ---------------------------------
+		timlib_get_drop_down_element_value(
+			element.options );
+
+	if ( depreciation_method_element_value == 'undefined' )
 	{
 		return true;
 	}
 
-	element_name = 'expense_account_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
-	element.disabled = true;
-
 	if ( depreciation_method_element_value == 'straight_line' )
 	{
+		element_name = 'units_produced_so_far_' + row;
+		element =
+			timlib_get_form_element(
+				element_name, 0 );
+		element.disabled = true;
+
 		element_name = 'estimated_useful_life_units_' + row;
 		element =
 			timlib_get_form_element(
@@ -157,6 +100,12 @@ function post_change_fixed_asset_purchase_depreciation( row )
 	else
 	if ( depreciation_method_element_value == 'double_declining_balance' )
 	{
+		element_name = 'units_produced_so_far_' + row;
+		element =
+			timlib_get_form_element(
+				element_name, 0 );
+		element.disabled = true;
+
 		element_name = 'estimated_useful_life_units_' + row;
 		element =
 			timlib_get_form_element(
@@ -172,6 +121,12 @@ function post_change_fixed_asset_purchase_depreciation( row )
 	else
 	if ( depreciation_method_element_value == 'n_declining_balance' )
 	{
+		element_name = 'units_produced_so_far_' + row;
+		element =
+			timlib_get_form_element(
+				element_name, 0 );
+		element.disabled = true;
+
 		element_name = 'estimated_useful_life_units_' + row;
 		element =
 			timlib_get_form_element(
@@ -181,6 +136,12 @@ function post_change_fixed_asset_purchase_depreciation( row )
 	else
 	if ( depreciation_method_element_value == 'sum_of_years_digits' )
 	{
+		element_name = 'units_produced_so_far_' + row;
+		element =
+			timlib_get_form_element(
+				element_name, 0 );
+		element.disabled = true;
+
 		element_name = 'estimated_useful_life_units_' + row;
 		element =
 			timlib_get_form_element(
@@ -210,8 +171,7 @@ function post_change_fixed_asset_purchase_depreciation( row )
 	}
 
 	return true;
-
-} // post_change_fixed_asset_purchase_depreciation()
+}
 
 function post_change_fixed_asset_purchase_each_row()
 {
@@ -227,4 +187,4 @@ function post_change_fixed_asset_purchase_each_row()
 	}
 
 	return true;
-} // post_change_fixed_asset_purchase_each_row()
+}

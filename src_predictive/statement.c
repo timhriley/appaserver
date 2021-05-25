@@ -25,6 +25,7 @@
 #include "element.h"
 #include "account.h"
 #include "subclassification.h"
+#include "transaction.h"
 #include "statement.h"
 
 STATEMENT *statement_new(

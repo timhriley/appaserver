@@ -1048,17 +1048,13 @@ void get_without_isa_variables(	LIST **mto1_related_folder_list,
 					folder_name );
 
 	appaserver->folder->mto1_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
+		related_folder_prompt_insert_mto1_related_folder_list(
 			list_new_list(),
 			appaserver->application_name,
 			appaserver->session,
 			appaserver->folder->folder_name,
 			role_name,
-			0 /* isa_flag */,
-			related_folder_no_recursive,
-			override_row_restrictions,
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
+			override_row_restrictions );
 
 	appaserver->folder->attribute_list =
 		attribute_get_attribute_list(
@@ -1209,17 +1205,13 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 					folder_name );
 
 	appaserver->folder->mto1_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
+		related_folder_prompt_insert_mto1_related_folder_list(
 			list_new(),
 			appaserver->application_name,
 			appaserver->session,
 			appaserver->folder->folder_name,
 			role_name,
-			0 /* isa_flag */,
-			related_folder_no_recursive,
-			override_row_restrictions,
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
+			override_row_restrictions );
 
 	appaserver->folder->attribute_list =
 		attribute_get_attribute_list(
@@ -1342,17 +1334,13 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 			role_name );
 
 	appaserver->folder->mto1_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
+		related_folder_prompt_insert_mto1_related_folder_list(
 			list_new_list(),
 			appaserver->application_name,
 			appaserver->session,
 			appaserver->folder->folder_name,
 			role_name,
-			0 /* isa_flag */,
-			related_folder_no_recursive,
-			override_row_restrictions,
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
+			override_row_restrictions );
 
 	*allowed_attribute_name_list = list_new();
 
@@ -1376,18 +1364,14 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 					folder->attribute_list ) );
 
 		appaserver->folder->mto1_related_folder_list =
-			related_folder_get_mto1_related_folder_list(
+			related_folder_prompt_insert_mto1_related_folder_list(
 			   appaserver->folder->mto1_related_folder_list,
 			   appaserver->application_name,
 			   appaserver->session,
 			   mto1_isa_related_folder->
 				folder->folder_name,
 			   role_name,
-			   0 /* isa_flag */,
-			   related_folder_no_recursive,
-			   override_row_restrictions,
-			   (LIST *)0 /* root_primary_attribute_name_list */,
-			   0 /* recursive_level */ );
+			   override_row_restrictions );
 
 	} while( list_next( mto1_isa_related_folder_list ) );
 
@@ -1838,6 +1822,7 @@ void build_related_folder_element_list(
 			role_name,
 			login_name,
 			related_folder->folder->folder_name,
+			related_folder->relation_type_isa,
 			related_folder->folder->
 				populate_drop_down_process,
 			related_folder->folder->

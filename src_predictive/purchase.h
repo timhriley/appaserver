@@ -16,7 +16,7 @@
 /* Constants */
 /* --------- */
 #define PURCHASE_MEMO		"Purchase Order"
-#define PURCHASE_TABLE_NAME	"purchase_order"
+#define PURCHASE_TABLE		"purchase"
 
 #define Purchase_amount_due(						\
 			purchase_amount,				\
@@ -202,5 +202,8 @@ double purchase_invoice_amount(
 			double prepaid_asset_purchase_total,
 			double sales_tax,
 			double freight_in );
+
+boolean purchase_is_participating(
+			void );
 
 #endif

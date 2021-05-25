@@ -26,8 +26,11 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_fixed_asset_purchase_insert(
+void post_change_purchase_insert(
 			PURCHASE *purchase );
+
+void post_change_fixed_asset_purchase_insert_update(
+			FIXED_ASSET_PURCHASE *fixed_asset_purchase );
 
 /*
 void post_change_fixed_asset_purchase_update(
@@ -48,6 +51,7 @@ int main( int argc, char **argv )
 	char *state;
 	char *preupdate_asset_name;
 	char *preupdate_serial_label;
+	PURCHASE *purchase = {0};
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -68,42 +72,64 @@ int main( int argc, char **argv )
 	asset_name = argv[ 1 ];
 	serial_label = argv[ 2 ];
 	state = argv[ 3 ];
-	preupdate_asset_name = argv[ 4 ];
-	preupdate_serial_label = argv[ 5 ];
+	if ( ( preupdate_asset_name = argv[ 4 ] ) ){};
+	if ( ( preupdate_serial_label = argv[ 5 ] ) ){};
 
 	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
-	if ( strcmp( state, "insert" ) == 0 )
-	{
-		if ( ( fixed_asset_purchase =
+	if ( ! ( fixed_asset_purchase =
 			fixed_asset_purchase_fetch(
 				asset_name,
-				serial_label ) ) )
+				serial_label,
+				0 /* not fetch_last_depreciation */ ) ) )
+	{
+		exit( 0 );
+	}
+
+	if ( purchase_is_participating() )
+	{
+		purchase =
+			purchase_fetch(
+				fixed_asset_purchase->
+					vendor_entity->
+					full_name,
+				fixed_asset_purchase->
+					vendor_entity->
+					street_address,
+				fixed_asset_purchase->
+					purchase_date_time );
+	}
+
+	if ( strcmp( state, "insert" ) == 0 )
+	{
+		if ( purchase )
 		{
-			if ( ( purchase =
-				purchase_fetch(
-					fixed_asset_purchase->
-						full_name,
-					fixed_asset_purchase->
-						street_address,
-					fixed_asset_purchase->
-						purchase_date_time ) ) )
-			{
-				post_change_fixed_asset_purchase_insert(
-					purchase );
-			}
+/*
+			post_change_purchase_insert( purchase );
+*/
+		}
+		else
+		{
+			post_change_fixed_asset_purchase_insert_update(
+				fixed_asset_purchase );
 		}
 	}
-/*
 	else
 	if ( strcmp( state, "update" ) == 0 )
 	{
-		post_change_fixed_asset_purchase_update(
-			asset_name,
-			serial_label,
-			preupdate_asset_name,
-			preupdate_serial_label );
+		if ( purchase )
+		{
+/*
+			post_change_purchase_insert( purchase );
+*/
+		}
+		else
+		{
+			post_change_fixed_asset_purchase_insert_update(
+				fixed_asset_purchase );
+		}
 	}
+/*
 	else
 	if ( strcmp( state, "delete" ) == 0 )
 	{
@@ -116,6 +142,7 @@ int main( int argc, char **argv )
 	return 0;
 }
 
+#ifdef NOT_DEFINED
 void post_change_fixed_asset_purchase_insert(
 			PURCHASE *purchase )
 {
@@ -182,5 +209,20 @@ void post_change_fixed_asset_purchase_insert(
 		purchase->vendor_entity->full_name,
 		purchase->vendor_entity->street_address,
 		purchase->purchase_date_time );
+}
+#endif
+
+void post_change_fixed_asset_purchase_insert_update(
+			FIXED_ASSET_PURCHASE *fixed_asset_purchase )
+{
+	fixed_asset_purchase->cost_basis =
+		fixed_asset_purchase->fixed_asset_cost;
+
+	fixed_asset_purchase_update(
+		fixed_asset_purchase->cost_basis,
+		fixed_asset_purchase->finance_accumulated_depreciation,
+		fixed_asset_purchase->tax_accumulated_depreciation,
+		fixed_asset_purchase->fixed_asset->asset_name,
+		fixed_asset_purchase->fixed_asset->serial_label );
 }
 

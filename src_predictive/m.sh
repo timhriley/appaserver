@@ -1,6 +1,6 @@
 :
 
-make balance_sheet income_statement trial_balance
+make depreciate_fixed_assets
 
 #if [ "$?" -eq 0 ]
 #then
