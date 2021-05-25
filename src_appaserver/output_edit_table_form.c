@@ -714,25 +714,26 @@ m2( application_name, msg );
 				mto1_append_isa_related_folder_list );
 	}
 
-	number_rows_outputted += form_output_body(
-		&form->current_reference_number,
-		form->hidden_name_dictionary,
-		form->output_row_zero_only,
-		form->row_dictionary_list,
-		form->regular_element_list,
-		form->viewonly_element_list,
-		dictionary2file_get_filename(
-			form->process_id,
-			appaserver_parameter_file->
-				appaserver_data_directory,
-			insert_update_key,
-			folder_name,
-			(char *)0 /* optional_related... */ ),
-		folder->row_level_non_owner_view_only,
-		application_name,
-		login_name,
-		row_security->attribute_not_null_string,
-		appaserver_user_foreign_login_name );
+	number_rows_outputted +=
+		form_output_body(
+			&form->current_reference_number,
+			form->hidden_name_dictionary,
+			form->output_row_zero_only,
+			form->row_dictionary_list,
+			form->regular_element_list,
+			form->viewonly_element_list,
+			dictionary2file_get_filename(
+				form->process_id,
+				appaserver_parameter_file->
+					appaserver_data_directory,
+				insert_update_key,
+				folder_name,
+				(char *)0 /* optional_related... */ ),
+			folder->row_level_non_owner_view_only,
+			application_name,
+			login_name,
+			row_security->attribute_not_null_string,
+			appaserver_user_foreign_login_name );
 
 	if ( number_rows_outputted >= ROWS_FOR_SUBMIT_AT_BOTTOM
 	&& ( strcmp( state, "lookup" ) != 0

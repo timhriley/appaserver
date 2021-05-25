@@ -140,7 +140,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 					fixed_asset_purchase->
 						fixed_asset->
 						serial_label ),
-			1 /* fetch_transaction */ );
+				0 /* not fetch_transaction */ );
 	}
 	return fixed_asset_purchase;
 }
@@ -210,13 +210,13 @@ FILE *fixed_asset_purchase_update_open( void )
 }
 
 void fixed_asset_purchase_update(
+			FILE *update_pipe,
 			double cost_basis,
 			double finance_accumulated_depreciation,
 			double tax_accumulated_depreciation,
 			char *asset_name,
 			char *serial_label )
 {
-	FILE *update_pipe = fixed_asset_purchase_update_open();
 	char *escape = fixed_asset_name_escape( asset_name );
 
 	fprintf(update_pipe,
@@ -236,8 +236,6 @@ void fixed_asset_purchase_update(
 		escape,
 		serial_label,
 		tax_accumulated_depreciation );
-
-	pclose( update_pipe );
 }
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
@@ -409,6 +407,44 @@ LIST *fixed_asset_purchae_depreciation_list(
 	} while ( list_next( fixed_asset_purchase_list ) );
 
 	return depreciation_list;
+}
+
+void fixed_asset_purchase_list_update(
+			LIST *fixed_asset_purchase_list )
+{
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
+	FILE *update_pipe;
+
+	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
+
+	update_pipe = fixed_asset_purchase_update_open();
+
+	do {
+		fixed_asset_purchase =
+			list_get(
+				fixed_asset_purchase_list );
+
+		if ( !fixed_asset_purchase->depreciation ) continue;
+
+		fixed_asset_purchase_update(
+			update_pipe,
+			fixed_asset_purchase->cost_basis,
+			fixed_asset_purchase->
+				finance_accumulated_depreciation +
+			fixed_asset_purchase->
+				depreciation->
+				depreciation_amount,
+			fixed_asset_purchase->tax_accumulated_depreciation,
+			fixed_asset_purchase->
+				fixed_asset->
+				asset_name,
+			fixed_asset_purchase->
+				fixed_asset->
+				serial_label );
+
+	} while( list_next( fixed_asset_purchase_list ) );
+
+	pclose( update_pipe );
 }
 
 void fixed_asset_purchase_depreciation_display(

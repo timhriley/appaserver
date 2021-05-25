@@ -100,26 +100,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 LIST *row_security_get_role_update_list(
 			char *application_name );
 
-LIST *row_security_get_element_list(
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
-			char *application_name,
-			FOLDER *select_folder,
-			LIST *mto1_append_isa_related_folder_list,
-			ROLE *login_role,
-			LIST *no_display_pressed_attribute_name_list,
-			DICTIONARY *preprompt_dictionary,
-			DICTIONARY *query_dictionary,
-			int row_dictionary_list_length,
-			char *state,
-			LIST *non_edit_folder_name_list,
-			char *login_name,
-			char role_folder_update_yn,
-			enum omit_delete_operation,
-			boolean omit_operation_buttons,
-			LIST *join_1tom_related_folder_list,
-			boolean make_primary_keys_non_edit,
-			boolean prompt_data_row_separate );
-
 boolean row_security_participating_related_folder(
 			FOLDER *row_update_folder,
 			FOLDER *participating_folder );
@@ -153,34 +133,6 @@ void row_security_set_dictionary_related_folder(
 			RELATED_FOLDER *related_folder,
 			char *application_name,
 			LIST *primary_attribute_name_list );
-
-LIST *row_security_get_update_element_list(
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
-			char *login_name,
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *role_name,
-			LIST *attribute_list,
-			LIST *append_isa_attribute_list,
-			LIST *include_attribute_name_list,
-			LIST *mto1_append_isa_related_folder_list,
-			DICTIONARY *preprompt_dictionary,
-			DICTIONARY *query_dictionary,
-			LIST *operation_list_list,
-			int row_dictionary_list_length,
-			LIST *no_display_pressed_attribute_name_list,
-			char update_yn,
-			char *state,
-			LIST *non_edit_folder_name_list,
-			boolean override_row_restrictions,
-			char *folder_post_change_javascript,
-			int max_query_rows_for_drop_downs,
-			char *one2m_folder_name_for_processes,
-			LIST *join_1tom_related_folder_list,
-			boolean make_primary_keys_non_edit,
-			boolean prompt_data_separate_folder,
-			boolean row_level_non_owner_forbid );
 
 enum row_security_state row_security_get_row_security_state(
 			FOLDER **attribute_not_null_folder,
@@ -278,5 +230,73 @@ LIST *row_security_edit_table_update_element_list(
 			LIST *join_1tom_related_folder_list,
 			boolean make_primary_keys_non_edit,
 			boolean prompt_data_separate_folder );
+
+LIST *row_security_regular_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *application_name,
+			FOLDER *select_folder,
+			LIST *mto1_append_isa_related_folder_list,
+			ROLE *login_role,
+			LIST *no_display_pressed_attribute_name_list,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *query_dictionary,
+			int row_dictionary_list_length,
+			char *state,
+			LIST *non_edit_folder_name_list,
+			char *login_name,
+			enum omit_delete_operation omit_delete_operation,
+			boolean omit_operation_buttons,
+			LIST *join_1tom_related_folder_list,
+			boolean make_primary_keys_non_edit,
+			boolean prompt_data_separate_folder );
+
+LIST *row_security_regular_evaluate_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *login_name,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			LIST *attribute_list,
+			LIST *append_isa_attribute_list,
+			LIST *include_attribute_name_list,
+			LIST *mto1_append_isa_related_folder_list,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *query_dictionary,
+			LIST *operation_list_list,
+			int row_dictionary_list_length,
+			LIST *no_display_pressed_attribute_name_list,
+			char *state,
+			LIST *non_edit_folder_name_list,
+			boolean override_row_restrictions,
+			char *folder_post_change_javascript,
+			int max_query_rows_for_drop_downs,
+			char *one2m_folder_name_for_processes,
+			LIST *join_1tom_related_folder_list,
+			boolean make_primary_keys_non_edit,
+			boolean prompt_data_separate_folder,
+			boolean row_level_non_owner_forbid );
+
+LIST *row_security_viewonly_element_list(
+			char *application_name,
+			FOLDER *select_folder,
+			LIST *mto1_append_isa_related_folder_list,
+			ROLE *login_role,
+			LIST *no_display_pressed_attribute_name_list,
+			enum omit_delete_operation omit_delete_operation,
+			boolean omit_operation_buttons,
+			LIST *join_1tom_related_folder_list );
+
+LIST *row_security_viewonly_evaluate_element_list(
+			char *application_name,
+			char *folder_name,
+			LIST *attribute_list,
+			LIST *append_isa_attribute_list,
+			LIST *include_attribute_name_list,
+			LIST *mto1_append_isa_related_folder_list,
+			LIST *operation_list_list,
+			LIST *no_display_pressed_attribute_name_list,
+			char *folder_post_change_javascript,
+			LIST *join_1tom_related_folder_list );
 
 #endif

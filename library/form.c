@@ -345,18 +345,19 @@ int form_output_body(	int *form_current_reference_number,
 					row_dictionary_list );
 		}
 
-		form_output_row( 	form_current_reference_number,
-					hidden_name_dictionary,
-					regular_element_list,
-					data_dictionary,
-					0,
-					1 /* push buttons */,
-					spool_file,
-					row_level_non_owner_view_only,
-					application_name,
-					login_name,
-					(char *)0 /* background_color */,
-					appaserver_user_foreign_login_name );
+		form_output_row(
+			form_current_reference_number,
+			hidden_name_dictionary,
+			regular_element_list,
+			data_dictionary,
+			0,
+			1 /* push buttons */,
+			spool_file,
+			row_level_non_owner_view_only,
+			application_name,
+			login_name,
+			(char *)0 /* background_color */,
+			appaserver_user_foreign_login_name );
 
 		number_rows_outputted = 1;
 	}
@@ -524,10 +525,10 @@ void form_output_row(
 			(char *)0 /* name */ );
 
 	if ( dictionary_get_index_data(
-			&dictionary_login_name,
-			dictionary,
-			appaserver_user_foreign_login_name,
-			row ) < 0 )
+		&dictionary_login_name,
+		dictionary,
+		appaserver_user_foreign_login_name,
+		row ) < 0 )
 	{
 		dictionary_login_name = (char*)0;
 	}
@@ -1027,7 +1028,7 @@ int form_output_all_rows(	int *form_current_reference_number,
 	row_dictionary_list_length = list_length( row_dictionary_list );
 
 	do {
-		row_dictionary = list_get_pointer( row_dictionary_list );
+		row_dictionary = list_get( row_dictionary_list );
 
 		if ( viewonly_element_list
 		&&   !regular_element_list )
@@ -1043,8 +1044,10 @@ int form_output_all_rows(	int *form_current_reference_number,
 		/* --------------------------------------------------------- */
 		if ( viewonly_element_list && attribute_not_null_string )
 		{
-			data = dictionary_get(	row_dictionary,
-						attribute_not_null_string );
+			data =
+				dictionary_get(
+					row_dictionary,
+					attribute_not_null_string );
 
 			/* If not null. */
 			/* ------------ */
@@ -1067,7 +1070,8 @@ int form_output_all_rows(	int *form_current_reference_number,
 		if ( row_dictionary_list_length > 1 )
 		{
 			background_color =
-				form_get_background_color( application_name );
+				form_get_background_color(
+					application_name );
 		}
 
 		form_output_row(

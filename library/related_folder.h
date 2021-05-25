@@ -643,4 +643,33 @@ LIST *related_folder_prompt_insert_mto1_related_folder_list(
 boolean related_folder_mto1_relation_type_isa(
 			char *folder_name );
 
+LIST *related_folder_regular_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *application_name,
+			char *session,
+			char *login_name,
+			RELATED_FOLDER *related_folder,
+			LIST *foreign_attribute_name_list,
+			int row_dictionary_list_length,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *query_dictionary,
+			char *state,
+			boolean prompt_data_element_only,
+			char *post_change_javascript,
+			int max_drop_down_size,
+			boolean row_level_non_owner_forbid,
+			boolean override_row_restrictions,
+			boolean is_primary_attribute,
+			char *role_name,
+			int max_query_rows_for_drop_downs,
+			boolean drop_down_multi_select,
+			boolean no_initial_capital,
+			char *one2m_folder_name_for_processes,
+			boolean omit_lookup_before_drop_down );
+
+LIST *related_folder_viewonly_element_list(
+			RELATED_FOLDER *related_folder,
+			LIST *foreign_attribute_name_list,
+			boolean is_primary_attribute );
+
 #endif

@@ -1022,3 +1022,19 @@ int depreciation_units_produced_current(
 	return units_produced_so_far - units_produced_total;
 }
 
+void depreciation_list_negate_depreciation_amount(
+			LIST *depreciation_list )
+{
+	DEPRECIATION *depreciation;
+
+	if ( !list_rewind( depreciation_list ) ) return;
+
+	do {
+		depreciation = list_get( depreciation_list );
+
+		depreciation->depreciation_amount =
+			-depreciation->depreciation_amount;
+
+	} while ( list_next( depreciation_list ) );
+}
+

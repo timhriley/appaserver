@@ -234,4 +234,7 @@ int depreciation_units_produced_current(
 			int units_produced_so_far,
 			int units_produced_total );
 
+void depreciation_list_negate_depreciation_amount(
+			LIST *depreciation_list );
+
 #endif

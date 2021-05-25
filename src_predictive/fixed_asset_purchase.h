@@ -95,6 +95,7 @@ FILE *fixed_asset_purchase_update_open(
 			void );
 
 void fixed_asset_purchase_update(
+			FILE *update_pipe,
 			double cost_basis,
 			double finance_accumulated_depreciation,
 			double tax_accumulated_depreciation,
@@ -125,6 +126,9 @@ LIST *fixed_asset_purchase_list_depreciate(
 			char *depreciation_date );
 
 LIST *fixed_asset_purchase_depreciation_list(
+			LIST *fixed_asset_purchase_list );
+
+void fixed_asset_purchase_list_update(
 			LIST *fixed_asset_purchase_list );
 
 void fixed_asset_purchase_depreciation_display(

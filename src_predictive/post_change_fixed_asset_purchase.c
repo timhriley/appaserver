@@ -34,13 +34,7 @@ void post_change_fixed_asset_purchase_insert_update(
 
 /*
 void post_change_fixed_asset_purchase_update(
-			PURCHASE *purchase,
-			char *preupdate_asset_name,
-			char *preupdate_serial_label );
-
-void post_change_fixed_asset_purchase_delete(
-			char *asset_name,
-			char *serial_label );
+			PURCHASE *purchase );
 */
 
 int main( int argc, char **argv )
@@ -49,8 +43,6 @@ int main( int argc, char **argv )
 	char *asset_name;
 	char *serial_label;
 	char *state;
-	char *preupdate_asset_name;
-	char *preupdate_serial_label;
 	PURCHASE *purchase = {0};
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 
@@ -61,7 +53,7 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 4 )
 	{
 		fprintf( stderr,
 "Usage: %s asset_name serial_label state preupdate_asset_name preupdate_serial_label\n",
@@ -72,8 +64,6 @@ int main( int argc, char **argv )
 	asset_name = argv[ 1 ];
 	serial_label = argv[ 2 ];
 	state = argv[ 3 ];
-	if ( ( preupdate_asset_name = argv[ 4 ] ) ){};
-	if ( ( preupdate_serial_label = argv[ 5 ] ) ){};
 
 	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
@@ -129,15 +119,6 @@ int main( int argc, char **argv )
 				fixed_asset_purchase );
 		}
 	}
-/*
-	else
-	if ( strcmp( state, "delete" ) == 0 )
-	{
-		post_change_fixed_asset_purchase_delete(
-			asset_name,
-			serial_label );
-	}
-*/
 
 	return 0;
 }
@@ -215,14 +196,19 @@ void post_change_fixed_asset_purchase_insert(
 void post_change_fixed_asset_purchase_insert_update(
 			FIXED_ASSET_PURCHASE *fixed_asset_purchase )
 {
+	FILE *update_pipe = fixed_asset_purchase_update_open();
+
 	fixed_asset_purchase->cost_basis =
 		fixed_asset_purchase->fixed_asset_cost;
 
 	fixed_asset_purchase_update(
+		update_pipe,
 		fixed_asset_purchase->cost_basis,
 		fixed_asset_purchase->finance_accumulated_depreciation,
 		fixed_asset_purchase->tax_accumulated_depreciation,
 		fixed_asset_purchase->fixed_asset->asset_name,
 		fixed_asset_purchase->fixed_asset->serial_label );
+
+	pclose( update_pipe );
 }
 
