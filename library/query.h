@@ -687,7 +687,9 @@ LIST *query_edit_table_dictionary_list(
 QUERY_OUTPUT *query_edit_table_output_new(
 			QUERY *query,
 			FOLDER *folder,
-			PROMPT_RECURSIVE *prompt_recursive );
+			PROMPT_RECURSIVE *prompt_recursive,
+			char *query_select_folder_name,
+			char *attribute_not_null_join );
 
 LIST *query_edit_table_drop_down_list(
 			LIST *exclude_attribute_name_list,
@@ -699,8 +701,9 @@ QUERY *query_edit_table_new(
 			DICTIONARY *dictionary,
 			char *application_name,
 			char *login_name,
-			char *folder_name,
-			ROLE *role );
+			char *query_select_folder_name,
+			ROLE *role,
+			char *attribute_not_null_join );
 
 QUERY_DROP_DOWN *query_edit_table_drop_down(
 			LIST *exclude_attribute_name_list,
@@ -866,5 +869,11 @@ QUERY *query_prompt_folder_data_new(
 QUERY_OUTPUT *query_prompt_data_output_new(
 			QUERY *query,
 			FOLDER *folder );
+
+char *query_join_where_clause(
+			LIST *primary_attribute_name_list,
+			LIST *related_attribute_name_list,
+			char *folder_name,
+			char *related_folder_name );
 
 #endif

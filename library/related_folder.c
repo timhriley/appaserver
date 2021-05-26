@@ -2900,12 +2900,14 @@ LIST *related_folder_get_preselection_dictionary_list(
 	}
 	else
 	{
-		query = query_edit_table_new(
+		query =
+			query_edit_table_new(
 				query_dictionary,
 				application_name,
 				login_name,
 				related_folder->folder_name,
-				(ROLE *)0 );
+				(ROLE *)0,
+				(char *)0 /* attribute_not_null_join */ );
 
 		related_folder_dictionary_list =
 			query_row_dictionary_list(
@@ -4299,10 +4301,10 @@ LIST *related_folder_one2m_isa_related_folder_list(
 }
 
 char *related_folder_append_where_clause_related_join(
-					FOLDER *folder,
-					char *application_name,
-					char *source_where_clause,
-					RELATED_FOLDER *related_folder )
+			FOLDER *folder,
+			char *application_name,
+			char *source_where_clause,
+			RELATED_FOLDER *related_folder )
 {
 	if ( !folder || !related_folder )
 	{

@@ -160,7 +160,8 @@ LIST *row_security_edit_table_dictionary_list(
 			DICTIONARY *sort_dictionary,
 			ROLE *login_role,
 			char *login_name,
-			char *select_folder_name,
+			char *query_select_folder_name,
+			char *attribute_not_null_join,
 			LIST *join_1tom_related_folder_list );
 
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_edit_table_structure_new(
