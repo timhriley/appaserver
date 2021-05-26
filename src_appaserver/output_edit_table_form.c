@@ -583,7 +583,14 @@ int main( int argc, char **argv )
 				folder->mto1_related_folder_list );
 	}
 
-
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	row_security =
 		row_security_new(
 			application_name,

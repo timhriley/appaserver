@@ -56,6 +56,14 @@ ROW_SECURITY *row_security_new(
 	row_security->no_display_pressed_attribute_name_list =
 		no_display_pressed_attribute_name_list;
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	if ( ! ( row_security->select_folder =
 			folder_with_load_new(
 				application_name,
@@ -72,6 +80,14 @@ ROW_SECURITY *row_security_new(
 		exit( 1 );
 	}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	/* Make sure to select the login_name attribute. */
 	/* --------------------------------------------- */
 	if ( row_security->select_folder->row_level_non_owner_view_only )
@@ -164,12 +180,28 @@ ROW_SECURITY *row_security_new(
 
 	} /* if row_level_non_owner_view_only */
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 non_owner_view_only_dont_append:
 
 	row_security->role_update_list =
-		row_security_get_role_update_list(
+		row_security_role_update_list(
 			application_name );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	row_security->row_security_state =
 		row_security_get_row_security_state(
 			&row_security->attribute_not_null_folder,
@@ -433,8 +465,7 @@ RELATED_FOLDER *row_security_seek_related_folder(
 	} while( list_next( one2m_recursive_related_folder_list ) );
 
 	return (RELATED_FOLDER *)0;
-
-} /* row_security_seek_related_folder() */
+}
 
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
 				char *application_name,
@@ -470,10 +501,19 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
 	row_security_role_update->attribute_not_null_string =
 		attribute_not_null_string;
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: attribute_no_null_string = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+attribute_not_null_string );
+m2( application_name, msg );
+}
 	return row_security_role_update;
 }
 
-LIST *row_security_get_role_update_list(
+LIST *row_security_role_update_list(
 			char *application_name )
 {
 	char sys_string[ 1024 ];
@@ -647,7 +687,7 @@ void row_security_append_join_1tom_related_folder_list(
 
 	} while( list_next( row_dictionary_list ) );
 
-} /* row_security_append_join_1tom_related_folder_list() */
+}
 
 void row_security_set_dictionary_related_folder(
 				DICTIONARY *row_dictionary,
@@ -828,7 +868,7 @@ enum row_security_state row_security_get_row_security_state(
 
 	return row_security_state;
 
-} /* row_security_get_row_security_state() */
+}
 
 boolean row_security_supervisor_logged_in(
 				enum row_security_state row_security_state )
@@ -836,7 +876,7 @@ boolean row_security_supervisor_logged_in(
 	return ( row_security_state == security_supervisor ||
 		 row_security_state == regular_supervisor );
 
-} /* row_security_supervisor_logged_in() */
+}
 
 char *row_security_role_update_list_display(
 			LIST *role_update_list )
@@ -865,7 +905,7 @@ char *row_security_role_update_list_display(
 
 	return strdup( buffer );
 
-} /* row_security_role_update_list_display() */
+}
 
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_fetch(
 				LIST *role_update_list,

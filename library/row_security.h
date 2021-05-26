@@ -97,7 +97,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			boolean ajax_fill_drop_down_omit,
 			LIST *append_isa_attribute_list );
 
-LIST *row_security_get_role_update_list(
+LIST *row_security_role_update_list(
 			char *application_name );
 
 boolean row_security_participating_related_folder(
