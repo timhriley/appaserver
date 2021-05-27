@@ -139,7 +139,7 @@ int main( int argc, char **argv )
 					m->measurement->datatype ) ) )
 		{
 			fprintf( stderr,
-		"Warning: station_datatype_getset(%s/%s) returned empty.\n",
+"Warning in %s/%s()/%d: station_datatype_getset(%s/%s) returned empty.\n",
 			 	__FILE__,
 			 	__FUNCTION__,
 			 	__LINE__,
@@ -191,7 +191,7 @@ int main( int argc, char **argv )
 			insert_okay =
 				measurement_pipe_output(
 					m->html_table_pipe,
-					m,
+					m->measurement,
 					insert_null_values );
 		}
 		else
@@ -200,7 +200,7 @@ int main( int argc, char **argv )
 			insert_okay =
 				measurement_pipe_output(
 					m->insert_statement_pipe,
-					m,
+					m->measurement,
 					insert_null_values );
 		}
 
