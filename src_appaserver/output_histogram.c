@@ -188,7 +188,8 @@ int main( int argc, char **argv )
 				query_select_attribute_name_list,
 				select_attribute_name );
 
-			query = query_edit_table_new(
+			query =
+				query_edit_table_new(
 					dictionary_appaserver->
 						query_dictionary,
 					application_name,
@@ -196,7 +197,13 @@ int main( int argc, char **argv )
 					folder_name,
 					role_new(
 						application_name,
-						role_name ) );
+						role_name ),
+					(char *)0
+					   /* attribute_not_null_join */,
+					(char *)0
+					   /* attribute_not_null_folder_name */,
+					(char *)0
+					   /* attribute_not_null_string */ );
 
 			query_record_list =
 				query_get_record_list(

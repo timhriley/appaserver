@@ -717,7 +717,7 @@ void update_database_related_folder(
 
 	output_pipe = popen( sys_string, "w" );
 
-	where = query_get_simple_where_clause(
+	where = query_login_name_where_clause(
 			related_folder->one2m_folder,
 			where_attribute_name_list,
 			purge_data_list,
@@ -800,7 +800,7 @@ void output_test_only_related_folder(
 
 	output_pipe = popen( sys_string, "w" );
 
-	where = query_get_simple_where_clause(
+	where = query_login_name_where_clause(
 			related_folder->one2m_folder,
 			where_attribute_name_list,
 			purge_data_list,

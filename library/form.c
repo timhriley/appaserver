@@ -365,18 +365,18 @@ int form_output_body(	int *form_current_reference_number,
 	{
 		number_rows_outputted += 
 			form_output_all_rows(
-					form_current_reference_number,
-					hidden_name_dictionary,
-					row_dictionary_list,
-					regular_element_list,
-					viewonly_element_list,
-					current_row++,
-					spool_file,
-					row_level_non_owner_view_only,
-					application_name,
-					login_name,
-					attribute_not_null_string,
-					appaserver_user_foreign_login_name );
+				form_current_reference_number,
+				hidden_name_dictionary,
+				row_dictionary_list,
+				regular_element_list,
+				viewonly_element_list,
+				current_row++,
+				spool_file,
+				row_level_non_owner_view_only,
+				application_name,
+				login_name,
+				attribute_not_null_string,
+				appaserver_user_foreign_login_name );
 	}
 
 	if ( spool_file ) fclose( spool_file );
@@ -1000,18 +1000,19 @@ void form_set_current_row( FORM *form, int current_row )
 	form->current_row = current_row;
 }
 
-int form_output_all_rows(	int *form_current_reference_number,
-				DICTIONARY *hidden_name_dictionary,
-				LIST *row_dictionary_list,
-				LIST *regular_element_list,
-				LIST *viewonly_element_list,
-				int current_row,
-				FILE *spool_file,
-				boolean row_level_non_owner_view_only,
-				char *application_name,
-				char *login_name,
-				char *attribute_not_null_string,
-				char *appaserver_user_foreign_login_name )
+int form_output_all_rows(
+			int *form_current_reference_number,
+			DICTIONARY *hidden_name_dictionary,
+			LIST *row_dictionary_list,
+			LIST *regular_element_list,
+			LIST *viewonly_element_list,
+			int current_row,
+			FILE *spool_file,
+			boolean row_level_non_owner_view_only,
+			char *application_name,
+			char *login_name,
+			char *attribute_not_null_string,
+			char *appaserver_user_foreign_login_name )
 {
 	DICTIONARY *row_dictionary;
 	int number_rows_outputted = 0;

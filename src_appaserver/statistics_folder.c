@@ -180,7 +180,10 @@ int main( int argc, char **argv )
 			application_name,
 			login_name,
 			folder_name,
-			role_new( application_name, role_name ) );
+			role_new( application_name, role_name ),
+			(char *)0 /* attribute_not_null_join */,
+			(char *)0 /* attribute_not_null_folder_name */,
+			(char *)0 /* attribute_not_null_string */ );
 
 	where_clause = query->query_output->where_clause;
 

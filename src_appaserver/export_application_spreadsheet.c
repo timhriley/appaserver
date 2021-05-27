@@ -449,24 +449,28 @@ void export_output_spreadsheet_folder(	char *output_filename,
 			(char *)0 /* role_name */,
 			(LIST *)0 /* mto1_related_folder_list */ );
 
-	query = query_edit_table_new(
+	query =
+		query_edit_table_new(
 			(DICTIONARY *)0 /* query_dictionary */,
 			application_name,
 			(char *)0 /* login_name */,
 			folder->folder_name,
-			(ROLE *)0 );
+			(ROLE *)0,
+			(char *)0 /* attribute_not_null_join */,
+			(char *)0 /* attribute_not_null_folder_name */,
+			(char *)0 /* attribute_not_null_string */ );
 
 	row_dictionary_list =
 		query_row_dictionary_list(
-				query->folder->application_name,
-				query->query_output->select_clause,
-				query->query_output->from_clause,
-				query->query_output->where_clause,
-				query->query_output->order_clause,
-				query->max_rows,
-				folder->attribute_list
-					/* append_isa_attribute_list */,
-				query->login_name );
+			query->folder->application_name,
+			query->query_output->select_clause,
+			query->query_output->from_clause,
+			query->query_output->where_clause,
+			query->query_output->order_clause,
+			query->max_rows,
+			folder->attribute_list
+				/* append_isa_attribute_list */,
+			query->login_name );
 
 	dictionary_list_output_to_file(	output_filename, 
 					row_dictionary_list,

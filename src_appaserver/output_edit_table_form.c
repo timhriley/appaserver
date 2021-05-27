@@ -516,12 +516,13 @@ int main( int argc, char **argv )
 					folder->folder_name,
 					role_name );
 
-	form_output_title(	form->application_title,
-				form->state,
-				form->form_title,
-				form->folder_name,
-				form->subtitle_string,
-				0 /* not omit_format_initial_capital */ );
+	form_output_title(
+		form->application_title,
+		form->state,
+		form->form_title,
+		form->folder_name,
+		form->subtitle_string,
+		0 /* not omit_format_initial_capital */ );
 
 	form->table_border = 1;
 	form->insert_update_key = insert_update_key;
@@ -614,33 +615,24 @@ int main( int argc, char **argv )
 			row_security->
 				no_display_pressed_attribute_name_list,
 			row_security->select_folder,
+			row_security->attribute_not_null_join,
 			row_security->attribute_not_null_folder,
+			row_security->attribute_not_null_string,
 			row_security->foreign_login_name_folder,
 			non_edit_folder_name_list,
 			make_primary_keys_non_edit,
 			omit_delete_dont_care,
 			0 /* omit_operation_buttons */,
-			role_folder->update_yn,
 			0 /* not ajax_fill_drop_down_omit */,
 			row_security->
 				select_folder->
-				append_isa_attribute_list );
+				append_isa_attribute_list,
+			row_security->row_security_is_participating );
 
 	form->regular_element_list =
 		row_security->
 			row_security_element_list_structure->
 			regular_element_list;
-/*
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: got regular_element_list = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-element_list_display( form->regular_element_list ) );
-m2( application_name, msg );
-}
-*/
 
 	form->viewonly_element_list =
 		row_security->
@@ -691,8 +683,9 @@ m2( application_name, msg );
 				form->form_name );
 	}
 
-	form_output_table_heading(	form->regular_element_list,
-					0 /* form_number */ );
+	form_output_table_heading(
+		form->regular_element_list,
+		0 /* form_number */ );
 
 	form->row_dictionary_list =
 		row_security->

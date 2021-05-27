@@ -265,18 +265,18 @@ int main( int argc, char **argv )
 		(char *)0 /* post_change_javascript */ );
 
 	form_output_body(
-			&form->current_reference_number,
-			form->hidden_name_dictionary,
-			form->output_row_zero_only,
-			form->row_dictionary_list,
-			form->regular_element_list,
-			(LIST *)0 /* viewonly_element_list */,
-			(char *)0 /* spool_filename */,
-			0 /* row_level_non_owner_view_only */,
-			application_name,
-			login_name,
-			(char *)0 /* attribute_not_null */,
-			(char *)0 /* appaserver_user_foreign_login_name */ );
+		&form->current_reference_number,
+		form->hidden_name_dictionary,
+		form->output_row_zero_only,
+		form->row_dictionary_list,
+		form->regular_element_list,
+		(LIST *)0 /* viewonly_element_list */,
+		(char *)0 /* spool_filename */,
+		0 /* row_level_non_owner_view_only */,
+		application_name,
+		login_name,
+		(char *)0 /* attribute_not_null_string */,
+		(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	printf( "</table>\n" );
 	printf( "<table border=0>\n" );

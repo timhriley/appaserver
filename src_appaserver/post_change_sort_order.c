@@ -472,7 +472,9 @@ void change_sort_order_state_one(
 			row_security->
 				no_display_pressed_attribute_name_list,
 			row_security->select_folder,
-			row_security->attribute_not_null_folder,
+			(char *)0 /* attribute_not_null_join */,
+			(FOLDER *)0 /* attribute_not_null_folder */,
+			(char *)0 /* attribute_not_null_string */,
 			row_security->foreign_login_name_folder,
 			(LIST *)0 /* non_edit_folder_name_list */,
 			0 /* not make_primary_keys_non_edit */,
@@ -539,7 +541,7 @@ void change_sort_order_state_one(
 		folder->row_level_non_owner_view_only,
 		application_name,
 		login_name,
-		row_security->attribute_not_null_string,
+		(char *)0 /* attribute_not_null_string */,
 		(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	printf( "</table>\n" );

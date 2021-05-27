@@ -197,7 +197,7 @@ void output_folder_results(
 	char sys_string[ 1024 ];
 	char *formatted_results;
 
-	where = query_get_simple_where_clause(
+	where = query_login_name_where_clause(
 			(FOLDER *)0,
 			foreign_attribute_name_list
 				/* where_attribute_name_list */,

@@ -50,9 +50,11 @@ typedef struct
 	DICTIONARY *query_dictionary;
 	DICTIONARY *sort_dictionary;
 	LIST *no_display_pressed_attribute_name_list;
-	FOLDER *attribute_not_null_folder;
 	FOLDER *foreign_login_name_folder;
+	char *attribute_not_null_join;
+	FOLDER *attribute_not_null_folder;
 	char *attribute_not_null_string;
+	boolean row_security_is_participating;
 	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 		row_security_element_list_structure;
 } ROW_SECURITY;
@@ -74,7 +76,7 @@ ROW_SECURITY *row_security_new(
 			LIST *no_display_pressed_attribute_name_list );
 
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
-	row_security_detail_element_list_structure(
+	row_security_detail_structure_new(
 			char *application_name,
 			enum row_security_state row_security_state,
 			char *login_name,
@@ -85,7 +87,9 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			DICTIONARY *sort_dictionary,
 			LIST *no_display_pressed_attribute_name_list,
 			FOLDER *select_folder,
+			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
+			char *attribute_not_null_string,
 			FOLDER *foreign_login_name_folder,
 			LIST *where_clause_attribute_name_list,
 			LIST *where_clause_data_list,
@@ -93,9 +97,9 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
-			char update_yn,
 			boolean ajax_fill_drop_down_omit,
-			LIST *append_isa_attribute_list );
+			LIST *append_isa_attribute_list,
+			boolean row_security_is_participating );
 
 LIST *row_security_role_update_list(
 			char *application_name );
@@ -120,6 +124,9 @@ LIST *row_security_detail_dictionary_list(
 			char *folder_name,
 			LIST *where_clause_attribute_name_list,
 			LIST *where_clause_data_list,
+			char *attribute_not_null_join,
+			char *attribute_not_null_folder_name,
+			char *attribute_not_null_string,
 			LIST *join_1tom_related_folder_list );
 
 void row_security_append_join_1tom_related_folder_list(
@@ -135,6 +142,7 @@ void row_security_set_dictionary_related_folder(
 			LIST *primary_attribute_name_list );
 
 enum row_security_state row_security_get_row_security_state(
+			char **attribute_not_null_join,
 			FOLDER **attribute_not_null_folder,
 			char **attribute_not_null_string,
 			LIST *role_update_list,
@@ -162,9 +170,12 @@ LIST *row_security_edit_table_dictionary_list(
 			char *login_name,
 			char *query_select_folder_name,
 			char *attribute_not_null_join,
+			char *attribute_not_null_folder_name,
+			char *attribute_not_null_string,
 			LIST *join_1tom_related_folder_list );
 
-ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_edit_table_structure_new(
+ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
+	row_security_edit_table_structure_new(
 			char *application_name,
 			enum row_security_state row_security_state,
 			char *login_name,
@@ -175,15 +186,17 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_edit_table_structure_new(
 			DICTIONARY *sort_dictionary,
 			LIST *no_display_pressed_attribute_name_list,
 			FOLDER *select_folder,
+			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
+			char *attribute_not_null_string,
 			FOLDER *foreign_login_name_folder,
 			LIST *non_edit_folder_name_list,
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
-			char update_yn,
 			boolean ajax_fill_drop_down_omit,
-			LIST *append_isa_attribute_list );
+			LIST *append_isa_attribute_list,
+			boolean row_security_is_participating );
 
 LIST *row_security_edit_table_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,

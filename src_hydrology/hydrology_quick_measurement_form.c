@@ -211,12 +211,16 @@ int main( int argc, char **argv )
 			(LIST *)0 /* related_folder_list */,
 			(char *)0 /* role_name */ );
 
-	query = query_edit_table_new(
+	query =
+		query_edit_table_new(
 			query_dictionary,
 			application_name,
 			login_name,
 			folder_name,
-			(ROLE *)0 );
+			(ROLE *)0,
+			(char *)0 /* attribute_not_null_join */,
+			(char *)0 /* attribute_not_null_folder_name */,
+			(char *)0 /* attribute_not_null_string */ );
 
 	query->query_output->where_clause =
 		get_where_clause(
@@ -339,7 +343,7 @@ int main( int argc, char **argv )
 			0 /* row_level_non_owner_view_only */,
 			application_name,
 			login_name,
-			(char *)0 /* attribute_not_null */,
+			(char *)0 /* attribute_not_null_string */,
 			(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	if ( number_rows_outputted > ROWS_FOR_SUBMIT_AT_BOTTOM )

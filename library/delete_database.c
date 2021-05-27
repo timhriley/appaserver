@@ -467,7 +467,7 @@ LIST *delete_database_get_delete_row_list(
 	}
 
 	where_clause =
-		query_get_simple_where_clause(
+		query_login_name_where_clause(
 			folder_new(
 				application_name,
 				BOGUS_SESSION,

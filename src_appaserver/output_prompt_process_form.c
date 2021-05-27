@@ -484,7 +484,7 @@ int main( int argc, char **argv )
 		0 /* row_level_non_owner_view_only */,
 		application_name,
 		login_name,
-		(char *)0 /* attribute_not_null */,
+		(char *)0 /* attribute_not_null_string */,
 		(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	if ( process_parameter_exists_preprompt )

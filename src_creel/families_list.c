@@ -240,7 +240,10 @@ char *get_families_sys_string(		char *application_name,
 				application_name,
 				login_name,
 				folder->folder_name,
-				(ROLE *)0 );
+				(ROLE *)0,
+				(char *)0 /* attribute_not_null_join */,
+				(char *)0 /* attribute_not_null_folder_name */,
+				(char *)0 /* attribute_not_null_string */ );
 
 		where_clause =
 			query->query_output->where_clause;

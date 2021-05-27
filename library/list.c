@@ -168,7 +168,7 @@ int list_delete_current( LIST *list )
 	return delete_current( list );
 }
 
-char *list_get_first_element( LIST *list )
+void *list_get_first_element( LIST *list )
 {
 	return list_get_first( list );
 }

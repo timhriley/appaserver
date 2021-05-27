@@ -334,12 +334,16 @@ int main( int argc, char **argv )
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
 
-	query = query_edit_table_new(
+	query =
+		query_edit_table_new(
 			query_dictionary,
 			application_name,
 			login_name,
 			folder_name,
-			role_new( application_name, role_name ) );
+			role_new( application_name, role_name ),
+			(char *)0 /* attribute_not_null_join */,
+			(char *)0 /* attribute_not_null_folder_name */,
+			(char *)0 /* attribute_not_null_string */ );
 
 	attribute_list_remove_exclude_permission_list(
 		query->folder->append_isa_attribute_list );
@@ -403,25 +407,27 @@ int main( int argc, char **argv )
 
 	form->row_dictionary_list = row_dictionary_list;
 
-	number_rows_outputted += form_output_body(
-		&form->current_reference_number,
-		form->hidden_name_dictionary,
-		form->output_row_zero_only,
-		form->row_dictionary_list,
-		form->regular_element_list,
-		form->viewonly_element_list,
-		dictionary2file_get_filename(
-			form->process_id,
-			appaserver_parameter_file->
-				appaserver_data_directory,
-			insert_update_key,
-			folder->folder_name,
-			(char *)0 /* optional_related_attribute_name */ ),
-		0 /* row_level_non_owner_view_only */,
-		application_name,
-		login_name,
-		(char *)0 /* attribute_not_null */,
-		(char *)0 /* appaserver_user_foreign_login_name */ );
+	number_rows_outputted +=
+		form_output_body(
+			&form->current_reference_number,
+			form->hidden_name_dictionary,
+			form->output_row_zero_only,
+			form->row_dictionary_list,
+			form->regular_element_list,
+			form->viewonly_element_list,
+			dictionary2file_get_filename(
+				form->process_id,
+				appaserver_parameter_file->
+					appaserver_data_directory,
+				insert_update_key,
+				folder->folder_name,
+				(char *)0
+					/* optional_related_attribute_name */ ),
+			0 /* row_level_non_owner_view_only */,
+			application_name,
+			login_name,
+			(char *)0 /* attribute_not_null_string */,
+			(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	query_dictionary = dictionary_prepend_key(
 				query_dictionary,

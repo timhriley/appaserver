@@ -331,16 +331,25 @@ boolean list_previous( 		LIST *list );
 boolean list_prior( 		LIST *list );
 
 char *list_to_string( 		LIST *list, char delimiter );
+
 char *list2string_delimited(	LIST *list, char delimiter );
+
 int list_go_offset( 		LIST *list, int offset );
+
 char *list_get_last_string( 	LIST *list );
+
 char *list_display_delimited_prefixed(	
 				LIST *list, 
 				char delimiter, 
 				char *prefix );
+
 int list_search_string( 	LIST *list, char *string );
+
 void list_toupper(		LIST *list );
+
+
 char *list_get_first_string(	LIST *list );
+
 int list_strcmp(		char *s1, char *s2 );
 
 int list_string_index_compare(	char *s1, char *s2 );
@@ -356,7 +365,8 @@ LIST *list_replicate_string_list(
 LIST *string_array2string_list( char **string_array,
 				int max_array_elements );
 
-char *list_get_first_element( 	LIST *list );
+void *list_get_first_element( 	LIST *list );
+
 int list_at_tail(		LIST *list );
 int at_tail(			LIST *list );
 void list_bye(			char *s );

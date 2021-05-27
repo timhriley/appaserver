@@ -2901,7 +2901,7 @@ QUERY_OUTPUT *process_generic_query_output(
 				query_removed_post_dictionary );
 
 	query_output->where_clause =
-		query_get_where_clause(
+		query_combined_where_clause(
 			&query_output->drop_down_where_clause,
 			&query_output->attribute_where_clause,
 			query_output->query_drop_down_list,

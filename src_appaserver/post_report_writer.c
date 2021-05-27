@@ -509,7 +509,7 @@ void post_state_one(	char *application_name,
 		0 /* row_level_non_owner_view_only */,
 		application_name,
 		login_name,
-		(char *)0 /* attribute_not_null */,
+		(char *)0 /* attribute_not_null_string */,
 		(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	remember_keystrokes_non_multi_element_name_list =
@@ -744,7 +744,7 @@ void post_state_two(	char *application_name,
 		0 /* row_level_non_owner_view_only */,
 		application_name,
 		login_name,
-		(char *)0 /* attribute_not_null */,
+		(char *)0 /* attribute_not_null_string */,
 		(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	form->onload_control_string = document->onload_control_string;
@@ -1120,7 +1120,7 @@ void post_state_three(	char *application_name,
 		0 /* row_level_non_owner_view_only */,
 		application_name,
 		login_name,
-		(char *)0 /* attribute_not_null */,
+		(char *)0 /* attribute_not_null_string */,
 		(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	list_rewind( form->regular_element_list );
@@ -1714,19 +1714,20 @@ void post_table_state_four(
 	form_output_table_heading(	form->viewonly_element_list,
 					0 /* form_number */ );
 
-	number_rows_outputted += form_output_body(
-		&form->current_reference_number,
-		form->hidden_name_dictionary,
-		form->output_row_zero_only,
-		form->row_dictionary_list,
-		form->regular_element_list,
-		form->viewonly_element_list,
-		(char *)0 /* spool_filename */,
-		folder->row_level_non_owner_view_only,
-		application_name,
-		login_name,
-		(char *)0 /* attribute_not_null */,
-		(char *)0 /* appaserver_user_foreign_login_name */ );
+	number_rows_outputted +=
+		form_output_body(
+			&form->current_reference_number,
+			form->hidden_name_dictionary,
+			form->output_row_zero_only,
+			form->row_dictionary_list,
+			form->regular_element_list,
+			form->viewonly_element_list,
+			(char *)0 /* spool_filename */,
+			folder->row_level_non_owner_view_only,
+			application_name,
+			login_name,
+			(char *)0 /* attribute_not_null_string */,
+			(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	if ( number_rows_outputted >= ROWS_FOR_SUBMIT_AT_BOTTOM
 	&&   list_length( operation_list_structure->operation_list ) )

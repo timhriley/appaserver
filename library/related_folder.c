@@ -2907,7 +2907,9 @@ LIST *related_folder_get_preselection_dictionary_list(
 				login_name,
 				related_folder->folder_name,
 				(ROLE *)0,
-				(char *)0 /* attribute_not_null_join */ );
+				(char *)0 /* attribute_not_null_join */,
+				(char *)0 /* attribute_not_null_folder_name */,
+				(char *)0 /* attribute_not_null_string */ );
 
 		related_folder_dictionary_list =
 			query_row_dictionary_list(

@@ -269,7 +269,7 @@ char *subsidiary_process_fetch_debit_account_name(
 	char sys_string[ 1024 ];
 
 	strcpy( where_clause,
-		query_get_simple_where_clause(
+		query_login_name_where_clause(
 		      (FOLDER *)0,
 		      subsidiary_transaction_folder_primary_attribute_name_list,
 		      subsidiary_transaction_folder_primary_data_list,
@@ -317,7 +317,7 @@ double subsidiary_fetch_transaction_amount(
 	char *results;
 
 	where_clause =
-		query_get_simple_where_clause(
+		query_login_name_where_clause(
 		      (FOLDER *)0,
 		      primary_attribute_name_list,
 		      primary_data_list,
