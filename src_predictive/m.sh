@@ -1,6 +1,6 @@
 :
 
-make depreciate_fixed_assets
+make depreciation_trigger
 
 #if [ "$?" -eq 0 ]
 #then

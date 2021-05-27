@@ -50,7 +50,8 @@ EXECUTABLES=	trial_balance						\
 		ledger_propagate					\
 		feeder_upload_missing					\
 		journal_ledger_trigger					\
-		post_change_fixed_asset_purchase
+		post_change_fixed_asset_purchase			\
+		depreciation_trigger
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -364,6 +365,14 @@ journal_ledger_trigger: journal_ledger_trigger.c			\
 		${SOURCE_LIBRARY}					\
 		journal_ledger_trigger.c				\
 		-o journal_ledger_trigger
+
+depreciation_trigger: depreciation_trigger.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		depreciation_trigger.c					\
+		-o depreciation_trigger
 
 pay_liabilities_process: pay_liabilities_process.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} liability.o

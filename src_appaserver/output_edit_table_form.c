@@ -57,6 +57,9 @@ int get_cells_updated(
 char *get_cells_updated_folder_name_list_string(
 			DICTIONARY *non_prefixed_dictionary );
 
+char *get_results_string(
+			DICTIONARY *non_prefixed_dictionary );
+
 int main( int argc, char **argv )
 {
 	char *login_name, *application_name, *session, *folder_name;
@@ -72,6 +75,7 @@ int main( int argc, char **argv )
 	FORM *form;
 	FOLDER *folder;
 	int number_rows_outputted = 0;
+	char *results_string;
 	LIST *no_display_pressed_attribute_name_list = {0};
 	LIST *attribute_name_list;
 	LIST *ignore_attribute_name_list;
@@ -99,12 +103,12 @@ int main( int argc, char **argv )
 	/* --------------------------------------------------------------- */
 	LIST *operation_list;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc < 9 )
 	{
@@ -298,6 +302,11 @@ int main( int argc, char **argv )
 			dictionary_appaserver->
 				non_prefixed_dictionary );
 
+	results_string =
+		get_results_string(
+			dictionary_appaserver->
+				non_prefixed_dictionary );
+
 	/* If come from detail */
 	/* ------------------- */
 	if ( instr( "!", insert_update_key, 1 ) > -1 )
@@ -454,22 +463,22 @@ int main( int argc, char **argv )
 	document_set_javascript_module( document, "form" );
 
 	document_set_folder_javascript_files(
-						document,
-						application_name,
-						folder_name );
+		document,
+		application_name,
+		folder_name );
 
 	document_output_head_stream(
-			stdout,
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			with_dynarch_menu,
-			0 /* not with_close_head */ );
+		stdout,
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		with_dynarch_menu,
+		0 /* not with_close_head */ );
 
 	if ( attribute_exists_date_attribute(
 		folder->attribute_list ) )
@@ -500,8 +509,8 @@ int main( int argc, char **argv )
 	}
 
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+		document->application_name,
+		document->onload_control_string );
 
 	if ( strcmp( state, "lookup" ) == 0 )
 		state_for_heading = "view";
@@ -523,6 +532,8 @@ int main( int argc, char **argv )
 		form->folder_name,
 		form->subtitle_string,
 		0 /* not omit_format_initial_capital */ );
+
+	if ( results_string ) printf( "%s\n", results_string );
 
 	form->table_border = 1;
 	form->insert_update_key = insert_update_key;
@@ -823,6 +834,14 @@ char *get_cells_updated_folder_name_list_string(
 
 	return cells_updated_folder_name_list_string;
 
+}
+
+char *get_results_string( DICTIONARY *non_prefixed_dictionary )
+{
+	return
+		dictionary_get_pointer(
+			non_prefixed_dictionary,
+			RESULTS_STRING_KEY );
 }
 
 LIST *subtract_join_1tom_ignore_dictionary_related_folder_list(

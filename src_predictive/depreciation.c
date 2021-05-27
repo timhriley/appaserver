@@ -344,8 +344,7 @@ DEPRECIATION *depreciation_new(
 }
 
 DEPRECIATION *depreciation_parse(
-			char *input,
-			boolean fetch_transaction )
+			char *input )
 {
 	char asset_name[ 128 ];
 	char serial_label[ 128 ];
@@ -384,21 +383,6 @@ DEPRECIATION *depreciation_parse(
 	piece( piece_buffer, SQL_DELIMITER, input, 7 );
 	depreciation->transaction_date_time = strdup( piece_buffer );
 
-	if ( fetch_transaction )
-	{
-		depreciation->depreciation_transaction =
-			transaction_fetch(
-				depreciation->
-					entity_self->
-					entity->
-					full_name,
-				depreciation->
-					entity_self->
-					entity->
-					street_address,
-				depreciation->transaction_date_time );
-	}
-
 	return depreciation;
 }
 
@@ -426,8 +410,7 @@ char *depreciation_primary_where(
 DEPRECIATION *depreciation_fetch(
 			char *asset_name,
 			char *serial_label,
-			char *depreciation_date,
-			boolean fetch_transaction )
+			char *depreciation_date )
 {
 	char sys_string[ 1024 ];
 
@@ -448,14 +431,11 @@ DEPRECIATION *depreciation_fetch(
 			serial_label,
 			depreciation_date ) );
 
-	return depreciation_parse(
-			string_pipe_fetch( sys_string ),
-			fetch_transaction );
+	return depreciation_parse( string_pipe_fetch( sys_string ) );
 }
 
 LIST *depreciation_system_list(
-			char *sys_string,
-			boolean fetch_transaction )
+			char *sys_string )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
@@ -466,10 +446,9 @@ LIST *depreciation_system_list(
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
-		list_set(	depreciation_list, 
-				depreciation_parse(
-					input,
-					fetch_transaction ) );
+		list_set(
+			depreciation_list, 
+			depreciation_parse( input ) );
 	}
 
 	pclose( input_pipe );
@@ -493,8 +472,7 @@ char *depreciation_system_string(
 
 LIST *depreciation_list_fetch(
 			char *asset_name,
-			char *serial_label,
-			boolean fetch_transaction )
+			char *serial_label )
 {
 	return depreciation_system_list(
 			depreciation_system_string(
@@ -503,8 +481,7 @@ LIST *depreciation_list_fetch(
 				/* --------------------- */
 				fixed_asset_primary_where(
 					asset_name,
-					serial_label ) ),
-			fetch_transaction );
+					serial_label ) ) );
 }
 
 FILE *depreciation_delete_open( void )
@@ -566,13 +543,18 @@ TRANSACTION *depreciation_transaction(
 
 	if ( !depreciation_amount ) return (TRANSACTION *)0;
 
+	if ( character_exists( depreciation_date, ' ' ) )
+		transaction_date_time = depreciation_date;
+	else
+		transaction_date_time =
+			predictive_transaction_date_time(
+				depreciation_date );
+
 	if ( ! ( transaction =
 			transaction_new(
 				full_name,
 				street_address,
-				( transaction_date_time =
-					predictive_transaction_date_time(
-						depreciation_date ) ) ) ) )
+				transaction_date_time ) ) )
 	{
 		fprintf( stderr,
 	"ERROR in %s/%s()/%d: transaction_new(%s,%s,%s) returned empty.\n",

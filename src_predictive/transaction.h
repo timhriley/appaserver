@@ -57,7 +57,7 @@ TRANSACTION *transaction_fetch(
 /* TRANSACTION without any additions */
 /* --------------------------------- */
 FILE *transaction_insert_open(
-			boolean replace );
+			void );
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */

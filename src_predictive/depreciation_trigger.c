@@ -9,54 +9,35 @@
 #include <string.h>
 #include <stdlib.h>
 #include "timlib.h"
+#include "String.h"
 #include "environ.h"
 #include "piece.h"
 #include "list.h"
-#include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "transaction.h"
+#include "entity_self.h"
+#include "account.h"
+#include "fixed_asset_purchase.h"
+#include "depreciation.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void depreciation_trigger_insert(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *account );
+void depreciation_trigger_insert_update(
+			DEPRECIATION *depreciation );
 
-void depreciation_trigger_update(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *account,
-			char *preupdate_transaction_date_time,
-			char *preupdate_account );
-
-void depreciation_trigger_delete(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *account );
-
-/*
 void depreciation_trigger_predelete(
-			char *transaction_date_time,
-			char *account );
-*/
+			DEPRECIATION *depreciation );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *full_name;
-	char *street_address;
-	char *transaction_date_time;
-	char *account;
+	char *asset_name;
+	char *serial_label;
+	char *depreciation_date;
 	char *state;
-	char *preupdate_transaction_date_time;
-	char *preupdate_account;
+	DEPRECIATION *depreciation;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -65,172 +46,105 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr,
-"Usage: %s full_name street_address transaction_date_time account state preupdate_transaction_date_time preupdate_account\n",
+		"Usage: %s asset_name serial_label depreciation_date state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	full_name = argv[ 1 ];
-	street_address = argv[ 2 ];
-	transaction_date_time = argv[ 3 ];
-	account = argv[ 4 ];
-	state = argv[ 5 ];
-	preupdate_transaction_date_time = argv[ 6 ];
-	preupdate_account = argv[ 7 ];
+	asset_name = argv[ 1 ];
+	serial_label = argv[ 2 ];
+	depreciation_date = argv[ 3 ];
+	state = argv[ 4 ];
 
-	if ( strcmp( transaction_date_time, "transaction_date_time" ) == 0 )
+	if ( ! ( depreciation =
+			depreciation_fetch(
+				asset_name,
+				serial_label,
+				depreciation_date ) ) )
+	{
+		printf(
+		"<h3>ERROR: depreciation_fetch() returned empty.</h3>\n" );
 		exit( 0 );
+	}
 
-	if ( strcmp( state, "insert" ) == 0 )
+	if ( strcmp( state, "insert" ) == 0
+	||   strcmp( state, "update" ) == 0 )
 	{
-		depreciation_trigger_insert(
-			full_name,
-			street_address,
-			transaction_date_time,
-			account );
+		depreciation_trigger_insert_update( depreciation );
 	}
-	else
-	if ( strcmp( state, "update" ) == 0 )
-	{
-		depreciation_trigger_update(
-			full_name,
-			street_address,
-			transaction_date_time,
-			account,
-			preupdate_transaction_date_time,
-			preupdate_account );
-	}
-	else
-	if ( strcmp( state, "delete" ) == 0 )
-	{
-		depreciation_trigger_delete(
-			full_name,
-			street_address,
-			transaction_date_time,
-			account );
-	}
-/*
 	else
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		depreciation_trigger_predelete(
-			transaction_date_time,
-			account );
+		depreciation_trigger_predelete( depreciation );
 	}
-*/
 
 	return 0;
 }
 
-void depreciation_trigger_update(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *account,
-			char *preupdate_transaction_date_time,
-			char *preupdate_account )
+void depreciation_trigger_insert_update(
+			DEPRECIATION *depreciation )
 {
-	LIST *account_name_list;
+	ENTITY_SELF *entity_self;
 
-	if ( transaction_date_time_changed(
-			preupdate_transaction_date_time ) )
+	entity_self = entity_self_fetch();
+
+	depreciation->
+		depreciation_transaction =
+			depreciation_transaction(
+				entity_self->entity->full_name,
+				entity_self->entity->street_address,
+				depreciation->transaction_date_time
+					/* depreciation_date */,
+				depreciation->depreciation_amount,
+				account_depreciation_expense(
+					(char *)0 /* fund_name */ ),
+				account_accumulated_depreciation(
+					(char *)0 /* fund_name */ ) );
+
+	if ( !depreciation->depreciation_transaction )
 	{
-		transaction_date_time =
-			transaction_date_time_earlier(
-				transaction_date_time,
-				preupdate_transaction_date_time );
-	}
-
-	if ( account_name_changed( preupdate_account ) )
-	{
-		/* Executes journal_list_set_balances() */
-		/* ------------------------------------ */
-		journal_propagate(
-			transaction_date_time,
-			preupdate_account /* account_name */ );
-
-		journal_propagate(
-			transaction_date_time,
-			account /* account_name */ );
+		printf(
+	"<h2>ERROR: depreciation_transaction() returned empty.</h2>\n" );
 		return;
 	}
 
-	account_name_list =
-		journal_account_name_list(
-			full_name,
-			street_address,
-			transaction_date_time );
+	transaction_refresh(
+		depreciation->depreciation_transaction->full_name,
+		depreciation->depreciation_transaction->street_address,
+		depreciation->depreciation_transaction->transaction_date_time,
+		depreciation->depreciation_transaction->transaction_amount,
+		depreciation->depreciation_transaction->memo,
+		0 /* check_number */,
+		depreciation->depreciation_transaction->lock_transaction,
+		depreciation->depreciation_transaction->journal_list );
 
-	if ( !list_rewind( account_name_list ) )
-	{
-		return;
-	}
-
-	do {
-		/* Executes journal_list_set_balances() */
-		/* ------------------------------------ */
-		journal_propagate(
-			transaction_date_time,
-			list_get( account_name_list )
-				 /* account_name */ );
-
-	} while ( list_next( account_name_list ) );
-
-	transaction_amount_fetch_update(
-			full_name,
-			street_address,
-			transaction_date_time );
+	fixed_asset_purchase_finance_fetch_update(
+		depreciation->asset_name,
+		depreciation->serial_label );
 }
 
-#ifdef NOT_DEFINED
 void depreciation_trigger_predelete(
-			char *transaction_date_time,
-			char *account )
+			DEPRECIATION *depreciation )
 {
-	/* Executes journal_list_set_balances() */
-	/* ------------------------------------ */
-	journal_propagate(
-		transaction_date_time,
-		account /* account_name */ );
-}
-#endif
+	if ( depreciation->depreciation_transaction )
+	{
+		/* Performs journal_propagate() */
+		/* ---------------------------- */
+		transaction_delete(
+			depreciation->
+				depreciation_transaction->
+				full_name,
+			depreciation->
+				depreciation_transaction->
+				street_address,
+			depreciation->
+				depreciation_transaction->
+				transaction_date_time );
 
-void depreciation_trigger_insert(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *account )
-{
-	/* Executes journal_list_set_balances() */
-	/* ------------------------------------ */
-	journal_propagate(
-		transaction_date_time,
-		account /* account_name */ );
-
-	transaction_amount_fetch_update(
-			full_name,
-			street_address,
-			transaction_date_time );
-}
-
-void depreciation_trigger_delete(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *account )
-{
-	/* Executes journal_list_set_balances() */
-	/* ------------------------------------ */
-	journal_propagate(
-		transaction_date_time,
-		account /* account_name */ );
-
-	transaction_amount_fetch_update(
-			full_name,
-			street_address,
-			transaction_date_time );
+		depreciation->depreciation_transaction = (TRANSACTION *)0;
+	}
 }
 

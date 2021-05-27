@@ -72,21 +72,18 @@ DEPRECIATION *depreciation_new(
 			char *depreciation_date );
 
 DEPRECIATION *depreciation_parse(
-			char *input,
-			boolean fetch_transaction );
+			char *input );
 
 DEPRECIATION *depreciation_fetch(
 			char *asset_name,
 			char *serial_label,
-			char *depreciation_date,
-			boolean fetch_transaction );
+			char *depreciation_date );
 
 char *depreciation_system_string(
 			char *where );
 
 LIST *depreciation_system_list(
-			char *system_string,
-			boolean fetch_transaction );
+			char *system_string );
 
 double depreciation_amount_total(
 			LIST *depreciation_list );
@@ -162,8 +159,7 @@ char *depreciation_primary_where(
 
 LIST *depreciation_list_fetch(
 			char *asset_name,
-			char *serial_label,
-			boolean fetch_transaction );
+			char *serial_label );
 
 double depreciation_accumulated_depreciation(
 			double prior_accumulated_depreciation,

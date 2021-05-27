@@ -29,13 +29,13 @@
 
 /* Prototypes */
 /* ---------- */
+boolean depreciate_fixed_assets(
+			boolean execute );
+
 FILE *depreciate_fixed_asset_undo_html_open(
 			void );
 
 boolean depreciate_fixed_asset_undo(
-			boolean execute );
-
-boolean depreciate_fixed_assets(
 			boolean execute );
 
 int main( int argc, char **argv )
@@ -79,21 +79,7 @@ int main( int argc, char **argv )
 			buffer,
 			process_name ) );
 
-	if ( undo )
-	{
-		if ( depreciate_fixed_asset_undo( execute ) )
-		{
-			if ( execute )
-				printf( "<h3>Undo complete</h3>\n" );
-			else
-				printf( "<h3>Undo not executed</h3>\n" );
-		}
-		else
-		{
-			printf( "<h3>No depreciations to undo</h3>\n" );
-		}
-	}
-	else
+	if ( !undo )
 	{
 		if ( depreciate_fixed_assets( execute ) )
 		{
@@ -107,10 +93,69 @@ int main( int argc, char **argv )
 			printf( "<h3>No fixed assets to depreciate</h3>\n" );
 		}
 	}
+	else
+	{
+		if ( depreciate_fixed_asset_undo( execute ) )
+		{
+			if ( execute )
+				printf( "<h3>Undo complete</h3>\n" );
+			else
+				printf( "<h3>Undo not executed</h3>\n" );
+		}
+		else
+		{
+			printf( "<h3>No depreciations to undo</h3>\n" );
+		}
+	}
 
 	document_close();
 
 	return 0;
+}
+
+boolean depreciate_fixed_assets( boolean execute )
+{
+	LIST *fixed_asset_purchase_list;
+	char where[ 512 ];
+
+	sprintf(where,
+		"finance_accumulated_depreciation < cost_basis"
+		" and disposal_date is null" );
+
+	fixed_asset_purchase_list =
+		fixed_asset_purchase_list_depreciate(
+			fixed_asset_purchase_list_fetch(
+				where,
+				0 /* not fetch_last_depreciation */ ),
+			date_now_yyyy_mm_dd( date_utc_offset() ) );
+
+	if ( !list_length( fixed_asset_purchase_list ) ) return 0;
+
+	fixed_asset_purchase_depreciation_display(
+		fixed_asset_purchase_list );
+
+	if ( execute )
+	{
+		LIST *depreciation_list;
+
+		depreciation_list =
+			fixed_asset_purchase_depreciation_list(
+				fixed_asset_purchase_list );
+
+		depreciation_list_insert( depreciation_list );
+
+		fixed_asset_purchase_list_update(
+			fixed_asset_purchase_list );
+
+		/* Sets true transaction_date_time */
+		/* ------------------------------- */
+		transaction_list_insert(
+			depreciation_transaction_list(
+				depreciation_list ),
+			0 /* not lock_transaciton */ );
+
+	}
+	return 1;
 }
 
 FILE *depreciate_fixed_asset_undo_html_open( void )
@@ -270,52 +315,6 @@ boolean depreciate_fixed_asset_undo( boolean execute )
 
 	} /* if execute */
 
-	return 1;
-}
-
-boolean depreciate_fixed_assets(
-			boolean execute )
-{
-	LIST *fixed_asset_purchase_list;
-	char where[ 512 ];
-
-	sprintf(where,
-		"finance_accumulated_depreciation < cost_basis"
-		" and disposal_date is null" );
-
-	fixed_asset_purchase_list =
-		fixed_asset_purchase_list_depreciate(
-			fixed_asset_purchase_list_fetch(
-				where,
-				0 /* not fetch_last_depreciation */ ),
-			date_now_yyyy_mm_dd( date_utc_offset() ) );
-
-	if ( !list_length( fixed_asset_purchase_list ) ) return 0;
-
-	fixed_asset_purchase_depreciation_display(
-		fixed_asset_purchase_list );
-
-	if ( execute )
-	{
-		LIST *depreciation_list;
-
-		depreciation_list =
-			fixed_asset_purchase_depreciation_list(
-				fixed_asset_purchase_list );
-
-		depreciation_list_insert( depreciation_list );
-
-		fixed_asset_purchase_list_update(
-			fixed_asset_purchase_list );
-
-		/* Sets true transaction_date_time */
-		/* ------------------------------- */
-		transaction_list_insert(
-			depreciation_transaction_list(
-				depreciation_list ),
-			0 /* not lock_transaciton */ );
-
-	}
 	return 1;
 }
 

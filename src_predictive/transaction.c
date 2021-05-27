@@ -287,8 +287,7 @@ char *transaction_primary_where(
 	return strdup( where );
 }
 
-FILE *transaction_insert_open(
-			boolean replace )
+FILE *transaction_insert_open( void )
 {
 	char sys_string[ 1024 ];
 	char *field;
@@ -307,7 +306,7 @@ FILE *transaction_insert_open(
 		 "sql 2>&1						 ",
 		 TRANSACTION_TABLE,
 		 field,
-		 (replace) ? 'y' : 'n' );
+		 'n' );
 
 	return popen( sys_string, "w" );
 }
@@ -421,7 +420,15 @@ char *transaction_insert(
 		return (char *)0;
 	}
 
-	insert_pipe = transaction_insert_open( replace );
+	if ( replace )
+	{
+		transaction_delete(
+			full_name,
+			street_address,
+			transaction_date_time );
+	}
+
+	insert_pipe = transaction_insert_open();
 
 	transaction_date_time =
 		transaction_insert_pipe(
@@ -890,11 +897,11 @@ void transaction_delete(
 
 	output_pipe = popen( sys_string, "w" );
 
-	fprintf(	output_pipe,
-			"%s^%s^%s\n",
-			full_name,
-			street_address,
-			transaction_date_time );
+	fprintf(output_pipe,
+		"%s^%s^%s\n",
+		full_name,
+		street_address,
+		transaction_date_time );
 
 	pclose( output_pipe );
 }

@@ -52,6 +52,7 @@ enum preupdate_change_state {		from_null_to_something,
 #define RESIDUAL_STANDARD_ESTIMATE		"Error StdDev"
 #define COLUMNS_UPDATED_KEY			"ccolumns_updated"
 #define COLUMNS_UPDATED_CHANGED_FOLDER_KEY	"ccolumns_updated_changed"
+#define RESULTS_STRING_KEY			"rresults_key"
 #define CONTENT_TYPE_YN				"output_content_type_yn"
 #define MAX_QUERY_ROWS_FORCE_DROP_DOWNS		5
 #define ROWS_INSERTED_COUNT_KEY			"rrows_inserted_count"

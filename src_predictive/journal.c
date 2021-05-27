@@ -958,13 +958,13 @@ LIST *journal_list_insert(
 		}
 
 		journal_insert_pipe(
-				insert_pipe,
-				full_name,
-				street_address,
-				transaction_date_time,
-				journal->account_name,
-				amount,
-				is_debit );
+			insert_pipe,
+			full_name,
+			street_address,
+			transaction_date_time,
+			journal->account_name,
+			amount,
+			is_debit );
 
 		list_set(
 			account_name_list,

@@ -44,6 +44,7 @@
 /* Prototypes */
 /* ---------- */
 int post_state_update_folder(
+			char **results_string,
 			char **changed_folder_name_list_string,
 			DICTIONARY_APPASERVER *dictionary_appaserver,
 			char *application_name,
@@ -88,7 +89,8 @@ void execute_update_output_process(
 			char *detail_base_folder_name,
 			char *primary_data_list_string,
 			int cells_updated,
-			char *changed_folder_name_list_string );
+			char *changed_folder_name_list_string,
+			char *results_string );
 
 void post_state_update(		
 			DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -771,6 +773,7 @@ void post_state_update(
 {
 	FOLDER *folder;
 	OPERATION_LIST_STRUCTURE *operation_list_structure = {0};
+	char *results_string = (char*)0;
 	char *changed_folder_name_list_string = (char *)0;
 	int cells_updated;
 
@@ -846,6 +849,7 @@ void post_state_update(
 
 	cells_updated =
 		post_state_update_folder(
+				&results_string,
 				&changed_folder_name_list_string,
 				dictionary_appaserver,
 				application_name,
@@ -881,21 +885,23 @@ void post_state_update(
 	}
 
 	execute_update_output_process(
-			dictionary_appaserver,
-			application_name,
-			login_name,
-			session,
-			folder_name,
-			role_name,
-			insert_update_key,
-			target_frame,
-			detail_base_folder_name,
-			primary_data_list_string,
-			cells_updated,
-			changed_folder_name_list_string );
+		dictionary_appaserver,
+		application_name,
+		login_name,
+		session,
+		folder_name,
+		role_name,
+		insert_update_key,
+		target_frame,
+		detail_base_folder_name,
+		primary_data_list_string,
+		cells_updated,
+		changed_folder_name_list_string,
+		results_string );
 }
 
 int post_state_update_folder(
+			char **results_string,
 			char **changed_folder_name_list_string,
 			DICTIONARY_APPASERVER *dictionary_appaserver,
 			char *application_name,
@@ -912,7 +918,6 @@ int post_state_update_folder(
 {
 	DICTIONARY *file_dictionary;
 	UPDATE_DATABASE *update_database;
-	char *results_string;
 	int cells_updated;
 
 	file_dictionary =
@@ -989,7 +994,7 @@ m2( application_name, msg );
 		update_database_cells_updated(
 			update_database->update_row_list );
 
-	results_string =
+	*results_string =
 		update_database_execute(
 			update_database->application_name,
 			update_database->session,
@@ -1001,6 +1006,7 @@ m2( application_name, msg );
 			(LIST *)0 /* additional_update_data_list */,
 			1 /* abort_if_first_update_failed */ );
 
+/*
 	if ( results_string && *results_string )
 	{
 		document_quick_output_body(
@@ -1011,6 +1017,7 @@ m2( application_name, msg );
 		document_close();
 		exit( 0 );
 	}
+*/
 
 	*changed_folder_name_list_string =
 		list_display_delimited_plus_space(
@@ -1154,8 +1161,8 @@ void post_state_lookup(
 			detail_base_folder_name,
 			primary_data_list_string,
 			0 /* cells_updated */,
-			(char *)0
-			/* changed_folder_name_list_string */ );
+			(char *)0 /* changed_folder_name_list_string */,
+			(char *)0 /* results_string */ );
 }
 
 boolean get_insert_flag( DICTIONARY *non_prefixed_dictionary )
@@ -1186,18 +1193,19 @@ void set_insert_flag( DICTIONARY *non_prefixed_dictionary )
 }
 
 void execute_update_output_process(	
-				DICTIONARY_APPASERVER *dictionary_appaserver,
-				char *application_name,
-				char *login_name,
-				char *session,
-				char *folder_name,
-				char *role_name,
-				char *insert_update_key,
-				char *target_frame,
-				char *detail_base_folder_name,
-				char *primary_data_list_string,
-				int cells_updated,
-				char *changed_folder_name_list_string )
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char *application_name,
+			char *login_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			char *insert_update_key,
+			char *target_frame,
+			char *detail_base_folder_name,
+			char *primary_data_list_string,
+			int cells_updated,
+			char *changed_folder_name_list_string,
+			char *results_string )
 {
 	char sys_string[ 65536 ];
 
@@ -1238,6 +1246,14 @@ void execute_update_output_process(
 				COLUMNS_UPDATED_CHANGED_FOLDER_KEY,
 				changed_folder_name_list_string );
 		}
+	}
+
+	if ( results_string && *results_string )
+	{
+		dictionary_set_pointer(
+			dictionary_appaserver->non_prefixed_dictionary,
+			RESULTS_STRING_KEY,
+			results_string );
 	}
 
 	if ( strcmp( insert_update_key, "detail" ) == 0 )

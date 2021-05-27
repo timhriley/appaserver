@@ -139,8 +139,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 						asset_name,
 					fixed_asset_purchase->
 						fixed_asset->
-						serial_label ),
-				0 /* not fetch_transaction */ );
+						serial_label ) );
 	}
 	return fixed_asset_purchase;
 }
@@ -290,32 +289,6 @@ double fixed_asset_purchase_total(
 	return purchase_total;
 }
 
-LIST *fixed_asset_purchase_depreciation_list(
-			LIST *fixed_asset_purchase_list )
-{
-	LIST *depreciation_list;
-	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-
-	if ( !list_rewind( fixed_asset_purchase_list ) ) return (LIST *)0;
-
-	depreciation_list = list_new();
-
-	do {
-		fixed_asset_purchase =
-			list_get(
-				fixed_asset_purchase_list );
-
-		if ( fixed_asset_purchase->depreciation )
-		{
-			list_set(
-				depreciation_list,
-				fixed_asset_purchase->depreciation );
-		}
-
-	} while ( list_next( fixed_asset_purchase_list ) );
-	return depreciation_list;
-}
-
 LIST *fixed_asset_purchase_list_depreciate(
 			LIST *fixed_asset_purchase_list,
 			char *depreciation_date )
@@ -387,7 +360,7 @@ LIST *fixed_asset_purchase_list_depreciate(
 	return fixed_asset_purchase_list;
 }
 
-LIST *fixed_asset_purchae_depreciation_list(
+LIST *fixed_asset_purchase_depreciation_list(
 			LIST *fixed_asset_purchase_list )
 {
 	LIST *depreciation_list;
@@ -506,5 +479,35 @@ void fixed_asset_purchase_depreciation_display(
 	} while( list_next( fixed_asset_purchase_list ) );
 
 	pclose( output_pipe );
+}
+
+void fixed_asset_purchase_finance_fetch_update(
+			char *asset_name,
+			char *serial_label )
+{
+	char system_string[ 1024 ];
+	char set[ 512 ];
+
+	sprintf(set,
+		"finance_accumulated_depreciation = 			"
+		"( select sum( depreciation_amount )			"
+		"	  from %s					"
+		"	  where %s.asset_name = %s.asset_name		"
+		"	    and %s.serial_label = %s.serial_label )	",
+		DEPRECIATION_TABLE,
+		FIXED_ASSET_PURCHASE_TABLE,
+		DEPRECIATION_TABLE,
+		FIXED_ASSET_PURCHASE_TABLE,
+		DEPRECIATION_TABLE );
+
+	sprintf(system_string,
+		"echo \"update %s set %s where %s;\" | sql",
+		FIXED_ASSET_PURCHASE_TABLE,
+		set,
+		fixed_asset_purchase_primary_where(
+			asset_name,
+			serial_label ) );
+
+	if ( system( system_string ) ){};
 }
 

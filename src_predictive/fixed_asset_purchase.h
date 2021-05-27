@@ -134,5 +134,9 @@ void fixed_asset_purchase_list_update(
 void fixed_asset_purchase_depreciation_display(
 			LIST *fixed_asset_purchase_list );
 
+void fixed_asset_purchase_finance_fetch_update(
+			char *asset_name,
+			char *serial_label );
+
 #endif
 
