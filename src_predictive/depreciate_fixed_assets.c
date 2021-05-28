@@ -152,7 +152,7 @@ boolean depreciate_fixed_assets( boolean execute )
 		transaction_list_insert(
 			depreciation_transaction_list(
 				depreciation_list ),
-			0 /* not lock_transaciton */ );
+			1 /* lock_transaciton */ );
 
 	}
 	return 1;
