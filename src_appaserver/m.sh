@@ -4,6 +4,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd -
-	make detail
+	make post_edit_table_form
 fi
 

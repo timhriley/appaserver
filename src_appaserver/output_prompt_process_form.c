@@ -485,7 +485,8 @@ int main( int argc, char **argv )
 		application_name,
 		login_name,
 		(char *)0 /* attribute_not_null_string */,
-		(char *)0 /* appaserver_user_foreign_login_name */ );
+		(char *)0 /* appaserver_user_foreign_login_name */,
+		(LIST *)0 /* non_edit_folder_name_list */ );
 
 	if ( process_parameter_exists_preprompt )
 	{

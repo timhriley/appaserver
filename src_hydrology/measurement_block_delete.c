@@ -443,15 +443,11 @@ char *get_where_clause_string( 	char *application_name,
 	/* If forked from a process like nearest_neighbor. */
 	/* ----------------------------------------------- */
 	query =
-		query_edit_table_new(
+		query_simple_new(
 			query_dictionary,
 			application_name,
 			(char *)0 /* login_name */,
-			"measurement" /* folder_name */,
-			(ROLE *)0,
-			(char *)0 /* attribute_not_null_join */,
-			(char *)0 /* attribute_not_null_folder_name */,
-			(char *)0 /* attribute_not_null_string */ );
+			"measurement" /* folder_name */ );
 
 	/* If executed from the user interface. */
 	/* ------------------------------------ */

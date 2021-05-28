@@ -8,6 +8,7 @@
 #include <string.h>
 #include "dictionary_appaserver.h"
 #include "timlib.h"
+#include "piece.h"
 #include "query.h"
 
 DICTIONARY_APPASERVER *dictionary_appaserver_new(
@@ -460,46 +461,52 @@ DICTIONARY *dictionary_appaserver_get_row_dictionary_multi_row(
 			LIST *operation_name_list )
 {
 	int index;
-	char *attribute_name;
+	char *full_attribute_name;
 	char *operation_name;
 	char key[ 256 ];
-	char *dictionary_row;
+	char *data;
+	DICTIONARY *non_table_prefixed_dictionary;
 	DICTIONARY *row_dictionary;
 	int highest_index;
+
+	non_table_prefixed_dictionary =
+		dictionary_key_piece(
+			'.',
+			non_prefixed_dictionary,
+			1 );
 
 	if ( !list_length( attribute_name_list ) ) return (DICTIONARY *)0;
 
 	highest_index =
 		dictionary_get_highest_index(
-			non_prefixed_dictionary );
+			non_table_prefixed_dictionary );
 
 	row_dictionary = dictionary_large_new();
 
 	for( index = 0; index <= highest_index; index++ )
 	{
 		list_rewind( attribute_name_list );
+
 		do {
-			attribute_name =
-				list_get_pointer( attribute_name_list );
+			full_attribute_name = list_get( attribute_name_list );
 
-			sprintf(	key,
-					"%s_%d",
-					attribute_name,
-					index );
+			sprintf(key,
+				"%s_%d",
+				full_attribute_name,
+				index );
 
-			dictionary_row =
+			data =
 				dictionary_fetch(
-					non_prefixed_dictionary,
+					non_table_prefixed_dictionary,
 					key );
 
-			if ( dictionary_row )
+			if ( data )
 			{
 				dictionary_set_pointer(
 					row_dictionary,
 					strdup( key ),
-					dictionary_row );
+					data );
 			}
-
 		} while( list_next( attribute_name_list ) );
 
 		if ( !list_rewind( operation_name_list ) ) continue;
@@ -509,29 +516,28 @@ DICTIONARY *dictionary_appaserver_get_row_dictionary_multi_row(
 				list_get_pointer(
 					operation_name_list );
 
-			sprintf(	key,
-					"%s_%d",
-					operation_name,
-					index );
+			sprintf(key,
+				"%s_%d",
+				operation_name,
+				index );
 
-			dictionary_row =
+			data =
 				dictionary_fetch(
-					non_prefixed_dictionary,
+					non_table_prefixed_dictionary,
 					key );
 
-			if ( dictionary_row )
+			if ( data )
 			{
 				dictionary_set_pointer(
 					row_dictionary,
 					strdup( key ),
-					dictionary_row );
+					data );
 			}
 		} while( list_next( operation_name_list ) );
 
 	} /* for each index */
 
 	return row_dictionary;
-
 }
 
 DICTIONARY *dictionary_appaserver_get_row_dictionary_row(
@@ -879,6 +885,5 @@ void dictionary_appaserver_set_primary_data_list_string(
 		} while( list_next( primary_attribute_name_list ) );
 
 	}
-	
 }
 

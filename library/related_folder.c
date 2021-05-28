@@ -298,6 +298,15 @@ LIST *related_folder_drop_down_element_list(
 	char relation_operator_equals[ 256 ];
 	boolean set_option_data_option_label_list;
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: folder_name = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+folder_name );
+m2( application_name, msg );
+}
 	return_list = list_new_list();
 
 	/* Create the line break */
@@ -397,7 +406,8 @@ LIST *related_folder_drop_down_element_list(
 				QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL,
 				element_name );
 
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				drop_down,
 				strdup( drop_down_element_name ) );
 
@@ -407,9 +417,12 @@ LIST *related_folder_drop_down_element_list(
 	}
 	else
 	{
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				drop_down,
 				strdup( element_name ) );
+
+		element->drop_down->folder_name = folder_name;
 
 		element->drop_down->output_null_option =
 			output_null_option;
@@ -2901,15 +2914,11 @@ LIST *related_folder_get_preselection_dictionary_list(
 	else
 	{
 		query =
-			query_edit_table_new(
+			query_simple_new(
 				query_dictionary,
 				application_name,
 				login_name,
-				related_folder->folder_name,
-				(ROLE *)0,
-				(char *)0 /* attribute_not_null_join */,
-				(char *)0 /* attribute_not_null_folder_name */,
-				(char *)0 /* attribute_not_null_string */ );
+				related_folder->folder_name );
 
 		related_folder_dictionary_list =
 			query_row_dictionary_list(
@@ -5570,6 +5579,8 @@ LIST *related_folder_regular_element_list(
 	element->drop_down->heading = strdup( element_heading );
 
 	element->drop_down->state = state;
+
+	element->drop_down->folder_name = related_folder->folder->folder_name;
 
 	if ( !is_primary_attribute )
 		element->drop_down->output_null_option = 1;

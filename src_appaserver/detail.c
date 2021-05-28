@@ -335,10 +335,14 @@ if ( SECURITY_ON )
 					mto1_related_folder_list );
 	}
 
+/*
 	if ( !non_edit_folder_name_list )
+	{
 		non_edit_folder_name_list = list_new();
+	}
 
 	list_append_pointer( non_edit_folder_name_list, folder_name );
+*/
 
 	/* Get from non_prefixed_dictionary and repopulate it. */
 	/* --------------------------------------------------- */
@@ -400,9 +404,9 @@ if ( SECURITY_ON )
 	document_set_javascript_module( document, "form" );
 
 	document_set_folder_javascript_files(
-						document,
-						application_name,
-						folder_name );
+		document,
+		application_name,
+		folder_name );
 
 	document_output_head(
 			document->application_name,
@@ -430,9 +434,9 @@ if ( SECURITY_ON )
 		form_title );
 
 	appaserver_library_list_database_convert_dates(
-			primary_data_list,
-			application_name,
-			appaserver->folder->append_isa_attribute_list );
+		primary_data_list,
+		application_name,
+		appaserver->folder->append_isa_attribute_list );
 
 	form_number =
 		get_starting_form_number(
@@ -470,20 +474,23 @@ if ( SECURITY_ON )
 			non_edit_folder_name_list,
 			0 /* not make_primary_keys_non_edit */ );
 
-	role_folder_insert_list = role_folder_get_insert_list(
-					application_name,
-					session,
-					role_name );
+	role_folder_insert_list =
+		role_folder_get_insert_list(
+			application_name,
+			session,
+			role_name );
 
-	role_folder_update_list = role_folder_get_update_list(
-					application_name,
-					session,
-					role_name );
+	role_folder_update_list =
+		role_folder_get_update_list(
+			application_name,
+			session,
+			role_name );
 
-	role_folder_lookup_list = role_folder_get_lookup_list(
-					application_name,
-					session,
-					role_name );
+	role_folder_lookup_list =
+		role_folder_get_lookup_list(
+			application_name,
+			session,
+			role_name );
 
 	mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
@@ -731,23 +738,24 @@ void save_ending_form_number(	char *appaserver_data_directory,
 
 }
 
-void output_1tom_folder_detail(	int *form_number,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *login_name,
-				char *role_name,
-				char *target_frame,
-				LIST *primary_data_list,
-				char *appaserver_mount_point,
-				char *appaserver_data_directory,
-				char *base_folder_name,
-				boolean output_even_if_not_populated,
-				DICTIONARY_APPASERVER *dictionary_appaserver,
-				boolean override_row_restrictions,
-				LIST *role_folder_insert_list,
-				LIST *role_folder_update_list,
-				LIST *role_folder_lookup_list )
+void output_1tom_folder_detail(
+			int *form_number,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			char *role_name,
+			char *target_frame,
+			LIST *primary_data_list,
+			char *appaserver_mount_point,
+			char *appaserver_data_directory,
+			char *base_folder_name,
+			boolean output_even_if_not_populated,
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			boolean override_row_restrictions,
+			LIST *role_folder_insert_list,
+			LIST *role_folder_update_list,
+			LIST *role_folder_lookup_list )
 {
 	RELATED_FOLDER *related_folder;
 	APPASERVER *appaserver;
@@ -1311,8 +1319,10 @@ DICTIONARY *output_folder_detail(
 		exit( 1 );
 	}
 
-	role = role_new_role(	application_name,
-				role_name );
+	role =
+		role_new_role(
+			application_name,
+			role_name );
 
 	folder =
 		folder_new_folder(
@@ -1402,11 +1412,9 @@ DICTIONARY *output_folder_detail(
 			row_security->select_folder,
 			row_security->attribute_not_null_join,
 			row_security->attribute_not_null_folder,
-			row_security->attribute_not_null_string,
 			row_security->foreign_login_name_folder,
 			where_clause_attribute_name_list,
 			where_clause_data_list,
-			non_edit_folder_name_list,
 			make_primary_keys_non_edit,
 			omit_delete_operation,
 			omit_operation_buttons,
@@ -1442,40 +1450,41 @@ DICTIONARY *output_folder_detail(
 	form_set_insert_update_key( form, INSERT_UPDATE_KEY );
 	form->process_id = getpid();
 
-	sprintf(	action_string,
+	sprintf(action_string,
 	"%s/post_edit_table_form?%s+%s+%s+%s+%s+%s+detail!%s+%s+%d+%s",
-			appaserver_parameter_file_get_cgi_directory(),
-			login_name, 
-			application_name,
-			session, 
-			folder_name,
-			role_name,
-			"update",
-			base_folder_name,
-			target_frame,
-			form->process_id,
-			(last_related_attribute_name)
-				? last_related_attribute_name
-				: "" );
+		appaserver_parameter_file_get_cgi_directory(),
+		login_name, 
+		application_name,
+		session, 
+		folder_name,
+		role_name,
+		"update",
+		base_folder_name,
+		target_frame,
+		form->process_id,
+		(last_related_attribute_name)
+			? last_related_attribute_name
+			: "" );
 
 	form->action_string = action_string;
 
-	form_set_folder_parameters(	form,
-					"update",
-					login_name,
-					application_name,
-					session,
-					folder_name,
-					role_name );
+	form_set_folder_parameters(
+		form,
+		"update",
+		login_name,
+		application_name,
+		session,
+		folder_name,
+		role_name );
 
 	if ( last_related_attribute_name
 	&&   *last_related_attribute_name
 	&&   strcmp( last_related_attribute_name, "null" ) != 0 )
 	{
-		sprintf(	caption_string,
-				"%s (%s)",
-				form->folder_name,
-				last_related_attribute_name );
+		sprintf(caption_string,
+			"%s (%s)",
+			form->folder_name,
+			last_related_attribute_name );
 	}
 	else
 	{
@@ -1520,7 +1529,7 @@ DICTIONARY *output_folder_detail(
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(char *)0 /* bugs folder->post_change_javascript */ );
+		folder->post_change_javascript );
 
 	form_output_table_heading( form->regular_element_list, *form_number );
 
@@ -1557,11 +1566,12 @@ DICTIONARY *output_folder_detail(
 		application_name,
 		login_name,
 		row_security->attribute_not_null_string,
-		appaserver_user_foreign_login_name );
+		appaserver_user_foreign_login_name,
+		non_edit_folder_name_list );
 
 	dictionary_appaserver_output_as_hidden(
-				dictionary_appaserver,
-				1 /* with non_prefixed_dictionary */ );
+		dictionary_appaserver,
+		1 /* with non_prefixed_dictionary */ );
 
 	output_submit_reset_buttons_in_trailer =
 		( update_yn == 'y' ||

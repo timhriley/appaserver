@@ -168,22 +168,12 @@ int main( int argc, char **argv )
 			dictionary_appaserver->preprompt_dictionary,
 			folder->lookup_before_drop_down );
 
-/*
-	dictionary_appaserver_parse_multi_attribute_keys(
-		dictionary_appaserver->query_dictionary,
-		QUERY_RELATION_OPERATOR_STARTING_LABEL );
-*/
-
 	query =
-		query_edit_table_new(
+		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			application_name,
 			login_name,
-			folder_name,
-			role_new( application_name, role_name ),
-			(char *)0 /* attribute_not_null_join */,
-			(char *)0 /* attribute_not_null_folder_name */,
-			(char *)0 /* attribute_not_null_string */ );
+			folder_name );
 
 	where_clause = query->query_output->where_clause;
 

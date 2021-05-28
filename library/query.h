@@ -201,8 +201,7 @@ LIST *query_get_record_list(	char *application_name,
 
 char *query_get_select_clause(
 			char *application_name,
-			LIST *append_isa_attribute_list,
-			char *attribute_not_null_string );
+			LIST *append_isa_attribute_list );
 
 LIST *query_get_subquery_drop_down_list(
 				LIST *exclude_attribute_name_list,
@@ -668,17 +667,16 @@ LIST *query_edit_table_dictionary_list(
 			char *order_clause,
 			int max_rows,
 			LIST *append_isa_attribute_list,
-			char *login_name,
-			char *attribute_not_null_string );
+			char *login_name );
 
 QUERY_OUTPUT *query_edit_table_output_new(
 			QUERY *query,
 			FOLDER *folder,
+			LIST *append_isa_attribute_list,
 			PROMPT_RECURSIVE *prompt_recursive,
 			char *query_select_folder_name,
 			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string );
+			char *attribute_not_null_folder_name );
 
 LIST *query_edit_table_drop_down_list(
 			LIST *exclude_attribute_name_list,
@@ -692,9 +690,9 @@ QUERY *query_edit_table_new(
 			char *login_name,
 			char *query_select_folder_name,
 			ROLE *role,
+			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string );
+			char *attribute_not_null_folder_name );
 
 QUERY_DROP_DOWN *query_edit_table_drop_down(
 			LIST *exclude_attribute_name_list,
@@ -752,8 +750,7 @@ QUERY *query_detail_new(
 			LIST *where_attribute_data_list,
 			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string );
+			char *attribute_not_null_folder_name );
 
 QUERY_OUTPUT *query_detail_output_new(
 			FOLDER *folder,
@@ -762,8 +759,7 @@ QUERY_OUTPUT *query_detail_output_new(
 			LIST *where_attribute_data_list,
 			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string );
+			char *attribute_not_null_folder_name );
 
 char *query_output_one2m_isa_where(
 			char **from_clause,
@@ -894,7 +890,12 @@ LIST *query_detail_dictionary_list(
 			char *order_clause,
 			int max_rows,
 			LIST *append_isa_attribute_list,
+			char *login_name );
+
+QUERY *query_simple_new(
+			DICTIONARY *dictionary,
+			char *application_name,
 			char *login_name,
-			char *attribute_not_null_string );
+			char *folder_name );
 
 #endif

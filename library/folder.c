@@ -2937,7 +2937,7 @@ FOLDER *folder_parse(	char *input,
 				folder->folder_name );
 
 		folder->attribute_name_list =
-			attribute_name_list(
+			attribute_name_list_extract(
 				folder->attribute_list );
 
 		folder->primary_attribute_name_list =

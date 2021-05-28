@@ -229,7 +229,7 @@ LIST *attribute_folder_name_list(
 			LIST *attribute_list,
 			char *folder_name );
 
-LIST *attribute_name_list(
+LIST *attribute_name_list_extract(
 			LIST *attribute_list );
 
 LIST *attribute_get_name_list(

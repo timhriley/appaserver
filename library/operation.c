@@ -85,7 +85,7 @@ OPERATION *operation_new_operation(
 		exit( 1 );
 	}
 	return operation;
-} /* operation_new_operation() */
+}
 
 /* Returns 1 if performed any output */
 /* --------------------------------- */
@@ -205,9 +205,9 @@ boolean operation_perform(
 
 			primary_data_list = 
 				dictionary_using_list_get_index_data_list( 
-						row_dictionary,
-						primary_attribute_name_list,
-						row );
+					row_dictionary,
+					primary_attribute_name_list,
+					row );
 
 			sprintf( key, "really_yn_%d", row );
 			dictionary_add_string(	local_send_dictionary,
@@ -314,7 +314,7 @@ boolean operation_perform(
 
 	return performed_any_output;
 
-} /* operation_perform() */
+}
 
 char *operation_get_operation_row_count_string(
 			DICTIONARY *dictionary,
@@ -352,7 +352,7 @@ char *operation_get_operation_row_count_string(
 	} /* for each row */
 	sprintf( row_count_string, "%d", operation_row_count );
 	return row_count_string;
-} /* operation_get_operation_row_count_string() */
+}
 
 OPERATION_SEMAPHORE *operation_semaphore_new(
 			char *application_name,
@@ -417,7 +417,7 @@ OPERATION_SEMAPHORE *operation_semaphore_new(
 
 	return operation_semaphore;
 
-} /* operation_semaphore_new() */
+}
 
 void operation_semaphore_remove_file( char *semaphore_filename )
 {

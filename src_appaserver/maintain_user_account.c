@@ -335,15 +335,11 @@ int main( int argc, char **argv )
 		(char *)0 /* post_change_javascript */ );
 
 	query =
-		query_edit_table_new(
+		query_simple_new(
 			query_dictionary,
 			application_name,
 			login_name,
-			folder_name,
-			role_new( application_name, role_name ),
-			(char *)0 /* attribute_not_null_join */,
-			(char *)0 /* attribute_not_null_folder_name */,
-			(char *)0 /* attribute_not_null_string */ );
+			folder_name );
 
 	attribute_list_remove_exclude_permission_list(
 		query->folder->append_isa_attribute_list );
@@ -427,7 +423,8 @@ int main( int argc, char **argv )
 			application_name,
 			login_name,
 			(char *)0 /* attribute_not_null_string */,
-			(char *)0 /* appaserver_user_foreign_login_name */ );
+			(char *)0 /* appaserver_user_foreign_login_name */,
+			(LIST *)0 /* non_edit_folder_name_list */ );
 
 	query_dictionary = dictionary_prepend_key(
 				query_dictionary,

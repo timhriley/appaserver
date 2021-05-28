@@ -227,15 +227,11 @@ int main( int argc, char **argv )
 					exclude_attribute_name_list );
 
 	query =
-		query_edit_table_new(
+		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			application_name,
 			login_name,
-			appaserver->folder->folder_name,
-			role_new( application_name, role_name ),
-			(char *)0 /* attribute_not_null_join */,
-			(char *)0 /* attribute_not_null_folder_name */,
-			(char *)0 /* attribute_not_null_string */ );
+			appaserver->folder->folder_name );
 
 	if ( ! ( total_count =
 			get_total_count(

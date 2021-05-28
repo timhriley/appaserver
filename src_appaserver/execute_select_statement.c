@@ -844,7 +844,7 @@ LIST *get_asteric_column_name_list(	char *application_name,
 			role_name );
 
 	name_list =
-		attribute_name_list(
+		attribute_name_list_extract(
 			attribute_list );
 
 	non_selectable_attribute_name_list =

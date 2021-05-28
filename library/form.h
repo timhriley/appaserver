@@ -176,7 +176,8 @@ int form_output_body(	int *form_current_reference_number,
 			char *application_name,
 			char *login_name,
 			char *attribute_not_null_string,
-			char *appaserver_user_foreign_login_name );
+			char *appaserver_user_foreign_login_name,
+			LIST *non_edit_folder_name_list );
 
 void form_output_trailer_post_change_javascript(
 			boolean output_submit_reset_buttons,
@@ -214,7 +215,8 @@ void form_output_row(	int *form_current_reference_number,
 			char *application_name,
 			char *login_name,
 			char *background_color,
-			char *appaserver_user_foreign_login_name );
+			char *appaserver_user_foreign_login_name,
+			LIST *non_edit_folder_name_list );
 
 int form_output_insert_rows(
 			int *form_current_reference_number,
@@ -238,7 +240,8 @@ int form_output_all_rows(
 			char *application_name,
 			char *login_name,
 			char *attribute_not_null_string,
-			char *appaserver_user_foreign_login_name );
+			char *appaserver_user_foreign_login_name,
+			LIST *non_edit_folder_name_list );
 
 void form_output_prompt( 		ELEMENT_APPASERVER *element );
 void form_output_table_heading(		LIST *element_list,

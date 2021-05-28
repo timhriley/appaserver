@@ -189,21 +189,12 @@ int main( int argc, char **argv )
 				select_attribute_name );
 
 			query =
-				query_edit_table_new(
+				query_simple_new(
 					dictionary_appaserver->
 						query_dictionary,
 					application_name,
 					login_name,
-					folder_name,
-					role_new(
-						application_name,
-						role_name ),
-					(char *)0
-					   /* attribute_not_null_join */,
-					(char *)0
-					   /* attribute_not_null_folder_name */,
-					(char *)0
-					   /* attribute_not_null_string */ );
+					folder_name );
 
 			query_record_list =
 				query_get_record_list(

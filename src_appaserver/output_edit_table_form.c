@@ -628,9 +628,7 @@ int main( int argc, char **argv )
 			row_security->select_folder,
 			row_security->attribute_not_null_join,
 			row_security->attribute_not_null_folder,
-			row_security->attribute_not_null_string,
 			row_security->foreign_login_name_folder,
-			non_edit_folder_name_list,
 			make_primary_keys_non_edit,
 			omit_delete_dont_care,
 			0 /* omit_operation_buttons */,
@@ -736,7 +734,8 @@ int main( int argc, char **argv )
 			application_name,
 			login_name,
 			row_security->attribute_not_null_string,
-			appaserver_user_foreign_login_name );
+			appaserver_user_foreign_login_name,
+			non_edit_folder_name_list );
 
 	if ( number_rows_outputted >= ROWS_FOR_SUBMIT_AT_BOTTOM
 	&& ( strcmp( state, "lookup" ) != 0

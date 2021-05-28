@@ -150,8 +150,10 @@ ROW_SECURITY *row_security_new(
 		}
 	
 		exclude_permission_list = list_new();
-		list_append_pointer(	exclude_permission_list,
-					"update" );
+
+		list_append_pointer(
+			exclude_permission_list,
+			"update" );
 	
 		attribute->exclude_permission_list =
 			exclude_permission_list;
@@ -216,17 +218,19 @@ non_owner_view_only_dont_append:
 			/* Make the added attribute viewonly. */
 			/* ---------------------------------- */
 			exclude_permission_list = list_new();
-			list_append_pointer(	exclude_permission_list,
-						"update" );
+
+			list_append_pointer(
+				exclude_permission_list,
+				"update" );
 	
 			attribute->exclude_permission_list =
 				exclude_permission_list;
 	
 			list_append_pointer(
-					row_security->
-					   select_folder->
-					   append_isa_attribute_list,
-					attribute );
+				row_security->
+					select_folder->
+					append_isa_attribute_list,
+				attribute );
 		}
 	}
 
@@ -278,11 +282,9 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			FOLDER *select_folder,
 			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
-			char *attribute_not_null_string,
 			FOLDER *foreign_login_name_folder,
 			LIST *where_clause_attribute_name_list,
 			LIST *where_clause_data_list,
-			LIST *non_edit_folder_name_list,
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
@@ -366,11 +368,11 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			(attribute_not_null_folder)
 				? attribute_not_null_folder->folder_name
 				: (char *)0,
-			attribute_not_null_string,
 			select_folder->join_1tom_related_folder_list );
 
 	row_dictionary_list_length =
-		list_length( element_list_structure->row_dictionary_list );
+		list_length( element_list_structure->
+				row_dictionary_list );
 
 	element_list_structure->regular_element_list =
 		row_security_regular_element_list(
@@ -385,7 +387,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			query_dictionary,
 			row_dictionary_list_length,
 			state,
-			non_edit_folder_name_list,
 			login_name,
 			omit_delete_operation,
 			omit_operation_buttons,
@@ -545,7 +546,6 @@ LIST *row_security_detail_dictionary_list(
 			LIST *where_clause_data_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string,
 			LIST *join_1tom_related_folder_list )
 {
 	QUERY *query;
@@ -570,8 +570,7 @@ LIST *row_security_detail_dictionary_list(
 			where_clause_data_list,
 			append_isa_attribute_list,
 			attribute_not_null_join,
-			attribute_not_null_folder_name,
-			attribute_not_null_string );
+			attribute_not_null_folder_name );
 
 	if ( !query->query_output )
 	{
@@ -603,8 +602,7 @@ LIST *row_security_detail_dictionary_list(
 			query->query_output->order_clause,
 			query->max_rows,
 			append_isa_attribute_list,
-			query->login_name ,
-			attribute_not_null_string );
+			query->login_name );
 
 	if ( list_length( join_1tom_related_folder_list ) )
 	{
@@ -943,9 +941,9 @@ LIST *row_security_edit_table_dictionary_list(
 			ROLE *login_role,
 			char *login_name,
 			char *query_select_folder_name,
+			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string,
 			LIST *join_1tom_related_folder_list )
 {
 	QUERY *query;
@@ -958,9 +956,9 @@ LIST *row_security_edit_table_dictionary_list(
 			login_name,
 			query_select_folder_name,
 			login_role,
+			append_isa_attribute_list,
 			attribute_not_null_join,
-			attribute_not_null_folder_name,
-			attribute_not_null_string );
+			attribute_not_null_folder_name );
 
 	query->sort_dictionary = sort_dictionary;
 
@@ -981,9 +979,8 @@ LIST *row_security_edit_table_dictionary_list(
 			query->query_output->where_clause,
 			query->query_output->order_clause,
 			query->max_rows,
-			query->folder->append_isa_attribute_list,
-			query->login_name,
-			attribute_not_null_string );
+			append_isa_attribute_list,
+			query->login_name );
 
 	if ( list_length( join_1tom_related_folder_list ) )
 	{
@@ -1012,9 +1009,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			FOLDER *select_folder,
 			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
-			char *attribute_not_null_string,
 			FOLDER *foreign_login_name_folder,
-			LIST *non_edit_folder_name_list,
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
@@ -1095,11 +1090,11 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			login_role,
 			login_name,
 			query_select_folder_name,
+			append_isa_attribute_list,
 			attribute_not_null_join,
 			(attribute_not_null_folder)
 				? attribute_not_null_folder->folder_name
 				: (char *)0,
-			attribute_not_null_string,
 			select_folder->join_1tom_related_folder_list );
 
 	row_dictionary_list_length =
@@ -1119,7 +1114,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			query_dictionary,
 			row_dictionary_list_length,
 			state,
-			non_edit_folder_name_list,
 			login_name,
 			omit_delete_operation,
 			omit_operation_buttons,
@@ -1570,7 +1564,6 @@ LIST *row_security_regular_element_list(
 			DICTIONARY *query_dictionary,
 			int row_dictionary_list_length,
 			char *state,
-			LIST *non_edit_folder_name_list,
 			char *login_name,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
@@ -1628,7 +1621,6 @@ LIST *row_security_regular_element_list(
 			row_dictionary_list_length,
 			no_display_pressed_attribute_name_list,
 			state,
-			non_edit_folder_name_list,
 			role_get_override_row_restrictions(
 				login_role->override_row_restrictions_yn ),
 			select_folder->post_change_javascript,
@@ -1661,7 +1653,6 @@ LIST *row_security_regular_evaluate_element_list(
 			int row_dictionary_list_length,
 			LIST *no_display_pressed_attribute_name_list,
 			char *state,
-			LIST *non_edit_folder_name_list,
 			boolean override_row_restrictions,
 			char *folder_post_change_javascript,
 			int max_query_rows_for_drop_downs,
@@ -1791,6 +1782,7 @@ LIST *row_security_regular_evaluate_element_list(
 			       attribute_name,
 			       (LIST *)0 /* include_attribute_name_list */ ) ) )
 		{
+/*
 			if ( list_exists_string(
 				related_folder->
 					folder->
@@ -1805,6 +1797,7 @@ LIST *row_security_regular_evaluate_element_list(
 				prompt_data_element_only = 1;
 				goto skip_checking_drop_down;
 			}
+*/
 
 			if ( appaserver_exclude_permission(
 				attribute->exclude_permission_list,

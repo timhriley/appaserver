@@ -897,7 +897,8 @@ m2( application_name, msg );
 		application_name,
 		login_name,
 		(char *)0 /* background_color */,
-		(char *)0 /* appaserver_user_foreign_login_name */ );
+		(char *)0 /* appaserver_user_foreign_login_name */,
+		(LIST *)0 /* non_edit_folder_name_list */ );
 
 	output_dictionary_as_hidden(
 		dictionary_add_prefix(

@@ -1150,7 +1150,7 @@ LIST *attribute_folder_name_list(
 	return attribute_name_list;
 }
 
-LIST *attribute_name_list( LIST *attribute_list )
+LIST *attribute_name_list_extract( LIST *attribute_list )
 {
 	return attribute_folder_name_list( attribute_list, (char *)0 );
 }

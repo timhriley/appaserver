@@ -946,7 +946,8 @@ int main( int argc, char **argv )
 				(char *)0
 				     /* attribute_not_null_string */,
 				(char *)0
-				     /* appaserver_user_foreign_login_name */ );
+				     /* appaserver_user_foreign_login_name */,
+				(LIST *)0 /* non_edit_folder_name_list */ );
 	}
 	else
 	{

@@ -40,7 +40,7 @@ OPERATION_LIST_STRUCTURE *operation_list_structure_new(
 
 	return operation_list_structure;
 
-} /* operation_list_structure_new() */
+}
 
 LIST *operation_list_get_operation_list(char *application_name,
 					char *session,
@@ -105,20 +105,20 @@ LIST *operation_list_get_operation_list(char *application_name,
 
 	return operation_list;
 
-} /* operation_list_get_operation_list() */
+}
 
 int operation_list_perform_operations(
-				DICTIONARY *send_dictionary,
-				DICTIONARY *row_dictionary,
-				LIST *operation_list,
-				char *application_name,
-				char *session,
-				char *login_name,
-				char *folder_name,
-				char *role_name,
-				LIST *primary_attribute_name_list,
-				boolean non_owner_forbid_deletion,
-				char *target_frame )
+			DICTIONARY *send_dictionary,
+			DICTIONARY *row_dictionary,
+			LIST *operation_list,
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *folder_name,
+			char *role_name,
+			LIST *primary_attribute_name_list,
+			boolean non_owner_forbid_deletion,
+			char *target_frame )
 {
 	OPERATION *operation;
 	int performed_any_output = 0;
@@ -129,11 +129,16 @@ int operation_list_perform_operations(
 	do {
 		operation = list_get_pointer( operation_list );
 
-		if ( timlib_strncmp(	operation->process->process_name,
-					"delete" ) == 0 )
+		if ( timlib_strncmp(
+			operation->process->process_name,
+			"delete" ) == 0 )
+		{
 			state = "delete";
+		}
 		else
+		{
 			state = "update";
+		}
 
 		if ( !operation->empty_placeholder_instead )
 		{
@@ -192,7 +197,7 @@ LIST *operation_list_get_name_list(
 
 	} while( list_next( operation_list ) );
 	return operation_name_list;
-} /* operation_list_get_name_list() */
+}
 
 char *operation_list_display( LIST *operation_list )
 {
@@ -218,5 +223,5 @@ char *operation_list_display( LIST *operation_list )
 					: 'n' );
 	} while( list_next( operation_list ) );
 	return strdup( buffer );
-} /* operation_list_display() */
+}
 

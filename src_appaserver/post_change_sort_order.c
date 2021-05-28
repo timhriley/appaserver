@@ -358,7 +358,7 @@ void change_sort_order_state_one(
 	/* These are the attributes that javascript moves up or down. */
 	/* ---------------------------------------------------------- */
 	move_attribute_name_list =
-		attribute_name_list(
+		attribute_name_list_extract(
 			folder->attribute_list );
 
 	ignore_attribute_name_list =
@@ -474,17 +474,15 @@ void change_sort_order_state_one(
 			row_security->select_folder,
 			(char *)0 /* attribute_not_null_join */,
 			(FOLDER *)0 /* attribute_not_null_folder */,
-			(char *)0 /* attribute_not_null_string */,
 			row_security->foreign_login_name_folder,
-			(LIST *)0 /* non_edit_folder_name_list */,
 			0 /* not make_primary_keys_non_edit */,
 			omit_delete_dont_care,
 			1 /* omit_operation_buttons */,
-			'y' /* update_yn */,
 			0 /* not ajax_fill_drop_down_omit */,
 			row_security->
 				select_folder->
-				append_isa_attribute_list );
+				append_isa_attribute_list,
+			row_security->row_security_is_participating );
 
 	form->regular_element_list =
 		row_security->
@@ -542,7 +540,8 @@ void change_sort_order_state_one(
 		application_name,
 		login_name,
 		(char *)0 /* attribute_not_null_string */,
-		(char *)0 /* appaserver_user_foreign_login_name */ );
+		(char *)0 /* appaserver_user_foreign_login_name */,
+		(LIST *)0 /* non_edit_folder_name_list */ );
 
 	printf( "</table>\n" );
 	printf( "<table border=0>\n" );

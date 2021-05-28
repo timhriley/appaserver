@@ -125,7 +125,7 @@ void attribute_list_folder( char *folder_name )
 		attribute_list( folder_name );
 
 	attribute_name_list_display(
-		attribute_name_list(
+		attribute_name_list_extract(
 			attribute->attribute_list ),
 		0 /* not with_sort */ );
 }
@@ -138,7 +138,7 @@ void attribute_list_not_dictionary( void )
 		attribute_list( (char *)0 /* folder_name */ );
 
 	attribute_name_list_display(
-		attribute_name_list(
+		attribute_name_list_extract(
 			attribute->attribute_list ),
 		1 /* with_sort */ );
 }
@@ -165,7 +165,7 @@ void attribute_list_without_folder( void )
 		attribute_list( (char *)0 /* folder_name */ );
 
 	attribute_name_list_display(
-		attribute_name_list(
+		attribute_name_list_extract(
 			attribute->attribute_list ),
 		1 /* with_sort */ );
 }
@@ -213,7 +213,7 @@ void attribute_list_with_null( char *folder_name )
 		attribute_new( "null" ) );
 
 	attribute_name_list_display(
-		attribute_name_list(
+		attribute_name_list_extract(
 			attribute->attribute_list ),
 		1 /* with_sort */ );
 }
@@ -226,7 +226,7 @@ void attribute_list_attribute_name( char *folder_name )
 		attribute_list( folder_name );
 
 	attribute_name_list_display(
-		attribute_name_list(
+		attribute_name_list_extract(
 			attribute->attribute_list ),
 		0 /* not with_sort */ );
 }

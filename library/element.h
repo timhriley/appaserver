@@ -4,7 +4,6 @@
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-
 #ifndef ELEMENT_APPASERVER_H
 #define ELEMENT_APPASERVER_H
 
@@ -17,6 +16,7 @@
 /* Constants */
 /* --------- */
 /* #define ELEMENT_MULTI_ATTRIBUTE_DISPLAY_DELIMITER	"&#151;" */
+#define ELEMENT_LONG_DASH_DELIMITER			"&#151;"
 #define ELEMENT_MULTI_ATTRIBUTE_DISPLAY_DELIMITER	"---"
 
 #define ELEMENT_TITLE_NOTEPAD_PADDING_EM	3
@@ -257,9 +257,9 @@ void element_output( 		DICTIONARY *hidden_name_dictionary,
 				char *application_name,
 				char *login_name );
 
-void element_prompt_output( 		FILE *output_file,
-					char *element_name,
-					boolean with_heading_format );
+void element_prompt_output(	FILE *output_file,
+				char *element_name,
+				boolean with_heading_format );
 
 void element_output_non_element(	char *s,
 					FILE *output_file );

@@ -312,7 +312,8 @@ int form_output_body(	int *form_current_reference_number,
 			char *application_name,
 			char *login_name,
 			char *attribute_not_null_string,
-			char *appaserver_user_foreign_login_name )
+			char *appaserver_user_foreign_login_name,
+			LIST *non_edit_folder_name_list )
 {
 	int number_rows_outputted = 0;
 	int current_row = 1;
@@ -357,7 +358,8 @@ int form_output_body(	int *form_current_reference_number,
 			application_name,
 			login_name,
 			(char *)0 /* background_color */,
-			appaserver_user_foreign_login_name );
+			appaserver_user_foreign_login_name,
+			non_edit_folder_name_list );
 
 		number_rows_outputted = 1;
 	}
@@ -376,7 +378,8 @@ int form_output_body(	int *form_current_reference_number,
 				application_name,
 				login_name,
 				attribute_not_null_string,
-				appaserver_user_foreign_login_name );
+				appaserver_user_foreign_login_name,
+				non_edit_folder_name_list );
 	}
 
 	if ( spool_file ) fclose( spool_file );
@@ -442,6 +445,7 @@ void form_output_trailer_post_change_javascript(
 		ELEMENT_APPASERVER *element;
 
 		element = element_appaserver_new( linebreak, "" );
+
 		element_output(	
 				(DICTIONARY *)0 /* hidden_name_dictionary */,
 				element,
@@ -509,7 +513,8 @@ void form_output_row(
 			char *application_name,
 			char *login_name,
 			char *background_color,
-			char *appaserver_user_foreign_login_name )
+			char *appaserver_user_foreign_login_name,
+			LIST *non_edit_folder_name_list )
 {
 	ELEMENT_APPASERVER *element;
 	ELEMENT_APPASERVER *non_edit_element;
@@ -540,6 +545,16 @@ void form_output_row(
 
 	do {
 		element = list_get_pointer( element_list );
+
+		if ( non_edit_folder_name_list
+		&&   element->drop_down
+		&&   list_string_exists(
+			element->drop_down->folder_name,
+			non_edit_folder_name_list ) )
+		{
+			element->drop_down->readonly = 1;
+		}
+
 		set_data_flag = 1;
 
 		if ( row_level_non_owner_view_only
@@ -826,7 +841,8 @@ int form_output_insert_rows(	int *form_current_reference_number,
 			application_name,
 			login_name,
 			form_get_background_color( application_name ),
-			(char *)0 /* appaserver_user_foreign_login_name */ );
+			(char *)0 /* appaserver_user_foreign_login_name */,
+			(LIST *)0 /* non_edit_folder_name_list */ );
 
 		number_rows_outputted++;
 
@@ -1012,7 +1028,8 @@ int form_output_all_rows(
 			char *application_name,
 			char *login_name,
 			char *attribute_not_null_string,
-			char *appaserver_user_foreign_login_name )
+			char *appaserver_user_foreign_login_name,
+			LIST *non_edit_folder_name_list )
 {
 	DICTIONARY *row_dictionary;
 	int number_rows_outputted = 0;
@@ -1087,7 +1104,8 @@ int form_output_all_rows(
 			application_name,
 			login_name,
 			background_color,
-			appaserver_user_foreign_login_name );
+			appaserver_user_foreign_login_name,
+			non_edit_folder_name_list );
 
 		number_rows_outputted++;
 

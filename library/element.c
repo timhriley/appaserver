@@ -636,16 +636,18 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 	else
 	if ( element->element_type == prompt )
 	{
-		element_prompt_output(	output_file,
-					element->name,
-					0 /* not with_heading_format */ );
+		element_prompt_output(
+			output_file,
+			element->name,
+			0 /* not with_heading_format */ );
 	}
 	else
 	if ( element->element_type == prompt_heading )
 	{
-		element_prompt_output(	output_file,
-					element->name,
-					1 /* with_heading_format */ );
+		element_prompt_output(
+			output_file,
+			element->name,
+			1 /* with_heading_format */ );
 	}
 	else
 	if ( element->element_type == prompt_data
@@ -1566,7 +1568,7 @@ void element_date_output( 	FILE *output_file,
 
 	if ( readonly )
 	{
-		fprintf( output_file, " readonly" );
+		fprintf( output_file, " readonly=1" );
 	}
 
 	if ( onchange_null2slash_yn == 'y'
@@ -1647,21 +1649,22 @@ void element_date_output( 	FILE *output_file,
 
 }
 
-void element_text_item_output( 	FILE *output_file,
-				char *element_name,
-				char *data,
-				int attribute_width,
-				int row, 
-				char onchange_null2slash_yn,
-				char *post_change_javascript,
-				char *on_focus_javascript_function,
-				int widget_size,
-				char *background_color,
-				int tab_index,
-				boolean without_td_tags,
-				boolean readonly,
-				char *state,
-				boolean is_numeric )
+void element_text_item_output(
+			FILE *output_file,
+			char *element_name,
+			char *data,
+			int attribute_width,
+			int row, 
+			char onchange_null2slash_yn,
+			char *post_change_javascript,
+			char *on_focus_javascript_function,
+			int widget_size,
+			char *background_color,
+			int tab_index,
+			boolean without_td_tags,
+			boolean readonly,
+			char *state,
+			boolean is_numeric )
 {
 	int maxlength;
 	char buffer[ 512 ];
@@ -1706,7 +1709,7 @@ void element_text_item_output( 	FILE *output_file,
 
 	if ( readonly )
 	{
-		fprintf( output_file, " readonly" );
+		fprintf( output_file, " readonly=1" );
 	}
 
 	fprintf( output_file,
@@ -2090,9 +2093,10 @@ void element_non_edit_multi_select_set_option_label_list(
 	e->option_label_list = l;
 }
 
-void element_prompt_output(	FILE *output_file,
-				char *element_name,
-				boolean with_heading_format )
+void element_prompt_output(
+			FILE *output_file,
+			char *element_name,
+			boolean with_heading_format )
 {
 	char buffer[ 512 ];
 	char search_string[ 2 ];
@@ -2101,10 +2105,11 @@ void element_prompt_output(	FILE *output_file,
 	*(search_string + 1) = '\0';
 
 	strcpy( buffer, element_name );
+
 	search_replace_string(
-			buffer,
-			search_string, 
-			"-" );
+		buffer,
+		search_string, 
+		ELEMENT_LONG_DASH_DELIMITER );
 
 	fprintf(output_file,
 		"<td align=left>" );
@@ -2124,13 +2129,13 @@ void element_prompt_output(	FILE *output_file,
 }
 
 void element_drop_down_output_as_dictionary(
-				FILE *output_file,
-				char *element_name,
-				int row,
-				char *initial_data,
-				char *folder_name,
-				int length_option_data_list,
-				int max_drop_down_size )
+			FILE *output_file,
+			char *element_name,
+			int row,
+			char *initial_data,
+			char *folder_name,
+			int length_option_data_list,
+			int max_drop_down_size )
 {
 	if ( 	max_drop_down_size
 	&&      ( length_option_data_list > 
@@ -2182,29 +2187,29 @@ void element_drop_down_output_as_dictionary(
 }
 
 void element_drop_down_output( 	
-				FILE *output_file,
-				char *element_name,
-				LIST *option_data_list,
-				LIST *option_label_list,
-				int number_columns,
-				boolean multi_select,
-				int row,
-				char *initial_data,
-				boolean output_null_option,
-				boolean output_not_null_option,
-				boolean output_select_option,
-				char *folder_name,
-				char *post_change_javascript,
-				int max_drop_down_size,
-				char *multi_select_element_name,
-				char *onblur_javascript_function,
-				char *background_color,
-				int date_piece_offset,
-				boolean no_initial_capital,
-				boolean readonly,
-				int tab_index,
-				char *state,
-				int attribute_width )
+			FILE *output_file,
+			char *element_name,
+			LIST *option_data_list,
+			LIST *option_label_list,
+			int number_columns,
+			boolean multi_select,
+			int row,
+			char *initial_data,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option,
+			char *folder_name,
+			char *post_change_javascript,
+			int max_drop_down_size,
+			char *multi_select_element_name,
+			char *onblur_javascript_function,
+			char *background_color,
+			int date_piece_offset,
+			boolean no_initial_capital,
+			boolean readonly,
+			int tab_index,
+			char *state,
+			int attribute_width )
 {
 	char buffer[ 1024 ];
 	char delimited_label_buffer[ 512 ];
@@ -2256,6 +2261,12 @@ void element_drop_down_output(
 		element->text_item->data = initial_data;
 		element->text_item->readonly = 1;
 
+		element_prompt_output(
+			output_file,
+			element->text_item->data /* element_name */,
+			0 /* not with_heading_format */ );
+
+#ifdef NOT_DEFINED
 		element_text_item_output(
 			output_file,
 			element->name,
@@ -2272,6 +2283,7 @@ void element_drop_down_output(
 			element->text_item->readonly,
 			element->text_item->state,
 			element->text_item->is_numeric );
+#endif
 
 		return;
 
@@ -2811,7 +2823,6 @@ void element_prompt_data_output(
 				"<br>" ) ) );
 
 	fprintf( output_file, "</td>\n" );
-
 }
 
 /* ELEMENT_EMPTY_COLUMN Operations */
@@ -3191,7 +3202,6 @@ void element_non_edit_text_output(	FILE *output_file,
 	fprintf( output_file,
 		 ">%s</td>\n",
 		 element_data_delimiter2label_delimiter( output_buffer ) );
-
 }
 
 int element_type_count( LIST *element_list, enum element_type element_type )
@@ -3279,13 +3289,18 @@ char *element_data_delimiter2label_delimiter( char *source_destination )
 			"%c",
 			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
 
+/*
 	search_replace_string(
 			source_destination,
 			multi_attribute_drop_down_delimiter_string, 
 			ELEMENT_MULTI_ATTRIBUTE_DISPLAY_DELIMITER );
+*/
+	search_replace_string(
+		source_destination,
+		multi_attribute_drop_down_delimiter_string, 
+		ELEMENT_LONG_DASH_DELIMITER );
 
 	return source_destination;
-
 }
 
 char *element_data2label(	char *destination,
@@ -3535,7 +3550,7 @@ char *element_appaserver_display( ELEMENT_APPASERVER *element )
 		if ( element->text_item->readonly )
 		{
 			sprintf( buffer + strlen( buffer ),
-				 ", readonly" );
+				 ", readonly=1" );
 		}
 	}
 
@@ -3576,14 +3591,14 @@ char *element_appaserver_display( ELEMENT_APPASERVER *element )
 		if ( element->drop_down->readonly )
 		{
 			sprintf( buffer + strlen( buffer ),
-				 ", readonly" );
+				 ", readonly=1" );
 		}
 	}
 	else
 	if ( element->element_type == push_button )
 	{
 		sprintf(buffer + strlen( buffer ),
-			", label = %s, onclick_function = %s",
+			", label=%s, onclick_function=%s",
 			element->push_button->label,
 			element->push_button->onclick_function );
 	}

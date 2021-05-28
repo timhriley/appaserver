@@ -18,12 +18,13 @@
 #include "piece.h"
 #include "date_convert.h"
 
-LIST *list_usage_pipe2dictionary_list(	char *sys_string, 
-					LIST *attribute_name_list,
-					LIST *date_attribute_name_list,
-					char field_delimiter,
-					char *application_name,
-					char *login_name )
+LIST *list_usage_pipe2dictionary_list(
+			char *sys_string, 
+			LIST *attribute_name_list,
+			LIST *date_attribute_name_list,
+			char field_delimiter,
+			char *application_name,
+			char *login_name )
 {
 	return pipe2dictionary_list(
 			sys_string, 
@@ -67,7 +68,8 @@ LIST *pipe2dictionary_list(	 	char *sys_string,
 		list_rewind( attribute_name_list );
 
 		dictionary = dictionary_small_dictionary_new();
-		list_append_pointer( list, dictionary );
+
+		list_set( list, dictionary );
 
 		for( i = 0; ; i++ )
 		{
@@ -77,7 +79,8 @@ LIST *pipe2dictionary_list(	 	char *sys_string,
 			}
 
 			attribute_name =
-				list_get_pointer( attribute_name_list );
+				list_get(
+					attribute_name_list );
 
 			search_replace_string( data, "\\", "" );
 
@@ -123,9 +126,10 @@ LIST *pipe2dictionary_list(	 	char *sys_string,
 				}
 			}
 
-			dictionary_set_pointer(	dictionary, 
-						attribute_name, 
-						strdup( data ) );
+			dictionary_set_pointer(
+				dictionary, 
+				attribute_name, 
+				strdup( data ) );
 
 			if ( !next_item( attribute_name_list ) ) break;
 		}

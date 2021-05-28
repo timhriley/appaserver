@@ -195,9 +195,11 @@ int main( int argc, char **argv )
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
 
-	folder = folder_new_folder( 	application_name,
-					session,
-					folder_name );
+	folder =
+		folder_new_folder(
+			application_name,
+			session,
+			folder_name );
 
 	role = role_new_role(	application_name,
 				role_name );
@@ -238,15 +240,11 @@ int main( int argc, char **argv )
 		folder->row_level_non_owner_forbid = 1;
 
 	query =
-		query_edit_table_new(
+		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			application_name,
 			login_name,
-			folder_name,
-			role_new( application_name, role_name ),
-			(char *)0 /* attribute_not_null_join */,
-			(char *)0 /* attribute_not_null_folder_name */,
-			(char *)0 /* attribute_not_null_string */ );
+			folder_name );
 
 	where_clause = query->query_output->where_clause;
 

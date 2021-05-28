@@ -235,15 +235,11 @@ char *get_families_sys_string(		char *application_name,
 				(char *)0 /* role_name */ );
 
 		query =
-			query_edit_table_new(
+			query_simple_new(
 				post_dictionary /* query_dictionary */,
 				application_name,
 				login_name,
-				folder->folder_name,
-				(ROLE *)0,
-				(char *)0 /* attribute_not_null_join */,
-				(char *)0 /* attribute_not_null_folder_name */,
-				(char *)0 /* attribute_not_null_string */ );
+				folder->folder_name );
 
 		where_clause =
 			query->query_output->where_clause;

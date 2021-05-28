@@ -380,8 +380,7 @@ m2( folder->application_name, msg );
 	query_output->select_clause =
 		query_get_select_clause(
 			folder->application_name,
-			folder->append_isa_attribute_list,
-			(char *)0 /* attribute_not_null_string */ );
+			folder->append_isa_attribute_list );
 
 	query_output->from_clause =
 		query_from_clause(
@@ -494,8 +493,7 @@ m2( folder->application_name, msg );
 	query_output->select_clause =
 		query_get_select_clause(
 			folder->application_name,
-			folder->append_isa_attribute_list,
-			(char *)0 /* attribute_not_null_string */ );
+			folder->append_isa_attribute_list );
 
 	query_output->from_clause =
 		query_from_clause(
@@ -806,8 +804,7 @@ generate_select_clause:
 		query_output->select_clause =
 			query_get_select_clause(
 				folder->application_name,
-				folder->append_isa_attribute_list,
-				(char *)0 /* attribute_not_null_string */ );
+				folder->append_isa_attribute_list );
 
 		query_output->from_clause =
 			query_from_clause(
@@ -1134,8 +1131,7 @@ LIST *query_get_record_list(	char *application_name,
 
 char *query_get_select_clause(
 			char *application_name,
-			LIST *append_isa_attribute_list,
-			char *attribute_not_null_string )
+			LIST *append_isa_attribute_list )
 {
 	ATTRIBUTE *attribute;
 	char select_clause[ 65536 ];
@@ -1208,13 +1204,6 @@ char *query_get_select_clause(
 		}
 
 	} while( list_next( append_isa_attribute_list ) );
-
-	if ( attribute_not_null_string && *attribute_not_null_string )
-	{
-		sprintf(select_clause + strlen( select_clause ),
-			",%s",
-			attribute_not_null_string );
-	}
 
 	return strdup( select_clause );
 }
@@ -5840,8 +5829,7 @@ QUERY_OUTPUT *query_folder_output_new(
 		query_output->select_clause =
 			query_get_select_clause(
 				folder->application_name,
-				folder->append_isa_attribute_list,
-				(char *)0 /* attribute_not_null_string */ );
+				folder->append_isa_attribute_list );
 
 		query_output->from_clause =
 			query_from_clause(
@@ -5948,8 +5936,7 @@ m2( folder->application_name, msg );
 	query_output->select_clause =
 		query_get_select_clause(
 			folder->application_name,
-			folder->append_isa_attribute_list,
-			(char *)0 /* attribute_not_null_string */ );
+			folder->append_isa_attribute_list );
 
 	query_output->from_clause =
 		query_from_clause(
@@ -7144,8 +7131,7 @@ LIST *query_edit_table_dictionary_list(
 			char *order_clause,
 			int max_rows,
 			LIST *append_isa_attribute_list,
-			char *login_name,
-			char *attribute_not_null_string )
+			char *login_name )
 {
 	LIST *row_dictionary_list = {0};
 	char *sys_string;
@@ -7164,14 +7150,6 @@ LIST *query_edit_table_dictionary_list(
 	attribute_name_list =
 	 	attribute_lookup_allowed_attribute_name_list(
 			append_isa_attribute_list );
-
-	if ( attribute_not_null_string
-	&&   *attribute_not_null_string )
-	{
-		list_set(
-			attribute_name_list,
-			attribute_not_null_string );
-	}
 
 	row_dictionary_list =
 		list_usage_pipe2dictionary_list(
@@ -7192,9 +7170,9 @@ QUERY *query_edit_table_new(
 			char *login_name,
 			char *query_select_folder_name,
 			ROLE *role,
+			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string )
+			char *attribute_not_null_folder_name )
 {
 	QUERY *query;
 	char first_folder_name[ 128 ];
@@ -7239,11 +7217,11 @@ QUERY *query_edit_table_new(
 		query_edit_table_output_new(
 			query,
 			query->folder,
+			append_isa_attribute_list,
 			query->prompt_recursive,
 			query_select_folder_name,
 			attribute_not_null_join,
-			attribute_not_null_folder_name,
-			attribute_not_null_string );
+			attribute_not_null_folder_name );
 
 	return query;
 }
@@ -7251,11 +7229,11 @@ QUERY *query_edit_table_new(
 QUERY_OUTPUT *query_edit_table_output_new(
 			QUERY *query,
 			FOLDER *folder,
+			LIST *append_isa_attribute_list,
 			PROMPT_RECURSIVE *prompt_recursive,
 			char *query_select_folder_name,
 			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string )
+			char *attribute_not_null_folder_name )
 {
 	QUERY_OUTPUT *query_output;
 
@@ -7339,7 +7317,7 @@ m2( folder->application_name, msg );
 
 	query_output->query_attribute_list =
 		query_get_attribute_list(
-			folder->append_isa_attribute_list,
+			append_isa_attribute_list,
 			query->dictionary,
 			exclude_attribute_name_list,
 			folder->folder_name
@@ -7393,29 +7371,22 @@ m2( folder->application_name, msg );
 	query_output->select_clause =
 		query_get_select_clause(
 			folder->application_name,
-			folder->append_isa_attribute_list,
-			attribute_not_null_string );
+			append_isa_attribute_list );
 
 	query_output->from_clause =
 		query_from_clause(
 			query_select_folder_name,
-			folder->append_isa_attribute_list,
+			append_isa_attribute_list,
 			attribute_not_null_folder_name );
 
 	if ( dictionary_length( query->sort_dictionary ) )
 	{
-		LIST *attribute_list = {0};
-
-		if ( folder )
-			attribute_list =
-				folder->attribute_list;
-
 		query_output->order_clause =
 			query_get_order_clause(
 				query->sort_dictionary,
 				(folder) ? folder->folder_name
 					 : (char *)0,
-				attribute_list );
+				append_isa_attribute_list );
 	}
 
 	if ( !query_output->order_clause )
@@ -8099,8 +8070,7 @@ QUERY_OUTPUT *query_detail_output_new(
 			LIST *where_attribute_data_list,
 			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string )
+			char *attribute_not_null_folder_name )
 {
 	QUERY_OUTPUT *query_output;
 	int len_name_list;
@@ -8164,8 +8134,7 @@ QUERY_OUTPUT *query_detail_output_new(
 	query_output->select_clause =
 		query_get_select_clause(
 			folder->application_name,
-			folder->append_isa_attribute_list,
-			attribute_not_null_string );
+			append_isa_attribute_list );
 
 	return query_output;
 }
@@ -8178,8 +8147,7 @@ QUERY *query_detail_new(
 			LIST *where_attribute_data_list,
 			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string )
+			char *attribute_not_null_folder_name )
 {
 	QUERY *query;
 
@@ -8210,8 +8178,7 @@ QUERY *query_detail_new(
 			where_attribute_data_list,
 			append_isa_attribute_list,
 			attribute_not_null_join,
-			attribute_not_null_folder_name,
-			attribute_not_null_string );
+			attribute_not_null_folder_name );
 
 	return query;
 }
@@ -8667,15 +8634,14 @@ char *query_from_clause(
 
 
 LIST *query_detail_dictionary_list(
-				char *application_name,
-				char *select_clause,
-				char *from_clause,
-				char *where_clause,
-				char *order_clause,
-				int max_rows,
-				LIST *append_isa_attribute_list,
-				char *login_name,
-				char *attribute_not_null_string )
+			char *application_name,
+			char *select_clause,
+			char *from_clause,
+			char *where_clause,
+			char *order_clause,
+			int max_rows,
+			LIST *append_isa_attribute_list,
+			char *login_name )
 {
 	LIST *row_dictionary_list = {0};
 	char *sys_string;
@@ -8695,14 +8661,6 @@ LIST *query_detail_dictionary_list(
 	 	attribute_lookup_allowed_attribute_name_list(
 			append_isa_attribute_list );
 
-	if ( attribute_not_null_string
-	&&   *attribute_not_null_string )
-	{
-		list_set(
-			attribute_name_list,
-			attribute_not_null_string );
-	}
-
 	row_dictionary_list =
 		list_usage_pipe2dictionary_list(
 			sys_string, 
@@ -8714,5 +8672,60 @@ LIST *query_detail_dictionary_list(
 			login_name );
 
 	return row_dictionary_list;
+}
+
+QUERY *query_simple_new(
+			DICTIONARY *dictionary,
+			char *application_name,
+			char *login_name,
+			char *folder_name )
+{
+	QUERY *query;
+
+	dictionary_appaserver_parse_multi_attribute_keys(
+		dictionary,
+		QUERY_RELATION_OPERATOR_STARTING_LABEL );
+
+	query = query_calloc();
+
+	if ( ! ( query->folder =
+			folder_with_load_new(
+				application_name,
+				BOGUS_SESSION,
+				folder_name,
+				(ROLE *)0 /* role */ ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot load folder.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	query->login_name = login_name;
+	query->dictionary = dictionary;
+	query->max_rows = QUERY_MAX_ROWS;
+
+	query->prompt_recursive =
+		prompt_recursive_new(
+			application_name,
+			query->folder->folder_name
+				/* query_folder_name */,
+			query->
+				folder->
+				mto1_related_folder_list );
+
+	query->query_output =
+		query_edit_table_output_new(
+			query,
+			query->folder,
+			query->folder->append_isa_attribute_list,
+			query->prompt_recursive,
+			query->folder->folder_name,
+			(char *)0 /* attribute_not_null_join */,
+			(char *)0 /* attribute_not_null_folder_name */ );
+
+	return query;
 }
 

@@ -1402,7 +1402,7 @@ void process_operation_convert(
 	search_replace_list_index_prepend_double_quoted(
 		local_executable, 
 		( local_attribute_name_list =
-			attribute_name_list(
+			attribute_name_list_extract(
 				append_isa_attribute_list ) ),
 		local_parameter_dictionary,
 		0, 	                  /* dictionary_key_offset */

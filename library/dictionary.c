@@ -1129,10 +1129,11 @@ int dictionary_get_index_data_multi(	char *destination,
 	for( i = 0; piece( key_single, delimiter, key_multi, i ); i++ )
 	{
 		return_value = 
-			dictionary_get_index_data(	&data,
-							dictionary,
-							key_single,
-							index );
+			dictionary_get_index_data(
+				&data,
+				dictionary,
+				key_single,
+				index );
 
 		if ( return_value == -1 ) return -1;
 
@@ -1418,10 +1419,10 @@ DICTIONARY *dictionary_copy( DICTIONARY *dictionary )
 }
 
 void dictionary_set_delimited_string(
-				DICTIONARY *dictionary,
-				LIST *key_list,
-				char *delimited_string,
-				char delimiter )
+			DICTIONARY *dictionary,
+			LIST *key_list,
+			char *delimited_string,
+			char delimiter )
 {
 	char *key;
 	char piece_buffer[ 65536 ];
@@ -1471,7 +1472,6 @@ DICTIONARY *copy_dictionary( DICTIONARY *dictionary )
 	list_free_container( key_list );
 
 	return destination;
-
 }
 
 DICTIONARY *dictionary_prepend_key(	DICTIONARY *dictionary,
@@ -4002,5 +4002,47 @@ LIST *dictionary_get_non_indexed_key_list(
 
 	return non_indexed_key_list;
 
+}
+
+DICTIONARY *dictionary_key_piece(
+			char delimiter,
+			DICTIONARY *source_dictionary,
+			int piece_offset )
+{
+	DICTIONARY *destination;
+	LIST *key_list;
+	char *key;
+	char *data;
+	char piece_buffer[ 1024 ];
+
+	if ( !source_dictionary ) return dictionary_small_new();
+
+	key_list = dictionary_get_key_list( source_dictionary );
+
+	if ( !list_reset( key_list ) ) return dictionary_small_new();
+
+	destination = dictionary_large_dictionary_new();
+
+	do {
+		key = list_get_string( key_list );
+
+		data = dictionary_get( source_dictionary, key );
+
+		dictionary_set_pointer(
+			destination,
+			key,
+			data );
+
+		if ( piece( piece_buffer, delimiter, key, piece_offset ) )
+		{
+			dictionary_set_pointer(
+				destination,
+				strdup( piece_buffer ),
+				data );
+		}
+
+	} while( list_next( key_list ) );
+
+	return destination;
 }
 

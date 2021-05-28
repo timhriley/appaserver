@@ -574,4 +574,9 @@ void dictionary_remove_symbols_in_numbers(
 			DICTIONARY *dictionary,
 			LIST *attribute_list );
 
+DICTIONARY *dictionary_key_piece(
+			char delimiter,
+			DICTIONARY *source_dictionary,
+			int piece_offset );
+
 #endif

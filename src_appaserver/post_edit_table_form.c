@@ -216,11 +216,11 @@ int main( int argc, char **argv )
 	}
 
 	if ( !session_access_folder(
-				application_name,
-				session,
-				folder_name,
-				role_name,
-				state ) )
+			application_name,
+			session,
+			folder_name,
+			role_name,
+			state ) )
 	{
 		if ( strcmp( state, "update" ) == 0
 		&&  !( state = session_degrade_state(
@@ -235,9 +235,9 @@ int main( int argc, char **argv )
 	}
 
 	if ( !appaserver_user_exists_role(
-					application_name,
-					login_name,
-					role_name ) )
+		application_name,
+		login_name,
+		role_name ) )
 	{
 		session_access_failed_message_and_exit(
 				application_name, session, login_name );
@@ -251,10 +251,11 @@ int main( int argc, char **argv )
 	role = role_new_role(	application_name,
 				role_name );
 
-	folder = folder_new_folder(
-				application_name, 
-				session,
-				folder_name );
+	folder =
+		folder_new_folder(
+			application_name, 
+			session,
+			folder_name );
 
 	folder->mto1_isa_related_folder_list =
 		folder_mto1_isa_related_folder_list(

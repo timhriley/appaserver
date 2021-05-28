@@ -89,11 +89,9 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			FOLDER *select_folder,
 			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
-			char *attribute_not_null_string,
 			FOLDER *foreign_login_name_folder,
 			LIST *where_clause_attribute_name_list,
 			LIST *where_clause_data_list,
-			LIST *non_edit_folder_name_list,
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
@@ -126,7 +124,6 @@ LIST *row_security_detail_dictionary_list(
 			LIST *where_clause_data_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string,
 			LIST *join_1tom_related_folder_list );
 
 void row_security_append_join_1tom_related_folder_list(
@@ -169,9 +166,9 @@ LIST *row_security_edit_table_dictionary_list(
 			ROLE *login_role,
 			char *login_name,
 			char *query_select_folder_name,
+			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name,
-			char *attribute_not_null_string,
 			LIST *join_1tom_related_folder_list );
 
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
@@ -188,9 +185,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			FOLDER *select_folder,
 			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
-			char *attribute_not_null_string,
 			FOLDER *foreign_login_name_folder,
-			LIST *non_edit_folder_name_list,
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
@@ -256,7 +251,6 @@ LIST *row_security_regular_element_list(
 			DICTIONARY *query_dictionary,
 			int row_dictionary_list_length,
 			char *state,
-			LIST *non_edit_folder_name_list,
 			char *login_name,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
@@ -281,7 +275,6 @@ LIST *row_security_regular_evaluate_element_list(
 			int row_dictionary_list_length,
 			LIST *no_display_pressed_attribute_name_list,
 			char *state,
-			LIST *non_edit_folder_name_list,
 			boolean override_row_restrictions,
 			char *folder_post_change_javascript,
 			int max_query_rows_for_drop_downs,

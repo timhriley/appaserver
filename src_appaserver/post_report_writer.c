@@ -510,7 +510,8 @@ void post_state_one(	char *application_name,
 		application_name,
 		login_name,
 		(char *)0 /* attribute_not_null_string */,
-		(char *)0 /* appaserver_user_foreign_login_name */ );
+		(char *)0 /* appaserver_user_foreign_login_name */,
+		(LIST *)0 /* non_edit_folder_name_list */ );
 
 	remember_keystrokes_non_multi_element_name_list =
 		element_list2remember_keystrokes_non_multi_element_name_list(
@@ -745,7 +746,8 @@ void post_state_two(	char *application_name,
 		application_name,
 		login_name,
 		(char *)0 /* attribute_not_null_string */,
-		(char *)0 /* appaserver_user_foreign_login_name */ );
+		(char *)0 /* appaserver_user_foreign_login_name */,
+		(LIST *)0 /* non_edit_folder_name_list */ );
 
 	form->onload_control_string = document->onload_control_string;
 
@@ -1121,7 +1123,8 @@ void post_state_three(	char *application_name,
 		application_name,
 		login_name,
 		(char *)0 /* attribute_not_null_string */,
-		(char *)0 /* appaserver_user_foreign_login_name */ );
+		(char *)0 /* appaserver_user_foreign_login_name */,
+		(LIST *)0 /* non_edit_folder_name_list */ );
 
 	list_rewind( form->regular_element_list );
 
@@ -1727,7 +1730,8 @@ void post_table_state_four(
 			application_name,
 			login_name,
 			(char *)0 /* attribute_not_null_string */,
-			(char *)0 /* appaserver_user_foreign_login_name */ );
+			(char *)0 /* appaserver_user_foreign_login_name */,
+			(LIST *)0 /* non_edit_folder_name_list */ );
 
 	if ( number_rows_outputted >= ROWS_FOR_SUBMIT_AT_BOTTOM
 	&&   list_length( operation_list_structure->operation_list ) )
