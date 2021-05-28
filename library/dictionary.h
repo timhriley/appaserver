@@ -575,8 +575,11 @@ void dictionary_remove_symbols_in_numbers(
 			LIST *attribute_list );
 
 DICTIONARY *dictionary_key_piece(
-			char delimiter,
 			DICTIONARY *source_dictionary,
+			char delimiter,
 			int piece_offset );
+
+char *dictionary_data(	DICTIONARY *d,
+			char *key );
 
 #endif

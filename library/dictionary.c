@@ -1024,6 +1024,11 @@ char *dictionary_get_pointer( DICTIONARY *d, char *key )
 	return dictionary_get( d, key );
 }
 
+char *dictionary_data( DICTIONARY *d, char *key )
+{
+	return dictionary_get( d, key );
+}
+
 char *dictionary_get_data( DICTIONARY *d, char *key )
 {
 	return dictionary_get( d, key );
@@ -4005,44 +4010,36 @@ LIST *dictionary_get_non_indexed_key_list(
 }
 
 DICTIONARY *dictionary_key_piece(
+			DICTIONARY *dictionary,
 			char delimiter,
-			DICTIONARY *source_dictionary,
 			int piece_offset )
 {
-	DICTIONARY *destination;
 	LIST *key_list;
 	char *key;
 	char *data;
 	char piece_buffer[ 1024 ];
 
-	if ( !source_dictionary ) return dictionary_small_new();
+	if ( !dictionary ) return (DICTIONARY *)0;
 
-	key_list = dictionary_get_key_list( source_dictionary );
+	key_list = dictionary_get_key_list( dictionary );
 
-	if ( !list_reset( key_list ) ) return dictionary_small_new();
-
-	destination = dictionary_large_dictionary_new();
+	if ( !list_reset( key_list ) ) return dictionary;
 
 	do {
 		key = list_get_string( key_list );
 
-		data = dictionary_get( source_dictionary, key );
-
-		dictionary_set_pointer(
-			destination,
-			key,
-			data );
+		data = dictionary_data( dictionary, key );
 
 		if ( piece( piece_buffer, delimiter, key, piece_offset ) )
 		{
 			dictionary_set_pointer(
-				destination,
+				dictionary,
 				strdup( piece_buffer ),
 				data );
 		}
 
 	} while( list_next( key_list ) );
 
-	return destination;
+	return dictionary;
 }
 

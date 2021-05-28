@@ -22,12 +22,15 @@
 /* ---------- */
 typedef struct
 {
+	char *asset_name;
+	char *serial_label;
+	int tax_year;
 	char *service_placement_date;
-	double tax_cost_basis;
+	double cost_basis;
 	char *tax_recovery_period;
+	double prior_accumulated_recovery;
 	double tax_recovery_period_years;
 	char *disposal_date;
-	int tax_year;
 	double recovery_amount;
 	double recovery_percent;
 } TAX_RECOVERY;

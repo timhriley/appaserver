@@ -288,7 +288,7 @@ int main( int argc, char **argv )
 
 	document_close();
 	return 0;
-} /* main() */
+}
 
 void post_state_one(	char *application_name,
 			char *session,
@@ -361,30 +361,30 @@ void post_state_one(	char *application_name,
 
 	printf( "<td>" );
 	element_drop_down_output(
-				stdout,
-				element->name,
-				element->drop_down->option_data_list,
-				element->drop_down->option_label_list,
-				element->drop_down->number_columns,
-				element->drop_down->multi_select,
-				-1 /* row */,
-				element->drop_down->initial_data,
-				element->drop_down->output_null_option,
-				element->drop_down->output_not_null_option,
-				element->drop_down->output_select_option,
-				element->drop_down->folder_name,
-				(char *)0 /* post_change_javascript */,
-				element->drop_down->max_drop_down_size,
-				element->drop_down->multi_select_element_name,
-				element->drop_down->onblur_javascript_function,
-				(char *)0 /* background_color */,
-				element->drop_down->date_piece_offset,
-				1 /* no_initial_capital */,
-				element->drop_down->readonly,
-				0 /* tab_index */,
-				element->drop_down->state,
-				element->drop_down->attribute_width );
-			fflush( stdout );
+		stdout,
+		element->name,
+		element->drop_down->option_data_list,
+		element->drop_down->option_label_list,
+		element->drop_down->number_columns,
+		element->drop_down->multi_select,
+		-1 /* row */,
+		element->drop_down->initial_data,
+		element->drop_down->output_null_option,
+		element->drop_down->output_not_null_option,
+		element->drop_down->output_select_option,
+		(char *)0 /* post_change_javascript */,
+		element->drop_down->max_drop_down_size,
+		element->drop_down->multi_select_element_name,
+		element->drop_down->onblur_javascript_function,
+		(char *)0 /* background_color */,
+		element->drop_down->date_piece_offset,
+		1 /* no_initial_capital */,
+		element->drop_down->readonly,
+		0 /* tab_index */,
+		element->drop_down->state,
+		element->drop_down->attribute_width );
+
+	fflush( stdout );
 
 	/* Build purge drop-down */
 	/* -------------------- */
@@ -423,30 +423,30 @@ void post_state_one(	char *application_name,
 
 	printf( "<td>" );
 	element_drop_down_output(
-				stdout,
-				element->name,
-				element->drop_down->option_data_list,
-				element->drop_down->option_label_list,
-				element->drop_down->number_columns,
-				element->drop_down->multi_select,
-				-1 /* row */,
-				element->drop_down->initial_data,
-				element->drop_down->output_null_option,
-				element->drop_down->output_not_null_option,
-				element->drop_down->output_select_option,
-				element->drop_down->folder_name,
-				(char *)0 /* post_change_javascript */,
-				element->drop_down->max_drop_down_size,
-				element->drop_down->multi_select_element_name,
-				element->drop_down->onblur_javascript_function,
-				(char *)0 /* background_color */,
-				element->drop_down->date_piece_offset,
-				1 /* no_initial_capital */,
-				element->drop_down->readonly,
-				0 /* tab_index */,
-				element->drop_down->state,
-				element->drop_down->attribute_width );
-			fflush( stdout );
+		stdout,
+		element->name,
+		element->drop_down->option_data_list,
+		element->drop_down->option_label_list,
+		element->drop_down->number_columns,
+		element->drop_down->multi_select,
+		-1 /* row */,
+		element->drop_down->initial_data,
+		element->drop_down->output_null_option,
+		element->drop_down->output_not_null_option,
+		element->drop_down->output_select_option,
+		(char *)0 /* post_change_javascript */,
+		element->drop_down->max_drop_down_size,
+		element->drop_down->multi_select_element_name,
+		element->drop_down->onblur_javascript_function,
+		(char *)0 /* background_color */,
+		element->drop_down->date_piece_offset,
+		1 /* no_initial_capital */,
+		element->drop_down->readonly,
+		0 /* tab_index */,
+		element->drop_down->state,
+		element->drop_down->attribute_width );
+
+	fflush( stdout );
 
 	/* Build the execute_yn drop-down */
 	/* ------------------------------ */
@@ -471,30 +471,30 @@ void post_state_one(	char *application_name,
 
 	printf( "<td>" );
 	element_drop_down_output(
-				stdout,
-				element->name,
-				element->drop_down->option_data_list,
-				element->drop_down->option_label_list,
-				element->drop_down->number_columns,
-				element->drop_down->multi_select,
-				-1 /* row */,
-				element->drop_down->initial_data,
-				element->drop_down->output_null_option,
-				element->drop_down->output_not_null_option,
-				element->drop_down->output_select_option,
-				element->drop_down->folder_name,
-				(char *)0 /* post_change_javascript */,
-				element->drop_down->max_drop_down_size,
-				element->drop_down->multi_select_element_name,
-				element->drop_down->onblur_javascript_function,
-				(char *)0 /* background_color */,
-				element->drop_down->date_piece_offset,
-				element->drop_down->no_initial_capital,
-				element->drop_down->readonly,
-				0 /* tab_index */,
-				element->drop_down->state,
-				element->drop_down->attribute_width );
-			fflush( stdout );
+		stdout,
+		element->name,
+		element->drop_down->option_data_list,
+		element->drop_down->option_label_list,
+		element->drop_down->number_columns,
+		element->drop_down->multi_select,
+		-1 /* row */,
+		element->drop_down->initial_data,
+		element->drop_down->output_null_option,
+		element->drop_down->output_not_null_option,
+		element->drop_down->output_select_option,
+		(char *)0 /* post_change_javascript */,
+		element->drop_down->max_drop_down_size,
+		element->drop_down->multi_select_element_name,
+		element->drop_down->onblur_javascript_function,
+		(char *)0 /* background_color */,
+		element->drop_down->date_piece_offset,
+		element->drop_down->no_initial_capital,
+		element->drop_down->readonly,
+		0 /* tab_index */,
+		element->drop_down->state,
+		element->drop_down->attribute_width );
+
+	fflush( stdout );
 
 	printf( "<tr><td colspan=2>					"
 		"<input type=\"button\" value=\"%s\"			"
@@ -505,7 +505,7 @@ void post_state_one(	char *application_name,
 	printf( "</table>\n" );
 	printf( "</form>\n" );
 
-} /* post_state_one() */
+}
 
 void post_state_two(	char *application_name,
 			char *session,
@@ -608,7 +608,7 @@ void post_state_two(	char *application_name,
 		printf( "<h3>Process complete.</h3>\n" );
 	}
 
-} /* post_state_two() */
+}
 
 void output_test_only_report(
 				char *application_name,
@@ -662,7 +662,7 @@ void output_test_only_report(
 
 	} while( list_next( folder->one2m_recursive_related_folder_list ) );
 
-} /* output_test_only_report() */
+}
 
 void update_database_related_folder(
 			char *application_name,
@@ -768,7 +768,7 @@ void update_database_related_folder(
 	pclose( input_pipe );
 	pclose( output_pipe );
 
-} /* update_database_related_folder() */
+}
 
 void output_test_only_related_folder(
 			char *application_name,
@@ -825,7 +825,7 @@ void output_test_only_related_folder(
 	pclose( input_pipe );
 	pclose( output_pipe );
 
-} /* output_test_only_related_folder() */
+}
 
 void output_update_database(
 				char *application_name,
@@ -887,7 +887,7 @@ void output_update_database(
 
 	} while( list_next( folder->one2m_recursive_related_folder_list ) );
 
-} /* output_update_database() */
+}
 
 void output_delete_database(
 				char *application_name,
@@ -994,4 +994,4 @@ void output_delete_database(
 		appaserver_data_directory,
 		role_name );
 
-} /* output_delete_database() */
+}

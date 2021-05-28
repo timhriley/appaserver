@@ -41,8 +41,7 @@ function post_change_attribute( row )
 	}
 
 	return true;
-
-} // post_change_attribute()
+}
 
 function post_change_attribute_each_row()
 {
@@ -59,4 +58,4 @@ function post_change_attribute_each_row()
 
 	return true;
 
-} // post_change_attribute_each_row()
+}

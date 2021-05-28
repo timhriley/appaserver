@@ -189,8 +189,10 @@ int main( int argc, char **argv )
 	add_relative_source_directory_to_path( application_name );
 	environ_appaserver_home();
 
-	role = role_new_role(	application_name,
-				role_name );
+	role =
+		role_new_role(
+			application_name,
+			role_name );
 
 	/* Promote source frame */
 	/* -------------------- */

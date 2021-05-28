@@ -1,5 +1,4 @@
-//
-// trim.js
+// $APPASERVER_HOME/javascript/trim.js
 // ---------------------------------------------
 // Freely available software. See appaserver.org
 // ---------------------------------------------
@@ -27,7 +26,7 @@ function trim_character( source_string, character )
 
 	return return_string;
 
-} // trim_character()
+}
 
 function trim_trailing_piece( source_string, delimiter )
 {
@@ -47,7 +46,7 @@ function trim_trailing_piece( source_string, delimiter )
 
 	return source_string;
 
-} // trim_trailing_piece()
+}
 
 function left_trim( s )
 {
@@ -60,7 +59,7 @@ function left_trim( s )
 
 	return return_string;
 
-} // left_trim()
+}
 
 function right_trim( s )
 {
@@ -84,5 +83,5 @@ function right_trim( s )
 	{
 		return s.substr( 0, i + 1 );
 	}
-} // right_trim()
+}
 

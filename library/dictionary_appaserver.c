@@ -465,21 +465,14 @@ DICTIONARY *dictionary_appaserver_get_row_dictionary_multi_row(
 	char *operation_name;
 	char key[ 256 ];
 	char *data;
-	DICTIONARY *non_table_prefixed_dictionary;
 	DICTIONARY *row_dictionary;
 	int highest_index;
-
-	non_table_prefixed_dictionary =
-		dictionary_key_piece(
-			'.',
-			non_prefixed_dictionary,
-			1 );
 
 	if ( !list_length( attribute_name_list ) ) return (DICTIONARY *)0;
 
 	highest_index =
 		dictionary_get_highest_index(
-			non_table_prefixed_dictionary );
+			non_prefixed_dictionary );
 
 	row_dictionary = dictionary_large_new();
 
@@ -497,7 +490,7 @@ DICTIONARY *dictionary_appaserver_get_row_dictionary_multi_row(
 
 			data =
 				dictionary_fetch(
-					non_table_prefixed_dictionary,
+					non_prefixed_dictionary,
 					key );
 
 			if ( data )
@@ -523,7 +516,7 @@ DICTIONARY *dictionary_appaserver_get_row_dictionary_multi_row(
 
 			data =
 				dictionary_fetch(
-					non_table_prefixed_dictionary,
+					non_prefixed_dictionary,
 					key );
 
 			if ( data )

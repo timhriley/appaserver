@@ -349,7 +349,6 @@ void generic_measurement_load(
 				element->drop_down->output_null_option,
 				element->drop_down->output_not_null_option,
 				element->drop_down->output_select_option,
-				element->drop_down->folder_name,
 				post_change_javascript,
 				element->drop_down->max_drop_down_size,
 				element->drop_down->multi_select_element_name,

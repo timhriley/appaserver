@@ -612,7 +612,6 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->drop_down->output_null_option,
 			element->drop_down->output_not_null_option,
 			element->drop_down->output_select_option,
-			element->drop_down->folder_name,
 			element->drop_down->post_change_javascript,
 			element->drop_down->max_drop_down_size,
 			element->drop_down->multi_select_element_name,
@@ -2198,7 +2197,6 @@ void element_drop_down_output(
 			boolean output_null_option,
 			boolean output_not_null_option,
 			boolean output_select_option,
-			char *folder_name,
 			char *post_change_javascript,
 			int max_drop_down_size,
 			char *multi_select_element_name,
@@ -2347,6 +2345,7 @@ void element_drop_down_output(
 	/* ------------------------------------------------------------ */
 	if ( multi_select && !row ) row = 1;
 
+#ifdef NOT_DEFINED
 	if ( folder_name && *folder_name )
 	{
 		if ( row == -1 )
@@ -2395,6 +2394,27 @@ void element_drop_down_output(
 				multi_select_element_name,
 				row );
 		}
+	}
+#endif
+
+	if ( row == -1 )
+	{
+		strcpy(drop_down_element_name, element_name );
+	}
+	else
+	{
+		sprintf(drop_down_element_name,
+			"%s_%d",
+			element_name,
+			row );
+	}
+
+	if ( multi_select && multi_select_element_name )
+	{
+		sprintf(multi_select_drop_down_element_name,
+			"%s_%d",
+			multi_select_element_name,
+			row );
 	}
 
 	fprintf(	output_file,
