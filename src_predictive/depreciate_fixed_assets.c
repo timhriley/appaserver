@@ -126,7 +126,8 @@ boolean depreciate_fixed_assets( boolean execute )
 		fixed_asset_purchase_list_depreciate(
 			fixed_asset_purchase_list_fetch(
 				where,
-				0 /* not fetch_last_depreciation */ ),
+				0 /* not fetch_last_depreciation */,
+				0 /* not fetch_last_recovery */ ),
 			date_now_yyyy_mm_dd( date_utc_offset() ) );
 
 	if ( !list_length( fixed_asset_purchase_list ) ) return 0;
@@ -213,7 +214,8 @@ boolean depreciate_fixed_asset_undo( boolean execute )
 	fixed_asset_purchase_list =
 		fixed_asset_purchase_list_fetch(
 			where,
-			1 /* fetch_last_depreciation */ );
+			1 /* fetch_last_depreciation */,
+			0 /* not fetch_last_recovery */ );
 
 	if ( !list_rewind( fixed_asset_purchase_list ) ) return 0;
 
@@ -232,7 +234,7 @@ boolean depreciate_fixed_asset_undo( boolean execute )
 		fprintf( html_output,
 			 "%s^%s^%s^%s^%.2lf\n",
 			 fixed_asset_purchase->fixed_asset->asset_name,
-			 fixed_asset_purchase->fixed_asset->serial_label,
+			 fixed_asset_purchase->serial_label,
 			 fixed_asset_purchase->service_placement_date,
 			 fixed_asset_purchase->
 				depreciation->
@@ -267,7 +269,6 @@ boolean depreciate_fixed_asset_undo( boolean execute )
 					fixed_asset->
 					asset_name,
 			 	fixed_asset_purchase->
-					fixed_asset->
 					serial_label,
 			 	fixed_asset_purchase->
 					depreciation->

@@ -29,6 +29,7 @@ typedef struct
 	/* Attributes */
 	/* ---------- */
 	FIXED_ASSET *fixed_asset;
+	char *serial_label;
 	ENTITY *vendor_entity;
 	char *purchase_date_time;
 	char *service_placement_date;
@@ -46,7 +47,7 @@ typedef struct
 	double cost_basis;
 	double fixed_asset_purchase_list_total;
 	double finance_accumulated_depreciation;
-	double tax_accumulated_depreciation;
+	double tax_accumulated_recovery;
 	TAX_RECOVERY *tax_recovery;
 	DEPRECIATION *depreciation;
 } FIXED_ASSET_PURCHASE;
@@ -102,7 +103,7 @@ void fixed_asset_purchase_update(
 			FILE *update_pipe,
 			double cost_basis,
 			double finance_accumulated_depreciation,
-			double tax_accumulated_depreciation,
+			double tax_accumulated_recovery,
 			char *asset_name,
 			char *serial_label );
 
@@ -138,6 +139,9 @@ void fixed_asset_purchase_list_update(
 void fixed_asset_purchase_depreciation_display(
 			LIST *fixed_asset_purchase_list );
 
+void fixed_asset_purchase_recovery_display(
+			LIST *fixed_asset_purchase_list );
+
 void fixed_asset_purchase_finance_fetch_update(
 			char *asset_name,
 			char *serial_label );
@@ -145,6 +149,13 @@ void fixed_asset_purchase_finance_fetch_update(
 void fixed_asset_purchase_tax_fetch_update(
 			char *asset_name,
 			char *serial_label );
+
+LIST *fixed_asset_purchase_list_tax_recover(
+			LIST *fixed_asset_purchase_list,
+			int tax_year );
+
+LIST *fixed_asset_purchase_tax_recovery_list(
+			LIST *fixed_asset_purchase_list );
 
 #endif
 

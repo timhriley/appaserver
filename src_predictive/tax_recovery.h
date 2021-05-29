@@ -59,6 +59,11 @@ TAX_RECOVERY *tax_recovery_evaluate(
 			char *tax_recovery_period,
 			double prior_accumulated_recovery );
 
+TAX_RECOVERY *tax_recovery_fetch(
+			char *asset_name,
+			char *serial_label,
+			int tax_year );
+
 TAX_RECOVERY *tax_recovery_new(
 			char *asset_name,
 			char *serial_label,
@@ -121,5 +126,34 @@ double tax_recovery_amount(
 			double cost_basis,
 			double tax_recovery_period_years,
 			double prior_accumulated_recovery );
+
+LIST *tax_recovery_list_fetch(
+			char *asset_name,
+			char *serial_label );
+
+char *tax_recovery_system_string(
+			char *where );
+
+LIST *tax_recovery_system_list(
+			char *system_string );
+
+char *tax_recovery_primary_where(
+			char *asset_name,
+			char *serial_label,
+			int tax_year );
+
+FILE *tax_recovery_insert_open(
+			void );
+
+void tax_recovery_insert(
+			FILE *insert_pipe,
+			char *asset_name,
+			char *serial_label,
+			int tax_year,
+			double recovery_percent,
+			double recovery_amount );
+
+void tax_recovery_list_insert(
+			LIST *tax_recovery_list );
 
 #endif

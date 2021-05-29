@@ -17,8 +17,7 @@
 #include "fixed_asset.h"
 
 FIXED_ASSET *fixed_asset_new(
-			char *asset_name,
-			char *serial_label )
+			char *asset_name )
 {
 	FIXED_ASSET *fixed_asset;
 
@@ -34,7 +33,6 @@ FIXED_ASSET *fixed_asset_new(
 	}
 
 	fixed_asset->asset_name = asset_name;
-	fixed_asset->serial_label = serial_label;
 
 	return fixed_asset;
 }
@@ -43,7 +41,6 @@ FIXED_ASSET *fixed_asset_parse(
 			char *input )
 {
 	char asset_name[ 128 ];
-	char serial_label[ 128 ];
 	char piece_buffer[ 128 ];
 	FIXED_ASSET *fixed_asset;
 
@@ -52,15 +49,16 @@ FIXED_ASSET *fixed_asset_parse(
 	/* See attribute_list fixed_asset */
 	/* ------------------------------ */
 	piece( asset_name, SQL_DELIMITER, input, 0 );
-	piece( serial_label, SQL_DELIMITER, input, 1 );
 
 	fixed_asset =
 		fixed_asset_new(
-			strdup( asset_name ),
-			strdup( serial_label ) );
+			strdup( asset_name ) );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	fixed_asset->account_name = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	fixed_asset->account_name = strdup( piece_buffer );
+	fixed_asset->tax_recovery_period = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	fixed_asset->activity_energy_kilowatt_draw = atof( piece_buffer );
@@ -72,31 +70,26 @@ FIXED_ASSET *fixed_asset_parse(
 }
 
 FIXED_ASSET *fixed_asset_fetch(
-			char *asset_name,
-			char *serial_label )
+			char *asset_name )
 {
 	return fixed_asset_parse(
 		pipe2string(
 			fixed_asset_system_string(
 				fixed_asset_primary_where(
-					asset_name,
-					serial_label ) ) ) );
+					asset_name ) ) ) );
 }
 
 char *fixed_asset_primary_where(
-			char *asset_name,
-			char *serial_label )
+			char *asset_name )
 {
 	static char where[ 256 ];
 
 	sprintf(where,
-		"asset_name = '%s' and "
-		"serial_label = '%s'",
+		"asset_name = '%s'",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		fixed_asset_name_escape( asset_name ),
-		serial_label );
+		fixed_asset_name_escape( asset_name ) );
 
 	return where;
 }

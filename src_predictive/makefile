@@ -107,6 +107,7 @@ SOURCE_LIBRARY= 							\
 		program.o						\
 		subclassification.o					\
 		depreciation.o						\
+		tax_recovery.o						\
 		entity_self.o						\
 		entity.o						\
 		purchase.o						\

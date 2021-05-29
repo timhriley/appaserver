@@ -479,7 +479,7 @@ LIST *depreciation_list_fetch(
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
-				fixed_asset_primary_where(
+				fixed_asset_purchase_primary_where(
 					asset_name,
 					serial_label ) ) );
 }
@@ -626,7 +626,7 @@ FILE *depreciation_insert_open( void )
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^'	|"
 		 "sql 2>&1						 ",
-		 "depreciation",
+		 DEPRECIATION_TABLE,
 		 field );
 
 	return popen( sys_string, "w" );
@@ -651,17 +651,6 @@ void depreciation_insert(
 	{
 		return;
 	}
-
-/*
-	field =	"asset_name,"
-		"serial_label,"
-		"depreciation_date,"
-		"units_produced,"
-		"depreciation_amount,"
-		"full_name,"
-		"street_address,"
-		"transaction_date_time";
-*/
 
 	fprintf(insert_pipe,
 		"%s^%s^%s^%d^%.2lf^%s^%s^%s\n",
@@ -742,7 +731,7 @@ char *depreciation_prior_depreciation_date(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			fixed_asset_primary_where(
+			fixed_asset_purchase_primary_where(
 				asset_name,
 				serial_label );
 	}
@@ -987,7 +976,7 @@ int depreciation_units_produced_total(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		fixed_asset_primary_where(
+		fixed_asset_purchase_primary_where(
 			asset_name,
 			serial_label ) );
 

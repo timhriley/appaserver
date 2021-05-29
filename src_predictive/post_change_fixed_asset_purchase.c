@@ -55,9 +55,9 @@ int main( int argc, char **argv )
 
 	if ( argc != 4 )
 	{
-		fprintf( stderr,
-"Usage: %s asset_name serial_label state preupdate_asset_name preupdate_serial_label\n",
-			 argv[ 0 ] );
+		fprintf(stderr,
+			"Usage: %s asset_name serial_label state\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
@@ -71,7 +71,8 @@ int main( int argc, char **argv )
 			fixed_asset_purchase_fetch(
 				asset_name,
 				serial_label,
-				0 /* not fetch_last_depreciation */ ) ) )
+				0 /* not fetch_last_depreciation */,
+				0 /* not fetch_last_recovery */ ) ) )
 	{
 		exit( 0 );
 	}
@@ -205,9 +206,9 @@ void post_change_fixed_asset_purchase_insert_update(
 		update_pipe,
 		fixed_asset_purchase->cost_basis,
 		fixed_asset_purchase->finance_accumulated_depreciation,
-		fixed_asset_purchase->tax_accumulated_depreciation,
+		fixed_asset_purchase->tax_accumulated_recovery,
 		fixed_asset_purchase->fixed_asset->asset_name,
-		fixed_asset_purchase->fixed_asset->serial_label );
+		fixed_asset_purchase->serial_label );
 
 	pclose( update_pipe );
 }

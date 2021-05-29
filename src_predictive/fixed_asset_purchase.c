@@ -44,8 +44,9 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 
 	fixed_asset_purchase->fixed_asset =
 		fixed_asset_new(
-			asset_name,
-			serial_label );
+			asset_name );
+
+	fixed_asset_purchase->serial_label = serial_label;
 
 	return fixed_asset_purchase;
 }
@@ -122,7 +123,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 		atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 16 );
-	fixed_asset_purchase->tax_accumulated_depreciation =
+	fixed_asset_purchase->tax_accumulated_recovery =
 		atof( piece_buffer );
 
 	if ( fetch_last_depreciation )
@@ -133,14 +134,12 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 					fixed_asset->
 					asset_name,
 				fixed_asset_purchase->
-					fixed_asset->
 					serial_label,
 				depreciation_prior_depreciation_date(
 					fixed_asset_purchase->
 						fixed_asset->
 						asset_name,
 					fixed_asset_purchase->
-						fixed_asset->
 						serial_label ) );
 	}
 
@@ -152,14 +151,12 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 					fixed_asset->
 					asset_name,
 				fixed_asset_purchase->
-					fixed_asset->
 					serial_label,
 				tax_recovery_prior_recovery_year(
 					fixed_asset_purchase->
 						fixed_asset->
 						asset_name,
 					fixed_asset_purchase->
-						fixed_asset->
 						serial_label ) );
 	}
 
@@ -238,7 +235,7 @@ void fixed_asset_purchase_update(
 			FILE *update_pipe,
 			double cost_basis,
 			double finance_accumulated_depreciation,
-			double tax_accumulated_depreciation,
+			double tax_accumulated_recovery,
 			char *asset_name,
 			char *serial_label )
 {
@@ -257,10 +254,10 @@ void fixed_asset_purchase_update(
 		finance_accumulated_depreciation );
 
 	fprintf(update_pipe,
-		"%s^%s^tax_accumulated_depreciation^%.2lf\n",
+		"%s^%s^tax_accumulated_recovery^%.2lf\n",
 		escape,
 		serial_label,
-		tax_accumulated_depreciation );
+		tax_accumulated_recovery );
 }
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
@@ -336,7 +333,7 @@ LIST *fixed_asset_purchase_list_depreciate(
 		fixed_asset_purchase->depreciation =
 			depreciation_evaluate(
 				fixed_asset_purchase->fixed_asset->asset_name,
-				fixed_asset_purchase->fixed_asset->serial_label,
+				fixed_asset_purchase->serial_label,
 				fixed_asset_purchase->depreciation_method,
 				fixed_asset_purchase->service_placement_date,
 				depreciation_prior_depreciation_date(
@@ -344,7 +341,6 @@ LIST *fixed_asset_purchase_list_depreciate(
 						fixed_asset->
 						asset_name,
 					fixed_asset_purchase->
-						fixed_asset->
 						serial_label ),
 				depreciation_date,
 				fixed_asset_purchase->cost_basis,
@@ -435,12 +431,12 @@ void fixed_asset_purchase_list_update(
 			fixed_asset_purchase->
 				depreciation->
 				depreciation_amount,
-			fixed_asset_purchase->tax_accumulated_depreciation,
+			fixed_asset_purchase->
+				tax_accumulated_recovery,
 			fixed_asset_purchase->
 				fixed_asset->
 				asset_name,
 			fixed_asset_purchase->
-				fixed_asset->
 				serial_label );
 
 	} while( list_next( fixed_asset_purchase_list ) );
@@ -488,7 +484,6 @@ void fixed_asset_purchase_depreciation_display(
 					fixed_asset->
 					asset_name ),
 			fixed_asset_purchase->
-				fixed_asset->
 				serial_label,
 			fixed_asset_purchase->service_placement_date,
 			fixed_asset_purchase->
@@ -537,5 +532,133 @@ void fixed_asset_purchase_finance_fetch_update(
 			serial_label ) );
 
 	if ( system( system_string ) ){};
+}
+
+LIST *fixed_asset_purchase_list_tax_recover(
+			LIST *fixed_asset_purchase_list,
+			int tax_year )
+{
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
+
+	if ( !list_rewind( fixed_asset_purchase_list ) ) return (LIST *)0;
+
+	do {
+		fixed_asset_purchase =
+			list_get(
+				fixed_asset_purchase_list );
+
+		if ( !fixed_asset_purchase->fixed_asset )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: empty fixed_asset.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		fixed_asset_purchase->tax_recovery =
+			tax_recovery_evaluate(
+				fixed_asset_purchase->fixed_asset->asset_name,
+				fixed_asset_purchase->serial_label,
+				tax_year,
+				fixed_asset_purchase->service_placement_date,
+				fixed_asset_purchase->disposal_date,
+				fixed_asset_purchase->cost_basis,
+				fixed_asset_purchase->
+					fixed_asset->
+					tax_recovery_period,
+				fixed_asset_purchase->
+					tax_accumulated_recovery
+					/* prior_accumulated_recovery */ );
+
+		if ( !fixed_asset_purchase->tax_recovery ) continue;
+
+	} while ( list_next( fixed_asset_purchase_list ) );
+
+	return fixed_asset_purchase_list;
+}
+
+LIST *fixed_asset_purchase_tax_recovery_list(
+			LIST *fixed_asset_purchase_list )
+{
+	LIST *tax_recovery_list;
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
+
+	if ( !list_rewind( fixed_asset_purchase_list ) ) return (LIST *)0;
+
+	tax_recovery_list = list_new();
+
+	do {
+		fixed_asset_purchase = list_get( fixed_asset_purchase_list );
+
+		list_set(
+			tax_recovery_list,
+			fixed_asset_purchase->tax_recovery );
+
+	} while ( list_next( fixed_asset_purchase_list ) );
+
+	return tax_recovery_list;
+}
+
+void fixed_asset_purchase_recovery_display(
+			LIST *fixed_asset_purchase_list )
+{
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
+	FILE *output_pipe;
+	char sys_string[ 1024 ];
+	char *heading;
+	char *justification;
+	char buffer[ 128 ];
+
+	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
+
+	heading =
+"Asset,Serial,Service,Cost,Prior Recovery,Recovery,Post Accumulated";
+
+	justification = "left,left,left,right";
+
+	sprintf( sys_string,
+		 "html_table.e '' '%s' '^' '%s'",
+		 heading,
+		 justification );
+
+	fflush( stdout );
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		fixed_asset_purchase =
+			list_get(
+				fixed_asset_purchase_list );
+
+		if ( !fixed_asset_purchase->tax_recovery ) continue;
+
+		fprintf(output_pipe,
+			"%s^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf",
+			format_initial_capital(
+				buffer,
+				fixed_asset_purchase->
+					fixed_asset->
+					asset_name ),
+			fixed_asset_purchase->
+				serial_label,
+			fixed_asset_purchase->
+				service_placement_date,
+			fixed_asset_purchase->
+				cost_basis,
+			fixed_asset_purchase->
+				tax_accumulated_recovery,
+			fixed_asset_purchase->
+				tax_recovery->
+				tax_recovery_amount,
+			fixed_asset_purchase->
+				tax_accumulated_recovery +
+			fixed_asset_purchase->
+				tax_recovery->
+				tax_recovery_amount );
+
+	} while( list_next( fixed_asset_purchase_list ) );
+
+	pclose( output_pipe );
 }
 
