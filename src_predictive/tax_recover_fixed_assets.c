@@ -18,22 +18,19 @@
 #include "application.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
-
-/* In fixed_asset.h, include tax_recovery.h and depreciation.h */
-/* ----------------------------------------------------------- */
-#include "fixed_asset.h"
+#include "fixed_asset_purchase.h"
+#include "tax_recovery.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void tax_recover_fixed_assets(		char *application_name,
-					boolean undo,
-					boolean execute );
+boolean tax_recover_fixed_assets(
+			boolean execute );
 
-void tax_recover_fixed_assets_undo(	char *application_name,
-					int max_tax_year );
+boolean tax_recover_fixed_assets_undo(
+			boolean execute );
 
 int main( int argc, char **argv )
 {
@@ -43,14 +40,13 @@ int main( int argc, char **argv )
 	char buffer[ 128 ];
 	boolean undo;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DOCUMENT *document;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 4 )
 	{
@@ -67,44 +63,96 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( process_name /* title */, application_name );
-	document->output_content_type = 1;
-	
-	document_output_heading(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-	
-	document_output_body(	document->application_name,
-				document->onload_control_string );
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
 
 	printf( "<h1>%s</h1>\n",
 		format_initial_capital(
 			buffer,
 			process_name ) );
 
-	tax_recover_fixed_assets(
-		application_name,
-		undo,
-		execute );
+	if ( !undo )
+	{
+		if ( tax_recover_fixed_assets( execute ) )
+		{
+			if ( execute )
+				printf( "<h3>Posting complete</h3>\n" );
+			else
+				printf( "<h3>Posting not executed</h3>\n" );
+		}
+		else
+		{
+			printf( "<h3>No fixed assets to recover</h3>\n" );
+		}
+	}
+	else
+	{
+		if ( tax_recover_fixed_assets_undo( execute ) )
+		{
+			if ( execute )
+				printf( "<h3>Undo complete</h3>\n" );
+			else
+				printf( "<h3>Undo not executed</h3>\n" );
+		}
+		else
+		{
+			printf( "<h3>No recoveries to undo</h3>\n" );
+		}
+	}
 
 	document_close();
 
 	return 0;
+}
 
-} /* main() */
-
-void tax_recover_fixed_assets(	char *application_name,
-				boolean undo,
-				boolean execute )
+boolean tax_recover_fixed_assets(
+			boolean execute )
 {
+	LIST *fixed_asset_purchase_list;
+	char where[ 512 ];
+
+	sprintf(where,
+		"tax_accumulated_recovery < cost_basis"
+		" and disposal_date is null" );
+
+	fixed_asset_purchase_list =
+		fixed_asset_purchase_list_tax_recover(
+			fixed_asset_purchase_list_fetch(
+				where,
+				0 /* not fetch_last_depreciation */,
+				0 /* not fetch_last_recovery */ ),
+			tax_recovery_now_year() );
+
+	if ( !list_length( fixed_asset_purchase_list ) ) return 0;
+
+	fixed_asset_purchase_depreciation_display(
+		fixed_asset_purchase_list );
+
+	if ( execute )
+	{
+		LIST *depreciation_list;
+
+		depreciation_list =
+			fixed_asset_purchase_depreciation_list(
+				fixed_asset_purchase_list );
+
+		depreciation_list_insert( depreciation_list );
+
+		fixed_asset_purchase_list_update(
+			fixed_asset_purchase_list );
+
+		/* Sets true transaction_date_time */
+		/* ------------------------------- */
+		transaction_list_insert(
+			depreciation_transaction_list(
+				depreciation_list ),
+			1 /* lock_transaciton */ );
+
+	}
+	return 1;
+#ifdef NOT_DEFINED
 	int max_tax_year;
 	int now_year;
 	int tax_year;
@@ -237,10 +285,12 @@ void tax_recover_fixed_assets(	char *application_name,
 				depreciation_fund_list );
 	} /* if Display */
 
-} /* tax_recover_fixed_assets() */
+	return 1;
+#endif
+}
 
-void tax_recover_fixed_assets_undo(	char *application_name,
-					int max_tax_year )
+boolean tax_recover_fixed_assets_undo(
+			boolean execute )
 {
 	char sys_string[ 1024 ];
 	char *folder_name;
@@ -298,5 +348,6 @@ void tax_recover_fixed_assets_undo(	char *application_name,
 
 	system( sys_string );
 
-} /* tax_recover_fixed_assets_undo() */
+	return 1;
+}
 

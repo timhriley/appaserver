@@ -757,7 +757,7 @@ char *depreciation_prior_depreciation_date(
 		DEPRECIATION_TABLE,
 		where );
 
-	return pipe2string( system_string );
+	return string_pipe_fetch( system_string );
 }
 
 DEPRECIATION *depreciation_seek(

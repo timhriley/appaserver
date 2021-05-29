@@ -21,6 +21,7 @@
 #include "account.h"
 #include "fixed_asset.h"
 #include "depreciation.h"
+#include "tax_recovery.h"
 #include "purchase.h"
 #include "fixed_asset_purchase.h"
 
@@ -51,7 +52,8 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 			char *input,
-			boolean fetch_last_depreciation )
+			boolean fetch_last_depreciation,
+			boolean fetch_last_recovery )
 {
 	char asset_name[ 128 ];
 	char serial_label[ 128 ];
@@ -141,6 +143,26 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 						fixed_asset->
 						serial_label ) );
 	}
+
+	if ( fetch_last_recovery )
+	{
+		fixed_asset_purchase->tax_recovery =
+			tax_recovery_fetch(
+				fixed_asset_purchase->
+					fixed_asset->
+					asset_name,
+				fixed_asset_purchase->
+					fixed_asset->
+					serial_label,
+				tax_recovery_prior_recovery_year(
+					fixed_asset_purchase->
+						fixed_asset->
+						asset_name,
+					fixed_asset_purchase->
+						fixed_asset->
+						serial_label ) );
+	}
+
 	return fixed_asset_purchase;
 }
 
@@ -161,18 +183,21 @@ char *fixed_asset_purchase_system_string(
 
 LIST *fixed_asset_purchase_list_fetch(
 			char *where,
-			boolean fetch_last_depreciation )
+			boolean fetch_last_depreciation,
+			boolean fetch_last_recovery )
 {
 	return fixed_asset_purchase_system_list(
 			fixed_asset_purchase_system_string(
 				where,
 				"service_placement_date" /* order */ ),
-		fetch_last_depreciation );
+		fetch_last_depreciation,
+		fetch_last_recovery );
 }
 
 LIST *fixed_asset_purchase_system_list(
 			char *system_string,
-			boolean fetch_last_depreciation )
+			boolean fetch_last_depreciation,
+			boolean fetch_last_recovery )
 {
 	char input[ 1024 ];
 	FILE *input_pipe;
@@ -186,7 +211,8 @@ LIST *fixed_asset_purchase_system_list(
 			list,
 			fixed_asset_purchase_parse(
 				input,
-				fetch_last_depreciation ) );
+				fetch_last_depreciation,
+				fetch_last_recovery ) );
 	}
 	pclose( input_pipe );
 	return list;
@@ -240,7 +266,8 @@ void fixed_asset_purchase_update(
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 			char *asset_name,
 			char *serial_label,
-			boolean fetch_last_depreciation )
+			boolean fetch_last_depreciation,
+			boolean fetch_last_recovery )
 {
 	return fixed_asset_purchase_parse(
 		string_pipe_fetch(
@@ -249,7 +276,8 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 					asset_name,
 					serial_label ),
 				(char *)0 /* order */ ) ),
-		fetch_last_depreciation );
+		fetch_last_depreciation,
+		fetch_last_recovery );
 }
 
 char *fixed_asset_purchase_primary_where(

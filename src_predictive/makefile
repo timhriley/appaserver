@@ -51,7 +51,8 @@ EXECUTABLES=	trial_balance						\
 		feeder_upload_missing					\
 		journal_ledger_trigger					\
 		post_change_fixed_asset_purchase			\
-		depreciation_trigger
+		depreciation_trigger					\
+		tax_recover_fixed_assets
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\

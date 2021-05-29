@@ -56,11 +56,13 @@ typedef struct
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 			char *asset_name,
 			char *serial_label,
-			boolean fetch_depreciation_list );
+			boolean fetch_last_depreciation,
+			boolean fetch_last_recovery );
 
 LIST *fixed_asset_purchase_list_fetch(
 			char *where,
-			boolean fetch_depreciation_list );
+			boolean fetch_last_depreciation,
+			boolean fetch_last_recovery );
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 			char *asset_name,
@@ -76,11 +78,13 @@ char *fixed_asset_purchase_system_string(
 
 LIST *fixed_asset_purchase_system_list(
 			char *system_string,
-			boolean fetch_depreciation_list );
+			boolean fetch_last_depreciation,
+			boolean fetch_last_recovery );
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 			char *input,
-			boolean fetch_depreciation_list );
+			boolean fetch_last_depreciation,
+			boolean fetch_last_recovery );
 
 double fixed_asset_purchase_total(
 			LIST *fixed_asset_purchase_list );
@@ -135,6 +139,10 @@ void fixed_asset_purchase_depreciation_display(
 			LIST *fixed_asset_purchase_list );
 
 void fixed_asset_purchase_finance_fetch_update(
+			char *asset_name,
+			char *serial_label );
+
+void fixed_asset_purchase_tax_fetch_update(
 			char *asset_name,
 			char *serial_label );
 
