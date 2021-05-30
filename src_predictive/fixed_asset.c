@@ -101,8 +101,8 @@ char *fixed_asset_system_string(
 
 	sprintf(system_string,
 		"select.sh '*' %s \"%s\" asset_name",
-		where,
-		FIXED_ASSET_TABLE );
+		FIXED_ASSET_TABLE,
+		where );
 
 	return system_string;
 }

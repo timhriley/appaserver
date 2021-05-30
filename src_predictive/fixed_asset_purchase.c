@@ -43,7 +43,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 	}
 
 	fixed_asset_purchase->fixed_asset =
-		fixed_asset_new(
+		fixed_asset_fetch(
 			asset_name );
 
 	fixed_asset_purchase->serial_label = serial_label;
