@@ -337,7 +337,7 @@ int form_output_body(	int *form_current_reference_number,
 		}
 	}
 
-	if( output_row_zero_only )
+	if ( output_row_zero_only )
 	{
 		if ( list_length( row_dictionary_list ) == 1 )
 		{

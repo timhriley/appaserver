@@ -343,7 +343,7 @@ void date_set_date_time_integers(
 
 }
 
-void date_set_year(		DATE *date,
+DATE *date_set_year(		DATE *date,
 				int year,
 				int utc_offset )
 {
@@ -351,9 +351,10 @@ void date_set_year(		DATE *date,
 
 	date->current = date_tm_to_current( date->tm, utc_offset );
 	date_set_tm_structures( date, date->current, utc_offset );
+	return date;
 }
 
-void date_set_day(		DATE *date,
+DATE *date_set_day(		DATE *date,
 				int day,
 				int utc_offset )
 {
@@ -361,9 +362,10 @@ void date_set_day(		DATE *date,
 
 	date->current = date_tm_to_current( date->tm, utc_offset );
 	date_set_tm_structures( date, date->current, utc_offset );
+	return date;
 }
 
-void date_set_time_integers(	DATE *date,
+DATE *date_set_time_integers(	DATE *date,
 				int hour,
 				int minute,
 				int seconds,
@@ -375,10 +377,10 @@ void date_set_time_integers(	DATE *date,
 
 	date->current = date_tm_to_current( date->tm, utc_offset );
 	date_set_tm_structures( date, date->current, utc_offset );
-
+	return date;
 }
 
-void date_set_date_integers(	DATE *date,
+DATE *date_set_date_integers(	DATE *date,
 				int year,
 				int month,
 				int day,
@@ -390,6 +392,7 @@ void date_set_date_integers(	DATE *date,
 
 	date->current = date_tm_to_current( date->tm, utc_offset );
 	date_set_tm_structures( date, date->current, utc_offset );
+	return date;
 }
 
 boolean date_set_yyyy_mm_dd_hhmm_delimited(
@@ -527,14 +530,13 @@ boolean date_set_yyyy_mm_dd(	DATE *date,
 				0 /* utc_offset */ );
 
 	return 1;
-
 }
 
-void date_set_time(	DATE *date,
+DATE *date_set_time(	DATE *date,
 			int hour,
 			int minutes )
 {
-	date_set_time_integers(
+	return date_set_time_integers(
 		date,
 		hour,
 		minutes,
@@ -548,37 +550,37 @@ void date_free( DATE *d )
 	free( d );
 }
 
-void date_increment( DATE *d )
+DATE *date_increment( DATE *d )
 {
-	date_increment_day( d );
+	return date_increment_day( d );
 }
 
-void date_decrement_minute( DATE *d )
+DATE *date_decrement_minute( DATE *d )
 {
-	date_increment_minutes( d, -1 );
+	return date_increment_minutes( d, -1 );
 }
 
-void date_decrement_hour( DATE *d )
+DATE *date_decrement_hour( DATE *d )
 {
-	date_increment_hours( d, -1.0 );
+	return date_increment_hours( d, -1.0 );
 }
 
-void date_increment_hour( DATE *d )
+DATE *date_increment_hour( DATE *d )
 {
-	date_increment_hours( d, 1.0 );
+	return date_increment_hours( d, 1.0 );
 }
 
-void date_increment_minute( DATE *d )
+DATE *date_increment_minute( DATE *d )
 {
-	date_increment_minutes( d, 1 );
+	return date_increment_minutes( d, 1 );
 }
 
-void date_decrement_day( DATE *d )
+DATE *date_decrement_day( DATE *d )
 {
 	return date_decrement_days( d, 1.0 );
 }
 
-void date_decrement_days(	DATE *d,
+DATE *date_decrement_days(	DATE *d,
 				double days )
 {
 	double minus_days = -days;
@@ -586,9 +588,10 @@ void date_decrement_days(	DATE *d,
 	date_increment_days(
 		d,
 		minus_days );
+	return d;
 }
 
-void date_increment_months(	DATE *d,
+DATE *date_increment_months(	DATE *d,
 				int months )
 {
 	int year;
@@ -606,15 +609,16 @@ void date_increment_months(	DATE *d,
 		month,
 		day,
 		0 /* utc_offset */ );
+	return d;
 }
 
-void date_increment_years(	DATE *d,
+DATE *date_increment_years(	DATE *d,
 				int years )
 {
-	date_decrement_years(d, -years );
+	return date_decrement_years(d, -years );
 }
 
-void date_subtract_year(
+DATE *date_subtract_year(
 			DATE *date,
 			int years )
 {
@@ -624,7 +628,7 @@ void date_subtract_year(
 				years );
 }
 
-void date_decrement_years(	DATE *d,
+DATE *date_decrement_years(	DATE *d,
 				int years )
 {
 	int year;
@@ -642,23 +646,28 @@ void date_decrement_years(	DATE *d,
 		month,
 		day,
 		0 /* utc_offset */ );
+
+	return d;
 }
 
-void date_increment_day( DATE *d )
+DATE *date_increment_day( DATE *d )
 {
 	d->current += SECONDS_IN_DAY;
 	date_set_tm_structures( d, d->current, date_utc_offset() );
+	return d;
 }
 
-void date_increment_week( DATE *d )
+DATE *date_increment_week( DATE *d )
 {
 	increment_week( d );
+	return d;
 }
 
-void increment_week( DATE *d )
+DATE *increment_week( DATE *d )
 {
 	d->current += SECONDS_IN_WEEK;
 	date_set_tm_structures( d, d->current, date_utc_offset() );
+	return d;
 }
 
 int date_get_month( DATE *d )
@@ -1242,11 +1251,12 @@ DATE *date_yyyy_mm_dd_new( char *date_string )
 
 }
 
-void date_increment_days(	DATE *d,
+DATE *date_increment_days(	DATE *d,
 				double days )
 {
 	d->current += (long)((double)SECONDS_IN_DAY * days);
 	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
+	return d;
 }
 
 /* Returns static memory */
@@ -2042,48 +2052,51 @@ boolean date_set_time_hhmm(	DATE *date,
 	return 1;
 }
 
-void date_increment_hours(	DATE *d,
+DATE *date_increment_hours(	DATE *d,
 				double hours )
 {
 	d->current += (long)((float)SECONDS_IN_HOUR * hours);
 	date_set_tm_structures( d, d->current, date_utc_offset() );
+	return d;
 }
 
-void date_add_minutes(	DATE *d,
+DATE *date_add_minutes(	DATE *d,
 			int minutes )
 {
-	date_increment_minutes( d, minutes );
+	return date_increment_minutes( d, minutes );
 }
 
-void date_increment_minutes(	DATE *d,
+DATE *date_increment_minutes(	DATE *d,
 				int minutes )
 {
 	d->current += (long)(SECONDS_IN_MINUTE * minutes);
 	date_set_tm_structures( d, d->current, date_utc_offset() );
+	return d;
 }
 
-void date_add_seconds(
+DATE *date_add_seconds(
 			DATE *d,
 			int seconds )
 {
-	date_increment_seconds( d, seconds );
+	return date_increment_seconds( d, seconds );
 }
 
-void date_decrement_second(
+DATE *date_decrement_second(
 			DATE *date,
 			int seconds )
 {
-	date_increment_seconds(
+	return date_increment_seconds(
 			date,
 			-seconds );
 }
 
-void date_increment_seconds(
+DATE *date_increment_seconds(
 			DATE *d,
 			int seconds )
 {
 	d->current += (long)seconds;
 	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
+	return d;
 }
 
 int date_subtract_minutes( DATE *later_date, DATE *earlier_date )
@@ -2156,7 +2169,7 @@ int date_get_minutes_number( DATE *date )
 	return date->tm->tm_min;
 }
 
-void date_round2five_minutes( DATE *date )
+DATE *date_round2five_minutes( DATE *date )
 {
 	int hour;
 	int minutes;
@@ -2166,7 +2179,7 @@ void date_round2five_minutes( DATE *date )
 	minutes = date_get_minutes_number( date );
 	remainder = minutes % 5;
 
-	if ( !remainder ) return;
+	if ( !remainder ) return date;
 
 	if ( remainder <= 2 )
 		minutes = minutes - remainder;
@@ -2187,6 +2200,7 @@ void date_round2five_minutes( DATE *date )
 	}
 	
 	date_set_time( date, hour, minutes );
+	return date;
 }
 
 double date_yyyy_mm_dd_hhmm_to_julian( char *yyyy_mm_dd, char *hhmm )

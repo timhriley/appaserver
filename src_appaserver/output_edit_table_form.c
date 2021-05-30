@@ -135,19 +135,25 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role_folder = role_folder_new_role_folder(	application_name,
-							session,
-							role_name,
-							folder_name );
+	role_folder =
+		role_folder_new_role_folder(
+			application_name,
+			session,
+			role_name,
+			folder_name );
 
 	if ( role_folder_viewonly( role_folder ) ) state = "lookup";
 
-	role = role_new_role(	application_name,
-				role_name );
+	role =
+		role_new_role(
+			application_name,
+			role_name );
 
-	folder = folder_new_folder( 	application_name,
-					session,
-					folder_name );
+	folder =
+		folder_new_folder(
+			application_name,
+			session,
+			folder_name );
 
 	folder->mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
@@ -517,13 +523,14 @@ int main( int argc, char **argv )
 	else
 		state_for_heading = state;
 
-	form_set_folder_parameters(	form,
-					state_for_heading,
-					login_name,
-					application_name,
-					session,
-					folder->folder_name,
-					role_name );
+	form_set_folder_parameters(
+		form,
+		state_for_heading,
+		login_name,
+		application_name,
+		session,
+		folder->folder_name,
+		role_name );
 
 	form_output_title(
 		form->application_title,

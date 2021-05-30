@@ -625,30 +625,30 @@ void element_notepad_output_as_dictionary(
 						char *data,
 						int row );
 void element_text_item_output_as_dictionary(
-						FILE *output_file,
-						char *element_name,
-						char *element_data,
-						int row );
+			FILE *output_file,
+			char *element_name,
+			char *element_data,
+			int row );
+
 void element_password_output_as_dictionary(
-						FILE *output_file,
-						char *element_name,
-						char *data,
-						int row );
+			FILE *output_file,
+			char *element_name,
+			char *data,
+			int row );
 
 void element_drop_down_output_as_dictionary(
-				FILE *output_file,
-				char *element_name,
-				int row,
-				char *initial_data,
-				char *folder_name,
-				int length_option_data_list,
-				int max_drop_down_size );
+			FILE *output_file,
+			char *element_name,
+			int row,
+			char *initial_data,
+			int length_option_data_list,
+			int max_drop_down_size );
 
 void element_reference_number_output_as_dictionary(
-						FILE *output_file,
-						char *element_name,
-						char *data,
-						int row );
+			FILE *output_file,
+			char *element_name,
+			char *data,
+			int row );
 
 void element_hidden_output(
 				FILE *output_file,

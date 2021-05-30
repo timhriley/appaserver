@@ -50,19 +50,18 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 5 )
+	if ( argc != 4 )
 	{
 		fprintf(stderr,
-			"Usage: %s process tax_year undo_yn execute_yn\n",
+			"Usage: %s process undo_yn execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	tax_year = atoi( argv[ 2 ] );
-	undo = (*argv[ 3 ]) == 'y';
-	execute = (*argv[ 4 ]) == 'y';
+	undo = (*argv[ 2 ]) == 'y';
+	execute = (*argv[ 3 ]) == 'y';
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -71,10 +70,16 @@ int main( int argc, char **argv )
 		appaserver_parameter_file->
 			appaserver_mount_point );
 
-	printf( "<h1>%s</h1>\n",
+	printf( "<h1>%s For Year %d</h1>\n",
 		format_initial_capital(
 			buffer,
-			process_name ) );
+			process_name ),
+		( tax_year =
+			date_year(
+				date_subtract_year(
+					date_now_new(
+						date_utc_offset() ),
+					1 ) ) ) );
 
 	if ( !undo )
 	{

@@ -212,7 +212,6 @@ void element_output_as_dictionary(
 				element->name,
 				row,
 				element->drop_down->initial_data,
-				element->drop_down->folder_name,
 				list_length(
 					element->drop_down->option_data_list ),
 				element->drop_down->max_drop_down_size
@@ -2132,7 +2131,6 @@ void element_drop_down_output_as_dictionary(
 			char *element_name,
 			int row,
 			char *initial_data,
-			char *folder_name,
 			int length_option_data_list,
 			int max_drop_down_size )
 {
@@ -2143,7 +2141,8 @@ void element_drop_down_output_as_dictionary(
 		element_hidden_output(
 			output_file,
 			element_name,
-		 	dictionary_trim_double_bracked_string( initial_data ),
+		 	dictionary_trim_double_bracked_string(
+				initial_data ),
 			row );
 		return;
 	}
@@ -2163,6 +2162,7 @@ void element_drop_down_output_as_dictionary(
 		initial_data = "select";
 	}
 
+/*
 	if ( folder_name && *folder_name )
 	{
 		fprintf( output_file,
@@ -2182,7 +2182,13 @@ void element_drop_down_output_as_dictionary(
 			 ELEMENT_DICTIONARY_DELIMITER,
 		 	 dictionary_trim_double_bracked_string( initial_data ));
 	}
-		 
+*/
+	fprintf( output_file,
+	 	 "%s_%d%c%s\n",
+		 element_name,
+		 row,
+		 ELEMENT_DICTIONARY_DELIMITER,
+	 	 dictionary_trim_double_bracked_string( initial_data ));
 }
 
 void element_drop_down_output( 	

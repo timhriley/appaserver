@@ -1144,8 +1144,7 @@ UPDATE_FOLDER *update_database_primary_update_folder(
 	update_folder->primary_data_list =
 		update_folder_primary_data_list(
 			file_dictionary,
-			attribute_primary_name_list(
-				attribute_list ),
+			update_folder->primary_attribute_name_list,
 			row );
 
 	return update_folder;
@@ -1176,7 +1175,8 @@ LIST *update_folder_primary_data_list(
 			attribute_name,
 			row ) )
 		{
-			fprintf(stderr,
+			char msg[ 1024 ];
+			sprintf(msg,
 "ERROR in %s/%s()/%d: update_database_dictionary_index_data(%s/%d) returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
@@ -1184,12 +1184,16 @@ LIST *update_folder_primary_data_list(
 				attribute_name,
 				row );
 
-			fprintf(stderr,
+			m2( environment_application_name(), msg );
+
+			sprintf(msg,
 "Message in %s/%s()/%d: file_dictionary = [%s]\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
 				dictionary_display( file_dictionary ) );
+
+			m2( environment_application_name(), msg );
 
 			exit( 1 );
 		}

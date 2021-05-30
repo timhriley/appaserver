@@ -56,15 +56,15 @@ DATE *date_time_new(		int year,
 				int hour,
 				int minute );
 
-void date_increment_week(	DATE *d );
+DATE *date_increment_week(	DATE *d );
 
-void increment_week(		DATE *d );
+DATE *increment_week(		DATE *d );
 
-void date_increment_day(	DATE *d );
+DATE *date_increment_day(	DATE *d );
 
-void date_decrement_day(	DATE *d );
+DATE *date_decrement_day(	DATE *d );
 
-void date_increment(		DATE *d );
+DATE *date_increment(		DATE *d );
 
 /* ------------------- */
 /* Trims trailing time */
@@ -76,22 +76,22 @@ DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string );
 
 DATE *date_yyyy_mm_dd_hm_new(	char *date_time_string );
 
-void date_increment_hours(	DATE *d,
+DATE *date_increment_hours(	DATE *d,
 				double hours );
 
-void date_add_seconds(		DATE *d,
+DATE *date_add_seconds(		DATE *d,
 				int seconds );
 
-void date_increment_seconds(	DATE *d,
+DATE *date_increment_seconds(	DATE *d,
 				int seconds );
 
-void date_decrement_second(	DATE *d,
+DATE *date_decrement_second(	DATE *d,
 				int seconds );
 
-void date_increment_minutes(	DATE *d,
+DATE *date_increment_minutes(	DATE *d,
 				int minutes );
 
-void date_add_minutes(		DATE *d,
+DATE *date_add_minutes(		DATE *d,
 				int minutes );
 
 int date_month_integer(		DATE *d );
@@ -238,15 +238,15 @@ DATE *new_date( void );
 DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,
 				char *time_string );
 
-void date_set_time(		DATE *date,
+DATE *date_set_time(		DATE *date,
 				int hour,
 				int minutes );
 
-void date_set_day(		DATE *date,
+DATE *date_set_day(		DATE *date,
 				int day,
 				int utc_offset );
 
-void date_set_year(		DATE *date,
+DATE *date_set_year(		DATE *date,
 				int year,
 				int utc_offset );
 
@@ -287,15 +287,15 @@ double date_yyyy_mm_dd_hhmm_to_julian(
 
 boolean date_copy(		DATE *d1, DATE *d2 );
 
-void date_round2five_minutes(	DATE *date );
+DATE *date_round2five_minutes(	DATE *date );
 
-void date_decrement_hour(	DATE *d );
+DATE *date_decrement_hour(	DATE *d );
 
-void date_increment_hour(	DATE *d );
+DATE *date_increment_hour(	DATE *d );
 
-void date_decrement_minute(	DATE *d );
+DATE *date_decrement_minute(	DATE *d );
 
-void date_increment_minute(	DATE *d );
+DATE *date_increment_minute(	DATE *d );
 
 char *date_get_current_yyyy_mm_dd(
 				int utc_offset );
@@ -303,11 +303,11 @@ char *date_get_current_yyyy_mm_dd(
 char *date_get_current_hhmm(
 			int utc_offset );
 
-void date_increment_days(
+DATE *date_increment_days(
 			DATE *d,
 			double days );
 
-void date_decrement_days(
+DATE *date_decrement_days(
 			DATE *d,
 			double days );
 
@@ -329,14 +329,14 @@ DATE *date_new_date_time(
 				int seconds,
 				int utc_offset );
 
-void date_set_date_integers(
+DATE *date_set_date_integers(
 				DATE *date,
 				int year,
 				int month,
 				int day,
 				int utc_offset );
 
-void date_set_time_integers(	DATE *date,
+DATE *date_set_time_integers(	DATE *date,
 				int hour,
 				int minute,
 				int seconds,
@@ -487,19 +487,19 @@ DATE *date_back_to_first_month(
 DATE *date_current_new(	time_t current,
 			int utc_offset );
 
-void date_decrement_years(
+DATE *date_decrement_years(
 			DATE *d,
 			int years );
 
-void date_increment_months(
+DATE *date_increment_months(
 			DATE *d,
 			int months );
 
-void date_subtract_year(
+DATE *date_subtract_year(
 			DATE *date,
 			int years );
 
-void date_increment_years(
+DATE *date_increment_years(
 			DATE *date,
 			int years );
 
