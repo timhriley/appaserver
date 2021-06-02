@@ -26,14 +26,14 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_purchase_insert(
-			PURCHASE *purchase );
-
 void post_change_fixed_asset_purchase_insert_update(
 			FIXED_ASSET_PURCHASE *fixed_asset_purchase );
 
 /*
-void post_change_fixed_asset_purchase_update(
+void post_change_purchase_insert(
+			PURCHASE *purchase );
+
+void post_change_purchase_update(
 			PURCHASE *purchase );
 */
 
@@ -71,8 +71,7 @@ int main( int argc, char **argv )
 			fixed_asset_purchase_fetch(
 				asset_name,
 				serial_label,
-				0 /* not fetch_last_depreciation */,
-				0 /* not fetch_last_recovery */ ) ) )
+				0 /* not fetch_last_depreciation */ ) ) )
 	{
 		exit( 0 );
 	}
@@ -200,13 +199,14 @@ void post_change_fixed_asset_purchase_insert_update(
 	FILE *update_pipe = fixed_asset_purchase_update_open();
 
 	fixed_asset_purchase->cost_basis =
+	fixed_asset_purchase->tax_adjusted_basis =
 		fixed_asset_purchase->fixed_asset_cost;
 
 	fixed_asset_purchase_update(
 		update_pipe,
 		fixed_asset_purchase->cost_basis,
 		fixed_asset_purchase->finance_accumulated_depreciation,
-		fixed_asset_purchase->tax_accumulated_recovery,
+		fixed_asset_purchase->tax_adjusted_basis,
 		fixed_asset_purchase->fixed_asset->asset_name,
 		fixed_asset_purchase->serial_label );
 

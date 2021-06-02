@@ -58,12 +58,18 @@ FIXED_ASSET *fixed_asset_parse(
 	fixed_asset->account_name = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	fixed_asset->tax_recovery_period = strdup( piece_buffer );
+	fixed_asset->cost_recovery_period_string = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	fixed_asset->activity_energy_kilowatt_draw = atof( piece_buffer );
+	fixed_asset->cost_recovery_method = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
+	fixed_asset->cost_recovery_conversion = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 5 );
+	fixed_asset->activity_energy_kilowatt_draw = atof( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 6 );
 	fixed_asset->activity_depreciation_per_hour = atof( piece_buffer );
 
 	return fixed_asset;

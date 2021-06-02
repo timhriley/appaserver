@@ -24,7 +24,9 @@ typedef struct
 {
 	char *asset_name;
 	char *account_name;
-	char *tax_recovery_period;
+	char *cost_recovery_period_string;
+	char *cost_recovery_method;
+	char *cost_recovery_conversion;
 	double activity_energy_kilowatt_draw;
 	double activity_depreciation_per_hour;
 } FIXED_ASSET;

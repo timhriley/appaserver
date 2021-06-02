@@ -166,8 +166,7 @@ post_change_inventory_purchase_return
 transaction_date_time
 transaction_balance_report
 bank_upload_transaction_insert
-tax_recover_fixed_assets
-tax_recover_prior_fixed_assets
+cost_recover_fixed_assets
 tax_dvr
 post_change_activity_work
 post_change_account_balance

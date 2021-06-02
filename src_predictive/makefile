@@ -52,7 +52,7 @@ EXECUTABLES=	trial_balance						\
 		journal_ledger_trigger					\
 		post_change_fixed_asset_purchase			\
 		depreciation_trigger					\
-		tax_recover_fixed_assets
+		cost_recover_fixed_assets
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -107,7 +107,7 @@ SOURCE_LIBRARY= 							\
 		program.o						\
 		subclassification.o					\
 		depreciation.o						\
-		tax_recovery.o						\
+		recovery.o						\
 		entity_self.o						\
 		entity.o						\
 		purchase.o						\
@@ -271,13 +271,13 @@ depreciate_fixed_assets: depreciate_fixed_assets.c			\
 		depreciate_fixed_assets.c				\
 		-o depreciate_fixed_assets
 
-tax_recover_fixed_assets: tax_recover_fixed_assets.c			\
+cost_recover_fixed_assets: cost_recover_fixed_assets.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		tax_recover_fixed_assets.c				\
-		-o tax_recover_fixed_assets
+		cost_recover_fixed_assets.c				\
+		-o cost_recover_fixed_assets
 
 trial_balance: trial_balance.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -837,10 +837,10 @@ feeder_upload.o: feeder_upload.c					\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c feeder_upload.c
 
-tax_recovery.o: tax_recovery.c						\
-		tax_recovery.h
+recovery.o: recovery.c							\
+		recovery.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c tax_recovery.c
+		-c recovery.c
 
 transaction_balance.o: transaction_balance.c				\
 		transaction_balance.h

@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/tax_recover_fixed_assets.c		*/
+/* $APPASERVER_HOME/src_predictive/cost_recover_fixed_assets.c		*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -19,18 +19,19 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "fixed_asset_purchase.h"
-#include "tax_recovery.h"
+#include "recovery.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-boolean tax_recover_fixed_assets(
+boolean cost_recover_fixed_assets(
 			int tax_year,
 			boolean execute );
 
-boolean tax_recover_fixed_assets_undo(
+boolean cost_recover_fixed_assets_undo(
+			int tax_year,
 			boolean execute );
 
 int main( int argc, char **argv )
@@ -83,7 +84,7 @@ int main( int argc, char **argv )
 
 	if ( !undo )
 	{
-		if ( tax_recover_fixed_assets( tax_year, execute ) )
+		if ( cost_recover_fixed_assets( tax_year, execute ) )
 		{
 			if ( execute )
 				printf( "<h3>Posting complete</h3>\n" );
@@ -97,7 +98,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		if ( tax_recover_fixed_assets_undo( execute ) )
+		if ( cost_recover_fixed_assets_undo( tax_year, execute ) )
 		{
 			if ( execute )
 				printf( "<h3>Undo complete</h3>\n" );
@@ -115,21 +116,20 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-boolean tax_recover_fixed_assets(
+boolean cost_recover_fixed_assets(
 			int tax_year,
 			boolean execute )
 {
 	LIST *fixed_asset_purchase_list;
 	char *where;
 
-	where = "tax_accumulated_recovery < cost_basis";
+	where = "tax_adjusted_basis > 0";
 
 	fixed_asset_purchase_list =
-		fixed_asset_purchase_list_tax_recover(
+		fixed_asset_purchase_list_cost_recover(
 			fixed_asset_purchase_list_fetch(
 				where,
-				0 /* not fetch_last_depreciation */,
-				0 /* not fetch_last_recovery */ ),
+				0 /* not fetch_last_depreciation */ ),
 			tax_year );
 
 	if ( !list_length( fixed_asset_purchase_list ) ) return 0;
@@ -139,13 +139,13 @@ boolean tax_recover_fixed_assets(
 
 	if ( execute )
 	{
-		LIST *tax_recovery_list;
+		LIST *cost_recovery_list;
 
-		tax_recovery_list =
-			fixed_asset_purchase_tax_recovery_list(
+		cost_recovery_list =
+			fixed_asset_purchase_cost_recovery_list(
 				fixed_asset_purchase_list );
 
-		tax_recovery_list_insert( tax_recovery_list );
+		recovery_list_insert( cost_recovery_list );
 
 		fixed_asset_purchase_list_update(
 			fixed_asset_purchase_list );
@@ -153,7 +153,8 @@ boolean tax_recover_fixed_assets(
 	return 1;
 }
 
-boolean tax_recover_fixed_assets_undo(
+boolean cost_recover_fixed_assets_undo(
+			int tax_year,
 			boolean execute )
 {
 	return 1;

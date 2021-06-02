@@ -12,7 +12,7 @@
 #include "boolean.h"
 #include "entity.h"
 #include "fixed_asset.h"
-#include "tax_recovery.h"
+#include "recovery.h"
 #include "depreciation.h"
 
 /* Constants */
@@ -47,9 +47,9 @@ typedef struct
 	double cost_basis;
 	double fixed_asset_purchase_list_total;
 	double finance_accumulated_depreciation;
-	double tax_accumulated_recovery;
-	TAX_RECOVERY *tax_recovery;
+	double tax_adjusted_basis;
 	DEPRECIATION *depreciation;
+	RECOVERY *recovery;
 } FIXED_ASSET_PURCHASE;
 
 /* Operations */
@@ -57,13 +57,11 @@ typedef struct
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 			char *asset_name,
 			char *serial_label,
-			boolean fetch_last_depreciation,
-			boolean fetch_last_recovery );
+			boolean fetch_last_depreciation );
 
 LIST *fixed_asset_purchase_list_fetch(
 			char *where,
-			boolean fetch_last_depreciation,
-			boolean fetch_last_recovery );
+			boolean fetch_last_depreciation );
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 			char *asset_name,
@@ -79,13 +77,11 @@ char *fixed_asset_purchase_system_string(
 
 LIST *fixed_asset_purchase_system_list(
 			char *system_string,
-			boolean fetch_last_depreciation,
-			boolean fetch_last_recovery );
+			boolean fetch_last_depreciation );
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 			char *input,
-			boolean fetch_last_depreciation,
-			boolean fetch_last_recovery );
+			boolean fetch_last_depreciation );
 
 double fixed_asset_purchase_total(
 			LIST *fixed_asset_purchase_list );
@@ -103,7 +99,7 @@ void fixed_asset_purchase_update(
 			FILE *update_pipe,
 			double cost_basis,
 			double finance_accumulated_depreciation,
-			double tax_accumulated_recovery,
+			double tax_adjusted_basis,
 			char *asset_name,
 			char *serial_label );
 
@@ -150,11 +146,11 @@ void fixed_asset_purchase_tax_fetch_update(
 			char *asset_name,
 			char *serial_label );
 
-LIST *fixed_asset_purchase_list_tax_recover(
+LIST *fixed_asset_purchase_list_cost_recover(
 			LIST *fixed_asset_purchase_list,
 			int tax_year );
 
-LIST *fixed_asset_purchase_tax_recovery_list(
+LIST *fixed_asset_purchase_cost_recovery_list(
 			LIST *fixed_asset_purchase_list );
 
 #endif

@@ -126,8 +126,7 @@ boolean depreciate_fixed_assets( boolean execute )
 		fixed_asset_purchase_list_depreciate(
 			fixed_asset_purchase_list_fetch(
 				where,
-				0 /* not fetch_last_depreciation */,
-				0 /* not fetch_last_recovery */ ),
+				0 /* not fetch_last_depreciation */ ),
 			date_now_yyyy_mm_dd( date_utc_offset() ) );
 
 	if ( !list_length( fixed_asset_purchase_list ) ) return 0;
@@ -214,8 +213,7 @@ boolean depreciate_fixed_asset_undo( boolean execute )
 	fixed_asset_purchase_list =
 		fixed_asset_purchase_list_fetch(
 			where,
-			1 /* fetch_last_depreciation */,
-			0 /* not fetch_last_recovery */ );
+			1 /* fetch_last_depreciation */ );
 
 	if ( !list_rewind( fixed_asset_purchase_list ) ) return 0;
 
