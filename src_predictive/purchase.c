@@ -237,8 +237,7 @@ PURCHASE *purchase_parse( char *input )
 				purchase->vendor_entity->full_name,
 				purchase->vendor_entity->street_address,
 				purchase->purchase_date_time ),
-			0 /* not fetch_last_depreciation */,
-			0 /* not fetch_last_recovery */ );
+			0 /* not fetch_last_depreciation */ );
 
 	purchase->vendor_payment_list =
 		vendor_payment_list_fetch(
