@@ -620,8 +620,9 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->drop_down->no_initial_capital,
 			element->drop_down->readonly,
 			element->tab_index,
-			element->drop_down->state,
-			element->drop_down->attribute_width );
+			element->drop_down->state );
+
+		fflush( output_file );
 	}
 	else
 	if ( element->element_type == non_edit_multi_select )
@@ -1155,10 +1156,11 @@ ELEMENT_PUSH_BUTTON *element_push_button_new( void )
 	return e;
 }
 
-void element_push_button_output( 	FILE *output_file,
-					char *element_label,
-					int row,
-					char *onclick_function )
+void element_push_button_output(
+			FILE *output_file,
+			char *element_label,
+			int row,
+			char *onclick_function )
 {
 	fprintf( output_file, "<input type=\"button\"" );
 
@@ -1189,7 +1191,6 @@ void element_push_button_output( 	FILE *output_file,
 	}
 
 	fprintf( output_file, ">\n" );
-
 }
 
 /* ELEMENT_TOGGLE_BUTTONS Operations */
@@ -1315,7 +1316,6 @@ void element_toggle_button_output(
 	fprintf( output_file, ">" );
 
 	fprintf( output_file, "</td>\n" );
-
 }
 
 /* ELEMENT_RADIO_BUTTONS Operations */
@@ -1435,7 +1435,6 @@ void element_radio_button_output( 	FILE *output_file,
 				name ) ) );
 
 	fprintf( output_file, "</td>\n" );
-
 }
 
 /* ELEMENT_TEXT_ITEM Operations */
@@ -1481,10 +1480,10 @@ char *element_text_item_get_heading( char *element_name, char *heading )
 }
 
 void element_text_item_output_as_dictionary(
-				FILE *output_file,
-				char *element_name,
-				char *element_data,
-				int row )
+			FILE *output_file,
+			char *element_name,
+			char *element_data,
+			int row )
 {
 	char *data;
 
@@ -1680,7 +1679,8 @@ void element_text_item_output(
 
 	if ( is_numeric )
 	{
-		data = element_place_commas_in_number_string(
+		data =
+			element_place_commas_in_number_string(
 				element_name,
 				data );
 	}
@@ -1708,10 +1708,14 @@ void element_text_item_output(
 	if ( readonly )
 	{
 		fprintf( output_file, " readonly=1" );
+		post_change_javascript = (char *)0;
+		onchange_null2slash_yn = 'n';
 	}
-
-	fprintf( output_file,
-		 " onkeyup=\"timlib_prevent_carrot(event,this)\"" );
+	else
+	{
+		fprintf( output_file,
+			 " onkeyup=\"timlib_prevent_carrot(event,this)\"" );
+	}
 
 	if ( background_color && *background_color )
 	{
@@ -1759,7 +1763,6 @@ void element_text_item_output(
 	fprintf( output_file, ">" );
 
 	if ( !without_td_tags ) fprintf( output_file, "</td>\n" );
-
 }
 
 /* ELEMENT_PASSWORD Operations */
@@ -2123,7 +2126,6 @@ void element_prompt_output(
 		fprintf( output_file, "</h1>" );
 
 	fprintf(output_file, "\n" );
-
 }
 
 void element_drop_down_output_as_dictionary(
@@ -2162,27 +2164,6 @@ void element_drop_down_output_as_dictionary(
 		initial_data = "select";
 	}
 
-/*
-	if ( folder_name && *folder_name )
-	{
-		fprintf( output_file,
-		 	 "%s.%s_%d%c%s\n",
-			 folder_name,
-			 element_name,
-			 row,
-			 ELEMENT_DICTIONARY_DELIMITER,
-		 	 dictionary_trim_double_bracked_string( initial_data ));
-	}
-	else
-	{
-		fprintf( output_file,
-		 	 "%s_%d%c%s\n",
-			 element_name,
-			 row,
-			 ELEMENT_DICTIONARY_DELIMITER,
-		 	 dictionary_trim_double_bracked_string( initial_data ));
-	}
-*/
 	fprintf( output_file,
 	 	 "%s_%d%c%s\n",
 		 element_name,
@@ -2212,8 +2193,7 @@ void element_drop_down_output(
 			boolean no_initial_capital,
 			boolean readonly,
 			int tab_index,
-			char *state,
-			int attribute_width )
+			char *state )
 {
 	char buffer[ 1024 ];
 	char delimited_label_buffer[ 512 ];
@@ -2249,45 +2229,25 @@ void element_drop_down_output(
 
 		element = element_appaserver_new( text_item, element_name );
 
-		if ( attribute_width )
-		{
-			element_text_item_set_attribute_width(
-				element->text_item, 
-				attribute_width );
-		}
-		else
-		{
-			element_text_item_set_attribute_width(
-				element->text_item, 
-				ELEMENT_MAX_TEXT_WIDTH );
-		}
-
 		element->text_item->data = initial_data;
 		element->text_item->readonly = 1;
 
-		element_prompt_output(
-			output_file,
-			element->text_item->data /* element_name */,
-			0 /* not with_heading_format */ );
-
-#ifdef NOT_DEFINED
 		element_text_item_output(
 			output_file,
 			element->name,
 			element->text_item->data,
-			element->text_item->attribute_width,
+			0 /* attribute_width */,
 			row,
-			element->text_item->onchange_null2slash_yn,
-			element->text_item->post_change_javascript,
-			element->text_item->on_focus_javascript_function,
-			element->text_item->widget_size,
+			'n' /* onchange_null2slash_yn */,
+			(char *)0 /* post_change_javascript */,
+			(char *)0 /* on_focus_javascript_function */,
+			0 /* widget_size */,
 			background_color,
-			element->tab_index,
+			0 /* tab_index */,
 			0 /* not without_td_tags */,
-			element->text_item->readonly,
-			element->text_item->state,
-			element->text_item->is_numeric );
-#endif
+			1 /* readonly */,
+			(char *)0 /* state */,
+			0 /* not is_numeric */ );
 
 		return;
 
@@ -2313,11 +2273,12 @@ void element_drop_down_output(
 			*initial_data = '\0';
 		}
 
-		element = element_non_edit_text_new_element(
-					element_name,
-					initial_label,
-					1 /* column_span */,
-					0 /* padding_em */ );
+		element =
+			element_non_edit_text_new_element(
+				element_name,
+				initial_label,
+				1 /* column_span */,
+				0 /* padding_em */ );
 
 		element_output(
 			(DICTIONARY *)0 /* hidden_name_dictionary */,
@@ -2708,7 +2669,6 @@ void element_drop_down_output(
 		fprintf(output_file,
 			"></table>\n" );
 	}
-
 }
 
 /* ELEMENT_NON_EDIT_MULTI_SELECT */
@@ -3005,12 +2965,13 @@ void element_javascript_filename_output(FILE *output_file,
 
 }
 
-void element_http_filename_output(	FILE *output_file,
-					ELEMENT_HTTP_FILENAME *http_filename,
-					int row,
-					char *background_color,
-					char *element_name,
-					char *application_name )
+void element_http_filename_output(
+			FILE *output_file,
+			ELEMENT_HTTP_FILENAME *http_filename,
+			int row,
+			char *background_color,
+			char *element_name,
+			char *application_name )
 {
 	char *filename;
 	char filename_link[ 512 ];

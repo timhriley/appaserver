@@ -208,109 +208,6 @@ TAX_RECOVERY *tax_recovery_evaluate(
 	return tax_recovery;
 }
 
-double tax_recovery_amount(
-			double *recovery_percent,
-			int tax_year,
-			int service_month,
-			int service_year,
-			int disposal_month,
-			int disposal_year,
-			double cost_basis,
-			double tax_recovery_period_years,
-			double prior_accumulated_recovery )
-{
-	double recovery_amount;
-	int recovery_period_months;
-	int recovery_period_semi_months;
-	double percent_per_year;
-	double percent_per_semi_month;
-	unsigned int recovery_months_as_of_december;
-	unsigned int recovery_months_extra_year;
-	double applicable_rate = 0.0;
-
-	recovery_period_months = (int)(tax_recovery_period_years * 12.0);
-	recovery_period_semi_months = recovery_period_months * 2;
-	percent_per_year = 1.0 / tax_recovery_period_years;
-	percent_per_semi_month = 1.0 / (double)recovery_period_semi_months;
-
-	recovery_months_as_of_december =
-		( tax_year * 12 - service_year * 12 ) +
-		( ( 12 - service_month ) + 1 );
-
-	recovery_months_extra_year =
-		recovery_period_months + 12;
-
-	if ( disposal_year == tax_year
-	&&   recovery_months_as_of_december <= recovery_period_months )
-	{
-		applicable_rate =
-			(double)( ( ( disposal_month - 1 ) * 2 ) + 1 ) *
-			percent_per_semi_month;
-	}
-	else
-	if ( disposal_year )
-	{
-		return 0.0;
-	}
-	else
-	if ( recovery_months_as_of_december <= 12 )
-	{
-		applicable_rate =
-			(double)( ( ( 12 - service_month ) * 2 ) + 1 ) *
-			percent_per_semi_month;
-	}
-	else
-	if ( recovery_months_as_of_december > 12
-	&&   recovery_months_as_of_december <= recovery_period_months )
-	{
-		applicable_rate = percent_per_year;
-	}
-	else
-	if ( recovery_months_as_of_december > recovery_period_months
-	&&   recovery_months_as_of_december <= recovery_months_extra_year )
-	{
-		if ( timlib_double_is_integer( tax_recovery_period_years ) )
-		{
-			applicable_rate =
-				(double)
-				( ( service_month * 2 ) - 1 ) *
-				percent_per_semi_month;
-		}
-		else
-		/* ------------------ */
-		/* If extra half-year */
-		/* ------------------ */
-		if ( service_month <= 6 )
-		{
-			applicable_rate =
-			(double)( 12 + ( service_month * 2 ) - 1 ) *
-			percent_per_semi_month;
-		}
-		else
-		{
-			applicable_rate =
-			(double)( ( service_month - 6 ) * 2 - 1 ) *
-			percent_per_semi_month;
-		}
-	}
-
-	if ( !applicable_rate ) return 0.0;
-
-	recovery_amount = cost_basis * applicable_rate;
-
-	if ( recovery_percent )
-	{
-		*recovery_percent = applicable_rate * 100.0;
-	}
-
-	if ( recovery_amount + prior_accumulated_recovery > cost_basis )
-	{
-		recovery_amount = cost_basis - prior_accumulated_recovery;
-	}
-
-	return recovery_amount;
-}
-
 char *tax_recovery_primary_where(
 			char *asset_name,
 			char *serial_label,
@@ -483,3 +380,123 @@ void tax_recovery_list_insert(
 	pclose( insert_pipe );
 }
 
+double tax_recovery_period_months(
+			double tax_recovery_period_years )
+{
+	return tax_recovery_period_years * 12.0;
+}
+
+double tax_recovery_period_semi_months(
+			double tax_recovery_period_months )
+{
+	return tax_recovery_period_months * 2.0;
+}
+
+double tax_recovery_percent_per_year(
+			double tax_recovery_period_years )
+{
+	return 1.0 / tax_recovery_period_years;
+}
+
+double tax_recovery_amount(
+			double *recovery_percent,
+			int tax_year,
+			int service_month,
+			int service_year,
+			int disposal_month,
+			int disposal_year,
+			double cost_basis,
+			double tax_recovery_period_years,
+			double prior_accumulated_recovery )
+{
+	double recovery_amount;
+	int recovery_period_months;
+	int recovery_period_semi_months;
+	double percent_per_year;
+	double percent_per_semi_month;
+	unsigned int recovery_months_as_of_december;
+	unsigned int recovery_months_extra_year;
+	double applicable_rate = 0.0;
+
+	recovery_period_months = (int)(tax_recovery_period_years * 12.0);
+	recovery_period_semi_months = recovery_period_months * 2;
+	percent_per_year = 1.0 / tax_recovery_period_years;
+	percent_per_semi_month = 1.0 / (double)recovery_period_semi_months;
+
+	recovery_months_as_of_december =
+		( tax_year * 12 - service_year * 12 ) +
+		( ( 12 - service_month ) + 1 );
+
+	recovery_months_extra_year =
+		recovery_period_months + 12;
+
+	if ( disposal_year == tax_year
+	&&   recovery_months_as_of_december <= recovery_period_months )
+	{
+		applicable_rate =
+			(double)( ( ( disposal_month - 1 ) * 2 ) + 1 ) *
+			percent_per_semi_month;
+	}
+	else
+	if ( disposal_year )
+	{
+		return 0.0;
+	}
+	else
+	if ( recovery_months_as_of_december <= 12 )
+	{
+		applicable_rate =
+			(double)( ( ( 12 - service_month ) * 2 ) + 1 ) *
+			percent_per_semi_month;
+	}
+	else
+	if ( recovery_months_as_of_december > 12
+	&&   recovery_months_as_of_december <= recovery_period_months )
+	{
+		applicable_rate = percent_per_year;
+	}
+	else
+	if ( recovery_months_as_of_december > recovery_period_months
+	&&   recovery_months_as_of_december <= recovery_months_extra_year )
+	{
+		if ( timlib_double_is_integer( tax_recovery_period_years ) )
+		{
+			applicable_rate =
+				(double)
+				( ( service_month * 2 ) - 1 ) *
+				percent_per_semi_month;
+		}
+		else
+		/* ------------------ */
+		/* If extra half-year */
+		/* ------------------ */
+		if ( service_month <= 6 )
+		{
+			applicable_rate =
+			(double)( 12 + ( service_month * 2 ) - 1 ) *
+			percent_per_semi_month;
+		}
+		else
+		{
+			applicable_rate =
+			(double)( ( service_month - 6 ) * 2 - 1 ) *
+			percent_per_semi_month;
+		}
+	}
+
+	if ( !applicable_rate ) return 0.0;
+
+	recovery_amount = cost_basis * applicable_rate;
+
+	if ( recovery_percent )
+	{
+		*recovery_percent = applicable_rate * 100.0;
+	}
+
+	if ( recovery_amount + prior_accumulated_recovery > cost_basis )
+	{
+		recovery_amount = cost_basis - prior_accumulated_recovery;
+	}
+
+	return recovery_amount;
+}

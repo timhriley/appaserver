@@ -156,4 +156,13 @@ void tax_recovery_insert(
 void tax_recovery_list_insert(
 			LIST *tax_recovery_list );
 
+double tax_recovery_period_months(
+			double tax_recovery_period_years );
+
+double tax_recovery_period_semi_months(
+			double tax_recovery_period_months );
+
+double tax_recovery_percent_per_year(
+			double tax_recovery_period_years );
+
 #endif

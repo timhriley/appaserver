@@ -486,8 +486,7 @@ void post_state_one(	char *application_name,
 				element->drop_down->no_initial_capital,
 				element->drop_down->readonly,
 				0 /* tab_index */,
-				element->drop_down->state,
-				element->drop_down->attribute_width );
+				element->drop_down->state );
 			fflush( stdout );
 		}
 		else

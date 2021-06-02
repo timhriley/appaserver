@@ -621,14 +621,17 @@ void form_output_row(
 			}
 		}
 
-		element_output( hidden_name_dictionary,
-				element,
-				row,
-				with_push_buttons,
-				stdout,
-				background_color,
-				application_name,
-				login_name );
+		element_output(
+			hidden_name_dictionary,
+			element,
+			row,
+			with_push_buttons,
+			stdout,
+			background_color,
+			application_name,
+			login_name );
+
+		fflush( stdout );
 
 		if ( spool_file )
 		{
@@ -1257,20 +1260,21 @@ void form_set_dont_output_operations( FORM *form )
 }
 
 char *form_get_remember_keystrokes_onload_control_string(
-					char *form_name,
-					LIST *non_multi_element_name_list,
-					LIST *multi_element_name_list,
-					char *post_change_javascript,
-					char *cookie_key_prefix,
-					char *cookie_key )
+			char *form_name,
+			LIST *non_multi_element_name_list,
+			LIST *multi_element_name_list,
+			char *post_change_javascript,
+			char *cookie_key_prefix,
+			char *cookie_key )
 {
 	char buffer[ 4096 ];
 	char *local_form_name;
 	char cookie_key_buffer[ 128 ];
 
-	form_build_cookie_key_buffer(	cookie_key_buffer,
-					cookie_key_prefix,
-					cookie_key );
+	form_build_cookie_key_buffer(
+		cookie_key_buffer,
+		cookie_key_prefix,
+		cookie_key );
 
 	local_form_name =
 		(form_name && *form_name) 
@@ -1310,13 +1314,12 @@ char *form_get_remember_keystrokes_onload_control_string(
 	}
 
 	return strdup( buffer );
-
 }
 
 /* Row zero means for javascript to loop through each row. */
 /* ------------------------------------------------------- */
 char *form_set_post_change_javascript_row_zero(
-					char *post_change_javascript )
+			char *post_change_javascript )
 {
 	char post_change_javascript_row_zero[ 65536 ];
 

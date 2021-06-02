@@ -217,8 +217,7 @@ void output_vertical_frameset_choose_role_drop_down(
 		element->drop_down->no_initial_capital,
 		element->drop_down->readonly,
 		0 /* tab_index */,
-		element->drop_down->state,
-		element->drop_down->attribute_width );
+		element->drop_down->state );
 
 	output_dictionary_as_hidden( hidden_dictionary );
 

@@ -1,7 +1,8 @@
 /* $APPASERVER_HOME/src_appaserver/post_change_sort_order.c	*/
 /* ------------------------------------------------------------	*/
 /* This process is triggered if you select the sort order radio	*/
-/* button on the lookup forms with attribute names of		*/
+/* button on the lookup forms. The folder must have one of	*/
+/* these attribute names:					*/
 /* sort_order, display_order, or sequence_number.		*/
 /*								*/
 /* Freely available software: see Appaserver.org		*/
@@ -189,13 +190,17 @@ int main( int argc, char **argv )
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
 
-	role = role_new_role(	application_name,
-				role_name );
+	role =
+		role_new_role(
+			application_name,
+			role_name );
 
-	folder = folder_with_load_new( 	application_name,
-					session,
-					folder_name,
-					role );
+	folder =
+		folder_with_load_new(
+			application_name,
+				session,
+				folder_name,
+				role );
 
 	if ( folder->row_level_non_owner_view_only )
 		folder->row_level_non_owner_forbid = 1;
@@ -205,25 +210,28 @@ int main( int argc, char **argv )
 
 	document_set_javascript_module( document, "timlib" );
 	document_set_javascript_module( document, "trim" );
-	document_set_javascript_module( document, "sort_order" );
 	document_set_javascript_module( document, "form" );
+	document_set_javascript_module( document, "sort_order" );
 
+/*
 	document_set_folder_javascript_files(
-						document,
-						application_name,
-						folder_name );
+		document,
+		application_name,
+		folder_name );
+*/
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
+/*
 	if ( folder->post_change_javascript
 	&&   *folder->post_change_javascript )
 	{
@@ -243,6 +251,7 @@ int main( int argc, char **argv )
 				form_set_post_change_javascript_row_zero(
 					post_change_javascript ) );
 	}
+*/
 
 	document_output_body(
 			document->application_name,
@@ -493,7 +502,8 @@ void change_sort_order_state_one(
 	/* Create the move and here radio buttons.	     */
 	/* Setting in reverse order because they're stacked. */
 	/* ------------------------------------------------- */
-	element = element_appaserver_new(
+	element =
+		element_appaserver_new(
 			radio_button,
 			"here" );
 
@@ -505,12 +515,10 @@ void change_sort_order_state_one(
 
 	element->radio_button->state = "sort";
 
-	element->radio_button->post_change_javascript =
-		folder->post_change_javascript;
-
 	list_prepend_pointer( form->regular_element_list, element );
 
-	element = element_appaserver_new(
+	element =
+		element_appaserver_new(
 			radio_button,
 			"move" );
 
@@ -520,8 +528,9 @@ void change_sort_order_state_one(
 	/* ---------------------- */
 	element_list_set_readonly( form->regular_element_list );
 
-	form_output_table_heading(	form->regular_element_list,
-					0 /* form_number */ );
+	form_output_table_heading(
+		form->regular_element_list,
+		0 /* form_number */ );
 
 	form->row_dictionary_list =
 		row_security->
@@ -561,7 +570,6 @@ void change_sort_order_state_one(
 
 	printf( "</table>\n" );
 	printf( "</form>\n" );
-
 }
 
 void change_sort_order_state_two(

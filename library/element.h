@@ -498,8 +498,7 @@ void element_drop_down_output(
 			boolean no_initial_capital,
 			boolean readonly,
 			int tab_index,
-			char *state,
-			int attribute_width );
+			char *state );
 
 void element_drop_down_set_output_null_option(
 						ELEMENT_DROP_DOWN *e );
