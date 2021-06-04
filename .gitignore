@@ -156,6 +156,7 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
+cost_recovery_trigger
 depreciation_trigger
 journal_ledger_trigger
 generate_invoice

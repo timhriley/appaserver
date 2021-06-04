@@ -7216,6 +7216,7 @@ QUERY *query_edit_table_new(
 	query->query_output =
 		query_edit_table_output_new(
 			query,
+			first_folder_name,
 			query->folder,
 			append_isa_attribute_list,
 			query->prompt_recursive,
@@ -7228,6 +7229,7 @@ QUERY *query_edit_table_new(
 
 QUERY_OUTPUT *query_edit_table_output_new(
 			QUERY *query,
+			char *first_folder_name,
 			FOLDER *folder,
 			LIST *append_isa_attribute_list,
 			PROMPT_RECURSIVE *prompt_recursive,
@@ -7272,6 +7274,7 @@ QUERY_OUTPUT *query_edit_table_output_new(
 		query_drop_down_list =
 			query_edit_table_drop_down_list(
 				exclude_attribute_name_list,
+				first_folder_name,
 				folder->
 					mto1_related_folder_list,
 				folder->
@@ -7345,7 +7348,7 @@ m2( folder->application_name, msg );
 		query_output->query_drop_down_list,
 		query_output->query_attribute_list,
 		folder->application_name,
-		(char *)0 /* folder->folder_name */,
+		first_folder_name,
 		0 /* not combine_date_time */ );
 
 /*
@@ -7458,6 +7461,7 @@ m2( folder->application_name, msg );
 
 LIST *query_edit_table_drop_down_list(
 			LIST *exclude_attribute_name_list,
+			char *first_folder_name,
 			LIST *mto1_related_folder_list,
 			LIST *mto1_append_isa_related_folder_list,
 			DICTIONARY *dictionary )
@@ -7489,12 +7493,26 @@ LIST *query_edit_table_drop_down_list(
 					foreign_attribute_name_list;
 		}
 
+#ifdef NOT_DEFINED
 		if ( ( drop_down =
 			query_edit_table_drop_down(
 				exclude_attribute_name_list,
 				related_folder->
 					folder->
 					folder_name
+					/* root_folder_name */,
+				related_folder->
+					folder->
+					folder_name
+				   	/* dictionary_prepend_folder_name */,
+				foreign_attribute_name_list,
+				related_folder->folder->attribute_list,
+				dictionary ) ) )
+#endif
+		if ( ( drop_down =
+			query_edit_table_drop_down(
+				exclude_attribute_name_list,
+				first_folder_name
 					/* root_folder_name */,
 				related_folder->
 					folder->
@@ -7578,7 +7596,9 @@ QUERY_DROP_DOWN *query_edit_table_drop_down(
 {
 	QUERY_DROP_DOWN *drop_down = {0};
 	int highest_index;
+/*
 	int index;
+*/
 
 	highest_index =
 		dictionary_attribute_name_list_get_highest_index(
@@ -7589,6 +7609,7 @@ QUERY_DROP_DOWN *query_edit_table_drop_down(
 	if ( highest_index == -1 )
 		return (QUERY_DROP_DOWN *)0;
 
+#ifdef NOT_DEFINED
 	for( index = 0; index <= highest_index; index++ )
 	{
 		drop_down =
@@ -7602,6 +7623,18 @@ QUERY_DROP_DOWN *query_edit_table_drop_down(
 				index,
 				dictionary_prepend_folder_name );
 	}
+#endif
+
+	drop_down =
+		query_edit_table_row_drop_down(
+			exclude_attribute_name_list,
+			drop_down,
+			root_folder_name,
+			foreign_attribute_name_list,
+			attribute_list,
+			dictionary,
+			highest_index,
+			dictionary_prepend_folder_name );
 
 	return drop_down;
 }
@@ -8719,10 +8752,13 @@ QUERY *query_simple_new(
 	query->query_output =
 		query_edit_table_output_new(
 			query,
+			query->folder->folder_name
+				/* first_folder_name */,
 			query->folder,
 			query->folder->append_isa_attribute_list,
 			query->prompt_recursive,
-			query->folder->folder_name,
+			query->folder->folder_name
+				/* select_folder_name */,
 			(char *)0 /* attribute_not_null_join */,
 			(char *)0 /* attribute_not_null_folder_name */ );
 

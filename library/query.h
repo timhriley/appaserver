@@ -671,6 +671,7 @@ LIST *query_edit_table_dictionary_list(
 
 QUERY_OUTPUT *query_edit_table_output_new(
 			QUERY *query,
+			char *first_folder_name,
 			FOLDER *folder,
 			LIST *append_isa_attribute_list,
 			PROMPT_RECURSIVE *prompt_recursive,
@@ -680,6 +681,7 @@ QUERY_OUTPUT *query_edit_table_output_new(
 
 LIST *query_edit_table_drop_down_list(
 			LIST *exclude_attribute_name_list,
+			char *first_folder_name,
 			LIST *mto1_related_folder_list,
 			LIST *mto1_append_isa_related_folder_list,
 			DICTIONARY *dictionary );

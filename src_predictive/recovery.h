@@ -162,4 +162,24 @@ double recovery_straight_line_half_year_amount(
 			int disposal_year,
 			double recovery_period_years );
 
+int recovery_prior_tax_year(
+			void );
+
+FILE *recovery_delete_open(
+			void );
+
+char *recovery_subquery_where(
+			int tax_year );
+
+double recovery_amount(
+			RECOVERY_STRAIGHT_LINE *straight_line );
+
+FILE *recovery_update_open(
+			void );
+
+void recovery_update(	double recovery_amount,
+			char *asset_name,
+			char *serial_label,
+			int tax_year );
+
 #endif

@@ -179,6 +179,10 @@ RECOVERY *recovery_evaluate(
 				recovery->cost_recovery_conversion );
 	}
 
+	recovery->recovery_amount =
+		recovery_amount(
+			recovery->straight_line );
+
 	return recovery;
 }
 
@@ -292,6 +296,7 @@ FILE *recovery_insert_open( void )
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^'	|"
+		 "tee_appaserver_error.sh				|"
 		 "sql 2>&1						 ",
 		 COST_RECOVERY_TABLE,
 		 field );
@@ -315,7 +320,7 @@ void recovery_insert(
 	}
 
 	fprintf(insert_pipe,
-		"%s^%s^%d^^%.2lf\n",
+		"%s^%s^%d^%.2lf\n",
 		asset_name,
 		serial_label,
 		tax_year,
@@ -337,20 +342,12 @@ void recovery_list_insert(
 			list_get(
 				recovery_list );
 
-		if ( recovery->straight_line
-		&&   recovery->
-			straight_line->
-			straight_line_amount )
-		{
-			recovery_insert(
-				insert_pipe,
-				recovery->asset_name,
-				recovery->serial_label,
-				recovery->tax_year,
-				recovery->
-					straight_line->
-					straight_line_amount );
-		}
+		recovery_insert(
+			insert_pipe,
+			recovery->asset_name,
+			recovery->serial_label,
+			recovery->tax_year,
+			recovery->recovery_amount );
 
 	} while ( list_next( recovery_list ) );
 
@@ -388,7 +385,7 @@ int recovery_service_placement_years(
 			int tax_year,
 			int service_placement_year )
 {
-	return service_placement_year - tax_year;
+	return tax_year - service_placement_year;
 }
 
 RECOVERY_STRAIGHT_LINE *recovery_straight_line_evaluate(
@@ -476,5 +473,107 @@ double recovery_straight_line_half_year_amount(
 	}
 
 	return amount;
+}
+
+int recovery_prior_tax_year( void )
+{
+	static char *prior_tax_year = {0};
+
+	if ( !prior_tax_year )
+	{
+		char system_string[ 1024 ];
+
+		sprintf(system_string,
+			"select.sh \"%s\" %s '' ''",
+			"max( tax_year )",
+			COST_RECOVERY_TABLE );
+
+		prior_tax_year = string_pipe_fetch( system_string );
+	}
+	return (prior_tax_year) ? atoi( prior_tax_year ) : 0;
+}
+
+FILE *recovery_delete_open( void )
+{
+	char system_string[ 1024 ];
+	char *key;
+
+	key =	"asset_name,"
+		"serial_label,"
+		"tax_year";
+
+	sprintf( system_string,
+		 "delete_statement table=%s field=%s delimiter='%c'	|"
+		 "tee_appaserver_error.sh				|"
+		 "sql							 ",
+		 COST_RECOVERY_TABLE,
+		 key,
+		 '^' );
+
+	return popen( system_string, "w" );
+}
+
+char *recovery_subquery_where(
+			int tax_year )
+{
+	char where[ 1024 ];
+
+	sprintf(where,
+		"exists ( select 1					"
+		"	  from cost_recovery				"
+		"	  where fixed_asset_purchase.asset_name =	"
+		"		cost_recovery.asset_name		"
+		"	    and fixed_asset_purchase.serial_label =	"
+		"		cost_recovery.serial_label		"
+		"	    and tax_year = %d )				",
+		tax_year );
+
+	return strdup( where );
+}
+
+double recovery_amount(
+			RECOVERY_STRAIGHT_LINE *straight_line )
+{
+	if ( straight_line )
+	{
+		return straight_line->straight_line_amount;
+	}
+
+	return 0.0;
+}
+
+FILE *recovery_update_open( void )
+{
+	char system_string[ 1024 ];
+	char *key;
+
+	key =	"asset_name,"
+		"serial_label,"
+		"tax_year";
+
+	sprintf( system_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql",
+		 COST_RECOVERY_TABLE,
+		 key );
+
+	return popen( system_string, "w" );
+}
+
+void recovery_update(	double recovery_amount,
+			char *asset_name,
+			char *serial_label,
+			int tax_year )
+{
+	FILE *update_pipe = recovery_update_open();
+	char *escape = fixed_asset_name_escape( asset_name );
+
+	fprintf(update_pipe,
+		"%s^%s^%d^recovery_amount^%.2lf\n",
+		escape,
+		serial_label,
+		tax_year,
+		recovery_amount );
+
+	pclose( update_pipe );
 }
 

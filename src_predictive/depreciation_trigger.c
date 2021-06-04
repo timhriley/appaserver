@@ -24,11 +24,18 @@
 
 /* Prototypes */
 /* ---------- */
-void depreciation_trigger_insert_update(
+void depreciation_trigger_insert(
+			FIXED_ASSET_PURCHASE *fixed_asset_purchase );
+
+void depreciation_trigger_update(
 			DEPRECIATION *depreciation );
 
 void depreciation_trigger_predelete(
 			DEPRECIATION *depreciation );
+
+void depreciation_trigger_delete(
+			char *asset_name,
+			char *serial_label );
 
 int main( int argc, char **argv )
 {
@@ -37,7 +44,8 @@ int main( int argc, char **argv )
 	char *serial_label;
 	char *depreciation_date;
 	char *state;
-	DEPRECIATION *depreciation;
+	DEPRECIATION *depreciation = {0};
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -59,37 +67,178 @@ int main( int argc, char **argv )
 	depreciation_date = argv[ 3 ];
 	state = argv[ 4 ];
 
-	if ( ! ( depreciation =
-			depreciation_fetch(
-				asset_name,
-				serial_label,
-				depreciation_date ) ) )
+	if ( strcmp( state, "insert" ) == 0 )
 	{
-		printf(
-		"<h3>ERROR: depreciation_fetch() returned empty.</h3>\n" );
-		exit( 0 );
+		if ( ! ( fixed_asset_purchase =
+				fixed_asset_purchase_fetch(
+					asset_name,
+					serial_label,
+					0 /* not fetch_last_depreciation */,
+					0 /* not fetch_last_recovery */  ) ) )
+		{
+			printf(
+		"<h3>ERROR: fixed_asset_purchase() returned empty.</h3>\n" );
+
+			exit( 0 );
+		}
 	}
 
-	if ( strcmp( state, "insert" ) == 0
-	||   strcmp( state, "update" ) == 0 )
+	if ( strcmp( state, "update" ) == 0
+	||   strcmp( state, "predelete" ) == 0 )
 	{
-		depreciation_trigger_insert_update( depreciation );
+		if ( ! ( depreciation =
+				depreciation_fetch(
+					asset_name,
+					serial_label,
+					depreciation_date ) ) )
+		{
+			printf(
+		"<h3>ERROR: depreciation_fetch() returned empty.</h3>\n" );
+
+			exit( 0 );
+		}
+	}
+
+	if ( strcmp( state, "insert" ) == 0 )
+	{
+		depreciation_trigger_insert( fixed_asset_purchase );
+	}
+	else
+	if ( strcmp( state, "update" ) == 0 )
+	{
+		depreciation_trigger_update( depreciation );
 	}
 	else
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
 		depreciation_trigger_predelete( depreciation );
 	}
+	else
+	if ( strcmp( state, "delete" ) == 0 )
+	{
+		depreciation_trigger_delete(
+			asset_name,
+			serial_label );
+	}
+	else
 
 	return 0;
 }
 
-void depreciation_trigger_insert_update(
+void depreciation_trigger_insert(
+			FIXED_ASSET_PURCHASE *fixed_asset_purchase )
+{
+	ENTITY_SELF *entity_self;
+	char *depreciation_date;
+
+	if ( ! ( entity_self = entity_self_fetch() ) )
+	{
+		printf(
+		"<h3>Error: entity_self_fetch() returned empty.</h3>\n" );
+		return;
+	}
+
+	depreciation_date = date_now_yyyy_mm_dd( date_utc_offset() );
+
+	fixed_asset_purchase->depreciation =
+		depreciation_evaluate(
+			fixed_asset_purchase->fixed_asset->asset_name,
+			fixed_asset_purchase->serial_label,
+			fixed_asset_purchase->depreciation_method,
+			fixed_asset_purchase->service_placement_date,
+			depreciation_prior_depreciation_date(),
+			depreciation_date,
+			fixed_asset_purchase->cost_basis,
+			fixed_asset_purchase->units_produced_so_far,
+			fixed_asset_purchase->estimated_residual_value,
+			fixed_asset_purchase->
+				estimated_useful_life_years,
+			fixed_asset_purchase->
+				estimated_useful_life_units,
+			fixed_asset_purchase->declining_balance_n,
+			fixed_asset_purchase->
+				finance_accumulated_depreciation
+				/* prior_accumulated_depreciation */ );
+
+	if ( !fixed_asset_purchase->depreciation )
+	{
+		printf( "<h3>Depreciation not generated.</h3>\n" );
+		return;
+	}
+
+	fixed_asset_purchase->
+		depreciation->
+		depreciation_transaction =
+			depreciation_transaction(
+				entity_self->entity->full_name,
+				entity_self->entity->street_address,
+				depreciation_date,
+				fixed_asset_purchase->
+					depreciation->
+					depreciation_amount,
+				account_depreciation_expense(
+					(char *)0 /* fund_name */ ),
+				account_accumulated_depreciation(
+					(char *)0 /* fund_name */ ) );
+
+	if ( !fixed_asset_purchase->
+		depreciation->
+		depreciation_transaction )
+	{
+		printf( "<h3>Transaction not generated.</h3>\n" );
+		return;
+	}
+
+	transaction_refresh(
+		fixed_asset_purchase->
+			depreciation->
+				depreciation_transaction->
+				full_name,
+		fixed_asset_purchase->
+			depreciation->
+				depreciation_transaction->
+				street_address,
+		fixed_asset_purchase->
+			depreciation->
+				depreciation_transaction->
+				transaction_date_time,
+		fixed_asset_purchase->
+			depreciation->
+				depreciation_transaction->
+				transaction_amount,
+		fixed_asset_purchase->
+			depreciation->
+				depreciation_transaction->
+				memo,
+		0 /* check_number */,
+		fixed_asset_purchase->
+			depreciation->
+				depreciation_transaction->
+				lock_transaction,
+		fixed_asset_purchase->
+			depreciation->
+				depreciation_transaction->
+				journal_list );
+
+	fixed_asset_purchase_finance_fetch_update(
+		fixed_asset_purchase->depreciation->asset_name,
+		fixed_asset_purchase->depreciation->serial_label );
+}
+
+void depreciation_trigger_update(
 			DEPRECIATION *depreciation )
 {
 	ENTITY_SELF *entity_self;
 
 	entity_self = entity_self_fetch();
+
+	if ( !depreciation->transaction_date_time
+	||   !*depreciation->transaction_date_time )
+	{
+		depreciation->transaction_date_time =
+			predictive_transaction_date_time(
+				depreciation->depreciation_date );
+	}
 
 	depreciation->
 		depreciation_transaction =
@@ -146,5 +295,14 @@ void depreciation_trigger_predelete(
 
 		depreciation->depreciation_transaction = (TRANSACTION *)0;
 	}
+}
+
+void depreciation_trigger_delete(
+			char *asset_name,
+			char *serial_label )
+{
+	fixed_asset_purchase_finance_fetch_update(
+		asset_name,
+		serial_label );
 }
 

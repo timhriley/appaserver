@@ -52,6 +52,7 @@ EXECUTABLES=	trial_balance						\
 		journal_ledger_trigger					\
 		post_change_fixed_asset_purchase			\
 		depreciation_trigger					\
+		cost_recovery_trigger					\
 		cost_recover_fixed_assets
 
 EXTERNAL_LIBRARY=							\
@@ -375,6 +376,14 @@ depreciation_trigger: depreciation_trigger.c				\
 		${SOURCE_LIBRARY}					\
 		depreciation_trigger.c					\
 		-o depreciation_trigger
+
+cost_recovery_trigger: cost_recovery_trigger.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		cost_recovery_trigger.c					\
+		-o cost_recovery_trigger
 
 pay_liabilities_process: pay_liabilities_process.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} liability.o

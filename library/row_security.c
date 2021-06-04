@@ -971,6 +971,35 @@ LIST *row_security_edit_table_dictionary_list(
 				query->folder->append_isa_attribute_list );
 	}
 
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: select_clause = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+query->query_output->select_clause );
+m2( query->folder->application_name, msg );
+}
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: from_clause = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+query->query_output->from_clause );
+m2( query->folder->application_name, msg );
+}
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: where_clause = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+query->query_output->where_clause );
+m2( query->folder->application_name, msg );
+}
+*/
 	row_dictionary_list =
 		query_edit_table_dictionary_list(
 			query->folder->application_name,

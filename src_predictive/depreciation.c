@@ -18,7 +18,7 @@
 #include "predictive.h"
 #include "transaction.h"
 #include "entity.h"
-#include "fixed_asset.h"
+#include "fixed_asset_purchase.h"
 #include "purchase.h"
 #include "depreciation.h"
 
@@ -625,6 +625,7 @@ FILE *depreciation_insert_open( void )
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^'	|"
+		 "tee_appaserver_error.sh				|"
 		 "sql 2>&1						 ",
 		 DEPRECIATION_TABLE,
 		 field );
@@ -692,7 +693,7 @@ void depreciation_list_insert(
 		if ( !depreciation->entity_self )
 		{
 			fprintf(stderr,
-		"ERROR  in %s/%s()/%d: empty entity_self.\n",
+				"ERROR  in %s/%s()/%d: empty entity_self.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -719,34 +720,22 @@ void depreciation_list_insert(
 }
 
 char *depreciation_prior_depreciation_date(
-			char *asset_name,
-			char *serial_label )
+			void )
 {
-	char system_string[ 1024 ];
-	char *where;
+	static char *prior_depreciation_date = {0};
 
-	if ( asset_name && serial_label )
+	if ( !prior_depreciation_date )
 	{
-		where = 
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			fixed_asset_purchase_primary_where(
-				asset_name,
-				serial_label );
-	}
-	else
-	{
-		where = "1 = 1";
-	}
+		char system_string[ 1024 ];
 
-	sprintf(system_string,
-		"select.sh \"%s\" %s \"%s\" ''",
-		"max( depreciation_date )",
-		DEPRECIATION_TABLE,
-		where );
+		sprintf(system_string,
+			"select.sh \"%s\" %s '' ''",
+			"max( depreciation_date )",
+			DEPRECIATION_TABLE );
 
-	return string_pipe_fetch( system_string );
+		prior_depreciation_date = string_pipe_fetch( system_string );
+	}
+	return prior_depreciation_date;
 }
 
 DEPRECIATION *depreciation_seek(
@@ -876,7 +865,7 @@ DEPRECIATION *depreciation_evaluate(
 			cost_basis,
 			(depreciation_method == units_of_production)
 			 ? ( units_produced_current =
-				depreciation_units_produced_current(
+				depreciation_units_produced(
 					units_produced_so_far,
 					depreciation_units_produced_total(
 						asset_name,
@@ -986,7 +975,7 @@ int depreciation_units_produced_total(
 		return 0;
 }
 
-int depreciation_units_produced_current(
+int depreciation_units_produced(
 			int units_produced_so_far,
 			int units_produced_total )
 {
@@ -1007,5 +996,23 @@ void depreciation_list_negate_depreciation_amount(
 			-depreciation->depreciation_amount;
 
 	} while ( list_next( depreciation_list ) );
+}
+
+char *depreciation_subquery_where(
+			char *depreciation_date )
+{
+	char where[ 1024 ];
+
+	sprintf(where,
+		"exists ( select 1					"
+		"	  from depreciation				"
+		"	  where fixed_asset_purchase.asset_name =	"
+		"		depreciation.asset_name			"
+		"	    and fixed_asset_purchase.serial_label =	"
+		"		depreciation.serial_label		"
+		"	    and depreciation_date = '%s' )		",
+		depreciation_date );
+
+	return strdup( where );
 }
 

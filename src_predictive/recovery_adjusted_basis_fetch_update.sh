@@ -18,7 +18,7 @@ then
 	exit 1
 fi
 
-if [ $* -ne 2 ]
+if [ $# -ne 2 ]
 then
 	echo "Usage: $0 asset_name serial_label" 1>&2
 	exit 1
@@ -34,8 +34,8 @@ echo "	update fixed_asset_purchase					\
 		from cost_recovery					\
 		where	cost_recovery.asset_name =			\
 			fixed_asset_purchase.asset_name			\
-		  and	cost_recovery.serial_number =			\
-			fixed_asset_purchase.serial_number )		\
+		  and	cost_recovery.serial_label =			\
+			fixed_asset_purchase.serial_label )		\
 		where asset_name = '$asset_name'			\
 		  and serial_label = '$serial_label';"			|
 sql.e

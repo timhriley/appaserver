@@ -66,12 +66,14 @@ int main( int argc, char **argv )
 	state = argv[ 3 ];
 
 	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
+	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
 	if ( ! ( fixed_asset_purchase =
 			fixed_asset_purchase_fetch(
 				asset_name,
 				serial_label,
-				0 /* not fetch_last_depreciation */ ) ) )
+				0 /* not fetch_last_depreciation */,
+				0 /* not fetch_last_recovery */ ) ) )
 	{
 		exit( 0 );
 	}

@@ -34,6 +34,21 @@ boolean cost_recover_fixed_assets_undo(
 			int tax_year,
 			boolean execute );
 
+FILE *cost_recover_fixed_asset_undo_html_open(
+			void );
+
+void cost_recover_fixed_assets_undo_display(
+			LIST *fixed_asset_purchase_list );
+
+void cost_recover_fixed_assets_undo_execute(
+			LIST *fixed_asset_purchase_list );
+
+void cost_recover_period_of_record_display(
+			void );
+
+FILE *cost_recover_period_of_record_html_open(
+			void );
+
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -94,6 +109,8 @@ int main( int argc, char **argv )
 		else
 		{
 			printf( "<h3>No fixed assets to recover</h3>\n" );
+
+			cost_recover_period_of_record_display();
 		}
 	}
 	else
@@ -121,31 +138,35 @@ boolean cost_recover_fixed_assets(
 			boolean execute )
 {
 	LIST *fixed_asset_purchase_list;
-	char *where;
+	char where[ 1024 ];
 
-	where = "tax_adjusted_basis > 0";
+	sprintf(where,
+		"tax_adjusted_basis > 0 and not %s",
+		recovery_subquery_where( tax_year ) );
 
 	fixed_asset_purchase_list =
 		fixed_asset_purchase_list_cost_recover(
 			fixed_asset_purchase_list_fetch(
 				where,
-				0 /* not fetch_last_depreciation */ ),
+				0 /* not fetch_last_depreciation */,
+				0 /* not fetch_last_recovery */ ),
 			tax_year );
 
-	if ( !list_length( fixed_asset_purchase_list ) ) return 0;
+	if ( !list_length(
+		fixed_asset_purchase_cost_recovery_list(
+			fixed_asset_purchase_list ) ) ) return 0;
 
 	fixed_asset_purchase_recovery_display(
 		fixed_asset_purchase_list );
 
 	if ( execute )
 	{
-		LIST *cost_recovery_list;
-
-		cost_recovery_list =
+		recovery_list_insert(
 			fixed_asset_purchase_cost_recovery_list(
-				fixed_asset_purchase_list );
+				fixed_asset_purchase_list ) );
 
-		recovery_list_insert( cost_recovery_list );
+		fixed_asset_purchase_list_subtract_recovery_amount(
+			fixed_asset_purchase_list );
 
 		fixed_asset_purchase_list_update(
 			fixed_asset_purchase_list );
@@ -157,5 +178,189 @@ boolean cost_recover_fixed_assets_undo(
 			int tax_year,
 			boolean execute )
 {
+	LIST *fixed_asset_purchase_list;
+
+	fixed_asset_purchase_list =
+		fixed_asset_purchase_list_fetch(
+			recovery_subquery_where( tax_year ),
+			0 /* not fetch_last_depreciation */,
+			1 /* fetch_last_recovery */ );
+
+	if ( !list_length( fixed_asset_purchase_list ) ) return 0;
+
+	cost_recover_fixed_assets_undo_display(
+		fixed_asset_purchase_list );
+
+	if ( execute )
+	{
+		cost_recover_fixed_assets_undo_execute(
+			fixed_asset_purchase_list );
+	}
+
 	return 1;
 }
+
+void cost_recover_fixed_assets_undo_display(
+			LIST *fixed_asset_purchase_list )
+{
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
+	FILE *html_output;
+
+	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
+
+	html_output = cost_recover_fixed_asset_undo_html_open();
+
+	do {
+		fixed_asset_purchase =
+			list_get(
+				fixed_asset_purchase_list );
+
+		if ( !fixed_asset_purchase->recovery )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: empty recovery for %s/%s\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				fixed_asset_purchase->
+					fixed_asset->
+					asset_name,
+				fixed_asset_purchase->
+					serial_label );
+			continue;
+		}
+
+		fprintf( html_output,
+			 "%s^%s^%s^%.2lf\n",
+			 fixed_asset_purchase->fixed_asset->asset_name,
+			 fixed_asset_purchase->serial_label,
+			 fixed_asset_purchase->service_placement_date,
+			 fixed_asset_purchase->
+				recovery->
+				recovery_amount );
+
+	} while ( list_next( fixed_asset_purchase_list ) );
+
+	pclose( html_output );
+}
+
+void cost_recover_fixed_assets_undo_execute(
+			LIST *fixed_asset_purchase_list )
+{
+	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
+	FILE *delete_pipe = {0};
+
+	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
+
+	delete_pipe = recovery_delete_open();
+
+	do {
+		fixed_asset_purchase =
+			list_get(
+				fixed_asset_purchase_list );
+
+		if ( !fixed_asset_purchase->recovery )
+		{
+			continue;
+		}
+
+		fprintf(delete_pipe,
+		 	"%s^%s^%d\n",
+		 	fixed_asset_purchase->
+				fixed_asset->
+				asset_name,
+		 	fixed_asset_purchase->
+				serial_label,
+		 	fixed_asset_purchase->
+				recovery->
+				tax_year );
+
+	} while ( list_next( fixed_asset_purchase_list ) );
+
+	pclose( delete_pipe );
+
+	fixed_asset_purchase_list_negate_recovery_amount(
+		fixed_asset_purchase_list );
+
+	fixed_asset_purchase_list_update(
+		fixed_asset_purchase_list );
+}
+
+FILE *cost_recover_fixed_asset_undo_html_open( void )
+{
+	char sys_string[ 1024 ];
+	char *heading_list_string;
+	char *justify_list_string;
+
+	heading_list_string =
+		"asset_name,"
+		"serial_label,"
+		"service_placement,"
+		"recovery_amount";
+
+	justify_list_string = "left,left,left,right";
+
+	sprintf( sys_string,
+		 "html_table.e '^^%s' '%s' '^' '%s'",
+		 "UNDO Cost Recover Fixed Assets",
+		 heading_list_string,
+		 justify_list_string );
+
+	fflush( stdout );
+	return popen( sys_string, "w" );
+}
+
+FILE *cost_recover_period_of_record_html_open( void )
+{
+	char sys_string[ 1024 ];
+	char *heading_list_string;
+	char *justify_list_string;
+
+	heading_list_string =
+		"tax_year,"
+		"total_recovery";
+
+	justify_list_string = "right,right";
+
+	sprintf( sys_string,
+		 "html_table.e '^^%s' '%s' '^' '%s'",
+		 "Period of Record",
+		 heading_list_string,
+		 justify_list_string );
+
+	fflush( stdout );
+	return popen( sys_string, "w" );
+}
+
+void cost_recover_period_of_record_display( void )
+{
+	FILE *output_pipe = cost_recover_period_of_record_html_open();
+	FILE *input_pipe;
+	char system_string[ 1024 ];
+	char *select;
+	char *group;
+	char input[ 128 ];
+
+	select = "tax_year, sum( recovery_amount )";
+	group = "tax_year";
+
+	sprintf(system_string,
+		"echo \"select %s from %s group by %s;\"	|"
+		"sql.e						|"
+		"sort -nr					|"
+		"cat						 ",
+		select,
+		COST_RECOVERY_TABLE,
+		group );
+
+	input_pipe = popen( system_string, "r" );
+
+	while ( string_input( input, input_pipe, 128 ) )
+	{
+		fprintf( output_pipe, "%s\n", input );
+	}
+
+	pclose( input_pipe );
+	pclose( output_pipe );
+}
+
