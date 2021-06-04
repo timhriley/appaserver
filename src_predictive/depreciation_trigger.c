@@ -16,6 +16,7 @@
 #include "appaserver_error.h"
 #include "entity_self.h"
 #include "account.h"
+#include "predictive.h"
 #include "fixed_asset_purchase.h"
 #include "depreciation.h"
 
@@ -25,7 +26,8 @@
 /* Prototypes */
 /* ---------- */
 void depreciation_trigger_insert(
-			FIXED_ASSET_PURCHASE *fixed_asset_purchase );
+			FIXED_ASSET_PURCHASE *fixed_asset_purchase,
+			char *depreciation_date );
 
 void depreciation_trigger_update(
 			DEPRECIATION *depreciation );
@@ -101,7 +103,9 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "insert" ) == 0 )
 	{
-		depreciation_trigger_insert( fixed_asset_purchase );
+		depreciation_trigger_insert(
+			fixed_asset_purchase,
+			depreciation_date );
 	}
 	else
 	if ( strcmp( state, "update" ) == 0 )
@@ -126,10 +130,10 @@ int main( int argc, char **argv )
 }
 
 void depreciation_trigger_insert(
-			FIXED_ASSET_PURCHASE *fixed_asset_purchase )
+			FIXED_ASSET_PURCHASE *fixed_asset_purchase,
+			char *depreciation_date )
 {
 	ENTITY_SELF *entity_self;
-	char *depreciation_date;
 
 	if ( ! ( entity_self = entity_self_fetch() ) )
 	{
@@ -138,15 +142,20 @@ void depreciation_trigger_insert(
 		return;
 	}
 
-	depreciation_date = date_now_yyyy_mm_dd( date_utc_offset() );
-
 	fixed_asset_purchase->depreciation =
 		depreciation_evaluate(
 			fixed_asset_purchase->fixed_asset->asset_name,
 			fixed_asset_purchase->serial_label,
 			fixed_asset_purchase->depreciation_method,
 			fixed_asset_purchase->service_placement_date,
-			depreciation_prior_depreciation_date(),
+			depreciation_prior_depreciation_date(
+				fixed_asset_purchase->
+					fixed_asset->
+					asset_name,
+				fixed_asset_purchase->
+					serial_label,
+				depreciation_date
+					/* current_depreciation_date */ ),
 			depreciation_date,
 			fixed_asset_purchase->cost_basis,
 			fixed_asset_purchase->units_produced_so_far,
@@ -220,6 +229,29 @@ void depreciation_trigger_insert(
 				depreciation_transaction->
 				journal_list );
 
+	depreciation_update(
+		fixed_asset_purchase->
+			depreciation->
+			units_produced_current,
+		fixed_asset_purchase->
+			depreciation->
+			depreciation_amount,
+		fixed_asset_purchase->
+			depreciation->
+			depreciation_transaction->
+			full_name,
+		fixed_asset_purchase->
+			depreciation->
+			depreciation_transaction->
+			street_address,
+		fixed_asset_purchase->
+			depreciation->
+			depreciation_transaction->
+			transaction_date_time,
+		fixed_asset_purchase->fixed_asset->asset_name,
+		fixed_asset_purchase->serial_label,
+		fixed_asset_purchase->depreciation->depreciation_date );
+
 	fixed_asset_purchase_finance_fetch_update(
 		fixed_asset_purchase->depreciation->asset_name,
 		fixed_asset_purchase->depreciation->serial_label );
@@ -278,22 +310,22 @@ void depreciation_trigger_update(
 void depreciation_trigger_predelete(
 			DEPRECIATION *depreciation )
 {
-	if ( depreciation->depreciation_transaction )
+	if ( depreciation->transaction_date_time
+	&&   *depreciation->transaction_date_time )
 	{
 		/* Performs journal_propagate() */
 		/* ---------------------------- */
 		transaction_delete(
 			depreciation->
-				depreciation_transaction->
+				entity_self->
+				entity->
 				full_name,
 			depreciation->
-				depreciation_transaction->
+				entity_self->
+				entity->
 				street_address,
 			depreciation->
-				depreciation_transaction->
 				transaction_date_time );
-
-		depreciation->depreciation_transaction = (TRANSACTION *)0;
 	}
 }
 

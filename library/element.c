@@ -199,23 +199,22 @@ void element_output_as_dictionary(
 	if ( element->element_type == password )
 	{
 		element_password_output_as_dictionary(
-				output_file,
-				element->name,
-				element->password->data,
-				row );
+			output_file,
+			element->name,
+			element->password->data,
+			row );
 	}
 	else
 	if ( element->element_type == drop_down )
 	{
 		element_drop_down_output_as_dictionary(
-				output_file,
-				element->name,
-				row,
-				element->drop_down->initial_data,
-				list_length(
-					element->drop_down->option_data_list ),
-				element->drop_down->max_drop_down_size
-				);
+			output_file,
+			element->name,
+			row,
+			element->drop_down->initial_data,
+			list_length(
+				element->drop_down->option_data_list ),
+			element->drop_down->max_drop_down_size );
 	}
 	else
 	if ( element->element_type == reference_number )
@@ -2235,7 +2234,8 @@ void element_drop_down_output(
 		element_text_item_output(
 			output_file,
 			element->name,
-			element->text_item->data,
+			element_carrot_replace(
+				element->text_item->data ),
 			0 /* attribute_width */,
 			row,
 			'n' /* onchange_null2slash_yn */,
@@ -4102,4 +4102,19 @@ char *element_place_commas_in_number_string(
 	else
 		return place_commas_in_number_string( data );
 
+}
+
+char *element_carrot_replace(
+			char *data )
+{
+	static char replace[ 1024 ];
+
+	if ( !character_exists( data, '^' ) ) return data;
+
+	strcpy( replace, data );
+
+	return search_replace_string(
+			replace,
+			"^",
+			ELEMENT_LONG_DASH_DELIMITER );
 }

@@ -167,9 +167,10 @@ char *delete_str( char *string, int start, int num_chars );
 
 char *insert_str( char *sub, char *string, int pos );
 
-char *search_replace_word( 	char *source_destination,
-				char *search_str, 
-				char *replace_str );
+char *search_replace_word(
+			char *source_destination,
+			char *search_str, 
+			char *replace_str );
 
 char *search_replace( 	char *search_str, 
 			char *replace_str,

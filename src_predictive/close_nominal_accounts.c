@@ -405,12 +405,6 @@ boolean close_nominal_accounts_fund_execute(
 		}
 	}
 
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 	/* Insert retained_earnings */
 	/* ------------------------ */
 	if ( retained_earnings > 0.0 )
@@ -435,27 +429,7 @@ fprintf(stderr,
 		 	-retained_earnings );
 	}
 
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 	pclose( output_pipe );
-
-fprintf(stderr,
-	"%s/%s()/%d: transaction_date_time_string = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-transaction_date_time_string );
-
-fprintf(stderr,
-	"%s/%s()/%d: retained_earnings = [%.2lf]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-timlib_abs_double( retained_earnings ) );
 
 	transaction_insert(
 		transaction->full_name,

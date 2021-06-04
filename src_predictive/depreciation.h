@@ -191,7 +191,9 @@ void depreciation_insert(
 			char *transaction_date_time );
 
 char *depreciation_prior_depreciation_date(
-			void );
+			char *asset_name,
+			char *serial_label,
+			char *current_depreciation_date );
 
 DEPRECIATION *depreciation_seek(
 			LIST *depreciation_list,
@@ -233,6 +235,19 @@ void depreciation_list_negate_depreciation_amount(
 			LIST *depreciation_list );
 
 char *depreciation_subquery_where(
+			char *depreciation_date );
+
+FILE *depreciation_update_open(
+			void );
+
+void depreciation_update(
+			int units_produced,
+			double depreciation_amount,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *asset_name,
+			char *serial_label,
 			char *depreciation_date );
 
 #endif

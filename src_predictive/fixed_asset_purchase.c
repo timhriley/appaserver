@@ -134,7 +134,14 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 					asset_name,
 				fixed_asset_purchase->
 					serial_label,
-				depreciation_prior_depreciation_date() );
+				depreciation_prior_depreciation_date(
+					fixed_asset_purchase->
+						fixed_asset->
+						asset_name,
+					fixed_asset_purchase->
+						serial_label,
+					(char *)0
+					    /* current_depreciation_date */ ) );
 	}
 
 	if ( fetch_last_recovery )
@@ -156,7 +163,7 @@ char *fixed_asset_purchase_system_string(
 			char *where,
 			char *order )
 {
-	char system_string[ 1024 ];
+	char system_string[ 2048 ];
 
 	sprintf(system_string,
 		"select.sh '*' %s \"%s\" \"%s\"",
@@ -325,7 +332,14 @@ LIST *fixed_asset_purchase_list_depreciate(
 				fixed_asset_purchase->serial_label,
 				fixed_asset_purchase->depreciation_method,
 				fixed_asset_purchase->service_placement_date,
-				depreciation_prior_depreciation_date(),
+				depreciation_prior_depreciation_date(
+					fixed_asset_purchase->
+						fixed_asset->
+						asset_name,
+					fixed_asset_purchase->
+						serial_label,
+					(char *)0
+					     /* current_depreciation_date */ ),
 				depreciation_date,
 				fixed_asset_purchase->cost_basis,
 				fixed_asset_purchase->units_produced_so_far,

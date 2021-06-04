@@ -383,16 +383,6 @@ LIST *feeder_match_sum_existing_journal_list(
 
 		if ( !send_amount ) continue;
 
-/*
-fflush( stderr );
-fprintf(stderr,
-"Sending: %s^%s^%s|%.2lf\n",
-journal->full_name,
-journal->street_address,
-journal->transaction_date_time,
-send_amount );
-*/
-
 		fprintf(output_pipe,
 		 	"%s^%s^%s|%.2lf\n",
 			journal->full_name,

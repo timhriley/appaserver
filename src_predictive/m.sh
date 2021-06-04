@@ -1,6 +1,6 @@
 :
 
-make cost_recovery_trigger
+make depreciation_trigger depreciate_fixed_assets
 
 #if [ "$?" -eq 0 ]
 #then

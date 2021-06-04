@@ -130,13 +130,16 @@ int main( int argc, char **argv )
 boolean depreciate_fixed_assets( boolean execute )
 {
 	LIST *fixed_asset_purchase_list;
+	char *depreciation_date;
 	char where[ 512 ];
 
+	depreciation_date = date_now_yyyy_mm_dd( date_utc_offset() );
+
 	sprintf(where,
-		"finance_accumulated_depreciation < cost_basis	"
-		" and disposal_date is null and not %s		",
-		depreciation_subquery_where(
-			depreciation_prior_depreciation_date() ) );
+	"ifnull(finance_accumulated_depreciation,0) < cost_basis	"
+	" and disposal_date is null					"
+	" and not %s							",
+		depreciation_subquery_where( depreciation_date ) );
 
 	fixed_asset_purchase_list =
 		fixed_asset_purchase_list_depreciate(
@@ -144,7 +147,7 @@ boolean depreciate_fixed_assets( boolean execute )
 				where,
 				0 /* not fetch_last_depreciation */,
 				0 /* not fetch_last_recovery */ ),
-			date_now_yyyy_mm_dd( date_utc_offset() ) );
+			depreciation_date );
 
 	if ( !list_length( fixed_asset_purchase_list ) ) return 0;
 
@@ -208,7 +211,10 @@ boolean depreciate_fixed_assets_undo( boolean execute )
 	char *prior_depreciation_date;
 
 	prior_depreciation_date =
-		depreciation_prior_depreciation_date();
+		depreciation_prior_depreciation_date(
+			(char *)0 /* asset_name */,
+			(char *)0 /* serial_label */,
+			(char *)0 /* current_depreciation_date */ );
 
 	if ( !prior_depreciation_date ) return 0;
 

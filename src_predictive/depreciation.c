@@ -569,6 +569,7 @@ TRANSACTION *depreciation_transaction(
 
 	transaction->transaction_amount = depreciation_amount;
 	transaction->memo = DEPRECIATION_MEMO;
+	transaction->lock_transaction = 1;
 
 	transaction->journal_list =
 		journal_binary_list(
@@ -720,22 +721,50 @@ void depreciation_list_insert(
 }
 
 char *depreciation_prior_depreciation_date(
-			void )
+			char *asset_name,
+			char *serial_label,
+			char *current_depreciation_date )
 {
-	static char *prior_depreciation_date = {0};
+	char system_string[ 1024 ];
+	char where[ 512 ];
+	char asset_where[ 256 ];
+	char depreciation_date_where[ 128 ];
 
-	if ( !prior_depreciation_date )
+	if ( asset_name && *asset_name )
 	{
-		char system_string[ 1024 ];
-
-		sprintf(system_string,
-			"select.sh \"%s\" %s '' ''",
-			"max( depreciation_date )",
-			DEPRECIATION_TABLE );
-
-		prior_depreciation_date = string_pipe_fetch( system_string );
+		sprintf(asset_where,
+			"asset_name = '%s' and serial_label = '%s'",
+			fixed_asset_name_escape( asset_name ),
+			serial_label );
 	}
-	return prior_depreciation_date;
+	else
+	{
+		strcpy( asset_where, "1 = 1" );
+	}
+
+	if ( current_depreciation_date && *current_depreciation_date )
+	{
+		sprintf(depreciation_date_where,
+			"depreciation_date < '%s'",
+			current_depreciation_date );
+	}
+	else
+	{
+		strcpy( depreciation_date_where, "1 = 1" );
+	}
+
+	sprintf(where,
+		"%s and %s",
+		asset_where,
+		depreciation_date_where );
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\" ''",
+		"max( depreciation_date )",
+		DEPRECIATION_TABLE,
+		where );
+
+	return string_pipe_fetch( system_string );
 }
 
 DEPRECIATION *depreciation_seek(
@@ -1014,5 +1043,75 @@ char *depreciation_subquery_where(
 		depreciation_date );
 
 	return strdup( where );
+}
+
+FILE *depreciation_update_open( void )
+{
+	char system_string[ 1024 ];
+	char *key;
+
+	key =	"asset_name,"
+		"serial_label,"
+		"depreciation_date";
+
+	sprintf( system_string,
+		 "update_statement.e table=%s key=%s carrot=y	|"
+		 "tee_appaserver_error.sh			|"
+		 "sql						 ",
+		 DEPRECIATION_TABLE,
+		 key );
+
+	return popen( system_string, "w" );
+}
+
+void depreciation_update(
+			int units_produced,
+			double depreciation_amount,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *asset_name,
+			char *serial_label,
+			char *depreciation_date )
+{
+	FILE *update_pipe = depreciation_update_open();
+	char *asset_escape = fixed_asset_name_escape( asset_name );
+
+	fprintf(update_pipe,
+		"%s^%s^%s^units_produced^%d\n",
+		asset_escape,
+		serial_label,
+		depreciation_date,
+		units_produced );
+
+	fprintf(update_pipe,
+		"%s^%s^%s^depreciation_amount^%.2lf\n",
+		asset_escape,
+		serial_label,
+		depreciation_date,
+		depreciation_amount );
+
+	fprintf(update_pipe,
+		"%s^%s^%s^full_name^%s\n",
+		asset_escape,
+		serial_label,
+		depreciation_date,
+		full_name );
+
+	fprintf(update_pipe,
+		"%s^%s^%s^street_address^%s\n",
+		asset_escape,
+		serial_label,
+		depreciation_date,
+		street_address );
+
+	fprintf(update_pipe,
+		"%s^%s^%s^transaction_date_time^%s\n",
+		asset_escape,
+		serial_label,
+		depreciation_date,
+		transaction_date_time );
+
+	pclose( update_pipe );
 }
 

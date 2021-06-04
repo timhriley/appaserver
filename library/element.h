@@ -695,67 +695,74 @@ LIST *element_list2remember_keystrokes_multi_element_name_list(
 
 char *element_get_element_type_string(	enum element_type );
 
-void element_date_output( 		FILE *output_file,
-					char *element_name,
-					char *data,
-					int attribute_width,
-					int row, 
-					char onchange_null2slash_yn,
-					char *post_change_javascript,
-					char *on_focus_javascript_function,
-					int widget_size,
-					char *background_color,
-					char *application_name,
-					char *login_name,
-					boolean with_calendar_popup,
-					boolean readonly,
-					int tab_index );
+void element_date_output(
+			FILE *output_file,
+			char *element_name,
+			char *data,
+			int attribute_width,
+			int row, 
+			char onchange_null2slash_yn,
+			char *post_change_javascript,
+			char *on_focus_javascript_function,
+			int widget_size,
+			char *background_color,
+			char *application_name,
+			char *login_name,
+			boolean with_calendar_popup,
+			boolean readonly,
+			int tab_index );
 
 char *element_data_delimiter2label_delimiter(
-					char *source_destination );
+			char *source_destination );
 
-void element_password_erase_data(	char *data );
+void element_password_erase_data(
+			char *data );
 
 boolean element_combined_option_data_list(
-					LIST *option_data_list );
+			LIST *option_data_list );
 
 LIST *element_get_combined_option_label_list(
-					LIST *option_data_list );
+			LIST *option_data_list );
 
 void element_drop_down_get_initial_label(
-					char *initial_label,
-					char *initial_data,
-					boolean no_initial_capital,
-					LIST *option_data_list,
-					LIST *option_label_list );
+			char *initial_label,
+			char *initial_data,
+			boolean no_initial_capital,
+			LIST *option_data_list,
+			LIST *option_label_list );
 
-void element_data_list_to_label(	char *label,
-					char *data,
-					LIST *option_data_list,
-					LIST *option_label_list );
+void element_data_list_to_label(
+			char *label,
+			char *data,
+			LIST *option_data_list,
+			LIST *option_label_list );
 
 void element_list_set_omit_heading_sort_button(
-					LIST *element_list,
-					LIST *join_1tom_related_folder_list );
+			LIST *element_list,
+			LIST *join_1tom_related_folder_list );
 
 char *element_get_date_format_string(
-					enum date_convert_format );
+			enum date_convert_format );
 
 void element_list_set_readonly(
-					LIST *element_list );
+			LIST *element_list );
 
-void element_push_button_output( 	FILE *output_file,
-					char *element_label,
-					int row,
-					char *onclick_function );
+void element_push_button_output(
+			FILE *output_file,
+			char *element_label,
+			int row,
+			char *onclick_function );
 
-char *element_seek_initial_data(	char **initial_label,
-					char *initial_data,
-					LIST *option_data_list,
-					LIST *option_label_list );
+char *element_seek_initial_data(
+			char **initial_label,
+			char *initial_data,
+			LIST *option_data_list,
+			LIST *option_label_list );
 
 char *element_place_commas_in_number_string(
-					char *element_name,
-					char *data );
+			char *element_name,
+			char *data );
 
+char *element_carrot_replace(
+			char *data );
 #endif
