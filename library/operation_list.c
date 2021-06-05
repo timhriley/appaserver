@@ -18,12 +18,12 @@
 #include "element.h"
 
 OPERATION_LIST_STRUCTURE *operation_list_structure_new(
-					char *application_name,
-					char *session,
-					char *folder_name,
-					char *role,
-					enum omit_delete_operation
-						omit_delete_operation )
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *role,
+			enum omit_delete_operation
+				omit_delete_operation )
 {
 	OPERATION_LIST_STRUCTURE *operation_list_structure;
 
@@ -32,22 +32,23 @@ OPERATION_LIST_STRUCTURE *operation_list_structure_new(
 
 	operation_list_structure->operation_list = 
 		operation_list_get_operation_list(
-				application_name,
-				session,
-				folder_name,
-				role,
-				omit_delete_operation );
+			application_name,
+			session,
+			folder_name,
+			role,
+			omit_delete_operation );
 
 	return operation_list_structure;
 
 }
 
-LIST *operation_list_get_operation_list(char *application_name,
-					char *session,
-					char *folder_name,
-					char *role,
-					enum omit_delete_operation
-						omit_delete_operation )
+LIST *operation_list_get_operation_list(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *role,
+			enum omit_delete_operation
+				omit_delete_operation )
 {
 	char sys_string[ 1024 ];
 	LIST *operation_list;
@@ -77,11 +78,13 @@ LIST *operation_list_get_operation_list(char *application_name,
 
 			if ( timlib_strncmp( operation_name, "delete" ) == 0 )
 			{
+/*
 				if ( omit_delete_operation == omit_delete )
 				{
 					continue;
 				}
 				else
+*/
 				if ( omit_delete_operation ==
 					omit_delete_with_placeholder )
 				{
@@ -104,7 +107,6 @@ LIST *operation_list_get_operation_list(char *application_name,
 	}
 
 	return operation_list;
-
 }
 
 int operation_list_perform_operations(
