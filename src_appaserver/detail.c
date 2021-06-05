@@ -87,7 +87,10 @@ DICTIONARY *output_folder_detail(
 			boolean output_even_if_not_populated,
 			DICTIONARY_APPASERVER *dictionary_appaserver,
 			boolean override_row_restrictions,
-			enum omit_delete_operation,
+			enum omit_delete_operation
+				regular_omit_delete_operation,
+			enum omit_delete_operation
+				viewonly_omit_delete_operation,
 			LIST *non_edit_folder_name_list,
 			boolean make_primary_keys_non_edit );
 
@@ -470,7 +473,10 @@ if ( SECURITY_ON )
 			dictionary_appaserver,
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ),
-			dont_omit_delete,
+			dont_omit_delete
+				/* regular_omit_delete_operation */,
+			omit_delete_with_placeholder
+				/* viewonly_omit_delete_operation */,
 			non_edit_folder_name_list,
 			0 /* not make_primary_keys_non_edit */ );
 
@@ -592,7 +598,10 @@ if ( SECURITY_ON )
 			dictionary_appaserver,
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ),
-			dont_omit_delete,
+			dont_omit_delete
+				/* regular_omit_delete_operation */,
+			omit_delete_with_placeholder
+				/* viewonly_omit_delete_operation */,
 			non_edit_folder_name_list,
 			1 /* make_primary_keys_non_edit */ );
 
@@ -987,7 +996,10 @@ void output_1tom_folder_detail(
 			local_output_even_if_not_populated,
 			dictionary_appaserver,
 			override_row_restrictions,
-			dont_omit_delete,
+			dont_omit_delete
+				/* regular_omit_delete_operation */,
+			omit_delete_with_placeholder
+				/* viewonly_omit_delete_operation */,
 			non_edit_folder_name_list,
 			0 /* not make_primary_keys_non_edit */ );
 
@@ -1261,7 +1273,10 @@ void output_mto1_folder_detail(
 				0 /* not output_even_if_not_populated */,
 				dictionary_appaserver,
 				override_row_restrictions,
-				omit_delete,
+				omit_delete
+					/* regular_omit_delete_operation */,
+				omit_delete
+					/* viewonly_omit_delete_operation */,
 				non_edit_folder_name_list,
 				1 /* make_primary_keys_non_edit */ );
 		}
@@ -1293,7 +1308,9 @@ DICTIONARY *output_folder_detail(
 			DICTIONARY_APPASERVER *dictionary_appaserver,
 			boolean override_row_restrictions,
 			enum omit_delete_operation
-				omit_delete_operation,
+				regular_omit_delete_operation,
+			enum omit_delete_operation
+				viewonly_omit_delete_operation,
 			LIST *non_edit_folder_name_list,
 			boolean make_primary_keys_non_edit )
 {
@@ -1416,7 +1433,8 @@ DICTIONARY *output_folder_detail(
 			where_clause_attribute_name_list,
 			where_clause_data_list,
 			make_primary_keys_non_edit,
-			omit_delete_operation,
+			regular_omit_delete_operation,
+			viewonly_omit_delete_operation,
 			omit_operation_buttons,
 			1 /* ajax_fill_drop_down_omit */,
 			row_security->

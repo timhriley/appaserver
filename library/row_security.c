@@ -286,7 +286,10 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			LIST *where_clause_attribute_name_list,
 			LIST *where_clause_data_list,
 			boolean make_primary_keys_non_edit,
-			enum omit_delete_operation omit_delete_operation,
+			enum omit_delete_operation
+				regular_omit_delete_operation,
+			enum omit_delete_operation
+				viewonly_omit_delete_operation,
 			boolean omit_operation_buttons,
 			boolean ajax_fill_drop_down_omit,
 			LIST *append_isa_attribute_list,
@@ -388,7 +391,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			row_dictionary_list_length,
 			state,
 			login_name,
-			omit_delete_operation,
+			regular_omit_delete_operation,
 			omit_operation_buttons,
 			select_folder->join_1tom_related_folder_list,
 			make_primary_keys_non_edit,
@@ -411,7 +414,8 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 					mto1_append_isa_related_folder_list,
 				login_role,
 				no_display_pressed_attribute_name_list,
-				omit_delete_with_placeholder,
+				/* omit_delete_with_placeholder, */
+				viewonly_omit_delete_operation,
 				omit_operation_buttons,
 				select_folder->join_1tom_related_folder_list );
 	}

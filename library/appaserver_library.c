@@ -2267,22 +2267,29 @@ int appaserver_library_add_operations(
 
 	do {
 		objects_outputted++;
+
 		operation = list_get_pointer( operation_list );
 
 		if ( operation->empty_placeholder_instead )
 		{
-			element = element_appaserver_new(
+			element =
+				element_appaserver_new(
 					empty_column,
-					(char *)0 );
+					operation->label );
 
-			list_append(	element_list, 
-					element, 
-					sizeof( ELEMENT_APPASERVER ) );
+/*
+			list_append(
+				element_list, 
+				element, 
+				sizeof( ELEMENT_APPASERVER ) );
+*/
+			list_set( element_list, element );
 
 			continue;
 		}
 
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				toggle_button,
 				operation->
 					process->
@@ -2333,14 +2340,16 @@ int appaserver_library_add_operations(
 				strdup( buffer );
 		}
 
+/*
 		list_append(	element_list, 
-				element, 
+				element,
 				sizeof( ELEMENT_APPASERVER ) );
+*/
+		list_set( element_list, element );
 
 	} while( list_next( operation_list ) );
 
 	return objects_outputted;
-
 }
 
 boolean appaserver_library_exists_javascript_folder(

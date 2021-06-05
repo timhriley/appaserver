@@ -93,7 +93,10 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			LIST *where_clause_attribute_name_list,
 			LIST *where_clause_data_list,
 			boolean make_primary_keys_non_edit,
-			enum omit_delete_operation omit_delete_operation,
+			enum omit_delete_operation 
+				regular_omit_delete_operation,
+			enum omit_delete_operation 
+				viewonly_omit_delete_operation,
 			boolean omit_operation_buttons,
 			boolean ajax_fill_drop_down_omit,
 			LIST *append_isa_attribute_list,

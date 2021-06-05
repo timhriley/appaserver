@@ -17,10 +17,10 @@
 /* appaserver_link_file */
 
 OPERATION *operation_new_operation(
-				char *application_name,
-				char *session,
-				char *operation_name,
-				boolean empty_placeholder_instead )
+			char *application_name,
+			char *session,
+			char *operation_name,
+			boolean empty_placeholder_instead )
 {
 	OPERATION *operation;
 	char sys_string[ 1024 ];
@@ -84,6 +84,12 @@ OPERATION *operation_new_operation(
 			application_name, msg, (char *)0 );
 		exit( 1 );
 	}
+
+	if ( operation->empty_placeholder_instead )
+	{
+		operation->label = operation->process->process_name;
+	}
+
 	return operation;
 }
 

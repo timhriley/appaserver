@@ -57,8 +57,6 @@ LIST *operation_list_get_operation_list(
 	char *operation_name;
 	boolean empty_placeholder_instead;
 
-	operation_list = list_new();
-
 	sprintf( sys_string, 
 		 "operations4folder.sh %s %s %s 2>>%s",
 		 application_name,
@@ -68,43 +66,46 @@ LIST *operation_list_get_operation_list(
 
 	operation_string_list = pipe2list( sys_string );
 
-	if ( list_rewind( operation_string_list ) )
-	{
-		do {
-			operation_name = 
-				list_get_pointer( operation_string_list );
+	if ( !list_rewind( operation_string_list ) ) return (LIST *)0;
 
-			empty_placeholder_instead = 0;
+	operation_list = list_new();
 
-			if ( timlib_strncmp( operation_name, "delete" ) == 0 )
+	do {
+		operation_name = 
+			list_get_pointer( operation_string_list );
+
+		empty_placeholder_instead = 0;
+
+		if ( timlib_strncmp( operation_name, "delete" ) == 0 )
+		{
+			/* Mto1 detail shouldn't have delete */
+			/* --------------------------------- */
+			if ( omit_delete_operation == omit_delete )
 			{
-/*
-				if ( omit_delete_operation == omit_delete )
-				{
-					continue;
-				}
-				else
-*/
-				if ( omit_delete_operation ==
-					omit_delete_with_placeholder )
-				{
-					empty_placeholder_instead = 1;
-				}
+				continue;
 			}
+			else
+			/* Viewonly rows should have an empty column */
+			/* ----------------------------------------- */
+			if ( omit_delete_operation ==
+				omit_delete_with_placeholder )
+			{
+				empty_placeholder_instead = 1;
+			}
+		}
 
-			operation =
-				operation_new_operation(
-					application_name,
-					session,
-					strdup( operation_name ),
-					empty_placeholder_instead );
+		operation =
+			operation_new_operation(
+				application_name,
+				session,
+				strdup( operation_name ),
+				empty_placeholder_instead );
 
-			list_append_pointer(
-					operation_list,
-					operation );
+		list_set(
+			operation_list,
+			operation );
 
-		} while( list_next( operation_string_list ) );
-	}
+	} while( list_next( operation_string_list ) );
 
 	return operation_list;
 }

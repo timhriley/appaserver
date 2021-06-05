@@ -11,10 +11,10 @@
 #include "list.h"
 #include "operation.h"
 
-enum omit_delete_operation		{	omit_delete,
-						omit_delete_with_placeholder,
-						dont_omit_delete,
-						omit_delete_dont_care };
+enum omit_delete_operation{	omit_delete,
+				omit_delete_with_placeholder,
+				dont_omit_delete,
+				omit_delete_dont_care };
 
 typedef struct
 {
