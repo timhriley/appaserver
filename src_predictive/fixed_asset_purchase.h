@@ -35,19 +35,22 @@ typedef struct
 	char *service_placement_date;
 	double fixed_asset_cost;
 	int units_produced_so_far;
+	char *disposal_date;
+	char *cost_recovery_period;
+	char *cost_recovery_method;
+	char *cost_recovery_conversion;
+	enum depreciation_method depreciation_method;
 	int estimated_useful_life_years;
 	int estimated_useful_life_units;
 	int estimated_residual_value;
-	int declining_balance_n;
-	enum depreciation_method depreciation_method;
-	char *disposal_date;
+	double declining_balance_n;
 
 	/* Process */
 	/* ------- */
 	double cost_basis;
-	double fixed_asset_purchase_list_total;
 	double finance_accumulated_depreciation;
 	double tax_adjusted_basis;
+	double fixed_asset_purchase_list_total;
 	DEPRECIATION *depreciation;
 	RECOVERY *recovery;
 } FIXED_ASSET_PURCHASE;

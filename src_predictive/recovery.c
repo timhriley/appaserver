@@ -366,21 +366,6 @@ double recovery_period_years(
 	return atof( cost_recovery_period_string );
 }
 
-double recovery_mid_years_amount(
-			double cost_basis,
-			double recovery_period_years )
-{
-	if ( !recovery_period_years ) return 0.0;
-
-	return cost_basis / recovery_period_years;
-}
-
-double recovery_book_ends_amount(
-			double mid_years_amount )
-{
-	return mid_years_amount / 2.0;
-}
-
 int recovery_service_placement_years(
 			int tax_year,
 			int service_placement_year )
@@ -420,6 +405,20 @@ RECOVERY_STRAIGHT_LINE *recovery_straight_line_evaluate(
 	return straight_line;
 }
 
+double recovery_straight_line_half_year_mid_year_rate(
+			double recovery_period_years )
+{
+	if ( !recovery_period_years ) return 0.0;
+
+	return 1.0 / recovery_period_years;
+}
+
+double recovery_straight_line_half_year_book_ends_rate(
+			double half_year_mid_year_rate )
+{
+	return half_year_mid_year_rate / 2.0;
+}
+
 double recovery_straight_line_half_year_amount(
 			int tax_year,
 			double cost_basis,
@@ -428,7 +427,7 @@ double recovery_straight_line_half_year_amount(
 			double recovery_period_years )
 {
 	int service_placement_years;
-	double amount = 0.0;
+	double rate = 0.0;
 
 	if ( !tax_year ) return 0.0;
 	if ( !cost_basis ) return 0.0;
@@ -442,37 +441,37 @@ double recovery_straight_line_half_year_amount(
 
 	if ( (double)service_placement_years > recovery_period_years )
 	{
-		amount = 0.0;
+		rate = 0.0;
 	}
 	else
 	if ( tax_year == disposal_year )
 	{
-		amount =
-			recovery_book_ends_amount(
-				recovery_mid_years_amount(
-					cost_basis,
+		rate =
+			recovery_straight_line_half_year_book_ends_rate(
+				recovery_straight_line_half_year_mid_year_rate(
 					recovery_period_years ) );
 	}
 	else
 	if ( ( service_placement_years == 0 )
 	||   ( (double)service_placement_years == recovery_period_years ) )
 	{
-		amount =
-			recovery_book_ends_amount(
-				recovery_mid_years_amount(
-					cost_basis,
+		rate =
+			recovery_straight_line_half_year_book_ends_rate(
+				recovery_straight_line_half_year_mid_year_rate(
 					recovery_period_years ) );
 	}
 	if ( service_placement_years > 0
 	&&   (double)service_placement_years < recovery_period_years )
 	{
-		amount =
-			recovery_mid_years_amount(
-				cost_basis,
+		rate =
+			recovery_straight_line_half_year_mid_year_rate(
 				recovery_period_years );
 	}
 
-	return amount;
+	if ( !rate )
+		return 0.0;
+	else
+		return cost_basis * rate;
 }
 
 int recovery_prior_tax_year( void )

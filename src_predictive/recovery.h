@@ -15,9 +15,10 @@
 
 /* Constants */
 /* --------- */
-#define COST_RECOVERY_TABLE		"cost_recovery"
-#define COST_RECOVERY_STRAIGHT_LINE	"straight_line"
-#define COST_RECOVERY_HALF_YEAR		"half_year"
+#define COST_RECOVERY_TABLE			"cost_recovery"
+#define RECOVERY_STATUTORY_STRAIGHT_LINE	"statutory_straight_line"
+#define RECOVERY_STATUTORY_ACCELERATED		"statutory_accelerated"
+#define RECOVERY_HALF_YEAR			"half_year"
 
 /* Enumerated types */
 /* ---------------- */
@@ -144,23 +145,9 @@ RECOVERY_STRAIGHT_LINE *recovery_straight_line_evaluate(
 double recovery_period_years(
 			char *cost_recovery_period_string );
 
-double recovery_mid_years_amount(
-			double cost_basis,
-			double recovery_period_years );
-
-double recovery_book_ends_amount(
-			double mid_years_amount );
-
 int recovery_service_placement_years(
 			int tax_year,
 			int service_placement_year );
-
-double recovery_straight_line_half_year_amount(
-			int tax_year,
-			double cost_basis,
-			int service_placement_year,
-			int disposal_year,
-			double recovery_period_years );
 
 int recovery_prior_tax_year(
 			void );
@@ -172,7 +159,12 @@ char *recovery_subquery_where(
 			int tax_year );
 
 double recovery_amount(
-			RECOVERY_STRAIGHT_LINE *straight_line );
+			RECOVERY_STRAIGHT_LINE *straight_line,
+			RECOVERY_ACCELERATED *accelerated );
+
+double recovery_rate(
+			RECOVERY_STRAIGHT_LINE *straight_line,
+			RECOVERY_ACCELERATED *accelerated );
 
 FILE *recovery_update_open(
 			void );
@@ -181,5 +173,18 @@ void recovery_update(	double recovery_amount,
 			char *asset_name,
 			char *serial_label,
 			int tax_year );
+
+double recovery_straight_line_statutory_half_year_amount(
+			int tax_year,
+			double cost_basis,
+			int service_placement_year,
+			int disposal_year,
+			double recovery_period_years );
+
+double recovery_straight_line_statutory_half_year_mid_year_rate(
+			double recovery_period_years );
+
+double recovery_straight_line_statutory_half_year_book_ends_rate(
+			double half_year_mid_year_rate );
 
 #endif

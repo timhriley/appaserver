@@ -96,32 +96,41 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 	fixed_asset_purchase->disposal_date = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 9 );
+	fixed_asset_purchase->cost_recovery_period = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 10 );
+	fixed_asset_purchase->cost_recovery_method = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 11 );
+	fixed_asset_purchase->cost_recovery_conversion = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 12 );
 	fixed_asset_purchase->depreciation_method =
 		depreciation_method_evaluate( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 10 );
+	piece( piece_buffer, SQL_DELIMITER, input, 13 );
 	fixed_asset_purchase->estimated_useful_life_years =
 		atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 11 );
+	piece( piece_buffer, SQL_DELIMITER, input, 14 );
 	fixed_asset_purchase->estimated_useful_life_units =
 		atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 12 );
+	piece( piece_buffer, SQL_DELIMITER, input, 15 );
 	fixed_asset_purchase->estimated_residual_value =
 		atoi( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 13 );
-	fixed_asset_purchase->declining_balance_n = atoi( piece_buffer );
+	piece( piece_buffer, SQL_DELIMITER, input, 16 );
+	fixed_asset_purchase->declining_balance_n = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 14 );
+	piece( piece_buffer, SQL_DELIMITER, input, 17 );
 	fixed_asset_purchase->cost_basis = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 15 );
+	piece( piece_buffer, SQL_DELIMITER, input, 18 );
 	fixed_asset_purchase->finance_accumulated_depreciation =
 		atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 16 );
+	piece( piece_buffer, SQL_DELIMITER, input, 19 );
 	fixed_asset_purchase->tax_adjusted_basis =
 		atof( piece_buffer );
 
