@@ -27,6 +27,8 @@
 /* ---------- */
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	int tax_year;
 	double cost_basis;
 	int service_placement_month;
@@ -35,8 +37,32 @@ typedef struct
 	int disposal_year;
 	double recovery_period_years;
 	char *cost_recovery_conversion;
+
+	/* Process */
+	/* ------- */
+	int service_placement_years;
 	double straight_line_amount;
+	double straight_line_rate;
 } RECOVERY_STRAIGHT_LINE;
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	int tax_year;
+	double cost_basis;
+	int service_placement_month;
+	int service_placement_year;
+	int disposal_month;
+	int disposal_year;
+	double recovery_period_years;
+	char *cost_recovery_conversion;
+
+	/* Process */
+	/* ------- */
+	double accelerated_amount;
+	double accelerated_rate;
+} RECOVERY_ACCELERATED;
 
 typedef struct
 {
@@ -55,17 +81,22 @@ typedef struct
 	/* Process */
 	/* ------- */
 	double recovery_amount;
+	double recovery_rate;
 	double recovery_period_years;
 	int service_placement_month;
 	int service_placement_year;
 	int disposal_month;
 	int disposal_year;
 	RECOVERY_STRAIGHT_LINE *straight_line;
+	RECOVERY_ACCELERATED *accelerated;
 } RECOVERY;
 
 /* Operations */
 /* ---------- */
 RECOVERY_STRAIGHT_LINE *recovery_straight_line_calloc(
+			void );
+
+RECOVERY_ACCELERATED *recovery_accelerated_calloc(
 			void );
 
 RECOVERY *recovery_evaluate(
@@ -132,7 +163,17 @@ void recovery_insert(
 			int tax_year,
 			double recovery_amount );
 
-RECOVERY_STRAIGHT_LINE *recovery_straight_line_evaluate(
+RECOVERY_STRAIGHT_LINE *recovery_statutory_straight_line_evaluate(
+			int tax_year,
+			double cost_basis,
+			int service_placement_month,
+			int service_placement_year,
+			int disposal_month,
+			int disposal_year,
+			double recovery_period_years,
+			char *cost_recovery_conversion );
+
+RECOVERY_ACCELERATED *recovery_statutory_accelerated_evaluate(
 			int tax_year,
 			double cost_basis,
 			int service_placement_month,
@@ -174,17 +215,37 @@ void recovery_update(	double recovery_amount,
 			char *serial_label,
 			int tax_year );
 
-double recovery_straight_line_statutory_half_year_amount(
+double recovery_statutory_straight_line_half_year_rate(
+			int service_placement_years,
 			int tax_year,
-			double cost_basis,
-			int service_placement_year,
 			int disposal_year,
 			double recovery_period_years );
 
-double recovery_straight_line_statutory_half_year_mid_year_rate(
+double recovery_statutory_straight_line_half_year_mid_year_rate(
 			double recovery_period_years );
 
-double recovery_straight_line_statutory_half_year_book_ends_rate(
+double recovery_statutory_straight_line_half_year_book_ends_rate(
 			double half_year_mid_year_rate );
+
+double recovery_straight_line_amount(
+			double straight_line_rate,
+			double cost_basis );
+
+double recovery_statutory_accelerated_half_year_rate(
+			int tax_year,
+			int disposal_year,
+			double recovery_period_years );
+
+double recovery_statutory_accelerated_half_year_evaluate(
+			int tax_year,
+			double recovery_period_years );
+
+double recovery_accelerated_amount(
+			double accelerated_rate,
+			double cost_basis );
+
+double recovery_rate(
+			RECOVERY_STRAIGHT_LINE *straight_line,
+			RECOVERY_ACCELERATED *accelerated );
 
 #endif

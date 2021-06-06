@@ -53,7 +53,8 @@ EXECUTABLES=	trial_balance						\
 		post_change_fixed_asset_purchase			\
 		depreciation_trigger					\
 		cost_recovery_trigger					\
-		cost_recover_fixed_assets
+		cost_recover_fixed_assets				\
+		recovery_statutory_accelerated_half_year
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -968,4 +969,10 @@ prepaid_asset_purchase.o:	prepaid_asset_purchase.c		\
 				prepaid_asset_purchase.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c prepaid_asset_purchase.c
+
+recovery_statutory_accelerated_half_year:				\
+	recovery_statutory_accelerated_half_year.c
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		recovery_statutory_accelerated_half_year.c		\
+		-o recovery_statutory_accelerated_half_year -lm
 

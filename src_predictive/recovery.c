@@ -23,7 +23,7 @@ RECOVERY_STRAIGHT_LINE *recovery_straight_line_calloc( void )
 			calloc( 1, sizeof( RECOVERY_STRAIGHT_LINE ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty..\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -31,6 +31,24 @@ RECOVERY_STRAIGHT_LINE *recovery_straight_line_calloc( void )
 	}
 
 	return recovery_straight_line;
+}
+
+RECOVERY_ACCELERATED *recovery_accelerated_calloc( void )
+{
+	RECOVERY_ACCELERATED *recovery_accelerated;
+
+	if ( ! ( recovery_accelerated =
+			calloc( 1, sizeof( RECOVERY_ACCELERATED ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty..\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return recovery_accelerated;
 }
 
 RECOVERY *recovery_parse(
@@ -165,10 +183,25 @@ RECOVERY *recovery_evaluate(
 	recovery->cost_recovery_conversion = cost_recovery_conversion;
 
 	if ( strcmp(	recovery->cost_recovery_method,
-			COST_RECOVERY_STRAIGHT_LINE ) == 0 )
+			RECOVERY_STATUTORY_STRAIGHT_LINE ) == 0 )
 	{
 		recovery->straight_line =
-			recovery_straight_line_evaluate(
+			recovery_statutory_straight_line_evaluate(
+				recovery->tax_year,
+				recovery->cost_basis,
+				recovery->service_placement_month,
+				recovery->service_placement_year,
+				recovery->disposal_month,
+				recovery->disposal_year,
+				recovery->recovery_period_years,
+				recovery->cost_recovery_conversion );
+	}
+	else
+	if ( strcmp(	recovery->cost_recovery_method,
+			RECOVERY_STATUTORY_ACCELERATED ) == 0 )
+	{
+		recovery->accelerated =
+			recovery_statutory_accelerated_evaluate(
 				recovery->tax_year,
 				recovery->cost_basis,
 				recovery->service_placement_month,
@@ -181,7 +214,13 @@ RECOVERY *recovery_evaluate(
 
 	recovery->recovery_amount =
 		recovery_amount(
-			recovery->straight_line );
+			recovery->straight_line,
+			recovery->accelerated );
+
+	recovery->recovery_rate =
+		recovery_rate(
+			recovery->straight_line,
+			recovery->accelerated );
 
 	return recovery;
 }
@@ -373,7 +412,7 @@ int recovery_service_placement_years(
 	return tax_year - service_placement_year;
 }
 
-RECOVERY_STRAIGHT_LINE *recovery_straight_line_evaluate(
+RECOVERY_STRAIGHT_LINE *recovery_statutory_straight_line_evaluate(
 			int tax_year,
 			double cost_basis,
 			int service_placement_month,
@@ -384,28 +423,43 @@ RECOVERY_STRAIGHT_LINE *recovery_straight_line_evaluate(
 			char *cost_recovery_conversion )
 {
 	RECOVERY_STRAIGHT_LINE *straight_line = {0};
-	double amount;
+	double straight_line_rate;
+	int service_placement_years;
 
 	if ( string_strcmp(	cost_recovery_conversion,
-				COST_RECOVERY_HALF_YEAR ) == 0 )
+				RECOVERY_HALF_YEAR ) == 0 )
 	{
-		if ( ( amount =
-			recovery_straight_line_half_year_amount(
+		service_placement_years =
+			recovery_service_placement_years(
 				tax_year,
-				cost_basis,
-				service_placement_year,
+				service_placement_year );
+
+		if ( ( straight_line_rate =
+			recovery_statutory_straight_line_half_year_rate(
+				service_placement_years,
+				tax_year,
 				disposal_year,
 				recovery_period_years ) ) )
 		{
 			straight_line = recovery_straight_line_calloc();
-			straight_line->straight_line_amount = amount;
+
+			straight_line->service_placement_years =
+				service_placement_years;
+
+			straight_line->straight_line_rate =
+				straight_line_rate;
+
+			straight_line->straight_line_amount =
+				recovery_straight_line_amount(
+					straight_line->straight_line_rate,
+					cost_basis );
 		}
 	}
 
 	return straight_line;
 }
 
-double recovery_straight_line_half_year_mid_year_rate(
+double recovery_statutory_straight_line_half_year_mid_year_rate(
 			double recovery_period_years )
 {
 	if ( !recovery_period_years ) return 0.0;
@@ -413,31 +467,22 @@ double recovery_straight_line_half_year_mid_year_rate(
 	return 1.0 / recovery_period_years;
 }
 
-double recovery_straight_line_half_year_book_ends_rate(
+double recovery_statutory_straight_line_half_year_book_ends_rate(
 			double half_year_mid_year_rate )
 {
 	return half_year_mid_year_rate / 2.0;
 }
 
-double recovery_straight_line_half_year_amount(
+double recovery_statutory_straight_line_half_year_rate(
+			int service_placement_years,
 			int tax_year,
-			double cost_basis,
-			int service_placement_year,
 			int disposal_year,
 			double recovery_period_years )
 {
-	int service_placement_years;
 	double rate = 0.0;
 
 	if ( !tax_year ) return 0.0;
-	if ( !cost_basis ) return 0.0;
-	if ( !service_placement_year ) return 0.0;
 	if ( !recovery_period_years ) return 0.0;
-
-	service_placement_years =
-		recovery_service_placement_years(
-			tax_year,
-			service_placement_year );
 
 	if ( (double)service_placement_years > recovery_period_years )
 	{
@@ -447,31 +492,28 @@ double recovery_straight_line_half_year_amount(
 	if ( tax_year == disposal_year )
 	{
 		rate =
-			recovery_straight_line_half_year_book_ends_rate(
-				recovery_straight_line_half_year_mid_year_rate(
-					recovery_period_years ) );
+		  recovery_statutory_straight_line_half_year_book_ends_rate(
+		     recovery_statutory_straight_line_half_year_mid_year_rate(
+				recovery_period_years ) );
 	}
 	else
 	if ( ( service_placement_years == 0 )
 	||   ( (double)service_placement_years == recovery_period_years ) )
 	{
 		rate =
-			recovery_straight_line_half_year_book_ends_rate(
-				recovery_straight_line_half_year_mid_year_rate(
-					recovery_period_years ) );
+		  recovery_statutory_straight_line_half_year_book_ends_rate(
+		       recovery_statutory_straight_line_half_year_mid_year_rate(
+				recovery_period_years ) );
 	}
 	if ( service_placement_years > 0
 	&&   (double)service_placement_years < recovery_period_years )
 	{
 		rate =
-			recovery_straight_line_half_year_mid_year_rate(
-				recovery_period_years );
+		  recovery_statutory_straight_line_half_year_mid_year_rate(
+			recovery_period_years );
 	}
 
-	if ( !rate )
-		return 0.0;
-	else
-		return cost_basis * rate;
+	return rate;
 }
 
 int recovery_prior_tax_year( void )
@@ -531,11 +573,34 @@ char *recovery_subquery_where(
 }
 
 double recovery_amount(
-			RECOVERY_STRAIGHT_LINE *straight_line )
+			RECOVERY_STRAIGHT_LINE *straight_line,
+			RECOVERY_ACCELERATED *accelerated )
 {
 	if ( straight_line )
 	{
 		return straight_line->straight_line_amount;
+	}
+	else
+	if ( accelerated )
+	{
+		return accelerated->accelerated_amount;
+	}
+
+	return 0.0;
+}
+
+double recovery_rate(
+			RECOVERY_STRAIGHT_LINE *straight_line,
+			RECOVERY_ACCELERATED *accelerated )
+{
+	if ( straight_line )
+	{
+		return straight_line->straight_line_rate;
+	}
+	else
+	if ( accelerated )
+	{
+		return accelerated->accelerated_rate;
 	}
 
 	return 0.0;
@@ -574,5 +639,96 @@ void recovery_update(	double recovery_amount,
 		recovery_amount );
 
 	pclose( update_pipe );
+}
+
+double recovery_straight_line_amount(
+			double straight_line_rate,
+			double cost_basis )
+{
+	return straight_line_rate * cost_basis;
+}
+
+RECOVERY_ACCELERATED *recovery_statutory_accelerated_evaluate(
+			int tax_year,
+			double cost_basis,
+			int service_placement_month,
+			int service_placement_year,
+			int disposal_month,
+			int disposal_year,
+			double recovery_period_years,
+			char *cost_recovery_conversion )
+{
+	RECOVERY_ACCELERATED *accelerated = {0};
+	double accelerated_rate;
+
+	if ( string_strcmp(	cost_recovery_conversion,
+				RECOVERY_HALF_YEAR ) == 0 )
+	{
+		if ( ( accelerated_rate =
+			recovery_statutory_accelerated_half_year_rate(
+				tax_year,
+				disposal_year,
+				recovery_period_years ) ) )
+		{
+			accelerated = recovery_accelerated_calloc();
+
+			accelerated->accelerated_rate =
+				accelerated_rate;
+
+			accelerated->accelerated_amount =
+				recovery_accelerated_amount(
+					accelerated->accelerated_rate,
+					cost_basis );
+		}
+	}
+
+	return straight_line;
+}
+
+double recovery_statutory_accelerated_half_year_rate(
+			int tax_year,
+			int disposal_year,
+			double recovery_period_years )
+{
+	double rate;
+
+	if ( tax_year > disposal_year ) return 0.0;
+
+	rate =
+		recovery_statutory_accelerated_half_year_evaluate(
+			tax_year,
+			recovery_period_years );
+
+	if ( disposal_year == tax_year )
+		rate *= 0.5;
+
+	return rate;
+}
+
+double recovery_statutory_accelerated_half_year_evaluate(
+			int tax_year,
+			double recovery_period_years )
+{
+	char system_string[ 1024 ];
+	char *results;
+
+	sprintf(system_string,
+		"recovery_statutory_accelerated_half_year.sh %.0lf %d",
+		recovery_period_years,
+		tax_year );
+
+	results = string_pipe_fetch( system_string );
+
+	if ( results && *results )
+		return atof( results );
+	else
+		return 0.0;
+}
+
+double recovery_accelerated_amount(
+			double accelerated_rate,
+			double cost_basis )
+{
+	return accelerated_rate * cost_basis;
 }
 

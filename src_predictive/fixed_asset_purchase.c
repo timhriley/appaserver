@@ -96,7 +96,8 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 	fixed_asset_purchase->disposal_date = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 9 );
-	fixed_asset_purchase->cost_recovery_period = strdup( piece_buffer );
+	fixed_asset_purchase->cost_recovery_period_string =
+		strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 10 );
 	fixed_asset_purchase->cost_recovery_method = strdup( piece_buffer );
@@ -583,13 +584,10 @@ LIST *fixed_asset_purchase_list_cost_recover(
 				fixed_asset_purchase->service_placement_date,
 				fixed_asset_purchase->disposal_date,
 				fixed_asset_purchase->
-					fixed_asset->
 					cost_recovery_period_string,
 				fixed_asset_purchase->
-					fixed_asset->
 					cost_recovery_method,
 				fixed_asset_purchase->
-					fixed_asset->
 					cost_recovery_conversion );
 
 	} while ( list_next( fixed_asset_purchase_list ) );

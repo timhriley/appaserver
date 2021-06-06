@@ -36,7 +36,7 @@ typedef struct
 	double fixed_asset_cost;
 	int units_produced_so_far;
 	char *disposal_date;
-	char *cost_recovery_period;
+	char *cost_recovery_period_string;
 	char *cost_recovery_method;
 	char *cost_recovery_conversion;
 	enum depreciation_method depreciation_method;

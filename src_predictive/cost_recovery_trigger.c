@@ -106,13 +106,10 @@ void recovery_trigger_insert(
 			fixed_asset_purchase->service_placement_date,
 			fixed_asset_purchase->disposal_date,
 			fixed_asset_purchase->
-				fixed_asset->
 				cost_recovery_period_string,
 			fixed_asset_purchase->
-				fixed_asset->
 				cost_recovery_method,
 			fixed_asset_purchase->
-				fixed_asset->
 				cost_recovery_conversion );
 
 	if ( !fixed_asset_purchase->recovery

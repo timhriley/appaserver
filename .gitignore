@@ -156,6 +156,7 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
+recovery_statutory_accelerated_half_year
 cost_recovery_trigger
 depreciation_trigger
 journal_ledger_trigger
