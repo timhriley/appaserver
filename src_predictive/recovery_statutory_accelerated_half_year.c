@@ -9,68 +9,68 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define COST 100.0
+
 double rate_function(	double *book,
 			double cost,
-			int life,
+			int life_years,
 			int year,
 			double declining_rate,
 			double freeze_rate );
 
 int main( int argc, char **argv )
 {
-	double cost;
 	double book;
-	int life;
+	int life_years;
 	int year;
 	double declining_rate;
 	double freeze_rate = 0.0;
 	double rate;
 
-	if ( argc != 3 )
+	if ( argc != 2 )
 	{
-		fprintf( stderr, "Usage: %s cost life\n", argv[ 0 ] );
+		fprintf( stderr, "Usage: %s life_years\n", argv[ 0 ] );
 		exit( 1 );
 	}
 
-	cost = atof( argv[ 1 ] );
-	life = atoi( argv[ 2 ] );
+	life_years = atoi( argv[ 1 ] );
 
-	if ( life <= 10 )
+	if ( life_years <= 10 )
 		declining_rate = 2.0;
 	else
 		declining_rate = 1.5;
 
-	for (	book = cost,
+	for (	book = COST,
 		year = 1;
-		year <= life + 1;
+		year <= life_years + 1;
 		year++ )
 	{
-		if ( life == 3 && year == 3 )
+		if ( life_years == 3 && year == 3 )
 		{
 			freeze_rate = 0.1481;
 		}
 		else
-		if ( life == 5 && year == 4 )
+		if ( life_years == 5 && year == 4 )
 		{
 			freeze_rate = 0.1152;
 		}
 		else
-		if ( life == 7 && year == 5 )
+		if ( life_years == 7 && year == 5 )
 		{
 			freeze_rate = 0.08925;
 		}
 		else
-		if ( life == 10 && year == 7 )
+		if ( life_years == 10 && year == 7 )
 		{
 			freeze_rate = 0.06555;
 		}
 		else
-		if ( life == 15 && year == 7 )
+		if ( life_years == 15 && year == 7 )
 		{
 			freeze_rate = 0.05905;
 		}
 		else
-		if ( life == 20 && year == 9 )
+		if ( life_years == 20 && year == 9 )
 		{
 			freeze_rate = 0.044615;
 		}
@@ -78,8 +78,8 @@ int main( int argc, char **argv )
 		rate =
 			rate_function(
 				&book,
-				cost,
-				life,
+				COST,
+				life_years,
 				year,
 				declining_rate,
 				freeze_rate );
@@ -91,7 +91,7 @@ int main( int argc, char **argv )
 
 double rate_function(	double *book,
 			double cost,
-			int life,
+			int life_years,
 			int year,
 			double declining_rate,
 			double freeze_rate )
@@ -100,7 +100,7 @@ double rate_function(	double *book,
 	double rate;
 	double depreciation;
 
-	if ( year == life + 1 )
+	if ( year == life_years + 1 )
 	{
 		freeze_rate /= 2.0;
 		depreciation = *book * freeze_rate;
@@ -115,7 +115,7 @@ double rate_function(	double *book,
 		return freeze_rate;
 	}
 
-	straight_line_rate = 1.0 / (double)life;
+	straight_line_rate = 1.0 / (double)life_years;
 	depreciation = declining_rate * straight_line_rate * *book;
 
 	if ( year == 1 ) depreciation = depreciation * 0.5;
