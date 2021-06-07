@@ -1,6 +1,6 @@
 :
 
-make cost_recovery_trigger
+make cost_recover_fixed_assets
 
 #if [ "$?" -eq 0 ]
 #then

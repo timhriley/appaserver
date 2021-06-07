@@ -214,8 +214,12 @@ int number_occurrences_char( int char_to_count, char *source );
 
 char *remove_quotes(	char *d, char *s );
 
+/* Trims pennies */
+/* ------------- */
+char *timlib_commas_in_dollars(
+			double d );
 char *timlib_place_commas_in_dollars(
-				double d );
+			double d );
 
 /* Returns static memory */
 /* --------------------- */
@@ -223,12 +227,13 @@ char *place_commas_in_double(
 			double d );
 
 char *place_commas_in_number_string(
-				char *s );
+			char *s );
 
 char *place_commas_in_unsigned_int(
-				unsigned int n );
+			unsigned int n );
 
-char *place_commas_in_integer(	int n );
+char *place_commas_in_integer(
+			int n );
 
 char *place_commas_in_long(
 			long n );
@@ -239,11 +244,14 @@ char *place_commas_in_unsigned_long(
 char *place_commas_in_unsigned_long_long(
 			unsigned long long n );
 
+/* --------------------- */
+/* Returns static memory */
+/* Doesn't trim pennies  */
+/* --------------------- */
+char *commas_in_money(
+			double d );
 char *place_commas_in_money(
 			double d );
-
-/* Returns static memory */
-/* --------------------- */
 char *timlib_place_commas_in_money(
 			double d );
 
@@ -601,8 +609,6 @@ void timlib_reset_get_line_check_utf_16(
 				void );
 
 char *timlib_generate_password(	void );
-
-char *timlib_commas_in_dollars( double d );
 
 boolean timlib_double_is_integer(
 				double d );

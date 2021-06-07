@@ -154,7 +154,10 @@ boolean cost_recover_fixed_assets(
 
 	if ( !list_length(
 		fixed_asset_purchase_cost_recovery_list(
-			fixed_asset_purchase_list ) ) ) return 0;
+			fixed_asset_purchase_list ) ) )
+	{
+		return 0;
+	}
 
 	fixed_asset_purchase_recovery_display(
 		fixed_asset_purchase_list );
@@ -230,14 +233,19 @@ void cost_recover_fixed_assets_undo_display(
 			continue;
 		}
 
-		fprintf( html_output,
-			 "%s^%s^%s^%.2lf\n",
-			 fixed_asset_purchase->fixed_asset->asset_name,
-			 fixed_asset_purchase->serial_label,
-			 fixed_asset_purchase->service_placement_date,
-			 fixed_asset_purchase->
-				recovery->
-				recovery_amount );
+		fprintf(html_output,
+			"%s^%s^%s^%s\n",
+			fixed_asset_purchase->fixed_asset->asset_name,
+			fixed_asset_purchase->serial_label,
+			fixed_asset_purchase->service_placement_date,
+			/* --------------------- */
+			/* Returns static memory */
+			/* Doesn't trim pennies  */
+			/* --------------------- */
+			commas_in_money(
+			 	fixed_asset_purchase->
+					recovery->
+					recovery_amount ) );
 
 	} while ( list_next( fixed_asset_purchase_list ) );
 
@@ -323,9 +331,10 @@ FILE *cost_recover_period_of_record_html_open( void )
 	justify_list_string = "right,right";
 
 	sprintf( sys_string,
-		 "html_table.e '^^%s' '%s' '^' '%s'",
+		 "html_table.e '^^%s' '%s' '%c' '%s'",
 		 "Period of Record",
 		 heading_list_string,
+		 SQL_DELIMITER,
 		 justify_list_string );
 
 	fflush( stdout );
@@ -340,6 +349,8 @@ void cost_recover_period_of_record_display( void )
 	char *select;
 	char *group;
 	char input[ 128 ];
+	char tax_year[ 128 ];
+	char total_recovery[ 128 ];
 
 	select = "tax_year, sum( recovery_amount )";
 	group = "tax_year";
@@ -357,7 +368,19 @@ void cost_recover_period_of_record_display( void )
 
 	while ( string_input( input, input_pipe, 128 ) )
 	{
-		fprintf( output_pipe, "%s\n", input );
+		piece( tax_year, SQL_DELIMITER, input, 0 );
+		piece( total_recovery, SQL_DELIMITER, input, 1 );
+
+		fprintf(output_pipe,
+			"%s%c%s\n",
+			tax_year,
+			SQL_DELIMITER,
+			/* --------------------- */
+			/* Returns static memory */
+			/* Doesn't trim pennies  */
+			/* --------------------- */
+			commas_in_money(
+				atof( total_recovery ) ) );
 	}
 
 	pclose( input_pipe );

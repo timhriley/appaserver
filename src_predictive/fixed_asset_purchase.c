@@ -218,6 +218,7 @@ LIST *fixed_asset_purchase_system_list(
 				fetch_last_recovery ) );
 	}
 	pclose( input_pipe );
+
 	return list;
 }
 
@@ -630,11 +631,15 @@ void fixed_asset_purchase_recovery_display(
 	char *heading;
 	char *justification;
 	char buffer[ 128 ];
+	char cost[ 128 ];
+	char prior_adjusted[ 128 ];
+	char amount[ 128 ];
+	char adjusted_basis[ 128 ];
 
 	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
 
 	heading =
-"Asset,Serial,Service,Cost,Prior Adjusted,Recovery,Adjusted Basis";
+"Asset,Serial,Service,Cost,Prior Adjusted,Amount,Rate,Adjusted Basis";
 
 	justification = "left,left,right";
 
@@ -653,8 +658,34 @@ void fixed_asset_purchase_recovery_display(
 
 		if ( !fixed_asset_purchase->recovery ) continue;
 
+		strcpy(	cost,
+			/* --------------------- */
+			/* Returns static memory */
+			/* Doesn't trim pennies  */
+			/* --------------------- */
+			commas_in_money(
+				fixed_asset_purchase->cost_basis ) );
+
+		strcpy(	prior_adjusted,
+			commas_in_money(
+				fixed_asset_purchase->tax_adjusted_basis ) );
+
+		strcpy(	amount,
+			commas_in_money(
+				fixed_asset_purchase->
+					recovery->
+					recovery_amount ) );
+
+		sprintf(adjusted_basis,
+			"%s",
+			commas_in_money(
+				fixed_asset_purchase->
+					tax_adjusted_basis -
+				fixed_asset_purchase->
+					recovery->
+					recovery_amount ) );
 		fprintf(output_pipe,
-			"%s^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf",
+			"%s^%s^%s^%s^%s^%s^%.5lf^%s\n",
 			format_initial_capital(
 				buffer,
 				fixed_asset_purchase->
@@ -664,18 +695,13 @@ void fixed_asset_purchase_recovery_display(
 				serial_label,
 			fixed_asset_purchase->
 				service_placement_date,
-			fixed_asset_purchase->
-				cost_basis,
-			fixed_asset_purchase->
-				tax_adjusted_basis,
-			fixed_asset_purchase->
-				recovery->
-				recovery_amount,
-			fixed_asset_purchase->
-				tax_adjusted_basis -
+			cost,
+			prior_adjusted,
+			amount,
 			fixed_asset_purchase->
 				recovery->
-				recovery_amount );
+				recovery_rate,
+			adjusted_basis );
 
 	} while( list_next( fixed_asset_purchase_list ) );
 
