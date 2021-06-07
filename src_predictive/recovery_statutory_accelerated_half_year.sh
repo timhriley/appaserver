@@ -17,7 +17,7 @@ then
 	tax_year=$2
 
 	recovery_statutory_accelerated_half_year $years	|
-	grep "$tax_year|"					|
+	grep "^$tax_year|"					|
 	piece.e '|' 1
 else
 	recovery_statutory_accelerated_half_year $years
