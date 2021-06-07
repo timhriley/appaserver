@@ -409,7 +409,7 @@ int recovery_service_placement_years(
 			int tax_year,
 			int service_placement_year )
 {
-	return tax_year - service_placement_year;
+	return tax_year - service_placement_year + 1;
 }
 
 RECOVERY_STRAIGHT_LINE *recovery_statutory_straight_line_evaluate(
@@ -624,6 +624,7 @@ FILE *recovery_update_open( void )
 }
 
 void recovery_update(	double recovery_amount,
+			double recovery_rate,
 			char *asset_name,
 			char *serial_label,
 			int tax_year )
@@ -637,6 +638,13 @@ void recovery_update(	double recovery_amount,
 		serial_label,
 		tax_year,
 		recovery_amount );
+
+	fprintf(update_pipe,
+		"%s^%s^%d^recovery_rate^%.5lf\n",
+		escape,
+		serial_label,
+		tax_year,
+		recovery_rate );
 
 	pclose( update_pipe );
 }
@@ -660,20 +668,29 @@ RECOVERY_ACCELERATED *recovery_statutory_accelerated_evaluate(
 {
 	RECOVERY_ACCELERATED *accelerated = {0};
 	double accelerated_rate;
+	int service_placement_years;
 
 	if ( string_strcmp(	cost_recovery_conversion,
 				RECOVERY_HALF_YEAR ) == 0 )
 	{
+		service_placement_years =
+			recovery_service_placement_years(
+				tax_year,
+				service_placement_year );
+
 		if ( ( accelerated_rate =
 			recovery_statutory_accelerated_half_year_rate(
+				service_placement_years,
 				tax_year,
 				disposal_year,
 				recovery_period_years ) ) )
 		{
 			accelerated = recovery_accelerated_calloc();
 
-			accelerated->accelerated_rate =
-				accelerated_rate;
+			accelerated->service_placement_years =
+				service_placement_years;
+
+			accelerated->accelerated_rate = accelerated_rate;
 
 			accelerated->accelerated_amount =
 				recovery_accelerated_amount(
@@ -682,22 +699,25 @@ RECOVERY_ACCELERATED *recovery_statutory_accelerated_evaluate(
 		}
 	}
 
-	return straight_line;
+	return accelerated;
 }
 
 double recovery_statutory_accelerated_half_year_rate(
+			int service_placement_years,
 			int tax_year,
 			int disposal_year,
 			double recovery_period_years )
 {
 	double rate;
 
-	if ( tax_year > disposal_year ) return 0.0;
+	if ( disposal_year && tax_year > disposal_year ) return 0.0;
 
 	rate =
 		recovery_statutory_accelerated_half_year_evaluate(
-			tax_year,
+			service_placement_years,
 			recovery_period_years );
+
+	if ( !rate ) return 0.0;
 
 	if ( disposal_year == tax_year )
 		rate *= 0.5;
@@ -706,7 +726,7 @@ double recovery_statutory_accelerated_half_year_rate(
 }
 
 double recovery_statutory_accelerated_half_year_evaluate(
-			int tax_year,
+			int service_placement_years,
 			double recovery_period_years )
 {
 	char system_string[ 1024 ];
@@ -715,7 +735,7 @@ double recovery_statutory_accelerated_half_year_evaluate(
 	sprintf(system_string,
 		"recovery_statutory_accelerated_half_year.sh %.0lf %d",
 		recovery_period_years,
-		tax_year );
+		service_placement_years );
 
 	results = string_pipe_fetch( system_string );
 

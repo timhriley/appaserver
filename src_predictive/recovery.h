@@ -60,6 +60,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	int service_placement_years;
 	double accelerated_amount;
 	double accelerated_rate;
 } RECOVERY_ACCELERATED;
@@ -211,6 +212,7 @@ FILE *recovery_update_open(
 			void );
 
 void recovery_update(	double recovery_amount,
+			double recovery_rate,
 			char *asset_name,
 			char *serial_label,
 			int tax_year );
@@ -232,12 +234,13 @@ double recovery_straight_line_amount(
 			double cost_basis );
 
 double recovery_statutory_accelerated_half_year_rate(
+			int service_placement_years,
 			int tax_year,
 			int disposal_year,
 			double recovery_period_years );
 
 double recovery_statutory_accelerated_half_year_evaluate(
-			int tax_year,
+			int service_placement_years,
 			double recovery_period_years );
 
 double recovery_accelerated_amount(

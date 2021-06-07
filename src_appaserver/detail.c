@@ -54,6 +54,13 @@
 
 /* Prototypes */
 /* ---------- */
+void detail_set_folder_javascript_files(
+			DOCUMENT *document,
+			char *application_name,
+			char *folder_name,
+			LIST *one2m_related_folder_list,
+			LIST *mto1_related_folder_list );
+
 char *detail_onload_control_string(
 			FOLDER *folder,
 			LIST *one2m_related_folder_list,
@@ -419,21 +426,29 @@ if ( SECURITY_ON )
 	document_set_javascript_module( document, "timlib" );
 	document_set_javascript_module( document, "form" );
 
+	detail_set_folder_javascript_files(
+		document,
+		application_name,
+		folder_name,
+		appaserver->folder->one2m_related_folder_list,
+		appaserver->folder->mto1_related_folder_list );
+/*
 	document_set_folder_javascript_files(
 		document,
 		application_name,
 		folder_name );
+*/
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
 	document->onload_control_string =
 		detail_onload_control_string(
@@ -877,6 +892,7 @@ void output_1tom_folder_detail(
 
 		document = document_new( "", application_name );
 
+/*
 		document_set_folder_javascript_files(
 			document,
 			application_name,
@@ -890,6 +906,7 @@ void output_1tom_folder_detail(
 			appaserver_mount_point,
 			application_relative_source_directory(
 				application_name ) );
+*/
 
 		if ( related_folder->relation_type_isa )
 		{
@@ -1760,4 +1777,46 @@ char *detail_onload_control_string(
 	}
 
 	return strdup( control_string );
+}
+
+void detail_set_folder_javascript_files(
+			DOCUMENT *document,
+			char *application_name,
+			char *folder_name,
+			LIST *one2m_related_folder_list,
+			LIST *mto1_related_folder_list )
+{
+	RELATED_FOLDER *related_folder;
+
+	document_set_folder_javascript_files(
+		document,
+		application_name,
+		folder_name );
+
+	if ( list_rewind( one2m_related_folder_list ) )
+	{
+		do {
+			related_folder = list_get( one2m_related_folder_list );
+
+			document_set_folder_javascript_files(
+				document,
+				application_name,
+				related_folder->one2m_folder->folder_name );
+
+		} while ( list_next( one2m_related_folder_list ) );
+	}
+
+	if ( list_rewind( mto1_related_folder_list ) )
+	{
+		do {
+
+			related_folder = list_get( mto1_related_folder_list );
+
+			document_set_folder_javascript_files(
+				document,
+				application_name,
+				related_folder->folder->folder_name );
+
+		} while ( list_next( mto1_related_folder_list ) );
+	}
 }

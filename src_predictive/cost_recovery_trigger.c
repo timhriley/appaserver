@@ -123,6 +123,7 @@ void recovery_trigger_insert(
 
 	recovery_update(
 		fixed_asset_purchase->recovery->recovery_amount,
+		fixed_asset_purchase->recovery->recovery_rate,
 		fixed_asset_purchase->fixed_asset->asset_name,
 		fixed_asset_purchase->serial_label,
 		tax_year );

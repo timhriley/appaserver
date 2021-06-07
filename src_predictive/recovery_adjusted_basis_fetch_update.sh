@@ -27,17 +27,22 @@ fi
 asset_name="$1"
 serial_label="$2"
 
-echo "	update fixed_asset_purchase					\
-	set tax_adjusted_basis = 					\
-		cost_basis - (						\
-		select sum( recovery_amount )				\
+recovery_amount_total=`							\
+	echo "	select sum( recovery_amount )				\
 		from cost_recovery					\
-		where	cost_recovery.asset_name =			\
-			fixed_asset_purchase.asset_name			\
-		  and	cost_recovery.serial_label =			\
-			fixed_asset_purchase.serial_label )		\
 		where asset_name = '$asset_name'			\
 		  and serial_label = '$serial_label';"			|
+	sql.e`
+
+if [ "$recovery_amount_total" = "" ]
+then
+	recovery_amount_total=0
+fi
+
+echo "	update fixed_asset_purchase					\
+	set tax_adjusted_basis = cost_basis - $recovery_amount_total	\
+	where asset_name = '$asset_name'			\
+	  and serial_label = '$serial_label';"			|
 sql.e
 
 exit $?
