@@ -8116,11 +8116,13 @@ QUERY_OUTPUT *query_detail_output_new(
 	||   (  len_name_list != len_data_list ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: lengths not the same.\n",
+		"Warning in %s/%s()/%d: lengths not the same: [%s] vs [%s].\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+			__LINE__,
+			list_display( where_attribute_name_list ),
+			list_display( where_attribute_data_list ) );
+		return (QUERY_OUTPUT*)0;
 	}
 
 	query_output = query_output_calloc();

@@ -1,4 +1,4 @@
-/* library/hash_table.c					   */
+/* $APPASERVER_HOME/library/hash_table.c		   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -8,8 +8,8 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "hash_table.h"
 #include "timlib.h"
+#include "hash_table.h"
 
 int hash_table_free_container( HASH_TABLE *h )
 {

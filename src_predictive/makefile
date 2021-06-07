@@ -21,7 +21,8 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/column.o 					\
 		${LIBRARY}/String.o 					\
 		${LIBRARY}/date_convert.o 				\
-		${LIBRARY}/hash_table.o
+		${LIBRARY}/hash_table.o					\
+		${LIBRARY}/javascript.o
 
 EXECUTABLES=	trial_balance						\
 		tax_form_report						\

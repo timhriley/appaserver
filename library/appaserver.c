@@ -22,7 +22,7 @@
 #include "hash_table.h"
 #include "String.h"
 
-APPASERVER *appaserver_new_appaserver(
+APPASERVER *appaserver_folder_new(
 		char *application_name,
 		char *session,
 		char *folder_name )
@@ -41,14 +41,13 @@ APPASERVER *appaserver_new_appaserver(
 			folder_name );
 
 	return appaserver;
-
 }
 
 char *appaserver_get_delete_display_string(
-					char *folder_name,
-					LIST *attribute_list,
-					LIST *related_folder_list,
-					char *primary_data_list_string )
+			char *folder_name,
+			LIST *attribute_list,
+			LIST *related_folder_list,
+			char *primary_data_list_string )
 {
 	char buffer[ 65536 ];
 	char *buffer_pointer = buffer;
@@ -93,8 +92,8 @@ char *appaserver_get_delete_display_string(
 }
 
 LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
-					LIST *related_folder_list,
-					LIST *exclude_attribute_name_list )
+			LIST *related_folder_list,
+			LIST *exclude_attribute_name_list )
 {
 	LIST *foreign_attribute_name_list;
 	LIST *primary_attribute_name_list;
@@ -138,8 +137,8 @@ LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
 }
 
 LIST *appaserver_include_attribute_name_list_in_related_folder_list(
-						LIST *related_folder_list,
-						LIST *attribute_name_list )
+				LIST *related_folder_list,
+				LIST *attribute_name_list )
 {
 	LIST *foreign_attribute_name_list;
 	LIST *primary_attribute_name_list;
@@ -182,7 +181,7 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 }
 
 LIST *appaserver_get_exclude_permission_record_list(
-					char *application_name )
+			char *application_name )
 {
 	char sys_string[ 1024 ];
 
@@ -198,9 +197,9 @@ LIST *appaserver_get_exclude_permission_record_list(
 static LIST *global_exclude_permission_record_list = {0};
 
 LIST *appaserver_get_exclude_permission_list(
-					char *application_name,
-					char *attribute_name,
-					char *role_name )
+			char *application_name,
+			char *attribute_name,
+			char *role_name )
 {
 	char fetched_attribute_name[ 128 ];
 	char fetched_role_name[ 128 ];
@@ -258,8 +257,9 @@ LIST *appaserver_get_exclude_permission_list(
 
 }
 
-boolean appaserver_exclude_permission(	LIST *exclude_permission_list,
-					char *permission )
+boolean appaserver_exclude_permission(
+			LIST *exclude_permission_list,
+			char *permission )
 {
 	char *compare_permission;
 
@@ -276,8 +276,8 @@ boolean appaserver_exclude_permission(	LIST *exclude_permission_list,
 }
 
 void appaserver_append_isa_related_attribute_list(
-					LIST *attribute_list,
-					LIST *mto1_isa_related_folder_list )
+			LIST *attribute_list,
+			LIST *mto1_isa_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
 
@@ -294,7 +294,6 @@ void appaserver_append_isa_related_attribute_list(
 				related_folder->folder->attribute_list );
 		} while( list_next( mto1_isa_related_folder_list ) );
 	}
-
 }
 
 LIST *appaserver_get_exclude_attribute_name_list(
@@ -338,8 +337,8 @@ LIST *appaserver_get_exclude_attribute_name_list(
 }
 
 boolean appaserver_frameset_menu_horizontal(
-						char *application_name,
-						char *login_name )
+				char *application_name,
+				char *login_name )
 {
 	char frameset_menu_horizontal_yn;
 	boolean frameset_menu_horizontal;
@@ -410,7 +409,7 @@ LIST *appaserver_get_isa_folder_list( char *application_name )
 }
 
 char *appaserver_isa_folder_list_display(
-				LIST *isa_folder_list )
+			LIST *isa_folder_list )
 {
 	ISA_FOLDER *isa_folder;
 	char buffer[ 4096 ];
@@ -447,9 +446,10 @@ char *appaserver_isa_folder_list_display(
 	return strdup( buffer );
 }
 
-ISA_FOLDER *appaserver_new_isa_folder(	char *folder_name,
-					char *related_folder_name,
-					char *related_attribute_name )
+ISA_FOLDER *appaserver_new_isa_folder(
+			char *folder_name,
+			char *related_folder_name,
+			char *related_attribute_name )
 {
 	ISA_FOLDER *a = (ISA_FOLDER *)calloc( 1, sizeof( ISA_FOLDER ) );
 
@@ -466,9 +466,9 @@ ISA_FOLDER *appaserver_new_isa_folder(	char *folder_name,
 }
 
 int appaserver_isa_folder_accounted_for(
-				LIST *isa_folder_list,
-				char *related_folder_name,
-				char *related_attribute_name )
+			LIST *isa_folder_list,
+			char *related_folder_name,
+			char *related_attribute_name )
 {
 	ISA_FOLDER *isa_folder;
 
@@ -504,9 +504,9 @@ int appaserver_isa_folder_accounted_for(
 }
 
 enum aggregate_statistic appaserver_based_on_datatype_get_aggregate_statistic(
-				char *application_name,
-				char *appaserver_mount_point,
-				char *datatype )
+			char *application_name,
+			char *appaserver_mount_point,
+			char *datatype )
 {
 	enum aggregate_statistic aggregate_statistic;
 
@@ -532,9 +532,9 @@ enum aggregate_statistic appaserver_based_on_datatype_get_aggregate_statistic(
 }
 
 char appaserver_get_aggregation_sum_yn(
-				char *application,
-				char *appaserver_mount_point,
-				char *datatype )
+			char *application,
+			char *appaserver_mount_point,
+			char *datatype )
 {
 	char sys_string[ 1024 ];
 	char *results;

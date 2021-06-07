@@ -18,19 +18,20 @@
 /* Enumerated types */
 /* ---------------- */
 enum related_folder_recursive_request_type {
-					related_folder_no_recursive,
-					related_folder_prompt_recursive_only,
-					related_folder_recursive_all };
+			related_folder_no_recursive,
+			related_folder_prompt_recursive_only,
+			related_folder_recursive_all };
 
-enum relation_type {			mto1,
-					one2m };
+enum relation_type {	mto1,
+			one2m };
 
-enum related_folder_list_usage {	prompt_screen,
-					edit_screen,
-					detail,
-					update,
-					other,
-					related_folder_unknown };
+enum related_folder_list_usage {
+			prompt_screen,
+			edit_screen,
+			detail,
+			update,
+			other,
+			related_folder_unknown };
 
 /* Constants */
 /* --------- */

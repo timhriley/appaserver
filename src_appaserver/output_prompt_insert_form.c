@@ -1043,10 +1043,11 @@ void get_without_isa_variables(	LIST **mto1_related_folder_list,
 	LIST *omit_insert_prompt_attribute_name_list;
 	APPASERVER *appaserver;
 
-	appaserver = appaserver_new_appaserver(
-					application_name,
-					session,
-					folder_name );
+	appaserver =
+		appaserver_folder_new(
+			application_name,
+			session,
+			folder_name );
 
 	appaserver->folder->mto1_related_folder_list =
 		related_folder_prompt_insert_mto1_related_folder_list(
@@ -1200,10 +1201,11 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 	LIST *omit_insert_attribute_name_list;
 	LIST *primary_attribute_name_list;
 
-	appaserver = appaserver_new_appaserver(
-					application_name,
-					session,
-					folder_name );
+	appaserver =
+		appaserver_folder_new(
+			application_name,
+			session,
+			folder_name );
 
 	appaserver->folder->mto1_related_folder_list =
 		related_folder_prompt_insert_mto1_related_folder_list(
@@ -1321,7 +1323,7 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 	}
 
 	appaserver =
-		appaserver_new_appaserver(
+		appaserver_folder_new(
 			application_name,
 			session,
 			folder_name );

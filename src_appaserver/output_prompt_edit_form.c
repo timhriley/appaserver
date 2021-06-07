@@ -199,10 +199,11 @@ int main( int argc, char **argv )
 	role = role_new_role(	application_name,
 				role_name );
 
-	appaserver = appaserver_new_appaserver(
-					application_name,
-					session,
-					folder_name );
+	appaserver =
+		appaserver_folder_new(
+			application_name,
+			session,
+			folder_name );
 
 	appaserver->folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(

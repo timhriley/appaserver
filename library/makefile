@@ -22,7 +22,8 @@ STANDARD_LIBRARY=						\
 		column.o 					\
 		date_convert.o 					\
 		String.o 					\
-		hash_table.o
+		hash_table.o					\
+		javascript.o
 
 APPASERVER_LIBRARY=						\
 		aggregate_level.o 				\
@@ -1037,4 +1038,7 @@ String.o: String.c String.h
 
 relation.o: relation.c relation.h
 	${CC} ${CFLAGS} -c relation.c
+
+javascript.o: javascript.c javascript.h
+	${CC} ${CFLAGS} -c javascript.c
 

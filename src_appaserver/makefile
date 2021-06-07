@@ -1045,12 +1045,14 @@ documentation_list: documentation_list.c				\
 
 detail: detail.c ${EXTERNAL_LIBS}					\
 			${LIB}/lookup_before_drop_down.o		\
-			${LIB}/row_security.o
+			${LIB}/row_security.o				\
+			${LIB}/javascript.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/row_security.o					\
 		${LIB}/lookup_before_drop_down.o			\
+		${LIB}/row_security.o					\
+		${LIB}/javascript.o					\
 		detail.c						\
 		-o detail
 

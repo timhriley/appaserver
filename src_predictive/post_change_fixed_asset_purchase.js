@@ -14,9 +14,7 @@ function post_change_fixed_asset_purchase( row )
 	// Turn on each edit.
 	// ------------------
 	element_name = 'estimated_useful_life_years_' + row;
-	element =
-		timlib_get_element(
-			element_name );
+	element = timlib_get_element( element_name );
 
 	// All done
 	// --------
@@ -25,27 +23,19 @@ function post_change_fixed_asset_purchase( row )
 	element.disabled = false;
 
 	element_name = 'units_produced_so_far_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
+	element = timlib_get_element( element_name );
 	element.disabled = false;
 
 	element_name = 'estimated_useful_life_units_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
+	element = timlib_get_element( element_name );
 	element.disabled = false;
 
 	element_name = 'estimated_residual_value_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
+	element = timlib_get_element( element_name );
 	element.disabled = false;
 
 	element_name = 'declining_balance_n_' + row;
-	element =
-		timlib_get_form_element(
-			element_name, 0 );
+	element = timlib_get_element( element_name );
 	element.disabled = false;
 
 	post_change_fixed_asset_purchase_depreciation( row )
@@ -61,9 +51,8 @@ function post_change_fixed_asset_purchase_depreciation( row )
 	var depreciation_method_element_value;
 
 	element_name = 'depreciation_method_' + row;
-	element =
-		timlib_get_element(
-			element_name );
+
+	element = timlib_get_element( element_name );
 
 	depreciation_method_element_value =
 		// ---------------------------------
@@ -80,93 +69,67 @@ function post_change_fixed_asset_purchase_depreciation( row )
 	if ( depreciation_method_element_value == 'straight_line' )
 	{
 		element_name = 'units_produced_so_far_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 
 		element_name = 'estimated_useful_life_units_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 
 		element_name = 'declining_balance_n_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 	}
 	else
 	if ( depreciation_method_element_value == 'double_declining_balance' )
 	{
 		element_name = 'units_produced_so_far_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 
 		element_name = 'estimated_useful_life_units_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 
 		element_name = 'declining_balance_n_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 	}
 	else
 	if ( depreciation_method_element_value == 'n_declining_balance' )
 	{
 		element_name = 'units_produced_so_far_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 
 		element_name = 'estimated_useful_life_units_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 	}
 	else
 	if ( depreciation_method_element_value == 'sum_of_years_digits' )
 	{
 		element_name = 'units_produced_so_far_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 
 		element_name = 'estimated_useful_life_units_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 
 		element_name = 'declining_balance_n_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 	}
 	else
 	if ( depreciation_method_element_value == 'units_of_production' )
 	{
 		element_name = 'estimated_useful_life_years_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 
 		element_name = 'declining_balance_n_' + row;
-		element =
-			timlib_get_form_element(
-				element_name, 0 );
+		element = timlib_get_element( element_name );
 		element.disabled = true;
 	}
 

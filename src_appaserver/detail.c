@@ -36,6 +36,7 @@
 #include "environ.h"
 #include "row_security.h"
 #include "lookup_before_drop_down.h"
+#include "javascript.h"
 #include "dictionary_appaserver.h"
 
 /* Constants */
@@ -53,19 +54,26 @@
 
 /* Prototypes */
 /* ---------- */
-void save_ending_form_number(	char *appaserver_data_directory,
-				char *folder_name,
-				int parent_pid,
-				int form_number );
+char *detail_onload_control_string(
+			FOLDER *folder,
+			LIST *one2m_related_folder_list,
+			LIST *mto1_related_folder_list );
 
-int get_starting_form_number(	char *appaserver_data_directory,
-				char *folder_name,
-				int parent_pid );
+void save_ending_form_number(
+			char *appaserver_data_directory,
+			char *folder_name,
+			int parent_pid,
+			int form_number );
+
+int detail_starting_form_number(
+			char *appaserver_data_directory,
+			char *folder_name,
+			int parent_pid );
 
 char *get_form_number_semaphore_filename(
-				char *appaserver_data_directory,
-				char *folder_name,
-				int parent_pid );
+			char *appaserver_data_directory,
+			char *folder_name,
+			int parent_pid );
 
 DICTIONARY *output_folder_detail(
 			int *form_number,
@@ -226,11 +234,22 @@ if ( SECURITY_ON )
 	appaserver_library_purge_temporary_files( application_name );
 }
 
-	role = role_new_role(	application_name,
-				role_name );
+	role =
+		role_new_role(
+			application_name,
+			role_name );
+
+	primary_data_list =
+		string2list(
+			primary_data_list_string,
+			FOLDER_DATA_DELIMITER );
+
+	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	document = document_new( "", application_name );
 
 	appaserver =
-		appaserver_new_appaserver(
+		appaserver_folder_new(
 			application_name,
 			session,
 			folder_name );
@@ -258,6 +277,21 @@ if ( SECURITY_ON )
 				role->override_row_restrictions_yn ),
 			role->role_name,
 			(LIST *)0 /* mto1_related_folder_list */ );
+
+	appaserver->folder->one2m_related_folder_list =
+		related_folder_1tom_related_folder_list(
+			appaserver->application_name,
+			appaserver->session,
+			appaserver->folder->folder_name,
+			role_name,
+			detail,
+			primary_data_list,
+			list_new() /* related_folder_list */,
+			0 /* dont omit_isa_relations */,
+			related_folder_no_recursive,
+			(LIST *)0 /* parent_primary_attribute_name_list */,
+			(LIST *)0 /* original_primary_attribute_name_list */,
+			(char *)0 /* prior_related_attribute_name */ );
 
 	appaserver->folder->mto1_isa_related_folder_list =
 		folder_mto1_isa_related_folder_list(
@@ -338,15 +372,6 @@ if ( SECURITY_ON )
 					mto1_related_folder_list );
 	}
 
-/*
-	if ( !non_edit_folder_name_list )
-	{
-		non_edit_folder_name_list = list_new();
-	}
-
-	list_append_pointer( non_edit_folder_name_list, folder_name );
-*/
-
 	/* Get from non_prefixed_dictionary and repopulate it. */
 	/* --------------------------------------------------- */
 	output_content_type_yn =
@@ -367,10 +392,11 @@ if ( SECURITY_ON )
 			CONTENT_TYPE_YN,
 			"n" );
 
-	dictionary_set_string(	dictionary_appaserver->
-					non_prefixed_dictionary,
-				PRIMARY_DATA_LIST_KEY,
-				primary_data_list_string );
+	dictionary_set_string(
+		dictionary_appaserver->
+			non_prefixed_dictionary,
+		PRIMARY_DATA_LIST_KEY,
+		primary_data_list_string );
 
 	/* ------------------------------------ */
 	/* Set the primary data list string	*/
@@ -380,19 +406,6 @@ if ( SECURITY_ON )
 					preprompt_dictionary,
 				PRIMARY_DATA_LIST_KEY,
 				primary_data_list_string );
-
-	role = role_new_role(	application_name,
-				role_name );
-
-	primary_data_list =
-		string2list(
-			primary_data_list_string,
-			FOLDER_DATA_DELIMITER );
-
-
-	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	document = document_new( "", application_name );
 
 	if ( !output_content_type_yn
 	||   *output_content_type_yn != 'n' )
@@ -422,9 +435,15 @@ if ( SECURITY_ON )
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
+	document->onload_control_string =
+		detail_onload_control_string(
+			appaserver->folder,
+			appaserver->folder->one2m_related_folder_list,
+			appaserver->folder->mto1_related_folder_list );
+
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+		document->application_name,
+		document->onload_control_string );
 
 	sprintf( form_title,
 		 "%s %s",
@@ -442,7 +461,7 @@ if ( SECURITY_ON )
 		appaserver->folder->append_isa_attribute_list );
 
 	form_number =
-		get_starting_form_number(
+		detail_starting_form_number(
 			appaserver_parameter_file->
 				appaserver_data_directory,
 			folder_name,
@@ -679,9 +698,10 @@ char *get_form_number_semaphore_filename(
 
 }
 
-int get_starting_form_number(	char *appaserver_data_directory,
-				char *folder_name,
-				int parent_pid )
+int detail_starting_form_number(
+			char *appaserver_data_directory,
+			char *folder_name,
+			int parent_pid )
 {
 	char *semaphore_filename;
 	FILE *file;
@@ -777,11 +797,31 @@ void output_1tom_folder_detail(
 
 	omit_insert_flag = 1 - OUTPUT_INSERT_BUTTON;
 
+	/* Executing this again; need to optimize. */
+	/* --------------------------------------- */
 	appaserver =
-		appaserver_new_appaserver(
+		appaserver_folder_new(
 			application_name,
 			session,
 			folder_name );
+
+	if ( !appaserver->folder->one2m_related_folder_list )
+	{
+		appaserver->folder->one2m_related_folder_list =
+		   related_folder_1tom_related_folder_list(
+			appaserver->application_name,
+			appaserver->session,
+			appaserver->folder->folder_name,
+			role_name,
+			detail,
+			primary_data_list,
+			list_new() /* related_folder_list */,
+			0 /* dont omit_isa_relations */,
+			related_folder_no_recursive,
+			(LIST *)0 /* parent_primary_attribute_name_list */,
+			(LIST *)0 /* original_primary_attribute_name_list */,
+			(char *)0 /* prior_related_attribute_name */ );
+	}
 
 	if ( !appaserver->folder->append_isa_attribute_list )
 	{
@@ -803,24 +843,6 @@ void output_1tom_folder_detail(
 					folder->
 					mto1_isa_related_folder_list,
 				role_name );
-	}
-
-	if ( !appaserver->folder->one2m_related_folder_list )
-	{
-		appaserver->folder->one2m_related_folder_list =
-		   related_folder_1tom_related_folder_list(
-			appaserver->application_name,
-			appaserver->session,
-			appaserver->folder->folder_name,
-			role_name,
-			detail,
-			primary_data_list,
-			list_new() /* related_folder_list */,
-			0 /* dont omit_isa_relations */,
-			related_folder_no_recursive,
-			(LIST *)0 /* parent_primary_attribute_name_list */,
-			(LIST *)0 /* original_primary_attribute_name_list */,
-			(char *)0 /* prior_related_attribute_name */ );
 	}
 
 	if ( !list_rewind( appaserver->folder->one2m_related_folder_list ) )
@@ -1070,7 +1092,7 @@ void output_mto1_folder_detail(
 	}
 
 	appaserver =
-		appaserver_new_appaserver(
+		appaserver_folder_new(
 			application_name,
 			session,
 			folder_name );
@@ -1104,7 +1126,6 @@ void output_mto1_folder_detail(
 			override_row_restrictions,
 			(LIST *)0 /* root_primary_attribute_name_list */,
 			0 /* recursive_level */ );
-
 
 	if ( !list_rewind( appaserver->folder->mto1_related_folder_list ) )
 		return;
@@ -1625,3 +1646,118 @@ omit_insert_flag = 1;
 	return (DICTIONARY *)list_get_last_pointer( fetched_dictionary_list );
 }
 
+char *detail_onload_control_string(
+			FOLDER *folder,
+			LIST *one2m_related_folder_list,
+			LIST *mto1_related_folder_list )
+{
+	char post_change_javascript[ 1024 ];
+	RELATED_FOLDER *related_folder;
+	char control_string[ 65536 ];
+	char *ptr = control_string;
+	boolean got_one = 0;
+
+	if ( folder->post_change_javascript
+	&&   *folder->post_change_javascript )
+	{
+		strcpy(	post_change_javascript,
+			folder->post_change_javascript );
+
+		javascript_replace_state(
+			post_change_javascript,
+			"update" );
+
+		javascript_replace_row(
+			post_change_javascript,
+			"0" );
+
+		ptr += sprintf( ptr, "%s", post_change_javascript );
+		got_one = 1;
+	}
+
+	if ( list_rewind( one2m_related_folder_list ) )
+	{
+		do {
+
+			related_folder = list_get( one2m_related_folder_list );
+
+			if ( related_folder->
+				one2m_folder->
+				post_change_javascript
+			&&   *related_folder->
+				one2m_folder->
+				post_change_javascript )
+			{
+				strcpy(	post_change_javascript,
+					related_folder->
+						one2m_folder->
+						post_change_javascript );
+		
+				javascript_replace_state(
+					post_change_javascript,
+					"update" );
+
+				javascript_replace_row(
+					post_change_javascript,
+					"0" );
+
+				if ( got_one )
+				{
+					ptr += sprintf( ptr, ";" );
+				}
+
+				ptr += sprintf(
+					ptr,
+					"%s",
+					post_change_javascript );
+
+				got_one = 1;
+			}
+
+		} while ( list_next( one2m_related_folder_list ) );
+	}
+
+	if ( list_rewind( mto1_related_folder_list ) )
+	{
+		do {
+
+			related_folder = list_get( mto1_related_folder_list );
+
+			if ( related_folder->
+				folder->
+				post_change_javascript
+			&&   *related_folder->
+				folder->
+				post_change_javascript )
+			{
+				strcpy(	post_change_javascript,
+					related_folder->
+						folder->
+						post_change_javascript );
+		
+				javascript_replace_state(
+					post_change_javascript,
+					"update" );
+
+				javascript_replace_row(
+					post_change_javascript,
+					"0" );
+
+				if ( got_one )
+				{
+					ptr += sprintf( ptr, ";" );
+				}
+
+				ptr += sprintf(
+					ptr,
+					"%s",
+					post_change_javascript );
+
+				got_one = 1;
+			}
+
+		} while ( list_next( mto1_related_folder_list ) );
+	}
+
+	return strdup( control_string );
+}

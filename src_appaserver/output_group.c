@@ -155,10 +155,11 @@ int main( int argc, char **argv )
 		role_get_override_row_restrictions(
 			role->override_row_restrictions_yn );
 
-	appaserver = appaserver_new_appaserver(
-					application_name,
-					BOGUS_SESSION,
-					folder_name );
+	appaserver =
+		appaserver_folder_new(
+			application_name,
+			BOGUS_SESSION,
+			folder_name );
 
 	appaserver->folder->attribute_list =
 		attribute_get_attribute_list(

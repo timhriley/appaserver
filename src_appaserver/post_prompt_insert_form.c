@@ -191,7 +191,7 @@ int main( int argc, char **argv )
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	appaserver =
-		appaserver_new_appaserver(
+		appaserver_folder_new(
 			application_name,
 			session,
 			folder_name );

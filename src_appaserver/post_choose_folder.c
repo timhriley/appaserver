@@ -154,7 +154,7 @@ int main( int argc, char **argv )
 				role_name );
 
 	appaserver =
-		appaserver_new_appaserver(
+		appaserver_folder_new(
 			application_name,
 			session,
 			folder_name );
