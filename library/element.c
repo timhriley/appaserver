@@ -2197,6 +2197,7 @@ void element_drop_down_output(
 	char buffer[ 1024 ];
 	char delimited_label_buffer[ 512 ];
 	char initial_label[ 512 ];
+	char format_buffer[ 512 ];
 	char drop_down_element_name[ 512 ];
 	char multi_select_drop_down_element_name[ 512 ];
 	char *data;
@@ -2234,8 +2235,10 @@ void element_drop_down_output(
 		element_text_item_output(
 			output_file,
 			element->name,
-			element_carrot_replace(
-				element->text_item->data ),
+			format_initial_capital(
+				format_buffer,
+				element_carrot_replace(
+					element->text_item->data ) ),
 			0 /* attribute_width */,
 			row,
 			'n' /* onchange_null2slash_yn */,
@@ -4113,8 +4116,14 @@ char *element_carrot_replace(
 
 	strcpy( replace, data );
 
+/*
 	return search_replace_string(
 			replace,
 			"^",
 			ELEMENT_LONG_DASH_DELIMITER );
+*/
+	return search_replace_string(
+			replace,
+			"^",
+			ELEMENT_MULTI_ATTRIBUTE_DISPLAY_DELIMITER );
 }
