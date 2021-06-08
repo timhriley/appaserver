@@ -1487,9 +1487,13 @@ void element_text_item_output_as_dictionary(
 	char *data;
 
 	if ( element_data )
+	{
 		data = element_data;
+	}
 	else
+	{
 		data = "";
+	}
 
 	fprintf( output_file,
 		 "%s_%d%c%s\n",
@@ -2168,7 +2172,8 @@ void element_drop_down_output_as_dictionary(
 		 element_name,
 		 row,
 		 ELEMENT_DICTIONARY_DELIMITER,
-	 	 dictionary_trim_double_bracked_string( initial_data ));
+	 	 dictionary_trim_double_bracked_string(
+			initial_data ) );
 }
 
 void element_drop_down_output( 	
@@ -2197,7 +2202,6 @@ void element_drop_down_output(
 	char buffer[ 1024 ];
 	char delimited_label_buffer[ 512 ];
 	char initial_label[ 512 ];
-	char format_buffer[ 512 ];
 	char drop_down_element_name[ 512 ];
 	char multi_select_drop_down_element_name[ 512 ];
 	char *data;
@@ -2235,10 +2239,7 @@ void element_drop_down_output(
 		element_text_item_output(
 			output_file,
 			element->name,
-			format_initial_capital(
-				format_buffer,
-				element_carrot_replace(
-					element->text_item->data ) ),
+			element->text_item->data,
 			0 /* attribute_width */,
 			row,
 			'n' /* onchange_null2slash_yn */,
@@ -4110,7 +4111,7 @@ char *element_place_commas_in_number_string(
 char *element_carrot_replace(
 			char *data )
 {
-	static char replace[ 1024 ];
+	static char replace[ 2048 ];
 
 	if ( !character_exists( data, '^' ) ) return data;
 

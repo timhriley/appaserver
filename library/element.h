@@ -763,6 +763,8 @@ char *element_place_commas_in_number_string(
 			char *element_name,
 			char *data );
 
+/* Returns static memory */
+/* --------------------- */
 char *element_carrot_replace(
 			char *data );
 #endif
