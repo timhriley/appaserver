@@ -767,4 +767,12 @@ char *element_place_commas_in_number_string(
 /* --------------------- */
 char *element_carrot_replace(
 			char *data );
+
+void element_drop_down_text_item_output(
+			FILE *output_file,
+			char *element_name,
+			char *data,
+			int row,
+			char *background_color );
+
 #endif

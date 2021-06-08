@@ -2229,29 +2229,12 @@ void element_drop_down_output(
 
 	if ( readonly )
 	{
-		ELEMENT_APPASERVER *element;
-
-		element = element_appaserver_new( text_item, element_name );
-
-		element->text_item->data = initial_data;
-		element->text_item->readonly = 1;
-
-		element_text_item_output(
+		element_drop_down_text_item_output(
 			output_file,
-			element->name,
-			element->text_item->data,
-			0 /* attribute_width */,
+			element_name,
+			initial_data,
 			row,
-			'n' /* onchange_null2slash_yn */,
-			(char *)0 /* post_change_javascript */,
-			(char *)0 /* on_focus_javascript_function */,
-			0 /* widget_size */,
-			background_color,
-			0 /* tab_index */,
-			0 /* not without_td_tags */,
-			1 /* readonly */,
-			(char *)0 /* state */,
-			0 /* not is_numeric */ );
+			background_color );
 
 		return;
 
@@ -2846,10 +2829,10 @@ void element_hidden_set_data( ELEMENT_HIDDEN *e, char *s )
 }
 
 void element_hidden_output(
-				FILE *output_file,
-				char *name,
-				char *data,
-				int row )
+			FILE *output_file,
+			char *name,
+			char *data,
+			int row )
 {
 	if ( !data ) data = "";
 
@@ -2871,15 +2854,14 @@ void element_hidden_output(
 		 "%c%s\n",
 		 ELEMENT_DICTIONARY_DELIMITER,
 		 dictionary_trim_double_bracked_string( data ) );
-
 }
 
 void element_hidden_name_dictionary_output(
-				FILE *output_file,
-				DICTIONARY *hidden_name_dictionary,
-				int row,
-				char *name,
-				char *data )
+			FILE *output_file,
+			DICTIONARY *hidden_name_dictionary,
+			int row,
+			char *name,
+			char *data )
 {
 	char key_name[ 512 ];
 
@@ -2911,9 +2893,10 @@ void element_hidden_name_dictionary_output(
 			return;
 		}
 
-		dictionary_set_pointer(	hidden_name_dictionary,
-					strdup( key_name ),
-					"" );
+		dictionary_set_pointer(
+			hidden_name_dictionary,
+			strdup( key_name ),
+			"" );
 	}
 
 	if ( !data ) data = "";
@@ -2922,7 +2905,6 @@ void element_hidden_name_dictionary_output(
 
 	fprintf( output_file,
 	" type=\"hidden\" value=\"%s\">\n", data );
-
 }
 
 void element_upload_filename_output(	FILE *output_file,
@@ -4105,7 +4087,6 @@ char *element_place_commas_in_number_string(
 		return data;
 	else
 		return place_commas_in_number_string( data );
-
 }
 
 char *element_carrot_replace(
@@ -4117,14 +4098,45 @@ char *element_carrot_replace(
 
 	strcpy( replace, data );
 
-/*
-	return search_replace_string(
-			replace,
-			"^",
-			ELEMENT_LONG_DASH_DELIMITER );
-*/
 	return search_replace_string(
 			replace,
 			"^",
 			ELEMENT_MULTI_ATTRIBUTE_DISPLAY_DELIMITER );
 }
+
+void element_drop_down_text_item_output(
+			FILE *output_file,
+			char *element_name,
+			char *data,
+			int row,
+			char *background_color )
+{
+	char format_buffer[ 512 ];
+
+	if ( !data ) data = "";
+
+	fprintf( output_file, "<td>" );
+
+	fprintf( output_file,
+		 "<input type=text value=\"%s\" readonly=1",
+		 format_initial_capital(
+			format_buffer,
+			element_carrot_replace(
+			    	data ) ) );
+
+	if ( background_color && *background_color )
+	{
+		fprintf(output_file,
+			" style=\"{background:%s}\"",
+			background_color );
+	}
+
+	fprintf( output_file, "></td>\n" );
+
+	fprintf(output_file,
+		"<input name=\"%s_%d\" type=hidden value=\"%s\">\n",
+		element_name,
+		row,
+		data );
+}
+
