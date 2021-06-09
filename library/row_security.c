@@ -2253,31 +2253,11 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 
 	element_list_structure = row_security_element_list_structure_calloc();
 
-fprintf(stderr,
-	"%s/%s()/%d: folder_name = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-select_folder->folder_name );
-
-fprintf(stderr,
-	"%s/%s()/%d: attribute_list = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-attribute_list_display( select_folder->attribute_list ) );
-
 	element_list_structure->row_dictionary_list =
 		row_security_sort_order_dictionary_list(
 			query_dictionary,
 			sort_dictionary,
 			select_folder );
-
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
 
 	element_list_structure->regular_element_list =
 		row_security_sort_order_element_list(

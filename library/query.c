@@ -7011,13 +7011,6 @@ LIST *query_edit_table_dictionary_list(
 			order_clause,
 			max_rows );
 
-fprintf(stderr,
-	"%s/%s()/%d: sys_string = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-sys_string );
-
 	attribute_name_list =
 	 	attribute_lookup_allowed_attribute_name_list(
 			append_isa_attribute_list );
