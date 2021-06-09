@@ -752,13 +752,13 @@ LIST *appaserver_library_get_folder_name_list(
 }
 
 LIST *appaserver_library_get_update_attribute_element_list(
-					int *objects_outputted,
-					ATTRIBUTE *attribute,
-					char update_yn,
-					LIST *primary_attribute_name_list,
-					boolean is_primary_attribute,
-					char *folder_post_change_javascript,
-					boolean prompt_data_element_only )
+			int *objects_outputted,
+			ATTRIBUTE *attribute,
+			char update_yn,
+			LIST *primary_attribute_name_list,
+			boolean is_primary_attribute,
+			char *folder_post_change_javascript,
+			boolean prompt_data_element_only )
 {
 	LIST *element_list = {0};
 	LIST *return_list;
@@ -804,13 +804,13 @@ LIST *appaserver_library_get_update_attribute_element_list(
 }
 
 LIST *appaserver_library_get_insert_attribute_element_list(
-					int *objects_outputted,
-					LIST *attribute_list,
-					char *attribute_name,
-					LIST *posted_attribute_name_list,
-					boolean is_primary_attribute,
-					char *folder_post_change_javascript,
-					char *application_name )
+			int *objects_outputted,
+			LIST *attribute_list,
+			char *attribute_name,
+			LIST *posted_attribute_name_list,
+			boolean is_primary_attribute,
+			char *folder_post_change_javascript,
+			char *application_name )
 {
 	ATTRIBUTE *attribute;
 	LIST *element_list = {0};
@@ -880,14 +880,14 @@ LIST *appaserver_library_get_insert_attribute_element_list(
 }
 
 LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
-				char *attribute_name,
-				char *datatype,
-				int width,
-				char *post_change_javascript,
-				char *on_focus_javascript_function,
-				LIST *posted_attribute_name_list,
-				boolean is_primary_attribute,
-				boolean omit_update )
+			char *attribute_name,
+			char *datatype,
+			int width,
+			char *post_change_javascript,
+			char *on_focus_javascript_function,
+			LIST *posted_attribute_name_list,
+			boolean is_primary_attribute,
+			boolean omit_update )
 {
 	LIST *return_list;
 	ELEMENT_APPASERVER *element;
@@ -1064,9 +1064,9 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 }
 
 boolean appaserver_library_validate_begin_end_date(
-					char **begin_date,
-					char **end_date,
-					DICTIONARY *post_dictionary )
+			char **begin_date,
+			char **end_date,
+			DICTIONARY *post_dictionary )
 {
 	char buffer[ 128 ];
 	int i;
@@ -2541,40 +2541,39 @@ enum preupdate_change_state appaserver_library_get_preupdate_change_state(
 char *appaserver_library_get_sort_attribute_name( LIST *attribute_list )
 {
 	if ( attribute_list_exists(
-				attribute_list,
-				SORT_ORDER_ATTRIBUTE_NAME ) )
+			attribute_list,
+			SORT_ORDER_ATTRIBUTE_NAME ) )
 	{
 		return SORT_ORDER_ATTRIBUTE_NAME;
 	}
 	else
 	if ( attribute_list_exists(
-				attribute_list,
-				DISPLAY_ORDER_ATTRIBUTE_NAME ) )
+			attribute_list,
+			DISPLAY_ORDER_ATTRIBUTE_NAME ) )
 	{
 		return DISPLAY_ORDER_ATTRIBUTE_NAME;
 	}
 	else
 	if ( attribute_list_exists(
-				attribute_list,
-				SEQUENCE_NUMBER_ATTRIBUTE_NAME ) )
+			attribute_list,
+			SEQUENCE_NUMBER_ATTRIBUTE_NAME ) )
 	{
 		return SEQUENCE_NUMBER_ATTRIBUTE_NAME;
 	}
 
 	return (char *)0;
-
 }
 
 LIST *appaserver_library_get_update_lookup_attribute_element_list(
-				char update_yn,
-				LIST *primary_attribute_name_list,
-				LIST *exclude_permission_list,
-				char *attribute_name,
-				char *datatype,
-				int width,
-				char *post_change_javascript,
-				char *on_focus_javascript_function,
-				boolean is_primary_attribute )
+			char update_yn,
+			LIST *primary_attribute_name_list,
+			LIST *exclude_permission_list,
+			char *attribute_name,
+			char *datatype,
+			int width,
+			char *post_change_javascript,
+			char *on_focus_javascript_function,
+			boolean is_primary_attribute )
 {
 	LIST *return_list;
 	ELEMENT_APPASERVER *element = {0};
@@ -2977,7 +2976,6 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	}
 
 	return return_list;
-
 }
 
 char *appaserver_library_get_folder_foreign_translation(

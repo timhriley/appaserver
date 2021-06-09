@@ -11,7 +11,6 @@
 #include <ctype.h>
 #include "attribute.h"
 #include "session.h"
-#include "element.h"
 #include "related_folder.h"
 #include "folder.h"
 #include "query.h"
@@ -23,6 +22,7 @@
 #include "timlib.h"
 #include "process_parameter_list.h"
 #include "basename.h"
+#include "element.h"
 
 ELEMENT_NON_EDIT_TEXT *element_new_non_edit_text( void )
 {
@@ -4138,5 +4138,46 @@ void element_drop_down_text_item_output(
 		element_name,
 		row,
 		data );
+}
+
+ELEMENT_APPASERVER *element_sort_order(
+			ATTRIBUTE *attribute )
+{
+	ELEMENT_APPASERVER *element = {0};
+	int width;
+
+	if ( attribute->primary_key_index )
+		width = 15;
+	else
+		width = 10;
+
+	element =
+		element_text_item_variant_element(
+			attribute->attribute_name,
+			element_get_type_string( text_item ),
+			width,
+			(char *)0 /* post_change_javascript */,
+			(char *)0 /* on_focus_javascript_function */ );
+
+	if ( attribute->primary_key_index )
+	{
+		char heading[ 128 ];
+
+		sprintf( heading, "*%s", element->name );
+
+		element_text_item_set_heading(
+			element->text_item,
+			strdup( heading ) );
+	}
+	else
+	{
+		element_text_item_set_heading(
+			element->text_item,
+			element->name );
+	}
+
+	element->text_item->readonly = 1;
+
+	return element;
 }
 

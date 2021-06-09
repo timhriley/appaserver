@@ -1627,8 +1627,8 @@ LIST *get_radio_button_element_list(
 		output_table_row_boolean = 1;
 	}
 
-	/* Create the sort_order button (maybe) */
-	/* ------------------------------------ */
+	/* Create the sort_order button */
+	/* ---------------------------- */
 	if ( sort_order_button )
 	{
 		if ( !output_table_row_boolean )
@@ -1653,7 +1653,7 @@ LIST *get_radio_button_element_list(
 				element );
 
 		output_table_row_boolean = 1;
-	
+
 	} /* if sort_order button */
 
 	/* Create the lookup radio button (maybe) */

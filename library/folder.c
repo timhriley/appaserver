@@ -98,9 +98,11 @@ FOLDER *folder_with_load_new(	char *application_name,
 	char *role_name = {0};
 	char override_row_restrictions_yn = {0};
 
-	folder = folder_new(	application_name,
-				session,
-				folder_name );
+	folder =
+		folder_new(
+			application_name,
+			session,
+			folder_name );
 
 	if ( !folder ) return (FOLDER *)0;
 

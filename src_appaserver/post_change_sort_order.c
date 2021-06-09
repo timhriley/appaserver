@@ -196,14 +196,13 @@ int main( int argc, char **argv )
 			role_name );
 
 	folder =
-		folder_with_load_new(
-			application_name,
-				session,
-				folder_name,
-				role );
-
-	if ( folder->row_level_non_owner_view_only )
-		folder->row_level_non_owner_forbid = 1;
+		folder_fetch(	
+			folder_name,
+			1 /* fetch_attribute_list */,
+			0 /* not fetch_one2m_relation_list */,
+			0 /* not fetch_one2m_recursive_relation_list */,
+			0 /* not fetch_mto1_isa_recursive_relation_list */,
+			1 /* fetch_mto1_relation_list */ );
 
 	document = document_new( "", application_name );
 	document->output_content_type = 1;
@@ -212,13 +211,6 @@ int main( int argc, char **argv )
 	document_set_javascript_module( document, "trim" );
 	document_set_javascript_module( document, "form" );
 	document_set_javascript_module( document, "sort_order" );
-
-/*
-	document_set_folder_javascript_files(
-		document,
-		application_name,
-		folder_name );
-*/
 
 	document_output_head(
 		document->application_name,
@@ -231,31 +223,9 @@ int main( int argc, char **argv )
 			application_name ),
 		0 /* not with_dynarch_menu */ );
 
-/*
-	if ( folder->post_change_javascript
-	&&   *folder->post_change_javascript )
-	{
-		char post_change_javascript[ 1024 ];
-
-		strcpy(	post_change_javascript,
-			folder->post_change_javascript );
-		
-		search_replace_string(
-			post_change_javascript,
-			"$state",
-			"sort" );
-
-		document->onload_control_string =
-			document_set_onload_control_string(
-				document->onload_control_string,
-				form_set_post_change_javascript_row_zero(
-					post_change_javascript ) );
-	}
-*/
-
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+		document->application_name,
+		document->onload_control_string );
 
 	if ( strcmp( state, "one" ) == 0 )
 	{
@@ -323,9 +293,17 @@ void change_sort_order_state_one(
 	LIST *form_button_list;
 	FORM_BUTTON *form_button;
 
-	sort_attribute_name =
-		appaserver_library_get_sort_attribute_name(
-			folder->attribute_list );
+	if ( ! ( sort_attribute_name =
+			appaserver_library_get_sort_attribute_name(
+				folder->attribute_list ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty sort_attribute_name.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	/* Build the renumber button */
 	/* ------------------------- */
@@ -394,28 +372,31 @@ void change_sort_order_state_one(
 		sort_attribute_name,
 		"yes" );
 
-	form = form_new( SORT_ORDER_ATTRIBUTE_NAME,
+	form =
+		form_new(
+			SORT_ORDER_ATTRIBUTE_NAME,
 			 application_title_string(
 				application_name ) );
 
-	sprintf(	action_string,
-			"%s/post_change_sort_order?%s+%s+%s+%s+%s+two",
-			appaserver_parameter_file_get_cgi_directory(),
-			login_name,
-			application_name,
-			session,
-			folder->folder_name,
-			role->role_name );
+	sprintf(action_string,
+		"%s/post_change_sort_order?%s+%s+%s+%s+%s+two",
+		appaserver_parameter_file_get_cgi_directory(),
+		login_name,
+		application_name,
+		session,
+		folder->folder_name,
+		role->role_name );
 
 	form->action_string = action_string;
 	form->table_border = 1;
 
-	form_output_title(	form->application_title,
-				"sort" /* state */,
-				form->form_title,
-				folder->folder_name,
-				form->subtitle_string,
-				0 /* not omit_format_initial_capital */ );
+	form_output_title(
+		form->application_title,
+		"sort" /* state */,
+		form->form_title,
+		folder->folder_name,
+		form->subtitle_string,
+		0 /* not omit_format_initial_capital */ );
 
 	form_output_heading(
 		form->login_name,
@@ -441,57 +422,16 @@ void change_sort_order_state_one(
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
 
-	row_security =
-		row_security_new(
-			application_name,
-			role,
-			folder->folder_name /* select_folder_name */,
-			login_name,
-			(char *)0 /* state */,
-			(DICTIONARY *)0 /* preprompt_dictionary */,
-			query_dictionary,
-			sort_dictionary,
-			ignore_attribute_name_list
-				/* no_display_pressed_attribute_name_list */ );
+	row_security = row_security_calloc();
 
-	if ( !row_security->select_folder )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty select_folder.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	/* Turn off join_1tom_each_row_yn */
-	/* ------------------------------ */
-	row_security->select_folder->join_1tom_related_folder_list = (LIST *)0;
+	row_security->query_dictionary = query_dictionary;
+	row_security->sort_dictionary = sort_dictionary;
 
 	row_security->row_security_element_list_structure =
-		row_security_edit_table_structure_new(
-			application_name,
-			row_security->row_security_state,
-			row_security->login_name,
-			row_security->state,
-			row_security->login_role,
-			row_security->preprompt_dictionary,
+		row_security_sort_order_structure_new(
 			row_security->query_dictionary,
 			row_security->sort_dictionary,
-			row_security->
-				no_display_pressed_attribute_name_list,
-			row_security->select_folder,
-			(char *)0 /* attribute_not_null_join */,
-			(FOLDER *)0 /* attribute_not_null_folder */,
-			row_security->foreign_login_name_folder,
-			0 /* not make_primary_keys_non_edit */,
-			omit_delete_dont_care,
-			1 /* omit_operation_buttons */,
-			0 /* not ajax_fill_drop_down_omit */,
-			row_security->
-				select_folder->
-				append_isa_attribute_list,
-			row_security->row_security_is_participating );
+			folder );
 
 	form->regular_element_list =
 		row_security->

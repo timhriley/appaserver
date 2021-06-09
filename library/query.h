@@ -900,4 +900,11 @@ QUERY *query_simple_new(
 			char *login_name,
 			char *folder_name );
 
+QUERY *query_sort_order_new(
+			DICTIONARY *dictionary,
+			FOLDER *folder );
+
+QUERY_OUTPUT *query_sort_order_output_new(
+			QUERY *query );
+
 #endif

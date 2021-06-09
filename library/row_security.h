@@ -59,10 +59,15 @@ typedef struct
 		row_security_element_list_structure;
 } ROW_SECURITY;
 
+/* Operations */
+/* ---------- */
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
 				char *application_name,
 				char *folder_name,
 				char *attribute_not_null_string );
+
+ROW_SECURITY *row_security_calloc(
+			void );
 
 ROW_SECURITY *row_security_new(
 			char *application_name,
@@ -308,5 +313,19 @@ LIST *row_security_viewonly_evaluate_element_list(
 			LIST *no_display_pressed_attribute_name_list,
 			char *folder_post_change_javascript,
 			LIST *join_1tom_related_folder_list );
+
+ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
+		row_security_sort_order_structure_new(
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			FOLDER *select_folder );
+
+LIST *row_security_sort_order_dictionary_list(
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			FOLDER *folder );
+
+LIST *row_security_sort_order_element_list(
+			LIST *attribute_list );
 
 #endif

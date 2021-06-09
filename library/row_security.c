@@ -20,7 +20,27 @@
 #include "list.h"
 #include "query.h"
 #include "related_folder.h"
+#include "environ.h"
 #include "row_security.h"
+
+ROW_SECURITY *row_security_calloc( void )
+{
+	ROW_SECURITY *row_security;
+
+	if ( ! ( row_security =
+		(ROW_SECURITY *)
+			calloc( 1, sizeof( ROW_SECURITY ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return row_security;
+}
 
 ROW_SECURITY *row_security_new(
 			char *application_name,
@@ -33,19 +53,7 @@ ROW_SECURITY *row_security_new(
 			DICTIONARY *sort_dictionary,
 			LIST *no_display_pressed_attribute_name_list )
 {
-	ROW_SECURITY *row_security;
-
-	if ( ! ( row_security =
-		(ROW_SECURITY *)
-			calloc( 1, sizeof( ROW_SECURITY ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocation memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	ROW_SECURITY *row_security = row_security_calloc();
 
 	row_security->login_role = login_role;
 	row_security->login_name = login_name;
@@ -2223,5 +2231,168 @@ LIST *row_security_viewonly_evaluate_element_list(
 	}
 
 	return return_list;
+}
+
+ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
+		row_security_sort_order_structure_new(
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			FOLDER *select_folder )
+{
+	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *element_list_structure;
+
+	if ( !select_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: select_folder is null.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element_list_structure = row_security_element_list_structure_calloc();
+
+fprintf(stderr,
+	"%s/%s()/%d: folder_name = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+select_folder->folder_name );
+
+fprintf(stderr,
+	"%s/%s()/%d: attribute_list = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+attribute_list_display( select_folder->attribute_list ) );
+
+	element_list_structure->row_dictionary_list =
+		row_security_sort_order_dictionary_list(
+			query_dictionary,
+			sort_dictionary,
+			select_folder );
+
+fprintf(stderr,
+	"%s/%s()/%d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__ );
+
+	element_list_structure->regular_element_list =
+		row_security_sort_order_element_list(
+			select_folder->attribute_list );
+
+	return element_list_structure;
+}
+
+LIST *row_security_sort_order_dictionary_list(
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			FOLDER *folder )
+{
+	QUERY *query;
+	LIST *row_dictionary_list;
+
+	query =
+		query_sort_order_new(
+			query_dictionary,
+			folder );
+
+	query->sort_dictionary = sort_dictionary;
+
+	if ( dictionary_length( query->sort_dictionary ) )
+	{
+		query->query_output->order_clause =
+			query_get_order_clause(
+				query->sort_dictionary,
+				query->folder->folder_name,
+				query->folder->attribute_list );
+	}
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: select_clause = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+query->query_output->select_clause );
+m2( query->folder->application_name, msg );
+}
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: from_clause = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+query->query_output->from_clause );
+m2( query->folder->application_name, msg );
+}
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: where_clause = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+query->query_output->where_clause );
+m2( query->folder->application_name, msg );
+}
+
+	row_dictionary_list =
+		query_edit_table_dictionary_list(
+			environment_application_name(),
+			query->query_output->select_clause,
+			query->query_output->from_clause,
+			query->query_output->where_clause,
+			query->query_output->order_clause,
+			query->max_rows,
+			query->folder->attribute_list,
+			query->login_name );
+
+	return row_dictionary_list;
+}
+
+LIST *row_security_sort_order_element_list(
+			LIST *attribute_list )
+{
+	LIST *element_list;
+	ATTRIBUTE *attribute;
+	char *sort_attribute_name;
+
+	if ( ! ( sort_attribute_name =
+			appaserver_library_get_sort_attribute_name(
+				attribute_list ) ) )
+	{
+		return (LIST *)0;
+	}
+
+	if ( !list_rewind( attribute_list ) ) return (LIST *)0;
+
+	element_list = list_new();
+
+	do {
+		attribute = list_get( attribute_list );
+
+		if ( attribute->primary_key_index )
+		{
+			list_set(
+				element_list,
+				element_sort_order(
+					attribute ) );
+		}
+		else
+		if ( strcmp(
+			attribute->attribute_name,
+			sort_attribute_name ) == 0 )
+		{
+			list_set(
+				element_list,
+				element_sort_order(
+					attribute ) );
+		}
+
+	} while ( list_next( attribute_list ) );
+
+	return element_list;
 }
 
