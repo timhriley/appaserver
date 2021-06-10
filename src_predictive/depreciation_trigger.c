@@ -94,9 +94,6 @@ int main( int argc, char **argv )
 					serial_label,
 					depreciation_date ) ) )
 		{
-			printf(
-		"<h3>ERROR: depreciation_fetch() returned empty.</h3>\n" );
-
 			exit( 0 );
 		}
 	}
