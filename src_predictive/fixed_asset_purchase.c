@@ -458,6 +458,10 @@ void fixed_asset_purchase_depreciation_display(
 	char *heading;
 	char *justification;
 	char buffer[ 128 ];
+	char cost[ 128 ];
+	char prior_accumulated[ 128 ];
+	char depreciation[ 128 ];
+	char post_accumulated[ 128 ];
 
 	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
 
@@ -481,8 +485,36 @@ void fixed_asset_purchase_depreciation_display(
 
 		if ( !fixed_asset_purchase->depreciation ) continue;
 
+		strcpy(	cost,
+			/* --------------------- */
+			/* Returns static memory */
+			/* Doesn't trim pennies  */
+			/* --------------------- */
+			commas_in_money(
+				fixed_asset_purchase->
+					cost_basis ) );
+
+		strcpy(	prior_accumulated,
+			commas_in_money(
+				fixed_asset_purchase->
+					finance_accumulated_depreciation ) );
+
+		strcpy(	depreciation,
+			commas_in_money(
+				fixed_asset_purchase->
+					depreciation->
+					depreciation_amount ) );
+
+		strcpy(	post_accumulated,
+			commas_in_money(
+				fixed_asset_purchase->
+					finance_accumulated_depreciation +
+				fixed_asset_purchase->
+					depreciation->
+					depreciation_amount ) );
+
 		fprintf(output_pipe,
-			"%s^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf",
+			"%s^%s^%s^%s^%s^%s^%s\n",
 			format_initial_capital(
 				buffer,
 				fixed_asset_purchase->
@@ -491,18 +523,10 @@ void fixed_asset_purchase_depreciation_display(
 			fixed_asset_purchase->
 				serial_label,
 			fixed_asset_purchase->service_placement_date,
-			fixed_asset_purchase->
-				cost_basis,
-			fixed_asset_purchase->
-				finance_accumulated_depreciation,
-			fixed_asset_purchase->
-				depreciation->
-				depreciation_amount,
-			fixed_asset_purchase->
-				finance_accumulated_depreciation +
-			fixed_asset_purchase->
-				depreciation->
-				depreciation_amount );
+			cost,
+			prior_accumulated,
+			depreciation,
+			post_accumulated );
 
 	} while( list_next( fixed_asset_purchase_list ) );
 

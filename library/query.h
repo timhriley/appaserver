@@ -696,7 +696,7 @@ QUERY *query_edit_table_new(
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name );
 
-QUERY_DROP_DOWN *query_edit_table_drop_down(
+LIST *query_edit_table_drop_down_list_evaluate(
 			LIST *exclude_attribute_name_list,
 			char *root_folder_name,
 			char *dictionary_prepend_folder_name,

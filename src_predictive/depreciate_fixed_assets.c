@@ -136,7 +136,8 @@ boolean depreciate_fixed_assets( boolean execute )
 	depreciation_date = date_now_yyyy_mm_dd( date_utc_offset() );
 
 	sprintf(where,
-	"ifnull(finance_accumulated_depreciation,0) < cost_basis	"
+	"ifnull(finance_accumulated_depreciation,0) -			"
+	"ifnull(estimated_residual_value,0) < cost_basis		"
 	" and disposal_date is null					"
 	" and not %s							",
 		depreciation_subquery_where( depreciation_date ) );
@@ -149,7 +150,12 @@ boolean depreciate_fixed_assets( boolean execute )
 				0 /* not fetch_last_recovery */ ),
 			depreciation_date );
 
-	if ( !list_length( fixed_asset_purchase_list ) ) return 0;
+	if ( !list_length(
+		fixed_asset_purchase_depreciation_list(
+			fixed_asset_purchase_list ) ) )
+	{
+		return 0;
+	}
 
 	fixed_asset_purchase_depreciation_display(
 		fixed_asset_purchase_list );

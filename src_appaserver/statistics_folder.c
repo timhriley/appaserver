@@ -181,28 +181,28 @@ int main( int argc, char **argv )
 	document->output_content_type = 1;
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+		document->application_name,
+		document->onload_control_string );
 
 	query_attribute_statistics_list =
-			query_attribute_statistics_list_new(
-					folder->application_name,
-					query->query_output->from_clause );
+		query_attribute_statistics_list_new(
+			folder->application_name,
+			query->query_output->from_clause );
 
 	query_attribute_statistics_list->list =
 		query_attribute_statistics_list_get_list(
-					folder->attribute_list );
+			folder->attribute_list );
 
 	sys_string =
 	query_attribute_statistics_list_get_build_each_temp_file_sys_string(
@@ -222,19 +222,19 @@ int main( int argc, char **argv )
 	if ( system( sys_string ) ){}
 
 	query_attribute_statistics_list_populate_list(
-			query_attribute_statistics_list->list );
+		query_attribute_statistics_list->list );
 
 	query_attribute_statistics_list_output_table(
-			query_attribute_statistics_list->folder_name,
-			where_clause,
-			query_attribute_statistics_list->list,
-			application_name );
+		query_attribute_statistics_list->folder_name,
+		where_clause,
+		query_attribute_statistics_list->list,
+		application_name );
 
 	query_attribute_statistics_remove_temp_file(
-					query_attribute_statistics_list->list );
+		query_attribute_statistics_list->list );
 
 	document_close();
 
-	exit( 0 );
-} /* main() */
+	return 0;
+}
 
