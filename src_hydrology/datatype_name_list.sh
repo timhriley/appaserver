@@ -33,14 +33,15 @@ then
 	fi
 fi
 
-
 if [ "$filterstation" -eq 1 ]
 then
 	station_datatype_table=`get_table_name $application station_datatype`
 
+	in_clause=`echo $station | sed 's/,/\n/g' | in_clause.e`
+
 	echo "select datatype				\
       	from $station_datatype_table 			\
-	where station = '$station'			\
+	where station ${in_clause}			\
       	order by datatype;" 				|
 	sql.e
 else
