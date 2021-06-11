@@ -132,7 +132,8 @@ int main( int argc, char **argv )
 		if ( close_nominal_accounts_execute(
 			as_of_date ) )
 		{
-			printf( "<h3>Process complete.</h3>\n" );
+			printf( "<h3>Process complete for date %s.</h3>\n",
+				as_of_date );
 		}
 		else
 		{
