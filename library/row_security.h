@@ -18,7 +18,8 @@
 enum row_security_state {	security_supervisor,
 				security_user,
 				regular_supervisor,
-				regular_user };
+				regular_user,
+				lookup_only };
 
 typedef struct
 {
@@ -152,7 +153,8 @@ enum row_security_state row_security_get_row_security_state(
 			char **attribute_not_null_string,
 			LIST *role_update_list,
 			char *select_folder_name,
-			boolean override_role_restrictions );
+			boolean override_role_restrictions,
+			char *folder_state );
 
 boolean row_security_supervisor_logged_in(
 			enum row_security_state row_security_state );

@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
+#include "String.h"
 #include "timlib.h"
 #include "piece.h"
 #include "appaserver_parameter_file.h"
@@ -189,7 +190,8 @@ non_owner_view_only_dont_append:
 			row_security->select_folder->folder_name,
 			( row_security->
 				login_role->
-				override_row_restrictions_yn == 'y' ) );
+				override_row_restrictions_yn == 'y' ),
+			row_security->state /* folder_state */ );
 
 	if ( row_security->row_security_state == security_supervisor
 	||   row_security->row_security_state == security_user )
@@ -412,7 +414,8 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 				(RELATED_FOLDER *)0;
 	}
 
-	if ( row_security_is_participating )
+	if ( row_security_state == lookup_only
+	||   row_security_is_participating )
 	{
 		element_list_structure->viewonly_element_list =
 			row_security_viewonly_element_list(
@@ -747,7 +750,8 @@ enum row_security_state
 			char **attribute_not_null_string,
 			LIST *role_update_list,
 			char *select_folder_name,
-			boolean override_role_restrictions )
+			boolean override_role_restrictions,
+			char *folder_state )
 {
 	ROW_SECURITY_ROLE_UPDATE *role_update;
 	LIST *one2m_recursive_related_folder_list;
@@ -876,6 +880,9 @@ enum row_security_state
 		if ( row_security_state != regular_user ) break;
 
 	} while( list_next( role_update_list ) );
+
+	if ( string_strcmp( folder_state, "lookup" ) == 0 )
+		row_security_state = lookup_only;
 
 	return row_security_state;
 

@@ -346,8 +346,9 @@ int main( int argc, char **argv )
 		state = "lookup";
 	}
 
-	form = form_new( folder_name,
-			 application_title_string(
+	form = form_new(
+			folder_name,
+			application_title_string(
 				application_name ) );
 
 	if ( rows_inserted )
@@ -417,8 +418,8 @@ int main( int argc, char **argv )
 	}
 
 	list_append_unique_string_list(
-			ignore_attribute_name_list,
-			no_display_pressed_attribute_name_list );
+		ignore_attribute_name_list,
+		no_display_pressed_attribute_name_list );
 
 	if ( strcmp( state, "update" ) == 0 
 	||   list_length( operation_list ) )
@@ -720,6 +721,11 @@ int main( int argc, char **argv )
 				row_security->
 				select_folder->
 				mto1_append_isa_related_folder_list );
+	}
+
+	if ( row_security->row_security_state == lookup_only )
+	{
+		form->regular_element_list = (LIST *)0;
 	}
 
 	number_rows_outputted +=
