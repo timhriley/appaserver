@@ -10,6 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include "String.h"
 #include "timlib.h"
 #include "list.h"
 #include "piece.h"
@@ -128,17 +129,18 @@ int main( int argc, char **argv )
 	environ_set_utc_offset( application_name );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	login_name = session_get_login_name(
-				application_name,
-				session );
+	login_name =
+		session_get_login_name(
+			application_name,
+			session );
 
 	if ( !DEBUG_MODE )
 	{
@@ -166,16 +168,20 @@ int main( int argc, char **argv )
 				"update" ) )
 		{
 			session_access_failed_message_and_exit(
-					application_name, session, login_name );
+				application_name,
+				session,
+				login_name );
 		}
 
 		if ( !appaserver_user_exists_role(
-					application_name,
-					login_name,
-					role_name ) )
+			application_name,
+			login_name,
+			role_name ) )
 		{
 			session_access_failed_message_and_exit(
-				application_name, session, login_name );
+				application_name,
+				session,
+				login_name );
 		}
 	}
 
@@ -184,17 +190,18 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new(
-				application_title_string(
-					application_name ),
-				application_name );
+	document =
+		document_new(
+			application_title_string(
+				application_name ),
+			application_name );
 
 	document->output_content_type = 1;
 
 	with_dynarch_menu =
 		appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name );
+			application_name,
+			login_name );
 
 	if ( strcmp( state, "one" ) == 0 && with_dynarch_menu )
 	{
@@ -516,27 +523,11 @@ void post_state_two(	char *application_name,
 	char *purge_data;
 	FOLDER *folder;
 
-	folder = folder_with_load_new( 	application_name,
-					session,
-					folder_name,
-					role_new(
-						application_name,
-						role_name ) );
-
-	if ( !folder )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: folder_with_load_new() returned NULL.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
 	post_dictionary =
-		post2dictionary(stdin,
-				appaserver_data_directory,
-				session );
+		post2dictionary(
+			stdin,
+			appaserver_data_directory,
+			session );
 
 	keep_data =
 		dictionary_get_pointer(
@@ -566,6 +557,25 @@ void post_state_two(	char *application_name,
 		return;
 	}
 
+	folder =
+		folder_with_load_new(
+			application_name,
+			session,
+			folder_name,
+			role_new(
+				application_name,
+				role_name ) );
+
+	if ( !folder )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: folder_with_load_new() returned NULL.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	if ( !list_rewind( folder->one2m_recursive_related_folder_list ) )
 	{
 		printf(
@@ -582,25 +592,25 @@ void post_state_two(	char *application_name,
 	if ( !execute_yn || *execute_yn != 'y' )
 	{
 		output_test_only_report(
-				application_name,
-				folder,
-				purge_data /* purge_data_list_string */ );
+			application_name,
+			folder,
+			purge_data /* purge_data_list_string */ );
 	}
 	else
 	{
 		output_update_database(
-				application_name,
-				folder,
-				keep_data /* keep_data_list_string */,
-				purge_data /* purge_data_list_string */ );
+			application_name,
+			folder,
+			keep_data /* keep_data_list_string */,
+			purge_data /* purge_data_list_string */ );
 
 		output_delete_database(
-				application_name,
-				session,
-				role_name,
-				appaserver_data_directory,
-				folder,
-				purge_data );
+			application_name,
+			session,
+			role_name,
+			appaserver_data_directory,
+			folder,
+			purge_data );
 
 		printf( "<h3>Process complete.</h3>\n" );
 	}
@@ -695,7 +705,8 @@ void update_database_related_folder(
 		folder_get_primary_attribute_name_list(
 			related_folder->one2m_folder->attribute_list );
 
-	table_name = get_table_name(
+	table_name =
+		get_table_name(
 			application_name,
 			related_folder->one2m_folder->folder_name );
 
@@ -714,7 +725,8 @@ void update_database_related_folder(
 
 	output_pipe = popen( sys_string, "w" );
 
-	where = query_login_name_where_clause(
+	where =
+		query_login_name_where_clause(
 			related_folder->one2m_folder,
 			where_attribute_name_list,
 			purge_data_list,
@@ -735,9 +747,10 @@ void update_database_related_folder(
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		fprintf(	output_pipe,
-				"%s",
-				input_buffer );
+		fprintf(
+			output_pipe,
+			"%s",
+			input_buffer );
 
 		list_rewind( where_attribute_name_list );
 		list_rewind( keep_data_list );
@@ -759,12 +772,12 @@ void update_database_related_folder(
 			list_next( keep_data_list );
 
 		} while( list_next( where_attribute_name_list ) );
+
 		fprintf( output_pipe, "\n" );
 	}
 
 	pclose( input_pipe );
 	pclose( output_pipe );
-
 }
 
 void output_test_only_related_folder(

@@ -30,18 +30,24 @@ void output_update_statements(	char *table_name,
 				char delimiter );
 
 boolean exists_single_carrot_delimiters( char *input_buffer );
+
 char *get_carrot_new_data( char *input_buffer );
+
 char *get_carrot_data_fieldname( char *input_buffer );
+
 void output_update_single_carrot_delimiters(
 				char *input_buffer,
 				char *table_name,
 				LIST *primary_key_comma_list,
 				char *argv_0 );
+
 void output_original_format(	char *input_buffer,
 				char delimiter,
 				char *table_name,
 				LIST *primary_key_comma_list );
-void fix_any_quotes( char *d );
+
+char *fix_any_quotes( char *d );
+
 char get_primary_key_data_delimiter( char *primary_key_data_buffer );
 
 int main( int argc, char **argv )
@@ -138,7 +144,7 @@ int main( int argc, char **argv )
 				update_single_carrot_delimiter,
 				*delimiter_string );
 	return 0;
-} /* main() */
+}
 
 void output_update_statements(	char *table_name,
 				LIST *primary_key_comma_list,
@@ -169,12 +175,13 @@ void output_update_statements(	char *table_name,
 						primary_key_comma_list );
 		}
 	} /* while( get_line() */
-} /* output_update_statements() */
+}
 
-void fix_any_quotes( char *d )
+char *fix_any_quotes( char *d )
 {
-	static char tmp[ SMALL_BUFFER + 1 ];
+	char tmp[ SMALL_BUFFER + 1 ];
 	char *tmp_ptr = tmp;
+	char *anchor = d;
 
 	strcpy( tmp, d );
 
@@ -193,8 +200,8 @@ void fix_any_quotes( char *d )
 	}
 
 	*d = '\0';
-
-} /* fix_any_quotes() */
+	return anchor;
+}
 
 char get_primary_key_data_delimiter( char *primary_key_data_buffer )
 {
@@ -233,6 +240,7 @@ void output_original_format(	char *input_buffer,
 	int i;
 	int p;
 	char *key;
+	char *output_data;
 
 	piece( primary_key_data_buffer, delimiter, input_buffer, 0 );
 
@@ -264,9 +272,13 @@ void output_original_format(	char *input_buffer,
 		&&   strcmp( new_data, "/" ) != 0
 		&&   strcmp( new_data, "is_null" ) != 0 )
 		{
+			output_data =
+				fix_any_quotes(
+					trim( new_data ) );
+
 			printf( "%s = '%s'",
 				data_fieldname,
-				trim( new_data ) );
+				output_data );
 		}
 		else
 		{
@@ -306,10 +318,11 @@ void output_original_format(	char *input_buffer,
 		else
 		{
 			unescape_string( primary_key_data );
-			fix_any_quotes( primary_key_data );
+			output_data = fix_any_quotes( primary_key_data );
+
 			printf( " and %s = '%s'",
 				key,
-				primary_key_data );
+				output_data );
 		}
 		i++;
 	} while( list_next( primary_key_comma_list ) );
@@ -318,7 +331,7 @@ void output_original_format(	char *input_buffer,
 
 	fflush( stdout );
 
-} /* output_original_format() */
+}
 
 void output_update_single_carrot_delimiters(	char *input_buffer,
 						char *table_name,
@@ -394,7 +407,7 @@ void output_update_single_carrot_delimiters(	char *input_buffer,
 
 	fflush( stdout );
 
-} /* output_update_single_carrot_delimiters() */
+}
 
 boolean exists_single_carrot_delimiters( char *input_buffer )
 {
@@ -404,7 +417,7 @@ boolean exists_single_carrot_delimiters( char *input_buffer )
 		input_buffer++;
 	}
 	return 1;
-} /* exists_single_carrot_delimiters() */
+}
 
 char *get_carrot_data_fieldname( char *input_buffer )
 {
@@ -432,7 +445,7 @@ char *get_carrot_data_fieldname( char *input_buffer )
 		end_pointer--;
 	}
 	return data_fieldname;
-} /* get_carrot_data_fieldname() */
+}
 
 char *get_carrot_new_data( char *input_buffer )
 {
@@ -449,5 +462,5 @@ char *get_carrot_new_data( char *input_buffer )
 		end_pointer--;
 	}
 	return new_data;
-} /* get_carrot_new_data() */
+}
 
