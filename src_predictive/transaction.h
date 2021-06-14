@@ -478,4 +478,7 @@ char *transaction_date_time(
 			char *transaction_date,
 			char *transaction_time );
 
+LIST *transaction_list_account_name_list(
+			LIST *transaction_list );
+
 #endif

@@ -2025,3 +2025,27 @@ boolean transaction_date_time_changed(
 	}
 }
 
+LIST *transaction_list_account_name_list(
+			LIST *transaction_list )
+{
+	TRANSACTION *transaction;
+	LIST *account_name_list = {0};
+
+	if ( !list_rewind( transaction_list ) ) return account_name_list;
+
+	do {
+		transaction = list_get( transaction_list );
+
+		account_name_list =
+			/* ------------------------- */
+			/* Returns account_name_list */
+			/* ------------------------- */
+			journal_list_account_name_list(
+				account_name_list,
+				transaction->journal_list );
+
+	} while ( list_next( transaction_list ) );
+
+	return account_name_list;
+}
+

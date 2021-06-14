@@ -1741,28 +1741,6 @@ JOURNAL *journal_merchant_fees_expense(
 	return journal;
 }
 
-LIST *journal_list_account_name_list(
-			LIST *journal_list )
-{
-	LIST *account_name_list;
-	JOURNAL *journal;
-
-	if ( !list_rewind( journal_list ) ) return (LIST *)0;
-
-	account_name_list = list_new();
-
-	do {
-		journal = list_get( journal_list );
-
-		list_set(
-			account_name_list,
-			journal->account_name );
-
-	} while( list_next( journal_list ) );
-
-	return account_name_list;
-}
-
 double journal_list_debit_sum(
 			LIST *journal_list )
 {
@@ -1814,5 +1792,27 @@ double journal_transaction_amount(
 		return debit_sum;
 	else
 		return credit_sum;
+}
+
+LIST *journal_list_account_name_list(
+			LIST *account_name_list,
+			LIST *journal_list )
+{
+	JOURNAL *journal;
+
+	if ( !list_rewind( journal_list ) ) return account_name_list;
+
+	do {
+		journal = list_get( journal_list );
+
+		if ( !account_name_list ) account_name_list = list_new();
+
+		list_set_unique(
+			account_name_list,
+			journal->account_name );
+
+	} while( list_next( journal_list ) );
+
+	return account_name_list;
 }
 

@@ -337,6 +337,7 @@ int load_bank_spreadsheet(
 	/* ------------ */
 	{
 		LIST *transaction_list;
+		char *minimum_transaction_date_time;
 
 		if ( !omit_bank_upload_transaction )
 		{
@@ -389,8 +390,6 @@ int load_bank_spreadsheet(
 					file.
 					bank_upload_list );
 
-		/* transaction_list_stderr( transaction_list ); */
-
 		/* ------------------------------------ */
 		/* Insert into TRANSACTION and JOURNAL	*/
 		/* ------------------------------------ */
@@ -419,7 +418,13 @@ int load_bank_spreadsheet(
 
 		bank_upload_transaction_balance_propagate(
 			*minimum_bank_date,
-			transaction_list_minimum_transaction_date_time(
+			( minimum_transaction_date_time =
+				transaction_list_minimum_transaction_date_time(
+					transaction_list ) ) );
+
+		journal_account_name_list_propagate(
+			minimum_transaction_date_time,
+			transaction_list_account_name_list(
 				transaction_list ) );
 	}
 
