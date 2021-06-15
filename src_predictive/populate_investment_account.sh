@@ -22,13 +22,13 @@ fi
 
 echo $0 $* 1>&2
 
-if [ "$#" -ne 2 ]
+if [ "$#" -ne 1 ]
 then
-	echo "Usage: $0 ignored where" 1>&2
+	echo "Usage: $0 where" 1>&2
 	exit 1
 fi
 
-parameter_where=$2
+parameter_where=$1
 
 table="investment_account"
 
