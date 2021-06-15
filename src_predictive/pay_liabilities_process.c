@@ -291,7 +291,6 @@ char *pay_liabilities_process(
 				liability->liability_steady_state_entity_list,
 				liability_credit_account_name(
 					starting_check_number ),
-				account_loss( (char *)0 /* fund */ ),
 				starting_check_number ) );
 	}
 	else
@@ -301,7 +300,6 @@ char *pay_liabilities_process(
 				liability->liability_steady_state_entity_list,
 				liability_credit_account_name(
 					starting_check_number ),
-				account_loss( (char *)0 /* fund */ ),
 				starting_check_number ) );
 	}
 

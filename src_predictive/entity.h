@@ -49,7 +49,7 @@ typedef struct
 	LIST *liability_after_balance_zero_journal_list;
 	double liability_entity_amount_due;
 	double liability_entity_payment_amount;
-	double liability_entity_loss_amount;
+	double liability_entity_additional_payment_amount;
 	int check_number;
 } ENTITY;
 

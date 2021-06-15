@@ -80,13 +80,9 @@ LIST *liability_entity_list(
 			LIST *input_entity_list,
 			double dialog_box_payment_amount );
 
-double liability_entity_amount_due(
-			LIST *journal_list );
-
 LIST *liability_transaction_list(
 			LIST *liability_entity_list,
 			char *liability_credit_account_name,
-			char *account_loss,
 			int starting_check_number );
 
 TRANSACTION *liability_entity_transaction(
@@ -94,9 +90,8 @@ TRANSACTION *liability_entity_transaction(
 			char *street_address,
 			char *transaction_date_time,
 			double payment_amount,
-			double loss_amount,
+			double additional_payment_amount,
 			char *liability_entity_debit_account_name,
-			char *account_loss,
 			char *liability_credit_account_name,
 			char *memo,
 			int check_number );
@@ -110,11 +105,14 @@ ENTITY *liability_steady_state_entity(
 			ENTITY *entity,
 			LIST *liability_after_balance_zero_journal_list );
 
+double liability_entity_amount_due(
+			LIST *journal_list );
+
 double liability_entity_payment_amount(
 			double dialog_box_payment_amount,
 			double liability_entity_amount_due );
 
-double liability_entity_loss_amount(
+double liability_entity_additional_payable_amount(
 			double dialog_box_payment_amount,
 			double liability_entity_payment_amount );
 
@@ -135,5 +133,9 @@ char *liability_entity_debit_account_name(
 LIST *liability_after_balance_zero_entity_list(
 			LIST *liability_entity_list,
 			LIST *liability_account_list );;
+
+double liability_entity_additional_payment_amount(
+			double dialog_box_payment_amount,
+			double liability_entity_payment_amount );
 
 #endif

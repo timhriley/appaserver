@@ -345,7 +345,6 @@ char *liability_credit_account_name(
 LIST *liability_transaction_list(
 			LIST *liability_entity_list,
 			char *liability_credit_account_name,
-			char *account_loss,
 			int starting_check_number )
 {
 	LIST *transaction_list;
@@ -368,14 +367,13 @@ LIST *liability_transaction_list(
 			liability_entity_transaction(
 				entity->full_name,
 				entity->street_address,
-				date_display_19(
-					transaction_date_time ),
+				date_display_19( transaction_date_time ),
 				entity->
-					liability_entity_payment_amount,
+				     liability_entity_payment_amount,
 				entity->
-					liability_entity_loss_amount,
-				entity->liability_entity_debit_account_name,
-				account_loss,
+				     liability_entity_additional_payment_amount,
+				entity->
+				     liability_entity_debit_account_name,
 				liability_credit_account_name,
 				LIABILITY_MEMO,
 				starting_check_number ) );
@@ -415,8 +413,8 @@ ENTITY *liability_steady_state_entity(
 			entity->dialog_box_payment_amount,
 			entity->liability_entity_amount_due );
 
-	entity->liability_entity_loss_amount =
-		liability_entity_loss_amount(
+	entity->liability_entity_additional_payment_amount =
+		liability_entity_additional_payment_amount(
 			entity->dialog_box_payment_amount,
 			entity->liability_entity_amount_due );
 
@@ -436,22 +434,22 @@ double liability_entity_payment_amount(
 		return liability_entity_amount_due;
 }
 
-double liability_entity_loss_amount(
+double liability_entity_additional_payment_amount(
 			double dialog_box_payment_amount,
 			double liability_entity_payment_amount )
 {
-	double loss_amount;
+	double additional_payment_amount;
 
 	if ( !dialog_box_payment_amount ) return 0.0;
 
-	loss_amount =
+	additional_payment_amount =
 		dialog_box_payment_amount -
 		liability_entity_payment_amount;
 
-	if ( loss_amount <= 0.0 )
+	if ( additional_payment_amount <= 0.0 )
 		return 0.0;
 	else
-		return loss_amount;
+		return additional_payment_amount;
 }
 
 TRANSACTION *liability_entity_transaction(
@@ -459,9 +457,8 @@ TRANSACTION *liability_entity_transaction(
 			char *street_address,
 			char *transaction_date_time,
 			double payment_amount,
-			double loss_amount,
+			double additional_payment_amount,
 			char *liability_entity_debit_account_name,
-			char *account_loss,
 			char *liability_credit_account_name,
 			char *memo,
 			int check_number )
@@ -494,23 +491,8 @@ TRANSACTION *liability_entity_transaction(
 			transaction->transaction_date_time,
 			liability_entity_debit_account_name );
 
-	journal->debit_amount = payment_amount - loss_amount;
+	journal->debit_amount = payment_amount + additional_payment_amount;
 	list_set( transaction->journal_list, journal );
-
-	/* Loss account */
-	/* ------------ */
-	if ( !timlib_dollar_virtually_same( loss_amount, 0.0 ) )
-	{
-		journal =
-			journal_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				account_loss );
-	
-		journal->debit_amount = loss_amount;
-		list_set( transaction->journal_list, journal );
-	}
 
 	/* Credit account */
 	/* -------------- */
@@ -521,7 +503,7 @@ TRANSACTION *liability_entity_transaction(
 			transaction->transaction_date_time,
 			liability_credit_account_name );
 
-	journal->credit_amount = payment_amount;
+	journal->credit_amount = payment_amount + additional_payment_amount;
 	list_set( transaction->journal_list, journal );
 
 	return transaction;

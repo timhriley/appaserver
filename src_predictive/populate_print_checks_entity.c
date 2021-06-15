@@ -37,7 +37,9 @@ void populate_print_checks_entity(
 int main( int argc, char **argv )
 {
 	if ( argc ){};
+
 	environ_exit_application_name( argv[ 0 ] );
+
 	populate_print_checks_entity();
 
 	return 0;
@@ -114,7 +116,7 @@ void output_entity_list(
 					liability_tax_redirect_account_list
 						/* liability_account_list */,
 					entity->full_name,
-					entity->street_address ) ) ) )
+					entity->street_address ) ) ) > 0.0 )
 		{
 			fprintf( output_pipe,
 			 	"%s^%s [%.2lf]\n",
