@@ -909,14 +909,15 @@ LIST *query_row_dictionary_list(
 	return row_dictionary_list;
 }
 
-char *query_get_between_date_time_where(char *date_column_name,
-					char *time_column_name,
-					char *begin_date,
-					char *begin_time,
-					char *end_date,
-					char *end_time,
-					char *application_name,
-					char *folder_name )
+char *query_get_between_date_time_where(
+			char *date_column_name,
+			char *time_column_name,
+			char *begin_date,
+			char *begin_time,
+			char *end_date,
+			char *end_time,
+			char *application_name,
+			char *folder_name )
 {
 	char where_clause[ 4066 ];
 	char *where_ptr;
@@ -1019,7 +1020,6 @@ char *query_get_between_date_time_where(char *date_column_name,
 		 	end_time );
 
 	return strdup( where_clause );
-
 }
 
 LIST *query_get_record_list(	char *application_name,
@@ -2723,14 +2723,14 @@ QUERY_SUBQUERY *query_subquery_new(
 	return query_subquery;
 }
 
-QUERY_ATTRIBUTE *query_attribute_new(	char *attribute_name,
-					char *folder_name,
-					char *datatype,
-					enum relational_operator
-						relational_operator,
-					char *from_data,
-					char *to_data,
-					int primary_key_index )
+QUERY_ATTRIBUTE *query_attribute_new(
+			char *attribute_name,
+			char *folder_name,
+			char *datatype,
+			enum relational_operator relational_operator,
+			char *from_data,
+			char *to_data,
+			int primary_key_index )
 {
 	QUERY_ATTRIBUTE *query_attribute;
 
@@ -2885,7 +2885,6 @@ LIST *query_get_attribute_list(
 	} while( list_next( append_isa_attribute_list ) );
 
 	return query_attribute_list;
-
 }
 
 enum relational_operator query_get_relational_operator(
@@ -3682,9 +3681,9 @@ boolean query_get_date_time_between_attributes(
 }
 
 char *query_get_attribute_where_clause(
-				LIST *query_attribute_list,
-				char *application_name,
-				boolean combine_date_time )
+			LIST *query_attribute_list,
+			char *application_name,
+			boolean combine_date_time )
 {
 	char where_clause[ 65536 ];
 	char *ptr = where_clause;
@@ -3768,9 +3767,12 @@ char *query_get_attribute_where_clause(
 					query_attribute->
 						relational_operator ) );
 
-		if ( ( timlib_strcmp( query_attribute->datatype, "float" ) == 0
-		||     timlib_strcmp(	query_attribute->datatype,
-					"integer" ) == 0 )
+		if ( ( timlib_strcmp(
+				query_attribute->datatype,
+				"float" ) == 0
+		||     timlib_strcmp(
+				query_attribute->datatype,
+				"integer" ) == 0 )
 		&&   query_attribute->relational_operator == between )
 		{
 			ptr += sprintf(
@@ -4048,7 +4050,6 @@ char *query_get_attribute_where_clause(
 	} while( list_next( query_attribute_list ) );
 
 	return strdup( where_clause );
-
 }
 
 char *query_get_process_drop_down_where_clause(

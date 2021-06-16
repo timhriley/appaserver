@@ -28,7 +28,7 @@ echo $0 $* 1>&2
 
 where="$1"
 
-select="full_name,street_address,season_name,concat( year, ' [', ifnull(invoice_amount_due,0), ']' )"
+select="student_full_name,student_street_address,season_name,concat( year, ' [', ifnull(invoice_amount_due,0), ']' )"
 
 table="registration"
 

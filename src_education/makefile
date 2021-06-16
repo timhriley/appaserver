@@ -128,7 +128,8 @@ EXECUTABLES=	offering_trigger					\
 		paypal_upload						\
 		generate_invoice					\
 		product_trigger						\
-		program_trigger
+		program_trigger						\
+		registration_trigger
 
 all: 	${EXECUTABLES}
 

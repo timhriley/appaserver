@@ -23,22 +23,23 @@ content_type_cgi.sh
 
 echo "$0 $*" 1>&2
 
-if [ "$#" -ne 5 ]
+if [ "$#" -ne 4 ]
 then
-	echo "Usage: $0 ignored process_name as_of_date institution_full_name institution_street_address" 1>&2
+	echo "Usage: $0 process_name as_of_date institution_full_name institution_street_address" 1>&2
 	exit 1
 fi
 
-process_name=$(echo $2 | format_initial_capital.e)
+process_name=$(echo $1 | format_initial_capital.e)
 
-as_of_date=$3
+as_of_date=$2
 if [ "$as_of_date" = "" -o "$as_of_date" = "as_of_date" ]
 then
 	as_of_date=`date.e 0 | piece.e ':' 0`
 fi
 
-institution_full_name=$4
-street_address=$5
+institution_full_name=$3
+street_address=$4
+
 if [ "$institution_full_name" = "" -o "$institution_full_name" = "full_name" ]
 then
 	institution_where="1 = 1"

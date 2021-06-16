@@ -5,7 +5,7 @@
 
 if [ $# -ne 3 ]
 then
-	echo "Usage: operand1 operation operand2" 1>&2
+	echo "Usage: $0 operand1 operation operand2" 1>&2
 	exit 1
 fi
 
