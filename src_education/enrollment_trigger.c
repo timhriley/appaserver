@@ -112,24 +112,12 @@ int main( int argc, char **argv )
 			exit( 1 );
 		}
 
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 		enrollment_list =
 			/* ---------------------------------- */
 			/* Returns list of one (ENROLLMENT *) */
 			/* ---------------------------------- */
 			enrollment_trigger_insert_update(
 				enrollment );
-
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
 
 		if ( list_length( enrollment_list ) )
 		{
@@ -142,12 +130,6 @@ fprintf(stderr,
 					enrollment_list_registration_list(
 						enrollment_list ) ) );
 		}
-fprintf(stderr,
-	"%s/%s()/%d\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__ );
-
 	}
 
 	if ( strcmp( state, "delete" ) ==  0 )

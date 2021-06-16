@@ -21,23 +21,23 @@ offering_join="								\
 	enrollment.year = offering.year and				\
 	offering.course_name = course.course_name"
 
-echo "	update registration						\
-	set enrollment_tuition_total =					\
-	( select sum( course_price )					\
-		from enrollment, offering, course			\
-		where	enrollment.full_name =				\
-			registration.full_name and			\
-			enrollment.street_address =			\
-			registration.street_address and			\
-			enrollment.season_name =			\
-			registration.season_name and			\
-			enrollment.year =				\
-			registration.year and				\
-		$offering_join )					\
-	where	full_name = '$full_name_escaped' and			\
-		registration.street_address = '$street_address' and	\
-	 	registration.season_name = '$season_name' and		\
-	 	registration.year = $year;"				|
+echo "	update registration						    \
+	set enrollment_tuition_total =					    \
+	( select sum( course_price )					    \
+		from enrollment, offering, course			    \
+		where	enrollment.student_full_name =			    \
+			registration.student_full_name and		    \
+			enrollment.student_street_address =		    \
+			registration.student_street_address and		    \
+			enrollment.season_name =			    \
+			registration.season_name and			    \
+			enrollment.year =				    \
+			registration.year and				    \
+		$offering_join )					    \
+	where	registration.student_full_name = '$full_name_escaped' and   \
+		registration.student_street_address = '$street_address' and \
+	 	registration.season_name = '$season_name' and		    \
+	 	registration.year = $year;"				    |
 sql
 
 exit 0

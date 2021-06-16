@@ -102,7 +102,7 @@ ENROLLMENT *enrollment_parse(
 				atoi( year ) ) );
 
 	piece( enrollment_date_time, SQL_DELIMITER, input, 5 );
-	enrollment->enrollment_date_time = enrollment_date_time;
+	enrollment->enrollment_date_time = strdup( enrollment_date_time );
 
 	piece( payor_full_name, SQL_DELIMITER, input, 6 );
 
@@ -282,7 +282,7 @@ char *enrollment_primary_where(
 			char *season_name,
 			int year )
 {
-	char static where[ 512 ];
+	char static where[ 1024 ];
 
 	sprintf(where,
 		"student_full_name = '%s' and		"
@@ -571,6 +571,8 @@ boolean enrollment_set_transaction(
 			char *revenue_account,
 			LIST *liability_entity_list )
 {
+	if ( !enrollment->payor_entity ) return 0;
+
 	if ( !enrollment
 	||   !enrollment->offering
 	||   !enrollment->offering->course )
@@ -593,15 +595,12 @@ boolean enrollment_set_transaction(
 		exit( 1 );
 	}
 
-	if ( !enrollment->payor_entity )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty payor_entity\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+fprintf(stderr,
+	"%s/%s()/%d: enrollment->enrollment_date_time = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+enrollment->enrollment_date_time );
 
 	if ( !enrollment->transaction_date_time
 	||   !*enrollment->transaction_date_time )
@@ -610,6 +609,13 @@ boolean enrollment_set_transaction(
 			transaction_race_free(
 				enrollment->enrollment_date_time );
 	}
+
+fprintf(stderr,
+	"%s/%s()/%d: enrollment->transaction_date_time = [%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+enrollment->transaction_date_time );
 
 	if ( ( enrollment->enrollment_transaction =
 		enrollment_transaction(

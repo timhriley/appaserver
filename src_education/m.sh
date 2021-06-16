@@ -6,6 +6,5 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd -
-	touch paypal_upload.c
-	make paypal_upload
+	make enrollment_trigger
 fi

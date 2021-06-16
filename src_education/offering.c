@@ -85,12 +85,16 @@ OFFERING *offering_parse(
 	offering->course_price = atof( course_price );
 
 	piece( instructor_full_name, SQL_DELIMITER, input, 4 );
-	piece( instructor_street_address, SQL_DELIMITER, input, 5 );
 
-	offering->instructor_entity =
-		entity_new(
-			strdup( instructor_full_name ),
-			strdup( instructor_street_address ) );
+	if ( *instructor_full_name )
+	{
+		piece( instructor_street_address, SQL_DELIMITER, input, 5 );
+
+		offering->instructor_entity =
+			entity_new(
+				strdup( instructor_full_name ),
+				strdup( instructor_street_address ) );
+	}
 
 	piece( class_capacity, SQL_DELIMITER, input, 6 );
 	offering->class_capacity = atoi( class_capacity );
@@ -108,9 +112,7 @@ OFFERING *offering_parse(
 	{
 		offering->course =
 			course_fetch(
-				offering->
-					course->
-					course_name,
+				offering->course_name,
 				fetch_program,
 				0 /* not fetch_alias_list */ );
 	}

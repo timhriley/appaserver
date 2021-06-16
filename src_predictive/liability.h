@@ -53,11 +53,11 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_parse(
 LIST *liability_account_entity_list(
 			void );
 
-char *liability_account_entity_sys_string(
+char *liability_account_entity_system_string(
 			char *where );
 
 LIST *liability_account_entity_system_list(
-			char *sys_string );
+			char *system_string );
 
 LIABILITY *liability_new(
 			double dialog_box_payment_amount,
@@ -137,5 +137,9 @@ LIST *liability_after_balance_zero_entity_list(
 double liability_entity_additional_payment_amount(
 			double dialog_box_payment_amount,
 			double liability_entity_payment_amount );
+
+double liability_entity_prepaid(
+			char *payor_full_name,
+			char *payor_street_address );
 
 #endif

@@ -76,17 +76,14 @@ void populate_print_checks_entity( void )
 	liability->liability_after_balance_zero_entity_list =
 		liability_after_balance_zero_entity_list(
 			liability->liability_entity_list,
-			liability->
-				liability_tax_redirect_account_list );
+			liability->liability_tax_redirect_account_list );
 
 	output_pipe = popen( "sort", "w" );
 
 	output_entity_list(
 		output_pipe,
-		liability->
-			liability_after_balance_zero_entity_list,
-		liability->
-			liability_tax_redirect_account_list );
+		liability->liability_after_balance_zero_entity_list,
+		liability->liability_tax_redirect_account_list );
 
 	pclose( output_pipe );
 }
@@ -104,8 +101,7 @@ void output_entity_list(
 		entity = list_get( entity_list );
 
 		if ( !list_length(
-			entity->
-				liability_after_balance_zero_journal_list ) )
+			entity->liability_after_balance_zero_journal_list ) )
 		{
 			continue;
 		}

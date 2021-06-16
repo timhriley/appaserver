@@ -72,7 +72,7 @@ net_enrollment=`bc.sh $enrollment_tuition_total - $course_drop_total`
 net_payment=`bc.sh $tuition_payment_total - $tuition_refund_total`
 
 prepaid_liability=`				\
-	customer_prepaid_liability.sh		\
+	entity_prepaid_liability		\
 	"$payor_full_name"			\
 	"$payor_street_address"`
 

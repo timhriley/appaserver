@@ -21,22 +21,22 @@
 /* --------- */
 #define ENROLLMENT_TABLE		"enrollment"
 
-#define ENROLLMENT_PRIMARY_KEY		"full_name,"		\
-					"street_address,"	\
-					"course_name,"		\
-					"season_name,"		\
+#define ENROLLMENT_PRIMARY_KEY		"student_full_name,"		\
+					"student_street_address,"	\
+					"course_name,"			\
+					"season_name,"			\
 					"year"
 
 #define ENROLLMENT_MEMO			"Enrollment"
 
-#define ENROLLMENT_INSERT_COLUMNS	"full_name,"		\
-					"street_address,"	\
-					"course_name,"		\
-					"season_name,"		\
-					"year,"			\
-					"enrollment_date_time,"	\
-					"payor_full_name,"	\
-					"payor_street_address,"	\
+#define ENROLLMENT_INSERT_COLUMNS	"student_full_name,"		\
+					"student_street_address,"	\
+					"course_name,"			\
+					"season_name,"			\
+					"year,"				\
+					"enrollment_date_time,"		\
+					"payor_full_name,"		\
+					"payor_street_address,"		\
 					"transaction_date_time"
 
 /* Structures */
