@@ -299,25 +299,25 @@ int main( int argc, char **argv )
 	sprintf( chart_title, "%s %s", title, sub_title );
 
 	output_measurement_googlecharts(
-			application_name,
-			where_clause,
-			aggregate_level,
-			aggregate_statistic,
-			station_name,
-			datatype_name,
-			DATE_PIECE,
-			begin_date,
-			end_date,
-			units,
-			units_converted,
-			end_date,
-			*accumulate_yn,
-			bypass_data_collection_frequency,
-			yaxis_label,
-			bar_chart,
-			process_name,
-			chart_title,
-			appaserver_parameter_file->document_root );
+		application_name,
+		where_clause,
+		aggregate_level,
+		aggregate_statistic,
+		station_name,
+		datatype_name,
+		DATE_PIECE,
+		begin_date,
+		end_date,
+		units,
+		units_converted,
+		end_date,
+		*accumulate_yn,
+		bypass_data_collection_frequency,
+		yaxis_label,
+		bar_chart,
+		process_name,
+		chart_title,
+		appaserver_parameter_file->document_root );
 
 	document_close();
 
@@ -326,7 +326,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	return 0;
-} /* main() */
+}
 
 char *get_sys_string(	char *application_name,
 			char *where_clause,
@@ -498,7 +498,7 @@ if ( bypass_data_collection_frequency ){};
 
 	return strdup( sys_string );
 
-} /* get_sys_string() */
+}
 
 boolean populate_point_array(	LIST *timeline_list,
 				LIST *datatype_name_list,
@@ -524,8 +524,7 @@ boolean populate_point_array(	LIST *timeline_list,
 	pclose( input_pipe );
 
 	return got_one;
-
-} /* populate_point_array() */
+}
 
 GOOGLE_OUTPUT_CHART *get_google_chart(
 			char *application_name,
@@ -570,20 +569,20 @@ GOOGLE_OUTPUT_CHART *get_google_chart(
 			accumulate_yn,
 			bypass_data_collection_frequency );
 
-	list_append_pointer(	google_chart->datatype_name_list,
-				datatype_name );
+	list_append_pointer(
+		google_chart->datatype_name_list,
+		datatype_name );
 
 	if ( !populate_point_array(
-				google_chart->timeline_list,
-				google_chart->datatype_name_list,
-				sys_string ) )
+		google_chart->timeline_list,
+		google_chart->datatype_name_list,
+		sys_string ) )
 	{
 		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
 	return google_chart;
-
-} /* get_google_chart() */
+}
 
 void output_measurement_googlecharts(
 			char *application_name,
@@ -606,7 +605,7 @@ void output_measurement_googlecharts(
 			char *chart_title,
 			char *document_root_directory )
 {
-	GOOGLE_OUTPUT_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_output_chart;
 	char *output_filename;
 	char *prompt_filename;
 	FILE *output_file;
@@ -634,7 +633,7 @@ if ( bar_chart ){};
 		exit( 1 );
 	}
 
-	google_chart =
+	google_output_chart =
 		get_google_chart(
 			application_name,
 			where_clause,
@@ -651,7 +650,7 @@ if ( bar_chart ){};
 			accumulate_yn,
 			bypass_data_collection_frequency );
 
-	if ( !google_chart )
+	if ( !google_output_chart )
 	{
 		printf( "<h3>Warning: nothing selected.</h3>\n" );
 		return;
@@ -664,34 +663,33 @@ if ( bar_chart ){};
 	google_chart_include( output_file );
 
 	google_chart_output_visualization_annotated(
-				output_file,
-				google_chart->google_chart_type,
-				google_chart->timeline_list,
-				google_chart->barchart_list,
-				google_chart->datatype_name_list,
-				google_chart->google_package_name,
-				daily /* aggregate_level */,
-				google_chart->chart_number,
-				chart_title,
-				yaxis_label );
+		output_file,
+		google_output_chart->google_chart_type,
+		google_output_chart->timeline_list,
+		google_output_chart->barchart_list,
+		google_output_chart->datatype_name_list,
+		google_output_chart->google_package_name,
+		daily /* aggregate_level */,
+		google_output_chart->chart_number,
+		chart_title,
+		yaxis_label );
 
 	google_chart_output_chart_instantiation(
 		output_file,
-		google_chart->chart_number );
+		google_output_chart->chart_number );
 
 	fprintf( output_file, "</head>\n" );
 	fprintf( output_file, "<body>\n" );
 
 	google_chart_anchor_chart(
-				output_file,
-				"" /* chart_title */,
-				google_chart->google_package_name,
-				google_chart->left,
-				google_chart->top,
-				google_chart->width,
-				google_chart->height,
-				google_chart->chart_number );
-
+		output_file,
+		"" /* chart_title */,
+		google_output_chart->google_package_name,
+		google_output_chart->left,
+		google_output_chart->top,
+		google_output_chart->width,
+		google_output_chart->height,
+		google_output_chart->chart_number );
 
 	fprintf( output_file, "</body>\n" );
 	fprintf( output_file, "</html>\n" );
@@ -703,6 +701,5 @@ if ( bar_chart ){};
 		prompt_filename,
 		process_name,
 		where_clause );
-
-} /* output_measurement_googlecharts() */
+}
 

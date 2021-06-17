@@ -39,7 +39,6 @@
 /* ---------- */
 void output_chart(		char *application_name,
 				char *login_name,
-				char *role_name,
 				char *document_root_directory,
 				char *appaserver_mount_point,
 				char *folder_name,
@@ -123,9 +122,11 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	folder = folder_new_folder( 	application_name,
-					session,
-					folder_name );
+	folder =
+		folder_new_folder(
+			application_name,
+			session,
+			folder_name );
 
 	folder->attribute_list =
 		attribute_get_attribute_list(
@@ -175,18 +176,17 @@ int main( int argc, char **argv )
 
 	if ( time_attribute_name )
 	{
-		list_append_pointer(
-				select_attribute_name_list,
-				time_attribute_name );
+		list_set(
+			select_attribute_name_list,
+			time_attribute_name );
 	}
 
 	list_append_list(
-			select_attribute_name_list,
-			float_integer_attribute_name_list );
+		select_attribute_name_list,
+		float_integer_attribute_name_list );
 
 	output_chart(	application_name,
 			login_name,
-			role_name,
 			appaserver_parameter_file->document_root,
 			appaserver_parameter_file->appaserver_mount_point,
 			folder_name,
@@ -195,11 +195,10 @@ int main( int argc, char **argv )
 			float_integer_attribute_name_list,
 			select_attribute_name_list );
 	return 0;
-} /* main() */
+}
 
 void output_chart(	char *application_name,
 			char *login_name,
-			char *role_name,
 			char *document_root_directory,
 			char *appaserver_mount_point,
 			char *folder_name,
@@ -210,7 +209,7 @@ void output_chart(	char *application_name,
 {
 	char *output_filename;
 	char *prompt_filename;
-	char title[ 256 ];
+	char chart_title[ 256 ];
 	char buffer[ 256 ];
 	char sub_title[ 1024 ];
 	char initcap_buffer[ 256 ];
@@ -230,13 +229,13 @@ void output_chart(	char *application_name,
 	FILE *output_file;
 
 	appaserver_link_get_pid_filename(
-			&output_filename,
-			&prompt_filename,
-			application_name,
-			document_root_directory,
-			getpid(),
-			FILENAME_STEM,
-			"html" /* extension */ );
+		&output_filename,
+		&prompt_filename,
+		application_name,
+		document_root_directory,
+		getpid(),
+		FILENAME_STEM,
+		"html" /* extension */ );
 
 	output_file = fopen( output_filename, "w" );
 
@@ -285,7 +284,7 @@ void output_chart(	char *application_name,
 		exit( 0 );
 	}
 
-	sprintf(title,
+	sprintf(chart_title,
 		"Chart %s", 
 		format_initial_capital( initcap_buffer,
 			format_plural( buffer, folder_name ) ) );
@@ -396,36 +395,33 @@ void output_chart(	char *application_name,
 
 	google_chart_include( output_file );
 
-	google_chart_output_visualization_non_annotated(
-				output_file,
-				google_output_chart->google_chart_type,
-				google_output_chart->timeline_list,
-				google_output_chart->barchart_list,
-				google_output_chart->datatype_name_list,
-				title,
-				(char *)0 /* yaxis_label */,
-				google_output_chart->width,
-				google_output_chart->height,
-				google_output_chart->background_color,
-				google_output_chart->legend_position_bottom,
-				0 /* not chart_type_bar */,
-				google_output_chart->google_package_name,
-				0 /* not dont_display_range_selector */,
-				aggregate_level_none,
-				google_output_chart->chart_number );
+	google_chart_output_visualization_annotated(
+		output_file,
+		google_output_chart->google_chart_type,
+		google_output_chart->timeline_list,
+		google_output_chart->barchart_list,
+		google_output_chart->datatype_name_list,
+		google_output_chart->google_package_name,
+		daily /* aggregate_level */,
+		google_output_chart->chart_number,
+		chart_title,
+		(char *)0 /* yaxis_label */ );
+
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_output_chart->chart_number );
 
 	fprintf( output_file, "</head>\n" );
 	fprintf( output_file, "<body>\n" );
 
-	google_chart_float_chart(
-				output_file,
-				(char *)0 /* chart_title */,
-				google_output_chart->width,
-				google_output_chart->height,
-				google_output_chart->chart_number );
-
-	google_chart_output_chart_instantiation(
+	google_chart_anchor_chart(
 		output_file,
+		"" /* chart_title */,
+		google_output_chart->google_package_name,
+		google_output_chart->left,
+		google_output_chart->top,
+		google_output_chart->width,
+		google_output_chart->height,
 		google_output_chart->chart_number );
 
 	fprintf( output_file, "</body>\n" );
@@ -440,6 +436,5 @@ void output_chart(	char *application_name,
 		query->query_output->where_clause );
 
 	document_close();
-
-} /* output_chart() */
+}
 
