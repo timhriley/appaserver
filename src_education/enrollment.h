@@ -60,6 +60,7 @@ typedef struct
 	/* ----------- */
 	LIST *course_drop_list;
 
+	double liability_entity_prepaid;
 	TRANSACTION *enrollment_transaction;
 	char *transaction_date_time;
 } ENROLLMENT;
@@ -99,7 +100,7 @@ char *enrollment_primary_where(
 TRANSACTION *enrollment_transaction(
 			int *seconds_to_add,
 			char *payor_full_name,
-			char *payor_address,
+			char *payor_street_address,
 			char *transaction_date_time,
 			char *program_name,
 			char *course_name,

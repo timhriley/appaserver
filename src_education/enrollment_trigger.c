@@ -162,6 +162,17 @@ LIST *enrollment_trigger_insert_update(
 			enrollment->enrollment_date_time,
 			enrollment->payor_entity );
 
+	if ( !enrollment->payor_entity )
+	{
+		return (LIST *)0;
+	}
+
+	if ( !enrollment->enrollment_date_time
+	||   !*enrollment->enrollment_date_time )
+	{
+		return (LIST *)0;
+	}
+
 	if ( !enrollment->offering )
 	{
 		fprintf(stderr,
@@ -176,15 +187,23 @@ LIST *enrollment_trigger_insert_update(
 	||   !*enrollment->transaction_date_time )
 	{
 		enrollment->transaction_date_time =
-			enrollment->enrollment_date_time;
+			transaction_race_free(
+				enrollment->enrollment_date_time );
 	}
 
-	if ( enrollment_set_transaction(
+	enrollment->enrollment_transaction =
+		enrollment_transaction(
 			&transaction_seconds_to_add,
-			enrollment,
+			enrollment->payor_entity->full_name,
+			enrollment->payor_entity->street_address,
+			enrollment->transaction_date_time,
+			enrollment->offering->course->program_name,
+			enrollment->offering->course_name,
+			enrollment->offering->course_price,
+			enrollment->liability_entity_prepaid,
 			account_receivable( (char *)0 ),
-			enrollment->offering->revenue_account,
-			(LIST *)0 /* liability_entity_list */ ) )
+			account_payable( (char *)0 ),
+			enrollment->offering->revenue_account );
 
 	if ( enrollment->enrollment_transaction )
 	{
@@ -201,6 +220,10 @@ LIST *enrollment_trigger_insert_update(
 				0 /* check_number */,
 				t->lock_transaction,
 				t->journal_list );
+	}
+	else
+	{
+		enrollment->transaction_date_time = (char *)0;
 	}
 
 	enrollment_update(

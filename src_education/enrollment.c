@@ -308,7 +308,7 @@ char *enrollment_primary_where(
 TRANSACTION *enrollment_transaction(
 			int *seconds_to_add,
 			char *payor_full_name,
-			char *payor_address,
+			char *payor_street_address,
 			char *transaction_date_time,
 			char *program_name,
 			char *course_name,
@@ -319,20 +319,16 @@ TRANSACTION *enrollment_transaction(
 			char *offering_revenue_account )
 {
 	TRANSACTION *transaction;
-	double receivable_amount;
-	double liability_amount;
+	double receivable_amount = {0};
+	double payable_amount = {0};
+	JOURNAL *journal;
 
 	if ( dollar_virtually_same( offering_course_price, 0.0 ) )
 		return (TRANSACTION *)0;
 
 	if ( !transaction_date_time )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty transaction_date_time\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		return (TRANSACTION *)0;
 	}
 
 	transaction =
@@ -347,42 +343,73 @@ TRANSACTION *enrollment_transaction(
 			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
-	receivable_amount = transaction->transaction_amount;
+	transaction->transaction_amount = offering_course_price;
 
-	if ( ( liability_entity =
-		entity_seek(
-			payor_full_name,
-			payor_street_address,
-			liability_entity_list ) ) )
+	if ( !transaction->journal_list )
+		transaction->journal_list =
+			list_new();
+
+	if ( liability_entity_prepaid )
 	{
-		if (	receivable_amount <=
-			liability_entity->liability_entity_amount_due )
+		if ( offering_course_price > liability_entity_prepaid )
 		{
-			transaction->journal_list =
-				journal_binary_list(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					receivable_amount,
-					liability_entity->
-					    liability_entity_debit_account_name,
-					offering_revenue_account );
+			payable_amount = liability_entity_prepaid;
 
-			receivable_amount = 0.0;
+			receivable_amount =
+				offering_course_price -
+				liability_entity_prepaid;
 		}
+		else
+		{
+			payable_amount = offering_course_price;
+		}
+	}
+	else
+	{
+		receivable_amount = offering_course_price;
 	}
 
 	if ( receivable_amount )
 	{
-		transaction->journal_list =
-			journal_binary_list(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				transaction->transaction_amount,
-				account_receivable,
-				offering_revenue_account );
+		journal =
+			journal_new(
+				payor_full_name,
+				payor_street_address,
+				transaction_date_time,
+				account_receivable );
+
+		journal->debit_amount = receivable_amount;
+		journal->transaction_date_time = transaction_date_time;
+
+		list_set( transaction->journal_list, journal );
 	}
+
+	if ( payable_amount )
+	{
+		journal =
+			journal_new(
+				payor_full_name,
+				payor_street_address,
+				transaction_date_time,
+				account_payable );
+
+		journal->debit_amount = payable_amount;
+		journal->transaction_date_time = transaction_date_time;
+
+		list_set( transaction->journal_list, journal );
+	}
+
+	journal =
+		journal_new(
+			payor_full_name,
+			payor_street_address,
+			transaction_date_time,
+			offering_revenue_account );
+
+	journal->credit_amount = offering_course_price;
+	journal->transaction_date_time = transaction_date_time;
+
+	list_set( transaction->journal_list, journal );
 
 	return transaction;
 }
@@ -611,12 +638,13 @@ void enrollment_list_set_transaction(
 				enrollment->payor_entity->full_name,
 				enrollment->payor_entity->street_address,
 				enrollment->transaction_date_time,
-				enrollment->offering->course_name,
 				enrollment->offering->course->program_name,
+				enrollment->offering->course_name,
 				enrollment->offering->course_price,
-				account_receivable,
-				revenue_account,
-				liability_entity_list ) ) )
+				enrollment->liability_entity_prepaid,
+				receivable,
+				payable,
+				enrollment->offering->revenue_account );
 
 		if ( enrollment->enrollment_transaction )
 		{
