@@ -185,6 +185,8 @@ LIST *enrollment_trigger_insert_update(
 			account_receivable( (char *)0 ),
 			enrollment->offering->revenue_account,
 			(LIST *)0 /* liability_entity_list */ ) )
+
+	if ( enrollment->enrollment_transaction )
 	{
 		TRANSACTION *t = enrollment->enrollment_transaction;
 

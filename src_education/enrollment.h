@@ -87,13 +87,6 @@ ENROLLMENT *enrollment_parse(
 			boolean fetch_program,
 			boolean fetch_registration );
 
-boolean enrollment_set_transaction(
-			int *transaction_seconds_to_add,
-			ENROLLMENT *enrollment,
-			char *account_receivable,
-			char *revenue_account,
-			LIST *liability_entity_list );
-
 /* Returns static memory */
 /* --------------------- */
 char *enrollment_primary_where(
@@ -108,12 +101,13 @@ TRANSACTION *enrollment_transaction(
 			char *payor_full_name,
 			char *payor_address,
 			char *transaction_date_time,
-			char *course_name,
 			char *program_name,
+			char *course_name,
 			double offering_course_price,
+			double liability_entity_prepaid,
 			char *account_receivable,
-			char *offering_revenue_account,
-			LIST *liability_entity_list );
+			char *account_payable,
+			char *offering_revenue_account );
 
 char *enrollment_system_string(
 			char *where );

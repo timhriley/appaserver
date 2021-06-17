@@ -308,18 +308,19 @@ char *enrollment_primary_where(
 TRANSACTION *enrollment_transaction(
 			int *seconds_to_add,
 			char *payor_full_name,
-			char *payor_street_address,
+			char *payor_address,
 			char *transaction_date_time,
-			char *course_name,
 			char *program_name,
+			char *course_name,
 			double offering_course_price,
+			double liability_entity_prepaid,
 			char *account_receivable,
-			char *offering_revenue_account,
-			LIST *liability_entity_list )
+			char *account_payable,
+			char *offering_revenue_account )
 {
 	TRANSACTION *transaction;
-	ENTITY *liability_entity;
 	double receivable_amount;
+	double liability_amount;
 
 	if ( dollar_virtually_same( offering_course_price, 0.0 ) )
 		return (TRANSACTION *)0;
@@ -536,110 +537,99 @@ void enrollment_list_set_transaction(
 {
 	ENROLLMENT *enrollment;
 	char *receivable;
+	char *payable;
 
 	if ( !list_rewind( enrollment_list ) ) return;
 
-	receivable = account_receivable( (char *)0 );
+	if ( ! ( receivable = account_receivable( (char *)0 ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_receivable() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( payable = account_payable( (char *)0 ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_payable() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	do {
 		enrollment = list_get( enrollment_list );
 
-		if ( !enrollment->offering )
+		if ( !enrollment->payor_entity )
 		{
 			fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty offering.\n",
+				"Warning in %s/%s()/%d: empty payor_entity.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		if ( !enrollment->enrollment_date_time
+		||   !*enrollment->enrollment_date_time )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: empty enrollment_date_time\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		if ( !enrollment
+		||   !enrollment->offering
+		||   !enrollment->offering->course )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: empty enrollment, offering or course.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
 			exit( 1 );
 		}
 
-		enrollment_set_transaction(
-			transaction_seconds_to_add,
-			enrollment,
-			receivable,
-			enrollment->offering->revenue_account,
-			(LIST *)0 /* liability_entity_list */ );
+		if ( !enrollment->transaction_date_time
+		||   !*enrollment->transaction_date_time )
+		{
+			enrollment->transaction_date_time =
+				transaction_race_free(
+					enrollment->enrollment_date_time );
+		}
+
+		enrollment->enrollment_transaction =
+			enrollment_transaction(
+				transaction_seconds_to_add,
+				enrollment->payor_entity->full_name,
+				enrollment->payor_entity->street_address,
+				enrollment->transaction_date_time,
+				enrollment->offering->course_name,
+				enrollment->offering->course->program_name,
+				enrollment->offering->course_price,
+				account_receivable,
+				revenue_account,
+				liability_entity_list ) ) )
+
+		if ( enrollment->enrollment_transaction )
+		{
+			enrollment->transaction_date_time =
+				enrollment->enrollment_transaction->
+					transaction_date_time;
+		}
+		else
+		{
+			enrollment->transaction_date_time = (char *)0;
+		}
 
 	} while ( list_next( enrollment_list ) );
-}
-
-boolean enrollment_set_transaction(
-			int *transaction_seconds_to_add,
-			ENROLLMENT *enrollment,
-			char *account_receivable,
-			char *revenue_account,
-			LIST *liability_entity_list )
-{
-	if ( !enrollment->payor_entity ) return 0;
-
-	if ( !enrollment
-	||   !enrollment->offering
-	||   !enrollment->offering->course )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: empty enrollment, offering or course.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !enrollment->enrollment_date_time )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty enrollment_date_time\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-fprintf(stderr,
-	"%s/%s()/%d: enrollment->enrollment_date_time = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-enrollment->enrollment_date_time );
-
-	if ( !enrollment->transaction_date_time
-	||   !*enrollment->transaction_date_time )
-	{
-		enrollment->transaction_date_time =
-			transaction_race_free(
-				enrollment->enrollment_date_time );
-	}
-
-fprintf(stderr,
-	"%s/%s()/%d: enrollment->transaction_date_time = [%s]\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-enrollment->transaction_date_time );
-
-	if ( ( enrollment->enrollment_transaction =
-		enrollment_transaction(
-			transaction_seconds_to_add,
-			enrollment->payor_entity->full_name,
-			enrollment->payor_entity->street_address,
-			enrollment->transaction_date_time,
-			enrollment->offering->course_name,
-			enrollment->offering->course->program_name,
-			enrollment->offering->course_price,
-			account_receivable,
-			revenue_account,
-			liability_entity_list ) ) )
-	{
-		enrollment->transaction_date_time =
-			enrollment->enrollment_transaction->
-				transaction_date_time;
-		return 1;
-	}
-	else
-	{
-		enrollment->transaction_date_time = (char *)0;
-		return 0;
-	}
 }
 
 void enrollment_list_fetch_update(
