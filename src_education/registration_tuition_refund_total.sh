@@ -19,16 +19,16 @@ echo "	update registration						\
 	set tuition_refund_total =					\
 		( select sum( refund_amount )				\
 			from tuition_refund				\
-			where	tuition_refund.full_name =		\
-				registration.full_name and		\
-				tuition_refund.street_address =		\
-				registration.street_address and		\
+			where	tuition_refund.student_full_name =	\
+				registration.student_full_name and	\
+				tuition_refund.student_street_address =	\
+				registration.student_street_address and	\
 				tuition_refund.season_name =		\
 				registration.season_name and		\
 				tuition_refund.year =			\
 				registration.year )			\
-	where	full_name = '$full_name_escaped' and			\
-	  	street_address = '$street_address' and			\
+	where	student_full_name = '$full_name_escaped' and		\
+	  	student_street_address = '$street_address' and		\
 	  	season_name = '$season_name' and			\
 	  	year = $year;"						|
 sql

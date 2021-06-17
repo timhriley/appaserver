@@ -96,36 +96,36 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_parse(
 LIST *liability_account_entity_list( void )
 {
 	return	liability_account_entity_system_list(
-			liability_account_entity_sys_string(
+			liability_account_entity_system_string(
 				"1 = 1" /* where */ ) );
 }
 
-char *liability_account_entity_sys_string(
+char *liability_account_entity_system_string(
 			char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
 	if ( !where ) where = "1 = 1";
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '*' %s \"%s\" none",
 		 "liability_account_entity",
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
-LIST *liability_account_entity_system_list( char *sys_string )
+LIST *liability_account_entity_system_list( char *system_string )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
 	LIST *liability_account_entity_list;
 
-	if ( !sys_string ) return (LIST *)0;
+	if ( !system_string ) return (LIST *)0;
 
 	liability_account_entity_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -156,30 +156,28 @@ LIABILITY *liability_calloc( void )
 LIST *liability_current_account_list( void )
 {
 	char where[ 256 ];
-	char sys_string[ 1024 ];
-	LIST *entire_account_list;
-	LIST *return_account_list;
+	char system_string[ 1024 ];
+	LIST *current_account_list;
+	LIST *return_account_list = {0};
 	ACCOUNT *account;
 
 	sprintf( where,
 		 "subclassification = 'current_liability' and	"
 		 "account <> 'uncleared_checks' 		" );
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "echo \"select %s from %s where %s order by %s;\" | sql",
 		 account_select(),
-		 "account",
+		 ACCOUNT_TABLE_NAME,
 		 where,
 		 "account" );
 
-	entire_account_list = account_system_list( sys_string );
+	current_account_list = account_system_list( system_string );
 
-	if ( !list_rewind( entire_account_list ) ) return (LIST *)0;
-
-	return_account_list = list_new();
+	if ( !list_rewind( current_account_list ) ) return (LIST *)0;
 
 	do {
-		account = list_get( entire_account_list );
+		account = list_get( current_account_list );
 
 		account->transaction_after_balance_zero_journal_list =
 			transaction_after_balance_zero_journal_list(
@@ -189,10 +187,14 @@ LIST *liability_current_account_list( void )
 			account->
 				transaction_after_balance_zero_journal_list ) )
 		{
+
+			if ( !return_account_list )
+				return_account_list = list_new();
+
 			list_set( return_account_list, account );
 		}
 
-	} while ( list_next( entire_account_list ) );
+	} while ( list_next( current_account_list ) );
 
 	return return_account_list;
 }
@@ -647,5 +649,68 @@ LIABILITY *liability_new(
 	liability->starting_check_number = starting_check_number;
 
 	return liability;
+}
+
+double liability_entity_prepaid(
+			char *payor_full_name,
+			char *payor_street_address )
+{
+	LIST *entity_list = list_new();
+	LIABILITY *liability = liability_calloc();
+	ENTITY *entity;
+
+	list_set(
+		entity_list,
+		entity_new(
+			payor_full_name,
+			payor_street_address ) );
+
+	liability->liability_current_account_list =
+		liability_current_account_list();
+
+	liability->liability_entity_list =
+		/* ----------------------------------------------------- */
+		/* Also sets entity->liability_entity_debit_account_name */
+		/* ----------------------------------------------------- */
+		liability_entity_list(
+			liability->liability_current_account_list,
+			entity_list /* input_entity_list */,
+			0.0 /* dialog_box_payment_amount */ );
+
+	liability->liability_after_balance_zero_entity_list =
+		liability_after_balance_zero_entity_list(
+			liability->liability_entity_list,
+			liability->liability_current_account_list );
+
+
+	if ( !list_rewind(
+		liability->liability_after_balance_zero_entity_list ) )
+	{
+		return 0.0;
+	}
+
+	entity =
+		list_get(
+			liability->
+				liability_after_balance_zero_entity_list );
+
+	if ( !list_length(
+		entity->
+			liability_after_balance_zero_journal_list ) )
+	{
+		return 0.0;
+	}
+
+	if ( ( entity->liability_entity_amount_due =
+		liability_entity_amount_due(
+			liability_after_balance_zero_journal_list(
+				liability->liability_current_account_list,
+				entity->full_name,
+				entity->street_address ) ) ) > 0.0 )
+	{
+		return entity->liability_entity_amount_due;
+	}
+
+	return 0.0;
 }
 

@@ -33,10 +33,10 @@ char *registration_primary_where(
 	char static where[ 512 ];
 
 	sprintf( where,
-		 "full_name = '%s' and		"
-		 "street_address = '%s' and	"
-		 "season_name = '%s' and	"
-		 "year = %d			",
+		 "student_full_name = '%s' and		"
+		 "student_street_address = '%s' and	"
+		 "season_name = '%s' and		"
+		 "year = %d				",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
@@ -86,23 +86,15 @@ REGISTRATION *registration_parse(
 	registration->registration_date_time = strdup( registration_date_time );
 
 	piece( payor_full_name, SQL_DELIMITER, input, 5 );
-
-	if ( !*payor_full_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty payor_full_name.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (REGISTRATION *)0;
-	}
-
 	piece( payor_street_address, SQL_DELIMITER, input, 6 );
 
-	registration->payor_entity =
-		entity_new(
-			strdup( payor_full_name ),
-			strdup( payor_street_address ) );
+	if ( *payor_full_name )
+	{
+		registration->payor_entity =
+			entity_new(
+				strdup( payor_full_name ),
+				strdup( payor_street_address ) );
+	}
 
 	piece( tuition, SQL_DELIMITER, input, 7 );
 	registration->tuition = atof( tuition );
@@ -630,5 +622,41 @@ LIST *registration_list_tuition_refund_list(
 	} while ( list_next( registration_list ) );
 
 	return tuition_refund_list;
+}
+
+FILE *registration_update_open( void )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+		"update_statement table=%s key=\"%s\" carrot=y	|"
+		"tee_appaserver_error.sh			|"
+		"sql						 ",
+		REGISTRATION_TABLE,
+		REGISTRATION_PRIMARY_KEY );
+
+	return popen( sys_string, "w" );
+}
+
+void registration_update(
+			char *registration_date_time,
+			char *student_full_name,
+			char *student_street_address,
+			char *season_name,
+			int year )
+{
+	FILE *update_pipe;
+
+	update_pipe = registration_update_open();
+
+	fprintf( update_pipe,
+		 "%s^%s^%s^%d^registration_date_time^%s\n",
+		 student_full_name,
+		 student_street_address,
+		 season_name,
+		 year,
+		 registration_date_time );
+
+	pclose( update_pipe );
 }
 

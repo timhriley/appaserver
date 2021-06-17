@@ -28,7 +28,7 @@ then
 	exit 1
 fi
 
-parameter_where=$1
+parameter_where="$1"
 
 table="investment_account"
 

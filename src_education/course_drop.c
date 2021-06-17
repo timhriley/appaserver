@@ -273,11 +273,11 @@ char *course_drop_primary_where(
 	char static where[ 512 ];
 
 	sprintf(where,
-		"full_name = '%s' and		"
-		"street_address = '%s' and	"
-		"course_name = '%s' and		"
-		"season_name = '%s' and		"
-		"year = %d			",
+		"student_full_name = '%s' and		"
+		"student_street_address = '%s' and	"
+		"course_name = '%s' and			"
+		"season_name = '%s' and			"
+		"year = %d				",
 		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */

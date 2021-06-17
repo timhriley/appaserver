@@ -157,5 +157,8 @@ LIST *registration_list_tuition_payment_list(
 LIST *registration_list_tuition_refund_list(
 			LIST *registration_list );
 
+FILE *registration_update_open(
+			void );
+
 #endif
 

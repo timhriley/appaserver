@@ -13,6 +13,7 @@
 # ---------------
 # src_education
 # ---------------
+registration_trigger
 product_trigger
 program_trigger
 generate_invoice
@@ -156,6 +157,7 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
+entity_prepaid_liability
 recovery_statutory_accelerated_half_year
 cost_recovery_trigger
 depreciation_trigger

@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include "String.h"
 #include "attribute.h"
 #include "session.h"
 #include "related_folder.h"
@@ -1693,6 +1694,12 @@ void element_text_item_output(
 	fprintf( output_file,
 	"<input name=\"%s_%d\" type=\"%s\" size=\"%d\" value=\"%s\"",
 		element_name, row, type, widget_size, data );
+
+	if ( string_instr( "password", element_name, 1 ) != -1
+	||   string_instr( "login_name", element_name, 1 ) != -1 )
+	{
+		fprintf( output_file, " autocomplete=\"off\"" );
+	}
 
 	fprintf( output_file, " maxlength=\"%d\"", maxlength );
 

@@ -21,22 +21,22 @@
 /* --------- */
 #define ENROLLMENT_TABLE		"enrollment"
 
-#define ENROLLMENT_PRIMARY_KEY		"full_name,"		\
-					"street_address,"	\
-					"course_name,"		\
-					"season_name,"		\
+#define ENROLLMENT_PRIMARY_KEY		"student_full_name,"		\
+					"student_street_address,"	\
+					"course_name,"			\
+					"season_name,"			\
 					"year"
 
 #define ENROLLMENT_MEMO			"Enrollment"
 
-#define ENROLLMENT_INSERT_COLUMNS	"full_name,"		\
-					"street_address,"	\
-					"course_name,"		\
-					"season_name,"		\
-					"year,"			\
-					"enrollment_date_time,"	\
-					"payor_full_name,"	\
-					"payor_street_address,"	\
+#define ENROLLMENT_INSERT_COLUMNS	"student_full_name,"		\
+					"student_street_address,"	\
+					"course_name,"			\
+					"season_name,"			\
+					"year,"				\
+					"enrollment_date_time,"		\
+					"payor_full_name,"		\
+					"payor_street_address,"		\
 					"transaction_date_time"
 
 /* Structures */
@@ -60,6 +60,7 @@ typedef struct
 	/* ----------- */
 	LIST *course_drop_list;
 
+	double liability_entity_prepaid;
 	TRANSACTION *enrollment_transaction;
 	char *transaction_date_time;
 } ENROLLMENT;
@@ -87,13 +88,6 @@ ENROLLMENT *enrollment_parse(
 			boolean fetch_program,
 			boolean fetch_registration );
 
-boolean enrollment_set_transaction(
-			int *transaction_seconds_to_add,
-			ENROLLMENT *enrollment,
-			char *account_receivable,
-			char *revenue_account,
-			LIST *liability_entity_list );
-
 /* Returns static memory */
 /* --------------------- */
 char *enrollment_primary_where(
@@ -106,14 +100,15 @@ char *enrollment_primary_where(
 TRANSACTION *enrollment_transaction(
 			int *seconds_to_add,
 			char *payor_full_name,
-			char *payor_address,
+			char *payor_street_address,
 			char *transaction_date_time,
-			char *course_name,
 			char *program_name,
+			char *course_name,
 			double offering_course_price,
+			double liability_entity_prepaid,
 			char *account_receivable,
-			char *offering_revenue_account,
-			LIST *liability_entity_list );
+			char *account_payable,
+			char *offering_revenue_account );
 
 char *enrollment_system_string(
 			char *where );
