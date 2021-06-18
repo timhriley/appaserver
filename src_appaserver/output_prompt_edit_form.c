@@ -901,6 +901,8 @@ m2( application_name, msg );
 		(char *)0 /* appaserver_user_foreign_login_name */,
 		(LIST *)0 /* non_edit_folder_name_list */ );
 
+	printf( "</table>\n" );
+
 	output_dictionary_as_hidden(
 		dictionary_add_prefix(
 			lookup_before_drop_down_dictionary,
@@ -911,7 +913,6 @@ m2( application_name, msg );
 			preprompt_dictionary,
 			PREPROMPT_PREFIX ) );
 
-	printf( "</table>\n" );
 	printf( "<table border=0>\n" );
 
 	form_output_trailer(

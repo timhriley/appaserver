@@ -41,7 +41,7 @@ total=`select.sh "$select" "$from" "$where"`
 
 if [ "$total" = "" ]
 then
-	total=0.0
+	total="null"
 fi
 
 registration_where="							\

@@ -298,15 +298,6 @@ LIST *related_folder_drop_down_element_list(
 	char relation_operator_equals[ 256 ];
 	boolean set_option_data_option_label_list;
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: folder_name = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-folder_name );
-m2( application_name, msg );
-}
 	return_list = list_new_list();
 
 	/* Create the line break */
@@ -1238,12 +1229,15 @@ LIST *related_folder_update_element_list(
 			list_get_first_pointer(
 				primary_attribute_name_list );
 
-		dictionary_remove_key(	local_preprompt_dictionary,
-					primary_attribute_name );
+		dictionary_remove_key(
+			local_preprompt_dictionary,
+			primary_attribute_name );
 
 		sprintf( tmp, "%s_0", primary_attribute_name );
-		dictionary_remove_key(	local_preprompt_dictionary,
-					tmp );
+
+		dictionary_remove_key(
+			local_preprompt_dictionary,
+			tmp );
 	}
 
 	folder_load(
@@ -1273,8 +1267,9 @@ LIST *related_folder_update_element_list(
 
 	parameter_dictionary = dictionary_copy( local_preprompt_dictionary );
 
-	dictionary_append_dictionary(	parameter_dictionary,
-					query_dictionary );
+	dictionary_append_dictionary(
+		parameter_dictionary,
+		query_dictionary );
 
 	set_option_data_option_label_list = 1;
 

@@ -1830,23 +1830,6 @@ LIST *row_security_regular_evaluate_element_list(
 			       attribute_name,
 			       (LIST *)0 /* include_attribute_name_list */ ) ) )
 		{
-/*
-			if ( list_exists_string(
-				related_folder->
-					folder->
-					folder_name,
-				non_edit_folder_name_list ) )
-			{
-				ignore_attribute_name_list =
-					list_subtract_string_list(
-						ignore_attribute_name_list,
-						foreign_attribute_name_list );
-
-				prompt_data_element_only = 1;
-				goto skip_checking_drop_down;
-			}
-*/
-
 			if ( appaserver_exclude_permission(
 				attribute->exclude_permission_list,
 				"update" )

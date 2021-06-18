@@ -757,11 +757,12 @@ int main( int argc, char **argv )
 		output_submit_reset_buttons_in_trailer = 1;
 	}
 
-	dictionary_appaserver_output_as_hidden(
-					dictionary_appaserver,
-					0 /* not with_prefixed_dictionary */ );
-
 	printf( "</table>\n" );
+
+	dictionary_appaserver_output_as_hidden(
+		dictionary_appaserver,
+		0 /* not with_prefixed_dictionary */ );
+
 	printf( "<table border=0>\n" );
 
 	form_output_trailer(

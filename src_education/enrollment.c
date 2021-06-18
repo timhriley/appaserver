@@ -117,7 +117,7 @@ ENROLLMENT *enrollment_parse(
 	}
 
 	piece( transaction_date_time, SQL_DELIMITER, input, 8 );
-	enrollment->transaction_date_time = transaction_date_time;
+	enrollment->transaction_date_time = strdup( transaction_date_time );
 
 	if ( fetch_offering )
 	{
@@ -230,6 +230,16 @@ void enrollment_update(
 {
 	FILE *update_pipe;
 
+	if ( !enrollment_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty enrollment_date_time.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	update_pipe = enrollment_update_open();
 
 	fprintf( update_pipe,
@@ -239,9 +249,7 @@ void enrollment_update(
 		 course_name,
 		 season_name,
 		 year,
-		 (enrollment_date_time)
-			? enrollment_date_time
-			: date_now19( date_utc_offset() ) );
+		 enrollment_date_time );
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%d^payor_full_name^%s\n",
@@ -494,6 +502,16 @@ void enrollment_insert_pipe(
 			char *payor_street_address,
 			char *transaction_date_time )
 {
+	if ( !enrollment_date_time || !*enrollment_date_time )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: empty enrollment_date_time\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return;
+	}
+
 	fprintf(insert_pipe,
 		"%s^%s^%s^%s^%d^%s^%s^%s^%s\n",
 		/* --------------------- */

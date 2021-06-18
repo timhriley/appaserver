@@ -725,7 +725,6 @@ LIST *folder_primary_data_list(
 			char *appaserver_user_foreign_login_name,
 			boolean include_root_folder )
 {
-
 	/* if row level non-owner forbid */
 	/* ----------------------------- */
 	if ( filter_only_login_name && login_name )
@@ -740,22 +739,25 @@ LIST *folder_primary_data_list(
 			where_clause_dictionary =
 				dictionary_small_new();
 
-		dictionary_set_pointer(	parameter_dictionary,
-					"login_name",
-					login_name );
+		dictionary_set_pointer(
+			parameter_dictionary,
+			"login_name",
+			login_name );
 
-		dictionary_set_pointer(	where_clause_dictionary,
-					"login_name",
-					login_name );
+		dictionary_set_pointer(
+			where_clause_dictionary,
+			"login_name",
+			login_name );
 
 		sprintf(operator_entry,
 		 	"%s%s",
 		 	QUERY_RELATION_OPERATOR_STARTING_LABEL,
 		 	"login_name" );
 
-		dictionary_set_pointer(	where_clause_dictionary,
-					strdup( operator_entry ),
-					EQUAL_OPERATOR );
+		dictionary_set_pointer(
+			where_clause_dictionary,
+			strdup( operator_entry ),
+			EQUAL_OPERATOR );
 
 		if ( appaserver_user_foreign_login_name )
 		{
@@ -774,9 +776,10 @@ LIST *folder_primary_data_list(
 		 		QUERY_RELATION_OPERATOR_STARTING_LABEL,
 		 		appaserver_user_foreign_login_name );
 
-			dictionary_set_pointer(	where_clause_dictionary,
-						strdup( operator_entry ),
-						EQUAL_OPERATOR );
+			dictionary_set_pointer(
+				where_clause_dictionary,
+				strdup( operator_entry ),
+				EQUAL_OPERATOR );
 
 		}
 
@@ -803,8 +806,7 @@ LIST *folder_primary_data_list(
 			application_name,
 			folder_name,
 			login_name,
-			parameter_dictionary
-				/* where_clause_dictionary */,
+			where_clause_dictionary,
 			delimiter,
 			attribute_list,
 			common_non_primary_attribute_name_list,

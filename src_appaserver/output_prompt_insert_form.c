@@ -760,6 +760,19 @@ int main( int argc, char **argv )
 	}
 
 	printf( "</table>\n" );
+
+	output_dictionary_as_hidden(
+		dictionary_add_prefix(
+			dictionary_appaserver->
+				lookup_before_drop_down_dictionary,
+			LOOKUP_BEFORE_DROP_DOWN_PREFIX ) );
+
+	output_dictionary_as_hidden(
+		dictionary_add_prefix(
+			dictionary_appaserver->
+				preprompt_dictionary,
+			PREPROMPT_PREFIX ) );
+
 	printf( "<table border=0>\n<tr>\n" );
 
 	if ( list_length( pair_one2m->prompt_form_folder_list ) )
@@ -1025,7 +1038,6 @@ LIST *output_prompt_insert_element_list(
 			sizeof( ELEMENT_APPASERVER ) );
 
 	return return_list;
-
 }
 
 void get_without_isa_variables(	LIST **mto1_related_folder_list,
