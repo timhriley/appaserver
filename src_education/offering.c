@@ -215,6 +215,13 @@ void offering_fetch_update(
 		season_name,
 		year );
 
+fprintf(stderr,
+	"%s/%s()/%d: %s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+sys_string );
+
 	if ( system( sys_string ) ){}
 
 	sprintf(sys_string,
@@ -223,6 +230,13 @@ void offering_fetch_update(
 		season_name,
 		year );
 
+fprintf(stderr,
+	"%s/%s()/%d: %s\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+sys_string );
+
 	if ( system( sys_string ) ){}
 }
 
@@ -230,6 +244,13 @@ void offering_list_fetch_update(
 			LIST *offering_list )
 {
 	OFFERING *offering;
+
+fprintf(stderr,
+	"%s/%s()/%d: length = %d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+list_length( offering_list ) );
 
 	if ( !list_rewind( offering_list ) ) return;
 

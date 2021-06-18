@@ -360,12 +360,26 @@ LIST *registration_list_offering_list(
 	LIST *offering_list;
 	REGISTRATION *registration;
 
+fprintf(stderr,
+	"%s/%s()/%d: registration_list length = %d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+list_length( registration_list ) );
+
 	if ( !list_rewind( registration_list ) ) return (LIST *)0;
 
 	offering_list = list_new();
 
 	do {
 		registration = list_get( registration_list );
+
+fprintf(stderr,
+	"%s/%s()/%d: enrollment_list length = %d\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+list_length( registration->enrollment_list ) );
 
 		list_set_list(
 			offering_list,
