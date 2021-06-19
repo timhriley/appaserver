@@ -227,7 +227,9 @@ void course_drop_update(
 
 	update_pipe = course_drop_update_open();
 
-	if ( payor_entity )
+	if ( transaction_date_time
+	&&   *transaction_date_time
+	&&   payor_entity )
 	{
 		payor_full_name = payor_entity->full_name;
 		payor_street_address = payor_entity->street_address;

@@ -62,6 +62,7 @@ OFFERING *offering_parse(
 	char instructor_street_address[ 128 ];
 	char class_capacity[ 128 ];
 	char enrollment_count[ 128 ];
+	char drop_count[ 128 ];
 	char capacity_available[ 128 ];
 	char revenue_account[ 128 ];
 	OFFERING *offering;
@@ -102,10 +103,13 @@ OFFERING *offering_parse(
 	piece( enrollment_count, SQL_DELIMITER, input, 7 );
 	offering->enrollment_count = atoi( enrollment_count );
 
-	piece( capacity_available, SQL_DELIMITER, input, 8 );
+	piece( drop_count, SQL_DELIMITER, input, 8 );
+	offering->drop_count = atoi( drop_count );
+
+	piece( capacity_available, SQL_DELIMITER, input, 9 );
 	offering->capacity_available = atoi( capacity_available );
 
-	piece( revenue_account, SQL_DELIMITER, input, 9 );
+	piece( revenue_account, SQL_DELIMITER, input, 10 );
 	offering->revenue_account = strdup( revenue_account );
 
 	if ( fetch_course )

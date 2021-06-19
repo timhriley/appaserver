@@ -41,6 +41,7 @@ typedef struct
 	/* ------- */
 	COURSE *course;
 	int enrollment_count;
+	int drop_count;
 	int capacity_available;
 } OFFERING;
 

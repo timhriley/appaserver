@@ -331,11 +331,30 @@ TRANSACTION *enrollment_transaction(
 	double payable_amount = {0};
 	JOURNAL *journal;
 
-	if ( dollar_virtually_same( offering_course_price, 0.0 ) )
-		return (TRANSACTION *)0;
-
-	if ( !transaction_date_time )
+	if ( !transaction_date_time || !*transaction_date_time )
 	{
+		return (TRANSACTION *)0;
+	}
+
+	if ( dollar_virtually_same( offering_course_price, 0.0 ) )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty offering_course_price\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return (TRANSACTION *)0;
+	}
+
+	if ( !offering_revenue_account )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: empty offering_revenue_account\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
 		return (TRANSACTION *)0;
 	}
 
@@ -365,7 +384,7 @@ TRANSACTION *enrollment_transaction(
 
 			receivable_amount =
 				offering_course_price -
-				liability_entity_prepaid;
+				payable_amount;
 		}
 		else
 		{
@@ -1002,6 +1021,14 @@ ENROLLMENT *enrollment_steady_state(
 	{
 		enrollment->payor_entity =
 			enrollment->registration->payor_entity;
+	}
+
+	if ( enrollment->payor_entity )
+	{
+		enrollment->liability_entity_prepaid =
+			liability_entity_prepaid(
+				enrollment->payor_entity->full_name,
+				enrollment->payor_entity->street_address );
 	}
 
 	return enrollment;

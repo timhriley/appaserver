@@ -299,15 +299,6 @@ void registration_fetch_update(
 	if ( system( system_string ) ){}
 
 	sprintf(system_string,
-		"registration_course_drop_total.sh \"%s\" '%s' '%s' %d",
-		student_full_name,
-		student_street_address,
-		season_name,
-		year );
-
-	if ( system( system_string ) ){}
-
-	sprintf(system_string,
 		"registration_tuition_payment_total.sh \"%s\" '%s' '%s' %d",
 		student_full_name,
 		student_street_address,
