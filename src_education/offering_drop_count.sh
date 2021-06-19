@@ -20,16 +20,16 @@ where="course_name = '$course_name_escaped'	\
 
 select="count(1)"
 
-enrollment_count=`select.sh "$select" enrollment "$where" ''`
+drop_count=`select.sh "$select" course_drop "$where" ''`
 
-if [ "$enrollment_count" = "" ]
+if [ "$drop_count" = "" ]
 then
-	enrollment_count=null
+	drop_count=null
 fi
 
-echo "	update offering							\
-	set enrollment_count = $enrollment_count			\
-	where $where;"							|
+echo "	update offering				\
+	set drop_count = $drop_count		\
+	where $where;"				|
 sql
 
 exit 0

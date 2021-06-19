@@ -105,15 +105,19 @@ COURSE_DROP *course_drop_parse(
 	course_drop->refund_due = ( *refund_due_yn == 'y' );
 
 	piece( payor_full_name, SQL_DELIMITER, input, 7 );
-	piece( payor_street_address, SQL_DELIMITER, input, 8 );
 
-	course_drop->payor_entity =
-		entity_new(
-			strdup( payor_full_name ),
-			strdup( payor_street_address ) );
+	if ( *payor_full_name )
+	{
+		piece( payor_street_address, SQL_DELIMITER, input, 8 );
+
+		course_drop->payor_entity =
+			entity_new(
+				strdup( payor_full_name ),
+				strdup( payor_street_address ) );
+	}
 
 	piece( transaction_date_time, SQL_DELIMITER, input, 9 );
-	course_drop->transaction_date_time = transaction_date_time;
+	course_drop->transaction_date_time = strdup( transaction_date_time );
 
 	if ( fetch_enrollment )
 	{
@@ -209,8 +213,7 @@ FILE *course_drop_update_open( void )
 
 void course_drop_update(
 			char *course_drop_date_time,
-			char *payor_full_name,
-			char *payor_street_address,
+			ENTITY *payor_entity,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,
@@ -219,8 +222,16 @@ void course_drop_update(
 			int year )
 {
 	FILE *update_pipe;
+	char *payor_full_name = "";
+	char *payor_street_address = "";
 
 	update_pipe = course_drop_update_open();
+
+	if ( payor_entity )
+	{
+		payor_full_name = payor_entity->full_name;
+		payor_street_address = payor_entity->street_address;
+	}
 
 	fprintf( update_pipe,
 		 "%s^%s^%s^%s^%d^course_drop_date_time^%s\n",
@@ -295,11 +306,11 @@ char *course_drop_primary_where(
 
 TRANSACTION *course_drop_transaction(
 			int *seconds_to_add,
-			char *student_full_name,
-			char *street_address,
+			char *entity_full_name,
+			char *entity_street_address,
 			char *transaction_date_time,
-			char *course_name,
 			char *program_name,
+			char *course_name,
 			double offering_course_price,
 			char *revenue_account,
 			char *account_payable )
@@ -321,8 +332,8 @@ TRANSACTION *course_drop_transaction(
 
 	transaction =
 		transaction_full(
-			student_full_name,
-			street_address,
+			entity_full_name,
+			entity_street_address,
 			transaction_date_time,
 			offering_course_price
 				/* transaction_amount */,
@@ -472,71 +483,50 @@ void course_drop_list_set_transaction(
 			exit( 1 );
 		}
 
-		course_drop_set_transaction(
-			transaction_seconds_to_add,
-			course_drop,
-			course_drop->course_drop_date_time,
-			course_drop->
-				enrollment->
-				offering->
-				course_name,
-			course_drop->
-				enrollment->
-				offering->
-				course->
-				program_name,
-			course_drop->
-				enrollment->
-				offering->
-				revenue_account,
-			payable );
+		if ( course_drop->enrollment->registration->payor_entity )
+		{
+			course_drop->payor_entity =
+				course_drop->
+					enrollment->
+					registration->
+					payor_entity;
+
+			if ( ( course_drop->course_drop_transaction =
+				course_drop_transaction(
+					transaction_seconds_to_add,
+					course_drop->
+						payor_entity->
+						full_name,
+					course_drop->
+						payor_entity->
+						street_address,
+					course_drop->transaction_date_time,
+					course_drop->
+						enrollment->
+						offering->
+						course->
+						program_name,
+					course_drop->
+						enrollment->
+						offering->
+						course_name,
+					course_drop->
+						enrollment->
+						offering->
+						course_price,
+					course_drop->
+						enrollment->
+						offering->
+						revenue_account,
+					payable ) ) )
+			{
+				course_drop->transaction_date_time =
+					course_drop->course_drop_transaction->
+						transaction_date_time;
+			}
+		}
 
 	} while ( list_next( course_drop_list ) );
-}
-
-boolean course_drop_set_transaction(
-			int *transaction_seconds_to_add,
-			COURSE_DROP *course_drop,
-			char *course_drop_date_time,
-			char *course_name,
-			char *program_name,
-			char *revenue_account,
-			char *account_payable )
-{
-	if ( !course_drop->transaction_date_time
-	||   !*course_drop->transaction_date_time )
-	{
-		course_drop->transaction_date_time =
-			transaction_race_free(
-				course_drop_date_time );
-	}
-
-	if ( ( course_drop->course_drop_transaction =
-		course_drop_transaction(
-			transaction_seconds_to_add,
-			course_drop->
-				student_entity->
-				full_name,
-			course_drop->
-				student_entity->
-				street_address,
-			course_drop->transaction_date_time,
-			course_name,
-			program_name,
-			course_drop->enrollment->offering->course_price,
-			revenue_account,
-			account_payable ) ) )
-	{
-		course_drop->transaction_date_time =
-			course_drop->course_drop_transaction->
-				transaction_date_time;
-		return 1;
-	}
-	else
-	{
-		course_drop->transaction_date_time = (char *)0;
-		return 0;
-	}
 }
 
 char *course_drop_list_display( LIST *course_drop_list )

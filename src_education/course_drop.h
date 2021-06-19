@@ -50,11 +50,11 @@ typedef struct
 	char *course_name;
 	SEMESTER *semester;
 	boolean refund_due;
+	ENTITY *payor_entity;
 
 	/* Process */
 	/* ------- */
 	char *course_drop_date_time;
-	ENTITY *payor_entity;
 	ENROLLMENT *enrollment;
 	TRANSACTION *course_drop_transaction;
 	char *transaction_date_time;
@@ -83,15 +83,6 @@ COURSE_DROP *course_drop_parse(
 			boolean fetch_course,
 			boolean fetch_registration );
 
-boolean course_drop_set_transaction(
-			int *transaction_seconds_to_add,
-			COURSE_DROP *course_drop,
-			char *course_drop_date_time,
-			char *course_name,
-			char *program_name,
-			char *revenue_account,
-			char *account_payable );
-
 /* Returns static memory */
 /* --------------------- */
 char *course_drop_primary_where(
@@ -106,8 +97,8 @@ TRANSACTION *course_drop_transaction(
 			char *payor_full_name,
 			char *payor_street_address,
 			char *transaction_date_time,
-			char *course_name,
 			char *program_name,
+			char *course_name,
 			double offering_course_price,
 			char *offering_revenue_account,
 			char *account_payable );
@@ -120,8 +111,7 @@ FILE *course_drop_update_open(
 
 void course_drop_update(
 			char *course_drop_date_time,
-			char *payor_full_name,
-			char *payor_street_address,
+			ENTITY *payor_entity,
 			char *transaction_date_time,
 			char *student_full_name,
 			char *student_street_address,

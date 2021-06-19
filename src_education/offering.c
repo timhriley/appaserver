@@ -215,12 +215,13 @@ void offering_fetch_update(
 		season_name,
 		year );
 
-fprintf(stderr,
-	"%s/%s()/%d: %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-sys_string );
+	if ( system( sys_string ) ){}
+
+	sprintf(sys_string,
+		"offering_drop_count.sh \"%s\" '%s' %d",
+		course_name,
+		season_name,
+		year );
 
 	if ( system( sys_string ) ){}
 
@@ -229,13 +230,6 @@ sys_string );
 		course_name,
 		season_name,
 		year );
-
-fprintf(stderr,
-	"%s/%s()/%d: %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-sys_string );
 
 	if ( system( sys_string ) ){}
 }
