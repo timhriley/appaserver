@@ -651,7 +651,7 @@ LIABILITY *liability_new(
 	return liability;
 }
 
-double liability_entity_prepaid(
+double liability_prepaid(
 			char *payor_full_name,
 			char *payor_street_address )
 {

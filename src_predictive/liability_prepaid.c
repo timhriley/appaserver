@@ -1,8 +1,8 @@
-/* ------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/entity_prepaid_liability.c	*/
-/* ------------------------------------------------------------	*/
-/* Freely available software: see Appaserver.org		*/
-/* ------------------------------------------------------------	*/
+/* ---------------------------------------------------	*/
+/* $APPASERVER_HOME/src_predictive/liability_prepaid.c	*/
+/* ---------------------------------------------------	*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -52,7 +52,7 @@ int main( int argc, char **argv )
 	payor_street_address = argv[ 2 ];
 
 	printf( "%.2lf\n",
-		liability_entity_prepaid(
+		liability_prepaid(
 			payor_full_name,
 			payor_street_address ) );
 

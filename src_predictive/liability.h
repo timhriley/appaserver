@@ -138,7 +138,7 @@ double liability_entity_additional_payment_amount(
 			double dialog_box_payment_amount,
 			double liability_entity_payment_amount );
 
-double liability_entity_prepaid(
+double liability_prepaid(
 			char *payor_full_name,
 			char *payor_street_address );
 

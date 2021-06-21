@@ -56,7 +56,7 @@ EXECUTABLES=	trial_balance						\
 		cost_recovery_trigger					\
 		cost_recover_fixed_assets				\
 		recovery_statutory_accelerated_half_year		\
-		entity_prepaid_liability
+		liability_prepaid
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -406,14 +406,14 @@ populate_print_checks_entity: populate_print_checks_entity.c		\
 		liability.o						\
 		-o populate_print_checks_entity
 
-entity_prepaid_liability: entity_prepaid_liability.c			\
+liability_prepaid: liability_prepaid.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} liability.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		entity_prepaid_liability.c				\
+		liability_prepaid.c					\
 		liability.o						\
-		-o entity_prepaid_liability
+		-o liability_prepaid
 
 load_bank_spreadsheet: load_bank_spreadsheet.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\

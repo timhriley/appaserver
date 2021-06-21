@@ -157,7 +157,7 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
-entity_prepaid_liability
+liability_prepaid
 recovery_statutory_accelerated_half_year
 cost_recovery_trigger
 depreciation_trigger
