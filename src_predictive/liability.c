@@ -343,17 +343,17 @@ LIST *liability_transaction_list(
 
 		list_set(
 			transaction_list,
-			entity_liability_transaction(
+			liability_transaction(
 				entity->full_name,
 				entity->street_address,
 				date_display_19( transaction_date_time ),
 				entity->
-				     liability_entity_payment_amount,
+				     entity_liability_payment_amount,
 				entity->
-				     liability_entity_additional_payment_amount,
+				     entity_liability_additional_payment_amount,
 				entity->
-				     liability_entity_debit_account_name,
-				liability_credit_account_name,
+				     entity_liability_debit_account_name,
+				entity_liability_account_name,
 				LIABILITY_MEMO,
 				starting_check_number ) );
 
