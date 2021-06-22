@@ -73,7 +73,7 @@ LIST *liability_tax_redirect_account_list(
 			LIST *liability_current_account_list,
 			LIST *liability_account_entity_list );
 
-/* Also sets entity->liability_entity_debit_account_name */
+/* Also sets entity->entity_liability_debit_account_name */
 /* ----------------------------------------------------- */
 LIST *liability_entity_list(
 			LIST *liability_account_list,
@@ -84,17 +84,6 @@ LIST *liability_transaction_list(
 			LIST *liability_entity_list,
 			char *liability_credit_account_name,
 			int starting_check_number );
-
-TRANSACTION *liability_entity_transaction(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double payment_amount,
-			double additional_payment_amount,
-			char *liability_entity_debit_account_name,
-			char *liability_credit_account_name,
-			char *memo,
-			int check_number );
 
 void liability_set_entity(
 			LIST *transaction_after_balance_zero_journal_list,
@@ -122,11 +111,6 @@ LIST *liability_steady_state_entity_list(
 char *liability_credit_account_name(
 			int starting_check_number );
 
-LIST *liability_after_balance_zero_journal_list(
-			LIST *liability_tax_redirect_account_list,
-			char *full_name,
-			char *street_address );
-
 char *liability_entity_debit_account_name(
 			char *account_name );
 
@@ -141,5 +125,16 @@ double liability_entity_additional_payment_amount(
 double liability_prepaid(
 			char *payor_full_name,
 			char *payor_street_address );
+
+TRANSACTION *liability_transaction(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double payment_amount,
+			double additional_payment_amount,
+			char *entity_liability_debit_account_name,
+			char *entity_liability_account_name,
+			char *memo,
+			int check_number );
 
 #endif

@@ -264,4 +264,7 @@ boolean account_name_accumulate_debit(
 char *account_list_display(
 			LIST *account_list );
 
+LIST *account_after_balance_zero_journal_list(
+			char *account_name );
+
 #endif

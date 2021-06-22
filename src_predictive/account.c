@@ -20,6 +20,8 @@
 #include "subclassification.h"
 #include "element.h"
 #include "statement.h"
+#include "transaction.h"
+#include "date.h"
 #include "account.h"
 
 LIST *account_list( void )
@@ -1092,5 +1094,37 @@ char *account_list_display(
 	}
 
 	return strdup( display );
+}
+
+LIST *account_after_balance_zero_journal_list(
+			char *account_name )
+{
+	char *transaction_date_time_string;
+
+	if ( ( transaction_date_time_string =
+			journal_latest_zero_balance_transaction_date_time(
+				account_name ) ) )
+	{
+		DATE *transaction_date_time;
+
+		transaction_date_time =
+			date_yyyy_mm_dd_hms_new(
+				transaction_date_time_string );
+
+		/* Need to start with the transaction following zero balance. */
+		/* ---------------------------------------------------------- */
+		date_increment_seconds(
+			transaction_date_time,
+			1 );
+
+		transaction_date_time_string =
+			date_get_yyyy_mm_dd_hh_mm_ss(
+				transaction_date_time );
+	}
+
+	return journal_minimum_account_journal_list(
+			transaction_date_time_string
+				/* minimum_transaction_date_time */,
+			account_name );
 }
 

@@ -45,11 +45,11 @@ typedef struct
 	double depreciation_amount;
 
 	double dialog_box_payment_amount;
-	char *liability_entity_debit_account_name;
+	char *entity_liability_debit_account_name;
 	LIST *liability_after_balance_zero_journal_list;
-	double liability_entity_amount_due;
-	double liability_entity_payment_amount;
-	double liability_entity_additional_payment_amount;
+	double entity_liability_amount_due;
+	double entity_liability_payment_amount;
+	double entity_liability_additional_payment_amount;
 	int check_number;
 } ENTITY;
 
@@ -148,6 +148,11 @@ ENTITY *entity_full_name_entity(
 			/* Expect stack memory */
 			/* ------------------- */
 			char *full_name );
+
+LIST *entity_liability_journal_list(
+			LIST *liability_account_list,
+			char *full_name,
+			char *street_address );
 
 #endif
 

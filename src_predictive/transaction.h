@@ -379,20 +379,11 @@ void transaction_journal_list_pipe_display(
 			char *memo,
 			LIST *journal_list );
 
-LIST *transaction_after_balance_zero_journal_list(
-			char *account_name );
-
-char *transaction_latest_zero_balance_transaction_date_time(
-			char *account_name );
-
 boolean transaction_date_time_exists(
 			char *transaction_date_time );
 
 boolean transaction_exists_closing_entry(
 			char *transaction_date );
-
-LIST *transaction_date_time_account_name_list(
-			char *transaction_date_time );
 
 void transaction_list_stderr(
 			LIST *transaction_list );

@@ -226,7 +226,7 @@ char *entity_list_display( LIST *entity_list )
 					"Entity: %s/%s, amount_due = %.2lf\n",
 					entity->full_name,
 					entity->street_address,
-					entity->liability_entity_amount_due );
+					entity->entity_liability_amount_due );
 
 		} while( list_next( entity_list ) );
 	}
@@ -487,8 +487,8 @@ LIST *entity_liability_account_list(
 	do {
 		account = list_get( entire_account_list );
 
-		account->transaction_after_balance_zero_journal_list =
-			transaction_after_balance_zero_journal_list(
+		account->account_after_balance_zero_journal_list =
+			account_after_balance_zero_journal_list(
 				account->account_name );
 
 		if ( list_length( account->journal_list ) )
@@ -611,5 +611,78 @@ ENTITY *entity_full_name_entity(
 				ENTITY_STREET_ADDRESS_UNKNOWN );
 	}
 	return entity;
+}
+
+double entity_liability_amount_due( LIST *journal_list )
+{
+	JOURNAL *journal;
+	double amount_due;
+	double difference;
+
+	if ( !list_rewind( journal_list ) ) return 0.0;
+
+	amount_due = 0.0;
+
+	do {
+		journal = list_get( journal_list );
+
+		difference =	journal->credit_amount -
+				journal->debit_amount;
+
+		amount_due += difference;
+
+	} while ( list_next( journal_list ) );
+
+	return amount_due;
+}
+
+char *entity_liability_debit_account_name(
+			char *account_name )
+{
+	return account_name;
+}
+
+LIST *entity_liability_journal_list(
+			LIST *liability_account_list,
+			char *full_name,
+			char *street_address )
+{
+	ACCOUNT *account;
+	JOURNAL *journal;
+	LIST *return_journal_list;
+	LIST *journal_list;
+
+	if ( !list_rewind( liability_account_list ) )
+		return (LIST *)0;
+
+	return_journal_list = list_new();
+
+	do {
+		account =
+			list_get(
+				liability_account_list );
+
+		journal_list =
+			account->
+				transaction_after_balance_zero_journal_list;
+
+		if ( !list_rewind( journal_list ) ) continue;
+
+		do {
+			journal = list_get( journal_list );
+
+			if ( strcmp(	journal->full_name,
+					full_name ) == 0
+			&&   strcmp(	journal->street_address,
+					street_address ) == 0 )
+			{
+				list_set( return_journal_list, journal );
+			}
+
+		} while ( list_next( journal_list ) );
+
+	} while ( list_next( liability_account_list ) );
+
+	return return_journal_list;
 }
 

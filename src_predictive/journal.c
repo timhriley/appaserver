@@ -1816,3 +1816,48 @@ LIST *journal_list_account_name_list(
 	return account_name_list;
 }
 
+char *journal_latest_zero_balance_transaction_date_time(
+			char *account_name )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *results;
+
+	sprintf( where,
+		 "account = '%s' and balance = 0",
+		 account_name_escape( account_name ) );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql.e",
+		 "max( transaction_date_time )",
+		 JOURNAL_TABLE,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( results && *results )
+		return results;
+	else
+		return (char *)0;
+}
+
+LIST *journal_date_time_account_name_list(
+			char *transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char where[ 128 ];
+
+	sprintf(	where,
+			"transaction_date_time >= '%s'",
+			transaction_date_time );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "distinct account",
+		 JOURNAL_TABLE,
+		 where,
+		 "account" );
+
+	return pipe2list( sys_string );
+}
+
