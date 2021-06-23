@@ -976,9 +976,11 @@ LIST *output_prompt_element_list(
 	char element_name[ 128 ];
 	LIST *omit_update_attribute_name_list;
 
-	folder = folder_new_folder( 	application_name,
-					session,
-					folder_name );
+	folder =
+		folder_new_folder(
+			application_name,
+			session,
+			folder_name );
 
 	omit_update_attribute_name_list =
 		attribute_omit_update_attribute_name_list(

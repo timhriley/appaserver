@@ -1480,7 +1480,8 @@ LIST *attribute_prompt_element_list(
 				 	attribute_name );
 			}
 	
-			element = element_appaserver_new(
+			element =
+				element_appaserver_new(
 					text_item,
 					strdup( element_name ) );
 		
@@ -1588,11 +1589,11 @@ LIST *attribute_prompt_element_list(
 						strdup( element_name ) );
 			}
 
-/*
 			element->text_item->attribute_width =
 					ELEMENT_TEXT_ITEM_LOOKUP_LENGTH;
-*/
+/*
 			element->text_item->attribute_width = width;
+*/
 
 			element->text_item->widget_size =
 					ELEMENT_TEXT_ITEM_LARGE_WIDGET_SIZE;
