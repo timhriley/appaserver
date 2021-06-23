@@ -52,7 +52,7 @@ int main( int argc, char **argv )
 	payor_street_address = argv[ 2 ];
 
 	printf( "%.2lf\n",
-		liability_prepaid_fetch(
+		entity_liability_prepaid(
 			payor_full_name,
 			payor_street_address ) );
 

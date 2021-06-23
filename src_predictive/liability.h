@@ -118,10 +118,6 @@ LIST *liability_after_balance_zero_entity_list(
 			LIST *liability_entity_list,
 			LIST *liability_account_list );;
 
-double liability_prepaid_fetch(
-			char *payor_full_name,
-			char *payor_street_address );
-
 TRANSACTION *liability_transaction(
 			char *full_name,
 			char *street_address,

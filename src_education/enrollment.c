@@ -327,8 +327,8 @@ TRANSACTION *enrollment_transaction(
 			char *offering_revenue_account )
 {
 	TRANSACTION *transaction;
-	double receivable_amount = {0};
-	double payable_amount = {0};
+	double receivable_debit_amount = {0};
+	double payable_debit_amount = {0};
 	JOURNAL *journal;
 
 	if ( !transaction_date_time || !*transaction_date_time )
@@ -376,27 +376,30 @@ TRANSACTION *enrollment_transaction(
 		transaction->journal_list =
 			list_new();
 
-	if ( liability_prepaid )
+	if ( liability_prepaid == 0.0 )
 	{
-		if ( offering_course_price > liability_prepaid )
-		{
-			payable_amount = liability_prepaid;
-
-			receivable_amount =
-				offering_course_price -
-				payable_amount;
-		}
-		else
-		{
-			payable_amount = offering_course_price;
-		}
+		receivable_debit_amount = offering_course_price;
+		payable_debit_amount = 0.0;
 	}
 	else
+	if (liability_prepaid > 0.0 )
 	{
-		receivable_amount = offering_course_price;
+		if ( liability_prepaid >= offering_course_price )
+		{
+			receivable_debit_amount = 0.0;
+			payable_debit_amount = offering_course_price;
+		}
+		else
+		if ( liability_prepaid < offering_course_price )
+		{
+			receivable_debit_amount =
+				offering_course_price -
+				liability_prepaid;
+			payable_debit_amount = liability_prepaid;
+		}
 	}
 
-	if ( receivable_amount )
+	if ( receivable_debit_amount )
 	{
 		journal =
 			journal_new(
@@ -405,13 +408,13 @@ TRANSACTION *enrollment_transaction(
 				transaction_date_time,
 				account_receivable );
 
-		journal->debit_amount = receivable_amount;
+		journal->debit_amount = receivable_debit_amount;
 		journal->transaction_date_time = transaction_date_time;
 
 		list_set( transaction->journal_list, journal );
 	}
 
-	if ( payable_amount )
+	if ( payable_debit_amount )
 	{
 		journal =
 			journal_new(
@@ -420,7 +423,7 @@ TRANSACTION *enrollment_transaction(
 				transaction_date_time,
 				account_payable );
 
-		journal->debit_amount = payable_amount;
+		journal->debit_amount = payable_debit_amount;
 		journal->transaction_date_time = transaction_date_time;
 
 		list_set( transaction->journal_list, journal );
@@ -1026,7 +1029,7 @@ ENROLLMENT *enrollment_steady_state(
 	if ( enrollment->payor_entity )
 	{
 		enrollment->liability_prepaid =
-			liability_prepaid_fetch(
+			entity_liability_prepaid(
 				enrollment->payor_entity->full_name,
 				enrollment->payor_entity->street_address );
 	}

@@ -469,66 +469,6 @@ LIABILITY *liability_new(
 	return liability;
 }
 
-double liability_prepaid_fetch(
-			char *payor_full_name,
-			char *payor_street_address )
-{
-	LIST *entity_list = list_new();
-	LIABILITY *liability = liability_calloc();
-	ENTITY *entity;
-
-	list_set(
-		entity_list,
-		entity_new(
-			payor_full_name,
-			payor_street_address ) );
-
-	liability->liability_after_balance_zero_account_list =
-		/* -------------------------------------------- */
-		/* Sets account_after_balance_zero_journal_list */
-		/* -------------------------------------------- */
-		liability_after_balance_zero_account_list();
-
-	liability->liability_entity_list =
-		liability_entity_list(
-			liability->liability_after_balance_zero_account_list,
-			entity_list /* input_entity_list */,
-			0.0 /* dialog_box_payment_amount */ );
-
-	liability->liability_after_balance_zero_entity_list =
-		liability_after_balance_zero_entity_list(
-			liability->liability_entity_list,
-			liability->liability_after_balance_zero_account_list );
-
-	if ( !list_rewind(
-		liability->liability_after_balance_zero_entity_list ) )
-	{
-		return 0.0;
-	}
-
-	entity =
-		list_get(
-			liability->
-				liability_after_balance_zero_entity_list );
-
-	if ( !list_length(
-		entity->
-			entity_after_balance_zero_account_list ) )
-	{
-		return 0.0;
-	}
-
-	if ( ( entity->entity_liability_amount_due =
-		entity_liability_amount_due(
-			entity->
-			   entity_after_balance_zero_account_list ) ) > 0.0 )
-	{
-		return entity->entity_liability_amount_due;
-	}
-
-	return 0.0;
-}
-
 TRANSACTION *liability_transaction(
 			char *full_name,
 			char *street_address,

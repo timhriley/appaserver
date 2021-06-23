@@ -176,5 +176,9 @@ double entity_liability_payment_amount(
 			double dialog_box_payment_amount,
 			double entity_liability_amount_due );
 
+double entity_liability_prepaid(
+			char *payor_full_name,
+			char *payor_street_address );
+
 #endif
 

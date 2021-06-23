@@ -136,7 +136,8 @@ SOURCE_LIBRARY= 							\
 		supply.o						\
 		supply_purchase.o					\
 		prepaid_asset.o						\
-		prepaid_asset_purchase.o
+		prepaid_asset_purchase.o				\
+		liability.o
 
 SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\
@@ -389,30 +390,27 @@ cost_recovery_trigger: cost_recovery_trigger.c				\
 		-o cost_recovery_trigger
 
 pay_liabilities_process: pay_liabilities_process.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} liability.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		pay_liabilities_process.c				\
-		liability.o						\
 		-o pay_liabilities_process
 
 populate_print_checks_entity: populate_print_checks_entity.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} liability.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		populate_print_checks_entity.c				\
-		liability.o						\
 		-o populate_print_checks_entity
 
 liability_prepaid: liability_prepaid.c					\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} liability.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		liability_prepaid.c					\
-		liability.o						\
 		-o liability_prepaid
 
 load_bank_spreadsheet: load_bank_spreadsheet.c				\
