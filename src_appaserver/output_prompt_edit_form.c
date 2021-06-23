@@ -72,7 +72,6 @@ boolean get_omit_delete_button(
 			char *application_name,
 			char *login_role_name,
 			char *select_folder_name,
-			char *state,
 			char *login_name );
 
 void mark_ignore_for_prelookup_skipped(
@@ -361,7 +360,6 @@ int main( int argc, char **argv )
 			application_name,
 			role_name,
 			appaserver->folder->folder_name,
-			state,
 			login_name ) ||
 		  list_length( appaserver->
 				folder->
@@ -2002,7 +2000,7 @@ LIST *get_preprompt_attribute_name_list(
 
 	return preprompt_attribute_name_list;
 
-} /* get_preprompt_attribute_name_list() */
+}
 
 void mark_ignore_for_prelookup_skipped(
 		LIST *mto1_related_folder_list,
@@ -2034,7 +2032,7 @@ void mark_ignore_for_prelookup_skipped(
 
 	} while( list_next( mto1_related_folder_list ) );
 
-} /* mark_ignore_for_prelookup_skipped() */
+}
 
 char *get_done_folder_name(	char *folder_name,
 				char *related_attribute_name )
@@ -2055,13 +2053,12 @@ char *get_done_folder_name(	char *folder_name,
 		strcpy( done_folder_name, folder_name );
 	}
 	return strdup( done_folder_name );
-} /* get_done_folder_name() */
+}
 
 boolean get_omit_delete_button(
 			char *application_name,
 			char *login_role_name,
 			char *select_folder_name,
-			char *state,
 			char *login_name )
 {
 	ROLE *login_role;
@@ -2076,7 +2073,7 @@ boolean get_omit_delete_button(
 			login_role,
 			select_folder_name,
 			login_name,
-			state,
+			(char *)0 /* state */,
 			(DICTIONARY *)0 /* preprompt_dictionary */,
 			(DICTIONARY *)0 /* query_dictionary */,
 			(DICTIONARY *)0 /* sort_dictionary */,
