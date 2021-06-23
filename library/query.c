@@ -7228,6 +7228,7 @@ QUERY_OUTPUT *query_edit_table_output_new(
 		LIST *foreign_attribute_name_list;
 
 		list_rewind( folder->mto1_isa_related_folder_list );
+
 		do {
 			isa_related_folder =
 				list_get_pointer(
@@ -7269,7 +7270,11 @@ QUERY_OUTPUT *query_edit_table_output_new(
 			folder );
 	}
 
-	if ( attribute_not_null_join && *attribute_not_null_join )
+	if ( attribute_not_null_join
+	&&   *attribute_not_null_join
+	&&   attribute_not_null_folder_name
+	&&   *attribute_not_null_folder_name
+	&&   strcmp( attribute_not_null_folder_name, first_folder_name ) != 0 )
 	{
 		char where[ 65536 ];
 
