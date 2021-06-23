@@ -60,7 +60,7 @@ typedef struct
 	/* ----------- */
 	LIST *course_drop_list;
 
-	double liability_entity_prepaid;
+	double liability_prepaid;
 	TRANSACTION *enrollment_transaction;
 	char *transaction_date_time;
 } ENROLLMENT;

@@ -171,7 +171,7 @@ void enrollment_trigger_insert(
 			enrollment->offering->course->program_name,
 			enrollment->offering->course_name,
 			enrollment->offering->course_price,
-			enrollment->liability_entity_prepaid,
+			enrollment->liability_prepaid,
 			account_receivable( (char *)0 ),
 			account_payable( (char *)0 ),
 			enrollment->offering->revenue_account );
@@ -267,7 +267,7 @@ void enrollment_trigger_update(
 			enrollment->offering->course->program_name,
 			enrollment->offering->course_name,
 			enrollment->offering->course_price,
-			enrollment->liability_entity_prepaid,
+			enrollment->liability_prepaid,
 			account_receivable( (char *)0 ),
 			account_payable( (char *)0 ),
 			enrollment->offering->revenue_account );

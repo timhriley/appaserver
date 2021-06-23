@@ -321,7 +321,7 @@ TRANSACTION *enrollment_transaction(
 			char *program_name,
 			char *course_name,
 			double offering_course_price,
-			double liability_entity_prepaid,
+			double liability_prepaid,
 			char *account_receivable,
 			char *account_payable,
 			char *offering_revenue_account )
@@ -376,11 +376,11 @@ TRANSACTION *enrollment_transaction(
 		transaction->journal_list =
 			list_new();
 
-	if ( liability_entity_prepaid )
+	if ( liability_prepaid )
 	{
-		if ( offering_course_price > liability_entity_prepaid )
+		if ( offering_course_price > liability_prepaid )
 		{
-			payable_amount = liability_entity_prepaid;
+			payable_amount = liability_prepaid;
 
 			receivable_amount =
 				offering_course_price -
@@ -678,7 +678,7 @@ void enrollment_list_set_transaction(
 				enrollment->offering->course->program_name,
 				enrollment->offering->course_name,
 				enrollment->offering->course_price,
-				enrollment->liability_entity_prepaid,
+				enrollment->liability_prepaid,
 				receivable,
 				payable,
 				enrollment->offering->revenue_account );
@@ -1025,8 +1025,8 @@ ENROLLMENT *enrollment_steady_state(
 
 	if ( enrollment->payor_entity )
 	{
-		enrollment->liability_entity_prepaid =
-			liability_entity_prepaid(
+		enrollment->liability_prepaid =
+			liability_prepaid_fetch(
 				enrollment->payor_entity->full_name,
 				enrollment->payor_entity->street_address );
 	}
