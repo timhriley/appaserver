@@ -226,6 +226,16 @@ ACCOUNT *account_getset(
 {
 	ACCOUNT *account;
 
+	if ( !account_list )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty account_list.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( ( account = account_seek( account_name, account_list ) ) )
 	{
 		return account;
@@ -1126,5 +1136,28 @@ LIST *account_after_balance_zero_journal_list(
 			transaction_date_time_string
 				/* minimum_transaction_date_time */,
 			account_name );
+}
+
+double account_liability_due( LIST *liability_journal_list )
+{
+	JOURNAL *journal;
+	double amount_due;
+	double difference;
+
+	if ( !list_rewind( liability_journal_list ) ) return 0.0;
+
+	amount_due = 0.0;
+
+	do {
+		journal = list_get( liability_journal_list );
+
+		difference =	journal->credit_amount -
+				journal->debit_amount;
+
+		amount_due += difference;
+
+	} while ( list_next( liability_journal_list ) );
+
+	return amount_due;
 }
 

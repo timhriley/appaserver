@@ -45,8 +45,8 @@ typedef struct
 	double depreciation_amount;
 
 	double dialog_box_payment_amount;
-	char *entity_liability_debit_account_name;
-	LIST *liability_after_balance_zero_journal_list;
+	LIST *entity_after_balance_zero_account_list;
+	LIST *entity_liability_due_account_list;
 	double entity_liability_amount_due;
 	double entity_liability_payment_amount;
 	double entity_liability_additional_payment_amount;
@@ -149,10 +149,32 @@ ENTITY *entity_full_name_entity(
 			/* ------------------- */
 			char *full_name );
 
-LIST *entity_liability_journal_list(
-			LIST *liability_account_list,
+/* Sets account->liability_journal_list */
+/* ------------------------------------ */
+LIST *entity_after_balance_zero_account_list(
+			LIST *account_list,
 			char *full_name,
 			char *street_address );
+
+ENTITY *entity_liability_steady_state(
+			ENTITY *entity,
+			LIST *entity_after_balance_zero_account_list );
+
+LIST *entity_liability_due_account_list(
+			LIST *entity_after_balance_zero_account_list );
+
+/* Sets account->account_liability_due */
+/* ----------------------------------- */
+double entity_liability_amount_due(
+			LIST *entity_liability_due_account_list );
+
+double entity_liability_additional_payment_amount(
+			double dialog_box_payment_amount,
+			double entity_liability_payment_amount );
+
+double entity_liability_payment_amount(
+			double dialog_box_payment_amount,
+			double entity_liability_amount_due );
 
 #endif
 

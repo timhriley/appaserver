@@ -1861,3 +1861,27 @@ LIST *journal_date_time_account_name_list(
 	return pipe2list( sys_string );
 }
 
+LIST *journal_account_entity_journal_list(
+			LIST *account_name_list,
+			char *full_name,
+			char *street_address )
+{
+	char where[ 512 ];
+
+	sprintf(where,
+	 	"full_name = '%s' and			"
+		"street_address = '%s' and		"
+		"account in ('%s')			",
+		entity_name_escape( full_name ),
+		street_address,
+	 	timlib_in_clause( account_name_list ) );
+
+	return	journal_system_list(
+			journal_system_string(
+				where,
+				0 /* not fetch_check_number */,
+				0 /* not fetch_memo */ ),
+			0 /* not fetch_check_number */,
+			0 /* not fetch_memo */ );
+}
+

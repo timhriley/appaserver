@@ -522,9 +522,6 @@ boolean timlib_pad_time_four(	char *time_string );
 
 int timlib_strlen(		char *s );
 
-char *timlib_with_list_get_in_clause(
-				LIST *data_list );
-
 int timlib_sum_delimited_string(char *string,
 				char delimiter,
 				int starting_piece,

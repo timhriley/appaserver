@@ -153,7 +153,7 @@ LIABILITY *liability_calloc( void )
 	return a;
 }
 
-LIST *liability_current_account_list( void )
+LIST *liability_after_balance_zero_account_list( void )
 {
 	char where[ 256 ];
 	char system_string[ 1024 ];
@@ -184,8 +184,7 @@ LIST *liability_current_account_list( void )
 				account->account_name );
 
 		if ( list_length(
-			account->
-				transaction_after_balance_zero_journal_list ) )
+			account->account_after_balance_zero_journal_list ) )
 		{
 
 			if ( !return_account_list )
@@ -225,26 +224,27 @@ ENTITY *liability_account_entity(
 }
 
 LIST *liability_steady_state_entity_list(
-			LIST *entity_list )
+			LIST *liability_after_balance_zero_entity_list )
 {
 	ENTITY *entity;
+	LIST *entity_list;
 
-	if ( !list_rewind( entity_list ) ) return (LIST *)0;
+	entity_list = liability_after_balance_zero_entity_list;
+
+	if ( !list_rewind( entity_list ) ) return entity_list;
 
 	do {
 		entity = list_get( entity_list );
 
-		liability_steady_state_entity(
+		entity_liability_steady_state(
 			entity,
-			entity->liability_after_balance_zero_journal_list );
+			entity->entity_after_balance_zero_account_list );
 
 	} while ( list_next( entity_list ) );
 
 	return entity_list;
 }
 
-/* Also sets entity->entity_liability_debit_account_name */
-/* ----------------------------------------------------- */
 LIST *liability_entity_list(
 			LIST *liability_account_list,
 			LIST *input_entity_list,
@@ -265,7 +265,7 @@ LIST *liability_entity_list(
 
 		journal_list =
 			account->
-				transaction_after_balance_zero_journal_list;
+				account_after_balance_zero_journal_list;
 
 		if ( !list_rewind( journal_list ) ) continue;
 
@@ -297,10 +297,6 @@ LIST *liability_entity_list(
 					journal->full_name,
 					journal->street_address,
 					0 /* not with_strdup */ );
-
-			entity->entity_liability_debit_account_name =
-				entity_liability_debit_account_name(
-					account->account_name );
 
 			entity->dialog_box_payment_amount =
 				dialog_box_payment_amount;
@@ -351,9 +347,8 @@ LIST *liability_transaction_list(
 				     entity_liability_payment_amount,
 				entity->
 				     entity_liability_additional_payment_amount,
-				entity->
-				     entity_liability_debit_account_name,
-				entity_liability_account_name,
+				entity->entity_after_balance_zero_account_list,
+				liability_credit_account_name,
 				LIABILITY_MEMO,
 				starting_check_number ) );
 
@@ -369,80 +364,18 @@ LIST *liability_transaction_list(
 	return transaction_list;
 }
 
-ENTITY *liability_steady_state_entity(
-			ENTITY *entity,
-			LIST *liability_after_balance_zero_journal_list )
-{
-	if ( !entity )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty entity.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	entity->liability_entity_amount_due =
-		liability_entity_amount_due(
-			liability_after_balance_zero_journal_list );
-
-	entity->liability_entity_payment_amount =
-		liability_entity_payment_amount(
-			entity->dialog_box_payment_amount,
-			entity->liability_entity_amount_due );
-
-	entity->liability_entity_additional_payment_amount =
-		liability_entity_additional_payment_amount(
-			entity->dialog_box_payment_amount,
-			entity->liability_entity_amount_due );
-
-	return entity;
-}
-
-double liability_entity_payment_amount(
-			double dialog_box_payment_amount,
-			double liability_entity_amount_due )
-{
-	if ( !dialog_box_payment_amount )
-		return liability_entity_amount_due;
-
-	if ( dialog_box_payment_amount < liability_entity_amount_due )
-		return dialog_box_payment_amount;
-	else
-		return liability_entity_amount_due;
-}
-
-double liability_entity_additional_payment_amount(
-			double dialog_box_payment_amount,
-			double liability_entity_payment_amount )
-{
-	double additional_payment_amount;
-
-	if ( !dialog_box_payment_amount ) return 0.0;
-
-	additional_payment_amount =
-		dialog_box_payment_amount -
-		liability_entity_payment_amount;
-
-	if ( additional_payment_amount <= 0.0 )
-		return 0.0;
-	else
-		return additional_payment_amount;
-}
-
 LIST *liability_tax_redirect_account_list(
-			LIST *liability_current_account_list,
+			LIST *liability_after_balance_zero_account_list,
 			LIST *liability_account_entity_list )
 {
 	ACCOUNT *account;
 	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
 
-	if ( !list_rewind( liability_current_account_list ) )
+	if ( !list_rewind( liability_after_balance_zero_account_list ) )
 		return (LIST *)0;
 
 	do {
-		account = list_get( liability_current_account_list );
+		account = list_get( liability_after_balance_zero_account_list );
 
 		if ( ( liability_account_entity =
 			liability_account_entity_seek(
@@ -451,7 +384,7 @@ LIST *liability_tax_redirect_account_list(
 		{
 			liability_set_entity(
 				account->
-				    transaction_after_balance_zero_journal_list,
+				    account_after_balance_zero_journal_list,
 				liability_account_entity->
 					entity->
 					full_name,
@@ -460,30 +393,30 @@ LIST *liability_tax_redirect_account_list(
 					street_address );
 		}
 
-	} while ( list_next( liability_current_account_list ) );
+	} while ( list_next( liability_after_balance_zero_account_list ) );
 
-	return liability_current_account_list;
+	return liability_after_balance_zero_account_list;
 }
 
 void liability_set_entity(
-			LIST *transaction_after_balance_zero_journal_list,
+			LIST *account_after_balance_zero_journal_list,
 			char *full_name,
 			char *street_address )
 {
+	LIST *journal_list;
 	JOURNAL *journal;
 
-	if ( !list_rewind( transaction_after_balance_zero_journal_list ) )
-		return;
+	journal_list = account_after_balance_zero_journal_list;
+
+	if ( !list_rewind( journal_list ) ) return;
 
 	do {
-		journal =
-			list_get(
-				transaction_after_balance_zero_journal_list );
+		journal = list_get( journal_list );
 
 		journal->full_name = full_name;
 		journal->street_address = street_address;
 
-	} while ( list_next( transaction_after_balance_zero_journal_list ) );
+	} while ( list_next( journal_list ) );
 }
 
 LIST *liability_after_balance_zero_entity_list(
@@ -497,8 +430,11 @@ LIST *liability_after_balance_zero_entity_list(
 	do {
 		entity = list_get( liability_entity_list );
 
-		entity->entity_liability_journal_list =
-			entity_liability_journal_list(
+		entity->entity_after_balance_zero_account_list =
+			/* ------------------------------------ */
+			/* Sets account->liability_journal_list */
+			/* ------------------------------------ */
+			entity_after_balance_zero_account_list(
 				liability_account_list,
 				entity->full_name,
 				entity->street_address );
@@ -510,7 +446,10 @@ LIST *liability_after_balance_zero_entity_list(
 
 LIABILITY *liability_new(
 			double dialog_box_payment_amount,
-			int starting_check_number  )
+			int starting_check_number,
+			LIST *liability_after_balance_zero_account_list,
+			LIST *liability_account_entity_list,
+			LIST *input_entity_list )
 {
 	LIABILITY *liability;
 
@@ -519,10 +458,18 @@ LIABILITY *liability_new(
 	liability->dialog_box_payment_amount = dialog_box_payment_amount;
 	liability->starting_check_number = starting_check_number;
 
+	liability->liability_after_balance_zero_account_list =
+		liability_after_balance_zero_account_list;
+
+	liability->liability_account_entity_list =
+		liability_account_entity_list;
+
+	liability->input_entity_list = input_entity_list;
+
 	return liability;
 }
 
-double liability_prepaid(
+double liability_prepaid_fetch(
 			char *payor_full_name,
 			char *payor_street_address )
 {
@@ -536,23 +483,22 @@ double liability_prepaid(
 			payor_full_name,
 			payor_street_address ) );
 
-	liability->liability_current_account_list =
-		liability_current_account_list();
+	liability->liability_after_balance_zero_account_list =
+		/* -------------------------------------------- */
+		/* Sets account_after_balance_zero_journal_list */
+		/* -------------------------------------------- */
+		liability_after_balance_zero_account_list();
 
 	liability->liability_entity_list =
-		/* ----------------------------------------------------- */
-		/* Also sets entity->liability_entity_debit_account_name */
-		/* ----------------------------------------------------- */
 		liability_entity_list(
-			liability->liability_current_account_list,
+			liability->liability_after_balance_zero_account_list,
 			entity_list /* input_entity_list */,
 			0.0 /* dialog_box_payment_amount */ );
 
 	liability->liability_after_balance_zero_entity_list =
 		liability_after_balance_zero_entity_list(
 			liability->liability_entity_list,
-			liability->liability_current_account_list );
-
+			liability->liability_after_balance_zero_account_list );
 
 	if ( !list_rewind(
 		liability->liability_after_balance_zero_entity_list ) )
@@ -567,19 +513,17 @@ double liability_prepaid(
 
 	if ( !list_length(
 		entity->
-			liability_after_balance_zero_journal_list ) )
+			entity_after_balance_zero_account_list ) )
 	{
 		return 0.0;
 	}
 
 	if ( ( entity->entity_liability_amount_due =
 		entity_liability_amount_due(
-			entity_liability_journal_list(
-				liability->liability_current_account_list,
-				entity->full_name,
-				entity->street_address ) ) ) > 0.0 )
+			entity->
+			   entity_after_balance_zero_account_list ) ) > 0.0 )
 	{
-		return entity->liability_entity_amount_due;
+		return entity->entity_liability_amount_due;
 	}
 
 	return 0.0;
@@ -591,15 +535,26 @@ TRANSACTION *liability_transaction(
 			char *transaction_date_time,
 			double payment_amount,
 			double additional_payment_amount,
-			char *entity_liability_debit_account_name,
+			LIST *entity_after_balance_zero_account_list,
 			char *liability_credit_account_name,
 			char *memo,
 			int check_number )
 {
 	TRANSACTION *transaction;
 	JOURNAL *journal;
+	LIST *account_list;
+	ACCOUNT *account;
+	double proportional_additional_payment_amount;
 
 	if ( !payment_amount ) return (TRANSACTION *)0;
+
+	account_list = entity_after_balance_zero_account_list;
+
+	if ( !list_rewind( account_list ) ) return (TRANSACTION *)0;
+
+	proportional_additional_payment_amount =
+		additional_payment_amount /
+		(double)list_length( account_list );
 
 	transaction =
 		transaction_new(
@@ -617,15 +572,23 @@ TRANSACTION *liability_transaction(
 
 	/* Debit accounts */
 	/* -------------- */
-	journal =
-		journal_new(
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			entity_liability_debit_account_name );
+	do {
+		account = list_get( account_list );
 
-	journal->debit_amount = payment_amount + additional_payment_amount;
-	list_set( transaction->journal_list, journal );
+		journal =
+			journal_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				account->account_name );
+
+		journal->debit_amount =
+			account->account_liability_due +
+			proportional_additional_payment_amount;
+
+		list_set( transaction->journal_list, journal );
+
+	} while ( list_next( account_list ) );
 
 	/* Credit account */
 	/* -------------- */

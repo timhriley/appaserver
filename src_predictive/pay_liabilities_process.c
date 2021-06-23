@@ -209,14 +209,8 @@ char *pay_liabilities_process(
 {
 	char *pdf_filename = {0};
 	LIABILITY *liability;
-	LIST *input_entity_list;
 
-	input_entity_list =
-		entity_full_street_list(
-			full_name_list,
-			street_address_list );
-
-	if ( list_length( input_entity_list ) > 1
+	if ( list_length( full_name_list ) > 1
 	&&   dialog_box_payment_amount )
 	{
 		*error_message = "Set payment amount only for one entity.";
@@ -226,31 +220,34 @@ char *pay_liabilities_process(
 	liability =
 		liability_new(
 			dialog_box_payment_amount,
-			starting_check_number );
-
-	liability->liability_account_entity_list =
-		liability_account_entity_list();
-
-	liability->liability_current_account_list =
-		liability_current_account_list();
+			starting_check_number,
+			/* -------------------------------------------- */
+			/* Sets account_after_balance_zero_journal_list */
+			/* -------------------------------------------- */
+			liability_after_balance_zero_account_list(),
+			liability_account_entity_list(),
+			entity_full_street_list(
+				full_name_list,
+				street_address_list )
+				/* input_entity_list */ );
 
 	liability->liability_tax_redirect_account_list =
 		liability_tax_redirect_account_list(
-			liability->liability_current_account_list,
+			liability->liability_after_balance_zero_account_list,
 			liability->liability_account_entity_list );
 
 	liability->liability_entity_list =
-		/* ----------------------------------------------------- */
-		/* Also sets entity->liability_entity_debit_account_name */
-		/* ----------------------------------------------------- */
 		liability_entity_list(
 			liability->
 				liability_tax_redirect_account_list
 				/* liability_account_list */,
-			input_entity_list,
+			liability->input_entity_list,
 			liability->dialog_box_payment_amount );
 
 	liability->liability_after_balance_zero_entity_list =
+		/* ------------------------------------------- */
+		/* Sets entity_after_balance_zero_account_list */
+		/* ------------------------------------------- */
 		liability_after_balance_zero_entity_list(
 			liability->liability_entity_list,
 			liability->
@@ -260,8 +257,7 @@ char *pay_liabilities_process(
 	liability->liability_steady_state_entity_list =
 		liability_steady_state_entity_list(
 			liability->
-				liability_after_balance_zero_entity_list
-				/* entity_list */ );
+				liability_after_balance_zero_entity_list );
 
 	if ( starting_check_number )
 	{
@@ -377,12 +373,12 @@ char *print_checks_create(
 	do {
 		entity = list_get( liability_entity_list );
 
-		if ( !entity->liability_entity_payment_amount ) continue;
+		if ( !entity->entity_liability_payment_amount ) continue;
 
 		fprintf( output_pipe,
 			 "%s^%.2lf^%s^%d\n",
 			 entity->full_name,
-			 entity->liability_entity_payment_amount,
+			 entity->entity_liability_payment_amount,
 			 (*memo) ? memo : "",
 			 starting_check_number++ );
 

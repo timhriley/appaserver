@@ -310,4 +310,9 @@ char *journal_latest_zero_balance_transaction_date_time(
 LIST *journal_date_time_account_name_list(
 			char *transaction_date_time );
 
+LIST *journal_account_entity_journal_list(
+			LIST *account_name_list,
+			char *full_name,
+			char *street_address );
+
 #endif

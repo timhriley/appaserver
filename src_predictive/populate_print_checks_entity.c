@@ -55,12 +55,12 @@ void populate_print_checks_entity( void )
 	liability->liability_account_entity_list =
 		liability_account_entity_list();
 
-	liability->liability_current_account_list =
-		liability_current_account_list();
+	liability->liability_after_balance_zero_account_list =
+		liability_after_balance_zero_account_list();
 
 	liability->liability_tax_redirect_account_list =
 		liability_tax_redirect_account_list(
-			liability->liability_current_account_list,
+			liability->liability_after_balance_zero_account_list,
 			liability->liability_account_entity_list );
 
 	liability->liability_entity_list =
@@ -101,14 +101,14 @@ void output_entity_list(
 		entity = list_get( entity_list );
 
 		if ( !list_length(
-			entity->liability_after_balance_zero_journal_list ) )
+			entity->entity_after_balance_zero_account_list ) )
 		{
 			continue;
 		}
 
-		if ( ( entity->liability_entity_amount_due =
-			liability_entity_amount_due(
-				liability_after_balance_zero_journal_list(
+		if ( ( entity->entity_liability_amount_due =
+			entity_liability_amount_due(
+				entity_after_balance_zero_account_list(
 					liability_tax_redirect_account_list
 						/* liability_account_list */,
 					entity->full_name,
@@ -118,7 +118,7 @@ void output_entity_list(
 			 	"%s^%s [%.2lf]\n",
 			 	entity->full_name,
 			 	entity->street_address,
-			 	entity->liability_entity_amount_due );
+			 	entity->entity_liability_amount_due );
 		}
 
 	} while( list_next( entity_list ) );

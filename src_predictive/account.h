@@ -62,7 +62,9 @@ typedef struct
 	double annual_budget;
 	boolean accumulate_debit;
 	double payment_amount;
-	LIST *transaction_after_balance_zero_journal_list;
+	LIST *account_after_balance_zero_journal_list;
+	LIST *liability_journal_list;
+	double account_liability_due;
 	char *account_action_string;
 	double account_balance;
 	int percent_of_asset;
@@ -266,5 +268,8 @@ char *account_list_display(
 
 LIST *account_after_balance_zero_journal_list(
 			char *account_name );
+
+double account_liability_due(
+			LIST *liability_journal_list );
 
 #endif

@@ -439,68 +439,6 @@ char *entity_name_display(
 	return display;
 }
 
-LIST *entity_liability_account_list(
-			LIST *exclude_account_name_list )
-{
-	char where[ 256 ];
-	char sys_string[ 1024 ];
-	LIST *entire_account_list;
-	LIST *return_account_list;
-	ACCOUNT *account;
-	char in_clause_where[ 1024 ];
-	char *in_clause;
-
-	if ( list_length( exclude_account_name_list ) )
-	{
-		in_clause =
-			timlib_with_list_get_in_clause(
-				exclude_account_name_list );
-
-		sprintf( in_clause_where,
-			 "account not in (%s)",
-			 in_clause );
-	}
-	else
-	{
-		strcpy( in_clause_where, "1 = 1" );
-	}
-
-	sprintf( where,
-		 "subclassification = 'current_liability' and	"
-		 "account <> 'uncleared_checks' and		"
-		 "%s						",
-		 in_clause_where );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 account_select(),
-		 "account",
-		 where,
-		 "account" );
-
-	entire_account_list = account_system_list( sys_string );
-
-	if ( !list_rewind( entire_account_list ) ) return (LIST *)0;
-
-	return_account_list = list_new();
-
-	do {
-		account = list_get( entire_account_list );
-
-		account->account_after_balance_zero_journal_list =
-			account_after_balance_zero_journal_list(
-				account->account_name );
-
-		if ( list_length( account->journal_list ) )
-		{
-			list_set( return_account_list, account );
-		}
-
-	} while ( list_next( entire_account_list ) );
-
-	return return_account_list;
-}
-
 LIST *entity_system_list( char *sys_string )
 {
 	FILE *input_pipe;
@@ -613,58 +551,53 @@ ENTITY *entity_full_name_entity(
 	return entity;
 }
 
-double entity_liability_amount_due( LIST *journal_list )
+double entity_liability_amount_due(
+			LIST *entity_after_balance_zero_account_list )
 {
-	JOURNAL *journal;
+	LIST *account_list;
+	ACCOUNT *account;
 	double amount_due;
-	double difference;
 
-	if ( !list_rewind( journal_list ) ) return 0.0;
+	account_list = entity_after_balance_zero_account_list;
+
+	if ( !list_rewind( account_list ) ) return 0.0;
 
 	amount_due = 0.0;
 
 	do {
-		journal = list_get( journal_list );
+		account = list_get( account_list );
 
-		difference =	journal->credit_amount -
-				journal->debit_amount;
+		account->account_liability_due =
+			account_liability_due(
+				account->liability_journal_list );
 
-		amount_due += difference;
+		amount_due += account->account_liability_due;
 
-	} while ( list_next( journal_list ) );
+	} while ( list_next( account_list ) );
 
 	return amount_due;
 }
 
-char *entity_liability_debit_account_name(
-			char *account_name )
-{
-	return account_name;
-}
-
-LIST *entity_liability_journal_list(
-			LIST *liability_account_list,
+LIST *entity_after_balance_zero_account_list(
+			LIST *account_list,
 			char *full_name,
 			char *street_address )
 {
 	ACCOUNT *account;
 	JOURNAL *journal;
-	LIST *return_journal_list;
+	LIST *return_account_list;
 	LIST *journal_list;
 
-	if ( !list_rewind( liability_account_list ) )
-		return (LIST *)0;
+	if ( !list_rewind( account_list ) ) return (LIST *)0;
 
-	return_journal_list = list_new();
+	return_account_list = list_new();
 
 	do {
 		account =
 			list_get(
-				liability_account_list );
+				account_list );
 
-		journal_list =
-			account->
-				transaction_after_balance_zero_journal_list;
+		journal_list = account->account_after_balance_zero_journal_list;
 
 		if ( !list_rewind( journal_list ) ) continue;
 
@@ -676,13 +609,89 @@ LIST *entity_liability_journal_list(
 			&&   strcmp(	journal->street_address,
 					street_address ) == 0 )
 			{
-				list_set( return_journal_list, journal );
+				account =
+					account_getset(
+						return_account_list,
+						account->account_name );
+
+				if ( !account->liability_journal_list )
+					account->liability_journal_list =
+						list_new();
+
+				list_set(
+					account->liability_journal_list,
+					journal );
 			}
 
 		} while ( list_next( journal_list ) );
 
-	} while ( list_next( liability_account_list ) );
+	} while ( list_next( account_list ) );
 
-	return return_journal_list;
+	return return_account_list;
+}
+
+ENTITY *entity_liability_steady_state(
+			ENTITY *entity,
+			LIST *entity_after_balance_zero_account_list )
+{
+	if ( !entity )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty entity.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	entity->entity_liability_amount_due =
+		/* ----------------------------------- */
+		/* Sets account->account_liability_due */
+		/* ----------------------------------- */
+		entity_liability_amount_due(
+			entity_after_balance_zero_account_list );
+
+	entity->entity_liability_payment_amount =
+		entity_liability_payment_amount(
+			entity->dialog_box_payment_amount,
+			entity->entity_liability_amount_due );
+
+	entity->entity_liability_additional_payment_amount =
+		entity_liability_additional_payment_amount(
+			entity->dialog_box_payment_amount,
+			entity->entity_liability_payment_amount );
+
+	return entity;
+}
+
+double entity_liability_additional_payment_amount(
+			double dialog_box_payment_amount,
+			double entity_liability_payment_amount )
+{
+	double additional_payment_amount;
+
+	if ( !dialog_box_payment_amount ) return 0.0;
+
+	additional_payment_amount =
+		dialog_box_payment_amount -
+		entity_liability_payment_amount;
+
+	if ( additional_payment_amount <= 0.0 )
+		return 0.0;
+	else
+		return additional_payment_amount;
+}
+
+double entity_liability_payment_amount(
+			double dialog_box_payment_amount,
+			double entity_liability_amount_due )
+{
+	if ( !dialog_box_payment_amount )
+		return entity_liability_amount_due;
+
+	if ( dialog_box_payment_amount < entity_liability_amount_due )
+		return dialog_box_payment_amount;
+	else
+		return entity_liability_amount_due;
 }
 

@@ -109,7 +109,7 @@ int main( int argc, char **argv )
 		char *account_name;
 
 		account_name_list =
-			transaction_date_time_account_name_list(
+			journal_date_time_account_name_list(
 				propagate_transaction_date_time );
 
 		if ( list_rewind( account_name_list ) )
