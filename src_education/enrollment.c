@@ -382,7 +382,7 @@ TRANSACTION *enrollment_transaction(
 		payable_debit_amount = 0.0;
 	}
 	else
-	if (liability_prepaid > 0.0 )
+	if ( liability_prepaid > 0.0 )
 	{
 		if ( liability_prepaid >= offering_course_price )
 		{
@@ -395,22 +395,23 @@ TRANSACTION *enrollment_transaction(
 			receivable_debit_amount =
 				offering_course_price -
 				liability_prepaid;
+
 			payable_debit_amount = liability_prepaid;
 		}
 	}
 
+	/* Debits */
+	/* ------ */
 	if ( receivable_debit_amount )
 	{
 		journal =
 			journal_new(
-				payor_full_name,
-				payor_street_address,
-				transaction_date_time,
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
 				account_receivable );
 
 		journal->debit_amount = receivable_debit_amount;
-		journal->transaction_date_time = transaction_date_time;
-
 		list_set( transaction->journal_list, journal );
 	}
 
@@ -418,27 +419,25 @@ TRANSACTION *enrollment_transaction(
 	{
 		journal =
 			journal_new(
-				payor_full_name,
-				payor_street_address,
-				transaction_date_time,
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
 				account_payable );
 
 		journal->debit_amount = payable_debit_amount;
-		journal->transaction_date_time = transaction_date_time;
-
 		list_set( transaction->journal_list, journal );
 	}
 
+	/* Credit */
+	/* ------ */
 	journal =
 		journal_new(
-			payor_full_name,
-			payor_street_address,
-			transaction_date_time,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
 			offering_revenue_account );
 
 	journal->credit_amount = offering_course_price;
-	journal->transaction_date_time = transaction_date_time;
-
 	list_set( transaction->journal_list, journal );
 
 	return transaction;

@@ -184,11 +184,19 @@ void course_drop_trigger_insert(
 					enrollment->
 					offering->
 					course_price,
+				entity_receivable_expecting(
+					course_drop->
+						payor_entity->
+						full_name,
+					course_drop->
+						payor_entity->
+						street_address ),
+				account_receivable( (char *)0 ),
+				account_payable( (char*)0 ),
 				course_drop->
 					enrollment->
 					offering->
-					revenue_account,
-				account_payable( (char*)0 ) ) ) )
+					revenue_account ) ) )
 		{
 			TRANSACTION *t = course_drop->course_drop_transaction;
 	
@@ -295,11 +303,19 @@ void course_drop_trigger_update(
 					enrollment->
 					offering->
 					course_price,
+				entity_receivable_expecting(
+					course_drop->
+						payor_entity->
+						full_name,
+					course_drop->
+						payor_entity->
+						street_address ),
+				account_receivable( (char*)0 ),
+				account_payable( (char*)0 ),
 				course_drop->
 					enrollment->
 					offering->
-					revenue_account,
-				account_payable( (char*)0 ) ) ) )
+					revenue_account ) ) )
 		{
 			TRANSACTION *t = course_drop->course_drop_transaction;
 	

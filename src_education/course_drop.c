@@ -308,34 +308,53 @@ char *course_drop_primary_where(
 
 TRANSACTION *course_drop_transaction(
 			int *seconds_to_add,
-			char *entity_full_name,
-			char *entity_street_address,
+			char *payor_full_name,
+			char *payor_street_address,
 			char *transaction_date_time,
 			char *program_name,
 			char *course_name,
 			double offering_course_price,
-			char *revenue_account,
-			char *account_payable )
+			double receivable_expecting,
+			char *account_receivable,
+			char *account_payable,
+			char *offering_revenue_account )
 {
 	TRANSACTION *transaction;
+	double receivable_credit_amount = {0};
+	double payable_credit_amount = {0};
+	JOURNAL *journal;
+
+	if ( !transaction_date_time || !*transaction_date_time )
+	{
+		return (TRANSACTION *)0;
+	}
 
 	if ( dollar_virtually_same( offering_course_price, 0.0 ) )
-		return (TRANSACTION *)0;
-
-	if ( !transaction_date_time )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty transaction_date_time\n",
+			"Warning in %s/%s()/%d: empty offering_course_price\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		exit( 1 );
+
+		return (TRANSACTION *)0;
+	}
+
+	if ( !offering_revenue_account )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: empty offering_revenue_account\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return (TRANSACTION *)0;
 	}
 
 	transaction =
 		transaction_full(
-			entity_full_name,
-			entity_street_address,
+			payor_full_name,
+			payor_street_address,
 			transaction_date_time,
 			offering_course_price
 				/* transaction_amount */,
@@ -344,15 +363,78 @@ TRANSACTION *course_drop_transaction(
 			(*seconds_to_add)++ );
 
 	transaction->program_name = program_name;
+	transaction->transaction_amount = offering_course_price;
 
-	transaction->journal_list =
-		journal_binary_list(
+	if ( !transaction->journal_list )
+		transaction->journal_list =
+			list_new();
+
+	if ( receivable_expecting == 0.0 )
+	{
+		payable_credit_amount = offering_course_price;
+		receivable_credit_amount = 0.0;
+	}
+	else
+	if ( receivable_expecting > 0.0 )
+	{
+		if ( receivable_expecting >= offering_course_price )
+		{
+			payable_credit_amount = 0.0;
+			receivable_credit_amount = offering_course_price;
+		}
+		else
+		if ( receivable_expecting < offering_course_price )
+		{
+			payable_credit_amount =
+				offering_course_price -
+				receivable_expecting;
+
+			receivable_credit_amount = receivable_expecting;
+		}
+	}
+
+	/* Debit */
+	/* ----- */
+	journal =
+		journal_new(
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time,
-			transaction->transaction_amount,
-			revenue_account,
-			account_payable );
+			offering_revenue_account );
+
+	journal->debit_amount = offering_course_price;
+
+	list_set( transaction->journal_list, journal );
+
+	/* Credits */
+	/* ------- */
+	if ( receivable_credit_amount )
+	{
+		journal =
+			journal_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				account_receivable );
+
+		journal->credit_amount = receivable_credit_amount;
+
+		list_set( transaction->journal_list, journal );
+	}
+
+	if ( payable_credit_amount )
+	{
+		journal =
+			journal_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				account_payable );
+
+		journal->credit_amount = payable_credit_amount;
+
+		list_set( transaction->journal_list, journal );
+	}
 
 	return transaction;
 }
@@ -464,10 +546,12 @@ void course_drop_list_set_transaction(
 			LIST *course_drop_list )
 {
 	COURSE_DROP *course_drop;
+	char *receivable;
 	char *payable;
 
 	if ( !list_rewind( course_drop_list ) ) return;
 
+	receivable = account_receivable( (char *)0 );
 	payable = account_payable( (char *)0 );
 
 	do {
@@ -485,14 +569,8 @@ void course_drop_list_set_transaction(
 			exit( 1 );
 		}
 
-		if ( course_drop->enrollment->registration->payor_entity )
+		if ( course_drop->payor_entity )
 		{
-			course_drop->payor_entity =
-				course_drop->
-					enrollment->
-					registration->
-					payor_entity;
-
 			if ( ( course_drop->course_drop_transaction =
 				course_drop_transaction(
 					transaction_seconds_to_add,
@@ -516,11 +594,19 @@ void course_drop_list_set_transaction(
 						enrollment->
 						offering->
 						course_price,
+					entity_receivable_expecting(
+						course_drop->
+							payor_entity->
+							full_name,
+						course_drop->
+							payor_entity->
+							street_address ),
+					receivable,
+					payable,
 					course_drop->
 						enrollment->
 						offering->
-						revenue_account,
-					payable ) ) )
+						revenue_account ) ) )
 			{
 				course_drop->transaction_date_time =
 					course_drop->course_drop_transaction->
@@ -597,7 +683,10 @@ COURSE_DROP *course_drop_steady_state(
 	if ( !payor_entity )
 	{
 		course_drop->payor_entity =
-			course_drop->enrollment->registration->payor_entity;
+			course_drop->
+				enrollment->
+				registration->
+				payor_entity;
 	}
 
 	return course_drop;

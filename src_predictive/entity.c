@@ -756,3 +756,10 @@ double entity_liability_prepaid(
 	return 0.0;
 }
 
+double entity_receivable_expecting(
+			char *payor_full_name,
+			char *payor_street_address )
+{
+	return 0.0;
+}
+

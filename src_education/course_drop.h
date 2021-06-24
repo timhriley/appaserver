@@ -100,8 +100,10 @@ TRANSACTION *course_drop_transaction(
 			char *program_name,
 			char *course_name,
 			double offering_course_price,
-			char *offering_revenue_account,
-			char *account_payable );
+			double receivable_expecting,
+			char *account_receivable,
+			char *account_payable,
+			char *offering_revenue_account );
 
 char *course_drop_system_string(
 			char *where );
