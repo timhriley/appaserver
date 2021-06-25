@@ -72,8 +72,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}
 
 void make_checks_argv( int argc, char **argv )
 {
@@ -166,7 +165,7 @@ void make_checks_argv( int argc, char **argv )
 
 	printf(	"%s\n", pdf_filename );
 
-} /* make_checks_argv() */
+}
 
 void make_checks_stdin( boolean personal_size )
 {
@@ -272,7 +271,7 @@ void make_checks_stdin( boolean personal_size )
 
 	printf(	"%s\n", pdf_filename );
 
-} /* make_checks_stdin */
+}
 
 void make_checks(	FILE *latex_file,
 			char *payable_to,
@@ -323,25 +322,28 @@ void make_checks(	FILE *latex_file,
 			with_newpage );
 	}
 
-} /* make_checks() */
+}
 
 void make_checks_document_heading(
 			FILE *latex_file )
 {
+/*
+"\\usepackage{rotating}\n"
+*/
 	fprintf(latex_file,
 "\\documentclass{report}\n"
-"\\usepackage[	top=0in,\n"
+"\\usepackage[	portrait,\n"
+"		top=0in,\n"
 "		left=0in,\n"
 "		paperheight=2.875in,\n"
 "		paperwidth=8.5in,\n"
 "		textheight=2.875in,\n"
 "		textwidth=8.5in,\n"
 "		noheadfoot]{geometry}\n"
-"\\usepackage{rotating}\n"
 "\\pagenumbering{gobble}\n"
 "\\begin{document}\n" );
 
-} /* make_checks_document_heading() */
+}
 
 void make_checks_document_footer(
 			FILE *latex_file )
@@ -349,7 +351,7 @@ void make_checks_document_footer(
 	fprintf( latex_file,
 "\\end{document}\n" );
 
-} /* make_checks_document_footer() */
+}
 
 void make_checks_dollar_text_personal_size(
 			FILE *latex_file,
@@ -452,5 +454,5 @@ void make_checks_dollar_text_personal_size(
 "\\end{tabular}\n",
 		 check_number );
 
-} /* make_checks_dollar_text_personal_size() */
+}
 
