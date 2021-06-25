@@ -30,6 +30,7 @@
 #include "appaserver.h"
 #include "column.h"
 #include "dictionary_appaserver.h"
+#include "attribute.h"
 #include "appaserver_link_file.h"
 
 /* Constants */
@@ -94,7 +95,7 @@ int main( int argc, char **argv )
 	APPASERVER *appaserver;
 	QUERY *query;
 	char buffer[ 128 ];
-	char title[ 65536 ];
+	char title[ QUERY_WHERE_BUFFER ];
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	ROLE *role;
 	boolean override_row_restrictions;
@@ -223,9 +224,8 @@ int main( int argc, char **argv )
 
 	appaserver->folder->mto1_related_folder_list =
 	appaserver_remove_attribute_name_list_from_related_folder_list(
-					appaserver->folder->
-						mto1_related_folder_list,
-					exclude_attribute_name_list );
+		appaserver->folder->mto1_related_folder_list,
+		exclude_attribute_name_list );
 
 	query =
 		query_simple_new(
@@ -263,14 +263,14 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	sprintf(	title, 
-			"Group %s: %s",
-			format_initial_capital( buffer, folder_name ),
-			query_get_display_where_clause(
-				query->query_output->where_clause,
-				application_name,
-				folder_name,
-				1 ) );
+	sprintf(title, 
+		"Group %s: %s",
+		format_initial_capital( buffer, folder_name ),
+		query_get_display_where_clause(
+			query->query_output->where_clause,
+			application_name,
+			folder_name,
+			1 ) );
 
 	document = document_new( title, application_name );
 	document_set_output_content_type( document );
@@ -315,7 +315,7 @@ int main( int argc, char **argv )
 	document_close();
 	return 0;
 
-} /* main() */
+}
 
 void output_related_folder(
 			LIST *done_folder_name_list,
@@ -478,7 +478,8 @@ void output_related_folder(
 
 	fclose( output_file );
 
-	input_pipe = get_input_pipe(
+	input_pipe =
+		get_input_pipe(
 			application_name,
 			foreign_attribute_name_list,
 		 	folder_name,
@@ -559,7 +560,7 @@ void output_related_folder(
 			(char *)0 /* application_type */ );
 	fflush( stdout );
 
-} /* output_related_folder() */
+}
 
 char *get_total_delimiter_list(	int attribute_list_length,
 				char delimiter )
@@ -583,7 +584,7 @@ char *get_total_delimiter_list(	int attribute_list_length,
 	}
 
 	return total_delimiter_list;
-} /* get_total_delimiter_list() */
+}
 
 char *get_justify_comma_list( int attribute_list_length )
 {
@@ -601,7 +602,7 @@ char *get_justify_comma_list( int attribute_list_length )
 
 	ptr += sprintf( ptr, ",right,right" );
 	return justify_comma_list;
-} /* get_justify_comma_list() */
+}
 
 FILE *get_input_pipe(	char *application_name,
 			LIST *foreign_attribute_name_list,
@@ -609,7 +610,7 @@ FILE *get_input_pipe(	char *application_name,
 			char *where_clause,
 			TOTAL_COUNT *total_count )
 {
-	char sys_string[ 65536 ];
+	char sys_string[ QUERY_WHERE_BUFFER ];
 	char select[ 512 ];
 
 	if ( !total_count->exists_float_datatype )
@@ -649,7 +650,7 @@ fprintf( stderr, "%s\n",sys_string );
 
 	return popen( sys_string, "r" );
 
-} /* get_input_pipe() */
+}
 
 TOTAL_COUNT *get_total_count(
 			char *application_name,
@@ -657,7 +658,7 @@ TOTAL_COUNT *get_total_count(
 			char *where_clause,
 			LIST *attribute_float_list )
 {
-	char sys_string[ 65536 ];
+	char sys_string[ QUERY_WHERE_BUFFER ];
 	ATTRIBUTE *first_attribute = {0};
 	TOTAL_COUNT *total_count;
 	char select[ 256 ];
@@ -727,7 +728,7 @@ TOTAL_COUNT *get_total_count(
 
 	return total_count;
 
-} /* get_total_count() */
+}
 
 TOTAL_COUNT *total_count_new( void )
 {

@@ -1,4 +1,4 @@
-/* query_attribute_statistics_list.c 					*/
+/* $APPASERVER_HOME/library/query_attribute_statistics_list.c		*/
 /* -------------------------------------------------------------------- */
 /* This ADT supports the statistics push button on the prompt screens.  */
 /* -------------------------------------------------------------------- */

@@ -20,6 +20,7 @@
 #include "date.h"
 #include "array.h"
 #include "float.h"
+#include "query.h"
 /* #include "sed.h" */
 
 int timlib_strlen( char *s )
@@ -486,7 +487,7 @@ void output_starting_argv_stderr( int argc, char **argv )
 char *pipe_multiple_lines2string(	char *sys_string,
 					char delimiter )
 {
-	char buffer[ 65536 ];
+	char buffer[ QUERY_WHERE_BUFFER ];
 	char input_buffer[ 1024 ];
 	FILE *p;
 	boolean null_input = 1;
@@ -516,7 +517,7 @@ char *pipe_multiple_lines2string(	char *sys_string,
 
 char *pipe2string( char *sys_string )
 {
-	char buffer[ 65536 ];
+	char buffer[ QUERY_WHERE_BUFFER ];
 	FILE *p;
 	int null_input = 0;
 
@@ -526,7 +527,7 @@ char *pipe2string( char *sys_string )
 
 	p = popen( sys_string, "r" );
 
-	if ( !string_input( buffer, p, 65536 ) ) null_input = 1;
+	if ( !string_input( buffer, p, QUERY_WHERE_BUFFER ) ) null_input = 1;
 
 	pclose( p );
 
@@ -842,7 +843,7 @@ char *trim( char *buffer )
         /* Copy the buffer */
         /* --------------- */
         if ( buffer != buf_ptr )
-		timlib_strcpy( buffer, buf_ptr, 65536 );
+		timlib_strcpy( buffer, buf_ptr, QUERY_WHERE_BUFFER );
 
         /* Trim trailing spaces */
         /* -------------------- */
@@ -1107,7 +1108,7 @@ int timlib_get_block_delimiter(
 				FILE *input_file,
 				int max_lines )
 {
-	char buffer[ 65536 ];
+	char buffer[ QUERY_WHERE_BUFFER ];
 	char first_field[ 1024 ];
 	char old_first_field[ 1024 ];
 	int count = 0;
@@ -1270,7 +1271,6 @@ char *delete_str( char *string, int start, int num_chars )
                         string[start] = string[far_str];
 
         return string;
-
 }
 
 char *insert_string( char *source_destination, char *substring, int pos )
@@ -1299,7 +1299,6 @@ char *insert_str( char *sub, char *string, int pos )
 
         free(temp);
         return string;
-
 }
 
 
@@ -1465,6 +1464,7 @@ char *search_replace( 	char *search_str,
 	int str_len = strlen( replace_str );
 
 	return_pointer = source_destination;
+
 	if ( strcmp( search_str, replace_str ) == 0 )
 		return return_pointer;
 
@@ -1480,7 +1480,6 @@ char *search_replace( 	char *search_str,
 
 		source_destination += (here + str_len );
         }
-
 }
 
 char *search_replace_strict_case_string( 
@@ -2081,7 +2080,7 @@ char *timlib_escape_character_string(
 				char *source_destination,
 				char *character_string )
 {
-	char buffer[ 65536 ];
+	char buffer[ QUERY_WHERE_BUFFER ];
 
 	strcpy( buffer, source_destination );
 
@@ -2103,35 +2102,6 @@ char *escape_field( char *source_destination )
 	return timlib_escape_character_string(
 				source_destination,
 				character_string );
-
-/*
-	char buffer[ 65536 ];
-
-	strcpy( buffer, source_destination );
-	escape_character( source_destination, buffer, '\'' );
-
-	strcpy( buffer, source_destination );
-	escape_character( source_destination, buffer, ',' );
-
-	strcpy( buffer, source_destination );
-	escape_character( source_destination, buffer, '%' );
-
-	strcpy( buffer, source_destination );
-	escape_character( source_destination, buffer, '$' );
-
-	strcpy( buffer, source_destination );
-	escape_character( source_destination, buffer, '(' );
-
-	strcpy( buffer, source_destination );
-	escape_character( source_destination, buffer, ')' );
-
-#ifdef NOT_DEFINED
-	strcpy( buffer, source_destination );
-	escape_character( source_destination, buffer, '&' );
-#endif
-
-	return source_destination;
-*/
 }
 
 char *timlib_escape_single_quotes( char *destination, char *source )
@@ -2142,7 +2112,7 @@ char *timlib_escape_single_quotes( char *destination, char *source )
 
 char *escape_single_quotes( char *data )
 {
-	char buffer[ 65536 ];
+	char buffer[ QUERY_WHERE_BUFFER ];
 	strcpy( data, escape_character( buffer, data, '\'' ) );
 	return escape_dollar_signs( data );
 }
@@ -2154,7 +2124,7 @@ char *escape_dollar_signs( char *data )
 
 char *escape_dollar_sign( char *data )
 {
-	char buffer[ 65536 ];
+	char buffer[ QUERY_WHERE_BUFFER ];
 
 	strcpy( data, escape_character( buffer, data, '$' ) );
 	return data;
@@ -2263,7 +2233,7 @@ char *unescape_character(	char *destination,
 
 char *timlib_string_array_display( char **string_array )
 {
-	char buffer[ 65536 ];
+	char buffer[ QUERY_WHERE_BUFFER ];
 	char *ptr = buffer;
 	static boolean first_time = 1;
 
@@ -2521,7 +2491,7 @@ char *reverse_string(			char *destination,
 
 void make_single_quotes_double_single_quotes( char *d )
 {
-	char tmp[ 65536 ];
+	char tmp[ QUERY_WHERE_BUFFER ];
 	char *tmp_ptr = tmp;
 
 	strcpy( tmp, d );
@@ -2818,7 +2788,7 @@ char *timlib_trim_double_quotes( char *s )
 
 	if ( !s ) return (char *)0;
 
-	if ( *s == '"' ) timlib_strcpy( s, s + 1, 65536 );
+	if ( *s == '"' ) timlib_strcpy( s, s + 1, QUERY_WHERE_BUFFER );
 
 	str_len = strlen( s );
 
@@ -3281,7 +3251,7 @@ char *timlib_escape_sql_injection( char *source )
 /* ------------------- */
 char *timlib_sql_injection_escape( char *source )
 {
-	char destination[ 65536 ];
+	char destination[ QUERY_WHERE_BUFFER ];
 
 	timlib_escape_character_array(
 		destination,

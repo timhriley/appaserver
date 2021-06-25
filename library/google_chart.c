@@ -1226,7 +1226,6 @@ void google_chart_output_prompt(
 	printf( "<br><hr><a href=\"%s\" target=%s>Press to view chart.</a>\n",
 		prompt_filename,
 		target_window );
-
 }
 
 void google_chart_output_options(

@@ -1,4 +1,4 @@
-/* src_appaserver/output_transmit.c				*/
+/* $APPASERVER_HOME/src_appaserver/output_transmit.c		*/
 /* ------------------------------------------------------------	*/
 /* This process is triggered if you select the transmit radio	*/
 /* button in some of the lookup forms.				*/

@@ -1,4 +1,4 @@
-/* query_attribute_statistics_list.c 					*/
+/* $APPASERVER_HOME/library/query_attribute_statistics_list.c		*/
 /* -------------------------------------------------------------------- */
 /* This ADT supports the statistics push button on the prompt screens.  */
 /* -------------------------------------------------------------------- */
@@ -380,7 +380,7 @@ char *query_attribute_statistics_list_get_build_each_temp_file_sys_string(
 {
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
 	LIST *select_attribute_name_list;
-	char sys_string[ 65536 ];
+	char sys_string[ QUERY_WHERE_BUFFER ];
 	char *table_name;
 	char *ptr = sys_string;
 
@@ -478,7 +478,7 @@ void query_attribute_statistics_list_output_folder_count(
 	LIST *heading_list;
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
 	char count[ 128 ];
-	char display_where_clause[ 65536 ];
+	char display_where_clause[ QUERY_WHERE_BUFFER ];
 
 	query_attribute_get_display_where_clause(
 		display_where_clause,
@@ -547,13 +547,13 @@ void query_attribute_statistics_list_output_folder_count(
 }
 
 void query_attribute_statistics_list_output_table(
-					char *folder_name,
-					char *where_clause,
-					LIST *query_attribute_statistics_list,
-					char *application_name )
+			char *folder_name,
+			char *where_clause,
+			LIST *query_attribute_statistics_list,
+			char *application_name )
 {
 	HTML_TABLE *html_table;
-	char title[ 4096 ];
+	char title[ QUERY_WHERE_BUFFER ];
 	char buffer[ 1024 ];
 	LIST *heading_list;
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
@@ -567,7 +567,7 @@ void query_attribute_statistics_list_output_table(
 	char maximum[ 128 ];
 	char range[ 128 ];
 	char percent_missing[ 128 ];
-	char local_where_clause[ 65536 ];
+	char local_where_clause[ QUERY_WHERE_BUFFER ];
 	char remove_name_string[ 1024 ];
 	char attribute_buffer[ 128 ];
 
@@ -578,13 +578,15 @@ void query_attribute_statistics_list_output_table(
 	search_replace_string( 
 		local_where_clause, "1 = 1", "entire folder" );
 
-	sprintf(	remove_name_string,
-			"%s.",
-			get_table_name( application_name,
-					folder_name ) );
-	search_replace_string(	local_where_clause,
-				remove_name_string,
-				"" );
+	sprintf(remove_name_string,
+		"%s.",
+		get_table_name( application_name,
+				folder_name ) );
+
+	search_replace_string(
+		local_where_clause,
+		remove_name_string,
+		"" );
 
 	sprintf( remove_name_string, "%s.", folder_name );
 	search_replace_string(	local_where_clause,

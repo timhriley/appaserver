@@ -54,12 +54,12 @@ int main( int argc, char **argv )
 	char *select_attribute_name;
 	char buffer[ 256 ];
 	char title[ 256 ];
-	char sub_title[ 1024 ];
+	char sub_title[ QUERY_WHERE_BUFFER ];
 	FILE *histogram_pipe;
 	FILE *input_file;
 	char input_buffer[ 256 ];
 	char grace_histogram_filename[ 256 ];
-	char sys_string[ 1024 ];
+	char sys_string[ QUERY_WHERE_BUFFER ];
 	char ftp_agr_filename[ 256 ];
 	char ftp_output_filename[ 256 ];
 	char output_filename[ 256 ];
@@ -211,14 +211,19 @@ int main( int argc, char **argv )
 				folder_name,
 				1 ) );
 
-			if ( strcmp( sub_title, "1 = 1" ) == 0 )
+			if ( strlen( sub_title ) > 80
+			||   strcmp( sub_title, "1 = 1" ) == 0 )
+			{
 				*sub_title = '\0';
+			}
 
 			strcpy( buffer, "'" );
 			search_replace_string( sub_title, buffer, "" );
 
 			strcpy(	sub_title,
-				format_initial_capital( buffer, sub_title ) );
+				format_initial_capital(
+					buffer,
+					sub_title ) );
 
 			if ( !query_record_list
 			||   !list_rewind( query_record_list ) )

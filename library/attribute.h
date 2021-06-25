@@ -370,4 +370,7 @@ LIST *attribute_primary_attribute_name_list(
 LIST *attribute_get_primary_attribute_name_list(
 			LIST *attribute_list );
 
+LIST *attribute_non_primary_float_list(
+			LIST *attribute_list );
+
 #endif

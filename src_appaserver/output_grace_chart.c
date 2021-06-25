@@ -122,9 +122,11 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	folder = folder_new_folder( 	application_name,
-					session,
-					folder_name );
+	folder =
+		folder_new_folder(
+			application_name,
+			session,
+			folder_name );
 
 	folder->attribute_list =
 		attribute_get_attribute_list(
@@ -140,7 +142,15 @@ int main( int argc, char **argv )
 		"current_date,current_date_time,date,date_time,current_date" );
 
 	if ( !list_length( date_primary_attribute_name_list ) )
-		return 0;
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->appaserver_mount_point );
+
+		printf( "<h3>Grace Chart not available.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
 	else
 		date_attribute_name =
 			list_get_first_pointer(
@@ -148,8 +158,8 @@ int main( int argc, char **argv )
 
 	time_primary_attribute_name_list =
 		attribute_list_primary_datatype_attribute_string_list(
-						folder->attribute_list,
-						"time,current_time" );
+			folder->attribute_list,
+			"time,current_time" );
 
 	if ( list_length( time_primary_attribute_name_list ) )
 	{
@@ -194,7 +204,7 @@ int main( int argc, char **argv )
 			float_integer_attribute_name_list,
 			select_attribute_name_list );
 	return 0;
-} /* main() */
+}
 
 void output_chart(	char *application_name,
 			char *login_name,
@@ -213,8 +223,8 @@ void output_chart(	char *application_name,
 	char *ftp_agr_filename;
 	char *postscript_filename;
 	char title[ 256 ];
-	char buffer[ 256 ];
-	char sub_title[ 1024 ];
+	char buffer[ QUERY_WHERE_BUFFER ];
+	char sub_title[ QUERY_WHERE_BUFFER ];
 	char initcap_buffer[ 256 ];
 	DOCUMENT *document;
 	LIST *query_record_list;
@@ -238,15 +248,15 @@ void output_chart(	char *application_name,
 	document_set_output_content_type( document );
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
 	query =
 		query_simple_new(
@@ -290,11 +300,12 @@ void output_chart(	char *application_name,
 
 	strcpy( sub_title, format_initial_capital( buffer, sub_title ) );
 
-	grace = grace_new_date_time_grace(
-				application_name,
-				role_name,
-				title,
-				sub_title );
+	grace =
+		grace_new_date_time_grace(
+			application_name,
+			role_name,
+			title,
+			sub_title );
 
 	sprintf( graph_identifier, "%d", getpid() );
 
@@ -522,5 +533,5 @@ void output_chart(	char *application_name,
 
 	document_close();
 
-} /* output_chart() */
+}
 

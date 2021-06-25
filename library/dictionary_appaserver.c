@@ -401,18 +401,18 @@ void dictionary_appaserver_parse_multi_attribute_keys(
 	/* To:    "station_1=BA and datatype_1=stage"			*/
 	/* ------------------------------------------------------------ */
 	dictionary_parse_multi_attribute_keys(
-				source_destination, 
-				MULTI_ATTRIBUTE_KEY_DELIMITER,
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-				prefix,
-				1 /* dont_include_relational_operators */ );
+		source_destination, 
+		MULTI_ATTRIBUTE_KEY_DELIMITER,
+		MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+		prefix,
+		1 /* dont_include_relational_operators */ );
 
 	dictionary_parse_multi_attribute_keys(
-				source_destination, 
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-				prefix,
-				1 /* dont_include_relational_operators */ );
+		source_destination, 
+		MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+		MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+		prefix,
+		1 /* dont_include_relational_operators */ );
 
 }
 

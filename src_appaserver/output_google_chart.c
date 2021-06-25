@@ -142,7 +142,15 @@ int main( int argc, char **argv )
 		"current_date,current_date_time,date,date_time,current_date" );
 
 	if ( !list_length( date_primary_attribute_name_list ) )
-		return 0;
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->appaserver_mount_point );
+
+		printf( "<h3>Google Chart not available.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
 	else
 		date_attribute_name =
 			list_get_first_pointer(
@@ -210,8 +218,8 @@ void output_chart(	char *application_name,
 	char *output_filename;
 	char *prompt_filename;
 	char chart_title[ 256 ];
-	char buffer[ 256 ];
-	char sub_title[ 1024 ];
+	char buffer[ QUERY_WHERE_BUFFER ];
+	char sub_title[ QUERY_WHERE_BUFFER ];
 	char initcap_buffer[ 256 ];
 	DOCUMENT *document;
 	LIST *query_record_list;
@@ -286,16 +294,33 @@ void output_chart(	char *application_name,
 
 	sprintf(chart_title,
 		"Chart %s", 
-		format_initial_capital( initcap_buffer,
+		format_initial_capital(
+			initcap_buffer,
 			format_plural( buffer, folder_name ) ) );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	strcpy( sub_title,
 		query_get_display_where_clause(
-				query->query_output->where_clause,
-				application_name,
-				folder_name,
-				1 ) );
+			query->query_output->where_clause,
+			application_name,
+			folder_name,
+			1 ) );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	if ( strcmp( sub_title, "1 = 1" ) == 0 )
 		*sub_title = '\0';
 
@@ -304,6 +329,14 @@ void output_chart(	char *application_name,
 
 	strcpy( sub_title, format_initial_capital( buffer, sub_title ) );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	google_output_chart =
 		google_output_chart_new(
 			GOOGLE_CHART_POSITION_LEFT,
@@ -389,6 +422,14 @@ void output_chart(	char *application_name,
 
 	} while( list_next( float_integer_attribute_name_list ) );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	document_output_html_stream( output_file );
 
 	fprintf( output_file, "<head>\n" );

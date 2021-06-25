@@ -1,4 +1,4 @@
-/* library/query.h							*/
+/* $APPASERVER_HOME/library/query.h					*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -18,6 +18,7 @@
 
 /* Constants */
 /* --------- */
+#define QUERY_WHERE_BUFFER			131072
 #define QUERY_MAX_ROWS				500
 #define QUERY_STARTING_LABEL			"qquery_"
 #define QUERY_FROM_STARTING_LABEL		"from_"

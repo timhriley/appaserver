@@ -17,6 +17,7 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "environ.h"
+#include "query.h"
 #include "name_arg.h"
 #include "appaserver.h"
 
@@ -48,17 +49,17 @@ int main( int argc, char **argv )
 	char *maxrows = {0};
 	long maxrows_long = 0L;
 	char *where_clause;
-	char sys_string[ 65536 ];
+	char sys_string[ QUERY_WHERE_BUFFER ];
 	char order_by_clause[ 4096 ];
 	char group_by_clause[ 4096 ];
-	char where_clause_escaped[ 65536 ];
+	char where_clause_escaped[ QUERY_WHERE_BUFFER ];
 	LIST *attribute_name_list, *primary_name_list;
 	char *table_name;
 	FOLDER *folder;
 	char sql_executable[ 128 ];
         NAME_ARG *arg = init_arg( argv[ 0 ] );
 	long row_access_count = 0L;
-	char input_buffer[ 65536 ];
+	char input_buffer[ MAX_INPUT_LINE ];
 	FILE *input_pipe;
 
 	/* appaserver_error_stderr( argc, argv ); */
@@ -284,14 +285,14 @@ fprintf( stderr, "%s\n", sys_string );
 
 	input_pipe = popen( sys_string, "r" );
 
-	while( timlib_get_line( input_buffer, input_pipe, 65536 ) )
+	while( timlib_get_line( input_buffer, input_pipe, MAX_INPUT_LINE ) )
 	{
 		row_access_count++;
 
 		if ( maxrows_long
 		&&   row_access_count > maxrows_long )
 		{
-			char msg[ 65536 ];
+			char msg[ MAX_INPUT_LINE ];
 
 			printf(
 "Warning: Output truncated. Max rows of %ld exceeded\n", maxrows_long );
