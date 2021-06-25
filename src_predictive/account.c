@@ -1106,7 +1106,7 @@ char *account_list_display(
 	return strdup( display );
 }
 
-LIST *account_after_balance_zero_journal_list(
+LIST *account_balance_zero_journal_list(
 			char *account_name )
 {
 	char *transaction_date_time_string;

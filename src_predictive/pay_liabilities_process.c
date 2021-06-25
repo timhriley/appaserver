@@ -221,10 +221,10 @@ char *pay_liabilities_process(
 		liability_new(
 			dialog_box_payment_amount,
 			starting_check_number,
-			/* -------------------------------------------- */
-			/* Sets account_after_balance_zero_journal_list */
-			/* -------------------------------------------- */
-			liability_after_balance_zero_account_list(),
+			/* -------------------------------------- */
+			/* Sets account_balance_zero_journal_list */
+			/* -------------------------------------- */
+			liability_balance_zero_account_list(),
 			liability_account_entity_list(),
 			entity_full_street_list(
 				full_name_list,
@@ -233,7 +233,7 @@ char *pay_liabilities_process(
 
 	liability->liability_tax_redirect_account_list =
 		liability_tax_redirect_account_list(
-			liability->liability_after_balance_zero_account_list,
+			liability->liability_balance_zero_account_list,
 			liability->liability_account_entity_list );
 
 	liability->liability_entity_list =
@@ -244,11 +244,11 @@ char *pay_liabilities_process(
 			liability->input_entity_list,
 			liability->dialog_box_payment_amount );
 
-	liability->liability_after_balance_zero_entity_list =
-		/* ------------------------------------------- */
-		/* Sets entity_after_balance_zero_account_list */
-		/* ------------------------------------------- */
-		liability_after_balance_zero_entity_list(
+	liability->liability_balance_zero_entity_list =
+		/* ------------------------------------- */
+		/* Sets entity_balance_zero_account_list */
+		/* ------------------------------------- */
+		liability_balance_zero_entity_list(
 			liability->liability_entity_list,
 			liability->
 				liability_tax_redirect_account_list
@@ -257,7 +257,7 @@ char *pay_liabilities_process(
 	liability->liability_steady_state_entity_list =
 		liability_steady_state_entity_list(
 			liability->
-				liability_after_balance_zero_entity_list );
+				liability_balance_zero_entity_list );
 
 	if ( starting_check_number )
 	{

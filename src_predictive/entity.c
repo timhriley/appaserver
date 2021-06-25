@@ -15,6 +15,7 @@
 #include "account.h"
 #include "transaction.h"
 #include "liability.h"
+#include "journal.h"
 #include "entity.h"
 
 enum payroll_pay_period entity_payroll_pay_period(
@@ -553,13 +554,13 @@ ENTITY *entity_full_name_entity(
 }
 
 double entity_liability_amount_due(
-			LIST *entity_after_balance_zero_account_list )
+			LIST *entity_balance_zero_account_list )
 {
 	LIST *account_list;
 	ACCOUNT *account;
 	double amount_due;
 
-	account_list = entity_after_balance_zero_account_list;
+	account_list = entity_balance_zero_account_list;
 
 	if ( !list_rewind( account_list ) ) return 0.0;
 
@@ -569,7 +570,7 @@ double entity_liability_amount_due(
 		account = list_get( account_list );
 
 		account->account_liability_due =
-			account_liability_due(
+			journal_credit_difference_sum(
 				account->liability_journal_list );
 
 		amount_due += account->account_liability_due;
@@ -579,7 +580,7 @@ double entity_liability_amount_due(
 	return amount_due;
 }
 
-LIST *entity_after_balance_zero_account_list(
+LIST *entity_balance_zero_account_list(
 			LIST *account_list,
 			char *full_name,
 			char *street_address )
@@ -598,7 +599,7 @@ LIST *entity_after_balance_zero_account_list(
 			list_get(
 				account_list );
 
-		journal_list = account->account_after_balance_zero_journal_list;
+		journal_list = account->account_balance_zero_journal_list;
 
 		if ( !list_rewind( journal_list ) ) continue;
 
@@ -633,7 +634,7 @@ LIST *entity_after_balance_zero_account_list(
 
 ENTITY *entity_liability_steady_state(
 			ENTITY *entity,
-			LIST *entity_after_balance_zero_account_list )
+			LIST *entity_balance_zero_account_list )
 {
 	if ( !entity )
 	{
@@ -650,7 +651,7 @@ ENTITY *entity_liability_steady_state(
 		/* Sets account->account_liability_due */
 		/* ----------------------------------- */
 		entity_liability_amount_due(
-			entity_after_balance_zero_account_list );
+			entity_balance_zero_account_list );
 
 	entity->entity_liability_payment_amount =
 		entity_liability_payment_amount(
@@ -710,25 +711,25 @@ double entity_liability_prepaid(
 			payor_full_name,
 			payor_street_address ) );
 
-	liability->liability_after_balance_zero_account_list =
-		/* -------------------------------------------- */
-		/* Sets account_after_balance_zero_journal_list */
-		/* -------------------------------------------- */
-		liability_after_balance_zero_account_list();
+	liability->liability_balance_zero_account_list =
+		/* -------------------------------------- */
+		/* Sets account_balance_zero_journal_list */
+		/* -------------------------------------- */
+		liability_balance_zero_account_list();
 
 	liability->liability_entity_list =
 		liability_entity_list(
-			liability->liability_after_balance_zero_account_list,
+			liability->liability_balance_zero_account_list,
 			entity_list /* input_entity_list */,
 			0.0 /* dialog_box_payment_amount */ );
 
-	liability->liability_after_balance_zero_entity_list =
-		liability_after_balance_zero_entity_list(
+	liability->liability_balance_zero_entity_list =
+		liability_balance_zero_entity_list(
 			liability->liability_entity_list,
-			liability->liability_after_balance_zero_account_list );
+			liability->liability_balance_zero_account_list );
 
 	if ( !list_rewind(
-		liability->liability_after_balance_zero_entity_list ) )
+		liability->liability_balance_zero_entity_list ) )
 	{
 		return 0.0;
 	}
@@ -736,11 +737,11 @@ double entity_liability_prepaid(
 	entity =
 		list_get(
 			liability->
-				liability_after_balance_zero_entity_list );
+				liability_balance_zero_entity_list );
 
 	if ( !list_length(
 		entity->
-			entity_after_balance_zero_account_list ) )
+			entity_balance_zero_account_list ) )
 	{
 		return 0.0;
 	}
@@ -748,18 +749,11 @@ double entity_liability_prepaid(
 	if ( ( entity->entity_liability_amount_due =
 		entity_liability_amount_due(
 			entity->
-			   entity_after_balance_zero_account_list ) ) > 0.0 )
+			   entity_balance_zero_account_list ) ) > 0.0 )
 	{
 		return entity->entity_liability_amount_due;
 	}
 
-	return 0.0;
-}
-
-double entity_receivable_expecting(
-			char *payor_full_name,
-			char *payor_street_address )
-{
 	return 0.0;
 }
 

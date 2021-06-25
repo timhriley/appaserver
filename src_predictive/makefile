@@ -137,7 +137,8 @@ SOURCE_LIBRARY= 							\
 		supply_purchase.o					\
 		prepaid_asset.o						\
 		prepaid_asset_purchase.o				\
-		liability.o
+		liability.o						\
+		receivable.o
 
 SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\
@@ -801,6 +802,10 @@ employee.o: employee.c employee.h
 liability.o: liability.c liability.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c liability.c
+
+receivable.o: receivable.c receivable.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c receivable.c
 
 tax.o: tax.c tax.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

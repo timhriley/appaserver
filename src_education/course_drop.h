@@ -56,6 +56,7 @@ typedef struct
 	/* ------- */
 	char *course_drop_date_time;
 	ENROLLMENT *enrollment;
+	double course_drop_receivable_expecting;
 	TRANSACTION *course_drop_transaction;
 	char *transaction_date_time;
 } COURSE_DROP;
@@ -159,6 +160,8 @@ void course_drop_list_set_transaction(
 char *course_drop_list_display(
 			LIST *course_drop_list );
 
+/* Sets course_drop_receivable_expecting */
+/* ------------------------------------- */
 COURSE_DROP *course_drop_steady_state(
 			COURSE_DROP *course_drop,
 			char *course_drop_date_time,
@@ -166,6 +169,10 @@ COURSE_DROP *course_drop_steady_state(
 
 LIST *course_drop_list_enrollment_list(
 			LIST *course_drop_list );
+
+double course_drop_receivable_expecting(
+			char *payor_full_name,
+			char *payor_street_address );
 
 #endif
 

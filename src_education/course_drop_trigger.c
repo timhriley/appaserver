@@ -145,6 +145,9 @@ void course_drop_trigger_insert(
 	}
 
 	course_drop =
+		/* ------------------------------------- */
+		/* Sets course_drop_receivable_expecting */
+		/* ------------------------------------- */
 		course_drop_steady_state(
 			course_drop,
 			course_drop->course_drop_date_time,
@@ -184,13 +187,8 @@ void course_drop_trigger_insert(
 					enrollment->
 					offering->
 					course_price,
-				entity_receivable_expecting(
-					course_drop->
-						payor_entity->
-						full_name,
-					course_drop->
-						payor_entity->
-						street_address ),
+				course_drop->
+					course_drop_receivable_expecting,
 				account_receivable( (char *)0 ),
 				account_payable( (char*)0 ),
 				course_drop->
@@ -264,6 +262,9 @@ void course_drop_trigger_update(
 	}
 
 	course_drop =
+		/* ------------------------------------- */
+		/* Sets course_drop_receivable_expecting */
+		/* ------------------------------------- */
 		course_drop_steady_state(
 			course_drop,
 			course_drop->course_drop_date_time,
@@ -303,13 +304,8 @@ void course_drop_trigger_update(
 					enrollment->
 					offering->
 					course_price,
-				entity_receivable_expecting(
-					course_drop->
-						payor_entity->
-						full_name,
-					course_drop->
-						payor_entity->
-						street_address ),
+				course_drop->
+					course_drop_receivable_expecting,
 				account_receivable( (char*)0 ),
 				account_payable( (char*)0 ),
 				course_drop->

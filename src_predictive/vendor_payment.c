@@ -28,13 +28,12 @@ VENDOR_PAYMENT *vendor_payment_new(
 	if ( ! ( vendor_payment = calloc( 1, sizeof( VENDOR_PAYMENT ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
-
 
 	vendor_payment->vendor_entity =
 		entity_fetch(

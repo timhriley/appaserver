@@ -1861,8 +1861,8 @@ LIST *journal_date_time_account_name_list(
 	return pipe2list( sys_string );
 }
 
-LIST *journal_account_entity_journal_list(
-			LIST *account_name_list,
+LIST *journal_entity_account_journal_list(
+			char *account_name,
 			char *full_name,
 			char *street_address )
 {
@@ -1871,10 +1871,10 @@ LIST *journal_account_entity_journal_list(
 	sprintf(where,
 	 	"full_name = '%s' and			"
 		"street_address = '%s' and		"
-		"account in ('%s')			",
+		"account = '%s'				",
 		entity_name_escape( full_name ),
 		street_address,
-	 	timlib_in_clause( account_name_list ) );
+	 	account_name_escape( account_name ) );
 
 	return	journal_system_list(
 			journal_system_string(
@@ -1883,5 +1883,53 @@ LIST *journal_account_entity_journal_list(
 				0 /* not fetch_memo */ ),
 			0 /* not fetch_check_number */,
 			0 /* not fetch_memo */ );
+}
+
+double journal_debit_difference_sum(
+			LIST *journal_list )
+{
+	JOURNAL *journal;
+	double sum;
+	double difference;
+
+	if ( !list_rewind( journal_list ) ) return 0.0;
+
+	sum = 0.0;
+
+	do {
+		journal = list_get( journal_list );
+
+		difference =	journal->debit_amount -
+				journal->credit_amount;
+
+		sum += difference;
+
+	} while ( list_next( journal_list ) );
+
+	return sum;
+}
+
+double journal_credit_difference_sum(
+			LIST *journal_list )
+{
+	JOURNAL *journal;
+	double sum;
+	double difference;
+
+	if ( !list_rewind( journal_list ) ) return 0.0;
+
+	sum = 0.0;
+
+	do {
+		journal = list_get( journal_list );
+
+		difference =	journal->credit_amount -
+				journal->debit_amount;
+
+		sum += difference;
+
+	} while ( list_next( journal_list ) );
+
+	return sum;
 }
 

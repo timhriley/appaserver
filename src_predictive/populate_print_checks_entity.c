@@ -55,12 +55,12 @@ void populate_print_checks_entity( void )
 	liability->liability_account_entity_list =
 		liability_account_entity_list();
 
-	liability->liability_after_balance_zero_account_list =
-		liability_after_balance_zero_account_list();
+	liability->liability_balance_zero_account_list =
+		liability_balance_zero_account_list();
 
 	liability->liability_tax_redirect_account_list =
 		liability_tax_redirect_account_list(
-			liability->liability_after_balance_zero_account_list,
+			liability->liability_balance_zero_account_list,
 			liability->liability_account_entity_list );
 
 	liability->liability_entity_list =
@@ -73,8 +73,8 @@ void populate_print_checks_entity( void )
 			(LIST *)0 /* input_entity_list */,
 			0.0 /* dialog_box_payment_amount */ );
 
-	liability->liability_after_balance_zero_entity_list =
-		liability_after_balance_zero_entity_list(
+	liability->liability_balance_zero_entity_list =
+		liability_balance_zero_entity_list(
 			liability->liability_entity_list,
 			liability->liability_tax_redirect_account_list );
 
@@ -82,7 +82,7 @@ void populate_print_checks_entity( void )
 
 	output_entity_list(
 		output_pipe,
-		liability->liability_after_balance_zero_entity_list,
+		liability->liability_balance_zero_entity_list,
 		liability->liability_tax_redirect_account_list );
 
 	pclose( output_pipe );
@@ -101,14 +101,14 @@ void output_entity_list(
 		entity = list_get( entity_list );
 
 		if ( !list_length(
-			entity->entity_after_balance_zero_account_list ) )
+			entity->entity_balance_zero_account_list ) )
 		{
 			continue;
 		}
 
 		if ( ( entity->entity_liability_amount_due =
 			entity_liability_amount_due(
-				entity_after_balance_zero_account_list(
+				entity_balance_zero_account_list(
 					liability_tax_redirect_account_list
 						/* liability_account_list */,
 					entity->full_name,

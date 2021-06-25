@@ -113,6 +113,7 @@ PREDICTIVEBOOKS_CORE= 							\
 		${PREDICTIVEBOOKS_LIBRARY}/paypal_item.o		\
 		${PREDICTIVEBOOKS_LIBRARY}/statement.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/liability.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/receivable.o			\
 		${PREDICTIVEBOOKS_LIBRARY}/paypal_dataset.o
 
 EXECUTABLES=	offering_trigger					\

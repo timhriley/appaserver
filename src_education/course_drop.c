@@ -21,6 +21,7 @@
 #include "offering.h"
 #include "course.h"
 #include "enrollment.h"
+#include "receivable.h"
 #include "course_drop.h"
 
 char *course_drop_sys_string( char *where )
@@ -594,13 +595,8 @@ void course_drop_list_set_transaction(
 						enrollment->
 						offering->
 						course_price,
-					entity_receivable_expecting(
-						course_drop->
-							payor_entity->
-							full_name,
-						course_drop->
-							payor_entity->
-							street_address ),
+					course_drop->
+					       course_drop_receivable_expecting,
 					receivable,
 					payable,
 					course_drop->
@@ -689,6 +685,11 @@ COURSE_DROP *course_drop_steady_state(
 				payor_entity;
 	}
 
+	course_drop->course_drop_receivable_expecting =
+		course_drop_receivable_expecting(
+			course_drop->payor_entity->full_name,
+			course_drop->payor_entity->street_address );
+
 	return course_drop;
 }
 
@@ -724,5 +725,29 @@ LIST *course_drop_list_enrollment_list(
 	} while ( list_next( course_drop_list ) );
 
 	return enrollment_list;
+}
+
+double course_drop_receivable_expecting(
+			char *payor_full_name,
+			char *payor_street_address )
+{
+	RECEIVABLE *receivable;
+
+	receivable =
+		receivable_new(
+			payor_full_name,
+			payor_street_address );
+
+	receivable =
+		/* ------------------------- */
+		/* Sets receivable_expecting */
+		/* ------------------------- */
+		receivable_steady_state(
+			receivable );
+
+	if ( !receivable )
+		return 0.0;
+	else
+		return receivable->receivable_expecting;
 }
 

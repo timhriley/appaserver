@@ -5,6 +5,7 @@
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "timlib.h"

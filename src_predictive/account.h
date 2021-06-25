@@ -62,7 +62,7 @@ typedef struct
 	double annual_budget;
 	boolean accumulate_debit;
 	double payment_amount;
-	LIST *account_after_balance_zero_journal_list;
+	LIST *account_balance_zero_journal_list;
 	LIST *liability_journal_list;
 	double account_liability_due;
 	char *account_action_string;
@@ -71,6 +71,7 @@ typedef struct
 	int percent_of_revenue;
 	int delta_prior;
 	boolean display_if_zero;
+	double account_receivable_due;
 } ACCOUNT;
 
 /* Operations */
@@ -266,7 +267,7 @@ boolean account_name_accumulate_debit(
 char *account_list_display(
 			LIST *account_list );
 
-LIST *account_after_balance_zero_journal_list(
+LIST *account_balance_zero_journal_list(
 			char *account_name );
 
 double account_liability_due(
