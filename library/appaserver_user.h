@@ -1,4 +1,4 @@
-/* appaserver_user.h 							*/
+/* $APPASERVER_HOME/library/appaserver_user.h				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver user ADT.					*/
 /*									*/
@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 
-#define APPASERVER_USER_RECORD_DELIMITER	'^'
+#define APPASERVER_USER_TABLE	"appaserver_user"
 
 enum password_function	{	no_encryption,
 				old_password_function,
@@ -20,16 +20,21 @@ enum password_function	{	no_encryption,
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	char *login_name;
-	char *person_full_name;
+	char *full_name;
 	char *typed_in_password;
 	char *database_password;
 	char *user_date_format;
-	char *frameset_menu_horizontal_yn;
-	enum password_function password_function;
-	LIST *role_list;
+
+	/* Process */
+	/* ------- */
 	boolean frameset_menu_horizontal;
+	LIST *role_list;
 	LIST *session_list;
+	enum password_function appaserver_user_password_function;
+	boolean appaserver_user_password_encrypted;
 } APPASERVER_USER;
 
 /* Prototypes */
@@ -40,13 +45,13 @@ enum password_function
 
 /* Returns heap memory. */
 /* -------------------- */
-char *appaserver_user_encryption_select(
+char *appaserver_user_encryption_select_clause(
 			enum password_function,
 			char *typed_in_password );
 
 /* Returns heap memory. */
 /* -------------------- */
-char *appaserver_user_security_encrypted_password(
+char *appaserver_user_encrypted_password_translate(
 			char *application_name,
 			char *typed_in_password,
 			enum password_function );
@@ -66,8 +71,9 @@ boolean appaserver_user_exists_role(
 			char *role_name );
 
 APPASERVER_USER *appaserver_user_fetch(
-			char *application_name,
-			char *login_name );
+			char *login_name,
+			boolean fetch_role_list,
+			boolean fetch_session_list );
 
 char *appaserver_user_person_full_name(
 			char *application_name,
@@ -79,10 +85,9 @@ char *appaserver_user_password_fetch(
 
 boolean appaserver_user_frameset_menu_horizontal(
 			char *application_name,
-					char *login_name );
+			char *login_name );
 
 LIST *appaserver_user_role_list(
-			char *application_name,
 			char *login_name );
 
 APPASERVER_USER *appaserver_user_calloc(void );
@@ -134,5 +139,8 @@ APPASERVER_USER *appaserver_user_parse(
 enum password_security
 	appaserver_user_database_password_security(
 					char *database_password );
+
+char *appaserver_user_primary_where(
+			char *login_name );
 
 #endif

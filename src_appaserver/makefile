@@ -107,7 +107,8 @@ EXECUTABLES=								\
 		grant_select_to_user					\
 		google_map_operation					\
 		upload_source_file					\
-		output_prompt_insert_form
+		output_prompt_insert_form				\
+		appaserver_user_trigger
 
 EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/list.o 						\
@@ -347,6 +348,14 @@ post_email_timriley: post_email_timriley.c				\
 	ln ${APPASERVER_LINK_FLAGS}					\
 	${APPASERVER_HOME}/src_appaserver/post_email_timriley		\
 	${CGI_HOME}
+
+appaserver_user_trigger: appaserver_user_trigger.c 			\
+		${EXTERNAL_LIBS}
+	${CC}	${CFLAGS} -I${LIB}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		appaserver_user_trigger.c				\
+		-o appaserver_user_trigger
 
 appaserver_folder_list: appaserver_folder_list.c 			\
 		${EXTERNAL_LIBS}

@@ -17,8 +17,6 @@
 #include "folder.h"
 #include "timlib.h"
 
-static APPASERVER_USER *global_appaserver_user = {0};
-
 APPASERVER_USER *appaserver_user_calloc( void )
 {
 	APPASERVER_USER *a;
@@ -47,28 +45,35 @@ APPASERVER_USER *appaserver_user_fetch(
 	char piece_buffer[ 1024 ];
 	char *input_string;
 	APPASERVER_USER *appaserver_user;
-	char *table_name;
 	char select_string[ 128 ];
 	char where_string[ 128 ];
 	char *select_frameset;
 	char *select_person;
 
-	table_name = get_table_name( application_name, "appaserver_user" );
-
-	if ( folder_exists_attribute(	application_name,
-					"appaserver_user",
-					"person_full_name" ) )
+	if ( folder_exists_attribute(
+			application_name,
+			"appaserver_user",
+			"person_full_name" ) )
 	{
 		select_person = "person_full_name";
+	}
+	else
+	if ( folder_exists_attribute(
+			application_name,
+			"appaserver_user",
+			"full_name" ) )
+	{
+		select_person = "full_name";
 	}
 	else
 	{
 		select_person = "null";
 	}
 
-	if ( folder_exists_attribute(	application_name,
-					"appaserver_user",
-					"frameset_menu_horizontal_yn" ) )
+	if ( folder_exists_attribute(
+			application_name,
+			"appaserver_user",
+			"frameset_menu_horizontal_yn" ) )
 	{
 		select_frameset = "frameset_menu_horizontal_yn";
 	}
@@ -87,9 +92,9 @@ APPASERVER_USER *appaserver_user_fetch(
 	sprintf(	sys_string,
 			"echo \"select %s from %s where %s;\" | sql.e '%c'",
 			select_string,
-			table_name,
+			APPASERVER_USER_TABLE,
 			where_string,
-			APPASERVER_USER_RECORD_DELIMITER );
+			SQL_DELIMITER );
 
 	input_string = pipe2string( sys_string );
 
@@ -104,19 +109,9 @@ APPASERVER_USER *appaserver_user_fetch(
 		return (APPASERVER_USER *)0;
 	}
 
-	if ( character_count( APPASERVER_USER_RECORD_DELIMITER,
-			      input_string ) != 2 )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s/%d(): invalid input = (%s)\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			input_string );
-		exit( 1 );
-	}
-
 	appaserver_user = appaserver_user_calloc();
+
+	appaserver_user->login_name = login_name;
 
 	piece(	piece_buffer,
 		APPASERVER_USER_RECORD_DELIMITER,
@@ -138,11 +133,14 @@ APPASERVER_USER *appaserver_user_fetch(
 		( *piece_buffer == 'y' );
 
 	return appaserver_user;
-
 }
 
-LIST *appaserver_user_session_list(	char *application_name,
-					char *login_name )
+char *appaserver_user_primary_where(
+			char *login_name )
+{
+}
+
+LIST *appaserver_user_session_list( char *login_name )
 {
 	char sys_string[ 1024 ];
 	char where_string[ 128 ];
@@ -161,134 +159,9 @@ LIST *appaserver_user_session_list(	char *application_name,
 
 }
 
-char *appaserver_user_person_full_name(
-			char *application_name, char *login_name )
-{
-	if ( !global_appaserver_user )
-	{
-		global_appaserver_user =
-			appaserver_user_fetch(
-				application_name, login_name );
-	}
-
-	if ( !global_appaserver_user )
-		return "";
-	else
-		return global_appaserver_user->person_full_name;
-
-}
-
-char *appaserver_user_password_fetch(
-				char *application_name,
-				char *login_name )
-{
-	if ( !global_appaserver_user )
-	{
-		global_appaserver_user =
-			appaserver_user_fetch(
-				application_name, login_name );
-	}
-
-	if ( !global_appaserver_user )
-		return "";
-	else
-		return global_appaserver_user->database_password;
-
-}
-
-boolean appaserver_user_frameset_menu_horizontal(
-						char *application_name,
-						char *login_name )
-{
-	if ( !global_appaserver_user )
-	{
-		global_appaserver_user =
-			appaserver_user_fetch(
-				application_name, login_name );
-	}
-
-	if ( !global_appaserver_user )
-	{
-		return 0;
-	}
-
-	return global_appaserver_user->frameset_menu_horizontal;
-
-}
-
-boolean appaserver_user_exists_session(	char *application_name,
-					char *login_name,
-					char *session )
-{
-	if ( !global_appaserver_user )
-	{
-		global_appaserver_user =
-			appaserver_user_fetch(
-				application_name, login_name );
-	}
-
-	if ( !global_appaserver_user->session_list )
-	{
-		global_appaserver_user->session_list =
-			appaserver_user_session_list(
-				application_name,
-				login_name );
-	}
-
-	return list_exists_string(
-		session,
-		global_appaserver_user->session_list );
-
-}
-
-boolean appaserver_user_exists_role(	char *application_name,
-					char *login_name,
-					char *role_name )
-{
-	if ( !global_appaserver_user )
-	{
-		global_appaserver_user =
-			appaserver_user_fetch(
-				application_name, login_name );
-	}
-
-	if ( !global_appaserver_user->role_list )
-	{
-		global_appaserver_user->role_list =
-			appaserver_user_role_list(
-				application_name,
-				login_name );
-	}
-
-	return list_exists_string(
-		role_name,
-		global_appaserver_user->role_list );
-
-}
-
-LIST *appaserver_user_role_list(
-				char *application_name,
-				char *login_name )
-{
-	char where[ 128 ];
-	char sys_string[ 1024 ];
-
-	sprintf( where, "login_name = '%s'", login_name );
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=role			"
-		 "			folder=role_appaserver_user	"
-		 "			where=\"%s\"			",
-		 application_name,
-		 where );
-
-	return pipe2list( sys_string );
-
-}
-
 enum password_function
 	appaserver_user_password_function(
-					char *database_password )
+				char *database_password )
 {
 	int str_len;
 
@@ -314,69 +187,57 @@ enum password_function
 
 }
 
-/* Returns heap memory. */
-/* -------------------- */
-char *appaserver_user_encryption_select(
+char *appaserver_user_encryption_select_clause(
 			enum password_function
 				appaserver_user_password_function,
 			char *typed_in_password )
 {
-	char encryption_function[ 128 ];
+	char select_clause[ 128 ];
+	char *escaped_password;
+
+	/* Returns heap memory */
+	/* ------------------- */
+	escaped_password = timlib_escape_sql_injection( typed_in_password );
 
 	if ( appaserver_user_password_function == no_encryption )
 	{
-		char *tmp;
-
-		/* Returns heap memory */
-		/* ------------------- */
-		tmp = timlib_escape_sql_injection( typed_in_password );
-
-		sprintf( encryption_function, "'%s'", tmp );
-		free( tmp );
+		sprintf(select_clause,
+			"'%s'",
+			escaped_password );
 	}
 	else
 	if ( appaserver_user_password_function == old_password_function )
 	{
-		sprintf( encryption_function,
-			 "old_password( '%s' )",
-			 timlib_escape_sql_injection(
-				typed_in_password ) );
+		sprintf(select_clause,
+			"old_password('%s')",
+			escaped_password );
 	}
 	else
 	if ( appaserver_user_password_function == password_function )
 	{
-		sprintf( encryption_function,
-			 "password( '%s' )",
-			 timlib_escape_sql_injection(
-				typed_in_password ) );
+		sprintf(select_clause,
+			"password('%s')",
+			escaped_password );
 	}
 	else
 	if ( appaserver_user_password_function == sha2_function )
 	{
-		sprintf( encryption_function,
-			 "sha2( '%s', 224 )",
-			 timlib_escape_sql_injection(
-				typed_in_password ) );
+		sprintf(select_clause,
+			"sha2('%s',224 )",
+			esacaped_password );
 	}
 	else
 	{
-		char *tmp;
-
-		/* Returns heap memory */
-		/* ------------------- */
-		tmp = timlib_escape_sql_injection( typed_in_password );
-
-		sprintf( encryption_function, "'%s'", tmp );
-		free( tmp );
+		sprintf(select_clause,
+			"'%s'",
+			escaped_password );
 	}
 
-	return strdup( encryption_function );
-
+	free( escaped_password );
+	return strdup( select_clause );
 }
 
-/* Returns heap memory */
-/* ------------------- */
-char *appaserver_user_function_encrypted_password(
+char *appaserver_user_encrypted_password_translate(
 				char *application_name,
 				char *typed_in_password,
 				enum password_function
@@ -384,7 +245,7 @@ char *appaserver_user_function_encrypted_password(
 {
 	char sys_string[ 1024 ];
 	char where[ 128 ];
-	char *select;
+	char *select_clause;
 	char *results;
 	char *table_name;
 
@@ -392,13 +253,13 @@ char *appaserver_user_function_encrypted_password(
 
 	sprintf( where, "application = '%s'", application_name );
 
-	if ( ! ( select = 
-			appaserver_user_encryption_select(
+	if ( ! ( select_clause = 
+			appaserver_user_encryption_select_clause(
 				password_function,
 				typed_in_password ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot appaserver_user_encryption_select()\n",
+"ERROR in %s/%s()/%d: appaserver_user_encryption_select_clause() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -407,7 +268,7 @@ char *appaserver_user_function_encrypted_password(
 
 	sprintf( sys_string,
 		 "echo \"select %s from %s where %s;\" | sql.e",
-		 select,
+		 select_clause,
 		 table_name,
 		 where );
 
@@ -423,7 +284,6 @@ char *appaserver_user_function_encrypted_password(
 	}
 
 	return results;
-
 }
 
 boolean appaserver_user_password_match(
@@ -634,7 +494,9 @@ void appaserver_user_insert_stream(
 }
 
 APPASERVER_USER *appaserver_user_parse(
-				char *input_buffer )
+			char *input_buffer,
+			boolean fetch_role_list,
+			boolean fetch_session_list )
 {
 	APPASERVER_USER *appaserver_user;
 	char piece_buffer[ 512 ];
@@ -709,4 +571,110 @@ APPASERVER_USER *appaserver_user_parse(
 	}
 	return appaserver_user;
 }
+
+LIST *appaserver_user_role_list( char *login_name )
+{
+	char where[ 128 ];
+	char sys_string[ 1024 ];
+
+	sprintf( where, "login_name = '%s'", login_name );
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=role			"
+		 "			folder=role_appaserver_user	"
+		 "			where=\"%s\"			",
+		 application_name,
+		 where );
+
+	return pipe2list( sys_string );
+
+}
+#ifdef NOT_DEFINED
+char *appaserver_user_person_full_name(
+			char *application_name, char *login_name )
+{
+	if ( !global_appaserver_user )
+	{
+		global_appaserver_user =
+			appaserver_user_fetch(
+				application_name, login_name );
+	}
+
+	if ( !global_appaserver_user )
+		return "";
+	else
+		return global_appaserver_user->person_full_name;
+
+}
+
+char *appaserver_user_password_fetch(
+				char *application_name,
+				char *login_name )
+{
+	if ( !global_appaserver_user )
+	{
+		global_appaserver_user =
+			appaserver_user_fetch(
+				application_name, login_name );
+	}
+
+	if ( !global_appaserver_user )
+		return "";
+	else
+		return global_appaserver_user->database_password;
+
+}
+
+boolean appaserver_user_exists_session(
+			char *application_name,
+			char *login_name,
+			char *session )
+{
+	if ( !global_appaserver_user )
+	{
+		global_appaserver_user =
+			appaserver_user_fetch(
+				application_name, login_name );
+	}
+
+	if ( !global_appaserver_user->session_list )
+	{
+		global_appaserver_user->session_list =
+			appaserver_user_session_list(
+				application_name,
+				login_name );
+	}
+
+	return list_exists_string(
+		session,
+		global_appaserver_user->session_list );
+
+}
+
+boolean appaserver_user_exists_role(	char *application_name,
+					char *login_name,
+					char *role_name )
+{
+	if ( !global_appaserver_user )
+	{
+		global_appaserver_user =
+			appaserver_user_fetch(
+				application_name, login_name );
+	}
+
+	if ( !global_appaserver_user->role_list )
+	{
+		global_appaserver_user->role_list =
+			appaserver_user_role_list(
+				application_name,
+				login_name );
+	}
+
+	return list_exists_string(
+		role_name,
+		global_appaserver_user->role_list );
+
+}
+
+#endif
 
