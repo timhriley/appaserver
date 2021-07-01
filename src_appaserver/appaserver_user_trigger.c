@@ -68,69 +68,29 @@ int main( int argc, char **argv )
 void appaserver_user_trigger_insert_update(
 			APPASERVER_USER *appaserver_user )
 {
-	depreciation->
-		depreciation_transaction =
-			depreciation_transaction(
-				entity_self->entity->full_name,
-				entity_self->entity->street_address,
-				depreciation->transaction_date_time
-					/* depreciation_date */,
-				depreciation->depreciation_amount,
-				account_depreciation_expense(
-					(char *)0 /* fund_name */ ),
-				account_accumulated_depreciation(
-					(char *)0 /* fund_name */ ) );
-
-	if ( !depreciation->depreciation_transaction )
+	if ( !appaserver_user_password_encrypted(
+		appaserver_user->database_password ) )
 	{
-		printf(
-	"<h2>ERROR: depreciation_transaction() returned empty.</h2>\n" );
-		return;
+		FILE *update_pipe;
+
+		appaserver_user->database_password =
+			/* -------------------- */
+			/* Returns heap memory. */
+			/* -------------------- */
+			appaserver_user_encrypted_password_generate(
+				application_name,
+				appaserver_user->database_password,
+				appaserver_user_mysql_version_password_function(
+					appaserver_user_mysql_version() ) );
+
+		update_pipe = appaserver_user_update_open();
+
+		appaserver_user_update(
+			update_pipe,
+			appaserver_user->database_password,
+			appaserver_user->login_name );
+
+		pclose( update_pipe );
 	}
-
-	transaction_refresh(
-		depreciation->depreciation_transaction->full_name,
-		depreciation->depreciation_transaction->street_address,
-		depreciation->depreciation_transaction->transaction_date_time,
-		depreciation->depreciation_transaction->transaction_amount,
-		depreciation->depreciation_transaction->memo,
-		0 /* check_number */,
-		depreciation->depreciation_transaction->lock_transaction,
-		depreciation->depreciation_transaction->journal_list );
-
-	fixed_asset_purchase_finance_fetch_update(
-		depreciation->asset_name,
-		depreciation->serial_label );
-}
-
-void depreciation_trigger_predelete(
-			DEPRECIATION *depreciation )
-{
-	if ( depreciation->transaction_date_time
-	&&   *depreciation->transaction_date_time )
-	{
-		/* Performs journal_propagate() */
-		/* ---------------------------- */
-		transaction_delete(
-			depreciation->
-				entity_self->
-				entity->
-				full_name,
-			depreciation->
-				entity_self->
-				entity->
-				street_address,
-			depreciation->
-				transaction_date_time );
-	}
-}
-
-void depreciation_trigger_delete(
-			char *asset_name,
-			char *serial_label )
-{
-	fixed_asset_purchase_finance_fetch_update(
-		asset_name,
-		serial_label );
 }
 

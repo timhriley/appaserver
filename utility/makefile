@@ -57,6 +57,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/aggregate_statistic.o			\
 		${LIBRARY}/fopen_path.o					\
 		${LIBRARY}/expected_count.o 				\
+		${LIBRARY}/security.o					\
 		${LIBRARY}/application.o
 
 all: 	insert_statement.e format_sql_output.e attribute_format.e	\

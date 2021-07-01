@@ -167,6 +167,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/post2dictionary.o				\
 		${LIB}/dictionary2file.o				\
 		${LIB}/date_convert.o					\
+		${LIB}/security.o					\
 		${LIB}/hash_table.o
 
 all: 	${EXECUTABLES}

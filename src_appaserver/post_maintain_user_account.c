@@ -118,7 +118,7 @@ int main( int argc, char **argv )
 
 	folder_name = FOLDER_NAME;
 
-	session = session_new_session();
+	session = session_calloc();
 	session->session = session_key;
 
 	if ( session_remote_ip_address_changed(

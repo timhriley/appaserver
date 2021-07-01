@@ -642,28 +642,6 @@ char *update_folder_set_clause(
 		search_replace_special_characters( data );
 		escape_special_characters( data );
 
-		/* Encode password changes. However, exclude password resets. */
-		/* ---------------------------------------------------------- */
-		if ( strcmp(	changed_attribute->attribute_name,
-				"password" ) == 0
-		&&   *data
-		&&   strcmp( data, UPDATE_DATABASE_NULL_TOKEN ) != 0
-		&&   strcmp( data, NULL_STRING ) != 0 )
-		{
-			char *results;
-
-			results =
-				appaserver_user_version_encrypted_password(
-					environment_application_name(),
-					data /* typed_in_password */,
-					appaserver_user_mysql_version() );
-
-			if ( results )
-			{
-				strcpy( data, results );
-			}
-		}
-
 		if ( !*data
 		||   strcmp( data, NULL_OPERATOR ) == 0 )
 		{

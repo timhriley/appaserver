@@ -122,15 +122,3 @@ int insert_mysql(	char *application_name,
 
 	return rows_to_insert;
 }
-
-#ifdef NOT_DEFINED
-		appaserver_user->database_password =
-			/* -------------------- */
-			/* Returns heap memory. */
-			/* -------------------- */
-			appaserver_user_version_encrypted_password(
-					application_name,
-					appaserver_user->typed_in_password,
-					appaserver_user_mysql_version() );
-#endif
-

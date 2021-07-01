@@ -2053,8 +2053,9 @@ char *folder_get_foreign_join_where_clause(
 
 }
 
-boolean folder_exists_folder(		char *application_name,
-					char *folder_name )
+boolean folder_exists_folder(
+			char *application_name,
+			char *folder_name )
 {
 	LIST *folder_list;
 
@@ -2067,9 +2068,21 @@ boolean folder_exists_folder(		char *application_name,
 						folder_name ) != (void *)0 );
 }
 
-boolean folder_exists_attribute(	char *application_name,
-					char *folder_name,
-					char *attribute_name )
+boolean folder_attribute_exists(
+			char *application_name,
+			char *folder_name,
+			char *attribute_name )
+{
+	return folder_exists_attribute(
+			application_name,
+			folder_name,
+			attribute_name );
+}
+
+boolean folder_exists_attribute(
+			char *application_name,
+			char *folder_name,
+			char *attribute_name )
 {
 	LIST *attribute_list;
 

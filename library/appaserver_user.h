@@ -73,14 +73,19 @@ boolean appaserver_user_exists_role(
 APPASERVER_USER *appaserver_user_fetch(
 			char *login_name,
 			boolean fetch_role_list,
+			boolean fetch_attribute_exclude_list,
+			boolean fetch_session_list );
+
+APPASERVER_USER *appaserver_user_parse(
+			char *input,
+			boolean fetch_role_list,
+			boolean fetch_attribute_exclude_list,
 			boolean fetch_session_list );
 
 char *appaserver_user_person_full_name(
-			char *application_name,
 			char *login_name );
 
 char *appaserver_user_password_fetch(
-			char *application_name,
 			char *login_name );
 
 boolean appaserver_user_frameset_menu_horizontal(
@@ -88,6 +93,7 @@ boolean appaserver_user_frameset_menu_horizontal(
 			char *login_name );
 
 LIST *appaserver_user_role_list(
+			char *application_name,
 			char *login_name );
 
 APPASERVER_USER *appaserver_user_calloc(void );
@@ -99,17 +105,18 @@ boolean appaserver_user_password_match(
 
 /* Returns heap memory. */
 /* -------------------- */
-char *appaserver_user_mysql_version(	void );
+char *appaserver_user_mysql_version(
+			void );
 
 /* Returns heap memory. */
 /* -------------------- */
-char *appaserver_user_version_encrypted_password(
+char *appaserver_user_encrypted_password(
 			char *application_name,
 			char *typed_in_password,
 			char *mysql_version );
 
 enum password_function
-	appaserver_user_version_password_function(
+	appaserver_user_mysql_version_password_function(
 			char *mysql_version );
 
 boolean appaserver_user_insert(
@@ -133,14 +140,22 @@ void appaserver_user_insert_stream(
 			char *user_date_format,
 			char *frameset_menu_horizontal_yn );
 
-APPASERVER_USER *appaserver_user_parse(
-			char *input_buffer );
-
-enum password_security
-	appaserver_user_database_password_security(
-					char *database_password );
-
+/* Returns static memory */
+/* --------------------- */
 char *appaserver_user_primary_where(
 			char *login_name );
+
+/* Returns program memory */
+/* ---------------------- */
+char *appaserver_user_select(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_user_system_string(
+			char *where );
+
+boolean appaserver_user_password_encrypted(
+			char *password );
 
 #endif

@@ -10,12 +10,20 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "appaserver_user.h"
+#include "String.h"
+#include "security.h"
+#include "environ.h"
+#include "sql.h"
 #include "appaserver_library.h"
 #include "boolean.h"
 #include "piece.h"
 #include "folder.h"
 #include "timlib.h"
+#include "attribute.h"
+#include "session.h"
+#include "appaserver_user.h"
+
+static APPASERVER_USER *global_appaserver_user = {0};
 
 APPASERVER_USER *appaserver_user_calloc( void )
 {
@@ -37,110 +45,55 @@ APPASERVER_USER *appaserver_user_calloc( void )
 
 }
 
-APPASERVER_USER *appaserver_user_fetch(
-				char *application_name,
-				char *login_name )
+char *appaserver_user_system_string( char *where )
 {
-	char sys_string[ 1024 ];
-	char piece_buffer[ 1024 ];
-	char *input_string;
-	APPASERVER_USER *appaserver_user;
-	char select_string[ 128 ];
-	char where_string[ 128 ];
-	char *select_frameset;
-	char *select_person;
+	char system_string[ 1024 ];
 
-	if ( folder_exists_attribute(
-			application_name,
-			"appaserver_user",
-			"person_full_name" ) )
-	{
-		select_person = "person_full_name";
-	}
-	else
-	if ( folder_exists_attribute(
-			application_name,
-			"appaserver_user",
-			"full_name" ) )
-	{
-		select_person = "full_name";
-	}
-	else
-	{
-		select_person = "null";
-	}
+	sprintf(system_string,
+		"select.sh \"%s\" appaserver_user \"%s\" none",
+		appaserver_user_select(),
+		where );
 
-	if ( folder_exists_attribute(
-			application_name,
-			"appaserver_user",
-			"frameset_menu_horizontal_yn" ) )
-	{
-		select_frameset = "frameset_menu_horizontal_yn";
-	}
-	else
-	{
-		select_frameset = "'y'";
-	}
+	return strdup( system_string );
+}
 
-	sprintf( select_string,
-		 "%s,password,%s",
-		 select_person,
-		 select_frameset );
-
-	sprintf( where_string, "login_name = '%s'", login_name );
-
-	sprintf(	sys_string,
-			"echo \"select %s from %s where %s;\" | sql.e '%c'",
-			select_string,
-			APPASERVER_USER_TABLE,
-			where_string,
-			SQL_DELIMITER );
-
-	input_string = pipe2string( sys_string );
-
-	if ( !input_string )
-	{
-		fprintf(stderr,
-	"Warning in %s/%s/%d(): cannot get record for login_name = (%s)\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			login_name );
-		return (APPASERVER_USER *)0;
-	}
-
-	appaserver_user = appaserver_user_calloc();
-
-	appaserver_user->login_name = login_name;
-
-	piece(	piece_buffer,
-		APPASERVER_USER_RECORD_DELIMITER,
-		input_string,
-		0 );
-	appaserver_user->person_full_name = strdup( piece_buffer );
-
-	piece(	piece_buffer,
-		APPASERVER_USER_RECORD_DELIMITER,
-		input_string,
-		1 );
-	appaserver_user->database_password = strdup( piece_buffer );
-
-	piece(	piece_buffer,
-		APPASERVER_USER_RECORD_DELIMITER,
-		input_string,
-		2 );
-	appaserver_user->frameset_menu_horizontal =
-		( *piece_buffer == 'y' );
-
-	return appaserver_user;
+APPASERVER_USER *appaserver_user_fetch(
+			char *login_name,
+			boolean fetch_role_list,
+			boolean fetch_attribute_exclude_list,
+			boolean fetch_session_list )
+{
+	return appaserver_user_parse(
+			string_pipe_fetch(
+				appaserver_user_system_string(
+					appaserver_user_primary_where(
+						login_name ) ) ),
+			fetch_role_list,
+			fetch_attribute_exclude_list,
+			fetch_session_list );
 }
 
 char *appaserver_user_primary_where(
 			char *login_name )
 {
+	static char where[ 128 ];
+	char *tmp;
+
+	sprintf(where,
+		"login_name = '%s'",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( tmp = security_sql_injection_escape(
+			login_name ) ) );
+
+	free( tmp );
+	return where;
 }
 
-LIST *appaserver_user_session_list( char *login_name )
+LIST *appaserver_user_session_list(
+			char *application_name,
+			char *login_name )
 {
 	char sys_string[ 1024 ];
 	char where_string[ 128 ];
@@ -156,12 +109,11 @@ LIST *appaserver_user_session_list( char *login_name )
 			where_string );
 
 	return pipe2list( sys_string );
-
 }
 
 enum password_function
-	appaserver_user_password_function(
-				char *database_password )
+	appaserver_user_database_password_function(
+			char *database_password )
 {
 	int str_len;
 
@@ -184,47 +136,45 @@ enum password_function
 	{
 		return no_encryption;
 	}
-
 }
 
 char *appaserver_user_encryption_select_clause(
-			enum password_function
-				appaserver_user_password_function,
-			char *typed_in_password )
+			enum password_function password_function,
+			char *password )
 {
 	char select_clause[ 128 ];
 	char *escaped_password;
 
 	/* Returns heap memory */
 	/* ------------------- */
-	escaped_password = timlib_escape_sql_injection( typed_in_password );
+	escaped_password = security_sql_injection_escape( password );
 
-	if ( appaserver_user_password_function == no_encryption )
+	if ( password_function == no_encryption )
 	{
 		sprintf(select_clause,
 			"'%s'",
 			escaped_password );
 	}
 	else
-	if ( appaserver_user_password_function == old_password_function )
+	if ( password_function == old_password_function )
 	{
 		sprintf(select_clause,
 			"old_password('%s')",
 			escaped_password );
 	}
 	else
-	if ( appaserver_user_password_function == password_function )
+	if ( password_function == password_function )
 	{
 		sprintf(select_clause,
 			"password('%s')",
 			escaped_password );
 	}
 	else
-	if ( appaserver_user_password_function == sha2_function )
+	if ( password_function == sha2_function )
 	{
 		sprintf(select_clause,
 			"sha2('%s',224 )",
-			esacaped_password );
+			escaped_password );
 	}
 	else
 	{
@@ -238,10 +188,9 @@ char *appaserver_user_encryption_select_clause(
 }
 
 char *appaserver_user_encrypted_password_translate(
-				char *application_name,
-				char *typed_in_password,
-				enum password_function
-					password_function )
+			char *application_name,
+			char *password,
+			enum password_function password_function )
 {
 	char sys_string[ 1024 ];
 	char where[ 128 ];
@@ -256,7 +205,7 @@ char *appaserver_user_encrypted_password_translate(
 	if ( ! ( select_clause = 
 			appaserver_user_encryption_select_clause(
 				password_function,
-				typed_in_password ) ) )
+				password ) ) )
 	{
 		fprintf( stderr,
 "ERROR in %s/%s()/%d: appaserver_user_encryption_select_clause() returned empty.\n",
@@ -275,7 +224,7 @@ char *appaserver_user_encrypted_password_translate(
 	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: password function index not supported = %d\n",
+	"ERROR in %s/%s()/%d: password function not supported = %d\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -287,25 +236,20 @@ char *appaserver_user_encrypted_password_translate(
 }
 
 boolean appaserver_user_password_match(
-					char *application_name,
-					char *typed_in_password,
-					char *database_password )
+			char *application_name,
+			char *typed_in_password,
+			char *database_password )
 {
 	char *encrypted_password;
-	enum password_function password_function;
-
-	password_function =
-		appaserver_user_password_function(
-			database_password );
 
 	encrypted_password =
-		appaserver_user_function_encrypted_password(
+		appaserver_user_encrypted_password_translate(
 			application_name,
 			typed_in_password,
-			password_function );
+			appaserver_user_database_password_function(
+				database_password ) );
 
 	return ( timlib_strcmp( encrypted_password, database_password ) == 0 );
-
 }
 
 /* Returns heap memory. */
@@ -323,49 +267,39 @@ char *appaserver_user_mysql_version( void )
 
 }
 
-/* Returns heap memory. */
-/* -------------------- */
-char *appaserver_user_version_encrypted_password(
-					char *application_name,
-					char *typed_in_password,
-					char *mysql_version )
+char *appaserver_user_encrypted_password_generate(
+			char *application_name,
+			char *typed_in_password,
+			enum password_function password_function )
 {
-	enum password_function password_function;
-
-	password_function =
-		appaserver_user_version_password_function(
-			mysql_version );
-
 	return
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		appaserver_user_function_encrypted_password(
+		appaserver_user_encrypted_password_translate(
 				application_name,
 				typed_in_password,
 				password_function );
-
 }
 
 enum password_function
-	appaserver_user_version_password_function(
-					char *mysql_version )
+	appaserver_user_mysql_version_password_function(
+			char *mysql_version )
 {
-	int version;
+	double version;
 
 	if ( !mysql_version || !isdigit( *mysql_version ) )
 		return no_encryption;
 
-	version = atoi( mysql_version );
+	version = atof( mysql_version );
 
-	if ( version < 5 )
+	if ( version < 5.0 )
 		return old_password_function;
 	else
-	if ( version == 5 )
+	if ( version <= 5.6 )
 		return password_function;
 	else
 		return sha2_function;
-
 }
 
 /* Returns 1 if no error. */
@@ -410,7 +344,6 @@ boolean appaserver_user_insert(
 		return 0;
 	else
 		return 1;
-
 }
 
 FILE *appaserver_user_insert_open(
@@ -493,86 +426,77 @@ void appaserver_user_insert_stream(
 	}
 }
 
+char *appaserver_user_select( void )
+{
+	if ( attribute_exists(
+			environment_application_name(),
+			"appaserver_user",
+			"full_name" ) )
+	{
+		return "login_name,full_name,password,user_date_format";
+	}
+	else
+	if ( attribute_exists(
+			environment_application_name(),
+			"appaserver_user",
+			"person_full_name" ) )
+	{
+		return "login_name,person_full_name,password,user_date_format";
+	}
+	else
+	{
+		return "login_name,'',password,user_date_format";
+	}
+}
+
 APPASERVER_USER *appaserver_user_parse(
-			char *input_buffer,
+			char *input,
 			boolean fetch_role_list,
+			boolean fetch_attribute_exclude_list,
 			boolean fetch_session_list )
 {
 	APPASERVER_USER *appaserver_user;
 	char piece_buffer[ 512 ];
-	int delimiter_count;
 
 	appaserver_user = appaserver_user_calloc();
 
-	delimiter_count =
-		timlib_delimiter_count(
-			input_buffer,
-			FOLDER_DATA_DELIMITER );
-
-	/* Parse login_name */
-	/* ---------------- */
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+	piece( piece_buffer, SQL_DELIMITER, input, 0 );
 	appaserver_user->login_name = strdup( piece_buffer );
 
-	/* Parse password */
-	/* -------------- */
-	if ( !piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 input_buffer );
-		return (APPASERVER_USER *)0;
-	}
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	appaserver_user->full_name = strdup( piece_buffer );
 
-	appaserver_user->typed_in_password = strdup( piece_buffer );
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	appaserver_user->database_password = strdup( piece_buffer );
 
-	/* Parse person_full_name */
-	/* ---------------------- */
-	if ( !piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: not enough delimiters in [%s]\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 input_buffer );
-		return (APPASERVER_USER *)0;
-	}
-
-	appaserver_user->person_full_name = strdup( piece_buffer );
-
-	/* Parse user_date_format */
-	/* ---------------------- */
-	if ( delimiter_count == 3 )
-	{
-		/* If without frameset_menu_horizontal_yn */
-		/* -------------------------------------- */
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
-	}
-	else
-	{
-		/* If frameset_menu_horizontal_yn */
-		/* ------------------------------ */
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
-	}
-
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	appaserver_user->user_date_format = strdup( piece_buffer );
 
-	/* Parse frameset_menu_horizontal_yn */
-	/* --------------------------------- */
-	if ( delimiter_count == 4 )
+	if ( fetch_role_list )
 	{
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
-		appaserver_user->frameset_menu_horizontal_yn =
-			strdup( piece_buffer );
+		appaserver_user->role_list =
+			role_system_list(
+				role_system_string(
+					appaserver_user_primary_where(
+					      appaserver_user->login_name ) ),
+				fetch_attribute_exclude_list );
 	}
+
+	if ( fetch_session_list )
+	{
+		appaserver_user->session_list =
+			session_system_list(
+				session_system_string(
+					appaserver_user_primary_where(
+					      appaserver_user->login_name ) ) );
+	}
+
 	return appaserver_user;
 }
 
-LIST *appaserver_user_role_list( char *login_name )
+LIST *appaserver_user_role_list(
+			char *application_name,
+			char *login_name )
 {
 	char where[ 128 ];
 	char sys_string[ 1024 ];
@@ -587,42 +511,38 @@ LIST *appaserver_user_role_list( char *login_name )
 		 where );
 
 	return pipe2list( sys_string );
-
 }
-#ifdef NOT_DEFINED
+
 char *appaserver_user_person_full_name(
-			char *application_name, char *login_name )
+			char *login_name )
 {
 	if ( !global_appaserver_user )
 	{
 		global_appaserver_user =
 			appaserver_user_fetch(
-				application_name, login_name );
+				login_name, 0, 0, 0 );
 	}
 
 	if ( !global_appaserver_user )
 		return "";
 	else
-		return global_appaserver_user->person_full_name;
-
+		return global_appaserver_user->full_name;
 }
 
 char *appaserver_user_password_fetch(
-				char *application_name,
 				char *login_name )
 {
 	if ( !global_appaserver_user )
 	{
 		global_appaserver_user =
 			appaserver_user_fetch(
-				application_name, login_name );
+				login_name, 0, 0, 0 );
 	}
 
 	if ( !global_appaserver_user )
 		return "";
 	else
 		return global_appaserver_user->database_password;
-
 }
 
 boolean appaserver_user_exists_session(
@@ -634,7 +554,7 @@ boolean appaserver_user_exists_session(
 	{
 		global_appaserver_user =
 			appaserver_user_fetch(
-				application_name, login_name );
+				login_name, 0, 0, 0 );
 	}
 
 	if ( !global_appaserver_user->session_list )
@@ -648,7 +568,6 @@ boolean appaserver_user_exists_session(
 	return list_exists_string(
 		session,
 		global_appaserver_user->session_list );
-
 }
 
 boolean appaserver_user_exists_role(	char *application_name,
@@ -659,7 +578,7 @@ boolean appaserver_user_exists_role(	char *application_name,
 	{
 		global_appaserver_user =
 			appaserver_user_fetch(
-				application_name, login_name );
+				login_name, 0, 0, 0 );
 	}
 
 	if ( !global_appaserver_user->role_list )
@@ -673,8 +592,20 @@ boolean appaserver_user_exists_role(	char *application_name,
 	return list_exists_string(
 		role_name,
 		global_appaserver_user->role_list );
-
 }
 
-#endif
+boolean appaserver_user_password_encrypted(
+			char *password )
+{
+	enum password_function password_function;
+
+	password_function =
+		appaserver_user_database_password_function(
+			password );
+
+	if ( password_function == no_encryption )
+		return 0;
+	else
+		return 1;
+}
 
