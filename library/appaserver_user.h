@@ -11,11 +11,12 @@
 #include "boolean.h"
 #include "list.h"
 
-#define APPASERVER_USER_TABLE	"appaserver_user"
+#define APPASERVER_USER_TABLE		"appaserver_user"
+#define APPASERVER_USER_PRIMARY_KEY	"login_name"
 
 enum password_function	{	no_encryption,
 				old_password_function,
-				password_function,
+				regular_password_function,
 				sha2_function };
 
 typedef struct
@@ -30,10 +31,10 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	boolean frameset_menu_horizontal;
+	char *encrypted_password;
 	LIST *role_list;
 	LIST *session_list;
-	enum password_function appaserver_user_password_function;
+	enum password_function password_function;
 	boolean appaserver_user_password_encrypted;
 } APPASERVER_USER;
 
@@ -51,7 +52,7 @@ char *appaserver_user_encryption_select_clause(
 
 /* Returns heap memory. */
 /* -------------------- */
-char *appaserver_user_encrypted_password_translate(
+char *appaserver_user_encrypted_password(
 			char *application_name,
 			char *typed_in_password,
 			enum password_function );
@@ -99,21 +100,13 @@ LIST *appaserver_user_role_list(
 APPASERVER_USER *appaserver_user_calloc(void );
 
 boolean appaserver_user_password_match(
-			char *application_name,
-			char *typed_in_password,
-			char *database_password );
+			char *database_password,
+			char *encrypted_password );
 
 /* Returns heap memory. */
 /* -------------------- */
 char *appaserver_user_mysql_version(
 			void );
-
-/* Returns heap memory. */
-/* -------------------- */
-char *appaserver_user_encrypted_password(
-			char *application_name,
-			char *typed_in_password,
-			char *mysql_version );
 
 enum password_function
 	appaserver_user_mysql_version_password_function(
@@ -158,4 +151,11 @@ char *appaserver_user_system_string(
 boolean appaserver_user_password_encrypted(
 			char *password );
 
+FILE *appaserver_user_update_open(
+			void );
+
+void appaserver_user_update(
+			FILE *update_pipe,
+			char *password,
+			char *login_name );
 #endif

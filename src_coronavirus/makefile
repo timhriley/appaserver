@@ -47,6 +47,7 @@ EXTERNAL_LIBRARY_OBJECT=						\
 		${LIBRARY}/semaphore.o					\
 		${LIBRARY}/application.o				\
 		${LIBRARY}/appaserver_user.o				\
+		${LIBRARY}/security.o					\
 		${LIBRARY}/process_parameter_list.o			\
 		${LIBRARY}/populate_helper_process.o			\
 		${LIBRARY}/appaserver_link_file.o			\

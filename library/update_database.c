@@ -478,10 +478,13 @@ char *update_database_execute_folder(
 		 where_clause,
 		 sql_executable );
 
-	appaserver_output_error_message(
-		application_name,
-		sys_string,
-		login_name );
+	if ( strcmp( table_name, "appaserver_user" ) != 0 )
+	{
+		appaserver_output_error_message(
+			application_name,
+			sys_string,
+			login_name );
+	}
 
 	/* Here is the update execution. */
 	/* ----------------------------- */

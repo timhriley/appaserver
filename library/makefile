@@ -59,6 +59,7 @@ APPASERVER_LIBRARY=						\
 		folder_menu.o					\
 		application.o					\
 		appaserver_user.o				\
+		security.o					\
 		element.o					\
 		sed.o						\
 		form.o						\

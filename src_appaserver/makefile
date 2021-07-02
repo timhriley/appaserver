@@ -140,6 +140,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/document.o					\
 		${LIB}/application.o					\
 		${LIB}/appaserver_user.o				\
+		${LIB}/security.o					\
 		${LIB}/process_parameter_list.o				\
 		${LIB}/populate_helper_process.o			\
 		${LIB}/appaserver_link_file.o				\
@@ -167,7 +168,6 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/post2dictionary.o				\
 		${LIB}/dictionary2file.o				\
 		${LIB}/date_convert.o					\
-		${LIB}/security.o					\
 		${LIB}/hash_table.o
 
 all: 	${EXECUTABLES}

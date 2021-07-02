@@ -19,7 +19,8 @@
 /* Prototypes */
 /* ---------- */
 void appaserver_user_trigger_insert_update(
-			APPASERVER_USER *appaserver_user );
+			APPASERVER_USER *appaserver_user,
+			char *application_name );
 
 int main( int argc, char **argv )
 {
@@ -51,7 +52,10 @@ int main( int argc, char **argv )
 	{
 		if ( ! ( appaserver_user =
 				appaserver_user_fetch(
-					login_name ) ) )
+					login_name,
+					0 /* not fetch_role_list */,
+					0 /* not fetch_attribute_exclude_list*/,
+					0 /* not fetch_session_ist */ ) ) )
 		{
 			printf(
 		"<h3>Warning: appaserver_user_fetch() returned empty.</h3>\n" );
@@ -59,25 +63,28 @@ int main( int argc, char **argv )
 			exit( 0 );
 		}
 
-		appaserver_user_trigger_insert_update( appaserver_user );
+		appaserver_user_trigger_insert_update(
+			appaserver_user,
+			application_name );
 	}
 
 	return 0;
 }
 
 void appaserver_user_trigger_insert_update(
-			APPASERVER_USER *appaserver_user )
+			APPASERVER_USER *appaserver_user,
+			char *application_name )
 {
 	if ( !appaserver_user_password_encrypted(
 		appaserver_user->database_password ) )
 	{
 		FILE *update_pipe;
 
-		appaserver_user->database_password =
-			/* -------------------- */
-			/* Returns heap memory. */
-			/* -------------------- */
-			appaserver_user_encrypted_password_generate(
+		appaserver_user->encrypted_password =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			appaserver_user_encrypted_password(
 				application_name,
 				appaserver_user->database_password,
 				appaserver_user_mysql_version_password_function(
@@ -87,7 +94,7 @@ void appaserver_user_trigger_insert_update(
 
 		appaserver_user_update(
 			update_pipe,
-			appaserver_user->database_password,
+			appaserver_user->encrypted_password,
 			appaserver_user->login_name );
 
 		pclose( update_pipe );

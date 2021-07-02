@@ -126,7 +126,7 @@ enum password_function
 	else
 	if ( str_len == 41 && *database_password == '*' )
 	{
-		return password_function;
+		return regular_password_function;
 	}
 	if ( str_len == 56 )
 	{
@@ -143,51 +143,45 @@ char *appaserver_user_encryption_select_clause(
 			char *password )
 {
 	char select_clause[ 128 ];
-	char *escaped_password;
-
-	/* Returns heap memory */
-	/* ------------------- */
-	escaped_password = security_sql_injection_escape( password );
 
 	if ( password_function == no_encryption )
 	{
 		sprintf(select_clause,
 			"'%s'",
-			escaped_password );
+			password );
 	}
 	else
 	if ( password_function == old_password_function )
 	{
 		sprintf(select_clause,
 			"old_password('%s')",
-			escaped_password );
+			password );
 	}
 	else
-	if ( password_function == password_function )
+	if ( password_function == regular_password_function )
 	{
 		sprintf(select_clause,
 			"password('%s')",
-			escaped_password );
+			password );
 	}
 	else
 	if ( password_function == sha2_function )
 	{
 		sprintf(select_clause,
 			"sha2('%s',224 )",
-			escaped_password );
+			password );
 	}
 	else
 	{
 		sprintf(select_clause,
 			"'%s'",
-			escaped_password );
+			password );
 	}
 
-	free( escaped_password );
 	return strdup( select_clause );
 }
 
-char *appaserver_user_encrypted_password_translate(
+char *appaserver_user_encrypted_password(
 			char *application_name,
 			char *password,
 			enum password_function password_function )
@@ -236,20 +230,14 @@ char *appaserver_user_encrypted_password_translate(
 }
 
 boolean appaserver_user_password_match(
-			char *application_name,
-			char *typed_in_password,
-			char *database_password )
+			char *database_password,
+			char *encrypted_password )
 {
-	char *encrypted_password;
+	if ( !database_password || !*database_password ) return 0;
+	if ( !encrypted_password || !*encrypted_password ) return 0;
+	if ( string_strcmp( database_password, "null" ) == 0 ) return 0;
 
-	encrypted_password =
-		appaserver_user_encrypted_password_translate(
-			application_name,
-			typed_in_password,
-			appaserver_user_database_password_function(
-				database_password ) );
-
-	return ( timlib_strcmp( encrypted_password, database_password ) == 0 );
+	return ( strcmp( encrypted_password, database_password ) == 0 );
 }
 
 /* Returns heap memory. */
@@ -264,22 +252,6 @@ char *appaserver_user_mysql_version( void )
 	}
 
 	return version;
-
-}
-
-char *appaserver_user_encrypted_password_generate(
-			char *application_name,
-			char *typed_in_password,
-			enum password_function password_function )
-{
-	return
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_user_encrypted_password_translate(
-				application_name,
-				typed_in_password,
-				password_function );
 }
 
 enum password_function
@@ -297,7 +269,7 @@ enum password_function
 		return old_password_function;
 	else
 	if ( version <= 5.6 )
-		return password_function;
+		return regular_password_function;
 	else
 		return sha2_function;
 }
@@ -609,3 +581,27 @@ boolean appaserver_user_password_encrypted(
 		return 1;
 }
 
+FILE *appaserver_user_update_open( void )
+{
+	char sys_string[ 2048 ];
+
+	sprintf( sys_string,
+		 "update_statement table=%s key=%s carrot=y	|"
+		 "tee_appaserver_error.sh 			|"
+		 "sql						 ",
+		 APPASERVER_USER_TABLE,
+		 APPASERVER_USER_PRIMARY_KEY );
+
+	return popen( sys_string, "w" );
+}
+
+void appaserver_user_update(
+			FILE *update_pipe,
+			char *encrypted_password,
+			char *login_name )
+{
+	fprintf( update_pipe,
+		 "%s^password^%s\n",
+		 login_name,
+		 encrypted_password );
+}

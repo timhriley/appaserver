@@ -27,6 +27,7 @@ STANDARD_LIBRARY=							\
 APPASERVER_LIBRARY=							\
 		${LIBRARY}/appaserver_library.o 			\
 		${LIBRARY}/appaserver_user.o				\
+		${LIBRARY}/security.o					\
 		${LIBRARY}/process_generic_output.o			\
 		${LIBRARY}/appaserver.o					\
 		${LIBRARY}/basename.o					\
@@ -57,7 +58,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/aggregate_statistic.o			\
 		${LIBRARY}/fopen_path.o					\
 		${LIBRARY}/expected_count.o 				\
-		${LIBRARY}/security.o					\
 		${LIBRARY}/application.o
 
 all: 	insert_statement.e format_sql_output.e attribute_format.e	\

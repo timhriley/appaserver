@@ -33,169 +33,191 @@
 /* Prototypes */
 /* ---------- */
 void create_existing_tar_file_application(
-					char *current_application,
-					char *destination_application,
-					char *existing_tar_file,
-					char really_yn );
+			char *current_application,
+			char *destination_application,
+			char *existing_tar_file,
+			char really_yn );
 
-char *get_existing_tar_file(		char *appaserver_home_directory );
+char *get_existing_tar_file(
+			char *appaserver_home_directory );
 
-char *get_error_filename(		char *appaserver_error_directory,
-					char *destination_application );
+char *get_error_filename(
+			char *appaserver_error_directory,
+			char *destination_application );
 
 char *get_post_login_sed_executable(
-					char *destination_application );
+			char *destination_application );
 
 boolean delete_existing_application(
-					char *destination_application,
-					char *appaserver_error_directory,
-					char *document_root_directory,
-					char really_yn );
+			char *destination_application,
+			char *appaserver_error_directory,
+			char *document_root_directory,
+			char really_yn );
 
-boolean create_empty_application(	char *current_application,
-					char *destination_application,
-					char *session,
-					char *login_name,
-					char *role_name,
-					char *database_string,
-					char *appaserver_error_directory,
-					char *new_application_title,
-					char *document_root_directory,
-					char *appaserver_data_directory,
-					char *appaserver_home_directory,
-					char really_yn );
+boolean create_empty_application(
+			char *current_application,
+			char *destination_application,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *database_string,
+			char *appaserver_error_directory,
+			char *new_application_title,
+			char *document_root_directory,
+			char *appaserver_data_directory,
+			char *appaserver_home_directory,
+			char really_yn );
 
-void make_appaserver_error_file(	char *destination_application,
-					char *appaserver_error_directory,
-					char really_yn );
+void make_appaserver_error_file(
+			char *destination_application,
+			char *appaserver_error_directory,
+			char really_yn );
 
-void remove_appaserver_error_file(	char *destination_application,
-					char *appaserver_error_directory,
-					char really_yn );
+void remove_appaserver_error_file(
+			char *destination_application,
+			char *appaserver_error_directory,
+			char really_yn );
 
-void delete_appaserver_user_rows(	char *destination_application,
-					char *database_string,
-					char really_yn );
+void delete_appaserver_user_rows(
+			char *destination_application,
+			char *database_string,
+			char really_yn );
 
-void insert_appaserver_user_row(	char *destination_application,
-					char *current_application,
-					char *database_string,
-					char *login_name,
-					char *new_password,
-					char really_yn );
+void insert_appaserver_user_row(
+			char *destination_application,
+			char *current_application,
+			char *database_string,
+			char *login_name,
+			char *new_password,
+			char really_yn );
 
 void delete_process_non_appaserver_rows(
-					char *destination_application,
-					char *database_string,
-					char really_yn );
+			char *destination_application,
+			char *database_string,
+			char really_yn );
 
 void delete_attribute_non_appaserver_rows(
-					char *destination_application,
-					char *current_application,
-					char *database_string,
-					char *login_name,
-					char *role_name,
-					char really_yn );
+			char *destination_application,
+			char *current_application,
+			char *database_string,
+			char *login_name,
+			char *role_name,
+			char really_yn );
 
-void delete_folder_non_appaserver_rows(	char *destination_application,
-					char *current_application,
-					char *database_string,
-					char *login_name,
-					char *role_name,
-					char really_yn );
+void delete_folder_non_appaserver_rows(
+			char *destination_application,
+			char *current_application,
+			char *database_string,
+			char *login_name,
+			char *role_name,
+			char really_yn );
 
-void delete_non_appaserver_rows(	char *destination_application,
-					char *current_application,
-					char *database_string,
-					char *login_name,
-					char *role_name,
-					char really_yn );
+void delete_non_appaserver_rows(
+			char *destination_application,
+			char *current_application,
+			char *database_string,
+			char *login_name,
+			char *role_name,
+			char really_yn );
 
-void insert_appaserver_rows(		char *destination_application,
-					char *current_application,
-					char *appaserver_data_directory,
-					char *session,
-					char *login_name,
-					char *database_string,
-					char really_yn );
+void insert_appaserver_rows(
+			char *destination_application,
+			char *current_application,
+			char *appaserver_data_directory,
+			char *session,
+			char *login_name,
+			char *database_string,
+			char really_yn );
 
-void create_system_tables(		char *destination_application,
-					char *current_application,
-					char *appaserver_data_directory,
-					char *session,
-					char *login_name,
-					char *role_name,
-					char *database_string,
-					char really_yn );
+void create_system_tables(
+			char *destination_application,
+			char *current_application,
+			char *appaserver_data_directory,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *database_string,
+			char really_yn );
 
-void fix_index_dot_php(			char *destination_application,
-					char *document_root_directory,
-					char *new_application_title,
-					char really_yn );
+void fix_index_dot_php(	char *destination_application,
+			char *document_root_directory,
+			char *new_application_title,
+			char really_yn );
 
-void populate_document_root_directory(	char *destination_application,
-					char *document_root_directory,
-					char *appaserver_home_directory,
-					char really_yn );
+void populate_document_root_directory(
+			char *destination_application,
+			char *document_root_directory,
+			char *appaserver_home_directory,
+			char really_yn );
 
-void make_document_root_directory(	char *destination_application,
-					char *document_root_directory,
-					char really_yn );
+void make_document_root_directory(
+			char *destination_application,
+			char *document_root_directory,
+			char really_yn );
 
-void link_appaserver_source_directory(	char *destination_application,
-					char *document_root_directory,
-					char *appaserver_home_directory,
-					char really_yn );
+void link_appaserver_source_directory(
+			char *destination_application,
+			char *document_root_directory,
+			char *appaserver_home_directory,
+			char really_yn );
 
-void remove_document_root_directory(	char *destination_application,
-					char *document_root_directory,
-					char really_yn );
+void remove_document_root_directory(
+			char *destination_application,
+			char *document_root_directory,
+			char really_yn );
 
-void remove_dynarch_menu(		char *destination_application,
-					char really_yn );
+void remove_dynarch_menu(
+			char *destination_application,
+			char really_yn );
 
-void insert_application_row(		char *current_application,
-					char *destination_application,
-					char *session,
-					char *login_name,
-					char *role_name,
-					char *appaserver_data_directory,
-					char really_yn );
+void insert_application_row(
+			char *current_application,
+			char *destination_application,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *appaserver_data_directory,
+			char really_yn );
 
 void update_application_row(		
-					char *current_application,
-					char *destination_application,
-					char *new_application_title,
-					char really_yn );
+			char *current_application,
+			char *destination_application,
+			char *new_application_title,
+			char really_yn );
 
-void create_database(			char *destination_application,
-					char really_yn );
+void create_database(	char *destination_application,
+			char really_yn );
 
-void remove_nobody_user(		char *destination_application,
-					char *database_string,
-					char really_yn );
+void remove_nobody_user(
+			char *destination_application,
+			char *database_string,
+			char really_yn );
 
-void drop_database(			char *destination_application,
-					char really_yn );
+void drop_database(	char *destination_application,
+			char really_yn );
 
-void set_database_environment(		char *destination_application,
-					char really_yn );
+void set_database_environment(
+			char *destination_application,
+			char really_yn );
 
-void restore_database_environment(	char *application_name,
-					char really_yn );
+void restore_database_environment(
+			char *application_name,
+			char really_yn );
 
-void create_application_table(		char *current_application,
-					char *destination_application,
-					char *session,
-					char *login_name,
-					char *role_name,
-					char *appaserver_data_directory,
-					char really_yn );
+void create_application_table(
+			char *current_application,
+			char *destination_application,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *appaserver_data_directory,
+			char really_yn );
 
-void get_all_environment_variables(	char **appaserver_error_directory,
-					char **document_root_directory,
-					char **appaserver_data_directory,
-					char **appaserver_home_directory );
+void get_all_environment_variables(
+			char **appaserver_error_directory,
+			char **document_root_directory,
+			char **appaserver_data_directory,
+			char **appaserver_home_directory );
 
 int main( int argc, char **argv )
 {
@@ -1648,7 +1670,6 @@ boolean create_empty_application(
 						destination_application,
 						database_string,
 						really_yn );
-
 	}
 
 	new_password = NEW_PASSWORD;
