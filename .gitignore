@@ -271,8 +271,9 @@ unix2dos
 # --------------
 # src_appaserver
 # --------------
-src_appaserver/get_appaserver_data_directory
-src_appaserver/get_document_root
+appaserver_user_trigger
+get_appaserver_data_directory
+get_document_root
 sql
 sql_quick
 select

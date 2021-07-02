@@ -12,21 +12,15 @@
 #include "timlib.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "appaserver_user.h"
 #include "environ.h"
 
 /* Prototypes */
 /* ---------- */
-int insert_mysql_appaserver_user(
-				char *application_name,
-				int rows_to_insert,
-				char *carrot_delimited_row_filename );
-
-int insert_mysql(		char *application_name,
-				int rows_to_insert,
-				char *folder_name,
-				char *attribute_comma_string,
-				char *carrot_delimited_row_filename );
+int insert_mysql(	char *application_name,
+			int rows_to_insert,
+			char *folder_name,
+			char *attribute_comma_string,
+			char *carrot_delimited_row_filename );
 
 int main( int argc, char **argv )
 {
@@ -76,35 +70,24 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( strcmp( folder_name, "appaserver_user" ) == 0 )
-	{
-		rows_to_insert =
-			insert_mysql_appaserver_user(
-				application_name,
-				rows_to_insert,
-				carrot_delimited_row_filename );
-	}
-	else
-	{
-		rows_to_insert =
-			insert_mysql(
-				application_name,
-				rows_to_insert,
-				folder_name,
-				attribute_comma_string,
-				carrot_delimited_row_filename );
-	}
+	rows_to_insert =
+		insert_mysql(
+			application_name,
+			rows_to_insert,
+			folder_name,
+			attribute_comma_string,
+			carrot_delimited_row_filename );
 
 	printf( "%d\n", rows_to_insert );
 
 	return 0;
 }
 
-int insert_mysql(		char *application_name,
-				int rows_to_insert,
-				char *folder_name,
-				char *attribute_comma_string,
-				char *carrot_delimited_row_filename )
+int insert_mysql(	char *application_name,
+			int rows_to_insert,
+			char *folder_name,
+			char *attribute_comma_string,
+			char *carrot_delimited_row_filename )
 {
 	FILE *p;
 	char *table_name;
@@ -138,7 +121,6 @@ int insert_mysql(		char *application_name,
 	pclose( p );
 
 	return rows_to_insert;
-
 }
 
 int insert_mysql_appaserver_user(
@@ -195,4 +177,3 @@ int insert_mysql_appaserver_user(
 	fclose( f );
 	return rows_to_insert;
 }
-

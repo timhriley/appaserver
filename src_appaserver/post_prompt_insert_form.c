@@ -183,7 +183,7 @@ int main( int argc, char **argv )
 	role = role_new_role(	application_name,
 				role_name );
 
-	role->attribute_exclude_list =
+	role->role_attribute_exclude_list =
 		role_get_attribute_exclude_list(
 			application_name,
 			role->role_name );
@@ -363,7 +363,7 @@ int main( int argc, char **argv )
 		login_name,
 		appaserver->folder->mto1_related_folder_list,
 		appaserver->folder->attribute_list,
-		role->attribute_exclude_list );
+		role->role_attribute_exclude_list );
 
 	appaserver->folder->primary_attribute_name_list =
 		folder_get_primary_attribute_name_list(

@@ -1636,6 +1636,11 @@ char *date_get_now_time_hhmm( int utc_offset )
 
 char *date_get_now_hhmmss( int utc_offset )
 {
+	return date_now_hhmmss( utc_offset );
+}
+
+char *date_now_hhmmss( int utc_offset )
+{
 	char *return_string;
 
 	/* Returns heap memory. */

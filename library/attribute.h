@@ -16,9 +16,9 @@
 /* Enumerated types */
 /* ---------------- */
 enum attribute_primary_attribute_fetch {
-					attribute_primary_only,
-					attribute_non_primary,
-					attribute_fetch_either };
+			attribute_primary_only,
+			attribute_non_primary,
+			attribute_fetch_either };
 
 /* Constants */
 /* --------- */
@@ -47,6 +47,7 @@ enum attribute_primary_attribute_fetch {
 
 /* Objects */
 /* ------- */
+
 typedef struct
 {
 	char *datatype;

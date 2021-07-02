@@ -58,6 +58,7 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/attribute.o					\
 		${LIBRARY}/application.o				\
 		${LIBRARY}/appaserver_user.o				\
+		${LIBRARY}/security.o					\
 		${LIBRARY}/element.o					\
 		${LIBRARY}/form.o					\
 		${LIBRARY}/query.o 					\

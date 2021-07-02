@@ -167,68 +167,83 @@ char *date_get_yyyy_mm_dd_string(
 char *date_get_yesterday_yyyy_mm_dd_string(
 				int utc_offset );
 
-DATE *date_get_today_new(	int utc_offset );
+DATE *date_get_today_new(
+			int utc_offset );
 
-DATE *date_today_new(		int utc_offset );
+DATE *date_today_new(	int utc_offset );
 
-char *date_now_yyyy_mm_dd(	int utc_offset );
+char *date_now_yyyy_mm_dd(
+			int utc_offset );
 
-char *date_get_now_yyyy_mm_dd(	int utc_offset );
+char *date_get_now_yyyy_mm_dd(
+			int utc_offset );
 
-char *date_get_now_hhmm(	int utc_offset );
+char *date_get_now_hhmm(
+			int utc_offset );
 
-char *date_get_now_hhmmss(	int utc_offset );
+char *date_get_now_hhmmss(
+			int utc_offset );
+
+char *date_now_hhmmss(
+			int utc_offset );
 
 char *date_get_now_date_yyyy_mm_dd(
-				int utc_offset );
+			int utc_offset );
 
-char *date_get_now_date_hhmm(	int utc_offset );
+char *date_get_now_date_hhmm(
+			int utc_offset );
 
 char *date_get_now_date_oracle_format(
-				int utc_offset );
+			int utc_offset );
 
 char *date_get_today_yyyy_mm_dd(
-				int utc_offset );
+			int utc_offset );
 
 char *date_get_yesterday_yyyy_mm_dd(
-				int utc_offset );
+			int utc_offset );
 
-char *date_get_now_time_hhmm(	int utc_offset );
+char *date_get_now_time_hhmm(
+			int utc_offset );
 
 char *date_get_now_time_hhmm_colon_ss(
-				int utc_offset );
+			int utc_offset );
 
 char *date_get_now_hhmm_colon_ss(
-				int utc_offset );
+			int utc_offset );
 
 char *date_get_now_hh_colon_mm_colon_ss(
-				int utc_offset );
+			int utc_offset );
 
-char *date_get_now_hh_colon_mm(	int utc_offset );
+char *date_get_now_hh_colon_mm(
+			int utc_offset );
 
 char *date_get_now_yyyy_mm_dd_hh_mm(
-				int utc_offset );
+			int utc_offset );
 
 char *date_get_yyyy_mm_dd_hh_mm_ss(
-				DATE *date_time );
+			DATE *date_time );
 
-DATE *date_new_yyyy_mm_dd_date( char *date_field );
+DATE *date_new_yyyy_mm_dd_date(
+			char *date_field );
 
-DATE *date_new_yyyy_mm_dd(	char *date_field );
+DATE *date_new_yyyy_mm_dd(
+			char *date_field );
 
-DATE *date_new_yyyy_mm_dd_hhmm(	char *date_string,
-				char *time_string );
+DATE *date_new_yyyy_mm_dd_hhmm(
+			char *date_string,
+			char *time_string );
 
-boolean date_set_yyyy_mm_dd(	DATE *date,
-				char *yyyy_mm_dd );
+boolean date_set_yyyy_mm_dd(
+			DATE *date,
+			char *yyyy_mm_dd );
 
 boolean date_set_yyyy_mm_dd_hhmm_delimited(
-				DATE *date,
-				char *yyyy_mm_dd_hhmm,
-				int date_piece,
-				int time_piece,
-				char delimiter,
-				int utc_offset );
+			DATE *date,
+			char *yyyy_mm_dd_hhmm,
+			int date_piece,
+			int time_piece,
+			char delimiter,
+			int utc_offset );
 
 int date_get_week_of_year(	DATE *date );
 

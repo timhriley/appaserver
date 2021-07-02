@@ -3259,7 +3259,6 @@ char *timlib_sql_injection_escape( char *source )
 		"`'$;%" );
 
 	return strdup( destination );
-
 }
 
 char *timlib_delete_character(

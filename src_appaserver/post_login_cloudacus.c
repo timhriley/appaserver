@@ -32,18 +32,6 @@
 
 /* Prototypes */
 /* ---------- */
-/*
-boolean application_exists_virtual_host(
-				char *application_name );
-
-void reset_password(		char *application_name,
-				char *login_name,
-				char *password );
-*/
-
-int email_password(		char *login_name,
-				char *password );
-
 boolean application_exists(	char *application_name,
 				char *appaserver_error_directory );
 
@@ -284,80 +272,15 @@ int main( int argc, char **argv )
 			exit ( 1 );
 		}
 	}
-	exit( 0 );
-} /* main() */
+	return 0;
+}
 
-#ifdef NOT_DEFINED
-void reset_password(	char *application_name,
-			char *login_name,
-			char *password )
-{
-	char sys_string[ 1024 ];
-	char *table_name;
-
-	table_name = get_table_name( application_name, "appaserver_user" );
-	sprintf( sys_string,
-		 "echo \"update %s					 "
-		 "	 set password = password('%s')			 "
-		 "	 where login_name = '%s';\"			|"
-		 "sql.e							 ",
-	table_name,
-	password,
-	login_name );
-
-	system( sys_string );
-
-	table_name = get_table_name( application_name, "role_appaserver_user" );
-	sprintf( sys_string,
-		 "echo \"insert into %s					 "
-		 "	 (role,login_name) values ('instructor','%s');\"|"
-	"sql								 ",
-	table_name,
-	login_name );
-
-	system( sys_string );
-
-} /* reset_password() */
-#endif
-
-int email_password(	char *login_name,
-			char *password )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "echo %s | mailx -s \"Appaserver password\" %s",
-		 password,
-		 login_name );
-	if ( system( sys_string ) ){};
-	return 1;
-
-} /* email_password() */
-
-boolean application_exists(	char *application_name,
-				char *appaserver_error_directory )
+boolean application_exists(
+			char *application_name,
+			char *appaserver_error_directory )
 {
 	return appaserver_library_application_exists(
-				application_name,
-				appaserver_error_directory );
-} /* application_exists() */
-
-#ifdef NOT_DEFINED
-boolean application_exists_virtual_host( char *application_name )
-{
-	char sys_string[ 1024 ];
-	char *results;
-
-	sprintf( sys_string,
-		"ls -1 /etc/apache2/sites-enabled/%s.cloudacus.com 2>/dev/null",
-		 application_name );
-
-	results = pipe2string( sys_string );
-
-	if ( results && *results )
-		return 1;
-	else
-		return 0;
-} /* application_exists_virtual_host() */
-#endif
+			application_name,
+			appaserver_error_directory );
+}
 

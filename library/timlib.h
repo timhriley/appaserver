@@ -1,7 +1,7 @@
-/* library/timlib.h					   */
-/* ------------------------------------------------------- */
-/* Freely available software: see Appaserver.org	   */
-/* ------------------------------------------------------- */
+/* $APPASERVER_HOME/library/timlib.h			*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #ifndef TIMLIB_H
 #define TIMLIB_H

@@ -152,18 +152,6 @@ int main( int argc, char **argv )
 				password,
 				database_password );
 
-/*
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: got password_match_return = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-post_login_password_match_return_display( password_match_return ) );
-m2( application_name, msg );
-}
-*/
-
 	if ( password_match_return == password_match
 	||   password_match_return == public_login
 	||   password_match_return == email_login )
@@ -180,10 +168,10 @@ m2( application_name, msg );
 		session = get_line_system( sys_string );
 
 		post_login_output_frameset(
-					application_name,
-					login_name,
-					session,
-					password_match_return );
+			application_name,
+			login_name,
+			session,
+			password_match_return );
 	}
 	else
 	{
@@ -194,10 +182,10 @@ m2( application_name, msg );
 	{
 		char msg[ 1024 ];
 
-		sprintf(	msg,
-				"Login denied for %s from %s",
-				login_name,
-				environ_get_environment( "REMOTE_ADDR" ) );
+		sprintf(msg,
+			"Login denied for %s from %s",
+			login_name,
+			environ_get_environment( "REMOTE_ADDR" ) );
 
 		appaserver_output_error_message(
 			application_name,
@@ -231,6 +219,5 @@ m2( application_name, msg );
 	}
 
 	return 0;
-
-} /* main() */
+}
 

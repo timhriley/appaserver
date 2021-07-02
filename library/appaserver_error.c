@@ -16,9 +16,10 @@
 #include "timlib.h"
 #include "environ.h"
 
-void appaserver_output_error_message(	char *application_name,
-					char *message,
-					char *login_name )
+void appaserver_output_error_message(
+			char *application_name,
+			char *message,
+			char *login_name )
 {
 	FILE *f;
 
@@ -28,22 +29,21 @@ void appaserver_output_error_message(	char *application_name,
 	{
 		fprintf(f,
 			"%s %s %s: %s\n",
-		 	date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
-		 	date_get_now_hhmm( date_get_utc_offset() ),
+		 	date_now_yyyy_mm_dd( date_get_utc_offset() ),
+		 	date_now_hhmmss( date_get_utc_offset() ),
 			login_name, message );
 	}
 	else
 	{
 		fprintf(f,
 			"%s %s: %s\n",
-		 	date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
-		 	date_get_now_hhmm( date_get_utc_offset() ),
+		 	date_now_yyyy_mm_dd( date_get_utc_offset() ),
+		 	date_now_hhmmss( date_get_utc_offset() ),
 		       	message );
 	}
 
 	fclose( f );
-
-} /* appaserver_output_error_message() */
+}
 
 char *appaserver_get_error_filename( char *application_name )
 {
@@ -92,7 +92,7 @@ char *appaserver_error_get_filename( char *application_name )
 	}
 
 	return filename;
-} /* appaserver_error_get_filename() */
+}
 
 void appaserver_output_starting_argv_append_file(
 			int argc,
@@ -135,7 +135,7 @@ void appaserver_error_login_name_append_file(
 	fprintf( f, "\n" );
 	fclose( f );
 
-} /* appaserver_error_login_name_append_file() */
+}
 
 void appaserver_error_starting_argv_append_file(
 			int argc,
@@ -174,7 +174,7 @@ void appaserver_error_starting_argv_append_file(
 	fprintf( f, "\n" );
 	fclose( f );
 
-} /* appaserver_error_starting_argv_append_file() */
+}
 
 FILE *appaserver_error_open_append_file(
 			char *application_name )
@@ -209,7 +209,7 @@ FILE *appaserver_error_open_append_file(
 	}
 	return f;
 
-} /* appaserver_error_open_append_file() */
+}
 
 void output_error_message( char *message, char *login_name )
 {
@@ -217,7 +217,7 @@ void output_error_message( char *message, char *login_name )
 					(char *)0 /* application_name */,
 					message,
 					login_name );
-} /* output_error_message() */
+}
 
 void m( char *message )
 {
@@ -267,4 +267,4 @@ void appaserver_error_output_starting_argv_stderr(
 	fprintf( stderr, "\n" );
 	fflush( stderr );
 
-} /* appaserver_error_output_starting_argv_stderr() */
+}

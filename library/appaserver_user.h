@@ -1,4 +1,4 @@
-/* appaserver_user.h 							*/
+/* $APPASERVER_HOME/library/appaserver_user.h				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver user ADT.					*/
 /*									*/
@@ -11,25 +11,31 @@
 #include "boolean.h"
 #include "list.h"
 
-#define APPASERVER_USER_RECORD_DELIMITER	'^'
+#define APPASERVER_USER_TABLE		"appaserver_user"
+#define APPASERVER_USER_PRIMARY_KEY	"login_name"
 
 enum password_function	{	no_encryption,
 				old_password_function,
-				password_function,
+				regular_password_function,
 				sha2_function };
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	char *login_name;
-	char *person_full_name;
+	char *full_name;
 	char *typed_in_password;
 	char *database_password;
 	char *user_date_format;
-	char *frameset_menu_horizontal_yn;
-	enum password_function password_function;
+
+	/* Process */
+	/* ------- */
+	char *encrypted_password;
 	LIST *role_list;
-	boolean frameset_menu_horizontal;
 	LIST *session_list;
+	enum password_function password_function;
+	boolean appaserver_user_password_encrypted;
 } APPASERVER_USER;
 
 /* Prototypes */
@@ -40,13 +46,13 @@ enum password_function
 
 /* Returns heap memory. */
 /* -------------------- */
-char *appaserver_user_encryption_select(
+char *appaserver_user_encryption_select_clause(
 			enum password_function,
 			char *typed_in_password );
 
 /* Returns heap memory. */
 /* -------------------- */
-char *appaserver_user_security_encrypted_password(
+char *appaserver_user_encrypted_password(
 			char *application_name,
 			char *typed_in_password,
 			enum password_function );
@@ -66,20 +72,26 @@ boolean appaserver_user_exists_role(
 			char *role_name );
 
 APPASERVER_USER *appaserver_user_fetch(
-			char *application_name,
-			char *login_name );
+			char *login_name,
+			boolean fetch_role_list,
+			boolean fetch_attribute_exclude_list,
+			boolean fetch_session_list );
+
+APPASERVER_USER *appaserver_user_parse(
+			char *input,
+			boolean fetch_role_list,
+			boolean fetch_attribute_exclude_list,
+			boolean fetch_session_list );
 
 char *appaserver_user_person_full_name(
-			char *application_name,
 			char *login_name );
 
 char *appaserver_user_password_fetch(
-			char *application_name,
 			char *login_name );
 
 boolean appaserver_user_frameset_menu_horizontal(
 			char *application_name,
-					char *login_name );
+			char *login_name );
 
 LIST *appaserver_user_role_list(
 			char *application_name,
@@ -88,23 +100,16 @@ LIST *appaserver_user_role_list(
 APPASERVER_USER *appaserver_user_calloc(void );
 
 boolean appaserver_user_password_match(
-			char *application_name,
-			char *typed_in_password,
-			char *database_password );
+			char *database_password,
+			char *encrypted_password );
 
 /* Returns heap memory. */
 /* -------------------- */
-char *appaserver_user_mysql_version(	void );
-
-/* Returns heap memory. */
-/* -------------------- */
-char *appaserver_user_version_encrypted_password(
-			char *application_name,
-			char *typed_in_password,
-			char *mysql_version );
+char *appaserver_user_mysql_version(
+			void );
 
 enum password_function
-	appaserver_user_version_password_function(
+	appaserver_user_mysql_version_password_function(
 			char *mysql_version );
 
 boolean appaserver_user_insert(
@@ -128,11 +133,29 @@ void appaserver_user_insert_stream(
 			char *user_date_format,
 			char *frameset_menu_horizontal_yn );
 
-APPASERVER_USER *appaserver_user_parse(
-			char *input_buffer );
+/* Returns static memory */
+/* --------------------- */
+char *appaserver_user_primary_where(
+			char *login_name );
 
-enum password_security
-	appaserver_user_database_password_security(
-					char *database_password );
+/* Returns program memory */
+/* ---------------------- */
+char *appaserver_user_select(
+			void );
 
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_user_system_string(
+			char *where );
+
+boolean appaserver_user_password_encrypted(
+			char *password );
+
+FILE *appaserver_user_update_open(
+			void );
+
+void appaserver_user_update(
+			FILE *update_pipe,
+			char *password,
+			char *login_name );
 #endif

@@ -42,23 +42,25 @@
 
 /* Prototypes */
 /* ---------- */
-void execute_output_process(	char *application_name,
-				char *login_name,
-				char *role_name,
-				char *session_key,
-				char *message );
+void execute_output_process(
+			char *application_name,
+			char *login_name,
+			char *role_name,
+			char *session_key,
+			char *message );
 
-boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
-				char **message,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *login_name,
-				char *role_name,
-				char *insert_update_key,
-				char *appaserver_data_directory,
-				char *appaserver_mount_point,
-				pid_t dictionary_process_id );
+boolean post_state_update(
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char **message,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *login_name,
+			char *role_name,
+			char *insert_update_key,
+			char *appaserver_data_directory,
+			char *appaserver_mount_point,
+			pid_t dictionary_process_id );
 
 int main( int argc, char **argv )
 {
@@ -118,7 +120,7 @@ int main( int argc, char **argv )
 
 	folder_name = FOLDER_NAME;
 
-	session = session_new_session();
+	session = session_calloc();
 	session->session = session_key;
 
 	if ( session_remote_ip_address_changed(
@@ -210,38 +212,40 @@ int main( int argc, char **argv )
 	else
 	{
 		execute_output_process(
-				application_name,
-				login_name,
-				role_name,
-				session_key,
-				message );
-
+			application_name,
+			login_name,
+			role_name,
+			session_key,
+			message );
 	}
-	exit( 0 );
 
+	return 0;
 }
 
-boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
-				char **message,
-				char *application_name,
-				char *session_key,
-				char *folder_name,
-				char *login_name,
-				char *role_name,
-				char *insert_update_key,
-				char *appaserver_data_directory,
-				char *appaserver_mount_point,
-				pid_t dictionary_process_id )
+boolean post_state_update(
+			DICTIONARY_APPASERVER *dictionary_appaserver,
+			char **message,
+			char *application_name,
+			char *session_key,
+			char *folder_name,
+			char *login_name,
+			char *role_name,
+			char *insert_update_key,
+			char *appaserver_data_directory,
+			char *appaserver_mount_point,
+			pid_t dictionary_process_id )
 {
 	DICTIONARY *file_dictionary;
 	UPDATE_DATABASE *update_database;
 	FOLDER *folder;
 	char *results_string;
+	char system_string[ 1024 ];
 
-	folder = folder_new_folder(
-				application_name, 
-				session_key,
-				folder_name );
+	folder =
+		folder_new_folder(
+			application_name, 
+			session_key,
+			folder_name );
 
 	folder->attribute_list =
 		attribute_get_attribute_list(
@@ -368,22 +372,29 @@ boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
 		*message = "Update complete.";
 	}
 
+	sprintf(system_string,
+		"appaserver_user_trigger \"%s\" update",
+		login_name );
+
+	if ( system( system_string ) ){};
+
 	return update_database_attribute_exists(
 			"frameset_menu_horizontal_yn",
 			update_database->update_row_list );
 }
 
-void execute_output_process(	char *application_name,
-				char *login_name,
-				char *role_name,
-				char *session_key,
-				char *message )
+void execute_output_process(
+			char *application_name,
+			char *login_name,
+			char *role_name,
+			char *session_key,
+			char *message )
 {
 	char sys_string[ 1024 ];
 
 	if ( appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+			application_name,
+			login_name ) )
 	{
 		sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' %s 2>>%s",
@@ -395,7 +406,7 @@ void execute_output_process(	char *application_name,
 			"y" /* content_type_yn */,
 			appaserver_error_get_filename(
 				application_name ) );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		fflush( stdout );
 	}
 
@@ -409,7 +420,5 @@ void execute_output_process(	char *application_name,
 		 appaserver_error_get_filename(
 			application_name ) );
 
-	system( sys_string );
-
+	if ( system( sys_string ) ){};
 }
-

@@ -14,6 +14,7 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "timlib.h"
+#include "sql.h"
 #include "list.h"
 #include "piece.h"
 #include "query.h"
@@ -23,6 +24,7 @@
 #include "element.h"
 #include "boolean.h"
 #include "date_convert.h"
+#include "folder.h"
 
 ATTRIBUTE *attribute_calloc( void )
 {
@@ -787,7 +789,8 @@ LIST *attribute_get_attribute_record_list(
 
 }
 
-boolean attribute_exists_date_attribute( LIST *attribute_list )
+boolean attribute_exists_date_attribute(
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 
@@ -2091,16 +2094,10 @@ boolean attribute_exists(	char *application_name,
 				char *folder_name,
 				char *attribute_name )
 {
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-	 	"folder_attribute_exists.sh %s %s %s",
-	 	application_name,
-	 	folder_name,
-		attribute_name );
-
-	return ( system( sys_string ) == 0 );
-
+	return folder_attribute_exists(
+			application_name,
+			folder_name,
+			attribute_name );
 }
 
 boolean attribute_record_parse(
@@ -2412,3 +2409,4 @@ LIST *attribute_primary_name_list(
 
 	return primary_attribute_name_list;
 }
+

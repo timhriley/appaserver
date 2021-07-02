@@ -170,4 +170,11 @@ char *string_repeat(	char *string,
 /* --------------------- */
 char *string_itoa(	int i );
 
+/* Returns destination */
+/* ------------------- */
+char *security_escape_character_array(
+			char *destination,
+			char *source,
+			char *character_array );
+
 #endif
