@@ -236,8 +236,11 @@ void element_output_as_dictionary(
 			row );
 	}
 	else
+/*
 	if ( element->element_type == prompt_data
 	||   element->element_type == prompt_data_plus_hidden )
+*/
+	if ( element->element_type == prompt_data_plus_hidden )
 	{
 		element_hidden_output(
 			output_file,
