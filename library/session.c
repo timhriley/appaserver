@@ -9,8 +9,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
-#include "session.h"
+#include "list.h"
 #include "environ.h"
+#include "String.h"
 #include "timlib.h"
 #include "appaserver_parameter_file.h"
 #include "appaserver_error.h"
@@ -20,6 +21,9 @@
 #include "piece.h"
 #include "application.h"
 #include "date.h"
+#include "sql.h"
+#include "appaserver_user.h"
+#include "session.h"
 
 #define SLEEP_SECONDS	2
 
@@ -141,7 +145,7 @@ int session_get_session_folder_access_ok(
 	}
 
 	return ( atoi( results_string ) >= 1 );
-} /* session_get_session_folder_access_ok() */
+}
 
 int session_get_session_process_access_ok(
 					char *application_name,
@@ -293,7 +297,7 @@ int session_get_session_process_access_ok(
 
 	return ( atoi( results_string ) >= 1 );
 
-} /* session_get_session_process_access_ok() */
+}
 
 void session_message_ip_address_changed_exit(
 				char *application_name,
@@ -338,7 +342,7 @@ void session_message_ip_address_changed_exit(
 	sleep( SLEEP_SECONDS );
 	exit( 1 );
 
-}  /* session_message_ip_address_changed_exit() */
+}
 
 void session_access_failed_message_and_exit(	char *application_name,
 						char *session_key,
@@ -434,7 +438,7 @@ void session_access_failed_message_and_exit(	char *application_name,
 	sleep( SLEEP_SECONDS );
 	exit( 1 );
 
-} /* session_access_failed_message_and_exit() */
+}
 
 int session_load(	char **login_name,
 			char **last_access_date,
@@ -478,15 +482,15 @@ int session_load(	char **login_name,
 
 	return 1;
 
-} /* session_load() */
+}
 
-SESSION *session_new_session( void )
+SESSION *session_calloc( void )
 {
 	SESSION *session;
 
 	session = (SESSION *)calloc( 1, sizeof( SESSION ) );
 	return session;
-} /* session_new_session() */
+}
 
 int session_access_process(	char *application_name,
 				char *session,
@@ -504,14 +508,14 @@ int session_access_process(	char *application_name,
 				role_name );
 	return access_ok;
 
-} /* session_access_process() */
+}
 
 char *session_get_login_name(		char *application_name,
 					char *session )
 {
 	if ( global_session ) return global_session->login_name;
 
-	global_session = session_new_session();
+	global_session = session_calloc();
 
 	if ( session_load(	&global_session->login_name,
 				&global_session->last_access_date,
@@ -526,14 +530,14 @@ char *session_get_login_name(		char *application_name,
 	{
 		return (char *)0;
 	}
-} /* session_get_login_name() */
+}
 
 char *session_get_http_user_agent(	char *application_name,
 					char *session )
 {
 	if ( global_session ) return global_session->http_user_agent;
 
-	global_session = session_new_session();
+	global_session = session_calloc();
 
 	if ( session_load(	&global_session->login_name,
 				&global_session->last_access_date,
@@ -548,14 +552,14 @@ char *session_get_http_user_agent(	char *application_name,
 	{
 		return (char *)0;
 	}
-} /* session_get_http_user_agent() */
+}
 
 boolean session_key_exists(	char *application_name,
 				char *session_key )
 {
 	if ( global_session ) return 1;
 
-	global_session = session_new_session();
+	global_session = session_calloc();
 
 	if ( session_load(	&global_session->login_name,
 				&global_session->last_access_date,
@@ -570,7 +574,7 @@ boolean session_key_exists(	char *application_name,
 	{
 		return 0;
 	}
-} /* session_key_exists() */
+}
 
 char *session_degrade_state(
 				char *application_name,
@@ -593,7 +597,7 @@ char *session_degrade_state(
 	{
 		return (char *)0;
 	}
-} /* session_degrade_state() */
+}
 
 boolean session_access(	char *application_name,
 			char *session,
@@ -601,7 +605,7 @@ boolean session_access(	char *application_name,
 {
 	if ( !global_session )
 	{
-		global_session = session_new_session();
+		global_session = session_calloc();
 
 		if ( !session_load(	&global_session->login_name,
 					&global_session->last_access_date,
@@ -618,7 +622,7 @@ boolean session_access(	char *application_name,
 		return 0;
 	else
 		return 1;
-} /* session_access() */
+}
 
 void session_update_access_date_time(
 					char *application_name,
@@ -675,6 +679,88 @@ boolean session_remote_ip_address_changed(
 
 	return ( timlib_strcmp(	database_remote_ip_address,
 				environ_remote_ip_address ) != 0 );
+}
 
-} /* session_ip_address_changed() */
+LIST *session_system_list(
+			char *system_string )
+{
+	FILE *pipe;
+	SESSION *session;
+	char input[ 1024 ];
+	LIST *list = {0};
+
+	pipe = popen( system_string, "r" );
+
+	while ( string_input( input, pipe, 1024 ) )
+	{
+		if ( ( session = session_parse( input ) ) )
+		{
+			if ( !list ) list = list_new();
+			list_set( list, session );
+		}
+	}
+
+	pclose( pipe );
+	return list;
+}
+
+char *session_system_string(
+			char *where )
+{
+	static char system_string[ 128 ];
+
+	sprintf(system_string,
+		"select.sh '*' appaserver_sessions \"%s\" none",
+		where );
+
+	return system_string;
+}
+
+LIST *session_list_fetch(
+			char *login_name )
+{
+	return session_system_list(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			session_system_string(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				appaserver_user_primary_where(
+					login_name ) ) );
+}
+
+SESSION *session_parse(	char *input )
+{
+	SESSION *session;
+	char piece_buffer[ 1024 ];
+
+	if ( !input || !*input ) return (SESSION *)0;
+
+	session = session_calloc();
+
+	piece( piece_buffer, SQL_DELIMITER, input, 0 );
+	session->session = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	session->login_name = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	session->login_date = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
+	session->last_access_date = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 4 );
+	session->last_access_time = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 5 );
+	session->http_user_agent = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 6 );
+	session->remote_ip_address = strdup( piece_buffer );
+
+	return session;
+}
 

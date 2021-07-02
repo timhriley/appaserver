@@ -23,7 +23,8 @@ STANDARD_LIBRARY=						\
 		date_convert.o 					\
 		String.o 					\
 		hash_table.o					\
-		javascript.o
+		javascript.o					\
+		security.o
 
 APPASERVER_LIBRARY=						\
 		aggregate_level.o 				\
@@ -58,6 +59,7 @@ APPASERVER_LIBRARY=						\
 		folder_menu.o					\
 		application.o					\
 		appaserver_user.o				\
+		security.o					\
 		element.o					\
 		sed.o						\
 		form.o						\
@@ -1035,6 +1037,9 @@ float.o: float.c float.h
 
 String.o: String.c String.h
 	${CC} ${CFLAGS} -c String.c
+
+security.o: security.c security.h
+	${CC} ${CFLAGS} -c security.c
 
 relation.o: relation.c relation.h
 	${CC} ${CFLAGS} -c relation.c

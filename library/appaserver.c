@@ -1,4 +1,4 @@
-/* library/appaserver.c 						*/
+/* $APPASERVER_HOME/library/appaserver.c				*/
 /* -------------------------------------------------------------------- */
 /* This maintains a set of APPASERVER ADTs.				*/
 /*									*/
@@ -337,29 +337,33 @@ LIST *appaserver_get_exclude_attribute_name_list(
 }
 
 boolean appaserver_frameset_menu_horizontal(
-				char *application_name,
-				char *login_name )
+			char *application_name,
+			char *login_name )
 {
 	char frameset_menu_horizontal_yn;
-	boolean frameset_menu_horizontal;
-	boolean return_value = 1;
+
+	if ( strcmp( login_name, "kiren" ) == 0 ) return 0;
 
 	frameset_menu_horizontal_yn =
 		application_frameset_menu_horizontal_yn(
-					application_name );
+			application_name );
 
+/*
+	boolean frameset_menu_horizontal;
+	boolean return_value = 1;
 	frameset_menu_horizontal =
 		appaserver_user_frameset_menu_horizontal(
-					application_name,
-					login_name );
+				application_name,
+				login_name );
 
 	if ( frameset_menu_horizontal_yn != 'y'
 	||   !frameset_menu_horizontal )
 	{
 		return_value = 0;
 	}
+*/
 
-	return return_value;
+	return (frameset_menu_horizontal_yn == 'y');
 
 }
 

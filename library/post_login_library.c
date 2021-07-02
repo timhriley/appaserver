@@ -67,7 +67,7 @@ boolean post_login_email_login(
 
 	return 1;
 
-} /* post_login_email_login() */
+}
 
 void post_login_redraw_index_screen(	char *application_name,
 					char *location,
@@ -102,13 +102,13 @@ void post_login_redraw_index_screen(	char *application_name,
 "</html>								\n",
 		local_location );
 
-} /* post_login_redraw_index_screen() */
+}
 
 enum password_match_return post_login_password_match(
-				char *application_name,
-				char *login_name,
-				char *password,
-				char *database_password )
+			char *application_name,
+			char *login_name,
+			char *typed_in_password,
+			char *database_password )
 {
 	if ( timlib_strncmp( login_name, "public" ) == 0
 	||   timlib_exists_string( login_name, "_public" ) )
@@ -137,15 +137,18 @@ enum password_match_return post_login_password_match(
 	/* ----------------------------------------- */
 	/* If the database password is not encrypted */
 	/* ----------------------------------------- */
-	if ( timlib_strcmp( database_password, password ) == 0 )
+	if ( timlib_strcmp( database_password, typed_in_password ) == 0 )
 	{
 		return password_match;
 	}
 	else
 	if ( appaserver_user_password_match(
-			application_name,
-			password /* typed_in_password */,
-			database_password ) )
+			database_password,
+			appaserver_user_encrypted_password(
+				application_name,
+				typed_in_password,
+				appaserver_user_database_password_function(
+					database_password ) ) ) )
 	{
 		return password_match;
 	}
@@ -164,13 +167,14 @@ enum password_match_return post_login_password_match(
 
 	return password_fail;
 
-} /* post_login_password_match() */
+}
 
-void post_login_output_frameset(	char *application_name,
-					char *login_name,
-					char *session,
-					enum password_match_return
-						password_match_return )
+void post_login_output_frameset(
+			char *application_name,
+			char *login_name,
+			char *session,
+			enum password_match_return
+				password_match_return )
 {
 	char sys_string[ 1024 ];
 
@@ -241,7 +245,7 @@ void post_login_output_frameset(	char *application_name,
 		}
 	}
 
-} /* post_login_output_frameset() */
+}
 
 char *post_login_password_match_return_display(
 			enum password_match_return password_match_return )
@@ -254,10 +258,10 @@ char *post_login_password_match_return_display(
 	else
 	if ( password_match_return == public_login )
 		return "public_login";
+	else
 	if ( password_match_return == email_login )
 		return "email_login";
 	else
 		return "unknown";
-
-} /* post_login_password_match_return_display() */
+}
 

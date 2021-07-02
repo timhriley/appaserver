@@ -27,6 +27,7 @@ STANDARD_LIBRARY=							\
 APPASERVER_LIBRARY=							\
 		${LIBRARY}/appaserver_library.o 			\
 		${LIBRARY}/appaserver_user.o				\
+		${LIBRARY}/security.o					\
 		${LIBRARY}/process_generic_output.o			\
 		${LIBRARY}/appaserver.o					\
 		${LIBRARY}/basename.o					\

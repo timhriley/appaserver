@@ -1,6 +1,5 @@
-/* library/role.c 							*/
+/* $APPASERVER_HOME/library/role.c					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver role ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -8,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h"
+#include "sql.h"
 #include "timlib.h"
 #include "piece.h"
 #include "role.h"
@@ -20,16 +21,11 @@ ROLE *role_new(
 {
 	return role_new_role( application_name, role_name );
 
-} /* role_new() */
+}
 
-ROLE *role_new_role(
-		char *application_name,
-		char *role_name )
+ROLE *role_calloc( void )
 {
 	ROLE *role;
-
-	if ( !role_name || strcmp( role_name, "ignored" ) == 0 )
-		return (ROLE *)0;
 
 	if ( ! ( role = (ROLE *)calloc( 1, sizeof( ROLE ) ) ) )
 	{
@@ -40,6 +36,19 @@ ROLE *role_new_role(
 			 __LINE__ );
 		exit( 1 );
 	}
+	return role;
+}
+
+ROLE *role_new_role(
+		char *application_name,
+		char *role_name )
+{
+	ROLE *role;
+
+	if ( !role_name || strcmp( role_name, "ignored" ) == 0 )
+		return (ROLE *)0;
+
+	role = role_calloc();
 
 	role->application_name = application_name;
 	role->role_name = role_name;
@@ -52,8 +61,7 @@ ROLE *role_new_role(
 			role_name );
 
 	return role;
-
-} /* role_new_role() */
+}
 
 void role_free( ROLE *role )
 {
@@ -120,7 +128,7 @@ boolean role_fetch( 		char *folder_count_yn,
 	free( results );
 	return 1;
 
-} /* role_fetch() */
+}
 
 boolean role_get_override_row_restrictions(
 		char override_row_restrictions_yn )
@@ -158,11 +166,12 @@ boolean role_get_exists_folder_count_y(
 	results = pipe2string( sys_string );
 	return atoi( results );
 
-} /* role_get_exists_folder_count_y() */
+}
 
 ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_new(
-					char *attribute_name,
-					char *permission )
+			char *role_name,
+			char *attribute_name,
+			char *permission )
 {
 	ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude;
 
@@ -171,20 +180,20 @@ ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_new(
 				calloc( 1,
 					sizeof( ROLE_ATTRIBUTE_EXCLUDE ) ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
 
+	role_attribute_exclude->role_name = role_name;
 	role_attribute_exclude->attribute_name = attribute_name;
 	role_attribute_exclude->permission = permission;
 
 	return role_attribute_exclude;
-
-} /* role_attribute_exclude_new() */
+}
 
 LIST *role_get_attribute_exclude_list(	char *application_name,
 					char *role_name )
@@ -233,6 +242,7 @@ LIST *role_get_attribute_exclude_list(	char *application_name,
 
 		role_attribute_exclude =
 			role_attribute_exclude_new(
+				role_name,
 				strdup( attribute_name ),
 				strdup( permission ) );
 
@@ -241,8 +251,7 @@ LIST *role_get_attribute_exclude_list(	char *application_name,
 	}
 
 	return attribute_exclude_list;
-
-} /* role_get_attribute_exclude_list() */
+}
 
 boolean role_exists_attribute_exclude_insert(
 				LIST *attribute_exclude_list,
@@ -269,5 +278,137 @@ boolean role_exists_attribute_exclude_insert(
 
 	return 0;
 
-} /* role_exists_attribute_exclude_insert() */
+}
+
+char *role_primary_where( char *role_name )
+{
+	static char where[ 128 ];
+
+	sprintf( where, "role = '%s'", role_name );
+
+	return where;
+}
+
+ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_parse(
+			char *input )
+{
+	char role_name[ 128 ];
+	char attribute_name[ 128 ];
+	char permission[ 128 ];
+
+	piece( role_name, SQL_DELIMITER, input, 0 );
+	piece( attribute_name, SQL_DELIMITER, input, 1 );
+	piece( permission, SQL_DELIMITER, input, 2 );
+
+	return role_attribute_exclude_new(
+			strdup( role_name ),
+			strdup( attribute_name ),
+			strdup( permission ) );
+}
+
+char *role_attribute_exclude_system_string( char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh '*' attribute_exclude \"%s\" none",
+		where );
+
+	return strdup( system_string );
+}
+
+LIST *role_attribute_exclude_system_list(
+			char *system_string )
+{
+	FILE *pipe = popen( system_string, "r" );
+	char input[ 256 ];
+	LIST *list = {0};
+
+	while( string_input( input, pipe, 256 ) )
+	{
+		if ( !list ) list = list_new();
+
+		list_set(
+			list,
+			role_attribute_exclude_parse( input ) );
+	}
+	pclose( pipe );
+	return list;
+}
+
+char *role_system_string(
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh \"%s\" role \"%s\" none",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		role_select(),
+		where );
+
+	return strdup( system_string );
+}
+
+LIST *role_system_list(	char *system_string,
+			boolean fetch_attribute_exclude_list )
+{
+	FILE *pipe = popen( system_string, "r" );
+	char input[ 1024 ];
+	LIST *list = {0};
+
+	while( string_input( input, pipe, 1024 ) )
+	{
+		if ( !list ) list = list_new();
+
+		list_set(
+			list,
+			role_parse(
+				input,
+				fetch_attribute_exclude_list ) );
+	}
+
+	pclose( pipe );
+	return list;
+}
+
+char *role_select( void )
+{
+	return "role,folder_count_yn,override_row_restrictions_yn";
+}
+
+ROLE *role_parse(	char *input,
+			boolean fetch_attribute_exclude_list )
+{
+	ROLE *role = role_calloc();
+	char piece_buffer[ 128 ];
+
+	piece( piece_buffer, SQL_DELIMITER, input, 0 );
+	role->role_name = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	role->folder_count_yn = *piece_buffer;
+
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	role->override_row_restrictions_yn = *piece_buffer;
+
+	if ( fetch_attribute_exclude_list )
+	{
+		role->role_attribute_exclude_list =
+			role_attribute_exclude_system_list(
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				role_attribute_exclude_system_string(
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					role_primary_where(
+						role->role_name ) ) );
+	}
+
+	return role;
+}
 

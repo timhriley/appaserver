@@ -40,26 +40,26 @@
 
 /* Prototypes */
 /* ---------- */
+LIST *get_attribute_element_list(
+			int *objects_outputted,
+			LIST *attribute_list,
+			char *attribute_name,
+			LIST *primary_attribute_name_list );
 
-LIST *get_attribute_element_list(	int *objects_outputted,
-					LIST *attribute_list,
-					char *attribute_name,
-					LIST *primary_attribute_name_list );
+char *get_order_clause(	DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary );
 
-char *get_order_clause(			DICTIONARY *query_dictionary,
-					DICTIONARY *sort_dictionary );
-
-LIST *get_element_list(		char *login_name,
-				char *application_name,
-				char *session,
-				char *role_name,
-				LIST *attribute_list,
-				LIST *include_attribute_name_list,
-				LIST *mto1_related_folder_list,
-				DICTIONARY *query_dictionary,
-				int row_dictionary_list_length,
-				char *state,
-				boolean row_level_non_owner_forbid );
+LIST *get_element_list(	char *login_name,
+			char *application_name,
+			char *session,
+			char *role_name,
+			LIST *attribute_list,
+			LIST *include_attribute_name_list,
+			LIST *mto1_related_folder_list,
+			DICTIONARY *query_dictionary,
+			int row_dictionary_list_length,
+			char *state,
+			boolean row_level_non_owner_forbid );
 
 int main( int argc, char **argv )
 {
@@ -111,7 +111,7 @@ int main( int argc, char **argv )
 	folder_name = FOLDER_NAME;
 	target_frame = TARGET_FRAME;
 
-	session = session_new_session();
+	session = session_calloc();
 	session->session = session_key;
 
 	if ( session_remote_ip_address_changed(
@@ -458,19 +458,19 @@ int main( int argc, char **argv )
 				PROCESS_NAME,
 				appaserver_parameter_file_get_dbms() );
 	exit( 0 );
-} /* main() */
+}
 
-LIST *get_element_list(		char *login_name,
-				char *application_name,
-				char *session_key,
-				char *role_name,
-				LIST *attribute_list,
-				LIST *include_attribute_name_list,
-				LIST *mto1_related_folder_list,
-				DICTIONARY *query_dictionary,
-				int row_dictionary_list_length,
-				char *state,
-				boolean row_level_non_owner_forbid )
+LIST *get_element_list(	char *login_name,
+			char *application_name,
+			char *session_key,
+			char *role_name,
+			LIST *attribute_list,
+			LIST *include_attribute_name_list,
+			LIST *mto1_related_folder_list,
+			DICTIONARY *query_dictionary,
+			int row_dictionary_list_length,
+			char *state,
+			boolean row_level_non_owner_forbid )
 {
 	LIST *return_list;
 	LIST *element_list;
@@ -591,13 +591,13 @@ LIST *get_element_list(		char *login_name,
 	} while( list_next( include_attribute_name_list ) );
 
 	return return_list;
+}
 
-} /* get_element_list() */
-
-LIST *get_attribute_element_list(	int *objects_outputted,
-					LIST *attribute_list,
-					char *attribute_name,
-					LIST *primary_attribute_name_list )
+LIST *get_attribute_element_list(
+			int *objects_outputted,
+			LIST *attribute_list,
+			char *attribute_name,
+			LIST *primary_attribute_name_list )
 {
 	ATTRIBUTE *attribute;
 	LIST *element_list;
@@ -622,18 +622,17 @@ LIST *get_attribute_element_list(	int *objects_outputted,
 
 	element_list =
 		appaserver_library_get_update_lookup_attribute_element_list(
-				'y' /* update_yn */,
-				primary_attribute_name_list,
-				attribute->exclude_permission_list,
+			'y' /* update_yn */,
+			primary_attribute_name_list,
+			attribute->exclude_permission_list,
+			attribute->attribute_name,
+			attribute->datatype,
+			attribute->width,
+			attribute->post_change_javascript,
+			attribute->on_focus_javascript_function,
+			list_exists_string(	
 				attribute->attribute_name,
-				attribute->datatype,
-				attribute->width,
-				attribute->post_change_javascript,
-				attribute->on_focus_javascript_function,
-				list_exists_string(	
-					attribute->attribute_name,
-					primary_attribute_name_list ) );
-
+				primary_attribute_name_list ) );
 
 	if ( element_list && list_length( element_list ) )
 	{
@@ -642,5 +641,4 @@ LIST *get_attribute_element_list(	int *objects_outputted,
 	}
 
 	return return_list;
-} /* get_attribute_element_list() */
-
+}

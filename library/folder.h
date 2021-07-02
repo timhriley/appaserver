@@ -291,9 +291,15 @@ FOLDER *folder_seek_folder(		LIST *folder_list,
 boolean folder_exists_folder(		char *application_name,
 					char *folder_name );
 
-boolean folder_exists_attribute(	char *application_name,
-					char *folder_name,
-					char *attribute_name );
+boolean folder_attribute_exists(
+			char *application_name,
+			char *folder_name,
+			char *attribute_name );
+
+boolean folder_exists_attribute(
+			char *application_name,
+			char *folder_name,
+			char *attribute_name );
 
 LIST *folder_data_list(
 			char *application_name,
