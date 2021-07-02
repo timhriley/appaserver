@@ -194,6 +194,5 @@ int insert_mysql_appaserver_user(
 
 	fclose( f );
 	return rows_to_insert;
-
 }
 
