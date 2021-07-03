@@ -101,8 +101,8 @@ int main( int argc, char **argv )
 				title );
 
 	if ( appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+		application_name,
+		login_name ) )
 	{
 		output_horizontal_frameset_choose_role_drop_down(
 				application_name,

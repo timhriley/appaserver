@@ -348,8 +348,8 @@ int main( int argc, char **argv )
 						process_name );
 
 	if ( appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+		application_name,
+		login_name ) )
 	{
 		with_dynarch_menu = 1;
 	}
@@ -416,8 +416,8 @@ int main( int argc, char **argv )
 	}
 
 	if ( !appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+		application_name,
+		login_name ) )
 	{
 		document_output_body(
 			document->application_name,

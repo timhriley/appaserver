@@ -226,8 +226,8 @@ int main( int argc, char **argv )
 			application_name ) );
 
 	if ( appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+		application_name,
+		login_name ) )
 	{
 		output_horizontal_frameset(
 					application_name,

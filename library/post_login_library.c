@@ -146,9 +146,13 @@ enum password_match_return post_login_password_match(
 			database_password,
 			appaserver_user_encrypted_password(
 				application_name,
-				typed_in_password,
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				security_sql_injection_escape(
+					typed_in_password ),
 				appaserver_user_database_password_function(
-					database_password ) ) ) )
+					   database_password ) ) ) )
 	{
 		return password_match;
 	}

@@ -14,6 +14,7 @@
 #include "piece.h"
 #include "list.h"
 #include "appaserver_error.h"
+#include "security.h"
 #include "appaserver_user.h"
 
 /* Prototypes */
@@ -94,7 +95,11 @@ void appaserver_user_trigger_insert_update(
 
 		appaserver_user_update(
 			update_pipe,
-			appaserver_user->encrypted_password,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			security_sql_injection_escape(
+				appaserver_user->encrypted_password ),
 			appaserver_user->login_name );
 
 		pclose( update_pipe );

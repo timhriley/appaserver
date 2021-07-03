@@ -672,8 +672,8 @@ m2( application_name, msg );
 
 	with_dynarch_menu =
 		appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name );
+			application_name,
+			login_name );
 
 	document_output_head_stream(
 			stdout,
@@ -720,8 +720,8 @@ m2( application_name, msg );
 	document_output_close_head( stdout );
 
 	if ( appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+			application_name,
+			login_name ) )
 	{
 		char sys_string[ 1024 ];
 

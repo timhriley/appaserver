@@ -9,8 +9,6 @@
 #include "query.h"
 #include "security.h"
 
-/* Returns heap memory */
-/* ------------------- */
 char *security_sql_injection_escape( char *source )
 {
 	char destination[ QUERY_WHERE_BUFFER ];

@@ -342,12 +342,11 @@ boolean appaserver_frameset_menu_horizontal(
 {
 	char frameset_menu_horizontal_yn;
 
-	if ( strcmp( login_name, "kiren" ) == 0 ) return 0;
-
 	frameset_menu_horizontal_yn =
 		application_frameset_menu_horizontal_yn(
 			application_name );
 
+	if ( login_name ){};
 /*
 	boolean frameset_menu_horizontal;
 	boolean return_value = 1;

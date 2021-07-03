@@ -231,13 +231,21 @@ char *appaserver_user_encrypted_password(
 
 boolean appaserver_user_password_match(
 			char *database_password,
-			char *encrypted_password )
+			char *injection_escaped_encrypted_password )
 {
 	if ( !database_password || !*database_password ) return 0;
-	if ( !encrypted_password || !*encrypted_password ) return 0;
+
 	if ( string_strcmp( database_password, "null" ) == 0 ) return 0;
 
-	return ( strcmp( encrypted_password, database_password ) == 0 );
+	if ( !injection_escaped_encrypted_password
+	||   !*injection_escaped_encrypted_password )
+	{
+		return 0;
+	}
+
+	return ( strcmp(
+			injection_escaped_encrypted_password,
+			database_password ) == 0 );
 }
 
 /* Returns heap memory. */
@@ -597,11 +605,11 @@ FILE *appaserver_user_update_open( void )
 
 void appaserver_user_update(
 			FILE *update_pipe,
-			char *encrypted_password,
+			char *injection_escaped_encrypted_password,
 			char *login_name )
 {
 	fprintf( update_pipe,
 		 "%s^password^%s\n",
 		 login_name,
-		 encrypted_password );
+		 injection_escaped_encrypted_password );
 }

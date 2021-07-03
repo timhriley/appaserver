@@ -75,8 +75,8 @@ int main( int argc, char **argv )
 	document = document_new(process_title_initial_capital,
 				application_name );
 	if ( !appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+			application_name,
+			login_name ) )
 	{
 		document_set_output_content_type( document );
 	}

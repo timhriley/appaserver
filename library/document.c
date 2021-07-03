@@ -772,8 +772,8 @@ DOCUMENT *document_output_menu_new(
 
 	with_dynarch_menu =
 		appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name );
+			application_name,
+			login_name );
 
 	if ( with_dynarch_menu )
 	{

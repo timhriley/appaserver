@@ -555,8 +555,8 @@ int main( int argc, char **argv )
 
 	if ( strcmp( target_frame, PROMPT_FRAME ) == 0
 	&&   appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+			application_name,
+			login_name ) )
 	{
 		with_dynarch_menu = 1;
 	}
@@ -694,8 +694,8 @@ int main( int argc, char **argv )
 				appaserver_link_file->extension );
 
 		if ( appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+			application_name,
+			login_name ) )
 		{
 			sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '' n n > %s 2>>%s",

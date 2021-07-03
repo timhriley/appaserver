@@ -84,8 +84,8 @@ int main( int argc, char **argv )
 
 	if ( !*login_name
 	||   !appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+		application_name,
+		login_name ) )
 	{
 		document_set_output_content_type( document );
 	}

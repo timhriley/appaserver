@@ -101,7 +101,7 @@ APPASERVER_USER *appaserver_user_calloc(void );
 
 boolean appaserver_user_password_match(
 			char *database_password,
-			char *encrypted_password );
+			char *injection_escaped_encrypted_password );
 
 /* Returns heap memory. */
 /* -------------------- */
@@ -156,6 +156,6 @@ FILE *appaserver_user_update_open(
 
 void appaserver_user_update(
 			FILE *update_pipe,
-			char *password,
+			char *injection_escaped_password,
 			char *login_name );
 #endif

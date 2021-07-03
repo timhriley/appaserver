@@ -233,8 +233,8 @@ int main( int argc, char **argv )
 	document_set_javascript_module( document, "push_button_submit" );
 
 	if ( !appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+			application_name,
+			login_name ) )
 	{
 		document->output_content_type = 1;
 	}

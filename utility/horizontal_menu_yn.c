@@ -35,8 +35,8 @@ int main( int argc, char **argv )
 	}
 
 	if ( appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+		application_name,
+		login_name ) )
 	{
 		printf( "y\n" );
 	}

@@ -604,8 +604,8 @@ int main( int argc, char **argv )
 		folder_name );
 
 	if ( appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+			application_name,
+			login_name ) )
 	{
 		with_dynarch_menu = 1;
 	}

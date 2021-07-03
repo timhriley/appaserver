@@ -145,8 +145,8 @@ int main( int argc, char **argv )
 	role = role_new_role( application_name, role_name );
 	
 	if ( appaserver_frameset_menu_horizontal(
-						application_name,
-						login_name ) )
+			application_name,
+			login_name ) )
 	{
 		with_group_name_trimmed = 0;
 	}
@@ -195,8 +195,8 @@ int main( int argc, char **argv )
 			application_name );
 
 	if ( appaserver_frameset_menu_horizontal(
-						application_name,
-						login_name ) )
+			application_name,
+			login_name ) )
 	{
 		HORIZONTAL_MENU *horizontal_menu;
 

@@ -431,8 +431,8 @@ int main( int argc, char **argv )
 
 	if ( strcmp( target_frame, PROMPT_FRAME ) == 0
 	&&   appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+		application_name,
+		login_name ) )
 	{
 		with_dynarch_menu = 1;
 	}

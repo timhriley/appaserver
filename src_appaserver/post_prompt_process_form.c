@@ -415,8 +415,8 @@ int main( int argc, char **argv )
 
 	if ( !list_length( process_parameter_list->process_parameter_list )
 	&&   appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+			application_name,
+			login_name ) )
 	{
 		char sys_string[ 1024 ];
 

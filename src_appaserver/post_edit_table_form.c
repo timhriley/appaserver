@@ -1261,8 +1261,8 @@ void execute_update_output_process(
 	{
 		if ( strcmp( target_frame, PROMPT_FRAME ) == 0
 		&&   appaserver_frameset_menu_horizontal(
-						application_name,
-						login_name ) )
+				application_name,
+				login_name ) )
 		{
 			char sys_string[ 1024 ];
 
@@ -1391,8 +1391,8 @@ void execute_insert_output_process(
 	{
 		if ( strcmp( target_frame, PROMPT_FRAME ) == 0
 		&&   appaserver_frameset_menu_horizontal(
-						application_name,
-						login_name ) )
+				application_name,
+				login_name ) )
 		{
 			sprintf(sys_string,
 "output_choose_role_folder_process_form %s %s %s %s '%s' %s 2>>%s",

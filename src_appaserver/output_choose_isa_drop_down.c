@@ -169,8 +169,8 @@ int main( int argc, char **argv )
 
 	with_dynarch_menu =
 		appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name );
+			application_name,
+			login_name );
 
 	document_set_javascript_module( document, "timlib" );
 	document_set_javascript_module( document, "form" );
@@ -187,8 +187,8 @@ int main( int argc, char **argv )
 			with_dynarch_menu );
 
 	if ( appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+			application_name,
+			login_name ) )
 	{
 		char sys_string[ 1024 ];
 

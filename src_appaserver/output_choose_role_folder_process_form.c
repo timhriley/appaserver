@@ -66,8 +66,8 @@ int main( int argc, char **argv )
 	}
 
 	if ( !appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+		application_name,
+		login_name ) )
 	{
 		sprintf(sys_string,
 		"output_open_html_document %s %s \"%s\" %s",
@@ -123,8 +123,8 @@ int main( int argc, char **argv )
 	}
 
 	if ( !appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+		application_name,
+		login_name ) )
 	{
 		if ( list_length( role_list ) == 1 )
 		{
@@ -186,8 +186,8 @@ int main( int argc, char **argv )
 	}
 
 	if ( !appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) )
+		application_name,
+		login_name ) )
 	{
 		sprintf(sys_string,
 			"output_close_html_document %s %s",
