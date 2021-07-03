@@ -221,10 +221,10 @@ void element_output_as_dictionary(
 	if ( element->element_type == reference_number )
 	{
 		element_reference_number_output_as_dictionary(
-					output_file,
-					element->name,
-					element->reference_number->data,
-					row );
+			output_file,
+			element->name,
+			element->reference_number->data,
+			row );
 	}
 	else
 	if ( element->element_type == hidden )
@@ -236,10 +236,15 @@ void element_output_as_dictionary(
 			row );
 	}
 	else
-/*
-	if ( element->element_type == prompt_data
-	||   element->element_type == prompt_data_plus_hidden )
-*/
+	if ( element->element_type == prompt_data )
+	{
+		element_hidden_output(
+			output_file,
+			element->name,
+			element->prompt_data->data,
+			row );
+	}
+	else
 	if ( element->element_type == prompt_data_plus_hidden )
 	{
 		element_hidden_output(
@@ -248,6 +253,7 @@ void element_output_as_dictionary(
 			element->prompt_data->data,
 			row );
 	}
+	else
 	if ( element->element_type == http_filename
 	&&   element->http_filename->data )
 	{
@@ -656,20 +662,20 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 	||   element->element_type == prompt_data_plus_hidden )
 	{
 		element_prompt_data_output(
-				output_file,
-				element->name,
-				element->prompt_data->align,
-				element->prompt_data->data,
-				element->prompt_data->format_initial_capital );
+			output_file,
+			element->name,
+			element->prompt_data->align,
+			element->prompt_data->data,
+			element->prompt_data->format_initial_capital );
 
 		if ( element->element_type == prompt_data_plus_hidden )
 		{
 			element_hidden_name_dictionary_output(
-					output_file,
-					hidden_name_dictionary,
-					row,
-					element->name,
-					element->prompt_data->data );
+				output_file,
+				hidden_name_dictionary,
+				row,
+				element->name,
+				element->prompt_data->data );
 		}
 	}
 	else
@@ -809,7 +815,7 @@ void element_set_data( ELEMENT_APPASERVER *e, char *s )
 	if ( e->element_type == prompt_data
 	||   e->element_type == prompt_data_plus_hidden )
 	{
-		element_prompt_data_set_data( e->prompt_data, s );
+		e->prompt_data->data = s;
 	}
 	else
 	if ( e->element_type == reference_number )
@@ -819,7 +825,7 @@ void element_set_data( ELEMENT_APPASERVER *e, char *s )
 	else
 	if ( e->element_type == hidden )
 	{
-		element_hidden_set_data( e->hidden, s );
+		e->hidden->data = s;
 	}
 	else
 	if ( e->element_type == http_filename )
@@ -1450,26 +1456,30 @@ ELEMENT_TEXT_ITEM *element_text_item_new( void )
 	return e;
 }
 
-void element_text_item_set_default(	ELEMENT_TEXT_ITEM *e,
-					char *s )
+void element_text_item_set_default(
+			ELEMENT_TEXT_ITEM *e,
+			char *s )
 {
 	element_text_item_set_data( e, s );
 }
 
-void element_text_item_set_data(		ELEMENT_TEXT_ITEM *e,
-						char *s )
+void element_text_item_set_data(
+			ELEMENT_TEXT_ITEM *e,
+			char *s )
 {
 	e->data = strdup( s );
 }
 
-void element_text_item_set_attribute_width(	ELEMENT_TEXT_ITEM *e,
-						int w )
+void element_text_item_set_attribute_width(
+			ELEMENT_TEXT_ITEM *e,
+			int w )
 {
 	e->attribute_width = w;
 }
 
-void element_text_item_set_heading(	ELEMENT_TEXT_ITEM *e,
-					char *s )
+void element_text_item_set_heading(
+			ELEMENT_TEXT_ITEM *e,
+			char *s )
 {
 	e->heading = s;
 }
@@ -2744,24 +2754,12 @@ ELEMENT_PROMPT_DATA *element_prompt_data_new( void )
 	return e;
 }
 
-void element_prompt_data_set_heading( 	ELEMENT_PROMPT_DATA *e,
-					char *heading )
-{
-	e->heading = strdup( heading );
-}
-
 char *element_prompt_data_get_heading( char *element_name, char *heading )
 {
 	if ( heading )
 		return heading;
 	else
 		return element_name;
-}
-
-void element_prompt_data_set_data(		ELEMENT_PROMPT_DATA *e,
-						char *s )
-{
-	e->data = s;
 }
 
 void element_prompt_data_output(
@@ -2831,11 +2829,6 @@ ELEMENT_HIDDEN *element_hidden_new( void )
 
 	return i;
 
-}
-
-void element_hidden_set_data( ELEMENT_HIDDEN *e, char *s )
-{
-	if ( *s ) e->data = strdup( s );
 }
 
 void element_hidden_output(

@@ -378,20 +378,22 @@ LIST *get_element_list(		char *login_name,
 
 	/* Create a hidden folder_name */
 	/* --------------------------- */
-	element = element_appaserver_new(
+	element =
+		element_appaserver_new(
 			hidden,
 			"folder_name" );
 
-	element_hidden_set_data(	element->hidden,
-					folder_name );
+	element->hidden->data = strdup( folder_name );
 
-	list_append( 	return_list, 
-			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+	list_append(
+		return_list, 
+		element, 
+		sizeof( ELEMENT_APPASERVER ) );
 
 	/* Create the lookup push button */
 	/* ----------------------------- */
 	element = element_appaserver_new( linebreak, "" );
+
 	list_append( 	return_list, 
 			element, 
 			sizeof( ELEMENT_APPASERVER ) );
@@ -415,16 +417,17 @@ LIST *get_element_list(		char *login_name,
 			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 			  QUERY_RELATION_OPERATOR_STARTING_LABEL ) );
 
-	element = element_appaserver_new(
+	element =
+		element_appaserver_new(
 			hidden,
 			strdup( element_name ) );
 
-	element_hidden_set_data(	element->hidden,
-					EQUAL_OPERATOR );
+	element->hidden->data = EQUAL_OPERATOR;
 
-	list_append( 	return_list, 
-			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+	list_append(
+		return_list, 
+		element, 
+		sizeof( ELEMENT_APPASERVER ) );
 
 	return return_list;
 }

@@ -1009,21 +1009,22 @@ LIST *output_prompt_insert_element_list(
 				hidden,
 				isa_multi_attribute_name );
 
-		element_hidden_set_data(	element->hidden,
-						isa_multi_attribute_data );
+		element->hidden->data = strdup( isa_multi_attribute_data );
 
-		list_append( 	return_list, 
-				element, 
-				sizeof( ELEMENT_APPASERVER ) );
-
+		list_append(
+			return_list, 
+			element, 
+			sizeof( ELEMENT_APPASERVER ) );
 	}
 
 	/* Create the lookup push button */
 	/* ----------------------------- */
 	element = element_appaserver_new( linebreak, "" );
-	list_append( 	return_list, 
-			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+
+	list_append(
+		return_list, 
+		element, 
+		sizeof( ELEMENT_APPASERVER ) );
 
 	element =
 		element_appaserver_new(
@@ -1695,9 +1696,7 @@ LIST *output_prompt_insert_attribute_element_list(
 			hidden,
 			strdup( element_name ) );
 
-	element_hidden_set_data(
-		element->hidden,
-			EQUAL_OPERATOR );
+	element->hidden->data = EQUAL_OPERATOR;
 
 	list_set( return_list, element );
 

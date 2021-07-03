@@ -244,196 +244,236 @@ typedef struct
 } ELEMENT_APPASERVER;
 
 ELEMENT_APPASERVER *element_appaserver_new(
-				enum element_type,
-				char *name );
+			enum element_type,
+			char *name );
 
-void element_simple_output(	ELEMENT_APPASERVER *element,
-				int row );
+void element_simple_output(
+			ELEMENT_APPASERVER *element,
+			int row );
 
-void element_output( 		DICTIONARY *hidden_name_dictionary,
-				ELEMENT_APPASERVER *e,
-				int row,
-				int with_toggle_buttons,
-				FILE *output_file,
-				char *background_color,
-				char *application_name,
-				char *login_name );
+void element_output( 	DICTIONARY *hidden_name_dictionary,
+			ELEMENT_APPASERVER *e,
+			int row,
+			int with_toggle_buttons,
+			FILE *output_file,
+			char *background_color,
+			char *application_name,
+			char *login_name );
 
-void element_prompt_output(	FILE *output_file,
-				char *element_name,
-				boolean with_heading_format );
+void element_prompt_output(
+			FILE *output_file,
+			char *element_name,
+			boolean with_heading_format );
 
-void element_output_non_element(	char *s,
-					FILE *output_file );
+void element_output_non_element(
+			char *s,
+			FILE *output_file );
 
-void element_set_data( 			ELEMENT_APPASERVER *e, char *s );
+void element_set_data( 	ELEMENT_APPASERVER *e,
+			char *s );
 
 char *element_get_heading(
-				char **toggle_button_set_all_control_string,
-				ELEMENT_APPASERVER *e,
-				int form_number );
+			char **toggle_button_set_all_control_string,
+			ELEMENT_APPASERVER *e,
+			int form_number );
 
-int element_get_attribute_width( 	ELEMENT_APPASERVER *e );
+int element_get_attribute_width(
+			ELEMENT_APPASERVER *e );
 
-void element_set_datatype(		ELEMENT_APPASERVER *e,
-					char *datatype );
+void element_set_datatype(
+			ELEMENT_APPASERVER *e,
+			char *datatype );
 
 ELEMENT_PUSH_BUTTON *element_push_button_new(
-					void );
+			void );
 
 ELEMENT_TOGGLE_BUTTON *element_toggle_button_new(
-					void );
+			void );
 
-char *element_toggle_button_get_heading(char *element_name,
-					char *heading );
+char *element_toggle_button_get_heading(
+			char *element_name,
+			char *heading );
 
-void element_toggle_button_set_heading(	ELEMENT_TOGGLE_BUTTON *e,
-					char *heading );
+void element_toggle_button_set_heading(
+			ELEMENT_TOGGLE_BUTTON *e,
+			char *heading );
 
-void element_toggle_button_output( 	FILE *output_file,
-					char *element_name,
-					char *heading,
-					boolean checked,
-					int row,
-					char onchange_submit_yn,
-					char *form_name,
-					char *image_source,
-					char *onclick_keystrokes_save_string,
-					char *onclick_function );
+void element_toggle_button_output(
+			FILE *output_file,
+			char *element_name,
+			char *heading,
+			boolean checked,
+			int row,
+			char onchange_submit_yn,
+			char *form_name,
+			char *image_source,
+			char *onclick_keystrokes_save_string,
+			char *onclick_function );
 
-void element_toggle_button_set_checked(	ELEMENT_TOGGLE_BUTTON *e );
+void element_toggle_button_set_checked(
+			ELEMENT_TOGGLE_BUTTON *e );
 
-ELEMENT_RADIO_BUTTON *element_radio_button_new(	void );
+ELEMENT_RADIO_BUTTON *element_radio_button_new(
+			void );
 
-char *element_radio_button_get_heading( 	char *heading,
-						char *name );
+char *element_radio_button_get_heading(
+			char *heading,
+			char *name );
 
-void element_radio_button_set_heading(		ELEMENT_RADIO_BUTTON *e,
-						char *heading );
+void element_radio_button_set_heading(
+			ELEMENT_RADIO_BUTTON *e,
+			char *heading );
 
-void element_radio_button_output(		FILE *output_file,
-						char onchange_submit_yn,
-						char *form_name,
-						char *image_source,
-						char *value,
-						int checked,
-						char *heading,
-						char *name,
-						char *onclick,
-						int row,
-						char *state,
-						char *post_change_javascript );
+void element_radio_button_output(
+			FILE *output_file,
+			char onchange_submit_yn,
+			char *form_name,
+			char *image_source,
+			char *value,
+			int checked,
+			char *heading,
+			char *name,
+			char *onclick,
+			int row,
+			char *state,
+			char *post_change_javascript );
 
-ELEMENT_NOTEPAD *element_notepad_new(		void );
+ELEMENT_NOTEPAD *element_notepad_new(
+			void );
 
-void element_notepad_set_data(			ELEMENT_NOTEPAD *e,
-						char *s );
+void element_notepad_set_data(
+			ELEMENT_NOTEPAD *e,
+			char *s );
 
-void element_notepad_set_attribute_width(	ELEMENT_NOTEPAD *e,
-						int w );
+void element_notepad_set_attribute_width(
+			ELEMENT_NOTEPAD *e,
+			int w );
 
-void element_notepad_set_field_width(		ELEMENT_NOTEPAD *e,
-						int w );
+void element_notepad_set_field_width(
+			ELEMENT_NOTEPAD *e,
+			int w );
 
-char *element_notepad_get_heading( 		ELEMENT_NOTEPAD *e );
+char *element_notepad_get_heading(
+			ELEMENT_NOTEPAD *e );
 
-void element_notepad_output( 			FILE *output_file,
-						int attribute_width,
-						char *element_name,
-						char *data,
-						int row,
-						int number_rows,
-						char onchange_null2slash_yn,
-						int tab_index );
+void element_notepad_output(
+			FILE *output_file,
+			int attribute_width,
+			char *element_name,
+			char *data,
+			int row,
+			int number_rows,
+			char onchange_null2slash_yn,
+			int tab_index );
 
-void element_notepad_set_onchange_null2slash(	ELEMENT_NOTEPAD *e );
+void element_notepad_set_onchange_null2slash(
+			ELEMENT_NOTEPAD *e );
 
 
-ELEMENT_TEXT_ITEM *element_text_item_new(	void );
+ELEMENT_TEXT_ITEM *element_text_item_new(
+			void );
 
-void element_text_item_set_data(		ELEMENT_TEXT_ITEM *e,
-						char *s );
+void element_text_item_set_data(
+			ELEMENT_TEXT_ITEM *e,
+			char *s );
 
-void element_text_item_set_default(		ELEMENT_TEXT_ITEM *e,
-						char *s );
+void element_text_item_set_default(
+			ELEMENT_TEXT_ITEM *e,
+			char *s );
 
-void element_text_item_set_attribute_width(	ELEMENT_TEXT_ITEM *e,
-						int w );
+void element_text_item_set_attribute_width(
+			ELEMENT_TEXT_ITEM *e,
+			int w );
 
-void element_text_item_set_field_width(		ELEMENT_TEXT_ITEM *e,
-						int w );
+void element_text_item_set_field_width(
+			ELEMENT_TEXT_ITEM *e,
+			int w );
 
-void element_text_item_set_heading(		ELEMENT_TEXT_ITEM *e,
-						char *s );
+void element_text_item_set_heading(
+			ELEMENT_TEXT_ITEM *e,
+			char *s );
 
-char *element_text_item_get_heading(		char *element_name,
-						char *heading );
+char *element_text_item_get_heading(
+			char *element_name,
+			char *heading );
 
-void element_text_item_output( 		FILE *output_file,
-					char *element_name,
-					char *data,
-					int attribute_width,
-					int row, 
-					char onchange_null2slash_yn,
-					char *post_change_javascript,
-					char *on_focus_javascript_function,
-					int widget_size,
-					char *background_color,
-					int tab_index,
-					boolean without_td_tags,
-					boolean readonly,
-					char *state,
-					boolean is_numeric );
+void element_text_item_output(
+			FILE *output_file,
+			char *element_name,
+			char *data,
+			int attribute_width,
+			int row, 
+			char onchange_null2slash_yn,
+			char *post_change_javascript,
+			char *on_focus_javascript_function,
+			int widget_size,
+			char *background_color,
+			int tab_index,
+			boolean without_td_tags,
+			boolean readonly,
+			char *state,
+			boolean is_numeric );
 
 void element_text_item_set_onchange_null2slash(
-						ELEMENT_TEXT_ITEM *e );
+			ELEMENT_TEXT_ITEM *e );
 
-ELEMENT_PASSWORD *element_password_new( 	void );
+ELEMENT_PASSWORD *element_password_new(
+			void );
 
-void element_password_set_data(			ELEMENT_PASSWORD *e,
-						char *s );
+void element_password_set_data(
+			ELEMENT_PASSWORD *e,
+			char *s );
 
-void element_password_set_default(		ELEMENT_PASSWORD *e,
-						char *s );
+void element_password_set_default(
+			ELEMENT_PASSWORD *e,
+			char *s );
 
-void element_password_set_attribute_width(	ELEMENT_PASSWORD *e,
-						int w );
+void element_password_set_attribute_width(
+			ELEMENT_PASSWORD *e,
+			int w );
 
-void element_password_set_heading(		ELEMENT_PASSWORD *e,
-						char *s );
+void element_password_set_heading(
+			ELEMENT_PASSWORD *e,
+			char *s );
 
-char *element_password_get_heading(		char *element_name,
-						char *heading );
+char *element_password_get_heading(
+			char *element_name,
+			char *heading );
 
-void element_password_output( 			FILE *output_file,
-						char *element_name,
-						char *data,
-						int attribute_width,
-						int row,
-						int tab_index );
+void element_password_output(
+			FILE *output_file,
+			char *element_name,
+			char *data,
+			int attribute_width,
+			int row,
+			int tab_index );
 
 ELEMENT_REFERENCE_NUMBER *element_reference_number_new(
-						void );
+			void );
 
-void element_reference_number_set_data(		ELEMENT_REFERENCE_NUMBER *e,
-						char *s );
+void element_reference_number_set_data(
+			ELEMENT_REFERENCE_NUMBER *e,
+			char *s );
 
 void element_reference_number_set_attribute_width(	
-						ELEMENT_REFERENCE_NUMBER *e,
-						int w );
+			ELEMENT_REFERENCE_NUMBER *e,
+			int w );
 
-void element_reference_number_set_heading(	ELEMENT_REFERENCE_NUMBER *e,
-						char *s );
+void element_reference_number_set_heading(
+			ELEMENT_REFERENCE_NUMBER *e,
+			char *s );
 
-char *element_reference_number_get_heading( 	char *element_name,
-						char *heading );
+char *element_reference_number_get_heading(
+			char *element_name,
+			char *heading );
 
-void element_reference_number_output( 		FILE *output_file,
-						char *element_name,
-						char *data,
-						int row,
-						int attribute_width,
-						boolean omit_update );
+void element_reference_number_output(
+			FILE *output_file,
+			char *element_name,
+			char *data,
+			int row,
+			int attribute_width,
+			boolean omit_update );
 
 ELEMENT_EMPTY_COLUMN *element_empty_column_new(
 			void );
@@ -444,10 +484,6 @@ void element_empty_column_output(
 ELEMENT_HIDDEN *element_hidden_new(
 			void );
 
-void element_hidden_set_data(
-			ELEMENT_HIDDEN *e,
-			char *s );
-
 void element_hidden_name_dictionary_output(
 			FILE *output_file,
 			DICTIONARY *hidden_name_dictionary,
@@ -455,29 +491,27 @@ void element_hidden_name_dictionary_output(
 			char *name,
 			char *data );
 
-ELEMENT_PROMPT_DATA *element_prompt_data_new( 	void );
+ELEMENT_PROMPT_DATA *element_prompt_data_new(
+			void );
 
-char *element_prompt_data_get_heading( 		char *element_name,
-						char *heading );
+char *element_prompt_data_get_heading(
+			char *element_name,
+			char *heading );
 
-void element_prompt_data_set_data(		ELEMENT_PROMPT_DATA *e,
-						char *s );
+void element_prompt_data_output(
+			FILE *output_file,
+			char *element_name,
+			char *align,
+			char *data,
+			boolean format_initial_capital );
 
-void element_prompt_data_set_heading( 		ELEMENT_PROMPT_DATA *e,
-						char *heading );
-
-void element_prompt_data_output(		FILE *output_file,
-						char *element_name,
-						char *align,
-						char *data,
-						boolean format_initial_capital);
-
-ELEMENT_DROP_DOWN *element_drop_down_new(	void );
+ELEMENT_DROP_DOWN *element_drop_down_new(
+			void );
 
 void element_drop_down_set_option_data_option_label_list(
-						LIST **option_data_list,
-						LIST **option_label_list,
-						LIST *source_list );
+			LIST **option_data_list,
+			LIST **option_label_list,
+			LIST *source_list );
 
 void element_drop_down_output(
 			FILE *output_file,
@@ -503,128 +537,150 @@ void element_drop_down_output(
 			char *state );
 
 void element_drop_down_set_output_null_option(
-						ELEMENT_DROP_DOWN *e );
+			ELEMENT_DROP_DOWN *e );
+
 void element_drop_down_set_output_not_null_option(
-						ELEMENT_DROP_DOWN *e );
+			ELEMENT_DROP_DOWN *e );
 
 ELEMENT_NON_EDIT_MULTI_SELECT *element_non_edit_multi_select_new(
-						void );
+			void );
 
 void element_non_edit_multi_select_set_option_label_list(
-					ELEMENT_NON_EDIT_MULTI_SELECT *e,
-					LIST *l );
+			ELEMENT_NON_EDIT_MULTI_SELECT *e,
+			LIST *l );
 
 char *element_non_edit_multi_select_get_heading(
-					char *element_name );
-
+			char *element_name );
+	
 void element_non_edit_multi_select_output(
-					FILE *output_file,
-					char *element_name,
-					LIST *option_label_list );
+			FILE *output_file,
+			char *element_name,
+			LIST *option_label_list );
 
 void element_non_edit_multi_select_set_option_label_list(
-					ELEMENT_NON_EDIT_MULTI_SELECT *e,
-					LIST *l );
+			ELEMENT_NON_EDIT_MULTI_SELECT *e,
+			LIST *l );
 
-ELEMENT_LINEBREAK *element_linebreak_new( void );
+ELEMENT_LINEBREAK *element_linebreak_new(
+			void );
 
-void element_linebreak_output( 			FILE *output_file );
+void element_linebreak_output(
+			FILE *output_file );
 
 
-void element_blank_data_output(			FILE *output_file );
+void element_blank_data_output(
+			FILE *output_file );
 
-char *element_drop_down_get_heading(		char *element_name,
-						char *heading );
+char *element_drop_down_get_heading(
+			char *element_name,
+			char *heading );
 
 ELEMENT_HTTP_FILENAME *element_http_filename_new(
-						void );
-ELEMENT_ANCHOR *element_anchor_new(		void );
+			void );
 
-void element_http_filename_output(	FILE *output_file,
-					ELEMENT_HTTP_FILENAME *http_filename,
-					int row,
-					char *background_color,
-					char *element_name,
-					char *application_name );
+ELEMENT_ANCHOR *element_anchor_new(
+			void );
 
-void element_anchor_output(			FILE *output_file,
-						char *prompt,
-						char *href );
+void element_http_filename_output(
+			FILE *output_file,
+			ELEMENT_HTTP_FILENAME *http_filename,
+			int row,
+			char *background_color,
+			char *element_name,
+			char *application_name );
 
-void element_table_opening_output(		FILE *output_file );
+void element_anchor_output(
+			FILE *output_file,
+			char *prompt,
+			char *href );
 
-void element_table_row_output(			FILE *output_file );
+void element_table_opening_output(
+			FILE *output_file );
 
-void element_table_closing_output(		FILE *output_file );
+void element_table_row_output(
+			FILE *output_file );
+
+void element_table_closing_output(
+			FILE *output_file );
 
 ELEMENT_UPLOAD_FILENAME *element_upload_filename_new(
-						void );
+			void );
 
-void element_upload_filename_output(		FILE *output_file,
-						int attribute_width,
-						int row,
-						char *name );
+void element_upload_filename_output(
+			FILE *output_file,
+			int attribute_width,
+			int row,
+			char *name );
 
-void element_javascript_filename_output(	FILE *output_file,
-						char *filename );
+void element_javascript_filename_output(
+			FILE *output_file,
+			char *filename );
 
 ELEMENT_APPASERVER *element_non_edit_text_new_element(
-						char *name,
-						char *text,
-						int column_span,
-						int padding_em );
+			char *name,
+			char *text,
+			int column_span,
+			int padding_em );
 
 ELEMENT_NON_EDIT_TEXT *element_new_non_edit_text(
-						void );
+			void );
 
-void element_non_edit_text_output(		FILE *output_file,
-						char *text,
-						int column_span,
-						int padding_em );
+void element_non_edit_text_output(
+			FILE *output_file,
+			char *text,
+			int column_span,
+			int padding_em );
 
-int element_type_count(				LIST *element_list,
-						enum element_type );
+int element_type_count(	LIST *element_list,
+			enum element_type );
 
-ELEMENT_APPASERVER *element_get_yes_no_element(	char *attribute_name,
-						char *prepend_folder_name,
-						char *post_change_javascript,
-						boolean with_is_null,
-						boolean with_not_null );
+ELEMENT_APPASERVER *element_get_yes_no_element(
+			char *attribute_name,
+			char *prepend_folder_name,
+			char *post_change_javascript,
+			boolean with_is_null,
+			boolean with_not_null );
 
-LIST *element_get_shifted_option_label_list(	char **shifted_initial_label,
-						LIST *option_data_list,
-						char delimiter );
+LIST *element_get_shifted_option_label_list(
+			char **shifted_initial_label,
+			LIST *option_data_list,
+			char delimiter );
 
-int element_exists_delimiter(			char *option_data,
-						char delimiter );
+int element_exists_delimiter(
+			char *option_data,
+			char delimiter );
 
-char *element_shift_first_label(		char *data,
-						char delimiter );
+char *element_shift_first_label(
+			char *data,
+			char delimiter );
 
-char *element_data2label(			char *destination,
-						char *data,
-						boolean no_initial_capital );
+char *element_data2label(
+			char *destination,
+			char *data,
+			boolean no_initial_capital );
 
 char *element_replace_javascript_variables(
-						char *destination,
-						char *source,
-						int row,
-						char *state );
+			char *destination,
+			char *source,
+			int row,
+			char *state );
 
-char *element_delimit_drop_down_data(		char *destination,
-						char *source,
-						int date_piece_offset );
+char *element_delimit_drop_down_data(
+			char *destination,
+			char *source,
+			int date_piece_offset );
 
 void element_output_as_dictionary(
-				FILE *output_file,
-				ELEMENT_APPASERVER *element, 
-				int row );
+			FILE *output_file,
+			ELEMENT_APPASERVER *element, 
+			int row );
 
 void element_notepad_output_as_dictionary(
-						FILE *output_file,
-						char *element_name,
-						char *data,
-						int row );
+			FILE *output_file,
+			char *element_name,
+			char *data,
+			int row );
+
 void element_text_item_output_as_dictionary(
 			FILE *output_file,
 			char *element_name,
@@ -652,27 +708,27 @@ void element_reference_number_output_as_dictionary(
 			int row );
 
 void element_hidden_output(
-				FILE *output_file,
-				char *name,
-				char *data,
-				int row );
+			FILE *output_file,
+			char *name,
+			char *data,
+			int row );
 
 ELEMENT_APPASERVER *element_text_item_variant_element(
-				char *attribute_name,
-				char *datatype,
-				int width,
-				char *post_change_javascript,
-				char *on_focus_javascript_function );
+			char *attribute_name,
+			char *datatype,
+			int width,
+			char *post_change_javascript,
+			char *on_focus_javascript_function );
 
 void element_non_edit_text_output_as_dictionary(
-					FILE *output_file,
-					char *name,
-					char *text,
-					int row );
+			FILE *output_file,
+			char *name,
+			char *text,
+			int row );
 
 ELEMENT_APPASERVER *element_hidden_new_element(
-					char *name,
-					char *data );
+			char *name,
+			char *data );
 
 char *element_appaserver_list_display(
 			LIST *element_list );
@@ -680,22 +736,26 @@ char *element_appaserver_list_display(
 char *element_appaserver_display(
 			ELEMENT_APPASERVER *element );
 
-char *element_get_type_string(		enum element_type element_type );
+char *element_get_type_string(
+			enum element_type element_type );
 
 char *element_get_destination_multi_select_element_name(
-					LIST *element_list );
+			LIST *element_list );
 
-boolean element_exists_upload_filename( LIST *element_list );
+boolean element_exists_upload_filename(
+			LIST *element_list );
 
-boolean element_exists_reference_number(LIST *element_list );
+boolean element_exists_reference_number(
+			LIST *element_list );
 
 LIST *element_list2remember_keystrokes_non_multi_element_name_list(
-					LIST *element_list );
+			LIST *element_list );
 
 LIST *element_list2remember_keystrokes_multi_element_name_list(
-					LIST *element_list );
+			LIST *element_list );
 
-char *element_get_element_type_string(	enum element_type );
+char *element_get_element_type_string(
+			enum element_type );
 
 void element_date_output(
 			FILE *output_file,

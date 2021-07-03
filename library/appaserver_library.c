@@ -2584,7 +2584,8 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 			datatype,
 			element_get_type_string( http_filename ) ) == 0 )
 	{
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				http_filename, 
 				attribute_name );
 
@@ -2635,9 +2636,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 				prompt_data_plus_hidden,
 				attribute_name );
 
-		element_prompt_data_set_heading(
-				element->prompt_data,
-				element->name );
+		element->prompt_data->heading = element->name;
 
 		if ( timlib_strcmp( datatype, "float" ) == 0
 		||   timlib_strcmp( datatype, "integer" ) == 0 )
@@ -2709,13 +2708,12 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	else
 	if ( timlib_strcmp( datatype, "timestamp" ) == 0 )
 	{
-		element = element_appaserver_new( 
+		element =
+			element_appaserver_new( 
 				prompt_data,
 				attribute_name );
 
-		element_prompt_data_set_heading(
-				element->prompt_data,
-				element->name );
+		element->prompt_data->heading = element->name;
 	}
 	else
 	if ( process_parameter_list_element_name_boolean( attribute_name ) )
@@ -2747,16 +2745,14 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 		if ( is_primary_attribute )
 		{
 			char heading[ 128 ];
+
 			sprintf( heading, "*%s", element->name );
-			element_prompt_data_set_heading(
-					element->prompt_data,
-					strdup( heading ) );
+
+			element->prompt_data->heading = strdup( heading );
 		}
 		else
 		{
-			element_prompt_data_set_heading(
-					element->prompt_data,
-					element->name );
+			element->prompt_data->heading = element->name;
 		}
 	}
 	else

@@ -447,28 +447,29 @@ void form_output_trailer_post_change_javascript(
 		element = element_appaserver_new( linebreak, "" );
 
 		element_output(	
-				(DICTIONARY *)0 /* hidden_name_dictionary */,
-				element,
-				0 /* row */,
-				0 /* with_push_buttons */,
-				stdout,
-				(char *)0 /* background_color */,
-				(char *)0 /* application_name */,
-				(char *)0 /* login_name */ );
+			(DICTIONARY *)0 /* hidden_name_dictionary */,
+			element,
+			0 /* row */,
+			0 /* with_push_buttons */,
+			stdout,
+			(char *)0 /* background_color */,
+			(char *)0 /* application_name */,
+			(char *)0 /* login_name */ );
 
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				toggle_button,
 				INSERT_PUSH_BUTTON_NAME );
 
 		element_output(
-				(DICTIONARY *)0 /* hidden_name_dictionary */,
-				element,
-				0 /* row */,
-				1 /* with_push_buttons */,
-				stdout,
-				(char *)0 /* background_color */,
-				(char *)0 /* application_name */,
-				(char *)0 /* login_name */ );
+			(DICTIONARY *)0 /* hidden_name_dictionary */,
+			element,
+			0 /* row */,
+			1 /* with_push_buttons */,
+			stdout,
+			(char *)0 /* background_color */,
+			(char *)0 /* application_name */,
+			(char *)0 /* login_name */ );
 	}
 
 	if ( output_submit_reset_buttons )
@@ -522,7 +523,7 @@ void form_output_row(
 	char *dictionary_login_name = {0};
 	boolean set_data_flag;
 
-	if ( !list_reset( element_list ) ) return;
+	if ( !list_rewind( element_list ) ) return;
 
 	non_edit_element =
 		element_appaserver_new(
@@ -560,12 +561,16 @@ void form_output_row(
 		if ( row_level_non_owner_view_only
 		&&   element->element_type == password
 		&&   dictionary_login_name
-		&&   strcasecmp(	dictionary_login_name,
-					login_name ) != 0 )
+		&&   strcasecmp(
+			dictionary_login_name,
+			login_name ) != 0 )
 		{
 			non_edit_element->name = element->name;
+
 			element = non_edit_element;
+
 			element_set_data( element, "hidden" );
+
 			set_data_flag = 0;
 		}
 		else
@@ -573,8 +578,9 @@ void form_output_row(
 		&&   element->element_type != toggle_button
 		&&   element->element_type != hidden
 		&&   dictionary_login_name
-		&&   strcasecmp(	dictionary_login_name,
-					login_name ) != 0 )
+		&&   strcasecmp(
+			dictionary_login_name,
+			login_name ) != 0 )
 		{
 			non_edit_element->name = element->name;
 			element = non_edit_element;
@@ -583,10 +589,11 @@ void form_output_row(
 		if ( row_level_non_owner_view_only
 		&&   element->element_type == toggle_button
 		&&   element->name
-		&&   strcmp( element->name, "delete" )  == 0
+		&&   strcmp( element->name, "delete" ) == 0
 		&&   dictionary_login_name
-		&&   strcasecmp(	dictionary_login_name,
-					login_name ) != 0 )
+		&&   strcasecmp(
+			dictionary_login_name,
+			login_name ) != 0 )
 		{
 			non_edit_element->name = "";
 			element = non_edit_element;
@@ -599,6 +606,7 @@ void form_output_row(
 				element,
 				form_get_next_reference_number(
 					form_current_reference_number ) );
+
 			set_data_flag = 0;
 		}
 
@@ -617,7 +625,7 @@ void form_output_row(
 			{
 				element_set_data(
 					element,
-					current_value );
+					strdup( current_value ) );
 			}
 		}
 
@@ -931,10 +939,10 @@ LIST *form_get_hydrology_validation_element_list(
 				element =
 					element_appaserver_new(
 						prompt_data,
-						attribute->attribute_name);
-				element_prompt_data_set_heading(
-						element->prompt_data,
-						element->name );
+						attribute->attribute_name );
+
+				element->prompt_data->heading = element->name;
+
 				list_append( 	return_list, 
 						element, 
 						sizeof( ELEMENT_APPASERVER ) );
@@ -1218,10 +1226,13 @@ LIST *form_dictionary2hidden_element_list( DICTIONARY *dictionary )
 			key = list_get( key_list );
 			element = element_appaserver_new( hidden, key );
 			data = dictionary_get( dictionary, key );
+
 			element_set_data( element, data );
+
 			list_append( 	element_list,
 					element,
 					sizeof( ELEMENT_APPASERVER ) );
+
 		} while( list_next( key_list ) );
 	}
 	return element_list;

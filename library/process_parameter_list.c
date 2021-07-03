@@ -276,8 +276,7 @@ PROCESS_PARAMETER_LIST *process_parameter_list_new(
 	} while( list_next( parameter_record_list ) );
 
 	return p;
-
-} /* process_parameter_list_new() */
+}
 
 /* This is a statically built drop down */
 /* ------------------------------------ */
@@ -369,13 +368,15 @@ LIST *process_parameter_get_drop_down_prompt_element_list(
 		 parameter_drop_down_prompt->drop_down_prompt );
 
 	element = element_appaserver_new( hidden, strdup( buffer ) );
-	element_hidden_set_data(	element->hidden,
-					EQUAL_OPERATOR );
-	list_append_pointer( 	element_list, 
-				element );
+
+	element->hidden->data = EQUAL_OPERATOR;
+
+	list_append_pointer(
+		element_list, 
+		element );
 
 	return element_list;
-} /* process_parameter_get_drop_down_prompt_element_list() */
+}
 
 /* This is a folder without a prompt added */
 /* --------------------------------------- */
@@ -466,10 +467,12 @@ LIST *process_parameter_get_folder_element_list(
 			  	QUERY_RELATION_OPERATOR_STARTING_LABEL );
 
 	element = element_appaserver_new( hidden, element_name );
-	element_hidden_set_data(	element->hidden,
-					EQUAL_OPERATOR );
-	list_append_pointer( 	element_list, 
-				element );
+
+	element->hidden->data = EQUAL_OPERATOR;
+
+	list_append_pointer(
+		element_list, 
+		element );
 
 	if ( populate_helper_process_string
 	&&   *populate_helper_process_string )
@@ -557,7 +560,7 @@ LIST *process_parameter_get_folder_element_list(
 
 	return element_list;
 
-} /* process_parameter_get_folder_element_list() */
+}
 
 /* This is a folder with a prompt added. */
 /* ------------------------------------- */
@@ -621,7 +624,7 @@ ELEMENT_APPASERVER *process_parameter_get_folder_prompt_element(
 			folder_name );
 
 	return element;
-} /* process_parameter_get_folder_prompt_element() */
+}
 
 ELEMENT_APPASERVER *process_parameter_get_process_set_output_drop_down_element(
 					char *process_set_name,
@@ -678,7 +681,7 @@ ELEMENT_APPASERVER *process_parameter_get_process_set_output_drop_down_element(
 
 	return element;
 
-} /* process_parameter_get_process_set_output_drop_down_element() */
+}
 
 ELEMENT_APPASERVER *process_parameter_get_attribute_element(
 					PROCESS_PARAMETER *process_parameter )
@@ -695,7 +698,7 @@ ELEMENT_APPASERVER *process_parameter_get_attribute_element(
 						parameter_attribute->
 						width );
 	return element;
-} /* process_parameter_get_attribute_element() */
+}
 
 void process_parameter_set_prompt(	
 				PROCESS_PARAMETER *process_parameter,
@@ -783,7 +786,7 @@ PARAMETER_DROP_DOWN_PROMPT *parameter_drop_down_prompt_new(
 	p->multi_select = ( *drop_down_multi_select_yn == 'y' );
 
 	return p;
-} /* parameter_drop_down_prompt_new() */
+}
 
 LIST *process_parameter_get_drop_down_prompt_data_list(
 					char *application_name,
@@ -829,7 +832,7 @@ LIST *process_parameter_get_drop_down_prompt_data_list(
 
 	return pipe2list( sys_string );
 
-} /* process_parameter_get_drop_down_prompt_data_list() */
+}
 
 void process_parameter_set_drop_down_prompt(
 					PROCESS_PARAMETER *process_parameter,
@@ -882,7 +885,7 @@ PARAMETER_FOLDER *parameter_folder_new(
 	p->multi_select = ( *drop_down_multi_select_yn == 'y' );
 
 	return p;
-} /* parameter_folder_new() */
+}
 
 LIST *process_parameter_get_primary_key_and_data_list(
 			LIST **primary_key_list,
@@ -953,7 +956,7 @@ LIST *process_parameter_get_primary_key_and_data_list(
 			process_name,
 			prompt );
 
-} /* process_parameter_get_primary_key_and_data_list() */
+}
 
 LIST *process_parameter_get_primary_data_list(
 			char *login_name,
@@ -1096,14 +1099,14 @@ FOLDER *process_parameter_get_and_set_distinct_folder(
 					folder );
 	}
 	return folder;
-} /* process_parameter_get_and_set_distinct_folder() */
+}
 
 PROCESS_PARAMETER *process_parameter_new()
 {
 	PROCESS_PARAMETER *p = (PROCESS_PARAMETER *)
 				calloc( 1, sizeof( PROCESS_PARAMETER ) );
 	return p;
-} /* process_parameter_new() */
+}
 
 LIST *process_parameter_get_prompt_element_list(
 				PROCESS_PARAMETER *process_parameter,
@@ -1144,12 +1147,11 @@ LIST *process_parameter_get_prompt_element_list(
 
 	element = element_appaserver_new( hidden, strdup( element_name ) );
 
-	element_hidden_set_data(
-			element->hidden,
-			EQUAL_OPERATOR );
+	element->hidden->data = EQUAL_OPERATOR;
 
-	list_append_pointer( 	element_list, 
-				element );
+	list_append_pointer(
+		element_list, 
+		element );
 
 	/* Create the from operand (note: no "to" operand) */
 	/* ----------------------------------------------- */
@@ -1234,7 +1236,7 @@ LIST *process_parameter_get_prompt_element_list(
 					element );
 	}
 	return element_list;
-} /* process_parameter_get_prompt_element_list() */
+}
 
 
 /* ----------------------- */
@@ -1302,7 +1304,7 @@ LIST *process_parameter_get_folder_prompt_element_list(
 					element );
 	}
 	return element_list;
-} /* process_parameter_get_folder_prompt_element_list() */
+}
 
 
 LIST *process_parameter_get_attribute_element_list(
@@ -1490,7 +1492,7 @@ LIST *process_parameter_get_attribute_element_list(
 					element );
 	}
 	return element_list;
-} /* process_parameter_get_attribute_element_list() */
+}
 
 LIST *process_parameter_get_process_set_output_element_list(
 				char *process_set_name,
@@ -1533,7 +1535,7 @@ LIST *process_parameter_get_process_set_output_element_list(
 				element );
 
 	return element_list;
-} /* process_parameter_get_process_set_output_element_list() */
+}
 
 
 char *process_parameter_list_display( PROCESS_PARAMETER_LIST *p )
@@ -1569,7 +1571,7 @@ char *process_parameter_list_display( PROCESS_PARAMETER_LIST *p )
 	} while( list_next( p->process_parameter_list ) );
 
 	return strdup( buffer );
-} /* process_parameter_list_display() */
+}
 
 /* Output format: folder^attribute^prompt^input_width^hint_message^drop_down_multi_select_yn^populate_drop_down_process^upload_filename_yn^prompt_date_yn^populate_help_process */
 

@@ -303,9 +303,10 @@ LIST *related_folder_drop_down_element_list(
 	/* Create the line break */
 	/* --------------------- */
 	element = element_appaserver_new( linebreak, "" );
+
 	list_append_pointer(
-			return_list, 
-			element );
+		return_list, 
+		element );
 
 	if ( !omit_ignore_push_buttons
 	&&   ignore_or_no_display_push_button_prefix
@@ -320,7 +321,8 @@ LIST *related_folder_drop_down_element_list(
 			  	foreign_attribute_name_list,
 			  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				toggle_button, 
 				strdup( element_name ) );
 
@@ -364,9 +366,7 @@ LIST *related_folder_drop_down_element_list(
 					buffer, 
 					element_name ) ) );
 
-	list_append_pointer(
-			return_list, 
-			element );
+	list_append_pointer( return_list, element );
 
 	/* Create the drop down element */
 	/* ---------------------------- */
@@ -433,8 +433,8 @@ LIST *related_folder_drop_down_element_list(
 	element->tab_index = tab_index;
 
 	list_append_pointer(
-			return_list, 
-			element );
+		return_list, 
+		element );
 
 	set_option_data_option_label_list = 1;
 
@@ -525,9 +525,7 @@ LIST *related_folder_drop_down_element_list(
 				non_edit_text,
 				hint_message );
 
-		list_append_pointer(
-				return_list, 
-				element );
+		list_append_pointer( return_list, element );
 	}
 
 	/* Create the hidden equals operator */
@@ -544,9 +542,7 @@ LIST *related_folder_drop_down_element_list(
 
 	element->hidden->data = "equals";
 
-	list_set(
-		return_list, 
-		element );
+	list_set( return_list, element );
 
 	return return_list;
 }
@@ -895,7 +891,8 @@ LIST *related_folder_insert_element_list(
 
 	if ( prompt_data_element_only )
 	{
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				prompt_data,
 				list_display_delimited(
 					foreign_attribute_name_list,
@@ -914,15 +911,14 @@ LIST *related_folder_insert_element_list(
 		/* Create a hidden element   */
 		/* so delete will work.      */
 		/* ------------------------- */
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				hidden,
 				list_display_delimited(
 					foreign_attribute_name_list,
 					MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
-		list_append_pointer(
-				element_list, 
-				element );
+		list_append_pointer( element_list, element );
 
 		return element_list;
 
@@ -992,8 +988,8 @@ LIST *related_folder_insert_element_list(
 			0 /* recursive_level */ );
 
 	list_append_pointer(
-			element_list, 
-			element );
+		element_list, 
+		element );
 
 	if ( !related_folder->omit_lookup_before_drop_down
 	&&   ajax_fill_drop_down_related_folder
@@ -1164,8 +1160,8 @@ LIST *related_folder_update_element_list(
 			element->prompt_data->format_initial_capital = 1;
 
 		list_append_pointer(
-				element_list, 
-				element );
+			element_list, 
+			element );
 	
 		/* ------------------------- */
 		/* Create a hidden element   */
@@ -1178,8 +1174,8 @@ LIST *related_folder_update_element_list(
 			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
 
 		list_append_pointer(
-				element_list, 
-				element );
+			element_list, 
+			element );
 
 		return element_list;
 
@@ -1370,8 +1366,8 @@ LIST *related_folder_get_edit_lookup_element_list(
 				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
 	list_append_pointer(
-			element_list, 
-			element );
+		element_list, 
+		element );
 
 	/* ------------------------- */
 	/* Create a hidden element   */
@@ -1384,8 +1380,9 @@ LIST *related_folder_get_edit_lookup_element_list(
 		  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
 
 	list_append_pointer(
-			element_list, 
-			element );
+		element_list, 
+		element );
+
 	return element_list;
 }
 
@@ -3536,16 +3533,16 @@ LIST *related_folder_get_non_edit_multi_element_list(
 
 	return_list = list_new_list();
 
-	element = element_appaserver_new(
+	element =
+		element_appaserver_new(
 			non_edit_multi_select,
 			folder_name );
 
 	list_append_pointer(
-			return_list, 
-			element );
+		return_list, 
+		element );
 
 	return return_list;
-
 }
 
 boolean related_folder_mto1_exists_drop_down_multi_select(
@@ -4419,9 +4416,8 @@ LIST *related_folder_prompt_element_list(
 	/* Create the line break */
 	/* --------------------- */
 	element = element_appaserver_new( linebreak, "" );
-	list_append_pointer(
-			return_list, 
-			element );
+
+	list_append_pointer( return_list, element );
 
 	if ( !omit_ignore_push_buttons
 	&&   ignore_or_no_display_push_button_prefix
@@ -4436,7 +4432,8 @@ LIST *related_folder_prompt_element_list(
 			  	foreign_attribute_name_list,
 			  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				toggle_button, 
 				strdup( element_name ) );
 
@@ -4481,8 +4478,8 @@ LIST *related_folder_prompt_element_list(
 					element_name ) ) );
 
 	list_append_pointer(
-			return_list, 
-			element );
+		return_list, 
+		element );
 
 	sprintf(element_name, 
 	 	"%s",
@@ -4499,7 +4496,8 @@ LIST *related_folder_prompt_element_list(
 				QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL,
 				element_name );
 
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				drop_down,
 				strdup( drop_down_element_name ) );
 
@@ -4509,7 +4507,8 @@ LIST *related_folder_prompt_element_list(
 	}
 	else
 	{
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				drop_down,
 				strdup( element_name ) );
 
@@ -4624,8 +4623,8 @@ LIST *related_folder_prompt_element_list(
 				hint_message );
 
 		list_append_pointer(
-				return_list, 
-				element );
+			return_list, 
+			element );
 	}
 
 	/* Create the hidden equals operator */
@@ -4744,22 +4743,23 @@ LIST *related_folder_edit_table_element_list(
 			element->prompt_data->format_initial_capital = 1;
 
 		list_append_pointer(
-				element_list, 
-				element );
+			element_list, 
+			element );
 	
 		/* ------------------------- */
 		/* Create a hidden element   */
 		/* so delete will work.      */
 		/* ------------------------- */
-		element = element_appaserver_new( 
-			hidden,
-			list_display_delimited(
-			  foreign_attribute_name_list,
-			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
+		element =
+			element_appaserver_new( 
+				hidden,
+				list_display_delimited(
+			  		foreign_attribute_name_list,
+			  		MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
 		list_append_pointer(
-				element_list, 
-				element );
+			element_list, 
+			element );
 
 		return element_list;
 
@@ -4975,9 +4975,8 @@ LIST *related_folder_prompt_insert_element_list(
 	/* Create the line break */
 	/* --------------------- */
 	element = element_appaserver_new( linebreak, "" );
-	list_append_pointer(
-			return_list, 
-			element );
+
+	list_append_pointer( return_list, element );
 
 	if ( !omit_ignore_push_buttons
 	&&   ignore_or_no_display_push_button_prefix
@@ -4992,7 +4991,8 @@ LIST *related_folder_prompt_insert_element_list(
 			  	foreign_attribute_name_list,
 			  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				toggle_button, 
 				strdup( element_name ) );
 
@@ -5025,10 +5025,11 @@ LIST *related_folder_prompt_insert_element_list(
 		}
 		else
 		{
-			list_append_pointer(	return_list,
-						element_appaserver_new(
-							empty_column,
-							"" ) );
+			list_append_pointer(
+				return_list,
+				element_appaserver_new(
+					empty_column,
+					"" ) );
 		}
 	}
 
@@ -5064,8 +5065,8 @@ LIST *related_folder_prompt_insert_element_list(
 					element_name ) ) );
 
 	list_append_pointer(
-			return_list, 
-			element );
+		return_list, 
+		element );
 
 	sprintf(element_name, 
 	 	"%s",
@@ -5082,17 +5083,20 @@ LIST *related_folder_prompt_insert_element_list(
 				QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL,
 				element_name );
 
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				drop_down,
 				strdup( drop_down_element_name ) );
 
 		element->drop_down->multi_select = 1;
+
 		element->drop_down->multi_select_element_name =
 			strdup( element_name );
 	}
 	else
 	{
-		element = element_appaserver_new(
+		element =
+			element_appaserver_new(
 				drop_down,
 				strdup( element_name ) );
 
@@ -5203,8 +5207,8 @@ LIST *related_folder_prompt_insert_element_list(
 				hint_message );
 
 		list_append_pointer(
-				return_list, 
-				element );
+			return_list, 
+			element );
 	}
 
 	/* Create the hidden equals operator */
@@ -5531,18 +5535,19 @@ LIST *related_folder_regular_element_list(
 			element->prompt_data->format_initial_capital = 1;
 
 		list_append_pointer(
-				element_list, 
-				element );
+			element_list, 
+			element );
 	
 		/* ------------------------- */
 		/* Create a hidden element   */
 		/* so delete will work.      */
 		/* ------------------------- */
-		element = element_appaserver_new( 
-			hidden,
-			list_display_delimited(
-				foreign_attribute_name_list,
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
+		element =
+			element_appaserver_new( 
+				hidden,
+				list_display_delimited(
+					foreign_attribute_name_list,
+					MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
 		list_set( element_list, element );
 
