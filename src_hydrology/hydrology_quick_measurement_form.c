@@ -516,17 +516,17 @@ LIST *get_element_list(
 		||   strcmp(	attribute->attribute_name,
 				"measurement_time" ) == 0 )
 		{
-			element = element_appaserver_new(
+			element =
+				element_appaserver_new(
 					prompt_data,
 					attribute->attribute_name);
 
-			element_prompt_data_set_heading(
-					element->prompt_data,
-					element->name );
+			element->prompt_data->heading = element->name;
 
-			list_append( 	return_list,
-					element,
-					sizeof( ELEMENT_APPASERVER ) );
+			list_append(
+				return_list,
+				element,
+				sizeof( ELEMENT_APPASERVER ) );
 		}
 		else
 		/* ------------------------------- */
