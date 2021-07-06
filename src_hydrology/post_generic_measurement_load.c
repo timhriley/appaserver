@@ -148,10 +148,12 @@ int main( int argc, char **argv )
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+	environ_appaserver_home();
 
-	login_name = session_get_login_name(
-				application_name,
-				session );
+	login_name =
+		session_get_login_name(
+			application_name,
+			session );
 
 	if ( session_remote_ip_address_changed(
 		application_name,
