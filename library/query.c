@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "appaserver_library.h"
 #include "timlib.h"
+#include "security.h"
 #include "list_usage.h"
 #include "form.h"
 #include "query.h"
@@ -2091,7 +2092,7 @@ QUERY_DROP_DOWN_ROW *query_process_drop_down_row_new(
 
 		list_set(
 			local_data_list,
-			timlib_sql_injection_escape( data ) );
+			security_sql_injection_escape( data ) );
 
 	} while( list_next( data_list ) );
 
@@ -2185,7 +2186,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 
 			list_set_pointer(
 				local_data_list,
-				timlib_sql_injection_escape( data ) );
+				security_sql_injection_escape( data ) );
 		}
 		else
 		{
@@ -2446,7 +2447,7 @@ boolean query_get_drop_down_dictionary_data(
 			primary_attribute_name,
 			dictionary_offset );
 
-	*data = timlib_sql_injection_escape( *data );
+	*data = security_sql_injection_escape( *data );
 
 	if ( return_value == -1 )
 	{
@@ -2691,7 +2692,7 @@ char *query_get_data_escaped(
 	if ( !results || !from_data || !*from_data ) return (char *)0;
 
 	from_data_escaped =
-		timlib_sql_injection_escape(
+		security_sql_injection_escape(
 			from_data );
 
 	return strdup( from_data_escaped );
@@ -5600,7 +5601,7 @@ char *query_key_list_where_clause(
 		if ( i ) ptr += sprintf( ptr, " and" );
 
 		escaped_data =
-			timlib_sql_injection_escape(
+			security_sql_injection_escape(
 				piece_buffer );
 
 		ptr += sprintf(
@@ -7683,7 +7684,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_edit_table_new(
 
 			list_set(
 				local_data_list,
-				timlib_sql_injection_escape( data ) );
+				security_sql_injection_escape( data ) );
 		}
 		else
 		{
@@ -8441,7 +8442,7 @@ char *query_where_clause(
 		if ( i ) ptr += sprintf( ptr, " and" );
 
 		escaped_data =
-			timlib_sql_injection_escape(
+			security_sql_injection_escape(
 				piece_buffer );
 
 		ptr += sprintf(

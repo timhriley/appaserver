@@ -13,6 +13,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "timlib.h"
+#include "security.h"
 #include "piece.h"
 #include "list.h"
 #include "folder.h"
@@ -60,10 +61,10 @@ int main( int argc, char **argv )
 	if ( !*application_name )
 	{
 		dictionary_get_index_data(
-				&application_name,
-				post_dictionary,
-				"application_key",
-				0 );
+			&application_name,
+			post_dictionary,
+			"application_key",
+			0 );
 	}
 
 	if ( !*application_name )
@@ -87,10 +88,10 @@ int main( int argc, char **argv )
 			application_name );
 
 	dictionary_get_index_data(
-			&login_name,
-			post_dictionary,
-			"login_name",
-			0 );
+		&login_name,
+		post_dictionary,
+		"login_name",
+		0 );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
@@ -98,38 +99,38 @@ int main( int argc, char **argv )
 	environ_set_utc_offset( application_name );
 
 	login_name =
-		timlib_sql_injection_escape(
-				login_name );
+		security_sql_injection_escape(
+			login_name );
 
 	appaserver_error_login_name_append_file(
-				argc,
-				argv,
-				application_name,
-				login_name );
+		argc,
+		argv,
+		application_name,
+		login_name );
 
 	dictionary_get_index_data(
-			&password,
-			post_dictionary,
-			"password",
-			0 );
+		&password,
+		post_dictionary,
+		"password",
+		0 );
 
 	dictionary_get_index_data(
-			&signup_yn,
-			post_dictionary,
-			"signup_yn",
-			0 );
+		&signup_yn,
+		post_dictionary,
+		"signup_yn",
+		0 );
 
 	dictionary_get_index_data(
-			&login_yn,
-			post_dictionary,
-			"login_yn",
-			0 );
+		&login_yn,
+		post_dictionary,
+		"login_yn",
+		0 );
 
 	dictionary_get_index_data(
-			&application_title,
-			post_dictionary,
-			"application_title",
-			0 );
+		&application_title,
+		post_dictionary,
+		"application_title",
+		0 );
 
 	if ( signup_yn && *signup_yn && *signup_yn == 'y' )
 	{
@@ -221,12 +222,19 @@ int main( int argc, char **argv )
 
 		database_password = get_line_system( sys_string );
 
-		password_match_return =
-			post_login_password_match(
+		if ( !database_password || !*database_password )
+		{
+			password_match_return = password_fail;
+		}
+		else
+		{
+			password_match_return =
+				post_login_password_match(
 					application_name,
 					login_name,
 					password,
 					database_password );
+		}
 
 		if ( password_match_return == password_match
 		||   password_match_return == public_login
@@ -265,9 +273,9 @@ int main( int argc, char **argv )
                                 login_name );
 
 			post_login_redraw_index_screen(
-					APPLICATION_NAME,
-					CLOUDACUS_LOCATION,
-					"invalid_login_yn=y" );
+				APPLICATION_NAME,
+				CLOUDACUS_LOCATION,
+				"invalid_login_yn=y" );
 			sleep( 2 );
 			exit ( 1 );
 		}
