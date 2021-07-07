@@ -244,15 +244,6 @@ boolean appaserver_user_password_match(
 		return 0;
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: injection_escaped_encrypted_password = %x\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-(int)injection_escaped_encrypted_password );
-m2( environment_application_name(), msg );
-}
 	return ( strcmp(
 			injection_escaped_encrypted_password,
 			database_password ) == 0 );

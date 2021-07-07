@@ -121,15 +121,6 @@ enum password_match_return post_login_password_match(
 		security_sql_injection_escape(
 			typed_in_password );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: password_injection_escape = %x\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-(int)password_injection_escape );
-m2( environment_application(), msg );
-}
 	if ( timlib_strncmp( login_name, "public" ) == 0
 	||   timlib_exists_string( login_name, "_public" ) )
 	{
