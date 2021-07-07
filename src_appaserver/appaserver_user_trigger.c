@@ -76,7 +76,7 @@ void appaserver_user_trigger_insert_update(
 			APPASERVER_USER *appaserver_user,
 			char *application_name )
 {
-	if ( !appaserver_user_password_encrypted(
+	if ( !security_password_encrypted(
 		appaserver_user->database_password ) )
 	{
 		FILE *update_pipe;
@@ -85,21 +85,25 @@ void appaserver_user_trigger_insert_update(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			appaserver_user_encrypted_password(
+			security_encrypted_password(
 				application_name,
-				appaserver_user->database_password,
-				appaserver_user_mysql_version_password_function(
-					appaserver_user_mysql_version() ) );
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				security_sql_injection_escape(
+					appaserver_user->database_password )
+					    /* password_sql_injection_escape */,
+				security_mysql_version_password_function(
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					security_mysql_version() ) );
 
 		update_pipe = appaserver_user_update_open();
 
 		appaserver_user_update(
 			update_pipe,
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			security_sql_injection_escape(
-				appaserver_user->encrypted_password ),
+			appaserver_user->encrypted_password,
 			appaserver_user->login_name );
 
 		pclose( update_pipe );

@@ -6,6 +6,8 @@
 #ifndef POST_LOGIN_LIBRARY_H
 #define POST_LOGIN_LIBRARY_H
 
+#include "security.h"
+
 #define CLOUDACUS_LOCATION		"https://cloudacus.com:/index.php"
 #define RETURN_ADDRESS			"login@cloudacus.com"
 #define SUBJECT				"Appaserver login"

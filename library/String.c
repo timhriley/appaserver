@@ -304,47 +304,6 @@ LIST *string_negative_sequence_occurrance_list( char *source )
 	return occurrance_list;
 }
 
-char *string_escape(
-			char *destination,
-			char *source,
-			char *character_array )
-{
-	return string_escape_character_array(
-			destination,
-			source,
-			character_array );
-}
-
-char *string_escape_character_array(
-			char *destination,
-			char *source,
-			char *character_array )
-{
-	char local_source[ QUERY_WHERE_BUFFER ];
-
-	string_strcpy( local_source, source, QUERY_WHERE_BUFFER );
-
-	while ( *character_array )
-	{
-		string_escape_character(
-			destination,
-			local_source,
-			*character_array
-				/* character_to_escape */ );
-
-		character_array++;
-
-		if ( *character_array )
-		{
-			string_strcpy(
-				local_source,
-				destination,
-				QUERY_WHERE_BUFFER );
-		}
-	}
-	return destination;
-}
-
 char *string_escape_quote(
 			char *destination,
 			char *source )
@@ -984,5 +943,46 @@ char *security_escape_character_array(
 	*destination = '\0';
 
 	return destination_anchor;
+}
+
+char *string_escape(
+			char *destination,
+			char *source,
+			char *character_array )
+{
+	return string_escape_character_array(
+			destination,
+			source,
+			character_array );
+}
+
+char *string_escape_character_array(
+			char *destination,
+			char *source,
+			char *character_array )
+{
+	char local_source[ QUERY_WHERE_BUFFER ];
+
+	string_strcpy( local_source, source, QUERY_WHERE_BUFFER );
+
+	while ( *character_array )
+	{
+		string_escape_character(
+			destination,
+			local_source,
+			*character_array
+				/* character_to_escape */ );
+
+		character_array++;
+
+		if ( *character_array )
+		{
+			string_strcpy(
+				local_source,
+				destination,
+				QUERY_WHERE_BUFFER );
+		}
+	}
+	return destination;
 }
 

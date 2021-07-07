@@ -149,12 +149,19 @@ int main( int argc, char **argv )
 
 	database_password = get_line_system( sys_string );
 
-	password_match_return =
-		post_login_password_match(
-			application_name,
-			login_name,
-			password,
-			database_password );
+	if ( !database_password || !*database_password )
+	{
+		password_match_return = password_fail;
+	}
+	else
+	{
+		password_match_return =
+			post_login_password_match(
+				application_name,
+				login_name,
+				password,
+				database_password );
+	}
 
 	if ( password_match_return == password_match
 	||   password_match_return == public_login

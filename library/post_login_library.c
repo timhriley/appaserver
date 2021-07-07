@@ -112,15 +112,6 @@ enum password_match_return post_login_password_match(
 			char *typed_in_password,
 			char *database_password )
 {
-	char *password_injection_escape;
-
-	password_injection_escape =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		security_sql_injection_escape(
-			typed_in_password );
-
 	if ( timlib_strncmp( login_name, "public" ) == 0
 	||   timlib_exists_string( login_name, "_public" ) )
 	{
@@ -153,12 +144,17 @@ enum password_match_return post_login_password_match(
 		return password_match;
 	}
 	else
-	if ( appaserver_user_password_match(
+	if ( security_password_match(
 			database_password,
-			appaserver_user_encrypted_password(
+			security_encrypted_password(
 				application_name,
-				password_injection_escape,
-				appaserver_user_database_password_function(
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				security_sql_injection_escape(
+					typed_in_password )
+					    /* password_sql_injection_escape */,
+				security_database_password_function(
 					   database_password ) ) ) )
 	{
 		return password_match;
