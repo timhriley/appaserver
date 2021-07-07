@@ -119,14 +119,17 @@ int main( int argc, char **argv )
 	}
 
 	login_name =
-		timlib_sql_injection_escape(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_injection_escape(
 			login_name );
 
 	appaserver_error_login_name_append_file(
-				argc,
-				argv,
-				application_name,
-				login_name );
+		argc,
+		argv,
+		application_name,
+		login_name );
 
 	dictionary_get_index_data(
 			&password,

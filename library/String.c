@@ -14,6 +14,7 @@
 #include "float.h"
 #include "timlib.h"
 #include "piece.h"
+#include "query.h"
 #include "String.h"
 
 /* Class variables */
@@ -319,20 +320,27 @@ char *string_escape_character_array(
 			char *source,
 			char *character_array )
 {
-	char local_source[ 1024 ];
+	char local_source[ QUERY_WHERE_BUFFER ];
 
-	strcpy( local_source, source );
+	string_strcpy( local_source, source, QUERY_WHERE_BUFFER );
 
 	while ( *character_array )
 	{
-		destination =
-			string_escape_character(
-				destination,
-				local_source,
-				*character_array
-					/* character_to_escape */ );
+		string_escape_character(
+			destination,
+			local_source,
+			*character_array
+				/* character_to_escape */ );
+
 		character_array++;
-		strcpy( local_source, destination );
+
+		if ( *character_array )
+		{
+			string_strcpy(
+				local_source,
+				destination,
+				QUERY_WHERE_BUFFER );
+		}
 	}
 	return destination;
 }
@@ -474,6 +482,7 @@ char *string_escape_character(
 	{
 		if ( *data == character_to_escape )
 			*destination++ = '\\';
+
 		*destination++ = *data++;
 	}
 	*destination = '\0';

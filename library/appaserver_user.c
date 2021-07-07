@@ -15,6 +15,7 @@
 #include "environ.h"
 #include "sql.h"
 #include "appaserver_library.h"
+#include "appaserver_error.h"
 #include "boolean.h"
 #include "piece.h"
 #include "folder.h"
@@ -196,6 +197,16 @@ char *appaserver_user_encrypted_password(
 
 	sprintf( where, "application = '%s'", application_name );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: password = %x [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+(int)password,
+password );
+m2( environment_application(), msg );
+}
 	if ( ! ( select_clause = 
 			appaserver_user_encryption_select_clause(
 				password_function,

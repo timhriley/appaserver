@@ -149,11 +149,8 @@ enum password_match_return post_login_password_match(
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */
-				/*
 				security_sql_injection_escape(
 					typed_in_password ),
-				*/
-				typed_in_password,
 				appaserver_user_database_password_function(
 					   database_password ) ) ) )
 	{
@@ -173,7 +170,6 @@ enum password_match_return post_login_password_match(
 	}
 
 	return password_fail;
-
 }
 
 void post_login_output_frameset(
