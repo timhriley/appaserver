@@ -26,6 +26,7 @@
 #include "post2dictionary.h"
 #include "appaserver_parameter_file.h"
 #include "application.h"
+#include "security.h"
 #include "post_login_library.h"
 
 #define SECONDS_TO_SLEEP		2
