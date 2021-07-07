@@ -197,6 +197,7 @@ char *appaserver_user_encrypted_password(
 
 	sprintf( where, "application = '%s'", application_name );
 
+/*
 {
 char msg[ 65536 ];
 sprintf( msg, "%s/%s()/%d: password = %x [%s]\n",
@@ -207,6 +208,7 @@ __LINE__,
 password );
 m2( environment_application(), msg );
 }
+*/
 	if ( ! ( select_clause = 
 			appaserver_user_encryption_select_clause(
 				password_function,
