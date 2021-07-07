@@ -197,18 +197,6 @@ char *appaserver_user_encrypted_password(
 
 	sprintf( where, "application = '%s'", application_name );
 
-/*
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: password = %x [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-(int)password,
-password );
-m2( environment_application(), msg );
-}
-*/
 	if ( ! ( select_clause = 
 			appaserver_user_encryption_select_clause(
 				password_function,
@@ -256,6 +244,15 @@ boolean appaserver_user_password_match(
 		return 0;
 	}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: injection_escaped_encrypted_password = %x\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+(int)injection_escaped_encrypted_password );
+m2( environment_application_name(), msg );
+}
 	return ( strcmp(
 			injection_escaped_encrypted_password,
 			database_password ) == 0 );

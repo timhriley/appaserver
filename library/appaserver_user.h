@@ -158,4 +158,8 @@ void appaserver_user_update(
 			FILE *update_pipe,
 			char *injection_escaped_password,
 			char *login_name );
+enum password_function
+	appaserver_user_database_password_function(
+			char *database_password );
+
 #endif

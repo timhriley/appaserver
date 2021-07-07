@@ -14,6 +14,8 @@
 #include "appaserver_parameter_file.h"
 #include "appaserver_error.h"
 #include "appaserver_user.h"
+#include "security.h"
+#include "environ.h"
 #include "post_login_library.h"
 
 boolean post_login_email_login(
@@ -110,6 +112,24 @@ enum password_match_return post_login_password_match(
 			char *typed_in_password,
 			char *database_password )
 {
+	char *password_injection_escape;
+
+	password_injection_escape =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_injection_escape(
+			typed_in_password );
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: password_injection_escape = %x\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+(int)password_injection_escape );
+m2( environment_application(), msg );
+}
 	if ( timlib_strncmp( login_name, "public" ) == 0
 	||   timlib_exists_string( login_name, "_public" ) )
 	{
@@ -146,14 +166,7 @@ enum password_match_return post_login_password_match(
 			database_password,
 			appaserver_user_encrypted_password(
 				application_name,
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-/*
-				security_sql_injection_escape(
-					typed_in_password ),
-*/
-				typed_in_password,
+				password_injection_escape,
 				appaserver_user_database_password_function(
 					   database_password ) ) ) )
 	{

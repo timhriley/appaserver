@@ -25,12 +25,11 @@ char *security_sql_injection_escape( char *source )
 
 {
 char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: returning = %x [%s]\n",
+sprintf( msg, "%s/%s()/%d: returning = %x\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
-(int)return_destination,
-return_destination );
+(int)return_destination );
 m2( environment_application(), msg );
 }
 	return return_destination;
