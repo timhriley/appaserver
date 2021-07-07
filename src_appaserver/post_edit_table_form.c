@@ -991,6 +991,7 @@ update_database_update_row_list_display( update_database->update_row_list ) );
 m2( application_name, msg );
 }
 */
+
 	cells_updated =
 		update_database_cells_updated(
 			update_database->update_row_list );

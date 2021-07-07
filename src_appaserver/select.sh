@@ -22,23 +22,11 @@ fi
 
 if [ "$#" -lt 2 ]
 then
-	echo "Usage: `basename.e $0 n` select table [where] [order]" 1>&2
-	exit 1
-fi
-
-if [ "$APPASERVER_HOME" = "" ]
-then
-	echo "ERROR in `basename.e $0 n`: APPASERVER_HOME not set" 1>&2
+	echo "Usage: `basename.e $0 n` \*|attribute[,attribute] table [where] [order]" 1>&2
 	exit 1
 fi
 
 select="$1"
-
-if [ "$select" = "" -o "$select" = "select" ]
-then
-	select="*"
-fi
-
 table="$2"
 
 if [ "$#" -gt 2 ]
@@ -53,6 +41,8 @@ else
 	where="1=1"
 fi
 
+where=`echo $where | sed 's/^where //'`
+
 if [ "$#" -gt 3 ]
 then
 	order="$4"
@@ -65,12 +55,17 @@ else
 	order="none"
 fi
 
-$APPASERVER_HOME/src_appaserver/select				\
-			application="$application"		\
-			select="$select"			\
-			folder="$table"				\
-			where="$where"				\
-			order="$order"
+if [ "$select" = "" -o "$select" = "select" ]
+then
+	select=`attribute_list $table`
+fi
+
+if [ "$order" = "none" ]
+then
+	echo "select $select from $table where $where;" | sql
+else
+	echo "select $select from $table where $where order by $order;" | sql
+fi
 
 exit 0
 
