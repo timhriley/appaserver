@@ -33,7 +33,7 @@ typedef struct
 	char *attribute_name;
 	char *attribute_datatype;
 	char *old_data;
-	char *new_data;
+	char *escaped_replaced_new_data;
 	int changed_primary_key_index;
 } CHANGED_ATTRIBUTE;
 
@@ -116,7 +116,7 @@ CHANGED_ATTRIBUTE *update_changed_attribute_new(
 			char *attribute_name,
 			char *attribute_datatype,
 			char *old_data,
-			char *new_data );
+			char *escaped_replaced_new_data );
 
 UPDATE_FOLDER *update_database_update_folder_new(
 			char *folder_name );

@@ -15,18 +15,6 @@
 #include "environ.h"
 #include "security.h"
 
-char *security_sql_injection_escape( char *source )
-{
-	char destination[ QUERY_WHERE_BUFFER ];
-
-	string_escape_character_array(
-		destination,
-		source,
-		"`'$;%" );
-
-	return strdup( destination );
-}
-
 boolean security_password_match(
 			char *database_password,
 			char *injection_escaped_encrypted_password )
@@ -209,5 +197,27 @@ boolean security_password_encrypted(
 		return 0;
 	else
 		return 1;
+}
+
+char *security_replace_special_characters(
+			char *data )
+{
+	/* search_replace_string( data, "`", "'" ); */
+	search_replace_string( data, "\\", "/" );
+	search_replace_string( data, "\"", "'" );
+
+	return data;
+}
+
+char *security_sql_injection_escape( char *source )
+{
+	char destination[ QUERY_WHERE_BUFFER ];
+
+	string_escape_character_array(
+		destination,
+		source,
+		"`'$;%&=" );
+
+	return strdup( destination );
 }
 

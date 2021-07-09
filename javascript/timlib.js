@@ -24,14 +24,14 @@ function timlib_prevent_carrot( theEvent, element )
 
 	// Replace & with and
 	// ------------------
-	if ( theEvent.shiftKey && theEvent.keyCode == 55 )
-	{
-		len = element.value.length;
-		without_character = element.value.substr( 0, len - 1 );
-		new_value = without_character.concat( "and" );
-		alert( "Sorry. Will replace with 'and'" );
-		element.value = new_value;
-	}
+	// if ( theEvent.shiftKey && theEvent.keyCode == 55 )
+	// {
+		// len = element.value.length;
+		// without_character = element.value.substr( 0, len - 1 );
+		// new_value = without_character.concat( "and" );
+		// alert( "Sorry. Will replace with 'and'" );
+		// element.value = new_value;
+	// }
 
 	return true;
 }

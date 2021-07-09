@@ -311,22 +311,24 @@ int main( int argc, char **argv )
 		char counter_string[ 128 ];
 
 		sprintf( counter_string, "%d", counter );
-		dictionary_add_string( 	parameter_dictionary,
-					"count",
-					counter_string );
+
+		dictionary_add_string(
+			parameter_dictionary,
+			"count",
+			counter_string );
 
 		measurement_update_parameter_save(
-				measurement_update_parameter );
+			measurement_update_parameter );
 
 		process_increment_execution_count(
-				application_name,
-				PROCESS_NAME,
-				appaserver_parameter_file_get_dbms() );
+			application_name,
+			PROCESS_NAME,
+			appaserver_parameter_file_get_dbms() );
 	}
 	printf( "%d\n", counter );
 
-	exit( 0 );
-} /* main() */
+	return 0;
+}
 
 void output_buffer(		char *buffer,
 				char *results_string )

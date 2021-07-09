@@ -22,7 +22,7 @@
 typedef struct
 {
 	char *attribute_name;
-	char *data;
+	char *escaped_replaced_data;
 } INSERT_DATABASE_ATTRIBUTE_DATA;
 
 typedef struct
@@ -50,7 +50,8 @@ typedef struct
 /* ---------- */
 INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data_new(
 			char *attribute_name,
-			char *data );
+			char *attribute_datatype,
+			char *escaped_replaced_data );
 
 INSERT_DATABASE *insert_database_new(
 			char *application_name,
@@ -267,13 +268,15 @@ void insert_database_direct_attribute_data_list(
 			LIST *done_attribute_name_list,
 			LIST *attribute_name_list,
 			DICTIONARY *row_dictionary,
-			int row );
+			int row,
+			LIST *attribute_list );
 
 void insert_database_set_attribute_data_list(
 			LIST *attribute_data_list,
 			LIST *done_attribute_name_list,
 			char *attribute_name_string,
 			char *data_string,
-			int length );
+			int length,
+			LIST *attribute_list );
 
 #endif

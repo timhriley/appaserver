@@ -103,7 +103,9 @@ void measurement_update_parameter_save_event(
 				     "measurement_update_event" );
 
 	sprintf( sys_string,
-		 "insert_statement.e %s %s '^' | sql.e",
+		 "insert_statement.e %s %s '^'	|"
+		 "tee_appaserver_error.sh	|"
+		 "sql.e				 ",
 		 table_name,
 		 EVENT_INSERT_LIST );
 	p = popen( sys_string, "w" );
@@ -152,7 +154,9 @@ void measurement_update_parameter_save_parameter(
 				     "measurement_update_parameter" );
 
 	sprintf( sys_string,
-		 "insert_statement.e %s %s '^' | sql.e",
+		 "insert_statement.e %s %s '^'	|"
+		 "tee_appaserver_error.sh	|"
+		 "sql.e				 ",
 		 table_name,
 		 PARAMETER_INSERT_LIST );
 	p = popen( sys_string, "w" );

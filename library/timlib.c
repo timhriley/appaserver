@@ -2336,10 +2336,6 @@ void search_replace_special_characters( char *buffer )
 	search_replace_string( buffer, "`", "'" );
 	search_replace_string( buffer, "\\", "" );
 	search_replace_string( buffer, "\"", "'" );
-/*
-	search_replace_string( buffer, "^", "+" );
-*/
-
 }
 
 void escape_special_characters( char *data )
@@ -3645,11 +3641,6 @@ void timlib_error_stderr(	int argc,
 	fprintf( stderr, "\n" );
 	fflush( stderr );
 
-}
-
-char *timlib_get_sha256sum( char *input_filename )
-{
-	return timlib_sha256sum( input_filename );
 }
 
 char *timlib_sha256sum( char *input_filename )

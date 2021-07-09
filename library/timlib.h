@@ -255,404 +255,512 @@ char *place_commas_in_money(
 char *timlib_place_commas_in_money(
 			double d );
 
-char *get_date( char *d );
-void extract_delimited( char *destination, char *source );
-int get_index_from_string( char *s );
-char *single_quotes_around( char *d, char *s );
-char *quotes_around( char *destination, char *s, int c );
-char *double_quotes_around( char *destination, char *s );
-char *timlib_pad_spaces_to_justify_left( char *d, char *s, int size );
-char *timlib_pad_spaces_to_justify_right( char *d, char *s, int size );
+char *get_date(		char *d );
 
-double *linear_interpolate( 	double *buffer,
-				int from_x,
-				int to_x );
+void extract_delimited(	char *destination,
+			char *source );
 
-double timlib_atof(		char *s );
+int get_index_from_string(
+			char *s );
 
-void timlib_atof_array(		double *f_array,
-				char *pipe_delimited_string );
+char *single_quotes_around(
+			char *d, char *s );
 
-int count_characters( int char_to_count, char *source );
+char *quotes_around(	char *destination,
+			char *s,
+			int c );
 
-double time2day_percentage( int hour, int minute );
+char *double_quotes_around(
+			char *destination,
+			char *s );
+
+char *timlib_pad_spaces_to_justify_left(
+			char *d, char *s, int size );
+
+char *timlib_pad_spaces_to_justify_right(
+			char *d, char *s, int size );
+
+double *linear_interpolate(
+			double *buffer,
+			int from_x,
+			int to_x );
+
+double timlib_atof(	char *s );
+
+void timlib_atof_array(	double *f_array,
+			char *pipe_delimited_string );
+
+int count_characters(	int char_to_count,
+			char *source );
+
+double time2day_percentage(
+			int hour,
+			int minute );
 
 void unget_line_queue( char *in_line );
 
-int get_line_queue( char *in_line, FILE *infile );
+int get_line_queue(	char *in_line,
+			FILE *infile );
 
-double timlib_abs_double(	double f );
+double timlib_abs_double(
+			double f );
 
-char *insert_string( char *source_destination, char *substring, int pos );
+char *insert_string(	char *source_destination,
+			char *substring,
+			int pos );
 
-double get_percent_of_day( char *time_string );
-void increment_time_one_hour(		char *time_string );
+double get_percent_of_day(
+			char *time_string );
 
-int zap_file(				char *filename );
+void increment_time_one_hour(
+			char *time_string );
 
-boolean timlib_double_virtually_same( 	double d1, double d2 );
-boolean timlib_dollar_virtually_same( 	double d1, double d2 );
+int zap_file(		char *filename );
 
-double timlib_round_money(		double d );
+boolean timlib_double_virtually_same(
+			double d1, double d2 );
 
-double timlib_round_double(		double d );
+boolean timlib_dollar_virtually_same(
+			double d1, double d2 );
 
-int timlib_round_int(			double d );
+double timlib_round_money(
+			double d );
 
-char *get_node_name(			void );
+double timlib_round_double(
+			double d );
 
-char *escape_character( 		char *destination,
-					char *data,
-					int character_to_escape );
+int timlib_round_int(	double d );
 
-char *unescape_character( 		char *destination,
-					char *data,
-					int character_to_unescape );
+char *get_node_name(	void );
 
-int timlib_get_block_delimiter( 	char **block,
-			 		int delimiter,
-			 		int columns_to_block,
-			 		FILE *input_file,
-					int max_lines );
+char *escape_character(	char *destination,
+			char *data,
+			int character_to_escape );
 
-int string_array_search_offset( 	char **string_array, 
-					char *search_string );
+char *unescape_character(
+			char *destination,
+			char *data,
+			int character_to_unescape );
 
-int count_character( 			int char_to_count, char *source );
+int timlib_get_block_delimiter(
+			char **block,
+			int delimiter,
+			int columns_to_block,
+			FILE *input_file,
+		int max_lines );
 
-char *last_word_string(			char *s );
+int string_array_search_offset(
+			char **string_array, 
+			char *search_string );
 
-char *mnemonic2upper_case( 		char *d, char *s );
+int count_character(	int char_to_count, char *source );
 
-int is_mnemonic( 			char *s );
+char *last_word_string(
+			char *s );
+
+char *mnemonic2upper_case(
+			char *d, char *s );
+
+int is_mnemonic( 	char *s );
 
 char *search_replace_single_quoted_string(
-					char *source_destination,
-					char *search_string,
-					char *replace_string );
+			char *source_destination,
+			char *search_string,
+			char *replace_string );
 
-char *timlib_escape_field(		char *source_destination );
+char *timlib_escape_field(
+			char *source_destination );
 
-char *escape_field(			char *source_destination );
+char *escape_field(	char *source_destination );
 
-char *escape_string( 			char *source_destination );
+char *escape_string( 	char *source_destination );
 
-void free_array_string_with_count( 	char **block, 
-					int block_count );
+void free_array_string_with_count(
+			char **block, 
+			int block_count );
 
-char *right(				char *string,
-					char *substr,
-					int width );
+char *right(		char *string,
+			char *substr,
+			int width );
 
-void unescape_string(			char *s );
+void unescape_string(	char *s );
 
-char *escape_dollar_sign(		char *data );
-unsigned long get_file_size(		char *filename );
-char *escape_dollar_signs(		char *data );
-char *escape_single_quotes(		char *data );
-char *escape_single_quote(		char *data );
+char *escape_dollar_sign(
+			char *data );
 
-char *timlib_escape_single_quotes(	char *destination, char *source );
+unsigned long get_file_size(
+			char *filename );
 
-int instr_exclude_double_quoted(	char *substr,
-					char *string,
-					int occurrence );
+char *escape_dollar_signs(
+			char *data );
 
-char *rtrim(				char *buffer );
+char *escape_single_quotes(
+			char *data );
+
+char *escape_single_quote(
+			char *data );
+
+char *timlib_escape_single_quotes(
+			char *destination,
+			char *source );
+
+int instr_exclude_double_quoted(
+			char *substr,
+			char *string,
+			int occurrence );
+
+char *rtrim(		char *buffer );
 
 void search_replace_special_characters(
-					char *buffer );
+			char *buffer );
 
-void escape_special_characters(		char *data );
+void escape_special_characters(
+			char *data );
 
-boolean timlib_exists_special_character(char *data );
+boolean timlib_exists_special_character(
+			char *data );
 
-char *mysql2american_date(		char *date_buffer,
-					char *mysql_date );
+char *mysql2american_date(
+			char *date_buffer,
+			char *mysql_date );
 
-boolean timlib_character_exists(	char *buffer, int c );
+boolean timlib_character_exists(
+			char *buffer, int c );
 
-boolean character_exists(		char *buffer, int c );
+boolean character_exists(
+			char *buffer, int c );
 
-void get_clean_begin_end_date(		char **begin_date,
-					char **end_date );
+void get_clean_begin_end_date(
+			char **begin_date,
+			char **end_date );
 
-char *up_string_to_delimiter (		char *s, char delimiter );
+char *up_string_to_delimiter (
+			char *s, char delimiter );
 
-char *right_trim(			char *buffer );
+char *right_trim(	char *buffer );
 
-char *trim_right(			char *buffer,
-					int length );
+char *trim_right(	char *buffer,
+			int length );
 
-char *right_trim_session(		char *buffer );
+char *right_trim_session(
+			char *buffer );
 
-char *trim_quotes(			char *d, char *s );
+char *trim_quotes(	char *d, char *s );
 
-char *commas_in_double(			char *destination, 
-					double d );
+char *commas_in_double(	char *destination, 
+			double d );
 
-char *reverse_string(			char *destination,
-					char *source );
+char *reverse_string(	char *destination,
+			char *source );
 
 void make_single_quotes_double_single_quotes(
-					char *d );
+			char *d );
 
-boolean timlib_file_populated(		char *filename );
+boolean timlib_file_populated(
+			char *filename );
 
-char *timlib_ora_date_to_yyyy_mm_dd(	char *s );
+char *timlib_ora_date_to_yyyy_mm_dd(
+			char *s );
+
 char *timlib_oracle_date2mysql_date_string(
-					char *s );
-int timlib_ora_month2integer(		char *ora_month );
+			char *s );
 
-int timlib_full_month2integer(		char *full_month );
+int timlib_ora_month2integer(
+			char *ora_month );
 
-char *timlib_integer2full_month(	int month_integer );
+int timlib_full_month2integer(
+			char *full_month );
 
-int timlib_exists_character( 		char *s,
-					char ch );
+char *timlib_integer2full_month(
+			int month_integer );
 
-boolean timlib_exists_string(	 	char *string,
-					char *substring );
+int timlib_exists_character(
+			char *s,
+			char ch );
 
-boolean timlib_begins_string(	 	char *string,
-					char *substring );
+boolean timlib_exists_string(
+			char *string,
+			char *substring );
 
-boolean timlib_ends_string(	 	char *string,
-					char *substring );
+boolean timlib_begins_string(
+			char *string,
+			char *substring );
 
-long timlib_random(			long up_to );
+boolean timlib_ends_string(
+			char *string,
+			char *substring );
 
-char *timlib_mysql_date2ddmmyyyy(	char *destination,
-					char *source );
-char *timlib_trim_double_quotes(	char *s );
+long timlib_random(	long up_to );
 
-char *timlib_yyyymmdd_to_ora_date(	char *s );
+char *timlib_mysql_date2ddmmyyyy(
+			char *destination,
+			char *source );
 
-char *timlib_yyyymmdd_to_oracle_format(	char *s );
+char *timlib_trim_double_quotes(
+			char *s );
 
-char *timlib_oracle_date2mysql(		char *s );
+char *timlib_yyyymmdd_to_ora_date(
+			char *s );
 
-boolean timlib_exists_alpha(		char *s );
+char *timlib_yyyymmdd_to_oracle_format(
+			char *s );
 
-boolean timlib_exists_numeric(		char *s );
+char *timlib_oracle_date2mysql(
+			char *s );
 
-boolean timlib_parse_database_string(	char **database_string,
-					char *application_name );
+boolean timlib_exists_alpha(
+			char *s );
 
-/*
-char *timlib_get_parameter_application_name(
-					char *application_name,
-					char *database_string );
-*/
+boolean timlib_exists_numeric(
+			char *s );
 
-double timlib_get_x_increment(	int expected_count_per_day,
-				enum aggregate_level aggregate_level );
+boolean timlib_parse_database_string(
+			char **database_string,
+			char *application_name );
+
+double timlib_get_x_increment(
+			int expected_count_per_day,
+			enum aggregate_level aggregate_level );
 
 int timlib_get_x_increment_seconds(
-				int expected_count_per_day,
-				enum aggregate_level aggregate_level );
+			int expected_count_per_day,
+			enum aggregate_level aggregate_level );
 
 double timlib_get_x_increment_days(
-				int expected_count_per_day,
-				enum aggregate_level aggregate_level );
+			int expected_count_per_day,
+			enum aggregate_level aggregate_level );
 
-char *timlib_yyyy_mm_dd_to_julian(	char *yyyy_mm_dd );
+char *timlib_yyyy_mm_dd_to_julian(
+			char *yyyy_mm_dd );
 
-char *timlib_integer2binary(		unsigned integer );
+char *timlib_integer2binary(
+			unsigned integer );
 
 boolean timlib_string_until_character_matches(
-					char *source,
-					char *string_compare,
-					char delimiter );
+			char *source,
+			char *string_compare,
+			char delimiter );
 
-unsigned int timlib_factoral(		int n );
+unsigned int timlib_factoral(
+			int n );
 
-char timlib_get_delimiter(		char *string );
+char timlib_get_delimiter(
+			char *string );
 
-char timlib_delimiter(			char *string );
+char timlib_delimiter(	char *string );
 
-int timlib_get_index(			char *s );
+int timlib_get_index(	char *s );
 
 char *timlib_search_replace_character_limited(
-					char *source_destination,
-					char search_character,
-					char replace_character,
-					int how_many );
-int character_position(			char *buffer, int c );
+			char *source_destination,
+			char search_character,
+			char replace_character,
+			int how_many );
+
+int character_position(	char *buffer, int c );
 
 char *timlib_get_three_character_month_string(
-					int month_offset );
+			int month_offset );
+
 int timlib_delimiter_independent_strcmp(
-				char *string1,
-				char *string2 );
+			char *string1,
+			char *string2 );
 
-char *timlib_get_in_clause(	char *data_list_string );
+char *timlib_get_in_clause(
+			char *data_list_string );
 
-char *timlib_in_clause(		LIST *data_list );
+char *timlib_in_clause(	LIST *data_list );
 
 char *timlib_with_list_get_in_clause(
-				LIST *data_list );
+			LIST *data_list );
 
-boolean timlib_file_exists(	char *filename );
+boolean timlib_file_exists(
+			char *filename );
 
-boolean timlib_strcpy(		char *d, char *s, int buffer_size );
+boolean timlib_strcpy(	char *d, char *s, int buffer_size );
 
-char *timlib_strcat(		char *d, char *s );
+char *timlib_strcat(	char *d, char *s );
 
 double timlib_latitude_longitude_degrees_minutes_to_decimal(
-					char *latitude_longitude );
+			char *latitude_longitude );
 
 char *timlib_latitude_longitude_degrees_decimal_to_minutes(
-					char *latitude_longitude_decimal );
+			char *latitude_longitude_decimal );
 
 void **timlib_allocate_pointer_array(
-				int array_pointer_size,
-				int item_pointer_size,
-				int array_length );
+			int array_pointer_size,
+			int item_pointer_size,
+			int array_length );
 
-int timlib_strncmp(		char *s1, char *s2 );
+int timlib_strncmp(	char *s1, char *s2 );
 
-int timlib_strcmp(		char *s1, char *s2 );
+int timlib_strcmp(	char *s1, char *s2 );
 
-int timlib_strict_case_strcmp(	char *s1, char *s2 );
+int timlib_strict_case_strcmp(
+			char *s1, char *s2 );
 
-char *timlib_strncpy(		char *s1, char *s2, int count );
+char *timlib_strncpy(	char *s1, char *s2, int count );
 
-boolean timlib_pad_time_four(	char *time_string );
+boolean timlib_pad_time_four(
+			char *time_string );
 
-int timlib_strlen(		char *s );
+int timlib_strlen(	char *s );
 
 int timlib_sum_delimited_string(char *string,
-				char delimiter,
-				int starting_piece,
-				int ending_piece );
+			char delimiter,
+			int starting_piece,
+			int ending_piece );
 
-char *timlib_character_pad(	char delimiter,
-				int column_count );
+char *timlib_character_pad(
+			char delimiter,
+			int column_count );
 
-void timlib_unget_line(		char *in_line );
+void timlib_unget_line(	char *in_line );
 
-void timlib_reset_line_queue(	void );
+void timlib_reset_line_queue(
+			void );
 
-int timlib_get_seed(		void );
+int timlib_get_seed(	void );
 
 char *timlib_escape_character_array(
-				char *destination,
-				char *source,
-				char *character_array );
+			char *destination,
+			char *source,
+			char *character_array );
 
 /* Returns heap memory */
 /* ------------------- */
 char *timlib_escape_sql_injection(
-				char *source );
+			char *source );
 
 /* Returns heap memory */
 /* ------------------- */
 char *timlib_sql_injection_escape(
-				char *source );
+			char *source );
 
-void remove_end_characters(	char *d, char *s, char end_character );
+void remove_end_characters(
+			char *d, char *s, char end_character );
 
-char *timlib_remove_character(	char *source_destination,
-				char character );
+char *timlib_remove_character(
+			char *source_destination,
+			char character );
 
-char *remove_character(		char *source_destination,
-				char character );
+char *remove_character(
+			char *source_destination,
+			char character );
 
-int timlib_get_line(		char *in_line,
-				FILE *infile,
-				int buffer_size );
+int timlib_get_line(	char *in_line,
+			FILE *infile,
+			int buffer_size );
 
 char *timlib_string_array_display(
-				char **string_array );
+			char **string_array );
 
-void timlib_display_error_file(	char *error_filename );
+void timlib_display_error_file(
+			char *error_filename );
 
-boolean timlib_is_valid_time(	char *time_string );
+boolean timlib_is_valid_time(
+			char *time_string );
 
+/* Returns static memory */
+/* --------------------- */
 char *timlib_trim_money_characters(
-				char *amount );
+			char *amount );
 
-void output_starting_argv_stderr( int argc, char **argv );
+void output_starting_argv_stderr(
+			int argc,
+			char **argv );
 
-char *timlib_now_date_time(	void );
+char *timlib_now_date_time(
+			void );
 
-char *timlib_get_now_date_time(	void );
+char *timlib_get_now_date_time(
+			void );
 
-boolean timlib_string_empty(	char *s,
-				char *empty_label );
+boolean timlib_string_empty(
+			char *s,
+			char *empty_label );
 
 char *timlib_directory_filesystem(
-				long int *available_megabytes,
-				char *directory );
+			long int *available_megabytes,
+			char *directory );
 
 char *timlib_get_latest_filename_datestamp(
-				char *directory );
+			char *directory );
 
 boolean timlib_login_name_email_address(
-				char *login_name );
+			char *login_name );
 
 boolean timlib_double_virtually_same_places(
-				double d1, double d2, int places );
+			double d1,
+			double d2,
+			int places );
 
-char *trim_length(		char *buffer,
-				int length );
+char *trim_length(	char *buffer,
+			int length );
 
 char *timlib_escape_character_string(
-				char *source_destination,
-				char *character_string );
+			char *source_destination,
+			char *character_string );
 
 void timlib_reset_get_line_check_utf_16(
-				void );
+			void );
 
-char *timlib_generate_password(	void );
+char *timlib_generate_password(
+			void );
 
 boolean timlib_double_is_integer(
-				double d );
+			double d );
 
-void *timlib_memcpy(		void *object,
-				int sizeof_object );
+void *timlib_memcpy(	void *object,
+			int sizeof_object );
 
-int timlib_get_line_escape_CR(	char *in_line,
-				FILE *infile,
-				int buffer_size );
+int timlib_get_line_escape_CR(
+			char *in_line,
+			FILE *infile,
+			int buffer_size );
 
-char *timlib_right_string(	char *string,
-				int width );
+char *timlib_right_string(
+			char *string,
+			int width );
 
-int timlib_atoi(		char *string );
+int timlib_atoi(	char *string );
 
-void timlib_cp(			char *destination_filename,
-				char *source_filename );
+void timlib_cp(		char *destination_filename,
+			char *source_filename );
 
-void timlib_error_stderr(	int argc,
-				char **argv );
+void timlib_error_stderr(
+			int argc,
+			char **argv );
 
-char *timlib_get_sha256sum(	char *input_filename );
+char *timlib_sha256sum(
+			char *input_filename );
 
-char *timlib_reverse_string(	char *destination,
-				char *string );
+char *timlib_reverse_string(
+			char *destination,
+			char *string );
 
-boolean timlib_string_exists(	char *string,
-				char *substring );
+boolean timlib_string_exists(
+			char *string,
+			char *substring );
 
-char *timlib_pad_zero(		int number,
-				int length );
+char *timlib_pad_zero(	int number,
+			int length );
 
-char *timlib_get_first_line(	char *destination,
-				char *input_filename,
-				int buffer_size );
+char *timlib_get_first_line(
+			char *destination,
+			char *input_filename,
+			int buffer_size );
 
 char *timlib_dollar_round_string(
-				double amount );
+			double amount );
 
 char *timlib_dollar_string(
-				double amount );
+			double amount );
 
 char *search_replace_strict_case_string( 
-				char *search_str, 
-				char *replace_str, 
-				char *source_destination );
+			char *search_str, 
+			char *replace_str, 
+			char *source_destination );
 
 char *timlib_trim_trailing_character(
 			char *source_destination,
@@ -663,7 +771,8 @@ char *timlib_rtrim(	char *buffer );
 char *timlib_system_date_string(
 			void );
 
-void timlib_remove_file(char *filename );
+void timlib_remove_file(
+			char *filename );
 
 char *timlib_trim_character(
 			char *source_destination,
@@ -675,8 +784,6 @@ char *timlib_remove_thousands_separator(
 
 boolean timlib_is_number(
 			char *string );
-
-char *timlib_sha256sum(	char *input_filename );
 
 /* Safely returns heap memory */
 /* -------------------------- */

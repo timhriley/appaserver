@@ -25,11 +25,6 @@ enum password_function	{	no_encryption,
 /* Prototypes */
 /* ---------- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *security_sql_injection_escape(
-			char *source );
-
 boolean security_password_match(
 			char *database_password,
 			char *injection_escaped_encrypted_password );
@@ -62,5 +57,15 @@ char *security_encryption_select_clause(
 
 boolean security_password_encrypted(
 			char *password );
+
+/* Returns data */
+/* ------------ */
+char *security_replace_special_characters(
+			char *data );
+
+/* Returns heap memory */
+/* ------------------- */
+char *security_sql_injection_escape(
+			char *source );
 
 #endif

@@ -1,5 +1,5 @@
-/* src_hydrology/measurement_validation.c */
-/* -------------------------------------- */
+/* $APPASERVER_HOME/src_hydrology/measurement_validation.c */
+/* ------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,20 +10,24 @@
 #include "measurement_validation.h"
 
 void measurement_validation_insert_into_manual_validation_event(
-						char *application_name,
-						char *login_name,
-						char *station,
-						char *datatype,
-						char *begin_measurement_date,
-						char *end_measurement_date,
-						char *validation_date,
-						char *validation_time,
-						char *validation_process )
+			char *application_name,
+			char *login_name,
+			char *station,
+			char *datatype,
+			char *begin_measurement_date,
+			char *end_measurement_date,
+			char *validation_date,
+			char *validation_time,
+			char *validation_process )
 {
 	char sys_string[ 1024 ];
 	char *table_name;
-	table_name = get_table_name(	application_name, 
-					"manual_validation_event" );
+
+	table_name =
+		get_table_name(
+			application_name, 
+			"manual_validation_event" );
+
 	sprintf( sys_string,
 "echo \"insert into %s (station,			 "
 "			datatype,			 "
@@ -46,17 +50,17 @@ void measurement_validation_insert_into_manual_validation_event(
 		 end_measurement_date,
 		 validation_process );
 
-	system( sys_string );
-} /* insert_into_manual_validation_event() */
+	if ( system( sys_string ) ){};
+}
 
 int measurement_validation_update_measurement(
-					char *application_name,
-					char *login_name,
-					char *station,
-					char *datatype,
-					char *validation_date,
-					char *begin_measurement_date,
-					char *end_measurement_date )
+			char *application_name,
+			char *login_name,
+			char *station,
+			char *datatype,
+			char *validation_date,
+			char *begin_measurement_date,
+			char *end_measurement_date )
 {
 	char where[ 4096 ];
 	char sys_string[ 4096 ];
@@ -66,14 +70,19 @@ int measurement_validation_update_measurement(
 	char *validation_process;
 	int return_count;
 
-	table_name = get_table_name(	application_name, 
-					"measurement" );
+	table_name =
+		get_table_name(
+			application_name, 
+			"measurement" );
+
 	if ( !validation_date || !*validation_date )
 	{
 		strcpy( last_validation_date_set_string, "= null" );
+
 		sprintf(	last_person_validating_set_string,
 				"= '%s'",
 				login_name );
+
 		validation_process =
 			MEASUREMENT_VALIDATION_UNVALIDATION_PROCESS;
 	}
@@ -125,5 +134,5 @@ int measurement_validation_update_measurement(
 
 	return return_count;
 
-} /* measurement_validation_update_measurement() */
+}
 

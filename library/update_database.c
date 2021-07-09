@@ -604,15 +604,14 @@ char *update_folder_where_clause(
 		else
 		{
 			destination +=
-				sprintf(
-				destination, 
-				"%s = '%s'",
-				where_attribute->
-					attribute_name,
-				/* ------------------------------------------ */
-				/* Assume search_replace_special_characters() */
-				/* ------------------------------------------ */
-				where_attribute->data );
+			     sprintf(
+			     destination, 
+			     "%s = '%s'",
+			     where_attribute->attribute_name,
+			     /* -------------------------------------------- */
+			     /* Called security_replace_special_characters() */
+			     /* -------------------------------------------- */
+			     where_attribute->data );
 		}
 
 	} while( list_next( where_attribute_list ) );
@@ -625,8 +624,8 @@ char *update_folder_set_clause(
 {
 	CHANGED_ATTRIBUTE *changed_attribute;
 	int first_time = 1;
-	char data[ 4096 ];
-	char buffer[ 4096 ];
+	char data[ 65536 ];
+	char buffer[ 65536 ];
 	char destination_buffer[ 65536 ];
 	char *destination = destination_buffer;
 
@@ -635,15 +634,17 @@ char *update_folder_set_clause(
 	if ( !list_reset( changed_attribute_list ) ) return (char *)0;
 
 	do {
-		changed_attribute = list_get_pointer( changed_attribute_list );
+		changed_attribute = list_get( changed_attribute_list );
 
-		strcpy( data, changed_attribute->new_data );
+		strcpy( data, changed_attribute->escaped_replaced_new_data );
 
 		if ( strcmp( data, UPDATE_DATABASE_NULL_TOKEN ) == 0 )
 			*data = '\0';
 
-		search_replace_special_characters( data );
-		escape_special_characters( data );
+/*
+		security_replace_special_characters( data );
+		strcpy( data, security_sql_injection_escape( data ) );
+*/
 
 		if ( !*data
 		||   strcmp( data, NULL_OPERATOR ) == 0 )
@@ -666,15 +667,20 @@ char *update_folder_set_clause(
 
 		if ( first_time )
 		{
-			destination += sprintf( destination,
+			destination +=
+				sprintf(
+					destination,
 					" %s=%s",
 					changed_attribute->attribute_name,
 					data );
+
 			first_time = 0;
 		}
 		else
 		{
-			destination += sprintf( destination,
+			destination +=
+				sprintf(
+					destination,
 					",%s=%s",
 					changed_attribute->attribute_name,
 					data );
@@ -827,13 +833,16 @@ int update_database_changed_display(	char *buffer_pointer,
 
 	do {
 		changed_attribute = list_get_pointer( changed_attribute_list );
+
 		output_character_count +=
 			sprintf( buffer_pointer,
 			";changed_attribute = %s, old = %s, new = %s",
 				 changed_attribute->attribute_name,
 				 changed_attribute->old_data,
-				 changed_attribute->new_data );
+				 changed_attribute->escaped_replaced_new_data );
+
 	} while( list_next( changed_attribute_list ) );
+
 	return output_character_count;
 }
 
@@ -915,7 +924,7 @@ LIST *update_folder_changed_attribute_list(
 		old_data = (char *)0;
 		new_data = (char *)0;
 
-		if ( update_database_data_if_changed(
+		if ( !update_database_data_if_changed(
 			&old_data,
 			&new_data,
 			/* ------------------------------------------------- */
@@ -926,36 +935,49 @@ LIST *update_folder_changed_attribute_list(
 			attribute->attribute_name,
 			row ) )
 		{
-			if ( ! ( changed_attribute =
-				    update_changed_attribute_new(
-					attribute->attribute_name,
-					attribute->datatype,
-					old_data,
-					new_data ) ) )
-			{
-				fprintf(stderr,
-"Warning in %s/%s()/%d: update_database_changed_attribute_new() returned empty.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__ );
-				continue;
-			}
-
-			if ( !changed_attribute_list )
-			{
-				changed_attribute_list = list_new_list();
-			}
-
-			changed_attribute->changed_primary_key_index =
-				attribute->primary_key_index;
-
-			if ( changed_attribute->changed_primary_key_index )
-				*changed_primary_key = 1;
-
-			list_append_pointer(
-				changed_attribute_list,
-				changed_attribute );
+			continue;
 		}
+
+		changed_attribute =
+			update_changed_attribute_new(
+				attribute->attribute_name,
+				attribute->datatype,
+				old_data,
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				security_sql_injection_escape(
+					/* ------------ */
+					/* Returns data */
+					/* ------------ */
+					security_replace_special_characters(
+						new_data ) ) );
+
+		if ( !changed_attribute )
+		{
+			fprintf(stderr,
+"Warning in %s/%s()/%d: update_database_changed_attribute_new() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		if ( !changed_attribute_list )
+		{
+			changed_attribute_list = list_new_list();
+		}
+
+		changed_attribute->changed_primary_key_index =
+			attribute->primary_key_index;
+
+		if ( changed_attribute->changed_primary_key_index )
+			*changed_primary_key = 1;
+
+		list_set(
+			changed_attribute_list,
+			changed_attribute );
+
 	} while( list_next( attribute_list ) );
 
 	return changed_attribute_list;
@@ -965,7 +987,7 @@ CHANGED_ATTRIBUTE *update_changed_attribute_new(
 			char *attribute_name,
 			char *attribute_datatype,
 			char *old_data,
-			char *new_data )
+			char *escaped_replaced_new_data )
 {
 	CHANGED_ATTRIBUTE *changed_attribute;
 
@@ -979,15 +1001,19 @@ CHANGED_ATTRIBUTE *update_changed_attribute_new(
 
 	if ( timlib_strcmp( attribute_datatype, "float" ) == 0 )
 	{
-		strcpy(	new_data,
+		strcpy(	escaped_replaced_new_data,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			timlib_trim_money_characters(
-				new_data ) );
+				escaped_replaced_new_data ) );
 	}
 
-	if ( strcmp( new_data, FORBIDDEN_NULL ) == 0 )
-		changed_attribute->new_data = NULL_STRING;
+	if ( strcmp( escaped_replaced_new_data, FORBIDDEN_NULL ) == 0 )
+		changed_attribute->escaped_replaced_new_data = NULL_STRING;
 	else
-		changed_attribute->new_data = new_data;
+		changed_attribute->escaped_replaced_new_data =
+			escaped_replaced_new_data;
 
 	return changed_attribute;
 }
@@ -1466,7 +1492,8 @@ UPDATE_FOLDER *update_secondary_update_folder(
 				changed_attribute_name,
 				primary_changed_attribute->attribute_datatype,
 				primary_changed_attribute->old_data,
-				primary_changed_attribute->new_data ) );
+				primary_changed_attribute->
+					escaped_replaced_new_data ) );
 
 	} while ( list_next( primary_changed_attribute_list ) );
 
@@ -1519,7 +1546,7 @@ LIST *update_folder_where_attribute_list(
 		attribute_name = list_get( attribute_name_list );
 		strcpy( data_buffer, list_get( primary_data_list ) );
 
-		search_replace_special_characters( data_buffer );
+		security_replace_special_characters( data_buffer );
 		escape_special_characters( data_buffer );
 
 		where_attribute =

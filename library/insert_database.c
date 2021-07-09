@@ -9,7 +9,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "insert_database.h"
 #include "appaserver_error.h"
 #include "timlib.h"
 #include "piece.h"
@@ -17,6 +16,8 @@
 #include "appaserver_library.h"
 #include "related_folder.h"
 #include "list.h"
+#include "security.h"
+#include "insert_database.h"
 
 INSERT_DATABASE *insert_database_calloc(
 			char *application_name,
@@ -35,7 +36,8 @@ INSERT_DATABASE *insert_database_calloc(
 
 INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data_new(
 			char *attribute_name,
-			char *data )
+			char *attribute_datatype,
+			char *escaped_replaced_data )
 {
 	INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data;
 
@@ -51,7 +53,19 @@ INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data_new(
 	}
 
 	insert_database_attribute_data->attribute_name = attribute_name;
-	insert_database_attribute_data->data = data;
+
+	if ( timlib_strcmp( attribute_datatype, "float" ) == 0 )
+	{
+		strcpy(	escaped_replaced_data,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_trim_money_characters(
+				escaped_replaced_data ) );
+	}
+
+	insert_database_attribute_data->escaped_replaced_data =
+		escaped_replaced_data;
 
 	return insert_database_attribute_data;
 }
@@ -1089,7 +1103,7 @@ LIST *build_insert_data_string(
 		destination +=
 			sprintf(destination,
 				"%s",
-				attribute_data->data );
+				attribute_data->escaped_replaced_data );
 
 	} while ( list_next( attribute_data_list  ) );
 
@@ -1127,7 +1141,8 @@ LIST *insert_database_attribute_data_list(
 		done_attribute_name_list,
 		attribute_name_list,
 		row_dictionary,
-		row );
+		row,
+		attribute_list );
 
 	list_rewind( attribute_name_list );
 
@@ -1191,6 +1206,7 @@ LIST *insert_database_attribute_data_list(
 		{
 			strcpy( data, NULL_STRING );
 		}
+/*
 		else
 		if ( *data )
 		{
@@ -1201,6 +1217,7 @@ LIST *insert_database_attribute_data_list(
 		{
 			strcpy( data, "" );
 		}
+*/
 
 		/* If there is no data and it's a primary attribute */
 		/* then make it "null".				    */
@@ -1213,11 +1230,21 @@ LIST *insert_database_attribute_data_list(
 			strcpy( data, NULL_STRING );
 		}
 
-		attribute =
-			attribute_seek_attribute(
-				attribute_name,
-				attribute_list );
+		if ( ! ( attribute =
+				attribute_seek_attribute(
+					attribute_name,
+					attribute_list ) ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: attribute_seek_attribute(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				attribute_name );
+			exit( 1 );
+		}
 
+/*
 		if ( attribute
 		&&   *data
 		&& ( timlib_strcmp(	attribute->datatype,
@@ -1232,11 +1259,21 @@ LIST *insert_database_attribute_data_list(
 					data ) );
 			}
 		}
+*/
 
 		attribute_data =
 			insert_database_attribute_data_new(
 				attribute_name,
-				strdup( data ) );
+				attribute->datatype,
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				security_sql_injection_escape(
+					/* ------------ */
+					/* Returns data */
+					/* ------------ */
+					security_replace_special_characters(
+						data ) ) );
 
 		list_set( attribute_data_list, attribute_data );
 		list_set( done_attribute_name_list, attribute_name );
@@ -1271,12 +1308,28 @@ void insert_database_set_attribute_data_list(
 			LIST *done_attribute_name_list,
 			char *attribute_name_string,
 			char *data_string,
-			int length )
+			int length,
+			LIST *attribute_list )
 {
 	INSERT_DATABASE_ATTRIBUTE_DATA *attribute_data;
 	char attribute_name[ 128 ];
+	ATTRIBUTE *attribute;
 	char data[ 65536 ];
 	int i;
+
+	if ( ! ( attribute =
+			attribute_seek_attribute(
+				attribute_name,
+				attribute_list ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: attribute_seek_attribute(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			attribute_name );
+		exit( 1 );
+	}
 
 	for (	i = 0;
 		i < length;
@@ -1288,7 +1341,15 @@ void insert_database_set_attribute_data_list(
 		attribute_data =
 			insert_database_attribute_data_new(
 				strdup( attribute_name ),
-				strdup( data ) );
+				attribute->datatype,
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				security_sql_injection_escape(
+					/* Returns data */
+					/* ------------ */
+					security_replace_special_characters(
+						data ) ) );
 
 		list_set( attribute_data_list, attribute_data );
 
@@ -1303,7 +1364,8 @@ void insert_database_direct_attribute_data_list(
 			LIST *done_attribute_name_list,
 			LIST *attribute_name_list,
 			DICTIONARY *row_dictionary,
-			int row )
+			int row,
+			LIST *attribute_list )
 {
 	char *key;
 	char *data;
@@ -1319,11 +1381,13 @@ void insert_database_direct_attribute_data_list(
 		i > 1;
 		i-- )
 	{
-		key = list_length_display(
+		key =
+			list_length_display(
 				attribute_name_list,
 				i );
 
-		results = dictionary_get_index_data(
+		results =
+			dictionary_get_index_data(
 				&data,
 				row_dictionary,
 				key,
@@ -1336,11 +1400,11 @@ void insert_database_direct_attribute_data_list(
 				done_attribute_name_list,
 				key /* attribute_name_string */,
 				data,
-				i /* length */ );
+				i /* length */,
+				attribute_list );
 
 			return;
 		}
-
 	}
 }
 
