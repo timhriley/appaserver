@@ -1,4 +1,4 @@
-/* library/appaserver_error.c						*/
+/* $APPASERVER_HOME/library/appaserver_error.c				*/
 /* --------------------------------------------------------------------	*/
 /*									*/
 /* These functions support outputting error messages.			*/
@@ -156,16 +156,16 @@ void appaserver_error_starting_argv_append_file(
 		fprintf(f,
 			"%s %s %s: %s",
 			remote_ip_address,
-		 	date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
-		 	date_get_now_hhmmss( date_get_utc_offset() ),
+		 	date_now_yyyy_mm_dd( date_get_utc_offset() ),
+		 	date_now_hhmmss( date_get_utc_offset() ),
 		 	argv[ 0 ] );
 	}
 	else
 	{
 		fprintf(f,
 			"%s %s: %s",
-		 	date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
-		 	date_get_now_hhmmss( date_get_utc_offset() ),
+		 	date_now_yyyy_mm_dd( date_get_utc_offset() ),
+		 	date_now_hhmmss( date_get_utc_offset() ),
 		 	argv[ 0 ] );
 	}
 

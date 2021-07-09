@@ -1,10 +1,8 @@
-/* merge_n_groups.c */
-/* ---------------- */
+/* $APPASERVER_HOME/utility/merge_n_groups.c				*/
 /* -------------------------------------------------------------------- */
 /* This program takes every n groups of lines and appends them together */
 /* on one line with a "|" separating them.                              */
 /*                                                                      */
-/* Tim Riley                                                            */
 /* -------------------------------------------------------------------- */
  
 #include <stdio.h>
@@ -15,11 +13,11 @@
  
 #define MAX_LINES	32767
 
+void setup_arg(	NAME_ARG *arg, int argc, char **argv );
 char **get_entire_array( int *len );
+void merge_n_groups( int number_groups, char *delimiter );
 
-main( argc, argv )
-int argc;
-char **argv;
+int main( int argc, char **argv )
 {
         NAME_ARG *arg = init_arg( argv[ 0 ] );
 	int n, max_length;
@@ -35,9 +33,7 @@ char **argv;
 	return 0;
 }
  
-merge_n_groups( number_groups, delimiter )
-int number_groups;
-char *delimiter;
+void merge_n_groups( int number_groups, char *delimiter )
 {
 	int x,y;
 	int number_rows, array_len;
@@ -59,7 +55,7 @@ char *delimiter;
 		printf( "\n" );
 	}
 
-} /* merge_n_groups() */
+}
 
 char **get_entire_array( int *len )
 {
@@ -84,13 +80,9 @@ char **get_entire_array( int *len )
 	*len = i;
 	return array;
 
-} /* merge_n_groups() */
+}
  
-
-setup_arg( arg, argc, argv )
-NAME_ARG *arg; 
-int argc;
-char **argv;
+void setup_arg( NAME_ARG *arg, int argc, char **argv )
 {
         int ticket;
 
@@ -101,5 +93,5 @@ char **argv;
 
         ins_all( arg, argc, argv );
 
-} /* setup_arg() */
+}
 

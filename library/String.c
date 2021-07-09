@@ -15,6 +15,8 @@
 #include "timlib.h"
 #include "piece.h"
 #include "query.h"
+#include "appaserver_error.h"
+#include "environ.h"
 #include "String.h"
 
 /* Class variables */
@@ -654,8 +656,7 @@ char *string_trim_character(
 		}
 
 		offset = position - 1;
-
-		string_strcpy( data, data + offset, 0 );
+		string_strcpy( data + offset, data + position, 0 );
 	}
 }
 
@@ -882,7 +883,7 @@ char *string_trim_character_array(
 	{
 		string_trim_character(
 			data,
-			(*character_array)++ );
+			*character_array++ );
 	}
 
 	return data;
@@ -892,7 +893,10 @@ char *string_trim_number_characters(
 			char *number,
 			char *attribute_datatype )
 {
-	if ( !attribute_datatype || !*attribute_datatype )
+	if ( !attribute_datatype
+	||   !*attribute_datatype
+	||   !number
+	||   !*number )
 	{
 		return number;
 	}
@@ -903,27 +907,9 @@ char *string_trim_number_characters(
 		return number;
 	}
 
-	return string_trim_character_array(
+	return
+		string_trim_character_array(
 			number,
 			",$" );
-	
-/*
-	char buffer[ 128 ];
-	char *ptr = buffer;
-
-	while( *number )
-	{
-		if ( *number != '$' && *number != ',' )
-		{
-			*ptr++ = *number;
-		}
-		number++;
-	}
-
-	*ptr = '\0';
-
-	strcpy( number, buffer );
-	return number;
-*/
 }
 

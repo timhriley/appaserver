@@ -169,9 +169,9 @@ int main( int argc, char **argv )
 	}
 
 	if ( !appaserver_user_exists_role(
-					application_name,
-					login_name,
-					role_name ) )
+		application_name,
+		login_name,
+		role_name ) )
 	{
 		session_access_failed_message_and_exit(
 				application_name, session, login_name );
@@ -180,8 +180,10 @@ int main( int argc, char **argv )
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
 
-	role = role_new_role(	application_name,
-				role_name );
+	role =
+		role_new_role(
+			application_name,
+			role_name );
 
 	role->role_attribute_exclude_list =
 		role_get_attribute_exclude_list(

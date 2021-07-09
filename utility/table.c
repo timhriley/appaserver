@@ -61,7 +61,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 void setup_arg( NAME_ARG *arg, int argc, char **argv )
 {
@@ -82,7 +82,7 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
 
         ins_all( arg, argc, argv );
 
-} /* setup_arg() */
+}
 
 void fetch_parameters(	NAME_ARG *arg, 
 			char **config_filename, 
@@ -96,5 +96,5 @@ void fetch_parameters(	NAME_ARG *arg,
 	*optional_title = fetch_arg( arg, "title" );
 	*optional_title_continued = fetch_arg( arg, "title_continued" );
 	*heading_off = fetch_arg( arg, "heading_off" );
-} /* fetch_parameters() */
+}
 

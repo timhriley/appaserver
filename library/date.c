@@ -1647,10 +1647,14 @@ char *date_now_hhmmss( int utc_offset )
 	/* -------------------- */
 	return_string = date_get_now_hhmm_colon_ss( utc_offset );
 
+	return return_string;
+
+#ifdef NOT_DEFINED
 	return search_replace_string(
 			return_string /* source_destination */,
 			":" /* search_str */,
 			"" /* replace_str */ );
+#endif
 }
 
 char *date_get_now_hhmm_colon_ss( int utc_offset )

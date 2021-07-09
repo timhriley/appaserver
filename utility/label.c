@@ -151,7 +151,7 @@ void set_output_lines( LABEL *label )
                 	label->attention_line );
 	}
 
-} /* set_output_lines() */
+}
 
 
 
@@ -168,7 +168,7 @@ void reset_label( LABEL *label )
         set_attention_line( label, "" );
         set_output_lines( label );
 
-} /* reset_label() */
+}
 
 
 
@@ -189,7 +189,7 @@ void alignment_check( void )
 
         spool_label( &label );
 
-} /* alignment_check() */
+}
 
 
 
@@ -215,7 +215,7 @@ void spool_label( LABEL *label2 )
                 this_up = 0;
         }
 
-} /* spool_label() */
+}
 
 
 
@@ -255,7 +255,7 @@ void print_spooled( void )
         if ( IS_INKJET )
                 printf( "\f" );
 
-} /* print_spooled() */
+}
 
 
 void do_labels( void )
@@ -320,7 +320,7 @@ void do_labels( void )
 
         return;
 
-} /* do_labels() */
+}
 
 
 
@@ -374,7 +374,7 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
 
         ins_all( arg, argc, argv );
 
-} /* setup_arg() */
+}
 
 
 
@@ -419,5 +419,5 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 

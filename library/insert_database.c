@@ -1295,26 +1295,20 @@ void insert_database_set_attribute_data_list(
 	char data[ 65536 ];
 	int i;
 
-	if ( ! ( attribute =
-			attribute_seek_attribute(
-				attribute_name,
-				attribute_list ) ) )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: attribute_seek_attribute(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			attribute_name );
-		exit( 1 );
-	}
-
 	for (	i = 0;
 		i < length;
 		i++ )
 	{
 		piece( attribute_name, '^', attribute_name_string, i );
 		piece( data, '^', data_string, i );
+
+		if ( ! ( attribute =
+				attribute_seek_attribute(
+					attribute_name,
+					attribute_list ) ) )
+		{
+			continue;
+		}
 
 		attribute_data =
 			insert_database_attribute_data_new(

@@ -91,7 +91,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 
 void fetch_parameters(	NAME_ARG *arg, 
@@ -109,7 +109,7 @@ void fetch_parameters(	NAME_ARG *arg,
 	*supress_output =
 		( ( * ( fetch_arg( arg, "supress_output" ) ) ) == 'y' );
 
-} /* fetch_parameters() */
+}
 
 void setup_arg( NAME_ARG *arg, int argc, char **argv )
 {
@@ -135,7 +135,7 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
 
         ins_all( arg, argc, argv );
 
-} /* setup_arg() */
+}
 
 void findgrep(	char *vi_string,
 		char *find_string, 
@@ -164,7 +164,7 @@ void findgrep(	char *vi_string,
 	}
 	pclose( p );
 
-} /* findgrep() */
+}
 
 void build_find_string_buffer(	char *destination, 
 				char *find_string,
@@ -200,7 +200,7 @@ void build_find_string_buffer(	char *destination,
 	sprintf( ptr, " \\) -print" );
 	append_exclude_dir_maybe( destination, exclude_dir );
 
-} /* build_find_string_buffer() */
+}
 
 void append_exclude_dir_maybe( char *find_string_buffer, char *exclude_dir )
 {
@@ -219,7 +219,7 @@ void append_exclude_dir_maybe( char *find_string_buffer, char *exclude_dir )
 			 exclude_this );
 	}
 
-} /* append_exclude_dir_maybe() */
+}
 
 void grep_this_file( 	char *vi_string,
 			char *this_file, 
@@ -290,5 +290,5 @@ void grep_this_file( 	char *vi_string,
 	fclose( input_file );
 	free( sed );
 
-} /* grep_this_file() */
+}
 

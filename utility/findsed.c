@@ -76,7 +76,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 
 void fetch_parameters(	NAME_ARG *arg, 
@@ -91,7 +91,7 @@ void fetch_parameters(	NAME_ARG *arg,
 	*replace_string = fetch_arg( arg, "replace" );
 	*testing_string = fetch_arg( arg, "testing" );
 	*excludedir_string = fetch_arg( arg, "excludedir" );
-} /* fetch_parameters() */
+}
 
 void setup_arg( NAME_ARG *arg, int argc, char **argv )
 {
@@ -113,7 +113,7 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
 
         ins_all( arg, argc, argv );
 
-} /* setup_arg() */
+}
 
 
 void findsed(	char *find_string, 
@@ -142,7 +142,7 @@ void findsed(	char *find_string,
 	}
 	pclose( p );
 
-} /* findsed() */
+}
 
 void build_find_string_buffer(	char *destination, 
 				char *find_string,
@@ -176,7 +176,7 @@ void build_find_string_buffer(	char *destination,
 	sprintf( ptr, " \\) -xdev -print" );
 	append_exclude_dir_maybe( destination, exclude_dir );
 
-} /* build_find_string_buffer() */
+}
 
 void append_exclude_dir_maybe( char *find_string_buffer, char *exclude_dir )
 {
@@ -195,7 +195,7 @@ void append_exclude_dir_maybe( char *find_string_buffer, char *exclude_dir )
 			 exclude_this );
 	}
 
-} /* append_exclude_dir_maybe() */
+}
 
 void sed_this_file( 	char *this_file, 
 			char *search_string, 
@@ -278,5 +278,5 @@ void sed_this_file( 	char *this_file,
 	fclose( input_file );
 	free( sed );
 
-} /* sed_this_file() */
+}
 

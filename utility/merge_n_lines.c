@@ -12,9 +12,10 @@
 #include "name_arg.h"
 #include "timlib.h"
  
-main( argc, argv )
-int argc;
-char **argv;
+void setup_arg(	NAME_ARG *arg, int argc, char **argv );
+void merge_n_lines( int n, int max_length, char *delimiter );
+
+int main( int argc, char **argv )
 {
         NAME_ARG *arg = init_arg( argv[ 0 ] );
 	int n, max_length;
@@ -31,10 +32,7 @@ char **argv;
 	return 0;
 }
  
-merge_n_lines( n, max_length, delimiter )
-int n;
-int max_length;
-char *delimiter;
+void merge_n_lines( int n, int max_length, char *delimiter )
 {
         char instring[ 500 ];
         int i, all_done = 0;
@@ -73,11 +71,7 @@ char *delimiter;
         }
 }
  
-
-setup_arg( arg, argc, argv )
-NAME_ARG *arg; 
-int argc;
-char **argv;
+void setup_arg( NAME_ARG *arg, int argc, char **argv )
 {
         int ticket;
 
@@ -91,5 +85,5 @@ char **argv;
 
         ins_all( arg, argc, argv );
 
-} /* setup_arg() */
+}
 

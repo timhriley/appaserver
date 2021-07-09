@@ -18,13 +18,13 @@ void set_comment( NAME_ARG *arg, char *comment )
 		arg->comments,
 		comment );
 
-} /* set_comment() */
+}
 
 void set_usage_filename( NAME_ARG *arg, char *usage_filename )
 {
 	arg->usage_filename = usage_filename;
 
-} /* set_usage_filename() */
+}
 
 
 void add_possible_value( NAME_ARG *arg, int ticket, char *value )
@@ -51,7 +51,7 @@ void add_valid_value( NAME_ARG *arg, int ticket, char *value )
         else
                 name_arg_bye ("Can't Find Ticket Number");
 
-} /* add_valid_value */
+}
 
 
 int add_valid_option( NAME_ARG *arg, char *option )
@@ -80,7 +80,7 @@ int add_valid_option( NAME_ARG *arg, char *option )
 
         return this_ticket++;
 
-} /* add_valid_option */
+}
 
 
 void set_default_value( NAME_ARG *arg, int ticket, char *default_value )
@@ -91,7 +91,7 @@ void set_default_value( NAME_ARG *arg, int ticket, char *default_value )
                 v_option->default_value = default_value;
         else
                 name_arg_bye ("Can't Find Ticket Number");
-} /* set_default_value */
+}
 
 
 
@@ -136,7 +136,7 @@ char *fetch_arg( NAME_ARG *arg, char *option )
 
 	return (char *)0;
 
-} /* fetch_arg */
+}
 
 NAME_ARG *name_arg_new( char *argv_0 )
 {
@@ -162,7 +162,7 @@ NAME_ARG *init_arg( char *argv_0 )
 
         return arg;
 
-} /* init_arg */
+}
 
 
 void free_arg( NAME_ARG *arg )
@@ -172,7 +172,7 @@ void free_arg( NAME_ARG *arg )
 	/* destroy_list( arg->comments ); */
 	free( arg );
 
-} /* free_arg() */
+}
 
 
 void name_arg_insert_argv( NAME_ARG *arg, int argc, char **argv )
@@ -205,7 +205,7 @@ void insert_argv( NAME_ARG *arg, int argc, char **argv )
                 }
 	}
 
-} /* insert_argv */
+}
 
 
 void ins_arg( NAME_ARG *arg, char *this_arg )
@@ -270,7 +270,7 @@ void ins_arg( NAME_ARG *arg, char *this_arg )
 
         exit_usage( arg );
 
-} /* ins_arg */
+}
 
 
 
@@ -290,7 +290,7 @@ struct valid_option *find_ticket( NAME_ARG *arg, int ticket )
 
         return (struct valid_option *)0;
 
-} /* find_ticket */
+}
 
 struct valid_option *find_option( NAME_ARG *arg, char *option )
 {
@@ -309,7 +309,7 @@ struct valid_option *find_option( NAME_ARG *arg, char *option )
 
         return (struct valid_option *)0;
 
-} /* find_option */
+}
 
 
 void exit_usage( NAME_ARG *arg )
@@ -373,7 +373,7 @@ void exit_usage( NAME_ARG *arg )
 
         exit(1);
 
-} /* exit_usage */
+}
 
 void name_arg_bye( char *s )
 {
