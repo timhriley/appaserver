@@ -908,7 +908,7 @@ LIST *query_row_dictionary_list(
 	return row_dictionary_list;
 }
 
-char *query_get_between_date_time_where(
+char *query_between_date_time_where(
 			char *date_column_name,
 			char *time_column_name,
 			char *begin_date,
@@ -2101,7 +2101,6 @@ QUERY_DROP_DOWN_ROW *query_process_drop_down_row_new(
 	query_drop_down_row->data_list = local_data_list;
 
 	return query_drop_down_row;
-
 }
 
 QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc( void )
@@ -2670,32 +2669,36 @@ boolean query_get_dictionary_data(
 	}
 }
 
-char *query_get_data_escaped(
+QUERY_DATA *query_data_escaped(
 			DICTIONARY *dictionary,
 			char *attribute_name,
+			char *attribute_datatype,
 			int dictionary_offset,
 			char *starting_label,
 			char *dictionary_prepend_folder_name )
 {
-	char *from_data = (char *)0;
-	char *from_data_escaped;
+	char *data_string = {0};
 	boolean results;
 
-	results = query_get_dictionary_data(
-			&from_data,
+	results =
+		query_get_dictionary_data(
+			&data_string,
 			dictionary, 
 			attribute_name,
 			dictionary_offset,
 			starting_label,
 			dictionary_prepend_folder_name );
 
-	if ( !results || !from_data || !*from_data ) return (char *)0;
+	if ( !results || !data_string || !*data_string )
+		return (QUERY_DATA *)0;
 
-	from_data_escaped =
-		security_sql_injection_escape(
-			from_data );
-
-	return strdup( from_data_escaped );
+	return
+		query_data_new(
+			security_sql_injection_escape(
+				security_replace_special_characters(
+					string_trim_number_characters(
+						data_string,
+						attribute_datatype ) ) ) );
 }
 
 QUERY_SUBQUERY *query_subquery_new(
@@ -2727,8 +2730,8 @@ QUERY_ATTRIBUTE *query_attribute_new(
 			char *folder_name,
 			char *datatype,
 			enum relational_operator relational_operator,
-			char *from_data,
-			char *to_data,
+			QUERY_DATA *from_data,
+			QUERY_DATA *to_data,
 			int primary_key_index )
 {
 	QUERY_ATTRIBUTE *query_attribute;
@@ -2743,27 +2746,15 @@ QUERY_ATTRIBUTE *query_attribute_new(
 		exit( 1 );
 	}
 
-	if ( datatype
-	&&   ( strcmp( datatype, "float" ) == 0
-	||     strcmp( datatype, "integer" ) == 0
-	||     strcmp( datatype, "reference_number" ) == 0 ) )
-	{
-		timlib_remove_character( from_data, ',' );
-		timlib_remove_character( from_data, '$' );
-		timlib_remove_character( to_data, ',' );
-		timlib_remove_character( to_data, '$' );
-	}
-
 	query_attribute->attribute_name = attribute_name;
 	query_attribute->folder_name = folder_name;
 	query_attribute->datatype = datatype;
 	query_attribute->relational_operator = relational_operator;
+	query_attribute->primary_key_index = primary_key_index;
 	query_attribute->from_data = from_data;
 	query_attribute->to_data = to_data;
-	query_attribute->primary_key_index = primary_key_index;
 
 	return query_attribute;
-
 }
 
 LIST *query_get_attribute_list(
@@ -2775,8 +2766,8 @@ LIST *query_get_attribute_list(
 	LIST *query_attribute_list = {0};
 	QUERY_ATTRIBUTE *query_attribute;
 	ATTRIBUTE *attribute;
-	char *from_data;
-	char *to_data;
+	QUERY_DATA *from_data;
+	QUERY_DATA *to_data;
 	char *operator_name;
 	enum relational_operator relational_operator;
 
@@ -2840,15 +2831,16 @@ LIST *query_get_attribute_list(
 			relational_operator = begins;
 		}
 
-		from_data = (char *)0;
-		to_data = (char *)0;
+		from_data = (QUERY_DATA *)0;
+		to_data = (QUERY_DATA *)0;
 
 		if ( relational_operator != is_null
 		&&   relational_operator != not_null
 		&&   ! ( from_data =
-				query_get_data_escaped(
+				query_data_escaped(
 					dictionary,
 					attribute->attribute_name,
+					attribute->datatype,
 					0 /* dictionary_offset */,
 					QUERY_FROM_STARTING_LABEL,
 					dictionary_prepend_folder_name ) ) )
@@ -2857,9 +2849,10 @@ LIST *query_get_attribute_list(
 		}
 
 		to_data =
-			query_get_data_escaped(
+			query_data_escaped(
 				dictionary, 
 				attribute->attribute_name,
+				attribute->datatype,
 				0 /* dictionary_offset */,
 				QUERY_TO_STARTING_LABEL,
 				dictionary_prepend_folder_name );
@@ -3307,11 +3300,19 @@ char *query_attribute_list_display(	char *folder_name,
 				query_attribute->datatype,
 				query_relational_operator_display(
 					query_attribute->relational_operator ),
-				(query_attribute->from_data)
-					? query_attribute->from_data
+				(query_attribute->
+					from_data->
+					escaped_replaced_data )
+					? query_attribute->
+						from_data->
+						escaped_replaced_data
 					: "null",
-				(query_attribute->to_data)
-					? query_attribute->to_data
+				(query_attribute->
+					to_data->
+					escaped_replaced_data)
+					? query_attribute->
+						to_data->
+						escaped_replaced_data
 					: "null" );
 
 	} while( list_next( query_attribute_list ) );
@@ -3643,7 +3644,7 @@ char *query_combined_where_clause(
 	}
 }
 
-boolean query_get_date_time_between_attributes(
+boolean query_date_time_between_attributes(
 			QUERY_ATTRIBUTE **date_between_attribute,
 			QUERY_ATTRIBUTE **time_between_attribute,
 			LIST *query_attribute_list,
@@ -3658,10 +3659,13 @@ boolean query_get_date_time_between_attributes(
 
 		if ( ( query_attribute->primary_key_index
 		||     combine_date_time )
-		&&   query_attribute->relational_operator == between
-		&&  (timlib_strcmp( query_attribute->datatype, "time" ) == 0
-		||   timlib_strcmp( query_attribute->
-				datatype, "current_time" ) == 0 ) )
+		&&     query_attribute->relational_operator == between
+		&&  ( timlib_strcmp(
+			query_attribute->datatype,
+			"time" ) == 0
+		||   timlib_strcmp(
+			query_attribute->
+			datatype, "current_time" ) == 0 ) )
 		{
 			*time_between_attribute = query_attribute;
 			continue;
@@ -3669,10 +3673,13 @@ boolean query_get_date_time_between_attributes(
 
 		if ( ( query_attribute->primary_key_index
 		||     combine_date_time )
-		&&   query_attribute->relational_operator == between
-		&&  (timlib_strcmp( query_attribute->datatype, "date" ) == 0
-		||   timlib_strcmp( query_attribute->
-				datatype, "current_date" ) == 0 ) )
+		&&     query_attribute->relational_operator == between
+		&&  ( timlib_strcmp(
+			query_attribute->datatype,
+			"date" ) == 0
+		||   timlib_strcmp(
+			query_attribute->datatype,
+			"current_date" ) == 0 ) )
 		{
 			*date_between_attribute = query_attribute;
 			continue;
@@ -3681,7 +3688,6 @@ boolean query_get_date_time_between_attributes(
 	} while( list_next( query_attribute_list ) );
 
 	return ( *date_between_attribute && *time_between_attribute );
-
 }
 
 char *query_get_attribute_where_clause(
@@ -3699,6 +3705,7 @@ char *query_get_attribute_where_clause(
 	boolean boolean_attribute;
 	boolean first_time = 1;
 	char *operator_character_string;
+	char *return_where;
 
 	*ptr = '\0';
 
@@ -3712,15 +3719,29 @@ char *query_get_attribute_where_clause(
 		exit( 1 );
 	}
 
-	if ( query_get_date_time_between_attributes(
+	if ( query_date_time_between_attributes(
 			&date_between_attribute,
 			&time_between_attribute,
 			query_attribute_list,
 			combine_date_time ) )
 	{
-		ptr += sprintf( ptr,
+		return_where =
+			query_between_date_time_where(
+				date_between_attribute->attribute_name,
+				time_between_attribute->attribute_name,
+				date_between_attribute->from_data,
+				time_between_attribute->from_data,
+				date_between_attribute->to_data,
+				time_between_attribute->to_data,
+				application_name,
+				date_between_attribute->folder_name );
+
+		if ( return_where && *return_where )
+		{
+			ptr += sprintf(
+				ptr,
 				"%s",
-				query_get_between_date_time_where(
+				query_between_date_time_where(
 					date_between_attribute->attribute_name,
 					time_between_attribute->attribute_name,
 					date_between_attribute->from_data,
@@ -3730,14 +3751,16 @@ char *query_get_attribute_where_clause(
 					application_name,
 					date_between_attribute->folder_name ) );
 
-		list_append_pointer(	exclude_attribute_name_list,
-					date_between_attribute->
-						attribute_name );
+			list_set(
+				exclude_attribute_name_list,
+				date_between_attribute->attribute_name );
 
-		list_append_pointer(	exclude_attribute_name_list,
-					time_between_attribute->
-						attribute_name );
-		first_time = 0;
+			list_set(
+				exclude_attribute_name_list,
+				time_between_attribute->attribute_name );
+
+			first_time = 0;
+		}
 	}
 
 	list_rewind( query_attribute_list );
@@ -8708,5 +8731,28 @@ QUERY_OUTPUT *query_sort_order_output_new(
 	}
 
 	return query_output;
+}
+
+QUERY_DATA *query_data_new(
+			char *escaped_replaced_data )
+{
+	QUERY_DATA *query_data;
+
+	if ( !escaped_replaced_data || !*escaped_replaced_data )
+		return (QUERY_DATA *)0;
+
+	if ( ! ( query_data = calloc( 1, sizeof( QUERY_DATA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		exit( 1 );
+	}
+
+	query_data->escaped_replaced_data = escaped_replaced_data;
+	return query_data;
 }
 

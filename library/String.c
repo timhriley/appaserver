@@ -902,7 +902,8 @@ char *string_trim_number_characters(
 	}
 
 	if ( strcmp( attribute_datatype, "float" ) != 0
-	&&   strcmp( attribute_datatype, "integer" ) != 0 )
+	&&   strcmp( attribute_datatype, "integer" ) != 0
+	&&   strcmp( attribute_datatype, "reference_number" ) != 0 )
 	{
 		return number;
 	}

@@ -202,7 +202,8 @@ boolean security_password_encrypted(
 char *security_replace_special_characters(
 			char *data )
 {
-	/* search_replace_string( data, "`", "'" ); */
+	if ( !data || !*data ) return data;
+
 	search_replace_string( data, "\\", "/" );
 	search_replace_string( data, "\"", "'" );
 
