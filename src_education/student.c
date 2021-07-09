@@ -36,8 +36,6 @@ STUDENT *student_new(	char *student_full_name,
 	return student;
 }
 
-/* Returns static memory */
-/* --------------------- */
 char *student_name_escape( char *student_full_name )
 {
 	static char escape_full_name[ 256 ];
@@ -56,6 +54,7 @@ FILE *student_insert_open(
 
 	sprintf(sys_string,
 		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
+		"tee_appaserver_error.sh				|"
 		"sql 2>&1						|"
 		"grep -vi duplicate					|"
 		"cat >%s						 ",

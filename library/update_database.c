@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "timlib.h"
+#include "String.h"
 #include "list.h"
 #include "dictionary.h"
 #include "process.h"
@@ -951,7 +952,13 @@ LIST *update_folder_changed_attribute_list(
 					/* Returns data */
 					/* ------------ */
 					security_replace_special_characters(
-						new_data ) ) );
+						/* ------------ */
+						/* Returns data */
+						/* ------------ */
+						string_trim_number_characters(
+							new_data,
+							attribute->
+							     datatype ) ) ) );
 
 		if ( !changed_attribute )
 		{
@@ -999,16 +1006,6 @@ CHANGED_ATTRIBUTE *update_changed_attribute_new(
 	changed_attribute->attribute_datatype = attribute_datatype;
 	changed_attribute->old_data = old_data;
 
-	if ( timlib_strcmp( attribute_datatype, "float" ) == 0 )
-	{
-		strcpy(	escaped_replaced_new_data,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			timlib_trim_money_characters(
-				escaped_replaced_new_data ) );
-	}
-
 	if ( strcmp( escaped_replaced_new_data, FORBIDDEN_NULL ) == 0 )
 		changed_attribute->escaped_replaced_new_data = NULL_STRING;
 	else
@@ -1024,7 +1021,7 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute(
 			ATTRIBUTE *attribute,
 			int row )
 {
-	CHANGED_ATTRIBUTE *changed_attribute = {0};
+	CHANGED_ATTRIBUTE *changed_attribute;
 	char preupdate_attribute_name[ 128 ];
 	char *old_data = {0};
 	char *new_data = {0};
@@ -1076,32 +1073,45 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute(
 	{
 		return (CHANGED_ATTRIBUTE *)0;
 	}
-	else
+
 	/* ------------ */
 	/* Got a change */
 	/* ------------ */
-	{
-		changed_attribute =
-			update_changed_attribute_new(
-				attribute->attribute_name,
-				attribute->datatype,
-				old_data,
-				new_data );
+	changed_attribute =
+		update_changed_attribute_new(
+			attribute->attribute_name,
+			attribute->datatype,
+			old_data,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			security_sql_injection_escape(
+				/* ------------ */
+				/* Returns data */
+				/* ------------ */
+				security_replace_special_characters(
+					/* ------------ */
+					/* Returns data */
+					/* ------------ */
+					string_trim_number_characters(
+						new_data,
+						attribute->
+						     datatype ) ) ) );
 
-		/* ------------------------------------------------- */
-		/* Set the preupdate_$attribute_name for the trigger */
-		/* ------------------------------------------------- */
-		sprintf(	preupdate_attribute_name,
-				"%s%s_%d",
-				UPDATE_DATABASE_PREUPDATE_PREFIX,
-				attribute->attribute_name,
-				row );
+	/* ------------------------------------------------- */
+	/* Set the preupdate_$attribute_name for the trigger */
+	/* ------------------------------------------------- */
+	sprintf(	preupdate_attribute_name,
+			"%s%s_%d",
+			UPDATE_DATABASE_PREUPDATE_PREFIX,
+			attribute->attribute_name,
+			row );
 
-		dictionary_set_pointer(
-			post_dictionary,
-			strdup( preupdate_attribute_name ),
-			old_data );
-	}
+	dictionary_set_pointer(
+		post_dictionary,
+		strdup( preupdate_attribute_name ),
+		old_data );
+
 	return changed_attribute;
 }
 

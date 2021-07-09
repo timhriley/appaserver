@@ -127,7 +127,7 @@ int main( int argc, char **argv )
 	}
 	document_close();
 	exit( 0 );
-} /* main() */
+}
 
 boolean load_institution_balance(
 			char *application_name,
@@ -239,17 +239,19 @@ boolean load_institution_balance(
 				 OUTPUT_DELIMITER,
 				 date_string,
 				 OUTPUT_DELIMITER,
-				 timlib_trim_money_characters( balance ) );
+				 string_trim_number_characters(
+					balance,
+					"float" /* attribute_datatype */ ) );
 		}
 
 	}
 
 	if ( output_pipe ) pclose( output_pipe );
+
 	fclose( input_file );
 
 	return 1;
-
-} /* load_institution_balance() */
+}
 
 char *get_date_string( void )
 {
@@ -270,7 +272,7 @@ void trim_control_characters( char *account_number )
 		}
 		account_number++;
 	}
-} /* trim_control_characters() */
+}
 
 DICTIONARY *get_account_number_dictionary(
 			char *application_name,
@@ -291,4 +293,4 @@ DICTIONARY *get_account_number_dictionary(
 
 	return pipe2dictionary( sys_string, ',' );
 
-} /* get_account_number_dictionary() */
+}

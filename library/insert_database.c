@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include "appaserver_error.h"
 #include "timlib.h"
+#include "String.h"
 #include "piece.h"
 #include "process.h"
 #include "appaserver_library.h"
@@ -36,7 +37,6 @@ INSERT_DATABASE *insert_database_calloc(
 
 INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data_new(
 			char *attribute_name,
-			char *attribute_datatype,
 			char *escaped_replaced_data )
 {
 	INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data;
@@ -53,16 +53,6 @@ INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data_new(
 	}
 
 	insert_database_attribute_data->attribute_name = attribute_name;
-
-	if ( timlib_strcmp( attribute_datatype, "float" ) == 0 )
-	{
-		strcpy(	escaped_replaced_data,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			timlib_trim_money_characters(
-				escaped_replaced_data ) );
-	}
 
 	insert_database_attribute_data->escaped_replaced_data =
 		escaped_replaced_data;
@@ -1244,27 +1234,9 @@ LIST *insert_database_attribute_data_list(
 			exit( 1 );
 		}
 
-/*
-		if ( attribute
-		&&   *data
-		&& ( timlib_strcmp(	attribute->datatype,
-					"float" ) == 0
-		||   timlib_strcmp(	attribute->datatype,
-					"integer" ) == 0 ) )
-		{
-			if ( strcmp( data, NULL_STRING ) != 0 )
-			{
-				strcpy(	data,
-					timlib_trim_money_characters(
-					data ) );
-			}
-		}
-*/
-
 		attribute_data =
 			insert_database_attribute_data_new(
 				attribute_name,
-				attribute->datatype,
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */
@@ -1273,7 +1245,13 @@ LIST *insert_database_attribute_data_list(
 					/* Returns data */
 					/* ------------ */
 					security_replace_special_characters(
-						data ) ) );
+						/* ------------ */
+						/* Returns data */
+						/* ------------ */
+						string_trim_number_characters(
+							data,
+							attribute->
+							     datatype ) ) ) );
 
 		list_set( attribute_data_list, attribute_data );
 		list_set( done_attribute_name_list, attribute_name );
@@ -1341,15 +1319,21 @@ void insert_database_set_attribute_data_list(
 		attribute_data =
 			insert_database_attribute_data_new(
 				strdup( attribute_name ),
-				attribute->datatype,
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */
 				security_sql_injection_escape(
+					/* ------------ */
 					/* Returns data */
 					/* ------------ */
 					security_replace_special_characters(
-						data ) ) );
+						/* ------------ */
+						/* Returns data */
+						/* ------------ */
+						string_trim_number_characters(
+							data,
+							attribute->
+							     datatype ) ) ) );
 
 		list_set( attribute_data_list, attribute_data );
 

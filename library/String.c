@@ -201,8 +201,9 @@ char *string_occurrance_list_display(
 	return destination;
 }
 
-char *string_enforce_utf16(	char *destination,
-				char *source )
+char *string_enforce_utf16(
+			char *destination,
+			char *source )
 {
 	LIST *negative_occurrance_list;
 	STRING_OCCURRANCE *occurrance;
@@ -232,7 +233,8 @@ char *string_enforce_utf16(	char *destination,
 	return destination;
 }
 
-LIST *string_negative_sequence_occurrance_list( char *source )
+LIST *string_negative_sequence_occurrance_list(
+			char *source )
 {
 	char *ptr;
 	boolean inside_negative_sequence;
@@ -308,9 +310,10 @@ char *string_escape_quote(
 			char *destination,
 			char *source )
 {
-	return string_escape_quote_dollar(
+	return string_escape_character_array(
 			destination,
-			source );
+			source,
+			"'" /* character_array */ );
 }
 
 char *string_escape_full(
@@ -427,7 +430,7 @@ char *string_remove_control( char *input )
 char *string_escape_character(
 			char *destination,
 			char *data,
-			int character_to_escape )
+			char character )
 {
 	char *anchor = destination;
 
@@ -439,8 +442,7 @@ char *string_escape_character(
 
 	while ( *data )
 	{
-		if ( *data == character_to_escape )
-			*destination++ = '\\';
+		if ( *data == character ) *destination++ = '\\';
 
 		*destination++ = *data++;
 	}
@@ -469,7 +471,9 @@ char *string_commas_dollar( double d )
 	/* Returns static memory of 3 decimal places */
 	/* ----------------------------------------- */
 	results = string_commas_double( d );
+
 	*( results + strlen( results ) - 1 ) = '\0';
+
 	return results;
 }
 
@@ -576,23 +580,23 @@ char *string_format_mnemonic(
 }
 
 int string_character_exists(
-			char *buffer,
+			char *data,
 			char c )
 {
-	return string_character_position( buffer, c );
+	return string_character_position( data, c );
 }
 
 int string_character_position(
-			char *buffer,
+			char *data,
 			char c )
 {
 	int position = 1;
 
-	if ( !buffer ) return 0;
+	if ( !data ) return 0;
 
-	while( *buffer )
+	while( *data )
 	{
-		if ( *buffer++ == c ) return position;
+		if ( *data++ == c ) return position;
 		position++;
 	}
 	return 0;
@@ -602,16 +606,6 @@ char *string_right(	char *input,
 			int length )
 {
 	int str_len;
-
-	if ( length > 127 )
-	{
-		fprintf(stderr,
-			"Error in %s/%s()/%d: length > 127\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
 
 	if ( !input || !*input ) return input;
 
@@ -635,31 +629,34 @@ char *string_trim_right(
 	if ( str_len < length ) return buffer;
 
 	buffer[ str_len - length ] = '\0';
+
 	return buffer;
 }
 
 char *string_trim_character(
-			char *buffer,
-			char delimiter )
+			char *data,
+			char character )
 {
 	int position;
 	int offset;
 
-	if ( ! ( position =
-			/* ------------------- */
-			/* Position is 1 based */
-			/* ------------------- */
-			string_character_position(
-				buffer,
-				delimiter ) ) )
+	while ( 1 )
 	{
-		return buffer;
+		if ( ! ( position =
+				/* ------------------- */
+				/* Position is 1 based */
+				/* ------------------- */
+				string_character_position(
+					data,
+					character ) ) )
+		{
+			return data;
+		}
+
+		offset = position - 1;
+
+		string_strcpy( data, data + offset, 0 );
 	}
-
-	offset = position - 1;
-
-	string_strcpy( buffer, buffer + offset, 0 );
-	return buffer;
 }
 
 int string_character_count(
@@ -731,120 +728,6 @@ int string_instr(	char *substr,
                                 return x;
 	}
         return -1;
-}
-
-char *string_input_tmp(	char *input_buffer,
-			FILE *infile,
-			int buffer_size )
-{
-	int in_char;
-	int size = 0;
-	char *anchor = input_buffer;
-
-	*anchor = '\0';
-
-	/* Exit in middle. */
-	/* --------------- */
-	while ( 1 )
-	{
-		in_char = fgetc( infile );
-
-		if ( string_get_line_check_utf_16 )
-		{
-			string_get_line_check_utf_16 = 0;
-
-			if ( in_char == 255 )
-			{
-				in_char = fgetc( infile );
-
-				if ( in_char == 254 )
-				{
-					string_is_utf_16 = 1;
-					continue;
-				}
-			}
-		}
-
-		if ( string_is_utf_16 )
-		{
-			string_utf_16_toggle = 1 - string_utf_16_toggle;
-
-			if ( string_utf_16_toggle )
-			{
-				continue;
-			}
-		}
-
-		/* Why are there zeros? */
-		/* -------------------- */
-		if ( !in_char ) continue;
-
-		if ( in_char == STRING_CR ) continue;
-
-		if ( in_char == EOF )
-		{
-			/* --------------------------------------- */
-			/* If last line in file doesn't have a CR, */
-			/* then call this function one more time.  */
-			/* --------------------------------------- */
-			/* If you need to tweek this, then test    */
-			/* process=execute_select_statement on a   */
-			/* file without a trailing CR.		   */
-			/* --------------------------------------- */
-			if ( input_buffer != anchor )
-			{
-				*input_buffer = '\0';
-				return anchor;
-			}
-			else
-			{
-				string_reset_get_line_check_utf_16();
-				return (char *)0;
-			}
-		}
-
-		if ( in_char == STRING_LF )
-		{
-			*input_buffer = '\0';
-			return anchor;
-		}
-
-		/* If '\' then get the next character */
-		/* ---------------------------------- */
-		if ( in_char == '\\' )
-		{
-			in_char = fgetc( infile );
-
-			if ( in_char == STRING_CR ) continue;
-
-			/* Can't escape the LF */
-			/* ------------------- */
-			if ( in_char == STRING_LF )
-			{
-				*input_buffer = '\0';
-				return anchor;
-			}
-
-			*input_buffer++ = '\\';
-			size++;
-		}
-
-		if ( buffer_size && ( size++ >= buffer_size ) )
-		{
-			fprintf( stderr,
-		"Warning in %s()/%d: exceeded max line length of %d:\n"
-		"%.75s...\n\n",
-				 __FUNCTION__,
-				 __LINE__,
-				 buffer_size - 1,
-				 anchor );
-			*input_buffer = '\0';
-			return anchor;
-		}
-
-		*input_buffer++ = in_char;
-
-	} /* while( 1 ) */
 }
 
 char *string_pipe_fetch( char *system_string )
@@ -984,5 +867,63 @@ char *string_escape_character_array(
 		}
 	}
 	return destination;
+}
+
+char *string_trim_character_array(
+			char *data,
+			char *character_array )
+{
+	if ( !data || !*data || !character_array || !character_array )
+	{
+		return data;
+	}
+
+	while ( *character_array )
+	{
+		string_trim_character(
+			data,
+			(*character_array)++ );
+	}
+
+	return data;
+}
+
+char *string_trim_number_characters(
+			char *number,
+			char *attribute_datatype )
+{
+	if ( !attribute_datatype || !*attribute_datatype )
+	{
+		return number;
+	}
+
+	if ( strcmp( attribute_datatype, "float" ) != 0
+	&&   strcmp( attribute_datatype, "integer" ) != 0 )
+	{
+		return number;
+	}
+
+	return string_trim_character_array(
+			number,
+			",$" );
+	
+/*
+	char buffer[ 128 ];
+	char *ptr = buffer;
+
+	while( *number )
+	{
+		if ( *number != '$' && *number != ',' )
+		{
+			*ptr++ = *number;
+		}
+		number++;
+	}
+
+	*ptr = '\0';
+
+	strcpy( number, buffer );
+	return number;
+*/
 }
 

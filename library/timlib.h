@@ -661,11 +661,6 @@ void timlib_display_error_file(
 boolean timlib_is_valid_time(
 			char *time_string );
 
-/* Returns static memory */
-/* --------------------- */
-char *timlib_trim_money_characters(
-			char *amount );
-
 void output_starting_argv_stderr(
 			int argc,
 			char **argv );

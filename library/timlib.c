@@ -2130,24 +2130,6 @@ char *escape_dollar_sign( char *data )
 	return data;
 }
 
-char *timlib_trim_money_characters( char *amount )
-{
-	static char destination[ 128 ];
-	char *ptr = destination;
-
-	while( *amount )
-	{
-		if ( *amount != '$' && *amount != ',' )
-		{
-			*ptr++ = *amount;
-		}
-		amount++;
-	}
-
-	*ptr = '\0';
-	return destination;
-}
-
 char *escape_single_quote( char *data )
 {
 	return escape_single_quotes( data );

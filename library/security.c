@@ -209,15 +209,16 @@ char *security_replace_special_characters(
 	return data;
 }
 
-char *security_sql_injection_escape( char *source )
+char *security_sql_injection_escape( char *data )
 {
 	char destination[ QUERY_WHERE_BUFFER ];
 
-	string_escape_character_array(
-		destination,
-		source,
-		"`'$;%&=" );
+	if ( !data || !*data ) return data;
 
-	return strdup( destination );
+	return strdup(
+		string_escape_character_array(
+			destination,
+			data,
+			"`'$;%&=" ) );
 }
 

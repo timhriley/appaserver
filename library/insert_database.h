@@ -50,7 +50,6 @@ typedef struct
 /* ---------- */
 INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data_new(
 			char *attribute_name,
-			char *attribute_datatype,
 			char *escaped_replaced_data );
 
 INSERT_DATABASE *insert_database_new(

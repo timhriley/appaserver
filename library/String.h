@@ -95,7 +95,7 @@ char *string_remove_control(
 char *string_escape_character(
 			char *destination,
 			char *data,
-			int character_to_escape );
+			char character );
 
 char *string_commas_rounded_dollar(
 			double d );
@@ -116,18 +116,18 @@ char *string_format_mnemonic(
 			char *string );
 
 boolean string_character_exists(
-			char *buffer,
+			char *data,
 			char c );
 
 /* Position is 1 based */
 /* ------------------- */
 int string_character_position(
-			char *buffer,
+			char *data,
 			char c );
 
 char *string_trim_character(
-			char *buffer,
-			char delimiter );
+			char *data,
+			char character );
 
 char *string_trim_right(
 			char *buffer,
@@ -153,10 +153,6 @@ int string_instr(	char *substr,
 			char *string,
 			int occurrence );
 
-char *string_input_tmp(	char *input_buffer,
-			FILE *infile,
-			int buffer_size );
-
 /* Returns heap memory or null */
 /* --------------------------- */
 char *string_pipe_fetch( char *system_string );
@@ -170,11 +166,14 @@ char *string_repeat(	char *string,
 /* --------------------- */
 char *string_itoa(	int i );
 
-/* Returns destination */
-/* ------------------- */
-char *security_escape_character_array(
-			char *destination,
-			char *source,
+/* Returns number */
+/* -------------- */
+char *string_trim_number_characters(
+			char *number,
+			char *attribute_datatype );
+
+char *string_trim_character_array(
+			char *data,
 			char *character_array );
 
 #endif
