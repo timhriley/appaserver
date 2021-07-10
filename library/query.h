@@ -67,7 +67,7 @@ typedef struct
 typedef struct
 {
 	LIST *attribute_name_list;
-	LIST *data_list;
+	LIST *query_data_list;
 } QUERY_DROP_DOWN_ROW;
 
 typedef struct
@@ -273,7 +273,7 @@ QUERY_DROP_DOWN *query_row_drop_down(
 QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 			LIST *attribute_name_list,
 			LIST *attribute_list,
-			LIST *data_list );
+			LIST *data_string_list );
 
 QUERY_DROP_DOWN *query_drop_down_new(
 			char *folder_name );
@@ -284,7 +284,7 @@ boolean query_get_drop_down_dictionary_data(
 			char *primary_attribute_name,
 			int dictionary_offset );
 
-char *query_get_operator_name(
+char *query_dictionary_operator_name(
 			char *attribute_name,
 			DICTIONARY *dictionary,
 			int dictionary_offset,
@@ -310,7 +310,7 @@ QUERY_DATA *query_data_escaped(
 			char *starting_label,
 			char *dictionary_prepend_folder_name );
 
-LIST *query_get_attribute_list(
+LIST *query_attribute_list(
 			LIST *append_isa_attribute_list,
 			DICTIONARY *dictionary,
 			LIST *exclude_attribute_name_list,
@@ -332,7 +332,7 @@ QUERY_ATTRIBUTE *query_attribute_new(
 			QUERY_DATA *to_data,
 			int primary_key_index );
 
-boolean query_attribute_list_exists(
+boolean query_attribute_exists(
 			LIST *query_attribute_list,
 			char *attribute_name );
 
@@ -471,7 +471,7 @@ char *query_get_subquery_where_clause(
 char *query_append_where_clause(char *source_where_clause,
 			char *append_where_clause );
 
-char *query_get_display(
+char *query_output_display(
 			QUERY_OUTPUT *query_output );
 
 char *query_subquery_list_display(
@@ -520,7 +520,7 @@ QUERY_DROP_DOWN *query_get_process_drop_down(
 QUERY_DROP_DOWN_ROW *query_process_drop_down_row_new(
 			char *attribute_name,
 			LIST *attribute_list,
-			LIST *data_list );
+			LIST *query_data_list );
 
 QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc(
 			void );
@@ -839,7 +839,7 @@ char *query_login_name_where_clause(
 			LIST *where_attribute_data_list,
 			char *login_name );
 
-QUERY_DROP_DOWN *query_get_row_drop_down(
+QUERY_DROP_DOWN *query_dictionary_row_drop_down(
 			LIST *exclude_attribute_name_list,
 			QUERY_DROP_DOWN *query_drop_down,
 			char *root_folder_name,
