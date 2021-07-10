@@ -56,6 +56,7 @@ enum relational_operator {	equals,
 typedef struct
 {
 	char *escaped_replaced_data;
+	char *attribute_datatype;
 } QUERY_DATA;
 
 typedef struct 
@@ -80,7 +81,7 @@ typedef struct
 {
 	char *attribute_name;
 	char *folder_name;
-	char *datatype;
+	char *attribute_datatype;
 	enum relational_operator relational_operator;
 	QUERY_DATA *from_data;
 	QUERY_DATA *to_data;
@@ -140,7 +141,7 @@ QUERY *query_insert_new(
 			char *folder_name,
 			DICTIONARY *query_dictionary );
 
-QUERY_DROP_DOWN *query_get_insert_drop_down(
+QUERY_DROP_DOWN *query_insert_drop_down(
 			char *folder_name,
 			LIST *foreign_attribute_name_list,
 			LIST *attribute_list,
@@ -213,7 +214,7 @@ char *query_get_select_clause(
 			char *application_name,
 			LIST *append_isa_attribute_list );
 
-LIST *query_get_subquery_drop_down_list(
+LIST *query_subquery_drop_down_list(
 			LIST *exclude_attribute_name_list,
 			FOLDER *root_folder,
 			LIST *mto1_related_folder_list,
@@ -316,8 +317,9 @@ LIST *query_attribute_list(
 			LIST *exclude_attribute_name_list,
 			char *dictionary_prepend_folder_name );
 
-enum relational_operator query_get_relational_operator(
-			char *operator_name );
+enum relational_operator query_relational_operator(
+			char *operator_name,
+			char *attribute_datatype );
 
 QUERY_SUBQUERY *query_subquery_new(
 			char *folder_name,
@@ -510,7 +512,7 @@ LIST *query_get_process_drop_down_list(
 			LIST *mto1_recursive_related_folder_list,
 			DICTIONARY *preprompt_dictionary );
 
-QUERY_DROP_DOWN *query_get_process_drop_down(
+QUERY_DROP_DOWN *query_process_drop_down(
 			LIST *exclude_attribute_name_list,
 			char *folder_name,
 			LIST *foreign_attribute_name_list,
@@ -926,6 +928,21 @@ QUERY_OUTPUT *query_sort_order_output_new(
 			QUERY *query );
 
 QUERY_DATA *query_data_new(
+			char *attribute_datatype,
 			char *escaped_replaced_data );
+
+char *query_data_convert_date_international(
+			char *attribute_datatype,
+			char *escaped_replaced_data );
+
+LIST *query_drop_down_row_list(
+			LIST *exclude_attribute_name_list,
+			QUERY_DROP_DOWN *query_drop_down,
+			char *root_folder_name,
+			LIST *foreign_attribute_name_list,
+			LIST *attribute_list,
+			DICTIONARY *dictionary,
+			int index,
+			char *dictionary_prepend_folder_name );
 
 #endif

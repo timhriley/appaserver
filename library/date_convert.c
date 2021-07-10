@@ -273,15 +273,22 @@ enum date_convert_format date_convert_populate_return_date(
 
 }
 
-enum date_convert_format date_convert_date_get_format( char *date_string )
+enum date_convert_format date_convert_date_get_format(
+			char *date_time_string )
+{
+	return date_convert_format_evaluate( date_time_string );
+}
+
+enum date_convert_format date_convert_format_evaluate(
+			char *date_time_string )
 {
 	char delimiter;
-	char year_string[ 16 ];
+	char year_string[ 128 ];
+	char date_string[ 128 ];
+
+	column( date_string, 0, date_time_string );
 
 	if ( !timlib_exists_numeric( date_string ) )
-		return date_convert_unknown;
-
-	if ( strlen( date_string ) > 19 )
 		return date_convert_unknown;
 
 	if ( timlib_exists_alpha( date_string ) )
@@ -293,6 +300,7 @@ enum date_convert_format date_convert_date_get_format( char *date_string )
 	}
 
 	delimiter = date_convert_get_delimiter( date_string );
+
 	if ( !delimiter ) return date_convert_unknown;
 
 	if ( character_count( delimiter, date_string ) != 2 )
@@ -322,6 +330,7 @@ enum date_convert_format date_convert_date_get_format( char *date_string )
 	if ( delimiter == '-' )
 	{
 		piece( year_string, delimiter, date_string, 0 );
+
 		if ( ( strcmp( year_string, "0000" ) == 0 )
 		||   ( atoi( year_string ) > 1700 ) )
 		{
@@ -336,7 +345,6 @@ enum date_convert_format date_convert_date_get_format( char *date_string )
 	{
 		return date_convert_unknown;
 	}
-
 }
 
 void date_convert_free(	DATE_CONVERT *date_convert )
@@ -596,7 +604,8 @@ boolean date_convert_source_international(
 	{
 		char delimiter_string[ 2 ];
 
-		*delimiter_string = date_convert_get_delimiter( date_string );
+		*delimiter_string = date_convert_delimiter( date_string );
+
 		*(delimiter_string + 1) = '\0';
 
 		strcpy( return_date, date_string );
@@ -677,6 +686,11 @@ char *date_convert_get_date_format_string(
 }
 
 char date_convert_get_delimiter( char *date_string )
+{
+	return date_convert_delimiter( date_string );
+}
+
+char date_convert_delimiter( char *date_string )
 {
 	if ( timlib_exists_character( date_string, '/' ) )
 		return '/';

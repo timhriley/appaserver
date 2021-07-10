@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "appaserver_library.h"
 #include "timlib.h"
+#include "String.h"
 #include "security.h"
 #include "list_usage.h"
 #include "form.h"
@@ -1265,7 +1266,7 @@ LIST *query_get_process_drop_down_list(
 				mto1_recursive_related_folder_list );
 
 		if ( ( query_drop_down =
-			query_get_process_drop_down(
+			query_process_drop_down(
 					exclude_attribute_name_list,
 					folder_name,
 					related_folder->
@@ -1304,7 +1305,7 @@ LIST *query_get_insert_drop_down_list(
 				mto1_related_folder_list );
 
 		if ( ( query_drop_down =
-			query_get_insert_drop_down(
+			query_insert_drop_down(
 					folder_name,
 					related_folder->
 						foreign_attribute_name_list,
@@ -1703,12 +1704,12 @@ QUERY_DROP_DOWN *query_get_subquery_drop_down(
 	return query_drop_down;
 }
 
-QUERY_DROP_DOWN *query_get_process_drop_down(
-				LIST *exclude_attribute_name_list,
-				char *folder_name,
-				LIST *foreign_attribute_name_list,
-				LIST *attribute_list,
-				DICTIONARY *preprompt_dictionary )
+QUERY_DROP_DOWN *query_process_drop_down(
+			LIST *exclude_attribute_name_list,
+			char *folder_name,
+			LIST *foreign_attribute_name_list,
+			LIST *attribute_list,
+			DICTIONARY *preprompt_dictionary )
 {
 	QUERY_DROP_DOWN *query_drop_down;
 	QUERY_DROP_DOWN_ROW *drop_down_row;
@@ -1786,19 +1787,18 @@ QUERY_DROP_DOWN *query_get_process_drop_down(
 	} while( list_next( foreign_attribute_name_list ) );
 
 	return query_drop_down;
-
 }
 
-QUERY_DROP_DOWN *query_get_insert_drop_down(
-				char *folder_name,
-				LIST *foreign_attribute_name_list,
-				LIST *attribute_list,
-				DICTIONARY *query_dictionary )
+QUERY_DROP_DOWN *query_insert_drop_down(
+			char *folder_name,
+			LIST *foreign_attribute_name_list,
+			LIST *attribute_list,
+			DICTIONARY *query_dictionary )
 {
 	QUERY_DROP_DOWN *query_drop_down;
 	QUERY_DROP_DOWN_ROW *drop_down_row;
 	char *attribute_name;
-	LIST *data_list = {0};
+	LIST *data_string_list = {0};
 	char key[ 1024 ];
 	char *data;
 
@@ -1856,7 +1856,7 @@ QUERY_DROP_DOWN *query_primary_data_drop_down(
 				char *dictionary_prepend_folder_name,
 				LIST *foreign_attribute_name_list,
 				LIST *attribute_list,
-				DICTIONARY *dictionary )
+				DICTIONARY *query_dictionary )
 {
 	QUERY_DROP_DOWN *query_drop_down = {0};
 	int highest_index;
@@ -1864,7 +1864,7 @@ QUERY_DROP_DOWN *query_primary_data_drop_down(
 
 	highest_index =
 		dictionary_attribute_name_list_get_highest_index(
-			dictionary,
+			query_dictionary,
 			foreign_attribute_name_list,
 			dictionary_prepend_folder_name );
 
@@ -1880,7 +1880,7 @@ QUERY_DROP_DOWN *query_primary_data_drop_down(
 				root_folder_name,
 				foreign_attribute_name_list,
 				attribute_list,
-				dictionary,
+				query_dictionary,
 				index,
 				dictionary_prepend_folder_name );
 	}
@@ -2326,7 +2326,10 @@ QUERY_DROP_DOWN *query_row_drop_down(
 			(char *)0
 			/* dictionary_prepend_folder_name */ );
 
-	relational_operator = query_get_relational_operator( operator_name );
+	relational_operator =
+		query_relational_operator(
+			operator_name,
+			(char *)0 /* attribute_datatype */ );
 
 	/* If multi-drop-down, then no relational_operator is okay. */
 	/* -------------------------------------------------------- */
@@ -2543,7 +2546,7 @@ void query_convert_date_international( char **data )
 	if ( !data || !*data ) return;
 
 	date_convert_format =
-		date_convert_date_get_format(
+		date_convert_format_evaluate(
 			*data );
 
 	if ( date_convert_format == american )
@@ -2693,6 +2696,7 @@ QUERY_DATA *query_data_escaped(
 
 	return
 		query_data_new(
+			attribute_datatype,
 			security_sql_injection_escape(
 				security_replace_special_characters(
 					string_trim_number_characters(
@@ -2758,7 +2762,7 @@ QUERY_ATTRIBUTE *query_attribute_new(
 
 LIST *query_attribute_list(
 			LIST *append_isa_attribute_list,
-			DICTIONARY *dictionary,
+			DICTIONARY *query_dictionary,
 			LIST *exclude_attribute_name_list,
 			char *dictionary_prepend_folder_name )
 {
@@ -2795,7 +2799,7 @@ LIST *query_attribute_list(
 		if ( ! ( operator_name =
 				query_dictionary_operator_name(
 					attribute->attribute_name,
-					dictionary,
+					query_dictionary,
 					0 /* dictionary_offset */,
 					QUERY_RELATION_OPERATOR_STARTING_LABEL,
 					dictionary_prepend_folder_name ) ) )
@@ -2818,17 +2822,9 @@ LIST *query_attribute_list(
 		}
 
 		relational_operator =
-			query_get_relational_operator(
-				operator_name );
-
-		if ( ( timlib_strcmp(	attribute->datatype,
-					"date_time" ) == 0
-		||     timlib_strcmp(	attribute->datatype,
-					"current_date_time" ) == 0 )
-		&& relational_operator == equals )
-		{
-			relational_operator = begins;
-		}
+			query_relational_operator(
+				operator_name,
+				attribute->datatype );
 
 		from_data = (QUERY_DATA *)0;
 		to_data = (QUERY_DATA *)0;
@@ -2880,56 +2876,69 @@ LIST *query_attribute_list(
 	return query_attribute_list;
 }
 
-enum relational_operator query_get_relational_operator(
-				char *operator_name )
+enum relational_operator query_relational_operator(
+			char *operator_name,
+			char *attribute_datatype )
 {
+	enum relational_operator relational_operator;
+
 	if ( !operator_name || !*operator_name )
-		return relational_operator_empty;
+		relational_operator = relational_operator_empty;
 	else
 	if ( strcmp( operator_name, EQUAL_OPERATOR ) == 0 )
-		return equals;
+		relational_operator = equals;
 	else
 	if ( strcmp( operator_name, NOT_EQUAL_OPERATOR ) == 0 )
-		return not_equal;
+		relational_operator = not_equal;
 	else
 	if ( strcmp( operator_name, NOT_EQUAL_OR_NULL_OPERATOR ) == 0 )
-		return not_equal_or_null;
+		relational_operator = not_equal_or_null;
 	else
 	if ( strcmp( operator_name, LESS_THAN_OPERATOR ) == 0 )
-		return less_than;
+		relational_operator = less_than;
 	else
 	if ( strcmp( operator_name, LESS_THAN_EQUAL_TO_OPERATOR ) == 0 )
-		return less_than_equal_to;
+		relational_operator = less_than_equal_to;
 	else
 	if ( strcmp( operator_name, GREATER_THAN_OPERATOR ) == 0 )
-		return greater_than;
+		relational_operator = greater_than;
 	else
 	if ( strcmp( operator_name, GREATER_THAN_EQUAL_TO_OPERATOR ) == 0 )
-		return greater_than_equal_to;
+		relational_operator = greater_than_equal_to;
 	else
 	if ( strcmp( operator_name, BETWEEN_OPERATOR ) == 0 )
-		return between;
+		relational_operator = between;
 	else
 	if ( strcmp( operator_name, BEGINS_OPERATOR ) == 0 )
-		return begins;
+		relational_operator = begins;
 	else
 	if ( strcmp( operator_name, CONTAINS_OPERATOR ) == 0 )
-		return contains;
+		relational_operator = contains;
 	else
 	if ( strcmp( operator_name, NOT_CONTAINS_OPERATOR ) == 0 )
-		return not_contains;
+		relational_operator = not_contains;
 	else
 	if ( strcmp( operator_name, OR_OPERATOR ) == 0 )
-		return query_or;
+		relational_operator = query_or;
 	else
 	if ( strcmp( operator_name, NULL_OPERATOR ) == 0 )
-		return is_null;
+		relational_operator = is_null;
 	else
 	if ( strcmp( operator_name, NOT_NULL_OPERATOR ) == 0 )
-		return not_null;
+		relational_operator = not_null;
 	else
-		return relational_operator_unknown;
+		relational_operator = relational_operator_unknown;
 
+	if ( relational_operator == equals
+	&& ( string_strcmp(	attribute_datatype,
+				"date_time" ) == 0
+	||     string_strcmp(	attribute_datatype,
+				"current_date_time" ) == 0 ) )
+	{
+		relational_operator = begins;
+	}
+
+	return relational_operator;
 }
 
 char *query_get_display_where_clause(
@@ -6304,7 +6313,10 @@ QUERY_DROP_DOWN *query_dictionary_row_drop_down(
 			(char *)0
 			/* dictionary_prepend_folder_name */ );
 
-	relational_operator = query_get_relational_operator( operator_name );
+	relational_operator =
+		query_relational_operator(
+			operator_name,
+			(char *)0 /* attribute_datatype */ );
 
 	/* If multi-drop-down, then no relational_operator is okay. */
 	/* -------------------------------------------------------- */
@@ -7562,7 +7574,10 @@ QUERY_DROP_DOWN *query_edit_table_row_drop_down(
 			(char *)0
 			/* dictionary_prepend_folder_name */ );
 
-	relational_operator = query_get_relational_operator( operator_name );
+	relational_operator =
+		query_relational_operator(
+			operator_name,
+			(char *)0 /* attribute_datatype */ );
 
 	/* If multi-drop-down, then no relational_operator is okay. */
 	/* -------------------------------------------------------- */
@@ -8706,6 +8721,7 @@ QUERY_OUTPUT *query_sort_order_output_new(
 }
 
 QUERY_DATA *query_data_new(
+			char *attribute_datatype,
 			char *escaped_replaced_data )
 {
 	QUERY_DATA *query_data;
@@ -8724,7 +8740,238 @@ QUERY_DATA *query_data_new(
 		exit( 1 );
 	}
 
-	query_data->escaped_replaced_data = escaped_replaced_data;
+	query_data->attribute_datatype = attribute_datatype;
+
+	query_data->escaped_replaced_data =
+		query_data_convert_date_international(
+			query_data->attribute_datatype,
+			escaped_replaced_data );
+
 	return query_data;
+}
+
+char *query_data_convert_date_international(
+			char *attribute_datatype,
+			char *escaped_replaced_data )
+{
+	char date_international_string[ 128 ];
+	char date_string[ 64 ];
+	char time_string[ 64 ];
+	char return_date_time[ 128 ];
+	enum date_convert_format date_convert_format;
+	DATE_CONVERT *date;
+
+	if ( !escaped_replaced_data || !*escaped_replaced_data )
+		return escaped_replaced_data;
+
+	if ( strcmp(	attribute_datatype,
+			"current_date" ) != 0
+	||   strcmp(	attribute_datatype,
+			"current_date_time" ) != 0
+	||   strcmp(	attribute_datatype,
+			"current_time" ) != 0
+	||   strcmp(	attribute_datatype,
+			"date" ) != 0
+	||   strcmp(	attribute_datatype,
+			"date_time" ) != 0 )
+	{
+		return escaped_replaced_data;
+	}
+
+	date_convert_format =
+		date_convert_format_evaluate(
+			escaped_replaced_data;
+
+	if ( date_convert_format == date_convert_unknown )
+		return escaped_replaced_data;
+
+	*time_string = '\0';
+
+	column( date_string, 0, escaped_replaced_data );
+	column( time_string, 1, escaped_replaced_data );
+
+	if ( date_convert_format == american )
+	{
+		/* Source American */
+		/* --------------- */
+		date =
+			date_convert_new_date_convert( 
+				international,
+				date_string );
+	}
+	else
+	if ( date_convert_format == military )
+	{
+		/* Source Military */
+		/* --------------- */
+		date =
+			date_convert_new_date_convert( 
+				international,
+				date_string );
+	}
+
+	if ( *time_string )
+	{
+		sprintf(return_date_time,
+			"%s %s",
+			date->return_date,
+			time_string );
+	}
+	else
+	{
+		strcpy( return_date_time, date->return_date );
+	}
+
+	date_convert_free( date );
+	return strdup( return_date_time );
+}
+
+LIST *query_drop_down_row_list(
+			LIST *exclude_attribute_name_list,
+			QUERY_DROP_DOWN *query_drop_down,
+			char *root_folder_name,
+			LIST *foreign_attribute_name_list,
+			LIST *attribute_list,
+			DICTIONARY *dictionary,
+			int index,
+			char *dictionary_prepend_folder_name )
+{
+	LIST *data_list = {0};
+	QUERY_DROP_DOWN_ROW *drop_down_row;
+	char key[ 1024 ];
+	char *string_delimited;
+	char *data_list_string;
+	char *operator_name;
+	enum relational_operator relational_operator;
+
+	if ( !list_length( foreign_attribute_name_list ) )
+		return query_drop_down;
+
+	string_delimited =
+		list2string_delimited(
+			foreign_attribute_name_list,
+			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
+
+	sprintf( key, "%s_%d", string_delimited, index );
+
+	if ( ! ( data_list_string = dictionary_fetch( dictionary, key ) ) )
+	{
+		if ( dictionary_prepend_folder_name
+		&&   *dictionary_prepend_folder_name )
+		{
+			sprintf(key,
+				"%s.%s_%d",
+				dictionary_prepend_folder_name,
+				string_delimited,
+				index );
+		}
+
+		if ( ! ( data_list_string =
+				dictionary_fetch( dictionary, key ) ) )
+		{
+			return query_drop_down;
+		}
+	}
+
+	if ( strcmp( data_list_string, NULL_OPERATOR ) == 0 )
+	{
+		int length = list_length( foreign_attribute_name_list );
+		int i;
+
+		data_list = list_new();
+
+		for(	i = 0;
+			i < length;
+			i++ )
+		{
+			list_append_pointer( data_list, NULL_OPERATOR );
+		}
+	}
+	else
+	if ( strcmp( data_list_string, NOT_NULL_OPERATOR ) == 0 )
+	{
+		int length = list_length( foreign_attribute_name_list );
+		int i;
+
+		data_list = list_new();
+
+		for(	i = 0;
+			i < length;
+			i++ )
+		{
+			list_append_pointer( data_list, NOT_NULL_OPERATOR );
+		}
+	}
+	else
+	{
+		data_list =
+			list_string2list(
+				data_list_string,
+				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
+	}
+
+	if ( !list_length( data_list ) ) return query_drop_down;
+
+	operator_name =
+		query_dictionary_operator_name(
+			key /* attribute_name */,
+			dictionary,
+			0 /* dictionary_offset */,
+			QUERY_RELATION_OPERATOR_STARTING_LABEL,
+			(char *)0
+			/* dictionary_prepend_folder_name */ );
+
+	relational_operator =
+		query_relational_operator(
+			operator_name,
+			(char *)0 /* attribute_datatype */ );
+
+	/* If multi-drop-down, then no relational_operator is okay. */
+	/* -------------------------------------------------------- */
+	if ( index && relational_operator == relational_operator_empty )
+	{
+		goto query_get_drop_down_continue;
+	}
+
+	if ( relational_operator != equals )
+	{
+		return query_drop_down;
+	}
+
+query_get_drop_down_continue:
+
+	if ( ! ( drop_down_row =
+			query_drop_down_row_new(
+				foreign_attribute_name_list,
+				attribute_list,
+				data_string_list ) ) )
+	{
+		return query_drop_down;
+	}
+
+	if ( !query_drop_down )
+	{
+		query_drop_down =
+			query_drop_down_new(
+				strdup( root_folder_name ) );
+	}
+	else
+	if ( query_data_list_accounted_for(
+		query_drop_down->query_drop_down_row_list,
+		data_list ) )
+	{
+		return query_drop_down;
+	}
+
+	if ( exclude_attribute_name_list )
+	{
+		list_append_list(	exclude_attribute_name_list,
+					foreign_attribute_name_list );
+	}
+
+	list_append_pointer(	query_drop_down->query_drop_down_row_list,
+				drop_down_row );
+
+	return query_drop_down;
 }
 
