@@ -16,7 +16,6 @@
 #include "attribute.h"
 #include "timlib.h"
 #include "date_convert.h"
-#include "query.h"
 #include "hash_table.h"
 #include "date.h"
 
@@ -464,10 +463,9 @@ int dictionary_get_key_highest_index( DICTIONARY *d )
 	return get_dictionary_key_highest_index( d );
 }
 
-int dictionary_attribute_name_list_get_highest_index(
-				DICTIONARY *d,
-				LIST *attribute_name_list,
-				char *prepend_folder_name )
+int dictionary_attribute_name_list_highest_index(
+			DICTIONARY *d,
+			LIST *attribute_name_list )
 {
 	LIST *key_list;
 	char *key;
@@ -498,25 +496,6 @@ int dictionary_attribute_name_list_get_highest_index(
 					highest_index = index;
 			}
 
-			if ( prepend_folder_name && *prepend_folder_name )
-			{
-				sprintf(folder_attribute_name,
-					"%s.%s",
-					prepend_folder_name,
-					attribute_name );
-
-				if ( timlib_strncmp(
-						key,
-						folder_attribute_name ) == 0 )
-				{
-					index = get_index( key );
-
-					if ( highest_index < index )
-						highest_index = index;
-				}
-
-			}
-
 		} while( list_next( attribute_name_list ) );
 
 	} while( list_next( key_list ) );
@@ -524,7 +503,6 @@ int dictionary_attribute_name_list_get_highest_index(
 	list_free_container( key_list );
 
 	return highest_index;
-
 }
 
 int dictionary_get_highest_index( DICTIONARY *d )

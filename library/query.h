@@ -141,7 +141,7 @@ QUERY *query_insert_new(
 			char *folder_name,
 			DICTIONARY *query_dictionary );
 
-QUERY_DROP_DOWN *query_insert_drop_down(
+QUERY_DROP_DOWN *query_insert_table_drop_down(
 			char *folder_name,
 			LIST *foreign_attribute_name_list,
 			LIST *attribute_list,
@@ -174,7 +174,7 @@ QUERY_OUTPUT *query_insert_output_new(
 			FOLDER *folder,
 			DICTIONARY *query_dictionary );
 
-LIST *query_get_insert_drop_down_list(
+LIST *query_insert_table_drop_down_list(
 			char *folder_name,
 			LIST *mto1_related_folder_list,
 			DICTIONARY *query_dictionary );
@@ -704,7 +704,7 @@ LIST *query_edit_table_drop_down_list(
 			char *first_folder_name,
 			LIST *mto1_related_folder_list,
 			LIST *mto1_append_isa_related_folder_list,
-			DICTIONARY *dictionary );
+			DICTIONARY *query_dictionary );
 
 QUERY *query_edit_table_new(
 			DICTIONARY *dictionary,
@@ -716,23 +716,20 @@ QUERY *query_edit_table_new(
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name );
 
-LIST *query_edit_table_drop_down_list_evaluate(
+QUERY_DROP_DOWN *query_edit_table_drop_down(
 			LIST *exclude_attribute_name_list,
-			char *root_folder_name,
-			char *dictionary_prepend_folder_name,
+			char *first_folder_name,
 			LIST *foreign_attribute_name_list,
 			LIST *attribute_list,
-			DICTIONARY *dictionary );
+			DICTIONARY *query_dictionary );
 
-QUERY_DROP_DOWN *query_edit_table_row_drop_down(
+LIST *query_edit_table_drop_down_row_list(
 			LIST *exclude_attribute_name_list,
-			QUERY_DROP_DOWN *query_drop_down,
-			char *root_folder_name,
+			char *first_folder_name,
 			LIST *foreign_attribute_name_list,
 			LIST *attribute_list,
-			DICTIONARY *dictionary,
-			int index,
-			char *dictionary_prepend_folder_name );
+			DICTIONARY *query_dictionary,
+			int index );
 
 QUERY_DROP_DOWN_ROW *query_drop_down_edit_table_new(
 			LIST *attribute_name_list,
@@ -935,14 +932,13 @@ char *query_data_convert_date_international(
 			char *attribute_datatype,
 			char *escaped_replaced_data );
 
-LIST *query_drop_down_row_list(
+QUERY_DROP_DOWN_ROW *query_edit_table_drop_down_row(
 			LIST *exclude_attribute_name_list,
-			QUERY_DROP_DOWN *query_drop_down,
-			char *root_folder_name,
+			char *first_folder_name,
 			LIST *foreign_attribute_name_list,
 			LIST *attribute_list,
-			DICTIONARY *dictionary,
+			DICTIONARY *query_dictionary,
 			int index,
-			char *dictionary_prepend_folder_name );
+			LIST *query_drop_down_row_list );
 
 #endif
