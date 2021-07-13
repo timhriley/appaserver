@@ -386,7 +386,7 @@ int main( int argc, char **argv )
 			appaserver->folder->attribute_name_list );
 
 	ignore_primary_attribute_name_list =
-		appaserver_library_get_ignore_pressed_attribute_name_list( 	
+		appaserver_library_ignore_pressed_attribute_name_list( 	
 			dictionary_appaserver->ignore_dictionary, 
 			appaserver->
 				folder->

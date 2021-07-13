@@ -249,31 +249,31 @@ void post_change_accrual_update(
 	enum preupdate_change_state accrual_date_change_state;
 
 	full_name_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_full_name,
 			full_name /* postupdate_data */,
 			"preupdate_full_name" );
 
 	street_address_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_street_address,
 			street_address /* postupdate_data */,
 			"preupdate_street_address" );
 
 	purchase_date_time_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_purchase_date_time,
 			purchase_date_time /* postupdate_data */,
 			"preupdate_purchase_date_time" );
 
 	asset_name_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_asset_name,
 			asset_name /* postupdate_data */,
 			"preupdate_asset_name" );
 
 	accrual_date_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_accrual_date,
 			accrual_date /* postupdate_data */,
 			"preupdate_accrual_date" );

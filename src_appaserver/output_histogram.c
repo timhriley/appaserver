@@ -48,8 +48,9 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	LIST *query_record_list;
 	char *query_record;
-	FOLDER *folder;
 	QUERY *query;
+	FOLDER *folder;
+	ROLE *role;
 	LIST *select_attribute_name_list;
 	char *select_attribute_name;
 	char buffer[ 256 ];
@@ -123,17 +124,24 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	folder = folder_new_folder( 	application_name,
-					session,
-					folder_name );
+	role = role_new( application_name, role_name );
 
-	folder->attribute_list =
-	attribute_get_attribute_list(
-		folder->application_name,
-		folder->folder_name,
-		(char *)0 /* attribute_name */,
-		(LIST *)0 /* mto1_isa_related_folder_list */,
-		role_name );
+	folder =
+		folder_load_new(
+			application_name,
+			session,
+			folder_name,
+			role );
+
+	if ( !folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	sprintf(	title,
 			"%s Histogram",
@@ -175,7 +183,7 @@ int main( int argc, char **argv )
 				list_get_pointer(
 					select_attribute_name_list );
 	
-			sprintf( grace_histogram_filename,
+			sprintf(grace_histogram_filename,
 		 		"%s/grace_histogram_%s_%d.dat",
 		 		appaserver_parameter_file->
 					appaserver_data_directory,
@@ -190,11 +198,32 @@ int main( int argc, char **argv )
 
 			query =
 				query_simple_new(
+					application_name,
 					dictionary_appaserver->
 						query_dictionary,
-					application_name,
-					login_name,
-					folder_name );
+					folder,
+					role,
+					login_name );
+
+			if ( !query )
+			{
+				fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			if ( !query->query_output )
+			{
+				fprintf(stderr,
+				"ERROR in %s/%s()/%d: query_output is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
 
 			query_record_list =
 				query_get_record_list(
@@ -305,6 +334,5 @@ int main( int argc, char **argv )
 
 	document_close();
 	return 0;
-
-} /* main() */
+}
 

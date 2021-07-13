@@ -382,7 +382,7 @@ int main( int argc, char **argv )
 
 		list_append_string_list(
 		      ignore_attribute_name_list,
-	      	      appaserver_library_get_ignore_pressed_attribute_name_list(
+	      	      appaserver_library_ignore_pressed_attribute_name_list(
 				dictionary_appaserver->
 					ignore_dictionary,
 				folder->attribute_name_list,
@@ -497,7 +497,7 @@ int main( int argc, char **argv )
 
 	list_append_string_list(
 		ignore_attribute_name_list,
-		appaserver_library_get_omit_insert_attribute_name_list(
+		appaserver_library_omit_insert_attribute_name_list(
 			folder->attribute_list ) );
 
 	if ( list_rewind( folder->mto1_isa_related_folder_list ) )
@@ -542,7 +542,7 @@ int main( int argc, char **argv )
 			folder->mto1_related_folder_list );
 
 	no_display_pressed_attribute_name_list =
-		appaserver_library_get_no_display_pressed_attribute_name_list(
+		appaserver_library_no_display_pressed_attribute_name_list(
 				dictionary_appaserver->
 					ignore_dictionary, 
 				folder->attribute_name_list );
@@ -651,7 +651,7 @@ int main( int argc, char **argv )
 		appaserver_link_file =
 			appaserver_link_file_new(
 				application_http_prefix( application_name ),
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
 					application_name ) == 'y' ),
 	 			appaserver_parameter_file->
@@ -913,7 +913,7 @@ int main( int argc, char **argv )
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
@@ -924,7 +924,7 @@ int main( int argc, char **argv )
 	if ( element_exists_reference_number( form->regular_element_list ) )
 	{
 		form->current_reference_number =
-			appaserver_library_get_reference_number(
+			appaserver_library_reference_number(
 				application_name,
 				folder->insert_rows_number );
 	}
@@ -1251,7 +1251,7 @@ LIST *get_insert_table_element_list(
 		}
 
 		element_list =
-		   	appaserver_library_get_insert_attribute_element_list(
+		   	appaserver_library_insert_attribute_element_list(
 				&objects_outputted,
 				attribute_list,
 				attribute_name,

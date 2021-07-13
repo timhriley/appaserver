@@ -44,16 +44,15 @@ int main( int argc, char **argv )
 	char dictionary_string[ MAX_INPUT_LINE ];
 	DICTIONARY *post_dictionary;
 	FOLDER *folder;
+	ROLE *role;
 	LIST *row_dictionary_list = {0};
 	QUERY *query;
-	LIST *ignore_attribute_name_list;
 	LIST *attribute_name_list;
+	LIST *ignore_attribute_name_list;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *output_filename;
 	char *ftp_filename;
-	LIST *mto1_isa_related_folder_list;
-	ROLE *role;
 	pid_t process_id = getpid();
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	APPASERVER_LINK_FILE *appaserver_link_file;
@@ -120,112 +119,97 @@ int main( int argc, char **argv )
 	document_set_output_content_type( document );
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+		document->application_name,
+		document->onload_control_string );
+
 	ignore_attribute_name_list = list_new();
 
-	folder = folder_new_folder(
-				application_name,
-				session,
-				folder_name );
+	role = role_new( application_name, role_name );
 
-	mto1_isa_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new(),
+	folder =
+		folder_load_new(
 			application_name,
-			session,
+			session_key,
 			folder_name,
-			(char *)0 /* role_name */,
-			1 /* isa_flag */,
-			related_folder_recursive_all,
-			0 /* dont override_row_restrictions */,
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
+			role );
 
-	folder->attribute_list =
-		attribute_get_attribute_list(
-		application_name,
-		folder_name,
-		(char *)0 /* attribute_name */,
-		mto1_isa_related_folder_list,
-		role_name );
-
-	attribute_name_list =
-		attribute_lookup_allowed_attribute_name_list(
-			folder->attribute_list );
-
-	role = role_new_role(	application_name,
-				role_name );
-
-	folder_load(	&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
-			application_name,
-			session,
-			folder->folder_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
+	if ( !folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	query =
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			application_name,
-			login_name,
-			folder->folder_name );
+			folder,
+			role,
+			login_name );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	row_dictionary_list =
 		query_row_dictionary_list(
-				query->folder->application_name,
-				query->query_output->select_clause,
-				query->query_output->from_clause,
-				query->query_output->where_clause,
-				query->query_output->order_clause,
-				0 /* query->max_rows */,
-				folder->attribute_list
-					/* append_isa_attribute_list */,
-				query->login_name );
+			query->folder->application_name,
+			query->query_output->select_clause,
+			query->query_output->from_clause,
+			query->query_output->where_clause,
+			query->query_output->order_clause,
+			0 /* query->max_rows */,
+			folder->attribute_list
+				/* append_isa_attribute_list */,
+			query->login_name );
 
 	list_append_string_list(
 		ignore_attribute_name_list,
-		appaserver_library_get_no_display_pressed_attribute_name_list(
-				dictionary_appaserver->
-					ignore_dictionary, 
-				attribute_name_list ) );
+		appaserver_library_no_display_pressed_attribute_name_list(
+			dictionary_appaserver->
+				ignore_dictionary, 
+			folder->lookup_allowed_attribute_name_list ) );
 
 	attribute_name_list = 
-		list_subtract( 	attribute_name_list, 
-				ignore_attribute_name_list );
+		list_subtract(
+			folder->lookup_allowed_attribute_name_list, 
+			ignore_attribute_name_list );
 
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		appaserver_parameter_file->
@@ -267,10 +251,11 @@ int main( int argc, char **argv )
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-	dictionary_list_output_to_file(	output_filename, 
-					row_dictionary_list,
-					attribute_name_list,
-					(char *)0 /* heading_display */ );
+	dictionary_list_output_to_file(
+		output_filename, 
+		row_dictionary_list,
+		attribute_name_list,
+		(char *)0 /* heading_display */ );
 
 	printf( "<h1>Spreadsheet Transmission<br></h1>\n" );
 	printf( "<h2>\n" );

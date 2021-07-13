@@ -609,7 +609,7 @@ void insert_database_set_reference_number(
 
 				sprintf(reference_string,
 					"%d",
-					appaserver_library_get_reference_number(
+					appaserver_library_reference_number(
 						application_name,
 						1 /* insert_rows_number */ ) );
 				sprintf(key,

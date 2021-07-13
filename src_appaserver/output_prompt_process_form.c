@@ -433,9 +433,9 @@ int main( int argc, char **argv )
 
 	sprintf(	action_string,
 		 	"%s/post_prompt_process_form?%s+%s+%s+%s+%s+%c",
-			appaserver_library_get_http_prompt(
+			appaserver_library_http_prompt(
 				appaserver_parameter_file_get_cgi_directory(),
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				application_ssl_support_yn(
 					application_name ),
 				application_prepend_http_protocol_yn(
@@ -468,7 +468,7 @@ int main( int argc, char **argv )
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
@@ -494,7 +494,7 @@ int main( int argc, char **argv )
 			get_preprompt_button_control_string(
 				application_name,
 				appaserver_parameter_file_get_cgi_directory(),
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				login_name,
 				session,
 				process_name,
@@ -1101,7 +1101,7 @@ char *get_preprompt_button_control_string(
 
 	sprintf(control_string,
 		"%s/post_choose_process?%s+%s+%s+%s+%s",
-		appaserver_library_get_http_prompt(
+		appaserver_library_http_prompt(
 			cgi_directory,
 		 	server_address,
 			application_ssl_support_yn(

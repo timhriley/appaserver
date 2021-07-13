@@ -325,25 +325,25 @@ void post_change_inventory_sale_update(
 	enum preupdate_change_state inventory_name_change_state;
 
 	quantity_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_quantity,
 			(char *)0 /* postupdate_data */,
 			"preupdate_quantity" );
 
 	retail_price_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_retail_price,
 			(char *)0 /* postupdate_data */,
 			"preupdate_retail_price" );
 
 	discount_amount_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_discount_amount,
 			(char *)0 /* postupdate_data */,
 			"preupdate_discount_amount" );
 
 	inventory_name_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_inventory_name,
 			(char *)0 /* postupdate_data */,
 			"preupdate_inventory_name" );

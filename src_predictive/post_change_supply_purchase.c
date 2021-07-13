@@ -211,7 +211,7 @@ void post_change_supply_purchase_update(
 		purchase_order->transaction->journal_ledger_list );
 
 	supply_name_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_supply_name,
 			supply_name /* postupdate_data */,
 			"preupdate_supply_name" );

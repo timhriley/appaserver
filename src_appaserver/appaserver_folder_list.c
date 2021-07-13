@@ -16,7 +16,7 @@ int main( void )
 	char **system_folder_list;
 
 	for ( 	system_folder_list =
-			appaserver_library_get_system_folder_list();
+			appaserver_library_system_folder_list();
 		*system_folder_list; 
 		system_folder_list++ )
 	{

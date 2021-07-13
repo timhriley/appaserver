@@ -159,6 +159,12 @@ LIST *attribute_get_list(
 			char *folder_name,
 			char *role_name );
 
+LIST *attribute_list_fetch(
+			char *application_name,
+			char *folder_name,
+			LIST *mto1_isa_related_folder_list,
+			char *role_name );
+
 LIST *attribute_get_attribute_list(
 			char *application_name,
 			char *folder_name,

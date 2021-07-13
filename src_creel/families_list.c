@@ -221,25 +221,50 @@ char *get_families_sys_string(		char *application_name,
 		FOLDER *folder;
 		QUERY *query;
 
-		folder = folder_new_folder(
-					application_name,
-					BOGUS_SESSION,
-					"families" );
+		folder =
+			folder_load_new(
+				application_name,
+				BOGUS_SESSION,
+				"families",
+				(ROLE *)0 );
 
-		folder->attribute_list =
-			attribute_get_attribute_list(
-				folder->application_name,
-				folder->folder_name,
-				(char *)0 /* attribute_name */,
-				(LIST *)0 /* mto1_isa_related_folder_list */,
-				(char *)0 /* role_name */ );
+		if ( !folder )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		query =
 			query_simple_new(
 				post_dictionary /* query_dictionary */,
 				application_name,
-				login_name,
-				folder->folder_name );
+				folder,
+				(ROLE *)0,
+				login_name );
+
+		if ( !query )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !query->query_output )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: query_output is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		where_clause =
 			query->query_output->where_clause;
@@ -252,14 +277,14 @@ char *get_families_sys_string(		char *application_name,
 			"families" );
 
 	additional_drop_down_attribute_get_select_clause(
-			select_clause,
-			&first_attribute_name,
-			additional_drop_down_attribute->
-				application_name,
-			constant_select,
-			additional_drop_down_attribute->
-				drop_down_folder_name,
-			additional_drop_down_attribute );
+		select_clause,
+		&first_attribute_name,
+		additional_drop_down_attribute->
+			application_name,
+		constant_select,
+		additional_drop_down_attribute->
+			drop_down_folder_name,
+		additional_drop_down_attribute );
 
 	strcpy( sort_clause, "sort" );
 

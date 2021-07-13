@@ -674,19 +674,19 @@ void post_change_purchase_order_update(
 	enum preupdate_change_state freight_in_change_state;
 
 	full_name_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_full_name,
 			purchase_order->full_name,
 			"preupdate_full_name" );
 
 	street_address_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_street_address,
 			purchase_order->street_address,
 			"preupdate_street_address" );
 
 	shipped_date_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_shipped_date,
 			(purchase_order->shipped_date)
 				? purchase_order->shipped_date
@@ -694,14 +694,14 @@ void post_change_purchase_order_update(
 			"preupdate_shipped_date" );
 
 	title_passage_rule_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_title_passage_rule,
 			entity_get_title_passage_rule_string(
 				purchase_order->title_passage_rule ),
 			"preupdate_title_passage_rule" );
 
 	arrived_date_time_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_arrived_date_time,
 			(purchase_order->arrived_date_time)
 				? purchase_order->arrived_date_time
@@ -709,13 +709,13 @@ void post_change_purchase_order_update(
 			"preupdate_arrived_date_time" );
 
 	sales_tax_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_sales_tax,
 			(char *)0 /* postupdate_data */,
 			"preupdate_sales_tax" );
 
 	freight_in_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_freight_in,
 			(char *)0 /* postupdate_data */,
 			"preupdate_freight_in" );

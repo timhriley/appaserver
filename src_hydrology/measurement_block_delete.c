@@ -402,8 +402,8 @@ int main( int argc, char **argv )
 					database_management_system );
 	}
 
-	exit( 0 );
-} /* main() */
+	return 0;
+}
 
 char *get_where_clause_string( 	char *application_name,
 				char *station,
@@ -440,27 +440,68 @@ char *get_where_clause_string( 	char *application_name,
 		"reason_value_missing",
 		"" );
 
-	/* If forked from a process like nearest_neighbor. */
-	/* ----------------------------------------------- */
+	role =
+		role_new(
+			application_name,
+			role_name );
+
+	folder =
+		folder_load_new( 	
+			application_name,
+			session,
+			"measurement",
+			role );
+
+	if ( !folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	query =
 		query_simple_new(
 			query_dictionary,
 			application_name,
-			(char *)0 /* login_name */,
-			"measurement" /* folder_name */ );
+			folder,
+			role,
+			(char *)0 /* login_name */ );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	/* If executed from the user interface. */
 	/* ------------------------------------ */
 	date_time_where_clause =
 		query_get_between_date_time_where(	
-					"measurement_date",
-					"measurement_time",
-					begin_date,
-					begin_time,
-					end_date,
-					end_time,
-					(char *)0 /* application */,
-					(char *)0 /* folder_name */ );
+			"measurement_date",
+			"measurement_time",
+			begin_date,
+			begin_time,
+			end_date,
+			end_time,
+			(char *)0 /* application */,
+			(char *)0 /* folder_name */ );
 
 	sprintf( buffer,
 		 "station = '%s' 				"
@@ -473,6 +514,5 @@ char *get_where_clause_string( 	char *application_name,
 		 query->query_output->where_clause );
 
 	return strdup( buffer );
-
-} /* get_where_clause_string() */
+}
 

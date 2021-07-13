@@ -1,6 +1,5 @@
-/* libary/folder.h							*/
+/* $APPASERVER_HOME/libary/folder.h					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver FOLDER ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -100,6 +99,7 @@ typedef struct
 	LIST *mto1_isa_recursive_relation_list;
 	LIST *mto1_lookup_before_drop_down_related_folder_list;
 	LIST *primary_attribute_name_list;
+	LIST *lookup_allowed_attribute_name_list;
 	LIST *primary_data_list;
 	DICTIONARY *primary_data_dictionary;
 	char *subschema_name;
@@ -121,12 +121,19 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-FOLDER *folder_calloc(			void );
+FOLDER *folder_calloc(	void );
 
-FOLDER *folder_with_load_new(		char *application_name,
-					char *session,
-					char *folder_name,
-					ROLE *role );
+FOLDER *folder_load_new(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			ROLE *role );
+
+FOLDER *folder_with_load_new(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			ROLE *role );
 
 char *folder_get_folder_row_level_restrictions_record(
 					char *application_name,

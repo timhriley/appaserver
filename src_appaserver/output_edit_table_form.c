@@ -62,7 +62,10 @@ char *get_results_string(
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
+	char *login_name;
+	char *application_name;
+	char *session;
+	char *folder_name;
 	char *role_name;
 	char *state;
 	char *state_for_heading;
@@ -77,7 +80,6 @@ int main( int argc, char **argv )
 	int number_rows_outputted = 0;
 	char *results_string;
 	LIST *no_display_pressed_attribute_name_list = {0};
-	LIST *attribute_name_list;
 	LIST *ignore_attribute_name_list;
 	OPERATION_LIST_STRUCTURE *operation_list_structure;
 	ROLE_FOLDER *role_folder;
@@ -149,76 +151,26 @@ int main( int argc, char **argv )
 			application_name,
 			role_name );
 
-	folder =
-		folder_new_folder(
-			application_name,
-			session,
-			folder_name );
-
-	folder->mto1_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new_list(),
-			application_name,
-			BOGUS_SESSION,
-			folder->folder_name,
-			role->role_name,
-			0 /* isa_flag */,
-			related_folder_no_recursive,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
-
-	folder->mto1_isa_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new(),
-			application_name,
-			session,
-			folder_name,
-			role_name,
-			1 /* isa_flag */,
-			related_folder_recursive_all,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
+	if ( ! ( folder =
+			folder_with_load_new(
+				application_name,
+				session,
+				folder_name,
+				role ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: folder_with_load_new(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 folder_name );
+		exit( 1 );
+	}
 
 	if ( list_length( folder->mto1_isa_related_folder_list ) )
 	{
 		make_primary_keys_non_edit = 1;
 	}
-
-	folder->attribute_list =
-		attribute_get_attribute_list(
-			folder->application_name,
-			folder->folder_name,
-			(char *)0 /* attribute_name */,
-			folder->mto1_isa_related_folder_list,
-			role_name );
-
-	folder_load(	&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
-			application_name,
-			session,
-			folder->folder_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			role_name,
-			folder->mto1_related_folder_list );
 
 	if ( get_line( dictionary_string, stdin ) )
 	{
@@ -257,25 +209,6 @@ int main( int argc, char **argv )
 					(LIST *)0 /* attribute_list */,
 					(LIST *)0 /* operation_name_list */ );
 	}
-
-	folder->one2m_related_folder_list =
-		related_folder_1tom_related_folder_list(
-			application_name,
-			BOGUS_SESSION,
-			folder->folder_name,
-			role_name,
-			update,
-			(LIST *)0 /* primary_data_list */,
-			list_new() /* related_folder_list */,
-			0 /* dont omit_isa_relations */,
-			related_folder_no_recursive,
-			(LIST *)0 /*  parent_primary_attribute_name_list */,
-			(LIST *)0 /*  original_primary_attribute_name_list */,
-			(char *)0 /* prior_related_attribute_name */ );
-
-	folder->join_1tom_related_folder_list =
-		related_folder_join_1tom_related_folder_list(
-			folder->one2m_related_folder_list );
 
 	folder->join_1tom_related_folder_list =
 		subtract_join_1tom_ignore_dictionary_related_folder_list(
@@ -328,10 +261,6 @@ int main( int argc, char **argv )
 
 	ignore_attribute_name_list = list_new_list();
 
-	attribute_name_list =
-		folder_get_attribute_name_list(
-			folder->attribute_list );
-
 	/* Change state (maybe) */
 	/* -------------------- */
 	if ( strcmp( state, "query" ) == 0 || strcmp( state, "lookup" ) == 0 )
@@ -346,7 +275,8 @@ int main( int argc, char **argv )
 		state = "lookup";
 	}
 
-	form = form_new(
+	form =
+		form_new(
 			folder_name,
 			application_title_string(
 				application_name ) );
@@ -393,19 +323,19 @@ int main( int argc, char **argv )
 
 	operation_list_structure =
 		operation_list_structure_new(
-				application_name,
-				session,
-				folder_name,
-				role_name,
-				dont_omit_delete );
+			application_name,
+			session,
+			folder_name,
+			role_name,
+			dont_omit_delete );
 
 	operation_list = operation_list_structure->operation_list;
 
 	no_display_pressed_attribute_name_list =
-		appaserver_library_get_no_display_pressed_attribute_name_list(
+		appaserver_library_no_display_pressed_attribute_name_list(
 			dictionary_appaserver->
 				ignore_dictionary, 
-			attribute_name_list );
+			folder->attribute_name_list );
 
 	if ( !no_display_pressed_attribute_name_list )
 	{
@@ -587,7 +517,7 @@ int main( int argc, char **argv )
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		folder->post_change_javascript );
@@ -606,8 +536,8 @@ int main( int argc, char **argv )
 	row_security =
 		row_security_new(
 			application_name,
-			role /* login_role */,
-			folder->folder_name /* select_folder_name */,
+			folder,
+			role,
 			login_name,
 			state,
 			dictionary_appaserver->
@@ -618,22 +548,21 @@ int main( int argc, char **argv )
 				sort_dictionary,
 			no_display_pressed_attribute_name_list );
 
-	row_security->select_folder->join_1tom_related_folder_list =
+	row_security->folder->join_1tom_related_folder_list =
 		folder->join_1tom_related_folder_list;
 
 	row_security->row_security_element_list_structure =
 		row_security_edit_table_structure_new(
+			row_security->query_dictionary,
 			application_name,
 			row_security->row_security_state,
+			row_security->folder,
+			row_security->role,
 			row_security->login_name,
 			row_security->state,
-			row_security->login_role,
-			row_security->preprompt_dictionary,
-			row_security->query_dictionary,
 			row_security->sort_dictionary,
 			row_security->
 				no_display_pressed_attribute_name_list,
-			row_security->select_folder,
 			row_security->attribute_not_null_join,
 			row_security->attribute_not_null_folder,
 			row_security->foreign_login_name_folder,
@@ -641,9 +570,6 @@ int main( int argc, char **argv )
 			omit_delete_dont_care,
 			0 /* omit_operation_buttons */,
 			0 /* not ajax_fill_drop_down_omit */,
-			row_security->
-				select_folder->
-				append_isa_attribute_list,
 			row_security->row_security_is_participating );
 
 	form->regular_element_list =
@@ -721,7 +647,7 @@ m2( application_name, msg );
 			row_security_element_list_structure->
 			row_dictionary_list;
 
-	if ( strcmp(	row_security->select_folder->folder_name,
+	if ( strcmp(	row_security->folder->folder_name,
 			"appaserver_user" ) == 0 )
 	{
 		appaserver_user_foreign_login_name = "login_name";
@@ -731,7 +657,7 @@ m2( application_name, msg );
 		appaserver_user_foreign_login_name =
 			related_folder_get_appaserver_user_foreign_login_name(
 				row_security->
-				select_folder->
+				folder->
 				mto1_append_isa_related_folder_list );
 	}
 

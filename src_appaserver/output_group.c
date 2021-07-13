@@ -147,73 +147,24 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role = role_new_role(	application_name,
-				role_name );
+	role = role_new( application_name, role_name );
 
 	override_row_restrictions =
 		role_get_override_row_restrictions(
 			role->override_row_restrictions_yn );
 
 	appaserver =
-		appaserver_folder_new(
+		appaserver_folder_load_new(
 			application_name,
 			BOGUS_SESSION,
 			folder_name );
-
-	appaserver->folder->attribute_list =
-		attribute_get_attribute_list(
-			appaserver->application_name,
-			appaserver->folder->folder_name,
-			(char *)0 /* attribute_name */,
-			(LIST *)0 /* mto1_isa_related_folder_list */,
-			role_name );
-
-	appaserver->folder->attribute_float_list =
-		attribute_non_primary_float_list(
-			appaserver->folder->attribute_list );
-
-	appaserver->folder->mto1_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new_list(),
-			appaserver->application_name,
-			appaserver->session,
-			appaserver->folder->folder_name,
-			role_name,
-			0 /* isa_flag */,
-			related_folder_no_recursive,
-			override_row_restrictions,
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
 
 	exclude_attribute_name_list =
 		appaserver_get_exclude_attribute_name_list(
 			appaserver->folder->attribute_list,
 			"lookup" );
-
-	folder_load(	&appaserver->folder->insert_rows_number,
-			&appaserver->folder->lookup_email_output,
-			&appaserver->folder->row_level_non_owner_forbid,
-			&appaserver->folder->row_level_non_owner_view_only,
-			&appaserver->folder->populate_drop_down_process,
-			&appaserver->folder->post_change_process,
-			&appaserver->folder->folder_form,
-			&appaserver->folder->notepad,
-			&appaserver->folder->html_help_file_anchor,
-			&appaserver->folder->post_change_javascript,
-			&appaserver->folder->lookup_before_drop_down,
-			&appaserver->folder->data_directory,
-			&appaserver->folder->index_directory,
-			&appaserver->folder->no_initial_capital,
-			&appaserver->folder->subschema_name,
-			&appaserver->folder->create_view_statement,
-			appaserver->application_name,
-			appaserver->session,
-			appaserver->folder->folder_name,
-			override_row_restrictions,
-			role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
 
 	if ( appaserver->folder->row_level_non_owner_forbid )
 	{
@@ -231,8 +182,29 @@ int main( int argc, char **argv )
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			application_name,
-			login_name,
-			appaserver->folder->folder_name );
+			appaserver->folder,
+			role,
+			login_name );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	if ( ! ( total_count =
 			get_total_count(
@@ -276,19 +248,19 @@ int main( int argc, char **argv )
 	document_set_output_content_type( document );
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+		document->application_name,
+		document->onload_control_string );
 
 	printf( "<h1>%s</h1>\n", title );
 	fflush( stdout );
@@ -314,7 +286,6 @@ int main( int argc, char **argv )
 
 	document_close();
 	return 0;
-
 }
 
 void output_related_folder(
@@ -403,7 +374,7 @@ void output_related_folder(
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,

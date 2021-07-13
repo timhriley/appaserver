@@ -679,7 +679,7 @@ int main( int argc, char **argv )
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		folder->post_change_javascript );
@@ -750,7 +750,7 @@ int main( int argc, char **argv )
 			appaserver_library_prelookup_button_control_string(
 				application_name,
 				appaserver_parameter_file_get_cgi_directory(),
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				login_name,
 				session,
 				folder_name,
@@ -1084,7 +1084,7 @@ void get_without_isa_variables(	LIST **mto1_related_folder_list,
 			appaserver->folder->attribute_list );
 
 	omit_insert_prompt_attribute_name_list =
-		appaserver_library_get_omit_insert_prompt_attribute_name_list(
+		appaserver_library_omit_insert_prompt_attribute_name_list(
 			appaserver->folder->attribute_list );
 
 	*allowed_attribute_name_list = list_subtract_list(
@@ -1247,7 +1247,7 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 			appaserver->folder->attribute_list );
 
 	omit_insert_prompt_attribute_name_list =
-		appaserver_library_get_omit_insert_prompt_attribute_name_list(
+		appaserver_library_omit_insert_prompt_attribute_name_list(
 			appaserver->folder->attribute_list );
 
 	*allowed_attribute_name_list =
@@ -1256,7 +1256,7 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 			omit_insert_prompt_attribute_name_list );
 
 	omit_insert_attribute_name_list =
-		appaserver_library_get_omit_insert_attribute_name_list(
+		appaserver_library_omit_insert_attribute_name_list(
 			appaserver->folder->attribute_list );
 
 	*allowed_attribute_name_list =
@@ -1396,7 +1396,7 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 				appaserver->folder->attribute_list );
 
 	omit_insert_prompt_attribute_name_list =
-		appaserver_library_get_omit_insert_prompt_attribute_name_list(
+		appaserver_library_omit_insert_prompt_attribute_name_list(
 			appaserver->folder->attribute_list );
 
 	*allowed_attribute_name_list =
@@ -1405,7 +1405,7 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 			omit_insert_prompt_attribute_name_list );
 
 	omit_insert_attribute_name_list =
-		appaserver_library_get_omit_insert_attribute_name_list(
+		appaserver_library_omit_insert_attribute_name_list(
 			appaserver->folder->attribute_list );
 
 	*allowed_attribute_name_list =
@@ -1586,7 +1586,7 @@ LIST *output_prompt_insert_attribute_element_list(
 		     "reference_number" ) == 0 )
 	{
 		*current_reference_number =
-			appaserver_library_get_reference_number(
+			appaserver_library_reference_number(
 					application_name,
 					1 );
 

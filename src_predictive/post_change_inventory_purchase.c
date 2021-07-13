@@ -520,31 +520,31 @@ void post_change_inventory_purchase_update(
 	enum preupdate_change_state inventory_name_change_state;
 
 	ordered_quantity_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_ordered_quantity,
 			(char *)0 /* postupdate_data */,
 			"preupdate_ordered_quantity" );
 
 	arrived_quantity_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_arrived_quantity,
 			(char *)0 /* postupdate_data */,
 			"preupdate_arrived_quantity" );
 
 	missing_quantity_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_missing_quantity,
 			(char *)0 /* postupdate_data */,
 			"preupdate_missing_quantity" );
 
 	unit_cost_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_unit_cost,
 			(char *)0 /* postupdate_data */,
 			"preupdate_unit_cost" );
 
 	inventory_name_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_inventory_name,
 			(char *)0 /* postupdate_data */,
 			"preupdate_inventory_name" );

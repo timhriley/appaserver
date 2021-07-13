@@ -258,13 +258,13 @@ void post_change_donation_update(
 	enum preupdate_change_state donation_amount_change_state;
 
 	account_name_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_account_name,
 			account_name /* postupdate_data */,
 			"preupdate_account" );
 
 	donation_amount_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_donation_amount,
 			(char *)0 /* postupdate_data */,
 			"preupdate_donation_amount" );

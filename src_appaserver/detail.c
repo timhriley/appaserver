@@ -1379,34 +1379,21 @@ DICTIONARY *output_folder_detail(
 			application_name,
 			role_name );
 
-	folder =
-		folder_new_folder(
-			application_name,
-			session,
-			folder_name );
-
-	folder_load(	&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
-			application_name,
-			folder->session,
-			folder->folder_name,
-			override_row_restrictions,
-			role->role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
+	if ( ! ( folder =
+			folder_with_load_new(
+				application_name,
+				session,
+				folder_name,
+				role ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: folder_with_load_new(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 folder_name );
+		exit( 1 );
+	}
 
 	role_folder =
 		role_folder_new_role_folder(
@@ -1423,8 +1410,8 @@ DICTIONARY *output_folder_detail(
 	row_security =
 		row_security_new(
 			application_name,
-			role /* login_role */,
-			folder_name,
+			folder,
+			role,
 			login_name,
 			"update" /* state */,
 			dictionary_appaserver->
@@ -1437,7 +1424,7 @@ DICTIONARY *output_folder_detail(
 
 	if ( !list_length( 
 			row_security->
-				select_folder->
+				folder->
 				append_isa_attribute_list ) )
 	{
 		fprintf( stderr,
@@ -1464,7 +1451,7 @@ DICTIONARY *output_folder_detail(
 			row_security->sort_dictionary,
 			row_security->
 				no_display_pressed_attribute_name_list,
-			row_security->select_folder,
+			row_security->folder,
 			row_security->attribute_not_null_join,
 			row_security->attribute_not_null_folder,
 			row_security->foreign_login_name_folder,
@@ -1476,7 +1463,7 @@ DICTIONARY *output_folder_detail(
 			omit_operation_buttons,
 			1 /* ajax_fill_drop_down_omit */,
 			row_security->
-				select_folder->
+				folder->
 				append_isa_attribute_list,
 			row_security->row_security_is_participating );
 
@@ -1591,7 +1578,7 @@ DICTIONARY *output_folder_detail(
 
 	form->row_dictionary_list = fetched_dictionary_list;
 
-	if ( strcmp(	row_security->select_folder->folder_name,
+	if ( strcmp(	row_security->folder->folder_name,
 			"appaserver_user" ) == 0 )
 	{
 		appaserver_user_foreign_login_name = "login_name";
@@ -1601,7 +1588,7 @@ DICTIONARY *output_folder_detail(
 		appaserver_user_foreign_login_name =
 			related_folder_get_appaserver_user_foreign_login_name(
 				row_security->
-				select_folder->
+				folder->
 				mto1_append_isa_related_folder_list );
 	}
 

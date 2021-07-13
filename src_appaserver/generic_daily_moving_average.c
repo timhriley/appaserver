@@ -1215,7 +1215,7 @@ void generic_output_spreadsheet(
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,

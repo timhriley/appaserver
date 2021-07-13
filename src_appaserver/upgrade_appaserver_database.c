@@ -51,7 +51,7 @@ int main( int argc, char **argv )
 		char *application_name;
 
 		application_name_list =
-			appaserver_library_get_application_name_list(
+			appaserver_library_application_name_list(
 				appaserver_parameter_file->
 					appaserver_error_directory );
 

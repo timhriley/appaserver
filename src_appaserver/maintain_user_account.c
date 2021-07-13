@@ -72,6 +72,7 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	DICTIONARY *query_dictionary = {0};
 	FORM *form;
+	ROLE *role;
 	FOLDER *folder;
 	LIST *row_dictionary_list = {0};
 	int number_rows_outputted = 0;
@@ -150,20 +151,22 @@ int main( int argc, char **argv )
 		NO_DISPLAY_PUSH_BUTTON_PREFIX,
 		"login_name" );
 
-	dictionary_set_string_index_key(query_dictionary,
-					key,
-					"yes",
-					0 );
+	dictionary_set_string_index_key(
+		query_dictionary,
+		key,
+		"yes",
+		0 );
 
 	sprintf(key,
 		"%s%s",
 		QUERY_RELATION_OPERATOR_STARTING_LABEL,
 		"login_name" );
 
-	dictionary_set_string_index_key(query_dictionary,
-					key,
-					EQUAL_OPERATOR,
-					0 );
+	dictionary_set_string_index_key(
+		query_dictionary,
+		key,
+		EQUAL_OPERATOR,
+		0 );
 
 	/* Set login_name to dictionary */
 	/* ---------------------------- */
@@ -172,10 +175,11 @@ int main( int argc, char **argv )
 		QUERY_FROM_STARTING_LABEL,
 		"login_name" );
 
-	dictionary_set_string_index_key(query_dictionary,
-					key,
-					login_name,
-					0 );
+	dictionary_set_string_index_key(
+		query_dictionary,
+		key,
+		login_name,
+		0 );
 
 	/* Set role_name to dictionary */
 	/* --------------------------- */
@@ -184,10 +188,11 @@ int main( int argc, char **argv )
 		QUERY_FROM_STARTING_LABEL,
 		"role_name" );
 
-	dictionary_set_string_index_key(query_dictionary,
-					key,
-					role_name,
-					0 );
+	dictionary_set_string_index_key(
+		query_dictionary,
+		key,
+		role_name,
+		0 );
 
 	/* Set lookup option radio button to lookup in dictionary */
 	/* ------------------------------------------------------ */
@@ -195,31 +200,42 @@ int main( int argc, char **argv )
 		"%s",
 		LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
-	dictionary_set_string(		query_dictionary,
-					key,
-					"lookup" );
+	dictionary_set_string(
+		query_dictionary,
+		key,
+		"lookup" );
 
 	ignore_attribute_name_list = list_new();
-	list_append_pointer(	ignore_attribute_name_list,
-				"login_name" );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	list_set(
+		ignore_attribute_name_list,
+		"login_name" );
 
-	folder = folder_new_folder( 	application_name,
-					session_key,
-					folder_name );
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	folder->attribute_list =
-		attribute_get_attribute_list(
-			folder->application_name,
-			folder->folder_name,
-			(char *)0 /* attribute_name */,
-			(LIST *)0 /* mto1_isa_related_folder_list */,
-			(char *)0
-			/* role_name: leave blank to select password */ );
+	role = role_new( application_name, role_name );
 
-	form = form_new( folder_name,
-			 application_title_string(
+	folder =
+		folder_load_new(
+			application_name,
+			session_key,
+			folder_name,
+			role );
+
+	if ( !folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	form =
+		form_new(
+			folder_name,
+			application_title_string(
 				application_name ) );
 
 	form_set_current_row( form, 1 );
@@ -240,34 +256,36 @@ int main( int argc, char **argv )
 	}
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+		document->application_name,
+		document->onload_control_string );
 
-	form_set_folder_parameters(	form,
-					state,
-					login_name,
-					application_name,
-					session_key,
-					folder->folder_name,
-					role_name );
+	form_set_folder_parameters(
+		form,
+		state,
+		login_name,
+		application_name,
+		session_key,
+		folder->folder_name,
+		role_name );
 
-	form_output_title(	form->application_title,
-				form->state,
-				form->form_title,
-				form->folder_name,
-				form->subtitle_string,
-				0 /* not omit_format_initial_capital */ );
+	form_output_title(
+		form->application_title,
+		form->state,
+		form->form_title,
+		form->folder_name,
+		form->subtitle_string,
+		0 /* not omit_format_initial_capital */ );
 
 	if ( message && *message ) printf( "<h3>%s</h3>\n", message );
 
@@ -286,29 +304,6 @@ int main( int argc, char **argv )
 			form->process_id );
 
 	form->action_string = strdup( action_string );
-
-	folder_load(	&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
-			application_name,
-			session_key,
-			folder->folder_name,
-			0 /* dont override_row_restrictions */,
-			role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
 
 	form_output_heading(
 		form->login_name,
@@ -329,7 +324,7 @@ int main( int argc, char **argv )
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
@@ -338,8 +333,29 @@ int main( int argc, char **argv )
 		query_simple_new(
 			query_dictionary,
 			application_name,
-			login_name,
-			folder_name );
+			folder,
+			role,
+			login_name );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	attribute_list_remove_exclude_permission_list(
 		query->folder->append_isa_attribute_list );
@@ -621,7 +637,7 @@ LIST *get_attribute_element_list(
 	return_list = list_new();
 
 	element_list =
-		appaserver_library_get_update_lookup_attribute_element_list(
+		appaserver_library_update_lookup_attribute_element_list(
 			'y' /* update_yn */,
 			primary_attribute_name_list,
 			attribute->exclude_permission_list,

@@ -126,8 +126,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}
 
 void post_change_prior_fixed_asset_update(
 				char *application_name,
@@ -138,7 +137,7 @@ void post_change_prior_fixed_asset_update(
 	enum preupdate_change_state extension_change_state;
 
 	extension_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_extension,
 			(char *)0 /* postupdate_data */,
 			"preupdate_extension" );
@@ -153,7 +152,7 @@ void post_change_prior_fixed_asset_update(
 	}
 
 
-} /* post_change_prior_fixed_asset_update() */
+}
 
 void post_change_prior_fixed_asset_insert(
 				char *application_name,
@@ -235,7 +234,7 @@ void post_change_prior_fixed_asset_insert(
 		transaction->full_name,
 		transaction->street_address );
 
-} /* post_change_prior_fixed_asset_insert() */
+}
 
 void post_change_prior_fixed_asset_delete(
 			char *application_name,
@@ -319,7 +318,7 @@ void post_change_prior_fixed_asset_delete(
 			subsidiary_transaction->process.credit_account_name );
 	}
 
-} /* post_change_prior_fixed_asset_delete() */
+}
 
 LIST *post_change_prior_fixed_asset_get_primary_data_list(
 				char *asset_name,
@@ -331,7 +330,7 @@ LIST *post_change_prior_fixed_asset_get_primary_data_list(
 
 	return primary_data_list;
 
-} /* post_change_prior_fixed_asset_get_primary_data_list() */
+}
 
 void prior_fixed_asset_transaction_date_time_update(
 				char *application_name,
@@ -379,7 +378,7 @@ void prior_fixed_asset_transaction_date_time_update(
 
 	pclose( output_pipe );
 
-} /* prior_fixed_asset_transaction_date_time_update() */
+}
 
 void post_change_prior_fixed_asset_fetch_row(
 			char **full_name,
@@ -430,7 +429,7 @@ void post_change_prior_fixed_asset_fetch_row(
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 3 );
 	*extension = atof( piece_buffer );
 
-} /* post_change_prior_fixed_asset_fetch_row() */
+}
 
 void post_change_prior_fixed_extension_update(
 				char *application_name,
@@ -520,5 +519,5 @@ void post_change_prior_fixed_extension_update(
 		transaction_date_time,
 		subsidiary_transaction->process.credit_account_name );
 
-} /* post_change_prior_fixed_asset_amount_update() */
+}
 

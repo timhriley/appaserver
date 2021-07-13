@@ -195,46 +195,24 @@ int main( int argc, char **argv )
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
 
+	role = role_new( application_name, role_name );
+
 	folder =
-		folder_new_folder(
+		folder_load_new(
 			application_name,
-			session,
-			folder_name );
+			session_key,
+			folder_name,
+			role );
 
-	role = role_new_role(	application_name,
-				role_name );
-
-	folder_load(	&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
-			application_name,
-			session,
-			folder->folder_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
-
-	folder->attribute_list =
-		attribute_get_attribute_list(
-		folder->application_name,
-		folder->folder_name,
-		(char *)0 /* attribute_name */,
-		(LIST *)0 /* mto1_isa_related_folder_list */,
-		(char *)0 /* role_name */ );
+	if ( !folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	if ( folder->row_level_non_owner_view_only )
 		folder->row_level_non_owner_forbid = 1;
@@ -243,8 +221,29 @@ int main( int argc, char **argv )
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			application_name,
-			login_name,
-			folder_name );
+			folder,
+			role,
+			login_name );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	where_clause = query->query_output->where_clause;
 
@@ -396,7 +395,7 @@ void delete_folder_block_state_one(
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );

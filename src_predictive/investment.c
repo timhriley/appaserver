@@ -154,7 +154,7 @@ INVESTMENT_PROCESS *investment_process_new(
 	}
 
 	p->date_time_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_date_time,
 			date_time /* postupdate_data */,
 			"preupdate_date_time" );
@@ -175,19 +175,19 @@ INVESTMENT_PROCESS *investment_process_new(
 	}
 
 	p->full_name_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_full_name,
 			full_name /* postupdate_data */,
 			"preupdate_full_name" );
 
 	p->street_address_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_street_address,
 			street_address /* postupdate_data */,
 			"preupdate_street_address" );
 
 	p->account_number_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_account_number,
 			account_number /* postupdate_data */,
 			"preupdate_account_number" );

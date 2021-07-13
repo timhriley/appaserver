@@ -94,7 +94,7 @@ void post_change_fixed_asset_update(
 	enum preupdate_change_state account_change_state;
 
 	account_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_account,
 			account_name /* postupdate_data */,
 			"preupdate_account" );

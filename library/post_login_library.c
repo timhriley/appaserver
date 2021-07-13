@@ -218,7 +218,7 @@ void post_login_output_frameset(
 		 email_http_filename,
 		 EMAIL_HTTP_FILE_TEMPLATE,
 		 application_http_prefix( application_name ),
-		 appaserver_library_get_server_address(),
+		 appaserver_library_server_address(),
 		 application_name,
 		 session );
 

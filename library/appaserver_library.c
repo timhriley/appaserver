@@ -205,9 +205,9 @@ char *get_folder_name(		char *application_name,
 
 }
 
-char *appaserver_library_get_table_name(
-				char *application_name,
-				char *folder_name )
+char *appaserver_library_table_name(
+			char *application_name,
+			char *folder_name )
 {
 	return get_table_name( application_name, folder_name );
 
@@ -432,7 +432,7 @@ char **get_system_folder_list( void )
 	return system_folder_list;
 }
 
-char **appaserver_library_get_system_folder_list( void )
+char **appaserver_library_system_folder_list( void )
 {
 	return system_folder_list;
 }
@@ -472,10 +472,9 @@ void appaserver_library_set_no_display_pressed(
 				"yes" );
 		} while( list_next( key_list ) );
 	}
-
 }
 
-LIST *appaserver_library_get_no_display_pressed_attribute_name_list( 	
+LIST *appaserver_library_no_display_pressed_attribute_name_list( 	
 					DICTIONARY *ignore_dictionary,
 					LIST *attribute_name_list )
 {
@@ -505,13 +504,14 @@ LIST *appaserver_library_get_no_display_pressed_attribute_name_list(
 		}
 
 	} while( list_next( attribute_name_list ) );
+
 	return return_list;
 }
 
-LIST *appaserver_library_get_ignore_pressed_attribute_name_list( 	
-					DICTIONARY *ignore_dictionary,
-					LIST *attribute_name_list,
-					DICTIONARY *query_dictionary )
+LIST *appaserver_library_ignore_pressed_attribute_name_list( 	
+			DICTIONARY *ignore_dictionary,
+			LIST *attribute_name_list,
+			DICTIONARY *query_dictionary )
 {
 	LIST *return_list = create_list();
 	char *attribute_name;
@@ -677,15 +677,16 @@ void populate_ignore_button_for_no_display_pressed( DICTIONARY *dictionary )
 	}
 }
 
-LIST *appaserver_library_get_datatype_name_list( char *application )
+LIST *appaserver_library_datatype_name_list( char *application )
 {
 	char sys_string[ 1024 ];
+
 	sprintf( sys_string, "datatype_name_list.sh %s", application );
 	return pipe2list( sys_string );
 }
 
 char *get_displayable_primary_attribute_list_string(
-				LIST *primary_attribute_name_list )
+			LIST *primary_attribute_name_list )
 {
 	char buffer[ 512 ];
 
@@ -696,9 +697,9 @@ char *get_displayable_primary_attribute_list_string(
 						'/' ) ) );
 }
 
-LIST *appaserver_library_get_attribute_name_list(
-					char *application, 
-					char *folder_name )
+LIST *appaserver_library_attribute_name_list(
+			char *application, 
+			char *folder_name )
 {
 	char sys_string[ 1024 ];
 
@@ -735,9 +736,9 @@ char *build_multi_attribute_key( LIST *key_list, char delimiter )
 	return strdup( multi_attribute_key );
 }
 
-LIST *appaserver_library_get_folder_name_list(
-					char *application_name,
-					char *attribute_name )
+LIST *appaserver_library_folder_name_list(
+			char *application_name,
+			char *attribute_name )
 {
 	char sys_string[ 1024 ];
 	char *table_name;
@@ -748,10 +749,11 @@ LIST *appaserver_library_get_folder_name_list(
 "echo \"select distinct folder from %s where attribute = '%s';\" | sql",
 		table_name,
 		attribute_name );
+
 	return pipe2list( sys_string );
 }
 
-LIST *appaserver_library_get_update_attribute_element_list(
+LIST *appaserver_library_update_attribute_element_list(
 			int *objects_outputted,
 			ATTRIBUTE *attribute,
 			char update_yn,
@@ -782,7 +784,7 @@ LIST *appaserver_library_get_update_attribute_element_list(
 	}
 
 	element_list =
-		appaserver_library_get_update_lookup_attribute_element_list(
+		appaserver_library_update_lookup_attribute_element_list(
 				update_yn,
 				primary_attribute_name_list,
 				attribute->exclude_permission_list,
@@ -800,10 +802,9 @@ LIST *appaserver_library_get_update_attribute_element_list(
 	}
 
 	return return_list;
-
 }
 
-LIST *appaserver_library_get_insert_attribute_element_list(
+LIST *appaserver_library_insert_attribute_element_list(
 			int *objects_outputted,
 			LIST *attribute_list,
 			char *attribute_name,
@@ -817,7 +818,8 @@ LIST *appaserver_library_get_insert_attribute_element_list(
 	LIST *return_list;
 	char *post_change_javascript;
 
-	attribute = attribute_seek_attribute( 
+	attribute =
+		attribute_seek_attribute( 
 			attribute_name,
 			attribute_list );
 	
@@ -1183,9 +1185,9 @@ boolean appaserver_library_validate_begin_end_date(
 
 }
 
-LIST *appaserver_library_get_primary_data_list(
-					DICTIONARY *post_dictionary,
-					LIST *attribute_list )
+LIST *appaserver_library_primary_data_list(
+			DICTIONARY *post_dictionary,
+			LIST *attribute_list )
 {
 	LIST *primary_attribute_name_list;
 	LIST *primary_data_list;
@@ -1223,11 +1225,6 @@ LIST *appaserver_library_get_primary_data_list(
 
 char *appaserver_library_server_address( void )
 {
-	return appaserver_library_get_server_address();
-}
-
-char *appaserver_library_get_server_address( void )
-{
 	char server_address[ 128 ] = {0};
 
 	if ( !environ_name_to_value( server_address, "HTTP_HOST" ) )
@@ -1248,7 +1245,6 @@ char *appaserver_library_get_server_address( void )
 	}
 
 	return strdup( server_address );
-
 }
 
 void appaserver_library_output_ftp_prompt(
@@ -1290,11 +1286,11 @@ void appaserver_library_output_ftp_prompt(
 	
 }
 
-char *appaserver_library_get_http_prompt(
-				 	char *cgi_directory,
-				 	char *server_address,
-					char ssl_support_yn,
-					char prepend_http_protocol_yn )
+char *appaserver_library_http_prompt(
+			char *cgi_directory,
+		 	char *server_address,
+			char ssl_support_yn,
+			char prepend_http_protocol_yn )
 {
 	static char http_prompt[ 512 ];
 
@@ -1302,13 +1298,6 @@ char *appaserver_library_get_http_prompt(
 	{
 		if ( ssl_support_yn == 'y' )
 		{
-/*
-			sprintf( http_prompt,
-				 "https://%s%s/suid/~%s",
-			 	 server_address,
-			 	 cgi_directory,
-				 appaserver_library_get_whoami() );
-*/
 			sprintf( http_prompt,
 			 	"https://%s%s",
 			 	server_address,
@@ -1328,10 +1317,9 @@ char *appaserver_library_get_http_prompt(
 	}
 
 	return http_prompt;
-
 }
 
-char *appaserver_library_get_whoami( void )
+char *appaserver_library_whoami( void )
 {
 	char sys_string[ 64 ];
 
@@ -1339,7 +1327,7 @@ char *appaserver_library_get_whoami( void )
 	return pipe2string( sys_string );
 }
 
-boolean appaserver_library_get_from_preprompt( DICTIONARY *dictionary )
+boolean appaserver_library_from_preprompt( DICTIONARY *dictionary )
 {
 	char key[ 128 ];
 	char *data;
@@ -1347,13 +1335,15 @@ boolean appaserver_library_get_from_preprompt( DICTIONARY *dictionary )
 	if ( !dictionary ) return 0;
 
 	sprintf( key, "%s", FROM_PREPROMPT );
-	if ( ! ( data = dictionary_get_pointer( dictionary, key ) ) )
-		return 0;
+
+	if ( ! ( data =
+			dictionary_get_pointer( dictionary, key ) ) )
+				return 0;
 
 	return ( strcmp( data, "yes" ) == 0 );
 }
 
-LIST *appaserver_library_get_omit_insert_prompt_attribute_name_list(
+LIST *appaserver_library_omit_insert_prompt_attribute_name_list(
 						LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
@@ -1362,8 +1352,7 @@ LIST *appaserver_library_get_omit_insert_prompt_attribute_name_list(
 	if ( list_rewind( attribute_list ) )
 	{
 		do {
-			attribute = (ATTRIBUTE *)
-				list_get_pointer( attribute_list );
+			attribute = list_get( attribute_list );
 
 			if ( list_exists_string(
 				"insert",
@@ -1371,7 +1360,7 @@ LIST *appaserver_library_get_omit_insert_prompt_attribute_name_list(
 			||   attribute->omit_insert_prompt
 			||   attribute->omit_insert )
 			{
-				list_append_pointer(
+				list_set(
 					omit_insert_prompt_attribute_name_list,
 					attribute->attribute_name );
 			}
@@ -1381,7 +1370,7 @@ LIST *appaserver_library_get_omit_insert_prompt_attribute_name_list(
 	return omit_insert_prompt_attribute_name_list;
 }
 
-LIST *appaserver_library_get_omit_insert_attribute_name_list(
+LIST *appaserver_library_omit_insert_attribute_name_list(
 						LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
@@ -1405,7 +1394,7 @@ LIST *appaserver_library_get_omit_insert_attribute_name_list(
 	return omit_insert_attribute_name_list;
 }
 
-LIST *appaserver_library_get_prompt_data_element_list(
+LIST *appaserver_library_prompt_data_element_list(
 				char *attribute_name,
 				boolean is_primary_attribute )
 {
@@ -1509,9 +1498,9 @@ LIST *appaserver_library_trim_carrot_number( LIST *data_list )
 	return data_list;
 }
 
-char *appaserver_library_get_verify_attribute_widths_submit_control_string(
-					LIST *element_list,
-					char *source_form )
+char *appaserver_library_verify_attribute_widths_submit_control_string(
+			LIST *element_list,
+			char *source_form )
 {
 	ELEMENT_APPASERVER *element;
 	char buffer[ 128 ];
@@ -2010,9 +1999,9 @@ void appaserver_library_output_calendar_javascript( void )
 		fflush( stdout );
 }
 
-int appaserver_library_get_reference_number(
-				char *application_name,
-				int insert_rows_number )
+int appaserver_library_reference_number(
+			char *application_name,
+			int insert_rows_number )
 {
 	char sys_string[ 1024 ];
 
@@ -2021,19 +2010,20 @@ int appaserver_library_get_reference_number(
 		 application_name,
 		 insert_rows_number,
 		 appaserver_get_error_filename( application_name ) );
+
 	return atoi( pipe2string( sys_string ) );
 }
 
 char *appaserver_library_prelookup_button_control_string(
-				char *application_name,
-				char *cgi_directory,
-				char *server_address,
-				char *login_name,
-				char *session,
-				char *folder_name,
-				char *lookup_before_drop_down_base_folder_name,
-				char *role_name,
-				char *state )
+			char *application_name,
+			char *cgi_directory,
+			char *server_address,
+			char *login_name,
+			char *session,
+			char *folder_name,
+			char *lookup_before_drop_down_base_folder_name,
+			char *role_name,
+			char *state )
 {
 	static char control_string[ 1024 ];
 	char *use_folder_name;
@@ -2045,7 +2035,7 @@ char *appaserver_library_prelookup_button_control_string(
 
 	sprintf(control_string,
 		"%s/post_choose_folder?%s+%s+%s+%s+%s+%s",
-		appaserver_library_get_http_prompt(
+		appaserver_library_http_prompt(
 			cgi_directory,
 		 	server_address,
 			application_ssl_support_yn(
@@ -2185,12 +2175,13 @@ void appaserver_library_populate_last_foreign_attribute_key(
 	} while( list_next( mto1_related_folder_list ) );
 }
 
-boolean appaserver_library_get_from_php( DICTIONARY *post_dictionary )
+boolean appaserver_library_from_php( DICTIONARY *post_dictionary )
 {
 	char *filename;
 	char *extension;
 
-	if ( !( filename = dictionary_fetch(
+	if ( !( filename =
+			dictionary_fetch(
 				post_dictionary,
 				"filename" ) ) )
 	{
@@ -2228,7 +2219,7 @@ boolean appaserver_library_application_exists(
 		return 0;
 }
 
-char *appaserver_library_get_default_role_name(
+char *appaserver_library_default_role_name(
 				char *application_name,
 				char *login_name )
 {
@@ -2457,7 +2448,7 @@ char *appaserver_library_preupdate_change_state_display(
 
 }
 
-enum preupdate_change_state appaserver_library_get_preupdate_change_state(
+enum preupdate_change_state appaserver_library_preupdate_change_state(
 				char *preupdate_data,
 				char *postupdate_data,
 				char *preupdate_placeholder_name )
@@ -2538,7 +2529,7 @@ enum preupdate_change_state appaserver_library_get_preupdate_change_state(
 
 }
 
-char *appaserver_library_get_sort_attribute_name( LIST *attribute_list )
+char *appaserver_library_sort_attribute_name( LIST *attribute_list )
 {
 	if ( attribute_list_exists(
 			attribute_list,
@@ -2564,7 +2555,7 @@ char *appaserver_library_get_sort_attribute_name( LIST *attribute_list )
 	return (char *)0;
 }
 
-LIST *appaserver_library_get_update_lookup_attribute_element_list(
+LIST *appaserver_library_update_lookup_attribute_element_list(
 			char update_yn,
 			LIST *primary_attribute_name_list,
 			LIST *exclude_permission_list,
@@ -2974,7 +2965,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	return return_list;
 }
 
-char *appaserver_library_get_folder_foreign_translation(
+char *appaserver_library_folder_foreign_translation(
 			char *attribute_name,
 			LIST *folder_foreign_attribute_name_list,
 			DICTIONARY *foreign_attribute_dictionary )
@@ -3009,7 +3000,7 @@ char *appaserver_library_get_folder_foreign_translation(
 
 }
 
-LIST *appaserver_library_get_application_name_list(
+LIST *appaserver_library_application_name_list(
 				char *appaserver_error_directory )
 {
 	char sys_string[ 1024 ];

@@ -22,15 +22,33 @@
 #include "hash_table.h"
 #include "String.h"
 
-APPASERVER *appaserver_folder_new(
-		char *application_name,
-		char *session,
-		char *folder_name )
+APPASERVER *appaserver_calloc( void )
 {
 	APPASERVER *appaserver;
 
-	appaserver = (APPASERVER *)
-				calloc( 1, sizeof( APPASERVER ) ) ;
+	if ( ! ( appaserver =
+			(APPASERVER *)
+				calloc( 1, sizeof( APPASERVER ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return appaserver;
+
+}
+
+APPASERVER *appaserver_folder_new(
+			char *application_name,
+			char *session,
+			char *folder_name )
+{
+	APPASERVER *appaserver = appaserver_calloc();
+
 	appaserver->application_name = application_name;
 	appaserver->session = session;
 
@@ -39,6 +57,35 @@ APPASERVER *appaserver_folder_new(
 			application_name,
 			session,
 			folder_name );
+
+	return appaserver;
+}
+
+APPASERVER *appaserver_folder_with_load_new(
+			char *application_name,
+			char *session,
+			char *folder_name )
+{
+	APPASERVER *appaserver = appaserver_calloc();
+
+	appaserver->application_name = application_name;
+	appaserver->session = session;
+
+	if ( ! ( folder =
+			folder_with_load_new(
+				application_name,
+				session,
+				folder_name,
+				role ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: folder_with_load_new(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 select_folder_name );
+		exit( 1 );
+	}
 
 	return appaserver;
 }

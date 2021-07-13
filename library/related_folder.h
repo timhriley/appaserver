@@ -371,7 +371,8 @@ LIST *related_folder_get_preselection_dictionary_list(
 			char *folder_name,
 			char *related_folder_name,
 			DICTIONARY *query_dictionary,
-			char *login_name );
+			char *login_name,
+			char *role_name );
 
 boolean related_folder_exists_all_key_data_list(
 			DICTIONARY *dictionary,

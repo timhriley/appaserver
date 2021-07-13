@@ -143,14 +143,14 @@ void post_change_employee_work_day_update(
 	}
 
 	begin_work_date_time_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_begin_work_date_time,
 			employee_work_day->begin_work_date_time
 				/* postupdate_data */,
 			"preupdate_begin_work_date_time" );
 
 	end_work_date_time_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_end_work_date_time,
 			employee_work_day->end_work_date_time
 				/* postupdate_data */,

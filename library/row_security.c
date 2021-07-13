@@ -45,8 +45,8 @@ ROW_SECURITY *row_security_calloc( void )
 
 ROW_SECURITY *row_security_new(
 			char *application_name,
-			ROLE *login_role,
-			char *select_folder_name,
+			FOLDER *folder,
+			ROLE *role,
 			char *login_name,
 			char *state,
 			DICTIONARY *preprompt_dictionary,
@@ -56,7 +56,8 @@ ROW_SECURITY *row_security_new(
 {
 	ROW_SECURITY *row_security = row_security_calloc();
 
-	row_security->login_role = login_role;
+	row_security->folder = folder;
+	row_security->role = role;
 	row_security->login_name = login_name;
 	row_security->state = state;
 	row_security->preprompt_dictionary = preprompt_dictionary;
@@ -65,25 +66,9 @@ ROW_SECURITY *row_security_new(
 	row_security->no_display_pressed_attribute_name_list =
 		no_display_pressed_attribute_name_list;
 
-	if ( ! ( row_security->select_folder =
-			folder_with_load_new(
-				application_name,
-				BOGUS_SESSION,
-				select_folder_name,
-				login_role ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load folder = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 select_folder_name );
-		exit( 1 );
-	}
-
 	/* Make sure to select the login_name attribute. */
 	/* --------------------------------------------- */
-	if ( row_security->select_folder->row_level_non_owner_view_only )
+	if ( row_security->folder->row_level_non_owner_view_only )
 	{
 		RELATED_FOLDER *related_folder;
 		char *appaserver_user_foreign_login_name;
@@ -92,7 +77,7 @@ ROW_SECURITY *row_security_new(
 
 		/* If APPASERVER_USER is marked view only. */
 		/* --------------------------------------- */
-		if ( strcmp(	row_security->select_folder->folder_name,
+		if ( strcmp(	row_security->folder->folder_name,
 				"appaserver_user" )  == 0 )
 		{
 			goto non_owner_view_only_dont_append;
@@ -101,14 +86,14 @@ ROW_SECURITY *row_security_new(
 		appaserver_user_foreign_login_name =
 			related_folder_get_appaserver_user_foreign_login_name(
 				row_security->
-					select_folder->
+					folder->
 					mto1_append_isa_related_folder_list );
 
 		if ( !appaserver_user_foreign_login_name )
 			goto non_owner_view_only_dont_append;
 
 		if ( attribute_list_exists(
-			row_security->select_folder->attribute_list,
+			row_security->folder->attribute_list,
 			appaserver_user_foreign_login_name ) )
 		{
 			goto non_owner_view_only_dont_append;
@@ -119,7 +104,7 @@ ROW_SECURITY *row_security_new(
 		if ( !( related_folder =
 			related_folder_get_view_only_related_folder(
 				row_security->
-				select_folder->
+				folder->
 				mto1_append_isa_related_folder_list ) ) )
 		{
 			fprintf( stderr,
@@ -160,16 +145,16 @@ ROW_SECURITY *row_security_new(
 	
 		exclude_permission_list = list_new();
 
-		list_append_pointer(
+		list_set(
 			exclude_permission_list,
 			"update" );
 	
 		attribute->exclude_permission_list =
 			exclude_permission_list;
 	
-		list_append_pointer(
+		list_set(
 			row_security->
-				select_folder->
+				folder->
 				append_isa_attribute_list,
 			attribute );
 
@@ -187,9 +172,9 @@ non_owner_view_only_dont_append:
 			&row_security->attribute_not_null_folder,
 			&row_security->attribute_not_null_string,
 			row_security->role_update_list,
-			row_security->select_folder->folder_name,
+			row_security->folder->folder_name,
 			( row_security->
-				login_role->
+				role->
 				override_row_restrictions_yn == 'y' ),
 			row_security->state /* folder_state */ );
 
@@ -200,7 +185,7 @@ non_owner_view_only_dont_append:
 		/* ------------------------------------------- */
 		if ( !attribute_list_exists(
 				row_security->
-					select_folder->
+					folder->
 					append_isa_attribute_list,
 				row_security->attribute_not_null_string ) )
 		{
@@ -229,16 +214,16 @@ non_owner_view_only_dont_append:
 			/* ---------------------------------- */
 			exclude_permission_list = list_new();
 
-			list_append_pointer(
+			list_set(
 				exclude_permission_list,
 				"update" );
 	
 			attribute->exclude_permission_list =
 				exclude_permission_list;
 	
-			list_append_pointer(
+			list_set(
 				row_security->
-					select_folder->
+					folder->
 					append_isa_attribute_list,
 				attribute );
 		}
@@ -954,16 +939,15 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_fetch(
 }
 
 LIST *row_security_edit_table_dictionary_list(
-			char *application_name,
 			DICTIONARY *query_dictionary,
+			char *application_name,
 			DICTIONARY *sort_dictionary,
-			ROLE *login_role,
+			FOLDER *folder,
+			ROLE *role,
 			char *login_name,
-			char *query_select_folder_name,
-			LIST *append_isa_attribute_list,
+			char *query_select_folder_list_string,
 			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name,
-			LIST *join_1tom_related_folder_list )
+			char *attribute_not_null_folder_name )
 {
 	QUERY *query;
 	LIST *row_dictionary_list;
@@ -973,9 +957,8 @@ LIST *row_security_edit_table_dictionary_list(
 			query_dictionary,
 			application_name,
 			login_name,
-			query_select_folder_name,
-			login_role,
-			append_isa_attribute_list,
+			folder,
+			role,
 			attribute_not_null_join,
 			attribute_not_null_folder_name );
 
@@ -984,13 +967,12 @@ LIST *row_security_edit_table_dictionary_list(
 	if ( dictionary_length( query->sort_dictionary ) )
 	{
 		query->query_output->order_clause =
-			query_get_order_clause(
+			query_order_clause(
 				query->sort_dictionary,
-				query_select_folder_name,
+				query->folder->folder_name,
 				query->folder->append_isa_attribute_list );
 	}
 
-/*
 {
 char msg[ 65536 ];
 sprintf( msg, "%s/%s()/%d: select_clause = [%s]\n",
@@ -1018,7 +1000,7 @@ __LINE__,
 query->query_output->where_clause );
 m2( query->folder->application_name, msg );
 }
-*/
+
 	row_dictionary_list =
 		query_edit_table_dictionary_list(
 			query->folder->application_name,
@@ -1027,7 +1009,7 @@ m2( query->folder->application_name, msg );
 			query->query_output->where_clause,
 			query->query_output->order_clause,
 			query->max_rows,
-			append_isa_attribute_list,
+			query->folder->append_isa_attribute_list,
 			query->login_name );
 
 	if ( list_length( join_1tom_related_folder_list ) )
@@ -1045,16 +1027,15 @@ m2( query->folder->application_name, msg );
 
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 		row_security_edit_table_structure_new(
+			DICTIONARY *query_dictionary,
 			char *application_name,
 			enum row_security_state row_security_state,
+			FOLDER *folder,
+			ROLE *role,
 			char *login_name,
 			char *state,
-			ROLE *login_role,
-			DICTIONARY *preprompt_dictionary,
-			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
 			LIST *no_display_pressed_attribute_name_list,
-			FOLDER *select_folder,
 			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
 			FOLDER *foreign_login_name_folder,
@@ -1062,31 +1043,30 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
 			boolean ajax_fill_drop_down_omit,
-			LIST *append_isa_attribute_list,
 			boolean row_security_is_participating )
 {
 	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *element_list_structure;
 	int row_dictionary_list_length;
-	char query_select_folder_name[ 512 ];
+	char query_select_folder_list_string[ 512 ];
 	boolean prompt_data_separate_folder;
 
-	if ( !list_length( append_isa_attribute_list ) )
+	if ( !folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: folder is null.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( folder->append_isa_attribute_list ) )
 	{
 		fprintf( stderr,
 		"ERROR in %s/%s()/%d: empty append_isa_attribute_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !select_folder )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: select_folder is null.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
 		exit( 1 );
 	}
 
@@ -1102,48 +1082,47 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 		prompt_data_separate_folder = 1;
 	}
 
-	strcpy(	query_select_folder_name, select_folder->folder_name );
+	strcpy(	query_select_folder_list_string, folder->folder_name );
 
 	if ( attribute_not_null_folder
 	&&   strcmp(	attribute_not_null_folder->folder_name,
-			select_folder->folder_name ) != 0 )
+			folder->folder_name ) != 0 )
 	{
-		sprintf( query_select_folder_name,
+		sprintf( query_select_folder_list_string,
 			 "%s,%s",
-			 select_folder->folder_name,
+			 folder->folder_name,
 			 attribute_not_null_folder->folder_name );
 	}
 	else
 	{
-		strcpy( query_select_folder_name,
+		strcpy( query_select_folder_list_string,
 			list_display_delimited(
 				attribute_distinct_folder_name_list(
-					append_isa_attribute_list ),
+					folder->append_isa_attribute_list ),
 				',' ) );
 	}
 
 	if ( foreign_login_name_folder )
 	{
-		sprintf(	query_select_folder_name +
-				strlen( query_select_folder_name ),
-				",%s",
-				foreign_login_name_folder->folder_name );
+		sprintf(query_select_folder_list_string +
+			strlen( query_select_folder_list_string ),
+			",%s",
+			foreign_login_name_folder->folder_name );
 	}
 
 	element_list_structure->row_dictionary_list =
 		row_security_edit_table_dictionary_list(
-			application_name,
 			query_dictionary,
+			application_name,
 			sort_dictionary,
-			login_role,
+			folder,
+			role,
 			login_name,
-			query_select_folder_name,
-			append_isa_attribute_list,
+			query_select_folder_list_string,
 			attribute_not_null_join,
 			(attribute_not_null_folder)
 				? attribute_not_null_folder->folder_name
-				: (char *)0,
-			select_folder->join_1tom_related_folder_list );
+				: (char *)0 );
 
 	row_dictionary_list_length =
 		list_length( element_list_structure->
@@ -1154,8 +1133,8 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			&element_list_structure->
 				ajax_fill_drop_down_related_folder,
 			application_name,
-			select_folder,
-			select_folder->mto1_append_isa_related_folder_list,
+			folder,
+			folder->mto1_append_isa_related_folder_list,
 			login_role,
 			no_display_pressed_attribute_name_list,
 			preprompt_dictionary,
@@ -1165,7 +1144,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			login_name,
 			omit_delete_operation,
 			omit_operation_buttons,
-			select_folder->join_1tom_related_folder_list,
+			folder->join_1tom_related_folder_list,
 			make_primary_keys_non_edit,
 			prompt_data_separate_folder );
 
@@ -1181,14 +1160,14 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 		element_list_structure->viewonly_element_list =
 			row_security_viewonly_element_list(
 				application_name,
-				select_folder,
-				select_folder->
+				folder,
+				folder->
 					mto1_append_isa_related_folder_list,
 				login_role,
 				no_display_pressed_attribute_name_list,
 				omit_delete_with_placeholder,
 				omit_operation_buttons,
-				select_folder->join_1tom_related_folder_list );
+				folder->join_1tom_related_folder_list );
 	}
 
 	return element_list_structure;
@@ -1538,7 +1517,7 @@ skip_checking_drop_down:
 			ignore_attribute_name_list ) )
 		{
 			element_list =
-			appaserver_library_get_update_attribute_element_list(
+			appaserver_library_update_attribute_element_list(
 					&objects_outputted,
 					attribute,
 					update_yn,
@@ -1917,7 +1896,7 @@ skip_checking_drop_down:
 			ignore_attribute_name_list ) )
 		{
 			element_list =
-			appaserver_library_get_update_attribute_element_list(
+			appaserver_library_update_attribute_element_list(
 					&objects_outputted,
 					attribute,
 					'y' /* update_yn */,
@@ -2160,7 +2139,7 @@ LIST *row_security_viewonly_evaluate_element_list(
 			ignore_attribute_name_list ) )
 		{
 			element_list =
-			appaserver_library_get_update_attribute_element_list(
+			appaserver_library_update_attribute_element_list(
 					&objects_outputted,
 					attribute,
 					'n' /* update_yn */,
@@ -2302,7 +2281,7 @@ LIST *row_security_sort_order_element_list(
 	char *sort_attribute_name;
 
 	if ( ! ( sort_attribute_name =
-			appaserver_library_get_sort_attribute_name(
+			appaserver_library_sort_attribute_name(
 				attribute_list ) ) )
 	{
 		return (LIST *)0;

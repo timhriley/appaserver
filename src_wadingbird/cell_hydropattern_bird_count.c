@@ -252,18 +252,10 @@ int main( int argc, char **argv )
 	
 		appaserver_parameter_file = appaserver_parameter_file_new();
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_TEMPLATE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 process_id );
-*/
-
 		appaserver_link_file =
 			appaserver_link_file_new(
 				application_http_prefix( application_name ),
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
 					application_name ) == 'y' ),
 	 			appaserver_parameter_file->

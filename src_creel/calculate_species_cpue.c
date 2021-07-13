@@ -382,7 +382,7 @@ void calculate_species_cpue_group_annually(
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
@@ -574,7 +574,7 @@ void calculate_species_cpue_group_monthly(
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
@@ -1426,7 +1426,7 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
@@ -1954,7 +1954,7 @@ char *get_per_species_output_filename(
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,

@@ -516,11 +516,12 @@ LIST *attribute_append_isa_attribute_list(
 	return attribute_list;
 }
 
-LIST *attribute_get_attribute_list(	char *application_name,
-					char *folder_name,
-					char *attribute_name,
-					LIST *mto1_isa_related_folder_list,
-					char *role_name )
+LIST *attribute_get_attribute_list(
+			char *application_name,
+			char *folder_name,
+			char *attribute_name,
+			LIST *mto1_isa_related_folder_list,
+			char *role_name )
 {
 	LIST *attribute_list = list_new_list();
 	RELATED_FOLDER *related_folder;
@@ -1054,7 +1055,8 @@ LIST *attribute_date_attribute_position_list(
 	return date_attribute_position_list;
 }
 
-LIST *attribute_lookup_allowed_attribute_name_list( LIST *attribute_list )
+LIST *attribute_lookup_allowed_attribute_name_list(
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 	LIST *attribute_name_list;

@@ -70,8 +70,8 @@ char *get_done_folder_name(	char *folder_name,
 
 boolean get_omit_delete_button(
 			char *application_name,
-			char *login_role_name,
-			char *select_folder_name,
+			FOLDER *folder,
+			ROLE *role,
 			char *login_name );
 
 void mark_ignore_for_prelookup_skipped(
@@ -195,28 +195,16 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role = role_new_role(	application_name,
-				role_name );
+	role =
+		role_new_role(
+			application_name,
+			role_name );
 
 	appaserver =
-		appaserver_folder_new(
+		appaserver_folder_with_load_new(
 			application_name,
 			session,
 			folder_name );
-
-	appaserver->folder->mto1_isa_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new_list(),
-			appaserver->application_name,
-			appaserver->session,
-			appaserver->folder->folder_name,
-			role_name,
-			1 /* isa_flag */,
-			related_folder_recursive_all,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
 
 	if ( list_length( appaserver->
 				folder->
@@ -224,31 +212,6 @@ int main( int argc, char **argv )
 	{
 		omit_new_button = 1;
 	}
-
-	appaserver->folder->attribute_list =
-		attribute_get_attribute_list(
-			appaserver->application_name,
-			appaserver->folder->folder_name,
-			(char *)0 /* attribute_name */,
-			appaserver->
-				folder->
-				mto1_isa_related_folder_list,
-			role_name );
-
-	appaserver->folder->mto1_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new_list(),
-			appaserver->application_name,
-			appaserver->session,
-			appaserver->folder->folder_name,
-			role_name,
-			0 /* isa_flag */,
-			related_folder_no_recursive,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0
-			/* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
 
 	if ( argc == 9 )
 	{
@@ -358,8 +321,8 @@ int main( int argc, char **argv )
 	omit_delete_button = 
 		( get_omit_delete_button(
 			application_name,
-			role_name,
-			appaserver->folder->folder_name,
+			appaserver->folder,
+			role,
 			login_name ) ||
 		  list_length( appaserver->
 				folder->
@@ -533,7 +496,7 @@ void output_prompt_edit_form(
 	related_folder_set_ignore_output_for_duplicate(
 				mto1_related_folder_list );
 
-	if ( appaserver_library_get_sort_attribute_name(
+	if ( appaserver_library_sort_attribute_name(
 			appaserver->folder->attribute_list ) )
 	{
 		sort_order_button = 1;
@@ -834,7 +797,7 @@ m2( application_name, msg );
 
 	form_append_submit_control_string(
 	   form->submit_control_string,
-	   appaserver_library_get_verify_attribute_widths_submit_control_string(
+	   appaserver_library_verify_attribute_widths_submit_control_string(
 			form->regular_element_list,
 			"output_prompt_edit_form" ) );
 
@@ -851,7 +814,7 @@ m2( application_name, msg );
 			appaserver_library_prelookup_button_control_string(
 				application_name,
 				appaserver_parameter_file_get_cgi_directory(),
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				login_name,
 				session,
 				folder_name,
@@ -879,7 +842,7 @@ m2( application_name, msg );
 				(char *)0 /* caption_string */,
 				form->html_help_file_anchor,
 				form->process_id,
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				form->optional_related_attribute_name,
 				remember_keystrokes_onload_control_string,
 				(char *)0 /* post_change_javascript */ );
@@ -2057,8 +2020,8 @@ char *get_done_folder_name(	char *folder_name,
 
 boolean get_omit_delete_button(
 			char *application_name,
-			char *login_role_name,
-			char *select_folder_name,
+			FOLDER *folder,
+			ROLE *role,
 			char *login_name )
 {
 	ROLE *login_role;
@@ -2070,8 +2033,8 @@ boolean get_omit_delete_button(
 	row_security =
 		row_security_new(
 			application_name,
-			login_role,
-			select_folder_name,
+			folder,
+			role,
 			login_name,
 			(char *)0 /* state */,
 			(DICTIONARY *)0 /* preprompt_dictionary */,
@@ -2089,7 +2052,7 @@ boolean get_omit_delete_button(
 	{
 		if ( row_security_role_update_fetch(
 				row_security->role_update_list,
-				select_folder_name ) )
+				folder_name ) )
 		{
 			return_value = 1;
 		}

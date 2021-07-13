@@ -162,7 +162,7 @@ int main( int argc, char **argv )
 	if ( !*role_name || strcmp( role_name, "role" ) == 0 )
 	{
 		role_name =
-			appaserver_library_get_default_role_name(
+			appaserver_library_default_role_name(
 				application_name,
 				login_name );
 	}

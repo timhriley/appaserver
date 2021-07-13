@@ -192,7 +192,7 @@ void post_change_service_purchase_update(
 		purchase_order->transaction->journal_ledger_list );
 
 	account_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_account,
 			account /* postupdate_data */,
 			"preupdate_account" );

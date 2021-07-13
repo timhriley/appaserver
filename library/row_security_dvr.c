@@ -37,10 +37,11 @@ int main( void )
 	char *folder_name = "species_count";
 	char *no_display_pressed_attribute_name_list_string = "";
 
-	row_security_dvr(	application_name,
-				role_name,
-				folder_name,
-				no_display_pressed_attribute_name_list_string );
+	row_security_dvr(
+		application_name,
+		role_name,
+		folder_name,
+		no_display_pressed_attribute_name_list_string );
 
 	return 0;
 }
@@ -48,22 +49,39 @@ int main( void )
 void row_security_dvr(
 			char *application_name,
 			char *role_name,
-			char *select_folder_name,
+			char *folder_name,
 			char *no_display_pressed_attribute_name_list_string )
 {
 	ROW_SECURITY *row_security;
+	FOLDER *folder;
 	LIST *element_list;
-	ROLE *login_role;
+	ROLE *role;
 	char *state = "update";
 	char *login_name = "tim";
 
-	login_role = role_new_role( application_name, role_name );
+	role = role_new_role( application_name, role_name );
+
+	if ( ! ( folder =
+			folder_with_load_new(
+				application_name,
+				BOGUS_SESSION,
+				folder_name,
+				role ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: folder_with_load_new(%s) returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 select_folder_name );
+		exit( 1 );
+	}
 
 	row_security =
 		row_security_new(
 			application_name,
-			login_role,
-			select_folder_name,
+			folder,
+			role,
 			login_name,
 			state,
 			(DICTIONARY *)0 /* preprompt_dictionary */,
@@ -77,15 +95,15 @@ void row_security_dvr(
 		row_security_element_list_structure_new(
 			application_name,
 			row_security->row_security_state,
+			row_security->folder,
+			row_security->role,
 			row_security->login_name,
 			row_security->state,
-			row_security->login_role,
 			row_security->preprompt_dictionary,
 			row_security->query_dictionary,
 			row_security->sort_dictionary,
 			row_security->
 				no_display_pressed_attribute_name_list,
-			row_security->select_folder,
 			row_security->attribute_not_null_folder,
 			row_security->foreign_login_name_folder,
 			(LIST *)0 /* where_clause_attribute_name_list */,
@@ -117,5 +135,4 @@ void row_security_dvr(
 	printf( "viewonly = %s\n",
 		element_list_appaserver_display(
 			element_list ) );
-
-} /* row_security_dvr() */
+}

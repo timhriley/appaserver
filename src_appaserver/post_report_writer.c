@@ -480,7 +480,7 @@ void post_state_one(	char *application_name,
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
@@ -729,7 +729,7 @@ void post_state_two(	char *application_name,
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
@@ -1106,7 +1106,7 @@ void post_state_three(	char *application_name,
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
@@ -1709,7 +1709,7 @@ void post_table_state_four(
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
@@ -2010,7 +2010,7 @@ LIST *state_four_element_list(
 
 		list_append_list(
 			element_list,
-			appaserver_library_get_update_attribute_element_list(
+			appaserver_library_update_attribute_element_list(
 				&objects_outputted,
 				attribute,
 				'n' /* update_yn */,
@@ -2134,7 +2134,7 @@ void post_spreadsheet_state_four(
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,

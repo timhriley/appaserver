@@ -75,6 +75,7 @@ int main( int argc, char **argv )
 	char *datatype;
 	FORM *form;
 	FOLDER *folder;
+	ROLE *role;
 	QUERY *query;
 	LIST *row_dictionary_list = {0};
 	int number_rows_outputted = 0;
@@ -197,26 +198,55 @@ int main( int argc, char **argv )
 	list_append_string( attribute_name_list, "station" );
 	list_append_string( attribute_name_list, "datatype" );
 
+	role =
+		role_new(
+			application_name,
+			role_name );
+
 	folder =
-		folder_new_folder( 	
+		folder_load_new( 	
 			application_name,
 			session,
-			folder_name );
-
-	folder->attribute_list =
-		attribute_get_attribute_list(
-			application_name,
 			folder_name,
-			(char *)0 /* attribute_name */,
-			(LIST *)0 /* related_folder_list */,
-			(char *)0 /* role_name */ );
+			role );
+
+	if ( !folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	query =
 		query_simple_new(
 			query_dictionary,
 			application_name,
-			login_name,
-			folder_name );
+			folder,
+			role,
+			login_name );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	query->query_output->where_clause =
 		get_where_clause(
@@ -311,7 +341,7 @@ int main( int argc, char **argv )
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );

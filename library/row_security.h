@@ -42,10 +42,10 @@ typedef struct
 typedef struct
 {
 	enum row_security_state row_security_state;
-	FOLDER *select_folder;
-	ROLE *login_role;
-	LIST *role_update_list;
+	FOLDER *folder;
+	ROLE *role;
 	char *login_name;
+	LIST *role_update_list;
 	char *state;
 	DICTIONARY *preprompt_dictionary;
 	DICTIONARY *query_dictionary;
@@ -72,8 +72,8 @@ ROW_SECURITY *row_security_calloc(
 
 ROW_SECURITY *row_security_new(
 			char *application_name,
-			ROLE *login_role,
-			char *select_folder_name,
+			FOLDER *folder,
+			ROLE *role,
 			char *login_name,
 			char *state,
 			DICTIONARY *preprompt_dictionary,
@@ -85,14 +85,14 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	row_security_detail_structure_new(
 			char *application_name,
 			enum row_security_state row_security_state,
+			FOLDER *folder,
+			ROLE *role,
 			char *login_name,
 			char *state,
-			ROLE *login_role,
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
 			LIST *no_display_pressed_attribute_name_list,
-			FOLDER *select_folder,
 			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
 			FOLDER *foreign_login_name_folder,
@@ -124,10 +124,10 @@ void row_security_set_additional_select_attribute(
 			ATTRIBUTE *attribute_not_null );
 
 LIST *row_security_detail_dictionary_list(
-			LIST *append_isa_attribute_list,
 			char *application_name,
 			DICTIONARY *sort_dictionary,
-			ROLE *login_role,
+			FOLDER *folder,
+			ROLE *role,
 			char *folder_name,
 			LIST *where_clause_attribute_name_list,
 			LIST *where_clause_data_list,
@@ -152,7 +152,7 @@ enum row_security_state row_security_get_row_security_state(
 			FOLDER **attribute_not_null_folder,
 			char **attribute_not_null_string,
 			LIST *role_update_list,
-			char *select_folder_name,
+			char *folder_name,
 			boolean override_role_restrictions,
 			char *folder_state );
 
@@ -170,29 +170,27 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_element_list_structure_calloc(
 			void );
 
 LIST *row_security_edit_table_dictionary_list(
-			char *application_name,
 			DICTIONARY *query_dictionary,
+			char *application_name,
 			DICTIONARY *sort_dictionary,
-			ROLE *login_role,
+			FOLDER *folder,
+			ROLE *role,
 			char *login_name,
-			char *query_select_folder_name,
-			LIST *append_isa_attribute_list,
+			char *query_select_folder_list_string,
 			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name,
-			LIST *join_1tom_related_folder_list );
+			char *attribute_not_null_folder_name );
 
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	row_security_edit_table_structure_new(
+			DICTIONARY *query_dictionary,
 			char *application_name,
 			enum row_security_state row_security_state,
+			FOLDER *folder,
+			ROLE *role,
 			char *login_name,
 			char *state,
-			ROLE *login_role,
-			DICTIONARY *preprompt_dictionary,
-			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
 			LIST *no_display_pressed_attribute_name_list,
-			FOLDER *select_folder,
 			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
 			FOLDER *foreign_login_name_folder,
@@ -200,42 +198,36 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
 			boolean ajax_fill_drop_down_omit,
-			LIST *append_isa_attribute_list,
 			boolean row_security_is_participating );
 
 LIST *row_security_edit_table_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char *application_name,
-			FOLDER *select_folder,
-			LIST *mto1_append_isa_related_folder_list,
-			ROLE *login_role,
+			FOLDER *folder,
+			ROLE *role,
+			char *login_name,
 			LIST *no_display_pressed_attribute_name_list,
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *query_dictionary,
 			int row_dictionary_list_length,
 			char *state,
 			LIST *non_edit_folder_name_list,
-			char *login_name,
 			char update_yn,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
-			LIST *join_1tom_related_folder_list,
 			boolean make_primary_keys_non_edit,
 			boolean prompt_data_separate_folder );
 
 LIST *row_security_edit_table_update_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
-			char *login_name,
+			DICTIONARY *query_dictionary,
 			char *application_name,
 			char *session,
-			char *folder_name,
-			char *role_name,
-			LIST *attribute_list,
-			LIST *append_isa_attribute_list,
+			FOLDER *folder,
+			ROLE *role,
+			char *login_name,
 			LIST *include_attribute_name_list,
-			LIST *mto1_append_isa_related_folder_list,
 			DICTIONARY *preprompt_dictionary,
-			DICTIONARY *query_dictionary,
 			LIST *operation_list_list,
 			int row_dictionary_list_length,
 			LIST *no_display_pressed_attribute_name_list,
@@ -246,39 +238,33 @@ LIST *row_security_edit_table_update_element_list(
 			char *folder_post_change_javascript,
 			int max_query_rows_for_drop_downs,
 			char *one2m_folder_name_for_processes,
-			LIST *join_1tom_related_folder_list,
 			boolean make_primary_keys_non_edit,
 			boolean prompt_data_separate_folder );
 
 LIST *row_security_regular_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			DICTIONARY *query_dictionary,
 			char *application_name,
-			FOLDER *select_folder,
-			LIST *mto1_append_isa_related_folder_list,
-			ROLE *login_role,
+			FOLDER *folder,
+			ROLE *role,
+			char *login_name,
 			LIST *no_display_pressed_attribute_name_list,
 			DICTIONARY *preprompt_dictionary,
-			DICTIONARY *query_dictionary,
 			int row_dictionary_list_length,
 			char *state,
-			char *login_name,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
-			LIST *join_1tom_related_folder_list,
 			boolean make_primary_keys_non_edit,
 			boolean prompt_data_separate_folder );
 
 LIST *row_security_regular_evaluate_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
-			char *login_name,
 			char *application_name,
 			char *session,
-			char *folder_name,
-			char *role_name,
-			LIST *attribute_list,
-			LIST *append_isa_attribute_list,
+			FOLDER *folder,
+			ROLE *role,
+			char *login_name,
 			LIST *include_attribute_name_list,
-			LIST *mto1_append_isa_related_folder_list,
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *query_dictionary,
 			LIST *operation_list_list,
@@ -289,38 +275,31 @@ LIST *row_security_regular_evaluate_element_list(
 			char *folder_post_change_javascript,
 			int max_query_rows_for_drop_downs,
 			char *one2m_folder_name_for_processes,
-			LIST *join_1tom_related_folder_list,
 			boolean make_primary_keys_non_edit,
 			boolean prompt_data_separate_folder,
 			boolean row_level_non_owner_forbid );
 
 LIST *row_security_viewonly_element_list(
 			char *application_name,
-			FOLDER *select_folder,
-			LIST *mto1_append_isa_related_folder_list,
-			ROLE *login_role,
+			FOLDER *folder,
+			ROLE *role,
 			LIST *no_display_pressed_attribute_name_list,
 			enum omit_delete_operation omit_delete_operation,
-			boolean omit_operation_buttons,
-			LIST *join_1tom_related_folder_list );
+			boolean omit_operation_buttons );
 
 LIST *row_security_viewonly_evaluate_element_list(
 			char *application_name,
-			char *folder_name,
-			LIST *attribute_list,
-			LIST *append_isa_attribute_list,
+			FOLDER *folder,
 			LIST *include_attribute_name_list,
-			LIST *mto1_append_isa_related_folder_list,
 			LIST *operation_list_list,
 			LIST *no_display_pressed_attribute_name_list,
-			char *folder_post_change_javascript,
-			LIST *join_1tom_related_folder_list );
+			char *folder_post_change_javascript );
 
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 		row_security_sort_order_structure_new(
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
-			FOLDER *select_folder );
+			FOLDER *folder );
 
 LIST *row_security_sort_order_dictionary_list(
 			DICTIONARY *query_dictionary,

@@ -293,7 +293,7 @@ void post_change_inventory_purchase_return_update(
 	enum preupdate_change_state inventory_name_change_state;
 
 	inventory_name_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_inventory_name,
 			inventory_name /* postupdate_data */,
 			"preupdate_inventory_name" );

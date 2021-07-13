@@ -17,6 +17,7 @@
 #include "timlib.h"
 #include "date_convert.h"
 #include "hash_table.h"
+#include "query.h"
 #include "date.h"
 
 /* ------------------------------------------------------------ */
@@ -461,6 +462,15 @@ int dictionary_key_highest_index( DICTIONARY *d )
 int dictionary_get_key_highest_index( DICTIONARY *d )
 {
 	return get_dictionary_key_highest_index( d );
+}
+
+int dictionary_attribute_name_list_get_highest_index(
+			DICTIONARY *d,
+			LIST *attribute_name_list )
+{
+	return dictionary_attribute_name_list_highest_index(
+			d,
+			attribute_name_list );
 }
 
 int dictionary_attribute_name_list_highest_index(
@@ -1199,15 +1209,29 @@ boolean dictionary_get_index_data_strict_index(
 	return 1;
 }
 
+int dictionary_get_index_data(
+			char **destination,
+			DICTIONARY *dictionary,
+			char *key,
+			int index )
+{
+	return dictionary_index_data(
+			destination,
+			dictionary,
+			key,
+			index );
+}
+
 /* ----------------------------------------------------------- */
 /* Returns: 	1 if the data comes from the index	       */
 /*		0 if the data comes from index = 0 or no index */
 /*	       -1 if the data is not found	   	       */
 /* ----------------------------------------------------------- */
-int dictionary_get_index_data(	char **destination,
-				DICTIONARY *dictionary,
-				char *key,
-				int index )
+int dictionary_index_data(
+			char **destination,
+			DICTIONARY *dictionary,
+			char *key,
+			int index )
 {
 	char dictionary_key[ 1024 ];
 	int return_value;
@@ -3627,8 +3651,7 @@ void dictionary_set_indexed_date_time_to_current(
 		dictionary_attribute_name_list_get_highest_index(
 			dictionary,
 			dictionary_get_attribute_name_list(
-				attribute_list ),
-			(char *)0 /* prepend_folder_name */ );
+				attribute_list ) );
 
 	if ( highest_index < 1 ) return;
 
@@ -3690,8 +3713,7 @@ void dictionary_remove_symbols_in_numbers(
 		dictionary_attribute_name_list_get_highest_index(
 			dictionary,
 			dictionary_get_attribute_name_list(
-				attribute_list ),
-			(char *)0 /* prepend_folder_name */ );
+				attribute_list ) );
 
 	if ( highest_index < 0 ) return;
 

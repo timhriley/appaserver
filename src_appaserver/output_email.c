@@ -173,61 +173,28 @@ int main( int argc, char **argv )
 
 	ignore_attribute_name_list = list_new();
 
-	folder = folder_new_folder(
-				application_name,
-				session,
-				folder_name );
-
-	role = role_new_role(	application_name,
-				role_name );
-
-	folder_load(	&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
+	role =
+		role_new_role(
 			application_name,
-			folder->session,
-			folder->folder_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
+			role_name );
 
-	mto1_isa_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new_list(),
+	folder =
+		folder_load_new(
 			application_name,
 			session,
 			folder_name,
-			(char *)0 /* role_name */,
-			1 /* isa_flag */,
-			related_folder_recursive_all,
-			0 /* dont override_row_restrictions */,
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
+			role );
 
-	folder->attribute_list =
-		attribute_get_attribute_list(
-		application_name,
-		folder_name,
-		(char *)0 /* attribute_name */,
-		mto1_isa_related_folder_list,
-		role_name );
+	if ( !folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	attribute_name_list =
-		folder_get_attribute_name_list( folder->attribute_list );
 
 	query =
 		query_simple_new(
@@ -235,6 +202,26 @@ int main( int argc, char **argv )
 			application_name,
 			login_name,
 			folder->folder_name );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	row_dictionary_list =
 		query_row_dictionary_list(
@@ -249,12 +236,12 @@ int main( int argc, char **argv )
 
 	list_append_string_list(
 		ignore_attribute_name_list,
-		appaserver_library_get_no_display_pressed_attribute_name_list(
-					ignore_dictionary, 
-					attribute_name_list ) );
+		appaserver_library_no_display_pressed_attribute_name_list(
+			ignore_dictionary, 
+			folder->lookup_allowed_attribute_name_list ) );
 
 	attribute_name_list = 
-		list_subtract( 	attribute_name_list, 
+		list_subtract( 	folder->lookup_allowed_attribute_name_list, 
 				ignore_attribute_name_list );
 
 	sprintf(attachment_filename,

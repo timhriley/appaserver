@@ -203,7 +203,7 @@ int main( int argc, char **argv )
 			msg,
 			login_name );
 
-		if ( !appaserver_library_get_from_php( post_dictionary ) )
+		if ( !appaserver_library_from_php( post_dictionary ) )
 		{
 			printf( 
 "Content-type: text/html					\n"

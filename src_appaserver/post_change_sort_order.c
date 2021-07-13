@@ -294,7 +294,7 @@ void change_sort_order_state_one(
 	FORM_BUTTON *form_button;
 
 	if ( ! ( sort_attribute_name =
-			appaserver_library_get_sort_attribute_name(
+			appaserver_library_sort_attribute_name(
 				folder->attribute_list ) ) )
 	{
 		fprintf(stderr,
@@ -349,7 +349,7 @@ void change_sort_order_state_one(
 			folder->attribute_list );
 
 	ignore_attribute_name_list =
-		appaserver_library_get_no_display_pressed_attribute_name_list(
+		appaserver_library_no_display_pressed_attribute_name_list(
 			ignore_dictionary, 
 			move_attribute_name_list );
 
@@ -417,7 +417,7 @@ void change_sort_order_state_one(
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
@@ -528,7 +528,7 @@ void change_sort_order_state_two(
 	char buffer[ 16 ];
 
 	sort_attribute_name =
-		appaserver_library_get_sort_attribute_name(
+		appaserver_library_sort_attribute_name(
 			folder->attribute_list );
 
 	folder->primary_attribute_name_list =

@@ -242,7 +242,7 @@ void form_output_heading(
 		if ( !folder_name ) folder_name = "";
 
 		printf( " action=\"%s/%s?%s+%s+%s+%s+%s+%s+%s+%s+%d+%s\"",
-			appaserver_library_get_http_prompt(
+			appaserver_library_http_prompt(
 				appaserver_parameter_file_get_cgi_directory(),
 				server_address,
 				application_ssl_support_yn(

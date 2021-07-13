@@ -180,7 +180,7 @@ int main( int argc, char **argv )
 	google_map_appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		appaserver_parameter_file->document_root,
@@ -298,27 +298,6 @@ int main( int argc, char **argv )
 			google_map_appaserver_link_file->process_id,
 			google_map_appaserver_link_file->session,
 			google_map_appaserver_link_file->extension );
-
-/*
-	if ( application_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		server_address = appaserver_library_get_server_address();
-
-		sprintf(	prompt_filename,
-				GOOGLE_MAP_HTTP_PROMPT_TEMPLATE,
-				server_address,
-				application_name,
-				session );
-	}
-	else
-	{
-		sprintf(	prompt_filename,
-				GOOGLE_MAP_PROMPT_TEMPLATE,
-				application_name,
-				session );
-	}
-*/
 
 	if ( group_last_time )
 	{

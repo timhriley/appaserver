@@ -372,26 +372,26 @@ void post_change_vendor_payment_update(
 	}
 
 	full_name_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_full_name,
 			full_name /* postupdate_data */,
 			"preupdate_full_name" );
 
 	street_address_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_street_address,
 			street_address /* postupdate_data */,
 			"preupdate_street_address" );
 
 	payment_date_time_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_payment_date_time,
 			vendor_payment->transaction_date_time
 				/* postupdate_data */,
 			"preupdate_payment_date_time" );
 
 	payment_amount_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_payment_amount,
 			(char *)0 /* postupdate_data */,
 			"preupdate_payment_amount" );

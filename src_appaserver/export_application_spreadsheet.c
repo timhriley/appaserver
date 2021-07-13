@@ -86,7 +86,7 @@ int main( int argc, char **argv )
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		appaserver_parameter_file->document_root,
@@ -206,7 +206,7 @@ void remove_files(	LIST *folder_name_list,
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,
@@ -271,7 +271,7 @@ char *output_zip_file(	LIST *folder_name_list,
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
+			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,
@@ -386,75 +386,50 @@ LIST *subtract_exclude_application_export(
 
 }
 
-void export_output_spreadsheet_folder(	char *output_filename,
-					char *application_name,
-					char *folder_name )
+void export_output_spreadsheet_folder(
+			char *output_filename,
+			char *application_name,
+			char *folder_name )
 {
 	FOLDER *folder;
 	LIST *row_dictionary_list = {0};
 	QUERY *query;
 	LIST *attribute_name_list;
-	LIST *mto1_isa_related_folder_list;
 
-	folder = folder_new_folder(
-				application_name,
-				(char *)0 /* session */,
-				folder_name );
-
-	mto1_isa_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new(),
+	folder =
+		folder_load_folder(
 			application_name,
 			(char *)0 /* session */,
 			folder_name,
-			(char *)0 /* role_name */,
-			1 /* isa_flag */,
-			related_folder_recursive_all,
-			0 /* dont override_row_restrictions */,
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
-
-	folder->attribute_list =
-		attribute_get_attribute_list(
-		application_name,
-		folder_name,
-		(char *)0 /* attribute_name */,
-		mto1_isa_related_folder_list,
-		(char *)0 /* role_name */ );
-
-	attribute_name_list =
-		attribute_lookup_allowed_attribute_name_list(
-			folder->attribute_list );
-
-	folder_load(	&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
-			application_name,
-			(char *)0 /* session */,
-			folder->folder_name,
-			0 /* no override_row_restrictions */,
-			(char *)0 /* role_name */,
-			(LIST *)0 /* mto1_related_folder_list */ );
+			(ROLE *)0 );
 
 	query =
 		query_simple_new(
 			(DICTIONARY *)0 /* query_dictionary */,
 			application_name,
-			(char *)0 /* login_name */,
-			folder->folder_name );
+			folder,
+			(ROLE *)0,
+			(char *)0 /* login_name */ );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	row_dictionary_list =
 		query_row_dictionary_list(
@@ -464,13 +439,13 @@ void export_output_spreadsheet_folder(	char *output_filename,
 			query->query_output->where_clause,
 			query->query_output->order_clause,
 			query->max_rows,
-			folder->attribute_list
-				/* append_isa_attribute_list */,
+			folder->append_isa_attribute_list,
 			query->login_name );
 
-	dictionary_list_output_to_file(	output_filename, 
-					row_dictionary_list,
-					attribute_name_list,
-					(char *)0 /* heading_display */ );
+	dictionary_list_output_to_file(
+		output_filename, 
+			row_dictionary_list,
+			attribute_name_list,
+			(char *)0 /* heading_display */ );
 
 }

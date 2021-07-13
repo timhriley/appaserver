@@ -212,7 +212,7 @@ int main( int argc, char **argv )
 				role_name,
 				PROMPT_FRAME,
 				appaserver_parameter_file->apache_cgi_directory,
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				role->folder_count_yn,
 				"lookup",
 				horizontal_menu->lookup_subschema_list,
@@ -226,7 +226,7 @@ int main( int argc, char **argv )
 				role_name,
 				PROMPT_FRAME,
 				appaserver_parameter_file->apache_cgi_directory,
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				role->folder_count_yn,
 				"insert",
 				horizontal_menu->insert_subschema_list,
@@ -240,7 +240,7 @@ int main( int argc, char **argv )
 				role_name,
 				PROMPT_FRAME,
 				appaserver_parameter_file->apache_cgi_directory,
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				horizontal_menu->process_group_list,
 			        horizontal_menu->orphan_process_name_list );
 	}
@@ -254,7 +254,7 @@ int main( int argc, char **argv )
 				PROMPT_FRAME,
 				folder_list,
 				appaserver_parameter_file->apache_cgi_directory,
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				role->folder_count_yn );
 	
 		output_vertical_processes(
@@ -265,7 +265,7 @@ int main( int argc, char **argv )
 				PROMPT_FRAME,
 				process_record_list,
 				appaserver_parameter_file->apache_cgi_directory,
-				appaserver_library_get_server_address() );
+				appaserver_library_server_address() );
 	}
 
 	return 0;
@@ -305,7 +305,7 @@ void output_vertical_folders(
 				"%s+%s+%s+%s+%s+%s\""
 				" target=%s>%s</A></td>\n",
 				VERTICAL_MENU_CLASS,
-				appaserver_library_get_http_prompt(
+				appaserver_library_http_prompt(
 					apache_cgi_directory,
 					server_address,
 					application_ssl_support_yn(
@@ -339,7 +339,7 @@ void output_vertical_folders(
 				"%s+%s+%s+%s+%s+insert\""
 				" target=%s>New</A></td>\n",
 				VERTICAL_MENU_CLASS,
-				appaserver_library_get_http_prompt(
+				appaserver_library_http_prompt(
 					apache_cgi_directory,
 				 	server_address,
 					application_ssl_support_yn(
@@ -398,7 +398,7 @@ void output_vertical_processes(
 "<td><A class=%s HREF=\"%s/post_choose_process?"
 				"%s+%s+%s+%s+%s",
 				VERTICAL_MENU_CLASS,
-				appaserver_library_get_http_prompt(
+				appaserver_library_http_prompt(
 					apache_cgi_directory,
 				 	server_address,
 					application_ssl_support_yn(
@@ -688,7 +688,7 @@ void output_folder_element(	char *apache_cgi_directory,
 
 	sprintf(action_string,
 		"%s/post_choose_folder?%s+%s+%s+%s+%s+%s",
-		appaserver_library_get_http_prompt(
+		appaserver_library_http_prompt(
 			apache_cgi_directory,
 		 	server_address,
 			application_ssl_support_yn(
@@ -745,7 +745,7 @@ void output_process_element(	char *apache_cgi_directory,
 
 	sprintf(action_string,
 		"%s/post_choose_process?%s+%s+%s+%s+%s",
-		appaserver_library_get_http_prompt(
+		appaserver_library_http_prompt(
 		 	apache_cgi_directory,
 		 	server_address,
 			application_ssl_support_yn(

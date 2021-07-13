@@ -544,14 +544,14 @@ void post_change_customer_payment_update(
 		application_name );
 
 	payment_date_time_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_payment_date_time,
 			customer_payment->transaction_date_time
 				/* postupdate_data */,
 			"preupdate_payment_date_time" );
 
 	payment_amount_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_payment_amount,
 			(char *)0 /* postupdate_data */,
 			"preupdate_payment_amount" );

@@ -343,9 +343,7 @@ QUERY_OUTPUT *query_process_output_new(
 		query_attribute_list(
 			folder->append_isa_attribute_list,
 			preprompt_dictionary,
-			exclude_attribute_name_list,
-			folder->folder_name
-				/* dictionary_prepend_folder_name */ );
+			exclude_attribute_name_list );
 
 	query_output->non_joined_where_clause =
 	query_output->where_clause =
@@ -528,9 +526,7 @@ QUERY_OUTPUT *query_primary_data_output_new(
 		query_attribute_list(
 			folder->append_isa_attribute_list,
 			query->dictionary,
-			exclude_attribute_name_list,
-			folder->folder_name
-				/* dictionary_prepend_folder_name */ );
+			exclude_attribute_name_list );
 
 	query_output->where_clause =
 		query_combined_where_clause(
@@ -595,9 +591,7 @@ QUERY_OUTPUT *query_process_parameter_output_new(
 			attribute_list,
 			dictionary,
 			(LIST *)0
-				/* exclude_attribute_name_list */,
-			(char *)0
-				/* dictionary_prepend_folder_name */ );
+				/* exclude_attribute_name_list */ );
 
 	query_output->where_clause =
 		query_combined_where_clause(
@@ -683,9 +677,9 @@ QUERY_OUTPUT *query_output_new(	QUERY *query,
 
 	if ( folder->row_level_non_owner_forbid )
 	{
-		query_set_row_level_non_owner_forbid_dictionary(
-			query,
-			folder );
+		query_dictionary_row_level_non_owner_forbid(
+			query->query_dictionary,
+			query->login_name );
 	}
 
 	if ( folder )
@@ -694,9 +688,7 @@ QUERY_OUTPUT *query_output_new(	QUERY *query,
 			query_attribute_list(
 				folder->append_isa_attribute_list,
 				query->dictionary,
-				exclude_attribute_name_list,
-				folder->folder_name
-				/* dictionary_prepend_folder_name */ );
+				exclude_attribute_name_list );
 	}
 
 	if ( folder
@@ -1150,17 +1142,17 @@ LIST *query_get_subquery_drop_down_list(
 					mto1_related_folder_list );
 
 			if ( ( drop_down =
-				query_get_subquery_drop_down(
+				query_subquery_drop_down(
 					exclude_attribute_name_list,
 					root_folder->
 						folder_name,
 					related_folder->
+						folder->
+						folder_name,
+					related_folder->
 						foreign_attribute_name_list,
 					related_folder->folder->attribute_list,
-					dictionary,
-					related_folder->
-						folder->
-						folder_name ) ) )
+					dictionary ) ) )
 			{
 				if ( !drop_down_list )
 					drop_down_list = list_new();
@@ -1674,23 +1666,22 @@ check_mto1_append_isa_related_folder_list:
 	return drop_down_list;
 }
 
-QUERY_DROP_DOWN *query_get_subquery_drop_down(
+QUERY_DROP_DOWN *query_subquery_drop_down(
 				LIST *exclude_attribute_name_list,
-				char *folder_name,
+				char *root_folder_name,
+				char *mto1_related_folder_name,
 				LIST *foreign_attribute_name_list,
 				LIST *attribute_list,
-				DICTIONARY *dictionary,
-				char *dictionary_prepend_folder_name )
+				DICTIONARY *query_dictionary )
 {
 	QUERY_DROP_DOWN *query_drop_down = {0};
 	int highest_index;
 	int index;
 
 	highest_index =
-		dictionary_attribute_name_list_get_highest_index(
+		dictionary_attribute_name_list_highest_index(
 			dictionary,
-			foreign_attribute_name_list,
-			dictionary_prepend_folder_name );
+			foreign_attribute_name_list );
 
 	if ( highest_index == -1 )
 		return (QUERY_DROP_DOWN *)0;
@@ -1732,10 +1723,9 @@ QUERY_DROP_DOWN *query_process_drop_down(
 		return (QUERY_DROP_DOWN *)0;
 
 	highest_index =
-		dictionary_attribute_name_list_get_highest_index(
+		dictionary_attribute_name_list_highest_index(
 			preprompt_dictionary,
-			foreign_attribute_name_list,
-			(char *)0 /* dictionary_prepend_folder_name */ );
+			foreign_attribute_name_list );
 
 	if ( highest_index == -1 ) return (QUERY_DROP_DOWN *)0;
 
@@ -1862,7 +1852,6 @@ QUERY_DROP_DOWN *query_insert_table_drop_down(
 QUERY_DROP_DOWN *query_primary_data_drop_down(
 				LIST *exclude_attribute_name_list,
 				char *root_folder_name,
-				char *dictionary_prepend_folder_name,
 				LIST *foreign_attribute_name_list,
 				LIST *attribute_list,
 				DICTIONARY *query_dictionary )
@@ -1872,10 +1861,9 @@ QUERY_DROP_DOWN *query_primary_data_drop_down(
 	int index;
 
 	highest_index =
-		dictionary_attribute_name_list_get_highest_index(
+		dictionary_attribute_name_list_highest_index(
 			query_dictionary,
-			foreign_attribute_name_list,
-			dictionary_prepend_folder_name );
+			foreign_attribute_name_list );
 
 	if ( highest_index == -1 )
 		return (QUERY_DROP_DOWN *)0;
@@ -1982,10 +1970,9 @@ QUERY_DROP_DOWN *query_process_multi_drop_down(
 	}
 
 	highest_index =
-		dictionary_attribute_name_list_get_highest_index(
+		dictionary_attribute_name_list_highest_index(
 			dictionary,
-			foreign_attribute_name_list,
-			(char *)0 /* dictionary_prepend_folder_name */ );
+			foreign_attribute_name_list );
 
 	if ( highest_index <= 0 )
 		return (QUERY_DROP_DOWN *)0;
@@ -2008,6 +1995,7 @@ QUERY_DROP_DOWN *query_process_multi_drop_down(
 	return query_drop_down;
 }
 
+#ifdef NOT_DEFINED
 QUERY_DROP_DOWN *query_drop_down(
 				LIST *exclude_attribute_name_list,
 				char *root_folder_name,
@@ -2021,10 +2009,9 @@ QUERY_DROP_DOWN *query_drop_down(
 	int index;
 
 	highest_index =
-		dictionary_attribute_name_list_get_highest_index(
+		dictionary_attribute_name_list_highest_index(
 			dictionary,
-			foreign_attribute_name_list,
-			dictionary_prepend_folder_name );
+			foreign_attribute_name_list );
 
 	if ( highest_index == -1 )
 		return (QUERY_DROP_DOWN *)0;
@@ -2045,6 +2032,7 @@ QUERY_DROP_DOWN *query_drop_down(
 
 	return drop_down;
 }
+#endif
 
 QUERY_DROP_DOWN_ROW *query_process_drop_down_row_new(
 			char *attribute_name,
@@ -2130,6 +2118,24 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc( void )
 	return query_drop_down_row;
 }
 
+QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc( void )
+{
+	QUERY_DROP_DOWN_ROW *query_drop_down_row;
+
+	if ( ! ( query_drop_down_row =
+			calloc( 1, sizeof( QUERY_DROP_DOWN_ROW ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return query_drop_down_row;
+}
+
 QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 			LIST *attribute_name_list,
 			LIST *attribute_list,
@@ -2203,16 +2209,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 
 	} while( list_next( attribute_name_list ) );
 
-	if ( ! ( query_drop_down_row =
-			calloc( 1, sizeof( QUERY_DROP_DOWN_ROW ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: memory allocation error.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		return (QUERY_DROP_DOWN_ROW *)0;
-	}
+	query_drop_down_row = query_drop_down_row_calloc();
 
 	query_drop_down_row->attribute_name_list = local_attribute_name_list;
 	query_drop_down_row->query_data_list = local_query_data_list;
@@ -2220,7 +2217,9 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 	return query_drop_down_row;
 }
 
-QUERY_DROP_DOWN *query_drop_down_new( char *folder_name )
+QUERY_DROP_DOWN *query_drop_down_new(
+			char *root_folder_name,
+			char *mto1_foreign_folder_name )
 {
 	QUERY_DROP_DOWN *query_drop_down;
 
@@ -2234,12 +2233,13 @@ QUERY_DROP_DOWN *query_drop_down_new( char *folder_name )
 		exit( 1 );
 	}
 
-	query_drop_down->folder_name = folder_name;
-	query_drop_down->query_drop_down_row_list = list_new();
+	query_drop_down->root_folder_name = root_folder_name;
+	query_drop_down->mto1_foreign_folder_name = mto1_foreign_folder_name;
 
 	return query_drop_down;
 }
 
+#ifdef NOT_DEFINED
 QUERY_DROP_DOWN *query_row_drop_down(
 				LIST *exclude_attribute_name_list,
 				QUERY_DROP_DOWN *query_drop_down,
@@ -2328,12 +2328,9 @@ QUERY_DROP_DOWN *query_row_drop_down(
 
 	operator_name =
 		query_dictionary_operator_name(
-			key /* attribute_name */,
+			key,
 			dictionary,
-			0 /* dictionary_offset */,
-			QUERY_RELATION_OPERATOR_STARTING_LABEL,
-			(char *)0
-			/* dictionary_prepend_folder_name */ );
+			QUERY_RELATION_OPERATOR_STARTING_LABEL );
 
 	relational_operator =
 		query_relational_operator(
@@ -2388,6 +2385,7 @@ query_get_drop_down_continue:
 
 	return query_drop_down;
 }
+#endif
 
 LIST *query_get_drop_down_data_list(
 			LIST *attribute_name_list,
@@ -2406,14 +2404,11 @@ LIST *query_get_drop_down_data_list(
 			list_get_pointer(
 				attribute_name_list );
 
-		if ( !( operator_name =
-			query_dictionary_operator_name(
-				attribute_name,
+		if ( ! ( operator_name =
+			   query_dictionary_operator_name(
+				attribute_name /* key */,
 				dictionary,
-				0 /* dictionary_offset */,
-				QUERY_RELATION_OPERATOR_STARTING_LABEL,
-				(char *)0
-				/* dictionary_prepend_folder_name */ ) ) )
+				QUERY_RELATION_OPERATOR_STARTING_LABEL ) ) )
 		{
 			return (LIST *)0;
 		}
@@ -2483,11 +2478,9 @@ boolean query_get_drop_down_dictionary_data(
 }
 
 char *query_dictionary_operator_name(
-			char *attribute_name,
+			char *key,
 			DICTIONARY *dictionary,
-			int dictionary_offset,
-			char *starting_label,
-			char *dictionary_prepend_folder_name )
+			char *starting_label )
 {
 	char search_string[ 1024 ];
 	char *operator_name;
@@ -2495,55 +2488,31 @@ char *query_dictionary_operator_name(
 	sprintf( search_string,
 		 "%s%s",
 		 starting_label,
-		 attribute_name );
+		 key );
 
 	if ( ( operator_name =
-		dictionary_fetch(
-			dictionary,
-			search_string ) ) )
+			dictionary_fetch(
+				dictionary,
+				search_string ) ) )
 	{
 		return operator_name;
 	}
 
-	if ( dictionary_get_index_data(
+	/* ----------------------------------------------------------- */
+	/* Returns: 	1 if the data comes from the index	       */
+	/*		0 if the data comes from index = 0 or no index */
+	/*	       -1 if the data is not found	   	       */
+	/* ----------------------------------------------------------- */
+	if ( dictionary_index_data(
 			&operator_name,
 			dictionary, 
 			search_string,
-			dictionary_offset ) < 0 )
+			0 /* dictionary_offset */ ) < 0 )
 	{
-		if ( dictionary_get_index_data(
-				&operator_name,
-				dictionary, 
-				search_string,
-				0 ) < 0 )
-		{
-			if ( dictionary_prepend_folder_name
-			&&   *dictionary_prepend_folder_name )
-			{
-				sprintf(search_string,
-					"%s.%s%s",
-					dictionary_prepend_folder_name,
-					starting_label,
-					attribute_name );
-
-				if ( dictionary_get_index_data(
-						&operator_name,
-						dictionary, 
-						search_string,
-						0 ) < 0 )
-				{
-					return (char *)0;
-				}
-			}
-			else
-			{
-				return (char *)0;
-			}
-		}
+		return (char *)0;
 	}
 
 	return operator_name;
-
 }
 
 void query_convert_date_international( char **data )
@@ -2772,8 +2741,7 @@ QUERY_ATTRIBUTE *query_attribute_new(
 LIST *query_attribute_list(
 			LIST *append_isa_attribute_list,
 			DICTIONARY *query_dictionary,
-			LIST *exclude_attribute_name_list,
-			char *dictionary_prepend_folder_name )
+			LIST *exclude_attribute_name_list )
 {
 	LIST *query_attribute_list = {0};
 	QUERY_ATTRIBUTE *query_attribute;
@@ -2809,7 +2777,6 @@ LIST *query_attribute_list(
 				query_dictionary_operator_name(
 					attribute->attribute_name,
 					query_dictionary,
-					0 /* dictionary_offset */,
 					QUERY_RELATION_OPERATOR_STARTING_LABEL,
 					dictionary_prepend_folder_name ) ) )
 		{
@@ -5064,11 +5031,7 @@ LIST *query_get_subquery_list(	DICTIONARY *dictionary,
 					one2m_folder->
 					append_isa_attribute_list,
 				dictionary,
-				exclude_attribute_name_list,
-				related_folder->
-					one2m_folder->
-					folder_name
-					/* dictionary_prepend_folder_name */ );
+				exclude_attribute_name_list );
 
 		if ( list_length( query_attribute_list ) )
 		{
@@ -5253,26 +5216,26 @@ char *query_get_drop_down_list_display(
 
 }
 
-LIST *query_append_prompt_recursive_folder_list(
-				LIST *query_drop_down_list,
-				LIST *exclude_attribute_name_list,
-				char *root_folder_name,
-				LIST *prompt_recursive_folder_list,
-				DICTIONARY *query_dictionary )
+LIST *query_prompt_recursive_drop_down_list(
+			LIST *exclude_attribute_name_list,
+			char *root_folder_name,
+			LIST *prompt_recursive_folder_list,
+			DICTIONARY *query_dictionary )
 {
 	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
 	QUERY_DROP_DOWN *drop_down;
 	PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder;
-	FOLDER *folder;
+	FOLDER *mto1_folder;
+	LIST *drop_down_list = {0}
 
 	if ( !list_rewind( prompt_recursive_folder_list ) )
 	{
-		return query_drop_down_list;
+		return (LIST *)0;
 	}
 
 	do {
 		prompt_recursive_folder =
-			list_get_pointer(
+			list_get(
 				prompt_recursive_folder_list );
 
 		if ( !list_rewind( prompt_recursive_folder->
@@ -5287,33 +5250,34 @@ LIST *query_append_prompt_recursive_folder_list(
 					prompt_recursive_folder->
 					  prompt_recursive_mto1_folder_list );
 
-			folder = prompt_recursive_mto1_folder->folder;
+			mto1_folder = prompt_recursive_mto1_folder->folder;
 
 			if ( list_is_subset_of(
-				folder->primary_attribute_name_list,
+				mto1_folder->primary_attribute_name_list,
 				exclude_attribute_name_list ) )
 			{
 				continue;
 			}
 
 			if ( ( drop_down =
-				query_drop_down(
+				query_edit_table_drop_down(
 					exclude_attribute_name_list,
 					root_folder_name,
-					folder->folder_name
-					/* dictionary_prepend_folder_name */,
-					folder->
+					mto1_folder->folder_name
+					/* mto1_foreign_folder_name */,
+					mto1_folder->
 					      primary_attribute_name_list
 					      /* foreign_attribute_name_list */,
-					folder->attribute_list,
+					mto1_folder->attribute_list
+					      /* foreign_attribute_list */,
 					query_dictionary ) ) )
 			{
-				if ( !query_drop_down_list )
-					query_drop_down_list = list_new();
+				if ( !drop_down_list )
+				{
+					drop_down_list = list_new();
+				}
 
-				list_append_pointer(
-					query_drop_down_list,
-					drop_down );
+				list_set( drop_down_list, drop_down );
 			}
 
 		} while( list_next( prompt_recursive_folder->
@@ -5321,8 +5285,7 @@ LIST *query_append_prompt_recursive_folder_list(
 
 	} while( list_next( prompt_recursive_folder_list ) );
 
-	return query_drop_down_list;
-
+	return drop_down_list;
 }
 
 char *query_get_dictionary_where_clause(
@@ -5822,18 +5785,16 @@ QUERY_OUTPUT *query_folder_output_new(
 
 	if ( folder->row_level_non_owner_forbid )
 	{
-		query_set_row_level_non_owner_forbid_dictionary(
-			query,
-			folder );
+		query_dictionary_row_level_non_owner_forbid(
+			query->query_dictionary,
+			query->login_name );
 	}
 
 	query_output->query_attribute_list =
 		query_attribute_list(
 			folder->append_isa_attribute_list,
 			query->dictionary,
-			exclude_attribute_name_list,
-			folder->folder_name
-				/* dictionary_prepend_folder_name */ );
+			exclude_attribute_name_list );
 
 	if ( !query_output->where_clause )
 	{
@@ -6192,7 +6153,6 @@ QUERY *query_folder_new(	char *application_name,
 QUERY_DROP_DOWN *query_get_drop_down(
 			LIST *exclude_attribute_name_list,
 			char *root_folder_name,
-			char *dictionary_prepend_folder_name,
 			LIST *foreign_attribute_name_list,
 			LIST *attribute_list,
 			DICTIONARY *dictionary )
@@ -6202,10 +6162,9 @@ QUERY_DROP_DOWN *query_get_drop_down(
 	int index;
 
 	highest_index =
-		dictionary_attribute_name_list_get_highest_index(
+		dictionary_attribute_name_list_highest_index(
 			dictionary,
-			foreign_attribute_name_list,
-			dictionary_prepend_folder_name );
+			foreign_attribute_name_list );
 
 	if ( highest_index == -1 )
 		return (QUERY_DROP_DOWN *)0;
@@ -6315,12 +6274,9 @@ QUERY_DROP_DOWN *query_dictionary_row_drop_down(
 
 	operator_name =
 		query_dictionary_operator_name(
-			key /* attribute_name */,
+			key,
 			dictionary,
-			0 /* dictionary_offset */,
-			QUERY_RELATION_OPERATOR_STARTING_LABEL,
-			(char *)0
-			/* dictionary_prepend_folder_name */ );
+			QUERY_RELATION_OPERATOR_STARTING_LABEL );
 
 	relational_operator =
 		query_relational_operator(
@@ -6603,13 +6559,13 @@ void query_output_set_row_level_non_owner_forbid_join(
 
 }
 
-void query_set_row_level_non_owner_forbid_dictionary(
-				QUERY *query,
-				FOLDER *folder )
+void query_dictionary_row_level_non_owner_forbid(
+			DICTIONARY *query_dictionary,
+			char *login_name )
 {
 	char key[ 128 ];
 
-	if ( !query->login_name || !*query->login_name )
+	if ( !login_name || !*login_name )
 	{
 		fprintf( stderr,
 "ERROR in %s/%s()/%d: has row_level_non_owner_forbid but empty login_name.\n",
@@ -6619,48 +6575,33 @@ void query_set_row_level_non_owner_forbid_dictionary(
 		exit( 1 );
 	}
 
-	if ( !query->dictionary )
-	{
-		query->dictionary =
-			dictionary_small_new();
-	}
+	if ( !query_dictionary ) return;
 
 	sprintf(key,
 		"%s%s_0",
 		QUERY_FROM_STARTING_LABEL,
 		QUERY_LOGIN_NAME_ATTRIBUTE_NAME );
 
-	dictionary_set_pointer(	query->dictionary,
-				strdup( key ),
-				query->login_name );
+	dictionary_set_pointer(
+		query_dictionary,
+		strdup( key ),
+		login_name );
 
 	sprintf(key,
 	 	"%s%s_0",
 	 	QUERY_RELATION_OPERATOR_STARTING_LABEL,
 	 	QUERY_LOGIN_NAME_ATTRIBUTE_NAME );
 
-	dictionary_set_pointer(	query->dictionary,
-				strdup( key ),
-				EQUAL_OPERATOR );
-
-	if ( !attribute_list_exists(
-		folder->append_isa_attribute_list,
-		QUERY_LOGIN_NAME_ATTRIBUTE_NAME ) )
-	{
-		ATTRIBUTE *attribute;
-
-		attribute = attribute_new( QUERY_LOGIN_NAME_ATTRIBUTE_NAME );
-
-		list_append_pointer(
-			folder->append_isa_attribute_list,
-			attribute );
-	}
+	dictionary_set_pointer(
+		query_dictionary,
+		strdup( key ),
+		EQUAL_OPERATOR );
 }
 
 QUERY_OUTPUT *query_process_drop_down_output_new(
-				FOLDER *folder,
-				char *folder_name,
-				DICTIONARY *query_dictionary )
+			FOLDER *folder,
+			char *folder_name,
+			DICTIONARY *query_dictionary )
 {
 	QUERY_OUTPUT *query_output;
 
@@ -6794,10 +6735,10 @@ QUERY *query_related_folder_data_new(
 	return query;
 }
 
+#ifdef NOT_DEFINED
 QUERY_DROP_DOWN *query_related_data_drop_down(
 				LIST *exclude_attribute_name_list,
 				char *root_folder_name,
-				char *dictionary_prepend_folder_name,
 				LIST *foreign_attribute_name_list,
 				LIST *attribute_list,
 				DICTIONARY *dictionary )
@@ -6807,10 +6748,9 @@ QUERY_DROP_DOWN *query_related_data_drop_down(
 	int index;
 
 	highest_index =
-		dictionary_attribute_name_list_get_highest_index(
+		dictionary_attribute_name_list_highest_index(
 			dictionary,
-			foreign_attribute_name_list,
-			dictionary_prepend_folder_name );
+			foreign_attribute_name_list );
 
 	if ( highest_index == -1 ) return (QUERY_DROP_DOWN *)0;
 
@@ -6830,6 +6770,7 @@ QUERY_DROP_DOWN *query_related_data_drop_down(
 
 	return drop_down;
 }
+#endif
 
 QUERY_OUTPUT *query_related_data_output_new(
 			QUERY *query,
@@ -7066,17 +7007,15 @@ LIST *query_edit_table_dictionary_list(
 }
 
 QUERY *query_edit_table_new(
-			DICTIONARY *dictionary,
+			DICTIONARY *query_dictionary,
 			char *application_name,
 			char *login_name,
-			char *query_select_folder_name,
+			FOLDER *folder,
 			ROLE *role,
-			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name )
 {
 	QUERY *query;
-	char first_folder_name[ 128 ];
 
 	dictionary_appaserver_parse_multi_attribute_keys(
 		dictionary,
@@ -7084,23 +7023,7 @@ QUERY *query_edit_table_new(
 
 	query = query_calloc();
 
-	piece( first_folder_name, ',', query_select_folder_name, 0 );
-
-	if ( ! ( query->folder =
-			folder_with_load_new(
-				application_name,
-				BOGUS_SESSION,
-				strdup( first_folder_name ),
-				role ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load folder.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
+	query->folder = folder;
 	query->login_name = login_name;
 	query->dictionary = dictionary;
 	query->max_rows = QUERY_MAX_ROWS;
@@ -7116,12 +7039,10 @@ QUERY *query_edit_table_new(
 
 	query->query_output =
 		query_edit_table_output_new(
-			query,
-			first_folder_name,
+			query->dictionary,
+			query->login_name,
 			query->folder,
-			append_isa_attribute_list,
 			query->prompt_recursive,
-			query_select_folder_name,
 			attribute_not_null_join,
 			attribute_not_null_folder_name );
 
@@ -7129,12 +7050,10 @@ QUERY *query_edit_table_new(
 }
 
 QUERY_OUTPUT *query_edit_table_output_new(
-			QUERY *query,
-			char *first_folder_name,
+			DICTIONARY *query_dictionary,
+			char *login_name,
 			FOLDER *folder,
-			LIST *append_isa_attribute_list,
 			PROMPT_RECURSIVE *prompt_recursive,
-			char *query_select_folder_name,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name )
 {
@@ -7145,16 +7064,6 @@ QUERY_OUTPUT *query_edit_table_output_new(
 	/* ROW_SECURITY_ROLE_UPDATE is populated.	*/
 	/* -------------------------------------------- */
 	static LIST *exclude_attribute_name_list = {0};
-
-	if ( !query )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty query.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
 
 	if ( !folder )
 	{
@@ -7167,7 +7076,9 @@ QUERY_OUTPUT *query_edit_table_output_new(
 	}
 
 	if ( !exclude_attribute_name_list )
+	{
 		exclude_attribute_name_list = list_new();
+	}
 
 	query_output = query_output_calloc();
 
@@ -7175,43 +7086,56 @@ QUERY_OUTPUT *query_edit_table_output_new(
 		query_drop_down_list =
 			query_edit_table_drop_down_list(
 				exclude_attribute_name_list,
-				first_folder_name,
+				folder->folder_name
+					/* root_folder_name */,
 				folder->
 					mto1_related_folder_list,
 				folder->
 				    mto1_append_isa_related_folder_list,
-				query->dictionary );
+				query_dictionary );
 
 	if ( prompt_recursive
 	&&   list_length(
 		prompt_recursive->
 			prompt_recursive_folder_list ) )
 	{
-		query_output->query_drop_down_list =
-			query_append_prompt_recursive_folder_list(
-				query_output->query_drop_down_list,
+		LIST *prompt_recursive_drop_down_list;
+
+		prompt_recursive_drop_down_list =
+			query_prompt_recursive_drop_down_list(
 				exclude_attribute_name_list,
 				folder->folder_name
 					/* root_folder_name */,
 				prompt_recursive->
 					prompt_recursive_folder_list,
-				query->dictionary );
+				query_dictionary );
+
+		if ( list_length( prompt_recursive_drop_down_list ) )
+		{
+			if ( !query_output->query_drop_down_list )
+			{
+				query_output->query_drop_down_list =
+					list_new();
+			}
+
+			list_set_list(
+				query_output->query_drop_down_list,
+				prompt_recursive_drop_down_list );
+		}
 	}
 
 	if ( folder->row_level_non_owner_forbid )
 	{
-		query_set_row_level_non_owner_forbid_dictionary(
-			query,
-			folder );
+		query_dictionary_row_level_non_owner_forbid(
+			query_dictionary,
+			login_name );
 	}
 
 	query_output->query_attribute_list =
 		query_attribute_list(
-			append_isa_attribute_list,
-			query->dictionary,
-			exclude_attribute_name_list,
-			folder->folder_name
-				/* dictionary_prepend_folder_name */ );
+			folder->append_isa_attribute_list,
+			query_dictionary,
+			exclude_attribute_name_list );
 
 	query_output->non_joined_where_clause =
 	query_output->where_clause =
@@ -7221,7 +7145,7 @@ QUERY_OUTPUT *query_edit_table_output_new(
 		query_output->query_drop_down_list,
 		query_output->query_attribute_list,
 		folder->application_name,
-		first_folder_name,
+		root_folder_name,
 		0 /* not combine_date_time */ );
 
 	if ( !query_output->where_clause
@@ -7232,9 +7156,9 @@ QUERY_OUTPUT *query_edit_table_output_new(
 	}
 
 	query_output->select_clause =
-		query_get_select_clause(
+		query_select_clause(
 			folder->application_name,
-			append_isa_attribute_list );
+			folder->append_isa_attribute_list );
 
 	query_output->from_clause =
 		query_from_clause(
@@ -7326,7 +7250,7 @@ QUERY_OUTPUT *query_edit_table_output_new(
 
 LIST *query_edit_table_drop_down_list(
 			LIST *exclude_attribute_name_list,
-			char *first_folder_name,
+			char *root_folder_name,
 			LIST *mto1_related_folder_list,
 			LIST *mto1_append_isa_related_folder_list,
 			DICTIONARY *query_dictionary )
@@ -7361,7 +7285,9 @@ LIST *query_edit_table_drop_down_list(
 		query_drop_down =
 			query_edit_table_drop_down(
 				exclude_attribute_name_list,
-				first_folder_name,
+				root_folder_name,
+				related_folder->folder->folder_name
+					/* mto1_foreign_folder_name */,
 				foreign_attribute_name_list,
 				related_folder->folder->attribute_list,
 				query_dictionary ) );
@@ -7407,10 +7333,11 @@ check_mto1_append_isa_related_folder_list:
 			query_drop_down =
 				query_edit_table_drop_down(
 					exclude_attribute_name_list,
+					root_folder_name,
 					related_folder->
 						folder->
 						folder_name
-							/* first_folder_name */,
+						/* mto1_foreign_folder_name */,
 					sub_related_folder->
 					    foreign_attribute_name_list,
 					sub_related_folder->
@@ -7440,15 +7367,39 @@ check_mto1_append_isa_related_folder_list:
 
 QUERY_DROP_DOWN *query_edit_table_drop_down(
 			LIST *exclude_attribute_name_list,
-			char *first_folder_name,
+			char *root_folder_name,
+			char *mto1_foreign_folder_name,
 			LIST *foreign_attribute_name_list,
-			LIST *attribute_list,
+			LIST *foreign_attribute_list,
 			DICTIONARY *query_dictionary )
 {
-	QUERY_DROP_DOWN *query_drop_down = {0};
+	QUERY_DROP_DOWN *query_drop_down;
 	QUERY_DROP_DOWN_ROW *query_drop_down_row;
+	LIST *query_drop_down_row_list;
 	int highest_index;
 	int index;
+	char *operator_name;
+	enum relational_operator relational_operator;
+
+	/* Check for relational operator of equals (maybe) */
+	/* ----------------------------------------------- */
+	operator_name =
+		query_dictionary_operator_name(
+			mto1_foreign_folder_name,
+			query_dictionary,
+			QUERY_RELATION_OPERATOR_STARTING_LABEL );
+
+	relational_operator =
+		query_relational_operator(
+			operator_name,
+			(char *)0 /* attribute_datatype */ );
+
+	/* If multi-drop-down, then no relational_operator is okay. */
+	/* -------------------------------------------------------- */
+	if ( index == 0 && relational_operator != equals )
+	{
+		return (QUERY_DROP_DOWN *)0;
+	}
 
 	highest_index =
 		dictionary_attribute_name_list_highest_index(
@@ -7457,37 +7408,69 @@ QUERY_DROP_DOWN *query_edit_table_drop_down(
 
 	if ( highest_index == -1 ) return (QUERY_DROP_DOWN *)0;
 
+	query_drop_down_row_list =
+		query_edit_table_drop_down_row_list(
+			exclude_attribute_name_list,
+			root_folder_name,
+			mto1_foreign_folder_name,
+			foreign_attribute_name_list,
+			foreign_attribute_list,
+			query_dictionary,
+			highest_index );
+
+	if ( list_length( query_drop_down_row_list ) )
+	{
+		query_drop_down =
+			query_drop_down_new(
+				strdup( root_folder_name ),
+				mto1_foreign_folder_name );
+
+		query_drop_down->query_drop_down_row_list =
+			query_drop_down_row_list;
+
+		return query_drop_down;
+	}
+	else
+	{
+		return (QUERY_DROP_DOWN *)0;
+	}
+}
+
+LIST *query_edit_table_drop_down_row_list(
+			LIST *exclude_attribute_name_list,
+			char *root_folder_name,
+			char *mto1_foreign_folder_name,
+			LIST *foreign_attribute_name_list,
+			LIST *foreign_attribute_list,
+			DICTIONARY *query_dictionary,
+			int highest_index )
+{
+	LIST *query_drop_down_row_list = {0};
+	QUERY_DROP_DOWN_ROW *query_drop_down_row;
+	int index;
+
 	for( index = 0; index <= highest_index; index++ )
 	{
 		query_drop_down_row =
 			query_edit_table_drop_down_row(
 				exclude_attribute_name_list,
-				first_folder_name,
 				foreign_attribute_name_list,
-				attribute_list,
+				foreign_attribute_list,
 				query_dictionary,
 				index,
-				(query_drop_down)			 ?
-					query_drop_down->
-						query_drop_down_row_list :
-					(LIST *)0 );
+				query_drop_down_row_list );
 
-		if ( query_drop_down_row )
+		if ( !query_drop_down_row_list )
 		{
-			if ( !query_drop_down )
-			{
-				query_drop_down =
-					query_drop_down_new(
-						strdup( first_folder_name ) );
-			}
-
-			list_set(
-				query_drop_down->query_drop_down_row_list,
-				query_drop_down_row );
+			query_drop_down_row_list = list_new();
 		}
+
+		list_set(
+			query_drop_down_row_list,
+			query_drop_down_row );
 	}
 
-	return query_drop_down;
+	return query_drop_down_row_list;
 }
 
 #ifdef NOT_DEFINED
@@ -7593,12 +7576,9 @@ QUERY_DROP_DOWN *query_edit_table_row_drop_down(
 
 	operator_name =
 		query_dictionary_operator_name(
-			key /* attribute_name */,
+			key,
 			dictionary,
-			0 /* dictionary_offset */,
-			QUERY_RELATION_OPERATOR_STARTING_LABEL,
-			(char *)0
-			/* dictionary_prepend_folder_name */ );
+			QUERY_RELATION_OPERATOR_STARTING_LABEL );
 
 	relational_operator =
 		query_relational_operator(
@@ -8343,9 +8323,7 @@ QUERY_OUTPUT *query_prompt_data_output_new(
 			query_attribute_list(
 				folder->append_isa_attribute_list,
 				query->dictionary,
-				exclude_attribute_name_list,
-				folder->folder_name
-					/* dictionary_prepend_folder_name */ );
+				exclude_attribute_name_list );
 
 	query_output->where_clause =
 		query_combined_where_clause(
@@ -8566,36 +8544,22 @@ LIST *query_detail_dictionary_list(
 }
 
 QUERY *query_simple_new(
-			DICTIONARY *dictionary,
+			DICTIONARY *query_dictionary,
 			char *application_name,
-			char *login_name,
-			char *folder_name )
+			FOLDER *folder,
+			ROLE *role,
+			char *login_name )
 {
 	QUERY *query;
 
 	dictionary_appaserver_parse_multi_attribute_keys(
-		dictionary,
+		query_dictionary,
 		QUERY_RELATION_OPERATOR_STARTING_LABEL );
 
 	query = query_calloc();
 
-	if ( ! ( query->folder =
-			folder_with_load_new(
-				application_name,
-				BOGUS_SESSION,
-				folder_name,
-				(ROLE *)0 /* role */ ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load folder.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
 	query->login_name = login_name;
-	query->dictionary = dictionary;
+	query->dictionary = query_dictionary;
 	query->max_rows = QUERY_MAX_ROWS;
 
 	query->prompt_recursive =
@@ -8609,14 +8573,10 @@ QUERY *query_simple_new(
 
 	query->query_output =
 		query_edit_table_output_new(
-			query,
-			query->folder->folder_name
-				/* first_folder_name */,
+			query->dictionary,
+			query->login_name,
 			query->folder,
-			query->folder->append_isa_attribute_list,
 			query->prompt_recursive,
-			query->folder->folder_name
-				/* select_folder_name */,
 			(char *)0 /* attribute_not_null_join */,
 			(char *)0 /* attribute_not_null_folder_name */ );
 
@@ -8688,18 +8648,16 @@ QUERY_OUTPUT *query_sort_order_output_new(
 
 	if ( query->folder->row_level_non_owner_forbid )
 	{
-		query_set_row_level_non_owner_forbid_dictionary(
-			query,
-			query->folder );
+		query_dictionary_row_level_non_owner_forbid(
+			query->query_dictionary,
+			query->login_name );
 	}
 
 	query_output->query_attribute_list =
 		query_attribute_list(
 			query->folder->attribute_list,
 			query->dictionary,
-			exclude_attribute_name_list,
-			query->folder->folder_name
-				/* dictionary_prepend_folder_name */ );
+			exclude_attribute_name_list );
 
 	query_output->non_joined_where_clause =
 	query_output->where_clause =
@@ -8855,20 +8813,17 @@ char *query_data_convert_date_international(
 
 QUERY_DROP_DOWN_ROW *query_edit_table_drop_down_row(
 			LIST *exclude_attribute_name_list,
-			char *first_folder_name,
 			LIST *foreign_attribute_name_list,
-			LIST *attribute_list,
+			LIST *foreign_attribute_list,
 			DICTIONARY *query_dictionary,
-			int index,
-			LIST *query_drop_down_row_list )
+			int index )
 {
 	LIST *data_string_list = {0};
 	QUERY_DROP_DOWN_ROW *query_drop_down_row = {0};
+	LIST *query_data_list;
 	char key[ 1024 ];
 	char *string_delimited;
 	char *data_list_string;
-	char *operator_name;
-	enum relational_operator relational_operator;
 
 	if ( !list_length( foreign_attribute_name_list ) )
 		return (QUERY_DROP_DOWN_ROW *)0;
@@ -8880,10 +8835,49 @@ QUERY_DROP_DOWN_ROW *query_edit_table_drop_down_row(
 
 	sprintf( key, "%s_%d", string_delimited, index );
 
-	if ( ! ( data_list_string = dictionary_fetch( dictionary, key ) ) )
+	if ( ! ( data_list_string =
+			dictionary_fetch(
+				dictionary,
+				key ) ) )
 	{
 		return (QUERY_DROP_DOWN_ROW *)0;
 	}
+
+	query_data_list =
+		query_drop_down_query_data_list(
+			foreign_attribute_list
+				/* attribute_list */,
+			data_list_string );
+
+	if ( list_length( query_data_list ) )
+	{
+		query_drop_down_row =
+			query_drop_down_row_calloc();
+
+		query_drop_down_row->query_data_list = query_data_list;
+
+		list_set_list(
+			exclude_attribute_name_list,
+			foreign_attribute_name_list );
+
+		return query_drop_down_row;
+	}
+	else
+	{
+		return (QUERY_DROP_DOWN_ROW *)0;
+	}
+}
+
+LIST *query_drop_down_query_data_list(
+			LIST *attribute_list,
+			char *data_list_string )
+{
+	LIST *data_string_list;
+	char *attribute_name;
+	ATTRIBUTE *attribute;
+	QUERY_DATA *query_data;
+	LIST *query_data_list = {0};
+	char *data;
 
 	if ( strcmp( data_list_string, NULL_OPERATOR ) == 0 )
 	{
@@ -8922,54 +8916,41 @@ QUERY_DROP_DOWN_ROW *query_edit_table_drop_down_row(
 				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
 	}
 
-	if ( !list_length( data_string_list ) )
-		return (QUERY_DROP_DOWN_ROW *)0;
+	if ( !list_length( data_string_list ) ) return (LIST *)0;
 
-	operator_name =
-		query_dictionary_operator_name(
-			key /* attribute_name */,
-			dictionary,
-			0 /* dictionary_offset */,
-			QUERY_RELATION_OPERATOR_STARTING_LABEL,
-			(char *)0
-			/* dictionary_prepend_folder_name */ );
-
-	relational_operator =
-		query_relational_operator(
-			operator_name,
-			(char *)0 /* attribute_datatype */ );
-
-	/* If multi-drop-down, then no relational_operator is okay. */
-	/* -------------------------------------------------------- */
-	if ( index == 0 && relational_operator != equals )
+	if ( list_length( data_string_list ) != list_length( attribute_list ) )
 	{
-		return (QUERY_DROP_DOWN_ROW *)0;
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: data_string_list length = %d, attribute_list length = %d\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			list_length( data_string_list ),
+			list_length( attribute_list ) );
+		exit( 1 );
+
 	}
 
-	if ( ! ( query_drop_down_row =
-			query_drop_down_row_new(
-				foreign_attribute_name_list,
-				attribute_list,
-				data_string_list ) ) )
-	{
-		return (QUERY_DROP_DOWN_ROW *)0;
-	}
+	query_data_list = list_new();
+	list_rewind( data_string_list );
+	list_rewind( attribute_list );
 
-	if ( query_drop_down_row_list
-	&&   query_data_list_accounted_for(
-		query_drop_down_row_list,
-		data_string_list ) )
-	{
-		return (QUERY_DROP_DOWN_ROW *)0;
-	}
+	do {
+		data = list_get( data_string_list );
+		attribute = list_get( attribute_list );
 
-	if ( exclude_attribute_name_list )
-	{
-		list_set_list((
-			exclude_attribute_name_list,
-			foreign_attribute_name_list );
-	}
+		list_set(
+			query_data_list,
+			query_data_new(
+				attribute->datatype,
+				security_sql_injection_escape(
+					security_replace_special_characters(
+					     string_trim_number_characters(
+						  data,
+						  attribute->datatype ) ) ) ) );
 
-	return query_drop_down_row;
+	} while ( list_next( data_string_list ) );
+
+	return query_data_list;
 }
 

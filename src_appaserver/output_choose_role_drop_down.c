@@ -74,9 +74,9 @@ int main( int argc, char **argv )
 
 	sprintf(	action_string,
 			"%s/post_choose_role_drop_down",
-			appaserver_library_get_http_prompt(
+			appaserver_library_http_prompt(
 				appaserver_parameter_file_get_cgi_directory(),
-				appaserver_library_get_server_address(),
+				appaserver_library_server_address(),
 				application_ssl_support_yn(
 					application_name ),
 				application_prepend_http_protocol_yn(
@@ -165,7 +165,7 @@ void output_vertical_frameset_choose_role_drop_down(
 		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
-		appaserver_library_get_server_address(),
+		appaserver_library_server_address(),
 			form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );

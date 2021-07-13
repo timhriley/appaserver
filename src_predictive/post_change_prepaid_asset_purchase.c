@@ -347,19 +347,19 @@ void post_change_prepaid_asset_purchase_update(
 			purchase_order->database_shipped_date );
 
 	extension_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_extension,
 			(char *)0 /* postupdate_data */,
 			"preupdate_extension" );
 
 	accrual_period_years_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_accrual_period_years,
 			(char *)0 /* postupdate_data */,
 			"preupdate_accrual_period_years" );
 
 	asset_name_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_asset_name,
 			asset_name /* postupdate_data */,
 			"preupdate_asset_name" );

@@ -136,4 +136,7 @@ char appaserver_get_aggregation_sum_yn(
 char *appaserver_escape_street_address(
 			char *street_address );
 
+APPASERVER *appaserver_calloc(
+			void );
+
 #endif

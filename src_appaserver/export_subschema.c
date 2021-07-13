@@ -526,7 +526,7 @@ void clone_table_attribute(
 	LIST *attribute_name_list;
 
 	attribute_name_list = 
-		appaserver_library_get_attribute_name_list(
+		appaserver_library_attribute_name_list(
 			application_name, folder_name );
 
 	if ( !list_rewind( attribute_name_list ) )

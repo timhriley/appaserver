@@ -222,7 +222,7 @@ passed_security_check:
 	if ( *attribute_name && strcmp( attribute_name, "attribute" ) != 0 )
 	{
 		attribute_name_list = 
-			appaserver_library_get_attribute_name_list(
+			appaserver_library_attribute_name_list(
 						application_name, 
 						folder_name );
 

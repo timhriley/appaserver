@@ -89,10 +89,24 @@ FOLDER *folder_new_folder(	char *application_name,
 	return f;
 }
 
-FOLDER *folder_with_load_new(	char *application_name,
-				char *session,
-				char *folder_name,
-				ROLE *role )
+FOLDER *folder_with_load_new(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			ROLE *role )
+{
+	return folder_load_new(
+			application_name,
+			session,
+			folder_name,
+			role );
+}
+
+FOLDER *folder_load_new(
+			char *application_name,
+			char *session,
+			char *folder_name,
+			ROLE *role )
 {
 	FOLDER *folder;
 	char *role_name = {0};
@@ -113,19 +127,6 @@ FOLDER *folder_with_load_new(	char *application_name,
 		override_row_restrictions_yn =
 			role->override_row_restrictions_yn;
 	}
-
-	folder->mto1_recursive_related_folder_list =
-	     related_folder_get_mto1_related_folder_list(
-		list_new(),
-		application_name,
-		session,
-		folder_name,
-		role_name,
-		0 /* isa_flag */,
-		related_folder_recursive_all,
-		0 /* dont override_row_restrictions */,
-		(LIST *)0 /* root_primary_attribute_name_list */,
-		0 /* recursive_level */ );
 
 	folder->mto1_related_folder_list =
 	     related_folder_get_mto1_related_folder_list(
@@ -179,6 +180,23 @@ FOLDER *folder_with_load_new(	char *application_name,
 		return (FOLDER *)0;
 	}
 
+	folder->mto1_recursive_related_folder_list =
+	     related_folder_get_mto1_related_folder_list(
+		list_new(),
+		application_name,
+		session,
+		folder_name,
+		role_name,
+		0 /* isa_flag */,
+		related_folder_recursive_all,
+		0 /* dont override_row_restrictions */,
+		(LIST *)0 /* root_primary_attribute_name_list */,
+		0 /* recursive_level */ );
+
+	folder_append_one2m_related_folder_list(
+		folder->mto1_recursive_related_folder_list,
+		application_name );
+
 	/* This is the new way of setting. */
 	/* ------------------------------- */
 	folder->mto1_isa_related_folder_list =
@@ -189,6 +207,10 @@ FOLDER *folder_with_load_new(	char *application_name,
 			role_name,
 			0 /* recursive_level */ );
 
+	folder_append_one2m_related_folder_list(
+		folder->mto1_isa_related_folder_list,
+		application_name );
+
 	folder->append_isa_attribute_list =
 		attribute_append_isa_attribute_list(
 			folder->application_name,
@@ -196,16 +218,8 @@ FOLDER *folder_with_load_new(	char *application_name,
 			folder->mto1_isa_related_folder_list,
 			role_name );
 
-	folder_append_one2m_related_folder_list(
-		folder->mto1_isa_related_folder_list,
-		application_name );
-
-	folder_append_one2m_related_folder_list(
-		folder->mto1_recursive_related_folder_list,
-		application_name );
-
 	if ( ! ( folder->mto1_append_isa_related_folder_list = 
-		folder_append_isa_mto1_related_folder_list(
+		    folder_append_isa_mto1_related_folder_list(
 			application_name,
 			session,
 			role_name,
@@ -217,8 +231,8 @@ FOLDER *folder_with_load_new(	char *application_name,
 	}
 
 	related_folder_mto1_append_unique(
-			folder->mto1_append_isa_related_folder_list,
-			folder->mto1_related_folder_list );
+		folder->mto1_append_isa_related_folder_list,
+		folder->mto1_related_folder_list );
 
 	folder->attribute_list =
 		attribute_get_attribute_list(
@@ -228,8 +242,16 @@ FOLDER *folder_with_load_new(	char *application_name,
 			(LIST *)0 /* mto1_isa_related_folder_list */,
 			role_name );
 
+	folder->attribute_name_list =
+		folder_get_attribute_name_list(
+			folder->attribute_list );
+
 	folder->primary_attribute_name_list =
 		folder_get_primary_attribute_name_list(
+			folder->attribute_list );
+
+	folder->lookup_allowed_attribute_name_list =
+		attribute_lookup_allowed_attribute_name_list(
 			folder->attribute_list );
 
 	folder->pair_one2m_related_folder_list =
@@ -275,7 +297,6 @@ FOLDER *folder_with_load_new(	char *application_name,
 			folder->one2m_related_folder_list );
 
 	return folder;
-
 }
 
 LIST *folder_get_attribute_list(
@@ -2140,7 +2161,7 @@ LIST *folder_get_table_name_list( char *application_name )
 			/* ------------------------------ */
 			/* Returns heap memory [strdup()] */
 			/* ------------------------------ */
-			appaserver_library_get_table_name(
+			appaserver_library_table_name(
 				application_name,
 				folder_name );
 

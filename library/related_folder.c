@@ -2776,12 +2776,13 @@ LIST *related_folder_list_get_preselection_dictionary_list(
 				folder_name,
 				related_folder->folder->folder_name,
 				query_dictionary,
-				login_name );
+				login_name,
+				role_name );
 		}
 
 	} while( list_next( mto1_related_folder_list ) );
-	return (LIST *)0;
 
+	return (LIST *)0;
 }
 
 boolean related_folder_exists_prompt_mto1_recursive(
@@ -2824,64 +2825,46 @@ boolean related_folder_exists_automatic_preselection(
 			return 1;
 
 	} while( list_next( mto1_related_folder_list ) );
-	return 0;
 
+	return 0;
 }
 
 LIST *related_folder_get_preselection_dictionary_list(
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *related_folder_name,
-				DICTIONARY *query_dictionary,
-				char *login_name )
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *related_folder_name,
+			DICTIONARY *query_dictionary,
+			char *login_name,
+			char *role_name )
 {
 	QUERY *query;
+	ROLE *role;
 	LIST *related_folder_dictionary_list = {0};
 	FOLDER *related_folder;
 	LIST *related_primary_attribute_name_list;
 
-	related_folder = folder_new_folder(
-					application_name,
-					session,
-					related_folder_name );
+	role = role_new( application_name, role_name );
 
-	folder_load(
-			&related_folder->insert_rows_number,
-			&related_folder->lookup_email_output,
-			&related_folder->row_level_non_owner_forbid,
-			&related_folder->row_level_non_owner_view_only,
-			&related_folder->populate_drop_down_process,
-			&related_folder->post_change_process,
-			&related_folder->folder_form,
-			&related_folder->notepad,
-			&related_folder->html_help_file_anchor,
-			&related_folder->
-				post_change_javascript,
-			&related_folder->lookup_before_drop_down,
-			&related_folder->data_directory,
-			&related_folder->index_directory,
-			&related_folder->no_initial_capital,
-			&related_folder->subschema_name,
-			&related_folder->create_view_statement,
-			related_folder->application_name,
-			related_folder->session,
-			related_folder->folder_name,
-			0 /* not override_row_restrictions */,
-			(char *)0 /* role_name */,
-			(LIST *)0 /* mto1_related_folder_list */ );
+	related_folder =
+		folder_load_new(
+			application_name,
+			session,
+			related_folder,
+			role );
 
-	related_folder->attribute_list =
-		attribute_get_attribute_list(
-			related_folder->application_name,
-			related_folder->folder_name,
-			(char *)0 /* attribute_name */,
-			(LIST *)0 /* mto1_isa_related_folder_list */,
-			(char *)0 /* role_name */ );
+	if ( !related_folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	related_primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
-			related_folder->attribute_list );
+		related_folder->primary_attribute_name_list;
 
 	if ( related_folder->populate_drop_down_process )
 	{
@@ -2909,8 +2892,29 @@ LIST *related_folder_get_preselection_dictionary_list(
 			query_simple_new(
 				query_dictionary,
 				application_name,
-				login_name,
-				related_folder->folder_name );
+				related_folder,
+				role,
+				login_name );
+
+		if ( !query )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !query->query_output )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: query_output is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		related_folder_dictionary_list =
 			query_row_dictionary_list(

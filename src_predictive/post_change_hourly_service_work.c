@@ -345,7 +345,7 @@ void post_change_hourly_service_work_update(
 	}
 
 	end_work_date_time_change_state =
-		appaserver_library_get_preupdate_change_state(
+		appaserver_library_preupdate_change_state(
 			preupdate_end_work_date_time,
 			(service_work->end_work_date_time)
 				? service_work->end_work_date_time

@@ -72,239 +72,300 @@ char *dictionary_display_delimiter( DICTIONARY *d, char delimiter );
 
 int dictionary_key_highest_index(
 			DICTIONARY *d );
+
 int get_dictionary_key_highest_index(
 			DICTIONARY *d );
+
 int dictionary_get_key_highest_index(
 			DICTIONARY *d );
 
-LIST *dictionary_get_index_data_list( 	DICTIONARY *dictionary,
-					char *key );
+LIST *dictionary_get_index_data_list(
+			DICTIONARY *dictionary,
+			char *key );
 
 int dictionary_get_index_data_if_changed(
-					char **destination,
-					DICTIONARY *dictionary_1,
-					DICTIONARY *dictionary_2,
-					char *key, 
-					int index );
+			char **destination,
+			DICTIONARY *dictionary_1,
+			DICTIONARY *dictionary_2,
+			char *key, 
+			int index );
 
-boolean dictionary_get_index_data(	char **destination,
-					DICTIONARY *dictionary,
-					char *key,
-					int index );
+/* ----------------------------------------------------------- */
+/* Returns: 	1 if the data comes from the index	       */
+/*		0 if the data comes from index = 0 or no index */
+/*	       -1 if the data is not found	   	       */
+/* ----------------------------------------------------------- */
+boolean dictionary_index_data(
+			char **destination,
+			DICTIONARY *dictionary,
+			char *key,
+			int index );
 
-boolean dictionary_exists_key_index( 	DICTIONARY *dictionary,
-					char *search_key,
-					int row );
+boolean dictionary_get_index_data(
+			char **destination,
+			DICTIONARY *dictionary,
+			char *key,
+			int index );
+
+boolean dictionary_exists_key_index(
+			DICTIONARY *dictionary,
+			char *search_key,
+			int row );
 
 void dictionary_parse_multi_attribute_keys(
-				DICTIONARY *dictionary, 
-				char key_delimiter,
-				char data_delimiter,
-				char *prefix,
-				boolean dont_include_relational_operators );
+			DICTIONARY *dictionary, 
+			char key_delimiter,
+			char data_delimiter,
+			char *prefix,
+			boolean dont_include_relational_operators );
 
 void dictionary_parse_multi_attribute_relation_operator_keys(
-				DICTIONARY *dictionary, 
-				char multi_attribute_drop_down_delimiter );
+			DICTIONARY *dictionary, 
+			char multi_attribute_drop_down_delimiter );
 
-void dictionary_add_string(		DICTIONARY *d,
-					char *key, 
-					char *data_string );
+void dictionary_add_string(
+			DICTIONARY *d,
+			char *key, 
+			char *data_string );
 
-void dictionary_set_string(		DICTIONARY *d,
-					char *key, 
-					char *data_string );
+void dictionary_set_string(
+			DICTIONARY *d,
+			char *key, 
+			char *data_string );
 
-void dictionary_set_index_zero(		DICTIONARY *d,
-					char *key, 
-					char *data_string );
+void dictionary_set_index_zero(
+			DICTIONARY *d,
+			char *key, 
+			char *data_string );
 
-void dictionary_set_string_index_key(	DICTIONARY *d,
-					char *key, 
-					char *data_string,
-					int index );
+void dictionary_set_string_index_key(
+			DICTIONARY *d,
+			char *key, 
+			char *data_string,
+			int index );
 
 void dictionary_search_replace_command_arguments( 	
-					char *source_destination,
-					DICTIONARY *dictionary, 
-					int index );
+			char *source_destination,
+			DICTIONARY *dictionary, 
+			int index );
 
-int dictionary_get_index_data_multi(	char *destination,
-					DICTIONARY *dictionary,
-					char *key_multi,
-					int index,
-					char delimiter );
+int dictionary_get_index_data_multi(
+			char *destination,
+			DICTIONARY *dictionary,
+			char *key_multi,
+			int index,
+			char delimiter );
 
-DICTIONARY *dictionary_prepend_key(	DICTIONARY *dictionary,
-					char *label );
+DICTIONARY *dictionary_prepend_key(
+			DICTIONARY *dictionary,
+			char *label );
 
-char *dictionary_get_string( 		DICTIONARY *d, 
-					char *key );
+char *dictionary_get_string(
+			DICTIONARY *d, 
+			char *key );
 
 DICTIONARY *dictionary_extract_prepended_key(
-					DICTIONARY *dictionary,
-					char *label,
-					int with_strip );
+			DICTIONARY *dictionary,
+			char *label,
+			int with_strip );
 
 boolean dictionary_non_populated_key_exists_index_zero(
-					DICTIONARY *indexed_dictionary,
-					char *key );
+			DICTIONARY *indexed_dictionary,
+			char *key );
 
 boolean dictionary_key_exists_index_zero(
-					DICTIONARY *indexed_dictionary,
-					char *key );
+			DICTIONARY *indexed_dictionary,
+			char *key );
 
 boolean dictionary_key_exists_index_zero_or_one(
-					DICTIONARY *indexed_dictionary,
-					char *key );
+			DICTIONARY *indexed_dictionary,
+			char *key );
 
-char *dictionary_display_delimited(	DICTIONARY *d, char delimiter );
+char *dictionary_display_delimited(
+			DICTIONARY *d,
+			char delimiter );
 
 char *dictionary_index_zero_display_delimited(
-					DICTIONARY *d, char delimiter );
+			DICTIONARY *d,
+			char delimiter );
 
 void dictionary_add_elements_by_removing_prefix(
-				    	DICTIONARY *dictionary,
-				    	char *starting_prefix );
+		    	DICTIONARY *dictionary,
+		    	char *starting_prefix );
 
 void dictionary_add_elements_by_removing_index_zero(
-				    	DICTIONARY *dictionary );
+		    	DICTIONARY *dictionary );
 
-DICTIONARY *dictionary_remove_prefix( 	DICTIONARY *dictionary,
-				    	char *starting_prefix );
+DICTIONARY *dictionary_remove_prefix(
+			DICTIONARY *dictionary,
+		    	char *starting_prefix );
 
-DICTIONARY *dictionary_zap_with_prefix(	DICTIONARY *dictionary,
-				    	char *starting_prefix );
+DICTIONARY *dictionary_zap_with_prefix(
+			DICTIONARY *dictionary,
+		    	char *starting_prefix );
 
 DICTIONARY *dictionary_zap_index_zero_attribute_name_list(
-					DICTIONARY *dictionary,
-					LIST *attribute_name_list );
+			DICTIONARY *dictionary,
+			LIST *attribute_name_list );
 
 void dictionary_zap_where_key_contains_character(
-					DICTIONARY *dictionary,
-					char character );
-DICTIONARY *dictionary_get_with_prefix(
-					DICTIONARY *source_dictionary,
-				    	char *starting_prefix );
-DICTIONARY *dictionary_get_without_prefix(
-					DICTIONARY *dictionary,
-				    	char *starting_prefix );
+			DICTIONARY *dictionary,
+			char character );
 
-DICTIONARY *dictionary_remove_index( 	DICTIONARY *dictionary );
+DICTIONARY *dictionary_get_with_prefix(
+			DICTIONARY *source_dictionary,
+		    	char *starting_prefix );
+
+DICTIONARY *dictionary_get_without_prefix(
+			DICTIONARY *dictionary,
+		    	char *starting_prefix );
+
+DICTIONARY *dictionary_remove_index(
+			DICTIONARY *dictionary );
 
 DICTIONARY *dictionary_remove_index_zero(
-					DICTIONARY *dictionary );
+			DICTIONARY *dictionary );
 
 DICTIONARY *dictionary_extract_key_prefix( 
-					DICTIONARY *dictionary,
-					char *starting_prefix );
+			DICTIONARY *dictionary,
+			char *starting_prefix );
 
-DICTIONARY *where_clause_to_dictionary( char *where_clause );
+DICTIONARY *where_clause_to_dictionary(
+			char *where_clause );
 
 int dictionary_extract_where_variable(
-					char *variable, 
-					char *where_portion );
+			char *variable, 
+			char *where_portion );
 
 void dictionary_extract_where_data(
-					char *data,
-					char *where_portion );
+			char *data,
+			char *where_portion );
 
 void dictionary_extract_where_operator(
-					char *operator,
-					char *where_portion );
+			char *operator,
+			char *where_portion );
 
 char *dictionary_get_with_prefix_at_index_zero(
-					DICTIONARY *dictionary,
-					char *prefix,
-					char *key );
+			DICTIONARY *dictionary,
+			char *prefix,
+			char *key );
 
-DICTIONARY *copy_dictionary( 		DICTIONARY *dictionary );
+DICTIONARY *copy_dictionary(
+			DICTIONARY *dictionary );
 
-DICTIONARY *dictionary_copy_dictionary( DICTIONARY *dictionary );
+DICTIONARY *dictionary_copy_dictionary(
+			DICTIONARY *dictionary );
 
-DICTIONARY *copy_dictionary_dictionary(	DICTIONARY *dictionary );
+DICTIONARY *copy_dictionary_dictionary(
+			DICTIONARY *dictionary );
 
-void dictionary_append_dictionary(	DICTIONARY *source_destination,
-					DICTIONARY *append_dictionary );
+void dictionary_append_dictionary(
+			DICTIONARY *source_destination,
+			DICTIONARY *append_dictionary );
 
-void dictionary_append_row_zero(	DICTIONARY *source_destination,
-					DICTIONARY *append_dictionary );
+void dictionary_append_row_zero(
+			DICTIONARY *source_destination,
+			DICTIONARY *append_dictionary );
 
-void dictionary_add_suffix_zero( 	DICTIONARY *dictionary );
+void dictionary_add_suffix_zero(
+			DICTIONARY *dictionary );
 
-void dictionary_add_index_zero( 	DICTIONARY *dictionary );
+void dictionary_add_index_zero(
+			DICTIONARY *dictionary );
 
-char *dictionary_get_index_zero(	DICTIONARY *dictionary,
-					char *key );
+char *dictionary_get_index_zero(
+			DICTIONARY *dictionary,
+			char *key );
 
-char *dictionary_fetch_index_zero(	DICTIONARY *dictionary,
-					char *key );
+char *dictionary_fetch_index_zero(
+			DICTIONARY *dictionary,
+			char *key );
 
-char *dictionary_get_index_zero_data(	DICTIONARY *dictionary,
-					char *key );
+char *dictionary_get_index_zero_data(
+			DICTIONARY *dictionary,
+			char *key );
 
 int dictionary_get_index_data_if_populated(
-					char **destination,
-					DICTIONARY *dictionary,
-					char *key, 
-					int index );
+			char **destination,
+			DICTIONARY *dictionary,
+			char *key, 
+			int index );
 
-int dictionary_exists_key_in_list(	LIST *key_list,
-					DICTIONARY *dictionary );
+int dictionary_exists_key_in_list(
+			LIST *key_list,
+			DICTIONARY *dictionary );
 
 LIST *dictionary_get_index_zero_key_list(
-					DICTIONARY *dictionary,
-					LIST *attribute_name_list );
+			DICTIONARY *dictionary,
+			LIST *attribute_name_list );
 
-void dictionary_add_pointer(		DICTIONARY *d, 
-					char *key, 
-					void *data );
+void dictionary_add_pointer(
+			DICTIONARY *d, 
+			char *key, 
+			void *data );
 
-char *dictionary_new_index_key( 	DICTIONARY *d, char *key );
+char *dictionary_new_index_key(
+			DICTIONARY *d,
+			char *key );
 
-boolean dictionary_exists_key( 		DICTIONARY *dictionary,
-					char *search_key );
+boolean dictionary_exists_key(
+			DICTIONARY *dictionary,
+			char *search_key );
 
-boolean dictionary_key_exists( 		DICTIONARY *dictionary,
-					char *search_key );
+boolean dictionary_key_exists(
+			DICTIONARY *dictionary,
+			char *search_key );
 
-boolean dictionary_exists_index_key( 	DICTIONARY *d, 
-					char *key_with_unknown_index );
+boolean dictionary_exists_index_key(
+			DICTIONARY *d, 
+			char *key_with_unknown_index );
 
-LIST *dictionary_get_index_list(	DICTIONARY *d,
-					char *search_key_without_prefix );
+LIST *dictionary_get_index_list(
+			DICTIONARY *d,
+			char *search_key_without_prefix );
 
 LIST *dictionary_get_positive_index_list(
-					DICTIONARY *d,
-					char *search_key_without_prefix );
+			DICTIONARY *d,
+			char *search_key_without_prefix );
 
-DICTIONARY *pipe2dictionary(		char *sys_string,
-					char delimiter );
+DICTIONARY *pipe2dictionary(
+			char *sys_string,
+			char delimiter );
 
-DICTIONARY *dictionary_pipe2dictionary(	char *sys_string,
-					char delimiter );
+DICTIONARY *dictionary_pipe2dictionary(
+			char *sys_string,
+			char delimiter );
 
-DICTIONARY *dictionary_new_dictionary(	void );
+DICTIONARY *dictionary_new_dictionary(
+			void );
 
-DICTIONARY *new_dictionary(		void );
+DICTIONARY *new_dictionary(
+			void );
 
 DICTIONARY *dictionary_index_data2dictionary(
-					DICTIONARY *source_dictionary,
-					char *key_wo_index );
+			DICTIONARY *source_dictionary,
+			char *key_wo_index );
 
 DICTIONARY *dictionary_merge_dictionary(
-					DICTIONARY *dictionary1,
-					DICTIONARY *dictionary2 );
+			DICTIONARY *dictionary1,
+			DICTIONARY *dictionary2 );
+
 DICTIONARY *dictionary_merge_lists2dictionary(
-					LIST *key_list,
-					LIST *data_list );
-void dictionary_add_constant(		DICTIONARY *dictionary,
-					LIST *data_list,
-					char *constant );
+			LIST *key_list,
+			LIST *data_list );
+
+void dictionary_add_constant(
+			DICTIONARY *dictionary,
+			LIST *data_list,
+			char *constant );
 
 boolean dictionary_data_exists_index_zero(
-					DICTIONARY *indexed_dictionary,
-					char *key );
+			DICTIONARY *indexed_dictionary,
+			char *key );
+
+int dictionary_attribute_name_list_get_highest_index(
+			DICTIONARY *d,
+			LIST *attribute_name_list );
 
 int dictionary_attribute_name_list_highest_index(
 			DICTIONARY *d,
