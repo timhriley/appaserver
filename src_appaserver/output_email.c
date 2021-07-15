@@ -201,7 +201,7 @@ int main( int argc, char **argv )
 			query_dictionary,
 			application_name,
 			login_name,
-			folder->folder_name );
+			folder );
 
 	if ( !query )
 	{

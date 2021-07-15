@@ -53,7 +53,7 @@
 
 /* Prototypes */
 /* ---------- */
-LIST *get_insert_table_element_list(
+LIST *output_insert_table_form_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char *login_name,
 			char *application_name,
@@ -300,7 +300,7 @@ int main( int argc, char **argv )
 	}
 
 	if ( attribute_exists_omit_insert_login_name(
-				folder->attribute_list ) )
+			folder->attribute_list ) )
 	{
 		dictionary_add_login_name_if_necessary(
 			dictionary_appaserver->query_dictionary,
@@ -330,11 +330,11 @@ int main( int argc, char **argv )
 	{
 		char *reference_number_attribute_name;
 
-		posted_attribute_name_list = 
-				dictionary_get_index_zero_key_list(
-					dictionary_appaserver->
-						query_dictionary, 
-					folder->attribute_name_list );
+		posted_attribute_name_list =
+			dictionary_get_index_zero_key_list(
+				dictionary_appaserver->
+					query_dictionary, 
+				folder->attribute_name_list );
 
 		/* Remove any reference number if insert */
 		/* ------------------------------------- */
@@ -849,7 +849,7 @@ int main( int argc, char **argv )
 				ignore_attribute_name_list );
 
 	form->regular_element_list =
-		get_insert_table_element_list(
+		output_insert_table_form_element_list(
 			&ajax_fill_drop_down_related_folder,
 			login_name,
 			application_name,
@@ -1050,10 +1050,9 @@ void primary_data_list_string_build_dictionaries(
 		list_next( primary_attribute_name_list );
 
 	} while( list_next( primary_data_list ) );
-
 }
 
-LIST *get_insert_table_element_list(
+LIST *output_insert_table_form_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char *login_name,
 			char *application_name,

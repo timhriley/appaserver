@@ -273,9 +273,28 @@ void output_chart(	DICTIONARY *query_dictionary,
 		query_simple_new(
 			query_dictionary,
 			application_name,
-			folder,
-			role,
-			login_name );
+			login_name,
+			folder );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	query_record_list =
 		query_get_record_list(

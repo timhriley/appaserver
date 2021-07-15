@@ -251,8 +251,9 @@ int main( int argc, char **argv )
 	if ( instr( "!", insert_update_key, 1 ) > -1 )
 	{
 		piece( detail_base_folder_name, '!', insert_update_key, 1 );
-		insert_update_key[
-			instr( "!", insert_update_key, 1 ) ] = '\0';
+
+		insert_update_key
+			[ instr( "!", insert_update_key, 1 ) ] = '\0';
 	}
 	else
 	{

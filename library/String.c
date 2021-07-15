@@ -771,6 +771,28 @@ LIST *string_pipe_list(	char *system_string )
 	return list;
 }
 
+char *string_delimiter_repeat(
+			char *string,
+			char delimiter,
+			int number_times )
+{
+	char return_buffer[ 2048 ];
+	char *ptr = return_buffer;
+
+	*ptr = '\0';
+
+	for(	;
+		number_times;
+		number_times-- )
+	{
+		if ( !*ptr ) ptr += sprintf( ptr, "%c", delimiter );
+
+		ptr += sprintf( ptr, "%s", string );
+	}
+
+	return strdup( return_buffer );
+}
+
 char *string_repeat(	char *string,
 			int number_times )
 {

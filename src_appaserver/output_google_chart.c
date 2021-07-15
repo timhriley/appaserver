@@ -291,9 +291,8 @@ void output_chart(	DICTIONARY *query_dictionary,
 		query_simple_new(
 			query_dictionary,
 			application_name,
-			folder,
-			role,
-			login_name );
+			login_name,
+			folder );
 
 	if ( !query )
 	{

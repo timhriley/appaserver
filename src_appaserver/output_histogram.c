@@ -199,11 +199,10 @@ int main( int argc, char **argv )
 			query =
 				query_simple_new(
 					application_name,
+					login_name,
 					dictionary_appaserver->
 						query_dictionary,
-					folder,
-					role,
-					login_name );
+					folder );
 
 			if ( !query )
 			{

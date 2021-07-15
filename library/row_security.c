@@ -572,10 +572,20 @@ LIST *row_security_detail_dictionary_list(
 			attribute_not_null_join,
 			attribute_not_null_folder_name );
 
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_detail_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( !query->query_output )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: query_detail_new() returned an empty query_output.\n",
+			"ERROR in %s/%s()/%d: query_output is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -587,10 +597,10 @@ LIST *row_security_detail_dictionary_list(
 	if ( dictionary_length( query->sort_dictionary ) )
 	{
 		query->query_output->order_clause =
-			query_get_order_clause(
+			query_order_clause(
 				query->sort_dictionary,
-				select_folder_name,
-				append_isa_attribute_list );
+				query->folder->folder_name,
+				folder->append_isa_attribute_list );
 	}
 
 	row_dictionary_list =
@@ -941,10 +951,9 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_fetch(
 LIST *row_security_edit_table_dictionary_list(
 			DICTIONARY *query_dictionary,
 			char *application_name,
-			DICTIONARY *sort_dictionary,
-			FOLDER *folder,
-			ROLE *role,
 			char *login_name,
+			FOLDER *folder,
+			DICTIONARY *sort_dictionary,
 			char *query_select_folder_list_string,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name )
@@ -958,9 +967,29 @@ LIST *row_security_edit_table_dictionary_list(
 			application_name,
 			login_name,
 			folder,
-			role,
+			query_select_folder_list_string,
 			attribute_not_null_join,
 			attribute_not_null_folder_name );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_edit_table_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	query->sort_dictionary = sort_dictionary;
 

@@ -365,7 +365,7 @@ boolean related_folder_exists_prompt_mto1_recursive(
 boolean related_folder_exists_automatic_preselection(
 			LIST *mto1_related_folder_list );
 
-LIST *related_folder_get_preselection_dictionary_list(
+LIST *related_folder_preselection_dictionary_list(
 			char *application_name,
 			char *session,
 			char *folder_name,

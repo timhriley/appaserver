@@ -2770,7 +2770,7 @@ LIST *related_folder_list_get_preselection_dictionary_list(
 		if ( related_folder->automatic_preselection )
 		{
 			return
-			     related_folder_get_preselection_dictionary_list(
+			     related_folder_preselection_dictionary_list(
 				application_name,
 				session,
 				folder_name,
@@ -2829,7 +2829,7 @@ boolean related_folder_exists_automatic_preselection(
 	return 0;
 }
 
-LIST *related_folder_get_preselection_dictionary_list(
+LIST *related_folder_preselection_dictionary_list(
 			char *application_name,
 			char *session,
 			char *folder_name,
@@ -2892,9 +2892,8 @@ LIST *related_folder_get_preselection_dictionary_list(
 			query_simple_new(
 				query_dictionary,
 				application_name,
-				related_folder,
-				role,
-				login_name );
+				login_name,
+				related_folder );
 
 		if ( !query )
 		{
@@ -2936,7 +2935,6 @@ LIST *related_folder_get_preselection_dictionary_list(
 			query_dictionary,
 			login_name,
 			related_primary_attribute_name_list );
-
 }
 
 LIST *related_folder_subtract_preselection_existing_dictionary_list(
@@ -2957,24 +2955,50 @@ LIST *related_folder_subtract_preselection_existing_dictionary_list(
 	DICTIONARY *related_dictionary;
 	int ok_add;
 
-	primary_folder = folder_new_folder(
-					application_name,
-					session,
-					primary_folder_name );
-
-	primary_folder->attribute_list =
-		attribute_get_attribute_list(
-			primary_folder->application_name,
-			primary_folder->folder_name,
-			(char *)0 /* attribute_name */,
-			(LIST *)0 /* mto1_isa_related_folder_list */,
-			(char *)0 /* role_name */ );
-
-	query = query_insert_new(
+	primary_folder =
+		folder_load_new(
 			application_name,
+			session,
+			primary_folder_name,
+			(ROLE *)0 );
+
+	if ( !primary_folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			primary_folder_name );
+		exit( 1 );
+
+	}
+
+	query =
+		query_related_preselection_new(
+			query_dictionary,
 			login_name,
-			primary_folder->folder_name,
-			query_dictionary );
+			primary_folder );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: query_related_preselection_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	primary_folder_dictionary_list =
 		query_row_dictionary_list(

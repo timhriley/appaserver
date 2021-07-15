@@ -407,9 +407,8 @@ void export_output_spreadsheet_folder(
 		query_simple_new(
 			(DICTIONARY *)0 /* query_dictionary */,
 			application_name,
-			folder,
-			(ROLE *)0,
-			(char *)0 /* login_name */ );
+			(char *)0 /* login_name */,
+			folder );
 
 	if ( !query )
 	{

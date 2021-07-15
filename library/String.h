@@ -176,4 +176,9 @@ char *string_trim_character_array(
 			char *data,
 			char *character_array );
 
+char *string_delimiter_repeat(
+			char *string,
+			char delimiter,
+			int number_times );
+
 #endif
