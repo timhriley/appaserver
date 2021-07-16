@@ -67,8 +67,18 @@ typedef struct
 
 typedef struct
 {
-	LIST *attribute_name_list;
+	/* Input */
+	/* ----- */
+	LIST *foreign_attribute_name_list;
+	LIST *foreign_attribute_list;
+	int index;
+
+	/* Process */
+	/* ------- */
+	char *query_key;
+	char *query_data_list_string;
 	LIST *query_data_list;
+
 } QUERY_DROP_DOWN_ROW;
 
 typedef struct
@@ -937,13 +947,24 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc(
 			void );
 
 LIST *query_drop_down_query_data_list(
-			LIST *attribute_list,
-			char *data_list_string );
+			LIST *foreign_attribute_name_list,
+			LIST *foreign_attribute_list,
+			LIST *data_string_list );
 
 QUERY_OUTPUT *query_simple_output_new(
 			DICTIONARY *query_dictionary,
 			char *login_name,
 			FOLDER *folder,
 			PROMPT_RECURSIVE *prompt_recursive );
+
+char *query_key(	LIST *foreign_attribute_name_list,
+			int index );
+
+char *query_data_list_string(
+			DICTIONARY *query_dictionary,
+			char *query_key );
+
+LIST *query_data_string_list(
+			char *data_list_string );
 
 #endif

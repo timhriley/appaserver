@@ -803,7 +803,6 @@ char *process_generic_get_datatype_where_clause(
 					/* root_related_folder */ );
 
 	return query->query_output->where_clause;
-	
 }
 
 LIST *process_generic_get_datatype_primary_attribute_data_list(

@@ -260,6 +260,18 @@ LIST *related_folder_related_folder_list(
 			enum relation_type,
 			LIST *existing_related_folder_list );
 
+LIST *related_folder_mto1_related_folder_list(
+			LIST *related_folder_list,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			boolean isa_flag,
+			enum related_folder_recursive_request_type,
+			boolean override_row_restrictions,
+			LIST *root_primary_attribute_name_list,
+			int recursive_level );
+
 LIST *related_folder_get_mto1_related_folder_list(
 			LIST *related_folder_list,
 			char *application_name,

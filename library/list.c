@@ -1746,17 +1746,22 @@ LIST *list_delimiter_string_to_integer_list(
 
 LIST *list_delimiter_string_to_list( char *list_string, char delimiter )
 {
-	return string2list( list_string, delimiter );
+	return list_string_list( list_string, delimiter );
 }
 
 LIST *list_string_to_list( char *list_string, char delimiter )
 {
-	return string2list( list_string, delimiter );
+	return list_string_list( list_string, delimiter );
 }
 
 LIST *list_string2list( char *list_string, char delimiter )
 {
-	return string2list( list_string, delimiter );
+	return list_string_list( list_string, delimiter );
+}
+
+LIST *string2list( char *list_string, char delimiter )
+{
+	return list_string_list( list_string, delimiter );
 }
 
 LIST *list_quote_comma_string2list( char *list_string )
@@ -1777,15 +1782,11 @@ LIST *list_quote_comma_string2list( char *list_string )
 	return list;
 }
 
-LIST *list_string_list(		char *list_string,
-				char delimiter )
-{
-	return string2list( list_string, delimiter );
-}
-
 /* Free all memory with list_free_string_list() */
 /* -------------------------------------------- */
-LIST *string2list( char *list_string, char delimiter )
+LIST *list_string_list(
+			char *list_string,
+			char delimiter )
 {
 	LIST *list = list_new();
 	char buffer[ 8192 ];
@@ -1795,7 +1796,7 @@ LIST *string2list( char *list_string, char delimiter )
 	{
 		for ( i = 0; piece( buffer, delimiter, list_string, i); i++ )
 		{
-			list_append_pointer( list, strdup( buffer ) );
+			list_set( list, strdup( buffer ) );
 		}
 	}
 	return list;

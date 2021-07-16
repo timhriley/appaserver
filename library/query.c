@@ -11,6 +11,7 @@
 #include "security.h"
 #include "list_usage.h"
 #include "form.h"
+#include "prompt_recursive.h"
 #include "query.h"
 
 QUERY *query_calloc( void )
@@ -256,8 +257,7 @@ QUERY *query_new(		char *application_name,
 		query->prompt_recursive =
 			prompt_recursive_new(
 				application_name,
-				query->folder->folder_name
-					/* query_folder_name */,
+				query->folder->folder_name,
 				query->
 					folder->
 					mto1_related_folder_list );
@@ -1814,13 +1814,8 @@ QUERY_DROP_DOWN *query_drop_down(
 				mto1_foreign_folder_name );
 
 		drop_down->query_drop_down_row_list = drop_down_row_list;
-
-		return drop_down;
 	}
-	else
-	{
-		return (QUERY_DROP_DOWN *)0;
-	}
+	return drop_down;
 }
 
 LIST *query_drop_down_row_list(
@@ -1839,7 +1834,6 @@ LIST *query_drop_down_row_list(
 		drop_down_row =
 			query_drop_down_row(
 				exclude_attribute_name_list,
-				root_folder_name,
 				foreign_attribute_name_list,
 				foreign_attribute_list,
 				query_dictionary,
@@ -1854,8 +1848,40 @@ LIST *query_drop_down_row_list(
 			list_set( drop_down_row_list, drop_down_row );
 		}
 	}
-
 	return drop_down_row_list;
+}
+
+char *query_key(	LIST *foreign_attribute_name_list,
+			int index )
+{
+	static char key[ 512 ];
+	char *tmp;
+
+	*key = '\0';
+
+	if ( !list_length( foreign_attribute_name_list ) )
+		return key;
+
+	sprintf(key,
+		"%s_%d",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( tmp =
+			list_display_delimited(
+				foreign_attribute_name_list,
+				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) ),
+		index );
+
+	free( tmp );
+	return key;
+}
+
+char *query_data_list_string(
+			DICTIONARY *query_dictionary,
+			char *query_key )
+{
+	return dictionary_fetch( query_dictionary, key );
 }
 
 QUERY_DROP_DOWN_ROW *query_drop_down_row(
@@ -1866,8 +1892,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row(
 			int index )
 {
 	QUERY_DROP_DOWN_ROW *drop_down_row = {0};
-	char key[ 1024 ];
-	char *string_delimited;
+	char *key;
 	char *data_list_string;
 	char *operator_name;
 	enum relational_operator relational_operator;
@@ -1883,12 +1908,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row(
 		return (QUERY_DROP_DOWN_ROW *)0;
 	}
 
-	string_delimited =
-		list2string_delimited(
-			foreign_attribute_name_list,
-			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
-
-	sprintf( key, "%s_%d", string_delimited, index );
+	key = query_key( foreign_attribute_name_list, index );
 
 	operator_name =
 		query_dictionary_operator_name(
@@ -1898,7 +1918,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row(
 
 	relational_operator =
 		query_relational_operator(
-			operator_name,
+			dictionary_operator_name,
 			(char *)0 /* attribute_datatype */ );
 
 	if ( index == 0 && relational_operator != equals )
@@ -1910,7 +1930,10 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row(
 	/* If multi-drop-down, then no relational_operator is okay. */
 	/* -------------------------------------------------------- */
 
-	if ( ! ( data_list_string = dictionary_fetch( dictionary, key ) ) )
+	if ( ! ( data_list_string =
+			query_data_list_string(
+				query_dictionary,
+				key ) ) )
 	{
 		return (QUERY_DROP_DOWN_ROW *)0;
 	}
@@ -1920,46 +1943,49 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row(
 			foreign_attribute_name_list,
 			foreign_attribute_list );
 
+	query_drop_down_row->index = index;
+	query_drop_down_row->query_key = key;
+	query_drop_down_row->operator_name = operator_name;
+	query_drop_down_row->relational_operator = relational_operator;
+	query_drop_down_row->data_list_string = data_list_string;
+
 	if ( strcmp( data_list_string, NULL_OPERATOR ) == 0 )
 	{
 		int length = list_length( foreign_attribute_name_list );
 
-		query_drop_down_row->query_data_list =
-			query_drop_down_query_data_list(
-				exclude_attribute_name_list,
-				foreign_attribute_name_list,
-				(LIST *)0 /* foreign_attribute_list */,
-				string_delimiter_repeat(
-					NULL_OPERATOR,
-					MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-					length /* number_times */
-						/* data_list_string */ ) );
+		query_drop_down_row->query_data_list_string =
+			string_delimiter_repeat(
+			   NULL_OPERATOR,
+			   MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+			   length /* number_times */ );
 	}
 	else
 	if ( strcmp( data_list_string, NOT_NULL_OPERATOR ) == 0 )
 	{
 		int length = list_length( foreign_attribute_name_list );
 
-		query_drop_down_row->query_data_list =
-			query_drop_down_query_data_list(
-				exclude_attribute_name_list,
-				foreign_attribute_name_list,
-				(LIST *)0 /* foreign_attribute_list */,
-				string_delimiter_repeat(
-					NOT_NULL_OPERATOR,
-					MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-					length /* number_times */
-						/* data_list_string */ ) );
+		query_drop_down_row->query_data_list_string =
+			string_delimiter_repeat(
+			   NOT_NULL_OPERATOR,
+			   MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+			   length /* number_times */ );
 	}
 	else
 	{
-		query_drop_down_row->query_data_list =
-			query_drop_down_query_data_list(
-				exclude_attribute_name_list,
-				foreign_attribute_name_list,
-				foreign_attribute_list,
-				data_list_string );
+		query_drop_down_row->query_data_list_string =
+			data_list_string;
 	}
+
+	query_drop_down_row->query_data_string_list =
+		query_data_string_list(
+			query_drop_down_row->
+				query_data_list_string );
+
+	query_drop_down_row->query_data_list =
+		query_drop_down_query_data_list(
+			query_drop_down_row->foreign_attribute_name_list,
+			query_drop_down_row->foreign_attribute_list,
+			query_drop_down_row->query_data_string_list );
 
 	if ( exclude_attribute_name_list )
 	{
@@ -5941,150 +5967,6 @@ QUERY_DROP_DOWN *query_get_drop_down(
 	return query_drop_down;
 }
 
-QUERY_DROP_DOWN *query_dictionary_row_drop_down(
-				LIST *exclude_attribute_name_list,
-				QUERY_DROP_DOWN *query_drop_down,
-				char *root_folder_name,
-				LIST *foreign_attribute_name_list,
-				LIST *attribute_list,
-				DICTIONARY *dictionary,
-				int index,
-				char *dictionary_prepend_folder_name )
-{
-	LIST *data_list = {0};
-	QUERY_DROP_DOWN_ROW *drop_down_row;
-	char key[ 1024 ];
-	char *string_delimited;
-	char *data_list_string;
-	char *operator_name;
-	enum relational_operator relational_operator;
-
-	if ( !list_length( foreign_attribute_name_list ) )
-		return query_drop_down;
-
-	string_delimited =
-		list2string_delimited(
-			foreign_attribute_name_list,
-			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
-
-	sprintf( key, "%s_%d", string_delimited, index );
-
-	if ( ! ( data_list_string = dictionary_fetch( dictionary, key ) ) )
-	{
-		if ( dictionary_prepend_folder_name
-		&&   *dictionary_prepend_folder_name )
-		{
-			sprintf(key,
-				"%s.%s_%d",
-				dictionary_prepend_folder_name,
-				string_delimited,
-				index );
-		}
-
-		if ( ! ( data_list_string =
-				dictionary_fetch( dictionary, key ) ) )
-		{
-			return query_drop_down;
-		}
-	}
-
-	if ( strcmp( data_list_string, NULL_OPERATOR ) == 0 )
-	{
-		int length = list_length( foreign_attribute_name_list );
-		int i;
-
-		data_list = list_new();
-
-		for(	i = 0;
-			i < length;
-			i++ )
-		{
-			list_append_pointer( data_list, NULL_OPERATOR );
-		}
-	}
-	else
-	if ( strcmp( data_list_string, NOT_NULL_OPERATOR ) == 0 )
-	{
-		int length = list_length( foreign_attribute_name_list );
-		int i;
-
-		data_list = list_new();
-
-		for(	i = 0;
-			i < length;
-			i++ )
-		{
-			list_append_pointer( data_list, NOT_NULL_OPERATOR );
-		}
-	}
-	else
-	{
-		data_list =
-			list_string2list(
-				data_list_string,
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
-	}
-
-	if ( !list_length( data_list ) ) return query_drop_down;
-
-	operator_name =
-		query_dictionary_operator_name(
-			key,
-			dictionary,
-			QUERY_RELATION_OPERATOR_STARTING_LABEL );
-
-	relational_operator =
-		query_relational_operator(
-			operator_name,
-			(char *)0 /* attribute_datatype */ );
-
-	/* If multi-drop-down, then no relational_operator is okay. */
-	/* -------------------------------------------------------- */
-	if ( index && relational_operator == relational_operator_empty )
-	{
-		goto query_get_drop_down_continue;
-	}
-
-	if ( relational_operator != equals )
-	{
-		return query_drop_down;
-	}
-
-query_get_drop_down_continue:
-
-	if ( ! ( drop_down_row =
-			query_drop_down_row_new(
-				foreign_attribute_name_list,
-				attribute_list,
-				data_string_list ) ) )
-	{
-		return query_drop_down;
-	}
-
-	if ( !query_drop_down )
-	{
-		query_drop_down = query_drop_down_new( root_folder_name );
-	}
-	else
-	if ( query_data_list_accounted_for(
-		query_drop_down->query_drop_down_row_list,
-		data_list ) )
-	{
-		return query_drop_down;
-	}
-
-	if ( exclude_attribute_name_list )
-	{
-		list_append_list(	exclude_attribute_name_list,
-					foreign_attribute_name_list );
-	}
-
-	list_append_pointer(	query_drop_down->query_drop_down_row_list,
-				drop_down_row );
-
-	return query_drop_down;
-}
-
 LIST *query_get_drop_down_list(	LIST *exclude_attribute_name_list,
 				FOLDER *root_folder,
 				LIST *mto1_related_folder_list,
@@ -6810,17 +6692,12 @@ QUERY_OUTPUT *query_edit_table_output_new(
 			char *login_name,
 			FOLDER *folder,
 			PROMPT_RECURSIVE *prompt_recursive,
-			query_select_folder_list_string,
+			char *query_select_folder_list_string,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name )
 {
 	QUERY_OUTPUT *query_output;
-
-	/* -------------------------------------------- */
-	/* This function may be called two times if	*/
-	/* ROW_SECURITY_ROLE_UPDATE is populated.	*/
-	/* -------------------------------------------- */
-	static LIST *exclude_attribute_name_list = {0};
+	LIST *exclude_attribute_name_list;
 
 	if ( !folder )
 	{
@@ -6832,11 +6709,7 @@ QUERY_OUTPUT *query_edit_table_output_new(
 		exit( 1 );
 	}
 
-	if ( !exclude_attribute_name_list )
-	{
-		exclude_attribute_name_list = list_new();
-	}
-
+	exclude_attribute_name_list = list_new();
 	query_output = query_output_calloc();
 
 	query_output->
@@ -8254,7 +8127,6 @@ char *query_from_clause(
 	return list_display_delimited( from_list, ',' );
 }
 
-
 LIST *query_detail_dictionary_list(
 			char *application_name,
 			char *select_clause,
@@ -8562,133 +8434,67 @@ char *query_data_convert_date_international(
 	return strdup( return_date_time );
 }
 
-QUERY_DROP_DOWN_ROW *query_edit_table_drop_down_row(
-			LIST *exclude_attribute_name_list,
-			LIST *foreign_attribute_name_list,
-			LIST *foreign_attribute_list,
-			DICTIONARY *query_dictionary,
-			int index )
+LIST *query_data_string_list(
+			char *data_list_string )
 {
-	LIST *data_string_list = {0};
-	QUERY_DROP_DOWN_ROW *query_drop_down_row = {0};
-	LIST *query_data_list;
-	char key[ 1024 ];
-	char *string_delimited;
-	char *data_list_string;
-
-	if ( !list_length( foreign_attribute_name_list ) )
-		return (QUERY_DROP_DOWN_ROW *)0;
-
-	string_delimited =
-		list2string_delimited(
-			foreign_attribute_name_list,
+	return list_string_list(
+			data_list_string,
 			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
-
-	sprintf( key, "%s_%d", string_delimited, index );
-
-	if ( ! ( data_list_string =
-			dictionary_fetch(
-				dictionary,
-				key ) ) )
-	{
-		return (QUERY_DROP_DOWN_ROW *)0;
-	}
-
-	query_data_list =
-		query_drop_down_query_data_list(
-			foreign_attribute_list
-				/* attribute_list */,
-			data_list_string );
-
-	if ( list_length( query_data_list ) )
-	{
-		query_drop_down_row =
-			query_drop_down_row_calloc();
-
-		query_drop_down_row->query_data_list = query_data_list;
-
-		list_set_list(
-			exclude_attribute_name_list,
-			foreign_attribute_name_list );
-
-		return query_drop_down_row;
-	}
-	else
-	{
-		return (QUERY_DROP_DOWN_ROW *)0;
-	}
 }
 
 LIST *query_drop_down_query_data_list(
-			LIST *attribute_list,
-			char *data_list_string )
+			LIST *foreign_attribute_name_list,
+			LIST *foreign_attribute_list,
+			LIST *data_string_list )
 {
 	LIST *data_string_list;
-	char *attribute_name;
+	char *foreign_attribute_name;
 	ATTRIBUTE *attribute;
 	QUERY_DATA *query_data;
 	LIST *query_data_list = {0};
 	char *data;
 
-	if ( strcmp( data_list_string, NULL_OPERATOR ) == 0 )
-	{
-		int length = list_length( foreign_attribute_name_list );
-		int i;
-
-		data_string_list = list_new();
-
-		for(	i = 0;
-			i < length;
-			i++ )
-		{
-			list_set( data_string_list, NULL_OPERATOR );
-		}
-	}
-	else
-	if ( strcmp( data_list_string, NOT_NULL_OPERATOR ) == 0 )
-	{
-		int length = list_length( foreign_attribute_name_list );
-		int i;
-
-		data_string_list = list_new();
-
-		for(	i = 0;
-			i < length;
-			i++ )
-		{
-			list_set( data_string_list, NOT_NULL_OPERATOR );
-		}
-	}
-	else
-	{
-		data_string_list =
-			list_string2list(
-				data_list_string,
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
-	}
-
 	if ( !list_length( data_string_list ) ) return (LIST *)0;
 
-	if ( list_length( data_string_list ) != list_length( attribute_list ) )
+	if (	list_length( data_string_list ) !=
+		list_length( foreign_attribute_name_list ) )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: data_string_list length = %d, attribute_list length = %d\n",
+"ERROR in %s/%s()/%d: data_string_list length = %d != foreign_attribute_name_list length = %d\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
 			list_length( data_string_list ),
-			list_length( attribute_list ) );
+			list_length( foreign_attribute_name_list ) );
 		exit( 1 );
 
 	}
 
 	query_data_list = list_new();
+
 	list_rewind( data_string_list );
-	list_rewind( attribute_list );
+	list_rewind( foreign_attribute_name_list );
 
 	do {
 		data = list_get( data_string_list );
-		attribute = list_get( attribute_list );
+
+		foreign_attribute_name =
+			list_get(
+				foreign_attribute_name_list );
+
+		if ( ! ( attribute =
+				attribute_seek_attribute( 
+					foreign_attribute_name,
+					attribute_list ) ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot seek attribute_name = (%s).\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	foreign_attribute_name );
+			exit( 1 );
+		}
 
 		list_set(
 			query_data_list,

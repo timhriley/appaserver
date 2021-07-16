@@ -1399,6 +1399,32 @@ LIST *related_folder_get_mto1_related_folder_list(
 		LIST *root_primary_attribute_name_list,
 		int recursive_level )
 {
+	return related_folder_mto1_related_folder_list(
+		related_folder_list,
+		application_name,
+		session,
+		folder_name,
+		role_name,
+		isa_flag,
+		recursive_request_type,
+		override_row_restrictions,
+		root_primary_attribute_name_list,
+		recursive_level );
+}
+
+LIST *related_folder_mto1_related_folder_list(
+		LIST *related_folder_list,
+		char *application_name,
+		char *session,
+		char *folder_name,
+		char *role_name,
+		boolean isa_flag,
+		enum related_folder_recursive_request_type
+			recursive_request_type,
+		boolean override_row_restrictions,
+		LIST *root_primary_attribute_name_list,
+		int recursive_level )
+{
 	RELATED_FOLDER *related_folder;
 	LIST *local_related_folder_list;
 

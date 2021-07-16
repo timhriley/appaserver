@@ -17,7 +17,6 @@
 #include "hash_table.h"
 #include "boolean.h"
 #include "aggregate_statistic.h"
-#include "prompt_recursive.h"
 
 /* Constants */
 /* --------- */
@@ -41,7 +40,6 @@ typedef struct
 	char *application_name;
 	LIST *choose_folder_list;
 	LIST *isa_folder_list;
-	PROMPT_RECURSIVE *prompt_recursive;
 } APPASERVER;
 
 /* Prototypes */
