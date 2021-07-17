@@ -241,9 +241,9 @@ char *get_families_sys_string(		char *application_name,
 		query =
 			query_simple_new(
 				post_dictionary /* query_dictionary */,
-				application_name,
 				login_name,
-				folder );
+				folder,
+				(LIST *)0 /* ignore_attribute_name_list */ );
 
 		if ( !query )
 		{

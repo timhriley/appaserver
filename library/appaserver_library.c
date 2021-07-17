@@ -475,8 +475,8 @@ void appaserver_library_set_no_display_pressed(
 }
 
 LIST *appaserver_library_no_display_pressed_attribute_name_list( 	
-					DICTIONARY *ignore_dictionary,
-					LIST *attribute_name_list )
+			DICTIONARY *ignore_dictionary,
+			LIST *attribute_name_list )
 {
 	LIST *return_list = list_new_list();
 	char *attribute_name;
@@ -488,15 +488,15 @@ LIST *appaserver_library_no_display_pressed_attribute_name_list(
 
 	do {
 		attribute_name =
-			list_get_pointer( attribute_name_list );
+			list_get( attribute_name_list );
 
 		sprintf( key_to_search,
 			 "%s_0",
 			 attribute_name );
 
 		if ( dictionary_key_exists(
-				ignore_dictionary,
-				key_to_search ) )
+			ignore_dictionary,
+			key_to_search ) )
 		{
 			list_append_unique_string(
 						return_list, 

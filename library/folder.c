@@ -218,6 +218,10 @@ FOLDER *folder_load_new(
 			folder->mto1_isa_related_folder_list,
 			role_name );
 
+	folder->append_isa_attribute_name_list =
+		folder_attribute_name_list(
+			folder->append_isa_attribute_list );
+
 	if ( ! ( folder->mto1_append_isa_related_folder_list = 
 		    folder_append_isa_mto1_related_folder_list(
 			application_name,
@@ -243,11 +247,11 @@ FOLDER *folder_load_new(
 			role_name );
 
 	folder->attribute_name_list =
-		folder_get_attribute_name_list(
+		folder_attribute_name_list(
 			folder->attribute_list );
 
 	folder->primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+		folder_primary_attribute_name_list(
 			folder->attribute_list );
 
 	folder->lookup_allowed_attribute_name_list =
@@ -255,7 +259,7 @@ FOLDER *folder_load_new(
 			folder->attribute_list );
 
 	folder->pair_one2m_related_folder_list =
-		related_folder_get_pair_one2m_related_folder_list(
+		related_folder_pair_one2m_related_folder_list(
 			folder->application_name,
 			folder->folder_name,
 			role_name );
@@ -295,6 +299,10 @@ FOLDER *folder_load_new(
 	folder->join_1tom_related_folder_list =
 		related_folder_get_join_1tom_related_folder_list(
 			folder->one2m_related_folder_list );
+
+	folder->lookup_attribute_exclude_name_list =
+		folder_lookup_attribute_exclude_name_list(
+			folder->append_isa_attribute_list );
 
 	return folder;
 }
@@ -3110,5 +3118,43 @@ PROCESS *folder_post_change_process_fetch(
 		return folder->post_change_process;
 	else
 		return (PROCESS *)0;
+}
+
+LIST *folder_lookup_attribute_exclude_name_list(
+			LIST *append_isa_attribute_list )
+{
+	ATTRIBUTE *attribute;
+	char *permission;
+	LIST *exclude_name_list = {0};
+
+	if ( !list_rewind( append_isa_attribute_list ) ) return (LIST *)0;
+
+	do {
+		attribute = list_get( append_isa_attribute_list );
+
+		if ( !list_rewind( attribute->exclude_permission_list ) )
+			continue;
+
+		do {
+			permission =
+				list_get(
+					attribute->
+						exclude_permission_list );
+
+			if ( strcmp( permission, "lookup" ) == 0 )
+			{
+				if ( !exclude_name_list )
+					exclude_name_list =
+						list_new();
+
+				list_set(
+					exclude_name_list,
+					attribute->attribute_name );
+			}
+		} while ( list_next( attribute->exclude_permission_list ) );
+
+	} while ( list_next( append_isa_attribute_list ) );
+
+	return exclude_name_list;
 }
 

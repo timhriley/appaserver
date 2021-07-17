@@ -65,6 +65,16 @@ LIST *appaserver_get_choose_folder_list(
 			char *role,
 			int with_count );
 
+APPASERVER *appaserver_folder_with_load_new(
+			char *application_name,
+			char *session,
+			char *folder_name );
+
+APPASERVER *appaserver_folder_load_new(
+			char *application_name,
+			char *session,
+			char *folder_name );
+
 APPASERVER *appaserver_folder_new(
 			char *application_name,
 			char *session,
@@ -90,7 +100,7 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 			LIST *related_folder_list,
 			LIST *attribute_name_list );
 
-LIST *appaserver_get_exclude_permission_list(
+LIST *appaserver_exclude_permission_list(
 			char *application_name,
 			char *attribute_name,
 			char *role_name );
@@ -111,7 +121,7 @@ int appaserver_frameset_menu_horizontal(
 			char *application_name,
 			char *login_name );
 
-LIST *appaserver_get_exclude_permission_record_list(
+LIST *appaserver_exclude_permission_record_list(
 			char *application_name );
 
 int appaserver_isa_folder_accounted_for(

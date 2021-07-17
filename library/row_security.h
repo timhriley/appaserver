@@ -86,26 +86,22 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			char *application_name,
 			enum row_security_state row_security_state,
 			FOLDER *folder,
-			ROLE *role,
+			char *role_name,
 			char *login_name,
 			char *state,
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
-			LIST *no_display_pressed_attribute_name_list,
 			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
 			FOLDER *foreign_login_name_folder,
-			LIST *where_clause_attribute_name_list,
-			LIST *where_clause_data_list,
+			LIST *where_attribute_data_list,
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation 
 				regular_omit_delete_operation,
 			enum omit_delete_operation 
 				viewonly_omit_delete_operation,
 			boolean omit_operation_buttons,
-			boolean ajax_fill_drop_down_omit,
-			LIST *append_isa_attribute_list,
 			boolean row_security_is_participating );
 
 LIST *row_security_role_update_list(

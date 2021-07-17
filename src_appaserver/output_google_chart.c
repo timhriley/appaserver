@@ -290,9 +290,9 @@ void output_chart(	DICTIONARY *query_dictionary,
 	query =
 		query_simple_new(
 			query_dictionary,
-			application_name,
 			login_name,
-			folder );
+			folder,
+			(LIST *)0 /* ignore_attribute_name_list */ );
 
 	if ( !query )
 	{

@@ -11,6 +11,7 @@
 #include "security.h"
 #include "list_usage.h"
 #include "form.h"
+#include "environ.h"
 #include "prompt_recursive.h"
 #include "query.h"
 
@@ -350,9 +351,10 @@ QUERY_OUTPUT *query_process_output_new(
 	}
 
 	query_output->select_clause =
-		query_get_select_clause(
-			folder->application_name,
-			folder->append_isa_attribute_list );
+		query_output_select_clause(
+			folder->append_isa_attribute_list,
+			ignore_attribute_name_list,
+			folder->lookup_attribute_exclude_name_list );
 
 	query_output->from_clause =
 		query_from_clause(
@@ -456,9 +458,10 @@ QUERY_OUTPUT *query_related_preselection_new(
 	}
 
 	query_output->select_clause =
-		query_get_select_clause(
-			folder->application_name,
-			folder->append_isa_attribute_list );
+		query_output_select_clause(
+			folder->append_isa_attribute_list,
+			ignore_attribute_name_list,
+			folder->lookup_attribute_exclude_name_list );
 
 	query_output->from_clause =
 		query_from_clause(
@@ -703,9 +706,10 @@ generate_select_clause:
 	if ( folder )
 	{
 		query_output->select_clause =
-			query_get_select_clause(
-				folder->application_name,
-				folder->append_isa_attribute_list );
+			query_output_select_clause(
+				folder->append_isa_attribute_list,
+				ignore_attribute_name_list,
+				folder->lookup_attribute_exclude_name_list );
 
 		query_output->from_clause =
 			query_from_clause(
@@ -816,7 +820,7 @@ m2( folder->application_name, msg );
 	return query_output;
 }
 
-char *query_get_sys_string( 	char *application_name,
+char *query_sys_string( 	char *application_name,
 				char *select_clause,
 				char *from_clause,
 				char *where_clause,
@@ -869,7 +873,7 @@ LIST *query_row_dictionary_list(
 	char *sys_string;
 
 	sys_string = 
-		query_get_sys_string(
+		query_sys_string(
 			application_name,
 			select_clause,
 			from_clause,
@@ -1014,7 +1018,7 @@ LIST *query_get_record_list(	char *application_name,
 	char *sys_string;
 
 	sys_string =
-		query_get_sys_string(
+		query_sys_string(
 			application_name,
 			select_clause,
 			query_output->from_clause,
@@ -1028,35 +1032,51 @@ LIST *query_get_record_list(	char *application_name,
 
 }
 
-char *query_get_select_clause(
-			char *application_name,
-			LIST *append_isa_attribute_list )
+char *query_output_select_clause(
+			LIST *append_isa_attribute_list,
+			LIST *ignore_attribute_name_list,
+			LIST *folder_lookup_attribute_exclude_name_list )
 {
+	char *attribute_name;
 	ATTRIBUTE *attribute;
+	boolean first_time = 1;
+	LIST *lookup_allowed_attribute_name_list;
+	char attribute_display[ 128 ];
 	char select_clause[ 65536 ];
 	char *ptr = select_clause;
-	register boolean first_time = 1;
-	LIST *lookup_allowed_attribute_name_list;
 
 	if ( !list_length( append_isa_attribute_list ) )
 		return (char *)0; 
 
 	lookup_allowed_attribute_name_list =
-	 	attribute_lookup_allowed_attribute_name_list(
+	 	attribute_name_list_extract(
 			append_isa_attribute_list );
 
-	list_rewind( append_isa_attribute_list );
+	list_subtract_list(
+		lookup_allowed_attribute_name_list,
+		ignore_attribute_name_list );
+
+	list_subtract_list(
+		lookup_allowed_attribute_name_list,
+		folder_lookup_attribute_exclude_name_list );
+
+	list_rewind( lookup_allowed_attribute_name_list );
 
 	do {
-		attribute = list_get( append_isa_attribute_list );
+		attribute_name = list_get( lookup_allowed_attribute_name_list );
 
-		if ( !attribute->datatype ) continue;
-
-		if ( !list_exists_string(
-				attribute->attribute_name,
-				lookup_allowed_attribute_name_list ) )
+		if ( ! ( attribute =
+				attribute_seek(
+					attribute_name,
+					append_isa_attribute_list ) ) )
 		{
-			continue;
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: attribute_seek(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				attribute_name );
+			exit( 1 );
 		}
 
 		if ( first_time )
@@ -1070,39 +1090,40 @@ char *query_get_select_clause(
 
 		if ( attribute->folder_name )
 		{
-			if ( ( strcmp(	attribute->datatype,
-					"current_date_time" ) == 0
-			||     strcmp(	attribute->datatype,
-					"date_time" ) == 0 )
-			&&     attribute->width == 16 )
-			{
-				ptr += sprintf( ptr,
-						"substr(%s.%s,1,16)",
-						get_table_name(
-							application_name,
-							attribute->
-								folder_name ),
-						attribute->attribute_name );
-			}
-			else
-			{
-				ptr += sprintf( ptr,
-						"%s.%s",
-						get_table_name(
-							application_name,
-							attribute->
-								folder_name ),
-						attribute->attribute_name );
-			}
+			sprintf(attribute_display,
+				"%s.%s",
+				get_table_name(
+					environment_application_name(),
+					attribute->
+						folder_name ),
+				attribute->attribute_name );
+		}
+		else
+		{
+			strcpy( attribute_display,
+				attribute->attribute_name );
+		}
+
+		if ( ( string_strcmp(
+				attribute->datatype,
+				"current_date_time" ) == 0
+		||     string_strcmp(
+				attribute->datatype,
+				"date_time" ) == 0 )
+		&&     attribute->width == 16 )
+		{
+			ptr += sprintf( ptr,
+					"substr(%s,1,16)",
+					attribute_display,
 		}
 		else
 		{
 			ptr += sprintf( ptr,
 					"%s",
-					attribute->attribute_name );
+					attribute_display );
 		}
 
-	} while( list_next( append_isa_attribute_list ) );
+	} while( list_next( lookup_allowed_attribute_name_list ) );
 
 	return strdup( select_clause );
 }
@@ -4994,12 +5015,11 @@ char *query_get_drop_down_list_display(
 	} while( list_next( query_drop_down_list ) );
 
 	return display_string;
-
 }
 
 LIST *query_prompt_recursive_drop_down_list(
 			LIST *exclude_attribute_name_list,
-			char *root_folder_name,
+			char *folder_name,
 			LIST *prompt_recursive_folder_list,
 			DICTIONARY *query_dictionary )
 {
@@ -5041,11 +5061,10 @@ LIST *query_prompt_recursive_drop_down_list(
 			}
 
 			if ( ( drop_down =
-				query_edit_table_drop_down(
+				query_drop_down(
 					exclude_attribute_name_list,
-					root_folder_name,
-					mto1_folder->folder_name
-					/* mto1_foreign_folder_name */,
+					folder_name,
+					mto1_folder->folder_name,
 					mto1_folder->
 					      primary_attribute_name_list
 					      /* foreign_attribute_name_list */,
@@ -5522,8 +5541,9 @@ QUERY_OUTPUT *query_folder_output_new(
 		query_output->order_clause =
 		query_output->select_clause =
 			query_get_select_clause(
-				folder->application_name,
-				folder->append_isa_attribute_list );
+				folder->append_isa_attribute_list,
+				ignore_attribute_name_list,
+				folder->lookup_attribute_exclude_name_list );
 
 		query_output->from_clause =
 			query_from_clause(
@@ -5599,9 +5619,10 @@ QUERY_OUTPUT *query_folder_output_new(
 	}
 
 	query_output->select_clause =
-		query_get_select_clause(
-			folder->application_name,
-			folder->append_isa_attribute_list );
+		query_output_select_clause(
+			folder->append_isa_attribute_list,
+			ignore_attribute_name_list,
+			folder->lookup_attribute_exclude_name_list );
 
 	query_output->from_clause =
 		query_from_clause(
@@ -6617,7 +6638,7 @@ LIST *query_edit_table_dictionary_list(
 	LIST *attribute_name_list;
 
 	sys_string = 
-		query_get_sys_string(
+		query_sys_string(
 			application_name,
 			select_clause,
 			from_clause,
@@ -6784,9 +6805,10 @@ QUERY_OUTPUT *query_edit_table_output_new(
 	}
 
 	query_output->select_clause =
-		query_select_clause(
-			folder->application_name,
-			folder->append_isa_attribute_list );
+		query_output_select_clause(
+			folder->append_isa_attribute_list,
+			ignore_attribute_name_list,
+			folder->lookup_attribute_exclude_name_list );
 
 	query_output->from_clause =
 		query_from_clause(
@@ -7560,10 +7582,7 @@ char *query_edit_table_where(
 
 QUERY_OUTPUT *query_detail_output_new(
 			FOLDER *folder,
-			LIST *mto1_isa_related_folder_list,
-			LIST *where_attribute_name_list,
 			LIST *where_attribute_data_list,
-			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name )
 {
@@ -7629,20 +7648,19 @@ QUERY_OUTPUT *query_detail_output_new(
 
 	query_output->order_clause =
 	query_output->select_clause =
-		query_get_select_clause(
-			folder->application_name,
-			append_isa_attribute_list );
+		query_output_select_clause(
+			folder->append_isa_attribute_list,
+			ignore_attribute_name_list,
+			folder->lookup_attribute_exclude_name_list );
 
 	return query_output;
 }
 
 QUERY *query_detail_new(
 			char *application_name,
-			char *folder_name,
-			ROLE *role,
-			LIST *where_attribute_name_list,
+			char *login_name,
+			FOLDER *folder,
 			LIST *where_attribute_data_list,
-			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name )
 {
@@ -8142,7 +8160,7 @@ LIST *query_detail_dictionary_list(
 	LIST *attribute_name_list;
 
 	sys_string = 
-		query_get_sys_string(
+		query_sys_string(
 			application_name,
 			select_clause,
 			from_clause,
@@ -8170,9 +8188,9 @@ LIST *query_detail_dictionary_list(
 
 QUERY *query_simple_new(
 			DICTIONARY *query_dictionary,
-			char *application_name,
 			char *login_name,
-			FOLDER *folder )
+			FOLDER *folder,
+			LIST *ignore_attribute_name_list )
 {
 	QUERY *query;
 
@@ -8182,15 +8200,15 @@ QUERY *query_simple_new(
 
 	query = query_calloc();
 
-	query->login_name = login_name;
 	query->dictionary = query_dictionary;
+	query->login_name = login_name;
+	query->folder = folder;
+	query->ignore_attribute_name_list = ignore_attribute_name_list;
 	query->max_rows = QUERY_MAX_ROWS;
 
 	query->prompt_recursive =
 		prompt_recursive_new(
-			application_name,
-			query->folder->folder_name
-				/* query_folder_name */,
+			query->folder->folder_name,
 			query->
 				folder->
 				mto1_related_folder_list );
@@ -8200,6 +8218,7 @@ QUERY *query_simple_new(
 			query->dictionary,
 			query->login_name,
 			query->folder,
+			query->ignore_attribute_name_list,
 			query->prompt_recursive );
 
 	return query;
@@ -8515,6 +8534,7 @@ QUERY_OUTPUT *query_simple_output_new(
 			DICTIONARY *query_dictionary,
 			char *login_name,
 			FOLDER *folder,
+			LIST *ignore_attribute_name_list,
 			PROMPT_RECURSIVE *prompt_recursive )
 {
 	QUERY_OUTPUT *query_output;
@@ -8531,6 +8551,14 @@ QUERY_OUTPUT *query_simple_output_new(
 	}
 
 	exclude_attribute_name_list = list_new();
+
+	list_set_list(
+		exclude_attribute_name_list,
+		ignore_attribute_name_list );
+
+	list_set_list(
+		exclude_attribute_name_list,
+		folder->lookup_attribute_exclude_name_list );
 
 	query_output = query_output_calloc();
 
@@ -8549,18 +8577,16 @@ QUERY_OUTPUT *query_simple_output_new(
 		prompt_recursive->
 			prompt_recursive_folder_list ) )
 	{
-		LIST *prompt_recursive_drop_down_list;
-
-		prompt_recursive_drop_down_list =
+		query_output->prompt_recursive_drop_down_list =
 			query_prompt_recursive_drop_down_list(
 				exclude_attribute_name_list,
-				folder->folder_name
-					/* root_folder_name */,
+				folder->folder_name,
 				prompt_recursive->
 					prompt_recursive_folder_list,
 				query_dictionary );
 
-		if ( list_length( prompt_recursive_drop_down_list ) )
+		if ( list_length( query_output->
+					prompt_recursive_drop_down_list ) )
 		{
 			if ( !query_output->query_drop_down_list )
 			{
@@ -8570,7 +8596,7 @@ QUERY_OUTPUT *query_simple_output_new(
 
 			list_set_list(
 				query_output->query_drop_down_list,
-				prompt_recursive_drop_down_list );
+				query_output->prompt_recursive_drop_down_list );
 		}
 	}
 
@@ -8606,9 +8632,10 @@ QUERY_OUTPUT *query_simple_output_new(
 	}
 
 	query_output->select_clause =
-		query_select_clause(
-			folder->application_name,
-			folder->append_isa_attribute_list );
+		query_output_select_clause(
+			folder->append_isa_attribute_list,
+			ignore_attribute_name_list,
+			folder->lookup_attribute_exclude_name_list );
 
 	query_output->from_clause =
 		query_from_clause(

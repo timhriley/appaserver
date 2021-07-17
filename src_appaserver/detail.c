@@ -41,7 +41,6 @@
 
 /* Constants */
 /* --------- */
-#define SECURITY_ON		1
 
 /* See site_visit_device_addition -> site_visit */
 /*--------------------------------------------- */
@@ -54,6 +53,10 @@
 
 /* Prototypes */
 /* ---------- */
+void detail_mto1_isa_related_folder_list(
+			LIST *mto1_isa_related_folder_list,
+			LIST *where_attribute_data_list );
+
 void detail_set_folder_javascript_files(
 			DOCUMENT *document,
 			char *application_name,
@@ -77,7 +80,7 @@ int detail_starting_form_number(
 			char *folder_name,
 			int parent_pid );
 
-char *get_form_number_semaphore_filename(
+char *detail_form_number_semaphore_filename(
 			char *appaserver_data_directory,
 			char *folder_name,
 			int parent_pid );
@@ -86,19 +89,16 @@ DICTIONARY *output_folder_detail(
 			int *form_number,
 			char *application_name,
 			char *session,
-			char *folder_name,
+			char *login_name,
+			FOLDER *folder,
 			char *role_name,
 			char *target_frame,
-			LIST *append_isa_attribute_list,
-			LIST *where_clause_attribute_name_list,
-			LIST *where_clause_data_list,
-			char *login_name,
+			LIST *where_attribute_data_list,
 			char *appaserver_data_directory,
 			boolean remove_update_permission,
 			char *base_folder_name,
 			boolean omit_insert_flag,
 			boolean omit_operation_buttons,
-			char *last_related_attribute_name,
 			boolean output_even_if_not_populated,
 			DICTIONARY_APPASERVER *dictionary_appaserver,
 			boolean override_row_restrictions,
@@ -163,12 +163,11 @@ int main( int argc, char **argv )
 	LIST *primary_data_list;
 	char *role_name;
 	char *target_frame;
-	LIST *primary_attribute_name_list;
 	DICTIONARY *primary_dictionary = {0};
 	char *primary_data_list_string;
 	char *base_folder_name;
-	LIST *mto1_isa_related_folder_list = {0};
 	DICTIONARY *original_post_dictionary;
+	FOLDER *folder;
 	ROLE *role;
 	char *output_content_type_yn;
 	LIST *role_folder_insert_list;
@@ -180,7 +179,6 @@ int main( int argc, char **argv )
 	LIST *non_edit_folder_name_list = {0};
 	int parent_pid;
 	int form_number;
-	APPASERVER *appaserver;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -206,8 +204,6 @@ int main( int argc, char **argv )
 	primary_data_list_string = argv[ 7 ];
 	original_post_dictionary = dictionary_string2dictionary( argv[ 8 ] );
 
-if ( SECURITY_ON )
-{
 	if ( session_remote_ip_address_changed(
 		application_name,
 		session ) )
@@ -229,9 +225,9 @@ if ( SECURITY_ON )
 	}
 
 	if ( !appaserver_user_exists_role(
-					application_name,
-					login_name,
-					role_name ) )
+			application_name,
+			login_name,
+			role_name ) )
 	{
 		session_access_failed_message_and_exit(
 				application_name, session, login_name );
@@ -239,7 +235,6 @@ if ( SECURITY_ON )
 
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
-}
 
 	role =
 		role_new_role(
@@ -253,85 +248,11 @@ if ( SECURITY_ON )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	document = document_new( "", application_name );
-
-	appaserver =
-		appaserver_folder_new(
+	folder =
+		folder_load_new(
 			application_name,
 			session,
 			folder_name );
-
-	folder_load(	&appaserver->folder->insert_rows_number,
-			&appaserver->folder->lookup_email_output,
-			&appaserver->folder->row_level_non_owner_forbid,
-			&appaserver->folder->row_level_non_owner_view_only,
-			&appaserver->folder->populate_drop_down_process,
-			&appaserver->folder->post_change_process,
-			&appaserver->folder->folder_form,
-			&appaserver->folder->notepad,
-			&appaserver->folder->html_help_file_anchor,
-			&appaserver->folder->post_change_javascript,
-			&appaserver->folder->lookup_before_drop_down,
-			&appaserver->folder->data_directory,
-			&appaserver->folder->index_directory,
-			&appaserver->folder->no_initial_capital,
-			&appaserver->folder->subschema_name,
-			&appaserver->folder->create_view_statement,
-			application_name,
-			appaserver->folder->session,
-			appaserver->folder->folder_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			role->role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
-
-	appaserver->folder->one2m_related_folder_list =
-		related_folder_1tom_related_folder_list(
-			appaserver->application_name,
-			appaserver->session,
-			appaserver->folder->folder_name,
-			role_name,
-			detail,
-			primary_data_list,
-			list_new() /* related_folder_list */,
-			0 /* dont omit_isa_relations */,
-			related_folder_no_recursive,
-			(LIST *)0 /* parent_primary_attribute_name_list */,
-			(LIST *)0 /* original_primary_attribute_name_list */,
-			(char *)0 /* prior_related_attribute_name */ );
-
-	appaserver->folder->mto1_isa_related_folder_list =
-		folder_mto1_isa_related_folder_list(
-			list_new() /* existing_related_folder_list */,
-			application_name,
-			folder_name,
-			role_name,
-			0 /* recursive_level */ );
-
-	appaserver->folder->append_isa_attribute_list =
-		folder_append_isa_attribute_list(
-			application_name,
-			appaserver->folder->folder_name,
-			appaserver->folder->mto1_isa_related_folder_list,
-			role_name );
-
-	appaserver->folder->mto1_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			appaserver->folder->mto1_related_folder_list,
-			appaserver->application_name,
-			appaserver->session,
-			appaserver->folder->folder_name,
-			role_name,
-			0 /* isa_flag */,
-			related_folder_no_recursive,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
-
-	primary_attribute_name_list =
-		attribute_primary_attribute_name_list(
-			appaserver->folder->append_isa_attribute_list );
 
 	if ( ! ( dictionary_appaserver =
 			dictionary_appaserver_new(
@@ -374,9 +295,7 @@ if ( SECURITY_ON )
 			lookup_before_drop_down_get_non_edit_folder_name_list(
 				lookup_before_drop_down->
 					lookup_before_drop_down_folder_list,
-				appaserver->
-					folder->
-					mto1_related_folder_list );
+				folder->mto1_related_folder_list );
 	}
 
 	/* Get from non_prefixed_dictionary and repopulate it. */
@@ -400,8 +319,7 @@ if ( SECURITY_ON )
 			"n" );
 
 	dictionary_set_string(
-		dictionary_appaserver->
-			non_prefixed_dictionary,
+		dictionary_appaserver->non_prefixed_dictionary,
 		PRIMARY_DATA_LIST_KEY,
 		primary_data_list_string );
 
@@ -409,10 +327,12 @@ if ( SECURITY_ON )
 	/* Set the primary data list string	*/
 	/* so parameter_dictionary will get it. */
 	/* ------------------------------------ */
-	dictionary_set_string(	dictionary_appaserver->
-					preprompt_dictionary,
-				PRIMARY_DATA_LIST_KEY,
-				primary_data_list_string );
+	dictionary_set_string(
+		dictionary_appaserver->preprompt_dictionary,
+		PRIMARY_DATA_LIST_KEY,
+		primary_data_list_string );
+
+	document = document_new( "", application_name );
 
 	if ( !output_content_type_yn
 	||   *output_content_type_yn != 'n' )
@@ -432,12 +352,6 @@ if ( SECURITY_ON )
 		folder_name,
 		appaserver->folder->one2m_related_folder_list,
 		appaserver->folder->mto1_related_folder_list );
-/*
-	document_set_folder_javascript_files(
-		document,
-		application_name,
-		folder_name );
-*/
 
 	document_output_head(
 		document->application_name,
@@ -467,8 +381,7 @@ if ( SECURITY_ON )
 
 	format_initial_capital( form_title, form_title );
 
-	printf( "<h1>%s</h1>\n",
-		form_title );
+	printf( "<h1>%s</h1>\n", form_title );
 
 	appaserver_library_list_database_convert_dates(
 		primary_data_list,
@@ -487,25 +400,20 @@ if ( SECURITY_ON )
 			&form_number,
 			application_name,
 			session,
-			folder_name,
-			role_name,
-			target_frame,
-			appaserver->folder->append_isa_attribute_list,
-			folder_get_primary_attribute_name_list(
-				appaserver->folder->append_isa_attribute_list )
-				/* where_clause_attribute_name_list */,
-			primary_data_list
-				/* where_clause_data_list */,
 			login_name,
+			folder,
+			role->role_name,
+			target_frame,
+			primary_data_list
+				/* where_attribute_data_list */,
 			appaserver_parameter_file->appaserver_data_directory,
 			0 /* not remove_update_permission */,
 			base_folder_name,
 			1 /* omit_insert_flag */,
 			0 /* dont omit_operation_buttons */,
-			(char *)0 /* last_related_attribute_name */,
 			1 /* output_even_if_not_populated */,
 			dictionary_appaserver,
-			role_get_override_row_restrictions(
+			role_override_row_restrictions(
 				role->override_row_restrictions_yn ),
 			dont_omit_delete
 				/* regular_omit_delete_operation */,
@@ -514,20 +422,27 @@ if ( SECURITY_ON )
 			non_edit_folder_name_list,
 			0 /* not make_primary_keys_non_edit */ );
 
+	if ( list_length( folder->mto1_isa_related_folder_list ) )
+	{
+		detail_mto1_isa_related_folder_list(
+			folder->mto1_isa_related_folder_list,
+			where_attribute_data_list );
+	}
+
 	role_folder_insert_list =
-		role_folder_get_insert_list(
+		role_folder_insert_list_fetch(
 			application_name,
 			session,
 			role_name );
 
 	role_folder_update_list =
-		role_folder_get_update_list(
+		role_folder_update_list_fetch(
 			application_name,
 			session,
 			role_name );
 
 	role_folder_lookup_list =
-		role_folder_get_lookup_list(
+		role_folder_lookup_list_fetch(
 			application_name,
 			session,
 			role_name );
@@ -548,6 +463,65 @@ if ( SECURITY_ON )
 
 	if ( list_length( mto1_isa_related_folder_list ) )
 	{
+	} /* if mto1_isa_related_folder */
+
+	output_1tom_folder_detail(
+		&form_number,
+		application_name,
+		session,
+		folder_name,
+		login_name,
+		role_name,
+		target_frame,
+		primary_data_list,
+		appaserver_parameter_file->
+			appaserver_mount_point,
+		appaserver_parameter_file->
+			appaserver_data_directory,
+		base_folder_name,
+		0 /* dont output_even_if_not_populated */,
+		dictionary_appaserver,
+		role_get_override_row_restrictions(
+			role->override_row_restrictions_yn ),
+		role_folder_insert_list,
+		role_folder_update_list,
+		role_folder_lookup_list );
+
+	output_mto1_folder_detail(
+		&form_number,
+		non_edit_folder_name_list,
+		application_name,
+		session,
+		folder_name,
+		login_name,
+		role_name,
+		target_frame,
+		primary_dictionary,
+		appaserver_parameter_file->
+			appaserver_data_directory,
+		base_folder_name,
+		dictionary_appaserver,
+		role_get_override_row_restrictions(
+			role->override_row_restrictions_yn ),
+		role_folder_insert_list,
+		role_folder_update_list,
+		role_folder_lookup_list );
+
+	save_ending_form_number(
+		appaserver_parameter_file->
+			appaserver_data_directory,
+		folder_name,
+		parent_pid,
+		form_number );
+
+	document_close();
+	return 0;
+}
+
+void detail_mto1_isa_related_folder_list(
+			LIST *mto1_isa_related_folder_list,
+			LIST *where_attribute_data_list )
+{
 		RELATED_FOLDER *related_folder;
 		LIST *where_clause_data_list;
 
@@ -639,64 +613,8 @@ if ( SECURITY_ON )
 			non_edit_folder_name_list,
 			1 /* make_primary_keys_non_edit */ );
 
-	} /* if mto1_isa_related_folder */
 
-	output_1tom_folder_detail(
-		&form_number,
-		application_name,
-		session,
-		folder_name,
-		login_name,
-		role_name,
-		target_frame,
-		primary_data_list,
-		appaserver_parameter_file->
-			appaserver_mount_point,
-		appaserver_parameter_file->
-			appaserver_data_directory,
-		base_folder_name,
-		0 /* dont output_even_if_not_populated */,
-		dictionary_appaserver,
-		role_get_override_row_restrictions(
-			role->override_row_restrictions_yn ),
-		role_folder_insert_list,
-		role_folder_update_list,
-		role_folder_lookup_list );
-
-	output_mto1_folder_detail(
-		&form_number,
-		non_edit_folder_name_list,
-		application_name,
-		session,
-		folder_name,
-		login_name,
-		role_name,
-		target_frame,
-		primary_dictionary,
-		appaserver_parameter_file->
-			appaserver_data_directory,
-		base_folder_name,
-		dictionary_appaserver,
-		role_get_override_row_restrictions(
-			role->override_row_restrictions_yn ),
-		role_folder_insert_list,
-		role_folder_update_list,
-		role_folder_lookup_list );
-
-	save_ending_form_number(
-		appaserver_parameter_file->
-			appaserver_data_directory,
-		folder_name,
-		parent_pid,
-		form_number );
-
-	document_close();
-
-	exit( 0 );
-
-}
-
-char *get_form_number_semaphore_filename(
+char *detail_form_number_semaphore_filename(
 				char *appaserver_data_directory,
 				char *folder_name,
 				int parent_pid )
@@ -725,7 +643,7 @@ int detail_starting_form_number(
 	if ( !parent_pid ) return 0;
 
 	semaphore_filename =
-		get_form_number_semaphore_filename(
+		detail_form_number_semaphore_filename(
 			appaserver_data_directory,
 			folder_name,
 			parent_pid );
@@ -761,7 +679,7 @@ void save_ending_form_number(	char *appaserver_data_directory,
 	if ( !parent_pid ) return;
 
 	semaphore_filename =
-		get_form_number_semaphore_filename(
+		detail_form_number_semaphore_filename(
 			appaserver_data_directory,
 			folder_name,
 			parent_pid );
@@ -1375,12 +1293,12 @@ DICTIONARY *output_folder_detail(
 	}
 
 	role =
-		role_new_role(
+		role_new(
 			application_name,
 			role_name );
 
 	if ( ! ( folder =
-			folder_with_load_new(
+			folder_load_new(
 				application_name,
 				session,
 				folder_name,
@@ -1396,7 +1314,7 @@ DICTIONARY *output_folder_detail(
 	}
 
 	role_folder =
-		role_folder_new_role_folder(
+		role_folder_new(
 			application_name,
 			session,
 			role_name,
@@ -1443,28 +1361,21 @@ DICTIONARY *output_folder_detail(
 		row_security_detail_structure_new(
 			application_name,
 			row_security->row_security_state,
+			row_security->folder,
+			row_security->role->role_name,
 			row_security->login_name,
 			row_security->state,
-			row_security->login_role,
 			row_security->preprompt_dictionary,
 			row_security->query_dictionary,
 			row_security->sort_dictionary,
-			row_security->
-				no_display_pressed_attribute_name_list,
-			row_security->folder,
 			row_security->attribute_not_null_join,
 			row_security->attribute_not_null_folder,
 			row_security->foreign_login_name_folder,
-			where_clause_attribute_name_list,
-			where_clause_data_list,
+			where_attribute_data_list,
 			make_primary_keys_non_edit,
 			regular_omit_delete_operation,
 			viewonly_omit_delete_operation,
 			omit_operation_buttons,
-			1 /* ajax_fill_drop_down_omit */,
-			row_security->
-				folder->
-				append_isa_attribute_list,
 			row_security->row_security_is_participating );
 
 	fetched_dictionary_list =

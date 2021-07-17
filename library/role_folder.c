@@ -1,6 +1,5 @@
-/* role_folder.c 							*/
+/* $APPASERVER_HOME/library/role_folder.c				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver role_folder ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -14,23 +13,10 @@
 #include "list.h"
 
 ROLE_FOLDER *role_folder_new(
-					char *application_name,
-					char *session,
-					char *role_name,
-					char *folder_name )
-{
-	return role_folder_new_role_folder(
-					application_name,
-					session,
-					role_name,
-					folder_name );
-}
-
-ROLE_FOLDER *role_folder_new_role_folder(
-					char *application_name,
-					char *session,
-					char *role_name,
-					char *folder_name )
+			char *application_name,
+			char *session,
+			char *role_name,
+			char *folder_name )
 {
 	ROLE_FOLDER *role_folder;
 
@@ -41,18 +27,19 @@ ROLE_FOLDER *role_folder_new_role_folder(
 	role_folder->role_name = role_name;
 	role_folder->folder_name = folder_name;
 
-	role_folder_load(	&role_folder->insert_yn,
-				&role_folder->update_yn,
-				&role_folder->lookup_yn,
-				&role_folder->delete_yn,
-				application_name,
-				session,
-				role_name,
-				folder_name );
+	role_folder_load(
+		&role_folder->insert_yn,
+		&role_folder->update_yn,
+		&role_folder->lookup_yn,
+		&role_folder->delete_yn,
+		application_name,
+		session,
+		role_name,
+		folder_name );
 
 	return role_folder;
 
-} /* role_folder_new_role_folder() */
+}
 
 void role_folder_load( 	
 			char *insert_yn,
@@ -116,8 +103,7 @@ void role_folder_load(
 		*delete_yn = 'y';
 	else
 		*delete_yn = 'n';
-
-} /* role_folder_load() */
+}
 
 void role_folder_populate_folder_insert_permission(
 			LIST *folder_list, 
@@ -153,8 +139,7 @@ void role_folder_populate_folder_insert_permission(
 			folder->insert_permission = 1;
 		} while( list_next( role_folder_insert_list ) );
 	}
-
-} /* role_folder_populate_folder_insert_permission() */
+}
 
 void role_folder_populate_folder_update_permission(
 			LIST *folder_list, 
@@ -190,7 +175,7 @@ void role_folder_populate_folder_update_permission(
 		} while( list_next( role_folder_update_list ) );
 	}
 
-} /* role_folder_populate_folder_update_permission() */
+}
 
 void role_folder_populate_folder_lookup_permission(
 			LIST *folder_list, 
@@ -226,11 +211,12 @@ void role_folder_populate_folder_lookup_permission(
 		} while( list_next( role_folder_lookup_list ) );
 	}
 
-} /* role_folder_populate_folder_lookup_permission() */
+}
 
-LIST *role_folder_get_insert_list(	char *application_name,
-					char *session,
-					char *role_name )
+LIST *role_folder_insert_list_fetch(
+			char *application_name,
+			char *session,
+			char *role_name )
 {
 	char sys_string[ 1024 ];
 
@@ -241,11 +227,12 @@ LIST *role_folder_get_insert_list(	char *application_name,
 		 role_name );
 
 	return pipe2list( sys_string );
-} /* role_folder_get_insert_list() */
+}
 
-LIST *role_folder_get_lookup_list(	char *application_name,
-					char *session,
-					char *role_name )
+LIST *role_folder_lookup_list_fetch(
+			char *application_name,
+			char *session,
+			char *role_name )
 {
 	char sys_string[ 1024 ];
 
@@ -256,11 +243,12 @@ LIST *role_folder_get_lookup_list(	char *application_name,
 		 role_name );
 
 	return pipe2list( sys_string );
-} /* role_folder_get_lookup_list() */
+}
 
-LIST *role_folder_get_update_list(	char *application_name,
-					char *session,
-					char *role_name )
+LIST *role_folder_update_list_fetch(
+			char *application_name,
+			char *session,
+			char *role_name )
 {
 	char sys_string[ 1024 ];
 
@@ -271,7 +259,7 @@ LIST *role_folder_get_update_list(	char *application_name,
 		 role_name );
 
 	return pipe2list( sys_string );
-} /* role_folder_get_update_list() */
+}
 
 char *role_folder_display( ROLE_FOLDER *role_folder )
 {
@@ -293,7 +281,7 @@ char *role_folder_display( ROLE_FOLDER *role_folder )
 		role_folder->update_yn,
 		role_folder->lookup_yn );
 	return strdup( buffer );
-} /* role_folder_display() */
+}
 
 boolean role_folder_viewonly( ROLE_FOLDER *role_folder )
 {
@@ -302,5 +290,5 @@ boolean role_folder_viewonly( ROLE_FOLDER *role_folder )
 	return (role_folder->update_yn != 'y' &&
 		role_folder->lookup_yn == 'y' );
 
-} /* role_folder_viewonly() */
+}
 

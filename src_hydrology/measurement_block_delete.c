@@ -465,9 +465,9 @@ char *get_where_clause_string( 	char *application_name,
 	query =
 		query_simple_new(
 			query_dictionary,
-			application_name,
 			(char *)0 /* login_name */,
-			folder );
+			folder,
+			(LIST *)0 /* ignore_attribute_name_list */ );
 
 	if ( !query )
 	{

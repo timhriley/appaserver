@@ -192,17 +192,18 @@ int main( int argc, char **argv )
 
 			query_select_attribute_name_list = list_new();
 
-			list_append_pointer(
+			list_set(
 				query_select_attribute_name_list,
 				select_attribute_name );
 
 			query =
 				query_simple_new(
-					application_name,
-					login_name,
 					dictionary_appaserver->
 						query_dictionary,
-					folder );
+					login_name,
+					folder,
+					(LIST *)0
+					   /* ignore_attribute_name_list */ );
 
 			if ( !query )
 			{

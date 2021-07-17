@@ -181,9 +181,9 @@ int main( int argc, char **argv )
 	query =
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
-			application_name,
 			login_name,
-			appaserver->folder );
+			appaserver->folder,
+			(LIST *)0 /* ignore_attribute_name_list */ );
 
 	if ( !query )
 	{

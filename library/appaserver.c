@@ -66,13 +66,24 @@ APPASERVER *appaserver_folder_with_load_new(
 			char *session,
 			char *folder_name )
 {
+	return appaserver_folder_load_new(
+			application_name,
+			session,
+			folder_name );
+}
+
+APPASERVER *appaserver_folder_load_new(
+			char *application_name,
+			char *session,
+			char *folder_name )
+{
 	APPASERVER *appaserver = appaserver_calloc();
 
 	appaserver->application_name = application_name;
 	appaserver->session = session;
 
 	if ( ! ( folder =
-			folder_with_load_new(
+			folder_load_new(
 				application_name,
 				session,
 				folder_name,
@@ -105,7 +116,7 @@ char *appaserver_get_delete_display_string(
 				"folder: %s (%s=%s)",
 				folder_name,
 				list_display(
-				folder_get_primary_attribute_name_list(
+				folder_primary_attribute_name_list(
 					attribute_list ) ),
 				primary_data_list_string );
 
@@ -123,7 +134,7 @@ char *appaserver_get_delete_display_string(
 			" (%s=%s)",
 			list_display( 
 			    related_folder_foreign_attribute_name_list(
-				folder_get_primary_attribute_name_list(
+				folder_primary_attribute_name_list(
 					related_folder->
 						one2m_folder->
 						attribute_list ),
@@ -227,7 +238,7 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 	return return_list;
 }
 
-LIST *appaserver_get_exclude_permission_record_list(
+LIST *appaserver_exclude_permission_record_list(
 			char *application_name )
 {
 	char sys_string[ 1024 ];
@@ -243,7 +254,7 @@ LIST *appaserver_get_exclude_permission_record_list(
 
 static LIST *global_exclude_permission_record_list = {0};
 
-LIST *appaserver_get_exclude_permission_list(
+LIST *appaserver_exclude_permission_list(
 			char *application_name,
 			char *attribute_name,
 			char *role_name )
@@ -260,7 +271,7 @@ LIST *appaserver_get_exclude_permission_list(
 	if ( !global_exclude_permission_record_list )
 	{
 		global_exclude_permission_record_list =
-			appaserver_get_exclude_permission_record_list(
+			appaserver_exclude_permission_record_list(
 					application_name );
 	}
 
@@ -271,7 +282,7 @@ LIST *appaserver_get_exclude_permission_list(
 
 	do {
 		exclude_permission_record =
-			list_get_pointer(
+			list_get(
 				global_exclude_permission_record_list );
 
 		piece(	fetched_attribute_name,
@@ -295,13 +306,12 @@ LIST *appaserver_get_exclude_permission_list(
 			exclude_permission_record,
 			2 );
 
-		list_append_pointer(	exclude_permission_list,
-					strdup( permission ) );
+		list_set(	exclude_permission_list,
+				strdup( permission ) );
 
 	} while( list_next( global_exclude_permission_record_list ) );
 
 	return exclude_permission_list;
-
 }
 
 boolean appaserver_exclude_permission(

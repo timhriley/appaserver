@@ -117,6 +117,7 @@ typedef struct
 	LIST *one2m_recursive_relation_list;
 	LIST *mto1_relation_list;
 	LIST *mto1_isa_relation_list;
+	LIST *lookup_attribute_exclude_name_list;
 } FOLDER;
 
 /* Operations */
@@ -656,5 +657,8 @@ LIST *folder_insert_drop_down_data_list(
 
 PROCESS *folder_post_change_process_fetch(
 			char *folder_name );
+
+LIST *folder_lookup_attribute_exclude_name_list(
+			LIST *append_isa_attribute_list );
 
 #endif

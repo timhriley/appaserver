@@ -51,26 +51,26 @@ ATTRIBUTE *attribute_new( char *attribute_name )
 }
 
 ATTRIBUTE *attribute_new_attribute(
-				char *folder_name,
-				char *attribute_name,
-				char *datatype,
-				int width,
-				int primary_key_index,
-				int display_order,
-				int float_decimal_places,
-				boolean omit_insert,
-				boolean omit_insert_prompt,
-				boolean omit_update,
-				char *hint_message,
-				char *post_change_javascript,
-				char *on_focus_javascript_function,
-				boolean additional_unique_index,
-				boolean additional_index,
-				boolean lookup_histogram_output,
-				boolean lookup_time_chart_output,
-				boolean lookup_required,
-				boolean insert_required,
-				boolean appaserver )
+			char *folder_name,
+			char *attribute_name,
+			char *datatype,
+			int width,
+			int primary_key_index,
+			int display_order,
+			int float_decimal_places,
+			boolean omit_insert,
+			boolean omit_insert_prompt,
+			boolean omit_update,
+			char *hint_message,
+			char *post_change_javascript,
+			char *on_focus_javascript_function,
+			boolean additional_unique_index,
+			boolean additional_index,
+			boolean lookup_histogram_output,
+			boolean lookup_time_chart_output,
+			boolean lookup_required,
+			boolean insert_required,
+			boolean appaserver )
 {
 	ATTRIBUTE *a = attribute_new( attribute_name );
 
@@ -97,9 +97,9 @@ ATTRIBUTE *attribute_new_attribute(
 }
 
 ATTRIBUTE *attribute_load_folder_attribute(
-					char *application_name,
-					char *folder_name,
-					char *attribute_name )
+			char *application_name,
+			char *folder_name,
+			char *attribute_name )
 {
 	LIST *attribute_list;
 
@@ -114,8 +114,9 @@ ATTRIBUTE *attribute_load_folder_attribute(
 	return (ATTRIBUTE *)list_get_first_element( attribute_list );
 }
 
-ATTRIBUTE *attribute_load_attribute(	char *application_name,
-					char *attribute_name )
+ATTRIBUTE *attribute_load_attribute(
+			char *application_name,
+			char *attribute_name )
 {
 	LIST *attribute_list;
 
@@ -166,7 +167,7 @@ char *attribute_display( ATTRIBUTE *attribute )
 {
 	static char buffer[ 2048 ];
 
-	sprintf(	buffer,
+	sprintf(buffer,
 		"attribute = %s.%s, datatype = %s, width = %d,"
 		" primary index = %d, display order = %d,"
 		" omit_insert_prompt = %d, omit_insert = %d, omit_update = %d,"
@@ -198,7 +199,6 @@ char *attribute_display( ATTRIBUTE *attribute )
 	}
 
 	return buffer;
-
 }
 
 char *attribute_list_display( LIST *attribute_list )
@@ -219,13 +219,13 @@ char *attribute_list_display( LIST *attribute_list )
 	} while( list_next( attribute_list ) );
 
 	return strdup( buffer );
-
 }
 
-char *attribute_database_datatype(	char *datatype,
-					int width,
-					int float_decimal_places,
-					int primary_key_index )
+char *attribute_database_datatype(
+			char *datatype,
+			int width,
+			int float_decimal_places,
+			int primary_key_index )
 {
 	char buffer[ 128 ];
 
@@ -325,8 +325,8 @@ char *attribute_database_datatype(	char *datatype,
 }
 
 LIST *attribute_list_datatype_attribute_string_list(
-					LIST *attribute_list,
-					char *datatype_list_string )
+			LIST *attribute_list,
+			char *datatype_list_string )
 {
 	ATTRIBUTE *attribute;
 	char *datatype_string;
@@ -358,8 +358,8 @@ LIST *attribute_list_datatype_attribute_string_list(
 }
 
 LIST *attribute_list_primary_datatype_attribute_string_list(
-					LIST *attribute_list,
-					char *datatype_list_string )
+			LIST *attribute_list,
+			char *datatype_list_string )
 {
 	ATTRIBUTE *attribute;
 	char *datatype_string;
@@ -393,10 +393,12 @@ LIST *attribute_list_primary_datatype_attribute_string_list(
 			}
 		} while( list_next( datatype_list ) );
 	} while( list_next( attribute_list ) );
+
 	return attribute_name_list;
 }
 
-LIST *attribute_non_primary_attribute_list( LIST *attribute_list )
+LIST *attribute_non_primary_attribute_list(
+			LIST *attribute_list )
 {
 	LIST *non_primary_attribute_list;
 	ATTRIBUTE *attribute;
@@ -415,12 +417,13 @@ LIST *attribute_non_primary_attribute_list( LIST *attribute_list )
 					(char *)attribute );
 			}
 		} while( list_next( attribute_list ) );
+
 	return non_primary_attribute_list;
 }
 
 LIST *attribute_using_name_list_extract_attribute_list(
-					LIST *attribute_list,
-					LIST *attribute_name_list )
+			LIST *attribute_list,
+			LIST *attribute_name_list )
 {
 	ATTRIBUTE *attribute;
 	LIST *return_attribute_list = list_new();
@@ -448,9 +451,10 @@ LIST *attribute_using_name_list_extract_attribute_list(
 
 }
 
-LIST *attribute_get_list(		char *application_name,
-					char *folder_name,
-					char *role_name )
+LIST *attribute_get_list(
+			char *application_name,
+			char *folder_name,
+			char *role_name )
 {
 	return attribute_get_attribute_list(
 			application_name,
@@ -461,10 +465,10 @@ LIST *attribute_get_list(		char *application_name,
 }
 
 LIST *attribute_append_isa_attribute_list(
-					char *application_name,
-					char *folder_name,
-					LIST *mto1_isa_related_folder_list,
-					char *role_name )
+			char *application_name,
+			char *folder_name,
+			LIST *mto1_isa_related_folder_list,
+			char *role_name )
 {
 	LIST *attribute_list = list_new_list();
 	RELATED_FOLDER *related_folder;
@@ -612,18 +616,18 @@ void attribute_append_attribute_list(
 	char lookup_time_chart_output_yn[ 8 ];
 	char appaserver_yn[ 8 ];
 	char *record;
-	LIST *attribute_record_list;
+	LIST *record_list;
 
-	attribute_record_list =
-		attribute_get_attribute_record_list(
+	record_list =
+		attribute_record_list(
 				application_name,
 				folder_name,
 				attribute_name );
 
-	if ( !list_reset( attribute_record_list ) )
+	if ( !list_reset( record_list ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty attribute_record_list.\n",
+	"ERROR in %s/%s()/%d: attribute_record_list() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -631,7 +635,7 @@ void attribute_append_attribute_list(
 	}
 
 	do {
-		record = list_get( attribute_record_list );
+		record = list_get( record_list );
 
 		if ( !attribute_record_parse(
 			fetched_folder_name,
@@ -702,26 +706,36 @@ void attribute_append_attribute_list(
 		if ( role_name && *role_name )
 		{
 			attribute->exclude_permission_list =
-			appaserver_get_exclude_permission_list(
+				appaserver_exclude_permission_list(
 					application_name,
 					fetched_attribute_name,
 					role_name );
 		}
 
-		list_append_pointer(	attribute_list,
-					attribute );
+		list_set( attribute_list, attribute );
 
-	} while( list_next( attribute_record_list ) );
+	} while( list_next( record_list ) );
 }
 
 LIST *attribute_get_attribute_record_list(
-				char *application_name,
-				char *folder_name,
-				char *attribute_name )
+			char *application_name,
+			char *folder_name,
+			char *attribute_name )
+{
+	return attribute_record_list(
+			application_name,
+			folder_name,
+			attribute_name );
+}
+
+LIST *attribute_record_list(
+			char *application_name,
+			char *folder_name,
+			char *attribute_name )
 {
 	char sys_string[ 1024 ];
-	static LIST *folder_attribute_record_list = {0};
-	static LIST *attribute_record_list = {0};
+	LIST *folder_attribute_record_list = {0};
+	LIST *attribute_record_list = {0};
 
 	if ( !folder_name || !*folder_name )
 	{
@@ -737,9 +751,7 @@ LIST *attribute_get_attribute_record_list(
 			exit( 1 );
 		}
 
-		if ( !attribute_record_list )
-		{
-			sprintf( sys_string,
+		sprintf(sys_string,
 	"%s/src_appaserver/attribute_record_list.sh %s '' '%c' 2>>%s",
 			appaserver_parameter_file_get_appaserver_mount_point(),
 		 	application_name,
@@ -747,7 +759,6 @@ LIST *attribute_get_attribute_record_list(
 			appaserver_error_get_filename(
 				application_name ) );
 			attribute_record_list = pipe2list( sys_string );
-		}
 
 		if ( !list_rewind( attribute_record_list ) ) return (LIST *)0;
 
@@ -755,28 +766,28 @@ LIST *attribute_get_attribute_record_list(
 			attribute_record =
 				list_get_pointer(
 					attribute_record_list );
+
 			piece(	attribute_buffer,
 				ATTRIBUTE_DELIMITER,
 				attribute_record,
 				1 );
+
 			if ( strcmp( attribute_buffer, attribute_name ) == 0 )
 			{
 				LIST *return_list = list_new_list();
-				list_append_pointer(	return_list,
+
+				list_set(	return_list,
 							attribute_record );
+
 				return return_list;
 			}
 		} while( list_next( attribute_record_list ) );
+
 		return (LIST *)0;
 	}
 	else
 	{
-		if ( folder_attribute_record_list )
-		{
-			return folder_attribute_record_list;
-		}
-
-		sprintf( sys_string,
+		sprintf(sys_string,
 	"%s/src_appaserver/attribute_record_list.sh %s %s '%c' 2>>%s",
 			appaserver_parameter_file_get_appaserver_mount_point(),
 		 	application_name,
@@ -784,10 +795,12 @@ LIST *attribute_get_attribute_record_list(
 			ATTRIBUTE_DELIMITER,
 			appaserver_error_get_filename(
 				application_name ) );
+
 		folder_attribute_record_list = pipe2list( sys_string );
 		return folder_attribute_record_list;
 	}
 
+	return (LIST *)0;
 }
 
 boolean attribute_exists_date_attribute(
@@ -816,7 +829,7 @@ boolean attribute_exists_date_attribute(
 }
 
 boolean attribute_exists_reference_number(
-					LIST *attribute_list )
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 
@@ -838,7 +851,7 @@ boolean attribute_exists_reference_number(
 }
 
 boolean attribute_list_exists_lookup_histogram_output(
-					LIST *attribute_list )
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 
@@ -856,7 +869,7 @@ boolean attribute_list_exists_lookup_histogram_output(
 }
 
 boolean attribute_list_exists_lookup_time_chart_output(
-					LIST *attribute_list )
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 
@@ -873,7 +886,8 @@ boolean attribute_list_exists_lookup_time_chart_output(
 	return 0;
 }
 
-boolean attribute_exists_omit_insert_prompt( LIST *attribute_list )
+boolean attribute_exists_omit_insert_prompt(
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 
@@ -891,7 +905,7 @@ boolean attribute_exists_omit_insert_prompt( LIST *attribute_list )
 }
 
 boolean attribute_exists_omit_insert_login_name(
-					LIST *attribute_list )
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 
@@ -912,7 +926,8 @@ boolean attribute_exists_omit_insert_login_name(
 	return 0;
 }
 
-char *attribute_last_primary_attribute_name( LIST *attribute_list )
+char *attribute_last_primary_attribute_name(
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
 	ATTRIBUTE *last_primary_attribute = {0};
@@ -965,7 +980,8 @@ LIST *attribute_common_non_primary_attribute_name_list(
 	return return_list;
 }
 
-LIST *attribute_histogram_attribute_name_list( LIST *attribute_list )
+LIST *attribute_histogram_attribute_name_list(
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
     	LIST *histogram_attribute_name_list = {0};
@@ -995,7 +1011,8 @@ LIST *attribute_histogram_attribute_name_list( LIST *attribute_list )
 	return histogram_attribute_name_list;
 }
 
-LIST *attribute_time_chart_attribute_name_list( LIST *attribute_list )
+LIST *attribute_time_chart_attribute_name_list(
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
     	LIST *time_chart_attribute_name_list = {0};
@@ -1026,7 +1043,7 @@ LIST *attribute_time_chart_attribute_name_list( LIST *attribute_list )
 }
 
 LIST *attribute_date_attribute_position_list(
-					LIST *attribute_list )
+			LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
     	LIST *date_attribute_position_list = list_new_list();
@@ -1068,7 +1085,7 @@ LIST *attribute_lookup_allowed_attribute_name_list(
 	done_attribute_name_list = list_new();
 
 	do {
-		attribute = list_get_pointer( attribute_list );
+		attribute = list_get( attribute_list );
 
 		if ( list_exists_string(
 			"lookup",
@@ -2273,11 +2290,6 @@ LIST *attribute_distinct_folder_name_list( LIST *attribute_list )
 
 LIST *attribute_fetch_list(
 			char *folder_name )
-{
-	return attribute_list( folder_name );
-}
-
-LIST *attribute_list( char *folder_name )
 {
 	return attribute_system_list(
 			attribute_list_sys_string(

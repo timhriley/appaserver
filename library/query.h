@@ -120,6 +120,7 @@ typedef struct
 	char *order_clause;
 	LIST *query_attribute_list;
 	LIST *query_drop_down_list;
+	LIST *query_prompt_recursive_drop_down_list;
 	LIST *row_dictionary_list;
 	LIST *query_subquery_list;
 } QUERY_OUTPUT;
@@ -127,12 +128,12 @@ typedef struct
 typedef struct
 {
 	FOLDER *folder;
+	LIST *ignore_attribute_name_list;
 	LIST *one2m_subquery_related_folder_list;
 	char *login_name;
 	DICTIONARY *dictionary;
 	DICTIONARY *sort_dictionary;
 	LIST *mto1_join_folder_list;
-	LIST *where_attribute_name_list;
 	LIST *where_attribute_data_list;
 	int max_rows /* use zero for unlimited */;
 	PROMPT_RECURSIVE *prompt_recursive;
@@ -221,9 +222,10 @@ LIST *query_get_record_list(
 			char *select_clause,
 			char *order_clause );
 
-char *query_select_clause(
-			char *application_name,
-			LIST *append_isa_attribute_list );
+char *query_output_select_clause(
+			LIST *append_isa_attribute_list,
+			LIST *ignore_attribute_name_list,
+			LIST *folder_lookup_attribute_exclude_name_list );
 
 /*
 LIST *query_primary_data_drop_down_list(
@@ -402,7 +404,7 @@ LIST *query_get_drop_down_data_list(
 			DICTIONARY *dictionary,
 			int index );
 
-char *query_get_sys_string(
+char *query_sys_string(
 			char *application_name,
 			char *select_clause,
 			char *from_clause,
@@ -767,11 +769,9 @@ char *query_simple_where(
 
 QUERY *query_detail_new(
 			char *application_name,
-			char *folder_name,
-			ROLE *role,
-			LIST *where_attribute_name_list,
+			char *login_name,
+			FOLDER *folder,
 			LIST *where_attribute_data_list,
-			LIST *append_isa_attribute_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name );
 
@@ -917,9 +917,9 @@ LIST *query_detail_dictionary_list(
 
 QUERY *query_simple_new(
 			DICTIONARY *query_dictionary,
-			char *application_name,
 			char *login_name,
-			FOLDER *folder );
+			FOLDER *folder,
+			LIST *ignore_attribute_name_list );
 
 QUERY *query_sort_order_new(
 			DICTIONARY *dictionary,
@@ -955,6 +955,7 @@ QUERY_OUTPUT *query_simple_output_new(
 			DICTIONARY *query_dictionary,
 			char *login_name,
 			FOLDER *folder,
+			LIST *ignore_attribute_name_list,
 			PROMPT_RECURSIVE *prompt_recursive );
 
 char *query_key(	LIST *foreign_attribute_name_list,

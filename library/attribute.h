@@ -71,7 +71,6 @@ typedef struct
 	boolean lookup_histogram_output;
 	boolean lookup_time_chart_output;
 	boolean appaserver;
-	LIST *attribute_list;
 } ATTRIBUTE;
 
 /* Operations */
@@ -258,46 +257,50 @@ LIST *attribute_list_subtract(
 			LIST *attribute_list,
 			LIST *subtract_attribute_name_list );
 
-void attribute_remove_attribute_list(	LIST *attribute_list,
-					char *attribute_name );
+void attribute_remove_attribute_list(
+			LIST *attribute_list,
+			char *attribute_name );
 
 int attribute_get_primary_attribute_list_length(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
 LIST *attribute_prompt_element_list(
-		char *attribute_name,
-		char *prepend_folder_name,
-		char *datatype,
-		char *post_change_javascript,
-		int width,
-		char *hint_message,
-		boolean is_primary_attribute,
-		boolean omit_push_buttons );
+			char *attribute_name,
+			char *prepend_folder_name,
+			char *datatype,
+			char *post_change_javascript,
+			int width,
+			char *hint_message,
+			boolean is_primary_attribute,
+			boolean omit_push_buttons );
 
-int attribute_get_date_piece_offset(	LIST *attribute_list,
-					LIST *exclude_attribute_name_list );
+int attribute_get_date_piece_offset(
+			LIST *attribute_list,
+			LIST *exclude_attribute_name_list );
 
 char *attribute_reference_number_attribute_name(
-					LIST *attribute_list,
-					LIST *attribute_name_list );
+			LIST *attribute_list,
+			LIST *attribute_name_list );
 
-boolean attribute_list_exists(		LIST *attribute_list,
-					char *attribute_name );
+boolean attribute_list_exists(
+			LIST *attribute_list,
+			char *attribute_name );
 
 char *attribute_append_post_change_javascript(
-					char *original_post_change_javascript,
-					char *post_change_javascript,
-					boolean place_first );
+			char *original_post_change_javascript,
+			char *post_change_javascript,
+			boolean place_first );
 
 LIST *attribute_get_non_primary_float_list(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
-boolean attribute_list_exists_name(	LIST *attribute_list,
-					char *attribute_name );
+boolean attribute_list_exists_name(
+			LIST *attribute_list,
+			char *attribute_name );
 
 void attribute_set_dictionary_date_international(
-					DICTIONARY *dictionary,
-					LIST *attribute_list );
+			DICTIONARY *dictionary,
+			LIST *attribute_list );
 
 char *attribute_select(
 			char *application_name,
@@ -353,8 +356,6 @@ LIST *attribute_append_isa_attribute_list(
 LIST *attribute_distinct_folder_name_list(
 			LIST *attribute_list );
 
-LIST *attribute_list(	char *folder_name );
-
 LIST *attribute_fetch_list(
 			char *folder_name );
 
@@ -372,8 +373,10 @@ LIST *attribute_folder_attribute_name_list(
 
 LIST *attribute_primary_name_list(
 			LIST *attribute_list );
+
 LIST *attribute_primary_attribute_name_list(
 			LIST *attribute_list );
+
 LIST *attribute_get_primary_attribute_name_list(
 			LIST *attribute_list );
 

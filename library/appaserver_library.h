@@ -229,7 +229,7 @@ LIST *get_attribute4folder_list(
 			char *entity, 
 			char *folder_name );
 
-LIST *appaserver_library_insert_ignore_pressed_attribute_name_list( 	
+LIST *appaserver_library_ignore_pressed_attribute_name_list( 	
 			DICTIONARY *posted_dictionary,
 			LIST *attribute_name_list );
 

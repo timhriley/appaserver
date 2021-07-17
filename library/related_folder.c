@@ -2867,19 +2867,19 @@ LIST *related_folder_preselection_dictionary_list(
 	QUERY *query;
 	ROLE *role;
 	LIST *related_folder_dictionary_list = {0};
-	FOLDER *related_folder;
+	FOLDER *folder_related;
 	LIST *related_primary_attribute_name_list;
 
 	role = role_new( application_name, role_name );
 
-	related_folder =
+	folder_related =
 		folder_load_new(
 			application_name,
 			session,
 			related_folder,
 			role );
 
-	if ( !related_folder )
+	if ( !folder_related )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
@@ -2890,22 +2890,22 @@ LIST *related_folder_preselection_dictionary_list(
 	}
 
 	related_primary_attribute_name_list =
-		related_folder->primary_attribute_name_list;
+		folder_related->primary_attribute_name_list;
 
-	if ( related_folder->populate_drop_down_process )
+	if ( folder_related->populate_drop_down_process )
 	{
 		related_folder_dictionary_list =
 		    folder_get_process_dictionary_list(
 			application_name,
 			session,
-			related_folder->folder_name,
+			folder_related->folder_name,
 			login_name,
-			related_folder->populate_drop_down_process,
+			folder_related->populate_drop_down_process,
 			(char *)0 /* role_name */,
 			query_dictionary /* parameter_dictionary */,
 			(char *)0 /* state */,
 			folder_name /*one2m_folder_name_for_processes */,
-			related_folder->attribute_list,
+			folder_related->attribute_list,
 			0
 			/* piece_multi_attribute_data_label_delimiter */,
 			(char *)0 /* process_name */,
@@ -2917,9 +2917,9 @@ LIST *related_folder_preselection_dictionary_list(
 		query =
 			query_simple_new(
 				query_dictionary,
-				application_name,
 				login_name,
-				related_folder );
+				folder_related,
+				(LIST *)0 /* ignore_attribute_name_list */ );
 
 		if ( !query )
 		{
