@@ -335,7 +335,10 @@ void related_folder_reset_ignore_output(
 			LIST *related_folder_list );
 
 LIST *related_folder_get_mto1_folder_name_list(
-			LIST *mto1_isa_related_folder_list );
+			LIST *mto1_related_folder_list );
+
+LIST *related_folder_mto1_folder_name_list(
+			LIST *mto1_related_folder_list );
 
 RELATED_FOLDER *related_folder_get_preprompt_related_folder(
 			char *application_name,

@@ -108,6 +108,17 @@ RELATED_FOLDER *related_folder_calloc( void )
 
 }
 
+/*
+		foreign_attribute_name_list =
+		    related_folder_foreign_attribute_name_list(
+			folder_primary_attribute_name_list(
+				isa_related_folder->
+					one2m_folder->
+					attribute_list ),
+			isa_related_folder->related_attribute_name,
+			isa_related_folder->
+				folder_foreign_attribute_name_list );
+*/
 LIST *related_folder_foreign_attribute_name_list(
 			LIST *primary_attribute_name_list,
 			char *related_attribute_name,
@@ -2597,23 +2608,27 @@ void related_folder_reset_ignore_output( LIST *related_folder_list )
 }
 
 LIST *related_folder_get_mto1_folder_name_list(
-					LIST *mto1_related_folder_list )
+			LIST *mto1_related_folder_list )
+{
+	return related_folder_mto1_folder_name_list( mto1_related_folder_list );
+}
+
+LIST *related_folder_mto1_folder_name_list(
+			LIST *mto1_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
-	LIST *folder_name_list = list_new();
+	LIST *folder_name_list = {0}
 
-	if ( mto1_related_folder_list
-	&&   list_length( mto1_related_folder_list ) )
+	if ( list_length( mto1_related_folder_list ) )
 	{
-		do {
-			related_folder =
-				(RELATED_FOLDER *)
-					list_get_pointer(
-						mto1_related_folder_list );
+		folder_name_list = list_new();
 
-			list_append_pointer(
+		do {
+			related_folder = list_get( mto1_related_folder_list );
+
+			list_set(
 				folder_name_list,
-				related_folder->folder->folder_name);
+				related_folder->folder->folder_name );
 
 		} while( list_next( mto1_related_folder_list ) );
 	}

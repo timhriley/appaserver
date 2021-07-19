@@ -183,7 +183,7 @@ void output_dictionary_string_as_hidden(
 LIST *get_relation_operator_list(
 			char *datatype );
 
-char *get_operator_character(
+char *appaserver_library_operator_character(
 			char *operator_string );
 
 boolean is_system_folder(
@@ -260,7 +260,9 @@ void output_dictionary_as_hidden(
 void appaserver_library_output_dictionary_as_hidden(
 			DICTIONARY *dictionary );
 
-char *get_full_attribute_name(
+/* Returns static memory */
+/* --------------------- */
+char *appaserver_library_full_attribute_name(
 			char *application_name,
 			char *folder_name,
 			char *attribute_name );

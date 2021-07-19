@@ -92,7 +92,7 @@ typedef struct
 {
 	char *root_folder_name;
 	char *mto1_foreign_folder_name;
-	LIST *query_drop_down_row_list;
+	LIST *drop_down_row_list;
 } QUERY_DROP_DOWN;
 
 typedef struct
@@ -952,15 +952,25 @@ char *query_output_attribute_where(
 /* Returns heap memory */
 /* ------------------- */
 char *query_output_join_where(
-			LIST *one2m_primary_attribute_name_list,
+			char *folder_name,
+			LIST *primary_attribute_name_list,
 			LIST *mto1_isa_related_folder_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_output_related_join(
+			char *folder_name,
+			LIST *primary_attribute_name_list,
+			char *isa_folder_name,
+			LIST *isa_foreign_attribute_name_list );
 
 /* Returns heap memory */
 /* ------------------- */
 char *query_output_where(
 			char *query_output_drop_down_where,
 			char *query_output_attribute_where,
-			char *query_output_join_where );
+			char *query_output_join_where,
+			char *attribute_not_null_join );
 
 QUERY_DROP_DOWN *query_drop_down(
 			LIST *exclude_attribute_name_list,
@@ -990,5 +1000,74 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row(
 			LIST *one2m_attribute_list,
 			DICTIONARY *query_dictionary,
 			int index );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_output_drop_down_data_where(
+			char *folder_name,
+			char *attribute_name,
+			char *data );
+
+boolean query_attribute_date_time_between(
+			QUERY_ATTRIBUTE **date_between_attribute,
+			QUERY_ATTRIBUTE **time_between_attribute,
+			LIST *query_attribute_list );
+
+char *query_attribute_between_date_time_where(
+			char *date_attribute_name,
+			char *time_attribute_name,
+			QUERY_DATA *date_from_data,
+			QUERY_DATA *time_from_data,
+			QUERY_DATA *date_to_data,
+			QUERY_DATA *time_to_data,
+			char *folder_name );
+
+boolean query_attribute_is_date(
+			char *datatype );
+
+boolean query_attribute_is_time(
+			char *datatype );
+
+boolean query_attribute_is_number(
+			char *datatype );
+
+boolean query_attribute_is_date_time(
+			char *datatype );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_output_select(
+			LIST *append_isa_attribute_list,
+			LIST *ignore_attribute_name_list,
+			LIST *lookup_attribute_exclude_name_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_output_from(
+			char *folder_name,
+			LIST *mto1_isa_related_folder_list,
+			char *attribute_not_null_folder_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_output_order(
+			char *folder_name,
+			LIST *primary_attribute_name_list,
+			LIST *append_isa_attribute_list,
+			DICTIONARY *sort_dictionary );
+
+/* Sample: ssort_button_descend_full_name^street_address_0 */
+/* ------------------------------------------------------- */
+/* Returns heap memory					   */
+/* ------------------------------------------------------- */
+char *query_sort_prefix_direction_attribute_index(
+			DICTIONARY *sort_dictionary );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_attribute_name_list_order(
+			char *folder_name,
+			LIST *attribute_name_list,
+			char *descending_label );
 
 #endif

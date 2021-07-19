@@ -101,9 +101,10 @@ void output_update_pipe_string( 	FILE *destination,
 	fprintf( destination, "\n" );
 }
 
-char *get_full_attribute_name( 	char *application_name,
-				char *folder_name,
-				char *attribute_name )
+char *appaserver_library_full_attribute_name(
+			char *application_name,
+			char *folder_name,
+			char *attribute_name )
 {
 	char full_attribute_name[ 512 ];
 
@@ -365,7 +366,8 @@ LIST *get_relation_operator_equal_list()
 	return list;
 }
 
-char *get_operator_character( char *operator_string )
+char *appaserver_library_operator_character(
+			char *operator_string )
 {
 	if ( strcmp( operator_string, EQUAL_OPERATOR ) == 0 )
 		return "=";

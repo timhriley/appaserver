@@ -936,3 +936,19 @@ char *string_trim_number_characters(
 			",$" );
 }
 
+char *string_strncpy(	char *destination,
+			char *source,
+			int count )
+{
+	char *results;
+
+	*destination = '\0';
+
+	if ( !source ) return destination;
+
+	results = strncpy( destination, source, count );
+	*(destination + count) = '\0';
+
+	return results;
+}
+

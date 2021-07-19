@@ -181,4 +181,8 @@ char *string_delimiter_repeat(
 			char delimiter,
 			int number_times );
 
+char *string_strncpy(	char *destination,
+			char *source,
+			int count );
+
 #endif
