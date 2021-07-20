@@ -272,12 +272,12 @@ void element_output_non_element(
 void element_set_data( 	ELEMENT_APPASERVER *e,
 			char *s );
 
-char *element_get_heading(
+char *element_heading(
 			char **toggle_button_set_all_control_string,
 			ELEMENT_APPASERVER *e,
 			int form_number );
 
-int element_get_attribute_width(
+int element_attribute_width(
 			ELEMENT_APPASERVER *e );
 
 void element_set_datatype(
@@ -290,7 +290,7 @@ ELEMENT_PUSH_BUTTON *element_push_button_new(
 ELEMENT_TOGGLE_BUTTON *element_toggle_button_new(
 			void );
 
-char *element_toggle_button_get_heading(
+char *element_toggle_button_heading(
 			char *element_name,
 			char *heading );
 
@@ -316,7 +316,7 @@ void element_toggle_button_set_checked(
 ELEMENT_RADIO_BUTTON *element_radio_button_new(
 			void );
 
-char *element_radio_button_get_heading(
+char *element_radio_button_heading(
 			char *heading,
 			char *name );
 
@@ -353,7 +353,7 @@ void element_notepad_set_field_width(
 			ELEMENT_NOTEPAD *e,
 			int w );
 
-char *element_notepad_get_heading(
+char *element_notepad_heading(
 			ELEMENT_NOTEPAD *e );
 
 void element_notepad_output(
@@ -393,7 +393,7 @@ void element_text_item_set_heading(
 			ELEMENT_TEXT_ITEM *e,
 			char *s );
 
-char *element_text_item_get_heading(
+char *element_text_item_heading(
 			char *element_name,
 			char *heading );
 
@@ -436,7 +436,7 @@ void element_password_set_heading(
 			ELEMENT_PASSWORD *e,
 			char *s );
 
-char *element_password_get_heading(
+char *element_password_heading(
 			char *element_name,
 			char *heading );
 
@@ -463,7 +463,7 @@ void element_reference_number_set_heading(
 			ELEMENT_REFERENCE_NUMBER *e,
 			char *s );
 
-char *element_reference_number_get_heading(
+char *element_reference_number_heading(
 			char *element_name,
 			char *heading );
 
@@ -494,7 +494,7 @@ void element_hidden_name_dictionary_output(
 ELEMENT_PROMPT_DATA *element_prompt_data_new(
 			void );
 
-char *element_prompt_data_get_heading(
+char *element_prompt_data_heading(
 			char *element_name,
 			char *heading );
 
@@ -549,7 +549,7 @@ void element_non_edit_multi_select_set_option_label_list(
 			ELEMENT_NON_EDIT_MULTI_SELECT *e,
 			LIST *l );
 
-char *element_non_edit_multi_select_get_heading(
+char *element_non_edit_multi_select_heading(
 			char *element_name );
 	
 void element_non_edit_multi_select_output(
@@ -571,7 +571,7 @@ void element_linebreak_output(
 void element_blank_data_output(
 			FILE *output_file );
 
-char *element_drop_down_get_heading(
+char *element_drop_down_heading(
 			char *element_name,
 			char *heading );
 
@@ -634,14 +634,14 @@ void element_non_edit_text_output(
 int element_type_count(	LIST *element_list,
 			enum element_type );
 
-ELEMENT_APPASERVER *element_get_yes_no_element(
+ELEMENT_APPASERVER *element_yes_no_element(
 			char *attribute_name,
 			char *prepend_folder_name,
 			char *post_change_javascript,
 			boolean with_is_null,
 			boolean with_not_null );
 
-LIST *element_get_shifted_option_label_list(
+LIST *element_shifted_option_label_list(
 			char **shifted_initial_label,
 			LIST *option_data_list,
 			char delimiter );
@@ -736,10 +736,10 @@ char *element_appaserver_list_display(
 char *element_appaserver_display(
 			ELEMENT_APPASERVER *element );
 
-char *element_get_type_string(
+char *element_type_string(
 			enum element_type element_type );
 
-char *element_get_destination_multi_select_element_name(
+char *element_destination_multi_select_element_name(
 			LIST *element_list );
 
 boolean element_exists_upload_filename(
@@ -754,7 +754,7 @@ LIST *element_list2remember_keystrokes_non_multi_element_name_list(
 LIST *element_list2remember_keystrokes_multi_element_name_list(
 			LIST *element_list );
 
-char *element_get_element_type_string(
+char *element_element_type_string(
 			enum element_type );
 
 void element_date_output(
@@ -783,10 +783,10 @@ void element_password_erase_data(
 boolean element_combined_option_data_list(
 			LIST *option_data_list );
 
-LIST *element_get_combined_option_label_list(
+LIST *element_combined_option_label_list(
 			LIST *option_data_list );
 
-void element_drop_down_get_initial_label(
+void element_drop_down_initial_label(
 			char *initial_label,
 			char *initial_data,
 			boolean no_initial_capital,
@@ -803,7 +803,7 @@ void element_list_set_omit_heading_sort_button(
 			LIST *element_list,
 			LIST *join_1tom_related_folder_list );
 
-char *element_get_date_format_string(
+char *element_date_format_string(
 			enum date_convert_format );
 
 void element_list_set_readonly(

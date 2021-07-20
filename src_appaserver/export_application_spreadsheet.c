@@ -62,7 +62,7 @@ int main( int argc, char **argv )
 	char *link_prompt;
 	char *date_string;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -188,7 +188,6 @@ int main( int argc, char **argv )
 	document_close();
 
 	return 0;
-
 }
 
 void remove_files(	LIST *folder_name_list,
@@ -250,7 +249,6 @@ void remove_files(	LIST *folder_name_list,
 		if ( system( sys_string ) ){};
 
 	} while( list_next( folder_name_list ) );
-
 }
 
 /* Returns link_prompt */
@@ -383,7 +381,6 @@ LIST *subtract_exclude_application_export(
 		 where );
 
 	return list_subtract_list( folder_name_list, pipe2list( sys_string ) );
-
 }
 
 void export_output_spreadsheet_folder(
@@ -399,7 +396,6 @@ void export_output_spreadsheet_folder(
 	folder =
 		folder_load_folder(
 			application_name,
-			(char *)0 /* session */,
 			folder_name,
 			(ROLE *)0 );
 
@@ -407,6 +403,8 @@ void export_output_spreadsheet_folder(
 		query_simple_new(
 			(DICTIONARY *)0 /* query_dictionary */,
 			(char *)0 /* login_name */,
+			(char *)0 /* full_name_only */,
+			(char *)0 /* street_address_only */,
 			folder,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 

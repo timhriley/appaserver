@@ -104,8 +104,10 @@ int main( int argc, char **argv )
 	LIST *done_folder_name_list;
 	pid_t process_id = getpid();
 	TOTAL_COUNT *total_count;
+	char *full_name_only;
+	char *street_address_only = {0};
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -151,14 +153,9 @@ int main( int argc, char **argv )
 
 	role = role_new( application_name, role_name );
 
-	override_row_restrictions =
-		role_get_override_row_restrictions(
-			role->override_row_restrictions_yn );
-
 	appaserver =
 		appaserver_folder_load_new(
 			application_name,
-			BOGUS_SESSION,
 			folder_name );
 
 	exclude_attribute_name_list =
@@ -178,10 +175,20 @@ int main( int argc, char **argv )
 		appaserver->folder->mto1_related_folder_list,
 		exclude_attribute_name_list );
 
+	full_name_only =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_login_name_full_name(
+			&street_address_only,
+			login_name );
+
 	query =
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			login_name,
+			full_name_only,
+			street_address_only,
 			appaserver->folder,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 

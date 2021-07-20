@@ -465,7 +465,9 @@ char *get_where_clause_string( 	char *application_name,
 	query =
 		query_simple_new(
 			query_dictionary,
-			(char *)0 /* login_name */,
+			(char *)0 /* login_name_only */,
+			(char *)0 /* full_name_only */,
+			(char *)0 /* street_address_only */,
 			folder,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 

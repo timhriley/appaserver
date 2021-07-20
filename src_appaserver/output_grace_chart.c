@@ -67,7 +67,7 @@ int main( int argc, char **argv )
 	LIST *select_attribute_name_list;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -131,7 +131,6 @@ int main( int argc, char **argv )
 	folder =
 		folder_load_new(
 			application_name,
-			session,
 			folder_name,
 			role );
 
@@ -254,6 +253,8 @@ void output_chart(	DICTIONARY *query_dictionary,
 	int page_length_pixels;
 	char *distill_landscape_flag;
 	int value_piece_offset = 0;
+	char *full_name_only;
+	char *street_address_only = {0};
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -269,10 +270,20 @@ void output_chart(	DICTIONARY *query_dictionary,
 			application_name ),
 		0 /* not with_dynarch_menu */ );
 
+	full_name_only =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_login_name_full_name(
+			&street_address_only,
+			login_name );
+
 	query =
 		query_simple_new(
 			query_dictionary,
 			login_name,
+			full_name_only,
+			street_address_only,
 			folder,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 

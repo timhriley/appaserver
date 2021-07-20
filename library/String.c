@@ -325,7 +325,7 @@ char *string_escape_full(
 	return string_escape_character_array(
 			destination,
 			source,
-			"$'#" /* character_array */ );
+			"$'#;" /* character_array */ );
 }
 
 char *string_escape_quote_dollar(

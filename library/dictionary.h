@@ -63,12 +63,28 @@ void dictionary_free_container(		DICTIONARY *d );
 char **get_key_array(			DICTIONARY *d );
 int dictionary_all_null_data(		DICTIONARY *d );
 void dictionary_add( DICTIONARY *d, char *key, char *data, int size );
-LIST *get_dictionary_key_list( DICTIONARY *d );
-LIST *dictionary_get_key_list( DICTIONARY *d );
-LIST *dictionary_get_ordered_key_list( DICTIONARY *d );
-char *dictionary_display( DICTIONARY *d );
-char *dictionary_list_display( LIST *dictionary_list );
-char *dictionary_display_delimiter( DICTIONARY *d, char delimiter );
+
+LIST *get_dictionary_key_list(
+			DICTIONARY *d );
+
+LIST *dictionary_get_key_list(
+			DICTIONARY *d );
+
+LIST *dictionary_ordered_key_list(
+			DICTIONARY *d );
+
+LIST *dictionary_get_ordered_key_list(
+			DICTIONARY *d );
+
+char *dictionary_display(
+			DICTIONARY *d );
+
+char *dictionary_list_display(
+			LIST *dictionary_list );
+
+char *dictionary_display_delimiter(
+			DICTIONARY *d,
+			char delimiter );
 
 int dictionary_key_highest_index(
 			DICTIONARY *d );
@@ -434,10 +450,6 @@ char *dictionary_get_delimited_data(
 void dictionary_replace_double_quote_with_single(
 			DICTIONARY *dictionary );
 
-char *dictionary_get_data(
-			DICTIONARY *d,
-			char *key );
-
 char *dictionary_get_pointer(
 			DICTIONARY *d,
 			char *key );
@@ -667,6 +679,10 @@ DICTIONARY *dictionary_key_piece(
 			DICTIONARY *source_dictionary,
 			char delimiter,
 			int piece_offset );
+
+char *dictionary_get_data(
+			DICTIONARY *d,
+			char *key );
 
 char *dictionary_data(	DICTIONARY *d,
 			char *key );

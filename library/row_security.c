@@ -94,8 +94,8 @@ ROW_SECURITY *row_security_new(
 			goto non_owner_view_only_dont_append;
 
 		if ( attribute_list_exists(
-			row_security->folder->attribute_list,
-			appaserver_user_foreign_login_name ) )
+			appaserver_user_foreign_login_name,
+			row_security->folder->attribute_list ) )
 		{
 			goto non_owner_view_only_dont_append;
 		}
@@ -185,10 +185,10 @@ non_owner_view_only_dont_append:
 		/* Make sure to select the attribute_not_null. */
 		/* ------------------------------------------- */
 		if ( !attribute_list_exists(
+				row_security->attribute_not_null_string,
 				row_security->
 					folder->
-					append_isa_attribute_list,
-				row_security->attribute_not_null_string ) )
+					append_isa_attribute_list ) )
 		{
 			ATTRIBUTE *attribute;
 			LIST *exclude_permission_list;
@@ -230,12 +230,6 @@ non_owner_view_only_dont_append:
 		}
 	}
 
-	if ( !row_security_supervisor_logged_in(
-			row_security->row_security_state ) )
-	{
-		row_security->row_security_is_participating = 1;
-	}
-
 	return row_security;
 }
 
@@ -258,8 +252,7 @@ ROW_SECURITY *row_security_detail_new(
 				regular_omit_delete_operation,
 			enum omit_delete_operation
 				viewonly_omit_delete_operation,
-			boolean omit_operation_buttons,
-			boolean row_security_is_participating )
+			boolean omit_operation_buttons )
 {
 	int row_dictionary_list_length;
 	char query_select_folder_name[ 128 ];
@@ -418,86 +411,54 @@ RELATED_FOLDER *row_security_seek_related_folder(
 
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
 			char *folder_name,
-			char *attribute_not_null_string )
+			char *attribute_not_null_string,
+			ROLE *role )
 {
 	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
-	FOLDER *folder;
 
 	if ( !attribute_not_null_string || !*attribute_not_null_string )
 	{
 		return (ROW_SECURITY_ROLE_UPDATE *)0;
 	}
 
+	if ( !role )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( ! ( row_security_role_update =
-		(ROW_SECURITY_ROLE_UPDATE *)
 			calloc( 1, sizeof( ROW_SECURITY_ROLE_UPDATE ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocation memory.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	folder =
-		folder_new(
+	row_security_role_update->folder =
+		folder_load_new(
 			environment_application_name(),
-			folder_name,
-			(ROLE *)0 /* role */ );
-
-	if ( !folder_load(
-			&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
-			folder->application_name,
 			BOGUS_SESSION,
-			folder->folder_name,
-			0 /* override_row_restrictions */,
-			(char *)0 /* role_name */,
-			folder->mto1_related_folder_list ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load folder=%s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 folder->folder_name );
+			folder_name,
+			role );
 
+	if ( !row_security_role_update->folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			folder_name );
 		exit( 1 );
 	}
-
-	folder->one2m_recursive_related_folder_list =
-		related_folder_1tom_related_folder_list(
-			application_name,
-			BOGUS_SESSION,
-			folder->folder_name,
-			(char *)0 /* role_name */,
-			update,
-			(LIST *)0 /* primary_data_list */,
-			list_new() /* related_folder_list */,
-			0 /* dont omit_isa_relations */,
-			related_folder_recursive_all,
-			folder->primary_attribute_name_list
-				/* parent_primary_attribute_name_list */,
-			folder->primary_attribute_name_list
-				/* original_primary_attribute_name_list */,
-			(char *)0 /* prior_related_attribute_name */ );
-
-	row_security_role_update->folder = folder;
 
 	row_security_role_update->attribute_not_null_string =
 		attribute_not_null_string;
@@ -534,6 +495,8 @@ LIST *row_security_role_update_list(
 	{
 		piece( folder_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 		piece( attribute_name, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+
+		if ( !*attribute_name ) continue;
 
 		row_security_role_update =
 			row_security_role_update_new(
@@ -2377,5 +2340,88 @@ LIST *row_security_sort_order_element_list(
 	} while ( list_next( attribute_list ) );
 
 	return element_list;
+}
+
+boolean row_security_role_update_row_view_only(
+			char *folder_name,
+			FOLDER *role_update_folder,
+			boolean override_row_restrictions,
+			boolean attribute_not_null )
+{
+	LIST *one2m_recursive_related_folder_list;
+	RELATED_FOLDER *related_folder;
+
+	if ( !role_update_folder )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: role_update_folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return 0;
+	}
+
+	if ( override_row_restrictions ) return 0;
+
+	/* Sorry for the double negative */
+	/* ----------------------------- */
+	if ( !attribute_not_null ) return 0;
+
+	/* Attribute is populated */
+	/* ---------------------- */
+	if ( strcmp( folder_name, role_update_folder->folder_name ) == 0 )
+		return 1;
+
+	one2m_recursive_related_folder_list =
+		role_update_folder->
+			one2m_recursive_related_folder_list;
+
+	if ( !list_rewind( one2m_recursive_related_folder_list ) )
+		return 0;
+
+	do {
+		related_folder =
+			list_get(
+				one2m_recursive_related_folder_list );
+
+		if ( strcmp(
+			folder_name,
+			related_folder->
+				folder->
+				folder_name ) == 0 )
+		{
+			return 1;
+		}
+	} while ( list_next( one2m_recursive_related_folder_list ) );
+
+	return 0;
+}
+
+boolean row_security_role_update_attribute_seek(
+			char *attribute_name,
+			LIST *row_security_role_update_list )
+{
+	ATTRIBUTE *attribute;
+	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
+
+	if ( !list_rewind( row_security_role_update_list ) ) return 0;
+
+	do {
+		row_security_role_update =
+			list_get(
+				row_security_role_update_list );
+
+		if ( attribute_exists(
+			attribute_name,
+			row_security_role_update->
+				role_update_folder->
+				append_isa_attribute_list ) )
+		{
+			return 1;
+		}
+
+	} while ( list_next( row_security_role_update_list ) );
+
+	return 0;
 }
 

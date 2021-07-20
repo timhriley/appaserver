@@ -63,7 +63,10 @@ LIST *get_element_list(	char *login_name,
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session_key, *folder_name;
+	char *login_name;
+	char *application_name;
+	char *session_key;
+	char *folder_name;
 	char *role_name;
 	char *message = {0};
 	char *state = "update";
@@ -87,6 +90,8 @@ int main( int argc, char **argv )
 	char key[ 128 ];
 	char action_string[ 512 ];
 	QUERY *query;
+	char *full_name_only;
+	char *street_address_only = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -329,10 +334,20 @@ int main( int argc, char **argv )
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
 
+	full_name_only =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_login_name_full_name(
+			&street_address_only,
+			login_name_only );
+
 	query =
 		query_simple_new(
 			query_dictionary,
-			login_name,
+			login_name_only,
+			full_name_only,
+			street_address_only,
 			folder,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 

@@ -56,8 +56,10 @@ int main( int argc, char **argv )
 	pid_t process_id = getpid();
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	APPASERVER_LINK_FILE *appaserver_link_file;
+	char *full_name_only;
+	char *street_address_only = {0};
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -154,10 +156,20 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	full_name_only =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_login_name_full_name(
+			&street_address_only,
+			login_name );
+
 	query =
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			login_name,
+			full_name_only,
+			street_address_only,
 			folder,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 

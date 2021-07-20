@@ -1806,19 +1806,14 @@ boolean attribute_list_exists_name(
 
 }
 
-boolean attribute_list_exists(		LIST *attribute_list,
-					char *attribute_name )
+boolean attribute_list_exists(
+			char *attribute_name,
+			LIST *attribute_list )
 {
-	ATTRIBUTE *attribute;
-
-	attribute = attribute_seek_attribute(
+	return (boolean)
+		( attribute_seek_attribute(
 			attribute_name,
-			attribute_list );
-
-	if ( attribute )
-		return 1;
-	else
-		return 0;
+			attribute_list ) != (void *)0 );
 }
 
 char *attribute_append_post_change_javascript(
@@ -2109,14 +2104,24 @@ int attribute_fetch_width(
 
 }
 
-boolean attribute_exists(	char *application_name,
-				char *folder_name,
-				char *attribute_name )
+boolean attribute_exists(
+			char *folder_name,
+			char *attribute_name )
 {
-	return folder_attribute_exists(
-			application_name,
+	LIST *attribute_list;
+
+	attribute_list =
+		attribute_get_attribute_list(
+			environment_application_name(),
 			folder_name,
-			attribute_name );
+			(char *)0 /* attribute_name */,
+			(LIST *)0 /* mto1_isa_related_folder_list */,
+			(char *)0 /* role_name */ );
+
+	return (boolean)
+		( attribute_seek_attribute(
+			attribute_name,
+			attribute_list ) != (void *)0 );
 }
 
 boolean attribute_record_parse(
@@ -2286,6 +2291,14 @@ LIST *attribute_distinct_folder_name_list( LIST *attribute_list )
 	}
 
 	return distinct_folder_name_list;
+}
+
+LIST *attribute_list_fetch(
+			char *folder_name )
+{
+	return attribute_system_list(
+			attribute_list_sys_string(
+				folder_name ) );
 }
 
 LIST *attribute_fetch_list(

@@ -251,6 +251,8 @@ void output_chart(	DICTIONARY *query_dictionary,
 	char *query_record;
 	int value_piece_offset = 0;
 	FILE *output_file;
+	char *full_name_only;
+	char *street_address_only = {0};
 
 	appaserver_link_get_pid_filename(
 		&output_filename,
@@ -287,10 +289,20 @@ void output_chart(	DICTIONARY *query_dictionary,
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
+	full_name_only =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_login_name_full_name(
+			&street_address_only,
+			login_name );
+
 	query =
 		query_simple_new(
 			query_dictionary,
 			login_name,
+			full_name_only,
+			street_address_only,
 			folder,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 

@@ -432,12 +432,6 @@ char *query_parse_multi_attribute_get_order_clause(
 			boolean descending,
 			LIST *attribute_list );
 
-char *query_get_drop_down_data_where(
-			char *application_name,
-			char *folder_name,
-			char *attribute_name,
-			char *data );
-
 LIST *query_get_one2m_subquery_related_folder_list(
 			char *application_name,
 			LIST *one2m_subquery_folder_name_list,
@@ -472,7 +466,7 @@ char *query_get_query_attribute_list_display(
 
 LIST *query_prompt_recursive_drop_down_list(
 			LIST *exclude_attribute_name_list,
-			char *root_folder_name,
+			char *mto1_folder_name,
 			LIST *prompt_recursive_folder_list,
 			DICTIONARY *query_dictionary );
 
@@ -599,9 +593,13 @@ void query_output_set_row_level_non_owner_forbid_join(
 			QUERY_OUTPUT *query_output,
 			FOLDER *folder );
 
+/* Sets login_name or entity to query_dictionary */
+/* --------------------------------------------- */
 void query_dictionary_row_level_non_owner_forbid(
 			DICTIONARY *query_dictionary,
-			char *login_name );
+			char *login_name_only,
+			char *full_name_only,
+			char *street_address_only );
 
 char *query_folder_drop_down_where(
 			LIST *query_drop_down_list,
@@ -894,7 +892,9 @@ LIST *query_detail_dictionary_list(
 
 QUERY *query_simple_new(
 			DICTIONARY *query_dictionary,
-			char *login_name,
+			char *login_name_only,
+			char *full_name_only,
+			char *street_address_only,
 			FOLDER *mto1_folder,
 			LIST *ignore_attribute_name_list );
 
@@ -942,7 +942,8 @@ LIST *query_data_string_list(
 /* Returns heap memory */
 /* ------------------- */
 char *query_output_drop_down_where(
-			LIST *query_drop_down_list );
+			LIST *query_drop_down_list,
+			int mto1_isa_related_folder_list_length );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -1004,7 +1005,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row(
 /* Returns static memory */
 /* --------------------- */
 char *query_output_drop_down_data_where(
-			char *folder_name,
+			char *mto1_folder_name,
 			char *attribute_name,
 			char *data );
 

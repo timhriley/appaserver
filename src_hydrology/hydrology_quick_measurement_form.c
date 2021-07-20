@@ -206,7 +206,6 @@ int main( int argc, char **argv )
 	folder =
 		folder_load_new( 	
 			application_name,
-			session,
 			folder_name,
 			role );
 
@@ -223,7 +222,9 @@ int main( int argc, char **argv )
 	query =
 		query_simple_new(
 			query_dictionary,
-			login_name,
+			(char *)0 /* login_name_only */,
+			(char *)0 /* full_name_only */,
+			(char *)0 /* street_address_only */,
 			folder,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 

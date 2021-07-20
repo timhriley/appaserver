@@ -94,21 +94,11 @@ FOLDER *folder_load_new(
 			ROLE *role )
 {
 	FOLDER *folder;
-	char *role_name = {0};
-	char override_row_restrictions_yn = {0};
 
 	folder =
 		folder_new(
 			application_name,
 			folder_name );
-
-	if ( role )
-	{
-		role_name = role->role_name;
-
-		override_row_restrictions_yn =
-			role->override_row_restrictions_yn;
-	}
 
 	folder->mto1_related_folder_list =
 	     related_folder_get_mto1_related_folder_list(
@@ -116,7 +106,7 @@ FOLDER *folder_load_new(
 		application_name,
 		BOGUS_SESSION,
 		folder_name,
-		role_name,
+		(ROLE) ? role->role_name : (char *)0,
 		0 /* isa_flag */,
 		related_folder_no_recursive,
 		0 /* dont override_row_restrictions */,
@@ -147,9 +137,8 @@ FOLDER *folder_load_new(
 			folder->application_name,
 			BOGUS_SESSION,
 			folder->folder_name,
-			role_get_override_row_restrictions(
-				override_row_restrictions_yn ),
-			role_name,
+			(role) ? role->override_row_restrictions : 0,
+			(role) ? role->role_name : (char *)0,
 			folder->mto1_related_folder_list ) )
 	{
 		fprintf( stderr,
@@ -293,12 +282,11 @@ FOLDER *folder_load_new(
 	return folder;
 }
 
-LIST *folder_get_attribute_list(
-			char *application_name,
+LIST *folder_attribute_list(
 			char *folder_name )
 {
 	return attribute_get_attribute_list(
-			application_name,
+			environment_application_name(),
 			folder_name,
 			(char *)0 /* attribute_name */,
 			(LIST *)0 /* mto1_isa_related_folder_list */,
@@ -1106,7 +1094,8 @@ boolean folder_load(	int *insert_rows_number,
 		exit( 1 );
 	}
 
-	if ( !( record = folder_get_folder_record(
+	if ( !( record =
+			folder_get_folder_record(
 				application_name,
 				folder_name ) ) )
 	{
@@ -1140,6 +1129,7 @@ boolean folder_load(	int *insert_rows_number,
 	*lookup_email_output = (*buffer == 'y');
 
 	piece( buffer, '^', record, FOLDER_POPULATE_DROP_DOWN_PROCESS_PIECE );
+
 	if ( *buffer )
 	{
 		*populate_drop_down_process =
@@ -1153,6 +1143,7 @@ boolean folder_load(	int *insert_rows_number,
 	}
 
 	piece( buffer, '^', record, FOLDER_POST_CHANGE_PROCESS_PIECE );
+
 	if ( *buffer )
 	{
 		*post_change_process =
@@ -1196,11 +1187,11 @@ boolean folder_load(	int *insert_rows_number,
 	*create_view_statement = strdup( buffer );
 
 	folder_load_row_level_restrictions(
-			row_level_non_owner_forbid,
-			row_level_non_owner_view_only,
-			application_name,
-			folder_name,
-			mto1_related_folder_list );
+		row_level_non_owner_forbid,
+		row_level_non_owner_view_only,
+		application_name,
+		folder_name,
+		mto1_related_folder_list );
 
 	*row_level_non_owner_forbid =
 		*row_level_non_owner_forbid &&
@@ -1244,7 +1235,8 @@ void folder_load_row_level_restrictions(
 		} while( list_next( mto1_related_folder_list ) );
 	}
 
-	if ( ! ( record = folder_get_folder_row_level_restrictions_record(
+	if ( ! ( record =
+			folder_get_folder_row_level_restrictions_record(
 				application_name,
 				folder_name ) ) )
 	{
@@ -2086,26 +2078,22 @@ boolean folder_exists_folder(
 }
 
 boolean folder_attribute_exists(
-			char *application_name,
 			char *folder_name,
 			char *attribute_name )
 {
 	return folder_exists_attribute(
-			application_name,
 			folder_name,
 			attribute_name );
 }
 
 boolean folder_exists_attribute(
-			char *application_name,
 			char *folder_name,
 			char *attribute_name )
 {
 	LIST *attribute_list;
 
 	attribute_list =
-		folder_get_attribute_list(
-			application_name,
+		folder_attribute_list(
 			folder_name );
 
 	return (boolean) ( attribute_seek_attribute(
@@ -2219,12 +2207,11 @@ LIST *folder_mto1_isa_related_folder_list(
 }
 
 LIST *folder_attribute_list(
-			char *application_name,
 			char *folder_name,
 			char *role_name )
 {
 	return attribute_get_attribute_list(
-			application_name,
+			environment_application_name(),
 			folder_name,
 			(char *)0 /* attribute_name */,
 			(LIST *)0 /* mto1_isa_related_folder_list */,

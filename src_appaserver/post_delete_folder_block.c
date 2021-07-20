@@ -74,6 +74,8 @@ int main( int argc, char **argv )
 	char *state;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	QUERY *query;
+	char *full_name_only;
+	char *street_address_only = {0};
 
 	if ( argc < 7 )
 	{
@@ -86,8 +88,9 @@ int main( int argc, char **argv )
 	login_name = argv[ 1 ];
 	application_name = argv[ 2 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
+	if ( timlib_parse_database_string(
+		&database_string,
+		application_name ) )
 	{
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
@@ -104,9 +107,9 @@ int main( int argc, char **argv )
 	environ_set_utc_offset( application_name );
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	session = argv[ 3 ];
 	folder_name = argv[ 4 ];
@@ -158,38 +161,39 @@ int main( int argc, char **argv )
 
 	post_dictionary = dictionary_appaserver->working_post_dictionary;
 
-	role_folder = role_folder_new_role_folder(
-					application_name,
-					session,
-					role_name,
-					folder_name );
+	role_folder =
+		role_folder_new_role_folder(
+			application_name,
+			session,
+			role_name,
+			folder_name );
 
 	if ( session_remote_ip_address_changed(
 		application_name,
 		session ) )
 	{
 		session_message_ip_address_changed_exit(
-				application_name,
-				login_name );
+			application_name,
+			login_name );
 	}
 
 	if ( role_folder->delete_yn != 'y'
 	||   strcmp(	login_name,
 			session_get_login_name(
-					application_name,
-					session ) ) != 0 )
+				application_name,
+				session ) ) != 0 )
 	{
 		session_access_failed_message_and_exit(
 			application_name, session, login_name );
 	}
 
 	if ( !appaserver_user_exists_role(
-					application_name,
-					login_name,
-					role_name ) )
+		application_name,
+		login_name,
+		role_name ) )
 	{
 		session_access_failed_message_and_exit(
-				application_name, session, login_name );
+			application_name, session, login_name );
 	}
 
 	session_update_access_date_time( application_name, session );
@@ -199,7 +203,6 @@ int main( int argc, char **argv )
 
 	folder =
 		folder_load_new(
-			application_name,
 			session_key,
 			folder_name,
 			role );
@@ -217,10 +220,20 @@ int main( int argc, char **argv )
 	if ( folder->row_level_non_owner_view_only )
 		folder->row_level_non_owner_forbid = 1;
 
+	full_name_only =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_login_name_full_name(
+			&street_address_only,
+			login_name );
+
 	query =
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			login_name,
+			full_name_only,
+			street_address_only,
 			folder,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 

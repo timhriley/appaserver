@@ -364,8 +364,8 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				date_convert_new_user_format_date_convert(
 				application_name,
 				login_name,
-				date_get_now_yyyy_mm_dd(
-					date_get_utc_offset() ) );
+				date_now_yyyy_mm_dd(
+					date_utc_offset() ) );
 
 			char *time_string;
 			if ( element->element_type == element_current_date )
@@ -379,12 +379,12 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			{
 				if ( element->text_item->attribute_width == 19 )
 					time_string =
-					    date_get_now_hh_colon_mm_colon_ss(
-						date_get_utc_offset() );
+					    date_now_hh_colon_mm_colon_ss(
+						date_utc_offset() );
 				else
 					time_string =
-					    date_get_now_hh_colon_mm(
-						date_get_utc_offset() );
+					    date_now_hh_colon_mm(
+						date_utc_offset() );
 
 				sprintf( data,
 				 	"%s %s",
@@ -434,8 +434,8 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				date_convert_new_user_format_date_convert(
 				application_name,
 				login_name,
-				date_get_now_yyyy_mm_dd(
-					date_get_utc_offset() ) );
+				date_now_yyyy_mm_dd(
+					date_utc_offset() ) );
 
 			element->text_item->data = date_convert->return_date;
 		}
@@ -493,12 +493,12 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 		{
 			if ( element->text_item->attribute_width >= 7 )
 				element->text_item->data =
-					date_get_now_time_hhmm_colon_ss(
-						date_get_utc_offset() );
+					date_now_time_hhmm_colon_ss(
+						date_utc_offset() );
 			else
 				element->text_item->data =
-					date_get_now_hhmm(
-						date_get_utc_offset() );
+					date_now_hhmm(
+						date_utc_offset() );
 		}
 
 		element_text_item_output(
@@ -842,7 +842,7 @@ void element_set_data( ELEMENT_APPASERVER *e, char *s )
 	}
 }
 
-int element_get_attribute_width( ELEMENT_APPASERVER *e )
+int element_attribute_width( ELEMENT_APPASERVER *e )
 {
 	if ( e->element_type == text_item )
 		return e->text_item->attribute_width;
@@ -883,7 +883,7 @@ int element_get_attribute_width( ELEMENT_APPASERVER *e )
 		return 0;
 }
 
-char *element_get_heading(
+char *element_heading(
 			char **toggle_button_set_all_control_string,
 			ELEMENT_APPASERVER *e,
 			int form_number )
@@ -894,14 +894,14 @@ char *element_get_heading(
 	||   e->element_type == element_current_date_time
 	||   e->element_type == element_date_time )
 	{
-		return element_text_item_get_heading(
+		return element_text_item_heading(
 						e->name,
 						e->text_item->heading );
 	}
 	else
 	if ( e->element_type == password )
 	{
-		return element_password_get_heading(
+		return element_password_heading(
 						e->name,
 						e->password->heading );
 	}
@@ -932,39 +932,40 @@ char *element_get_heading(
 			*toggle_button_set_all_control_string =
 				local_toggle_button_control_string;
 		}
-		return element_toggle_button_get_heading(
-					e->name,
-					e->toggle_button->heading );
+		return element_toggle_button_heading(
+			e->name,
+			e->toggle_button->heading );
 	}
 	else
 	if ( e->element_type == radio_button )
 	{
-		return element_radio_button_get_heading(
-					e->radio_button->heading,
-					e->name );
+		return element_radio_button_heading(
+			e->radio_button->heading,
+			e->name );
 	}
 	else
 	if ( e->element_type == notepad )
-		return element_notepad_get_heading( e->notepad );
+		return element_notepad_heading( e->notepad );
 	else
 	if ( e->element_type == drop_down )
-		return element_drop_down_get_heading(	e->name,
-							e->drop_down->heading );
+		return element_drop_down_heading(
+			e->name,
+			e->drop_down->heading );
 	else
 	if ( e->element_type == non_edit_multi_select )
-		return element_non_edit_multi_select_get_heading(
-					e->name );
+		return element_non_edit_multi_select_heading(
+			e->name );
 	else
 	if ( e->element_type == prompt_data )
-		return element_prompt_data_get_heading(
-						e->name,
-						e->prompt_data->heading );
+		return element_prompt_data_heading(
+			e->name,
+			e->prompt_data->heading );
 	else
 	if ( e->element_type == reference_number )
 		return
-		element_reference_number_get_heading(
-						e->name,
-						e->reference_number->heading );
+		element_reference_number_heading(
+			e->name,
+			e->reference_number->heading );
 	else
 	if ( e->element_type == hidden )
 		return "";
@@ -1007,32 +1008,35 @@ void element_notepad_set_attribute_width(	ELEMENT_NOTEPAD *e,
 	e->attribute_width = w;
 }
 
-char *element_drop_down_get_heading(	char *element_name,
-					char *heading )
+char *element_drop_down_heading(
+			char *element_name,
+			char *heading )
 {
 	if ( !heading )
 		heading = element_name;
 	else
 		heading = heading;
+
 	return heading;
 }
 
-char *element_non_edit_multi_select_get_heading(
-					char *element_name )
+char *element_non_edit_multi_select_heading(
+			char *element_name )
 {
 	return element_name;
 }
 
-char *element_notepad_get_heading( ELEMENT_NOTEPAD *e )
+char *element_notepad_heading(
+			ELEMENT_NOTEPAD *e )
 {
 	return e->heading;
 }
 
 void element_notepad_output_as_dictionary(
-				FILE *output_file,
-				char *element_name,
-				char *data,
-				int row )
+			FILE *output_file,
+			char *element_name,
+			char *data,
+			int row )
 {
 
 	if ( !data ) data = "";
@@ -1230,10 +1234,11 @@ ELEMENT_TOGGLE_BUTTON *element_toggle_button_new( void )
 	return e;
 }
 
-char *element_toggle_button_get_heading( char *element_name, char *heading )
+char *element_toggle_button_heading(
+			char *element_name,
+			char *heading )
 {
-	if ( !heading )
-		heading = element_name;
+	if ( !heading ) heading = element_name;
 
 	return heading;
 }
@@ -1266,7 +1271,7 @@ void element_toggle_button_output(
 		"%s",
 	   	format_initial_capital(
 			buffer, 
-			element_toggle_button_get_heading(
+			element_toggle_button_heading(
 				element_name,
 				heading ) ) );
 
@@ -1344,7 +1349,9 @@ ELEMENT_RADIO_BUTTON *element_radio_button_new( void )
 	return e;
 }
 
-char *element_radio_button_get_heading( char *heading, char *name )
+char *element_radio_button_heading(
+			char *heading,
+			char *name )
 {
 	if ( heading )
 		return heading;
@@ -1439,7 +1446,7 @@ void element_radio_button_output( 	FILE *output_file,
 		 ">%s",
 	   	 format_initial_capital(
 			buffer, 
-			element_radio_button_get_heading( 
+			element_radio_button_heading( 
 				heading,
 				name ) ) );
 
@@ -1484,7 +1491,9 @@ void element_text_item_set_heading(
 	e->heading = s;
 }
 
-char *element_text_item_get_heading( char *element_name, char *heading )
+char *element_text_item_heading(
+			char *element_name,
+			char *heading )
 {
 	if ( heading && *heading )
 		return heading;
@@ -1542,9 +1551,9 @@ void element_date_output( 	FILE *output_file,
 	static int date_trigger_offset = 0;
 
 	date_convert_format =
-		date_convert_get_user_date_format(
-				application_name,
-				login_name );
+		date_convert_user_date_format(
+			application_name,
+			login_name );
 
 	maxlength = attribute_width;
 
@@ -1632,7 +1641,7 @@ void element_date_output( 	FILE *output_file,
 			IMAGE_RELATIVE_DIRECTORY );
 	
 		format_string =
-			element_get_date_format_string(
+			element_date_format_string(
 				date_convert_format );
 
 		fprintf( output_file, "<script type=\"text/javascript\">\n" );
@@ -1815,13 +1824,16 @@ void element_password_set_attribute_width(	ELEMENT_PASSWORD *e,
 	e->attribute_width = w;
 }
 
-void element_password_set_heading(	ELEMENT_PASSWORD *e,
-					char *s )
+void element_password_set_heading(
+			ELEMENT_PASSWORD *e,
+			char *s )
 {
 	e->heading = strdup( s );
 }
 
-char *element_password_get_heading( char *element_name, char *heading )
+char *element_password_heading(
+			char *element_name,
+			char *heading )
 {
 	if ( heading && *heading )
 		return heading;
@@ -2012,13 +2024,15 @@ void element_reference_number_set_attribute_width(
 }
 
 void element_reference_number_set_heading(	
-					ELEMENT_REFERENCE_NUMBER *e,
-					char *s )
+			ELEMENT_REFERENCE_NUMBER *e,
+			char *s )
 {
 	e->heading = strdup( s );
 }
 
-char *element_reference_number_get_heading( char *element_name, char *heading )
+char *element_reference_number_heading(
+			char *element_name,
+			char *heading )
 {
 	if ( heading && *heading )
 		return heading;
@@ -2062,7 +2076,7 @@ void element_drop_down_set_option_data_option_label_list(
 	if ( !list_rewind( source_list ) ) return;
 
 	do {
-		record = list_get_pointer( source_list );
+		record = list_get( source_list );
 
 		piece(	option_data,
 			MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER,
@@ -2447,12 +2461,12 @@ void element_drop_down_output(
 		}
 		else
 		{
-			element_drop_down_get_initial_label(
-					initial_label,
-					initial_data,
-					no_initial_capital,
-					option_data_list,
-					option_label_list );
+			element_drop_down_initial_label(
+				initial_label,
+				initial_data,
+				no_initial_capital,
+				option_data_list,
+				option_label_list );
 		}
 	}
 	else
@@ -2511,7 +2525,7 @@ void element_drop_down_output(
 	if ( list_rewind( option_data_list ) )
 	{
 		do {
-			data = list_get_string( option_data_list );
+			data = list_get( option_data_list );
 
 			/* Skip the preselected item. */
 			/* -------------------------- */
@@ -2526,11 +2540,11 @@ void element_drop_down_output(
 			if ( list_length( option_label_list )
 			&&   !list_past_end( option_label_list ) )
 			{
-				label = list_get_pointer( option_label_list );
+				label = list_get( option_label_list );
 			}
 			else
 			{
-				label = list_get_pointer( option_data_list );
+				label = list_get( option_data_list );
 			}
 
 			if ( process_parameter_list_element_name_boolean(
@@ -2707,7 +2721,7 @@ void element_non_edit_multi_select_output(
 	if ( list_rewind( option_label_list ) )
 	{
 		do {
-			data = list_get_pointer( option_label_list );
+			data = list_get( option_label_list );
 
 			fprintf( output_file,
 			"\t<option value=\"%s\">%s\n", 
@@ -2754,7 +2768,9 @@ ELEMENT_PROMPT_DATA *element_prompt_data_new( void )
 	return e;
 }
 
-char *element_prompt_data_get_heading( char *element_name, char *heading )
+char *element_prompt_data_heading(
+			char *element_name,
+			char *heading )
 {
 	if ( heading )
 		return heading;
@@ -2968,7 +2984,7 @@ void element_http_filename_output(
 
 	if ( !http_filename->data ) http_filename->data = "";
 
-	filename = basename_get_filename( http_filename->data );
+	filename = basename_filename( http_filename->data );
 
 	if ( timlib_strncmp( http_filename->data, "http" ) != 0
 	&&   *http_filename->data != '/' )
@@ -3197,11 +3213,12 @@ int element_type_count( LIST *element_list, enum element_type element_type )
 	return count;
 }
 
-ELEMENT_APPASERVER *element_get_yes_no_element(	char *attribute_name,
-					char *prepend_folder_name,
-					char *post_change_javascript,
-					boolean with_is_null,
-					boolean with_not_null )
+ELEMENT_APPASERVER *element_yes_no_element(
+			char *attribute_name,
+			char *prepend_folder_name,
+			char *post_change_javascript,
+			boolean with_is_null,
+			boolean with_not_null )
 {
 	ELEMENT_APPASERVER *element;
 	char element_name[ 128 ];
@@ -3486,16 +3503,17 @@ char *element_appaserver_list_display( LIST *element_list )
 	if ( list_rewind( element_list ) )
 	{
 		do {
-			element = list_get_pointer( element_list );
+			element = list_get( element_list );
+
 			ptr += sprintf(	ptr,
 					"%s\n",
-					element_appaserver_display( element ) );
+					element_appaserver_display(
+						element ) );
 
 		} while( list_next( element_list ) );
 	}
 
 	return strdup( buffer );
-
 }
 
 char *element_appaserver_display( ELEMENT_APPASERVER *element )
@@ -3505,7 +3523,7 @@ char *element_appaserver_display( ELEMENT_APPASERVER *element )
 	sprintf(	buffer,
 		"element name = %s, type = %s, omit_heading_sort_button = %d",
 			element->name,
-			element_get_type_string(
+			element_type_string(
 				element->element_type ),
 			element->omit_heading_sort_button );
 
@@ -3583,19 +3601,20 @@ char *element_appaserver_display( ELEMENT_APPASERVER *element )
 
 }
 
-char *element_get_type_string( enum element_type element_type )
+char *element_type_string( enum element_type element_type )
 {
-	return element_get_element_type_string( element_type );
+	return element_element_type_string( element_type );
 }
 
-char *element_get_destination_multi_select_element_name( LIST *element_list )
+char *element_destination_multi_select_element_name(
+			LIST *element_list )
 {
 	ELEMENT_APPASERVER *element;
 
 	if ( list_at_end( element_list ) ) return (char *)0;
 
 	do {
-		element = list_get_pointer( element_list );
+		element = list_get( element_list );
 
 		if ( element->element_type == drop_down
 		&&   element->drop_down->multi_select )
@@ -3621,9 +3640,12 @@ boolean element_exists_reference_number(LIST *element_list )
 	if ( !list_rewind( element_list ) ) return 0;
 
 	do {
-		element = list_get_pointer( element_list );
+		element = list_get( element_list );
+
 		if ( element->element_type == reference_number ) return 1;
+
 	} while( list_next( element_list ) );
+
 	return 0;
 }
 
@@ -3634,7 +3656,7 @@ boolean element_exists_upload_filename( LIST *element_list )
 	if ( !list_rewind( element_list ) ) return 0;
 
 	do {
-		element = list_get_pointer( element_list );
+		element = list_get( element_list );
 		if ( element->element_type == upload_filename ) return 1;
 	} while( list_next( element_list ) );
 	return 0;
@@ -3651,7 +3673,7 @@ LIST *element_list2remember_keystrokes_non_multi_element_name_list(
 		return remember_keystrokes_element_name_list;
 
 	do {
-		element = list_get_pointer( element_list );
+		element = list_get( element_list );
 
 		/* ---------------------------------------------------- */
 		/* Remember: can't include upload filenames because some*/
@@ -3692,7 +3714,7 @@ LIST *element_list2remember_keystrokes_multi_element_name_list(
 		return multi_element_name_list;
 
 	do {
-		element = list_get_pointer( element_list );
+		element = list_get( element_list );
 
 		/* ---------------------------------------------------- */
 		/* Remember: can't include upload filenames because some*/
@@ -3715,7 +3737,8 @@ LIST *element_list2remember_keystrokes_multi_element_name_list(
 	return multi_element_name_list;
 }
 
-char *element_get_element_type_string( enum element_type element_type )
+char *element_element_type_string(
+			enum element_type element_type )
 {
 	if ( element_type == drop_down )
 		return "drop_down";
@@ -3820,7 +3843,7 @@ boolean element_combined_option_data_list(
 	char *option_data;
 
 	if ( !list_length( option_data_list ) ) return 0;
-	option_data = list_get_first_pointer( option_data_list );
+	option_data = list_first_pointer( option_data_list );
 
 	if ( exists_character(
 			option_data,
@@ -3837,7 +3860,7 @@ boolean element_combined_option_data_list(
 
 }
 
-LIST *element_get_combined_option_label_list(
+LIST *element_combined_option_label_list(
 				LIST *option_data_list )
 {
 	char option_label[ 128 ];
@@ -3856,7 +3879,7 @@ LIST *element_get_combined_option_label_list(
 	}
 
 	do {
-		option_data_label = list_get_pointer( option_data_list );
+		option_data_label = list_get( option_data_list );
 
 		piece(	option_label,
 			MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER,
@@ -3885,21 +3908,23 @@ LIST *element_get_combined_option_label_list(
 	return option_label_list;
 }
 
-void element_drop_down_get_initial_label(
-					char *initial_label,
-					char *initial_data,
-					boolean no_initial_capital,
-					LIST *option_data_list,
-					LIST *option_label_list )
+void element_drop_down_initial_label(
+			char *initial_label,
+			char *initial_data,
+			boolean no_initial_capital,
+			LIST *option_data_list,
+			LIST *option_label_list )
 {
-	element_data_list_to_label(	initial_label,
-					initial_data,
-					option_data_list,
-					option_label_list );
+	element_data_list_to_label(
+		initial_label,
+		initial_data,
+		option_data_list,
+		option_label_list );
 
-	element_data2label(		initial_label,
-					initial_label,
-					no_initial_capital );
+	element_data2label(
+		initial_label,
+		initial_label,
+		no_initial_capital );
 
 }
 
@@ -3924,14 +3949,14 @@ void element_data_list_to_label(	char *label,
 		list_rewind( option_label_list );
 
 		do {
-			option_data = list_get_pointer( option_data_list );
+			option_data = list_get( option_data_list );
 
 			if ( timlib_delimiter_independent_strcmp(
 					option_data,
 					data ) == 0 )
 			{
 				option_label =
-					list_get_pointer( option_label_list );
+					list_get( option_label_list );
 
 				strcpy(	label, option_label );
 				return;
@@ -3957,13 +3982,13 @@ void element_list_set_omit_heading_sort_button(
 	if ( !list_length( join_1tom_related_folder_list ) ) return;
 
 	do {
-		element = list_get_pointer( element_list );
+		element = list_get( element_list );
 
 		list_rewind( join_1tom_related_folder_list );
 
 		do {
 			related_folder =
-				list_get_pointer(
+				list_get(
 					join_1tom_related_folder_list );
 
 			if ( strcmp(	related_folder->
@@ -3980,7 +4005,7 @@ void element_list_set_omit_heading_sort_button(
 
 }
 
-char *element_get_date_format_string(
+char *element_date_format_string(
 			enum date_convert_format date_convert_format )
 {
 	static char format_string[ 64 ];
@@ -4024,7 +4049,7 @@ void element_list_set_readonly(
 	if ( !list_rewind( element_list ) ) return;
 
 	do {
-		element = list_get_pointer( element_list );
+		element = list_get( element_list );
 
 		if ( element->text_item )
 		{
@@ -4053,13 +4078,13 @@ char *element_seek_initial_data(	char **initial_label,
 	list_rewind( option_label_list );
 
 	do {
-		option_data = list_get_pointer( option_data_list );
+		option_data = list_get( option_data_list );
 
 		piece( piece_buffer, '[', option_data, 0 );
 
 		if ( timlib_strcmp( piece_buffer, initial_data ) == 0 )
 		{
-			*initial_label = list_get_pointer( option_label_list );
+			*initial_label = list_get( option_label_list );
 
 			if ( strcmp( *initial_label, "y" ) == 0 )
 			{
@@ -4157,7 +4182,7 @@ ELEMENT_APPASERVER *element_sort_order(
 	element =
 		element_text_item_variant_element(
 			attribute->attribute_name,
-			element_get_type_string( text_item ),
+			element_type_string( text_item ),
 			width,
 			(char *)0 /* post_change_javascript */,
 			(char *)0 /* on_focus_javascript_function */ );

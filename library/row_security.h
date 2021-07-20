@@ -15,33 +15,15 @@
 #include "operation_list.h"
 #include "lookup_before_drop_down.h"
 
-enum row_security_state {	security_supervisor,
-				security_user,
-				regular_supervisor,
-				regular_user,
-				lookup_only };
-
 typedef struct
 {
-	FOLDER *folder;
+	FOLDER *role_update_folder;
 	char *attribute_not_null_string;
+	ROLE *role;
 } ROW_SECURITY_ROLE_UPDATE;
 
 typedef struct
 {
-	LIST *regular_element_list;
-	LIST *viewonly_element_list;
-	LIST *apply_element_list;
-	char query_folder_name[ 256 ];
-	char *isa_where_join;
-	boolean add_attribute_not_null_to_list;
-	LIST *row_dictionary_list;
-	RELATED_FOLDER *ajax_fill_drop_down_related_folder;
-} ROW_SECURITY_ELEMENT_LIST_STRUCTURE;
-
-typedef struct
-{
-	enum row_security_state row_security_state;
 	FOLDER *folder;
 	ROLE *role;
 	char *login_name;
@@ -56,16 +38,22 @@ typedef struct
 	FOLDER *attribute_not_null_folder;
 	char *attribute_not_null_string;
 	boolean row_security_is_participating;
-	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
-		row_security_element_list_structure;
+	LIST *regular_element_list;
+	LIST *viewonly_element_list;
+	LIST *apply_element_list;
+	char query_folder_name[ 256 ];
+	char *isa_where_join;
+	boolean add_attribute_not_null_to_list;
+	LIST *row_dictionary_list;
+	RELATED_FOLDER *ajax_fill_drop_down_related_folder;
 } ROW_SECURITY;
 
 /* Operations */
 /* ---------- */
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
-				char *application_name,
-				char *folder_name,
-				char *attribute_not_null_string );
+			char *folder_name,
+			char *attribute_not_null_string,
+			ROLE *role );
 
 ROW_SECURITY *row_security_calloc(
 			void );
@@ -158,13 +146,6 @@ boolean row_security_supervisor_logged_in(
 
 char *row_security_role_update_list_display(
 			LIST *role_update_list );
-
-ROW_SECURITY_ROLE_UPDATE *row_security_role_update_fetch(
-			LIST *role_update_list,
-			char *folder_name );
-
-ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_element_list_structure_calloc(
-			void );
 
 LIST *row_security_edit_table_dictionary_list(
 			DICTIONARY *query_dictionary,
@@ -305,5 +286,15 @@ LIST *row_security_sort_order_dictionary_list(
 
 LIST *row_security_sort_order_element_list(
 			LIST *attribute_list );
+
+boolean row_security_role_update_row_view_only(
+			char *folder_name,
+			FOLDER *role_update_folder,
+			boolean override_row_restrictions,
+			boolean attribute_not_null );
+
+boolean row_security_role_update_attribute_seek(
+			char *attribute_name,
+			LIST *row_security_role_update_list );
 
 #endif

@@ -44,13 +44,14 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
-char *appaserver_get_gray_drop_downs_javascript(
-				FOLDER *root_folder,
-				boolean related_folder_drop_down_multi_select,
-				LIST *prompt_mto1_recursive_folder_list );
+char *appaserver_gray_drop_downs_javascript(
+			FOLDER *root_folder,
+			boolean related_folder_drop_down_multi_select,
+			LIST *prompt_mto1_recursive_folder_list );
 
-LIST *appaserver_get_isa_folder_list(
-					char *application_name );
+LIST *appaserver_isa_folder_list(
+			char *application_name );
+
 char *appaserver_isa_folder_list_display(
 			LIST *isa_folder_list );
 
@@ -59,7 +60,7 @@ ISA_FOLDER *appaserver_new_isa_folder(
 			char *related_folder_name,
 			char *related_attribute_name );
 
-LIST *appaserver_get_choose_folder_list(
+LIST *appaserver_choose_folder_list(
 			char *application_name,
 			char *session,
 			char *role,
@@ -80,13 +81,13 @@ APPASERVER *appaserver_folder_new(
 			char *session,
 			char *folder_name );
 
-char *appaserver_get_delete_display_string(
+char *appaserver_delete_display_string(
 			char *folder_name,
 			LIST *attribute_list,
 			LIST *related_folder_list,
 			char *primary_data_list_string );
 
-LIST *appaserver_get_folder_count_list(
+LIST *appaserver_folder_count_list(
 			char *application_name,
 			char *role,
 			char *permissions,
@@ -108,7 +109,7 @@ void appaserver_append_isa_related_attribute_list(
 			LIST *attribute_list,
 			LIST *mto1_isa_related_folder_list );
 
-LIST *appaserver_get_exclude_attribute_name_list(
+LIST *appaserver_exclude_attribute_name_list(
 			LIST *attribute_list,
 			char *permission );
 
@@ -124,12 +125,12 @@ int appaserver_isa_folder_accounted_for(
 			char *related_folder_name,
 			char *related_attribute_name );
 
-enum aggregate_statistic appaserver_based_on_datatype_get_aggregate_statistic(
+enum aggregate_statistic appaserver_based_on_datatype_aggregate_statistic(
 			char *application_name,
 			char *appaserver_mount_point,
 			char *datatype );
 
-char appaserver_get_aggregation_sum_yn(
+char appaserver_aggregation_sum_yn(
 			char *application,
 			char *appaserver_mount_point,
 			char *datatype );
@@ -141,5 +142,18 @@ char *appaserver_escape_street_address(
 
 APPASERVER *appaserver_calloc(
 			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_login_name_full_name(
+			char **street_address,
+			char *login_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_entity_fetch(
+			char **street_address,
+			char *login_name );
+
 
 #endif

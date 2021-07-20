@@ -11,9 +11,10 @@
 #include "sql.h"
 #include "timlib.h"
 #include "piece.h"
-#include "role.h"
-#include "appaserver_library.h"
+#include "environ.h"
 #include "appaserver_error.h"
+#include "attribute.h"
+#include "role.h"
 
 ROLE *role_new(
 		char *application_name,
@@ -54,9 +55,9 @@ ROLE *role_new_role(
 	role->role_name = role_name;
 
 	role_fetch(
-			&role->folder_count_yn,
-			&role->override_row_restrictions_yn,
-			&role->grace_no_cycle_colors_yn,
+			&role->folder_count,
+			&role->override_row_restrictions,
+			&role->grace_no_cycle_colors,
 			application_name,
 			role_name );
 
@@ -68,9 +69,9 @@ void role_free( ROLE *role )
 	free( role );
 }
 
-boolean role_fetch( 		char *folder_count_yn,
-				char *override_row_restrictions_yn,
-				char *grace_no_cycle_colors_yn,
+boolean role_fetch( 		boolean *folder_count,
+				boolean *override_row_restrictions,
+				boolean *grace_no_cycle_colors,
 				char *application_name,
 				char *role_name )
 {
@@ -85,9 +86,10 @@ boolean role_fetch( 		char *folder_count_yn,
 
 	folder_name = "role";
 
-	if ( attribute_exists(	application_name,
-				folder_name,
-				"grace_no_cycle_colors_yn" ) )
+	if ( attribute_exists(
+		application_name,
+		folder_name,
+		"grace_no_cycle_colors_yn" ) )
 	{
 		select =
 	"folder_count_yn,override_row_restrictions_yn,grace_no_cycle_colors_yn";
@@ -117,54 +119,16 @@ boolean role_fetch( 		char *folder_count_yn,
 	if ( !results ) return 0;
 
 	piece( piece_string, '^', results, 0 );
-	*folder_count_yn = *piece_string;
+	*folder_count = (*piece_string == 'y');
 
 	piece( piece_string, '^', results, 1 );
-	*override_row_restrictions_yn = *piece_string;
+	*override_row_restrictions = (*piece_string == 'y');
 
 	piece( piece_string, '^', results, 2 );
-	*grace_no_cycle_colors_yn = *piece_string;
+	*grace_no_cycle_colors = (*piece_string == 'y');
 
 	free( results );
 	return 1;
-
-}
-
-boolean role_get_override_row_restrictions(
-		char override_row_restrictions_yn )
-{
-	return (override_row_restrictions_yn == 'y');
-}
-
-boolean role_get_exists_folder_count_y(
-					char *application_name,
-					char *login_name )
-{
-	char *role_table_name;
-	char *role_appaserver_user_table_name;
-	char sys_string[ 1024 ];
-	char *results;
-
-	role_table_name = get_table_name( application_name, "role" );
-	role_appaserver_user_table_name =
-		get_table_name( application_name, "role_appaserver_user" );
-
-	sprintf( sys_string,
-		 "echo \"select count(*)				 "
-		 "	 from %s,%s					 "
-		 "	 where %s.role = %s.role			 "
-		 "	   and %s.login_name = '%s'			 "
-		 "	   and folder_count_yn = 'y';\"			|"
-		 "sql.e							 ",
-		 role_table_name,
-		 role_appaserver_user_table_name,
-		 role_table_name,
-		 role_appaserver_user_table_name,
-		 role_appaserver_user_table_name,
-		 login_name );
-
-	results = pipe2string( sys_string );
-	return atoi( results );
 
 }
 
@@ -195,8 +159,8 @@ ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_new(
 	return role_attribute_exclude;
 }
 
-LIST *role_get_attribute_exclude_list(	char *application_name,
-					char *role_name )
+LIST *role_attribute_exclude_list(
+			char *role_name )
 {
 	char sys_string[ 1024 ];
 	char attribute_name[ 128 ];
@@ -219,7 +183,7 @@ LIST *role_get_attribute_exclude_list(	char *application_name,
 		 "			select=%s			"
 		 "			folder=attribute_exclude	"
 		 "			where=\"%s\"			",
-		 application_name,
+		 environment_application_name(),
 		 select,
 		 where );
 
@@ -228,12 +192,12 @@ LIST *role_get_attribute_exclude_list(	char *application_name,
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		piece(	attribute_name,
-			FOLDER_DATA_DELIMITER,
+			SQL_DELIMITER,
 			input_buffer,
 			0 );
 
 		piece(	permission,
-			FOLDER_DATA_DELIMITER,
+			SQL_DELIMITER,
 			input_buffer,
 			1 );
 
@@ -389,10 +353,10 @@ ROLE *role_parse(	char *input,
 	role->role_name = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	role->folder_count_yn = *piece_buffer;
+	role->folder_count = (*piece_buffer == 'y');
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	role->override_row_restrictions_yn = *piece_buffer;
+	role->override_row_restrictions = (*piece_buffer == 'y');
 
 	if ( fetch_attribute_exclude_list )
 	{
@@ -408,7 +372,6 @@ ROLE *role_parse(	char *input,
 					role_primary_where(
 						role->role_name ) ) );
 	}
-
 	return role;
 }
 

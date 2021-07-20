@@ -39,7 +39,10 @@
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
+	char *login_name;
+	char *application_name;
+	char *session;
+	char *folder_name;
 	char *role_name;
 	char decoded_dictionary_string[ MAX_INPUT_LINE ];
 	char dictionary_string[ MAX_INPUT_LINE ];
@@ -65,8 +68,10 @@ int main( int argc, char **argv )
 	char ftp_output_filename[ 256 ];
 	char output_filename[ 256 ];
 	DICTIONARY_APPASERVER *dictionary_appaserver;
+	char *full_name_only;
+	char *street_address_only = {0};
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -129,7 +134,6 @@ int main( int argc, char **argv )
 	folder =
 		folder_load_new(
 			application_name,
-			session,
 			folder_name,
 			role );
 
@@ -167,6 +171,44 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
+	full_name_only =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_login_name_full_name(
+			&street_address_only,
+			login_name );
+
+	query =
+		query_simple_new(
+			dictionary_appaserver->
+				query_dictionary,
+			login_name,
+			full_name_only,
+			street_address_only,
+			folder,
+			(LIST *)0 /* ignore_attribute_name_list */ );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	printf( "<h1>Histogram</h1>\n" );
 	fflush( stdout );
 
@@ -195,35 +237,6 @@ int main( int argc, char **argv )
 			list_set(
 				query_select_attribute_name_list,
 				select_attribute_name );
-
-			query =
-				query_simple_new(
-					dictionary_appaserver->
-						query_dictionary,
-					login_name,
-					folder,
-					(LIST *)0
-					   /* ignore_attribute_name_list */ );
-
-			if ( !query )
-			{
-				fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__ );
-				exit( 1 );
-			}
-
-			if ( !query->query_output )
-			{
-				fprintf(stderr,
-				"ERROR in %s/%s()/%d: query_output is empty.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__ );
-				exit( 1 );
-			}
 
 			query_record_list =
 				query_get_record_list(

@@ -2876,7 +2876,9 @@ LIST *related_folder_preselection_dictionary_list(
 			char *folder_name,
 			char *related_folder_name,
 			DICTIONARY *query_dictionary,
-			char *login_name,
+			char *login_name_only,
+			char *full_name_only,
+			char *street_address_only,
 			char *role_name )
 {
 	QUERY *query;
@@ -2890,7 +2892,6 @@ LIST *related_folder_preselection_dictionary_list(
 	folder_related =
 		folder_load_new(
 			application_name,
-			session,
 			related_folder,
 			role );
 
@@ -2932,7 +2933,9 @@ LIST *related_folder_preselection_dictionary_list(
 		query =
 			query_simple_new(
 				query_dictionary,
-				login_name,
+				login_name_only,
+				full_name_only,
+				street_address_only,
 				folder_related,
 				(LIST *)0 /* ignore_attribute_name_list */ );
 
@@ -2974,7 +2977,7 @@ LIST *related_folder_preselection_dictionary_list(
 			session,
 			folder_name,
 			query_dictionary,
-			login_name,
+			login_name_only,
 			related_primary_attribute_name_list );
 }
 

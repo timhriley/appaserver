@@ -252,18 +252,19 @@ boolean folder_load(	int *insert_rows_number,
 			char *role_name,
 			LIST *mto1_related_folder_list );
 
-int folder_get_insert_rows_number(	char *session,
-					char *entity,
-					FOLDER *folder );
+int folder_get_insert_rows_number(
+			char *session,
+			char *entity,
+			FOLDER *folder );
 
 LIST *folder_append_isa_attribute_name_list(
-				LIST *append_isa_attribute_list );
+			LIST *append_isa_attribute_list );
 
-LIST *folder_get_attribute_list(	char *application_name,
-					char *folder_name );
+LIST *folder_attribute_list(
+			char *folder_name );
 
 LIST *folder_get_non_primary_attribute_name_list(
-					LIST *attribute_list );
+			LIST *attribute_list );
 
 LIST *folder_drop_down_process_list(
 			char *application_name,
@@ -285,23 +286,22 @@ char *folder_get_populate_drop_down_process(
 					FOLDER *folder );
 
 DICTIONARY *folder_get_primary_data_dictionary(
-					char *application,
-					char *folder_name,
-					LIST *primary_attribute_name_list );
+			char *application,
+			char *folder_name,
+			LIST *primary_attribute_name_list );
 
-FOLDER *folder_seek_folder(		LIST *folder_list,
-					char *folder_name );
+FOLDER *folder_seek_folder(
+			LIST *folder_list,
+			char *folder_name );
 
-boolean folder_exists_folder(		char *application_name,
-					char *folder_name );
+boolean folder_exists_folder(
+			char *folder_name );
 
 boolean folder_attribute_exists(
-			char *application_name,
 			char *folder_name,
 			char *attribute_name );
 
 boolean folder_exists_attribute(
-			char *application_name,
 			char *folder_name,
 			char *attribute_name );
 

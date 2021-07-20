@@ -75,8 +75,10 @@ int main( int argc, char **argv )
 	DICTIONARY *ignore_dictionary;
 	DICTIONARY *query_dictionary;
 	char attachment_filename[ 128 ];
+	char *full_name_only;
+	char *street_address_only = {0};
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -195,11 +197,20 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	full_name_only =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_login_name_full_name(
+			&street_address_only,
+			login_name );
 
 	query =
 		query_simple_new(
 			query_dictionary,
 			login_name,
+			full_name_only,
+			street_address_only,
 			folder,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 
@@ -225,14 +236,14 @@ int main( int argc, char **argv )
 
 	row_dictionary_list =
 		query_row_dictionary_list(
-				query->folder->application_name,
-				query->query_output->select_clause,
-				query->query_output->from_clause,
-				query->query_output->where_clause,
-				query->query_output->order_clause,
-				query->max_rows,
-				query->folder->append_isa_attribute_list,
-				query->login_name );
+			query->folder->application_name,
+			query->query_output->select_clause,
+			query->query_output->from_clause,
+			query->query_output->where_clause,
+			query->query_output->order_clause,
+			query->max_rows,
+			query->folder->append_isa_attribute_list,
+			query->login_name );
 
 	list_append_string_list(
 		ignore_attribute_name_list,

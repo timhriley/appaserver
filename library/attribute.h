@@ -158,12 +158,6 @@ LIST *attribute_get_list(
 			char *folder_name,
 			char *role_name );
 
-LIST *attribute_list_fetch(
-			char *application_name,
-			char *folder_name,
-			LIST *mto1_isa_related_folder_list,
-			char *role_name );
-
 LIST *attribute_get_attribute_list(
 			char *application_name,
 			char *folder_name,
@@ -283,8 +277,8 @@ char *attribute_reference_number_attribute_name(
 			LIST *attribute_name_list );
 
 boolean attribute_list_exists(
-			LIST *attribute_list,
-			char *attribute_name );
+			char *attribute_name,
+			LIST *attribute_list );
 
 char *attribute_append_post_change_javascript(
 			char *original_post_change_javascript,
@@ -357,6 +351,9 @@ LIST *attribute_distinct_folder_name_list(
 			LIST *attribute_list );
 
 LIST *attribute_fetch_list(
+			char *folder_name );
+
+LIST *attribute_list_fetch(
 			char *folder_name );
 
 LIST *attribute_system_list(

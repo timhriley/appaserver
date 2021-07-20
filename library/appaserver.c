@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "appaserver.h"
 #include "application.h"
 #include "appaserver_user.h"
 #include "folder.h"
@@ -21,6 +20,8 @@
 #include "appaserver_parameter_file.h"
 #include "hash_table.h"
 #include "String.h"
+#include "sql.h"
+#include "appaserver.h"
 
 APPASERVER *appaserver_calloc( void )
 {
@@ -101,7 +102,7 @@ APPASERVER *appaserver_folder_load_new(
 	return appaserver;
 }
 
-char *appaserver_get_delete_display_string(
+char *appaserver_delete_display_string(
 			char *folder_name,
 			LIST *attribute_list,
 			LIST *related_folder_list,
@@ -168,7 +169,7 @@ LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
 					 list_get( related_folder_list );
 
 			primary_attribute_name_list =
-				folder_get_primary_attribute_name_list(
+				folder_primary_attribute_name_list(
 					related_folder->
 						folder->
 						attribute_list );
@@ -211,7 +212,7 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 			related_folder = list_get( related_folder_list );
 
 			primary_attribute_name_list =
-				folder_get_primary_attribute_name_list(
+				folder_primary_attribute_name_list(
 					related_folder->
 						folder->
 						attribute_list );
@@ -265,7 +266,7 @@ boolean appaserver_exclude_permission(
 		return 0;
 	do {
 		compare_permission =
-			list_get_pointer( exclude_permission_list );
+			list_get( exclude_permission_list );
 		if ( strcmp( compare_permission, permission ) == 0 )
 			return 1;
 	} while( list_next( exclude_permission_list ) );
@@ -283,9 +284,9 @@ void appaserver_append_isa_related_attribute_list(
 	{
 		do {
 			related_folder =
-				(RELATED_FOLDER *)
-					list_get_pointer(
-						mto1_isa_related_folder_list );
+				list_get(
+					mto1_isa_related_folder_list );
+
 			list_append_list(
 				attribute_list,
 				related_folder->folder->attribute_list );
@@ -293,7 +294,7 @@ void appaserver_append_isa_related_attribute_list(
 	}
 }
 
-LIST *appaserver_get_exclude_attribute_name_list(
+LIST *appaserver_exclude_attribute_name_list(
 			LIST *attribute_list,
 			char *permission )
 {
@@ -305,7 +306,7 @@ LIST *appaserver_get_exclude_attribute_name_list(
 		return exclude_attribute_name_list;
 
 	do {
-		attribute = list_get_pointer( attribute_list );
+		attribute = list_get( attribute_list );
 
 		if ( !attribute->exclude_permission_list
 		||   !list_rewind( attribute->exclude_permission_list ) )
@@ -315,7 +316,7 @@ LIST *appaserver_get_exclude_attribute_name_list(
 
 		do {
 			compare_permission =
-				list_get_pointer(
+				list_get(
 					attribute->
 					exclude_permission_list );
 
@@ -363,7 +364,7 @@ boolean appaserver_frameset_menu_horizontal(
 
 }
 
-LIST *appaserver_get_isa_folder_list( char *application_name )
+LIST *appaserver_isa_folder_list( char *application_name )
 {
 	static LIST *isa_folder_list = {0};
 	ISA_FOLDER *isa_folder;
@@ -422,7 +423,7 @@ char *appaserver_isa_folder_list_display(
 	{
 		do {
 			isa_folder =
-				list_get_pointer(
+				list_get(
 					isa_folder_list );
 			if ( first_time )
 			{
@@ -477,21 +478,13 @@ int appaserver_isa_folder_accounted_for(
 	if ( !related_attribute_name ) related_attribute_name = "null";
 
 	do {
-		isa_folder = list_get_pointer( isa_folder_list );
+		isa_folder = list_get( isa_folder_list );
 
 		if (
 			( strcmp(	isa_folder->folder_name,
 					related_folder_name ) == 0
 		&&        strcmp(	isa_folder->related_attribute_name,
-					related_attribute_name ) == 0 )
-/*
-		||
-		   	( strcmp(	isa_folder->related_folder_name,
-					related_folder_name ) == 0
-		&&	  strcmp(	isa_folder->related_attribute_name,
-					related_attribute_name ) == 0 )
-*/
-				)
+					related_attribute_name ) == 0 ) )
 		{
 			if ( isa_folder->accounted_for ) return 1;
 			isa_folder->accounted_for = 1;
@@ -503,27 +496,27 @@ int appaserver_isa_folder_accounted_for(
 
 }
 
-enum aggregate_statistic appaserver_based_on_datatype_get_aggregate_statistic(
+enum aggregate_statistic appaserver_based_on_datatype_aggregate_statistic(
 			char *application_name,
 			char *appaserver_mount_point,
 			char *datatype )
 {
 	enum aggregate_statistic aggregate_statistic;
 
-	if ( appaserver_get_aggregation_sum_yn(
+	if ( appaserver_aggregation_sum_yn(
 				application_name,
 				appaserver_mount_point,
 				datatype ) == 'y' )
 	{
 		aggregate_statistic =
-			aggregate_statistic_get_aggregate_statistic(
+			aggregate_statistic_aggregate_statistic(
 				"sum",
 				daily );
 	}
 	else
 	{
 		aggregate_statistic =
-			aggregate_statistic_get_aggregate_statistic(
+			aggregate_statistic_aggregate_statistic(
 				"average",
 				daily );
 	}
@@ -531,7 +524,7 @@ enum aggregate_statistic appaserver_based_on_datatype_get_aggregate_statistic(
 	return aggregate_statistic;
 }
 
-char appaserver_get_aggregation_sum_yn(
+char appaserver_aggregation_sum_yn(
 			char *application,
 			char *appaserver_mount_point,
 			char *datatype )
@@ -563,8 +556,59 @@ char *appaserver_escape_street_address( char *street_address )
 {
 	char escape_street_address[ 1024 ];
 
-	return strdup( string_escape_full(
-				escape_street_address,
-				street_address ) );
+	return strdup(
+		string_escape_full(
+			escape_street_address,
+			street_address ) );
+}
+
+char *appaserver_entity_fetch(
+			char **street_address,
+			char *login_name )
+{
+	char system_string[ 1024 ];
+	char full_name[ 128 ];
+	char local_street_address[ 128 ];
+	char escaped_login_name[ 128 ];
+	char where[ 256 ];
+	char *results;
+	char *select = "full_name,street_address";
+
+	sprintf(where,
+		"login_name = '%s'",
+		string_escape_full(
+			escaped_login_name,
+			login_name ) );
+
+	sprintf(system_string,
+		"select.sh %s entity \"%s\"",
+		select,
+		where );
+
+	results = string_pipe_fetch( system_string );
+
+	if ( !results || !*results ) return (char *)0;
+
+	piece( full_name, results, SQL_DELIMITER, 0 );
+	piece( local_street_address, results, SQL_DELIMITER, 1 );
+
+	*street_address = strdup( local_street_address );
+	return strdup( full_name );
+}
+
+char *appaserver_login_name_full_name(
+			char **street_address,
+			char *login_name )
+{
+	if ( !folder_exists_attribute(
+			"entity",
+			"login_name" ) )
+	{
+		return (char *)0;
+	}
+
+	return appaserver_entity_fetch(
+			street_address,
+			login_name );
 }
 

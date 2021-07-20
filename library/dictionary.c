@@ -1090,9 +1090,14 @@ void dictionary_free( DICTIONARY *d )
 	free( d );
 }
 
+LIST *dictionary_ordered_key_list( DICTIONARY *d )
+{
+	return hash_table_ordered_key_list( d->hash_table );
+}
+
 LIST *dictionary_get_ordered_key_list( DICTIONARY *d )
 {
-	return hash_table_get_ordered_key_list( d->hash_table );
+	return hash_table_ordered_key_list( d->hash_table );
 }
 
 LIST *get_dictionary_key_list( DICTIONARY *d )

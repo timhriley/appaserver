@@ -205,8 +205,8 @@ int get_attribute_width(
 
 LIST *appaserver_library_ignore_pressed_attribute_name_list( 	
 			DICTIONARY *posted_dictionary,
-			LIST *attribute_name_list,
-			DICTIONARY *query_dictionary );
+			DICTIONARY *query_dictionary,
+			LIST *attribute_name_list );
 
 LIST *folder_name_list2table_name_list( 	
 			char *entity,

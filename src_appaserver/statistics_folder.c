@@ -38,7 +38,9 @@
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
+	char *login_name;
+	char *application_name;
+	char *folder_name;
 	DOCUMENT *document;
 	char decoded_dictionary_string[ MAX_INPUT_LINE ];
 	char *dictionary_string;
@@ -53,8 +55,10 @@ int main( int argc, char **argv )
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	QUERY *query;
 	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
+	char *full_name_only;
+	char *street_address_only = {0};
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -64,19 +68,19 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name ignored session folder role dictionary\n",
+"Usage: %s login_name ignored ignored folder role dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
 	dictionary_string = argv[ 6 ];
 
-	decode_html_post(	decoded_dictionary_string, 
-				dictionary_string );
+	decode_html_post(
+		decoded_dictionary_string, 
+		dictionary_string );
 
 	original_post_dictionary = 
 		dictionary_index_string2dictionary( 
@@ -90,7 +94,7 @@ int main( int argc, char **argv )
 				(LIST *)0 /* operation_name_list */ ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: exiting early.\n",
+	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -104,7 +108,6 @@ int main( int argc, char **argv )
 	folder =
 		folder_load_new(
 			application_name,
-			session,
 			folder_name,
 			role );
 
@@ -134,11 +137,21 @@ int main( int argc, char **argv )
 			dictionary_appaserver->preprompt_dictionary,
 			folder->lookup_before_drop_down );
 
+	full_name_only =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_login_name_full_name(
+			&street_address_only,
+			login_name );
+
 	query =
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
-			login_name,
-			folder,
+			login_name /* login_name_only */,
+			full_name_only,
+			street_address_only,
+			folder /* mto1_folder */,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 
 	if ( !query )

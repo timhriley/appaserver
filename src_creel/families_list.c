@@ -96,10 +96,11 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( folder_name, "families" ) == 0 )
 	{
-		sys_string = get_families_sys_string(
-					application_name,
-					login_name,
-					post_dictionary );
+		sys_string =
+			get_families_sys_string(
+				application_name,
+				login_name,
+				post_dictionary );
 	}
 	else
 	{
@@ -115,11 +116,12 @@ int main( int argc, char **argv )
 	system( sys_string );
 
 	return 0;
-} /* main() */
+}
 
-char *get_fish_families_sys_string(	char *application_name,
-					char *login_name,
-					DICTIONARY *post_dictionary )
+char *get_fish_families_sys_string(
+			char *application_name,
+			char *login_name,
+			DICTIONARY *post_dictionary )
 {
 	char sys_string[ 1024 ];
 	char *fish_families_table_name;
@@ -162,14 +164,13 @@ char *get_fish_families_sys_string(	char *application_name,
 			"fish_families" );
 
 	additional_drop_down_attribute_get_select_clause(
-			select_clause,
-			&first_attribute_name,
-			additional_drop_down_attribute->
-				application_name,
-			constant_select,
-			additional_drop_down_attribute->
-				drop_down_folder_name,
-			additional_drop_down_attribute );
+		select_clause,
+		&first_attribute_name,
+		additional_drop_down_attribute->application_name,
+		constant_select,
+		additional_drop_down_attribute->
+			drop_down_folder_name,
+		additional_drop_down_attribute );
 
 	if ( strcmp( first_attribute_name, "florida_state_code" ) == 0 )
 		strcpy( sort_clause, "sort -n" );
@@ -200,12 +201,12 @@ char *get_fish_families_sys_string(	char *application_name,
 		 sort_clause );
 
 	return strdup( sys_string );
+}
 
-} /* get_fish_families_sys_string() */
-
-char *get_families_sys_string(		char *application_name,
-					char *login_name,
-					DICTIONARY *post_dictionary )
+char *get_families_sys_string(
+			char *application_name,
+			char *login_name,
+			DICTIONARY *post_dictionary )
 {
 	char sys_string[ 1024 ];
 	char *families_table_name;
@@ -214,60 +215,65 @@ char *get_families_sys_string(		char *application_name,
 	char *constant_select = "family";
 	char *first_attribute_name = "";
 	char sort_clause[ 16 ];
-	char *where_clause = "1 = 1";
+	char *where_clause;
+	FOLDER *folder;
+	QUERY *query;
 
-	if ( post_dictionary )
+	if ( !post_dictionary )
 	{
-		FOLDER *folder;
-		QUERY *query;
-
-		folder =
-			folder_load_new(
-				application_name,
-				BOGUS_SESSION,
-				"families",
-				(ROLE *)0 );
-
-		if ( !folder )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		query =
-			query_simple_new(
-				post_dictionary /* query_dictionary */,
-				login_name,
-				folder,
-				(LIST *)0 /* ignore_attribute_name_list */ );
-
-		if ( !query )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		if ( !query->query_output )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: query_output is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		where_clause =
-			query->query_output->where_clause;
+		where_clause = "1 = 1";
+		goto skip_query;
 	}
+
+	folder =
+		folder_load_new(
+			application_name,
+			"families",
+			(ROLE *)0 );
+
+	if ( !folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	query =
+		query_simple_new(
+			post_dictionary /* query_dictionary */,
+			(char *)0 /* login_name_only */,
+			(char *)0 /* full_name_only */,
+			(char *)0 /* street_address_only */,
+			folder,
+			(LIST *)0 /* ignore_attribute_name_list */ );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query->query_output )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: query_output is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	where_clause =
+		query->query_output->where_clause;
+
+skip_query:
 
 	additional_drop_down_attribute =
 		additional_drop_down_attribute_new(
@@ -300,7 +306,7 @@ char *get_families_sys_string(		char *application_name,
 
 	return strdup( sys_string );
 
-} /* get_families_sys_string() */
+}
 
 boolean get_dictionary_variables(
 			char **login_name,
@@ -335,7 +341,7 @@ boolean get_dictionary_variables(
 	}
 
 	return 1;
-} /* get_dictionary_variables() */
+}
 
 LIST *get_fish_families_record_list(
 			char *application_name,
@@ -371,7 +377,7 @@ LIST *get_fish_families_record_list(
 
 	return pipe2list( sys_string );
 
-} /* get_fish_families_record_list() */
+}
 
 void get_catches_family_in_clause(
 			char *catches_family_in_clause,
@@ -449,5 +455,5 @@ void get_catches_family_in_clause(
 		sprintf( catches_family_in_clause,
 			 ")" );
 
-} /* get_catches_family_in_clause() */
+}
 

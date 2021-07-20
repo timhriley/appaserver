@@ -106,20 +106,15 @@ char *appaserver_library_full_attribute_name(
 			char *folder_name,
 			char *attribute_name )
 {
-	char full_attribute_name[ 512 ];
+	static char full_attribute_name[ 512 ];
 
 	if ( folder_name && *folder_name )
 	{
-		char tmp[ 512 ];
-
-		/* A join might be in place. */
-		/* ------------------------- */
-		piece( tmp, ',', folder_name, 0 );
-
 		sprintf( full_attribute_name,
 			 "%s.%s",
-			 get_table_name(	application_name,
-						tmp ),
+			 get_table_name(
+				application_name,
+				folder_name ),
 			 attribute_name );
 	}
 	else
@@ -127,19 +122,21 @@ char *appaserver_library_full_attribute_name(
 		strcpy( full_attribute_name, attribute_name );
 	}
 
-	return strdup( full_attribute_name );
+	return full_attribute_name;
 }
 
 char *get_multiple_table_names(
 			char *application_name,
 			char *folder_name_list_comma_string )
 {
-	return get_multi_table_name(	application_name,
-				folder_name_list_comma_string );
+	return get_multi_table_name(
+			application_name,
+			folder_name_list_comma_string );
 }
 
-char *get_multi_table_name(	char *application_name,
-				char *multi_folder_name_list_string )
+char *get_multi_table_name(
+			char *application_name,
+			char *multi_folder_name_list_string )
 {
 	char multi_table_name[ 1024 ];
 	char *ptr = multi_table_name;
@@ -164,8 +161,8 @@ char *get_multi_table_name(	char *application_name,
 
 }
 
-char *get_folder_name(		char *application_name,
-				char *table_name )
+char *get_folder_name(	char *application_name,
+			char *table_name )
 {
 	char folder_name[ 512 ];
 	char application_table_name[ 512 ];
@@ -267,14 +264,14 @@ void appaserver_library_output_dictionary_as_hidden( DICTIONARY *dictionary )
 
 void output_dictionary_as_hidden( DICTIONARY *dictionary )
 {
-	LIST *key_list = dictionary_get_key_list( dictionary );
+	LIST *key_list = dictionary_key_list( dictionary );
 	char *key;
 	char *data;
 
 	if ( list_reset( key_list ) )
 	{
 		do {
-			key = list_get_string( key_list );
+			key = list_get( key_list );
 
 			if ( ( data =
 				(char *)dictionary_get( dictionary, key ) ) )
@@ -462,7 +459,7 @@ void appaserver_library_set_no_display_pressed(
 	if ( list_reset( key_list ) )
 	{
 		do {
-			key = list_get_pointer( key_list );
+			key = list_get( key_list );
 
 			sprintf( no_display_key,
 				 "%s_0",
@@ -512,8 +509,8 @@ LIST *appaserver_library_no_display_pressed_attribute_name_list(
 
 LIST *appaserver_library_ignore_pressed_attribute_name_list( 	
 			DICTIONARY *ignore_dictionary,
-			LIST *attribute_name_list,
-			DICTIONARY *query_dictionary )
+			DICTIONARY *query_dictionary,
+			LIST *attribute_name_list )
 {
 	LIST *return_list = create_list();
 	char *attribute_name;
@@ -547,7 +544,6 @@ LIST *appaserver_library_ignore_pressed_attribute_name_list(
 	} while( list_next( attribute_name_list ) );
 
 	return return_list;
-
 }
 
 int get_attribute_width(	char *application,
@@ -560,7 +556,7 @@ int get_attribute_width(	char *application,
 		 "width4attribute.sh %s %s 2>>%s",
 		 application,
 		 attribute_name,
-		 appaserver_get_error_filename( application ) );
+		 appaserver_library_error_filename( application ) );
 
 	results = pipe2string( sys_string );
 	if ( !results )
@@ -601,22 +597,22 @@ void populate_no_display_button_for_ignore( DICTIONARY *dictionary )
 	int str_len = strlen( IGNORE_PUSH_BUTTON_PREFIX );
 
 	attribute_name_list =
-		dictionary_get_key_list( dictionary );
+		dictionary_key_list( dictionary );
 
 	if ( list_rewind( attribute_name_list ) )
 	{
 		do {
 			attribute_name = 
-				list_get_pointer( attribute_name_list );
+				list_get( attribute_name_list );
 
 			if ( strncmp(
 				IGNORE_PUSH_BUTTON_PREFIX,
 				attribute_name,
 				str_len ) == 0 )
 			{
-				data = dictionary_get_data(
-							dictionary,
-							attribute_name );
+				data = dictionary_data(
+						dictionary,
+						attribute_name );
 
 				strcpy(	trimmed_attribute_name,
 					attribute_name + str_len );
@@ -645,20 +641,20 @@ void populate_ignore_button_for_no_display_pressed( DICTIONARY *dictionary )
 	int str_len = strlen( NO_DISPLAY_PUSH_BUTTON_PREFIX );
 
 	attribute_name_list =
-		dictionary_get_key_list( dictionary );
+		dictionary_key_list( dictionary );
 
 	if ( list_rewind( attribute_name_list ) )
 	{
 		do {
 			attribute_name = 
-				list_get_pointer( attribute_name_list );
+				list_get( attribute_name_list );
 
 			if ( strncmp(
 				NO_DISPLAY_PUSH_BUTTON_PREFIX,
 				attribute_name,
 				str_len ) == 0 )
 			{
-				data = dictionary_get_data(
+				data = dictionary_data(
 							dictionary,
 							attribute_name );
 
@@ -722,7 +718,7 @@ char *build_multi_attribute_key( LIST *key_list, char delimiter )
 	if ( !list_rewind( key_list ) ) return (char *)0;
 
 	do {
-		key_string = list_get_pointer( key_list );
+		key_string = list_get( key_list );
 
 		if ( first_time )
 		{
@@ -864,7 +860,7 @@ LIST *appaserver_library_insert_attribute_element_list(
 	}
 
 	element_list =
-	appaserver_library_with_attribute_get_insert_attribute_element_list(
+	appaserver_library_with_attribute_insert_attribute_element_list(
 			attribute->attribute_name,
 			attribute->datatype,
 			attribute->width,
@@ -883,7 +879,7 @@ LIST *appaserver_library_insert_attribute_element_list(
 	return return_list;
 }
 
-LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
+LIST *appaserver_library_with_attribute_insert_attribute_element_list(
 			char *attribute_name,
 			char *datatype,
 			int width,
@@ -948,7 +944,7 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 	if ( process_parameter_list_element_name_boolean( attribute_name ) )
 	{
 		element =
-			element_get_yes_no_element(
+			element_yes_no_element(
 				attribute_name,
 				(char *)0 /* prepend_folder_name */,
 				post_change_javascript,
@@ -2011,7 +2007,7 @@ int appaserver_library_reference_number(
 		 "reference_number.sh \"%s\" %d 2>>%s",
 		 application_name,
 		 insert_rows_number,
-		 appaserver_get_error_filename( application_name ) );
+		 appaserver_library_error_filename( application_name ) );
 
 	return atoi( pipe2string( sys_string ) );
 }
@@ -2534,22 +2530,22 @@ enum preupdate_change_state appaserver_library_preupdate_change_state(
 char *appaserver_library_sort_attribute_name( LIST *attribute_list )
 {
 	if ( attribute_list_exists(
-			attribute_list,
-			SORT_ORDER_ATTRIBUTE_NAME ) )
+			SORT_ORDER_ATTRIBUTE_NAME,
+			attribute_list ) )
 	{
 		return SORT_ORDER_ATTRIBUTE_NAME;
 	}
 	else
 	if ( attribute_list_exists(
-			attribute_list,
-			DISPLAY_ORDER_ATTRIBUTE_NAME ) )
+			DISPLAY_ORDER_ATTRIBUTE_NAME,
+			attribute_list ) )
 	{
 		return DISPLAY_ORDER_ATTRIBUTE_NAME;
 	}
 	else
 	if ( attribute_list_exists(
-			attribute_list,
-			SEQUENCE_NUMBER_ATTRIBUTE_NAME ) )
+			SEQUENCE_NUMBER_ATTRIBUTE_NAME,
+			attribute_list ) )
 	{
 		return SEQUENCE_NUMBER_ATTRIBUTE_NAME;
 	}
