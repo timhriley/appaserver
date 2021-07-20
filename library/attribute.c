@@ -706,7 +706,7 @@ void attribute_append_attribute_list(
 		if ( role_name && *role_name )
 		{
 			attribute->exclude_permission_list =
-				appaserver_exclude_permission_list(
+				attribute_exclude_permission_list(
 					application_name,
 					fetched_attribute_name,
 					role_name );
@@ -2422,5 +2422,81 @@ LIST *attribute_primary_name_list(
 	} while( list_next( attribute_list ) );
 
 	return primary_attribute_name_list;
+}
+
+LIST *attribute_exclude_permission_list(
+			char *application_name,
+			char *attribute_name,
+			char *role_name )
+{
+	char fetched_attribute_name[ 128 ];
+	char fetched_role_name[ 128 ];
+	char permission[ 128 ];
+	static LIST *exclude_permission_record_list = {0};
+	LIST *exclude_permission_list;
+	char *exclude_permission_record;
+
+	if ( !attribute_name || !*attribute_name ) return (LIST *)0;
+
+	if ( !role_name || !*role_name ) return (LIST *)0;
+ 
+	if ( !exclude_permission_record_list )
+	{
+		exclude_permission_record_list =
+			attribute_exclude_permission_record_list(
+				application_name );
+	}
+
+	exclude_permission_list = list_new_list();
+
+	if ( !list_rewind( exclude_permission_record_list ) )
+		return exclude_permission_list;
+
+	do {
+		exclude_permission_record =
+			list_get(
+				exclude_permission_record_list );
+
+		piece(	fetched_attribute_name,
+			FOLDER_DATA_DELIMITER,
+			exclude_permission_record,
+			0 );
+
+		if ( strcmp( attribute_name, fetched_attribute_name ) != 0 )
+			continue;
+
+		piece(	fetched_role_name,
+			FOLDER_DATA_DELIMITER,
+			exclude_permission_record,
+			1 );
+
+		if ( strcmp( role_name, fetched_role_name ) != 0 )
+			continue;
+
+		piece(	permission,
+			FOLDER_DATA_DELIMITER,
+			exclude_permission_record,
+			2 );
+
+		list_set(	exclude_permission_list,
+				strdup( permission ) );
+
+	} while( list_next( exclude_permission_record_list ) );
+
+	return exclude_permission_list;
+}
+
+LIST *attribute_exclude_permission_record_list(
+			char *application_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=attribute,role,permission"
+		 "			folder=attribute_exclude	",
+		 application_name );
+
+	return pipe2list( sys_string );
 }
 

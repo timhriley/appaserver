@@ -547,7 +547,8 @@ int main( int argc, char **argv )
 				query_dictionary,
 			dictionary_appaserver->
 				sort_dictionary,
-			no_display_pressed_attribute_name_list );
+			no_display_pressed_attribute_name_list
+				/* ignore_attribute_name_list */ );
 
 	row_security->folder->join_1tom_related_folder_list =
 		folder->join_1tom_related_folder_list;

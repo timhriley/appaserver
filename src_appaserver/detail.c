@@ -93,7 +93,7 @@ DICTIONARY *output_folder_detail(
 			FOLDER *folder,
 			char *role_name,
 			char *target_frame,
-			LIST *where_attribute_data_list,
+			LIST *primary_attribute_data_list,
 			char *appaserver_data_directory,
 			boolean remove_update_permission,
 			char *base_folder_name,
@@ -160,11 +160,12 @@ int main( int argc, char **argv )
 	char *login_name;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	LIST *primary_data_list;
 	char *role_name;
 	char *target_frame;
 	DICTIONARY *primary_dictionary = {0};
 	char *primary_data_list_string;
+	LIST *primary_attribute_data_list;
+	LIST *ignore_attribute_name_list;
 	char *base_folder_name;
 	DICTIONARY *original_post_dictionary;
 	FOLDER *folder;
@@ -241,7 +242,7 @@ int main( int argc, char **argv )
 			application_name,
 			role_name );
 
-	primary_data_list =
+	primary_attribute_data_list =
 		string2list(
 			primary_data_list_string,
 			FOLDER_DATA_DELIMITER );
@@ -404,8 +405,7 @@ int main( int argc, char **argv )
 			folder,
 			role->role_name,
 			target_frame,
-			primary_data_list
-				/* where_attribute_data_list */,
+			primary_attribute_data_list,
 			appaserver_parameter_file->appaserver_data_directory,
 			0 /* not remove_update_permission */,
 			base_folder_name,
@@ -1251,8 +1251,7 @@ DICTIONARY *output_folder_detail(
 			char *role_name,
 			char *target_frame,
 			LIST *append_isa_attribute_list,
-			LIST *where_clause_attribute_name_list,
-			LIST *where_clause_data_list,
+			LIST *primary_attribute_data_list,
 			char *login_name,
 			char *appaserver_data_directory,
 			int remove_update_permission,
@@ -1361,7 +1360,9 @@ DICTIONARY *output_folder_detail(
 		row_security_detail_structure_new(
 			application_name,
 			row_security->row_security_state,
+			primary_attribute_data_list,
 			row_security->folder,
+			ignore_attribute_name_list,
 			row_security->role->role_name,
 			row_security->login_name,
 			row_security->state,
@@ -1369,9 +1370,12 @@ DICTIONARY *output_folder_detail(
 			row_security->query_dictionary,
 			row_security->sort_dictionary,
 			row_security->attribute_not_null_join,
-			row_security->attribute_not_null_folder,
+			(row_security->attribute_not_null_folder)	?
+				row_security->
+					attribute_not_null_folder->
+					folder_name			:
+				(char *)0,
 			row_security->foreign_login_name_folder,
-			where_attribute_data_list,
 			make_primary_keys_non_edit,
 			regular_omit_delete_operation,
 			viewonly_omit_delete_operation,

@@ -52,7 +52,7 @@ ROW_SECURITY *row_security_new(
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
-			LIST *no_display_pressed_attribute_name_list )
+			LIST *ignore_attribute_name_list )
 {
 	ROW_SECURITY *row_security = row_security_calloc();
 
@@ -63,8 +63,9 @@ ROW_SECURITY *row_security_new(
 	row_security->preprompt_dictionary = preprompt_dictionary;
 	row_security->query_dictionary = query_dictionary;
 	row_security->sort_dictionary = sort_dictionary;
-	row_security->no_display_pressed_attribute_name_list =
-		no_display_pressed_attribute_name_list;
+
+	row_security->ignore_attribute_name_list =
+		ignore_attribute_name_list;
 
 	/* Make sure to select the login_name attribute. */
 	/* --------------------------------------------- */
@@ -238,46 +239,20 @@ non_owner_view_only_dont_append:
 	return row_security;
 }
 
-ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
-	row_security_element_list_structure_calloc( void )
-{
-	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *element_list_structure;
-
-	if ( ! ( element_list_structure =
-		(ROW_SECURITY_ELEMENT_LIST_STRUCTURE *)
-			calloc(
-			   1,
-			   sizeof( ROW_SECURITY_ELEMENT_LIST_STRUCTURE ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocation memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	return element_list_structure;
-}
-
-ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
-		/* ------------------ */
-		/* Never returns null */
-		/* ------------------ */
-		row_security_detail_structure_new(
-			char *application_name,
+ROW_SECURITY *row_security_detail_new(
 			enum row_security_state row_security_state,
+			LIST *where_attribute_data_list,
 			FOLDER *folder,
+			LIST *ignore_attribute_name_list,
+			char *attribute_not_null_join,
+			char *attribute_not_null_folder_name,
 			char *role_name,
 			char *login_name,
 			char *state,
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
-			char *attribute_not_null_join,
-			FOLDER *attribute_not_null_folder,
 			FOLDER *foreign_login_name_folder,
-			LIST *where_attribute_data_list,
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation
 				regular_omit_delete_operation,
@@ -286,7 +261,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			boolean omit_operation_buttons,
 			boolean row_security_is_participating )
 {
-	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *element_list_structure;
 	int row_dictionary_list_length;
 	char query_select_folder_name[ 128 ];
 	boolean prompt_data_separate_folder;
@@ -356,8 +330,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			sort_dictionary,
 			role,
 			folder->folder_name,
-			where_clause_attribute_name_list,
-			where_clause_data_list,
+			primary_attribute_data_list,
 			attribute_not_null_join,
 			(attribute_not_null_folder)
 				? attribute_not_null_folder->folder_name
@@ -376,7 +349,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			folder,
 			folder->mto1_append_isa_related_folder_list,
 			role,
-			(LIST *)0 /* no_display_pressed_attribute_name_list */,
+			(LIST *)0 /* ignore_attribute_name_list */,
 			preprompt_dictionary,
 			query_dictionary,
 			row_dictionary_list_length,
@@ -404,7 +377,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 				folder->mto1_append_isa_related_folder_list,
 				role,
 				(LIST *)0
-				   /* no_display_pressed_attribute_name_list */,
+				   /* ignore_attribute_name_list */,
 				viewonly_omit_delete_operation,
 				omit_operation_buttons,
 				folder->join_1tom_related_folder_list );
@@ -444,11 +417,11 @@ RELATED_FOLDER *row_security_seek_related_folder(
 }
 
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
-			char *application_name,
 			char *folder_name,
 			char *attribute_not_null_string )
 {
 	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
+	FOLDER *folder;
 
 	if ( !attribute_not_null_string || !*attribute_not_null_string )
 	{
@@ -467,12 +440,64 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
 		exit( 1 );
 	}
 
-	row_security_role_update->folder =
-		folder_load_new(
-			application_name,
-			BOGUS_SESSION,
+	folder =
+		folder_new(
+			environment_application_name(),
 			folder_name,
 			(ROLE *)0 /* role */ );
+
+	if ( !folder_load(
+			&folder->insert_rows_number,
+			&folder->lookup_email_output,
+			&folder->row_level_non_owner_forbid,
+			&folder->row_level_non_owner_view_only,
+			&folder->populate_drop_down_process,
+			&folder->post_change_process,
+			&folder->folder_form,
+			&folder->notepad,
+			&folder->html_help_file_anchor,
+			&folder->post_change_javascript,
+			&folder->lookup_before_drop_down,
+			&folder->data_directory,
+			&folder->index_directory,
+			&folder->no_initial_capital,
+			&folder->subschema_name,
+			&folder->create_view_statement,
+			folder->application_name,
+			BOGUS_SESSION,
+			folder->folder_name,
+			0 /* override_row_restrictions */,
+			(char *)0 /* role_name */,
+			folder->mto1_related_folder_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot load folder=%s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 folder->folder_name );
+
+		exit( 1 );
+	}
+
+	folder->one2m_recursive_related_folder_list =
+		related_folder_1tom_related_folder_list(
+			application_name,
+			BOGUS_SESSION,
+			folder->folder_name,
+			(char *)0 /* role_name */,
+			update,
+			(LIST *)0 /* primary_data_list */,
+			list_new() /* related_folder_list */,
+			0 /* dont omit_isa_relations */,
+			related_folder_recursive_all,
+			folder->primary_attribute_name_list
+				/* parent_primary_attribute_name_list */,
+			folder->primary_attribute_name_list
+				/* original_primary_attribute_name_list */,
+			(char *)0 /* prior_related_attribute_name */ );
+
+	row_security_role_update->folder = folder;
 
 	row_security_role_update->attribute_not_null_string =
 		attribute_not_null_string;
@@ -490,7 +515,7 @@ LIST *row_security_role_update_list(
 	char *select;
 	FILE *input_pipe;
 	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
-	LIST *role_update_list;
+	LIST *role_update_list = {0};
 
 	select = "folder,attribute_not_null";
 
@@ -498,7 +523,7 @@ LIST *row_security_role_update_list(
 		 "get_folder_data	application=%s			"
 		 "			select=\"%s\"			"
 		 "			folder=row_security_role_update	",
-		 application_name,
+		 environment_application_name(),
 		 select );
 
 	input_pipe = popen( sys_string, "r" );
@@ -512,7 +537,6 @@ LIST *row_security_role_update_list(
 
 		row_security_role_update =
 			row_security_role_update_new(
-				application_name,
 				strdup( folder_name ),
 				strdup( attribute_name ) );
 
@@ -527,14 +551,13 @@ LIST *row_security_role_update_list(
 	pclose( input_pipe );
 
 	return role_update_list;
-
 }
 
 LIST *row_security_detail_dictionary_list(
 			char *application_name,
 			char *login_name,
 			FOLDER *folder,
-			LIST *where_attribute_data_list,
+			LIST *primary_attribute_data_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name,
 			DICTIONARY *sort_dictionary,
@@ -1054,7 +1077,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			char *login_name,
 			char *state,
 			DICTIONARY *sort_dictionary,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
 			FOLDER *foreign_login_name_folder,
@@ -1155,7 +1178,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			folder,
 			folder->mto1_append_isa_related_folder_list,
 			role,
-			no_display_pressed_attribute_name_list,
+			ignore_attribute_name_list,
 			preprompt_dictionary,
 			query_dictionary,
 			row_dictionary_list_length,
@@ -1183,7 +1206,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 				folder->
 					mto1_append_isa_related_folder_list,
 				login_role,
-				no_display_pressed_attribute_name_list,
+				ignore_attribute_name_list,
 				omit_delete_with_placeholder,
 				omit_operation_buttons,
 				folder->join_1tom_related_folder_list );
@@ -1198,7 +1221,7 @@ LIST *row_security_edit_table_element_list(
 			FOLDER *select_folder,
 			LIST *mto1_append_isa_related_folder_list,
 			ROLE *login_role,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			LIST *ignore_pressed_attribute_name_list,
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *query_dictionary,
@@ -1242,7 +1265,7 @@ LIST *row_security_edit_table_element_list(
 
 	list_append_unique_string_list(
 		ignore_attribute_name_list,
-		no_display_pressed_attribute_name_list );
+		ignore_attribute_name_list );
 
 	list_append_unique_string_list(
 		ignore_attribute_name_list,
@@ -1271,7 +1294,7 @@ LIST *row_security_edit_table_element_list(
 			query_dictionary,
 			operation_list,
 			row_dictionary_list_length,
-			no_display_pressed_attribute_name_list,
+			ignore_attribute_name_list,
 			ignore_pressed_attribute_name_list,
 			update_yn,
 			state,
@@ -1305,7 +1328,7 @@ LIST *row_security_edit_table_update_element_list(
 			DICTIONARY *query_dictionary,
 			LIST *operation_list_list,
 			int row_dictionary_list_length,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			LIST *ignore_pressed_attribute_name_list,
 			char update_yn,
 			char *state,
@@ -1585,12 +1608,12 @@ skip_checking_drop_down:
 		} while( list_next( join_1tom_related_folder_list ) );
 	}
 
-	if ( list_rewind( no_display_pressed_attribute_name_list ) )
+	if ( list_rewind( ignore_attribute_name_list ) )
 	{
 		do {
 			attribute_name =
 				list_get(
-				     no_display_pressed_attribute_name_list );
+				     ignore_attribute_name_list );
 
 			element =
 				element_appaserver_new(
@@ -1599,7 +1622,7 @@ skip_checking_drop_down:
 
 			list_set( return_list, element );
 
-		} while( list_next( no_display_pressed_attribute_name_list ) );
+		} while( list_next( ignore_attribute_name_list ) );
 	}
 
 	if ( list_rewind( ignore_pressed_attribute_name_list ) )
@@ -1628,7 +1651,7 @@ LIST *row_security_regular_element_list(
 			FOLDER *select_folder,
 			LIST *mto1_append_isa_related_folder_list,
 			ROLE *role,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *query_dictionary,
 			int row_dictionary_list_length,
@@ -1663,7 +1686,7 @@ LIST *row_security_regular_element_list(
 
 	list_append_unique_string_list(
 		ignore_attribute_name_list,
-		no_display_pressed_attribute_name_list );
+		ignore_attribute_name_list );
 
 	include_attribute_name_list =
 		list_subtract(
@@ -1688,7 +1711,7 @@ LIST *row_security_regular_element_list(
 			query_dictionary,
 			operation_list,
 			row_dictionary_list_length,
-			no_display_pressed_attribute_name_list,
+			ignore_attribute_name_list,
 			state,
 			role_get_override_row_restrictions(
 				login_role->override_row_restrictions_yn ),
@@ -1720,7 +1743,7 @@ LIST *row_security_regular_evaluate_element_list(
 			DICTIONARY *query_dictionary,
 			LIST *operation_list_list,
 			int row_dictionary_list_length,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			char *state,
 			boolean override_row_restrictions,
 			char *folder_post_change_javascript,
@@ -1980,12 +2003,12 @@ skip_checking_drop_down:
 		} while( list_next( join_1tom_related_folder_list ) );
 	}
 
-	if ( list_rewind( no_display_pressed_attribute_name_list ) )
+	if ( list_rewind( ignore_attribute_name_list ) )
 	{
 		do {
 			attribute_name =
 				list_get(
-				     no_display_pressed_attribute_name_list );
+				     ignore_attribute_name_list );
 
 			element =
 				element_appaserver_new(
@@ -1996,7 +2019,7 @@ skip_checking_drop_down:
 					return_list, 
 					element );
 
-		} while( list_next( no_display_pressed_attribute_name_list ) );
+		} while( list_next( ignore_attribute_name_list ) );
 	}
 
 	return return_list;
@@ -2006,7 +2029,7 @@ LIST *row_security_viewonly_element_list(
 			char *application_name,
 			FOLDER *folder,
 			char *role_name,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons )
 {
@@ -2033,7 +2056,7 @@ LIST *row_security_viewonly_element_list(
 
 	list_append_unique_string_list(
 		ignore_attribute_name_list,
-		no_display_pressed_attribute_name_list );
+		ignore_attribute_name_list );
 
 	include_attribute_name_list =
 		list_subtract(
@@ -2049,7 +2072,7 @@ LIST *row_security_viewonly_element_list(
 			include_attribute_name_list,
 			mto1_append_isa_related_folder_list,
 			operation_list,
-			no_display_pressed_attribute_name_list,
+			ignore_attribute_name_list,
 			select_folder->post_change_javascript,
 			join_1tom_related_folder_list );
 
@@ -2064,7 +2087,7 @@ LIST *row_security_viewonly_evaluate_element_list(
 			LIST *include_attribute_name_list,
 			LIST *mto1_append_isa_related_folder_list,
 			LIST *operation_list_list,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			char *folder_post_change_javascript,
 			LIST *join_1tom_related_folder_list )
 {
@@ -2220,22 +2243,22 @@ LIST *row_security_viewonly_evaluate_element_list(
 		} while( list_next( join_1tom_related_folder_list ) );
 	}
 
-	if ( no_display_pressed_attribute_name_list 
-	&&   list_rewind( no_display_pressed_attribute_name_list ) )
+	if ( ignore_attribute_name_list 
+	&&   list_rewind( ignore_attribute_name_list ) )
 	{
 		do {
-			attribute_name = list_get_string(
-				no_display_pressed_attribute_name_list );
+			attribute_name =
+				list_get(
+					ignore_attribute_name_list );
 
 			element =
 				element_appaserver_new(
 					hidden,
 					attribute_name );
 
-			list_append_pointer(
-					return_list, 
-					element );
-		} while( list_next( no_display_pressed_attribute_name_list ) );
+			list_set( return_list, element );
+
+		} while( list_next( ignore_attribute_name_list ) );
 	}
 
 	return return_list;

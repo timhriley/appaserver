@@ -66,7 +66,6 @@
 typedef struct
 {
 	char *application_name;
-	char *session;
 	char *folder_name;
 	LIST *attribute_list;
 	LIST *attribute_float_list;
@@ -118,6 +117,7 @@ typedef struct
 	LIST *mto1_relation_list;
 	LIST *mto1_isa_relation_list;
 	LIST *lookup_attribute_exclude_name_list;
+	LIST *update_attribute_exclude_name_list;
 } FOLDER;
 
 /* Operations */
@@ -126,40 +126,36 @@ FOLDER *folder_calloc(	void );
 
 FOLDER *folder_load_new(
 			char *application_name,
-			char *session,
 			char *folder_name,
 			ROLE *role );
 
 FOLDER *folder_with_load_new(
 			char *application_name,
-			char *session,
 			char *folder_name,
 			ROLE *role );
 
 char *folder_get_folder_row_level_restrictions_record(
-					char *application_name,
-					char *folder_name );
+			char *application_name,
+			char *folder_name );
 
 void folder_load_row_level_restrictions(
-					boolean *row_level_non_owner_forbid,
-					boolean *row_level_non_owner_view_only,
-					char *application_name,
-					char *folder_name,
-					LIST *mto1_related_folder_list );
+			boolean *row_level_non_owner_forbid,
+			boolean *row_level_non_owner_view_only,
+			char *application_name,
+			char *folder_name,
+			LIST *mto1_related_folder_list );
 
-FOLDER *folder_calloc( 			void );
+FOLDER *folder_calloc( 	void );
 
-FOLDER *folder_new( 			char *application_name,
-					char *session,
-					char *folder_name );
+FOLDER *folder_new( 	char *application_name,
+			char *folder_name );
 
-FOLDER *folder_new_folder( 		char *application_name,
-					char *session,
-					char *folder_name );
+FOLDER *folder_new_folder(
+			char *application_name,
+			char *folder_name );
 
 FOLDER *folder_folder_new(
 			char *application_name,
-			char *session,
 			char *folder_name );
 
 LIST *folder_get_attribute_name_list( 
@@ -659,6 +655,9 @@ PROCESS *folder_post_change_process_fetch(
 			char *folder_name );
 
 LIST *folder_lookup_attribute_exclude_name_list(
+			LIST *append_isa_attribute_list );
+
+LIST *folder_update_attribute_exclude_name_list(
 			LIST *append_isa_attribute_list );
 
 #endif

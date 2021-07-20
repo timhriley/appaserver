@@ -1019,13 +1019,6 @@ check_mto1_isa_related_folder_list:
 					folder->
 					mto1_related_folder_list ) )
 		{
-			fprintf(stderr,
-	"Warning in %s/%s()/%d: empty mto1_related_folder_list for %s.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				related_folder->folder->folder_name );
-
 			continue;
 		}
 

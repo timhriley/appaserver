@@ -50,7 +50,7 @@ typedef struct
 	DICTIONARY *preprompt_dictionary;
 	DICTIONARY *query_dictionary;
 	DICTIONARY *sort_dictionary;
-	LIST *no_display_pressed_attribute_name_list;
+	LIST *ignore_attribute_name_list;
 	FOLDER *foreign_login_name_folder;
 	char *attribute_not_null_join;
 	FOLDER *attribute_not_null_folder;
@@ -79,13 +79,15 @@ ROW_SECURITY *row_security_new(
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
-			LIST *no_display_pressed_attribute_name_list );
+			LIST *ignore_attribute_name_list );
 
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	row_security_detail_structure_new(
 			char *application_name,
 			enum row_security_state row_security_state,
+			LIST *primary_attribute_data_list,
 			FOLDER *folder,
+			LIST *ignore_attribute_name_list,
 			char *role_name,
 			char *login_name,
 			char *state,
@@ -93,9 +95,8 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
 			char *attribute_not_null_join,
-			FOLDER *attribute_not_null_folder,
+			char *attribute_not_null_folder_name,
 			FOLDER *foreign_login_name_folder,
-			LIST *where_attribute_data_list,
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation 
 				regular_omit_delete_operation,
@@ -186,7 +187,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			char *login_name,
 			char *state,
 			DICTIONARY *sort_dictionary,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			char *attribute_not_null_join,
 			FOLDER *attribute_not_null_folder,
 			FOLDER *foreign_login_name_folder,
@@ -202,7 +203,7 @@ LIST *row_security_edit_table_element_list(
 			FOLDER *folder,
 			ROLE *role,
 			char *login_name,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *query_dictionary,
 			int row_dictionary_list_length,
@@ -226,7 +227,7 @@ LIST *row_security_edit_table_update_element_list(
 			DICTIONARY *preprompt_dictionary,
 			LIST *operation_list_list,
 			int row_dictionary_list_length,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			char update_yn,
 			char *state,
 			LIST *non_edit_folder_name_list,
@@ -244,7 +245,7 @@ LIST *row_security_regular_element_list(
 			FOLDER *folder,
 			ROLE *role,
 			char *login_name,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			DICTIONARY *preprompt_dictionary,
 			int row_dictionary_list_length,
 			char *state,
@@ -265,7 +266,7 @@ LIST *row_security_regular_evaluate_element_list(
 			DICTIONARY *query_dictionary,
 			LIST *operation_list_list,
 			int row_dictionary_list_length,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			char *state,
 			boolean override_row_restrictions,
 			char *folder_post_change_javascript,
@@ -279,7 +280,7 @@ LIST *row_security_viewonly_element_list(
 			char *application_name,
 			FOLDER *folder,
 			ROLE *role,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons );
 
@@ -288,7 +289,7 @@ LIST *row_security_viewonly_evaluate_element_list(
 			FOLDER *folder,
 			LIST *include_attribute_name_list,
 			LIST *operation_list_list,
-			LIST *no_display_pressed_attribute_name_list,
+			LIST *ignore_attribute_name_list,
 			char *folder_post_change_javascript );
 
 ROW_SECURITY_ELEMENT_LIST_STRUCTURE *

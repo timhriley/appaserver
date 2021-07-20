@@ -383,4 +383,12 @@ LIST *attribute_get_primary_attribute_name_list(
 LIST *attribute_non_primary_float_list(
 			LIST *attribute_list );
 
+LIST *attribute_exclude_permission_list(
+			char *application_name,
+			char *attribute_name,
+			char *role_name );
+
+LIST *attribute_exclude_permission_record_list(
+			char *application_name );
+
 #endif

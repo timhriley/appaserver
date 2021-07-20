@@ -254,66 +254,6 @@ LIST *appaserver_exclude_permission_record_list(
 
 static LIST *global_exclude_permission_record_list = {0};
 
-LIST *appaserver_exclude_permission_list(
-			char *application_name,
-			char *attribute_name,
-			char *role_name )
-{
-	char fetched_attribute_name[ 128 ];
-	char fetched_role_name[ 128 ];
-	char permission[ 128 ];
-	LIST *exclude_permission_list;
-	char *exclude_permission_record;
-
-	if ( !attribute_name || !*attribute_name ) return (LIST *)0;
-	if ( !role_name || !*role_name ) return (LIST *)0;
- 
-	if ( !global_exclude_permission_record_list )
-	{
-		global_exclude_permission_record_list =
-			appaserver_exclude_permission_record_list(
-					application_name );
-	}
-
-	exclude_permission_list = list_new_list();
-
-	if ( !list_rewind( global_exclude_permission_record_list ) )
-		return exclude_permission_list;
-
-	do {
-		exclude_permission_record =
-			list_get(
-				global_exclude_permission_record_list );
-
-		piece(	fetched_attribute_name,
-			FOLDER_DATA_DELIMITER,
-			exclude_permission_record,
-			0 );
-
-		if ( strcmp( attribute_name, fetched_attribute_name ) != 0 )
-			continue;
-
-		piece(	fetched_role_name,
-			FOLDER_DATA_DELIMITER,
-			exclude_permission_record,
-			1 );
-
-		if ( strcmp( role_name, fetched_role_name ) != 0 )
-			continue;
-
-		piece(	permission,
-			FOLDER_DATA_DELIMITER,
-			exclude_permission_record,
-			2 );
-
-		list_set(	exclude_permission_list,
-				strdup( permission ) );
-
-	} while( list_next( global_exclude_permission_record_list ) );
-
-	return exclude_permission_list;
-}
-
 boolean appaserver_exclude_permission(
 			LIST *exclude_permission_list,
 			char *permission )

@@ -29,22 +29,13 @@
 #include "relation.h"
 #include "folder.h"
 
-FOLDER *folder_new(	char *application_name,
-			char *session,
+FOLDER *folder_new_folder(
+			char *application_name,
 			char *folder_name )
 {
-	return folder_new_folder(	application_name,
-					session,
-					folder_name );
-}
-
-FOLDER *folder_folder_new(	char *application_name,
-				char *session,
-				char *folder_name )
-{
-	return folder_new_folder(	application_name,
-					session,
-					folder_name );
+	return folder_new(
+			application_name,
+			folder_name );
 }
 
 FOLDER *folder_calloc( void )
@@ -63,27 +54,24 @@ FOLDER *folder_calloc( void )
 	return f;
 }
 
-FOLDER *folder_new_folder(	char *application_name,
-				char *session,
-				char *folder_name )
+FOLDER *folder_new(	char *application_name,
+			char *folder_name )
 {
 	FOLDER *f;
 
-	if ( folder_name && strcmp( folder_name, "null" ) == 0 )
+	if ( !folder_name || string_strcmp( folder_name, "null" ) == 0 )
 	{
 		fprintf( stderr,
-			 "Warning in %s/%s()/%d: empty folder_name.\n",
+			"ERROR in %s/%s()/%d: folder_name is null or 'null'.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
-		return (FOLDER *)0;
+		exit( 1 );
 	}
-
 
 	f = folder_calloc();
 
 	f->application_name = application_name;
-	f->session = session;
 	f->folder_name = folder_name;
 
 	return f;
@@ -91,20 +79,17 @@ FOLDER *folder_new_folder(	char *application_name,
 
 FOLDER *folder_with_load_new(
 			char *application_name,
-			char *session,
 			char *folder_name,
 			ROLE *role )
 {
 	return folder_load_new(
 			application_name,
-			session,
 			folder_name,
 			role );
 }
 
 FOLDER *folder_load_new(
 			char *application_name,
-			char *session,
 			char *folder_name,
 			ROLE *role )
 {
@@ -115,10 +100,7 @@ FOLDER *folder_load_new(
 	folder =
 		folder_new(
 			application_name,
-			session,
 			folder_name );
-
-	if ( !folder ) return (FOLDER *)0;
 
 	if ( role )
 	{
@@ -132,7 +114,7 @@ FOLDER *folder_load_new(
 	     related_folder_get_mto1_related_folder_list(
 		list_new(),
 		application_name,
-		session,
+		BOGUS_SESSION,
 		folder_name,
 		role_name,
 		0 /* isa_flag */,
@@ -163,7 +145,7 @@ FOLDER *folder_load_new(
 			&folder->subschema_name,
 			&folder->create_view_statement,
 			folder->application_name,
-			folder->session,
+			BOGUS_SESSION,
 			folder->folder_name,
 			role_get_override_row_restrictions(
 				override_row_restrictions_yn ),
@@ -184,7 +166,7 @@ FOLDER *folder_load_new(
 	     related_folder_get_mto1_related_folder_list(
 		list_new(),
 		application_name,
-		session,
+		BOGUS_SESSION,
 		folder_name,
 		role_name,
 		0 /* isa_flag */,
@@ -225,7 +207,7 @@ FOLDER *folder_load_new(
 	if ( ! ( folder->mto1_append_isa_related_folder_list = 
 		    folder_append_isa_mto1_related_folder_list(
 			application_name,
-			session,
+			BOGUS_SESSION,
 			role_name,
 			role_get_override_row_restrictions(
 				override_row_restrictions_yn ),
@@ -267,7 +249,7 @@ FOLDER *folder_load_new(
 	folder->one2m_related_folder_list =
 		related_folder_1tom_related_folder_list(
 			application_name,
-			session,
+			BOGUS_SESSION,
 			folder->folder_name,
 			role_name,
 			update,
@@ -282,7 +264,7 @@ FOLDER *folder_load_new(
 	folder->one2m_recursive_related_folder_list =
 		related_folder_1tom_related_folder_list(
 			application_name,
-			session,
+			BOGUS_SESSION,
 			folder->folder_name,
 			role_name,
 			update,
@@ -302,6 +284,10 @@ FOLDER *folder_load_new(
 
 	folder->lookup_attribute_exclude_name_list =
 		folder_lookup_attribute_exclude_name_list(
+			folder->append_isa_attribute_list );
+
+	folder->update_attribute_exclude_name_list =
+		folder_update_attribute_exclude_name_list(
 			folder->append_isa_attribute_list );
 
 	return folder;
@@ -1475,12 +1461,14 @@ LIST *folder_get_folder_list(
 		return( LIST *)0;
 
 	folder_list = list_new_list();
+
 	do {
 		folder_name = list_get_pointer( folder_name_list );
 
 		if ( strcmp( folder_name, "null" ) == 0 ) continue;
 
-		folder = folder_new_folder(
+		folder =
+			folder_new_folder(
 				application_name,
 				BOGUS_SESSION,
 				folder_name );
@@ -3142,6 +3130,44 @@ LIST *folder_lookup_attribute_exclude_name_list(
 						exclude_permission_list );
 
 			if ( strcmp( permission, "lookup" ) == 0 )
+			{
+				if ( !exclude_name_list )
+					exclude_name_list =
+						list_new();
+
+				list_set(
+					exclude_name_list,
+					attribute->attribute_name );
+			}
+		} while ( list_next( attribute->exclude_permission_list ) );
+
+	} while ( list_next( append_isa_attribute_list ) );
+
+	return exclude_name_list;
+}
+
+LIST *folder_update_attribute_exclude_name_list(
+			LIST *append_isa_attribute_list )
+{
+	ATTRIBUTE *attribute;
+	char *permission;
+	LIST *exclude_name_list = {0};
+
+	if ( !list_rewind( append_isa_attribute_list ) ) return (LIST *)0;
+
+	do {
+		attribute = list_get( append_isa_attribute_list );
+
+		if ( !list_rewind( attribute->exclude_permission_list ) )
+			continue;
+
+		do {
+			permission =
+				list_get(
+					attribute->
+						exclude_permission_list );
+
+			if ( strcmp( permission, "update" ) == 0 )
 			{
 				if ( !exclude_name_list )
 					exclude_name_list =

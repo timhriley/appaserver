@@ -100,11 +100,6 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 			LIST *related_folder_list,
 			LIST *attribute_name_list );
 
-LIST *appaserver_exclude_permission_list(
-			char *application_name,
-			char *attribute_name,
-			char *role_name );
-
 boolean appaserver_exclude_permission(
 			LIST *exclude_permission_list,
 			char *permission );
