@@ -84,7 +84,7 @@ ENTITY *entity_sales_tax_payable_entity( void )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 	char *select;
 	char *folder;
 	char *results;
@@ -92,12 +92,12 @@ ENTITY *entity_sales_tax_payable_entity( void )
 	select = "full_name,street_address";
 	folder = "sales_tax_payable_entity";
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "echo \"select %s from %s;\" | sql | head -1",
 		 select,
 		 folder );
 
-	results = pipe2string( sys_string );
+	results = pipe2string( system_string );
 
 	if ( !results ) return (ENTITY *)0;
 
@@ -260,28 +260,20 @@ boolean entity_list_exists(
 ENTITY *entity_fetch(	char *full_name,
 			char *street_address )
 {
-	char sys_string[ 1024 ];
-
 	if ( !full_name || !street_address )
 	{
 		return (ENTITY *)0;
 	}
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 entity_select(),
-		 ENTITY_TABLE,
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 entity_primary_where(
-			full_name,
-			street_address ) );
-
-	return entity_parse( pipe2string( sys_string ) );
+	return entity_parse(
+			pipe2string(
+				entity_system_string(
+		 			/* -------------------------- */
+		 			/* Safely returns heap memory */
+		 			/* -------------------------- */
+		 			entity_primary_where(
+						full_name,
+						street_address ) ) ) );
 }
 
 ENTITY *entity_parse( char *input )
@@ -371,7 +363,7 @@ char *entity_street_address( char *full_name )
 	{
 		entity_list =
 			entity_system_list(
-				entity_sys_string(
+				entity_system_string(
 					"1 = 1" ) );
 	}
 
@@ -388,9 +380,9 @@ char *entity_street_address( char *full_name )
 FILE *entity_insert_open(
 			char *error_filename )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf(sys_string,
+	sprintf(system_string,
 		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
 		"sql 2>&1						|"
 		"grep -vi duplicate					|"
@@ -400,7 +392,7 @@ FILE *entity_insert_open(
 		SQL_DELIMITER,
 		error_filename );
 
-	return popen( sys_string, "w" );
+	return popen( system_string, "w" );
 }
 
 void entity_insert_pipe(
@@ -441,17 +433,17 @@ char *entity_name_display(
 	return display;
 }
 
-LIST *entity_system_list( char *sys_string )
+LIST *entity_system_list( char *system_string )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
 	LIST *entity_list;
 
-	if ( !sys_string ) return (LIST *)0;
+	if ( !system_string ) return (LIST *)0;
 
 	entity_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -462,13 +454,13 @@ LIST *entity_system_list( char *sys_string )
 	return entity_list;
 }
 
-char *entity_sys_string( char *where )
+char *entity_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
 	if ( !where ) return (char *)0;
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '%s' %s \"%s\" select",
 		 /* ---------------------- */
 		 /* Returns program memory */
@@ -477,7 +469,7 @@ char *entity_sys_string( char *where )
 		 ENTITY_TABLE,
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 LIST *entity_full_street_list(

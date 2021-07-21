@@ -142,7 +142,7 @@ typedef struct
 	char *query_output_join_where;
 	char *query_output_related_join;
 	char *query_output_where;
-	char *query_output_select;
+	LIST *query_output_select_name_list;
 	char *query_output_from;
 	char *query_output_order;
 	char *query_output_display;
@@ -247,31 +247,10 @@ LIST *query_row_dictionary_list(
 			LIST *append_isa_attribute_list,
 			char *login_name );
 
-LIST *query_get_record_list(
-			char *application_name,
-			QUERY_OUTPUT *query_output,
-			char *select_clause,
-			char *order_clause );
-
-char *query_output_select_clause(
-			LIST *append_isa_attribute_list,
-			LIST *ignore_attribute_name_list,
-			LIST *folder_lookup_attribute_exclude_name_list );
-
 LIST *query_drop_down_list(
 			LIST *exclude_attribute_name_list,
 			FOLDER *mto1_folder,
 			DICTIONARY *query_dictionary );
-
-QUERY_DROP_DOWN *query_row_drop_down(
-			LIST *exclude_attribute_name_list,
-			QUERY_DROP_DOWN *query_drop_down,
-			char *folder_name,
-			LIST *foreign_attribute_name_list,
-			LIST *attribute_list,
-			DICTIONARY *dictionary,
-			int index,
-			char *dictionary_prepend_folder_name );
 
 QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 			char *mto1_folder_name,
@@ -398,13 +377,11 @@ LIST *query_get_drop_down_data_list(
 			DICTIONARY *dictionary,
 			int index );
 
-char *query_sys_string(
-			char *application_name,
+char *query_system_string(
 			char *select_clause,
 			char *from_clause,
 			char *where_clause,
-			char *subquery_where_clause,
-			char *order_by_clause,
+			char *order_clause,
 			int max_rows );
 
 char *query_drop_down_list_display(
@@ -1053,9 +1030,7 @@ boolean query_attribute_is_number(
 boolean query_attribute_is_date_time(
 			char *datatype );
 
-/* Returns heap memory */
-/* ------------------- */
-char *query_output_select(
+LIST *query_output_select_name_list(
 			LIST *append_isa_attribute_list,
 			LIST *ignore_attribute_name_list,
 			LIST *lookup_attribute_exclude_name_list );
@@ -1090,9 +1065,28 @@ char *query_attribute_name_list_order(
 			char *descending_label );
 
 LIST *query_output_dictionary_list(
-			char *query_output_select,
+			char *query_select_display,
+			LIST *query_output_select_name_list,
 			char *query_output_from,
 			char *query_output_where,
 			char *query_output_order,
-			int max_rows );
+			int max_rows,
+			LIST *date_attribute_name_list,
+			enum date_convert_format source_format,
+			enum date_convert_format destination_format );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_select_display(
+			char *mto1_folder_name,
+			LIST *query_output_select_name_list,
+			int mto1_isa_related_folder_list_length );
+
+LIST *query_dictionary_list(
+			char *system_string,
+			LIST *select_name_list,
+			LIST *date_attribute_name_list,
+			enum date_convert_format source_format,
+			enum date_convert_format destination_format );
+
 #endif

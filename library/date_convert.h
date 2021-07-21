@@ -1,5 +1,7 @@
-/* library/date_convert.h */
-/* ---------------------- */
+/* $APPASERVER_HOME/library/date_convert.h	 */
+/* --------------------------------------------- */
+/* Freely available software: see Appaserver.org */
+/* --------------------------------------------- */
 
 #ifndef DATE_CONVERT_H
 #define DATE_CONVERT_H
@@ -33,6 +35,14 @@ typedef struct
 /* ---------- */
 DATE_CONVERT *date_convert_calloc(
 			void );
+
+DATE_CONVERT *date_convert_new(
+			enum date_convert_format source_format,
+			enum date_convert_format destination_format );
+
+DATE_CONVERT *date_convert_evaluate(
+			DATE_CONVERT *date_convert,
+			char *date_string );
 
 DATE_CONVERT *date_convert_new_date_convert(
 			enum date_convert_format destination_format,
@@ -94,11 +104,11 @@ DATE_CONVERT *date_convert_new_database_date_convert(
 			char *login_name,
 			char *date_string );
 
-enum date_convert_format date_convert_format_evaluate(
+enum date_convert_format date_convert_date_time_evaluate(
 			char *date_time_string );
 
-enum date_convert_format date_convert_get_date_convert_format(
-			char *date_time_string );
+enum date_convert_format date_convert_format_evaluate(
+			char *format_string );
 
 enum date_convert_format date_convert_get_user_date_format(
 			char *application_name,
@@ -106,6 +116,9 @@ enum date_convert_format date_convert_get_user_date_format(
 
 enum date_convert_format date_convert_get_database_date_format(
 			char *application_name );
+
+char *date_convert_format_string(
+			enum date_convert_format );
 
 char *date_convert_get_date_format_string(
 			enum date_convert_format );
@@ -151,5 +164,8 @@ boolean date_convert_date_time_source_unknown(
 /* --------------------- */
 char *date_convert_international_string(
 			char *american_string );
+
+DATE_CONVERT *date_convert_login_name_fetch(
+			char *login_name );
 
 #endif

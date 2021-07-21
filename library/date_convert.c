@@ -1,5 +1,7 @@
-/* $APPASERVER_HOME/library/date_convert.c */
-/* --------------------------------------- */
+/* $APPASERVER_HOME/library/date_convert.c	 */
+/* --------------------------------------------- */
+/* Freely available software: see Appaserver.org */
+/* --------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,12 +11,13 @@
 #include "column.h"
 #include "timlib.h"
 #include "julian.h"
-#include "folder.h"
 #include "date.h"
+#include "appaserver_user.h"
+#include "application.h"
 #include "date_convert.h"
 
 enum date_convert_format date_convert_get_database_date_format(
-					char *application_name )
+			char *application_name )
 {
 	char sys_string[ 1024 ];
 	char where_string[ 128 ];
@@ -36,13 +39,13 @@ enum date_convert_format date_convert_get_database_date_format(
 	results = pipe2string( sys_string );
 	if ( !results || !*results ) return date_convert_unknown;
 	
-	date_format = date_convert_get_date_convert_format( results );
+	date_format = date_convert_format_evaluate( results );
 	return date_format;
 }
 
 enum date_convert_format date_convert_get_user_date_format(
-					char *application_name,
-					char *login_name )
+			char *application_name,
+			char *login_name )
 {
 	static enum date_convert_format user_date_format = date_convert_unknown;
 	char sys_string[ 1024 ];
@@ -65,7 +68,7 @@ enum date_convert_format date_convert_get_user_date_format(
 
 	results = pipe2string( sys_string );
 
-	user_date_format = date_convert_get_date_convert_format( results );
+	user_date_format = date_convert_format_evaluate( results );
 
 	if ( user_date_format == date_convert_unknown )
 	{
@@ -84,7 +87,7 @@ enum date_convert_format date_convert_get_user_date_format(
 		if ( !results || !*results ) return date_convert_unknown;
 	
 		user_date_format =
-			date_convert_get_date_convert_format(
+			date_convert_format_evaluate(
 				results );
 	}
 
@@ -92,20 +95,55 @@ enum date_convert_format date_convert_get_user_date_format(
 }
 
 DATE_CONVERT *date_convert_new_user_format_date_convert(
-				char *application_name,
-				char *login_name,
-				char *date_string )
+			char *application_name,
+			char *login_name,
+			char *date_string )
 {
 	enum date_convert_format user_date_format;
 
 	user_date_format =
 		date_convert_get_user_date_format(
-					application_name,
-					login_name );
+			application_name,
+			login_name );
 
 	return date_convert_new_date_convert(
-				user_date_format,
-				date_string );
+			user_date_format,
+			date_string );
+}
+
+DATE_CONVERT *date_convert_new(
+			enum date_convert_format source_format,
+			enum date_convert_format destination_format )
+{
+	DATE_CONVERT *date_convert = date_convert_calloc();
+
+	date_convert->source_format = source_format;
+	date_convert->destination_format = destination_format;
+
+	return date_convert;
+}
+
+DATE_CONVERT *date_convert_evaluate(
+			DATE_CONVERT *date_convert,
+			char *date_string )
+{
+	if ( !date_convert )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: date_convert is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	date_convert_populate_return_date(
+		date_convert->return_date,
+		date_convert->source_format,
+		date_convert->destination_format,
+		date_string );
+
+	return date_convert;
 }
 
 DATE_CONVERT *date_convert_calloc( void )
@@ -212,8 +250,8 @@ DATE_CONVERT *date_convert_new_date_convert(
 }
 
 DATE_CONVERT *date_convert_new_database_format_date_convert(
-				char *application_name,
-				char *date_string )
+			char *application_name,
+			char *date_string )
 {
 	enum date_convert_format database_date_format;
 
@@ -276,10 +314,10 @@ enum date_convert_format date_convert_populate_return_date(
 enum date_convert_format date_convert_date_get_format(
 			char *date_time_string )
 {
-	return date_convert_format_evaluate( date_time_string );
+	return date_convert_date_time_evaluate( date_time_string );
 }
 
-enum date_convert_format date_convert_format_evaluate(
+enum date_convert_format date_convert_date_time_evaluate(
 			char *date_time_string )
 {
 	char delimiter;
@@ -652,7 +690,7 @@ char *date_convert_american2international( char *american )
 	return date_convert_international_string( american );
 }
 
-enum date_convert_format date_convert_get_date_convert_format(
+enum date_convert_format date_convert_format_evaluate(
 			char *format_string )
 {
 	if ( strcmp( format_string, "american" ) == 0 )
@@ -668,7 +706,13 @@ enum date_convert_format date_convert_get_date_convert_format(
 }
 
 char *date_convert_get_date_format_string(
-				enum date_convert_format date_convert_format )
+			enum date_convert_format date_convert_format )
+{
+	return date_convert_format_string( date_convert_format );
+}
+
+char *date_convert_format_string(
+			enum date_convert_format date_convert_format )
 {
 	if ( date_convert_format == american )
 		return "american";
@@ -939,3 +983,61 @@ char *date_convert_international_string(
 
 	return international;
 }
+
+DATE_CONVERT *date_convert_login_name_fetch(
+			char *login_name )
+{
+	APPLICATION *application;
+	APPASERVER_USER *appaserver_user;
+
+	if ( ! ( appaserver_user =
+			appaserver_user_fetch(
+				login_name,
+				0 /* fetch_role_list */,
+				0 /* fetch_attribute_exclude_list */,
+				0 /* fetch_session_list */ ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: appaserver_user_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( *appaserver_user->user_date_format )
+	{
+		return date_convert_new(
+			date_convert_unknown,
+			date_convert_format_evaluate(
+				appaserver_user->user_date_format ) );
+	}
+
+	if ( ! ( application = application_fetch() ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: application_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( *application->user_date_format )
+	{
+		return date_convert_new(
+			date_convert_unknown,
+			date_convert_format_evaluate(
+				application->user_date_format ) );
+	}
+	else
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: user_date_format is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+}
+

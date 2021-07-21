@@ -1,7 +1,5 @@
 /* $APPASERVER_HOME/library/appaserver_user.h				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver user ADT.					*/
-/*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
@@ -14,6 +12,7 @@
 
 #define APPASERVER_USER_TABLE		"appaserver_user"
 #define APPASERVER_USER_PRIMARY_KEY	"login_name"
+
 typedef struct
 {
 	/* Input */

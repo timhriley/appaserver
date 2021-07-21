@@ -161,6 +161,7 @@ char *get_multi_table_name(
 
 }
 
+#ifdef NOT_DEFINED
 char *get_folder_name(	char *application_name,
 			char *table_name )
 {
@@ -200,8 +201,8 @@ char *get_folder_name(	char *application_name,
 	}
 
 	return strdup( folder_name );
-
 }
+#endif
 
 char *appaserver_library_table_name(
 			char *application_name,
@@ -223,17 +224,11 @@ char *get_table_name( 	char *application_name,
 		sprintf( table_name, "%s_%s", application_name, folder_name );
 	}
 	else
-	if ( application_is_primary_application( application_name ) )
 	{
-		sprintf( table_name, "%s", folder_name );
-	}
-	else
-	{
-		sprintf( table_name, "%s_%s", application_name, folder_name );
+		strcpy( table_name, folder_name );
 	}
 
 	return strdup( table_name );
-
 }
 
 /* Sample: dictionary_string = "first_name=tim&last_name=riley" */

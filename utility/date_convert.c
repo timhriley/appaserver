@@ -35,13 +35,7 @@ int main( int argc, char **argv )
 
 	delimiter = *argv[ 1 ];
 	position_integer_list = get_position_integer_list( argv[ 2 ] );
-	date_convert_format = date_convert_get_date_convert_format( argv[ 3 ] );
-
-/*
-	fprintf( stderr, "%s", *argv );
-	while( --argc ) fprintf( stderr, " %s", *++argv );
-	fprintf( stderr, "\n" );
-*/
+	date_convert_format = date_convert_date_time_evaluate( argv[ 3 ] );
 
 	while( get_line( input_buffer, stdin ) )
 	{

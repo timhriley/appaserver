@@ -166,8 +166,10 @@ char *get_table_name(
 			char *application_name,
 			char *folder );
 
+/*
 char *get_folder_name(	char *application_name,
 			char *table_name );
+*/
 
 void output_insert_database_row(
 			char *data_pipe_string,

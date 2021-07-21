@@ -55,10 +55,10 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-ENTITY *entity_calloc(			void );
+ENTITY *entity_calloc(	void );
 
-ENTITY *entity_new(			char *full_name,
-					char *street_address );
+ENTITY *entity_new(	char *full_name,
+			char *street_address );
 
 ENTITY *entity_sales_tax_payable_entity(
 			void );
@@ -102,6 +102,12 @@ char *entity_primary_where(
 			char *full_name,
 			char *street_address );
 
+LIST *entity_system_list(
+			char *system_string );
+
+char *entity_system_string(
+			char *where );
+
 /* Returns static memory */
 /* --------------------- */
 char *entity_escape_full_name(
@@ -128,12 +134,6 @@ void entity_insert_pipe(
 char *entity_name_display(
 			char *full_name,
 			char *street_address );
-
-LIST *entity_system_list(
-			char *sys_string );
-
-char *entity_sys_string(
-			char *where );
 
 LIST *entity_full_street_list(
 			LIST *full_name_list,

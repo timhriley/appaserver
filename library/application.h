@@ -10,14 +10,41 @@
 
 #include "boolean.h"
 
-#define APPLICATION_RECORD_DELIMITER	'^'
+/* Constants */
+/* --------- */
+#define APPLICATION_SELECT			\
+		"application_name,"		\
+		"application_title,"		\
+		"appaserver_version,"		\
+		"database_date_format,"		\
+		"user_date_format,"		\
+		"relative_source_directory,"	\
+		"next_session_number,"		\
+		"next_reference_number,"	\
+		"background_color,"		\
+		"distill_directory,"		\
+		"ghost_script_directory,"	\
+		"grace_home_directory,"		\
+		"grace_execution_directory,"	\
+		"grace_free_option_yn,"		\
+		"grace_output,"			\
+		"frameset_menu_horizontal_yn,"	\
+		"ssl_support_yn,"		\
+		"prepend_http_protocol_yn,"	\
+		"chart_email_command_line,"	\
+		"max_query_rows_for_drop_downs,"\
+		"max_drop_down_size"
 
 typedef struct
 {
 	char *application_name;
 	char *application_title;
-	/* char only_one_primary_yn; */
+	char *appaserver_version;
+	char *database_date_format;
+	char *user_date_format;
 	char *relative_source_directory;
+	char *next_session_number;
+	char *next_reference_number;
 	char *background_color;
 	char *distill_directory;
 	char *ghost_script_directory;
@@ -26,49 +53,77 @@ typedef struct
 	char grace_free_option_yn;
 	char *grace_output;
 	char frameset_menu_horizontal_yn;
-	char *chart_email_command_line;
 	char ssl_support_yn;
 	char prepend_http_protocol_yn;
+	char *chart_email_command_line;
 	int max_query_rows_for_drop_downs;
 	int max_drop_down_size;
-	char *appaserver_version;
 } APPLICATION;
 
 /* Prototypes */
 /* ---------- */
-APPLICATION *application_new_application(	char *application_string );
-char *application_title_string(		char *application_string );
-char *application_title(	char *application_string );
-char *application_relative_source_directory(char *application_string );
-char *application_background_color(		char *application_string );
-char *application_distill_directory(	char *application_string );
-char *application_ghost_script_directory(	char *application_string );
-char *application_grace_home_directory(	char *application_string );
-char *application_grace_execution_directory(char *application_string );
-char application_grace_free_option_yn(	char *application_string );
-char *application_grace_output(		char *application_string );
-char application_ssl_support_yn(		char *application_string );
+APPLICATION *application_calloc(
+			void );
 
-char application_prepend_http_protocol_yn(
+APPLICATION *application_new(
+			char *application_name );
+
+APPLICATION *application_new_application(
+			char *application_string );
+
+char *application_title_string(
+			char *application_string );
+char *application_title(char *application_string );
+
+char *application_relative_source_directory(
+			char *application_string );
+
+char *application_background_color(
+			char *application_string );
+
+char *application_distill_directory(
+			char *application_string );
+
+char *application_ghost_script_directory(
+			char *application_string );
+
+char *application_grace_home_directory(
+			char *application_string );
+
+char *application_grace_execution_directory(
+			char *application_string );
+
+char application_grace_free_option_yn(
+			char *application_string );
+
+char *application_grace_output(
+			char *application_string );
+
+char application_ssl_support_yn(
 			char *application_string );
 
 char application_prepend_http_protocol_yn(
 			char *application_string );
 
-int application_max_drop_down_size(		char *application_string );
+char application_prepend_http_protocol_yn(
+			char *application_string );
+
+int application_max_drop_down_size(
+			char *application_string );
+
 int application_max_query_rows_for_drop_downs(
-						char *application_string );
+			char *application_string );
 
 char application_frameset_menu_horizontal_yn(
-						char *application_string );
+			char *application_string );
 
-boolean application_is_primary_application(	char *application_string );
+char *application_chart_email_command_line(
+			char *application_string );
 
-char *application_chart_email_command_line(	char *application_string );
+char *application_version(
+			char *application_string );
 
-char *application_version(			char *application_string );
-
-void application_reset(				void );
+void application_reset(	void );
 
 char *application_http_prefix(
 			char *application_string );
@@ -77,12 +132,31 @@ char *application_http_prefix(
 			char *application_string );
 
 char *application_first_relative_source_directory(
-						char *application_string );
+			char *application_string );
 
 char application_ssl_support_yn(
 			char *application_string );
 
-boolean application_get_is_primary_application(
-			char *stub );
+/* Safely returns heap memory */
+/* -------------------------- */
+char *application_primary_where(
+			char *application_name );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *application_system_string(
+			char *where );
+
+APPLICATION *application_parse(
+			char *input );
+
+APPLICATION *application_fetch(
+			void );
+
+char *application_table_name(
+			char *folder_name );
+
+char *application_database_date_format(
+			void );
 
 #endif
