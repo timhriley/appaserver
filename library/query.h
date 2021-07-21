@@ -93,6 +93,7 @@ typedef struct
 	char *root_folder_name;
 	char *mto1_foreign_folder_name;
 	LIST *drop_down_row_list;
+
 } QUERY_DROP_DOWN;
 
 typedef struct
@@ -104,6 +105,7 @@ typedef struct
 	QUERY_DATA *from_data;
 	QUERY_DATA *to_data;
 	int primary_key_index;
+
 } QUERY_ATTRIBUTE;
 
 typedef struct
@@ -113,43 +115,59 @@ typedef struct
 	LIST *query_drop_down_list;
 	LIST *query_attribute_list;
 	char *where_clause;
+
 } QUERY_SUBQUERY;
 
 typedef struct
 {
-	char *select_clause;
-	char *from_clause;
-	char *drop_down_where_clause;
-	char *attribute_where_clause;
-	char *non_joined_where_clause;
-	char *subquery_where_clause;
-	char *where_clause;
-	char *order_clause;
-	LIST *query_attribute_list;
+	/* Input */
+	/* ----- */
+	DICTIONARY *query_dictionary;
+	LIST *where_attribute_data_list;
+	FOLDER *mto1_folder;
+	LIST *ignore_attribute_name_list;
+	PROMPT_RECURSIVE *prompt_recursive;
+	char *attribute_not_null_join;
+	char *attribute_not_null_folder_name;
+	DICTIONARY *sort_dictionary;
+
+	/* Process */
+	/* ------- */
 	LIST *query_drop_down_list;
 	LIST *query_prompt_recursive_drop_down_list;
-	LIST *row_dictionary_list;
-	LIST *query_subquery_list;
+	LIST *query_attribute_list;
 	char *query_output_drop_down_where;
+	char *query_output_drop_down_data_where(
 	char *query_output_attribute_where;
 	char *query_output_join_where;
+	char *query_output_related_join;
 	char *query_output_where;
 	char *query_output_select;
 	char *query_output_from;
+	char *query_output_order;
+	char *query_output_display;
+	LIST *query_output_dictionary_list;
 } QUERY_OUTPUT;
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
+	DICTIONARY *query_dictionary;
+	LIST *where_attribute_data_list;
+	char *login_name_only;
+	char *full_name_only;
+	char *street_address_only;
 	FOLDER *mto1_folder;
 	LIST *ignore_attribute_name_list;
-	LIST *one2m_subquery_related_folder_list;
-	char *login_name;
-	DICTIONARY *dictionary;
+	char *attribute_not_null_join;
+	char *attribute_not_null_folder_name;
 	DICTIONARY *sort_dictionary;
-	LIST *mto1_join_folder_list;
-	LIST *where_attribute_data_list;
-	int max_rows /* use zero for unlimited */;
+
+	/* Process */
+	/* ------- */
 	PROMPT_RECURSIVE *prompt_recursive;
+	int max_rows /* use zero for unlimited */;
 	QUERY_OUTPUT *query_output;
 } QUERY;
 
@@ -1071,4 +1089,10 @@ char *query_attribute_name_list_order(
 			LIST *attribute_name_list,
 			char *descending_label );
 
+LIST *query_output_dictionary_list(
+			char *query_output_select,
+			char *query_output_from,
+			char *query_output_where,
+			char *query_output_order,
+			int max_rows );
 #endif

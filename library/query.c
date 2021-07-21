@@ -472,32 +472,27 @@ char *query_sys_string( 	char *application_name,
 	return strdup( sys_string );
 }
 
-LIST *query_row_dictionary_list(
-				char *application_name,
-				char *select_clause,
-				char *from_clause,
-				char *where_clause,
-				char *order_clause,
-				int max_rows,
-				LIST *append_isa_attribute_list,
-				char *login_name )
+LIST *query_output_dictionary_list(
+			char *query_output_select,
+			char *query_output_from,
+			char *query_output_where,
+			char *query_output_order,
+			int max_rows )
 {
 	LIST *row_dictionary_list = {0};
-	char *sys_string;
+	char *system_string;
 
-	sys_string = 
-		query_sys_string(
-			application_name,
-			select_clause,
-			from_clause,
-			where_clause,
-			(char *)0 /* subquery_where_clause */,
-			order_clause,
+	system_string = 
+		query_output_system_string(
+			query_output_select,
+			query_output_from,
+			query_output_where,
+			query_output_order,
 			max_rows );
 
 	row_dictionary_list =
 		list_usage_pipe2dictionary_list(
-			sys_string, 
+			system_string, 
 	 		attribute_lookup_allowed_attribute_name_list(
 				append_isa_attribute_list ),
 	 		attribute_date_attribute_name_list(
@@ -2581,83 +2576,6 @@ boolean query_attribute_is_number(
 	{
 		return 0;
 	}
-}
-
-char *query_get_subquery_where_clause(
-			char *application_name,
-			char *folder_name,
-			LIST *query_subquery_list,
-			LIST *primary_attribute_name_list )
-{
-	QUERY_SUBQUERY *query_subquery;
-	char where_clause[ QUERY_WHERE_BUFFER ];
-	char *where_ptr = where_clause;
-
-	*where_ptr = '\0';
-
-	if ( !list_rewind( query_subquery_list ) ) return (char *)0;
-
-	do {
-		query_subquery = list_get( query_subquery_list );
-
-		if ( !list_at_head( query_subquery_list ) )
-		{
-			where_ptr += sprintf( where_ptr, " and " );
-		}
-
-		where_ptr += sprintf(
-				where_ptr,
-				"exists ( select 1 from %s where %s",
-				query_subquery->folder_name,
-				query_append_where_clause_related_join(
-					application_name,
-					where_ptr /* source_where_clause */,
-					primary_attribute_name_list,
-					query_subquery->
-						foreign_attribute_name_list,
-					folder_name,
-					query_subquery->folder_name
-						/* related_folder_name */ ) );
-
-		if ( list_length( query_subquery->query_drop_down_list ) )
-		{
-			where_ptr += sprintf(
-					where_ptr,
-					" and %s", 
-					query_get_drop_down_where_clause(
-						query_subquery->
-							query_drop_down_list,
-						application_name,
-						(char *)0 /* folder_name */ ) );
-		}
-
-		if ( list_length( query_subquery->query_attribute_list ) )
-		{
-			boolean combine_date_time = 0;
-
-			/* Fix this! */
-			/* --------- */
-			if ( !query_subquery->folder_name )
-			{
-				combine_date_time = 1;
-			}
-
-			where_ptr += sprintf(
-					where_ptr,
-					" and %s", 
-					query_get_attribute_where_clause(
-						query_subquery->
-							query_attribute_list,
-						application_name,
-						combine_date_time ) );
-		}
-
-		where_ptr += sprintf( where_ptr, " )" );
-
-	} while( list_next( query_subquery_list ) );
-
-	return strdup( where_clause );
-
 }
 
 char *query_output_drop_down_data_where(
@@ -5168,234 +5086,6 @@ QUERY *query_detail_new(
 			append_isa_attribute_list,
 			attribute_not_null_join,
 			attribute_not_null_folder_name );
-
-	return query;
-}
-
-char *query_output_one2m_isa_where(
-			char **from_clause,
-			char *application_name,
-			char *folder_name,
-			LIST *one2m_isa_related_folder_list,
-			LIST *primary_attribute_name_list,
-			char *where_clause,
-			boolean one_only )
-{
-	LIST *foreign_attribute_name_list;
-	RELATED_FOLDER *isa_related_folder;
-	char from_buffer[ 1024 ];
-
-	if ( !list_rewind( one2m_isa_related_folder_list ) )
-		return where_clause;
-
-	if ( !from_clause ) return where_clause;
-
-	strcpy( from_buffer, *from_clause );
-
-	do {
-		isa_related_folder =
-			list_get(
-				one2m_isa_related_folder_list );
-
-		foreign_attribute_name_list =
-			    related_folder_foreign_attribute_name_list(
-				primary_attribute_name_list,
-				isa_related_folder->related_attribute_name,
-				isa_related_folder->
-					folder_foreign_attribute_name_list );
-
-		where_clause =
-			query_append_where_clause_related_join(
-				application_name,
-				where_clause,
-				primary_attribute_name_list,
-				foreign_attribute_name_list,
-				isa_related_folder->
-					one2m_folder->
-					folder_name,
-				folder_name );
-
-		sprintf( from_buffer + strlen( from_buffer ),
-			 ",%s",
-			 get_table_name(
-				application_name,
-				isa_related_folder->
-					one2m_folder->
-					folder_name ) );
-
-		if ( one_only ) break;
-
-	} while( list_next( one2m_isa_related_folder_list ) );
-
-	*from_clause = strdup( from_buffer );
-	return where_clause;
-}
-
-char *query_output_mto1_isa_where(
-			char *application_name,
-			char *folder_name,
-			LIST *mto1_isa_related_folder_list,
-			LIST *primary_attribute_name_list,
-			char *where_clause,
-			boolean one_only )
-{
-	LIST *foreign_attribute_name_list;
-	RELATED_FOLDER *isa_related_folder;
-
-	if ( !list_rewind( mto1_isa_related_folder_list ) )
-		return where_clause;
-
-	do {
-		isa_related_folder =
-			list_get(
-				mto1_isa_related_folder_list );
-
-		foreign_attribute_name_list =
-			isa_related_folder->
-				folder->
-				primary_attribute_name_list;
-
-		where_clause =
-			query_related_join_where(
-				application_name,
-				where_clause /* source_where */,
-				primary_attribute_name_list,
-				foreign_attribute_name_list,
-				isa_related_folder->
-					folder->
-					folder_name /* folder_name */,
-				folder_name /* related_folder_name */ );
-
-		if ( one_only ) break;
-
-	} while( list_next( mto1_isa_related_folder_list ) );
-
-	return where_clause;
-}
-
-char *query_related_join_where(
-			char *application_name,
-			char *source_where_clause,
-			LIST *primary_attribute_name_list,
-			LIST *foreign_attribute_name_list,
-			char *folder_name,
-			char *related_folder_name )
-{
-	char where_clause[ QUERY_WHERE_BUFFER ];
-	char *where_ptr = where_clause;
-	char *primary_attribute_name;
-	char *foreign_attribute_name;
-	boolean prepend_and_clause = 0;
-	char *table_name;
-	char *related_table_name;
-
-	table_name =
-		get_table_name(
-			application_name,
-			folder_name );
-
-	related_table_name =
-		get_table_name(
-			application_name,
-			related_folder_name );
-
-	if ( source_where_clause )
-	{
-		where_ptr += sprintf( where_ptr, "%s", source_where_clause );
-	}
-	else
-	{
-		*where_ptr = '\0';
-	}
-
-	if ( !list_rewind( primary_attribute_name_list ) )
-		return strdup( where_clause );
-
-	if ( !list_rewind( foreign_attribute_name_list ) )
-	{
-		return strdup( where_clause );
-	}
-
-	if ( source_where_clause
-	&&   *source_where_clause )
-	{
-		prepend_and_clause = 1;
-	}
-
-	do {
-		primary_attribute_name =
-			list_get(
-				primary_attribute_name_list );
-
-		foreign_attribute_name =
-			list_get(
-				foreign_attribute_name_list );
-
-		if ( prepend_and_clause )
-			where_ptr += sprintf( where_ptr, " and" );
-
-		where_ptr += sprintf(
-				where_ptr,
-				" %s.%s = %s.%s",
-				related_table_name,
-				primary_attribute_name,
-				table_name,
-				foreign_attribute_name );
-
-		prepend_and_clause = 1;
-
-		if ( !list_next( foreign_attribute_name_list ) ) break;
-
-	} while( list_next( primary_attribute_name_list ) );
-
-	return strdup( where_clause );
-}
-
-QUERY *query_prompt_folder_data_new(
-			char *application_name,
-			char *login_name,
-			char *folder_name,
-			DICTIONARY *dictionary,
-			ROLE *role,
-			int max_rows )
-{
-	QUERY *query;
-
-	query = query_calloc();
-
-	if ( !folder_name )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty folder_name.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( ! ( query->folder =
-			folder_with_load_new(
-				application_name,
-				BOGUS_SESSION,
-				folder_name,
-				role ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load folder.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	query->login_name = login_name;
-	query->dictionary = dictionary;
-	query->max_rows = max_rows;
-
-	query->query_output =
-		query_prompt_data_output_new(
-			query,
-			query->folder );
 
 	return query;
 }

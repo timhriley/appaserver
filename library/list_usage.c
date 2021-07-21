@@ -18,15 +18,14 @@
 #include "piece.h"
 #include "date_convert.h"
 
-LIST *list_usage_pipe2dictionary_list(
-			char *sys_string, 
-			LIST *attribute_name_list,
-			LIST *date_attribute_name_list,
-			char field_delimiter,
-			char *application_name,
-			char *login_name )
+LIST *pipe2dictionary_list(	 	char *sys_string, 
+					LIST *attribute_name_list,
+					LIST *date_attribute_name_list,
+					char field_delimiter,
+					char *application_name,
+					char *login_name )
 {
-	return pipe2dictionary_list(
+	return list_usage_pipe2dictionary_list(
 			sys_string, 
 			attribute_name_list,
 			date_attribute_name_list,
@@ -35,12 +34,13 @@ LIST *list_usage_pipe2dictionary_list(
 			login_name );
 }
 
-LIST *pipe2dictionary_list(	 	char *sys_string, 
-					LIST *attribute_name_list,
-					LIST *date_attribute_name_list,
-					char field_delimiter,
-					char *application_name,
-					char *login_name )
+LIST *list_usage_pipe2dictionary_list(
+			char *sys_string, 
+			LIST *attribute_name_list,
+			LIST *date_attribute_name_list,
+			char field_delimiter,
+			char *application_name,
+			char *login_name )
 {
 	char buffer[ 65536 ];
 	char data[ 65536 ];
@@ -138,8 +138,7 @@ LIST *pipe2dictionary_list(	 	char *sys_string,
 	pclose( p );
 
 	return list;
-
-} /* pipe2dictionary_list() */
+}
 
 /* ------------------------------------------------------------- */
 /* Sample dictionary_string: "datatype=salinity&station=station" */
@@ -177,7 +176,7 @@ LIST *dictionary_string2list( char *dictionary_string,
 		}
 	}
 	return list;
-} /* dictionary_string2list() */
+}
 
 /* Sample: "first_name=tim&last_name=riley" */
 /* ---------------------------------------- */
@@ -206,7 +205,7 @@ void list_subtract_dictionary_string( LIST *list, char *dictionary_string )
 			}
 		}
 	}
-} /* list_subtract_dictionary_string() */
+}
 
 char *two_lists_to_dictionary_string( LIST *list1, LIST *list2 )
 {
@@ -242,7 +241,7 @@ char *two_lists_to_dictionary_string( LIST *list1, LIST *list2 )
 		} while( next_item( list1 ) );
 	}
 	return strdup( return_buffer );
-} /* two_lists_to_dictionary_string() */
+}
 
 
 LIST *list_usage_get_column_list( char *string )
@@ -256,7 +255,7 @@ LIST *list_usage_get_column_list( char *string )
 
 	return return_list;
 
-} /* list_usage_get_column_list() */
+}
 
 LIST *sys_string2list( char *sys_string )
 {
@@ -283,7 +282,7 @@ char *search_replace_list( 	char *source_destination,
 			}
 		} while( list_next( list ) );
 	return source_destination;
-} /* search_replace_list() */
+}
 
 char *search_replace_list_prepend( 	char *source_destination, 
 					LIST *list, 
@@ -314,7 +313,7 @@ char *search_replace_list_prepend( 	char *source_destination,
 		} while( list_next( list ) );
 	}
 	return source_destination;
-} /* search_replace_list_prepend() */
+}
 
 char *search_replace_list_index_prepend_single_quoted(
 				char *source_destination, 
@@ -363,7 +362,7 @@ char *search_replace_list_index_prepend_single_quoted(
 		} while( list_next( list ) );
 	}
 	return source_destination;
-} /* search_replace_list_index_prepend_single_quoted() */
+}
 
 char *search_replace_list_index_prepend_double_quoted(
 				char *source_destination, 
@@ -415,7 +414,7 @@ char *search_replace_list_index_prepend_double_quoted(
 
 	return source_destination;
 
-} /* search_replace_list_index_prepend_double_quoted() */
+}
 
 void list_interpolate_string_record( LIST *list, char delimiter )
 {
@@ -465,7 +464,7 @@ void list_interpolate_string_record( LIST *list, char delimiter )
 	} while( list_next( list ) );
 
 	free( double_array );
-} /* list_interpolate_string_record() */
+}
 
 int list_get_string_item_offset( LIST *list, char *search_string )
 {
@@ -481,7 +480,7 @@ int list_get_string_item_offset( LIST *list, char *search_string )
 		} while( list_next( list ) );
 	}
 	return -1;
-} /* list_get_string_item_offset() */
+}
 
 void list_separate( LIST *list, int c )
 {
@@ -501,7 +500,7 @@ void list_separate( LIST *list, int c )
 		} while( list_next( list ) );
 	}
 	list_append_list( list, new_list );
-} /* list_separate() */
+}
 
 LIST *list_usage_piece_list( LIST *list, char delimiter, int offset )
 {
@@ -523,7 +522,7 @@ LIST *list_usage_piece_list( LIST *list, char delimiter, int offset )
 		} while( list_next( list ) );
 	}
 	return new_list;
-} /* list_usage_piece_list() */
+}
 
 char *list_usage_attribute_data_list2where_clause(
 				LIST *attribute_name_list,
@@ -556,7 +555,7 @@ char *list_usage_attribute_data_list2where_clause(
 		if ( !list_next( attribute_data_list ) ) break;
 	} while( list_next( attribute_name_list ) );
 	return strdup( where_clause );
-} /* list_usage_attribute_data_list2where_clause() */
+}
 
 LIST *list_usage_add_prefix(	LIST *source_list,
 				char *prefix )
@@ -575,7 +574,7 @@ LIST *list_usage_add_prefix(	LIST *source_list,
 		} while( list_next( source_list ) );
 	}
 	return return_list;
-} /* list_usage_add_prefix() */
+}
 
 LIST *list_usage_remove_prefix(	LIST *source_list,
 				char *prefix )
@@ -598,7 +597,7 @@ LIST *list_usage_remove_prefix(	LIST *source_list,
 		} while( list_next( source_list ) );
 	}
 	return return_list;
-} /* list_usage_remove_prefix() */
+}
 
 char *list_usage_concat( LIST *attribute_name_list )
 {
@@ -632,7 +631,7 @@ char *list_usage_concat( LIST *attribute_name_list )
 	buffer_ptr += sprintf( buffer_ptr, ")" );
 	*buffer_ptr = '\0';
 	return strdup( buffer );
-} /* list_usage_concat() */
+}
 
 char *list_usage_get_in_clause( LIST *column_string_list )
 {
@@ -659,7 +658,7 @@ char *list_usage_get_in_clause( LIST *column_string_list )
 	ptr += sprintf( ptr, ")" );
 	*ptr = '\0';
 	return strdup( in_clause );
-} /* list_usage_get_in_clause() */
+}
 
 LIST *list_usage_attribute_data_dictionary_merge_list(
 			LIST *primary_attribute_name_list,
@@ -719,7 +718,7 @@ LIST *list_usage_attribute_data_dictionary_merge_list(
 
 	return data_dictionary_merge_list;
 
-} /* list_usage_attribute_data_dictionary_merge_list() */
+}
 
 LIST *list_usage_file2list( char *filename )
 {
@@ -739,7 +738,7 @@ LIST *list_usage_file2list( char *filename )
 	fclose( input_file );
 	return return_list;
 
-} /* list_usage_file2list() */
+}
 
 void list_usage_stdout_display( LIST *list )
 {
@@ -751,7 +750,7 @@ void list_usage_stdout_display( LIST *list )
 		} while( list_next( list ) );
 	}
 
-} /* list_usage_stdout_display() */
+}
 
 boolean list_usage_lists_equal(	LIST *list1,
 				LIST *list2 )
@@ -777,7 +776,7 @@ boolean list_usage_lists_equal(	LIST *list1,
 
 	return 1;
 
-} /* list_usage_lists_equal() */
+}
 
 /* Assume comma and dash delimited string. */
 /* --------------------------------------- */
@@ -823,5 +822,5 @@ LIST *list_usage_expression2number_list( char *expression )
 
 	return number_list;
 
-} /* list_usage_expression2number_list() */
+}
 
