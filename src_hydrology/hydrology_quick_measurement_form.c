@@ -222,7 +222,7 @@ int main( int argc, char **argv )
 	query =
 		query_simple_new(
 			query_dictionary,
-			(char *)0 /* login_name_only */,
+			(char *)0 /* login_name */,
 			(char *)0 /* full_name_only */,
 			(char *)0 /* street_address_only */,
 			folder,
@@ -248,25 +248,15 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	query->query_output->where_clause =
-		get_where_clause(
-			query->dictionary,
-			application_name,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			station,
-			datatype );
-
 	row_dictionary_list =
-		query_row_dictionary_list(
-				query->folder->application_name,
-				query->query_output->select_clause,
-				query->query_output->from_clause,
-				query->query_output->where_clause,
-				query->query_output->order_clause,
-				10000 /* query->max_rows */,
-				query->folder->append_isa_attribute_list,
-				query->login_name );
+		query_output_dictionary_list(
+			query->query_output->query_output_select_display,
+			query->query_output->query_output_select_name_list,
+			query->query_output->query_output_from,
+			query->query_output->query_output_where,
+			query->query_output->query_output_order,
+			10000 /* query->max_rows */,
+			query->query_output->query_date_convert );
 
 	form = form_new( FORM_NAME, FORM_TITLE );
 	form->omit_folder_name_in_title = 1;

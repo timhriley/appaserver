@@ -2876,7 +2876,7 @@ LIST *related_folder_preselection_dictionary_list(
 			char *folder_name,
 			char *related_folder_name,
 			DICTIONARY *query_dictionary,
-			char *login_name_only,
+			char *login_name,
 			char *full_name_only,
 			char *street_address_only,
 			char *role_name )
@@ -2933,7 +2933,7 @@ LIST *related_folder_preselection_dictionary_list(
 		query =
 			query_simple_new(
 				query_dictionary,
-				login_name_only,
+				login_name,
 				full_name_only,
 				street_address_only,
 				folder_related,
@@ -2960,15 +2960,14 @@ LIST *related_folder_preselection_dictionary_list(
 		}
 
 		related_folder_dictionary_list =
-			query_row_dictionary_list(
-				query->folder->application_name,
-				query->query_output->select_clause,
-				query->query_output->from_clause,
-				query->query_output->where_clause,
-				query->query_output->order_clause,
-				query->max_rows,
-				query->folder->append_isa_attribute_list,
-				query->login_name );
+		     query_output_dictionary_list(
+			query->query_output->query_output_select_display,
+			query->query_output->query_output_select_name_list,
+			query->query_output->query_output_from,
+			query->query_output->query_output_where,
+			query->query_output->query_output_order,
+			query->max_rows,
+			query->query_output->query_date_convert );
 	}
 
 	return related_folder_subtract_preselection_existing_dictionary_list(

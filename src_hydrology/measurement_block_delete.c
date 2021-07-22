@@ -448,7 +448,6 @@ char *get_where_clause_string( 	char *application_name,
 	folder =
 		folder_load_new( 	
 			application_name,
-			session,
 			"measurement",
 			role );
 
@@ -465,7 +464,7 @@ char *get_where_clause_string( 	char *application_name,
 	query =
 		query_simple_new(
 			query_dictionary,
-			(char *)0 /* login_name_only */,
+			(char *)0 /* login_name */,
 			(char *)0 /* full_name_only */,
 			(char *)0 /* street_address_only */,
 			folder,
@@ -491,28 +490,13 @@ char *get_where_clause_string( 	char *application_name,
 		exit( 1 );
 	}
 
-	/* If executed from the user interface. */
-	/* ------------------------------------ */
-	date_time_where_clause =
-		query_get_between_date_time_where(	
-			"measurement_date",
-			"measurement_time",
-			begin_date,
-			begin_time,
-			end_date,
-			end_time,
-			(char *)0 /* application */,
-			(char *)0 /* folder_name */ );
-
 	sprintf( buffer,
 		 "station = '%s' 				"
 		 "and datatype = '%s'				"
-		 "and %s					"
 		 "and %s					",
 		 station,
 		 datatype,
-		 date_time_where_clause,
-		 query->query_output->where_clause );
+		 query->query_output->query_output_where );
 
 	return strdup( buffer );
 }

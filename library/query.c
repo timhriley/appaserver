@@ -504,11 +504,8 @@ LIST *query_output_dictionary_list(
 			char *query_output_where,
 			char *query_output_order,
 			int max_rows,
-			LIST *date_attribute_name_list,
-			enum date_convert_format source_format,
-			enum date_convert_format destination_format )
+			QUERY_DATE_CONVERT *query_date_convert )
 {
-	LIST *row_dictionary_list = {0};
 	char *system_string;
 
 	system_string = 
@@ -519,15 +516,33 @@ LIST *query_output_dictionary_list(
 			query_output_order,
 			max_rows );
 
-	row_dictionary_list =
-		query_dictionary_list(
+	return
+		query_system_dictionary_list(
 			system_string,
 			query_output_select_name_list,
-			date_attribute_name_list,
-			source_format,
-			destination_format );
+			query_date_convert );
+}
 
-	return row_dictionary_list;
+LIST *query_output_record_list(
+			char *query_select_display,
+			LIST *query_output_select_name_list,
+			char *query_output_from,
+			char *query_output_where,
+			char *query_output_order,
+			int max_rows,
+			QUERY_DATE_CONVERT *query_date_convert )
+{
+	char *system_string;
+
+	system_string = 
+		query_output_system_string(
+			query_select_display,
+			query_output_from,
+			query_output_where,
+			query_output_order,
+			max_rows );
+
+	return pipe2list( system_string );
 }
 
 char *query_attribute_between_date_time_where(
@@ -3379,108 +3394,10 @@ LIST *query_with_folder_name_get_mto1_join_folder_list(
 	}
 
 	return mto1_join_folder_list;
-
 }
 
-/*
-	if ( folder->row_level_non_owner_forbid
-	&&   list_length( folder->mto1_related_folder_list ) )
-	{
-		query_output_set_row_level_non_owner_forbid_join(
-			query_output,
-			folder );
-	}
-*/
-
-/* ------------------------------------------------------------ */
-/* If row_level_non_owner_forbid where a m:1 isa ENTITY.	*/
-/* See EMPLOYEE_WORK_DAY --> EMPLOYEE isa ENTITY.		*/
-/* ------------------------------------------------------------ */
-void query_output_set_row_level_non_owner_forbid_join(
-			QUERY_OUTPUT *query_output,
-			FOLDER *folder )
-{
-	if ( list_rewind( folder->mto1_related_folder_list ) )
-	{
-		RELATED_FOLDER *related_folder;
-		RELATED_FOLDER *isa_related_folder;
-		LIST *foreign_attribute_name_list;
-
-		do {
-			related_folder =
-				list_get_pointer(
-					folder->
-					mto1_related_folder_list );
-
-			if ( !related_folder->
-				folder->
-				row_level_non_owner_forbid )
-			{
-				continue;
-			}
-
-
-			/* This is the old way of setting. */
-			/* ------------------------------- */ 
-			related_folder->
-				folder->
-				mto1_isa_related_folder_list =
-				   related_folder_get_isa_related_folder_list(
-					folder->application_name,
-					BOGUS_SESSION,
-					related_folder->folder->folder_name,
-					(char *)0 /* role_name */,
-					0 /* role_override_row_restrictions */,
-					related_folder_recursive_all );
-
-			if ( !list_length(
-				related_folder->
-					folder->
-					mto1_isa_related_folder_list ) )
-			{
-				continue;
-			}
-
-			list_rewind( related_folder->
-					folder->
-					mto1_isa_related_folder_list );
-
-			do {
-				isa_related_folder =
-					list_get_pointer(
-					  related_folder->
-					  folder->
-					  mto1_isa_related_folder_list );
-
-				foreign_attribute_name_list =
-				   folder_get_primary_attribute_name_list(
-					isa_related_folder->folder->
-						attribute_list );
-
-				query_output->where_clause =
-				   query_append_where_clause_related_join(
-					folder->application_name,
-					query_output->where_clause,
-					folder_get_primary_attribute_name_list(
-						folder->attribute_list ),
-					foreign_attribute_name_list,
-					folder->folder_name,
-					isa_related_folder->
-						folder->
-						folder_name );
-
-			} while( list_next(
-					related_folder->
-					folder->
-					mto1_isa_related_folder_list ) );
-
-		} while( list_next(
-					folder->
-					mto1_related_folder_list ) );
-	}
-
-}
-
+/* Sets login_name or entity to query_dictionary */
+/* --------------------------------------------- */
 void query_dictionary_row_level_non_owner_forbid(
 			DICTIONARY *query_dictionary,
 			char *login_name_only,
@@ -5056,7 +4973,7 @@ char *query_from_clause(
 
 QUERY *query_simple_new(
 			DICTIONARY *query_dictionary,
-			char *login_name_only,
+			char *login_name,
 			char *full_name_only,
 			char *street_address_only,
 			FOLDER *mto1_folder,
@@ -5070,7 +4987,7 @@ QUERY *query_simple_new(
 		/* --------------------------------------------- */
 		query_dictionary_row_level_non_owner_forbid(
 			query_dictionary,
-			login_name_only,
+			login_name,
 			full_name_only,
 			street_address_only );
 	}
@@ -5093,11 +5010,73 @@ QUERY *query_simple_new(
 	query->query_output =
 		query_simple_output_new(
 			query->dictionary,
+			query->login_name,
 			query->mto1_folder,
 			query->ignore_attribute_name_list,
 			query->prompt_recursive );
 
 	return query;
+}
+
+QUERY_DATE_CONVERT *query_date_convert_calloc( void )
+{
+	QUERY_DATE_CONVERT *query_date_convert;
+
+	if ( ! ( query_date_convert =
+			calloc( 1, sizeof( QUERY_DATE_CONVERT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		exit( 1 );
+	}
+	return query_date_convert;
+}
+
+QUERY_DATE_CONVERT *query_date_convert(
+			char *login_name,
+			LIST *append_isa_attribute_list )
+{
+	QUERY_DATE_CONVERT *date_convert;
+	LIST *date_attribute_name_list;
+	DATE_CONVERT *convert;
+
+	if ( !login_name || !*login_name )
+		return (QUERY_DATE_CONVERT *)0;
+
+	date_attribute_name_list =
+		attribute_date_attribute_name_list(
+			append_isa_attribute_list );
+
+	if ( !list_length( date_attribute_name_list ) )
+		return (QUERY_DATE_CONVERT *)0;
+
+	date_convert = query_date_convert_calloc();
+
+	date_convert->date_attribute_name_list =
+		date_attribute_name_list;
+
+	date_convert->database_date_format =
+		date_convert_format_evaluate(
+			application_database_date_format() );
+
+	if ( ! ( convert =
+			date_convert_login_name_fetch(
+				login_name ) ) )
+	{
+		date_convert->user_date_format =
+			date_convert->database_date_format;
+	}
+	else
+	{
+		date_convert->user_date_format =
+			convert->user_date_format;
+	}
+
+	return date_convert;
 }
 
 QUERY_DATA *query_data_new(
@@ -5310,6 +5289,7 @@ LIST *query_drop_down_query_data_list(
 
 QUERY_OUTPUT *query_simple_output_new(
 			DICTIONARY *query_dictionary,
+			char *login_name,
 			FOLDER *mto1_folder,
 			LIST *ignore_attribute_name_list,
 			PROMPT_RECURSIVE *prompt_recursive )
@@ -5339,6 +5319,8 @@ QUERY_OUTPUT *query_simple_output_new(
 
 	query_output = query_output_calloc();
 
+	/* Drop-down list */
+	/* -------------- */
 	query_output->
 		query_drop_down_list =
 			query_drop_down_list(
@@ -5374,6 +5356,40 @@ QUERY_OUTPUT *query_simple_output_new(
 		}
 	}
 
+	/* Attribute list */
+	/* -------------- */
+	query_output->query_attribute_list =
+		query_attribute_list(
+			mto1_folder->append_isa_attribute_list,
+			query_dictionary,
+			exclude_attribute_name_list );
+
+	/* Select */
+	/* ------ */
+	query_output->query_output_select_name_list =
+		query_output_select_name_list(
+			mto1_folder->append_isa_attribute_list,
+			mto1_folder->ignore_attribute_name_list,
+			mto1_folder->lookup_attribute_exclude_name_list );
+
+	query_output->query_output_select_display =
+		query_output_select_display(
+			mto1_folder->folder_name,
+			query_output->query_output_select_name_list,
+			list_length(
+				mto1_folder->
+					mto1_isa_related_folder_list ) );
+
+	/* From */
+	/* ---- */
+	query_output->query_output_from =
+		query_output_from(
+			mto1_folder->folder_name,
+			mto1_folder->mto1_isa_related_folder_list,
+			(char *)0 /* attribute_not_null_folder_name */ );
+
+	/* Where */
+	/* ----- */
 	query_output->query_output_drop_down_where =
 		query_output_drop_down_where(
 			query_output->query_drop_down_list,
@@ -5381,12 +5397,6 @@ QUERY_OUTPUT *query_simple_output_new(
 			list_length(
 				mto1_folder->
 					mto1_isa_related_folder_list_length ) );
-
-	query_output->query_attribute_list =
-		query_attribute_list(
-			mto1_folder->append_isa_attribute_list,
-			query_dictionary,
-			exclude_attribute_name_list );
 
 	query_output->query_output_attribute_where =
 		query_output_attribute_where(
@@ -5404,20 +5414,21 @@ QUERY_OUTPUT *query_simple_output_new(
 			query_output->query_output_attribute_where,
 			query_output->query_output_join_where );
 
+	/* Order */
+	/* ----- */
+	query_output->query_output_order =
+		query_output_order(
+			mto1_folder->folder_name,
+			mto1_folder->primary_attribute_name_list,
+			mto1_folder->append_isa_attribute_list,
+			(DICTIONARY *)0 /* sort_dictionary */ );
 
-#ifdef NOT_DEFINED
-	/* ------------------------------------------------------------ */
-	/* If row_level_non_owner_forbid where a m:1 isa ENTITY.	*/
-	/* See EMPLOYEE_WORK_DAY --> EMPLOYEE isa ENTITY.		*/
-	/* ------------------------------------------------------------ */
-	if ( folder->row_level_non_owner_forbid
-	&&   list_length( folder->mto1_related_folder_list ) )
-	{
-		query_output_set_row_level_non_owner_forbid_join(
-			query_output,
-			folder );
-	}
-#endif
+	/* Date convert */
+	/* ------------ */
+	query_output->query_date_convert =
+		query_date_convert(
+			login_name,
+			mto1_folder->append_isa_attribute_list );
 
 	return query_output;
 }
@@ -6123,7 +6134,7 @@ LIST *query_output_select_name_list(
 }
 
 char *query_output_from(
-			char *folder_name,
+			char *mto1_folder_name,
 			LIST *mto1_isa_related_folder_list,
 			char *attribute_not_null_folder_name )
 {
@@ -6131,7 +6142,7 @@ char *query_output_from(
 
 	from_list = list_new();
 
-	list_set( from_list, folder_name );
+	list_set( from_list, mto1_folder_name );
 
 	list_set_list(
 		from_list,
@@ -6239,7 +6250,7 @@ char *query_sort_prefix_direction_attribute_index(
 }
 
 char *query_output_order(
-			char *folder_name,
+			char *mto1_folder_name,
 			LIST *primary_attribute_name_list,
 			LIST *append_isa_attribute_list,
 			DICTIONARY *sort_dictionary )
@@ -6253,7 +6264,7 @@ char *query_output_order(
 	if ( !dictionary_length( sort_dictionary ) )
 	{
 		return query_attribute_name_list_order(
-			folder_name,
+			mto1_folder_name,
 			primary_attribute_name_list,
 			append_isa_attribute_list,
 			descending_label );
@@ -6294,7 +6305,7 @@ char *query_output_order(
 	}
 
 	return query_attribute_name_list_order(
-			folder_name,
+			mto1_folder_name,
 			list_string_list(
 				attribute_list_string,
 				FOLDER_DATA_DELIMITER )
@@ -6303,7 +6314,7 @@ char *query_output_order(
 			descending_label );
 }
 
-char *query_select_display(
+char *query_output_select_display(
 			char *mto1_folder_name,
 			LIST *query_output_select_name_list,
 			int mto1_isa_related_folder_list_length )
@@ -6336,12 +6347,10 @@ char *query_select_display(
 	return display;
 }
 
-LIST *query_dictionary_list(
+LIST *query_system_dictionary_list(
 			char *system_string,
 			LIST *select_name_list,
-			LIST *date_attribute_name_list,
-			enum date_convert_format source_format,
-			enum date_convert_format destination_format )
+			QUERY_DATE_CONVERT *query_date_convert )
 {
 	char buffer[ QUERY_WHERE_BUFFER ];
 	char data[ 65536 ];
@@ -6362,14 +6371,28 @@ LIST *query_dictionary_list(
 		exit( 1 );
 	}
 
+	if ( query_date_convert )
+	{
+		date_convert = date_convert_calloc();
+
+		date_convert->source_format =
+			query_date_convert->
+				database_date_format;
+
+		date_convert->destination_format =
+			query_date_convert->
+				user_date_format;
+	}
+
 	pipe = popen( sys_string, "r" );
 
 	while( string_input_pipe( buffer, pipe, QUERY_WHERE_BUFFER ) )
 	{
-		list_rewind( select_name_list );
 		dictionary = dictionary_small_new();
 		list_set( list, dictionary );
 		i = 0;
+
+		list_rewind( select_name_list );
 
 		do {
 			if ( !piece( data, SQL_DELIMITER, buffer, i++ ) )
@@ -6387,21 +6410,11 @@ LIST *query_dictionary_list(
 
 			attribute_name = list_get( select_name_list );
 
-			if ( list_exists_string(
+			if ( date_convert
+			&&   list_exists_string(
 				attribute_name,
-				date_attribute_name_list ) )
+				query_date_convert->date_attribute_name_list ) )
 			{
-				if ( !date_convert )
-				{
-					date_convert = date_convert_calloc();
-
-					date_convert->source_format =
-						source_format;
-
-					date_convert->destination_format =
-						destination_format;
-				}
-
 				date_convert_evaluate( date_convert, data );
 
 				if ( *date_convert->return_date )
@@ -6420,7 +6433,7 @@ LIST *query_dictionary_list(
 				attribute_name, 
 				strdup( data ) );
 
-		} while ( list_next( attribute_name_list ) );
+		} while ( list_next( select_name_list ) );
 	}
 
 	pclose( pipe );

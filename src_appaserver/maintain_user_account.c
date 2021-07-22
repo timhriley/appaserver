@@ -340,12 +340,12 @@ int main( int argc, char **argv )
 		/* ------------------- */
 		appaserver_login_name_full_name(
 			&street_address_only,
-			login_name_only );
+			login_name );
 
 	query =
 		query_simple_new(
 			query_dictionary,
-			login_name_only,
+			login_name,
 			full_name_only,
 			street_address_only,
 			folder,
@@ -371,26 +371,15 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	attribute_list_remove_exclude_permission_list(
-		query->folder->append_isa_attribute_list );
-
-	query->query_output->select_clause =
-		list_display(
-			attribute_get_attribute_name_list(
-				query->
-					folder->
-					append_isa_attribute_list ) );
-
 	row_dictionary_list =
-		query_row_dictionary_list(
-			query->folder->application_name,
-			query->query_output->select_clause,
-			query->query_output->from_clause,
-			query->query_output->where_clause,
-			query->query_output->order_clause,
+		query_output_dictionary_list(
+			query->query_output->query_output_select_display,
+			query->query_output->query_output_select_name_list,
+			query->query_output->query_output_from,
+			query->query_output->query_output_where,
+			query->query_output->query_output_order,
 			query->max_rows,
-			query->folder->append_isa_attribute_list,
-			query->login_name );
+			query->query_output->query_date_convert );
 
 	row_dictionary_list_length =
 		list_length( row_dictionary_list );

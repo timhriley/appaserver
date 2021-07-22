@@ -257,7 +257,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	where_clause = query->query_output->where_clause;
+	where_clause = query->query_output->query_output_where;
 
 	document = document_new( "", application_name );
 	document->output_content_type = 1;
@@ -298,6 +298,7 @@ int main( int argc, char **argv )
 				session,
 				login_name,
 				role_name );
+
 		printf( "<h3>Delete Complete</h3\n" );
 	}
 	else
@@ -313,7 +314,7 @@ int main( int argc, char **argv )
 
 	document_close();
 
-	exit( 0 );
+	return 0;
 }
 
 void delete_folder_block_state_one(

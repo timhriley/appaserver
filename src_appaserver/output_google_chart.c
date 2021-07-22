@@ -327,6 +327,15 @@ void output_chart(	DICTIONARY *query_dictionary,
 	}
 
 	query_record_list =
+		query_output_record_list(
+			query->query_output->query_output_select_display,
+			query->query_output->query_output_select_name_list,
+			query->query_output->query_output_from,
+			query->query_output->query_output_where,
+			query->query_output->query_output_order,
+			query->max_rows,
+			query->query_output->query_date_convert );
+
 		query_get_record_list(
 			application_name,
 			query->query_output,
@@ -348,7 +357,7 @@ void output_chart(	DICTIONARY *query_dictionary,
 
 	strcpy( sub_title,
 		query_get_display_where_clause(
-			query->query_output->where_clause,
+			query->query_output->query_output_where,
 			application_name,
 			folder_name,
 			1 ) );
@@ -380,8 +389,9 @@ void output_chart(	DICTIONARY *query_dictionary,
 			list_get_pointer(
 				float_integer_attribute_name_list );
 
-		list_append_pointer(	google_output_chart->datatype_name_list,
-					float_integer_attribute_name );
+		list_set(
+			google_output_chart->datatype_name_list,
+			float_integer_attribute_name );
 
 	} while( list_next( float_integer_attribute_name_list ) );
 

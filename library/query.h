@@ -55,6 +55,15 @@ enum relational_operator {	equals,
 /* ---------- */
 typedef struct
 {
+	char *login_name;
+	LIST *append_isa_attribute_list;
+	LIST *date_attribute_name_list;
+	enum date_convert_format database_date_format;
+	enum date_convert_format user_date_format;
+} QUERY_DATE_CONVERT;
+
+typedef struct
+{
 	char *attribute_name;
 	char *attribute_datatype;
 	char *escaped_replaced_data;
@@ -141,8 +150,9 @@ typedef struct
 	char *query_output_attribute_where;
 	char *query_output_join_where;
 	char *query_output_related_join;
-	char *query_output_where;
 	LIST *query_output_select_name_list;
+	LIST *query_output_select_display;
+	char *query_output_where;
 	char *query_output_from;
 	char *query_output_order;
 	char *query_output_display;
@@ -887,11 +897,18 @@ LIST *query_detail_dictionary_list(
 
 QUERY *query_simple_new(
 			DICTIONARY *query_dictionary,
-			char *login_name_only,
+			char *login_name,
 			char *full_name_only,
 			char *street_address_only,
 			FOLDER *mto1_folder,
 			LIST *ignore_attribute_name_list );
+
+QUERY_DATE_CONVERT *query_date_convert_calloc(
+			void );
+
+QUERY_DATE_CONVERT *query_date_convert(
+			char *login_name,
+			LIST *append_isa_attribute_list );
 
 QUERY_DATA *query_data_new(
 			char *attribute_name,
@@ -920,6 +937,7 @@ LIST *query_drop_down_query_data_list(
 
 QUERY_OUTPUT *query_simple_output_new(
 			DICTIONARY *query_dictionary,
+			char *login_name,
 			FOLDER *mto1_folder,
 			LIST *ignore_attribute_name_list,
 			PROMPT_RECURSIVE *prompt_recursive );
@@ -1038,14 +1056,14 @@ LIST *query_output_select_name_list(
 /* Returns heap memory */
 /* ------------------- */
 char *query_output_from(
-			char *folder_name,
+			char *mto1_folder_name,
 			LIST *mto1_isa_related_folder_list,
 			char *attribute_not_null_folder_name );
 
 /* Returns heap memory */
 /* ------------------- */
 char *query_output_order(
-			char *folder_name,
+			char *mto1_folder_name,
 			LIST *primary_attribute_name_list,
 			LIST *append_isa_attribute_list,
 			DICTIONARY *sort_dictionary );
@@ -1071,22 +1089,27 @@ LIST *query_output_dictionary_list(
 			char *query_output_where,
 			char *query_output_order,
 			int max_rows,
-			LIST *date_attribute_name_list,
-			enum date_convert_format source_format,
-			enum date_convert_format destination_format );
+			QUERY_DATE_CONVERT *query_date_convert );
+
+LIST *query_output_record_list(
+			char *query_select_display,
+			LIST *query_output_select_name_list,
+			char *query_output_from,
+			char *query_output_where,
+			char *query_output_order,
+			int max_rows,
+			QUERY_DATE_CONVERT *query_date_convert );
 
 /* Returns heap memory */
 /* ------------------- */
-char *query_select_display(
+char *query_output_select_display(
 			char *mto1_folder_name,
 			LIST *query_output_select_name_list,
 			int mto1_isa_related_folder_list_length );
 
-LIST *query_dictionary_list(
+LIST *query_system_dictionary_list(
 			char *system_string,
 			LIST *select_name_list,
-			LIST *date_attribute_name_list,
-			enum date_convert_format source_format,
-			enum date_convert_format destination_format );
+			QUERY_DATE_CONVERT *query_date_convert );
 
 #endif
