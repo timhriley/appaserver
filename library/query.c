@@ -256,8 +256,7 @@ QUERY *query_new(		char *application_name,
 		}
 
 		query->prompt_recursive =
-			prompt_recursive_new(
-				application_name,
+			prompt_recursive(
 				query->folder->folder_name,
 				query->
 					folder->
@@ -1722,80 +1721,34 @@ enum relational_operator query_relational_operator(
 	return relational_operator;
 }
 
-char *query_get_display_where_clause(
-			char *where_clause,
-			char *application_name,
-			char *folder_name,
-			boolean is_primary_application )
+char *query_display_where(
+			char *query_output_where,
+			char *folder_name )
 {
 	char remove_folder_name[ 256 ];
 
-	if ( !where_clause ) return "";
+	if ( !query_output_where ) return "";
 
-	if ( folder_name && *folder_name )
-	{
-		if ( is_primary_application )
-		{
-			sprintf(remove_folder_name,
-				"%s.",
-				folder_name );
-
-			search_replace_string(
-				where_clause,
-				remove_folder_name,
-				"" );
-		}
-		else
-		{
-			sprintf(remove_folder_name,
-				"%s_%s.",
-				application_name,
-				folder_name );
-
-			search_replace_string(
-				where_clause,
-				remove_folder_name,
-				"" );
-		}
-	}
+	sprintf(remove_folder_name,
+		"%s.",
+		folder_name );
 
 	search_replace_string(
-		where_clause,
+		query_output_where,
+		remove_folder_name,
+		"" );
+
+	search_replace_string(
+		query_output_where,
 		"1 = 1 and ",
 		"" );
 
-	if ( !*where_clause )
-		return "Entire folder";
-	else
-		return where_clause;
-}
+	if ( !*query_output_where )
+	{
+		strcpy( query_output_where, "Entire folder" );
+	}
 
-char *query_append_where_clause(
-			char *source_where_clause,
-			char *append_where_clause )
-{
-	char where_clause[ QUERY_WHERE_BUFFER ];
-
-	*where_clause = '\0';
-	timlib_strcpy( where_clause, source_where_clause, QUERY_WHERE_BUFFER );
-	timlib_strcat( where_clause, " and " );
-	timlib_strcat( where_clause, append_where_clause );
-
-	/* free( source_where_clause ); */
-	return strdup( where_clause );
-}
-
-char *query_append_folder_name(	char *folder_name,
-				char *append_folder_name )
-{
-	char appended_folder_name[ 1024 ];
-
-	sprintf( appended_folder_name,
-		 "%s,%s",
-		 folder_name,
-		 append_folder_name );
-
-	return strdup( appended_folder_name );
+	return query_output_where;
 }
 
 char *query_output_related_join(
@@ -5309,14 +5262,6 @@ QUERY_OUTPUT *query_simple_output_new(
 
 	exclude_attribute_name_list = list_new();
 
-	list_set_list(
-		exclude_attribute_name_list,
-		ignore_attribute_name_list );
-
-	list_set_list(
-		exclude_attribute_name_list,
-		mto1_folder->lookup_attribute_exclude_name_list );
-
 	query_output = query_output_calloc();
 
 	/* Drop-down list */
@@ -5369,7 +5314,7 @@ QUERY_OUTPUT *query_simple_output_new(
 	query_output->query_output_select_name_list =
 		query_output_select_name_list(
 			mto1_folder->append_isa_attribute_list,
-			mto1_folder->ignore_attribute_name_list,
+			ignore_attribute_name_list,
 			mto1_folder->lookup_attribute_exclude_name_list );
 
 	query_output->query_output_select_display =

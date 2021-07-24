@@ -36,7 +36,7 @@
 #define PROCESS_NAME			"change_password"
 #define TARGET_FRAME			PROMPT_FRAME
 #define INSERT_UPDATE_KEY		"edit"
-#define FOLDER_NAME			"appaserver_user"
+#define APPASERVER_USER			"appaserver_user"
 
 /* Prototypes */
 /* ---------- */
@@ -114,7 +114,7 @@ int main( int argc, char **argv )
 
 	if ( argc == 6 ) message = argv[ 5 ];
 
-	folder_name = FOLDER_NAME;
+	folder_name = APPASERVER_USER;
 	target_frame = TARGET_FRAME;
 
 	session = session_calloc();
@@ -149,7 +149,7 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	query_dictionary = dictionary_new_dictionary();
+	query_dictionary = dictionary_small_new();
 
 	sprintf(key,
 		"%s%s",
@@ -210,12 +210,6 @@ int main( int argc, char **argv )
 		key,
 		"lookup" );
 
-	ignore_attribute_name_list = list_new();
-
-	list_set(
-		ignore_attribute_name_list,
-		"login_name" );
-
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	role = role_new( application_name, role_name );
@@ -223,7 +217,6 @@ int main( int argc, char **argv )
 	folder =
 		folder_load_new(
 			application_name,
-			session_key,
 			folder_name,
 			role );
 
@@ -299,14 +292,14 @@ int main( int argc, char **argv )
 	form->target_frame = target_frame;
 	form->process_id = getpid();
 
-	sprintf(	action_string,
-			"post_maintain_user_account?%s+%s+%s+%s+%s+%d",
-			login_name,
-			role_name,
-			application_name,
-			session_key,
-			target_frame,
-			form->process_id );
+	sprintf(action_string,
+		"post_maintain_user_account?%s+%s+%s+%s+%s+%d",
+		login_name,
+		role_name,
+		application_name,
+		session_key,
+		target_frame,
+		form->process_id );
 
 	form->action_string = strdup( action_string );
 
@@ -378,15 +371,21 @@ int main( int argc, char **argv )
 			query->query_output->query_output_from,
 			query->query_output->query_output_where,
 			query->query_output->query_output_order,
-			query->max_rows,
+			0 /* max_rows */,
 			query->query_output->query_date_convert );
 
 	row_dictionary_list_length =
 		list_length( row_dictionary_list );
 
+	ignore_attribute_name_list = list_new();
+
+	list_set(
+		ignore_attribute_name_list,
+		"login_name" );
+
 	include_attribute_name_list =
 		list_subtract(
-			folder_get_attribute_name_list(
+			folder_attribute_name_list(
 				folder->attribute_list ),
 				ignore_attribute_name_list );
 
@@ -417,8 +416,9 @@ int main( int argc, char **argv )
 			state,
 			folder->row_level_non_owner_forbid );
 
-	form_output_table_heading(	form->regular_element_list,
-					0 /* form_number */ );
+	form_output_table_heading(
+		form->regular_element_list,
+		0 /* form_number */ );
 
 	form->row_dictionary_list = row_dictionary_list;
 
@@ -511,7 +511,7 @@ LIST *get_element_list(	char *login_name,
 			application_name );
 
 	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+		folder_primary_attribute_name_list(
 			attribute_list );
 
 	return_list = list_new();
@@ -521,7 +521,8 @@ LIST *get_element_list(	char *login_name,
 	/* ------------------ */
 	do {
 		attribute_name = 
-			list_get_string( include_attribute_name_list );
+			list_get(
+				include_attribute_name_list );
 
 		/* If the attribute is accounted for already */
 		/* ----------------------------------------- */

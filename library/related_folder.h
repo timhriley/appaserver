@@ -347,26 +347,23 @@ RELATED_FOLDER *related_folder_get_preprompt_related_folder(
 			char *role_name,
 			boolean override_row_restrictions );
 
-void related_folder_populate_common_non_primary_attribute_name_list(
-			LIST *common_non_primary_attribute_name_list,
-			char *application_name,
+LIST *related_folder_common_non_primary_attribute_name_list(
 			char *related_folder_name,
 			char *one2m_related_folder_name );
 
 /* Note: this only applies when state=insert. */
 /* ------------------------------------------ */
-LIST *related_folder_get_common_non_primary_attribute_name_list(
-			char *application_name,
+LIST *related_folder_insert_common_non_primary_attribute_name_list(
 			char *folder_name,
 			LIST *mto1_related_folder_list );
 
-LIST *related_folder_get_mto1_common_non_primary_related_folder_list(
+LIST *related_folder_mto1_common_non_primary_related_folder_list(
 			char *application_name,
 			char *session,
 			char *folder_name,
 			boolean override_row_restrictions );
 
-LIST *related_folder_list_get_preselection_dictionary_list(
+LIST *related_folder_list_preselection_dictionary_list(
 			char *application_name,
 			char *session,
 			char *login_name,

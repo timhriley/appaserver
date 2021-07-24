@@ -748,14 +748,13 @@ int main( int argc, char **argv )
 
 	list_append_string_list(
 		ignore_attribute_name_list,
-		related_folder_get_common_non_primary_attribute_name_list(
-			application_name,
+		related_folder_insert_common_non_primary_attribute_name_list(
 			folder->folder_name,
 			folder->mto1_related_folder_list ) );
 
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+		document->application_name,
+		document->onload_control_string );
 
 	if ( pair_one2m && pair_one2m_inserted_duplicate(
 		PAIR_ONE2M_DUPLICATE_KEY,

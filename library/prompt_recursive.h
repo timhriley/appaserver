@@ -26,7 +26,6 @@ typedef struct
 typedef struct
 {
 	FOLDER *folder;
-	boolean drop_down_multi_select;
 	LIST *prompt_recursive_mto1_folder_list;
 } PROMPT_RECURSIVE_FOLDER;
 
@@ -41,22 +40,21 @@ typedef struct
 PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_calloc(
 			void );
 
-PROMPT_RECURSIVE *prompt_recursive_new(
+PROMPT_RECURSIVE *prompt_recursive(
 			char *folder_name,
 			LIST *mto1_related_folder_list );
 
 LIST *prompt_recursive_folder_list(
 			LIST *mto1_related_folder_list );
 
-PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
-			FOLDER *folder,
-			boolean drop_down_multi_select );
+PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder(
+			FOLDER *folder );
 
 LIST *prompt_recursive_mto1_folder_list(
 			char *folder_name,
 			LIST *primary_attribute_name_list );
 
-PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
+PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder(
 			FOLDER *folder,
 			int recursive_level );
 

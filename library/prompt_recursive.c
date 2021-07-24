@@ -14,23 +14,23 @@
 #include "related_folder.h"
 #include "prompt_recursive.h"
 
-PROMPT_RECURSIVE *prompt_recursive_new(
+PROMPT_RECURSIVE *prompt_recursive(
 			char *folder_name,
 			LIST *mto1_related_folder_list )
 {
-	PROMPT_RECURSIVE *prompt_recursive;
+	PROMPT_RECURSIVE *recursive;
 
-	prompt_recursive =
+	recursive =
 		(PROMPT_RECURSIVE *)
 			calloc( 1, sizeof( PROMPT_RECURSIVE ) );
 
-	prompt_recursive->folder_name = folder_name;
+	recursive->folder_name = folder_name;
 
-	prompt_recursive->prompt_recursive_folder_list =
+	recursive->prompt_recursive_folder_list =
 		prompt_recursive_folder_list(
 				mto1_related_folder_list );
 
-	return prompt_recursive;
+	return recursive;
 }
 
 LIST *prompt_recursive_folder_list(
@@ -48,9 +48,8 @@ LIST *prompt_recursive_folder_list(
 		if ( !related_folder->prompt_mto1_recursive ) continue;
 
 		prompt_recursive_folder =
-			prompt_recursive_folder_new(
-				related_folder->folder,
-				related_folder->drop_down_multi_select );
+			prompt_recursive_folder(
+				related_folder->folder );
 
 		if ( !folder_list ) folder_list = list_new();
 
@@ -84,34 +83,30 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_calloc( void )
 	return prompt_recursive_folder;
 }
 
-PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
-			FOLDER *folder,
-			boolean drop_down_multi_select )
+PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder(
+			FOLDER *folder )
 {
-	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder =
+	PROMPT_RECURSIVE_FOLDER *recursive_folder =
 		prompt_recursive_folder_calloc();
 
-	prompt_recursive_folder->folder = folder;
+	recursive_folder->folder = folder;
 
-	prompt_recursive_folder->drop_down_multi_select =
-		drop_down_multi_select;
-
-	prompt_recursive_folder->prompt_recursive_mto1_folder_list =
+	recursive_folder->prompt_recursive_mto1_folder_list =
 		prompt_recursive_mto1_folder_list(
 			folder->folder_name,
 			folder->primary_attribute_name_list );
 
-	return prompt_recursive_folder;
+	return recursive_folder;
 }
 
 LIST *prompt_recursive_mto1_folder_list(
 			char *folder_name,
 			LIST *primary_attribute_name_list )
 {
-	LIST *prompt_recursive_mto1_folder_list = {0};
+	LIST *recursive_mto1_folder_list = {0};
 	LIST *mto1_recursive_related_folder_list;
 	RELATED_FOLDER *related_folder;
-	PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder;
+	PROMPT_RECURSIVE_MTO1_FOLDER *recursive_mto1_folder;
 
 	mto1_recursive_related_folder_list =
 		related_folder_mto1_related_folder_list(
@@ -132,22 +127,22 @@ LIST *prompt_recursive_mto1_folder_list(
 	do {
 		related_folder = list_get( mto1_recursive_related_folder_list );
 
-		prompt_recursive_mto1_folder =
-			prompt_recursive_mto1_folder_new(
+		recursive_mto1_folder =
+			prompt_recursive_mto1_folder(
 				related_folder->folder,
 				related_folder->recursive_level );
 
-		if ( !prompt_recursive_mto1_folder_list )
-			prompt_recursive_mto1_folder_list =
+		if ( !recursive_mto1_folder_list )
+			recursive_mto1_folder_list =
 				list_new();
 
 		list_set(
-			prompt_recursive_mto1_folder_list,
-			prompt_recursive_mto1_folder );
+			recursive_mto1_folder_list,
+			recursive_mto1_folder );
 
 	} while( list_next( mto1_recursive_related_folder_list ) );
 
-	return prompt_recursive_mto1_folder_list;
+	return recursive_mto1_folder_list;
 }
 
 PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_calloc( void )
@@ -171,19 +166,19 @@ PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_calloc( void )
 	return prompt_recursive_mto1_folder;
 }
 
-PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
+PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder(
 			FOLDER *folder,
 			int recursive_level )
 {
-	PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder;
+	PROMPT_RECURSIVE_MTO1_FOLDER *recursive_mto1_folder;
 
-	prompt_recursive_mto1_folder =
+	recursive_mto1_folder =
 		prompt_recursive_mto1_folder_calloc();
 
-	prompt_recursive_mto1_folder->folder = folder;
-	prompt_recursive_mto1_folder->recursive_level = recursive_level;
+	recursive_mto1_folder->folder = folder;
+	recursive_mto1_folder->recursive_level = recursive_level;
 
-	return prompt_recursive_mto1_folder;
+	return recursive_mto1_folder;
 }
 
 char *prompt_recursive_display(	PROMPT_RECURSIVE *prompt_recursive )

@@ -222,7 +222,7 @@ int main( int argc, char **argv )
 
 		do {
 			select_attribute_name =
-				list_get_pointer(
+				list_get(
 					select_attribute_name_list );
 	
 			sprintf(grace_histogram_filename,
@@ -238,20 +238,34 @@ int main( int argc, char **argv )
 				query_select_attribute_name_list,
 				select_attribute_name );
 
+			query->query_output->query_output_select_display =
+				query_output_select_display(
+					query->mto1_folder->folder_name,
+					query_select_attribute_name_list,
+					0 /* mto1_isa_..._list_length */ );
+
 			query_record_list =
-				query_get_record_list(
-					application_name,
-					query->query_output,
-					list_display(
-					     query_select_attribute_name_list ),
-					query->query_output->order_clause );
+				query_output_record_list(
+					query->
+						query_output->
+						query_output_select_display,
+					query_select_attribute_name_list,
+					query->
+						query_output->
+						query_output_from,
+					query->
+						query_output->
+						query_output_where,
+					query->
+						query_output->
+						query_output_order,
+					0 /* max_rows */,
+					(QUERY_DATE_CONVERT *)0 );
 
 			strcpy( sub_title,
-				query_get_display_where_clause(
-				query->query_output->where_clause,
-				application_name,
-				folder_name,
-				1 ) );
+				query_display_where(
+					query->query_output->query_output_where,
+					folder_name ) );
 
 			if ( strlen( sub_title ) > 80
 			||   strcmp( sub_title, "1 = 1" ) == 0 )
@@ -326,9 +340,11 @@ int main( int argc, char **argv )
 			column( output_filename, 2, input_buffer );
 		
 			fclose( input_file );
+
 			sprintf( sys_string,
 				 "rm -f %s",
 				 grace_histogram_filename );
+
 			if ( system( sys_string ) ){};
 
 			printf(

@@ -1,4 +1,4 @@
-/* role_folder.h 							*/
+/* $APPASERVER_HOME/library/role_folder.h				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver role_folder ADT.				*/
 /*									*/
@@ -9,12 +9,9 @@
 #define ROLE_FOLDER_H
 
 #include "list.h"
-#include "folder.h"
 
 typedef struct
 {
-	char *application_name;
-	char *session;
 	char *role_name;
 	char *folder_name;
 	char insert_yn;
@@ -24,13 +21,9 @@ typedef struct
 } ROLE_FOLDER;
 
 LIST *role_folder_list_fetch(
-			char *session,
-			char *application_name,
 			char *role_name );
 
 ROLE_FOLDER *role_folder_new( 
-			char *application_name,
-			char *session,
 			char *role_name,
 			char *folder_name );
 
@@ -39,24 +32,16 @@ void role_folder_load(
 			char *update_yn,
 			char *lookup_yn,
 			char *delete_yn,
-			char *application_name,
-			char *session,
 			char *role_name,
 			char *folder_name );
 
 LIST *role_folder_insert_list_fetch(
-			char *application_name,
-			char *session,
 			char *role_name );
 
 LIST *role_folder_update_list_fetch(
-			char *application_name,
-			char *session,
 			char *role_name );
 
 LIST *role_folder_lookup_list_fetch(
-			char *application_name,
-			char *session,
 			char *role_name );
 
 char *role_folder_display(

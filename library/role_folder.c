@@ -7,14 +7,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "role_folder.h"
+#include "environ.h"
 #include "appaserver_error.h"
 #include "timlib.h"
 #include "list.h"
+#include "folder.h"
+#include "role_folder.h"
 
 ROLE_FOLDER *role_folder_new(
-			char *application_name,
-			char *session,
 			char *role_name,
 			char *folder_name )
 {
@@ -22,8 +22,6 @@ ROLE_FOLDER *role_folder_new(
 
 	role_folder = (ROLE_FOLDER *)calloc( 1, sizeof( ROLE_FOLDER ) );
 
-	role_folder->application_name = application_name;
-	role_folder->session = session;
 	role_folder->role_name = role_name;
 	role_folder->folder_name = folder_name;
 
@@ -32,13 +30,10 @@ ROLE_FOLDER *role_folder_new(
 		&role_folder->update_yn,
 		&role_folder->lookup_yn,
 		&role_folder->delete_yn,
-		application_name,
-		session,
 		role_name,
 		folder_name );
 
 	return role_folder;
-
 }
 
 void role_folder_load( 	
@@ -46,8 +41,6 @@ void role_folder_load(
 			char *update_yn,
 			char *lookup_yn,
 			char *delete_yn,
-			char *application_name,
-			char *session,
 			char *role_name,
 			char *folder_name )
 {
@@ -57,14 +50,14 @@ void role_folder_load(
 	char *role_operation_table_name;
 
 	sprintf( sys_string, 
-		 "permission4role_folder.sh %s %s %s %s 2>>%s",
-		 application_name,
-		 session,
+		 "permission4role_folder.sh %s '' %s %s 2>>%s",
+		 environment_application_name(),
 		 role_name,
 		 folder_name,
 		 appaserver_error_get_filename( application_name ) );
 
 	results_list = pipe2list( sys_string );
+
 	if ( !list_rewind( results_list ) )
 	{
 		*insert_yn = 'n';
@@ -214,48 +207,39 @@ void role_folder_populate_folder_lookup_permission(
 }
 
 LIST *role_folder_insert_list_fetch(
-			char *application_name,
-			char *session,
 			char *role_name )
 {
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string, 
-		 "get_role_folder_insert_list.sh %s %s %s 2>/dev/null",
-		 application_name,
-		 session,
+		 "get_role_folder_insert_list.sh %s '' %s 2>/dev/null",
+		 environment_application_name(),
 		 role_name );
 
 	return pipe2list( sys_string );
 }
 
 LIST *role_folder_lookup_list_fetch(
-			char *application_name,
-			char *session,
 			char *role_name )
 {
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string, 
-		 "get_role_folder_lookup_list.sh %s %s %s 2>/dev/null",
-		 application_name,
-		 session,
+		 "get_role_folder_lookup_list.sh %s '' %s 2>/dev/null",
+		 environment_application_name(),
 		 role_name );
 
 	return pipe2list( sys_string );
 }
 
 LIST *role_folder_update_list_fetch(
-			char *application_name,
-			char *session,
 			char *role_name )
 {
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string, 
-		 "get_role_folder_update_list.sh %s %s %s 2>/dev/null",
-		 application_name,
-		 session,
+		 "get_role_folder_update_list.sh %s '' %s 2>/dev/null",
+		 environment_application_name(),
 		 role_name );
 
 	return pipe2list( sys_string );
@@ -266,15 +250,11 @@ char *role_folder_display( ROLE_FOLDER *role_folder )
 	char buffer[ 4096 ];
 
 	sprintf( buffer,
-		"application_name = %s\n"
-		"session = %s\n"
 		"role_name = %s\n"
 		"folder_name = %s\n"
 		"insert_yn = %d\n"
 		"update_yn = %d\n"
 		"lookup_yn = %d\n",
-		role_folder->application_name,
-		role_folder->session,
 		role_folder->role_name,
 		role_folder->folder_name,
 		role_folder->insert_yn,

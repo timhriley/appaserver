@@ -2637,16 +2637,16 @@ LIST *related_folder_mto1_folder_name_list(
 }
 
 
-void related_folder_populate_common_non_primary_attribute_name_list(
-				LIST *common_non_primary_attribute_name_list,
-				char *application_name,
-				char *related_folder_name,
-				char *one2m_related_folder_name )
+LIST *related_folder_common_non_primary_attribute_name_list(
+			char *related_folder_name,
+			char *one2m_related_folder_name )
 {
 	LIST *related_folder_attribute_list = list_new_list();
 	LIST *one2m_related_folder_attribute_list = list_new_list();
 	ATTRIBUTE *related_attribute;
 	ATTRIBUTE *related_to_attribute;
+	char *application_name = environment_application_name();
+	LIST *return_list = {0};
 
 	attribute_append_attribute_list(
 		related_folder_attribute_list,
@@ -2664,19 +2664,20 @@ void related_folder_populate_common_non_primary_attribute_name_list(
 		(char *)0 /* role_name */,
 		attribute_fetch_either );
 
-	if ( !list_rewind( related_folder_attribute_list ) ) return;
+	if ( !list_rewind( related_folder_attribute_list ) )
+		return (LIST *)0;
 
 	do {
 		related_attribute =
-			list_get_pointer(
+			list_get(
 				related_folder_attribute_list );
 
 		if ( !list_rewind( one2m_related_folder_attribute_list ) )
-			return;
+			return (LIST *)0;
 
 		do {
 			related_to_attribute =
-				list_get_pointer(
+				list_get(
 					one2m_related_folder_attribute_list );
 
 			if ( strcmp( related_to_attribute->
@@ -2686,46 +2687,48 @@ void related_folder_populate_common_non_primary_attribute_name_list(
 			&&   related_to_attribute->display_order
 			&&   related_attribute->display_order )
 			{
-				list_append_pointer( 
-					common_non_primary_attribute_name_list,
+				if ( !return_list ) return_list = list_new();
+
+				list_set( 
+					return_list,
 					related_attribute->
 						attribute_name );
 			}
 		} while( list_next( one2m_related_folder_attribute_list ) );
 
 	} while( list_next( related_folder_attribute_list ) );
+
+	return return_list;
 }
 
 /* Note: this only applies when state=insert. */
 /* ------------------------------------------ */
-LIST *related_folder_get_common_non_primary_attribute_name_list(
-					char *application_name,
-					char *folder_name,
-					LIST *mto1_related_folder_list )
+LIST *related_folder_insert_common_non_primary_attribute_name_list(
+			char *folder_name,
+			LIST *mto1_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
-	LIST *return_list = list_new_list();
+	LIST *return_list = {0};
 
 	if ( !mto1_related_folder_list
 	||   !list_rewind( mto1_related_folder_list ) )
 	{
-		return return_list;
+		return (LIST *)0;
 	}
 
 	do {
-		related_folder = list_get_pointer( mto1_related_folder_list );
+		related_folder = list_get( mto1_related_folder_list );
 
 		if ( !related_folder->copy_common_attributes )
 			continue;
 
+		if ( !return_list ) return_list = list_new();
+
 		related_folder->
 			common_non_primary_attribute_name_list =
-				list_new_list();
-
-		related_folder_populate_common_non_primary_attribute_name_list(
+			  related_folder_common_non_primary_attribute_name_list(
 				related_folder->
 					common_non_primary_attribute_name_list,
-				application_name,
 				folder_name,
 				related_folder->folder->folder_name );
 
@@ -2735,24 +2738,23 @@ LIST *related_folder_get_common_non_primary_attribute_name_list(
 				common_non_primary_attribute_name_list );
 
 	} while( list_next( mto1_related_folder_list ) );
+
 	return return_list;
 }
 
-LIST *related_folder_get_mto1_common_non_primary_related_folder_list(
-			char *application_name,
-			char *session,
+LIST *related_folder_mto1_common_non_primary_related_folder_list(
 			char *folder_name,
 			boolean override_row_restrictions )
 {
 	LIST *mto1_related_folder_list;
 	RELATED_FOLDER *related_folder;
-	LIST *return_list = list_new_list();
+	LIST *return_list = {0};
 
 	mto1_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
+		related_folder_mto1_related_folder_list(
 			list_new(),
-			application_name,
-			session,
+			environment_application_name(),
+			BOGUS_SESSION,
 			folder_name,
 			(char *)0 /* role_name */,
 			0 /* isa_flag */,
@@ -2764,23 +2766,20 @@ LIST *related_folder_get_mto1_common_non_primary_related_folder_list(
 	if ( !mto1_related_folder_list
 	||   !list_rewind( mto1_related_folder_list ) )
 	{
-		return return_list;
+		return (LIST *)0;
 	}
 
 	do {
-		related_folder = list_get_pointer( mto1_related_folder_list );
+		related_folder = list_get( mto1_related_folder_list );
 
 		if ( !related_folder->copy_common_attributes )
 			continue;
 
+		if ( !return_list ) return_list = list_new();
+
 		related_folder->
 			common_non_primary_attribute_name_list =
-				list_new_list();
-
-		related_folder_populate_common_non_primary_attribute_name_list(
-				related_folder->
-					common_non_primary_attribute_name_list,
-				application_name,
+			  related_folder_common_non_primary_attribute_name_list(
 				folder_name,
 				related_folder->folder->folder_name );
 
@@ -2789,17 +2788,17 @@ LIST *related_folder_get_mto1_common_non_primary_related_folder_list(
 			related_folder );
 
 	} while( list_next( mto1_related_folder_list ) );
-	return return_list;
 
+	return return_list;
 }
 
-LIST *related_folder_list_get_preselection_dictionary_list(
-				char *application_name,
-				char *session,
-				char *login_name,
-				char *folder_name,
-				DICTIONARY *query_dictionary,
-				LIST *mto1_related_folder_list )
+LIST *related_folder_list_preselection_dictionary_list(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *folder_name,
+			DICTIONARY *query_dictionary,
+			LIST *mto1_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
 
@@ -2827,7 +2826,7 @@ LIST *related_folder_list_get_preselection_dictionary_list(
 }
 
 boolean related_folder_exists_prompt_mto1_recursive(
-				LIST *mto1_related_folder_list )
+			LIST *mto1_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
 
@@ -2849,7 +2848,7 @@ boolean related_folder_exists_prompt_mto1_recursive(
 }
 
 boolean related_folder_exists_automatic_preselection(
-				LIST *mto1_related_folder_list )
+			LIST *mto1_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
 

@@ -612,3 +612,44 @@ char *appaserver_login_name_full_name(
 			login_name );
 }
 
+LIST *appaserver_ignore_pressed_attribute_name_list( 	
+			DICTIONARY *ignore_dictionary,
+			DICTIONARY *query_dictionary,
+			LIST *attribute_name_list )
+{
+	LIST *return_list = create_list();
+	char *attribute_name;
+
+	if ( !dictionary_length( ignore_dictionary ) ) return return_list;
+	if ( !list_reset( attribute_name_list ) ) return return_list;
+
+	do {
+		attribute_name = list_get( attribute_name_list );
+
+		if ( dictionary_key_exists_index_zero(
+			ignore_dictionary,
+			attribute_name ) )
+		{
+			if ( !query_dictionary )
+			{
+				list_set(
+					return_list, 
+					attribute_name );
+			}
+			else
+			if ( !dictionary_key_exists_index_zero(
+				query_dictionary,
+				attribute_name ) )
+			{
+				list_set(
+					return_list, 
+					attribute_name );
+			}
+			continue;
+		}
+
+	} while( list_next( attribute_name_list ) );
+
+	return return_list;
+}
+

@@ -238,25 +238,15 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( !query->query_output )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_output is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	row_dictionary_list =
-		query_output_dictionary_list(
-			query->query_output->query_output_select_display,
-			query->query_output->query_output_select_name_list,
-			query->query_output->query_output_from,
-			query->query_output->query_output_where,
-			query->query_output->query_output_order,
+		query_dictionary_list(
+			query->query_select_display,
+			query->query_select_name_list,
+			query->query_from,
+			query->query_where,
+			query->query_order,
 			10000 /* query->max_rows */,
-			query->query_output->query_date_convert );
+			query->query_date_convert );
 
 	form = form_new( FORM_NAME, FORM_TITLE );
 	form->omit_folder_name_in_title = 1;
@@ -269,8 +259,6 @@ int main( int argc, char **argv )
 		session,
 		folder->folder_name,
 		role_name );
-
-	/* form_set_title( form, FORM_TITLE ); */
 
 	form->regular_element_list = 
 		get_element_list( 	

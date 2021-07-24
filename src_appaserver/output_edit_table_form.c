@@ -79,8 +79,6 @@ int main( int argc, char **argv )
 	FOLDER *folder;
 	int number_rows_outputted = 0;
 	char *results_string;
-	LIST *no_display_pressed_attribute_name_list = {0};
-	LIST *ignore_attribute_name_list;
 	OPERATION_LIST_STRUCTURE *operation_list_structure;
 	ROLE_FOLDER *role_folder;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -138,7 +136,7 @@ int main( int argc, char **argv )
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	role_folder =
-		role_folder_new_role_folder(
+		role_folder_new(
 			application_name,
 			session,
 			role_name,
@@ -147,14 +145,13 @@ int main( int argc, char **argv )
 	if ( role_folder_viewonly( role_folder ) ) state = "lookup";
 
 	role =
-		role_new_role(
+		role_new(
 			application_name,
 			role_name );
 
 	if ( ! ( folder =
-			folder_with_load_new(
+			folder_load_new(
 				application_name,
-				session,
 				folder_name,
 				role ) ) )
 	{
@@ -331,26 +328,6 @@ int main( int argc, char **argv )
 			dont_omit_delete );
 
 	operation_list = operation_list_structure->operation_list;
-
-	no_display_pressed_attribute_name_list =
-		appaserver_library_no_display_pressed_attribute_name_list(
-			dictionary_appaserver->
-				ignore_dictionary, 
-			folder->attribute_name_list );
-
-	if ( !no_display_pressed_attribute_name_list )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot get no_display_pressed_attribute_name_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	list_append_unique_string_list(
-		ignore_attribute_name_list,
-		no_display_pressed_attribute_name_list );
 
 	if ( strcmp( state, "update" ) == 0 
 	||   list_length( operation_list ) )
@@ -547,8 +524,12 @@ int main( int argc, char **argv )
 				query_dictionary,
 			dictionary_appaserver->
 				sort_dictionary,
-			no_display_pressed_attribute_name_list
-				/* ignore_attribute_name_list */ );
+			appaserver_no_display_pressed_attribute_name_list(
+				dictionary_appaserver->
+					ignore_dictionary, 
+				dictionary_appaserver->
+					query_dictionary, 
+				folder->attribute_name_list ) );
 
 	row_security->folder->join_1tom_related_folder_list =
 		folder->join_1tom_related_folder_list;
@@ -657,10 +638,10 @@ m2( application_name, msg );
 	else
 	{
 		appaserver_user_foreign_login_name =
-			related_folder_get_appaserver_user_foreign_login_name(
+			related_folder_appaserver_user_foreign_login_name(
 				row_security->
-				folder->
-				mto1_append_isa_related_folder_list );
+					folder->
+					mto1_append_isa_related_folder_list );
 	}
 
 	if ( row_security->row_security_state == lookup_only )

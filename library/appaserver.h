@@ -1,4 +1,4 @@
-/* library/appaserver.h 						*/
+/* $APPASERVER_HOME/library/appaserver.h				*/
 /* -------------------------------------------------------------------- */
 /* This maintains a set of APPASERVER ADTs.				*/
 /*									*/
@@ -155,5 +155,10 @@ char *appaserver_entity_fetch(
 			char **street_address,
 			char *login_name );
 
+
+LIST *appaserver_ignore_pressed_attribute_name_list( 	
+			DICTIONARY *ignore_dictionary,
+			DICTIONARY *query_dictionary,
+			LIST *attribute_name_list );
 
 #endif

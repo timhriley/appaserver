@@ -964,22 +964,6 @@ char *attribute_last_primary_attribute_name(
 		return (char *)0;
 }
 
-LIST *attribute_common_non_primary_attribute_name_list(
-			char *application_name,
-			char *folder_name,
-			char *related_folder_name )
-{
-	LIST *return_list = list_new_list();
-
-	related_folder_populate_common_non_primary_attribute_name_list(
-				return_list,
-				application_name,
-				folder_name,
-				related_folder_name );
-
-	return return_list;
-}
-
 LIST *attribute_histogram_attribute_name_list(
 			LIST *attribute_list )
 {

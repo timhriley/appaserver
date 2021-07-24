@@ -333,14 +333,8 @@ void output_chart(	DICTIONARY *query_dictionary,
 			query->query_output->query_output_from,
 			query->query_output->query_output_where,
 			query->query_output->query_output_order,
-			query->max_rows,
+			0 /* max_rows */,
 			query->query_output->query_date_convert );
-
-		query_get_record_list(
-			application_name,
-			query->query_output,
-			list_display( select_attribute_name_list ),
-			query->query_output->order_clause );
 
 	if ( !query_record_list || !list_length( query_record_list ) )
 	{
@@ -356,11 +350,9 @@ void output_chart(	DICTIONARY *query_dictionary,
 			format_plural( buffer, folder_name ) ) );
 
 	strcpy( sub_title,
-		query_get_display_where_clause(
+		query_display_where(
 			query->query_output->query_output_where,
-			application_name,
-			folder_name,
-			1 ) );
+			folder_name ) );
 
 	if ( strcmp( sub_title, "1 = 1" ) == 0 )
 		*sub_title = '\0';

@@ -65,14 +65,9 @@ void build_related_folder_element_list(
 			char *state,
 			LIST *foreign_attribute_name_list );
 
-char *get_done_folder_name(	char *folder_name,
-				char *related_attribute_name );
-
-boolean get_omit_delete_button(
-			char *application_name,
-			FOLDER *folder,
-			ROLE *role,
-			char *login_name );
+char *get_done_folder_name(
+			char *folder_name,
+			char *related_attribute_name );
 
 void mark_ignore_for_prelookup_skipped(
 			LIST *mto1_related_folder_list,
@@ -312,21 +307,16 @@ int main( int argc, char **argv )
 	}
 
 	role_folder =
-		role_folder_new_role_folder(
+		role_folder_new(
 			application_name,
 			session,
 			role_name,
 			folder_name );
 
 	omit_delete_button = 
-		( get_omit_delete_button(
-			application_name,
-			appaserver->folder,
-			role,
-			login_name ) ||
 		  list_length( appaserver->
 				folder->
-				mto1_isa_related_folder_list ) );
+				mto1_isa_related_folder_list );
 
 	output_prompt_edit_form(
 		application_name,
@@ -2018,17 +2008,14 @@ char *get_done_folder_name(	char *folder_name,
 	return strdup( done_folder_name );
 }
 
+#ifdef NOT_DEFINED
 boolean get_omit_delete_button(
 			char *application_name,
 			FOLDER *folder,
 			ROLE *role,
 			char *login_name )
 {
-	ROLE *login_role;
-	ROW_SECURITY *row_security;
 	boolean return_value;
-
-	login_role = role_new_role( application_name, login_role_name );
 
 	row_security =
 		row_security_new(
@@ -2040,8 +2027,7 @@ boolean get_omit_delete_button(
 			(DICTIONARY *)0 /* preprompt_dictionary */,
 			(DICTIONARY *)0 /* query_dictionary */,
 			(DICTIONARY *)0 /* sort_dictionary */,
-			(LIST *)0
-			/* no_display_pressed_attribute_name_list_string */ );
+			(LIST *)0 /* ignore_attribute_name_list */ );
 
 	if ( row_security_supervisor_logged_in(
 		row_security->row_security_state ) )
@@ -2064,6 +2050,7 @@ boolean get_omit_delete_button(
 
 	return return_value;
 }
+#endif
 
 void build_related_folder_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,

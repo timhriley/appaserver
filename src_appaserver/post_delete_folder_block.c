@@ -263,41 +263,41 @@ int main( int argc, char **argv )
 	document->output_content_type = 1;
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+		document->application_name,
+		document->onload_control_string );
 
 	if ( strcmp( state, "one" ) == 0 )
 	{
 		delete_folder_block_state_one(
-				dictionary_appaserver,
-				application_name,
-				folder,
-				where_clause,
-				login_name,
-				session,
-				role_name );
+			dictionary_appaserver,
+			application_name,
+			folder,
+			where_clause,
+			login_name,
+			session,
+			role_name );
 	}
 	else
 	if ( strcmp( state, "two" ) == 0 )
 	{
 		delete_folder_block_state_two(
-				application_name,
-				folder,
-				where_clause,
-				session,
-				login_name,
-				role_name );
+			application_name,
+			folder,
+			where_clause,
+			session,
+			login_name,
+			role_name );
 
 		printf( "<h3>Delete Complete</h3\n" );
 	}

@@ -354,12 +354,6 @@ char *query_get_simple_where_clause(
 			LIST *where_attribute_data_list,
 			char *login_name );
 
-char *query_get_display_where_clause(
-			char *where_clause,
-			char *application_name,
-			char *folder_name,
-			boolean is_primary_application );
-
 char *query_append_where_clause_related_join(
 			char *application_name,
 			char *source_where_clause,
@@ -1111,5 +1105,11 @@ LIST *query_system_dictionary_list(
 			char *system_string,
 			LIST *select_name_list,
 			QUERY_DATE_CONVERT *query_date_convert );
+
+/* Returns query_output_where */
+/* -------------------------- */
+char *query_display_where(
+			char *query_output_where,
+			char *folder_name );
 
 #endif

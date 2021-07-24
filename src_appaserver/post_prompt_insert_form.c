@@ -691,8 +691,7 @@ int post_prompt_insert_database(
 		post_change_process,
 		login_name,
 		mto1_related_folder_list,
-		related_folder_get_common_non_primary_attribute_name_list(
-			application_name,
+		related_folder_common_non_primary_attribute_name_list(
 			folder_name,
 			mto1_related_folder_list ),
 		insert_database->attribute_list,

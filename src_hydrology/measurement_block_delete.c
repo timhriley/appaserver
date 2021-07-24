@@ -480,23 +480,13 @@ char *get_where_clause_string( 	char *application_name,
 		exit( 1 );
 	}
 
-	if ( !query->query_output )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_output is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	sprintf( buffer,
 		 "station = '%s' 				"
 		 "and datatype = '%s'				"
 		 "and %s					",
 		 station,
 		 datatype,
-		 query->query_output->query_output_where );
+		 query->query_where );
 
 	return strdup( buffer );
 }

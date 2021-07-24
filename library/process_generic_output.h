@@ -433,10 +433,4 @@ char *process_generic_output_where(
 			char *end_date_string,
 			DICTIONARY *query_removed_post_dictionary );
 
-QUERY_OUTPUT *process_generic_query_output(
-			char *application_name,
-			char *value_folder_name,
-			LIST *mto1_related_folder_list,
-			DICTIONARY *query_removed_post_dictionary );
-
 #endif

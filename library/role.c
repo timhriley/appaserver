@@ -16,12 +16,12 @@
 #include "attribute.h"
 #include "role.h"
 
-ROLE *role_new(
-		char *application_name,
-		char *role_name )
+ROLE *role_new( char *role_name )
 {
-	return role_new_role( application_name, role_name );
+	ROLE *role = role_calloc();
 
+	role->role_name = role_name;
+	return role;
 }
 
 ROLE *role_calloc( void )
@@ -49,17 +49,9 @@ ROLE *role_new_role(
 	if ( !role_name || strcmp( role_name, "ignored" ) == 0 )
 		return (ROLE *)0;
 
-	role = role_calloc();
+	role = role_fetch( role_name );
 
 	role->application_name = application_name;
-	role->role_name = role_name;
-
-	role_fetch(
-			&role->folder_count,
-			&role->override_row_restrictions,
-			&role->grace_no_cycle_colors,
-			application_name,
-			role_name );
 
 	return role;
 }
@@ -69,26 +61,21 @@ void role_free( ROLE *role )
 	free( role );
 }
 
-boolean role_fetch( 		boolean *folder_count,
-				boolean *override_row_restrictions,
-				boolean *grace_no_cycle_colors,
-				char *application_name,
-				char *role_name )
+ROLE *role_fetch( char *role_name )
 {
 	char sys_string[ 1024 ];
 	char piece_string[ 128 ];
 	char *results;
 	char *select;
 	char where[ 128 ];
-	char *folder_name;
+	ROLE *role;
+	char *application_name = environment_application_name();
 
-	if ( !role_name ) return 0;
-
-	folder_name = "role";
+	if ( !role_name ) return (ROLE *)0;
 
 	if ( attribute_exists(
 		application_name,
-		folder_name,
+		"role",
 		"grace_no_cycle_colors_yn" ) )
 	{
 		select =
@@ -116,20 +103,28 @@ boolean role_fetch( 		boolean *folder_count,
 
 	results = pipe2string( sys_string );
 
-	if ( !results ) return 0;
+	if ( !results ) return (ROLE *)0;
+
+	role = role_calloc();
+
+	role->role_name = role_name;
 
 	piece( piece_string, '^', results, 0 );
-	*folder_count = (*piece_string == 'y');
+	role->folder_count = (*piece_string == 'y');
 
 	piece( piece_string, '^', results, 1 );
-	*override_row_restrictions = (*piece_string == 'y');
+	role->override_row_restrictions = (*piece_string == 'y');
 
 	piece( piece_string, '^', results, 2 );
-	*grace_no_cycle_colors = (*piece_string == 'y');
+	role->grace_no_cycle_colors = (*piece_string == 'y');
 
 	free( results );
-	return 1;
 
+	role->attribute_exclude_list =
+		role_attribute_exclude_list(
+			role->role_name );
+
+	return role;
 }
 
 ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_new(

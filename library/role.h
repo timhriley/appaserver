@@ -28,17 +28,12 @@ typedef struct
 	LIST *role_attribute_exclude_list;
 } ROLE;
 
-ROLE *role_new( 	char *application_name,
-			char *role_name );
+ROLE *role_new( 	char *role_name );
 
 ROLE *role_new_role( 	char *application_name,
 			char *role_name );
 
-boolean role_fetch( 	boolean *folder_count,
-			boolean *override_row_restrictions,
-			boolean *grace_no_cycle_colors,
-			char *application_name,
-			char *role_name );
+ROLE *role_fetch(	char *role_name );
 
 void role_free(		ROLE *role );
 

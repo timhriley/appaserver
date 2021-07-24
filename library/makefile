@@ -832,7 +832,7 @@ related_folder.o: related_folder.c related_folder.h			\
 vertical_new_button.o: vertical_new_button.c vertical_new_button.h
 	${CC} ${CFLAGS} -c vertical_new_button.c
 
-role_folder.o: role_folder.c role_folder.h folder.o
+role_folder.o: role_folder.c role_folder.h
 	${CC} ${CFLAGS} -c role_folder.c
 
 validation_form.o: validation_form.c validation_form.h element.h

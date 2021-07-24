@@ -883,8 +883,7 @@ LIST *output_prompt_insert_element_list(
 	allowed_attribute_name_list =
 	    list_subtract_string_list(
 		allowed_attribute_name_list,
-		related_folder_get_common_non_primary_attribute_name_list(
-			application_name,
+		related_folder_insert_common_non_primary_attribute_name_list(
 			folder_name,
 			mto1_related_folder_list ) );
 
@@ -1794,8 +1793,7 @@ void build_related_folder_element_list(
 	if ( related_folder->copy_common_attributes )
 	{
 		common_non_primary_attribute_name_list =
-			attribute_common_non_primary_attribute_name_list(
-					application_name,
+			related_folder_common_non_primary_attribute_name_list(
 					folder_name,
 					related_folder->
 						folder->

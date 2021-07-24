@@ -385,22 +385,19 @@ LIST *folder_get_primary_attribute_list( LIST *attribute_list )
 
 }
 
-LIST *folder_get_process_primary_data_list(
-			char *application_name,
-			char *folder_name,
-			char *login_name,
+LIST *folder_process_primary_data_list(
 			DICTIONARY *preprompt_dictionary,
-			char delimiter,
+			char *login_name,
+			char *full_name_only,
+			char *street_address_only,
+			FOLDER *mto1_folder,
+			ROLE *role,
 			PROCESS *populate_drop_down_process,
-			LIST *attribute_list,
-			LIST *common_non_primary_attribute_name_list,
-			boolean row_level_non_owner_forbid,
-			LIST *exclude_attribute_name_list,
-			char *role_name,
 			char *state,
 			char *one2m_folder_name_for_processes,
 			char *process_name,
-			char *prompt )
+			char *prompt,
+			LIST *common_attribute_name_list )
 {
 	char *drop_down_where_clause;
 	char *attribute_where_clause;
@@ -408,19 +405,21 @@ LIST *folder_get_process_primary_data_list(
 	LIST *date_attribute_name_list;
 	LIST *date_position_list;
 	LIST *data_list;
-	char where_clause[ 65536 ];
 	QUERY *query;
 
 	if ( populate_drop_down_process )
 	{
 		LIST *drop_down_process_list;
-		char *local_role_name;
 
-		if ( role_name )
-			local_role_name = role_name;
-		else
-			local_role_name = 
-				populate_drop_down_process->role_name;
+		if ( !role )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: role is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		drop_down_process_list =
 		     folder_drop_down_process_list(
@@ -429,96 +428,37 @@ LIST *folder_get_process_primary_data_list(
 			folder_name,
 			login_name,
 			populate_drop_down_process,
-			local_role_name,
+			role->role_name,
 			preprompt_dictionary /* parameter_dictionary */,
 			preprompt_dictionary /* where_clause_dictionary */,
 			state,
 			one2m_folder_name_for_processes,
-			attribute_list,
-			0
-			/* piece_multi_attribute_data_label_delimiter */,
+			folder->append_isa_attribute_list,
+			0 /* piece_multi_attribute_data_label_delimiter */,
 			process_name,
 			prompt );
 
 		return drop_down_process_list;
 	}
 
-	if ( row_level_non_owner_forbid && login_name )
-	{
-		dictionary_set_pointer(	preprompt_dictionary,
-					"login_name",
-					login_name );
-	}
-
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
-			attribute_list );
-
-	date_attribute_name_list =
-		attribute_date_attribute_name_list(
-			attribute_list );
-
-	if ( list_length( exclude_attribute_name_list ) )
-	{
-		primary_attribute_name_list =
-			list_subtract_string_list(
-				primary_attribute_name_list,
-				exclude_attribute_name_list );
-	}
-
-	if ( !list_rewind( primary_attribute_name_list ) )
-		return list_new();
-
-	query = query_process_new(
-			application_name,
+	query =
+		query_process_new(
+			preprompt_dictionary,
 			login_name,
-			folder_name,
-			preprompt_dictionary
-				/* query_dictionary */ );
-
-	drop_down_where_clause =
-		query->query_output->drop_down_where_clause;
-
-	attribute_where_clause =
-		query->query_output->attribute_where_clause;
-
-	date_position_list =
-		list_get_position_list(
-			primary_attribute_name_list,
-			date_attribute_name_list );
-
-	if ( !drop_down_where_clause && !attribute_where_clause )
-	{
-		strcpy( where_clause, "1 = 1" );
-	}
-	else
-	if ( !drop_down_where_clause && attribute_where_clause )
-	{
-		strcpy( where_clause, attribute_where_clause );
-	}
-	else
-	if ( drop_down_where_clause && !attribute_where_clause )
-	{
-		strcpy( where_clause, drop_down_where_clause );
-	}
-	else
-	{
-		sprintf(	where_clause,
-				"%s and %s",
-				drop_down_where_clause,
-				attribute_where_clause );
-	}
+			full_name_only,
+			street_address_only,
+			mto1_folder );
 
 	data_list =
 		folder_data_list(
-			application_name,
-			folder_name,
-			primary_attribute_name_list,
-			where_clause,
-			delimiter,
-			common_non_primary_attribute_name_list,
-			login_name,
-			date_position_list,
+			mto1_folder->folder_name,
+			mto1_folder->primary_attribute_name_list,
+			query->where,
+			(query->query_date_convert)		?
+				query->
+					query_date_convert->
+					date_position_list	:
+			common_attribute_name_list,
 			0 /* maxrows */ );
 
 	return data_list;
@@ -577,7 +517,7 @@ LIST *folder_related_primary_data_list(
 			char delimiter,
 			PROCESS *populate_drop_down_process,
 			LIST *attribute_list,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_attribute_name_list,
 			boolean filter_only_login_name,
 			char *role_name,
 			char *state,
@@ -664,13 +604,13 @@ LIST *folder_related_primary_data_list(
 			where_clause_dictionary,
 			delimiter,
 			attribute_list,
-			common_non_primary_attribute_name_list,
+			common_attribute_name_list,
 			list_new() /* exclude_attribute_name_list */,
 			role_name );
 	}
 }
 
-LIST *folder_get_primary_data_list(
+LIST *folder_primary_data_list(
 			char *application_name,
 			char *session,
 			char *folder_name,
@@ -680,7 +620,7 @@ LIST *folder_get_primary_data_list(
 			char delimiter,
 			PROCESS *populate_drop_down_process,
 			LIST *attribute_list,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_attribute_name_list,
 			boolean filter_only_login_name,
 			LIST *exclude_attribute_name_list,
 			char *role_name,
@@ -699,7 +639,7 @@ LIST *folder_get_primary_data_list(
 			delimiter,
 			populate_drop_down_process,
 			attribute_list,
-			common_non_primary_attribute_name_list,
+			common_attribute_name_list,
 			filter_only_login_name,
 			exclude_attribute_name_list,
 			role_name,
@@ -719,7 +659,7 @@ LIST *folder_primary_data_list(
 			char delimiter,
 			PROCESS *populate_drop_down_process,
 			LIST *attribute_list,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_attribute_name_list,
 			boolean filter_only_login_name,
 			LIST *exclude_attribute_name_list,
 			char *role_name,
@@ -812,7 +752,7 @@ LIST *folder_primary_data_list(
 			where_clause_dictionary,
 			delimiter,
 			attribute_list,
-			common_non_primary_attribute_name_list,
+			common_attribute_name_list,
 			exclude_attribute_name_list,
 			role_name,
 			include_root_folder );
@@ -971,20 +911,16 @@ boolean folder_get_pair_one2m_related_folder_boolean(
 }
 
 LIST *folder_data_list(
-			char *application_name,
 			char *folder_name,
-			LIST *attribute_name_list,
-			char *where_clause,
-			char delimiter,
-			LIST *common_non_primary_attribute_name_list,
-			char *login_name,
+			LIST *primary_attribute_name_list,
+			char *where,
 			LIST *date_position_list,
-			int maxrows )
+			LIST *common_attribute_name_list,
+			int max_rows )
 {
 	char sys_string[ 65536 ];
 	char select[ 4096 ];
-	char common_non_primary_process[ 512 ];
-	char date_convert_process[ 512 ];
+	char common_attribute_process[ 512 ];
 	char escape_delimiter_process[ 512 ];
 	char first_folder_name[ 128 ];
 
@@ -993,6 +929,8 @@ LIST *folder_data_list(
 		 MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER,
 		 MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER );
 
+/*
+	char date_convert_process[ 512 ];
 	if ( list_length( date_position_list ) && login_name )
 	{
 		sprintf(	date_convert_process,
@@ -1008,17 +946,9 @@ LIST *folder_data_list(
 	{
 		strcpy( date_convert_process, "cat" );
 	}
+*/
 
-	strcpy( common_non_primary_process, "cat" );
-
-	strcpy(	select,
-		attribute_select(
-			application_name,
-			piece( first_folder_name, ',', folder_name, 0 ),
-			attribute_name_list ) );
-
-	if ( common_non_primary_attribute_name_list
-	&&   list_length( common_non_primary_attribute_name_list ) )
+	if ( list_length( common_attribute_name_list ) )
 	{
 		sprintf( select + strlen( select ),
 			 ",%s",
@@ -2295,9 +2225,9 @@ LIST *folder_primary_data_table_list(
 			primary_attribute_name_list,
 			where_clause,
 			delimiter,
-			common_non_primary_attribute_name_list,
 			login_name,
 			date_position_list,
+			common_attribute_name_list,
 			FOLDER_MAXROWS );
 
 	return data_list;
@@ -2364,9 +2294,9 @@ LIST *folder_related_primary_data_table_list(
 			query->folder->primary_attribute_name_list,
 			where_clause,
 			delimiter,
-			common_non_primary_attribute_name_list,
 			login_name,
 			date_position_list,
+			common_attribute_name_list,
 			FOLDER_MAXROWS );
 
 	return data_list;
@@ -2524,9 +2454,9 @@ LIST *folder_prompt_primary_data_table_list(
 			query->folder->primary_attribute_name_list,
 			where_clause,
 			delimiter,
-			common_non_primary_attribute_name_list,
 			login_name,
 			date_position_list,
+			common_attribute_name_list,
 			FOLDER_MAXROWS );
 
 	return data_list;
@@ -2802,9 +2732,9 @@ LIST *folder_prompt_insert_primary_data_table_list(
 			query->folder->primary_attribute_name_list,
 			where_clause,
 			delimiter,
-			common_non_primary_attribute_name_list,
 			login_name,
 			date_position_list,
+			common_attribute_name_list,
 			FOLDER_MAXROWS );
 
 	return data_list;

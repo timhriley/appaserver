@@ -38,7 +38,10 @@
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
+	char *login_name;
+	char *application_name;
+	char *session;
+	char *folder_name;
 	char *role_name;
 	char decoded_dictionary_string[ MAX_INPUT_LINE ];
 	char dictionary_string[ MAX_INPUT_LINE ];
@@ -142,7 +145,6 @@ int main( int argc, char **argv )
 	folder =
 		folder_load_new(
 			application_name,
-			session_key,
 			folder_name,
 			role );
 
@@ -276,23 +278,20 @@ int main( int argc, char **argv )
 	printf( "</h2>\n" );
 	
 	printf( "<BR><p>Search criteria: %s<hr>\n",
-		query_get_display_where_clause(
-				query->query_output->where_clause,
-				application_name,
-				folder_name,
-				1 ) );
+		query_display_where(
+			query->query_output->query_output_where,
+			folder_name ) );
 
 	printf( "<p>Selected %d records.</p>\n",
 		list_length( row_dictionary_list ) );
 
 	appaserver_library_output_ftp_prompt(
-				ftp_filename,
-				TRANSMIT_PROMPT,
-				(char *)0 /* target */,
-				(char *)0 /* application_type */ );
+		ftp_filename,
+		TRANSMIT_PROMPT,
+		(char *)0 /* target */,
+		(char *)0 /* application_type */ );
 
 	document_close();
-	exit( 0 );
-
-} /* main() */
+	return 0;
+}
 
