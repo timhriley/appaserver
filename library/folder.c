@@ -42,10 +42,10 @@ FOLDER *folder_calloc( void )
 {
 	FOLDER *f;
 
-	if ( ! ( f = (FOLDER *)calloc( 1, sizeof( FOLDER ) ) ) )
+	if ( ! ( f = calloc( 1, sizeof( FOLDER ) ) ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -2757,7 +2757,8 @@ FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_one2m_relation_list,
 			boolean fetch_one2m_recursive_relation_list,
 			boolean fetch_mto1_isa_recursive_relation_list,
-			boolean fetch_mto1_relation_list )
+			boolean fetch_mto1_relation_list,
+			boolean fetch_row_level_restriction_list )
 {
 	return	folder_parse(
 			pipe2string(
@@ -2786,7 +2787,8 @@ FOLDER *folder_parse(	char *input,
 			boolean fetch_one2m_relation_list,
 			boolean fetch_one2m_recursive_relation_list,
 			boolean fetch_mto1_isa_recursive_relation_list,
-			boolean fetch_mto1_relation_list )
+			boolean fetch_mto1_relation_list,
+			boolean fetch_row_level_restriction_list )
 {
 	char folder_name[ 128 ];
 	char form[ 128 ];
@@ -2940,6 +2942,10 @@ FOLDER *folder_parse(	char *input,
 		folder->mto1_related_folder_list =
 			relation_mto1_related_folder_list(
 				folder->mto1_relation_list );
+	}
+
+	if ( fetch_row_level_restriction_list )
+	{
 	}
 
 	return folder;
@@ -3099,5 +3105,96 @@ LIST *folder_update_attribute_exclude_name_list(
 	} while ( list_next( append_isa_attribute_list ) );
 
 	return exclude_name_list;
+}
+
+LIST *folder_row_level_restriction_list( char *folder_name )
+{
+	char system_string[ 1024 ];
+	char where[ 128 ];
+	char *select = "row_level_restriction";
+	char *from = "folder_row_level_restrictions";
+	FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction;
+	FILE *pipe;
+	char *input;
+	LIST *return_list;
+
+	sprintf(where,
+		"folder = '%s'",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_injection_escape(
+			folder_name ) );
+
+	sprintf(system_string,
+		"select.sh %s %s \"%s\"",
+		select,
+		from,
+		where );
+
+	input = string_pipe_fetch( system_string );
+
+	if ( !input || !*input ) return (LIST *)0;
+
+	return_list = list_new();
+
+	folder_row_level_restriction = folder_row_level_restriction_calloc();
+	folder_row_level_restriction->folder_name = folder_name;
+	folder_row_level_restriction->row_level_restriction = input;
+
+	list_set( return_list, folder_row_level_restriction );
+
+	return return_list;
+}
+
+boolean folder_row_level_restrictions_non_owner_forbid(
+			char *folder_name )
+{
+	FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction;
+
+	FOLDER *folder =
+		   folder_fetch(
+			folder_name,
+			0 /* not fetch_attribute_list */,
+			0 /* not fetch_one2m_relation_list */,
+			0 /* not fetch_one2m_recursive_relation_list */,
+			0 /* not fetch_mto1_isa_recursive_relation_list */,
+			0 /* not fetch_mto1_relation_list */,
+			1 /* fetch_row_level_restriction_list */ );
+
+	if ( !list_rewind( folder->folder_row_level_restriction_list ) )
+		return 0;
+
+	do {
+		folder_row_level_restriction =
+			list_get(
+				folder->folder_row_level_restriction_list );
+
+		if ( strcmp(
+			folder_row_level_restriction->row_level_restriction,
+			"row_level_non_owner_forbid" ) == 0 )
+		{
+			return 1;
+		}
+	} while ( list_next( folder->folder_row_level_restriction_list ) );
+
+	return 0;
+}
+
+FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction_calloc(
+			void )
+{
+	FOLDER_ROW_LEVEL_RESTRICTION *f;
+
+	if ( ! ( f = calloc( 1, sizeof( FOLDER_ROW_LEVEL_RESTRICTION ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+	return f;
 }
 

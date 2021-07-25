@@ -65,6 +65,12 @@
 /* --------------- */
 typedef struct
 {
+	char *folder_name;
+	char *row_level_restriction;
+} FOLDER_ROW_LEVEL_RESTRICTION;
+
+typedef struct
+{
 	char *application_name;
 	char *folder_name;
 	LIST *attribute_list;
@@ -118,6 +124,7 @@ typedef struct
 	LIST *mto1_isa_relation_list;
 	LIST *lookup_attribute_exclude_name_list;
 	LIST *update_attribute_exclude_name_list;
+	LIST *folder_row_level_restriction_list;
 } FOLDER;
 
 /* Operations */
@@ -316,76 +323,78 @@ LIST *folder_data_list(
 			LIST *date_position_list,
 			int maxrows );
 
-LIST *folder_get_non_primary_attribute_list(
-					LIST *attribute_list );
+LIST *folder_non_primary_attribute_list(
+			LIST *attribute_list );
 
-char *folder_get_folder_record(
-					char *application_name,
-					char *folder_name );
+char *folder_record(
+			char *application_name,
+			char *folder_name );
 
-LIST *folder_get_primary_attribute_list(LIST *attribute_list );
+LIST *folder_primary_attribute_list(
+			LIST *attribute_list );
 
-LIST *folder_get_folder_name_list(	char *application_name );
+LIST *folder_folder_name_list(
+			char *application_name );
 
-LIST *folder_get_folder_list(
-				char *application_name,
-				boolean override_row_restrictions,
-				char *role_name );
+LIST *folder_list_fetch(
+			char *application_name,
+			boolean override_row_restrictions,
+			char *role_name );
 
-boolean folder_get_pair_one2m_related_folder_boolean(
-				char *folder_name,
-				LIST *one2m_related_folder_list );
+boolean folder_pair_one2m_related_folder_boolean(
+			char *folder_name,
+			LIST *one2m_related_folder_list );
 
-LIST *folder_get_insert_folder_name_list(
-				char *application_name,
-				char *login_name,
-				char *role_name );
+LIST *folder_insert_folder_name_list(
+			char *application_name,
+			char *login_name,
+			char *role_name );
 
-LIST *folder_get_zealot_folder_name_list(
-				char *application_name );
+LIST *folder_zealot_folder_name_list(
+			char *application_name );
 
-LIST *folder_get_select_folder_name_list(
-				char *application_name,
-				char *login_name,
-				char *role_name );
+LIST *folder_select_folder_name_list(
+			char *application_name,
+			char *login_name,
+			char *role_name );
 
-LIST *folder_get_single_primary_key_folder_name_list(
-				char *application_name,
-				char *login_name,
-				char *role_name );
+LIST *folder_single_primary_key_folder_name_list(
+			char *application_name,
+			char *login_name,
+			char *role_name );
 
-LIST *folder_get_primary_text_element_list(
-				char *application_name,
-				char *session,
-				char *role_name,
-				FOLDER *folder );
+LIST *folder_primary_text_element_list(
+			char *application_name,
+			char *session,
+			char *role_name,
+			FOLDER *folder );
 
-FOLDER *folder_get_unfulfilled_lookup_before_drop_down_folder(
-				LIST *mto1_related_folder_list,
-				DICTIONARY *post_dictionary );
+FOLDER *folder_unfulfilled_lookup_before_drop_down_folder(
+			LIST *mto1_related_folder_list,
+			DICTIONARY *post_dictionary );
 
-char *folder_get_unfulfilled_dictionary_key(
-				char *folder_name );
+char *folder_unfulfilled_dictionary_key(
+			char *folder_name );
 
 void folder_convert_date_attributes_to_database_format(
-				DICTIONARY *dictionary,
-				char *application_name,
-				LIST *attribute_list );
+			DICTIONARY *dictionary,
+			char *application_name,
+			LIST *attribute_list );
 
 LIST *folder_append_isa_mto1_related_folder_list(
-				char *application_name,
-				char *session,
-				char *role_name,
-				boolean override_row_restrictions,
-				LIST *folder_mto1_isa_related_folder_list );
+			char *application_name,
+			char *session,
+			char *role_name,
+			boolean override_row_restrictions,
+			LIST *folder_mto1_isa_related_folder_list );
 
 void folder_append_one2m_related_folder_list(
-				LIST *mto1_related_folder_list,
-				char *application_name );
+			LIST *mto1_related_folder_list,
+			char *application_name );
 
 void folder_append_mto1_related_folder_list(
-				LIST *mto1_related_folder_list,
-				char *application_name );
+			LIST *mto1_related_folder_list,
+			char *application_name );
 
 char *folder_get_foreign_join_where_clause(
 			LIST *primary_attribute_name_list,
@@ -396,7 +405,7 @@ LIST *folder_get_role_folder_name_list(
 			char *application_name,
 			char *role_name );
 
-char *folder_display(		FOLDER *folder );
+char *folder_display(	FOLDER *folder );
 
 LIST *folder_get_process_dictionary_list(
 			char *application_name,
@@ -415,18 +424,19 @@ LIST *folder_get_process_dictionary_list(
 			LIST *primary_attribute_name_list );
 
 LIST *folder_get_table_name_list(
-				char *application_name );
+			char *application_name );
 
-boolean folder_table_exists(	char *table_name );
+boolean folder_table_exists(
+			char *table_name );
 
 LIST *folder_fetch_table_name_list(
-				void );
+			void );
 
 LIST *folder_append_isa_attribute_list(
-				char *application_name,
-				char *folder_name,
-				LIST *folder_mto1_isa_related_folder_list,
-				char *role_name );
+			char *application_name,
+			char *folder_name,
+			LIST *folder_mto1_isa_related_folder_list,
+			char *role_name );
 
 LIST *folder_mto1_isa_related_folder_list(
 			LIST *existing_related_folder_list,
@@ -620,7 +630,8 @@ FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_one2m_relation_list,
 			boolean fetch_one2m_recursive_relation_list,
 			boolean fetch_mto1_isa_recursive_relation_list,
-			boolean fetch_mto1_relation_list );
+			boolean fetch_mto1_relation_list,
+			boolean fetch_row_level_restriction_list );
 
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
@@ -659,5 +670,14 @@ LIST *folder_lookup_attribute_exclude_name_list(
 
 LIST *folder_update_attribute_exclude_name_list(
 			LIST *append_isa_attribute_list );
+
+FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction_calloc(
+			void );
+
+LIST *folder_row_level_restriction_list(
+			char *folder_name );
+
+boolean folder_row_level_restrictions_non_owner_forbid(
+			char *folder_name );
 
 #endif

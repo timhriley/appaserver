@@ -667,14 +667,14 @@ void attribute_append_attribute_list(
 
 
 		if ( attribute_primary_attribute_fetch ==
-					attribute_primary_only
+				attribute_primary_only
 		&&   !atoi( primary_key_index ) )
 		{
 			continue;
 		}
 
 		if ( attribute_primary_attribute_fetch ==
-					attribute_non_primary
+				attribute_non_primary
 		&&   atoi( primary_key_index ) )
 		{
 			continue;
@@ -2289,26 +2289,26 @@ LIST *attribute_fetch_list(
 			char *folder_name )
 {
 	return attribute_system_list(
-			attribute_list_sys_string(
+			attribute_list_system_string(
 				folder_name ) );
 }
 
-char *attribute_list_sys_string( char *folder_name )
+char *attribute_list_system_string( char *folder_name )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
 	if ( folder_name && *folder_name )
 	{
-		sprintf(sys_string,
+		sprintf(system_string,
 			"folder_attribute_list.sh %s",
 			folder_name );
 	}
 	else
 	{
-		strcpy( sys_string, "folder_attribute_list.sh" );
+		strcpy( system_string, "folder_attribute_list.sh" );
 	}
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 LIST *attribute_system_list( char *sys_string )

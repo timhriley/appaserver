@@ -22,7 +22,7 @@ QUERY *query_calloc( void )
 	if ( ! ( query = calloc( 1, sizeof( QUERY ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: memory allocation error.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -30,7 +30,6 @@ QUERY *query_calloc( void )
 	}
 
 	return query;
-
 }
 
 QUERY_OUTPUT *query_output_calloc( void )
@@ -40,7 +39,7 @@ QUERY_OUTPUT *query_output_calloc( void )
 	if ( ! ( query_output = calloc( 1, sizeof( QUERY_OUTPUT ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: memory allocation error.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -6384,3 +6383,77 @@ LIST *query_system_dictionary_list(
 	pclose( pipe );
 	return list;
 }
+
+QUERY_ENTITY_ONLY *query_entity_only_calloc( void )
+{
+	QUERY_ENTITY_ONLY *query_entity_only;
+
+	if ( ! ( query_entity_only =
+			calloc( 1, sizeof( QUERY_ENTITY_ONLY ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty..\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return query_entity_only;
+}
+
+QUERY_ENTITY_ONLY *query_entity_only_new(
+			char *login_name,
+			boolean non_owner_forbid,
+			boolean override_row_restrictions )
+{
+	QUERY_ENTITY_ONLY *entity_entity_only = query_entity_only_calloc();
+
+	query_entity_only->login_name = login_name;
+	query_entity_only->non_owner_forbid = non_owner_forbid;
+	query_entity_only->override_row_restrictions = login_name;
+
+	if ( non_owner_forbid && !override_row_restrictions )
+	{
+		query_entity_only->login_name_only = login_name;
+
+		query_entity_only->full_name_only =
+			appaserver_entity_fetch(
+				&entity_only->street_address,
+				entity_only->login_name );
+	}
+
+	return query_entity_only;
+}
+
+QUERY_FOLDER *query_folder_calloc( void )
+{
+	QUERY_FOLDER *query_folder;
+
+	if ( ! ( query_entity_only =
+			calloc( 1, sizeof( QUERY_FOLDER ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty..\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return query_folder;
+}
+
+QUERY_FOLDER *query_folder_new( char *folder_name )
+{
+	QUERY_FOLDER *entity_folder = query_folder_calloc();
+
+	query_folder->folder_name = folder_name;
+
+	query_folder->non_owner_forbid =
+		folder_row_level_restrictions_non_owner_forbid(
+			query_folder->folder_name );
+
+	returen query_folder;
+}
+

@@ -55,6 +55,38 @@ enum relational_operator {	equals,
 /* ---------- */
 typedef struct
 {
+	/* Input */
+	/* ----- */
+	char *folder_name;
+
+	/* Process */
+	/* ------- */
+	boolean non_owner_forbid;
+	LIST *append_isa_copy_attribute_list;
+	LIST *mto1_isa_recursive_related_folder_list;
+	LIST *mto1_copy_common_related_folder_list;
+	LIST *one2m_related_folder_list;
+	LIST *primary_attribute_name_list;
+	LIST *append_isa_attribute_name_list;
+	LIST *copy_common_attribute_name_list;
+	LIST *lookup_attribute_exclude_name_list;
+} QUERY_FOLDER;
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *login_name;
+
+	/* Process */
+	/* ------- */
+	char *login_name_only;
+	char *full_name_only;
+	char *street_address_only;
+} QUERY_ENTITY_ONLY;
+
+typedef struct
+{
 	char *login_name;
 	LIST *append_isa_attribute_list;
 	LIST *date_attribute_name_list;
@@ -1110,6 +1142,20 @@ LIST *query_system_dictionary_list(
 /* -------------------------- */
 char *query_display_where(
 			char *query_output_where,
+			char *folder_name );
+
+QUERY_ENTITY_ONLY *query_entity_only_calloc(
+			void );
+
+QUERY_ENTITY_ONLY *query_entity_only_new(
+			char *login_name,
+			boolean non_owner_forbid,
+			boolean override_row_restrictions );
+
+QUERY_FOLDER *query_folder_calloc(
+			void );
+
+QUERY_FOLDER *query_folder_new(
 			char *folder_name );
 
 #endif

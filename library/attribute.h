@@ -362,7 +362,7 @@ LIST *attribute_system_list(
 ATTRIBUTE *attribute_parse(
 			char *input );
 
-char *attribute_list_sys_string(
+char *attribute_list_system_string(
 			char *folder_name );
 
 LIST *attribute_folder_attribute_name_list(

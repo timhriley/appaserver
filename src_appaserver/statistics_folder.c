@@ -54,9 +54,8 @@ int main( int argc, char **argv )
 	char *role_name;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	QUERY *query;
+	QUERY_ENTITY_ONLY *query_entity_only;
 	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
-	char *full_name_only;
-	char *street_address_only = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -137,13 +136,7 @@ int main( int argc, char **argv )
 			dictionary_appaserver->preprompt_dictionary,
 			folder->lookup_before_drop_down );
 
-	full_name_only =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_login_name_full_name(
-			&street_address_only,
-			login_name );
+	query_entity_only = query_entity_only_new( login_name );
 
 	query =
 		query_simple_new(
