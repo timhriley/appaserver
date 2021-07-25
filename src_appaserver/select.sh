@@ -55,9 +55,14 @@ else
 	order="none"
 fi
 
-if [ "$select" = "" -o "$select" = "select" ]
+if [ "$select" = "" -o "$select" = "*" -o "$select" = "select" ]
 then
-	select=`attribute_list $table`
+	select=`attribute_list $table | joinlines.e ','`
+fi
+
+if [ "$order" = "select" ]
+then
+	order="$select"
 fi
 
 if [ "$order" = "none" ]
