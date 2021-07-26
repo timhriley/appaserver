@@ -137,8 +137,8 @@ boolean role_get_override_row_restrictions(
 }
 
 boolean role_get_exists_folder_count_y(
-					char *application_name,
-					char *login_name )
+			char *application_name,
+			char *login_name )
 {
 	char *role_table_name;
 	char *role_appaserver_user_table_name;
@@ -146,8 +146,11 @@ boolean role_get_exists_folder_count_y(
 	char *results;
 
 	role_table_name = get_table_name( application_name, "role" );
+
 	role_appaserver_user_table_name =
-		get_table_name( application_name, "role_appaserver_user" );
+		get_table_name(
+			application_name,
+			"role_appaserver_user" );
 
 	sprintf( sys_string,
 		 "echo \"select count(*)				 "

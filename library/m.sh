@@ -4,6 +4,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_appaserver
-	make post_prompt_insert_form
+	make post_choose_folder
 fi
 

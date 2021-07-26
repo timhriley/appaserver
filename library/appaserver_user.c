@@ -55,13 +55,21 @@ char *appaserver_user_system_string( char *where )
 		appaserver_user_select(),
 		where );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: system_string = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+system_string );
+m2( "donner", msg );
+}
 	return strdup( system_string );
 }
 
 APPASERVER_USER *appaserver_user_fetch(
 			char *login_name,
-			boolean fetch_role_list,
-			boolean fetch_attribute_exclude_list,
+			boolean fetch_role_name_list,
 			boolean fetch_session_list )
 {
 	return appaserver_user_parse(
@@ -69,8 +77,7 @@ APPASERVER_USER *appaserver_user_fetch(
 				appaserver_user_system_string(
 					appaserver_user_primary_where(
 						login_name ) ) ),
-			fetch_role_list,
-			fetch_attribute_exclude_list,
+			fetch_role_name_list,
 			fetch_session_list );
 }
 
@@ -261,8 +268,7 @@ char *appaserver_user_select( void )
 
 APPASERVER_USER *appaserver_user_parse(
 			char *input,
-			boolean fetch_role_list,
-			boolean fetch_attribute_exclude_list,
+			boolean fetch_role_name_list,
 			boolean fetch_session_list )
 {
 	APPASERVER_USER *appaserver_user;
@@ -282,14 +288,12 @@ APPASERVER_USER *appaserver_user_parse(
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	appaserver_user->user_date_format = strdup( piece_buffer );
 
-	if ( fetch_role_list )
+	if ( fetch_role_name_list )
 	{
-		appaserver_user->role_list =
-			role_system_list(
-				role_system_string(
-					appaserver_user_primary_where(
-					      appaserver_user->login_name ) ),
-				fetch_attribute_exclude_list );
+		appaserver_user->role_name_list =
+			appaserver_user_role_name_list(
+				environment_application_name(),
+				appaserver_user->login_name );
 	}
 
 	if ( fetch_session_list )
@@ -304,7 +308,7 @@ APPASERVER_USER *appaserver_user_parse(
 	return appaserver_user;
 }
 
-LIST *appaserver_user_role_list(
+LIST *appaserver_user_role_name_list(
 			char *application_name,
 			char *login_name )
 {
@@ -312,6 +316,7 @@ LIST *appaserver_user_role_list(
 	char sys_string[ 1024 ];
 
 	sprintf( where, "login_name = '%s'", login_name );
+
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=role			"
@@ -330,7 +335,7 @@ char *appaserver_user_person_full_name(
 	{
 		global_appaserver_user =
 			appaserver_user_fetch(
-				login_name, 0, 0, 0 );
+				login_name, 0, 0 );
 	}
 
 	if ( !global_appaserver_user )
@@ -346,7 +351,7 @@ char *appaserver_user_password_fetch(
 	{
 		global_appaserver_user =
 			appaserver_user_fetch(
-				login_name, 0, 0, 0 );
+				login_name, 0, 0 );
 	}
 
 	if ( !global_appaserver_user )
@@ -364,7 +369,7 @@ boolean appaserver_user_exists_session(
 	{
 		global_appaserver_user =
 			appaserver_user_fetch(
-				login_name, 0, 0, 0 );
+				login_name, 0, 0 );
 	}
 
 	if ( !global_appaserver_user->session_list )
@@ -390,14 +395,13 @@ boolean appaserver_user_exists_role(
 		global_appaserver_user =
 			appaserver_user_fetch(
 				login_name,
-				1 /* fetch_role_list */,
-				0 /* not fetch_attribute_exclude_list */,
+				1 /* fetch_role_name_list */,
 				0 /* not fetch_session_list */ );
 	}
 
 	return list_exists_string(
 		role_name,
-		global_appaserver_user->role_list );
+		global_appaserver_user->role_name_list );
 }
 
 FILE *appaserver_user_update_open( void )
